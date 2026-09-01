@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 在线演示 · Live demo
+    url: https://fusion-yun.github.io/fylite/
+    about: 先在演示页确认问题是否仍在最新一版上重现。Check whether it still reproduces on the current build.
+  - name: 安全问题 · Security
+    url: https://github.com/fusion-yun/fylite/blob/main/SECURITY.md
+    about: 安全问题请勿公开提交，按 SECURITY.md 发邮件。Do not file security issues publicly.

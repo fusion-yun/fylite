@@ -1,0 +1,4 @@
+# 本仓只放发布面的文本；制品走 Releases 附件，不进 git
+*.wasm
+*.so
+*.whl
