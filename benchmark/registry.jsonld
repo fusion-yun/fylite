@@ -1,0 +1,9 @@
+{
+  "@context": "context.jsonld",
+  "id": "vv:registry/fylite-public",
+  "type": "vv:Registry",
+  "title": "fylite 公开 V&V 登记册",
+  "abstract": "fylite 对着外部答案量过的记录，逐条可复算。纳入判据见 README.md：参考侧必须是读者自己能重新取得的（上游公开算例、解析解、已发表的数）。本册是内部记录的子集，且必然更小。",
+  "recorded": "2026-09-01",
+  "@graph": []
+}

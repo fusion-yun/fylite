@@ -46,6 +46,23 @@ on knowing **which binary** you ran. Please fill in the version / interface
 补丁与 PR：源码不在本仓，所以 PR 无处可合。请把问题写成 issue —— 定位与修复
 在上游做，修好了随下一个 Release 出来。
 
+## 验证记录与算例 · Evidence and cases
+
+源码不公开，所以「我们测过了」这句话本身没有分量。能替代它的是**可复算的记录**：
+
+- **[`benchmark/`](benchmark/)** —— 公开 V&V 登记册。对着外部答案量过什么、
+  量到多少、哪一部分不可比。三类记录（**V 验证** / **B 对拍** / **C 确认**）
+  不可互替，判据与可信度都不同；纳入判据是**读者能不能自己把参考侧重新取得
+  一遍**。
+- **[`cases/`](cases/)** —— 公开算例。一个算例是一份**会话文档**（演示页
+  「导出」写出来的那个形状），**只装输入不装结果**，页面仍要自己算一遍。
+
+两棵树目前都是**空骨架**：体例、词汇与模板已就位，记录逐条往里加。
+
+Because the source is not published, the recomputable record is what carries
+the weight. Both trees are **empty skeletons** for now — the conventions,
+vocabulary and templates are in place; records land one at a time.
+
 ## 许可与源码 · Licence and source
 
 制品按 **Apache License 2.0** 发布（见 [`LICENSE`](LICENSE) 与
