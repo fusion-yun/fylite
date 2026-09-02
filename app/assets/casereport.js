@@ -399,6 +399,9 @@
   }
 
   // -------------------------------------------------------------- the DOM
+  //: ★`html:` is for THIS FILE's own strings (the i18n catalogue, and SVG this
+  //: module generated); anything that came out of a document uses `text:`.
+  //: `renderInto` below is the boundary where that rule is applied.
   function el(tag, attrs, children) {
     var e = document.createElement(tag);
     if (attrs) Object.keys(attrs).forEach(function (k) { if (k === 'text') e.textContent = attrs[k]; else if (k === 'html') e.innerHTML = attrs[k]; else e.setAttribute(k, attrs[k]); });
@@ -437,8 +440,14 @@
                          state: esc((code === 'zh' ? STATE_ZH[state] : state) || state) + ' (' + esc(state) + ')',
                          npar: (record.parameters || []).length, nout: datasets(record).length,
                          spec: esc(spec.id || ''), derived: args.spec ? T('rep.spec.given') : T('rep.spec.derived') }) }));
+    //: ★★THE DOCUMENT DOES NOT WRITE THE PAGE.  A plan's `note` is prose from a
+    //: file the reader opened — a file picker, a drop, or `?src=<url>`, which a
+    //: link can choose for them.  It went in as `html:` so the corpus's own
+    //: `<strong>` / `<sub>` markup would render; that made every opened document
+    //: able to run script in this page's origin.  The corpus's typography is not
+    //: worth that, so the note is TEXT.
     var note = plan ? lang(plan.note, code) : '';
-    if (note) host.appendChild(el('p', { class: 'note', html: note }));
+    if (note) host.appendChild(el('p', { class: 'note', text: note }));
     // 方法
     host.appendChild(el('h3', { text: T('rep.h.method') }));
     host.appendChild(table(T('rep.tbl.parameters'), [T('rep.col.parameter'), T('rep.col.value')],

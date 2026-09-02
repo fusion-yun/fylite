@@ -18,7 +18,7 @@
 //     node app/tests/validate-report.mjs [--playwright DIR] [--chrome PATH]
 //     (FYLITE_PYTHON="uv run --no-project --with numpy python" when numpy is not on python3)
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { browser } from './_browser.mjs';
@@ -81,6 +81,27 @@ await page.setInputFiles('#report-files', [join(out, 'record.jsonld'), join(out,
 await page.waitForFunction((n) => document.querySelectorAll('figure.report-fig svg').length === n, pyFigs);
 const how = await page.evaluate(() => document.getElementById('report-status').textContent);
 if (!/随文件提供|supplied/.test(how)) throw new Error('the page did not report the supplied spec: ' + how);
+
+// 3b. A DOCUMENT MAY NOT WRITE THE PAGE.  The plan's prose is rendered as text:
+// a note carrying markup must appear as characters, and a script tag in it must
+// never become an element.  This page opens files the reader chose — and `?src=`
+// lets a link choose for them — so the note is the one field an attacker
+// controls end to end.
+{
+  const evil = JSON.parse(readFileSync(join(out, 'plan.jsonld'), 'utf8'));
+  evil.note = { zh: '<img src=x onerror=1><b>bold</b>', en: '<img src=x onerror=1><b>bold</b>' };
+  const evilPath = join(out, 'plan-evil.jsonld');
+  writeFileSync(evilPath, JSON.stringify(evil));
+  await page.setInputFiles('#report-files', [join(out, 'record.jsonld'), evilPath]);
+  await page.waitForFunction(() => self.FyCaseReport && self.FyCaseReport.lastSpec);
+  const injected = await page.evaluate(() =>
+    document.querySelectorAll('#report-host img, #report-host b').length);
+  if (injected) throw new Error(`the plan's note created ${injected} element(s) — it must render as text`);
+  const shown = await page.evaluate(() =>
+    [...document.querySelectorAll('#report-host p.note')].some((p) => p.textContent.includes('<b>bold</b>')));
+  if (!shown) throw new Error('the note did not render as text at all');
+  console.log('ok: a document-supplied note renders as text, not markup');
+}
 
 // 4. the language switch re-renders the chrome without touching the figures
 await page.evaluate(() => self.FyI18n.use('en'));
