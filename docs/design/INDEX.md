@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "3.3"
-date: 2026-09-01
+version: "3.5"
+date: 2026-09-02
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,9 +12,17 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-01T00:00:00Z
+  date: 2026-09-02T00:00:00Z
   by: FyLite Maintainers
-  change: 'v3.3：**共享外壳落地**（用户裁定 2026-09-01）——`app/pages/page_*.html`
+  change: 'v3.5：`FYL-DESIGN-15` 的规范条款**上提**进规范链——`FYL-SDD-01` v0.13
+    （布局表按分仓与数据层改写、新增组件 DE-COMP-09 数据层、声明面 `_cli.json` 成为三宿主
+    共同定义并立不变式、机械核记委托、浏览器前端页面清单按实、接口视图与追溯矩阵各补一行）、
+    `FYL-SRS-01` v0.5（FR-TOOL-001 改写 + 新增 FR-TOOL-004「一份规格三个宿主」，外部接口
+    补单一可执行文件与静态站点）。★同批修**本表自身的漂移**：SDD 与 SRS 的版本列停在
+    v0.9 / v0.3，而两篇实际已到 v0.12 / v0.4——版本号以文档自身的控制信息为准，本表补齐。
+    v3.4：收编 `FYL-DESIGN-15` v0.1（**发布形态与统一命令行**）——三种发布形态（单一可执行文件 · 静态/动态网页 · Python 包）写成一份设计（裁定 R-1..R-6），三个宿主的命令行收敛到同一个定义文件 `python/fylite/_cli.json`（裁定 C-1..C-8）：
+    Python 的 argparse、Rust 可执行文件的解析器与浏览器的启动参数都由它建出，只属一个宿主的少数参数在文件里标 `hosts`。
+    v3.3：**共享外壳落地**（用户裁定 2026-09-01）——`app/pages/page_*.html`
     四张新页面，由 `tools/make-page-v2.mjs` 从原页面生成、`assets/shell.js` 运行时
     搬节点；**原四页一字未动留作对照组**。闸子 `app/tests/validate-page-v2.mjs`。
     随之闭合 `-11` G-10 / G-11 · `-09` G-21 · `-10` G-15 · `-13` G-19，
@@ -72,8 +80,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v3.3 |
-| 发布日期 (Date of Issue) | 2026-09-01 |
+| 版本 (Version) | v3.5 |
+| 发布日期 (Date of Issue) | 2026-09-02 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | concept (ISO/IEC/IEEE 15288) |
@@ -115,8 +123,8 @@ SRS / SDD。
 
 | 文档标识 | 主题（简） | 版本 / 状态 |
 | :--- | :--- | :--- |
-| [`FYL-SDD-01`](FYL-SDD-01.md) | 软件设计描述——五视图；八组件（含 DE-COMP-05.1 BYOK LLM 前端、DE-COMP-05.2 LLM 位置纪律、DE-COMP-08 语义层）+ 七逻辑元素（新增 DE-LOG-07 语义单源），DE 全量回接 SRS | v0.9 · WD |
-| [`FYL-SRS-01`](FYL-SRS-01.md) | 软件需求规格——五任务域 + 横切域 FR、包络 / 依赖 / 质量 NR、追溯矩阵 | v0.3 · WD |
+| [`FYL-SDD-01`](FYL-SDD-01.md) | 软件设计描述——五视图；**九组件**（含 DE-COMP-05.1 BYOK LLM 前端、DE-COMP-05.2 LLM 位置纪律、DE-COMP-08 语义层、**DE-COMP-09 数据层**）+ 七逻辑元素（DE-LOG-07 语义单源），DE 全量回接 SRS；组合视图为仓内布局的规范源（分仓后内核 crate 在私有仓、制品不入库） | v0.13 · WD |
+| [`FYL-SRS-01`](FYL-SRS-01.md) | 软件需求规格——五任务域 + 横切域 FR（含 FR-TOOL-004「一份命令行规格、三个宿主」）、包络 / 依赖 / 质量 NR、外部接口（命令行 / 单一可执行文件 / 静态站点 / 页面 / 协议面）、追溯矩阵 | v0.5 · WD |
 | [`FYL-CONOPS-00`](FYL-CONOPS-00.md) | FyLite 运行概念——轻量验证 / 展示 FYTOK-CONOPS-00 五类应用任务，资源包络四条 + 基准口径与响应预算 + 建设原则六条（v0.4，评估依据 FYL-REPORT-04） | v0.4 · WD |
 | [`FYL-DESIGN-09`](FYL-DESIGN-09.md) | **放电设计页**（`pulse_design`）——三个模式：配置（单时刻：工况 · 静态反解 · 击穿）· 设计（整条脉冲 → 逐通道电流与电压波形，播放头选片，已解 / 插值分得清）· 仿真（推进：开关起落、滑块改未来、定态与磁通余量）；共用一份脉冲脚本与三块视图；仿真推进分 0-D / 1.5-D 两档保真度（D-22）。裁定 D-1..D-22，三幅界面概念图、分档响应、缺口与落地状态。**v1.2：分期 P5 已落地（三条入口收成一页），as-built 按实测重写**。★**v1.3 增视觉一节**：D-23 外壳报状态、页体放开关（改口 v1.2 的「模式开关在标题栏」）· D-24 16:9 首屏必须落一处输出（实测首条功能栏在 1265 px）· D-25 每种状态带一个非颜色通道；三个模式各一张 16:9 预览图 + 一张视觉词汇表。★v1.4：D-24 落地（`page_pulse_design` 首处输出 297 px），G-22 按实测更正——模式开关本来就在页体里 | v1.4 · WD |
 | [`FYL-DESIGN-10`](FYL-DESIGN-10.md) | **物理建模页**（`model`）——三条栏**全部不含时**：给 χ 求 T（定态输运）· 给电流与位形求 ψ 与度规（边界成栏，P-20）· 给 T 反求 χ（功率平衡反演）。裁定 P-17 · P-19 · P-20 · P-21。★**四页共同的十四条纪律**（P-1..P-8 · P-13 · P-14 · P-15 · P-25 · P-26 · P-27）与 **`P-` 编号总表**也在本篇，另外三页引用不抄。★v1.1 起本篇还持有**四页共用的视觉纪律**：P-25（页面只写外壳以下，外壳报状态、页体放开关）· P-26（16:9 首屏必须落一处输出——实测四页里三页不满足）· P-27（每种状态带一个非颜色通道）；本页自己的 P-28＝同一个 χ / T 在两条栏里方向相反，图元上必须分得开。★v1.2：P-25 / P-26 落地（`page_model` 首处输出 790 px） | v1.2 · WD |
@@ -124,6 +132,7 @@ SRS / SDD。
 | [`FYL-DESIGN-12`](FYL-DESIGN-12.md) | **实验分析页**（`analysis`）——四条栏：剖面拟合 · 平衡反演 · 时间序列 · 批处理；把「由测量恢复位型」当作统一的正向—推断问题。**磁测量单独约束不住内部剖面，把解定下来的是动理学约束**（P-22）。裁定 P-9 · P-16 · P-22 · P-23。★v0.2 增 **P-29**（不确定度画成什么样取决于它度量了什么：带是带、残差是杆、测量是点而拟合是线）与视觉词汇表；**本页是四页里唯一满足 16:9 首屏判据的**（首处输出 553 px），因此闸子照跑不豁免 | v0.2 · WD |
 | [`FYL-DESIGN-13`](FYL-DESIGN-13.md) | **装置数据页**（`data`）——四页里唯一的**工具页**：没有内核、没有 worker、没有功能栏，**它什么也不算**。缺进程时如实降级（P-10）· 抽稀不是归约（P-11）· 守卫两侧各做一遍、两个宿主一组端点（P-12）· 目录说存在从不说这一炮记了（P-18）· 产物是「你看过了什么」（P-24）。★v0.2 增 **P-30**（抽稀必须画得出来：采样点画出、图注写两个数、横拖是回服务器重取）与视觉词汇表；外壳的输入槽在这一页装的是 **mdsip 数据源**，出口槽为空且不留空格。★v0.3：落地（`page_data` 空态图，首处输出 335 px） | v0.3 · WD |
 | [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **数据层**（`rust/fylite_data/`，源码公开）——不同数据源 ↔ fyo 文档的读写转换、多源合并、按 JSON-LD 装配。只读 MDSplus / a-file；读写 JSON / g-file / HDF5 / netCDF，各带 fyo 与 IMAS DD 两种布局；IMAS 布局以 imas-python / imas-core 读回逐叶子相同为判据，元数据从 DD 的 `IDSDef.xml` 生成（`nc_metadata.py` 逐条移植）；文件类型看内容识别。裁定 L-1..L-9，缺口 G-1..G-6 | v0.1 · WD |
+| [`FYL-DESIGN-15`](FYL-DESIGN-15.md) | **发布形态与统一命令行**——单一可执行文件 `fylite-app`（Rust 宿主的全部命令行：`app` 缺省、`data` / `case` 子命令）· 静态网页（`app/` + 三个 wasm，`tools/build-site.sh`）与动态网页（同一份字节由 `fylite-app` 伺服并答 `/api/*`）· Python 包（承载全部命令，`app` / `data` / `case` 逐字委托）；三个宿主的命令行从同一个 `_cli.json` 建出，只属一个宿主的参数标 `hosts`，浏览器启动参数 `device` / `lang` / `theme` / `page` 定义一次并受门核对。裁定 R-1..R-6、C-1..C-8，缺口 6 条 | v0.1 · WD |
 
 (fylite-design-index-archive)=
 # 归档文档 (Archived Documents)

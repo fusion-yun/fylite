@@ -104,6 +104,12 @@ pub mod case_api;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod case;
 
+/// The command line of the Rust host, built from the shared `_cli.json`
+/// (FYL-DESIGN-15): the spec-driven parser plus the `data` and `case`
+/// bodies the single executable and the two alias binaries share.
+#[cfg(not(target_arch = "wasm32"))]
+pub mod cli;
+
 //: MDSplus 绑定表与多源装配：都要走 mdsip 客户端，所以与它同一个特性门。
 #[cfg(feature = "mdsip")]
 pub mod mdsbind;

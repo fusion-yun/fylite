@@ -20,6 +20,20 @@ cd python && pip install -e '.[plot,yaml]'    # 或按需
 
 ## 分发面（alpha 期）
 
+fylite 以**三种形态**到达使用者（`FYL-DESIGN-15`），三者装的是同一份页面、同一版内核制品。
+下表第二、三行是同一份字节的两种伺服方式——静态站点没有服务端组件，动态是同一份页面由
+本机进程伺服并多答一组只读 `/api/*`：
+
+| 形态 | 给谁 | 怎么得到 | 计算在哪 |
+| :--- | :--- | :--- | :--- |
+| **单一可执行文件** `fylite-app` | 离线、或没有 Python 的人（尤其 Windows） | `bash tools/build-app-exe.sh`；双击即开浏览器 | 页面里的 wasm；`case` 子命令用原生内核 |
+| **静态网页** | 联网的人，零安装 | `bash tools/build-site.sh` 出一个目录，放到任何静态主机 | 页面里的 wasm，加载后离线可用 |
+| **动态网页** | 要读 MDSplus 的人 | 同一份页面由 `fylite-app`（= `fylite app`）伺服，多答 `/api/*` | 页面里的 wasm |
+| **Python 包**（wheel） | 写脚本、LLM 宿主、集成方 | `bash tools/build-wheel.sh` | 原生内核 |
+
+三者的命令行来自同一个定义文件 `python/fylite/_cli.json`：`fylite app` / `fylite-app`、
+`fylite data` / `fylite-data`、`fylite case` / `fylite-case` 各是同一条命令在两个宿主上的名字。
+
 ★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
 所以轮带**平台 tag**，alpha 期的公开面是 **Linux x86-64 一个**：别的平台在装的
 时候就被拒绝，而不是装完之后在第一次内核调用时报错。
@@ -51,10 +65,30 @@ Python 侧只保留内核、装配层与绘图。
 PYTHONPATH=python python -c "import fylite; print(fylite.__version__)"
 ```
 
-需要装置的入口另需一个装置目录——本仓的 EAST 卷宗在 `machine_desc/east/`（见 `machine_desc/README.md`）：
+需要装置的入口另需一个**装置目录**。
+
+:::{important}
+**`machine_desc/` 不在版本库里**（2026-09-02 裁定）：装置牌是**按需拖回的输入**，不是
+随仓走的数据——一份牌有两个真值源，错的那个不会报错，它只会让某台机器安静地用上另一份
+描述。新检出里没有这个目录，要先拖：
 
 ```bash
-export FYLITE_DEVICE_DIR=$PWD/machine_desc/east
+python tools/abox-to-machine-desc.py --source <fydata 或 fydoc 检出> --all
+python tools/abox-to-machine-desc.py --source <检出> --list      # 先看有哪些
+```
+
+A-Box 在私有的 `fydata` / `fydoc` 仓（`abox/device/tokamak/<id>/`）。**EAST 那张牌不重新
+生成**：它是手工维护的，且严格富于上游（est2 79 探针基底、拟合控制块、被动集、电源
+参数都不是上游的），工具会拒绝覆盖它。
+
+★★**拖回来不是等价替换。** 实测：拖回的 ITER 牌**没有** `power_supply` 组，于是
+`scenario.design.pulse.channel_limits` 会 `KeyError`；壁面轮廓的写法也从 `points` 换成
+`r` / `z` 两个数组。拖回之后要复核读它的那几处——见[放电设计](example-design.md)那一章
+里怎么显式给限值。
+:::
+
+```bash
+export FYLITE_DEVICE_DIR=$PWD/machine_desc/east      # 或 …/iter
 ```
 
 ★不设它不会静默降级：`fylite.device` 抛 `MachineDataMissing` 并当场说明缺的是什么。

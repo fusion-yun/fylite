@@ -40,13 +40,32 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 测量剖面拟合，GCV 定平
 
 ## 命令行
 
+装上包就有 `fylite`（`python -m fylite` 是同一个入口）。命令分两类：
+
 ```bash
-fylite --help        # run · plot · describe · manifest · serve · mcp
-fylite describe      # 能力目录，JSON-LD 形式
+fylite --help                       # 全部命令
+# —— 这个宿主自己实现的 ——
+fylite run --east --shot 70754 --time 3.5   # 一次平衡反演
+fylite plot g137985.04000 -o flux.png       # 画一份 g-file 的磁面图
+fylite describe                             # 能力目录，JSON-LD 形式
+fylite cases --check                        # 算例语料；--report 出一份算例报告
+fylite report <run>  ·  whence <文件>  ·  alias <run> <名字>   # 记录：渲染 / 溯源 / 起名
+fylite manifest  ·  serve  ·  mcp           # 清单校验 / JSON-RPC / MCP（后两者走 stdio）
+# —— 由本机可执行文件承载、这里逐字转交的 ——
+fylite app --page model --lang en           # 起本机服务并开浏览器（= fylite-app）
+fylite data info shot.h5  ·  fylite data convert a.json b.nc   # 数据层（= fylite-data）
+fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出（= fylite-case）
 ```
 
 `describe` 出的是**机器可读的能力目录**：有哪些入口、各要什么、各给什么。
 它也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。
+
+:::{note} 后三条为什么是「转交」
+`app` / `data` / `case` 的实现在一个 Rust 可执行文件里，Python 侧**不重写第二份**：
+它找到随包带的可执行文件（或 `--bin-dir`、`$PATH`）把命令原样交过去。没找到时它**按名
+说明要构建哪一个**并以退出码 2 结束，而不是退化成一个能力更少的实现。
+`fylite data --help` 与 `fylite-data --help` 读到的是同一份用法——两边由同一个定义文件建出。
+:::
 
 ## 与浏览器互通
 

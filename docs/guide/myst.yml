@@ -35,6 +35,14 @@ project:
         - file: python.md
         - file: reading-results.md
         - file: limits.md
+    - title: 典型算例 (Worked Examples · 一族一章，逐条可跑)
+      children:
+        - file: cases.md
+        - file: example-zerod.md
+        - file: example-transport.md
+        - file: example-evolve.md
+        - file: example-design.md
+        - file: example-reconstruction.md
     - title: 仓内篇 (In-repo Chapters)
       children:
         - file: install.md

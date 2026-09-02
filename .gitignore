@@ -25,6 +25,7 @@
 #: 数据层的命令行（`rust/build.sh --cli` 装进来），同一条规则。
 python/fylite/_bin/fylite-data
 python/fylite/_bin/fylite-case
+python/fylite/_bin/fylite-app
 
 # ── Python ────────────────────────────────────────────────────────────────
 __pycache__/

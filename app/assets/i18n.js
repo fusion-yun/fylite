@@ -32,8 +32,20 @@
     try { return localStorage.getItem(KEY); } catch (e) { return null; }
   }
 
-  /** Stored choice, else the browser's preference, else zh. */
+  /** `?lang=` on the URL, else the stored choice, else the browser's preference, else zh. */
   function initial() {
+    //: ★`lang` is a LAUNCH PARAMETER — one of the four `hosts.app.params`
+    //: in `python/fylite/_cli.json`, the file every host's command line is
+    //: built from; `fylite app --lang en` writes it here.  It is remembered
+    //: like a switch click would be, so the next page keeps the choice.
+    var q = null;
+    try {
+      q = new URLSearchParams(root.location.search).get('lang');
+    } catch (e) { /* no location, e.g. inside a worker */ }
+    if (q && cats[q]) {
+      try { localStorage.setItem(KEY, q); } catch (e) { /* private mode */ }
+      return q;
+    }
     var s = stored();
     if (s && cats[s]) return s;
     var nav = (root.navigator && root.navigator.languages) || [];

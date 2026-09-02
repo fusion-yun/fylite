@@ -392,6 +392,8 @@ fylite cases --report --from records/<run>   # render a record `fylite-case run`
 fylite cases --benchmark V-01     # one record, JSON-LD
 fylite cases --benchmark --check  # structure (the same function the test tier runs)
 FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # its private gates
+fylite cases --report evolve-default      # run it through the JSON door -> report.md + figures/*.svg + presentation.jsonld
+fylite cases --report --from records/<run>  # render a record `fylite-case run` wrote; app/pages/report.html draws the same
 ```
 
 ★The frozen test corpus is not here either: `tests/data` is a symlink to
