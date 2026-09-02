@@ -237,6 +237,49 @@ JSON-LD description. Files are recognised by **content**, never by name.
 | HDF5 | ✓ | ✓ | fyo · IMAS (imas-core HDF5 backend: `master.h5` + `<ids>.h5`) |
 | netCDF | ✓ | ✓ | fyo · IMAS (imas-python netCDF backend) |
 
+## Running a case
+
+A case is **one structure in, one structure out**: a `fyo:ScenarioSpecification`
+(the documents under `cases/`, an `spo:ComputationPlan`) goes in, an
+`spo:ComputationRecord` with its produced datasets comes out. The kernel
+completes the case from its structure — settings by name, bound inputs by fyo
+path — and the data layer owns both ends: the `fylite-case` command reads and
+composes the plan documents, resolves bound inputs through the format readers,
+loads `libfylite_kernel.so` at run time and writes the record and the datasets
+as fyo documents.
+
+```sh
+fylite-case describe                                   # what the kernel completes, and what it declares
+fylite-case plan cases/evolve-default.jsonld --set nsteps=12
+fylite-case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
+#  -> records/evolve/{record.jsonld, plan.jsonld, core_profiles.fyo.jsonld, summary.fyo.jsonld, ...}
+```
+
+Several plan documents compose (later ones override earlier ones, then `--set`
+and `--bind`). A case the kernel cannot complete is **refused with the missing
+thing named** — a capability not yet sunk, an equilibrium ladder not bound —
+and the refusal is recorded too (`run_state: rejected`). Build it with
+`./rust/build.sh --cli`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
+or `python/fylite/_lib/`.
+
+A plan can state its own delivery: an output port binding whose
+`bound_concretization.format_iri` is `fyo:ImasHdf5Format` makes `run` write the
+produced datasets as one IMAS data entry (`imas/master.h5` + `imas/<ids>.h5`,
+the imas-core HDF5 backend layout, gzip, `_SHAPE` / `AOS_SHAPE` tables), which
+`--format imas-hdf5` also selects. `cases/evolve-iter-15ma.jsonld` is the
+acceptance case for exactly that: fyo / JSON-LD in, IMAS DD HDF5 out, read
+back here with h5py and with the data layer's own reader (the layout is the one
+`verify/imas_roundtrip.py` checks against imas-python). A from-source HDF5 needs zlib for it
+(`--static` carries `hdf5/zlib`; the IMAS layout deflates every chunked dataset).
+
+The same run is **one function** on the data layer: `fylite_data_case_json`
+takes the plan as JSON-LD text (one document, or an array composed in order)
+and returns the record as JSON-LD text with the datasets inline on their
+output ports. `fylite-case json plan.jsonld` and, in Python,
+`fylite.io.fydoc.case_json(plan)` are faces on it. The kernel behind both is
+its own single door, `fylite_rs_fyo`: settings by name and inputs by fyo path
+in, fields by fyo path out, no handle and no state between calls.
+
 The IMAS layouts are checked against the real readers, not against a
 description of them: `rust/fylite_data/verify/imas_roundtrip.py` writes with
 imas-python, reads with this library, writes with this library, and reads
@@ -307,9 +350,26 @@ that the committed artifacts are the ones that were built —
 `python/tests/test_bundled_artifacts.py` asks git exactly that — and what they
 answer, which is what `benchmark/` is for.
 
+★What it answers is the public V&V register, `benchmark/` — a RENDERING of the
+kernel repository's register (its `tools/benchmark-publish.py` writes this
+directory): one `fyo:ComparisonRecord` per comparison, every reference dataset
+with its admissibility class and sha256, every gate with the checkout it runs
+in, and the outcome of running those gates on the day of publication. It is
+read through the same verb as the scenario corpus:
+
+```bash
+fylite cases                      # the scenario corpus (cases/)
+fylite cases --benchmark          # the V&V register: kind, verdict, re-run, admissibility
+fylite cases --report evolve-default   # run a case through the JSON door and render MyST + SVG through a presentation spec
+fylite cases --report --from records/<run>   # render a record `fylite-case run` wrote
+fylite cases --benchmark V-01     # one record, JSON-LD
+fylite cases --benchmark --check  # structure (the same function the test tier runs)
+FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # its private gates
+```
+
 ★The frozen test corpus is not here either: `tests/data` is a symlink to
-`fydata/oracle-data/` (recorded oracle answers, upstream release cases,
-reference profiles). Without it the physics tier is not collected, and the
+`fydata/oracle/` (recorded oracle answers, upstream release cases,
+reference profiles; the same tree the kernel checkout mounts at its `tests/data`). Without it the physics tier is not collected, and the
 run header says so by name rather than failing 965 times.
 
 ★Neither direction hard-codes a path into a committed file. The embedded

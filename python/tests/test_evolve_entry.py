@@ -962,8 +962,8 @@ def test_the_browser_drives_every_in_scope_corpus_case_through_the_entry():
     """
     from fylite.scenario import cases
 
-    evolve = [e["fylite:case_id"] for e in cases.catalogue()
-              if e["fylite:bar"] == "evolve"]
+    evolve = [e["case_id"] for e in cases.catalogue()
+              if e["bar"] == "evolve"]
     assert len(evolve) >= 13
     in_scope = []
     for cid in evolve:

@@ -30,7 +30,7 @@ PKG = Path(fylite.__file__).resolve().parent
 #: this package's variable — rayon reads it inside the kernel — but the run
 #: manifest now RECORDS it, so it is a variable the package reads, and the
 #: both-ways rule is what keeps「记了什么」and「声明了什么」the same list.
-PREFIXES = ("FYLITE_", "FY_", "KEFIT_", "RAYON_")
+PREFIXES = ("FYLITE_", "FY_", "KEFIT_", "RAYON_", "FYDATA_")
 
 
 def _string_constants() -> dict:

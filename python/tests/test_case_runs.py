@@ -38,7 +38,7 @@ except cases.CorpusMissing as exc:                          # 语料不在本仓
     pytest.skip(f"算例语料不在本仓（{exc}）——它随 cases 移出，"
                 "本档的判据要在有语料的检出上跑",
                 allow_module_level=True)
-BARS = sorted({e["fylite:bar"] for e in _CATALOGUE})
+BARS = sorted({e["bar"] for e in _CATALOGUE})
 RUNNABLE = sorted(cases._BUILDERS)
 
 
@@ -64,8 +64,8 @@ def test_every_bar_is_mapped_or_refused_by_name():
 
 
 @pytest.mark.parametrize("cid", sorted(
-    e["fylite:case_id"] for e in cases.catalogue()
-    if e["fylite:bar"] in cases._BUILDERS))
+    e["case_id"] for e in cases.catalogue()
+    if e["bar"] in cases._BUILDERS))
 def test_every_runnable_case_accounts_for_every_field(cid):
     """★The S-2 criterion verbatim: 逐字段对账，对不上的按名列出——and here,
     listed-by-name means the plan fails until someone classifies it.
@@ -93,8 +93,8 @@ def test_every_runnable_case_accounts_for_every_field(cid):
 
 
 @pytest.mark.parametrize("cid", sorted(
-    e["fylite:case_id"] for e in cases.catalogue()
-    if e["fylite:bar"] in cases.REFUSALS))
+    e["case_id"] for e in cases.catalogue()
+    if e["bar"] in cases.REFUSALS))
 def test_every_unmappable_case_is_refused_with_its_reason(cid):
     with pytest.raises(SystemExit) as ei:
         cases.plan(cid)
@@ -102,7 +102,7 @@ def test_every_unmappable_case_is_refused_with_its_reason(cid):
     assert cid in msg and "not runnable" in msg
     #: the reason travels with the refusal — a bare "cannot" has no next move
     entry, _doc = cases.load(cid)
-    assert cases.REFUSALS[entry["fylite:bar"]][:40] in msg
+    assert cases.REFUSALS[entry["bar"]][:40] in msg
 
 
 def test_the_zerod_case_runs_and_records(run_root):
@@ -115,7 +115,7 @@ def test_the_zerod_case_runs_and_records(run_root):
     _, doc = cases.load("zerod-iter-15ma")
     man = json.loads((run_dir / "manifest.json").read_text())
     assert man["config"]["arguments"]["ip_flattop"] == pytest.approx(
-        doc["fylite:config"]["ip"] * 1e3)
+        cases.settings(doc)["ip"] * 1e3)
 
 
 def test_the_transport_case_runs_and_passes(run_root):
@@ -203,8 +203,8 @@ def test_the_evolve_scope_ledger_names_what_is_missing():
     「等下一批」 and 「把那份件给我」 are different sentences and only the
     second has a next move the reader can take today.
     """
-    evolve = [e["fylite:case_id"] for e in cases.catalogue()
-              if e["fylite:bar"] == "evolve"]
+    evolve = [e["case_id"] for e in cases.catalogue()
+              if e["bar"] == "evolve"]
     assert len(evolve) >= 13
     ran, refused = [], {}
     for cid in evolve:
@@ -251,7 +251,7 @@ def test_a_declared_but_inert_drive_does_not_turn_a_running_case_into_a_refusal(
     visible rather than being indistinguishable from 「nobody looked」.
     """
     _entry, doc = cases.load("evolve-default")
-    cfg = doc["fylite:config"]
+    cfg = cases.settings(doc)
     assert cfg.get("ohmic") and not cfg.get("ch-current"), (
         "this gate's premise is that evolve-default declares a drive with "
         "the channel off; the corpus changed, so re-read the gate")
@@ -281,7 +281,7 @@ def test_the_sunk_current_channel_is_reachable_through_the_case_mapper():
     from fylite.scenario import model as M
 
     _entry, doc = cases.load("evolve-default")
-    cfg = dict(doc["fylite:config"])
+    cfg = dict(cases.settings(doc))
     cfg["ch-current"] = True
     args = cases.args_for("evolve", cfg)
     assert args["current"] is True
@@ -362,9 +362,9 @@ def test_every_runnable_evolve_case_closes_its_energy_books(run_root):
     worst, where = 0.0, None
     ran = 0
     for e in cases.catalogue():
-        if e["fylite:bar"] != "evolve":
+        if e["bar"] != "evolve":
             continue
-        cid = e["fylite:case_id"]
+        cid = e["case_id"]
         try:
             r = cases.run(cid)
         except SystemExit:

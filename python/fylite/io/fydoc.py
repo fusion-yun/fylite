@@ -310,3 +310,46 @@ def fetch(machine, ids, *, shot: int, time=None, max_points: int | None = None, 
     b = Bundle(h)
     b.notes = notes
     return b, fails
+
+
+# --------------------------------------------------------------------------- #
+# the JSON door: one plan in, one record out
+# --------------------------------------------------------------------------- #
+def case_json(plan, *, base=None, kernel_lib=None) -> dict:
+    """One ``fyo:ScenarioSpecification`` in, one ``spo:ComputationRecord`` out.
+
+    ``plan`` is a dict (one plan), a list of dicts (composed in order, later
+    ones overriding earlier ones), or the JSON text of either.  File endpoints
+    in the plan resolve against ``base``; ``kernel_lib`` names
+    ``libfylite_kernel.so`` (default: ``$FYLITE_KERNEL_LIB`` or ``_lib/``).
+
+    ★The whole run — composing the plan, resolving its inputs, the kernel's
+    single door ``fylite_rs_fyo``, the record with the datasets INLINE on
+    their output ports — is the data layer's ``fylite_data_case_json``; this
+    is a thin face on it, so Python and the shell (``fylite-case json``) go
+    through one implementation.  A refused case still comes back as a record
+    (``run_state: rejected``) with the kernel's sentence in ``comment``;
+    only a plan that yields no record at all raises.
+    """
+    lib = kernel.require_data()
+    f = lib.fylite_data_case_json
+    f.argtypes = [_BYTES, ctypes.c_uint64, _BYTES, ctypes.c_uint64, _BYTES, ctypes.c_uint64,
+                  ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
+    f.restype = ctypes.c_int32
+    lib.fylite_data_case_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+    lib.fylite_data_case_free.restype = None
+    text = plan if isinstance(plan, str) else json.dumps(plan, ensure_ascii=False)
+    pb, pn, _k1 = _b(text)
+    bb, bn, _k2 = _b(str(Path(base)) if base is not None else "")
+    kb, kn, _k3 = _b(str(Path(kernel_lib)) if kernel_lib is not None else "")
+    out = ctypes.c_void_p()
+    n = ctypes.c_uint64()
+    rc = f(pb, pn, bb, bn, kb, kn, ctypes.byref(out), ctypes.byref(n))
+    try:
+        body = ctypes.string_at(out.value, n.value).decode("utf-8", "replace") if out.value else ""
+    finally:
+        if out.value:
+            lib.fylite_data_case_free(out.value, n.value)
+    if rc < 0:
+        raise KernelError(f"fylite_data_case_json returned {rc}: {body}")
+    return json.loads(body)

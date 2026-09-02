@@ -70,10 +70,6 @@
       "gated": false,
       "gloss": "Whether a wave source actually resonated and put power in — a result, not a failure, and one a persisted document has to be able to state. Not gated: `deposited` is also an ordinary local flag in both hosts."
     },
-    "document": {
-      "gated": true,
-      "gloss": "Filename of a catalogue entry's case document, relative to `cases/`. Gated even though `document` is the browser's DOM global: the DOM use is `document.<member>`, never a `document:` key or `['document']` subscript, so the spelling check binds without false positives."
-    },
     "dvolume": {
       "gated": false,
       "gloss": "dV/dpsi_N on the grid a source profile is given on, so a reader can integrate the deposition without re-deriving the metric. Not gated: it is the physics layer's own key for the same array."

@@ -1,7 +1,11 @@
 """The scenario corpus, runnable: case config -> Python entry, field by field.
 
 ★S-2（`FYL-REPORT-03` §10.3 / `TODO` §1.4）：盘上的 case 是**页面控件值**的会话
-文档；本模块把每个 bar 的控件词表映射到对应 Python 入口的参数——**包括页面 JS
+文档（★2026-09-02 起改写为 fyo/spo 的 `fyo:ScenarioSpecification`：控件值成为
+`spo:has_parameter_setting` 的 JSON 字面量，bar 由 `prescribes_code` 的 IRI
+`code/<bar>` 给出，装置牌由 `about_discharge.performed_on` 反向到的
+`fyo:MachineDescription` 给出——见下方 :func:`settings` / :func:`bar_of` /
+:func:`device_of`；`FYL-REPORT-06` B-7）；本模块把每个 bar 的控件词表映射到对应 Python 入口的参数——**包括页面 JS
 的合成层**（0-D 的相位网格规则、输运的 Miller 度规组装）——并经工具面
 （``serve.call_mcp_tool``）运行，使每次校验都留下清单、验收与账本，
 ``fylite report`` 可呈现。
@@ -117,50 +121,108 @@ def _deck_root() -> Path:
     return here if here.is_dir() else Path("machine_desc")
 
 
-#: ★★THE CATALOGUE'S OWN VOCABULARY, and where it went.
+#: ★★THE CORPUS VOCABULARY IS fyo / spo (2026-09-02, `FYO-ADR-07` · `FYL-REPORT-06`
+#: B-7 / K-5).  A case is one ``fyo:ScenarioSpecification`` (an ``spo:ComputationPlan``)
+#: and the catalogue is an ICE whose ``has_part`` list names the plans in listing
+#: order, each with the ``spo:Concretization`` (file) that carries it.  Where the
+#: former private terms went:
 #:
-#: ``fylite:cases`` (the entry list) and, per entry, ``fylite:case_id`` /
-#: ``fylite:document`` / ``fylite:bar`` / ``fylite:order`` /
-#: ``fylite:initial`` / ``fylite:device``, plus ``fylite:case`` (the
-#: descriptive block inside a case document, carrying ``fylite:name`` and
-#: ``fylite:name_en``).
+#: * ``fylite:cases[]`` / ``fylite:case_id`` / ``fylite:document`` / ``fylite:order``
+#:   → ``has_part`` (ordered) · the plan's ``id`` (``cases/<case_id>``) ·
+#:   ``concretized_as[].storage_uri``;
+#: * ``fylite:page`` / ``fylite:bar`` → ``prescribes_code`` = ``spo:Code`` with the IRI
+#:   ``code/<bar>`` (:func:`bar_of`), plus ``prescribed_task_kind`` (the fyo
+#:   application-task class);
+#: * ``fylite:config{name: value}`` → ``has_parameter_setting[]`` — one
+#:   ``spo:ParameterSetting`` per control, ``sets_parameter`` = ``code/<bar>#<name>``,
+#:   the value a JSON literal (``@type: @json``), so ``"0"`` and ``0`` stay distinct
+#:   (:func:`settings`);
+#: * ``fylite:device`` → ``about_discharge.performed_on`` (``fyo:Tokamak``) reverse-linked
+#:   to the deck as a ``fyo:MachineDescription`` with id ``machine_desc/<deck>``
+#:   (:func:`device_of`) — a case ABOUT a machine without a bound deck names the
+#:   machine and no description;
+#: * ``fylite:case{name, note}`` → ``rdfs:label`` / ``rdfs:comment`` language maps;
+#:   ``needs`` → open ``spo:PortBinding`` (data the caller supplies) or ``spo:caveat``
+#:   (a capability this code lacks); ``source`` / ``provenance`` →
+#:   ``spo:generated_by_process``.
 #:
-#: These used to be listed in ``python/fylite/_fyo_vocab.json``, the SHARED
-#: vocabulary, whose entry criterion is 「more than one host writes it」 — the
-#: browser read the catalogue to build its menus, this module reads it to run
-#: the corpus.  The browser stopped reading it on 2026-09-01 (the case menus
-#: went with the corpus's move under ``docs/``), so they are single-host terms
-#: now and left that list by its own rule: a term one host writes cannot
-#: disagree with itself, and keeping it there would have made the criterion
-#: mean nothing.  ★They are still the catalogue's contract, and
-#: ``fylite cases --check`` is still what enforces it — that is why they are
-#: written down here rather than only in a commit message.
+#: ★``fylite:initial`` was DROPPED, not migrated: it marked the case a bar applied on a
+#: reader's first visit, nothing applies anything on a visit any more (2026-09-01), and
+#: fyo / spo have no term for「a menu's starting entry」— the listing order is the
+#: only order the catalogue keeps.
 #:
-#: ``fylite:device`` names a machine DECK, resolved by :func:`_deck_root`
-#: (``machine_desc/`` at the checkout root) and NOT relative to this corpus.
-#:
-#: ★``fylite:initial`` HAS CHANGED MEANING and the data was left alone.  It
-#: used to mark the one case a bar applied on a reader's first visit; nothing
-#: applies anything on a visit any more.  What it still marks — and what
-#: ``fylite cases --check`` still enforces, at most one per bar — is the bar's
-#: designated STARTING case, which is what ``fylite cases`` prints as
-#: ``*initial``.  The rule outlived its original consumer because「哪一份是这条
-#: 栏的起点」 is a fact about the corpus, not about a browser.
+#: ``fylite cases --check`` enforces the contract, including K-5: no ``fylite:`` /
+#: ``vv:`` token anywhere in a corpus document.
+
+
+def _lang(v, lang="zh") -> str:
+    """One string out of a language map (or a bare string)."""
+    if isinstance(v, dict):
+        return v.get(lang) or next((x for x in v.values() if x), "")
+    return v or ""
+
+
+def bar_of(doc: dict) -> str | None:
+    """The bar a case prescribes: the last segment of its ``prescribes_code`` IRI."""
+    code = doc.get("prescribes_code")
+    cid = code.get("id", "") if isinstance(code, dict) else (code or "")
+    return cid.rsplit("/", 1)[-1] or None
+
+
+def device_of(doc: dict) -> str | None:
+    """The machine DECK a case is bound to (``machine_desc/<deck>``), or None."""
+    dis = doc.get("about_discharge") or {}
+    tok = dis.get("performed_on") or {}
+    desc = tok.get("described_by") or {}
+    did = desc.get("id", "") if isinstance(desc, dict) else ""
+    return did.rsplit("/", 1)[-1] or None
+
+
+def settings(doc: dict) -> dict:
+    """The control values of a case: ``{parameter name: JSON literal}``, in order."""
+    out = {}
+    for p in doc.get("parameters") or []:
+        ref = p.get("sets_parameter", "")
+        out[ref.rsplit("#", 1)[-1]] = p.get("literal_value")
+    return out
 
 
 def catalogue(d: Path | None = None) -> list[dict]:
+    """The corpus listing: one entry per plan the catalogue names, in listing order.
+
+    Each entry carries ``case_id`` / ``file`` from the catalogue and ``bar`` /
+    ``device`` / ``task_kind`` / ``name`` from the document itself (``None`` where the
+    document is absent or unreadable — ``fylite cases --check`` says which).
+    """
     d = corpus_dir() if d is None else Path(d)
-    doc = json.loads((d / "catalogue.jsonld").read_text(encoding="utf-8"))
-    return list(doc["fylite:cases"])
+    cat = json.loads((d / "catalogue.jsonld").read_text(encoding="utf-8"))
+    out = []
+    for m in cat.get("has_part") or []:
+        cid = str(m.get("id", "")).rsplit("/", 1)[-1]
+        files = [c.get("storage_uri") for c in (m.get("concretized_as") or [])
+                 if isinstance(c, dict) and c.get("storage_uri")]
+        e = {"case_id": cid, "file": files[0] if files else None,
+             "bar": None, "device": None, "task_kind": None, "name": ""}
+        f = d / e["file"] if e["file"] else None
+        if f is not None and f.is_file():
+            try:
+                doc = json.loads(f.read_text(encoding="utf-8"))
+            except ValueError:
+                doc = None
+            if isinstance(doc, dict):
+                e.update(bar=bar_of(doc), device=device_of(doc),
+                         task_kind=doc.get("prescribed_task_kind"),
+                         name=_lang(doc.get("title")))
+        out.append(e)
+    return out
 
 
 def load(case_id: str, d: Path | None = None) -> tuple[dict, dict]:
     """catalogue entry + case document for ``case_id`` — or refuse by name."""
     d = corpus_dir() if d is None else Path(d)
     for e in catalogue(d):
-        if e.get("fylite:case_id") == case_id:
-            doc = json.loads((d / e["fylite:document"]).read_text(
-                encoding="utf-8"))
+        if e["case_id"] == case_id:
+            doc = json.loads((d / e["file"]).read_text(encoding="utf-8"))
             return e, doc
     raise SystemExit(f"fylite cases: no case {case_id!r} in {d}")
 
@@ -732,7 +794,7 @@ def plan(case_id: str, d=None, *, predict: bool = False) -> dict:
     into ``accounting["unclassified"]`` for the gate to catch.
     """
     entry, doc = load(case_id, d)
-    bar = entry["fylite:bar"]
+    bar = entry["bar"]
     if bar in REFUSALS:
         raise SystemExit(f"fylite cases --run {case_id}: bar {bar!r} is not "
                          f"runnable from Python — {REFUSALS[bar]}")
@@ -740,7 +802,7 @@ def plan(case_id: str, d=None, *, predict: bool = False) -> dict:
         raise SystemExit(f"fylite cases --run {case_id}: bar {bar!r} has no "
                          "mapping and no registered refusal — that is a gap "
                          "in scenario/cases.py, not in the case")
-    cfg = doc.get("fylite:config", {})
+    cfg = settings(doc)
     #: ★the accounting is assembled HERE because `plan` owes it to its caller
     #: and `args_for` does not — but it is HANDED DOWN rather than rebuilt, so
     #: the corpus and the browser gate go through ONE call to the builder
@@ -748,7 +810,7 @@ def plan(case_id: str, d=None, *, predict: bool = False) -> dict:
     args = args_for(bar, cfg, predict=predict, acct=acct)
     tool = next(t for t, spec in TOOLS.items() if spec["bar"] == bar)
     return {"case_id": case_id, "bar": bar, "tool": tool,
-            "device": entry.get("fylite:device"),
+            "device": entry.get("device"),
             "arguments": args, "accounting": acct.summary()}
 
 

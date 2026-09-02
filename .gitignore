@@ -112,10 +112,10 @@ examples/scripts/[ag][0-9]*
 examples/scripts/summary_[0-9]*
 
 # ── 冻结语料：不在本仓 ────────────────────────────────────────────────────
-# `tests/data` 若存在，是一条指向 `fydata/corpus/oracle/` 的符号链接（86 M / 1239 份：
+# `tests/data` 若存在，是一条指向 `fydata/oracle/` 的符号链接（86 M / 1239 份：
 # 录下的 oracle 答案、上游发布算例、参考剖面）。链接是**每台机器自己建的**，不入库
 # ——把别人机器上的目录布局提交进来，换台机器就是断链。
-#   建法：ln -s <fydata 检出>/corpus/oracle tests/data
+#   建法：ln -s <fydata 检出>/oracle tests/data   （2026-09-02 fydata 顶层重规划后的位置）
 # 只要 oracle 库的话，`$FY_ORACLE_STORE` 也能指过去。
 tests/data
 python/tests/data
@@ -176,3 +176,4 @@ Cargo.lock
 #: ★注意它**不是等价替换**：实测拖回来的 ITER 卡片没有 `machine.fylite:b0`
 #: （5.3 T），壁面轮廓的写法也换了。拖回之后要复核读它的那些消费者。
 machine_desc/
+records/

@@ -251,16 +251,38 @@ def _cli_cases(args, parser) -> int:
     primary environment cannot even list is browser-private data wearing a
     top-level directory's name.
     """
+    #: ★2026-09-02 整合收敛：the SECOND corpus.  `--benchmark` reads the public V&V
+    #: register (`benchmark/registry.jsonld`, fyo:ComparisonRecord) through the
+    #: same verb — list / show / check / run — so a reader has one door to「what
+    #: this code runs」and「what it was measured against」(scenario/benchmark.py).
+    if getattr(args, "benchmark", False):
+        return _cli_benchmark(args, parser)
+    #: ★the REPORT face of a case (2026-09-02, FYL-REPORT-06 §13): run it through the
+    #: data layer's JSON door and render plan + record into MyST + SVG through a
+    #: presentation spec — or render a record `fylite-case run` already wrote (--from).
+    if getattr(args, "report", False):
+        from . import casereport
+        src = getattr(args, "from_record", None)
+        if not src and not args.name:
+            parser.error("--report needs a case id (run it) or --from <record.jsonld | run dir>")
+        if src:
+            dest = casereport.render(src, out=args.out, presentation=getattr(args, "presentation", None),
+                                     lang=getattr(args, "lang", "zh") or "zh")
+        else:
+            dest = casereport.run_and_render(args.name, args.dir, out=args.out,
+                                             presentation=getattr(args, "presentation", None),
+                                             lang=getattr(args, "lang", "zh") or "zh")
+        print(dest)
+        return 0
     d = _cases_dir(args.dir)
-    cat = json.loads((d / "catalogue.jsonld").read_text())
-    entries = cat.get("fylite:cases") or []
+    from ..scenario import cases as _cases
+    entries = _cases.catalogue(d)
 
     #: getattr, because test rigs build bare namespaces for the older
     #: sub-modes and should not have to know about the newer flags
     if getattr(args, "plan", False) or getattr(args, "run_case", False):
         if not args.name:
             parser.error("--plan/--run need a case id (see `fylite cases`)")
-        from ..scenario import cases as _cases
         if getattr(args, "plan", False):
             p = _cases.plan(args.name, d, predict=getattr(args, "predict", False))
             print(json.dumps(p, ensure_ascii=False, indent=1, default=str))
@@ -282,49 +304,41 @@ def _cli_cases(args, parser) -> int:
         return 0
 
     if args.name:
-        hit = next((e for e in entries
-                    if e.get("fylite:case_id") == args.name), None)
+        hit = next((e for e in entries if e["case_id"] == args.name), None)
         if hit is None:
             print(f"no case {args.name!r}; the catalogue has: "
-                  + ", ".join(e.get("fylite:case_id", "?") for e in entries))
+                  + ", ".join(e["case_id"] or "?" for e in entries))
             return 1
-        print((d / hit["fylite:document"]).read_text().rstrip())
+        print((d / hit["file"]).read_text().rstrip())
         return 0
 
     if args.check:
-        bad, initials = [], {}
-        #: ★★THE CORPUS DIRECTORY HOLDS TWO KINDS OF DOCUMENT since the V&V
-        #: register moved in beside the cases (2026-09-01, out of a
-        #: `benchmark/` tree of its own).  A case is named by the catalogue;
-        #: the register is not a case and never will be, so it would read as
-        #: an orphan for ever.  ★Excepted BY NAME, not by pattern: an
-        #: unrecognised `.jsonld` landing here is still exactly the mistake
-        #: this check exists to catch, and a pattern wide enough to cover the
-        #: register would cover that mistake too.
-        NOT_CASES = {"catalogue.jsonld", "registry.jsonld", "context.jsonld"}
+        bad = []
+        #: ★The corpus directory holds the catalogue and the shared `@context`
+        #: beside the cases.  Excepted BY NAME, not by pattern: an unrecognised
+        #: `.jsonld` landing here is still exactly the mistake this check exists
+        #: to catch.
+        NOT_CASES = {"catalogue.jsonld", "context.jsonld"}
         on_disk = {p.name for p in d.glob("*.jsonld")} - NOT_CASES
         named = set()
+        from ..scenario import BROWSER_ONLY_BARS, TOOLS
+        bars = {t["bar"] for t in TOOLS.values() if t["bar"]} | set(BROWSER_ONLY_BARS)
         for e in entries:
-            cid = e.get("fylite:case_id")
-            doc = e.get("fylite:document")
-            if not cid or not doc or not e.get("fylite:bar"):
-                bad.append(f"entry {cid or doc!r}: missing case_id/document/bar")
+            cid, doc_name = e["case_id"], e["file"]
+            if not cid or not doc_name:
+                bad.append(f"entry {cid or doc_name!r}: missing id/concretization")
                 continue
-            named.add(doc)
-            f = d / doc
+            named.add(doc_name)
+            f = d / doc_name
             if not f.is_file():
-                bad.append(f"{cid}: names {doc}, which is not on disk")
+                bad.append(f"{cid}: names {doc_name}, which is not on disk")
                 continue
             try:
-                json.loads(f.read_text())
+                doc = json.loads(f.read_text(encoding="utf-8"))
             except ValueError as exc:
-                bad.append(f"{cid}: {doc} does not parse ({exc})")
-            if e.get("fylite:initial"):
-                initials.setdefault(e["fylite:bar"], []).append(cid)
-        for bar, who in sorted(initials.items()):
-            if len(who) > 1:
-                bad.append(f"bar {bar!r} declares {len(who)} initial cases: "
-                           + ", ".join(who))
+                bad.append(f"{cid}: {doc_name} does not parse ({exc})")
+                continue
+            bad.extend(f"{cid}: {why}" for why in _case_problems(doc, cid, bars))
         for orphan in sorted(on_disk - named):
             bad.append(f"orphan file not in the catalogue: {orphan}")
         for line in bad:
@@ -332,31 +346,116 @@ def _cli_cases(args, parser) -> int:
         print(f"{len(entries)} entries, {len(bad)} problems")
         return 1 if bad else 0
 
-    rows = []
-    for e in entries:
-        name = ""
-        f = d / e.get("fylite:document", "")
-        if f.is_file():
-            try:
-                name = (json.loads(f.read_text()).get("fylite:case", {})
-                        or {}).get("fylite:name", "")
-            except ValueError:
-                name = "(unparseable)"
-        rows.append({"case_id": e.get("fylite:case_id"),
-                     "bar": e.get("fylite:bar"),
-                     "device": e.get("fylite:device"),
-                     "initial": bool(e.get("fylite:initial")),
-                     "name": name})
+    rows = [{"case_id": e["case_id"], "bar": e["bar"], "device": e["device"],
+             "task_kind": e["task_kind"], "name": e["name"]} for e in entries]
     if args.as_json:
         print(json.dumps({"dir": str(d), "cases": rows},
                          ensure_ascii=False, indent=1))
     else:
         print(f"{d}  ({len(rows)} cases)")
         for r in rows:
-            mark = " *initial" if r["initial"] else ""
             dev = f"  [{r['device']}]" if r.get("device") else ""
-            print(f"  {r['case_id']:<28} {r['bar']:<10}{dev}{mark}  {r['name']}")
+            print(f"  {r['case_id']:<28} {r['bar'] or '?':<10}{dev}  {r['name']}")
     return 0
+
+
+def _cli_benchmark(args, parser) -> int:
+    """List / show / check / run the public V&V register (`fylite cases --benchmark`)."""
+    from ..scenario import benchmark as _bm
+    d = _bm.registry_dir(args.dir)
+    if getattr(args, "run_case", False) or getattr(args, "plan", False):
+        if not args.name:
+            parser.error("--plan/--run need a record id (see `fylite cases --benchmark`)")
+        rec = _bm.load(args.name, d)
+        k = _bm.kernel_checkout(getattr(args, "kernel", None))
+        plan = _bm.gate_plan(rec, k)
+        if getattr(args, "plan", False):
+            print(json.dumps({"record_id": args.name, "kernel": str(k) if k else None, **plan},
+                             ensure_ascii=False, indent=1))
+            return 0
+        r = _bm.run(args.name, d, getattr(args, "kernel", None))
+        print(f"{r['record_id']}  {r['summary']}")
+        for c in r["commands"]:
+            print(f"  ran: {c}")
+        for why in r["plan"]["refused"]:
+            print(f"  refused: {why}")
+        return 0 if r["returncode"] == 0 else 1
+    if args.name:
+        try:
+            rec = _bm.load(args.name, d)
+        except KeyError:
+            print(f"no record {args.name!r}; the register has: "
+                  + ", ".join(_bm.short_id(r) for r in _bm.graph(d)))
+            return 1
+        print(json.dumps(rec, ensure_ascii=False, indent=1))
+        return 0
+    if args.check:
+        bad = []
+        for rec in _bm.graph(d):
+            bad.extend(f"{_bm.short_id(rec)}: {why}" for why in _bm.problems(rec, d))
+        for line in bad:
+            print(f"  BAD  {line}")
+        print(f"{len(_bm.graph(d))} records, {len(bad)} problems")
+        return 1 if bad else 0
+    rows = _bm.records(d)
+    if args.as_json:
+        print(json.dumps({"dir": str(d), "records": rows}, ensure_ascii=False, indent=1))
+    else:
+        print(f"{d}  ({len(rows)} records)")
+        for r in rows:
+            cls = ",".join(r["classes"]) or "-"
+            print(f"  {r['record_id']:<6} {r['kind']:<13} {r['verdict']:<13} "
+                  f"rerun={r['rerun'] or '-':<12} [{cls}]  {r['title']}")
+    return 0
+
+
+#: ★★K-5 (`FYL-REPORT-06`): the plan face carries fyo / spo vocabulary ONLY.  A
+#: private prefix anywhere in a corpus document — a key, a type, a value — is a
+#: problem `--check` reports, so the namespace cannot creep back one field at a time.
+_RETIRED_PREFIXES = ("fylite:", "vv:")
+
+
+def _case_problems(doc, cid: str, bars: set) -> list:
+    """What is structurally wrong with one case document (empty = sound)."""
+    from ..scenario import cases as _cases
+    out = []
+    if doc.get("type") != "fyo:ScenarioSpecification":
+        out.append(f"type is {doc.get('type')!r}, not fyo:ScenarioSpecification")
+    if str(doc.get("id", "")).rsplit("/", 1)[-1] != cid:
+        out.append(f"document id {doc.get('id')!r} does not name the catalogue entry")
+    bar = _cases.bar_of(doc)
+    if bar not in bars:
+        out.append(f"prescribes_code names bar {bar!r}, which neither the tool "
+                   "register nor the browser-only register knows")
+    if not doc.get("prescribed_task_kind"):
+        out.append("no prescribed_task_kind")
+    if not _cases._lang(doc.get("title")):
+        out.append("no title")
+    params = doc.get("parameters")
+    if not params:
+        out.append("no parameter settings")
+    for p in params or []:
+        ref = str(p.get("sets_parameter", ""))
+        if not ref.startswith(f"code/{bar}#") or "literal_value" not in p:
+            out.append(f"parameter setting {ref!r} is not `code/{bar}#<name>` "
+                       "with a literal_value")
+            break
+
+    def walk(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if k.startswith(_RETIRED_PREFIXES):
+                    yield k
+                yield from walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                yield from walk(v)
+        elif isinstance(x, str) and any(t in x for t in _RETIRED_PREFIXES):
+            yield x[:60]
+    hits = list(walk(doc))
+    if hits:
+        out.append(f"retired vocabulary present ({len(hits)}): {hits[0]!r}")
+    return out
 
 
 def _cli_manifest(args, parser) -> int:

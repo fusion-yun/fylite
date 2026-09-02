@@ -1,64 +1,187 @@
 {
   "@context": {
     "@version": 1.1,
-
-    "fyo":  "https://fusion-yun.github.io/fyo/latest/",
-    "sp":   "https://spharness.simpla-fusion.org/schemas/",
-    "vv":   "https://fusion-yun.github.io/vv/v0.draft/",
-    "xsd":  "http://www.w3.org/2001/XMLSchema#",
-
-    "id":   "@id",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "spo": "https://fusion-yun.github.io/spo/latest/",
+    "bfo": {
+      "@id": "http://purl.obolibrary.org/obo/BFO_",
+      "@prefix": true
+    },
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "id": "@id",
     "type": "@type",
-
-    "title":        {"@id": "vv:title"},
-    "kind":         {"@id": "vv:kind"},
-    "abstract":     {"@id": "vv:abstract"},
-    "status":       {"@id": "vv:status"},
-    "recorded":     {"@id": "vv:recorded", "@type": "xsd:date"},
-
-    "scenario":     {"@id": "vv:scenario",  "@type": "@id"},
-    "subject":      {"@id": "vv:subject"},
-    "reference":    {"@id": "vv:reference"},
-    "codes":        {"@id": "vv:code", "@container": "@set"},
-    "criteria":     {"@id": "vv:criterion", "@container": "@set"},
-    "measurements": {"@id": "vv:measurement", "@container": "@set"},
-    "gates":        {"@id": "vv:gate", "@container": "@set"},
-    "artifacts":    {"@id": "vv:artifact", "@container": "@set"},
-    "caveats":      {"@id": "vv:caveat", "@container": "@set"},
-    "report":       {"@id": "vv:report"},
-    "account":      {"@id": "vv:account"},
-
-    "name":         {"@id": "vv:name"},
-    "version":      {"@id": "sp:SemVer"},
-    "licence":      {"@id": "vv:licence"},
-    "role":         {"@id": "vv:role"},
-    "solves":       {"@id": "vv:solves", "@container": "@set"},
-    "prescribes":   {"@id": "vv:prescribes", "@container": "@set"},
-
-    "quantity":     {"@id": "vv:quantity"},
-    "norm":         {"@id": "vv:norm"},
-    "tolerance":    {"@id": "vv:tolerance"},
-    "tolerance_basis": {"@id": "vv:toleranceBasis"},
-    "value":        {"@id": "vv:value"},
-    "unit":         {"@id": "fyo:unit"},
-    "verdict":      {"@id": "vv:verdict"},
-    "null_hypothesis": {"@id": "vv:nullHypothesis"},
-
-    "path":         {"@id": "vv:path"},
-    "sha256":       {"@id": "sp:Sha256Hash"},
-    "retrievable":  {"@id": "vv:retrievable"},
-    "provenance_class": {"@id": "sp:ProvenanceClass"},
-    "quality_state":    {"@id": "sp:QualityState"},
-
-    "device":       {"@id": "fyo:device"},
-    "shot":         {"@id": "fyo:shot"},
-    "window_s":     {"@id": "vv:windowSeconds", "@container": "@list"},
-    "ip_A":         {"@id": "fyo:global_quantities/ip"},
-    "b0_T":         {"@id": "fyo:vacuum_toroidal_field/b0"},
-    "r0_m":         {"@id": "fyo:vacuum_toroidal_field/r0"},
-    "a_m":          {"@id": "fyo:boundary/minor_radius"},
-    "kappa":        {"@id": "fyo:boundary/elongation"},
-    "delta":        {"@id": "fyo:boundary/triangularity"},
-    "species":      {"@id": "fyo:ion", "@container": "@set"}
+    "title": {
+      "@id": "rdfs:label",
+      "@container": "@language"
+    },
+    "note": {
+      "@id": "rdfs:comment",
+      "@container": "@language"
+    },
+    "comment": {
+      "@id": "rdfs:comment"
+    },
+    "caveat": {
+      "@id": "spo:caveat",
+      "@container": [
+        "@language",
+        "@set"
+      ]
+    },
+    "recorded": {
+      "@id": "spo:creation_date",
+      "@type": "xsd:date"
+    },
+    "has_part": {
+      "@id": "bfo:0000178",
+      "@container": "@list"
+    },
+    "concretized_as": {
+      "@reverse": "bfo:0000059",
+      "@container": "@set"
+    },
+    "storage_uri": {
+      "@id": "spo:storage_uri"
+    },
+    "format_iri": {
+      "@id": "spo:format_iri",
+      "@type": "@id"
+    },
+    "prescribed_task_kind": {
+      "@id": "fyo:prescribed_task_kind",
+      "@type": "@id"
+    },
+    "prescribes_code": {
+      "@id": "spo:prescribes_code"
+    },
+    "name": {
+      "@id": "spo:name"
+    },
+    "commit": {
+      "@id": "spo:commit"
+    },
+    "license": {
+      "@id": "spo:license"
+    },
+    "parameters": {
+      "@id": "spo:has_parameter_setting",
+      "@container": "@list"
+    },
+    "sets_parameter": {
+      "@id": "spo:sets_parameter",
+      "@type": "@id"
+    },
+    "literal_value": {
+      "@id": "spo:literal_value",
+      "@type": "@json"
+    },
+    "inputs": {
+      "@id": "spo:has_port_binding",
+      "@container": "@set"
+    },
+    "binds_port": {
+      "@id": "spo:binds_port"
+    },
+    "port_name": {
+      "@id": "spo:port_name"
+    },
+    "port_direction": {
+      "@id": "spo:port_direction"
+    },
+    "bound_to": {
+      "@id": "spo:bound_to"
+    },
+    "bound_concretization": {
+      "@id": "spo:bound_concretization"
+    },
+    "checksum": {
+      "@id": "spo:checksum"
+    },
+    "byte_size": {
+      "@id": "spo:byte_size"
+    },
+    "about_discharge": {
+      "@id": "fyo:about_discharge"
+    },
+    "pulse_number": {
+      "@id": "fyo:pulse_number"
+    },
+    "performed_on": {
+      "@id": "fyo:performed_on"
+    },
+    "described_by": {
+      "@reverse": "fyo:describes_machine"
+    },
+    "generated_by_process": {
+      "@id": "spo:generated_by_process"
+    },
+    "realizes": {
+      "@id": "spo:realizes"
+    },
+    "has_input": {
+      "@id": "spo:has_input",
+      "@container": "@set"
+    },
+    "presents": {
+      "@id": "spo:presents",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "has_panel": {
+      "@id": "spo:has_panel",
+      "@container": "@list"
+    },
+    "panel_kind": {
+      "@id": "spo:panel_kind"
+    },
+    "has_view": {
+      "@id": "spo:has_view",
+      "@container": "@list"
+    },
+    "view_kind": {
+      "@id": "spo:view_kind"
+    },
+    "caption": {
+      "@id": "spo:caption",
+      "@container": "@language"
+    },
+    "has_series": {
+      "@id": "spo:has_series",
+      "@container": "@list"
+    },
+    "binds_quantity": {
+      "@id": "spo:binds_quantity",
+      "@type": "@id"
+    },
+    "series_role": {
+      "@id": "spo:series_role"
+    },
+    "mark_kind": {
+      "@id": "spo:mark_kind"
+    },
+    "line_style": {
+      "@id": "spo:line_style"
+    },
+    "display_label": {
+      "@id": "spo:display_label",
+      "@container": "@language"
+    },
+    "flux_layer": {
+      "@id": "fyo:flux_layer",
+      "@type": "@id"
+    },
+    "structure_layer": {
+      "@id": "fyo:structure_layer",
+      "@type": "@id"
+    },
+    "overlay_layer": {
+      "@id": "fyo:overlay_layer",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "has_coordinate_system": {
+      "@id": "spo:has_coordinate_system"
+    }
   }
 }
