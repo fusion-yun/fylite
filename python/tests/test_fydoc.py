@@ -117,3 +117,56 @@ def test_merge_and_set(fydoc, tmp_path):
     a.write(out)
     d = fydoc.read(out).to_dict()
     assert set(d) == {"equilibrium", "wall"}
+
+
+def test_assemble_reads_yaml_sources_keys_the_merge_by_name_and_selects(fydoc, tmp_path):
+    (tmp_path / "pcs.yaml").write_text(
+        "_ids: magnetics\nb_field_pol_probe:\n- name: PCBPV1T\n  position:\n  - r: 1.29\n    z: 0.0\n"
+        "  toroidal_angle: 90.0\n- name: PCBPV2T\n  position:\n  - r: 1.29\n    z: 0.248\n  toroidal_angle: 90.0\n"
+        "flux_loop:\n- name: PCFL1\n  position:\n  - r: 1.0\n    z: 0.5\n")
+    (tmp_path / "calib.yaml").write_text(
+        "_ids: magnetics\nb_field_pol_probe:\n- name: PCBPV2T\n  field:\n    data: [0.1, 0.2]\n"
+        "- name: PCBPV1T\n  field:\n    data: [0.3, 0.4]\n")
+    (tmp_path / "asm.yaml").write_text(
+        "$source:\n  geo: file:pcs.yaml\n  cal: file:calib.yaml\nparams:\n  shot: 138569\n  time: [4.0, 5.0]\n"
+        "merge: [geo, cal]\n")
+    assert fydoc.detect(tmp_path / "pcs.yaml") == ("yaml", "fyo")
+    b, fails = fydoc.assemble(tmp_path / "asm.yaml", select=["magnetics/b_field_pol_probe/field",
+                                                              "magnetics/b_field_pol_probe/position"])
+    assert fails == []
+    assert b.notes == []
+    assert b.keys == ["magnetics"]
+    #: aligned by name, not by position in the list
+    assert b.get("magnetics/b_field_pol_probe/0/name") == "PCBPV1T"
+    assert b.array("magnetics/b_field_pol_probe/0/field/data").tolist() == [0.3, 0.4]
+    assert b.get("magnetics/b_field_pol_probe/1/position/0/z") == 0.248
+    assert b.get("magnetics/b_field_pol_probe/0/toroidal_angle", None) is None
+    assert b.get("magnetics/flux_loop", None) is None
+    assert b.get("magnetics/fylite:assembly/params/time/stop") == 5.0
+    #: overrides: a point in time, a shot
+    b2, _ = fydoc.assemble(tmp_path / "asm.yaml", shot=7, time=4.5, max_points=100)
+    assert b2.get("magnetics/fylite:assembly/shot") == 7
+    assert b2.get("magnetics/fylite:assembly/params/time") == 4.5
+    assert b2.get("magnetics/fylite:assembly/params/max_points") == 100
+    assert b2.get("magnetics/flux_loop/0/name") == "PCFL1"
+
+
+def test_fetch_flattens_a_machine_manifest(fydoc, tmp_path):
+    (tmp_path / "static").mkdir()
+    (tmp_path / "bind").mkdir()
+    (tmp_path / "static" / "pcs.yaml").write_text("_ids: magnetics\nb_field_pol_probe:\n- name: P1\n  toroidal_angle: 90.0\n")
+    (tmp_path / "bind" / "magnetics.yaml").write_text(
+        "$source:\n  pcs_east: mdsplus://127.0.0.1/mdsplus/~t?shot={shot}&tree_name=pcs_east\n_ids: magnetics\n"
+        "b_field_pol_probe:\n- id: '0'\n  field:\n    data:\n      $link: pcs_east:DATA(\\PCBPV1T)\n")
+    (tmp_path / "machine.yaml").write_text(
+        "device: EAST\nepochs:\n  - id: legacy\n    valid_shots: [0, null]\n    static: static\n    ids:\n"
+        "      magnetics: \"@provider\"\nproviders:\n  magnetics:\n    default: pcs\n    available:\n"
+        "      pcs: { backend: static, path: static/pcs.yaml }\nbindings:\n  mdsplus:\n    root: bind\n"
+        "    ids:\n      magnetics: magnetics.yaml\n")
+    #: no MDSplus server on this port: the binding is a named failure, the geometry still arrives
+    b, fails = fydoc.fetch(tmp_path / "machine.yaml", "magnetics", shot=138569, time=(4.0, 5.0),
+                           host="127.0.0.1", port=1, timeout_ms=500)
+    assert b.get("magnetics/b_field_pol_probe/0/name") == "P1"
+    assert b.get("magnetics/fylite:assembly/device") == "EAST"
+    assert b.get("magnetics/fylite:assembly/params/time/start") == 4.0
+    assert any("cannot connect" in f for f in fails), fails

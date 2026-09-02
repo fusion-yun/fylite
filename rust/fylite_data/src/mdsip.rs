@@ -428,6 +428,11 @@ pub const REQUEST_ALL: i64 = i64::MIN;
 pub enum Index {
     At(i64),
     All,
+    /// `start:stop:step` — a strided range of one axis, bounds INCLUSIVE as
+    /// TDI has them.  ★Integers only, like the other two: a time window is
+    /// three numbers once the caller has looked the indices up on the time
+    /// base, and that lookup stays on the caller's side (`mdsbind`).
+    Range { start: i64, stop: i64, step: i64 },
 }
 
 /// Assemble the TDI text for one binding — **from a validated node path and
@@ -452,10 +457,17 @@ pub fn tdi(verb: Verb, node: &str, sub: &[Index], inside: bool)
     let subs = if sub.is_empty() {
         String::new()
     } else {
-        let items: Vec<String> = sub.iter().map(|i| match i {
-            Index::At(n) => n.to_string(),
-            Index::All => "*".to_string(),
-        }).collect();
+        let mut items: Vec<String> = Vec::with_capacity(sub.len());
+        for i in sub {
+            items.push(match i {
+                Index::At(n) => n.to_string(),
+                Index::All => "*".to_string(),
+                Index::Range { start, stop, step } => {
+                    check_slice(*start, *stop, *step)?;
+                    if *step == 1 { format!("{start}:{stop}") } else { format!("{start}:{stop}:{step}") }
+                }
+            });
+        }
         format!("[{}]", items.join(","))
     };
     let name = match verb {
@@ -580,6 +592,23 @@ impl<T: Transport> Client<T> {
             return Err(MdsipError::Refused(format!("node path {node:?}")));
         }
         self.checked(format!("dim_of({node})"))
+    }
+
+    /// A node's dimension along one axis — `dim_of(node, axis)`; axis 0 is
+    /// [`Client::get_dim_of`].  ★For a 2-D EFIT node `\X[i, t]` the time
+    /// base is axis 1, and the caller (`mdsbind`) says which axis it is
+    /// windowing; the integer is validated here, the text assembled here.
+    pub fn get_dim_of_axis(&mut self, node: &str, axis: i64) -> Result<Answer, MdsipError> {
+        if !is_node_path(node) {
+            return Err(MdsipError::Refused(format!("node path {node:?}")));
+        }
+        if !(0..8).contains(&axis) {
+            return Err(MdsipError::Refused(format!("dimension axis {axis}")));
+        }
+        if axis == 0 {
+            return self.checked(format!("dim_of({node})"));
+        }
+        self.checked(format!("dim_of({node},{axis})"))
     }
 
     /// Read one A-Box binding: `[verb](node)[subscript]`.
@@ -1015,6 +1044,15 @@ mod tests {
         assert!(!parse_answer(&answer_bytes(265389632, DTYPE_I32, &[], &[0; 4]))
             .unwrap()
             .is_success());
+    }
+
+    #[test]
+    fn a_range_index_renders_as_a_tdi_slice_and_is_checked() {
+        let r = Index::Range { start: 10, stop: 20, step: 2 };
+        assert_eq!(tdi(Verb::Data, r"\X", &[Index::At(3), r], false).unwrap(), r"data(\X)[3,10:20:2]");
+        assert_eq!(tdi(Verb::DimOf, r"\X", &[Index::Range { start: 0, stop: 5, step: 1 }], false).unwrap(), r"dim_of(\X)[0:5]");
+        assert!(tdi(Verb::Raw, r"\X", &[Index::Range { start: 5, stop: 2, step: 1 }], false).is_err());
+        assert!(tdi(Verb::Raw, r"\X", &[Index::Range { start: 0, stop: 2, step: 0 }], false).is_err());
     }
 
     #[test]

@@ -49,6 +49,9 @@ impl From<std::io::Error> for IoError {
 impl From<crate::json::JsonError> for IoError {
     fn from(e: crate::json::JsonError) -> Self { IoError(e.to_string()) }
 }
+impl From<crate::yaml::YamlError> for IoError {
+    fn from(e: crate::yaml::YamlError) -> Self { IoError(e.to_string()) }
+}
 impl From<crate::geqdsk::Error> for IoError {
     fn from(e: crate::geqdsk::Error) -> Self { IoError(e.to_string()) }
 }
@@ -84,7 +87,7 @@ pub fn detect(path: &Path) -> Result<Detected> {
     let format = match detect::detect(path)? {
         Some(f) => f,
         None => Format::from_extension(path).ok_or_else(|| IoError(format!(
-            "{}: not a g-file, a-file, JSON, HDF5, netCDF or IMAS data directory", path.display())))?,
+            "{}: not a g-file, a-file, JSON, YAML, HDF5, netCDF or IMAS data directory", path.display())))?,
     };
     let layout = match format {
         Format::ImasHdf5Dir => Layout::Imas,
@@ -97,6 +100,11 @@ pub fn detect(path: &Path) -> Result<Detected> {
         Format::Json => {
             let text = std::fs::read_to_string(path)?;
             let root = crate::json::parse(&text)?;
+            json_layout(&root)
+        }
+        Format::Yaml => {
+            let text = std::fs::read_to_string(path)?;
+            let root = crate::yaml::parse(&text)?;
             json_layout(&root)
         }
         _ => Layout::Fyo,
@@ -118,6 +126,18 @@ fn json_layout(root: &Node) -> Layout {
     Layout::Fyo
 }
 
+/// 读一份 JSON / YAML 文本成一棵原样的树（不套文档束）：装配文档、绑定表、装置清单
+/// 都从这里进。格式看内容，看不出来按扩展名，再看不出来当 JSON。
+pub fn read_node(path: &Path) -> Result<Node> {
+    let text = std::fs::read_to_string(path)?;
+    let format = detect::detect(path)?.or_else(|| Format::from_extension(path)).unwrap_or(Format::Json);
+    match format {
+        Format::Yaml => Ok(crate::yaml::parse(&text)?),
+        Format::Json => Ok(crate::json::parse(&text)?),
+        other => Err(IoError(format!("{}: {} is not a JSON or YAML text", path.display(), other.name()))),
+    }
+}
+
 /// 读一个路径（自动识别）。
 pub fn read(path: &Path) -> Result<Bundle> {
     let d = detect(path)?;
@@ -131,6 +151,12 @@ pub fn read_as(path: &Path, format: Format) -> Result<Bundle> {
         Format::Json => {
             let text = std::fs::read_to_string(path)?;
             let root = crate::json::parse(&text)?;
+            Ok(Bundle::from_node(root))
+        }
+        Format::Yaml => {
+            //: fydata's A-Box dialect; same document shape as the JSON side
+            let text = std::fs::read_to_string(path)?;
+            let root = crate::yaml::parse(&text)?;
             Ok(Bundle::from_node(root))
         }
         Format::Geqdsk => {
@@ -222,6 +248,7 @@ pub fn write(path: &Path, bundle: &Bundle, format: Option<Format>, layout: Layou
             std::fs::write(path, crate::geqdsk::format_gfile(&g))?;
         }
         Format::Afile => return Err(IoError("a-files are read-only in this library".into())),
+        Format::Yaml => return Err(IoError("YAML is read-only in this library; write JSON".into())),
         Format::Hdf5 => {
             #[cfg(feature = "hdf5")]
             { crate::hdf5::write_fyo(path, &bundle.to_node())?; }
@@ -263,11 +290,16 @@ fn with_wall_from_limiter(bundle: &Bundle, report: &mut WriteReport) -> Bundle {
     out
 }
 
-/// 合并若干路径成一束（后者覆盖前者）。
+/// 合并若干路径成一束（后者覆盖前者；结构数组按 `name` 对齐）。
 pub fn merge_paths(paths: &[&Path], policy: MergePolicy) -> Result<Bundle> {
+    merge_paths_with(paths, policy, Some("name"))
+}
+
+/// [`merge_paths`]，结构数组按 `key` 对齐（`None` = 只按下标）。
+pub fn merge_paths_with(paths: &[&Path], policy: MergePolicy, key: Option<&str>) -> Result<Bundle> {
     let mut out = Bundle::new();
     for p in paths {
-        out.merge(read(p)?, policy);
+        out.merge_with(read(p)?, policy, key);
     }
     Ok(out)
 }

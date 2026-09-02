@@ -69,6 +69,7 @@ self.FyI18n.register('zh', {
   'nav.line.model': '物理建模',
   'nav.line.analysis': '实验分析',
   'nav.line.data': '装置数据',
+  'nav.line.report': '算例报告',
   'io.export.pick': '导出：按一下选格式',
   'design.row.du': 'δ 上',
   'design.row.dl': 'δ 下',

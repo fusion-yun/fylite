@@ -400,6 +400,23 @@ def _cli_cases(args, parser) -> int:
     #: this code runs」and「what it was measured against」(scenario/benchmark.py).
     if getattr(args, "benchmark", False):
         return _cli_benchmark(args, parser)
+    #: ★the REPORT face of a case (2026-09-02, FYL-REPORT-06 §13): run it through the
+    #: data layer's JSON door and render plan + record into MyST + SVG through a
+    #: presentation spec — or render a record `fylite-case run` already wrote (--from).
+    if getattr(args, "report", False):
+        from . import casereport
+        src = getattr(args, "from_record", None)
+        if not src and not args.name:
+            parser.error("--report needs a case id (run it) or --from <record.jsonld | run dir>")
+        if src:
+            dest = casereport.render(src, out=args.out, presentation=getattr(args, "presentation", None),
+                                     lang=getattr(args, "lang", "zh") or "zh")
+        else:
+            dest = casereport.run_and_render(args.name, args.dir, out=args.out,
+                                             presentation=getattr(args, "presentation", None),
+                                             lang=getattr(args, "lang", "zh") or "zh")
+        print(dest)
+        return 0
     d = _cases_dir(args.dir)
     from ..scenario import cases as _cases
     entries = _cases.catalogue(d)

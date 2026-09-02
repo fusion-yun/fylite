@@ -255,7 +255,7 @@
    "hosts": [
     "python"
    ],
-   "help": "list / show / check / RUN the two corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue) and, with --benchmark, the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, or runs a record's private gates in $FYLITE_KERNEL",
+   "help": "list / show / check / RUN the two corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue) and, with --benchmark, the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, or runs a record's private gates in $FYLITE_KERNEL; --report renders a case (or a recorded run, --from) into MyST + SVG through a presentation spec",
    "handler": "fylite.engine.cli:_cli_cases",
    "args": [
     {
@@ -320,6 +320,39 @@
       "--kernel"
      ],
      "help": "(--benchmark --run) the kernel checkout whose private gates to run (default: $FYLITE_KERNEL); refused by name when absent"
+    },
+    {
+     "flags": [
+      "--report"
+     ],
+     "action": "store_true",
+     "help": "render the named case as a REPORT: run it through the data layer's JSON door (one fyo plan in, one spo record out) and write MyST markdown + SVG figures + the presentation spec it was drawn by (FYL-REPORT-06 §13); with --from, render an existing record instead of running"
+    },
+    {
+     "flags": [
+      "--from"
+     ],
+     "dest": "from_record",
+     "help": "(--report) a record.jsonld or a `fylite-case run` directory to render instead of running the case"
+    },
+    {
+     "flags": [
+      "--out"
+     ],
+     "help": "(--report) output directory (default: $FYLITE_RUN_DIR or ./records, under the record id; with --from, beside the record)"
+    },
+    {
+     "flags": [
+      "--presentation"
+     ],
+     "help": "(--report) a spo:PresentationSpecification document to draw by, instead of the one derived by rule"
+    },
+    {
+     "flags": [
+      "--lang"
+     ],
+     "default": "zh",
+     "help": "(--report) language of captions and prose: zh (default) or en"
     }
    ]
   },
@@ -620,7 +653,7 @@
     "rust",
     "python"
    ],
-   "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD document (fylite-data)",
+   "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD / YAML document, fetching a shot from a fydata machine manifest (fylite-data)",
    "handler": "fylite.engine.cli:_cli_data",
    "args": [
     {
@@ -676,7 +709,7 @@
         "--path"
        ],
        "metavar": "A/B/C",
-       "help": "the subtree to print (default: the whole document)"
+       "help": "the subtree to print: `<ids>[_<occ>]/a/b` (the C ABI's path form) or a bare container path (default: the whole document)"
       },
       {
        "flags": [
@@ -684,6 +717,13 @@
        ],
        "action": "store_true",
        "help": "one-line JSON instead of pretty-printed"
+      },
+      {
+       "flags": [
+        "--raw"
+       ],
+       "action": "store_true",
+       "help": "print the parsed tree as it is — for JSON / YAML that are not documents (a machine manifest, an assembly), and for checking the YAML reader"
       }
      ]
     },
@@ -737,7 +777,7 @@
     },
     {
      "name": "merge",
-     "help": "merge several documents into one (later ones override earlier ones unless --keep)",
+     "help": "merge several documents into one (later ones override earlier ones unless --keep; repeated array elements matched on --merge-key)",
      "args": [
       {
        "flags": [
@@ -784,18 +824,25 @@
         "imas-hdf5"
        ],
        "help": "output format"
+      },
+      {
+       "flags": [
+        "--merge-key"
+       ],
+       "metavar": "name|none",
+       "help": "the field a repeated array element is matched on when documents are merged (default name; none = by position)"
       }
      ]
     },
     {
      "name": "assemble",
-     "help": "assemble several data sources into one document as a JSON-LD assembly document directs (MDSplus reads go through the read-only mdsip client)",
+     "help": "assemble several data sources into one document as a JSON-LD / YAML assembly document directs (MDSplus reads go through the read-only mdsip client; slicing by shot and time is done server-side)",
      "args": [
       {
        "flags": [
         "assembly"
        ],
-       "help": "the assembly document (JSON-LD)"
+       "help": "the assembly document (JSON-LD or YAML)"
       },
       {
        "flags": [
@@ -812,6 +859,29 @@
        ],
        "type": "int",
        "help": "shot number substituted into the assembly"
+      },
+      {
+       "flags": [
+        "--time"
+       ],
+       "metavar": "T",
+       "help": "time selection: 4.5 (one point), 4:5 (a window) or 4,4.5,5 (a list of points); MDSplus sources are windowed on their own time base, server-side"
+      },
+      {
+       "flags": [
+        "--max-points"
+       ],
+       "type": "int",
+       "metavar": "N",
+       "help": "at most N samples inside the window (decimated by stride)"
+      },
+      {
+       "flags": [
+        "--select"
+       ],
+       "action": "append",
+       "metavar": "ids[/path]",
+       "help": "keep only these IDS or sub-paths (repeatable, comma-separated)"
       },
       {
        "flags": [
@@ -858,6 +928,134 @@
        "type": "int",
        "metavar": "MS",
        "help": "mdsip request timeout in milliseconds (default 10000)"
+      }
+     ]
+    },
+    {
+     "name": "fetch",
+     "help": "flatten a fydata machine manifest (machine.yaml) into geometry + MDSplus bindings and assemble the named IDS for one shot",
+     "args": [
+      {
+       "flags": [
+        "--machine"
+       ],
+       "required": true,
+       "metavar": "machine.yaml",
+       "help": "the fydata machine manifest"
+      },
+      {
+       "flags": [
+        "--ids"
+       ],
+       "required": true,
+       "metavar": "a,b",
+       "help": "the IDS to fetch (comma-separated)"
+      },
+      {
+       "flags": [
+        "--shot"
+       ],
+       "type": "int",
+       "required": true,
+       "help": "shot number"
+      },
+      {
+       "flags": [
+        "--time"
+       ],
+       "metavar": "T",
+       "help": "time selection: 4.5, 4:5 or 4,4.5,5 (see assemble)"
+      },
+      {
+       "flags": [
+        "--provider"
+       ],
+       "metavar": "P",
+       "help": "which data provider in the manifest to use (default: the manifest's first)"
+      },
+      {
+       "flags": [
+        "--host"
+       ],
+       "metavar": "H",
+       "help": "mdsip host, overriding the manifest"
+      },
+      {
+       "flags": [
+        "--port"
+       ],
+       "type": "int",
+       "metavar": "P",
+       "help": "mdsip port, overriding the manifest"
+      },
+      {
+       "flags": [
+        "--max-points"
+       ],
+       "type": "int",
+       "metavar": "N",
+       "help": "at most N samples inside the window"
+      },
+      {
+       "flags": [
+        "--select"
+       ],
+       "action": "append",
+       "metavar": "ids[/path]",
+       "help": "keep only these IDS or sub-paths (repeatable, comma-separated)"
+      },
+      {
+       "flags": [
+        "-o",
+        "--out"
+       ],
+       "metavar": "OUT",
+       "help": "output file (required unless --dry-run)"
+      },
+      {
+       "flags": [
+        "--layout"
+       ],
+       "choices": [
+        "fyo",
+        "imas"
+       ],
+       "help": "document layout to write"
+      },
+      {
+       "flags": [
+        "--to"
+       ],
+       "choices": [
+        "json",
+        "geqdsk",
+        "hdf5",
+        "netcdf",
+        "imas-hdf5"
+       ],
+       "help": "output format"
+      },
+      {
+       "flags": [
+        "--mds-user"
+       ],
+       "metavar": "NAME",
+       "help": "mdsip user name (default $USER)"
+      },
+      {
+       "flags": [
+        "--timeout-ms"
+       ],
+       "type": "int",
+       "metavar": "MS",
+       "help": "mdsip request timeout in milliseconds (default 10000)"
+      },
+      {
+       "flags": [
+        "--dry-run"
+       ],
+       "action": "store_true",
+       "help": "print what would be assembled (device, shot, sources, selection) and stop before any read"
       }
      ]
     },
