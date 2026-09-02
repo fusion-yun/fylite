@@ -12,20 +12,18 @@ ai_assistance:
   - Claude Code
 created: 2026-09-02T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-02T00:00:00Z
+  date: 2026-09-02T12:00:00Z
   by: FyLite Maintainers
-  change: 'v0.1 初稿：`rust/fylite_data/` 从「mdsip 编解码 + g-file」长成完整的数据层——
+  change: 'v0.2：按炮号与时间取 MDSplus 切片——`params.time`（点 / 窗 / 点列）在时基上
+      落成整数下标、服务端切片、`{time_slice}` 展开、`homogeneous_time` 收尾（L-10）；
+      零依赖的 YAML 子集读者，Rust 侧直接读 fydata 的 A-Box（L-11）；装置清单
+      `machine.yaml` 摊成装配（`fetch`）；结构数组按 `name` 对齐的合并；`select` 挑选。
+      缺口 G-3 部分关闭，新增 G-7。
+    v0.1 初稿：`rust/fylite_data/` 从「mdsip 编解码 + g-file」长成完整的数据层——
     不同数据源与 fyo 文档的读写转换、多数据源合并、按 JSON-LD 装配。只读 MDSplus /
     a-file；读写 JSON / g-file / HDF5 / netCDF，各带 fyo 与 IMAS DD 两种布局，IMAS 布局
     以 imas-python / imas-core 的读回为判据（`verify/imas_roundtrip.py`）。文件类型看
     内容识别。裁定 L-1..L-9。'
-  - date: 2026-09-02T12:00:00Z
-    by: FyLite Maintainers
-    change: 'v0.2：按炮号与时间取 MDSplus 切片——`params.time`（点 / 窗 / 点列）在时基上
-      落成整数下标、服务端切片、`{time_slice}` 展开、`homogeneous_time` 收尾（L-10）；
-      零依赖的 YAML 子集读者，Rust 侧直接读 fydata 的 A-Box（L-11）；装置清单
-      `machine.yaml` 摊成装配（`fetch`）；结构数组按 `name` 对齐的合并；`select` 挑选。
-      缺口 G-3 部分关闭，新增 G-7。'
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
