@@ -122,6 +122,66 @@
     "has_input": {
       "@id": "spo:has_input",
       "@container": "@set"
+    },
+    "presents": {
+      "@id": "spo:presents",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "has_panel": {
+      "@id": "spo:has_panel",
+      "@container": "@list"
+    },
+    "panel_kind": {
+      "@id": "spo:panel_kind"
+    },
+    "has_view": {
+      "@id": "spo:has_view",
+      "@container": "@list"
+    },
+    "view_kind": {
+      "@id": "spo:view_kind"
+    },
+    "caption": {
+      "@id": "spo:caption",
+      "@container": "@language"
+    },
+    "has_series": {
+      "@id": "spo:has_series",
+      "@container": "@list"
+    },
+    "binds_quantity": {
+      "@id": "spo:binds_quantity",
+      "@type": "@id"
+    },
+    "series_role": {
+      "@id": "spo:series_role"
+    },
+    "mark_kind": {
+      "@id": "spo:mark_kind"
+    },
+    "line_style": {
+      "@id": "spo:line_style"
+    },
+    "display_label": {
+      "@id": "spo:display_label",
+      "@container": "@language"
+    },
+    "flux_layer": {
+      "@id": "fyo:flux_layer",
+      "@type": "@id"
+    },
+    "structure_layer": {
+      "@id": "fyo:structure_layer",
+      "@type": "@id"
+    },
+    "overlay_layer": {
+      "@id": "fyo:overlay_layer",
+      "@type": "@id",
+      "@container": "@set"
+    },
+    "has_coordinate_system": {
+      "@id": "spo:has_coordinate_system"
     }
   }
 }

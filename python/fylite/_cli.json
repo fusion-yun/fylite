@@ -179,7 +179,7 @@
   },
   {
    "name": "cases",
-   "help": "list / show / check / RUN the two corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue) and, with --benchmark, the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, or runs a record's private gates in $FYLITE_KERNEL",
+   "help": "list / show / check / RUN the two corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue) and, with --benchmark, the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, or runs a record's private gates in $FYLITE_KERNEL; --report renders a case (or a recorded run, --from) into MyST + SVG through a presentation spec",
    "handler": "fylite.engine.cli:_cli_cases",
    "args": [
     {
@@ -244,6 +244,39 @@
       "--kernel"
      ],
      "help": "(--benchmark --run) the kernel checkout whose private gates to run (default: $FYLITE_KERNEL); refused by name when absent"
+    },
+    {
+     "flags": [
+      "--report"
+     ],
+     "action": "store_true",
+     "help": "render the named case as a REPORT: run it through the data layer's JSON door (one fyo plan in, one spo record out) and write MyST markdown + SVG figures + the presentation spec it was drawn by (FYL-REPORT-06 §13); with --from, render an existing record instead of running"
+    },
+    {
+     "flags": [
+      "--from"
+     ],
+     "dest": "from_record",
+     "help": "(--report) a record.jsonld or a `fylite-case run` directory to render instead of running the case"
+    },
+    {
+     "flags": [
+      "--out"
+     ],
+     "help": "(--report) output directory (default: $FYLITE_RUN_DIR or ./records, under the record id; with --from, beside the record)"
+    },
+    {
+     "flags": [
+      "--presentation"
+     ],
+     "help": "(--report) a spo:PresentationSpecification document to draw by, instead of the one derived by rule"
+    },
+    {
+     "flags": [
+      "--lang"
+     ],
+     "default": "zh",
+     "help": "(--report) language of captions and prose: zh (default) or en"
     }
    ]
   },
