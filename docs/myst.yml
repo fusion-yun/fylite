@@ -1,0 +1,33 @@
+# fylite 文档站 —— **书集**（a collection of books）。
+#
+#   guide/      用户指南——怎么用；`public.yml` 点名的那几篇随浏览器演示公开发布
+#   reference/  参考——保真度边界 · 内核清单 · API · 报告模板
+#
+# ★★2026-09-02 新建。分仓时（2026-09-01）这两本书搬进本仓，而**挂它们的站点配置
+# 留在了内核仓**——于是本仓的 `docs/` 有两本书却没有站点，`myst-preview.sh` 里那条
+# `fylite:fylite/docs` 一直在静默地跳过（脚本的判据是 `docs/myst.yml` 在不在）。
+# 这份文件补上那一半。
+#
+# ★内核仓那边**也有一本叫 `reference/` 的书**，同名不同书：那边讲的是内核的 C ABI
+# （`FYL-ABI-01`），本仓这本讲 Python 包与页面的用法。别把两边的内容互相搬。
+#
+# 两本书**各自独立**：每本自带 `myst.yml`，可以单独 `cd docs/<book> && myst build`。
+# 本文件只做一件事：把两本挂成一个站点（`site.projects`），各占一个子路径。
+#
+# ★站点根上没有页面，这与内核仓那份同一个原因：MyST 1.10.1 在多 project 站点下
+# 不构建根 project（三种写法都实测过），于是 `/` 会 302 到**列表里的第一个**
+# project。让它落在「用户指南」——那一页本来就是一篇介绍。
+# ★重排这张表就是搬走落地页，别当成整理顺序。
+version: 1
+site:
+  title: fylite Documentation
+  projects:
+    - path: guide
+      slug: guide
+    - path: reference
+      slug: reference
+  nav:
+    - title: 用户指南 (Guide)
+      url: /guide
+    - title: 参考 (Reference)
+      url: /reference
