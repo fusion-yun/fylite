@@ -286,7 +286,7 @@ def _cli_cases(args, parser) -> int:
             print(f"no case {args.name!r}; the catalogue has: "
                   + ", ".join(e["case_id"] or "?" for e in entries))
             return 1
-        print((d / hit["document"]).read_text().rstrip())
+        print((d / hit["file"]).read_text().rstrip())
         return 0
 
     if args.check:
@@ -301,7 +301,7 @@ def _cli_cases(args, parser) -> int:
         from ..scenario import BROWSER_ONLY_BARS, TOOLS
         bars = {t["bar"] for t in TOOLS.values() if t["bar"]} | set(BROWSER_ONLY_BARS)
         for e in entries:
-            cid, doc_name = e["case_id"], e["document"]
+            cid, doc_name = e["case_id"], e["file"]
             if not cid or not doc_name:
                 bad.append(f"entry {cid or doc_name!r}: missing id/concretization")
                 continue

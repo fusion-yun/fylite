@@ -190,7 +190,7 @@ def settings(doc: dict) -> dict:
 def catalogue(d: Path | None = None) -> list[dict]:
     """The corpus listing: one entry per plan the catalogue names, in listing order.
 
-    Each entry carries ``case_id`` / ``document`` from the catalogue and ``bar`` /
+    Each entry carries ``case_id`` / ``file`` from the catalogue and ``bar`` /
     ``device`` / ``task_kind`` / ``name`` from the document itself (``None`` where the
     document is absent or unreadable — ``fylite cases --check`` says which).
     """
@@ -201,9 +201,9 @@ def catalogue(d: Path | None = None) -> list[dict]:
         cid = str(m.get("id", "")).rsplit("/", 1)[-1]
         files = [c.get("storage_uri") for c in (m.get("concretized_as") or [])
                  if isinstance(c, dict) and c.get("storage_uri")]
-        e = {"case_id": cid, "document": files[0] if files else None,
+        e = {"case_id": cid, "file": files[0] if files else None,
              "bar": None, "device": None, "task_kind": None, "name": ""}
-        f = d / e["document"] if e["document"] else None
+        f = d / e["file"] if e["file"] else None
         if f is not None and f.is_file():
             try:
                 doc = json.loads(f.read_text(encoding="utf-8"))
@@ -222,7 +222,7 @@ def load(case_id: str, d: Path | None = None) -> tuple[dict, dict]:
     d = corpus_dir() if d is None else Path(d)
     for e in catalogue(d):
         if e["case_id"] == case_id:
-            doc = json.loads((d / e["document"]).read_text(encoding="utf-8"))
+            doc = json.loads((d / e["file"]).read_text(encoding="utf-8"))
             return e, doc
     raise SystemExit(f"fylite cases: no case {case_id!r} in {d}")
 
