@@ -713,6 +713,9 @@ pub struct Produced {
     pub sha256: String,
     pub bytes: usize,
     pub fields: Vec<String>,
+    /// The whole document, when it travels inside the record (the JSON
+    /// door) rather than as a file beside it.
+    pub inline: Option<Node>,
 }
 
 pub struct RecordInputs<'a> {
@@ -842,12 +845,25 @@ pub fn record(r: &RecordInputs) -> Node {
         let mut b = Map::new();
         b.insert("type", "spo:PortBinding".into());
         b.insert("binds_port", port(&p.port, "output"));
-        let mut d = Map::new();
-        d.insert("id", p.doc_id.clone().into());
-        d.insert("type", p.doc_type.clone().into());
-        d.insert("comment", Node::List(p.fields.iter().map(|f| f.clone().into()).collect()));
-        b.insert("bound_to", Node::Map(d));
-        b.insert("bound_concretization", concretization(&p.storage_uri, &p.format_iri, &p.sha256, p.bytes));
+        if let Some(doc) = &p.inline {
+            //: the dataset itself, inside the record: its own `@context` is
+            //: dropped (the record's covers `fyo:`) and its fields are listed
+            let mut d = doc.clone();
+            if let Some(m) = d.as_map_mut() {
+                m.remove("@context");
+                if let Some(id) = m.remove("@id") { m.insert("id", id); }
+                if let Some(t) = m.remove("@type") { m.insert("type", t); }
+                m.insert("comment", Node::List(p.fields.iter().map(|f| f.clone().into()).collect()));
+            }
+            b.insert("bound_to", d);
+        } else {
+            let mut d = Map::new();
+            d.insert("id", p.doc_id.clone().into());
+            d.insert("type", p.doc_type.clone().into());
+            d.insert("comment", Node::List(p.fields.iter().map(|f| f.clone().into()).collect()));
+            b.insert("bound_to", Node::Map(d));
+            b.insert("bound_concretization", concretization(&p.storage_uri, &p.format_iri, &p.sha256, p.bytes));
+        }
         bindings.push(Node::Map(b));
     }
     if let Some(o) = r.outcome {
@@ -883,6 +899,81 @@ pub fn record(r: &RecordInputs) -> Node {
         m.insert("caveat", Node::List(r.plan.caveats.iter().map(|c| c.clone().into()).collect()));
     }
     Node::Map(m)
+}
+
+// --------------------------------------------------------------------------- #
+// the JSON door: one plan text in, one record text out
+// --------------------------------------------------------------------------- #
+
+/// What the JSON door hands back.
+#[derive(Debug, Clone)]
+pub struct JsonRun {
+    /// The `spo:ComputationRecord`, datasets inline, as pretty JSON-LD.
+    pub record_json: String,
+    /// True when the kernel refused: the record says `rejected` and why.
+    pub refused: bool,
+}
+
+/// Why the JSON door could not even produce a record.
+#[derive(Debug, Clone)]
+pub struct JsonError {
+    /// -2 the plan does not parse / compose · -3 an input could not be
+    /// resolved · -4 the kernel could not be loaded · -5 a setting is not a scalar
+    pub code: i32,
+    pub message: String,
+}
+
+/// One plan text (a `fyo:ScenarioSpecification`, or a JSON array of them
+/// composed in order) → one record text.  File endpoints in the plan
+/// resolve against `base` (the working directory when `None`).
+pub fn run_json(plan_text: &str, base: Option<&Path>, kernel_path: Option<&Path>) -> Result<JsonRun, JsonError> {
+    let fail = |code: i32, m: String| JsonError { code, message: m };
+    let node = json::parse(plan_text).map_err(|e| fail(-2, format!("the plan does not parse: {e:?}")))?;
+    let docs: Vec<Node> = match node {
+        Node::List(l) => l,
+        other => vec![other],
+    };
+    let mut sources = Vec::new();
+    for (i, d) in docs.into_iter().enumerate() {
+        let text = json::to_string(&d, false);
+        let id = d.as_map().and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str).map(str::to_string);
+        sources.push((Source { path: PathBuf::from(format!("(request)[{i}]")), id,
+                               sha256: sha256_hex(text.as_bytes()), bytes: text.len() }, d));
+    }
+    let plan = compose(sources).map_err(|e| fail(-2, e.0))?;
+    let base_dir = base.map(Path::to_path_buf).unwrap_or_else(|| PathBuf::from("."));
+    let (started_secs, started_at) = now_iso();
+    let _ = started_secs;
+    let record_id = format!("run/{}-{}", started_at.replace([':', '-'], ""), plan.bar());
+    let kernel = Kernel::load(kernel_path).map_err(|e| fail(-4, e.message))?;
+    let kernel_sha = std::fs::read(&kernel.path).ok().map(|b| sha256_hex(&b));
+    let (slots, resolved) = resolve_inputs(&plan, &base_dir).map_err(|e| fail(-3, e.0))?;
+    let (numbers, texts) = plan.kernel_settings().map_err(|e| fail(-5, e.0))?;
+    let result = kernel.run_case(&plan.code, &numbers, &texts, &slots);
+    let (_e, ended_at) = now_iso();
+    let mut produced = Vec::new();
+    let outcome = match &result {
+        Ok(raw) => {
+            let o = parse_outcome(raw).map_err(|e| fail(-5, e.0))?;
+            for (ids, doc) in documents(&o, raw, &record_id) {
+                let fields: Vec<String> = o.fields.iter()
+                    .filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids)
+                    .map(|f| format!("{} [{}] {:?}", f.path, f.units, f.dims)).collect();
+                produced.push(Produced { port: ids.clone(), doc_id: format!("{record_id}/{ids}"),
+                                         doc_type: format!("fyo:{ids}"), storage_uri: String::new(),
+                                         format_iri: String::new(), sha256: String::new(), bytes: 0,
+                                         fields, inline: Some(doc) });
+            }
+            Some(o)
+        }
+        Err(_) => None,
+    };
+    let rec = record(&RecordInputs {
+        plan: &plan, plan_file: None, resolved: &resolved, kernel: Some(&kernel), kernel_sha256: kernel_sha,
+        outcome: outcome.as_ref(), refusal: result.as_ref().err(), produced: &produced,
+        started_at, ended_at, record_id,
+    });
+    Ok(JsonRun { record_json: json::to_string(&rec, true) + "\n", refused: result.is_err() })
 }
 
 /// Seconds since the epoch as ISO-8601 UTC (`2026-09-02T12:34:56Z`).

@@ -95,6 +95,9 @@ pub mod c_api;
 //: fyo 数据集。原生专用：要 dlopen、要读盘。
 #[cfg(not(target_arch = "wasm32"))]
 pub mod kernel;
+//: the JSON door: one plan text in, one record text out (`fylite_data_case_json`)
+#[cfg(not(target_arch = "wasm32"))]
+pub mod case_api;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod case;
 

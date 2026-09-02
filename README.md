@@ -261,6 +261,14 @@ and the refusal is recorded too (`run_state: rejected`). Build it with
 `./rust/build.sh --cli`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
 or `python/fylite/_lib/`.
 
+The same run is **one function** on the data layer: `fylite_data_case_json`
+takes the plan as JSON-LD text (one document, or an array composed in order)
+and returns the record as JSON-LD text with the datasets inline on their
+output ports. `fylite-case json plan.jsonld` and, in Python,
+`fylite.io.fydoc.case_json(plan)` are faces on it. The kernel behind both is
+its own single door, `fylite_rs_fyo`: settings by name and inputs by fyo path
+in, fields by fyo path out, no handle and no state between calls.
+
 The IMAS layouts are checked against the real readers, not against a
 description of them: `rust/fylite_data/verify/imas_roundtrip.py` writes with
 imas-python, reads with this library, writes with this library, and reads

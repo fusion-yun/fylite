@@ -1,4 +1,4 @@
-//! The kernel, loaded at run time — the case door and nothing else.
+//! The kernel, loaded at run time — the one door and nothing else.
 //!
 //! ★★Why `dlopen` and not a crate dependency.  The kernel's source is not
 //! public and this crate is; a `path` dependency would make the public
@@ -8,10 +8,11 @@
 //! the same: one artifact, two hosts, found by the same rule — an explicit
 //! path, `FYLITE_KERNEL_LIB`, or the checkout's `python/fylite/_lib/`.
 //!
-//! ★What crosses the door is a STRUCTURE (`fylite_rs_case_*` in the
-//! kernel's `c_api.rs`): the code, settings by name, inputs by fyo path;
-//! back come a manifest (fields by fyo path, with offsets) and the flat
-//! data.  Turning that into documents is [`crate::case`]'s job.
+//! ★What crosses the door is a STRUCTURE (`fylite_rs_fyo` in the kernel's
+//! `c_api.rs`): the code, settings by name, inputs by fyo path; back come a
+//! manifest (fields by fyo path, with offsets) and the flat data, in
+//! buffers the kernel owns and this side releases through `fylite_rs_free`.
+//! Turning that into documents is [`crate::case`]'s job.
 
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::{Path, PathBuf};
@@ -25,26 +26,21 @@ extern "C" {
 
 const RTLD_NOW: c_int = 2;
 
-type CaseRunFn = unsafe extern "C" fn(
+type FyoFn = unsafe extern "C" fn(
     *const u8, u64,
     u64, *const *const u8, *const u64, *const f64,
     u64, *const *const u8, *const u64, *const *const u8, *const u64,
-    u64, *const *const u8, *const u64, *const u64, *const f64) -> i64;
-type CaseTextFn = unsafe extern "C" fn(i64, *mut u8, u64) -> i64;
-type CaseDataFn = unsafe extern "C" fn(i64, *mut f64, u64) -> i64;
-type CaseFreeFn = unsafe extern "C" fn(i64) -> i32;
-type CaseErrorFn = unsafe extern "C" fn(*mut u8, u64) -> i64;
+    u64, *const *const u8, *const u64, *const u64, *const f64,
+    *mut *mut u8, *mut u64, *mut *mut f64, *mut u64) -> i32;
+type FreeFn = unsafe extern "C" fn(*mut u8, u64);
 type AbiFn = unsafe extern "C" fn() -> u32;
 
 /// A loaded kernel.
 pub struct Kernel {
     pub path: PathBuf,
     pub abi_version: Option<u32>,
-    run: CaseRunFn,
-    manifest: CaseTextFn,
-    data: CaseDataFn,
-    free: CaseFreeFn,
-    error: CaseErrorFn,
+    fyo: FyoFn,
+    free: FreeFn,
 }
 
 /// What the kernel handed back for one case: the manifest text and the
@@ -112,7 +108,7 @@ pub fn candidates(explicit: Option<&Path>) -> Vec<PathBuf> {
 }
 
 impl Kernel {
-    /// Load the first candidate that exists and carries the case door.
+    /// Load the first candidate that exists and carries the door.
     pub fn load(explicit: Option<&Path>) -> Result<Kernel, KernelError> {
         let cands = candidates(explicit);
         let mut tried = Vec::new();
@@ -127,7 +123,7 @@ impl Kernel {
             }
         }
         Err(err(format!(
-            "no kernel library with the case door found; looked at:\n  {}\n\
+            "no kernel library with the fyo door found; looked at:\n  {}\n\
              (pass --kernel <path>, set FYLITE_KERNEL_LIB, or build it with the kernel's rust/build.sh)",
             tried.join("\n  "))))
     }
@@ -146,28 +142,15 @@ impl Kernel {
         let sym = |name: &str| -> Result<*mut c_void, KernelError> {
             let cs = CString::new(name).unwrap();
             let p = unsafe { dlsym(h, cs.as_ptr()) };
-            if p.is_null() { Err(err(format!("no symbol {name} — an older kernel without the case door"))) } else { Ok(p) }
+            if p.is_null() { Err(err(format!("no symbol {name} — an older kernel without the fyo door"))) } else { Ok(p) }
         };
-        let run: CaseRunFn = unsafe { std::mem::transmute(sym("fylite_rs_case_run")?) };
-        let manifest: CaseTextFn = unsafe { std::mem::transmute(sym("fylite_rs_case_manifest")?) };
-        let data: CaseDataFn = unsafe { std::mem::transmute(sym("fylite_rs_case_data")?) };
-        let free: CaseFreeFn = unsafe { std::mem::transmute(sym("fylite_rs_case_free")?) };
-        let error: CaseErrorFn = unsafe { std::mem::transmute(sym("fylite_rs_case_error")?) };
+        let fyo: FyoFn = unsafe { std::mem::transmute(sym("fylite_rs_fyo")?) };
+        let free: FreeFn = unsafe { std::mem::transmute(sym("fylite_rs_free")?) };
         let abi_version = sym("fylite_rs_abi_version").ok().map(|p| {
             let f: AbiFn = unsafe { std::mem::transmute(p) };
             unsafe { f() }
         });
-        Ok(Kernel { path: path.to_path_buf(), abi_version, run, manifest, data, free, error })
-    }
-
-    fn last_error(&self) -> String {
-        let n = unsafe { (self.error)(std::ptr::null_mut(), 0) };
-        if n <= 0 {
-            return String::new();
-        }
-        let mut buf = vec![0u8; n as usize];
-        unsafe { (self.error)(buf.as_mut_ptr(), n as u64) };
-        String::from_utf8_lossy(&buf).into_owned()
+        Ok(Kernel { path: path.to_path_buf(), abi_version, fyo, free })
     }
 
     /// Complete one case: the code, its numeric and text settings, and its
@@ -185,26 +168,33 @@ impl Kernel {
         let ikl: Vec<u64> = inputs.iter().map(|(k, _)| k.len() as u64).collect();
         let il: Vec<u64> = inputs.iter().map(|(_, v)| v.len() as u64).collect();
         let idata: Vec<f64> = inputs.iter().flat_map(|(_, v)| v.iter().copied()).collect();
-        let h = unsafe {
-            (self.run)(code.as_ptr(), code.len() as u64,
+        let (mut mp, mut ml, mut dp, mut dl) = (std::ptr::null_mut::<u8>(), 0u64, std::ptr::null_mut::<f64>(), 0u64);
+        let rc = unsafe {
+            (self.fyo)(code.as_ptr(), code.len() as u64,
                        nk.len() as u64, nk.as_ptr(), nkl.as_ptr(), nv.as_ptr(),
                        tk.len() as u64, tk.as_ptr(), tkl.as_ptr(), tv.as_ptr(), tvl.as_ptr(),
-                       ik.len() as u64, ik.as_ptr(), ikl.as_ptr(), il.as_ptr(), idata.as_ptr())
+                       ik.len() as u64, ik.as_ptr(), ikl.as_ptr(), il.as_ptr(), idata.as_ptr(),
+                       &mut mp, &mut ml, &mut dp, &mut dl)
         };
-        if h < 1 {
-            return Err(KernelError { code: h, message: self.last_error() });
+        let manifest = if mp.is_null() || ml == 0 { String::new() } else {
+            let s = unsafe { std::slice::from_raw_parts(mp, ml as usize) };
+            String::from_utf8_lossy(s).into_owned()
+        };
+        let data: Vec<f64> = if dp.is_null() || dl == 0 { Vec::new() } else {
+            unsafe { std::slice::from_raw_parts(dp, dl as usize) }.to_vec()
+        };
+        unsafe {
+            if !mp.is_null() {
+                (self.free)(mp, ml);
+            }
+            if !dp.is_null() {
+                (self.free)(dp as *mut u8, dl * 8);
+            }
         }
-        let mn = unsafe { (self.manifest)(h, std::ptr::null_mut(), 0) };
-        let mut mbuf = vec![0u8; mn.max(0) as usize];
-        if mn > 0 {
-            unsafe { (self.manifest)(h, mbuf.as_mut_ptr(), mn as u64) };
+        if rc != 0 {
+            return Err(KernelError { code: rc as i64, message: if manifest.is_empty() {
+                format!("the kernel refused with code {rc} and no sentence") } else { manifest } });
         }
-        let dn = unsafe { (self.data)(h, std::ptr::null_mut(), 0) };
-        let mut data = vec![0.0f64; dn.max(0) as usize];
-        if dn > 0 {
-            unsafe { (self.data)(h, data.as_mut_ptr(), dn as u64) };
-        }
-        unsafe { (self.free)(h) };
-        Ok(RawOutcome { manifest: String::from_utf8_lossy(&mbuf).into_owned(), data })
+        Ok(RawOutcome { manifest, data })
     }
 }

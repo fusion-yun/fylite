@@ -5,6 +5,7 @@
 //! fylite-case plan <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI] [--json]
 //! fylite-case run  <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI]
 //!                  [--record DIR] [--format jsonld|hdf5|netcdf] [--kernel PATH] [--quiet]
+//! fylite-case json <plan.jsonld>... [--kernel PATH]          the JSON door: the record, datasets inline, on stdout
 //! ```
 //!
 //! One structure in, one structure out (FYL-REPORT-06): the plan documents
@@ -32,6 +33,7 @@ const HELP: &str = "fylite-case — a case from a fyo plan to a fyo record, thro
   fylite-case plan <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI] [--json]
   fylite-case run  <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI]
                    [--record DIR] [--format jsonld|hdf5|netcdf] [--kernel PATH] [--quiet]
+  fylite-case json <plan.jsonld>... [--kernel PATH]
 
 The plan documents are fyo:ScenarioSpecification (spo:ComputationPlan) JSON-LD in the
 corpus compaction (cases/context.jsonld); later documents override earlier ones, then
@@ -259,7 +261,7 @@ fn run_cmd(args: &Args) {
                     };
                     produced.push(Produced { port: ids.clone(), doc_id: format!("{record_id}/{ids}"),
                                              doc_type: format!("fyo:{ids}"), storage_uri: file,
-                                             format_iri, sha256: sha, bytes, fields });
+                                             format_iri, sha256: sha, bytes, fields, inline: None });
                 }
                 Some(o)
             }
@@ -305,6 +307,30 @@ extern "C" {
     fn signal(sig: i32, handler: usize) -> usize;
 }
 
+/// The JSON door from the shell: the plan documents composed in order, the
+/// record (datasets inline) on stdout.  Exit 0 ran, 1 refused, 2 no record.
+fn json_cmd(args: &Args) {
+    if args.positional.len() < 2 {
+        die("give at least one plan document");
+    }
+    let mut docs = Vec::new();
+    for p in &args.positional[1..] {
+        let text = std::fs::read_to_string(p).unwrap_or_else(|e| die(&format!("{p}: {e}")));
+        docs.push(json::parse(&text).unwrap_or_else(|e| die(&format!("{p}: {e:?}"))));
+    }
+    let text = json::to_string(&Node::List(docs), false);
+    let base = Path::new(&args.positional[1]).parent().map(Path::to_path_buf).unwrap_or_default();
+    match case::run_json(&text, Some(&base), args.flag("kernel").map(Path::new)) {
+        Ok(r) => {
+            print!("{}", r.record_json);
+            if r.refused {
+                std::process::exit(1);
+            }
+        }
+        Err(e) => die(&format!("[{}] {}", e.code, e.message)),
+    }
+}
+
 fn main() {
     //: a closed pipe ends the listing, it is not a panic (`| head`)
     unsafe { signal(13, 0) };
@@ -318,6 +344,7 @@ fn main() {
         Some("describe") => describe(&args),
         Some("plan") => plan_cmd(&args),
         Some("run") => run_cmd(&args),
+        Some("json") => json_cmd(&args),
         Some(other) => die(&format!("unknown command `{other}`\n{HELP}")),
         None => println!("{HELP}"),
     }
