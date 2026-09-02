@@ -48,6 +48,7 @@ overwritten.
 from __future__ import annotations
 
 import argparse
+import json
 import pathlib
 import re
 import sys
@@ -55,7 +56,10 @@ import sys
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-FYDATA = pathlib.Path("/home/salmon/workspace/fydata")
+#: ★★**fydoc 是权威源**（用户裁定 2026-09-02）。fydata 那侧同名内容是誊录，两边
+#: 实测**逐值相同**（十台，差别只有记下来的出处路径），所以指哪一边都出得来同样的
+#: 卡片——而权威在 fydoc，那就读 fydoc。`--source` 仍可显式指到 fydata。
+FYDOC = pathlib.Path("/home/salmon/workspace/fydoc")
 OUT = ROOT / "machine_desc"
 
 #: EAST's document is hand-maintained and richer than the upstream tree.
@@ -88,28 +92,79 @@ def _load(path: pathlib.Path):
         return yaml.safe_load(f)
 
 
-def device_root(fydata: pathlib.Path) -> pathlib.Path:
-    """装置树的根 —— **两种布局都认，新的优先**。
+def device_root(root: pathlib.Path) -> pathlib.Path:
+    """装置树的根 —— **fydoc 与 fydata 两种源都认**。
 
-    ★★fydata 2026-09-02 前后做过顶层重规划：`machine/tokamak/` → `device/tokamak/`
-    → **`abox/device/tokamak/`**。本文件第 469 行的注释早就写着新路径，而代码里
-    三处仍查旧的——于是它对着今天的 fydata 直接答「no fydata device tree」。
-    ★这正是「路径写死三处」的老形状：一处改了、另两处没改，而它们不会互相报错。
-    现在只有这一个函数知道布局。
+    ★★2026-09-02 用户裁定「以 `fydoc/device/*/abox` 为数据源」。fydoc 那侧的布局是
+    `device/<id>/abox/`（JSON-LD），fydata 那侧是 `abox/device/tokamak/<id>/`
+    （YAML）；两者内容等价（实测 `limiter`/`vessel` 逐值相同），差别在序列化与层级。
+
+    ★fydata 还做过顶层重规划（`machine/tokamak/` → `device/tokamak/` →
+    `abox/device/tokamak/`），本文件从前把路径写死在三处、只改了一处，于是对着今天的
+    fydata 直接答「找不到」。现在只有这一个函数知道布局。
     """
-    for c in (fydata / "abox" / "device" / "tokamak",
-              fydata / "device" / "tokamak",
-              fydata / "machine" / "tokamak"):
+    for c in (root / "device",                        # fydoc
+              root / "abox" / "device" / "tokamak",   # fydata（今天）
+              root / "device" / "tokamak",            # fydata（旧）
+              root / "machine" / "tokamak"):          # fydata（更旧）
         if c.is_dir():
             return c
-    return fydata / "abox" / "device" / "tokamak"
+    return root / "device"
+
+
+def _abox(dev_dir: pathlib.Path) -> pathlib.Path:
+    """一台机器的 A-Box 目录：fydoc 是 `<id>/abox/`，fydata 是 `<id>/` 本身。"""
+    return dev_dir / "abox" if (dev_dir / "abox").is_dir() else dev_dir
+
+
+def _manifest(dev_dir: pathlib.Path):
+    """`machine.jsonld`（fydoc）或 `machine.yaml`（fydata），谁在读谁。"""
+    a = _abox(dev_dir)
+    j, y = a / "machine.jsonld", a / "machine.yaml"
+    if j.is_file():
+        return json.loads(j.read_text(encoding="utf-8")), j
+    if y.is_file():
+        return yaml.safe_load(y.read_text(encoding="utf-8")), y
+    return None, None
 
 
 def devices(fydata: pathlib.Path) -> list[str]:
     """Machines that carry a manifest, in name order."""
     root = device_root(fydata)
     return sorted(p.name for p in root.iterdir()
-                  if (p / "machine.yaml").is_file())
+                  if p.is_dir() and _manifest(p)[0] is not None)
+
+
+def _pick(abox: pathlib.Path, rel: str):
+    """manifest 里写的相对路径 -> A-Box 里真实存在的那个文件。
+
+    ★★manifest 是 **fydata 的逐字誊录**，所以它里面的路径说的是 fydata 的层级
+    （`fyo/latest/static/now/wall.yaml`）与序列化（`.yaml`）。fydoc 那侧同一份内容
+    落在 `abox/static/now/wall.jsonld`。这里做的是那个映射，**且只做这一个映射**：
+    去掉 `fyo/latest/` 前缀、换 `.jsonld` 后缀，两者各试一次。
+    ★猜不出就返回 None，由调用方报错——不去目录里「找一个像的」：`wall` 的默认是
+    `base`（落在 `static/now/`），而 fydoc 的 `providers/wall/` 里只有非默认的
+    `metis`，按目录猜会稳定地挑错那一份。
+    """
+    cands = [rel]
+    if rel.startswith("fyo/latest/"):
+        cands.append(rel[len("fyo/latest/"):])
+    out = []
+    for c in cands:
+        out.append(c)
+        if c.endswith(".yaml"):
+            out.append(c[:-5] + ".jsonld")
+    for c in out:
+        p = abox / c
+        if p.is_file():
+            return p
+    return None
+
+
+def _load(path: pathlib.Path):
+    """`.jsonld` 走 json，其余走 yaml。"""
+    text = path.read_text(encoding="utf-8")
+    return json.loads(text) if path.suffix == ".jsonld" else yaml.safe_load(text)
 
 
 def _resolve(dev_dir: pathlib.Path, manifest: dict) -> dict:
@@ -125,20 +180,35 @@ def _resolve(dev_dir: pathlib.Path, manifest: dict) -> dict:
     if not epochs:
         return {}
     ep = epochs[0]
-    static = dev_dir / ep.get("static", "")
+    abox = _abox(dev_dir)
+    static_rel = ep.get("static", "")
     providers = manifest.get("providers") or {}
     out: dict[str, pathlib.Path] = {}
+    missing: list[str] = []
     for ids, value in (ep.get("ids") or {}).items():
         if value == "@provider":
             spec = providers.get(ids) or {}
             avail = spec.get("available") or {}
             chosen = avail.get(spec.get("default")) or {}
             rel = chosen.get("path")
-            p = dev_dir / rel if rel else None
+            if not rel:
+                #: ★★不猜。见 `_pick` 的注记：按目录挑会稳定地挑错。
+                missing.append(ids)
+                continue
+            p = _pick(abox, rel)
         else:
-            p = static / str(value)
-        if p is not None and p.is_file():
+            p = _pick(abox, f"{static_rel}/{value}")
+        if p is not None:
             out[ids] = p
+    if missing:
+        raise SystemExit(
+            f"{dev_dir.name}: A-Box 的 manifest 没有 `providers` 选择表，而 "
+            f"{sorted(missing)} 这几组标着 `@provider`。\n"
+            "  ★fydoc 是权威源，所以这是 fydoc 那侧要补的一个键——它的 machine.jsonld\n"
+            "  是 fydata machine.yaml 的誊录，而誊录时把 `providers` 丢了。\n"
+            "  在补上之前，本工具不会替它挑一个默认：`wall` 的默认是 `base`（在\n"
+            "  static/now/），而 providers/wall/ 里只放着非默认的 metis，按目录挑\n"
+            "  会稳定地挑错那一份，而且不会报错。")
     return out
 
 
@@ -394,7 +464,7 @@ def _grid(units: list[dict]) -> dict | None:
 # --------------------------------------------------------------------------- #
 def build(dev: str, fydata: pathlib.Path) -> dict:
     dev_dir = device_root(fydata) / dev
-    manifest = _load(dev_dir / "machine.yaml")
+    manifest, manifest_path = _manifest(dev_dir)
     files = _resolve(dev_dir, manifest)
     rel = {k: str(v.relative_to(fydata)) for k, v in files.items()}
 
@@ -404,11 +474,11 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
         "@type": "fyo:DeviceDescription",
         "_dd_version": str(manifest.get("dd_source", "imas/4")).split("/")[-1],
         "_machine": str(manifest.get("device", dev.upper())),
-        "_basis": f"fydata device/tokamak/{dev} (epoch "
+        "_basis": f"{manifest_path.parent} (epoch "
                   f"{(manifest.get('epochs') or [{}])[0].get('id', '?')})",
         "provenance": {
-            "generator": "tools/fydata-to-fyo-device.py",
-            "source": f"fydata device/tokamak/{dev}/machine.yaml",
+            "generator": "tools/abox-to-machine-desc.py",
+            "source": str(manifest_path),
             "identity_iri": manifest.get("identity_iri"),
             "source_files": rel,
             "note": (
@@ -518,7 +588,8 @@ def write(dev: str, doc: dict, out_root: pathlib.Path) -> pathlib.Path:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("device", nargs="*", help="machine id(s), e.g. iter west")
-    ap.add_argument("--fydata", type=pathlib.Path, default=FYDATA)
+    ap.add_argument("--source", "--fydata", dest="fydata", type=pathlib.Path,
+                    default=FYDOC, help="A-Box 的根（缺省 fydoc，权威源）")
     ap.add_argument("-o", "--out", type=pathlib.Path, default=OUT)
     ap.add_argument("--all", action="store_true",
                     help="every machine with a manifest, EAST excepted")
@@ -546,7 +617,7 @@ def main(argv=None) -> int:
                 rc = 1
             continue
         if dev not in known:
-            print(f"{dev}: no machine.yaml in {a.fydata}", file=sys.stderr)
+            print(f"{dev}: no machine manifest under {a.fydata}", file=sys.stderr)
             rc = 1
             continue
         p = write(dev, build(dev, a.fydata), a.out)
