@@ -17,7 +17,8 @@
    "pf_active_pcs.jsonld",
    "tf.jsonld"
   ],
-  "sha256": "ae944d412f536a656ee302423b624cfa6b86281cc442d2f81a73f76524424ad1",
+  "sha256": "51dc8185ba44472a193b74622c9533ad816c97d6c06148b53a4c78ae09c903fe",
+  "bindings_sha256": "233733943681ba3769a8df778b6c023e73f33566ec89c6e4d65f2fe295ca3f6b",
   "note": "Decomposed, not interpreted. `verb`+`node`+`subscript` are what the kernel assembles a TDI string from; `scale` is the host's to apply; `units` is null because the A-Box carries none — do not invent one."
  },
  "sources": {

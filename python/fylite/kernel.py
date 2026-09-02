@@ -7384,3 +7384,140 @@ def lengyel_inverse(*, geometry: dict, params: dict, t_e_target_ev: float,
         name: res["c_z_prefactor"] * float(weight)
         for name, weight in seed_impurity_weights.items()}
     return res
+
+
+# --------------------------------------------------------------------------- #
+# the device data plane — mdsip (FYL-DESIGN-06, ABI v124)
+#
+# ★★2026-09-02.  Until now this package read MDSplus through `fylite.io.mds`,
+# a client of its own, while the kernel carried a second one that only the
+# desktop viewer used.  Two implementations of one protocol, spelling the same
+# `\EFIT_EAST::TOP…` nodes separately — the shape this project has been bitten
+# by three times (the device description came out with a different WALL on the
+# two sides; `zerod`'s parameter order was spelled in three places).  These
+# bindings are the half that lets this side reach the kernel's client.
+#
+# ★The read-only guard is not relaxed anywhere in here.  `read()` takes a verb
+# code, a node path and integers; the kernel assembles the TDI text and refuses
+# a "node" that is a language rather than a path.  There is no call that takes
+# an expression, on this side or that one.
+# --------------------------------------------------------------------------- #
+
+_BYTES = ctypes.POINTER(ctypes.c_uint8)
+_I64ARR = np.ctypeslib.ndpointer(np.int64, flags="C_CONTIGUOUS")
+_ARRU64 = np.ctypeslib.ndpointer(np.uint64, flags="C_CONTIGUOUS")
+
+_sig("fylite_rs_mds_open", [_BYTES, _U64, ctypes.c_uint16, _BYTES, _U64, _I32,
+                            ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
+_sig("fylite_rs_mds_open_tree", [_VOID, _BYTES, _U64, ctypes.c_int64], _I32)
+_sig("fylite_rs_mds_read", [_VOID, _I32, _BYTES, _U64, _I64ARR, _U64, _I32,
+                            ctypes.POINTER(ctypes.c_uint64)], _I32)
+_sig("fylite_rs_mds_last_f64", [_VOID, _ARR, _U64], _I32)
+_sig("fylite_rs_mds_last_dims", [_VOID, _ARRU64, _U64,
+                                 ctypes.POINTER(ctypes.c_uint64)], _I32)
+_sig("fylite_rs_mds_last_error", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_sig("fylite_rs_mds_close", [_VOID], None)
+
+
+def _b(text: str):
+    """`str` -> `(uint8*, len)`.  ★Bytes and a length, not a NUL-terminated
+    `char*`: this ABI has no C-string contract anywhere else."""
+    raw = text.encode("utf-8")
+    buf = (ctypes.c_uint8 * max(len(raw), 1)).from_buffer_copy(raw + b"\0")
+    return ctypes.cast(buf, _BYTES), len(raw), buf
+
+
+class MdsSession:
+    """A read-only mdsip session, held by the kernel.
+
+    ★It is a context manager because the handle is a `Box` on the other side:
+    losing the reference without `close()` leaks the socket, and there is no
+    finaliser that can be trusted to run.
+
+        with MdsSession("127.0.0.1", 8000) as s:
+            s.open_tree("efit_east", 70754)
+            v = s.read("data", r"\\PLASMA", [7])
+    """
+
+    def __init__(self, host: str, port: int, *, user: str | None = None,
+                 timeout_ms: int = 10_000):
+        lib = require()
+        h = _VOID()
+        err = (ctypes.c_uint8 * 512)()
+        hb, hn, _k1 = _b(host)
+        ub, un, _k2 = _b(user or os.environ.get("USER") or "fylite")
+        rc = lib.fylite_rs_mds_open(hb, hn, int(port), ub, un, int(timeout_ms),
+                                    ctypes.byref(h),
+                                    ctypes.cast(err, _BYTES), len(err))
+        if rc != 0:
+            why = bytes(err).split(b"\0", 1)[0].decode("utf-8", "replace")
+            raise KernelError(f"mdsip open {host}:{port} failed ({rc}): {why}")
+        self._h = h
+        self._lib = lib
+
+    #: verb spelling -> wire code.  ★Imported, not spelled: the mapping is
+    #: generated from `mdsip.rs` into `_mds_request.py` precisely so this line
+    #: cannot be the place it drifts.
+    @staticmethod
+    def _verb(name: str) -> int:
+        from ._mds_request import VERBS
+        if name not in VERBS:
+            raise KernelError(f"unknown mds verb {name!r} (have {sorted(VERBS)})")
+        return VERBS[name]
+
+    def _fail(self, what: str, rc: int):
+        n = self._lib.fylite_rs_mds_last_error(self._h, None, 0)
+        buf = (ctypes.c_uint8 * max(int(n), 1))()
+        self._lib.fylite_rs_mds_last_error(self._h, ctypes.cast(buf, _BYTES),
+                                           len(buf))
+        why = bytes(buf)[:max(int(n), 0)].decode("utf-8", "replace")
+        raise KernelError(f"{what} returned {rc}: {why}")
+
+    def open_tree(self, tree: str, shot: int) -> None:
+        tb, tn, _k = _b(tree)
+        rc = self._lib.fylite_rs_mds_open_tree(self._h, tb, tn, int(shot))
+        if rc != 0:
+            self._fail(f"open_tree({tree!r}, {shot})", rc)
+
+    def read(self, verb: str, node: str, subscript=None, *, inside: bool = False):
+        """One A-Box binding -> `(values, dims)`.
+
+        `subscript` items are integers, or ``None`` for ``*``.  ★``None`` and
+        not the sentinel itself: `i64::MIN` is the wire encoding, and a caller
+        writing it out is a caller who can typo it.
+        """
+        from ._mds_request import ALL
+        items = [] if not subscript else [ALL if i is None else int(i)
+                                          for i in subscript]
+        sub = np.asarray(items, dtype=np.int64)
+        nb, nn, _k = _b(node)
+        n = ctypes.c_uint64()
+        rc = self._lib.fylite_rs_mds_read(
+            self._h, self._verb(verb), nb, nn, sub, len(items),
+            1 if inside else 0, ctypes.byref(n))
+        if rc != 0:
+            self._fail(f"read({verb!r}, {node!r})", rc)
+        out = np.empty(int(n.value), dtype=np.float64)
+        rc = self._lib.fylite_rs_mds_last_f64(self._h, out, out.size)
+        if rc != 0:
+            self._fail("last_f64", rc)
+        nd = ctypes.c_uint64()
+        self._lib.fylite_rs_mds_last_dims(self._h, np.empty(0, np.uint64), 0,
+                                          ctypes.byref(nd))
+        dims = np.empty(int(nd.value), dtype=np.uint64)
+        if dims.size:
+            self._lib.fylite_rs_mds_last_dims(self._h, dims, dims.size,
+                                              ctypes.byref(nd))
+        return out, tuple(int(d) for d in dims)
+
+    def close(self) -> None:
+        if getattr(self, "_h", None) is not None:
+            self._lib.fylite_rs_mds_close(self._h)
+            self._h = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False

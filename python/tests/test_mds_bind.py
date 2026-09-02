@@ -123,3 +123,56 @@ def test_regenerating_reproduces_it_byte_for_byte():
                         "--public", str(ROOT), "--check"],
                        capture_output=True, text=True)
     assert p.returncode == 0, p.stdout + p.stderr
+
+def test_every_verb_in_the_table_has_a_wire_code(table):
+    """★表里的 verb 是**字符串**（`"data"`），而 `fylite_rs_mds_read` 收的是**整数**。
+    那个映射就是两者之间的缝，它只有三行——而三行正是「看着抄一遍不会错」的长度，
+    `zerod` 的参数顺序就是这么被拼到三处去的。所以它由 `rust/build.sh` 从
+    `mdsip.rs` 的 `@mds-request` 生成进两个宿主，这里判表与它对得上。
+
+    ★`const` 不在契约里，也不该在：那一条（`boundary/type`）是字面量，
+    根本不上服务器。
+    """
+    from fylite import _mds_request as req
+    used = {b["verb"] for b in table["bindings"]}
+    assert used - set(req.VERBS) <= {"const"}, used - set(req.VERBS)
+    assert req.ALL == -(2 ** 63), "`*` 哨兵必须是 i64::MIN"
+
+
+def test_the_two_hosts_get_the_same_wire_codes():
+    """生成物一式两份（Python 与浏览器），同一次写出——这里判它们没有分叉。"""
+    from fylite import _mds_request as req
+    js = (ROOT / "app" / "assets" / "mds-request.js")
+    if not js.is_file():
+        pytest.skip("mds-request.js not generated (rust/build.sh)")
+    text = js.read_text(encoding="utf-8")
+    for name, code in req.VERBS.items():
+        assert re.search(rf"^\s*{name}: {code},$", text, re.M), (name, code)
+    assert "-9223372036854775808n" in text, "JS 侧的 ALL 必须是 BigInt 字面量"
+
+
+def test_the_kernel_exports_the_data_plane():
+    """★这几条导出是本轮补的（ABI v124）。Python 侧的 `MdsSession` 全靠它们——
+    符号不在，失败发生在**运行期第一次取数**，而那时人已经在等一炮数据了。
+    """
+    from fylite import kernel
+    lib = kernel.load()
+    if lib is None:
+        pytest.skip("libfylite.so not built (rust/build.sh)")
+    speaks = int(lib.fylite_rs_abi_version())
+    if speaks < 124:
+        pytest.skip(f"library speaks ABI {speaks} (< 124): the mdsip plane "
+                    "landed in 124 — rebuild with rust/build.sh")
+    for name in ("fylite_rs_mds_open", "fylite_rs_mds_open_tree",
+                 "fylite_rs_mds_read", "fylite_rs_mds_last_f64",
+                 "fylite_rs_mds_last_dims", "fylite_rs_mds_last_error",
+                 "fylite_rs_mds_close"):
+        assert hasattr(lib, name), name
+
+
+def test_a_verb_the_contract_does_not_have_is_refused_here():
+    """★不是在服务器上失败，是在这一层。拼错的动词到了那边会变成一次无害的
+    握手，然后是一条读不出所以然的服务器状态码。"""
+    from fylite import kernel
+    with pytest.raises(kernel.KernelError, match="unknown mds verb"):
+        kernel.MdsSession._verb("DATA")      # 大小写就是拼错
