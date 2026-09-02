@@ -30,7 +30,7 @@ from fylite import kernel as K
 from fylite._paths import KERNEL_LIB
 
 pytestmark = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                                reason="libfylite.so not built (rust/build.sh)")
+                                reason="libfylite_kernel.so not built (rust/build.sh)")
 
 FYDATA_ENV = "FYDATA_DIR"
 MU0 = 4.0e-7 * np.pi

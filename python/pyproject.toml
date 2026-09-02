@@ -37,7 +37,7 @@ license-files = ["LICENSE", "CONTRIBUTORS.md", "NOTICE*"]
 requires-python = ">=3.10"
 dependencies = ["numpy"]
 #: ★alpha 期的分发面就是这些分类项声明的那一个：Linux x86-64。轮里带的是
-#: **预编译**的 `_lib/libfylite.so`，不由 pip 现场编译，所以「装上了」与「能用」
+#: **预编译**的 `_lib/libfylite_kernel.so`，不由 pip 现场编译，所以「装上了」与「能用」
 #: 在别的平台上会分家——分类项与轮的平台 tag（见 `setup.py` 与
 #: `tools/build-wheel.sh`）一起把这件事说在前面，而不是留给 import 时报错。
 classifiers = [
@@ -92,7 +92,7 @@ include = ["fylite*"]
 
 # Binary/data package files.  The Rust kernels are NOT compiled by pip — the
 # cdylib is committed pre-built and shipped as package data:
-#   _lib/libfylite.so      built and installed here by `bash rust/build.sh`
+#   _lib/libfylite_kernel.so      built and installed here by `bash rust/build.sh`
 #                          (needs a Rust toolchain to rebuild).
 [tool.setuptools.package-data]
 #: ★`_backends.json` left this list because it left the tree — first as

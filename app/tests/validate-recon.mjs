@@ -10,7 +10,7 @@
 //      ones.  A fit that quietly ignored the magnetics would still converge.
 //   2. li(3) IS THE KERNEL'S, NOT THE PAGE'S.  The exported psi map is fed
 //      back through the SAME kernel entry from Python (ctypes on the shipped
-//      `libfylite.so`).  A page that recomputed the integral in JavaScript —
+//      `libfylite_kernel.so`).  A page that recomputed the integral in JavaScript —
 //      or handed over the wrong gauge — reads plausibly and differs here.
 //   3. THE POSTERIOR IS THE MEMBERS.  The reported mean / sigma / percentiles
 //      are recomputed with numpy from the member values the page exports.
@@ -221,7 +221,7 @@ post = res["fylite:posterior"]
 
 lib = rustlib.load()
 if lib is None:
-    print(json.dumps({"error": "libfylite.so not loadable"})); sys.exit(0)
+    print(json.dumps({"error": "libfylite_kernel.so not loadable"})); sys.exit(0)
 f64, u64 = ctypes.c_double, ctypes.c_uint64
 P = ctypes.POINTER(ctypes.c_double)
 lib.fylite_rs_li3.restype = ctypes.c_int32

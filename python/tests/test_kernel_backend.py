@@ -66,7 +66,7 @@ def test_negative_probe_is_cached(monkeypatch, tmp_path):
 # present library: the S0 "loadable and callable" gate
 # --------------------------------------------------------------------------- #
 needs_lib = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                               reason="libfylite.so not built "
+                               reason="libfylite_kernel.so not built "
                                       "(rust/build.sh)")
 
 

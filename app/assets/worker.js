@@ -4641,7 +4641,7 @@ function evFixedRefine(eq, geo, st, sp, degP, degF, prof, pFast) {
     //: carries the claim is the sub-box — its border is the Dirichlet data,
     //: its interior is what was solved, and the two profiles below are the
     //: source, per radian.  `app/tests/validate-evolve.mjs` hands the four
-    //: of them to `libfylite.so` and re-solves Delta* natively.
+    //: of them to `libfylite_kernel.so` and re-solves Delta* natively.
     field: { r: box.r, z: box.z, psi: refined.psi,
              psiAxis: refined.psiAxis, psiBnd: eq.psiBnd,
              axisR: refined.axisR, axisZ: refined.axisZ,

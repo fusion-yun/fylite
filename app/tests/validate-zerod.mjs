@@ -31,7 +31,7 @@
 // the moment the two sides build the vector the same way, this gate stops
 // testing anything.
 //
-//   node tests/app/validate-zerod.mjs [--lib /path/to/libfylite.so]
+//   node tests/app/validate-zerod.mjs [--lib /path/to/libfylite_kernel.so]
 //
 // The Rust side is reached through the same .so the Python loader uses, via
 // a tiny ctypes shim run in Python — so this gate exercises the shipped
@@ -44,7 +44,7 @@ const HERE = new URL('.', import.meta.url).pathname;
 const ROOT = HERE + '../..';
 const argLib = process.argv.indexOf('--lib');
 const LIB = argLib > 0 ? process.argv[argLib + 1]
-                       : `${ROOT}/python/fylite/_lib/libfylite.so`;
+                       : `${ROOT}/python/fylite/_lib/libfylite_kernel.so`;
 if (!existsSync(LIB)) {
   console.error(`没有找到 ${LIB} —— 先跑 rust/build.sh`);
   process.exit(2);

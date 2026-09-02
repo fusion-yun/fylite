@@ -1,7 +1,7 @@
 """The bundled binaries must speak the ABI this package expects.
 
 ★★Why this exists: at 2026-08-19 the repository's committed
-``python/fylite/_lib/libfylite.so`` spoke **ABI 62** while its own generated
+``python/fylite/_lib/libfylite_kernel.so`` spoke **ABI 62** while its own generated
 ``_abi.py`` said **66**.  Four ABI bumps had landed with the rebuilt library
 left in the working tree, so a fresh clone refused to load the very library
 it ships — every kernel call raising ``KernelError`` — while every
@@ -32,7 +32,7 @@ from fylite._paths import KERNEL_LIB
 ROOT = Path(__file__).resolve().parents[2]
 
 pytestmark = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                                reason="libfylite.so not built "
+                                reason="libfylite_kernel.so not built "
                                        "(rust/build.sh)")
 
 
@@ -51,7 +51,7 @@ def test_the_binaries_are_not_in_the_repository():
     """★★★2026-09-02 裁定反转：**制品不随仓走，只在打包发布时才装进去。**
 
     在此之前这里有两道相反的闸——「已提交的那份是不是构建出来的那份」，针对
-    `libfylite.so` 与三个 `.wasm` 各一道。它们防的是一种真实事故（2026-08-19：
+    `libfylite_kernel.so` 与三个 `.wasm` 各一道。它们防的是一种真实事故（2026-08-19：
     已提交的 `.so` 说 ABI 62、而同仓生成的 `_abi.py` 说 66，四次 bump 的重建都留在
     工作树里没提交，于是**新克隆拒绝加载它自己带的库**，而每个开发者的检出都好好的）。
 

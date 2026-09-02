@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="{{@htmllang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{home.title|text}}</title>
+<link rel="icon" href="assets/fy_mark.svg">
+<meta name="description" content="{{home.desc|text}}">
+{{@alternates}}
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/site.css">
+<!-- ★ONE script, ~2 KB.  This page used to pull the i18n runtime and eight
+     catalogue files — 156 KB, of which 116 KB was tool prose it never shows —
+     in order to fill in text that is now simply in the markup.  `theme.js` is
+     what is left, and since the switches went wordless it no longer needs the
+     catalogues either. -->
+<script src="assets/theme.js"></script>
+<!-- ★which host is serving this? the desktop viewer and the website get
+     the SAME BYTES, so anything that must differ is decided at runtime.
+     Publishes `data-fy-host` on <html>; today one CSS rule reads it, to
+     drop the footer QR in the viewer. -->
+<script src="assets/host.js"></script>
+</head>
+<body data-page="index">
+
+<header class="top">
+  <a class="brand" href="{{@home}}"><img src="assets/fy_mark.svg" alt="" width="32" height="32"></a>
+  <div class="titles">
+  <h1>{{home.h1}}</h1>
+  <span class="sub">{{home.sub}}</span>
+  </div>
+{{@warn}}
+  <nav>
+{{@nav}}
+    <button id="theme-toggle" class="iconbtn" type="button"></button>
+  </nav>
+</header>
+
+<main class="doc">
+
+<p class="hero"><img src="assets/fylite_logo.svg" alt="fylite — FUYUN TOKAMAK SIMULATOR - LITE" width="240" height="100"></p>
+
+<p class="lead">{{home.lead}}</p>
+
+<p class="alpha">{{home.alpha}}</p>
+
+<h2>{{home.lines.h2}}</h2>
+
+<p>{{home.lines.lead}}</p>
+
+<!-- The scenario cards are written by tools/make-app-pages.mjs out of the one
+     table in assets/site.js that the navigation is built from, so the entrance
+     cannot advertise a scenario that has moved nor drop one by forgetting a
+     card — the same guarantee the injected version had, kept without the page
+     having to run any JavaScript.
+     ★These are the ONLY cards.  A hand-written grid used to sit below them,
+     one card per PART, because a page carried several demos and a card was
+     the only way to reach one of them.  Since the site was cut back to four
+     typical scenarios a page carries one part, so that grid said the same
+     four things twice — and the copy that had to be maintained by hand was
+     the one saying them second. -->
+{{@cards}}
+
+<h2>{{home.two.h2}}</h2>
+
+<p>{{home.two.p1}}</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr>
+    <th></th>
+    <th>{{home.two.col.lite}}</th>
+    <th>{{home.two.col.tok}}</th>
+  </tr></thead>
+  <tbody>
+    <tr><th>{{home.two.row.what}}</th>
+        <td>{{home.two.lite.what}}</td><td>{{home.two.tok.what}}</td></tr>
+    <tr><th>{{home.two.row.how}}</th>
+        <td>{{home.two.lite.how}}</td><td>{{home.two.tok.how}}</td></tr>
+    <tr><th>{{home.two.row.where}}</th>
+        <td>{{home.two.lite.where}}</td><td>{{home.two.tok.where}}</td></tr>
+    <tr><th>{{home.two.row.cost}}</th>
+        <td>{{home.two.lite.cost}}</td><td>{{home.two.tok.cost}}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>{{home.two.p2}}</p>
+
+<p>{{home.two.p3}}</p>
+
+<h2>{{home.scope.h2}}</h2>
+
+<ul>
+  <li>{{home.scope.li1}}</li>
+  <li>{{home.scope.li2}}</li>
+  <li>{{home.scope.li3}}</li>
+  <li>{{home.scope.li4}}</li>
+  <li>{{home.scope.li5}}</li>
+</ul>
+
+<h2>{{home.run.h2}}</h2>
+
+<p>{{home.run.p}}</p>
+
+</main>
+
+{{@footer}}
+
+</body>
+</html>

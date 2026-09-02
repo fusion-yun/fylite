@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="{{@htmllang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{cr.title|text}}</title>
+<link rel="icon" href="assets/fy_mark.svg">
+<meta name="description" content="{{cr.desc|text}}">
+{{@alternates}}
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/site.css">
+<!-- ★ONE script, ~2 KB.  This page used to pull the i18n runtime and eight
+     catalogue files — 156 KB, of which 116 KB was tool prose it never shows —
+     in order to fill in text that is now simply in the markup.  `theme.js` is
+     what is left, and since the switches went wordless it no longer needs the
+     catalogues either. -->
+<script src="assets/theme.js"></script>
+<!-- ★which host is serving this? the desktop viewer and the website get
+     the SAME BYTES, so anything that must differ is decided at runtime.
+     Publishes `data-fy-host` on <html>; today one CSS rule reads it, to
+     drop the footer QR in the viewer. -->
+<script src="assets/host.js"></script>
+</head>
+<body data-page="credits">
+
+<header class="top">
+  <a class="brand" href="{{@home}}"><img src="assets/fy_mark.svg" alt="" width="32" height="32"></a>
+  <div class="titles">
+  <h1>{{cr.h1}}</h1>
+  <span class="sub">{{cr.sub}}</span>
+  </div>
+{{@warn}}
+  <nav>
+{{@nav}}
+    <button id="theme-toggle" class="iconbtn" type="button"></button>
+  </nav>
+</header>
+
+<main class="doc">
+
+<p class="lead">{{cr.lead}}</p>
+
+<h2>{{cr.license.h2}}</h2>
+
+<p>{{cr.license.p}}</p>
+
+<p>{{cr.license.files}}</p>
+
+<h2>{{cr.parent.h2}}</h2>
+
+<p>{{cr.parent.p}}</p>
+
+<h2>{{cr.port.h2}}</h2>
+
+<p>{{cr.port.lead}}</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr>
+    <th>{{cr.port.col.up}}</th>
+    <th>{{cr.port.col.who}}</th>
+    <th>{{cr.port.col.lic}}</th>
+    <th>{{cr.port.col.what}}</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>GACODE — GEO</td><td>J. Candy (General Atomics)</td><td>Apache-2.0</td>
+        <td>{{cr.port.geo}}</td></tr>
+    <tr><td>GACODE — NEO</td><td>E. Belli, J. Candy (General Atomics)</td><td>Apache-2.0</td>
+        <td>{{cr.port.neo}}</td></tr>
+    <tr><td>GACODE — TGLF</td><td>G. M. Staebler et al. (General Atomics)</td><td>Apache-2.0</td>
+        <td>{{cr.port.tglf}}</td></tr>
+    <tr><td>GACODE — TGYRO / expro</td><td>{{cr.port.who.gacode}}</td><td>Apache-2.0</td>
+        <td>{{cr.port.tgyro}}</td></tr>
+    <tr><td>NCLASS</td><td>W. A. Houlberg</td><td>{{cr.port.lic.vianeo}}</td>
+        <td>{{cr.port.nclass}}</td></tr>
+    <tr><td>METIS</td><td>J. F. Artaud et al. (CEA/IRFM)</td><td>CeCILL-C</td>
+        <td>{{cr.port.metis}}</td></tr>
+    <tr><td>FyTok — fytrans</td><td>{{cr.port.who.fytok}}</td><td>Apache-2.0</td>
+        <td>{{cr.port.fytrans}}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>{{cr.port.changes}}</p>
+
+<p>{{cr.port.rev}}</p>
+
+<h2>{{cr.data.h2}}</h2>
+
+<ul>
+  <li>{{cr.data.li1}}</li>
+  <li>{{cr.data.li2}}</li>
+  <li>{{cr.data.li3}}</li>
+  <li>{{cr.data.li4}}</li>
+</ul>
+
+<h2>{{cr.nottaken.h2}}</h2>
+
+<p>{{cr.nottaken.lead}}</p>
+
+<ul>
+  <li>{{cr.nottaken.efit}}</li>
+  <li>{{cr.nottaken.gray}}</li>
+  <li>{{cr.nottaken.umfpack}}</li>
+</ul>
+
+<h2>{{cr.built.h2}}</h2>
+
+<p>{{cr.built.p}}</p>
+
+<h2>{{cr.thanks.h2}}</h2>
+
+<p>{{cr.thanks.lead}}</p>
+
+<ul>
+  <li>{{cr.thanks.group}}</li>
+  <li>{{cr.thanks.gacode}}</li>
+  <li>{{cr.thanks.metis}}</li>
+  <li>{{cr.thanks.eped}}</li>
+  <li>{{cr.thanks.toksys}}</li>
+  <li>{{cr.thanks.east}}</li>
+  <li>{{cr.thanks.kefit}}</li>
+  <li>{{cr.thanks.sxr}}</li>
+  <li>{{cr.thanks.corpus}}</li>
+  <li>{{cr.thanks.pcs}}</li>
+  <li>{{cr.thanks.kefitops}}</li>
+  <li>{{cr.thanks.iter}}</li>
+  <li>{{cr.thanks.papers}}</li>
+</ul>
+
+<p>{{cr.thanks.p3}}</p>
+
+<h2>{{cr.refs.h2}}</h2>
+
+<p>{{cr.refs.lead}}</p>
+
+<h3>{{cr.refs.eq}}</h3>
+
+<ul>
+  <li>{{cr.refs.gs}}</li>
+  <li><span>{{cr.refs.lao}}</span><br>
+    L. L. Lao, H. St. John, R. D. Stambaugh, A. G. Kellman, W. Pfeiffer,
+    <em>Reconstruction of current profile parameters and plasma shapes in
+    tokamaks</em>, Nuclear Fusion <strong>25</strong> (1985) 1611.</li>
+  <li><span>{{cr.refs.jardin}}</span><br>
+    S. C. Jardin, <em>Computational Methods in Plasma Physics</em>,
+    CRC Press, 2010.</li>
+  <li><span>{{cr.refs.hockney}}</span><br>
+    R. W. Hockney, <em>A fast direct solution of Poisson's equation using
+    Fourier analysis</em>, Journal of the ACM <strong>12</strong> (1965) 95.</li>
+  <li><span>{{cr.refs.wesson}}</span><br>
+    J. Wesson, <em>Tokamaks</em>, 4th ed., Oxford University Press, 2011.</li>
+</ul>
+
+<h3>{{cr.refs.tr}}</h3>
+
+<ul>
+  <li><span>{{cr.refs.sauter}}</span><br>
+    O. Sauter, C. Angioni, Y. R. Lin-Liu, <em>Neoclassical conductivity and
+    bootstrap current formulas</em>, Physics of Plasmas <strong>6</strong>
+    (1999) 2834.</li>
+  <li><span>{{cr.refs.redl}}</span><br>
+    A. Redl, C. Angioni, E. Belli, O. Sauter, <em>A new set of analytical
+    formulae for the computation of the bootstrap current</em>, Physics of
+    Plasmas <strong>28</strong> (2021) 022502.</li>
+  <li><span>{{cr.refs.ch}}</span><br>
+    C. S. Chang, F. L. Hinton, Physics of Fluids <strong>25</strong> (1982) 1493;
+    Y. R. Lin-Liu, R. L. Miller, Physics of Plasmas <strong>2</strong> (1995) 1666.</li>
+  <li><span>{{cr.refs.staebler}}</span><br>
+    G. M. Staebler, J. E. Kinsey, R. E. Waltz, <em>A theory-based transport
+    model with comprehensive physics</em>, Physics of Plasmas <strong>14</strong>
+    (2007) 055909.</li>
+  <li><span>{{cr.refs.belli}}</span><br>
+    E. A. Belli, J. Candy, <em>Kinetic calculation of neoclassical transport
+    including self-consistent electron and impurity dynamics</em>, Plasma
+    Physics and Controlled Fusion <strong>50</strong> (2008) 095010.</li>
+</ul>
+
+<h3>{{cr.refs.zerod}}</h3>
+
+<ul>
+  <li><span>{{cr.refs.ipb}}</span><br>
+    ITER Physics Basis, Nuclear Fusion <strong>39</strong> (1999) 2175 (IPB98(y,2));
+    P. N. Yushmanov et al., Nuclear Fusion <strong>30</strong> (1990) 1999 (ITER89-P).</li>
+  <li><span>{{cr.refs.bosch}}</span><br>
+    H.-S. Bosch, G. M. Hale, <em>Improved formulas for fusion cross-sections
+    and thermal reactivities</em>, Nuclear Fusion <strong>32</strong> (1992) 611.</li>
+  <li><span>{{cr.refs.martin}}</span><br>
+    Y. Martin et al., <em>Power requirement for accessing the H-mode</em>,
+    Journal of Physics: Conference Series <strong>123</strong> (2008) 012033.</li>
+  <li><span>{{cr.refs.artaud}}</span><br>
+    J. F. Artaud et al., <em>Metis: a fast integrated tokamak modelling tool</em>,
+    Nuclear Fusion <strong>58</strong> (2018) 105001.</li>
+  <li><span>{{cr.refs.putterich}}</span><br>
+    T. Pütterich et al., Nuclear Fusion <strong>59</strong> (2019) 056013;
+    Open-ADAS, <a href="https://open.adas.ac.uk">open.adas.ac.uk</a>.</li>
+  <li><span>{{cr.refs.janev}}</span><br>
+    R. K. Janev, C. D. Boley, D. E. Post, <em>Penetration of energetic neutral
+    beams into fusion plasmas</em>, Nuclear Fusion <strong>29</strong> (1989) 2125.</li>
+</ul>
+
+<h2>{{cr.full.h2}}</h2>
+
+<p>{{cr.full.p}}</p>
+
+<ul>
+  <li><a href="{{@repo}}/LICENSE">LICENSE</a>
+      — <span>{{cr.full.license}}</span></li>
+  <li><a href="{{@repo}}/NOTICE">NOTICE</a>
+      — <span>{{cr.full.notice}}</span></li>
+  <li><a href="{{@repo}}/{{@ackfile}}">{{@ackfile}}</a>
+      — <span>{{cr.full.ack}}</span></li>
+  <li><a href="{{@repo}}/CONTRIBUTORS.md">CONTRIBUTORS.md</a>
+      — <span>{{cr.full.contrib}}</span></li>
+</ul>
+
+<p>{{cr.full.issue}}</p>
+
+</main>
+
+{{@footer}}
+
+</body>
+</html>

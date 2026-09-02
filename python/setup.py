@@ -3,7 +3,7 @@
 Everything declarative lives in `pyproject.toml`; this file exists for one
 fact that PEP 621 metadata cannot state.
 
-★The package ships a PRE-COMPILED `_lib/libfylite.so` as package data — pip
+★The package ships a PRE-COMPILED `_lib/libfylite_kernel.so` as package data — pip
 never builds it.  setuptools therefore sees no extension module, calls the
 distribution pure, and stamps the wheel `py3-none-any`: a wheel that installs
 happily on macOS, Windows and aarch64 and then fails at the first

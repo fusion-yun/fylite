@@ -222,7 +222,7 @@ from fylite import kernel as K  # noqa: E402
 from fylite._paths import KERNEL_LIB  # noqa: E402
 
 _needs_kernel = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                                   reason="libfylite.so not built")
+                                   reason="libfylite_kernel.so not built")
 
 ENTRIES = list(iface.ENTRIES)
 #: dimensions each entry is exercised at, in its own declared names
@@ -392,7 +392,7 @@ def test_both_hosts_march_the_same_discharge():
 
     The 含时演化 bar's time loop is the kernel's since 2026-08-26, so the
     strongest thing that can be said about it is that BOTH kernel builds run
-    it to the same discharge: native (this host, `libfylite.so`) and wasm
+    it to the same discharge: native (this host, `libfylite_kernel.so`) and wasm
     (the browser's build, driven here through the same binding a page uses).
 
     ★The march is chosen to be hostile on purpose — 12 adaptive steps with

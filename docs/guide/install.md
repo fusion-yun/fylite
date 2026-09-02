@@ -20,7 +20,7 @@ cd python && pip install -e '.[plot,yaml]'    # 或按需
 
 ## 分发面（alpha 期）
 
-★包里带的是**预编译**的内核（`_lib/libfylite.so`），pip 不在装的时候编译它。
+★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
 所以轮带**平台 tag**，alpha 期的公开面是 **Linux x86-64 一个**：别的平台在装的
 时候就被拒绝，而不是装完之后在第一次内核调用时报错。
 
@@ -64,7 +64,7 @@ export FYLITE_DEVICE_DIR=$PWD/machine_desc/east
 
 | | |
 | :--- | :--- |
-| 文件 | `python/fylite/_lib/libfylite.so`——**C-ABI cdylib，可重入、无全局态** |
+| 文件 | `python/fylite/_lib/libfylite_kernel.so`——**C-ABI cdylib，可重入、无全局态** |
 | 来源 | `bash rust/build.sh`，单棵 cargo crate（`rust/fylite/`）；无 MPI |
 | 分发 | 预编译入仓，由 `python/pyproject.toml` 的 `package-data` 随轮子走；**pip 不编译它** |
 | 系统库 | `ldd` 只有 `libgcc_s.so.1`、`libm.so.6`、`libc.so.6` 加动态链接器——**没有 gfortran，没有 lapack/blas** |
@@ -79,7 +79,7 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 重建需要 Rust 工具链：
 
 ```bash
-bash rust/build.sh                # -> rust/fylite/target/release/libfylite.so，并装进 python/fylite/_lib/
+bash rust/build.sh                # -> rust/fylite/target/release/libfylite_kernel.so，并装进 python/fylite/_lib/
 bash rust/build.sh --no-install   # 只编译，不安装
 ```
 
@@ -110,7 +110,7 @@ bash rust/build.sh --wasm-check
 的 ctypes 绑定按 3.2 移除。两个编号的确切所指由仓根 `NOTICE` 自己定义（那份 licence 文件
 本身是纯 Apache-2.0，并无此二节——`NOTICE` 把散在源码里的二十七处引用一次性定清）。
 `python/fylite/_bin/`、`_data/` 与 `fortran/` 三个目录**都不存在**，`_lib/` 里只有一个
-`libfylite.so`。
+`libfylite_kernel.so`。
 
 留下来的不是库，是**答案**：
 

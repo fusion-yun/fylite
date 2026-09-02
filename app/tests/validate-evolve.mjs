@@ -353,7 +353,7 @@ for d in json.load(sys.stdin):
     # psibar.  So this side rebuilds the plasma with the kernel's own
     # point-in-polygon and its own flood rule, forms
     # j_phi = R p' + FF'/(mu0 R) in the gauge the file declares, and asks
-    # the native libfylite.so to solve Delta* psi = -2 pi mu0 R j_phi with that same
+    # the native libfylite_kernel.so to solve Delta* psi = -2 pi mu0 R j_phi with that same
     # border.  The answer must BE the field the page shipped.
     #
     # ★What that pins, which nothing else here can: the two gauges.  The
@@ -694,7 +694,7 @@ ref.forEach((r, i) => {
 // family's answer.
 //
 // ★And under all three, the NATIVE re-solve: the page's field, its border
-// and its source coefficients handed to the native libfylite.so, which
+// and its source coefficients handed to the native libfylite_kernel.so, which
 // inverts Delta* itself.  That is the oracle this bar could not have for
 // the free-boundary half.
 console.log('\n定形边界回灌');

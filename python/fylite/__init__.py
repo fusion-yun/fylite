@@ -4,7 +4,7 @@ A Rust core does the physics and the numerics; this package converts what a
 machine or another code wrote into fyo-semantic documents, hands their arrays
 to the kernel, and puts the answers back on disk.  ``numpy`` is the only hard
 dependency, and the kernel ships pre-built
-(:mod:`fylite.kernel`, ``python/fylite/_lib/libfylite.so``).
+(:mod:`fylite.kernel`, ``python/fylite/_lib/libfylite_kernel.so``).
 
 Where to start:
 

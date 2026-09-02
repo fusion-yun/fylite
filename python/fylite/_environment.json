@@ -12,7 +12,7 @@
   "FYLITE_NN_DIR": {
    "governs": "where exported neural surrogates live (TGLF-NN and any other model in that family), as .npz written by tools/nn-export.jl",
    "needed_for": "fylite.nn.load and every capability that asks for a surrogate; nothing else",
-   "default": "none - NO MODEL WEIGHTS ARE SHIPPED, and none are compiled into libfylite.so or the wasm: a surrogate is third-party DATA (TGLF-NN's sat2 ensemble is 3.5 MB) and is loaded on demand. Absent, fylite.nn raises NNDataMissing at the point of use",
+   "default": "none - NO MODEL WEIGHTS ARE SHIPPED, and none are compiled into libfylite_kernel.so or the wasm: a surrogate is third-party DATA (TGLF-NN's sat2 ensemble is 3.5 MB) and is loaded on demand. Absent, fylite.nn raises NNDataMissing at the point of use",
    "example": "~/workspace/data/fylite_nn",
    "affects_result": true,
    "affects_result_why": "names WHICH TRAINED MODEL answers - a different export is a different function, and its own training box decides where the answer may be believed"

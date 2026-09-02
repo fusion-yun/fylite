@@ -2,7 +2,7 @@
 
 ★★"单核双宿主" is what this repository claims about itself, and this is the
 claim's end-to-end form: every entry the kernel DECLARES is run on native
-(`libfylite.so`) and on wasm (the browser's build, driven through the same
+(`libfylite_kernel.so`) and on wasm (the browser's build, driven through the same
 binding a page loads), and what must be identical is identical.
 
 What makes it a claim rather than a comparison is that the split is

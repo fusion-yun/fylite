@@ -32,7 +32,7 @@ Python 侧不复写其中任何一段离散化或闭式：装配、装置接线�
 
 | | |
 | :--- | :--- |
-| 制品 | `python/fylite/_lib/libfylite.so`——**可重入、无全局态**，2.8 MB |
+| 制品 | `python/fylite/_lib/libfylite_kernel.so`——**可重入、无全局态**，2.8 MB |
 | 入口 | 导出 **216 个** `fylite_rs_*` C 函数 |
 | 构建 | `bash rust/build.sh`（单棵 cargo crate；`--no-install` 只编译） |
 | 分发 | 预编译入仓，随 `python/pyproject.toml` 的 `package-data` 走；**pip 不编译它** |
@@ -89,7 +89,7 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 
 早先的文档记的是七棵各自 `build.sh` 的 Fortran 源树（`efit` / `geo` / `neo` / `tglf` /
 `gray` / `pencil` / `torbeam`）与它们编出的 `libefit.so` / `libgeo.so` / `libneo.so` /
-`libtglf.so`。**本仓没有 `fortran/` 目录，`_lib/` 里只有一个 `libfylite.so`**：EFIT 一系
+`libtglf.so`。**本仓没有 `fortran/` 目录，`_lib/` 里只有一个 `libfylite_kernel.so`**：EFIT 一系
 按 `NOTICE` 3.1 移除，三个 GACODE 绑定库按 3.2 移除，物理改由上表的 Rust 移植承担。
 GRAY 移植另因许可受限**暂停**（clean-room 纪律：不读其物理源码）。原委与所留下的东西见
 用户指南 `docs/guide/install.md` 的

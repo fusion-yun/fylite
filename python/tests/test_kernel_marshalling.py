@@ -18,7 +18,7 @@ from fylite import kernel as K
 from fylite._paths import KERNEL_LIB
 
 pytestmark = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                                reason="libfylite.so not built "
+                                reason="libfylite_kernel.so not built "
                                        "(rust/build.sh)")
 
 #: two rectangular elements, the six-parallel-array C-ABI layout

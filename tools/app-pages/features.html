@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="{{@htmllang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ft.title|text}}</title>
+<link rel="icon" href="assets/fy_mark.svg">
+<meta name="description" content="{{ft.desc|text}}">
+{{@alternates}}
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/site.css">
+<!-- ★ONE script, ~2 KB.  This page used to pull the i18n runtime and eight
+     catalogue files — 156 KB, of which 116 KB was tool prose it never shows —
+     in order to fill in text that is now simply in the markup.  `theme.js` is
+     what is left, and since the switches went wordless it no longer needs the
+     catalogues either. -->
+<script src="assets/theme.js"></script>
+<!-- ★which host is serving this? the desktop viewer and the website get
+     the SAME BYTES, so anything that must differ is decided at runtime.
+     Publishes `data-fy-host` on <html>; today one CSS rule reads it, to
+     drop the footer QR in the viewer. -->
+<script src="assets/host.js"></script>
+</head>
+<body data-page="features">
+
+<header class="top">
+  <a class="brand" href="{{@home}}"><img src="assets/fy_mark.svg" alt="" width="32" height="32"></a>
+  <div class="titles">
+  <h1>{{ft.h1}}</h1>
+  <span class="sub">{{ft.sub}}</span>
+  </div>
+{{@warn}}
+  <nav>
+{{@nav}}
+    <button id="theme-toggle" class="iconbtn" type="button"></button>
+  </nav>
+</header>
+
+<main class="doc">
+
+<p class="lead">{{ft.lead}}</p>
+
+<div class="scope">{{ft.rule}}</div>
+
+<h2>{{ft.cap.h2}}</h2>
+
+<p>{{ft.cap.lead}}</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr>
+    <th>{{ft.col.area}}</th>
+    <th>{{ft.col.what}}</th>
+    <th>{{ft.col.model}}</th>
+    <th>{{ft.col.evidence}}</th>
+  </tr></thead>
+  <tbody>
+    <tr><th>{{ft.a.zerod}}</th>
+        <td>{{ft.a.zerod.what}}</td>
+        <td>{{ft.a.zerod.model}}</td>
+        <td>{{ft.a.zerod.ev}}</td></tr>
+    <tr><th>{{ft.a.em}}</th>
+        <td>{{ft.a.em.what}}</td>
+        <td>{{ft.a.em.model}}</td>
+        <td>{{ft.a.em.ev}}</td></tr>
+    <tr><th>{{ft.a.eq}}</th>
+        <td>{{ft.a.eq.what}}</td>
+        <td>{{ft.a.eq.model}}</td>
+        <td>{{ft.a.eq.ev}}</td></tr>
+    <tr><th>{{ft.a.recon}}</th>
+        <td>{{ft.a.recon.what}}</td>
+        <td>{{ft.a.recon.model}}</td>
+        <td>{{ft.a.recon.ev}}</td></tr>
+    <tr><th>{{ft.a.deck}}</th>
+        <td>{{ft.a.deck.what}}</td>
+        <td>{{ft.a.deck.model}}</td>
+        <td>{{ft.a.deck.ev}}</td></tr>
+    <tr><th>{{ft.a.oper}}</th>
+        <td>{{ft.a.oper.what}}</td>
+        <td>{{ft.a.oper.model}}</td>
+        <td>{{ft.a.oper.ev}}</td></tr>
+    <tr><th>{{ft.a.conf}}</th>
+        <td>{{ft.a.conf.what}}</td>
+        <td>{{ft.a.conf.model}}</td>
+        <td>{{ft.a.conf.ev}}</td></tr>
+    <tr><th>{{ft.a.vs}}</th>
+        <td>{{ft.a.vs.what}}</td>
+        <td>{{ft.a.vs.model}}</td>
+        <td>{{ft.a.vs.ev}}</td></tr>
+    <tr><th>{{ft.a.neo}}</th>
+        <td>{{ft.a.neo.what}}</td>
+        <td>{{ft.a.neo.model}}</td>
+        <td>{{ft.a.neo.ev}}</td></tr>
+    <tr><th>{{ft.a.turb}}</th>
+        <td>{{ft.a.turb.what}}</td>
+        <td>{{ft.a.turb.model}}</td>
+        <td>{{ft.a.turb.ev}}</td></tr>
+    <tr><th>{{ft.a.tr}}</th>
+        <td>{{ft.a.tr.what}}</td>
+        <td>{{ft.a.tr.model}}</td>
+        <td>{{ft.a.tr.ev}}</td></tr>
+    <tr><th>{{ft.a.hcd}}</th>
+        <td>{{ft.a.hcd.what}}</td>
+        <td>{{ft.a.hcd.model}}</td>
+        <td>{{ft.a.hcd.ev}}</td></tr>
+    <tr><th>{{ft.a.fus}}</th>
+        <td>{{ft.a.fus.what}}</td>
+        <td>{{ft.a.fus.model}}</td>
+        <td>{{ft.a.fus.ev}}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">{{ft.cap.note}}</p>
+
+<h2>{{ft.assume.h2}}</h2>
+
+<p>{{ft.assume.lead}}</p>
+
+<ol>
+  <li>{{ft.assume.li1}}</li>
+  <li>{{ft.assume.li2}}</li>
+  <li>{{ft.assume.li3}}</li>
+  <li>{{ft.assume.li4}}</li>
+  <li>{{ft.assume.li5}}</li>
+  <li>{{ft.assume.li6}}</li>
+</ol>
+
+<h2>{{ft.gap.h2}}</h2>
+
+<h3>{{ft.gap.refuse.h3}}</h3>
+
+<p>{{ft.gap.refuse.lead}}</p>
+
+<ul>
+  <li>{{ft.gap.refuse.li1}}</li>
+  <li>{{ft.gap.refuse.li2}}</li>
+  <li>{{ft.gap.refuse.li3}}</li>
+  <li>{{ft.gap.refuse.li4}}</li>
+</ul>
+
+<h3>{{ft.gap.absent.h3}}</h3>
+
+<div class="table-scroll">
+<table>
+  <thead><tr>
+    <th>{{ft.col.gap}}</th>
+    <th>{{ft.col.state}}</th>
+    <th>{{ft.col.why}}</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>{{ft.g.fuel}}</td><td>{{ft.g.fuel.s}}</td><td>{{ft.g.fuel.w}}</td></tr>
+    <tr><td>{{ft.g.ped}}</td><td>{{ft.g.ped.s}}</td><td>{{ft.g.ped.w}}</td></tr>
+    <tr><td>{{ft.g.imp}}</td><td>{{ft.g.imp.s}}</td><td>{{ft.g.imp.w}}</td></tr>
+    <tr><td>{{ft.g.mhd}}</td><td>{{ft.g.mhd.s}}</td><td>{{ft.g.mhd.w}}</td></tr>
+    <tr><td>{{ft.g.fast}}</td><td>{{ft.g.fast.s}}</td><td>{{ft.g.fast.w}}</td></tr>
+    <tr><td>{{ft.g.jconv}}</td><td>{{ft.g.jconv.s}}</td><td>{{ft.g.jconv.w}}</td></tr>
+    <tr><td>{{ft.g.signeo}}</td><td>{{ft.g.signeo.s}}</td><td>{{ft.g.signeo.w}}</td></tr>
+    <tr><td>{{ft.g.ts}}</td><td>{{ft.g.ts.s}}</td><td>{{ft.g.ts.w}}</td></tr>
+    <tr><td>{{ft.g.slice}}</td><td>{{ft.g.slice.s}}</td><td>{{ft.g.slice.w}}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>{{ft.ev.h2}}</h2>
+
+<p>{{ft.ev.lead}}</p>
+
+<ol>
+  <li>{{ft.ev.li1}}</li>
+  <li>{{ft.ev.li2}}</li>
+  <li>{{ft.ev.li3}}</li>
+  <li>{{ft.ev.li4}}</li>
+</ol>
+
+<div class="scope">{{ft.ev.note}}</div>
+
+<h2>{{ft.todo.h2}}</h2>
+
+<p>{{ft.todo.lead}}</p>
+
+<div class="table-scroll">
+<table>
+  <thead><tr>
+    <th>{{ft.col.item}}</th>
+    <th>{{ft.col.state}}</th>
+    <th>{{ft.col.criterion}}</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>{{ft.t.icrh}}</td><td>{{ft.t.icrh.s}}</td><td>{{ft.t.icrh.c}}</td></tr>
+    <tr><td>{{ft.t.ecrh}}</td><td>{{ft.t.ecrh.s}}</td><td>{{ft.t.ecrh.c}}</td></tr>
+    <tr><td>{{ft.t.ash}}</td><td>{{ft.t.ash.s}}</td><td>{{ft.t.ash.c}}</td></tr>
+    <tr><td>{{ft.t.mom}}</td><td>{{ft.t.mom.s}}</td><td>{{ft.t.mom.c}}</td></tr>
+    <tr><td>{{ft.t.ped}}</td><td>{{ft.t.ped.s}}</td><td>{{ft.t.ped.c}}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="note">{{ft.todo.note}}</p>
+
+<h2>{{ft.src.h2}}</h2>
+
+<p>{{ft.src.lead}}</p>
+
+<ul>
+  <li><a href="{{@repo}}/FEATURE.md">FEATURE.md</a>
+      — <span>{{ft.src.feature}}</span></li>
+  <li><a href="{{@repo}}/docs/reference/fidelity.md">docs/reference/fidelity.md</a>
+      — <span>{{ft.src.fidelity}}</span></li>
+  <li><a href="{{@repo}}/docs/reference/api.md">docs/reference/api.md</a>
+      — <span>{{ft.src.api}}</span></li>
+  <li><a href="{{@page:credits}}">{{nav.credits}}</a>
+      — <span>{{ft.src.credits}}</span></li>
+</ul>
+
+</main>
+
+{{@footer}}
+
+</body>
+</html>

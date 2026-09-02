@@ -1,13 +1,15 @@
 // The device deck a browser gate runs on.
 //
-// ★`app/` ships its PRESET machines as fyo/JSON-LD documents under
-// `app/devices/`, listed with their public sources by
-// `devices/catalogue.jsonld` — everything under `app/` is published, so a
-// preset is a redistribution and the licence question is answered per
-// machine there.  EAST is not a preset: its deck and its reference discharge
-// live in `machine_desc/east/` at the repository root, outside both the
-// wheel (`python/pyproject.toml` packages only `fylite*`) and the published
-// copy (`publish-app.yml` copies `app/` alone).
+// ★★2026-09-02：这段抬头从前写着「EAST is not a preset: its deck lives in
+// `machine_desc/` at the repository root」。**那已经不成立**：2026-08-22 用户裁定
+// 装置数据入 `app/`，而分仓之后 `app/devices/east.jsonld` 与 `iter.jsonld` 是随
+// `app/` 一起发布的**真文档**（不是链接——分仓那阵它们曾是指向 `machine_desc/`
+// 的符号链接，克隆下来就是两条断链，已改回实拷）。`machine_desc/` 本身留在私有
+// 的内核仓。
+//
+// 所以取法是**先看发布出去的那份，再回退到源树**：前者在只有本仓的检出上就有，
+// 后者只在两边都检出的机器上才有。两者内容逐字节相同（`catalogue.jsonld` 的注记
+// 与 `python/tests/test_machine_desc.py` 各自说过这件事）。
 //
 // A page reads a non-preset machine exactly one way — the import channel,
 // which parses a fyo device document and keeps it in localStorage.  So that is
@@ -19,11 +21,14 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const HERE = new URL('.', import.meta.url).pathname;
 export const DEVICE_DIR = HERE + '../../machine_desc';
+export const PRESET_DIR = HERE + '../devices';
 
-/** The fyo device document for `id`, or null when the deck is not present. */
+/** The fyo device document for `id`, or null when neither copy is present. */
 export function deviceDoc(id) {
-  const f = `${DEVICE_DIR}/${id}/fylite_device_${id}.json`;
-  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null;
+  for (const f of [`${PRESET_DIR}/${id}.jsonld`,
+                   `${DEVICE_DIR}/${id}/fylite_device_${id}.json`])
+    if (existsSync(f)) return JSON.parse(readFileSync(f, 'utf8'));
+  return null;
 }
 
 /**
@@ -74,6 +79,6 @@ export function envWithDeck(id) {
 /** Message for a gate that cannot run without the deck. */
 export function missingDeviceMessage(id) {
   return `装置数据缺失：${DEVICE_DIR}/${id}/fylite_device_${id}.json 不存在。`
-       + `\n本仓不随 app/ 发布装置数据（见 machine_desc/README.md）；`
+       + `\n发布的预设在 app/devices/，源树在私有仓的 machine_desc/；两处都没有。`
        + `该文件由 data/${id}/ 的装置卷宗生成。`;
 }
