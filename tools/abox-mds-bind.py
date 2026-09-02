@@ -71,6 +71,23 @@ _ITEM_RE = re.compile(r"^(?:(-?\d+)|(\*)|\{([A-Za-z_][A-Za-z0-9_]*)\})$")
 _NUM_RE = re.compile(r"^-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?$")
 
 
+def _cite(path) -> str:
+    """绝对路径 -> `<仓名>:<仓内相对路径>`。
+
+    ★★**出处要能被别人解析，而不是能被我解析。** 这两份生成物一份进公开仓、一份
+    随装置牌流转，写 `/home/<我>/workspace/fydoc/...` 有两个毛病：读者那里没有这个
+    路径，以及它把构建者的目录布局连用户名一起发了出去（内核的制品加固为同一件事
+    加过 `--remap-path-prefix`）。
+    ★格式抄的是 A-Box 自己的写法——它的 `dcterms:source` 就是
+    `fydata:abox/device/tokamak/iter/machine.yaml`。
+    """
+    p = pathlib.Path(path).resolve()
+    for anc in p.parents:
+        if (anc / ".git").exists():
+            return f"{anc.name}:{p.relative_to(anc).as_posix()}"
+    return p.name
+
+
 def _subscript(text):
     """`'0, *, {time_slice}'` -> list of index items, or None if any item is not
     an integer / `*` / a `{slot}`.
@@ -261,7 +278,7 @@ def main(argv=None):
         "title": "EAST MDSplus 绑定——由 A-Box 分解出的扁平表，两个宿主读同一份",
         "provenance": {
             "tool": TOOL,
-            "source": str(abox),
+            "source": _cite(abox),
             "files": [p.name for p in files],
             "sha256": hashlib.sha256(blob).hexdigest(),
             #: ★★两个指纹，因为它们回答的是两个问题。`sha256` 是**读了哪些字节**

@@ -135,6 +135,23 @@ def devices(fydata: pathlib.Path) -> list[str]:
                   if p.is_dir() and _manifest(p)[0] is not None)
 
 
+def _cite(path) -> str:
+    """绝对路径 -> `<仓名>:<仓内相对路径>`。
+
+    ★★**出处要能被别人解析，而不是能被我解析。** 这两份生成物一份进公开仓、一份
+    随装置牌流转，写 `/home/<我>/workspace/fydoc/...` 有两个毛病：读者那里没有这个
+    路径，以及它把构建者的目录布局连用户名一起发了出去（内核的制品加固为同一件事
+    加过 `--remap-path-prefix`）。
+    ★格式抄的是 A-Box 自己的写法——它的 `dcterms:source` 就是
+    `fydata:abox/device/tokamak/iter/machine.yaml`。
+    """
+    p = pathlib.Path(path).resolve()
+    for anc in p.parents:
+        if (anc / ".git").exists():
+            return f"{anc.name}:{p.relative_to(anc).as_posix()}"
+    return p.name
+
+
 def _pick(abox: pathlib.Path, rel: str):
     """manifest 里写的相对路径 -> A-Box 里真实存在的那个文件。
 
@@ -474,11 +491,11 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
         "@type": "fyo:DeviceDescription",
         "_dd_version": str(manifest.get("dd_source", "imas/4")).split("/")[-1],
         "_machine": str(manifest.get("device", dev.upper())),
-        "_basis": f"{manifest_path.parent} (epoch "
+        "_basis": f"{_cite(manifest_path.parent)} (epoch "
                   f"{(manifest.get('epochs') or [{}])[0].get('id', '?')})",
         "provenance": {
             "generator": "tools/abox-to-machine-desc.py",
-            "source": str(manifest_path),
+            "source": _cite(manifest_path),
             "identity_iri": manifest.get("identity_iri"),
             "source_files": rel,
             "note": (

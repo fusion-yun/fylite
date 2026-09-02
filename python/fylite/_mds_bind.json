@@ -4,7 +4,7 @@
  "title": "EAST MDSplus 绑定——由 A-Box 分解出的扁平表，两个宿主读同一份",
  "provenance": {
   "tool": "tools/abox-mds-bind.py",
-  "source": "/home/salmon/workspace/fydoc/device/east/abox",
+  "source": "fydoc:device/east/abox",
   "files": [
    "ec_launchers.jsonld",
    "equilibrium.jsonld",
