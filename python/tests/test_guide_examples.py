@@ -29,16 +29,22 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 GUIDE = ROOT / "docs" / "guide"
-#: the chapters this gate owns — the worked examples and their entry page
+#: the worked examples and their entry page — the chapters that must carry a
+#: 「边界」 section and that this gate reads for runnable calls
 CHAPTERS = ("cases.md", "example-zerod.md", "example-transport.md",
             "example-evolve.md", "example-design.md", "example-reconstruction.md")
+#: ★the path rules below apply to the WHOLE BOOK, not just the worked examples:
+#: the rot they catch (a retired tree named as though it were there) is exactly
+#: what the older topic chapters had, and gating only the new chapters would
+#: have let them keep it.
+BOOK = tuple(sorted(p.name for p in GUIDE.glob("*.md")))
 
 
 @pytest.fixture(scope="module")
 def text() -> dict[str, str]:
     missing = [c for c in CHAPTERS if not (GUIDE / c).is_file()]
     assert not missing, f"the guide lost a worked-example chapter: {missing}"
-    return {c: (GUIDE / c).read_text(encoding="utf-8") for c in CHAPTERS}
+    return {c: (GUIDE / c).read_text(encoding="utf-8") for c in BOOK}
 
 
 @pytest.fixture(scope="module")
@@ -121,20 +127,35 @@ def test_every_scenario_entry_the_guide_calls_exists_with_the_keywords_shown(tex
     assert not bad, bad
 
 
-def test_the_guide_does_not_promise_paths_the_checkout_lacks(text):
-    """★`machine_desc/` and `examples/` are both gitignored-or-gone; a chapter
-    may TELL a reader how to obtain them (that is the point of the install
-    chapter) but must not read as though they were already there."""
+def test_no_chapter_promises_a_retired_path(text):
+    """★★`machine_desc/` is ABOLISHED (2026-09-02) and `examples/` is deleted.
+
+    A chapter may still NAME either — saying where a retired thing went is the
+    honest thing to do, and the install chapter has to.  What it may not do is
+    read as though the path were there: a `machine_desc/east/…` in a code block
+    is an instruction, and following it gets a reader nothing.
+
+    So the rule is about SPELLING, not about mentioning: a retired path inside
+    backticks (a literal a reader would type or open) fails unless the same line
+    marks it as retired.  Device files are spelled `$FYLITE_DEVICE_DIR/…` now.
+    """
+    RETIRED = ("machine_desc/", "examples/")
+    MARKS = ("废弃", "退役", "已删除", "不存在", "历史", "test_machine_desc",
+             "b4dce77", "不在本仓", "archive")
+    bad = []
     for chapter, body in text.items():
-        for path in re.findall(r"`(examples/[\w./-]+)`", body):
-            assert False, f"{chapter} names {path}, and examples/ was removed"
-    #: machine_desc is allowed — every mention that USES it must be under an
-    #: export line or point at the install chapter, which the corpus chapter does
-    users = [c for c, b in text.items() if "machine_desc/" in b]
-    for c in users:
-        b = text[c]
-        assert ("FYLITE_DEVICE_DIR" in b or "install.md" in b), (
-            f"{c} reads machine_desc/ without saying where it comes from")
+        for n, line in enumerate(body.splitlines(), 1):
+            for lit in re.findall(r"`([^`\n]+)`", line):
+                if not any(r in lit for r in RETIRED):
+                    continue
+                if any(m in line for m in MARKS):
+                    continue
+                bad.append(f"{chapter}:{n} spells `{lit}` as a live path")
+        #: and outside backticks, a bare export line is just as much an instruction
+        for n, line in enumerate(body.splitlines(), 1):
+            if "FYLITE_DEVICE_DIR=" in line and "machine_desc/" in line:
+                bad.append(f"{chapter}:{n} points $FYLITE_DEVICE_DIR at the retired tree")
+    assert not bad, bad
 
 
 def test_each_chapter_states_what_its_family_cannot_answer(text):
@@ -142,7 +163,8 @@ def test_each_chapter_states_what_its_family_cannot_answer(text):
     worked example that only shows what works teaches the reader to over-read
     it.  Every chapter carries a 「边界」 section (or, for the corpus chapter,
     the refusals table)."""
-    for chapter, body in text.items():
+    for chapter in CHAPTERS:
+        body = text[chapter]
         if chapter == "cases.md":
             assert "拒绝" in body, "the corpus chapter drops the refusals"
             continue

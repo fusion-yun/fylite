@@ -54,7 +54,7 @@ title: 输入模式 (Input Modes)
 
 全部 EAST 装置常量（限制器、线圈匝数、逐道误差地板、运营掩码、MDSplus 节点名、
 拟合控制、被动结构几何与电阻率、电源额定）都在
-`machine_desc/east/east_device.yaml`（目录由 `$FYLITE_DEVICE_DIR` 指定），经
+`$FYLITE_DEVICE_DIR/east_device.yaml`（目录由 `$FYLITE_DEVICE_DIR` 指定），经
 `device.load_device()` 读取。
 **代码层是装置中立的**：没有硬编码的机器常量。
 
@@ -69,14 +69,14 @@ title: 输入模式 (Input Modes)
 
 - **内核不限分辨率。** `kernel.gs_free_solve` 收的是两条**任意长度**的网格坐标数组
   （`grid_r` / `grid_z`），`kernel.Grid` 也只是 `(r0, z0, dr, dz, nr, nz)`；
-- `machine_desc/east/east_device.yaml` 的 `solver_dims`（`nw=nh=65`）现在是**装置文档的声明**，
+- `$FYLITE_DEVICE_DIR/east_device.yaml` 的 `solver_dims`（`nw=nh=65`）现在是**装置文档的声明**，
   由 `device.verify_solver_dims` 对独立的 `east_geom.txt` 核验——两边不一致要 fail loud，
   而不是让两套数字各自漂移；
 - 磁通环与探针的**响应行**不再查表，由内核按给定网格现算
   （`kernel.mutual_outer` / `kernel.probe_response`）；线圈→环的那一行（EFIT 的 `rsilfc`，
   过去唯一还要读 `rfcoil.ddd` 的地方）也已改为现算
   （`recon_rs.coil_loop_rows` = `device.channel_response(...)/2π`），线圈→探针本来就是算的
-  （`device.probe_element_response`）。**装置信息只有一个出处：`machine_desc/` 下的装置
+  （`device.probe_element_response`）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
   文档**；`device.coil_response_tables` / `vessel_response_tables` 只剩"拿别人的表和几何对一遍"
   这一个用途（`device.vessel_table_check`），活路上没有调用者（闸子
   `python/tests/test_one_machine_source.py`）。

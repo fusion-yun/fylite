@@ -281,6 +281,61 @@ PRESETS = ROOT / "app" / "devices"
 CATALOGUE = PRESETS / "catalogue.jsonld"
 
 
+#: keys whose values are DELIBERATELY different between the internal document and
+#: the published preset — `c58c2c6` replaced the operator's mdsip address and a
+#: developer home path with `mds.invalid` and a repo-relative spelling in the
+#: published copy, and that redaction must not be undone to satisfy a diff.
+_REDACTED = ("provenance", "pulled_from", "corpus")
+
+
+def _without_provenance(path: Path):
+    """One device document with its redacted provenance fields removed.
+
+    ★★The gate below used to demand a BYTE-FOR-BYTE copy.  That premise died
+    twice on 2026-09-02: `machine_desc/` was abolished (so there is no in-tree
+    source), and publication now REDACTS (so where a source is materialised the
+    two must differ, in exactly these fields).  A byte diff there would push an
+    operator's internal address back into a published artifact to go green —
+    the failure mode worth naming, since the gate would have been "right".
+    """
+    def strip(node):
+        if isinstance(node, dict):
+            return {k: strip(v) for k, v in node.items()
+                    if not any(r in k for r in _REDACTED)}
+        if isinstance(node, list):
+            return [strip(v) for v in node]
+        return node
+    return strip(json.loads(path.read_text(encoding="utf-8")))
+
+
+@pytest.mark.skipif(not CATALOGUE.is_file(), reason="this tree ships no presets")
+def test_no_published_preset_carries_an_internal_address_or_a_home_path():
+    """★The regression gate for `c58c2c6`, and the one claim here that needs no
+    external source — so it runs on every checkout, unlike the comparison below.
+
+    What leaked once, and must not again: an operator's mdsip address (a bare
+    IPv4 literal) and a developer's `/home/<user>/…` path, inside the presets'
+    provenance.  The repository's own policy is `mds.invalid` (RFC 2606) plus a
+    repo-relative spelling; `_manifest/east_mdsplus.jsonld` states it.
+    """
+    import re
+    cat = json.loads(CATALOGUE.read_text(encoding="utf-8"))
+    bad = []
+    for e in cat.get("fylite:devices") or []:
+        f = PRESETS / e["fylite:document"]
+        if not f.is_file():
+            continue
+        body = f.read_text(encoding="utf-8")
+        for hit in re.findall(r"\b\d{1,3}(?:\.\d{1,3}){3}\b", body):
+            #: 0.0.0.0 and the like are values, not addresses of anybody's host
+            if not hit.startswith(("0.", "127.")):
+                bad.append(f"{f.name}: IPv4 literal {hit}")
+        for hit in re.findall(r"/home/[A-Za-z0-9._-]+/", body):
+            bad.append(f"{f.name}: developer path {hit}")
+    assert not bad, ("a published preset carries what `c58c2c6` removed; use "
+                     "`mds.invalid` and a repo-relative path:\n  " + "\n  ".join(bad))
+
+
 @pytest.mark.skipif(not CATALOGUE.is_file(), reason="this tree ships no presets")
 @pytest.mark.skipif(
     not APP_DOCS,
@@ -288,8 +343,8 @@ CATALOGUE = PRESETS / "catalogue.jsonld"
            "全仓没有任何工具产出它；内核仓的 machine_desc/ 2026-09-02 废弃后，"
            "拖回工具只出 <id>_device.yaml。这几份文档有了正式的家之后这条自己回来")
 def test_every_preset_is_the_import_document_it_claims_to_be():
-    """★★A preset is the machine's import document, published — a byte-for-byte
-    copy of `machine_desc/<id>/fylite_device_<id>.json`.
+    """★★A preset is the machine's import document, published — the same machine
+    OUTSIDE the redacted provenance fields (see :func:`_without_provenance`).
 
     A copy, so it can go stale, so it is diffed here.  ★And a COPY rather
     than a regeneration because one of them is not generated at all: EAST's
@@ -297,6 +352,11 @@ def test_every_preset_is_the_import_document_it_claims_to_be():
     79 probes into it).  Comparing against the import document makes "the
     preset is that machine" one check for every machine instead of two rules;
     where the import document itself comes from is checked next door.
+
+    ★★Since `machine_desc/` was abolished this claim is normally PARKED (the
+    skip above): there is no in-tree source to compare against.  It runs only
+    where someone materialised those hand-made documents, and then it judges
+    the machine, not the provenance.
     """
     cat = json.loads(CATALOGUE.read_text(encoding="utf-8"))
     entries = cat.get("fylite:devices") or []
@@ -309,6 +369,11 @@ def test_every_preset_is_the_import_document_it_claims_to_be():
         if not shipped.is_file():
             drift.append(f"{name}: listed in the catalogue and absent")
         elif not source.is_file():
+            #: ★`machine_desc/` is ABOLISHED (2026-09-02), and no tool here writes
+            #: `fylite_device_<id>.json`.  The module-level skip above already parks
+            #: this claim; this branch only records WHICH machine had no source, so
+            #: a partially-materialised tree names what it skipped instead of
+            #: silently comparing fewer machines than the catalogue lists.
             #: ★★2026-09-02: `machine_desc/` is a PULLED INPUT, gitignored by
             #: ruling — and no tool in this repository produces
             #: `fylite_device_<id>.json` at all.  So on a fresh checkout (and on
@@ -321,8 +386,9 @@ def test_every_preset_is_the_import_document_it_claims_to_be():
             #: gated is the half that can be: the preset the catalogue lists
             #: exists, and where a source IS present the two agree byte for byte.
             absent.append(f"{dev_id} (no {source.relative_to(ROOT)} in this tree)")
-        elif shipped.read_text(encoding="utf-8") != source.read_text(encoding="utf-8"):
-            drift.append(f"{name}: differs from {source.relative_to(ROOT)}")
+        elif _without_provenance(shipped) != _without_provenance(source):
+            drift.append(f"{name}: differs from {source.relative_to(ROOT)} "
+                         f"outside the redacted provenance fields")
     assert not drift, (
         "re-run `python3 tools/fyo-device-to-app.py --all --preset "
         "-o app/devices` and commit:\n  " + "\n  ".join(drift))

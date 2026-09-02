@@ -126,7 +126,7 @@ d["feasible"], d["b_max"], d["null_ok"], d["flux_Wb"], d["flux_error"]
 （`d["b_max"]`，不再是 `d["null"]["b_max"]`）。同名的 `kernel.design_null` 是它底下那一层
 纯数值的最小二乘，收的是场与磁通的**行**而不是装置。
 
-实测（装置取 `machine_desc/east/east_device.yaml`，1336 次迭代）：0.3 m 盘内
+实测（装置取 `$FYLITE_DEVICE_DIR/east_device.yaml`，1336 次迭代）：0.3 m 盘内
 **|B| 峰 7.15e-6 T**（rms 2.7e-6、中心 1.4e-7），磁通 **0.2794 Wb / 目标 0.3**，
 `feasible` 为真——两条判据都过。开关 `limits` 同解，说明这个设计远在电源额定之内。
 
@@ -157,9 +157,4 @@ $\gamma$ **必须在同一导体集上比**。rzrig 把主动线圈放进电路�
 问法）。两者都对，但不可混比。
 :::
 
-★走查用的 notebook 已不在本仓（`examples/notebooks/` 不存在）；上面每一段的入口都在
-`fylite.scenario.control`（`stability` / `vertical` / `evolution`）与
-`fylite.scenario.design`（`shape` / `pulse`）下。★**站点上已经没有 `control.html`**：
-控制仿真场景于 2026-08-22 撤下（它只有一条静态判据——刚性 n=0 垂直稳定性——闭环、时延与
-电源都没建），撤下的只是页面，内核入口一字未动；`app/pages/design.html` 仍是脉冲与击穿
-那一批计算的交互面。
+★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`），见[算例语料](cases.md)起的五章。

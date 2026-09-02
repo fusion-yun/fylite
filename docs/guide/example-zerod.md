@@ -13,7 +13,7 @@ title: 典型算例 · 0-D 放电 (Worked Example · 0-D Discharge)
 ## 跑它
 
 ```bash
-export FYLITE_DEVICE_DIR=$PWD/machine_desc/iter     # 装置牌见「安装与环境」
+export FYLITE_DEVICE_DIR=~/fylite-decks/iter    # 见「安装与环境」：牌从 A-Box 拖回     # 装置牌见「安装与环境」
 fylite cases --run zerod-iter-15ma
 ```
 
