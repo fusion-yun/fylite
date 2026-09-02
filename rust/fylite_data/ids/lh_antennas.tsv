@@ -1,0 +1,175 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids lh_antennas
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+reference_point	S	0				
+reference_point/r	F	0	m			
+reference_point/z	F	0	m			
+antenna	A	1		1...N		
+antenna/name	T	0				
+antenna/description	T	0				
+antenna/model_name	T	0				
+antenna/frequency	F	0	Hz			
+antenna/power_launched	S	0	W			
+antenna/power_launched/data	F	1	W	antenna(i1)/power_launched/time		
+antenna/power_launched/time	F	1	s	1...N		
+antenna/power_forward	S	0	W			
+antenna/power_forward/data	F	1	W	antenna(i1)/power_forward/time		
+antenna/power_forward/time	F	1	s	1...N		
+antenna/power_reflected	S	0	W			
+antenna/power_reflected/data	F	1	W	antenna(i1)/power_reflected/time		
+antenna/power_reflected/time	F	1	s	1...N		
+antenna/reflection_coefficient	S	0	1			
+antenna/reflection_coefficient/data	F	1	1	antenna(i1)/reflection_coefficient/time		
+antenna/reflection_coefficient/time	F	1	s	1...N		
+antenna/phase_average	S	0	rad			
+antenna/phase_average/data	F	1	rad	antenna(i1)/phase_average/time		
+antenna/phase_average/time	F	1	s	1...N		
+antenna/n_parallel_peak	S	0	1			
+antenna/n_parallel_peak/data	F	1	1	antenna(i1)/n_parallel_peak/time		
+antenna/n_parallel_peak/time	F	1	s	1...N		
+antenna/position	S	0				
+antenna/position/definition	T	0				
+antenna/position/r	S	0	m			
+antenna/position/r/data	F	1	m	antenna(i1)/position/r/time		
+antenna/position/r/time	F	1	s	1...N		
+antenna/position/phi	S	0	rad			
+antenna/position/phi/data	F	1	rad	antenna(i1)/position/phi/time		
+antenna/position/phi/time	F	1	s	1...N		
+antenna/position/z	S	0	m			
+antenna/position/z/data	F	1	m	antenna(i1)/position/z/time		
+antenna/position/z/time	F	1	s	1...N		
+antenna/pressure_tank	S	0	Pa			
+antenna/pressure_tank/data	F	1	Pa	antenna(i1)/pressure_tank/time		
+antenna/pressure_tank/time	F	1	s	1...N		
+antenna/distance_to_antenna	F	1	m	1...N		
+antenna/n_e	S	0	m^-3			
+antenna/n_e/data	F	2	m^-3	antenna(i1)/distance_to_antenna|antenna(i1)/n_e/time		
+antenna/n_e/time	F	1	s	1...N		
+antenna/module	A	1		1...N		
+antenna/module/name	T	0				
+antenna/module/description	T	0				
+antenna/module/power_launched	S	0	W			
+antenna/module/power_launched/data	F	1	W	antenna(i1)/module(i2)/power_launched/time		
+antenna/module/power_launched/time	F	1	s	1...N		
+antenna/module/power_forward	S	0	W			
+antenna/module/power_forward/data	F	1	W	antenna(i1)/module(i2)/power_forward/time		
+antenna/module/power_forward/time	F	1	s	1...N		
+antenna/module/power_reflected	S	0	W			
+antenna/module/power_reflected/data	F	1	W	antenna(i1)/module(i2)/power_reflected/time		
+antenna/module/power_reflected/time	F	1	s	1...N		
+antenna/module/reflection_coefficient	S	0	1			
+antenna/module/reflection_coefficient/data	F	1	1	antenna(i1)/module(i2)/reflection_coefficient/time		
+antenna/module/reflection_coefficient/time	F	1	s	1...N		
+antenna/module/phase	S	0	rad			
+antenna/module/phase/data	F	1	rad	antenna(i1)/module(i2)/phase/time		
+antenna/module/phase/time	F	1	s	1...N		
+antenna/row	A	1		1...N		
+antenna/row/name	T	0				
+antenna/row/position	S	0				
+antenna/row/position/r	F	1	m	antenna(i1)/row(i2)/position/time		
+antenna/row/position/phi	F	1	rad	antenna(i1)/row(i2)/position/time		
+antenna/row/position/z	F	1	m	antenna(i1)/row(i2)/position/time		
+antenna/row/position/time	F	1	s	1...N		
+antenna/row/n_phi	F	1	1	antenna(i1)/row(i2)/time		
+antenna/row/n_pol	F	1	1	antenna(i1)/row(i2)/time		
+antenna/row/power_density_spectrum_1d	F	2	W	antenna(i1)/row(i2)/n_phi|antenna(i1)/row(i2)/time		
+antenna/row/power_density_spectrum_2d	F	3	W	antenna(i1)/row(i2)/n_phi|antenna(i1)/row(i2)/n_pol|antenna(i1)/row(i2)/time		
+antenna/row/time	F	1	s	1...N		
+power_launched	S	0	W			
+power_launched/data	F	1	W	power_launched/time		
+power_launched/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

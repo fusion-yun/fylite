@@ -1,0 +1,303 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids transport_solver_numerics
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+time_step	S	0	s			
+time_step/data	F	1	s	time_step/time		
+time_step/time	F	1	s	1...N		
+time_step_average	S	0	s			
+time_step_average/data	F	1	s	time_step_average/time		
+time_step_average/time	F	1	s	1...N		
+time_step_min	S	0	s			
+time_step_min/data	F	1	s	time_step_min/time		
+time_step_min/time	F	1	s	1...N		
+solver	S	0				
+solver/name	T	0				
+solver/index	I	0				
+solver/description	T	0				
+primary_coordinate	S	0				
+primary_coordinate/name	T	0				
+primary_coordinate/index	I	0				
+primary_coordinate/description	T	0				
+solver_1d	A	1		solver_1d(itime)/time		
+solver_1d/grid	S	0				
+solver_1d/grid/rho_tor_norm	F	1	1	1...N		solver_1d(itime)/grid/rho_tor;solver_1d(itime)/grid/psi;solver_1d(itime)/grid/volume;solver_1d(itime)/grid/area;solver_1d(itime)/grid/surface;solver_1d(itime)/grid/rho_pol_norm
+solver_1d/grid/rho_tor	F	1	m	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/grid/rho_pol_norm	F	1	1	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/grid/psi	F	1	Wb	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/grid/volume	F	1	m^3	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/grid/area	F	1	m^2	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/grid/surface	F	1	m^2	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/grid/psi_magnetic_axis	F	0	Wb			
+solver_1d/grid/psi_boundary	F	0	Wb			
+solver_1d/equation	A	1		1...N		
+solver_1d/equation/primary_quantity	S	0				
+solver_1d/equation/primary_quantity/identifier	S	0				
+solver_1d/equation/primary_quantity/identifier/name	T	0				
+solver_1d/equation/primary_quantity/identifier/index	I	0				
+solver_1d/equation/primary_quantity/identifier/description	T	0				
+solver_1d/equation/primary_quantity/ion_index	I	0				
+solver_1d/equation/primary_quantity/neutral_index	I	0				
+solver_1d/equation/primary_quantity/state_index	I	0				
+solver_1d/equation/primary_quantity/profile	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/primary_quantity/d_dr	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/primary_quantity/d2_dr2	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/primary_quantity/d_dt	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/primary_quantity/d_dt_cphi	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/primary_quantity/d_dt_cr	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/computation_mode	S	0				
+solver_1d/equation/computation_mode/name	T	0				
+solver_1d/equation/computation_mode/index	I	0				
+solver_1d/equation/computation_mode/description	T	0				
+solver_1d/equation/boundary_condition	A	1		1...N		
+solver_1d/equation/boundary_condition/type	S	0				
+solver_1d/equation/boundary_condition/type/name	T	0				
+solver_1d/equation/boundary_condition/type/index	I	0				
+solver_1d/equation/boundary_condition/type/description	T	0				
+solver_1d/equation/boundary_condition/value	F	1	mixed	1...3		
+solver_1d/equation/boundary_condition/position	F	0	mixed			
+solver_1d/equation/coefficient	A	1		1...N		
+solver_1d/equation/coefficient/profile	F	1	mixed	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/equation/convergence	S	0				
+solver_1d/equation/convergence/iterations_n	I	0				
+solver_1d/equation/convergence/delta_relative	S	0				
+solver_1d/equation/convergence/delta_relative/value	F	0	1			
+solver_1d/equation/convergence/delta_relative/expression	T	0				
+solver_1d/control_parameters	S	0				
+solver_1d/control_parameters/integer0d	A	1		1...N		
+solver_1d/control_parameters/integer0d/name	T	0				
+solver_1d/control_parameters/integer0d/value	I	0				
+solver_1d/control_parameters/real0d	A	1		1...N		
+solver_1d/control_parameters/real0d/name	T	0				
+solver_1d/control_parameters/real0d/value	F	0	mixed			
+solver_1d/drho_tor_dt	F	1	m.s^-1	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/d_dvolume_drho_tor_dt	F	1	m^2.s^-1	solver_1d(itime)/grid/rho_tor_norm		
+solver_1d/time	F	0	s			
+boundary_conditions_ggd	A	1		boundary_conditions_ggd(itime)/time		
+boundary_conditions_ggd/grid	S	0				
+boundary_conditions_ggd/grid/identifier	S	0				
+boundary_conditions_ggd/grid/identifier/name	T	0				
+boundary_conditions_ggd/grid/identifier/index	I	0				
+boundary_conditions_ggd/grid/identifier/description	T	0				
+boundary_conditions_ggd/grid/path	T	0				
+boundary_conditions_ggd/grid/space	A	1		1...N		
+boundary_conditions_ggd/grid/space/identifier	S	0				
+boundary_conditions_ggd/grid/space/identifier/name	T	0				
+boundary_conditions_ggd/grid/space/identifier/index	I	0				
+boundary_conditions_ggd/grid/space/identifier/description	T	0				
+boundary_conditions_ggd/grid/space/geometry_type	S	0				
+boundary_conditions_ggd/grid/space/geometry_type/name	T	0				
+boundary_conditions_ggd/grid/space/geometry_type/index	I	0				
+boundary_conditions_ggd/grid/space/geometry_type/description	T	0				
+boundary_conditions_ggd/grid/space/coordinates_type	A	1		1...N		
+boundary_conditions_ggd/grid/space/coordinates_type/name	T	0				
+boundary_conditions_ggd/grid/space/coordinates_type/index	I	0				
+boundary_conditions_ggd/grid/space/coordinates_type/description	T	0				
+boundary_conditions_ggd/grid/space/objects_per_dimension	A	1		1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/object	A	1		1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/boundary	A	1		1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/boundary/index	I	0				
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/nodes	I	1		1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/measure	F	0	m^dimension			
+boundary_conditions_ggd/grid/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/grid/space/objects_per_dimension/geometry_content	S	0				
+boundary_conditions_ggd/grid/space/objects_per_dimension/geometry_content/name	T	0				
+boundary_conditions_ggd/grid/space/objects_per_dimension/geometry_content/index	I	0				
+boundary_conditions_ggd/grid/space/objects_per_dimension/geometry_content/description	T	0				
+boundary_conditions_ggd/grid/grid_subset	A	1		1...N		
+boundary_conditions_ggd/grid/grid_subset/identifier	S	0				
+boundary_conditions_ggd/grid/grid_subset/identifier/name	T	0				
+boundary_conditions_ggd/grid/grid_subset/identifier/index	I	0				
+boundary_conditions_ggd/grid/grid_subset/identifier/description	T	0				
+boundary_conditions_ggd/grid/grid_subset/dimension	I	0				
+boundary_conditions_ggd/grid/grid_subset/element	A	1		1...N		
+boundary_conditions_ggd/grid/grid_subset/element/object	A	1		1...N		
+boundary_conditions_ggd/grid/grid_subset/element/object/space	I	0				
+boundary_conditions_ggd/grid/grid_subset/element/object/dimension	I	0				
+boundary_conditions_ggd/grid/grid_subset/element/object/index	I	0				
+boundary_conditions_ggd/grid/grid_subset/base	A	1		1...N		
+boundary_conditions_ggd/grid/grid_subset/base/jacobian	F	1	mixed	boundary_conditions_ggd(itime)/grid/grid_subset(i1)/element		
+boundary_conditions_ggd/grid/grid_subset/base/tensor_covariant	F	3	mixed	boundary_conditions_ggd(itime)/grid/grid_subset(i1)/element|1...N|1...N		
+boundary_conditions_ggd/grid/grid_subset/base/tensor_contravariant	F	3	mixed	boundary_conditions_ggd(itime)/grid/grid_subset(i1)/element|1...N|1...N	|boundary_conditions_ggd(itime)/grid/grid_subset(i1)/base(i2)/tensor_covariant|boundary_conditions_ggd(itime)/grid/grid_subset(i1)/base(i2)/tensor_covariant	
+boundary_conditions_ggd/grid/grid_subset/metric	S	0				
+boundary_conditions_ggd/grid/grid_subset/metric/jacobian	F	1	mixed	boundary_conditions_ggd(itime)/grid/grid_subset(i1)/element		
+boundary_conditions_ggd/grid/grid_subset/metric/tensor_covariant	F	3	mixed	boundary_conditions_ggd(itime)/grid/grid_subset(i1)/element|1...N|1...N		
+boundary_conditions_ggd/grid/grid_subset/metric/tensor_contravariant	F	3	mixed	boundary_conditions_ggd(itime)/grid/grid_subset(i1)/element|1...N|1...N	|boundary_conditions_ggd(itime)/grid/grid_subset(i1)/metric/tensor_covariant|boundary_conditions_ggd(itime)/grid/grid_subset(i1)/metric/tensor_covariant	
+boundary_conditions_ggd/current	A	1		1...N		
+boundary_conditions_ggd/current/identifier	S	0				
+boundary_conditions_ggd/current/identifier/name	T	0				
+boundary_conditions_ggd/current/identifier/index	I	0				
+boundary_conditions_ggd/current/identifier/description	T	0				
+boundary_conditions_ggd/current/grid_index	I	0				
+boundary_conditions_ggd/current/grid_subset_index	I	0				
+boundary_conditions_ggd/current/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/electrons	S	0				
+boundary_conditions_ggd/electrons/particles	A	1	m^-3.s^-1	1...N		
+boundary_conditions_ggd/electrons/particles/identifier	S	0	eV			
+boundary_conditions_ggd/electrons/particles/identifier/name	T	0				
+boundary_conditions_ggd/electrons/particles/identifier/index	I	0				
+boundary_conditions_ggd/electrons/particles/identifier/description	T	0				
+boundary_conditions_ggd/electrons/particles/grid_index	I	0				
+boundary_conditions_ggd/electrons/particles/grid_subset_index	I	0				
+boundary_conditions_ggd/electrons/particles/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/electrons/energy	A	1	W.m^-3	1...N		
+boundary_conditions_ggd/electrons/energy/identifier	S	0	eV			
+boundary_conditions_ggd/electrons/energy/identifier/name	T	0				
+boundary_conditions_ggd/electrons/energy/identifier/index	I	0				
+boundary_conditions_ggd/electrons/energy/identifier/description	T	0				
+boundary_conditions_ggd/electrons/energy/grid_index	I	0				
+boundary_conditions_ggd/electrons/energy/grid_subset_index	I	0				
+boundary_conditions_ggd/electrons/energy/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/ion	A	1		1...N		
+boundary_conditions_ggd/ion/a	F	0	u			
+boundary_conditions_ggd/ion/z_ion	F	0	e			
+boundary_conditions_ggd/ion/z_n	F	0	e			
+boundary_conditions_ggd/ion/name	T	0				
+boundary_conditions_ggd/ion/particles	A	1	m^-3.s^-1	1...N		
+boundary_conditions_ggd/ion/particles/identifier	S	0	eV			
+boundary_conditions_ggd/ion/particles/identifier/name	T	0				
+boundary_conditions_ggd/ion/particles/identifier/index	I	0				
+boundary_conditions_ggd/ion/particles/identifier/description	T	0				
+boundary_conditions_ggd/ion/particles/grid_index	I	0				
+boundary_conditions_ggd/ion/particles/grid_subset_index	I	0				
+boundary_conditions_ggd/ion/particles/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/ion/energy	A	1	W.m^-3	1...N		
+boundary_conditions_ggd/ion/energy/identifier	S	0	eV			
+boundary_conditions_ggd/ion/energy/identifier/name	T	0				
+boundary_conditions_ggd/ion/energy/identifier/index	I	0				
+boundary_conditions_ggd/ion/energy/identifier/description	T	0				
+boundary_conditions_ggd/ion/energy/grid_index	I	0				
+boundary_conditions_ggd/ion/energy/grid_subset_index	I	0				
+boundary_conditions_ggd/ion/energy/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/ion/multiple_states_flag	I	0				
+boundary_conditions_ggd/ion/state	A	1		1...N		
+boundary_conditions_ggd/ion/state/z_min	F	0	e			
+boundary_conditions_ggd/ion/state/z_max	F	0	e			
+boundary_conditions_ggd/ion/state/name	T	0				
+boundary_conditions_ggd/ion/state/vibrational_level	F	0	e			
+boundary_conditions_ggd/ion/state/vibrational_mode	T	0				
+boundary_conditions_ggd/ion/state/is_neutral	I	0				
+boundary_conditions_ggd/ion/state/neutral_type	S	0				
+boundary_conditions_ggd/ion/state/neutral_type/name	T	0				
+boundary_conditions_ggd/ion/state/neutral_type/index	I	0				
+boundary_conditions_ggd/ion/state/neutral_type/description	T	0				
+boundary_conditions_ggd/ion/state/electron_configuration	T	0				
+boundary_conditions_ggd/ion/state/particles	A	1	m^-3.s^-1	1...N		
+boundary_conditions_ggd/ion/state/particles/identifier	S	0	eV			
+boundary_conditions_ggd/ion/state/particles/identifier/name	T	0				
+boundary_conditions_ggd/ion/state/particles/identifier/index	I	0				
+boundary_conditions_ggd/ion/state/particles/identifier/description	T	0				
+boundary_conditions_ggd/ion/state/particles/grid_index	I	0				
+boundary_conditions_ggd/ion/state/particles/grid_subset_index	I	0				
+boundary_conditions_ggd/ion/state/particles/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/ion/state/energy	A	1	W.m^-3	1...N		
+boundary_conditions_ggd/ion/state/energy/identifier	S	0	eV			
+boundary_conditions_ggd/ion/state/energy/identifier/name	T	0				
+boundary_conditions_ggd/ion/state/energy/identifier/index	I	0				
+boundary_conditions_ggd/ion/state/energy/identifier/description	T	0				
+boundary_conditions_ggd/ion/state/energy/grid_index	I	0				
+boundary_conditions_ggd/ion/state/energy/grid_subset_index	I	0				
+boundary_conditions_ggd/ion/state/energy/values	F	2	mixed	1...N|1...N		
+boundary_conditions_ggd/time	F	0	s			
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+restart_files	A	1		restart_files(itime)/time		
+restart_files/names	T	1		1...N		
+restart_files/descriptions	T	1		restart_files(itime)/names		
+restart_files/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

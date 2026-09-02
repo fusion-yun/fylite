@@ -1,0 +1,269 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids ece
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+line_of_sight	S	0				
+line_of_sight/first_point	S	0				
+line_of_sight/first_point/r	F	0	m			
+line_of_sight/first_point/phi	F	0	rad			
+line_of_sight/first_point/z	F	0	m			
+line_of_sight/second_point	S	0				
+line_of_sight/second_point/r	F	0	m			
+line_of_sight/second_point/phi	F	0	rad			
+line_of_sight/second_point/z	F	0	m			
+t_radiation_central	S	0	eV			
+t_radiation_central/data	F	1	eV	t_radiation_central/time		
+t_radiation_central/rho_tor_norm	F	1	1	t_radiation_central/time		
+t_radiation_central/validity_timed	I	1		t_radiation_central/time		
+t_radiation_central/validity	I	0				
+t_radiation_central/time	F	1	s	1...N		
+t_radiation_central_x	S	0	eV			
+t_radiation_central_x/data	F	1	eV	t_radiation_central_x/time		
+t_radiation_central_x/rho_tor_norm	F	1	1	t_radiation_central_x/time		
+t_radiation_central_x/validity_timed	I	1		t_radiation_central_x/time		
+t_radiation_central_x/validity	I	0				
+t_radiation_central_x/time	F	1	s	1...N		
+t_radiation_central_o	S	0	eV			
+t_radiation_central_o/data	F	1	eV	t_radiation_central_o/time		
+t_radiation_central_o/rho_tor_norm	F	1	1	t_radiation_central_o/time		
+t_radiation_central_o/validity_timed	I	1		t_radiation_central_o/time		
+t_radiation_central_o/validity	I	0				
+t_radiation_central_o/time	F	1	s	1...N		
+channel	A	1		1...N		
+channel/name	T	0				
+channel/description	T	0				
+channel/frequency	S	0	Hz			
+channel/frequency/data	F	1	Hz	channel(i1)/time		
+channel/frequency/validity_timed	I	1		channel(i1)/time		
+channel/frequency/validity	I	0				
+channel/harmonic	S	0				
+channel/harmonic/data	I	1		channel(i1)/time		
+channel/harmonic/validity_timed	I	1		channel(i1)/time		
+channel/harmonic/validity	I	0				
+channel/line_of_sight	S	0				
+channel/line_of_sight/first_point	S	0				
+channel/line_of_sight/first_point/r	F	0	m			
+channel/line_of_sight/first_point/phi	F	0	rad			
+channel/line_of_sight/first_point/z	F	0	m			
+channel/line_of_sight/second_point	S	0				
+channel/line_of_sight/second_point/r	F	0	m			
+channel/line_of_sight/second_point/phi	F	0	rad			
+channel/line_of_sight/second_point/z	F	0	m			
+channel/if_bandwidth	F	0	Hz			
+channel/position	S	0				
+channel/position/r	F	1	m	channel(i1)/time		
+channel/position/phi	F	1	rad	channel(i1)/time		
+channel/position/z	F	1	m	channel(i1)/time		
+channel/position/psi	F	1	W	channel(i1)/time		
+channel/position/rho_tor_norm	F	1	1	channel(i1)/time		
+channel/position/theta	F	1	rad	channel(i1)/time		
+channel/delta_position_suprathermal	S	0				
+channel/delta_position_suprathermal/r	F	1	m	channel(i1)/time		
+channel/delta_position_suprathermal/phi	F	1	rad	channel(i1)/time		
+channel/delta_position_suprathermal/z	F	1	m	channel(i1)/time		
+channel/delta_position_suprathermal/psi	F	1	W	channel(i1)/time		
+channel/delta_position_suprathermal/rho_tor_norm	F	1	1	channel(i1)/time		
+channel/delta_position_suprathermal/theta	F	1	rad	channel(i1)/time		
+channel/t_radiation	S	0	eV			
+channel/t_radiation/data	F	1	eV	channel(i1)/time		
+channel/t_radiation/validity_timed	I	1		channel(i1)/time		
+channel/t_radiation/validity	I	0				
+channel/t_radiation_x	S	0	eV			
+channel/t_radiation_x/data	F	1	eV	channel(i1)/time		
+channel/t_radiation_x/validity_timed	I	1		channel(i1)/time		
+channel/t_radiation_x/validity	I	0				
+channel/t_radiation_o	S	0	eV			
+channel/t_radiation_o/data	F	1	eV	channel(i1)/time		
+channel/t_radiation_o/validity_timed	I	1		channel(i1)/time		
+channel/t_radiation_o/validity	I	0				
+channel/voltage_t_radiation	S	0	V			
+channel/voltage_t_radiation/data	F	1	V	channel(i1)/voltage_t_radiation/time		
+channel/voltage_t_radiation/validity_timed	I	1		channel(i1)/voltage_t_radiation/time		
+channel/voltage_t_radiation/validity	I	0				
+channel/voltage_t_radiation/time	F	1	s	1...N		
+channel/optical_depth	S	0	1			
+channel/optical_depth/data	F	1	1	channel(i1)/time		
+channel/optical_depth/validity_timed	I	1		channel(i1)/time		
+channel/optical_depth/validity	I	0				
+channel/time	F	1	s	1...N		
+channel/calibration_factor	F	0	eV.V^-1			
+channel/calibration_offset	S	0	V			
+channel/calibration_offset/data	F	1	V	channel(i1)/calibration_offset/time		
+channel/calibration_offset/time	F	1	s	1...N		
+channel/beam	S	0				
+channel/beam/spot	S	0				
+channel/beam/spot/size	S	0	m			
+channel/beam/spot/size/data	F	2	m	1...2|channel(i1)/beam/spot/size/time		
+channel/beam/spot/size/time	F	1	s	1...N		
+channel/beam/spot/angle	S	0	rad			
+channel/beam/spot/angle/data	F	1	rad	channel(i1)/beam/spot/angle/time		
+channel/beam/spot/angle/time	F	1	s	1...N		
+channel/beam/phase	S	0				
+channel/beam/phase/curvature	S	0	m^-1			
+channel/beam/phase/curvature/data	F	2	m^-1	1...2|channel(i1)/beam/phase/curvature/time		
+channel/beam/phase/curvature/time	F	1	s	1...N		
+channel/beam/phase/angle	S	0	rad			
+channel/beam/phase/angle/data	F	1	rad	channel(i1)/beam/phase/angle/time		
+channel/beam/phase/angle/time	F	1	s	1...N		
+channel/beam_tracing	A	1		channel(i1)/beam_tracing(itime)/time		
+channel/beam_tracing/beam	A	1		1...N		
+channel/beam_tracing/beam/power_initial	F	0	W			
+channel/beam_tracing/beam/mode	T	0				
+channel/beam_tracing/beam/length	F	1	m	1...N		
+channel/beam_tracing/beam/position	S	0				
+channel/beam_tracing/beam/position/r	F	1	m	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/position/z	F	1	m	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/position/phi	F	1	rad	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/position/psi	F	1	Wb	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/position/rho_tor_norm	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/position/theta	F	1	rad	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector	S	0				
+channel/beam_tracing/beam/wave_vector/k_r	F	1	m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/k_z	F	1	m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/k_phi	F	1	m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/k_r_norm	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/k_z_norm	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/k_phi_norm	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/n_parallel	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/n_perpendicular	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/wave_vector/n_phi	I	1		channel(i1)/beam_tracing(itime)/beam(i2)/length OR 1...1		
+channel/beam_tracing/beam/wave_vector/varying_n_phi	I	0				
+channel/beam_tracing/beam/e_field	S	0				
+channel/beam_tracing/beam/e_field/plus	S	0	V.m^-1			
+channel/beam_tracing/beam/e_field/plus/real	F	1	V.m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/e_field/plus/imaginary	F	1	V.m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/e_field/minus	S	0	V.m^-1			
+channel/beam_tracing/beam/e_field/minus/real	F	1	V.m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/e_field/minus/imaginary	F	1	V.m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/e_field/parallel	S	0	V.m^-1			
+channel/beam_tracing/beam/e_field/parallel/real	F	1	V.m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/e_field/parallel/imaginary	F	1	V.m^-1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/power_flow_norm	S	0				
+channel/beam_tracing/beam/power_flow_norm/perpendicular	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/power_flow_norm/parallel	F	1	1	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/electrons	S	0				
+channel/beam_tracing/beam/electrons/power	F	1	W	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/spot	S	0				
+channel/beam_tracing/beam/spot/size	F	2	m	1...2|channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/spot/angle	F	1	rad	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/phase	S	0				
+channel/beam_tracing/beam/phase/curvature	F	2	m^-1	1...2|channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/beam/phase/angle	F	1	rad	channel(i1)/beam_tracing(itime)/beam(i2)/length		
+channel/beam_tracing/time	F	0	s			
+polarizer	A	1		1...N		
+polarizer/centre	S	0				
+polarizer/centre/r	F	0	m			
+polarizer/centre/phi	F	0	rad			
+polarizer/centre/z	F	0	m			
+polarizer/radius	F	0	m			
+polarizer/x1_unit_vector	S	0				
+polarizer/x1_unit_vector/x	F	0	m			
+polarizer/x1_unit_vector/y	F	0	m			
+polarizer/x1_unit_vector/z	F	0	m			
+polarizer/x2_unit_vector	S	0				
+polarizer/x2_unit_vector/x	F	0	m			
+polarizer/x2_unit_vector/y	F	0	m			
+polarizer/x2_unit_vector/z	F	0	m			
+polarizer/x3_unit_vector	S	0				
+polarizer/x3_unit_vector/x	F	0	m			
+polarizer/x3_unit_vector/y	F	0	m			
+polarizer/x3_unit_vector/z	F	0	m			
+polarizer/polarization_angle	F	0	rad			
+psi_normalization	S	0				
+psi_normalization/psi_magnetic_axis	F	1	Wb	psi_normalization/time		
+psi_normalization/psi_boundary	F	1	Wb	psi_normalization/time		
+psi_normalization/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

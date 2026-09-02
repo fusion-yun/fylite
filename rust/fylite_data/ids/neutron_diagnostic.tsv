@@ -1,0 +1,292 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids neutron_diagnostic
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+detector	A	1		1...N		
+detector/name	T	0				
+detector/line_of_sight_index	I	0				
+detector/geometry	S	0				
+detector/geometry/geometry_type	I	0				
+detector/geometry/centre	S	0				
+detector/geometry/centre/r	F	0	m			
+detector/geometry/centre/phi	F	0	rad			
+detector/geometry/centre/z	F	0	m			
+detector/geometry/radius	F	0	m			
+detector/geometry/x1_unit_vector	S	0				
+detector/geometry/x1_unit_vector/x	F	0	m			
+detector/geometry/x1_unit_vector/y	F	0	m			
+detector/geometry/x1_unit_vector/z	F	0	m			
+detector/geometry/x2_unit_vector	S	0				
+detector/geometry/x2_unit_vector/x	F	0	m			
+detector/geometry/x2_unit_vector/y	F	0	m			
+detector/geometry/x2_unit_vector/z	F	0	m			
+detector/geometry/x3_unit_vector	S	0				
+detector/geometry/x3_unit_vector/x	F	0	m			
+detector/geometry/x3_unit_vector/y	F	0	m			
+detector/geometry/x3_unit_vector/z	F	0	m			
+detector/geometry/x1_width	F	0	m			
+detector/geometry/x2_width	F	0	m			
+detector/geometry/outline	S	0				
+detector/geometry/outline/x1	F	1	m	1...N		
+detector/geometry/outline/x2	F	1	m	detector(i1)/geometry/outline/x1		
+detector/geometry/surface	F	0	m^2			
+detector/material	S	0				
+detector/material/name	T	0				
+detector/material/index	I	0				
+detector/material/description	T	0				
+detector/nuclei_n	I	0				
+detector/temperature	F	1	K	time		
+detector/aperture	A	1		1...N		
+detector/aperture/geometry_type	I	0				
+detector/aperture/centre	S	0				
+detector/aperture/centre/r	F	0	m			
+detector/aperture/centre/phi	F	0	rad			
+detector/aperture/centre/z	F	0	m			
+detector/aperture/radius	F	0	m			
+detector/aperture/x1_unit_vector	S	0				
+detector/aperture/x1_unit_vector/x	F	0	m			
+detector/aperture/x1_unit_vector/y	F	0	m			
+detector/aperture/x1_unit_vector/z	F	0	m			
+detector/aperture/x2_unit_vector	S	0				
+detector/aperture/x2_unit_vector/x	F	0	m			
+detector/aperture/x2_unit_vector/y	F	0	m			
+detector/aperture/x2_unit_vector/z	F	0	m			
+detector/aperture/x3_unit_vector	S	0				
+detector/aperture/x3_unit_vector/x	F	0	m			
+detector/aperture/x3_unit_vector/y	F	0	m			
+detector/aperture/x3_unit_vector/z	F	0	m			
+detector/aperture/x1_width	F	0	m			
+detector/aperture/x2_width	F	0	m			
+detector/aperture/outline	S	0				
+detector/aperture/outline/x1	F	1	m	1...N		
+detector/aperture/outline/x2	F	1	m	detector(i1)/aperture(i2)/outline/x1		
+detector/aperture/surface	F	0	m^2			
+detector/mode	A	1		1...N		
+detector/mode/identifier	S	0				
+detector/mode/identifier/name	T	0				
+detector/mode/identifier/index	I	0				
+detector/mode/identifier/description	T	0				
+detector/mode/counting	S	0	s^-1			
+detector/mode/counting/data	F	1	s^-1	detector(i1)/mode(i2)/counting/time		
+detector/mode/counting/time	F	1	s	1...N		
+detector/mode/count_limit_max	F	0	s^-1			
+detector/mode/count_limit_min	F	0	s^-1			
+detector/mode/brightness	F	1	m^-2.s^-1	detector(i1)/mode(i2)/counting/time		
+detector/mode/neutron_flux	F	1	m^-2.s^-1	detector(i1)/mode(i2)/counting/time		
+detector/mode/spectrum	S	0	s^-1			
+detector/mode/spectrum/data	F	2	s^-1	detector(i1)/energy_band|detector(i1)/mode(i2)/spectrum/time		
+detector/mode/spectrum/time	F	1	s	1...N		
+detector/energy_band	A	1		1...N		
+detector/energy_band/lower_bound	F	0	eV			
+detector/energy_band/upper_bound	F	0	eV			
+detector/energy_band/energies	F	1	eV	1...N		
+detector/energy_band/detection_efficiency	F	1	1	detector(i1)/energy_band(i2)/energies		
+detector/exposure_time	F	0	s			
+detector/adc	S	0				
+detector/adc/power_switch	I	0				
+detector/adc/discriminator_level_lower	I	0				
+detector/adc/discriminator_level_upper	I	0				
+detector/adc/sampling_rate	I	0				
+detector/adc/bias	F	0	V			
+detector/adc/input_range	F	0	V			
+detector/adc/impedance	F	0	ohm			
+detector/supply_high_voltage	S	0				
+detector/supply_high_voltage/power_switch	I	0				
+detector/supply_high_voltage/voltage_set	S	0	V			
+detector/supply_high_voltage/voltage_set/data	F	1	V	detector(i1)/supply_high_voltage/voltage_set/time		
+detector/supply_high_voltage/voltage_set/time	F	1	s	1...N		
+detector/supply_high_voltage/voltage_out	S	0	V			
+detector/supply_high_voltage/voltage_out/data	F	1	V	detector(i1)/supply_high_voltage/voltage_out/time		
+detector/supply_high_voltage/voltage_out/time	F	1	s	1...N		
+detector/supply_low_voltage	S	0				
+detector/supply_low_voltage/power_switch	I	0				
+detector/supply_low_voltage/voltage_set	S	0	V			
+detector/supply_low_voltage/voltage_set/data	F	1	V	detector(i1)/supply_low_voltage/voltage_set/time		
+detector/supply_low_voltage/voltage_set/time	F	1	s	1...N		
+detector/supply_low_voltage/voltage_out	S	0	V			
+detector/supply_low_voltage/voltage_out/data	F	1	V	detector(i1)/supply_low_voltage/voltage_out/time		
+detector/supply_low_voltage/voltage_out/time	F	1	s	1...N		
+detector/test_generator	S	0				
+detector/test_generator/power_switch	I	0				
+detector/test_generator/shape	S	0				
+detector/test_generator/shape/name	T	0				
+detector/test_generator/shape/index	I	0				
+detector/test_generator/shape/description	T	0				
+detector/test_generator/rise_time	F	0	s			
+detector/test_generator/fall_time	F	0	s			
+detector/test_generator/frequency	S	0	Hz			
+detector/test_generator/frequency/data	F	1	Hz	detector(i1)/test_generator/frequency/time		
+detector/test_generator/frequency/time	F	1	s	1...N		
+detector/test_generator/amplitude	S	0	V			
+detector/test_generator/amplitude/data	F	1	V	detector(i1)/test_generator/amplitude/time		
+detector/test_generator/amplitude/time	F	1	s	1...N		
+detector/b_field_sensor	S	0				
+detector/b_field_sensor/power_switch	I	0				
+detector/b_field_sensor/shape	S	0				
+detector/b_field_sensor/shape/name	T	0				
+detector/b_field_sensor/shape/index	I	0				
+detector/b_field_sensor/shape/description	T	0				
+detector/b_field_sensor/rise_time	F	0	s			
+detector/b_field_sensor/fall_time	F	0	s			
+detector/b_field_sensor/frequency	S	0	Hz			
+detector/b_field_sensor/frequency/data	F	1	Hz	detector(i1)/b_field_sensor/frequency/time		
+detector/b_field_sensor/frequency/time	F	1	s	1...N		
+detector/b_field_sensor/amplitude	S	0	V			
+detector/b_field_sensor/amplitude/data	F	1	V	detector(i1)/b_field_sensor/amplitude/time		
+detector/b_field_sensor/amplitude/time	F	1	s	1...N		
+detector/temperature_sensor	S	0				
+detector/temperature_sensor/power_switch	I	0				
+detector/temperature_sensor/shape	S	0				
+detector/temperature_sensor/shape/name	T	0				
+detector/temperature_sensor/shape/index	I	0				
+detector/temperature_sensor/shape/description	T	0				
+detector/temperature_sensor/rise_time	F	0	s			
+detector/temperature_sensor/fall_time	F	0	s			
+detector/temperature_sensor/frequency	S	0	Hz			
+detector/temperature_sensor/frequency/data	F	1	Hz	detector(i1)/temperature_sensor/frequency/time		
+detector/temperature_sensor/frequency/time	F	1	s	1...N		
+detector/temperature_sensor/amplitude	S	0	V			
+detector/temperature_sensor/amplitude/data	F	1	V	detector(i1)/temperature_sensor/amplitude/time		
+detector/temperature_sensor/amplitude/time	F	1	s	1...N		
+detector/field_of_view	S	0				
+detector/field_of_view/solid_angle	F	3	sr	detector(i1)/field_of_view/emission_grid/r|detector(i1)/field_of_view/emission_grid/z|detector(i1)/field_of_view/emission_grid/phi		
+detector/field_of_view/emission_grid	S	0				
+detector/field_of_view/emission_grid/r	F	1	m	1...N		
+detector/field_of_view/emission_grid/phi	F	1	rad	1...N		
+detector/field_of_view/emission_grid/z	F	1	m	1...N		
+detector/field_of_view/direction_to_detector	S	0				
+detector/field_of_view/direction_to_detector/x	F	3	m	detector(i1)/field_of_view/emission_grid/r|detector(i1)/field_of_view/emission_grid/z|detector(i1)/field_of_view/emission_grid/phi		
+detector/field_of_view/direction_to_detector/y	F	3	m	detector(i1)/field_of_view/emission_grid/r|detector(i1)/field_of_view/emission_grid/z|detector(i1)/field_of_view/emission_grid/phi		
+detector/field_of_view/direction_to_detector/z	F	3	m	detector(i1)/field_of_view/emission_grid/r|detector(i1)/field_of_view/emission_grid/z|detector(i1)/field_of_view/emission_grid/phi		
+detector/green_functions	S	0				
+detector/green_functions/source_neutron_energies	F	1	eV	1...N		
+detector/green_functions/event_in_detector_neutron_flux	S	0				
+detector/green_functions/event_in_detector_neutron_flux/type	S	0				
+detector/green_functions/event_in_detector_neutron_flux/type/name	T	0				
+detector/green_functions/event_in_detector_neutron_flux/type/index	I	0				
+detector/green_functions/event_in_detector_neutron_flux/type/description	T	0				
+detector/green_functions/event_in_detector_neutron_flux/values	F	1	mixed	1...N		
+detector/green_functions/neutron_flux_integrated_flags	I	1		1...5		
+detector/green_functions/neutron_flux	F	5	m^-2	detector(i1)/field_of_view/emission_grid/r|detector(i1)/field_of_view/emission_grid/z|detector(i1)/field_of_view/emission_grid/phi|detector(i1)/green_functions/source_neutron_energies|detector(i1)/green_functions/event_in_detector_neutron_flux/values		
+detector/green_functions/event_in_detector_response_function	S	0				
+detector/green_functions/event_in_detector_response_function/type	S	0				
+detector/green_functions/event_in_detector_response_function/type/name	T	0				
+detector/green_functions/event_in_detector_response_function/type/index	I	0				
+detector/green_functions/event_in_detector_response_function/type/description	T	0				
+detector/green_functions/event_in_detector_response_function/values	F	1	mixed	1...N		
+detector/green_functions/response_function_integrated_flags	I	1		1...5		
+detector/green_functions/response_function	F	5	1	detector(i1)/field_of_view/emission_grid/r|detector(i1)/field_of_view/emission_grid/z|detector(i1)/field_of_view/emission_grid/phi|detector(i1)/green_functions/source_neutron_energies|detector(i1)/green_functions/event_in_detector_response_function/values		
+reconstructed_emissivity	S	0				
+reconstructed_emissivity/algorithm_type	S	0				
+reconstructed_emissivity/algorithm_type/name	T	0				
+reconstructed_emissivity/algorithm_type/index	I	0				
+reconstructed_emissivity/algorithm_type/description	T	0				
+reconstructed_emissivity/rho_tor_norm	F	1	1	1...N		reconstructed_emissivity/psi_norm
+reconstructed_emissivity/psi_norm	F	1	1	reconstructed_emissivity/rho_tor_norm		
+reconstructed_emissivity/emissivity_dd	F	2	m^-3.s^-1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/emissivity_dt	F	2	m^-3.s^-1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/emissivity_dd_accuracy	F	2	1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/emissivity_dt_accuracy	F	2	1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/fusion_power_dd	F	2	W.m^-3	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/fusion_power_dt	F	2	W.m^-3	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/fusion_power_dd_accuracy	F	2	1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/fusion_power_dt_accuracy	F	2	1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/t_i	F	2	eV	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/fuel_ratio	F	2	1	reconstructed_emissivity/rho_tor_norm|time		
+reconstructed_emissivity/detectors_used	I	2		detector|time		
+neutron_flux_total	F	1	s^-1	time		
+fusion_power	F	1	W	time		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

@@ -1,0 +1,443 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids gyrokinetics_local
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+normalizing_quantities	S	0				
+normalizing_quantities/t_e	F	0	eV			
+normalizing_quantities/n_e	F	0	m^-3			
+normalizing_quantities/r	F	0	m			
+normalizing_quantities/b_field_phi	F	0	T			
+flux_surface	S	0				
+flux_surface/r_minor_norm	F	0	1			
+flux_surface/elongation	F	0	1			
+flux_surface/delongation_dr_minor_norm	F	0	1			
+flux_surface/dgeometric_axis_r_dr_minor	F	0	1			
+flux_surface/dgeometric_axis_z_dr_minor	F	0	1			
+flux_surface/q	F	0	1			
+flux_surface/magnetic_shear_r_minor	F	0	1			
+flux_surface/pressure_gradient_norm	F	0	1			
+flux_surface/ip_sign	F	0	1			
+flux_surface/b_field_phi_sign	F	0	1			
+flux_surface/shape_coefficients_c	F	1	1	1...N		
+flux_surface/dc_dr_minor_norm	F	1	1	flux_surface/shape_coefficients_c		
+flux_surface/shape_coefficients_s	F	1	1	1...N		
+flux_surface/ds_dr_minor_norm	F	1	1	flux_surface/shape_coefficients_s		
+linear	S	0				
+linear/wavevector	A	1		1...N		
+linear/wavevector/radial_wavevector_norm	F	0	1			
+linear/wavevector/binormal_wavevector_norm	F	0	1			
+linear/wavevector/eigenmode	A	1		1...N		
+linear/wavevector/eigenmode/poloidal_turns	I	0				
+linear/wavevector/eigenmode/growth_rate_norm	F	0	1			
+linear/wavevector/eigenmode/frequency_norm	F	0	1			
+linear/wavevector/eigenmode/growth_rate_tolerance	F	0	1			
+linear/wavevector/eigenmode/angle_pol	F	1	1	1...N		
+linear/wavevector/eigenmode/time_norm	F	1	1	1...N		
+linear/wavevector/eigenmode/fields	S	0				
+linear/wavevector/eigenmode/fields/phi_potential_perturbed_weight	F	1	1	linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/phi_potential_perturbed_parity	F	1	1	linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/a_field_parallel_perturbed_weight	F	1	1	linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/a_field_parallel_perturbed_parity	F	1	1	linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/b_field_parallel_perturbed_weight	F	1	1	linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/b_field_parallel_perturbed_parity	F	1	1	linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/phi_potential_perturbed_norm	C	2	1	linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/a_field_parallel_perturbed_norm	C	2	1	linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/fields/b_field_parallel_perturbed_norm	C	2	1	linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/code	S	0				
+linear/wavevector/eigenmode/code/parameters	T	0				
+linear/wavevector/eigenmode/code/output_flag	I	0				
+linear/wavevector/eigenmode/initial_value_run	I	0				
+linear/wavevector/eigenmode/moments_norm_gyrocenter	S	0				
+linear/wavevector/eigenmode/moments_norm_gyrocenter/density	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/j_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/pressure	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/heat_flux_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/v_parallel_energy_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter/v_perpendicular_square_energy	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle	S	0				
+linear/wavevector/eigenmode/moments_norm_particle/density	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/j_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/pressure_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/pressure_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/pressure	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/heat_flux_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/v_parallel_energy_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_particle/v_perpendicular_square_energy	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0	S	0				
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/density	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/j_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/pressure	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/heat_flux_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/v_parallel_energy_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_0/v_perpendicular_square_energy	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1	S	0				
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/density	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/j_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/pressure	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/heat_flux_parallel	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/v_parallel_energy_perpendicular	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/moments_norm_gyrocenter_bessel_1/v_perpendicular_square_energy	C	3	1	species|linear/wavevector(i1)/eigenmode(i2)/angle_pol|linear/wavevector(i1)/eigenmode(i2)/time_norm		
+linear/wavevector/eigenmode/linear_weights	S	0				
+linear/wavevector/eigenmode/linear_weights/particles_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/particles_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/particles_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/energy_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/energy_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/energy_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/momentum_phi_parallel_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/momentum_phi_parallel_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/momentum_phi_parallel_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/momentum_phi_perpendicular_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/momentum_phi_perpendicular_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights/momentum_phi_perpendicular_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame	S	0				
+linear/wavevector/eigenmode/linear_weights_rotating_frame/particles_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/particles_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/particles_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/energy_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/energy_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/energy_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/momentum_phi_parallel_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/momentum_phi_parallel_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/momentum_phi_parallel_b_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/momentum_phi_perpendicular_phi_potential	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	1	1	species		
+linear/wavevector/eigenmode/linear_weights_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	1	1	species		
+non_linear	S	0				
+non_linear/binormal_wavevector_norm	F	1	1	1...N		
+non_linear/radial_wavevector_norm	F	1	1	1...N		
+non_linear/angle_pol	F	1	1	1...N		
+non_linear/time_norm	F	1	1	1...N		
+non_linear/time_interval_norm	F	1	1	1...2		
+non_linear/quasi_linear	I	0				
+non_linear/code	S	0				
+non_linear/code/parameters	T	0				
+non_linear/code/output_flag	I	0				
+non_linear/fluxes_5d	S	0				
+non_linear/fluxes_5d/particles_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/particles_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/particles_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/energy_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/energy_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/energy_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/momentum_phi_parallel_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/momentum_phi_parallel_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/momentum_phi_parallel_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/momentum_phi_perpendicular_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/momentum_phi_perpendicular_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d/momentum_phi_perpendicular_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_4d	S	0				
+non_linear/fluxes_4d/particles_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/particles_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/particles_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/energy_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/energy_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/energy_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/momentum_phi_parallel_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/momentum_phi_parallel_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/momentum_phi_parallel_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/momentum_phi_perpendicular_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/momentum_phi_perpendicular_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d/momentum_phi_perpendicular_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_3d	S	0				
+non_linear/fluxes_3d/particles_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/particles_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/particles_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/energy_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/energy_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/energy_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/momentum_phi_parallel_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/momentum_phi_parallel_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/momentum_phi_parallel_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/momentum_phi_perpendicular_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/momentum_phi_perpendicular_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d/momentum_phi_perpendicular_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_k_x_sum	S	0				
+non_linear/fluxes_3d_k_x_sum/particles_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/particles_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/particles_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/energy_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/energy_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/energy_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/momentum_phi_parallel_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/momentum_phi_parallel_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/momentum_phi_parallel_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/momentum_phi_perpendicular_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/momentum_phi_perpendicular_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum/momentum_phi_perpendicular_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_sum	S	0				
+non_linear/fluxes_2d_k_x_sum/particles_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/particles_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/particles_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/energy_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/energy_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/energy_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/momentum_phi_parallel_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/momentum_phi_parallel_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/momentum_phi_parallel_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/momentum_phi_perpendicular_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/momentum_phi_perpendicular_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum/momentum_phi_perpendicular_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_k_y_sum	S	0				
+non_linear/fluxes_2d_k_x_k_y_sum/particles_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/particles_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/particles_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/energy_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/energy_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/energy_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/momentum_phi_parallel_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/momentum_phi_parallel_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/momentum_phi_parallel_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/momentum_phi_perpendicular_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/momentum_phi_perpendicular_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum/momentum_phi_perpendicular_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_1d	S	0				
+non_linear/fluxes_1d/particles_phi_potential	F	1	1	species		
+non_linear/fluxes_1d/particles_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/particles_b_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/energy_phi_potential	F	1	1	species		
+non_linear/fluxes_1d/energy_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/energy_b_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/momentum_phi_parallel_phi_potential	F	1	1	species		
+non_linear/fluxes_1d/momentum_phi_parallel_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/momentum_phi_parallel_b_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/momentum_phi_perpendicular_phi_potential	F	1	1	species		
+non_linear/fluxes_1d/momentum_phi_perpendicular_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d/momentum_phi_perpendicular_b_field_parallel	F	1	1	species		
+non_linear/fields_4d	S	0				
+non_linear/fields_4d/phi_potential_perturbed_norm	C	4	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fields_4d/a_field_parallel_perturbed_norm	C	4	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fields_4d/b_field_parallel_perturbed_norm	C	4	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fields_intensity_3d	S	0				
+non_linear/fields_intensity_3d/phi_potential_perturbed_norm	F	3	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fields_intensity_3d/a_field_parallel_perturbed_norm	F	3	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fields_intensity_3d/b_field_parallel_perturbed_norm	F	3	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fields_intensity_2d_surface_average	S	0				
+non_linear/fields_intensity_2d_surface_average/phi_potential_perturbed_norm	F	2	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fields_intensity_2d_surface_average/a_field_parallel_perturbed_norm	F	2	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fields_intensity_2d_surface_average/b_field_parallel_perturbed_norm	F	2	1	non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fields_zonal_2d	S	0				
+non_linear/fields_zonal_2d/phi_potential_perturbed_norm	C	2	1	non_linear/radial_wavevector_norm|non_linear/time_norm		
+non_linear/fields_zonal_2d/a_field_parallel_perturbed_norm	C	2	1	non_linear/radial_wavevector_norm|non_linear/time_norm		
+non_linear/fields_zonal_2d/b_field_parallel_perturbed_norm	C	2	1	non_linear/radial_wavevector_norm|non_linear/time_norm		
+non_linear/fields_intensity_1d	S	0				
+non_linear/fields_intensity_1d/phi_potential_perturbed_norm	F	1	1	non_linear/binormal_wavevector_norm		
+non_linear/fields_intensity_1d/a_field_parallel_perturbed_norm	F	1	1	non_linear/binormal_wavevector_norm		
+non_linear/fields_intensity_1d/b_field_parallel_perturbed_norm	F	1	1	non_linear/binormal_wavevector_norm		
+non_linear/fluxes_5d_rotating_frame	S	0				
+non_linear/fluxes_5d_rotating_frame/particles_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/particles_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/particles_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/energy_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/energy_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/energy_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/momentum_phi_parallel_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/momentum_phi_parallel_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/momentum_phi_parallel_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/momentum_phi_perpendicular_phi_potential	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_5d_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	5	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol|non_linear/time_norm		
+non_linear/fluxes_4d_rotating_frame	S	0				
+non_linear/fluxes_4d_rotating_frame/particles_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/particles_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/particles_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/energy_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/energy_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/energy_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/momentum_phi_parallel_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/momentum_phi_parallel_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/momentum_phi_parallel_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/momentum_phi_perpendicular_phi_potential	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_4d_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	4	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm|non_linear/angle_pol		
+non_linear/fluxes_3d_rotating_frame	S	0				
+non_linear/fluxes_3d_rotating_frame/particles_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/particles_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/particles_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/energy_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/energy_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/energy_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/momentum_phi_parallel_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/momentum_phi_parallel_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/momentum_phi_parallel_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/momentum_phi_perpendicular_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/radial_wavevector_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame	S	0				
+non_linear/fluxes_3d_k_x_sum_rotating_frame/particles_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/particles_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/particles_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/energy_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/energy_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/energy_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/momentum_phi_parallel_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/momentum_phi_parallel_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/momentum_phi_parallel_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/momentum_phi_perpendicular_phi_potential	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_3d_k_x_sum_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	3	1	species|non_linear/binormal_wavevector_norm|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame	S	0				
+non_linear/fluxes_2d_k_x_sum_rotating_frame/particles_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/particles_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/particles_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/energy_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/energy_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/energy_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/momentum_phi_parallel_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/momentum_phi_parallel_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/momentum_phi_parallel_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/momentum_phi_perpendicular_phi_potential	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_sum_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	2	1	species|non_linear/binormal_wavevector_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame	S	0				
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/particles_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/particles_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/particles_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/energy_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/energy_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/energy_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/momentum_phi_parallel_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/momentum_phi_parallel_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/momentum_phi_parallel_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/momentum_phi_perpendicular_phi_potential	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_2d_k_x_k_y_sum_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	2	1	species|non_linear/time_norm		
+non_linear/fluxes_1d_rotating_frame	S	0				
+non_linear/fluxes_1d_rotating_frame/particles_phi_potential	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/particles_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/particles_b_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/energy_phi_potential	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/energy_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/energy_b_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/momentum_phi_parallel_phi_potential	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/momentum_phi_parallel_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/momentum_phi_parallel_b_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/momentum_phi_perpendicular_phi_potential	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/momentum_phi_perpendicular_a_field_parallel	F	1	1	species		
+non_linear/fluxes_1d_rotating_frame/momentum_phi_perpendicular_b_field_parallel	F	1	1	species		
+model	S	0				
+model/include_a_field_parallel	I	0				
+model/include_b_field_parallel	I	0				
+model/use_mhd_approximation	I	0				
+model/include_coriolis_drift	I	0				
+model/include_centrifugal_effects	I	0				
+model/collisions_pitch_only	I	0				
+model/collisions_momentum_conservation	I	0				
+model/collisions_energy_conservation	I	0				
+model/collisions_finite_larmor_radius	I	0				
+model/adiabatic_electrons	I	0				
+species_all	S	0				
+species_all/beta_reference	F	0	1			
+species_all/velocity_phi_norm	F	0	1			
+species_all/debye_length_norm	F	0	1			
+species_all/shearing_rate_norm	F	0	1			
+species_all/angle_pol_equilibrium	F	1	rad	1...N		
+species	A	1		1...N		
+species/charge_norm	F	0	1			
+species/mass_norm	F	0	1			
+species/density_norm	F	0	1			
+species/density_log_gradient_norm	F	0	1			
+species/temperature_norm	F	0	1			
+species/temperature_log_gradient_norm	F	0	1			
+species/velocity_phi_gradient_norm	F	0	1			
+species/potential_energy_norm	F	1	1	species_all/angle_pol_equilibrium		
+species/potential_energy_gradient_norm	F	1	1	species_all/angle_pol_equilibrium		
+collisions	S	0				
+collisions/collisionality_norm	F	2	1	species|species		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				

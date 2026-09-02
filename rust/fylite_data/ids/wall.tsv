@@ -1,0 +1,729 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids wall
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+temperature_reference	S	0				
+temperature_reference/description	T	0				
+temperature_reference/data	F	0	K			
+first_wall_surface_area	F	0	m^2			
+first_wall_power_flux_peak	S	0	W.m^-2			
+first_wall_power_flux_peak/data	F	1	W.m^-2	first_wall_power_flux_peak/time		
+first_wall_power_flux_peak/time	F	1	s	1...N		
+first_wall_power_flux_peak_outside_divertors	S	0	W.m^-2			
+first_wall_power_flux_peak_outside_divertors/data	F	1	W.m^-2	first_wall_power_flux_peak_outside_divertors/time		
+first_wall_power_flux_peak_outside_divertors/time	F	1	s	1...N		
+first_wall_enclosed_volume	F	0	m^3			
+global_quantities	S	0				
+global_quantities/electrons	S	0				
+global_quantities/electrons/pumping_speed	F	1	s^-1	time		
+global_quantities/electrons/particle_flux_from_plasma	F	1	s^-1	time		
+global_quantities/electrons/particle_flux_from_wall	F	2	s^-1	1...3|time		
+global_quantities/electrons/gas_puff	F	1	s^-1	time		
+global_quantities/electrons/power_inner_target	F	1	W	time		
+global_quantities/electrons/power_outer_target	F	1	W	time		
+global_quantities/neutral	A	1		1...N		
+global_quantities/neutral/element	A	1		1...N		
+global_quantities/neutral/element/a	F	0	u			
+global_quantities/neutral/element/z_n	I	0	e			
+global_quantities/neutral/element/atoms_n	I	0				
+global_quantities/neutral/name	T	0				
+global_quantities/neutral/pumping_speed	F	1	s^-1	time		
+global_quantities/neutral/particle_flux_from_plasma	F	1	s^-1	time		
+global_quantities/neutral/particle_flux_from_wall	F	2	s^-1	1...3|time		
+global_quantities/neutral/gas_puff	F	1	s^-1	time		
+global_quantities/neutral/wall_inventory	F	1	1	time		
+global_quantities/neutral/recycling_particles_coefficient	F	2	1	1...3|time		
+global_quantities/neutral/recycling_energy_coefficient	F	2	1	1...3|time		
+global_quantities/neutral/incident_species	A	1		1...N		
+global_quantities/neutral/incident_species/element	A	1		1...N		
+global_quantities/neutral/incident_species/element/a	F	0	u			
+global_quantities/neutral/incident_species/element/z_n	I	0	e			
+global_quantities/neutral/incident_species/element/atoms_n	I	0				
+global_quantities/neutral/incident_species/name	T	0				
+global_quantities/neutral/incident_species/angles	F	1	rad	1...N		
+global_quantities/neutral/incident_species/energies	F	1	eV	1...N		
+global_quantities/neutral/incident_species/sputtering_physical	F	3	1	global_quantities/neutral(i1)/incident_species(i2)/angles|global_quantities/neutral(i1)/incident_species(i2)/energies|time		
+global_quantities/neutral/incident_species/sputtering_chemical	F	1	1	time		
+global_quantities/neutral/incident_species/sputtering_physical_coefficient	F	3	1	1...3|global_quantities/neutral(i1)/incident_species(i2)/energies|time		
+global_quantities/neutral/incident_species/sputtering_chemical_coefficient	F	2	1	1...3|time		
+global_quantities/temperature	F	1	K	time		
+global_quantities/power_incident	F	1	W	time		
+global_quantities/power_conducted	F	1	W	time		
+global_quantities/power_convected	F	1	W	time		
+global_quantities/power_radiated	F	1	W	time		
+global_quantities/power_black_body	F	1	W	time		
+global_quantities/power_neutrals	F	1	W	time		
+global_quantities/power_recombination_plasma	F	1	W	time		
+global_quantities/power_recombination_neutrals	F	1	W	time		
+global_quantities/power_currents	F	1	W	time		
+global_quantities/power_to_cooling	F	1	W	time		
+global_quantities/power_inner_target_ion_total	F	1	W	time		
+global_quantities/power_density_inner_target_max	F	1	W	time		
+global_quantities/power_density_outer_target_max	F	1	W	time		
+global_quantities/current_phi	F	1	A	time		
+description_2d	A	1		1...N		
+description_2d/type	S	0				
+description_2d/type/name	T	0				
+description_2d/type/index	I	0				
+description_2d/type/description	T	0				
+description_2d/limiter	S	0				
+description_2d/limiter/type	S	0				
+description_2d/limiter/type/name	T	0				
+description_2d/limiter/type/index	I	0				
+description_2d/limiter/type/description	T	0				
+description_2d/limiter/unit	A	1		1...N		
+description_2d/limiter/unit/name	T	0				
+description_2d/limiter/unit/description	T	0				
+description_2d/limiter/unit/component_type	S	0				
+description_2d/limiter/unit/component_type/name	T	0				
+description_2d/limiter/unit/component_type/index	I	0				
+description_2d/limiter/unit/component_type/description	T	0				
+description_2d/limiter/unit/outline	S	0				
+description_2d/limiter/unit/outline/r	F	1	m	1...N		
+description_2d/limiter/unit/outline/z	F	1	m	description_2d(i1)/limiter/unit(i2)/outline/r		
+description_2d/limiter/unit/phi_extensions	F	2	rad	1...2|1...N		
+description_2d/limiter/unit/resistivity	F	0	ohm.m			
+description_2d/limiter/unit/midplane_thickness	F	0	m			
+description_2d/limiter/unit/midplane_power_density_nuclear	S	0	W.m^-3			
+description_2d/limiter/unit/midplane_power_density_nuclear/data	F	1	W.m^-3	description_2d(i1)/limiter/unit(i2)/midplane_power_density_nuclear/time		
+description_2d/limiter/unit/midplane_power_density_nuclear/time	F	1	s	1...N		
+description_2d/limiter/unit/power_nuclear	S	0	W			
+description_2d/limiter/unit/power_nuclear/data	F	1	W	description_2d(i1)/limiter/unit(i2)/power_nuclear/time		
+description_2d/limiter/unit/power_nuclear/time	F	1	s	1...N		
+description_2d/mobile	S	0				
+description_2d/mobile/type	S	0				
+description_2d/mobile/type/name	T	0				
+description_2d/mobile/type/index	I	0				
+description_2d/mobile/type/description	T	0				
+description_2d/mobile/unit	A	1		1...N		
+description_2d/mobile/unit/name	T	0				
+description_2d/mobile/unit/outline	A	1		description_2d(i1)/mobile/unit(i2)/outline(itime)/time		
+description_2d/mobile/unit/outline/r	F	1	m	1...N		
+description_2d/mobile/unit/outline/z	F	1	m	description_2d(i1)/mobile/unit(i2)/outline(itime)/r		
+description_2d/mobile/unit/outline/time	F	0	s			
+description_2d/mobile/unit/phi_extensions	F	2	rad	1...2|1...N		
+description_2d/mobile/unit/resistivity	F	0	ohm.m			
+description_2d/vessel	S	0				
+description_2d/vessel/type	S	0				
+description_2d/vessel/type/name	T	0				
+description_2d/vessel/type/index	I	0				
+description_2d/vessel/type/description	T	0				
+description_2d/vessel/unit	A	1		1...N		
+description_2d/vessel/unit/name	T	0				
+description_2d/vessel/unit/description	T	0				
+description_2d/vessel/unit/annular	S	0				
+description_2d/vessel/unit/annular/outline_inner	S	0				
+description_2d/vessel/unit/annular/outline_inner/r	F	1	m	1...N		
+description_2d/vessel/unit/annular/outline_inner/z	F	1	m	description_2d(i1)/vessel/unit(i2)/annular/outline_inner/r		
+description_2d/vessel/unit/annular/outline_outer	S	0				
+description_2d/vessel/unit/annular/outline_outer/r	F	1	m	1...N		
+description_2d/vessel/unit/annular/outline_outer/z	F	1	m	description_2d(i1)/vessel/unit(i2)/annular/outline_outer/r		
+description_2d/vessel/unit/annular/centreline	S	0				
+description_2d/vessel/unit/annular/centreline/r	F	1	m	1...N		
+description_2d/vessel/unit/annular/centreline/z	F	1	m	description_2d(i1)/vessel/unit(i2)/annular/centreline/r		
+description_2d/vessel/unit/annular/thickness	F	1	m	1...N		
+description_2d/vessel/unit/annular/resistivity	F	0	ohm.m			
+description_2d/vessel/unit/element	A	1		1...N		
+description_2d/vessel/unit/element/name	T	0				
+description_2d/vessel/unit/element/outline	S	0				
+description_2d/vessel/unit/element/outline/r	F	1	m	1...N		
+description_2d/vessel/unit/element/outline/z	F	1	m	description_2d(i1)/vessel/unit(i2)/element(i3)/outline/r		
+description_2d/vessel/unit/element/midplane_thickness	F	0	m			
+description_2d/vessel/unit/element/resistivity	F	0	ohm.m			
+description_2d/vessel/unit/element/j_phi	S	0	A			
+description_2d/vessel/unit/element/j_phi/data	F	1	A	description_2d(i1)/vessel/unit(i2)/element(i3)/j_phi/time		
+description_2d/vessel/unit/element/j_phi/time	F	1	s	1...N		
+description_2d/vessel/unit/element/resistance	F	0	ohm			
+description_2d/vessel/unit/material	A	1		1...N		
+description_2d/vessel/unit/material/name	T	0				
+description_2d/vessel/unit/material/index	I	0				
+description_2d/vessel/unit/material/description	T	0				
+description_2d/vessel/unit/material_volume_fraction	F	1	1	description_2d(i1)/vessel/unit(i2)/material		
+description_ggd	A	1		1...N		
+description_ggd/type	S	0				
+description_ggd/type/name	T	0				
+description_ggd/type/index	I	0				
+description_ggd/type/description	T	0				
+description_ggd/grid_ggd	A	1		description_ggd(i1)/grid_ggd(itime)/time		
+description_ggd/grid_ggd/identifier	S	0				
+description_ggd/grid_ggd/identifier/name	T	0				
+description_ggd/grid_ggd/identifier/index	I	0				
+description_ggd/grid_ggd/identifier/description	T	0				
+description_ggd/grid_ggd/path	T	0				
+description_ggd/grid_ggd/space	A	1		1...N		
+description_ggd/grid_ggd/space/identifier	S	0				
+description_ggd/grid_ggd/space/identifier/name	T	0				
+description_ggd/grid_ggd/space/identifier/index	I	0				
+description_ggd/grid_ggd/space/identifier/description	T	0				
+description_ggd/grid_ggd/space/geometry_type	S	0				
+description_ggd/grid_ggd/space/geometry_type/name	T	0				
+description_ggd/grid_ggd/space/geometry_type/index	I	0				
+description_ggd/grid_ggd/space/geometry_type/description	T	0				
+description_ggd/grid_ggd/space/coordinates_type	A	1		1...N		
+description_ggd/grid_ggd/space/coordinates_type/name	T	0				
+description_ggd/grid_ggd/space/coordinates_type/index	I	0				
+description_ggd/grid_ggd/space/coordinates_type/description	T	0				
+description_ggd/grid_ggd/space/objects_per_dimension	A	1		1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+description_ggd/grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+description_ggd/grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+description_ggd/grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+description_ggd/grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+description_ggd/grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+description_ggd/grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+description_ggd/grid_ggd/grid_subset	A	1		1...N		
+description_ggd/grid_ggd/grid_subset/identifier	S	0				
+description_ggd/grid_ggd/grid_subset/identifier/name	T	0				
+description_ggd/grid_ggd/grid_subset/identifier/index	I	0				
+description_ggd/grid_ggd/grid_subset/identifier/description	T	0				
+description_ggd/grid_ggd/grid_subset/dimension	I	0				
+description_ggd/grid_ggd/grid_subset/element	A	1		1...N		
+description_ggd/grid_ggd/grid_subset/element/object	A	1		1...N		
+description_ggd/grid_ggd/grid_subset/element/object/space	I	0				
+description_ggd/grid_ggd/grid_subset/element/object/dimension	I	0				
+description_ggd/grid_ggd/grid_subset/element/object/index	I	0				
+description_ggd/grid_ggd/grid_subset/base	A	1		1...N		
+description_ggd/grid_ggd/grid_subset/base/jacobian	F	1	mixed	description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/element		
+description_ggd/grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/element|1...N|1...N		
+description_ggd/grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/element|1...N|1...N	|description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/base(i3)/tensor_covariant|description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/base(i3)/tensor_covariant	
+description_ggd/grid_ggd/grid_subset/metric	S	0				
+description_ggd/grid_ggd/grid_subset/metric/jacobian	F	1	mixed	description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/element		
+description_ggd/grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/element|1...N|1...N		
+description_ggd/grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/element|1...N|1...N	|description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/metric/tensor_covariant|description_ggd(i1)/grid_ggd(itime)/grid_subset(i2)/metric/tensor_covariant	
+description_ggd/grid_ggd/time	F	0	s			
+description_ggd/material	A	1		description_ggd(i1)/material(itime)/time	description_ggd(i1)/grid_ggd	
+description_ggd/material/grid_subset	A	1		1...N		
+description_ggd/material/grid_subset/grid_index	I	0				
+description_ggd/material/grid_subset/grid_subset_index	I	0				
+description_ggd/material/grid_subset/identifiers	S	0				
+description_ggd/material/grid_subset/identifiers/names	T	1		1...N		
+description_ggd/material/grid_subset/identifiers/indices	I	1		description_ggd(i1)/material(itime)/grid_subset(i2)/identifiers/names		
+description_ggd/material/grid_subset/identifiers/descriptions	T	1		description_ggd(i1)/material(itime)/grid_subset(i2)/identifiers/names		
+description_ggd/material/time	F	0	s			
+description_ggd/component	A	1		description_ggd(i1)/component(itime)/time	description_ggd(i1)/grid_ggd	
+description_ggd/component/identifiers	T	1		1...N		
+description_ggd/component/type	A	1		description_ggd(i1)/component(itime)/identifiers		
+description_ggd/component/type/grid_index	I	0				
+description_ggd/component/type/grid_subset_index	I	0				
+description_ggd/component/type/identifier	S	0				
+description_ggd/component/type/identifier/name	T	0				
+description_ggd/component/type/identifier/index	I	0				
+description_ggd/component/type/identifier/description	T	0				
+description_ggd/component/time	F	0	s			
+description_ggd/thickness	A	1		description_ggd(i1)/thickness(itime)/time	description_ggd(i1)/grid_ggd	
+description_ggd/thickness/grid_subset	A	1	m	1...N		
+description_ggd/thickness/grid_subset/grid_index	I	0				
+description_ggd/thickness/grid_subset/grid_subset_index	I	0				
+description_ggd/thickness/grid_subset/values	F	1	m	1...N		
+description_ggd/thickness/grid_subset/coefficients	F	2	m	description_ggd(i1)/thickness(itime)/grid_subset(i2)/values|1...N		
+description_ggd/thickness/time	F	0	s			
+description_ggd/brdf	A	1		description_ggd(i1)/brdf(itime)/time	description_ggd(i1)/grid_ggd	
+description_ggd/brdf/type	A	1		1...N		
+description_ggd/brdf/type/grid_index	I	0				
+description_ggd/brdf/type/grid_subset_index	I	0				
+description_ggd/brdf/type/identifiers	S	0				
+description_ggd/brdf/type/identifiers/names	T	1		1...N		
+description_ggd/brdf/type/identifiers/indices	I	1		description_ggd(i1)/brdf(itime)/type(i2)/identifiers/names		
+description_ggd/brdf/type/identifiers/descriptions	T	1		description_ggd(i1)/brdf(itime)/type(i2)/identifiers/names		
+description_ggd/brdf/parameters	A	1	mixed	1...N		
+description_ggd/brdf/parameters/grid_index	I	0				
+description_ggd/brdf/parameters/grid_subset_index	I	0				
+description_ggd/brdf/parameters/values	F	2	mixed	1...N|1...N		
+description_ggd/brdf/parameters/coefficients	F	3	mixed	1...N|1...N|1...N	description_ggd(i1)/brdf(itime)/parameters(i2)/values||	
+description_ggd/brdf/time	F	0	s			
+description_ggd/ggd	A	1		description_ggd(i1)/ggd(itime)/time		
+description_ggd/ggd/power_density	A	1	W.m^-2	1...N		
+description_ggd/ggd/power_density/grid_index	I	0				
+description_ggd/ggd/power_density/grid_subset_index	I	0				
+description_ggd/ggd/power_density/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/power_density/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/power_density(i2)/values|1...N		
+description_ggd/ggd/temperature	A	1	K	1...N		
+description_ggd/ggd/temperature/grid_index	I	0				
+description_ggd/ggd/temperature/grid_subset_index	I	0				
+description_ggd/ggd/temperature/values	F	1	K	1...N		
+description_ggd/ggd/temperature/coefficients	F	2	K	description_ggd(i1)/ggd(itime)/temperature(i2)/values|1...N		
+description_ggd/ggd/v_biasing	A	1	V	1...N		
+description_ggd/ggd/v_biasing/grid_index	I	0				
+description_ggd/ggd/v_biasing/grid_subset_index	I	0				
+description_ggd/ggd/v_biasing/values	F	1	V	1...N		
+description_ggd/ggd/v_biasing/coefficients	F	2	V	description_ggd(i1)/ggd(itime)/v_biasing(i2)/values|1...N		
+description_ggd/ggd/recycling	S	0				
+description_ggd/ggd/recycling/ion	A	1		1...N		
+description_ggd/ggd/recycling/ion/element	A	1		1...N		
+description_ggd/ggd/recycling/ion/element/a	F	0	u			
+description_ggd/ggd/recycling/ion/element/z_n	I	0	e			
+description_ggd/ggd/recycling/ion/element/atoms_n	I	0				
+description_ggd/ggd/recycling/ion/z_ion	F	0	e			
+description_ggd/ggd/recycling/ion/name	T	0				
+description_ggd/ggd/recycling/ion/neutral_index	I	0				
+description_ggd/ggd/recycling/ion/coefficient	A	1	1	1...N		
+description_ggd/ggd/recycling/ion/coefficient/grid_index	I	0				
+description_ggd/ggd/recycling/ion/coefficient/grid_subset_index	I	0				
+description_ggd/ggd/recycling/ion/coefficient/values	F	1	1	1...N		
+description_ggd/ggd/recycling/ion/coefficient/coefficients	F	2	1	description_ggd(i1)/ggd(itime)/recycling/ion(i2)/coefficient(i3)/values|1...N		
+description_ggd/ggd/recycling/ion/multiple_states_flag	I	0				
+description_ggd/ggd/recycling/ion/state	A	1		1...N		
+description_ggd/ggd/recycling/ion/state/z_min	F	0	e			
+description_ggd/ggd/recycling/ion/state/z_max	F	0	e			
+description_ggd/ggd/recycling/ion/state/name	T	0				
+description_ggd/ggd/recycling/ion/state/vibrational_level	F	0	e			
+description_ggd/ggd/recycling/ion/state/vibrational_mode	T	0				
+description_ggd/ggd/recycling/ion/state/electron_configuration	T	0				
+description_ggd/ggd/recycling/ion/state/coefficient	A	1	1	1...N		
+description_ggd/ggd/recycling/ion/state/coefficient/grid_index	I	0				
+description_ggd/ggd/recycling/ion/state/coefficient/grid_subset_index	I	0				
+description_ggd/ggd/recycling/ion/state/coefficient/values	F	1	1	1...N		
+description_ggd/ggd/recycling/ion/state/coefficient/coefficients	F	2	1	description_ggd(i1)/ggd(itime)/recycling/ion(i2)/state(i3)/coefficient(i4)/values|1...N		
+description_ggd/ggd/recycling/neutral	A	1		1...N		
+description_ggd/ggd/recycling/neutral/element	A	1		1...N		
+description_ggd/ggd/recycling/neutral/element/a	F	0	u			
+description_ggd/ggd/recycling/neutral/element/z_n	I	0	e			
+description_ggd/ggd/recycling/neutral/element/atoms_n	I	0				
+description_ggd/ggd/recycling/neutral/name	T	0				
+description_ggd/ggd/recycling/neutral/ion_index	I	0				
+description_ggd/ggd/recycling/neutral/coefficient	A	1	1	1...N		
+description_ggd/ggd/recycling/neutral/coefficient/grid_index	I	0				
+description_ggd/ggd/recycling/neutral/coefficient/grid_subset_index	I	0				
+description_ggd/ggd/recycling/neutral/coefficient/values	F	1	1	1...N		
+description_ggd/ggd/recycling/neutral/coefficient/coefficients	F	2	1	description_ggd(i1)/ggd(itime)/recycling/neutral(i2)/coefficient(i3)/values|1...N		
+description_ggd/ggd/recycling/neutral/multiple_states_flag	I	0				
+description_ggd/ggd/recycling/neutral/state	A	1		1...N		
+description_ggd/ggd/recycling/neutral/state/name	T	0				
+description_ggd/ggd/recycling/neutral/state/vibrational_level	F	0	e			
+description_ggd/ggd/recycling/neutral/state/vibrational_mode	T	0				
+description_ggd/ggd/recycling/neutral/state/neutral_type	S	0				
+description_ggd/ggd/recycling/neutral/state/neutral_type/name	T	0				
+description_ggd/ggd/recycling/neutral/state/neutral_type/index	I	0				
+description_ggd/ggd/recycling/neutral/state/neutral_type/description	T	0				
+description_ggd/ggd/recycling/neutral/state/electron_configuration	T	0				
+description_ggd/ggd/recycling/neutral/state/coefficient	A	1	1	1...N		
+description_ggd/ggd/recycling/neutral/state/coefficient/grid_index	I	0				
+description_ggd/ggd/recycling/neutral/state/coefficient/grid_subset_index	I	0				
+description_ggd/ggd/recycling/neutral/state/coefficient/values	F	1	1	1...N		
+description_ggd/ggd/recycling/neutral/state/coefficient/coefficients	F	2	1	description_ggd(i1)/ggd(itime)/recycling/neutral(i2)/state(i3)/coefficient(i4)/values|1...N		
+description_ggd/ggd/particle_fluxes	S	0				
+description_ggd/ggd/particle_fluxes/electrons	S	0				
+description_ggd/ggd/particle_fluxes/electrons/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/electrons/incident/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/electrons/incident/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/electrons/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/electrons/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/electrons/incident(i2)/values|1...N		
+description_ggd/ggd/particle_fluxes/electrons/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/electrons/emitted/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/electrons/emitted/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/electrons/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/electrons/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/electrons/emitted(i2)/values|1...N		
+description_ggd/ggd/particle_fluxes/ion	A	1		1...N		
+description_ggd/ggd/particle_fluxes/ion/element	A	1		1...N		
+description_ggd/ggd/particle_fluxes/ion/element/a	F	0	u			
+description_ggd/ggd/particle_fluxes/ion/element/z_n	I	0	e			
+description_ggd/ggd/particle_fluxes/ion/element/atoms_n	I	0				
+description_ggd/ggd/particle_fluxes/ion/z_ion	F	0	e			
+description_ggd/ggd/particle_fluxes/ion/name	T	0				
+description_ggd/ggd/particle_fluxes/ion/neutral_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/incident/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/incident/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/ion(i2)/incident(i3)/values|1...N		
+description_ggd/ggd/particle_fluxes/ion/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/emitted/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/emitted/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/ion(i2)/emitted(i3)/values|1...N		
+description_ggd/ggd/particle_fluxes/ion/multiple_states_flag	I	0				
+description_ggd/ggd/particle_fluxes/ion/state	A	1		1...N		
+description_ggd/ggd/particle_fluxes/ion/state/z_min	F	0	e			
+description_ggd/ggd/particle_fluxes/ion/state/z_max	F	0	e			
+description_ggd/ggd/particle_fluxes/ion/state/name	T	0				
+description_ggd/ggd/particle_fluxes/ion/state/vibrational_level	F	0	e			
+description_ggd/ggd/particle_fluxes/ion/state/vibrational_mode	T	0				
+description_ggd/ggd/particle_fluxes/ion/state/electron_configuration	T	0				
+description_ggd/ggd/particle_fluxes/ion/state/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/state/incident/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/state/incident/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/state/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/state/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/ion(i2)/state(i3)/incident(i4)/values|1...N		
+description_ggd/ggd/particle_fluxes/ion/state/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/state/emitted/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/state/emitted/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/ion/state/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/ion/state/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/ion(i2)/state(i3)/emitted(i4)/values|1...N		
+description_ggd/ggd/particle_fluxes/neutral	A	1		1...N		
+description_ggd/ggd/particle_fluxes/neutral/element	A	1		1...N		
+description_ggd/ggd/particle_fluxes/neutral/element/a	F	0	u			
+description_ggd/ggd/particle_fluxes/neutral/element/z_n	I	0	e			
+description_ggd/ggd/particle_fluxes/neutral/element/atoms_n	I	0				
+description_ggd/ggd/particle_fluxes/neutral/name	T	0				
+description_ggd/ggd/particle_fluxes/neutral/ion_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/incident/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/incident/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/neutral(i2)/incident(i3)/values|1...N		
+description_ggd/ggd/particle_fluxes/neutral/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/emitted/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/emitted/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/neutral(i2)/emitted(i3)/values|1...N		
+description_ggd/ggd/particle_fluxes/neutral/multiple_states_flag	I	0				
+description_ggd/ggd/particle_fluxes/neutral/state	A	1		1...N		
+description_ggd/ggd/particle_fluxes/neutral/state/name	T	0				
+description_ggd/ggd/particle_fluxes/neutral/state/vibrational_level	F	0	e			
+description_ggd/ggd/particle_fluxes/neutral/state/vibrational_mode	T	0				
+description_ggd/ggd/particle_fluxes/neutral/state/neutral_type	S	0				
+description_ggd/ggd/particle_fluxes/neutral/state/neutral_type/name	T	0				
+description_ggd/ggd/particle_fluxes/neutral/state/neutral_type/index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/state/neutral_type/description	T	0				
+description_ggd/ggd/particle_fluxes/neutral/state/electron_configuration	T	0				
+description_ggd/ggd/particle_fluxes/neutral/state/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/state/incident/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/state/incident/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/state/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/state/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/neutral(i2)/state(i3)/incident(i4)/values|1...N		
+description_ggd/ggd/particle_fluxes/neutral/state/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/state/emitted/grid_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/state/emitted/grid_subset_index	I	0				
+description_ggd/ggd/particle_fluxes/neutral/state/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/particle_fluxes/neutral/state/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/particle_fluxes/neutral(i2)/state(i3)/emitted(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes	S	0				
+description_ggd/ggd/energy_fluxes/radiation	S	0				
+description_ggd/ggd/energy_fluxes/radiation/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/radiation/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/radiation/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/radiation/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/radiation/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/radiation/incident(i2)/values|1...N		
+description_ggd/ggd/energy_fluxes/radiation/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/radiation/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/radiation/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/radiation/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/radiation/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/radiation/emitted(i2)/values|1...N		
+description_ggd/ggd/energy_fluxes/current	S	0				
+description_ggd/ggd/energy_fluxes/current/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/current/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/current/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/current/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/current/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/current/incident(i2)/values|1...N		
+description_ggd/ggd/energy_fluxes/current/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/current/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/current/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/current/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/current/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/current/emitted(i2)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination	S	0				
+description_ggd/ggd/energy_fluxes/recombination/ion	A	1		1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/element	A	1		1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/element/a	F	0	u			
+description_ggd/ggd/energy_fluxes/recombination/ion/element/z_n	I	0	e			
+description_ggd/ggd/energy_fluxes/recombination/ion/element/atoms_n	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/z_ion	F	0	e			
+description_ggd/ggd/energy_fluxes/recombination/ion/name	T	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/neutral_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/ion(i2)/incident(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/ion(i2)/emitted(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/multiple_states_flag	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state	A	1		1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/state/z_min	F	0	e			
+description_ggd/ggd/energy_fluxes/recombination/ion/state/z_max	F	0	e			
+description_ggd/ggd/energy_fluxes/recombination/ion/state/name	T	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/vibrational_level	F	0	e			
+description_ggd/ggd/energy_fluxes/recombination/ion/state/vibrational_mode	T	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/electron_configuration	T	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/state/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/ion(i2)/state(i3)/incident(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/recombination/ion/state/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/ion(i2)/state(i3)/emitted(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral	A	1		1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/element	A	1		1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/element/a	F	0	u			
+description_ggd/ggd/energy_fluxes/recombination/neutral/element/z_n	I	0	e			
+description_ggd/ggd/energy_fluxes/recombination/neutral/element/atoms_n	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/name	T	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/ion_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/neutral(i2)/incident(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/neutral(i2)/emitted(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/multiple_states_flag	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state	A	1		1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/name	T	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/vibrational_level	F	0	e			
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/vibrational_mode	T	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/neutral_type	S	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/neutral_type/name	T	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/neutral_type/index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/neutral_type/description	T	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/electron_configuration	T	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/neutral(i2)/state(i3)/incident(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/recombination/neutral/state/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/recombination/neutral(i2)/state(i3)/emitted(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic	S	0				
+description_ggd/ggd/energy_fluxes/kinetic/electrons	S	0				
+description_ggd/ggd/energy_fluxes/kinetic/electrons/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/electrons/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/electrons/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/electrons/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/electrons/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/electrons/incident(i2)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/electrons/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/electrons/emitted(i2)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion	A	1		1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/element	A	1		1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/element/a	F	0	u			
+description_ggd/ggd/energy_fluxes/kinetic/ion/element/z_n	I	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/ion/element/atoms_n	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/z_ion	F	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/ion/name	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/neutral_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/ion(i2)/incident(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/ion(i2)/emitted(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/multiple_states_flag	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state	A	1		1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/z_min	F	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/z_max	F	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/name	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/vibrational_level	F	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/vibrational_mode	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/electron_configuration	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/incident	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/incident/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/incident/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/ion(i2)/state(i3)/incident(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted	A	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/values	F	1	W.m^-2	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/ion/state/emitted/coefficients	F	2	W.m^-2	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/ion(i2)/state(i3)/emitted(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral	A	1		1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/element	A	1		1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/element/a	F	0	u			
+description_ggd/ggd/energy_fluxes/kinetic/neutral/element/z_n	I	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/neutral/element/atoms_n	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/name	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/ion_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/neutral(i2)/incident(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/neutral(i2)/emitted(i3)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/multiple_states_flag	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state	A	1		1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/name	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/vibrational_level	F	0	e			
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/vibrational_mode	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/neutral_type	S	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/neutral_type/name	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/neutral_type/index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/neutral_type/description	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/electron_configuration	T	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/incident/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/neutral(i2)/state(i3)/incident(i4)/values|1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted	A	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/grid_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/grid_subset_index	I	0				
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/values	F	1	m^-2.s^-1	1...N		
+description_ggd/ggd/energy_fluxes/kinetic/neutral/state/emitted/coefficients	F	2	m^-2.s^-1	description_ggd(i1)/ggd(itime)/energy_fluxes/kinetic/neutral(i2)/state(i3)/emitted(i4)/values|1...N		
+description_ggd/ggd/j_total	A	1	A.m^-2	1...N		
+description_ggd/ggd/j_total/grid_index	I	0				
+description_ggd/ggd/j_total/grid_subset_index	I	0				
+description_ggd/ggd/j_total/r	F	1	A.m^-2	1...N		
+description_ggd/ggd/j_total/r_coefficients	F	2	A.m^-2	1...N|1...N		
+description_ggd/ggd/j_total/phi	F	1	A.m^-2	description_ggd(i1)/ggd(itime)/j_total(i2)/r		
+description_ggd/ggd/j_total/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+description_ggd/ggd/j_total/z	F	1	A.m^-2	description_ggd(i1)/ggd(itime)/j_total(i2)/r		
+description_ggd/ggd/j_total/z_coefficients	F	2	A.m^-2	1...N|1...N		
+description_ggd/ggd/b_field	A	1	T	1...N		
+description_ggd/ggd/b_field/grid_index	I	0				
+description_ggd/ggd/b_field/grid_subset_index	I	0				
+description_ggd/ggd/b_field/r	F	1	T	1...N		
+description_ggd/ggd/b_field/r_coefficients	F	2	T	1...N|1...N		
+description_ggd/ggd/b_field/phi	F	1	T	description_ggd(i1)/ggd(itime)/b_field(i2)/r		
+description_ggd/ggd/b_field/phi_coefficients	F	2	T	1...N|1...N		
+description_ggd/ggd/b_field/z	F	1	T	description_ggd(i1)/ggd(itime)/b_field(i2)/r		
+description_ggd/ggd/b_field/z_coefficients	F	2	T	1...N|1...N		
+description_ggd/ggd/em_force_density	A	1	N.m^-3	1...N		
+description_ggd/ggd/em_force_density/grid_index	I	0				
+description_ggd/ggd/em_force_density/grid_subset_index	I	0				
+description_ggd/ggd/em_force_density/r	F	1	N.m^-3	1...N		
+description_ggd/ggd/em_force_density/r_coefficients	F	2	N.m^-3	1...N|1...N		
+description_ggd/ggd/em_force_density/phi	F	1	N.m^-3	description_ggd(i1)/ggd(itime)/em_force_density(i2)/r		
+description_ggd/ggd/em_force_density/phi_coefficients	F	2	N.m^-3	1...N|1...N		
+description_ggd/ggd/em_force_density/z	F	1	N.m^-3	description_ggd(i1)/ggd(itime)/em_force_density(i2)/r		
+description_ggd/ggd/em_force_density/z_coefficients	F	2	N.m^-3	1...N|1...N		
+description_ggd/ggd/e_field	A	1	V.m^-1	1...N		
+description_ggd/ggd/e_field/grid_index	I	0				
+description_ggd/ggd/e_field/grid_subset_index	I	0				
+description_ggd/ggd/e_field/r	F	1	V.m^-1	1...N		
+description_ggd/ggd/e_field/r_coefficients	F	2	V.m^-1	1...N|1...N		
+description_ggd/ggd/e_field/phi	F	1	V.m^-1	description_ggd(i1)/ggd(itime)/e_field(i2)/r		
+description_ggd/ggd/e_field/phi_coefficients	F	2	V.m^-1	1...N|1...N		
+description_ggd/ggd/e_field/z	F	1	V.m^-1	description_ggd(i1)/ggd(itime)/e_field(i2)/r		
+description_ggd/ggd/e_field/z_coefficients	F	2	V.m^-1	1...N|1...N		
+description_ggd/ggd/a_field	A	1	T.m	1...N		
+description_ggd/ggd/a_field/grid_index	I	0				
+description_ggd/ggd/a_field/grid_subset_index	I	0				
+description_ggd/ggd/a_field/r	F	1	T.m	1...N		
+description_ggd/ggd/a_field/r_coefficients	F	2	T.m	1...N|1...N		
+description_ggd/ggd/a_field/phi	F	1	T.m	description_ggd(i1)/ggd(itime)/a_field(i2)/r		
+description_ggd/ggd/a_field/phi_coefficients	F	2	T.m	1...N|1...N		
+description_ggd/ggd/a_field/z	F	1	T.m	description_ggd(i1)/ggd(itime)/a_field(i2)/r		
+description_ggd/ggd/a_field/z_coefficients	F	2	T.m	1...N|1...N		
+description_ggd/ggd/psi	A	1	Wb	1...N		
+description_ggd/ggd/psi/grid_index	I	0				
+description_ggd/ggd/psi/grid_subset_index	I	0				
+description_ggd/ggd/psi/values	F	1	Wb	1...N		
+description_ggd/ggd/psi/coefficients	F	2	Wb	description_ggd(i1)/ggd(itime)/psi(i2)/values|1...N		
+description_ggd/ggd/phi_potential	A	1	V	1...N		
+description_ggd/ggd/phi_potential/grid_index	I	0				
+description_ggd/ggd/phi_potential/grid_subset_index	I	0				
+description_ggd/ggd/phi_potential/values	F	1	V	1...N		
+description_ggd/ggd/phi_potential/coefficients	F	2	V	description_ggd(i1)/ggd(itime)/phi_potential(i2)/values|1...N		
+description_ggd/ggd/resistivity	A	1	ohm.m	1...N		
+description_ggd/ggd/resistivity/grid_index	I	0				
+description_ggd/ggd/resistivity/grid_subset_index	I	0				
+description_ggd/ggd/resistivity/values	F	1	ohm.m	1...N		
+description_ggd/ggd/resistivity/coefficients	F	2	ohm.m	description_ggd(i1)/ggd(itime)/resistivity(i2)/values|1...N		
+description_ggd/ggd/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

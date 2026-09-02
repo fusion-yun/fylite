@@ -1,0 +1,290 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids radiation
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+grid_ggd	A	1		grid_ggd(itime)/time		
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant	
+grid_ggd/time	F	0	s			
+process	A	1		1...N		
+process/identifier	S	0				
+process/identifier/name	T	0				
+process/identifier/index	I	0				
+process/identifier/description	T	0				
+process/global_quantities	A	1		process(i1)/global_quantities(itime)/time		
+process/global_quantities/inside_lcfs	S	0				
+process/global_quantities/inside_lcfs/power	F	0	W			
+process/global_quantities/inside_lcfs/power_ion_total	F	0	W			
+process/global_quantities/inside_lcfs/power_neutral_total	F	0	W			
+process/global_quantities/inside_lcfs/power_electrons	F	0	W			
+process/global_quantities/inside_vessel	S	0				
+process/global_quantities/inside_vessel/power	F	0	W			
+process/global_quantities/inside_vessel/power_ion_total	F	0	W			
+process/global_quantities/inside_vessel/power_neutral_total	F	0	W			
+process/global_quantities/inside_vessel/power_electrons	F	0	W			
+process/global_quantities/time	F	0	s			
+process/profiles_1d	A	1		process(i1)/profiles_1d(itime)/time		
+process/profiles_1d/grid	S	0				
+process/profiles_1d/grid/rho_tor_norm	F	1	1	1...N		process(i1)/profiles_1d(itime)/grid/rho_tor;process(i1)/profiles_1d(itime)/grid/psi;process(i1)/profiles_1d(itime)/grid/volume;process(i1)/profiles_1d(itime)/grid/area;process(i1)/profiles_1d(itime)/grid/surface;process(i1)/profiles_1d(itime)/grid/rho_pol_norm
+process/profiles_1d/grid/rho_tor	F	1	m	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/grid/rho_pol_norm	F	1	1	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/grid/psi	F	1	Wb	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/grid/volume	F	1	m^3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/grid/area	F	1	m^2	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/grid/surface	F	1	m^2	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/grid/psi_magnetic_axis	F	0	Wb			
+process/profiles_1d/grid/psi_boundary	F	0	Wb			
+process/profiles_1d/electrons	S	0				
+process/profiles_1d/electrons/emissivity	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/electrons/power_inside	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/emissivity_ion_total	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/power_inside_ion_total	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/emissivity_neutral_total	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/power_inside_neutral_total	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/ion	A	1		1...N		
+process/profiles_1d/ion/element	A	1		1...N		
+process/profiles_1d/ion/element/a	F	0	u			
+process/profiles_1d/ion/element/z_n	I	0	e			
+process/profiles_1d/ion/element/atoms_n	I	0				
+process/profiles_1d/ion/z_ion	F	0	e			
+process/profiles_1d/ion/name	T	0				
+process/profiles_1d/ion/neutral_index	I	0				
+process/profiles_1d/ion/emissivity	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/ion/power_inside	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/ion/multiple_states_flag	I	0				
+process/profiles_1d/ion/state	A	1		1...N		
+process/profiles_1d/ion/state/z_min	F	0	e			
+process/profiles_1d/ion/state/z_max	F	0	e			
+process/profiles_1d/ion/state/name	T	0				
+process/profiles_1d/ion/state/vibrational_level	F	0	e			
+process/profiles_1d/ion/state/vibrational_mode	T	0				
+process/profiles_1d/ion/state/electron_configuration	T	0				
+process/profiles_1d/ion/state/emissivity	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/ion/state/power_inside	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/neutral	A	1		1...N		
+process/profiles_1d/neutral/element	A	1		1...N		
+process/profiles_1d/neutral/element/a	F	0	u			
+process/profiles_1d/neutral/element/z_n	I	0	e			
+process/profiles_1d/neutral/element/atoms_n	I	0				
+process/profiles_1d/neutral/name	T	0				
+process/profiles_1d/neutral/ion_index	I	0				
+process/profiles_1d/neutral/emissivity	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/neutral/power_inside	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/neutral/multiple_states_flag	I	0				
+process/profiles_1d/neutral/state	A	1		1...N		
+process/profiles_1d/neutral/state/name	T	0				
+process/profiles_1d/neutral/state/vibrational_level	F	0	e			
+process/profiles_1d/neutral/state/vibrational_mode	T	0				
+process/profiles_1d/neutral/state/neutral_type	S	0				
+process/profiles_1d/neutral/state/neutral_type/name	T	0				
+process/profiles_1d/neutral/state/neutral_type/index	I	0				
+process/profiles_1d/neutral/state/neutral_type/description	T	0				
+process/profiles_1d/neutral/state/electron_configuration	T	0				
+process/profiles_1d/neutral/state/emissivity	F	1	W.m^-3	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/neutral/state/power_inside	F	1	W	process(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+process/profiles_1d/time	F	0	s			
+process/ggd	A	1		process(i1)/ggd(itime)/time		
+process/ggd/electrons	S	0				
+process/ggd/electrons/emissivity	A	1	W.m^-3	1...N		
+process/ggd/electrons/emissivity/grid_index	I	0				
+process/ggd/electrons/emissivity/grid_subset_index	I	0				
+process/ggd/electrons/emissivity/values	F	1	W.m^-3	1...N		
+process/ggd/electrons/emissivity/coefficients	F	2	W.m^-3	process(i1)/ggd(itime)/electrons/emissivity(i2)/values|1...N		
+process/ggd/ion	A	1		1...N		
+process/ggd/ion/element	A	1		1...N		
+process/ggd/ion/element/a	F	0	u			
+process/ggd/ion/element/z_n	I	0	e			
+process/ggd/ion/element/atoms_n	I	0				
+process/ggd/ion/z_ion	F	0	e			
+process/ggd/ion/name	T	0				
+process/ggd/ion/neutral_index	I	0				
+process/ggd/ion/emissivity	A	1	W.m^-3	1...N		
+process/ggd/ion/emissivity/grid_index	I	0				
+process/ggd/ion/emissivity/grid_subset_index	I	0				
+process/ggd/ion/emissivity/values	F	1	W.m^-3	1...N		
+process/ggd/ion/emissivity/coefficients	F	2	W.m^-3	process(i1)/ggd(itime)/ion(i2)/emissivity(i3)/values|1...N		
+process/ggd/ion/multiple_states_flag	I	0				
+process/ggd/ion/state	A	1		1...N		
+process/ggd/ion/state/z_min	F	0	e			
+process/ggd/ion/state/z_max	F	0	e			
+process/ggd/ion/state/name	T	0				
+process/ggd/ion/state/vibrational_level	F	0	e			
+process/ggd/ion/state/vibrational_mode	T	0				
+process/ggd/ion/state/electron_configuration	T	0				
+process/ggd/ion/state/emissivity	A	1	W.m^-3	1...N		
+process/ggd/ion/state/emissivity/grid_index	I	0				
+process/ggd/ion/state/emissivity/grid_subset_index	I	0				
+process/ggd/ion/state/emissivity/values	F	1	W.m^-3	1...N		
+process/ggd/ion/state/emissivity/coefficients	F	2	W.m^-3	process(i1)/ggd(itime)/ion(i2)/state(i3)/emissivity(i4)/values|1...N		
+process/ggd/neutral	A	1		1...N		
+process/ggd/neutral/element	A	1		1...N		
+process/ggd/neutral/element/a	F	0	u			
+process/ggd/neutral/element/z_n	I	0	e			
+process/ggd/neutral/element/atoms_n	I	0				
+process/ggd/neutral/name	T	0				
+process/ggd/neutral/ion_index	I	0				
+process/ggd/neutral/emissivity	A	1	W.m^-3	1...N		
+process/ggd/neutral/emissivity/grid_index	I	0				
+process/ggd/neutral/emissivity/grid_subset_index	I	0				
+process/ggd/neutral/emissivity/values	F	1	W.m^-3	1...N		
+process/ggd/neutral/emissivity/coefficients	F	2	W.m^-3	process(i1)/ggd(itime)/neutral(i2)/emissivity(i3)/values|1...N		
+process/ggd/neutral/multiple_states_flag	I	0				
+process/ggd/neutral/state	A	1		1...N		
+process/ggd/neutral/state/name	T	0				
+process/ggd/neutral/state/vibrational_level	F	0	e			
+process/ggd/neutral/state/vibrational_mode	T	0				
+process/ggd/neutral/state/neutral_type	S	0				
+process/ggd/neutral/state/neutral_type/name	T	0				
+process/ggd/neutral/state/neutral_type/index	I	0				
+process/ggd/neutral/state/neutral_type/description	T	0				
+process/ggd/neutral/state/electron_configuration	T	0				
+process/ggd/neutral/state/emissivity	A	1	W.m^-3	1...N		
+process/ggd/neutral/state/emissivity/grid_index	I	0				
+process/ggd/neutral/state/emissivity/grid_subset_index	I	0				
+process/ggd/neutral/state/emissivity/values	F	1	W.m^-3	1...N		
+process/ggd/neutral/state/emissivity/coefficients	F	2	W.m^-3	process(i1)/ggd(itime)/neutral(i2)/state(i3)/emissivity(i4)/values|1...N		
+process/ggd/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

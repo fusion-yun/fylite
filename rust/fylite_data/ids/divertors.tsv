@@ -1,0 +1,214 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids divertors
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+divertor	A	1		1...N		
+divertor/name	T	0				
+divertor/description	T	0				
+divertor/target	A	1		1...N		
+divertor/target/name	T	0				
+divertor/target/description	T	0				
+divertor/target/heat_flux_steady_limit_max	F	0	W.m^-2			
+divertor/target/temperature_limit_max	F	0	K			
+divertor/target/t_e_target_sputtering_limit_max	F	0	eV			
+divertor/target/power_flux_peak	S	0	W.m^-2			
+divertor/target/power_flux_peak/data	F	1	W.m^-2	divertor(i1)/target(i2)/power_flux_peak/time		
+divertor/target/power_flux_peak/time	F	1	s	1...N		
+divertor/target/flux_expansion	S	0	1			
+divertor/target/flux_expansion/data	F	1	1	divertor(i1)/target(i2)/flux_expansion/time		
+divertor/target/flux_expansion/time	F	1	s	1...N		
+divertor/target/two_point_model	A	1		divertor(i1)/target(i2)/two_point_model(itime)/time		
+divertor/target/two_point_model/t_e_target	F	0	eV			
+divertor/target/two_point_model/n_e_target	F	0	m^-3			
+divertor/target/two_point_model/sol_heat_decay_length	F	0	m			
+divertor/target/two_point_model/sol_heat_spreading_length	F	0	m			
+divertor/target/two_point_model/time	F	0	s			
+divertor/target/tilt_angle_pol	S	0	rad			
+divertor/target/tilt_angle_pol/data	F	1	rad	divertor(i1)/target(i2)/tilt_angle_pol/time		
+divertor/target/tilt_angle_pol/time	F	1	s	1...N		
+divertor/target/extension_r	F	0	m			
+divertor/target/extension_z	F	0	m			
+divertor/target/wetted_area	S	0	m^2			
+divertor/target/wetted_area/data	F	1	m^2	divertor(i1)/target(i2)/wetted_area/time		
+divertor/target/wetted_area/time	F	1	s	1...N		
+divertor/target/power_incident_fraction	S	0	1			
+divertor/target/power_incident_fraction/data	F	1	1	divertor(i1)/target(i2)/power_incident_fraction/time		
+divertor/target/power_incident_fraction/time	F	1	s	1...N		
+divertor/target/power_incident	S	0	W			
+divertor/target/power_incident/data	F	1	W	divertor(i1)/target(i2)/power_incident/time		
+divertor/target/power_incident/time	F	1	s	1...N		
+divertor/target/power_conducted	S	0	W			
+divertor/target/power_conducted/data	F	1	W	divertor(i1)/target(i2)/power_conducted/time		
+divertor/target/power_conducted/time	F	1	s	1...N		
+divertor/target/power_convected	S	0	W			
+divertor/target/power_convected/data	F	1	W	divertor(i1)/target(i2)/power_convected/time		
+divertor/target/power_convected/time	F	1	s	1...N		
+divertor/target/power_radiated	S	0	W			
+divertor/target/power_radiated/data	F	1	W	divertor(i1)/target(i2)/power_radiated/time		
+divertor/target/power_radiated/time	F	1	s	1...N		
+divertor/target/power_black_body	S	0	W			
+divertor/target/power_black_body/data	F	1	W	divertor(i1)/target(i2)/power_black_body/time		
+divertor/target/power_black_body/time	F	1	s	1...N		
+divertor/target/power_neutrals	S	0	W			
+divertor/target/power_neutrals/data	F	1	W	divertor(i1)/target(i2)/power_neutrals/time		
+divertor/target/power_neutrals/time	F	1	s	1...N		
+divertor/target/power_recombination_plasma	S	0	W			
+divertor/target/power_recombination_plasma/data	F	1	W	divertor(i1)/target(i2)/power_recombination_plasma/time		
+divertor/target/power_recombination_plasma/time	F	1	s	1...N		
+divertor/target/power_recombination_neutrals	S	0	W			
+divertor/target/power_recombination_neutrals/data	F	1	W	divertor(i1)/target(i2)/power_recombination_neutrals/time		
+divertor/target/power_recombination_neutrals/time	F	1	s	1...N		
+divertor/target/power_currents	S	0	W			
+divertor/target/power_currents/data	F	1	W	divertor(i1)/target(i2)/power_currents/time		
+divertor/target/power_currents/time	F	1	s	1...N		
+divertor/target/current_incident	S	0	A			
+divertor/target/current_incident/data	F	1	A	divertor(i1)/target(i2)/current_incident/time		
+divertor/target/current_incident/time	F	1	s	1...N		
+divertor/target/tile	A	1		1...N		
+divertor/target/tile/name	T	0				
+divertor/target/tile/description	T	0				
+divertor/target/tile/surface_outline	S	0				
+divertor/target/tile/surface_outline/r	F	1	m	1...N		
+divertor/target/tile/surface_outline/phi	F	1	rad	divertor(i1)/target(i2)/tile(i3)/surface_outline/r		
+divertor/target/tile/surface_outline/z	F	1	m	divertor(i1)/target(i2)/tile(i3)/surface_outline/r		
+divertor/target/tile/surface_area	F	0	m^2			
+divertor/target/tile/current_incident	S	0	A			
+divertor/target/tile/current_incident/data	F	1	A	divertor(i1)/target(i2)/tile(i3)/current_incident/time		
+divertor/target/tile/current_incident/time	F	1	s	1...N		
+divertor/target/tile/shunt_index	I	0				
+divertor/wetted_area	S	0	m^2			
+divertor/wetted_area/data	F	1	m^2	divertor(i1)/wetted_area/time		
+divertor/wetted_area/time	F	1	s	1...N		
+divertor/power_incident	S	0	W			
+divertor/power_incident/data	F	1	W	divertor(i1)/power_incident/time		
+divertor/power_incident/time	F	1	s	1...N		
+divertor/power_conducted	S	0	W			
+divertor/power_conducted/data	F	1	W	divertor(i1)/power_conducted/time		
+divertor/power_conducted/time	F	1	s	1...N		
+divertor/power_convected	S	0	W			
+divertor/power_convected/data	F	1	W	divertor(i1)/power_convected/time		
+divertor/power_convected/time	F	1	s	1...N		
+divertor/power_radiated	S	0	W			
+divertor/power_radiated/data	F	1	W	divertor(i1)/power_radiated/time		
+divertor/power_radiated/time	F	1	s	1...N		
+divertor/power_black_body	S	0	W			
+divertor/power_black_body/data	F	1	W	divertor(i1)/power_black_body/time		
+divertor/power_black_body/time	F	1	s	1...N		
+divertor/power_neutrals	S	0	W			
+divertor/power_neutrals/data	F	1	W	divertor(i1)/power_neutrals/time		
+divertor/power_neutrals/time	F	1	s	1...N		
+divertor/power_recombination_plasma	S	0	W			
+divertor/power_recombination_plasma/data	F	1	W	divertor(i1)/power_recombination_plasma/time		
+divertor/power_recombination_plasma/time	F	1	s	1...N		
+divertor/power_recombination_neutrals	S	0	W			
+divertor/power_recombination_neutrals/data	F	1	W	divertor(i1)/power_recombination_neutrals/time		
+divertor/power_recombination_neutrals/time	F	1	s	1...N		
+divertor/power_currents	S	0	W			
+divertor/power_currents/data	F	1	W	divertor(i1)/power_currents/time		
+divertor/power_currents/time	F	1	s	1...N		
+divertor/power_nuclear	S	0	W			
+divertor/power_nuclear/data	F	1	W	divertor(i1)/power_nuclear/time		
+divertor/power_nuclear/time	F	1	s	1...N		
+divertor/particle_flux_recycled_total	S	0	s^-1			
+divertor/particle_flux_recycled_total/data	F	1	s^-1	divertor(i1)/particle_flux_recycled_total/time		
+divertor/particle_flux_recycled_total/time	F	1	s	1...N		
+divertor/current_incident	S	0	A			
+divertor/current_incident/data	F	1	A	divertor(i1)/current_incident/time		
+divertor/current_incident/time	F	1	s	1...N		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

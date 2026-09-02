@@ -1,0 +1,201 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids spi
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+injector	A	1		1...N		
+injector/name	T	0				
+injector/description	T	0				
+injector/optical_pellet_diagnostic	S	0				
+injector/optical_pellet_diagnostic/position	S	0				
+injector/optical_pellet_diagnostic/position/r	F	0	m			
+injector/optical_pellet_diagnostic/position/phi	F	0	rad			
+injector/optical_pellet_diagnostic/position/z	F	0	m			
+injector/optical_pellet_diagnostic/time_arrival	F	1	s	1...N		
+injector/time_trigger	F	0	s			
+injector/time_shatter	F	0	s			
+injector/pellet	S	0				
+injector/pellet/position	S	0				
+injector/pellet/position/r	F	1	m	time		
+injector/pellet/position/phi	F	1	rad	time		
+injector/pellet/position/z	F	1	m	time		
+injector/pellet/velocity_r	F	1	m.s^-1	time		
+injector/pellet/velocity_z	F	1	m.s^-1	time		
+injector/pellet/velocity_phi	F	1	m.s^-1	time		
+injector/pellet/velocity_shatter	F	0	m.s^-1			
+injector/pellet/diameter	F	0	m			
+injector/pellet/length	F	0	m			
+injector/pellet/shell	S	0				
+injector/pellet/shell/species	A	1		1...N		
+injector/pellet/shell/species/a	F	0	u			
+injector/pellet/shell/species/z_n	F	0	e			
+injector/pellet/shell/species/name	T	0				
+injector/pellet/shell/species/density	F	0	m^-3			
+injector/pellet/shell/atoms_n	F	0	1			
+injector/pellet/core	S	0				
+injector/pellet/core/species	A	1		1...N		
+injector/pellet/core/species/a	F	0	u			
+injector/pellet/core/species/z_n	F	0	e			
+injector/pellet/core/species/name	T	0				
+injector/pellet/core/species/density	F	0	m^-3			
+injector/pellet/core/atoms_n	F	0	1			
+injector/fragmentation_gas	S	0				
+injector/fragmentation_gas/flow_rate	F	1	s^-1	time		
+injector/fragmentation_gas/species	A	1		1...N		
+injector/fragmentation_gas/species/a	F	0	u			
+injector/fragmentation_gas/species/z_n	F	0	e			
+injector/fragmentation_gas/species/name	T	0				
+injector/fragmentation_gas/species/fraction	F	0	1			
+injector/fragmentation_gas/atoms_n	F	0	1			
+injector/fragmentation_gas/temperature	F	0	K			
+injector/propellant_gas	S	0				
+injector/propellant_gas/flow_rate	F	1	s^-1	time		
+injector/propellant_gas/species	A	1		1...N		
+injector/propellant_gas/species/a	F	0	u			
+injector/propellant_gas/species/z_n	F	0	e			
+injector/propellant_gas/species/name	T	0				
+injector/propellant_gas/species/fraction	F	0	1			
+injector/propellant_gas/atoms_n	F	0	1			
+injector/propellant_gas/temperature	F	0	K			
+injector/injection_direction	S	0				
+injector/injection_direction/x	F	0	m			
+injector/injection_direction/y	F	0	m			
+injector/injection_direction/z	F	0	m			
+injector/shattering_position	S	0				
+injector/shattering_position/r	F	0	m			
+injector/shattering_position/phi	F	0	rad			
+injector/shattering_position/z	F	0	m			
+injector/shattering_angle	F	0	rad			
+injector/shatter_cone	S	0				
+injector/shatter_cone/direction	S	0				
+injector/shatter_cone/direction/x	F	0	m			
+injector/shatter_cone/direction/y	F	0	m			
+injector/shatter_cone/direction/z	F	0	m			
+injector/shatter_cone/origin	S	0				
+injector/shatter_cone/origin/r	F	0	m			
+injector/shatter_cone/origin/phi	F	0	rad			
+injector/shatter_cone/origin/z	F	0	m			
+injector/shatter_cone/unit_vector_major	S	0				
+injector/shatter_cone/unit_vector_major/x	F	0	m			
+injector/shatter_cone/unit_vector_major/y	F	0	m			
+injector/shatter_cone/unit_vector_major/z	F	0	m			
+injector/shatter_cone/unit_vector_minor	S	0				
+injector/shatter_cone/unit_vector_minor/x	F	0	m			
+injector/shatter_cone/unit_vector_minor/y	F	0	m			
+injector/shatter_cone/unit_vector_minor/z	F	0	m			
+injector/shatter_cone/angle_major	F	0	rad			
+injector/shatter_cone/angle_minor	F	0	rad			
+injector/velocity_mass_centre_fragments_r	F	0	m.s^-1			
+injector/velocity_mass_centre_fragments_z	F	0	m.s^-1			
+injector/velocity_mass_centre_fragments_phi	F	0	m.s^-1			
+injector/fragment	A	1		1...N		
+injector/fragment/position	S	0				
+injector/fragment/position/r	F	1	m	time		
+injector/fragment/position/phi	F	1	rad	time		
+injector/fragment/position/z	F	1	m	time		
+injector/fragment/velocity_r	F	1	m.s^-1	time		
+injector/fragment/velocity_z	F	1	m.s^-1	time		
+injector/fragment/velocity_phi	F	1	m.s^-1	time		
+injector/fragment/volume	F	1	m^3	time		
+injector/fragment/species	A	1		1...N		
+injector/fragment/species/a	F	0	u			
+injector/fragment/species/z_n	F	0	e			
+injector/fragment/species/name	T	0				
+injector/fragment/species/density	F	0	m^-3			
+shatter_cone_definition	S	0				
+shatter_cone_definition/name	T	0				
+shatter_cone_definition/index	I	0				
+shatter_cone_definition/description	T	0				
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

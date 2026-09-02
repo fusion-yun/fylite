@@ -1,0 +1,361 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids spectrometer_x_ray_crystal
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+channel	A	1		1...N		
+channel/exposure_time	F	0	s			
+channel/energy_bound_lower	F	2	eV	1...N|channel(i1)/z_frames	channel(i1)/wavelength_frames|	
+channel/energy_bound_upper	F	2	eV	1...N|channel(i1)/z_frames	channel(i1)/wavelength_frames|	
+channel/aperture	S	0				
+channel/aperture/geometry_type	I	0				
+channel/aperture/centre	S	0				
+channel/aperture/centre/r	F	0	m			
+channel/aperture/centre/phi	F	0	rad			
+channel/aperture/centre/z	F	0	m			
+channel/aperture/radius	F	0	m			
+channel/aperture/x1_unit_vector	S	0				
+channel/aperture/x1_unit_vector/x	F	0	m			
+channel/aperture/x1_unit_vector/y	F	0	m			
+channel/aperture/x1_unit_vector/z	F	0	m			
+channel/aperture/x2_unit_vector	S	0				
+channel/aperture/x2_unit_vector/x	F	0	m			
+channel/aperture/x2_unit_vector/y	F	0	m			
+channel/aperture/x2_unit_vector/z	F	0	m			
+channel/aperture/x3_unit_vector	S	0				
+channel/aperture/x3_unit_vector/x	F	0	m			
+channel/aperture/x3_unit_vector/y	F	0	m			
+channel/aperture/x3_unit_vector/z	F	0	m			
+channel/aperture/x1_width	F	0	m			
+channel/aperture/x2_width	F	0	m			
+channel/aperture/outline	S	0				
+channel/aperture/outline/x1	F	1	m	1...N		
+channel/aperture/outline/x2	F	1	m	channel(i1)/aperture/outline/x1		
+channel/aperture/surface	F	0	m^2			
+channel/reflector	A	1		1...N		
+channel/reflector/name	T	0				
+channel/reflector/description	T	0				
+channel/reflector/geometry_type	S	0				
+channel/reflector/geometry_type/name	T	0				
+channel/reflector/geometry_type/index	I	0				
+channel/reflector/geometry_type/description	T	0				
+channel/reflector/curvature_type	S	0				
+channel/reflector/curvature_type/name	T	0				
+channel/reflector/curvature_type/index	I	0				
+channel/reflector/curvature_type/description	T	0				
+channel/reflector/material	S	0				
+channel/reflector/material/name	T	0				
+channel/reflector/material/index	I	0				
+channel/reflector/material/description	T	0				
+channel/reflector/centre	S	0				
+channel/reflector/centre/r	F	0	m			
+channel/reflector/centre/phi	F	0	rad			
+channel/reflector/centre/z	F	0	m			
+channel/reflector/radius	F	0	m			
+channel/reflector/x1_unit_vector	S	0				
+channel/reflector/x1_unit_vector/x	F	0	m			
+channel/reflector/x1_unit_vector/y	F	0	m			
+channel/reflector/x1_unit_vector/z	F	0	m			
+channel/reflector/x2_unit_vector	S	0				
+channel/reflector/x2_unit_vector/x	F	0	m			
+channel/reflector/x2_unit_vector/y	F	0	m			
+channel/reflector/x2_unit_vector/z	F	0	m			
+channel/reflector/x3_unit_vector	S	0				
+channel/reflector/x3_unit_vector/x	F	0	m			
+channel/reflector/x3_unit_vector/y	F	0	m			
+channel/reflector/x3_unit_vector/z	F	0	m			
+channel/reflector/x1_width	F	0	m			
+channel/reflector/x2_width	F	0	m			
+channel/reflector/outline	S	0				
+channel/reflector/outline/x1	F	1	m	1...N		
+channel/reflector/outline/x2	F	1	m	channel(i1)/reflector(i2)/outline/x1		
+channel/reflector/x1_curvature	F	0	m			
+channel/reflector/x2_curvature	F	0	m			
+channel/reflector/surface	F	0	m^2			
+channel/reflector/sphere_centre	S	0				
+channel/reflector/sphere_centre/r	F	0	m			
+channel/reflector/sphere_centre/phi	F	0	rad			
+channel/reflector/sphere_centre/z	F	0	m			
+channel/crystal	S	0				
+channel/crystal/name	T	0				
+channel/crystal/description	T	0				
+channel/crystal/geometry_type	S	0				
+channel/crystal/geometry_type/name	T	0				
+channel/crystal/geometry_type/index	I	0				
+channel/crystal/geometry_type/description	T	0				
+channel/crystal/curvature_type	S	0				
+channel/crystal/curvature_type/name	T	0				
+channel/crystal/curvature_type/index	I	0				
+channel/crystal/curvature_type/description	T	0				
+channel/crystal/material	S	0				
+channel/crystal/material/name	T	0				
+channel/crystal/material/index	I	0				
+channel/crystal/material/description	T	0				
+channel/crystal/centre	S	0				
+channel/crystal/centre/r	F	0	m			
+channel/crystal/centre/phi	F	0	rad			
+channel/crystal/centre/z	F	0	m			
+channel/crystal/radius	F	0	m			
+channel/crystal/x1_unit_vector	S	0				
+channel/crystal/x1_unit_vector/x	F	0	m			
+channel/crystal/x1_unit_vector/y	F	0	m			
+channel/crystal/x1_unit_vector/z	F	0	m			
+channel/crystal/x2_unit_vector	S	0				
+channel/crystal/x2_unit_vector/x	F	0	m			
+channel/crystal/x2_unit_vector/y	F	0	m			
+channel/crystal/x2_unit_vector/z	F	0	m			
+channel/crystal/x3_unit_vector	S	0				
+channel/crystal/x3_unit_vector/x	F	0	m			
+channel/crystal/x3_unit_vector/y	F	0	m			
+channel/crystal/x3_unit_vector/z	F	0	m			
+channel/crystal/x1_width	F	0	m			
+channel/crystal/x2_width	F	0	m			
+channel/crystal/outline	S	0				
+channel/crystal/outline/x1	F	1	m	1...N		
+channel/crystal/outline/x2	F	1	m	channel(i1)/crystal/outline/x1		
+channel/crystal/x1_curvature	F	0	m			
+channel/crystal/x2_curvature	F	0	m			
+channel/crystal/surface	F	0	m^2			
+channel/crystal/wavelength_bragg	F	0	m			
+channel/crystal/angle_bragg	F	0	rad			
+channel/crystal/thickness	F	0	m			
+channel/crystal/cut	I	1		1...N		
+channel/crystal/mesh_type	S	0				
+channel/crystal/mesh_type/name	T	0				
+channel/crystal/mesh_type/index	I	0				
+channel/crystal/mesh_type/description	T	0				
+channel/filter_window	A	1		1...N		
+channel/filter_window/name	T	0				
+channel/filter_window/description	T	0				
+channel/filter_window/geometry_type	S	0				
+channel/filter_window/geometry_type/name	T	0				
+channel/filter_window/geometry_type/index	I	0				
+channel/filter_window/geometry_type/description	T	0				
+channel/filter_window/curvature_type	S	0				
+channel/filter_window/curvature_type/name	T	0				
+channel/filter_window/curvature_type/index	I	0				
+channel/filter_window/curvature_type/description	T	0				
+channel/filter_window/centre	S	0				
+channel/filter_window/centre/r	F	0	m			
+channel/filter_window/centre/phi	F	0	rad			
+channel/filter_window/centre/z	F	0	m			
+channel/filter_window/radius	F	0	m			
+channel/filter_window/x1_unit_vector	S	0				
+channel/filter_window/x1_unit_vector/x	F	0	m			
+channel/filter_window/x1_unit_vector/y	F	0	m			
+channel/filter_window/x1_unit_vector/z	F	0	m			
+channel/filter_window/x2_unit_vector	S	0				
+channel/filter_window/x2_unit_vector/x	F	0	m			
+channel/filter_window/x2_unit_vector/y	F	0	m			
+channel/filter_window/x2_unit_vector/z	F	0	m			
+channel/filter_window/x3_unit_vector	S	0				
+channel/filter_window/x3_unit_vector/x	F	0	m			
+channel/filter_window/x3_unit_vector/y	F	0	m			
+channel/filter_window/x3_unit_vector/z	F	0	m			
+channel/filter_window/x1_width	F	0	m			
+channel/filter_window/x2_width	F	0	m			
+channel/filter_window/outline	S	0				
+channel/filter_window/outline/x1	F	1	m	1...N		
+channel/filter_window/outline/x2	F	1	m	channel(i1)/filter_window(i2)/outline/x1		
+channel/filter_window/x1_curvature	F	0	m			
+channel/filter_window/x2_curvature	F	0	m			
+channel/filter_window/surface	F	0	m^2			
+channel/filter_window/material	S	0				
+channel/filter_window/material/name	T	0				
+channel/filter_window/material/index	I	0				
+channel/filter_window/material/description	T	0				
+channel/filter_window/thickness	F	0	m			
+channel/filter_window/wavelength_lower	F	0	m			
+channel/filter_window/wavelength_upper	F	0	m			
+channel/filter_window/wavelengths	F	1	m	1...N		
+channel/filter_window/photon_absorption	F	1	1	channel(i1)/filter_window(i2)/wavelengths		
+channel/camera	S	0				
+channel/camera/pixel_dimensions	F	1	m	1...2		
+channel/camera/pixels_n	I	1		1...2		
+channel/camera/pixel_position	S	0				
+channel/camera/pixel_position/r	F	2	m	1...N|1...N		
+channel/camera/pixel_position/phi	F	2	rad	1...N|1...N	channel(i1)/camera/pixel_position/r|channel(i1)/camera/pixel_position/r	
+channel/camera/pixel_position/z	F	2	m	1...N|1...N	channel(i1)/camera/pixel_position/r|channel(i1)/camera/pixel_position/r	
+channel/camera/camera_dimensions	F	1	m	1...2		
+channel/camera/centre	S	0				
+channel/camera/centre/r	F	0	m			
+channel/camera/centre/phi	F	0	rad			
+channel/camera/centre/z	F	0	m			
+channel/camera/x1_unit_vector	S	0				
+channel/camera/x1_unit_vector/x	F	0	m			
+channel/camera/x1_unit_vector/y	F	0	m			
+channel/camera/x1_unit_vector/z	F	0	m			
+channel/camera/x2_unit_vector	S	0				
+channel/camera/x2_unit_vector/x	F	0	m			
+channel/camera/x2_unit_vector/y	F	0	m			
+channel/camera/x2_unit_vector/z	F	0	m			
+channel/camera/x3_unit_vector	S	0				
+channel/camera/x3_unit_vector/x	F	0	m			
+channel/camera/x3_unit_vector/y	F	0	m			
+channel/camera/x3_unit_vector/z	F	0	m			
+channel/camera/line_of_sight	S	0				
+channel/camera/line_of_sight/first_point	S	0				
+channel/camera/line_of_sight/first_point/r	F	2	m	1...N|1...N		
+channel/camera/line_of_sight/first_point/phi	F	2	rad	1...N|1...N	channel(i1)/camera/line_of_sight/first_point/r|channel(i1)/camera/line_of_sight/first_point/r	
+channel/camera/line_of_sight/first_point/z	F	2	m	1...N|1...N	channel(i1)/camera/line_of_sight/first_point/r|channel(i1)/camera/line_of_sight/first_point/r	
+channel/camera/line_of_sight/second_point	S	0				
+channel/camera/line_of_sight/second_point/r	F	2	m	1...N|1...N		
+channel/camera/line_of_sight/second_point/phi	F	2	rad	1...N|1...N	channel(i1)/camera/line_of_sight/second_point/r|channel(i1)/camera/line_of_sight/second_point/r	
+channel/camera/line_of_sight/second_point/z	F	2	m	1...N|1...N	channel(i1)/camera/line_of_sight/second_point/r|channel(i1)/camera/line_of_sight/second_point/r	
+channel/z_frames	F	1	m	1...N		
+channel/wavelength_frames	F	2	m	1...N|channel(i1)/z_frames		
+channel/bin	A	1		1...N		
+channel/bin/z_pixel_range	I	1		1...2		
+channel/bin/wavelength	F	1	m	1...N	channel(i1)/wavelength_frames	
+channel/bin/line_of_sight	S	0				
+channel/bin/line_of_sight/first_point	S	0				
+channel/bin/line_of_sight/first_point/r	F	0	m			
+channel/bin/line_of_sight/first_point/phi	F	0	rad			
+channel/bin/line_of_sight/first_point/z	F	0	m			
+channel/bin/line_of_sight/second_point	S	0				
+channel/bin/line_of_sight/second_point/r	F	0	m			
+channel/bin/line_of_sight/second_point/phi	F	0	rad			
+channel/bin/line_of_sight/second_point/z	F	0	m			
+channel/bin/instrument_function	S	0				
+channel/bin/instrument_function/wavelengths	F	1	m	1...N		
+channel/bin/instrument_function/values	F	2	sr.m	1...N|channel(i1)/bin(i2)/instrument_function/wavelengths	channel(i1)/wavelength_frames|	
+channel/bin/instrument_function/type	S	0				
+channel/bin/instrument_function/type/name	T	0				
+channel/bin/instrument_function/type/index	I	0				
+channel/bin/instrument_function/type/description	T	0				
+channel/bin/instrument_function/intensity	F	1	m	channel(i1)/bin(i2)/instrument_function/wavelengths		
+channel/bin/instrument_function/centre	F	1	m	channel(i1)/bin(i2)/instrument_function/wavelengths		
+channel/bin/instrument_function/sigma	F	1	m	channel(i1)/bin(i2)/instrument_function/wavelengths		
+channel/bin/instrument_function/scale	F	1	m	channel(i1)/bin(i2)/instrument_function/wavelengths		
+channel/frame	A	1		channel(i1)/frame(itime)/time		
+channel/frame/counts_n	F	2	1	1...N|channel(i1)/z_frames	channel(i1)/wavelength_frames|	
+channel/frame/counts_bin_n	F	2	1	1...N|channel(i1)/bin	channel(i1)/wavelength_frames|	
+channel/frame/time	F	0	s			
+channel/energies	F	1	eV	1...N		
+channel/detection_efficiency	F	1	1	channel(i1)/energies		
+channel/profiles_line_integrated	S	0				
+channel/profiles_line_integrated/lines_of_sight_second_point	S	0				
+channel/profiles_line_integrated/lines_of_sight_second_point/r	F	1	m	1...N		
+channel/profiles_line_integrated/lines_of_sight_second_point/phi	F	1	rad	channel(i1)/profiles_line_integrated/lines_of_sight_second_point/r		
+channel/profiles_line_integrated/lines_of_sight_second_point/z	F	1	m	channel(i1)/profiles_line_integrated/lines_of_sight_second_point/r		
+channel/profiles_line_integrated/lines_of_sight_rho_tor_norm	S	0	1			
+channel/profiles_line_integrated/lines_of_sight_rho_tor_norm/data	F	2	1	channel(i1)/profiles_line_integrated/lines_of_sight_second_point/r|channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/lines_of_sight_rho_tor_norm/validity_timed	I	1		channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/lines_of_sight_rho_tor_norm/validity	I	0				
+channel/profiles_line_integrated/t_i	S	0	eV			
+channel/profiles_line_integrated/t_i/data	F	2	eV	channel(i1)/profiles_line_integrated/lines_of_sight_second_point/r|channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/t_i/validity_timed	I	1		channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/t_i/validity	I	0				
+channel/profiles_line_integrated/t_e	S	0	eV			
+channel/profiles_line_integrated/t_e/data	F	2	eV	channel(i1)/profiles_line_integrated/lines_of_sight_second_point/r|channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/t_e/validity_timed	I	1		channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/t_e/validity	I	0				
+channel/profiles_line_integrated/velocity_tor	S	0	m.s^-1			
+channel/profiles_line_integrated/velocity_tor/data	F	2	m.s^-1	channel(i1)/profiles_line_integrated/lines_of_sight_second_point/r|channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/velocity_tor/validity_timed	I	1		channel(i1)/profiles_line_integrated/time		
+channel/profiles_line_integrated/velocity_tor/validity	I	0				
+channel/profiles_line_integrated/time	F	1	s	1...N		
+channel/instrument_function	S	0				
+channel/instrument_function/wavelengths	F	1	m	1...N		
+channel/instrument_function/values	F	3	sr.m	1...N|channel(i1)/z_frames|channel(i1)/instrument_function/wavelengths	channel(i1)/wavelength_frames||	
+channel/instrument_function/type	S	0				
+channel/instrument_function/type/name	T	0				
+channel/instrument_function/type/index	I	0				
+channel/instrument_function/type/description	T	0				
+channel/instrument_function/intensity	F	2	m	channel(i1)/z_frames|channel(i1)/instrument_function/wavelengths		
+channel/instrument_function/centre	F	2	m	channel(i1)/z_frames|channel(i1)/instrument_function/wavelengths		
+channel/instrument_function/sigma	F	2	m	channel(i1)/z_frames|channel(i1)/instrument_function/wavelengths		
+channel/instrument_function/scale	F	2	m	channel(i1)/z_frames|channel(i1)/instrument_function/wavelengths		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

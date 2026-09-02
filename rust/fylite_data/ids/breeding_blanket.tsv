@@ -1,0 +1,147 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids breeding_blanket
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+module	A	1		1...N		
+module/name	T	0				
+module/layer	A	1		1...N		
+module/layer/name	T	0				
+module/layer/material	A	1		1...N		
+module/layer/material/name	T	0				
+module/layer/material/index	I	0				
+module/layer/material/description	T	0				
+module/layer/material_volume_fraction	F	1	1	module(i1)/layer(i2)/material		
+module/layer/midplane_thickness	F	0	m			
+module/layer/time_slice	A	1		module(i1)/layer(i2)/time_slice(itime)/time		
+module/layer/time_slice/midplane_power_density_nuclear	F	0	W.m^-3			
+module/layer/time_slice/power_nuclear	F	0	W			
+module/layer/time_slice/time	F	0	s			
+module/cooling	S	0				
+module/cooling/coolant	S	0				
+module/cooling/coolant/name	T	0				
+module/cooling/coolant/index	I	0				
+module/cooling/coolant/description	T	0				
+module/cooling/time_slice	A	1		module(i1)/cooling/time_slice(itime)/time		
+module/cooling/time_slice/temperature_inlet	F	0	K			
+module/cooling/time_slice/pressure_inlet	F	0	Pa			
+module/cooling/time_slice/temperature_outlet	F	0	K			
+module/cooling/time_slice/time	F	0	s			
+module/time_slice	A	1		module(i1)/time_slice(itime)/time		
+module/time_slice/midplane_wall_distance	F	1	m	1...N		
+module/time_slice/midplane_power_density_nuclear	F	1	W.m^-3	module(i1)/time_slice(itime)/midplane_wall_distance		
+module/time_slice/escape_flux_max	F	0	W.m^-2			
+module/time_slice/wall_flux_max	F	0	W.m^-2			
+module/time_slice/power_incident_neutron	F	0	W			
+module/time_slice/power_incident_radiated	F	0	W			
+module/time_slice/power_thermal_extracted	F	0	W			
+module/time_slice/power_thermal_neutrons	F	0	W			
+module/time_slice/power_thermal_radiated	F	0	W			
+module/time_slice/tritium_breeding_ratio	F	0	1			
+module/time_slice/time	F	0	s			
+module/top_cap_thickness	F	0	m			
+module/bottom_cap_thickness	F	0	m			
+module/side_wall_thickness	F	0	m			
+time_slice	A	1		time_slice(itime)/time		
+time_slice/power_nuclear_blanket	F	0	W			
+time_slice/power_nuclear_shields	F	0	W			
+time_slice/tritium_breeding_ratio	F	0	1			
+time_slice/energy_multiplication_factor	F	0	1			
+time_slice/time	F	0	s			
+modules_pol_n	I	0				
+modules_n	I	0				
+pb_li_volume	F	0	m^3			
+li6_fraction	F	0	1			
+steel_temperature_limit_max	F	0	K			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

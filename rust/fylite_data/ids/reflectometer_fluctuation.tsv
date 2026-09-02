@@ -1,0 +1,227 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids reflectometer_fluctuation
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+type	T	0				
+channel	A	1		1...N		
+channel/name	T	0				
+channel/description	T	0				
+channel/mode	T	0				
+channel/antennas_orientation	A	1		channel(i1)/antennas_orientation(itime)/time		
+channel/antennas_orientation/line_of_sight_emission	S	0				
+channel/antennas_orientation/line_of_sight_emission/first_point	S	0				
+channel/antennas_orientation/line_of_sight_emission/first_point/r	F	0	m			
+channel/antennas_orientation/line_of_sight_emission/first_point/phi	F	0	rad			
+channel/antennas_orientation/line_of_sight_emission/first_point/z	F	0	m			
+channel/antennas_orientation/line_of_sight_emission/second_point	S	0				
+channel/antennas_orientation/line_of_sight_emission/second_point/r	F	0	m			
+channel/antennas_orientation/line_of_sight_emission/second_point/phi	F	0	rad			
+channel/antennas_orientation/line_of_sight_emission/second_point/z	F	0	m			
+channel/antennas_orientation/line_of_sight_detection	S	0				
+channel/antennas_orientation/line_of_sight_detection/first_point	S	0				
+channel/antennas_orientation/line_of_sight_detection/first_point/r	F	0	m			
+channel/antennas_orientation/line_of_sight_detection/first_point/phi	F	0	rad			
+channel/antennas_orientation/line_of_sight_detection/first_point/z	F	0	m			
+channel/antennas_orientation/line_of_sight_detection/second_point	S	0				
+channel/antennas_orientation/line_of_sight_detection/second_point/r	F	0	m			
+channel/antennas_orientation/line_of_sight_detection/second_point/phi	F	0	rad			
+channel/antennas_orientation/line_of_sight_detection/second_point/z	F	0	m			
+channel/antennas_orientation/antenna_emission	S	0				
+channel/antennas_orientation/antenna_emission/x1_unit_vector	S	0				
+channel/antennas_orientation/antenna_emission/x1_unit_vector/x	F	0	m			
+channel/antennas_orientation/antenna_emission/x1_unit_vector/y	F	0	m			
+channel/antennas_orientation/antenna_emission/x1_unit_vector/z	F	0	m			
+channel/antennas_orientation/antenna_emission/x2_unit_vector	S	0				
+channel/antennas_orientation/antenna_emission/x2_unit_vector/x	F	0	m			
+channel/antennas_orientation/antenna_emission/x2_unit_vector/y	F	0	m			
+channel/antennas_orientation/antenna_emission/x2_unit_vector/z	F	0	m			
+channel/antennas_orientation/antenna_emission/x3_unit_vector	S	0				
+channel/antennas_orientation/antenna_emission/x3_unit_vector/x	F	0	m			
+channel/antennas_orientation/antenna_emission/x3_unit_vector/y	F	0	m			
+channel/antennas_orientation/antenna_emission/x3_unit_vector/z	F	0	m			
+channel/antennas_orientation/antenna_detection	S	0				
+channel/antennas_orientation/antenna_detection/x1_unit_vector	S	0				
+channel/antennas_orientation/antenna_detection/x1_unit_vector/x	F	0	m			
+channel/antennas_orientation/antenna_detection/x1_unit_vector/y	F	0	m			
+channel/antennas_orientation/antenna_detection/x1_unit_vector/z	F	0	m			
+channel/antennas_orientation/antenna_detection/x2_unit_vector	S	0				
+channel/antennas_orientation/antenna_detection/x2_unit_vector/x	F	0	m			
+channel/antennas_orientation/antenna_detection/x2_unit_vector/y	F	0	m			
+channel/antennas_orientation/antenna_detection/x2_unit_vector/z	F	0	m			
+channel/antennas_orientation/antenna_detection/x3_unit_vector	S	0				
+channel/antennas_orientation/antenna_detection/x3_unit_vector/x	F	0	m			
+channel/antennas_orientation/antenna_detection/x3_unit_vector/y	F	0	m			
+channel/antennas_orientation/antenna_detection/x3_unit_vector/z	F	0	m			
+channel/antennas_orientation/time	F	0	s			
+channel/antenna_emission_static	S	0				
+channel/antenna_emission_static/geometry_type	I	0				
+channel/antenna_emission_static/centre	S	0				
+channel/antenna_emission_static/centre/r	F	0	m			
+channel/antenna_emission_static/centre/phi	F	0	rad			
+channel/antenna_emission_static/centre/z	F	0	m			
+channel/antenna_emission_static/radius	F	0	m			
+channel/antenna_emission_static/x1_width	F	0	m			
+channel/antenna_emission_static/x2_width	F	0	m			
+channel/antenna_emission_static/outline	S	0				
+channel/antenna_emission_static/outline/x1	F	1	m	1...N		
+channel/antenna_emission_static/outline/x2	F	1	m	channel(i1)/antenna_emission_static/outline/x1		
+channel/antenna_emission_static/surface	F	0	m^2			
+channel/antenna_detection_static	S	0				
+channel/antenna_detection_static/geometry_type	I	0				
+channel/antenna_detection_static/centre	S	0				
+channel/antenna_detection_static/centre/r	F	0	m			
+channel/antenna_detection_static/centre/phi	F	0	rad			
+channel/antenna_detection_static/centre/z	F	0	m			
+channel/antenna_detection_static/radius	F	0	m			
+channel/antenna_detection_static/x1_width	F	0	m			
+channel/antenna_detection_static/x2_width	F	0	m			
+channel/antenna_detection_static/outline	S	0				
+channel/antenna_detection_static/outline/x1	F	1	m	1...N		
+channel/antenna_detection_static/outline/x2	F	1	m	channel(i1)/antenna_detection_static/outline/x1		
+channel/antenna_detection_static/surface	F	0	m^2			
+channel/sweep_time	F	0	s			
+channel/frequencies	S	0	Hz			
+channel/frequencies/data	F	2	Hz	1...N|channel(i1)/frequencies/time		
+channel/frequencies/time	F	1	s	1...N		
+channel/raw_signal	S	0				
+channel/raw_signal/i_component	F	2	V	1...N|channel(i1)/raw_signal/time	channel(i1)/frequencies/data|	
+channel/raw_signal/q_component	F	2	V	1...N|channel(i1)/raw_signal/time	channel(i1)/frequencies/data|	
+channel/raw_signal/time	F	1	s	1...N		
+channel/phase	S	0	rad			
+channel/phase/data	F	2	rad	1...N|channel(i1)/phase/time		
+channel/phase/time	F	1	s	1...N		
+channel/amplitude	S	0	V			
+channel/amplitude/data	F	2	V	1...N|channel(i1)/amplitude/time		
+channel/amplitude/time	F	1	s	1...N		
+channel/fluctuations_level	S	0				
+channel/fluctuations_level/dn_e_over_n_e	F	2	1	1...N|channel(i1)/fluctuations_level/time		
+channel/fluctuations_level/position	S	0				
+channel/fluctuations_level/position/r	F	2	m	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/position/z	F	2	m	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/position/phi	F	2	rad	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/position/psi	F	2	W	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/position/rho_tor_norm	F	2	1	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/position/rho_pol_norm	F	2	1	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/position/theta	F	2	rad	1...N|channel(i1)/fluctuations_level/time	channel(i1)/fluctuations_level/dn_e_over_n_e|	
+channel/fluctuations_level/time_width	F	0	s			
+channel/fluctuations_level/radial_width	F	0	m			
+channel/fluctuations_level/time	F	1	s	1...N		
+channel/fluctuations_spectrum	S	0				
+channel/fluctuations_spectrum/power_log	F	3	dB	1...N|channel(i1)/fluctuations_spectrum/frequencies_fourier|channel(i1)/fluctuations_spectrum/time	channel(i1)/frequencies/data||	
+channel/fluctuations_spectrum/frequencies_fourier	F	1	Hz	1...N		
+channel/fluctuations_spectrum/time_width	F	0	s			
+channel/fluctuations_spectrum/time	F	1	s	1...N		
+channel/doppler	S	0				
+channel/doppler/wavenumber	F	1	m^-1	channel(i1)/doppler/time		
+channel/doppler/shift	F	1	Hz	channel(i1)/doppler/time		
+channel/doppler/velocity_pol	F	1	m.s^-1	channel(i1)/doppler/time		
+channel/doppler/e_field_radial	F	1	V.m^-1	channel(i1)/doppler/time		
+channel/doppler/position	S	0				
+channel/doppler/position/r	F	1	m	channel(i1)/doppler/time		
+channel/doppler/position/z	F	1	m	channel(i1)/doppler/time		
+channel/doppler/position/phi	F	1	rad	channel(i1)/doppler/time		
+channel/doppler/position/psi	F	1	W	channel(i1)/doppler/time		
+channel/doppler/position/rho_tor_norm	F	1	1	channel(i1)/doppler/time		
+channel/doppler/position/rho_pol_norm	F	1	1	channel(i1)/doppler/time		
+channel/doppler/position/theta	F	1	rad	channel(i1)/doppler/time		
+channel/doppler/time_width	F	0	s			
+channel/doppler/radial_width	F	0	m			
+channel/doppler/time	F	1	s	1...N		
+psi_normalization	S	0				
+psi_normalization/psi_magnetic_axis	F	1	Wb	psi_normalization/time		
+psi_normalization/psi_boundary	F	1	Wb	psi_normalization/time		
+psi_normalization/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

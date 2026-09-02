@@ -1,0 +1,204 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids ferritic
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+object	A	1		1...N		
+object/centroid	S	0				
+object/centroid/x	F	1	m	1...N		
+object/centroid/y	F	1	m	object(i1)/centroid/x		
+object/centroid/z	F	1	m	object(i1)/centroid/x		
+object/volume	F	1	m^3	object(i1)/centroid/x		
+object/saturated_relative_permeability	F	1	H.m^-1	object(i1)/centroid/x		
+object/permeability_table_index	I	1		object(i1)/centroid/x		
+object/axisymmetric	A	1		object(i1)/centroid/x		
+object/axisymmetric/geometry_type	I	0				
+object/axisymmetric/outline	S	0				
+object/axisymmetric/outline/r	F	1	m	1...N		
+object/axisymmetric/outline/z	F	1	m	object(i1)/axisymmetric(i2)/outline/r		
+object/axisymmetric/rectangle	S	0				
+object/axisymmetric/rectangle/r	F	0	m			
+object/axisymmetric/rectangle/z	F	0	m			
+object/axisymmetric/rectangle/width	F	0	m			
+object/axisymmetric/rectangle/height	F	0	m			
+object/axisymmetric/oblique	S	0				
+object/axisymmetric/oblique/r	F	0	m			
+object/axisymmetric/oblique/z	F	0	m			
+object/axisymmetric/oblique/length_alpha	F	0	m			
+object/axisymmetric/oblique/length_beta	F	0	m			
+object/axisymmetric/oblique/alpha	F	0	rad			
+object/axisymmetric/oblique/beta	F	0	rad			
+object/axisymmetric/arcs_of_circle	S	0				
+object/axisymmetric/arcs_of_circle/r	F	1	m	1...N		
+object/axisymmetric/arcs_of_circle/z	F	1	m	object(i1)/axisymmetric(i2)/arcs_of_circle/r		
+object/axisymmetric/arcs_of_circle/curvature_radii	F	1	m	object(i1)/axisymmetric(i2)/arcs_of_circle/r		
+object/axisymmetric/annulus	S	0				
+object/axisymmetric/annulus/r	F	0	m			
+object/axisymmetric/annulus/z	F	0	m			
+object/axisymmetric/annulus/radius_inner	F	0	m			
+object/axisymmetric/annulus/radius_outer	F	0	m			
+object/axisymmetric/thick_line	S	0				
+object/axisymmetric/thick_line/first_point	S	0				
+object/axisymmetric/thick_line/first_point/r	F	0	m			
+object/axisymmetric/thick_line/first_point/z	F	0	m			
+object/axisymmetric/thick_line/second_point	S	0				
+object/axisymmetric/thick_line/second_point/r	F	0	m			
+object/axisymmetric/thick_line/second_point/z	F	0	m			
+object/axisymmetric/thick_line/thickness	F	0	m			
+object/ggd_object_index	I	1		object(i1)/centroid/x		
+object/time_slice	A	1		object(i1)/time_slice(itime)/time		
+object/time_slice/b_field_r	F	1	T	object(i1)/centroid/x		
+object/time_slice/b_field_phi	F	1	T	object(i1)/centroid/x		
+object/time_slice/b_field_z	F	1	T	object(i1)/centroid/x		
+object/time_slice/magnetic_moment_r	F	1	A.m^-2	object(i1)/centroid/x		
+object/time_slice/magnetic_moment_phi	F	1	A.m^-2	object(i1)/centroid/x		
+object/time_slice/magnetic_moment_z	F	1	A.m^-2	object(i1)/centroid/x		
+object/time_slice/time	F	0	s			
+permeability_table	A	1		1...N		
+permeability_table/name	T	0				
+permeability_table/description	T	0				
+permeability_table/b_field	F	1	T	1...N		
+permeability_table/relative_permeability	F	1	1	permeability_table(i1)/b_field		
+grid_ggd	S	0				
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd/grid_subset(i1)/element|1...N|1...N	|grid_ggd/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd/grid_subset(i1)/element|1...N|1...N	|grid_ggd/grid_subset(i1)/metric/tensor_covariant|grid_ggd/grid_subset(i1)/metric/tensor_covariant	
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

@@ -1,0 +1,595 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids equilibrium
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+grids_ggd	A	1		grids_ggd(itime)/time		
+grids_ggd/grid	A	1		1...N		
+grids_ggd/grid/identifier	S	0				
+grids_ggd/grid/identifier/name	T	0				
+grids_ggd/grid/identifier/index	I	0				
+grids_ggd/grid/identifier/description	T	0				
+grids_ggd/grid/path	T	0				
+grids_ggd/grid/space	A	1		1...N		
+grids_ggd/grid/space/identifier	S	0				
+grids_ggd/grid/space/identifier/name	T	0				
+grids_ggd/grid/space/identifier/index	I	0				
+grids_ggd/grid/space/identifier/description	T	0				
+grids_ggd/grid/space/geometry_type	S	0				
+grids_ggd/grid/space/geometry_type/name	T	0				
+grids_ggd/grid/space/geometry_type/index	I	0				
+grids_ggd/grid/space/geometry_type/description	T	0				
+grids_ggd/grid/space/coordinates_type	A	1		1...N		
+grids_ggd/grid/space/coordinates_type/name	T	0				
+grids_ggd/grid/space/coordinates_type/index	I	0				
+grids_ggd/grid/space/coordinates_type/description	T	0				
+grids_ggd/grid/space/objects_per_dimension	A	1		1...N		
+grids_ggd/grid/space/objects_per_dimension/object	A	1		1...N		
+grids_ggd/grid/space/objects_per_dimension/object/boundary	A	1		1...N		
+grids_ggd/grid/space/objects_per_dimension/object/boundary/index	I	0				
+grids_ggd/grid/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grids_ggd/grid/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grids_ggd/grid/space/objects_per_dimension/object/nodes	I	1		1...N		
+grids_ggd/grid/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grids_ggd/grid/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grids_ggd/grid/space/objects_per_dimension/geometry_content	S	0				
+grids_ggd/grid/space/objects_per_dimension/geometry_content/name	T	0				
+grids_ggd/grid/space/objects_per_dimension/geometry_content/index	I	0				
+grids_ggd/grid/space/objects_per_dimension/geometry_content/description	T	0				
+grids_ggd/grid/grid_subset	A	1		1...N		
+grids_ggd/grid/grid_subset/identifier	S	0				
+grids_ggd/grid/grid_subset/identifier/name	T	0				
+grids_ggd/grid/grid_subset/identifier/index	I	0				
+grids_ggd/grid/grid_subset/identifier/description	T	0				
+grids_ggd/grid/grid_subset/dimension	I	0				
+grids_ggd/grid/grid_subset/element	A	1		1...N		
+grids_ggd/grid/grid_subset/element/object	A	1		1...N		
+grids_ggd/grid/grid_subset/element/object/space	I	0				
+grids_ggd/grid/grid_subset/element/object/dimension	I	0				
+grids_ggd/grid/grid_subset/element/object/index	I	0				
+grids_ggd/grid/grid_subset/base	A	1		1...N		
+grids_ggd/grid/grid_subset/base/jacobian	F	1	mixed	grids_ggd(itime)/grid(i1)/grid_subset(i2)/element		
+grids_ggd/grid/grid_subset/base/tensor_covariant	F	3	mixed	grids_ggd(itime)/grid(i1)/grid_subset(i2)/element|1...N|1...N		
+grids_ggd/grid/grid_subset/base/tensor_contravariant	F	3	mixed	grids_ggd(itime)/grid(i1)/grid_subset(i2)/element|1...N|1...N	|grids_ggd(itime)/grid(i1)/grid_subset(i2)/base(i3)/tensor_covariant|grids_ggd(itime)/grid(i1)/grid_subset(i2)/base(i3)/tensor_covariant	
+grids_ggd/grid/grid_subset/metric	S	0				
+grids_ggd/grid/grid_subset/metric/jacobian	F	1	mixed	grids_ggd(itime)/grid(i1)/grid_subset(i2)/element		
+grids_ggd/grid/grid_subset/metric/tensor_covariant	F	3	mixed	grids_ggd(itime)/grid(i1)/grid_subset(i2)/element|1...N|1...N		
+grids_ggd/grid/grid_subset/metric/tensor_contravariant	F	3	mixed	grids_ggd(itime)/grid(i1)/grid_subset(i2)/element|1...N|1...N	|grids_ggd(itime)/grid(i1)/grid_subset(i2)/metric/tensor_covariant|grids_ggd(itime)/grid(i1)/grid_subset(i2)/metric/tensor_covariant	
+grids_ggd/time	F	0	s			
+time_slice	A	1		time_slice(itime)/time		
+time_slice/boundary	S	0				
+time_slice/boundary/type	I	0				
+time_slice/boundary/outline	S	0				
+time_slice/boundary/outline/r	F	1	m	1...N		
+time_slice/boundary/outline/z	F	1	m	time_slice(itime)/boundary/outline/r		
+time_slice/boundary/psi_norm	F	0	1			
+time_slice/boundary/psi	F	0	Wb			
+time_slice/boundary/geometric_axis	S	0				
+time_slice/boundary/geometric_axis/r	F	0	m			
+time_slice/boundary/geometric_axis/z	F	0	m			
+time_slice/boundary/minor_radius	F	0	m			
+time_slice/boundary/elongation	F	0	1			
+time_slice/boundary/triangularity	F	0	1			
+time_slice/boundary/triangularity_upper	F	0	1			
+time_slice/boundary/triangularity_lower	F	0	1			
+time_slice/boundary/squareness_upper_inner	F	0	1			
+time_slice/boundary/squareness_upper_outer	F	0	1			
+time_slice/boundary/squareness_lower_inner	F	0	1			
+time_slice/boundary/squareness_lower_outer	F	0	1			
+time_slice/boundary/closest_wall_point	S	0				
+time_slice/boundary/closest_wall_point/r	F	0	m			
+time_slice/boundary/closest_wall_point/z	F	0	m			
+time_slice/boundary/closest_wall_point/distance	F	0	m			
+time_slice/boundary/dr_dz_zero_point	S	0				
+time_slice/boundary/dr_dz_zero_point/r	F	0	m			
+time_slice/boundary/dr_dz_zero_point/z	F	0	m			
+time_slice/boundary/gap	A	1		1...N		
+time_slice/boundary/gap/name	T	0				
+time_slice/boundary/gap/description	T	0				
+time_slice/boundary/gap/r	F	0	m			
+time_slice/boundary/gap/z	F	0	m			
+time_slice/boundary/gap/angle	F	0	rad			
+time_slice/boundary/gap/value	F	0	m			
+time_slice/boundary/rho_tor	F	0	m			
+time_slice/boundary/phi	F	0	Wb			
+time_slice/boundary/phi_poloidal_current	F	0	Wb			
+time_slice/contour_tree	S	0				
+time_slice/contour_tree/node	A	1		1...N		
+time_slice/contour_tree/node/critical_type	I	0				
+time_slice/contour_tree/node/r	F	0	m			
+time_slice/contour_tree/node/z	F	0	m			
+time_slice/contour_tree/node/psi	F	0	Wb			
+time_slice/contour_tree/node/levelset	S	0				
+time_slice/contour_tree/node/levelset/r	F	1	m	1...N		
+time_slice/contour_tree/node/levelset/z	F	1	m	time_slice(itime)/contour_tree/node(i1)/levelset/r		
+time_slice/contour_tree/edges	I	2		1...N|1...2		
+time_slice/constraints	S	0				
+time_slice/constraints/b_field_tor_vacuum_r	S	0	T.m			
+time_slice/constraints/b_field_tor_vacuum_r/measured	F	0	T.m			
+time_slice/constraints/b_field_tor_vacuum_r/source	T	0				
+time_slice/constraints/b_field_tor_vacuum_r/time_measurement	F	0	s			
+time_slice/constraints/b_field_tor_vacuum_r/exact	I	0				
+time_slice/constraints/b_field_tor_vacuum_r/weight	F	0	1			
+time_slice/constraints/b_field_tor_vacuum_r/reconstructed	F	0	T.m			
+time_slice/constraints/b_field_tor_vacuum_r/chi_squared	F	0	1			
+time_slice/constraints/b_field_pol_probe	A	1	T	IDS:magnetics/b_field_pol_probe		
+time_slice/constraints/b_field_pol_probe/measured	F	0	T			
+time_slice/constraints/b_field_pol_probe/source	T	0				
+time_slice/constraints/b_field_pol_probe/time_measurement	F	0	s			
+time_slice/constraints/b_field_pol_probe/exact	I	0				
+time_slice/constraints/b_field_pol_probe/weight	F	0	1			
+time_slice/constraints/b_field_pol_probe/reconstructed	F	0	T			
+time_slice/constraints/b_field_pol_probe/chi_squared	F	0	1			
+time_slice/constraints/diamagnetic_flux	S	0	Wb			
+time_slice/constraints/diamagnetic_flux/measured	F	0	Wb			
+time_slice/constraints/diamagnetic_flux/source	T	0				
+time_slice/constraints/diamagnetic_flux/time_measurement	F	0	s			
+time_slice/constraints/diamagnetic_flux/exact	I	0				
+time_slice/constraints/diamagnetic_flux/weight	F	0	1			
+time_slice/constraints/diamagnetic_flux/reconstructed	F	0	Wb			
+time_slice/constraints/diamagnetic_flux/chi_squared	F	0	1			
+time_slice/constraints/faraday_angle	A	1	rad	IDS:polarimeter/channel		
+time_slice/constraints/faraday_angle/measured	F	0	rad			
+time_slice/constraints/faraday_angle/source	T	0				
+time_slice/constraints/faraday_angle/time_measurement	F	0	s			
+time_slice/constraints/faraday_angle/exact	I	0				
+time_slice/constraints/faraday_angle/weight	F	0	1			
+time_slice/constraints/faraday_angle/reconstructed	F	0	rad			
+time_slice/constraints/faraday_angle/chi_squared	F	0	1			
+time_slice/constraints/mse_polarization_angle	A	1	rad	IDS:mse/channel		
+time_slice/constraints/mse_polarization_angle/measured	F	0	rad			
+time_slice/constraints/mse_polarization_angle/source	T	0				
+time_slice/constraints/mse_polarization_angle/time_measurement	F	0	s			
+time_slice/constraints/mse_polarization_angle/exact	I	0				
+time_slice/constraints/mse_polarization_angle/weight	F	0	1			
+time_slice/constraints/mse_polarization_angle/reconstructed	F	0	rad			
+time_slice/constraints/mse_polarization_angle/chi_squared	F	0	1			
+time_slice/constraints/flux_loop	A	1	Wb	IDS:magnetics/flux_loop		
+time_slice/constraints/flux_loop/measured	F	0	Wb			
+time_slice/constraints/flux_loop/source	T	0				
+time_slice/constraints/flux_loop/time_measurement	F	0	s			
+time_slice/constraints/flux_loop/exact	I	0				
+time_slice/constraints/flux_loop/weight	F	0	1			
+time_slice/constraints/flux_loop/reconstructed	F	0	Wb			
+time_slice/constraints/flux_loop/chi_squared	F	0	1			
+time_slice/constraints/ip	S	0	A			
+time_slice/constraints/ip/measured	F	0	A			
+time_slice/constraints/ip/source	T	0				
+time_slice/constraints/ip/time_measurement	F	0	s			
+time_slice/constraints/ip/exact	I	0				
+time_slice/constraints/ip/weight	F	0	1			
+time_slice/constraints/ip/reconstructed	F	0	A			
+time_slice/constraints/ip/chi_squared	F	0	1			
+time_slice/constraints/iron_core_segment	A	1	T	IDS:iron_core/segment		
+time_slice/constraints/iron_core_segment/magnetization_r	S	0	T			
+time_slice/constraints/iron_core_segment/magnetization_r/measured	F	0	T			
+time_slice/constraints/iron_core_segment/magnetization_r/source	T	0				
+time_slice/constraints/iron_core_segment/magnetization_r/time_measurement	F	0	s			
+time_slice/constraints/iron_core_segment/magnetization_r/exact	I	0				
+time_slice/constraints/iron_core_segment/magnetization_r/weight	F	0	1			
+time_slice/constraints/iron_core_segment/magnetization_r/reconstructed	F	0	T			
+time_slice/constraints/iron_core_segment/magnetization_r/chi_squared	F	0	1			
+time_slice/constraints/iron_core_segment/magnetization_z	S	0	T			
+time_slice/constraints/iron_core_segment/magnetization_z/measured	F	0	T			
+time_slice/constraints/iron_core_segment/magnetization_z/source	T	0				
+time_slice/constraints/iron_core_segment/magnetization_z/time_measurement	F	0	s			
+time_slice/constraints/iron_core_segment/magnetization_z/exact	I	0				
+time_slice/constraints/iron_core_segment/magnetization_z/weight	F	0	1			
+time_slice/constraints/iron_core_segment/magnetization_z/reconstructed	F	0	T			
+time_slice/constraints/iron_core_segment/magnetization_z/chi_squared	F	0	1			
+time_slice/constraints/n_e	A	1	m^-3	1...N		
+time_slice/constraints/n_e/measured	F	0	m^-3			
+time_slice/constraints/n_e/position	S	0				
+time_slice/constraints/n_e/position/r	F	0	m			
+time_slice/constraints/n_e/position/phi	F	0	rad			
+time_slice/constraints/n_e/position/z	F	0	m			
+time_slice/constraints/n_e/position/rho_tor_norm	F	0	1			
+time_slice/constraints/n_e/position/psi	F	0	Wb			
+time_slice/constraints/n_e/source	T	0				
+time_slice/constraints/n_e/time_measurement	F	0	s			
+time_slice/constraints/n_e/exact	I	0				
+time_slice/constraints/n_e/weight	F	0	1			
+time_slice/constraints/n_e/reconstructed	F	0	1			
+time_slice/constraints/n_e/chi_squared	F	0	m^-3			
+time_slice/constraints/n_e_line	A	1	m^-2	IDS:interferometer/channel		
+time_slice/constraints/n_e_line/measured	F	0	m^-2			
+time_slice/constraints/n_e_line/source	T	0				
+time_slice/constraints/n_e_line/time_measurement	F	0	s			
+time_slice/constraints/n_e_line/exact	I	0				
+time_slice/constraints/n_e_line/weight	F	0	1			
+time_slice/constraints/n_e_line/reconstructed	F	0	m^-2			
+time_slice/constraints/n_e_line/chi_squared	F	0	1			
+time_slice/constraints/pf_current	A	1	A	IDS:pf_active/coil		
+time_slice/constraints/pf_current/measured	F	0	A			
+time_slice/constraints/pf_current/source	T	0				
+time_slice/constraints/pf_current/time_measurement	F	0	s			
+time_slice/constraints/pf_current/exact	I	0				
+time_slice/constraints/pf_current/weight	F	0	1			
+time_slice/constraints/pf_current/reconstructed	F	0	A			
+time_slice/constraints/pf_current/chi_squared	F	0	1			
+time_slice/constraints/pf_passive_current	A	1	A	IDS:pf_passive/loop		
+time_slice/constraints/pf_passive_current/measured	F	0	A			
+time_slice/constraints/pf_passive_current/source	T	0				
+time_slice/constraints/pf_passive_current/time_measurement	F	0	s			
+time_slice/constraints/pf_passive_current/exact	I	0				
+time_slice/constraints/pf_passive_current/weight	F	0	1			
+time_slice/constraints/pf_passive_current/reconstructed	F	0	A			
+time_slice/constraints/pf_passive_current/chi_squared	F	0	1			
+time_slice/constraints/pressure	A	1	Pa	1...N		
+time_slice/constraints/pressure/measured	F	0	Pa			
+time_slice/constraints/pressure/position	S	0				
+time_slice/constraints/pressure/position/r	F	0	m			
+time_slice/constraints/pressure/position/phi	F	0	rad			
+time_slice/constraints/pressure/position/z	F	0	m			
+time_slice/constraints/pressure/position/rho_tor_norm	F	0	1			
+time_slice/constraints/pressure/position/psi	F	0	Wb			
+time_slice/constraints/pressure/source	T	0				
+time_slice/constraints/pressure/time_measurement	F	0	s			
+time_slice/constraints/pressure/exact	I	0				
+time_slice/constraints/pressure/weight	F	0	1			
+time_slice/constraints/pressure/reconstructed	F	0	1			
+time_slice/constraints/pressure/chi_squared	F	0	Pa			
+time_slice/constraints/pressure_rotational	A	1	Pa	1...N		
+time_slice/constraints/pressure_rotational/measured	F	0	Pa			
+time_slice/constraints/pressure_rotational/position	S	0				
+time_slice/constraints/pressure_rotational/position/r	F	0	m			
+time_slice/constraints/pressure_rotational/position/phi	F	0	rad			
+time_slice/constraints/pressure_rotational/position/z	F	0	m			
+time_slice/constraints/pressure_rotational/position/rho_tor_norm	F	0	1			
+time_slice/constraints/pressure_rotational/position/psi	F	0	Wb			
+time_slice/constraints/pressure_rotational/source	T	0				
+time_slice/constraints/pressure_rotational/time_measurement	F	0	s			
+time_slice/constraints/pressure_rotational/exact	I	0				
+time_slice/constraints/pressure_rotational/weight	F	0	1			
+time_slice/constraints/pressure_rotational/reconstructed	F	0	1			
+time_slice/constraints/pressure_rotational/chi_squared	F	0	Pa			
+time_slice/constraints/q	A	1	1	1...N		
+time_slice/constraints/q/measured	F	0	1			
+time_slice/constraints/q/position	S	0				
+time_slice/constraints/q/position/r	F	0	m			
+time_slice/constraints/q/position/phi	F	0	rad			
+time_slice/constraints/q/position/z	F	0	m			
+time_slice/constraints/q/position/rho_tor_norm	F	0	1			
+time_slice/constraints/q/position/psi	F	0	Wb			
+time_slice/constraints/q/source	T	0				
+time_slice/constraints/q/time_measurement	F	0	s			
+time_slice/constraints/q/exact	I	0				
+time_slice/constraints/q/weight	F	0	1			
+time_slice/constraints/q/reconstructed	F	0	1			
+time_slice/constraints/q/chi_squared	F	0	1			
+time_slice/constraints/j_phi	A	1	A.m^-2	1...N		
+time_slice/constraints/j_phi/measured	F	0	A.m^-2			
+time_slice/constraints/j_phi/position	S	0				
+time_slice/constraints/j_phi/position/r	F	0	m			
+time_slice/constraints/j_phi/position/phi	F	0	rad			
+time_slice/constraints/j_phi/position/z	F	0	m			
+time_slice/constraints/j_phi/position/rho_tor_norm	F	0	1			
+time_slice/constraints/j_phi/position/psi	F	0	Wb			
+time_slice/constraints/j_phi/source	T	0				
+time_slice/constraints/j_phi/time_measurement	F	0	s			
+time_slice/constraints/j_phi/exact	I	0				
+time_slice/constraints/j_phi/weight	F	0	1			
+time_slice/constraints/j_phi/reconstructed	F	0	1			
+time_slice/constraints/j_phi/chi_squared	F	0	A.m^-2			
+time_slice/constraints/j_parallel	A	1	A.m^-2	1...N		
+time_slice/constraints/j_parallel/measured	F	0	A.m^-2			
+time_slice/constraints/j_parallel/position	S	0				
+time_slice/constraints/j_parallel/position/r	F	0	m			
+time_slice/constraints/j_parallel/position/phi	F	0	rad			
+time_slice/constraints/j_parallel/position/z	F	0	m			
+time_slice/constraints/j_parallel/position/rho_tor_norm	F	0	1			
+time_slice/constraints/j_parallel/position/psi	F	0	Wb			
+time_slice/constraints/j_parallel/source	T	0				
+time_slice/constraints/j_parallel/time_measurement	F	0	s			
+time_slice/constraints/j_parallel/exact	I	0				
+time_slice/constraints/j_parallel/weight	F	0	1			
+time_slice/constraints/j_parallel/reconstructed	F	0	1			
+time_slice/constraints/j_parallel/chi_squared	F	0	A.m^-2			
+time_slice/constraints/x_point	A	1		1...N		
+time_slice/constraints/x_point/position_measured	S	0				
+time_slice/constraints/x_point/position_measured/r	F	0	m			
+time_slice/constraints/x_point/position_measured/z	F	0	m			
+time_slice/constraints/x_point/source	T	0				
+time_slice/constraints/x_point/time_measurement	F	0	s			
+time_slice/constraints/x_point/exact	I	0				
+time_slice/constraints/x_point/weight	F	0	1			
+time_slice/constraints/x_point/position_reconstructed	S	0				
+time_slice/constraints/x_point/position_reconstructed/r	F	0	m			
+time_slice/constraints/x_point/position_reconstructed/z	F	0	m			
+time_slice/constraints/x_point/chi_squared_r	F	0	m^-2			
+time_slice/constraints/x_point/chi_squared_z	F	0	m^-2			
+time_slice/constraints/strike_point	A	1		1...N		
+time_slice/constraints/strike_point/position_measured	S	0				
+time_slice/constraints/strike_point/position_measured/r	F	0	m			
+time_slice/constraints/strike_point/position_measured/z	F	0	m			
+time_slice/constraints/strike_point/source	T	0				
+time_slice/constraints/strike_point/time_measurement	F	0	s			
+time_slice/constraints/strike_point/exact	I	0				
+time_slice/constraints/strike_point/weight	F	0	1			
+time_slice/constraints/strike_point/position_reconstructed	S	0				
+time_slice/constraints/strike_point/position_reconstructed/r	F	0	m			
+time_slice/constraints/strike_point/position_reconstructed/z	F	0	m			
+time_slice/constraints/strike_point/chi_squared_r	F	0	m^-2			
+time_slice/constraints/strike_point/chi_squared_z	F	0	m^-2			
+time_slice/constraints/chi_squared_reduced	F	0	1			
+time_slice/constraints/freedom_degrees_n	I	0				
+time_slice/constraints/constraints_n	I	0				
+time_slice/global_quantities	S	0				
+time_slice/global_quantities/beta_pol	F	0	1			
+time_slice/global_quantities/beta_tor	F	0	1			
+time_slice/global_quantities/beta_tor_norm	F	0	1			
+time_slice/global_quantities/ip	F	0	A			
+time_slice/global_quantities/li_3	F	0	1			
+time_slice/global_quantities/volume	F	0	m^3			
+time_slice/global_quantities/area	F	0	m^2			
+time_slice/global_quantities/surface	F	0	m^2			
+time_slice/global_quantities/length_pol	F	0	m			
+time_slice/global_quantities/psi_axis	F	0	Wb			
+time_slice/global_quantities/psi_magnetic_axis	F	0	Wb			
+time_slice/global_quantities/psi_boundary	F	0	Wb			
+time_slice/global_quantities/rho_tor_boundary	F	0	m			
+time_slice/global_quantities/magnetic_axis	S	0				
+time_slice/global_quantities/magnetic_axis/r	F	0	m			
+time_slice/global_quantities/magnetic_axis/z	F	0	m			
+time_slice/global_quantities/magnetic_axis/b_field_phi	F	0	T			
+time_slice/global_quantities/current_centre	S	0				
+time_slice/global_quantities/current_centre/r	F	0	m			
+time_slice/global_quantities/current_centre/z	F	0	m			
+time_slice/global_quantities/current_centre/velocity_z	F	0	m.s^-1			
+time_slice/global_quantities/q_axis	F	0	1			
+time_slice/global_quantities/q_95	F	0	1			
+time_slice/global_quantities/q_min	S	0				
+time_slice/global_quantities/q_min/value	F	0	1			
+time_slice/global_quantities/q_min/rho_tor_norm	F	0	1			
+time_slice/global_quantities/q_min/psi_norm	F	0	1			
+time_slice/global_quantities/q_min/psi	F	0	Wb			
+time_slice/global_quantities/energy_mhd	F	0	J			
+time_slice/global_quantities/psi_external_average	F	0	Wb			
+time_slice/global_quantities/v_external	F	0	V			
+time_slice/global_quantities/plasma_inductance	F	0	H			
+time_slice/global_quantities/plasma_resistance	F	0	ohm			
+time_slice/profiles_1d	S	0				
+time_slice/profiles_1d/psi	F	1	Wb	1...N		
+time_slice/profiles_1d/psi_norm	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/phi	F	1	Wb	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/pressure	F	1	Pa	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/f	F	1	T.m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/dpressure_dpsi	F	1	Pa.Wb^-1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/f_df_dpsi	F	1	T^2.m^2.Wb^-1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/j_phi	F	1	A.m^-2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/j_parallel	F	1	A.m^-2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/q	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/magnetic_shear	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/r_inboard	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/r_outboard	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/rho_tor	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/rho_tor_norm	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/dpsi_drho_tor	F	1	Wb.m^-1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/geometric_axis	S	0				
+time_slice/profiles_1d/geometric_axis/r	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/geometric_axis/z	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/elongation	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/triangularity_upper	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/triangularity_lower	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/squareness_upper_inner	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/squareness_upper_outer	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/squareness_lower_inner	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/squareness_lower_outer	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/volume	F	1	m^3	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/rho_volume_norm	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/dvolume_dpsi	F	1	m^3.Wb^-1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/dvolume_drho_tor	F	1	m^2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/area	F	1	m^2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/darea_dpsi	F	1	m^2.Wb^-1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/darea_drho_tor	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/surface	F	1	m^2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/trapped_fraction	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm1	F	1	m^-2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm2	F	1	m^-2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm3	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm4	F	1	T^-2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm5	F	1	T^2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm6	F	1	T^-2	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm7	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm8	F	1	m	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/gm9	F	1	m^-1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/b_field_average	F	1	T	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/b_field_min	F	1	T	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/b_field_max	F	1	T	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/beta_pol	F	1	1	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_1d/mass_density	F	1	kg.m^-3	time_slice(itime)/profiles_1d/psi		
+time_slice/profiles_2d	A	1		1...N		
+time_slice/profiles_2d/type	S	0				
+time_slice/profiles_2d/type/name	T	0				
+time_slice/profiles_2d/type/index	I	0				
+time_slice/profiles_2d/type/description	T	0				
+time_slice/profiles_2d/grid_type	S	0				
+time_slice/profiles_2d/grid_type/name	T	0				
+time_slice/profiles_2d/grid_type/index	I	0				
+time_slice/profiles_2d/grid_type/description	T	0				
+time_slice/profiles_2d/grid	S	0				
+time_slice/profiles_2d/grid/dim1	F	1	mixed	1...N		
+time_slice/profiles_2d/grid/dim2	F	1	mixed	1...N		
+time_slice/profiles_2d/grid/volume_element	F	2	m^3	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/r	F	2	m	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/z	F	2	m	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/psi	F	2	Wb	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/theta	F	2	rad	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/phi	F	2	Wb	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/j_phi	F	2	A.m^-2	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/j_parallel	F	2	A.m^-2	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/b_field_r	F	2	T	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/b_field_phi	F	2	T	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/profiles_2d/b_field_z	F	2	T	time_slice(itime)/profiles_2d(i1)/grid/dim1|time_slice(itime)/profiles_2d(i1)/grid/dim2		
+time_slice/ggd	A	1		grids_ggd(itime)/grid		
+time_slice/ggd/r	A	1	m	1...N		
+time_slice/ggd/r/grid_index	I	0				
+time_slice/ggd/r/grid_subset_index	I	0				
+time_slice/ggd/r/values	F	1	m	1...N		
+time_slice/ggd/r/coefficients	F	2	m	time_slice(itime)/ggd(i1)/r(i2)/values|1...N		
+time_slice/ggd/z	A	1	m	1...N		
+time_slice/ggd/z/grid_index	I	0				
+time_slice/ggd/z/grid_subset_index	I	0				
+time_slice/ggd/z/values	F	1	m	1...N		
+time_slice/ggd/z/coefficients	F	2	m	time_slice(itime)/ggd(i1)/z(i2)/values|1...N		
+time_slice/ggd/psi	A	1	Wb	1...N		
+time_slice/ggd/psi/grid_index	I	0				
+time_slice/ggd/psi/grid_subset_index	I	0				
+time_slice/ggd/psi/values	F	1	Wb	1...N		
+time_slice/ggd/psi/coefficients	F	2	Wb	time_slice(itime)/ggd(i1)/psi(i2)/values|1...N		
+time_slice/ggd/phi	A	1	Wb	1...N		
+time_slice/ggd/phi/grid_index	I	0				
+time_slice/ggd/phi/grid_subset_index	I	0				
+time_slice/ggd/phi/values	F	1	Wb	1...N		
+time_slice/ggd/phi/coefficients	F	2	Wb	time_slice(itime)/ggd(i1)/phi(i2)/values|1...N		
+time_slice/ggd/theta	A	1	rad	1...N		
+time_slice/ggd/theta/grid_index	I	0				
+time_slice/ggd/theta/grid_subset_index	I	0				
+time_slice/ggd/theta/values	F	1	rad	1...N		
+time_slice/ggd/theta/coefficients	F	2	rad	time_slice(itime)/ggd(i1)/theta(i2)/values|1...N		
+time_slice/ggd/j_phi	A	1	A.m^-2	1...N		
+time_slice/ggd/j_phi/grid_index	I	0				
+time_slice/ggd/j_phi/grid_subset_index	I	0				
+time_slice/ggd/j_phi/values	F	1	A.m^-2	1...N		
+time_slice/ggd/j_phi/coefficients	F	2	A.m^-2	time_slice(itime)/ggd(i1)/j_phi(i2)/values|1...N		
+time_slice/ggd/j_parallel	A	1	A.m^-2	1...N		
+time_slice/ggd/j_parallel/grid_index	I	0				
+time_slice/ggd/j_parallel/grid_subset_index	I	0				
+time_slice/ggd/j_parallel/values	F	1	A.m^-2	1...N		
+time_slice/ggd/j_parallel/coefficients	F	2	A.m^-2	time_slice(itime)/ggd(i1)/j_parallel(i2)/values|1...N		
+time_slice/ggd/b_field_r	A	1	T	1...N		
+time_slice/ggd/b_field_r/grid_index	I	0				
+time_slice/ggd/b_field_r/grid_subset_index	I	0				
+time_slice/ggd/b_field_r/values	F	1	T	1...N		
+time_slice/ggd/b_field_r/coefficients	F	2	T	time_slice(itime)/ggd(i1)/b_field_r(i2)/values|1...N		
+time_slice/ggd/b_field_phi	A	1	T	1...N		
+time_slice/ggd/b_field_phi/grid_index	I	0				
+time_slice/ggd/b_field_phi/grid_subset_index	I	0				
+time_slice/ggd/b_field_phi/values	F	1	T	1...N		
+time_slice/ggd/b_field_phi/coefficients	F	2	T	time_slice(itime)/ggd(i1)/b_field_phi(i2)/values|1...N		
+time_slice/ggd/b_field_z	A	1	T	1...N		
+time_slice/ggd/b_field_z/grid_index	I	0				
+time_slice/ggd/b_field_z/grid_subset_index	I	0				
+time_slice/ggd/b_field_z/values	F	1	T	1...N		
+time_slice/ggd/b_field_z/coefficients	F	2	T	time_slice(itime)/ggd(i1)/b_field_z(i2)/values|1...N		
+time_slice/coordinate_system	S	0				
+time_slice/coordinate_system/grid_type	S	0				
+time_slice/coordinate_system/grid_type/name	T	0				
+time_slice/coordinate_system/grid_type/index	I	0				
+time_slice/coordinate_system/grid_type/description	T	0				
+time_slice/coordinate_system/grid	S	0				
+time_slice/coordinate_system/grid/dim1	F	1	mixed	1...N		
+time_slice/coordinate_system/grid/dim2	F	1	mixed	1...N		
+time_slice/coordinate_system/grid/volume_element	F	2	m^3	time_slice(itime)/coordinate_system/grid/dim1|time_slice(itime)/coordinate_system/grid/dim2		
+time_slice/coordinate_system/r	F	2	m	time_slice(itime)/coordinate_system/grid/dim1|time_slice(itime)/coordinate_system/grid/dim2		
+time_slice/coordinate_system/z	F	2	m	time_slice(itime)/coordinate_system/grid/dim1|time_slice(itime)/coordinate_system/grid/dim2		
+time_slice/coordinate_system/jacobian	F	2	mixed	time_slice(itime)/coordinate_system/grid/dim1|time_slice(itime)/coordinate_system/grid/dim2		
+time_slice/coordinate_system/tensor_covariant	F	4	mixed	time_slice(itime)/coordinate_system/grid/dim1|time_slice(itime)/coordinate_system/grid/dim2|1...3|1...3		
+time_slice/coordinate_system/tensor_contravariant	F	4	mixed	time_slice(itime)/coordinate_system/grid/dim1|time_slice(itime)/coordinate_system/grid/dim2|1...3|1...3		
+time_slice/convergence	S	0				
+time_slice/convergence/iterations_n	I	0				
+time_slice/convergence/grad_shafranov_deviation_expression	S	0				
+time_slice/convergence/grad_shafranov_deviation_expression/name	T	0				
+time_slice/convergence/grad_shafranov_deviation_expression/index	I	0				
+time_slice/convergence/grad_shafranov_deviation_expression/description	T	0				
+time_slice/convergence/grad_shafranov_deviation_value	F	0	mixed			
+time_slice/convergence/result	S	0				
+time_slice/convergence/result/name	T	0				
+time_slice/convergence/result/index	I	0				
+time_slice/convergence/result/description	T	0				
+time_slice/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

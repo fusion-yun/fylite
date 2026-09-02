@@ -1,0 +1,570 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids pulse_schedule
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+ic	S	0				
+ic/antenna	A	1		1...N		
+ic/antenna/name	T	0				
+ic/antenna/description	T	0				
+ic/antenna/power_type	S	0				
+ic/antenna/power_type/name	T	0				
+ic/antenna/power_type/index	I	0				
+ic/antenna/power_type/description	T	0				
+ic/antenna/power	S	0	W			
+ic/antenna/power/reference_name	T	0				
+ic/antenna/power/reference	F	1	mixed	ic/time		
+ic/antenna/power/reference_type	I	0				
+ic/antenna/power/envelope_type	I	0				
+ic/antenna/phase	S	0	rad			
+ic/antenna/phase/reference_name	T	0				
+ic/antenna/phase/reference	F	1	mixed	ic/time		
+ic/antenna/phase/reference_type	I	0				
+ic/antenna/phase/envelope_type	I	0				
+ic/antenna/frequency	S	0	Hz			
+ic/antenna/frequency/reference_name	T	0				
+ic/antenna/frequency/reference	F	1	mixed	ic/time		
+ic/antenna/frequency/reference_type	I	0				
+ic/antenna/frequency/envelope_type	I	0				
+ic/power	S	0	W			
+ic/power/reference_name	T	0				
+ic/power/reference	F	1	mixed	ic/time		
+ic/power/reference_type	I	0				
+ic/power/envelope_type	I	0				
+ic/mode	I	1		ic/time		
+ic/time	F	1	s	1...N		
+ec	S	0				
+ec/beam	A	1		1...N		
+ec/beam/name	T	0				
+ec/beam/description	T	0				
+ec/beam/power_launched	S	0	W			
+ec/beam/power_launched/reference_name	T	0				
+ec/beam/power_launched/reference	F	1	mixed	ec/time		
+ec/beam/power_launched/reference_type	I	0				
+ec/beam/power_launched/envelope_type	I	0				
+ec/beam/frequency	S	0	Hz			
+ec/beam/frequency/reference_name	T	0				
+ec/beam/frequency/reference	F	1	mixed	ec/time		
+ec/beam/frequency/reference_type	I	0				
+ec/beam/frequency/envelope_type	I	0				
+ec/beam/deposition_rho_tor_norm	S	0	1			
+ec/beam/deposition_rho_tor_norm/reference_name	T	0				
+ec/beam/deposition_rho_tor_norm/reference	F	1	mixed	ec/time		
+ec/beam/deposition_rho_tor_norm/reference_type	I	0				
+ec/beam/deposition_rho_tor_norm/envelope_type	I	0				
+ec/beam/steering_angle_pol	S	0	rad			
+ec/beam/steering_angle_pol/reference_name	T	0				
+ec/beam/steering_angle_pol/reference	F	1	mixed	ec/time		
+ec/beam/steering_angle_pol/reference_type	I	0				
+ec/beam/steering_angle_pol/envelope_type	I	0				
+ec/beam/steering_angle_tor	S	0	rad			
+ec/beam/steering_angle_tor/reference_name	T	0				
+ec/beam/steering_angle_tor/reference	F	1	mixed	ec/time		
+ec/beam/steering_angle_tor/reference_type	I	0				
+ec/beam/steering_angle_tor/envelope_type	I	0				
+ec/power_launched	S	0	W			
+ec/power_launched/reference_name	T	0				
+ec/power_launched/reference	F	1	mixed	ec/time		
+ec/power_launched/reference_type	I	0				
+ec/power_launched/envelope_type	I	0				
+ec/mode	I	1		ec/time		
+ec/time	F	1	s	1...N		
+lh	S	0				
+lh/antenna	A	1		1...N		
+lh/antenna/name	T	0				
+lh/antenna/power_type	S	0				
+lh/antenna/power_type/name	T	0				
+lh/antenna/power_type/index	I	0				
+lh/antenna/power_type/description	T	0				
+lh/antenna/power	S	0	W			
+lh/antenna/power/reference_name	T	0				
+lh/antenna/power/reference	F	1	mixed	lh/time		
+lh/antenna/power/reference_type	I	0				
+lh/antenna/power/envelope_type	I	0				
+lh/antenna/phase	S	0	rad			
+lh/antenna/phase/reference_name	T	0				
+lh/antenna/phase/reference	F	1	mixed	lh/time		
+lh/antenna/phase/reference_type	I	0				
+lh/antenna/phase/envelope_type	I	0				
+lh/antenna/n_parallel	S	0	1			
+lh/antenna/n_parallel/reference_name	T	0				
+lh/antenna/n_parallel/reference	F	1	mixed	lh/time		
+lh/antenna/n_parallel/reference_type	I	0				
+lh/antenna/n_parallel/envelope_type	I	0				
+lh/antenna/frequency	S	0	Hz			
+lh/antenna/frequency/reference_name	T	0				
+lh/antenna/frequency/reference	F	1	mixed	lh/time		
+lh/antenna/frequency/reference_type	I	0				
+lh/antenna/frequency/envelope_type	I	0				
+lh/antenna/description	T	0				
+lh/power	S	0	W			
+lh/power/reference_name	T	0				
+lh/power/reference	F	1	mixed	lh/time		
+lh/power/reference_type	I	0				
+lh/power/envelope_type	I	0				
+lh/mode	I	1		lh/time		
+lh/time	F	1	s	1...N		
+nbi	S	0				
+nbi/unit	A	1		1...N		
+nbi/unit/name	T	0				
+nbi/unit/description	T	0				
+nbi/unit/species	A	1		1...N		
+nbi/unit/species/element	A	1		1...N		
+nbi/unit/species/element/a	F	0	u			
+nbi/unit/species/element/z_n	I	0	e			
+nbi/unit/species/element/atoms_n	I	0				
+nbi/unit/species/name	T	0				
+nbi/unit/species/fraction	F	0	1			
+nbi/unit/power	S	0	W			
+nbi/unit/power/reference_name	T	0				
+nbi/unit/power/reference	F	1	mixed	nbi/time		
+nbi/unit/power/reference_type	I	0				
+nbi/unit/power/envelope_type	I	0				
+nbi/unit/energy	S	0	eV			
+nbi/unit/energy/reference_name	T	0				
+nbi/unit/energy/reference	F	1	mixed	nbi/time		
+nbi/unit/energy/reference_type	I	0				
+nbi/unit/energy/envelope_type	I	0				
+nbi/power	S	0	W			
+nbi/power/reference_name	T	0				
+nbi/power/reference	F	1	mixed	nbi/time		
+nbi/power/reference_type	I	0				
+nbi/power/envelope_type	I	0				
+nbi/mode	I	1		nbi/time		
+nbi/time	F	1	s	1...N		
+density_control	S	0				
+density_control/valve	A	1		1...N		
+density_control/valve/name	T	0				
+density_control/valve/description	T	0				
+density_control/valve/flow_rate	S	0	Pa.m^3.s^-1			
+density_control/valve/flow_rate/reference_name	T	0				
+density_control/valve/flow_rate/reference	F	1	mixed	density_control/time		
+density_control/valve/flow_rate/reference_type	I	0				
+density_control/valve/flow_rate/envelope_type	I	0				
+density_control/valve/species	A	1		1...N		
+density_control/valve/species/element	A	1		1...N		
+density_control/valve/species/element/a	F	0	u			
+density_control/valve/species/element/z_n	I	0	e			
+density_control/valve/species/element/atoms_n	I	0				
+density_control/valve/species/name	T	0				
+density_control/valve/species/fraction	F	0	1			
+density_control/n_e_line	S	0	m^-2			
+density_control/n_e_line/reference_name	T	0				
+density_control/n_e_line/reference	F	1	mixed	density_control/time		
+density_control/n_e_line/reference_type	I	0				
+density_control/n_e_line/envelope_type	I	0				
+density_control/n_e_line_lcfs	S	0	m^-2			
+density_control/n_e_line_lcfs/reference_name	T	0				
+density_control/n_e_line_lcfs/reference	F	1	mixed	density_control/time		
+density_control/n_e_line_lcfs/reference_type	I	0				
+density_control/n_e_line_lcfs/envelope_type	I	0				
+density_control/n_e_profile_average	S	0	m^-3			
+density_control/n_e_profile_average/reference_name	T	0				
+density_control/n_e_profile_average/reference	F	1	mixed	density_control/time		
+density_control/n_e_profile_average/reference_type	I	0				
+density_control/n_e_profile_average/envelope_type	I	0				
+density_control/n_e_line_of_sight	S	0				
+density_control/n_e_line_of_sight/first_point	S	0				
+density_control/n_e_line_of_sight/first_point/r	F	0	m			
+density_control/n_e_line_of_sight/first_point/phi	F	0	rad			
+density_control/n_e_line_of_sight/first_point/z	F	0	m			
+density_control/n_e_line_of_sight/second_point	S	0				
+density_control/n_e_line_of_sight/second_point/r	F	0	m			
+density_control/n_e_line_of_sight/second_point/phi	F	0	rad			
+density_control/n_e_line_of_sight/second_point/z	F	0	m			
+density_control/n_e_line_of_sight/third_point	S	0				
+density_control/n_e_line_of_sight/third_point/r	F	0	m			
+density_control/n_e_line_of_sight/third_point/phi	F	0	rad			
+density_control/n_e_line_of_sight/third_point/z	F	0	m			
+density_control/n_e_volume_average	S	0	m^-3			
+density_control/n_e_volume_average/reference_name	T	0				
+density_control/n_e_volume_average/reference	F	1	mixed	density_control/time		
+density_control/n_e_volume_average/reference_type	I	0				
+density_control/n_e_volume_average/envelope_type	I	0				
+density_control/zeff	S	0	1			
+density_control/zeff/reference_name	T	0				
+density_control/zeff/reference	F	1	mixed	density_control/time		
+density_control/zeff/reference_type	I	0				
+density_control/zeff/envelope_type	I	0				
+density_control/zeff_method	S	0				
+density_control/zeff_method/name	T	0				
+density_control/zeff_method/index	I	0				
+density_control/zeff_method/description	T	0				
+density_control/zeff_line_of_sight	S	0				
+density_control/zeff_line_of_sight/first_point	S	0				
+density_control/zeff_line_of_sight/first_point/r	F	0	m			
+density_control/zeff_line_of_sight/first_point/phi	F	0	rad			
+density_control/zeff_line_of_sight/first_point/z	F	0	m			
+density_control/zeff_line_of_sight/second_point	S	0				
+density_control/zeff_line_of_sight/second_point/r	F	0	m			
+density_control/zeff_line_of_sight/second_point/phi	F	0	rad			
+density_control/zeff_line_of_sight/second_point/z	F	0	m			
+density_control/zeff_line_of_sight/third_point	S	0				
+density_control/zeff_line_of_sight/third_point/r	F	0	m			
+density_control/zeff_line_of_sight/third_point/phi	F	0	rad			
+density_control/zeff_line_of_sight/third_point/z	F	0	m			
+density_control/n_t_over_n_d	S	0	1			
+density_control/n_t_over_n_d/reference_name	T	0				
+density_control/n_t_over_n_d/reference	F	1	mixed	density_control/time		
+density_control/n_t_over_n_d/reference_type	I	0				
+density_control/n_t_over_n_d/envelope_type	I	0				
+density_control/n_h_over_n_d	S	0	1			
+density_control/n_h_over_n_d/reference_name	T	0				
+density_control/n_h_over_n_d/reference	F	1	mixed	density_control/time		
+density_control/n_h_over_n_d/reference_type	I	0				
+density_control/n_h_over_n_d/envelope_type	I	0				
+density_control/ion	A	1		1...N		
+density_control/ion/element	A	1		1...N		
+density_control/ion/element/a	F	0	u			
+density_control/ion/element/z_n	I	0	e			
+density_control/ion/element/atoms_n	I	0				
+density_control/ion/z_ion	F	0	e			
+density_control/ion/name	T	0				
+density_control/ion/n_i_volume_average	S	0	m^-3			
+density_control/ion/n_i_volume_average/reference_name	T	0				
+density_control/ion/n_i_volume_average/reference	F	1	mixed	density_control/time		
+density_control/ion/n_i_volume_average/reference_type	I	0				
+density_control/ion/n_i_volume_average/envelope_type	I	0				
+density_control/mode	I	1		density_control/time		
+density_control/time	F	1	s	1...N		
+event	A	1		1...N		
+event/type	S	0				
+event/type/name	T	0				
+event/type/index	I	0				
+event/type/description	T	0				
+event/identifier	T	0				
+event/time_stamp	F	0	s			
+event/duration	F	0	s			
+event/acquisition_strategy	S	0				
+event/acquisition_strategy/name	T	0				
+event/acquisition_strategy/index	I	0				
+event/acquisition_strategy/description	T	0				
+event/acquisition_state	S	0				
+event/acquisition_state/name	T	0				
+event/acquisition_state/index	I	0				
+event/acquisition_state/description	T	0				
+event/provider	T	0				
+event/listeners	T	1		1...N		
+flux_control	S	0				
+flux_control/ip	S	0	A			
+flux_control/ip/reference_name	T	0				
+flux_control/ip/reference	F	1	mixed	flux_control/time		
+flux_control/ip/reference_type	I	0				
+flux_control/ip/envelope_type	I	0				
+flux_control/v_loop	S	0	V			
+flux_control/v_loop/reference_name	T	0				
+flux_control/v_loop/reference	F	1	mixed	flux_control/time		
+flux_control/v_loop/reference_type	I	0				
+flux_control/v_loop/envelope_type	I	0				
+flux_control/li_3	S	0	1			
+flux_control/li_3/reference_name	T	0				
+flux_control/li_3/reference	F	1	mixed	flux_control/time		
+flux_control/li_3/reference_type	I	0				
+flux_control/li_3/envelope_type	I	0				
+flux_control/beta_tor_norm	S	0	1			
+flux_control/beta_tor_norm/reference_name	T	0				
+flux_control/beta_tor_norm/reference	F	1	mixed	flux_control/time		
+flux_control/beta_tor_norm/reference_type	I	0				
+flux_control/beta_tor_norm/envelope_type	I	0				
+flux_control/mode	I	1		flux_control/time		
+flux_control/time	F	1	s	1...N		
+pf_active	S	0				
+pf_active/coil	A	1		1...N		
+pf_active/coil/name	T	0				
+pf_active/coil/description	T	0				
+pf_active/coil/current	S	0	A			
+pf_active/coil/current/reference_name	T	0				
+pf_active/coil/current/reference	F	1	mixed	pf_active/time		
+pf_active/coil/current/reference_type	I	0				
+pf_active/coil/current/envelope_type	I	0				
+pf_active/coil/resistance_additional	S	0	ohm			
+pf_active/coil/resistance_additional/reference_name	T	0				
+pf_active/coil/resistance_additional/reference	F	1	mixed	pf_active/time		
+pf_active/coil/resistance_additional/reference_type	I	0				
+pf_active/coil/resistance_additional/envelope_type	I	0				
+pf_active/supply	A	1		1...N		
+pf_active/supply/name	T	0				
+pf_active/supply/description	T	0				
+pf_active/supply/voltage	S	0	V			
+pf_active/supply/voltage/reference_name	T	0				
+pf_active/supply/voltage/reference	F	1	mixed	pf_active/time		
+pf_active/supply/voltage/reference_type	I	0				
+pf_active/supply/voltage/envelope_type	I	0				
+pf_active/supply/current	S	0	A			
+pf_active/supply/current/reference_name	T	0				
+pf_active/supply/current/reference	F	1	mixed	pf_active/time		
+pf_active/supply/current/reference_type	I	0				
+pf_active/supply/current/envelope_type	I	0				
+pf_active/mode	I	1		pf_active/time		
+pf_active/time	F	1	s	1...N		
+position_control	S	0				
+position_control/magnetic_axis	S	0				
+position_control/magnetic_axis/r	S	0	m			
+position_control/magnetic_axis/r/reference_name	T	0				
+position_control/magnetic_axis/r/reference	F	1	mixed	position_control/time		
+position_control/magnetic_axis/r/reference_type	I	0				
+position_control/magnetic_axis/r/envelope_type	I	0				
+position_control/magnetic_axis/z	S	0	m			
+position_control/magnetic_axis/z/reference_name	T	0				
+position_control/magnetic_axis/z/reference	F	1	mixed	position_control/time		
+position_control/magnetic_axis/z/reference_type	I	0				
+position_control/magnetic_axis/z/envelope_type	I	0				
+position_control/geometric_axis	S	0				
+position_control/geometric_axis/r	S	0	m			
+position_control/geometric_axis/r/reference_name	T	0				
+position_control/geometric_axis/r/reference	F	1	mixed	position_control/time		
+position_control/geometric_axis/r/reference_type	I	0				
+position_control/geometric_axis/r/envelope_type	I	0				
+position_control/geometric_axis/z	S	0	m			
+position_control/geometric_axis/z/reference_name	T	0				
+position_control/geometric_axis/z/reference	F	1	mixed	position_control/time		
+position_control/geometric_axis/z/reference_type	I	0				
+position_control/geometric_axis/z/envelope_type	I	0				
+position_control/minor_radius	S	0	m			
+position_control/minor_radius/reference_name	T	0				
+position_control/minor_radius/reference	F	1	mixed	position_control/time		
+position_control/minor_radius/reference_type	I	0				
+position_control/minor_radius/envelope_type	I	0				
+position_control/elongation	S	0	1			
+position_control/elongation/reference_name	T	0				
+position_control/elongation/reference	F	1	mixed	position_control/time		
+position_control/elongation/reference_type	I	0				
+position_control/elongation/envelope_type	I	0				
+position_control/elongation_upper	S	0	1			
+position_control/elongation_upper/reference_name	T	0				
+position_control/elongation_upper/reference	F	1	mixed	position_control/time		
+position_control/elongation_upper/reference_type	I	0				
+position_control/elongation_upper/envelope_type	I	0				
+position_control/elongation_lower	S	0	1			
+position_control/elongation_lower/reference_name	T	0				
+position_control/elongation_lower/reference	F	1	mixed	position_control/time		
+position_control/elongation_lower/reference_type	I	0				
+position_control/elongation_lower/envelope_type	I	0				
+position_control/triangularity	S	0	1			
+position_control/triangularity/reference_name	T	0				
+position_control/triangularity/reference	F	1	mixed	position_control/time		
+position_control/triangularity/reference_type	I	0				
+position_control/triangularity/envelope_type	I	0				
+position_control/triangularity_upper	S	0	1			
+position_control/triangularity_upper/reference_name	T	0				
+position_control/triangularity_upper/reference	F	1	mixed	position_control/time		
+position_control/triangularity_upper/reference_type	I	0				
+position_control/triangularity_upper/envelope_type	I	0				
+position_control/triangularity_lower	S	0	1			
+position_control/triangularity_lower/reference_name	T	0				
+position_control/triangularity_lower/reference	F	1	mixed	position_control/time		
+position_control/triangularity_lower/reference_type	I	0				
+position_control/triangularity_lower/envelope_type	I	0				
+position_control/triangularity_inner	S	0	1			
+position_control/triangularity_inner/reference_name	T	0				
+position_control/triangularity_inner/reference	F	1	mixed	position_control/time		
+position_control/triangularity_inner/reference_type	I	0				
+position_control/triangularity_inner/envelope_type	I	0				
+position_control/triangularity_outer	S	0	1			
+position_control/triangularity_outer/reference_name	T	0				
+position_control/triangularity_outer/reference	F	1	mixed	position_control/time		
+position_control/triangularity_outer/reference_type	I	0				
+position_control/triangularity_outer/envelope_type	I	0				
+position_control/triangularity_minor	S	0	1			
+position_control/triangularity_minor/reference_name	T	0				
+position_control/triangularity_minor/reference	F	1	mixed	position_control/time		
+position_control/triangularity_minor/reference_type	I	0				
+position_control/triangularity_minor/envelope_type	I	0				
+position_control/squareness_upper_outer	S	0	1			
+position_control/squareness_upper_outer/reference_name	T	0				
+position_control/squareness_upper_outer/reference	F	1	mixed	position_control/time		
+position_control/squareness_upper_outer/reference_type	I	0				
+position_control/squareness_upper_outer/envelope_type	I	0				
+position_control/squareness_upper_inner	S	0	1			
+position_control/squareness_upper_inner/reference_name	T	0				
+position_control/squareness_upper_inner/reference	F	1	mixed	position_control/time		
+position_control/squareness_upper_inner/reference_type	I	0				
+position_control/squareness_upper_inner/envelope_type	I	0				
+position_control/squareness_lower_outer	S	0	1			
+position_control/squareness_lower_outer/reference_name	T	0				
+position_control/squareness_lower_outer/reference	F	1	mixed	position_control/time		
+position_control/squareness_lower_outer/reference_type	I	0				
+position_control/squareness_lower_outer/envelope_type	I	0				
+position_control/squareness_lower_inner	S	0	1			
+position_control/squareness_lower_inner/reference_name	T	0				
+position_control/squareness_lower_inner/reference	F	1	mixed	position_control/time		
+position_control/squareness_lower_inner/reference_type	I	0				
+position_control/squareness_lower_inner/envelope_type	I	0				
+position_control/x_point	A	1		1...N		
+position_control/x_point/r	S	0	m			
+position_control/x_point/r/reference_name	T	0				
+position_control/x_point/r/reference	F	1	mixed	position_control/time		
+position_control/x_point/r/reference_type	I	0				
+position_control/x_point/r/envelope_type	I	0				
+position_control/x_point/z	S	0	m			
+position_control/x_point/z/reference_name	T	0				
+position_control/x_point/z/reference	F	1	mixed	position_control/time		
+position_control/x_point/z/reference_type	I	0				
+position_control/x_point/z/envelope_type	I	0				
+position_control/strike_point	A	1		1...N		
+position_control/strike_point/r	S	0	m			
+position_control/strike_point/r/reference_name	T	0				
+position_control/strike_point/r/reference	F	1	mixed	position_control/time		
+position_control/strike_point/r/reference_type	I	0				
+position_control/strike_point/r/envelope_type	I	0				
+position_control/strike_point/z	S	0	m			
+position_control/strike_point/z/reference_name	T	0				
+position_control/strike_point/z/reference	F	1	mixed	position_control/time		
+position_control/strike_point/z/reference_type	I	0				
+position_control/strike_point/z/envelope_type	I	0				
+position_control/active_limiter_point	S	0				
+position_control/active_limiter_point/r	S	0	m			
+position_control/active_limiter_point/r/reference_name	T	0				
+position_control/active_limiter_point/r/reference	F	1	mixed	position_control/time		
+position_control/active_limiter_point/r/reference_type	I	0				
+position_control/active_limiter_point/r/envelope_type	I	0				
+position_control/active_limiter_point/z	S	0	m			
+position_control/active_limiter_point/z/reference_name	T	0				
+position_control/active_limiter_point/z/reference	F	1	mixed	position_control/time		
+position_control/active_limiter_point/z/reference_type	I	0				
+position_control/active_limiter_point/z/envelope_type	I	0				
+position_control/boundary_outline	A	1		1...N		
+position_control/boundary_outline/r	S	0	m			
+position_control/boundary_outline/r/reference_name	T	0				
+position_control/boundary_outline/r/reference	F	1	mixed	position_control/time		
+position_control/boundary_outline/r/reference_type	I	0				
+position_control/boundary_outline/r/envelope_type	I	0				
+position_control/boundary_outline/z	S	0	m			
+position_control/boundary_outline/z/reference_name	T	0				
+position_control/boundary_outline/z/reference	F	1	mixed	position_control/time		
+position_control/boundary_outline/z/reference_type	I	0				
+position_control/boundary_outline/z/envelope_type	I	0				
+position_control/z_r_max	S	0	m			
+position_control/z_r_max/reference_name	T	0				
+position_control/z_r_max/reference	F	1	mixed	position_control/time		
+position_control/z_r_max/reference_type	I	0				
+position_control/z_r_max/envelope_type	I	0				
+position_control/z_r_min	S	0	m			
+position_control/z_r_min/reference_name	T	0				
+position_control/z_r_min/reference	F	1	mixed	position_control/time		
+position_control/z_r_min/reference_type	I	0				
+position_control/z_r_min/envelope_type	I	0				
+position_control/gap	A	1		1...N		
+position_control/gap/name	T	0				
+position_control/gap/description	T	0				
+position_control/gap/r	F	0	m			
+position_control/gap/z	F	0	m			
+position_control/gap/angle	F	0	rad			
+position_control/gap/value	S	0	m			
+position_control/gap/value/reference_name	T	0				
+position_control/gap/value/reference	F	1	mixed	position_control/time		
+position_control/gap/value/reference_type	I	0				
+position_control/gap/value/envelope_type	I	0				
+position_control/current_centroid	S	0				
+position_control/current_centroid/r	S	0	m			
+position_control/current_centroid/r/reference_name	T	0				
+position_control/current_centroid/r/reference	F	1	mixed	position_control/time		
+position_control/current_centroid/r/reference_type	I	0				
+position_control/current_centroid/r/envelope_type	I	0				
+position_control/current_centroid/z	S	0	m			
+position_control/current_centroid/z/reference_name	T	0				
+position_control/current_centroid/z/reference	F	1	mixed	position_control/time		
+position_control/current_centroid/z/reference_type	I	0				
+position_control/current_centroid/z/envelope_type	I	0				
+position_control/mode	I	1		position_control/time		
+position_control/time	F	1	s	1...N		
+tf	S	0				
+tf/b_field_tor_vacuum_r	S	0	T.m			
+tf/b_field_tor_vacuum_r/reference_name	T	0				
+tf/b_field_tor_vacuum_r/reference	F	1	mixed	tf/time		
+tf/b_field_tor_vacuum_r/reference_type	I	0				
+tf/b_field_tor_vacuum_r/envelope_type	I	0				
+tf/mode	I	1		tf/time		
+tf/time	F	1	s	1...N		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

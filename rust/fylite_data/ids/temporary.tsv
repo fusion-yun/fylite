@@ -1,0 +1,247 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids temporary
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+constant_float0d	A	1	mixed	1...N		
+constant_float0d/value	F	0	1			
+constant_float0d/identifier	S	0				
+constant_float0d/identifier/name	T	0				
+constant_float0d/identifier/index	I	0				
+constant_float0d/identifier/description	T	0				
+constant_integer0d	A	1		1...N		
+constant_integer0d/value	I	0				
+constant_integer0d/identifier	S	0				
+constant_integer0d/identifier/name	T	0				
+constant_integer0d/identifier/index	I	0				
+constant_integer0d/identifier/description	T	0				
+constant_string0d	A	1		1...N		
+constant_string0d/value	T	0				
+constant_string0d/identifier	S	0				
+constant_string0d/identifier/name	T	0				
+constant_string0d/identifier/index	I	0				
+constant_string0d/identifier/description	T	0				
+constant_integer1d	A	1		1...N		
+constant_integer1d/value	I	1		1...N		
+constant_integer1d/identifier	S	0				
+constant_integer1d/identifier/name	T	0				
+constant_integer1d/identifier/index	I	0				
+constant_integer1d/identifier/description	T	0				
+constant_string1d	A	1		1...N		
+constant_string1d/value	T	1		1...N		
+constant_string1d/identifier	S	0				
+constant_string1d/identifier/name	T	0				
+constant_string1d/identifier/index	I	0				
+constant_string1d/identifier/description	T	0				
+constant_float1d	A	1	mixed	1...N		
+constant_float1d/value	F	1	1	1...N		
+constant_float1d/identifier	S	0				
+constant_float1d/identifier/name	T	0				
+constant_float1d/identifier/index	I	0				
+constant_float1d/identifier/description	T	0				
+dynamic_float1d	A	1		1...N		
+dynamic_float1d/value	S	0	mixed			
+dynamic_float1d/value/data	F	1	mixed	dynamic_float1d(i1)/value/time		
+dynamic_float1d/value/time	F	1	s	1...N		
+dynamic_float1d/identifier	S	0				
+dynamic_float1d/identifier/name	T	0				
+dynamic_float1d/identifier/index	I	0				
+dynamic_float1d/identifier/description	T	0				
+dynamic_integer1d	A	1		1...N		
+dynamic_integer1d/value	S	0				
+dynamic_integer1d/value/data	I	1		dynamic_integer1d(i1)/value/time		
+dynamic_integer1d/value/time	F	1	s	1...N		
+dynamic_integer1d/identifier	S	0				
+dynamic_integer1d/identifier/name	T	0				
+dynamic_integer1d/identifier/index	I	0				
+dynamic_integer1d/identifier/description	T	0				
+constant_float2d	A	1		1...N		
+constant_float2d/value	F	2	mixed	1...N|1...N		
+constant_float2d/identifier	S	0				
+constant_float2d/identifier/name	T	0				
+constant_float2d/identifier/index	I	0				
+constant_float2d/identifier/description	T	0				
+constant_integer2d	A	1		1...N		
+constant_integer2d/value	I	2		1...N|1...N		
+constant_integer2d/identifier	S	0				
+constant_integer2d/identifier/name	T	0				
+constant_integer2d/identifier/index	I	0				
+constant_integer2d/identifier/description	T	0				
+dynamic_float2d	A	1		1...N		
+dynamic_float2d/value	S	0	mixed			
+dynamic_float2d/value/data	F	2	mixed	1...N|dynamic_float2d(i1)/value/time		
+dynamic_float2d/value/time	F	1	s	1...N		
+dynamic_float2d/identifier	S	0				
+dynamic_float2d/identifier/name	T	0				
+dynamic_float2d/identifier/index	I	0				
+dynamic_float2d/identifier/description	T	0				
+dynamic_integer2d	A	1		1...N		
+dynamic_integer2d/value	S	0				
+dynamic_integer2d/value/data	I	2		1...N|dynamic_integer2d(i1)/value/time		
+dynamic_integer2d/value/time	F	1	s	1...N		
+dynamic_integer2d/identifier	S	0				
+dynamic_integer2d/identifier/name	T	0				
+dynamic_integer2d/identifier/index	I	0				
+dynamic_integer2d/identifier/description	T	0				
+constant_float3d	A	1		1...N		
+constant_float3d/value	F	3	mixed	1...N|1...N|1...N		
+constant_float3d/identifier	S	0				
+constant_float3d/identifier/name	T	0				
+constant_float3d/identifier/index	I	0				
+constant_float3d/identifier/description	T	0				
+constant_integer3d	A	1		1...N		
+constant_integer3d/value	I	3		1...N|1...N|1...N		
+constant_integer3d/identifier	S	0				
+constant_integer3d/identifier/name	T	0				
+constant_integer3d/identifier/index	I	0				
+constant_integer3d/identifier/description	T	0				
+dynamic_float3d	A	1		1...N		
+dynamic_float3d/value	S	0	mixed			
+dynamic_float3d/value/data	F	3	mixed	1...N|1...N|dynamic_float3d(i1)/value/time		
+dynamic_float3d/value/time	F	1	s	1...N		
+dynamic_float3d/identifier	S	0				
+dynamic_float3d/identifier/name	T	0				
+dynamic_float3d/identifier/index	I	0				
+dynamic_float3d/identifier/description	T	0				
+dynamic_integer3d	A	1		1...N		
+dynamic_integer3d/value	S	0				
+dynamic_integer3d/value/data	I	3		1...N|1...N|dynamic_integer3d(i1)/value/time		
+dynamic_integer3d/value/time	F	1	s	1...N		
+dynamic_integer3d/identifier	S	0				
+dynamic_integer3d/identifier/name	T	0				
+dynamic_integer3d/identifier/index	I	0				
+dynamic_integer3d/identifier/description	T	0				
+constant_float4d	A	1		1...N		
+constant_float4d/value	F	4	mixed	1...N|1...N|1...N|1...N		
+constant_float4d/identifier	S	0				
+constant_float4d/identifier/name	T	0				
+constant_float4d/identifier/index	I	0				
+constant_float4d/identifier/description	T	0				
+dynamic_float4d	A	1		1...N		
+dynamic_float4d/value	S	0	mixed			
+dynamic_float4d/value/data	F	4	mixed	1...N|1...N|1...N|dynamic_float4d(i1)/value/time		
+dynamic_float4d/value/time	F	1	s	1...N		
+dynamic_float4d/identifier	S	0				
+dynamic_float4d/identifier/name	T	0				
+dynamic_float4d/identifier/index	I	0				
+dynamic_float4d/identifier/description	T	0				
+constant_float5d	A	1		1...N		
+constant_float5d/value	F	5	mixed	1...N|1...N|1...N|1...N|1...N		
+constant_float5d/identifier	S	0				
+constant_float5d/identifier/name	T	0				
+constant_float5d/identifier/index	I	0				
+constant_float5d/identifier/description	T	0				
+dynamic_float5d	A	1		1...N		
+dynamic_float5d/value	S	0	mixed			
+dynamic_float5d/value/data	F	5	mixed	1...N|1...N|1...N|1...N|dynamic_float5d(i1)/value/time		
+dynamic_float5d/value/time	F	1	s	1...N		
+dynamic_float5d/identifier	S	0				
+dynamic_float5d/identifier/name	T	0				
+dynamic_float5d/identifier/index	I	0				
+dynamic_float5d/identifier/description	T	0				
+constant_float6d	A	1		1...N		
+constant_float6d/value	F	6	mixed	1...N|1...N|1...N|1...N|1...N|1...N		
+constant_float6d/identifier	S	0				
+constant_float6d/identifier/name	T	0				
+constant_float6d/identifier/index	I	0				
+constant_float6d/identifier/description	T	0				
+dynamic_float6d	A	1		1...N		
+dynamic_float6d/value	S	0	mixed			
+dynamic_float6d/value/data	F	6	mixed	1...N|1...N|1...N|1...N|1...N|dynamic_float6d(i1)/value/time		
+dynamic_float6d/value/time	F	1	s	1...N		
+dynamic_float6d/identifier	S	0				
+dynamic_float6d/identifier/name	T	0				
+dynamic_float6d/identifier/index	I	0				
+dynamic_float6d/identifier/description	T	0				
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

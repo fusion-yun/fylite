@@ -1,0 +1,167 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids amns_data
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+z_n	I	0	e			
+a	F	0	u			
+process	A	1		1...N		
+process/source	T	0				
+process/provider	T	0				
+process/citation	T	0				
+process/name	T	0				
+process/reactants	A	1		1...N		
+process/reactants/name	T	0				
+process/reactants/element	A	1		1...N		
+process/reactants/element/a	F	0	u			
+process/reactants/element/z_n	I	0	e			
+process/reactants/element/atoms_n	I	0				
+process/reactants/role	S	0				
+process/reactants/role/name	T	0				
+process/reactants/role/index	I	0				
+process/reactants/role/description	T	0				
+process/reactants/mass	F	0	u			
+process/reactants/charge	F	0	1			
+process/reactants/relative_charge	I	0				
+process/reactants/multiplicity	F	0	1			
+process/reactants/metastable	I	1		1...N		
+process/reactants/metastable_label	T	0				
+process/products	A	1		1...N		
+process/products/name	T	0				
+process/products/element	A	1		1...N		
+process/products/element/a	F	0	u			
+process/products/element/z_n	I	0	e			
+process/products/element/atoms_n	I	0				
+process/products/role	S	0				
+process/products/role/name	T	0				
+process/products/role/index	I	0				
+process/products/role/description	T	0				
+process/products/mass	F	0	u			
+process/products/charge	F	0	1			
+process/products/relative_charge	I	0				
+process/products/multiplicity	F	0	1			
+process/products/metastable	I	1		1...N		
+process/products/metastable_label	T	0				
+process/table_dimension	I	0				
+process/coordinate_index	I	0				
+process/result_label	T	0				
+process/result_units	T	0				
+process/result_transformation	I	0				
+process/charge_state	A	1		1...N		
+process/charge_state/name	T	0				
+process/charge_state/z_min	F	0	e			
+process/charge_state/z_max	F	0	e			
+process/charge_state/table_0d	F	0	units given by process(:)/results_units			
+process/charge_state/table_1d	F	1	units given by process(i1)/results_units	1...N		
+process/charge_state/table_2d	F	2	units given by process(i1)/results_units	1...N|1...N		
+process/charge_state/table_3d	F	3	units given by process(:)/results_units	1...N|1...N|1...N		
+process/charge_state/table_4d	F	4	units given by process(i1)/results_units	1...N|1...N|1...N|1...N		
+process/charge_state/table_5d	F	5	units given by process(i1)/results_units	1...N|1...N|1...N|1...N|1...N		
+process/charge_state/table_6d	F	6	units given by process(i1)/results_units	1...N|1...N|1...N|1...N|1...N|1...N		
+coordinate_system	A	1		1...N		
+coordinate_system/coordinate	A	1		1...N		
+coordinate_system/coordinate/name	T	0				
+coordinate_system/coordinate/values	F	1	units given by coordinate_system(:)/coordinate(:)/units	1...N		
+coordinate_system/coordinate/interpolation_type	I	0				
+coordinate_system/coordinate/extrapolation_type	I	1		1...2		
+coordinate_system/coordinate/value_labels	T	1		coordinate_system(i1)/coordinate(i2)/values		
+coordinate_system/coordinate/units	T	0				
+coordinate_system/coordinate/transformation	I	0				
+coordinate_system/coordinate/spacing	I	0				
+release	A	1		1...N		
+release/description	T	0				
+release/date	T	0				
+release/data_entry	A	1		1...N		
+release/data_entry/description	T	0				
+release/data_entry/shot	I	0				
+release/data_entry/run	I	0				
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				

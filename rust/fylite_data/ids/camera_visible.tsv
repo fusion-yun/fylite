@@ -1,0 +1,251 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids camera_visible
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+name	T	0				
+channel	A	1		1...N		
+channel/name	T	0				
+channel/aperture	A	1		1...N		
+channel/aperture/geometry_type	I	0				
+channel/aperture/centre	S	0				
+channel/aperture/centre/r	F	0	m			
+channel/aperture/centre/phi	F	0	rad			
+channel/aperture/centre/z	F	0	m			
+channel/aperture/radius	F	0	m			
+channel/aperture/x1_unit_vector	S	0				
+channel/aperture/x1_unit_vector/x	F	0	m			
+channel/aperture/x1_unit_vector/y	F	0	m			
+channel/aperture/x1_unit_vector/z	F	0	m			
+channel/aperture/x2_unit_vector	S	0				
+channel/aperture/x2_unit_vector/x	F	0	m			
+channel/aperture/x2_unit_vector/y	F	0	m			
+channel/aperture/x2_unit_vector/z	F	0	m			
+channel/aperture/x3_unit_vector	S	0				
+channel/aperture/x3_unit_vector/x	F	0	m			
+channel/aperture/x3_unit_vector/y	F	0	m			
+channel/aperture/x3_unit_vector/z	F	0	m			
+channel/aperture/x1_width	F	0	m			
+channel/aperture/x2_width	F	0	m			
+channel/aperture/outline	S	0				
+channel/aperture/outline/x1	F	1	m	1...N		
+channel/aperture/outline/x2	F	1	m	channel(i1)/aperture(i2)/outline/x1		
+channel/aperture/surface	F	0	m^2			
+channel/viewing_angle_alpha_bounds	F	1	rad	1...2		
+channel/viewing_angle_beta_bounds	F	1	rad	1...2		
+channel/detector	A	1		1...N		
+channel/detector/pixel_to_alpha	F	1	rad	1...N	channel(i1)/detector(i2)/frame(itime)/image_raw	
+channel/detector/pixel_to_beta	F	1	rad	1...N		
+channel/detector/wavelength_lower	F	0	m			
+channel/detector/wavelength_upper	F	0	m			
+channel/detector/counts_to_radiance	F	2	m^-2.s^-1.sr^-1	1...N|1...N	channel(i1)/detector(i2)/frame(itime)/image_raw|channel(i1)/detector(i2)/frame(itime)/image_raw	
+channel/detector/exposure_time	F	0	s			
+channel/detector/noise	F	0	1			
+channel/detector/columns_n	I	0				
+channel/detector/lines_n	I	0				
+channel/detector/frame	A	1		channel(i1)/detector(i2)/frame(itime)/time		
+channel/detector/frame/image_raw	I	2		1...N|1...N		
+channel/detector/frame/radiance	F	2	m^-2.s^-1.sr^-1	1...N|1...N	channel(i1)/detector(i2)/frame(itime)/image_raw|channel(i1)/detector(i2)/frame(itime)/image_raw	
+channel/detector/frame/time	F	0	s			
+channel/detector/geometry_matrix	S	0				
+channel/detector/geometry_matrix/with_reflections	S	0				
+channel/detector/geometry_matrix/with_reflections/data	F	1	m	1...N		
+channel/detector/geometry_matrix/with_reflections/voxel_indices	I	1		channel(i1)/detector(i2)/geometry_matrix/with_reflections/data		
+channel/detector/geometry_matrix/with_reflections/pixel_indices	I	2		channel(i1)/detector(i2)/geometry_matrix/with_reflections/data|1...2		
+channel/detector/geometry_matrix/without_reflections	S	0				
+channel/detector/geometry_matrix/without_reflections/data	F	1	m	1...N		
+channel/detector/geometry_matrix/without_reflections/voxel_indices	I	1		channel(i1)/detector(i2)/geometry_matrix/without_reflections/data		
+channel/detector/geometry_matrix/without_reflections/pixel_indices	I	2		channel(i1)/detector(i2)/geometry_matrix/without_reflections/data|1...2		
+channel/detector/geometry_matrix/interpolated	S	0				
+channel/detector/geometry_matrix/interpolated/r	F	1	m	1...N		
+channel/detector/geometry_matrix/interpolated/z	F	1	m	channel(i1)/detector(i2)/geometry_matrix/interpolated/r		
+channel/detector/geometry_matrix/interpolated/phi	F	1	rad	channel(i1)/detector(i2)/geometry_matrix/interpolated/r		
+channel/detector/geometry_matrix/interpolated/data	F	3	m^-2	1...N|1...N|channel(i1)/detector(i2)/geometry_matrix/interpolated/r	channel(i1)/detector(i2)/frame(itime)/image_raw|channel(i1)/detector(i2)/frame(itime)/image_raw|	
+channel/detector/geometry_matrix/voxel_map	I	3		channel(i1)/detector(i2)/geometry_matrix/emission_grid/dim1|channel(i1)/detector(i2)/geometry_matrix/emission_grid/dim2|channel(i1)/detector(i2)/geometry_matrix/emission_grid/dim3		
+channel/detector/geometry_matrix/voxels_n	I	0				
+channel/detector/geometry_matrix/emission_grid	S	0				
+channel/detector/geometry_matrix/emission_grid/grid_type	S	0				
+channel/detector/geometry_matrix/emission_grid/grid_type/name	T	0				
+channel/detector/geometry_matrix/emission_grid/grid_type/index	I	0				
+channel/detector/geometry_matrix/emission_grid/grid_type/description	T	0				
+channel/detector/geometry_matrix/emission_grid/dim1	F	1	mixed	1...N		
+channel/detector/geometry_matrix/emission_grid/dim2	F	1	mixed	1...N		
+channel/detector/geometry_matrix/emission_grid/dim3	F	1	mixed	1...N		
+channel/optical_element	A	1		1...N		
+channel/optical_element/type	S	0				
+channel/optical_element/type/name	T	0				
+channel/optical_element/type/index	I	0				
+channel/optical_element/type/description	T	0				
+channel/optical_element/front_surface	S	0				
+channel/optical_element/front_surface/curvature_type	S	0				
+channel/optical_element/front_surface/curvature_type/name	T	0				
+channel/optical_element/front_surface/curvature_type/index	I	0				
+channel/optical_element/front_surface/curvature_type/description	T	0				
+channel/optical_element/front_surface/x1_curvature	F	0	m			
+channel/optical_element/front_surface/x2_curvature	F	0	m			
+channel/optical_element/back_surface	S	0				
+channel/optical_element/back_surface/curvature_type	S	0				
+channel/optical_element/back_surface/curvature_type/name	T	0				
+channel/optical_element/back_surface/curvature_type/index	I	0				
+channel/optical_element/back_surface/curvature_type/description	T	0				
+channel/optical_element/back_surface/x1_curvature	F	0	m			
+channel/optical_element/back_surface/x2_curvature	F	0	m			
+channel/optical_element/thickness	F	0	m			
+channel/optical_element/material_properties	S	0				
+channel/optical_element/material_properties/type	S	0				
+channel/optical_element/material_properties/type/name	T	0				
+channel/optical_element/material_properties/type/index	I	0				
+channel/optical_element/material_properties/type/description	T	0				
+channel/optical_element/material_properties/wavelengths	F	1	m	1...N		
+channel/optical_element/material_properties/refractive_index	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/material_properties/extinction_coefficient	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/material_properties/transmission_coefficient	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/material_properties/roughness	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/geometry	S	0				
+channel/optical_element/geometry/geometry_type	I	0				
+channel/optical_element/geometry/centre	S	0				
+channel/optical_element/geometry/centre/r	F	0	m			
+channel/optical_element/geometry/centre/phi	F	0	rad			
+channel/optical_element/geometry/centre/z	F	0	m			
+channel/optical_element/geometry/radius	F	0	m			
+channel/optical_element/geometry/x1_unit_vector	S	0				
+channel/optical_element/geometry/x1_unit_vector/x	F	0	m			
+channel/optical_element/geometry/x1_unit_vector/y	F	0	m			
+channel/optical_element/geometry/x1_unit_vector/z	F	0	m			
+channel/optical_element/geometry/x2_unit_vector	S	0				
+channel/optical_element/geometry/x2_unit_vector/x	F	0	m			
+channel/optical_element/geometry/x2_unit_vector/y	F	0	m			
+channel/optical_element/geometry/x2_unit_vector/z	F	0	m			
+channel/optical_element/geometry/x3_unit_vector	S	0				
+channel/optical_element/geometry/x3_unit_vector/x	F	0	m			
+channel/optical_element/geometry/x3_unit_vector/y	F	0	m			
+channel/optical_element/geometry/x3_unit_vector/z	F	0	m			
+channel/optical_element/geometry/x1_width	F	0	m			
+channel/optical_element/geometry/x2_width	F	0	m			
+channel/optical_element/geometry/outline	S	0				
+channel/optical_element/geometry/outline/x1	F	1	m	1...N		
+channel/optical_element/geometry/outline/x2	F	1	m	channel(i1)/optical_element(i2)/geometry/outline/x1		
+channel/optical_element/geometry/surface	F	0	m^2			
+channel/fibre_bundle	S	0				
+channel/fibre_bundle/geometry	S	0				
+channel/fibre_bundle/geometry/geometry_type	I	0				
+channel/fibre_bundle/geometry/centre	S	0				
+channel/fibre_bundle/geometry/centre/r	F	0	m			
+channel/fibre_bundle/geometry/centre/phi	F	0	rad			
+channel/fibre_bundle/geometry/centre/z	F	0	m			
+channel/fibre_bundle/geometry/radius	F	0	m			
+channel/fibre_bundle/geometry/x1_unit_vector	S	0				
+channel/fibre_bundle/geometry/x1_unit_vector/x	F	0	m			
+channel/fibre_bundle/geometry/x1_unit_vector/y	F	0	m			
+channel/fibre_bundle/geometry/x1_unit_vector/z	F	0	m			
+channel/fibre_bundle/geometry/x2_unit_vector	S	0				
+channel/fibre_bundle/geometry/x2_unit_vector/x	F	0	m			
+channel/fibre_bundle/geometry/x2_unit_vector/y	F	0	m			
+channel/fibre_bundle/geometry/x2_unit_vector/z	F	0	m			
+channel/fibre_bundle/geometry/x3_unit_vector	S	0				
+channel/fibre_bundle/geometry/x3_unit_vector/x	F	0	m			
+channel/fibre_bundle/geometry/x3_unit_vector/y	F	0	m			
+channel/fibre_bundle/geometry/x3_unit_vector/z	F	0	m			
+channel/fibre_bundle/geometry/x1_width	F	0	m			
+channel/fibre_bundle/geometry/x2_width	F	0	m			
+channel/fibre_bundle/geometry/outline	S	0				
+channel/fibre_bundle/geometry/outline/x1	F	1	m	1...N		
+channel/fibre_bundle/geometry/outline/x2	F	1	m	channel(i1)/fibre_bundle/geometry/outline/x1		
+channel/fibre_bundle/geometry/surface	F	0	m^2			
+channel/fibre_bundle/fibre_radius	F	0	m			
+channel/fibre_bundle/fibre_positions	S	0				
+channel/fibre_bundle/fibre_positions/x1	F	1	m	1...N		
+channel/fibre_bundle/fibre_positions/x2	F	1	m	channel(i1)/fibre_bundle/fibre_positions/x1		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

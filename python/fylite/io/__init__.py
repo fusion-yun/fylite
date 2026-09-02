@@ -15,6 +15,10 @@ and these are its feeders:
   Thomson / diamagnetic fetches;
 * :mod:`.est2` — the est2-basis reduction (windowed means, drift, POINT)
   shared by the live MDSplus path and the offline fyo/HDF5 dump reader;
+* :mod:`.fydoc` — the data layer's document face (``libfylite_data.so``):
+  any file → a bundle of fyo documents by CONTENT sniffing, and back out as
+  fyo or IMAS DD layout (JSON / HDF5 / netCDF / g-file), plus merge and
+  JSON-LD assembly of several sources;
 * :mod:`.efund` — the EFIT/efund deck formats an EAST deck directory carries
   (``east_geom.txt``).  ★Not a data source: the box and the coil turns are in
   the device document, and this reads the deck only so the document can be
@@ -27,6 +31,6 @@ browser session reader (:mod:`fylite.appsession`).
 """
 from __future__ import annotations
 
-from . import efund, est2, gacode, geqdsk, mds  # noqa: F401
+from . import efund, est2, fydoc, gacode, geqdsk, mds  # noqa: F401
 
-__all__ = ["efund", "est2", "gacode", "geqdsk", "mds"]
+__all__ = ["efund", "est2", "fydoc", "gacode", "geqdsk", "mds"]

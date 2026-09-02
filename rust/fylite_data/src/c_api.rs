@@ -434,3 +434,384 @@ pub unsafe extern "C" fn fylite_data_gfile_free(handle: *mut std::ffi::c_void) {
         drop(Box::from_raw(handle as *mut gfile_abi::GFile));
     }
 }
+
+
+// =========================================================================== //
+// DOCUMENTS —— 数据源 ↔ fyo 的那一面
+//
+// ★句柄是一束文档（`fyodoc::Bundle`）：一个文件、一炮通常不止一个 IDS。取值走
+// **路径**：`"<ids>[_<occ>]/a/b/c"`——头一段是 IDS，其余是文档路径（整数段索引
+// 结构数组；不带索引的名字段落到第 0 个，与内核 `fyo.rs` 那张表同一条规则）。
+// 子树以 JSON 文本进出（宿主两侧都本来就会读 JSON），数值叶子另有一条 f64 快道
+// （`_doc_array`）给 numpy。
+//
+// ★两步取法与上面的 mdsip / g-file 同一形状：先问长度，再给缓冲区。
+// =========================================================================== //
+
+#[cfg(not(target_arch = "wasm32"))]
+mod doc_abi {
+    use crate::document::{Array, ArrayData, MergePolicy, Node};
+    use crate::fyodoc::{self, Bundle};
+
+    pub struct Handle {
+        pub bundle: Bundle,
+    }
+
+    /// `"equilibrium/time_slice/0/x"` → (文档, 余下路径)。
+    pub fn locate<'a>(b: &'a Bundle, path: &str) -> Option<(&'a Node, String)> {
+        let (head, rest) = path.split_once('/').unwrap_or((path, ""));
+        let (ids, occ) = fyodoc::split_ids_key(head);
+        let doc = b.get_occ(&ids, occ)?;
+        Some((doc, rest.to_string()))
+    }
+
+    pub fn locate_mut<'a>(b: &'a mut Bundle, path: &str) -> Option<(&'a mut Node, String)> {
+        let (head, rest) = path.split_once('/').unwrap_or((path, ""));
+        let (ids, occ) = fyodoc::split_ids_key(head);
+        if b.get_occ(&ids, occ).is_none() {
+            b.push(fyodoc::new_document(&ids, &format!("fylite:{ids}/host")));
+            if occ != 0 {
+                b.docs.last_mut().unwrap().set(fyodoc::OCCURRENCE_KEY, Node::Int(occ)).ok();
+            }
+        }
+        let doc = b.get_mut(&ids, occ)?;
+        Some((doc, rest.to_string()))
+    }
+
+    pub fn policy_of(code: i32) -> MergePolicy {
+        if code == 1 { MergePolicy::KeepExisting } else { MergePolicy::Overwrite }
+    }
+
+    pub fn array_from(data: &[f64], dims: &[u64]) -> Node {
+        if dims.is_empty() {
+            return Node::Float(data.first().copied().unwrap_or(f64::NAN));
+        }
+        let shape: Vec<usize> = dims.iter().map(|&d| d as usize).collect();
+        Node::Array(Array { shape, data: ArrayData::F64(data.to_vec()) })
+    }
+}
+
+/// 读一个路径（自动识别格式与布局）成一束文档。0 = ok，`-1` 参数不合法，`-2` 读失败
+/// （原因写进 `(err, err_cap)`）。
+///
+/// # Safety
+/// `path`: `path_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_read(
+    path: *const u8, path_n: u64, out_handle: *mut *mut std::ffi::c_void,
+    err: *mut u8, err_cap: u64) -> i32 {
+    if out_handle.is_null() {
+        return -1;
+    }
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    match crate::io::read(std::path::Path::new(p)) {
+        Ok(bundle) => {
+            *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle })) as *mut std::ffi::c_void;
+            0
+        }
+        Err(e) => {
+            mds_abi::put(&e.to_string(), err, err_cap);
+            *out_handle = std::ptr::null_mut();
+            -2
+        }
+    }
+}
+
+/// 从文本读：`format` 是 `json` / `geqdsk` / `afile`（空 = JSON）。状态码同 `_read`。
+///
+/// # Safety
+/// `text`: `text_n` 字节；`format`: `format_n` 字节；其余同 `_read`。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_read_text(
+    text: *const u8, text_n: u64, format: *const u8, format_n: u64,
+    out_handle: *mut *mut std::ffi::c_void, err: *mut u8, err_cap: u64) -> i32 {
+    if out_handle.is_null() {
+        return -1;
+    }
+    let Some(t) = mds_abi::s(text, text_n) else { return -1 };
+    let f = if format_n == 0 { "json" } else { match mds_abi::s(format, format_n) { Some(f) => f, None => return -1 } };
+    let result: Result<crate::fyodoc::Bundle, String> = match f {
+        "json" | "jsonld" => crate::json::parse(t).map(crate::fyodoc::Bundle::from_node).map_err(|e| e.to_string()),
+        "geqdsk" | "gfile" => crate::geqdsk::parse(t)
+            .map(|g| crate::fyodoc::Bundle::one(crate::eqdsk_fyo::gfile_to_document(&g, "text"))).map_err(|e| e.to_string()),
+        "afile" => crate::afile::parse(t)
+            .map(|a| crate::fyodoc::Bundle::one(crate::afile::afile_to_document(&a, "text"))).map_err(|e| e.to_string()),
+        other => Err(format!("unknown text format {other:?}")),
+    };
+    match result {
+        Ok(bundle) => {
+            *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle })) as *mut std::ffi::c_void;
+            0
+        }
+        Err(e) => {
+            mds_abi::put(&e, err, err_cap);
+            *out_handle = std::ptr::null_mut();
+            -2
+        }
+    }
+}
+
+/// 一个空束。
+///
+/// # Safety
+/// `out_handle` 一个指针。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_bundle_new(out_handle: *mut *mut std::ffi::c_void) -> i32 {
+    if out_handle.is_null() {
+        return -1;
+    }
+    *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle: crate::fyodoc::Bundle::new() })) as *mut std::ffi::c_void;
+    0
+}
+
+/// 写一束文档。`format` 空 = 按扩展名；`layout` 是 `fyo` / `imas`（空 = fyo）。
+/// 0 = ok，`-1` 参数不合法，`-2` 写失败（原因在 `err`）。写成功时 `err` 里放报告
+/// （合成的文档、丢掉的非 DD 路径），供宿主转述。
+///
+/// # Safety
+/// `handle` 来自 `_read`/`_bundle_new`；字符串按 `(ptr, len)`；`err`: `err_cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn fylite_data_write(
+    handle: *mut std::ffi::c_void, path: *const u8, path_n: u64,
+    format: *const u8, format_n: u64, layout: *const u8, layout_n: u64,
+    err: *mut u8, err_cap: u64) -> i32 {
+    if handle.is_null() {
+        return -1;
+    }
+    let h = &*(handle as *mut doc_abi::Handle);
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let fmt = if format_n == 0 { None } else {
+        match mds_abi::s(format, format_n).and_then(crate::detect::Format::parse) { Some(f) => Some(f), None => return -1 }
+    };
+    let lay = if layout_n == 0 { crate::io::Layout::Fyo } else {
+        match mds_abi::s(layout, layout_n).and_then(crate::io::Layout::parse) { Some(l) => l, None => return -1 }
+    };
+    match crate::io::write(std::path::Path::new(p), &h.bundle, fmt, lay) {
+        Ok(rep) => {
+            let mut note = String::new();
+            for d in &rep.synthesized_docs {
+                note.push_str(&format!("synthesized {d}; "));
+            }
+            for (k, r) in &rep.dd {
+                let dropped: Vec<&String> = r.dropped.iter().filter(|x| !x.starts_with('@')).collect();
+                if !dropped.is_empty() {
+                    note.push_str(&format!("{k}: dropped {:?}; ", dropped));
+                }
+            }
+            mds_abi::put(&note, err, err_cap);
+            0
+        }
+        Err(e) => {
+            mds_abi::put(&e.to_string(), err, err_cap);
+            -2
+        }
+    }
+}
+
+/// 识别一个路径：写出 `"<format> <layout>"`。返回长度；`-1` 参数不合法；`-2` 认不出
+/// （原因写进 `out`）。
+///
+/// # Safety
+/// `path`: `path_n` 字节；`out`: `cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_detect(path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    match crate::io::detect(std::path::Path::new(p)) {
+        Ok(d) => mds_abi::put(&format!("{} {}", d.format.name(), d.layout.name()), out, cap),
+        Err(e) => { mds_abi::put(&e.to_string(), out, cap); -2 }
+    }
+}
+
+/// 整束的 JSON（fyo 布局的容器形：单份文档本身，多份为 `{ "<ids>": … }`）。
+/// 返回字节数（`cap` 不够也返回，供再来一次）。
+///
+/// # Safety
+/// `handle` 来自 `_read`；`out`: `cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_bundle_json(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
+    if handle.is_null() {
+        return -1;
+    }
+    let h = &*(handle as *mut doc_abi::Handle);
+    mds_abi::put(&crate::json::to_string(&h.bundle.to_node(), false), out, cap)
+}
+
+/// 束里有哪些文档：`"<ids>[_<occ>]"` 一行一个。返回字节数。
+///
+/// # Safety
+/// 同 `_bundle_json`。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_bundle_keys(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
+    if handle.is_null() {
+        return -1;
+    }
+    let h = &*(handle as *mut doc_abi::Handle);
+    let keys: Vec<String> = h.bundle.keys().iter().map(|(i, o)| crate::fyodoc::ids_key(i, *o)).collect();
+    mds_abi::put(&keys.join("\n"), out, cap)
+}
+
+/// 一条路径下的子树，JSON 文本。返回字节数；`-1` 参数不合法；`-2` 没有这条路径。
+///
+/// # Safety
+/// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_doc_json(
+    handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
+    if handle.is_null() {
+        return -1;
+    }
+    let h = &*(handle as *mut doc_abi::Handle);
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some((doc, rest)) = doc_abi::locate(&h.bundle, p) else { return -2 };
+    let Some(node) = doc.walk(&rest, true) else { return -2 };
+    mds_abi::put(&crate::json::to_string(node, false), out, cap)
+}
+
+/// 一个数值叶子按 f64 取，连同形状（行主序）。返回元素数（`cap` 不够也返回）；
+/// `-1` 参数不合法；`-2` 没有这条路径；`-3` 不是数值。
+///
+/// # Safety
+/// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 个 f64；`dims`: `dims_cap`
+/// 个 u64；`ndim_out` 一个 u64。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn fylite_data_doc_array(
+    handle: *mut std::ffi::c_void, path: *const u8, path_n: u64,
+    out: *mut f64, cap: u64, dims: *mut u64, dims_cap: u64, ndim_out: *mut u64) -> i64 {
+    if handle.is_null() || ndim_out.is_null() {
+        return -1;
+    }
+    let h = &*(handle as *mut doc_abi::Handle);
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some((doc, rest)) = doc_abi::locate(&h.bundle, p) else { return -2 };
+    let Some(node) = doc.walk(&rest, true) else { return -2 };
+    let Some(vals) = node.to_f64_vec() else { return -3 };
+    let shape = node.shape();
+    *ndim_out = shape.len() as u64;
+    if !dims.is_null() && (shape.len() as u64) <= dims_cap {
+        for (i, d) in shape.iter().enumerate() {
+            *dims.add(i) = *d as u64;
+        }
+    }
+    if !out.is_null() && (vals.len() as u64) <= cap {
+        std::ptr::copy_nonoverlapping(vals.as_ptr(), out, vals.len());
+    }
+    vals.len() as i64
+}
+
+/// 把一段 JSON 放到路径上（缺的文档与中间层造出来）。0 = ok，`-1` 参数不合法，
+/// `-2` JSON 不合法，`-3` 路径放不进去。
+///
+/// # Safety
+/// `handle` 来自 `_read`；`path`: `path_n` 字节；`json`: `json_n` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_doc_set_json(
+    handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, json: *const u8, json_n: u64) -> i32 {
+    if handle.is_null() {
+        return -1;
+    }
+    let h = &mut *(handle as *mut doc_abi::Handle);
+    let (Some(p), Some(j)) = (mds_abi::s(path, path_n), mds_abi::s(json, json_n)) else { return -1 };
+    let Ok(value) = crate::json::parse(j) else { return -2 };
+    let Some((doc, rest)) = doc_abi::locate_mut(&mut h.bundle, p) else { return -3 };
+    if rest.is_empty() {
+        //: the whole document: merge keeps the semantic keys
+        doc.merge(value, crate::document::MergePolicy::Overwrite);
+        return 0;
+    }
+    if doc.set(&rest, value).is_err() { -3 } else { 0 }
+}
+
+/// 把一个 f64 数组放到路径上（`ndim = 0` 是标量）。状态码同 `_doc_set_json`。
+///
+/// # Safety
+/// `data`: `dims` 各维之积个 f64；`dims`: `ndim` 个 u64。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn fylite_data_doc_set_array(
+    handle: *mut std::ffi::c_void, path: *const u8, path_n: u64,
+    data: *const f64, dims: *const u64, ndim: u64) -> i32 {
+    if handle.is_null() || data.is_null() {
+        return -1;
+    }
+    let h = &mut *(handle as *mut doc_abi::Handle);
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let dims: Vec<u64> = if ndim == 0 || dims.is_null() { Vec::new() } else { std::slice::from_raw_parts(dims, ndim as usize).to_vec() };
+    let n: usize = dims.iter().product::<u64>().max(1) as usize;
+    let vals = std::slice::from_raw_parts(data, n);
+    let Some((doc, rest)) = doc_abi::locate_mut(&mut h.bundle, p) else { return -3 };
+    if doc.set(&rest, doc_abi::array_from(vals, &dims)).is_err() { -3 } else { 0 }
+}
+
+/// 把 `src` 合进 `dst`（`policy` 0 = 后者覆盖，1 = 只补缺）。`src` 不动。
+///
+/// # Safety
+/// 两个句柄都来自 `_read`/`_bundle_new`。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_bundle_merge(
+    dst: *mut std::ffi::c_void, src: *mut std::ffi::c_void, policy: i32) -> i32 {
+    if dst.is_null() || src.is_null() {
+        return -1;
+    }
+    let d = &mut *(dst as *mut doc_abi::Handle);
+    let s = &*(src as *mut doc_abi::Handle);
+    d.bundle.merge(s.bundle.clone(), doc_abi::policy_of(policy));
+    0
+}
+
+/// 执行一份装配文档（`fylite:Assembly/1`）。`shot < 0` 用文档里的；`user` 是 mdsip
+/// 登录名。0 = ok（`err` 里放失败清单，可能为空），`-1` 参数不合法，`-2` 读不到装配
+/// 文档。
+///
+/// # Safety
+/// `path`: `path_n` 字节；`user`: `user_n`；`out_handle` 一个指针；`err`: `err_cap`。
+#[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn fylite_data_assemble(
+    path: *const u8, path_n: u64, shot: i64, user: *const u8, user_n: u64, timeout_ms: i32,
+    out_handle: *mut *mut std::ffi::c_void, err: *mut u8, err_cap: u64) -> i32 {
+    if out_handle.is_null() {
+        return -1;
+    }
+    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let user = if user_n == 0 { "nobody".to_string() } else { match mds_abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
+    let connector = crate::assembly::tcp_connector(user, timeout_ms.max(1) as u64);
+    match crate::assembly::assemble_file(std::path::Path::new(p), Some(&connector), if shot < 0 { None } else { Some(shot) }, &[]) {
+        Ok(r) => {
+            mds_abi::put(&r.failures.join("\n"), err, err_cap);
+            *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle: r.bundle })) as *mut std::ffi::c_void;
+            0
+        }
+        Err(e) => {
+            mds_abi::put(&e.to_string(), err, err_cap);
+            *out_handle = std::ptr::null_mut();
+            -2
+        }
+    }
+}
+
+/// 释放一束。
+///
+/// # Safety
+/// `handle` 来自 `_read`/`_bundle_new`/`_assemble`，且未被释放过。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_bundle_free(handle: *mut std::ffi::c_void) {
+    if !handle.is_null() {
+        drop(Box::from_raw(handle as *mut doc_abi::Handle));
+    }
+}

@@ -774,7 +774,7 @@ fn check_slice(start: i64, stop: i64, step: i64) -> Result<(), MdsipError> {
 }
 
 /// The text of an answer, trimmed of the padding a fixed-width record carries.
-fn text_of(ans: &Answer) -> String {
+pub fn text_of(ans: &Answer) -> String {
     match &ans.data {
         Data::Text(t) => t.trim_end_matches(|c: char| c == '\0' || c.is_whitespace()).to_string(),
         _ => String::new(),

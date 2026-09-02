@@ -83,6 +83,10 @@ impl fmt::Display for Error {
 /// ★**模式扫描，不是固定列。** 见模块抬头：两种切法只在不规范的文件上分道扬镳，
 /// 而分道的那一侧不报错。这里认的是「一个 Fortran 风格的实数」，所以
 /// `-1.234E+01-5.678E+00`（负号吃掉了分隔空格的那种老写法）也切得开。
+pub fn scan_numbers(body: &str) -> Vec<f64> {
+    scan(body)
+}
+
 fn scan(body: &str) -> Vec<f64> {
     let b = body.as_bytes();
     let mut out = Vec::new();

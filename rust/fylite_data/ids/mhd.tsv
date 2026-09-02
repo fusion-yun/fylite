@@ -1,0 +1,272 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids mhd
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+grid_ggd	A	1		grid_ggd(itime)/time		
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant	
+grid_ggd/time	F	0	s			
+ggd	A	1		ggd(itime)/time		
+ggd/electrons	S	0				
+ggd/electrons/temperature	A	1	eV	1...N		
+ggd/electrons/temperature/grid_index	I	0				
+ggd/electrons/temperature/grid_subset_index	I	0				
+ggd/electrons/temperature/values	F	1	eV	1...N		
+ggd/electrons/temperature/coefficients	F	2	eV	ggd(itime)/electrons/temperature(i1)/values|1...N		
+ggd/t_i_average	A	1	eV	1...N		
+ggd/t_i_average/grid_index	I	0				
+ggd/t_i_average/grid_subset_index	I	0				
+ggd/t_i_average/values	F	1	eV	1...N		
+ggd/t_i_average/coefficients	F	2	eV	ggd(itime)/t_i_average(i1)/values|1...N		
+ggd/n_i_total	A	1	m^-3	1...N		
+ggd/n_i_total/grid_index	I	0				
+ggd/n_i_total/grid_subset_index	I	0				
+ggd/n_i_total/values	F	1	m^-3	1...N		
+ggd/n_i_total/coefficients	F	2	m^-3	ggd(itime)/n_i_total(i1)/values|1...N		
+ggd/zeff	A	1	1	1...N		
+ggd/zeff/grid_index	I	0				
+ggd/zeff/grid_subset_index	I	0				
+ggd/zeff/values	F	1	1	1...N		
+ggd/zeff/coefficients	F	2	1	ggd(itime)/zeff(i1)/values|1...N		
+ggd/b_field_r	A	1	T	1...N		
+ggd/b_field_r/grid_index	I	0				
+ggd/b_field_r/grid_subset_index	I	0				
+ggd/b_field_r/values	F	1	T	1...N		
+ggd/b_field_r/coefficients	F	2	T	ggd(itime)/b_field_r(i1)/values|1...N		
+ggd/b_field_phi	A	1	T	1...N		
+ggd/b_field_phi/grid_index	I	0				
+ggd/b_field_phi/grid_subset_index	I	0				
+ggd/b_field_phi/values	F	1	T	1...N		
+ggd/b_field_phi/coefficients	F	2	T	ggd(itime)/b_field_phi(i1)/values|1...N		
+ggd/b_field_z	A	1	T	1...N		
+ggd/b_field_z/grid_index	I	0				
+ggd/b_field_z/grid_subset_index	I	0				
+ggd/b_field_z/values	F	1	T	1...N		
+ggd/b_field_z/coefficients	F	2	T	ggd(itime)/b_field_z(i1)/values|1...N		
+ggd/a_field_r	A	1	T.m	1...N		
+ggd/a_field_r/grid_index	I	0				
+ggd/a_field_r/grid_subset_index	I	0				
+ggd/a_field_r/values	F	1	T.m	1...N		
+ggd/a_field_r/coefficients	F	2	T.m	ggd(itime)/a_field_r(i1)/values|1...N		
+ggd/a_field_phi	A	1	T.m	1...N		
+ggd/a_field_phi/grid_index	I	0				
+ggd/a_field_phi/grid_subset_index	I	0				
+ggd/a_field_phi/values	F	1	T.m	1...N		
+ggd/a_field_phi/coefficients	F	2	T.m	ggd(itime)/a_field_phi(i1)/values|1...N		
+ggd/a_field_z	A	1	T.m	1...N		
+ggd/a_field_z/grid_index	I	0				
+ggd/a_field_z/grid_subset_index	I	0				
+ggd/a_field_z/values	F	1	T.m	1...N		
+ggd/a_field_z/coefficients	F	2	T.m	ggd(itime)/a_field_z(i1)/values|1...N		
+ggd/psi	A	1	Wb	1...N		
+ggd/psi/grid_index	I	0				
+ggd/psi/grid_subset_index	I	0				
+ggd/psi/values	F	1	Wb	1...N		
+ggd/psi/coefficients	F	2	Wb	ggd(itime)/psi(i1)/values|1...N		
+ggd/velocity_r	A	1	m.s^-1	1...N		
+ggd/velocity_r/grid_index	I	0				
+ggd/velocity_r/grid_subset_index	I	0				
+ggd/velocity_r/values	F	1	m.s^-1	1...N		
+ggd/velocity_r/coefficients	F	2	m.s^-1	ggd(itime)/velocity_r(i1)/values|1...N		
+ggd/velocity_phi	A	1	m.s^-1	1...N		
+ggd/velocity_phi/grid_index	I	0				
+ggd/velocity_phi/grid_subset_index	I	0				
+ggd/velocity_phi/values	F	1	m.s^-1	1...N		
+ggd/velocity_phi/coefficients	F	2	m.s^-1	ggd(itime)/velocity_phi(i1)/values|1...N		
+ggd/velocity_z	A	1	m.s^-1	1...N		
+ggd/velocity_z/grid_index	I	0				
+ggd/velocity_z/grid_subset_index	I	0				
+ggd/velocity_z/values	F	1	m.s^-1	1...N		
+ggd/velocity_z/coefficients	F	2	m.s^-1	ggd(itime)/velocity_z(i1)/values|1...N		
+ggd/velocity_parallel	A	1	m.s^-1	1...N		
+ggd/velocity_parallel/grid_index	I	0				
+ggd/velocity_parallel/grid_subset_index	I	0				
+ggd/velocity_parallel/values	F	1	m.s^-1	1...N		
+ggd/velocity_parallel/coefficients	F	2	m.s^-1	ggd(itime)/velocity_parallel(i1)/values|1...N		
+ggd/velocity_parallel_over_b_field	A	1	m.s^-1.T^-1	1...N		
+ggd/velocity_parallel_over_b_field/grid_index	I	0				
+ggd/velocity_parallel_over_b_field/grid_subset_index	I	0				
+ggd/velocity_parallel_over_b_field/values	F	1	m.s^-1.T^-1	1...N		
+ggd/velocity_parallel_over_b_field/coefficients	F	2	m.s^-1.T^-1	ggd(itime)/velocity_parallel_over_b_field(i1)/values|1...N		
+ggd/phi_potential	A	1	V	1...N		
+ggd/phi_potential/grid_index	I	0				
+ggd/phi_potential/grid_subset_index	I	0				
+ggd/phi_potential/values	F	1	V	1...N		
+ggd/phi_potential/coefficients	F	2	V	ggd(itime)/phi_potential(i1)/values|1...N		
+ggd/vorticity	A	1	s^-1	1...N		
+ggd/vorticity/grid_index	I	0				
+ggd/vorticity/grid_subset_index	I	0				
+ggd/vorticity/values	F	1	s^-1	1...N		
+ggd/vorticity/coefficients	F	2	s^-1	ggd(itime)/vorticity(i1)/values|1...N		
+ggd/vorticity_over_r	A	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/grid_index	I	0				
+ggd/vorticity_over_r/grid_subset_index	I	0				
+ggd/vorticity_over_r/values	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/coefficients	F	2	m^-1.s^-1	ggd(itime)/vorticity_over_r(i1)/values|1...N		
+ggd/j_r	A	1	A.m^-2	1...N		
+ggd/j_r/grid_index	I	0				
+ggd/j_r/grid_subset_index	I	0				
+ggd/j_r/values	F	1	A.m^-2	1...N		
+ggd/j_r/coefficients	F	2	A.m^-2	ggd(itime)/j_r(i1)/values|1...N		
+ggd/j_phi	A	1	A.m^-2	1...N		
+ggd/j_phi/grid_index	I	0				
+ggd/j_phi/grid_subset_index	I	0				
+ggd/j_phi/values	F	1	A.m^-2	1...N		
+ggd/j_phi/coefficients	F	2	A.m^-2	ggd(itime)/j_phi(i1)/values|1...N		
+ggd/r_j_phi	A	1	A.m^-1	1...N		
+ggd/r_j_phi/grid_index	I	0				
+ggd/r_j_phi/grid_subset_index	I	0				
+ggd/r_j_phi/values	F	1	A.m^-1	1...N		
+ggd/r_j_phi/coefficients	F	2	A.m^-1	ggd(itime)/r_j_phi(i1)/values|1...N		
+ggd/j_z	A	1	A.m^-2	1...N		
+ggd/j_z/grid_index	I	0				
+ggd/j_z/grid_subset_index	I	0				
+ggd/j_z/values	F	1	A.m^-2	1...N		
+ggd/j_z/coefficients	F	2	A.m^-2	ggd(itime)/j_z(i1)/values|1...N		
+ggd/mass_density	A	1	kg.m^-3	1...N		
+ggd/mass_density/grid_index	I	0				
+ggd/mass_density/grid_subset_index	I	0				
+ggd/mass_density/values	F	1	kg.m^-3	1...N		
+ggd/mass_density/coefficients	F	2	kg.m^-3	ggd(itime)/mass_density(i1)/values|1...N		
+ggd/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

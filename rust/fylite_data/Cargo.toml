@@ -26,8 +26,19 @@ crate-type = ["cdylib", "rlib"]
 [features]
 # `mdsip` 是**原生专用**：wasm 没有 socket，浏览器也不该有这条路。
 # 默认开（`.so` 与可执行文件要它）；wasm 构建用 --no-default-features 去掉。
-default = ["mdsip"]
+#
+# ★★`hdf5` 与 `netcdf` 同样是原生专用，理由不同：它们是**两个 C 库**（libhdf5、
+# libnetcdf）——本 crate 至今的依赖表是空的，而 HDF5 的文件格式（B 树、分块、过滤器、
+# 外部链接）与 netCDF-4 的方言（维度标尺、`_NCProperties`）自己写一份能读 imas-python
+# 写的文件、也能被它读回的实现，是一个季度的活，而且是一份第三实现。与 IMAS 那两种
+# 布局逐字兼容才是目标，所以链真的库。`static` 把它们一起从源码编进 `.so`
+# （发行给没装库的机器）；缺省动态链接系统库（`apt install libhdf5-dev libnetcdf-dev`）。
+# wasm 构建 `--no-default-features`：那边只有 g-file 与 JSON 两种格式。
+default = ["mdsip", "hdf5", "netcdf"]
 mdsip = []
+hdf5 = ["dep:hdf5"]
+netcdf = ["dep:netcdf", "hdf5"]
+static = ["hdf5/static", "netcdf/static"]
 #: 桌面查看器。`required-features` 让它不进默认构建——`cargo build` 与
 #: `cargo test` 的产物因此不受它影响。
 desktop = ["mdsip"]
@@ -36,6 +47,19 @@ desktop = ["mdsip"]
 name = "fylite-app"
 path = "src/bin/app/main.rs"
 required-features = ["desktop"]
+
+#: 数据层的命令行：看一眼文件是什么、格式互转、合并、按 JSON-LD 装配多个数据源。
+#: 原生专用（要读盘）；wasm 构建里没有它。
+[[bin]]
+name = "fylite-data"
+path = "src/bin/data/main.rs"
+required-features = ["mdsip"]
+
+[dependencies]
+#: ★两个都是可选的、都只在原生目标上有意义（见 `[features]`）。版本钉到次版本：
+#: 它们的 API 在 0.x 之间会动，而这里对它们的调用面很窄。
+hdf5 = { package = "hdf5-metno", version = "0.14", optional = true }
+netcdf = { version = "0.12", optional = true }
 
 [profile.release]
 opt-level = 3

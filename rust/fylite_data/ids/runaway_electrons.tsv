@@ -1,0 +1,313 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids runaway_electrons
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+e_field_critical_definition	S	0				
+e_field_critical_definition/name	T	0				
+e_field_critical_definition/index	I	0				
+e_field_critical_definition/description	T	0				
+momentum_critical_avalanche_definition	S	0				
+momentum_critical_avalanche_definition/name	T	0				
+momentum_critical_avalanche_definition/index	I	0				
+momentum_critical_avalanche_definition/description	T	0				
+momentum_critical_hot_tail_definition	S	0				
+momentum_critical_hot_tail_definition/name	T	0				
+momentum_critical_hot_tail_definition/index	I	0				
+momentum_critical_hot_tail_definition/description	T	0				
+global_quantities	S	0				
+global_quantities/current_phi	F	1	A	time		
+global_quantities/energy_kinetic	F	1	J	time		
+global_quantities/volume_average	S	0				
+global_quantities/volume_average/density	F	1	m^-3	time		
+global_quantities/volume_average/current_density	F	1	A.m^-2	time		
+global_quantities/volume_average/e_field_dreicer	F	1	V.m^-1	time		
+global_quantities/volume_average/e_field_critical	F	1	V.m^-1	time		
+global_quantities/volume_average/energy_density_kinetic	F	1	J.m^-3	time		
+global_quantities/volume_average/pitch_angle	F	1	1	time		
+global_quantities/volume_average/momentum_critical_avalanche	F	1	kg.m^-1.s^-1	time		
+global_quantities/volume_average/momentum_critical_hot_tail	F	1	kg.m^-1.s^-1	time		
+global_quantities/volume_average/ddensity_dt_total	F	1	m^-3.s^-1	time		
+global_quantities/volume_average/ddensity_dt_compton	F	1	m^-3.s^-1	time		
+global_quantities/volume_average/ddensity_dt_tritium	F	1	m^-3.s^-1	time		
+global_quantities/volume_average/ddensity_dt_hot_tail	F	1	m^-3.s^-1	time		
+global_quantities/volume_average/ddensity_dt_dreicer	F	1	m^-3.s^-1	time		
+profiles_1d	A	1		profiles_1d(itime)/time		
+profiles_1d/grid	S	0				
+profiles_1d/grid/rho_tor_norm	F	1	1	1...N		profiles_1d(itime)/grid/rho_tor;profiles_1d(itime)/grid/psi;profiles_1d(itime)/grid/volume;profiles_1d(itime)/grid/area;profiles_1d(itime)/grid/surface;profiles_1d(itime)/grid/rho_pol_norm
+profiles_1d/grid/rho_tor	F	1	m	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/rho_pol_norm	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/psi	F	1	Wb	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/volume	F	1	m^3	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/area	F	1	m^2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/surface	F	1	m^2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/psi_magnetic_axis	F	0	Wb			
+profiles_1d/grid/psi_boundary	F	0	Wb			
+profiles_1d/density	F	1	m^-3	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/current_density	F	1	A.m^-2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/e_field_dreicer	F	1	V.m^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/e_field_critical	F	1	V.m^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/energy_density_kinetic	F	1	J.m^-3	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/pitch_angle	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/momentum_critical_avalanche	F	1	kg.m^-1.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/momentum_critical_hot_tail	F	1	kg.m^-1.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/ddensity_dt_total	F	1	m^-3.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/ddensity_dt_compton	F	1	m^-3.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/ddensity_dt_tritium	F	1	m^-3.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/ddensity_dt_hot_tail	F	1	m^-3.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/ddensity_dt_dreicer	F	1	m^-3.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/transport_perpendicular	S	0				
+profiles_1d/transport_perpendicular/d	F	1	m^2.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/transport_perpendicular/v	F	1	m.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/transport_perpendicular/flux	F	1	m^-2.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/time	F	0	s			
+grid_ggd	A	1		grid_ggd(itime)/time		
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant	
+grid_ggd/time	F	0	s			
+ggd_fluid	A	1		ggd_fluid(itime)/time		
+ggd_fluid/density	A	1	m^-3	1...N		
+ggd_fluid/density/grid_index	I	0				
+ggd_fluid/density/grid_subset_index	I	0				
+ggd_fluid/density/values	F	1	m^-3	1...N		
+ggd_fluid/density/coefficients	F	2	m^-3	ggd_fluid(itime)/density(i1)/values|1...N		
+ggd_fluid/current_density	A	1	A.m^-2	1...N		
+ggd_fluid/current_density/grid_index	I	0				
+ggd_fluid/current_density/grid_subset_index	I	0				
+ggd_fluid/current_density/values	F	1	A.m^-2	1...N		
+ggd_fluid/current_density/coefficients	F	2	A.m^-2	ggd_fluid(itime)/current_density(i1)/values|1...N		
+ggd_fluid/e_field_dreicer	A	1	V.m^-1	1...N		
+ggd_fluid/e_field_dreicer/grid_index	I	0				
+ggd_fluid/e_field_dreicer/grid_subset_index	I	0				
+ggd_fluid/e_field_dreicer/values	F	1	V.m^-1	1...N		
+ggd_fluid/e_field_dreicer/coefficients	F	2	V.m^-1	ggd_fluid(itime)/e_field_dreicer(i1)/values|1...N		
+ggd_fluid/e_field_critical	A	1	V.m^-1	1...N		
+ggd_fluid/e_field_critical/grid_index	I	0				
+ggd_fluid/e_field_critical/grid_subset_index	I	0				
+ggd_fluid/e_field_critical/values	F	1	V.m^-1	1...N		
+ggd_fluid/e_field_critical/coefficients	F	2	V.m^-1	ggd_fluid(itime)/e_field_critical(i1)/values|1...N		
+ggd_fluid/energy_density_kinetic	A	1	J.m^-3	1...N		
+ggd_fluid/energy_density_kinetic/grid_index	I	0				
+ggd_fluid/energy_density_kinetic/grid_subset_index	I	0				
+ggd_fluid/energy_density_kinetic/values	F	1	J.m^-3	1...N		
+ggd_fluid/energy_density_kinetic/coefficients	F	2	J.m^-3	ggd_fluid(itime)/energy_density_kinetic(i1)/values|1...N		
+ggd_fluid/pitch_angle	A	1	1	1...N		
+ggd_fluid/pitch_angle/grid_index	I	0				
+ggd_fluid/pitch_angle/grid_subset_index	I	0				
+ggd_fluid/pitch_angle/values	F	1	1	1...N		
+ggd_fluid/pitch_angle/coefficients	F	2	1	ggd_fluid(itime)/pitch_angle(i1)/values|1...N		
+ggd_fluid/momentum_critical_avalanche	A	1	kg.m^-1.s^-1	1...N		
+ggd_fluid/momentum_critical_avalanche/grid_index	I	0				
+ggd_fluid/momentum_critical_avalanche/grid_subset_index	I	0				
+ggd_fluid/momentum_critical_avalanche/values	F	1	kg.m^-1.s^-1	1...N		
+ggd_fluid/momentum_critical_avalanche/coefficients	F	2	kg.m^-1.s^-1	ggd_fluid(itime)/momentum_critical_avalanche(i1)/values|1...N		
+ggd_fluid/momentum_critical_hot_tail	A	1	kg.m^-1.s^-1	1...N		
+ggd_fluid/momentum_critical_hot_tail/grid_index	I	0				
+ggd_fluid/momentum_critical_hot_tail/grid_subset_index	I	0				
+ggd_fluid/momentum_critical_hot_tail/values	F	1	kg.m^-1.s^-1	1...N		
+ggd_fluid/momentum_critical_hot_tail/coefficients	F	2	kg.m^-1.s^-1	ggd_fluid(itime)/momentum_critical_hot_tail(i1)/values|1...N		
+ggd_fluid/ddensity_dt_total	A	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_total/grid_index	I	0				
+ggd_fluid/ddensity_dt_total/grid_subset_index	I	0				
+ggd_fluid/ddensity_dt_total/values	F	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_total/coefficients	F	2	m^-3.s^-1	ggd_fluid(itime)/ddensity_dt_total(i1)/values|1...N		
+ggd_fluid/ddensity_dt_compton	A	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_compton/grid_index	I	0				
+ggd_fluid/ddensity_dt_compton/grid_subset_index	I	0				
+ggd_fluid/ddensity_dt_compton/values	F	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_compton/coefficients	F	2	m^-3.s^-1	ggd_fluid(itime)/ddensity_dt_compton(i1)/values|1...N		
+ggd_fluid/ddensity_dt_tritium	A	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_tritium/grid_index	I	0				
+ggd_fluid/ddensity_dt_tritium/grid_subset_index	I	0				
+ggd_fluid/ddensity_dt_tritium/values	F	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_tritium/coefficients	F	2	m^-3.s^-1	ggd_fluid(itime)/ddensity_dt_tritium(i1)/values|1...N		
+ggd_fluid/ddensity_dt_hot_tail	A	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_hot_tail/grid_index	I	0				
+ggd_fluid/ddensity_dt_hot_tail/grid_subset_index	I	0				
+ggd_fluid/ddensity_dt_hot_tail/values	F	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_hot_tail/coefficients	F	2	m^-3.s^-1	ggd_fluid(itime)/ddensity_dt_hot_tail(i1)/values|1...N		
+ggd_fluid/ddensity_dt_dreicer	A	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_dreicer/grid_index	I	0				
+ggd_fluid/ddensity_dt_dreicer/grid_subset_index	I	0				
+ggd_fluid/ddensity_dt_dreicer/values	F	1	m^-3.s^-1	1...N		
+ggd_fluid/ddensity_dt_dreicer/coefficients	F	2	m^-3.s^-1	ggd_fluid(itime)/ddensity_dt_dreicer(i1)/values|1...N		
+ggd_fluid/time	F	0	s			
+distribution	S	0				
+distribution/gyro_type	I	0				
+distribution/ggd	A	1		distribution/ggd(itime)/time		
+distribution/ggd/temperature	F	1	eV	profiles_1d(itime)/grid/rho_tor_norm		
+distribution/ggd/expansion	A	1	(m.s^-1)^-3.m^-3	1...N		
+distribution/ggd/expansion/grid_subset	A	1	mixed	1...N		
+distribution/ggd/expansion/grid_subset/grid_index	I	0				
+distribution/ggd/expansion/grid_subset/grid_subset_index	I	0				
+distribution/ggd/expansion/grid_subset/values	F	1	mixed	1...N		
+distribution/ggd/expansion/grid_subset/coefficients	F	2	mixed	distribution/ggd(itime)/expansion(i1)/grid_subset(i2)/values|1...N		
+distribution/ggd/expansion_fd3v	A	1	m^-3	1...N		
+distribution/ggd/expansion_fd3v/grid_subset	A	1	mixed	1...N		
+distribution/ggd/expansion_fd3v/grid_subset/grid_index	I	0				
+distribution/ggd/expansion_fd3v/grid_subset/grid_subset_index	I	0				
+distribution/ggd/expansion_fd3v/grid_subset/values	F	1	mixed	1...N		
+distribution/ggd/expansion_fd3v/grid_subset/coefficients	F	2	mixed	distribution/ggd(itime)/expansion_fd3v(i1)/grid_subset(i2)/values|1...N		
+distribution/ggd/time	F	0	s			
+distribution/markers	A	1		distribution/markers(itime)/time		
+distribution/markers/coordinate_identifier	A	1	W.m^-3	1...N		
+distribution/markers/coordinate_identifier/name	T	0				
+distribution/markers/coordinate_identifier/index	I	0				
+distribution/markers/coordinate_identifier/description	T	0				
+distribution/markers/weights	F	1	1	1...N		
+distribution/markers/positions	F	2	mixed	distribution/markers(itime)/weights|distribution/markers(itime)/coordinate_identifier		
+distribution/markers/orbit_integrals	S	0				
+distribution/markers/orbit_integrals/expressions	T	1		1...N		
+distribution/markers/orbit_integrals/n_phi	I	1		1...N		
+distribution/markers/orbit_integrals/m_pol	I	1		1...N		
+distribution/markers/orbit_integrals/bounce_harmonics	I	1		1...N		
+distribution/markers/orbit_integrals/values	C	5	1	distribution/markers(itime)/orbit_integrals/expressions|distribution/markers(itime)/weights|distribution/markers(itime)/orbit_integrals/n_phi|distribution/markers(itime)/orbit_integrals/m_pol|distribution/markers(itime)/orbit_integrals/bounce_harmonics		
+distribution/markers/orbit_integrals_instant	S	0				
+distribution/markers/orbit_integrals_instant/expressions	T	1		1...N		
+distribution/markers/orbit_integrals_instant/time_orbit	F	1	s	1...N		
+distribution/markers/orbit_integrals_instant/values	C	3	1	distribution/markers(itime)/orbit_integrals_instant/expressions|distribution/markers(itime)/weights|distribution/markers(itime)/orbit_integrals_instant/time_orbit		
+distribution/markers/toroidal_mode	I	0				
+distribution/markers/time	F	0	s			
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

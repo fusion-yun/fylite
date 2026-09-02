@@ -1,0 +1,421 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids spectrometer_visible
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+detector_layout	T	0				
+channel	A	1		1...N		
+channel/name	T	0				
+channel/object_observed	T	0				
+channel/type	S	0				
+channel/type/name	T	0				
+channel/type/index	I	0				
+channel/type/description	T	0				
+channel/detector	S	0				
+channel/detector/geometry_type	I	0				
+channel/detector/centre	S	0				
+channel/detector/centre/r	F	0	m			
+channel/detector/centre/phi	F	0	rad			
+channel/detector/centre/z	F	0	m			
+channel/detector/radius	F	0	m			
+channel/detector/x1_unit_vector	S	0				
+channel/detector/x1_unit_vector/x	F	0	m			
+channel/detector/x1_unit_vector/y	F	0	m			
+channel/detector/x1_unit_vector/z	F	0	m			
+channel/detector/x2_unit_vector	S	0				
+channel/detector/x2_unit_vector/x	F	0	m			
+channel/detector/x2_unit_vector/y	F	0	m			
+channel/detector/x2_unit_vector/z	F	0	m			
+channel/detector/x3_unit_vector	S	0				
+channel/detector/x3_unit_vector/x	F	0	m			
+channel/detector/x3_unit_vector/y	F	0	m			
+channel/detector/x3_unit_vector/z	F	0	m			
+channel/detector/x1_width	F	0	m			
+channel/detector/x2_width	F	0	m			
+channel/detector/outline	S	0				
+channel/detector/outline/x1	F	1	m	1...N		
+channel/detector/outline/x2	F	1	m	channel(i1)/detector/outline/x1		
+channel/detector/surface	F	0	m^2			
+channel/aperture	A	1		1...N		
+channel/aperture/geometry_type	I	0				
+channel/aperture/centre	S	0				
+channel/aperture/centre/r	F	0	m			
+channel/aperture/centre/phi	F	0	rad			
+channel/aperture/centre/z	F	0	m			
+channel/aperture/radius	F	0	m			
+channel/aperture/x1_unit_vector	S	0				
+channel/aperture/x1_unit_vector/x	F	0	m			
+channel/aperture/x1_unit_vector/y	F	0	m			
+channel/aperture/x1_unit_vector/z	F	0	m			
+channel/aperture/x2_unit_vector	S	0				
+channel/aperture/x2_unit_vector/x	F	0	m			
+channel/aperture/x2_unit_vector/y	F	0	m			
+channel/aperture/x2_unit_vector/z	F	0	m			
+channel/aperture/x3_unit_vector	S	0				
+channel/aperture/x3_unit_vector/x	F	0	m			
+channel/aperture/x3_unit_vector/y	F	0	m			
+channel/aperture/x3_unit_vector/z	F	0	m			
+channel/aperture/x1_width	F	0	m			
+channel/aperture/x2_width	F	0	m			
+channel/aperture/outline	S	0				
+channel/aperture/outline/x1	F	1	m	1...N		
+channel/aperture/outline/x2	F	1	m	channel(i1)/aperture(i2)/outline/x1		
+channel/aperture/surface	F	0	m^2			
+channel/etendue	F	0	m^2.sr			
+channel/etendue_method	S	0				
+channel/etendue_method/name	T	0				
+channel/etendue_method/index	I	0				
+channel/etendue_method/description	T	0				
+channel/line_of_sight	S	0				
+channel/line_of_sight/first_point	S	0				
+channel/line_of_sight/first_point/r	F	0	m			
+channel/line_of_sight/first_point/phi	F	0	rad			
+channel/line_of_sight/first_point/z	F	0	m			
+channel/line_of_sight/second_point	S	0				
+channel/line_of_sight/second_point/r	F	0	m			
+channel/line_of_sight/second_point/phi	F	0	rad			
+channel/line_of_sight/second_point/z	F	0	m			
+channel/detector_image	S	0				
+channel/detector_image/geometry_type	I	0				
+channel/detector_image/outline	S	0				
+channel/detector_image/outline/r	F	1	m	1...N		
+channel/detector_image/outline/phi	F	1	rad	channel(i1)/detector_image/outline/r		
+channel/detector_image/outline/z	F	1	m	channel(i1)/detector_image/outline/r		
+channel/detector_image/circular	S	0				
+channel/detector_image/circular/radius	F	0	m			
+channel/detector_image/circular/ellipticity	F	0	1			
+channel/fibre_image	S	0				
+channel/fibre_image/geometry_type	I	0				
+channel/fibre_image/outline	S	0				
+channel/fibre_image/outline/r	F	1	m	1...N		
+channel/fibre_image/outline/phi	F	1	rad	channel(i1)/fibre_image/outline/r		
+channel/fibre_image/outline/z	F	1	m	channel(i1)/fibre_image/outline/r		
+channel/fibre_image/circular	S	0				
+channel/fibre_image/circular/radius	F	0	m			
+channel/fibre_image/circular/ellipticity	F	0	1			
+channel/light_collection_efficiencies	S	0				
+channel/light_collection_efficiencies/values	F	1	1	channel(i1)/light_collection_efficiencies/positions/r		
+channel/light_collection_efficiencies/positions	S	0				
+channel/light_collection_efficiencies/positions/r	F	1	m	1...N		
+channel/light_collection_efficiencies/positions/phi	F	1	rad	channel(i1)/light_collection_efficiencies/positions/r		
+channel/light_collection_efficiencies/positions/z	F	1	m	channel(i1)/light_collection_efficiencies/positions/r		
+channel/active_spatial_resolution	A	1		channel(i1)/active_spatial_resolution(itime)/time		
+channel/active_spatial_resolution/centre	S	0				
+channel/active_spatial_resolution/centre/r	F	0	m			
+channel/active_spatial_resolution/centre/phi	F	0	rad			
+channel/active_spatial_resolution/centre/z	F	0	m			
+channel/active_spatial_resolution/width	S	0				
+channel/active_spatial_resolution/width/r	F	0	m			
+channel/active_spatial_resolution/width/phi	F	0	rad			
+channel/active_spatial_resolution/width/z	F	0	m			
+channel/active_spatial_resolution/time	F	0	s			
+channel/polarizer	S	0				
+channel/polarizer/geometry_type	I	0				
+channel/polarizer/centre	S	0				
+channel/polarizer/centre/r	F	0	m			
+channel/polarizer/centre/phi	F	0	rad			
+channel/polarizer/centre/z	F	0	m			
+channel/polarizer/radius	F	0	m			
+channel/polarizer/x1_unit_vector	S	0				
+channel/polarizer/x1_unit_vector/x	F	0	m			
+channel/polarizer/x1_unit_vector/y	F	0	m			
+channel/polarizer/x1_unit_vector/z	F	0	m			
+channel/polarizer/x2_unit_vector	S	0				
+channel/polarizer/x2_unit_vector/x	F	0	m			
+channel/polarizer/x2_unit_vector/y	F	0	m			
+channel/polarizer/x2_unit_vector/z	F	0	m			
+channel/polarizer/x3_unit_vector	S	0				
+channel/polarizer/x3_unit_vector/x	F	0	m			
+channel/polarizer/x3_unit_vector/y	F	0	m			
+channel/polarizer/x3_unit_vector/z	F	0	m			
+channel/polarizer/x1_width	F	0	m			
+channel/polarizer/x2_width	F	0	m			
+channel/polarizer/outline	S	0				
+channel/polarizer/outline/x1	F	1	m	1...N		
+channel/polarizer/outline/x2	F	1	m	channel(i1)/polarizer/outline/x1		
+channel/polarizer/surface	F	0	m^2			
+channel/polarizer_active	I	0				
+channel/grating_spectrometer	S	0				
+channel/grating_spectrometer/grating	F	0	m^-1			
+channel/grating_spectrometer/slit_width	F	0	m			
+channel/grating_spectrometer/wavelengths	F	1	m	1...N		
+channel/grating_spectrometer/radiance_spectral	S	0	m^-2.s^-1.sr^-1.m^-1			
+channel/grating_spectrometer/radiance_spectral/data	F	2	m^-2.s^-1.sr^-1.m^-1	channel(i1)/grating_spectrometer/wavelengths|channel(i1)/grating_spectrometer/radiance_spectral/time		
+channel/grating_spectrometer/radiance_spectral/time	F	1	s	1...N		
+channel/grating_spectrometer/intensity_spectrum	S	0	s^-1			
+channel/grating_spectrometer/intensity_spectrum/data	F	2	s^-1	channel(i1)/grating_spectrometer/wavelengths|channel(i1)/grating_spectrometer/intensity_spectrum/time		
+channel/grating_spectrometer/intensity_spectrum/time	F	1	s	1...N		
+channel/grating_spectrometer/exposure_time	F	0	s			
+channel/grating_spectrometer/processed_line	A	1		1...N		
+channel/grating_spectrometer/processed_line/name	T	0				
+channel/grating_spectrometer/processed_line/wavelength_central	F	0	m			
+channel/grating_spectrometer/processed_line/radiance	S	0	m^-2.s^-1.sr^-1			
+channel/grating_spectrometer/processed_line/radiance/data	F	1	m^-2.s^-1.sr^-1	channel(i1)/grating_spectrometer/processed_line(i2)/radiance/time		
+channel/grating_spectrometer/processed_line/radiance/time	F	1	s	1...N		
+channel/grating_spectrometer/processed_line/intensity	S	0	s^-1			
+channel/grating_spectrometer/processed_line/intensity/data	F	1	s^-1	channel(i1)/grating_spectrometer/processed_line(i2)/intensity/time		
+channel/grating_spectrometer/processed_line/intensity/time	F	1	s	1...N		
+channel/grating_spectrometer/radiance_calibration	F	1	m^-3.sr^-1	channel(i1)/grating_spectrometer/wavelengths		
+channel/grating_spectrometer/radiance_calibration_date	T	0				
+channel/grating_spectrometer/wavelength_calibration	S	0				
+channel/grating_spectrometer/wavelength_calibration/offset	F	0	m			
+channel/grating_spectrometer/wavelength_calibration/gain	F	0	m			
+channel/grating_spectrometer/wavelength_calibration_date	T	0				
+channel/grating_spectrometer/instrument_function	F	2	m	1...2|1...N		
+channel/filter_spectrometer	S	0				
+channel/filter_spectrometer/filter	S	0				
+channel/filter_spectrometer/filter/wavelength_central	F	0	m			
+channel/filter_spectrometer/filter/wavelength_width	F	0	m			
+channel/filter_spectrometer/processed_line	A	1		1...N		
+channel/filter_spectrometer/processed_line/name	T	0				
+channel/filter_spectrometer/processed_line/wavelength_central	F	0	m			
+channel/filter_spectrometer/output_voltage	S	0	V			
+channel/filter_spectrometer/output_voltage/data	F	1	V	channel(i1)/filter_spectrometer/output_voltage/time		
+channel/filter_spectrometer/output_voltage/time	F	1	s	1...N		
+channel/filter_spectrometer/photoelectric_voltage	S	0	V			
+channel/filter_spectrometer/photoelectric_voltage/data	F	1	V	channel(i1)/filter_spectrometer/photoelectric_voltage/time		
+channel/filter_spectrometer/photoelectric_voltage/time	F	1	s	1...N		
+channel/filter_spectrometer/photon_count	S	0	s^-1			
+channel/filter_spectrometer/photon_count/data	F	1	s^-1	channel(i1)/filter_spectrometer/photon_count/time		
+channel/filter_spectrometer/photon_count/time	F	1	s	1...N		
+channel/filter_spectrometer/exposure_time	F	0	s			
+channel/filter_spectrometer/wavelengths	F	1	m	1...N		
+channel/filter_spectrometer/radiance_calibration	F	1	m^-3.sr^-1	channel(i1)/filter_spectrometer/wavelengths		
+channel/filter_spectrometer/radiance_calibration_date	T	0				
+channel/filter_spectrometer/sensitivity	F	1	V.W^-1	channel(i1)/filter_spectrometer/wavelengths		
+channel/validity_timed	S	0				
+channel/validity_timed/data	I	1		channel(i1)/validity_timed/time		
+channel/validity_timed/time	F	1	s	1...N		
+channel/validity	I	0				
+channel/isotope_ratios	S	0				
+channel/isotope_ratios/validity_timed	I	1		channel(i1)/isotope_ratios/time		
+channel/isotope_ratios/validity	I	0				
+channel/isotope_ratios/signal_to_noise	F	1	dB	channel(i1)/isotope_ratios/time		
+channel/isotope_ratios/method	S	0				
+channel/isotope_ratios/method/name	T	0				
+channel/isotope_ratios/method/index	I	0				
+channel/isotope_ratios/method/description	T	0				
+channel/isotope_ratios/isotope	A	1		1...N		
+channel/isotope_ratios/isotope/element	A	1		1...N		
+channel/isotope_ratios/isotope/element/a	F	0	u			
+channel/isotope_ratios/isotope/element/z_n	I	0	e			
+channel/isotope_ratios/isotope/element/atoms_n	I	0				
+channel/isotope_ratios/isotope/name	T	0				
+channel/isotope_ratios/isotope/density_ratio	F	1	1	channel(i1)/isotope_ratios/isotope(i2)/time		
+channel/isotope_ratios/isotope/cold_neutrals_fraction	F	1	1	channel(i1)/isotope_ratios/isotope(i2)/time		
+channel/isotope_ratios/isotope/hot_neutrals_fraction	F	1	1	channel(i1)/isotope_ratios/isotope(i2)/time		
+channel/isotope_ratios/isotope/cold_neutrals_temperature	F	1	eV	channel(i1)/isotope_ratios/isotope(i2)/time		
+channel/isotope_ratios/isotope/hot_neutrals_temperature	F	1	eV	channel(i1)/isotope_ratios/isotope(i2)/time		
+channel/isotope_ratios/isotope/time	F	1	s	1...N		
+channel/isotope_ratios/time	F	1	s	1...N		
+channel/polarization_spectroscopy	S	0				
+channel/polarization_spectroscopy/e_field_lh_r	F	1	V.m^-1	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/e_field_lh_z	F	1	V.m^-1	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/e_field_lh_phi	F	1	V.m^-1	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/b_field_modulus	F	1	T	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/n_e	F	1	m^-3	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/temperature_cold_neutrals	F	1	eV	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/temperature_hot_neutrals	F	1	eV	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/velocity_cold_neutrals	F	1	m.s^-1	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/velocity_hot_neutrals	F	1	m.s^-1	channel(i1)/polarization_spectroscopy/time		
+channel/polarization_spectroscopy/time	F	1	s	1...N		
+channel/geometry_matrix	S	0				
+channel/geometry_matrix/with_reflections	S	0				
+channel/geometry_matrix/with_reflections/data	F	1	m	1...N		
+channel/geometry_matrix/with_reflections/voxel_indices	I	1		channel(i1)/geometry_matrix/with_reflections/data		
+channel/geometry_matrix/without_reflections	S	0				
+channel/geometry_matrix/without_reflections/data	F	1	m	1...N		
+channel/geometry_matrix/without_reflections/voxel_indices	I	1		channel(i1)/geometry_matrix/without_reflections/data		
+channel/geometry_matrix/interpolated	S	0				
+channel/geometry_matrix/interpolated/r	F	1	m	1...N		
+channel/geometry_matrix/interpolated/z	F	1	m	channel(i1)/geometry_matrix/interpolated/r		
+channel/geometry_matrix/interpolated/phi	F	1	rad	channel(i1)/geometry_matrix/interpolated/r		
+channel/geometry_matrix/interpolated/data	F	1	m^-2	channel(i1)/geometry_matrix/interpolated/r		
+channel/geometry_matrix/voxel_map	I	3		channel(i1)/geometry_matrix/emission_grid/dim1|channel(i1)/geometry_matrix/emission_grid/dim2|channel(i1)/geometry_matrix/emission_grid/dim3		
+channel/geometry_matrix/voxels_n	I	0				
+channel/geometry_matrix/emission_grid	S	0				
+channel/geometry_matrix/emission_grid/grid_type	S	0				
+channel/geometry_matrix/emission_grid/grid_type/name	T	0				
+channel/geometry_matrix/emission_grid/grid_type/index	I	0				
+channel/geometry_matrix/emission_grid/grid_type/description	T	0				
+channel/geometry_matrix/emission_grid/dim1	F	1	mixed	1...N		
+channel/geometry_matrix/emission_grid/dim2	F	1	mixed	1...N		
+channel/geometry_matrix/emission_grid/dim3	F	1	mixed	1...N		
+channel/optical_element	A	1		1...N		
+channel/optical_element/type	S	0				
+channel/optical_element/type/name	T	0				
+channel/optical_element/type/index	I	0				
+channel/optical_element/type/description	T	0				
+channel/optical_element/front_surface	S	0				
+channel/optical_element/front_surface/curvature_type	S	0				
+channel/optical_element/front_surface/curvature_type/name	T	0				
+channel/optical_element/front_surface/curvature_type/index	I	0				
+channel/optical_element/front_surface/curvature_type/description	T	0				
+channel/optical_element/front_surface/x1_curvature	F	0	m			
+channel/optical_element/front_surface/x2_curvature	F	0	m			
+channel/optical_element/back_surface	S	0				
+channel/optical_element/back_surface/curvature_type	S	0				
+channel/optical_element/back_surface/curvature_type/name	T	0				
+channel/optical_element/back_surface/curvature_type/index	I	0				
+channel/optical_element/back_surface/curvature_type/description	T	0				
+channel/optical_element/back_surface/x1_curvature	F	0	m			
+channel/optical_element/back_surface/x2_curvature	F	0	m			
+channel/optical_element/thickness	F	0	m			
+channel/optical_element/material_properties	S	0				
+channel/optical_element/material_properties/type	S	0				
+channel/optical_element/material_properties/type/name	T	0				
+channel/optical_element/material_properties/type/index	I	0				
+channel/optical_element/material_properties/type/description	T	0				
+channel/optical_element/material_properties/wavelengths	F	1	m	1...N		
+channel/optical_element/material_properties/refractive_index	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/material_properties/extinction_coefficient	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/material_properties/transmission_coefficient	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/material_properties/roughness	F	1	1	channel(i1)/optical_element(i2)/material_properties/wavelengths		
+channel/optical_element/geometry	S	0				
+channel/optical_element/geometry/geometry_type	I	0				
+channel/optical_element/geometry/centre	S	0				
+channel/optical_element/geometry/centre/r	F	0	m			
+channel/optical_element/geometry/centre/phi	F	0	rad			
+channel/optical_element/geometry/centre/z	F	0	m			
+channel/optical_element/geometry/radius	F	0	m			
+channel/optical_element/geometry/x1_unit_vector	S	0				
+channel/optical_element/geometry/x1_unit_vector/x	F	0	m			
+channel/optical_element/geometry/x1_unit_vector/y	F	0	m			
+channel/optical_element/geometry/x1_unit_vector/z	F	0	m			
+channel/optical_element/geometry/x2_unit_vector	S	0				
+channel/optical_element/geometry/x2_unit_vector/x	F	0	m			
+channel/optical_element/geometry/x2_unit_vector/y	F	0	m			
+channel/optical_element/geometry/x2_unit_vector/z	F	0	m			
+channel/optical_element/geometry/x3_unit_vector	S	0				
+channel/optical_element/geometry/x3_unit_vector/x	F	0	m			
+channel/optical_element/geometry/x3_unit_vector/y	F	0	m			
+channel/optical_element/geometry/x3_unit_vector/z	F	0	m			
+channel/optical_element/geometry/x1_width	F	0	m			
+channel/optical_element/geometry/x2_width	F	0	m			
+channel/optical_element/geometry/outline	S	0				
+channel/optical_element/geometry/outline/x1	F	1	m	1...N		
+channel/optical_element/geometry/outline/x2	F	1	m	channel(i1)/optical_element(i2)/geometry/outline/x1		
+channel/optical_element/geometry/surface	F	0	m^2			
+channel/fibre_bundle	S	0				
+channel/fibre_bundle/geometry	S	0				
+channel/fibre_bundle/geometry/geometry_type	I	0				
+channel/fibre_bundle/geometry/centre	S	0				
+channel/fibre_bundle/geometry/centre/r	F	0	m			
+channel/fibre_bundle/geometry/centre/phi	F	0	rad			
+channel/fibre_bundle/geometry/centre/z	F	0	m			
+channel/fibre_bundle/geometry/radius	F	0	m			
+channel/fibre_bundle/geometry/x1_unit_vector	S	0				
+channel/fibre_bundle/geometry/x1_unit_vector/x	F	0	m			
+channel/fibre_bundle/geometry/x1_unit_vector/y	F	0	m			
+channel/fibre_bundle/geometry/x1_unit_vector/z	F	0	m			
+channel/fibre_bundle/geometry/x2_unit_vector	S	0				
+channel/fibre_bundle/geometry/x2_unit_vector/x	F	0	m			
+channel/fibre_bundle/geometry/x2_unit_vector/y	F	0	m			
+channel/fibre_bundle/geometry/x2_unit_vector/z	F	0	m			
+channel/fibre_bundle/geometry/x3_unit_vector	S	0				
+channel/fibre_bundle/geometry/x3_unit_vector/x	F	0	m			
+channel/fibre_bundle/geometry/x3_unit_vector/y	F	0	m			
+channel/fibre_bundle/geometry/x3_unit_vector/z	F	0	m			
+channel/fibre_bundle/geometry/x1_width	F	0	m			
+channel/fibre_bundle/geometry/x2_width	F	0	m			
+channel/fibre_bundle/geometry/outline	S	0				
+channel/fibre_bundle/geometry/outline/x1	F	1	m	1...N		
+channel/fibre_bundle/geometry/outline/x2	F	1	m	channel(i1)/fibre_bundle/geometry/outline/x1		
+channel/fibre_bundle/geometry/surface	F	0	m^2			
+channel/fibre_bundle/fibre_radius	F	0	m			
+channel/fibre_bundle/fibre_positions	S	0				
+channel/fibre_bundle/fibre_positions/x1	F	1	m	1...N		
+channel/fibre_bundle/fibre_positions/x2	F	1	m	channel(i1)/fibre_bundle/fibre_positions/x1		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

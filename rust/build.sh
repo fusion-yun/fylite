@@ -3,7 +3,17 @@
 #
 #   ./rust/build.sh              -> libfylite_data.so，装进 python/fylite/_lib/
 #   ./rust/build.sh --exe        -> 另外构建单文件桌面查看器 fylite-app
+#   ./rust/build.sh --cli        -> 另外构建命令行 fylite-data，装进 python/fylite/_bin/
+#   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
+#
+# ★数据层链两个 C 库（libhdf5、libnetcdf；`fylite_data/Cargo.toml` 的 [features] 说明
+# 为什么）。缺省动态链接系统库：Debian/Ubuntu `apt install libhdf5-dev libnetcdf-dev`，
+# conda `conda install hdf5 netcdf4`。`--static` 走 hdf5-metno-src / netcdf-src 从源码编，
+# 第一次要十来分钟。
+#
+# ★IMAS DD 的结构表（`fylite_data/ids/*.tsv`、`src/ids_tables.rs`）是**提交进仓的生成物**，
+# 由 `tools/dd-ids-table.py` 从 DD 的 IDSDef.xml 生成——本脚本不重生成它们。
 #
 # ★★2026-09-02 这一层从内核仓搬过来。理由写在 `fylite_data/src/lib.rs` 抬头：
 # 网络协议与文件格式是**宿主的活**，内核那本自己就是这么写的。源码在本仓是公开的
@@ -18,10 +28,14 @@ ROOT="$(cd "$DIR/.." && pwd)"
 CRATE="$DIR/fylite_data"
 INSTALL=1
 EXE=0
+CLI=0
+FEATURES=""
 for a in "$@"; do
     case "$a" in
         --no-install) INSTALL=0 ;;
         --exe) EXE=1 ;;
+        --cli) CLI=1 ;;
+        --static) FEATURES="--features static" ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
     esac
 done
@@ -32,8 +46,8 @@ done
 : "${RUSTUP_HOME:=$HOME/.rustup}"
 export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$CARGO_HOME=/cargo --remap-path-prefix=$RUSTUP_HOME=/rustup"
 
-echo "[data] cargo build --release ..."
-cargo build --release --manifest-path "$CRATE/Cargo.toml"
+echo "[data] cargo build --release $FEATURES ..."
+cargo build --release $FEATURES --manifest-path "$CRATE/Cargo.toml"
 SO="$CRATE/target/release/libfylite_data.so"
 [ -f "$SO" ] || { echo "[data] 没有产出 $SO" >&2; exit 1; }
 
@@ -93,6 +107,16 @@ with open(sys.argv[2], "w") as f:
 print("[build] mds request: %d verbs" % len(verbs))
 PYMDS
 echo "[build] mds request -> python/fylite/_mds_request.py, app/assets/mds-request.js"
+
+if [ "$CLI" = 1 ]; then
+    echo "[data] cargo build --release --bin fylite-data ..."
+    cargo build --release $FEATURES --bin fylite-data --manifest-path "$CRATE/Cargo.toml"
+    if [ "$INSTALL" = 1 ]; then
+        mkdir -p "$ROOT/python/fylite/_bin"
+        cp "$CRATE/target/release/fylite-data" "$ROOT/python/fylite/_bin/fylite-data"
+        echo "[data] installed -> python/fylite/_bin/fylite-data"
+    fi
+fi
 
 if [ "$EXE" = 1 ]; then
     #: ★查看器把整个 `app/` 编进可执行文件；资源表 `src/bin/app/assets.rs` 是

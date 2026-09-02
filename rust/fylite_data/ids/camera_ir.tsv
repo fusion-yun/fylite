@@ -1,0 +1,240 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids camera_ir
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+channel	A	1		1...N		
+channel/name	T	0				
+channel/camera	A	1		1...N		
+channel/camera/name	T	0				
+channel/camera/calibration	S	0				
+channel/camera/calibration/luminance_to_temperature	I	2		1...N|1...2		
+channel/camera/calibration/transmission_barrel	I	2		1...N|1...N	channel(i1)/camera(i2)/frame(1)/apparent_temperature|channel(i1)/camera(i2)/frame(1)/apparent_temperature	
+channel/camera/calibration/transmission_mirror	I	2		1...N|1...N	channel(i1)/camera(i2)/frame(1)/apparent_temperature|channel(i1)/camera(i2)/frame(1)/apparent_temperature	
+channel/camera/calibration/transmission_window	I	2		1...N|1...N	channel(i1)/camera(i2)/frame(1)/apparent_temperature|channel(i1)/camera(i2)/frame(1)/apparent_temperature	
+channel/camera/calibration/optical_temperature	I	2		1...N|1...N		
+channel/camera/frame	A	1		channel(i1)/camera(i2)/frame(itime)/time		
+channel/camera/frame/apparent_temperature	F	2	K	1...N|1...N		
+channel/camera/frame/integration_time	F	2	K	1...N|1...N		
+channel/camera/frame/filter	A	1		1...N		
+channel/camera/frame/filter/wavelength_central	F	0	m			
+channel/camera/frame/filter/wavelength_width	F	0	m			
+channel/camera/frame/region_of_interest	A	1		1...N		
+channel/camera/frame/region_of_interest/name	T	0				
+channel/camera/frame/region_of_interest/emissivity	F	0	1			
+channel/camera/frame/region_of_interest/surface_area	F	0	m^2			
+channel/camera/frame/region_of_interest/type	T	0				
+channel/camera/frame/region_of_interest/mask	I	2		1...N|1...N	channel(i1)/camera(i2)/frame(itime)/apparent_temperature|channel(i1)/camera(i2)/frame(itime)/apparent_temperature	
+channel/camera/frame/region_of_interest/temperature_limit_max	F	0	K			
+channel/camera/frame/region_of_interest/temperature_max	F	0	K			
+channel/camera/frame/region_of_interest/row_index_temperature_max	I	0				
+channel/camera/frame/region_of_interest/column_index_temperature_max	I	0				
+channel/camera/frame/time	F	0	s			
+channel/camera/pinhole	S	0				
+channel/camera/pinhole/x	F	0	m			
+channel/camera/pinhole/y	F	0	m			
+channel/camera/pinhole/z	F	0	m			
+channel/camera/direction	S	0				
+channel/camera/direction/x	F	0	m			
+channel/camera/direction/y	F	0	m			
+channel/camera/direction/z	F	0	m			
+channel/camera/up	S	0				
+channel/camera/up/x	F	0	m			
+channel/camera/up/y	F	0	m			
+channel/camera/up/z	F	0	m			
+channel/camera/pixel_size	F	0	m			
+channel/camera/field_of_view_horizontal	F	0	rad			
+channel/camera/field_of_view_vertical	F	0	rad			
+channel/camera/pixels_n_horizontal	I	0				
+channel/camera/pixels_n_vertical	I	0				
+channel/target_surface_center	S	0				
+channel/target_surface_center/x	F	0	m			
+channel/target_surface_center/y	F	0	m			
+channel/target_surface_center/z	F	0	m			
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+frame_analysis	A	1		frame_analysis(itime)/time		
+frame_analysis/sol_heat_decay_length	F	0	m			
+frame_analysis/distance_separatrix_midplane	F	1	m	1...N		
+frame_analysis/power_flux_parallel	F	1	W.m^-2	frame_analysis(itime)/distance_separatrix_midplane		
+frame_analysis/time	F	0	s			
+optical_element	A	1		1...N		
+optical_element/type	S	0				
+optical_element/type/name	T	0				
+optical_element/type/index	I	0				
+optical_element/type/description	T	0				
+optical_element/front_surface	S	0				
+optical_element/front_surface/curvature_type	S	0				
+optical_element/front_surface/curvature_type/name	T	0				
+optical_element/front_surface/curvature_type/index	I	0				
+optical_element/front_surface/curvature_type/description	T	0				
+optical_element/front_surface/x1_curvature	F	0	m			
+optical_element/front_surface/x2_curvature	F	0	m			
+optical_element/back_surface	S	0				
+optical_element/back_surface/curvature_type	S	0				
+optical_element/back_surface/curvature_type/name	T	0				
+optical_element/back_surface/curvature_type/index	I	0				
+optical_element/back_surface/curvature_type/description	T	0				
+optical_element/back_surface/x1_curvature	F	0	m			
+optical_element/back_surface/x2_curvature	F	0	m			
+optical_element/thickness	F	0	m			
+optical_element/material_properties	S	0				
+optical_element/material_properties/type	S	0				
+optical_element/material_properties/type/name	T	0				
+optical_element/material_properties/type/index	I	0				
+optical_element/material_properties/type/description	T	0				
+optical_element/material_properties/wavelengths	F	1	m	1...N		
+optical_element/material_properties/refractive_index	F	1	1	optical_element(i1)/material_properties/wavelengths		
+optical_element/material_properties/extinction_coefficient	F	1	1	optical_element(i1)/material_properties/wavelengths		
+optical_element/material_properties/transmission_coefficient	F	1	1	optical_element(i1)/material_properties/wavelengths		
+optical_element/material_properties/roughness	F	1	1	optical_element(i1)/material_properties/wavelengths		
+optical_element/geometry	S	0				
+optical_element/geometry/geometry_type	I	0				
+optical_element/geometry/centre	S	0				
+optical_element/geometry/centre/r	F	0	m			
+optical_element/geometry/centre/phi	F	0	rad			
+optical_element/geometry/centre/z	F	0	m			
+optical_element/geometry/radius	F	0	m			
+optical_element/geometry/x1_unit_vector	S	0				
+optical_element/geometry/x1_unit_vector/x	F	0	m			
+optical_element/geometry/x1_unit_vector/y	F	0	m			
+optical_element/geometry/x1_unit_vector/z	F	0	m			
+optical_element/geometry/x2_unit_vector	S	0				
+optical_element/geometry/x2_unit_vector/x	F	0	m			
+optical_element/geometry/x2_unit_vector/y	F	0	m			
+optical_element/geometry/x2_unit_vector/z	F	0	m			
+optical_element/geometry/x3_unit_vector	S	0				
+optical_element/geometry/x3_unit_vector/x	F	0	m			
+optical_element/geometry/x3_unit_vector/y	F	0	m			
+optical_element/geometry/x3_unit_vector/z	F	0	m			
+optical_element/geometry/x1_width	F	0	m			
+optical_element/geometry/x2_width	F	0	m			
+optical_element/geometry/outline	S	0				
+optical_element/geometry/outline/x1	F	1	m	1...N		
+optical_element/geometry/outline/x2	F	1	m	optical_element(i1)/geometry/outline/x1		
+optical_element/geometry/surface	F	0	m^2			
+fibre_bundle	S	0				
+fibre_bundle/geometry	S	0				
+fibre_bundle/geometry/geometry_type	I	0				
+fibre_bundle/geometry/centre	S	0				
+fibre_bundle/geometry/centre/r	F	0	m			
+fibre_bundle/geometry/centre/phi	F	0	rad			
+fibre_bundle/geometry/centre/z	F	0	m			
+fibre_bundle/geometry/radius	F	0	m			
+fibre_bundle/geometry/x1_unit_vector	S	0				
+fibre_bundle/geometry/x1_unit_vector/x	F	0	m			
+fibre_bundle/geometry/x1_unit_vector/y	F	0	m			
+fibre_bundle/geometry/x1_unit_vector/z	F	0	m			
+fibre_bundle/geometry/x2_unit_vector	S	0				
+fibre_bundle/geometry/x2_unit_vector/x	F	0	m			
+fibre_bundle/geometry/x2_unit_vector/y	F	0	m			
+fibre_bundle/geometry/x2_unit_vector/z	F	0	m			
+fibre_bundle/geometry/x3_unit_vector	S	0				
+fibre_bundle/geometry/x3_unit_vector/x	F	0	m			
+fibre_bundle/geometry/x3_unit_vector/y	F	0	m			
+fibre_bundle/geometry/x3_unit_vector/z	F	0	m			
+fibre_bundle/geometry/x1_width	F	0	m			
+fibre_bundle/geometry/x2_width	F	0	m			
+fibre_bundle/geometry/outline	S	0				
+fibre_bundle/geometry/outline/x1	F	1	m	1...N		
+fibre_bundle/geometry/outline/x2	F	1	m	fibre_bundle/geometry/outline/x1		
+fibre_bundle/geometry/surface	F	0	m^2			
+fibre_bundle/fibre_radius	F	0	m			
+fibre_bundle/fibre_positions	S	0				
+fibre_bundle/fibre_positions/x1	F	1	m	1...N		
+fibre_bundle/fibre_positions/x2	F	1	m	fibre_bundle/fibre_positions/x1		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

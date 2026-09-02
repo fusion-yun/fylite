@@ -1,0 +1,515 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids plasma_sources
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+grid_ggd	A	1		grid_ggd(itime)/time		
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant	
+grid_ggd/time	F	0	s			
+source	A	1		1...N		
+source/identifier	S	0				
+source/identifier/name	T	0				
+source/identifier/index	I	0				
+source/identifier/description	T	0				
+source/species	S	0				
+source/species/type	S	0				
+source/species/type/name	T	0				
+source/species/type/index	I	0				
+source/species/type/description	T	0				
+source/species/ion	S	0				
+source/species/ion/element	A	1		1...N		
+source/species/ion/element/a	F	0	u			
+source/species/ion/element/z_n	I	0	e			
+source/species/ion/element/atoms_n	I	0				
+source/species/ion/z_ion	F	0	e			
+source/species/ion/name	T	0				
+source/species/ion/state	S	0				
+source/species/ion/state/z_min	F	0	e			
+source/species/ion/state/z_max	F	0	e			
+source/species/ion/state/name	T	0				
+source/species/ion/state/electron_configuration	T	0				
+source/species/ion/state/vibrational_level	F	0	e			
+source/species/ion/state/vibrational_mode	T	0				
+source/species/neutral	S	0				
+source/species/neutral/element	A	1		1...N		
+source/species/neutral/element/a	F	0	u			
+source/species/neutral/element/z_n	I	0	e			
+source/species/neutral/element/atoms_n	I	0				
+source/species/neutral/name	T	0				
+source/species/neutral/state	S	0				
+source/species/neutral/state/name	T	0				
+source/species/neutral/state/electron_configuration	T	0				
+source/species/neutral/state/vibrational_level	F	0	e			
+source/species/neutral/state/vibrational_mode	T	0				
+source/species/neutral/state/neutral_type	S	0				
+source/species/neutral/state/neutral_type/name	T	0				
+source/species/neutral/state/neutral_type/index	I	0				
+source/species/neutral/state/neutral_type/description	T	0				
+source/global_quantities	A	1		source(i1)/global_quantities(itime)/time		
+source/global_quantities/power	F	0	W			
+source/global_quantities/total_ion_particles	F	0	s^-1			
+source/global_quantities/total_ion_power	F	0	W			
+source/global_quantities/electrons	S	0				
+source/global_quantities/electrons/particles	F	0	s^-1			
+source/global_quantities/electrons/power	F	0	W			
+source/global_quantities/torque_phi	F	0	kg.m^2.s^-2			
+source/global_quantities/current_parallel	F	0	A			
+source/global_quantities/time	F	0	s			
+source/profiles_1d	A	1		source(i1)/profiles_1d(itime)/time		
+source/profiles_1d/grid	S	0				
+source/profiles_1d/grid/rho_pol_norm	F	1	1	1...N		source(i1)/profiles_1d(itime)/grid/rho_tor;source(i1)/profiles_1d(itime)/grid/psi;source(i1)/profiles_1d(itime)/grid/volume;source(i1)/profiles_1d(itime)/grid/area;source(i1)/profiles_1d(itime)/grid/surface;source(i1)/profiles_1d(itime)/grid/rho_tor_norm
+source/profiles_1d/grid/psi	F	1	Wb	source(i1)/profiles_1d(itime)/grid/rho_pol_norm		
+source/profiles_1d/grid/rho_tor_norm	F	1	1	source(i1)/profiles_1d(itime)/grid/rho_pol_norm		
+source/profiles_1d/grid/rho_tor	F	1	m	source(i1)/profiles_1d(itime)/grid/rho_pol_norm		
+source/profiles_1d/grid/volume	F	1	m^3	source(i1)/profiles_1d(itime)/grid/rho_pol_norm		
+source/profiles_1d/grid/area	F	1	m^2	source(i1)/profiles_1d(itime)/grid/rho_pol_norm		
+source/profiles_1d/grid/surface	F	1	m^2	source(i1)/profiles_1d(itime)/grid/rho_pol_norm		
+source/profiles_1d/grid/psi_magnetic_axis	F	0	Wb			
+source/profiles_1d/grid/psi_boundary	F	0	Wb			
+source/profiles_1d/electrons	S	0				
+source/profiles_1d/electrons/particles	F	1	m^-3.s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/particles_decomposed	S	0				
+source/profiles_1d/electrons/particles_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/particles_decomposed/explicit_part	F	1	m^-3.s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/particles_inside	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/energy	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/energy_decomposed	S	0				
+source/profiles_1d/electrons/energy_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/energy_decomposed/explicit_part	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/electrons/power_inside	F	1	W	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_energy	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_energy_decomposed	S	0				
+source/profiles_1d/total_ion_energy_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_energy_decomposed/explicit_part	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_power_inside	F	1	W	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_particles	F	1	m^-3.s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_particles_decomposed	S	0				
+source/profiles_1d/total_ion_particles_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_particles_decomposed/explicit_part	F	1	m^-3.s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/total_ion_particles_inside	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/momentum_phi	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/torque_phi_inside	F	1	kg.m^2.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/momentum_phi_j_cross_b_field	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/j_parallel	F	1	A.m^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/current_parallel_inside	F	1	A	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/conductivity_parallel	F	1	ohm^-1.m^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion	A	1		1...N		
+source/profiles_1d/ion/element	A	1		1...N		
+source/profiles_1d/ion/element/a	F	0	u			
+source/profiles_1d/ion/element/z_n	I	0	e			
+source/profiles_1d/ion/element/atoms_n	I	0				
+source/profiles_1d/ion/z_ion	F	0	e			
+source/profiles_1d/ion/name	T	0				
+source/profiles_1d/ion/neutral_index	I	0				
+source/profiles_1d/ion/particles	F	1	s^-1.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/particles_inside	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/particles_decomposed	S	0				
+source/profiles_1d/ion/particles_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/particles_decomposed/explicit_part	F	1	m^-3.s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/energy	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/power_inside	F	1	W	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/energy_decomposed	S	0				
+source/profiles_1d/ion/energy_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/energy_decomposed/explicit_part	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum	S	0				
+source/profiles_1d/ion/momentum/radial	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum/diamagnetic	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum/parallel	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum/poloidal	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum/toroidal	F	1	kg.m^-1.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum/toroidal_decomposed	S	0				
+source/profiles_1d/ion/momentum/toroidal_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/momentum/toroidal_decomposed/explicit_part	F	1	kg.m^2.s^-2	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/multiple_states_flag	I	0				
+source/profiles_1d/ion/state	A	1		1...N		
+source/profiles_1d/ion/state/z_min	F	0	e			
+source/profiles_1d/ion/state/z_max	F	0	e			
+source/profiles_1d/ion/state/name	T	0				
+source/profiles_1d/ion/state/vibrational_level	F	0	e			
+source/profiles_1d/ion/state/vibrational_mode	T	0				
+source/profiles_1d/ion/state/electron_configuration	T	0				
+source/profiles_1d/ion/state/particles	F	1	s^-1.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/particles_inside	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/particles_decomposed	S	0				
+source/profiles_1d/ion/state/particles_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/particles_decomposed/explicit_part	F	1	m^-3.s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/energy	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/power_inside	F	1	W	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/energy_decomposed	S	0				
+source/profiles_1d/ion/state/energy_decomposed/implicit_part	F	1	s^-1	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/ion/state/energy_decomposed/explicit_part	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/neutral	A	1		1...N		
+source/profiles_1d/neutral/element	A	1		1...N		
+source/profiles_1d/neutral/element/a	F	0	u			
+source/profiles_1d/neutral/element/z_n	I	0	e			
+source/profiles_1d/neutral/element/atoms_n	I	0				
+source/profiles_1d/neutral/name	T	0				
+source/profiles_1d/neutral/ion_index	I	0				
+source/profiles_1d/neutral/particles	F	1	s^-1.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/neutral/energy	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/neutral/multiple_states_flag	I	0				
+source/profiles_1d/neutral/state	A	1		1...N		
+source/profiles_1d/neutral/state/name	T	0				
+source/profiles_1d/neutral/state/vibrational_level	F	0	e			
+source/profiles_1d/neutral/state/vibrational_mode	T	0				
+source/profiles_1d/neutral/state/neutral_type	S	0				
+source/profiles_1d/neutral/state/neutral_type/name	T	0				
+source/profiles_1d/neutral/state/neutral_type/index	I	0				
+source/profiles_1d/neutral/state/neutral_type/description	T	0				
+source/profiles_1d/neutral/state/electron_configuration	T	0				
+source/profiles_1d/neutral/state/particles	F	1	s^-1.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/neutral/state/energy	F	1	W.m^-3	source(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+source/profiles_1d/time	F	0	s			
+source/ggd	A	1		source(i1)/ggd(itime)/time		
+source/ggd/electrons	S	0				
+source/ggd/electrons/particles	A	1	m^-3.s^-1	1...N		
+source/ggd/electrons/particles/grid_index	I	0				
+source/ggd/electrons/particles/grid_subset_index	I	0				
+source/ggd/electrons/particles/values	F	1	m^-3.s^-1	1...N		
+source/ggd/electrons/particles/coefficients	F	2	m^-3.s^-1	source(i1)/ggd(itime)/electrons/particles(i2)/values|1...N		
+source/ggd/electrons/energy	A	1	W.m^-3	1...N		
+source/ggd/electrons/energy/grid_index	I	0				
+source/ggd/electrons/energy/grid_subset_index	I	0				
+source/ggd/electrons/energy/values	F	1	W.m^-3	1...N		
+source/ggd/electrons/energy/coefficients	F	2	W.m^-3	source(i1)/ggd(itime)/electrons/energy(i2)/values|1...N		
+source/ggd/ion	A	1		1...N		
+source/ggd/ion/element	A	1		1...N		
+source/ggd/ion/element/a	F	0	u			
+source/ggd/ion/element/z_n	I	0	e			
+source/ggd/ion/element/atoms_n	I	0				
+source/ggd/ion/z_ion	F	0	e			
+source/ggd/ion/name	T	0				
+source/ggd/ion/neutral_index	I	0				
+source/ggd/ion/particles	A	1	s^-1.m^-3	1...N		
+source/ggd/ion/particles/grid_index	I	0				
+source/ggd/ion/particles/grid_subset_index	I	0				
+source/ggd/ion/particles/values	F	1	s^-1.m^-3	1...N		
+source/ggd/ion/particles/coefficients	F	2	s^-1.m^-3	source(i1)/ggd(itime)/ion(i2)/particles(i3)/values|1...N		
+source/ggd/ion/energy	A	1	W.m^-3	1...N		
+source/ggd/ion/energy/grid_index	I	0				
+source/ggd/ion/energy/grid_subset_index	I	0				
+source/ggd/ion/energy/values	F	1	W.m^-3	1...N		
+source/ggd/ion/energy/coefficients	F	2	W.m^-3	source(i1)/ggd(itime)/ion(i2)/energy(i3)/values|1...N		
+source/ggd/ion/momentum	A	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/grid_index	I	0				
+source/ggd/ion/momentum/grid_subset_index	I	0				
+source/ggd/ion/momentum/radial	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/momentum/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/momentum/parallel	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/momentum/poloidal	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/momentum/r	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/momentum/phi	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/momentum/z	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/momentum/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/multiple_states_flag	I	0				
+source/ggd/ion/state	A	1		1...N		
+source/ggd/ion/state/z_min	F	0	e			
+source/ggd/ion/state/z_max	F	0	e			
+source/ggd/ion/state/name	T	0				
+source/ggd/ion/state/vibrational_level	F	0	e			
+source/ggd/ion/state/vibrational_mode	T	0				
+source/ggd/ion/state/electron_configuration	T	0				
+source/ggd/ion/state/particles	A	1	s^-1.m^-3	1...N		
+source/ggd/ion/state/particles/grid_index	I	0				
+source/ggd/ion/state/particles/grid_subset_index	I	0				
+source/ggd/ion/state/particles/values	F	1	s^-1.m^-3	1...N		
+source/ggd/ion/state/particles/coefficients	F	2	s^-1.m^-3	source(i1)/ggd(itime)/ion(i2)/state(i3)/particles(i4)/values|1...N		
+source/ggd/ion/state/energy	A	1	W.m^-3	1...N		
+source/ggd/ion/state/energy/grid_index	I	0				
+source/ggd/ion/state/energy/grid_subset_index	I	0				
+source/ggd/ion/state/energy/values	F	1	W.m^-3	1...N		
+source/ggd/ion/state/energy/coefficients	F	2	W.m^-3	source(i1)/ggd(itime)/ion(i2)/state(i3)/energy(i4)/values|1...N		
+source/ggd/ion/state/momentum	A	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/grid_index	I	0				
+source/ggd/ion/state/momentum/grid_subset_index	I	0				
+source/ggd/ion/state/momentum/radial	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/state/momentum/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/state/momentum/parallel	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/state/momentum/poloidal	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/state/momentum/r	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/state/momentum/phi	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/ion/state/momentum/z	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/ion/state/momentum/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral	A	1		1...N		
+source/ggd/neutral/element	A	1		1...N		
+source/ggd/neutral/element/a	F	0	u			
+source/ggd/neutral/element/z_n	I	0	e			
+source/ggd/neutral/element/atoms_n	I	0				
+source/ggd/neutral/name	T	0				
+source/ggd/neutral/ion_index	I	0				
+source/ggd/neutral/particles	A	1	s^-1.m^-3	1...N		
+source/ggd/neutral/particles/grid_index	I	0				
+source/ggd/neutral/particles/grid_subset_index	I	0				
+source/ggd/neutral/particles/values	F	1	s^-1.m^-3	1...N		
+source/ggd/neutral/particles/coefficients	F	2	s^-1.m^-3	source(i1)/ggd(itime)/neutral(i2)/particles(i3)/values|1...N		
+source/ggd/neutral/energy	A	1	W.m^-3	1...N		
+source/ggd/neutral/energy/grid_index	I	0				
+source/ggd/neutral/energy/grid_subset_index	I	0				
+source/ggd/neutral/energy/values	F	1	W.m^-3	1...N		
+source/ggd/neutral/energy/coefficients	F	2	W.m^-3	source(i1)/ggd(itime)/neutral(i2)/energy(i3)/values|1...N		
+source/ggd/neutral/momentum	A	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/grid_index	I	0				
+source/ggd/neutral/momentum/grid_subset_index	I	0				
+source/ggd/neutral/momentum/radial	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/momentum/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/momentum/parallel	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/momentum/poloidal	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/momentum/r	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/momentum/phi	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/momentum/z	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/momentum/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/multiple_states_flag	I	0				
+source/ggd/neutral/state	A	1		1...N		
+source/ggd/neutral/state/name	T	0				
+source/ggd/neutral/state/vibrational_level	F	0	e			
+source/ggd/neutral/state/vibrational_mode	T	0				
+source/ggd/neutral/state/electron_configuration	T	0				
+source/ggd/neutral/state/neutral_type	S	0				
+source/ggd/neutral/state/neutral_type/name	T	0				
+source/ggd/neutral/state/neutral_type/index	I	0				
+source/ggd/neutral/state/neutral_type/description	T	0				
+source/ggd/neutral/state/particles	A	1	s^-1.m^-3	1...N		
+source/ggd/neutral/state/particles/grid_index	I	0				
+source/ggd/neutral/state/particles/grid_subset_index	I	0				
+source/ggd/neutral/state/particles/values	F	1	s^-1.m^-3	1...N		
+source/ggd/neutral/state/particles/coefficients	F	2	s^-1.m^-3	source(i1)/ggd(itime)/neutral(i2)/state(i3)/particles(i4)/values|1...N		
+source/ggd/neutral/state/energy	A	1	W.m^-3	1...N		
+source/ggd/neutral/state/energy/grid_index	I	0				
+source/ggd/neutral/state/energy/grid_subset_index	I	0				
+source/ggd/neutral/state/energy/values	F	1	W.m^-3	1...N		
+source/ggd/neutral/state/energy/coefficients	F	2	W.m^-3	source(i1)/ggd(itime)/neutral(i2)/state(i3)/energy(i4)/values|1...N		
+source/ggd/neutral/state/momentum	A	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/grid_index	I	0				
+source/ggd/neutral/state/momentum/grid_subset_index	I	0				
+source/ggd/neutral/state/momentum/radial	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/state/momentum/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/state/momentum/parallel	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/state/momentum/poloidal	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/state/momentum/r	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/state/momentum/phi	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/neutral/state/momentum/z	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/neutral/state/momentum/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/total_ion_energy	A	1	W.m^-3	1...N		
+source/ggd/total_ion_energy/grid_index	I	0				
+source/ggd/total_ion_energy/grid_subset_index	I	0				
+source/ggd/total_ion_energy/values	F	1	W.m^-3	1...N		
+source/ggd/total_ion_energy/coefficients	F	2	W.m^-3	source(i1)/ggd(itime)/total_ion_energy(i2)/values|1...N		
+source/ggd/momentum	A	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/grid_index	I	0				
+source/ggd/momentum/grid_subset_index	I	0				
+source/ggd/momentum/radial	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/momentum/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/momentum/parallel	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/momentum/poloidal	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/momentum/r	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/momentum/phi	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/momentum/z	F	1	kg.m^-1.s^-2	1...N		
+source/ggd/momentum/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+source/ggd/current	A	1	A.m^-2	1...N		
+source/ggd/current/grid_index	I	0				
+source/ggd/current/grid_subset_index	I	0				
+source/ggd/current/values	F	1	A.m^-2	1...N		
+source/ggd/current/coefficients	F	2	A.m^-2	source(i1)/ggd(itime)/current(i2)/values|1...N		
+source/ggd/time	F	0	s			
+source/ggd_fast	A	1		source(i1)/ggd_fast(itime)/time		
+source/ggd_fast/ion	A	1		1...N		
+source/ggd_fast/ion/element	A	1		1...N		
+source/ggd_fast/ion/element/a	F	0	u			
+source/ggd_fast/ion/element/z_n	I	0	e			
+source/ggd_fast/ion/element/atoms_n	I	0				
+source/ggd_fast/ion/z_ion	F	0	e			
+source/ggd_fast/ion/name	T	0				
+source/ggd_fast/ion/neutral_index	I	0				
+source/ggd_fast/ion/power	A	1	W	1...N		
+source/ggd_fast/ion/power/grid_index	I	0				
+source/ggd_fast/ion/power/grid_subset_index	I	0				
+source/ggd_fast/ion/power/value	F	0	W			
+source/ggd_fast/time	F	0	s			
+source/code	S	0				
+source/code/name	T	0				
+source/code/description	T	0				
+source/code/commit	T	0				
+source/code/version	T	0				
+source/code/repository	T	0				
+source/code/parameters	T	0				
+source/code/output_flag	S	0				
+source/code/output_flag/data	I	1		source(i1)/code/output_flag/time		
+source/code/output_flag/time	F	1	s	1...N		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

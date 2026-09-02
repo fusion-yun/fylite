@@ -220,11 +220,50 @@ validates and seals them.
 `python/fylite/engine/` stays stdlib-pure at import time, so a host can load
 the protocol face without paying for numpy or the kernel.
 
+## Reading and writing data
+
+The **data layer** (`rust/fylite_data/`, source open, built into
+`libfylite_data.so` and the `fylite-data` command) converts between data
+sources and fyo documents, merges several sources, and assembles them from a
+JSON-LD description. Files are recognised by **content**, never by name.
+
+| source | read | write | layouts |
+| :--- | :-: | :-: | :--- |
+| MDSplus (mdsip, read-only by construction; A-Box binding tables) | ✓ | — | fyo |
+| EFIT a-file | ✓ | — | fyo |
+| EFIT g-file | ✓ | ✓ | fyo |
+| JSON / JSON-LD | ✓ | ✓ | fyo · IMAS DD |
+| HDF5 | ✓ | ✓ | fyo · IMAS (imas-core HDF5 backend: `master.h5` + `<ids>.h5`) |
+| netCDF | ✓ | ✓ | fyo · IMAS (imas-python netCDF backend) |
+
+The IMAS layouts are checked against the real readers, not against a
+description of them: `rust/fylite_data/verify/imas_roundtrip.py` writes with
+imas-python, reads with this library, writes with this library, and reads
+back with imas-python and imas-core, leaf by leaf.
+
+```bash
+fylite-data info  g063982.04800                          # what is this file?
+fylite-data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
+fylite-data merge machine.h5 shot.nc -o all.jsonld         # later sources win
+fylite-data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
+```
+
+```python
+from fylite.io import fydoc
+b = fydoc.read("g063982.04800")                 # a bundle of fyo documents
+psi = b.array("equilibrium/time_slice/0/profiles_2d/0/psi")   # [R, Z]
+b.write("entry_dir", layout="imas")             # IMAS HDF5 data entry
+```
+
+The C libraries this needs (`libhdf5`, `libnetcdf`) are linked dynamically by
+default; `rust/build.sh --static` compiles them in for machines without them.
+
 ## Repository map
 
 | path | contents |
 | :--- | :--- |
 | `python/fylite/` | assembly, device plumbing, IO, scenarios, the CLI and protocol engine |
+| `rust/fylite_data/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fylite-data` command |
 | `python/tests/` | the Python tier — assembly, IO, the protocol/CLI faces, the registries, the ABI marshalling (`python/pytest.ini`) |
 | | ★the physics/numerics tier is **not here**: it lives in the kernel repository with the code it judges |
 | `app/` | the static browser site and its gates |

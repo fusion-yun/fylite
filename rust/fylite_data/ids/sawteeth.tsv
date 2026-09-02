@@ -1,0 +1,149 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids sawteeth
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+crash_trigger	I	1		time		
+profiles_1d	A	1		profiles_1d(itime)/time		
+profiles_1d/grid	S	0				
+profiles_1d/grid/rho_tor_norm	F	1	1	1...N		profiles_1d(itime)/grid/rho_tor;profiles_1d(itime)/grid/psi;profiles_1d(itime)/grid/volume;profiles_1d(itime)/grid/area;profiles_1d(itime)/grid/surface;profiles_1d(itime)/grid/rho_pol_norm
+profiles_1d/grid/rho_tor	F	1	m	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/rho_pol_norm	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/psi	F	1	Wb	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/volume	F	1	m^3	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/area	F	1	m^2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/surface	F	1	m^2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/grid/psi_magnetic_axis	F	0	Wb			
+profiles_1d/grid/psi_boundary	F	0	Wb			
+profiles_1d/t_e	F	1	eV	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/t_i_average	F	1	eV	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/n_e	F	1	m^-3	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/n_e_fast	F	1	m^-3	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/n_i_total_over_n_e	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/momentum_phi	F	1	kg.m.s^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/zeff	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/p_e	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/p_e_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/p_e_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/p_i_total	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/p_i_total_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/p_i_total_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/pressure_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/pressure_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/j_total	F	1	A.m^-2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/j_phi	F	1	A.m^-2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/j_ohmic	F	1	A.m^-2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/j_non_inductive	F	1	A.m^-2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/j_bootstrap	F	1	A.m^-2	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/conductivity_parallel	F	1	ohm^-1.m^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/e_field_parallel	F	1	V.m^-1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/q	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/magnetic_shear	F	1	1	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/phi	F	1	Wb	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/psi_star_pre_crash	F	1	Wb	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/psi_star_post_crash	F	1	Wb	profiles_1d(itime)/grid/rho_tor_norm		
+profiles_1d/time	F	0	s			
+diagnostics	S	0				
+diagnostics/magnetic_shear_q1	F	1	1	time		
+diagnostics/rho_tor_norm_q1	F	1	1	time		
+diagnostics/rho_tor_norm_inversion	F	1	1	time		
+diagnostics/rho_tor_norm_mixing	F	1	1	time		
+diagnostics/previous_crash_trigger	I	1		time		
+diagnostics/previous_crash_time	F	1	s	time		
+diagnostics/previous_period	F	1	s	time		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

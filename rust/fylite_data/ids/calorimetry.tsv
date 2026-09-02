@@ -1,0 +1,155 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids calorimetry
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+group	A	1		1...N		
+group/name	T	0				
+group/description	T	0				
+group/component	A	1		1...N		
+group/component/name	T	0				
+group/component/description	T	0				
+group/component/power	S	0	W			
+group/component/power/data	F	1	W	group(i1)/component(i2)/power/time		
+group/component/power/validity_timed	I	1		group(i1)/component(i2)/power/time		
+group/component/power/validity	I	0				
+group/component/power/time	F	1	s	1...N		
+group/component/energy_cumulated	S	0	J			
+group/component/energy_cumulated/data	F	1	J	group(i1)/component(i2)/energy_cumulated/time		
+group/component/energy_cumulated/validity_timed	I	1		group(i1)/component(i2)/energy_cumulated/time		
+group/component/energy_cumulated/validity	I	0				
+group/component/energy_cumulated/time	F	1	s	1...N		
+group/component/energy_total	S	0	J			
+group/component/energy_total/data	F	0	J			
+group/component/energy_total/validity	I	0				
+group/component/temperature_in	S	0	K			
+group/component/temperature_in/data	F	1	K	group(i1)/component(i2)/temperature_in/time		
+group/component/temperature_in/validity_timed	I	1		group(i1)/component(i2)/temperature_in/time		
+group/component/temperature_in/validity	I	0				
+group/component/temperature_in/time	F	1	s	1...N		
+group/component/temperature_out	S	0	K			
+group/component/temperature_out/data	F	1	K	group(i1)/component(i2)/temperature_out/time		
+group/component/temperature_out/validity_timed	I	1		group(i1)/component(i2)/temperature_out/time		
+group/component/temperature_out/validity	I	0				
+group/component/temperature_out/time	F	1	s	1...N		
+group/component/mass_flow	S	0	kg.s^-1			
+group/component/mass_flow/data	F	1	kg.s^-1	group(i1)/component(i2)/mass_flow/time		
+group/component/mass_flow/validity_timed	I	1		group(i1)/component(i2)/mass_flow/time		
+group/component/mass_flow/validity	I	0				
+group/component/mass_flow/time	F	1	s	1...N		
+group/component/transit_time	S	0	s			
+group/component/transit_time/data	F	1	s	group(i1)/component(i2)/transit_time/time		
+group/component/transit_time/validity_timed	I	1		group(i1)/component(i2)/transit_time/time		
+group/component/transit_time/validity	I	0				
+group/component/transit_time/time	F	1	s	1...N		
+cooling_loop	A	1		1...N		
+cooling_loop/name	T	0				
+cooling_loop/description	T	0				
+cooling_loop/temperature_in	S	0	K			
+cooling_loop/temperature_in/data	F	1	K	cooling_loop(i1)/temperature_in/time		
+cooling_loop/temperature_in/validity_timed	I	1		cooling_loop(i1)/temperature_in/time		
+cooling_loop/temperature_in/validity	I	0				
+cooling_loop/temperature_in/time	F	1	s	1...N		
+cooling_loop/temperature_out	S	0	K			
+cooling_loop/temperature_out/data	F	1	K	cooling_loop(i1)/temperature_out/time		
+cooling_loop/temperature_out/validity_timed	I	1		cooling_loop(i1)/temperature_out/time		
+cooling_loop/temperature_out/validity	I	0				
+cooling_loop/temperature_out/time	F	1	s	1...N		
+cooling_loop/mass_flow	S	0	kg.s^-1			
+cooling_loop/mass_flow/data	F	1	kg.s^-1	cooling_loop(i1)/mass_flow/time		
+cooling_loop/mass_flow/validity_timed	I	1		cooling_loop(i1)/mass_flow/time		
+cooling_loop/mass_flow/validity	I	0				
+cooling_loop/mass_flow/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

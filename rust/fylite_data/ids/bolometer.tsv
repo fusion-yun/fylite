@@ -1,0 +1,199 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids bolometer
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+camera	A	1		1...N		
+camera/name	T	0				
+camera/description	T	0				
+camera/type	S	0				
+camera/type/name	T	0				
+camera/type/index	I	0				
+camera/type/description	T	0				
+camera/channel	A	1		1...N		
+camera/channel/name	T	0				
+camera/channel/description	T	0				
+camera/channel/detector	S	0				
+camera/channel/detector/geometry_type	I	0				
+camera/channel/detector/centre	S	0				
+camera/channel/detector/centre/r	F	0	m			
+camera/channel/detector/centre/phi	F	0	rad			
+camera/channel/detector/centre/z	F	0	m			
+camera/channel/detector/radius	F	0	m			
+camera/channel/detector/x1_unit_vector	S	0				
+camera/channel/detector/x1_unit_vector/x	F	0	m			
+camera/channel/detector/x1_unit_vector/y	F	0	m			
+camera/channel/detector/x1_unit_vector/z	F	0	m			
+camera/channel/detector/x2_unit_vector	S	0				
+camera/channel/detector/x2_unit_vector/x	F	0	m			
+camera/channel/detector/x2_unit_vector/y	F	0	m			
+camera/channel/detector/x2_unit_vector/z	F	0	m			
+camera/channel/detector/x3_unit_vector	S	0				
+camera/channel/detector/x3_unit_vector/x	F	0	m			
+camera/channel/detector/x3_unit_vector/y	F	0	m			
+camera/channel/detector/x3_unit_vector/z	F	0	m			
+camera/channel/detector/x1_width	F	0	m			
+camera/channel/detector/x2_width	F	0	m			
+camera/channel/detector/outline	S	0				
+camera/channel/detector/outline/x1	F	1	m	1...N		
+camera/channel/detector/outline/x2	F	1	m	camera(i1)/channel(i2)/detector/outline/x1		
+camera/channel/detector/surface	F	0	m^2			
+camera/channel/aperture	A	1		1...N		
+camera/channel/aperture/geometry_type	I	0				
+camera/channel/aperture/centre	S	0				
+camera/channel/aperture/centre/r	F	0	m			
+camera/channel/aperture/centre/phi	F	0	rad			
+camera/channel/aperture/centre/z	F	0	m			
+camera/channel/aperture/radius	F	0	m			
+camera/channel/aperture/x1_unit_vector	S	0				
+camera/channel/aperture/x1_unit_vector/x	F	0	m			
+camera/channel/aperture/x1_unit_vector/y	F	0	m			
+camera/channel/aperture/x1_unit_vector/z	F	0	m			
+camera/channel/aperture/x2_unit_vector	S	0				
+camera/channel/aperture/x2_unit_vector/x	F	0	m			
+camera/channel/aperture/x2_unit_vector/y	F	0	m			
+camera/channel/aperture/x2_unit_vector/z	F	0	m			
+camera/channel/aperture/x3_unit_vector	S	0				
+camera/channel/aperture/x3_unit_vector/x	F	0	m			
+camera/channel/aperture/x3_unit_vector/y	F	0	m			
+camera/channel/aperture/x3_unit_vector/z	F	0	m			
+camera/channel/aperture/x1_width	F	0	m			
+camera/channel/aperture/x2_width	F	0	m			
+camera/channel/aperture/outline	S	0				
+camera/channel/aperture/outline/x1	F	1	m	1...N		
+camera/channel/aperture/outline/x2	F	1	m	camera(i1)/channel(i2)/aperture(i3)/outline/x1		
+camera/channel/aperture/surface	F	0	m^2			
+camera/channel/subcollimators_n	I	0				
+camera/channel/subcollimators_separation	F	0	m			
+camera/channel/etendue	F	0	m^2.sr			
+camera/channel/etendue_method	S	0				
+camera/channel/etendue_method/name	T	0				
+camera/channel/etendue_method/index	I	0				
+camera/channel/etendue_method/description	T	0				
+camera/channel/line_of_sight	S	0				
+camera/channel/line_of_sight/first_point	S	0				
+camera/channel/line_of_sight/first_point/r	F	0	m			
+camera/channel/line_of_sight/first_point/phi	F	0	rad			
+camera/channel/line_of_sight/first_point/z	F	0	m			
+camera/channel/line_of_sight/second_point	S	0				
+camera/channel/line_of_sight/second_point/r	F	0	m			
+camera/channel/line_of_sight/second_point/phi	F	0	rad			
+camera/channel/line_of_sight/second_point/z	F	0	m			
+camera/channel/line_of_sight/third_point	S	0				
+camera/channel/line_of_sight/third_point/r	F	0	m			
+camera/channel/line_of_sight/third_point/phi	F	0	rad			
+camera/channel/line_of_sight/third_point/z	F	0	m			
+camera/channel/power	S	0	W			
+camera/channel/power/data	F	1	W	camera(i1)/channel(i2)/power/time		
+camera/channel/power/time	F	1	s	1...N		
+camera/channel/validity_timed	S	0				
+camera/channel/validity_timed/data	I	1		camera(i1)/channel(i2)/validity_timed/time		
+camera/channel/validity_timed/time	F	1	s	1...N		
+camera/channel/validity	I	0				
+power_radiated_total	F	1	W	time		
+power_radiated_inside_lcfs	F	1	W	time		
+power_radiated_validity	I	1		time		
+grid_type	S	0				
+grid_type/name	T	0				
+grid_type/index	I	0				
+grid_type/description	T	0				
+grid	S	0				
+grid/dim1	F	1	mixed	1...N		
+grid/dim2	F	1	mixed	1...N		
+grid/volume_element	F	2	m^3	grid/dim1|grid/dim2		
+power_density	S	0	W.m^-3			
+power_density/data	F	3	W.m^-3	grid/dim1|grid/dim2|power_density/time		
+power_density/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

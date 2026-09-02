@@ -1,0 +1,289 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids langmuir_probes
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+embedded	A	1		1...N		
+embedded/name	T	0				
+embedded/description	T	0				
+embedded/position	S	0				
+embedded/position/r	F	0	m			
+embedded/position/phi	F	0	rad			
+embedded/position/z	F	0	m			
+embedded/surface_area	F	0	m^2			
+embedded/surface_area_effective	S	0	m^2			
+embedded/surface_area_effective/data	F	1	m^2	embedded(i1)/time		
+embedded/surface_area_effective/validity_timed	I	1		embedded(i1)/time		
+embedded/surface_area_effective/validity	I	0				
+embedded/v_floating	S	0	V			
+embedded/v_floating/data	F	1	V	embedded(i1)/time		
+embedded/v_floating/validity_timed	I	1		embedded(i1)/time		
+embedded/v_floating/validity	I	0				
+embedded/v_floating_sigma	S	0	V			
+embedded/v_floating_sigma/data	F	1	V	embedded(i1)/time		
+embedded/v_floating_sigma/validity_timed	I	1		embedded(i1)/time		
+embedded/v_floating_sigma/validity	I	0				
+embedded/v_plasma	S	0	V			
+embedded/v_plasma/data	F	1	V	embedded(i1)/time		
+embedded/v_plasma/validity_timed	I	1		embedded(i1)/time		
+embedded/v_plasma/validity	I	0				
+embedded/t_e	S	0	eV			
+embedded/t_e/data	F	1	eV	embedded(i1)/time		
+embedded/t_e/validity_timed	I	1		embedded(i1)/time		
+embedded/t_e/validity	I	0				
+embedded/n_e	S	0	m^-3			
+embedded/n_e/data	F	1	m^-3	embedded(i1)/time		
+embedded/n_e/validity_timed	I	1		embedded(i1)/time		
+embedded/n_e/validity	I	0				
+embedded/t_i	S	0	eV			
+embedded/t_i/data	F	1	eV	embedded(i1)/time		
+embedded/t_i/validity_timed	I	1		embedded(i1)/time		
+embedded/t_i/validity	I	0				
+embedded/j_i_parallel	S	0	A.m^-2			
+embedded/j_i_parallel/data	F	1	A.m^-2	embedded(i1)/time		
+embedded/j_i_parallel/validity_timed	I	1		embedded(i1)/time		
+embedded/j_i_parallel/validity	I	0				
+embedded/j_i_parallel_sigma	S	0	A.m^-2			
+embedded/j_i_parallel_sigma/data	F	1	A.m^-2	embedded(i1)/time		
+embedded/j_i_parallel_sigma/validity_timed	I	1		embedded(i1)/time		
+embedded/j_i_parallel_sigma/validity	I	0				
+embedded/ion_saturation_current	S	0	A			
+embedded/ion_saturation_current/data	F	1	A	embedded(i1)/time		
+embedded/ion_saturation_current/validity_timed	I	1		embedded(i1)/time		
+embedded/ion_saturation_current/validity	I	0				
+embedded/j_i_saturation	S	0	A.m^-2			
+embedded/j_i_saturation/data	F	1	A.m^-2	embedded(i1)/time		
+embedded/j_i_saturation/validity_timed	I	1		embedded(i1)/time		
+embedded/j_i_saturation/validity	I	0				
+embedded/j_i_saturation_skew	S	0	1			
+embedded/j_i_saturation_skew/data	F	1	1	embedded(i1)/time		
+embedded/j_i_saturation_skew/validity_timed	I	1		embedded(i1)/time		
+embedded/j_i_saturation_skew/validity	I	0				
+embedded/j_i_saturation_kurtosis	S	0	1			
+embedded/j_i_saturation_kurtosis/data	F	1	1	embedded(i1)/time		
+embedded/j_i_saturation_kurtosis/validity_timed	I	1		embedded(i1)/time		
+embedded/j_i_saturation_kurtosis/validity	I	0				
+embedded/j_i_saturation_sigma	S	0	A.m^-2			
+embedded/j_i_saturation_sigma/data	F	1	A.m^-2	embedded(i1)/time		
+embedded/j_i_saturation_sigma/validity_timed	I	1		embedded(i1)/time		
+embedded/j_i_saturation_sigma/validity	I	0				
+embedded/heat_flux_parallel	S	0	W.m^-2			
+embedded/heat_flux_parallel/data	F	1	W.m^-2	embedded(i1)/time		
+embedded/heat_flux_parallel/validity_timed	I	1		embedded(i1)/time		
+embedded/heat_flux_parallel/validity	I	0				
+embedded/fluence	S	0	m^-2			
+embedded/fluence/data	F	1	m^-2	embedded(i1)/time		
+embedded/fluence/validity_timed	I	1		embedded(i1)/time		
+embedded/fluence/validity	I	0				
+embedded/b_field_angle	S	0	rad			
+embedded/b_field_angle/data	F	1	rad	embedded(i1)/time		
+embedded/b_field_angle/validity_timed	I	1		embedded(i1)/time		
+embedded/b_field_angle/validity	I	0				
+embedded/distance_separatrix_midplane	S	0	m			
+embedded/distance_separatrix_midplane/data	F	1	m	embedded(i1)/time		
+embedded/distance_separatrix_midplane/validity_timed	I	1		embedded(i1)/time		
+embedded/distance_separatrix_midplane/validity	I	0				
+embedded/multi_temperature_fits	A	1		1...N		
+embedded/multi_temperature_fits/t_e	S	0	eV			
+embedded/multi_temperature_fits/t_e/data	F	1	eV	embedded(i1)/multi_temperature_fits(i2)/time		
+embedded/multi_temperature_fits/t_e/validity_timed	I	1		embedded(i1)/multi_temperature_fits(i2)/time		
+embedded/multi_temperature_fits/t_e/validity	I	0				
+embedded/multi_temperature_fits/t_i	S	0	eV			
+embedded/multi_temperature_fits/t_i/data	F	1	eV	embedded(i1)/multi_temperature_fits(i2)/time		
+embedded/multi_temperature_fits/t_i/validity_timed	I	1		embedded(i1)/multi_temperature_fits(i2)/time		
+embedded/multi_temperature_fits/t_i/validity	I	0				
+embedded/multi_temperature_fits/time	F	1	s	1...N		
+embedded/time	F	1	s	1...N		
+reciprocating	A	1		1...N		
+reciprocating/name	T	0				
+reciprocating/description	T	0				
+reciprocating/surface_area	F	1	m^2	reciprocating(i1)/plunge(itime)/collector		
+reciprocating/plunge	A	1		reciprocating(i1)/plunge(itime)/time		
+reciprocating/plunge/position_average	S	0				
+reciprocating/plunge/position_average/r	F	1	m	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/position_average/z	F	1	m	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/position_average/phi	F	1	rad	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/position_average/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/position_average/validity	I	0				
+reciprocating/plunge/collector	A	1		1...N		
+reciprocating/plunge/collector/position	S	0				
+reciprocating/plunge/collector/position/r	F	1	m	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/position/z	F	1	m	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/position/phi	F	1	rad	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/position/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/position/validity	I	0				
+reciprocating/plunge/collector/v_floating	S	0	V			
+reciprocating/plunge/collector/v_floating/data	F	1	V	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/v_floating/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/v_floating/validity	I	0				
+reciprocating/plunge/collector/v_floating_sigma	S	0	V			
+reciprocating/plunge/collector/v_floating_sigma/data	F	1	V	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/v_floating_sigma/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/v_floating_sigma/validity	I	0				
+reciprocating/plunge/collector/t_e	S	0	eV			
+reciprocating/plunge/collector/t_e/data	F	1	eV	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/t_e/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/t_e/validity	I	0				
+reciprocating/plunge/collector/t_i	S	0	eV			
+reciprocating/plunge/collector/t_i/data	F	1	eV	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/t_i/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/t_i/validity	I	0				
+reciprocating/plunge/collector/j_i_parallel	S	0	A.m^-2			
+reciprocating/plunge/collector/j_i_parallel/data	F	1	A.m^-2	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_parallel/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_parallel/validity	I	0				
+reciprocating/plunge/collector/ion_saturation_current	S	0	A			
+reciprocating/plunge/collector/ion_saturation_current/data	F	1	A	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/ion_saturation_current/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/ion_saturation_current/validity	I	0				
+reciprocating/plunge/collector/j_i_saturation	S	0	A.m^-2			
+reciprocating/plunge/collector/j_i_saturation/data	F	1	A.m^-2	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_saturation/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_saturation/validity	I	0				
+reciprocating/plunge/collector/j_i_skew	S	0	1			
+reciprocating/plunge/collector/j_i_skew/data	F	1	1	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_skew/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_skew/validity	I	0				
+reciprocating/plunge/collector/j_i_kurtosis	S	0	1			
+reciprocating/plunge/collector/j_i_kurtosis/data	F	1	1	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_kurtosis/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_kurtosis/validity	I	0				
+reciprocating/plunge/collector/j_i_sigma	S	0	A.m^-2			
+reciprocating/plunge/collector/j_i_sigma/data	F	1	A.m^-2	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_sigma/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/j_i_sigma/validity	I	0				
+reciprocating/plunge/collector/heat_flux_parallel	S	0	W.m^-2			
+reciprocating/plunge/collector/heat_flux_parallel/data	F	1	W.m^-2	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/heat_flux_parallel/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/collector/heat_flux_parallel/validity	I	0				
+reciprocating/plunge/v_plasma	S	0	V			
+reciprocating/plunge/v_plasma/data	F	1	V	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/v_plasma/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/v_plasma/validity	I	0				
+reciprocating/plunge/t_e_average	S	0	eV			
+reciprocating/plunge/t_e_average/data	F	1	eV	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/t_e_average/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/t_e_average/validity	I	0				
+reciprocating/plunge/t_i_average	S	0	eV			
+reciprocating/plunge/t_i_average/data	F	1	eV	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/t_i_average/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/t_i_average/validity	I	0				
+reciprocating/plunge/n_e	S	0	m^-3			
+reciprocating/plunge/n_e/data	F	1	m^-3	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/n_e/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/n_e/validity	I	0				
+reciprocating/plunge/b_field_angle	S	0	rad			
+reciprocating/plunge/b_field_angle/data	F	1	rad	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/b_field_angle/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/b_field_angle/validity	I	0				
+reciprocating/plunge/distance_separatrix_midplane	S	0	m			
+reciprocating/plunge/distance_separatrix_midplane/data	F	1	m	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/distance_separatrix_midplane/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/distance_separatrix_midplane/validity	I	0				
+reciprocating/plunge/distance_x_point_z	S	0	m			
+reciprocating/plunge/distance_x_point_z/data	F	1	m	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/distance_x_point_z/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/distance_x_point_z/validity	I	0				
+reciprocating/plunge/mach_number_parallel	S	0	1			
+reciprocating/plunge/mach_number_parallel/data	F	1	1	reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/mach_number_parallel/validity_timed	I	1		reciprocating(i1)/plunge(itime)/time_within_plunge		
+reciprocating/plunge/mach_number_parallel/validity	I	0				
+reciprocating/plunge/time_within_plunge	F	1	s	1...N		
+reciprocating/plunge/time	F	0	s			
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

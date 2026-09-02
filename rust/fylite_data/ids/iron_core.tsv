@@ -1,0 +1,142 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids iron_core
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+segment	A	1		1...N		
+segment/name	T	0				
+segment/description	T	0				
+segment/b_field	F	1	T	1...N		
+segment/permeability_relative	F	1	1	segment(i1)/b_field		
+segment/geometry	S	0				
+segment/geometry/geometry_type	I	0				
+segment/geometry/outline	S	0				
+segment/geometry/outline/r	F	1	m	1...N		
+segment/geometry/outline/z	F	1	m	segment(i1)/geometry/outline/r		
+segment/geometry/rectangle	S	0				
+segment/geometry/rectangle/r	F	0	m			
+segment/geometry/rectangle/z	F	0	m			
+segment/geometry/rectangle/width	F	0	m			
+segment/geometry/rectangle/height	F	0	m			
+segment/geometry/oblique	S	0				
+segment/geometry/oblique/r	F	0	m			
+segment/geometry/oblique/z	F	0	m			
+segment/geometry/oblique/length_alpha	F	0	m			
+segment/geometry/oblique/length_beta	F	0	m			
+segment/geometry/oblique/alpha	F	0	rad			
+segment/geometry/oblique/beta	F	0	rad			
+segment/geometry/arcs_of_circle	S	0				
+segment/geometry/arcs_of_circle/r	F	1	m	1...N		
+segment/geometry/arcs_of_circle/z	F	1	m	segment(i1)/geometry/arcs_of_circle/r		
+segment/geometry/arcs_of_circle/curvature_radii	F	1	m	segment(i1)/geometry/arcs_of_circle/r		
+segment/geometry/annulus	S	0				
+segment/geometry/annulus/r	F	0	m			
+segment/geometry/annulus/z	F	0	m			
+segment/geometry/annulus/radius_inner	F	0	m			
+segment/geometry/annulus/radius_outer	F	0	m			
+segment/geometry/thick_line	S	0				
+segment/geometry/thick_line/first_point	S	0				
+segment/geometry/thick_line/first_point/r	F	0	m			
+segment/geometry/thick_line/first_point/z	F	0	m			
+segment/geometry/thick_line/second_point	S	0				
+segment/geometry/thick_line/second_point/r	F	0	m			
+segment/geometry/thick_line/second_point/z	F	0	m			
+segment/geometry/thick_line/thickness	F	0	m			
+segment/magnetization_r	S	0	T			
+segment/magnetization_r/data	F	1	T	segment(i1)/magnetization_r/time		
+segment/magnetization_r/time	F	1	s	1...N		
+segment/magnetization_z	S	0	T			
+segment/magnetization_z/data	F	1	T	segment(i1)/magnetization_z/time		
+segment/magnetization_z/time	F	1	s	1...N		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

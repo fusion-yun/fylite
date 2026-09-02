@@ -1,0 +1,240 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids tf
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+r0	F	0	m			
+is_periodic	I	0				
+coils_n	I	0				
+coil	A	1		1...N		
+coil/name	T	0				
+coil/description	T	0				
+coil/identifier	T	0				
+coil/conductor	A	1		1...N		
+coil/conductor/elements	S	0				
+coil/conductor/elements/types	I	1		1...N		
+coil/conductor/elements/start_points	S	0				
+coil/conductor/elements/start_points/r	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/start_points/phi	F	1	rad	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/start_points/z	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/intermediate_points	S	0				
+coil/conductor/elements/intermediate_points/r	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/intermediate_points/phi	F	1	rad	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/intermediate_points/z	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/end_points	S	0				
+coil/conductor/elements/end_points/r	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/end_points/phi	F	1	rad	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/end_points/z	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/centres	S	0				
+coil/conductor/elements/centres/r	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/centres/phi	F	1	rad	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/elements/centres/z	F	1	m	coil(i1)/conductor(i2)/elements/types		
+coil/conductor/cross_section	A	1		coil(i1)/conductor(i2)/elements/types OR 1...1		
+coil/conductor/cross_section/geometry_type	S	0				
+coil/conductor/cross_section/geometry_type/name	T	0				
+coil/conductor/cross_section/geometry_type/index	I	0				
+coil/conductor/cross_section/geometry_type/description	T	0				
+coil/conductor/cross_section/width	F	0	m			
+coil/conductor/cross_section/height	F	0	m			
+coil/conductor/cross_section/radius_inner	F	0	m			
+coil/conductor/cross_section/outline	S	0				
+coil/conductor/cross_section/outline/normal	F	1	m	1...N		
+coil/conductor/cross_section/outline/binormal	F	1	m	coil(i1)/conductor(i2)/cross_section(i3)/outline/normal		
+coil/conductor/cross_section/area	F	0	m^2			
+coil/conductor/resistance	F	0	ohm			
+coil/conductor/voltage	S	0	V			
+coil/conductor/voltage/data	F	1	V	coil(i1)/conductor(i2)/voltage/time		
+coil/conductor/voltage/time	F	1	s	1...N		
+coil/turns	F	0	1			
+coil/resistance	F	0	ohm			
+coil/current	S	0	A			
+coil/current/data	F	1	A	coil(i1)/current/time		
+coil/current/time	F	1	s	1...N		
+coil/voltage	S	0	V			
+coil/voltage/data	F	1	V	coil(i1)/voltage/time		
+coil/voltage/time	F	1	s	1...N		
+coil/neutron_fast_flux_inboard	S	0	m^-2.s^-1			
+coil/neutron_fast_flux_inboard/data	F	1	m^-2.s^-1	coil(i1)/neutron_fast_flux_inboard/time		
+coil/neutron_fast_flux_inboard/time	F	1	s	1...N		
+field_map	A	1		field_map(itime)/time		
+field_map/grid	S	0				
+field_map/grid/identifier	S	0				
+field_map/grid/identifier/name	T	0				
+field_map/grid/identifier/index	I	0				
+field_map/grid/identifier/description	T	0				
+field_map/grid/path	T	0				
+field_map/grid/space	A	1		1...N		
+field_map/grid/space/identifier	S	0				
+field_map/grid/space/identifier/name	T	0				
+field_map/grid/space/identifier/index	I	0				
+field_map/grid/space/identifier/description	T	0				
+field_map/grid/space/geometry_type	S	0				
+field_map/grid/space/geometry_type/name	T	0				
+field_map/grid/space/geometry_type/index	I	0				
+field_map/grid/space/geometry_type/description	T	0				
+field_map/grid/space/coordinates_type	A	1		1...N		
+field_map/grid/space/coordinates_type/name	T	0				
+field_map/grid/space/coordinates_type/index	I	0				
+field_map/grid/space/coordinates_type/description	T	0				
+field_map/grid/space/objects_per_dimension	A	1		1...N		
+field_map/grid/space/objects_per_dimension/object	A	1		1...N		
+field_map/grid/space/objects_per_dimension/object/boundary	A	1		1...N		
+field_map/grid/space/objects_per_dimension/object/boundary/index	I	0				
+field_map/grid/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+field_map/grid/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+field_map/grid/space/objects_per_dimension/object/nodes	I	1		1...N		
+field_map/grid/space/objects_per_dimension/object/measure	F	0	m^dimension			
+field_map/grid/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+field_map/grid/space/objects_per_dimension/geometry_content	S	0				
+field_map/grid/space/objects_per_dimension/geometry_content/name	T	0				
+field_map/grid/space/objects_per_dimension/geometry_content/index	I	0				
+field_map/grid/space/objects_per_dimension/geometry_content/description	T	0				
+field_map/grid/grid_subset	A	1		1...N		
+field_map/grid/grid_subset/identifier	S	0				
+field_map/grid/grid_subset/identifier/name	T	0				
+field_map/grid/grid_subset/identifier/index	I	0				
+field_map/grid/grid_subset/identifier/description	T	0				
+field_map/grid/grid_subset/dimension	I	0				
+field_map/grid/grid_subset/element	A	1		1...N		
+field_map/grid/grid_subset/element/object	A	1		1...N		
+field_map/grid/grid_subset/element/object/space	I	0				
+field_map/grid/grid_subset/element/object/dimension	I	0				
+field_map/grid/grid_subset/element/object/index	I	0				
+field_map/grid/grid_subset/base	A	1		1...N		
+field_map/grid/grid_subset/base/jacobian	F	1	mixed	field_map(itime)/grid/grid_subset(i1)/element		
+field_map/grid/grid_subset/base/tensor_covariant	F	3	mixed	field_map(itime)/grid/grid_subset(i1)/element|1...N|1...N		
+field_map/grid/grid_subset/base/tensor_contravariant	F	3	mixed	field_map(itime)/grid/grid_subset(i1)/element|1...N|1...N	|field_map(itime)/grid/grid_subset(i1)/base(i2)/tensor_covariant|field_map(itime)/grid/grid_subset(i1)/base(i2)/tensor_covariant	
+field_map/grid/grid_subset/metric	S	0				
+field_map/grid/grid_subset/metric/jacobian	F	1	mixed	field_map(itime)/grid/grid_subset(i1)/element		
+field_map/grid/grid_subset/metric/tensor_covariant	F	3	mixed	field_map(itime)/grid/grid_subset(i1)/element|1...N|1...N		
+field_map/grid/grid_subset/metric/tensor_contravariant	F	3	mixed	field_map(itime)/grid/grid_subset(i1)/element|1...N|1...N	|field_map(itime)/grid/grid_subset(i1)/metric/tensor_covariant|field_map(itime)/grid/grid_subset(i1)/metric/tensor_covariant	
+field_map/b_field_r	A	1	T	1...N		
+field_map/b_field_r/grid_index	I	0				
+field_map/b_field_r/grid_subset_index	I	0				
+field_map/b_field_r/values	F	1	T	1...N		
+field_map/b_field_r/coefficients	F	2	T	field_map(itime)/b_field_r(i1)/values|1...N		
+field_map/b_field_z	A	1	T	1...N		
+field_map/b_field_z/grid_index	I	0				
+field_map/b_field_z/grid_subset_index	I	0				
+field_map/b_field_z/values	F	1	T	1...N		
+field_map/b_field_z/coefficients	F	2	T	field_map(itime)/b_field_z(i1)/values|1...N		
+field_map/b_field_tor	A	1	T	1...N		
+field_map/b_field_tor/grid_index	I	0				
+field_map/b_field_tor/grid_subset_index	I	0				
+field_map/b_field_tor/values	F	1	T	1...N		
+field_map/b_field_tor/coefficients	F	2	T	field_map(itime)/b_field_tor(i1)/values|1...N		
+field_map/a_field_r	A	1	T.m	1...N		
+field_map/a_field_r/grid_index	I	0				
+field_map/a_field_r/grid_subset_index	I	0				
+field_map/a_field_r/values	F	1	T.m	1...N		
+field_map/a_field_r/coefficients	F	2	T.m	field_map(itime)/a_field_r(i1)/values|1...N		
+field_map/a_field_z	A	1	T.m	1...N		
+field_map/a_field_z/grid_index	I	0				
+field_map/a_field_z/grid_subset_index	I	0				
+field_map/a_field_z/values	F	1	T.m	1...N		
+field_map/a_field_z/coefficients	F	2	T.m	field_map(itime)/a_field_z(i1)/values|1...N		
+field_map/a_field_tor	A	1	T.m	1...N		
+field_map/a_field_tor/grid_index	I	0				
+field_map/a_field_tor/grid_subset_index	I	0				
+field_map/a_field_tor/values	F	1	T.m	1...N		
+field_map/a_field_tor/coefficients	F	2	T.m	field_map(itime)/a_field_tor(i1)/values|1...N		
+field_map/time	F	0	s			
+b_field_phi_vacuum_r	S	0	T.m			
+b_field_phi_vacuum_r/data	F	1	T.m	b_field_phi_vacuum_r/time		
+b_field_phi_vacuum_r/time	F	1	s	1...N		
+delta_b_field_phi_vacuum_r	S	0	T.m			
+delta_b_field_phi_vacuum_r/data	F	1	T.m	delta_b_field_phi_vacuum_r/time		
+delta_b_field_phi_vacuum_r/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

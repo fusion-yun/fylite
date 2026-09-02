@@ -1,0 +1,136 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids balance_of_plant
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+gain_plant	F	1	1	time		
+power_electricity_net	F	1	W	time		
+thermal_efficiency_cycle	F	1	1	time		
+thermal_efficiency_plant	F	1	1	time		
+power_electric_plant_operation	S	0				
+power_electric_plant_operation/power_total	F	1	W	time		
+power_electric_plant_operation/system	A	1		1...N		
+power_electric_plant_operation/system/name	T	0				
+power_electric_plant_operation/system/description	T	0				
+power_electric_plant_operation/system/power	F	1	W	time		
+power_electric_plant_operation/system/subsystem	A	1		1...N		
+power_electric_plant_operation/system/subsystem/name	T	0				
+power_electric_plant_operation/system/subsystem/description	T	0				
+power_electric_plant_operation/system/subsystem/power	F	1	W	time		
+power_plant	S	0				
+power_plant/generator_conversion_efficiency	F	1	1	time		
+power_plant/heat_load_breeder	F	1	W	time		
+power_plant/heat_load_divertor	F	1	W	time		
+power_plant/heat_load_wall	F	1	W	time		
+power_plant/power_cycle_type	S	0				
+power_plant/power_cycle_type/name	T	0				
+power_plant/power_cycle_type/index	I	0				
+power_plant/power_cycle_type/description	T	0				
+power_plant/power_electric_generated	F	1	W	time		
+power_plant/total_heat_rejected	F	1	W	time		
+power_plant/total_heat_supplied	F	1	W	time		
+power_plant/system	A	1		1...N		
+power_plant/system/name	T	0				
+power_plant/system/description	T	0				
+power_plant/system/component	A	1		1...N		
+power_plant/system/component/name	T	0				
+power_plant/system/component/description	T	0				
+power_plant/system/component/port	A	1		1...N		
+power_plant/system/component/port/description	T	0				
+power_plant/system/component/port/mass_flow	F	1	kg.s^-1	time		
+power_plant/system/component/port/power_mechanical	F	1	W	time		
+power_plant/system/component/port/pressure	F	1	Pa	time		
+power_plant/system/component/port/temperature	F	1	K	time		
+power_plant/system/component/port/power_thermal	F	1	W	time		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

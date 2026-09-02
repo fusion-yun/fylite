@@ -1,0 +1,304 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids mhd_linear
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+model_type	S	0				
+model_type/name	T	0				
+model_type/index	I	0				
+model_type/description	T	0				
+equations	S	0				
+equations/name	T	0				
+equations/index	I	0				
+equations/description	T	0				
+fluids_n	I	0				
+ideal_flag	I	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+time_slice	A	1		time_slice(itime)/time		
+time_slice/toroidal_mode	A	1		1...N		
+time_slice/toroidal_mode/perturbation_type	S	0				
+time_slice/toroidal_mode/perturbation_type/name	T	0				
+time_slice/toroidal_mode/perturbation_type/index	I	0				
+time_slice/toroidal_mode/perturbation_type/description	T	0				
+time_slice/toroidal_mode/n_phi	I	0				
+time_slice/toroidal_mode/m_pol_dominant	F	0	1			
+time_slice/toroidal_mode/ballooning_type	S	0				
+time_slice/toroidal_mode/ballooning_type/name	T	0				
+time_slice/toroidal_mode/ballooning_type/index	I	0				
+time_slice/toroidal_mode/ballooning_type/description	T	0				
+time_slice/toroidal_mode/radial_mode_number	F	0	1			
+time_slice/toroidal_mode/growthrate	F	0	Hz			
+time_slice/toroidal_mode/frequency	F	0	Hz			
+time_slice/toroidal_mode/phase	F	0	rad			
+time_slice/toroidal_mode/energy_perturbed	F	0	J			
+time_slice/toroidal_mode/amplitude_multiplier	F	0	mixed			
+time_slice/toroidal_mode/plasma	S	0				
+time_slice/toroidal_mode/plasma/grid_type	S	0				
+time_slice/toroidal_mode/plasma/grid_type/name	T	0				
+time_slice/toroidal_mode/plasma/grid_type/index	I	0				
+time_slice/toroidal_mode/plasma/grid_type/description	T	0				
+time_slice/toroidal_mode/plasma/grid	S	0				
+time_slice/toroidal_mode/plasma/grid/dim1	F	1	mixed	1...N		
+time_slice/toroidal_mode/plasma/grid/dim2	F	1	mixed	1...N		
+time_slice/toroidal_mode/plasma/grid/volume_element	F	2	m^3	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/coordinate_system	S	0				
+time_slice/toroidal_mode/plasma/coordinate_system/grid_type	S	0				
+time_slice/toroidal_mode/plasma/coordinate_system/grid_type/name	T	0				
+time_slice/toroidal_mode/plasma/coordinate_system/grid_type/index	I	0				
+time_slice/toroidal_mode/plasma/coordinate_system/grid_type/description	T	0				
+time_slice/toroidal_mode/plasma/coordinate_system/grid	S	0				
+time_slice/toroidal_mode/plasma/coordinate_system/grid/dim1	F	1	mixed	1...N		
+time_slice/toroidal_mode/plasma/coordinate_system/grid/dim2	F	1	mixed	1...N		
+time_slice/toroidal_mode/plasma/coordinate_system/grid/volume_element	F	2	m^3	time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/plasma/coordinate_system/r	F	2	m	time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/plasma/coordinate_system/z	F	2	m	time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/plasma/coordinate_system/jacobian	F	2	mixed	time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/plasma/coordinate_system/tensor_covariant	F	4	mixed	time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim2|1...3|1...3		
+time_slice/toroidal_mode/plasma/coordinate_system/tensor_contravariant	F	4	mixed	time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/coordinate_system/grid/dim2|1...3|1...3		
+time_slice/toroidal_mode/plasma/displacement_perpendicular	S	0	m			
+time_slice/toroidal_mode/plasma/displacement_perpendicular/real	F	2	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/displacement_perpendicular/imaginary	F	2	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/displacement_perpendicular/coefficients_real	F	3	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/displacement_perpendicular/coefficients_imaginary	F	3	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/displacement_parallel	S	0	m			
+time_slice/toroidal_mode/plasma/displacement_parallel/real	F	2	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/displacement_parallel/imaginary	F	2	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/displacement_parallel/coefficients_real	F	3	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/displacement_parallel/coefficients_imaginary	F	3	m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/tau_alfven	F	1	s	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1		
+time_slice/toroidal_mode/plasma/tau_resistive	F	1	s	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1		
+time_slice/toroidal_mode/plasma/a_field_perturbed	S	0	T.m			
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1	S	0	T.m			
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/real	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/imaginary	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/coefficients_real	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate1/coefficients_imaginary	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2	S	0	T.m			
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/real	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/imaginary	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/coefficients_real	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate2/coefficients_imaginary	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3	S	0	T.m			
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/real	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/imaginary	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/coefficients_real	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/a_field_perturbed/coordinate3/coefficients_imaginary	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/b_field_perturbed	S	0	T			
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate1	S	0	T			
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate1/real	F	2	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate1/imaginary	F	2	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate1/coefficients_real	F	3	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate1/coefficients_imaginary	F	3	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2	S	0	T			
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2/real	F	2	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2/imaginary	F	2	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2/coefficients_real	F	3	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate2/coefficients_imaginary	F	3	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3	S	0	T			
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3/real	F	2	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3/imaginary	F	2	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3/coefficients_real	F	3	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/b_field_perturbed/coordinate3/coefficients_imaginary	F	3	T	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/velocity_perturbed	S	0	m.s^-1			
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1	S	0	m.s^-1			
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1/real	F	2	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1/imaginary	F	2	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1/coefficients_real	F	3	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate1/coefficients_imaginary	F	3	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2	S	0	m.s^-1			
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2/real	F	2	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2/imaginary	F	2	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2/coefficients_real	F	3	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate2/coefficients_imaginary	F	3	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate3	S	0	m.s^-1			
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate3/real	F	2	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate3/imaginary	F	2	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate3/coefficients_real	F	3	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/velocity_perturbed/coordinate3/coefficients_imaginary	F	3	m.s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/pressure_perturbed	S	0	Pa			
+time_slice/toroidal_mode/plasma/pressure_perturbed/real	F	2	Pa	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/pressure_perturbed/imaginary	F	2	Pa	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/pressure_perturbed/coefficients_real	F	3	Pa	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/pressure_perturbed/coefficients_imaginary	F	3	Pa	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/mass_density_perturbed	S	0	kg.m^-3			
+time_slice/toroidal_mode/plasma/mass_density_perturbed/real	F	2	kg.m^-3	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/mass_density_perturbed/imaginary	F	2	kg.m^-3	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/mass_density_perturbed/coefficients_real	F	3	kg.m^-3	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/mass_density_perturbed/coefficients_imaginary	F	3	kg.m^-3	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/temperature_perturbed	S	0	eV			
+time_slice/toroidal_mode/plasma/temperature_perturbed/real	F	2	eV	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/temperature_perturbed/imaginary	F	2	eV	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/temperature_perturbed/coefficients_real	F	3	eV	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/temperature_perturbed/coefficients_imaginary	F	3	eV	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/phi_potential_perturbed	S	0	V			
+time_slice/toroidal_mode/plasma/phi_potential_perturbed/real	F	2	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/phi_potential_perturbed/imaginary	F	2	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/phi_potential_perturbed/coefficients_real	F	3	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/phi_potential_perturbed/coefficients_imaginary	F	3	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/psi_potential_perturbed	S	0	V			
+time_slice/toroidal_mode/plasma/psi_potential_perturbed/real	F	2	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/psi_potential_perturbed/imaginary	F	2	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2		
+time_slice/toroidal_mode/plasma/psi_potential_perturbed/coefficients_real	F	3	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/psi_potential_perturbed/coefficients_imaginary	F	3	V	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim2|1...N		
+time_slice/toroidal_mode/plasma/alfven_frequency_spectrum	A	1		time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1		
+time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/real	F	1	s^-1	1...N		
+time_slice/toroidal_mode/plasma/alfven_frequency_spectrum/imaginary	F	1	s^-1	time_slice(itime)/toroidal_mode(i1)/plasma/alfven_frequency_spectrum(i2)/real		
+time_slice/toroidal_mode/plasma/stress_maxwell	S	0				
+time_slice/toroidal_mode/plasma/stress_maxwell/real	F	3	N.m^-2	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|1...N|1...N		
+time_slice/toroidal_mode/plasma/stress_maxwell/imaginary	F	3	N.m^-2	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|1...N|1...N	|time_slice(itime)/toroidal_mode(i1)/plasma/stress_maxwell/real|time_slice(itime)/toroidal_mode(i1)/plasma/stress_maxwell/real	
+time_slice/toroidal_mode/plasma/stress_reynolds	S	0				
+time_slice/toroidal_mode/plasma/stress_reynolds/real	F	3	N.m^-2	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|1...N|1...N		
+time_slice/toroidal_mode/plasma/stress_reynolds/imaginary	F	3	N.m^-2	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|1...N|1...N	|time_slice(itime)/toroidal_mode(i1)/plasma/stress_reynolds/real|time_slice(itime)/toroidal_mode(i1)/plasma/stress_reynolds/real	
+time_slice/toroidal_mode/plasma/ntv	S	0				
+time_slice/toroidal_mode/plasma/ntv/real	F	3	N.m^-2	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|1...N|1...N		
+time_slice/toroidal_mode/plasma/ntv/imaginary	F	3	N.m^-2	time_slice(itime)/toroidal_mode(i1)/plasma/grid/dim1|1...N|1...N	|time_slice(itime)/toroidal_mode(i1)/plasma/ntv/real|time_slice(itime)/toroidal_mode(i1)/plasma/ntv/real	
+time_slice/toroidal_mode/vacuum	S	0				
+time_slice/toroidal_mode/vacuum/grid_type	S	0				
+time_slice/toroidal_mode/vacuum/grid_type/name	T	0				
+time_slice/toroidal_mode/vacuum/grid_type/index	I	0				
+time_slice/toroidal_mode/vacuum/grid_type/description	T	0				
+time_slice/toroidal_mode/vacuum/grid	S	0				
+time_slice/toroidal_mode/vacuum/grid/dim1	F	1	mixed	1...N		
+time_slice/toroidal_mode/vacuum/grid/dim2	F	1	mixed	1...N		
+time_slice/toroidal_mode/vacuum/grid/volume_element	F	2	m^3	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/coordinate_system	S	0				
+time_slice/toroidal_mode/vacuum/coordinate_system/grid_type	S	0				
+time_slice/toroidal_mode/vacuum/coordinate_system/grid_type/name	T	0				
+time_slice/toroidal_mode/vacuum/coordinate_system/grid_type/index	I	0				
+time_slice/toroidal_mode/vacuum/coordinate_system/grid_type/description	T	0				
+time_slice/toroidal_mode/vacuum/coordinate_system/grid	S	0				
+time_slice/toroidal_mode/vacuum/coordinate_system/grid/dim1	F	1	mixed	1...N		
+time_slice/toroidal_mode/vacuum/coordinate_system/grid/dim2	F	1	mixed	1...N		
+time_slice/toroidal_mode/vacuum/coordinate_system/grid/volume_element	F	2	m^3	time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/vacuum/coordinate_system/r	F	2	m	time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/vacuum/coordinate_system/z	F	2	m	time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/vacuum/coordinate_system/jacobian	F	2	mixed	time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim2		
+time_slice/toroidal_mode/vacuum/coordinate_system/tensor_covariant	F	4	mixed	time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim2|1...3|1...3		
+time_slice/toroidal_mode/vacuum/coordinate_system/tensor_contravariant	F	4	mixed	time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/coordinate_system/grid/dim2|1...3|1...3		
+time_slice/toroidal_mode/vacuum/a_field_perturbed	S	0	T.m			
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1	S	0	T.m			
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/real	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/imaginary	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/coefficients_real	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate1/coefficients_imaginary	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2	S	0	T.m			
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/real	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/imaginary	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/coefficients_real	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate2/coefficients_imaginary	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3	S	0	T.m			
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/real	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/imaginary	F	2	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/coefficients_real	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/a_field_perturbed/coordinate3/coefficients_imaginary	F	3	T.m	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/b_field_perturbed	S	0	T			
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1	S	0	T			
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/real	F	2	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/imaginary	F	2	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/coefficients_real	F	3	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate1/coefficients_imaginary	F	3	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate2	S	0	T			
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate2/real	F	2	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate2/imaginary	F	2	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate2/coefficients_real	F	3	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate2/coefficients_imaginary	F	3	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate3	S	0	T			
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate3/real	F	2	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate3/imaginary	F	2	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate3/coefficients_real	F	3	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/toroidal_mode/vacuum/b_field_perturbed/coordinate3/coefficients_imaginary	F	3	T	time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim1|time_slice(itime)/toroidal_mode(i1)/vacuum/grid/dim2|1...N		
+time_slice/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

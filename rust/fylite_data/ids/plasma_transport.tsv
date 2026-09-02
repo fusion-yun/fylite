@@ -1,0 +1,1850 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids plasma_transport
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+grid_ggd	A	1		grid_ggd(itime)/time		
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant	
+grid_ggd/time	F	0	s			
+model	A	1		1...N		
+model/comment	T	0				
+model/identifier	S	0				
+model/identifier/name	T	0				
+model/identifier/index	I	0				
+model/identifier/description	T	0				
+model/flux_multiplier	F	0	1			
+model/profiles_1d	A	1		model(i1)/profiles_1d(itime)/time		
+model/profiles_1d/grid_d	S	0				
+model/profiles_1d/grid_d/rho_pol_norm	F	1	1	1...N		model(i1)/profiles_1d(itime)/grid_d/rho_tor;model(i1)/profiles_1d(itime)/grid_d/psi;model(i1)/profiles_1d(itime)/grid_d/volume;model(i1)/profiles_1d(itime)/grid_d/area;model(i1)/profiles_1d(itime)/grid_d/surface;model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm
+model/profiles_1d/grid_d/psi	F	1	Wb	model(i1)/profiles_1d(itime)/grid_d/rho_pol_norm		
+model/profiles_1d/grid_d/rho_tor_norm	F	1	1	model(i1)/profiles_1d(itime)/grid_d/rho_pol_norm		
+model/profiles_1d/grid_d/rho_tor	F	1	m	model(i1)/profiles_1d(itime)/grid_d/rho_pol_norm		
+model/profiles_1d/grid_d/volume	F	1	m^3	model(i1)/profiles_1d(itime)/grid_d/rho_pol_norm		
+model/profiles_1d/grid_d/area	F	1	m^2	model(i1)/profiles_1d(itime)/grid_d/rho_pol_norm		
+model/profiles_1d/grid_d/surface	F	1	m^2	model(i1)/profiles_1d(itime)/grid_d/rho_pol_norm		
+model/profiles_1d/grid_d/psi_magnetic_axis	F	0	Wb			
+model/profiles_1d/grid_d/psi_boundary	F	0	Wb			
+model/profiles_1d/grid_v	S	0				
+model/profiles_1d/grid_v/rho_pol_norm	F	1	1	1...N		model(i1)/profiles_1d(itime)/grid_v/rho_tor;model(i1)/profiles_1d(itime)/grid_v/psi;model(i1)/profiles_1d(itime)/grid_v/volume;model(i1)/profiles_1d(itime)/grid_v/area;model(i1)/profiles_1d(itime)/grid_v/surface;model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm
+model/profiles_1d/grid_v/psi	F	1	Wb	model(i1)/profiles_1d(itime)/grid_v/rho_pol_norm		
+model/profiles_1d/grid_v/rho_tor_norm	F	1	1	model(i1)/profiles_1d(itime)/grid_v/rho_pol_norm		
+model/profiles_1d/grid_v/rho_tor	F	1	m	model(i1)/profiles_1d(itime)/grid_v/rho_pol_norm		
+model/profiles_1d/grid_v/volume	F	1	m^3	model(i1)/profiles_1d(itime)/grid_v/rho_pol_norm		
+model/profiles_1d/grid_v/area	F	1	m^2	model(i1)/profiles_1d(itime)/grid_v/rho_pol_norm		
+model/profiles_1d/grid_v/surface	F	1	m^2	model(i1)/profiles_1d(itime)/grid_v/rho_pol_norm		
+model/profiles_1d/grid_v/psi_magnetic_axis	F	0	Wb			
+model/profiles_1d/grid_v/psi_boundary	F	0	Wb			
+model/profiles_1d/grid_flux	S	0				
+model/profiles_1d/grid_flux/rho_pol_norm	F	1	1	1...N		model(i1)/profiles_1d(itime)/grid_flux/rho_tor;model(i1)/profiles_1d(itime)/grid_flux/psi;model(i1)/profiles_1d(itime)/grid_flux/volume;model(i1)/profiles_1d(itime)/grid_flux/area;model(i1)/profiles_1d(itime)/grid_flux/surface;model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm
+model/profiles_1d/grid_flux/psi	F	1	Wb	model(i1)/profiles_1d(itime)/grid_flux/rho_pol_norm		
+model/profiles_1d/grid_flux/rho_tor_norm	F	1	1	model(i1)/profiles_1d(itime)/grid_flux/rho_pol_norm		
+model/profiles_1d/grid_flux/rho_tor	F	1	m	model(i1)/profiles_1d(itime)/grid_flux/rho_pol_norm		
+model/profiles_1d/grid_flux/volume	F	1	m^3	model(i1)/profiles_1d(itime)/grid_flux/rho_pol_norm		
+model/profiles_1d/grid_flux/area	F	1	m^2	model(i1)/profiles_1d(itime)/grid_flux/rho_pol_norm		
+model/profiles_1d/grid_flux/surface	F	1	m^2	model(i1)/profiles_1d(itime)/grid_flux/rho_pol_norm		
+model/profiles_1d/grid_flux/psi_magnetic_axis	F	0	Wb			
+model/profiles_1d/grid_flux/psi_boundary	F	0	Wb			
+model/profiles_1d/conductivity_parallel	F	1	ohm^-1.m^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/electrons	S	0				
+model/profiles_1d/electrons/particles	S	0				
+model/profiles_1d/electrons/particles/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/electrons/particles/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/electrons/particles/flux	F	1	m^-2.s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/electrons/energy	S	0				
+model/profiles_1d/electrons/energy/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/electrons/energy/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/electrons/energy/flux	F	1	W.m^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/total_ion_energy	S	0				
+model/profiles_1d/total_ion_energy/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/total_ion_energy/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/total_ion_energy/flux	F	1	W.m^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/momentum_phi	S	0				
+model/profiles_1d/momentum_phi/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/momentum_phi/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/momentum_phi/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/e_field_radial	F	1	V.m^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion	A	1		1...N		
+model/profiles_1d/ion/element	A	1		1...N		
+model/profiles_1d/ion/element/a	F	0	u			
+model/profiles_1d/ion/element/z_n	I	0	e			
+model/profiles_1d/ion/element/atoms_n	I	0				
+model/profiles_1d/ion/z_ion	F	0	e			
+model/profiles_1d/ion/name	T	0				
+model/profiles_1d/ion/neutral_index	I	0				
+model/profiles_1d/ion/particles	S	0				
+model/profiles_1d/ion/particles/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/particles/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/particles/flux	F	1	m^-2.s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/energy	S	0				
+model/profiles_1d/ion/energy/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/energy/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/energy/flux	F	1	W.m^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum	S	0				
+model/profiles_1d/ion/momentum/radial	S	0				
+model/profiles_1d/ion/momentum/radial/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/momentum/radial/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/momentum/radial/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/radial/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/diamagnetic	S	0				
+model/profiles_1d/ion/momentum/diamagnetic/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/momentum/diamagnetic/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/momentum/diamagnetic/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/diamagnetic/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/parallel	S	0				
+model/profiles_1d/ion/momentum/parallel/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/momentum/parallel/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/momentum/parallel/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/parallel/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/poloidal	S	0				
+model/profiles_1d/ion/momentum/poloidal/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/momentum/poloidal/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/momentum/poloidal/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/poloidal/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/toroidal	S	0				
+model/profiles_1d/ion/momentum/toroidal/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/momentum/toroidal/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/momentum/toroidal/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/momentum/toroidal/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/multiple_states_flag	I	0				
+model/profiles_1d/ion/state	A	1		1...N		
+model/profiles_1d/ion/state/z_min	F	0	e			
+model/profiles_1d/ion/state/z_max	F	0	e			
+model/profiles_1d/ion/state/name	T	0				
+model/profiles_1d/ion/state/vibrational_level	F	0	e			
+model/profiles_1d/ion/state/vibrational_mode	T	0				
+model/profiles_1d/ion/state/electron_configuration	T	0				
+model/profiles_1d/ion/state/particles	S	0				
+model/profiles_1d/ion/state/particles/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/particles/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/particles/flux	F	1	m^-2.s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/energy	S	0				
+model/profiles_1d/ion/state/energy/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/energy/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/energy/flux	F	1	W.m^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum	S	0				
+model/profiles_1d/ion/state/momentum/radial	S	0				
+model/profiles_1d/ion/state/momentum/radial/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/radial/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/radial/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/radial/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/diamagnetic	S	0				
+model/profiles_1d/ion/state/momentum/diamagnetic/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/diamagnetic/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/diamagnetic/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/diamagnetic/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/parallel	S	0				
+model/profiles_1d/ion/state/momentum/parallel/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/parallel/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/parallel/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/parallel/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/poloidal	S	0				
+model/profiles_1d/ion/state/momentum/poloidal/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/poloidal/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/poloidal/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/poloidal/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/toroidal	S	0				
+model/profiles_1d/ion/state/momentum/toroidal/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/toroidal/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/toroidal/flux	F	1	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/ion/state/momentum/toroidal/flow_damping_rate	F	1	s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/neutral	A	1		1...N		
+model/profiles_1d/neutral/element	A	1		1...N		
+model/profiles_1d/neutral/element/a	F	0	u			
+model/profiles_1d/neutral/element/z_n	I	0	e			
+model/profiles_1d/neutral/element/atoms_n	I	0				
+model/profiles_1d/neutral/name	T	0				
+model/profiles_1d/neutral/ion_index	I	0				
+model/profiles_1d/neutral/particles	S	0				
+model/profiles_1d/neutral/particles/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/neutral/particles/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/neutral/particles/flux	F	1	m^-2.s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/neutral/energy	S	0				
+model/profiles_1d/neutral/energy/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/neutral/energy/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/neutral/energy/flux	F	1	W.m^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/neutral/multiple_states_flag	I	0				
+model/profiles_1d/neutral/state	A	1		1...N		
+model/profiles_1d/neutral/state/name	T	0				
+model/profiles_1d/neutral/state/vibrational_level	F	0	e			
+model/profiles_1d/neutral/state/vibrational_mode	T	0				
+model/profiles_1d/neutral/state/neutral_type	S	0				
+model/profiles_1d/neutral/state/neutral_type/name	T	0				
+model/profiles_1d/neutral/state/neutral_type/index	I	0				
+model/profiles_1d/neutral/state/neutral_type/description	T	0				
+model/profiles_1d/neutral/state/electron_configuration	T	0				
+model/profiles_1d/neutral/state/particles	S	0				
+model/profiles_1d/neutral/state/particles/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/neutral/state/particles/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/neutral/state/particles/flux	F	1	m^-2.s^-1	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/neutral/state/energy	S	0				
+model/profiles_1d/neutral/state/energy/d	F	1	m^2.s^-1	model(i1)/profiles_1d(itime)/grid_d/rho_tor_norm		
+model/profiles_1d/neutral/state/energy/v	F	1	m.s^-1	model(i1)/profiles_1d(itime)/grid_v/rho_tor_norm		
+model/profiles_1d/neutral/state/energy/flux	F	1	W.m^-2	model(i1)/profiles_1d(itime)/grid_flux/rho_tor_norm		
+model/profiles_1d/neutral/state/momentum	S	0				
+model/profiles_1d/neutral/state/momentum/d	A	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/d/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/d/radial	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/radial_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d/diamagnetic	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/diamagnetic_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d/parallel	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/parallel_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d/poloidal	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/poloidal_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d/r	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/r_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d/phi	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/phi_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d/z	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d/z_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v	A	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/v/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/v/radial	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v/diamagnetic	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v/parallel	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v/poloidal	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v/r	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/r_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v/phi	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/v/z	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v/z_coefficients	F	2	m.s^-1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux	A	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux/radial	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux/parallel	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux/poloidal	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux/r	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux/phi	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux/z	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter	A	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_limiter/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_limiter/radial	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/radial_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/diamagnetic	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/diamagnetic_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/parallel	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/parallel_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/poloidal	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/poloidal_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/r	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/r_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/phi	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/phi_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/z	F	1	1	1...N		
+model/profiles_1d/neutral/state/momentum/flux_limiter/z_coefficients	F	2	1	1...N|1...N		
+model/profiles_1d/neutral/state/momentum/d_radial	A	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d_radial/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/d_radial/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/d_radial/values	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/d_radial(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/v_radial	A	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v_radial/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/v_radial/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/v_radial/values	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v_radial/coefficients	F	2	m.s^-1	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/v_radial(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/flux_radial	A	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux_radial/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_radial/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_radial/values	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux_radial/coefficients	F	2	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/flux_radial(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/d_pol	A	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d_pol/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/d_pol/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/d_pol/values	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/d_pol(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/v_pol	A	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v_pol/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/v_pol/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/v_pol/values	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v_pol/coefficients	F	2	m.s^-1	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/v_pol(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/flux_pol	A	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux_pol/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_pol/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_pol/values	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux_pol/coefficients	F	2	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/flux_pol(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/d_parallel	A	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d_parallel/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/d_parallel/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/d_parallel(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/v_parallel	A	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v_parallel/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/v_parallel/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/v_parallel/values	F	1	m.s^-1	1...N		
+model/profiles_1d/neutral/state/momentum/v_parallel/coefficients	F	2	m.s^-1	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/v_parallel(i4)/values|1...N		
+model/profiles_1d/neutral/state/momentum/flux_parallel	A	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux_parallel/grid_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_parallel/grid_subset_index	I	0				
+model/profiles_1d/neutral/state/momentum/flux_parallel/values	F	1	kg.m^-1.s^-2	1...N		
+model/profiles_1d/neutral/state/momentum/flux_parallel/coefficients	F	2	kg.m^-1.s^-2	model(i1)/profiles_1d(itime)/neutral(i2)/state(i3)/momentum/flux_parallel(i4)/values|1...N		
+model/profiles_1d/time	F	0	s			
+model/ggd	A	1		model(i1)/ggd(itime)/time		
+model/ggd/conductivity	A	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/grid_index	I	0				
+model/ggd/conductivity/grid_subset_index	I	0				
+model/ggd/conductivity/radial	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/radial_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/conductivity/diamagnetic	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/diamagnetic_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/conductivity/parallel	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/parallel_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/conductivity/poloidal	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/poloidal_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/conductivity/r	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/r_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/conductivity/phi	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/phi_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/conductivity/z	F	1	ohm^-1.m^-1	1...N		
+model/ggd/conductivity/z_coefficients	F	2	ohm^-1.m^-1	1...N|1...N		
+model/ggd/electrons	S	0				
+model/ggd/electrons/particles	S	0				
+model/ggd/electrons/particles/d	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d/grid_index	I	0				
+model/ggd/electrons/particles/d/grid_subset_index	I	0				
+model/ggd/electrons/particles/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/particles/d(i2)/values|1...N		
+model/ggd/electrons/particles/v	A	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v/grid_index	I	0				
+model/ggd/electrons/particles/v/grid_subset_index	I	0				
+model/ggd/electrons/particles/v/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/particles/v(i2)/values|1...N		
+model/ggd/electrons/particles/flux	A	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux/grid_index	I	0				
+model/ggd/electrons/particles/flux/grid_subset_index	I	0				
+model/ggd/electrons/particles/flux/values	F	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/electrons/particles/flux(i2)/values|1...N		
+model/ggd/electrons/particles/flux_limiter	A	1	1	1...N		
+model/ggd/electrons/particles/flux_limiter/grid_index	I	0				
+model/ggd/electrons/particles/flux_limiter/grid_subset_index	I	0				
+model/ggd/electrons/particles/flux_limiter/values	F	1	1	1...N		
+model/ggd/electrons/particles/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/electrons/particles/flux_limiter(i2)/values|1...N		
+model/ggd/electrons/particles/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d_radial/grid_index	I	0				
+model/ggd/electrons/particles/d_radial/grid_subset_index	I	0				
+model/ggd/electrons/particles/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/particles/d_radial(i2)/values|1...N		
+model/ggd/electrons/particles/v_radial	A	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v_radial/grid_index	I	0				
+model/ggd/electrons/particles/v_radial/grid_subset_index	I	0				
+model/ggd/electrons/particles/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/particles/v_radial(i2)/values|1...N		
+model/ggd/electrons/particles/flux_radial	A	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux_radial/grid_index	I	0				
+model/ggd/electrons/particles/flux_radial/grid_subset_index	I	0				
+model/ggd/electrons/particles/flux_radial/values	F	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux_radial/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/electrons/particles/flux_radial(i2)/values|1...N		
+model/ggd/electrons/particles/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d_pol/grid_index	I	0				
+model/ggd/electrons/particles/d_pol/grid_subset_index	I	0				
+model/ggd/electrons/particles/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/particles/d_pol(i2)/values|1...N		
+model/ggd/electrons/particles/v_pol	A	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v_pol/grid_index	I	0				
+model/ggd/electrons/particles/v_pol/grid_subset_index	I	0				
+model/ggd/electrons/particles/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/particles/v_pol(i2)/values|1...N		
+model/ggd/electrons/particles/flux_pol	A	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux_pol/grid_index	I	0				
+model/ggd/electrons/particles/flux_pol/grid_subset_index	I	0				
+model/ggd/electrons/particles/flux_pol/values	F	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux_pol/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/electrons/particles/flux_pol(i2)/values|1...N		
+model/ggd/electrons/particles/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d_parallel/grid_index	I	0				
+model/ggd/electrons/particles/d_parallel/grid_subset_index	I	0				
+model/ggd/electrons/particles/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/particles/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/particles/d_parallel(i2)/values|1...N		
+model/ggd/electrons/particles/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v_parallel/grid_index	I	0				
+model/ggd/electrons/particles/v_parallel/grid_subset_index	I	0				
+model/ggd/electrons/particles/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/particles/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/particles/v_parallel(i2)/values|1...N		
+model/ggd/electrons/particles/flux_parallel	A	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux_parallel/grid_index	I	0				
+model/ggd/electrons/particles/flux_parallel/grid_subset_index	I	0				
+model/ggd/electrons/particles/flux_parallel/values	F	1	m^-2.s^-1	1...N		
+model/ggd/electrons/particles/flux_parallel/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/electrons/particles/flux_parallel(i2)/values|1...N		
+model/ggd/electrons/energy	S	0				
+model/ggd/electrons/energy/d	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d/grid_index	I	0				
+model/ggd/electrons/energy/d/grid_subset_index	I	0				
+model/ggd/electrons/energy/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/energy/d(i2)/values|1...N		
+model/ggd/electrons/energy/v	A	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v/grid_index	I	0				
+model/ggd/electrons/energy/v/grid_subset_index	I	0				
+model/ggd/electrons/energy/v/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/energy/v(i2)/values|1...N		
+model/ggd/electrons/energy/flux	A	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux/grid_index	I	0				
+model/ggd/electrons/energy/flux/grid_subset_index	I	0				
+model/ggd/electrons/energy/flux/values	F	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/electrons/energy/flux(i2)/values|1...N		
+model/ggd/electrons/energy/flux_limiter	A	1	1	1...N		
+model/ggd/electrons/energy/flux_limiter/grid_index	I	0				
+model/ggd/electrons/energy/flux_limiter/grid_subset_index	I	0				
+model/ggd/electrons/energy/flux_limiter/values	F	1	1	1...N		
+model/ggd/electrons/energy/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/electrons/energy/flux_limiter(i2)/values|1...N		
+model/ggd/electrons/energy/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d_radial/grid_index	I	0				
+model/ggd/electrons/energy/d_radial/grid_subset_index	I	0				
+model/ggd/electrons/energy/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/energy/d_radial(i2)/values|1...N		
+model/ggd/electrons/energy/v_radial	A	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v_radial/grid_index	I	0				
+model/ggd/electrons/energy/v_radial/grid_subset_index	I	0				
+model/ggd/electrons/energy/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/energy/v_radial(i2)/values|1...N		
+model/ggd/electrons/energy/flux_radial	A	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux_radial/grid_index	I	0				
+model/ggd/electrons/energy/flux_radial/grid_subset_index	I	0				
+model/ggd/electrons/energy/flux_radial/values	F	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux_radial/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/electrons/energy/flux_radial(i2)/values|1...N		
+model/ggd/electrons/energy/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d_pol/grid_index	I	0				
+model/ggd/electrons/energy/d_pol/grid_subset_index	I	0				
+model/ggd/electrons/energy/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/energy/d_pol(i2)/values|1...N		
+model/ggd/electrons/energy/v_pol	A	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v_pol/grid_index	I	0				
+model/ggd/electrons/energy/v_pol/grid_subset_index	I	0				
+model/ggd/electrons/energy/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/energy/v_pol(i2)/values|1...N		
+model/ggd/electrons/energy/flux_pol	A	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux_pol/grid_index	I	0				
+model/ggd/electrons/energy/flux_pol/grid_subset_index	I	0				
+model/ggd/electrons/energy/flux_pol/values	F	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux_pol/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/electrons/energy/flux_pol(i2)/values|1...N		
+model/ggd/electrons/energy/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d_parallel/grid_index	I	0				
+model/ggd/electrons/energy/d_parallel/grid_subset_index	I	0				
+model/ggd/electrons/energy/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/electrons/energy/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/electrons/energy/d_parallel(i2)/values|1...N		
+model/ggd/electrons/energy/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v_parallel/grid_index	I	0				
+model/ggd/electrons/energy/v_parallel/grid_subset_index	I	0				
+model/ggd/electrons/energy/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/electrons/energy/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/electrons/energy/v_parallel(i2)/values|1...N		
+model/ggd/electrons/energy/flux_parallel	A	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux_parallel/grid_index	I	0				
+model/ggd/electrons/energy/flux_parallel/grid_subset_index	I	0				
+model/ggd/electrons/energy/flux_parallel/values	F	1	W.m^-2	1...N		
+model/ggd/electrons/energy/flux_parallel/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/electrons/energy/flux_parallel(i2)/values|1...N		
+model/ggd/total_ion_energy	S	0				
+model/ggd/total_ion_energy/d	A	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d/grid_index	I	0				
+model/ggd/total_ion_energy/d/grid_subset_index	I	0				
+model/ggd/total_ion_energy/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/total_ion_energy/d(i2)/values|1...N		
+model/ggd/total_ion_energy/v	A	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v/grid_index	I	0				
+model/ggd/total_ion_energy/v/grid_subset_index	I	0				
+model/ggd/total_ion_energy/v/values	F	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/total_ion_energy/v(i2)/values|1...N		
+model/ggd/total_ion_energy/flux	A	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux/grid_index	I	0				
+model/ggd/total_ion_energy/flux/grid_subset_index	I	0				
+model/ggd/total_ion_energy/flux/values	F	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/total_ion_energy/flux(i2)/values|1...N		
+model/ggd/total_ion_energy/flux_limiter	A	1	1	1...N		
+model/ggd/total_ion_energy/flux_limiter/grid_index	I	0				
+model/ggd/total_ion_energy/flux_limiter/grid_subset_index	I	0				
+model/ggd/total_ion_energy/flux_limiter/values	F	1	1	1...N		
+model/ggd/total_ion_energy/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/total_ion_energy/flux_limiter(i2)/values|1...N		
+model/ggd/total_ion_energy/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d_radial/grid_index	I	0				
+model/ggd/total_ion_energy/d_radial/grid_subset_index	I	0				
+model/ggd/total_ion_energy/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/total_ion_energy/d_radial(i2)/values|1...N		
+model/ggd/total_ion_energy/v_radial	A	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v_radial/grid_index	I	0				
+model/ggd/total_ion_energy/v_radial/grid_subset_index	I	0				
+model/ggd/total_ion_energy/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/total_ion_energy/v_radial(i2)/values|1...N		
+model/ggd/total_ion_energy/flux_radial	A	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux_radial/grid_index	I	0				
+model/ggd/total_ion_energy/flux_radial/grid_subset_index	I	0				
+model/ggd/total_ion_energy/flux_radial/values	F	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux_radial/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/total_ion_energy/flux_radial(i2)/values|1...N		
+model/ggd/total_ion_energy/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d_pol/grid_index	I	0				
+model/ggd/total_ion_energy/d_pol/grid_subset_index	I	0				
+model/ggd/total_ion_energy/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/total_ion_energy/d_pol(i2)/values|1...N		
+model/ggd/total_ion_energy/v_pol	A	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v_pol/grid_index	I	0				
+model/ggd/total_ion_energy/v_pol/grid_subset_index	I	0				
+model/ggd/total_ion_energy/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/total_ion_energy/v_pol(i2)/values|1...N		
+model/ggd/total_ion_energy/flux_pol	A	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux_pol/grid_index	I	0				
+model/ggd/total_ion_energy/flux_pol/grid_subset_index	I	0				
+model/ggd/total_ion_energy/flux_pol/values	F	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux_pol/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/total_ion_energy/flux_pol(i2)/values|1...N		
+model/ggd/total_ion_energy/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d_parallel/grid_index	I	0				
+model/ggd/total_ion_energy/d_parallel/grid_subset_index	I	0				
+model/ggd/total_ion_energy/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/total_ion_energy/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/total_ion_energy/d_parallel(i2)/values|1...N		
+model/ggd/total_ion_energy/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v_parallel/grid_index	I	0				
+model/ggd/total_ion_energy/v_parallel/grid_subset_index	I	0				
+model/ggd/total_ion_energy/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/total_ion_energy/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/total_ion_energy/v_parallel(i2)/values|1...N		
+model/ggd/total_ion_energy/flux_parallel	A	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux_parallel/grid_index	I	0				
+model/ggd/total_ion_energy/flux_parallel/grid_subset_index	I	0				
+model/ggd/total_ion_energy/flux_parallel/values	F	1	W.m^-2	1...N		
+model/ggd/total_ion_energy/flux_parallel/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/total_ion_energy/flux_parallel(i2)/values|1...N		
+model/ggd/momentum	S	0				
+model/ggd/momentum/d	A	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/grid_index	I	0				
+model/ggd/momentum/d/grid_subset_index	I	0				
+model/ggd/momentum/d/radial	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/radial_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/d/diamagnetic	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/diamagnetic_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/d/parallel	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/parallel_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/d/poloidal	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/poloidal_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/d/r	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/r_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/d/phi	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/phi_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/d/z	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d/z_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/momentum/v	A	1	m.s^-1	1...N		
+model/ggd/momentum/v/grid_index	I	0				
+model/ggd/momentum/v/grid_subset_index	I	0				
+model/ggd/momentum/v/radial	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/v/diamagnetic	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/v/parallel	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/v/poloidal	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/v/r	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/r_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/v/phi	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/v/z	F	1	m.s^-1	1...N		
+model/ggd/momentum/v/z_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/momentum/flux	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/grid_index	I	0				
+model/ggd/momentum/flux/grid_subset_index	I	0				
+model/ggd/momentum/flux/radial	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux/parallel	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux/poloidal	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux/r	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux/phi	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux/z	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/momentum/flux_limiter	A	1	1	1...N		
+model/ggd/momentum/flux_limiter/grid_index	I	0				
+model/ggd/momentum/flux_limiter/grid_subset_index	I	0				
+model/ggd/momentum/flux_limiter/radial	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/radial_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/flux_limiter/diamagnetic	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/diamagnetic_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/flux_limiter/parallel	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/parallel_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/flux_limiter/poloidal	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/poloidal_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/flux_limiter/r	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/r_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/flux_limiter/phi	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/phi_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/flux_limiter/z	F	1	1	1...N		
+model/ggd/momentum/flux_limiter/z_coefficients	F	2	1	1...N|1...N		
+model/ggd/momentum/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/momentum/d_radial/grid_index	I	0				
+model/ggd/momentum/d_radial/grid_subset_index	I	0				
+model/ggd/momentum/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/momentum/d_radial(i2)/values|1...N		
+model/ggd/momentum/v_radial	A	1	m.s^-1	1...N		
+model/ggd/momentum/v_radial/grid_index	I	0				
+model/ggd/momentum/v_radial/grid_subset_index	I	0				
+model/ggd/momentum/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/momentum/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/momentum/v_radial(i2)/values|1...N		
+model/ggd/momentum/flux_radial	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux_radial/grid_index	I	0				
+model/ggd/momentum/flux_radial/grid_subset_index	I	0				
+model/ggd/momentum/flux_radial/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux_radial/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/momentum/flux_radial(i2)/values|1...N		
+model/ggd/momentum/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/momentum/d_pol/grid_index	I	0				
+model/ggd/momentum/d_pol/grid_subset_index	I	0				
+model/ggd/momentum/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/momentum/d_pol(i2)/values|1...N		
+model/ggd/momentum/v_pol	A	1	m.s^-1	1...N		
+model/ggd/momentum/v_pol/grid_index	I	0				
+model/ggd/momentum/v_pol/grid_subset_index	I	0				
+model/ggd/momentum/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/momentum/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/momentum/v_pol(i2)/values|1...N		
+model/ggd/momentum/flux_pol	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux_pol/grid_index	I	0				
+model/ggd/momentum/flux_pol/grid_subset_index	I	0				
+model/ggd/momentum/flux_pol/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux_pol/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/momentum/flux_pol(i2)/values|1...N		
+model/ggd/momentum/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/momentum/d_parallel/grid_index	I	0				
+model/ggd/momentum/d_parallel/grid_subset_index	I	0				
+model/ggd/momentum/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/momentum/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/momentum/d_parallel(i2)/values|1...N		
+model/ggd/momentum/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/momentum/v_parallel/grid_index	I	0				
+model/ggd/momentum/v_parallel/grid_subset_index	I	0				
+model/ggd/momentum/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/momentum/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/momentum/v_parallel(i2)/values|1...N		
+model/ggd/momentum/flux_parallel	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux_parallel/grid_index	I	0				
+model/ggd/momentum/flux_parallel/grid_subset_index	I	0				
+model/ggd/momentum/flux_parallel/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/momentum/flux_parallel/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/momentum/flux_parallel(i2)/values|1...N		
+model/ggd/ion	A	1		1...N		
+model/ggd/ion/element	A	1		1...N		
+model/ggd/ion/element/a	F	0	u			
+model/ggd/ion/element/z_n	I	0	e			
+model/ggd/ion/element/atoms_n	I	0				
+model/ggd/ion/z_ion	F	0	e			
+model/ggd/ion/name	T	0				
+model/ggd/ion/neutral_index	I	0				
+model/ggd/ion/particles	S	0				
+model/ggd/ion/particles/d	A	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d/grid_index	I	0				
+model/ggd/ion/particles/d/grid_subset_index	I	0				
+model/ggd/ion/particles/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/d(i3)/values|1...N		
+model/ggd/ion/particles/v	A	1	m.s^-1	1...N		
+model/ggd/ion/particles/v/grid_index	I	0				
+model/ggd/ion/particles/v/grid_subset_index	I	0				
+model/ggd/ion/particles/v/values	F	1	m.s^-1	1...N		
+model/ggd/ion/particles/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/v(i3)/values|1...N		
+model/ggd/ion/particles/flux	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux/grid_index	I	0				
+model/ggd/ion/particles/flux/grid_subset_index	I	0				
+model/ggd/ion/particles/flux/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/flux(i3)/values|1...N		
+model/ggd/ion/particles/flux_limiter	A	1	1	1...N		
+model/ggd/ion/particles/flux_limiter/grid_index	I	0				
+model/ggd/ion/particles/flux_limiter/grid_subset_index	I	0				
+model/ggd/ion/particles/flux_limiter/values	F	1	1	1...N		
+model/ggd/ion/particles/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/ion(i2)/particles/flux_limiter(i3)/values|1...N		
+model/ggd/ion/particles/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d_radial/grid_index	I	0				
+model/ggd/ion/particles/d_radial/grid_subset_index	I	0				
+model/ggd/ion/particles/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/d_radial(i3)/values|1...N		
+model/ggd/ion/particles/v_radial	A	1	m.s^-1	1...N		
+model/ggd/ion/particles/v_radial/grid_index	I	0				
+model/ggd/ion/particles/v_radial/grid_subset_index	I	0				
+model/ggd/ion/particles/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/ion/particles/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/v_radial(i3)/values|1...N		
+model/ggd/ion/particles/flux_radial	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux_radial/grid_index	I	0				
+model/ggd/ion/particles/flux_radial/grid_subset_index	I	0				
+model/ggd/ion/particles/flux_radial/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux_radial/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/flux_radial(i3)/values|1...N		
+model/ggd/ion/particles/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d_pol/grid_index	I	0				
+model/ggd/ion/particles/d_pol/grid_subset_index	I	0				
+model/ggd/ion/particles/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/d_pol(i3)/values|1...N		
+model/ggd/ion/particles/v_pol	A	1	m.s^-1	1...N		
+model/ggd/ion/particles/v_pol/grid_index	I	0				
+model/ggd/ion/particles/v_pol/grid_subset_index	I	0				
+model/ggd/ion/particles/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/ion/particles/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/v_pol(i3)/values|1...N		
+model/ggd/ion/particles/flux_pol	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux_pol/grid_index	I	0				
+model/ggd/ion/particles/flux_pol/grid_subset_index	I	0				
+model/ggd/ion/particles/flux_pol/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux_pol/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/flux_pol(i3)/values|1...N		
+model/ggd/ion/particles/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d_parallel/grid_index	I	0				
+model/ggd/ion/particles/d_parallel/grid_subset_index	I	0				
+model/ggd/ion/particles/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/particles/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/d_parallel(i3)/values|1...N		
+model/ggd/ion/particles/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/ion/particles/v_parallel/grid_index	I	0				
+model/ggd/ion/particles/v_parallel/grid_subset_index	I	0				
+model/ggd/ion/particles/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/ion/particles/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/v_parallel(i3)/values|1...N		
+model/ggd/ion/particles/flux_parallel	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux_parallel/grid_index	I	0				
+model/ggd/ion/particles/flux_parallel/grid_subset_index	I	0				
+model/ggd/ion/particles/flux_parallel/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/particles/flux_parallel/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/particles/flux_parallel(i3)/values|1...N		
+model/ggd/ion/energy	S	0				
+model/ggd/ion/energy/d	A	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d/grid_index	I	0				
+model/ggd/ion/energy/d/grid_subset_index	I	0				
+model/ggd/ion/energy/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/d(i3)/values|1...N		
+model/ggd/ion/energy/v	A	1	m.s^-1	1...N		
+model/ggd/ion/energy/v/grid_index	I	0				
+model/ggd/ion/energy/v/grid_subset_index	I	0				
+model/ggd/ion/energy/v/values	F	1	m.s^-1	1...N		
+model/ggd/ion/energy/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/v(i3)/values|1...N		
+model/ggd/ion/energy/flux	A	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux/grid_index	I	0				
+model/ggd/ion/energy/flux/grid_subset_index	I	0				
+model/ggd/ion/energy/flux/values	F	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/energy/flux(i3)/values|1...N		
+model/ggd/ion/energy/flux_limiter	A	1	1	1...N		
+model/ggd/ion/energy/flux_limiter/grid_index	I	0				
+model/ggd/ion/energy/flux_limiter/grid_subset_index	I	0				
+model/ggd/ion/energy/flux_limiter/values	F	1	1	1...N		
+model/ggd/ion/energy/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/ion(i2)/energy/flux_limiter(i3)/values|1...N		
+model/ggd/ion/energy/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d_radial/grid_index	I	0				
+model/ggd/ion/energy/d_radial/grid_subset_index	I	0				
+model/ggd/ion/energy/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/d_radial(i3)/values|1...N		
+model/ggd/ion/energy/v_radial	A	1	m.s^-1	1...N		
+model/ggd/ion/energy/v_radial/grid_index	I	0				
+model/ggd/ion/energy/v_radial/grid_subset_index	I	0				
+model/ggd/ion/energy/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/ion/energy/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/v_radial(i3)/values|1...N		
+model/ggd/ion/energy/flux_radial	A	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux_radial/grid_index	I	0				
+model/ggd/ion/energy/flux_radial/grid_subset_index	I	0				
+model/ggd/ion/energy/flux_radial/values	F	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux_radial/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/energy/flux_radial(i3)/values|1...N		
+model/ggd/ion/energy/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d_pol/grid_index	I	0				
+model/ggd/ion/energy/d_pol/grid_subset_index	I	0				
+model/ggd/ion/energy/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/d_pol(i3)/values|1...N		
+model/ggd/ion/energy/v_pol	A	1	m.s^-1	1...N		
+model/ggd/ion/energy/v_pol/grid_index	I	0				
+model/ggd/ion/energy/v_pol/grid_subset_index	I	0				
+model/ggd/ion/energy/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/ion/energy/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/v_pol(i3)/values|1...N		
+model/ggd/ion/energy/flux_pol	A	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux_pol/grid_index	I	0				
+model/ggd/ion/energy/flux_pol/grid_subset_index	I	0				
+model/ggd/ion/energy/flux_pol/values	F	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux_pol/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/energy/flux_pol(i3)/values|1...N		
+model/ggd/ion/energy/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d_parallel/grid_index	I	0				
+model/ggd/ion/energy/d_parallel/grid_subset_index	I	0				
+model/ggd/ion/energy/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/energy/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/d_parallel(i3)/values|1...N		
+model/ggd/ion/energy/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/ion/energy/v_parallel/grid_index	I	0				
+model/ggd/ion/energy/v_parallel/grid_subset_index	I	0				
+model/ggd/ion/energy/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/ion/energy/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/energy/v_parallel(i3)/values|1...N		
+model/ggd/ion/energy/flux_parallel	A	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux_parallel/grid_index	I	0				
+model/ggd/ion/energy/flux_parallel/grid_subset_index	I	0				
+model/ggd/ion/energy/flux_parallel/values	F	1	W.m^-2	1...N		
+model/ggd/ion/energy/flux_parallel/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/energy/flux_parallel(i3)/values|1...N		
+model/ggd/ion/momentum	S	0				
+model/ggd/ion/momentum/d	A	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/grid_index	I	0				
+model/ggd/ion/momentum/d/grid_subset_index	I	0				
+model/ggd/ion/momentum/d/radial	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/radial_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/d/diamagnetic	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/diamagnetic_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/d/parallel	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/parallel_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/d/poloidal	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/poloidal_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/d/r	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/r_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/d/phi	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/phi_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/d/z	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d/z_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v	A	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/grid_index	I	0				
+model/ggd/ion/momentum/v/grid_subset_index	I	0				
+model/ggd/ion/momentum/v/radial	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v/diamagnetic	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v/parallel	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v/poloidal	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v/r	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/r_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v/phi	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/v/z	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v/z_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/momentum/flux	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/grid_index	I	0				
+model/ggd/ion/momentum/flux/grid_subset_index	I	0				
+model/ggd/ion/momentum/flux/radial	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux/parallel	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux/poloidal	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux/r	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux/phi	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux/z	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter	A	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/grid_index	I	0				
+model/ggd/ion/momentum/flux_limiter/grid_subset_index	I	0				
+model/ggd/ion/momentum/flux_limiter/radial	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/radial_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter/diamagnetic	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/diamagnetic_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter/parallel	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/parallel_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter/poloidal	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/poloidal_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter/r	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/r_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter/phi	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/phi_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/flux_limiter/z	F	1	1	1...N		
+model/ggd/ion/momentum/flux_limiter/z_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/momentum/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d_radial/grid_index	I	0				
+model/ggd/ion/momentum/d_radial/grid_subset_index	I	0				
+model/ggd/ion/momentum/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/momentum/d_radial(i3)/values|1...N		
+model/ggd/ion/momentum/v_radial	A	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v_radial/grid_index	I	0				
+model/ggd/ion/momentum/v_radial/grid_subset_index	I	0				
+model/ggd/ion/momentum/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/momentum/v_radial(i3)/values|1...N		
+model/ggd/ion/momentum/flux_radial	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux_radial/grid_index	I	0				
+model/ggd/ion/momentum/flux_radial/grid_subset_index	I	0				
+model/ggd/ion/momentum/flux_radial/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux_radial/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/ion(i2)/momentum/flux_radial(i3)/values|1...N		
+model/ggd/ion/momentum/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d_pol/grid_index	I	0				
+model/ggd/ion/momentum/d_pol/grid_subset_index	I	0				
+model/ggd/ion/momentum/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/momentum/d_pol(i3)/values|1...N		
+model/ggd/ion/momentum/v_pol	A	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v_pol/grid_index	I	0				
+model/ggd/ion/momentum/v_pol/grid_subset_index	I	0				
+model/ggd/ion/momentum/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/momentum/v_pol(i3)/values|1...N		
+model/ggd/ion/momentum/flux_pol	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux_pol/grid_index	I	0				
+model/ggd/ion/momentum/flux_pol/grid_subset_index	I	0				
+model/ggd/ion/momentum/flux_pol/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux_pol/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/ion(i2)/momentum/flux_pol(i3)/values|1...N		
+model/ggd/ion/momentum/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d_parallel/grid_index	I	0				
+model/ggd/ion/momentum/d_parallel/grid_subset_index	I	0				
+model/ggd/ion/momentum/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/momentum/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/momentum/d_parallel(i3)/values|1...N		
+model/ggd/ion/momentum/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v_parallel/grid_index	I	0				
+model/ggd/ion/momentum/v_parallel/grid_subset_index	I	0				
+model/ggd/ion/momentum/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/ion/momentum/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/momentum/v_parallel(i3)/values|1...N		
+model/ggd/ion/momentum/flux_parallel	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux_parallel/grid_index	I	0				
+model/ggd/ion/momentum/flux_parallel/grid_subset_index	I	0				
+model/ggd/ion/momentum/flux_parallel/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/momentum/flux_parallel/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/ion(i2)/momentum/flux_parallel(i3)/values|1...N		
+model/ggd/ion/multiple_states_flag	I	0				
+model/ggd/ion/state	A	1		1...N		
+model/ggd/ion/state/z_min	F	0	e			
+model/ggd/ion/state/z_max	F	0	e			
+model/ggd/ion/state/name	T	0				
+model/ggd/ion/state/vibrational_level	F	0	e			
+model/ggd/ion/state/vibrational_mode	T	0				
+model/ggd/ion/state/electron_configuration	T	0				
+model/ggd/ion/state/particles	S	0				
+model/ggd/ion/state/particles/d	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d/grid_index	I	0				
+model/ggd/ion/state/particles/d/grid_subset_index	I	0				
+model/ggd/ion/state/particles/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/d(i4)/values|1...N		
+model/ggd/ion/state/particles/v	A	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v/grid_index	I	0				
+model/ggd/ion/state/particles/v/grid_subset_index	I	0				
+model/ggd/ion/state/particles/v/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/v(i4)/values|1...N		
+model/ggd/ion/state/particles/flux	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux/grid_index	I	0				
+model/ggd/ion/state/particles/flux/grid_subset_index	I	0				
+model/ggd/ion/state/particles/flux/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/flux(i4)/values|1...N		
+model/ggd/ion/state/particles/flux_limiter	A	1	1	1...N		
+model/ggd/ion/state/particles/flux_limiter/grid_index	I	0				
+model/ggd/ion/state/particles/flux_limiter/grid_subset_index	I	0				
+model/ggd/ion/state/particles/flux_limiter/values	F	1	1	1...N		
+model/ggd/ion/state/particles/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/flux_limiter(i4)/values|1...N		
+model/ggd/ion/state/particles/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d_radial/grid_index	I	0				
+model/ggd/ion/state/particles/d_radial/grid_subset_index	I	0				
+model/ggd/ion/state/particles/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/d_radial(i4)/values|1...N		
+model/ggd/ion/state/particles/v_radial	A	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v_radial/grid_index	I	0				
+model/ggd/ion/state/particles/v_radial/grid_subset_index	I	0				
+model/ggd/ion/state/particles/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/v_radial(i4)/values|1...N		
+model/ggd/ion/state/particles/flux_radial	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux_radial/grid_index	I	0				
+model/ggd/ion/state/particles/flux_radial/grid_subset_index	I	0				
+model/ggd/ion/state/particles/flux_radial/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux_radial/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/flux_radial(i4)/values|1...N		
+model/ggd/ion/state/particles/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d_pol/grid_index	I	0				
+model/ggd/ion/state/particles/d_pol/grid_subset_index	I	0				
+model/ggd/ion/state/particles/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/d_pol(i4)/values|1...N		
+model/ggd/ion/state/particles/v_pol	A	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v_pol/grid_index	I	0				
+model/ggd/ion/state/particles/v_pol/grid_subset_index	I	0				
+model/ggd/ion/state/particles/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/v_pol(i4)/values|1...N		
+model/ggd/ion/state/particles/flux_pol	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux_pol/grid_index	I	0				
+model/ggd/ion/state/particles/flux_pol/grid_subset_index	I	0				
+model/ggd/ion/state/particles/flux_pol/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux_pol/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/flux_pol(i4)/values|1...N		
+model/ggd/ion/state/particles/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d_parallel/grid_index	I	0				
+model/ggd/ion/state/particles/d_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/particles/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/particles/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/d_parallel(i4)/values|1...N		
+model/ggd/ion/state/particles/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v_parallel/grid_index	I	0				
+model/ggd/ion/state/particles/v_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/particles/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/particles/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/v_parallel(i4)/values|1...N		
+model/ggd/ion/state/particles/flux_parallel	A	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux_parallel/grid_index	I	0				
+model/ggd/ion/state/particles/flux_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/particles/flux_parallel/values	F	1	m^-2.s^-1	1...N		
+model/ggd/ion/state/particles/flux_parallel/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/particles/flux_parallel(i4)/values|1...N		
+model/ggd/ion/state/energy	S	0				
+model/ggd/ion/state/energy/d	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d/grid_index	I	0				
+model/ggd/ion/state/energy/d/grid_subset_index	I	0				
+model/ggd/ion/state/energy/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/d(i4)/values|1...N		
+model/ggd/ion/state/energy/v	A	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v/grid_index	I	0				
+model/ggd/ion/state/energy/v/grid_subset_index	I	0				
+model/ggd/ion/state/energy/v/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/v(i4)/values|1...N		
+model/ggd/ion/state/energy/flux	A	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux/grid_index	I	0				
+model/ggd/ion/state/energy/flux/grid_subset_index	I	0				
+model/ggd/ion/state/energy/flux/values	F	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/flux(i4)/values|1...N		
+model/ggd/ion/state/energy/flux_limiter	A	1	1	1...N		
+model/ggd/ion/state/energy/flux_limiter/grid_index	I	0				
+model/ggd/ion/state/energy/flux_limiter/grid_subset_index	I	0				
+model/ggd/ion/state/energy/flux_limiter/values	F	1	1	1...N		
+model/ggd/ion/state/energy/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/flux_limiter(i4)/values|1...N		
+model/ggd/ion/state/energy/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d_radial/grid_index	I	0				
+model/ggd/ion/state/energy/d_radial/grid_subset_index	I	0				
+model/ggd/ion/state/energy/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/d_radial(i4)/values|1...N		
+model/ggd/ion/state/energy/v_radial	A	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v_radial/grid_index	I	0				
+model/ggd/ion/state/energy/v_radial/grid_subset_index	I	0				
+model/ggd/ion/state/energy/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/v_radial(i4)/values|1...N		
+model/ggd/ion/state/energy/flux_radial	A	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux_radial/grid_index	I	0				
+model/ggd/ion/state/energy/flux_radial/grid_subset_index	I	0				
+model/ggd/ion/state/energy/flux_radial/values	F	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux_radial/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/flux_radial(i4)/values|1...N		
+model/ggd/ion/state/energy/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d_pol/grid_index	I	0				
+model/ggd/ion/state/energy/d_pol/grid_subset_index	I	0				
+model/ggd/ion/state/energy/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/d_pol(i4)/values|1...N		
+model/ggd/ion/state/energy/v_pol	A	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v_pol/grid_index	I	0				
+model/ggd/ion/state/energy/v_pol/grid_subset_index	I	0				
+model/ggd/ion/state/energy/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/v_pol(i4)/values|1...N		
+model/ggd/ion/state/energy/flux_pol	A	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux_pol/grid_index	I	0				
+model/ggd/ion/state/energy/flux_pol/grid_subset_index	I	0				
+model/ggd/ion/state/energy/flux_pol/values	F	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux_pol/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/flux_pol(i4)/values|1...N		
+model/ggd/ion/state/energy/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d_parallel/grid_index	I	0				
+model/ggd/ion/state/energy/d_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/energy/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/energy/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/d_parallel(i4)/values|1...N		
+model/ggd/ion/state/energy/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v_parallel/grid_index	I	0				
+model/ggd/ion/state/energy/v_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/energy/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/energy/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/v_parallel(i4)/values|1...N		
+model/ggd/ion/state/energy/flux_parallel	A	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux_parallel/grid_index	I	0				
+model/ggd/ion/state/energy/flux_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/energy/flux_parallel/values	F	1	W.m^-2	1...N		
+model/ggd/ion/state/energy/flux_parallel/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/energy/flux_parallel(i4)/values|1...N		
+model/ggd/ion/state/momentum	S	0				
+model/ggd/ion/state/momentum/d	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/grid_index	I	0				
+model/ggd/ion/state/momentum/d/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/d/radial	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/radial_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/d/diamagnetic	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/diamagnetic_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/d/parallel	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/parallel_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/d/poloidal	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/poloidal_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/d/r	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/r_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/d/phi	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/phi_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/d/z	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d/z_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v	A	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/grid_index	I	0				
+model/ggd/ion/state/momentum/v/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/v/radial	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v/diamagnetic	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v/parallel	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v/poloidal	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v/r	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/r_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v/phi	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/v/z	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v/z_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/ion/state/momentum/flux	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/grid_index	I	0				
+model/ggd/ion/state/momentum/flux/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/flux/radial	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux/parallel	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux/poloidal	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux/r	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux/phi	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux/z	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter	A	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/grid_index	I	0				
+model/ggd/ion/state/momentum/flux_limiter/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/flux_limiter/radial	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/radial_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter/diamagnetic	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/diamagnetic_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter/parallel	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/parallel_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter/poloidal	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/poloidal_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter/r	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/r_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter/phi	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/phi_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/flux_limiter/z	F	1	1	1...N		
+model/ggd/ion/state/momentum/flux_limiter/z_coefficients	F	2	1	1...N|1...N		
+model/ggd/ion/state/momentum/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d_radial/grid_index	I	0				
+model/ggd/ion/state/momentum/d_radial/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/d_radial(i4)/values|1...N		
+model/ggd/ion/state/momentum/v_radial	A	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v_radial/grid_index	I	0				
+model/ggd/ion/state/momentum/v_radial/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/v_radial(i4)/values|1...N		
+model/ggd/ion/state/momentum/flux_radial	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux_radial/grid_index	I	0				
+model/ggd/ion/state/momentum/flux_radial/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/flux_radial/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux_radial/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/flux_radial(i4)/values|1...N		
+model/ggd/ion/state/momentum/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d_pol/grid_index	I	0				
+model/ggd/ion/state/momentum/d_pol/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/d_pol(i4)/values|1...N		
+model/ggd/ion/state/momentum/v_pol	A	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v_pol/grid_index	I	0				
+model/ggd/ion/state/momentum/v_pol/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/v_pol(i4)/values|1...N		
+model/ggd/ion/state/momentum/flux_pol	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux_pol/grid_index	I	0				
+model/ggd/ion/state/momentum/flux_pol/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/flux_pol/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux_pol/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/flux_pol(i4)/values|1...N		
+model/ggd/ion/state/momentum/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d_parallel/grid_index	I	0				
+model/ggd/ion/state/momentum/d_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/ion/state/momentum/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/d_parallel(i4)/values|1...N		
+model/ggd/ion/state/momentum/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v_parallel/grid_index	I	0				
+model/ggd/ion/state/momentum/v_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/ion/state/momentum/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/v_parallel(i4)/values|1...N		
+model/ggd/ion/state/momentum/flux_parallel	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux_parallel/grid_index	I	0				
+model/ggd/ion/state/momentum/flux_parallel/grid_subset_index	I	0				
+model/ggd/ion/state/momentum/flux_parallel/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/ion/state/momentum/flux_parallel/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/ion(i2)/state(i3)/momentum/flux_parallel(i4)/values|1...N		
+model/ggd/neutral	A	1		1...N		
+model/ggd/neutral/element	A	1		1...N		
+model/ggd/neutral/element/a	F	0	u			
+model/ggd/neutral/element/z_n	I	0	e			
+model/ggd/neutral/element/atoms_n	I	0				
+model/ggd/neutral/name	T	0				
+model/ggd/neutral/ion_index	I	0				
+model/ggd/neutral/particles	S	0				
+model/ggd/neutral/particles/d	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d/grid_index	I	0				
+model/ggd/neutral/particles/d/grid_subset_index	I	0				
+model/ggd/neutral/particles/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/d(i3)/values|1...N		
+model/ggd/neutral/particles/v	A	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v/grid_index	I	0				
+model/ggd/neutral/particles/v/grid_subset_index	I	0				
+model/ggd/neutral/particles/v/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/v(i3)/values|1...N		
+model/ggd/neutral/particles/flux	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux/grid_index	I	0				
+model/ggd/neutral/particles/flux/grid_subset_index	I	0				
+model/ggd/neutral/particles/flux/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/flux(i3)/values|1...N		
+model/ggd/neutral/particles/flux_limiter	A	1	1	1...N		
+model/ggd/neutral/particles/flux_limiter/grid_index	I	0				
+model/ggd/neutral/particles/flux_limiter/grid_subset_index	I	0				
+model/ggd/neutral/particles/flux_limiter/values	F	1	1	1...N		
+model/ggd/neutral/particles/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/neutral(i2)/particles/flux_limiter(i3)/values|1...N		
+model/ggd/neutral/particles/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d_radial/grid_index	I	0				
+model/ggd/neutral/particles/d_radial/grid_subset_index	I	0				
+model/ggd/neutral/particles/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/d_radial(i3)/values|1...N		
+model/ggd/neutral/particles/v_radial	A	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v_radial/grid_index	I	0				
+model/ggd/neutral/particles/v_radial/grid_subset_index	I	0				
+model/ggd/neutral/particles/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/v_radial(i3)/values|1...N		
+model/ggd/neutral/particles/flux_radial	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux_radial/grid_index	I	0				
+model/ggd/neutral/particles/flux_radial/grid_subset_index	I	0				
+model/ggd/neutral/particles/flux_radial/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux_radial/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/flux_radial(i3)/values|1...N		
+model/ggd/neutral/particles/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d_pol/grid_index	I	0				
+model/ggd/neutral/particles/d_pol/grid_subset_index	I	0				
+model/ggd/neutral/particles/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/d_pol(i3)/values|1...N		
+model/ggd/neutral/particles/v_pol	A	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v_pol/grid_index	I	0				
+model/ggd/neutral/particles/v_pol/grid_subset_index	I	0				
+model/ggd/neutral/particles/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/v_pol(i3)/values|1...N		
+model/ggd/neutral/particles/flux_pol	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux_pol/grid_index	I	0				
+model/ggd/neutral/particles/flux_pol/grid_subset_index	I	0				
+model/ggd/neutral/particles/flux_pol/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux_pol/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/flux_pol(i3)/values|1...N		
+model/ggd/neutral/particles/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d_parallel/grid_index	I	0				
+model/ggd/neutral/particles/d_parallel/grid_subset_index	I	0				
+model/ggd/neutral/particles/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/particles/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/d_parallel(i3)/values|1...N		
+model/ggd/neutral/particles/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v_parallel/grid_index	I	0				
+model/ggd/neutral/particles/v_parallel/grid_subset_index	I	0				
+model/ggd/neutral/particles/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/particles/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/v_parallel(i3)/values|1...N		
+model/ggd/neutral/particles/flux_parallel	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux_parallel/grid_index	I	0				
+model/ggd/neutral/particles/flux_parallel/grid_subset_index	I	0				
+model/ggd/neutral/particles/flux_parallel/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/particles/flux_parallel/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/particles/flux_parallel(i3)/values|1...N		
+model/ggd/neutral/energy	S	0				
+model/ggd/neutral/energy/d	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d/grid_index	I	0				
+model/ggd/neutral/energy/d/grid_subset_index	I	0				
+model/ggd/neutral/energy/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/d(i3)/values|1...N		
+model/ggd/neutral/energy/v	A	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v/grid_index	I	0				
+model/ggd/neutral/energy/v/grid_subset_index	I	0				
+model/ggd/neutral/energy/v/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/v(i3)/values|1...N		
+model/ggd/neutral/energy/flux	A	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux/grid_index	I	0				
+model/ggd/neutral/energy/flux/grid_subset_index	I	0				
+model/ggd/neutral/energy/flux/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/energy/flux(i3)/values|1...N		
+model/ggd/neutral/energy/flux_limiter	A	1	1	1...N		
+model/ggd/neutral/energy/flux_limiter/grid_index	I	0				
+model/ggd/neutral/energy/flux_limiter/grid_subset_index	I	0				
+model/ggd/neutral/energy/flux_limiter/values	F	1	1	1...N		
+model/ggd/neutral/energy/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/neutral(i2)/energy/flux_limiter(i3)/values|1...N		
+model/ggd/neutral/energy/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d_radial/grid_index	I	0				
+model/ggd/neutral/energy/d_radial/grid_subset_index	I	0				
+model/ggd/neutral/energy/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/d_radial(i3)/values|1...N		
+model/ggd/neutral/energy/v_radial	A	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v_radial/grid_index	I	0				
+model/ggd/neutral/energy/v_radial/grid_subset_index	I	0				
+model/ggd/neutral/energy/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/v_radial(i3)/values|1...N		
+model/ggd/neutral/energy/flux_radial	A	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux_radial/grid_index	I	0				
+model/ggd/neutral/energy/flux_radial/grid_subset_index	I	0				
+model/ggd/neutral/energy/flux_radial/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux_radial/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/energy/flux_radial(i3)/values|1...N		
+model/ggd/neutral/energy/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d_pol/grid_index	I	0				
+model/ggd/neutral/energy/d_pol/grid_subset_index	I	0				
+model/ggd/neutral/energy/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/d_pol(i3)/values|1...N		
+model/ggd/neutral/energy/v_pol	A	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v_pol/grid_index	I	0				
+model/ggd/neutral/energy/v_pol/grid_subset_index	I	0				
+model/ggd/neutral/energy/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/v_pol(i3)/values|1...N		
+model/ggd/neutral/energy/flux_pol	A	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux_pol/grid_index	I	0				
+model/ggd/neutral/energy/flux_pol/grid_subset_index	I	0				
+model/ggd/neutral/energy/flux_pol/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux_pol/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/energy/flux_pol(i3)/values|1...N		
+model/ggd/neutral/energy/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d_parallel/grid_index	I	0				
+model/ggd/neutral/energy/d_parallel/grid_subset_index	I	0				
+model/ggd/neutral/energy/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/energy/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/d_parallel(i3)/values|1...N		
+model/ggd/neutral/energy/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v_parallel/grid_index	I	0				
+model/ggd/neutral/energy/v_parallel/grid_subset_index	I	0				
+model/ggd/neutral/energy/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/energy/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/energy/v_parallel(i3)/values|1...N		
+model/ggd/neutral/energy/flux_parallel	A	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux_parallel/grid_index	I	0				
+model/ggd/neutral/energy/flux_parallel/grid_subset_index	I	0				
+model/ggd/neutral/energy/flux_parallel/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/energy/flux_parallel/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/energy/flux_parallel(i3)/values|1...N		
+model/ggd/neutral/momentum	S	0				
+model/ggd/neutral/momentum/d	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/grid_index	I	0				
+model/ggd/neutral/momentum/d/grid_subset_index	I	0				
+model/ggd/neutral/momentum/d/radial	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/radial_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/d/diamagnetic	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/diamagnetic_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/d/parallel	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/parallel_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/d/poloidal	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/poloidal_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/d/r	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/r_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/d/phi	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/phi_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/d/z	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d/z_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v	A	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/grid_index	I	0				
+model/ggd/neutral/momentum/v/grid_subset_index	I	0				
+model/ggd/neutral/momentum/v/radial	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v/diamagnetic	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v/parallel	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v/poloidal	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v/r	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/r_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v/phi	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/v/z	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v/z_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/momentum/flux	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/grid_index	I	0				
+model/ggd/neutral/momentum/flux/grid_subset_index	I	0				
+model/ggd/neutral/momentum/flux/radial	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux/parallel	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux/poloidal	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux/r	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux/phi	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux/z	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter	A	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/grid_index	I	0				
+model/ggd/neutral/momentum/flux_limiter/grid_subset_index	I	0				
+model/ggd/neutral/momentum/flux_limiter/radial	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/radial_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter/diamagnetic	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/diamagnetic_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter/parallel	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/parallel_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter/poloidal	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/poloidal_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter/r	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/r_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter/phi	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/phi_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/flux_limiter/z	F	1	1	1...N		
+model/ggd/neutral/momentum/flux_limiter/z_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/momentum/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d_radial/grid_index	I	0				
+model/ggd/neutral/momentum/d_radial/grid_subset_index	I	0				
+model/ggd/neutral/momentum/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/momentum/d_radial(i3)/values|1...N		
+model/ggd/neutral/momentum/v_radial	A	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v_radial/grid_index	I	0				
+model/ggd/neutral/momentum/v_radial/grid_subset_index	I	0				
+model/ggd/neutral/momentum/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/momentum/v_radial(i3)/values|1...N		
+model/ggd/neutral/momentum/flux_radial	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux_radial/grid_index	I	0				
+model/ggd/neutral/momentum/flux_radial/grid_subset_index	I	0				
+model/ggd/neutral/momentum/flux_radial/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux_radial/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/neutral(i2)/momentum/flux_radial(i3)/values|1...N		
+model/ggd/neutral/momentum/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d_pol/grid_index	I	0				
+model/ggd/neutral/momentum/d_pol/grid_subset_index	I	0				
+model/ggd/neutral/momentum/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/momentum/d_pol(i3)/values|1...N		
+model/ggd/neutral/momentum/v_pol	A	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v_pol/grid_index	I	0				
+model/ggd/neutral/momentum/v_pol/grid_subset_index	I	0				
+model/ggd/neutral/momentum/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/momentum/v_pol(i3)/values|1...N		
+model/ggd/neutral/momentum/flux_pol	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux_pol/grid_index	I	0				
+model/ggd/neutral/momentum/flux_pol/grid_subset_index	I	0				
+model/ggd/neutral/momentum/flux_pol/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux_pol/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/neutral(i2)/momentum/flux_pol(i3)/values|1...N		
+model/ggd/neutral/momentum/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d_parallel/grid_index	I	0				
+model/ggd/neutral/momentum/d_parallel/grid_subset_index	I	0				
+model/ggd/neutral/momentum/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/momentum/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/momentum/d_parallel(i3)/values|1...N		
+model/ggd/neutral/momentum/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v_parallel/grid_index	I	0				
+model/ggd/neutral/momentum/v_parallel/grid_subset_index	I	0				
+model/ggd/neutral/momentum/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/momentum/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/momentum/v_parallel(i3)/values|1...N		
+model/ggd/neutral/momentum/flux_parallel	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux_parallel/grid_index	I	0				
+model/ggd/neutral/momentum/flux_parallel/grid_subset_index	I	0				
+model/ggd/neutral/momentum/flux_parallel/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/momentum/flux_parallel/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/neutral(i2)/momentum/flux_parallel(i3)/values|1...N		
+model/ggd/neutral/multiple_states_flag	I	0				
+model/ggd/neutral/state	A	1		1...N		
+model/ggd/neutral/state/name	T	0				
+model/ggd/neutral/state/vibrational_level	F	0	e			
+model/ggd/neutral/state/vibrational_mode	T	0				
+model/ggd/neutral/state/neutral_type	S	0				
+model/ggd/neutral/state/neutral_type/name	T	0				
+model/ggd/neutral/state/neutral_type/index	I	0				
+model/ggd/neutral/state/neutral_type/description	T	0				
+model/ggd/neutral/state/electron_configuration	T	0				
+model/ggd/neutral/state/particles	S	0				
+model/ggd/neutral/state/particles/d	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d/grid_index	I	0				
+model/ggd/neutral/state/particles/d/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/d(i4)/values|1...N		
+model/ggd/neutral/state/particles/v	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v/grid_index	I	0				
+model/ggd/neutral/state/particles/v/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/v/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/v(i4)/values|1...N		
+model/ggd/neutral/state/particles/flux	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux/grid_index	I	0				
+model/ggd/neutral/state/particles/flux/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/flux/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/flux(i4)/values|1...N		
+model/ggd/neutral/state/particles/flux_limiter	A	1	1	1...N		
+model/ggd/neutral/state/particles/flux_limiter/grid_index	I	0				
+model/ggd/neutral/state/particles/flux_limiter/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/flux_limiter/values	F	1	1	1...N		
+model/ggd/neutral/state/particles/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/flux_limiter(i4)/values|1...N		
+model/ggd/neutral/state/particles/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d_radial/grid_index	I	0				
+model/ggd/neutral/state/particles/d_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/d_radial(i4)/values|1...N		
+model/ggd/neutral/state/particles/v_radial	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v_radial/grid_index	I	0				
+model/ggd/neutral/state/particles/v_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/v_radial(i4)/values|1...N		
+model/ggd/neutral/state/particles/flux_radial	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux_radial/grid_index	I	0				
+model/ggd/neutral/state/particles/flux_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/flux_radial/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux_radial/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/flux_radial(i4)/values|1...N		
+model/ggd/neutral/state/particles/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d_pol/grid_index	I	0				
+model/ggd/neutral/state/particles/d_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/d_pol(i4)/values|1...N		
+model/ggd/neutral/state/particles/v_pol	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v_pol/grid_index	I	0				
+model/ggd/neutral/state/particles/v_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/v_pol(i4)/values|1...N		
+model/ggd/neutral/state/particles/flux_pol	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux_pol/grid_index	I	0				
+model/ggd/neutral/state/particles/flux_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/flux_pol/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux_pol/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/flux_pol(i4)/values|1...N		
+model/ggd/neutral/state/particles/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d_parallel/grid_index	I	0				
+model/ggd/neutral/state/particles/d_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/particles/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/d_parallel(i4)/values|1...N		
+model/ggd/neutral/state/particles/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v_parallel/grid_index	I	0				
+model/ggd/neutral/state/particles/v_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/particles/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/v_parallel(i4)/values|1...N		
+model/ggd/neutral/state/particles/flux_parallel	A	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux_parallel/grid_index	I	0				
+model/ggd/neutral/state/particles/flux_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/particles/flux_parallel/values	F	1	m^-2.s^-1	1...N		
+model/ggd/neutral/state/particles/flux_parallel/coefficients	F	2	m^-2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/particles/flux_parallel(i4)/values|1...N		
+model/ggd/neutral/state/energy	S	0				
+model/ggd/neutral/state/energy/d	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d/grid_index	I	0				
+model/ggd/neutral/state/energy/d/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/d/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/d(i4)/values|1...N		
+model/ggd/neutral/state/energy/v	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v/grid_index	I	0				
+model/ggd/neutral/state/energy/v/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/v/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/v(i4)/values|1...N		
+model/ggd/neutral/state/energy/flux	A	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux/grid_index	I	0				
+model/ggd/neutral/state/energy/flux/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/flux/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/flux(i4)/values|1...N		
+model/ggd/neutral/state/energy/flux_limiter	A	1	1	1...N		
+model/ggd/neutral/state/energy/flux_limiter/grid_index	I	0				
+model/ggd/neutral/state/energy/flux_limiter/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/flux_limiter/values	F	1	1	1...N		
+model/ggd/neutral/state/energy/flux_limiter/coefficients	F	2	1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/flux_limiter(i4)/values|1...N		
+model/ggd/neutral/state/energy/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d_radial/grid_index	I	0				
+model/ggd/neutral/state/energy/d_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/d_radial(i4)/values|1...N		
+model/ggd/neutral/state/energy/v_radial	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v_radial/grid_index	I	0				
+model/ggd/neutral/state/energy/v_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/v_radial(i4)/values|1...N		
+model/ggd/neutral/state/energy/flux_radial	A	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux_radial/grid_index	I	0				
+model/ggd/neutral/state/energy/flux_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/flux_radial/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux_radial/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/flux_radial(i4)/values|1...N		
+model/ggd/neutral/state/energy/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d_pol/grid_index	I	0				
+model/ggd/neutral/state/energy/d_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/d_pol(i4)/values|1...N		
+model/ggd/neutral/state/energy/v_pol	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v_pol/grid_index	I	0				
+model/ggd/neutral/state/energy/v_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/v_pol(i4)/values|1...N		
+model/ggd/neutral/state/energy/flux_pol	A	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux_pol/grid_index	I	0				
+model/ggd/neutral/state/energy/flux_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/flux_pol/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux_pol/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/flux_pol(i4)/values|1...N		
+model/ggd/neutral/state/energy/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d_parallel/grid_index	I	0				
+model/ggd/neutral/state/energy/d_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/energy/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/d_parallel(i4)/values|1...N		
+model/ggd/neutral/state/energy/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v_parallel/grid_index	I	0				
+model/ggd/neutral/state/energy/v_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/energy/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/v_parallel(i4)/values|1...N		
+model/ggd/neutral/state/energy/flux_parallel	A	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux_parallel/grid_index	I	0				
+model/ggd/neutral/state/energy/flux_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/energy/flux_parallel/values	F	1	W.m^-2	1...N		
+model/ggd/neutral/state/energy/flux_parallel/coefficients	F	2	W.m^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/energy/flux_parallel(i4)/values|1...N		
+model/ggd/neutral/state/momentum	S	0				
+model/ggd/neutral/state/momentum/d	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/grid_index	I	0				
+model/ggd/neutral/state/momentum/d/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/d/radial	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/radial_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/d/diamagnetic	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/diamagnetic_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/d/parallel	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/parallel_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/d/poloidal	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/poloidal_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/d/r	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/r_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/d/phi	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/phi_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/d/z	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d/z_coefficients	F	2	m^2.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/grid_index	I	0				
+model/ggd/neutral/state/momentum/v/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/v/radial	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v/diamagnetic	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v/parallel	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v/poloidal	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v/r	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/r_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v/phi	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/v/z	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v/z_coefficients	F	2	m.s^-1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/grid_index	I	0				
+model/ggd/neutral/state/momentum/flux/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/flux/radial	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/radial_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux/diamagnetic	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/diamagnetic_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux/parallel	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/parallel_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux/poloidal	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/poloidal_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux/r	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/r_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux/phi	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/phi_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux/z	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux/z_coefficients	F	2	kg.m^-1.s^-2	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter	A	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/grid_index	I	0				
+model/ggd/neutral/state/momentum/flux_limiter/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/flux_limiter/radial	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/radial_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter/diamagnetic	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/diamagnetic_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter/parallel	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/parallel_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter/poloidal	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/poloidal_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter/r	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/r_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter/phi	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/phi_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/flux_limiter/z	F	1	1	1...N		
+model/ggd/neutral/state/momentum/flux_limiter/z_coefficients	F	2	1	1...N|1...N		
+model/ggd/neutral/state/momentum/d_radial	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d_radial/grid_index	I	0				
+model/ggd/neutral/state/momentum/d_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/d_radial/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d_radial/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/d_radial(i4)/values|1...N		
+model/ggd/neutral/state/momentum/v_radial	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v_radial/grid_index	I	0				
+model/ggd/neutral/state/momentum/v_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/v_radial/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v_radial/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/v_radial(i4)/values|1...N		
+model/ggd/neutral/state/momentum/flux_radial	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux_radial/grid_index	I	0				
+model/ggd/neutral/state/momentum/flux_radial/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/flux_radial/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux_radial/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/flux_radial(i4)/values|1...N		
+model/ggd/neutral/state/momentum/d_pol	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d_pol/grid_index	I	0				
+model/ggd/neutral/state/momentum/d_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/d_pol/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d_pol/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/d_pol(i4)/values|1...N		
+model/ggd/neutral/state/momentum/v_pol	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v_pol/grid_index	I	0				
+model/ggd/neutral/state/momentum/v_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/v_pol/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v_pol/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/v_pol(i4)/values|1...N		
+model/ggd/neutral/state/momentum/flux_pol	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux_pol/grid_index	I	0				
+model/ggd/neutral/state/momentum/flux_pol/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/flux_pol/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux_pol/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/flux_pol(i4)/values|1...N		
+model/ggd/neutral/state/momentum/d_parallel	A	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d_parallel/grid_index	I	0				
+model/ggd/neutral/state/momentum/d_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/d_parallel/values	F	1	m^2.s^-1	1...N		
+model/ggd/neutral/state/momentum/d_parallel/coefficients	F	2	m^2.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/d_parallel(i4)/values|1...N		
+model/ggd/neutral/state/momentum/v_parallel	A	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v_parallel/grid_index	I	0				
+model/ggd/neutral/state/momentum/v_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/v_parallel/values	F	1	m.s^-1	1...N		
+model/ggd/neutral/state/momentum/v_parallel/coefficients	F	2	m.s^-1	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/v_parallel(i4)/values|1...N		
+model/ggd/neutral/state/momentum/flux_parallel	A	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux_parallel/grid_index	I	0				
+model/ggd/neutral/state/momentum/flux_parallel/grid_subset_index	I	0				
+model/ggd/neutral/state/momentum/flux_parallel/values	F	1	kg.m^-1.s^-2	1...N		
+model/ggd/neutral/state/momentum/flux_parallel/coefficients	F	2	kg.m^-1.s^-2	model(i1)/ggd(itime)/neutral(i2)/state(i3)/momentum/flux_parallel(i4)/values|1...N		
+model/ggd/time	F	0	s			
+model/ggd_fast	A	1		model(i1)/ggd_fast(itime)/time		
+model/ggd_fast/electrons	S	0				
+model/ggd_fast/electrons/particle_flux_integrated	A	1	s^-1	1...N		
+model/ggd_fast/electrons/particle_flux_integrated/grid_index	I	0				
+model/ggd_fast/electrons/particle_flux_integrated/grid_subset_index	I	0				
+model/ggd_fast/electrons/particle_flux_integrated/value	F	0	s^-1			
+model/ggd_fast/electrons/power	A	1	W	1...N		
+model/ggd_fast/electrons/power/grid_index	I	0				
+model/ggd_fast/electrons/power/grid_subset_index	I	0				
+model/ggd_fast/electrons/power/value	F	0	W			
+model/ggd_fast/ion	A	1		1...N		
+model/ggd_fast/ion/element	A	1		1...N		
+model/ggd_fast/ion/element/a	F	0	u			
+model/ggd_fast/ion/element/z_n	I	0	e			
+model/ggd_fast/ion/element/atoms_n	I	0				
+model/ggd_fast/ion/z_ion	F	0	e			
+model/ggd_fast/ion/name	T	0				
+model/ggd_fast/ion/neutral_index	I	0				
+model/ggd_fast/ion/particle_flux_integrated	A	1	s^-1	1...N		
+model/ggd_fast/ion/particle_flux_integrated/grid_index	I	0				
+model/ggd_fast/ion/particle_flux_integrated/grid_subset_index	I	0				
+model/ggd_fast/ion/particle_flux_integrated/value	F	0	s^-1			
+model/ggd_fast/neutral	A	1		1...N		
+model/ggd_fast/neutral/element	A	1		1...N		
+model/ggd_fast/neutral/element/a	F	0	u			
+model/ggd_fast/neutral/element/z_n	I	0	e			
+model/ggd_fast/neutral/element/atoms_n	I	0				
+model/ggd_fast/neutral/name	T	0				
+model/ggd_fast/neutral/ion_index	I	0				
+model/ggd_fast/neutral/particle_flux_integrated	A	1	s^-1	1...N		
+model/ggd_fast/neutral/particle_flux_integrated/grid_index	I	0				
+model/ggd_fast/neutral/particle_flux_integrated/grid_subset_index	I	0				
+model/ggd_fast/neutral/particle_flux_integrated/value	F	0	s^-1			
+model/ggd_fast/power_ion_total	A	1	W	1...N		
+model/ggd_fast/power_ion_total/grid_index	I	0				
+model/ggd_fast/power_ion_total/grid_subset_index	I	0				
+model/ggd_fast/power_ion_total/value	F	0	W			
+model/ggd_fast/energy_flux_max	A	1	W.m^-2	1...N		
+model/ggd_fast/energy_flux_max/grid_index	I	0				
+model/ggd_fast/energy_flux_max/grid_subset_index	I	0				
+model/ggd_fast/energy_flux_max/value	F	0	W.m^-2			
+model/ggd_fast/power	A	1	W	1...N		
+model/ggd_fast/power/grid_index	I	0				
+model/ggd_fast/power/grid_subset_index	I	0				
+model/ggd_fast/power/value	F	0	W			
+model/ggd_fast/time	F	0	s			
+model/code	S	0				
+model/code/name	T	0				
+model/code/description	T	0				
+model/code/commit	T	0				
+model/code/version	T	0				
+model/code/repository	T	0				
+model/code/parameters	T	0				
+model/code/output_flag	S	0				
+model/code/output_flag/data	I	1		model(i1)/code/output_flag/time		
+model/code/output_flag/time	F	1	s	1...N		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

@@ -1,0 +1,443 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids waves
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+coherent_wave	A	1		1...N		
+coherent_wave/identifier	S	0				
+coherent_wave/identifier/type	S	0				
+coherent_wave/identifier/type/name	T	0				
+coherent_wave/identifier/type/index	I	0				
+coherent_wave/identifier/type/description	T	0				
+coherent_wave/identifier/antenna_name	T	0				
+coherent_wave/identifier/index_in_antenna	I	0				
+coherent_wave/wave_solver_type	S	0				
+coherent_wave/wave_solver_type/name	T	0				
+coherent_wave/wave_solver_type/index	I	0				
+coherent_wave/wave_solver_type/description	T	0				
+coherent_wave/global_quantities	A	1		coherent_wave(i1)/global_quantities(itime)/time		
+coherent_wave/global_quantities/frequency	F	0	Hz			
+coherent_wave/global_quantities/n_phi	I	1		1...N		
+coherent_wave/global_quantities/power	F	0	W			
+coherent_wave/global_quantities/power_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/current_phi	F	0	A			
+coherent_wave/global_quantities/current_phi_n_phi	F	1	A	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/electrons	S	0				
+coherent_wave/global_quantities/electrons/power_thermal	F	0	W			
+coherent_wave/global_quantities/electrons/power_thermal_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/electrons/power_fast	F	0	W			
+coherent_wave/global_quantities/electrons/power_fast_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/electrons/distribution_assumption	I	0				
+coherent_wave/global_quantities/ion	A	1		1...N		
+coherent_wave/global_quantities/ion/element	A	1		1...N		
+coherent_wave/global_quantities/ion/element/a	F	0	u			
+coherent_wave/global_quantities/ion/element/z_n	I	0	e			
+coherent_wave/global_quantities/ion/element/atoms_n	I	0				
+coherent_wave/global_quantities/ion/z_ion	F	0	e			
+coherent_wave/global_quantities/ion/name	T	0				
+coherent_wave/global_quantities/ion/power_thermal	F	0	W			
+coherent_wave/global_quantities/ion/power_thermal_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/ion/power_fast	F	0	W			
+coherent_wave/global_quantities/ion/power_fast_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/ion/multiple_states_flag	I	0				
+coherent_wave/global_quantities/ion/distribution_assumption	I	0				
+coherent_wave/global_quantities/ion/state	A	1		1...N		
+coherent_wave/global_quantities/ion/state/z_min	F	0	e			
+coherent_wave/global_quantities/ion/state/z_max	F	0	e			
+coherent_wave/global_quantities/ion/state/name	T	0				
+coherent_wave/global_quantities/ion/state/electron_configuration	T	0				
+coherent_wave/global_quantities/ion/state/vibrational_level	F	0	e			
+coherent_wave/global_quantities/ion/state/vibrational_mode	T	0				
+coherent_wave/global_quantities/ion/state/power_thermal	F	0	W			
+coherent_wave/global_quantities/ion/state/power_thermal_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/ion/state/power_fast	F	0	W			
+coherent_wave/global_quantities/ion/state/power_fast_n_phi	F	1	W	coherent_wave(i1)/global_quantities(itime)/n_phi		
+coherent_wave/global_quantities/time	F	0	s			
+coherent_wave/profiles_1d	A	1		coherent_wave(i1)/profiles_1d(itime)/time		
+coherent_wave/profiles_1d/grid	S	0				
+coherent_wave/profiles_1d/grid/rho_tor_norm	F	1	1	1...N		coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor;coherent_wave(i1)/profiles_1d(itime)/grid/psi;coherent_wave(i1)/profiles_1d(itime)/grid/volume;coherent_wave(i1)/profiles_1d(itime)/grid/area;coherent_wave(i1)/profiles_1d(itime)/grid/surface;coherent_wave(i1)/profiles_1d(itime)/grid/rho_pol_norm
+coherent_wave/profiles_1d/grid/rho_tor	F	1	m	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/grid/rho_pol_norm	F	1	1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/grid/psi	F	1	Wb	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/grid/volume	F	1	m^3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/grid/area	F	1	m^2	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/grid/surface	F	1	m^2	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/grid/psi_magnetic_axis	F	0	Wb			
+coherent_wave/profiles_1d/grid/psi_boundary	F	0	Wb			
+coherent_wave/profiles_1d/n_phi	I	1		1...N		
+coherent_wave/profiles_1d/power_density	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/power_density_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/power_inside	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/power_inside_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/current_phi_inside	F	1	A	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/current_phi_inside_n_phi	F	2	A	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/current_parallel_density	F	1	A.m^-2	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/current_parallel_density_n_phi	F	2	A.m^-2	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/e_field_n_phi	A	1		coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/e_field_n_phi/plus	S	0	V.m^-1			
+coherent_wave/profiles_1d/e_field_n_phi/plus/amplitude	F	1	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/e_field_n_phi/plus/phase	F	1	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/e_field_n_phi/minus	S	0	V.m^-1			
+coherent_wave/profiles_1d/e_field_n_phi/minus/amplitude	F	1	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/e_field_n_phi/minus/phase	F	1	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/e_field_n_phi/parallel	S	0	V.m^-1			
+coherent_wave/profiles_1d/e_field_n_phi/parallel/amplitude	F	1	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/e_field_n_phi/parallel/phase	F	1	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/k_perpendicular	F	2	V.m^-1	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/electrons	S	0				
+coherent_wave/profiles_1d/electrons/power_density_thermal	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/electrons/power_density_thermal_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/electrons/power_density_fast	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/electrons/power_density_fast_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/electrons/power_inside_thermal	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/electrons/power_inside_thermal_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/electrons/power_inside_fast	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/electrons/power_inside_fast_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion	A	1		1...N		
+coherent_wave/profiles_1d/ion/element	A	1		1...N		
+coherent_wave/profiles_1d/ion/element/a	F	0	u			
+coherent_wave/profiles_1d/ion/element/z_n	I	0	e			
+coherent_wave/profiles_1d/ion/element/atoms_n	I	0				
+coherent_wave/profiles_1d/ion/z_ion	F	0	e			
+coherent_wave/profiles_1d/ion/name	T	0				
+coherent_wave/profiles_1d/ion/power_density_thermal	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/power_density_thermal_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/power_density_fast	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/power_density_fast_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/power_inside_thermal	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/power_inside_thermal_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/power_inside_fast	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/power_inside_fast_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/multiple_states_flag	I	0				
+coherent_wave/profiles_1d/ion/state	A	1		1...N		
+coherent_wave/profiles_1d/ion/state/z_min	F	0	e			
+coherent_wave/profiles_1d/ion/state/z_max	F	0	e			
+coherent_wave/profiles_1d/ion/state/name	T	0				
+coherent_wave/profiles_1d/ion/state/electron_configuration	T	0				
+coherent_wave/profiles_1d/ion/state/vibrational_level	F	0	e			
+coherent_wave/profiles_1d/ion/state/vibrational_mode	T	0				
+coherent_wave/profiles_1d/ion/state/power_density_thermal	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/state/power_density_thermal_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/state/power_density_fast	F	1	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/state/power_density_fast_n_phi	F	2	W.m^-3	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/state/power_inside_thermal	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/state/power_inside_thermal_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/ion/state/power_inside_fast	F	1	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm		
+coherent_wave/profiles_1d/ion/state/power_inside_fast_n_phi	F	2	W	coherent_wave(i1)/profiles_1d(itime)/grid/rho_tor_norm|coherent_wave(i1)/profiles_1d(itime)/n_phi		
+coherent_wave/profiles_1d/time	F	0	s			
+coherent_wave/profiles_2d	A	1		coherent_wave(i1)/profiles_2d(itime)/time		
+coherent_wave/profiles_2d/grid	S	0				
+coherent_wave/profiles_2d/grid/type	S	0				
+coherent_wave/profiles_2d/grid/type/name	T	0				
+coherent_wave/profiles_2d/grid/type/index	I	0				
+coherent_wave/profiles_2d/grid/type/description	T	0				
+coherent_wave/profiles_2d/grid/r	F	2	m	1...N|1...N		
+coherent_wave/profiles_2d/grid/z	F	2	m	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/theta_straight	F	2	rad	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/theta_geometric	F	2	rad	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/rho_tor_norm	F	2	1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/rho_tor	F	2	m	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/psi	F	2	Wb	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/volume	F	2	m^3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/grid/area	F	2	m^2	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/n_phi	I	1		1...N		
+coherent_wave/profiles_2d/power_density	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/power_density_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/e_field_n_phi	A	1		coherent_wave(i1)/profiles_2d(itime)/n_phi		
+coherent_wave/profiles_2d/e_field_n_phi/plus	S	0	V.m^-1			
+coherent_wave/profiles_2d/e_field_n_phi/plus/amplitude	F	2	V.m^-1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/e_field_n_phi/plus/phase	F	2	V.m^-1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/e_field_n_phi/minus	S	0	V.m^-1			
+coherent_wave/profiles_2d/e_field_n_phi/minus/amplitude	F	2	V.m^-1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/e_field_n_phi/minus/phase	F	2	V.m^-1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/e_field_n_phi/parallel	S	0	V.m^-1			
+coherent_wave/profiles_2d/e_field_n_phi/parallel/amplitude	F	2	V.m^-1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/e_field_n_phi/parallel/phase	F	2	V.m^-1	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/electrons	S	0				
+coherent_wave/profiles_2d/electrons/power_density_thermal	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/electrons/power_density_thermal_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/electrons/power_density_fast	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/electrons/power_density_fast_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/ion	A	1		1...N		
+coherent_wave/profiles_2d/ion/element	A	1		1...N		
+coherent_wave/profiles_2d/ion/element/a	F	0	u			
+coherent_wave/profiles_2d/ion/element/z_n	I	0	e			
+coherent_wave/profiles_2d/ion/element/atoms_n	I	0				
+coherent_wave/profiles_2d/ion/z_ion	F	0	e			
+coherent_wave/profiles_2d/ion/name	T	0				
+coherent_wave/profiles_2d/ion/power_density_thermal	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/ion/power_density_thermal_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/ion/power_density_fast	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/ion/power_density_fast_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/ion/multiple_states_flag	I	0				
+coherent_wave/profiles_2d/ion/state	A	1		1...N		
+coherent_wave/profiles_2d/ion/state/z_min	F	0	e			
+coherent_wave/profiles_2d/ion/state/z_max	F	0	e			
+coherent_wave/profiles_2d/ion/state/name	T	0				
+coherent_wave/profiles_2d/ion/state/electron_configuration	T	0				
+coherent_wave/profiles_2d/ion/state/vibrational_level	F	0	e			
+coherent_wave/profiles_2d/ion/state/vibrational_mode	T	0				
+coherent_wave/profiles_2d/ion/state/power_density_thermal	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/ion/state/power_density_thermal_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/ion/state/power_density_fast	F	2	W.m^-3	1...N|1...N	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r	
+coherent_wave/profiles_2d/ion/state/power_density_fast_n_phi	F	3	W.m^-3	1...N|1...N|coherent_wave(i1)/profiles_2d(itime)/n_phi	coherent_wave(i1)/profiles_2d(itime)/grid/r|coherent_wave(i1)/profiles_2d(itime)/grid/r|	
+coherent_wave/profiles_2d/time	F	0	s			
+coherent_wave/beam_tracing	A	1		coherent_wave(i1)/beam_tracing(itime)/time		
+coherent_wave/beam_tracing/beam	A	1		1...N		
+coherent_wave/beam_tracing/beam/power_initial	F	0	W			
+coherent_wave/beam_tracing/beam/length	F	1	m	1...N		
+coherent_wave/beam_tracing/beam/position	S	0				
+coherent_wave/beam_tracing/beam/position/r	F	1	m	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/position/z	F	1	m	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/position/phi	F	1	rad	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/position/psi	F	1	Wb	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/position/rho_tor_norm	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/position/theta	F	1	rad	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector	S	0				
+coherent_wave/beam_tracing/beam/wave_vector/k_r	F	1	m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/k_z	F	1	m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/k_phi	F	1	m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/k_r_norm	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/k_z_norm	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/k_phi_norm	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/n_parallel	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/n_perpendicular	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/wave_vector/n_phi	I	1		coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length OR 1...1		
+coherent_wave/beam_tracing/beam/wave_vector/varying_n_phi	I	0				
+coherent_wave/beam_tracing/beam/e_field	S	0				
+coherent_wave/beam_tracing/beam/e_field/plus	S	0	V.m^-1			
+coherent_wave/beam_tracing/beam/e_field/plus/real	F	1	V.m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/e_field/plus/imaginary	F	1	V.m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/e_field/minus	S	0	V.m^-1			
+coherent_wave/beam_tracing/beam/e_field/minus/real	F	1	V.m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/e_field/minus/imaginary	F	1	V.m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/e_field/parallel	S	0	V.m^-1			
+coherent_wave/beam_tracing/beam/e_field/parallel/real	F	1	V.m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/e_field/parallel/imaginary	F	1	V.m^-1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/power_flow_norm	S	0				
+coherent_wave/beam_tracing/beam/power_flow_norm/perpendicular	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/power_flow_norm/parallel	F	1	1	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/electrons	S	0				
+coherent_wave/beam_tracing/beam/electrons/power	F	1	W	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/ion	A	1		1...N		
+coherent_wave/beam_tracing/beam/ion/element	A	1		1...N		
+coherent_wave/beam_tracing/beam/ion/element/a	F	0	u			
+coherent_wave/beam_tracing/beam/ion/element/z_n	I	0	e			
+coherent_wave/beam_tracing/beam/ion/element/atoms_n	I	0				
+coherent_wave/beam_tracing/beam/ion/z_ion	F	0	e			
+coherent_wave/beam_tracing/beam/ion/name	T	0				
+coherent_wave/beam_tracing/beam/ion/power	F	1	W	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/ion/multiple_states_flag	I	0				
+coherent_wave/beam_tracing/beam/ion/state	A	1		1...N		
+coherent_wave/beam_tracing/beam/ion/state/z_min	F	0	e			
+coherent_wave/beam_tracing/beam/ion/state/z_max	F	0	e			
+coherent_wave/beam_tracing/beam/ion/state/name	T	0				
+coherent_wave/beam_tracing/beam/ion/state/electron_configuration	T	0				
+coherent_wave/beam_tracing/beam/ion/state/vibrational_level	F	0	e			
+coherent_wave/beam_tracing/beam/ion/state/vibrational_mode	T	0				
+coherent_wave/beam_tracing/beam/ion/state/power	F	1	W	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/spot	S	0				
+coherent_wave/beam_tracing/beam/spot/size	F	2	m	1...2|coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/spot/angle	F	1	rad	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/phase	S	0				
+coherent_wave/beam_tracing/beam/phase/curvature	F	2	m^-1	1...2|coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/beam/phase/angle	F	1	rad	coherent_wave(i1)/beam_tracing(itime)/beam(i2)/length		
+coherent_wave/beam_tracing/time	F	0	s			
+coherent_wave/full_wave	A	1		coherent_wave(i1)/full_wave(itime)/time		
+coherent_wave/full_wave/grid	S	0				
+coherent_wave/full_wave/grid/identifier	S	0				
+coherent_wave/full_wave/grid/identifier/name	T	0				
+coherent_wave/full_wave/grid/identifier/index	I	0				
+coherent_wave/full_wave/grid/identifier/description	T	0				
+coherent_wave/full_wave/grid/path	T	0				
+coherent_wave/full_wave/grid/space	A	1		1...N		
+coherent_wave/full_wave/grid/space/identifier	S	0				
+coherent_wave/full_wave/grid/space/identifier/name	T	0				
+coherent_wave/full_wave/grid/space/identifier/index	I	0				
+coherent_wave/full_wave/grid/space/identifier/description	T	0				
+coherent_wave/full_wave/grid/space/geometry_type	S	0				
+coherent_wave/full_wave/grid/space/geometry_type/name	T	0				
+coherent_wave/full_wave/grid/space/geometry_type/index	I	0				
+coherent_wave/full_wave/grid/space/geometry_type/description	T	0				
+coherent_wave/full_wave/grid/space/coordinates_type	A	1		1...N		
+coherent_wave/full_wave/grid/space/coordinates_type/name	T	0				
+coherent_wave/full_wave/grid/space/coordinates_type/index	I	0				
+coherent_wave/full_wave/grid/space/coordinates_type/description	T	0				
+coherent_wave/full_wave/grid/space/objects_per_dimension	A	1		1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/object	A	1		1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/boundary	A	1		1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/boundary/index	I	0				
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/nodes	I	1		1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/measure	F	0	m^dimension			
+coherent_wave/full_wave/grid/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+coherent_wave/full_wave/grid/space/objects_per_dimension/geometry_content	S	0				
+coherent_wave/full_wave/grid/space/objects_per_dimension/geometry_content/name	T	0				
+coherent_wave/full_wave/grid/space/objects_per_dimension/geometry_content/index	I	0				
+coherent_wave/full_wave/grid/space/objects_per_dimension/geometry_content/description	T	0				
+coherent_wave/full_wave/grid/grid_subset	A	1		1...N		
+coherent_wave/full_wave/grid/grid_subset/identifier	S	0				
+coherent_wave/full_wave/grid/grid_subset/identifier/name	T	0				
+coherent_wave/full_wave/grid/grid_subset/identifier/index	I	0				
+coherent_wave/full_wave/grid/grid_subset/identifier/description	T	0				
+coherent_wave/full_wave/grid/grid_subset/dimension	I	0				
+coherent_wave/full_wave/grid/grid_subset/element	A	1		1...N		
+coherent_wave/full_wave/grid/grid_subset/element/object	A	1		1...N		
+coherent_wave/full_wave/grid/grid_subset/element/object/space	I	0				
+coherent_wave/full_wave/grid/grid_subset/element/object/dimension	I	0				
+coherent_wave/full_wave/grid/grid_subset/element/object/index	I	0				
+coherent_wave/full_wave/grid/grid_subset/base	A	1		1...N		
+coherent_wave/full_wave/grid/grid_subset/base/jacobian	F	1	mixed	coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/element		
+coherent_wave/full_wave/grid/grid_subset/base/tensor_covariant	F	3	mixed	coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/element|1...N|1...N		
+coherent_wave/full_wave/grid/grid_subset/base/tensor_contravariant	F	3	mixed	coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/element|1...N|1...N	|coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/base(i3)/tensor_covariant|coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/base(i3)/tensor_covariant	
+coherent_wave/full_wave/grid/grid_subset/metric	S	0				
+coherent_wave/full_wave/grid/grid_subset/metric/jacobian	F	1	mixed	coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/element		
+coherent_wave/full_wave/grid/grid_subset/metric/tensor_covariant	F	3	mixed	coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/element|1...N|1...N		
+coherent_wave/full_wave/grid/grid_subset/metric/tensor_contravariant	F	3	mixed	coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/element|1...N|1...N	|coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/metric/tensor_covariant|coherent_wave(i1)/full_wave(itime)/grid/grid_subset(i2)/metric/tensor_covariant	
+coherent_wave/full_wave/e_field	S	0				
+coherent_wave/full_wave/e_field/plus	A	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/plus/grid_index	I	0				
+coherent_wave/full_wave/e_field/plus/grid_subset_index	I	0				
+coherent_wave/full_wave/e_field/plus/values	C	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/plus/coefficients	C	2	V.m^-1	coherent_wave(i1)/full_wave(itime)/e_field/plus(i2)/values|1...N		
+coherent_wave/full_wave/e_field/minus	A	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/minus/grid_index	I	0				
+coherent_wave/full_wave/e_field/minus/grid_subset_index	I	0				
+coherent_wave/full_wave/e_field/minus/values	C	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/minus/coefficients	C	2	V.m^-1	coherent_wave(i1)/full_wave(itime)/e_field/minus(i2)/values|1...N		
+coherent_wave/full_wave/e_field/parallel	A	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/parallel/grid_index	I	0				
+coherent_wave/full_wave/e_field/parallel/grid_subset_index	I	0				
+coherent_wave/full_wave/e_field/parallel/values	C	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/parallel/coefficients	C	2	V.m^-1	coherent_wave(i1)/full_wave(itime)/e_field/parallel(i2)/values|1...N		
+coherent_wave/full_wave/e_field/normal	A	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/normal/grid_index	I	0				
+coherent_wave/full_wave/e_field/normal/grid_subset_index	I	0				
+coherent_wave/full_wave/e_field/normal/values	C	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/normal/coefficients	C	2	V.m^-1	coherent_wave(i1)/full_wave(itime)/e_field/normal(i2)/values|1...N		
+coherent_wave/full_wave/e_field/bi_normal	A	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/bi_normal/grid_index	I	0				
+coherent_wave/full_wave/e_field/bi_normal/grid_subset_index	I	0				
+coherent_wave/full_wave/e_field/bi_normal/values	C	1	V.m^-1	1...N		
+coherent_wave/full_wave/e_field/bi_normal/coefficients	C	2	V.m^-1	coherent_wave(i1)/full_wave(itime)/e_field/bi_normal(i2)/values|1...N		
+coherent_wave/full_wave/b_field	S	0				
+coherent_wave/full_wave/b_field/parallel	A	1	T	1...N		
+coherent_wave/full_wave/b_field/parallel/grid_index	I	0				
+coherent_wave/full_wave/b_field/parallel/grid_subset_index	I	0				
+coherent_wave/full_wave/b_field/parallel/values	C	1	T	1...N		
+coherent_wave/full_wave/b_field/parallel/coefficients	C	2	T	coherent_wave(i1)/full_wave(itime)/b_field/parallel(i2)/values|1...N		
+coherent_wave/full_wave/b_field/normal	A	1	T	1...N		
+coherent_wave/full_wave/b_field/normal/grid_index	I	0				
+coherent_wave/full_wave/b_field/normal/grid_subset_index	I	0				
+coherent_wave/full_wave/b_field/normal/values	C	1	T	1...N		
+coherent_wave/full_wave/b_field/normal/coefficients	C	2	T	coherent_wave(i1)/full_wave(itime)/b_field/normal(i2)/values|1...N		
+coherent_wave/full_wave/b_field/bi_normal	A	1	T	1...N		
+coherent_wave/full_wave/b_field/bi_normal/grid_index	I	0				
+coherent_wave/full_wave/b_field/bi_normal/grid_subset_index	I	0				
+coherent_wave/full_wave/b_field/bi_normal/values	C	1	T	1...N		
+coherent_wave/full_wave/b_field/bi_normal/coefficients	C	2	T	coherent_wave(i1)/full_wave(itime)/b_field/bi_normal(i2)/values|1...N		
+coherent_wave/full_wave/k_perpendicular	A	1	V.m^-1	1...N		
+coherent_wave/full_wave/k_perpendicular/grid_index	I	0				
+coherent_wave/full_wave/k_perpendicular/grid_subset_index	I	0				
+coherent_wave/full_wave/k_perpendicular/values	F	1	V.m^-1	1...N		
+coherent_wave/full_wave/k_perpendicular/coefficients	F	2	V.m^-1	coherent_wave(i1)/full_wave(itime)/k_perpendicular(i2)/values|1...N		
+coherent_wave/full_wave/time	F	0	s			
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+magnetic_axis	S	0				
+magnetic_axis/r	F	1	m	time		
+magnetic_axis/z	F	1	m	time		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

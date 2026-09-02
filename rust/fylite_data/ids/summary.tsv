@@ -1,0 +1,2354 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids summary
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+type	S	0				
+type/name	T	0				
+type/index	I	0				
+type/description	T	0				
+machine	T	0				
+pulse	I	0				
+pulse_time_begin	T	0				
+pulse_time_begin_epoch	S	0				
+pulse_time_begin_epoch/seconds	I	0				
+pulse_time_begin_epoch/nanoseconds	I	0				
+pulse_time_end_epoch	S	0				
+pulse_time_end_epoch/seconds	I	0				
+pulse_time_end_epoch/nanoseconds	I	0				
+pulse_processing_time_begin	T	0				
+description	T	0				
+simulation	S	0				
+simulation/time_begin	F	0	s			
+simulation/time_step	F	0	s			
+simulation/time_end	F	0	s			
+simulation/workflow	T	0				
+tag	S	0				
+tag/name	T	0				
+tag/comment	T	0				
+configuration	S	0				
+configuration/value	T	0				
+configuration/source	T	0				
+magnetic_shear_flag	S	0				
+magnetic_shear_flag/value	I	0				
+magnetic_shear_flag/source	T	0				
+stationary_phase_flag	S	0				
+stationary_phase_flag/value	I	1		time		
+stationary_phase_flag/source	T	0				
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+composition	S	0	1			
+composition/hydrogen	S	0				
+composition/hydrogen/value	F	0	1			
+composition/hydrogen/source	T	0				
+composition/deuterium	S	0				
+composition/deuterium/value	F	0	1			
+composition/deuterium/source	T	0				
+composition/tritium	S	0				
+composition/tritium/value	F	0	1			
+composition/tritium/source	T	0				
+composition/deuterium_tritium	S	0				
+composition/deuterium_tritium/value	F	0	1			
+composition/deuterium_tritium/source	T	0				
+composition/helium_3	S	0				
+composition/helium_3/value	F	0	1			
+composition/helium_3/source	T	0				
+composition/helium_4	S	0				
+composition/helium_4/value	F	0	1			
+composition/helium_4/source	T	0				
+composition/beryllium	S	0				
+composition/beryllium/value	F	0	1			
+composition/beryllium/source	T	0				
+composition/boron	S	0				
+composition/boron/value	F	0	1			
+composition/boron/source	T	0				
+composition/lithium	S	0				
+composition/lithium/value	F	0	1			
+composition/lithium/source	T	0				
+composition/carbon	S	0				
+composition/carbon/value	F	0	1			
+composition/carbon/source	T	0				
+composition/nitrogen	S	0				
+composition/nitrogen/value	F	0	1			
+composition/nitrogen/source	T	0				
+composition/neon	S	0				
+composition/neon/value	F	0	1			
+composition/neon/source	T	0				
+composition/argon	S	0				
+composition/argon/value	F	0	1			
+composition/argon/source	T	0				
+composition/xenon	S	0				
+composition/xenon/value	F	0	1			
+composition/xenon/source	T	0				
+composition/oxygen	S	0				
+composition/oxygen/value	F	0	1			
+composition/oxygen/source	T	0				
+composition/tungsten	S	0				
+composition/tungsten/value	F	0	1			
+composition/tungsten/source	T	0				
+composition/iron	S	0				
+composition/iron/value	F	0	1			
+composition/iron/source	T	0				
+composition/krypton	S	0				
+composition/krypton/value	F	0	1			
+composition/krypton/source	T	0				
+global_quantities	S	0				
+global_quantities/ip	S	0	A			
+global_quantities/ip/value	F	1	A	time		
+global_quantities/ip/source	T	0				
+global_quantities/current_non_inductive	S	0	A			
+global_quantities/current_non_inductive/value	F	1	A	time		
+global_quantities/current_non_inductive/source	T	0				
+global_quantities/current_bootstrap	S	0	A			
+global_quantities/current_bootstrap/value	F	1	A	time		
+global_quantities/current_bootstrap/source	T	0				
+global_quantities/current_ohm	S	0	A			
+global_quantities/current_ohm/value	F	1	A	time		
+global_quantities/current_ohm/source	T	0				
+global_quantities/current_alignment	S	0	A			
+global_quantities/current_alignment/value	F	1	A	time		
+global_quantities/current_alignment/source	T	0				
+global_quantities/v_loop	S	0	V			
+global_quantities/v_loop/value	F	1	V	time		
+global_quantities/v_loop/source	T	0				
+global_quantities/li_3	S	0	1			
+global_quantities/li_3/value	F	1	1	time		
+global_quantities/li_3/source	T	0				
+global_quantities/li_3_mhd	S	0	1			
+global_quantities/li_3_mhd/value	F	1	1	time		
+global_quantities/li_3_mhd/source	T	0				
+global_quantities/beta_tor	S	0	1			
+global_quantities/beta_tor/value	F	1	1	time		
+global_quantities/beta_tor/source	T	0				
+global_quantities/beta_tor_mhd	S	0	1			
+global_quantities/beta_tor_mhd/value	F	1	1	time		
+global_quantities/beta_tor_mhd/source	T	0				
+global_quantities/beta_tor_norm	S	0	1			
+global_quantities/beta_tor_norm/value	F	1	1	time		
+global_quantities/beta_tor_norm/source	T	0				
+global_quantities/beta_tor_norm_mhd	S	0	1			
+global_quantities/beta_tor_norm_mhd/value	F	1	1	time		
+global_quantities/beta_tor_norm_mhd/source	T	0				
+global_quantities/beta_tor_thermal_norm	S	0	1			
+global_quantities/beta_tor_thermal_norm/value	F	1	1	time		
+global_quantities/beta_tor_thermal_norm/source	T	0				
+global_quantities/beta_pol	S	0	1			
+global_quantities/beta_pol/value	F	1	1	time		
+global_quantities/beta_pol/source	T	0				
+global_quantities/beta_pol_mhd	S	0	1			
+global_quantities/beta_pol_mhd/value	F	1	1	time		
+global_quantities/beta_pol_mhd/source	T	0				
+global_quantities/energy_diamagnetic	S	0	J			
+global_quantities/energy_diamagnetic/value	F	1	J	time		
+global_quantities/energy_diamagnetic/source	T	0				
+global_quantities/denergy_diamagnetic_dt	S	0	W			
+global_quantities/denergy_diamagnetic_dt/value	F	1	W	time		
+global_quantities/denergy_diamagnetic_dt/source	T	0				
+global_quantities/energy_total	S	0	J			
+global_quantities/energy_total/value	F	1	J	time		
+global_quantities/energy_total/source	T	0				
+global_quantities/energy_mhd	S	0	J			
+global_quantities/energy_mhd/value	F	1	J	time		
+global_quantities/energy_mhd/source	T	0				
+global_quantities/energy_thermal	S	0	J			
+global_quantities/energy_thermal/value	F	1	J	time		
+global_quantities/energy_thermal/source	T	0				
+global_quantities/energy_ion_total_thermal	S	0	J			
+global_quantities/energy_ion_total_thermal/value	F	1	J	time		
+global_quantities/energy_ion_total_thermal/source	T	0				
+global_quantities/energy_electrons_thermal	S	0	J			
+global_quantities/energy_electrons_thermal/value	F	1	J	time		
+global_quantities/energy_electrons_thermal/source	T	0				
+global_quantities/denergy_thermal_dt	S	0	W			
+global_quantities/denergy_thermal_dt/value	F	1	W	time		
+global_quantities/denergy_thermal_dt/source	T	0				
+global_quantities/energy_b_field_pol	S	0	J			
+global_quantities/energy_b_field_pol/value	F	1	J	time		
+global_quantities/energy_b_field_pol/source	T	0				
+global_quantities/energy_fast_perpendicular	S	0	J			
+global_quantities/energy_fast_perpendicular/value	F	1	J	time		
+global_quantities/energy_fast_perpendicular/source	T	0				
+global_quantities/energy_fast_parallel	S	0	J			
+global_quantities/energy_fast_parallel/value	F	1	J	time		
+global_quantities/energy_fast_parallel/source	T	0				
+global_quantities/volume	S	0	m^3			
+global_quantities/volume/value	F	1	m^3	time		
+global_quantities/volume/source	T	0				
+global_quantities/h_mode	S	0				
+global_quantities/h_mode/value	I	1		time		
+global_quantities/h_mode/source	T	0				
+global_quantities/r0	S	0	m			
+global_quantities/r0/value	F	0	m			
+global_quantities/r0/source	T	0				
+global_quantities/b0	S	0	T			
+global_quantities/b0/value	F	1	T	time		
+global_quantities/b0/source	T	0				
+global_quantities/fusion_gain	S	0	1			
+global_quantities/fusion_gain/value	F	1	1	time		
+global_quantities/fusion_gain/source	T	0				
+global_quantities/h_98	S	0	1			
+global_quantities/h_98/value	F	1	1	time		
+global_quantities/h_98/source	T	0				
+global_quantities/tau_energy	S	0	s			
+global_quantities/tau_energy/value	F	1	s	time		
+global_quantities/tau_energy/source	T	0				
+global_quantities/tau_helium	S	0	s			
+global_quantities/tau_helium/value	F	1	s	time		
+global_quantities/tau_helium/source	T	0				
+global_quantities/tau_resistive	S	0	s			
+global_quantities/tau_resistive/value	F	1	s	time		
+global_quantities/tau_resistive/source	T	0				
+global_quantities/tau_energy_98	S	0	s			
+global_quantities/tau_energy_98/value	F	1	s	time		
+global_quantities/tau_energy_98/source	T	0				
+global_quantities/ratio_tau_helium_fuel	S	0	1			
+global_quantities/ratio_tau_helium_fuel/value	F	1	1	time		
+global_quantities/ratio_tau_helium_fuel/source	T	0				
+global_quantities/resistance	S	0	ohm			
+global_quantities/resistance/value	F	1	ohm	time		
+global_quantities/resistance/source	T	0				
+global_quantities/q_95	S	0	1			
+global_quantities/q_95/value	F	1	1	time		
+global_quantities/q_95/source	T	0				
+global_quantities/power_ohm	S	0	W			
+global_quantities/power_ohm/value	F	1	W	time		
+global_quantities/power_ohm/source	T	0				
+global_quantities/power_steady	S	0	W			
+global_quantities/power_steady/value	F	1	W	time		
+global_quantities/power_steady/source	T	0				
+global_quantities/power_radiated	S	0	W			
+global_quantities/power_radiated/value	F	1	W	time		
+global_quantities/power_radiated/source	T	0				
+global_quantities/power_radiated_inside_lcfs	S	0	W			
+global_quantities/power_radiated_inside_lcfs/value	F	1	W	time		
+global_quantities/power_radiated_inside_lcfs/source	T	0				
+global_quantities/power_radiated_outside_lcfs	S	0	W			
+global_quantities/power_radiated_outside_lcfs/value	F	1	W	time		
+global_quantities/power_radiated_outside_lcfs/source	T	0				
+global_quantities/power_line	S	0	W			
+global_quantities/power_line/value	F	1	W	time		
+global_quantities/power_line/source	T	0				
+global_quantities/power_bremsstrahlung	S	0	W			
+global_quantities/power_bremsstrahlung/value	F	1	W	time		
+global_quantities/power_bremsstrahlung/source	T	0				
+global_quantities/power_synchrotron	S	0	W			
+global_quantities/power_synchrotron/value	F	1	W	time		
+global_quantities/power_synchrotron/source	T	0				
+global_quantities/power_loss	S	0	W			
+global_quantities/power_loss/value	F	1	W	time		
+global_quantities/power_loss/source	T	0				
+global_quantities/greenwald_fraction	S	0	1			
+global_quantities/greenwald_fraction/value	F	1	1	time		
+global_quantities/greenwald_fraction/source	T	0				
+global_quantities/fusion_fluence	S	0	J			
+global_quantities/fusion_fluence/value	F	1	J	time		
+global_quantities/fusion_fluence/source	T	0				
+global_quantities/psi_external_average	S	0	Wb			
+global_quantities/psi_external_average/value	F	1	Wb	time		
+global_quantities/psi_external_average/source	T	0				
+local	S	0				
+local/magnetic_axis	S	0				
+local/magnetic_axis/position	S	0				
+local/magnetic_axis/position/rho_tor_norm	F	1	1	time		
+local/magnetic_axis/position/rho_tor	F	1	m	time		
+local/magnetic_axis/position/psi	F	1	Wb	time		
+local/magnetic_axis/position/r	F	1	m	time		
+local/magnetic_axis/position/z	F	1	m	time		
+local/magnetic_axis/t_e	S	0	eV			
+local/magnetic_axis/t_e/value	F	1	eV	time		
+local/magnetic_axis/t_e/source	T	0				
+local/magnetic_axis/t_i_average	S	0	eV			
+local/magnetic_axis/t_i_average/value	F	1	eV	time		
+local/magnetic_axis/t_i_average/source	T	0				
+local/magnetic_axis/n_e	S	0	m^-3			
+local/magnetic_axis/n_e/value	F	1	m^-3	time		
+local/magnetic_axis/n_e/source	T	0				
+local/magnetic_axis/n_i	S	0	m^-3			
+local/magnetic_axis/n_i/hydrogen	S	0				
+local/magnetic_axis/n_i/hydrogen/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/hydrogen/source	T	0				
+local/magnetic_axis/n_i/deuterium	S	0				
+local/magnetic_axis/n_i/deuterium/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/deuterium/source	T	0				
+local/magnetic_axis/n_i/tritium	S	0				
+local/magnetic_axis/n_i/tritium/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/tritium/source	T	0				
+local/magnetic_axis/n_i/deuterium_tritium	S	0				
+local/magnetic_axis/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/deuterium_tritium/source	T	0				
+local/magnetic_axis/n_i/helium_3	S	0				
+local/magnetic_axis/n_i/helium_3/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/helium_3/source	T	0				
+local/magnetic_axis/n_i/helium_4	S	0				
+local/magnetic_axis/n_i/helium_4/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/helium_4/source	T	0				
+local/magnetic_axis/n_i/beryllium	S	0				
+local/magnetic_axis/n_i/beryllium/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/beryllium/source	T	0				
+local/magnetic_axis/n_i/boron	S	0				
+local/magnetic_axis/n_i/boron/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/boron/source	T	0				
+local/magnetic_axis/n_i/lithium	S	0				
+local/magnetic_axis/n_i/lithium/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/lithium/source	T	0				
+local/magnetic_axis/n_i/carbon	S	0				
+local/magnetic_axis/n_i/carbon/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/carbon/source	T	0				
+local/magnetic_axis/n_i/nitrogen	S	0				
+local/magnetic_axis/n_i/nitrogen/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/nitrogen/source	T	0				
+local/magnetic_axis/n_i/neon	S	0				
+local/magnetic_axis/n_i/neon/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/neon/source	T	0				
+local/magnetic_axis/n_i/argon	S	0				
+local/magnetic_axis/n_i/argon/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/argon/source	T	0				
+local/magnetic_axis/n_i/xenon	S	0				
+local/magnetic_axis/n_i/xenon/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/xenon/source	T	0				
+local/magnetic_axis/n_i/oxygen	S	0				
+local/magnetic_axis/n_i/oxygen/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/oxygen/source	T	0				
+local/magnetic_axis/n_i/tungsten	S	0				
+local/magnetic_axis/n_i/tungsten/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/tungsten/source	T	0				
+local/magnetic_axis/n_i/iron	S	0				
+local/magnetic_axis/n_i/iron/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/iron/source	T	0				
+local/magnetic_axis/n_i/krypton	S	0				
+local/magnetic_axis/n_i/krypton/value	F	1	m^-3	time		
+local/magnetic_axis/n_i/krypton/source	T	0				
+local/magnetic_axis/n_i_total	S	0	m^-3			
+local/magnetic_axis/n_i_total/value	F	1	m^-3	time		
+local/magnetic_axis/n_i_total/source	T	0				
+local/magnetic_axis/zeff	S	0	1			
+local/magnetic_axis/zeff/value	F	1	1	time		
+local/magnetic_axis/zeff/source	T	0				
+local/magnetic_axis/momentum_phi	S	0	kg.m.s^-1			
+local/magnetic_axis/momentum_phi/value	F	1	kg.m.s^-1	time		
+local/magnetic_axis/momentum_phi/source	T	0				
+local/magnetic_axis/velocity_phi	S	0	m.s^-1			
+local/magnetic_axis/velocity_phi/hydrogen	S	0				
+local/magnetic_axis/velocity_phi/hydrogen/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/hydrogen/source	T	0				
+local/magnetic_axis/velocity_phi/deuterium	S	0				
+local/magnetic_axis/velocity_phi/deuterium/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/deuterium/source	T	0				
+local/magnetic_axis/velocity_phi/tritium	S	0				
+local/magnetic_axis/velocity_phi/tritium/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/tritium/source	T	0				
+local/magnetic_axis/velocity_phi/deuterium_tritium	S	0				
+local/magnetic_axis/velocity_phi/deuterium_tritium/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/deuterium_tritium/source	T	0				
+local/magnetic_axis/velocity_phi/helium_3	S	0				
+local/magnetic_axis/velocity_phi/helium_3/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/helium_3/source	T	0				
+local/magnetic_axis/velocity_phi/helium_4	S	0				
+local/magnetic_axis/velocity_phi/helium_4/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/helium_4/source	T	0				
+local/magnetic_axis/velocity_phi/beryllium	S	0				
+local/magnetic_axis/velocity_phi/beryllium/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/beryllium/source	T	0				
+local/magnetic_axis/velocity_phi/lithium	S	0				
+local/magnetic_axis/velocity_phi/lithium/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/lithium/source	T	0				
+local/magnetic_axis/velocity_phi/carbon	S	0				
+local/magnetic_axis/velocity_phi/carbon/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/carbon/source	T	0				
+local/magnetic_axis/velocity_phi/nitrogen	S	0				
+local/magnetic_axis/velocity_phi/nitrogen/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/nitrogen/source	T	0				
+local/magnetic_axis/velocity_phi/neon	S	0				
+local/magnetic_axis/velocity_phi/neon/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/neon/source	T	0				
+local/magnetic_axis/velocity_phi/argon	S	0				
+local/magnetic_axis/velocity_phi/argon/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/argon/source	T	0				
+local/magnetic_axis/velocity_phi/xenon	S	0				
+local/magnetic_axis/velocity_phi/xenon/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/xenon/source	T	0				
+local/magnetic_axis/velocity_phi/oxygen	S	0				
+local/magnetic_axis/velocity_phi/oxygen/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/oxygen/source	T	0				
+local/magnetic_axis/velocity_phi/tungsten	S	0				
+local/magnetic_axis/velocity_phi/tungsten/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/tungsten/source	T	0				
+local/magnetic_axis/velocity_phi/iron	S	0				
+local/magnetic_axis/velocity_phi/iron/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/iron/source	T	0				
+local/magnetic_axis/velocity_phi/krypton	S	0				
+local/magnetic_axis/velocity_phi/krypton/value	F	1	m.s^-1	time		
+local/magnetic_axis/velocity_phi/krypton/source	T	0				
+local/magnetic_axis/q	S	0	1			
+local/magnetic_axis/q/value	F	1	1	time		
+local/magnetic_axis/q/source	T	0				
+local/magnetic_axis/magnetic_shear	S	0	1			
+local/magnetic_axis/magnetic_shear/value	F	1	1	time		
+local/magnetic_axis/magnetic_shear/source	T	0				
+local/magnetic_axis/b_field_tor	S	0	T			
+local/magnetic_axis/b_field_tor/value	F	1	T	time		
+local/magnetic_axis/b_field_tor/source	T	0				
+local/magnetic_axis/b_field_phi	S	0	T			
+local/magnetic_axis/b_field_phi/value	F	1	T	time		
+local/magnetic_axis/b_field_phi/source	T	0				
+local/magnetic_axis/e_field_parallel	S	0	V.m^-1			
+local/magnetic_axis/e_field_parallel/value	F	1	V.m^-1	time		
+local/magnetic_axis/e_field_parallel/source	T	0				
+local/separatrix	S	0				
+local/separatrix/position	S	0				
+local/separatrix/position/rho_tor_norm	F	1	1	time		
+local/separatrix/position/rho_tor	F	1	m	time		
+local/separatrix/position/psi	F	1	Wb	time		
+local/separatrix/t_e	S	0	eV			
+local/separatrix/t_e/value	F	1	eV	time		
+local/separatrix/t_e/source	T	0				
+local/separatrix/t_i_average	S	0	eV			
+local/separatrix/t_i_average/value	F	1	eV	time		
+local/separatrix/t_i_average/source	T	0				
+local/separatrix/n_e	S	0	m^-3			
+local/separatrix/n_e/value	F	1	m^-3	time		
+local/separatrix/n_e/source	T	0				
+local/separatrix/n_i	S	0	m^-3			
+local/separatrix/n_i/hydrogen	S	0				
+local/separatrix/n_i/hydrogen/value	F	1	m^-3	time		
+local/separatrix/n_i/hydrogen/source	T	0				
+local/separatrix/n_i/deuterium	S	0				
+local/separatrix/n_i/deuterium/value	F	1	m^-3	time		
+local/separatrix/n_i/deuterium/source	T	0				
+local/separatrix/n_i/tritium	S	0				
+local/separatrix/n_i/tritium/value	F	1	m^-3	time		
+local/separatrix/n_i/tritium/source	T	0				
+local/separatrix/n_i/deuterium_tritium	S	0				
+local/separatrix/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/separatrix/n_i/deuterium_tritium/source	T	0				
+local/separatrix/n_i/helium_3	S	0				
+local/separatrix/n_i/helium_3/value	F	1	m^-3	time		
+local/separatrix/n_i/helium_3/source	T	0				
+local/separatrix/n_i/helium_4	S	0				
+local/separatrix/n_i/helium_4/value	F	1	m^-3	time		
+local/separatrix/n_i/helium_4/source	T	0				
+local/separatrix/n_i/beryllium	S	0				
+local/separatrix/n_i/beryllium/value	F	1	m^-3	time		
+local/separatrix/n_i/beryllium/source	T	0				
+local/separatrix/n_i/boron	S	0				
+local/separatrix/n_i/boron/value	F	1	m^-3	time		
+local/separatrix/n_i/boron/source	T	0				
+local/separatrix/n_i/lithium	S	0				
+local/separatrix/n_i/lithium/value	F	1	m^-3	time		
+local/separatrix/n_i/lithium/source	T	0				
+local/separatrix/n_i/carbon	S	0				
+local/separatrix/n_i/carbon/value	F	1	m^-3	time		
+local/separatrix/n_i/carbon/source	T	0				
+local/separatrix/n_i/nitrogen	S	0				
+local/separatrix/n_i/nitrogen/value	F	1	m^-3	time		
+local/separatrix/n_i/nitrogen/source	T	0				
+local/separatrix/n_i/neon	S	0				
+local/separatrix/n_i/neon/value	F	1	m^-3	time		
+local/separatrix/n_i/neon/source	T	0				
+local/separatrix/n_i/argon	S	0				
+local/separatrix/n_i/argon/value	F	1	m^-3	time		
+local/separatrix/n_i/argon/source	T	0				
+local/separatrix/n_i/xenon	S	0				
+local/separatrix/n_i/xenon/value	F	1	m^-3	time		
+local/separatrix/n_i/xenon/source	T	0				
+local/separatrix/n_i/oxygen	S	0				
+local/separatrix/n_i/oxygen/value	F	1	m^-3	time		
+local/separatrix/n_i/oxygen/source	T	0				
+local/separatrix/n_i/tungsten	S	0				
+local/separatrix/n_i/tungsten/value	F	1	m^-3	time		
+local/separatrix/n_i/tungsten/source	T	0				
+local/separatrix/n_i/iron	S	0				
+local/separatrix/n_i/iron/value	F	1	m^-3	time		
+local/separatrix/n_i/iron/source	T	0				
+local/separatrix/n_i/krypton	S	0				
+local/separatrix/n_i/krypton/value	F	1	m^-3	time		
+local/separatrix/n_i/krypton/source	T	0				
+local/separatrix/n_i_total	S	0	m^-3			
+local/separatrix/n_i_total/value	F	1	m^-3	time		
+local/separatrix/n_i_total/source	T	0				
+local/separatrix/zeff	S	0	1			
+local/separatrix/zeff/value	F	1	1	time		
+local/separatrix/zeff/source	T	0				
+local/separatrix/momentum_phi	S	0	kg.m.s^-1			
+local/separatrix/momentum_phi/value	F	1	kg.m.s^-1	time		
+local/separatrix/momentum_phi/source	T	0				
+local/separatrix/velocity_phi	S	0	m.s^-1			
+local/separatrix/velocity_phi/hydrogen	S	0				
+local/separatrix/velocity_phi/hydrogen/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/hydrogen/source	T	0				
+local/separatrix/velocity_phi/deuterium	S	0				
+local/separatrix/velocity_phi/deuterium/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/deuterium/source	T	0				
+local/separatrix/velocity_phi/tritium	S	0				
+local/separatrix/velocity_phi/tritium/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/tritium/source	T	0				
+local/separatrix/velocity_phi/deuterium_tritium	S	0				
+local/separatrix/velocity_phi/deuterium_tritium/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/deuterium_tritium/source	T	0				
+local/separatrix/velocity_phi/helium_3	S	0				
+local/separatrix/velocity_phi/helium_3/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/helium_3/source	T	0				
+local/separatrix/velocity_phi/helium_4	S	0				
+local/separatrix/velocity_phi/helium_4/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/helium_4/source	T	0				
+local/separatrix/velocity_phi/beryllium	S	0				
+local/separatrix/velocity_phi/beryllium/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/beryllium/source	T	0				
+local/separatrix/velocity_phi/lithium	S	0				
+local/separatrix/velocity_phi/lithium/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/lithium/source	T	0				
+local/separatrix/velocity_phi/carbon	S	0				
+local/separatrix/velocity_phi/carbon/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/carbon/source	T	0				
+local/separatrix/velocity_phi/nitrogen	S	0				
+local/separatrix/velocity_phi/nitrogen/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/nitrogen/source	T	0				
+local/separatrix/velocity_phi/neon	S	0				
+local/separatrix/velocity_phi/neon/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/neon/source	T	0				
+local/separatrix/velocity_phi/argon	S	0				
+local/separatrix/velocity_phi/argon/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/argon/source	T	0				
+local/separatrix/velocity_phi/xenon	S	0				
+local/separatrix/velocity_phi/xenon/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/xenon/source	T	0				
+local/separatrix/velocity_phi/oxygen	S	0				
+local/separatrix/velocity_phi/oxygen/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/oxygen/source	T	0				
+local/separatrix/velocity_phi/tungsten	S	0				
+local/separatrix/velocity_phi/tungsten/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/tungsten/source	T	0				
+local/separatrix/velocity_phi/iron	S	0				
+local/separatrix/velocity_phi/iron/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/iron/source	T	0				
+local/separatrix/velocity_phi/krypton	S	0				
+local/separatrix/velocity_phi/krypton/value	F	1	m.s^-1	time		
+local/separatrix/velocity_phi/krypton/source	T	0				
+local/separatrix/q	S	0	1			
+local/separatrix/q/value	F	1	1	time		
+local/separatrix/q/source	T	0				
+local/separatrix/magnetic_shear	S	0	1			
+local/separatrix/magnetic_shear/value	F	1	1	time		
+local/separatrix/magnetic_shear/source	T	0				
+local/separatrix/e_field_parallel	S	0	V.m^-1			
+local/separatrix/e_field_parallel/value	F	1	V.m^-1	time		
+local/separatrix/e_field_parallel/source	T	0				
+local/separatrix_average	S	0				
+local/separatrix_average/position	S	0				
+local/separatrix_average/position/rho_tor_norm	F	1	1	time		
+local/separatrix_average/position/rho_tor	F	1	m	time		
+local/separatrix_average/position/psi	F	1	Wb	time		
+local/separatrix_average/t_e	S	0	eV			
+local/separatrix_average/t_e/value	F	1	eV	time		
+local/separatrix_average/t_e/source	T	0				
+local/separatrix_average/t_i_average	S	0	eV			
+local/separatrix_average/t_i_average/value	F	1	eV	time		
+local/separatrix_average/t_i_average/source	T	0				
+local/separatrix_average/n_e	S	0	m^-3			
+local/separatrix_average/n_e/value	F	1	m^-3	time		
+local/separatrix_average/n_e/source	T	0				
+local/separatrix_average/n_i	S	0	m^-3			
+local/separatrix_average/n_i/hydrogen	S	0				
+local/separatrix_average/n_i/hydrogen/value	F	1	m^-3	time		
+local/separatrix_average/n_i/hydrogen/source	T	0				
+local/separatrix_average/n_i/deuterium	S	0				
+local/separatrix_average/n_i/deuterium/value	F	1	m^-3	time		
+local/separatrix_average/n_i/deuterium/source	T	0				
+local/separatrix_average/n_i/tritium	S	0				
+local/separatrix_average/n_i/tritium/value	F	1	m^-3	time		
+local/separatrix_average/n_i/tritium/source	T	0				
+local/separatrix_average/n_i/deuterium_tritium	S	0				
+local/separatrix_average/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/separatrix_average/n_i/deuterium_tritium/source	T	0				
+local/separatrix_average/n_i/helium_3	S	0				
+local/separatrix_average/n_i/helium_3/value	F	1	m^-3	time		
+local/separatrix_average/n_i/helium_3/source	T	0				
+local/separatrix_average/n_i/helium_4	S	0				
+local/separatrix_average/n_i/helium_4/value	F	1	m^-3	time		
+local/separatrix_average/n_i/helium_4/source	T	0				
+local/separatrix_average/n_i/beryllium	S	0				
+local/separatrix_average/n_i/beryllium/value	F	1	m^-3	time		
+local/separatrix_average/n_i/beryllium/source	T	0				
+local/separatrix_average/n_i/boron	S	0				
+local/separatrix_average/n_i/boron/value	F	1	m^-3	time		
+local/separatrix_average/n_i/boron/source	T	0				
+local/separatrix_average/n_i/lithium	S	0				
+local/separatrix_average/n_i/lithium/value	F	1	m^-3	time		
+local/separatrix_average/n_i/lithium/source	T	0				
+local/separatrix_average/n_i/carbon	S	0				
+local/separatrix_average/n_i/carbon/value	F	1	m^-3	time		
+local/separatrix_average/n_i/carbon/source	T	0				
+local/separatrix_average/n_i/nitrogen	S	0				
+local/separatrix_average/n_i/nitrogen/value	F	1	m^-3	time		
+local/separatrix_average/n_i/nitrogen/source	T	0				
+local/separatrix_average/n_i/neon	S	0				
+local/separatrix_average/n_i/neon/value	F	1	m^-3	time		
+local/separatrix_average/n_i/neon/source	T	0				
+local/separatrix_average/n_i/argon	S	0				
+local/separatrix_average/n_i/argon/value	F	1	m^-3	time		
+local/separatrix_average/n_i/argon/source	T	0				
+local/separatrix_average/n_i/xenon	S	0				
+local/separatrix_average/n_i/xenon/value	F	1	m^-3	time		
+local/separatrix_average/n_i/xenon/source	T	0				
+local/separatrix_average/n_i/oxygen	S	0				
+local/separatrix_average/n_i/oxygen/value	F	1	m^-3	time		
+local/separatrix_average/n_i/oxygen/source	T	0				
+local/separatrix_average/n_i/tungsten	S	0				
+local/separatrix_average/n_i/tungsten/value	F	1	m^-3	time		
+local/separatrix_average/n_i/tungsten/source	T	0				
+local/separatrix_average/n_i/iron	S	0				
+local/separatrix_average/n_i/iron/value	F	1	m^-3	time		
+local/separatrix_average/n_i/iron/source	T	0				
+local/separatrix_average/n_i/krypton	S	0				
+local/separatrix_average/n_i/krypton/value	F	1	m^-3	time		
+local/separatrix_average/n_i/krypton/source	T	0				
+local/separatrix_average/n_i_total	S	0	m^-3			
+local/separatrix_average/n_i_total/value	F	1	m^-3	time		
+local/separatrix_average/n_i_total/source	T	0				
+local/separatrix_average/zeff	S	0	1			
+local/separatrix_average/zeff/value	F	1	1	time		
+local/separatrix_average/zeff/source	T	0				
+local/separatrix_average/momentum_phi	S	0	kg.m.s^-1			
+local/separatrix_average/momentum_phi/value	F	1	kg.m.s^-1	time		
+local/separatrix_average/momentum_phi/source	T	0				
+local/separatrix_average/velocity_phi	S	0	m.s^-1			
+local/separatrix_average/velocity_phi/hydrogen	S	0				
+local/separatrix_average/velocity_phi/hydrogen/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/hydrogen/source	T	0				
+local/separatrix_average/velocity_phi/deuterium	S	0				
+local/separatrix_average/velocity_phi/deuterium/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/deuterium/source	T	0				
+local/separatrix_average/velocity_phi/tritium	S	0				
+local/separatrix_average/velocity_phi/tritium/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/tritium/source	T	0				
+local/separatrix_average/velocity_phi/deuterium_tritium	S	0				
+local/separatrix_average/velocity_phi/deuterium_tritium/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/deuterium_tritium/source	T	0				
+local/separatrix_average/velocity_phi/helium_3	S	0				
+local/separatrix_average/velocity_phi/helium_3/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/helium_3/source	T	0				
+local/separatrix_average/velocity_phi/helium_4	S	0				
+local/separatrix_average/velocity_phi/helium_4/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/helium_4/source	T	0				
+local/separatrix_average/velocity_phi/beryllium	S	0				
+local/separatrix_average/velocity_phi/beryllium/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/beryllium/source	T	0				
+local/separatrix_average/velocity_phi/lithium	S	0				
+local/separatrix_average/velocity_phi/lithium/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/lithium/source	T	0				
+local/separatrix_average/velocity_phi/carbon	S	0				
+local/separatrix_average/velocity_phi/carbon/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/carbon/source	T	0				
+local/separatrix_average/velocity_phi/nitrogen	S	0				
+local/separatrix_average/velocity_phi/nitrogen/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/nitrogen/source	T	0				
+local/separatrix_average/velocity_phi/neon	S	0				
+local/separatrix_average/velocity_phi/neon/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/neon/source	T	0				
+local/separatrix_average/velocity_phi/argon	S	0				
+local/separatrix_average/velocity_phi/argon/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/argon/source	T	0				
+local/separatrix_average/velocity_phi/xenon	S	0				
+local/separatrix_average/velocity_phi/xenon/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/xenon/source	T	0				
+local/separatrix_average/velocity_phi/oxygen	S	0				
+local/separatrix_average/velocity_phi/oxygen/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/oxygen/source	T	0				
+local/separatrix_average/velocity_phi/tungsten	S	0				
+local/separatrix_average/velocity_phi/tungsten/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/tungsten/source	T	0				
+local/separatrix_average/velocity_phi/iron	S	0				
+local/separatrix_average/velocity_phi/iron/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/iron/source	T	0				
+local/separatrix_average/velocity_phi/krypton	S	0				
+local/separatrix_average/velocity_phi/krypton/value	F	1	m.s^-1	time		
+local/separatrix_average/velocity_phi/krypton/source	T	0				
+local/separatrix_average/q	S	0	1			
+local/separatrix_average/q/value	F	1	1	time		
+local/separatrix_average/q/source	T	0				
+local/separatrix_average/magnetic_shear	S	0	1			
+local/separatrix_average/magnetic_shear/value	F	1	1	time		
+local/separatrix_average/magnetic_shear/source	T	0				
+local/separatrix_average/e_field_parallel	S	0	V.m^-1			
+local/separatrix_average/e_field_parallel/value	F	1	V.m^-1	time		
+local/separatrix_average/e_field_parallel/source	T	0				
+local/pedestal	S	0				
+local/pedestal/position	S	0				
+local/pedestal/position/rho_tor_norm	F	1	1	time		
+local/pedestal/position/rho_tor	F	1	m	time		
+local/pedestal/position/psi	F	1	Wb	time		
+local/pedestal/t_e	S	0	eV			
+local/pedestal/t_e/value	F	1	eV	time		
+local/pedestal/t_e/source	T	0				
+local/pedestal/t_i_average	S	0	eV			
+local/pedestal/t_i_average/value	F	1	eV	time		
+local/pedestal/t_i_average/source	T	0				
+local/pedestal/n_e	S	0	m^-3			
+local/pedestal/n_e/value	F	1	m^-3	time		
+local/pedestal/n_e/source	T	0				
+local/pedestal/n_i	S	0	m^-3			
+local/pedestal/n_i/hydrogen	S	0				
+local/pedestal/n_i/hydrogen/value	F	1	m^-3	time		
+local/pedestal/n_i/hydrogen/source	T	0				
+local/pedestal/n_i/deuterium	S	0				
+local/pedestal/n_i/deuterium/value	F	1	m^-3	time		
+local/pedestal/n_i/deuterium/source	T	0				
+local/pedestal/n_i/tritium	S	0				
+local/pedestal/n_i/tritium/value	F	1	m^-3	time		
+local/pedestal/n_i/tritium/source	T	0				
+local/pedestal/n_i/deuterium_tritium	S	0				
+local/pedestal/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/pedestal/n_i/deuterium_tritium/source	T	0				
+local/pedestal/n_i/helium_3	S	0				
+local/pedestal/n_i/helium_3/value	F	1	m^-3	time		
+local/pedestal/n_i/helium_3/source	T	0				
+local/pedestal/n_i/helium_4	S	0				
+local/pedestal/n_i/helium_4/value	F	1	m^-3	time		
+local/pedestal/n_i/helium_4/source	T	0				
+local/pedestal/n_i/beryllium	S	0				
+local/pedestal/n_i/beryllium/value	F	1	m^-3	time		
+local/pedestal/n_i/beryllium/source	T	0				
+local/pedestal/n_i/boron	S	0				
+local/pedestal/n_i/boron/value	F	1	m^-3	time		
+local/pedestal/n_i/boron/source	T	0				
+local/pedestal/n_i/lithium	S	0				
+local/pedestal/n_i/lithium/value	F	1	m^-3	time		
+local/pedestal/n_i/lithium/source	T	0				
+local/pedestal/n_i/carbon	S	0				
+local/pedestal/n_i/carbon/value	F	1	m^-3	time		
+local/pedestal/n_i/carbon/source	T	0				
+local/pedestal/n_i/nitrogen	S	0				
+local/pedestal/n_i/nitrogen/value	F	1	m^-3	time		
+local/pedestal/n_i/nitrogen/source	T	0				
+local/pedestal/n_i/neon	S	0				
+local/pedestal/n_i/neon/value	F	1	m^-3	time		
+local/pedestal/n_i/neon/source	T	0				
+local/pedestal/n_i/argon	S	0				
+local/pedestal/n_i/argon/value	F	1	m^-3	time		
+local/pedestal/n_i/argon/source	T	0				
+local/pedestal/n_i/xenon	S	0				
+local/pedestal/n_i/xenon/value	F	1	m^-3	time		
+local/pedestal/n_i/xenon/source	T	0				
+local/pedestal/n_i/oxygen	S	0				
+local/pedestal/n_i/oxygen/value	F	1	m^-3	time		
+local/pedestal/n_i/oxygen/source	T	0				
+local/pedestal/n_i/tungsten	S	0				
+local/pedestal/n_i/tungsten/value	F	1	m^-3	time		
+local/pedestal/n_i/tungsten/source	T	0				
+local/pedestal/n_i/iron	S	0				
+local/pedestal/n_i/iron/value	F	1	m^-3	time		
+local/pedestal/n_i/iron/source	T	0				
+local/pedestal/n_i/krypton	S	0				
+local/pedestal/n_i/krypton/value	F	1	m^-3	time		
+local/pedestal/n_i/krypton/source	T	0				
+local/pedestal/n_i_total	S	0	m^-3			
+local/pedestal/n_i_total/value	F	1	m^-3	time		
+local/pedestal/n_i_total/source	T	0				
+local/pedestal/zeff	S	0	1			
+local/pedestal/zeff/value	F	1	1	time		
+local/pedestal/zeff/source	T	0				
+local/pedestal/momentum_phi	S	0	kg.m.s^-1			
+local/pedestal/momentum_phi/value	F	1	kg.m.s^-1	time		
+local/pedestal/momentum_phi/source	T	0				
+local/pedestal/velocity_phi	S	0	m.s^-1			
+local/pedestal/velocity_phi/hydrogen	S	0				
+local/pedestal/velocity_phi/hydrogen/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/hydrogen/source	T	0				
+local/pedestal/velocity_phi/deuterium	S	0				
+local/pedestal/velocity_phi/deuterium/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/deuterium/source	T	0				
+local/pedestal/velocity_phi/tritium	S	0				
+local/pedestal/velocity_phi/tritium/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/tritium/source	T	0				
+local/pedestal/velocity_phi/deuterium_tritium	S	0				
+local/pedestal/velocity_phi/deuterium_tritium/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/deuterium_tritium/source	T	0				
+local/pedestal/velocity_phi/helium_3	S	0				
+local/pedestal/velocity_phi/helium_3/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/helium_3/source	T	0				
+local/pedestal/velocity_phi/helium_4	S	0				
+local/pedestal/velocity_phi/helium_4/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/helium_4/source	T	0				
+local/pedestal/velocity_phi/beryllium	S	0				
+local/pedestal/velocity_phi/beryllium/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/beryllium/source	T	0				
+local/pedestal/velocity_phi/lithium	S	0				
+local/pedestal/velocity_phi/lithium/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/lithium/source	T	0				
+local/pedestal/velocity_phi/carbon	S	0				
+local/pedestal/velocity_phi/carbon/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/carbon/source	T	0				
+local/pedestal/velocity_phi/nitrogen	S	0				
+local/pedestal/velocity_phi/nitrogen/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/nitrogen/source	T	0				
+local/pedestal/velocity_phi/neon	S	0				
+local/pedestal/velocity_phi/neon/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/neon/source	T	0				
+local/pedestal/velocity_phi/argon	S	0				
+local/pedestal/velocity_phi/argon/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/argon/source	T	0				
+local/pedestal/velocity_phi/xenon	S	0				
+local/pedestal/velocity_phi/xenon/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/xenon/source	T	0				
+local/pedestal/velocity_phi/oxygen	S	0				
+local/pedestal/velocity_phi/oxygen/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/oxygen/source	T	0				
+local/pedestal/velocity_phi/tungsten	S	0				
+local/pedestal/velocity_phi/tungsten/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/tungsten/source	T	0				
+local/pedestal/velocity_phi/iron	S	0				
+local/pedestal/velocity_phi/iron/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/iron/source	T	0				
+local/pedestal/velocity_phi/krypton	S	0				
+local/pedestal/velocity_phi/krypton/value	F	1	m.s^-1	time		
+local/pedestal/velocity_phi/krypton/source	T	0				
+local/pedestal/q	S	0	1			
+local/pedestal/q/value	F	1	1	time		
+local/pedestal/q/source	T	0				
+local/pedestal/magnetic_shear	S	0	1			
+local/pedestal/magnetic_shear/value	F	1	1	time		
+local/pedestal/magnetic_shear/source	T	0				
+local/pedestal/e_field_parallel	S	0	V.m^-1			
+local/pedestal/e_field_parallel/value	F	1	V.m^-1	time		
+local/pedestal/e_field_parallel/source	T	0				
+local/itb	S	0				
+local/itb/position	S	0				
+local/itb/position/rho_tor_norm	F	1	1	time		
+local/itb/position/rho_tor	F	1	m	time		
+local/itb/position/psi	F	1	Wb	time		
+local/itb/t_e	S	0	eV			
+local/itb/t_e/value	F	1	eV	time		
+local/itb/t_e/source	T	0				
+local/itb/t_i_average	S	0	eV			
+local/itb/t_i_average/value	F	1	eV	time		
+local/itb/t_i_average/source	T	0				
+local/itb/n_e	S	0	m^-3			
+local/itb/n_e/value	F	1	m^-3	time		
+local/itb/n_e/source	T	0				
+local/itb/n_i	S	0	m^-3			
+local/itb/n_i/hydrogen	S	0				
+local/itb/n_i/hydrogen/value	F	1	m^-3	time		
+local/itb/n_i/hydrogen/source	T	0				
+local/itb/n_i/deuterium	S	0				
+local/itb/n_i/deuterium/value	F	1	m^-3	time		
+local/itb/n_i/deuterium/source	T	0				
+local/itb/n_i/tritium	S	0				
+local/itb/n_i/tritium/value	F	1	m^-3	time		
+local/itb/n_i/tritium/source	T	0				
+local/itb/n_i/deuterium_tritium	S	0				
+local/itb/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/itb/n_i/deuterium_tritium/source	T	0				
+local/itb/n_i/helium_3	S	0				
+local/itb/n_i/helium_3/value	F	1	m^-3	time		
+local/itb/n_i/helium_3/source	T	0				
+local/itb/n_i/helium_4	S	0				
+local/itb/n_i/helium_4/value	F	1	m^-3	time		
+local/itb/n_i/helium_4/source	T	0				
+local/itb/n_i/beryllium	S	0				
+local/itb/n_i/beryllium/value	F	1	m^-3	time		
+local/itb/n_i/beryllium/source	T	0				
+local/itb/n_i/boron	S	0				
+local/itb/n_i/boron/value	F	1	m^-3	time		
+local/itb/n_i/boron/source	T	0				
+local/itb/n_i/lithium	S	0				
+local/itb/n_i/lithium/value	F	1	m^-3	time		
+local/itb/n_i/lithium/source	T	0				
+local/itb/n_i/carbon	S	0				
+local/itb/n_i/carbon/value	F	1	m^-3	time		
+local/itb/n_i/carbon/source	T	0				
+local/itb/n_i/nitrogen	S	0				
+local/itb/n_i/nitrogen/value	F	1	m^-3	time		
+local/itb/n_i/nitrogen/source	T	0				
+local/itb/n_i/neon	S	0				
+local/itb/n_i/neon/value	F	1	m^-3	time		
+local/itb/n_i/neon/source	T	0				
+local/itb/n_i/argon	S	0				
+local/itb/n_i/argon/value	F	1	m^-3	time		
+local/itb/n_i/argon/source	T	0				
+local/itb/n_i/xenon	S	0				
+local/itb/n_i/xenon/value	F	1	m^-3	time		
+local/itb/n_i/xenon/source	T	0				
+local/itb/n_i/oxygen	S	0				
+local/itb/n_i/oxygen/value	F	1	m^-3	time		
+local/itb/n_i/oxygen/source	T	0				
+local/itb/n_i/tungsten	S	0				
+local/itb/n_i/tungsten/value	F	1	m^-3	time		
+local/itb/n_i/tungsten/source	T	0				
+local/itb/n_i/iron	S	0				
+local/itb/n_i/iron/value	F	1	m^-3	time		
+local/itb/n_i/iron/source	T	0				
+local/itb/n_i/krypton	S	0				
+local/itb/n_i/krypton/value	F	1	m^-3	time		
+local/itb/n_i/krypton/source	T	0				
+local/itb/n_i_total	S	0	m^-3			
+local/itb/n_i_total/value	F	1	m^-3	time		
+local/itb/n_i_total/source	T	0				
+local/itb/zeff	S	0	1			
+local/itb/zeff/value	F	1	1	time		
+local/itb/zeff/source	T	0				
+local/itb/momentum_phi	S	0	kg.m.s^-1			
+local/itb/momentum_phi/value	F	1	kg.m.s^-1	time		
+local/itb/momentum_phi/source	T	0				
+local/itb/velocity_phi	S	0	m.s^-1			
+local/itb/velocity_phi/hydrogen	S	0				
+local/itb/velocity_phi/hydrogen/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/hydrogen/source	T	0				
+local/itb/velocity_phi/deuterium	S	0				
+local/itb/velocity_phi/deuterium/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/deuterium/source	T	0				
+local/itb/velocity_phi/tritium	S	0				
+local/itb/velocity_phi/tritium/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/tritium/source	T	0				
+local/itb/velocity_phi/deuterium_tritium	S	0				
+local/itb/velocity_phi/deuterium_tritium/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/deuterium_tritium/source	T	0				
+local/itb/velocity_phi/helium_3	S	0				
+local/itb/velocity_phi/helium_3/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/helium_3/source	T	0				
+local/itb/velocity_phi/helium_4	S	0				
+local/itb/velocity_phi/helium_4/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/helium_4/source	T	0				
+local/itb/velocity_phi/beryllium	S	0				
+local/itb/velocity_phi/beryllium/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/beryllium/source	T	0				
+local/itb/velocity_phi/lithium	S	0				
+local/itb/velocity_phi/lithium/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/lithium/source	T	0				
+local/itb/velocity_phi/carbon	S	0				
+local/itb/velocity_phi/carbon/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/carbon/source	T	0				
+local/itb/velocity_phi/nitrogen	S	0				
+local/itb/velocity_phi/nitrogen/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/nitrogen/source	T	0				
+local/itb/velocity_phi/neon	S	0				
+local/itb/velocity_phi/neon/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/neon/source	T	0				
+local/itb/velocity_phi/argon	S	0				
+local/itb/velocity_phi/argon/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/argon/source	T	0				
+local/itb/velocity_phi/xenon	S	0				
+local/itb/velocity_phi/xenon/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/xenon/source	T	0				
+local/itb/velocity_phi/oxygen	S	0				
+local/itb/velocity_phi/oxygen/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/oxygen/source	T	0				
+local/itb/velocity_phi/tungsten	S	0				
+local/itb/velocity_phi/tungsten/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/tungsten/source	T	0				
+local/itb/velocity_phi/iron	S	0				
+local/itb/velocity_phi/iron/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/iron/source	T	0				
+local/itb/velocity_phi/krypton	S	0				
+local/itb/velocity_phi/krypton/value	F	1	m.s^-1	time		
+local/itb/velocity_phi/krypton/source	T	0				
+local/itb/q	S	0	1			
+local/itb/q/value	F	1	1	time		
+local/itb/q/source	T	0				
+local/itb/magnetic_shear	S	0	1			
+local/itb/magnetic_shear/value	F	1	1	time		
+local/itb/magnetic_shear/source	T	0				
+local/itb/e_field_parallel	S	0	V.m^-1			
+local/itb/e_field_parallel/value	F	1	V.m^-1	time		
+local/itb/e_field_parallel/source	T	0				
+local/limiter	S	0				
+local/limiter/name	S	0				
+local/limiter/name/value	T	0				
+local/limiter/name/source	T	0				
+local/limiter/t_e	S	0	eV			
+local/limiter/t_e/value	F	1	eV	time		
+local/limiter/t_e/source	T	0				
+local/limiter/t_i_average	S	0	eV			
+local/limiter/t_i_average/value	F	1	eV	time		
+local/limiter/t_i_average/source	T	0				
+local/limiter/n_e	S	0	m^-3			
+local/limiter/n_e/value	F	1	m^-3	time		
+local/limiter/n_e/source	T	0				
+local/limiter/n_i	S	0	m^-3			
+local/limiter/n_i/hydrogen	S	0				
+local/limiter/n_i/hydrogen/value	F	1	m^-3	time		
+local/limiter/n_i/hydrogen/source	T	0				
+local/limiter/n_i/deuterium	S	0				
+local/limiter/n_i/deuterium/value	F	1	m^-3	time		
+local/limiter/n_i/deuterium/source	T	0				
+local/limiter/n_i/tritium	S	0				
+local/limiter/n_i/tritium/value	F	1	m^-3	time		
+local/limiter/n_i/tritium/source	T	0				
+local/limiter/n_i/deuterium_tritium	S	0				
+local/limiter/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/limiter/n_i/deuterium_tritium/source	T	0				
+local/limiter/n_i/helium_3	S	0				
+local/limiter/n_i/helium_3/value	F	1	m^-3	time		
+local/limiter/n_i/helium_3/source	T	0				
+local/limiter/n_i/helium_4	S	0				
+local/limiter/n_i/helium_4/value	F	1	m^-3	time		
+local/limiter/n_i/helium_4/source	T	0				
+local/limiter/n_i/beryllium	S	0				
+local/limiter/n_i/beryllium/value	F	1	m^-3	time		
+local/limiter/n_i/beryllium/source	T	0				
+local/limiter/n_i/boron	S	0				
+local/limiter/n_i/boron/value	F	1	m^-3	time		
+local/limiter/n_i/boron/source	T	0				
+local/limiter/n_i/lithium	S	0				
+local/limiter/n_i/lithium/value	F	1	m^-3	time		
+local/limiter/n_i/lithium/source	T	0				
+local/limiter/n_i/carbon	S	0				
+local/limiter/n_i/carbon/value	F	1	m^-3	time		
+local/limiter/n_i/carbon/source	T	0				
+local/limiter/n_i/nitrogen	S	0				
+local/limiter/n_i/nitrogen/value	F	1	m^-3	time		
+local/limiter/n_i/nitrogen/source	T	0				
+local/limiter/n_i/neon	S	0				
+local/limiter/n_i/neon/value	F	1	m^-3	time		
+local/limiter/n_i/neon/source	T	0				
+local/limiter/n_i/argon	S	0				
+local/limiter/n_i/argon/value	F	1	m^-3	time		
+local/limiter/n_i/argon/source	T	0				
+local/limiter/n_i/xenon	S	0				
+local/limiter/n_i/xenon/value	F	1	m^-3	time		
+local/limiter/n_i/xenon/source	T	0				
+local/limiter/n_i/oxygen	S	0				
+local/limiter/n_i/oxygen/value	F	1	m^-3	time		
+local/limiter/n_i/oxygen/source	T	0				
+local/limiter/n_i/tungsten	S	0				
+local/limiter/n_i/tungsten/value	F	1	m^-3	time		
+local/limiter/n_i/tungsten/source	T	0				
+local/limiter/n_i/iron	S	0				
+local/limiter/n_i/iron/value	F	1	m^-3	time		
+local/limiter/n_i/iron/source	T	0				
+local/limiter/n_i/krypton	S	0				
+local/limiter/n_i/krypton/value	F	1	m^-3	time		
+local/limiter/n_i/krypton/source	T	0				
+local/limiter/n_i_total	S	0	m^-3			
+local/limiter/n_i_total/value	F	1	m^-3	time		
+local/limiter/n_i_total/source	T	0				
+local/limiter/zeff	S	0	1			
+local/limiter/zeff/value	F	1	1	time		
+local/limiter/zeff/source	T	0				
+local/limiter/flux_expansion	S	0	1			
+local/limiter/flux_expansion/value	F	1	1	time		
+local/limiter/flux_expansion/source	T	0				
+local/limiter/power_flux_peak	S	0	W.m^-2			
+local/limiter/power_flux_peak/value	F	1	W.m^-2	time		
+local/limiter/power_flux_peak/source	T	0				
+local/divertor_target	A	1		1...N		
+local/divertor_target/name	S	0				
+local/divertor_target/name/value	T	0				
+local/divertor_target/name/source	T	0				
+local/divertor_target/t_e	S	0	eV			
+local/divertor_target/t_e/value	F	1	eV	time		
+local/divertor_target/t_e/source	T	0				
+local/divertor_target/t_i_average	S	0	eV			
+local/divertor_target/t_i_average/value	F	1	eV	time		
+local/divertor_target/t_i_average/source	T	0				
+local/divertor_target/n_e	S	0	m^-3			
+local/divertor_target/n_e/value	F	1	m^-3	time		
+local/divertor_target/n_e/source	T	0				
+local/divertor_target/n_i	S	0	m^-3			
+local/divertor_target/n_i/hydrogen	S	0				
+local/divertor_target/n_i/hydrogen/value	F	1	m^-3	time		
+local/divertor_target/n_i/hydrogen/source	T	0				
+local/divertor_target/n_i/deuterium	S	0				
+local/divertor_target/n_i/deuterium/value	F	1	m^-3	time		
+local/divertor_target/n_i/deuterium/source	T	0				
+local/divertor_target/n_i/tritium	S	0				
+local/divertor_target/n_i/tritium/value	F	1	m^-3	time		
+local/divertor_target/n_i/tritium/source	T	0				
+local/divertor_target/n_i/deuterium_tritium	S	0				
+local/divertor_target/n_i/deuterium_tritium/value	F	1	m^-3	time		
+local/divertor_target/n_i/deuterium_tritium/source	T	0				
+local/divertor_target/n_i/helium_3	S	0				
+local/divertor_target/n_i/helium_3/value	F	1	m^-3	time		
+local/divertor_target/n_i/helium_3/source	T	0				
+local/divertor_target/n_i/helium_4	S	0				
+local/divertor_target/n_i/helium_4/value	F	1	m^-3	time		
+local/divertor_target/n_i/helium_4/source	T	0				
+local/divertor_target/n_i/beryllium	S	0				
+local/divertor_target/n_i/beryllium/value	F	1	m^-3	time		
+local/divertor_target/n_i/beryllium/source	T	0				
+local/divertor_target/n_i/boron	S	0				
+local/divertor_target/n_i/boron/value	F	1	m^-3	time		
+local/divertor_target/n_i/boron/source	T	0				
+local/divertor_target/n_i/lithium	S	0				
+local/divertor_target/n_i/lithium/value	F	1	m^-3	time		
+local/divertor_target/n_i/lithium/source	T	0				
+local/divertor_target/n_i/carbon	S	0				
+local/divertor_target/n_i/carbon/value	F	1	m^-3	time		
+local/divertor_target/n_i/carbon/source	T	0				
+local/divertor_target/n_i/nitrogen	S	0				
+local/divertor_target/n_i/nitrogen/value	F	1	m^-3	time		
+local/divertor_target/n_i/nitrogen/source	T	0				
+local/divertor_target/n_i/neon	S	0				
+local/divertor_target/n_i/neon/value	F	1	m^-3	time		
+local/divertor_target/n_i/neon/source	T	0				
+local/divertor_target/n_i/argon	S	0				
+local/divertor_target/n_i/argon/value	F	1	m^-3	time		
+local/divertor_target/n_i/argon/source	T	0				
+local/divertor_target/n_i/xenon	S	0				
+local/divertor_target/n_i/xenon/value	F	1	m^-3	time		
+local/divertor_target/n_i/xenon/source	T	0				
+local/divertor_target/n_i/oxygen	S	0				
+local/divertor_target/n_i/oxygen/value	F	1	m^-3	time		
+local/divertor_target/n_i/oxygen/source	T	0				
+local/divertor_target/n_i/tungsten	S	0				
+local/divertor_target/n_i/tungsten/value	F	1	m^-3	time		
+local/divertor_target/n_i/tungsten/source	T	0				
+local/divertor_target/n_i/iron	S	0				
+local/divertor_target/n_i/iron/value	F	1	m^-3	time		
+local/divertor_target/n_i/iron/source	T	0				
+local/divertor_target/n_i/krypton	S	0				
+local/divertor_target/n_i/krypton/value	F	1	m^-3	time		
+local/divertor_target/n_i/krypton/source	T	0				
+local/divertor_target/n_i_total	S	0	m^-3			
+local/divertor_target/n_i_total/value	F	1	m^-3	time		
+local/divertor_target/n_i_total/source	T	0				
+local/divertor_target/zeff	S	0	1			
+local/divertor_target/zeff/value	F	1	1	time		
+local/divertor_target/zeff/source	T	0				
+local/divertor_target/flux_expansion	S	0	1			
+local/divertor_target/flux_expansion/value	F	1	1	time		
+local/divertor_target/flux_expansion/source	T	0				
+local/divertor_target/power_flux_peak	S	0	W.m^-2			
+local/divertor_target/power_flux_peak/value	F	1	W.m^-2	time		
+local/divertor_target/power_flux_peak/source	T	0				
+local/r_eff_norm_2_3	S	0				
+local/r_eff_norm_2_3/effective_helical_ripple	S	0	1			
+local/r_eff_norm_2_3/effective_helical_ripple/value	F	1	1	time		
+local/r_eff_norm_2_3/effective_helical_ripple/source	T	0				
+local/r_eff_norm_2_3/plateau_factor	S	0	1			
+local/r_eff_norm_2_3/plateau_factor/value	F	1	1	time		
+local/r_eff_norm_2_3/plateau_factor/source	T	0				
+local/r_eff_norm_2_3/iota	S	0	1			
+local/r_eff_norm_2_3/iota/value	F	1	1	time		
+local/r_eff_norm_2_3/iota/source	T	0				
+boundary	S	0				
+boundary/type	S	0				
+boundary/type/value	I	1		time		
+boundary/type/source	T	0				
+boundary/geometric_axis_r	S	0	m			
+boundary/geometric_axis_r/value	F	1	m	time		
+boundary/geometric_axis_r/source	T	0				
+boundary/geometric_axis_z	S	0	m			
+boundary/geometric_axis_z/value	F	1	m	time		
+boundary/geometric_axis_z/source	T	0				
+boundary/magnetic_axis_r	S	0	m			
+boundary/magnetic_axis_r/value	F	1	m	time		
+boundary/magnetic_axis_r/source	T	0				
+boundary/magnetic_axis_z	S	0	m			
+boundary/magnetic_axis_z/value	F	1	m	time		
+boundary/magnetic_axis_z/source	T	0				
+boundary/minor_radius	S	0	m			
+boundary/minor_radius/value	F	1	m	time		
+boundary/minor_radius/source	T	0				
+boundary/elongation	S	0	1			
+boundary/elongation/value	F	1	1	time		
+boundary/elongation/source	T	0				
+boundary/triangularity_upper	S	0	1			
+boundary/triangularity_upper/value	F	1	1	time		
+boundary/triangularity_upper/source	T	0				
+boundary/triangularity_lower	S	0	1			
+boundary/triangularity_lower/value	F	1	1	time		
+boundary/triangularity_lower/source	T	0				
+boundary/strike_point_inner_r	S	0	m			
+boundary/strike_point_inner_r/value	F	1	m	time		
+boundary/strike_point_inner_r/source	T	0				
+boundary/strike_point_inner_z	S	0	m			
+boundary/strike_point_inner_z/value	F	1	m	time		
+boundary/strike_point_inner_z/source	T	0				
+boundary/strike_point_outer_r	S	0	m			
+boundary/strike_point_outer_r/value	F	1	m	time		
+boundary/strike_point_outer_r/source	T	0				
+boundary/strike_point_outer_z	S	0	m			
+boundary/strike_point_outer_z/value	F	1	m	time		
+boundary/strike_point_outer_z/source	T	0				
+boundary/strike_point_configuration	S	0				
+boundary/strike_point_configuration/value	T	0				
+boundary/strike_point_configuration/source	T	0				
+boundary/gap_limiter_wall	S	0	m			
+boundary/gap_limiter_wall/value	F	1	m	time		
+boundary/gap_limiter_wall/source	T	0				
+boundary/distance_inner_outer_separatrices	S	0	m			
+boundary/distance_inner_outer_separatrices/value	F	1	m	time		
+boundary/distance_inner_outer_separatrices/source	T	0				
+boundary/x_point_main	S	0				
+boundary/x_point_main/r	F	1	m	time		
+boundary/x_point_main/z	F	1	m	time		
+boundary/x_point_main/source	T	0				
+pedestal_fits	S	0				
+pedestal_fits/mtanh	S	0				
+pedestal_fits/mtanh/n_e	S	0	m^-3			
+pedestal_fits/mtanh/n_e/separatrix	S	0				
+pedestal_fits/mtanh/n_e/separatrix/value	F	1	m^-3	time		
+pedestal_fits/mtanh/n_e/separatrix/source	T	0				
+pedestal_fits/mtanh/n_e/pedestal_height	S	0				
+pedestal_fits/mtanh/n_e/pedestal_height/value	F	1	m^-3	time		
+pedestal_fits/mtanh/n_e/pedestal_height/source	T	0				
+pedestal_fits/mtanh/n_e/pedestal_width	S	0	1			
+pedestal_fits/mtanh/n_e/pedestal_width/value	F	1	1	time		
+pedestal_fits/mtanh/n_e/pedestal_width/source	T	0				
+pedestal_fits/mtanh/n_e/pedestal_position	S	0	1			
+pedestal_fits/mtanh/n_e/pedestal_position/value	F	1	1	time		
+pedestal_fits/mtanh/n_e/pedestal_position/source	T	0				
+pedestal_fits/mtanh/n_e/offset	S	0				
+pedestal_fits/mtanh/n_e/offset/value	F	1	m^-3	time		
+pedestal_fits/mtanh/n_e/offset/source	T	0				
+pedestal_fits/mtanh/n_e/d_dpsi_norm	S	0				
+pedestal_fits/mtanh/n_e/d_dpsi_norm/value	F	1	m^-3	time		
+pedestal_fits/mtanh/n_e/d_dpsi_norm/source	T	0				
+pedestal_fits/mtanh/n_e/d_dpsi_norm_max	S	0				
+pedestal_fits/mtanh/n_e/d_dpsi_norm_max/value	F	1	m^-3	time		
+pedestal_fits/mtanh/n_e/d_dpsi_norm_max/source	T	0				
+pedestal_fits/mtanh/n_e/d_dpsi_norm_max_position	S	0	1			
+pedestal_fits/mtanh/n_e/d_dpsi_norm_max_position/value	F	1	1	time		
+pedestal_fits/mtanh/n_e/d_dpsi_norm_max_position/source	T	0				
+pedestal_fits/mtanh/t_e	S	0	eV			
+pedestal_fits/mtanh/t_e/pedestal_height	S	0				
+pedestal_fits/mtanh/t_e/pedestal_height/value	F	1	eV	time		
+pedestal_fits/mtanh/t_e/pedestal_height/source	T	0				
+pedestal_fits/mtanh/t_e/pedestal_width	S	0	1			
+pedestal_fits/mtanh/t_e/pedestal_width/value	F	1	1	time		
+pedestal_fits/mtanh/t_e/pedestal_width/source	T	0				
+pedestal_fits/mtanh/t_e/pedestal_position	S	0	1			
+pedestal_fits/mtanh/t_e/pedestal_position/value	F	1	1	time		
+pedestal_fits/mtanh/t_e/pedestal_position/source	T	0				
+pedestal_fits/mtanh/t_e/offset	S	0				
+pedestal_fits/mtanh/t_e/offset/value	F	1	eV	time		
+pedestal_fits/mtanh/t_e/offset/source	T	0				
+pedestal_fits/mtanh/t_e/d_dpsi_norm	S	0				
+pedestal_fits/mtanh/t_e/d_dpsi_norm/value	F	1	eV	time		
+pedestal_fits/mtanh/t_e/d_dpsi_norm/source	T	0				
+pedestal_fits/mtanh/t_e/d_dpsi_norm_max	S	0				
+pedestal_fits/mtanh/t_e/d_dpsi_norm_max/value	F	1	eV	time		
+pedestal_fits/mtanh/t_e/d_dpsi_norm_max/source	T	0				
+pedestal_fits/mtanh/t_e/d_dpsi_norm_max_position	S	0	1			
+pedestal_fits/mtanh/t_e/d_dpsi_norm_max_position/value	F	1	1	time		
+pedestal_fits/mtanh/t_e/d_dpsi_norm_max_position/source	T	0				
+pedestal_fits/mtanh/pressure_electron	S	0	Pa			
+pedestal_fits/mtanh/pressure_electron/separatrix	S	0				
+pedestal_fits/mtanh/pressure_electron/separatrix/value	F	1	Pa	time		
+pedestal_fits/mtanh/pressure_electron/separatrix/source	T	0				
+pedestal_fits/mtanh/pressure_electron/pedestal_height	S	0				
+pedestal_fits/mtanh/pressure_electron/pedestal_height/value	F	1	Pa	time		
+pedestal_fits/mtanh/pressure_electron/pedestal_height/source	T	0				
+pedestal_fits/mtanh/pressure_electron/pedestal_width	S	0	1			
+pedestal_fits/mtanh/pressure_electron/pedestal_width/value	F	1	1	time		
+pedestal_fits/mtanh/pressure_electron/pedestal_width/source	T	0				
+pedestal_fits/mtanh/pressure_electron/pedestal_position	S	0	1			
+pedestal_fits/mtanh/pressure_electron/pedestal_position/value	F	1	1	time		
+pedestal_fits/mtanh/pressure_electron/pedestal_position/source	T	0				
+pedestal_fits/mtanh/pressure_electron/offset	S	0				
+pedestal_fits/mtanh/pressure_electron/offset/value	F	1	Pa	time		
+pedestal_fits/mtanh/pressure_electron/offset/source	T	0				
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm	S	0				
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm/value	F	1	Pa	time		
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm/source	T	0				
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max	S	0				
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max/value	F	1	Pa	time		
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max/source	T	0				
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max_position	S	0	1			
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max_position/value	F	1	1	time		
+pedestal_fits/mtanh/pressure_electron/d_dpsi_norm_max_position/source	T	0				
+pedestal_fits/mtanh/energy_thermal_pedestal_electron	S	0	J			
+pedestal_fits/mtanh/energy_thermal_pedestal_electron/value	F	1	J	time		
+pedestal_fits/mtanh/energy_thermal_pedestal_electron/source	T	0				
+pedestal_fits/mtanh/energy_thermal_pedestal_ion	S	0	J			
+pedestal_fits/mtanh/energy_thermal_pedestal_ion/value	F	1	J	time		
+pedestal_fits/mtanh/energy_thermal_pedestal_ion/source	T	0				
+pedestal_fits/mtanh/volume_inside_pedestal	S	0	m^3			
+pedestal_fits/mtanh/volume_inside_pedestal/value	F	1	m^3	time		
+pedestal_fits/mtanh/volume_inside_pedestal/source	T	0				
+pedestal_fits/mtanh/alpha_electron_pedestal_max	S	0	1			
+pedestal_fits/mtanh/alpha_electron_pedestal_max/value	F	1	1	time		
+pedestal_fits/mtanh/alpha_electron_pedestal_max/source	T	0				
+pedestal_fits/mtanh/alpha_electron_pedestal_max_position	S	0	1			
+pedestal_fits/mtanh/alpha_electron_pedestal_max_position/value	F	1	1	time		
+pedestal_fits/mtanh/alpha_electron_pedestal_max_position/source	T	0				
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_average	S	0	1			
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_average/value	F	1	1	time		
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_average/source	T	0				
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs	S	0	1			
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs/value	F	1	1	time		
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_lfs/source	T	0				
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_hfs	S	0	1			
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_hfs/value	F	1	1	time		
+pedestal_fits/mtanh/beta_pol_pedestal_top_electron_hfs/source	T	0				
+pedestal_fits/mtanh/nustar_pedestal_top_electron	S	0	1			
+pedestal_fits/mtanh/nustar_pedestal_top_electron/value	F	1	1	time		
+pedestal_fits/mtanh/nustar_pedestal_top_electron/source	T	0				
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_lfs	S	0	1			
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_lfs/value	F	1	1	time		
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_lfs/source	T	0				
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_hfs	S	0	1			
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_hfs/value	F	1	1	time		
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_hfs/source	T	0				
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_magnetic_axis	S	0	1			
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_magnetic_axis/value	F	1	1	time		
+pedestal_fits/mtanh/rhostar_pedestal_top_electron_magnetic_axis/source	T	0				
+pedestal_fits/mtanh/b_field_pol_pedestal_top_average	S	0	T			
+pedestal_fits/mtanh/b_field_pol_pedestal_top_average/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_pol_pedestal_top_average/source	T	0				
+pedestal_fits/mtanh/b_field_pol_pedestal_top_hfs	S	0	T			
+pedestal_fits/mtanh/b_field_pol_pedestal_top_hfs/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_pol_pedestal_top_hfs/source	T	0				
+pedestal_fits/mtanh/b_field_pol_pedestal_top_lfs	S	0	T			
+pedestal_fits/mtanh/b_field_pol_pedestal_top_lfs/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_pol_pedestal_top_lfs/source	T	0				
+pedestal_fits/mtanh/b_field_pedestal_top_hfs	S	0	T			
+pedestal_fits/mtanh/b_field_pedestal_top_hfs/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_pedestal_top_hfs/source	T	0				
+pedestal_fits/mtanh/b_field_pedestal_top_lfs	S	0	T			
+pedestal_fits/mtanh/b_field_pedestal_top_lfs/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_pedestal_top_lfs/source	T	0				
+pedestal_fits/mtanh/b_field_tor_pedestal_top_hfs	S	0	T			
+pedestal_fits/mtanh/b_field_tor_pedestal_top_hfs/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_tor_pedestal_top_hfs/source	T	0				
+pedestal_fits/mtanh/b_field_tor_pedestal_top_lfs	S	0	T			
+pedestal_fits/mtanh/b_field_tor_pedestal_top_lfs/value	F	1	T	time		
+pedestal_fits/mtanh/b_field_tor_pedestal_top_lfs/source	T	0				
+pedestal_fits/mtanh/coulomb_factor_pedestal_top	S	0	1			
+pedestal_fits/mtanh/coulomb_factor_pedestal_top/value	F	1	1	time		
+pedestal_fits/mtanh/coulomb_factor_pedestal_top/source	T	0				
+pedestal_fits/mtanh/stability	S	0				
+pedestal_fits/mtanh/stability/alpha_experimental	S	0	1			
+pedestal_fits/mtanh/stability/alpha_experimental/value	F	1	1	time		
+pedestal_fits/mtanh/stability/alpha_experimental/source	T	0				
+pedestal_fits/mtanh/stability/bootstrap_current_sauter	S	0				
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/alpha_critical	S	0	1			
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/alpha_critical/value	F	1	1	time		
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/alpha_critical/source	T	0				
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/alpha_ratio	S	0	1			
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/alpha_ratio/value	F	1	1	time		
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/alpha_ratio/source	T	0				
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/t_e_pedestal_top_critical	S	0	eV			
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/t_e_pedestal_top_critical/value	F	1	eV	time		
+pedestal_fits/mtanh/stability/bootstrap_current_sauter/t_e_pedestal_top_critical/source	T	0				
+pedestal_fits/mtanh/stability/bootstrap_current_hager	S	0				
+pedestal_fits/mtanh/stability/bootstrap_current_hager/alpha_critical	S	0	1			
+pedestal_fits/mtanh/stability/bootstrap_current_hager/alpha_critical/value	F	1	1	time		
+pedestal_fits/mtanh/stability/bootstrap_current_hager/alpha_critical/source	T	0				
+pedestal_fits/mtanh/stability/bootstrap_current_hager/alpha_ratio	S	0	1			
+pedestal_fits/mtanh/stability/bootstrap_current_hager/alpha_ratio/value	F	1	1	time		
+pedestal_fits/mtanh/stability/bootstrap_current_hager/alpha_ratio/source	T	0				
+pedestal_fits/mtanh/stability/bootstrap_current_hager/t_e_pedestal_top_critical	S	0	eV			
+pedestal_fits/mtanh/stability/bootstrap_current_hager/t_e_pedestal_top_critical/value	F	1	eV	time		
+pedestal_fits/mtanh/stability/bootstrap_current_hager/t_e_pedestal_top_critical/source	T	0				
+pedestal_fits/mtanh/parameters	F	1	mixed	1...5		
+pedestal_fits/linear	S	0				
+pedestal_fits/linear/n_e	S	0	m^-3			
+pedestal_fits/linear/n_e/separatrix	S	0				
+pedestal_fits/linear/n_e/separatrix/value	F	1	m^-3	time		
+pedestal_fits/linear/n_e/separatrix/source	T	0				
+pedestal_fits/linear/n_e/pedestal_height	S	0				
+pedestal_fits/linear/n_e/pedestal_height/value	F	1	m^-3	time		
+pedestal_fits/linear/n_e/pedestal_height/source	T	0				
+pedestal_fits/linear/n_e/pedestal_width	S	0	1			
+pedestal_fits/linear/n_e/pedestal_width/value	F	1	1	time		
+pedestal_fits/linear/n_e/pedestal_width/source	T	0				
+pedestal_fits/linear/n_e/pedestal_position	S	0	1			
+pedestal_fits/linear/n_e/pedestal_position/value	F	1	1	time		
+pedestal_fits/linear/n_e/pedestal_position/source	T	0				
+pedestal_fits/linear/n_e/offset	S	0				
+pedestal_fits/linear/n_e/offset/value	F	1	m^-3	time		
+pedestal_fits/linear/n_e/offset/source	T	0				
+pedestal_fits/linear/n_e/d_dpsi_norm	S	0				
+pedestal_fits/linear/n_e/d_dpsi_norm/value	F	1	m^-3	time		
+pedestal_fits/linear/n_e/d_dpsi_norm/source	T	0				
+pedestal_fits/linear/n_e/d_dpsi_norm_max	S	0				
+pedestal_fits/linear/n_e/d_dpsi_norm_max/value	F	1	m^-3	time		
+pedestal_fits/linear/n_e/d_dpsi_norm_max/source	T	0				
+pedestal_fits/linear/t_e	S	0	eV			
+pedestal_fits/linear/t_e/pedestal_height	S	0				
+pedestal_fits/linear/t_e/pedestal_height/value	F	1	eV	time		
+pedestal_fits/linear/t_e/pedestal_height/source	T	0				
+pedestal_fits/linear/t_e/pedestal_width	S	0	1			
+pedestal_fits/linear/t_e/pedestal_width/value	F	1	1	time		
+pedestal_fits/linear/t_e/pedestal_width/source	T	0				
+pedestal_fits/linear/t_e/pedestal_position	S	0	1			
+pedestal_fits/linear/t_e/pedestal_position/value	F	1	1	time		
+pedestal_fits/linear/t_e/pedestal_position/source	T	0				
+pedestal_fits/linear/t_e/offset	S	0				
+pedestal_fits/linear/t_e/offset/value	F	1	eV	time		
+pedestal_fits/linear/t_e/offset/source	T	0				
+pedestal_fits/linear/t_e/d_dpsi_norm	S	0				
+pedestal_fits/linear/t_e/d_dpsi_norm/value	F	1	eV	time		
+pedestal_fits/linear/t_e/d_dpsi_norm/source	T	0				
+pedestal_fits/linear/t_e/d_dpsi_norm_max	S	0				
+pedestal_fits/linear/t_e/d_dpsi_norm_max/value	F	1	eV	time		
+pedestal_fits/linear/t_e/d_dpsi_norm_max/source	T	0				
+pedestal_fits/linear/pressure_electron	S	0	Pa			
+pedestal_fits/linear/pressure_electron/separatrix	S	0				
+pedestal_fits/linear/pressure_electron/separatrix/value	F	1	Pa	time		
+pedestal_fits/linear/pressure_electron/separatrix/source	T	0				
+pedestal_fits/linear/pressure_electron/pedestal_height	S	0				
+pedestal_fits/linear/pressure_electron/pedestal_height/value	F	1	Pa	time		
+pedestal_fits/linear/pressure_electron/pedestal_height/source	T	0				
+pedestal_fits/linear/pressure_electron/pedestal_width	S	0	1			
+pedestal_fits/linear/pressure_electron/pedestal_width/value	F	1	1	time		
+pedestal_fits/linear/pressure_electron/pedestal_width/source	T	0				
+pedestal_fits/linear/pressure_electron/pedestal_position	S	0	1			
+pedestal_fits/linear/pressure_electron/pedestal_position/value	F	1	1	time		
+pedestal_fits/linear/pressure_electron/pedestal_position/source	T	0				
+pedestal_fits/linear/pressure_electron/offset	S	0				
+pedestal_fits/linear/pressure_electron/offset/value	F	1	Pa	time		
+pedestal_fits/linear/pressure_electron/offset/source	T	0				
+pedestal_fits/linear/pressure_electron/d_dpsi_norm	S	0				
+pedestal_fits/linear/pressure_electron/d_dpsi_norm/value	F	1	Pa	time		
+pedestal_fits/linear/pressure_electron/d_dpsi_norm/source	T	0				
+pedestal_fits/linear/pressure_electron/d_dpsi_norm_max	S	0				
+pedestal_fits/linear/pressure_electron/d_dpsi_norm_max/value	F	1	Pa	time		
+pedestal_fits/linear/pressure_electron/d_dpsi_norm_max/source	T	0				
+pedestal_fits/linear/pressure_electron/d_dpsi_norm_max_position	S	0	1			
+pedestal_fits/linear/pressure_electron/d_dpsi_norm_max_position/value	F	1	1	time		
+pedestal_fits/linear/pressure_electron/d_dpsi_norm_max_position/source	T	0				
+pedestal_fits/linear/energy_thermal_pedestal_electron	S	0	J			
+pedestal_fits/linear/energy_thermal_pedestal_electron/value	F	1	J	time		
+pedestal_fits/linear/energy_thermal_pedestal_electron/source	T	0				
+pedestal_fits/linear/energy_thermal_pedestal_ion	S	0	J			
+pedestal_fits/linear/energy_thermal_pedestal_ion/value	F	1	J	time		
+pedestal_fits/linear/energy_thermal_pedestal_ion/source	T	0				
+pedestal_fits/linear/volume_inside_pedestal	S	0	m^3			
+pedestal_fits/linear/volume_inside_pedestal/value	F	1	m^3	time		
+pedestal_fits/linear/volume_inside_pedestal/source	T	0				
+pedestal_fits/linear/beta_pol_pedestal_top_electron_average	S	0	1			
+pedestal_fits/linear/beta_pol_pedestal_top_electron_average/value	F	1	1	time		
+pedestal_fits/linear/beta_pol_pedestal_top_electron_average/source	T	0				
+pedestal_fits/linear/beta_pol_pedestal_top_electron_lfs	S	0	1			
+pedestal_fits/linear/beta_pol_pedestal_top_electron_lfs/value	F	1	1	time		
+pedestal_fits/linear/beta_pol_pedestal_top_electron_lfs/source	T	0				
+pedestal_fits/linear/beta_pol_pedestal_top_electron_hfs	S	0	1			
+pedestal_fits/linear/beta_pol_pedestal_top_electron_hfs/value	F	1	1	time		
+pedestal_fits/linear/beta_pol_pedestal_top_electron_hfs/source	T	0				
+pedestal_fits/linear/nustar_pedestal_top_electron	S	0	1			
+pedestal_fits/linear/nustar_pedestal_top_electron/value	F	1	1	time		
+pedestal_fits/linear/nustar_pedestal_top_electron/source	T	0				
+pedestal_fits/linear/rhostar_pedestal_top_electron_lfs	S	0	1			
+pedestal_fits/linear/rhostar_pedestal_top_electron_lfs/value	F	1	1	time		
+pedestal_fits/linear/rhostar_pedestal_top_electron_lfs/source	T	0				
+pedestal_fits/linear/rhostar_pedestal_top_electron_hfs	S	0	1			
+pedestal_fits/linear/rhostar_pedestal_top_electron_hfs/value	F	1	1	time		
+pedestal_fits/linear/rhostar_pedestal_top_electron_hfs/source	T	0				
+pedestal_fits/linear/rhostar_pedestal_top_electron_magnetic_axis	S	0	1			
+pedestal_fits/linear/rhostar_pedestal_top_electron_magnetic_axis/value	F	1	1	time		
+pedestal_fits/linear/rhostar_pedestal_top_electron_magnetic_axis/source	T	0				
+pedestal_fits/linear/b_field_pol_pedestal_top_average	S	0	T			
+pedestal_fits/linear/b_field_pol_pedestal_top_average/value	F	1	T	time		
+pedestal_fits/linear/b_field_pol_pedestal_top_average/source	T	0				
+pedestal_fits/linear/b_field_pol_pedestal_top_hfs	S	0	T			
+pedestal_fits/linear/b_field_pol_pedestal_top_hfs/value	F	1	T	time		
+pedestal_fits/linear/b_field_pol_pedestal_top_hfs/source	T	0				
+pedestal_fits/linear/b_field_pol_pedestal_top_lfs	S	0	T			
+pedestal_fits/linear/b_field_pol_pedestal_top_lfs/value	F	1	T	time		
+pedestal_fits/linear/b_field_pol_pedestal_top_lfs/source	T	0				
+pedestal_fits/linear/b_field_pedestal_top_hfs	S	0	T			
+pedestal_fits/linear/b_field_pedestal_top_hfs/value	F	1	T	time		
+pedestal_fits/linear/b_field_pedestal_top_hfs/source	T	0				
+pedestal_fits/linear/b_field_pedestal_top_lfs	S	0	T			
+pedestal_fits/linear/b_field_pedestal_top_lfs/value	F	1	T	time		
+pedestal_fits/linear/b_field_pedestal_top_lfs/source	T	0				
+pedestal_fits/linear/b_field_tor_pedestal_top_hfs	S	0	T			
+pedestal_fits/linear/b_field_tor_pedestal_top_hfs/value	F	1	T	time		
+pedestal_fits/linear/b_field_tor_pedestal_top_hfs/source	T	0				
+pedestal_fits/linear/b_field_tor_pedestal_top_lfs	S	0	T			
+pedestal_fits/linear/b_field_tor_pedestal_top_lfs/value	F	1	T	time		
+pedestal_fits/linear/b_field_tor_pedestal_top_lfs/source	T	0				
+pedestal_fits/linear/coulomb_factor_pedestal_top	S	0	1			
+pedestal_fits/linear/coulomb_factor_pedestal_top/value	F	1	1	time		
+pedestal_fits/linear/coulomb_factor_pedestal_top/source	T	0				
+pedestal_fits/linear/parameters	F	1	mixed	1...5		
+line_average	S	0				
+line_average/t_e	S	0	eV			
+line_average/t_e/value	F	1	eV	time		
+line_average/t_e/source	T	0				
+line_average/t_i_average	S	0	eV			
+line_average/t_i_average/value	F	1	eV	time		
+line_average/t_i_average/source	T	0				
+line_average/n_e	S	0	m^-3			
+line_average/n_e/value	F	1	m^-3	time		
+line_average/n_e/source	T	0				
+line_average/dn_e_dt	S	0	m^-3.s^-1			
+line_average/dn_e_dt/value	F	1	m^-3.s^-1	time		
+line_average/dn_e_dt/source	T	0				
+line_average/n_i	S	0	m^-3			
+line_average/n_i/hydrogen	S	0				
+line_average/n_i/hydrogen/value	F	1	m^-3	time		
+line_average/n_i/hydrogen/source	T	0				
+line_average/n_i/deuterium	S	0				
+line_average/n_i/deuterium/value	F	1	m^-3	time		
+line_average/n_i/deuterium/source	T	0				
+line_average/n_i/tritium	S	0				
+line_average/n_i/tritium/value	F	1	m^-3	time		
+line_average/n_i/tritium/source	T	0				
+line_average/n_i/deuterium_tritium	S	0				
+line_average/n_i/deuterium_tritium/value	F	1	m^-3	time		
+line_average/n_i/deuterium_tritium/source	T	0				
+line_average/n_i/helium_3	S	0				
+line_average/n_i/helium_3/value	F	1	m^-3	time		
+line_average/n_i/helium_3/source	T	0				
+line_average/n_i/helium_4	S	0				
+line_average/n_i/helium_4/value	F	1	m^-3	time		
+line_average/n_i/helium_4/source	T	0				
+line_average/n_i/beryllium	S	0				
+line_average/n_i/beryllium/value	F	1	m^-3	time		
+line_average/n_i/beryllium/source	T	0				
+line_average/n_i/boron	S	0				
+line_average/n_i/boron/value	F	1	m^-3	time		
+line_average/n_i/boron/source	T	0				
+line_average/n_i/lithium	S	0				
+line_average/n_i/lithium/value	F	1	m^-3	time		
+line_average/n_i/lithium/source	T	0				
+line_average/n_i/carbon	S	0				
+line_average/n_i/carbon/value	F	1	m^-3	time		
+line_average/n_i/carbon/source	T	0				
+line_average/n_i/nitrogen	S	0				
+line_average/n_i/nitrogen/value	F	1	m^-3	time		
+line_average/n_i/nitrogen/source	T	0				
+line_average/n_i/neon	S	0				
+line_average/n_i/neon/value	F	1	m^-3	time		
+line_average/n_i/neon/source	T	0				
+line_average/n_i/argon	S	0				
+line_average/n_i/argon/value	F	1	m^-3	time		
+line_average/n_i/argon/source	T	0				
+line_average/n_i/xenon	S	0				
+line_average/n_i/xenon/value	F	1	m^-3	time		
+line_average/n_i/xenon/source	T	0				
+line_average/n_i/oxygen	S	0				
+line_average/n_i/oxygen/value	F	1	m^-3	time		
+line_average/n_i/oxygen/source	T	0				
+line_average/n_i/tungsten	S	0				
+line_average/n_i/tungsten/value	F	1	m^-3	time		
+line_average/n_i/tungsten/source	T	0				
+line_average/n_i/iron	S	0				
+line_average/n_i/iron/value	F	1	m^-3	time		
+line_average/n_i/iron/source	T	0				
+line_average/n_i/krypton	S	0				
+line_average/n_i/krypton/value	F	1	m^-3	time		
+line_average/n_i/krypton/source	T	0				
+line_average/n_i_total	S	0	m^-3			
+line_average/n_i_total/value	F	1	m^-3	time		
+line_average/n_i_total/source	T	0				
+line_average/zeff	S	0	1			
+line_average/zeff/value	F	1	1	time		
+line_average/zeff/source	T	0				
+line_average/meff_hydrogenic	S	0	u			
+line_average/meff_hydrogenic/value	F	1	u	time		
+line_average/meff_hydrogenic/source	T	0				
+line_average/isotope_fraction_hydrogen	S	0	1			
+line_average/isotope_fraction_hydrogen/value	F	1	1	time		
+line_average/isotope_fraction_hydrogen/source	T	0				
+volume_average	S	0				
+volume_average/t_e	S	0	eV			
+volume_average/t_e/value	F	1	eV	time		
+volume_average/t_e/source	T	0				
+volume_average/t_i_average	S	0	eV			
+volume_average/t_i_average/value	F	1	eV	time		
+volume_average/t_i_average/source	T	0				
+volume_average/n_e	S	0	m^-3			
+volume_average/n_e/value	F	1	m^-3	time		
+volume_average/n_e/source	T	0				
+volume_average/dn_e_dt	S	0	m^-3.s^-1			
+volume_average/dn_e_dt/value	F	1	m^-3.s^-1	time		
+volume_average/dn_e_dt/source	T	0				
+volume_average/n_i	S	0	m^-3			
+volume_average/n_i/hydrogen	S	0				
+volume_average/n_i/hydrogen/value	F	1	m^-3	time		
+volume_average/n_i/hydrogen/source	T	0				
+volume_average/n_i/deuterium	S	0				
+volume_average/n_i/deuterium/value	F	1	m^-3	time		
+volume_average/n_i/deuterium/source	T	0				
+volume_average/n_i/tritium	S	0				
+volume_average/n_i/tritium/value	F	1	m^-3	time		
+volume_average/n_i/tritium/source	T	0				
+volume_average/n_i/deuterium_tritium	S	0				
+volume_average/n_i/deuterium_tritium/value	F	1	m^-3	time		
+volume_average/n_i/deuterium_tritium/source	T	0				
+volume_average/n_i/helium_3	S	0				
+volume_average/n_i/helium_3/value	F	1	m^-3	time		
+volume_average/n_i/helium_3/source	T	0				
+volume_average/n_i/helium_4	S	0				
+volume_average/n_i/helium_4/value	F	1	m^-3	time		
+volume_average/n_i/helium_4/source	T	0				
+volume_average/n_i/beryllium	S	0				
+volume_average/n_i/beryllium/value	F	1	m^-3	time		
+volume_average/n_i/beryllium/source	T	0				
+volume_average/n_i/boron	S	0				
+volume_average/n_i/boron/value	F	1	m^-3	time		
+volume_average/n_i/boron/source	T	0				
+volume_average/n_i/lithium	S	0				
+volume_average/n_i/lithium/value	F	1	m^-3	time		
+volume_average/n_i/lithium/source	T	0				
+volume_average/n_i/carbon	S	0				
+volume_average/n_i/carbon/value	F	1	m^-3	time		
+volume_average/n_i/carbon/source	T	0				
+volume_average/n_i/nitrogen	S	0				
+volume_average/n_i/nitrogen/value	F	1	m^-3	time		
+volume_average/n_i/nitrogen/source	T	0				
+volume_average/n_i/neon	S	0				
+volume_average/n_i/neon/value	F	1	m^-3	time		
+volume_average/n_i/neon/source	T	0				
+volume_average/n_i/argon	S	0				
+volume_average/n_i/argon/value	F	1	m^-3	time		
+volume_average/n_i/argon/source	T	0				
+volume_average/n_i/xenon	S	0				
+volume_average/n_i/xenon/value	F	1	m^-3	time		
+volume_average/n_i/xenon/source	T	0				
+volume_average/n_i/oxygen	S	0				
+volume_average/n_i/oxygen/value	F	1	m^-3	time		
+volume_average/n_i/oxygen/source	T	0				
+volume_average/n_i/tungsten	S	0				
+volume_average/n_i/tungsten/value	F	1	m^-3	time		
+volume_average/n_i/tungsten/source	T	0				
+volume_average/n_i/iron	S	0				
+volume_average/n_i/iron/value	F	1	m^-3	time		
+volume_average/n_i/iron/source	T	0				
+volume_average/n_i/krypton	S	0				
+volume_average/n_i/krypton/value	F	1	m^-3	time		
+volume_average/n_i/krypton/source	T	0				
+volume_average/n_i_total	S	0	m^-3			
+volume_average/n_i_total/value	F	1	m^-3	time		
+volume_average/n_i_total/source	T	0				
+volume_average/zeff	S	0	1			
+volume_average/zeff/value	F	1	1	time		
+volume_average/zeff/source	T	0				
+volume_average/meff_hydrogenic	S	0	u			
+volume_average/meff_hydrogenic/value	F	1	u	time		
+volume_average/meff_hydrogenic/source	T	0				
+volume_average/isotope_fraction_hydrogen	S	0	1			
+volume_average/isotope_fraction_hydrogen/value	F	1	1	time		
+volume_average/isotope_fraction_hydrogen/source	T	0				
+disruption	S	0				
+disruption/time	S	0	s			
+disruption/time/value	F	0	s			
+disruption/time/source	T	0				
+disruption/time_predisruption	S	0	s			
+disruption/time_predisruption/value	F	0	s			
+disruption/time_predisruption/source	T	0				
+disruption/time_radiated_power_max	S	0	s			
+disruption/time_radiated_power_max/value	F	0	s			
+disruption/time_radiated_power_max/source	T	0				
+disruption/time_half_ip	S	0	s			
+disruption/time_half_ip/value	F	0	s			
+disruption/time_half_ip/source	T	0				
+disruption/vertical_displacement	S	0	s			
+disruption/vertical_displacement/value	I	0				
+disruption/vertical_displacement/source	T	0				
+disruption/mitigation_valve	S	0				
+disruption/mitigation_valve/value	I	0				
+disruption/mitigation_valve/source	T	0				
+disruption/decay_times	S	0				
+disruption/decay_times/ip	S	0				
+disruption/decay_times/ip/linear_20_80	S	0	s			
+disruption/decay_times/ip/linear_20_80/value	F	0	s			
+disruption/decay_times/ip/linear_20_80/source	T	0				
+disruption/decay_times/ip/linear_custom	S	0				
+disruption/decay_times/ip/linear_custom/x1	F	0	1			
+disruption/decay_times/ip/linear_custom/x2	F	0	1			
+disruption/decay_times/ip/linear_custom/decay_time	S	0	s			
+disruption/decay_times/ip/linear_custom/decay_time/value	F	0	s			
+disruption/decay_times/ip/linear_custom/decay_time/source	T	0				
+disruption/decay_times/ip/exponential	S	0	s			
+disruption/decay_times/ip/exponential/value	F	0	s			
+disruption/decay_times/ip/exponential/source	T	0				
+disruption/decay_times/current_runaways	S	0				
+disruption/decay_times/current_runaways/linear_20_80	S	0	s			
+disruption/decay_times/current_runaways/linear_20_80/value	F	0	s			
+disruption/decay_times/current_runaways/linear_20_80/source	T	0				
+disruption/decay_times/current_runaways/linear_custom	S	0				
+disruption/decay_times/current_runaways/linear_custom/x1	F	0	1			
+disruption/decay_times/current_runaways/linear_custom/x2	F	0	1			
+disruption/decay_times/current_runaways/linear_custom/decay_time	S	0	s			
+disruption/decay_times/current_runaways/linear_custom/decay_time/value	F	0	s			
+disruption/decay_times/current_runaways/linear_custom/decay_time/source	T	0				
+disruption/decay_times/current_runaways/exponential	S	0	s			
+disruption/decay_times/current_runaways/exponential/value	F	0	s			
+disruption/decay_times/current_runaways/exponential/source	T	0				
+disruption/decay_times/t_e_volume_average	S	0				
+disruption/decay_times/t_e_volume_average/linear_20_80	S	0	s			
+disruption/decay_times/t_e_volume_average/linear_20_80/value	F	0	s			
+disruption/decay_times/t_e_volume_average/linear_20_80/source	T	0				
+disruption/decay_times/t_e_volume_average/linear_custom	S	0				
+disruption/decay_times/t_e_volume_average/linear_custom/x1	F	0	1			
+disruption/decay_times/t_e_volume_average/linear_custom/x2	F	0	1			
+disruption/decay_times/t_e_volume_average/linear_custom/decay_time	S	0	s			
+disruption/decay_times/t_e_volume_average/linear_custom/decay_time/value	F	0	s			
+disruption/decay_times/t_e_volume_average/linear_custom/decay_time/source	T	0				
+disruption/decay_times/t_e_volume_average/exponential	S	0	s			
+disruption/decay_times/t_e_volume_average/exponential/value	F	0	s			
+disruption/decay_times/t_e_volume_average/exponential/source	T	0				
+disruption/decay_times/t_e_magnetic_axis	S	0				
+disruption/decay_times/t_e_magnetic_axis/linear_20_80	S	0	s			
+disruption/decay_times/t_e_magnetic_axis/linear_20_80/value	F	0	s			
+disruption/decay_times/t_e_magnetic_axis/linear_20_80/source	T	0				
+disruption/decay_times/t_e_magnetic_axis/linear_custom	S	0				
+disruption/decay_times/t_e_magnetic_axis/linear_custom/x1	F	0	1			
+disruption/decay_times/t_e_magnetic_axis/linear_custom/x2	F	0	1			
+disruption/decay_times/t_e_magnetic_axis/linear_custom/decay_time	S	0	s			
+disruption/decay_times/t_e_magnetic_axis/linear_custom/decay_time/value	F	0	s			
+disruption/decay_times/t_e_magnetic_axis/linear_custom/decay_time/source	T	0				
+disruption/decay_times/t_e_magnetic_axis/exponential	S	0	s			
+disruption/decay_times/t_e_magnetic_axis/exponential/value	F	0	s			
+disruption/decay_times/t_e_magnetic_axis/exponential/source	T	0				
+disruption/decay_times/energy_thermal	S	0				
+disruption/decay_times/energy_thermal/linear_20_80	S	0	s			
+disruption/decay_times/energy_thermal/linear_20_80/value	F	0	s			
+disruption/decay_times/energy_thermal/linear_20_80/source	T	0				
+disruption/decay_times/energy_thermal/linear_custom	S	0				
+disruption/decay_times/energy_thermal/linear_custom/x1	F	0	1			
+disruption/decay_times/energy_thermal/linear_custom/x2	F	0	1			
+disruption/decay_times/energy_thermal/linear_custom/decay_time	S	0	s			
+disruption/decay_times/energy_thermal/linear_custom/decay_time/value	F	0	s			
+disruption/decay_times/energy_thermal/linear_custom/decay_time/source	T	0				
+disruption/decay_times/energy_thermal/exponential	S	0	s			
+disruption/decay_times/energy_thermal/exponential/value	F	0	s			
+disruption/decay_times/energy_thermal/exponential/source	T	0				
+disruption/halo_current	S	0				
+disruption/halo_current/fraction_pol_max	S	0	1			
+disruption/halo_current/fraction_pol_max/value	F	0	1			
+disruption/halo_current/fraction_pol_max/source	T	0				
+disruption/type	S	0				
+disruption/type/name	T	0				
+disruption/type/index	I	0				
+disruption/type/description	T	0				
+elms	S	0				
+elms/frequency	S	0	Hz			
+elms/frequency/value	F	1	Hz	time		
+elms/frequency/source	T	0				
+elms/type	S	0				
+elms/type/value	I	1		time		
+elms/type/source	T	0				
+fusion	S	0				
+fusion/power	S	0	W			
+fusion/power/value	F	1	W	time		
+fusion/power/source	T	0				
+fusion/current	S	0	A			
+fusion/current/value	F	1	A	time		
+fusion/current/source	T	0				
+fusion/neutron_rates	S	0				
+fusion/neutron_rates/total	S	0	Hz			
+fusion/neutron_rates/total/value	F	1	Hz	time		
+fusion/neutron_rates/total/source	T	0				
+fusion/neutron_rates/thermal	S	0	Hz			
+fusion/neutron_rates/thermal/value	F	1	Hz	time		
+fusion/neutron_rates/thermal/source	T	0				
+fusion/neutron_rates/dd	S	0				
+fusion/neutron_rates/dd/total	S	0	Hz			
+fusion/neutron_rates/dd/total/value	F	1	Hz	time		
+fusion/neutron_rates/dd/total/source	T	0				
+fusion/neutron_rates/dd/thermal	S	0	Hz			
+fusion/neutron_rates/dd/thermal/value	F	1	Hz	time		
+fusion/neutron_rates/dd/thermal/source	T	0				
+fusion/neutron_rates/dd/beam_thermal	S	0	Hz			
+fusion/neutron_rates/dd/beam_thermal/value	F	1	Hz	time		
+fusion/neutron_rates/dd/beam_thermal/source	T	0				
+fusion/neutron_rates/dd/beam_beam	S	0	Hz			
+fusion/neutron_rates/dd/beam_beam/value	F	1	Hz	time		
+fusion/neutron_rates/dd/beam_beam/source	T	0				
+fusion/neutron_rates/dt	S	0				
+fusion/neutron_rates/dt/total	S	0	Hz			
+fusion/neutron_rates/dt/total/value	F	1	Hz	time		
+fusion/neutron_rates/dt/total/source	T	0				
+fusion/neutron_rates/dt/thermal	S	0	Hz			
+fusion/neutron_rates/dt/thermal/value	F	1	Hz	time		
+fusion/neutron_rates/dt/thermal/source	T	0				
+fusion/neutron_rates/dt/beam_thermal	S	0	Hz			
+fusion/neutron_rates/dt/beam_thermal/value	F	1	Hz	time		
+fusion/neutron_rates/dt/beam_thermal/source	T	0				
+fusion/neutron_rates/dt/beam_beam	S	0	Hz			
+fusion/neutron_rates/dt/beam_beam/value	F	1	Hz	time		
+fusion/neutron_rates/dt/beam_beam/source	T	0				
+fusion/neutron_rates/tt	S	0				
+fusion/neutron_rates/tt/total	S	0	Hz			
+fusion/neutron_rates/tt/total/value	F	1	Hz	time		
+fusion/neutron_rates/tt/total/source	T	0				
+fusion/neutron_rates/tt/thermal	S	0	Hz			
+fusion/neutron_rates/tt/thermal/value	F	1	Hz	time		
+fusion/neutron_rates/tt/thermal/source	T	0				
+fusion/neutron_rates/tt/beam_thermal	S	0	Hz			
+fusion/neutron_rates/tt/beam_thermal/value	F	1	Hz	time		
+fusion/neutron_rates/tt/beam_thermal/source	T	0				
+fusion/neutron_rates/tt/beam_beam	S	0	Hz			
+fusion/neutron_rates/tt/beam_beam/value	F	1	Hz	time		
+fusion/neutron_rates/tt/beam_beam/source	T	0				
+fusion/neutron_power_total	S	0	W			
+fusion/neutron_power_total/value	F	1	W	time		
+fusion/neutron_power_total/source	T	0				
+gas_injection_rates	S	0	s^-1			
+gas_injection_rates/total	S	0				
+gas_injection_rates/total/value	F	1	s^-1	time		
+gas_injection_rates/total/source	T	0				
+gas_injection_rates/midplane	S	0				
+gas_injection_rates/midplane/value	F	1	s^-1	time		
+gas_injection_rates/midplane/source	T	0				
+gas_injection_rates/top	S	0				
+gas_injection_rates/top/value	F	1	s^-1	time		
+gas_injection_rates/top/source	T	0				
+gas_injection_rates/bottom	S	0				
+gas_injection_rates/bottom/value	F	1	s^-1	time		
+gas_injection_rates/bottom/source	T	0				
+gas_injection_rates/hydrogen	S	0				
+gas_injection_rates/hydrogen/value	F	1	s^-1	time		
+gas_injection_rates/hydrogen/source	T	0				
+gas_injection_rates/deuterium	S	0				
+gas_injection_rates/deuterium/value	F	1	s^-1	time		
+gas_injection_rates/deuterium/source	T	0				
+gas_injection_rates/tritium	S	0				
+gas_injection_rates/tritium/value	F	1	s^-1	time		
+gas_injection_rates/tritium/source	T	0				
+gas_injection_rates/helium_3	S	0				
+gas_injection_rates/helium_3/value	F	1	s^-1	time		
+gas_injection_rates/helium_3/source	T	0				
+gas_injection_rates/helium_4	S	0				
+gas_injection_rates/helium_4/value	F	1	s^-1	time		
+gas_injection_rates/helium_4/source	T	0				
+gas_injection_rates/impurity_seeding	S	0				
+gas_injection_rates/impurity_seeding/value	I	0				
+gas_injection_rates/impurity_seeding/source	T	0				
+gas_injection_rates/beryllium	S	0				
+gas_injection_rates/beryllium/value	F	1	s^-1	time		
+gas_injection_rates/beryllium/source	T	0				
+gas_injection_rates/lithium	S	0				
+gas_injection_rates/lithium/value	F	1	s^-1	time		
+gas_injection_rates/lithium/source	T	0				
+gas_injection_rates/carbon	S	0				
+gas_injection_rates/carbon/value	F	1	s^-1	time		
+gas_injection_rates/carbon/source	T	0				
+gas_injection_rates/oxygen	S	0				
+gas_injection_rates/oxygen/value	F	1	s^-1	time		
+gas_injection_rates/oxygen/source	T	0				
+gas_injection_rates/nitrogen	S	0				
+gas_injection_rates/nitrogen/value	F	1	s^-1	time		
+gas_injection_rates/nitrogen/source	T	0				
+gas_injection_rates/neon	S	0				
+gas_injection_rates/neon/value	F	1	s^-1	time		
+gas_injection_rates/neon/source	T	0				
+gas_injection_rates/argon	S	0				
+gas_injection_rates/argon/value	F	1	s^-1	time		
+gas_injection_rates/argon/source	T	0				
+gas_injection_rates/xenon	S	0				
+gas_injection_rates/xenon/value	F	1	s^-1	time		
+gas_injection_rates/xenon/source	T	0				
+gas_injection_rates/krypton	S	0				
+gas_injection_rates/krypton/value	F	1	s^-1	time		
+gas_injection_rates/krypton/source	T	0				
+gas_injection_rates/methane	S	0				
+gas_injection_rates/methane/value	F	1	s^-1	time		
+gas_injection_rates/methane/source	T	0				
+gas_injection_rates/methane_carbon_13	S	0				
+gas_injection_rates/methane_carbon_13/value	F	1	s^-1	time		
+gas_injection_rates/methane_carbon_13/source	T	0				
+gas_injection_rates/methane_deuterated	S	0				
+gas_injection_rates/methane_deuterated/value	F	1	s^-1	time		
+gas_injection_rates/methane_deuterated/source	T	0				
+gas_injection_rates/silane	S	0				
+gas_injection_rates/silane/value	F	1	s^-1	time		
+gas_injection_rates/silane/source	T	0				
+gas_injection_rates/ethylene	S	0				
+gas_injection_rates/ethylene/value	F	1	s^-1	time		
+gas_injection_rates/ethylene/source	T	0				
+gas_injection_rates/ethane	S	0				
+gas_injection_rates/ethane/value	F	1	s^-1	time		
+gas_injection_rates/ethane/source	T	0				
+gas_injection_rates/propane	S	0				
+gas_injection_rates/propane/value	F	1	s^-1	time		
+gas_injection_rates/propane/source	T	0				
+gas_injection_rates/ammonia	S	0				
+gas_injection_rates/ammonia/value	F	1	s^-1	time		
+gas_injection_rates/ammonia/source	T	0				
+gas_injection_rates/ammonia_deuterated	S	0				
+gas_injection_rates/ammonia_deuterated/value	F	1	s^-1	time		
+gas_injection_rates/ammonia_deuterated/source	T	0				
+gas_injection_accumulated	S	0	1			
+gas_injection_accumulated/total	S	0				
+gas_injection_accumulated/total/value	F	1	1	time		
+gas_injection_accumulated/total/source	T	0				
+gas_injection_accumulated/midplane	S	0				
+gas_injection_accumulated/midplane/value	F	1	1	time		
+gas_injection_accumulated/midplane/source	T	0				
+gas_injection_accumulated/top	S	0				
+gas_injection_accumulated/top/value	F	1	1	time		
+gas_injection_accumulated/top/source	T	0				
+gas_injection_accumulated/bottom	S	0				
+gas_injection_accumulated/bottom/value	F	1	1	time		
+gas_injection_accumulated/bottom/source	T	0				
+gas_injection_accumulated/hydrogen	S	0				
+gas_injection_accumulated/hydrogen/value	F	1	1	time		
+gas_injection_accumulated/hydrogen/source	T	0				
+gas_injection_accumulated/deuterium	S	0				
+gas_injection_accumulated/deuterium/value	F	1	1	time		
+gas_injection_accumulated/deuterium/source	T	0				
+gas_injection_accumulated/tritium	S	0				
+gas_injection_accumulated/tritium/value	F	1	1	time		
+gas_injection_accumulated/tritium/source	T	0				
+gas_injection_accumulated/helium_3	S	0				
+gas_injection_accumulated/helium_3/value	F	1	1	time		
+gas_injection_accumulated/helium_3/source	T	0				
+gas_injection_accumulated/helium_4	S	0				
+gas_injection_accumulated/helium_4/value	F	1	1	time		
+gas_injection_accumulated/helium_4/source	T	0				
+gas_injection_accumulated/impurity_seeding	S	0				
+gas_injection_accumulated/impurity_seeding/value	I	0				
+gas_injection_accumulated/impurity_seeding/source	T	0				
+gas_injection_accumulated/beryllium	S	0				
+gas_injection_accumulated/beryllium/value	F	1	1	time		
+gas_injection_accumulated/beryllium/source	T	0				
+gas_injection_accumulated/lithium	S	0				
+gas_injection_accumulated/lithium/value	F	1	1	time		
+gas_injection_accumulated/lithium/source	T	0				
+gas_injection_accumulated/carbon	S	0				
+gas_injection_accumulated/carbon/value	F	1	1	time		
+gas_injection_accumulated/carbon/source	T	0				
+gas_injection_accumulated/oxygen	S	0				
+gas_injection_accumulated/oxygen/value	F	1	1	time		
+gas_injection_accumulated/oxygen/source	T	0				
+gas_injection_accumulated/nitrogen	S	0				
+gas_injection_accumulated/nitrogen/value	F	1	1	time		
+gas_injection_accumulated/nitrogen/source	T	0				
+gas_injection_accumulated/neon	S	0				
+gas_injection_accumulated/neon/value	F	1	1	time		
+gas_injection_accumulated/neon/source	T	0				
+gas_injection_accumulated/argon	S	0				
+gas_injection_accumulated/argon/value	F	1	1	time		
+gas_injection_accumulated/argon/source	T	0				
+gas_injection_accumulated/xenon	S	0				
+gas_injection_accumulated/xenon/value	F	1	1	time		
+gas_injection_accumulated/xenon/source	T	0				
+gas_injection_accumulated/krypton	S	0				
+gas_injection_accumulated/krypton/value	F	1	1	time		
+gas_injection_accumulated/krypton/source	T	0				
+gas_injection_accumulated/methane	S	0				
+gas_injection_accumulated/methane/value	F	1	1	time		
+gas_injection_accumulated/methane/source	T	0				
+gas_injection_accumulated/methane_carbon_13	S	0				
+gas_injection_accumulated/methane_carbon_13/value	F	1	1	time		
+gas_injection_accumulated/methane_carbon_13/source	T	0				
+gas_injection_accumulated/methane_deuterated	S	0				
+gas_injection_accumulated/methane_deuterated/value	F	1	1	time		
+gas_injection_accumulated/methane_deuterated/source	T	0				
+gas_injection_accumulated/silane	S	0				
+gas_injection_accumulated/silane/value	F	1	1	time		
+gas_injection_accumulated/silane/source	T	0				
+gas_injection_accumulated/ethylene	S	0				
+gas_injection_accumulated/ethylene/value	F	1	1	time		
+gas_injection_accumulated/ethylene/source	T	0				
+gas_injection_accumulated/ethane	S	0				
+gas_injection_accumulated/ethane/value	F	1	1	time		
+gas_injection_accumulated/ethane/source	T	0				
+gas_injection_accumulated/propane	S	0				
+gas_injection_accumulated/propane/value	F	1	1	time		
+gas_injection_accumulated/propane/source	T	0				
+gas_injection_accumulated/ammonia	S	0				
+gas_injection_accumulated/ammonia/value	F	1	1	time		
+gas_injection_accumulated/ammonia/source	T	0				
+gas_injection_accumulated/ammonia_deuterated	S	0				
+gas_injection_accumulated/ammonia_deuterated/value	F	1	1	time		
+gas_injection_accumulated/ammonia_deuterated/source	T	0				
+gas_injection_prefill	S	0	1			
+gas_injection_prefill/total	S	0				
+gas_injection_prefill/total/value	F	0	1			
+gas_injection_prefill/total/source	T	0				
+gas_injection_prefill/midplane	S	0				
+gas_injection_prefill/midplane/value	F	0	1			
+gas_injection_prefill/midplane/source	T	0				
+gas_injection_prefill/top	S	0				
+gas_injection_prefill/top/value	F	0	1			
+gas_injection_prefill/top/source	T	0				
+gas_injection_prefill/bottom	S	0				
+gas_injection_prefill/bottom/value	F	0	1			
+gas_injection_prefill/bottom/source	T	0				
+gas_injection_prefill/hydrogen	S	0				
+gas_injection_prefill/hydrogen/value	F	0	1			
+gas_injection_prefill/hydrogen/source	T	0				
+gas_injection_prefill/deuterium	S	0				
+gas_injection_prefill/deuterium/value	F	0	1			
+gas_injection_prefill/deuterium/source	T	0				
+gas_injection_prefill/tritium	S	0				
+gas_injection_prefill/tritium/value	F	0	1			
+gas_injection_prefill/tritium/source	T	0				
+gas_injection_prefill/helium_3	S	0				
+gas_injection_prefill/helium_3/value	F	0	1			
+gas_injection_prefill/helium_3/source	T	0				
+gas_injection_prefill/helium_4	S	0				
+gas_injection_prefill/helium_4/value	F	0	1			
+gas_injection_prefill/helium_4/source	T	0				
+gas_injection_prefill/impurity_seeding	S	0				
+gas_injection_prefill/impurity_seeding/value	I	0				
+gas_injection_prefill/impurity_seeding/source	T	0				
+gas_injection_prefill/beryllium	S	0				
+gas_injection_prefill/beryllium/value	F	0	1			
+gas_injection_prefill/beryllium/source	T	0				
+gas_injection_prefill/lithium	S	0				
+gas_injection_prefill/lithium/value	F	0	1			
+gas_injection_prefill/lithium/source	T	0				
+gas_injection_prefill/carbon	S	0				
+gas_injection_prefill/carbon/value	F	0	1			
+gas_injection_prefill/carbon/source	T	0				
+gas_injection_prefill/oxygen	S	0				
+gas_injection_prefill/oxygen/value	F	0	1			
+gas_injection_prefill/oxygen/source	T	0				
+gas_injection_prefill/nitrogen	S	0				
+gas_injection_prefill/nitrogen/value	F	0	1			
+gas_injection_prefill/nitrogen/source	T	0				
+gas_injection_prefill/neon	S	0				
+gas_injection_prefill/neon/value	F	0	1			
+gas_injection_prefill/neon/source	T	0				
+gas_injection_prefill/argon	S	0				
+gas_injection_prefill/argon/value	F	0	1			
+gas_injection_prefill/argon/source	T	0				
+gas_injection_prefill/xenon	S	0				
+gas_injection_prefill/xenon/value	F	0	1			
+gas_injection_prefill/xenon/source	T	0				
+gas_injection_prefill/krypton	S	0				
+gas_injection_prefill/krypton/value	F	0	1			
+gas_injection_prefill/krypton/source	T	0				
+gas_injection_prefill/methane	S	0				
+gas_injection_prefill/methane/value	F	0	1			
+gas_injection_prefill/methane/source	T	0				
+gas_injection_prefill/methane_carbon_13	S	0				
+gas_injection_prefill/methane_carbon_13/value	F	0	1			
+gas_injection_prefill/methane_carbon_13/source	T	0				
+gas_injection_prefill/methane_deuterated	S	0				
+gas_injection_prefill/methane_deuterated/value	F	0	1			
+gas_injection_prefill/methane_deuterated/source	T	0				
+gas_injection_prefill/silane	S	0				
+gas_injection_prefill/silane/value	F	0	1			
+gas_injection_prefill/silane/source	T	0				
+gas_injection_prefill/ethylene	S	0				
+gas_injection_prefill/ethylene/value	F	0	1			
+gas_injection_prefill/ethylene/source	T	0				
+gas_injection_prefill/ethane	S	0				
+gas_injection_prefill/ethane/value	F	0	1			
+gas_injection_prefill/ethane/source	T	0				
+gas_injection_prefill/propane	S	0				
+gas_injection_prefill/propane/value	F	0	1			
+gas_injection_prefill/propane/source	T	0				
+gas_injection_prefill/ammonia	S	0				
+gas_injection_prefill/ammonia/value	F	0	1			
+gas_injection_prefill/ammonia/source	T	0				
+gas_injection_prefill/ammonia_deuterated	S	0				
+gas_injection_prefill/ammonia_deuterated/value	F	0	1			
+gas_injection_prefill/ammonia_deuterated/source	T	0				
+heating_current_drive	S	0				
+heating_current_drive/ec	A	1		1...N		
+heating_current_drive/ec/frequency	S	0	Hz			
+heating_current_drive/ec/frequency/value	F	1	Hz	time		
+heating_current_drive/ec/frequency/source	T	0				
+heating_current_drive/ec/position	S	0	1			
+heating_current_drive/ec/position/value	F	1	1	time		
+heating_current_drive/ec/position/source	T	0				
+heating_current_drive/ec/polarization	S	0				
+heating_current_drive/ec/polarization/value	I	1		time		
+heating_current_drive/ec/polarization/source	T	0				
+heating_current_drive/ec/harmonic	S	0				
+heating_current_drive/ec/harmonic/value	I	1		time		
+heating_current_drive/ec/harmonic/source	T	0				
+heating_current_drive/ec/phi	S	0	rad			
+heating_current_drive/ec/phi/value	F	1	rad	time		
+heating_current_drive/ec/phi/source	T	0				
+heating_current_drive/ec/angle_pol	S	0	rad			
+heating_current_drive/ec/angle_pol/value	F	1	rad	time		
+heating_current_drive/ec/angle_pol/source	T	0				
+heating_current_drive/ec/power	S	0	W			
+heating_current_drive/ec/power/value	F	1	W	time		
+heating_current_drive/ec/power/source	T	0				
+heating_current_drive/ec/power_launched	S	0	W			
+heating_current_drive/ec/power_launched/value	F	1	W	time		
+heating_current_drive/ec/power_launched/source	T	0				
+heating_current_drive/ec/current	S	0	A			
+heating_current_drive/ec/current/value	F	1	A	time		
+heating_current_drive/ec/current/source	T	0				
+heating_current_drive/ec/energy_fast	S	0	J			
+heating_current_drive/ec/energy_fast/value	F	1	J	time		
+heating_current_drive/ec/energy_fast/source	T	0				
+heating_current_drive/nbi	A	1		1...N		
+heating_current_drive/nbi/species	S	0				
+heating_current_drive/nbi/species/a	S	0	u			
+heating_current_drive/nbi/species/a/value	F	0	u			
+heating_current_drive/nbi/species/a/source	T	0				
+heating_current_drive/nbi/species/z_n	S	0	e			
+heating_current_drive/nbi/species/z_n/value	F	0	e			
+heating_current_drive/nbi/species/z_n/source	T	0				
+heating_current_drive/nbi/species/name	S	0				
+heating_current_drive/nbi/species/name/value	T	0				
+heating_current_drive/nbi/species/name/source	T	0				
+heating_current_drive/nbi/power	S	0	W			
+heating_current_drive/nbi/power/value	F	1	W	time		
+heating_current_drive/nbi/power/source	T	0				
+heating_current_drive/nbi/power_launched	S	0	W			
+heating_current_drive/nbi/power_launched/value	F	1	W	time		
+heating_current_drive/nbi/power_launched/source	T	0				
+heating_current_drive/nbi/current	S	0	A			
+heating_current_drive/nbi/current/value	F	1	A	time		
+heating_current_drive/nbi/current/source	T	0				
+heating_current_drive/nbi/position	S	0				
+heating_current_drive/nbi/position/r	S	0	m			
+heating_current_drive/nbi/position/r/value	F	0	m			
+heating_current_drive/nbi/position/r/source	T	0				
+heating_current_drive/nbi/position/z	S	0	m			
+heating_current_drive/nbi/position/z/value	F	0	m			
+heating_current_drive/nbi/position/z/source	T	0				
+heating_current_drive/nbi/position/phi	S	0	rad			
+heating_current_drive/nbi/position/phi/value	F	0	rad			
+heating_current_drive/nbi/position/phi/source	T	0				
+heating_current_drive/nbi/tangency_radius	S	0	m			
+heating_current_drive/nbi/tangency_radius/value	F	0	m			
+heating_current_drive/nbi/tangency_radius/source	T	0				
+heating_current_drive/nbi/angle	S	0	rad			
+heating_current_drive/nbi/angle/value	F	0	rad			
+heating_current_drive/nbi/angle/source	T	0				
+heating_current_drive/nbi/direction	S	0				
+heating_current_drive/nbi/direction/value	I	0				
+heating_current_drive/nbi/direction/source	T	0				
+heating_current_drive/nbi/energy	S	0	eV			
+heating_current_drive/nbi/energy/value	F	1	eV	time		
+heating_current_drive/nbi/energy/source	T	0				
+heating_current_drive/nbi/beam_current_fraction	S	0	1			
+heating_current_drive/nbi/beam_current_fraction/value	F	2	1	1...3|time		
+heating_current_drive/nbi/beam_current_fraction/source	T	0				
+heating_current_drive/nbi/beam_power_fraction	S	0	1			
+heating_current_drive/nbi/beam_power_fraction/value	F	2	1	1...3|time		
+heating_current_drive/nbi/beam_power_fraction/source	T	0				
+heating_current_drive/ic	A	1		1...N		
+heating_current_drive/ic/frequency	S	0	Hz			
+heating_current_drive/ic/frequency/value	F	1	Hz	time		
+heating_current_drive/ic/frequency/source	T	0				
+heating_current_drive/ic/position	S	0	1			
+heating_current_drive/ic/position/value	F	1	1	time		
+heating_current_drive/ic/position/source	T	0				
+heating_current_drive/ic/n_phi	S	0				
+heating_current_drive/ic/n_phi/value	I	1		time		
+heating_current_drive/ic/n_phi/source	T	0				
+heating_current_drive/ic/k_perpendicular	S	0	m^-1			
+heating_current_drive/ic/k_perpendicular/value	F	1	m^-1	time		
+heating_current_drive/ic/k_perpendicular/source	T	0				
+heating_current_drive/ic/e_field_plus_minus_ratio	S	0	1			
+heating_current_drive/ic/e_field_plus_minus_ratio/value	F	1	1	time		
+heating_current_drive/ic/e_field_plus_minus_ratio/source	T	0				
+heating_current_drive/ic/harmonic	S	0				
+heating_current_drive/ic/harmonic/value	I	1		time		
+heating_current_drive/ic/harmonic/source	T	0				
+heating_current_drive/ic/phase	S	0	rad			
+heating_current_drive/ic/phase/value	F	1	rad	time		
+heating_current_drive/ic/phase/source	T	0				
+heating_current_drive/ic/power	S	0	W			
+heating_current_drive/ic/power/value	F	1	W	time		
+heating_current_drive/ic/power/source	T	0				
+heating_current_drive/ic/power_launched	S	0	W			
+heating_current_drive/ic/power_launched/value	F	1	W	time		
+heating_current_drive/ic/power_launched/source	T	0				
+heating_current_drive/ic/current	S	0	A			
+heating_current_drive/ic/current/value	F	1	A	time		
+heating_current_drive/ic/current/source	T	0				
+heating_current_drive/ic/energy_fast	S	0	J			
+heating_current_drive/ic/energy_fast/value	F	1	J	time		
+heating_current_drive/ic/energy_fast/source	T	0				
+heating_current_drive/lh	A	1		1...N		
+heating_current_drive/lh/frequency	S	0	Hz			
+heating_current_drive/lh/frequency/value	F	1	Hz	time		
+heating_current_drive/lh/frequency/source	T	0				
+heating_current_drive/lh/position	S	0	1			
+heating_current_drive/lh/position/value	F	1	1	time		
+heating_current_drive/lh/position/source	T	0				
+heating_current_drive/lh/n_parallel	S	0	1			
+heating_current_drive/lh/n_parallel/value	F	1	1	time		
+heating_current_drive/lh/n_parallel/source	T	0				
+heating_current_drive/lh/power	S	0	W			
+heating_current_drive/lh/power/value	F	1	W	time		
+heating_current_drive/lh/power/source	T	0				
+heating_current_drive/lh/power_launched	S	0	W			
+heating_current_drive/lh/power_launched/value	F	1	W	time		
+heating_current_drive/lh/power_launched/source	T	0				
+heating_current_drive/lh/current	S	0	A			
+heating_current_drive/lh/current/value	F	1	A	time		
+heating_current_drive/lh/current/source	T	0				
+heating_current_drive/lh/energy_fast	S	0	J			
+heating_current_drive/lh/energy_fast/value	F	1	J	time		
+heating_current_drive/lh/energy_fast/source	T	0				
+heating_current_drive/power_ec	S	0	W			
+heating_current_drive/power_ec/value	F	1	W	time		
+heating_current_drive/power_ec/source	T	0				
+heating_current_drive/power_launched_ec	S	0	W			
+heating_current_drive/power_launched_ec/value	F	1	W	time		
+heating_current_drive/power_launched_ec/source	T	0				
+heating_current_drive/power_nbi	S	0	W			
+heating_current_drive/power_nbi/value	F	1	W	time		
+heating_current_drive/power_nbi/source	T	0				
+heating_current_drive/power_launched_nbi	S	0	W			
+heating_current_drive/power_launched_nbi/value	F	1	W	time		
+heating_current_drive/power_launched_nbi/source	T	0				
+heating_current_drive/power_launched_nbi_co_injected_ratio	S	0	1			
+heating_current_drive/power_launched_nbi_co_injected_ratio/value	F	1	1	time		
+heating_current_drive/power_launched_nbi_co_injected_ratio/source	T	0				
+heating_current_drive/power_ic	S	0	W			
+heating_current_drive/power_ic/value	F	1	W	time		
+heating_current_drive/power_ic/source	T	0				
+heating_current_drive/power_launched_ic	S	0	W			
+heating_current_drive/power_launched_ic/value	F	1	W	time		
+heating_current_drive/power_launched_ic/source	T	0				
+heating_current_drive/power_lh	S	0	W			
+heating_current_drive/power_lh/value	F	1	W	time		
+heating_current_drive/power_lh/source	T	0				
+heating_current_drive/power_launched_lh	S	0	W			
+heating_current_drive/power_launched_lh/value	F	1	W	time		
+heating_current_drive/power_launched_lh/source	T	0				
+heating_current_drive/power_additional	S	0	W			
+heating_current_drive/power_additional/value	F	1	W	time		
+heating_current_drive/power_additional/source	T	0				
+kicks	S	0				
+kicks/occurrence	S	0	Hz			
+kicks/occurrence/value	I	0				
+kicks/occurrence/source	T	0				
+pellets	S	0				
+pellets/occurrence	S	0	Hz			
+pellets/occurrence/value	I	0				
+pellets/occurrence/source	T	0				
+rmps	S	0				
+rmps/occurrence	S	0	Hz			
+rmps/occurrence/value	I	0				
+rmps/occurrence/source	T	0				
+runaways	S	0				
+runaways/particles	S	0	1			
+runaways/particles/value	F	1	1	time		
+runaways/particles/source	T	0				
+runaways/current	S	0	A			
+runaways/current/value	F	1	A	time		
+runaways/current/source	T	0				
+runaways/current_phi_max	S	0	A			
+runaways/current_phi_max/value	F	0	A			
+runaways/current_phi_max/source	T	0				
+scrape_off_layer	S	0				
+scrape_off_layer/t_e_decay_length	S	0	m			
+scrape_off_layer/t_e_decay_length/value	F	1	m	time		
+scrape_off_layer/t_e_decay_length/source	T	0				
+scrape_off_layer/t_i_average_decay_length	S	0	m			
+scrape_off_layer/t_i_average_decay_length/value	F	1	m	time		
+scrape_off_layer/t_i_average_decay_length/source	T	0				
+scrape_off_layer/n_e_decay_length	S	0	m			
+scrape_off_layer/n_e_decay_length/value	F	1	m	time		
+scrape_off_layer/n_e_decay_length/source	T	0				
+scrape_off_layer/n_i_total_decay_length	S	0	m			
+scrape_off_layer/n_i_total_decay_length/value	F	1	m	time		
+scrape_off_layer/n_i_total_decay_length/source	T	0				
+scrape_off_layer/heat_flux_e_decay_length	S	0	m			
+scrape_off_layer/heat_flux_e_decay_length/value	F	1	m	time		
+scrape_off_layer/heat_flux_e_decay_length/source	T	0				
+scrape_off_layer/heat_flux_i_decay_length	S	0	m			
+scrape_off_layer/heat_flux_i_decay_length/value	F	1	m	time		
+scrape_off_layer/heat_flux_i_decay_length/source	T	0				
+scrape_off_layer/power_radiated	S	0	W			
+scrape_off_layer/power_radiated/value	F	1	W	time		
+scrape_off_layer/power_radiated/source	T	0				
+scrape_off_layer/pressure_neutral	S	0	Pa			
+scrape_off_layer/pressure_neutral/value	F	1	Pa	time		
+scrape_off_layer/pressure_neutral/source	T	0				
+wall	S	0				
+wall/material	S	0				
+wall/material/name	T	0				
+wall/material/index	I	0				
+wall/material/description	T	0				
+wall/evaporation	S	0				
+wall/evaporation/value	T	0				
+wall/evaporation/source	T	0				
+limiter	S	0				
+limiter/material	S	0				
+limiter/material/name	T	0				
+limiter/material/index	I	0				
+limiter/material/description	T	0				
+time_breakdown	S	0	s			
+time_breakdown/value	F	0	s			
+time_breakdown/source	T	0				
+plasma_duration	S	0	s			
+plasma_duration/value	F	0	s			
+plasma_duration/source	T	0				
+time_width	F	1	s	time		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

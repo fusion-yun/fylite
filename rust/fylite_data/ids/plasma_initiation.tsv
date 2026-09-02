@@ -1,0 +1,183 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids plasma_initiation
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+global_quantities	S	0				
+global_quantities/b_field_stray	S	0	T			
+global_quantities/b_field_stray/data	F	1	T	global_quantities/b_field_stray/time		
+global_quantities/b_field_stray/time	F	1	s	1...N		
+global_quantities/b_field_perpendicular	S	0	T			
+global_quantities/b_field_perpendicular/data	F	1	T	global_quantities/b_field_perpendicular/time		
+global_quantities/b_field_perpendicular/time	F	1	s	1...N		
+global_quantities/connection_length	S	0	m			
+global_quantities/connection_length/data	F	1	m	global_quantities/connection_length/time		
+global_quantities/connection_length/time	F	1	s	1...N		
+global_quantities/coulomb_logarithm	S	0	1			
+global_quantities/coulomb_logarithm/data	F	1	1	global_quantities/coulomb_logarithm/time		
+global_quantities/coulomb_logarithm/time	F	1	s	1...N		
+global_quantities/ip	S	0	A			
+global_quantities/ip/data	F	1	A	global_quantities/ip/time		
+global_quantities/ip/time	F	1	s	1...N		
+global_quantities/t_e_volume_average	S	0	eV			
+global_quantities/t_e_volume_average/data	F	1	eV	global_quantities/t_e_volume_average/time		
+global_quantities/t_e_volume_average/time	F	1	s	1...N		
+global_quantities/n_e_volume_average	S	0	m^-3			
+global_quantities/n_e_volume_average/data	F	1	m^-3	global_quantities/n_e_volume_average/time		
+global_quantities/n_e_volume_average/time	F	1	s	1...N		
+global_quantities/ion	A	1		1...N		
+global_quantities/ion/element	A	1		1...N		
+global_quantities/ion/element/a	F	0	u			
+global_quantities/ion/element/z_n	I	0	e			
+global_quantities/ion/element/atoms_n	I	0				
+global_quantities/ion/z_ion	S	0	e			
+global_quantities/ion/z_ion/data	F	1	e	global_quantities/ion(i1)/z_ion/time		
+global_quantities/ion/z_ion/time	F	1	s	1...N		
+global_quantities/ion/name	T	0				
+global_quantities/ion/neutral_index	I	0				
+global_quantities/ion/t_i_volume_average	S	0	eV			
+global_quantities/ion/t_i_volume_average/data	F	1	eV	global_quantities/ion(i1)/t_i_volume_average/time		
+global_quantities/ion/t_i_volume_average/time	F	1	s	1...N		
+global_quantities/ion/n_i_volume_average	S	0	m^-3			
+global_quantities/ion/n_i_volume_average/data	F	1	m^-3	global_quantities/ion(i1)/n_i_volume_average/time		
+global_quantities/ion/n_i_volume_average/time	F	1	s	1...N		
+global_quantities/neutral	A	1		1...N		
+global_quantities/neutral/element	A	1		1...N		
+global_quantities/neutral/element/a	F	0	u			
+global_quantities/neutral/element/z_n	I	0	e			
+global_quantities/neutral/element/atoms_n	I	0				
+global_quantities/neutral/name	T	0				
+global_quantities/neutral/ion_index	I	0				
+global_quantities/neutral/temperature_volume_average	S	0	eV			
+global_quantities/neutral/temperature_volume_average/data	F	1	eV	global_quantities/neutral(i1)/temperature_volume_average/time		
+global_quantities/neutral/temperature_volume_average/time	F	1	s	1...N		
+global_quantities/neutral/density_volume_average	S	0	m^-3			
+global_quantities/neutral/density_volume_average/data	F	1	m^-3	global_quantities/neutral(i1)/density_volume_average/time		
+global_quantities/neutral/density_volume_average/time	F	1	s	1...N		
+b_field_lines	A	1		b_field_lines(itime)/time		
+b_field_lines/grid_type	S	0				
+b_field_lines/grid_type/name	T	0				
+b_field_lines/grid_type/index	I	0				
+b_field_lines/grid_type/description	T	0				
+b_field_lines/grid	S	0				
+b_field_lines/grid/dim1	F	1	mixed	1...N		
+b_field_lines/grid/dim2	F	1	mixed	1...N		
+b_field_lines/grid/volume_element	F	2	m^3	b_field_lines(itime)/grid/dim1|b_field_lines(itime)/grid/dim2		
+b_field_lines/townsend_or_closed_positions	S	0				
+b_field_lines/townsend_or_closed_positions/r	F	1	m	1...N		
+b_field_lines/townsend_or_closed_positions/z	F	1	m	b_field_lines(itime)/townsend_or_closed_positions/r		
+b_field_lines/townsend_or_closed_grid_positions	S	0				
+b_field_lines/townsend_or_closed_grid_positions/r	F	1	m	1...N		
+b_field_lines/townsend_or_closed_grid_positions/z	F	1	m	b_field_lines(itime)/townsend_or_closed_grid_positions/r		
+b_field_lines/starting_positions	S	0				
+b_field_lines/starting_positions/r	F	1	m	1...N		
+b_field_lines/starting_positions/z	F	1	m	b_field_lines(itime)/starting_positions/r		
+b_field_lines/e_field_townsend	F	1	V.m^-1	b_field_lines(itime)/starting_positions/r		
+b_field_lines/e_field_parallel	F	1	V.m^-1	b_field_lines(itime)/starting_positions/r		
+b_field_lines/lengths	F	1	m	b_field_lines(itime)/starting_positions/r		
+b_field_lines/pressure	F	0	Pa			
+b_field_lines/open_fraction	F	0	1			
+b_field_lines/time	F	0	s			
+profiles_2d	A	1		profiles_2d(itime)/time		
+profiles_2d/grid_type	S	0				
+profiles_2d/grid_type/name	T	0				
+profiles_2d/grid_type/index	I	0				
+profiles_2d/grid_type/description	T	0				
+profiles_2d/grid	S	0				
+profiles_2d/grid/dim1	F	1	mixed	1...N		
+profiles_2d/grid/dim2	F	1	mixed	1...N		
+profiles_2d/grid/volume_element	F	2	m^3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/e_field_phi	F	2	V.m^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

@@ -1,0 +1,246 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids pf_active
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+coil	A	1		1...N		
+coil/name	T	0				
+coil/description	T	0				
+coil/function	A	1		1...N		
+coil/function/name	T	0				
+coil/function/index	I	0				
+coil/function/description	T	0				
+coil/resistance	F	0	ohm			
+coil/resistance_additional	S	0	ohm			
+coil/resistance_additional/data	F	1	ohm	coil(i1)/resistance_additional/time		
+coil/resistance_additional/time	F	1	s	1...N		
+coil/energy_limit_max	F	0	J			
+coil/current_limit_max	F	2	A	coil(i1)/b_field_max|coil(i1)/temperature		
+coil/b_field_max	F	1	T	1...N		
+coil/temperature	F	1	K	1...N		
+coil/b_field_max_timed	S	0	T			
+coil/b_field_max_timed/data	F	1	T	coil(i1)/b_field_max_timed/time		
+coil/b_field_max_timed/time	F	1	s	1...N		
+coil/element	A	1		1...N		
+coil/element/name	T	0				
+coil/element/description	T	0				
+coil/element/turns_with_sign	F	0	1			
+coil/element/area	F	0	m^2			
+coil/element/geometry	S	0				
+coil/element/geometry/geometry_type	I	0				
+coil/element/geometry/outline	S	0				
+coil/element/geometry/outline/r	F	1	m	1...N		
+coil/element/geometry/outline/z	F	1	m	coil(i1)/element(i2)/geometry/outline/r		
+coil/element/geometry/rectangle	S	0				
+coil/element/geometry/rectangle/r	F	0	m			
+coil/element/geometry/rectangle/z	F	0	m			
+coil/element/geometry/rectangle/width	F	0	m			
+coil/element/geometry/rectangle/height	F	0	m			
+coil/element/geometry/oblique	S	0				
+coil/element/geometry/oblique/r	F	0	m			
+coil/element/geometry/oblique/z	F	0	m			
+coil/element/geometry/oblique/length_alpha	F	0	m			
+coil/element/geometry/oblique/length_beta	F	0	m			
+coil/element/geometry/oblique/alpha	F	0	rad			
+coil/element/geometry/oblique/beta	F	0	rad			
+coil/element/geometry/arcs_of_circle	S	0				
+coil/element/geometry/arcs_of_circle/r	F	1	m	1...N		
+coil/element/geometry/arcs_of_circle/z	F	1	m	coil(i1)/element(i2)/geometry/arcs_of_circle/r		
+coil/element/geometry/arcs_of_circle/curvature_radii	F	1	m	coil(i1)/element(i2)/geometry/arcs_of_circle/r		
+coil/element/geometry/annulus	S	0				
+coil/element/geometry/annulus/r	F	0	m			
+coil/element/geometry/annulus/z	F	0	m			
+coil/element/geometry/annulus/radius_inner	F	0	m			
+coil/element/geometry/annulus/radius_outer	F	0	m			
+coil/element/geometry/thick_line	S	0				
+coil/element/geometry/thick_line/first_point	S	0				
+coil/element/geometry/thick_line/first_point/r	F	0	m			
+coil/element/geometry/thick_line/first_point/z	F	0	m			
+coil/element/geometry/thick_line/second_point	S	0				
+coil/element/geometry/thick_line/second_point/r	F	0	m			
+coil/element/geometry/thick_line/second_point/z	F	0	m			
+coil/element/geometry/thick_line/thickness	F	0	m			
+coil/geometry	S	0				
+coil/geometry/geometry_type	I	0				
+coil/geometry/outline	S	0				
+coil/geometry/outline/r	F	1	m	1...N		
+coil/geometry/outline/z	F	1	m	coil(i1)/geometry/outline/r		
+coil/geometry/rectangle	S	0				
+coil/geometry/rectangle/r	F	0	m			
+coil/geometry/rectangle/z	F	0	m			
+coil/geometry/rectangle/width	F	0	m			
+coil/geometry/rectangle/height	F	0	m			
+coil/geometry/oblique	S	0				
+coil/geometry/oblique/r	F	0	m			
+coil/geometry/oblique/z	F	0	m			
+coil/geometry/oblique/length_alpha	F	0	m			
+coil/geometry/oblique/length_beta	F	0	m			
+coil/geometry/oblique/alpha	F	0	rad			
+coil/geometry/oblique/beta	F	0	rad			
+coil/geometry/arcs_of_circle	S	0				
+coil/geometry/arcs_of_circle/r	F	1	m	1...N		
+coil/geometry/arcs_of_circle/z	F	1	m	coil(i1)/geometry/arcs_of_circle/r		
+coil/geometry/arcs_of_circle/curvature_radii	F	1	m	coil(i1)/geometry/arcs_of_circle/r		
+coil/geometry/annulus	S	0				
+coil/geometry/annulus/r	F	0	m			
+coil/geometry/annulus/z	F	0	m			
+coil/geometry/annulus/radius_inner	F	0	m			
+coil/geometry/annulus/radius_outer	F	0	m			
+coil/geometry/thick_line	S	0				
+coil/geometry/thick_line/first_point	S	0				
+coil/geometry/thick_line/first_point/r	F	0	m			
+coil/geometry/thick_line/first_point/z	F	0	m			
+coil/geometry/thick_line/second_point	S	0				
+coil/geometry/thick_line/second_point/r	F	0	m			
+coil/geometry/thick_line/second_point/z	F	0	m			
+coil/geometry/thick_line/thickness	F	0	m			
+coil/current	S	0	A			
+coil/current/data	F	1	A	coil(i1)/current/time		
+coil/current/time	F	1	s	1...N		
+coil/voltage	S	0	V			
+coil/voltage/data	F	1	V	coil(i1)/voltage/time		
+coil/voltage/time	F	1	s	1...N		
+coil/force_radial	S	0	N			
+coil/force_radial/data	F	1	N	coil(i1)/force_radial/time		
+coil/force_radial/time	F	1	s	1...N		
+coil/force_vertical	S	0	N			
+coil/force_vertical/data	F	1	N	coil(i1)/force_vertical/time		
+coil/force_vertical/time	F	1	s	1...N		
+coil/force_radial_crushing	S	0	N			
+coil/force_radial_crushing/data	F	1	N	coil(i1)/force_radial_crushing/time		
+coil/force_radial_crushing/time	F	1	s	1...N		
+coil/force_vertical_crushing	S	0	N			
+coil/force_vertical_crushing/data	F	1	N	coil(i1)/force_vertical_crushing/time		
+coil/force_vertical_crushing/time	F	1	s	1...N		
+force_limits	S	0				
+force_limits/combination_matrix	F	2	1	force_limits/limit_max|1...N		
+force_limits/limit_max	F	1	N	1...N		
+force_limits/limit_min	F	1	N	force_limits/limit_max		
+force_limits/force	S	0	N			
+force_limits/force/data	F	1	N	force_limits/force/time		
+force_limits/force/time	F	1	s	1...N		
+circuit	A	1		1...N		
+circuit/name	T	0				
+circuit/description	T	0				
+circuit/type	T	0				
+circuit/connections	I	2		1...N|1...N		
+circuit/voltage	S	0	V			
+circuit/voltage/data	F	1	V	circuit(i1)/voltage/time		
+circuit/voltage/time	F	1	s	1...N		
+circuit/current	S	0	A			
+circuit/current/data	F	1	A	circuit(i1)/current/time		
+circuit/current/time	F	1	s	1...N		
+supply	A	1		1...N		
+supply/name	T	0				
+supply/description	T	0				
+supply/type	I	0				
+supply/resistance	F	0	ohm			
+supply/delay	F	0	s			
+supply/filter_numerator	F	1	mixed	1...N		
+supply/filter_denominator	F	1	mixed	1...N		
+supply/current_limit_max	F	0	A			
+supply/current_limit_min	F	0	A			
+supply/voltage_limit_max	F	0	V			
+supply/voltage_limit_min	F	0	V			
+supply/current_limiter_gain	F	0	V			
+supply/energy_limit_max	F	0	J			
+supply/nonlinear_model	T	0				
+supply/voltage	S	0	V			
+supply/voltage/data	F	1	V	supply(i1)/voltage/time		
+supply/voltage/time	F	1	s	1...N		
+supply/current	S	0	A			
+supply/current/data	F	1	A	supply(i1)/current/time		
+supply/current/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

@@ -1,0 +1,152 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids controllers
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+linear_controller	A	1		1...N		
+linear_controller/name	T	0				
+linear_controller/description	T	0				
+linear_controller/controller_class	T	0				
+linear_controller/input_names	T	1		1...N		
+linear_controller/output_names	T	1		1...N		
+linear_controller/statespace	S	0				
+linear_controller/statespace/state_names	T	1		1...N		
+linear_controller/statespace/a	S	0	mixed			
+linear_controller/statespace/a/data	F	3	mixed	linear_controller(i1)/statespace/state_names|linear_controller(i1)/statespace/state_names|linear_controller(i1)/statespace/a/time		
+linear_controller/statespace/a/time	F	1	s	1...N		
+linear_controller/statespace/b	S	0	mixed			
+linear_controller/statespace/b/data	F	3	mixed	linear_controller(i1)/statespace/state_names|linear_controller(i1)/input_names|linear_controller(i1)/statespace/b/time		
+linear_controller/statespace/b/time	F	1	s	1...N		
+linear_controller/statespace/c	S	0	mixed			
+linear_controller/statespace/c/data	F	3	mixed	linear_controller(i1)/statespace/state_names|linear_controller(i1)/output_names|linear_controller(i1)/statespace/c/time		
+linear_controller/statespace/c/time	F	1	s	1...N		
+linear_controller/statespace/d	S	0	mixed			
+linear_controller/statespace/d/data	F	3	mixed	linear_controller(i1)/statespace/state_names|linear_controller(i1)/output_names|linear_controller(i1)/statespace/d/time		
+linear_controller/statespace/d/time	F	1	s	1...N		
+linear_controller/statespace/deltat	S	0	s			
+linear_controller/statespace/deltat/data	F	1	s	linear_controller(i1)/statespace/deltat/time		
+linear_controller/statespace/deltat/time	F	1	s	1...N		
+linear_controller/pid	S	0				
+linear_controller/pid/p	S	0	mixed			
+linear_controller/pid/p/data	F	3	mixed	linear_controller(i1)/output_names|linear_controller(i1)/input_names|linear_controller(i1)/pid/p/time		
+linear_controller/pid/p/time	F	1	s	1...N		
+linear_controller/pid/i	S	0	mixed			
+linear_controller/pid/i/data	F	3	mixed	linear_controller(i1)/output_names|linear_controller(i1)/input_names|linear_controller(i1)/pid/i/time		
+linear_controller/pid/i/time	F	1	s	1...N		
+linear_controller/pid/d	S	0	mixed			
+linear_controller/pid/d/data	F	3	mixed	linear_controller(i1)/output_names|linear_controller(i1)/input_names|linear_controller(i1)/pid/d/time		
+linear_controller/pid/d/time	F	1	s	1...N		
+linear_controller/pid/tau	S	0	s			
+linear_controller/pid/tau/data	F	1	s	linear_controller(i1)/pid/tau/time		
+linear_controller/pid/tau/time	F	1	s	1...N		
+linear_controller/inputs	S	0	mixed			
+linear_controller/inputs/data	F	2	mixed	linear_controller(i1)/input_names|linear_controller(i1)/inputs/time		
+linear_controller/inputs/time	F	1	s	1...N		
+linear_controller/outputs	S	0	mixed			
+linear_controller/outputs/data	F	2	mixed	linear_controller(i1)/output_names|linear_controller(i1)/outputs/time		
+linear_controller/outputs/time	F	1	s	1...N		
+nonlinear_controller	A	1		1...N		
+nonlinear_controller/name	T	0				
+nonlinear_controller/description	T	0				
+nonlinear_controller/controller_class	T	0				
+nonlinear_controller/input_names	T	1		1...N		
+nonlinear_controller/output_names	T	1		1...N		
+nonlinear_controller/function	T	0				
+nonlinear_controller/inputs	S	0	mixed			
+nonlinear_controller/inputs/data	F	2	mixed	nonlinear_controller(i1)/input_names|nonlinear_controller(i1)/inputs/time		
+nonlinear_controller/inputs/time	F	1	s	1...N		
+nonlinear_controller/outputs	S	0	mixed			
+nonlinear_controller/outputs/data	F	2	mixed	nonlinear_controller(i1)/output_names|nonlinear_controller(i1)/outputs/time		
+nonlinear_controller/outputs/time	F	1	s	1...N		
+time	F	1	s	1...N		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				

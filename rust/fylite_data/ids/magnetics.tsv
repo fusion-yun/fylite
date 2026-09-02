@@ -1,0 +1,231 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids magnetics
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+flux_loop	A	1		1...N		
+flux_loop/name	T	0				
+flux_loop/description	T	0				
+flux_loop/type	S	0				
+flux_loop/type/name	T	0				
+flux_loop/type/index	I	0				
+flux_loop/type/description	T	0				
+flux_loop/position	A	1		1...N		
+flux_loop/position/r	F	0	m			
+flux_loop/position/phi	F	0	rad			
+flux_loop/position/z	F	0	m			
+flux_loop/indices_differential	I	1		1...2		
+flux_loop/area	F	0	m^2			
+flux_loop/gm9	F	0	m			
+flux_loop/flux	S	0	Wb			
+flux_loop/flux/data	F	1	Wb	flux_loop(i1)/flux/time		
+flux_loop/flux/validity_timed	I	1		flux_loop(i1)/flux/time		
+flux_loop/flux/validity	I	0				
+flux_loop/flux/time	F	1	s	1...N		
+flux_loop/voltage	S	0	V			
+flux_loop/voltage/data	F	1	V	flux_loop(i1)/voltage/time		
+flux_loop/voltage/validity_timed	I	1		flux_loop(i1)/voltage/time		
+flux_loop/voltage/validity	I	0				
+flux_loop/voltage/time	F	1	s	1...N		
+b_field_pol_probe	A	1		1...N		
+b_field_pol_probe/name	T	0				
+b_field_pol_probe/description	T	0				
+b_field_pol_probe/type	S	0				
+b_field_pol_probe/type/name	T	0				
+b_field_pol_probe/type/index	I	0				
+b_field_pol_probe/type/description	T	0				
+b_field_pol_probe/position	S	0				
+b_field_pol_probe/position/r	F	0	m			
+b_field_pol_probe/position/phi	F	0	rad			
+b_field_pol_probe/position/z	F	0	m			
+b_field_pol_probe/poloidal_angle	F	0	rad			
+b_field_pol_probe/toroidal_angle	F	0	rad			
+b_field_pol_probe/indices_differential	I	1		1...2		
+b_field_pol_probe/bandwidth_3db	F	1	Hz	1...2		
+b_field_pol_probe/area	F	0	m^2			
+b_field_pol_probe/length	F	0	m			
+b_field_pol_probe/turns	I	0				
+b_field_pol_probe/field	S	0	T			
+b_field_pol_probe/field/data	F	1	T	b_field_pol_probe(i1)/field/time		
+b_field_pol_probe/field/validity_timed	I	1		b_field_pol_probe(i1)/field/time		
+b_field_pol_probe/field/validity	I	0				
+b_field_pol_probe/field/time	F	1	s	1...N		
+b_field_pol_probe/voltage	S	0	V			
+b_field_pol_probe/voltage/data	F	1	V	b_field_pol_probe(i1)/voltage/time		
+b_field_pol_probe/voltage/validity_timed	I	1		b_field_pol_probe(i1)/voltage/time		
+b_field_pol_probe/voltage/validity	I	0				
+b_field_pol_probe/voltage/time	F	1	s	1...N		
+b_field_pol_probe/non_linear_response	S	0				
+b_field_pol_probe/non_linear_response/b_field_linear	F	1	T	1...N		
+b_field_pol_probe/non_linear_response/b_field_non_linear	F	1	T	b_field_pol_probe(i1)/non_linear_response/b_field_linear		
+b_field_pol_probe_equivalent	I	2		1...N|1...N		
+b_field_phi_probe	A	1		1...N		
+b_field_phi_probe/name	T	0				
+b_field_phi_probe/description	T	0				
+b_field_phi_probe/type	S	0				
+b_field_phi_probe/type/name	T	0				
+b_field_phi_probe/type/index	I	0				
+b_field_phi_probe/type/description	T	0				
+b_field_phi_probe/position	S	0				
+b_field_phi_probe/position/r	F	0	m			
+b_field_phi_probe/position/phi	F	0	rad			
+b_field_phi_probe/position/z	F	0	m			
+b_field_phi_probe/poloidal_angle	F	0	rad			
+b_field_phi_probe/toroidal_angle	F	0	rad			
+b_field_phi_probe/indices_differential	I	1		1...2		
+b_field_phi_probe/bandwidth_3db	F	1	Hz	1...2		
+b_field_phi_probe/area	F	0	m^2			
+b_field_phi_probe/length	F	0	m			
+b_field_phi_probe/turns	I	0				
+b_field_phi_probe/field	S	0	T			
+b_field_phi_probe/field/data	F	1	T	b_field_phi_probe(i1)/field/time		
+b_field_phi_probe/field/validity_timed	I	1		b_field_phi_probe(i1)/field/time		
+b_field_phi_probe/field/validity	I	0				
+b_field_phi_probe/field/time	F	1	s	1...N		
+b_field_phi_probe/voltage	S	0	V			
+b_field_phi_probe/voltage/data	F	1	V	b_field_phi_probe(i1)/voltage/time		
+b_field_phi_probe/voltage/validity_timed	I	1		b_field_phi_probe(i1)/voltage/time		
+b_field_phi_probe/voltage/validity	I	0				
+b_field_phi_probe/voltage/time	F	1	s	1...N		
+b_field_phi_probe/non_linear_response	S	0				
+b_field_phi_probe/non_linear_response/b_field_linear	F	1	T	1...N		
+b_field_phi_probe/non_linear_response/b_field_non_linear	F	1	T	b_field_phi_probe(i1)/non_linear_response/b_field_linear		
+rogowski_coil	A	1		1...N		
+rogowski_coil/name	T	0				
+rogowski_coil/description	T	0				
+rogowski_coil/measured_quantity	S	0				
+rogowski_coil/measured_quantity/name	T	0				
+rogowski_coil/measured_quantity/index	I	0				
+rogowski_coil/measured_quantity/description	T	0				
+rogowski_coil/position	A	1		1...N		
+rogowski_coil/position/r	F	0	m			
+rogowski_coil/position/phi	F	0	rad			
+rogowski_coil/position/z	F	0	m			
+rogowski_coil/indices_compound	I	1		1...N		
+rogowski_coil/area	F	0	m^2			
+rogowski_coil/turns_per_metre	F	0	m^-1			
+rogowski_coil/current	S	0	A			
+rogowski_coil/current/data	F	1	A	rogowski_coil(i1)/current/time		
+rogowski_coil/current/validity_timed	I	1		rogowski_coil(i1)/current/time		
+rogowski_coil/current/validity	I	0				
+rogowski_coil/current/time	F	1	s	1...N		
+shunt	A	1		1...N		
+shunt/name	T	0				
+shunt/description	T	0				
+shunt/position	S	0				
+shunt/position/first_point	S	0				
+shunt/position/first_point/r	F	0	m			
+shunt/position/first_point/z	F	0	m			
+shunt/position/second_point	S	0				
+shunt/position/second_point/r	F	0	m			
+shunt/position/second_point/z	F	0	m			
+shunt/resistance	F	0	ohm			
+shunt/voltage	S	0	V			
+shunt/voltage/data	F	1	V	shunt(i1)/voltage/time		
+shunt/voltage/validity_timed	I	1		shunt(i1)/voltage/time		
+shunt/voltage/validity	I	0				
+shunt/voltage/time	F	1	s	1...N		
+shunt/divertor_index	I	0				
+shunt/target_index	I	0				
+shunt/tile_index	I	0				
+ip	A	1	A	1...N		
+ip/method_name	T	0				
+ip/data	F	1	A	ip(i1)/time		
+ip/time	F	1	s	1...N		
+diamagnetic_flux	A	1	Wb	1...N		
+diamagnetic_flux/method_name	T	0				
+diamagnetic_flux/data	F	1	Wb	diamagnetic_flux(i1)/time		
+diamagnetic_flux/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

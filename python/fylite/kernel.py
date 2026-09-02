@@ -7649,3 +7649,31 @@ def read_gfile(text_or_path) -> dict:
         return out
     finally:
         lib.fylite_data_gfile_free(h)
+
+
+# --------------------------------------------------------------------------- #
+# DOCUMENTS —— 数据层的「数据源 ↔ fyo」那一面（`rust/fylite_data/src/c_api.rs`）
+#
+# ★句柄是一束文档；取值走路径 `"<ids>[_<occ>]/a/b/c"`；子树以 JSON 进出，数值叶子
+# 另有 f64 快道。宿主的薄壳在 `fylite.io.fydoc`——这里只登记签名，与 mdsip / g-file
+# 同一政策：签名一处，`load_data` 逐个核对符号在不在。
+# --------------------------------------------------------------------------- #
+
+_dsig("fylite_data_read", [_BYTES, _U64, ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
+_dsig("fylite_data_read_text", [_BYTES, _U64, _BYTES, _U64, ctypes.POINTER(_VOID),
+                                _BYTES, _U64], _I32)
+_dsig("fylite_data_bundle_new", [ctypes.POINTER(_VOID)], _I32)
+_dsig("fylite_data_write", [_VOID, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64],
+      _I32)
+_dsig("fylite_data_detect", [_BYTES, _U64, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_bundle_json", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_bundle_keys", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_doc_json", [_VOID, _BYTES, _U64, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_doc_array", [_VOID, _BYTES, _U64, _ARR, _U64, _ARRU64, _U64,
+                                ctypes.POINTER(ctypes.c_uint64)], ctypes.c_int64)
+_dsig("fylite_data_doc_set_json", [_VOID, _BYTES, _U64, _BYTES, _U64], _I32)
+_dsig("fylite_data_doc_set_array", [_VOID, _BYTES, _U64, _ARR, _ARRU64, _U64], _I32)
+_dsig("fylite_data_bundle_merge", [_VOID, _VOID, _I32], _I32)
+_dsig("fylite_data_assemble", [_BYTES, _U64, ctypes.c_int64, _BYTES, _U64, _I32,
+                               ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
+_dsig("fylite_data_bundle_free", [_VOID], None)

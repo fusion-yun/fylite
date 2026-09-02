@@ -1,0 +1,152 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids interferometer
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+channel	A	1		1...N		
+channel/name	T	0				
+channel/description	T	0				
+channel/line_of_sight	S	0				
+channel/line_of_sight/first_point	S	0				
+channel/line_of_sight/first_point/r	F	0	m			
+channel/line_of_sight/first_point/phi	F	0	rad			
+channel/line_of_sight/first_point/z	F	0	m			
+channel/line_of_sight/second_point	S	0				
+channel/line_of_sight/second_point/r	F	0	m			
+channel/line_of_sight/second_point/phi	F	0	rad			
+channel/line_of_sight/second_point/z	F	0	m			
+channel/line_of_sight/third_point	S	0				
+channel/line_of_sight/third_point/r	F	0	m			
+channel/line_of_sight/third_point/phi	F	0	rad			
+channel/line_of_sight/third_point/z	F	0	m			
+channel/wavelength	A	1		1...N		
+channel/wavelength/value	F	0	m			
+channel/wavelength/phase_corrected	S	0	rad			
+channel/wavelength/phase_corrected/data	F	1	rad	channel(i1)/wavelength(i2)/phase_corrected/time		
+channel/wavelength/phase_corrected/time	F	1	s	1...N		
+channel/wavelength/fringe_jump_correction	I	1		channel(i1)/wavelength(i2)/fringe_jump_correction_times		
+channel/wavelength/fringe_jump_correction_times	F	1	s	1...N		
+channel/wavelength/phase_to_n_e_line	F	0	m^-2.rad^-1			
+channel/path_length_variation	S	0	m			
+channel/path_length_variation/data	F	1	m	channel(i1)/path_length_variation/time		
+channel/path_length_variation/time	F	1	s	1...N		
+channel/n_e_line	S	0	m^-2			
+channel/n_e_line/data	F	1	m^-2	channel(i1)/n_e_line/time		
+channel/n_e_line/validity_timed	I	1		channel(i1)/n_e_line/time		
+channel/n_e_line/validity	I	0				
+channel/n_e_line/time	F	1	s	1...N		
+channel/n_e_line_average	S	0	m^-3			
+channel/n_e_line_average/data	F	1	m^-3	channel(i1)/n_e_line_average/time		
+channel/n_e_line_average/validity_timed	I	1		channel(i1)/n_e_line_average/time		
+channel/n_e_line_average/validity	I	0				
+channel/n_e_line_average/time	F	1	s	1...N		
+channel/n_e	S	0				
+channel/n_e/data	F	2	m^-3	channel(i1)/n_e/positions/r|channel(i1)/n_e/time		
+channel/n_e/time	F	1	s	1...N		
+channel/n_e/positions	S	0				
+channel/n_e/positions/r	F	1	m	1...N		
+channel/n_e/positions/phi	F	1	rad	channel(i1)/n_e/positions/r		
+channel/n_e/positions/z	F	1	m	channel(i1)/n_e/positions/r		
+n_e_volume_average	S	0	m^-3			
+n_e_volume_average/data	F	1	m^-3	n_e_volume_average/time		
+n_e_volume_average/validity_timed	I	1		n_e_volume_average/time		
+n_e_volume_average/validity	I	0				
+n_e_volume_average/time	F	1	s	1...N		
+electrons_n	S	0	1			
+electrons_n/data	F	1	1	electrons_n/time		
+electrons_n/validity_timed	I	1		electrons_n/time		
+electrons_n/validity	I	0				
+electrons_n/time	F	1	s	1...N		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

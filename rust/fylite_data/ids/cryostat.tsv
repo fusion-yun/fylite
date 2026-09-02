@@ -1,0 +1,170 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids cryostat
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+description_2d	A	1		1...N		
+description_2d/cryostat	S	0				
+description_2d/cryostat/type	S	0				
+description_2d/cryostat/type/name	T	0				
+description_2d/cryostat/type/index	I	0				
+description_2d/cryostat/type/description	T	0				
+description_2d/cryostat/unit	A	1		1...N		
+description_2d/cryostat/unit/name	T	0				
+description_2d/cryostat/unit/description	T	0				
+description_2d/cryostat/unit/annular	S	0				
+description_2d/cryostat/unit/annular/outline_inner	S	0				
+description_2d/cryostat/unit/annular/outline_inner/r	F	1	m	1...N		
+description_2d/cryostat/unit/annular/outline_inner/z	F	1	m	description_2d(i1)/cryostat/unit(i2)/annular/outline_inner/r		
+description_2d/cryostat/unit/annular/outline_outer	S	0				
+description_2d/cryostat/unit/annular/outline_outer/r	F	1	m	1...N		
+description_2d/cryostat/unit/annular/outline_outer/z	F	1	m	description_2d(i1)/cryostat/unit(i2)/annular/outline_outer/r		
+description_2d/cryostat/unit/annular/centreline	S	0				
+description_2d/cryostat/unit/annular/centreline/r	F	1	m	1...N		
+description_2d/cryostat/unit/annular/centreline/z	F	1	m	description_2d(i1)/cryostat/unit(i2)/annular/centreline/r		
+description_2d/cryostat/unit/annular/thickness	F	1	m	1...N		
+description_2d/cryostat/unit/annular/resistivity	F	0	ohm.m			
+description_2d/cryostat/unit/element	A	1		1...N		
+description_2d/cryostat/unit/element/name	T	0				
+description_2d/cryostat/unit/element/outline	S	0				
+description_2d/cryostat/unit/element/outline/r	F	1	m	1...N		
+description_2d/cryostat/unit/element/outline/z	F	1	m	description_2d(i1)/cryostat/unit(i2)/element(i3)/outline/r		
+description_2d/cryostat/unit/element/midplane_thickness	F	0	m			
+description_2d/cryostat/unit/element/resistivity	F	0	ohm.m			
+description_2d/cryostat/unit/element/j_phi	S	0	A			
+description_2d/cryostat/unit/element/j_phi/data	F	1	A	description_2d(i1)/cryostat/unit(i2)/element(i3)/j_phi/time		
+description_2d/cryostat/unit/element/j_phi/time	F	1	s	1...N		
+description_2d/cryostat/unit/element/resistance	F	0	ohm			
+description_2d/cryostat/unit/material	A	1		1...N		
+description_2d/cryostat/unit/material/name	T	0				
+description_2d/cryostat/unit/material/index	I	0				
+description_2d/cryostat/unit/material/description	T	0				
+description_2d/cryostat/unit/material_volume_fraction	F	1	1	description_2d(i1)/cryostat/unit(i2)/material		
+description_2d/thermal_shield	S	0				
+description_2d/thermal_shield/type	S	0				
+description_2d/thermal_shield/type/name	T	0				
+description_2d/thermal_shield/type/index	I	0				
+description_2d/thermal_shield/type/description	T	0				
+description_2d/thermal_shield/unit	A	1		1...N		
+description_2d/thermal_shield/unit/name	T	0				
+description_2d/thermal_shield/unit/description	T	0				
+description_2d/thermal_shield/unit/annular	S	0				
+description_2d/thermal_shield/unit/annular/outline_inner	S	0				
+description_2d/thermal_shield/unit/annular/outline_inner/r	F	1	m	1...N		
+description_2d/thermal_shield/unit/annular/outline_inner/z	F	1	m	description_2d(i1)/thermal_shield/unit(i2)/annular/outline_inner/r		
+description_2d/thermal_shield/unit/annular/outline_outer	S	0				
+description_2d/thermal_shield/unit/annular/outline_outer/r	F	1	m	1...N		
+description_2d/thermal_shield/unit/annular/outline_outer/z	F	1	m	description_2d(i1)/thermal_shield/unit(i2)/annular/outline_outer/r		
+description_2d/thermal_shield/unit/annular/centreline	S	0				
+description_2d/thermal_shield/unit/annular/centreline/r	F	1	m	1...N		
+description_2d/thermal_shield/unit/annular/centreline/z	F	1	m	description_2d(i1)/thermal_shield/unit(i2)/annular/centreline/r		
+description_2d/thermal_shield/unit/annular/thickness	F	1	m	1...N		
+description_2d/thermal_shield/unit/annular/resistivity	F	0	ohm.m			
+description_2d/thermal_shield/unit/element	A	1		1...N		
+description_2d/thermal_shield/unit/element/name	T	0				
+description_2d/thermal_shield/unit/element/outline	S	0				
+description_2d/thermal_shield/unit/element/outline/r	F	1	m	1...N		
+description_2d/thermal_shield/unit/element/outline/z	F	1	m	description_2d(i1)/thermal_shield/unit(i2)/element(i3)/outline/r		
+description_2d/thermal_shield/unit/element/midplane_thickness	F	0	m			
+description_2d/thermal_shield/unit/element/resistivity	F	0	ohm.m			
+description_2d/thermal_shield/unit/element/j_phi	S	0	A			
+description_2d/thermal_shield/unit/element/j_phi/data	F	1	A	description_2d(i1)/thermal_shield/unit(i2)/element(i3)/j_phi/time		
+description_2d/thermal_shield/unit/element/j_phi/time	F	1	s	1...N		
+description_2d/thermal_shield/unit/element/resistance	F	0	ohm			
+description_2d/thermal_shield/unit/material	A	1		1...N		
+description_2d/thermal_shield/unit/material/name	T	0				
+description_2d/thermal_shield/unit/material/index	I	0				
+description_2d/thermal_shield/unit/material/description	T	0				
+description_2d/thermal_shield/unit/material_volume_fraction	F	1	1	description_2d(i1)/thermal_shield/unit(i2)/material		
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

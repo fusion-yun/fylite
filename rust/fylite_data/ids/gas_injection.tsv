@@ -1,0 +1,146 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids gas_injection
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+pipe	A	1		1...N		
+pipe/name	T	0				
+pipe/description	T	0				
+pipe/species	A	1		1...N		
+pipe/species/element	A	1		1...N		
+pipe/species/element/a	F	0	u			
+pipe/species/element/z_n	I	0	e			
+pipe/species/element/atoms_n	I	0				
+pipe/species/name	T	0				
+pipe/species/fraction	F	0	1			
+pipe/length	F	0	m			
+pipe/exit_position	S	0				
+pipe/exit_position/r	F	0	m			
+pipe/exit_position/phi	F	0	rad			
+pipe/exit_position/z	F	0	m			
+pipe/second_point	S	0				
+pipe/second_point/r	F	0	m			
+pipe/second_point/phi	F	0	rad			
+pipe/second_point/z	F	0	m			
+pipe/flow_rate	S	0	Pa.m^3.s^-1			
+pipe/flow_rate/data	F	1	Pa.m^3.s^-1	pipe(i1)/flow_rate/time		
+pipe/flow_rate/time	F	1	s	1...N		
+pipe/valve_indices	I	1		1...N		
+valve	A	1		1...N		
+valve/name	T	0				
+valve/description	T	0				
+valve/species	A	1		1...N		
+valve/species/element	A	1		1...N		
+valve/species/element/a	F	0	u			
+valve/species/element/z_n	I	0	e			
+valve/species/element/atoms_n	I	0				
+valve/species/name	T	0				
+valve/species/fraction	F	0	1			
+valve/flow_rate_min	F	0	Pa.m^3.s^-1			
+valve/flow_rate_max	F	0	Pa.m^3.s^-1			
+valve/flow_rate	S	0	Pa.m^3.s^-1			
+valve/flow_rate/data	F	1	Pa.m^3.s^-1	valve(i1)/flow_rate/time		
+valve/flow_rate/time	F	1	s	1...N		
+valve/electron_rate	S	0	s^-1			
+valve/electron_rate/data	F	1	s^-1	valve(i1)/electron_rate/time		
+valve/electron_rate/time	F	1	s	1...N		
+valve/pipe_indices	I	1		1...N		
+valve/voltage	S	0	V			
+valve/voltage/data	F	1	V	valve(i1)/voltage/time		
+valve/voltage/time	F	1	s	1...N		
+valve/response_curve	S	0				
+valve/response_curve/voltage	F	1	V	1...N		
+valve/response_curve/flow_rate	F	1	Pa.m^3.s^-1	valve(i1)/response_curve/voltage		
+latency	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		

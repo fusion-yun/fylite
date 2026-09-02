@@ -1,0 +1,1276 @@
+# fylite/ids-table/1
+# dd_version 4.1.1
+# ids plasma_profiles
+# columns path kind ndim units coordinates same_as alternatives
+ids_properties	S	0				
+ids_properties/comment	T	0				
+ids_properties/name	T	0				
+ids_properties/homogeneous_time	I	0				
+ids_properties/occurrence_type	S	0				
+ids_properties/occurrence_type/name	T	0				
+ids_properties/occurrence_type/index	I	0				
+ids_properties/occurrence_type/description	T	0				
+ids_properties/provider	T	0				
+ids_properties/creation_date	T	0				
+ids_properties/version_put	S	0				
+ids_properties/version_put/data_dictionary	T	0				
+ids_properties/version_put/access_layer	T	0				
+ids_properties/version_put/access_layer_language	T	0				
+ids_properties/provenance	S	0				
+ids_properties/provenance/node	A	1		1...N		
+ids_properties/provenance/node/path	T	0				
+ids_properties/provenance/node/reference	A	1		1...N		
+ids_properties/provenance/node/reference/name	T	0				
+ids_properties/provenance/node/reference/timestamp	T	0				
+ids_properties/plugins	S	0				
+ids_properties/plugins/node	A	1		1...N		
+ids_properties/plugins/node/path	T	0				
+ids_properties/plugins/node/put_operation	A	1		1...N		
+ids_properties/plugins/node/put_operation/name	T	0				
+ids_properties/plugins/node/put_operation/description	T	0				
+ids_properties/plugins/node/put_operation/commit	T	0				
+ids_properties/plugins/node/put_operation/version	T	0				
+ids_properties/plugins/node/put_operation/repository	T	0				
+ids_properties/plugins/node/put_operation/parameters	T	0				
+ids_properties/plugins/node/put_operation/library	A	1		1...N		
+ids_properties/plugins/node/put_operation/library/name	T	0				
+ids_properties/plugins/node/put_operation/library/description	T	0				
+ids_properties/plugins/node/put_operation/library/commit	T	0				
+ids_properties/plugins/node/put_operation/library/version	T	0				
+ids_properties/plugins/node/put_operation/library/repository	T	0				
+ids_properties/plugins/node/put_operation/library/parameters	T	0				
+ids_properties/plugins/node/readback	A	1		1...N		
+ids_properties/plugins/node/readback/name	T	0				
+ids_properties/plugins/node/readback/description	T	0				
+ids_properties/plugins/node/readback/commit	T	0				
+ids_properties/plugins/node/readback/version	T	0				
+ids_properties/plugins/node/readback/repository	T	0				
+ids_properties/plugins/node/readback/parameters	T	0				
+ids_properties/plugins/node/readback/library	A	1		1...N		
+ids_properties/plugins/node/readback/library/name	T	0				
+ids_properties/plugins/node/readback/library/description	T	0				
+ids_properties/plugins/node/readback/library/commit	T	0				
+ids_properties/plugins/node/readback/library/version	T	0				
+ids_properties/plugins/node/readback/library/repository	T	0				
+ids_properties/plugins/node/readback/library/parameters	T	0				
+ids_properties/plugins/node/get_operation	A	1		1...N		
+ids_properties/plugins/node/get_operation/name	T	0				
+ids_properties/plugins/node/get_operation/description	T	0				
+ids_properties/plugins/node/get_operation/commit	T	0				
+ids_properties/plugins/node/get_operation/version	T	0				
+ids_properties/plugins/node/get_operation/repository	T	0				
+ids_properties/plugins/node/get_operation/parameters	T	0				
+ids_properties/plugins/node/get_operation/library	A	1		1...N		
+ids_properties/plugins/node/get_operation/library/name	T	0				
+ids_properties/plugins/node/get_operation/library/description	T	0				
+ids_properties/plugins/node/get_operation/library/commit	T	0				
+ids_properties/plugins/node/get_operation/library/version	T	0				
+ids_properties/plugins/node/get_operation/library/repository	T	0				
+ids_properties/plugins/node/get_operation/library/parameters	T	0				
+ids_properties/plugins/infrastructure_put	S	0				
+ids_properties/plugins/infrastructure_put/name	T	0				
+ids_properties/plugins/infrastructure_put/description	T	0				
+ids_properties/plugins/infrastructure_put/commit	T	0				
+ids_properties/plugins/infrastructure_put/version	T	0				
+ids_properties/plugins/infrastructure_put/repository	T	0				
+ids_properties/plugins/infrastructure_get	S	0				
+ids_properties/plugins/infrastructure_get/name	T	0				
+ids_properties/plugins/infrastructure_get/description	T	0				
+ids_properties/plugins/infrastructure_get/commit	T	0				
+ids_properties/plugins/infrastructure_get/version	T	0				
+ids_properties/plugins/infrastructure_get/repository	T	0				
+vacuum_toroidal_field	S	0				
+vacuum_toroidal_field/r0	F	0	m			
+vacuum_toroidal_field/b0	F	1	T	time		
+midplane	S	0				
+midplane/name	T	0				
+midplane/index	I	0				
+midplane/description	T	0				
+global_quantities	S	0				
+global_quantities/ip	F	1	A	time		
+global_quantities/current_non_inductive	F	1	A	time		
+global_quantities/current_bootstrap	F	1	A	time		
+global_quantities/v_loop	F	1	V	time		
+global_quantities/li_3	F	1	1	time		
+global_quantities/beta_tor	F	1	1	time		
+global_quantities/beta_tor_norm	F	1	1	time		
+global_quantities/beta_pol	F	1	1	time		
+global_quantities/energy_diamagnetic	F	1	J	time		
+global_quantities/z_eff_resistive	F	1	1	time		
+global_quantities/t_e_peaking	F	1	1	time		
+global_quantities/t_i_average_peaking	F	1	1	time		
+global_quantities/resistive_psi_losses	F	1	Wb	time		
+global_quantities/ejima	F	1	1	time		
+global_quantities/t_e_volume_average	F	1	eV	time		
+global_quantities/n_e_volume_average	F	1	m^-3	time		
+global_quantities/ion	A	1		profiles_1d(itime)/ion		
+global_quantities/ion/t_i_volume_average	F	1	eV	time		
+global_quantities/ion/n_i_volume_average	F	1	m^-3	time		
+global_quantities/ion_time_slice	F	0	s			
+profiles_1d	A	1		profiles_1d(itime)/time		
+profiles_1d/grid	S	0				
+profiles_1d/grid/rho_pol_norm	F	1	1	1...N		profiles_1d(itime)/grid/rho_tor;profiles_1d(itime)/grid/psi;profiles_1d(itime)/grid/volume;profiles_1d(itime)/grid/area;profiles_1d(itime)/grid/surface;profiles_1d(itime)/grid/rho_tor_norm
+profiles_1d/grid/psi	F	1	Wb	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/grid/rho_tor_norm	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/grid/rho_tor	F	1	m	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/grid/volume	F	1	m^3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/grid/area	F	1	m^2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/grid/surface	F	1	m^2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/grid/psi_magnetic_axis	F	0	Wb			
+profiles_1d/grid/psi_boundary	F	0	Wb			
+profiles_1d/electrons	S	0				
+profiles_1d/electrons/temperature	F	1	eV	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/temperature_validity	I	0				
+profiles_1d/electrons/temperature_fit	S	0	eV			
+profiles_1d/electrons/temperature_fit/measured	F	1	mixed	1...N		
+profiles_1d/electrons/temperature_fit/source	T	1		profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/time_measurement	F	1	s	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/time_measurement_slice_method	S	0				
+profiles_1d/electrons/temperature_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/electrons/temperature_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/electrons/temperature_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/electrons/temperature_fit/time_measurement_width	F	1	s	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/local	I	1		profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/weight	F	1	1	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/reconstructed	F	1	mixed	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/chi_squared	F	1	1	profiles_1d(itime)/electrons/temperature_fit/measured		
+profiles_1d/electrons/temperature_fit/parameters	T	0				
+profiles_1d/electrons/density	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/density_validity	I	0				
+profiles_1d/electrons/density_fit	S	0	m^-3			
+profiles_1d/electrons/density_fit/measured	F	1	mixed	1...N		
+profiles_1d/electrons/density_fit/source	T	1		profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/time_measurement	F	1	s	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/time_measurement_slice_method	S	0				
+profiles_1d/electrons/density_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/electrons/density_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/electrons/density_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/electrons/density_fit/time_measurement_width	F	1	s	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/local	I	1		profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/weight	F	1	1	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/reconstructed	F	1	mixed	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/chi_squared	F	1	1	profiles_1d(itime)/electrons/density_fit/measured		
+profiles_1d/electrons/density_fit/parameters	T	0				
+profiles_1d/electrons/density_thermal	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/density_fast	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/pressure	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/pressure_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/pressure_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/electrons/collisionality_norm	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion	A	1		1...N		
+profiles_1d/ion/element	A	1		1...N		
+profiles_1d/ion/element/a	F	0	u			
+profiles_1d/ion/element/z_n	I	0	e			
+profiles_1d/ion/element/atoms_n	I	0				
+profiles_1d/ion/z_ion	F	0	e			
+profiles_1d/ion/name	T	0				
+profiles_1d/ion/neutral_index	I	0				
+profiles_1d/ion/z_ion_1d	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/z_ion_square_1d	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/temperature	F	1	eV	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/temperature_validity	I	0				
+profiles_1d/ion/temperature_fit	S	0	eV			
+profiles_1d/ion/temperature_fit/measured	F	1	mixed	1...N		
+profiles_1d/ion/temperature_fit/source	T	1		profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/time_measurement	F	1	s	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/time_measurement_slice_method	S	0				
+profiles_1d/ion/temperature_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/ion/temperature_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/ion/temperature_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/ion/temperature_fit/time_measurement_width	F	1	s	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/local	I	1		profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/weight	F	1	1	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/reconstructed	F	1	mixed	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/chi_squared	F	1	1	profiles_1d(itime)/ion(i1)/temperature_fit/measured		
+profiles_1d/ion/temperature_fit/parameters	T	0				
+profiles_1d/ion/density	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/density_validity	I	0				
+profiles_1d/ion/density_fit	S	0	m^-3			
+profiles_1d/ion/density_fit/measured	F	1	mixed	1...N		
+profiles_1d/ion/density_fit/source	T	1		profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/time_measurement	F	1	s	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/time_measurement_slice_method	S	0				
+profiles_1d/ion/density_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/ion/density_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/ion/density_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/ion/density_fit/time_measurement_width	F	1	s	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/local	I	1		profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/weight	F	1	1	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/reconstructed	F	1	mixed	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/chi_squared	F	1	1	profiles_1d(itime)/ion(i1)/density_fit/measured		
+profiles_1d/ion/density_fit/parameters	T	0				
+profiles_1d/ion/density_thermal	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/density_fast	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/pressure	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/pressure_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/pressure_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/rotation_frequency_tor	F	1	rad.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/velocity	S	0	m.s^-1			
+profiles_1d/ion/velocity/radial	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/velocity/diamagnetic	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/velocity/parallel	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/velocity/poloidal	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/velocity/toroidal	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/multiple_states_flag	I	0				
+profiles_1d/ion/state	A	1		1...N		
+profiles_1d/ion/state/z_min	F	0	e			
+profiles_1d/ion/state/z_max	F	0	e			
+profiles_1d/ion/state/z_average	F	0	e			
+profiles_1d/ion/state/z_square_average	F	0	e			
+profiles_1d/ion/state/z_average_1d	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/z_average_square_1d	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/ionisation_potential	F	0	eV			
+profiles_1d/ion/state/name	T	0				
+profiles_1d/ion/state/electron_configuration	T	0				
+profiles_1d/ion/state/vibrational_level	F	0	e			
+profiles_1d/ion/state/vibrational_mode	T	0				
+profiles_1d/ion/state/rotation_frequency_tor	F	1	rad.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/velocity	S	0	m.s^-1			
+profiles_1d/ion/state/velocity/radial	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/velocity/diamagnetic	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/velocity/parallel	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/velocity/poloidal	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/velocity/toroidal	F	1	m.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/temperature	F	1	eV	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/density	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/density_fit	S	0	m^-3			
+profiles_1d/ion/state/density_fit/measured	F	1	mixed	1...N		
+profiles_1d/ion/state/density_fit/source	T	1		profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/time_measurement	F	1	s	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/time_measurement_slice_method	S	0				
+profiles_1d/ion/state/density_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/ion/state/density_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/ion/state/density_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/ion/state/density_fit/time_measurement_width	F	1	s	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/local	I	1		profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/weight	F	1	1	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/reconstructed	F	1	mixed	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/chi_squared	F	1	1	profiles_1d(itime)/ion(i1)/state(i2)/density_fit/measured		
+profiles_1d/ion/state/density_fit/parameters	T	0				
+profiles_1d/ion/state/density_thermal	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/density_fast	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/pressure	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/pressure_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/ion/state/pressure_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral	A	1		1...N		
+profiles_1d/neutral/element	A	1		1...N		
+profiles_1d/neutral/element/a	F	0	u			
+profiles_1d/neutral/element/z_n	I	0	e			
+profiles_1d/neutral/element/atoms_n	I	0				
+profiles_1d/neutral/name	T	0				
+profiles_1d/neutral/ion_index	I	0				
+profiles_1d/neutral/temperature	F	1	eV	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/density	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/density_thermal	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/density_fast	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/pressure	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/pressure_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/pressure_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/multiple_states_flag	I	0				
+profiles_1d/neutral/state	A	1		1...N		
+profiles_1d/neutral/state/name	T	0				
+profiles_1d/neutral/state/electron_configuration	T	0				
+profiles_1d/neutral/state/vibrational_level	F	0	e			
+profiles_1d/neutral/state/vibrational_mode	T	0				
+profiles_1d/neutral/state/neutral_type	S	0				
+profiles_1d/neutral/state/neutral_type/name	T	0				
+profiles_1d/neutral/state/neutral_type/index	I	0				
+profiles_1d/neutral/state/neutral_type/description	T	0				
+profiles_1d/neutral/state/temperature	F	1	eV	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/density	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/density_thermal	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/density_fast	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/pressure	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/pressure_fast_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/neutral/state/pressure_fast_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/t_i_average	F	1	eV	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/t_i_average_fit	S	0	eV			
+profiles_1d/t_i_average_fit/measured	F	1	mixed	1...N		
+profiles_1d/t_i_average_fit/source	T	1		profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/time_measurement	F	1	s	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/time_measurement_slice_method	S	0				
+profiles_1d/t_i_average_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/t_i_average_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/t_i_average_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/t_i_average_fit/time_measurement_width	F	1	s	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/local	I	1		profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/weight	F	1	1	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/reconstructed	F	1	mixed	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/chi_squared	F	1	1	profiles_1d(itime)/t_i_average_fit/measured		
+profiles_1d/t_i_average_fit/parameters	T	0				
+profiles_1d/n_i_total_over_n_e	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/n_i_thermal_total	F	1	m^-3	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/momentum_phi	F	1	kg.m^-1.s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/zeff	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/zeff_fit	S	0	1			
+profiles_1d/zeff_fit/measured	F	1	mixed	1...N		
+profiles_1d/zeff_fit/source	T	1		profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/time_measurement	F	1	s	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/time_measurement_slice_method	S	0				
+profiles_1d/zeff_fit/time_measurement_slice_method/name	T	0				
+profiles_1d/zeff_fit/time_measurement_slice_method/index	I	0				
+profiles_1d/zeff_fit/time_measurement_slice_method/description	T	0				
+profiles_1d/zeff_fit/time_measurement_width	F	1	s	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/local	I	1		profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/rho_tor_norm	F	1	1	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/rho_pol_norm	F	1	1	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/weight	F	1	1	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/reconstructed	F	1	mixed	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/chi_squared	F	1	1	profiles_1d(itime)/zeff_fit/measured		
+profiles_1d/zeff_fit/parameters	T	0				
+profiles_1d/pressure_ion_total	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/pressure_thermal	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/pressure_perpendicular	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/pressure_parallel	F	1	Pa	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/j_total	F	1	A.m^-2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/current_parallel_inside	F	1	A	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/j_phi	F	1	A.m^-2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/j_ohmic	F	1	A.m^-2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/j_non_inductive	F	1	A.m^-2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/j_bootstrap	F	1	A.m^-2	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/conductivity_parallel	F	1	ohm^-1.m^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/e_field	S	0	V.m^-1			
+profiles_1d/e_field/radial	F	1	V.m^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/e_field/diamagnetic	F	1	V.m^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/e_field/parallel	F	1	V.m^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/e_field/poloidal	F	1	V.m^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/e_field/toroidal	F	1	V.m^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/phi_potential	F	1	V	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/rotation_frequency_tor_sonic	F	1	s^-1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/q	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/magnetic_shear	F	1	1	profiles_1d(itime)/grid/rho_pol_norm		
+profiles_1d/time	F	0	s			
+profiles_2d	A	1		profiles_2d(itime)/time		
+profiles_2d/grid_type	S	0				
+profiles_2d/grid_type/name	T	0				
+profiles_2d/grid_type/index	I	0				
+profiles_2d/grid_type/description	T	0				
+profiles_2d/grid	S	0				
+profiles_2d/grid/dim1	F	1	mixed	1...N		
+profiles_2d/grid/dim2	F	1	mixed	1...N		
+profiles_2d/grid/volume_element	F	2	m^3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion	A	1		1...N		
+profiles_2d/ion/element	A	1		1...N		
+profiles_2d/ion/element/a	F	0	u			
+profiles_2d/ion/element/z_n	I	0	e			
+profiles_2d/ion/element/atoms_n	I	0				
+profiles_2d/ion/z_ion	F	0	e			
+profiles_2d/ion/name	T	0				
+profiles_2d/ion/ion_index	I	0				
+profiles_2d/ion/temperature	F	2	eV	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/density	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/density_thermal	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/density_fast	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/pressure	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/pressure_thermal	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/pressure_fast_perpendicular	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/pressure_fast_parallel	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/rotation_frequency_tor	F	2	rad.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/velocity	S	0	m.s^-1			
+profiles_2d/ion/velocity/radial	F	2	m.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/velocity/diamagnetic	F	2	m.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/velocity/parallel	F	2	m.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/velocity/poloidal	F	2	m.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/velocity/toroidal	F	2	m.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/multiple_states_flag	I	0				
+profiles_2d/ion/state	A	1		1...N		
+profiles_2d/ion/state/z_min	F	0	e			
+profiles_2d/ion/state/z_max	F	0	e			
+profiles_2d/ion/state/z_average	F	0	e			
+profiles_2d/ion/state/z_square_average	F	0	e			
+profiles_2d/ion/state/ionisation_potential	F	0	eV			
+profiles_2d/ion/state/name	T	0				
+profiles_2d/ion/state/electron_configuration	T	0				
+profiles_2d/ion/state/vibrational_level	F	0	e			
+profiles_2d/ion/state/vibrational_mode	T	0				
+profiles_2d/ion/state/rotation_frequency_tor	F	2	rad.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/temperature	F	2	eV	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/density	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/density_thermal	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/density_fast	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/pressure	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/pressure_thermal	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/pressure_fast_perpendicular	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/ion/state/pressure_fast_parallel	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/t_i_average	F	2	eV	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/n_i_total_over_n_e	F	2	1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/n_i_thermal_total	F	2	m^-3	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/momentum_phi	F	2	kg.m^-1.s^-1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/zeff	F	2	1	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/pressure_ion_total	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/pressure_thermal	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/pressure_perpendicular	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/pressure_parallel	F	2	Pa	profiles_2d(itime)/grid/dim1|profiles_2d(itime)/grid/dim2		
+profiles_2d/time	F	0	s			
+grid_ggd	A	1		grid_ggd(itime)/time		
+grid_ggd/identifier	S	0				
+grid_ggd/identifier/name	T	0				
+grid_ggd/identifier/index	I	0				
+grid_ggd/identifier/description	T	0				
+grid_ggd/path	T	0				
+grid_ggd/space	A	1		1...N		
+grid_ggd/space/identifier	S	0				
+grid_ggd/space/identifier/name	T	0				
+grid_ggd/space/identifier/index	I	0				
+grid_ggd/space/identifier/description	T	0				
+grid_ggd/space/geometry_type	S	0				
+grid_ggd/space/geometry_type/name	T	0				
+grid_ggd/space/geometry_type/index	I	0				
+grid_ggd/space/geometry_type/description	T	0				
+grid_ggd/space/coordinates_type	A	1		1...N		
+grid_ggd/space/coordinates_type/name	T	0				
+grid_ggd/space/coordinates_type/index	I	0				
+grid_ggd/space/coordinates_type/description	T	0				
+grid_ggd/space/objects_per_dimension	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary	A	1		1...N		
+grid_ggd/space/objects_per_dimension/object/boundary/index	I	0				
+grid_ggd/space/objects_per_dimension/object/boundary/neighbours	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/geometry	F	1	mixed	1...N		
+grid_ggd/space/objects_per_dimension/object/nodes	I	1		1...N		
+grid_ggd/space/objects_per_dimension/object/measure	F	0	m^dimension			
+grid_ggd/space/objects_per_dimension/object/geometry_2d	F	2	mixed	1...N|1...N		
+grid_ggd/space/objects_per_dimension/geometry_content	S	0				
+grid_ggd/space/objects_per_dimension/geometry_content/name	T	0				
+grid_ggd/space/objects_per_dimension/geometry_content/index	I	0				
+grid_ggd/space/objects_per_dimension/geometry_content/description	T	0				
+grid_ggd/grid_subset	A	1		1...N		
+grid_ggd/grid_subset/identifier	S	0				
+grid_ggd/grid_subset/identifier/name	T	0				
+grid_ggd/grid_subset/identifier/index	I	0				
+grid_ggd/grid_subset/identifier/description	T	0				
+grid_ggd/grid_subset/dimension	I	0				
+grid_ggd/grid_subset/element	A	1		1...N		
+grid_ggd/grid_subset/element/object	A	1		1...N		
+grid_ggd/grid_subset/element/object/space	I	0				
+grid_ggd/grid_subset/element/object/dimension	I	0				
+grid_ggd/grid_subset/element/object/index	I	0				
+grid_ggd/grid_subset/base	A	1		1...N		
+grid_ggd/grid_subset/base/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/base/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/base/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/base(i2)/tensor_covariant	
+grid_ggd/grid_subset/metric	S	0				
+grid_ggd/grid_subset/metric/jacobian	F	1	mixed	grid_ggd(itime)/grid_subset(i1)/element		
+grid_ggd/grid_subset/metric/tensor_covariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N		
+grid_ggd/grid_subset/metric/tensor_contravariant	F	3	mixed	grid_ggd(itime)/grid_subset(i1)/element|1...N|1...N	|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant|grid_ggd(itime)/grid_subset(i1)/metric/tensor_covariant	
+grid_ggd/time	F	0	s			
+ggd	A	1		ggd(itime)/time		
+ggd/electrons	S	0				
+ggd/electrons/temperature	A	1	eV	1...N		
+ggd/electrons/temperature/grid_index	I	0				
+ggd/electrons/temperature/grid_subset_index	I	0				
+ggd/electrons/temperature/values	F	1	eV	1...N		
+ggd/electrons/temperature/coefficients	F	2	eV	ggd(itime)/electrons/temperature(i1)/values|1...N		
+ggd/electrons/density	A	1	m^-3	1...N		
+ggd/electrons/density/grid_index	I	0				
+ggd/electrons/density/grid_subset_index	I	0				
+ggd/electrons/density/values	F	1	m^-3	1...N		
+ggd/electrons/density/coefficients	F	2	m^-3	ggd(itime)/electrons/density(i1)/values|1...N		
+ggd/electrons/density_fast	A	1	m^-3	1...N		
+ggd/electrons/density_fast/grid_index	I	0				
+ggd/electrons/density_fast/grid_subset_index	I	0				
+ggd/electrons/density_fast/values	F	1	m^-3	1...N		
+ggd/electrons/density_fast/coefficients	F	2	m^-3	ggd(itime)/electrons/density_fast(i1)/values|1...N		
+ggd/electrons/pressure	A	1	Pa	1...N		
+ggd/electrons/pressure/grid_index	I	0				
+ggd/electrons/pressure/grid_subset_index	I	0				
+ggd/electrons/pressure/values	F	1	Pa	1...N		
+ggd/electrons/pressure/coefficients	F	2	Pa	ggd(itime)/electrons/pressure(i1)/values|1...N		
+ggd/electrons/pressure_fast_perpendicular	A	1	Pa	1...N		
+ggd/electrons/pressure_fast_perpendicular/grid_index	I	0				
+ggd/electrons/pressure_fast_perpendicular/grid_subset_index	I	0				
+ggd/electrons/pressure_fast_perpendicular/values	F	1	Pa	1...N		
+ggd/electrons/pressure_fast_perpendicular/coefficients	F	2	Pa	ggd(itime)/electrons/pressure_fast_perpendicular(i1)/values|1...N		
+ggd/electrons/pressure_fast_parallel	A	1	Pa	1...N		
+ggd/electrons/pressure_fast_parallel/grid_index	I	0				
+ggd/electrons/pressure_fast_parallel/grid_subset_index	I	0				
+ggd/electrons/pressure_fast_parallel/values	F	1	Pa	1...N		
+ggd/electrons/pressure_fast_parallel/coefficients	F	2	Pa	ggd(itime)/electrons/pressure_fast_parallel(i1)/values|1...N		
+ggd/electrons/velocity	A	1	m.s^-1	1...N		
+ggd/electrons/velocity/grid_index	I	0				
+ggd/electrons/velocity/grid_subset_index	I	0				
+ggd/electrons/velocity/radial	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/velocity/diamagnetic	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/velocity/parallel	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/velocity/poloidal	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/velocity/r	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/velocity/phi	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/velocity/z	F	1	m.s^-1	1...N		
+ggd/electrons/velocity/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/electrons/distribution_function	A	1	mixed	1...N		
+ggd/electrons/distribution_function/grid_index	I	0				
+ggd/electrons/distribution_function/grid_subset_index	I	0				
+ggd/electrons/distribution_function/values	F	1	mixed	1...N		
+ggd/electrons/distribution_function/coefficients	F	2	mixed	ggd(itime)/electrons/distribution_function(i1)/values|1...N		
+ggd/ion	A	1		1...N		
+ggd/ion/element	A	1		1...N		
+ggd/ion/element/a	F	0	u			
+ggd/ion/element/z_n	I	0	e			
+ggd/ion/element/atoms_n	I	0				
+ggd/ion/z_ion	F	0	e			
+ggd/ion/name	T	0				
+ggd/ion/neutral_index	I	0				
+ggd/ion/temperature	A	1	eV	1...N		
+ggd/ion/temperature/grid_index	I	0				
+ggd/ion/temperature/grid_subset_index	I	0				
+ggd/ion/temperature/values	F	1	eV	1...N		
+ggd/ion/temperature/coefficients	F	2	eV	ggd(itime)/ion(i1)/temperature(i2)/values|1...N		
+ggd/ion/density	A	1	m^-3	1...N		
+ggd/ion/density/grid_index	I	0				
+ggd/ion/density/grid_subset_index	I	0				
+ggd/ion/density/values	F	1	m^-3	1...N		
+ggd/ion/density/coefficients	F	2	m^-3	ggd(itime)/ion(i1)/density(i2)/values|1...N		
+ggd/ion/density_fast	A	1	m^-3	1...N		
+ggd/ion/density_fast/grid_index	I	0				
+ggd/ion/density_fast/grid_subset_index	I	0				
+ggd/ion/density_fast/values	F	1	m^-3	1...N		
+ggd/ion/density_fast/coefficients	F	2	m^-3	ggd(itime)/ion(i1)/density_fast(i2)/values|1...N		
+ggd/ion/pressure	A	1	Pa	1...N		
+ggd/ion/pressure/grid_index	I	0				
+ggd/ion/pressure/grid_subset_index	I	0				
+ggd/ion/pressure/values	F	1	Pa	1...N		
+ggd/ion/pressure/coefficients	F	2	Pa	ggd(itime)/ion(i1)/pressure(i2)/values|1...N		
+ggd/ion/pressure_fast_perpendicular	A	1	Pa	1...N		
+ggd/ion/pressure_fast_perpendicular/grid_index	I	0				
+ggd/ion/pressure_fast_perpendicular/grid_subset_index	I	0				
+ggd/ion/pressure_fast_perpendicular/values	F	1	Pa	1...N		
+ggd/ion/pressure_fast_perpendicular/coefficients	F	2	Pa	ggd(itime)/ion(i1)/pressure_fast_perpendicular(i2)/values|1...N		
+ggd/ion/pressure_fast_parallel	A	1	Pa	1...N		
+ggd/ion/pressure_fast_parallel/grid_index	I	0				
+ggd/ion/pressure_fast_parallel/grid_subset_index	I	0				
+ggd/ion/pressure_fast_parallel/values	F	1	Pa	1...N		
+ggd/ion/pressure_fast_parallel/coefficients	F	2	Pa	ggd(itime)/ion(i1)/pressure_fast_parallel(i2)/values|1...N		
+ggd/ion/velocity	A	1	m.s^-1	1...N		
+ggd/ion/velocity/grid_index	I	0				
+ggd/ion/velocity/grid_subset_index	I	0				
+ggd/ion/velocity/radial	F	1	m.s^-1	1...N		
+ggd/ion/velocity/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity/diamagnetic	F	1	m.s^-1	1...N		
+ggd/ion/velocity/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity/parallel	F	1	m.s^-1	1...N		
+ggd/ion/velocity/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity/poloidal	F	1	m.s^-1	1...N		
+ggd/ion/velocity/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity/r	F	1	m.s^-1	1...N		
+ggd/ion/velocity/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity/phi	F	1	m.s^-1	1...N		
+ggd/ion/velocity/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity/z	F	1	m.s^-1	1...N		
+ggd/ion/velocity/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field	A	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/grid_index	I	0				
+ggd/ion/velocity_over_b_field/grid_subset_index	I	0				
+ggd/ion/velocity_over_b_field/radial	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field/diamagnetic	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field/parallel	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field/poloidal	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field/r	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field/phi	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/velocity_over_b_field/z	F	1	m.s^-1	1...N		
+ggd/ion/velocity_over_b_field/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/energy_density_kinetic	A	1	J.m^-3	1...N		
+ggd/ion/energy_density_kinetic/grid_index	I	0				
+ggd/ion/energy_density_kinetic/grid_subset_index	I	0				
+ggd/ion/energy_density_kinetic/values	F	1	J.m^-3	1...N		
+ggd/ion/energy_density_kinetic/coefficients	F	2	J.m^-3	ggd(itime)/ion(i1)/energy_density_kinetic(i2)/values|1...N		
+ggd/ion/multiple_states_flag	I	0				
+ggd/ion/state	A	1		1...N		
+ggd/ion/state/z_min	F	0	e			
+ggd/ion/state/z_max	F	0	e			
+ggd/ion/state/z_average	A	1	e	1...N		
+ggd/ion/state/z_average/grid_index	I	0				
+ggd/ion/state/z_average/grid_subset_index	I	0				
+ggd/ion/state/z_average/values	F	1	e	1...N		
+ggd/ion/state/z_average/coefficients	F	2	e	ggd(itime)/ion(i1)/state(i2)/z_average(i3)/values|1...N		
+ggd/ion/state/z_square_average	A	1	e	1...N		
+ggd/ion/state/z_square_average/grid_index	I	0				
+ggd/ion/state/z_square_average/grid_subset_index	I	0				
+ggd/ion/state/z_square_average/values	F	1	e	1...N		
+ggd/ion/state/z_square_average/coefficients	F	2	e	ggd(itime)/ion(i1)/state(i2)/z_square_average(i3)/values|1...N		
+ggd/ion/state/ionisation_potential	A	1	e	1...N		
+ggd/ion/state/ionisation_potential/grid_index	I	0				
+ggd/ion/state/ionisation_potential/grid_subset_index	I	0				
+ggd/ion/state/ionisation_potential/values	F	1	e	1...N		
+ggd/ion/state/ionisation_potential/coefficients	F	2	e	ggd(itime)/ion(i1)/state(i2)/ionisation_potential(i3)/values|1...N		
+ggd/ion/state/name	T	0				
+ggd/ion/state/electron_configuration	T	0				
+ggd/ion/state/vibrational_level	F	0	e			
+ggd/ion/state/vibrational_mode	T	0				
+ggd/ion/state/temperature	A	1	eV	1...N		
+ggd/ion/state/temperature/grid_index	I	0				
+ggd/ion/state/temperature/grid_subset_index	I	0				
+ggd/ion/state/temperature/values	F	1	eV	1...N		
+ggd/ion/state/temperature/coefficients	F	2	eV	ggd(itime)/ion(i1)/state(i2)/temperature(i3)/values|1...N		
+ggd/ion/state/density	A	1	m^-3	1...N		
+ggd/ion/state/density/grid_index	I	0				
+ggd/ion/state/density/grid_subset_index	I	0				
+ggd/ion/state/density/values	F	1	m^-3	1...N		
+ggd/ion/state/density/coefficients	F	2	m^-3	ggd(itime)/ion(i1)/state(i2)/density(i3)/values|1...N		
+ggd/ion/state/density_fast	A	1	m^-3	1...N		
+ggd/ion/state/density_fast/grid_index	I	0				
+ggd/ion/state/density_fast/grid_subset_index	I	0				
+ggd/ion/state/density_fast/values	F	1	m^-3	1...N		
+ggd/ion/state/density_fast/coefficients	F	2	m^-3	ggd(itime)/ion(i1)/state(i2)/density_fast(i3)/values|1...N		
+ggd/ion/state/pressure	A	1	Pa	1...N		
+ggd/ion/state/pressure/grid_index	I	0				
+ggd/ion/state/pressure/grid_subset_index	I	0				
+ggd/ion/state/pressure/values	F	1	Pa	1...N		
+ggd/ion/state/pressure/coefficients	F	2	Pa	ggd(itime)/ion(i1)/state(i2)/pressure(i3)/values|1...N		
+ggd/ion/state/pressure_fast_perpendicular	A	1	Pa	1...N		
+ggd/ion/state/pressure_fast_perpendicular/grid_index	I	0				
+ggd/ion/state/pressure_fast_perpendicular/grid_subset_index	I	0				
+ggd/ion/state/pressure_fast_perpendicular/values	F	1	Pa	1...N		
+ggd/ion/state/pressure_fast_perpendicular/coefficients	F	2	Pa	ggd(itime)/ion(i1)/state(i2)/pressure_fast_perpendicular(i3)/values|1...N		
+ggd/ion/state/pressure_fast_parallel	A	1	Pa	1...N		
+ggd/ion/state/pressure_fast_parallel/grid_index	I	0				
+ggd/ion/state/pressure_fast_parallel/grid_subset_index	I	0				
+ggd/ion/state/pressure_fast_parallel/values	F	1	Pa	1...N		
+ggd/ion/state/pressure_fast_parallel/coefficients	F	2	Pa	ggd(itime)/ion(i1)/state(i2)/pressure_fast_parallel(i3)/values|1...N		
+ggd/ion/state/velocity	A	1	m.s^-1	1...N		
+ggd/ion/state/velocity/grid_index	I	0				
+ggd/ion/state/velocity/grid_subset_index	I	0				
+ggd/ion/state/velocity/radial	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity/diamagnetic	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity/parallel	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity/poloidal	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity/r	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity/phi	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity/z	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic	A	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/grid_index	I	0				
+ggd/ion/state/velocity_diamagnetic/grid_subset_index	I	0				
+ggd/ion/state/velocity_diamagnetic/radial	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic/diamagnetic	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic/parallel	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic/poloidal	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic/r	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic/phi	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_diamagnetic/z	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_diamagnetic/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb	A	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/grid_index	I	0				
+ggd/ion/state/velocity_exb/grid_subset_index	I	0				
+ggd/ion/state/velocity_exb/radial	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb/diamagnetic	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb/parallel	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb/poloidal	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb/r	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb/phi	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/velocity_exb/z	F	1	m.s^-1	1...N		
+ggd/ion/state/velocity_exb/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/ion/state/energy_density_kinetic	A	1	J.m^-3	1...N		
+ggd/ion/state/energy_density_kinetic/grid_index	I	0				
+ggd/ion/state/energy_density_kinetic/grid_subset_index	I	0				
+ggd/ion/state/energy_density_kinetic/values	F	1	J.m^-3	1...N		
+ggd/ion/state/energy_density_kinetic/coefficients	F	2	J.m^-3	ggd(itime)/ion(i1)/state(i2)/energy_density_kinetic(i3)/values|1...N		
+ggd/ion/state/distribution_function	A	1	mixed	1...N		
+ggd/ion/state/distribution_function/grid_index	I	0				
+ggd/ion/state/distribution_function/grid_subset_index	I	0				
+ggd/ion/state/distribution_function/values	F	1	mixed	1...N		
+ggd/ion/state/distribution_function/coefficients	F	2	mixed	ggd(itime)/ion(i1)/state(i2)/distribution_function(i3)/values|1...N		
+ggd/neutral	A	1		1...N		
+ggd/neutral/element	A	1		1...N		
+ggd/neutral/element/a	F	0	u			
+ggd/neutral/element/z_n	I	0	e			
+ggd/neutral/element/atoms_n	I	0				
+ggd/neutral/name	T	0				
+ggd/neutral/ion_index	I	0				
+ggd/neutral/temperature	A	1	eV	1...N		
+ggd/neutral/temperature/grid_index	I	0				
+ggd/neutral/temperature/grid_subset_index	I	0				
+ggd/neutral/temperature/values	F	1	eV	1...N		
+ggd/neutral/temperature/coefficients	F	2	eV	ggd(itime)/neutral(i1)/temperature(i2)/values|1...N		
+ggd/neutral/density	A	1	m^-3	1...N		
+ggd/neutral/density/grid_index	I	0				
+ggd/neutral/density/grid_subset_index	I	0				
+ggd/neutral/density/values	F	1	m^-3	1...N		
+ggd/neutral/density/coefficients	F	2	m^-3	ggd(itime)/neutral(i1)/density(i2)/values|1...N		
+ggd/neutral/density_fast	A	1	m^-3	1...N		
+ggd/neutral/density_fast/grid_index	I	0				
+ggd/neutral/density_fast/grid_subset_index	I	0				
+ggd/neutral/density_fast/values	F	1	m^-3	1...N		
+ggd/neutral/density_fast/coefficients	F	2	m^-3	ggd(itime)/neutral(i1)/density_fast(i2)/values|1...N		
+ggd/neutral/pressure	A	1	Pa	1...N		
+ggd/neutral/pressure/grid_index	I	0				
+ggd/neutral/pressure/grid_subset_index	I	0				
+ggd/neutral/pressure/values	F	1	Pa	1...N		
+ggd/neutral/pressure/coefficients	F	2	Pa	ggd(itime)/neutral(i1)/pressure(i2)/values|1...N		
+ggd/neutral/pressure_fast_perpendicular	A	1	Pa	1...N		
+ggd/neutral/pressure_fast_perpendicular/grid_index	I	0				
+ggd/neutral/pressure_fast_perpendicular/grid_subset_index	I	0				
+ggd/neutral/pressure_fast_perpendicular/values	F	1	Pa	1...N		
+ggd/neutral/pressure_fast_perpendicular/coefficients	F	2	Pa	ggd(itime)/neutral(i1)/pressure_fast_perpendicular(i2)/values|1...N		
+ggd/neutral/pressure_fast_parallel	A	1	Pa	1...N		
+ggd/neutral/pressure_fast_parallel/grid_index	I	0				
+ggd/neutral/pressure_fast_parallel/grid_subset_index	I	0				
+ggd/neutral/pressure_fast_parallel/values	F	1	Pa	1...N		
+ggd/neutral/pressure_fast_parallel/coefficients	F	2	Pa	ggd(itime)/neutral(i1)/pressure_fast_parallel(i2)/values|1...N		
+ggd/neutral/velocity	A	1	m.s^-1	1...N		
+ggd/neutral/velocity/grid_index	I	0				
+ggd/neutral/velocity/grid_subset_index	I	0				
+ggd/neutral/velocity/radial	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/velocity/diamagnetic	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/velocity/parallel	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/velocity/poloidal	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/velocity/r	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/velocity/phi	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/velocity/z	F	1	m.s^-1	1...N		
+ggd/neutral/velocity/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/energy_density_kinetic	A	1	J.m^-3	1...N		
+ggd/neutral/energy_density_kinetic/grid_index	I	0				
+ggd/neutral/energy_density_kinetic/grid_subset_index	I	0				
+ggd/neutral/energy_density_kinetic/values	F	1	J.m^-3	1...N		
+ggd/neutral/energy_density_kinetic/coefficients	F	2	J.m^-3	ggd(itime)/neutral(i1)/energy_density_kinetic(i2)/values|1...N		
+ggd/neutral/multiple_states_flag	I	0				
+ggd/neutral/state	A	1		1...N		
+ggd/neutral/state/name	T	0				
+ggd/neutral/state/electron_configuration	T	0				
+ggd/neutral/state/vibrational_level	F	0	e			
+ggd/neutral/state/vibrational_mode	T	0				
+ggd/neutral/state/neutral_type	S	0				
+ggd/neutral/state/neutral_type/name	T	0				
+ggd/neutral/state/neutral_type/index	I	0				
+ggd/neutral/state/neutral_type/description	T	0				
+ggd/neutral/state/temperature	A	1	eV	1...N		
+ggd/neutral/state/temperature/grid_index	I	0				
+ggd/neutral/state/temperature/grid_subset_index	I	0				
+ggd/neutral/state/temperature/values	F	1	eV	1...N		
+ggd/neutral/state/temperature/coefficients	F	2	eV	ggd(itime)/neutral(i1)/state(i2)/temperature(i3)/values|1...N		
+ggd/neutral/state/density	A	1	m^-3	1...N		
+ggd/neutral/state/density/grid_index	I	0				
+ggd/neutral/state/density/grid_subset_index	I	0				
+ggd/neutral/state/density/values	F	1	m^-3	1...N		
+ggd/neutral/state/density/coefficients	F	2	m^-3	ggd(itime)/neutral(i1)/state(i2)/density(i3)/values|1...N		
+ggd/neutral/state/density_fast	A	1	m^-3	1...N		
+ggd/neutral/state/density_fast/grid_index	I	0				
+ggd/neutral/state/density_fast/grid_subset_index	I	0				
+ggd/neutral/state/density_fast/values	F	1	m^-3	1...N		
+ggd/neutral/state/density_fast/coefficients	F	2	m^-3	ggd(itime)/neutral(i1)/state(i2)/density_fast(i3)/values|1...N		
+ggd/neutral/state/pressure	A	1	Pa	1...N		
+ggd/neutral/state/pressure/grid_index	I	0				
+ggd/neutral/state/pressure/grid_subset_index	I	0				
+ggd/neutral/state/pressure/values	F	1	Pa	1...N		
+ggd/neutral/state/pressure/coefficients	F	2	Pa	ggd(itime)/neutral(i1)/state(i2)/pressure(i3)/values|1...N		
+ggd/neutral/state/pressure_fast_perpendicular	A	1	Pa	1...N		
+ggd/neutral/state/pressure_fast_perpendicular/grid_index	I	0				
+ggd/neutral/state/pressure_fast_perpendicular/grid_subset_index	I	0				
+ggd/neutral/state/pressure_fast_perpendicular/values	F	1	Pa	1...N		
+ggd/neutral/state/pressure_fast_perpendicular/coefficients	F	2	Pa	ggd(itime)/neutral(i1)/state(i2)/pressure_fast_perpendicular(i3)/values|1...N		
+ggd/neutral/state/pressure_fast_parallel	A	1	Pa	1...N		
+ggd/neutral/state/pressure_fast_parallel/grid_index	I	0				
+ggd/neutral/state/pressure_fast_parallel/grid_subset_index	I	0				
+ggd/neutral/state/pressure_fast_parallel/values	F	1	Pa	1...N		
+ggd/neutral/state/pressure_fast_parallel/coefficients	F	2	Pa	ggd(itime)/neutral(i1)/state(i2)/pressure_fast_parallel(i3)/values|1...N		
+ggd/neutral/state/velocity	A	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/grid_index	I	0				
+ggd/neutral/state/velocity/grid_subset_index	I	0				
+ggd/neutral/state/velocity/radial	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity/diamagnetic	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity/parallel	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity/poloidal	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity/r	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity/phi	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity/z	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic	A	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/grid_index	I	0				
+ggd/neutral/state/velocity_diamagnetic/grid_subset_index	I	0				
+ggd/neutral/state/velocity_diamagnetic/radial	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic/diamagnetic	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic/parallel	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic/poloidal	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic/r	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic/phi	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_diamagnetic/z	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_diamagnetic/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb	A	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/grid_index	I	0				
+ggd/neutral/state/velocity_exb/grid_subset_index	I	0				
+ggd/neutral/state/velocity_exb/radial	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb/diamagnetic	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb/parallel	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb/poloidal	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb/r	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb/phi	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/velocity_exb/z	F	1	m.s^-1	1...N		
+ggd/neutral/state/velocity_exb/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/neutral/state/energy_density_kinetic	A	1	J.m^-3	1...N		
+ggd/neutral/state/energy_density_kinetic/grid_index	I	0				
+ggd/neutral/state/energy_density_kinetic/grid_subset_index	I	0				
+ggd/neutral/state/energy_density_kinetic/values	F	1	J.m^-3	1...N		
+ggd/neutral/state/energy_density_kinetic/coefficients	F	2	J.m^-3	ggd(itime)/neutral(i1)/state(i2)/energy_density_kinetic(i3)/values|1...N		
+ggd/neutral/state/distribution_function	A	1	mixed	1...N		
+ggd/neutral/state/distribution_function/grid_index	I	0				
+ggd/neutral/state/distribution_function/grid_subset_index	I	0				
+ggd/neutral/state/distribution_function/values	F	1	mixed	1...N		
+ggd/neutral/state/distribution_function/coefficients	F	2	mixed	ggd(itime)/neutral(i1)/state(i2)/distribution_function(i3)/values|1...N		
+ggd/t_i_average	A	1	eV	1...N		
+ggd/t_i_average/grid_index	I	0				
+ggd/t_i_average/grid_subset_index	I	0				
+ggd/t_i_average/values	F	1	eV	1...N		
+ggd/t_i_average/coefficients	F	2	eV	ggd(itime)/t_i_average(i1)/values|1...N		
+ggd/n_i_total_over_n_e	A	1	1	1...N		
+ggd/n_i_total_over_n_e/grid_index	I	0				
+ggd/n_i_total_over_n_e/grid_subset_index	I	0				
+ggd/n_i_total_over_n_e/values	F	1	1	1...N		
+ggd/n_i_total_over_n_e/coefficients	F	2	1	ggd(itime)/n_i_total_over_n_e(i1)/values|1...N		
+ggd/n_i_total	A	1	m^-3	1...N		
+ggd/n_i_total/grid_index	I	0				
+ggd/n_i_total/grid_subset_index	I	0				
+ggd/n_i_total/values	F	1	m^-3	1...N		
+ggd/n_i_total/coefficients	F	2	m^-3	ggd(itime)/n_i_total(i1)/values|1...N		
+ggd/zeff	A	1	1	1...N		
+ggd/zeff/grid_index	I	0				
+ggd/zeff/grid_subset_index	I	0				
+ggd/zeff/values	F	1	1	1...N		
+ggd/zeff/coefficients	F	2	1	ggd(itime)/zeff(i1)/values|1...N		
+ggd/pressure_thermal	A	1	Pa	1...N		
+ggd/pressure_thermal/grid_index	I	0				
+ggd/pressure_thermal/grid_subset_index	I	0				
+ggd/pressure_thermal/values	F	1	Pa	1...N		
+ggd/pressure_thermal/coefficients	F	2	Pa	ggd(itime)/pressure_thermal(i1)/values|1...N		
+ggd/pressure_perpendicular	A	1	Pa	1...N		
+ggd/pressure_perpendicular/grid_index	I	0				
+ggd/pressure_perpendicular/grid_subset_index	I	0				
+ggd/pressure_perpendicular/values	F	1	Pa	1...N		
+ggd/pressure_perpendicular/coefficients	F	2	Pa	ggd(itime)/pressure_perpendicular(i1)/values|1...N		
+ggd/pressure_parallel	A	1	Pa	1...N		
+ggd/pressure_parallel/grid_index	I	0				
+ggd/pressure_parallel/grid_subset_index	I	0				
+ggd/pressure_parallel/values	F	1	Pa	1...N		
+ggd/pressure_parallel/coefficients	F	2	Pa	ggd(itime)/pressure_parallel(i1)/values|1...N		
+ggd/j_total	A	1	A.m^-2	1...N		
+ggd/j_total/grid_index	I	0				
+ggd/j_total/grid_subset_index	I	0				
+ggd/j_total/radial	F	1	A.m^-2	1...N		
+ggd/j_total/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_total/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_total/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_total/parallel	F	1	A.m^-2	1...N		
+ggd/j_total/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_total/poloidal	F	1	A.m^-2	1...N		
+ggd/j_total/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_total/r	F	1	A.m^-2	1...N		
+ggd/j_total/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_total/phi	F	1	A.m^-2	1...N		
+ggd/j_total/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_total/z	F	1	A.m^-2	1...N		
+ggd/j_total/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/r_j_total_phi	A	1	A.m^-1	1...N		
+ggd/r_j_total_phi/grid_index	I	0				
+ggd/r_j_total_phi/grid_subset_index	I	0				
+ggd/r_j_total_phi/values	F	1	A.m^-1	1...N		
+ggd/r_j_total_phi/coefficients	F	2	A.m^-1	ggd(itime)/r_j_total_phi(i1)/values|1...N		
+ggd/j_parallel	A	1	A.m^-2	1...N		
+ggd/j_parallel/grid_index	I	0				
+ggd/j_parallel/grid_subset_index	I	0				
+ggd/j_parallel/values	F	1	A.m^-2	1...N		
+ggd/j_parallel/coefficients	F	2	A.m^-2	ggd(itime)/j_parallel(i1)/values|1...N		
+ggd/j_anomalous	A	1	A.m^-2	1...N		
+ggd/j_anomalous/grid_index	I	0				
+ggd/j_anomalous/grid_subset_index	I	0				
+ggd/j_anomalous/radial	F	1	A.m^-2	1...N		
+ggd/j_anomalous/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_anomalous/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_anomalous/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_anomalous/parallel	F	1	A.m^-2	1...N		
+ggd/j_anomalous/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_anomalous/poloidal	F	1	A.m^-2	1...N		
+ggd/j_anomalous/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_anomalous/r	F	1	A.m^-2	1...N		
+ggd/j_anomalous/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_anomalous/phi	F	1	A.m^-2	1...N		
+ggd/j_anomalous/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_anomalous/z	F	1	A.m^-2	1...N		
+ggd/j_anomalous/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial	A	1	A.m^-2	1...N		
+ggd/j_inertial/grid_index	I	0				
+ggd/j_inertial/grid_subset_index	I	0				
+ggd/j_inertial/radial	F	1	A.m^-2	1...N		
+ggd/j_inertial/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_inertial/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial/parallel	F	1	A.m^-2	1...N		
+ggd/j_inertial/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial/poloidal	F	1	A.m^-2	1...N		
+ggd/j_inertial/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial/r	F	1	A.m^-2	1...N		
+ggd/j_inertial/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial/phi	F	1	A.m^-2	1...N		
+ggd/j_inertial/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_inertial/z	F	1	A.m^-2	1...N		
+ggd/j_inertial/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction	A	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/grid_index	I	0				
+ggd/j_ion_neutral_friction/grid_subset_index	I	0				
+ggd/j_ion_neutral_friction/radial	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction/parallel	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction/poloidal	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction/r	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction/phi	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_ion_neutral_friction/z	F	1	A.m^-2	1...N		
+ggd/j_ion_neutral_friction/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity	A	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/grid_index	I	0				
+ggd/j_parallel_viscosity/grid_subset_index	I	0				
+ggd/j_parallel_viscosity/radial	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity/parallel	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity/poloidal	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity/r	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity/phi	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_parallel_viscosity/z	F	1	A.m^-2	1...N		
+ggd/j_parallel_viscosity/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity	A	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/grid_index	I	0				
+ggd/j_perpendicular_viscosity/grid_subset_index	I	0				
+ggd/j_perpendicular_viscosity/radial	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity/parallel	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity/poloidal	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity/r	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity/phi	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_perpendicular_viscosity/z	F	1	A.m^-2	1...N		
+ggd/j_perpendicular_viscosity/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity	A	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/grid_index	I	0				
+ggd/j_heat_viscosity/grid_subset_index	I	0				
+ggd/j_heat_viscosity/radial	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity/parallel	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity/poloidal	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity/r	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity/phi	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_heat_viscosity/z	F	1	A.m^-2	1...N		
+ggd/j_heat_viscosity/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter	A	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/grid_index	I	0				
+ggd/j_pfirsch_schlueter/grid_subset_index	I	0				
+ggd/j_pfirsch_schlueter/radial	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter/parallel	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter/poloidal	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter/r	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter/phi	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_pfirsch_schlueter/z	F	1	A.m^-2	1...N		
+ggd/j_pfirsch_schlueter/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic	A	1	A.m^-2	1...N		
+ggd/j_diamagnetic/grid_index	I	0				
+ggd/j_diamagnetic/grid_subset_index	I	0				
+ggd/j_diamagnetic/radial	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/radial_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic/diamagnetic	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/diamagnetic_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic/parallel	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/parallel_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic/poloidal	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/poloidal_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic/r	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/r_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic/phi	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/phi_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/j_diamagnetic/z	F	1	A.m^-2	1...N		
+ggd/j_diamagnetic/z_coefficients	F	2	A.m^-2	1...N|1...N		
+ggd/e_field	A	1	V.m^-1	1...N		
+ggd/e_field/grid_index	I	0				
+ggd/e_field/grid_subset_index	I	0				
+ggd/e_field/radial	F	1	V.m^-1	1...N		
+ggd/e_field/radial_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/e_field/diamagnetic	F	1	V.m^-1	1...N		
+ggd/e_field/diamagnetic_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/e_field/parallel	F	1	V.m^-1	1...N		
+ggd/e_field/parallel_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/e_field/poloidal	F	1	V.m^-1	1...N		
+ggd/e_field/poloidal_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/e_field/r	F	1	V.m^-1	1...N		
+ggd/e_field/r_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/e_field/phi	F	1	V.m^-1	1...N		
+ggd/e_field/phi_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/e_field/z	F	1	V.m^-1	1...N		
+ggd/e_field/z_coefficients	F	2	V.m^-1	1...N|1...N		
+ggd/b_field	A	1	T	1...N		
+ggd/b_field/grid_index	I	0				
+ggd/b_field/grid_subset_index	I	0				
+ggd/b_field/radial	F	1	T	1...N		
+ggd/b_field/radial_coefficients	F	2	T	1...N|1...N		
+ggd/b_field/diamagnetic	F	1	T	1...N		
+ggd/b_field/diamagnetic_coefficients	F	2	T	1...N|1...N		
+ggd/b_field/parallel	F	1	T	1...N		
+ggd/b_field/parallel_coefficients	F	2	T	1...N|1...N		
+ggd/b_field/poloidal	F	1	T	1...N		
+ggd/b_field/poloidal_coefficients	F	2	T	1...N|1...N		
+ggd/b_field/r	F	1	T	1...N		
+ggd/b_field/r_coefficients	F	2	T	1...N|1...N		
+ggd/b_field/phi	F	1	T	1...N		
+ggd/b_field/phi_coefficients	F	2	T	1...N|1...N		
+ggd/b_field/z	F	1	T	1...N		
+ggd/b_field/z_coefficients	F	2	T	1...N|1...N		
+ggd/a_field	A	1	T.m	1...N		
+ggd/a_field/grid_index	I	0				
+ggd/a_field/grid_subset_index	I	0				
+ggd/a_field/radial	F	1	T.m	1...N		
+ggd/a_field/radial_coefficients	F	2	T.m	1...N|1...N		
+ggd/a_field/diamagnetic	F	1	T.m	1...N		
+ggd/a_field/diamagnetic_coefficients	F	2	T.m	1...N|1...N		
+ggd/a_field/parallel	F	1	T.m	1...N		
+ggd/a_field/parallel_coefficients	F	2	T.m	1...N|1...N		
+ggd/a_field/poloidal	F	1	T.m	1...N		
+ggd/a_field/poloidal_coefficients	F	2	T.m	1...N|1...N		
+ggd/a_field/r	F	1	T.m	1...N		
+ggd/a_field/r_coefficients	F	2	T.m	1...N|1...N		
+ggd/a_field/phi	F	1	T.m	1...N		
+ggd/a_field/phi_coefficients	F	2	T.m	1...N|1...N		
+ggd/a_field/z	F	1	T.m	1...N		
+ggd/a_field/z_coefficients	F	2	T.m	1...N|1...N		
+ggd/phi_potential	A	1	V	1...N		
+ggd/phi_potential/grid_index	I	0				
+ggd/phi_potential/grid_subset_index	I	0				
+ggd/phi_potential/values	F	1	V	1...N		
+ggd/phi_potential/coefficients	F	2	V	ggd(itime)/phi_potential(i1)/values|1...N		
+ggd/psi	A	1	Wb	1...N		
+ggd/psi/grid_index	I	0				
+ggd/psi/grid_subset_index	I	0				
+ggd/psi/values	F	1	Wb	1...N		
+ggd/psi/coefficients	F	2	Wb	ggd(itime)/psi(i1)/values|1...N		
+ggd/mass_density	A	1	kg.m^-3	1...N		
+ggd/mass_density/grid_index	I	0				
+ggd/mass_density/grid_subset_index	I	0				
+ggd/mass_density/values	F	1	kg.m^-3	1...N		
+ggd/mass_density/coefficients	F	2	kg.m^-3	ggd(itime)/mass_density(i1)/values|1...N		
+ggd/velocity_mass_centre	A	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/grid_index	I	0				
+ggd/velocity_mass_centre/grid_subset_index	I	0				
+ggd/velocity_mass_centre/radial	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/radial_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_mass_centre/diamagnetic	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/diamagnetic_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_mass_centre/parallel	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/parallel_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_mass_centre/poloidal	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/poloidal_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_mass_centre/r	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/r_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_mass_centre/phi	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/phi_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_mass_centre/z	F	1	m.s^-1	1...N		
+ggd/velocity_mass_centre/z_coefficients	F	2	m.s^-1	1...N|1...N		
+ggd/velocity_parallel_over_b_field	A	1	m.s^-1.T^-1	1...N		
+ggd/velocity_parallel_over_b_field/grid_index	I	0				
+ggd/velocity_parallel_over_b_field/grid_subset_index	I	0				
+ggd/velocity_parallel_over_b_field/values	F	1	m.s^-1.T^-1	1...N		
+ggd/velocity_parallel_over_b_field/coefficients	F	2	m.s^-1.T^-1	ggd(itime)/velocity_parallel_over_b_field(i1)/values|1...N		
+ggd/vorticity	A	1	s^-1	1...N		
+ggd/vorticity/grid_index	I	0				
+ggd/vorticity/grid_subset_index	I	0				
+ggd/vorticity/radial	F	1	s^-1	1...N		
+ggd/vorticity/radial_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity/diamagnetic	F	1	s^-1	1...N		
+ggd/vorticity/diamagnetic_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity/parallel	F	1	s^-1	1...N		
+ggd/vorticity/parallel_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity/poloidal	F	1	s^-1	1...N		
+ggd/vorticity/poloidal_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity/r	F	1	s^-1	1...N		
+ggd/vorticity/r_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity/phi	F	1	s^-1	1...N		
+ggd/vorticity/phi_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity/z	F	1	s^-1	1...N		
+ggd/vorticity/z_coefficients	F	2	s^-1	1...N|1...N		
+ggd/vorticity_over_r	A	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/grid_index	I	0				
+ggd/vorticity_over_r/grid_subset_index	I	0				
+ggd/vorticity_over_r/radial	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/radial_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/vorticity_over_r/diamagnetic	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/diamagnetic_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/vorticity_over_r/parallel	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/parallel_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/vorticity_over_r/poloidal	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/poloidal_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/vorticity_over_r/r	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/r_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/vorticity_over_r/phi	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/phi_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/vorticity_over_r/z	F	1	m^-1.s^-1	1...N		
+ggd/vorticity_over_r/z_coefficients	F	2	m^-1.s^-1	1...N|1...N		
+ggd/time	F	0	s			
+ggd_fast	A	1		ggd_fast(itime)/time		
+ggd_fast/electrons	S	0				
+ggd_fast/electrons/temperature	A	1	eV	1...N		
+ggd_fast/electrons/temperature/grid_index	I	0				
+ggd_fast/electrons/temperature/grid_subset_index	I	0				
+ggd_fast/electrons/temperature/value	F	0	eV			
+ggd_fast/electrons/density	A	1	m^-3	1...N		
+ggd_fast/electrons/density/grid_index	I	0				
+ggd_fast/electrons/density/grid_subset_index	I	0				
+ggd_fast/electrons/density/value	F	0	m^-3			
+ggd_fast/ion	A	1		1...N		
+ggd_fast/ion/element	A	1		1...N		
+ggd_fast/ion/element/a	F	0	u			
+ggd_fast/ion/element/z_n	I	0	e			
+ggd_fast/ion/element/atoms_n	I	0				
+ggd_fast/ion/z_ion	F	0	e			
+ggd_fast/ion/name	T	0				
+ggd_fast/ion/neutral_index	I	0				
+ggd_fast/ion/content	A	1	1	1...N		
+ggd_fast/ion/content/grid_index	I	0				
+ggd_fast/ion/content/grid_subset_index	I	0				
+ggd_fast/ion/content/value	F	0	1			
+ggd_fast/ion/temperature	A	1	eV	1...N		
+ggd_fast/ion/temperature/grid_index	I	0				
+ggd_fast/ion/temperature/grid_subset_index	I	0				
+ggd_fast/ion/temperature/value	F	0	eV			
+ggd_fast/ion/density	A	1	m^-3	1...N		
+ggd_fast/ion/density/grid_index	I	0				
+ggd_fast/ion/density/grid_subset_index	I	0				
+ggd_fast/ion/density/value	F	0	m^-3			
+ggd_fast/energy_thermal	A	1	J	1...N		
+ggd_fast/energy_thermal/grid_index	I	0				
+ggd_fast/energy_thermal/grid_subset_index	I	0				
+ggd_fast/energy_thermal/value	F	0	J			
+ggd_fast/time	F	0	s			
+covariance	S	0				
+covariance/description	T	0				
+covariance/rows_uri	T	1		1...N		
+covariance/data	F	2	mixed	covariance/rows_uri|covariance/rows_uri		
+statistics	A	1		statistics(itime)/time		
+statistics/quantity_2d	A	1		1...N		
+statistics/quantity_2d/path	T	0				
+statistics/quantity_2d/statistics_type	A	1		1...N		
+statistics/quantity_2d/statistics_type/identifier	S	0				
+statistics/quantity_2d/statistics_type/identifier/name	T	0				
+statistics/quantity_2d/statistics_type/identifier/index	I	0				
+statistics/quantity_2d/statistics_type/identifier/description	T	0				
+statistics/quantity_2d/statistics_type/value	F	1	mixed	1...N		
+statistics/quantity_2d/statistics_type/grid_subset_index	I	0				
+statistics/quantity_2d/statistics_type/grid_index	I	0				
+statistics/quantity_2d/statistics_type/uq_input_path	I	0				
+statistics/quantity_2d/distribution	S	0				
+statistics/quantity_2d/distribution/bins	F	2	mixed	1...N|1...N		
+statistics/quantity_2d/distribution/probability	F	2	1	1...N|1...N	statistics(itime)/quantity_2d(i1)/distribution/bins|	
+statistics/uq_input_2d	A	1		1...N		
+statistics/uq_input_2d/path	T	0				
+statistics/uq_input_2d/distribution	S	0				
+statistics/uq_input_2d/distribution/bins	F	2	mixed	1...N|1...N		
+statistics/uq_input_2d/distribution/probability	F	2	1	1...N|1...N	statistics(itime)/uq_input_2d(i1)/distribution/bins|	
+statistics/time_width	F	0	s			
+statistics/time	F	0	s			
+code	S	0				
+code/name	T	0				
+code/description	T	0				
+code/commit	T	0				
+code/version	T	0				
+code/repository	T	0				
+code/parameters	T	0				
+code/output_flag	I	1		time		
+code/library	A	1		1...N		
+code/library/name	T	0				
+code/library/description	T	0				
+code/library/commit	T	0				
+code/library/version	T	0				
+code/library/repository	T	0				
+code/library/parameters	T	0				
+time	F	1	s	1...N		
