@@ -1,130 +1,597 @@
 {
- "@context": {
-  "fylite": "urn:fylite:"
+ "@context": [
+  "context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "cases/evolve-default",
+ "type": "fyo:ScenarioSpecification",
+ "title": {
+  "zh": "缺省（回到出厂设置）",
+  "en": "Defaults (as shipped)"
  },
- "@id": "fylite:app/case/evolve-default",
- "@type": "fylite:AppSession/1",
- "fylite:page": "evolve",
- "fylite:case": {
-  "fylite:name": "缺省（回到出厂设置）",
-  "fylite:name_en": "Defaults (as shipped)",
-  "fylite:note": "★这一档不是一个算例，是**回到页面的出厂设置**：换过几轮控件之后，它是唯一能把这条栏放回已知起点的一步。它不点任何装置，也不需要导入任何文件。",
-  "fylite:note_en": "★Not a worked case but a RESET: after a few rounds of dragging controls this is the one step that puts the bar back on a known starting point. It names no machine and needs no file."
+ "note": {
+  "zh": "★这一档不是一个算例，是**回到页面的出厂设置**：换过几轮控件之后，它是唯一能把这条栏放回已知起点的一步。它不点任何装置，也不需要导入任何文件。",
+  "en": "★Not a worked case but a RESET: after a few rounds of dragging controls this is the one step that puts the bar back on a known starting point. It names no machine and needs no file."
  },
- "fylite:config": {
-  "geometry": "miller",
-  "ch-heat": true,
-  "ch-density": false,
-  "ch-current": false,
-  "dt": 0.002,
-  "nsteps": 60,
-  "dttarget": 0.02,
-  "nlev": 31,
-  "te0": 3,
-  "ti0": 2.5,
-  "peakt": 1.5,
-  "peakn": 0.5,
-  "edgete": 0.3,
-  "edgeti": 0.3,
-  "edgene": 0.5,
-  "vloop": 0,
-  "pe": 4,
-  "pi": 4,
-  "dep": 0,
-  "depw": 0.3,
-  "fuel": 2,
-  "alpha": false,
-  "brem": true,
-  "ohmic": true,
-  "bootstrap": true,
-  "icd": 0,
-  "zeff": 1.5,
-  "species": "",
-  "cimp": 0,
-  "dtfrac": 0.5,
-  "closure": "0",
-  "chiratio": 1,
-  "dchi": 0.3,
-  "pinch": 0,
-  "dpc": 0,
-  "useref": false,
-  "pedestal": false,
-  "sawtooth": false,
-  "sawmix": 1.2,
-  "ip": 400,
-  "couple": 0,
-  "relax": 0.5,
-  "chi0": 0.6,
-  "ne0": 3,
-  "amin": 0.6,
-  "rmaj": 3,
-  "kappa": 1.6,
-  "delta": 0.3,
-  "q95": 3.5,
-  "bunit": 2,
-  "ch-momentum": false,
-  "torque": 1,
-  "prandtl": 1,
-  "edgepsin": 0.95,
-  "freeiter": 600,
-  "wave": false,
-  "waveramp": 0.2,
-  "waveflat": 1.5,
-  "waveend": 2,
-  "wavestart": 0.1,
-  "waveend2": 0.1,
-  "wavepower": true,
-  "wavevloop": false,
-  "wavefuel": false,
-  "resume": false,
-  "beam": false,
-  "beampower": 4,
-  "beamenergy": 60,
-  "beamrtan": 1.26,
-  "beamz": 0,
-  "beamwidth": 0.1,
-  "beamdir": "1",
-  "beamstop": "janev",
-  "beamf1": 1,
-  "beamf2": 0,
-  "beamf3": 0,
-  "beamshells": 24,
-  "beamorbit": true,
-  "lh": false,
-  "lhpower1": 2,
-  "lhnpar1lo": 1.91,
-  "lhnpar1hi": 2.43,
-  "lhpower2": 0,
-  "lhnpar2lo": 1.8,
-  "lhnpar2hi": 2.23,
-  "lhuplo": 1.8,
-  "lhuphi": 2.2,
-  "lhetacd": 1,
-  "lhxi": 3,
-  "lhwidth": 0.05,
-  "lhshells": 24,
-  "quasi": false,
-  "turbevery": 10,
-  "turbnrad": 6,
-  "turbnky": 6,
-  "turbrelax": 0.5,
-  "couplefixed": false,
-  "degp": 3,
-  "degf": 3,
-  "fmrhomin": 0.2,
-  "fmiter": 30,
-  "fmtol": 0.02,
-  "fmdx": 0.05,
-  "fmdxmax": 1,
-  "fmouter": 1,
-  "fmotol": 0.05,
-"fmorlx": 0.5,
-"dchiz": 0.3,
-"pinchz": 0,
-"zfuel": 0,
-  "ipctl": false,
-  "ipkp": 2,
-  "ipki": 3,
-  "waveip": false
- }
+ "prescribed_task_kind": "fyo:PhysicsModelingTask",
+ "prescribes_code": {
+  "id": "code/evolve",
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "capability `evolve` of the fylite tool register (python/fylite/scenario/__init__.py TOOLS['evolve']); the parameter IRIs `code/evolve#<name>` are this capability's control vocabulary"
+ },
+ "parameters": [
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#geometry",
+   "literal_value": "miller"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-heat",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-density",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-current",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dt",
+   "literal_value": 0.002
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#nsteps",
+   "literal_value": 60
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dttarget",
+   "literal_value": 0.02
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#nlev",
+   "literal_value": 31
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#te0",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ti0",
+   "literal_value": 2.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#peakt",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#peakn",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgete",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgeti",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgene",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#vloop",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pe",
+   "literal_value": 4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pi",
+   "literal_value": 4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dep",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#depw",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fuel",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#alpha",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#brem",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ohmic",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#bootstrap",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#icd",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#zeff",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#species",
+   "literal_value": ""
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#cimp",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dtfrac",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#closure",
+   "literal_value": "0"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#chiratio",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dchi",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pinch",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dpc",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#useref",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pedestal",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#sawtooth",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#sawmix",
+   "literal_value": 1.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ip",
+   "literal_value": 400
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#couple",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#relax",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#chi0",
+   "literal_value": 0.6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ne0",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#amin",
+   "literal_value": 0.6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#rmaj",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#kappa",
+   "literal_value": 1.6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#delta",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#q95",
+   "literal_value": 3.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#bunit",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-momentum",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#torque",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#prandtl",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgepsin",
+   "literal_value": 0.95
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#freeiter",
+   "literal_value": 600
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wave",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveramp",
+   "literal_value": 0.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveflat",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveend",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavestart",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveend2",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavepower",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavevloop",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavefuel",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#resume",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beam",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beampower",
+   "literal_value": 4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamenergy",
+   "literal_value": 60
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamrtan",
+   "literal_value": 1.26
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamz",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamwidth",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamdir",
+   "literal_value": "1"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamstop",
+   "literal_value": "janev"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf1",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf2",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf3",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamshells",
+   "literal_value": 24
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamorbit",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lh",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhpower1",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar1lo",
+   "literal_value": 1.91
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar1hi",
+   "literal_value": 2.43
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhpower2",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar2lo",
+   "literal_value": 1.8
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar2hi",
+   "literal_value": 2.23
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhuplo",
+   "literal_value": 1.8
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhuphi",
+   "literal_value": 2.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhetacd",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhxi",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhwidth",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhshells",
+   "literal_value": 24
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#quasi",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbevery",
+   "literal_value": 10
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbnrad",
+   "literal_value": 6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbnky",
+   "literal_value": 6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbrelax",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#couplefixed",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#degp",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#degf",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmrhomin",
+   "literal_value": 0.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmiter",
+   "literal_value": 30
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmtol",
+   "literal_value": 0.02
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmdx",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmdxmax",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmouter",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmotol",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmorlx",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dchiz",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pinchz",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#zfuel",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipctl",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipkp",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipki",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveip",
+   "literal_value": false
+  }
+ ]
 }

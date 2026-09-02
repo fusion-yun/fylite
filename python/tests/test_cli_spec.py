@@ -180,8 +180,13 @@ def test_listing_names_every_catalogue_entry():
     assert rc == 0
     got = _json.loads(out)
     cat = _json.loads((CORPUS_ROOT / "cases/catalogue.jsonld").read_text())
-    assert ({r["case_id"] for r in got["cases"]}
-            == {e["fylite:case_id"] for e in cat["fylite:cases"]})
+    #: the catalogue is an ICE whose ordered `has_part` names the plans by IRI
+    #: (`cases/<case_id>`); the listing is those, in that order
+    assert ([r["case_id"] for r in got["cases"]]
+            == [m["id"].rsplit("/", 1)[-1] for m in cat["has_part"]])
+    #: and every one prescribes a bar the registers know — the listing would
+    #: otherwise print `?`, which is the sign a document lost its code
+    assert all(r["bar"] for r in got["cases"]), got
     #: every case document carries a human-readable name — the corpus is a
     #: menu as well as a debug fixture, and a nameless row is unusable in
     #: one of its two jobs

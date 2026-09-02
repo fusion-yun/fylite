@@ -179,7 +179,7 @@
   },
   {
    "name": "cases",
-   "help": "list / show / check / RUN the scenario corpus (cases/: fyo JSON-LD session documents + catalogue) — the CLI is the primary debugging environment; --run maps a case's page-control config onto the corresponding Python entry (S-2) and records the run",
+   "help": "list / show / check / RUN the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue; vocabulary fyo / spo only) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run",
    "handler": "fylite.engine.cli:_cli_cases",
    "args": [
     {

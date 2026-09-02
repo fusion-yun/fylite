@@ -15,10 +15,10 @@ comparable. That is what this directory holds.
 
 | | 装什么 | 谁读 |
 | :--- | :--- | :--- |
-| [`registry.jsonld`](registry.jsonld) | 机器可读的登记册，一条记录一个 `vv:Record` | 程序 |
+| [`registry.jsonld`](registry.jsonld) | 机器可读的登记册，一条记录一份 `fyo:ComparisonRecord`（fyo / spo 词汇，FYO-ADR-08） | 程序 |
 | [`reports/`](reports/) | 每条记录的散文报告：口径对齐、逐项数、结论 | 人 |
 | [`scenarios/`](scenarios/) | 对拍场景的登记项——指向算例、参考、判据与报告 | 两者 |
-| [`context.jsonld`](context.jsonld) | `vv:` 词汇的 JSON-LD `@context` | 程序 |
+| [`context.jsonld`](context.jsonld) | fyo / spo 词汇的 JSON-LD `@context`（与内核仓登记册同一份） | 程序 |
 
 ## 三类记录，不要混
 

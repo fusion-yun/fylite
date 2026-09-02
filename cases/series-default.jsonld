@@ -1,24 +1,80 @@
 {
- "@context": {
-  "fylite": "urn:fylite:"
+ "@context": [
+  "context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "cases/series-default",
+ "type": "fyo:ScenarioSpecification",
+ "title": {
+  "zh": "时间序列反演（出厂设置）",
+  "en": "Time-series reconstruction (as shipped)"
  },
- "@id": "fylite:app/case/series-default",
- "@type": "fylite:AppSession/1",
- "fylite:page": "series",
- "fylite:case": {
-  "fylite:name": "时间序列反演（出厂设置）",
-  "fylite:name_en": "Time-series reconstruction (as shipped)",
-  "fylite:note": "★S-1 提取档（2026-08-26）：由 analysis.html 的出厂控件值机械提取，不是页面导出的会话文件——接线后应由页面导出替换以完成往返校验。内容：合成序列驱动（5 个时间片，t 1→5 s，Ip 320→460 kA，β 0.35→0.70，线圈源按片）。",
-  "fylite:note_en": "★S-1 extraction (2026-08-26): mechanically lifted from analysis.html factory control values, NOT a page-exported session file — once wired, replace with a page export to close the round trip. Contents: the synthetic series driver (5 time slices, t 1→5 s, Ip 320→460 kA, β 0.35→0.70, per-slice coil source)."
+ "note": {
+  "zh": "★S-1 提取档（2026-08-26）：由 analysis.html 的出厂控件值机械提取，不是页面导出的会话文件——接线后应由页面导出替换以完成往返校验。内容：合成序列驱动（5 个时间片，t 1→5 s，Ip 320→460 kA，β 0.35→0.70，线圈源按片）。",
+  "en": "★S-1 extraction (2026-08-26): mechanically lifted from analysis.html factory control values, NOT a page-exported session file — once wired, replace with a page export to close the round trip. Contents: the synthetic series driver (5 time slices, t 1→5 s, Ip 320→460 kA, β 0.35→0.70, per-slice coil source)."
  },
- "fylite:config": {
-  "coilsrc": "slice",
-  "nslice": 5,
-  "t0": 1,
-  "t1": 5,
-  "ip0": 320,
-  "ip1": 460,
-  "b0": 0.35,
-  "b1": 0.7
- }
+ "prescribed_task_kind": "fyo:ExperimentAnalysisTask",
+ "prescribes_code": {
+  "id": "code/series",
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "browser-only bar `series` of the fylite app (python/fylite/scenario/__init__.py BROWSER_ONLY_BARS): realized by the app worker, no Python entry; the parameter IRIs `code/series#<name>` are its control vocabulary"
+ },
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": {
+    "en": "EAST"
+   },
+   "described_by": {
+    "id": "machine_desc/east",
+    "type": "fyo:MachineDescription"
+   }
+  }
+ },
+ "parameters": [
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#coilsrc",
+   "literal_value": "slice"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#nslice",
+   "literal_value": 5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#t0",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#t1",
+   "literal_value": 5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#ip0",
+   "literal_value": 320
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#ip1",
+   "literal_value": 460
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#b0",
+   "literal_value": 0.35
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/series#b1",
+   "literal_value": 0.7
+  }
+ ]
 }

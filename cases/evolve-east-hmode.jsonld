@@ -1,131 +1,610 @@
 {
- "@context": {
-  "fylite": "urn:fylite:"
+ "@context": [
+  "context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "cases/evolve-east-hmode",
+ "type": "fyo:ScenarioSpecification",
+ "title": {
+  "zh": "EAST 长脉冲（欧姆＋辅助加热，含电流道与锯齿）",
+  "en": "EAST long pulse (ohmic + auxiliary, with the current channel and sawteeth)"
  },
- "@id": "fylite:app/case/evolve-east-hmode",
- "@type": "fylite:AppSession/1",
- "fylite:page": "evolve",
- "fylite:case": {
-  "fylite:name": "EAST 长脉冲（欧姆＋辅助加热，含电流道与锯齿）",
-  "fylite:name_en": "EAST long pulse (ohmic + auxiliary, with the current channel and sawteeth)",
-  "fylite:device": "east",
-  "fylite:note": "★这一档跑在**装置解出的平衡**上：EAST 是本仓唯一自带参考放电的机器，所以几何、q 与逐面度规都来自那次解，电流道才有 ⟨|∇ρ|²/R²⟩ 可用。★成分是自洽的一组：碳 1.65 % 隐含 Z<sub>eff</sub> = 1.50，与控件上的 1.5 对得上——读数里那两个数就是给你核这件事的。★耦合节律留在 0（几何冻结）：打开它每 K 步要重解一次自由边界平衡，约 0.8 s 一次，值不值得由你定。★<strong>V<sub>loop</sub> = 0.15 V 是「大致维持电流」的那个值</strong>，不是测出来的：0 V 时 0.5 s 内 q95 从 2.5 电阻性衰到 3.1，0.5 V 则驱到 1.4——0.15 V 把它按在 2.5 附近。★<strong>χ₀ = 4 m²/s 是读者的旋钮</strong>，取它是因为 4 MW 加热下它给出 T<sub>e</sub>(0) ≈ 3.2 keV、T<sub>i</sub>(0) ≈ 2.2 keV，与 EAST 这一类放电同量级。这一档<strong>不是一次经过验证的 EAST 模拟</strong>：没有台基、没有湍流闭包、杂质浓度是规定的常数——它是一个能跑通电流道、锯齿与杂质辐射的<strong>起点</strong>，用来往下调。",
-  "fylite:note_en": "★This case runs on a SOLVED device equilibrium: EAST is the only machine shipped here that carries a reference discharge, so the geometry, q and the surface metric all come from that solve -- which is what gives the current channel a gm2 to use. ★The composition is self-consistent: carbon at 1.65 % implies Z_eff = 1.50, matching the control at 1.5, and the two numbers in the readings are there for you to check exactly that. ★The coupling cadence is left at 0 (frozen geometry): switching it on re-solves the free-boundary equilibrium every K steps at about 0.8 s each. ★<strong>V_loop = 0.15 V is the value that roughly holds the current</strong>, not a measurement: at 0 V the resistive decay takes q95 from 2.5 to 3.1 over 0.5 s and at 0.5 V it is driven to 1.4, while 0.15 V pins it near 2.5. ★<strong>chi0 = 4 m^2/s is the reader's knob</strong>, chosen because with 4 MW of heating it gives T_e(0) about 3.2 keV and T_i(0) about 2.2 keV, the order of this class of EAST discharge. This case is <strong>not a validated EAST simulation</strong>: no pedestal, no turbulent closure, a prescribed constant impurity concentration. It is a STARTING POINT that exercises the current channel, the sawtooth and impurity radiation, and that you then tune."
+ "note": {
+  "zh": "★这一档跑在**装置解出的平衡**上：EAST 是本仓唯一自带参考放电的机器，所以几何、q 与逐面度规都来自那次解，电流道才有 ⟨|∇ρ|²/R²⟩ 可用。★成分是自洽的一组：碳 1.65 % 隐含 Z<sub>eff</sub> = 1.50，与控件上的 1.5 对得上——读数里那两个数就是给你核这件事的。★耦合节律留在 0（几何冻结）：打开它每 K 步要重解一次自由边界平衡，约 0.8 s 一次，值不值得由你定。★<strong>V<sub>loop</sub> = 0.15 V 是「大致维持电流」的那个值</strong>，不是测出来的：0 V 时 0.5 s 内 q95 从 2.5 电阻性衰到 3.1，0.5 V 则驱到 1.4——0.15 V 把它按在 2.5 附近。★<strong>χ₀ = 4 m²/s 是读者的旋钮</strong>，取它是因为 4 MW 加热下它给出 T<sub>e</sub>(0) ≈ 3.2 keV、T<sub>i</sub>(0) ≈ 2.2 keV，与 EAST 这一类放电同量级。这一档<strong>不是一次经过验证的 EAST 模拟</strong>：没有台基、没有湍流闭包、杂质浓度是规定的常数——它是一个能跑通电流道、锯齿与杂质辐射的<strong>起点</strong>，用来往下调。",
+  "en": "★This case runs on a SOLVED device equilibrium: EAST is the only machine shipped here that carries a reference discharge, so the geometry, q and the surface metric all come from that solve -- which is what gives the current channel a gm2 to use. ★The composition is self-consistent: carbon at 1.65 % implies Z_eff = 1.50, matching the control at 1.5, and the two numbers in the readings are there for you to check exactly that. ★The coupling cadence is left at 0 (frozen geometry): switching it on re-solves the free-boundary equilibrium every K steps at about 0.8 s each. ★<strong>V_loop = 0.15 V is the value that roughly holds the current</strong>, not a measurement: at 0 V the resistive decay takes q95 from 2.5 to 3.1 over 0.5 s and at 0.5 V it is driven to 1.4, while 0.15 V pins it near 2.5. ★<strong>chi0 = 4 m^2/s is the reader's knob</strong>, chosen because with 4 MW of heating it gives T_e(0) about 3.2 keV and T_i(0) about 2.2 keV, the order of this class of EAST discharge. This case is <strong>not a validated EAST simulation</strong>: no pedestal, no turbulent closure, a prescribed constant impurity concentration. It is a STARTING POINT that exercises the current channel, the sawtooth and impurity radiation, and that you then tune."
  },
- "fylite:config": {
-  "geometry": "device",
-  "ch-heat": true,
-  "ch-density": false,
-  "ch-current": true,
-  "dt": 0.005,
-  "nsteps": 100,
-  "dttarget": 0.02,
-  "nlev": 31,
-  "te0": 2.5,
-  "ti0": 2,
-  "peakt": 1.5,
-  "peakn": 0.5,
-  "edgete": 0.3,
-  "edgeti": 0.3,
-  "edgene": 0.5,
-  "vloop": 0.15,
-  "pe": 2.5,
-  "pi": 1.5,
-  "dep": 0,
-  "depw": 0.35,
-  "fuel": 1,
-  "alpha": false,
-  "brem": true,
-  "ohmic": true,
-  "bootstrap": true,
-  "icd": 200,
-  "zeff": 1.5,
-  "species": "C",
-  "cimp": 1.65,
-  "dtfrac": 0.5,
-  "closure": "0",
-  "chiratio": 1,
-  "dchi": 0.3,
-  "pinch": 0,
-  "dpc": 0,
-  "useref": false,
-  "pedestal": false,
-  "sawtooth": true,
-  "sawmix": 1.2,
-  "ip": 400,
-  "couple": 0,
-  "relax": 0.5,
-  "chi0": 4,
-  "ne0": 3,
-  "amin": 0.6,
-  "rmaj": 3,
-  "kappa": 1.6,
-  "delta": 0.3,
-  "q95": 3.5,
-  "bunit": 2,
-  "ch-momentum": false,
-  "torque": 1,
-  "prandtl": 1,
-  "edgepsin": 0.95,
-  "freeiter": 600,
-  "wave": false,
-  "waveramp": 0.2,
-  "waveflat": 1.5,
-  "waveend": 2,
-  "wavestart": 0.1,
-  "waveend2": 0.1,
-  "wavepower": true,
-  "wavevloop": false,
-  "wavefuel": false,
-  "resume": false,
-  "beam": false,
-  "beampower": 4,
-  "beamenergy": 60,
-  "beamrtan": 1.26,
-  "beamz": 0,
-  "beamwidth": 0.1,
-  "beamdir": "1",
-  "beamstop": "janev",
-  "beamf1": 1,
-  "beamf2": 0,
-  "beamf3": 0,
-  "beamshells": 24,
-  "beamorbit": true,
-  "lh": false,
-  "lhpower1": 2,
-  "lhnpar1lo": 1.91,
-  "lhnpar1hi": 2.43,
-  "lhpower2": 0,
-  "lhnpar2lo": 1.8,
-  "lhnpar2hi": 2.23,
-  "lhuplo": 1.8,
-  "lhuphi": 2.2,
-  "lhetacd": 1,
-  "lhxi": 3,
-  "lhwidth": 0.05,
-  "lhshells": 24,
-  "quasi": false,
-  "turbevery": 10,
-  "turbnrad": 6,
-  "turbnky": 6,
-  "turbrelax": 0.5,
-  "couplefixed": false,
-  "degp": 3,
-  "degf": 3,
-  "fmrhomin": 0.2,
-  "fmiter": 30,
-  "fmtol": 0.02,
-  "fmdx": 0.05,
-  "fmdxmax": 1,
-  "fmouter": 1,
-  "fmotol": 0.05,
-"fmorlx": 0.5,
-"dchiz": 0.3,
-"pinchz": 0,
-"zfuel": 0,
-  "ipctl": false,
-  "ipkp": 2,
-  "ipki": 3,
-  "waveip": false
- }
+ "prescribed_task_kind": "fyo:PhysicsModelingTask",
+ "prescribes_code": {
+  "id": "code/evolve",
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "capability `evolve` of the fylite tool register (python/fylite/scenario/__init__.py TOOLS['evolve']); the parameter IRIs `code/evolve#<name>` are this capability's control vocabulary"
+ },
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": {
+    "en": "EAST"
+   },
+   "described_by": {
+    "id": "machine_desc/east",
+    "type": "fyo:MachineDescription"
+   }
+  }
+ },
+ "parameters": [
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#geometry",
+   "literal_value": "device"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-heat",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-density",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-current",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dt",
+   "literal_value": 0.005
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#nsteps",
+   "literal_value": 100
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dttarget",
+   "literal_value": 0.02
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#nlev",
+   "literal_value": 31
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#te0",
+   "literal_value": 2.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ti0",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#peakt",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#peakn",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgete",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgeti",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgene",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#vloop",
+   "literal_value": 0.15
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pe",
+   "literal_value": 2.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pi",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dep",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#depw",
+   "literal_value": 0.35
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fuel",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#alpha",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#brem",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ohmic",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#bootstrap",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#icd",
+   "literal_value": 200
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#zeff",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#species",
+   "literal_value": "C"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#cimp",
+   "literal_value": 1.65
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dtfrac",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#closure",
+   "literal_value": "0"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#chiratio",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dchi",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pinch",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dpc",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#useref",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pedestal",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#sawtooth",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#sawmix",
+   "literal_value": 1.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ip",
+   "literal_value": 400
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#couple",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#relax",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#chi0",
+   "literal_value": 4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ne0",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#amin",
+   "literal_value": 0.6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#rmaj",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#kappa",
+   "literal_value": 1.6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#delta",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#q95",
+   "literal_value": 3.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#bunit",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-momentum",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#torque",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#prandtl",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgepsin",
+   "literal_value": 0.95
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#freeiter",
+   "literal_value": 600
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wave",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveramp",
+   "literal_value": 0.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveflat",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveend",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavestart",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveend2",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavepower",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavevloop",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavefuel",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#resume",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beam",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beampower",
+   "literal_value": 4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamenergy",
+   "literal_value": 60
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamrtan",
+   "literal_value": 1.26
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamz",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamwidth",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamdir",
+   "literal_value": "1"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamstop",
+   "literal_value": "janev"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf1",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf2",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf3",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamshells",
+   "literal_value": 24
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamorbit",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lh",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhpower1",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar1lo",
+   "literal_value": 1.91
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar1hi",
+   "literal_value": 2.43
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhpower2",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar2lo",
+   "literal_value": 1.8
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar2hi",
+   "literal_value": 2.23
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhuplo",
+   "literal_value": 1.8
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhuphi",
+   "literal_value": 2.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhetacd",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhxi",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhwidth",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhshells",
+   "literal_value": 24
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#quasi",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbevery",
+   "literal_value": 10
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbnrad",
+   "literal_value": 6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbnky",
+   "literal_value": 6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbrelax",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#couplefixed",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#degp",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#degf",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmrhomin",
+   "literal_value": 0.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmiter",
+   "literal_value": 30
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmtol",
+   "literal_value": 0.02
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmdx",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmdxmax",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmouter",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmotol",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmorlx",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dchiz",
+   "literal_value": 0.3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pinchz",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#zfuel",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipctl",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipkp",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipki",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveip",
+   "literal_value": false
+  }
+ ]
 }
