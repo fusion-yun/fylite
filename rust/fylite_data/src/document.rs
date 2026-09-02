@@ -29,8 +29,9 @@
 use std::fmt;
 
 /// 一棵文档树的节点。
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum Node {
+    #[default]
     Null,
     Bool(bool),
     Int(i64),
@@ -151,6 +152,7 @@ impl Map {
         self.entries.iter().map(|(k, _)| k.as_str())
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn into_iter(self) -> impl Iterator<Item = (String, Node)> {
         self.entries.into_iter()
     }
@@ -290,12 +292,6 @@ impl Array {
 // --------------------------------------------------------------------------
 // Node
 // --------------------------------------------------------------------------
-
-impl Default for Node {
-    fn default() -> Self {
-        Node::Null
-    }
-}
 
 impl From<f64> for Node {
     fn from(v: f64) -> Self {

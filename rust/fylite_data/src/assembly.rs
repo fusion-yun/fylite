@@ -37,6 +37,9 @@ use crate::mdsbind::{self, BindTable, Params};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+/// 给 MDSplus 源开会话的办法：`(host, port, tree) -> 会话`。
+pub type Connector<'a> = &'a dyn Fn(&str, u16, &str) -> Option<Box<dyn AnySession>>;
+
 /// 一个已登记的源。
 #[derive(Debug, Clone)]
 pub enum SourceSpec {
@@ -133,7 +136,7 @@ pub struct Assembled {
 ///
 /// `connect`：给 MDSplus 源开会话的办法（测试可以递一个照本宣科的传输进来；
 /// `None` = 不开网络，MDSplus 源一律记为失败）。
-pub fn assemble(a: &Assembly, connect: Option<&dyn Fn(&str, u16, &str) -> Option<Box<dyn AnySession>>>) -> Assembled {
+pub fn assemble(a: &Assembly, connect: Option<Connector<'_>>) -> Assembled {
     let mut out = Assembled::default();
     let mut cache: BTreeMap<String, Bundle> = BTreeMap::new();
     let mut load = |alias: &str, out: &mut Assembled| -> Option<Bundle> {
@@ -213,7 +216,7 @@ impl<T: crate::mdsip::Transport> AnySession for mdsbind::Session<T> {
 }
 
 fn resolve_table(table: &BindTable, host: Option<&str>, port: Option<u16>, params: &Params,
-                 connect: Option<&dyn Fn(&str, u16, &str) -> Option<Box<dyn AnySession>>>)
+                 connect: Option<Connector<'_>>)
                  -> Result<(Bundle, Vec<String>), String> {
     let connect = connect.ok_or("no network: MDSplus sources are disabled")?;
     let mut fails = Vec::new();
@@ -265,7 +268,7 @@ fn resolve_table(table: &BindTable, host: Option<&str>, port: Option<u16>, param
 
 fn resolve_links(n: &Node, a: &Assembly, load: &mut dyn FnMut(&str, &mut Assembled) -> Option<Bundle>,
                  live: &mut BTreeMap<String, Box<dyn AnySession>>,
-                 connect: Option<&dyn Fn(&str, u16, &str) -> Option<Box<dyn AnySession>>>, out: &mut Assembled) -> Node {
+                 connect: Option<Connector<'_>>, out: &mut Assembled) -> Node {
     match n {
         Node::Map(m) => {
             if let Some(link) = m.get("$link").and_then(Node::as_str) {
@@ -287,7 +290,7 @@ fn resolve_links(n: &Node, a: &Assembly, load: &mut dyn FnMut(&str, &mut Assembl
 
 fn resolve_one(link: &str, a: &Assembly, load: &mut dyn FnMut(&str, &mut Assembled) -> Option<Bundle>,
                live: &mut BTreeMap<String, Box<dyn AnySession>>,
-               connect: Option<&dyn Fn(&str, u16, &str) -> Option<Box<dyn AnySession>>>, out: &mut Assembled) -> Option<Node> {
+               connect: Option<Connector<'_>>, out: &mut Assembled) -> Option<Node> {
     let (alias, rest) = match link.split_once(':') {
         Some(x) => x,
         None => { out.failures.push(format!("$link {link:?} has no source alias")); return None; }
@@ -321,7 +324,7 @@ fn resolve_one(link: &str, a: &Assembly, load: &mut dyn FnMut(&str, &mut Assembl
 }
 
 /// 读装配文档并执行（源相对文档所在目录）。
-pub fn assemble_file(path: &Path, connect: Option<&dyn Fn(&str, u16, &str) -> Option<Box<dyn AnySession>>>,
+pub fn assemble_file(path: &Path, connect: Option<Connector<'_>>,
                      shot: Option<i64>, slots: &[(String, i64)]) -> Result<Assembled, IoError> {
     let text = std::fs::read_to_string(path)?;
     let doc = crate::json::parse(&text)?;
