@@ -2,7 +2,7 @@
 document_id: FYL-SDD-01
 title: FyLite 软件设计描述 (FyLite Software Design Description)
 shortname: fylite-sdd
-version: "0.12"
+version: "0.13"
 date: 2026-08-18
 language: bilingual
 contributors:
@@ -12,9 +12,18 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-01T00:00:00Z
+  date: 2026-09-02T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.12：`docs/` 定型为**书集**。放弃 `docs/index.md`（站点封面），`docs/myst.yml` 改为 `site.projects` 挂四本书、自己不再持有任何 toc——先前那份 toc 是四本书目录的**抄本**，只为让根上能有封面而存在，封面一撤它就没有理由了。同批裁定 `note/`（含原 `benchmark/`）**不入册**：参考书的「实测笔记」一章与报告书的「V&V 登记册」一章从各自 toc 撤出，文件原地不动、每一条 `docs/note/…` 路径引用照旧成立。理由是那条 `../`——一本书的 toc 伸到自己目录之外，是在替不属于它的文件安排 URL；而这些文件在仓里是**按路径被引用的记录**（测试、`TODO.md`、`FEATURE.md`、语料的 `account`/`report` 字段），要的是稳定路径不是章节号。★守「一份对拍报告不会被遗忘」的从 toc 换成登记册本身（`test_every_benchmark_report_is_named_by_the_registry`）：toc 只能保证可达，登记册保证**有主**。实测：书集构建 29 页（6/13/4/6），`--strict` 通过。
+  change: 'v0.13：**三种发布形态与统一命令行入册**（`FYL-DESIGN-15` 的规范条款上提）。
+    ①布局表：`rust/fylite/` 注明在私有内核仓、制品装进本仓且不入库，新增
+    `rust/fylite_data/`（DE-COMP-09 数据层，兼 Rust 宿主的命令行）与三条发布路径的脚本；
+    ②新增组件 **DE-COMP-09 数据层**（取数与格式 + Rust 命令行；一份源三个制品）；
+    ③DE-COMP-06 声明面：`_cli.json` 自 2026-09-02 起是**三个宿主共同的**命令行定义，
+    新增不变式「命令行只有一份声明式定义」；④DE-COMP-03 机械核：`app` / `data` / `case`
+    三条命令逐字委托 Rust 可执行文件；⑤DE-COMP-05：制品不入库、页面清单按实（四个场景页
+    + 算例报告页），启动参数由共享规格声明；⑥接口视图增「三宿主 ↔ 命令行规格」一行；
+    ⑦追溯矩阵补 DE-COMP-09 与 FR-TOOL-004。
+    v0.12：`docs/` 定型为**书集**。放弃 `docs/index.md`（站点封面），`docs/myst.yml` 改为 `site.projects` 挂四本书、自己不再持有任何 toc——先前那份 toc 是四本书目录的**抄本**，只为让根上能有封面而存在，封面一撤它就没有理由了。同批裁定 `note/`（含原 `benchmark/`）**不入册**：参考书的「实测笔记」一章与报告书的「V&V 登记册」一章从各自 toc 撤出，文件原地不动、每一条 `docs/note/…` 路径引用照旧成立。理由是那条 `../`——一本书的 toc 伸到自己目录之外，是在替不属于它的文件安排 URL；而这些文件在仓里是**按路径被引用的记录**（测试、`TODO.md`、`FEATURE.md`、语料的 `account`/`report` 字段），要的是稳定路径不是章节号。★守「一份对拍报告不会被遗忘」的从 toc 换成登记册本身（`test_every_benchmark_report_is_named_by_the_registry`）：toc 只能保证可达，登记册保证**有主**。实测：书集构建 29 页（6/13/4/6），`--strict` 通过。
     v0.11：场景语料与 V&V 登记册合并为一处 `docs/cases/`（顶层 `cases/` 与顶层 `benchmark/` 同时消失），布局表相应改写。★同批**页面不再取算例**：`S.cases` 与六个算例选择器撤除，`app/cases` 符号链接删除，`validate-cases.mjs` / `validate-initial-case.mjs` 撤销，发布流水线不再带语料（连带撤掉「剔九份 `evolve-fuse-*` 再改写 `catalogue.jsonld`」那套子集规则与三条自检），桌面版内嵌表 123 → 97 个文件。理由：语料是文档数据，一份真源一组读者；先前是三份副本（仓、站点、二进制）各自可漂。★读者失去的是菜单与「首访施用初始算例」，会话文件的导入导出不变——一份算例仍然就是一份会话文档。
     v0.10：①装置牌一份真源——`app/devices/<dev>.jsonld` 改为指向 `machine_desc/<dev>/` 的符号链接（页面树只留形状），发布工作流据此从源树 `cp -L` 落实体（`cp -r` 不解引用，实测；这些链接指向 `app/` 之外，否则站点上是断链）。②布局表增顶层 `mapping/`（采集绑定，数据非代码）——MDSplus 读入的节点／标度／时间基／目标语义位置外置为逐机器一份 JSON，两宿主读同一份；机器事实仍在装置牌，映射只按 `device:` 引用指向它，不复制（这条边界由`test_mds_map.py` 的引用闸守卫）。本批**不切换消费者**，等价性由两道闸子断言：Python 侧把标度用合成输入**跑出来**再与声明比，浏览器侧比对两宿主拼出的 `\EFIT_EAST::TOP…` 节点全集。
     v0.9：DE-COMP-03 增报告面——`fylite report` 把一次已记录运行渲染为统一
@@ -51,8 +60,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-SDD-01` |
 | 文档名称 (Title) | FyLite 软件设计描述 (FyLite Software Design Description) |
 | 短名 / Slug | `fylite-sdd` |
-| 版本 (Version) | v0.12 |
-| 发布日期 (Date of Issue) | 2026-08-20 |
+| 版本 (Version) | v0.13 |
+| 发布日期 (Date of Issue) | 2026-09-02 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 1016-2009 |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -114,7 +123,8 @@ FyLite 是单仓交付的独立软件包，对外呈现两个宿主与七个接�
 
 | 目录 | 组件 | 说明 |
 | :--- | :--- | :--- |
-| `rust/fylite/` | DE-COMP-01 Rust 计算核 | 单 crate；本机 cdylib 与 wasm 模块同源构建（`rust/build.sh`，wasm 产物出 `rust/wasm/dist/`） |
+| `rust/fylite/` | DE-COMP-01 Rust 计算核 | 单 crate；本机 cdylib 与 wasm 模块同源构建（`rust/build.sh`，wasm 产物出 `rust/wasm/dist/`）。★★**2026-09-01 仓一分为二后这棵 crate 在私有仓 `fylite_kernel`**：那边的 `rust/build.sh` 把制品与生成物（`libfylite_kernel.so`、三个 `.wasm`、`_abi.py` / `version.js` / `fyo-interface.*`）**装进本仓**。本行留在布局表里，因为它指派的是那些制品的落点与本仓对它的依赖方向，不是本仓的源码目录。★制品**不入库**（`.gitignore` 抬头）：打包发布时装入 |
+| `rust/fylite_data/` | DE-COMP-09 数据层 | 本仓**唯一的 Rust 源码树**，源码公开（协议编解码与文件格式，不是物理 IP）：mdsip 只读客户端、g/a-file、HDF5 / netCDF、YAML 子集、多源装配，外加 **Rust 宿主的命令行**（`src/cli/`，由共享规格 `python/fylite/_cli.json` 编译期建出）。一份源三个制品：`libfylite_data.so`（Python 经 ctypes 取）、`fylite-app`（单一可执行文件，内嵌整个 `app/`）、`fylite-data` / `fylite-case`（同一份代码的薄壳别名）。构建 `rust/build.sh`（本仓的那一份）|
 | `python/fylite/*.py` | DE-COMP-02 Python 装配层 | 平铺物理 / 装配模块；`python/` 内含 `pyproject.toml` / `pytest.ini` / `tests/` |
 | `python/fylite/engine/` | DE-COMP-03 机械核 | 子包（CLI / 服务 / 清单 / 溯源 / 注册 / 版本 / 原生库装载） |
 | `python/fylite/scenario/` | DE-COMP-04 场景层 | 四条场景线各一模块 |
@@ -124,7 +134,7 @@ FyLite 是单仓交付的独立软件包，对外呈现两个宿主与七个接�
 | `docs/` | 文档**书集** | 四本各自独立的 MyST 书——`design/` `guide/` `reference/` `report/`，每本自带 `myst.yml`、可单独构建；`docs/myst.yml` 只用 `site.projects` 把四本挂成一个站点，**自己没有 toc、根上没有页面**（2026-09-01 放弃 `index.md`；MyST 1.10.1 在多 project 下不构建根 project，封面既然不要，这条限制就不再拦路）。★**不入册**三处：`note/`（实测笔记 + V&V 对拍报告，按路径被引用的记录）、`cases/`（语料 + 登记册机器可读的一半）、`archive/`（冻结的历史）|
 | `docs/cases/` | 场景语料 + V&V 登记册（数据） | fyo/JSON-LD 会话文档 + `catalogue.jsonld`，与 V&V 登记册 `registry.jsonld` / `context.jsonld` / `scenarios/` 同处（2026-09-01：顶层 `cases/` 与顶层 `benchmark/` 一并折进来；先前 `cases/` 由 `app/cases/` 提升）。★★**单宿主**：读者是 `fylite cases`、`fylite.scenario.cases` 与书，**浏览器不读**——同批撤掉页面的算例菜单，于是 `app/cases` 符号链接、发布流水线的子集规则（剔九份 `evolve-fuse-*` 并改写目录）与桌面版内嵌的那第三份副本一并消失。语料不随 wheel 分发，与装置牌同一姿态。闸子：`fylite cases --check`（`test_cli_spec` 语料段）与 `test_benchmark_registry.py` |
 | `mapping/` | 采集绑定（数据） | 逐机器一份 MDSplus → fyo 采集映射（`<machine>-mds.json`）+ 其格式 `mds-map.schema.json`。★它只载**绑定**：哪个节点喂哪个语义位置、过哪个标度、按哪条时间基取片；机器自己的事实（逐通道节点名、匝数、门限、窗口）留在装置牌里，由 `device:` 引用指着，不抄。两宿主消费同一份文件，闸子 `test_mds_map.py` （含把标度**跑出来**再比的等价判据）与 `validate-mds-map.mjs`（两宿主节点全集比对）|
-| `tools/` `examples/` | 辅助 | 合成算例生成器与示例 |
+| `tools/` `examples/` | 辅助 + **发布路径** | 合成算例生成器与示例；三种发布形态各一条构建路径（`build-app-exe.sh` 单一可执行文件 · `build-site.sh` 静态站点 · `build-wheel.sh` Python 轮），外加内嵌资源表生成器 `make-app-embed.mjs`（产物入库、门 `app/tests/validate-embed.mjs` 校验同步）。形态之间的边界与裁定见 `FYL-DESIGN-15` |
 :::
 
 :::{figure}
@@ -206,7 +216,7 @@ graph TD
 | Traces to | FR-TOOL-001..003, FR-DATA-003, NR-DEP-001 |
 | Invariant | `fylite.engine` 顶层导入仅标准库；numpy 与重型依赖一律函数内惰性导入。 |
 | Note | 后端注册（原 DE-LOG-03）**已退出本组件**，`engine/registry.py` 删除——退役理由见 DE-LOG-03 条目。★★本不变式此前**并不成立**且无门禁，2026-08-21 已修并立闸（`python/tests/test_engine_imports_only_stdlib.py`）。两处破口性质不同：一是 `engine/provenance.py` 顶层裸 `import numpy`（字面文本，四个用处改为函数内导入）；二是这条不变式**根本无从观测**——导入任何子模块都会先跑包的 `__init__`，而 `fylite/__init__.py` 当时顶层就 `from . import device, engine, io, kernel` / `.run` / `.scenario`，实测 `import fylite.engine` 拉进 numpy 与九个 `fylite.scenario.*`、耗时 ~155 ms，engine 自己再克制也没用。现 `fylite/__init__.py` 改为惰性（PEP 562 `__getattr__`），名字照旧、按需构建：`import fylite` 2.7 ms 且不加载 numpy，`import fylite.engine` 91 ms 且不加载 numpy。★顺带去掉了本包唯一的**导入环**：`run` 曾把 `scenario.analysis.recon_rs` 的两个私有辅助函数再导出（包内无调用者），而 `recon_rs` 反向导入 `KefitRunError`——于是 `__init__` 必须强制 `run` 先于 `scenario`，而那条顺序只是一行注释、无人校验。剪掉那次再导出后只剩单向，`__init__` 不再需要任何顺序。 |
-| Interface | `fylite.engine` 入口（CLI main / serve / mcp）。 |
+| Interface | `fylite.engine` 入口（CLI main / serve / mcp）。★命令行由 **DE-COMP-06 的 `_cli.json`** 机械建出；其中 `app` / `data` / `case` 三条由 Rust 可执行文件承载，本层**逐字委托**（`--bin-dir` → 包内 `_bin/` → `$PATH`，找不到时按名说明要构建什么并退出 2；`FYL-DESIGN-15` R-4），不另写第二份实现。 |
 
 (de-comp-04)=
 **DE-COMP-04: 场景层**（scenario layer）
@@ -223,20 +233,20 @@ graph TD
 
 | Field | Value |
 |:---|:---|
-| Description | 静态场景页面与随仓提交的 wasm 制品；页面控件驱动单步求解并即时回显。 |
+| Description | 静态场景页面与 wasm 制品（**制品不入库**，构建时装入）；页面控件驱动单步求解并即时回显。同一份页面字节有两种交付：静态站点（`tools/build-site.sh`）与单一可执行文件内嵌（`fylite-app`，另答一组只读 `/api/*`）——差别由页面在运行时判别（`assets/host.js` 探 `/api/health`），**禁止 (MUST NOT)** 构建时分叉出两份页面（`FYL-DESIGN-15` R-1 / R-3）。 |
 | Traces to | FR-HOST-001, FR-HOST-002, NR-ENV-001, NR-ENV-002 |
 | Invariant | 页面仅消费 wasm 模块与静态资产；加载后离线可用（零远程请求依赖）。 |
-| Interface | `app/` 九个页面：三个散文页各中英两份（`tools/make-app-pages.mjs` 由词条生成，无 i18n 运行时）与三个场景页（运行时切换语言）；`app/tests/` 门禁按台账校验页面。 |
+| Interface | `app/` 的页面：三个散文页各中英两份（`tools/make-app-pages.mjs` 由词条生成，无 i18n 运行时）、四个场景页与一个算例报告页（`pages/{pulse_design,model,analysis,data,report}.html`，运行时切换语言）；`app/tests/` 门禁按台账校验页面。**启动参数**（`device` / `lang` / `theme` / `page`）在共享规格的 `hosts.app.params` 里声明一次，页面按名读取、门禁核对（`FYL-DESIGN-15` C-6）。 |
 
 (de-comp-06)=
 **DE-COMP-06: 声明面**（declaration plane）
 
 | Field | Value |
 |:---|:---|
-| Description | 能力清单（撰写源）、vendored 交换 schema 与 CLI 规格——数据而非代码，随 wheel 分发；能力条目携预期响应时间预算声明。 |
+| Description | 能力清单（撰写源）、vendored 交换 schema 与 CLI 规格——数据而非代码，随 wheel 分发；能力条目携预期响应时间预算声明。★★**2026-09-02 起 `_cli.json` 是三个宿主共同的命令行定义**（`spec_version: 2`）：Python 由它建 argparse、Rust 单一可执行文件在**编译期** `include_str!` 纳入并建自己的解析器与用法、浏览器把它的 `hosts.app.params` 当启动参数；只属一个宿主的命令或参数在文件里以 `hosts` 标出（`FYL-DESIGN-15` C-1 / C-2）。 |
 | Note | **后端族表已退出本组件并已不存在**。它原是 `_backends.json`：十个 `"module:Class"` 字符串，包内无第二读者（无 JS / Rust / 工具 / 文档生成器读它），且 `register_backend` 原地改写解析后的全局 dict——不是稳定声明，而是一个可变全局的初值。代价是实打实的：那十个类在 Python 里没有任何调用点，对全树静态检查不可见，拼错要等到用户**选中**该后端才炸（实测默认档只抓到四族中的两族）。先改为 `_backends.py`（持有类本身），随后随注册表一并退役——见 DE-LOG-03。 |
-| Traces to | FR-TOOL-002, FR-MODEL-005, NR-ENV-005 |
-| Invariant | 能力目录**必须 (MUST)** 自清单文件派生；派生目录**禁止 (MUST NOT)** 落盘提交；vendored schema **禁止 (MUST NOT)** 本地改写。 |
+| Traces to | FR-TOOL-001, FR-TOOL-002, FR-TOOL-004, FR-MODEL-005, NR-ENV-005 |
+| Invariant | 能力目录**必须 (MUST)** 自清单文件派生；派生目录**禁止 (MUST NOT)** 落盘提交；vendored schema **禁止 (MUST NOT)** 本地改写。★命令行**必须 (MUST)** 只有这一份声明式定义：任一宿主**禁止 (MUST NOT)** 另持一张命令表或选项名单，不承载某命令的宿主**必须 (MUST)** 按名委托或按名拒绝（`FYL-DESIGN-15` C-1 / C-3）。 |
 | Interface | 清单文件集（JSON 系）+ 机械核的目录派生函数。 |
 
 (de-comp-07)=
@@ -248,6 +258,17 @@ graph TD
 | Traces to | FR-DATA-001 |
 | Invariant | 仓与分发件不含装置 / 实验数据；测试基准仅用内核自产合成算例。 |
 | Interface | 环境变量 / 显式路径 → 装置对象。 |
+
+(de-comp-09)=
+**DE-COMP-09: 数据层**（data plane）
+
+| Field | Value |
+|:---|:---|
+| Description | 取数与格式，**不做物理**：不同数据源 ↔ fyo 文档的读写转换（MDSplus 只读、a-file、g-file、JSON(-LD)、HDF5、netCDF、YAML 子集，各带 fyo 与 IMAS DD 两种布局）、多源合并、按 JSON-LD / YAML 装配、按炮号与时间的服务端切片；外加 **Rust 宿主的命令行**与算例的输入 / 输出半边（一份 fyo 计划进、一份 spo 记录出，经运行期 dlopen 的内核）。源码公开——这里是协议与格式，不是物理 IP。 |
+| Traces to | FR-DATA-002, FR-TOOL-001, FR-TOOL-004 |
+| Invariant | 本层**禁止 (MUST NOT)** 实现任何物理或数值（判据同 DE-COMP-02：同一物理量的第二份实现即缺陷）；对 MDSplus **必须 (MUST)** 只读，且**禁止 (MUST NOT)** 暴露取表达式的入口（每个 TDI 串由校验过的节点路径与整数拼出）；浏览器制品**禁止 (MUST NOT)** 含 mdsip（浏览器打不开裸 TCP）。 |
+| Interface | `libfylite_data.so` 的 C ABI（`fylite_data_*`，Python 侧 `fylite.io.fydoc`）；三个可执行文件 `fylite-app` / `fylite-data` / `fylite-case`，其命令行由 DE-COMP-06 的规格建出。 |
+| Note | 2026-09-02 从内核仓搬来：内核那本自己写着 *the kernel computes numbers; the hosts put them into documents*，而网络协议与文件格式按同一条判据是宿主的活（DE-COMP-02 的分层理由）。搬动同时收掉了两份重复实现——两个 g-file 读入（Python 与 JS 各一）与两份 mdsip 客户端。设计正本 `FYL-DESIGN-14`，命令行部分 `FYL-DESIGN-15`。 |
 
 (fylite-sdd-composition-invariants)=
 ## 分层不变式 (Layering Invariants)
@@ -393,6 +414,7 @@ g-file / 运行清单）。内部接口两条为设计承诺：
 | 浏览器 ↔ 计算核 | wasm 导出面：与 C ABI 同源生成，按功能拆分模块（核心 / 湍流 / 动理学） | 与页面资产同批提交 |
 | 浏览器 ↔ LLM 服务（可选） | 读者自带端点与密钥；请求由页面发起，**不经本仓任何服务端**（本仓不运营服务端） | 随服务方演进；本仓不承诺 |
 | 能力目录 ↔ 双宿主 | **目标口径**（`FYL-REPORT-03` A-2，已确认）：声明面按 `kernel_id` 覆盖两宿主，`fylite:entry` 由单列变为按宿主的多列；届时「换 runner 不换协议」在 wasm 侧由巧合变为承诺。★现状如实：native 17 件已入目录，wasm 15 条 worker 命令**未入**——MUST 自 A-2 落地起生效，本行在此之前是排期不是规矩 | 随 A-2 |
+| 三宿主 ↔ 命令行规格 | 一份 `python/fylite/_cli.json`：Python 建 argparse、Rust 可执行文件编译期 `include_str!` 建自己的解析器与用法、浏览器读 `hosts.app.params` 作启动参数；宿主特有项以 `hosts` 标出，不承载者按名委托或按名拒绝 | 命令与选项随规格演进；闸子 `python/tests/test_cli_spec.py`（含「三宿主同一份文件」四条）与 `cargo test cli::` |
 
 跨接口数据**必须 (MUST)** 为平面显式形（数组 + 长度、扁平结构、序列化消息）；
 panic / 异常**禁止 (MUST NOT)** 穿越宿主边界（在边界处映射为错误码或宿主异常）。
@@ -421,12 +443,13 @@ panic / 异常**禁止 (MUST NOT)** 穿越宿主边界（在边界处映射为�
 |:---|:---|
 | DE-COMP-01 | FR-MODEL-001, FR-MODEL-002, FR-MODEL-003, FR-MODEL-005, NR-ENV-003, NR-ENV-004 |
 | DE-COMP-02 | FR-ANALYSIS-001..004, FR-PULSE-001..002, FR-OPTIM-001..002, FR-CONTROL-001..002, FR-DATA-002, NR-DEP-001..002 |
-| DE-COMP-03 | FR-TOOL-001..003, FR-DATA-003, NR-DEP-001 |
+| DE-COMP-03 | FR-TOOL-001..004, FR-DATA-003, NR-DEP-001 |
 | DE-COMP-04 | FR-HOST-001, FR-MODEL-004, FR-ANALYSIS-001, FR-PULSE-001, FR-OPTIM-002, FR-CONTROL-001 |
 | DE-COMP-05 | FR-HOST-001..002, NR-ENV-001..002 |
 | DE-COMP-06 | FR-TOOL-002, FR-MODEL-005, NR-ENV-005 |
 | DE-COMP-07 | FR-DATA-001 |
 | DE-COMP-08 | FR-HOST-003, FR-DATA-002 |
+| DE-COMP-09 | FR-DATA-002, FR-TOOL-001, FR-TOOL-004 |
 | DE-LOG-01 | NR-ENV-004, FR-HOST-001 |
 | DE-LOG-02 | NR-ENV-004, NR-QUAL-002 |
 | DE-LOG-03（已退役） | FR-MODEL-005（由 DE-COMP-01 的 `TRANSPORT_MODELS` 按名选取满足） |

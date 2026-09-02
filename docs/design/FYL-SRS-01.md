@@ -2,7 +2,7 @@
 document_id: FYL-SRS-01
 title: FyLite 软件需求规格 (FyLite Software Requirements Specification)
 shortname: fylite-srs
-version: "0.4"
+version: "0.5"
 date: 2026-08-23
 language: bilingual
 contributors:
@@ -12,9 +12,15 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-08-23T00:00:00Z
+  date: 2026-09-02T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.4 放电运行设计域补全（WD 期内 MINOR）：新增 FR-PULSE-003 运行域判据
+  change: 'v0.5 工具面与交付形态（WD 期内 MINOR）：FR-TOOL-001 改写——命令行覆盖面按实
+    （求解 / 绘图 / 能力描述 / 清单 / 算例 / 记录溯源 / 数据层 / 本机应用），并声明它由
+    **一份声明式规格**定义；新增 **FR-TOOL-004**（一份规格、三个宿主：Python 控制台脚本、
+    Rust 单一可执行文件、浏览器启动参数，禁第二份选项清单，宿主特有项须在规格内标出）；
+    外部接口表补**单一可执行文件**与**静态站点**两行，命令行一行按三宿主重写。
+    依据 `FYL-DESIGN-15`（裁定 R-1..R-6 / C-1..C-8）。
+    v0.4 放电运行设计域补全（WD 期内 MINOR）：新增 FR-PULSE-003 运行域判据
     （须标明所对照公开量的性质）、FR-PULSE-004 磁通预算（未声明摆幅须报未知）、
     FR-PULSE-005 前馈逐通道电流与电压（限值只报告不裁剪，校验与设计分列）；
     FR-OPTIM-001 补起始状态与失败态措辞的约束（容差按量纲分别定义）；新增
@@ -30,8 +36,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-SRS-01` |
 | 文档名称 (Title) | FyLite 软件需求规格 (FyLite Software Requirements Specification) |
 | 短名 / Slug | `fylite-srs` |
-| 版本 (Version) | v0.4 |
-| 发布日期 (Date of Issue) | 2026-08-23 |
+| 版本 (Version) | v0.5 |
+| 发布日期 (Date of Issue) | 2026-09-02 |
 | 信息分类 (Information Class) | Specification (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 29148 |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -160,12 +166,19 @@ modified:
 (fylite-srs-fr-tool)=
 ## 工具面域 TOOL（横切）
 
-- **FR-TOOL-001** 系统**必须 (MUST)** 提供命令行入口，覆盖求解、绘图、能力描述与
-  清单操作。
+- **FR-TOOL-001** 系统**必须 (MUST)** 提供命令行入口，覆盖求解、绘图、能力描述、清单
+  操作、算例语料与 V&V 登记册、运行记录的重放 / 报告 / 溯源、数据层的识别与格式转换，
+  以及本机应用的启动。命令行的**命令与参数必须 (MUST) 由一份声明式规格定义**（见
+  FR-TOOL-004），不得逐宿主手写。
 - **FR-TOOL-002** 系统**必须 (MUST)** 提供机器可读的能力目录，且目录**必须 (MUST)**
   自声明清单派生（禁手抄）。
 - **FR-TOOL-003** LLM 工具面（MCP 与 JSON-RPC over stdio）**必须 (MUST)** 反射同一
   能力目录；工具面**禁止 (MUST NOT)** 引入第二条执行路径。
+- **FR-TOOL-004** 提供命令行的**每个宿主**（Python 控制台脚本、Rust 单一可执行文件、
+  浏览器页面的启动参数）**必须 (MUST)** 由同一份声明式规格建出其解析面与用法；任一宿主
+  **禁止 (MUST NOT)** 另持一份命令表或选项名单。只属某一宿主的命令或参数**必须 (MUST)**
+  在规格内标出其宿主；不承载某命令的宿主**必须 (MUST)** 按名委托或按名拒绝，**禁止
+  (MUST NOT)** 静默接受，也**禁止 (MUST NOT)** 以能力更少的第二份实现回答。
 
 (fylite-srs-nr)=
 # 非功能需求 (Non-functional Requirements)
@@ -206,10 +219,12 @@ modified:
 
 | 接口 | 形态 | 方向 |
 | :--- | :--- | :--- |
-| 命令行 | `fylite` 单命令多子命令 | 用户 → 系统 |
+| 命令行 | `fylite` 单命令多子命令（Python 宿主）与 `fylite-app` / `fylite-data` / `fylite-case`（Rust 宿主）；两者由同一份规格建出（FR-TOOL-004） | 用户 → 系统 |
 | JSON-RPC | JSON-RPC 2.0 over stdio | 集成方 ↔ 系统 |
 | MCP | MCP server over stdio | LLM 宿主 ↔ 系统 |
-| 浏览器页面 | 静态页面 + WebAssembly 模块 | 用户 ↔ 系统 |
+| 浏览器页面 | 静态页面 + WebAssembly 模块；启动参数由命令行规格声明 | 用户 ↔ 系统 |
+| 单一可执行文件 | 内嵌浏览器前端的本机程序：回环地址伺服 + 拉起系统浏览器，另答一组只读 `/api/*` | 用户 ↔ 系统 |
+| 静态站点 | 浏览器前端的发布子集（页面 + wasm 制品），任意静态主机，加载后离线可用 | 用户 ↔ 系统 |
 | 装置牌 | 外部数据目录（环境变量 / 显式路径） | 数据 → 系统 |
 | g-file | 平衡交换文件 | 系统 ↔ 外部工具 |
 | 运行清单 | 机器可读运行记录（JSON 系） | 系统 → 集成方 |

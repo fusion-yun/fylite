@@ -57,6 +57,7 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `io.est2` | est2 基底约化（窗口均值、漂移、POINT），在线 MDSplus 与离线 HDF5 转储共用的**唯一**一条约化 |
 | `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁） |
 | `io.kfile` | EFIT k-file 组装与 namelist 解析（`&IN1`/`&INWANT`/`&INS` 分组、MSE、压强、曲率行） |
+| `io.fydoc` | **数据层**的 Python 面（`libfylite_data.so`，`rust/fylite_data/`）：按内容识别文件类型，不同数据源 ↔ fyo 文档的读写与合并；MDSplus 只读、HDF5 / netCDF 的 fyo 与 IMAS 两种布局都在这一层 |
 | `io.gacode` | GACODE `input.gacode` 剖面 + 几何包 |
 | `io.efund` | efund deck 格式（`east_geom.txt`）——**不是数据源**：盒与线圈匝数在装置文档里，读 deck 只为**核对**文档 |
 | `appsession` | 浏览器会话文档（`fylite:AppSession/1`）的另一端：读回页面导出的输入与输出 |
@@ -75,6 +76,10 @@ index 13）、同一份内核文件。一次 NEO 调用同时返回三支电流�
 ★`scenario.model.gyrofluid` 是 TGLF 那一个——同级 `__init__` 里有名为 `tglf` 的能力函数，
 **同名模块会被它遮住**。
 
+★**这些入口背后是哪条方程**：`scenario` 与 `kernel` 只是装配与 C 边界，物理在 Rust 内核里，
+逐模块写在[物理与数值](physics-00-overview.md)十五章——方程、假设、参数域、数值格式、
+一手出处与验证锚点，模块到章节的映射见[内核](kernels.md)的模块地图。
+
 ## CLI
 
 命令行的**定义**只有一处：`python/fylite/_cli.json`（`FYL-DESIGN-15`）。Python 的 `fylite`
@@ -89,13 +94,14 @@ fylite run --east --shot 70754 --time 3.5     # 一次反演（Rust inverse；�
 fylite plot g137985.04000 -o flux.png         # 渲染 g-file 的磁面图
 fylite describe [--text]                      # 能力目录（JSON-LD）；--text 含环境变量面
 fylite cases [ID] [--check|--plan|--run]      # 场景语料（与 --benchmark 的 V&V 登记册）
+fylite cases --report ID [--from REC] [--lang en]   # 算例报告：MyST + SVG（见 case-report）
 fylite manifest [--seal]                      # 核对 / 重封制品清单
 fylite replay LEDGER · report RUN · whence FILE · alias RUN NAME
 fylite serve                                  # JSON-RPC 2.0 over stdio
 fylite mcp                                    # MCP stdio 服务器
 # —— Rust 可执行文件承载、Python 逐字委托的 ——
 fylite app [--port N] [--no-open] [--mdsip HOST:PORT] [--page data] [--device east] [--lang en] [--theme dark]
-fylite data info|dump|convert|merge|assemble|tables …   # 数据层（= fylite-data）
+fylite data info|dump|convert|merge|assemble|fetch|tables …  # 数据层（= fylite-data）
 fylite case describe|plan|run|json …                    # 算例（= fylite-case）
 ```
 
