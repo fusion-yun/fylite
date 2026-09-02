@@ -16,7 +16,6 @@
   var GATED = [
     'channel_basis',       // Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel).
     'coil_current_units',  // Whether coil currents are amperes or ampere-turns, e.
-    'document',            // Filename of a catalogue entry's case document, relative to `cases/`.
     'power_injected',      // Power [W] a beam PUT IN, as against `power` (absorbed) beside it.
     'psi_convention',      // Which flux convention the document's psi is in, e.
     'psi_norm',            // Normalised poloidal flux grid a profile is sampled on.

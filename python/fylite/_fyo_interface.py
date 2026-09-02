@@ -409,4 +409,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'channel_basis', 'coil_current_units', 'config', 'created', 'deposited', 'document', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'length', 'max_power', 'n_parallel', 'name', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'trapped_fraction', 'truth', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'channel_basis', 'coil_current_units', 'config', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'length', 'max_power', 'n_parallel', 'name', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'trapped_fraction', 'truth', 'weight']
