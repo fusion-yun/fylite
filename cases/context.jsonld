@@ -92,6 +92,15 @@
     "bound_to": {
       "@id": "spo:bound_to"
     },
+    "bound_concretization": {
+      "@id": "spo:bound_concretization"
+    },
+    "checksum": {
+      "@id": "spo:checksum"
+    },
+    "byte_size": {
+      "@id": "spo:byte_size"
+    },
     "about_discharge": {
       "@id": "fyo:about_discharge"
     },

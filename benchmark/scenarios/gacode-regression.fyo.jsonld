@@ -1,0 +1,16 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/gacode-regression",
+  "type": "fyo:ScenarioSpecification",
+  "title": "GACODE 自带回归算例（局部通量面）",
+  "abstract": "不是一次放电，而是上游发布的**局部**算例：一组给定的通量面状态与它们的答案。用于验证白盒端口——问的是「这段代码算的是不是它声称的那个函数」，不是「模型对不对」。",
+  "caveat": [
+    "★局部算例没有装置、没有时间演化：它固定一个面的状态，问湍流/新经典/几何的答案。用它做 validation 是范畴错误。",
+    "上游可重取（gafusion/gacode，Apache-2.0），所以这一档的参考数据存的是指针与版本，不是本体。"
+  ]
+}

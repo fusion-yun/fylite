@@ -17,7 +17,13 @@ use crate::fyodoc;
 use crate::geqdsk::GFile;
 
 /// `[key, path]` —— 内核表的前两列；单位与秩在那边。
-pub const EQUILIBRIUM_SLOTS: [(&str, &str); 20] = [
+pub const EQUILIBRIUM_SLOTS: [(&str, &str); 21] = [
+    //: ★`time` joined the kernel table on 2026-09-02 (the IDS time base the IMAS layout
+    //: needs); a g-file carries no time, so neither conversion reads or writes this slot —
+    //: it is here because this array is DECLARED to be the kernel table's first two columns
+    //: (`test_fydoc.py::test_the_equilibrium_slot_table_is_the_kernels`), and a mirror that
+    //: silently lags is the drift that test exists to catch.
+    ("time",           "time"),
     ("ip",             "time_slice/global_quantities/ip"),
     ("axis_r",         "time_slice/global_quantities/magnetic_axis/r"),
     ("axis_z",         "time_slice/global_quantities/magnetic_axis/z"),

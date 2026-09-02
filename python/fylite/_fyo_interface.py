@@ -13,6 +13,11 @@ TABLES = {
         "type": 'fyo:core_profiles',
         "slots": {
             'psin': {"path": 'profiles_1d/grid/fylite:psi_norm', "units": '1', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
+            'rho': {"path": 'profiles_1d/grid/rho_tor', "units": 'm', "rank": '1d'},
+            'rho_norm': {"path": 'profiles_1d/grid/rho_tor_norm', "units": '1', "rank": '1d'},
+            'q': {"path": 'profiles_1d/q', "units": '1', "rank": '1d'},
+            'psi': {"path": 'profiles_1d/grid/psi', "units": 'Wb', "rank": '1d'},
             'ne': {"path": 'profiles_1d/electrons/density', "units": 'm^-3', "rank": '1d'},
             'te': {"path": 'profiles_1d/electrons/temperature', "units": 'eV', "rank": '1d'},
             'ti': {"path": 'profiles_1d/t_i_average', "units": 'eV', "rank": '1d'},
@@ -24,6 +29,7 @@ TABLES = {
         "type": 'fyo:core_sources',
         "slots": {
             'psin': {"path": 'profiles_1d/grid/fylite:psi_norm', "units": '1', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
             'j_par': {"path": 'profiles_1d/j_parallel', "units": 'A/m^2', "rank": '1d'},
             'p_e': {"path": 'profiles_1d/electrons/energy', "units": 'W/m^3', "rank": '1d'},
             'p_i': {"path": 'profiles_1d/total_ion_energy', "units": 'W/m^3', "rank": '1d'},
@@ -33,7 +39,9 @@ TABLES = {
         "type": 'fyo:core_transport',
         "slots": {
             'psin': {"path": 'profiles_1d/grid/fylite:psi_norm', "units": '1', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
             'rho': {"path": 'profiles_1d/grid/rho_tor', "units": 'm', "rank": '1d'},
+            'rho_d': {"path": 'profiles_1d/grid_d/rho_tor', "units": 'm', "rank": '1d'},
             'chi_e': {"path": 'profiles_1d/electrons/energy/d', "units": 'm^2/s', "rank": '1d'},
             'chi_i': {"path": 'profiles_1d/total_ion_energy/d', "units": 'm^2/s', "rank": '1d'},
             'd_n': {"path": 'profiles_1d/electrons/particles/d', "units": 'm^2/s', "rank": '1d'},
@@ -90,6 +98,7 @@ TABLES = {
             'r0': {"path": 'vacuum_toroidal_field/r0', "units": 'm', "rank": '0d'},
             'b0': {"path": 'vacuum_toroidal_field/b0', "units": 'T', "rank": '0d'},
             'psi_1d': {"path": 'time_slice/profiles_1d/psi', "units": 'Wb', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
             'f': {"path": 'time_slice/profiles_1d/f', "units": 'T.m', "rank": '1d'},
             'pressure': {"path": 'time_slice/profiles_1d/pressure', "units": 'Pa', "rank": '1d'},
             'f_df_dpsi': {"path": 'time_slice/profiles_1d/f_df_dpsi', "units": 'T^2.m^2/Wb', "rank": '1d'},
@@ -133,6 +142,10 @@ TABLES = {
         "type": 'fyo:summary',
         "slots": {
             'time': {"path": 'time', "units": 's', "rank": '1d'},
+            'ip': {"path": 'global_quantities/ip/value', "units": 'A', "rank": '1d'},
+            'v_loop': {"path": 'global_quantities/v_loop/value', "units": 'V', "rank": '1d'},
+            'p_neutron': {"path": 'fusion/neutron_power_total/value', "units": 'W', "rank": '1d'},
+            't_ped': {"path": 'local/pedestal/t_e/value', "units": 'eV', "rank": '1d'},
             'te_axis': {"path": 'local/magnetic_axis/t_e/value', "units": 'eV', "rank": '1d'},
             'ti_axis': {"path": 'local/magnetic_axis/t_i_average/value', "units": 'eV', "rank": '1d'},
             'ne_axis': {"path": 'local/magnetic_axis/n_e/value', "units": 'm^-3', "rank": '1d'},
@@ -163,6 +176,11 @@ TABLES = {
 #: packed block layouts: name -> [{key, shape, units, gloss}], the
 #: position in the list BEING the offset into the flat buffer
 BLOCKS = {
+    'CASE_CODES': [
+        {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar: Miller metric + parabolic profiles from the page's controls, marched by evolve_heat"},
+        {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
+        {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
+    ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
         {'key': 'transport', 'shape': 'steps', 'units': 'count', 'gloss': 'outer steps taken'},
@@ -363,7 +381,7 @@ BLOCKS = {
         {'key': 't', 'shape': 'nt', 'units': 's', 'gloss': 'the time base'},
         {'key': 'ip', 'shape': 'nt', 'units': 'A', 'gloss': 'plasma current'},
         {'key': 'ne0', 'shape': 'nt', 'units': 'm^-3', 'gloss': 'central density'},
-        {'key': 'te0', 'shape': 'nt', 'units': 'eV', 'gloss': 'central temperature'},
+        {'key': 'te0', 'shape': 'nt', 'units': 'keV', 'gloss': 'central temperature'},
         {'key': 'p_inj', 'shape': 'nt', 'units': 'W', 'gloss': 'injected power'},
         {'key': 'rho', 'shape': 'nr', 'units': '1', 'gloss': 'the normalised radius the profiles are on'},
     ],
@@ -373,8 +391,8 @@ BLOCKS = {
         {'key': 'p_alpha', 'shape': 'nt', 'units': 'W', 'gloss': 'alpha power'},
         {'key': 'q', 'shape': 'nt', 'units': '1', 'gloss': 'fusion gain'},
         {'key': 'ne', 'shape': 'nt*nr', 'units': 'm^-3', 'gloss': 'the prescribed density profile per slice'},
-        {'key': 'te', 'shape': 'nt*nr', 'units': 'eV', 'gloss': 'the prescribed electron temperature'},
-        {'key': 'ti', 'shape': 'nt*nr', 'units': 'eV', 'gloss': 'the prescribed ion temperature'},
+        {'key': 'te', 'shape': 'nt*nr', 'units': 'keV', 'gloss': 'the prescribed electron temperature'},
+        {'key': 'ti', 'shape': 'nt*nr', 'units': 'keV', 'gloss': 'the prescribed ion temperature'},
         {'key': 'volume', 'shape': '1', 'units': 'm^3', 'gloss': 'the plasma volume the integrals used'},
     ],
     'ZEROD_PARAMS': [

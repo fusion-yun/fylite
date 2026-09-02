@@ -38,7 +38,11 @@ default = ["mdsip", "hdf5", "netcdf"]
 mdsip = []
 hdf5 = ["dep:hdf5"]
 netcdf = ["dep:netcdf", "hdf5"]
-static = ["hdf5/static", "netcdf/static"]
+#: ★`hdf5/zlib` rides along: the IMAS HDF5 backend layout writes every chunked
+#: dataset with the deflate filter (as imas-core does), and a from-source HDF5
+#: without zlib refuses it at the first dataset («Filter not available: Deflate»,
+#: measured 2026-09-02).  A dynamically linked system libhdf5 has it built in.
+static = ["hdf5/static", "hdf5/zlib", "netcdf/static"]
 #: 桌面查看器。`required-features` 让它不进默认构建——`cargo build` 与
 #: `cargo test` 的产物因此不受它影响。
 desktop = ["mdsip"]
@@ -54,6 +58,13 @@ required-features = ["desktop"]
 name = "fylite-data"
 path = "src/bin/data/main.rs"
 required-features = ["mdsip"]
+
+#: 算例的命令行：一份 fyo 计划进、一份 fyo 记录出，经内核（运行期 dlopen
+#: `libfylite_kernel.so`）。原生专用；不要求任何特性——JSON 计划与 JSON-LD 记录
+#: 零依赖，HDF5 / netCDF 产出只在带那两个特性时可选。
+[[bin]]
+name = "fylite-case"
+path = "src/bin/case/main.rs"
 
 [dependencies]
 #: ★两个都是可选的、都只在原生目标上有意义（见 `[features]`）。版本钉到次版本：

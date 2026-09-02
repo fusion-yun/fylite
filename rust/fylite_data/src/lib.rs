@@ -62,6 +62,13 @@ pub mod json;
 pub mod ids_tables;
 pub mod ids_meta;
 
+//: 内核的 fyo 面（生成物：`fylite_kernel/rust/build.sh`）：槽位 ↔ 文档路径、
+//: 场景条目的块、条目次序——数据层把内核按路径交回的场翻成文档时走的那张表。
+pub mod fyo_interface;
+
+//: SHA-256：`spo:Concretization` 的校验和（零依赖，见文件抬头）。
+pub mod checksum;
+
 //: fyo 文档的约定，与两种文本格式到它的转换（wasm 同样成立）。
 pub mod fyodoc;
 pub mod eqdsk_fyo;
@@ -80,6 +87,19 @@ pub mod mdsip;
 
 #[cfg(feature = "mdsip")]
 pub mod c_api;
+
+//: ★★一个 CASE 的输入 / 输出半边（FYL-REPORT-06 一份结构进、一份结构出）：
+//: 读并组合 `fyo:ScenarioSpecification`，经数据层解析绑定的输入，把**结构**交给
+//: 内核（`fylite_rs_case_*`，运行期 dlopen——内核源码不公开，本 crate 公开，
+//: 不能以 crate 依赖相连），再把运行写回一份 `spo:ComputationRecord` 与产出的
+//: fyo 数据集。原生专用：要 dlopen、要读盘。
+#[cfg(not(target_arch = "wasm32"))]
+pub mod kernel;
+//: the JSON door: one plan text in, one record text out (`fylite_data_case_json`)
+#[cfg(not(target_arch = "wasm32"))]
+pub mod case_api;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod case;
 
 //: MDSplus 绑定表与多源装配：都要走 mdsip 客户端，所以与它同一个特性门。
 #[cfg(feature = "mdsip")]
