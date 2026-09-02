@@ -20,7 +20,8 @@
 //!
 //! | 数据源 | 读 | 写 | 布局 |
 //! | --- | :-: | :-: | --- |
-//! | MDSplus（mdsip，[`mdsip`] + [`mdsbind`]） | ✓ | ✗（只读由构造保证） | 绑定表 → fyo |
+//! | MDSplus（mdsip，[`mdsip`] + [`mdsbind`]） | ✓ | ✗（只读由构造保证） | 绑定表 → fyo；按炮号与时间（点 / 窗 / 点列）在服务端切片 |
+//! | fydata 的 A-Box（YAML，[`yaml`]） | ✓ | ✗ | fyo（装置几何、绑定文档、装置清单） |
 //! | EFIT a-file（[`afile`]） | ✓ | ✗ | fyo |
 //! | EFIT g-file（[`geqdsk`] + [`eqdsk_fyo`]） | ✓ | ✓ | fyo |
 //! | JSON / JSON-LD（[`json`]） | ✓ | ✓ | fyo · IMAS DD |
@@ -35,7 +36,8 @@
 //! 读——netCDF 的维度名推导是 imas-python `nc_metadata.py` 的逐条移植。
 //!
 //! 文件类型**看内容识别**（[`detect`]），[`io`] 统一分派，[`assembly`] 按一份
-//! JSON-LD 装配多个数据源，[`c_api`] 把这些交给 Python（`fylite.io.fydoc`），
+//! JSON-LD / YAML 装配多个数据源（或从 fydata 的装置清单 `machine.yaml` 摊出
+//! 「几何 + 绑定」，`fetch`），[`c_api`] 把这些交给 Python（`fylite.io.fydoc`），
 //! `src/bin/data` 是命令行 `fylite-data`。
 //!
 //! ## 制品，一份源
@@ -56,6 +58,7 @@ pub mod geqdsk;
 //: 文档树与 JSON(-LD) 编解码：零依赖，wasm 同样成立。
 pub mod document;
 pub mod json;
+pub mod yaml;
 
 //: IMAS DD 的结构表（生成物）与它的读者——两种 IMAS 布局的元数据。
 #[allow(clippy::all)]

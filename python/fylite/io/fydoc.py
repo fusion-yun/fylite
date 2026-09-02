@@ -49,6 +49,8 @@ class Bundle:
     def __init__(self, handle):
         self._lib = kernel.require_data()
         self._h = handle
+        #: 装配 / 取数留下的说明（没开窗的量、时基从哪来）；读文件的束为空。
+        self.notes: list[str] = []
 
     # ---- construction ------------------------------------------------------
 
@@ -226,17 +228,85 @@ def write(doc, path, *, format: str | None = None, layout: str = "fyo") -> str:
     return b.write(path, format=format, layout=layout)
 
 
-def assemble(path, *, shot: int | None = None, user: str | None = None,
+def _params_json(shot, time, max_points, select, slots) -> str:
+    """装配参数 → 一段 JSON（Rust 侧 ``Overrides::from_node`` 读）。``time`` 是一个数（点）、
+    ``(t0, t1)``（窗）、三个以上的序列（点列）或 ``"4:5"`` 文本。"""
+    p: dict = {}
+    if shot is not None:
+        p["shot"] = int(shot)
+    if time is not None:
+        if isinstance(time, str):
+            p["time"] = time
+        elif isinstance(time, (int, float, np.generic)):
+            p["time"] = float(time)
+        else:
+            p["time"] = [float(t) for t in np.asarray(time).ravel()]
+    if max_points is not None:
+        p["max_points"] = int(max_points)
+    if select:
+        p["select"] = [select] if isinstance(select, str) else list(select)
+    if slots:
+        p["slots"] = {k: int(v) for k, v in dict(slots).items()}
+    return json.dumps(p)
+
+
+def _split_report(err) -> tuple[list[str], list[str]]:
+    lines = [f for f in _err_text(err).split("\n") if f]
+    fails = [f for f in lines if not f.startswith("note: ")]
+    notes = [f[len("note: "):] for f in lines if f.startswith("note: ")]
+    return fails, notes
+
+
+def assemble(path, *, shot: int | None = None, time=None, max_points: int | None = None,
+             select=None, slots=None, user: str | None = None,
              timeout_ms: int = 10_000) -> tuple[Bundle, list[str]]:
-    """执行一份装配文档（``fylite:Assembly/1``）。返回 ``(束, 失败清单)``。"""
+    """执行一份装配文档（``fylite:Assembly/1``，JSON 或 YAML）。返回 ``(束, 失败清单)``；
+    说明（没开窗的量、时基从哪来）在 ``束.notes``。
+
+    ``time``：一个数是一个时刻（取最近样本），``(t0, t1)`` 是一个窗，更长的序列是一列
+    时刻；MDSplus 源在各自的时基上开窗，切片在服务端做。``max_points`` 是窗内最多取的
+    样本数。``select`` 是只留的 ``ids`` / ``ids/子树``。"""
     lib = kernel.require_data()
     pb, pn, _k1 = _b(str(Path(path)))
-    ub, un, _k2 = _b(user or "")
+    jb, jn, _k2 = _b(_params_json(shot, time, max_points, select, slots))
+    ub, un, _k3 = _b(user or "")
     h = _VOID()
     err = _buf(1 << 16)
-    rc = lib.fylite_data_assemble(pb, pn, -1 if shot is None else int(shot), ub, un, int(timeout_ms),
+    rc = lib.fylite_data_assemble(pb, pn, jb, jn, ub, un, int(timeout_ms),
                                   ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
     if rc != 0:
         raise KernelError(f"assemble {path}: {_err_text(err)}")
-    fails = [f for f in _err_text(err).split("\n") if f]
-    return Bundle(h), fails
+    fails, notes = _split_report(err)
+    b = Bundle(h)
+    b.notes = notes
+    return b, fails
+
+
+def fetch(machine, ids, *, shot: int, time=None, max_points: int | None = None, select=None,
+          provider: str | None = None, host: str | None = None, port: int | None = None,
+          user: str | None = None, timeout_ms: int = 10_000) -> tuple[Bundle, list[str]]:
+    """从 fydata 的装置清单（``machine.yaml``）取一炮的若干 IDS：几何 + MDSplus 绑定，按
+    ``shot`` / ``time`` 开窗。例如 EAST 138569 炮 4～5 秒的磁测量::
+
+        b, fails = fetch("fydata/machine/tokamak/east/machine.yaml", "magnetics",
+                         shot=138569, time=(4.0, 5.0), host="mds.ipp.ac.cn")
+        b.array("magnetics/b_field_pol_probe/0/field/data")
+
+    返回 ``(束, 失败清单)``；说明在 ``束.notes``。"""
+    lib = kernel.require_data()
+    mb, mn, _k1 = _b(str(Path(machine)))
+    ib, in_, _k2 = _b(ids if isinstance(ids, str) else ",".join(ids))
+    jb, jn, _k3 = _b(_params_json(shot, time, max_points, select, None))
+    vb, vn, _k4 = _b(provider or "")
+    hb, hn, _k5 = _b(host or "")
+    ub, un, _k6 = _b(user or "")
+    h = _VOID()
+    err = _buf(1 << 16)
+    rc = lib.fylite_data_fetch(mb, mn, ib, in_, jb, jn, vb, vn, hb, hn, int(port or 0), ub, un,
+                               int(timeout_ms), ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
+    if rc != 0:
+        raise KernelError(f"fetch {machine}: {_err_text(err)}")
+    fails, notes = _split_report(err)
+    b = Bundle(h)
+    b.notes = notes
+    return b, fails

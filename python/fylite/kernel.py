@@ -7674,6 +7674,8 @@ _dsig("fylite_data_doc_array", [_VOID, _BYTES, _U64, _ARR, _U64, _ARRU64, _U64,
 _dsig("fylite_data_doc_set_json", [_VOID, _BYTES, _U64, _BYTES, _U64], _I32)
 _dsig("fylite_data_doc_set_array", [_VOID, _BYTES, _U64, _ARR, _ARRU64, _U64], _I32)
 _dsig("fylite_data_bundle_merge", [_VOID, _VOID, _I32], _I32)
-_dsig("fylite_data_assemble", [_BYTES, _U64, ctypes.c_int64, _BYTES, _U64, _I32,
+_dsig("fylite_data_assemble", [_BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _I32,
                                ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
+_dsig("fylite_data_fetch", [_BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64,
+                            _I32, _BYTES, _U64, _I32, ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
 _dsig("fylite_data_bundle_free", [_VOID], None)

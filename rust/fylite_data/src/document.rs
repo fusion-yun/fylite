@@ -568,11 +568,20 @@ impl Node {
     /// 两边都是列表则逐索引递归（AoS 的时间片对时间片），长的那边多出来的接上；
     /// 叶子按 `policy`。类型不同（一边映射一边叶子）按 `policy` 整体处置。
     pub fn merge(&mut self, other: Node, policy: MergePolicy) {
+        self.merge_with(other, policy, None);
+    }
+
+    /// [`Node::merge`]，但结构数组的元素可以按一个键对齐：两边的元素都带 `key`
+    /// （例如 `name`）时按键值配对，配不上的追加；没带的按索引。
+    ///
+    /// ★装置几何（`name: PCBPV1T`）与信号绑定（同名节点）合并时要的是这个：
+    /// 按索引对齐在两份表同序时碰巧对，换一个 provider 就错位且不报错。
+    pub fn merge_with(&mut self, other: Node, policy: MergePolicy, key: Option<&str>) {
         match (self, other) {
             (Node::Map(a), Node::Map(b)) => {
                 for (k, v) in b.into_iter() {
                     match a.get_mut(&k) {
-                        Some(slot) => slot.merge(v, policy),
+                        Some(slot) => slot.merge_with(v, policy, key),
                         None => {
                             a.insert(k, v);
                         }
@@ -580,14 +589,32 @@ impl Node {
                 }
             }
             (Node::List(a), Node::List(b)) => {
-                let mut it = b.into_iter();
-                for slot in a.iter_mut() {
-                    match it.next() {
-                        Some(v) => slot.merge(v, policy),
-                        None => break,
+                let keyed = key.filter(|k| {
+                    !a.is_empty() && !b.is_empty()
+                        && a.iter().all(|x| x.as_map().map(|m| m.get(k).is_some()).unwrap_or(false))
+                        && b.iter().all(|x| x.as_map().map(|m| m.get(k).is_some()).unwrap_or(false))
+                });
+                match keyed {
+                    Some(k) => {
+                        for v in b {
+                            let kv = v.as_map().unwrap().get(k).cloned().unwrap();
+                            match a.iter_mut().find(|x| x.as_map().and_then(|m| m.get(k)) == Some(&kv)) {
+                                Some(slot) => slot.merge_with(v, policy, key),
+                                None => a.push(v),
+                            }
+                        }
+                    }
+                    None => {
+                        let mut it = b.into_iter();
+                        for slot in a.iter_mut() {
+                            match it.next() {
+                                Some(v) => slot.merge_with(v, policy, key),
+                                None => break,
+                            }
+                        }
+                        a.extend(it);
                     }
                 }
-                a.extend(it);
             }
             (slot, v) => {
                 if policy == MergePolicy::Overwrite || slot.is_null() {
@@ -642,6 +669,25 @@ mod tests {
         assert_eq!(a.get("ts/0/a").and_then(Node::as_f64), Some(1.0));
         assert_eq!(a.get("ts/0/b").and_then(Node::as_f64), Some(4.0));
         assert_eq!(a.get("ts/1/b").and_then(Node::as_f64), Some(5.0));
+    }
+
+    #[test]
+    fn merge_with_a_key_aligns_aos_elements_by_name() {
+        let mut geom = Node::map();
+        geom.set("probe/0/name", "B".into()).unwrap();
+        geom.set("probe/0/r", 2.0.into()).unwrap();
+        geom.set("probe/1/name", "A".into()).unwrap();
+        geom.set("probe/1/r", 1.0.into()).unwrap();
+        let mut sig = Node::map();
+        sig.set("probe/0/name", "A".into()).unwrap();
+        sig.set("probe/0/data", vec![1.0].into()).unwrap();
+        sig.set("probe/1/name", "C".into()).unwrap();
+        sig.set("probe/1/data", vec![3.0].into()).unwrap();
+        geom.merge_with(sig, MergePolicy::Overwrite, Some("name"));
+        assert_eq!(geom.get("probe/1/data").and_then(Node::to_f64_vec), Some(vec![1.0]));
+        assert_eq!(geom.get("probe/1/r").and_then(Node::as_f64), Some(1.0));
+        assert!(geom.get("probe/0/data").is_none());
+        assert_eq!(geom.get("probe/2/name").and_then(Node::as_str), Some("C"));
     }
 
     #[test]

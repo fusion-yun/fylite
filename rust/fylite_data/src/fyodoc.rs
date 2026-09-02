@@ -178,10 +178,15 @@ impl Bundle {
 
     /// 合并另一束：同一 `(ids, occurrence)` 的文档树对树合并，其余追加。
     pub fn merge(&mut self, other: Bundle, policy: MergePolicy) {
+        self.merge_with(other, policy, None);
+    }
+
+    /// [`Bundle::merge`]，结构数组按 `key` 对齐（见 [`Node::merge_with`]）。
+    pub fn merge_with(&mut self, other: Bundle, policy: MergePolicy, key: Option<&str>) {
         for doc in other.docs {
-            let key = (ids_of(&doc), occurrence_of(&doc));
-            match key.0.as_deref().and_then(|i| self.get_mut(i, key.1)) {
-                Some(slot) => slot.merge(doc, policy),
+            let k = (ids_of(&doc), occurrence_of(&doc));
+            match k.0.as_deref().and_then(|i| self.get_mut(i, k.1)) {
+                Some(slot) => slot.merge_with(doc, policy, key),
                 None => self.docs.push(doc),
             }
         }

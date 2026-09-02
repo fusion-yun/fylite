@@ -11,13 +11,16 @@
 //!    `_NCProperties`（netcdf-c ≥ 4.4 必写）→ netCDF-4，否则 HDF5。
 //! 3. `CDF\x01` / `CDF\x02` / `CDF\x05` → 经典 netCDF。
 //! 4. 文本：首个非空白是 `{`/`[` → JSON(-LD)；前几行有 `*<数>` 头行 → a-file；
-//!    头一行以两个正整数收尾、第二行是五个数 → g-file。
+//!    头一行以两个正整数收尾、第二行是五个数 → g-file；首个非注释行是 `key:` /
+//!    `- ` / `---` → YAML（fydata 的 A-Box）。
 
 use std::path::Path;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Format {
     Json,
+    /// fydata 的 A-Box 方言（PyYAML 写出的子集，见 `yaml.rs`）；只读。
+    Yaml,
     Geqdsk,
     Afile,
     Hdf5,
@@ -30,6 +33,7 @@ impl Format {
     pub fn name(self) -> &'static str {
         match self {
             Format::Json => "json",
+            Format::Yaml => "yaml",
             Format::Geqdsk => "geqdsk",
             Format::Afile => "afile",
             Format::Hdf5 => "hdf5",
@@ -41,6 +45,7 @@ impl Format {
     pub fn parse(s: &str) -> Option<Format> {
         Some(match s.to_ascii_lowercase().as_str() {
             "json" | "jsonld" | "json-ld" => Format::Json,
+            "yaml" | "yml" => Format::Yaml,
             "geqdsk" | "gfile" | "g-file" | "eqdsk" => Format::Geqdsk,
             "afile" | "a-file" | "aeqdsk" => Format::Afile,
             "hdf5" | "h5" => Format::Hdf5,
@@ -56,6 +61,7 @@ impl Format {
         let ext = path.extension().map(|e| e.to_string_lossy().to_ascii_lowercase()).unwrap_or_default();
         Some(match ext.as_str() {
             "json" | "jsonld" => Format::Json,
+            "yaml" | "yml" => Format::Yaml,
             "h5" | "hdf5" | "hdf" => Format::Hdf5,
             "nc" | "nc4" | "cdf" | "netcdf" => Format::NetCdf,
             "geqdsk" | "eqdsk" | "gfile" => Format::Geqdsk,
@@ -102,6 +108,23 @@ pub fn looks_like_geqdsk(text: &str) -> bool {
     ints && crate::geqdsk::scan_numbers(l2).len() >= 5
 }
 
+/// YAML 的样子：首个非空、非注释行是 `key:`、`- ` 或 `---`（且不是 g-file 头）。
+pub fn looks_like_yaml(text: &str) -> bool {
+    let first = match text.lines().map(str::trim_end).find(|l| !l.trim().is_empty() && !l.trim_start().starts_with('#')) {
+        Some(l) => l.trim_start(),
+        None => return false,
+    };
+    if first == "---" || first.starts_with("--- ") || first.starts_with("- ") || first == "-" {
+        return true;
+    }
+    //: `key:` — a bare word (letters, digits, `_`, `$`, `@`, `-`, `.`) then `:` then end or a space
+    let key_end = match first.find(':') { Some(i) => i, None => return false };
+    let key = &first[..key_end];
+    let after = first[key_end + 1..].chars().next();
+    !key.is_empty() && key.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '$' | '@' | '-' | '.'))
+        && matches!(after, None | Some(' ') | Some('\t'))
+}
+
 /// 看内容识别。`None` = 看不出来。
 pub fn detect(path: &Path) -> std::io::Result<Option<Format>> {
     if path.is_dir() {
@@ -137,6 +160,9 @@ pub fn detect(path: &Path) -> std::io::Result<Option<Format>> {
     if looks_like_geqdsk(&text) {
         return Ok(Some(Format::Geqdsk));
     }
+    if looks_like_yaml(&text) {
+        return Ok(Some(Format::Yaml));
+    }
     Ok(None)
 }
 
@@ -171,6 +197,12 @@ mod tests {
         assert_eq!(Format::from_extension(Path::new("eq.jsonld")), Some(Format::Json));
         assert_eq!(Format::from_extension(Path::new("eq.nc")), Some(Format::NetCdf));
         assert_eq!(Format::from_extension(Path::new("README")), None);
+        assert_eq!(Format::from_extension(Path::new("machine.yaml")), Some(Format::Yaml));
+        assert!(looks_like_yaml("# generated\n$source:\n  x: y\n"));
+        assert!(looks_like_yaml("_ids: magnetics\n"));
+        assert!(looks_like_yaml("- a\n- b\n"));
+        assert!(!looks_like_yaml("http://x\n"));
+        assert!(!looks_like_yaml(include_str!("../testdata/g_synthetic.geqdsk")));
     }
 
     #[test]

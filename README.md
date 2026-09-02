@@ -229,7 +229,8 @@ JSON-LD description. Files are recognised by **content**, never by name.
 
 | source | read | write | layouts |
 | :--- | :-: | :-: | :--- |
-| MDSplus (mdsip, read-only by construction; A-Box binding tables) | ✓ | — | fyo |
+| MDSplus (mdsip, read-only by construction; A-Box binding tables; time windows sliced server-side) | ✓ | — | fyo |
+| fydata A-Box YAML (`machine.yaml`, providers, bindings) | ✓ | — | fyo |
 | EFIT a-file | ✓ | — | fyo |
 | EFIT g-file | ✓ | ✓ | fyo |
 | JSON / JSON-LD | ✓ | ✓ | fyo · IMAS DD |
@@ -246,6 +247,8 @@ fylite-data info  g063982.04800                          # what is this file?
 fylite-data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
 fylite-data merge machine.h5 shot.nc -o all.jsonld         # later sources win
 fylite-data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
+fylite-data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
+                  --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o mag.json   # 4–5 s, sliced on the server
 ```
 
 ```python
@@ -253,6 +256,9 @@ from fylite.io import fydoc
 b = fydoc.read("g063982.04800")                 # a bundle of fyo documents
 psi = b.array("equilibrium/time_slice/0/profiles_2d/0/psi")   # [R, Z]
 b.write("entry_dir", layout="imas")             # IMAS HDF5 data entry
+m, fails = fydoc.fetch("fydata/machine/tokamak/east/machine.yaml", "magnetics",
+                       shot=138569, time=(4.0, 5.0), host="mds.ipp.ac.cn")
+m.array("magnetics/b_field_pol_probe/0/field/data")   # the probe's 4–5 s slice; position from the geometry
 ```
 
 The C libraries this needs (`libhdf5`, `libnetcdf`) are linked dynamically by

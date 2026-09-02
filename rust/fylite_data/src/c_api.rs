@@ -772,27 +772,34 @@ pub unsafe extern "C" fn fylite_data_bundle_merge(
     0
 }
 
-/// 执行一份装配文档（`fylite:Assembly/1`）。`shot < 0` 用文档里的；`user` 是 mdsip
-/// 登录名。0 = ok（`err` 里放失败清单，可能为空），`-1` 参数不合法，`-2` 读不到装配
-/// 文档。
+/// 执行一份装配文档（`fylite:Assembly/1`，JSON 或 YAML）。`params` 是一段 JSON（可空）：
+/// `{"shot": N, "time": 4.5 | [t0, t1] | [t…] | "4:5", "max_points": N, "select": [...],
+/// "slots": {"time_slice": 0}}`，覆盖文档里的。`user` 是 mdsip 登录名。
+/// 0 = ok（`err` 里放失败清单与 `note: …` 行，可能为空），`-1` 参数不合法，`-2` 读不到装配
+/// 文档，`-3` `params` 不成话。
 ///
 /// # Safety
-/// `path`: `path_n` 字节；`user`: `user_n`；`out_handle` 一个指针；`err`: `err_cap`。
+/// `path`: `path_n` 字节；`params`: `params_n`；`user`: `user_n`；`out_handle` 一个指针；
+/// `err`: `err_cap`。
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
 pub unsafe extern "C" fn fylite_data_assemble(
-    path: *const u8, path_n: u64, shot: i64, user: *const u8, user_n: u64, timeout_ms: i32,
+    path: *const u8, path_n: u64, params: *const u8, params_n: u64, user: *const u8, user_n: u64, timeout_ms: i32,
     out_handle: *mut *mut std::ffi::c_void, err: *mut u8, err_cap: u64) -> i32 {
     if out_handle.is_null() {
         return -1;
     }
     let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let overrides = match overrides_of(params, params_n) {
+        Ok(o) => o,
+        Err(e) => { mds_abi::put(&e, err, err_cap); *out_handle = std::ptr::null_mut(); return -3; }
+    };
     let user = if user_n == 0 { "nobody".to_string() } else { match mds_abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
     let connector = crate::assembly::tcp_connector(user, timeout_ms.max(1) as u64);
-    match crate::assembly::assemble_file(std::path::Path::new(p), Some(&connector), if shot < 0 { None } else { Some(shot) }, &[]) {
+    match crate::assembly::assemble_file(std::path::Path::new(p), Some(&connector), &overrides) {
         Ok(r) => {
-            mds_abi::put(&r.failures.join("\n"), err, err_cap);
+            mds_abi::put(&report_text(&r), err, err_cap);
             *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle: r.bundle })) as *mut std::ffi::c_void;
             0
         }
@@ -802,6 +809,66 @@ pub unsafe extern "C" fn fylite_data_assemble(
             -2
         }
     }
+}
+
+/// 从装置清单（fydata `machine.yaml`）取一炮的若干 IDS：几何 + MDSplus 绑定，按 `params`
+/// 的 `shot` / `time` 开窗。`ids` 逗号分隔；`provider` 可空（取清单的缺省）；`host` 可空
+/// （用绑定文档里的），`port <= 0` 同理。返回码同 `fylite_data_assemble`；`-2` 读不到清单。
+///
+/// # Safety
+/// 各 `(ptr, n)` 对是 `n` 字节的 UTF-8；`out_handle` 一个指针；`err`: `err_cap`。
+#[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn fylite_data_fetch(
+    manifest: *const u8, manifest_n: u64, ids: *const u8, ids_n: u64, params: *const u8, params_n: u64,
+    provider: *const u8, provider_n: u64, host: *const u8, host_n: u64, port: i32,
+    user: *const u8, user_n: u64, timeout_ms: i32,
+    out_handle: *mut *mut std::ffi::c_void, err: *mut u8, err_cap: u64) -> i32 {
+    if out_handle.is_null() {
+        return -1;
+    }
+    let Some(m) = mds_abi::s(manifest, manifest_n) else { return -1 };
+    let Some(ids) = mds_abi::s(ids, ids_n) else { return -1 };
+    let ids: Vec<&str> = ids.split(',').map(str::trim).filter(|s| !s.is_empty()).collect();
+    let provider = if provider_n == 0 { None } else { mds_abi::s(provider, provider_n) };
+    let host = if host_n == 0 { None } else { mds_abi::s(host, host_n) };
+    let port = if port > 0 { Some(port as u16) } else { None };
+    let overrides = match overrides_of(params, params_n) {
+        Ok(o) => o,
+        Err(e) => { mds_abi::put(&e, err, err_cap); *out_handle = std::ptr::null_mut(); return -3; }
+    };
+    let user = if user_n == 0 { "nobody".to_string() } else { match mds_abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
+    let (a, notes) = match crate::assembly::from_manifest(std::path::Path::new(m), &ids, provider, host, port, &overrides) {
+        Ok(x) => x,
+        Err(e) => { mds_abi::put(&e.to_string(), err, err_cap); *out_handle = std::ptr::null_mut(); return -2; }
+    };
+    let connector = crate::assembly::tcp_connector(user, timeout_ms.max(1) as u64);
+    let mut r = crate::assembly::assemble(&a, Some(&connector));
+    r.notes.splice(0..0, notes);
+    mds_abi::put(&report_text(&r), err, err_cap);
+    *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle: r.bundle })) as *mut std::ffi::c_void;
+    0
+}
+
+#[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
+unsafe fn overrides_of(params: *const u8, params_n: u64) -> Result<crate::assembly::Overrides, String> {
+    if params_n == 0 {
+        return Ok(crate::assembly::Overrides::default());
+    }
+    let text = mds_abi::s(params, params_n).ok_or("params is not UTF-8")?;
+    if text.trim().is_empty() {
+        return Ok(crate::assembly::Overrides::default());
+    }
+    let node = crate::json::parse(text).map_err(|e| e.to_string())?;
+    crate::assembly::Overrides::from_node(&node)
+}
+
+#[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
+fn report_text(r: &crate::assembly::Assembled) -> String {
+    let mut lines: Vec<String> = r.failures.clone();
+    lines.extend(r.notes.iter().map(|n| format!("note: {n}")));
+    lines.join("\n")
 }
 
 /// 释放一束。
