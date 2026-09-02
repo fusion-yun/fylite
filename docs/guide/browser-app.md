@@ -7,7 +7,7 @@ title: 浏览器演示 (Browser App)
 `app/` 下的交互页面由同一份 Rust 内核编译成 WebAssembly：打开即用，计算全部在
 浏览器内完成，不依赖任何服务端（**唯一的例外是装置数据页**，它前面站着一个只读窄端点的
 本地网关——理由见[下文](#app-mds-gateway)）。演示按**一台机器被过一遍的顺序**组织——**设计 → 建模 → 反演**，另有一页不算物理的
-装置数据。**四页**：三个场景页与一个工具页，都在 `/pages/` 下，首页在站点根。
+装置数据。**五页**：三个场景页与**两个**工具页，都在 `/pages/` 下，首页在站点根。
 
 ★链接给的是**已发布站点的绝对地址**，不是文档站内的相对路径：演示是**产品**，
 不是这本书的一章，文档站不再随身携带一份 `app/` 的副本（2026-09-01 裁定）。
@@ -19,6 +19,7 @@ title: 浏览器演示 (Browser App)
 | 建模 (Physics modelling) `model` | **1.5D 定态输运**（固定几何解稳态剖面）· **含时演化**（按 `FYL-DESIGN-10` P-19 将迁往放电设计页）· **功率平衡反演**。设计见 `FYL-DESIGN-10` | [model](https://fusion-yun.github.io/fylite/pages/model.html) |
 | 实验分析 (Experiment analysis) `analysis` | **剖面拟合** · **平衡重构**（磁测量，可加动理学约束）· **时间序列** · **批处理**。设计见 `FYL-DESIGN-12` | [analysis](https://fusion-yun.github.io/fylite/pages/analysis.html) |
 | 装置数据 (Device data) `data` | **MDSplus 浏览**（浏览树、指定炮号、取回信号；经本地网关，**不算物理**）。设计见 `FYL-DESIGN-13` | [data](https://fusion-yun.github.io/fylite/pages/data.html) |
+| 算例报告 (Case report) `report` | 一份 **fyo 计划 + spo 记录**渲染成报告：参数表、端口表、读数、按量自身坐标画的折线图、带边界轮廓时的极向截面。文件选择 / 拖放 / `?src=` 三个门；**不算物理**——它读记录，不重算。与 Python 端 `fylite cases --report` **同一条规则**（`app/tests/validate-report.mjs` 逐字段比对两端推出的呈现规格）。见 [算例语料](cases.md) | [report](https://fusion-yun.github.io/fylite/pages/report.html) |
 | 物理功能与边界 (Capability) | — | [features](https://fusion-yun.github.io/fylite/features.html) · [en](https://fusion-yun.github.io/fylite/features.en.html) |
 | 版权与致谢 (Copyright and credits) | — | [credits](https://fusion-yun.github.io/fylite/credits.html) · [en](https://fusion-yun.github.io/fylite/credits.en.html) |
 
@@ -28,7 +29,7 @@ title: 浏览器演示 (Browser App)
 那三行是三条死链**。
 
 ★**站点是十个文件、三种形态**（`app/tests/validate-site.mjs` 按 `data-page` 分这三支判）：
-三个**散文页**各有中英两份，三个**场景页**运行时切换语言，一个**工具页**（`data`，装置数据）——
+三个**散文页**各有中英两份，三个**场景页**运行时切换语言，两个**工具页**（`data` 装置数据、`report` 算例报告）——
 一份文件、语言就地切换，但它**不算东西**：没有部件、没有 worker、没有计算键，
 挂在 `site.js` 的 `TOOLS` 表而不是 `SCENARIOS` 上。
 
