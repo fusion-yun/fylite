@@ -251,6 +251,12 @@ def _cli_cases(args, parser) -> int:
     primary environment cannot even list is browser-private data wearing a
     top-level directory's name.
     """
+    #: ★2026-09-02 整合收敛：the SECOND corpus.  `--benchmark` reads the public V&V
+    #: register (`benchmark/registry.jsonld`, fyo:ComparisonRecord) through the
+    #: same verb — list / show / check / run — so a reader has one door to「what
+    #: this code runs」and「what it was measured against」(scenario/benchmark.py).
+    if getattr(args, "benchmark", False):
+        return _cli_benchmark(args, parser)
     d = _cases_dir(args.dir)
     from ..scenario import cases as _cases
     entries = _cases.catalogue(d)
@@ -333,6 +339,56 @@ def _cli_cases(args, parser) -> int:
         for r in rows:
             dev = f"  [{r['device']}]" if r.get("device") else ""
             print(f"  {r['case_id']:<28} {r['bar'] or '?':<10}{dev}  {r['name']}")
+    return 0
+
+
+def _cli_benchmark(args, parser) -> int:
+    """List / show / check / run the public V&V register (`fylite cases --benchmark`)."""
+    from ..scenario import benchmark as _bm
+    d = _bm.registry_dir(args.dir)
+    if getattr(args, "run_case", False) or getattr(args, "plan", False):
+        if not args.name:
+            parser.error("--plan/--run need a record id (see `fylite cases --benchmark`)")
+        rec = _bm.load(args.name, d)
+        k = _bm.kernel_checkout(getattr(args, "kernel", None))
+        plan = _bm.gate_plan(rec, k)
+        if getattr(args, "plan", False):
+            print(json.dumps({"record_id": args.name, "kernel": str(k) if k else None, **plan},
+                             ensure_ascii=False, indent=1))
+            return 0
+        r = _bm.run(args.name, d, getattr(args, "kernel", None))
+        print(f"{r['record_id']}  {r['summary']}")
+        for c in r["commands"]:
+            print(f"  ran: {c}")
+        for why in r["plan"]["refused"]:
+            print(f"  refused: {why}")
+        return 0 if r["returncode"] == 0 else 1
+    if args.name:
+        try:
+            rec = _bm.load(args.name, d)
+        except KeyError:
+            print(f"no record {args.name!r}; the register has: "
+                  + ", ".join(_bm.short_id(r) for r in _bm.graph(d)))
+            return 1
+        print(json.dumps(rec, ensure_ascii=False, indent=1))
+        return 0
+    if args.check:
+        bad = []
+        for rec in _bm.graph(d):
+            bad.extend(f"{_bm.short_id(rec)}: {why}" for why in _bm.problems(rec, d))
+        for line in bad:
+            print(f"  BAD  {line}")
+        print(f"{len(_bm.graph(d))} records, {len(bad)} problems")
+        return 1 if bad else 0
+    rows = _bm.records(d)
+    if args.as_json:
+        print(json.dumps({"dir": str(d), "records": rows}, ensure_ascii=False, indent=1))
+    else:
+        print(f"{d}  ({len(rows)} records)")
+        for r in rows:
+            cls = ",".join(r["classes"]) or "-"
+            print(f"  {r['record_id']:<6} {r['kind']:<13} {r['verdict']:<13} "
+                  f"rerun={r['rerun'] or '-':<12} [{cls}]  {r['title']}")
     return 0
 
 

@@ -344,9 +344,24 @@ that the committed artifacts are the ones that were built —
 `python/tests/test_bundled_artifacts.py` asks git exactly that — and what they
 answer, which is what `benchmark/` is for.
 
+★What it answers is the public V&V register, `benchmark/` — a RENDERING of the
+kernel repository's register (its `tools/benchmark-publish.py` writes this
+directory): one `fyo:ComparisonRecord` per comparison, every reference dataset
+with its admissibility class and sha256, every gate with the checkout it runs
+in, and the outcome of running those gates on the day of publication. It is
+read through the same verb as the scenario corpus:
+
+```bash
+fylite cases                      # the scenario corpus (cases/)
+fylite cases --benchmark          # the V&V register: kind, verdict, re-run, admissibility
+fylite cases --benchmark V-01     # one record, JSON-LD
+fylite cases --benchmark --check  # structure (the same function the test tier runs)
+FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # its private gates
+```
+
 ★The frozen test corpus is not here either: `tests/data` is a symlink to
-`fydata/oracle-data/` (recorded oracle answers, upstream release cases,
-reference profiles). Without it the physics tier is not collected, and the
+`fydata/oracle/` (recorded oracle answers, upstream release cases,
+reference profiles; the same tree the kernel checkout mounts at its `tests/data`). Without it the physics tier is not collected, and the
 run header says so by name rather than failing 965 times.
 
 ★Neither direction hard-codes a path into a committed file. The embedded
