@@ -43,3 +43,5 @@ site:
       url: /reference
     - title: 设计集 (Design)
       url: /design
+  options:
+    logo: figures/fylite_logo.svg

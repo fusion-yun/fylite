@@ -1,31 +1,6 @@
-# ═══════════════════════════════════════════════════════════════════════════
-# ★★★2026-09-02 裁定反转：**制品不随仓走，只在打包发布时才装进去。**
-#
-#   *.so     *.wasm
-#
-# 这两行**原本是被明令禁止写的**——上一版这里有一整段论证「本仓两样都要跟踪」，
-# 理由是 wheel 装的就是那份 `.so`、页面 fetch 的就是那三个 `.wasm`。理由本身没错，
-# 错在把「消费者要拿到」当成了「版本库要存」：二进制进 git 意味着每一次重建都在
-# 历史里压一份 2.7 MB 的新副本，而它们既不可 diff、也不可复核，git 能替它们做的
-# 只有存储。**发布通道（wheel 的 package-data、Releases 附件、站点同步）才是它们
-# 该走的路**，而那几条路都不经过 `git add`。
-#
-#   python/fylite/_lib/libfylite.so       打轮时由内核仓 `rust/build.sh` 装进来
-#   app/assets/fylite_{rs,tglf,dke}.wasm  同上；站点同步时从构建产物取
-#
-# ★★**这条规则删掉了一道闸的立足点**：`python/tests/test_bundled_artifacts.py`
-# 原有两道「已提交的那份是不是构建出来的那份」，现在没有「已提交的那份」了。
-# 它们已被改写成**反向的闸**——问「制品有没有被误提交」——所以这条裁定不会被
-# 一次顺手的 `git add -A` 悄悄推翻。ABI 一致性那几道不受影响，照常判。
-# ═══════════════════════════════════════════════════════════════════════════
-
 #: 构建产物：本仓不跟踪（见上）。★不要加 `!` 例外把某一份放回来。
 *.so
 *.wasm
-#: 数据层的命令行（`rust/build.sh --cli` 装进来），同一条规则。
-python/fylite/_bin/fylite-data
-python/fylite/_bin/fylite-case
-python/fylite/_bin/fylite-app
 
 # ── Python ────────────────────────────────────────────────────────────────
 __pycache__/
@@ -67,19 +42,7 @@ env/
 # Notebook
 .ipynb_checkpoints/
 
-# ── 锁文件 ────────────────────────────────────────────────────────────────
-# 本仓**不跟踪锁文件**（2026-08-26 `490bbc6` 已裁定并删过一次）。
-# ★这一行是那次裁定的落处。上次只删了文件、没写规则，于是任何一次
-# `uv run --with <extra>` 都会把它重新生成出来，再由 stop 闸报一次未跟踪 —— 同一个
-# 决定被重新讨论了两遍。而且重新生成的那一份记的是命令行上临时 `--with` 的东西
-# （pytest / scipy / h5py / jsonschema），不是本项目声明的依赖，提交它等于把某一次
-# 调用的环境当成仓库的环境。
-# ★★不写 `python/uv.lock` 而写裸名：工程目录搬过一次家（`python/` ↔ 仓根），
-# 那条带目录的规则就跟丢了——实测 2026-09-01 仓根有一份 327 KB 的 `uv.lock`
-# **没有被忽略**，下一次 `git add -A` 就会把它带进去。规则要钉住的是这个文件，
-# 不是它当时待的那一层。
-uv.lock
-
+ 
 # ── JavaScript / Node ─────────────────────────────────────────────────────
 # ★写 `node_modules/` 而不是 `*/node_modules/`：后者只匹配一层
 # （`tools/node_modules` 中，`app/x/node_modules` 不中）。JS 面在 `app/tests/`
@@ -103,41 +66,8 @@ pnpm-debug.log*
 # MyST（`docs/*/myst.yml`）
 _build/
 .myst/
-
-# ── 装置与实验数据：不属于本发行版 ────────────────────────────────────────
-# ★这一条不是洁癖。装置描述与实验炮的所有权不在本项目（见 `fylite.machine`），
-# 而本仓是**公开**的：一份为本地调试丢进树里的 deck，一次 `git add -A` 就发出去了。
-python/fylite/_data/
-examples/scripts/[ag][0-9]*
-#: 随那些 g/a 文件一起的运行摘要是同一炮的数据换个名字——它在上面那条模式之外，
-#: 所以曾经会被整树 add 带进来，而它自己的平衡还老老实实被忽略着。
-examples/scripts/summary_[0-9]*
-
-# ── 冻结语料：不在本仓 ────────────────────────────────────────────────────
-# `tests/data` 若存在，是一条指向 `fydata/oracle/` 的符号链接（86 M / 1239 份：
-# 录下的 oracle 答案、上游发布算例、参考剖面）。链接是**每台机器自己建的**，不入库
-# ——把别人机器上的目录布局提交进来，换台机器就是断链。
-#   建法：ln -s <fydata 检出>/oracle tests/data   （2026-09-02 fydata 顶层重规划后的位置）
-# 只要 oracle 库的话，`$FY_ORACLE_STORE` 也能指过去。
-tests/data
-python/tests/data
-
-# ── EAST 的内网件：不在本仓 ──────────────────────────────────────────────
-# ★★这两份都是**装置内网**的东西——一份采自 EAST Wiki（所内），一份是对 EAST
-# MDSplus 服务器录下的真会话（#137985 的原始样点与树的节点名拓扑）。它们随
-# `fydata`（私有）走，2026-09-02 迁出本仓；本仓是公开仓，**不再分发它们**。
-#
-#   app/devices/east-signals.json        <- fydata/corpus/device/east/east_signals.json
-#   app/tests/fixtures/mdsip-east.json   <- fydata/corpus/experiment/east/mdsip-137985.json
-#
-# ★路径**保持不变**是有意的：持有 fydata 的人把文件拷到这两个位置（或用
-# `FYLITE_MDS_FIXTURE` 指过去），页面那一栏与那几道门就照常工作；没有它们时
-# 页面自报「目录未随本分发提供」、门自报跳过。于是「有没有数据」不改代码。
-# ★不建符号链接：链接的目标只在某一台机器上成立，提交进来对别人就是断链——
-# 这正是上面那条对 `tests/data` 说过的话。
-app/devices/east-signals.json
-app/tests/fixtures/mdsip-east.json
-
+ 
+ 
 # ── Agent 提示面 ──────────────────────────────────────────────────────────
 # 由 sp 平台在本地渲染（sp `scripts/render.py`）；fylite 是独立协议成员，
 # 提示文件留在本地，从不提交（见 `.context/PROJECT.md` §6）。
@@ -148,7 +78,7 @@ CLAUDE.md
 AGENT.md
 AGENTS.md
 .claude/*
-!.claude/skills/
+
 
 # ── 第三方构建产物 ────────────────────────────────────────────────────────
 # tools/jmds — 由 `sh tools/jmds/build.sh` 构建；jar 与拉下来的编译器都是产物，
@@ -171,11 +101,4 @@ Desktop.ini
 target/
 Cargo.lock
 
-# machine_desc/ —— **按需拖回的输入，不进版本库**（2026-09-02 用户裁定）。
-#: 装置牌由 `tools/abox-to-machine-desc.py` 从 fydata 的 A-Box 生成。跟踪它就是
-#: 在本仓立第二个真值源，而两个真值源里错的那个不会报错——它只会让某台机器
-#: 安静地用上另一份描述。
-#: ★注意它**不是等价替换**：实测拖回来的 ITER 卡片没有 `machine.fylite:b0`
-#: （5.3 T），壁面轮廓的写法也换了。拖回之后要复核读它的那些消费者。
-machine_desc/
-records/
+ 
