@@ -13,7 +13,7 @@ fylite 的看家能力：给定磁测量求解 Grad–Shafranov 反演，按
 from fylite import fyo
 from fylite import scenario as S
 
-meas = fyo.as_measurements("machine_desc/east/case_east137985_4000ms.fyo.jsonld", 4.0)
+meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld", 4.0)
 r = S.analysis.reconstruction(meas, pressure=fit)      # fit 见下一节
 ```
 
@@ -32,7 +32,7 @@ Fortran 路同名的那批标量，故两者可直接对照。
 `rfcoil.ddd` 读，而本仓不带这份表——于是**整条 Python 反演路**在第一次内核调用之前就抛
 `MachineDataMissing`（令 `brsp=0` 也绕不开：数学归零不等于代码跳过）。现在它由装置文档的
 导体几何按 `device.channel_response(...)/2π` 现算（`recon_rs.coil_loop_rows`），与浏览器
-反演页、与本函数探针那一半走的是同一条路：**装置信息只有一个出处，`machine_desc/` 下的
+反演页、与本函数探针那一半走的是同一条路：**装置信息只有一个出处，即 `$FYLITE_DEVICE_DIR` 指向的那份装置文档**
 装置文档**。
 
 ★对表实测（#137985 wpf2018 那套 `rfcoil.ddd`）：`nu=nv=8` 下逐元相对差 7.7e-5，随求积阶
@@ -105,8 +105,6 @@ li 1.95±0.057、βp 0.302±0.015、$W_{mhd}$ 37.0±1.8 kJ、χ² 11.8±0.43。
 - POINT 的 $n_e$ 线积分仍有已知的实测-前向偏移；
 - 内部剖面**不可定量使用**——见[保真度边界](../reference/fidelity.md)。
 
-★走查用的 notebook 已不在本仓（`examples/notebooks/` 不存在）。`examples/east137985-recon-figure/`
-只发布这一例的**规格**（`case.fyo.jsonld` + README）；交付的重构与测量已转为 fyo 文档、
-移到装置目录一侧——`machine_desc/east/` 下的 `equilibrium_east137985_4000ms.fyo.jsonld`、
+★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`，见[算例语料](cases.md)与[诊断分析：平衡反演](example-reconstruction.md)）。本节用到的 EAST 测量文档、交付平衡与离线参考随 `machine_desc/` 一并退役，只在**内核仓的历史**里（`b4dce77^`）；取法见[安装与环境](install.md)。
 `case_east137985_4000ms.fyo.jsonld` 与 `fylite_magnetics_east.json`。实验数据不入库这条
 由 `python/tests/test_examples_are_fyo.py` 机检。

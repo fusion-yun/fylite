@@ -12,7 +12,7 @@ title: 典型算例 · 放电设计 (Worked Example · Discharge Design)
 | 轨迹 | `pulse-iter` | 电源要多大、爬升怎么走 | 前馈轨迹（**浏览器专属**） |
 | 平顶 | `discharge-iter` | 这个边界要多少线圈电流 | 自由边界**反解** |
 
-三步都要装置牌：`export FYLITE_DEVICE_DIR=$PWD/machine_desc/iter`。
+三步都要装置牌：`export FYLITE_DEVICE_DIR=~/fylite-decks/iter    # 见「安装与环境」：牌从 A-Box 拖回`。
 
 ## 一 · 场零（击穿前）
 
