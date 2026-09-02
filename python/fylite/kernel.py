@@ -7403,20 +7403,69 @@ def lengyel_inverse(*, geometry: dict, params: dict, t_e_target_ev: float,
 # an expression, on this side or that one.
 # --------------------------------------------------------------------------- #
 
+#: ★★数据层是**另一个** `.so`，不是内核那份：`libfylite_data.so`，符号前缀
+#: `fylite_data_*`。两个库、两条来路（内核由私有仓构建，数据层由本仓
+#: `rust/build.sh` 构建），同一个 `_lib/` 目录。前缀分开是让同进程 load 两份
+#: **不可能**撞名，也让符号名自己说出一次调用问的是哪一层。
+_data_cache: tuple[ctypes.CDLL | None] | None = None
+
+
+def load_data() -> ctypes.CDLL | None:
+    """数据层库，或 ``None``（没构建）。缓存，与 :func:`load` 同一形状。"""
+    global _data_cache
+    if _data_cache is not None:
+        return _data_cache[0]
+    from ._paths import DATA_LIB
+    path = Path(os.environ.get("FY_DATA_LIB") or DATA_LIB).expanduser()
+    if not path.exists():
+        _data_cache = (None,)
+        return None
+    lib = ctypes.CDLL(str(path))
+    for name, (argtypes, restype) in _DATA_SIGNATURES.items():
+        fn = getattr(lib, name, None)
+        if fn is None:
+            raise KernelError(
+                f"{path.name} has no {name} — the data library and this "
+                "package are out of step; rebuild with rust/build.sh")
+        fn.argtypes, fn.restype = argtypes, restype
+    _data_cache = (lib,)
+    return lib
+
+
+def require_data() -> ctypes.CDLL:
+    """数据层库，或一句响的错。★与内核那条同一政策：缺席是错误，不是「换条路
+    自己算」的邀请。"""
+    lib = load_data()
+    if lib is None:
+        from ._paths import DATA_LIB
+        raise KernelError(
+            f"the data library is not built ({DATA_LIB}) — run rust/build.sh")
+    return lib
+
+
+#: 数据层自己的签名表，与内核的 `_SIGNATURES` 分开：两个库的签名混在一张表里，
+#: 加载任何一个都会去另一个库上找不存在的符号。
+_DATA_SIGNATURES: dict[str, tuple[list, object]] = {}
+
+
+def _dsig(name: str, argtypes, restype) -> None:
+    _DATA_SIGNATURES[name] = (list(argtypes), restype)
+
+
 _BYTES = ctypes.POINTER(ctypes.c_uint8)
 _I64ARR = np.ctypeslib.ndpointer(np.int64, flags="C_CONTIGUOUS")
 _ARRU64 = np.ctypeslib.ndpointer(np.uint64, flags="C_CONTIGUOUS")
 
-_sig("fylite_rs_mds_open", [_BYTES, _U64, ctypes.c_uint16, _BYTES, _U64, _I32,
+_dsig("fylite_data_mds_open", [_BYTES, _U64, ctypes.c_uint16, _BYTES, _U64, _I32,
                             ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
-_sig("fylite_rs_mds_open_tree", [_VOID, _BYTES, _U64, ctypes.c_int64], _I32)
-_sig("fylite_rs_mds_read", [_VOID, _I32, _BYTES, _U64, _I64ARR, _U64, _I32,
+_dsig("fylite_data_mds_open_tree", [_VOID, _BYTES, _U64, ctypes.c_int64], _I32)
+_dsig("fylite_data_mds_read", [_VOID, _I32, _BYTES, _U64, _I64ARR, _U64, _I32,
                             ctypes.POINTER(ctypes.c_uint64)], _I32)
-_sig("fylite_rs_mds_last_f64", [_VOID, _ARR, _U64], _I32)
-_sig("fylite_rs_mds_last_dims", [_VOID, _ARRU64, _U64,
+_dsig("fylite_data_mds_last_f64", [_VOID, _ARR, _U64], _I32)
+_dsig("fylite_data_mds_last_dims", [_VOID, _ARRU64, _U64,
                                  ctypes.POINTER(ctypes.c_uint64)], _I32)
-_sig("fylite_rs_mds_last_error", [_VOID, _BYTES, _U64], ctypes.c_int64)
-_sig("fylite_rs_mds_close", [_VOID], None)
+_dsig("fylite_data_mds_last_error", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_mds_close", [_VOID], None)
 
 
 def _b(text: str):
@@ -7441,12 +7490,12 @@ class MdsSession:
 
     def __init__(self, host: str, port: int, *, user: str | None = None,
                  timeout_ms: int = 10_000):
-        lib = require()
+        lib = require_data()
         h = _VOID()
         err = (ctypes.c_uint8 * 512)()
         hb, hn, _k1 = _b(host)
         ub, un, _k2 = _b(user or os.environ.get("USER") or "fylite")
-        rc = lib.fylite_rs_mds_open(hb, hn, int(port), ub, un, int(timeout_ms),
+        rc = lib.fylite_data_mds_open(hb, hn, int(port), ub, un, int(timeout_ms),
                                     ctypes.byref(h),
                                     ctypes.cast(err, _BYTES), len(err))
         if rc != 0:
@@ -7466,16 +7515,16 @@ class MdsSession:
         return VERBS[name]
 
     def _fail(self, what: str, rc: int):
-        n = self._lib.fylite_rs_mds_last_error(self._h, None, 0)
+        n = self._lib.fylite_data_mds_last_error(self._h, None, 0)
         buf = (ctypes.c_uint8 * max(int(n), 1))()
-        self._lib.fylite_rs_mds_last_error(self._h, ctypes.cast(buf, _BYTES),
+        self._lib.fylite_data_mds_last_error(self._h, ctypes.cast(buf, _BYTES),
                                            len(buf))
         why = bytes(buf)[:max(int(n), 0)].decode("utf-8", "replace")
         raise KernelError(f"{what} returned {rc}: {why}")
 
     def open_tree(self, tree: str, shot: int) -> None:
         tb, tn, _k = _b(tree)
-        rc = self._lib.fylite_rs_mds_open_tree(self._h, tb, tn, int(shot))
+        rc = self._lib.fylite_data_mds_open_tree(self._h, tb, tn, int(shot))
         if rc != 0:
             self._fail(f"open_tree({tree!r}, {shot})", rc)
 
@@ -7492,27 +7541,27 @@ class MdsSession:
         sub = np.asarray(items, dtype=np.int64)
         nb, nn, _k = _b(node)
         n = ctypes.c_uint64()
-        rc = self._lib.fylite_rs_mds_read(
+        rc = self._lib.fylite_data_mds_read(
             self._h, self._verb(verb), nb, nn, sub, len(items),
             1 if inside else 0, ctypes.byref(n))
         if rc != 0:
             self._fail(f"read({verb!r}, {node!r})", rc)
         out = np.empty(int(n.value), dtype=np.float64)
-        rc = self._lib.fylite_rs_mds_last_f64(self._h, out, out.size)
+        rc = self._lib.fylite_data_mds_last_f64(self._h, out, out.size)
         if rc != 0:
             self._fail("last_f64", rc)
         nd = ctypes.c_uint64()
-        self._lib.fylite_rs_mds_last_dims(self._h, np.empty(0, np.uint64), 0,
+        self._lib.fylite_data_mds_last_dims(self._h, np.empty(0, np.uint64), 0,
                                           ctypes.byref(nd))
         dims = np.empty(int(nd.value), dtype=np.uint64)
         if dims.size:
-            self._lib.fylite_rs_mds_last_dims(self._h, dims, dims.size,
+            self._lib.fylite_data_mds_last_dims(self._h, dims, dims.size,
                                               ctypes.byref(nd))
         return out, tuple(int(d) for d in dims)
 
     def close(self) -> None:
         if getattr(self, "_h", None) is not None:
-            self._lib.fylite_rs_mds_close(self._h)
+            self._lib.fylite_data_mds_close(self._h)
             self._h = None
 
     def __enter__(self):

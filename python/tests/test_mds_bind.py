@@ -34,7 +34,12 @@ NODE_RE = re.compile(r"^[A-Za-z0-9_$\\.:-]+$")
 
 #: 实测值。改动上游 A-Box 之后这两个数会变——**跟着改，但要在提交信息里说清楚
 #: 多出来/少掉的是哪几条**，不要只把数字调到当天的样子。
-N_BINDINGS = 483
+#:
+#: 2026-09-02  483 -> 481：上游删了 `equilibrium` 的 `boundary/type`（那是全表
+#: 唯一一条 `const` 字面量）与 `global_quantities/q_min/{value,rho_tor_norm}`，
+#: 新增 `boundary/minor_radius`。三删一增。★这是**绑定内容**变了，不是上游被
+#: 重写了一遍——两者由 provenance 的两个指纹分开，`--check` 会直说是哪一种。
+N_BINDINGS = 481
 N_UNSUPPORTED = 2
 
 pytestmark = pytest.mark.skipif(not PY_COPY.is_file(),
@@ -151,23 +156,26 @@ def test_the_two_hosts_get_the_same_wire_codes():
     assert "-9223372036854775808n" in text, "JS 侧的 ALL 必须是 BigInt 字面量"
 
 
-def test_the_kernel_exports_the_data_plane():
-    """★这几条导出是本轮补的（ABI v124）。Python 侧的 `MdsSession` 全靠它们——
-    符号不在，失败发生在**运行期第一次取数**，而那时人已经在等一炮数据了。
+def test_the_data_library_exports_the_plane_and_the_kernel_does_not():
+    """★★两件事一起判，因为它们是同一条边界的两面。
+
+    数据层（`libfylite_data.so`，本仓 `rust/fylite_data/`）要有这七条；
+    **内核（`libfylite_kernel.so`）一条都不许有**。这一组 2026-09-02 曾短暂地长在
+    内核的 C ABI 上（ABI 124），当天判定为分层错误并搬走——判据留在这里，
+    免得它某天又长回去：网络协议不是算数那层的接口。
     """
     from fylite import kernel
-    lib = kernel.load()
-    if lib is None:
-        pytest.skip("libfylite.so not built (rust/build.sh)")
-    speaks = int(lib.fylite_rs_abi_version())
-    if speaks < 124:
-        pytest.skip(f"library speaks ABI {speaks} (< 124): the mdsip plane "
-                    "landed in 124 — rebuild with rust/build.sh")
-    for name in ("fylite_rs_mds_open", "fylite_rs_mds_open_tree",
-                 "fylite_rs_mds_read", "fylite_rs_mds_last_f64",
-                 "fylite_rs_mds_last_dims", "fylite_rs_mds_last_error",
-                 "fylite_rs_mds_close"):
-        assert hasattr(lib, name), name
+    data = kernel.load_data()
+    if data is None:
+        pytest.skip("libfylite_data.so not built (rust/build.sh)")
+    names = ("open", "open_tree", "read", "last_f64", "last_dims",
+             "last_error", "close")
+    for n in names:
+        assert hasattr(data, f"fylite_data_mds_{n}"), n
+    core = kernel.load()
+    if core is not None:
+        back = [n for n in names if hasattr(core, f"fylite_rs_mds_{n}")]
+        assert back == [], f"数据面又长回内核的 C ABI 上了：{back}"
 
 
 def test_a_verb_the_contract_does_not_have_is_refused_here():

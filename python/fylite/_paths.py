@@ -26,14 +26,23 @@ BIN_DIR = PKG / "_bin"
 #: defaults, the m-file limiter).  A registry of filenames is not a layer.
 
 #: The kernel: a C-ABI cdylib built by ``rust/build.sh``, re-entrant with no
-#: global state, called in-process.  ★It is the ONLY library this package
-#: loads.  The four that used to stand beside it — ``libefit.so``,
+#: global state, called in-process.  ★★It was the ONLY library this package
+#: loaded until 2026-09-02, when the data plane became a library of its own
+#: (``DATA_LIB`` below): physics on one side, taking numbers off a machine on
+#: the other.  The four that used to stand beside it — ``libefit.so``,
 #: ``libneo.so``, ``libgeo.so``, ``libtglf.so`` — left with LICENSE 3.1/3.2
 #: along with every binding to them, and their constants have gone with the
 #: loader that turned a missing one into a diagnostic.  What survives of
 #: those libraries is a set of RECORDINGS (``tests/data/oracle``,
 #: replayed from ``tests/oracles/``), and a recording needs no path.
-KERNEL_LIB = LIB_DIR / "libfylite.so"
+#: ★★2026-09-02 改名：`libfylite.so` -> `libfylite_kernel.so`。本目录从此有**两份**
+#: `.so`，来路不同：内核（物理，私有仓 fylite_kernel 构建）与数据层（取数与格式，
+#: 本仓 `rust/fylite_data/` 构建）。名字自带区分，好过靠读者记住哪一份是哪一层。
+KERNEL_LIB = LIB_DIR / "libfylite_kernel.so"
+
+#: 数据层：mdsip 编解码，后续收编 g-file / est2。★与内核**不同的符号前缀**
+#: （`fylite_data_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。
+DATA_LIB = LIB_DIR / "libfylite_data.so"
 
 #: ★★2026-09-01 移除：`$KEFIT_REFERENCE_BUNDLE` 与 `reference_bundle()`。
 #: 那是一个指向 ASIPP **不可再分发**参考包（`kefit_reference_bundle`，致谢里的

@@ -1,0 +1,47 @@
+# fylite 的**数据层** —— 取数与格式，不做物理。
+#
+# ★★2026-09-02 裁定：内核库只算数，数据平面归这里（评估见对话记录；判据是
+# `fylite_kernel` 的 `fyo.rs:220`「the one document the KERNEL never reads」与
+# FYL-SDD-01 DE-COMP-02——在算数的那层做宿主的活是错的分层）。
+#
+# ★**源码公开**，与内核相反：这里是协议编解码与文件格式，不是物理 IP。
+# 一份源，三个制品：
+#
+#   libfylite_data.so   Python 直接 load（取代 `python/fylite/io/mds.py` 那 480 行）
+#   fylite-app          单文件桌面查看器：内嵌整个 `app/` + mdsip 请求面
+#   fylite_data.wasm    浏览器用 —— ★**不含 mdsip**（用户裁定 2026-09-02：
+#                       纯浏览器端不包含 mdsip 支持；浏览器本就打不开裸 TCP，
+#                       FYL-DESIGN-06 §1 早已关死那条）
+[package]
+name = "fylite_data"
+version = "0.0.1"
+edition = "2021"
+license = "Apache-2.0"
+description = "fylite data plane — MDSplus mdsip codec and file-format readers"
+
+[lib]
+name = "fylite_data"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# `mdsip` 是**原生专用**：wasm 没有 socket，浏览器也不该有这条路。
+# 默认开（`.so` 与可执行文件要它）；wasm 构建用 --no-default-features 去掉。
+default = ["mdsip"]
+mdsip = []
+#: 桌面查看器。`required-features` 让它不进默认构建——`cargo build` 与
+#: `cargo test` 的产物因此不受它影响。
+desktop = ["mdsip"]
+
+[[bin]]
+name = "fylite-app"
+path = "src/bin/app/main.rs"
+required-features = ["desktop"]
+
+[profile.release]
+opt-level = 3
+lto = true
+panic = "unwind"
+#: ★与内核同一条理由：制品是发行物，未 strip 的二进制附送一份内部结构地图。
+#: 这里的源码是公开的，所以理由只剩体积——但两个制品的构建规矩保持一致，
+#: 不让「哪个制品该 strip」变成要逐个记住的事。
+strip = "symbols"
