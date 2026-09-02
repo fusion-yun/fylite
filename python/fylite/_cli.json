@@ -179,7 +179,7 @@
   },
   {
    "name": "cases",
-   "help": "list / show / check / RUN the two corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue) and, with --benchmark, the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, or runs a record's private gates in $FYLITE_KERNEL; --report renders a case (or a recorded run, --from) into MyST + SVG through a presentation spec",
+   "help": "list / show / check / RUN the three corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue), with --benchmark the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository), and with --physics the physics-check suite (benchmark/physics/: preset cases judged against physical law, the documents' own definitions and the case's declared expectations) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, runs a record's private gates in $FYLITE_KERNEL, or (with --physics) runs a preset case and judges its product; --report renders a case (or a recorded run, --from) into MyST + SVG through a presentation spec",
    "handler": "fylite.engine.cli:_cli_cases",
    "args": [
     {
@@ -201,6 +201,13 @@
      ],
      "action": "store_true",
      "help": "address the public V&V register (benchmark/) instead of the scenario corpus: list records, print one, --check its structure, --plan / --run its gates"
+    },
+    {
+     "flags": [
+      "--physics"
+     ],
+     "action": "store_true",
+     "help": "address the physics-check suite (benchmark/physics/suite.jsonld) instead of the scenario corpus: list the preset cases and their criteria, print one, --check the suite's structure, --run one and judge its product against the check register (fylite.scenario.physics); with --from, judge a recorded run instead of running the case"
     },
     {
      "flags": [

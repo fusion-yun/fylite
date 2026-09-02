@@ -1,0 +1,47 @@
+{
+  "@context": [
+    "context.jsonld",
+    {
+      "@base": "../../"
+    }
+  ],
+  "id": "physics/transport-iter-15ma",
+  "type": "fyo:ComparisonRecord",
+  "comparison_kind": "verification",
+  "title": "ITER 15 MA 定态剖面：固定几何、单通道",
+  "recorded": "2026-09-02",
+  "scenario": "cases/transport-iter-15ma",
+  "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "本次运行产出的 fyo 文档（记录见 run 段）"
+  },
+  "compared_reference": [
+    {
+      "type": "spo:InformationContentEntity",
+      "name": "物理定律与文档自身的定义",
+      "comment": "判据册在 `fylite.scenario.physics`：定律（正性、有限性、Grad–Shafranov）、定义（ψ 端点、V′、β_N 与 Greenwald 的式子、τ_E 的定义式）与算例声明的期望（上下界、准稳态窗口）"
+    }
+  ],
+  "criteria": [],
+  "findings": [],
+  "assertion_state": "under_test",
+  "overall_verdict": "unevaluated",
+  "run": {
+    "type": "spo:ComputationRecord",
+    "id": null,
+    "comment": [
+      "",
+      "datasets: —"
+    ]
+  },
+  "account": "docs/reference/FYL-REF-BENCHMARK.md",
+  "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "benchmark/physics/transport-iter-15ma.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+  },
+  "caveat": [
+    "本条没有产出可判：the case could not be run: KernelError: fylite_data_case_json returned -4: no kernel library with the fyo door found; looked at:\n  /home/user/fylite/python/fylite/_lib/libfylite_kernel.so (absent)\n  /home/user/fylite/../python/fylite/_lib/libfylite_kernel.so (absent)\n  /home/user/fylite/../../python/fylite/_lib/libfylite_kernel.so (absent)\n  /usr/bin/python/fylite/_lib/libfylite_kernel.so (absent)\n  /usr/bin/libfylite_kernel.so (absent)\n  /usr/python/fylite/_lib/libfylite_kernel.so (absent)\n  /usr/libfylite_kernel.so (absent)\n  /python/fylite/_lib/libfylite_kernel.so (absent)\n  /libfylite_kernel.so (absent)\n  /home/user/fylite/../fylite_kernel/rust/fylite/target/release/libfylite_kernel.so (absent)\n  /home/user/fylite/../fylite_kernel/rust/fylite/target/debug/libfylite_kernel.so (absent)\n  /home/user/fylite/../../fylite_kernel/rust/fylite/target/release/libfylite_kernel.so (absent)\n  /home/user/fylite/../../fylite_kernel/rust/fylite/target/debug/libfylite_kernel.so (absent)\n  /home/user/fylite/../../../fylite_kernel/rust/fylite/target/release/libfylite_kernel.so (absent)\n  /home/user/fylite/../../../fylite_kernel/rust/fylite/target/debug/libfylite_kernel.so (absent)\n(pass --kernel <path>, set FYLITE_KERNEL_LIB, or build it with the kernel's rust/build.sh)"
+  ]
+}

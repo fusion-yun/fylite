@@ -257,6 +257,12 @@ def _cli_cases(args, parser) -> int:
     #: this code runs」and「what it was measured against」(scenario/benchmark.py).
     if getattr(args, "benchmark", False):
         return _cli_benchmark(args, parser)
+    #: ★★2026-09-02 第三本册子：`--physics` 读物理校验批（`benchmark/physics/`）——
+    #: 同一个动词，问的是另一个问题：不是「跑什么」（语料）也不是「对着外部答案
+    #: 量到多少」（登记册），而是「这份产出满不满足定律、文档自己的定义与算例
+    #: 声明的期望」（scenario/physics.py + scenario/suite.py）。
+    if getattr(args, "physics", False):
+        return _cli_physics(args, parser)
     #: ★the REPORT face of a case (2026-09-02, FYL-REPORT-06 §13): run it through the
     #: data layer's JSON door and render plan + record into MyST + SVG through a
     #: presentation spec — or render a record `fylite-case run` already wrote (--from).
@@ -356,6 +362,64 @@ def _cli_cases(args, parser) -> int:
         for r in rows:
             dev = f"  [{r['device']}]" if r.get("device") else ""
             print(f"  {r['case_id']:<28} {r['bar'] or '?':<10}{dev}  {r['name']}")
+    return 0
+
+
+def _cli_physics(args, parser) -> int:
+    """List / show / check / run the physics-check suite (`fylite cases --physics`)."""
+    from ..scenario import suite as _sc
+    d = _sc.suite_dir(args.dir)
+    doc = _sc.load_suite(d)
+    parts = {str(p.get("id", "")).rsplit("/", 1)[-1]: p for p in doc.get("has_part") or []}
+    if getattr(args, "run_case", False) or getattr(args, "plan", False):
+        if not args.name:
+            parser.error("--plan/--run need an entry id (see `fylite cases --physics`)")
+        try:
+            e = _sc.entry(args.name, d)
+        except KeyError:
+            print(f"no entry {args.name!r}; the suite has: " + ", ".join(parts))
+            return 1
+        if getattr(args, "plan", False):
+            #: 跑之前先说：这条要读哪些量、判哪几条
+            print(json.dumps({"entry": e["id"], "case": e["case"], "checks": e["checks"],
+                              "options": e["options"], "products": e.get("products") or []},
+                             ensure_ascii=False, indent=1))
+            return 0
+        row = _sc.run_entry(e, from_dir=getattr(args, "from_record", None),
+                            corpus=getattr(args, "corpus", None),
+                            kernel_lib=getattr(args, "kernel", None))
+        if args.as_json:
+            print(json.dumps({k: v for k, v in row.items() if k != "record"},
+                             ensure_ascii=False, indent=1, default=str))
+        else:
+            print(_sc.render_report(row))
+        #: 判据不过 → 非零码；「没有产出可判」不是不过，退 0 并已在报告里说明
+        return 1 if row["summary"]["counts"][_sc.ph.FAIL] else 0
+    if args.name:
+        part = parts.get(args.name)
+        if part is None:
+            print(f"no entry {args.name!r}; the suite has: " + ", ".join(parts))
+            return 1
+        print(json.dumps(part, ensure_ascii=False, indent=1))
+        return 0
+    if args.check:
+        bad = []
+        for pid, part in parts.items():
+            bad.extend(f"{pid}: {why}" for why in _sc.problems(part, d))
+        for line in bad:
+            print(f"  BAD  {line}")
+        print(f"{len(parts)} entries, {len(bad)} problems")
+        return 1 if bad else 0
+    rows = _sc.entries(d)
+    if args.as_json:
+        print(json.dumps({"dir": str(d), "entries": rows}, ensure_ascii=False, indent=1))
+    else:
+        print(f"{d}  ({len(rows)} entries; check register: "
+              f"{len(_sc.ph.CHECKS)} checks)")
+        for r in rows:
+            src = r["case"] or ("product " + ", ".join(r.get("products") or []))
+            print(f"  {r['id']:<24} {len(r['checks']):>2} checks  "
+                  f"{'+'.join(sorted(r['options'])) or '-':<28}  {src}")
     return 0
 
 

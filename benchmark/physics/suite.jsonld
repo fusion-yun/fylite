@@ -1,0 +1,287 @@
+{
+  "@context": [
+    "context.jsonld",
+    {
+      "@base": "../../"
+    }
+  ],
+  "id": "benchmark/physics/suite",
+  "type": "spo:InformationContentEntity",
+  "title": {
+    "zh": "物理校验批：预设算例与它们的判据",
+    "en": "The physics-check suite: preset cases and their criteria"
+  },
+  "abstract": {
+    "zh": "一条一条：跑哪个算例（scenario，指向 cases/ 语料里的 fyo:ScenarioSpecification），按哪些判据判（criteria）。判据册本身在 `fylite.scenario.physics`：定律（有限性、正性、Grad–Shafranov）与定义（ψ 端点、V′、τ_E 的定义式、β_N 与 Greenwald 的式子）对每个算例一律跑——它们不需要谁来声明；期望（上下界、准稳态窗口）是场景的性质，所以由这里逐条带。★本册子与公开 V&V 登记册（../registry.jsonld）问的不是同一个问题：那边的参考是外部答案，这边的参考是定律与文档自身的定义。",
+    "en": "One row per preset case: which scenario to run and which criteria to judge it by. The check register itself lives in `fylite.scenario.physics`; laws and definitions run for every case, while expectations (bounds, steady-state windows) are properties of the scenario and are therefore carried here, case by case. This is a different register from the public V&V one (../registry.jsonld): there the reference is an external answer, here it is physical law and the documents' own definitions."
+  },
+  "recorded": "2026-09-02",
+  "caveat": [
+    "上下界是**运行限的常用取法**，不是从某一份参考件量出来的：q95 > 2（扭曲模的常规下界）、Greenwald 分数 ≤ 1.2（密度极限；>1 的运行是有的，故取 1.2 而不是 1）、β_N ≤ 4（Troyon 型无壁极限的常用上界 3–4）。它们的 tolerance_basis 因此是 reference_stated，判不过读作「这一炮落在声明的窗口外」，不读作「代码错了」。",
+    "算例本身的能力边界（哪些开关本仓还没沉下来）由 `fylite cases --plan` 说；本册子不复述它，跑不动的算例在批次里记为「没有产出可判」并写明理由。"
+  ],
+  "has_part": [
+    {
+      "id": "physics/evolve-default",
+      "title": {
+        "zh": "缺省演化：一次 1.5-D 输运推进的自洽性",
+        "en": "The default march: self-consistency of one 1.5-D transport advance"
+      },
+      "scenario": "cases/evolve-default",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "cases/evolve-default.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "energy-balance",
+          "norm": "relative",
+          "tolerance": {
+            "type": "spo:QuantityValue",
+            "numeric_value": 0.05
+          },
+          "tolerance_basis": "measured_band",
+          "p_heat_terms": [
+            "p_ohm",
+            "p_aux",
+            "p_alpha",
+            "-p_rad"
+          ],
+          "caveat": [
+            "出厂设置不开辐射时 p_rad 为零，这一项照样计入（口径写在结论里）"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physics/evolve-iter-15ma",
+      "title": {
+        "zh": "ITER 15 MA 感应燃烧：定律、定义，加上这一炮该落在哪",
+        "en": "ITER 15 MA inductive burn: laws, definitions, and where this pulse should land"
+      },
+      "scenario": "cases/evolve-iter-15ma",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "cases/evolve-iter-15ma.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "declared-bounds",
+          "tolerance_basis": "reference_stated",
+          "bounds": [
+            {
+              "quantity": "SUMMARY/q95",
+              "minimum": 2.0
+            },
+            {
+              "quantity": "SUMMARY/greenwald",
+              "maximum": 1.2
+            },
+            {
+              "quantity": "SUMMARY/beta_n",
+              "maximum": 4.0
+            }
+          ],
+          "caveat": [
+            "三条都是常用运行限（见册子抬头的注记），不是某份参考件的实测值"
+          ]
+        },
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "energy-balance",
+          "norm": "relative",
+          "tolerance": {
+            "type": "spo:QuantityValue",
+            "numeric_value": 0.05
+          },
+          "tolerance_basis": "measured_band"
+        }
+      ]
+    },
+    {
+      "id": "physics/evolve-east-hmode",
+      "title": {
+        "zh": "EAST 长脉冲（装置牌）：带电流道与锯齿的演化",
+        "en": "EAST long pulse (device deck): the march with the current channel and sawteeth"
+      },
+      "scenario": "cases/evolve-east-hmode",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "cases/evolve-east-hmode.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "declared-bounds",
+          "tolerance_basis": "reference_stated",
+          "bounds": [
+            {
+              "quantity": "SUMMARY/q95",
+              "minimum": 2.0
+            },
+            {
+              "quantity": "SUMMARY/greenwald",
+              "maximum": 1.2
+            }
+          ]
+        }
+      ],
+      "caveat": [
+        "装置牌不在本仓（machine_desc/east）时这一条没有产出可判"
+      ]
+    },
+    {
+      "id": "physics/transport-iter-15ma",
+      "title": {
+        "zh": "ITER 15 MA 定态剖面：固定几何、单通道",
+        "en": "ITER 15 MA steady profiles: fixed geometry, one channel"
+      },
+      "scenario": "cases/transport-iter-15ma",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "cases/transport-iter-15ma.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "steady-state",
+          "norm": "relative",
+          "tolerance": {
+            "type": "spo:QuantityValue",
+            "numeric_value": 0.02
+          },
+          "tolerance_basis": "reference_stated",
+          "caveat": [
+            "算例声称定态，所以 steady_change 该小；窗口 2 % 是本册子对「定态」的取法"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physics/zerod-iter-15ma",
+      "title": {
+        "zh": "ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住",
+        "en": "ITER 15 MA 0-D power balance: does the τ_E definition hold"
+      },
+      "scenario": "cases/zerod-iter-15ma",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "cases/zerod-iter-15ma.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "energy-balance",
+          "norm": "relative",
+          "tolerance": {
+            "type": "spo:QuantityValue",
+            "numeric_value": 0.02
+          },
+          "tolerance_basis": "measured_band",
+          "caveat": [
+            "0-D 的能量平衡就是它自己在解的方程，所以带取得比 1.5-D 紧"
+          ]
+        },
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "declared-bounds",
+          "tolerance_basis": "reference_stated",
+          "bounds": [
+            {
+              "quantity": "SUMMARY/greenwald",
+              "maximum": 1.2
+            },
+            {
+              "quantity": "SUMMARY/beta_n",
+              "maximum": 4.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physics/discharge-iter",
+      "title": {
+        "zh": "ITER 平顶位形（自由边界反解）：Grad–Shafranov 与几何定义",
+        "en": "ITER flattop configuration (free boundary): Grad–Shafranov and the geometric definitions"
+      },
+      "scenario": "cases/discharge-iter",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "cases/discharge-iter.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "grad-shafranov",
+          "norm": "relative",
+          "tolerance": {
+            "type": "spo:QuantityValue",
+            "numeric_value": 0.03
+          },
+          "tolerance_basis": "measured_band",
+          "caveat": [
+            "带宽按网格取：二阶中心差分的截断误差随 h² 走，反解网格比合成算例粗"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physics/equilibrium-gfile",
+      "title": {
+        "zh": "一份盘上的平衡产出（合成 g-file）：Grad–Shafranov 与几何定义",
+        "en": "An equilibrium product on disk (synthetic g-file): Grad–Shafranov and the geometric definitions"
+      },
+      "abstract": {
+        "zh": "判的是**产出文件**而不是一次运行：一份 g-file 就是一份平衡产出，它满不满足 GS 与谁写的它无关。★这一条在没有内核的检出里也跑得动，因此本册子不会整册都是「未评估」。",
+        "en": "This row judges a product on disk rather than a run, so it is evaluable in a public checkout with no kernel."
+      },
+      "has_output": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "rust/fylite_data/testdata/g_synthetic.geqdsk",
+          "format_iri": "https://fusion-yun.github.io/fyo/latest/GeqdskFormat",
+          "comment": "本仓自带的合成 g-file（数据层的判据件）"
+        }
+      ],
+      "criteria": [
+        {
+          "type": "fyo:AcceptanceCriterion",
+          "quantity_label": "grad-shafranov",
+          "norm": "relative",
+          "tolerance": {
+            "type": "spo:QuantityValue",
+            "numeric_value": 0.05
+          },
+          "tolerance_basis": "measured_band",
+          "caveat": [
+            "带宽按网格取：g-file 的 ψ 在 65×65 上，二阶差分的截断误差随 h² 走"
+          ]
+        }
+      ],
+      "caveat": [
+        "合成件不是一次物理放电：它是数据层的判据件，用来把这条通路本身钉住"
+      ]
+    }
+  ]
+}

@@ -280,6 +280,32 @@ output ports. `fylite-case json plan.jsonld` and, in Python,
 its own single door, `fylite_rs_fyo`: settings by name and inputs by fyo path
 in, fields by fyo path out, no handle and no state between calls.
 
+## Physics checks
+
+Beside the V&V register (what fylite was measured *against*) there is a second
+question: is what it produced **self-consistent**? A run that converged quickly
+can still carry a negative temperature, and a profile that agrees with another
+code to 1 % can still violate Grad–Shafranov — two errors cancelling.
+
+`benchmark/physics/` is the register that asks it. Each preset case is judged
+against **physical law** (finiteness, positivity, the Grad–Shafranov equation),
+against the **documents' own definitions** (ψ endpoints, V′ > 0, the τ_E, β_N and
+Greenwald formulae) and against the **window the case declares** (bounds,
+steady-state). Verdicts are the four-state acceptance vocabulary, and a quantity
+that is absent is `unevaluated` **by name** — never silently passed.
+
+```bash
+python tools/benchmark-run.py            # run the batch, print the statistics
+python tools/benchmark-run.py --write    # write benchmark/physics/ + BENCHMARK.md
+fylite cases --physics                   # the preset cases and their criteria
+fylite cases --physics --run equilibrium-gfile
+```
+
+The summary table is [`BENCHMARK.md`](BENCHMARK.md); the register, its per-case
+records and reports are in [`benchmark/physics/`](benchmark/physics/), and the
+check register itself — what each check reads, its formula, its assumptions — is
+`docs/reference/benchmark.md`.
+
 The IMAS layouts are checked against the real readers, not against a
 description of them: `rust/fylite_data/verify/imas_roundtrip.py` writes with
 imas-python, reads with this library, writes with this library, and reads
@@ -320,6 +346,7 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
 | `examples/` | case specifications |
 | `benchmark/` `cases/` | the V&V registry and the worked cases |
+| `benchmark/physics/` + [`BENCHMARK.md`](BENCHMARK.md) | the **physics-check register**: preset cases judged against physical law, the documents' own definitions and each case's declared window (`tools/benchmark-run.py`) |
 | `docs/` | the MyST book: user guide, reference, cases |
 | `tools/` | deck converters, page generators, oracle store maintenance |
 

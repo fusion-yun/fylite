@@ -41,6 +41,8 @@ project:
     - file: kernels.md
     - file: api.md
     - file: report-template.md
+    # 物理校验：产出对着定律、文档自身的定义与算例声明的期望被判成什么（benchmark/physics/）
+    - file: benchmark.md
     # 物理与数值：每个物理模块实际实现的理论（公式、假设、参数域）与数值算法，逐条一手出处。
     # 章号即文件号；00 为阅读协议与模块→章节映射。
     - title: 物理与数值 (Physics & Numerics)

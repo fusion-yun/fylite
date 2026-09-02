@@ -1,0 +1,275 @@
+{
+  "@context": [
+    "context.jsonld",
+    {
+      "@base": "../../"
+    }
+  ],
+  "id": "physics/equilibrium-gfile",
+  "type": "fyo:ComparisonRecord",
+  "comparison_kind": "verification",
+  "title": "一份盘上的平衡产出（合成 g-file）：Grad–Shafranov 与几何定义",
+  "recorded": "2026-09-02",
+  "scenario": null,
+  "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "本次运行产出的 fyo 文档（记录见 run 段）"
+  },
+  "compared_reference": [
+    {
+      "type": "spo:InformationContentEntity",
+      "name": "物理定律与文档自身的定义",
+      "comment": "判据册在 `fylite.scenario.physics`：定律（正性、有限性、Grad–Shafranov）、定义（ψ 端点、V′、β_N 与 Greenwald 的式子、τ_E 的定义式）与算例声明的期望（上下界、准稳态窗口）"
+    }
+  ],
+  "criteria": [
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "finite",
+      "norm": "count",
+      "tolerance_basis": "machine_precision",
+      "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.0
+      },
+      "caveat": [
+        "NaN / Inf 不是一个物理态，也不是「还没算」——后者应当缺席而不是写成 NaN"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "positive-temperature",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "positive-density",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "grad-shafranov",
+      "norm": "relative",
+      "tolerance_basis": "measured_band",
+      "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.05
+      },
+      "caveat": [
+        "二阶中心差分，残差按 ‖Δ*ψ‖ 与 ‖RHS‖ 的均方根归一——网格越粗，截断误差越大",
+        "只在边界内、离网格边一格以上的点上取",
+        "ψ 每弧度、`Δ*ψ = −μ₀R²p′ − ff′`；相反符号支更小时给注记而不是判负"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "grid-monotone",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "psi-endpoints",
+      "norm": "relative",
+      "tolerance_basis": "machine_precision",
+      "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 1e-06
+      }
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "volume-monotone",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "轴上 V′ = 0 是解析的，所以只看内部点"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "boundary-closed",
+      "norm": "sampling steps",
+      "tolerance_basis": "measured_band",
+      "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 1.5
+      },
+      "caveat": [
+        "闭合按采样步量而不按小半径：等值线是采出来的，首末差一个采样步之内就是闭合的",
+        "越界按距离量：正落在限制器上的点是「贴着」，不是越界（射线法对这种点是随机的）",
+        "没有限制器时只量闭合性，并在结论里说明"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "pressure-consistency",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "热压强、单一等效离子、无快离子压强；带快粒子的算例会有正的口径差",
+        "两侧网格不同时按 ψ_norm 插值，缺共同横坐标就不评"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "energy-balance",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "P_heat 取哪几项是约定：缺省 p_ohm + p_aux + p_alpha − p_rad，可由算例声明"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "greenwald-definition",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "n̄_e 取体积平均；记录若用线平均会有几个百分点的口径差",
+        "a 取边界外形的 (R_max − R_min)/2"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "beta-normalized-definition",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "⟨p⟩ 是平衡压强的体积平均（热压强口径）"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "产出的每个数都是有限的",
+      "deviation_literal": "0",
+      "verdict": "pass",
+      "comment": "5125 个数值全部有限"
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "绝对温度为正",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有温度",
+      "caveat": [
+        "读不到：CORE_PROFILES/te, CORE_PROFILES/ti, SUMMARY/te_axis, SUMMARY/ti_axis"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "粒子数密度为正",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有密度",
+      "caveat": [
+        "读不到：CORE_PROFILES/ne, CORE_PROFILES/ni, SUMMARY/ne_axis"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "二维平衡满足 Grad–Shafranov 方程",
+      "deviation_literal": "0.0001474",
+      "verdict": "pass",
+      "comment": "3838 个内点（边界外形内）上 ‖Δ*ψ − RHS‖/‖·‖ = 1.474e-04（另一符号支 2.000e+00）"
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "网格与时间轴单调，归一化网格在 [0, 1]",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有网格或时间轴",
+      "caveat": [
+        "读不到：no grid or time axis"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "一维 ψ 的两端就是 ψ_axis 与 ψ_boundary",
+      "deviation_literal": "1.076e-17",
+      "verdict": "pass",
+      "comment": "两端相对 ψ 跨度差 0.000e+00 / 1.076e-17"
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "体积随 ρ 单调增，V′ 在轴外为正",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "梯子上没有体积",
+      "caveat": [
+        "读不到：LADDER/volume, LADDER/vprime"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "最外闭合磁面闭合，且在限制器内",
+      "deviation_literal": "0.5274",
+      "verdict": "pass",
+      "comment": "首末点间距 0.01519 m = 0.527 个采样步（步长中位数 0.02881 m，小半径 0.4844 m）；越出限制器多于 0.009687 m 的边界点 0/181（最深 2.22e-16 m）"
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "平衡压强对得上剖面的动理压强",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺平衡压强或电子剖面",
+      "caveat": [
+        "读不到：EQUILIBRIUM/pressure, CORE_PROFILES/ne, CORE_PROFILES/te"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "能量约束时间的定义式逐时刻成立",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺热能或能量约束时间",
+      "caveat": [
+        "读不到：SUMMARY/w_th, SUMMARY/tau_e"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "记下的 Greenwald 分数对得上定义",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺记下的 Greenwald 分数、I_p 或密度剖面",
+      "caveat": [
+        "读不到：SUMMARY/greenwald, SUMMARY/ip, CORE_PROFILES/ne"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "记下的 β_N 对得上定义",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺 β_N、I_p、B₀ 或压强剖面",
+      "caveat": [
+        "读不到：SUMMARY/beta_n, SUMMARY/ip, EQUILIBRIUM/b0, EQUILIBRIUM/pressure"
+      ]
+    }
+  ],
+  "assertion_state": "under_test",
+  "overall_verdict": "pass",
+  "run": {
+    "type": "spo:ComputationRecord",
+    "id": "product/g_synthetic.geqdsk",
+    "comment": [
+      "判的是盘上的产出文件（g_synthetic.geqdsk），不是本批跑出来的",
+      "datasets: equilibrium"
+    ]
+  },
+  "account": "docs/reference/FYL-REF-BENCHMARK.md",
+  "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "benchmark/physics/equilibrium-gfile.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+  },
+  "caveat": [
+    "合成件不是一次物理放电：它是数据层的判据件，用来把这条通路本身钉住"
+  ]
+}

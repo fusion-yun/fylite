@@ -1,0 +1,48 @@
+{
+  "@comment": [
+    "物理校验册的 JSON-LD @context —— 承 `../context.jsonld`（公开 V&V 登记册那一份，fyo / spo 词汇），",
+    "只补本册子多出来的几个词。★补出来的词映射到 `urn:fylite:` 下，不映射到 fyo: / spo: 下：",
+    "fyo 与 spo 没有定义它们，把本地概念挂到别人的命名空间里就是编造 IRI（fyo `CLAUDE.md` 的绝对规则）。",
+    "读者因此一眼看得出哪几个词是本仓自己的：checks / bounds / quantity / minimum / maximum / p_heat_terms。"
+  ],
+  "@context": [
+    "../context.jsonld",
+    {
+      "@version": 1.1,
+      "fylite": "urn:fylite:",
+      "has_part": {
+        "@id": "spo:has_part",
+        "@container": "@list"
+      },
+      "concretized_as": {
+        "@id": "spo:concretized_as",
+        "@container": "@set"
+      },
+      "checks": {
+        "@id": "fylite:physics/checks",
+        "@container": "@set"
+      },
+      "bounds": {
+        "@id": "fylite:physics/bounds",
+        "@container": "@set"
+      },
+      "quantity": {
+        "@id": "fylite:physics/quantity"
+      },
+      "minimum": {
+        "@id": "fylite:physics/minimum"
+      },
+      "maximum": {
+        "@id": "fylite:physics/maximum"
+      },
+      "p_heat_terms": {
+        "@id": "fylite:physics/p_heat_terms",
+        "@container": "@set"
+      },
+      "has_output": {
+        "@id": "spo:has_output",
+        "@container": "@set"
+      }
+    }
+  ]
+}
