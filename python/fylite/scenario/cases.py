@@ -247,6 +247,20 @@ class Accounting:
         self.notes: list[str] = []
 
     def take(self, key, dest: str):
+        """One control -> one entry field, or a refusal that NAMES the control.
+
+        ★A bare ``KeyError`` was what a stale mapper produced (2026-09-02:
+        `_zerod_args` still spelled the entry's argument names, so every 0-D
+        case died with `KeyError: 't_rampup_end'` and no reader could tell
+        whether the case, the corpus or the mapper was wrong).  A mapping
+        layer whose failure mode is a bare key name is a mapping layer that
+        cannot be debugged from its own message.
+        """
+        if key not in self.pending:
+            raise KeyError(
+                f"the case carries no control {key!r} (wanted for {dest}); its "
+                f"controls are: {', '.join(sorted(self.pending))} — control names "
+                f"are the PAGE's, see app/assets/scenario-*.js CONTROLS")
         v = self.pending.pop(key)
         self.mapped[key] = dest
         return v
@@ -292,9 +306,14 @@ def _zerod_grid(ph: dict) -> int:
 
 
 def _zerod_args(cfg: dict, acct: Accounting, *, predict: bool) -> dict:
+    #: ★the control names are the PAGE's (`pulse_design-t_ru` / `-t_ft` / `-t_end`,
+    #: `scenario-pulse_design.js` CONTROLS), not the entry's argument names.  This
+    #: mapper spelled the ENTRY's names (`t_rampup_end` / `t_flattop_end` / `pnbi`)
+    #: and every 0-D case therefore died in `take()` with a bare `KeyError` —
+    #: measured 2026-09-02 on `zerod-iter-15ma`.
     ph = {"t_breakdown": 0.0,
-          "t_rampup_end": float(acct.take("t_rampup_end", "phases")),
-          "t_flattop_end": float(acct.take("t_flattop_end", "phases")),
+          "t_rampup_end": float(acct.take("t_ru", "phases")),
+          "t_flattop_end": float(acct.take("t_ft", "phases")),
           "t_end": float(acct.take("t_end", "phases"))}
     nt = _zerod_grid(ph)
     args: dict = {
@@ -316,7 +335,9 @@ def _zerod_args(cfg: dict, acct: Accounting, *, predict: bool) -> dict:
         "kappa": float(acct.take("kappa", "kappa")),
         "zeff": float(acct.take("zeff", "zeff")),
         "dt_fraction": float(acct.take("dtf", "dt_fraction")),
-        "nbi": {"power_w": acct.take("pnbi", "nbi.power_w") * 1e6,  # MW -> W
+        #: `paux` is the page's auxiliary power in MW (`scenario-pulse_design.js`:
+        #: `var pAux = +$('paux').value * 1e6`), fed to the entry's NBI channel
+        "nbi": {"power_w": acct.take("paux", "nbi.power_w") * 1e6,  # MW -> W
                 "t_on": float(acct.take("t_on", "nbi.t_on")),
                 "t_off": float(acct.take("t_off", "nbi.t_off"))},
     }

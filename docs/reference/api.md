@@ -63,6 +63,9 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `engine` | 执行体与交付引擎、JSON-LD 制品清单、CLI 与协议面（**导入期纯 stdlib**） |
 | `run` | `forward_equilibrium`——EFIT 的**录得参考读取器**（`tests/data/oracle/`），不是求解器 |
 | `plot` | 通量图与单图重构渲染（需 `matplotlib`） |
+| `engine.casereport` | **算例报告**：计划 + 记录 → 呈现规格 → MyST + 手写 SVG（不需要 matplotlib）；见[算例报告](case-report.md) |
+| `scenario.cases` | 算例语料：`catalogue` / `load` / `settings` / `plan` / `run`，以及按名拒绝的 `REFUSALS` |
+| `scenario.benchmark` | 公开 V&V 登记册：`records` / `load` / `problems` / `gate_plan` / `run` |
 | `scenario.model.*` | `assembly`（含时芯部推进 `solve_core`）· `closure` · `neoclassical` · `gyrofluid`（TGLF）· `nbi` · `lh` · `sources` · `mapping`（剖面→NEO/TGLF 输入的 GACODE 归一） |
 | `scenario.analysis.*` | `recon_rs`（重构行）· `loop`（自洽外环）· `tomography` · `selfcal` · `moments` |
 | `scenario.control.*` | `stability`（n=0 垂直模）· `vertical`（线性化对象与反馈回路）· `evolution`（电压驱动自由边界演化） |
@@ -104,3 +107,40 @@ fylite case describe|plan|run|json …                    # 算例（= fylite-ca
 找不到就按名说明要构建什么并退出 2。只属一个宿主的参数在规格里标 `hosts`：`--bin-dir` 只有
 Python 有，`--app-dir`（伺服一棵活目录，开发用）只有 Rust 有。`run` 走 Rust inverse
 （`engine.serve.run_reconstruction`）；EFIT 血统的驱动与 `libefit.so` 不在本分发里。
+
+### `fylite cases` —— 两份语料，一个动词
+
+```bash
+fylite cases                        # 列出 cases/ 的 25 条算例
+fylite cases <id>                   # 打印那份计划（fyo:ScenarioSpecification）
+fylite cases --check                # 结构检查（词汇只有 fyo / spo，无孤儿文件）
+fylite cases --plan  <id>           # 只映射不跑：控件 -> 入口字段的完整账
+fylite cases --run   <id> [--predict]
+fylite cases --report <id> [--from DIR] [--out DIR] [--presentation SPEC] [--lang zh|en]
+
+fylite cases --benchmark            # 公开 V&V 登记册（benchmark/）：类 · 结论 · 复测 · 纳入类别
+fylite cases --benchmark <ID>       # 一条 fyo:ComparisonRecord
+fylite cases --benchmark --check
+FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # 该记录的私仓门
+```
+
+用法与逐族示例见用户指南的[算例语料](../guide/cases.md)与其后五章。
+
+### `fylite case` —— 不经 Python 的那条路
+
+同一条命令词的另一半：`fylite case …` 由 Python 逐字委托给 Rust 可执行文件
+`fylite-case`（两种拼法同源，见上），它直通内核单入口 `fylite_rs_fyo`：
+
+```bash
+fylite case describe
+fylite case plan <plan.jsonld>... [--set k=v]... [--bind port=path]...
+fylite case run  <plan.jsonld>... --record DIR [--format jsonld|hdf5|netcdf|imas-hdf5]
+fylite case json <plan.jsonld>...        # 一份计划进，一份记录出（stdout）
+```
+
+多份计划按序合成（后者覆盖前者）。★`--format imas-hdf5`（或计划自己在输出端口上要
+`fyo:ImasHdf5Format`）写出**一个 IMAS 数据入口**：`imas/master.h5` + 逐 IDS 的 `<ids>.h5`。
+
+Python 侧同一道门是 `fylite.io.fydoc.case_json(plan, base=…)`：一份 `fyo:ScenarioSpecification`
+进，一份 `spo:ComputationRecord` 出（产出数据集内联在端口上），被拒绝的算例也**回记录**
+（`run_state: rejected`，内核的话在 `comment` 里）而不是抛异常。

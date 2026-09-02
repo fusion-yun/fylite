@@ -157,10 +157,23 @@ def test_the_discharge_mapping_is_complete_without_running():
 def test_the_page_constants_are_pinned_to_the_page():
     """★The synthesis layer replicates page rules; this ties the copies to
     the page source so an edit there fails here instead of drifting."""
-    src = (ROOT / "app/assets/scenario-design.js").read_text()
+    #: ★★the page file is `scenario-pulse_design.js` — the design page was
+    #: renamed `design` -> `pulse_design` and this gate kept the OLD name, so
+    #: `read_text` raised `FileNotFoundError` and the whole claim stopped being
+    #: made.  Measured 2026-09-02: it had been failing on every run, and the
+    #: 0-D mapper drifted three control names (`t_ru` / `t_ft` / `paux`) behind
+    #: the page in the meantime — exactly what pinning the constants here was
+    #: supposed to prevent.  A gate that names a path must fail LOUDLY when the
+    #: path moves, which is why the message below now says which file.
+    page = ROOT / "app/assets/scenario-pulse_design.js"
+    assert page.is_file(), (
+        f"the 0-D page source is not at {page.relative_to(ROOT)} — this gate "
+        f"pins the synthesis layer's copies to it, so a rename must be followed "
+        f"here rather than leaving the claim unmade")
+    src = page.read_text()
     m = re.search(r"NT_MIN = (\d+), NT_MAX = (\d+), PTS_PER_PHASE = (\d+)",
                   src)
-    assert m, "the zerod grid constants moved in scenario-design.js"
+    assert m, f"the zerod grid constants moved in {page.name}"
     assert (cases._NT_MIN, cases._NT_MAX, cases._PTS_PER_PHASE) == tuple(
         int(g) for g in m.groups())
     #: the transport closure indices are the kernel's own table
