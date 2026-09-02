@@ -261,6 +261,16 @@ and the refusal is recorded too (`run_state: rejected`). Build it with
 `./rust/build.sh --cli`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
 or `python/fylite/_lib/`.
 
+A plan can state its own delivery: an output port binding whose
+`bound_concretization.format_iri` is `fyo:ImasHdf5Format` makes `run` write the
+produced datasets as one IMAS data entry (`imas/master.h5` + `imas/<ids>.h5`,
+the imas-core HDF5 backend layout, gzip, `_SHAPE` / `AOS_SHAPE` tables), which
+`--format imas-hdf5` also selects. `cases/evolve-iter-15ma.jsonld` is the
+acceptance case for exactly that: fyo / JSON-LD in, IMAS DD HDF5 out, read
+back here with h5py and with the data layer's own reader (the layout is the one
+`verify/imas_roundtrip.py` checks against imas-python). A from-source HDF5 needs zlib for it
+(`--static` carries `hdf5/zlib`; the IMAS layout deflates every chunked dataset).
+
 The same run is **one function** on the data layer: `fylite_data_case_json`
 takes the plan as JSON-LD text (one document, or an array composed in order)
 and returns the record as JSON-LD text with the datasets inline on their

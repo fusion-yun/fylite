@@ -38,7 +38,11 @@ default = ["mdsip", "hdf5", "netcdf"]
 mdsip = []
 hdf5 = ["dep:hdf5"]
 netcdf = ["dep:netcdf", "hdf5"]
-static = ["hdf5/static", "netcdf/static"]
+#: ★`hdf5/zlib` rides along: the IMAS HDF5 backend layout writes every chunked
+#: dataset with the deflate filter (as imas-core does), and a from-source HDF5
+#: without zlib refuses it at the first dataset («Filter not available: Deflate»,
+#: measured 2026-09-02).  A dynamically linked system libhdf5 has it built in.
+static = ["hdf5/static", "hdf5/zlib", "netcdf/static"]
 #: 桌面查看器。`required-features` 让它不进默认构建——`cargo build` 与
 #: `cargo test` 的产物因此不受它影响。
 desktop = ["mdsip"]

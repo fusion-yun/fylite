@@ -4,7 +4,7 @@
 //! fylite-case describe [--kernel PATH]                       what the kernel completes: codes, entries, their declared blocks
 //! fylite-case plan <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI] [--json]
 //! fylite-case run  <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI]
-//!                  [--record DIR] [--format jsonld|hdf5|netcdf] [--kernel PATH] [--quiet]
+//!                  [--record DIR] [--format jsonld|hdf5|netcdf|imas-hdf5] [--kernel PATH] [--quiet]
 //! fylite-case json <plan.jsonld>... [--kernel PATH]          the JSON door: the record, datasets inline, on stdout
 //! ```
 //!
@@ -32,14 +32,16 @@ const HELP: &str = "fylite-case — a case from a fyo plan to a fyo record, thro
   fylite-case describe [--kernel PATH]
   fylite-case plan <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI] [--json]
   fylite-case run  <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code IRI]
-                   [--record DIR] [--format jsonld|hdf5|netcdf] [--kernel PATH] [--quiet]
+                   [--record DIR] [--format jsonld|hdf5|netcdf|imas-hdf5] [--kernel PATH] [--quiet]
   fylite-case json <plan.jsonld>... [--kernel PATH]
 
 The plan documents are fyo:ScenarioSpecification (spo:ComputationPlan) JSON-LD in the
 corpus compaction (cases/context.jsonld); later documents override earlier ones, then
 --set / --bind.  The kernel is libfylite_kernel.so: --kernel, $FYLITE_KERNEL_LIB, or the
 checkout's python/fylite/_lib/.  The record directory gets record.jsonld, plan.jsonld
-and one <ids>.fyo.jsonld per produced dataset.";
+and one <ids>.fyo.jsonld per produced dataset.  --format imas-hdf5 (or a plan whose
+output ports ask for fyo:ImasHdf5Format) writes the datasets as ONE IMAS data entry
+instead: imas/master.h5 + imas/<ids>.h5, the imas-core HDF5 backend layout.";
 
 fn die(msg: &str) -> ! {
     eprintln!("fylite-case: {msg}");
@@ -232,11 +234,71 @@ fn run_cmd(args: &Args) {
     let _ = started_secs;
 
     let mut produced: Vec<Produced> = Vec::new();
+    let mut dd_notes: Vec<String> = Vec::new();
     let outcome = match &result {
         Ok(raw) => match case::parse_outcome(raw) {
             Ok(o) => {
-                let format = args.flag("format").unwrap_or("jsonld").to_ascii_lowercase();
-                for (ids, doc) in case::documents(&o, raw, &record_id) {
+                //: the format: the flag, else what the plan's output ports ask for
+                let asked = plan.outputs.iter().find_map(|r| r.format_iri.clone());
+                let format = args.flag("format").map(str::to_string).or_else(|| asked.map(|f| match f.as_str() {
+                    "fyo:ImasHdf5Format" | "imas_hdf5" => "imas-hdf5".to_string(),
+                    other if other.ends_with("ImasHdf5Format") => "imas-hdf5".to_string(),
+                    other if other.ends_with("ld+json") => "jsonld".to_string(),
+                    other => other.to_string(),
+                })).unwrap_or_else(|| "jsonld".into()).to_ascii_lowercase();
+                let docs = case::documents(&o, raw, &record_id);
+                if format == "imas-hdf5" || format == "imas" {
+                    //: one IMAS data entry for the whole run: every produced
+                    //: dataset is an IDS in it, the DD normaliser reports what
+                    //: it could not place, and the record cites each IDS file
+                    let mut bundle = fylite_data::fyodoc::Bundle::new();
+                    for (_ids, doc) in &docs {
+                        bundle.push(doc.clone());
+                    }
+                    let dir = record_dir.join("imas");
+                    let rep = fylite_data::io::write(&dir, &bundle, Some(fylite_data::detect::Format::ImasHdf5Dir),
+                                                     fylite_data::io::Layout::Imas)
+                        .unwrap_or_else(|e| die(&format!("imas: {e}")));
+                    for (key, r) in &rep.dd {
+                        for d in &r.dropped {
+                            //: the JSON-LD envelope (`@context` / `@id` / `@type`) is
+                            //: not data and is dropped by design; only a DATA path
+                            //: the DD does not know is worth a note
+                            if !d.starts_with('@') {
+                                dd_notes.push(format!("imas {key}: dropped {d} (not in the DD)"));
+                            }
+                        }
+                        for d in &r.promoted {
+                            dd_notes.push(format!("imas {key}: {d} promoted to element 0"));
+                        }
+                        for d in &r.synthesized {
+                            dd_notes.push(format!("imas {key}: {d} synthesized"));
+                        }
+                    }
+                    for (ids, _doc) in &docs {
+                        let file = format!("imas/{ids}.h5");
+                        let bytes = std::fs::read(record_dir.join(&file)).unwrap_or_default();
+                        let fields: Vec<String> = o.fields.iter()
+                            .filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids)
+                            .map(|f| format!("{} [{}] {:?}", f.path, f.units, f.dims)).collect();
+                        produced.push(Produced { port: ids.clone(), doc_id: format!("{record_id}/{ids}"),
+                                                 doc_type: format!("fyo:{ids}"), storage_uri: file,
+                                                 format_iri: "fyo:ImasHdf5Format".into(),
+                                                 sha256: fylite_data::checksum::sha256_hex(&bytes), bytes: bytes.len(),
+                                                 fields, inline: None });
+                    }
+                    let master = std::fs::read(record_dir.join("imas/master.h5")).unwrap_or_default();
+                    produced.push(Produced { port: "imas".into(), doc_id: format!("{record_id}/imas"),
+                                             doc_type: "spo:InformationContentEntity".into(),
+                                             storage_uri: "imas/master.h5".into(), format_iri: "fyo:ImasHdf5Format".into(),
+                                             sha256: fylite_data::checksum::sha256_hex(&master), bytes: master.len(),
+                                             fields: vec!["the data entry's master file (external links to every IDS)".into()],
+                                             inline: None });
+                }
+                for (ids, doc) in docs {
+                    if format == "imas-hdf5" || format == "imas" {
+                        break;
+                    }
                     let fields: Vec<String> = o.fields.iter()
                         .filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids)
                         .map(|f| format!("{} [{}] {:?}", f.path, f.units, f.dims)).collect();
@@ -269,6 +331,10 @@ fn run_cmd(args: &Args) {
         },
         Err(_) => None,
     };
+    let mut outcome = outcome;
+    if let Some(o) = outcome.as_mut() {
+        o.notes.extend(dd_notes.iter().cloned());
+    }
     let rec = case::record(&RecordInputs {
         plan: &plan, plan_file: Some("plan.jsonld"), resolved: &resolved, kernel: Some(&kernel),
         kernel_sha256: kernel_sha, outcome: outcome.as_ref(), refusal: result.as_ref().err(),

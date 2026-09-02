@@ -29,6 +29,7 @@ TABLES = {
         "type": 'fyo:core_sources',
         "slots": {
             'psin': {"path": 'profiles_1d/grid/fylite:psi_norm', "units": '1', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
             'j_par': {"path": 'profiles_1d/j_parallel', "units": 'A/m^2', "rank": '1d'},
             'p_e': {"path": 'profiles_1d/electrons/energy', "units": 'W/m^3', "rank": '1d'},
             'p_i': {"path": 'profiles_1d/total_ion_energy', "units": 'W/m^3', "rank": '1d'},
@@ -38,7 +39,9 @@ TABLES = {
         "type": 'fyo:core_transport',
         "slots": {
             'psin': {"path": 'profiles_1d/grid/fylite:psi_norm', "units": '1', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
             'rho': {"path": 'profiles_1d/grid/rho_tor', "units": 'm', "rank": '1d'},
+            'rho_d': {"path": 'profiles_1d/grid_d/rho_tor', "units": 'm', "rank": '1d'},
             'chi_e': {"path": 'profiles_1d/electrons/energy/d', "units": 'm^2/s', "rank": '1d'},
             'chi_i': {"path": 'profiles_1d/total_ion_energy/d', "units": 'm^2/s', "rank": '1d'},
             'd_n': {"path": 'profiles_1d/electrons/particles/d', "units": 'm^2/s', "rank": '1d'},
@@ -95,6 +98,7 @@ TABLES = {
             'r0': {"path": 'vacuum_toroidal_field/r0', "units": 'm', "rank": '0d'},
             'b0': {"path": 'vacuum_toroidal_field/b0', "units": 'T', "rank": '0d'},
             'psi_1d': {"path": 'time_slice/profiles_1d/psi', "units": 'Wb', "rank": '1d'},
+            'time': {"path": 'time', "units": 's', "rank": '1d'},
             'f': {"path": 'time_slice/profiles_1d/f', "units": 'T.m', "rank": '1d'},
             'pressure': {"path": 'time_slice/profiles_1d/pressure', "units": 'Pa', "rank": '1d'},
             'f_df_dpsi': {"path": 'time_slice/profiles_1d/f_df_dpsi', "units": 'T^2.m^2/Wb', "rank": '1d'},
