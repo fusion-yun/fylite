@@ -13,7 +13,7 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 | **数据** | 见 §5 表（3 项，纳入类别 experiment） |
 | **门** | `$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：未评估——0 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-02：成立——18 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -105,26 +105,26 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported | 未执行 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 
-结论：**未评估**（`re-run: gate not executed`）。
+结论：**成立**（`re-run`）。
 
 ## 5. 数据与怎么重跑
 
@@ -146,4 +146,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：未评估。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

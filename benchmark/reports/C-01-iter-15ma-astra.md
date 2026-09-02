@@ -13,7 +13,7 @@ title: C-01 · ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例
 | **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `app/tests/validate-iter-benchmark.mjs` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：不成立——0 passed, 1 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-02：未评估——0 passed, 0 failed, 0 error, 0 skipped, 1 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -40,15 +40,11 @@ title: C-01 · ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
-| app/tests/validate-iter-benchmark.mjs | 0 过 / 1 败 / 0 错 / 0 跳 / 0 陈旧 |  march ($FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:105:14)     at $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:158:23  Node.js v22.22.2 exit=1 |
+| app/tests/validate-iter-benchmark.mjs | 0 过 / 0 败 / 0 错 / 0 跳 / 1 陈旧 | page.evaluate: TypeError: Cannot set properties of null (setting 'value') |
 
-结论：**不成立**（`re-run: assertion failed`）。
+结论：**未评估**（`re-run: gate stale (names an entry the assembly layer no longer has)`）。
 
-- $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:  march ($FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:105:14)
-    at $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:158:23
-
-Node.js v22.22.2
-exit=1
+- $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs: page.evaluate: TypeError: Cannot set properties of null (setting 'value')
 
 ## 5. 数据与怎么重跑
 
@@ -68,4 +64,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：不成立。只回答本条自己那一类（C 确认）的问题，不外推。
+登记册：成立。复测 2026-09-02：未评估。只回答本条自己那一类（C 确认）的问题，不外推。

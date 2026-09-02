@@ -13,7 +13,7 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 | **数据** | 见 §5 表（2 项，纳入类别 public） |
 | **门** | `$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level2_the_pass_through_columns_are_exact`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level2_the_gradients_agree_in_the_confinement_region`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_the_shear_corrections_are_applied_and_matter`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_transport_on_torax_own_inputs`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_the_assembly_is_load_bearing`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_end_to_end_localises_to_the_pedestal_foot` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：未评估——0 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-02：成立——6 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -62,14 +62,14 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
-| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level2_the_pass_through_columns_are_exact | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level2_the_gradients_agree_in_the_confinement_region | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_the_shear_corrections_are_applied_and_matter | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_transport_on_torax_own_inputs | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_the_assembly_is_load_bearing | 未执行 |  |
-| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_end_to_end_localises_to_the_pedestal_foot | 未执行 |  |
+| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level2_the_pass_through_columns_are_exact | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level2_the_gradients_agree_in_the_confinement_region | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_the_shear_corrections_are_applied_and_matter | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_transport_on_torax_own_inputs | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_the_assembly_is_load_bearing | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
+| $FYLITE_KERNEL/tests/test_torax_evolution.py::test_level3_end_to_end_localises_to_the_pedestal_foot | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 
-结论：**未评估**（`re-run: gate not executed`）。
+结论：**成立**（`re-run`）。
 
 ## 5. 数据与怎么重跑
 
@@ -90,4 +90,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：未评估。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

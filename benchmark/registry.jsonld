@@ -157,10 +157,11 @@
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
      "finding_kind": "re-run: assertion failed",
-     "deviation_literal": "39 passed, 4 failed, 0 error, 0 skipped, 0 stale",
+     "deviation_literal": "89 passed, 2 failed, 0 error, 0 skipped, 2 stale, 1 module(s) cut by the budget",
      "verdict": "fail",
      "caveat": [
-      "tests/test_rust_kernels.py:  | "
+      "tests/test_rust_kernels.py: AssertionError: 410k-pair mutual took 27.5 ms (gate: 10 ms) | AssertionError: 90-segment mutual_matrix took 66.8 ms",
+      "tests/test_tglf_momentum.py: partial: the module did not finish within the run's per-module budget (10 claims completed)"
      ]
     }
    ],
@@ -367,9 +368,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "14 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -529,9 +530,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "27 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -708,9 +709,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "8 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -875,9 +876,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "7 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1020,9 +1021,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "8 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1182,9 +1183,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1319,9 +1320,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "7 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1482,9 +1483,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "9 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1709,9 +1710,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "18 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1906,9 +1907,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "4 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -1999,11 +2000,11 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: assertion failed",
-     "deviation_literal": "0 passed, 1 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "fail",
+     "finding_kind": "re-run: gate stale (names an entry the assembly layer no longer has)",
+     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 1 stale",
+     "verdict": "unevaluated",
      "caveat": [
-      "$FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:  march ($FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:105:14)\n    at $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:158:23\n\nNode.js v22.22.2\nexit=1"
+      "$FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs: page.evaluate: TypeError: Cannot set properties of null (setting 'value')"
      ]
     }
    ],
@@ -2245,9 +2246,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -2615,9 +2616,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "12 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -2744,9 +2745,12 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run: partial — a module did not finish within the per-module budget",
+     "deviation_literal": "10 passed, 0 failed, 0 error, 0 skipped, 0 stale, 1 module(s) cut by the budget",
+     "verdict": "inconclusive",
+     "caveat": [
+      "tests/test_tglf_momentum.py: partial: the module did not finish within the run's per-module budget (10 claims completed)"
+     ]
     }
    ],
    "run": {
@@ -2843,9 +2847,12 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run: partial — a module did not finish within the per-module budget",
+     "deviation_literal": "10 passed, 0 failed, 0 error, 0 skipped, 0 stale, 1 module(s) cut by the budget",
+     "verdict": "inconclusive",
+     "caveat": [
+      "tests/test_tglf_momentum.py: partial: the module did not finish within the run's per-module budget (10 claims completed)"
+     ]
     }
    ],
    "run": {
@@ -3112,9 +3119,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "42 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -3264,9 +3271,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "35 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -3448,9 +3455,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "88 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -3777,9 +3784,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "4 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -3927,9 +3934,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -4138,9 +4145,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -4710,9 +4717,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate not executed",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "unevaluated"
+     "finding_kind": "re-run",
+     "deviation_literal": "18 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {

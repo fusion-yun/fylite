@@ -13,7 +13,7 @@ title: C-03 · 垂直稳定性，对 TokSys rzrig
 | **数据** | 见 §5 表（0 项，纳入类别 无外部数据） |
 | **门** | `$FYLITE_KERNEL/tests/test_benchmark_toksys.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：未评估——0 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-02：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -41,9 +41,9 @@ title: C-03 · 垂直稳定性，对 TokSys rzrig
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
-| $FYLITE_KERNEL/tests/test_benchmark_toksys.py | 未执行 |  |
+| $FYLITE_KERNEL/tests/test_benchmark_toksys.py | 2 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 
-结论：**未评估**（`re-run: gate not executed`）。
+结论：**成立**（`re-run`）。
 
 ## 5. 数据与怎么重跑
 
@@ -61,4 +61,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：未评估。只回答本条自己那一类（C 确认）的问题，不外推。
+登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（C 确认）的问题，不外推。
