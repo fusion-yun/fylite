@@ -19,13 +19,13 @@ title: 典型算例 · 诊断分析：平衡反演 (Worked Example · Equilibriu
 ## 一 · 测量文档进来
 
 ```bash
-export FYLITE_DEVICE_DIR=$PWD/machine_desc/east
+export FYLITE_DEVICE_DIR=~/fylite-decks/east    # 见「安装与环境」：EAST 牌取自内核仓历史
 ```
 
 ```python
 from fylite import fyo
 
-meas = fyo.as_measurements("machine_desc/east/case_east137985_4000ms.fyo.jsonld", 4.0)
+meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld", 4.0)
 sorted(meas)      # ['basis', 'brsp', 'btor', 'coils', 'expmp2', 'plasma', 'time_s']
 ```
 
@@ -57,7 +57,7 @@ r = S.analysis.reconstruction(meas)
 
 ```python
 import json
-oracle = json.load(open("machine_desc/east/oracle_east137985_4000ms.fyo.jsonld"))
+oracle = json.load(open("$FYLITE_DEVICE_DIR/oracle_east137985_4000ms.fyo.jsonld"))
 oracle["time_slice"][0]["global_quantities"]["magnetic_axis"]
 # {'r': 1.83552056, 'z': -0.0888684195}
 ```

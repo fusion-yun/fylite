@@ -166,9 +166,12 @@ fylite-app --mdsip 127.0.0.1:8000
 ### 预设装置
 
 页面**预设**的装置是 fyo/JSON-LD 文档，放在 `app/devices/` 下，由
-`app/devices/catalogue.jsonld` 列出。每份预设都是
-`machine_desc/<装置>/fylite_device_<装置>.json` 的**逐字节副本**，
-`python/tests/test_machine_desc.py` 逐份对拍，所以预设不会与它来自的描述分叉。
+`app/devices/catalogue.jsonld` 列出。每份预设由 `tools/fyo-device-to-app.py` 从 A-Box 的装置描述生成。
+
+★★**预设不是内部件的逐字节副本**（2026-09-02 两次裁定叠加）：仓内 `machine_desc/` 已废弃，
+没有可对拍的在仓源；而且发布件是**再加工件**——`c58c2c6` 把已发布内容里的内网地址与开发机
+路径抹掉了，内部件没抹。所以「预设 == 内部描述」这条判据的前提已经不成立，
+`python/tests/test_machine_desc.py` 里那一条随之改写（见该文件的说明）。
 
 | 预设 | 线圈 | 磁通环 | 出处（目录文件 `prov:wasDerivedFrom` 逐条列出） |
 | :--- | ---: | ---: | :--- |
@@ -184,10 +187,10 @@ fylite-app --mdsip 127.0.0.1:8000
 每台的出处逐条写在数据里，闸子只保证**出处已声明**，不替这件事下判断。
 
 `cfedr` / `jt60sa` / `west` **不是**预设，理由与许可无关：分别缺壁、缺线圈、缺装置级
-B0，`FyoDevice.fromFyo` 读不成一台可解的机器。它们的 fyo 描述仍在 `machine_desc/` 下。
+B0，`FyoDevice.fromFyo` 读不成一台可解的机器。它们的 fyo 描述在 A-Box 里，拖得出来但装不进页面。
 
 ★预设曾经是 `app/assets/dev-iter.js`——一个把描述符推进全局变量的 JS 文件。那让这个
-build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无法与 `machine_desc/` 对拍、
+build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无法与它来自的描述对拍、
 无法被重新导入、走的读取路径也与其他机器不同。现在它与导入的文件走**同一个**
 `FyoDevice.fromFyo`。
 
@@ -197,9 +200,9 @@ build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无�
 预设（`importFyo` 早就拒绝占用预设的 id，现在这条规则改在 `all()` 合并处生效，
 因为 localStorage 是能被绕过去写的）。
 
-其余装置是**输入**：仓内 `machine_desc/<装置>/fylite_device_<装置>.json`
-是页面能直接读的导入文档，导入后 `?device=<装置>` 即可选中。装置数据不随 `app/`
-发布——`publish-app.yml` 只拷 `app/`。
+其余装置是**输入**：`tools/fyo-device-to-app.py` 从 A-Box 生成的
+`fylite_device_<装置>.json` 是页面能直接读的导入文档，导入后 `?device=<装置>` 即可选中。
+装置数据不随 `app/` 发布——`publish-app.yml` 只拷 `app/`。
 
 **装置选择栏**（每页工具条左端）＝一份清单 + 两个动作：
 
@@ -216,13 +219,13 @@ build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无�
 
 | | |
 | :--- | :--- |
-| `machine_desc/east/fylite_device_east.json` | EAST，含 79 道探针、35 道磁通环与参考放电 |
-| `machine_desc/iter/fylite_device_iter.json` | ITER（预设即此文件的副本） |
-| `machine_desc/cfetr/fylite_device_cfetr.json` | CFETR |
-| `machine_desc/best/fylite_device_best.json` | BEST |
+| `fylite_device_east.json` | EAST，含 79 道探针、35 道磁通环与参考放电——**手工维护，只在内核仓历史里**（见[安装与环境](install.md)） |
+| `fylite_device_iter.json` | ITER |
+| `fylite_device_cfetr.json` | CFETR |
+| `fylite_device_best.json` | BEST |
 
 `cfedr`（上游无壁）、`jt60sa`（无线圈）、`west`（无装置级 B0）**没有**导入文档——
-生成器按理由拒绝，不编数（`machine_desc/README.md`）。
+生成器按理由拒绝，不编数。
 
 页面所用 wasm 制品的来历与重生方式见
 实测笔记 `docs/note/app-provenance.md`。

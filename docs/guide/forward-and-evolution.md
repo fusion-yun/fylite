@@ -89,5 +89,4 @@ r = evolve_free_boundary(meas, time, voltages_per_turn,
 （缺口 E-18）。线性化路径不受此限（只需几何）。
 :::
 
-★走查用的 notebook 已不在本仓（`examples/notebooks/` 不存在）；`examples/` 现在收的是
-海报算例的规格目录，清单见 `examples/README.md`。
+★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`），见[算例语料](cases.md)起的五章。

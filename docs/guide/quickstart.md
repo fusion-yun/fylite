@@ -5,10 +5,10 @@ title: 快速上手 (Quick Start)
 # 快速上手
 
 下面每段都可直接粘贴运行，**全部离线**。除最后一节外都不需要装置；用到装置的两段先按
-[安装与环境](install.md)把装置牌拖回来（`machine_desc/` 不在版本库里），再指一次：
+[安装与环境](install.md)把装置牌从 A-Box 拖出来（仓内 `machine_desc/` 已废弃），再指一次：
 
 ```bash
-export FYLITE_DEVICE_DIR=$PWD/machine_desc/east
+export FYLITE_DEVICE_DIR=~/fylite-decks/east    # 见「安装与环境」：EAST 牌取自内核仓历史
 ```
 
 ★想直接看**完整的、可跑的**算例（0-D / 1.5-D / 演化 / 放电设计 / 平衡反演各一族），
@@ -41,7 +41,7 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 剖面拟合，阶数由 GCV �
 ```python
 from fylite import fyo
 
-eq = fyo.read("machine_desc/east/equilibrium_east137985_4000ms.fyo.jsonld")
+eq = fyo.read("$FYLITE_DEVICE_DIR/equilibrium_east137985_4000ms.fyo.jsonld")
 fyo.ip_of(eq), fyo.axis_of(eq)      # 393459.508 A, (1.83076, -0.07500)
 ```
 
@@ -55,10 +55,10 @@ import json, numpy as np
 from fylite import device, fyo
 from fylite import scenario as S
 
-eq   = fyo.read("machine_desc/east/equilibrium_east137985_4000ms.fyo.jsonld")
-case = json.load(open("machine_desc/east/case_east137985_4000ms.fyo.jsonld"))
+eq   = fyo.read("$FYLITE_DEVICE_DIR/equilibrium_east137985_4000ms.fyo.jsonld")
+case = json.load(open("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld"))
 aturns = np.array([c["current"] for c in case["pf_active"]["coil"]])   # A·总匝
-dev  = device.load_device("machine_desc/east/east_device.yaml")
+dev  = device.load_device("$FYLITE_DEVICE_DIR/east_device.yaml")
 
 v = S.control.vstab(eq, coil_aturns=aturns, device=dev,
                     passive_groups=("inner_shell", "outer_shell", "passive_plates"))
@@ -76,7 +76,7 @@ v["regime"], v["growth_rate"], v["margin"]    # resistive-wall  12.6393  0.68557
 
 ```python
 from fylite import fyo
-meas = fyo.as_measurements("machine_desc/east/case_east137985_4000ms.fyo.jsonld", 4.0)
+meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld", 4.0)
 # -> plasma / btor / brsp / coils / expmp2 / basis / time_s
 ```
 
@@ -84,7 +84,7 @@ meas = fyo.as_measurements("machine_desc/east/case_east137985_4000ms.fyo.jsonld"
 **这一步不需要 Green 表。** `S.analysis.reconstruction(meas)` 扣磁通环上线圈份额用的那张
 表（EFIT 的 `rsilfc`）曾经必须从 `rfcoil.ddd` 读，而本仓不带它；现在它由装置文档的导体
 几何现算（`recon_rs.coil_loop_rows`），与浏览器反演页同一条路。**装置信息统一由
-`machine_desc/<装置>/` 的装置文档出**，指到哪台机器就是哪台。详见
+`$FYLITE_DEVICE_DIR` 指向的装置文档出**，指到哪台机器就是哪台。详见
 [平衡反演](reconstruction.md)。
 :::
 

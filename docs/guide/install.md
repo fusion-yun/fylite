@@ -66,27 +66,41 @@ PYTHONPATH=python python -c "import fylite; print(fylite.__version__)"
 需要装置的入口另需一个**装置目录**。
 
 :::{important}
-**`machine_desc/` 不在版本库里**（2026-09-02 裁定）：装置牌是**按需拖回的输入**，不是
-随仓走的数据——一份牌有两个真值源，错的那个不会报错，它只会让某台机器安静地用上另一份
-描述。新检出里没有这个目录，要先拖：
+**`machine_desc/` 已废弃**（2026-09-02 裁定）——不是「不进版本库」，是这个目录**不再存在**。
+一份装置牌若同时在仓里和 A-Box 里，两个真值源里错的那个不会报错，它只会让某台机器安静地
+用上另一份描述。所以牌的真值源只有一个：私有 `fydata` / `fydoc` 仓的 A-Box
+（`abox/device/tokamak/<id>/`）。
+
+装置目录由你自己**在任意位置**生成，再让 `$FYLITE_DEVICE_DIR` 指过去：
 
 ```bash
-python tools/abox-to-machine-desc.py --source <fydata 或 fydoc 检出> --all
-python tools/abox-to-machine-desc.py --source <检出> --list      # 先看有哪些
+python tools/abox-to-machine-desc.py --source <fydata 或 fydoc 检出> --list
+python tools/abox-to-machine-desc.py --source <检出> -o ~/fylite-decks --all
+export FYLITE_DEVICE_DIR=~/fylite-decks/iter
 ```
-
-A-Box 在私有的 `fydata` / `fydoc` 仓（`abox/device/tokamak/<id>/`）。**EAST 那张牌不重新
-生成**：它是手工维护的，且严格富于上游（est2 79 探针基底、拟合控制块、被动集、电源
-参数都不是上游的），工具会拒绝覆盖它。
 
 ★★**拖回来不是等价替换。** 实测：拖回的 ITER 牌**没有** `power_supply` 组，于是
 `scenario.design.pulse.channel_limits` 会 `KeyError`；壁面轮廓的写法也从 `points` 换成
 `r` / `z` 两个数组。拖回之后要复核读它的那几处——见[放电设计](example-design.md)那一章
 里怎么显式给限值。
+
+★★**EAST 那张牌拖不回来。** 它一直是**手工维护**的，且严格富于上游（est2 79 探针基底、
+拟合控制块、被动集、电源参数、EFIT deck 件都不是 A-Box 里的东西），工具因此拒绝生成它。
+随 `machine_desc/` 一并退役之后，它今天只在**内核仓的历史**里：
+
+```bash
+git -C <fylite_kernel 检出> archive b4dce77^ machine_desc/east | tar -x -C ~/fylite-decks --strip-components=1
+export FYLITE_DEVICE_DIR=~/fylite-decks/east
+```
+
+★A-Box 里**有** EAST 的实验切片（`abox/experiment/east/137985/slice_*.fyo.jsonld`），
+但那是**另一次约化**：实测同一时刻的 I_p 为 400 940 A，而退役件里是 393 460 A（差 1.9 %），
+反演在它上面不收敛（内核 −105100）。**它不是那份算例文档的替代品**，见
+[诊断分析：平衡反演](example-reconstruction.md)。
 :::
 
 ```bash
-export FYLITE_DEVICE_DIR=$PWD/machine_desc/east      # 或 …/iter
+export FYLITE_DEVICE_DIR=~/fylite-decks/east         # 或 …/iter
 ```
 
 ★不设它不会静默降级：`fylite.device` 抛 `MachineDataMissing` 并当场说明缺的是什么。
