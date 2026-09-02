@@ -354,6 +354,8 @@ read through the same verb as the scenario corpus:
 ```bash
 fylite cases                      # the scenario corpus (cases/)
 fylite cases --benchmark          # the V&V register: kind, verdict, re-run, admissibility
+fylite cases --report evolve-default   # run a case through the JSON door and render MyST + SVG through a presentation spec
+fylite cases --report --from records/<run>   # render a record `fylite-case run` wrote
 fylite cases --benchmark V-01     # one record, JSON-LD
 fylite cases --benchmark --check  # structure (the same function the test tier runs)
 FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # its private gates
