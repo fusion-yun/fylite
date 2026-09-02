@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "../context.jsonld",
+    {
+      "@base": "../"
+    }
+  ],
+  "id": "scenario/jet-58894-lmode",
+  "type": "fyo:ScenarioSpecification",
+  "title": "JET #58894，短窗口、芯边耦合",
+  "abstract": "常规环、氘、L-mode，0.2 s 的短窗口，带中性粒子回路。用于规定输运回放与边缘闭包的对拍；与准稳态窗口相反，这一段剖面在动，零假设很弱。",
+  "about_discharge": {
+    "type": "fyo:Discharge",
+    "pulse_number": 58894,
+    "performed_on": {
+      "type": "fyo:Tokamak",
+      "title": "JET"
+    }
+  },
+  "over_time_axis": {
+    "type": "spo:TimeAxis",
+    "samples": [
+      63.38,
+      63.58
+    ],
+    "comment": "window bounds [t0, t1] in seconds; spo TimeInterval carries no bound attributes yet, so the axis lists the two ends"
+  },
+  "state": [
+    {
+      "type": "spo:PortBinding",
+      "bound_to": {
+        "type": "fyo:Equilibrium",
+        "ip_A": 2795000.0,
+        "b0_T": 2.81,
+        "r0_m": 2.96,
+        "a_m": 0.95,
+        "species": [
+          "D",
+          "C"
+        ]
+      }
+    }
+  ],
+  "caveat": [
+    "★这窗口是动的：0.2 s 内 T_e(0) +31 %、规定的 T_i(0) −20 %，零假设 41.5 %。在这里赢零假设是有意义的。",
+    "参考侧带 EIRENE 中性粒子回路：电子能道的中性项只占 0.5 %，但离子道 CX 占 24 %、粒子道电离源超 NBI 35 倍——所以 T_e 可比，n_e / T_i 的预测离开中性模型免谈。"
+  ]
+}
