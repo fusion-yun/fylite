@@ -44,6 +44,12 @@ fn err<T>(m: impl Into<String>) -> Result<T, CaseError> {
     Err(CaseError(m.into()))
 }
 
+/// 内核收的设置：数的一组，文本的一组。
+pub type KernelSettings = (Vec<(String, f64)>, Vec<(String, String)>);
+
+/// 解析出来的输入：交给内核的槽，以及逐条的解析记录（记录要照录进产出记录）。
+pub type ResolvedInputs = (Vec<(String, Vec<f64>)>, Vec<Resolved>);
+
 pub const FYO: &str = "https://fusion-yun.github.io/fyo/latest/";
 pub const SPO: &str = "https://fusion-yun.github.io/spo/latest/";
 pub const LD_JSON: &str = "https://www.iana.org/assignments/media-types/application/ld+json";
@@ -374,7 +380,7 @@ impl Plan {
     }
 
     /// The settings as the kernel takes them: numbers and texts.
-    pub fn kernel_settings(&self) -> Result<(Vec<(String, f64)>, Vec<(String, String)>), CaseError> {
+    pub fn kernel_settings(&self) -> Result<KernelSettings, CaseError> {
         let mut numbers = Vec::new();
         let mut texts = Vec::new();
         for s in &self.settings {
@@ -522,7 +528,7 @@ fn ids_of_doc(doc: &Node) -> Option<String> {
 }
 
 /// Resolve the plan's input bindings into the slots the kernel takes.
-pub fn resolve_inputs(plan: &Plan, base: &Path) -> Result<(Vec<(String, Vec<f64>)>, Vec<Resolved>), CaseError> {
+pub fn resolve_inputs(plan: &Plan, base: &Path) -> Result<ResolvedInputs, CaseError> {
     let mut slots = Vec::new();
     let mut resolved = Vec::new();
     for b in &plan.inputs {

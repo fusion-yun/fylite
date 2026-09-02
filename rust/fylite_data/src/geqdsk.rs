@@ -221,7 +221,7 @@ fn block(arr: &[f64], out: &mut String) {
             out.push('\n');
         }
     }
-    if !arr.is_empty() && arr.len() % 5 != 0 {
+    if !arr.is_empty() && !arr.len().is_multiple_of(5) {
         out.push('\n');
     }
 }

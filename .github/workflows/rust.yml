@@ -1,0 +1,67 @@
+# 数据层（`rust/fylite_data/`）—— clippy 与三套特性下的 `cargo test`。
+#
+# ★三套是判据不是排列：**缺省**（mdsip + hdf5 + netcdf，发行形）、**零依赖**
+#   （`--no-default-features`：wasm 与没有 C 库的机器走这一支）、**只有两个 C 库**
+#   （hdf5 + netcdf，不带 mdsip）。一次构建绿不代表另外两支绿——本仓的
+#   `#[cfg(feature = …)]` 分支正落在这三支之间。
+# ★两个 C 库来自 apt（`hdf5-metno` / `netcdf` 的 `static` 特性从源码编，那条只在
+#   发行时走，CI 不重复编它——十几分钟买不到新判据）。
+name: rust
+
+on:
+  push:
+    branches: [develop, main, "claude/**"]
+    paths:
+      - "rust/**"
+      - "tools/dd-ids-table.py"
+      - ".github/workflows/rust.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "rust/**"
+      - "tools/dd-ids-table.py"
+      - ".github/workflows/rust.yml"
+  workflow_call:
+
+concurrency:
+  group: rust-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  crate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: C 库（libhdf5 · libnetcdf）
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libhdf5-dev libnetcdf-dev
+
+      - name: cargo 缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/fylite_data/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('rust/fylite_data/Cargo.toml') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: clippy（缺省特性，警告即失败）
+        working-directory: rust/fylite_data
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: cargo test — 缺省特性（mdsip + hdf5 + netcdf）
+        working-directory: rust/fylite_data
+        run: cargo test
+
+      - name: cargo test — 零依赖（wasm 走的那一支）
+        working-directory: rust/fylite_data
+        run: cargo test --no-default-features
+
+      - name: cargo test — 只有两个 C 库（不带 mdsip）
+        working-directory: rust/fylite_data
+        run: cargo test --no-default-features --features hdf5,netcdf

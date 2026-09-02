@@ -333,6 +333,23 @@ m.array("magnetics/b_field_pol_probe/0/field/data")   # the probe's 4–5 s slic
 The C libraries this needs (`libhdf5`, `libnetcdf`) are linked dynamically by
 default; `rust/build.sh --static` compiles them in for machines without them.
 
+## Continuous integration
+
+★**判据按「改了什么」排班，不按「提交了几次」。** 每个工作流按路径触发，只跑它守
+的那一层；全量（含跨实现对拍）每周一次，外加手动与提交信息 `[ci full]` 两个入口。
+
+| 工作流 | 触发 | 跑什么 |
+| :--- | :--- | :--- |
+| `python` | `python/` `cases/` `benchmark/` `docs/` | Python 档 + 三本册子的结构检查 |
+| `rust` | `rust/` | clippy(`-D warnings`) + `cargo test` ×3 套特性 |
+| `physics-checks` | 判据册 · 批次 · 数据层 | 构建数据层 + 物理校验批（能评的那条真跑，`--strict`） |
+| `app` | `app/` | 站点静态门（干净检出里真能判的那 6 道） |
+| `full` | 周一 03:00 UTC · 手动 · `[ci full]` | 以上全部 + imas-python / imas-core 跨实现对拍 |
+
+★CI 的绿说的是「**本仓自己的那一半**成立」：要内核（私有仓构建）、要浏览器与 wasm、
+要私有语料的判据，在公开检出里**点名跳过**而不是失败——缺输入与缺实现是两件事，
+`python/conftest.py` 与 `.github/workflows/README.md` 分别写明了这条政策与它的边界。
+
 ## Repository map
 
 | path | contents |

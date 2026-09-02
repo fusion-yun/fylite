@@ -244,8 +244,8 @@ fn write_ids_group(g: &mut netcdf::GroupMut, meta: &IdsMeta, tree: &Node) -> Res
                 if shape.is_empty() {
                     v.put_string(&data[0], ..)?;
                 } else {
-                    for f in 0..n {
-                        if data[f].is_empty() {
+                    for (f, item) in data.iter().enumerate().take(n) {
+                        if item.is_empty() {
                             continue;
                         }
                         let mut rem = f;
@@ -255,7 +255,7 @@ fn write_ids_group(g: &mut netcdf::GroupMut, meta: &IdsMeta, tree: &Node) -> Res
                             rem /= shape[d];
                         }
                         let ext: Vec<netcdf::Extent> = idx.iter().map(|&i| netcdf::Extent::from(i)).collect();
-                        v.put_string(&data[f], netcdf::Extents::from(ext))?;
+                        v.put_string(item, netcdf::Extents::from(ext))?;
                     }
                 }
             }

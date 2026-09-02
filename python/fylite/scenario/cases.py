@@ -74,6 +74,22 @@ class CorpusMissing(Exception):
 
 
 
+class RunFailed(Exception):
+    """一次运行没跑成 —— **库抛库的异常**，退出码是 CLI 的事。
+
+    ★★与 :class:`CorpusMissing` 同一条教训，同一处代价（那条抬头写着 2026-09-01
+    的经过）：这里原本抛 `SystemExit`。它是 `BaseException`，寻常的
+    `except Exception` 接不住；更要命的是**在 fixture 里**——pytest / pluggy 的
+    hook wrapper 接不住它，于是退化成一个裸 `AssertionError`，五条测试报 ERROR
+    而不是 skip，而报错里再也看不出原因是「内核不在场」。2026-09-02 实测复现：
+    公开检出（无内核）跑 `test_whence.py`，正是这个形状。
+
+    ★保留 `plan()` 那几处 `SystemExit`：它们是**参数不成立**（bar 不可跑、没有
+    这个算例），是 CLI 面的拒绝，且已有测试按那个形状判。变的只有「跑了但没跑成」
+    这一条——它是库调用者要接的。
+    """
+
+
 def corpus_dir(explicit=None) -> Path:
     """The `cases/` corpus — repo data, not wheel data; absent → refuse.
 
@@ -850,8 +866,11 @@ def _device_env(device: str | None):
         return
     deck = _deck_root() / device
     if not deck.is_dir():
-        raise SystemExit(f"catalogue names device {device!r} but "
-                         f"{deck} is not a directory")
+        #: ★装置牌不在场 = **缺输入**（`machine_desc/` 按裁定不进版本库），
+        #: 与语料不在场同一类，所以抛同一个异常：库调用者接得住，CLI 照旧翻译。
+        raise CorpusMissing(f"catalogue names device {device!r} but "
+                            f"{deck} is not a directory — device decks are "
+                            "pulled on demand and are not in the repository")
     from .. import device as _device_mod
     with _device_mod.bound(deck):
         yield
@@ -871,8 +890,8 @@ def run(case_id: str, d=None, *, predict: bool = False) -> dict:
     with _device_env(p["device"]):
         out = serve.call_mcp_tool(f"fylite_{p['tool']}", p["arguments"])
     if out.get("isError"):
-        raise SystemExit(f"fylite cases --run {case_id}: the run failed — "
-                         + out["content"][0]["text"])
+        raise RunFailed(f"fylite cases --run {case_id}: the run failed — "
+                        + out["content"][0]["text"])
     result = json.loads(out["content"][0]["text"])
     return {**p, "run": result.get("run"), "run_dir": result.get("run_dir"),
             "result_keys": sorted(result)}

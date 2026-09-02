@@ -104,5 +104,5 @@ pub unsafe extern "C" fn fylite_data_case_free(p: *mut u8, n: u64) {
     if p.is_null() {
         return;
     }
-    drop(Box::from_raw(std::slice::from_raw_parts_mut(p, n as usize)));
+    drop(Box::from_raw(std::ptr::slice_from_raw_parts_mut(p, n as usize)));
 }

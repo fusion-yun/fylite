@@ -126,10 +126,15 @@ def command_path(args) -> list:
     return path
 
 
-def _corpus_missing():
-    """`scenario.cases.CorpusMissing`，惰性取——`engine` 在 import 期保持 stdlib 纯。"""
-    from ..scenario.cases import CorpusMissing
-    return CorpusMissing
+def _library_refusals():
+    """库抛上来的两种「说得清的拒绝」，惰性取——`engine` 在 import 期保持 stdlib 纯。
+
+    `CorpusMissing`（语料 / 装置牌不在场）与 `RunFailed`（跑了但没跑成）都是**普通
+    异常**：退出码是 CLI 的关切，翻译落在这里；库调用者（含 pytest 的 fixture）
+    接得住它们。
+    """
+    from ..scenario.cases import CorpusMissing, RunFailed
+    return (CorpusMissing, RunFailed)
 
 
 def cli_main(argv=None) -> int:
@@ -145,7 +150,7 @@ def cli_main(argv=None) -> int:
                 if carried_by(c)}
     try:
         return resolve_entry(handlers[args.cmd])(args, ap)
-    except _corpus_missing() as exc:
+    except _library_refusals() as exc:
         #: ★★2026-09-01：语料缺席从库里抛上来的是 `scenario.cases.CorpusMissing`，
         #: 一个**普通异常**；退出码是 CLI 的关切，翻译落在这里。此前它在库里直接
         #: 抛 `SystemExit`——CLI 看着对，代价是任何库调用者（含 pytest 的 fixture）

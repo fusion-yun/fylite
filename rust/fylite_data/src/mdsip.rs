@@ -772,7 +772,7 @@ impl<T: Transport> Client<T> {
         let mut chunk = [0u8; 64 * 1024];
         loop {
             if let Some(total) = declared_len(&self.spill) {
-                if total < HEADER_LEN || total > MAX_ANSWER_BYTES {
+                if !(HEADER_LEN..=MAX_ANSWER_BYTES).contains(&total) {
                     return Err(MdsipError::Protocol(format!(
                         "implausible message length {total}"
                     )));

@@ -548,7 +548,7 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
             Some((n, v)) if n.starts_with("--") => (n.to_string(), Some(v.to_string())),
             _ => (tok.clone(), None),
         };
-        let def = match defs.iter().find(|d| !d.positional && d.flags.iter().any(|f| *f == name)) {
+        let def = match defs.iter().find(|d| !d.positional && d.flags.contains(&name)) {
             Some(d) => *d,
             None => {
                 return Parsed::Error(format!(

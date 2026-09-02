@@ -423,7 +423,7 @@ pub fn detensorize(meta: Option<&IdsMeta>, boxes: &[LeafBox], counts: &[(String,
                 Some(s) => (0..ndim).map(|d| s[f * ndim.max(1) + d].max(0) as usize).collect(),
                 None => field_dims.to_vec(),
             };
-            if ndim > 0 && elem_shape.iter().any(|&x| x == 0) {
+            if ndim > 0 && elem_shape.contains(&0) {
                 continue;
             }
             let value = extract(&b.shape, &b.data, &idx, &elem_shape);

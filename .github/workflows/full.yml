@@ -1,0 +1,73 @@
+# 全量 —— **每周一次**，外加两个人为入口。
+#
+# ★★为什么全量不按提交跑：按路径触发的四档各自守一层，合起来覆盖每一次改动；
+#   全量多出来的那部分（跨实现对拍要装 imas-python / imas-core，十几分钟）**判的
+#   不是这次改动**，而是「上游那两个读者仍然读得回我们写的东西」——那是随时间漂移
+#   的事实，按时间盯它才对得上，按提交盯它只是重复。
+# ★三个入口：每周一 03:00 UTC · 手动（`workflow_dispatch`）· 提交信息含 `[ci full]`。
+#   最后一条是给「我知道这次改动跨层」的人留的口子，不必等到周一。
+name: full
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [develop, main, "claude/**"]
+
+concurrency:
+  group: full-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# ★★条件写在每个 job 上，不另起一个「决定要不要跑」的 job：定时与手动无条件成立，
+# push 只在提交信息含 `[ci full]` 时成立（那时 `head_commit` 才存在）。多一个 job
+# 去回答一个布尔问题，换来的是每次推送都多一条记录——正是这份工作流要避免的那种噪声。
+jobs:
+  python:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
+    uses: ./.github/workflows/python.yml
+
+  rust:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
+    uses: ./.github/workflows/rust.yml
+
+  physics:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
+    uses: ./.github/workflows/physics.yml
+
+  app:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
+    uses: ./.github/workflows/app.yml
+
+  imas-crosscheck:
+    # ★跨实现对拍：数据层写的，imas-python 与 imas-core 读得回；它们写的，数据层
+    #   读得回——逐叶子。判据不是「我们自己读得回自己」，那句话任何实现都成立。
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libhdf5-dev libnetcdf-dev
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/fylite_data/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('rust/fylite_data/Cargo.toml') }}
+          restore-keys: cargo-${{ runner.os }}-
+      - run: python -m pip install --upgrade pip && pip install numpy pyyaml pytest imas-python imas-core
+      - run: ./rust/build.sh --cli
+      - name: imas-python / imas-core ↔ 数据层，逐叶子
+        working-directory: rust/fylite_data
+        run: python verify/imas_roundtrip.py
+      - name: fydata 的 YAML 与 PyYAML 逐叶子（fydata 不在场时自跳）
+        working-directory: rust/fylite_data
+        run: pip install pyyaml && python verify/yaml_gate.py --bin ../../python/fylite/_bin/fylite-data

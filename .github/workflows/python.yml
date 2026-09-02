@@ -1,0 +1,70 @@
+# Python 档 —— 装配 / IO / 协议·CLI 面 / 注册表 / ABI 编组，外加三本册子的结构检查。
+#
+# ★触发按路径：只动 `rust/` 或 `app/` 的提交不跑这一档（见 `.github/workflows/README.md`）。
+# ★内核（私有仓构建）与私有语料在公开检出里不在场，`python/conftest.py` 把这些
+#   条目**点名跳过**而不是判失败——所以这道门的绿说的是「本仓自己的那一半成立」。
+name: python
+
+on:
+  push:
+    branches: [develop, main, "claude/**"]
+    paths:
+      - "python/**"
+      - "cases/**"
+      - "benchmark/**"
+      - "docs/**"
+      - "models/**"
+      - "tools/benchmark-run.py"
+      - ".github/workflows/python.yml"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "python/**"
+      - "cases/**"
+      - "benchmark/**"
+      - "docs/**"
+      - "models/**"
+      - "tools/benchmark-run.py"
+      - ".github/workflows/python.yml"
+  workflow_call:      # `full.yml` 每周把它整个调一遍
+
+concurrency:
+  group: python-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 装依赖
+        # ★numpy 是唯一的运行期依赖；matplotlib 是 `plot` 附加档（`pyproject.toml`
+        # 的 optional-dependencies），装上它这一档的绘图门才真的判得动，不装则那
+        # 几条会以 ModuleNotFoundError 长红——「可选依赖」不等于「可选判据」。
+        run: python -m pip install --upgrade pip && pip install numpy pyyaml pytest matplotlib
+
+      - name: Python 档
+        working-directory: python
+        run: python -m pytest -q -p no:cacheprovider
+
+      - name: 三本册子的结构检查（与 pytest 闸子同一函数）
+        working-directory: python
+        run: |
+          python -m fylite cases --check
+          python -m fylite cases --benchmark --check
+          python -m fylite cases --physics --check
+
+      - name: 跳过与失败各多少（读得出「绿是因为什么」）
+        if: always()
+        working-directory: python
+        run: python -m pytest -q -p no:cacheprovider --no-header -rs 2>&1 | tail -40
