@@ -71,21 +71,28 @@ class CorpusMissing(Exception):
 
 
 def corpus_dir(explicit=None) -> Path:
-    """The `docs/cases/` corpus — repo data, not wheel data; absent → refuse.
+    """The `cases/` corpus — repo data, not wheel data; absent → refuse.
 
     ★An empty listing would read as「没有算例」, which is a different fact
     from「语料不在」— same posture as the machine decks.
 
-    ★★THE CORPUS IS DOCUMENTATION DATA (moved under `docs/` on 2026-09-01,
-    together with the V&V registry that used to sit in a `benchmark/` tree of
-    its own).  It is read by this module, by `fylite cases`, and by the
-    book — and by NOTHING IN `app/`: the browser stopped carrying a copy in
-    the same batch, so there is exactly one corpus and no published subset of
-    it to keep in step.
+    ★★2026-09-02 语料**搬了两次，落在仓根 `cases/`**（用户裁定）。它在内核仓的
+    `cases/` 里待到分仓之后——而它的消费者（本模块、`fylite cases`、进轮的
+    CLI）全在公开仓，于是「开箱即断」：`fylite cases` 在本仓找不到语料，要显式
+    `--dir` 指到另一个仓去。搬过来，并从 `docs/` 提到仓根：它是**语料**，不是
+    文档的一章——`docs/` 那一版的理由（「与 V&V 登记册同处」）已随登记册留在内核
+    仓而作废。
+    ★**V&V 登记册的机器半边没有跟过来**（`registry.jsonld` 与 `scenarios/` 仍在
+    内核仓）：它的 `account` 字段有 11 处指向 `docs/note/benchmark/` 的散文报告，
+    而那些在**私有**仓——把它搬进公开仓，等于让公开读者去解析一批他打不开的路径。
+    ★仍然 **`app/` 里没有任何东西读它**：浏览器那份副本 2026-09-01 撤除，所以只有
+    一份语料，没有需要保持同步的发布子集。
     """
+    here = Path(__file__).resolve().parents[3]
     roots = ([Path(explicit)] if explicit else
-             [Path("docs/cases"),
-              Path(__file__).resolve().parents[3] / "docs" / "cases"])
+             #: 仓根优先；`docs/cases` 作为旧位置仍认，免得别处的检出一换就断。
+             [Path("cases"), here / "cases",
+              Path("docs/cases"), here / "docs" / "cases"])
     for r in roots:
         if (r / "catalogue.jsonld").is_file():
             return r

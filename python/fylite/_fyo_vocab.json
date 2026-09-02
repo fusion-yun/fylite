@@ -72,7 +72,7 @@
     },
     "document": {
       "gated": true,
-      "gloss": "Filename of a catalogue entry's case document, relative to `docs/cases/`. Gated even though `document` is the browser's DOM global: the DOM use is `document.<member>`, never a `document:` key or `['document']` subscript, so the spelling check binds without false positives."
+      "gloss": "Filename of a catalogue entry's case document, relative to `cases/`. Gated even though `document` is the browser's DOM global: the DOM use is `document.<member>`, never a `document:` key or `['document']` subscript, so the spelling check binds without false positives."
     },
     "dvolume": {
       "gated": false,

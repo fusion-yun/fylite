@@ -1261,7 +1261,7 @@
      * a reader can still save a run and hand the file back.  What is gone is
      * the app SHIPPING a corpus of them and offering it from a menu.
      *
-     * ★WHY: the corpus is documentation data.  It sits at `docs/cases/` and
+     * ★WHY: the corpus is documentation data.  It sits at `cases/` and
      * is read by `fylite cases`, by `fylite.scenario.cases`, and by the
      * book — one corpus, one reader set.  Carrying a second copy inside
      * `app/` meant a symlink into the repo root, a subset rule in the

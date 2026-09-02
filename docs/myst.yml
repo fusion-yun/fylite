@@ -2,11 +2,18 @@
 #
 #   guide/      用户指南——怎么用；`public.yml` 点名的那几篇随浏览器演示公开发布
 #   reference/  参考——保真度边界 · 内核清单 · API · 报告模板
+#   design/     设计集——运行概念 · 需求 · 设计描述 · 逐页设计笔记（FYL-*）
 #
 # ★★2026-09-02 新建。分仓时（2026-09-01）这两本书搬进本仓，而**挂它们的站点配置
 # 留在了内核仓**——于是本仓的 `docs/` 有两本书却没有站点，`myst-preview.sh` 里那条
 # `fylite:fylite/docs` 一直在静默地跳过（脚本的判据是 `docs/myst.yml` 在不在）。
 # 这份文件补上那一半。
+#
+# ★★同日 `design/` 也从内核仓搬了过来（连同它独占的 17 张图，`figures/`）。分仓时
+# 它按「讲的是内核就留在内核仓」归了那边，但它讲的其实是**四个页面与它们的运行
+# 概念**——读者是用这套东西的人，不是改 Rust 的人。★书里仍按 `rust/…` 指内核源码
+# 35 处：那些路径在**内核仓**下成立，与 `NOTICE` 描述内核而不随内核走是同一姿态
+# （README「What ships, and what does not」已经说过 Rust 源码不发布）。
 #
 # ★内核仓那边**也有一本叫 `reference/` 的书**，同名不同书：那边讲的是内核的 C ABI
 # （`FYL-ABI-01`），本仓这本讲 Python 包与页面的用法。别把两边的内容互相搬。
@@ -22,12 +29,17 @@ version: 1
 site:
   title: fylite Documentation
   projects:
+    #: ★第一本在承重（见上）——`guide` 排最前不是偏好，是落地页。
     - path: guide
       slug: guide
     - path: reference
       slug: reference
+    - path: design
+      slug: design
   nav:
     - title: 用户指南 (Guide)
       url: /guide
     - title: 参考 (Reference)
       url: /reference
+    - title: 设计集 (Design)
+      url: /design

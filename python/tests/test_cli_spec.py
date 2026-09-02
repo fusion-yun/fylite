@@ -31,7 +31,7 @@ def test_spec_lists_all_commands():
     #: ★`cases` joined on 2026-08-26, beside `describe` because both face
     #: the DECLARED (catalog / corpus), not the physics: the CLI is the
     #: primary debugging environment, and the scenario corpus (top-level
-    #: `docs/cases/`, fyo JSON-LD) has to be reachable from it.
+    #: `cases/`, fyo JSON-LD) has to be reachable from it.
     #: ★`report` joined on 2026-08-26, beside `replay` because both consume
     #: the record: the unified MyST run report (engine/report.py) is a
     #: projection of a run directory, and the CLI is where it is generated.
@@ -135,7 +135,7 @@ def test_the_skill_only_names_real_subcommands():
 # --------------------------------------------------------------------------- #
 #
 # ★★2026-08-26：算例语料从 `app/cases/` 提升到仓顶层 `cases/`，同批裁定
-# **CLI 为主要调试环境**。★★2026-09-01 再搬一次，到 `docs/cases/`：同批
+# **CLI 为主要调试环境**。★★2026-09-01 再搬一次，到 `cases/`：同批
 # 裁定**页面不再取算例**，于是 CLI 与 Python 侧是语料仅有的读者，语料本身
 # 归到它一直所属的那一类——文档数据。这几条闸子钉住三件事：语料在 CLI
 # 够得到、目录与盘上文件互指成立（catalogue 名的都在、盘上的都被名了）、
@@ -179,7 +179,7 @@ def test_listing_names_every_catalogue_entry():
     rc, out = _cases({"as_json": True})
     assert rc == 0
     got = _json.loads(out)
-    cat = _json.loads((CORPUS_ROOT / "docs/cases/catalogue.jsonld").read_text())
+    cat = _json.loads((CORPUS_ROOT / "cases/catalogue.jsonld").read_text())
     assert ({r["case_id"] for r in got["cases"]}
             == {e["fylite:case_id"] for e in cat["fylite:cases"]})
     #: every case document carries a human-readable name — the corpus is a
@@ -191,7 +191,7 @@ def test_listing_names_every_catalogue_entry():
 def test_showing_one_case_prints_the_document_verbatim():
     rc, out = _cases({"name": "evolve-default"})
     assert rc == 0
-    assert out.strip() == (CORPUS_ROOT / "docs/cases/evolve-default.jsonld"
+    assert out.strip() == (CORPUS_ROOT / "cases/evolve-default.jsonld"
                            ).read_text().strip()
 
 

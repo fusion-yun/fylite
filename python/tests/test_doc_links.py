@@ -63,10 +63,13 @@ def test_the_absent_books_are_the_ones_that_moved_to_the_kernel_repo():
 
     缺席集合一旦变大，说明又有一本书离开了本仓而没人说；变小则说明书回来了
     而这份名单没跟上。两种都该在这里红一次，而不是让上面那个循环默默少查一本。
+
+    ★2026-09-02 变小过一次：`design` 从内核仓搬了回来。它按「讲的是内核就留在
+    那边」归过去，而它讲的是四个页面与它们的运行概念——读者在这边。
     """
-    assert sorted(ABSENT) == ["design", "report"], (
-        f"本仓在场的书变了：缺席的是 {sorted(ABSENT)}，此前是 ['design', 'report']"
-        "（那两本讲内核，跟 Rust 源码留在 fylite_kernel）。"
+    assert sorted(ABSENT) == ["report"], (
+        f"本仓在场的书变了：缺席的是 {sorted(ABSENT)}，此前是 ['report']"
+        "（那一本讲内核的评估研究，跟 Rust 源码留在 fylite_kernel）。"
         "若确有搬动，改这里的名单，并说明书去了哪。")
 
 BOOK_PAGES = sorted(p for p in PUBLISHED if p.is_file())

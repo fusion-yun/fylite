@@ -1,0 +1,24 @@
+{
+ "@context": {
+  "fylite": "urn:fylite:"
+ },
+ "@id": "fylite:app/case/series-default",
+ "@type": "fylite:AppSession/1",
+ "fylite:page": "series",
+ "fylite:case": {
+  "fylite:name": "时间序列反演（出厂设置）",
+  "fylite:name_en": "Time-series reconstruction (as shipped)",
+  "fylite:note": "★S-1 提取档（2026-08-26）：由 analysis.html 的出厂控件值机械提取，不是页面导出的会话文件——接线后应由页面导出替换以完成往返校验。内容：合成序列驱动（5 个时间片，t 1→5 s，Ip 320→460 kA，β 0.35→0.70，线圈源按片）。",
+  "fylite:note_en": "★S-1 extraction (2026-08-26): mechanically lifted from analysis.html factory control values, NOT a page-exported session file — once wired, replace with a page export to close the round trip. Contents: the synthetic series driver (5 time slices, t 1→5 s, Ip 320→460 kA, β 0.35→0.70, per-slice coil source)."
+ },
+ "fylite:config": {
+  "coilsrc": "slice",
+  "nslice": 5,
+  "t0": 1,
+  "t1": 5,
+  "ip0": 320,
+  "ip1": 460,
+  "b0": 0.35,
+  "b1": 0.7
+ }
+}

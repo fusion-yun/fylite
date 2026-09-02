@@ -1,0 +1,348 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="fylite 放电设计页仿真模式在 16:9 首屏上的概念布局">
+<title>fylite 放电设计页 — 仿真模式</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<rect x="0.0" y="0.0" width="1600.0" height="84.0" class="strip"/>
+<line x1="0.0" y1="84.0" x2="1600.0" y2="84.0" class="strip-edge"/>
+<rect x="18.0" y="6.0" width="28.0" height="28.0" rx="6" class="mark"/>
+<text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
+<text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">放电设计</text>
+<text x="132.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">一份脚本 · 三种时间观：配置 · 设计 · 仿真</text>
+<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
+<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<circle cx="1568.0" cy="20.0" r="7" class="navg"/>
+<path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>
+<line x1="1542.0" y1="11.0" x2="1542.0" y2="29.0" class="sep"/>
+<rect x="1510.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1517.0 13.0v14M1517.0 13.0h5M1517.0 20.0h5M1517.0 27.0h5" class="navg"/>
+<circle cx="1528.0" cy="13.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="20.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="27.0" r="1.9" class="navgf"/>
+<rect x="1478.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1484.0 24.0Q1492.0 11.0 1500.0 22.0" class="navg"/>
+<circle cx="1487.0" cy="21.0" r="1.6" class="navgf"/>
+<circle cx="1492.0" cy="16.0" r="1.6" class="navgf"/>
+<circle cx="1497.0" cy="20.0" r="1.6" class="navgf"/>
+<rect x="1446.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1452.0 14.0C1458.0 14.0 1460.0 26.0 1468.0 26.0" class="navg"/>
+<rect x="1414.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic-on"/>
+<path d="M1420.0 25.0L1425.0 15.0L1431.0 15.0L1436.0 25.0" class="navg-on"/>
+<line x1="0.0" y1="40.0" x2="1600.0" y2="40.0" class="strip-inner"/>
+<text x="18.0" y="66.0" class="mut" font-size="12" text-anchor="start">装置</text>
+<rect x="52.0" y="48.0" width="200.0" height="26.0" rx="5" class="input"/>
+<text x="61.0" y="65.4" class="lbl" font-size="12" text-anchor="start">EAST</text>
+<path d="M234.0 59.0l4 5 4-5" class="caret"/>
+<rect x="260.0" y="48.0" width="26.0" height="26.0" rx="5" class="btn"/>
+<text x="273.0" y="65.3" class="mut" font-size="12" text-anchor="middle">×</text>
+<rect x="298.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="329.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导入</text>
+<rect x="368.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="399.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导出</text>
+<circle cx="454.0" cy="61.0" r="4.5" class="dot-busy"/>
+<text x="466.0" y="65.0" class="mut" font-size="12" text-anchor="start">仿真 · 只有过去 · 现在 t = 4.15 s · 实时 0.8×</text>
+<rect x="1464.0" y="48.0" width="118.0" height="26.0" rx="5" class="btn-a"/>
+<text x="1523.0" y="65.0" class="btn-at" font-size="12" text-anchor="middle">交给建模场景</text>
+<rect x="0.0" y="81.0" width="1600.0" height="3.0" class="prog-bg"/>
+<rect x="0.0" y="81.0" width="664.0" height="3.0" class="prog"/>
+<rect x="0.0" y="84.0" width="1600.0" height="46.0" class="panel"/>
+<line x1="0.0" y1="130.0" x2="1600.0" y2="130.0" class="strip-inner"/>
+<rect x="26.0" y="94.0" width="84.0" height="26.0" rx="6" class="chip-off"/>
+<text x="68.0" y="111.0" class="mut" font-size="12.5" text-anchor="middle">配置</text>
+<rect x="118.0" y="94.0" width="84.0" height="26.0" rx="6" class="chip-off"/>
+<text x="160.0" y="111.0" class="mut" font-size="12.5" text-anchor="middle">设计</text>
+<rect x="210.0" y="94.0" width="84.0" height="26.0" rx="6" class="chip-on"/>
+<text x="252.0" y="111.0" class="acc-t" font-size="12.5" text-anchor="middle" font-weight="700">仿真</text>
+<text x="312.0" y="111.0" class="mut" font-size="11.5" text-anchor="start">三个模式换的是时间轴的含义，不是三个工具（D-18）；切模式只换中间那一块卡片，上下两块原地不动（D-19）</text>
+<text x="1574.0" y="111.0" class="mut" font-size="11" text-anchor="end">★开关在页体，状态在外壳（V-12）</text>
+<rect x="26.0" y="142.0" width="1548.0" height="26.0" rx="6" class="panel"/>
+<rect x="26.0" y="142.0" width="3.0" height="26.0" class="mark"/>
+<text x="40.0" y="159.0" class="lbl" font-size="12.5" text-anchor="start">这一炮该怎么打，以及照这么打会发生什么。</text>
+<text x="346.0" y="159.0" class="acc-t" font-size="12" text-anchor="start">展开说明 ▾</text>
+<text x="1564.0" y="159.0" class="mut" font-size="11" text-anchor="end">★引言折成一行 —— 首屏要留给输出（V-13）</text>
+<rect x="26.0" y="180.0" width="320.0" height="460.0" rx="8" class="panel"/>
+<rect x="26.0" y="180.0" width="320.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="202.0" width="320.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="210.0" x2="346.0" y2="210.0" class="sep"/>
+<text x="38.0" y="199.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">这一炮 · 加热与驱动（三个模式共用）</text>
+<text x="40.0" y="228.0" class="mut" font-size="11.5" text-anchor="start">平顶电流 Ip [kA]</text>
+<text x="332.0" y="228.0" class="acc-t" font-size="11.5" text-anchor="end">400</text>
+<line x1="40.0" y1="240.0" x2="332.0" y2="240.0" class="track"/>
+<line x1="40.0" y1="240.0" x2="156.8" y2="240.0" class="track-on"/>
+<circle cx="156.8" cy="240.0" r="5" class="handle"/>
+<text x="40.0" y="262.0" class="mut" font-size="11.5" text-anchor="start">大半径 R₀ [m]</text>
+<text x="332.0" y="262.0" class="acc-t" font-size="11.5" text-anchor="end">1.85</text>
+<line x1="40.0" y1="274.0" x2="332.0" y2="274.0" class="track"/>
+<line x1="40.0" y1="274.0" x2="200.6" y2="274.0" class="track-on"/>
+<circle cx="200.6" cy="274.0" r="5" class="handle"/>
+<text x="40.0" y="296.0" class="mut" font-size="11.5" text-anchor="start">平顶小半径 a [m]</text>
+<text x="332.0" y="296.0" class="acc-t" font-size="11.5" text-anchor="end">0.445</text>
+<line x1="40.0" y1="308.0" x2="332.0" y2="308.0" class="track"/>
+<line x1="40.0" y1="308.0" x2="221.0" y2="308.0" class="track-on"/>
+<circle cx="221.0" cy="308.0" r="5" class="handle"/>
+<text x="40.0" y="330.0" class="mut" font-size="11.5" text-anchor="start">拉长比 κ</text>
+<text x="332.0" y="330.0" class="acc-t" font-size="11.5" text-anchor="end">1.65</text>
+<line x1="40.0" y1="342.0" x2="332.0" y2="342.0" class="track"/>
+<line x1="40.0" y1="342.0" x2="209.4" y2="342.0" class="track-on"/>
+<circle cx="209.4" cy="342.0" r="5" class="handle"/>
+<text x="40.0" y="364.0" class="mut" font-size="11.5" text-anchor="start">上三角度 δu</text>
+<text x="332.0" y="364.0" class="acc-t" font-size="11.5" text-anchor="end">0.40</text>
+<line x1="40.0" y1="376.0" x2="332.0" y2="376.0" class="track"/>
+<line x1="40.0" y1="376.0" x2="156.8" y2="376.0" class="track-on"/>
+<circle cx="156.8" cy="376.0" r="5" class="handle"/>
+<text x="40.0" y="398.0" class="mut" font-size="11.5" text-anchor="start">击穿 → 平顶 → 结束 [s]</text>
+<text x="332.0" y="398.0" class="acc-t" font-size="11.5" text-anchor="end">0 · 1 · 8 · 10</text>
+<line x1="40.0" y1="410.0" x2="332.0" y2="410.0" class="track"/>
+<line x1="40.0" y1="410.0" x2="273.6" y2="410.0" class="track-on"/>
+<circle cx="273.6" cy="410.0" r="5" class="handle"/>
+<text x="40.0" y="432.0" class="mut" font-size="11.5" text-anchor="start">NBI [MW]</text>
+<text x="332.0" y="432.0" class="acc-t" font-size="11.5" text-anchor="end">4.0</text>
+<line x1="40.0" y1="444.0" x2="332.0" y2="444.0" class="track"/>
+<line x1="40.0" y1="444.0" x2="186.0" y2="444.0" class="track-on"/>
+<circle cx="186.0" cy="444.0" r="5" class="handle"/>
+<text x="40.0" y="466.0" class="mut" font-size="11.5" text-anchor="start">ECRH [MW]</text>
+<text x="332.0" y="466.0" class="acc-t" font-size="11.5" text-anchor="end">1.0</text>
+<line x1="40.0" y1="478.0" x2="332.0" y2="478.0" class="track"/>
+<line x1="40.0" y1="478.0" x2="98.4" y2="478.0" class="track-on"/>
+<circle cx="98.4" cy="478.0" r="5" class="handle"/>
+<text x="40.0" y="506.0" class="mut" font-size="10.5" text-anchor="start">★一个量一个控件（D-20）：三个模式读的是同一份，</text>
+<text x="40.0" y="520.0" class="mut" font-size="10.5" text-anchor="start">所以它住在功能栏之外。</text>
+<rect x="26.0" y="652.0" width="320.0" height="214.0" rx="8" class="panel"/>
+<rect x="26.0" y="652.0" width="320.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="674.0" width="320.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="682.0" x2="346.0" y2="682.0" class="sep"/>
+<text x="38.0" y="671.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">仿真：驱动控制台</text>
+<rect x="22.0" y="648.0" width="328.0" height="222.0" rx="10" class="zone"/>
+<text x="186.0" y="642.0" class="zone-t" font-size="10.5" text-anchor="middle">③ 随模式而换的一块（D-19）</text>
+<text x="40.0" y="702.0" class="mut" font-size="11.5" text-anchor="start">相位</text>
+<text x="332.0" y="702.0" class="lbl" font-size="11.5" text-anchor="end">平顶（第 3 态 / 共 5）</text>
+<text x="40.0" y="728.0" class="mut" font-size="11.5" text-anchor="start">保真度</text>
+<rect x="88.0" y="716.0" width="66.0" height="22.0" rx="5" class="chip-on"/>
+<text x="121.0" y="731.0" class="acc-t" font-size="11.5" text-anchor="middle" font-weight="700">0-D</text>
+<rect x="162.0" y="716.0" width="66.0" height="22.0" rx="5" class="chip-off"/>
+<text x="195.0" y="731.0" class="mut" font-size="11.5" text-anchor="middle">1.5-D</text>
+<text x="40.0" y="752.0" class="mut" font-size="10.5" text-anchor="start">★只有仿真有这个开关 —— 只有它有时间在走（D-22）</text>
+<rect x="40.0" y="766.0" width="292.0" height="28.0" rx="5" class="btn-a"/>
+<text x="186.0" y="784.3" class="btn-at" font-size="12" text-anchor="middle">断开 —— 停止推进</text>
+<text x="40.0" y="824.0" class="mut" font-size="11.5" text-anchor="start">磁通余量</text>
+<rect x="40.0" y="832.0" width="292.0" height="10.0" rx="5" class="gauge-bg"/>
+<rect x="40.0" y="832.0" width="111.0" height="10.0" rx="5" class="gauge"/>
+<text x="40.0" y="860.0" class="mut" font-size="10.5" text-anchor="start">★还能撑 2.4 s（未声明摆幅时报「未知」，D-17）</text>
+<rect x="360.0" y="180.0" width="396.7" height="424.0" rx="8" class="panel"/>
+<rect x="360.0" y="180.0" width="396.7" height="30.0" rx="8" class="head"/>
+<rect x="360.0" y="202.0" width="396.7" height="8.0" class="head-sq"/>
+<line x1="360.0" y1="210.0" x2="756.7" y2="210.0" class="sep"/>
+<text x="372.0" y="199.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">④ 平衡截面 · 这一片</text>
+<text x="372.0" y="222.0" class="ok-t" font-size="11" text-anchor="start" font-weight="700">已解 @ 4.10 s（上一节拍）</text>
+<rect x="370.0" y="230.0" width="376.7" height="366.0" rx="6" class="panel"/>
+<rect x="404.0" y="241.7" width="330.7" height="330.7" class="axes"/>
+<line x1="404.0" y1="324.3" x2="734.7" y2="324.3" class="grid"/>
+<line x1="486.7" y1="241.7" x2="486.7" y2="572.3" class="grid"/>
+<line x1="404.0" y1="407.0" x2="734.7" y2="407.0" class="grid"/>
+<line x1="569.3" y1="241.7" x2="569.3" y2="572.3" class="grid"/>
+<line x1="404.0" y1="489.7" x2="734.7" y2="489.7" class="grid"/>
+<line x1="652.0" y1="241.7" x2="652.0" y2="572.3" class="grid"/>
+<polyline points="660.5,407.0 659.6,391.8 657.1,376.8 652.9,362.1 647.3,347.9 640.3,334.3 632.2,321.5 623.2,309.5 613.4,298.7 603.1,288.9 592.6,280.4 581.9,273.3 571.4,267.6 561.2,263.3 551.4,260.6 542.0,259.4 533.3,259.8 525.3,261.8 517.9,265.2 511.2,270.2 505.2,276.7 499.9,284.5 495.3,293.6 491.3,304.0 487.9,315.4 485.0,327.8 482.7,341.0 480.9,354.9 479.6,369.4 478.7,384.3 478.3,399.4 478.3,414.6 478.7,429.7 479.6,444.6 480.9,459.1 482.7,473.0 485.0,486.2 487.9,498.6 491.3,510.0 495.3,520.4 499.9,529.5 505.2,537.3 511.2,543.8 517.9,548.8 525.3,552.2 533.3,554.2 542.0,554.6 551.4,553.4 561.2,550.7 571.4,546.4 581.9,540.7 592.6,533.6 603.1,525.1 613.4,515.3 623.2,504.5 632.2,492.5 640.3,479.7 647.3,466.1 652.9,451.9 657.1,437.2 659.6,422.2 660.5,407.0" class="tgt"/>
+<polyline points="655.3,407.0 654.5,392.7 652.1,378.5 648.2,364.6 642.9,351.2 636.3,338.4 628.7,326.3 620.1,315.1 610.9,304.8 601.2,295.6 591.3,287.6 581.2,280.9 571.3,275.5 561.7,271.4 552.4,268.9 543.6,267.8 535.4,268.1 527.7,270.0 520.8,273.3 514.5,278.0 508.8,284.1 503.8,291.4 499.5,300.1 495.7,309.8 492.5,320.6 489.8,332.3 487.6,344.7 485.9,357.9 484.7,371.5 483.8,385.6 483.4,399.8 483.4,414.2 483.8,428.4 484.7,442.5 485.9,456.1 487.6,469.3 489.8,481.7 492.5,493.4 495.7,504.2 499.5,513.9 503.8,522.6 508.8,529.9 514.5,536.0 520.8,540.7 527.7,544.0 535.4,545.9 543.6,546.2 552.4,545.1 561.7,542.6 571.3,538.5 581.2,533.1 591.3,526.4 601.2,518.4 610.9,509.2 620.1,498.9 628.7,487.7 636.3,475.6 642.9,462.8 648.2,449.4 652.1,435.5 654.5,421.3 655.3,407.0" class="lcfs"/>
+<text x="569.3" y="590.0" class="mut" font-size="10.5" text-anchor="middle">LCFS（红）· 目标（灰虚）—— 等比例</text>
+<rect x="768.7" y="180.0" width="396.7" height="424.0" rx="8" class="panel"/>
+<rect x="768.7" y="180.0" width="396.7" height="30.0" rx="8" class="head"/>
+<rect x="768.7" y="202.0" width="396.7" height="8.0" class="head-sq"/>
+<line x1="768.7" y1="210.0" x2="1165.3" y2="210.0" class="sep"/>
+<text x="780.7" y="199.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">⑤ 剖面 · 这一片</text>
+<text x="780.7" y="222.0" class="warn-t" font-size="11" text-anchor="start" font-weight="700">0-D 规定剖面 —— 不是解出来的</text>
+<rect x="778.7" y="230.0" width="376.7" height="175.0" rx="6" class="panel"/>
+<rect x="812.7" y="240.0" width="330.7" height="143.0" class="axes"/>
+<line x1="812.7" y1="275.8" x2="1143.3" y2="275.8" class="grid"/>
+<line x1="895.3" y1="240.0" x2="895.3" y2="383.0" class="grid"/>
+<line x1="812.7" y1="311.5" x2="1143.3" y2="311.5" class="grid"/>
+<line x1="978.0" y1="240.0" x2="978.0" y2="383.0" class="grid"/>
+<line x1="812.7" y1="347.2" x2="1143.3" y2="347.2" class="grid"/>
+<line x1="1060.7" y1="240.0" x2="1060.7" y2="383.0" class="grid"/>
+<polyline points="812.7,248.6 840.2,249.2 867.8,251.0 895.3,254.1 922.9,258.5 950.4,264.3 978.0,271.5 1005.6,280.4 1033.1,291.0 1060.7,303.9 1088.2,319.5 1115.8,339.6 1143.3,374.4" class="c1"/>
+<text x="978.0" y="399.0" class="mut" font-size="10.5" text-anchor="middle">n_e [10¹⁹ m⁻³]  ρ</text>
+<rect x="778.7" y="411.0" width="376.7" height="175.0" rx="6" class="panel"/>
+<rect x="812.7" y="421.0" width="330.7" height="143.0" class="axes"/>
+<line x1="812.7" y1="456.8" x2="1143.3" y2="456.8" class="grid"/>
+<line x1="895.3" y1="421.0" x2="895.3" y2="564.0" class="grid"/>
+<line x1="812.7" y1="492.5" x2="1143.3" y2="492.5" class="grid"/>
+<line x1="978.0" y1="421.0" x2="978.0" y2="564.0" class="grid"/>
+<line x1="812.7" y1="528.2" x2="1143.3" y2="528.2" class="grid"/>
+<line x1="1060.7" y1="421.0" x2="1060.7" y2="564.0" class="grid"/>
+<polyline points="812.7,429.6 840.2,431.0 867.8,435.1 895.3,441.9 922.9,451.2 950.4,462.7 978.0,476.0 1005.6,490.7 1033.1,506.3 1060.7,521.9 1088.2,536.5 1115.8,548.7 1143.3,555.4" class="c2"/>
+<polyline points="812.7,429.6 840.2,430.7 867.8,434.1 895.3,439.7 922.9,447.4 950.4,457.2 978.0,468.8 1005.6,482.1 1033.1,496.8 1060.7,512.5 1088.2,528.5 1115.8,543.8 1143.3,555.4" class="c3"/>
+<text x="978.0" y="580.0" class="mut" font-size="10.5" text-anchor="middle">T_e · T_i [keV]  ρ</text>
+<rect x="1177.3" y="180.0" width="396.7" height="424.0" rx="8" class="panel"/>
+<rect x="1177.3" y="180.0" width="396.7" height="30.0" rx="8" class="head"/>
+<rect x="1177.3" y="202.0" width="396.7" height="8.0" class="head-sq"/>
+<line x1="1177.3" y1="210.0" x2="1574.0" y2="210.0" class="sep"/>
+<text x="1189.3" y="199.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">⑥ PF 通道</text>
+<text x="1189.3" y="222.0" class="mut" font-size="11" text-anchor="start">实线＝按设计的前馈　虚线＝随等离子体状态（D-14）</text>
+<rect x="1187.3" y="234.0" width="376.7" height="346.0" rx="6" class="panel"/>
+<rect x="1221.3" y="244.0" width="330.7" height="314.0" class="axes"/>
+<line x1="1221.3" y1="322.5" x2="1552.0" y2="322.5" class="grid"/>
+<line x1="1304.0" y1="244.0" x2="1304.0" y2="558.0" class="grid"/>
+<line x1="1221.3" y1="401.0" x2="1552.0" y2="401.0" class="grid"/>
+<line x1="1386.7" y1="244.0" x2="1386.7" y2="558.0" class="grid"/>
+<line x1="1221.3" y1="479.5" x2="1552.0" y2="479.5" class="grid"/>
+<line x1="1469.3" y1="244.0" x2="1469.3" y2="558.0" class="grid"/>
+<polyline points="1221.3,401.0 1227.9,397.2 1234.6,391.1 1241.2,383.5 1247.8,374.9 1254.4,365.3 1261.0,354.9 1267.6,343.8 1274.2,332.1 1280.9,319.7 1287.5,306.8" class="ff"/>
+<polyline points="1287.5,306.8 1300.7,302.9 1313.9,299.3 1327.1,296.1 1340.4,293.6 1353.6,291.9" class="fb"/>
+<polyline points="1221.3,401.0 1227.9,404.0 1234.6,408.9 1241.2,415.0 1247.8,421.9 1254.4,429.6 1261.0,437.9 1267.6,446.7 1274.2,456.1 1280.9,466.0 1287.5,476.4" class="ff"/>
+<polyline points="1287.5,476.4 1300.7,479.5 1313.9,482.4 1327.1,484.9 1340.4,486.9 1353.6,488.3" class="fb"/>
+<text x="1199.3" y="401.0" class="mut" font-size="10" text-anchor="middle" transform="rotate(-90 1199.3 401.0)">I_PF</text>
+<text x="1386.7" y="574.0" class="mut" font-size="10.5" text-anchor="middle">I_PF [kA]  t [s]</text>
+<text x="1189.3" y="600.0" class="mut" font-size="10.5" text-anchor="start">★上升沿是前馈（D-4），平顶随状态（D-6）——</text>
+<text x="1189.3" y="614.0" class="mut" font-size="10.5" text-anchor="start">两段线型不同，不只是颜色不同。</text>
+<rect x="360.0" y="616.0" width="1214.0" height="250.0" rx="8" class="panel"/>
+<rect x="360.0" y="616.0" width="1214.0" height="30.0" rx="8" class="head"/>
+<rect x="360.0" y="638.0" width="1214.0" height="8.0" class="head-sq"/>
+<line x1="360.0" y1="646.0" x2="1574.0" y2="646.0" class="sep"/>
+<text x="372.0" y="635.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">⑧ 滚动走廊：右缘就是现在，右边没有画出来（D-11 · D-12）</text>
+<rect x="406.0" y="662.0" width="1152.0" height="154.0" class="axes"/>
+<line x1="406.0" y1="700.5" x2="1558.0" y2="700.5" class="grid"/>
+<line x1="406.0" y1="739.0" x2="1558.0" y2="739.0" class="grid"/>
+<line x1="406.0" y1="777.5" x2="1558.0" y2="777.5" class="grid"/>
+<rect x="406.0" y="662.0" width="115.2" height="154.0" class="ph0"/>
+<line x1="521.2" y1="662.0" x2="521.2" y2="816.0" class="sep"/>
+<text x="463.6" y="676.0" class="mut" font-size="10.5" text-anchor="middle">击穿</text>
+<rect x="521.2" y="662.0" width="115.2" height="154.0" class="ph1"/>
+<line x1="636.4" y1="662.0" x2="636.4" y2="816.0" class="sep"/>
+<text x="578.8" y="676.0" class="mut" font-size="10.5" text-anchor="middle">上升</text>
+<rect x="636.4" y="662.0" width="691.2" height="154.0" class="ph2"/>
+<line x1="1327.6" y1="662.0" x2="1327.6" y2="816.0" class="sep"/>
+<text x="982.0" y="676.0" class="mut" font-size="10.5" text-anchor="middle">平顶</text>
+<rect x="1327.6" y="662.0" width="230.4" height="154.0" class="ph1"/>
+<line x1="1558.0" y1="662.0" x2="1558.0" y2="816.0" class="sep"/>
+<text x="1442.8" y="676.0" class="mut" font-size="10.5" text-anchor="middle">下降</text>
+<rect x="884.1" y="662.0" width="673.9" height="154.0" class="future"/>
+<rect x="884.1" y="662.0" width="673.9" height="154.0" class="future-e"/>
+<text x="1221.0" y="739.0" class="mut" font-size="12.5" text-anchor="middle" font-weight="700">未来未算</text>
+<polyline points="406.0,806.8 521.2,806.8 636.4,683.6 884.1,683.6" class="c1"/>
+<line x1="682.5" y1="662.0" x2="682.5" y2="816.0" class="edit"/>
+<path d="M678.5 818.0h8l-4 7z" class="editf"/>
+<text x="689.5" y="832.0" class="bad-t" font-size="10.5" text-anchor="start">改了 NBI</text>
+<line x1="786.2" y1="662.0" x2="786.2" y2="816.0" class="edit"/>
+<path d="M782.2 818.0h8l-4 7z" class="editf"/>
+<text x="793.2" y="832.0" class="bad-t" font-size="10.5" text-anchor="start">改了 Ip 目标</text>
+<text x="406.0" y="848.0" class="mut" font-size="11" text-anchor="start">★滑块改的是未来：改动点与它的后果在同一条轴上，改动点左边一个点也没有重算（D-12）</text>
+<line x1="884.1" y1="662.0" x2="884.1" y2="816.0" class="fold"/>
+<text x="890.1" y="678.0" class="fold-t" font-size="11" text-anchor="start">现在 t = 4.15 s</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图：放电设计页 仿真模式的 16:9 首屏。外壳三张图逐字相同；变的是时间轴的含义，以及跟着它变的那四类面板。生成物 —— tools/make-desktop-preview.py</text>
+</svg>

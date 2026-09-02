@@ -1,0 +1,459 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1234" width="1240" height="1234" role="img" aria-label="fylite 物理建模页界面概念图">
+<title>fylite 物理建模页 — 界面概念图（不含时）</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --bad:#c0392b; --ok:#10897a;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); }
+.head-t { fill:var(--fg); }
+.title { fill:var(--fg); }
+.lbl { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.sep { stroke:var(--line); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:1; }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.input { fill:none; stroke:var(--grid); stroke-width:1; }
+.chip { fill:none; stroke:var(--grid); stroke-width:1; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chipt { fill:var(--muted); }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.call { fill:var(--accent); }
+.callt { fill:#ffffff; font-weight:600; }
+.badge { fill:none; stroke:var(--grid); }
+.badge-ok { fill:none; stroke:var(--ok); }
+.badget { fill:var(--muted); }
+.stale { fill:none; stroke:var(--warn); stroke-width:1.2; stroke-dasharray:4 3; }
+.stalet { fill:var(--warn); }
+.stale-line { stroke:var(--warn); stroke-width:2; stroke-dasharray:4 3; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axis { fill:var(--lcfs); stroke:none; }
+.playhead { stroke:var(--accent); stroke-width:1.2; stroke-dasharray:3 3; }
+.ph0 { fill:var(--accent); opacity:.10; }
+.ph1 { fill:var(--alt); opacity:.12; }
+.ph2 { fill:var(--warn); opacity:.10; }
+.pht { fill:var(--muted); }
+.rowsel { fill:var(--sel); }
+.rowbad { fill:var(--bad); opacity:.10; }
+.rowunk { fill:var(--warn); opacity:.10; }
+.bad-t { fill:var(--bad); } .ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.none { fill:none; stroke:none; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.5;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.7;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.btn-accent { fill:none; stroke:var(--accent); stroke-width:1.1; }
+.acc-t { fill:var(--accent); }
+.dot-run { fill:var(--ok); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.limband { fill:var(--alt); opacity:.07; }
+.tick { stroke:var(--accent); stroke-width:2; }
+.tick-i { stroke:var(--muted); stroke-width:2; stroke-dasharray:2 2; }
+.tick-now { stroke:var(--lcfs); stroke-width:2.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.ip { stroke:var(--accent); stroke-width:2; }
+.flux2 { stroke:var(--warn); stroke-width:1.4; stroke-dasharray:5 3; }
+.ne { stroke:var(--alt); stroke-width:1.8; }
+.gw { stroke:var(--muted); stroke-width:1.2; stroke-dasharray:4 3; }
+.heat { stroke:var(--lcfs); stroke-width:1.8; }
+.pohm { stroke:var(--accent); stroke-width:1.4; }
+.prad { stroke:var(--muted); stroke-width:1.4; }
+.q95 { stroke:var(--accent); stroke-width:1.6; }
+.bn { stroke:var(--lcfs); stroke-width:1.6; }
+.li { stroke:var(--alt); stroke-width:1.4; stroke-dasharray:4 3; }
+.prof { stroke:var(--accent); stroke-width:1.8; }
+.prof2 { stroke:var(--lcfs); stroke-width:1.4; stroke-dasharray:4 3; }
+.flux { stroke:var(--flux); stroke-width:1; }
+.lcfs { stroke:var(--lcfs); stroke-width:2; }
+.lcfs-target { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:5 4; }
+.vessel { fill:none; stroke:var(--wall); stroke-width:1.6; }
+.limiter { fill:none; stroke:var(--wall); stroke-width:1; stroke-dasharray:3 3; }
+.coil { fill:var(--coil); opacity:.35; stroke:var(--coil); }
+.coil-hot { fill:var(--coil); opacity:.85; stroke:var(--coil); }
+.xpt { stroke:var(--lcfs); stroke-width:1.6; }
+.c1 { stroke:var(--accent); stroke-width:1.5; }
+.c2 { stroke:var(--lcfs); stroke-width:1.5; }
+.c3 { stroke:var(--alt); stroke-width:1.5; }
+.c4 { stroke:var(--coil); stroke-width:1.5; }
+.c5 { stroke:var(--warn); stroke-width:1.8; }
+.ghost { stroke:var(--muted); stroke-width:1.2; stroke-dasharray:3 3; opacity:.8; }
+.reg-ff { stroke:var(--muted); stroke-width:1.4; }
+.reg-fb { stroke:var(--alt); stroke-width:2; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.trackon { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.trail1 { stroke:var(--accent); stroke-width:1.2; opacity:.42; }
+.trail2 { stroke:var(--accent); stroke-width:1.2; opacity:.20; }
+.wth { stroke:var(--warn); stroke-width:1.5; }
+.future { fill:var(--grid); opacity:.28; }
+.future-l { stroke:var(--grid); stroke-width:5; }
+.nowedge { stroke:var(--lcfs); stroke-width:2; }
+.sliderline { stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.seg { fill:none; stroke:var(--grid); stroke-width:1; }
+.seg-on { fill:var(--sel); stroke:var(--accent); stroke-width:1.4; }
+.tag { fill:none; stroke:var(--grid); stroke-width:1; }
+.tagt { fill:var(--muted); }
+.card-back { fill:none; stroke:var(--grid); stroke-width:1; stroke-dasharray:3 3; }
+.card-front { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.runsw { fill:var(--ok); opacity:.85; }
+.runt { fill:#ffffff; }
+.runknob { fill:#ffffff; stroke:var(--ok); stroke-width:1.6; }
+.ph-on { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.ph-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.ip-open { stroke:var(--accent); stroke-width:1.6; stroke-dasharray:5 4; opacity:.7; }
+.target { stroke:var(--muted); stroke-width:1.3; stroke-dasharray:5 3; }
+</style>
+<rect x="0.0" y="0.0" width="1240.0" height="1234.0" rx="0" class="bg"/>
+<rect x="16.0" y="16.0" width="1208.0" height="40.0" rx="6" class="head"/>
+<text x="30.0" y="42.0" class="head-t" font-size="15" text-anchor="start" font-weight="600">fylite · 物理建模 (Physics Modelling)</text>
+<rect x="372.0" y="25.0" width="87.5" height="22.0" rx="6" class="chip-on"/>
+<text x="415.8" y="40.0" class="lbl" font-size="10" text-anchor="middle">1.5D 定态输运</text>
+<rect x="463.5" y="25.0" width="70.0" height="22.0" rx="6" class="chip"/>
+<text x="498.5" y="40.0" class="chipt" font-size="10" text-anchor="middle">边界与度规</text>
+<rect x="537.5" y="25.0" width="80.0" height="22.0" rx="6" class="chip"/>
+<text x="577.5" y="40.0" class="chipt" font-size="10" text-anchor="middle">功率平衡反演</text>
+<rect x="631.5" y="27.0" width="79.0" height="18.0" rx="9" class="chip"/>
+<text x="671.0" y="39.5" class="chipt" font-size="10" text-anchor="middle">装置：EAST ▾</text>
+<rect x="1004.0" y="26.0" width="208.1" height="20.0" rx="10" class="badge-ok"/>
+<text x="1108.0" y="40.0" class="ok-t" font-size="10.5" text-anchor="middle">三条栏都不含时 · 时间轴在放电设计页</text>
+<rect x="16.0" y="68.0" width="316.0" height="206.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="83.0" r="9" class="call"/>
+<text x="33.0" y="86.5" class="callt" font-size="11" text-anchor="middle">1</text>
+<text x="47.0" y="87.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">这台机器（三条栏共读）</text>
+<rect x="286.0" y="75.0" width="36.0" height="17.0" rx="8" class="badge"/>
+<text x="304.0" y="87.5" class="badget" font-size="10" text-anchor="middle">栏外</text>
+<line x1="26.0" y1="97.0" x2="322.0" y2="97.0" class="sep"/>
+<text x="30.0" y="117.0" class="mut" font-size="9.5" text-anchor="start">a [m]</text>
+<rect x="30.0" y="121.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="134.5" class="lbl" font-size="10.5" text-anchor="start">0.45</text>
+<text x="128.0" y="117.0" class="mut" font-size="9.5" text-anchor="start">R/a</text>
+<rect x="128.0" y="121.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="134.0" y="134.5" class="lbl" font-size="10.5" text-anchor="start">4.1</text>
+<text x="226.0" y="117.0" class="mut" font-size="9.5" text-anchor="start">κ</text>
+<rect x="226.0" y="121.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="232.0" y="134.5" class="lbl" font-size="10.5" text-anchor="start">1.65</text>
+<text x="30.0" y="157.0" class="mut" font-size="9.5" text-anchor="start">δ</text>
+<rect x="30.0" y="161.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="174.5" class="lbl" font-size="10.5" text-anchor="start">0.45</text>
+<text x="128.0" y="157.0" class="mut" font-size="9.5" text-anchor="start">边界 q</text>
+<rect x="128.0" y="161.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="134.0" y="174.5" class="lbl" font-size="10.5" text-anchor="start">4.2</text>
+<text x="226.0" y="157.0" class="mut" font-size="9.5" text-anchor="start">B₀ [T]</text>
+<rect x="226.0" y="161.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="232.0" y="174.5" class="lbl" font-size="10.5" text-anchor="start">1.80</text>
+<text x="30.0" y="197.0" class="mut" font-size="9.5" text-anchor="start">n_e(0) [10¹⁹]</text>
+<rect x="30.0" y="201.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="214.5" class="lbl" font-size="10.5" text-anchor="start">4.0</text>
+<text x="128.0" y="197.0" class="mut" font-size="9.5" text-anchor="start">χ₀ [m²/s]</text>
+<rect x="128.0" y="201.0" width="92.0" height="19.0" rx="4" class="input"/>
+<text x="134.0" y="214.5" class="lbl" font-size="10.5" text-anchor="start">1.0</text>
+<text x="30.0" y="242.0" class="mut" font-size="9" text-anchor="start">★一个量一个控件：它住在栏外，因为栏一折就会</text>
+<text x="30.0" y="254.5" class="mut" font-size="9" text-anchor="start">把自己的面板收起来，共用控件不能跟着消失（P-3）。</text>
+<rect x="16.0" y="282.0" width="316.0" height="300.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="297.0" r="9" class="call"/>
+<text x="33.0" y="300.5" class="callt" font-size="11" text-anchor="middle">2</text>
+<text x="47.0" y="301.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">栏一 · 1.5D 定态输运</text>
+<rect x="228.5" y="289.0" width="93.5" height="17.0" rx="8" class="badge"/>
+<text x="275.2" y="301.5" class="badget" font-size="10" text-anchor="middle">主线程 · 41 点</text>
+<line x1="26.0" y1="311.0" x2="322.0" y2="311.0" class="sep"/>
+<text x="30.0" y="325.0" class="mut" font-size="9.5" text-anchor="start">闭包</text>
+<rect x="30.0" y="331.0" width="45.5" height="18.0" rx="9" class="chip"/>
+<text x="52.7" y="343.5" class="chipt" font-size="9.5" text-anchor="middle">常数 χ</text>
+<rect x="80.5" y="331.0" width="35.0" height="18.0" rx="9" class="chip"/>
+<text x="98.0" y="343.5" class="chipt" font-size="9.5" text-anchor="middle">刚性</text>
+<rect x="120.5" y="331.0" width="35.0" height="18.0" rx="9" class="chip-on"/>
+<text x="137.9" y="343.5" class="chipt" font-size="9.5" text-anchor="middle">中子</text>
+<rect x="160.4" y="331.0" width="36.9" height="18.0" rx="9" class="chip"/>
+<text x="178.9" y="343.5" class="chipt" font-size="9.5" text-anchor="middle">TGLF</text>
+<text x="30.0" y="369.0" class="mut" font-size="9.5" text-anchor="start">源峰值 [任意单位]</text>
+<rect x="30.0" y="373.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="386.5" class="lbl" font-size="10.5" text-anchor="start">1.0</text>
+<text x="177.0" y="369.0" class="mut" font-size="9.5" text-anchor="start">沉积宽度</text>
+<rect x="177.0" y="373.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="183.0" y="386.5" class="lbl" font-size="10.5" text-anchor="start">0.30</text>
+<text x="30.0" y="409.0" class="mut" font-size="9.5" text-anchor="start">边界值 T(1) [keV]</text>
+<rect x="30.0" y="413.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="426.5" class="lbl" font-size="10.5" text-anchor="start">0.10</text>
+<text x="177.0" y="409.0" class="mut" font-size="9.5" text-anchor="start">网格点数</text>
+<rect x="177.0" y="413.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="183.0" y="426.5" class="lbl" font-size="10.5" text-anchor="start">41</text>
+<rect x="30.0" y="457.0" width="140.0" height="56.0" rx="3" class="axes"/>
+<polyline points="30.0,464.3 33.5,464.3 37.0,464.5 40.5,464.7 44.0,465.0 47.5,465.4 51.0,465.9 54.5,466.5 58.0,467.1 61.5,467.8 65.0,468.7 68.5,469.5 72.0,470.5 75.5,471.6 79.0,472.7 82.5,473.9 86.0,475.1 89.5,476.5 93.0,477.9 96.5,479.3 100.0,480.8 103.5,482.4 107.0,484.0 110.5,485.6 114.0,487.3 117.5,489.0 121.0,490.7 124.5,492.5 128.0,494.3 131.5,496.0 135.0,497.8 138.5,499.5 142.0,501.3 145.5,502.9 149.0,504.5 152.5,506.1 156.0,507.5 159.5,508.8 163.0,510.0 166.5,510.9 170.0,511.4" class="prof"/>
+<text x="32.0" y="454.0" class="mut" font-size="9" text-anchor="start">T(r) [keV]</text>
+<rect x="178.0" y="457.0" width="140.0" height="56.0" rx="3" class="axes"/>
+<polyline points="178.0,503.3 181.5,503.2 185.0,503.2 188.5,503.0 192.0,502.9 195.5,502.7 199.0,502.4 202.5,502.1 206.0,501.7 209.5,501.3 213.0,500.8 216.5,500.3 220.0,499.8 223.5,499.1 227.0,498.5 230.5,497.8 234.0,497.0 237.5,496.2 241.0,495.4 244.5,494.5 248.0,493.5 251.5,492.5 255.0,491.5 258.5,490.4 262.0,489.2 265.5,488.0 269.0,486.8 272.5,485.5 276.0,484.2 279.5,482.8 283.0,481.3 286.5,479.9 290.0,478.3 293.5,476.7 297.0,475.1 300.5,473.4 304.0,471.7 307.5,469.9 311.0,468.1 314.5,466.2 318.0,464.3" class="prof"/>
+<polyline points="178.0,470.8 181.5,471.1 185.0,471.9 188.5,473.2 192.0,474.9 195.5,477.0 199.0,479.4 202.5,482.0 206.0,484.8 209.5,487.6 213.0,490.3 216.5,492.9 220.0,495.4 223.5,497.7 227.0,499.8 230.5,501.6 234.0,503.2 237.5,504.5 241.0,505.6 244.5,506.6 248.0,507.3 251.5,507.9 255.0,508.4 258.5,508.8 262.0,509.0 265.5,509.2 269.0,509.4 272.5,509.5 276.0,509.6 279.5,509.6 283.0,509.7 286.5,509.7 290.0,509.7 293.5,509.7 297.0,509.7 300.5,509.7 304.0,509.7 307.5,509.8 311.0,509.8 314.5,509.8 318.0,509.8" class="prof2"/>
+<text x="180.0" y="454.0" class="mut" font-size="9" text-anchor="start">χ(r) [m²/s] · 源（虚）</text>
+<text x="30.0" y="544.0" class="mut" font-size="9" text-anchor="start">★网格是米，不是 r/a——旧网格上少了一个 a²，χ 还是滑块时看不出来，</text>
+<text x="30.0" y="556.5" class="mut" font-size="9" text-anchor="start">换成物理闭包的那一天就错了（P-17）。</text>
+<text x="30.0" y="569.0" class="mut" font-size="9" text-anchor="start">★它报不出 W、τ_E、β_N：几何固定，压强不改变它所在的磁面。</text>
+<rect x="16.0" y="590.0" width="316.0" height="330.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="605.0" r="9" class="call"/>
+<text x="33.0" y="608.5" class="callt" font-size="11" text-anchor="middle">3</text>
+<text x="47.0" y="609.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">栏三 · 功率平衡反演</text>
+<rect x="236.0" y="597.0" width="86.0" height="17.0" rx="8" class="badge"/>
+<text x="279.0" y="609.5" class="badget" font-size="10" text-anchor="middle">反着解，不拟合</text>
+<line x1="26.0" y1="619.0" x2="322.0" y2="619.0" class="sep"/>
+<text x="30.0" y="641.0" class="mut" font-size="9.5" text-anchor="start">几何来源</text>
+<rect x="30.0" y="645.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="658.5" class="lbl" font-size="10.5" text-anchor="start">device ▾</text>
+<text x="177.0" y="641.0" class="mut" font-size="9.5" text-anchor="start">磁面数</text>
+<rect x="177.0" y="645.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="183.0" y="658.5" class="lbl" font-size="10.5" text-anchor="start">65</text>
+<text x="30.0" y="681.0" class="mut" font-size="9.5" text-anchor="start">梯度地板</text>
+<rect x="30.0" y="685.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="698.5" class="lbl" font-size="10.5" text-anchor="start">1e-3</text>
+<text x="177.0" y="681.0" class="mut" font-size="9.5" text-anchor="start">V_loop [V]</text>
+<rect x="177.0" y="685.0" width="141.0" height="19.0" rx="4" class="input"/>
+<text x="183.0" y="698.5" class="lbl" font-size="10.5" text-anchor="start">0.9</text>
+<text x="30.0" y="721.0" class="mut" font-size="9" text-anchor="start">剖面来自「含时演化」栏的导入（一页一份文档）</text>
+<rect x="30.0" y="745.0" width="288.0" height="74.0" rx="3" class="axes"/>
+<polyline points="73.2,809.7 78.0,809.5 82.8,809.3 87.6,809.0 92.4,808.7 97.2,808.4 102.0,808.1 106.8,807.7 111.6,807.3 116.4,806.8 121.2,806.3 126.0,805.8 130.8,805.2 135.6,804.6 140.4,803.9 145.2,803.3 150.0,802.5 154.8,801.7 159.6,800.9 164.4,800.1 169.2,799.2 174.0,798.2 178.8,797.2 183.6,796.2 188.4,795.1 193.2,794.0 198.0,792.8 202.8,791.5 207.6,790.3 212.4,788.9 217.2,787.6 222.0,786.1 226.8,784.7 231.6,783.1 236.4,781.5 241.2,779.9 246.0,778.2 250.8,776.5 255.6,774.7 260.4,772.8 265.2,770.9 270.0,769.0 274.8,766.9 279.6,764.9 284.4,762.7 289.2,760.6 294.0,758.3 298.8,756.0" class="prof"/>
+<rect x="30.0" y="745.0" width="40.3" height="74.0" rx="0" class="rowunk"/>
+<rect x="302.2" y="745.0" width="15.8" height="74.0" rx="0" class="rowunk"/>
+<text x="50.2" y="757.0" class="warn-t" font-size="8.6" text-anchor="middle">断口</text>
+<text x="174.0" y="742.0" class="mut" font-size="9" text-anchor="start">χ_e , χ_i [m²/s]</text>
+<text x="174.0" y="830.0" class="mut" font-size="8.6" text-anchor="middle">0.15 ≤ ρ/a ≤ 0.93 把 χ₀ 找回到百分之一以内</text>
+<text x="30.0" y="870.0" class="mut" font-size="9" text-anchor="start">★没有任何量被极小化：不是拟合，也不是预测。</text>
+<text x="30.0" y="882.5" class="mut" font-size="9" text-anchor="start">★两端照画不误，但不进体积平均——ρ/a = 0.03 高 50 %、</text>
+<text x="30.0" y="895.0" class="mut" font-size="9" text-anchor="start">  0.07 高 6.8 %；边界节点高 110 %（单侧差分）。</text>
+<text x="30.0" y="907.5" class="mut" font-size="9" text-anchor="start">★半径盖不住这套度规时拒绝，不外推（P-6）。</text>
+<rect x="342.0" y="68.0" width="448.0" height="296.0" rx="6" class="panel"/>
+<circle cx="359.0" cy="83.0" r="9" class="call"/>
+<text x="359.0" y="86.5" class="callt" font-size="11" text-anchor="middle">4</text>
+<text x="373.0" y="87.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">栏二 · 边界与度规（当前栏）</text>
+<rect x="683.0" y="75.0" width="97.0" height="17.0" rx="8" class="badge-ok"/>
+<text x="731.5" y="87.5" class="badget" font-size="10" text-anchor="middle">不含时 · 解一次</text>
+<line x1="352.0" y1="97.0" x2="780.0" y2="97.0" class="sep"/>
+<text x="356.0" y="119.0" class="mut" font-size="9.5" text-anchor="start">边界类别</text>
+<rect x="356.0" y="123.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="362.0" y="136.5" class="lbl" font-size="10.5" text-anchor="start">双零 ▾</text>
+<text x="462.5" y="119.0" class="mut" font-size="9.5" text-anchor="start">R₀ [m]</text>
+<rect x="462.5" y="123.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="468.5" y="136.5" class="lbl" font-size="10.5" text-anchor="start">1.85</text>
+<text x="569.0" y="119.0" class="mut" font-size="9.5" text-anchor="start">a [m]</text>
+<rect x="569.0" y="123.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="575.0" y="136.5" class="lbl" font-size="10.5" text-anchor="start">0.45</text>
+<text x="675.5" y="119.0" class="mut" font-size="9.5" text-anchor="start">I_p [kA]</text>
+<rect x="675.5" y="123.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="681.5" y="136.5" class="lbl" font-size="10.5" text-anchor="start">400</text>
+<text x="356.0" y="163.0" class="mut" font-size="9.5" text-anchor="start">线圈电流来源</text>
+<rect x="356.0" y="167.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="362.0" y="180.5" class="lbl" font-size="10.5" text-anchor="start">静态反解 ▾</text>
+<text x="462.5" y="163.0" class="mut" font-size="9.5" text-anchor="start">磁面数</text>
+<rect x="462.5" y="167.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="468.5" y="180.5" class="lbl" font-size="10.5" text-anchor="start">65</text>
+<text x="569.0" y="163.0" class="mut" font-size="9.5" text-anchor="start">迭代上限</text>
+<rect x="569.0" y="167.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="575.0" y="180.5" class="lbl" font-size="10.5" text-anchor="start">600</text>
+<text x="675.5" y="163.0" class="mut" font-size="9.5" text-anchor="start">容差</text>
+<rect x="675.5" y="167.0" width="100.5" height="19.0" rx="4" class="input"/>
+<text x="681.5" y="180.5" class="lbl" font-size="10.5" text-anchor="start">1e-6</text>
+<text x="356.0" y="203.0" class="mut" font-size="9.5" text-anchor="start">位形判据（与放电设计页同一组）</text>
+<text x="356.0" y="215.0" class="mut" font-size="9.3" text-anchor="start">判据</text>
+<text x="492.0" y="215.0" class="mut" font-size="9.3" text-anchor="start">得到</text>
+<text x="592.0" y="215.0" class="mut" font-size="9.3" text-anchor="start">所要求</text>
+<text x="682.0" y="215.0" class="mut" font-size="9.3" text-anchor="start">判定</text>
+<text x="356.0" y="239.0" class="lbl" font-size="9.3" text-anchor="start">形状误差 RMS</text>
+<text x="492.0" y="239.0" class="lbl" font-size="9.3" text-anchor="start">8.6 mm</text>
+<text x="592.0" y="239.0" class="lbl" font-size="9.3" text-anchor="start">≤ 20 mm</text>
+<text x="682.0" y="239.0" class="lbl" font-size="9.3" text-anchor="start">✓</text>
+<text x="356.0" y="257.0" class="lbl" font-size="9.3" text-anchor="start">X 点位置</text>
+<text x="492.0" y="257.0" class="lbl" font-size="9.3" text-anchor="start">(1.44, −1.02)</text>
+<text x="592.0" y="257.0" class="lbl" font-size="9.3" text-anchor="start">壁内</text>
+<text x="682.0" y="257.0" class="lbl" font-size="9.3" text-anchor="start">✓</text>
+<rect x="346.0" y="263.0" width="440.0" height="16.0" rx="3" class="rowbad"/>
+<text x="356.0" y="275.0" class="lbl" font-size="9.3" text-anchor="start">最小壁间隙</text>
+<text x="492.0" y="275.0" class="lbl" font-size="9.3" text-anchor="start">38 mm</text>
+<text x="592.0" y="275.0" class="lbl" font-size="9.3" text-anchor="start">≥ 40 mm</text>
+<text x="682.0" y="275.0" class="bad-t" font-size="9.3" text-anchor="start">越界</text>
+<text x="356.0" y="293.0" class="lbl" font-size="9.3" text-anchor="start">q₉₅ · l_i(3)</text>
+<text x="492.0" y="293.0" class="lbl" font-size="9.3" text-anchor="start">4.12 · 0.92</text>
+<text x="592.0" y="293.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<text x="682.0" y="293.0" class="lbl" font-size="9.3" text-anchor="start">报出</text>
+<text x="356.0" y="320.0" class="mut" font-size="9" text-anchor="start">★这一栏解的是一条边界，不是一串时刻：它把 ψ、逐面度规与判据一次给</text>
+<text x="356.0" y="332.5" class="mut" font-size="9" text-anchor="start">  出来，交给另外两条栏站着（P-19 推论 2）。</text>
+<text x="356.0" y="345.0" class="mut" font-size="9" text-anchor="start">★自由边界没收敛就说没收敛——收敛自报是这一栏的产物之一（P-5）。</text>
+<rect x="342.0" y="372.0" width="448.0" height="356.0" rx="6" class="panel"/>
+<circle cx="359.0" cy="387.0" r="9" class="call"/>
+<text x="359.0" y="390.5" class="callt" font-size="11" text-anchor="middle">5</text>
+<text x="373.0" y="391.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">平衡截面（这一页解出来的那条边界）</text>
+<rect x="690.0" y="379.0" width="90.0" height="17.0" rx="8" class="badge-ok"/>
+<text x="735.0" y="391.5" class="badget" font-size="10" text-anchor="middle">已解 · ≈1.2 s</text>
+<line x1="352.0" y1="401.0" x2="780.0" y2="401.0" class="sep"/>
+<path d="M 458.3 444.5 q 175.3 -23.6 175.3 0.0 l 0 209.0 q -175.3 23.6 -175.3 0 z" class="vessel"/>
+<rect x="436.9" y="456.7" width="16.0" height="12.0" rx="2" class="coil-hot"/>
+<rect x="436.9" y="514.7" width="16.0" height="12.0" rx="2" class="coil"/>
+<rect x="436.9" y="571.3" width="16.0" height="12.0" rx="2" class="coil"/>
+<rect x="436.9" y="629.3" width="16.0" height="12.0" rx="2" class="coil-hot"/>
+<rect x="639.1" y="456.7" width="16.0" height="12.0" rx="2" class="coil-hot"/>
+<rect x="639.1" y="514.7" width="16.0" height="12.0" rx="2" class="coil"/>
+<rect x="639.1" y="571.3" width="16.0" height="12.0" rx="2" class="coil"/>
+<rect x="639.1" y="629.3" width="16.0" height="12.0" rx="2" class="coil-hot"/>
+<polyline points="561.5,549.0 561.5,547.7 561.4,546.4 561.3,545.1 561.1,543.8 560.9,542.6 560.6,541.3 560.3,540.1 559.9,538.9 559.5,537.7 559.1,536.6 558.6,535.5 558.0,534.4 557.5,533.4 556.9,532.4 556.2,531.5 555.6,530.6 554.9,529.7 554.2,528.9 553.4,528.2 552.7,527.5 551.9,526.9 551.1,526.3 550.3,525.8 549.5,525.4 548.7,525.0 547.9,524.7 547.1,524.5 546.2,524.3 545.4,524.2 544.6,524.2 543.8,524.2 543.0,524.3 542.2,524.5 541.5,524.7 540.7,525.0 540.0,525.4 539.2,525.8 538.5,526.3 537.9,526.9 537.2,527.5 536.6,528.2 536.0,528.9 535.4,529.7 534.9,530.6 534.4,531.5 533.9,532.4 533.4,533.4 533.0,534.4 532.6,535.5 532.2,536.6 531.9,537.7 531.6,538.9 531.3,540.1 531.1,541.3 530.9,542.6 530.8,543.8 530.6,545.1 530.6,546.4 530.5,547.7 530.5,549.0 530.5,550.3 530.6,551.6 530.6,552.9 530.8,554.2 530.9,555.4 531.1,556.7 531.3,557.9 531.6,559.1 531.9,560.3 532.2,561.4 532.6,562.5 533.0,563.6 533.4,564.6 533.9,565.6 534.4,566.5 534.9,567.4 535.4,568.3 536.0,569.1 536.6,569.8 537.2,570.5 537.9,571.1 538.5,571.7 539.2,572.2 540.0,572.6 540.7,573.0 541.5,573.3 542.2,573.5 543.0,573.7 543.8,573.8 544.6,573.8 545.4,573.8 546.2,573.7 547.1,573.5 547.9,573.3 548.7,573.0 549.5,572.6 550.3,572.2 551.1,571.7 551.9,571.1 552.7,570.5 553.4,569.8 554.2,569.1 554.9,568.3 555.6,567.4 556.2,566.5 556.9,565.6 557.5,564.6 558.0,563.6 558.6,562.5 559.1,561.4 559.5,560.3 559.9,559.1 560.3,557.9 560.6,556.7 560.9,555.4 561.1,554.2 561.3,552.9 561.4,551.6 561.5,550.3 561.5,549.0" class="flux"/>
+<polyline points="577.0,549.0 577.0,546.4 576.8,543.8 576.5,541.2 576.1,538.7 575.6,536.2 574.9,533.7 574.2,531.2 573.3,528.8 572.4,526.5 571.4,524.2 570.2,522.0 569.0,519.8 567.7,517.8 566.4,515.8 565.0,513.9 563.5,512.1 562.0,510.4 560.4,508.9 558.8,507.4 557.2,506.0 555.5,504.8 553.8,503.7 552.1,502.7 550.4,501.8 548.7,501.1 547.0,500.5 545.4,500.0 543.7,499.6 542.1,499.4 540.4,499.4 538.9,499.4 537.3,499.6 535.8,500.0 534.3,500.5 532.9,501.1 531.5,501.8 530.2,502.7 528.9,503.7 527.7,504.8 526.5,506.0 525.4,507.4 524.3,508.9 523.3,510.4 522.4,512.1 521.5,513.9 520.6,515.8 519.8,517.8 519.1,519.8 518.5,522.0 517.9,524.2 517.3,526.5 516.8,528.8 516.4,531.2 516.0,533.7 515.7,536.2 515.4,538.7 515.2,541.2 515.1,543.8 515.0,546.4 515.0,549.0 515.0,551.6 515.1,554.2 515.2,556.8 515.4,559.3 515.7,561.8 516.0,564.3 516.4,566.8 516.8,569.2 517.3,571.5 517.9,573.8 518.5,576.0 519.1,578.2 519.8,580.2 520.6,582.2 521.5,584.1 522.4,585.9 523.3,587.6 524.3,589.1 525.4,590.6 526.5,592.0 527.7,593.2 528.9,594.3 530.2,595.3 531.5,596.2 532.9,596.9 534.3,597.5 535.8,598.0 537.3,598.4 538.9,598.6 540.4,598.6 542.1,598.6 543.7,598.4 545.4,598.0 547.0,597.5 548.7,596.9 550.4,596.2 552.1,595.3 553.8,594.3 555.5,593.2 557.2,592.0 558.8,590.6 560.4,589.1 562.0,587.6 563.5,585.9 565.0,584.1 566.4,582.2 567.7,580.2 569.0,578.2 570.2,576.0 571.4,573.8 572.4,571.5 573.3,569.2 574.2,566.8 574.9,564.3 575.6,561.8 576.1,559.3 576.5,556.8 576.8,554.2 577.0,551.6 577.0,549.0" class="flux"/>
+<polyline points="592.5,549.0 592.4,545.1 592.1,541.2 591.6,537.4 590.9,533.5 590.0,529.7 588.9,526.0 587.6,522.3 586.2,518.7 584.6,515.2 582.8,511.8 580.9,508.5 578.8,505.2 576.7,502.2 574.4,499.2 572.1,496.4 569.6,493.7 567.1,491.1 564.5,488.8 561.9,486.6 559.3,484.5 556.6,482.7 554.0,481.0 551.3,479.5 548.7,478.2 546.0,477.1 543.5,476.2 540.9,475.5 538.4,475.0 536.0,474.7 533.6,474.6 531.3,474.7 529.0,475.0 526.9,475.5 524.8,476.2 522.8,477.1 520.9,478.2 519.0,479.5 517.3,481.0 515.6,482.7 514.0,484.5 512.5,486.6 511.1,488.8 509.8,491.1 508.6,493.7 507.5,496.4 506.4,499.2 505.4,502.2 504.5,505.2 503.7,508.5 502.9,511.8 502.3,515.2 501.7,518.7 501.2,522.3 500.7,526.0 500.3,529.7 500.0,533.5 499.8,537.4 499.6,541.2 499.5,545.1 499.5,549.0 499.5,552.9 499.6,556.8 499.8,560.6 500.0,564.5 500.3,568.3 500.7,572.0 501.2,575.7 501.7,579.3 502.3,582.8 502.9,586.2 503.7,589.5 504.5,592.8 505.4,595.8 506.4,598.8 507.5,601.6 508.6,604.3 509.8,606.9 511.1,609.2 512.5,611.4 514.0,613.5 515.6,615.3 517.3,617.0 519.0,618.5 520.9,619.8 522.8,620.9 524.8,621.8 526.9,622.5 529.0,623.0 531.3,623.3 533.6,623.4 536.0,623.3 538.4,623.0 540.9,622.5 543.5,621.8 546.0,620.9 548.7,619.8 551.3,618.5 554.0,617.0 556.6,615.3 559.3,613.5 561.9,611.4 564.5,609.2 567.1,606.9 569.6,604.3 572.1,601.6 574.4,598.8 576.7,595.8 578.8,592.8 580.9,589.5 582.8,586.2 584.6,582.8 586.2,579.3 587.6,575.7 588.9,572.0 590.0,568.3 590.9,564.5 591.6,560.6 592.1,556.8 592.4,552.9 592.5,549.0" class="flux"/>
+<polyline points="608.0,549.0 607.9,543.8 607.4,538.6 606.6,533.5 605.5,528.4 604.2,523.3 602.5,518.3 600.6,513.4 598.4,508.6 596.0,503.9 593.3,499.4 590.4,494.9 587.4,490.7 584.2,486.5 580.9,482.6 577.4,478.8 573.8,475.2 570.2,471.9 566.5,468.7 562.8,465.8 559.0,463.0 555.3,460.6 551.6,458.3 547.9,456.3 544.2,454.6 540.7,453.1 537.2,451.9 533.8,451.0 530.5,450.3 527.2,449.9 524.1,449.7 521.2,449.9 518.3,450.3 515.6,451.0 513.0,451.9 510.5,453.1 508.1,454.6 505.9,456.3 503.8,458.3 501.8,460.6 500.0,463.0 498.3,465.8 496.7,468.7 495.2,471.9 493.8,475.2 492.5,478.8 491.3,482.6 490.3,486.5 489.3,490.7 488.4,494.9 487.6,499.4 486.9,503.9 486.3,508.6 485.7,513.4 485.2,518.3 484.8,523.3 484.5,528.4 484.3,533.5 484.1,538.6 484.0,543.8 484.0,549.0 484.0,554.2 484.1,559.4 484.3,564.5 484.5,569.6 484.8,574.7 485.2,579.7 485.7,584.6 486.3,589.4 486.9,594.1 487.6,598.6 488.4,603.1 489.3,607.3 490.3,611.5 491.3,615.4 492.5,619.2 493.8,622.8 495.2,626.1 496.7,629.3 498.3,632.2 500.0,635.0 501.8,637.4 503.8,639.7 505.9,641.7 508.1,643.4 510.5,644.9 513.0,646.1 515.6,647.0 518.3,647.7 521.2,648.1 524.1,648.3 527.2,648.1 530.5,647.7 533.8,647.0 537.2,646.1 540.7,644.9 544.2,643.4 547.9,641.7 551.6,639.7 555.3,637.4 559.0,635.0 562.8,632.2 566.5,629.3 570.2,626.1 573.8,622.8 577.4,619.2 580.9,615.4 584.2,611.5 587.4,607.3 590.4,603.1 593.3,598.6 596.0,594.1 598.4,589.4 600.6,584.6 602.5,579.7 604.2,574.7 605.5,569.6 606.6,564.5 607.4,559.4 607.9,554.2 608.0,549.0" class="lcfs"/>
+<polyline points="613.1,550.6 612.9,545.3 612.4,540.0 611.6,534.8 610.6,529.6 609.2,524.4 607.5,519.3 605.6,514.3 603.4,509.4 600.9,504.7 598.3,500.0 595.4,495.5 592.3,491.1 589.1,486.9 585.7,482.9 582.2,479.0 578.6,475.4 574.9,471.9 571.2,468.7 567.4,465.7 563.6,462.9 559.7,460.4 555.9,458.1 552.1,456.1 548.4,454.3 544.7,452.8 541.1,451.6 537.6,450.6 534.2,449.9 530.9,449.5 527.6,449.4 524.5,449.5 521.6,449.9 518.7,450.6 516.0,451.6 513.3,452.8 510.9,454.3 508.5,456.1 506.3,458.1 504.2,460.4 502.3,462.9 500.4,465.7 498.7,468.7 497.1,471.9 495.6,475.4 494.2,479.0 493.0,482.9 491.8,486.9 490.7,491.1 489.8,495.5 488.9,500.0 488.1,504.7 487.4,509.4 486.9,514.3 486.3,519.3 485.9,524.4 485.6,529.6 485.3,534.8 485.1,540.0 485.0,545.3 484.9,550.6 485.0,555.9 485.1,561.2 485.3,566.4 485.6,571.6 485.9,576.8 486.3,581.9 486.9,586.9 487.4,591.8 488.1,596.5 488.9,601.2 489.8,605.7 490.7,610.1 491.8,614.3 493.0,618.3 494.2,622.2 495.6,625.8 497.1,629.3 498.7,632.5 500.4,635.5 502.3,638.3 504.2,640.8 506.3,643.1 508.5,645.1 510.9,646.9 513.3,648.4 516.0,649.6 518.7,650.6 521.6,651.3 524.5,651.7 527.6,651.8 530.9,651.7 534.2,651.3 537.6,650.6 541.1,649.6 544.7,648.4 548.4,646.9 552.1,645.1 555.9,643.1 559.7,640.8 563.6,638.3 567.4,635.5 571.2,632.5 574.9,629.3 578.6,625.8 582.2,622.2 585.7,618.3 589.1,614.3 592.3,610.1 595.4,605.7 598.3,601.2 600.9,596.5 603.4,591.8 605.6,586.9 607.5,581.9 609.2,576.8 610.6,571.6 611.6,566.4 612.4,561.2 612.9,555.9 613.1,550.6" class="lcfs-target"/>
+<circle cx="549.0" cy="542.3" r="2.6" class="axis"/>
+<path d="M 518.1 648.1 l 10 0 M 523.1 643.1 l 0 10" class="xpt"/>
+<line x1="674.0" y1="415.0" x2="690.0" y2="415.0" class="lcfs-target"/>
+<text x="696.0" y="418.5" class="mut" font-size="9" text-anchor="start">目标边界</text>
+<line x1="674.0" y1="430.0" x2="690.0" y2="430.0" class="lcfs"/>
+<text x="696.0" y="433.5" class="mut" font-size="9" text-anchor="start">解出来的 LCFS</text>
+<line x1="674.0" y1="445.0" x2="690.0" y2="445.0" class="coil-hot"/>
+<text x="696.0" y="448.5" class="mut" font-size="9" text-anchor="start">PF 线圈（着色＝电流）</text>
+<text x="356.0" y="690.0" class="mut" font-size="9" text-anchor="start">★这一片没有时刻：它是一条边界，不是一炮里的某一秒。</text>
+<text x="356.0" y="702.5" class="mut" font-size="9" text-anchor="start">  「这一片是哪一时刻的」那个问题属于放电设计页（D-8 · D-22）。</text>
+<text x="356.0" y="715.0" class="mut" font-size="9" text-anchor="start">★壁间隙越界已按判据报出（见上一栏），页面不静默收窄。</text>
+<rect x="342.0" y="736.0" width="448.0" height="224.0" rx="6" class="panel"/>
+<circle cx="359.0" cy="751.0" r="9" class="call"/>
+<text x="359.0" y="754.5" class="callt" font-size="11" text-anchor="middle">6</text>
+<text x="373.0" y="755.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">逐面度规（交出去的那一半）</text>
+<rect x="642.5" y="743.0" width="137.5" height="17.0" rx="8" class="badge"/>
+<text x="711.2" y="755.5" class="badget" font-size="10" text-anchor="middle">V′ · ⟨|∇ρ|²⟩ · gm7</text>
+<line x1="352.0" y1="765.0" x2="780.0" y2="765.0" class="sep"/>
+<rect x="356.0" y="787.0" width="137.3" height="132.0" rx="3" class="axes"/>
+<polyline points="356.0,916.8 359.4,914.0 362.9,911.2 366.3,908.4 369.7,905.6 373.2,902.8 376.6,899.9 380.0,897.1 383.5,894.3 386.9,891.5 390.3,888.7 393.8,885.9 397.2,883.0 400.6,880.2 404.1,877.4 407.5,874.6 410.9,871.8 414.4,869.0 417.8,866.2 421.2,863.3 424.7,860.5 428.1,857.7 431.5,854.9 435.0,852.1 438.4,849.3 441.8,846.4 445.3,843.6 448.7,840.8 452.1,838.0 455.6,835.2 459.0,832.4 462.4,829.6 465.9,826.7 469.3,823.9 472.7,821.1 476.2,818.3 479.6,815.5 483.0,812.7 486.5,809.8 489.9,807.0 493.3,804.2" class="prof"/>
+<text x="358.0" y="784.0" class="mut" font-size="9" text-anchor="start">V′(ρ̂)</text>
+<rect x="501.3" y="787.0" width="137.3" height="132.0" rx="3" class="axes"/>
+<polyline points="501.3,804.2 504.8,804.2 508.2,804.3 511.6,804.4 515.1,804.6 518.5,804.8 521.9,805.1 525.4,805.4 528.8,805.7 532.2,806.2 535.7,806.6 539.1,807.1 542.5,807.7 546.0,808.3 549.4,808.9 552.8,809.6 556.3,810.3 559.7,811.1 563.1,812.0 566.6,812.9 570.0,813.8 573.4,814.8 576.9,815.8 580.3,816.9 583.7,818.0 587.2,819.2 590.6,820.4 594.0,821.6 597.5,823.0 600.9,824.3 604.3,825.7 607.8,827.2 611.2,828.7 614.6,830.3 618.1,831.9 621.5,833.5 624.9,835.2 628.4,837.0 631.8,838.7 635.2,840.6 638.7,842.5" class="prof"/>
+<text x="503.3" y="784.0" class="mut" font-size="9" text-anchor="start">⟨|∇ρ|²⟩</text>
+<rect x="646.7" y="787.0" width="137.3" height="132.0" rx="3" class="axes"/>
+<polyline points="646.7,824.6 650.1,824.1 653.5,823.6 657.0,823.1 660.4,822.5 663.8,822.0 667.3,821.5 670.7,821.0 674.1,820.5 677.6,820.0 681.0,819.5 684.4,819.0 687.9,818.5 691.3,818.0 694.7,817.5 698.2,816.9 701.6,816.4 705.0,815.9 708.5,815.4 711.9,814.9 715.3,814.4 718.8,813.9 722.2,813.4 725.6,812.9 729.1,812.4 732.5,811.9 735.9,811.3 739.4,810.8 742.8,810.3 746.2,809.8 749.7,809.3 753.1,808.8 756.5,808.3 760.0,807.8 763.4,807.3 766.8,806.8 770.3,806.3 773.7,805.7 777.1,805.2 780.6,804.7 784.0,804.2" class="prof"/>
+<text x="648.7" y="784.0" class="mut" font-size="9" text-anchor="start">gm7 = ⟨|∇ρ|⟩</text>
+<text x="356.0" y="910.0" class="mut" font-size="9" text-anchor="start">★电流道要求逐面度规（它要 ⟨|∇ρ|²/R²⟩，四个标量定不出来），</text>
+<text x="356.0" y="922.5" class="mut" font-size="9" text-anchor="start">  所以 Miller 几何下那条道是禁用的，不是被悄悄忽略。</text>
+<text x="356.0" y="935.0" class="mut" font-size="9" text-anchor="start">★这三条曲线是交给另外两条栏、也交给放电设计页 1.5-D 档的那份</text>
+<text x="356.0" y="947.5" class="mut" font-size="9" text-anchor="start">  工件的一半；另一半是边界本身与 χ 的标定。</text>
+<rect x="800.0" y="68.0" width="424.0" height="300.0" rx="6" class="panel"/>
+<circle cx="817.0" cy="83.0" r="9" class="call"/>
+<text x="817.0" y="86.5" class="callt" font-size="11" text-anchor="middle">7</text>
+<text x="831.0" y="87.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">定态解 · 剖面</text>
+<rect x="1126.5" y="75.0" width="87.5" height="17.0" rx="8" class="badge"/>
+<text x="1170.2" y="87.5" class="badget" font-size="10" text-anchor="middle">ρ̂ = √(Φ/Φ_b)</text>
+<line x1="810.0" y1="97.0" x2="1214.0" y2="97.0" class="sep"/>
+<rect x="814.0" y="117.0" width="194.0" height="87.0" rx="3" class="axes"/>
+<polyline points="814.0,128.3 818.9,128.4 823.7,128.6 828.5,128.9 833.4,129.3 838.2,129.8 843.1,130.5 848.0,131.3 852.8,132.1 857.6,133.1 862.5,134.2 867.4,135.5 872.2,136.8 877.0,138.2 881.9,139.7 886.8,141.4 891.6,143.1 896.5,144.9 901.3,146.9 906.1,148.9 911.0,151.0 915.9,153.1 920.7,155.4 925.5,157.7 930.4,160.0 935.2,162.5 940.1,164.9 945.0,167.4 949.8,170.0 954.6,172.5 959.5,175.1 964.4,177.7 969.2,180.2 974.0,182.7 978.9,185.2 983.8,187.6 988.6,189.9 993.5,192.0 998.3,193.9 1003.1,195.5 1008.0,196.5" class="prof"/>
+<polyline points="814.0,140.1 818.9,140.1 823.7,140.3 828.5,140.6 833.4,140.9 838.2,141.4 843.1,142.0 848.0,142.7 852.8,143.5 857.6,144.4 862.5,145.4 867.4,146.5 872.2,147.7 877.0,148.9 881.9,150.3 886.8,151.8 891.6,153.3 896.5,154.9 901.3,156.6 906.1,158.4 911.0,160.2 915.9,162.1 920.7,164.1 925.5,166.1 930.4,168.1 935.2,170.2 940.1,172.4 945.0,174.5 949.8,176.7 954.6,178.8 959.5,181.0 964.4,183.1 969.2,185.2 974.0,187.2 978.9,189.2 983.8,191.1 988.6,192.8 993.5,194.5 998.3,195.9 1003.1,197.0 1008.0,197.6" class="prof2"/>
+<text x="816.0" y="114.0" class="mut" font-size="9" text-anchor="start">T_e , T_i [keV]</text>
+<rect x="1016.0" y="117.0" width="194.0" height="87.0" rx="3" class="axes"/>
+<polyline points="1016.0,128.3 1020.9,128.4 1025.7,128.5 1030.5,128.6 1035.4,128.9 1040.2,129.2 1045.1,129.5 1050.0,130.0 1054.8,130.5 1059.7,131.0 1064.5,131.7 1069.3,132.4 1074.2,133.1 1079.0,134.0 1083.9,134.9 1088.8,135.9 1093.6,136.9 1098.5,138.0 1103.3,139.2 1108.2,140.5 1113.0,141.9 1117.8,143.3 1122.7,144.8 1127.5,146.4 1132.4,148.1 1137.2,149.9 1142.1,151.7 1147.0,153.7 1151.8,155.7 1156.7,157.9 1161.5,160.2 1166.3,162.6 1171.2,165.1 1176.0,167.7 1180.9,170.5 1185.8,173.5 1190.6,176.7 1195.5,180.1 1200.3,183.9 1205.2,188.2 1210.0,194.1" class="prof"/>
+<text x="1018.0" y="114.0" class="mut" font-size="9" text-anchor="start">n_e [10¹⁹ m⁻³]</text>
+<rect x="814.0" y="228.0" width="194.0" height="87.0" rx="3" class="axes"/>
+<polyline points="814.0,298.8 818.9,298.8 823.7,298.7 828.5,298.5 833.4,298.3 838.2,297.9 843.1,297.5 848.0,297.0 852.8,296.5 857.6,295.8 862.5,295.1 867.4,294.3 872.2,293.5 877.0,292.6 881.9,291.6 886.8,290.5 891.6,289.3 896.5,288.1 901.3,286.8 906.1,285.4 911.0,284.0 915.9,282.4 920.7,280.9 925.5,279.2 930.4,277.4 935.2,275.6 940.1,273.7 945.0,271.7 949.8,269.7 954.6,267.6 959.5,265.4 964.4,263.1 969.2,260.8 974.0,258.4 978.9,255.9 983.8,253.3 988.6,250.7 993.5,247.9 998.3,245.1 1003.1,242.3 1008.0,239.3" class="prof"/>
+<text x="816.0" y="225.0" class="mut" font-size="9" text-anchor="start">q</text>
+<rect x="1016.0" y="228.0" width="194.0" height="87.0" rx="3" class="axes"/>
+<polyline points="1016.0,305.9 1020.9,305.9 1025.7,305.8 1030.5,305.7 1035.4,305.5 1040.2,305.2 1045.1,304.9 1050.0,304.5 1054.8,304.0 1059.7,303.4 1064.5,302.8 1069.3,302.0 1074.2,301.2 1079.0,300.3 1083.9,299.3 1088.8,298.2 1093.6,297.1 1098.5,295.8 1103.3,294.4 1108.2,293.0 1113.0,291.4 1117.8,289.8 1122.7,288.1 1127.5,286.2 1132.4,284.3 1137.2,282.2 1142.1,280.1 1147.0,277.9 1151.8,275.5 1156.7,273.1 1161.5,270.6 1166.3,267.9 1171.2,265.2 1176.0,262.3 1180.9,259.4 1185.8,256.3 1190.6,253.1 1195.5,249.8 1200.3,246.5 1205.2,243.0 1210.0,239.3" class="prof"/>
+<text x="1018.0" y="225.0" class="mut" font-size="9" text-anchor="start">χ_e [m²/s]（这一档的闭包）</text>
+<text x="814.0" y="338.0" class="mut" font-size="9" text-anchor="start">★边界值是你给的一个数：这一页没有台基模型——台基属于含时那一档，</text>
+<text x="814.0" y="350.5" class="mut" font-size="9" text-anchor="start">  它随栏一起迁去了放电设计页（P-19 推论 1）。</text>
+<text x="814.0" y="363.0" class="mut" font-size="9" text-anchor="start">★四张图都画在栏二解出来的那张 ψ 上；它没收敛时页面如实说。</text>
+<rect x="800.0" y="376.0" width="424.0" height="340.0" rx="6" class="panel"/>
+<circle cx="817.0" cy="391.0" r="9" class="call"/>
+<text x="817.0" y="394.5" class="callt" font-size="11" text-anchor="middle">8</text>
+<text x="831.0" y="395.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">解的读数 · 判定</text>
+<rect x="1148.0" y="383.0" width="66.0" height="17.0" rx="8" class="badge"/>
+<text x="1181.0" y="395.5" class="badget" font-size="10" text-anchor="middle">全是定态量</text>
+<line x1="810.0" y1="405.0" x2="1214.0" y2="405.0" class="sep"/>
+<text x="814.0" y="421.0" class="mut" font-size="9.3" text-anchor="start">量</text>
+<text x="950.0" y="421.0" class="mut" font-size="9.3" text-anchor="start">值</text>
+<text x="1050.0" y="421.0" class="mut" font-size="9.3" text-anchor="start">它自己说的话</text>
+<text x="814.0" y="445.0" class="lbl" font-size="9.3" text-anchor="start">轴温 T(0)</text>
+<text x="950.0" y="445.0" class="lbl" font-size="9.3" text-anchor="start">3.14 keV</text>
+<text x="1050.0" y="445.0" class="lbl" font-size="9.3" text-anchor="start">定态解</text>
+<text x="814.0" y="463.0" class="lbl" font-size="9.3" text-anchor="start">峰边比 T(0)/T(1)</text>
+<text x="950.0" y="463.0" class="lbl" font-size="9.3" text-anchor="start">31.4</text>
+<text x="1050.0" y="463.0" class="lbl" font-size="9.3" text-anchor="start"></text>
+<text x="814.0" y="481.0" class="lbl" font-size="9.3" text-anchor="start">内迭代次数 · 残差</text>
+<text x="950.0" y="481.0" class="lbl" font-size="9.3" text-anchor="start">12 · 4.2e-7</text>
+<text x="1050.0" y="481.0" class="lbl" font-size="9.3" text-anchor="start">已收敛</text>
+<text x="814.0" y="499.0" class="lbl" font-size="9.3" text-anchor="start">耗时</text>
+<text x="950.0" y="499.0" class="lbl" font-size="9.3" text-anchor="start">0.9 ms</text>
+<text x="1050.0" y="499.0" class="lbl" font-size="9.3" text-anchor="start">主线程（P-15）</text>
+<text x="814.0" y="517.0" class="lbl" font-size="9.3" text-anchor="start">边界 q</text>
+<text x="950.0" y="517.0" class="lbl" font-size="9.3" text-anchor="start">4.20</text>
+<text x="1050.0" y="517.0" class="lbl" font-size="9.3" text-anchor="start">由栏二的度规读</text>
+<text x="814.0" y="535.0" class="lbl" font-size="9.3" text-anchor="start">几何来源</text>
+<text x="950.0" y="535.0" class="lbl" font-size="9.3" text-anchor="start">本页栏二解出</text>
+<text x="1050.0" y="535.0" class="lbl" font-size="9.3" text-anchor="start">不是导入的</text>
+<text x="814.0" y="553.0" class="lbl" font-size="9.3" text-anchor="start">自由边界</text>
+<text x="950.0" y="553.0" class="lbl" font-size="9.3" text-anchor="start">600 次内达 4.2e-5</text>
+<text x="1050.0" y="553.0" class="lbl" font-size="9.3" text-anchor="start">收敛自报</text>
+<rect x="804.0" y="559.0" width="416.0" height="16.0" rx="3" class="rowunk"/>
+<text x="814.0" y="571.0" class="lbl" font-size="9.3" text-anchor="start">W_th · τ_E · β_N</text>
+<text x="950.0" y="571.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<text x="1050.0" y="571.0" class="warn-t" font-size="9.3" text-anchor="start">本页报不出</text>
+<rect x="814.0" y="591.0" width="149.5" height="19.0" rx="6" class="badge-ok"/>
+<text x="822.0" y="604.0" class="ok-t" font-size="9.4" text-anchor="start">★定态解在 12 次内迭代内收敛</text>
+<rect x="814.0" y="615.0" width="190.4" height="19.0" rx="6" class="stale"/>
+<text x="822.0" y="628.0" class="stalet" font-size="9.4" text-anchor="start">★未收敛（残差 …）——宁可如实报出来</text>
+<text x="814.0" y="666.0" class="mut" font-size="9" text-anchor="start">★最后一行是这次搬迁换来的诚实：W、τ_E、β_N 需要时间演化，</text>
+<text x="814.0" y="678.5" class="mut" font-size="9" text-anchor="start">  它们在放电设计页的 1.5-D 档里（D-22），不在这一页。</text>
+<text x="814.0" y="691.0" class="mut" font-size="9" text-anchor="start">★迁走的那条栏也把它那句过期的自述一起带走了（G-1 · P-19 推论 1）。</text>
+<rect x="800.0" y="724.0" width="424.0" height="264.0" rx="6" class="panel"/>
+<circle cx="817.0" cy="739.0" r="9" class="call"/>
+<text x="817.0" y="742.5" class="callt" font-size="11" text-anchor="middle">9</text>
+<text x="831.0" y="743.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">交出去的那份工件</text>
+<rect x="1128.0" y="731.0" width="86.0" height="17.0" rx="8" class="badge"/>
+<text x="1171.0" y="743.5" class="badget" font-size="10" text-anchor="middle">主路，不是备份</text>
+<line x1="810.0" y1="753.0" x2="1214.0" y2="753.0" class="sep"/>
+<rect x="814.0" y="765.0" width="396.0" height="26.0" rx="5" class="card-back"/>
+<text x="824.0" y="776.0" class="lbl" font-size="10" text-anchor="start" font-weight="600">度规</text>
+<text x="824.0" y="787.0" class="mut" font-size="8.8" text-anchor="start">V′ · ⟨|∇ρ|²⟩ · gm7 · 逐面</text>
+<rect x="814.0" y="795.0" width="396.0" height="26.0" rx="5" class="card-back"/>
+<text x="824.0" y="806.0" class="lbl" font-size="10" text-anchor="start" font-weight="600">边界</text>
+<text x="824.0" y="817.0" class="mut" font-size="8.8" text-anchor="start">LCFS · X 点 · 判据与它们的判定</text>
+<rect x="814.0" y="825.0" width="396.0" height="26.0" rx="5" class="card-back"/>
+<text x="824.0" y="836.0" class="lbl" font-size="10" text-anchor="start" font-weight="600">χ 的标定</text>
+<text x="824.0" y="847.0" class="mut" font-size="8.8" text-anchor="start">闭包档位与它标在哪条剖面上</text>
+<line x1="1012.0" y1="857.0" x2="1012.0" y2="871.0" class="reg-fb"/>
+<path d="M 1008.0 867.0 l 4 6 l 4 -6" class="reg-fb" fill="none"/>
+<rect x="924.5" y="877.0" width="175.0" height="24.0" rx="6" class="chip-on"/>
+<text x="1012.0" y="893.0" class="lbl" font-size="10" text-anchor="middle">放电设计页 · 仿真 · 1.5-D 档</text>
+<text x="814.0" y="936.0" class="mut" font-size="9" text-anchor="start">★P-19 之后这条边是主路：含时推进站在这一页解出来的度规上，因此它要</text>
+<text x="814.0" y="948.5" class="mut" font-size="9" text-anchor="start">  有名字、有双宿主一致性判据、有「这条剖面站在哪一次平衡上」的出处</text>
+<text x="814.0" y="961.0" class="mut" font-size="9" text-anchor="start">  （P-13）。今天它只是一份导出 / 导入的文件（G-3 · G-11）。</text>
+<rect x="16.0" y="1000.0" width="1208.0" height="200.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="1015.0" r="9" class="call"/>
+<text x="33.0" y="1018.5" class="callt" font-size="11" text-anchor="middle">10</text>
+<text x="47.0" y="1019.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">三条栏，三个方向（同一套度规、同一条能量平衡）</text>
+<rect x="1138.0" y="1007.0" width="76.0" height="17.0" rx="8" class="badge"/>
+<text x="1176.0" y="1019.5" class="badget" font-size="10" text-anchor="middle">三条都不含时</text>
+<line x1="26.0" y1="1029.0" x2="1214.0" y2="1029.0" class="sep"/>
+<rect x="30.0" y="1041.0" width="389.3" height="104.0" rx="6" class="card-front"/>
+<text x="42.0" y="1061.0" class="lbl" font-size="11" text-anchor="start" font-weight="600">栏一 · 1.5D 定态输运</text>
+<rect x="42.0" y="1069.0" width="68.0" height="18.0" rx="9" class="chip-on"/>
+<text x="76.0" y="1081.5" class="lbl" font-size="10" text-anchor="middle">给 χ，求 T</text>
+<text x="42.0" y="1105.0" class="mut" font-size="9" text-anchor="start">在栏二解出的度规上求定态剖面；网格是米。</text>
+<text x="42.0" y="1117.5" class="mut" font-size="9" text-anchor="start">报不出 W、τ_E、β_N——那需要时间演化。</text>
+<text x="42.0" y="1130.0" class="mut" font-size="9" text-anchor="start">χ 是规定的。</text>
+<rect x="425.3" y="1041.0" width="389.3" height="104.0" rx="6" class="card-back"/>
+<text x="437.3" y="1061.0" class="lbl" font-size="11" text-anchor="start" font-weight="600">栏二 · 边界与度规</text>
+<rect x="437.3" y="1069.0" width="107.0" height="18.0" rx="9" class="chip"/>
+<text x="490.8" y="1081.5" class="lbl" font-size="10" text-anchor="middle">给电流与位形，求 ψ</text>
+<text x="437.3" y="1105.0" class="mut" font-size="9" text-anchor="start">固定边界 / 自由边界平衡，解一次，给出逐面度规、</text>
+<text x="437.3" y="1117.5" class="mut" font-size="9" text-anchor="start">边界与它的判据；另外两条栏站在它上面。</text>
+<text x="437.3" y="1130.0" class="mut" font-size="9" text-anchor="start">χ 不参与——这一栏不解输运。</text>
+<rect x="820.7" y="1041.0" width="389.3" height="104.0" rx="6" class="card-back"/>
+<text x="832.7" y="1061.0" class="lbl" font-size="11" text-anchor="start" font-weight="600">栏三 · 功率平衡反演</text>
+<rect x="832.7" y="1069.0" width="78.0" height="18.0" rx="9" class="chip"/>
+<text x="871.7" y="1081.5" class="lbl" font-size="10" text-anchor="middle">给 T，反求 χ</text>
+<text x="832.7" y="1105.0" class="mut" font-size="9" text-anchor="start">把同一条能量平衡反过来解，一个量都不极小化；</text>
+<text x="832.7" y="1117.5" class="mut" font-size="9" text-anchor="start">半径盖不住这套度规就拒绝，不外推。</text>
+<text x="832.7" y="1130.0" class="mut" font-size="9" text-anchor="start">χ 是算出来的——和你给的源一样可靠。</text>
+<text x="30.0" y="1158.0" class="mut" font-size="9" text-anchor="start">★这一页没有时间轴。原先那条含时演化栏收敛进放电设计页，在那里成为仿真推进的 1.5-D 保真度档（P-19 · FYL-DESIGN-09 D-22）——能力一件没少，</text>
+<text x="30.0" y="1170.5" class="mut" font-size="9" text-anchor="start">  只是不再有两条时间轴：时间是「这一炮怎么打」的事，不是「剖面长什么样」的事。</text>
+<text x="30.0" y="1183.0" class="mut" font-size="9" text-anchor="start">★三条栏共读页顶那一份共用参数；栏与栏之间靠页内文档相接，不靠一条互相唤醒的总线（P-4）。</text>
+<text x="18.0" y="1222.0" class="mut" font-size="9.5" text-anchor="start">概念图（非截图）：这是 FYL-DESIGN-10 裁定 P-19 之后的形状——含时演化栏收敛进放电设计页（D-22），本页只留定态、边界与反演。曲线为示意形状。</text>
+</svg>

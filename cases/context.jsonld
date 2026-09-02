@@ -1,0 +1,64 @@
+{
+  "@context": {
+    "@version": 1.1,
+
+    "fyo":  "https://fusion-yun.github.io/fyo/latest/",
+    "sp":   "https://spharness.simpla-fusion.org/schemas/",
+    "vv":   "https://fusion-yun.github.io/vv/v0.draft/",
+    "xsd":  "http://www.w3.org/2001/XMLSchema#",
+
+    "id":   "@id",
+    "type": "@type",
+
+    "title":        {"@id": "vv:title"},
+    "kind":         {"@id": "vv:kind"},
+    "abstract":     {"@id": "vv:abstract"},
+    "status":       {"@id": "vv:status"},
+    "recorded":     {"@id": "vv:recorded", "@type": "xsd:date"},
+
+    "scenario":     {"@id": "vv:scenario",  "@type": "@id"},
+    "subject":      {"@id": "vv:subject"},
+    "reference":    {"@id": "vv:reference"},
+    "codes":        {"@id": "vv:code", "@container": "@set"},
+    "criteria":     {"@id": "vv:criterion", "@container": "@set"},
+    "measurements": {"@id": "vv:measurement", "@container": "@set"},
+    "gates":        {"@id": "vv:gate", "@container": "@set"},
+    "artifacts":    {"@id": "vv:artifact", "@container": "@set"},
+    "caveats":      {"@id": "vv:caveat", "@container": "@set"},
+    "report":       {"@id": "vv:report"},
+    "account":      {"@id": "vv:account"},
+
+    "name":         {"@id": "vv:name"},
+    "version":      {"@id": "sp:SemVer"},
+    "licence":      {"@id": "vv:licence"},
+    "role":         {"@id": "vv:role"},
+    "solves":       {"@id": "vv:solves", "@container": "@set"},
+    "prescribes":   {"@id": "vv:prescribes", "@container": "@set"},
+
+    "quantity":     {"@id": "vv:quantity"},
+    "norm":         {"@id": "vv:norm"},
+    "tolerance":    {"@id": "vv:tolerance"},
+    "tolerance_basis": {"@id": "vv:toleranceBasis"},
+    "value":        {"@id": "vv:value"},
+    "unit":         {"@id": "fyo:unit"},
+    "verdict":      {"@id": "vv:verdict"},
+    "null_hypothesis": {"@id": "vv:nullHypothesis"},
+
+    "path":         {"@id": "vv:path"},
+    "sha256":       {"@id": "sp:Sha256Hash"},
+    "retrievable":  {"@id": "vv:retrievable"},
+    "provenance_class": {"@id": "sp:ProvenanceClass"},
+    "quality_state":    {"@id": "sp:QualityState"},
+
+    "device":       {"@id": "fyo:device"},
+    "shot":         {"@id": "fyo:shot"},
+    "window_s":     {"@id": "vv:windowSeconds", "@container": "@list"},
+    "ip_A":         {"@id": "fyo:global_quantities/ip"},
+    "b0_T":         {"@id": "fyo:vacuum_toroidal_field/b0"},
+    "r0_m":         {"@id": "fyo:vacuum_toroidal_field/r0"},
+    "a_m":          {"@id": "fyo:boundary/minor_radius"},
+    "kappa":        {"@id": "fyo:boundary/elongation"},
+    "delta":        {"@id": "fyo:boundary/triangularity"},
+    "species":      {"@id": "fyo:ion", "@container": "@set"}
+  }
+}

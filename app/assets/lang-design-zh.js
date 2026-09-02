@@ -20,7 +20,7 @@ self.FyI18n.register('zh', {
   'pulse.key.dropped': '{m} 个给定时刻可用；<strong>{n} 行落在 (击穿, 结束] 之外或数值无效，未采用</strong>（不裁剪，也不替换）。',
   'pulse.shape_note': '位形按相位插值：击穿后从 a₀ 的小截面按 I<sub>p</sub> 波形长到平顶目标位形（目标取「目标位形」一栏当前的值），平顶保持，随后按同一路径退回。电流波形用的是 0D 栏同一条梯形规则。',
   // --- T-D16: this bar's own session file -----------------------------------
-  'pulse.j.note_hint': '★这条栏有<strong>自己的会话文件</strong>（工具栏「导出」→「JSON 会话 · 脉冲轨迹」）：上面的轨迹设定、校验设定、电压上限，与<strong>每一行多时刻目标位形</strong>都在里面，逐位原样写出，导回来就是同一条轨迹。★文件里装的是<strong>输入</strong>，不装结果——仓里 <code>docs/cases/</code> 的算例语料就是这样一批会话文档（<code>fylite cases</code> 读它），所以自己存下来的这一份与它们同体例。★它<strong>装不下</strong>这条轨迹所朝向的那个平顶位形：那不是这条栏的输入，是「位形与线圈电流」栏<strong>解出来</strong>的（T-D4）。文件只把当时的那一份记为出处，<strong>绝不回填</strong>；导入时会当面说清本页现在站着的是不是同一份。',
+  'pulse.j.note_hint': '★这条栏有<strong>自己的会话文件</strong>（工具栏「导出」→「JSON 会话 · 脉冲轨迹」）：上面的轨迹设定、校验设定、电压上限，与<strong>每一行多时刻目标位形</strong>都在里面，逐位原样写出，导回来就是同一条轨迹。★文件里装的是<strong>输入</strong>，不装结果——仓里 <code>cases/</code> 的算例语料就是这样一批会话文档（<code>fylite cases</code> 读它），所以自己存下来的这一份与它们同体例。★它<strong>装不下</strong>这条轨迹所朝向的那个平顶位形：那不是这条栏的输入，是「位形与线圈电流」栏<strong>解出来</strong>的（T-D4）。文件只把当时的那一份记为出处，<strong>绝不回填</strong>；导入时会当面说清本页现在站着的是不是同一份。',
   'pulse.j.export_hint': '把这条栏的输入导出为 JSON 会话（含多时刻目标位形；不含解出的位形，也不含结果）',
   'pulse.j.import_hint': '导入这条栏的 JSON 会话（只采纳输入，不自动开算）',
   'pulse.j.imported': '已导入 {name}：{n} 项设定、{k} 个可用的给定时刻{skipped}；轨迹所朝向的位形不在文件里，用的是本页解出的那一份。',

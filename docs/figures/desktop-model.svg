@@ -1,0 +1,303 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="fylite 物理建模页在 16:9 首屏上的概念布局">
+<title>fylite 桌面版 — 物理建模页首屏</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<rect x="0.0" y="0.0" width="1600.0" height="84.0" class="strip"/>
+<line x1="0.0" y1="84.0" x2="1600.0" y2="84.0" class="strip-edge"/>
+<rect x="18.0" y="6.0" width="28.0" height="28.0" rx="6" class="mark"/>
+<text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
+<text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">物理建模 / 预测</text>
+<text x="207.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">1.5D 输运 · 含时演化（两条功能栏，各有计算键）</text>
+<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
+<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<circle cx="1568.0" cy="20.0" r="7" class="navg"/>
+<path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>
+<line x1="1542.0" y1="11.0" x2="1542.0" y2="29.0" class="sep"/>
+<rect x="1510.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1517.0 13.0v14M1517.0 13.0h5M1517.0 20.0h5M1517.0 27.0h5" class="navg"/>
+<circle cx="1528.0" cy="13.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="20.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="27.0" r="1.9" class="navgf"/>
+<rect x="1478.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1484.0 24.0Q1492.0 11.0 1500.0 22.0" class="navg"/>
+<circle cx="1487.0" cy="21.0" r="1.6" class="navgf"/>
+<circle cx="1492.0" cy="16.0" r="1.6" class="navgf"/>
+<circle cx="1497.0" cy="20.0" r="1.6" class="navgf"/>
+<rect x="1446.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic-on"/>
+<path d="M1452.0 14.0C1458.0 14.0 1460.0 26.0 1468.0 26.0" class="navg-on"/>
+<rect x="1414.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1420.0 25.0L1425.0 15.0L1431.0 15.0L1436.0 25.0" class="navg"/>
+<line x1="0.0" y1="40.0" x2="1600.0" y2="40.0" class="strip-inner"/>
+<text x="18.0" y="66.0" class="mut" font-size="12" text-anchor="start">装置</text>
+<rect x="52.0" y="48.0" width="200.0" height="26.0" rx="5" class="input"/>
+<text x="61.0" y="65.4" class="lbl" font-size="12" text-anchor="start">EAST</text>
+<path d="M234.0 59.0l4 5 4-5" class="caret"/>
+<rect x="260.0" y="48.0" width="26.0" height="26.0" rx="5" class="btn"/>
+<text x="273.0" y="65.3" class="mut" font-size="12" text-anchor="middle">×</text>
+<rect x="298.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="329.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导入</text>
+<rect x="368.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="399.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导出</text>
+<circle cx="454.0" cy="61.0" r="4.5" class="dot-busy"/>
+<text x="466.0" y="65.0" class="mut" font-size="12" text-anchor="start">含时演化 · 第 23/60 步 · 约 7 s</text>
+<rect x="1464.0" y="48.0" width="118.0" height="26.0" rx="5" class="btn-a"/>
+<text x="1523.0" y="65.0" class="btn-at" font-size="12" text-anchor="middle">交给反演场景</text>
+<rect x="0.0" y="81.0" width="1600.0" height="3.0" class="prog-bg"/>
+<rect x="0.0" y="81.0" width="608.0" height="3.0" class="prog"/>
+<rect x="26.0" y="100.0" width="1548.0" height="52.0" rx="8" class="panel"/>
+<rect x="26.0" y="100.0" width="3.0" height="52.0" class="mark"/>
+<text x="40.0" y="120.0" class="lbl" font-size="12.5" text-anchor="start">这个场景把一炮的剖面算出来：一条栏在固定几何上定态求解，另一条把热、粒子与电流三道随时间推进。</text>
+<text x="40.0" y="139.0" class="mut" font-size="12.5" text-anchor="start">★1.5D 那一栏的几何是固定的，它报不出储能与约束时间；含时那一栏没有台基模型，边界是你给的一个数。</text>
+<rect x="26.0" y="166.0" width="134.0" height="28.0" rx="6" class="btn"/>
+<text x="93.0" y="185.0" class="mut" font-size="12.5" text-anchor="middle">1.5D 芯部输运</text>
+<rect x="170.0" y="166.0" width="74.0" height="28.0" rx="6" class="navic-on"/>
+<text x="207.0" y="185.0" class="acc-t" font-size="12.5" text-anchor="middle" font-weight="700">含时演化</text>
+<rect x="254.0" y="166.0" width="98.0" height="28.0" rx="6" class="btn"/>
+<text x="303.0" y="185.0" class="mut" font-size="12.5" text-anchor="middle">功率平衡反演</text>
+<text x="372.0" y="185.0" class="mut" font-size="11.5" text-anchor="start">★每条栏自己有一个计算键 —— 工具条上没有第二个（V-11）</text>
+<rect x="26.0" y="208.0" width="330.0" height="658.0" rx="8" class="panel"/>
+<rect x="26.0" y="208.0" width="330.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="230.0" width="330.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="238.0" x2="356.0" y2="238.0" class="sep"/>
+<text x="38.0" y="227.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">这台机器（两条栏共读）</text>
+<text x="40.0" y="258.0" class="mut" font-size="11.5" text-anchor="start">小半径 a [m]</text>
+<text x="342.0" y="258.0" class="acc-t" font-size="11.5" text-anchor="end">0.60</text>
+<line x1="40.0" y1="270.0" x2="342.0" y2="270.0" class="track"/>
+<line x1="40.0" y1="270.0" x2="145.7" y2="270.0" class="track-on"/>
+<circle cx="145.7" cy="270.0" r="5" class="handle"/>
+<text x="40.0" y="294.0" class="mut" font-size="11.5" text-anchor="start">R/a</text>
+<text x="342.0" y="294.0" class="acc-t" font-size="11.5" text-anchor="end">3.00</text>
+<line x1="40.0" y1="306.0" x2="342.0" y2="306.0" class="track"/>
+<line x1="40.0" y1="306.0" x2="191.0" y2="306.0" class="track-on"/>
+<circle cx="191.0" cy="306.0" r="5" class="handle"/>
+<text x="40.0" y="330.0" class="mut" font-size="11.5" text-anchor="start">拉长比 κ</text>
+<text x="342.0" y="330.0" class="acc-t" font-size="11.5" text-anchor="end">1.60</text>
+<line x1="40.0" y1="342.0" x2="342.0" y2="342.0" class="track"/>
+<line x1="40.0" y1="342.0" x2="221.2" y2="342.0" class="track-on"/>
+<circle cx="221.2" cy="342.0" r="5" class="handle"/>
+<text x="40.0" y="366.0" class="mut" font-size="11.5" text-anchor="start">三角度 δ</text>
+<text x="342.0" y="366.0" class="acc-t" font-size="11.5" text-anchor="end">0.30</text>
+<line x1="40.0" y1="378.0" x2="342.0" y2="378.0" class="track"/>
+<line x1="40.0" y1="378.0" x2="206.1" y2="378.0" class="track-on"/>
+<circle cx="206.1" cy="378.0" r="5" class="handle"/>
+<text x="40.0" y="402.0" class="mut" font-size="11.5" text-anchor="start">边界 q</text>
+<text x="342.0" y="402.0" class="acc-t" font-size="11.5" text-anchor="end">3.5</text>
+<line x1="40.0" y1="414.0" x2="342.0" y2="414.0" class="track"/>
+<line x1="40.0" y1="414.0" x2="227.2" y2="414.0" class="track-on"/>
+<circle cx="227.2" cy="414.0" r="5" class="handle"/>
+<text x="40.0" y="438.0" class="mut" font-size="11.5" text-anchor="start">B_unit [T]</text>
+<text x="342.0" y="438.0" class="acc-t" font-size="11.5" text-anchor="end">2.0</text>
+<line x1="40.0" y1="450.0" x2="342.0" y2="450.0" class="track"/>
+<line x1="40.0" y1="450.0" x2="130.6" y2="450.0" class="track-on"/>
+<circle cx="130.6" cy="450.0" r="5" class="handle"/>
+<text x="40.0" y="474.0" class="mut" font-size="11.5" text-anchor="start">中心密度 n_e(0)</text>
+<text x="342.0" y="474.0" class="acc-t" font-size="11.5" text-anchor="end">3.0</text>
+<line x1="40.0" y1="486.0" x2="342.0" y2="486.0" class="track"/>
+<line x1="40.0" y1="486.0" x2="94.4" y2="486.0" class="track-on"/>
+<circle cx="94.4" cy="486.0" r="5" class="handle"/>
+<text x="40.0" y="510.0" class="mut" font-size="11.5" text-anchor="start">χ₀ [m²/s]</text>
+<text x="342.0" y="510.0" class="acc-t" font-size="11.5" text-anchor="end">0.60</text>
+<line x1="40.0" y1="522.0" x2="342.0" y2="522.0" class="track"/>
+<line x1="40.0" y1="522.0" x2="124.6" y2="522.0" class="track-on"/>
+<circle cx="124.6" cy="522.0" r="5" class="handle"/>
+<line x1="40.0" y1="548.0" x2="342.0" y2="548.0" class="sep"/>
+<text x="40.0" y="570.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">这一步的读数</text>
+<text x="40.0" y="592.0" class="lbl" font-size="12" text-anchor="start">W_th</text>
+<text x="342.0" y="592.0" class="acc-t" font-size="12" text-anchor="end">184 kJ</text>
+<text x="40.0" y="606.0" class="mut" font-size="10.5" text-anchor="start">(3/2)∫p dV，本步</text>
+<line x1="40.0" y1="621.0" x2="342.0" y2="621.0" class="sep"/>
+<text x="40.0" y="634.0" class="lbl" font-size="12" text-anchor="start">τ_E</text>
+<text x="342.0" y="634.0" class="acc-t" font-size="12" text-anchor="end">0.31 s</text>
+<text x="40.0" y="648.0" class="mut" font-size="10.5" text-anchor="start">W_th / P_loss —— 不是标度律</text>
+<line x1="40.0" y1="663.0" x2="342.0" y2="663.0" class="sep"/>
+<text x="40.0" y="676.0" class="lbl" font-size="12" text-anchor="start">β_N</text>
+<text x="342.0" y="676.0" class="acc-t" font-size="12" text-anchor="end">1.42</text>
+<line x1="40.0" y1="689.0" x2="342.0" y2="689.0" class="sep"/>
+<text x="40.0" y="702.0" class="lbl" font-size="12" text-anchor="start">Q</text>
+<text x="342.0" y="702.0" class="acc-t" font-size="12" text-anchor="end">—</text>
+<text x="40.0" y="716.0" class="mut" font-size="10.5" text-anchor="start">无聚变功率：这套输入没有 D-T</text>
+<text x="40.0" y="750.0" class="mut" font-size="10.5" text-anchor="start">★1.5D 那一栏报不出这四个数 —— 它的几何是固定的。</text>
+<rect x="372.0" y="208.0" width="1202.0" height="658.0" rx="8" class="panel"/>
+<rect x="372.0" y="208.0" width="1202.0" height="30.0" rx="8" class="head"/>
+<rect x="372.0" y="230.0" width="1202.0" height="8.0" class="head-sq"/>
+<line x1="372.0" y1="238.0" x2="1574.0" y2="238.0" class="sep"/>
+<text x="384.0" y="227.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">含时演化 —— 第 23/60 步，t = 2.3 s</text>
+<rect x="384.0" y="248.0" width="388.7" height="298.0" rx="6" class="panel"/>
+<rect x="418.0" y="258.0" width="342.7" height="266.0" class="axes"/>
+<line x1="418.0" y1="324.5" x2="760.7" y2="324.5" class="grid"/>
+<line x1="503.7" y1="258.0" x2="503.7" y2="524.0" class="grid"/>
+<line x1="418.0" y1="391.0" x2="760.7" y2="391.0" class="grid"/>
+<line x1="589.3" y1="258.0" x2="589.3" y2="524.0" class="grid"/>
+<line x1="418.0" y1="457.5" x2="760.7" y2="457.5" class="grid"/>
+<line x1="675.0" y1="258.0" x2="675.0" y2="524.0" class="grid"/>
+<polyline points="418.0,271.3 452.3,273.0 486.5,278.0 520.8,286.6 555.1,298.8 589.3,315.0 623.6,335.5 657.9,361.3 692.1,393.6 726.4,435.8 760.7,510.7" class="c1"/>
+<text x="589.3" y="540.0" class="mut" font-size="10.5" text-anchor="middle">n_e [10¹⁹ m⁻³]  ρ</text>
+<rect x="778.7" y="248.0" width="388.7" height="298.0" rx="6" class="panel"/>
+<rect x="812.7" y="258.0" width="342.7" height="266.0" class="axes"/>
+<line x1="812.7" y1="324.5" x2="1155.3" y2="324.5" class="grid"/>
+<line x1="898.3" y1="258.0" x2="898.3" y2="524.0" class="grid"/>
+<line x1="812.7" y1="391.0" x2="1155.3" y2="391.0" class="grid"/>
+<line x1="984.0" y1="258.0" x2="984.0" y2="524.0" class="grid"/>
+<line x1="812.7" y1="457.5" x2="1155.3" y2="457.5" class="grid"/>
+<line x1="1069.7" y1="258.0" x2="1069.7" y2="524.0" class="grid"/>
+<polyline points="812.7,271.3 846.9,275.1 881.2,286.4 915.5,304.8 949.7,329.6 984.0,359.6 1018.3,393.5 1052.5,429.2 1086.8,464.0 1121.1,493.9 1155.3,510.7" class="c2"/>
+<text x="984.0" y="540.0" class="mut" font-size="10.5" text-anchor="middle">T_e [keV]  ρ</text>
+<rect x="1173.3" y="248.0" width="388.7" height="298.0" rx="6" class="panel"/>
+<rect x="1207.3" y="258.0" width="342.7" height="266.0" class="axes"/>
+<line x1="1207.3" y1="324.5" x2="1550.0" y2="324.5" class="grid"/>
+<line x1="1293.0" y1="258.0" x2="1293.0" y2="524.0" class="grid"/>
+<line x1="1207.3" y1="391.0" x2="1550.0" y2="391.0" class="grid"/>
+<line x1="1378.7" y1="258.0" x2="1378.7" y2="524.0" class="grid"/>
+<line x1="1207.3" y1="457.5" x2="1550.0" y2="457.5" class="grid"/>
+<line x1="1464.3" y1="258.0" x2="1464.3" y2="524.0" class="grid"/>
+<polyline points="1207.3,271.3 1241.6,274.6 1275.9,284.6 1310.1,300.9 1344.4,323.2 1378.7,350.7 1412.9,382.5 1447.2,417.4 1481.5,453.4 1515.7,487.3 1550.0,510.7" class="c3"/>
+<text x="1378.7" y="540.0" class="mut" font-size="10.5" text-anchor="middle">T_i [keV]  ρ</text>
+<rect x="384.0" y="556.0" width="388.7" height="298.0" rx="6" class="panel"/>
+<rect x="418.0" y="566.0" width="342.7" height="266.0" class="axes"/>
+<line x1="418.0" y1="632.5" x2="760.7" y2="632.5" class="grid"/>
+<line x1="503.7" y1="566.0" x2="503.7" y2="832.0" class="grid"/>
+<line x1="418.0" y1="699.0" x2="760.7" y2="699.0" class="grid"/>
+<line x1="589.3" y1="566.0" x2="589.3" y2="832.0" class="grid"/>
+<line x1="418.0" y1="765.5" x2="760.7" y2="765.5" class="grid"/>
+<line x1="675.0" y1="566.0" x2="675.0" y2="832.0" class="grid"/>
+<polyline points="418.0,805.4 520.8,685.7 623.6,635.2 760.7,619.2" class="c1"/>
+<text x="589.3" y="848.0" class="mut" font-size="10.5" text-anchor="middle">W_th [kJ] —— 随时间</text>
+<rect x="778.7" y="556.0" width="388.7" height="298.0" rx="6" class="panel"/>
+<rect x="812.7" y="566.0" width="342.7" height="266.0" class="axes"/>
+<line x1="812.7" y1="632.5" x2="1155.3" y2="632.5" class="grid"/>
+<line x1="898.3" y1="566.0" x2="898.3" y2="832.0" class="grid"/>
+<line x1="812.7" y1="699.0" x2="1155.3" y2="699.0" class="grid"/>
+<line x1="984.0" y1="566.0" x2="984.0" y2="832.0" class="grid"/>
+<line x1="812.7" y1="765.5" x2="1155.3" y2="765.5" class="grid"/>
+<line x1="1069.7" y1="566.0" x2="1069.7" y2="832.0" class="grid"/>
+<polyline points="812.7,765.5 915.5,752.2 1052.5,685.7 1155.3,592.6" class="c4"/>
+<text x="984.0" y="848.0" class="mut" font-size="10.5" text-anchor="middle">q(ρ) —— 当前一步</text>
+<rect x="1173.3" y="556.0" width="388.7" height="298.0" rx="6" class="panel"/>
+<rect x="1207.3" y="566.0" width="342.7" height="266.0" class="axes"/>
+<line x1="1207.3" y1="632.5" x2="1550.0" y2="632.5" class="grid"/>
+<line x1="1293.0" y1="566.0" x2="1293.0" y2="832.0" class="grid"/>
+<line x1="1207.3" y1="699.0" x2="1550.0" y2="699.0" class="grid"/>
+<line x1="1378.7" y1="566.0" x2="1378.7" y2="832.0" class="grid"/>
+<line x1="1207.3" y1="765.5" x2="1550.0" y2="765.5" class="grid"/>
+<line x1="1464.3" y1="566.0" x2="1464.3" y2="832.0" class="grid"/>
+<polyline points="1207.3,792.1 1344.4,752.2 1481.5,667.1 1550.0,605.9" class="c2"/>
+<text x="1378.7" y="848.0" class="mut" font-size="10.5" text-anchor="middle">χ_i [m²/s] —— 闭包给出</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图：建模页在共享工具条下的 16:9 首屏；进度贴在工具条底缘，与它下面那条栏的计算键相隔多远都还看得见（V-11）。生成物 —— tools/make-desktop-preview.py</text>
+</svg>

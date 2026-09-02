@@ -3912,7 +3912,7 @@ FyScenario.whenDevices(function () {
   // shape of a pulse is exactly the kind of input that is meant to travel.
   //
   // WHAT THE FILE CARRIES: inputs, and only inputs.  The scenario corpus at
-  // `docs/cases/` is why that is worth saying twice — 「一个算例就是一份会话
+  // `cases/` is why that is worth saying twice — 「一个算例就是一份会话
   // 文档」, so what this bar writes has to be, in form, the document a corpus
   // case is:
   // `fylite:AppSession/1`, `fylite:page` naming the BAR (the file format is a

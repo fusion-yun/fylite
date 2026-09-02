@@ -93,7 +93,7 @@ say(/没有|尚未|none|nothing/i.test(earlyNote), '而且页面说了为什么'
 
 //: a short march on the bar's own defaults.
 //: ★2026-08-31 起这里不再选算例：随页面发的「算例菜单」那一批已经撤了
-//: （语料只住在 `docs/cases/`，页面不取），`#model-evolve-case` 这个控件不存在
+//: （语料只住在 `cases/`，页面不取），`#model-evolve-case` 这个控件不存在
 //: 了。本门要的是**这一栏跑一次**，跑的是哪一个算例不影响它问的那几件事
 //: （文档的形状、解到哪里、那以外是不是平推）。
 await model.evaluate(() => {

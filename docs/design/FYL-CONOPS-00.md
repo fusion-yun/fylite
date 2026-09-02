@@ -1,0 +1,285 @@
+---
+document_id: FYL-CONOPS-00
+title: FyLite 运行概念描述 (FyLite Operational Concept Description)
+shortname: fylite-conops
+version: "0.4"
+date: 2026-08-30
+language: bilingual
+contributors:
+  - name: FyLite Maintainers
+    roles: Writing - original draft
+ai_assistance:
+  - Claude Fable 5
+created: 2026-08-18T00:00:00Z by FyLite Maintainers
+modified:
+  date: 2026-08-30T00:00:00Z
+  by: FyLite Maintainers
+  change: 'v0.4 建设原则入册（用户裁定 2026-08-30，WD 期内 MINOR）：新增
+    §建设原则六条（公开文献+公开代码 · 每功能一套框架实现 · 无插件机制 ·
+    统一内核弃多源集成 · Rust 内核+薄前端 · 完备约化模型内核），评估依据
+    FYL-REPORT-04；范围外「对标国际码」行修订——轻量档对拍归 FyLite
+    （先例 JINTRAC 102530），高保真验证语料仍归 FyTok。
+    v0.3 响应口径修订（用户裁定 2026-08-18，WD 期内 MINOR）：交互档响应由
+    「秒级以下」改为「毫秒至秒量级（ms ~ s）」，且主要功能各自声明预期响应时间预算、
+    实测以预算为判；包络第二条更名。'
+---
+
+:::{dropdown} 文档控制信息 (Document Control Information)
+:name: doc-control-fylite-conops
+
+| 字段 | 内容 |
+| :--- | :--- |
+| 文档标识 (Document ID) | `FYL-CONOPS-00` |
+| 文档名称 (Title) | FyLite 运行概念描述 (FyLite Operational Concept Description) |
+| 短名 / Slug | `fylite-conops` |
+| 版本 (Version) | v0.4 |
+| 发布日期 (Date of Issue) | 2026-08-30 |
+| 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
+| 适用标准 (Standard Reference) | IEEE Std 1362 |
+| 生命周期阶段 (Lifecycle Phase) | concept (ISO/IEC/IEEE 15288) |
+| 规范性 (Normative) | No (信息性) |
+| 生命周期状态 (Status) | WD |
+| 责任团队 (Information Owner) | FyLite Maintainers |
+| 贡献者 (Contributors) | FyLite Maintainers (Writing - original draft) |
+| AI 辅助 (AI Assistance) | Claude Fable 5 |
+| 受众 (Audience) | physics researchers / modelers & students / control & design engineers / FyTok developers / LLM-tool integrators / new project members |
+| 分发范围 (Distribution) | public |
+| 安全分级 (Security Classification) | public |
+| 上游输入 (Upstream Inputs) | FYTOK-CONOPS-00 v0.6（五类应用任务分类学来源，经 fytok 仓注册表解析） |
+| 批准 (Approval) | — |
+| 取代关系 (Supersedes / Superseded by) | — |
+:::
+
+(conops-fylite-abstract)=
+# 摘要 (Abstract)
+
+本文件描述 **FyLite** 的运行概念：FyLite 为何存在、为谁存在、在哪些场景下被使用、受什么
+约束、向何处演进。
+
+**存在理由（重定位）.** 〔已确立·用户裁定 2026-08-18〕FyLite 是一个**独立的轻量托卡马克
+计算包**，其定位是：以**轻量功能集**验证与展示 `FYTOK-CONOPS-00` 定义的**五类应用任务**
+——物理建模、实验分析、控制仿真、放电运行设计、装置参数优化——对每类任务提供一条
+**可运行、可交互、可对照的最小闭环**，而非复刻 FyTok 的全功能实现。五类任务的分类学、
+首要性排序（物理建模与实验分析为首要）与任务语义均以 `FYTOK-CONOPS-00`（§应用面）为
+唯一来源，本文件不另立分类。
+
+**生态关系.** 〔已确立〕FyLite 与 FyTok **零代码依赖**（互不导入）；FyLite 以 Sp 生态
+**协议成员**方式互操作——能力经声明清单描述、经语言中立的进程间接口调用，治理细节归
+各自文档集，本文件仅作信息性指认。FyLite **不是** Sp 平台子系统，不接收平台需求分配；
+其与 `FYTOK-CONOPS-00` 的关系是**验证 / 展示件之于被验证概念**，非子系统之于系统。
+
+**资源包络.** 〔已确立·用户裁定 2026-08-18〕FyLite 的性能与资源需求定为四条：**单机**、
+**交互档毫秒至秒量级响应（按功能声明预算）**、**有限多线程**、**跨平台**（原生 Python 与浏览器 WebAssembly
+双宿主）。包络的展开与边界情形见 {ref}`conops-fylite-envelope`。
+
+(conops-fylite-conventions)=
+# 约定与术语 (Conventions and Terminology)
+
+实质断言携认识论状态标签（〔已确立〕已落地有证据 /〔工作假设〕方向已定待落地 /
+〔开放猜想〕俟需求定型），不使用 RFC 2119 规范关键字——规范条款归后续 SRS / SDD。
+缺失值记 `[TBD]`，不虚构。
+
+**引用纪律.** 上游引用限 `FYTOK-CONOPS-00`（五类应用任务分类学来源，按 `document_id`
+跨仓指认、经 fytok 仓注册表解析，不硬编码路径）；对 Sp 平台与 FyTok 的生态事实按角色
+指认。本文件为信息性文档，不构成对上游的规范承诺。
+
+**轻量功能集（lightweight feature set）**
+:   FyLite 对一类应用任务的最小可运行覆盖——足以让该任务端到端走通、结果可与全功能
+    实现对照，但不承诺该任务的全部物理保真度、装置宽度或方法族。
+
+**五类应用任务（five application-task classes）**
+:   `FYTOK-CONOPS-00` §应用面定义的任务分类：物理建模、实验分析（二者首要）、控制仿真、
+    放电运行设计、装置参数优化。本文件按同名同序引用，不重定义。
+
+**验证 / 展示（verification / demonstration）**
+:   验证——以可运行的轻量实现证明任务闭环在概念上成立、给出可对照的参考结果；
+    展示——以交互式界面让任务的输入—求解—判读全程对用户可见、可操作。
+
+**协议成员（protocol member）**
+:   与 Sp 生态零代码依赖、仅经声明清单与语言中立进程间接口互操作的独立软件包。
+
+**双宿主（dual host）**
+:   同一计算核的两种运行宿主——本机 Python 环境（命令行 / 脚本 / notebook）与浏览器
+    WebAssembly 页面（无安装、离线可用）。
+
+**交互面（interaction surface）**
+:   用户触达系统的通道——Python / shell 交互、浏览器页面、AI 平台工具插件三类；
+    与"宿主"（计算核的运行载体：本机 / WebAssembly）正交，工具插件交互面复用
+    Python 宿主。
+
+**交互档 / 批式档（interactive / batch tier）**
+:   交互档——由界面控件或单条命令触发、结果即时回显的操作，受毫秒至秒量级响应
+    预算约束；
+    批式档——多步迭代或全网格扫描类任务，显式标记为非交互，不受该约束但须可分步、
+    可中断。
+
+(conops-fylite-scope)=
+# 范围与目标 (Scope and Objectives)
+
+(conops-fylite-scope-tasks)=
+## 五类应用任务的轻量覆盖 (Lightweight Coverage of the Five Task Classes)
+
+〔已确立〕FyLite 对五类应用任务逐类给出轻量覆盖，见
+{numref}`tbl-conops-fylite-coverage`。覆盖的组织原则：五类任务共享同一平衡—输运正演
+内核与同一装置几何描述，区别仅在各自的外层操作与交互面——与 `FYTOK-CONOPS-00`
+「五类任务共享正演内核」的组织原则同构，但实现为轻量档。
+
+:::{table} 五类应用任务 × FyLite 轻量覆盖 × 现状（✓ 已落地 / ◐ 部分 / — 缺失）。任务名与序号沿 FYTOK-CONOPS-00。
+:name: tbl-conops-fylite-coverage
+:align: left
+
+| 应用任务（FYTOK-CONOPS-00） | FyLite 轻量覆盖 | 现状 |
+| :--- | :--- | :--- |
+| 物理建模（首要） | 平衡正演（固定 / 自由边界）、1.5D 芯部输运、0-D 集总演化；新经典与湍流输运闭包可选 | ✓ |
+| 实验分析（首要） | 磁测量 + 动理约束的 kinetic-EFIT 平衡重构、剖面标定、软 X 射线层析 | ✓ |
+| 控制仿真 | 回路 / 击穿与位置控制的轻量闭环演示 | ◐ |
+| 放电运行设计 | 0-D 放电分析、分相位波形设计与可行性判定 | ◐ |
+| 装置参数优化 | 静态线圈反解、参数扫描与可行域判读（多装置几何基线） | ◐ |
+:::
+
+〔工作假设〕后三类任务（◐）的覆盖深化以「最小闭环可运行」为完成判据，不以方法族齐全
+为判据——例如控制仿真闭环有一条可运行的反馈回路即达轻量档，最优控制方法族归 FyTok。
+
+(conops-fylite-principles)=
+## 建设原则 (Construction Principles)
+
+〔已确立·用户裁定 2026-08-30〕FyLite 按以下六条原则构建；评估依据与实测出处见
+`FYL-REPORT-04`（试金石：JINTRAC 102530 对拍战役）：
+
+1. **依据公开文献与公开代码。** 两腿缺一不可：文献给方程，代码给运行约定与白盒
+   裁判——移植保真度的最终判据是 vendored 参考实现同甲板同跑，不是文献比对。
+2. **每个物理功能一套框架实现。**「一次」指一套框架实现，不是一种模型：同一功能的
+   多个物理模型以参数档位并存（如闭包的常数 / 给定剖面 / 拟线性湍流三档）。
+3. **不做可插拔 plugin 机制。** 声明驱动的条目表 + 参数档位替代插件的全部正当需求，
+   换取整仓单体可追因。生态分工：FyLite 内核反插件；装置 / 求解器集成的插件机制
+   归 FyTok（FyModule）。
+4. **放弃多源代码集成模式，统一框架下构建完备内核。** 代价显式承担：集成码沉淀的
+   运行约定层由对拍逐项量回——对拍基础设施（参考数据 · 冻结甲板 · 双边裁判）
+   因此是一等公民资产。
+5. **内核 Rust，Python / JS 为薄前端。** 内核自带数值原语（含线性代数），零系统
+   数值库依赖；同一 `c_api.rs` 出 native 与 WebAssembly。
+6. **范围为完备的约化模型内核。** 有公开参考实现的约化模型白盒移植；无逐行参考的
+   公开模型以约化形式进内核；HPC 尺度码（非线性回旋动理学、全波、3-D 动理 MHD）
+   **消费其产物、不吞并其本体**。
+
+〔已确立〕保真度声明只写量得出的：每项声明附零假设对照与残余归因清单
+（先例：`docs/note/jintrac-flattop-reproduction.md`）。
+
+(conops-fylite-envelope)=
+## 资源包络 (Performance & Resource Envelope)
+
+〔已确立·用户裁定 2026-08-18〕FyLite 的性能与资源需求由四条包络约束定义：
+
+- **单机（single machine）.** 全部功能在一台工作站或笔记本上完成；无集群依赖、无必需的
+  服务端组件；浏览器宿主加载后离线可用。
+- **毫秒至秒量级响应（ms–s response, 交互档）.** 交互档操作——界面控件驱动的单步
+  求解、重构、重绘——响应处于**毫秒至秒量级（ms ~ s）**，且**主要功能各自声明预期
+  响应时间预算**（该量级内的值或区间），实测以预算为判。超出该量级的任务（如自洽
+  动理外环、全网格参数扫描）**显式归入批式档**：非交互、可分步、可中断，不进交互面
+  伪装为即时操作。
+- **有限多线程（limited multithreading）.** 并行度限于单机内少量工作线程；不引入分布式
+  运行时或进程集群。浏览器宿主以单线程为基线。具体并行度上限 `[TBD]`（归 SRS 量化）。
+- **跨平台（cross-platform）.** 同一计算核在主流桌面平台的原生 Python 宿主与浏览器
+  WebAssembly 宿主上行为一致；数值核不依赖平台专有库。
+
+〔已确立·用户裁定 2026-08-18〕**基准口径与运行环境.** 包络的基准硬件为**单机笔记本
+电脑**（主流消费级，无独立加速器要求）——响应量级与各功能预算等包络断言均在该
+基准上验证。
+用户触达系统经**三类交互面**，共享同一能力集：
+
+1. **Python / shell 交互**：脚本、REPL、命令行（本机 Python 宿主）。
+2. **浏览器**：WebAssembly 场景页面（浏览器宿主，零安装、离线可用）。
+3. **AI 平台工具插件**：Claude / Claude Code / DeepSeek 等 AI 平台的 harness 经
+   工具协议（MCP / 工具 schema）把 FyLite 作为工具调用——复用 Python 宿主与其能力
+   目录，交互档延迟约束同样适用（批式任务不占同步工具槽）。
+
+:::{note} Rationale
+包络四条是**定位性约束**而非当前实现的性能声明：它们把 FyLite 与 FyTok 的分工钉在资源
+维度上——凡需要集群并行、长时批量或平台治理的需求，属 FyTok / Sp 平台的目的范围，
+FyLite 不随功能深化而突破包络。
+:::
+
+(conops-fylite-scope-out)=
+## 范围外 (Out of Scope)
+
+〔已确立〕下列职责经显式归属、不在 FyLite：
+
+:::{table} FyLite 范围外职责及其归属。
+:name: tbl-conops-fylite-out-of-scope
+:align: left
+
+| 职责 | 归属 |
+| :--- | :--- |
+| 聚变领域本体（T-Box）著作与全量 IMAS IDS 建模 | FyTok（fyo 著作方） |
+| 多装置资产（A-Box 语料）治理与分发 | FyTok 生态装置资产包 |
+| 高保真物理（H&CD 沉积、湍流第一性模拟、MHD 稳定性谱） | FyTok 及其求解器生态 |
+| 跨节点 / 分布式编排、批量作业管理 | Sp 平台编排层 |
+| 受控写入 / 审计 / 配额等治理 | Sp 平台治理内核 |
+| 高保真验证基准语料与工作流 | FyTok 验证语料与工作流仓（轻量档对拍归 FyLite——先例 JINTRAC 102530，见 `FYL-REPORT-04`） |
+:::
+
+〔已确立〕位形边界与 `FYTOK-CONOPS-00` 一致：轴对称托卡马克（环向轴对称 + 闭合嵌套
+磁面）；异位形不在目的范围内。
+
+(conops-fylite-stakeholders)=
+# 利益相关者 (Stakeholders)
+
+| 角色 | 关切 |
+| :--- | :--- |
+| 物理研究者（physics researcher） | 单机上秒级交互的平衡重构与正演分析，结果可导出对照 |
+| 建模者 / 学生（modeler / student） | 五类任务的输入—求解—判读全程可见、可操作，零安装门槛（浏览器宿主） |
+| 控制与设计工程师（control & design engineer） | 控制 / 设计 / 优化三类任务的轻量原型环境 |
+| FyTok 开发者（FyTok developer） | 每类任务有一个轻量参照实现与参考结果，可作概念验证与回归对照 |
+| LLM 工具集成者（LLM-tool integrator） | 功能集经声明清单反射为工具面，交互档延迟可预算 |
+| FyLite 维护者（maintainer） | 零依赖纪律、包络不突破、双宿主行为一致性 |
+
+〔已确立〕上述角色是 `FYTOK-CONOPS-00` 利益相关者集合在轻量验证 / 展示语境下的投影
+子集（新增 LLM 工具集成者一角，对应 FyLite 的工具面交付形态）；角色定义如进入后续
+FyLite SRS，沿用本表命名。
+
+(conops-fylite-scenarios)=
+# 运行场景 (Operational Scenarios)
+
+〔已确立〕运行场景逐类对应五类应用任务（S-L1..S-L5，序号与 `FYTOK-CONOPS-00`
+S-7..S-11 逐位对应）。每条场景在**双宿主**可执行：浏览器交互页（展示面——控件驱动、
+即时回显）与本机 Python 环境（验证面——脚本 / 命令行 / notebook，结果可断言、可入
+回归）。交互档操作受各自声明的响应时间预算约束（毫秒至秒量级）；批式档显式标出。
+
+**S-L1 物理建模（对应 S-7，首要）.** 〔已确立〕研究者给定装置几何与剖面假设，求解
+平衡（固定 / 自由边界），推进 1.5D 芯部输运或 0-D 集总演化；新经典 / 湍流输运闭包
+按档位选取（解析定标至数值闭包）。单步求解为交互档；多步自洽迭代为批式档。
+
+**S-L2 实验分析（对应 S-8，首要）.** 〔已确立〕研究者以磁测量与动理约束（逐点实测
+不确定度）做 kinetic-EFIT 平衡重构，附剖面标定与软 X 射线层析判读。单炮单时刻重构为
+交互档；自洽动理外环（重构—输运交替至收敛）为批式档（分钟量级）。
+
+**S-L3 控制仿真（对应 S-9）.** 〔工作假设〕工程师在轻量闭环里演示回路 / 击穿动力学
+与位置控制——控制律作用于集总模型、逐步回显轨迹。现状 ◐：闭环演示可运行，状态估计
+与方法族不在轻量档承诺内。
+
+**S-L4 放电运行设计（对应 S-10）.** 〔工作假设〕工程师做 0-D 放电分析与分相位波形
+设计，得到可行性判定（约束逐条判读）。现状 ◐：分析档可运行，全时程优化归 FyTok。
+
+**S-L5 装置参数优化（对应 S-11）.** 〔工作假设〕设计者在多装置几何基线上做静态线圈
+反解与参数扫描，以可行域形式判读设计空间。现状 ◐：反解与扫描可运行，外层优化器与
+工程量端口归 FyTok。
+
+〔已确立〕五条场景共享同一正演内核与装置描述；场景间的产物（如 S-L2 重构出的平衡）
+可作为其他场景的输入，构成任务间的最小数据环。
+
+(conops-fylite-evolution)=
+# 系统演进 (System Evolution)
+
+- **现阶段（as-built）.** 〔已确立〕两首要任务 S-L1 / S-L2 达轻量档全覆盖（✓），
+  后三类 S-L3..S-L5 为部分覆盖（◐）；浏览器侧任务场景线与 Python 侧对应场景均已
+  落地，LLM 工具面（清单反射）随包发布。
+- **覆盖深化.** 〔工作假设〕以「最小闭环可运行」为判据补齐 S-L3..S-L5 的缺口；每条
+  场景沉淀一组参考结果作为回归夹具，使「验证」一义可被持续断言而非一次性演示。
+- **对照基线.** 〔开放猜想〕与 FyTok 就同一任务、同一输入建立参照对（轻量档结果 ×
+  全功能档结果），量化轻量档的保真度边界——该基线的载体与判据归后续文档。
+- **耦合演进.** 〔已确立〕`FYTOK-CONOPS-00` 的任务分类学（当前钉 v0.6）变更时，本
+  文件跟随修订；FyLite 不自行扩充或改序任务分类。
+- **包络不变式.** 〔已确立〕资源包络四条（{ref}`conops-fylite-envelope`）在演进全程
+  保持：超出包络的需求一律转出，不作为 FyLite 的演进方向。
+
+> 本文件不规定验收判据；判据经后续 FyLite SRS 及其验证矩阵承载。

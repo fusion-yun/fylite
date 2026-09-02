@@ -179,7 +179,7 @@
   },
   {
    "name": "cases",
-   "help": "list / show / check / RUN the scenario corpus (docs/cases/: fyo JSON-LD session documents + catalogue) — the CLI is the primary debugging environment; --run maps a case's page-control config onto the corresponding Python entry (S-2) and records the run",
+   "help": "list / show / check / RUN the scenario corpus (cases/: fyo JSON-LD session documents + catalogue) — the CLI is the primary debugging environment; --run maps a case's page-control config onto the corresponding Python entry (S-2) and records the run",
    "handler": "fylite.engine.cli:_cli_cases",
    "args": [
     {
@@ -193,7 +193,7 @@
      "flags": [
       "--dir"
      ],
-     "help": "corpus directory (default: ./docs/cases, then the checkout's docs/cases/ — the corpus is repo data and does NOT ship with the wheel)"
+     "help": "corpus directory (default: ./cases, then the checkout's cases/ — the corpus is repo data and does NOT ship with the wheel)"
     },
     {
      "flags": [

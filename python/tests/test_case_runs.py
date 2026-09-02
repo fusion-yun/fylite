@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 #: catalogue bars, measured from the corpus itself
 #:
-#: ★★2026-09-01：语料（`docs/cases/`）已随裁定移出本仓。`cases.catalogue()` 在找不到
+#: ★★2026-09-01：语料（`cases/`）已随裁定移出本仓。`cases.catalogue()` 在找不到
 #: 语料时抛的是 **`SystemExit`**（CLI 的错误路径：「run from a checkout or pass --dir」）
 #: ——而在**收集期**抛 SystemExit，pytest 报的是 `INTERNALERROR` 并就地停掉整个收集。
 #: 实测代价：本档从 2056 条掉到 **246 条**，停在字母序第六个模块之后，**没有任何
@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[2]
 try:
     _CATALOGUE = cases.catalogue()
 except cases.CorpusMissing as exc:                          # 语料不在本仓
-    pytest.skip(f"算例语料不在本仓（{exc}）——它随 docs/cases 移出，"
+    pytest.skip(f"算例语料不在本仓（{exc}）——它随 cases 移出，"
                 "本档的判据要在有语料的检出上跑",
                 allow_module_level=True)
 BARS = sorted({e["fylite:bar"] for e in _CATALOGUE})

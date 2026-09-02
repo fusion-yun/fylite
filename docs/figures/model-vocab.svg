@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="物理建模页的状态编码表：每一种状态的颜色与它的非颜色通道">
+<title>fylite 物理建模页 — 视觉词汇</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<text x="26.0" y="46.0" class="lbl" font-size="18" text-anchor="start" font-weight="700">物理建模页的视觉词汇</text>
+<text x="26.0" y="74.0" class="mut" font-size="13" text-anchor="start">左列是这一页把它画成什么样，中列是它除颜色之外还带的那个通道。中列不是可选项：</text>
+<text x="26.0" y="96.0" class="mut" font-size="13" text-anchor="start">一张只靠颜色分状态的图，灰度打印之后就什么也没分 —— FYL-DESIGN-11 的 V-8，与 FYL-DESIGN-10 的那一条是同一件事。</text>
+<text x="32.0" y="169.2" class="lbl" font-size="13" text-anchor="start">输运栏：你给的 χ</text>
+<polyline points="326,171.25 386,158.25 456,160.25 526,166.25" class="c1"/>
+<text x="538.0" y="168.2" class="mut" font-size="10.5" text-anchor="start">输入</text>
+<text x="686.0" y="169.2" class="mut" font-size="12.5" text-anchor="start">实线 + 抬头写「你给的」</text>
+<text x="1568.0" y="169.2" class="acc-t" font-size="11.5" text-anchor="end">P-28</text>
+<line x1="26.0" y1="194.5" x2="1574.0" y2="194.5" class="sep"/>
+<text x="32.0" y="229.8" class="lbl" font-size="13" text-anchor="start">反演栏：反求的 χ</text>
+<polyline points="326,231.75 386,218.75 456,220.75 526,226.75" class="c-dot"/>
+<text x="538.0" y="228.8" class="mut" font-size="10.5" text-anchor="start">由 T 反求</text>
+<text x="686.0" y="229.8" class="mut" font-size="12.5" text-anchor="start">同色点线 —— 线型说方向</text>
+<text x="1568.0" y="229.8" class="acc-t" font-size="11.5" text-anchor="end">P-28</text>
+<line x1="26.0" y1="255.0" x2="1574.0" y2="255.0" class="sep"/>
+<text x="32.0" y="290.2" class="lbl" font-size="13" text-anchor="start">解出来的 T</text>
+<polyline points="326,292.25 376,280.25 426,278.25 476,283.25 526,289.25" class="c1"/>
+<circle cx="326.0" cy="292.2" r="2.8" class="solved"/>
+<circle cx="376.0" cy="280.2" r="2.8" class="solved"/>
+<circle cx="426.0" cy="278.2" r="2.8" class="solved"/>
+<circle cx="476.0" cy="283.2" r="2.8" class="solved"/>
+<circle cx="526.0" cy="289.2" r="2.8" class="solved"/>
+<text x="686.0" y="290.2" class="mut" font-size="12.5" text-anchor="start">实线 + 实心采样点</text>
+<text x="1568.0" y="290.2" class="acc-t" font-size="11.5" text-anchor="end">P-28</text>
+<line x1="26.0" y1="315.5" x2="1574.0" y2="315.5" class="sep"/>
+<text x="32.0" y="350.8" class="lbl" font-size="13" text-anchor="start">给定的 T（反演的输入）</text>
+<polyline points="326,352.75 386,339.75 456,341.75 526,347.75" class="c5"/>
+<text x="538.0" y="349.8" class="mut" font-size="10.5" text-anchor="start">反演的输入</text>
+<text x="686.0" y="350.8" class="mut" font-size="12.5" text-anchor="start">灰虚线，无点</text>
+<text x="1568.0" y="350.8" class="acc-t" font-size="11.5" text-anchor="end">P-28</text>
+<line x1="26.0" y1="376.0" x2="1574.0" y2="376.0" class="sep"/>
+<text x="32.0" y="411.2" class="lbl" font-size="13" text-anchor="start">判定：通过</text>
+<rect x="326.0" y="395.2" width="22.0" height="22.0" rx="4" class="chip-on"/>
+<path d="M332.0 406.2l4 5 7-9" class="okmark"/>
+<text x="356.0" y="410.2" class="ok-t" font-size="11.5" text-anchor="start" font-weight="700">位形误差 6.2 mm &lt; 10 mm</text>
+<text x="686.0" y="411.2" class="mut" font-size="12.5" text-anchor="start">勾 + 判据与实测值都写出</text>
+<text x="1568.0" y="411.2" class="acc-t" font-size="11.5" text-anchor="end">P-5</text>
+<line x1="26.0" y1="436.5" x2="1574.0" y2="436.5" class="sep"/>
+<text x="32.0" y="471.8" class="lbl" font-size="13" text-anchor="start">判定：不通过</text>
+<rect x="326.0" y="455.8" width="22.0" height="22.0" rx="4" class="chip-off"/>
+<path d="M333.0 462.8l8 8M341.0 462.8l-8 8" class="badmark"/>
+<text x="356.0" y="470.8" class="bad-t" font-size="11.5" text-anchor="start" font-weight="700">边界 q 2.8 &lt; 3.0</text>
+<text x="686.0" y="471.8" class="mut" font-size="12.5" text-anchor="start">叉 + 差在哪写出</text>
+<text x="1568.0" y="471.8" class="acc-t" font-size="11.5" text-anchor="end">P-5</text>
+<line x1="26.0" y1="497.0" x2="1574.0" y2="497.0" class="sep"/>
+<text x="32.0" y="532.2" class="lbl" font-size="13" text-anchor="start">超出适用域，拒绝</text>
+<rect x="326.0" y="516.2" width="200.0" height="22.0" class="future"/>
+<rect x="326.0" y="516.2" width="200.0" height="22.0" class="future-e"/>
+<text x="426.0" y="531.2" class="mut" font-size="10.5" text-anchor="middle">拒绝外推</text>
+<text x="686.0" y="532.2" class="mut" font-size="12.5" text-anchor="start">斜纹 + 写「拒绝」，不给数</text>
+<text x="1568.0" y="532.2" class="acc-t" font-size="11.5" text-anchor="end">P-6</text>
+<line x1="26.0" y1="557.5" x2="1574.0" y2="557.5" class="sep"/>
+<text x="32.0" y="592.8" class="lbl" font-size="13" text-anchor="start">输入变了，尚未重算</text>
+<rect x="326.0" y="576.8" width="200.0" height="22.0" rx="4" class="bar-rest"/>
+<text x="334.0" y="591.8" class="mut" font-size="11" text-anchor="start">上一次的答案已作废 —— 未重算</text>
+<text x="686.0" y="592.8" class="mut" font-size="12.5" text-anchor="start">整块变灰 + 一句话</text>
+<text x="1568.0" y="592.8" class="acc-t" font-size="11.5" text-anchor="end">P-8</text>
+<line x1="26.0" y1="618.0" x2="1574.0" y2="618.0" class="sep"/>
+<text x="32.0" y="653.2" class="lbl" font-size="13" text-anchor="start">网格与单位</text>
+<rect x="326.0" y="637.2" width="200.0" height="22.0" rx="4" class="bar-rest"/>
+<text x="334.0" y="652.2" class="mono" font-size="11">129×129 · SI · ρ_tor · COCOS 17</text>
+<text x="686.0" y="653.2" class="mut" font-size="12.5" text-anchor="start">解旁边一行等宽小字</text>
+<text x="1568.0" y="653.2" class="acc-t" font-size="11.5" text-anchor="end">P-17</text>
+<line x1="26.0" y1="678.5" x2="1574.0" y2="678.5" class="sep"/>
+<text x="32.0" y="713.8" class="lbl" font-size="13" text-anchor="start">自由边界 / 固定边界</text>
+<polyline points="326,716.75 396,703.75 526,705.75" class="c1"/>
+<polyline points="326,718.75 396,709.75 526,711.75" class="c3"/>
+<text x="538.0" y="712.8" class="mut" font-size="10.5" text-anchor="start">两种来源</text>
+<text x="686.0" y="713.8" class="mut" font-size="12.5" text-anchor="start">线型 + 抬头写哪一种</text>
+<text x="1568.0" y="713.8" class="acc-t" font-size="11.5" text-anchor="end">P-20</text>
+<line x1="26.0" y1="739.0" x2="1574.0" y2="739.0" class="sep"/>
+<text x="32.0" y="774.2" class="lbl" font-size="13" text-anchor="start">交出去的工件</text>
+<rect x="326.0" y="758.2" width="200.0" height="22.0" rx="4" class="bar-rest"/>
+<text x="334.0" y="773.2" class="mono" font-size="11">model-2026-09-01T14:03.fyo</text>
+<text x="686.0" y="774.2" class="mut" font-size="12.5" text-anchor="start">有名字，不是一条总线</text>
+<text x="1568.0" y="774.2" class="acc-t" font-size="11.5" text-anchor="end">P-21</text>
+<line x1="26.0" y1="799.5" x2="1574.0" y2="799.5" class="sep"/>
+<text x="32.0" y="834.8" class="lbl" font-size="13" text-anchor="start">这一栏报不出的量</text>
+<text x="326.0" y="833.8" class="mut" font-size="11.5" text-anchor="start">τ_E —— 这一栏的几何是固定的，报不出</text>
+<text x="686.0" y="834.8" class="mut" font-size="12.5" text-anchor="start">写明为什么报不出，不留空</text>
+<text x="1568.0" y="834.8" class="acc-t" font-size="11.5" text-anchor="end">P-14</text>
+<line x1="26.0" y1="132.0" x2="1574.0" y2="132.0" class="strip-inner"/>
+<text x="32.0" y="122.0" class="mut" font-size="11.5" text-anchor="start" font-weight="700">状态</text>
+<text x="326.0" y="122.0" class="mut" font-size="11.5" text-anchor="start" font-weight="700">画出来的样子</text>
+<text x="686.0" y="122.0" class="mut" font-size="11.5" text-anchor="start" font-weight="700">★除颜色之外的那个通道</text>
+<text x="1568.0" y="122.0" class="mut" font-size="11.5" text-anchor="end" font-weight="700">出处</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图：FYL-DESIGN-10 的状态编码。左列是页面上的样子，中列是它在灰度下仍然读得出来的理由。生成物 —— tools/make-desktop-preview.py</text>
+</svg>

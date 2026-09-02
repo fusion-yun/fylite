@@ -34,13 +34,11 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 
-#: ★★2026-09-01 仓一分为二：`design` / `report` 两本书讲的是内核，随 Rust 源码留在
-#: **fylite_kernel**，站点文件 `docs/myst.yml` 也在那边（它是四本书的站点，不是本仓的）。
-#: 本仓只有 `guide` / `reference`。
-#: ★于是这道闸分成两半：**在场的书照查**（每本自带 myst、页都存在、无跨书重页），
-#: **站点级的三条**（四本齐、站点文件不持页、书外页按裁定在外）在本仓查不了，
-#: 按 `$FYLITE_KERNEL` 探测；探不到就点名跳过。
-#: ★不把 BOOKS 直接改成两本：那会让「少了一本」变成静默通过。名单仍是四本，
+#: ★★2026-09-01 仓一分为二，2026-09-02 又动过一次：`report` 讲的是内核，随 Rust
+#: 源码留在 **fylite_kernel**；`guide` / `reference` / `design` 在本仓。
+#: ★`design` 是 09-02 从内核仓搬回来的：它按「讲的是内核就留在那边」归过去，但它
+#: 讲的是**四个页面与它们的运行概念**，读者是用这套东西的人。
+#: ★不把 BOOKS 直接改成三本：那会让「少了一本」变成静默通过。名单仍是四本，
 #: 缺席由下面那条闸点名——判据是「谁不在」，不是「在的那些对不对」。
 BOOKS = ("design", "guide", "reference", "report")
 BOOKS_HERE = tuple(b for b in BOOKS if (DOCS / b / "myst.yml").is_file())
@@ -48,15 +46,14 @@ BOOKS_AWAY = tuple(b for b in BOOKS if b not in BOOKS_HERE)
 SITE_FILE = DOCS / "myst.yml"
 requires_site = pytest.mark.skipif(
     not SITE_FILE.is_file(),
-    reason=("站点文件 docs/myst.yml 与 design/report 两本书在 fylite_kernel；"
-            "本仓只有 guide/reference"))
+    reason="本仓没有站点文件 docs/myst.yml")
 
 
-def test_the_books_that_left_are_the_ones_that_describe_the_kernel():
+def test_the_book_that_left_is_the_one_that_describes_the_kernel():
     """★哪几本不在本仓是**判据**，不是背景。缺席集合变了就该在这里红一次。"""
-    assert BOOKS_AWAY == ("design", "report"), (
-        f"本仓在场的书变了：缺席 {BOOKS_AWAY}，此前是 ('design', 'report')"
-        "（那两本讲内核，随 Rust 源码留在 fylite_kernel）")
+    assert BOOKS_AWAY == ("report",), (
+        f"本仓在场的书变了：缺席 {BOOKS_AWAY}，此前是 ('report',)"
+        "（那一本讲内核的评估研究，随 Rust 源码留在 fylite_kernel）")
 #: in the tree, deliberately in no book — each for its own reason, spelled out
 #: in the header of `docs/myst.yml`
 NOT_A_BOOK = ("note", "cases", "figures", "archive", "_build")
@@ -101,15 +98,21 @@ def test_every_page_a_book_lists_exists(book: str):
 
 
 @requires_site
-def test_the_site_collects_exactly_the_four_books(site: dict):
-    """★The site's whole content is the four projects; a fifth book that is
-    built but unlisted, or a listed one that is not there, is a book with no
-    URL or a URL with no book."""
+def test_the_site_collects_exactly_the_books_that_are_here(site: dict):
+    """★The site's whole content is the books THIS repository holds; one that
+    is built but unlisted, or listed but not there, is a book with no URL or a
+    URL with no book.
+
+    ★★It is `BOOKS_HERE`, not `BOOKS`: the four books live in two repositories
+    now, and a site can only mount what it has.  Which of the four is missing
+    is the other test's job — that split stays a named assertion rather than
+    being absorbed into this one, or "a book quietly left" would pass here.
+    """
     projects = site.get("site", {}).get("projects")
     assert projects, "docs/myst.yml must mount the books under `site.projects`"
     paths = [p["path"] for p in projects]
-    assert sorted(paths) == sorted(BOOKS), {"mounted": sorted(paths),
-                                            "books": sorted(BOOKS)}
+    assert sorted(paths) == sorted(BOOKS_HERE), {"mounted": sorted(paths),
+                                                 "here": sorted(BOOKS_HERE)}
     for p in projects:
         assert p.get("slug") == p["path"], (
             f"{p['path']} is mounted at /{p.get('slug')} — keep the slug equal "

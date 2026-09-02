@@ -227,7 +227,7 @@ def _cli_describe(args, parser) -> int:
 def _cases_dir(explicit=None):
     """The scenario corpus, found honestly or refused honestly.
 
-    ★The corpus is REPO DATA at ``docs/cases/`` (out of ``app/`` on
+    ★The corpus is REPO DATA at ``cases/`` (out of ``app/`` on
     2026-08-26, under ``docs/`` on 2026-09-01) — it does not ship with the
     wheel, the same way the machine decks do not.  So the search is: an
     explicit ``--dir``, the working directory, then the checkout this module

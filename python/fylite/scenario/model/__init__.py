@@ -250,17 +250,46 @@ def zerod(scn: Scenario | None = None, *, time=None, n_rho: int = 41,
 #: default" quietly becomes two different demos: change the peaking in one
 #: and the two tools stop describing the same case while both still run.
 #: They are DEFAULTS, not physics: a Gaussian deposition and a parabolic
-#: initial profile, standing in until a caller supplies its own.  That is why
-#: they live here rather than in the kernel — the kernel hosts the transport
-#: SOLVE, and these are the arguments a demo passes it.
+#: initial profile, standing in until a caller supplies its own.
+#:
+#: ★★2026-09-02：**参数是这一层的，形状是内核的。**  The parabola used to be
+#: spelled here as ``edge + 2(1-x²)`` — and the kernel has held that family
+#: all along (:func:`fylite.kernel.zerod_profile`, ``(1-ρ²)^peaking`` with a
+#: finite edge), evaluated by the browser through the same entry.  Two
+#: spellings of one closed form is the shape this package exists to avoid,
+#: so this now CALLS it: the reparameterisation is ``edge_frac = edge/centre``
+#: and the two agree to 8.9e-16 across peaking, inverted (edge > centre) and
+#: flat cases.  What stays here is the CHOICE of centre and peaking, which is
+#: what a demo default is.
 def _default_source(x, power: float, width: float):
-    """Gaussian deposition ``P exp(-(x/w)^2)`` — a placeholder input."""
+    """Gaussian deposition ``P exp(-(x/w)^2)`` — a placeholder input.
+
+    ★Still spelled here: the kernel has no general Gaussian deposition entry
+    (``lh_shape`` / ``beam_deposit`` are the physical depositions, not this
+    placeholder).  It is a stand-in source, not a model.
+    """
     return power * np.exp(-(x / width) ** 2)
+
+
+def _shape(x, *, centre: float, edge: float, peaking: float):
+    """``edge + (centre - edge)(1 - x²)^peaking`` — the kernel's family.
+
+    ★``centre == edge`` is flat and needs no scaling; ``centre == 0`` has no
+    ``edge_frac`` to give, so it is answered directly rather than by dividing
+    by zero.  Both are the same number the closed form gives.
+    """
+    centre, edge = float(centre), float(edge)
+    if centre == 0.0:
+        return np.full(np.asarray(x, float).shape, edge, float) \
+            if edge == 0.0 else edge * (1.0 - np.maximum(
+                1.0 - np.asarray(x, float) ** 2, 0.0) ** float(peaking))
+    return K.zerod_profile(x, centre, peaking=float(peaking),
+                           edge_frac=edge / centre)
 
 
 def _default_profile(x, edge_value: float):
     """Parabolic start ``edge + 2(1 - x^2)`` — a placeholder initial state."""
-    return edge_value + 2.0 * (1.0 - x ** 2)
+    return _shape(x, centre=edge_value + 2.0, edge=edge_value, peaking=1.0)
 
 
 
@@ -485,11 +514,12 @@ def _evolve_on_a_ladder(equilibrium, *, n_surfaces, edge_psin, b0, n_rho,
     #: reference-profile start (`useref`), which is its own row in the
     #: ledger and stays refused until it has one.
     x = rho / rho[-1] if rho[-1] > 0 else rho
-    shape_t = np.maximum(1.0 - x ** 2, 0.0) ** peaking_t
-    shape_n = np.maximum(1.0 - x ** 2, 0.0) ** peaking_n
-    te = edge_te + (te_axis - edge_te) * shape_t
-    ti = edge_ti + (ti_axis - edge_ti) * shape_t
-    ne = edge_ne + (ne_axis - edge_ne) * shape_n
+    #: ★the shape comes from the kernel (`zerod_profile`), not from a second
+    #: spelling here — see `_shape`.  The peaking and the two end values are
+    #: the scenario's; the family is not.
+    te = _shape(x, centre=te_axis, edge=edge_te, peaking=peaking_t)
+    ti = _shape(x, centre=ti_axis, edge=edge_ti, peaking=peaking_t)
+    ne = _shape(x, centre=ne_axis, edge=edge_ne, peaking=peaking_n)
     ref_used = ()
     if reference is not None:
         te, ti, ne, ref_used = _start_from_reference(reference, rho, te, ti,

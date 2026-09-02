@@ -1,0 +1,282 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="fylite 桌面版共享 header toolbar 概念图与四页首屏实测">
+<title>fylite 桌面版 — 共享 header toolbar</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<rect x="0.0" y="0.0" width="1600.0" height="84.0" class="strip"/>
+<line x1="0.0" y1="84.0" x2="1600.0" y2="84.0" class="strip-edge"/>
+<rect x="18.0" y="6.0" width="28.0" height="28.0" rx="6" class="mark"/>
+<text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
+<text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">物理建模 / 预测</text>
+<text x="207.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">1.5D 输运 · 含时演化（两条功能栏，各有计算键）</text>
+<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
+<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<circle cx="1568.0" cy="20.0" r="7" class="navg"/>
+<path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>
+<line x1="1542.0" y1="11.0" x2="1542.0" y2="29.0" class="sep"/>
+<rect x="1510.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1517.0 13.0v14M1517.0 13.0h5M1517.0 20.0h5M1517.0 27.0h5" class="navg"/>
+<circle cx="1528.0" cy="13.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="20.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="27.0" r="1.9" class="navgf"/>
+<rect x="1478.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1484.0 24.0Q1492.0 11.0 1500.0 22.0" class="navg"/>
+<circle cx="1487.0" cy="21.0" r="1.6" class="navgf"/>
+<circle cx="1492.0" cy="16.0" r="1.6" class="navgf"/>
+<circle cx="1497.0" cy="20.0" r="1.6" class="navgf"/>
+<rect x="1446.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic-on"/>
+<path d="M1452.0 14.0C1458.0 14.0 1460.0 26.0 1468.0 26.0" class="navg-on"/>
+<rect x="1414.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1420.0 25.0L1425.0 15.0L1431.0 15.0L1436.0 25.0" class="navg"/>
+<line x1="0.0" y1="40.0" x2="1600.0" y2="40.0" class="strip-inner"/>
+<text x="18.0" y="66.0" class="mut" font-size="12" text-anchor="start">装置</text>
+<rect x="52.0" y="48.0" width="200.0" height="26.0" rx="5" class="input"/>
+<text x="61.0" y="65.4" class="lbl" font-size="12" text-anchor="start">EAST</text>
+<path d="M234.0 59.0l4 5 4-5" class="caret"/>
+<rect x="260.0" y="48.0" width="26.0" height="26.0" rx="5" class="btn"/>
+<text x="273.0" y="65.3" class="mut" font-size="12" text-anchor="middle">×</text>
+<rect x="298.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="329.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导入</text>
+<rect x="368.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="399.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导出</text>
+<circle cx="454.0" cy="61.0" r="4.5" class="dot-busy"/>
+<text x="466.0" y="65.0" class="mut" font-size="12" text-anchor="start">含时演化 · 第 23/60 步 · 约 7 s</text>
+<rect x="1464.0" y="48.0" width="118.0" height="26.0" rx="5" class="btn-a"/>
+<text x="1523.0" y="65.0" class="btn-at" font-size="12" text-anchor="middle">交给反演场景</text>
+<rect x="0.0" y="81.0" width="1600.0" height="3.0" class="prog-bg"/>
+<rect x="0.0" y="81.0" width="608.0" height="3.0" class="prog"/>
+<path d="M78.0 85.0L78.0 89.0" class="brace"/>
+<circle cx="78.0" cy="98.0" r="8.5" class="badge"/>
+<text x="78.0" y="102.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">1</text>
+<path d="M800.0 85.0L800.0 89.0" class="brace"/>
+<circle cx="800.0" cy="98.0" r="8.5" class="badge"/>
+<text x="800.0" y="102.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">2</text>
+<path d="M1500.0 85.0L1500.0 89.0" class="brace"/>
+<circle cx="1500.0" cy="98.0" r="8.5" class="badge"/>
+<text x="1500.0" y="102.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">3</text>
+<path d="M200.0 85.0L200.0 89.0" class="brace"/>
+<circle cx="200.0" cy="98.0" r="8.5" class="badge"/>
+<text x="200.0" y="102.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">4</text>
+<path d="M560.0 85.0L560.0 89.0" class="brace"/>
+<circle cx="560.0" cy="98.0" r="8.5" class="badge"/>
+<text x="560.0" y="102.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">5</text>
+<path d="M1523.0 85.0L1290.0 89.0" class="brace"/>
+<circle cx="1290.0" cy="98.0" r="8.5" class="badge"/>
+<text x="1290.0" y="102.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">6</text>
+<text x="26.0" y="132.0" class="lbl" font-size="14" text-anchor="start" font-weight="700">两行 · 84 px · 常驻（sticky）</text>
+<text x="202.0" y="132.0" class="mut" font-size="12.5" text-anchor="start">—— ①②③ 取自静态登记表，④⑤⑥ 取自这一页的运行时；外壳只读，改变状态的控件留在页体（V-12）</text>
+<circle cx="36.0" cy="156.0" r="8.5" class="badge"/>
+<text x="36.0" y="160.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">1</text>
+<text x="54.0" y="160.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">身份</text>
+<text x="116.0" y="160.0" class="mut" font-size="12" text-anchor="start">标记 · 页名 · 副标题 —— 逐页不同，但由那一张页面表给出</text>
+<circle cx="36.0" cy="182.0" r="8.5" class="badge"/>
+<text x="36.0" y="186.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">2</text>
+<text x="54.0" y="186.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">警示</text>
+<text x="116.0" y="186.0" class="mut" font-size="12" text-anchor="start">仅限内部测试。保住显著性，交回它占着的 500 px 空白</text>
+<circle cx="36.0" cy="208.0" r="8.5" class="badge"/>
+<text x="36.0" y="212.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">3</text>
+<text x="54.0" y="212.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">去处</text>
+<text x="116.0" y="212.0" class="mut" font-size="12" text-anchor="start">四页图标 · 主题三态 —— 顺序即两张表的顺序，不重排</text>
+<circle cx="816.0" cy="156.0" r="8.5" class="badge"/>
+<text x="816.0" y="160.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">4</text>
+<text x="834.0" y="160.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">★输入</text>
+<text x="896.0" y="160.0" class="mut" font-size="12" text-anchor="start">装置（数据页是 mdsip 数据源）· 导入 / 导出</text>
+<circle cx="816.0" cy="182.0" r="8.5" class="badge"/>
+<text x="816.0" y="186.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">5</text>
+<text x="834.0" y="186.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">★运行态</text>
+<text x="896.0" y="186.0" class="mut" font-size="12" text-anchor="start">哪一条栏在跑 · 第几步 · 还要多久 —— 只报告，不操作</text>
+<circle cx="816.0" cy="208.0" r="8.5" class="badge"/>
+<text x="816.0" y="212.0" class="badget" font-size="10.5" text-anchor="middle" font-weight="700">6</text>
+<text x="834.0" y="212.0" class="lbl" font-size="12.5" text-anchor="start" font-weight="700">★出口</text>
+<text x="896.0" y="212.0" class="mut" font-size="12" text-anchor="start">交给另一个场景。这一页没有出口时不留空格</text>
+<text x="26.0" y="242.0" class="lbl" font-size="14" text-anchor="start" font-weight="700">为什么要常驻：今天没有一样东西是常驻的</text>
+<text x="356.0" y="242.0" class="mut" font-size="12.5" text-anchor="start">（实测 1600 × 900，2026-09-01；页眉与工具条都是 position: static）</text>
+<rect x="134.0" y="286.0" width="300.0" height="500.0" class="bar-rest"/>
+<rect x="134.0" y="286.0" width="300.0" height="300.0" class="bar-seen"/>
+<rect x="134.0" y="286.0" width="300.0" height="500.0" class="bar-edge"/>
+<text x="284.0" y="274.0" class="lbl" font-size="13" text-anchor="middle" font-weight="700">装置数据</text>
+<path d="M134.0 786.0l50.0 -7l100.0 14l100.0 -14l50.0 7" class="brk"/>
+<rect x="134.0" y="798.0" width="300.0" height="26.0" class="bar-rest"/>
+<rect x="134.0" y="798.0" width="300.0" height="26.0" class="bar-edge"/>
+<text x="284.0" y="815.0" class="mut" font-size="11" text-anchor="middle">…到 3844 px（还有 2344 px）</text>
+<line x1="134.0" y1="307.7" x2="434.0" y2="307.7" class="tick"/>
+<text x="141.0" y="321.7" class="mut" font-size="11" text-anchor="start">页眉 65 —— 随页滚走</text>
+<text x="141.0" y="436.0" class="bad-t" font-size="11" text-anchor="start">没有工具条 —— 这一页从来没有过一条，</text>
+<text x="141.0" y="451.0" class="bad-t" font-size="11" text-anchor="start">它的「装置」是左栏里的一个面板</text>
+<text x="141.0" y="764.0" class="bad-t" font-size="11" text-anchor="start">整整 1500 px 内没有一处输出</text>
+<line x1="124.0" y1="586.0" x2="444.0" y2="586.0" class="fold"/>
+<text x="284.0" y="577.0" class="bad-t" font-size="12.5" text-anchor="middle" font-weight="700">首屏无输出</text>
+<rect x="478.0" y="286.0" width="300.0" height="500.0" class="bar-rest"/>
+<rect x="478.0" y="286.0" width="300.0" height="300.0" class="bar-seen"/>
+<rect x="478.0" y="286.0" width="300.0" height="500.0" class="bar-edge"/>
+<text x="628.0" y="274.0" class="lbl" font-size="13" text-anchor="middle" font-weight="700">放电设计</text>
+<path d="M478.0 786.0l50.0 -7l100.0 14l100.0 -14l50.0 7" class="brk"/>
+<rect x="478.0" y="798.0" width="300.0" height="26.0" class="bar-rest"/>
+<rect x="478.0" y="798.0" width="300.0" height="26.0" class="bar-edge"/>
+<text x="628.0" y="815.0" class="mut" font-size="11" text-anchor="middle">…到 2212 px（还有 712 px）</text>
+<line x1="478.0" y1="307.7" x2="778.0" y2="307.7" class="tick"/>
+<text x="485.0" y="321.7" class="mut" font-size="11" text-anchor="start">页眉 65 —— 随页滚走</text>
+<line x1="478.0" y1="414.7" x2="778.0" y2="414.7" class="tick"/>
+<text x="485.0" y="428.7" class="mut" font-size="11" text-anchor="start">工具条 386 —— 随页滚走</text>
+<line x1="478.0" y1="707.7" x2="778.0" y2="707.7" class="tick"/>
+<text x="485.0" y="721.7" class="mut" font-size="11" text-anchor="start">首条功能栏 1265</text>
+<text x="485.0" y="764.0" class="bad-t" font-size="11" text-anchor="start">整整 1500 px 内没有一处输出</text>
+<line x1="468.0" y1="586.0" x2="788.0" y2="586.0" class="fold"/>
+<text x="628.0" y="577.0" class="bad-t" font-size="12.5" text-anchor="middle" font-weight="700">首屏无输出</text>
+<rect x="822.0" y="286.0" width="300.0" height="500.0" class="bar-rest"/>
+<rect x="822.0" y="286.0" width="300.0" height="300.0" class="bar-seen"/>
+<rect x="822.0" y="286.0" width="300.0" height="500.0" class="bar-edge"/>
+<text x="972.0" y="274.0" class="lbl" font-size="13" text-anchor="middle" font-weight="700">物理建模</text>
+<path d="M822.0 786.0l50.0 -7l100.0 14l100.0 -14l50.0 7" class="brk"/>
+<rect x="822.0" y="798.0" width="300.0" height="26.0" class="bar-rest"/>
+<rect x="822.0" y="798.0" width="300.0" height="26.0" class="bar-edge"/>
+<text x="972.0" y="815.0" class="mut" font-size="11" text-anchor="middle">…到 6364 px（还有 4864 px）</text>
+<line x1="822.0" y1="307.7" x2="1122.0" y2="307.7" class="tick"/>
+<text x="829.0" y="321.7" class="mut" font-size="11" text-anchor="start">页眉 65 —— 随页滚走</text>
+<line x1="822.0" y1="378.3" x2="1122.0" y2="378.3" class="tick"/>
+<text x="829.0" y="392.3" class="mut" font-size="11" text-anchor="start">工具条 277 —— 随页滚走</text>
+<line x1="822.0" y1="609.7" x2="1122.0" y2="609.7" class="tick"/>
+<text x="829.0" y="623.7" class="mut" font-size="11" text-anchor="start">首条功能栏 971</text>
+<line x1="822.0" y1="728.3" x2="1122.0" y2="728.3" class="tick"/>
+<text x="829.0" y="742.3" class="bad-t" font-size="11" text-anchor="start">首处输出 1327</text>
+<line x1="812.0" y1="586.0" x2="1132.0" y2="586.0" class="fold"/>
+<text x="972.0" y="577.0" class="bad-t" font-size="12.5" text-anchor="middle" font-weight="700">首屏无输出</text>
+<rect x="1166.0" y="286.0" width="300.0" height="500.0" class="bar-rest"/>
+<rect x="1166.0" y="286.0" width="300.0" height="300.0" class="bar-seen"/>
+<rect x="1166.0" y="286.0" width="300.0" height="500.0" class="bar-edge"/>
+<text x="1316.0" y="274.0" class="lbl" font-size="13" text-anchor="middle" font-weight="700">实验分析</text>
+<path d="M1166.0 786.0l50.0 -7l100.0 14l100.0 -14l50.0 7" class="brk"/>
+<rect x="1166.0" y="798.0" width="300.0" height="26.0" class="bar-rest"/>
+<rect x="1166.0" y="798.0" width="300.0" height="26.0" class="bar-edge"/>
+<text x="1316.0" y="815.0" class="mut" font-size="11" text-anchor="middle">…到 6202 px（还有 4702 px）</text>
+<line x1="1166.0" y1="307.7" x2="1466.0" y2="307.7" class="tick"/>
+<text x="1173.0" y="321.7" class="mut" font-size="11" text-anchor="start">页眉 65 —— 随页滚走</text>
+<line x1="1166.0" y1="378.3" x2="1466.0" y2="378.3" class="tick"/>
+<text x="1173.0" y="392.3" class="mut" font-size="11" text-anchor="start">工具条 277 —— 随页滚走</text>
+<line x1="1166.0" y1="423.3" x2="1466.0" y2="423.3" class="tick"/>
+<text x="1173.0" y="437.3" class="mut" font-size="11" text-anchor="start">首条功能栏 412</text>
+<line x1="1166.0" y1="470.3" x2="1466.0" y2="470.3" class="tick"/>
+<text x="1173.0" y="484.3" class="ok-t" font-size="11" text-anchor="start">首处输出 553</text>
+<line x1="1156.0" y1="586.0" x2="1476.0" y2="586.0" class="fold"/>
+<text x="1316.0" y="577.0" class="ok-t" font-size="12.5" text-anchor="middle" font-weight="700">首屏有输出</text>
+<text x="120.0" y="590.0" class="fold-t" font-size="11.5" text-anchor="end">16:9 首屏 900 px</text>
+<text x="120.0" y="290.0" class="mut" font-size="11" text-anchor="end">0</text>
+<text x="120.0" y="790.0" class="mut" font-size="11" text-anchor="end">1500</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图：上半那条工具条是 V-11 主张的形状，尚未落地；下半四条是实测页高与偏移，纵轴 0–1500 px 按比例、其余截断（V-13 的判据）。生成物 —— tools/make-desktop-preview.py</text>
+</svg>

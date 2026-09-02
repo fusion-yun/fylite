@@ -1,0 +1,418 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1262" width="1240" height="1262" role="img" aria-label="fylite 装置数据页界面概念图">
+<!-- ★这一格画的是「填了个服务器地址」的样子，写 `mds.invalid`：
+     真地址是运行方内网上的一台机器，不进公开仓（与 `_manifest/
+     east_mdsplus.jsonld`、`desktop-data.svg` 同一条政策）。 -->
+<title>fylite 装置数据页 — 界面概念图</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --bad:#c0392b; --ok:#10897a;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); }
+.head-t { fill:var(--fg); }
+.title { fill:var(--fg); }
+.lbl { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.sep { stroke:var(--line); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:1; }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.input { fill:none; stroke:var(--grid); stroke-width:1; }
+.chip { fill:none; stroke:var(--grid); stroke-width:1; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chipt { fill:var(--muted); }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.call { fill:var(--accent); }
+.callt { fill:#ffffff; font-weight:600; }
+.badge { fill:none; stroke:var(--grid); }
+.badge-ok { fill:none; stroke:var(--ok); }
+.badget { fill:var(--muted); }
+.stale { fill:none; stroke:var(--warn); stroke-width:1.2; stroke-dasharray:4 3; }
+.stalet { fill:var(--warn); }
+.stale-line { stroke:var(--warn); stroke-width:2; stroke-dasharray:4 3; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axis { fill:var(--lcfs); stroke:none; }
+.playhead { stroke:var(--accent); stroke-width:1.2; stroke-dasharray:3 3; }
+.ph0 { fill:var(--accent); opacity:.10; }
+.ph1 { fill:var(--alt); opacity:.12; }
+.ph2 { fill:var(--warn); opacity:.10; }
+.pht { fill:var(--muted); }
+.rowsel { fill:var(--sel); }
+.rowbad { fill:var(--bad); opacity:.10; }
+.rowunk { fill:var(--warn); opacity:.10; }
+.bad-t { fill:var(--bad); } .ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.none { fill:none; stroke:none; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.5;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.7;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.btn-accent { fill:none; stroke:var(--accent); stroke-width:1.1; }
+.acc-t { fill:var(--accent); }
+.dot-run { fill:var(--ok); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.limband { fill:var(--alt); opacity:.07; }
+.tick { stroke:var(--accent); stroke-width:2; }
+.tick-i { stroke:var(--muted); stroke-width:2; stroke-dasharray:2 2; }
+.tick-now { stroke:var(--lcfs); stroke-width:2.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.ip { stroke:var(--accent); stroke-width:2; }
+.flux2 { stroke:var(--warn); stroke-width:1.4; stroke-dasharray:5 3; }
+.ne { stroke:var(--alt); stroke-width:1.8; }
+.gw { stroke:var(--muted); stroke-width:1.2; stroke-dasharray:4 3; }
+.heat { stroke:var(--lcfs); stroke-width:1.8; }
+.pohm { stroke:var(--accent); stroke-width:1.4; }
+.prad { stroke:var(--muted); stroke-width:1.4; }
+.q95 { stroke:var(--accent); stroke-width:1.6; }
+.bn { stroke:var(--lcfs); stroke-width:1.6; }
+.li { stroke:var(--alt); stroke-width:1.4; stroke-dasharray:4 3; }
+.prof { stroke:var(--accent); stroke-width:1.8; }
+.prof2 { stroke:var(--lcfs); stroke-width:1.4; stroke-dasharray:4 3; }
+.flux { stroke:var(--flux); stroke-width:1; }
+.lcfs { stroke:var(--lcfs); stroke-width:2; }
+.lcfs-target { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:5 4; }
+.vessel { fill:none; stroke:var(--wall); stroke-width:1.6; }
+.limiter { fill:none; stroke:var(--wall); stroke-width:1; stroke-dasharray:3 3; }
+.coil { fill:var(--coil); opacity:.35; stroke:var(--coil); }
+.coil-hot { fill:var(--coil); opacity:.85; stroke:var(--coil); }
+.xpt { stroke:var(--lcfs); stroke-width:1.6; }
+.c1 { stroke:var(--accent); stroke-width:1.5; }
+.c2 { stroke:var(--lcfs); stroke-width:1.5; }
+.c3 { stroke:var(--alt); stroke-width:1.5; }
+.c4 { stroke:var(--coil); stroke-width:1.5; }
+.c5 { stroke:var(--warn); stroke-width:1.8; }
+.ghost { stroke:var(--muted); stroke-width:1.2; stroke-dasharray:3 3; opacity:.8; }
+.reg-ff { stroke:var(--muted); stroke-width:1.4; }
+.reg-fb { stroke:var(--alt); stroke-width:2; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.trackon { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.trail1 { stroke:var(--accent); stroke-width:1.2; opacity:.42; }
+.trail2 { stroke:var(--accent); stroke-width:1.2; opacity:.20; }
+.wth { stroke:var(--warn); stroke-width:1.5; }
+.future { fill:var(--grid); opacity:.28; }
+.future-l { stroke:var(--grid); stroke-width:5; }
+.nowedge { stroke:var(--lcfs); stroke-width:2; }
+.sliderline { stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.seg { fill:none; stroke:var(--grid); stroke-width:1; }
+.seg-on { fill:var(--sel); stroke:var(--accent); stroke-width:1.4; }
+.tag { fill:none; stroke:var(--grid); stroke-width:1; }
+.tagt { fill:var(--muted); }
+.card-back { fill:none; stroke:var(--grid); stroke-width:1; stroke-dasharray:3 3; }
+.card-front { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.runsw { fill:var(--ok); opacity:.85; }
+.runt { fill:#ffffff; }
+.runknob { fill:#ffffff; stroke:var(--ok); stroke-width:1.6; }
+.ph-on { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.ph-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.ip-open { stroke:var(--accent); stroke-width:1.6; stroke-dasharray:5 4; opacity:.7; }
+.target { stroke:var(--muted); stroke-width:1.3; stroke-dasharray:5 3; }
+</style>
+<rect x="0.0" y="0.0" width="1240.0" height="1262.0" rx="0" class="bg"/>
+<rect x="16.0" y="16.0" width="1208.0" height="40.0" rx="6" class="head"/>
+<text x="30.0" y="42.0" class="head-t" font-size="15" text-anchor="start" font-weight="600">fylite · 装置数据 (Device Data)</text>
+<rect x="356.0" y="27.0" width="134.0" height="18.0" rx="9" class="chip"/>
+<text x="423.0" y="39.5" class="chipt" font-size="10" text-anchor="middle">网关：127.0.0.1:8100 ▾</text>
+<rect x="498.0" y="27.0" width="69.0" height="18.0" rx="9" class="chip"/>
+<text x="532.5" y="39.5" class="chipt" font-size="10" text-anchor="middle">树：east ▾</text>
+<rect x="575.0" y="27.0" width="79.0" height="18.0" rx="9" class="chip"/>
+<text x="614.5" y="39.5" class="chipt" font-size="10" text-anchor="middle">炮号：137985</text>
+<rect x="971.9" y="26.0" width="240.1" height="20.0" rx="10" class="badge-ok"/>
+<text x="1092.0" y="40.0" class="ok-t" font-size="10.5" text-anchor="middle">只读 · 无内核 · 无 worker · 不留存样点</text>
+<rect x="16.0" y="68.0" width="400.0" height="184.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="83.0" r="9" class="call"/>
+<text x="33.0" y="86.5" class="callt" font-size="11" text-anchor="middle">1</text>
+<text x="47.0" y="87.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">数据网关</text>
+<rect x="309.0" y="75.0" width="97.0" height="17.0" rx="8" class="badge-ok"/>
+<text x="357.5" y="87.5" class="badget" font-size="10" text-anchor="middle">只读 · 六个端点</text>
+<line x1="26.0" y1="97.0" x2="406.0" y2="97.0" class="sep"/>
+<text x="30.0" y="117.0" class="mut" font-size="9.5" text-anchor="start">mdsip 服务器</text>
+<rect x="30.0" y="121.0" width="300.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="134.5" class="lbl" font-size="10.5" text-anchor="start">mds.invalid:8000</text>
+<rect x="338.0" y="121.0" width="64.0" height="19.0" rx="4" class="btn"/>
+<text x="370.0" y="134.5" class="lbl" font-size="10" text-anchor="middle">切过去</text>
+<rect x="30.0" y="155.0" width="372.0" height="20.0" rx="6" class="badge-ok"/>
+<text x="38.0" y="169.0" class="ok-t" font-size="9.4" text-anchor="start">网关在：127.0.0.1:8100 · 上限 20 000 点 / 次</text>
+<rect x="30.0" y="183.0" width="372.0" height="20.0" rx="6" class="stale"/>
+<text x="38.0" y="197.0" class="stalet" font-size="9.4" text-anchor="start">没有网关。这一页当作静态文件打开时不会有数据。</text>
+<text x="30.0" y="222.0" class="mut" font-size="9" text-anchor="start">★没有网关时页面印出启动它的那条命令，而不是画一条空曲线——</text>
+<text x="30.0" y="234.5" class="mut" font-size="9" text-anchor="start">  失败方式教给读者的东西，和成功方式一样多（P-10）。</text>
+<rect x="16.0" y="260.0" width="400.0" height="150.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="275.0" r="9" class="call"/>
+<text x="33.0" y="278.5" class="callt" font-size="11" text-anchor="middle">2</text>
+<text x="47.0" y="279.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">树与炮号</text>
+<line x1="26.0" y1="289.0" x2="406.0" y2="289.0" class="sep"/>
+<text x="30.0" y="309.0" class="mut" font-size="9.5" text-anchor="start">树</text>
+<rect x="30.0" y="313.0" width="120.0" height="19.0" rx="4" class="input"/>
+<text x="36.0" y="326.5" class="lbl" font-size="10.5" text-anchor="start">east ▾</text>
+<text x="156.0" y="309.0" class="mut" font-size="9.5" text-anchor="start">炮号</text>
+<rect x="156.0" y="313.0" width="120.0" height="19.0" rx="4" class="input"/>
+<text x="162.0" y="326.5" class="lbl" font-size="10.5" text-anchor="start">137985</text>
+<rect x="282.0" y="313.0" width="120.0" height="19.0" rx="4" class="chip-on"/>
+<text x="342.0" y="326.5" class="lbl" font-size="10" text-anchor="middle">打开</text>
+<rect x="30.0" y="343.0" width="44.2" height="18.0" rx="9" class="chip"/>
+<text x="52.1" y="355.5" class="chipt" font-size="9.4" text-anchor="middle">上一炮</text>
+<rect x="79.2" y="343.0" width="44.2" height="18.0" rx="9" class="chip"/>
+<text x="101.3" y="355.5" class="chipt" font-size="9.4" text-anchor="middle">下一炮</text>
+<rect x="128.4" y="343.0" width="34.8" height="18.0" rx="9" class="chip-on"/>
+<text x="145.8" y="355.5" class="chipt" font-size="9.4" text-anchor="middle">最新</text>
+<rect x="168.2" y="343.0" width="63.0" height="18.0" rx="9" class="chip"/>
+<text x="199.7" y="355.5" class="chipt" font-size="9.4" text-anchor="middle">叠加这一炮</text>
+<text x="30.0" y="380.0" class="mut" font-size="9" text-anchor="start">★「上一炮 / 下一炮」只走一格，不替你跳过没数的炮号；</text>
+<text x="30.0" y="392.5" class="mut" font-size="9" text-anchor="start">  「最新」是这一行里唯一要问服务器的一个（`current_shot`）。</text>
+<rect x="16.0" y="418.0" width="400.0" height="176.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="433.0" r="9" class="call"/>
+<text x="33.0" y="436.5" class="callt" font-size="11" text-anchor="middle">3</text>
+<text x="47.0" y="437.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">状态行（六格，各自报出处）</text>
+<line x1="26.0" y1="447.0" x2="406.0" y2="447.0" class="sep"/>
+<rect x="30.0" y="459.0" width="120.0" height="40.0" rx="4" class="input"/>
+<text x="36.0" y="473.0" class="mut" font-size="9" text-anchor="start">炮号</text>
+<text x="36.0" y="486.0" class="lbl" font-size="10.5" text-anchor="start">137985</text>
+<text x="36.0" y="496.0" class="mut" font-size="7.6" text-anchor="start">你给的</text>
+<rect x="156.0" y="459.0" width="120.0" height="40.0" rx="4" class="input"/>
+<text x="162.0" y="473.0" class="mut" font-size="9" text-anchor="start">I_p</text>
+<text x="162.0" y="486.0" class="lbl" font-size="10.5" text-anchor="start">398 kA</text>
+<text x="162.0" y="496.0" class="mut" font-size="7.6" text-anchor="start">\PCRL01 · Rogowski</text>
+<rect x="282.0" y="459.0" width="120.0" height="40.0" rx="4" class="input"/>
+<text x="288.0" y="473.0" class="mut" font-size="9" text-anchor="start">放电时长</text>
+<text x="288.0" y="486.0" class="lbl" font-size="10.5" text-anchor="start">6.1 s</text>
+<text x="288.0" y="496.0" class="mut" font-size="7.6" text-anchor="start">本页自己的规矩，非站点定义</text>
+<rect x="30.0" y="505.0" width="120.0" height="40.0" rx="4" class="input"/>
+<text x="36.0" y="519.0" class="mut" font-size="9" text-anchor="start">B_t</text>
+<text x="36.0" y="532.0" class="lbl" font-size="10.5" text-anchor="start">1.80 T</text>
+<text x="36.0" y="542.0" class="mut" font-size="7.6" text-anchor="start">\EFIT_EAST…:BCENTR</text>
+<rect x="156.0" y="505.0" width="120.0" height="40.0" rx="4" class="input"/>
+<text x="162.0" y="519.0" class="mut" font-size="9" text-anchor="start">I_t</text>
+<text x="162.0" y="532.0" class="lbl" font-size="10.5" text-anchor="start">8.6 kA</text>
+<text x="162.0" y="542.0" class="mut" font-size="7.6" text-anchor="start">\TOP.T2:TFP（不是 B_t）</text>
+<rect x="282.0" y="505.0" width="120.0" height="40.0" rx="4" class="input"/>
+<text x="288.0" y="519.0" class="mut" font-size="9" text-anchor="start">日期</text>
+<text x="288.0" y="532.0" class="lbl" font-size="10.5" text-anchor="start">2019-11-06</text>
+<text x="288.0" y="542.0" class="mut" font-size="7.6" text-anchor="start">TIME_INSERTED，记录写下的时刻</text>
+<text x="30.0" y="564.0" class="mut" font-size="9" text-anchor="start">★`\PCRL01` 是 Rogowski 读数，不等于等离子体电流：本仓在 #137985</text>
+<text x="30.0" y="576.5" class="mut" font-size="9" text-anchor="start">  平顶实测它与重构的 `cpasma` 差 1.9 %。先看它对，做等式约束错。</text>
+<rect x="16.0" y="602.0" width="400.0" height="140.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="617.0" r="9" class="call"/>
+<text x="33.0" y="620.5" class="callt" font-size="11" text-anchor="middle">4</text>
+<text x="47.0" y="621.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">关键零级量（每个自带它的树）</text>
+<line x1="26.0" y1="631.0" x2="406.0" y2="631.0" class="sep"/>
+<rect x="30.0" y="647.0" width="91.0" height="18.0" rx="9" class="chip"/>
+<text x="75.5" y="659.5" class="chipt" font-size="9.2" text-anchor="middle">I_p · pcs_east</text>
+<rect x="126.0" y="647.0" width="85.9" height="18.0" rx="9" class="chip"/>
+<text x="168.9" y="659.5" class="chipt" font-size="9.2" text-anchor="middle">V_loop · east</text>
+<rect x="216.9" y="647.0" width="80.9" height="18.0" rx="9" class="chip"/>
+<text x="257.3" y="659.5" class="chipt" font-size="9.2" text-anchor="middle">W_mhd · efit</text>
+<rect x="302.8" y="647.0" width="70.7" height="18.0" rx="9" class="chip"/>
+<text x="338.1" y="659.5" class="chipt" font-size="9.2" text-anchor="middle">n̄_e · pcs</text>
+<rect x="30.0" y="670.0" width="70.7" height="18.0" rx="9" class="chip"/>
+<text x="65.4" y="682.5" class="chipt" font-size="9.2" text-anchor="middle">β_p · efit</text>
+<rect x="105.7" y="670.0" width="70.7" height="18.0" rx="9" class="chip"/>
+<text x="141.1" y="682.5" class="chipt" font-size="9.2" text-anchor="middle">l_i · efit</text>
+<rect x="181.5" y="670.0" width="70.7" height="18.0" rx="9" class="chip"/>
+<text x="216.8" y="682.5" class="chipt" font-size="9.2" text-anchor="middle">q₉₅ · efit</text>
+<rect x="257.2" y="670.0" width="70.7" height="18.0" rx="9" class="chip"/>
+<text x="292.6" y="682.5" class="chipt" font-size="9.2" text-anchor="middle">B_t · efit</text>
+<rect x="30.0" y="693.0" width="70.7" height="18.0" rx="9" class="chip"/>
+<text x="65.4" y="705.5" class="chipt" font-size="9.2" text-anchor="middle">I_t · east</text>
+<text x="30.0" y="712.0" class="mut" font-size="9" text-anchor="start">★节点路径不说明它住在哪棵树上，而那个映射推不出来——`east` 对</text>
+<text x="30.0" y="724.5" class="mut" font-size="9" text-anchor="start">  `\PCRL01` 答 `%TREE-W-NNF`。所以每个量各自带着自己的树（P-18）。</text>
+<rect x="16.0" y="750.0" width="400.0" height="300.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="765.0" r="9" class="call"/>
+<text x="33.0" y="768.5" class="callt" font-size="11" text-anchor="middle">5</text>
+<text x="47.0" y="769.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">节点浏览 · 诊断目录</text>
+<rect x="324.5" y="757.0" width="81.5" height="17.0" rx="8" class="badge"/>
+<text x="365.2" y="769.5" class="badget" font-size="10" text-anchor="middle">字节数≠取得到</text>
+<line x1="26.0" y1="779.0" x2="406.0" y2="779.0" class="sep"/>
+<text x="30.0" y="793.0" class="mut" font-size="9.5" text-anchor="start">\EAST::TOP  ›  MAGNETICS  ›  </text>
+<text x="30.0" y="811.0" class="mut" font-size="9.3" text-anchor="start">节点</text>
+<text x="226.0" y="811.0" class="mut" font-size="9.3" text-anchor="start">用途</text>
+<text x="316.0" y="811.0" class="mut" font-size="9.3" text-anchor="start">字节数</text>
+<text x="30.0" y="835.0" class="lbl" font-size="9.3" text-anchor="start">MP01</text>
+<text x="226.0" y="835.0" class="lbl" font-size="9.3" text-anchor="start">signal</text>
+<text x="316.0" y="835.0" class="lbl" font-size="9.3" text-anchor="start">48 kB</text>
+<text x="30.0" y="853.0" class="lbl" font-size="9.3" text-anchor="start">MP02</text>
+<text x="226.0" y="853.0" class="lbl" font-size="9.3" text-anchor="start">signal</text>
+<text x="316.0" y="853.0" class="lbl" font-size="9.3" text-anchor="start">48 kB</text>
+<rect x="20.0" y="859.0" width="392.0" height="16.0" rx="3" class="rowunk"/>
+<text x="30.0" y="871.0" class="lbl" font-size="9.3" text-anchor="start">MP03</text>
+<text x="226.0" y="871.0" class="lbl" font-size="9.3" text-anchor="start">signal</text>
+<text x="316.0" y="871.0" class="warn-t" font-size="9.3" text-anchor="start">0</text>
+<text x="30.0" y="889.0" class="lbl" font-size="9.3" text-anchor="start">FLUX_LOOP</text>
+<text x="226.0" y="889.0" class="lbl" font-size="9.3" text-anchor="start">structure</text>
+<text x="316.0" y="889.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<rect x="20.0" y="895.0" width="392.0" height="16.0" rx="3" class="rowsel"/>
+<text x="30.0" y="907.0" class="lbl" font-size="9.3" text-anchor="start">PCRL01（标签，须直接给路径）</text>
+<text x="226.0" y="907.0" class="lbl" font-size="9.3" text-anchor="start">signal</text>
+<text x="316.0" y="907.0" class="lbl" font-size="9.3" text-anchor="start">62 kB</text>
+<text x="30.0" y="929.0" class="mut" font-size="9.4" text-anchor="start">诊断目录：73 项诊断 · 376 路信号（随包）</text>
+<text x="30.0" y="945.0" class="mut" font-size="9" text-anchor="start">★空节点是灰的，不是隐藏的：一个把另外 58 道藏起来的浏览器，</text>
+<text x="30.0" y="957.5" class="mut" font-size="9" text-anchor="start">  等于在回答「这台装置有 21 个探针」——那是假的，而且从页面上</text>
+<text x="30.0" y="970.0" class="mut" font-size="9" text-anchor="start">  证伪不了（#137985 存了 79 个磁探针里的 21 个）。</text>
+<text x="30.0" y="982.5" class="mut" font-size="9" text-anchor="start">★目录说某路信号在这台机器上存在，从不说这一炮记了它。</text>
+<text x="30.0" y="995.0" class="mut" font-size="9" text-anchor="start">★字节数为零的一定取不到；不为零的也未必取得到——真取不到时</text>
+<text x="30.0" y="1007.5" class="mut" font-size="9" text-anchor="start">  右边如实报错，不给一条空曲线。</text>
+<rect x="426.0" y="68.0" width="798.0" height="560.0" rx="6" class="panel"/>
+<circle cx="443.0" cy="83.0" r="9" class="call"/>
+<text x="443.0" y="86.5" class="callt" font-size="11" text-anchor="middle">6</text>
+<text x="457.0" y="87.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">信号时序</text>
+<rect x="1128.0" y="75.0" width="86.0" height="17.0" rx="8" class="badge"/>
+<text x="1171.0" y="87.5" class="badget" font-size="10" text-anchor="middle">抽稀，不是归约</text>
+<line x1="436.0" y1="97.0" x2="1214.0" y2="97.0" class="sep"/>
+<rect x="440.0" y="109.0" width="34.8" height="18.0" rx="9" class="chip-on"/>
+<text x="457.4" y="121.5" class="chipt" font-size="9.4" text-anchor="middle">取回</text>
+<rect x="479.8" y="109.0" width="73.3" height="18.0" rx="9" class="chip"/>
+<text x="516.5" y="121.5" class="chipt" font-size="9.4" text-anchor="middle">采样：自动 ▾</text>
+<rect x="558.1" y="109.0" width="59.7" height="18.0" rx="9" class="chip"/>
+<text x="588.0" y="121.5" class="chipt" font-size="9.4" text-anchor="middle">列数：2 ▾</text>
+<rect x="622.9" y="109.0" width="34.8" height="18.0" rx="9" class="chip"/>
+<text x="640.2" y="121.5" class="chipt" font-size="9.4" text-anchor="middle">整炮</text>
+<rect x="662.6" y="109.0" width="60.7" height="18.0" rx="9" class="chip"/>
+<text x="693.0" y="121.5" class="chipt" font-size="9.4" text-anchor="middle">导出 JSON</text>
+<rect x="440.0" y="143.0" width="381.0" height="182.0" rx="3" class="axes"/>
+<polyline points="440.0,325.0 444.2,306.9 448.5,288.9 452.7,270.8 456.9,252.7 461.2,234.6 465.4,216.6 469.6,198.5 473.9,180.4 478.1,162.4 482.3,162.4 486.6,162.4 490.8,162.4 495.0,162.4 499.3,162.4 503.5,162.4 507.7,162.4 512.0,162.4 516.2,162.4 520.4,162.4 524.7,162.4 528.9,162.4 533.1,162.4 537.4,162.4 541.6,162.4 545.8,162.4 550.1,162.4 554.3,162.4 558.5,162.4 562.8,162.4 567.0,162.4 571.2,162.4 575.5,162.4 579.7,162.4 583.9,162.4 588.2,162.4 592.4,162.4 596.6,162.4 600.9,162.4 605.1,162.4 609.3,162.4 613.6,162.4 617.8,162.4 622.0,162.4 626.3,162.4 630.5,162.4 634.7,162.4 639.0,162.4 643.2,162.4 647.4,162.4 651.7,162.4 655.9,162.4 660.1,162.4 664.4,162.4 668.6,162.4 672.8,162.4 677.1,162.4 681.3,162.4 685.5,162.4 689.8,162.4 694.0,162.4 698.2,162.4 702.5,162.4 706.7,162.4 710.9,162.4 715.2,162.4 719.4,162.4 723.6,162.4 727.9,162.4 732.1,162.4 736.3,162.4 740.6,162.4 744.8,162.4 749.0,171.4 753.3,180.4 757.5,189.5 761.7,198.5 766.0,207.5 770.2,216.6 774.4,225.6 778.7,234.6 782.9,243.7 787.1,252.7 791.4,261.8 795.6,270.8 799.8,279.8 804.1,288.9 808.3,297.9 812.5,306.9 816.8,316.0 821.0,325.0" class="ip"/>
+<circle cx="440.0" cy="325.0" r="1.8" class="handle"/>
+<circle cx="465.4" cy="216.6" r="1.8" class="handle"/>
+<circle cx="490.8" cy="162.4" r="1.8" class="handle"/>
+<circle cx="516.2" cy="162.4" r="1.8" class="handle"/>
+<circle cx="541.6" cy="162.4" r="1.8" class="handle"/>
+<circle cx="567.0" cy="162.4" r="1.8" class="handle"/>
+<circle cx="592.4" cy="162.4" r="1.8" class="handle"/>
+<circle cx="617.8" cy="162.4" r="1.8" class="handle"/>
+<circle cx="643.2" cy="162.4" r="1.8" class="handle"/>
+<circle cx="668.6" cy="162.4" r="1.8" class="handle"/>
+<circle cx="694.0" cy="162.4" r="1.8" class="handle"/>
+<circle cx="719.4" cy="162.4" r="1.8" class="handle"/>
+<circle cx="744.8" cy="162.4" r="1.8" class="handle"/>
+<circle cx="770.2" cy="216.6" r="1.8" class="handle"/>
+<circle cx="795.6" cy="270.8" r="1.8" class="handle"/>
+<circle cx="821.0" cy="325.0" r="1.8" class="handle"/>
+<text x="442.0" y="140.0" class="mut" font-size="9" text-anchor="start">\PCRL01 [kA]</text>
+<text x="442.0" y="337.0" class="mut" font-size="8.6" text-anchor="start">12 812 点 · 每 9 个取一个 · 画了 1 424 点</text>
+<rect x="829.0" y="143.0" width="381.0" height="182.0" rx="3" class="axes"/>
+<polyline points="829.0,325.0 833.2,282.0 837.5,239.1 841.7,196.1 845.9,174.9 850.2,186.3 854.4,197.8 858.6,209.3 862.9,220.7 867.1,232.2 871.3,232.8 875.6,233.3 879.8,233.9 884.0,234.5 888.3,235.0 892.5,235.6 896.7,236.2 901.0,236.8 905.2,237.3 909.4,237.9 913.7,238.5 917.9,239.1 922.1,239.6 926.4,240.2 930.6,240.8 934.8,241.3 939.1,241.9 943.3,242.5 947.5,243.1 951.8,243.6 956.0,244.2 960.2,244.8 964.5,245.4 968.7,245.9 972.9,246.5 977.2,247.1 981.4,247.7 985.6,248.2 989.9,248.8 994.1,249.4 998.3,249.9 1002.6,250.5 1006.8,251.1 1011.0,251.7 1015.3,252.2 1019.5,252.8 1023.7,253.4 1028.0,254.0 1032.2,254.5 1036.4,255.1 1040.7,255.7 1044.9,256.2 1049.1,256.8 1053.4,257.4 1057.6,258.0 1061.8,258.5 1066.1,259.1 1070.3,259.7 1074.5,260.3 1078.8,260.8 1083.0,261.4 1087.2,262.0 1091.5,262.5 1095.7,263.1 1099.9,263.7 1104.2,264.3 1108.4,264.8 1112.6,265.4 1116.9,266.0 1121.1,266.6 1125.3,267.1 1129.6,267.7 1133.8,268.3 1138.0,271.1 1142.3,274.0 1146.5,276.9 1150.7,279.7 1155.0,282.6 1159.2,285.5 1163.4,288.3 1167.7,291.2 1171.9,294.1 1176.1,296.9 1180.4,299.8 1184.6,302.7 1188.8,305.5 1193.1,308.4 1197.3,311.2 1201.5,314.1 1205.8,317.0 1210.0,319.8" class="prof"/>
+<text x="831.0" y="140.0" class="mut" font-size="9" text-anchor="start">\VP1 [V]</text>
+<text x="831.0" y="337.0" class="mut" font-size="8.6" text-anchor="start">12 812 点 · 每 9 个取一个</text>
+<rect x="440.0" y="369.0" width="381.0" height="182.0" rx="3" class="axes"/>
+<polyline points="440.0,551.0 444.2,539.5 448.5,528.1 452.7,516.6 456.9,505.2 461.2,493.7 465.4,482.2 469.6,470.8 473.9,459.3 478.1,447.9 482.3,446.5 486.6,445.2 490.8,443.8 495.0,442.5 499.3,441.1 503.5,439.8 507.7,438.4 512.0,437.1 516.2,435.7 520.4,434.4 524.7,433.0 528.9,431.7 533.1,430.3 537.4,429.7 541.6,429.7 545.8,429.7 550.1,429.7 554.3,429.7 558.5,429.7 562.8,429.7 567.0,429.7 571.2,429.7 575.5,429.7 579.7,429.7 583.9,429.7 588.2,429.7 592.4,429.7 596.6,429.7 600.9,429.7 605.1,429.7 609.3,429.7 613.6,429.7 617.8,429.7 622.0,429.7 626.3,429.7 630.5,429.7 634.7,429.7 639.0,429.7 643.2,429.7 647.4,429.7 651.7,429.7 655.9,429.7 660.1,429.7 664.4,429.7 668.6,429.7 672.8,429.7 677.1,429.7 681.3,429.7 685.5,429.7 689.8,429.7 694.0,429.7 698.2,429.7 702.5,429.7 706.7,429.7 710.9,429.7 715.2,429.7 719.4,429.7 723.6,429.7 727.9,429.7 732.1,429.7 736.3,429.7 740.6,429.7 744.8,429.7 749.0,435.4 753.3,441.1 757.5,446.9 761.7,452.6 766.0,458.3 770.2,464.0 774.4,469.8 778.7,475.5 782.9,481.2 787.1,487.0 791.4,492.7 795.6,498.4 799.8,504.2 804.1,509.9 808.3,515.6 812.5,521.3 816.8,527.1 821.0,532.8" class="ne"/>
+<text x="442.0" y="366.0" class="mut" font-size="9" text-anchor="start">\DFSDEV [10¹⁹ m⁻³]</text>
+<text x="442.0" y="563.0" class="mut" font-size="8.6" text-anchor="start">6 406 点 · 整炮，未抽稀</text>
+<rect x="829.0" y="369.0" width="381.0" height="182.0" rx="3" class="axes"/>
+<rect x="829.0" y="369.0" width="381.0" height="182.0" rx="3" class="rowbad"/>
+<text x="1019.5" y="460.0" class="bad-t" font-size="11" text-anchor="middle">取不到</text>
+<text x="831.0" y="366.0" class="mut" font-size="9" text-anchor="start">\WMHD [kJ]</text>
+<text x="831.0" y="563.0" class="bad-t" font-size="8.6" text-anchor="start">取不到：本炮该节点存的是一条引到别处的表达式</text>
+<text x="440.0" y="582.0" class="mut" font-size="9" text-anchor="start">★画出来的是每隔 N 个取一个样点，不是均值、不是 min/max 包络——</text>
+<text x="440.0" y="594.5" class="mut" font-size="9" text-anchor="start">  比步长更窄的尖峰不在这条曲线里。图注里的「抽稀」二字就是这个意思。</text>
+<text x="440.0" y="607.0" class="mut" font-size="9" text-anchor="start">★在图上拖出一个窗：点数几乎不变，步长塌下来——采样率跟着窗走，</text>
+<text x="440.0" y="619.5" class="mut" font-size="9" text-anchor="start">  不跟着整炮走；双击回到整炮。叠加的炮同窗重取，两炮共用一个步长。</text>
+<rect x="426.0" y="636.0" width="798.0" height="200.0" rx="6" class="panel"/>
+<circle cx="443.0" cy="651.0" r="9" class="call"/>
+<text x="443.0" y="654.5" class="callt" font-size="11" text-anchor="middle">7</text>
+<text x="457.0" y="655.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">读数</text>
+<line x1="436.0" y1="665.0" x2="1214.0" y2="665.0" class="sep"/>
+<text x="440.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">炮号</text>
+<text x="518.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">树</text>
+<text x="676.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">节点</text>
+<text x="756.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">单位</text>
+<text x="822.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">样点数</text>
+<text x="896.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">步长</text>
+<text x="971.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">最小 / 最大</text>
+<text x="1046.0" y="681.0" class="mut" font-size="9.3" text-anchor="start">时间跨度</text>
+<text x="440.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">137985</text>
+<text x="518.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">pcs_east</text>
+<text x="676.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">\PCRL01</text>
+<text x="756.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">kA</text>
+<text x="822.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">12 812</text>
+<text x="896.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">0.78 ms</text>
+<text x="971.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">−2 / 421</text>
+<text x="1046.0" y="705.0" class="lbl" font-size="9.3" text-anchor="start">0–10.0 s</text>
+<text x="440.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">137985</text>
+<text x="518.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">east</text>
+<text x="676.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">\VP1</text>
+<text x="756.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">V</text>
+<text x="822.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">12 812</text>
+<text x="896.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">0.78 ms</text>
+<text x="971.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">−0.4 / 5.8</text>
+<text x="1046.0" y="723.0" class="lbl" font-size="9.3" text-anchor="start">0–10.0 s</text>
+<rect x="430.0" y="729.0" width="790.0" height="16.0" rx="3" class="rowbad"/>
+<text x="440.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">137985</text>
+<text x="518.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">efit_east</text>
+<text x="676.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">\WMHD</text>
+<text x="756.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<text x="822.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<text x="896.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<text x="971.0" y="741.0" class="lbl" font-size="9.3" text-anchor="start">—</text>
+<text x="1046.0" y="741.0" class="bad-t" font-size="9.3" text-anchor="start">取不到</text>
+<text x="440.0" y="806.0" class="mut" font-size="9" text-anchor="start">★步长是这张表里最该看的一列：它是这条曲线的采样率，</text>
+<text x="440.0" y="818.5" class="mut" font-size="9" text-anchor="start">  也是「比它更窄的东西你在图上看不见」的那个数。</text>
+<rect x="426.0" y="844.0" width="259.3" height="192.0" rx="6" class="panel"/>
+<circle cx="443.0" cy="859.0" r="9" class="call"/>
+<text x="443.0" y="862.5" class="callt" font-size="11" text-anchor="middle">8</text>
+<text x="457.0" y="863.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">已选信号（上限 6 路）</text>
+<line x1="436.0" y1="873.0" x2="675.3" y2="873.0" class="sep"/>
+<line x1="440.0" y1="893.0" x2="456.0" y2="893.0" class="c1"/>
+<text x="462.0" y="896.5" class="lbl" font-size="9.6" text-anchor="start">\PCRL01</text>
+<line x1="440.0" y1="915.0" x2="456.0" y2="915.0" class="c2"/>
+<text x="462.0" y="918.5" class="lbl" font-size="9.6" text-anchor="start">\VP1</text>
+<line x1="440.0" y1="937.0" x2="456.0" y2="937.0" class="c3"/>
+<text x="462.0" y="940.5" class="lbl" font-size="9.6" text-anchor="start">\DFSDEV</text>
+<text x="440.0" y="1022.0" class="mut" font-size="9" text-anchor="start">全部去掉</text>
+<rect x="695.3" y="844.0" width="259.3" height="192.0" rx="6" class="panel"/>
+<text x="707.3" y="863.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">直接给节点路径</text>
+<line x1="705.3" y1="873.0" x2="944.7" y2="873.0" class="sep"/>
+<text x="709.3" y="892.0" class="mut" font-size="9.5" text-anchor="start">标签 / 路径</text>
+<rect x="709.3" y="896.0" width="183.3" height="19.0" rx="4" class="input"/>
+<text x="715.3" y="909.5" class="lbl" font-size="10.5" text-anchor="start">\PCRL01</text>
+<rect x="898.7" y="896.0" width="42.0" height="19.0" rx="4" class="btn"/>
+<text x="919.7" y="909.5" class="lbl" font-size="10" text-anchor="middle">加入</text>
+<text x="709.3" y="1002.0" class="mut" font-size="9" text-anchor="start">★标签不是任何节点的成员——</text>
+<text x="709.3" y="1014.5" class="mut" font-size="9" text-anchor="start">  一层层展开永远走不到它。</text>
+<rect x="964.7" y="844.0" width="259.3" height="192.0" rx="6" class="panel"/>
+<text x="976.7" y="863.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">工作区</text>
+<line x1="974.7" y1="873.0" x2="1214.0" y2="873.0" class="sep"/>
+<rect x="978.7" y="888.0" width="76.0" height="20.0" rx="4" class="btn"/>
+<text x="1016.7" y="902.0" class="lbl" font-size="10" text-anchor="middle">存工作区</text>
+<rect x="1062.7" y="888.0" width="76.0" height="20.0" rx="4" class="btn"/>
+<text x="1100.7" y="902.0" class="lbl" font-size="10" text-anchor="middle">读工作区</text>
+<text x="978.7" y="1002.0" class="mut" font-size="9" text-anchor="start">★存的是设定，不存样点——这一页不是数据仓库；</text>
+<text x="978.7" y="1014.5" class="mut" font-size="9" text-anchor="start">  存了样点的工作区就是一份没有出处的数据副本。</text>
+<rect x="16.0" y="1048.0" width="1208.0" height="180.0" rx="6" class="panel"/>
+<circle cx="33.0" cy="1063.0" r="9" class="call"/>
+<text x="33.0" y="1066.5" class="callt" font-size="11" text-anchor="middle">9</text>
+<text x="47.0" y="1067.0" class="title" font-size="12.5" text-anchor="start" font-weight="600">两个宿主，一组端点（页面是同一份）</text>
+<rect x="1118.0" y="1055.0" width="96.0" height="17.0" rx="8" class="badge"/>
+<text x="1166.0" y="1067.5" class="badget" font-size="10" text-anchor="middle">守卫两侧各做一遍</text>
+<line x1="26.0" y1="1077.0" x2="1214.0" y2="1077.0" class="sep"/>
+<rect x="30.0" y="1123.0" width="191.7" height="24.0" rx="6" class="chip"/>
+<text x="125.8" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/health</text>
+<rect x="227.7" y="1123.0" width="191.7" height="24.0" rx="6" class="chip"/>
+<text x="323.5" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/shot</text>
+<rect x="425.3" y="1123.0" width="191.7" height="24.0" rx="6" class="chip"/>
+<text x="521.2" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/tree</text>
+<rect x="623.0" y="1123.0" width="191.7" height="24.0" rx="6" class="chip"/>
+<text x="718.8" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/node</text>
+<rect x="820.7" y="1123.0" width="191.7" height="24.0" rx="6" class="chip-on"/>
+<text x="916.5" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/signal</text>
+<rect x="1018.3" y="1123.0" width="191.7" height="24.0" rx="6" class="chip"/>
+<text x="1114.2" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/measurements</text>
+<rect x="30.0" y="1089.0" width="587.0" height="26.0" rx="5" class="card-back"/>
+<text x="40.0" y="1099.0" class="lbl" font-size="9.8" text-anchor="start">单文件宿主 `rust/…/bin/app/api.rs`</text>
+<text x="40.0" y="1110.0" class="mut" font-size="8.4" text-anchor="start">fylite-app --mdsip 127.0.0.1:8000</text>
+<rect x="623.0" y="1089.0" width="587.0" height="26.0" rx="5" class="card-back"/>
+<text x="633.0" y="1099.0" class="lbl" font-size="9.8" text-anchor="start">离线回放 `app/tests/_mdsip-replay.mjs`</text>
+<text x="633.0" y="1110.0" class="mut" font-size="8.4" text-anchor="start">夹具 fixtures/mdsip-east.json（真机录的帧）</text>
+<line x1="323.5" y1="1115.0" x2="323.5" y2="1123.0" class="reg-fb"/>
+<line x1="916.5" y1="1115.0" x2="916.5" y2="1123.0" class="reg-fb"/>
+<text x="30.0" y="1159.0" class="mut" font-size="9" text-anchor="start">★没有取表达式的端点，因为没有取表达式的客户端方法——每个 TDI 串都由校验过的节点路径与整数拼出（FYL-DESIGN-06 §5）。</text>
+<text x="30.0" y="1171.5" class="mut" font-size="9" text-anchor="start">★树名、节点路径与整数在网关里检一遍、客户端里再检一遍；离开回环地址时先检来访地址，403 在第一个字节之前。</text>
+<text x="30.0" y="1184.0" class="mut" font-size="9" text-anchor="start">★没给 `--mdsip` 时 `/api/health` 照答，只是 `ok:false` 并带一句为什么——这比 404（面板凭空消失）教给读者的多。</text>
+<text x="18.0" y="1250.0" class="mut" font-size="9.5" text-anchor="start">概念图（非截图）：面板取自 app/pages/data.html 的实际分组；曲线为示意，样点数与步长为示例值。引用的实测数字见 FYL-DESIGN-10 正文。</text>
+</svg>

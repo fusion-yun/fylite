@@ -132,6 +132,28 @@ def _dynamics_maps(M, R, t, n_ch):
     return L
 
 
+def _march(M, R, x0, t, V, n_ch):
+    """State trajectory of the conductor set under channel voltages ``V``.
+
+    ★★**内核入口，不是这里再写一遍。**  ``kernel.evolve_circuits`` IS this
+    advance — same implicit Euler, same interval-END voltage sample — and
+    its own docstring records the failure this replaces: *"a caller that had
+    ψ_plasma looped over ``step_circuits`` in Python instead — the same
+    advance assembled a second way, with nothing comparing the two."*  This
+    file had that shape three times over (``M/dt + diag(R)`` factorised in
+    numpy at three call sites); the entry reproduces all three to 1.3e-15.
+
+    ``V`` is ``(n_t, n_ch)`` — only the channels are driven; the passive
+    conductors take zero voltage, which is what makes them passive.
+    """
+    n = M.shape[0]
+    v_full = np.zeros((len(t), n))
+    v_full[:, :n_ch] = np.asarray(V, float)
+    i0 = np.zeros(n)
+    i0[:n_ch] = np.asarray(x0, float)
+    return np.asarray(kernel.evolve_circuits(M, R, i0, t, v_full), float)
+
+
 def design_trajectory(measurements, time, targets: shape.ShapeTargets,
                       obs_ref, x0, *, device,
                       passive_groups=("inner_shell",), profile=None,
@@ -187,24 +209,14 @@ def design_trajectory(measurements, time, targets: shape.ShapeTargets,
     history, iters = [], []
     for _ in range(max(1, n_outer)):
         # linearize the shape map about the CURRENT design's mean state
-        state = np.zeros((n_t, n))
-        state[0, :n_ch] = x0
-        for k in range(1, n_t):
-            dt = t[k] - t[k - 1]
-            state[k] = np.linalg.solve(M / dt + np.diag(R),
-                                       M @ state[k - 1] / dt +
-                                       np.concatenate([V[k], np.zeros(n - n_ch)]))
+        state = _march(M, R, x0, t, V, n_ch)
         x_lin = state[:, :n_ch].mean(axis=0)
         resp = shape.shape_response(measurements, x_lin, targets, profile=profile,
                                     out=outdir, **run_kw)
         J = resp["J"]                                   # (n_obs, n_ch)
 
         # free response (V = 0) and the sensitivity of obs to vec(V)
-        free = np.zeros((n_t, n))
-        free[0, :n_ch] = x0
-        for k in range(1, n_t):
-            dt = t[k] - t[k - 1]
-            free[k] = np.linalg.solve(M / dt + np.diag(R), M @ free[k - 1] / dt)
+        free = _march(M, R, x0, t, np.zeros((n_t, n_ch)), n_ch)
         obs_free = resp["base"][None, :] + (free[:, :n_ch] - x_lin[None, :]) @ J.T
         S = np.einsum("oc,kcia->koia", J, L[:, :n_ch, :, :])   # (n_t,n_obs,n_t,n_ch)
 
@@ -235,19 +247,20 @@ def design_trajectory(measurements, time, targets: shape.ShapeTargets,
             sol, n_used = kernel.bounded_lstsq(A, b, -hi, hi)
             iters.append(n_used)
         else:
-            sol, *_ = np.linalg.lstsq(A, b, rcond=None)
+            #: ★同一个族的解法器：有界那一支已经走 `kernel.bounded_lstsq`，
+            #: 无界这一支从前落回 `np.linalg.lstsq`，于是同一个最小二乘在一个
+            #: 函数里有两套来源。`rcond` 取 numpy 自己的缺省口径
+            #: （`max(m, n) * eps`），所以换过来**答案不动**（实测同形系统
+            #: 7.2e-16），换来的是奇异值截断次数与条件数可见。
+            fit = kernel.svd_solve(A, b,
+                                   rcond=max(A.shape) * np.finfo(float).eps)
+            sol = fit["x"]
         V = sol.reshape(n_t, n_ch)
         resid = float(np.sqrt(np.mean((A_track @ sol - b_track) ** 2)))
         history.append(resid)
 
     # final predicted state trajectory
-    state = np.zeros((n_t, n))
-    state[0, :n_ch] = x0
-    for k in range(1, n_t):
-        dt = t[k] - t[k - 1]
-        state[k] = np.linalg.solve(M / dt + np.diag(R),
-                                   M @ state[k - 1] / dt +
-                                   np.concatenate([V[k], np.zeros(n - n_ch)]))
+    state = _march(M, R, x0, t, V, n_ch)
     imax = (np.asarray(i_max_aturn, float) if i_max_aturn is not None
             else lim["i_max_aturn"])
     vmax = (np.asarray(v_max_per_turn, float) if v_max_per_turn is not None
