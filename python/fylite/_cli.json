@@ -1,0 +1,403 @@
+{
+ "prog": "fylite",
+ "description": "Reconstruct one EAST equilibrium (65x65, Rust inverse) from a measurement document, the EAST MDSplus trees, or an in-memory measurement set; plus plotting, the capability catalog and the artifact manifests.",
+ "commands": [
+  {
+   "name": "run",
+   "help": "run one equilibrium reconstruction",
+   "handler": "fylite.engine.cli:_cli_run",
+   "exclusive": [
+    [
+     "--input",
+     "--east"
+    ]
+   ],
+   "args": [
+    {
+     "flags": [
+      "--input"
+     ],
+     "help": "measurement document: IMAS-shaped JSON/YAML or a JSON-LD normal form (needs --time)"
+    },
+    {
+     "flags": [
+      "--east"
+     ],
+     "action": "store_true",
+     "help": "GUI_v5 est2 path: read 79 probes straight from the 'east' MDSplus tree (self-contained, no fydata); implies --preset gui_v5"
+    },
+    {
+     "flags": [
+      "--server"
+     ],
+     "help": "MDSplus server host; default is the device deck's declared server"
+    },
+    {
+     "flags": [
+      "--shot"
+     ],
+     "type": "int",
+     "help": "shot number (with --time: the data source; with --input: stamped on the result)"
+    },
+    {
+     "flags": [
+      "--time"
+     ],
+     "type": "float",
+     "help": "time [s]"
+    },
+    {
+     "flags": [
+      "--out"
+     ],
+     "help": "directory for the g-file (default: a fresh run directory under $FYLITE_RUN_DIR, never the working directory)"
+    },
+    {
+     "flags": [
+      "--point"
+     ],
+     "action": "store_true",
+     "help": "(--east only) add the 11-chord POINT polarimeter-interferometer: line-integrated n_e + Faraday-rotation internal current constraint (POINT-constrained / 'kinetic' reconstruction). signel/sigpol default to placeholders — set real calibration via --point-sig"
+    },
+    {
+     "flags": [
+      "--point-sig"
+     ],
+     "nargs": 2,
+     "type": "float",
+     "metavar": [
+      "SIGNEL",
+      "SIGPOL"
+     ],
+     "help": "uniform POINT error bars (density, Faraday); override the placeholder defaults"
+    },
+    {
+     "flags": [
+      "--point-window-ms"
+     ],
+     "type": "float",
+     "metavar": "MS",
+     "help": "POINT time-average half-window [ms] (default 30 ms, from the GUI_v5 .fig)"
+    },
+    {
+     "flags": [
+      "--point-fringe-gate"
+     ],
+     "type": "float",
+     "metavar": "FRAC",
+     "default": 0.15,
+     "help": "POINT fringe-jump gate: drop a chord whose |line-integrated n_e| falls below FRAC x median (default 0.15; <=0 disables)"
+    },
+    {
+     "flags": [
+      "--pressure"
+     ],
+     "action": "store_true",
+     "help": "(--east only) add the Thomson+TXCS kprfit=1 direct-pressure constraint (Li-2013 rung); stack on --point"
+    },
+    {
+     "flags": [
+      "--pressure-sig"
+     ],
+     "type": "float",
+     "metavar": "FRAC",
+     "help": "fractional pressure error bar sigpre_frac (default 0.2)"
+    },
+    {
+     "flags": [
+      "--te-ceiling"
+     ],
+     "type": "float",
+     "metavar": "EV",
+     "help": "Thomson Te outlier ceiling [eV] (default 8000)"
+    },
+    {
+     "flags": [
+      "--thomson-ne"
+     ],
+     "action": "store_true",
+     "help": "(--east --point only) pin the density spline with Thomson local n_e points (R_NE_TS rows) — strengthens the Faraday forward model"
+    },
+    {
+     "flags": [
+      "--no-probes"
+     ],
+     "action": "store_true",
+     "help": "drop the magnetic probes from the fit (flux-loop-only): the quality baseline while per-channel probe calibration is missing"
+    },
+    {
+     "flags": [
+      "--plot"
+     ],
+     "nargs": "?",
+     "const": true,
+     "metavar": "PATH",
+     "help": "render the flux map after the run (default <gfile>.png)"
+    },
+    {
+     "flags": [
+      "--json"
+     ],
+     "action": "store_true",
+     "dest": "as_json",
+     "help": "print the run summary as JSON"
+    }
+   ]
+  },
+  {
+   "name": "plot",
+   "help": "render a GEQDSK flux map to PNG/JPG",
+   "handler": "fylite.engine.cli:_cli_plot",
+   "args": [
+    {
+     "flags": [
+      "gfile"
+     ]
+    },
+    {
+     "flags": [
+      "-o",
+      "--out"
+     ],
+     "help": "output image (default <gfile>.png)"
+    }
+   ]
+  },
+  {
+   "name": "describe",
+   "help": "print the machine-readable capability catalog (JSON-LD): the first-batch artifact manifest set — efit/neo/tglf compute artifacts, the kinetic-reconstruction workflow, and the EAST MDSplus data artifact",
+   "handler": "fylite.engine.cli:_cli_describe",
+   "args": [
+    {
+     "flags": [
+      "--text"
+     ],
+     "action": "store_true",
+     "help": "human-readable listing instead of JSON-LD"
+    }
+   ]
+  },
+  {
+   "name": "cases",
+   "help": "list / show / check / RUN the scenario corpus (docs/cases/: fyo JSON-LD session documents + catalogue) — the CLI is the primary debugging environment; --run maps a case's page-control config onto the corresponding Python entry (S-2) and records the run",
+   "handler": "fylite.engine.cli:_cli_cases",
+   "args": [
+    {
+     "flags": [
+      "name"
+     ],
+     "nargs": "?",
+     "help": "a case id from the catalogue: print that document"
+    },
+    {
+     "flags": [
+      "--dir"
+     ],
+     "help": "corpus directory (default: ./docs/cases, then the checkout's docs/cases/ — the corpus is repo data and does NOT ship with the wheel)"
+    },
+    {
+     "flags": [
+      "--check"
+     ],
+     "action": "store_true",
+     "help": "structural check: every catalogue entry's document exists and parses, no orphan files, at most one initial case per bar; non-zero exit on failure"
+    },
+    {
+     "flags": [
+      "--json"
+     ],
+     "action": "store_true",
+     "dest": "as_json",
+     "help": "machine-readable output"
+    },
+    {
+     "flags": [
+      "--plan"
+     ],
+     "action": "store_true",
+     "help": "print the case -> entry mapping and the full field accounting (mapped / sub-capability / shared / ui), without running"
+    },
+    {
+     "flags": [
+      "--run"
+     ],
+     "action": "store_true",
+     "dest": "run_case",
+     "help": "map the named case onto its Python entry and run it through the tool face — leaves manifest / acceptance / ledger; bars with no faithful mapping are refused by name"
+    },
+    {
+     "flags": [
+      "--predict"
+     ],
+     "action": "store_true",
+     "help": "(zerod cases) engage tier B: solve the energy balance with the case's confinement-scaling knobs instead of only evaluating the prescription"
+    }
+   ]
+  },
+  {
+   "name": "manifest",
+   "help": "check, re-seal, or export the authored JSON-LD artifact manifests (python/fylite/_manifest/*.jsonld — files are the source; the engine only loads/validates/seals them)",
+   "handler": "fylite.engine.cli:_cli_manifest",
+   "args": [
+    {
+     "flags": [
+      "--seal"
+     ],
+     "action": "store_true",
+     "help": "recompute derived hash fields (semantic_signature/storage_hash) in place"
+    },
+    {
+     "flags": [
+      "--out"
+     ],
+     "metavar": "DIR",
+     "help": "export the manifest set + derived catalog to DIR"
+    }
+   ]
+  },
+  {
+   "name": "replay",
+   "help": "re-run a recorded session from its ledger: resolve each node by its artifact_ref, feed handles along the edges, and compare the artefacts with the ones recorded",
+   "handler": "fylite.engine.cli:_cli_replay",
+   "args": [
+    {
+     "flags": [
+      "ledger"
+     ],
+     "help": "path to a session's ledger.jsonld (workflow-ir instance)"
+    },
+    {
+     "flags": [
+      "--session"
+     ],
+     "help": "name for the replay's own session directory (default replay-<original>)"
+    },
+    {
+     "flags": [
+      "--allow-version-drift"
+     ],
+     "action": "store_true",
+     "dest": "allow_version_drift",
+     "help": "replay even where the published artifact version has moved since the run; the report says which nodes drifted"
+    },
+    {
+     "flags": [
+      "--json"
+     ],
+     "action": "store_true",
+     "dest": "as_json",
+     "help": "print the replay report as JSON"
+    }
+   ]
+  },
+  {
+   "name": "report",
+   "help": "render one recorded run as a MyST report (unified academic template: 摘要/方法/结果/验收/复现性; array summaries and figures, never bulk arrays) — default lands report.md in the run directory",
+   "handler": "fylite.engine.cli:_cli_report",
+   "args": [
+    {
+     "flags": [
+      "run"
+     ],
+     "help": "run id (searched under $FYLITE_RUN_DIR) or path to a run directory"
+    },
+    {
+     "flags": [
+      "--out"
+     ],
+     "help": "output file or directory (default: <run>/report.md; figures land beside it)"
+    },
+    {
+     "flags": [
+      "--no-figures"
+     ],
+     "action": "store_false",
+     "dest": "figures",
+     "help": "skip figure rendering; the report says so instead of thinning silently"
+    },
+    {
+     "flags": [
+      "--stdout"
+     ],
+     "action": "store_true",
+     "help": "print the report instead of writing a file (no figures are rendered)"
+    }
+   ]
+  },
+  {
+   "name": "whence",
+   "help": "say which run produced a file and where that run came from — the lookup is BY CONTENT (the file is hashed against the sha256 every run manifest records), so a copied or renamed artefact still resolves and a modified one honestly does not",
+   "handler": "fylite.engine.cli:_cli_whence",
+   "args": [
+    {
+     "flags": [
+      "file"
+     ],
+     "nargs": "+",
+     "help": "one or more files to trace back"
+    },
+    {
+     "flags": [
+      "--root"
+     ],
+     "help": "run root to search (default $FYLITE_RUN_DIR / the cache)"
+    },
+    {
+     "flags": [
+      "--json"
+     ],
+     "action": "store_true",
+     "dest": "as_json",
+     "help": "the full record instead of the one-line lineage"
+    }
+   ]
+  },
+  {
+   "name": "alias",
+   "help": "give a run a readable name (`name@vN`) or list the register — the name is BESIDE the run id, never instead of it: handles, ledger edges and manifests keep holding ids",
+   "handler": "fylite.engine.cli:_cli_alias",
+   "args": [
+    {
+     "flags": [
+      "run"
+     ],
+     "nargs": "?",
+     "help": "the run id to name (omit with --list)"
+    },
+    {
+     "flags": [
+      "name"
+     ],
+     "nargs": "?",
+     "help": "the readable name; the version is the register's to assign"
+    },
+    {
+     "flags": [
+      "--list"
+     ],
+     "action": "store_true",
+     "dest": "as_list",
+     "help": "print the register instead of adding to it"
+    },
+    {
+     "flags": [
+      "--root"
+     ],
+     "help": "run root (default $FYLITE_RUN_DIR)"
+    }
+   ]
+  },
+  {
+   "name": "serve",
+   "help": "serve the capability catalog + entry invocation as JSON-RPC 2.0 over stdio (experimental; one message per line, EOF to stop)",
+   "handler": "fylite.engine.cli:_cli_serve",
+   "args": []
+  },
+  {
+   "name": "mcp",
+   "help": "serve fylite as a Model Context Protocol (MCP) stdio server: curated tools (describe/run/inspect/plot) + tools reflected from the artifact manifests; results are shaped summaries",
+   "handler": "fylite.engine.cli:_cli_mcp",
+   "args": []
+  }
+ ]
+}

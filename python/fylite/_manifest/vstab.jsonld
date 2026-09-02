@@ -1,0 +1,84 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:vstab",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "Rigid n=0 vertical stability: stiffness, ideal limit, resistive-wall growth rate",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 1000,
+    "measured_ms": 11,
+    "evidence": "3 runs on the container that recorded it, 2026-08-25 — NOT the single-laptop baseline NR-ENV-002 declares; the budget is the envelope, this is the evidence it is not being approached"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.control:vstab",
+  "fylite:acceptance": {
+    "@note": "★★`stable` is NOT a criterion. A vertical-stability analysis that correctly reports an unstable column is a SUCCESSFUL run: scoring it here would make `fail` mean「the plasma is unstable」in a field that everywhere else means「do not trust this number」. The reduced model's own caveat (rigid-body, static) is in the manifest's caveat, where it belongs.",
+    "margin": {
+      "tbd": "the stability margin is the ANSWER; the run's own quality would be the vessel eigenvalue solve, which is not separately reported"
+    }
+  },
+  "fylite:tool": "vstab",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "equilibrium",
+        "label": "the equilibrium being tested",
+        "data_type": "fyo:equilibrium"
+      },
+      {
+        "port_id": "pf_active",
+        "label": "coil currents [A.turns]",
+        "data_type": "fyo:pf_active"
+      }
+    ],
+    "out": [
+      {
+        "port_id": "mhd_linear",
+        "label": "n=0 rigid vertical mode: k, k_ideal, gamma",
+        "data_type": "fyo:mhd_linear"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/vstab",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

@@ -1,0 +1,435 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:kinetic_reconstruction",
+  "@type": [
+    "prov:Plan",
+    "fylite:Workflow"
+  ],
+  "fylite:title": "Self-consistent kinetic reconstruction workflow",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "batch",
+    "budget_ms": null,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-01T00:00:00Z",
+  "fylite:entry": "fylite.scenario.analysis.loop:self_consistent",
+  "fylite:acceptance": {
+    "converged": {
+      "require": true
+    },
+    "@note": "the self-consistent loop's own |Δq0| < tol verdict. ★The reconstruction criteria (`terror`/`chi_pressure`) are NOT repeated here: each round's reconstruction is its own recorded run and carries them."
+  },
+  "fylite:executable_note": "Callable again since 2026-08-25. Two things had to change and both did: the FSA-current constraint this loop states went into the kernel (ABI v113 `gs_inverse_solve_fsa`), so `loop.self_consistent` binds to a real reconstruction door instead of the departed EFIT driver's signature; and the loop stopped reading its equilibrium back off a g-file path, which the in-memory reconstruction does not produce — it hands the result straight to `fyo.as_equilibrium`. Measured on this checkout, the tool now fails at the distribution boundary (`ModuleNotFoundError: MDSplus`), which is the honest one: the shot tree is not shipped. It remains a workflow TEMPLATE — a plan an engine runs — and the tool face carries it because its entry is a real, invocable composition of the artifacts it names.",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "measurements",
+        "label": "measurement set",
+        "data_type": "fyo:magnetics"
+      }
+    ],
+    "out": [
+      {
+        "port_id": "equilibrium",
+        "label": "converged equilibrium",
+        "data_type": "fyo:equilibrium"
+      },
+      {
+        "port_id": "core_profiles",
+        "label": "converged profiles",
+        "data_type": "fyo:core_profiles"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "workflow-ir/2.0",
+    "artifact_id": "fylite/east/workflow_template/kinetic_reconstruction",
+    "version": "0.1.0",
+    "header": {
+      "form": "template",
+      "display_name": "fylite kinetic reconstruction",
+      "description": "Self-consistent kinetic equilibrium reconstruction: equilibrium <-> bootstrap current <-> profiles <-> fluxes closure (fylite.run + fylite.scenario.analysis.loop.self_consistent).",
+      "owner": "did:spharness:fylite/maintainers",
+      "tenancy_scope": "project_local",
+      "provenance_class": "sandbox_local",
+      "egress_allowed": false,
+      "min_artifact_versions": {
+        "fylite/east/compute_artifact/efit": "^0.1.0",
+        "fylite/east/compute_artifact/neo": "^0.1.0",
+        "fylite/east/compute_artifact/tglf": "^0.1.0"
+      }
+    },
+    "dag": {
+      "nodes": [
+        {
+          "id": "measurements",
+          "kind": "input",
+          "node_type": "input",
+          "display_name": "measurements",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/measurements",
+          "parent_id": null,
+          "attrs": {},
+          "ports": {
+            "in": [],
+            "out": [
+              {
+                "port_id": "measurements",
+                "label": "measurement set",
+                "data_type": "fyo:magnetics",
+                "data_ref": {
+                  "data_artifact_id": "fylite/east/data_artifact/east_mdsplus"
+                },
+                "side": "right"
+              }
+            ]
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "selfconsistency",
+          "kind": "loop",
+          "node_type": "loop",
+          "display_name": "self-consistency loop",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/selfconsistency",
+          "parent_id": null,
+          "attrs": {
+            "max_iter": 8,
+            "tol": 0.02
+          },
+          "ports": {
+            "in": [],
+            "out": []
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 200,
+            "y": 0
+          }
+        },
+        {
+          "id": "efit",
+          "kind": "task",
+          "node_type": "task",
+          "display_name": "EFIT reconstruction",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/efit",
+          "parent_id": "selfconsistency",
+          "attrs": {},
+          "ports": {
+            "in": [
+              {
+                "port_id": "measurements",
+                "label": "measurement set",
+                "data_type": "fyo:magnetics",
+                "side": "left"
+              },
+              {
+                "port_id": "j_bootstrap",
+                "label": "bootstrap constraint",
+                "data_type": "fyo:core_profiles",
+                "optional": true,
+                "side": "left"
+              }
+            ],
+            "out": [
+              {
+                "port_id": "equilibrium",
+                "label": "equilibrium",
+                "data_type": "fyo:equilibrium",
+                "side": "right"
+              }
+            ]
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 250,
+            "y": 50
+          },
+          "artifact_ref": {
+            "artifact_id": "fylite/east/compute_artifact/efit",
+            "version": "^0.1.0"
+          }
+        },
+        {
+          "id": "profiles",
+          "kind": "data_transform",
+          "node_type": "data_transform",
+          "display_name": "profile fit",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/profiles",
+          "parent_id": "selfconsistency",
+          "attrs": {},
+          "ports": {
+            "in": [
+              {
+                "port_id": "equilibrium",
+                "label": "equilibrium",
+                "data_type": "fyo:equilibrium",
+                "side": "left"
+              },
+              {
+                "port_id": "measurements",
+                "label": "measurement set",
+                "data_type": "fyo:magnetics",
+                "side": "left"
+              },
+              {
+                "port_id": "fluxes",
+                "label": "transport fluxes (flux match)",
+                "data_type": "fyo:core_transport",
+                "optional": true,
+                "side": "left"
+              }
+            ],
+            "out": [
+              {
+                "port_id": "core_profiles",
+                "label": "kinetic profiles",
+                "data_type": "fyo:core_profiles",
+                "side": "right"
+              }
+            ]
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 400,
+            "y": 50
+          }
+        },
+        {
+          "id": "neo",
+          "kind": "task",
+          "node_type": "task",
+          "display_name": "NEO bootstrap",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/neo",
+          "parent_id": "selfconsistency",
+          "attrs": {},
+          "ports": {
+            "in": [
+              {
+                "port_id": "equilibrium",
+                "label": "equilibrium",
+                "data_type": "fyo:equilibrium",
+                "side": "left"
+              },
+              {
+                "port_id": "core_profiles",
+                "label": "kinetic profiles",
+                "data_type": "fyo:core_profiles",
+                "side": "left"
+              }
+            ],
+            "out": [
+              {
+                "port_id": "j_bootstrap",
+                "label": "bootstrap current",
+                "data_type": "fyo:core_profiles",
+                "side": "right"
+              }
+            ]
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 550,
+            "y": 50
+          },
+          "artifact_ref": {
+            "artifact_id": "fylite/east/compute_artifact/neo",
+            "version": "^0.1.0"
+          }
+        },
+        {
+          "id": "tglf",
+          "kind": "task",
+          "node_type": "task",
+          "display_name": "TGLF transport",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/tglf",
+          "parent_id": "selfconsistency",
+          "attrs": {},
+          "ports": {
+            "in": [
+              {
+                "port_id": "equilibrium",
+                "label": "equilibrium",
+                "data_type": "fyo:equilibrium",
+                "side": "left"
+              },
+              {
+                "port_id": "core_profiles",
+                "label": "kinetic profiles",
+                "data_type": "fyo:core_profiles",
+                "side": "left"
+              }
+            ],
+            "out": [
+              {
+                "port_id": "fluxes",
+                "label": "turbulent fluxes",
+                "data_type": "fyo:core_transport",
+                "side": "right"
+              }
+            ]
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 550,
+            "y": 150
+          },
+          "artifact_ref": {
+            "artifact_id": "fylite/east/compute_artifact/tglf",
+            "version": "^0.1.0"
+          }
+        },
+        {
+          "id": "equilibrium_out",
+          "kind": "output",
+          "node_type": "output",
+          "display_name": "equilibrium",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/equilibrium_out",
+          "parent_id": null,
+          "attrs": {},
+          "ports": {
+            "in": [
+              {
+                "port_id": "equilibrium",
+                "label": "equilibrium",
+                "data_type": "fyo:equilibrium",
+                "side": "left"
+              }
+            ],
+            "out": []
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 800,
+            "y": 0
+          }
+        },
+        {
+          "id": "profiles_out",
+          "kind": "output",
+          "node_type": "output",
+          "display_name": "core profiles",
+          "node_path": "fylite/east/workflow_template/kinetic_reconstruction/profiles_out",
+          "parent_id": null,
+          "attrs": {},
+          "ports": {
+            "in": [
+              {
+                "port_id": "core_profiles",
+                "label": "kinetic profiles",
+                "data_type": "fyo:core_profiles",
+                "side": "left"
+              }
+            ],
+            "out": []
+          },
+          "readonly_fields": [],
+          "position": {
+            "x": 800,
+            "y": 100
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1",
+          "source_node": "measurements",
+          "source_port": "measurements",
+          "target_node": "efit",
+          "target_port": "measurements"
+        },
+        {
+          "id": "e3",
+          "source_node": "efit",
+          "source_port": "equilibrium",
+          "target_node": "profiles",
+          "target_port": "equilibrium"
+        },
+        {
+          "id": "e4",
+          "source_node": "efit",
+          "source_port": "equilibrium",
+          "target_node": "neo",
+          "target_port": "equilibrium"
+        },
+        {
+          "id": "e5",
+          "source_node": "profiles",
+          "source_port": "core_profiles",
+          "target_node": "neo",
+          "target_port": "core_profiles"
+        },
+        {
+          "id": "e6",
+          "source_node": "efit",
+          "source_port": "equilibrium",
+          "target_node": "tglf",
+          "target_port": "equilibrium"
+        },
+        {
+          "id": "e7",
+          "source_node": "profiles",
+          "source_port": "core_profiles",
+          "target_node": "tglf",
+          "target_port": "core_profiles"
+        },
+        {
+          "id": "e8",
+          "source_node": "neo",
+          "source_port": "j_bootstrap",
+          "target_node": "efit",
+          "target_port": "j_bootstrap",
+          "kind": "feedback"
+        },
+        {
+          "id": "e9",
+          "source_node": "tglf",
+          "source_port": "fluxes",
+          "target_node": "profiles",
+          "target_port": "fluxes",
+          "kind": "feedback"
+        },
+        {
+          "id": "e10",
+          "source_node": "efit",
+          "source_port": "equilibrium",
+          "target_node": "equilibrium_out",
+          "target_port": "equilibrium"
+        },
+        {
+          "id": "e11",
+          "source_node": "profiles",
+          "source_port": "core_profiles",
+          "target_node": "profiles_out",
+          "target_port": "core_profiles"
+        }
+      ]
+    },
+    "semantic_signature": "sha256:d93f1db196b720701c1bb2f634694546d0c1418e5e92fe5ece180599645c0b04",
+    "storage_hash": "sha256:9fc3211accdbd1744346242c5882034793b6d46b3b7795ceb9c028aed108daf1",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-01T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  },
+  "fylite:cli": [
+    "fylite",
+    "run"
+  ]
+}

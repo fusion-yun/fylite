@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fylite"
+#: ★VERSION 是发行版本的唯一来源（仓根 `VERSION`，经与 LICENSE/NOTICE 同样的
+#: 符号链接进入本目录——setuptools 只在工程目录内解析 `file =`）。此前这里是
+#: 手写的 `0.1.0`，与 `VERSION` 的 `0.0.1-alpha` 和 crate 的 `0.0.1` 三者互不相同：
+#: 同一份代码在 pip 与站点上会叫两个名字，一旦两条通道同时在外就无法排障。
+#: PEP 440 规范化把 `0.0.1-alpha` 记作 `0.0.1a0`。
+#: 内核版本（crate）与 ABI 号是另外两个量，各有其位（`_abi.py` / `version.js`）。
+dynamic = ["version"]
+description = "A self-contained tokamak equilibrium, transport and turbulence kernel — Rust core with a Python assembly layer and a WebAssembly front end"
+license = "Apache-2.0"
+#: ★★2026-09-02：本文件**又回到 `python/`**（用户裁定：Python 工程文件收敛进
+#: `python/`），2026-09-01 那次「上移到仓根」的落法随之作废——连同它撤掉的四条
+#: 符号链接，现在按同样的理由**装回来**。
+#: **那条理由本身仍然成立**：setuptools 只在**工程目录内**解析 `license-files`
+#: 与 `version = {file=...}`，所以工程目录在哪儿，那些文件就得在哪儿。09-01 的选择
+#: 是「把工程目录挪到文件那边」，现在的选择是「把文件引到工程目录这边」——
+#: 用**符号链接**指回仓根，仍然是一份真源、零副本，只是箭头反了个向。
+#: ★★实测过反面：本文件在 `python/` 而内容还按仓根写的那半天里，
+#: `version = {file = "VERSION"}` 够不到仓根的 `VERSION`，打出来的元数据是
+#: **`Version: 0.0.0`**——不报错，只是版本号悄悄归零。这正是这一段存在的理由。
+#: ★09-01 撤链接时给的另一条理由是「仓根不是 Python 工程，是 Rust crate + 静态站点
+#: + MyST 书 + 包」已经作废（Rust crate 在 fylite_kernel），但那只说明仓根**可以**
+#: 是工程目录，不说明它**应该**是：仓根还有站点与书，而 pip 只建一个。
+#: ★★`NOTICE*` 是 **glob，而且本仓平时没有它**——这是有意的，不是漏了。
+#: NOTICE 随内核源码留在 fylite_kernel（用户裁定：主仓不留这份文件），而
+#: Apache-2.0 §4(d) 把义务系在**分发**上，不在源码树上。于是它在**打轮的那一刻**
+#: 才出现：`tools/build-wheel.sh` 从内核检出取一份放进工程目录，build 完就撤走。
+#: 轮里因此有 NOTICE，仓里因此没有 —— 两个要求同时满足，没有第三份副本要维护。
+#: ★写成 glob 而不是 `"NOTICE"`：直接 `python -m build` 而不经那个脚本时，
+#: 缺席只是少一份文件，不是构建失败。**但那样打出来的轮不合规**，脚本会说清楚。
+license-files = ["LICENSE", "CONTRIBUTORS.md", "NOTICE*"]
+requires-python = ">=3.10"
+dependencies = ["numpy"]
+#: ★alpha 期的分发面就是这些分类项声明的那一个：Linux x86-64。轮里带的是
+#: **预编译**的 `_lib/libfylite.so`，不由 pip 现场编译，所以「装上了」与「能用」
+#: 在别的平台上会分家——分类项与轮的平台 tag（见 `setup.py` 与
+#: `tools/build-wheel.sh`）一起把这件事说在前面，而不是留给 import 时报错。
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  #: 无 License 分类项：PEP 639 之后，`license = "Apache-2.0"` 这个 SPDX
+  #: 表达式与旧分类项互斥，同时给会被 setuptools 直接拒绝。
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[project.optional-dependencies]
+yaml = ["PyYAML"]
+plot = ["matplotlib"]  # fylite.plot / fylite report figures: rendering
+#: ★fyo 文档的 `.h5` 出入口（`fylite.fyo.write`/`read`、`fylite.appsession.to_hdf5`、
+#: `fylite.io.imas_h5`）一直是惰性 import 的可选能力，但此前**没有声明过**——
+#: 可选能力必须经 extras 隔离（NR-DEP-001），否则「装了能不能用」只能靠试。
+hdf5 = ["h5py"]
+mds = []  # requires the MDSplus python package (site-installed, not on PyPI)
+
+#: ★Development group (PEP 735, `uv sync` installs it by default) — NOT wheel
+#: dependencies: the package stays numpy-only at runtime.
+#:   scipy       the physics-tier fixture (`test_mapping._spline`,
+#:               CubicSpline) — which the DEFAULT tier's oracle-reachability
+#:               gate imports, so without scipy two default-tier tests are
+#:               red, not skipped.
+#:   matplotlib  `fylite report` figure rendering and `fylite.plot`; the
+#:               report degrades honestly without it, but the figure gates
+#:               (`test_report.py`) only exercise the rendering branch when
+#:               it is present.
+[dependency-groups]
+dev = ["scipy", "matplotlib"]
+
+[project.scripts]
+fylite = "fylite.engine:cli_main"
+
+# ★★2026-09-02：本文件回到 `python/`，包 `fylite/` 就在它旁边 —— **平铺，不是 src
+# 布局**，于是上一版那对 `package-dir = {"" = "python"}` / `where = ["python"]`
+# 一并撤掉。留着它们不是多余而是**有害**：从 `python/` 出发它们指的是
+# `python/python/`（不存在），`find` 一个包都发现不了，而 setuptools 对「什么都没
+# 发现」不报错——打出来的是一个**空轮**。
+[tool.setuptools.packages.find]
+where = ["."]
+#: `tests/` is a sibling of the package inside this directory and must not be
+#: packaged.  It carries no `__init__.py`, so `find` already skips it — the
+#: filter is here so that adding one later cannot ship the suite by accident.
+include = ["fylite*"]
+
+# Binary/data package files.  The Rust kernels are NOT compiled by pip — the
+# cdylib is committed pre-built and shipped as package data:
+#   _lib/libfylite.so      built and installed here by `bash rust/build.sh`
+#                          (needs a Rust toolchain to rebuild).
+[tool.setuptools.package-data]
+#: ★`_backends.json` left this list because it left the tree — first as
+#: `_backends.py` (module source, packaged as code), then with the backend
+#: registry itself (FYL-SDD-01 DE-LOG-03, retired).
+fylite = ["_lib/*.so", "_spec/*", "_manifest/*", "_cli.json",
+          "_fyo_vocab.json", "_environment.json"]

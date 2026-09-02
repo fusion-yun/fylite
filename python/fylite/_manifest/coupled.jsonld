@@ -1,0 +1,84 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:coupled",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "Equilibrium <-> transport self-consistency loop (alternating)",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "batch",
+    "budget_ms": null,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.model:coupled",
+  "fylite:acceptance": {
+    "converged": {
+      "require": true
+    },
+    "@note": "the alternating loop reports its own convergence; a run that hit the iteration ceiling is exactly the case a caller must not read as settled."
+  },
+  "fylite:tool": "coupled",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "pf_active",
+        "label": "coil currents [A.turns]",
+        "data_type": "fyo:pf_active"
+      }
+    ],
+    "out": [
+      {
+        "port_id": "equilibrium",
+        "label": "converged equilibrium",
+        "data_type": "fyo:equilibrium"
+      },
+      {
+        "port_id": "core_profiles",
+        "label": "relaxed profiles on the solved metric",
+        "data_type": "fyo:core_profiles"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/coupled",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

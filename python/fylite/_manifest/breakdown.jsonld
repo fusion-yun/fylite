@@ -1,0 +1,80 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:breakdown",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "Pre-breakdown field null + per-channel engineering limits",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 1000,
+    "measured_ms": 3,
+    "evidence": "3 runs on the container that recorded it, 2026-08-25 — NOT the single-laptop baseline NR-ENV-002 declares; the budget is the envelope, this is the evidence it is not being approached"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.design:breakdown",
+  "fylite:acceptance": {
+    "@note": "★`feasible` is NOT a criterion: a null-field design that correctly reports「blocked at channel N under these limits」is a successful run with an unwelcome answer, and scoring it here would make `fail` mean two different things. What a criterion would score is the SOLVE (did the bounded least-squares reach its own tolerance), and that number is not reported yet.",
+    "flux_error": {
+      "tbd": "the null-field residual is returned per design but has no published acceptance band; setting one needs a machine-by-machine statement of what field null is good enough, which this package does not have"
+    }
+  },
+  "fylite:tool": "breakdown",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "pf_active",
+        "label": "per-channel current box (caller-supplied limits)",
+        "data_type": "fyo:pf_active",
+        "optional": true
+      }
+    ],
+    "out": [
+      {
+        "port_id": "plasma_initiation",
+        "label": "field-null quality, delivered flux, blocking channels",
+        "data_type": "fyo:plasma_initiation"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/breakdown",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

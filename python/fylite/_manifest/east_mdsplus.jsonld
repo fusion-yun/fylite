@@ -1,0 +1,103 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:east_mdsplus",
+  "@type": [
+    "sp:DataArtifact",
+    "prov:Entity"
+  ],
+  "fylite:title": "EAST MDSplus measurement source -> fyo-shaped structures",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "network",
+    "budget_ms": null,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-01T00:00:00Z",
+  "fylite:entry": "fylite.io.mds:fetch_measurements",
+  "fylite:acceptance": {
+    "@note": "★a fetch either returns the slice or raises, so there is no numeric quality to score here. What COULD be scored is the diagnostic health of the slice (dead channels, fringe jumps), which `diagnostic_status` reports and which has no threshold register yet.",
+    "diagnostic_status": {
+      "tbd": "per-channel health is reported but not scored: the thresholds are per-diagnostic and per-machine"
+    }
+  },
+  "fylite:ports": {
+    "in": [],
+    "out": [
+      {
+        "port_id": "magnetics",
+        "label": "flux loops + poloidal probes + Ip",
+        "data_type": "fyo:magnetics"
+      },
+      {
+        "port_id": "pf_active",
+        "label": "PF coil currents",
+        "data_type": "fyo:pf_active"
+      },
+      {
+        "port_id": "tf",
+        "label": "R*Bt vacuum field",
+        "data_type": "fyo:tf"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "data-artifact/2.0",
+    "artifact_id": "fylite/east/data_artifact/east_mdsplus",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "storage_uri": "mdsplus://mds.invalid/east",
+    "storage_hash": "sha256:6acd6cafea12af020d1353d63f59801d9a7dd0e5430519fc29aeabd0d6df0f30",
+    "byte_size": 0,
+    "data_type": "record",
+    "data_classification": "internal",
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-01T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  },
+  "fylite:notes": "live MDSplus source; storage_hash covers the addressing descriptor, not bytes (open alignment item, SP-REPORT-15 OI-2). The host is the RFC 2606 `.invalid` placeholder on purpose: the real one is an address on an operator's internal network and is not written into a published manifest. It is resolved at run time from the device deck's declared server, or from KEFIT_MDS_SERVER",
+  "fylite:addressing": {
+    "sp:source": {
+      "east": "mdsplus://mds.invalid/east"
+    },
+    "sp:read": [
+      {
+        "@type": "fyo:magnetics",
+        "fylite:channels": {
+          "flux_loop": 35,
+          "b_field_pol_probe": 76
+        }
+      },
+      {
+        "@type": "fyo:pf_active",
+        "fylite:channels": {
+          "coil": 12
+        }
+      },
+      {
+        "@type": "fyo:tf",
+        "fylite:channels": {
+          "b_field_tor_vacuum_r": 1
+        }
+      }
+    ]
+  }
+}

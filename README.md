@@ -1,91 +1,305 @@
-# fylite
+# fylite — a self-contained tokamak equilibrium, transport and turbulence kernel
 
-**自洽的托卡马克平衡 / 输运 / 湍流内核** —— Rust 计算核 + Python 装配层 +
-WebAssembly 浏览器前端；运行期只依赖 `numpy`，不需要 Fortran、MPI、LAPACK
-或任何系统数值库。
+![FYLITE](./docs/figures/fylite_logo.svg)
 
-A self-contained tokamak equilibrium, transport and turbulence kernel —
-Rust core, Python assembly layer, WebAssembly front end.
+fylite packs a Grad-Shafranov solver (forward and inverse), a 1.5-D
+core-transport step, neoclassical and gyro-Landau-fluid closures, and an
+equilibrium-reconstruction row into **one re-entrant Rust kernel**, with a
+thin Python layer for assembly and orchestration and a browser front end
+built from the same kernel compiled to WebAssembly.
 
-**本仓是 fylite 的发布面与反馈入口。** 源码目前不公开（见下「许可与源码」）。
+No Fortran, no MPI, no LAPACK, no system numerical libraries: the Rust crate
+has one optional dependency (`rayon`), the Python package needs only `numpy`,
+and the native library and the `.wasm` modules come out of the same
+`c_api.rs`.
+
+It is a standalone package — zero code dependency on any other repository —
+covering five task classes with a lightweight feature set: physics modelling
+and experiment analysis first, then control simulation, discharge design and
+device parameter optimisation; one minimal runnable, interactive, comparable
+closed loop per class.
+
+Four constraints position the package:
+
+- **single machine** — no cluster, no required server component; the browser
+  pages work offline once loaded;
+- **ms–s interactive response** — single solves, reconstructions and redraws;
+  batch work (outer loops, grid scans) is explicitly batch: steppable and
+  interruptible, never disguised as instant;
+- **limited multithreading** — a few worker threads at most, no distributed
+  runtime; the browser host is single-threaded;
+- **cross-platform** — the same compute core runs as native Python and as
+  browser WebAssembly.
+
+## Try it · 在线演示
+
+<https://fusion-yun.github.io/fylite/> — the whole kernel compiled to
+WebAssembly and running in the browser. Nothing to install, nothing uploaded.
+
+## Reporting a problem · 报障
+
+Open an issue. The kernel source is not published, so reproducing a report
+depends on knowing **which binary** you ran: the issue template asks for the
+demo page's footer line (`kernel … · interface … · app …`) and the kernel
+`sha256` shown on its credits page. Those two are what make a report
+actionable. Patches cannot be merged here — the source they would touch is in
+the private kernel repository — so a precise issue is the contribution.
+
+## How fylite is built
+
+- **Public literature + public code.** Papers give the equations; vendored
+  reference implementations give the operating conventions and the white-box
+  referee — port fidelity is judged by same-deck runs against the original,
+  not by reading.
+- **One framework implementation per physics capability.** Alternative
+  physics models coexist as parameter tiers, never as a second code path.
+- **No plugin mechanism.** Declaration-driven entry tables and parameter
+  tiers cover what plugins would; the payoff is a single body of code where a
+  profile error can be chased down to one line.
+- **No multi-source code integration.** The operating conventions that
+  integrated suites accumulate over decades are measured back one at a time
+  through benchmarks — reference data, frozen input decks and two-sided
+  referees are first-class assets here, not an afterthought.
+- **Rust kernel, thin Python/JS front ends.** The kernel carries its own
+  numerical primitives; one C boundary produces the native library and the
+  WebAssembly modules alike.
+- **A complete reduced-model kernel — and no more.** Reduced models with
+  public reference implementations are ported white-box; HPC-scale codes have
+  their *products* consumed — saturation rules, surrogates — never their
+  bodies absorbed.
+
+Fidelity claims state only what was measured: every claim ships with its null
+hypothesis and an open attribution list for the residual.
+
+**Status: alpha.** Capabilities and numerical conventions are still moving;
+entry points and result formats may change without a migration path. Gaps are
+listed rather than filled with functions that return zeros. The release
+version lives in one place, [`VERSION`](VERSION); the kernel version and the
+ABI number are two separate quantities, each reported by the build itself.
+
+**Distribution, during alpha.** The Python package ships a **pre-compiled**
+kernel rather than building one at install time, so the wheel is
+platform-tagged and the published surface is **Linux x86-64 only** — other
+platforms are refused at install time instead of failing at the first kernel
+call. Build one with `bash tools/build-wheel.sh`, which derives the tag from
+the binary rather than asserting it. The browser build carries the same kernel
+as WebAssembly and has no platform limit at all, and `bash tools/build-app-exe.sh`
+packs that browser build into a **single executable** — Linux and Windows —
+that serves its own embedded copy on the loopback address and opens your
+browser, so an offline machine with no Python still gets the whole demo from
+one file. The Rust sources are not published; what ships is the compiled
+artifact, the Python and JS layers, and the evidence that judges them.
+
+**Licence: Apache-2.0** (see [`LICENSE`](LICENSE)). ★`NOTICE` — the
+per-component provenance Apache-2.0 §4(d) requires — is not a file in this
+repository: it describes the kernel source and lives with it, and it is copied
+into the wheel at build time by `tools/build-wheel.sh`. The obligation attaches
+to the distribution, and that is where it is discharged.
 
 ---
 
-## 在线演示 · Live demo
+## Quick start
 
-<https://fusion-yun.github.io/fylite/>
+```bash
+# Python 一律走 uv 的临时环境；本仓不建 .venv（`--no-project` 是必须的）
+# ★★工程文件都在 `python/` 下（`pyproject.toml` / `pytest.ini` / `conftest.py`），
+#   而 pytest 是从参数向上找 ini 的 —— 所以要么点名 `python/tests`，要么先 cd 进去。
+#   在**仓根裸跑 `pytest`** 找不到任何 ini，那不是本档。
+uv run --no-project --with pytest --with numpy python -m pytest python/tests
 
-整个内核编译成 WebAssembly 在浏览器里跑，无需安装、不上传数据：平衡正解与
-反演、1.5-D 输运推进、0-D 放电分析、击穿与垂直稳定性。
+pip install -e python   # optional — numpy only；工程在 `python/`，不在仓根
+```
 
-The whole kernel runs in the browser as WebAssembly — nothing to install,
-nothing uploaded.
+The kernel binaries (`python/fylite/_lib/libfylite.so`, `app/assets/*.wasm`)
+are committed pre-built, so none of the above needs a Rust toolchain.
+Rebuilding them is a different repository's job — see below.
 
-## 下载 · Downloads
+Nothing above needs a machine description, a shot, or a network. Everything
+that does need a device deck takes one explicitly — `$FYLITE_DEVICE_DIR`, or
+a path handed to the entry point (see [`machine_desc/`](machine_desc/README.md)).
 
-发行制品挂在本仓的 **[Releases](../../releases)** 下。首个 Release 尚未发布；
-在此之前，浏览器演示页承载的就是同一个内核。
+```python
+from fylite import scenario as S
 
-Release artifacts are published under **[Releases](../../releases)**.
-None yet — until then, the browser demo runs the same kernel.
+z = S.model.zerod()                     # 0-D discharge, prescribed profiles
+t = S.model.transport(power=4.0)        # one 1.5-D transport step
+f = S.analysis.profit(x, y, sigma_frac=0.05)   # profile fit, GCV smoothing
+```
 
-## 报障与反馈 · Issues
+The same capabilities have a command-line face:
 
-**[提一个 issue](../../issues/new/choose)**。因为源码不公开，复现完全依赖你把
-「跑的是哪一份二进制」说准，issue 模板里那三格（版本号 / 接口版本 ABI /
-sha256）请务必填：
+```bash
+python -m fylite --help       # run · plot · describe · manifest · serve · mcp
+python -m fylite describe     # the capability catalogue, as JSON-LD
+```
 
-- **版本号**在演示页页脚；
-- **接口版本**同一行，写作 `interface <N>` / `接口 <N>`；
-- **sha256** 用 `sha256sum` 算你手上那份制品；浏览器演示可跳过此项。
+The user guide is [`docs/guide/quickstart.md`](docs/guide/quickstart.md); the
+API map is [`docs/reference/api.md`](docs/reference/api.md).
 
-Because the source is not published, reproducing a report depends entirely
-on knowing **which binary** you ran. Please fill in the version / interface
-(ABI) / sha256 fields in the template.
+## The four scenario lines
 
-补丁与 PR：源码不在本仓，所以 PR 无处可合。请把问题写成 issue —— 定位与修复
-在上游做，修好了随下一个 Release 出来。
+Capabilities are organised by **purpose**; the same nine tool ids are used in
+the browser, in a notebook and at the CLI. A tool is implemented once and
+listed on every line it serves.
 
-## 验证记录与算例 · Evidence and cases
+| line | tools |
+| :--- | :--- |
+| `design` — discharge design | `discharge` · `breakdown` · `feasible` · `zerod` |
+| `control` — control simulation | `vstab` · `coupled` |
+| `model` — physics modelling | `zerod` · `transport` · `coupled` · `tglf` · `discharge` · `reconstruction` |
+| `analysis` — experiment analysis | `reconstruction` · `zerod` |
 
-源码不公开，所以「我们测过了」这句话本身没有分量。能替代它的是**可复算的记录**：
+Every result carries a `provenance` entry naming what it is a reduced tier of
+and **where it is not equivalent**. Capabilities that are not built stay
+listed as gaps (`○` in `fylite.scenario.TOOLS`), and a request outside a
+model's range returns an error rather than a number that looks like an
+answer. What the physics can and cannot do today is [`FEATURE.md`](FEATURE.md).
 
-- **[`benchmark/`](benchmark/)** —— 公开 V&V 登记册。对着外部答案量过什么、
-  量到多少、哪一部分不可比。三类记录（**V 验证** / **B 对拍** / **C 确认**）
-  不可互替，判据与可信度都不同；纳入判据是**读者能不能自己把参考侧重新取得
-  一遍**。
-- **[`cases/`](cases/)** —— 公开算例。一个算例是一份**会话文档**（演示页
-  「导出」写出来的那个形状），**只装输入不装结果**，页面仍要自己算一遍。
+## What ships, and what does not
 
-两棵树目前都是**空骨架**：体例、词汇与模板已就位，记录逐条往里加。
+- **No third-party solver code or recorded output ships here in any form.**
+  The free-boundary forward solve, the transport step and the closures are
+  the kernel's own or white-box translations declared in the kernel's `NOTICE`
+  (see Attribution below — it ships inside the wheel, not as a file here).
+- **No experimental data is committed.** No shot files, no reconstructions of
+  real discharges — machine-checked, not merely stated. `examples/` publishes
+  the *specification* of each case and resolves its data through
+  `$FYLITE_DEVICE_DIR`; the synthetic equilibrium the test suite runs on is
+  produced by the kernel itself, regenerable byte-for-byte.
+- **Machine descriptions are inputs — kept, not shipped.**
+  [`machine_desc/`](machine_desc/README.md) holds one JSON-LD deck per device,
+  packaged into neither the wheel nor the site. What a source does not carry
+  is declared, with a reason, rather than defaulted.
+- **`app/` ships four device presets**, because a page that can be handed any
+  machine still needs one to open with — a redistribution decision recorded
+  with its provenance in `app/devices/catalogue.jsonld`.
 
-Because the source is not published, the recomputable record is what carries
-the weight. Both trees are **empty skeletons** for now — the conventions,
-vocabulary and templates are in place; records land one at a time.
+## Where the physics lives
 
-## 许可与源码 · Licence and source
+One host: `rust/fylite/src/`. The Python layer does data assembly, device
+plumbing, orchestration, plotting and provenance — it does not carry a second
+implementation of a discretisation or a closed form, and that rule is gated.
 
-制品按 **Apache License 2.0** 发布（见 [`LICENSE`](LICENSE) 与
-[`NOTICE`](NOTICE)）。Apache-2.0 不要求分发者提供源码，因此**「按 Apache-2.0
-发布二进制」与「源码仓当前不公开」两件事并不冲突**——你拿到的这份制品，其
-Apache-2.0 权利是完整的。
+| layer | modules |
+| :--- | :--- |
+| kernels, linear algebra, electromagnetics | `kernels.rs` `linalg.rs` `electromagnetics.rs` |
+| equilibrium (forward / inverse), surfaces | `equilibrium.rs` `inverse.rs` `surfaces.rs` `geometry.rs` |
+| transport, 0-D, evolution, sources, heating | `transport.rs` `zerod.rs` `evolution.rs` `sources.rs` `heating.rs` |
+| neoclassical, turbulence, closures | `neoclassical.rs` `dke.rs` `gyrofluid.rs` `closure_tables.rs` `flr_tables.rs` |
+| stability, control, pulse, breakdown | `stability.rs` `control.rs` `pulse.rs` `breakdown.rs` |
+| fitting, diagnostics, profile mapping | `fitting.rs` `diagnostics.rs` `mapping.rs` |
+| document layer, scenarios, data transport | `fyo.rs` `scenario.rs` `bundle.rs` `mdsip.rs` |
+| the one C boundary | `c_api.rs` (`ABI_VERSION`, generated into both hosts) |
 
-Artifacts are released under the **Apache License 2.0**. Apache-2.0 does not
-require a distributor to supply source, so "Apache-2.0 binaries" and "the
-source repository is not currently public" are consistent: your rights in
-the artifact you received are the full Apache-2.0 rights.
+## Browser
 
-`NOTICE` 必须随任何再分发一起走（Apache-2.0 §4(d)），它里面逐项记着上游出处
-——GACODE（GEO / NEO / TGLF / TGYRO，Apache-2.0）的署名义务由此承接。
+[`app/`](app/) is a static site running the same kernel as WebAssembly:
+prose pages (entrance, features, credits) generated in Chinese and English
+alike, scenario pages (`design` / `model` / `analysis`) that switch language
+in place, and a data-browser tool page that computes nothing itself. Open
+`app/index.html` or serve the directory; the published copy is
+<https://fusion-yun.github.io/fylite/>.
 
-**制品里没有什么**：受限的第三方物理码（EFIT 血统、GRAY、PENCIL / JINTRAC）
-及一切由它们派生的构建产物都不在其中。
+Each browser tool has a gate under [`app/tests/`](app/tests/README.md) that
+sends the page's own exported session file through the native implementation
+and compares.
 
-## 出处与致谢 · Credits
+## Talking to other tools
 
-[`ACKNOWLEDGEMENTS.md`](ACKNOWLEDGEMENTS.md)（中文）/
-[`ACKNOWLEDGEMENTS.en.md`](ACKNOWLEDGEMENTS.en.md)（English）逐项列出上游工作、
-移植去向与「有意不取」的部分。维护者见 [`CONTRIBUTORS.md`](CONTRIBUTORS.md)。
+fylite describes itself rather than being described: the JSON-LD manifests in
+`python/fylite/_manifest/` are authored files; the engine only loads,
+validates and seals them.
 
-Developed at the Institute of Plasma Physics, Chinese Academy of Sciences
-(ASIPP).
+| command | what it is for |
+| :--- | :--- |
+| `fylite describe` | the machine-readable capability catalogue (JSON-LD) |
+| `fylite manifest` | check / re-seal / export the authored manifests |
+| `fylite serve` | catalogue + entry invocation as JSON-RPC 2.0 over stdio (experimental) |
+| `fylite mcp` | an MCP stdio server: curated tools plus tools reflected from the manifests |
+
+`python/fylite/engine/` stays stdlib-pure at import time, so a host can load
+the protocol face without paying for numpy or the kernel.
+
+## Repository map
+
+| path | contents |
+| :--- | :--- |
+| `python/fylite/` | assembly, device plumbing, IO, scenarios, the CLI and protocol engine |
+| `python/tests/` | the Python tier — assembly, IO, the protocol/CLI faces, the registries, the ABI marshalling (`python/pytest.ini`) |
+| | ★the physics/numerics tier is **not here**: it lives in the kernel repository with the code it judges |
+| `app/` | the static browser site and its gates |
+| `machine_desc/` | device decks, as inputs |
+| `models/` | neural surrogates as data — one `.npz` each, none compiled in |
+| `examples/` | case specifications |
+| `benchmark/` `cases/` | the V&V registry and the worked cases |
+| `docs/` | the MyST book: user guide, reference, cases |
+| `tools/` | deck converters, page generators, oracle store maintenance |
+
+## Two repositories
+
+★2026-09-01 the project was split. **This** is the main repository and holds
+everything above. The **Rust kernel source** lives in `fusion-yun/fylite_kernel`,
+which is private and carries its own proprietary licence.
+
+That boundary is a source boundary, not a build boundary — the two halves are
+wired both ways and each direction is explicit:
+
+| | |
+| :--- | :--- |
+| kernel → here | `rust/build.sh` builds `libfylite.so` and the three `.wasm`, and **installs them plus every generated file** (`_abi.py`, `_fyo_interface.py`, `_cgs.py`, `_deck_names.py`, `app/assets/version.js`, `fyo-interface.js`, `deck-names.js`, `abi.json`) into a checkout of this repository. Point it with `FYLITE_PUBLIC=`; it probes for a sibling and **refuses to guess** if it cannot find one. |
+| here → kernel | `tools/build-app-exe.sh` builds the single-file desktop viewer: the viewer's *content* (the whole `app/`) is here, its *code* (`src/bin/app/`) is there. It generates the asset table into the kernel tree and compiles with `FYLITE_APP_DIR` pointing back here. Point it with `FYLITE_KERNEL=`; same refuse-to-guess rule (`tools/kernel-path.sh`). |
+
+★★**What this repository cannot do on its own: rebuild what it ships.**
+`python/fylite/_lib/libfylite.so`, the three `app/assets/*.wasm`, and eight
+generated files (`_abi.py`, `_fyo_interface.py`, `_deck_names.py`, `_cgs.py`,
+`app/assets/{version,fyo-interface,deck-names}.js`, `abi.json`) are committed
+here but **produced there**. A reader with a complete checkout of this
+repository has every line of the application layer and cannot reproduce the
+twelve artifacts it runs on. That is a property of the split, stated here so
+nobody concludes they are missing a step: the kernel source is not published,
+and the binaries are what stands in for it. What CAN be checked from here is
+that the committed artifacts are the ones that were built —
+`python/tests/test_bundled_artifacts.py` asks git exactly that — and what they
+answer, which is what `benchmark/` is for.
+
+★The frozen test corpus is not here either: `tests/data` is a symlink to
+`fydata/oracle-data/` (recorded oracle answers, upstream release cases,
+reference profiles). Without it the physics tier is not collected, and the
+run header says so by name rather than failing 965 times.
+
+★Neither direction hard-codes a path into a committed file. The embedded
+asset table says `env!("FYLITE_APP_DIR")`, not a directory — a build machine's
+layout must not end up compiled into anyone's source.
+
+```bash
+# rebuild the kernel artifacts (in the fylite_kernel checkout)
+FYLITE_PUBLIC=/path/to/fylite bash rust/build.sh --wasm-check
+
+# rebuild the desktop viewer (here)
+FYLITE_KERNEL=/path/to/fylite_kernel bash tools/build-app-exe.sh linux
+```
+
+Three files at the root answer three different questions:
+[`FEATURE.md`](FEATURE.md) — what physics is computable and what judges it;
+[`TODO.md`](TODO.md) — what is still missing, each item with the criterion
+that would close it; `changelog.md` — what changed; it records the kernel's development and
+lives with it in the kernel repository.
+
+## Attribution
+
+Parts of the physics are white-box translations of published open-source
+reference implementations rather than independent reimplementations.
+`NOTICE` names the files, the upstream revisions, and the ways the
+translations deliberately differ — it describes the Rust source and so lives
+beside it, in the kernel repository.
+
+★**It still has to travel with what is distributed from here.** Apache-2.0
+section 4(d) attaches the obligation to the DISTRIBUTION, not to the source
+tree: the wheel declares `license-files = [… "NOTICE" …]` through
+`python/NOTICE`, and that symlink is currently dangling. Until a copy is
+restored here, a built wheel ships without it.
+
+[`ACKNOWLEDGEMENTS.en.md`](ACKNOWLEDGEMENTS.en.md) is the full human-readable list
+of every upstream code, published formula, reference dataset and cross-code
+oracle this project stands on — and how the code was built (AI-assisted,
+gold-fixture verified).

@@ -1,0 +1,83 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:neo",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "NEO drift-kinetic bootstrap current (Rust port of GACODE NEO)",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 1000,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-01T00:00:00Z",
+  "fylite:entry": "fylite.scenario.model.neoclassical:bootstrap",
+  "fylite:acceptance": {
+    "@note": "★the drift-kinetic solve reports no self-assessment: the backend either returns a bootstrap current or raises. A criterion would have to compare against the Sauter/Redl baselines the result already carries beside it, and「how far apart is too far」is an open physics question in this repo (the standalone branch is a measured ~5.4x in MAGNITUDE — see `test_bootstrap_units.py`), not a number to invent here.",
+    "jpar_dke": {
+      "tbd": "no acceptance band; the shape cross-check against Redl-2021 is a separate gate, not a per-run verdict"
+    }
+  },
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "equilibrium",
+        "label": "flux-surface geometry source",
+        "data_type": "fyo:equilibrium"
+      },
+      {
+        "port_id": "core_profiles",
+        "label": "kinetic profiles",
+        "data_type": "fyo:core_profiles"
+      }
+    ],
+    "out": [
+      {
+        "port_id": "j_bootstrap",
+        "label": "bootstrap current profile",
+        "data_type": "fyo:core_profiles"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/east/compute_artifact/neo",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-01T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

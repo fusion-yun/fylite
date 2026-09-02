@@ -88,8 +88,7 @@ below were **deliberately not taken**, for differing reasons, but they belong to
 the same record:
 
 - **EFIT lineage**: no EFIT-family source, Green's-table generator or recorded
-  output is present in any form; `equilibrium.rs` and `inverse.rs` are
-  clean-room (their author has not read `fortran/efit/src/`).
+  output is present in any form.
 - **GRAY**: the EC ray-tracing port was stopped; its licence does not permit
   direct translation, and no GRAY physics source was read for fylite.
 - **UMFPACK**: not ported — the sparse LU is written from scratch (see

@@ -1,0 +1,80 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:zerod",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "0-D discharge on prescribed profiles: Ip / V_loop / P_fus / Q trajectories",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 1000,
+    "measured_ms": 1,
+    "evidence": "3 runs on the container that recorded it, 2026-08-25 — NOT the single-laptop baseline NR-ENV-002 declares; the budget is the envelope, this is the evidence it is not being approached"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.model:zerod",
+  "fylite:acceptance": {
+    "@note": "★the 0-D discharge SOLVES nothing iteratively in `evaluate` mode — n_e/T_e/T_i are prescribed inputs — so it has no residual to score. The `predict` mode solves an energy balance and could report its own convergence; it does not yet.",
+    "converged": {
+      "tbd": "only the `predict` mode has anything to converge, and it does not report it; in `evaluate` mode there is nothing to score"
+    }
+  },
+  "fylite:tool": "zerod",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "pulse_schedule",
+        "label": "0-D scenario definition (programmed waveforms)",
+        "data_type": "fyo:pulse_schedule",
+        "optional": true
+      }
+    ],
+    "out": [
+      {
+        "port_id": "summary",
+        "label": "0-D discharge trajectories and operating-point criteria",
+        "data_type": "fyo:summary"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/zerod",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

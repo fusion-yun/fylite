@@ -1,0 +1,102 @@
+{
+ "@context": {
+  "sp": "https://spdata.org/sp#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "fyo": "https://fusion-yun.github.io/fyo/latest/",
+  "fylite": "urn:fylite:"
+ },
+ "@id": "fylite:evolve",
+ "@type": [
+  "sp:ComputeArtifact",
+  "prov:Plan"
+ ],
+ "fylite:title": "Time-marching 1.5-D heat channel on a prescribed Miller geometry (the browser's 含时演化 bar)",
+ "fylite:version": "0.1.0",
+ "fylite:response": {
+  "tier": "batch",
+  "budget_ms": null,
+  "measured_ms": 36,
+  "evidence": "36 ms median of 3 runs of the shipped `evolve-default` case (60 steps, 31 radii) on the container that recorded it, 2026-08-26 — NOT the single-laptop baseline NR-ENV-002 declares.  ★It is `batch` rather than `interactive` even so: the step count is the READER's (this bar ships cases with 400), so a per-call budget would hold for short marches and silently fail long ones.  The number above is what one step costs, times sixty."
+ },
+ "fylite:generated": "2026-08-26T00:00:00Z",
+ "fylite:entry": "fylite.scenario.model:evolve",
+ "fylite:acceptance": {
+  "settled": {
+   "require": false,
+   "tbd": "a march that runs its full step budget has NOT failed — it ran the discharge the caller asked for.  `settled` says it reached its own steady state early, which is information about the plasma, not a verdict on the run; scoring it would fail every deliberately time-limited discharge"
+  },
+  "dt_capped": {
+   "pass": 0,
+   "warn": 0,
+   "@note": "★steps that ran AT the collisional-exchange ceiling.  Any is a WARNING and none is a pass: the cap is what stops an explicit step longer than the exchange time from quietly DECOUPLING Te from Ti (measured on the ITER case: 11.8 keV beside 6.3 keV with no warning anywhere).  A capped step is honest — the loop bound it on purpose — but it says the reader's dt was not the dt that ran."
+  },
+  "@note": "the march reports what it did rather than being scored on whether the plasma was favourable — `settled` is a RESULT and is carried as [TBD] for that reason.  The two that ARE scored are about whether the NUMBERS can be trusted: a step that ran at the exchange ceiling, and a pedestal evaluated outside its training box.",
+  "ped_extrapolation": {
+   "pass": 0,
+   "warn": 1000000000.0,
+   "@note": "★the worst EPED1-NN extrapolation distance over the march (0 = every evaluation sat inside the training box).  ★★There is NO distance at which this becomes a FAIL, and the bound says so: upstream ANSWERS an out-of-box input rather than refusing it, and reports how far out it sat — so the honest verdict is「conditional, and here is how far」.  What such a run can never be is a PASS.  Inventing a fail band would be inventing a threshold nobody has published (宁可拒绝，不给假数).  Measured on the shipped `evolve-fuse-iter` case: a fixed-chi burn runs away to beta_N ~ 7 and takes the surrogate 0.49 of an input range outside its box."
+  },
+  "balance_worst": {
+   "pass": 1e-10,
+   "warn": 1e-08,
+   "@note": "★T-C23 (`jetto.chksum` 的对应件): the worst per-channel conservation residual over the march, relative.  The finite-volume scheme conserves BY CONSTRUCTION — summing the operator's rows telescopes the face fluxes — so this is machine noise when the books close, and the value is in REGRESSION rather than in any physics claim (T-C23's own words: 价值在回归不在物理声称).  What it does catch is real: a source integrated on the wrong weight, a metric that lost its V', a boundary term nobody accounted for.  ★The band is MEASURED, not guessed: worst 9.8e-13 over all eleven runnable corpus cases (2026-08-26, up to 400 steps each), so `pass` sits two orders above it.  ★A retried step is NOT audited — the controller threw the attempt away and halved dt internally, so its dt cannot be named from outside; the retry count is in the record either way."
+  }
+ },
+ "fylite:tool": "evolve",
+ "fylite:ports": {
+  "in": [
+   {
+    "port_id": "core_profiles",
+    "label": "initial Te / Ti / ne profiles (else built from the prescribed peaking)",
+    "data_type": "fyo:core_profiles",
+    "optional": true
+   },
+   {
+    "port_id": "core_sources",
+    "label": "auxiliary deposition (prescribed Gaussian; a beam or a wave is NOT this port)",
+    "data_type": "fyo:core_sources",
+    "optional": true
+   }
+  ],
+  "out": [
+   {
+    "port_id": "core_profiles",
+    "label": "the profiles the march reached, with the per-step traces",
+    "data_type": "fyo:core_profiles"
+   }
+  ]
+ },
+ "fylite:projection": {
+  "$schema": "compute-artifact/2.0",
+  "artifact_id": "fylite/scenario/compute_artifact/evolve",
+  "kind": "solver",
+  "version": "0.1.0",
+  "owner": "did:spharness:fylite/maintainers",
+  "tenancy_scope": "project_local",
+  "provenance_class": "unverified",
+  "sandbox_profile": {
+   "isolation": "container",
+   "network": "deny",
+   "fs_readonly": false,
+   "egress_policy": "deny"
+  },
+  "permissions": {},
+  "revocation_policy": {
+   "cascade_strategy": "taint_downstream",
+   "rollback_sla_minutes": 60
+  },
+  "data_classification_max": "internal",
+  "air_gapped_compatible": true,
+  "registration_status": "unregistered_sandbox",
+  "signature": {
+   "algorithm": "ed25519",
+   "signer": "did:spharness:fylite/maintainers",
+   "signer_chain": [
+    "did:spharness:fylite/maintainers"
+   ],
+   "value": "UNSIGNED",
+   "signed_at": "2026-08-25T00:00:00Z",
+   "canonical_form_version": "jcs-1.0"
+  }
+ }
+}

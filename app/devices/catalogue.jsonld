@@ -1,0 +1,60 @@
+{
+  "@context": {
+    "fylite": "urn:fylite:",
+    "prov": "http://www.w3.org/ns/prov#"
+  },
+  "@id": "fylite:DeviceCatalogue/app",
+  "@type": "fylite:DeviceCatalogue/1",
+  "fylite:note": "The machines a published page offers without being handed a file. Each entry is a byte-for-byte copy of machine_desc/<id>/fylite_device_<id>.json; python/tests/test_machine_desc.py diffs them, so a preset cannot drift from the description it came from. Everything under app/ is published, so a preset is a redistribution -- prov:wasDerivedFrom below says what each machine's numbers are, and where they came from, in the data rather than in prose somewhere else.  ★★2026-09-01：best 与 cfetr 已从本仓移出（PF 线圈表出处是私人通信，不随公开仓发布），两条预设与其符号链接一并撤下。站点上那两台在下一次发布前仍在，撤下它们是那次发布的一部分。",
+  "fylite:generator": "tools/fyo-device-to-app.py --all --preset -o app/devices (the documents), this file by hand",
+  "fylite:devices": [
+    {
+      "fylite:device_id": "east",
+      "fylite:document": "east.jsonld",
+      "fylite:name": "EAST",
+      "prov:wasDerivedFrom": [
+        "ASIPP EAST: the efund &IN3 deck (dprobe.dat) -- 14 PF conductor rectangles, 35 flux loops, 79 magnetic probes, both limiter contours",
+        "EFIT_POINT_GUI_v5 (est2 basis) -- the operational limiter and per-channel fit weights",
+        "shot #137985 @ 4.0 s -- the reference discharge: measured PF channel A-turns and 35 flux-loop readings"
+      ],
+      "fylite:via": "machine_desc/east/east_device.yaml (hand-maintained) -> fylite_device_east.json",
+      "fylite:reference_discharge": true,
+      "fylite:reference_discharge_note": "★This machine is the operator's own description and it carries a REAL discharge -- measured channel currents and loop readings from #137985. It is a preset by explicit decision (2026-08-22); before that it was an input under machine_desc/, kept out of everything this repository publishes."
+    },
+    {
+      "fylite:device_id": "iter",
+      "fylite:document": "iter.jsonld",
+      "fylite:name": "ITER",
+      "prov:wasDerivedFrom": [
+        "ITER EDA, 'Data for study of ITER plasma magnetic control', version 3.15, ITER_D_33NHXN (Y. Gribov, 19 July 2016) -- first wall, divertor, vessel outlines and the 110 poloidal flux loops",
+        "ITER EDA, 'CS and PF coils data and requirements to separatrix positioning', CS_and_PF_coils_data_and_requirements_to_2ACJT3_v3_1 (26 April 2010) -- the 6 CS + 6 PF rectangular elements and their turns",
+        "TEQ reference equilibrium g900003.00230_ITER_15MA_eqdsk16LR (15 MA inductive burn) -- RCENTR and BCENTR only"
+      ],
+      "fylite:via": "fydata machine/tokamak/iter -> machine_desc/iter/iter_device.yaml",
+      "fylite:reference_discharge": false,
+      "fylite:reference_discharge_note": "None: no measured PF channel currents for ITER exist here, and inventing a set would make every derived number on the page fiction. The pages handle a machine without one."
+    }
+  ],
+  "fylite:not_presets": [
+    {
+      "fylite:device_id": "best",
+      "fylite:why": "Withdrawn 2026-09-01, and not for a technical reason: the PF coil table comes from private communication, so it is not this repository's to redistribute. Nothing here reads it any more -- `assets/fyodev.js` still names BEST where a comment explains why the wall reader handles four-piece limiters, which is about an IMPORTED file, not a shipped one."
+    },
+    {
+      "fylite:device_id": "cfetr",
+      "fylite:why": "Withdrawn 2026-09-01, same reason as `best`: the PF coil table is private communication. ★These two were also the only bundled descriptors carrying NO magnetics, so their withdrawal took the app's only fixture for the empty-flux-loop path with it -- see the note on `gridChannelResponse` in `assets/worker.js` and the catalogue-driven boot loop in `app/tests/validate-design.mjs`."
+    },
+    {
+      "fylite:device_id": "cfedr",
+      "fylite:why": "Not shippable, and not for want of permission: the upstream description carries no wall, so `FyoDevice.fromFyo` has no limiter contour to put a plasma inside. Its fyo description is machine_desc/cfedr/."
+    },
+    {
+      "fylite:device_id": "jt60sa",
+      "fylite:why": "The upstream description carries a wall and no coils, and no device-level vacuum field. Its fyo description is machine_desc/jt60sa/."
+    },
+    {
+      "fylite:device_id": "west",
+      "fylite:why": "17 coils and a full monoblock wall, but no device-level B0 -- the page needs one and this repository will not invent it. Its fyo description is machine_desc/west/."
+    }
+  ]
+}

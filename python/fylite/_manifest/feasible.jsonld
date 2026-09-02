@@ -1,0 +1,96 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:feasible",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "2-D feasibility scan of the field-null design",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "batch",
+    "budget_ms": null,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.design:feasible",
+  "fylite:acceptance": {
+    "@note": "★`n_feasible` is a RESULT: a scan that finds no feasible point has answered the question asked of it. The run's own quality is whether every grid point actually solved, which the scan does not report separately yet.",
+    "n_points": {
+      "tbd": "the scan reports how many points it evaluated, not how many SOLVED; until those are distinct numbers there is nothing to score"
+    }
+  },
+  "fylite:tool": "feasible",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "pf_active",
+        "label": "per-channel current box (caller-supplied limits)",
+        "data_type": "fyo:pf_active",
+        "optional": true
+      }
+    ],
+    "out": [
+      {
+        "port_id": "plasma_initiation",
+        "label": "feasibility grid: per-point verdict and blocking channels",
+        "data_type": "fyo:plasma_initiation"
+      }
+    ]
+  },
+  "fylite:argument_shapes": {
+    "axis1": {
+      "required": [
+        "name",
+        "values"
+      ],
+      "note": "name = the breakdown parameter to scan, values = the points to scan it over"
+    },
+    "axis2": {
+      "required": [
+        "name",
+        "values"
+      ],
+      "note": "the second scan axis, same shape as axis1"
+    }
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/feasible",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

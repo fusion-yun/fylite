@@ -1,0 +1,93 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:discharge",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "Static coil inverse: target boundary -> coil currents",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "batch",
+    "budget_ms": null,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.design:discharge",
+  "fylite:acceptance": {
+    "@note": "the inverse design reports a shape residual per round; an acceptance band on it is a per-machine statement (how close to the requested boundary is close enough) that this package does not carry.",
+    "error": {
+      "tbd": "shape residual [m]; no published acceptance band — see the note"
+    }
+  },
+  "fylite:tool": "discharge",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "equilibrium",
+        "label": "target boundary (shape only)",
+        "data_type": "fyo:equilibrium"
+      },
+      {
+        "port_id": "pf_active",
+        "label": "starting coil currents (the anneal linearises about them)",
+        "data_type": "fyo:pf_active"
+      }
+    ],
+    "out": [
+      {
+        "port_id": "pf_active",
+        "label": "solved coil currents",
+        "data_type": "fyo:pf_active"
+      }
+    ]
+  },
+  "fylite:argument_shapes": {
+    "target": {
+      "required": [
+        "r0",
+        "a"
+      ],
+      "note": "the target boundary as Miller parameters: r0, a, and optionally kappa / delta_upper / delta_lower / z0"
+    }
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/discharge",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

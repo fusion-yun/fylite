@@ -1,0 +1,89 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:transport",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "1.5-D core transport step (fixed geometry, theta-implicit finite volume)",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 1000,
+    "measured_ms": 1,
+    "evidence": "3 runs on the container that recorded it, 2026-08-25 — NOT the single-laptop baseline NR-ENV-002 declares; the budget is the envelope, this is the evidence it is not being approached"
+  },
+  "fylite:generated": "2026-08-25T00:00:00Z",
+  "fylite:entry": "fylite.scenario.model:transport",
+  "fylite:acceptance": {
+    "converged": {
+      "require": true
+    },
+    "settled": {
+      "require": true
+    },
+    "@note": "two different statements and both are the run's own: `converged` is the inner Picard loop, `settled` the outer march reaching a steady state rather than the step ceiling."
+  },
+  "fylite:tool": "transport",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "core_profiles",
+        "label": "initial temperature profiles",
+        "data_type": "fyo:core_profiles",
+        "optional": true
+      },
+      {
+        "port_id": "core_sources",
+        "label": "heating source profile (caller-supplied)",
+        "data_type": "fyo:core_sources",
+        "optional": true
+      }
+    ],
+    "out": [
+      {
+        "port_id": "core_profiles",
+        "label": "advanced temperature profiles",
+        "data_type": "fyo:core_profiles"
+      }
+    ]
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/scenario/compute_artifact/transport",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-25T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

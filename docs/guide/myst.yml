@@ -1,0 +1,51 @@
+# 用户指南 (The Guide) —— 一本独立的 MyST 书。
+#
+# ★这本书有**两个面**，它们不是两本书：
+#
+#   使用者篇  `public.yml` 点名的那几篇。它们另由 `tools/build-guide.sh` 编译成
+#             静态 HTML 落进 `app/guide/`，随浏览器演示一同公开发布。
+#   仓内篇    引仓内路径与文档编号（`FYL-SDD-01`、`python/tests/` …）的章节。
+#             公开页上那些都是断链，所以它们**不在** `public.yml` 里。
+#
+# 目录（本文件）与发布面（`public.yml`）是两件事，故分成两张表：两者一旦合成
+# 一条规则，往 guide/ 加一篇仓内章节就会静默地把它发布出去。
+#
+# 构建：cd docs/guide && myst build --html
+# 发布子集：bash tools/build-guide.sh
+version: 1
+project:
+  id: fylite-guide-book
+  title: FyLite 用户指南 (Guide)
+  subtitle: 浏览器与 Python 两种用法，以及结果该怎么读
+  authors:
+    - name: FuYun / fylite maintainers
+  license:
+    content: CC-BY-4.0
+  numbering:
+    headings: true
+  #: ★不拷 `app/` 进来。演示是**产品**，不是这本书的一章（2026-09-01 裁定），
+  #: 所以「浏览器演示」那一章给的是**已发布站点的绝对地址**。顺带解决一件实测
+  #: 出来的事：`app/devices/` 下是指向 `machine_desc/` 的符号链接（一份真源），
+  #: MyST 的静态拷贝在其上会报 "Cannot copy … to a subdirectory of itself"。
+  toc:
+    - file: index.md
+    - title: 使用者篇 (For Users · 随演示公开发布)
+      children:
+        - file: browser.md
+        - file: python.md
+        - file: reading-results.md
+        - file: limits.md
+    - title: 仓内篇 (In-repo Chapters)
+      children:
+        - file: install.md
+        - file: quickstart.md
+        - file: input-modes.md
+        - file: constraints.md
+        - file: reconstruction.md
+        - file: forward-and-evolution.md
+        - file: stability-and-control.md
+        - file: browser-app.md
+site:
+  title: FyLite 用户指南
+  options:
+    logo: ../figures/fylite_logo.svg

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spharness.simpla-fusion.org/schemas/compute_artifact.schema.json",
+  "title": "ComputeArtifact Manifest",
+  "description": "Normative schema for compute-artifact/2.0 manifests. Authoritative source: docs/ontology/artifact/compute_artifact.md.",
+
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifact_id",
+    "kind",
+    "version",
+    "owner",
+    "tenancy_scope",
+    "provenance_class",
+    "signature",
+    "sandbox_profile",
+    "permissions",
+    "revocation_policy",
+    "data_classification_max",
+    "air_gapped_compatible"
+  ],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "const": "compute-artifact/2.0"
+    },
+    "artifact_id": { "$ref": "common.schema.json#/$defs/ArtifactId" },
+    "kind": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{2,31}$",
+      "$comment": "Open enum per KindRegistry (artifact-dsl-compute-kind-registry). Well-known: solver | library | container | ai_tool | model_card | drp | gui_node_plugin. ADR-006 removed expression/external_program/script_block (replaced by Workflow IR custom_node), and v0.11 removed hpc_adapter (moved to ComputeResource resource_kind)."
+    },
+    "version": { "$ref": "common.schema.json#/$defs/SemVer" },
+    "min_host_version": { "$ref": "common.schema.json#/$defs/SemVer" },
+    "owner": { "$ref": "common.schema.json#/$defs/Did" },
+    "signer": { "$ref": "common.schema.json#/$defs/Did" },
+    "signer_chain": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "common.schema.json#/$defs/Did" }
+    },
+    "tenancy_scope":    { "$ref": "common.schema.json#/$defs/TenancyScope" },
+    "provenance_class": { "$ref": "common.schema.json#/$defs/ProvenanceClass" },
+
+    "sandbox_profile": {
+      "type": "object",
+      "required": ["isolation", "network", "fs_readonly", "egress_policy"],
+      "additionalProperties": false,
+      "properties": {
+        "isolation": { "enum": ["container", "wasm", "iframe", "hpc_job"] },
+        "cpu_quota": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$" },
+        "memory_quota": { "type": "string", "pattern": "^[0-9]+(Ki|Mi|Gi|Ti)$" },
+        "network": { "enum": ["deny", "allow_list", "full"] },
+        "network_allow_list": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "fs_readonly": { "type": "boolean" },
+        "egress_policy": { "enum": ["deny", "metered", "allow"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "network": { "const": "allow_list" } } },
+          "then": { "required": ["network_allow_list"] }
+        }
+      ]
+    },
+
+    "permissions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "not": { "pattern": "^data:\\*" }
+        }
+      },
+      "description": "Map of permission categories to allow-list patterns. '*' wildcards are MUST NOT in 'data' category."
+    },
+
+    "rate_limit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "qps": { "type": "number", "minimum": 0 },
+        "burst": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "cost_unit": { "type": "string" },
+
+    "revocation_policy": {
+      "type": "object",
+      "required": ["cascade_strategy", "rollback_sla_minutes"],
+      "additionalProperties": false,
+      "properties": {
+        "cascade_strategy": { "enum": ["taint_downstream", "freeze_downstream", "ignore"] },
+        "rollback_sla_minutes": { "type": "integer", "minimum": 1, "maximum": 60 }
+      }
+    },
+
+    "audit_tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+    },
+
+    "data_classification_max": {
+      "enum": ["public", "internal", "restricted", "secret"]
+    },
+
+    "air_gapped_compatible": { "type": "boolean" },
+
+    "traits": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Kind-specific trait blocks. Per-trait sub-schemas registered separately under schemas/traits/."
+    },
+
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target_id", "version_range", "reference_type"],
+        "additionalProperties": false,
+        "properties": {
+          "target_id": { "$ref": "common.schema.json#/$defs/ArtifactId" },
+          "version_range": { "$ref": "common.schema.json#/$defs/VersionRange" },
+          "reference_type": {
+            "enum": ["task_calls", "data_consumes", "data_produces", "library_links"]
+          }
+        }
+      }
+    },
+
+    "signature": { "$ref": "common.schema.json#/$defs/Signature" },
+
+    "registration_status":      {
+      "enum": ["unregistered_sandbox", "registration_pending", "registration_approved", "registered", "registration_rejected"],
+      "description": "ADR-006: lifecycle along Promotion Pipeline; absent or 'registered' for production artifacts"
+    },
+    "audit_report_ref":         {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "common.schema.json#/$defs/ArtifactId" }
+      ],
+      "description": "ADR-006: link to latest AuditReport (Provenance Activity kind=AuditCommit)"
+    },
+    "sandbox_only":             {
+      "type": "boolean",
+      "default": false,
+      "description": "ADR-006: true for sandbox-only kinds (expression / external_program / script_block); MUST NOT be referenced by Released Workflow IR templates"
+    }
+  }
+}

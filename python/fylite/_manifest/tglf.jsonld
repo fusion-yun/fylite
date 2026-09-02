@@ -1,0 +1,93 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:tglf",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "TGLF turbulent transport / linear stability",
+  "fylite:version": "0.1.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 1000,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-01T00:00:00Z",
+  "fylite:entry": "fylite.scenario.model:tglf",
+  "fylite:acceptance": {
+    "@note": "★the ported face returns growth rates and quasi-linear fluxes and does not search the mode width (its caveat says so). A per-run criterion would be「did the eigenvalue solve converge」, which the port does not report.",
+    "gamma": {
+      "tbd": "growth rates are the ANSWER, not a quality metric; what would be scored is the eigen-solve's own convergence, which is not reported"
+    }
+  },
+  "fylite:tool": "tglf",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "equilibrium",
+        "label": "local geometry source",
+        "data_type": "fyo:equilibrium"
+      },
+      {
+        "port_id": "core_profiles",
+        "label": "local kinetic parameters",
+        "data_type": "fyo:core_profiles"
+      }
+    ],
+    "out": [
+      {
+        "port_id": "fluxes",
+        "label": "turbulent fluxes",
+        "data_type": "fyo:core_transport"
+      }
+    ]
+  },
+  "fylite:argument_shapes": {
+    "inputs": {
+      "required": [
+        "NS",
+        "WIDTH"
+      ],
+      "note": "a TGLF input deck under upstream's parameter names. WIDTH is required BY DESIGN: libtglf bisects for the mode width and this port does not — it will not guess one for you"
+    }
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/east/compute_artifact/tglf",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-01T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "@comment": [
+    "The fylite: terms that MORE THAN ONE host writes into an fyo document.",
+    "",
+    "A term only one host writes is that page's private extension and cannot",
+    "diverge; these fourteen can, because two independent writers spell them.",
+    "The rule is one-directional and needs no list of DD names:",
+    "",
+    "  A term listed here MUST always carry the `fylite:` prefix.",
+    "",
+    "Writing one bare claims IMAS-DD provenance the term does not have, and a",
+    "reader looking for the prefixed spelling simply does not find the field",
+    "-- no error, just a document that silently lost a section.  Not",
+    "hypothetical: `psi_norm` was written bare by app/assets/session.js and by",
+    "one block of scenario-analysis.js, while fyo.py and the OTHER block of",
+    "scenario-analysis.js wrote `fylite:psi_norm`, inside documents all typed",
+    "`fyo:equilibrium`.  No reader ever consumed the bare form.",
+    "",
+    "`gated` says whether a machine can enforce the rule for that term.  A",
+    "term that is also an ordinary identifier -- `q`, `config`, `result` --",
+    "appears bare all over both hosts as a perfectly correct local name, so a",
+    "spelling check cannot bind it without drowning in false positives.  Those",
+    "are listed because they ARE part of the contract and a reader needs to",
+    "know it; they are simply not machine-checkable by spelling alone.",
+    "",
+    "Generated into the browser as app/assets/fyo-names.js by rust/build.sh.",
+    "Gated by python/tests/test_fyo_vocabulary.py.",
+    "",
+    "2026-08-25: `sat_rule` left this register -- only `fyo.py` writes it today, so by the scope above it is a private extension, and the reverse gate (`test_a_term_that_becomes_shared_must_be_listed`) brings it back by itself the day the browser's TGLF path writes a document. Eleven terms joined in the same pass; they had been written by both hosts and listed by neither.",
+    "",
+    "2026-08-25 (merge): `equilibrium` joined when the browser's stationary loop started writing it as a block key -- the reverse gate found it, which is what that gate is for.",
+    "2026-08-26: the seven case-corpus terms (`bar` `case` `case_id` `cases` `device` `document` `initial`) joined when `fylite cases` gave the corpus a second (Python) reader beside scenario.js -- the reverse gate found them, which is what that gate is for."
+  ],
+  "namespace": "urn:fylite:",
+  "fyo_context": "https://fusion-yun.github.io/fyo/latest/",
+  "terms": {
+    "a1": {
+      "gated": false,
+      "gloss": "Overall rotation angle [deg] of a conductor element. The DD rectangle has no tilt spelling, so EAST's tilted vessel elements carry it namespaced. Not gated: `a1` is also the ordinary field name of the in-memory element descriptor in both hosts — fyodev.js reads `fylite:a1` INTO a bare `a1`, and device.Element declares one."
+    },
+    "a2": {
+      "gated": false,
+      "gloss": "Angle [deg] of the element side of length `height` with the horizontal; 90 is a plain rectangle. Absent means 90, NOT 0 -- 0 would collapse the element to a line. Not gated: same as a1 — an ordinary field name of the in-memory descriptor in both hosts."
+    },
+    "a_minor": {
+      "gated": false,
+      "gloss": "Minor radius [m] carried on an equilibrium's global quantities, where the DD has no slot for it. Not gated: `a_minor` is also the ordinary name of that number throughout the kernel bindings and the metric ladder."
+    },
+    "angle_deg": {
+      "gated": false,
+      "gloss": "Poloidal angle [deg] of a magnetic probe. Carried BESIDE the DD `poloidal_angle` (rad) rather than derived from it: the conversion is lossy -- 12 of EAST's 79 probe angles do not survive degrees->radians->degrees -- and a k-file writes the degrees. Not gated: `angle_deg` is also the ordinary field name of the in-memory probe-geometry dict in both hosts."
+    },
+    "channel_basis": {
+      "gated": true,
+      "gloss": "Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel). A vector read in the wrong basis is silently rescaled by the turn count, which is why this one is gated."
+    },
+    "coil_current_units": {
+      "gated": true,
+      "gloss": "Whether coil currents are amperes or ampere-turns, e.g. `A.turns`."
+    },
+    "config": {
+      "gated": false,
+      "gloss": "The input configuration a result was produced from. Not gated: ordinary local name."
+    },
+    "created": {
+      "gated": false,
+      "gloss": "ISO-8601 timestamp the document was written. Not gated: ordinary local name."
+    },
+    "deposited": {
+      "gated": false,
+      "gloss": "Whether a wave source actually resonated and put power in — a result, not a failure, and one a persisted document has to be able to state. Not gated: `deposited` is also an ordinary local flag in both hosts."
+    },
+    "document": {
+      "gated": true,
+      "gloss": "Filename of a catalogue entry's case document, relative to `docs/cases/`. Gated even though `document` is the browser's DOM global: the DOM use is `document.<member>`, never a `document:` key or `['document']` subscript, so the spelling check binds without false positives."
+    },
+    "dvolume": {
+      "gated": false,
+      "gloss": "dV/dpsi_N on the grid a source profile is given on, so a reader can integrate the deposition without re-deriving the metric. Not gated: it is the physics layer's own key for the same array."
+    },
+    "equilibrium": {
+      "gated": false,
+      "gloss": "The equilibrium block a step writes beside its own numbers — the browser's stationary loop writes `fylite:equilibrium` for step 6's re-solve account. ★It is ALSO the identifier `fyo.py` falls back to when a document has no `@id` (`doc.get('@id', 'fylite:equilibrium')`), so this one CURIE is a property on one side and an individual on the other; that is legal and it is confusing, and it is written down here rather than left to be rediscovered. Not gated: `equilibrium` is an ordinary local name in four of the browser's files."
+    },
+    "eta_cd": {
+      "gated": false,
+      "gloss": "Current-drive efficiency actually used by a wave source. Not gated: it is also the keyword the model entries take."
+    },
+    "fast_energy": {
+      "gated": false,
+      "gloss": "Stored fast-ion energy [J] of a beam deposition. Not gated: the deposition result dict spells it the same way."
+    },
+    "length": {
+      "gated": false,
+      "gloss": "Effective length [m] of a magnetic probe, the span its reading averages over. The DD has no spelling for it on `b_field_pol_probe`. Not gated: `length` is an ordinary identifier in both hosts and no spelling check could bind it."
+    },
+    "max_power": {
+      "gated": false,
+      "gloss": "Nameplate maximum power [W] of a heating system's launcher — what the hardware may deliver, as opposed to what a shot injected. The DD's `lh_antennas` has no nameplate field, so it rides namespaced. Not gated: `max_power` is also the ordinary key of the in-memory launcher dict in both hosts."
+    },
+    "n_parallel": {
+      "gated": false,
+      "gloss": "The launched parallel refractive-index band (lower, upper) of an LH antenna. The DD carries only a per-shot `n_parallel_peak` signal, not the band the hardware can launch, so the band rides namespaced. Not gated: `n_parallel` is an ordinary argument and field name throughout `scenario/model/lh.py` and the kernel bindings."
+    },
+    "name": {
+      "gated": false,
+      "gloss": "Human-readable name of the block it sits on — a coil, a launcher, a saved case. ★Never gatable: `name` is an ordinary key seventy times over in both hosts, which is the exact false-positive class this column exists to record."
+    },
+    "orbit_loss_fraction": {
+      "gated": false,
+      "gloss": "Fraction of injected beam power lost on first orbit, at the TOTAL level (the per-component block spells its own `fylite:orbit_loss`). Not gated: the deposition result dict uses the same key."
+    },
+    "page": {
+      "gated": false,
+      "gloss": "Which application page wrote the document. Not gated: ordinary local name."
+    },
+    "pitch": {
+      "gated": false,
+      "gloss": "Pitch v_par/v of the deposited fast ions on the source grid. Not gated: `pitch` is an ordinary key in the beam model and in the worker."
+    },
+    "power_injected": {
+      "gated": true,
+      "gloss": "Power [W] a beam PUT IN, as against `power` (absorbed) beside it. The two differ by shinethrough and orbit loss, and reading one for the other overstates the heating — gated because neither host uses the name for anything else."
+    },
+    "psi_convention": {
+      "gated": true,
+      "gloss": "Which flux convention the document's psi is in, e.g. `full_flux_Wb_axis_max`. Per-turn vs per-radian silently rescales every gradient term."
+    },
+    "psi_norm": {
+      "gated": true,
+      "gloss": "Normalised poloidal flux grid a profile is sampled on. The DD has no name for a normalised-flux coordinate, which is exactly why this is prefixed."
+    },
+    "q": {
+      "gated": false,
+      "gloss": "Safety factor carried OUTSIDE profiles_1d (inside it, the DD's own bare `q` is correct). Not gated: `q` is an ordinary local name in both hosts."
+    },
+    "q_psi_norm": {
+      "gated": true,
+      "gloss": "The psi_norm grid the safety factor is on, when it differs from the profile grid beside it."
+    },
+    "reconstructed": {
+      "gated": false,
+      "gloss": "The reconstructed counterpart of a truth block. Not gated: ordinary local name."
+    },
+    "result": {
+      "gated": false,
+      "gloss": "The result block of a session document. Not gated: ordinary local name."
+    },
+    "shinethrough": {
+      "gated": false,
+      "gloss": "Fraction of beam power that passed straight through unabsorbed. ★The browser's beam-total block wrote `shinethrough_fraction` for this until 2026-08-25 while its own per-component block and `fyo.py` wrote `shinethrough`; one quantity, two names. Not gated: it is also the deposition result's own key."
+    },
+    "trapped_fraction": {
+      "gated": true,
+      "gloss": "Trapped-particle fraction f_t at each surface."
+    },
+    "truth": {
+      "gated": false,
+      "gloss": "The reference answer a synthetic case was generated from. Not gated: ordinary local name."
+    },
+    "weight": {
+      "gated": false,
+      "gloss": "A channel's weight on a coil element, inside fylite:channel_map. Not gated: `weight` is an ordinary local name."
+    }
+  }
+}

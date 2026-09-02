@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spharness.simpla-fusion.org/schemas/common.schema.json",
+  "title": "SpCO Artifact Module — Common Definitions",
+  "description": "Shared $defs referenced by compute_artifact, data_artifact, compute_resource, workflow_ir, and ir_diff schemas. Authoritative source: docs/ontology/artifact/artifact_common.md §wire-format 字段.",
+
+  "$defs": {
+    "ArtifactId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}/[A-Za-z0-9][A-Za-z0-9_-]{0,63}/(data_artifact|compute_artifact|compute_resource|workflow_template|workflow_instance)/[A-Za-z0-9][A-Za-z0-9_/-]{0,127}$",
+      "description": "TenantPrefix/ProjectPrefix/Kind/LocalName. See artifact-dsl-common-identifier."
+    },
+
+    "SemVer": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "description": "SemVer 2.0.0. Exact version only."
+    },
+
+    "VersionRange": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^(\\^|~)?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$|^(>=|<=|>|<|=)\\s*(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?(\\s*,\\s*(>=|<=|>|<|=)\\s*(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?)*$",
+      "description": "Exact SemVer, ^/~ shorthand, or comma-separated comparator chain. Wildcards (*) and || are MUST NOT."
+    },
+
+    "Did": {
+      "type": "string",
+      "pattern": "^did:spharness:[A-Za-z0-9_./-]+$",
+      "description": "SpHarness Decentralized Identifier. Subject of signature and ownership."
+    },
+
+    "RFC3339UTC": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?Z$",
+      "description": "RFC 3339 UTC. Suffix 'Z' required; numeric offsets MUST NOT."
+    },
+
+    "Sha256Hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Lower-case hex SHA-256 with 'sha256:' prefix."
+    },
+
+    "Signature": {
+      "type": "object",
+      "required": ["algorithm", "signer", "signer_chain", "value", "signed_at", "canonical_form_version"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "enum": ["ed25519", "ecdsa-p256-sha256"]
+        },
+        "signer": { "$ref": "common.schema.json#/$defs/Did" },
+        "signer_chain": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "common.schema.json#/$defs/Did" }
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+={0,2}$",
+          "description": "base64url-encoded signature bytes."
+        },
+        "signed_at": { "$ref": "common.schema.json#/$defs/RFC3339UTC" },
+        "canonical_form_version": {
+          "enum": ["jcs-1.0"]
+        }
+      }
+    },
+
+    "TenancyScope": {
+      "enum": ["tenant_local", "project_local", "cross_tenant_bridged"]
+    },
+
+    "DataClassification": {
+      "enum": ["public", "internal", "restricted", "secret"],
+      "description": "Data sensitivity tier. Resource classification MUST ≥ data classification (E_RESOURCE_CLASSIFICATION_INSUFFICIENT)."
+    },
+
+    "ProvenanceClass": {
+      "enum": ["unverified", "registered", "promoted"],
+      "description": "Trust-state label. Default = unverified (safety-fail). See artifact-dsl-common-provenance-class."
+    },
+
+    "QualityState": {
+      "enum": ["valid", "suspect", "invalid", "unassessed"],
+      "description": "Data-quality state of the artifact CONTENT (third orthogonal label axis; authority: platform SP-ADR-105 D-1/D-2). Default = unassessed (safety-fail, mirroring ProvenanceClass unverified). Orthogonal to data_classification (sensitivity), provenance_class (source trust) and the ontology-level modality (how the value was generated) — MUST NOT be inferred from any of them. `valid` is assessment-only: it is assigned only by an assessment (rule engine or human review) of THIS data, never inherited through lineage (SP-ADR-105 D-3)."
+    },
+
+    "RevocationPolicy": {
+      "type": "object",
+      "required": ["cascade_strategy", "rollback_sla_minutes"],
+      "additionalProperties": false,
+      "properties": {
+        "cascade_strategy": { "enum": ["taint_downstream", "freeze_downstream", "drain_then_taint", "ignore"] },
+        "rollback_sla_minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }
+      }
+    }
+  }
+}

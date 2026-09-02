@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spharness.simpla-fusion.org/schemas/workflow_ir.schema.json",
+  "title": "Workflow IR",
+  "description": "Normative schema for workflow-ir/2.0 documents (template & instance). Authoritative source: docs/ontology/artifact/workflow_ir.md + docs/gui/vpl.md (visual / behavioral contract).",
+
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifact_id",
+    "version",
+    "header",
+    "dag",
+    "semantic_signature",
+    "storage_hash",
+    "signature"
+  ],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": { "const": "workflow-ir/2.0" },
+    "artifact_id": { "$ref": "common.schema.json#/$defs/ArtifactId" },
+    "version": { "$ref": "common.schema.json#/$defs/SemVer" },
+
+    "header": {
+      "type": "object",
+      "required": ["form", "display_name", "owner", "tenancy_scope"],
+      "additionalProperties": false,
+      "properties": {
+        "form": { "enum": ["template", "instance"] },
+        "display_name": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 4096 },
+        "owner": { "$ref": "common.schema.json#/$defs/Did" },
+        "tenancy_scope": { "$ref": "common.schema.json#/$defs/TenancyScope" },
+        "min_host_version": { "$ref": "common.schema.json#/$defs/SemVer" },
+        "min_artifact_versions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "common.schema.json#/$defs/VersionRange" }
+        },
+        "bound_artifact_versions": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": { "$ref": "common.schema.json#/$defs/SemVer" }
+            }
+          ]
+        },
+        "provenance_class": {
+          "enum": ["registered", "sandbox_local", "untraceable", "promoted"],
+          "default": "registered",
+          "description": "ADR-006: registered = full traceability; sandbox_local = relaxed (cannot reach prod); promoted = ex-sandbox after promotion pipeline; untraceable = external_input lineage"
+        },
+        "egress_allowed": {
+          "type": "boolean",
+          "default": true,
+          "description": "ADR-006 §C.2: false for provenance_class=sandbox_local; DSG enforces at egress boundary"
+        },
+        "promotion_ref": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "common.schema.json#/$defs/ArtifactId" }
+          ],
+          "description": "ADR-006: link between sandbox workflow and its promoted registered counterpart"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "form": { "const": "template" } } },
+          "then": { "properties": { "bound_artifact_versions": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "form": { "const": "instance" } } },
+          "then": {
+            "required": ["bound_artifact_versions"],
+            "properties": {
+              "bound_artifact_versions": {
+                "type": "object",
+                "minProperties": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+
+    "dag": {
+      "type": "object",
+      "required": ["nodes", "edges"],
+      "additionalProperties": false,
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Node" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Edge" }
+        }
+      }
+    },
+
+    "semantic_signature": { "$ref": "common.schema.json#/$defs/Sha256Hash" },
+    "storage_hash": { "$ref": "common.schema.json#/$defs/Sha256Hash" },
+    "signature": { "$ref": "common.schema.json#/$defs/Signature" }
+  },
+
+  "allOf": [
+    {
+      "$comment": "ADR-006 §C.2 Promotion Boundary — Released templates MUST NOT contain sandbox-only node kinds. Workflows with provenance_class in {registered, promoted} reject external_program / script_block / expression / external_input nodes.",
+      "if": {
+        "properties": {
+          "header": {
+            "properties": {
+              "provenance_class": {
+                "enum": ["registered", "promoted"]
+              }
+            },
+            "required": ["provenance_class"]
+          }
+        },
+        "required": ["header"]
+      },
+      "then": {
+        "properties": {
+          "dag": {
+            "properties": {
+              "nodes": {
+                "items": {
+                  "properties": {
+                    "kind": {
+                      "not": {
+                        "enum": ["external_program", "script_block", "expression", "external_input"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+
+  "$defs": {
+    "Node": {
+      "type": "object",
+      "required": [
+        "id", "kind", "node_type", "display_name", "node_path",
+        "parent_id", "attrs", "ports", "readonly_fields", "position"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "kind": {
+          "description": "NodeKind taxonomy aligned with VPL v1.67 + workflow_ir.md v0.22. Families: Base / Data-family / Visualization-family / Custom / Container / Computation Model / Literal / Event Source / Boundary / Unverified-Only (DEPRECATED). See docs/dsl/workflow_ir.md §artifact-dsl-workflow-node and docs/gui/vpl.md §节点视觉文法.",
+          "enum": [
+            "task", "data", "vis", "surrogate", "control", "group", "check",
+            "data_source", "data_transform",
+            "vis-merge", "vis-subplots",
+            "custom_node",
+            "loop", "while", "accumulator",
+            "try", "recover", "retry",
+            "fork", "barrier", "select",
+            "input", "output",
+            "const", "var", "env",
+            "timer", "file_watch", "webhook", "signal",
+            "call",
+            "external_program", "script_block", "expression", "external_input"
+          ],
+          "$comment": "DEPRECATED kinds retained for backward-compat IR load: `call` (superseded by custom_node body_mode=external pointing to group IRI, VPL §ixd-flow-compact); `external_program` / `script_block` / `expression` / `external_input` (superseded by custom_node + attrs.body_mode discriminator, VPL §ixd-custom-node). New IR documents SHOULD use the superseding kinds; loaders MUST accept both during the migration window."
+        },
+        "node_type": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "display_name": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "node_path": { "$ref": "common.schema.json#/$defs/ArtifactId" },
+        "parent_id": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1, "maxLength": 64 }
+          ]
+        },
+        "attrs": { "type": "object" },
+        "ports": { "$ref": "#/$defs/PortsBlock" },
+        "readonly_fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "position": {
+          "type": "object",
+          "required": ["x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" }
+          }
+        },
+        "artifact_ref": {
+          "type": "object",
+          "required": ["artifact_id", "version"],
+          "additionalProperties": false,
+          "properties": {
+            "artifact_id": { "$ref": "common.schema.json#/$defs/ArtifactId" },
+            "version": { "$ref": "common.schema.json#/$defs/VersionRange" }
+          }
+        },
+        "group_signature": {
+          "type": "object",
+          "description": "Only allowed when kind = 'group'. Marks the group as a callable subgraph.",
+          "required": ["is_callable", "inputs", "outputs", "params"],
+          "additionalProperties": false,
+          "properties": {
+            "is_callable": { "type": "boolean" },
+            "inputs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/PortDef" }
+            },
+            "outputs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/PortDef" }
+            },
+            "params": { "type": "object" }
+          }
+        },
+        "collapsed": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-node-states: canonical (false) / compact (true) display mode. Persisted; participates in versionSignature per §appendix-version-signature-included."
+        },
+        "locked": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-node-states-fields: structural edit freeze (属性 / Edge / position 不可改). Persisted; participates in versionSignature."
+        },
+        "bypassed": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-node-states-fields: Runner skips algorithm and passes inputs through to outputs (Houdini Bypass flag semantics). Supersedes the deprecated `disabled` field. Persisted; participates in versionSignature."
+        },
+        "displayed": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-node-states-fields: Display preview focus (Houdini Display flag). Store enforces mutex — at most one node per workflow has displayed=true. Persisted; participates in versionSignature."
+        },
+        "provenance_class": {
+          "enum": ["registered", "sandbox_local", "untraceable", "promoted"],
+          "description": "ADR-006: per-node provenance class; inherits from header.provenance_class unless explicitly overridden (downgrade only)"
+        },
+        "registration_status": {
+          "enum": ["unregistered_sandbox", "registration_pending", "registration_approved", "registered", "registration_rejected"],
+          "description": "ADR-006: lifecycle status of a sandbox node along the Promotion Pipeline"
+        },
+        "audit_severity": {
+          "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+          "description": "ADR-006: latest aggregated severity from DE-COMP-28 AI Security Audit"
+        },
+        "audit_report_ref": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "common.schema.json#/$defs/ArtifactId" }
+          ],
+          "description": "ADR-006: link to latest AuditReport activity in Provenance"
+        },
+        "sandbox_only": {
+          "type": "boolean",
+          "default": false,
+          "description": "ADR-006: true for nodes whose kind is in the sandbox-only set; MUST NOT appear in Released templates"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "enum": ["task", "surrogate"] } } },
+          "then": { "required": ["artifact_ref"] }
+        },
+        {
+          "if": { "properties": { "kind": { "enum": ["data", "vis", "control", "group", "check", "data_source", "data_transform", "vis-merge", "vis-subplots", "custom_node", "input", "output", "call", "loop", "while", "accumulator", "try", "recover", "retry", "fork", "barrier", "select", "const", "var", "env", "timer", "file_watch", "webhook", "signal", "external_program", "script_block", "expression", "external_input"] } } },
+          "then": { "not": { "required": ["artifact_ref"] } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "group" } } },
+          "else": { "not": { "required": ["group_signature"] } }
+        }
+      ]
+    },
+
+    "PortDef": {
+      "type": "object",
+      "required": ["port_id", "label", "data_type"],
+      "additionalProperties": false,
+      "properties": {
+        "port_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "data_type": { "type": "string" },
+        "nullable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Type-level nullability: when true the port accepts/produces `T?` (null-permitting). Orthogonal to PortIn.optional (port-level connection optionality). Participates in versionSignature per VPL §appendix-version-signature-included."
+        },
+        "vararg": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-whole-port-unpack vararg-pack: port absorbs Python *args, receives Tuple<T>. At most one vararg port per signature; MUST sit at signature end after positional ports."
+        },
+        "kwarg": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-whole-port-unpack structural-to-kwarg: port absorbs Python **kwargs, receives Dict<string, T>. At most one kwarg port per signature; MUST sit after vararg."
+        },
+        "default": {
+          "description": "VPL §ixd-node-row-model: presence makes the port render as editable attribute (default value provider) rather than pure port; absence = pure port. Value type MUST conform to data_type."
+        }
+      }
+    },
+
+    "PortsBlock": {
+      "type": "object",
+      "required": ["in", "out"],
+      "additionalProperties": false,
+      "properties": {
+        "in": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PortIn" }
+        },
+        "out": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PortOut" }
+        }
+      }
+    },
+
+    "PortIn": {
+      "type": "object",
+      "required": ["port_id", "label", "side"],
+      "additionalProperties": false,
+      "properties": {
+        "port_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "side": { "const": "left" },
+        "data_type": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "nullable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Type-level: T? permits null token. Distinct from `optional` (port-level)."
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false,
+          "description": "Port-level: port MAY remain unconnected without triggering firing-rule failure (VPL §appendix-os-firing-rule treats optional ports as non-blocking). Distinct from `nullable` (type-level)."
+        },
+        "multi": { "type": "boolean", "default": false },
+        "vararg": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-whole-port-unpack: absorbs varargs (tuple<T>)."
+        },
+        "kwarg": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-whole-port-unpack: absorbs kwargs (dict<str, T>)."
+        },
+        "default": {
+          "description": "VPL §ixd-node-row-model: default value makes this an attribute-style port (editable in INPUT row). Type MUST conform to data_type."
+        },
+        "data_ref": { "$ref": "#/$defs/DataRef" }
+      }
+    },
+
+    "PortOut": {
+      "type": "object",
+      "required": ["port_id", "label", "side"],
+      "additionalProperties": false,
+      "properties": {
+        "port_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "side": { "const": "right" },
+        "data_type": {
+          "oneOf": [{ "type": "string" }, { "type": "null" }]
+        },
+        "nullable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Type-level: emits null-permitting T?."
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false,
+          "description": "Port-level: downstream MAY ignore this OutPort without triggering MissingOutput. VPL §ixd-cm-boundary-nodes: outputs[].nullable determines @error trigger semantics."
+        },
+        "multi": { "type": "boolean", "default": true },
+        "vararg": {
+          "type": "boolean",
+          "default": false,
+          "description": "VPL §ixd-whole-port-unpack: emits tuple<T> for downstream vararg consumption."
+        },
+        "data_ref": { "$ref": "#/$defs/DataRef" }
+      }
+    },
+
+    "DataRef": {
+      "type": "object",
+      "required": ["data_artifact_id"],
+      "additionalProperties": false,
+      "properties": {
+        "data_artifact_id": { "$ref": "common.schema.json#/$defs/ArtifactId" },
+        "anchor": { "type": "string", "maxLength": 256 }
+      }
+    },
+
+    "Edge": {
+      "type": "object",
+      "required": ["id", "source_node", "source_port", "target_node", "target_port"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "source_node": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "source_port": {
+          "type": "string", "minLength": 1, "maxLength": 64,
+          "description": "Port id, '__whole__' literal, or '@...' implicit port"
+        },
+        "target_node": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "target_port": {
+          "type": "string", "minLength": 1, "maxLength": 64,
+          "description": "Port id, '__whole__' literal, or '@...' implicit port"
+        },
+        "kind": {
+          "enum": ["data", "feedback", "function-ref"],
+          "default": "data",
+          "description": "Edge.kind. 'feedback' edges are excluded from DAG acyclicity check."
+        },
+        "transform": { "type": "object" },
+        "attrs": { "type": "object" }
+      }
+    }
+  }
+}

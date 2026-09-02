@@ -1,0 +1,78 @@
+{
+ "$comment": "The environment this package reads, declared where a caller can find it (NR-ENV / FR-DATA-001). Data, not code: `fylite describe` publishes it and `test_environment_table.py` holds it against the source both ways — a variable the code reads and this file does not name is a failure, and so is an entry naming a variable nothing reads. Each entry also declares `affects_result`: whether the variable can change a NUMBER the run delivers, with the reason. `env_fingerprint()` records exactly the ones marked true, so what a run was reproducible from is read off the declaration rather than remembered.",
+ "variables": {
+  "FYLITE_DEVICE_DIR": {
+   "governs": "the machine deck: coil / vessel geometry, diagnostic positions, limiter, Green response tables",
+   "needed_for": "every capability that touches a machine (reconstruction, breakdown, feasible, discharge, coupled, vstab)",
+   "default": "none - the deck is an INPUT and is not shipped; absent, those calls raise MachineDataMissing at the point of use",
+   "example": "machine_desc/east",
+   "affects_result": true,
+   "affects_result_why": "names WHICH TOKAMAK is solved — every geometry, coil and Green table in the answer comes from this deck"
+  },
+  "FYLITE_NN_DIR": {
+   "governs": "where exported neural surrogates live (TGLF-NN and any other model in that family), as .npz written by tools/nn-export.jl",
+   "needed_for": "fylite.nn.load and every capability that asks for a surrogate; nothing else",
+   "default": "none - NO MODEL WEIGHTS ARE SHIPPED, and none are compiled into libfylite.so or the wasm: a surrogate is third-party DATA (TGLF-NN's sat2 ensemble is 3.5 MB) and is loaded on demand. Absent, fylite.nn raises NNDataMissing at the point of use",
+   "example": "~/workspace/data/fylite_nn",
+   "affects_result": true,
+   "affects_result_why": "names WHICH TRAINED MODEL answers - a different export is a different function, and its own training box decides where the answer may be believed"
+  },
+  "FYLITE_RUN_DIR": {
+   "governs": "where runs are written (one directory per session, one per run inside it)",
+   "needed_for": "nothing - it only moves the root",
+   "default": "$XDG_CACHE_HOME/fylite/runs, else ~/.cache/fylite/runs; never the working directory",
+   "example": "/tmp/fylite-runs",
+   "affects_result": false,
+   "affects_result_why": "only moves where the record is written"
+  },
+  "FYLITE_SESSION": {
+   "governs": "the session id runs group under, so several processes can share one session ledger",
+   "needed_for": "nothing - unset, one id is derived per process",
+   "default": "s-<utc>-<pid>, fixed for the life of the process",
+   "example": "s-2026-08-25-review",
+   "affects_result": false,
+   "affects_result_why": "only groups records under an id"
+  },
+  "FY_KERNEL_LIB": {
+   "governs": "the native kernel library to load instead of the bundled one",
+   "needed_for": "nothing - the wheel ships the library",
+   "default": "the packaged _lib/libfylite.so",
+   "example": "rust/target/release/libfylite.so",
+   "affects_result": true,
+   "affects_result_why": "names which kernel binary computes the answer; its sha256 is recorded beside this, and the two together say what ran"
+  },
+  "KEFIT_MDS_SERVER": {
+   "governs": "the MDSplus server host for the EAST trees",
+   "needed_for": "shot/time input modes (--east and a bare shot)",
+   "default": "the device deck's declared server",
+   "example": "127.0.0.1:8000",
+   "affects_result": true,
+   "affects_result_why": "which server the measured shot is read from"
+  },
+  "KEFIT_MDS_ROOT": {
+   "governs": "a LOCAL MDSplus tree root, read instead of a server",
+   "needed_for": "shot/time modes without network",
+   "default": "unset - the server path is used",
+   "example": "/data/east/trees",
+   "affects_result": true,
+   "affects_result_why": "which local tree the measured shot is read from"
+  },
+  "KEFIT_LIMITER": {
+   "governs": "which limiter contour is used when none is named explicitly",
+   "needed_for": "nothing - a bundled default applies",
+   "default": "the deck's limiter.json",
+   "example": "east2018",
+   "affects_result": true,
+   "affects_result_why": "which limiter contour bounds the plasma when none is named — it changes the boundary, so it changes the equilibrium"
+  },
+  "RAYON_NUM_THREADS": {
+   "affects_result": false,
+   "affects_result_why": "the kernel's parallel paths are per-element with identical arithmetic, so the thread count does not change a number — MEASURED 2026-08-26 end to end: `breakdown-iter` (30 scalars, 5 arrays) and `discharge-iter` (138 scalars, the full psi map) are bit-identical at 1 and 4 threads.  Recorded anyway, because the day that stops being true the record is what says which count produced which numbers",
+   "governs": "how many threads rayon's ephemeral pool builds for the kernel's parallel paths",
+   "needed_for": "nothing - unset, rayon uses the machine's available parallelism",
+   "default": "unset - rayon's own default",
+   "example": "4"
+  }
+ },
+ "$note": "The KEFIT_ prefix is the EFIT lineage's; the code that carried that name left with LICENSE 3.1 but these variables keep it because they are what an existing deployment sets.  ★★2026-09-01 移除四项：FY_ORACLE / FY_ORACLE_STORE / FY_ORACLE_PORT / KEFIT_REFERENCE_BUNDLE。它们的读者随 `fylite._oracle`、`fylite._port` 与 `_paths.reference_bundle()` 一起移除——冻结参考库是被移除求解器的输出，驱动私有检出的钩子不该从公开模块伸出去，而那个 ASIPP 参考包不可再分发。★这张表由 `tests/test_environment_table.py` 逐项核对「声明了就必须真的有人读」，所以删代码不删声明会红——本条就是那道闸抓出来的。"
+}

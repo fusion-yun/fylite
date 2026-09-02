@@ -1,9 +1,0 @@
-{
-  "@context": {
-    "fylite": "urn:fylite:"
-  },
-  "@id": "fylite:CaseCatalogue/public",
-  "@type": "fylite:CaseCatalogue/1",
-  "fylite:note": "公开算例目录。一个算例是一份会话文档（只装输入，不装结果），喂回页面走与导入同一条 FySession.apply。纳入判据见 README.md。",
-  "fylite:cases": []
-}

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spharness.simpla-fusion.org/schemas/data_artifact.schema.json",
+  "title": "DataArtifact Manifest",
+  "description": "Normative schema for data-artifact/2.0 manifests. Authoritative source: docs/ontology/artifact/data_artifact.md §顶层语法.",
+
+  "type": "object",
+  "required": [
+    "$schema",
+    "artifact_id",
+    "version",
+    "owner",
+    "tenancy_scope",
+    "provenance_class",
+    "signature",
+    "storage_uri",
+    "storage_hash",
+    "byte_size",
+    "data_type",
+    "data_classification",
+    "revocation_policy"
+  ],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema":             { "const": "data-artifact/2.0" },
+    "artifact_id":         { "$ref": "common.schema.json#/$defs/ArtifactId" },
+    "version":             { "$ref": "common.schema.json#/$defs/SemVer" },
+
+    "owner":               { "$ref": "common.schema.json#/$defs/Did" },
+    "signer":              { "$ref": "common.schema.json#/$defs/Did" },
+    "signer_chain": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "common.schema.json#/$defs/Did" }
+    },
+    "tenancy_scope":       { "$ref": "common.schema.json#/$defs/TenancyScope" },
+    "provenance_class":    { "$ref": "common.schema.json#/$defs/ProvenanceClass" },
+    "quality": {
+      "$ref": "common.schema.json#/$defs/QualityState",
+      "$comment": "Optional; ABSENT means unassessed (SP-ADR-105 D-2 default) — not in `required` so pre-existing manifests stay valid. Channel-level granularity and channel->dataset aggregation are allocated to the fyo mapping batch (SP-ADR-105 D-5, platform ledger W-1.3); until it lands this field carries the DATASET-level state only. Human re-assessment goes through the IR Diff controlled-write path (FR-12/FR-14)."
+    },
+
+    "storage_uri": {
+      "type": "string",
+      "format": "uri",
+      "description": "Byte-stream location URI (s3:// / file:// / oci:// / nfs:// etc.)."
+    },
+    "storage_hash":        { "$ref": "common.schema.json#/$defs/Sha256Hash" },
+    "semantic_signature":  { "$ref": "common.schema.json#/$defs/Sha256Hash" },
+    "byte_size":           { "type": "integer", "minimum": 0 },
+
+    "data_type": {
+      "type": "string",
+      "description": "DataTypeExpr (atomic / Array<T> / Map<K,V> / Tuple<...> / record / Union / Optional / Function); subset of artifact-dsl-workflow-data-type.",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+
+    "data_classification": { "$ref": "common.schema.json#/$defs/DataClassification" },
+
+    "schema_ref": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional URI to remote schema descriptor (parsed at runtime)."
+    },
+
+    "lineage": {
+      "type": "object",
+      "description": "Optional provenance lineage (producer workflow run + parent DataArtifact references). Schema TBD by SDD DR-DATA-LINEAGE.",
+      "additionalProperties": true
+    },
+
+    "companion_files": {
+      "type": "array",
+      "description": "G1: CWL File.secondaryFiles round-trip channel. Each entry binds a sibling-of-storage_uri pattern.",
+      "items": {
+        "type": "object",
+        "required": ["pattern", "required"],
+        "additionalProperties": false,
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Relative-to-storage_uri pattern; supports ${basename} / ${ext} placeholders (e.g., '${basename}.bai', '^.tbi'). MUST NOT contain '..' or absolute path."
+          },
+          "required":    { "type": "boolean", "default": true },
+          "data_type":   { "type": "string", "description": "Optional DataTypeExpr for companion." },
+          "description": { "type": "string", "maxLength": 256 }
+        }
+      }
+    },
+
+    "format_uri": {
+      "type": "array",
+      "description": "G2: CWL File.format round-trip channel. EDAM ontology / IANA media type / Lifted format hint URI list.",
+      "items": { "type": "string", "format": "uri" }
+    },
+
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 64 }
+    },
+
+    "revocation_policy":   { "$ref": "common.schema.json#/$defs/RevocationPolicy" },
+    "signature":           { "$ref": "common.schema.json#/$defs/Signature" }
+  }
+}

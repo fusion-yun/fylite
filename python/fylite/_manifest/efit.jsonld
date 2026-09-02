@@ -1,0 +1,122 @@
+{
+  "@context": {
+    "sp": "https://spdata.org/sp#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@id": "fylite:efit",
+  "@type": [
+    "sp:ComputeArtifact",
+    "prov:Plan"
+  ],
+  "fylite:title": "Equilibrium reconstruction, EAST 65x65 (Rust inverse)",
+  "fylite:version": "0.2.0",
+  "fylite:response": {
+    "tier": "interactive",
+    "budget_ms": 5000,
+    "measured_ms": null,
+    "evidence": "[TBD] not measured on any host yet"
+  },
+  "fylite:generated": "2026-08-01T00:00:00Z",
+  "fylite:entry": "fylite.scenario.analysis:reconstruction",
+  "fylite:acceptance": {
+    "converged": {
+      "require": true
+    },
+    "@note": "★★`terror` and `chi_pressure` used to be scored here and were REMOVED on 2026-08-25: both are fields of the EFIT driver's result, and the driver left with LICENSE 3.1. The Rust inverse reports `residual` and the tolerance it was given, so what it can honestly be held to is whether the Picard loop reached that tolerance — `converged`, which the entry now states. A pressure chi-square is a real criterion and this face does not compute one yet; when it does it belongs here with a published band, not with the old driver's numbers."
+  },
+  "fylite:tool": "reconstruction",
+  "fylite:ports": {
+    "in": [
+      {
+        "port_id": "magnetics",
+        "label": "magnetic measurements",
+        "data_type": "fyo:magnetics"
+      },
+      {
+        "port_id": "pf_active",
+        "label": "PF coil currents",
+        "data_type": "fyo:pf_active"
+      },
+      {
+        "port_id": "tf",
+        "label": "toroidal field",
+        "data_type": "fyo:tf"
+      },
+      {
+        "port_id": "constraints",
+        "label": "kinetic constraints (POINT/pressure/Thomson)",
+        "data_type": "fyo:core_profiles",
+        "optional": true
+      },
+      {
+        "port_id": "j_bootstrap",
+        "label": "bootstrap-current constraint (loop feedback)",
+        "data_type": "fyo:core_profiles",
+        "optional": true
+      }
+    ],
+    "out": [
+      {
+        "port_id": "equilibrium",
+        "label": "reconstructed equilibrium",
+        "data_type": "fyo:equilibrium"
+      }
+    ]
+  },
+  "fylite:argument_shapes": {
+    "meas": {
+      "required": [
+        "plasma",
+        "brsp",
+        "coils"
+      ],
+      "note": "the flat measurement dict: plasma = Ip [A], brsp = coil currents [A.turns], coils = flux-loop readings [Wb/rad]; optional expmp2 / fwtmp2 add the magnetic probes"
+    }
+  },
+  "fylite:projection": {
+    "$schema": "compute-artifact/2.0",
+    "artifact_id": "fylite/east/compute_artifact/efit",
+    "kind": "solver",
+    "version": "0.1.0",
+    "owner": "did:spharness:fylite/maintainers",
+    "tenancy_scope": "project_local",
+    "provenance_class": "unverified",
+    "sandbox_profile": {
+      "isolation": "container",
+      "network": "deny",
+      "fs_readonly": false,
+      "egress_policy": "deny"
+    },
+    "permissions": {},
+    "revocation_policy": {
+      "cascade_strategy": "taint_downstream",
+      "rollback_sla_minutes": 60
+    },
+    "data_classification_max": "internal",
+    "air_gapped_compatible": true,
+    "registration_status": "unregistered_sandbox",
+    "signature": {
+      "algorithm": "ed25519",
+      "signer": "did:spharness:fylite/maintainers",
+      "signer_chain": [
+        "did:spharness:fylite/maintainers"
+      ],
+      "value": "UNSIGNED",
+      "signed_at": "2026-08-01T00:00:00Z",
+      "canonical_form_version": "jcs-1.0"
+    },
+    "dependencies": [
+      {
+        "target_id": "fylite/east/data_artifact/east_mdsplus",
+        "version_range": "^0.1.0",
+        "reference_type": "data_consumes"
+      }
+    ]
+  },
+  "fylite:cli": [
+    "fylite",
+    "run"
+  ]
+}

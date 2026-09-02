@@ -1,0 +1,36 @@
+# 参考 (The Reference Book) —— 一本独立的 MyST 书。
+#
+# 保真度边界、内核清单、API 与报告模板。
+#
+# ★★**实测笔记不入册**（2026-09-01 裁定）。`docs/note/` 的 21 篇笔记曾经是这本书
+# 的一章，toc 用 `../note/…` 指过去。现在不是了，理由是那条 `../` 本身：一本书的
+# 目录伸到自己目录之外，是在替一批**不属于它**的文件安排 URL。那些笔记在仓里是
+# **按路径引用的记录**——源码注释、门禁、CI 的底账校验、算例语料的 `account`
+# 字段都写着 `docs/note/…`——它们要的是一个稳定的路径，不是一个章节号。
+#
+# ★笔记**没有搬家、也没有作废**：文件仍在 `docs/note/`，每一条既有引用照旧成立。
+# 变的只是它们不再由这本书构建、不再有站点 URL。门禁 `test_docs_books.py` 把这条
+# 写成断言（`note/**` 必须在任何一本书的 toc 之外），所以它是裁定，不是遗漏。
+#
+# 构建：cd docs/reference && myst build --html
+version: 1
+project:
+  id: fylite-reference-book
+  title: fylite 参考 (Reference)
+  subtitle: 保真度边界 · 内核清单 · API · 报告模板
+  authors:
+    - name: FuYun / fylite maintainers
+  license:
+    content: CC-BY-4.0
+  numbering:
+    headings: true
+  toc:
+    - file: fidelity.md
+    - file: kernels.md
+    - file: api.md
+    - file: report-template.md
+
+site:
+  title: fylite 参考
+  options:
+    logo: ../figures/fylite_logo.svg
