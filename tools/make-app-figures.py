@@ -1834,7 +1834,7 @@ def build_analysis() -> str:
 def d_gateway(x, y, w, h):
     """① 数据网关."""
     top = panel(x, y, w, h, "数据网关", 1, "只读 · 六个端点", "badge-ok")
-    field(x + 14, top + 12, w - 100, "mdsip 服务器", "202.127.204.12:8000")
+    field(x + 14, top + 12, w - 100, "mdsip 服务器", "mds.invalid:8000")
     rect(x + w - 78, top + 24, 64, 19, "btn", rx=4)
     text(x + w - 46, top + 37.5, "切过去", "lbl", 10, "middle")
     yy = top + 58

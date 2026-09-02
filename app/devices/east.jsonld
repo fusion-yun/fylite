@@ -4128,8 +4128,8 @@
    "probeMeas": "raw est2 reduction at 4 s — full field, coils included",
    "point": "raw est2 reduction of the POINT chords (n_e-line and ∫n_e B dl, both /1e19), fringe gate applied",
    "reduction": "fylite.io.est2.reduce_est2 (the same code the live reader and the HDF5 dump reader both run)",
-   "pulled_from": "202.127.204.12:east",
-   "corpus": "/home/salmon/workspace/fydata/abox/experiment/east/137985"
+   "pulled_from": "mds.invalid:east",
+   "corpus": "fydata:fydata/abox/experiment/east/137985"
   },
   "delivered": {
    "psi_norm": [
@@ -7421,7 +7421,7 @@
    ]
   }
  ],
- "fylite:slices_provenance": "pulled from 202.127.204.12:east by tools/mds-shot-to-fyo.py 0.1.0, reduced by fylite.io.est2.reduce_est2 (the same code the live reader and the HDF5 dump reader both run) (window ±5.0 ms, POINT window ±30.0 ms); 9 slices 1–7 s. Loop values are TOTAL flux (the page removes the coils' share); the source documents are site data and live outside this repository.",
+ "fylite:slices_provenance": "pulled from mds.invalid:east by tools/mds-shot-to-fyo.py 0.1.0, reduced by fylite.io.est2.reduce_est2 (the same code the live reader and the HDF5 dump reader both run) (window ±5.0 ms, POINT window ±30.0 ms); 9 slices 1–7 s. Loop values are TOTAL flux (the page removes the coils' share); the source documents are site data and live outside this repository.",
  "fylite:point": {
   "fylite:laser_wavelength": 0.0004325,
   "fylite:faraday_constant": 2.62e-13,

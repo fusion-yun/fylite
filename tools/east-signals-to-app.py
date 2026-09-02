@@ -29,7 +29,7 @@ checks the file's shape offline and, when pointed at a server, reports which
 entries resolve — as a report, never as an edit to this file.
 
 ★**Private DAQs are emitted with no tree.**  Some diagnostics live on group-run
-MDSplus servers (202.127.204.42) rather than the central one, and "Private
+MDSplus servers on the operator's internal network rather than the central one, and "Private
 DAQs" is not a tree name.  Dropping them would misrepresent the instrument set;
 they are carried with ``tree: null`` and a reason, so the page can list the
 diagnostic and say why it cannot fetch it.
@@ -112,7 +112,7 @@ def provenance_path(src):
 
     ★``str(src)`` was an ABSOLUTE PATH, and everything under ``app/`` is
     published — so the operator's home directory shipped to the website
-    (measured 2026-09-02: ``/home/salmon/workspace/fydata/...``).  It is also
+    (measured 2026-09-02: ``~/workspace/fydata/...``).  It is also
     the field that rots first: the same file had already moved from
     ``fyo/0.0.0/`` to ``fyo/`` upstream while its sha256 stayed identical, so
     the recorded path pointed at nothing and the hash still identified the
@@ -161,7 +161,8 @@ def build(doc, source_path, source_sha):
             "sha256": source_sha,
             "retrieved": doc.get("retrieved"),
             "index": doc.get("source_index"),
-            "note": "EAST Wiki harvest (202.127.205.54, internal). Names and units "
+            "note": "EAST Wiki harvest (an internal wiki; the host is not written "
+                    "into a published file). Names and units "
                     "are the upstream's; this file renames trees to lower case and "
                     "emits nodes as tags. Nothing is verified here — see "
                     "app/tests/validate-east-catalog.mjs.",

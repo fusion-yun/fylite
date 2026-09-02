@@ -1,6 +1,9 @@
 // mdsip 录制代理 —— 把**真服务器答的字节**存成夹具。
 //
-//   node tools/mds-record.mjs --server 202.127.204.12:8000 --out app/tests/fixtures/x.json
+//   node tools/mds-record.mjs --server <主机:端口> --out app/tests/fixtures/x.json
+//
+// ★`--server` **没有默认值**，这是有意的：一个默认指向某家运营方内网
+// 地址的工具，既把那个地址发了出去，又会让换一台服务器的人以为不用给。
 //   # 另一个终端把宿主指向它印出的端口，跑一遍要覆盖的请求，然后 SIGINT
 //
 // ## 为什么要有它
@@ -32,7 +35,9 @@ import net from 'node:net';
 import fs from 'node:fs';
 
 const flag = (n, d) => { const i = process.argv.indexOf('--' + n); return i > 0 ? process.argv[i + 1] : d; };
-const [HOST, PORT] = String(flag('server', '202.127.204.12:8000')).split(':');
+const _srv = flag('server');
+if (!_srv) { console.error('用法：--server <主机:端口>（无默认值，见抬头）'); process.exit(2); }
+const [HOST, PORT] = String(_srv).split(':');
 const OUT = flag('out', 'app/tests/fixtures/mdsip-east.json');
 const LISTEN = Number(flag('port', 0));
 

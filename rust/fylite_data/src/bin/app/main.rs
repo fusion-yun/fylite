@@ -146,7 +146,10 @@ fylite-app —— 内嵌浏览器演示的单文件查看器
 
 EAST 的服务器在工作站上经 ssh 隧道可达：
 
-  ssh -O forward -L 8000:202.127.204.12:8000 shenma
+  ssh -O forward -L 8000:<mdsip 主机>:8000 <跳板>
+  #: ★真实主机名与地址在运营方内网，不写进公开源码——与本项目的
+  #: `_manifest/east_mdsplus.jsonld` 同一条政策（那里用 RFC 2606 的
+  #: `mds.invalid` 占位）。
   fylite-app --mdsip 127.0.0.1:8000";
 
 fn die(msg: &str) -> ! {

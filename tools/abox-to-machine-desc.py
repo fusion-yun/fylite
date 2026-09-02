@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
@@ -59,7 +60,12 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 #: ★★**fydoc 是权威源**（用户裁定 2026-09-02）。fydata 那侧同名内容是誊录，两边
 #: 实测**逐值相同**（十台，差别只有记下来的出处路径），所以指哪一边都出得来同样的
 #: 卡片——而权威在 fydoc，那就读 fydoc。`--source` 仍可显式指到 fydata。
-FYDOC = pathlib.Path("/home/salmon/workspace/fydoc")
+#: ★不写死绝对路径：写死既换台机器即失效，又把构建者的目录布局发了出去。
+#: 顺序是 `$FYDOC` → 同级目录探测 → 一个不存在的占位（调用方会看到清楚的报错）。
+FYDOC = pathlib.Path(
+    os.environ.get("FYDOC")
+    or next((str(c) for c in (pathlib.Path(__file__).resolve().parents[2] / "fydoc",)
+             if c.is_dir()), "fydoc"))
 OUT = ROOT / "machine_desc"
 
 #: EAST's document is hand-maintained and richer than the upstream tree.
@@ -637,7 +643,19 @@ def main(argv=None) -> int:
             print(f"{dev}: no machine manifest under {a.fydata}", file=sys.stderr)
             rc = 1
             continue
-        p = write(dev, build(dev, a.fydata), a.out)
+        doc = build(dev, a.fydata)
+        #: ★★A-Box 里没有 epoch 的机器（实测 cmod / d3d / hl2m / hl3 只有一份
+        #: `machine.jsonld`，没有任何 IDS 文件）会转出一张**空卡片**。空卡片比没有
+        #: 卡片更坏：`load_device` 会拒绝它，而任何「这台机器有描述吗」的检查都会
+        #: 答「有」。所以不写，并说清楚为什么。
+        groups = [k for k, v in doc.items()
+                  if not str(k).startswith(("@", "_", "prov"))
+                  and isinstance(v, dict) and v.get("fylite:source")]
+        if not groups:
+            print(f"{dev}: A-Box 里没有可转换的 IDS（没有 epoch 或没有静态文件）"
+                  f"——不写空卡片", file=sys.stderr)
+            continue
+        p = write(dev, doc, a.out)
         try:
             shown = p.relative_to(ROOT)
         except ValueError:      #: -o outside the checkout (a temp dir)

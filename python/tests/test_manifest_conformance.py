@@ -24,6 +24,7 @@ from __future__ import annotations
 import ast
 import inspect
 import json
+import os
 import pathlib
 
 import pytest
@@ -54,7 +55,11 @@ NAMES = tuple(sorted(DOCS))
 #: the two singular members, by kind (everything else is a compute artifact)
 _ONE_OF_A_KIND = {"workflow-ir/2.0": "kinetic_reconstruction",
                   "data-artifact/2.0": "east_mdsplus"}
-SPDATA_SCHEMAS = pathlib.Path("/home/salmon/workspace/spdata/schemas")
+#: ★不写死绝对路径：它把作者的目录布局连用户名写进一个**公开**仓，而这一条
+#: 本来只是「有就多判一层」的可选参照。`$SPDATA_SCHEMAS` 给出，或同级探测。
+SPDATA_SCHEMAS = pathlib.Path(
+    os.environ.get("SPDATA_SCHEMAS")
+    or pathlib.Path(__file__).resolve().parents[3] / "spdata" / "schemas")
 
 
 # --------------------------------------------------------------------------- #

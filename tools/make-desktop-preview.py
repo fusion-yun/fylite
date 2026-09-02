@@ -89,7 +89,7 @@ PAGE_TITLE = {
 #: it says the same thing in words (V-8), because a page read in greyscale or by
 #: someone who cannot separate those two hues must still know what is running.
 SLOTS = {
-    "data":         ("数据源", "202.127.204.12:8000", "blocked",
+    "data":         ("数据源", "mds.invalid:8000", "blocked",
                      "网关未连 —— 这一页需要一个能开套接字的进程", None),
     "pulse_design": ("装置", "EAST", "idle",
                      "待机 —— 摆好目标，合开关起放电", "交给建模场景"),
