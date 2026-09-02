@@ -24,11 +24,42 @@ project:
     content: CC-BY-4.0
   numbering:
     headings: true
+  # 物理与数值各章的文献库。每条带 note 字段记核验状态（核验 / 未核验 / 凭记忆 / 源码逐字引）。
+  bibliography:
+    - references-physics.bib
+  # 物理与数值各章使用的宏（与 SpResearch book/tmt 同一套，便于跨仓对读）。
+  math:
+    '\vb': '\mathbf{#1}'
+    '\pdv': '\frac{\partial #1}{\partial #2}'
+    '\dv': '\frac{\mathrm{d} #1}{\mathrm{d} #2}'
+    '\dd': '\mathrm{d}'
+    '\expval': '\left\langle #1 \right\rangle'
+    '\abs': '\left| #1 \right|'
+    '\norm': '\left\| #1 \right\|'
   toc:
     - file: fidelity.md
     - file: kernels.md
     - file: api.md
     - file: report-template.md
+    # 物理与数值：每个物理模块实际实现的理论（公式、假设、参数域）与数值算法，逐条一手出处。
+    # 章号即文件号；00 为阅读协议与模块→章节映射。
+    - title: 物理与数值 (Physics & Numerics)
+      children:
+        - file: physics-00-overview.md
+        - file: physics-01-numerics.md
+        - file: physics-02-equilibrium.md
+        - file: physics-03-reconstruction.md
+        - file: physics-04-geometry.md
+        - file: physics-05-transport.md
+        - file: physics-06-zerod.md
+        - file: physics-07-neoclassical.md
+        - file: physics-08-turbulence.md
+        - file: physics-09-heating.md
+        - file: physics-10-sources.md
+        - file: physics-11-edge.md
+        - file: physics-12-electromagnetics.md
+        - file: physics-13-pulse-breakdown.md
+        - file: physics-14-diagnostics.md
 
 site:
   title: fylite 参考
