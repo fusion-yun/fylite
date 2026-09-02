@@ -99,4 +99,8 @@ include = ["fylite*"]
 #: `_backends.py` (module source, packaged as code), then with the backend
 #: registry itself (FYL-SDD-01 DE-LOG-03, retired).
 fylite = ["_lib/*.so", "_spec/*", "_manifest/*", "_cli.json",
-          "_fyo_vocab.json", "_environment.json"]
+          "_fyo_vocab.json", "_environment.json",
+          #: A-Box 分解出来的 MDSplus 绑定表（`tools/abox-mds-bind.py` 生成）。
+          #: 轮里要带：装了包却没有它，按语义路径取数这条路在安装出来的
+          #: 包上就是空的，而 import 不会失败。
+          "_mds_bind.json"]
