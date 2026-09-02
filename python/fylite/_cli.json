@@ -1,9 +1,76 @@
 {
+ "spec_version": 2,
  "prog": "fylite",
- "description": "Reconstruct one EAST equilibrium (65x65, Rust inverse) from a measurement document, the EAST MDSplus trees, or an in-memory measurement set; plus plotting, the capability catalog and the artifact manifests.",
+ "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. One command family on three hosts: the Python console script (this spec built into argparse), the single Rust executable fylite-app (the same spec built into its parser; carries app / data / case natively) and the browser app (its launch parameters are the `hosts.app.params` below). Commands list the hosts that carry them; a host that does not carry a command delegates it (Python -> the bundled Rust executable) or refuses it by name.",
+ "hosts": {
+  "python": {
+   "exe": "fylite",
+   "kind": "console-script",
+   "note": "argparse parser built from this file (engine/cli.py). Carries every command; `app`, `data` and `case` are delegated to the bundled Rust executables under fylite/_bin/ (or --bin-dir)."
+  },
+  "rust": {
+   "exe": "fylite-app",
+   "kind": "single-executable",
+   "default_command": "app",
+   "aliases": {
+    "data": "fylite-data",
+    "case": "fylite-case"
+   },
+   "note": "One executable, the whole app/ embedded. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works; `data` and `case` are the same code the thin fylite-data / fylite-case binaries call."
+  },
+  "app": {
+   "entry": "index.html",
+   "note": "The browser app takes its launch parameters from the URL. They are defined here once; `fylite app --<name>` writes them into the URL it opens, and a gate asserts the pages read exactly these names.",
+   "params": [
+    {
+     "name": "device",
+     "carrier": "query",
+     "type": "str",
+     "help": "machine to pin (an id from app/devices/catalogue.jsonld); the URL wins over the stored choice"
+    },
+    {
+     "name": "lang",
+     "carrier": "query",
+     "type": "str",
+     "choices": [
+      "zh",
+      "en"
+     ],
+     "help": "interface language for this visit; remembered like a switch click"
+    },
+    {
+     "name": "theme",
+     "carrier": "query",
+     "type": "str",
+     "choices": [
+      "light",
+      "dark",
+      "system"
+     ],
+     "help": "colour theme for this visit; `system` follows the OS and clears a stored choice"
+    },
+    {
+     "name": "page",
+     "carrier": "path",
+     "type": "str",
+     "choices": [
+      "home",
+      "pulse_design",
+      "model",
+      "analysis",
+      "data"
+     ],
+     "help": "which page to open: home is index.html, the others are pages/<page>.html"
+    }
+   ]
+  }
+ },
  "commands": [
   {
    "name": "run",
+   "hosts": [
+    "python"
+   ],
    "help": "run one equilibrium reconstruction",
    "handler": "fylite.engine.cli:_cli_run",
    "exclusive": [
@@ -146,6 +213,9 @@
   },
   {
    "name": "plot",
+   "hosts": [
+    "python"
+   ],
    "help": "render a GEQDSK flux map to PNG/JPG",
    "handler": "fylite.engine.cli:_cli_plot",
    "args": [
@@ -165,6 +235,9 @@
   },
   {
    "name": "describe",
+   "hosts": [
+    "python"
+   ],
    "help": "print the machine-readable capability catalog (JSON-LD): the first-batch artifact manifest set — efit/neo/tglf compute artifacts, the kinetic-reconstruction workflow, and the EAST MDSplus data artifact",
    "handler": "fylite.engine.cli:_cli_describe",
    "args": [
@@ -179,6 +252,9 @@
   },
   {
    "name": "cases",
+   "hosts": [
+    "python"
+   ],
    "help": "list / show / check / RUN the two corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue) and, with --benchmark, the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, or runs a record's private gates in $FYLITE_KERNEL; --report renders a case (or a recorded run, --from) into MyST + SVG through a presentation spec",
    "handler": "fylite.engine.cli:_cli_cases",
    "args": [
@@ -282,6 +358,9 @@
   },
   {
    "name": "manifest",
+   "hosts": [
+    "python"
+   ],
    "help": "check, re-seal, or export the authored JSON-LD artifact manifests (python/fylite/_manifest/*.jsonld — files are the source; the engine only loads/validates/seals them)",
    "handler": "fylite.engine.cli:_cli_manifest",
    "args": [
@@ -303,6 +382,9 @@
   },
   {
    "name": "replay",
+   "hosts": [
+    "python"
+   ],
    "help": "re-run a recorded session from its ledger: resolve each node by its artifact_ref, feed handles along the edges, and compare the artefacts with the ones recorded",
    "handler": "fylite.engine.cli:_cli_replay",
    "args": [
@@ -338,6 +420,9 @@
   },
   {
    "name": "report",
+   "hosts": [
+    "python"
+   ],
    "help": "render one recorded run as a MyST report (unified academic template: 摘要/方法/结果/验收/复现性; array summaries and figures, never bulk arrays) — default lands report.md in the run directory",
    "handler": "fylite.engine.cli:_cli_report",
    "args": [
@@ -372,6 +457,9 @@
   },
   {
    "name": "whence",
+   "hosts": [
+    "python"
+   ],
    "help": "say which run produced a file and where that run came from — the lookup is BY CONTENT (the file is hashed against the sha256 every run manifest records), so a copied or renamed artefact still resolves and a modified one honestly does not",
    "handler": "fylite.engine.cli:_cli_whence",
    "args": [
@@ -400,6 +488,9 @@
   },
   {
    "name": "alias",
+   "hosts": [
+    "python"
+   ],
    "help": "give a run a readable name (`name@vN`) or list the register — the name is BESIDE the run id, never instead of it: handles, ledger edges and manifests keep holding ids",
    "handler": "fylite.engine.cli:_cli_alias",
    "args": [
@@ -435,15 +526,716 @@
   },
   {
    "name": "serve",
+   "hosts": [
+    "python"
+   ],
    "help": "serve the capability catalog + entry invocation as JSON-RPC 2.0 over stdio (experimental; one message per line, EOF to stop)",
    "handler": "fylite.engine.cli:_cli_serve",
    "args": []
   },
   {
    "name": "mcp",
+   "hosts": [
+    "python"
+   ],
    "help": "serve fylite as a Model Context Protocol (MCP) stdio server: curated tools (describe/run/inspect/plot) + tools reflected from the artifact manifests; results are shaped summaries",
    "handler": "fylite.engine.cli:_cli_mcp",
    "args": []
+  },
+  {
+   "name": "app",
+   "hosts": [
+    "rust",
+    "python"
+   ],
+   "help": "serve the embedded browser app on the loopback address and open it in the system browser (the single-file viewer; on the Python host this runs the bundled fylite-app)",
+   "handler": "fylite.engine.cli:_cli_app",
+   "args": [
+    {
+     "flags": [
+      "--port"
+     ],
+     "type": "int",
+     "metavar": "PORT",
+     "help": "port to bind (1..65535); default: let the system pick a free one"
+    },
+    {
+     "flags": [
+      "--no-open"
+     ],
+     "action": "store_true",
+     "help": "serve only, do not open a browser"
+    },
+    {
+     "flags": [
+      "--mdsip"
+     ],
+     "metavar": "HOST[:PORT]",
+     "help": "attach an mdsip server so the data page and the reconstruction page can read MDSplus directly; without it those panels disable themselves and say why"
+    },
+    {
+     "flags": [
+      "--mds-user"
+     ],
+     "metavar": "NAME",
+     "help": "mdsip user name (default $USER)"
+    },
+    {
+     "flags": [
+      "--page"
+     ],
+     "app_param": "page",
+     "choices": [
+      "home",
+      "pulse_design",
+      "model",
+      "analysis",
+      "data"
+     ],
+     "help": "page to open (default home)"
+    },
+    {
+     "flags": [
+      "--device"
+     ],
+     "app_param": "device",
+     "metavar": "ID",
+     "help": "machine to pin in the opened page (an id from app/devices/catalogue.jsonld)"
+    },
+    {
+     "flags": [
+      "--lang"
+     ],
+     "app_param": "lang",
+     "choices": [
+      "zh",
+      "en"
+     ],
+     "help": "interface language for the opened page"
+    },
+    {
+     "flags": [
+      "--theme"
+     ],
+     "app_param": "theme",
+     "choices": [
+      "light",
+      "dark",
+      "system"
+     ],
+     "help": "colour theme for the opened page"
+    },
+    {
+     "flags": [
+      "--app-dir"
+     ],
+     "hosts": [
+      "rust"
+     ],
+     "metavar": "DIR",
+     "help": "(development) serve this directory instead of the embedded app/ — the same request face, a live tree"
+    },
+    {
+     "flags": [
+      "--bin-dir"
+     ],
+     "hosts": [
+      "python"
+     ],
+     "metavar": "DIR",
+     "help": "(Python host) directory holding fylite-app (default: the package's _bin/, then $PATH)"
+    }
+   ]
+  },
+  {
+   "name": "data",
+   "hosts": [
+    "rust",
+    "python"
+   ],
+   "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD / YAML document, fetching a shot from a fydata machine manifest (fylite-data)",
+   "handler": "fylite.engine.cli:_cli_data",
+   "args": [
+    {
+     "flags": [
+      "--bin-dir"
+     ],
+     "hosts": [
+      "python"
+     ],
+     "metavar": "DIR",
+     "help": "(Python host) directory holding fylite-data (default: the package's _bin/, then $PATH)"
+    }
+   ],
+   "commands": [
+    {
+     "name": "info",
+     "help": "identify the format and layout of a file, list its IDS and leaves",
+     "args": [
+      {
+       "flags": [
+        "file"
+       ],
+       "help": "a file or an IMAS HDF5 directory"
+      },
+      {
+       "flags": [
+        "--json"
+       ],
+       "action": "store_true",
+       "help": "machine-readable answer"
+      }
+     ]
+    },
+    {
+     "name": "dump",
+     "help": "print one subtree of a document as JSON",
+     "args": [
+      {
+       "flags": [
+        "file"
+       ],
+       "help": "a file or an IMAS HDF5 directory"
+      },
+      {
+       "flags": [
+        "--ids"
+       ],
+       "metavar": "IDS",
+       "help": "keep only these IDS (comma-separated)"
+      },
+      {
+       "flags": [
+        "--path"
+       ],
+       "metavar": "A/B/C",
+       "help": "the subtree to print: `<ids>[_<occ>]/a/b` (the C ABI's path form) or a bare container path (default: the whole document)"
+      },
+      {
+       "flags": [
+        "--compact"
+       ],
+       "action": "store_true",
+       "help": "one-line JSON instead of pretty-printed"
+      },
+      {
+       "flags": [
+        "--raw"
+       ],
+       "action": "store_true",
+       "help": "print the parsed tree as it is — for JSON / YAML that are not documents (a machine manifest, an assembly), and for checking the YAML reader"
+      }
+     ]
+    },
+    {
+     "name": "convert",
+     "help": "read one document and write it in another format or layout",
+     "args": [
+      {
+       "flags": [
+        "input"
+       ],
+       "help": "input file"
+      },
+      {
+       "flags": [
+        "output"
+       ],
+       "help": "output file (format by extension unless --to)"
+      },
+      {
+       "flags": [
+        "--to"
+       ],
+       "choices": [
+        "json",
+        "geqdsk",
+        "hdf5",
+        "netcdf",
+        "imas-hdf5"
+       ],
+       "help": "output format"
+      },
+      {
+       "flags": [
+        "--layout"
+       ],
+       "choices": [
+        "fyo",
+        "imas"
+       ],
+       "help": "document layout to write (default fyo; imas is what imas-python / imas-core read back)"
+      },
+      {
+       "flags": [
+        "--ids"
+       ],
+       "metavar": "a,b",
+       "help": "keep only these IDS"
+      }
+     ]
+    },
+    {
+     "name": "merge",
+     "help": "merge several documents into one (later ones override earlier ones unless --keep; repeated array elements matched on --merge-key)",
+     "args": [
+      {
+       "flags": [
+        "inputs"
+       ],
+       "nargs": "+",
+       "help": "input files"
+      },
+      {
+       "flags": [
+        "-o",
+        "--out"
+       ],
+       "required": true,
+       "metavar": "OUT",
+       "help": "output file"
+      },
+      {
+       "flags": [
+        "--layout"
+       ],
+       "choices": [
+        "fyo",
+        "imas"
+       ],
+       "help": "document layout to write"
+      },
+      {
+       "flags": [
+        "--keep"
+       ],
+       "action": "store_true",
+       "help": "keep an existing value where a later document repeats it"
+      },
+      {
+       "flags": [
+        "--to"
+       ],
+       "choices": [
+        "json",
+        "geqdsk",
+        "hdf5",
+        "netcdf",
+        "imas-hdf5"
+       ],
+       "help": "output format"
+      },
+      {
+       "flags": [
+        "--merge-key"
+       ],
+       "metavar": "name|none",
+       "help": "the field a repeated array element is matched on when documents are merged (default name; none = by position)"
+      }
+     ]
+    },
+    {
+     "name": "assemble",
+     "help": "assemble several data sources into one document as a JSON-LD / YAML assembly document directs (MDSplus reads go through the read-only mdsip client; slicing by shot and time is done server-side)",
+     "args": [
+      {
+       "flags": [
+        "assembly"
+       ],
+       "help": "the assembly document (JSON-LD or YAML)"
+      },
+      {
+       "flags": [
+        "-o",
+        "--out"
+       ],
+       "required": true,
+       "metavar": "OUT",
+       "help": "output file"
+      },
+      {
+       "flags": [
+        "--shot"
+       ],
+       "type": "int",
+       "help": "shot number substituted into the assembly"
+      },
+      {
+       "flags": [
+        "--time"
+       ],
+       "metavar": "T",
+       "help": "time selection: 4.5 (one point), 4:5 (a window) or 4,4.5,5 (a list of points); MDSplus sources are windowed on their own time base, server-side"
+      },
+      {
+       "flags": [
+        "--max-points"
+       ],
+       "type": "int",
+       "metavar": "N",
+       "help": "at most N samples inside the window (decimated by stride)"
+      },
+      {
+       "flags": [
+        "--select"
+       ],
+       "action": "append",
+       "metavar": "ids[/path]",
+       "help": "keep only these IDS or sub-paths (repeatable, comma-separated)"
+      },
+      {
+       "flags": [
+        "--param"
+       ],
+       "action": "append",
+       "metavar": "k=v",
+       "help": "integer slot substituted into the assembly (repeatable)"
+      },
+      {
+       "flags": [
+        "--layout"
+       ],
+       "choices": [
+        "fyo",
+        "imas"
+       ],
+       "help": "document layout to write"
+      },
+      {
+       "flags": [
+        "--to"
+       ],
+       "choices": [
+        "json",
+        "geqdsk",
+        "hdf5",
+        "netcdf",
+        "imas-hdf5"
+       ],
+       "help": "output format"
+      },
+      {
+       "flags": [
+        "--mds-user"
+       ],
+       "metavar": "NAME",
+       "help": "mdsip user name (default $USER)"
+      },
+      {
+       "flags": [
+        "--timeout-ms"
+       ],
+       "type": "int",
+       "metavar": "MS",
+       "help": "mdsip request timeout in milliseconds (default 10000)"
+      }
+     ]
+    },
+    {
+     "name": "fetch",
+     "help": "flatten a fydata machine manifest (machine.yaml) into geometry + MDSplus bindings and assemble the named IDS for one shot",
+     "args": [
+      {
+       "flags": [
+        "--machine"
+       ],
+       "required": true,
+       "metavar": "machine.yaml",
+       "help": "the fydata machine manifest"
+      },
+      {
+       "flags": [
+        "--ids"
+       ],
+       "required": true,
+       "metavar": "a,b",
+       "help": "the IDS to fetch (comma-separated)"
+      },
+      {
+       "flags": [
+        "--shot"
+       ],
+       "type": "int",
+       "required": true,
+       "help": "shot number"
+      },
+      {
+       "flags": [
+        "--time"
+       ],
+       "metavar": "T",
+       "help": "time selection: 4.5, 4:5 or 4,4.5,5 (see assemble)"
+      },
+      {
+       "flags": [
+        "--provider"
+       ],
+       "metavar": "P",
+       "help": "which data provider in the manifest to use (default: the manifest's first)"
+      },
+      {
+       "flags": [
+        "--host"
+       ],
+       "metavar": "H",
+       "help": "mdsip host, overriding the manifest"
+      },
+      {
+       "flags": [
+        "--port"
+       ],
+       "type": "int",
+       "metavar": "P",
+       "help": "mdsip port, overriding the manifest"
+      },
+      {
+       "flags": [
+        "--max-points"
+       ],
+       "type": "int",
+       "metavar": "N",
+       "help": "at most N samples inside the window"
+      },
+      {
+       "flags": [
+        "--select"
+       ],
+       "action": "append",
+       "metavar": "ids[/path]",
+       "help": "keep only these IDS or sub-paths (repeatable, comma-separated)"
+      },
+      {
+       "flags": [
+        "-o",
+        "--out"
+       ],
+       "metavar": "OUT",
+       "help": "output file (required unless --dry-run)"
+      },
+      {
+       "flags": [
+        "--layout"
+       ],
+       "choices": [
+        "fyo",
+        "imas"
+       ],
+       "help": "document layout to write"
+      },
+      {
+       "flags": [
+        "--to"
+       ],
+       "choices": [
+        "json",
+        "geqdsk",
+        "hdf5",
+        "netcdf",
+        "imas-hdf5"
+       ],
+       "help": "output format"
+      },
+      {
+       "flags": [
+        "--mds-user"
+       ],
+       "metavar": "NAME",
+       "help": "mdsip user name (default $USER)"
+      },
+      {
+       "flags": [
+        "--timeout-ms"
+       ],
+       "type": "int",
+       "metavar": "MS",
+       "help": "mdsip request timeout in milliseconds (default 10000)"
+      },
+      {
+       "flags": [
+        "--dry-run"
+       ],
+       "action": "store_true",
+       "help": "print what would be assembled (device, shot, sources, selection) and stop before any read"
+      }
+     ]
+    },
+    {
+     "name": "tables",
+     "help": "the built-in IMAS DD tables: version and IDS names"
+    }
+   ]
+  },
+  {
+   "name": "case",
+   "hosts": [
+    "rust",
+    "python"
+   ],
+   "help": "a case from a fyo plan to a fyo record, through the kernel (fylite-case): one structure in, one structure out",
+   "handler": "fylite.engine.cli:_cli_case",
+   "args": [
+    {
+     "flags": [
+      "--bin-dir"
+     ],
+     "hosts": [
+      "python"
+     ],
+     "metavar": "DIR",
+     "help": "(Python host) directory holding fylite-case (default: the package's _bin/, then $PATH)"
+    }
+   ],
+   "commands": [
+    {
+     "name": "describe",
+     "help": "what the kernel completes: codes, entries, their declared blocks",
+     "args": [
+      {
+       "flags": [
+        "--kernel"
+       ],
+       "metavar": "PATH",
+       "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
+      }
+     ]
+    },
+    {
+     "name": "plan",
+     "help": "compose the plan documents and print the composed plan without running it",
+     "args": [
+      {
+       "flags": [
+        "plans"
+       ],
+       "nargs": "+",
+       "metavar": "plan.jsonld",
+       "help": "fyo:ScenarioSpecification documents; later ones override earlier ones"
+      },
+      {
+       "flags": [
+        "--set"
+       ],
+       "action": "append",
+       "metavar": "k=v",
+       "help": "override one parameter (repeatable; applied last)"
+      },
+      {
+       "flags": [
+        "--bind"
+       ],
+       "action": "append",
+       "metavar": "port=path",
+       "help": "bind an input port to a file (repeatable)"
+      },
+      {
+       "flags": [
+        "--code"
+       ],
+       "metavar": "IRI",
+       "help": "the code IRI to run under"
+      },
+      {
+       "flags": [
+        "--json"
+       ],
+       "action": "store_true",
+       "help": "print the composed plan as JSON"
+      }
+     ]
+    },
+    {
+     "name": "run",
+     "help": "run the composed plan through the kernel and write the record and its datasets",
+     "args": [
+      {
+       "flags": [
+        "plans"
+       ],
+       "nargs": "+",
+       "metavar": "plan.jsonld",
+       "help": "fyo:ScenarioSpecification documents; later ones override earlier ones"
+      },
+      {
+       "flags": [
+        "--set"
+       ],
+       "action": "append",
+       "metavar": "k=v",
+       "help": "override one parameter (repeatable; applied last)"
+      },
+      {
+       "flags": [
+        "--bind"
+       ],
+       "action": "append",
+       "metavar": "port=path",
+       "help": "bind an input port to a file (repeatable)"
+      },
+      {
+       "flags": [
+        "--code"
+       ],
+       "metavar": "IRI",
+       "help": "the code IRI to run under"
+      },
+      {
+       "flags": [
+        "-o",
+        "--record"
+       ],
+       "metavar": "DIR",
+       "help": "record directory: record.jsonld, plan.jsonld and one <ids>.fyo.jsonld per produced dataset"
+      },
+      {
+       "flags": [
+        "--format"
+       ],
+       "choices": [
+        "jsonld",
+        "hdf5",
+        "netcdf",
+        "imas-hdf5"
+       ],
+       "help": "dataset format (imas-hdf5 writes ONE IMAS data entry: imas/master.h5 + imas/<ids>.h5)"
+      },
+      {
+       "flags": [
+        "--kernel"
+       ],
+       "metavar": "PATH",
+       "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
+      },
+      {
+       "flags": [
+        "--quiet"
+       ],
+       "action": "store_true",
+       "help": "no progress lines"
+      }
+     ]
+    },
+    {
+     "name": "json",
+     "help": "the JSON door: the record with its datasets inline, on stdout",
+     "args": [
+      {
+       "flags": [
+        "plans"
+       ],
+       "nargs": "+",
+       "metavar": "plan.jsonld",
+       "help": "fyo:ScenarioSpecification documents"
+      },
+      {
+       "flags": [
+        "--kernel"
+       ],
+       "metavar": "PATH",
+       "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
+      }
+     ]
+    }
+   ]
   }
  ]
 }

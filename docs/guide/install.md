@@ -20,6 +20,18 @@ cd python && pip install -e '.[plot,yaml]'    # 或按需
 
 ## 分发面（alpha 期）
 
+fylite 以三种形态到达使用者（`FYL-DESIGN-15`），三者装的是同一份页面、同一版内核制品：
+
+| 形态 | 给谁 | 怎么得到 | 计算在哪 |
+| :--- | :--- | :--- | :--- |
+| **单一可执行文件** `fylite-app` | 离线、或没有 Python 的人（尤其 Windows） | `bash tools/build-app-exe.sh`；双击即开浏览器 | 页面里的 wasm；`case` 子命令用原生内核 |
+| **静态网页** | 联网的人，零安装 | `bash tools/build-site.sh` 出一个目录，放到任何静态主机 | 页面里的 wasm，加载后离线可用 |
+| **动态网页** | 要读 MDSplus 的人 | 同一份页面由 `fylite-app`（= `fylite app`）伺服，多答 `/api/*` | 页面里的 wasm |
+| **Python 包**（wheel） | 写脚本、LLM 宿主、集成方 | `bash tools/build-wheel.sh` | 原生内核 |
+
+三者的命令行来自同一个定义文件 `python/fylite/_cli.json`：`fylite app` / `fylite-app`、
+`fylite data` / `fylite-data`、`fylite case` / `fylite-case` 各是同一条命令在两个宿主上的名字。
+
 ★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
 所以轮带**平台 tag**，alpha 期的公开面是 **Linux x86-64 一个**：别的平台在装的
 时候就被拒绝，而不是装完之后在第一次内核调用时报错。

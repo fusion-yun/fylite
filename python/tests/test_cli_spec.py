@@ -44,9 +44,14 @@ def test_spec_lists_all_commands():
     #: are the same need from opposite ends: `whence` takes an artefact and
     #: gives back the run, `alias` gives a run a name a person can hold in
     #: their head.  Neither replaces the id.
+    #: ★`app` / `data` / `case` joined on 2026-09-02 (FYL-DESIGN-15): the
+    #: three commands the single Rust executable carries natively.  The
+    #: Python host lists them too — same spec, same help — and DELEGATES
+    #: them to the bundled binaries; a host that does not carry a command
+    #: says so by name rather than by an argparse error.
     assert [c["name"] for c in SPEC["commands"]] == [
         "run", "plot", "describe", "cases", "manifest", "replay", "report",
-        "whence", "alias", "serve", "mcp"]
+        "whence", "alias", "serve", "mcp", "app", "data", "case"]
 
 
 def test_every_handler_resolves():
@@ -209,3 +214,83 @@ def test_a_missing_corpus_is_refused_not_empty(tmp_path):
     from fylite.engine import cli as m
     with _pytest.raises(SystemExit, match="does not ship"):
         m._cases_dir(str(tmp_path / "nowhere"))
+
+
+# --------------------------------------------------------------------------- #
+# One file, three hosts (FYL-DESIGN-15)
+# --------------------------------------------------------------------------- #
+#
+# ★The spec is shared with the Rust executable (`rust/fylite_data/src/cli/
+# mod.rs` includes it at compile time) and with the browser (its launch
+# parameters are `hosts.app.params`).  These gates pin what the sharing
+# means: the Rust side really includes THIS file, the browser really reads
+# exactly the declared names, and a host-specific option stays with its host.
+
+APP_ASSETS = REPO / "app" / "assets"
+RUST_CLI = REPO / "rust" / "fylite_data" / "src" / "cli" / "mod.rs"
+_URL_READER = __import__("re").compile(
+    r"URLSearchParams\((?:root|window)\.location\.search\)\.get\('([a-z_]+)'\)")
+
+
+def test_the_spec_names_three_hosts_and_is_version_two():
+    assert SPEC["spec_version"] == 2
+    assert set(SPEC["hosts"]) == {"python", "rust", "app"}
+    assert SPEC["hosts"]["rust"]["default_command"] == "app"
+    for c in SPEC["commands"]:
+        assert "python" in c["hosts"], c["name"]
+    assert {c["name"] for c in SPEC["commands"] if "rust" in c["hosts"]} == {
+        "app", "data", "case"}
+
+
+def test_the_rust_host_includes_this_very_file():
+    if not RUST_CLI.is_file():
+        pytest.skip("no rust/fylite_data checkout")
+    m = __import__("re").search(r'include_str!\("([^"]+)"\)', RUST_CLI.read_text())
+    assert m, "the Rust cli does not include_str! the spec"
+    assert (RUST_CLI.parent / m.group(1)).resolve() == engine.CLI_SPEC_PATH.resolve()
+
+
+def test_nested_commands_parse_and_record_their_path():
+    ap = engine.build_cli(SPEC)
+    args = ap.parse_args(["data", "convert", "in.json", "out.h5", "--to", "hdf5"])
+    assert engine.cli.command_path(args) == ["data", "convert"]
+    assert args.input == "in.json" and args.to == "hdf5"
+    #: a group's option is accepted before AND after the subcommand (C-5)
+    a = ap.parse_args(["data", "--bin-dir", "/x", "tables"])
+    b = ap.parse_args(["data", "tables", "--bin-dir", "/x"])
+    assert a.bin_dir == b.bin_dir == "/x"
+    args = ap.parse_args(["case", "run", "p.jsonld", "--set", "a=1", "--set", "b=2",
+                          "-o", "rec"])
+    assert args.set == ["a=1", "b=2"] and args.record == "rec"
+    with pytest.raises(SystemExit):
+        ap.parse_args(["data", "merge", "a.json"])          # -o is required
+
+
+def test_a_python_only_option_is_marked_and_a_rust_only_one_is_not_built():
+    app = next(c for c in SPEC["commands"] if c["name"] == "app")
+    by_flag = {a["flags"][0]: a for a in app["args"]}
+    assert by_flag["--bin-dir"]["hosts"] == ["python"]
+    assert by_flag["--app-dir"]["hosts"] == ["rust"]
+    ap = engine.build_cli(SPEC)
+    assert ap.parse_args(["app", "--bin-dir", "/x", "--no-open"]).bin_dir == "/x"
+    with pytest.raises(SystemExit):
+        ap.parse_args(["app", "--app-dir", "/x"])
+
+
+def test_the_browser_reads_exactly_the_declared_launch_parameters():
+    declared = {p["name"]: p for p in SPEC["hosts"]["app"]["params"]}
+    query = {n for n, p in declared.items() if p["carrier"] == "query"}
+    read = set()
+    for js in sorted(APP_ASSETS.glob("*.js")):
+        read |= set(_URL_READER.findall(js.read_text()))
+    assert read == query, (
+        f"pages read {sorted(read)} from the URL, the spec declares "
+        f"{sorted(query)} — change the spec and the reader together")
+    #: every launch parameter has its `fylite app --<name>` option, and no
+    #: option names an undeclared parameter (C-6)
+    app = next(c for c in SPEC["commands"] if c["name"] == "app")
+    bound = {a["app_param"]: a for a in app["args"] if "app_param" in a}
+    assert set(bound) == set(declared)
+    for name, arg in bound.items():
+        assert arg["flags"] == [f"--{name}"]
+        assert arg.get("choices") == declared[name].get("choices")

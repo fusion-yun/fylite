@@ -33,10 +33,75 @@ CLI_SPEC_PATH = _paths.PKG / "_cli.json"
 
 _CLI_TYPES = {"int": int, "float": float, "str": str}
 
+#: The host THIS builder speaks for.  The spec is shared by three hosts
+#: (`hosts` in the file: python / rust / app); a command or an argument may
+#: name the hosts that carry it, and this builder only builds what names
+#: `python` (or names nothing — the pre-`hosts` spelling, python-only).
+HOST = "python"
+
+#: Spec keys that describe an argument for the OTHER hosts and are not
+#: argparse keywords: `hosts` (which host carries it), `app_param` (the
+#: browser launch parameter a `fylite app` option writes into the URL).
+_NOT_ARGPARSE = ("flags", "hosts", "app_param")
+
 
 def load_cli_spec() -> dict:
     """Load the declarative CLI spec (commands / options / handlers)."""
     return json.loads(CLI_SPEC_PATH.read_text())
+
+
+def carried_by(node: dict, host: str = HOST) -> bool:
+    """Whether a command / argument entry names `host` (or names no host)."""
+    hosts = node.get("hosts")
+    return hosts is None or host in hosts
+
+
+def _add_arguments(parser, cmd: dict, inherited: bool = False) -> None:
+    import argparse
+    owner = {}
+    for group in cmd.get("exclusive", ()):
+        g = parser.add_mutually_exclusive_group()
+        for flag in group:
+            owner[flag] = g
+    for arg in cmd.get("args", ()):
+        if not carried_by(arg):
+            continue
+        kw = {k: v for k, v in arg.items() if k not in _NOT_ARGPARSE}
+        if "type" in kw:
+            kw["type"] = _CLI_TYPES[kw["type"]]
+        if isinstance(kw.get("metavar"), list):
+            kw["metavar"] = tuple(kw["metavar"])
+        if inherited:
+            #: ★a group option re-declared on a child: without SUPPRESS the
+            #: child's default would overwrite what the parent already
+            #: parsed (`data --bin-dir D tables` would lose D) — argparse
+            #: applies a subparser's defaults after the parent's values
+            kw["default"] = argparse.SUPPRESS
+            kw.pop("required", None)
+        target = owner.get(arg["flags"][0], parser)
+        target.add_argument(*arg["flags"], **kw)
+
+
+def _add_command(sub, cmd: dict, depth: int, inherited=()) -> None:
+    p = sub.add_parser(cmd["name"], help=cmd["help"],
+                       description=cmd.get("description", cmd["help"]))
+    #: ★a group's own options (`fylite data --bin-dir D …`) apply to every
+    #: subcommand under it, and a reader types them where they think of
+    #: them — usually AFTER the subcommand.  argparse only knows an option
+    #: on the parser that declared it, so the group's options are declared
+    #: on each child as well; the Rust parser applies an ancestor's options
+    #: anywhere on the line, and this is the same rule spelled for argparse.
+    for parent in inherited:
+        _add_arguments(p, {"args": parent.get("args", ())}, inherited=True)
+    _add_arguments(p, cmd)
+    #: ★a command with `commands` is a GROUP (`fylite data convert …`): its
+    #: own args are the group's, the children are one nesting level down.
+    #: The child's name lands in `cmd<depth>` so a handler can read the path.
+    if cmd.get("commands"):
+        child = p.add_subparsers(dest=f"cmd{depth}", required=True)
+        for c in cmd["commands"]:
+            if carried_by(c):
+                _add_command(child, c, depth + 1, (*inherited, cmd))
 
 
 def build_cli(spec: dict):
@@ -46,21 +111,19 @@ def build_cli(spec: dict):
                                  description=spec["description"])
     sub = ap.add_subparsers(dest="cmd", required=True)
     for cmd in spec["commands"]:
-        p = sub.add_parser(cmd["name"], help=cmd["help"])
-        owner = {}
-        for group in cmd.get("exclusive", ()):
-            g = p.add_mutually_exclusive_group()
-            for flag in group:
-                owner[flag] = g
-        for arg in cmd.get("args", ()):
-            kw = {k: v for k, v in arg.items() if k != "flags"}
-            if "type" in kw:
-                kw["type"] = _CLI_TYPES[kw["type"]]
-            if isinstance(kw.get("metavar"), list):
-                kw["metavar"] = tuple(kw["metavar"])
-            target = owner.get(arg["flags"][0], p)
-            target.add_argument(*arg["flags"], **kw)
+        if carried_by(cmd):
+            _add_command(sub, cmd, 1)
     return ap
+
+
+def command_path(args) -> list:
+    """The command words a parse produced: ``['data', 'convert']``."""
+    path = [args.cmd]
+    i = 1
+    while hasattr(args, f"cmd{i}"):
+        path.append(getattr(args, f"cmd{i}"))
+        i += 1
+    return path
 
 
 def _corpus_missing():
@@ -73,8 +136,13 @@ def cli_main(argv=None) -> int:
     """The ``fylite`` console entry point: spec -> parser -> handler."""
     spec = load_cli_spec()
     ap = build_cli(spec)
+    argv = list(sys.argv[1:] if argv is None else argv)
     args = ap.parse_args(argv)
-    handlers = {c["name"]: c["handler"] for c in spec["commands"]}
+    #: the words as typed, for the handlers that hand a command on to
+    #: another host verbatim (`app` / `data` / `case` -> the Rust executable)
+    args._argv = argv
+    handlers = {c["name"]: c["handler"] for c in spec["commands"]
+                if carried_by(c)}
     try:
         return resolve_entry(handlers[args.cmd])(args, ap)
     except _corpus_missing() as exc:
@@ -186,6 +254,81 @@ def _cli_serve(args, parser) -> int:
 
 def _cli_mcp(args, parser) -> int:
     return mcp_stdio()
+
+
+# ---- the commands the Rust host carries natively ---------------------------- #
+#
+# `app` / `data` / `case` are in the spec for every host, so `fylite app
+# --help` and `fylite-app --help` read the same words.  The Python host does
+# not reimplement them: it finds the bundled executable and hands the words
+# on verbatim (FYL-DESIGN-15 C-3).  What is stripped is the one Python-only
+# option, `--bin-dir` — the spec marks it `hosts: ["python"]`, and the Rust
+# parser would refuse it by name.
+
+#: the executables, by the command they carry: the alias binary first (it
+#: is what `rust/build.sh --cli` installs), then the single executable with
+#: the command word put back in front
+_RUST_EXES = {
+    "app": [("fylite-app", ())],
+    "data": [("fylite-data", ()), ("fylite-app", ("data",))],
+    "case": [("fylite-case", ()), ("fylite-app", ("case",))],
+}
+
+
+def _find_exe(name: str, bin_dir=None):
+    """Where a bundled executable is: --bin-dir, the package's _bin/, $PATH."""
+    import shutil
+    from pathlib import Path
+    for d in ([Path(bin_dir)] if bin_dir else []) + [_paths.PKG / "_bin"]:
+        for cand in (d / name, d / (name + ".exe")):
+            if cand.is_file():
+                return str(cand)
+    return shutil.which(name)
+
+
+def _strip_option(words: list, flag: str) -> list:
+    """The words without `flag VALUE` / `flag=VALUE`."""
+    out, skip = [], False
+    for w in words:
+        if skip:
+            skip = False
+            continue
+        if w == flag:
+            skip = True
+            continue
+        if w.startswith(flag + "="):
+            continue
+        out.append(w)
+    return out
+
+
+def _delegate(args, parser, command: str) -> int:
+    import subprocess
+    tail = _strip_option(list(getattr(args, "_argv", []))[1:], "--bin-dir")
+    for exe, prefix in _RUST_EXES[command]:
+        path = _find_exe(exe, getattr(args, "bin_dir", None))
+        if path:
+            return subprocess.call([path, *prefix, *tail])
+    names = " / ".join(e for e, _ in _RUST_EXES[command])
+    print(f"fylite {command}: no {names} executable found — this Python host "
+          f"delegates `{command}` to the Rust executable. Build one with "
+          f"`bash rust/build.sh --cli` (fylite-data / fylite-case into "
+          f"python/fylite/_bin/) or `bash tools/build-app-exe.sh linux` "
+          f"(fylite-app), or point --bin-dir at a directory holding it.",
+          file=sys.stderr)
+    return 2
+
+
+def _cli_app(args, parser) -> int:
+    return _delegate(args, parser, "app")
+
+
+def _cli_data(args, parser) -> int:
+    return _delegate(args, parser, "data")
+
+
+def _cli_case(args, parser) -> int:
+    return _delegate(args, parser, "case")
 
 
 def _cli_describe(args, parser) -> int:

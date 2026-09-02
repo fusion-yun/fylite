@@ -3,7 +3,7 @@
 #
 # 与另两条通道的分工：
 #   pip 轮      —— 给写脚本的人，alpha 期 Linux x86-64（tools/build-wheel.sh）
-#   浏览器站点  —— 给联网的人，零安装（.github/workflows/publish-app.yml）
+#   浏览器站点  —— 给联网的人，零安装（tools/build-site.sh 出目录；FYL-DESIGN-15）
 #   本脚本      —— 给**离线**或**没有 Python** 的人，尤其 Windows：
 #                  一个文件，双击即用，不装任何运行时
 #

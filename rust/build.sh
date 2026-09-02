@@ -130,5 +130,12 @@ if [ "$EXE" = 1 ]; then
     cargo build --release --features desktop --bin fylite-app \
         --manifest-path "$CRATE/Cargo.toml"
     echo "[data] -> $CRATE/target/release/fylite-app"
+    #: ★FYL-DESIGN-15 R-4：轮里的 `fylite app` 把命令逐字交给这个可执行文件，
+    #: 所以它与另外两个一样装进 `_bin/`（构建时在就随轮走）。
+    if [ "$INSTALL" = 1 ]; then
+        mkdir -p "$ROOT/python/fylite/_bin"
+        cp "$CRATE/target/release/fylite-app" "$ROOT/python/fylite/_bin/fylite-app"
+        echo "[data] installed -> python/fylite/_bin/fylite-app"
+    fi
 fi
 echo "[data] done."

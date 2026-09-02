@@ -88,13 +88,17 @@ meas = fyo.as_measurements("machine_desc/east/case_east137985_4000ms.fyo.jsonld"
 ## 命令行与协议面
 
 ```bash
-python -m fylite --help        # run · plot · describe · manifest · serve · mcp
+python -m fylite --help        # 十四条命令，定义在 python/fylite/_cli.json（FYL-DESIGN-15）
 python -m fylite describe      # 能力目录（JSON-LD）：制品清单、工作流、数据制品
 python -m fylite mcp           # 作为 MCP stdio 服务器跑起来
+python -m fylite app           # 起本机服务、开浏览器 —— 委托给单一可执行文件 fylite-app
+python -m fylite data info x.h5   # 数据层（= fylite-data）；`case …`（= fylite-case）同理
 ```
 
-★`run` 子命令按输入模式组装 k-file 再调 `libefit.so`，而**那个库不在本分发里**；
+★`run` 走 Rust inverse（EFIT 血统的驱动与 `libefit.so` 不在本分发里）；
 `describe` / `manifest` / `serve` / `mcp` 四个不依赖内核，`engine` 导入期是纯 stdlib 的。
+`app` / `data` / `case` 三条由 Rust 可执行文件承载，Python 侧把命令词原样交过去——同一个
+定义文件，`fylite app --help` 与 `fylite-app --help` 同源。
 
 ## 走查
 
