@@ -42,7 +42,7 @@ P_{\rm total}=\sum_in_en_iL_z^{(i)},\qquad P_{\rm line}=P_{\rm total}-P_{\rm bre
 $$ (eq-p10-brem)
 
 "拆分**不物理**：`brem` 是 NRL 近似式，`line` 是 ADAS 总量减去它的剩余——只有**和**是 ADAS 值。"
-〔出处〕$1.69\times10^{-32}n_en_iZ^2T_e^{1/2}$ W/cm³ 是 NRL 手册的轫致辐射功率密度 {cite}`huba2019nrl`（源码注 "NRL"）。
+〔出处〕$1.69\times10^{-32}n_en_iZ^2T_e^{1/2}$ W/cm³ 是 NRL 手册的轫致辐射功率密度 {cite}`huba2013nrl`（源码注 "NRL"）。
 
 (phys10-radiation-sync)=
 ## 同步辐射 (Synchrotron Radiation)
@@ -68,7 +68,7 @@ P_{ei}=\tfrac32\,\nu_{\rm exch}\,n_e\,k\,(T_e-T_i)\ [\text{erg cm}^{-3}\text{s}^
 $$ (eq-p10-exch)
 
 $\nu_{\rm exch}$ 见 {eq}`eq-p04-exch`（`mapping::exchange_rate`；只有**热**离子计入）。〔出处〕经典电子—离子
-等分率 {cite}`spitzer1962physics,huba2019nrl`；源码未注（TGYRO 移植）。SI 面：`assembly.exchange_si` × 0.1。
+等分率 {cite}`spitzer1962physics,huba2013nrl`；源码未注（TGYRO 移植）。SI 面：`assembly.exchange_si` × 0.1。
 
 (phys10-resistivity)=
 # Spitzer 电阻率、欧姆加热与准中性 (Resistivity, Ohmic Heating, Quasi-Neutrality)
@@ -78,7 +78,7 @@ $$
 \eta_\parallel=0.51\,\eta_\perp,\qquad P_\Omega=\eta\,(j_\parallel\cdot j_\parallel)\ [\text{W/m}^3]
 $$ (eq-p10-spitzer)
 
-〔出处〕〔源码〕"NRL 手册系数如印：$\eta_\perp=1.03\times10^{-2}Z\ln\Lambda T_e^{-1.5}$ Ω·cm"{cite}`huba2019nrl`；
+〔出处〕〔源码〕"NRL 手册系数如印：$\eta_\perp=1.03\times10^{-2}Z\ln\Lambda T_e^{-1.5}$ Ω·cm"{cite}`huba2013nrl`；
 "NRL 手册；Spitzer & Härm 1953，$\gamma(Z=1)=0.51$" {cite}`spitzer1953transport`。"**0.51 在所有 $Z$ 上按 $Z=1$ 施加**"；
 捕获粒子修正**不**折入（"经新经典模型达到的有据可查的精化"，{ref}`phys07-intro`）。
 〔历史〕〔源码 / 保真度章〕该函数曾在此名下返回**垂直**值（T-A18 前），使欧姆功率高约一倍；订正后
@@ -156,9 +156,9 @@ treg01 的 `out.tgyro.evo_te/evo_ti` 五点目标（$0,\,0.1740,\,0.6707,\,2.843
 # 来源与出处 (Sources & Attribution)
 
 〔一手文献（源码引）〕Open ADAS {cite}`openadas`；Pütterich 等 {cite}`puetterich2019cooling`；NRL 手册
-{cite}`huba2019nrl`；Spitzer–Härm {cite}`spitzer1953transport`；Trubnikov {cite}`trubnikov1972synchrotron`。
+{cite}`huba2013nrl`；Spitzer–Härm {cite}`spitzer1953transport`；Trubnikov {cite}`trubnikov1972synchrotron`。
 〔编者对应〕电子—离子等分率 {cite}`spitzer1962physics`；壁反射因子 {cite}`rosenbluth1970synchrotron`；TGYRO
-{cite}`candy2009tgyro`。标 〔凭记忆〕 者字段待核验。
+{cite}`candy2009tgyro`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕`tgyro_source.f90`、`tgyro_rad.f90`（`adas21`, `rad_ion_adas`）、`tgyro_volume_int.f90`、`expro` `volint`
 （GACODE 5efddfdf1，Apache-2.0）。

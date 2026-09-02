@@ -256,8 +256,8 @@ $$ (eq-p01-gradient)
 {cite}`barzilai1988two,grippo1986nonmonotone,birgin2000nonmonotone`；Tikhonov {cite}`tikhonov1963solution`；
 非均匀差分权 {cite}`fornberg1988generation`；成对求和误差界 {cite}`higham1993accuracy`；复除法
 {cite}`smith1962complex`；LAPACK 角色名 {cite}`anderson1999lapack`；numpy 语义 {cite}`harris2020array`。
-上述条目中标 〔凭记忆〕 者，其书目字段在本会话未经在线核验（参考文献表的 `note` 字段同步
-标注核验状态）。
+上述条目中标 〔凭记忆〕 者为编者补出的对应；条目字段的核验状态见 `references-physics.bib` 的 `note`
+（{ref}`phys00-evidence`）。
 
 〔源码未注出处〕`kernels.rs` 与 `linalg.rs` 对上述算法**一律未给文献**，只给算法名或 LAPACK
 角色名；本章的归属是编者按算法内容所作的**文献对应**，不代表源码作者所依据的具体文本。

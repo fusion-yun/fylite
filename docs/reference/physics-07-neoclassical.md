@@ -295,13 +295,13 @@ $ix=1$（$\sqrt2v_{th}e05\frac{Z_s}{T_s}E_{\parallel0}B/\expval{B^2}$）、$ix=2
 # 来源与出处 (Sources & Attribution)
 
 〔一手文献（源码逐字引）〕Sauter 等 {cite}`sauter1999bootstrap`；Redl 等 {cite}`redl2021bootstrap`；Hirshman–Sigmar
-{cite}`hirshman1977multispecies`；Spitzer–Härm {cite}`spitzer1953transport`；NRL {cite}`huba2019nrl`。
+{cite}`hirshman1977multispecies`；Spitzer–Härm {cite}`spitzer1953transport`；NRL {cite}`huba2013nrl`。
 〔编者对应〕NEO {cite}`belli2008neo,belli2012neo`；捕获份额 {cite}`hirshman1981neoclassical,linliu1995trapped`；
 Hinton–Hazeltine {cite}`hinton1976theory`；Chang–Hinton {cite}`chang1982effect,chang1986effect`；Taguchi {cite}`taguchi1988ion`；
 Hinton–Rosenbluth {cite}`hinton1973transport`；Koh {cite}`koh2012bootstrap`；Sauter 勘误 {cite}`sauter2002erratum`；
 碰撞理论教科书 {cite}`helander2002collisional`；Gauss–Legendre {cite}`press2007nr`；稀疏 LU {cite}`gilbert1988sparse`；
 RCM {cite}`cuthill1969reducing`；UMFPACK {cite}`davis2004umfpack`；IMAS {cite}`imbeaux2015imas`；TORAX {cite}`citrin2024torax`。
-标 〔凭记忆〕 者字段待核验；标 〔未核验〕 者为系数与论文原文的逐项一致性未查证。
+标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）；标 〔未核验〕 者为系数与论文原文的逐项一致性未查证。
 
 〔转引〕NEO `neo_equilibrium.f90`、`neo_make_profiles.f90`、`neo_theory.f90`、`neo_energy`、`neo_compute_fcoll`、`neo_do`、
 `TRANSP_do`（GACODE 5efddfdf1，Apache-2.0）；TORAX `bootstrap_current/redl.py`；IMAS.jl / FUSE `Sauter_neo2021_bootstrap`

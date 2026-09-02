@@ -39,7 +39,7 @@ $E_\parallel$ 要求——**均不在**内核中；`b_tol`（缺省 2 mT）是**
 〔求解〕〔源码〕响应标度的 Tikhonov：$g_{\rm scale}=\sqrt{\sum a^2/(n_{\rm row}n_{\rm ch})}$、$\lambda_{\rm eff}=\lambda g_{\rm scale}$
 （"$\lambda$ 有平方列范数的单位，固定数值在每台机器上意义不同"）；箱 $\pm\abs{i_{\max,c}}$；`bounded_lstsq`（4000 次，$10^{-12}$；
 {ref}`phys01-linalg`）。达成度量：边界磁通 RMS、每个零点的 $\abs B$ 与磁通偏移、控制点 $\Delta\psi$、绑定通道。
-〔已确立〕等磁通 / 零点行的线性化线圈设计属经典的"等磁通控制"思想 {cite}`hofmann1988tokamak`〔凭记忆〕；源码未注。
+〔已确立〕等磁通 / 零点行的线性化线圈设计属经典的"等磁通控制"思想 {cite}`hofmann1990isoflux`〔凭记忆〕；源码未注。
 
 〔丝填充〕〔源码〕`fill_filaments`：以边界质心为中心按 $s_k=(k+\tfrac12)/n_{\rm ring}$ 缩放边界（"成形目标一直到轴保持形状"），
 权 $w_{k,i}=(1-s_k^2)^{\rm peaking}s_k$（$s$ 为环周长 Jacobian，源码未注），$a=I_pw/\sum w$。"起点模型，仅此——无平衡在内"。
@@ -72,7 +72,7 @@ $$ (eq-p13-qp)
 缺省 $\lambda_v=10^{-6}$、$\lambda_{dv}=10^{-4}$、2 次外迭代、$\text{tol}_m=5\times10^{-3}$ m；敏感度张量由 `steps`、`gains` 递推；
 `limits=True` 时电压限为**硬箱**（`bounded_lstsq`），否则截断 SVD（`rcond = max(m,n)·ε`）；电流限**检查并报告、不强制**
 （"电流限约束的是状态，不能作为设计变量的箱"）；初态已违反 `imax` 的通道标为 `channels_current_limit_suspect`（"限值错而非设计错"）。
-〔出处〕GSPulse {cite}`wai2022gspulse`〔凭记忆〕；形状响应的中心差分 `step = max(0.01|x0|, 1e3)` A·turn。用户指南实测：
+〔出处〕GSPulse {cite}`wai2026gspulse`〔凭记忆〕；形状响应的中心差分 `step = max(0.01|x0|, 1e3)` A·turn。用户指南实测：
 3 cm 间隙斜坡 50 ms 内在 EAST 上不可行（12 通道 7 个越压，最劣 8.5×），300 ms 可行——"电源电压限制的是形状变化的**速率**"。
 2026-09-02 记录：numpy 的 `bounded_lstsq` 孪生在 `flux_target = 1.0` Wb 上撞 4000 次上限、残差 $1.08\times10^3$ 对内核 $6.7\times10^{-1}$，已删除。
 
@@ -161,11 +161,11 @@ $$ (eq-p13-null)
 (phys13-sources)=
 # 来源与出处 (Sources & Attribution)
 
-〔一手文献（编者对应；源码未注）〕等磁通线圈设计 {cite}`hofmann1988tokamak`；击穿的 Townsend 判据（**未实现**，供读者外加）
+〔一手文献（编者对应；源码未注）〕等磁通线圈设计 {cite}`hofmann1990isoflux`；击穿的 Townsend 判据（**未实现**，供读者外加）
 {cite}`lloyd1991breakdown`；投影 BB 带界最小二乘 {cite}`barzilai1988two,birgin2000nonmonotone`；Tikhonov {cite}`tikhonov1963solution`。
-标 〔凭记忆〕 者字段待核验。
+标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
-〔转引〕GSPulse（J. Wai / CFS，MIT）{cite}`wai2022gspulse`——算法形状；TokSys `EAST_PS_params.m`（电源参数；Walker 2010，源引 ASIPP）；
+〔转引〕GSPulse（J. Wai / CFS，MIT）{cite}`wai2026gspulse`——算法形状；TokSys `EAST_PS_params.m`（电源参数；Walker 2010，源引 ASIPP）；
 浏览器页面 `scenario-design.js`（退火常数来源）。
 
 〔本仓选择〕三行 X 点、$L=2\pi R_0a$、$\lambda_{\rm eff}$ 响应标度、盘采样 4 × 16、`MAX_ITER = 50_000`、`BIND_TOL`、可行性裁决规则、

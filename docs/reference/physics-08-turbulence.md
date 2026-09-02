@@ -760,7 +760,7 @@ Hammett–Perkins {cite}`hammett1990fluid`；Dorland–Hammett {cite}`dorland199
 SAT3 {cite}`dudding2022sat3`；`gauher` {cite}`press2007nr`；线性代数 {cite}`golub2013matrix,jacobi1846verfahren,francis1961qr,parlett1969balancing,householder1958unitary,ahues1997deflation,anderson1999lapack`；
 QuaLiKiz {cite}`bourdelle2016qualikiz`；TORAX {cite}`citrin2024torax`；ResNet / ELU / GELU
 {cite}`he2016resnet,clevert2016elu,hendrycks2016gelu`；numpy {cite}`harris2020array`。
-标 〔凭记忆〕 者字段待核验；标 〔未核验〕 者为系数与论文原文的逐项一致性未查证。
+标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）；标 〔未核验〕 者为系数与论文原文的逐项一致性未查证。
 
 〔转引〕GACODE TGLF `tglf_startup.f90`、`tglf_inout.f90`、`tglf_modules.f90`、`tglf_eigensolver.f90`、`tglf_matrix.f90`、
 `tglf_LS.f90`、`tglf_TM.f90`、`tglf_geometry.f90`、`tglf_multiscale_spectrum.f90`、`tglf_kygrid.f90`、`tglf_max.f90`、

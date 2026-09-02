@@ -47,7 +47,7 @@ $$ (eq-p09-taus)
 〔出处〕临界能量与慢化时间是 Stix 的结果 {cite}`stix1972heating`（源码只注 METIS `zicd0.m`；
 "$E_c$ 与 $Z_b$ 无关……教科书结果"）；$\tau_s$ 的 $1/Z_b^2$ 源码强调"对 $\alpha$ **不是** 1：$Z_b=2$ 使慢化时间
 短**四倍**……对 ASTRA 抓住"。$E_c$ 下限 30 eV "如 METIS `zicd0.m`"。库仑对数式**源码未注出处**
-（与 NRL 手册电子—离子 $\ln\Lambda$ 的 $T_e>10$ eV 支 {cite}`huba2019nrl` 同型，常数 15.2 对应 $n$ 以 $10^{20}$、
+（与 NRL 手册电子—离子 $\ln\Lambda$ 的 $T_e>10$ eV 支 {cite}`huba2013nrl` 同型，常数 15.2 对应 $n$ 以 $10^{20}$、
 $T$ 以 keV 计〔已确立：可由 $24-\ln(\sqrt{n_{\rm cm^{-3}}}/T_{\rm eV})$ 换单位核算〕）。
 
 〔离子份额〕〔源码〕`ion_power_fraction(E_c,E_b)`（Wesson 2nd ed. p. 227；METIS `zfract0.m`），$x=E_b/E_c$，$s=\sqrt x$：
@@ -352,7 +352,7 @@ Bosch–Hale {cite}`boschhale1992fusion`；Wesson 分配 {cite}`wesson2004tokama
 〔一手文献（编者对应，源码只给姓名 / 上游文件）〕Stix 慢化 {cite}`stix1972heating`；Janev–Boley–Post 截面
 {cite}`janev1989penetration`；Riviere {cite}`riviere1971penetration`；Start–Cordey 束电流 {cite}`start1980beam`；
 Lin-Liu–Miller 捕获份额 {cite}`linliu1995trapped`；LH 可及性与冷等离子体折射率 {cite}`stix1992waves`；Fisch 电流驱动
-{cite}`fisch1987theory`；库仑对数 {cite}`huba2019nrl`。标 〔凭记忆〕 者字段待核验。
+{cite}`fisch1987theory`；库仑对数 {cite}`huba2013nrl`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔源码只给姓名、编者未能归属〕Eriksson 电子份额 $2W_{\rm fast}/\tau_s$；Moreau 全能量 $\tau_{\rm eff}$；Meo–Nguyen FWCD 剖面
 （未移植）；ECCD 拟合的内部结构（"私人通讯"）。这些在本章标 〔未核验〕。

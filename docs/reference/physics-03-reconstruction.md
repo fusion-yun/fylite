@@ -274,7 +274,7 @@ $$ (eq-p03-p)
 DIII-D 重构综述与动理学约束 {cite}`lao2005efit,lao1990equilibrium`；磁测量的信息极限
 {cite}`shafranov1971determination`；截断谱正则化 {cite}`hansen1998rank`；约束最小二乘
 {cite}`lawson1974solving,bjorck1996numerical`；缩放预处理 {cite}`golub2013matrix`；磁诊断原理
-{cite}`hutchinson2002principles`。标 〔凭记忆〕 者字段待核验（见参考文献 `note`）。
+{cite}`hutchinson2002principles`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕EFIT 的公开开关名（`CONDIN`、`KPPCUR/KFFCUR`、`PCURBD/FCURBD`、`KZEROJ/SIZEROJ/VZEROJ/RZEROJ/FWTXXJ`、
 `PSIBIT`、`FWTSI/FWTMP2`）按 Lao 等的公开文献与 EFIT 用户文档口径引用，**不**引用其源码；本模块

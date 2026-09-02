@@ -79,7 +79,7 @@ $$ (eq-p06-vloop)
 
 〔出处〕Spitzer 电阻率 {cite}`spitzer1953transport`〔凭记忆〕的量级形式：$\eta_{\rm Sp}\approx2.8\times10^{-8}Z_{\rm eff}T_{\rm keV}^{-3/2}$ Ω·m
 是 $\ln\Lambda\approx17$、$Z=1$ 下 NRL 手册系数 $\eta_\parallel=0.51\times1.03\times10^{-4}Z\ln\Lambda T_{\rm eV}^{-3/2}$ 的
-数值（$0.51\times1.03\times10^{-4}\times17\times10^{-4.5}\approx2.8\times10^{-8}$）{cite}`huba2019nrl`〔已确立：可自行核算〕；
+数值（$0.51\times1.03\times10^{-4}\times17\times10^{-4.5}\approx2.8\times10^{-8}$）{cite}`huba2013nrl`〔已确立：可自行核算〕；
 $(1-\sqrt\epsilon)^{-2}$ 是捕获粒子对电导率修正的最粗近似（精确形式见 {ref}`phys07-intro` 的 Sauter / Redl）
 {cite}`wesson2004tokamaks`〔凭记忆〕；$L_p$ 是大环径比环的外电感加内电感 {cite}`wesson2004tokamaks`。
 源码对这三式**均未注出处**，只写"Spitzer 电阻率与通常的 $(1-\sqrt\epsilon)^{-2}$ 捕获粒子修正"，
@@ -257,9 +257,9 @@ $\Phi_{\rm avail}\le0$ 或 $V_{\rm flattop}\le0$ 时 **$-1$**（"摆幅未声明
 ITER89-P {cite}`yushmanov1990scalings`；Martin 阈值 {cite}`martin2008power`；Greenwald {cite}`greenwald1988density`；
 Troyon {cite}`troyon1984mhd`；Ejima {cite}`ejima1982volt`。
 
-〔一手文献（编者对应，源码未注）〕Spitzer 电阻率 {cite}`spitzer1953transport,huba2019nrl`；捕获修正与
+〔一手文献（编者对应，源码未注）〕Spitzer 电阻率 {cite}`spitzer1953transport,huba2013nrl`；捕获修正与
 环电感 {cite}`wesson2004tokamaks`；$q_{\rm cyl}$、$(1-\rho^2)^p$ 族 {cite}`uckan1990guidelines`；
-指数积分器 {cite}`hochbruck2010exponential`。标 〔凭记忆〕 者字段待核验。
+指数积分器 {cite}`hochbruck2010exponential`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕METIS 认证表与 `zformsv` / `zbornesv` 转录 {cite}`artaud2018metis`；TORAX {cite}`citrin2024torax`；
 FUSE {cite}`meneghini2024fuse`——均为 oracle 口径。

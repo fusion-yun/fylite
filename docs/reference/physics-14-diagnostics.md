@@ -197,7 +197,7 @@ $\text{keep}_i\iff\abs{f_i/\tilde f-1}\le\text{tol}$（缺省 0.15；"中位数�
 〔编者对应〕GCV {cite}`craven1979smoothing,golub1979gcv`；PCHIP {cite}`fritsch1980monotone,fritsch1984method`；LM
 {cite}`levenberg1944method,marquardt1963algorithm`；Fourier–Bessel 层析 {cite}`granetz1988tomography,cormack1964representation`；
 TSVD {cite}`hansen1998rank`；磁测量矩与 Faraday 旋转 {cite}`shafranov1971determination,hutchinson2002principles`；稳健统计
-{cite}`huber1981robust`；Newton–Cotes {cite}`press2007nr`。标 〔凭记忆〕 者字段待核验。
+{cite}`huber1981robust`；Newton–Cotes {cite}`press2007nr`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕sxht7（HT-7 软 X 层析 MATLAB 码：`sxarray.m`、`xzdetect`、`weight.m`）——方法与相机几何；EFIT / GUI_v5 的 `BPOLAR`、`SIGNEL`、
 `SIGPOL`、a 文件 `rcurrt`/`zcurrt`；EAST 装置文档的 POINT 常数。

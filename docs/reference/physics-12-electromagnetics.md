@@ -217,7 +217,7 @@ $B_{\rm act}$ 指向 IC 对（缺省方向 $(1,-1)$，反对称）；磁通环�
 
 〔一手文献（编者对应；源码未注）〕互感与自感 {cite}`maxwell1873treatise,grover1946inductance`；电路方程与隐式推进
 {cite}`jardin2010computational,leveque2007fdm`；刚性垂直位移模型 {cite}`lazarus1990vertical`；Sherman–Morrison {cite}`sherman1950adjustment`；
-非对称特征分解 {cite}`golub2013matrix`。标 〔凭记忆〕 者字段待核验。
+非对称特征分解 {cite}`golub2013matrix`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕TokSys `rzrig` / `gsevolve` / `EAST_PS_params.m`（General Atomics；数值锚，静态读取 + 一次实跑记录）；fytok `fyeq/stability.py`、
 `fyeq/circuits.py`（copy-adaptation）{cite}`fytok_fytrans`；EFIT/efund 单元几何与 `rfcoil.ddd` / `rv6565.ddd` 表（已按 LICENSE 3.1 移除，

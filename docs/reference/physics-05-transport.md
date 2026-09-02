@@ -341,8 +341,8 @@ $\psi$ 自缝口向内以 $q=1$ 重建 $\psi_i=\psi_{i+1}-2\pi\abs{B_0}\tfrac12(
 {cite}`pereverzev2002astra`；有限体积法 {cite}`patankar1980numerical,leveque2007fdm`；
 Pereverzev–Corrigan {cite}`pereverzev2008stable`；TGYRO 通量匹配 {cite}`candy2009tgyro`；gyro-Bohm 单位
 {cite}`waltz1997glf23,staebler2007tglf`；动量输运对称性 {cite}`peeters2011momentum`；Spitzer 电阻率
-{cite}`spitzer1953transport,huba2019nrl`；锯齿参照 {cite}`kadomtsev1975disruptive,porcelli1996model`。
-标 〔凭记忆〕 者字段待核验。
+{cite}`spitzer1953transport,huba2013nrl`；锯齿参照 {cite}`kadomtsev1975disruptive,porcelli1996model`。
+标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕`tgyro_residual`、`tgyro_iteration_standard`、`math_scaleintv`、`evolve_indx`（GACODE，Apache-2.0）；
 fytrans（fytok 树，MIT，rev 6b14d6ef）作为**oracle 而非来源** {cite}`fytok_fytrans`；JINTRAC

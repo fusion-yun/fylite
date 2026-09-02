@@ -333,7 +333,7 @@ c_{\rm exch}=2\cdot\tfrac43\sqrt{2\pi}\frac{e^4}{k^{3/2}}
 $$ (eq-p04-exch)
 
 〔出处〕{eq}`eq-p04-lnlambda` 是 NRL 等离子体公式手册的电子—离子库仑对数（$T_e>10$ eV 支）
-{cite}`huba2019nrl`〔凭记忆〕；源码写"TGYRO 用的 NRL 形式"。{eq}`eq-p04-nu` 源码注 "Belli-2008"，
+{cite}`huba2013nrl`〔凭记忆〕；源码写"TGYRO 用的 NRL 形式"。{eq}`eq-p04-nu` 源码注 "Belli-2008"，
 即 NEO 的碰撞频率定义 {cite}`belli2008neo`（一个 $\ln\Lambda$ 用于所有物种）。{eq}`eq-p04-exch` 是
 $1.5n_ek(T_e-T_i)$ 的经典电子—离子能量交换系数（Spitzer 形式 {cite}`spitzer1962physics`〔凭记忆〕；
 NRL 手册的 $\nu_\epsilon^{e|i}$）；源码未注出处。快离子（非热）不计入交换。
@@ -348,7 +348,7 @@ $\alpha_{SA}=R_0\beta_{\rm unit}(-\dd\ln p/\dd r)\hat q^2$、
 $\text{DEBYE}=7.43\times10^2\sqrt{T_e/n_e}/\abs{\rho_s}$，旋转块 $\gamma_{p0}=-R_0\omega_0'$、$\gamma_{E0}=\gamma_{p0}r/(\hat qR_0)$；
 物种块电子优先，`mass = m/m_D`、`taus = T/T_e`、`rlns = a·dlnndr`。TGLF **不强制**准中性。
 $c_s=\sqrt{kT_e/m_D}$、$\rho_s=c_s/(eB_{\rm unit}/m_Dc)$（氘质量归一）。〔出处〕TGLF 的输入归一见
-{cite}`staebler2007tglf`；$7.43\times10^2\sqrt{T/n}$ cm 是 NRL 手册的 Debye 长度 {cite}`huba2019nrl`
+{cite}`staebler2007tglf`；$7.43\times10^2\sqrt{T/n}$ cm 是 NRL 手册的 Debye 长度 {cite}`huba2013nrl`
 （源码未注）。宿主的 `TGYRO_TGLF_REVISION` 预设逐字携带其文献：rev 1 SAT0 {cite}`kinsey2008sat0`，
 rev 2 SAT1 {cite}`staebler2013prl,staebler2017nf`，rev 3 SAT2 {cite}`staebler2021ppcf,staebler2021nf`
 （{ref}`phys08-intro`）。
@@ -476,10 +476,10 @@ $$ (eq-p04-gb)
 IMAS 度规名 {cite}`imbeaux2015imas`；$l_i(3)$ {cite}`uckan1990guidelines`；Miller 参数化
 {cite}`miller1998noncircular`；MXH {cite}`arbon2021mxh`；GEO 算子求值 {cite}`candy2009unified`；
 GACODE 几何文档 {cite}`gacode_geometry`；$B_{\rm unit}$ {cite}`waltz1999shape`；碰撞频率 {cite}`belli2008neo`；
-库仑对数、Debye 长度 {cite}`huba2019nrl`；能量交换 {cite}`spitzer1962physics`；gyro-Bohm 归一
+库仑对数、Debye 长度 {cite}`huba2013nrl`；能量交换 {cite}`spitzer1962physics`；gyro-Bohm 归一
 {cite}`waltz1997glf23,staebler2007tglf`；TGLF 饱和规则各代（宿主源码逐字引）
 {cite}`kinsey2008sat0,staebler2013prl,staebler2017nf,staebler2021ppcf,staebler2021nf`；COCOS {cite}`sauter2013cocos`。
-标 〔凭记忆〕 者字段待核验。
+标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引（白箱翻译）〕`geo.f90`（`geo_do`, `geo_model_in = 0`）、`tgyro_tglf_map.f90`、`tgyro_neo_map.f90`、
 `tgyro_flux.f90`、`tgyro_globals`、`expro_util.f90`（`expro_compute_derived`, `bound_deriv`, `bound_extrap`）、

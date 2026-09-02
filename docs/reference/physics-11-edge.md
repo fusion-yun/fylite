@@ -253,7 +253,7 @@ Snyder 等 {cite}`snyder2009development,snyder2009pedestal,snyder2011eped`；Men
 Tamor ANTIC（规划、未实现）{cite}`tamor1981antic`。〔编者对应〕两点模型 {cite}`stangeby2000boundary`；Brown–Goldston
 {cite}`brown2021conductivity`；Verdoolaege {cite}`verdoolaege2021database`；Kallenbach {cite}`kallenbach2024enrichment`；δ 跟踪
 {cite}`woodcock1965techniques`；EIRENE {cite}`reiter2005eirene`；Box–Muller {cite}`box1958note`；splitmix64 {cite}`steele2014splittable`；
-GELU {cite}`hendrycks2016gelu`；FUSE {cite}`meneghini2024fuse`；TORAX {cite}`citrin2024torax`。标 〔凭记忆〕 者字段待核验。
+GELU {cite}`hendrycks2016gelu`；FUSE {cite}`meneghini2024fuse`；TORAX {cite}`citrin2024torax`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕TORAX `extended_lengyel_defaults`、`CONSTANTS.eps`、`mavrin_noncoronal.json`、`extended_lengyel.json`（Apache-2.0）；
 EPEDNN.jl `pedestal_array`、`extrapolation_distance`、`effective_triangularity`；FUSE `ActorStationaryPlasma`。
