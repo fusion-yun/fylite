@@ -55,6 +55,13 @@ name = "fylite-data"
 path = "src/bin/data/main.rs"
 required-features = ["mdsip"]
 
+#: 算例的命令行：一份 fyo 计划进、一份 fyo 记录出，经内核（运行期 dlopen
+#: `libfylite_kernel.so`）。原生专用；不要求任何特性——JSON 计划与 JSON-LD 记录
+#: 零依赖，HDF5 / netCDF 产出只在带那两个特性时可选。
+[[bin]]
+name = "fylite-case"
+path = "src/bin/case/main.rs"
+
 [dependencies]
 #: ★两个都是可选的、都只在原生目标上有意义（见 `[features]`）。版本钉到次版本：
 #: 它们的 API 在 0.x 之间会动，而这里对它们的调用面很窄。

@@ -3,7 +3,7 @@
 #
 #   ./rust/build.sh              -> libfylite_data.so，装进 python/fylite/_lib/
 #   ./rust/build.sh --exe        -> 另外构建单文件桌面查看器 fylite-app
-#   ./rust/build.sh --cli        -> 另外构建命令行 fylite-data，装进 python/fylite/_bin/
+#   ./rust/build.sh --cli        -> 另外构建命令行 fylite-data 与 fylite-case，装进 python/fylite/_bin/
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
 #
@@ -109,12 +109,15 @@ PYMDS
 echo "[build] mds request -> python/fylite/_mds_request.py, app/assets/mds-request.js"
 
 if [ "$CLI" = 1 ]; then
-    echo "[data] cargo build --release --bin fylite-data ..."
-    cargo build --release $FEATURES --bin fylite-data --manifest-path "$CRATE/Cargo.toml"
+    echo "[data] cargo build --release --bin fylite-data --bin fylite-case ..."
+    #: ★`fylite-case`：一份 fyo 计划进、一份 fyo 记录出，经内核（运行期 dlopen
+    #: `libfylite_kernel.so`，不在本脚本的构建面里——它由内核仓的 build.sh 装进同一个 `_lib/`）
+    cargo build --release $FEATURES --bin fylite-data --bin fylite-case --manifest-path "$CRATE/Cargo.toml"
     if [ "$INSTALL" = 1 ]; then
         mkdir -p "$ROOT/python/fylite/_bin"
         cp "$CRATE/target/release/fylite-data" "$ROOT/python/fylite/_bin/fylite-data"
-        echo "[data] installed -> python/fylite/_bin/fylite-data"
+        cp "$CRATE/target/release/fylite-case" "$ROOT/python/fylite/_bin/fylite-case"
+        echo "[data] installed -> python/fylite/_bin/fylite-data, python/fylite/_bin/fylite-case"
     fi
 fi
 

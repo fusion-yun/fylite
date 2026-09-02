@@ -236,6 +236,31 @@ JSON-LD description. Files are recognised by **content**, never by name.
 | HDF5 | ✓ | ✓ | fyo · IMAS (imas-core HDF5 backend: `master.h5` + `<ids>.h5`) |
 | netCDF | ✓ | ✓ | fyo · IMAS (imas-python netCDF backend) |
 
+## Running a case
+
+A case is **one structure in, one structure out**: a `fyo:ScenarioSpecification`
+(the documents under `cases/`, an `spo:ComputationPlan`) goes in, an
+`spo:ComputationRecord` with its produced datasets comes out. The kernel
+completes the case from its structure — settings by name, bound inputs by fyo
+path — and the data layer owns both ends: the `fylite-case` command reads and
+composes the plan documents, resolves bound inputs through the format readers,
+loads `libfylite_kernel.so` at run time and writes the record and the datasets
+as fyo documents.
+
+```sh
+fylite-case describe                                   # what the kernel completes, and what it declares
+fylite-case plan cases/evolve-default.jsonld --set nsteps=12
+fylite-case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
+#  -> records/evolve/{record.jsonld, plan.jsonld, core_profiles.fyo.jsonld, summary.fyo.jsonld, ...}
+```
+
+Several plan documents compose (later ones override earlier ones, then `--set`
+and `--bind`). A case the kernel cannot complete is **refused with the missing
+thing named** — a capability not yet sunk, an equilibrium ladder not bound —
+and the refusal is recorded too (`run_state: rejected`). Build it with
+`./rust/build.sh --cli`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
+or `python/fylite/_lib/`.
+
 The IMAS layouts are checked against the real readers, not against a
 description of them: `rust/fylite_data/verify/imas_roundtrip.py` writes with
 imas-python, reads with this library, writes with this library, and reads

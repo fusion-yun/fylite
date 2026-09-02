@@ -1,0 +1,210 @@
+//! The kernel, loaded at run time — the case door and nothing else.
+//!
+//! ★★Why `dlopen` and not a crate dependency.  The kernel's source is not
+//! public and this crate is; a `path` dependency would make the public
+//! crate unbuildable without the private checkout, and a `cdylib` link
+//! at build time would pin one library to one binary.  Python loads the
+//! same `libfylite_kernel.so` by name (`fylite/kernel.py`), and this does
+//! the same: one artifact, two hosts, found by the same rule — an explicit
+//! path, `FYLITE_KERNEL_LIB`, or the checkout's `python/fylite/_lib/`.
+//!
+//! ★What crosses the door is a STRUCTURE (`fylite_rs_case_*` in the
+//! kernel's `c_api.rs`): the code, settings by name, inputs by fyo path;
+//! back come a manifest (fields by fyo path, with offsets) and the flat
+//! data.  Turning that into documents is [`crate::case`]'s job.
+
+use std::ffi::{c_char, c_int, c_void, CString};
+use std::path::{Path, PathBuf};
+
+#[link(name = "dl")]
+extern "C" {
+    fn dlopen(filename: *const c_char, flag: c_int) -> *mut c_void;
+    fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
+    fn dlerror() -> *const c_char;
+}
+
+const RTLD_NOW: c_int = 2;
+
+type CaseRunFn = unsafe extern "C" fn(
+    *const u8, u64,
+    u64, *const *const u8, *const u64, *const f64,
+    u64, *const *const u8, *const u64, *const *const u8, *const u64,
+    u64, *const *const u8, *const u64, *const u64, *const f64) -> i64;
+type CaseTextFn = unsafe extern "C" fn(i64, *mut u8, u64) -> i64;
+type CaseDataFn = unsafe extern "C" fn(i64, *mut f64, u64) -> i64;
+type CaseFreeFn = unsafe extern "C" fn(i64) -> i32;
+type CaseErrorFn = unsafe extern "C" fn(*mut u8, u64) -> i64;
+type AbiFn = unsafe extern "C" fn() -> u32;
+
+/// A loaded kernel.
+pub struct Kernel {
+    pub path: PathBuf,
+    pub abi_version: Option<u32>,
+    run: CaseRunFn,
+    manifest: CaseTextFn,
+    data: CaseDataFn,
+    free: CaseFreeFn,
+    error: CaseErrorFn,
+}
+
+/// What the kernel handed back for one case: the manifest text and the
+/// flat data its offsets index.
+#[derive(Debug, Clone)]
+pub struct RawOutcome {
+    pub manifest: String,
+    pub data: Vec<f64>,
+}
+
+#[derive(Debug, Clone)]
+pub struct KernelError {
+    /// The kernel's code (negative), or 0 for a loader-side failure.
+    pub code: i64,
+    pub message: String,
+}
+
+impl std::fmt::Display for KernelError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.code != 0 { write!(f, "[{}] {}", self.code, self.message) } else { f.write_str(&self.message) }
+    }
+}
+
+fn err(message: impl Into<String>) -> KernelError {
+    KernelError { code: 0, message: message.into() }
+}
+
+/// Where to look for `libfylite_kernel.so`, in order: `explicit`, the
+/// environment (`FYLITE_KERNEL_LIB`), the checkout above this binary or
+/// the working directory (`python/fylite/_lib/libfylite_kernel.so`), and
+/// finally the kernel's own build tree beside a sibling checkout.
+pub fn candidates(explicit: Option<&Path>) -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    if let Some(p) = explicit {
+        out.push(p.to_path_buf());
+    }
+    if let Ok(p) = std::env::var("FYLITE_KERNEL_LIB") {
+        if !p.is_empty() {
+            out.push(PathBuf::from(p));
+        }
+    }
+    let rel = Path::new("python/fylite/_lib/libfylite_kernel.so");
+    if let Ok(cwd) = std::env::current_dir() {
+        for up in [cwd.clone(), cwd.join(".."), cwd.join("../..")] {
+            out.push(up.join(rel));
+        }
+    }
+    if let Ok(exe) = std::env::current_exe() {
+        let mut d = exe.parent().map(Path::to_path_buf);
+        for _ in 0..6 {
+            let Some(dir) = d else { break };
+            out.push(dir.join(rel));
+            out.push(dir.join("libfylite_kernel.so"));
+            d = dir.parent().map(Path::to_path_buf);
+        }
+    }
+    if let Ok(cwd) = std::env::current_dir() {
+        for up in [cwd.clone(), cwd.join(".."), cwd.join("../..")] {
+            for profile in ["release", "debug"] {
+                out.push(up.join(format!("../fylite_kernel/rust/fylite/target/{profile}/libfylite_kernel.so")));
+            }
+        }
+    }
+    out
+}
+
+impl Kernel {
+    /// Load the first candidate that exists and carries the case door.
+    pub fn load(explicit: Option<&Path>) -> Result<Kernel, KernelError> {
+        let cands = candidates(explicit);
+        let mut tried = Vec::new();
+        for c in &cands {
+            if !c.is_file() {
+                tried.push(format!("{} (absent)", c.display()));
+                continue;
+            }
+            match Kernel::open(c) {
+                Ok(k) => return Ok(k),
+                Err(e) => tried.push(format!("{} ({})", c.display(), e.message)),
+            }
+        }
+        Err(err(format!(
+            "no kernel library with the case door found; looked at:\n  {}\n\
+             (pass --kernel <path>, set FYLITE_KERNEL_LIB, or build it with the kernel's rust/build.sh)",
+            tried.join("\n  "))))
+    }
+
+    fn open(path: &Path) -> Result<Kernel, KernelError> {
+        let c = CString::new(path.to_string_lossy().as_bytes()).map_err(|_| err("path has a NUL"))?;
+        let h = unsafe { dlopen(c.as_ptr(), RTLD_NOW) };
+        if h.is_null() {
+            let why = unsafe {
+                let p = dlerror();
+                if p.is_null() { String::from("dlopen failed") } else {
+                    std::ffi::CStr::from_ptr(p).to_string_lossy().into_owned() }
+            };
+            return Err(err(why));
+        }
+        let sym = |name: &str| -> Result<*mut c_void, KernelError> {
+            let cs = CString::new(name).unwrap();
+            let p = unsafe { dlsym(h, cs.as_ptr()) };
+            if p.is_null() { Err(err(format!("no symbol {name} — an older kernel without the case door"))) } else { Ok(p) }
+        };
+        let run: CaseRunFn = unsafe { std::mem::transmute(sym("fylite_rs_case_run")?) };
+        let manifest: CaseTextFn = unsafe { std::mem::transmute(sym("fylite_rs_case_manifest")?) };
+        let data: CaseDataFn = unsafe { std::mem::transmute(sym("fylite_rs_case_data")?) };
+        let free: CaseFreeFn = unsafe { std::mem::transmute(sym("fylite_rs_case_free")?) };
+        let error: CaseErrorFn = unsafe { std::mem::transmute(sym("fylite_rs_case_error")?) };
+        let abi_version = sym("fylite_rs_abi_version").ok().map(|p| {
+            let f: AbiFn = unsafe { std::mem::transmute(p) };
+            unsafe { f() }
+        });
+        Ok(Kernel { path: path.to_path_buf(), abi_version, run, manifest, data, free, error })
+    }
+
+    fn last_error(&self) -> String {
+        let n = unsafe { (self.error)(std::ptr::null_mut(), 0) };
+        if n <= 0 {
+            return String::new();
+        }
+        let mut buf = vec![0u8; n as usize];
+        unsafe { (self.error)(buf.as_mut_ptr(), n as u64) };
+        String::from_utf8_lossy(&buf).into_owned()
+    }
+
+    /// Complete one case: the code, its numeric and text settings, and its
+    /// bound inputs (key = fyo path or a raw entry's input key).
+    pub fn run_case(&self, code: &str, numbers: &[(String, f64)], texts: &[(String, String)],
+                    inputs: &[(String, Vec<f64>)]) -> Result<RawOutcome, KernelError> {
+        let nk: Vec<*const u8> = numbers.iter().map(|(k, _)| k.as_ptr()).collect();
+        let nkl: Vec<u64> = numbers.iter().map(|(k, _)| k.len() as u64).collect();
+        let nv: Vec<f64> = numbers.iter().map(|(_, v)| *v).collect();
+        let tk: Vec<*const u8> = texts.iter().map(|(k, _)| k.as_ptr()).collect();
+        let tkl: Vec<u64> = texts.iter().map(|(k, _)| k.len() as u64).collect();
+        let tv: Vec<*const u8> = texts.iter().map(|(_, v)| v.as_ptr()).collect();
+        let tvl: Vec<u64> = texts.iter().map(|(_, v)| v.len() as u64).collect();
+        let ik: Vec<*const u8> = inputs.iter().map(|(k, _)| k.as_ptr()).collect();
+        let ikl: Vec<u64> = inputs.iter().map(|(k, _)| k.len() as u64).collect();
+        let il: Vec<u64> = inputs.iter().map(|(_, v)| v.len() as u64).collect();
+        let idata: Vec<f64> = inputs.iter().flat_map(|(_, v)| v.iter().copied()).collect();
+        let h = unsafe {
+            (self.run)(code.as_ptr(), code.len() as u64,
+                       nk.len() as u64, nk.as_ptr(), nkl.as_ptr(), nv.as_ptr(),
+                       tk.len() as u64, tk.as_ptr(), tkl.as_ptr(), tv.as_ptr(), tvl.as_ptr(),
+                       ik.len() as u64, ik.as_ptr(), ikl.as_ptr(), il.as_ptr(), idata.as_ptr())
+        };
+        if h < 1 {
+            return Err(KernelError { code: h, message: self.last_error() });
+        }
+        let mn = unsafe { (self.manifest)(h, std::ptr::null_mut(), 0) };
+        let mut mbuf = vec![0u8; mn.max(0) as usize];
+        if mn > 0 {
+            unsafe { (self.manifest)(h, mbuf.as_mut_ptr(), mn as u64) };
+        }
+        let dn = unsafe { (self.data)(h, std::ptr::null_mut(), 0) };
+        let mut data = vec![0.0f64; dn.max(0) as usize];
+        if dn > 0 {
+            unsafe { (self.data)(h, data.as_mut_ptr(), dn as u64) };
+        }
+        unsafe { (self.free)(h) };
+        Ok(RawOutcome { manifest: String::from_utf8_lossy(&mbuf).into_owned(), data })
+    }
+}

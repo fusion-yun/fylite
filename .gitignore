@@ -176,3 +176,4 @@ Cargo.lock
 #: ★注意它**不是等价替换**：实测拖回来的 ITER 卡片没有 `machine.fylite:b0`
 #: （5.3 T），壁面轮廓的写法也换了。拖回之后要复核读它的那些消费者。
 machine_desc/
+records/
