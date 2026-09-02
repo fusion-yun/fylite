@@ -41,9 +41,10 @@
 // host-supplied `Transport` over a WebSocket (see the `mdsip` module).
 // =========================================================================== //
 
-#[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
+#[cfg(not(target_arch = "wasm32"))]
 mod mds_abi {
-    use crate::mdsip::{self, tcp::TcpTransport, Answer, Client, Index, Verb};
+    #[cfg(feature = "mdsip")]
+    pub use crate::mdsip::{self, tcp::TcpTransport, Answer, Client, Index, Verb};
 
     /// `*` in a subscript.  ★A sentinel and not a separate array, because the
     /// alternative — a parallel "is this one a star" mask — is a second array
@@ -288,3 +289,148 @@ pub unsafe extern "C" fn fylite_data_mds_close(handle: *mut std::ffi::c_void) {
     }
 }
 
+
+// =========================================================================== //
+// GEQDSK —— 格式那一半的 C ABI
+//
+// ★取数组用**名字**（`"psirz"`），不是整数编号。编号要两侧各存一份、就会漂；
+// 名字是 Python 的 `read_geqdsk` 与 JS 的 `parse` 本来就在用的同一串字符，
+// 而这一层的查表代价等于零。
+//
+// ★两步取法（先 parse 拿句柄，再按名字取）与 mdsip 那组同一形状，理由也一样：
+// 调用方在服务器/文件答复之前无法给缓冲区定长。
+// =========================================================================== //
+
+#[cfg(not(target_arch = "wasm32"))]
+mod gfile_abi {
+    pub use crate::geqdsk::GFile;
+}
+
+/// 解析一份 g-file 文本，写出句柄。0 = ok，`-1` 参数不合法，`-2` 解析失败
+/// （原因写进 `(err, err_cap)` —— ★一份读不进来的 g-file，读者最需要知道的就是
+/// 卡在哪个数组上）。
+///
+/// # Safety
+/// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_parse(
+    text: *const u8, text_n: u64, out_handle: *mut *mut std::ffi::c_void,
+    err: *mut u8, err_cap: u64) -> i32 {
+    if out_handle.is_null() {
+        return -1;
+    }
+    let Some(s) = mds_abi::s(text, text_n) else { return -1 };
+    match crate::geqdsk::parse(s) {
+        Ok(g) => {
+            *out_handle = Box::into_raw(Box::new(g)) as *mut std::ffi::c_void;
+            0
+        }
+        Err(e) => {
+            mds_abi::put(&e.to_string(), err, err_cap);
+            *out_handle = std::ptr::null_mut();
+            -2
+        }
+    }
+}
+
+/// `nw` 与 `nh`。0 = ok。
+///
+/// # Safety
+/// `handle` 来自 `fylite_data_gfile_parse`；`nw`/`nh` 各一个 u64。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_dims(
+    handle: *mut std::ffi::c_void, nw: *mut u64, nh: *mut u64) -> i32 {
+    if handle.is_null() || nw.is_null() || nh.is_null() {
+        return -1;
+    }
+    let g = &*(handle as *mut gfile_abi::GFile);
+    *nw = g.nw as u64;
+    *nh = g.nh as u64;
+    0
+}
+
+/// 十三个标量，按 `GFile::SCALARS` 的次序。0 = ok，`-4` 缓冲区太小。
+///
+/// # Safety
+/// `handle` 来自 parse；`out`: `cap` 个 f64。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_scalars(
+    handle: *mut std::ffi::c_void, out: *mut f64, cap: u64) -> i32 {
+    if handle.is_null() || out.is_null() {
+        return -1;
+    }
+    let g = &*(handle as *mut gfile_abi::GFile);
+    let v = g.scalars();
+    if (v.len() as u64) > cap {
+        return -4;
+    }
+    std::ptr::copy_nonoverlapping(v.as_ptr(), out, v.len());
+    0
+}
+
+/// 按名字取一个数组。返回它的长度（**即使 `cap` 不够也返回**，好让调用方按这个
+/// 长度重来一次），`-1` 参数不合法，`-2` 没有这个名字。
+///
+/// # Safety
+/// `handle` 来自 parse；`name`: `name_n` 字节；`out`: `cap` 个 f64。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_array(
+    handle: *mut std::ffi::c_void, name: *const u8, name_n: u64,
+    out: *mut f64, cap: u64) -> i64 {
+    if handle.is_null() {
+        return -1;
+    }
+    let g = &*(handle as *mut gfile_abi::GFile);
+    let Some(nm) = mds_abi::s(name, name_n) else { return -1 };
+    let Some(v) = g.array(nm) else { return -2 };
+    if !out.is_null() && (v.len() as u64) <= cap {
+        std::ptr::copy_nonoverlapping(v.as_ptr(), out, v.len());
+    }
+    v.len() as i64
+}
+
+/// 头一行。返回它的字节数。
+///
+/// # Safety
+/// `handle` 来自 parse；`out`: `cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_header(
+    handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
+    if handle.is_null() {
+        return -1;
+    }
+    let g = &*(handle as *mut gfile_abi::GFile);
+    mds_abi::put(&g.header, out, cap)
+}
+
+/// 写回一份 g-file 文本。返回字节数。
+///
+/// # Safety
+/// `handle` 来自 parse；`out`: `cap` 字节。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_format(
+    handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
+    if handle.is_null() {
+        return -1;
+    }
+    let g = &*(handle as *mut gfile_abi::GFile);
+    mds_abi::put(&crate::geqdsk::format_gfile(g), out, cap)
+}
+
+/// 释放句柄。
+///
+/// # Safety
+/// `handle` 来自 parse，且未被释放过。
+#[cfg(not(target_arch = "wasm32"))]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_data_gfile_free(handle: *mut std::ffi::c_void) {
+    if !handle.is_null() {
+        drop(Box::from_raw(handle as *mut gfile_abi::GFile));
+    }
+}

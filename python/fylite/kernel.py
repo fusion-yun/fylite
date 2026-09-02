@@ -7570,3 +7570,82 @@ class MdsSession:
     def __exit__(self, *exc):
         self.close()
         return False
+
+# --------------------------------------------------------------------------- #
+# GEQDSK —— 格式那一半，也在数据层
+#
+# ★★本仓从前有**两份** g-file 实现：`fylite/io/geqdsk.py`（752 行）与
+# `app/assets/geqdsk.js`（286 行）。JS 那份的注释自己写着「returns the same field
+# names fylite's own `read_geqdsk` returns」——两处拼写、一个契约。而它们**已经在
+# 一个真实的地方分歧**：Python 按固定 16 列切数，JS 按模式扫描（它的注释说明了
+# 为什么：*vintages differ on whether a full-width negative eats its separating
+# space*）。两种切法在规范的 `%16.9E` 上一致，在不规范的文件上不一致，**而不一致
+# 的那一侧不报错**——它读出的是一串量级正常、错位了一格的数。
+#
+# ★这里**不删**任何一份：`read_gfile` 先落地，并由 `test_gfile_equivalence.py`
+# 判它与 Python 那份在真文件上逐字段相同。搬迁的规矩是「一条判据只有在对面已经
+# 存在之后才算搬过去」（`tests/PHYSICS-MIGRATION.md` 那本台账的做法）。
+# --------------------------------------------------------------------------- #
+
+_dsig("fylite_data_gfile_parse", [_BYTES, _U64, ctypes.POINTER(_VOID),
+                                  _BYTES, _U64], _I32)
+_dsig("fylite_data_gfile_dims", [_VOID, ctypes.POINTER(ctypes.c_uint64),
+                                 ctypes.POINTER(ctypes.c_uint64)], _I32)
+_dsig("fylite_data_gfile_scalars", [_VOID, _ARR, _U64], _I32)
+_dsig("fylite_data_gfile_array", [_VOID, _BYTES, _U64, _ARR, _U64],
+      ctypes.c_int64)
+_dsig("fylite_data_gfile_header", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_gfile_format", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_data_gfile_free", [_VOID], None)
+
+#: 标量的名字与次序 —— 与 `geqdsk.rs` 的 `GFile::SCALARS` 一一对应。
+#: ★这是一张**手抄**的表，抄错了不会报错（读者拿到的是另一个量），所以
+#: `test_gfile_equivalence.py` 逐个把它与 Python 那份读出来的值比。
+GFILE_SCALARS = ("rdim", "zdim", "rcentr", "rleft", "zmid",
+                 "rmaxis", "zmaxis", "simag", "sibry", "bcentr",
+                 "current", "nbbbs", "limitr")
+GFILE_ARRAYS = ("fpol", "pres", "ffprim", "pprime", "psirz", "qpsi",
+                "rbbbs", "zbbbs", "rlim", "zlim")
+
+
+def read_gfile(text_or_path) -> dict:
+    """一份 g-file -> 与 `fylite.io.geqdsk.read_geqdsk` **同样键名**的字典。
+
+    收文本或路径。★键名相同是有意的：两份实现只有在能直接对拍时，换掉其中一份
+    才是可判定的动作。
+    """
+    lib = require_data()
+    text = text_or_path
+    if not isinstance(text, str) or "\n" not in text:
+        text = Path(text_or_path).read_text(encoding="utf-8", errors="replace")
+    tb, tn, _k = _b(text)
+    h = _VOID()
+    err = (ctypes.c_uint8 * 512)()
+    rc = lib.fylite_data_gfile_parse(tb, tn, ctypes.byref(h),
+                                     ctypes.cast(err, _BYTES), len(err))
+    if rc != 0:
+        why = bytes(err).split(b"\0", 1)[0].decode("utf-8", "replace")
+        raise KernelError(f"g-file parse failed ({rc}): {why}")
+    try:
+        nw, nh = ctypes.c_uint64(), ctypes.c_uint64()
+        lib.fylite_data_gfile_dims(h, ctypes.byref(nw), ctypes.byref(nh))
+        sc = np.empty(len(GFILE_SCALARS), dtype=np.float64)
+        lib.fylite_data_gfile_scalars(h, sc, sc.size)
+        out = {"nw": int(nw.value), "nh": int(nh.value)}
+        for name, v in zip(GFILE_SCALARS, sc):
+            out[name] = int(v) if name in ("nbbbs", "limitr") else float(v)
+        for name in GFILE_ARRAYS:
+            nb, nn, _k2 = _b(name)
+            n = lib.fylite_data_gfile_array(h, nb, nn, np.empty(0), 0)
+            if n < 0:
+                raise KernelError(f"g-file array {name!r} refused ({n})")
+            buf = np.empty(int(n), dtype=np.float64)
+            lib.fylite_data_gfile_array(h, nb, nn, buf, buf.size)
+            out[name] = buf
+        n = lib.fylite_data_gfile_header(h, None, 0)
+        hb = (ctypes.c_uint8 * max(int(n), 1))()
+        lib.fylite_data_gfile_header(h, ctypes.cast(hb, _BYTES), len(hb))
+        out["header"] = bytes(hb)[:max(int(n), 0)].decode("utf-8", "replace")
+        return out
+    finally:
+        lib.fylite_data_gfile_free(h)

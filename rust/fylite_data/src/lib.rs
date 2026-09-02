@@ -23,6 +23,10 @@
 
 #![allow(dead_code)]
 
+//: ★g-file 是**格式**，不是传输：它在 wasm 上也成立，所以不挂在 `mdsip` 特性下。
+//: 这也正是数据层 wasm 将来装的东西——浏览器不取 MDSplus，但它要读 g-file。
+pub mod geqdsk;
+
 #[cfg(feature = "mdsip")]
 pub mod mdsip;
 
