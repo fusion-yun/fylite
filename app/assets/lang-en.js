@@ -70,6 +70,7 @@ self.FyI18n.register('en', {
   'nav.line.model': 'Physics modelling',
   'nav.line.analysis': 'Experiment analysis',
   'nav.line.data': 'Device data',
+  'nav.line.report': 'Case report',
   'io.export.pick': 'Export: press to choose a format',
   'design.row.du': 'δ upper',
   'design.row.dl': 'δ lower',

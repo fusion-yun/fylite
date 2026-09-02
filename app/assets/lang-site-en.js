@@ -50,6 +50,8 @@ self.FyI18n.register('en', {
   'home.card.scenario.analysis.p': 'Recover the equilibrium from flux loops, magnetic probes, POINT and Thomson, with a pressure profile as the kinetic constraint and error bars from a sampled posterior.',
   'home.card.tool.data.h': 'Device data →',
   'home.card.tool.data.p': 'Look straight at the machine\u2019s own archive: browse an MDSplus tree, name a shot, pull the signals you pick. \u2605This page <strong>computes nothing</strong> — what it shows is what the device recorded, not a result of ours — and it therefore needs an mdsip server it can reach: open it in the single-file viewer (<code>fylite-app --mdsip host:port</code>), or fill one in on the page.',
+  'home.card.tool.report.h': 'Case report →',
+  'home.card.tool.report.p': 'Render the record of one case (a fyo plan + an spo record with its outputs inline on the ports) as a report: parameters, ports, readings, line charts against each quantity\u2019s own coordinate, and the poloidal section when a boundary outline is on the record. \u2605This page <strong>computes nothing</strong> — what is drawn is decided by a presentation specification; without one it derives the same spec <code>fylite cases --report</code> writes beside its report.',
   // --- the v2 page shell (assets/shell.js) --------------------------------
   'shell.lead.more': 'more ▾',
   'shell.lead.less': 'less ▴',

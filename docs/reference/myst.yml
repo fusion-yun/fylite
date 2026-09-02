@@ -29,6 +29,7 @@ project:
     - file: kernels.md
     - file: api.md
     - file: report-template.md
+    - file: case-report.md
 
 site:
   title: fylite 参考

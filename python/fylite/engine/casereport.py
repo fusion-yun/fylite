@@ -733,6 +733,10 @@ def render(src: str | Path | dict, *, plan: dict | None = None, out: str | Path 
     (out_dir / "presentation.jsonld").write_text(json.dumps(spec, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     if isinstance(src, dict) and not (out_dir / "record.jsonld").is_file():
         (out_dir / "record.jsonld").write_text(json.dumps(record, ensure_ascii=False) + "\n", encoding="utf-8")
+    #: the plan beside the record, so a reader (the browser page included) gets the
+    #: same two documents this renderer had — a report directory is self-contained
+    if isinstance(plan, dict) and not (out_dir / "plan.jsonld").is_file():
+        (out_dir / "plan.jsonld").write_text(json.dumps(plan, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     text = render_myst(plan, record, spec, out_dir, lang=lang)
     dest = out_dir / "report.md"
     dest.write_text(text, encoding="utf-8")

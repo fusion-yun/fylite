@@ -149,6 +149,11 @@
   var TOOLS = [
     { id: 'data', href: 'pages/data.html', nav: 'nav.line.data',
       card: 'home.card.tool.data' },
+    //: ★the second tool page (2026-09-02): a case's plan + record rendered as a
+    //: report through a presentation spec (FYL-REPORT-06 §13).  It computes
+    //: nothing — it reads a record — so it is a TOOL, not a scenario.
+    { id: 'report', href: 'pages/report.html', nav: 'nav.line.report',
+      card: 'home.card.tool.report' },
   ];
 
   function tool(id) {
