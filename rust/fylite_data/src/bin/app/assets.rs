@@ -10,6 +10,7 @@
 pub static ASSETS: &[(&str, &[u8], &str)] = &[
     ("assets/abi.json", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/abi.json")), "application/json; charset=utf-8"),
     ("assets/appio.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/appio.js")), "text/javascript; charset=utf-8"),
+    ("assets/casereport.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/casereport.js")), "text/javascript; charset=utf-8"),
     ("assets/deck-names.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/deck-names.js")), "text/javascript; charset=utf-8"),
     ("assets/device.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/device.js")), "text/javascript; charset=utf-8"),
     ("assets/devices.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/devices.js")), "text/javascript; charset=utf-8"),
@@ -51,6 +52,8 @@ pub static ASSETS: &[(&str, &[u8], &str)] = &[
     ("assets/lang-pd-zh.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-pd-zh.js")), "text/javascript; charset=utf-8"),
     ("assets/lang-pulse-en.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-pulse-en.js")), "text/javascript; charset=utf-8"),
     ("assets/lang-pulse-zh.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-pulse-zh.js")), "text/javascript; charset=utf-8"),
+    ("assets/lang-report-en.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-report-en.js")), "text/javascript; charset=utf-8"),
+    ("assets/lang-report-zh.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-report-zh.js")), "text/javascript; charset=utf-8"),
     ("assets/lang-sim-en.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-sim-en.js")), "text/javascript; charset=utf-8"),
     ("assets/lang-sim-zh.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-sim-zh.js")), "text/javascript; charset=utf-8"),
     ("assets/lang-site-en.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/lang-site-en.js")), "text/javascript; charset=utf-8"),
@@ -67,6 +70,7 @@ pub static ASSETS: &[(&str, &[u8], &str)] = &[
     ("assets/mdsplus.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/mdsplus.js")), "text/javascript; charset=utf-8"),
     ("assets/plot.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/plot.js")), "text/javascript; charset=utf-8"),
     ("assets/qr-site.svg", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/qr-site.svg")), "image/svg+xml"),
+    ("assets/report-page.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/report-page.js")), "text/javascript; charset=utf-8"),
     ("assets/scenario-analysis.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/scenario-analysis.js")), "text/javascript; charset=utf-8"),
     ("assets/scenario-model.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/scenario-model.js")), "text/javascript; charset=utf-8"),
     ("assets/scenario-pulse_design.js", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/assets/scenario-pulse_design.js")), "text/javascript; charset=utf-8"),
@@ -102,5 +106,7 @@ pub static ASSETS: &[(&str, &[u8], &str)] = &[
     ("pages/page_data.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/pages/page_data.html")), "text/html; charset=utf-8"),
     ("pages/page_model.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/pages/page_model.html")), "text/html; charset=utf-8"),
     ("pages/page_pulse_design.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/pages/page_pulse_design.html")), "text/html; charset=utf-8"),
+    ("pages/page_report.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/pages/page_report.html")), "text/html; charset=utf-8"),
     ("pages/pulse_design.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/pages/pulse_design.html")), "text/html; charset=utf-8"),
+    ("pages/report.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/pages/report.html")), "text/html; charset=utf-8"),
 ];
