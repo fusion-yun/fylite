@@ -116,7 +116,11 @@ Rebuilding them is a different repository's job — see below.
 
 Nothing above needs a machine description, a shot, or a network. Everything
 that does need a device deck takes one explicitly — `$FYLITE_DEVICE_DIR`, or
-a path handed to the entry point (see [`machine_desc/`](machine_desc/README.md)).
+a path handed to the entry point. ★`machine_desc/` was **abolished** on
+2026-09-02: a deck has one source of truth, the A-Box in the private data
+repository, and you materialise it wherever you like with
+`tools/abox-to-machine-desc.py` — see
+[the install chapter](docs/guide/install.md).
 
 ```python
 from fylite import scenario as S
@@ -129,12 +133,21 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # profile fit, GCV smoothing
 The same capabilities have a command-line face:
 
 ```bash
-python -m fylite --help       # run · plot · describe · manifest · serve · mcp
+python -m fylite --help       # fourteen commands, defined in python/fylite/_cli.json
+python -m fylite cases        # the scenario corpus: 25 plan documents
 python -m fylite describe     # the capability catalogue, as JSON-LD
 ```
 
-The user guide is [`docs/guide/quickstart.md`](docs/guide/quickstart.md); the
-API map is [`docs/reference/api.md`](docs/reference/api.md).
+The user guide is [`docs/guide/`](docs/guide/index.md) — start at
+[quick start](docs/guide/quickstart.md), or go straight to the **worked
+examples**, one runnable chapter per family: [the case corpus](docs/guide/cases.md)
+· [0-D](docs/guide/example-zerod.md) · [1.5-D](docs/guide/example-transport.md)
+· [time evolution](docs/guide/example-evolve.md) ·
+[discharge design](docs/guide/example-design.md) ·
+[equilibrium reconstruction](docs/guide/example-reconstruction.md). Every command
+and number in them was measured in this repository, and every chapter says what
+its family **cannot** answer. The API map is
+[`docs/reference/api.md`](docs/reference/api.md).
 
 ## The four scenario lines
 
@@ -162,14 +175,18 @@ answer. What the physics can and cannot do today is [`FEATURE.md`](FEATURE.md).
   the kernel's own or white-box translations declared in the kernel's `NOTICE`
   (see Attribution below — it ships inside the wheel, not as a file here).
 - **No experimental data is committed.** No shot files, no reconstructions of
-  real discharges — machine-checked, not merely stated. `examples/` publishes
-  the *specification* of each case and resolves its data through
-  `$FYLITE_DEVICE_DIR`; the synthetic equilibrium the test suite runs on is
-  produced by the kernel itself, regenerable byte-for-byte.
-- **Machine descriptions are inputs — kept, not shipped.**
-  [`machine_desc/`](machine_desc/README.md) holds one JSON-LD deck per device,
-  packaged into neither the wheel nor the site. What a source does not carry
-  is declared, with a reason, rather than defaulted.
+  real discharges — machine-checked, not merely stated. [`cases/`](cases/)
+  publishes the *specification* of each case (a plan document, no numbers) and
+  resolves its data through `$FYLITE_DEVICE_DIR`; the synthetic equilibrium the
+  test suite runs on is produced by the kernel itself, regenerable
+  byte-for-byte.
+- **Machine descriptions are inputs — and have exactly one source.**
+  `machine_desc/` was abolished (2026-09-02): a deck kept here as well as in the
+  A-Box would be a second source of truth, and the wrong one of two does not
+  announce itself — it just lets a machine quietly run on another description.
+  Decks are materialised on demand from the A-Box in the private data repository
+  and found through `$FYLITE_DEVICE_DIR`. What a source does not carry is
+  declared, with a reason, rather than defaulted.
 - **`app/` ships four device presets**, because a page that can be handed any
   machine still needs one to open with — a redistribution decision recorded
   with its provenance in `app/devices/catalogue.jsonld`.
@@ -196,7 +213,10 @@ implementation of a discretisation or a closed form, and that rule is gated.
 [`app/`](app/) is a static site running the same kernel as WebAssembly:
 prose pages (entrance, features, credits) generated in Chinese and English
 alike, scenario pages (`design` / `model` / `analysis`) that switch language
-in place, and a data-browser tool page that computes nothing itself. Open
+in place, and two tool pages that compute nothing themselves: a data browser,
+and a **case report** page that renders a plan and its record — the same
+presentation spec `fylite cases --report` derives, drawn by a port of the same
+rules (`app/tests/validate-report.mjs` holds the two hosts to one spec). Open
 `app/index.html` or serve the directory; the published copy is
 <https://fusion-yun.github.io/fylite/>.
 
@@ -342,9 +362,9 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 | `python/tests/` | the Python tier — assembly, IO, the protocol/CLI faces, the registries, the ABI marshalling (`python/pytest.ini`) |
 | | ★the physics/numerics tier is **not here**: it lives in the kernel repository with the code it judges |
 | `app/` | the static browser site and its gates |
-| `machine_desc/` | device decks, as inputs |
+| ~~`machine_desc/`~~ | abolished 2026-09-02 — decks come from the A-Box, found through `$FYLITE_DEVICE_DIR` |
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
-| `examples/` | case specifications |
+| ~~`examples/`~~ | removed 2026-09-02 — the runnable specifications are `cases/`, read through `fylite cases` |
 | `benchmark/` `cases/` | the V&V registry and the worked cases |
 | `benchmark/physics/` + [`BENCHMARK.md`](BENCHMARK.md) | the **physics-check register**: preset cases judged against physical law, the documents' own definitions and each case's declared window (`tools/benchmark-run.py`) |
 | `docs/` | the MyST book: user guide, reference, cases |
@@ -387,13 +407,11 @@ read through the same verb as the scenario corpus:
 ```bash
 fylite cases                      # the scenario corpus (cases/)
 fylite cases --benchmark          # the V&V register: kind, verdict, re-run, admissibility
-fylite cases --report evolve-default   # run a case through the JSON door and render MyST + SVG through a presentation spec
-fylite cases --report --from records/<run>   # render a record `fylite-case run` wrote
 fylite cases --benchmark V-01     # one record, JSON-LD
 fylite cases --benchmark --check  # structure (the same function the test tier runs)
 FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # its private gates
-fylite cases --report evolve-default      # run it through the JSON door -> report.md + figures/*.svg + presentation.jsonld
-fylite cases --report --from records/<run>  # render a record `fylite-case run` wrote; app/pages/report.html draws the same
+fylite cases --report evolve-default        # run a case -> report.md + figures/*.svg + presentation.jsonld
+fylite cases --report --from records/<run>  # render a record `fylite case run` wrote
 ```
 
 ★The frozen test corpus is not here either: `tests/data` is a symlink to
