@@ -122,7 +122,9 @@ def test_the_cli_lists_and_checks_the_register(capsys):
     import argparse
     ns = argparse.Namespace(benchmark=True, dir=None, name=None, check=True, as_json=False,
                             plan=False, run_case=False, kernel=None)
-    assert m._cli_cases(ns, None) == 0, capsys.readouterr().out
+    rc = m._cli_cases(ns, None)
+    out = capsys.readouterr().out
+    assert rc == 0, out
     ns.check = False
     ns.as_json = True
     assert m._cli_cases(ns, None) == 0

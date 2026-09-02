@@ -112,7 +112,7 @@ def load(record_id: str, d: Path | None = None) -> dict:
 def problems(rec: dict, d: Path) -> list[str]:
     """What is structurally wrong with one record (empty = sound).
 
-    ★The same list `python/tests/test_benchmark_registry.py` asserts empty;
+    ★The same list `python/tests/test_public_register.py` asserts empty;
     the CLI's ``--check`` and the gate read one function so they cannot drift.
     """
     rid = short_id(rec)
@@ -193,6 +193,25 @@ def problems(rec: dict, d: Path) -> list[str]:
 # --------------------------------------------------------------------------- #
 # running the gates
 # --------------------------------------------------------------------------- #
+def store_dir() -> Path | None:
+    """Where `$FYDATA_ORACLE/…` pointers resolve: the variable, else the checkout's
+    `tests/data` (the symlink `.gitignore` describes); None when neither is a directory."""
+    raw = os.environ.get(STORE_ENV)
+    cands = [Path(raw).expanduser()] if raw else []
+    cands.append(Path(__file__).resolve().parents[3] / "tests" / "data")
+    return next((c for c in cands if c.is_dir()), None)
+
+
+def resolve_pointer(uri: str) -> Path | None:
+    """A record's `$FYDATA_ORACLE/…` pointer as a local path, or None when the store
+    is not bound.  Other pointers (`$FYLITE_KERNEL/…`) are not resolved here — they
+    name the private checkout, which :func:`kernel_checkout` binds."""
+    if not uri.startswith("$" + STORE_ENV + "/"):
+        return None
+    root = store_dir()
+    return root / uri[len(STORE_ENV) + 2:] if root else None
+
+
 def kernel_checkout(explicit=None) -> Path | None:
     p = Path(explicit) if explicit else (Path(os.environ[KERNEL_ENV]) if os.environ.get(KERNEL_ENV) else None)
     return p if p and (p / "tests").is_dir() else None
@@ -216,7 +235,14 @@ def gate_plan(rec: dict, kernel: Path | None) -> dict:
     if here:
         refused.append(f"{len(here)} browser gates: run `node app/tests/…` with playwright and a served site "
                        "(not driven from here)")
-    return {"pytest": py, "cargo": rust, "browser": here, "refused": refused}
+    #: the reference store: which of the record's inputs this host can see
+    inputs = [c.get("storage_uri", "") for c in (rec.get("run") or {}).get("has_input", [])]
+    store = store_dir()
+    present = [u for u in inputs if (resolve_pointer(u) or Path("/nonexistent")).exists()]
+    return {"pytest": py, "cargo": rust, "browser": here, "refused": refused,
+            "store": str(store) if store else None,
+            "inputs_present": present,
+            "inputs_absent": [u for u in inputs if u.startswith("$" + STORE_ENV) and u not in present]}
 
 
 def run(record_id: str, d: Path | None = None, kernel=None, *, python_pkg: Path | None = None) -> dict:

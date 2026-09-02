@@ -40,12 +40,12 @@ title: C-01 · ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
-| app/tests/validate-iter-benchmark.mjs | 0 过 / 1 败 / 0 错 / 0 跳 / 0 陈旧 |  (/home/user/fylite/app/tests/validate-iter-benchmark.mjs:105:14)     at /home/user/fylite/app/tests/validate-iter-benchmark.mjs:158:23  Node.js v22.22.2 exit=1 |
+| app/tests/validate-iter-benchmark.mjs | 0 过 / 1 败 / 0 错 / 0 跳 / 0 陈旧 |  march ($FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:105:14)     at $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:158:23  Node.js v22.22.2 exit=1 |
 
 结论：**不成立**（`re-run: assertion failed`）。
 
-- $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:  (/home/user/fylite/app/tests/validate-iter-benchmark.mjs:105:14)
-    at /home/user/fylite/app/tests/validate-iter-benchmark.mjs:158:23
+- $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:  march ($FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:105:14)
+    at $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs:158:23
 
 Node.js v22.22.2
 exit=1

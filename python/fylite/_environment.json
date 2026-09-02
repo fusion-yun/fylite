@@ -81,6 +81,22 @@
    "needed_for": "nothing - unset, rayon uses the machine's available parallelism",
    "default": "unset - rayon's own default",
    "example": "4"
+  },
+  "FYLITE_KERNEL": {
+   "governs": "the kernel CHECKOUT (not the library): where a benchmark record's private gates run — `fylite cases --benchmark --run <ID>` executes `pytest tests/…` there, with fydata's oracle/ mounted at its tests/data",
+   "needed_for": "fylite cases --benchmark --run only; listing, printing and --check of the public register need nothing",
+   "default": "none - without it a --run is REFUSED BY NAME (the record's gates live in the private repository; the public side never re-derives a number a record claims)",
+   "example": "../fylite_kernel",
+   "affects_result": false,
+   "affects_result_why": "selects where the gates execute; the record's numbers are the register's, not this run's"
+  },
+  "FYDATA_ORACLE": {
+   "governs": "the reference store the public V&V register's pointers are relative to: fydata's `oracle/` tree (frozen answers, upstream release cases, reference tables) — the SAME tree both checkouts mount at tests/data; not `$FY_ORACLE_STORE` (that named its `oracle/oracle/` sub-tree, retired 2026-09-01)",
+   "needed_for": "reading a record's `$FYDATA_ORACLE/…` pointer back to a file; no code path in this package reads it — it is a documented address, declared here so a caller can bind it",
+   "default": "none - the store is private data and is not shipped; the pointer stays symbolic",
+   "example": "../fydata/oracle",
+   "affects_result": false,
+   "affects_result_why": "an address for the reader; the register carries each item's sha256 so a bound store can be verified, not substituted"
   }
  },
  "$note": "The KEFIT_ prefix is the EFIT lineage's; the code that carried that name left with LICENSE 3.1 but these variables keep it because they are what an existing deployment sets.  ★★2026-09-01 移除四项：FY_ORACLE / FY_ORACLE_STORE / FY_ORACLE_PORT / KEFIT_REFERENCE_BUNDLE。它们的读者随 `fylite._oracle`、`fylite._port` 与 `_paths.reference_bundle()` 一起移除——冻结参考库是被移除求解器的输出，驱动私有检出的钩子不该从公开模块伸出去，而那个 ASIPP 参考包不可再分发。★这张表由 `tests/test_environment_table.py` 逐项核对「声明了就必须真的有人读」，所以删代码不删声明会红——本条就是那道闸抓出来的。"

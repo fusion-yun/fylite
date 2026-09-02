@@ -94,7 +94,7 @@ benchmark」）：受限参考**也收录**，但**只收指针**——路径、
 ```bash
 fylite cases --benchmark               # 列出记录：类、登记册结论、复测结论、纳入类别
 fylite cases --benchmark V-01          # 打印一条记录（JSON-LD）
-fylite cases --benchmark --check       # 结构检查（与 python/tests/test_benchmark_registry.py 同一函数）
+fylite cases --benchmark --check       # 结构检查（与 python/tests/test_public_register.py 同一函数）
 fylite cases --benchmark --plan V-01   # 这条记录的门在哪跑、哪些跑不了
 FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-01   # 在私仓检出里跑它的 pytest 门
 ```
