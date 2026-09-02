@@ -26,7 +26,7 @@ import { browser, flag } from './_browser.mjs';
 
 const HERE = new URL('.', import.meta.url).pathname;
 const BASE = flag('url') || 'http://127.0.0.1:8767/app/';
-const VER = JSON.parse(readFileSync(HERE + '../../rust/wasm/abi.json', 'utf8'));
+const VER = JSON.parse(readFileSync(HERE + '../assets/abi.json', 'utf8'));
 
 let bad = 0;
 const ok = (what, cond, note) => {

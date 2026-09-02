@@ -62,7 +62,9 @@ def test_the_two_readers_agree_on_every_number(path, data_lib):
     from fylite import kernel
     from fylite.io import geqdsk as py
 
-    ref = py.read_geqdsk(path)
+    #: ★参照是**固定列**那份（`_read_geqdsk_reference`），不是 `read_geqdsk`
+    #: ——后者 2026-09-02 起已经是数据层的薄壳，拿它当参照就是自己比自己。
+    ref = py._read_geqdsk_reference(path)
     got = kernel.read_gfile(path)
 
     assert (got["nw"], got["nh"]) == (ref["nw"], ref["nh"])
@@ -85,7 +87,8 @@ def test_the_header_survives_verbatim(path, data_lib):
     """★头一行带着装置、炮号与时刻。它不是装饰：`gfile_name()` 与记录册都读它。"""
     from fylite import kernel
     from fylite.io import geqdsk as py
-    assert kernel.read_gfile(path)["header"] == py.read_geqdsk(path)["header"]
+    assert (kernel.read_gfile(path)["header"]
+            == py._read_geqdsk_reference(path)["header"])
 
 
 def test_the_rust_reader_reads_a_fortran_d_exponent_and_the_python_one_raises():
@@ -112,6 +115,7 @@ def test_the_rust_reader_reads_a_fortran_d_exponent_and_the_python_one_raises():
     line = " 1.500000000D+01 -2.500000000D-02"
     with pytest.raises(ValueError):
         py._read_floats(io.StringIO(line + "\n"), 2)
+    #: ★而产品路径（数据层的薄壳）读得出来 —— 这就是换掉它买到的东西。
 
     #: 同一行喂给数据层：它读得出来（借一份最小的 g-file 外壳）。
     text = ("  probe  0  2  1\n"

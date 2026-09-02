@@ -375,7 +375,7 @@ console.log('\n〔庚〕g-file 几何：步 6 跳过，而且写明理由');
 //: 也不是「失败」，于是 `waitForFunction` 一直等到上限。**闸子必须先把 g 文件
 //: 喂进去。** 喂的是仓里那份合成 g 文件——它比 ITER 那一档小得多，而这一段判的
 //: 不是 ITER 的物理，是「g-file 几何上步 6 跳过并写明理由」这条**代码路径**。
-const G = ROOT + '/tests/data/synthetic/g_synthetic.geqdsk';
+const G = ROOT + '/rust/fylite_data/testdata/g_synthetic.geqdsk';
 const [chooser] = await Promise.all([
   page.waitForEvent('filechooser'),
   page.click('#model-ioimport'),

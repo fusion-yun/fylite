@@ -105,6 +105,40 @@ def gfile_name(shot=None, time_s=None) -> str:
 
 
 def read_geqdsk(path: str | Path) -> dict:
+    """一份 g-file -> 字典。**读入在数据层**（`rust/fylite_data/`）。
+
+    ★★2026-09-02：这里从前是本文件自己的固定列读法。本仓曾有三份 g-file 读入
+    ——这一份、`app/assets/geqdsk.js`，与数据层那份；JS 的注释自己写着它返回的
+    是「the same field names fylite's own `read_geqdsk` returns」。三处拼写、
+    一个契约，而拼错了不报错。现在产品路径只有数据层那一条。
+
+    ★**返回的仍然是 list**，不是 ndarray：本包有 17 个文件读这本字典，它们的
+    契约是这本字典的形状，而换掉读入器不该是换掉那个形状的时机。
+
+    ★另一份（`_read_geqdsk_reference`）留着当判据的第二个见证，不在产品路径上。
+    """
+    from .. import kernel
+
+    g = kernel.read_gfile(path)
+    out = dict(g)
+    for name in kernel.GFILE_ARRAYS:
+        out[name] = [float(x) for x in g[name]]
+    return out
+
+
+def _read_geqdsk_reference(path: str | Path) -> dict:
+    """★★**第二个见证，不是产品路径。**
+
+    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_data/`）。
+    这一份**固定 16 列**的读法留下来，只为 `test_gfile_equivalence.py` 有一个
+    **独立**的答案可比：一个解析器切错了位置不会报错，它给的是一串量级正常、
+    错了一格的数，而「把常数重抄一遍再比」那种见证会与被测的那份一起错。
+    两份实现来路不同（一份切列、一份扫模式），比起来才算数。
+
+    ★它有一个已知的不足，也正是搬走的理由之一：`float()` 不认 Fortran 的 `D`
+    指数（`1.5D+01` 抛 `ValueError`）。判据把这条钉住了，别顺手「修好」它——
+    修好它这份见证就不再独立。
+    """
     with open(path) as f:
         header = f.readline()
         toks = header.split()
