@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="fylite — FUYUN TOKAMAK SIMULATOR - LITE">
   <!-- FyTok — FUYUN TOKAMAK SIMULATOR logo, proportionally enlarged & centered on a 1280x640 (2:1) transparent banner canvas -->
   <svg x="40" y="40" width="1200" height="560" viewBox="0 0 240 100" preserveAspectRatio="xMidYMid meet">
-<rect width="238" height="98" x="1" y="1" rx="12" fill="#ffffff" stroke="#e1e4e8" stroke-width="1"/>
+<rect width="238" height="98" x="1" y="1" rx="12" fill="none" stroke="#e1e4e8" stroke-width="1"/>
   <text x="50%" y="46%" font-family="Arial, sans-serif" font-size="72" font-weight="bold" dominant-baseline="middle" text-anchor="middle">
     <tspan fill="#FF8C00" font-style="italic">Fy</tspan><tspan fill="#003366">Lite</tspan>
   </text>
