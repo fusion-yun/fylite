@@ -111,7 +111,7 @@ def entries(d: Path | None = None) -> list[dict]:
         conc = (part.get("concretized_as") or [{}])[0].get("storage_uri")
         #: 一条算例可以直接点名**产出文件**（`bound_to` 的具体化）：那时不跑，
         #: 判的就是这些文件——见 :func:`record_from_products`
-        products = [c.get("storage_uri") for c in (part.get("has_output") or [])
+        products = [c.get("storage_uri") for c in (part.get("product") or [])
                     if c.get("storage_uri")]
         out.append({"id": str(part.get("id", "")).rsplit("/", 1)[-1],
                     "title": _lang(part.get("title")),
@@ -148,9 +148,9 @@ def problems(part: Mapping, d: Path | None = None) -> list[str]:
     if not _lang(part.get("title")):
         out.append("没有标题")
     scenario = part.get("scenario")
-    products = [c.get("storage_uri") for c in (part.get("has_output") or []) if c.get("storage_uri")]
+    products = [c.get("storage_uri") for c in (part.get("product") or []) if c.get("storage_uri")]
     if not scenario and not products:
-        out.append("既没有 scenario（跑哪个算例）也没有 has_output（判哪份产出）")
+        out.append("既没有 scenario（跑哪个算例）也没有 product（判哪份产出）")
     if scenario:
         conc = [c.get("storage_uri") for c in (part.get("concretized_as") or []) if c.get("storage_uri")]
         if not conc:

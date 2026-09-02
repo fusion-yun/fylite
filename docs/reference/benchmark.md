@@ -104,7 +104,7 @@ flowchart LR
 
 **产出从哪来，只有三条路，都不许猜**：
 
-1. 算例声明的**产出文件**（`has_output`：一份 g-file 就是一份平衡产出）；
+1. 算例声明的**产出文件**（`product`：一份 g-file 就是一份平衡产出）；
 2. **已经跑出来的记录**（`--from`，`fylite-case run` 写的 `record.jsonld`）；
 3. 经数据层的 JSON 门**现跑**（要 `libfylite_kernel.so`）。
 
@@ -138,7 +138,7 @@ suite.run_entry(suite.entry("zerod-iter-15ma"))                       # 取产�
 ## 添一条算例
 
 在 `benchmark/physics/suite.jsonld` 的 `has_part` 里加一条：点名跑哪个算例
-（`scenario` + `concretized_as`）或判哪份产出（`has_output`），再把这个场景**多出来**的
+（`scenario` + `concretized_as`）或判哪份产出（`product`），再把这个场景**多出来**的
 判据写进 `criteria`——定律与定义一律跑，不必写。
 
 ```jsonc

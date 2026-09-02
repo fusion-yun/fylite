@@ -256,7 +256,7 @@
         "zh": "判的是**产出文件**而不是一次运行：一份 g-file 就是一份平衡产出，它满不满足 GS 与谁写的它无关。★这一条在没有内核的检出里也跑得动，因此本册子不会整册都是「未评估」。",
         "en": "This row judges a product on disk rather than a run, so it is evaluable in a public checkout with no kernel."
       },
-      "has_output": [
+      "product": [
         {
           "type": "spo:Concretization",
           "storage_uri": "rust/fylite_data/testdata/g_synthetic.geqdsk",

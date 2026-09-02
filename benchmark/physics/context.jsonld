@@ -3,7 +3,11 @@
     "物理校验册的 JSON-LD @context —— 承 `../context.jsonld`（公开 V&V 登记册那一份，fyo / spo 词汇），",
     "只补本册子多出来的几个词。★补出来的词映射到 `urn:fylite:` 下，不映射到 fyo: / spo: 下：",
     "fyo 与 spo 没有定义它们，把本地概念挂到别人的命名空间里就是编造 IRI（fyo `CLAUDE.md` 的绝对规则）。",
-    "读者因此一眼看得出哪几个词是本仓自己的：checks / bounds / quantity / minimum / maximum / p_heat_terms。"
+    "读者因此一眼看得出哪几个词是本仓自己的：checks / bounds / quantity / minimum / maximum / p_heat_terms / product。",
+    "★★`has_part` 与 `concretized_as` **照抄 `cases/context.jsonld` 的定义**（BFO 的部分关系与",
+    "「具体化」的逆），不另起一套：同一个键在两本册子里若展开成两个 IRI，那就是两份会漂的契约。",
+    "本册子自己的「判哪份产出」用 `product`，不借记录里的端口词汇（`inputs` / `binds_port`）——",
+    "那边说的是一次运行的端口，这边说的是盘上的一份文件。"
   ],
   "@context": [
     "../context.jsonld",
@@ -11,11 +15,11 @@
       "@version": 1.1,
       "fylite": "urn:fylite:",
       "has_part": {
-        "@id": "spo:has_part",
+        "@id": "bfo:0000178",
         "@container": "@list"
       },
       "concretized_as": {
-        "@id": "spo:concretized_as",
+        "@reverse": "bfo:0000059",
         "@container": "@set"
       },
       "checks": {
@@ -39,8 +43,8 @@
         "@id": "fylite:physics/p_heat_terms",
         "@container": "@set"
       },
-      "has_output": {
-        "@id": "spo:has_output",
+      "product": {
+        "@id": "fylite:physics/product",
         "@container": "@set"
       }
     }

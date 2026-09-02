@@ -51,7 +51,7 @@ fylite cases --physics --check                    # 结构检查（与 pytest �
 fylite cases --physics --run equilibrium-gfile    # 跑一条，打印报告
 ```
 
-★★**产出从哪来，只有三条路，都不许猜**：算例声明的**产出文件**（`has_output`，
+★★**产出从哪来，只有三条路，都不许猜**：算例声明的**产出文件**（`product`，
 一份 g-file 就是一份平衡产出）、**已经跑出来的记录**（`--from`）、或经数据层的
 JSON 门**现跑**（要 `libfylite_kernel.so`）。内核不在场时第三条路**按名拒绝**，
 那些条目记成「未评估」并写明缺的是哪一件——不拿任何别的算法顶上。所以公开检出里
