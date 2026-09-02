@@ -157,11 +157,10 @@
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
      "finding_kind": "re-run: assertion failed",
-     "deviation_literal": "89 passed, 2 failed, 0 error, 0 skipped, 2 stale, 1 module(s) cut by the budget",
+     "deviation_literal": "92 passed, 2 failed, 0 error, 0 skipped, 2 stale",
      "verdict": "fail",
      "caveat": [
-      "tests/test_rust_kernels.py: AssertionError: 410k-pair mutual took 27.5 ms (gate: 10 ms) | AssertionError: 90-segment mutual_matrix took 66.8 ms",
-      "tests/test_tglf_momentum.py: partial: the module did not finish within the run's per-module budget (10 claims completed)"
+      "tests/test_rust_kernels.py: AssertionError: 410k-pair mutual took 27.5 ms (gate: 10 ms) | AssertionError: 90-segment mutual_matrix took 66.8 ms"
      ]
     }
    ],
@@ -2745,12 +2744,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: partial — a module did not finish within the per-module budget",
-     "deviation_literal": "10 passed, 0 failed, 0 error, 0 skipped, 0 stale, 1 module(s) cut by the budget",
-     "verdict": "inconclusive",
-     "caveat": [
-      "tests/test_tglf_momentum.py: partial: the module did not finish within the run's per-module budget (10 claims completed)"
-     ]
+     "finding_kind": "re-run",
+     "deviation_literal": "13 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
@@ -2847,12 +2843,9 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: partial — a module did not finish within the per-module budget",
-     "deviation_literal": "10 passed, 0 failed, 0 error, 0 skipped, 0 stale, 1 module(s) cut by the budget",
-     "verdict": "inconclusive",
-     "caveat": [
-      "tests/test_tglf_momentum.py: partial: the module did not finish within the run's per-module budget (10 claims completed)"
-     ]
+     "finding_kind": "re-run",
+     "deviation_literal": "13 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
