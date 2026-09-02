@@ -77,14 +77,30 @@ index 13）、同一份内核文件。一次 NEO 调用同时返回三支电流�
 
 ## CLI
 
+命令行的**定义**只有一处：`python/fylite/_cli.json`（`FYL-DESIGN-15`）。Python 的 `fylite`
+由它建 argparse；Rust 的单一可执行文件 `fylite-app` 在编译期纳入同一个文件并由它建自己的
+解析器；浏览器页面的启动参数是它的 `hosts.app.params`。所以 `fylite app --help` 与
+`fylite-app --help` 读到的是同一份用法，只是排版不同。
+
 ```bash
-python -m fylite --help          # run · plot · describe · manifest · serve · mcp
-python -m fylite describe        # 能力目录（JSON-LD）
-python -m fylite manifest        # 核对 / 重封 / 导出 JSON-LD 制品清单
-python -m fylite serve           # 目录 + 入口调用，JSON-RPC 2.0 over stdio（实验）
-python -m fylite mcp             # MCP stdio 服务器：精选工具 + 由清单反射出的工具
-python -m fylite plot g137985.04000 -o flux.png
+fylite --help                    # 十四条命令：下面按「谁承载」分两组
+# —— Python 宿主自己实现的 ——
+fylite run --east --shot 70754 --time 3.5     # 一次反演（Rust inverse；见 reconstruction）
+fylite plot g137985.04000 -o flux.png         # 渲染 g-file 的磁面图
+fylite describe [--text]                      # 能力目录（JSON-LD）；--text 含环境变量面
+fylite cases [ID] [--check|--plan|--run]      # 场景语料（与 --benchmark 的 V&V 登记册）
+fylite manifest [--seal]                      # 核对 / 重封制品清单
+fylite replay LEDGER · report RUN · whence FILE · alias RUN NAME
+fylite serve                                  # JSON-RPC 2.0 over stdio
+fylite mcp                                    # MCP stdio 服务器
+# —— Rust 可执行文件承载、Python 逐字委托的 ——
+fylite app [--port N] [--no-open] [--mdsip HOST:PORT] [--page data] [--device east] [--lang en] [--theme dark]
+fylite data info|dump|convert|merge|assemble|tables …   # 数据层（= fylite-data）
+fylite case describe|plan|run|json …                    # 算例（= fylite-case）
 ```
 
-安装后 `fylite` 与 `python -m fylite` 是同一个入口。★`run` 子命令仍挂在已移除的 EFIT
-驱动上：它按输入模式组装 k-file 再调 `libefit.so`，而那个库不在本分发里。
+安装后 `fylite` 与 `python -m fylite` 是同一个入口。`app` / `data` / `case` 三条在 Python 里
+**不重写**：`fylite` 找到 `_bin/` 里的可执行文件（或 `--bin-dir`、`$PATH`）把命令词原样交过去，
+找不到就按名说明要构建什么并退出 2。只属一个宿主的参数在规格里标 `hosts`：`--bin-dir` 只有
+Python 有，`--app-dir`（伺服一棵活目录，开发用）只有 Rust 有。`run` 走 Rust inverse
+（`engine.serve.run_reconstruction`）；EFIT 血统的驱动与 `libefit.so` 不在本分发里。
