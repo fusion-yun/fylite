@@ -34,8 +34,11 @@ jobs:
     if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
     uses: ./.github/workflows/rust.yml
 
+  # ★★物理档**已暂停自动触发**（2026-09-03，用户裁定）：每周定时的那次全量不再带上它。
+  #   手动 `workflow_dispatch` 触发的全量仍跑——手动不是自动。恢复时把 `if:` 改回与
+  #   上面两档一致的那行，并同时恢复 `physics.yml` 自己的 push / pull_request 触发。
   physics:
-    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ci full]')
+    if: github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/physics.yml
 
   app:

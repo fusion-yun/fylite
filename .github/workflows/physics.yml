@@ -9,30 +9,42 @@
 #   「零个失败」——那正是这一档最该拦住的一种绿。
 name: physics-checks
 
+# ★★**已暂停自动触发（2026-09-03，用户裁定）。** 原先按路径在 push / pull_request 上跑，
+#   现在两个自动入口都撤了，只留 `workflow_dispatch`（手动）与 `workflow_call`（被 full
+#   调用）。**这一档本身没有变**——步骤、判据、`--strict` 全在原处，随时手动可跑：
+#
+#       gh workflow run physics-checks --ref <branch>
+#
+#   ★ 另一条自动入口在 `full.yml` 的 `physics` job（每周一定时），已同批改为仅手动全量
+#     时成立；恢复自动触发时那边要一并改回，只改这里会漏。
+#   ★ 恢复：把下面注释掉的 push / pull_request 两节放回即可，路径清单原样留着。
 on:
-  push:
-    branches: [develop, main, "claude/**"]
-    paths:
-      - "benchmark/physics/**"
-      - "python/fylite/scenario/physics.py"
-      - "python/fylite/scenario/suite.py"
-      - "python/tests/test_physics_checks.py"
-      - "python/tests/test_physics_suite.py"
-      - "tools/benchmark-run.py"
-      - "rust/fylite_data/**"
-      - ".github/workflows/physics.yml"
-  pull_request:
-    branches: [develop, main]
-    paths:
-      - "benchmark/physics/**"
-      - "python/fylite/scenario/physics.py"
-      - "python/fylite/scenario/suite.py"
-      - "python/tests/test_physics_checks.py"
-      - "python/tests/test_physics_suite.py"
-      - "tools/benchmark-run.py"
-      - "rust/fylite_data/**"
-      - ".github/workflows/physics.yml"
+  workflow_dispatch:
   workflow_call:
+
+  # —— 暂停中，恢复时取消注释 ——
+  # push:
+  #   branches: [develop, main, "claude/**"]
+  #   paths:
+  #     - "benchmark/physics/**"
+  #     - "python/fylite/scenario/physics.py"
+  #     - "python/fylite/scenario/suite.py"
+  #     - "python/tests/test_physics_checks.py"
+  #     - "python/tests/test_physics_suite.py"
+  #     - "tools/benchmark-run.py"
+  #     - "rust/fylite_data/**"
+  #     - ".github/workflows/physics.yml"
+  # pull_request:
+  #   branches: [develop, main]
+  #   paths:
+  #     - "benchmark/physics/**"
+  #     - "python/fylite/scenario/physics.py"
+  #     - "python/fylite/scenario/suite.py"
+  #     - "python/tests/test_physics_checks.py"
+  #     - "python/tests/test_physics_suite.py"
+  #     - "tools/benchmark-run.py"
+  #     - "rust/fylite_data/**"
+  #     - ".github/workflows/physics.yml"
 
 concurrency:
   group: physics-${{ github.ref }}
