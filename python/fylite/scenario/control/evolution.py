@@ -113,69 +113,12 @@ def evolve_free_boundary(measurements, time, voltages_per_turn, *,
             "channels": cm["channels"], "outdir": outdir}
 
 
-def evolve_free_boundary_rs(time, voltages_per_turn, *, rg, zg,
-                            aturns0, ip, limiter_r, limiter_z,
-                            eta_coil_uohm_m, eta_vessel_uohm_m,
-                            vessel: bool = True, gs_every: int = 5,
-                            **solve_kw) -> dict:
-    """:func:`evolve_free_boundary`'s twin on the all-Rust backend.
-
-    Same contract: per-turn voltages -> implicit-Euler circuit advance ->
-    a free-boundary solve per snapshot with the vessel eddies' field
-    included in psi_ext (``vessel=False`` is the frozen-wall control run).
-    Snapshots report axis/psi/boundary metrics — q is a profile quantity
-    the Rust path does not yet derive (S7 territory); the frozen-wall
-    discriminator here is the boundary/axis flux shift.
-
-    ★It lives beside its twin now.  It used to be the only physics in
-    ``rusteq``, a flat module whose other members were re-wrappings of
-    :mod:`fylite.kernel` entries — so the two evolutions of one
-    configuration sat in different files for no reason but the backend
-    each happened to drive.
-    """
-    t = np.asarray(time, float)
-    v_ch = np.asarray(voltages_per_turn, float)
-    cond = device.conductor_set()
-    cm = device.channel_matrices(cond,
-                                   eta_coil_uohm_m=eta_coil_uohm_m,
-                                   eta_vessel_uohm_m=eta_vessel_uohm_m)
-    n_ch, n_vs = cm["n_channels"], cm["n_vessel"]
-    if vessel:
-        m, r = cm["M"], cm["R"]
-        volts = np.hstack([v_ch, np.zeros((t.size, n_vs))])
-        state0 = np.concatenate([np.asarray(aturns0, float), np.zeros(n_vs)])
-    else:
-        m, r = cm["M"][:n_ch, :n_ch], cm["R"][:n_ch]
-        volts = v_ch
-        state0 = np.asarray(aturns0, float)
-    traj = device.evolve_circuits_voltage(m, r, state0, t, volts)
-    snaps = []
-    for k in range(0, t.size, gs_every):
-        iv = traj[k, n_ch:] if vessel else None
-        psi_ext = device.psi_from_channels(cond, rg, zg, traj[k, :n_ch],
-                                             vessel_amps=iv)
-        res = kernel.gs_free_solve(rg, zg, psi_ext, ip=ip,
-                                   limiter_r=limiter_r,
-                                   limiter_z=limiter_z, **solve_kw)
-        snaps.append({"t": float(t[k]),
-                      "psi_axis": float(res["psi_axis"]),
-                      "psi_bnd": float(res["psi_bnd"]),
-                      "axis_r": float(res["axis_r"]),
-                      "axis_z": float(res["axis_z"]),
-                      "residual": float(res["residual"]),
-                      #: ★★the kernel's OWN verdict travels with the snapshot.
-                      #: It used to stop here: only `residual` was kept, so
-                      #: every consumer had to guess「收敛了没有」from a number
-                      #: whose floor is set by mask quantisation (T-M16), and
-                      #: the gate downstream duly guessed with a hand-picked
-                      #: 1e-3.  The solver already answers this in three
-                      #: states; throwing that away and re-deriving a worse
-                      #: answer from the residual is the thing D-4 forbids.
-                      "iterations": int(res["iterations"]),
-                      "converged": bool(res["converged"]),
-                      "settled": bool(res["settled"]),
-                      "vessel_current_max":
-                          float(np.max(np.abs(iv))) if iv is not None
-                          else 0.0})
-    return {"time": t, "trajectory": traj, "snapshots": snaps,
-            "n_channels": n_ch, "n_vessel": n_vs, "vessel": vessel}
+#: ★★``evolve_free_boundary_rs`` was here (66 lines): a second driver for the
+#: voltage-driven free-boundary march, taking the grid and the limiter directly
+#: instead of a device document.  **No caller anywhere** — measured across the
+#: package, the tests, the tools, the browser gates, the manifests, the case
+#: corpus and the whole documentation tree (2026-09-04).  The live path is
+#: :func:`evolve_free_boundary` above, which the `control` line and the
+#: manifests name.  Removed rather than kept "in case": a second entry into the
+#: same march is a second place for its conventions to drift, and this one had
+#: no gate on it at all.
