@@ -31,7 +31,7 @@ saying which one.**
 | 制品 Artifact | 网络 Network | 文件 Files |
 | :--- | :--- | :--- |
 | 内核 `libfylite_kernel.so` / `.wasm` | **不开任何连接** none | 只碰调用方点名的路径 only paths the caller names |
-| 数据层 `libfylite_data.so` · `fylite data` · `fylite case` | 只在计划或调用方**点名端点**时外连（mdsip 只读） outbound only to an endpoint the plan or caller names | 读写计划与命令行点名的路径 |
+| 数据层 `libfylite_engine.so` · `fylite data` · `fylite case` | 只在计划或调用方**点名端点**时外连（mdsip 只读） outbound only to an endpoint the plan or caller names | 读写计划与命令行点名的路径 |
 | 桌面查看器 `fylite app` / `fylite-app` | **只绑回环**（`Ipv4Addr::LOCALHOST`，端口由 `--port` 或系统挑）；`--mdsip HOST:PORT` 才有外连 binds loopback **only** | 伺服随包嵌入的站点资产 |
 | 静态站点 <https://fusion-yun.github.io/fylite/> | 页面内算完，无上传、不保存访问者数据 | — |
 

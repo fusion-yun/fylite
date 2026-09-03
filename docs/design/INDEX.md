@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "3.7"
+version: "3.8"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,11 +14,12 @@ created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v3.7：`FYL-DESIGN-16` 升 v0.2（用户裁定 2026-09-04：宿主是**多宿主**非双宿主；
-    `fylite_data` 是**中间层**，裁定 N-1 推荐改名 `fylite_engine`、备选 `fylite_runtime`，
+  change: 'v3.8：`FYL-DESIGN-16` 升 v0.3（N-1 已执行：`fylite_data` → `fylite_engine`，两仓一批）。
+    v3.7：`FYL-DESIGN-16` 升 v0.2（用户裁定 2026-09-04：宿主是**多宿主**非双宿主；
+    `fylite_engine` 是**中间层**，裁定 N-1 推荐改名 `fylite_engine`、备选 `fylite_runtime`，
     命令词 `fylite data` 不改，波及面已量、本版只裁不改）。
     v3.6：收编 `FYL-DESIGN-16` v0.1（**可替换内核与四层分工**）——内核可替换
-    （本地 / wasm / 远端、不同实现），fyo 文档门为唯一接口（裁定 K-1..K-7）；`fylite_data`
+    （本地 / wasm / 远端、不同实现），fyo 文档门为唯一接口（裁定 K-1..K-7）；`fylite_engine`
     定为 SpData 的一个 profile（D-1..D-4）；前端只写计划只读记录（H-1..H-3）。以实测为底：
     Python 125 个、浏览器 146 个扁平 C 调用 vs 文档门 3 个 code。提出两条既有裁定改口
     （NR-ENV-004 同核→同契约、DE-COMP-02 双薄面→宿主做计划），落文本另行。
@@ -88,7 +89,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v3.7 |
+| 版本 (Version) | v3.8 |
 | 发布日期 (Date of Issue) | 2026-09-02 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -139,9 +140,9 @@ SRS / SDD。
 | [`FYL-DESIGN-11`](FYL-DESIGN-11.md) | **视觉设计——桌面版应用**（`fylite-app` 单文件 + 系统浏览器）——管的是**四页共用的外壳**，不是各页的信息架构（V-15）。桌面**没有窗饰可设计**（V-1），能改的只有页面那一层；★**外壳收成一条常驻的两行 header toolbar**（V-11——今天页眉与工具条都 `static`，而页高 2212–6364 px，计算键与它的进度可隔五千像素）；四页在它上面**只差三个槽**（V-12）；**16:9 是桌面的定尺，首屏必须落一处输出**（V-13——实测四页里三页不满足）。预览图是生成物（V-14，五张 16:9、无固定尺寸、`--check` 守）。不该改的是主题三态 · 物理量色的语义绑定 · 字级级数与行长 · 不引 Web Font。★**v0.4：外壳已落地**——`app/pages/page_*.html` 四张新页面带共享外壳，由 `tools/make-page-v2.mjs` 从原页面**生成**、`assets/shell.js` 运行时**搬节点**（不重建任何控件）；实测 16:9 首处输出 297 / 790 / 336 / 335 px（原页面 无 / 1327 / 553 / 无）。**原四页一字未动，留作对照组**。裁定 V-1..V-15，九条不可回退 | v0.4 · WD |
 | [`FYL-DESIGN-12`](FYL-DESIGN-12.md) | **实验分析页**（`analysis`）——四条栏：剖面拟合 · 平衡反演 · 时间序列 · 批处理；把「由测量恢复位型」当作统一的正向—推断问题。**磁测量单独约束不住内部剖面，把解定下来的是动理学约束**（P-22）。裁定 P-9 · P-16 · P-22 · P-23。★v0.2 增 **P-29**（不确定度画成什么样取决于它度量了什么：带是带、残差是杆、测量是点而拟合是线）与视觉词汇表；**本页是四页里唯一满足 16:9 首屏判据的**（首处输出 553 px），因此闸子照跑不豁免 | v0.2 · WD |
 | [`FYL-DESIGN-13`](FYL-DESIGN-13.md) | **装置数据页**（`data`）——四页里唯一的**工具页**：没有内核、没有 worker、没有功能栏，**它什么也不算**。缺进程时如实降级（P-10）· 抽稀不是归约（P-11）· 守卫两侧各做一遍、两个宿主一组端点（P-12）· 目录说存在从不说这一炮记了（P-18）· 产物是「你看过了什么」（P-24）。★v0.2 增 **P-30**（抽稀必须画得出来：采样点画出、图注写两个数、横拖是回服务器重取）与视觉词汇表；外壳的输入槽在这一页装的是 **mdsip 数据源**，出口槽为空且不留空格。★v0.3：落地（`page_data` 空态图，首处输出 335 px） | v0.3 · WD |
-| [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **数据层**（`rust/fylite_data/`，源码公开）——不同数据源 ↔ fyo 文档的读写转换、多源合并、按 JSON-LD 装配。只读 MDSplus / a-file；读写 JSON / g-file / HDF5 / netCDF，各带 fyo 与 IMAS DD 两种布局；IMAS 布局以 imas-python / imas-core 读回逐叶子相同为判据，元数据从 DD 的 `IDSDef.xml` 生成（`nc_metadata.py` 逐条移植）；文件类型看内容识别。裁定 L-1..L-9，缺口 G-1..G-6 | v0.1 · WD |
+| [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **数据层**（`rust/fylite_engine/`，源码公开）——不同数据源 ↔ fyo 文档的读写转换、多源合并、按 JSON-LD 装配。只读 MDSplus / a-file；读写 JSON / g-file / HDF5 / netCDF，各带 fyo 与 IMAS DD 两种布局；IMAS 布局以 imas-python / imas-core 读回逐叶子相同为判据，元数据从 DD 的 `IDSDef.xml` 生成（`nc_metadata.py` 逐条移植）；文件类型看内容识别。裁定 L-1..L-9，缺口 G-1..G-6 | v0.1 · WD |
 | [`FYL-DESIGN-15`](FYL-DESIGN-15.md) | **发布形态与统一命令行**——单一可执行文件 `fylite-app`（Rust 宿主的全部命令行：`app` 缺省、`data` / `case` 子命令）· 静态网页（`app/` + 三个 wasm，`tools/build-site.sh`）与动态网页（同一份字节由 `fylite-app` 伺服并答 `/api/*`）· Python 包（承载全部命令，`app` / `data` / `case` 逐字委托）；三个宿主的命令行从同一个 `_cli.json` 建出，只属一个宿主的参数标 `hosts`，浏览器启动参数 `device` / `lang` / `theme` / `page` 定义一次并受门核对。裁定 R-1..R-6、C-1..C-8，缺口 6 条 | v0.1 · WD |
-| [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核（本地 `.so` / 页内 wasm / 远端进程 / 另一种实现）以 **fyo 文档门为唯一接口**：code 表声明能力、manifest 声明结果，ABI 号降为本地后端内部物；装配搬进内核，宿主退成计划构造器；`fylite_data` 定为 **SpData 的 profile**（重叠语义以 SpData 为准并跑其向量）并持有后端表；前端只写计划只读记录。实测底账：Python 125 / 浏览器 146 个扁平调用 vs 文档门 3 个 code。裁定 K-1..K-7 · **N-1（改名：推荐 `fylite_engine`）** · D-1..D-4 · H-1..H-3，五条既有裁定改口（含「双宿主」→「多宿主」），分期 P0..P3，缺口 G-1..G-6。★v0.2：**多宿主**（CLI / Python 库 / 网页 / AI 面）与**中间层**改口 | v0.2 · WD |
+| [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核（本地 `.so` / 页内 wasm / 远端进程 / 另一种实现）以 **fyo 文档门为唯一接口**：code 表声明能力、manifest 声明结果，ABI 号降为本地后端内部物；装配搬进内核，宿主退成计划构造器；`fylite_engine` 定为 **SpData 的 profile**（重叠语义以 SpData 为准并跑其向量）并持有后端表；前端只写计划只读记录。实测底账：Python 125 / 浏览器 146 个扁平调用 vs 文档门 3 个 code。裁定 K-1..K-7 · **N-1（改名：推荐 `fylite_engine`）** · D-1..D-4 · H-1..H-3，五条既有裁定改口（含「双宿主」→「多宿主」），分期 P0..P3，缺口 G-1..G-6。★v0.2：**多宿主**（CLI / Python 库 / 网页 / AI 面）与**中间层**改口 · ★v0.3：改名**已执行** | v0.3 · WD |
 
 (fylite-design-index-archive)=
 # 归档文档 (Archived Documents)

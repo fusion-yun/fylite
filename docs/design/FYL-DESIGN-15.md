@@ -24,7 +24,7 @@ modified:
     并把三个宿主（Rust / Python / 浏览器）的命令行收敛到**同一个定义文件**
     `python/fylite/_cli.json`——Python 的 argparse、Rust 的解析器与浏览器的启动参数
     都由它建出，只属于一个宿主的少数参数在文件里标 `hosts`。裁定 R-1..R-6、C-1..C-8。
-    as-built：`rust/fylite_data/src/cli/`（规格驱动解析器 + `data` / `case` 主体）、
+    as-built：`rust/fylite_engine/src/cli/`（规格驱动解析器 + `data` / `case` 主体）、
     `fylite-app` 成为 Rust 侧唯一命令行（`app` 缺省、`data` / `case` 子命令、
     `--page/--device/--lang/--theme/--app-dir`），`fylite-data` / `fylite-case` 退为薄壳；
     Python 侧 `fylite app / data / case` 逐字委托；页面读 `?lang=` `?theme=`。'
@@ -90,7 +90,7 @@ Linux x86-64、桌面单文件是第四条通道、Rust 源保持闭源）；本
 | **单一可执行文件** `fylite-app`（Linux ELF / Windows PE32+） | 离线的人、没有 Python 的人（尤其 Windows） | 整个 `app/`（内嵌字节，生成表 `src/bin/app/assets.rs`）+ mdsip 只读客户端 + `data` / `case` 的全部代码 | 页面里的 **wasm**（不是原生内核）；`case` 子命令经 dlopen 用原生内核 | **有**：`/api/health` 恒答；六个只读 mdsip 端点在给了 `--mdsip` 时活 | `tools/build-app-exe.sh` |
 | **静态网页**（站点） | 联网的人，零安装 | `app/`（减 `tests/`）+ `assets/fylite_{rs,tglf,dke}.wasm`；装置牌 `cp -L` 落实体 | 页面里的 wasm；加载后离线可用 | **无**：页面探 `/api/health` 不通即自禁用装置数据面板 | `tools/build-site.sh` |
 | **动态网页** | 本机、或经隧道可达 mdsip 的人 | **同一份 `app/` 字节**，由一个进程伺服 | 页面里的 wasm | **有**：伺服进程答 `/api/*` | `fylite-app`（= `fylite app`） |
-| **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_data.so` + `_cli.json` 等声明面 + `_bin/fylite-app`（**一个**可执行文件，构建时在则带） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；`app` 委托可执行文件 | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
+| **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_engine.so` + `_cli.json` 等声明面 + `_bin/fylite-app`（**一个**可执行文件，构建时在则带） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；`app` 委托可执行文件 | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
 :::
 
 〔评注〕"静态"与"动态"不是两套页面：它们是**同一份字节的两种伺服方式**。区别只在有没有一个
@@ -143,7 +143,7 @@ HTTP 而不是 wasm）仍是下一步，本篇不做。
 
 | 形态 | 命令 | 产物 | 门禁 |
 | :--- | :--- | :--- | :--- |
-| 单一可执行文件 | `bash tools/build-app-exe.sh [linux\|windows\|windows-msvc\|both]`（先跑 `node tools/make-app-embed.mjs`） | `rust/fylite_data/target/release/fylite-app`、`…/x86_64-pc-windows-{gnu,msvc}/release/fylite-app.exe` | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
+| 单一可执行文件 | `bash tools/build-app-exe.sh [linux\|windows\|windows-msvc\|both]`（先跑 `node tools/make-app-embed.mjs`） | `rust/fylite_engine/target/release/fylite-app`、`…/x86_64-pc-windows-{gnu,msvc}/release/fylite-app.exe` | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
 | 静态网页 | `bash tools/build-site.sh [输出目录]` | `dist/site/`：`app/` 发布子集 + 三个 wasm + 落实体的装置牌 | 脚本自检：三个 wasm 在、无 `tests/`、无悬空符号链接 |
 | 动态网页 | `fylite-app [--port N] [--mdsip HOST:PORT] …` 或 `fylite app …` | 运行中的进程 | `app/tests/validate-app-mdsip.mjs --exe <fylite-app>` |
 | Python 包 | `bash rust/build.sh --exe`（数据层 `.so` + `_bin/fylite-app`；★v0.2 起 `--cli` 已撤，给它会被按名拒绝并指向 `--exe`）→ 内核仓 `rust/build.sh`（内核 `.so`、生成物）→ `bash tools/build-wheel.sh` | `python/dist/fylite-<ver>-py3-none-manylinux_x_y_x86_64.whl` | `test_bundled_artifacts.py`（ABI 一致、制品不入库）；`test_cli_spec.py` |
@@ -154,7 +154,7 @@ HTTP 而不是 wasm）仍是下一步，本篇不做。
 
 〔一句话〕`python/fylite/_cli.json`（`spec_version: 2`）定义每一条命令、每一个参数、每一句帮助；
 Python 的 argparse 由它**机械生成**（`engine/cli.py`），Rust 宿主在**编译期**把它纳入
-（`rust/fylite_data/src/cli/mod.rs` 的 `include_str!`）并由它建自己的解析器与用法，浏览器的
+（`rust/fylite_engine/src/cli/mod.rs` 的 `include_str!`）并由它建自己的解析器与用法，浏览器的
 **启动参数**是它的 `hosts.app.params`。
 
 ## 文件的形状 (The shape of the file)
@@ -228,7 +228,7 @@ Python 侧的委托表从「每条命令一份候选列表」缩成一个名字�
   `--app-dir` 属 rust、`--bin-dir` 属 python）、`data`（`info` `dump` `convert` `merge` `assemble`
   `tables`）、`case`（`describe` `plan` `run` `json`）——它们的参数从两个二进制的手写用法**逐条**转录，
   两处冲突改名：`info` / `dump` 的位置参数叫 `file`（从前叫 `path`，与 `dump --path` 同名）。
-- **Rust**：`rust/fylite_data/src/cli/mod.rs`（规格驱动解析器：命令树下降、`--k=v`、短选项、
+- **Rust**：`rust/fylite_engine/src/cli/mod.rs`（规格驱动解析器：命令树下降、`--k=v`、短选项、
   `--` 结束选项、`append`、位置参数按 `nargs` 绑定、`required` / `choices` / 类型检查、用法生成；
   六条单元测试）；`cli/data.rs` 与 `cli/case.rs`（主体从两个 `main.rs` 搬入，改读规格名：
   `flag("file")` `all("plans")` `flag("out")` `flag("record")`）；`src/bin/app/main.rs` 用解析器分派

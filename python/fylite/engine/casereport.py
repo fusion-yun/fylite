@@ -707,7 +707,7 @@ def render_myst(plan: dict | None, record: dict, spec: dict, out_dir: Path, *, l
             w(f"| 产出 `{(b.get('binds_port') or {}).get('port_name', '')}` | `{_md_cell(conc.get('storage_uri', ''))}` | `{_md_cell(conc['checksum'])}` |")
     w(":::")
     w("")
-    w("重跑：`fylite cases --report <case id>`（经数据层的 JSON 门 `fylite_data_case_json`）或 "
+    w("重跑：`fylite cases --report <case id>`（经数据层的 JSON 门 `fylite_engine_case_json`）或 "
       "`fylite case run <plan.jsonld>` 后 `fylite cases --report --from <记录目录>`；呈现规格见旁边的 `presentation.jsonld`。")
     w("")
     return "\n".join(L)

@@ -41,14 +41,14 @@
    "affects_result": true,
    "affects_result_why": "names which kernel binary computes the answer; its sha256 is recorded beside this, and the two together say what ran"
   },
-  "FY_DATA_LIB": {
-   "governs": "the data-plane library to load instead of the bundled one",
+  "FY_ENGINE_LIB": {
+   "governs": "the engine (middle-layer) library to load instead of the bundled one — formats, assembly, plan->kernel->record, kernel loading. ★2026-09-04 renamed from FY_DATA_LIB with the crate (fylite_data -> fylite_engine, FYL-DESIGN-16 N-1): `data` named two of the layer's six jobs. The old name is not read any more",
    "needed_for": "nothing - the wheel ships it",
-   "default": "the packaged _lib/libfylite_data.so",
-   "example": "rust/fylite_data/target/release/libfylite_data.so",
+   "default": "the packaged _lib/libfylite_engine.so",
+   "example": "rust/fylite_engine/target/release/libfylite_engine.so",
    "affects_result": true,
    "affects_result_why": "names which binary READ the machine's numbers; a codec defect changes the values a run started from, and no later stage can tell",
-   "$note": "★2026-09-02 新增：数据平面从内核仓搬进本仓、成为独立的库（rust/fylite_data/）。它与 FY_KERNEL_LIB 指的是两份不同的 .so、两个不同的符号前缀（fylite_data_* / fylite_rs_*）。"
+   "$note": "★2026-09-02 新增：数据平面从内核仓搬进本仓、成为独立的库（rust/fylite_engine/）。它与 FY_KERNEL_LIB 指的是两份不同的 .so、两个不同的符号前缀（fylite_engine_* / fylite_rs_*）。"
   },
   "KEFIT_MDS_SERVER": {
    "governs": "the MDSplus server host for the EAST trees",

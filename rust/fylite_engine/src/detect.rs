@@ -207,7 +207,7 @@ mod tests {
 
     #[test]
     fn detect_reads_the_bytes() {
-        let dir = std::env::temp_dir().join(format!("fylite_data_detect_{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("fylite_engine_detect_{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let g = dir.join("eq.txt");
         std::fs::write(&g, include_str!("../testdata/g_synthetic.geqdsk")).unwrap();

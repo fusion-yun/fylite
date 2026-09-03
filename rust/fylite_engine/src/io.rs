@@ -310,7 +310,7 @@ mod tests {
     use std::path::PathBuf;
 
     fn tmp(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("fylite_data_io_{}_{}", std::process::id(), name));
+        let d = std::env::temp_dir().join(format!("fylite_engine_io_{}_{}", std::process::id(), name));
         let _ = std::fs::remove_dir_all(&d);
         std::fs::create_dir_all(&d).unwrap();
         d

@@ -56,7 +56,7 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `io.geqdsk` | g/a-file 读写，以及 g 文件蕴含的 `(R, Z)` 网格与 ψ_N 图 |
 | `io.est2` | est2 基底约化（窗口均值、漂移、POINT），在线 MDSplus 与离线 HDF5 转储共用的**唯一**一条约化 |
 | `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁） |
-| `io.fydoc` | **数据层**的 Python 面（`libfylite_data.so`，`rust/fylite_data/`）：按内容识别文件类型，不同数据源 ↔ fyo 文档的读写与合并；MDSplus 只读、HDF5 / netCDF 的 fyo 与 IMAS 两种布局都在这一层 |
+| `io.fydoc` | **数据层**的 Python 面（`libfylite_engine.so`，`rust/fylite_engine/`）：按内容识别文件类型，不同数据源 ↔ fyo 文档的读写与合并；MDSplus 只读、HDF5 / netCDF 的 fyo 与 IMAS 两种布局都在这一层 |
 | `io.gacode` | GACODE `input.gacode` 剖面 + 几何包 |
 | `io.efund` | efund deck 格式（`east_geom.txt`）——**不是数据源**：盒与线圈匝数在装置文档里，读 deck 只为**核对**文档 |
 | `appsession` | 浏览器会话文档（`fylite:AppSession/1`）的另一端：读回页面导出的输入与输出 |

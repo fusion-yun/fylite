@@ -95,10 +95,17 @@ Desktop.ini
 *.swo
 
 # ── Rust（数据层，2026-09-02 起本仓有 Rust 源码）───────────────────────────
-#: ★★本仓从此接受 Rust：`rust/fylite_data/` 是**数据层**（mdsip 编解码，后续收编
+#: ★★本仓从此接受 Rust：`rust/fylite_engine/` 是**中间层**（2026-09-04 自 `fylite_data`
+#: 改名，FYL-DESIGN-16 N-1；mdsip 编解码，后续收编
 #: g-file/est2），源码公开——它是协议与格式，不是物理 IP。物理内核仍在私有仓。
 #: 构建目录不跟踪；制品与其它制品同规矩（见本文件抬头：`*.so` `*.wasm` 不跟踪）。
 target/
 Cargo.lock
 
  
+
+#: ★★2026-09-04：`_bin/` 从未真的被忽略——`*.so` / `*.wasm` 两条管不到一个没有扩展名的
+#: ELF。FYL-DESIGN-15 R-5 写的是「`_bin/*` 不进 git，打包时装入」，而这条规矩此前只靠
+#: 没人在本机跑过 `rust/build.sh --exe` 才成立。改名那次第一次装了它，`git status` 当场
+#: 把它列成未跟踪——所以规矩今天才落到文件里。
+python/fylite/_bin/

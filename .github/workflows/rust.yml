@@ -1,4 +1,4 @@
-# 数据层（`rust/fylite_data/`）—— clippy 与三套特性下的 `cargo test`。
+# 数据层（`rust/fylite_engine/`）—— clippy 与三套特性下的 `cargo test`。
 #
 # ★三套是判据不是排列：**缺省**（mdsip + hdf5 + netcdf，发行形）、**零依赖**
 #   （`--no-default-features`：wasm 与没有 C 库的机器走这一支）、**只有两个 C 库**
@@ -46,22 +46,22 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            rust/fylite_data/target
-          key: cargo-${{ runner.os }}-${{ hashFiles('rust/fylite_data/Cargo.toml') }}
+            rust/fylite_engine/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('rust/fylite_engine/Cargo.toml') }}
           restore-keys: cargo-${{ runner.os }}-
 
       - name: clippy（缺省特性，警告即失败）
-        working-directory: rust/fylite_data
+        working-directory: rust/fylite_engine
         run: cargo clippy --all-targets -- -D warnings
 
       - name: cargo test — 缺省特性（mdsip + hdf5 + netcdf）
-        working-directory: rust/fylite_data
+        working-directory: rust/fylite_engine
         run: cargo test
 
       - name: cargo test — 零依赖（wasm 走的那一支）
-        working-directory: rust/fylite_data
+        working-directory: rust/fylite_engine
         run: cargo test --no-default-features
 
       - name: cargo test — 只有两个 C 库（不带 mdsip）
-        working-directory: rust/fylite_data
+        working-directory: rust/fylite_engine
         run: cargo test --no-default-features --features hdf5,netcdf

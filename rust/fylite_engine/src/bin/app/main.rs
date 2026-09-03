@@ -55,7 +55,7 @@
 mod api;
 mod assets;
 
-use fylite_data::cli::{self, Args, Parsed, Spec};
+use fylite_engine::cli::{self, Args, Parsed, Spec};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{Ipv4Addr, SocketAddr, TcpListener, TcpStream};
 use std::path::{Component, Path, PathBuf};

@@ -15,7 +15,7 @@ and these are its feeders:
   Thomson / diamagnetic fetches;
 * :mod:`.est2` — the est2-basis reduction (windowed means, drift, POINT)
   shared by the live MDSplus path and the offline fyo/HDF5 dump reader;
-* :mod:`.fydoc` — the data layer's document face (``libfylite_data.so``):
+* :mod:`.fydoc` — the data layer's document face (``libfylite_engine.so``):
   any file → a bundle of fyo documents by CONTENT sniffing, and back out as
   fyo or IMAS DD layout (JSON / HDF5 / netCDF / g-file), plus merge and
   JSON-LD assembly of several sources;

@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "0.2"
+version: "0.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,15 +14,19 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.2 两条用户裁定（2026-09-04）：①「宿主」是**多宿主**，不是双宿主——CLI（`fylite` /
+  change: 'v0.3 N-1 **已执行**（用户「改名」，2026-09-04）：crate `rust/fylite_engine/`、制品
+    `libfylite_engine.so`、C 导出 `fylite_engine_*`（31 个）、环境变量 `FY_ENGINE_LIB`；命令词
+    `fylite data …` 与 `fylite.io.fydoc` 的 Python 入口按裁定不动；内核仓 `rust/build.sh` 的生成
+    落点同批改。
+    v0.2 两条用户裁定（2026-09-04）：①「宿主」是**多宿主**，不是双宿主——CLI（`fylite` /
     `fylite-app`）、Python 库、网页、AI 面各是一个，全篇改口，并给 `FYL-CONOPS-00` /
-    `FYL-SRS-01` 加一条改口行；②`fylite_data` 是**中间层**，`data` 这个名字只说了它六项职责里
+    `FYL-SRS-01` 加一条改口行；②`fylite_engine` 是**中间层**，`data` 这个名字只说了它六项职责里
     的两项——评估五个候选名，裁定 N-1：推荐 `fylite_engine`（与 Python `fylite.engine` 是同一
     组件的两种语言，DE-COMP-03），备选 `fylite_runtime`；命令词 `fylite data …` 不随之改
     （它说的是数据动词，不是层名）。改名的波及面已量（本仓 303 处 / 31 个 C 导出 / 内核仓 7 文件），
     **本版只裁不改**。
     v0.1 初稿：评估 fylite 与 fylite_kernel 的关系并写成目标架构——内核可替换
-    （本地 / 远端、不同版本与实现），统一以 fyo 文档门为唯一接口；`fylite_data` 是数据
+    （本地 / 远端、不同版本与实现），统一以 fyo 文档门为唯一接口；`fylite_engine` 是数据
     集成与转换层并定为 SpData 的一个 profile；GUI / CLI / AI 是其上的前端。以 2026-09-04
     实测为底：Python 宿主 125 个、浏览器 146 个扁平 C 调用，文档门只承载 3 个 code；
     ABI 号硬钉、路径覆盖、无远端。裁定 K-1..K-7（内核契约）、D-1..D-4（数据层）、
@@ -38,7 +42,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v0.2 |
+| 版本 (Version) | v0.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -59,8 +63,7 @@ modified:
 (fylite-kernel-contract-intro)=
 # 可替换内核 (The Replaceable Kernel)
 
-〔一句话〕**内核是可替换的一层，fyo 文档门是它唯一的接口；中间层（今天叫
-`fylite_data`，改名见 N-1）负责数据的集成与转换、计划的合成与内核的选择；其上是
+〔一句话〕**内核是可替换的一层，fyo 文档门是它唯一的接口；中间层（`fylite_engine`，原 `fylite_data`，改名见 N-1）负责数据的集成与转换、计划的合成与内核的选择；其上是
 多个宿主——CLI、Python 库、网页、AI 面。** 一个内核可以是本地的 `libfylite_kernel.so`、
 页内的 wasm、另一台机器上的进程，或另一种实现；每个宿主对它们说同一种话——一份 fyo
 计划进，一份 fyo 记录出。
@@ -92,7 +95,7 @@ modified:
 | :--- | ---: | :--- |
 | Python（`scenario/` `fyo.py` `device.py` `engine/` `io/`） | **125** 个不同函数（`kernel.py` 声明 442 个签名） | `K.scenario` 5 个声明入口（`evolve_heat` `profit` `transport` `vstab` `zerod`）；十个能力工具里**只有 `evolve`** 声明了 `kernel_entry` |
 | 浏览器（`app/assets/*.js`） | **146** 个不同导出 | `.scenario()` 仅 2 处调用 |
-| `fylite case`（经 `fylite_data`，`dlopen`） | 0 | `fylite_rs_fyo` 一扇门，**3 个 code**（`evolve` `zerod` `transport`） |
+| `fylite case`（经 `fylite_engine`，`dlopen`） | 0 | `fylite_rs_fyo` 一扇门，**3 个 code**（`evolve` `zerod` `transport`） |
 :::
 
 :::{table} 内核今天怎么钉、怎么换。
@@ -124,7 +127,7 @@ flowchart TB
     PY[Python 库]
     AI[AI 面：serve / mcp · BYOK LLM]
   end
-  subgraph D[中间层 fylite_data → fylite_engine（N-1）— SpData profile]
+  subgraph D[中间层 fylite_engine（原 fylite_data，N-1）— SpData profile]
     ASM[装配 assemble / fetch]
     FMT[格式 g-file · JSON-LD · HDF5 · netCDF · mdsip]
     CASE[case.rs：计划 → 门 → 记录]
@@ -194,7 +197,7 @@ V&V 登记册已经承载这种记录，不新开体例。
 ## 中间层 N-1 · D-1..D-4 (The middle layer: its name, and SpData)
 
 (fylite-kernel-contract-naming)=
-**N-1 这一层叫什么。** 〔已确立〕用户裁定（2026-09-04）：`fylite_data` 是**中间层**，
+**N-1 这一层叫什么。** 〔已确立〕用户裁定（2026-09-04）：`fylite_engine` 是**中间层**，
 `data` 只说了它六项职责里的两项。按 {numref}`tbl-fylite-kernel-asis-calls` 与
 `FYL-DESIGN-14` / `-15` 的 as-built，这一层今天做的是：①格式读写与转换；②多源装配；
 ③计划合成与绑定 → 门 → 记录（`case.rs`）；④内核的加载与选择（`kernel.rs`，K-4 后是后端表）；
@@ -205,7 +208,7 @@ V&V 登记册已经承载这种记录，不新开体例。
 
 | 候选 | 说到了 | 没说到 / 冲突 | 判 |
 | :--- | :--- | :--- | :--- |
-| `fylite_data`（现名） | ①② | ③④⑤⑥；读者会以为它只是 I/O | 否 |
+| `fylite_data`（原名） | ①② | ③④⑤⑥；读者会以为它只是 I/O | 否 |
 | `fylite_io` | ① | 比现名更窄 | 否 |
 | `fylite_core` | — | 「核」是内核的名字；两个 core 必混 | 否 |
 | `fylite_host` | ③④⑤⑥ | 「宿主」已由用户定为前端那一层的名字（多宿主）；一个 crate 叫 host 就把 Python 与网页排除在宿主之外 | 否 |
@@ -214,8 +217,9 @@ V&V 登记册已经承载这种记录，不新开体例。
 | `fylite_runtime` | ③④⑥ | ⑤勉强；「运行时」在 wasm 语境里另有所指（页内 wasm 的宿主运行时是浏览器） | 备选 |
 :::
 
-〔工作假设〕**裁定：改名为 `fylite_engine`**（制品 `libfylite_engine.so`，C 导出前缀
-`fylite_engine_*`，环境变量 `FY_ENGINE_LIB`）。三件事随之说清：
+〔已确立〕**裁定：改名为 `fylite_engine`**（制品 `libfylite_engine.so`，C 导出前缀
+`fylite_engine_*`，环境变量 `FY_ENGINE_LIB`）——**已于 2026-09-04 执行**（一次机械提交，
+两个仓）。三件事随之说清：
 
 - **命令词 `fylite data …` 不改。** 它说的是七个数据动词（`info` / `dump` / `convert` /
   `merge` / `assemble` / `fetch` / `tables`），不是层名；`fylite case …` 与 `fylite app`
@@ -223,25 +227,25 @@ V&V 登记册已经承载这种记录，不新开体例。
 - **Python `fylite.engine` 与 `fylite.io.fydoc` 的去向。** `fydoc` 是这层 `.so` 的
   ctypes 面，改名后归 `fylite.engine` 之下；`engine` 的「导入期纯 stdlib」不变（ctypes 是
   stdlib，装载惰性）。这是 D-2 的落点，不是本条新增的要求。
-- **波及面已量，本版只裁不改。** 本仓 `fylite_data` 303 处 / 67 文件、`libfylite_data`
-  29 处、`fylite_data_*` C 导出 **31** 个（153 处调用点）、`FY_DATA_LIB` 3 处、散文「数据层」
+- **波及面已量，v0.3 已改。** 本仓 `fylite_engine` 303 处 / 67 文件、`libfylite_engine`
+  29 处、`fylite_engine_*` C 导出 **31** 个（153 处调用点）、`FY_ENGINE_LIB` 3 处、散文「数据层」
   138 处；内核仓 7 文件、fydoc 2 文件。改名是一次机械提交（`git mv` + 全仓替换 + 重建两个制品
   + `_environment.json` 一行），但它跨两个仓、动 C ABI 名，**要单独一次决定与一次提交**。
 
 (fylite-kernel-contract-data)=
 〔已确立〕对照实测（2026-09-04）：
 
-| | SpData | `fylite_data` |
+| | SpData | `fylite_engine` |
 | :--- | :--- | :--- |
 | 定位 | 规范集：HTree 逻辑树、标识符语法、`$op` 变换、查询 / 修补、PROV、mapping 文档、backend profile | 实现：读写器 + mdsip 只读客户端 + 装配 |
 | Rust | `rust/src/lib.rs` 自述 **planned**（`axes.rs` + 生成物） | 83 个单元测试的完整数据面，两个制品 |
 | Python | 三个插件（`file_hdf5` `file_netcdf` `mdsplus`） | 经 ctypes 取同一份 `.so` |
 | 装配 | mapping 文档：逻辑目标路径 → 后端源 | `fylite:Assembly/1`：`$source` / `$link` / `merge` / `select`，出处块 `fylite:assembly` |
-| `fylite_data` 没有的 | | `$op` 变换、查询 / 修补语法、惰性指针与分级载荷、标识符通配、conformance 向量 |
+| `fylite_engine` 没有的 | | `$op` 变换、查询 / 修补语法、惰性指针与分级载荷、标识符通配、conformance 向量 |
 
 **D-1 中间层是 SpData 的一个 profile，不是它的简化重写。** 事实上它是生态里
 最完整的 Rust 数据面，而 SpData 的 Rust 投影还是空壳。SpData SRS `FR-CONF-002`
-规定任何投影**不得分叉契约语义**；`fylite_data` 的 `$link` 分解、合并键、时间开窗
+规定任何投影**不得分叉契约语义**；`fylite_engine` 的 `$link` 分解、合并键、时间开窗
 今天都是自己定的。定为 profile 的含义：凡与 SpData 重叠的语义（树、路径、mapping、
 PROV）**以 SpData 为准**并跑它的 conformance 向量；不重叠的（mdsip 编解码、IMAS
 两种布局、g-file）是 profile 自己的扩展，写明「profile 不含」的那些不算缺陷。

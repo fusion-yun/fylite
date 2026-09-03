@@ -19,7 +19,7 @@ modified:
     零依赖的 YAML 子集读者，Rust 侧直接读 fydata 的 A-Box（L-11）；装置清单
     `machine.yaml` 摊成装配（`fetch`）；结构数组按 `name` 对齐的合并；`select` 挑选。
     缺口 G-3 部分关闭，新增 G-7 / G-8。
-    v0.1 初稿：`rust/fylite_data/` 从「mdsip 编解码 + g-file」长成完整的数据层——
+    v0.1 初稿：`rust/fylite_engine/` 从「mdsip 编解码 + g-file」长成完整的数据层——
     不同数据源与 fyo 文档的读写转换、多数据源合并、按 JSON-LD 装配。只读 MDSplus /
     a-file；读写 JSON / g-file / HDF5 / netCDF，各带 fyo 与 IMAS DD 两种布局，IMAS 布局
     以 imas-python / imas-core 的读回为判据（`verify/imas_roundtrip.py`）。文件类型看
@@ -55,7 +55,11 @@ modified:
 (fylite-data-layer-intro)=
 # 数据层 (The Data Layer)
 
-〔一句话〕**内核只算数，数据归这一层**：`rust/fylite_data/`（源码公开）把不同数据源读成
+★**crate 已改名**（2026-09-04，`FYL-DESIGN-16` N-1）：`rust/fylite_data/` → `rust/fylite_engine/`，制品
+`libfylite_engine.so`，C 导出 `fylite_engine_*`。本篇讲的是这一层里**数据**那一半（格式、装配），
+所以标题不改；下文的路径已随改名机械更新。
+
+〔一句话〕**内核只算数，数据归这一层**：`rust/fylite_engine/`（源码公开）把不同数据源读成
 fyo 文档、把 fyo 文档写成别的格式，合并多个数据源，并按一份 JSON-LD 装配它们。
 物理一行没有。
 
@@ -175,7 +179,7 @@ Rust 侧不再等 Python 先投影成 JSON。
 | 面 | 在哪 | 给谁 |
 | :--- | :--- | :--- |
 | Rust API | `io::{detect, read, read_node, write, merge_paths}` · `assembly::{assemble_file, from_manifest}` · `mdsbind::{TimeSel, resolve, read_one}` | 本仓的 Rust 宿主 |
-| C ABI | `c_api.rs` `fylite_data_{read, read_text, write, detect, bundle_*, doc_*, assemble, fetch}` | Python（`fylite.io.fydoc`） |
+| C ABI | `c_api.rs` `fylite_engine_{read, read_text, write, detect, bundle_*, doc_*, assemble, fetch}` | Python（`fylite.io.fydoc`） |
 | 命令行 | `fylite data info / dump / convert / merge / assemble / fetch / tables`（Python 宿主；`fylite-app data …` 是同一条，见 `FYL-DESIGN-15` C-8） | 人与脚本 |
 | Python | `fylite.io.fydoc.{read, write, detect, assemble, fetch, Bundle}` | 本仓的 Python 宿主 |
 

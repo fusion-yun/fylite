@@ -3,7 +3,7 @@
 ★★**这道闸是搬迁本身的判据。** 本仓从前有两份 g-file 实现——
 `python/fylite/io/geqdsk.py`（752 行）与 `app/assets/geqdsk.js`（286 行），
 后者的注释自己写着「returns the same field names fylite's own `read_geqdsk`
-returns, so the two can be compared directly」。数据层（`rust/fylite_data/`）
+returns, so the two can be compared directly」。数据层（`rust/fylite_engine/`）
 写了第三份，为的是最终只剩一份；而搬迁的规矩是
 `tests/PHYSICS-MIGRATION.md` 那本台账一直在走的那条——**一条判据只有在对面
 已经存在之后才算搬过去**。所以这里不删任何一份，先判它们相等。
@@ -26,7 +26,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 #: 仓内自带的那份 —— 它保证这道闸在只有本仓的检出上也跑得起来。
-BUNDLED = ROOT / "rust" / "fylite_data" / "testdata" / "g_synthetic.geqdsk"
+BUNDLED = ROOT / "rust" / "fylite_engine" / "testdata" / "g_synthetic.geqdsk"
 
 #: 真炮。★出处是 fydata（私有），所以是「有就跑」——合成那份已经覆盖了语法，
 #: 这些覆盖的是真文件的脾气（各家 vintage 的写法差异）。
@@ -53,7 +53,7 @@ def data_lib():
     from fylite import kernel
     lib = kernel.load_data()
     if lib is None:
-        pytest.skip("libfylite_data.so not built (rust/build.sh)")
+        pytest.skip("libfylite_engine.so not built (rust/build.sh)")
     return lib
 
 

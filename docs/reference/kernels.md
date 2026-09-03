@@ -16,7 +16,7 @@ title: 内核 (The Kernel)
 它的**制品**——`libfylite_kernel.so`、三个 `.wasm`，以及由内核构建脚本生成的 `_abi.py` /
 `version.js` / `fyo-interface.*`。制品**不入库**，打包发布时才装进来。所以本章写的路径
 （`rust/fylite/src/*.rs`）在内核仓里解析；本仓自己的 Rust 源码树只有一棵，是**数据层**
-（`rust/fylite_data/`，见本页末），它不做物理。
+（`rust/fylite_engine/`，见本页末），它不做物理。
 :::
 
 ## 模块地图
@@ -41,7 +41,7 @@ title: 内核 (The Kernel)
 | 唯一的 C 边界 | `c_api.rs` | — |
 
 ★`mdsip.rs` 曾在这张表里，**2026-09-02 起不在**：取数是宿主的活，它随数据面搬去了
-本仓的数据层（`rust/fylite_data/`）。内核自此装置中立、格式中立——它算数，别人把数
+本仓的数据层（`rust/fylite_engine/`）。内核自此装置中立、格式中立——它算数，别人把数
 放进文档。
 
 Python 侧不复写其中任何一段离散化或闭式：装配、装置接线、编排、绘图与溯源在
@@ -109,14 +109,14 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 
 ## 第二棵 crate：数据层（本仓，源码公开）
 
-内核只算数，**取数与格式归数据层**——`rust/fylite_data/`，本仓唯一的 Rust 源码树。
+内核只算数，**取数与格式归数据层**——`rust/fylite_engine/`，本仓唯一的 Rust 源码树。
 它与内核相反：源码公开，因为这里是协议编解码与文件格式，不是物理 IP。物理一行没有。
 
 | | |
 | :--- | :--- |
 | 读 | MDSplus（mdsip 只读客户端，按炮号与时间在服务端切片）· EFIT a-file / g-file · JSON(-LD) · YAML 子集（fydata 的 A-Box）· HDF5 · netCDF |
 | 写 | JSON(-LD) · g-file · HDF5 · netCDF，各带 **fyo** 与 **IMAS DD** 两种布局（IMAS 布局以 imas-python / imas-core 读得回为判据） |
-| 制品 | `libfylite_data.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，并承载 `app` / `data` / `case` 三条命令） |
+| 制品 | `libfylite_engine.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，并承载 `app` / `data` / `case` 三条命令） |
 | 命令行 | `src/cli/`——由 `python/fylite/_cli.json` **编译期**建出；与 Python 的 `fylite` 同一份定义（[API 速查](api.md)的 CLI 一节） |
 | 设计正本 | `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（发布形态与统一命令行） |
 

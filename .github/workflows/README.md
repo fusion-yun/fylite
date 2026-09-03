@@ -8,7 +8,7 @@
 | :--- | :--- | :--- | :--- |
 | `python.yml` | `python/**` · `cases/**` · `benchmark/**` · `docs/**` · `pyproject.toml` | Python 档全跑 + 三本册子的结构检查 | ~2 min |
 | `rust.yml` | `rust/**` · `tools/dd-ids-table.py` | clippy + `cargo test` ×3 套特性 | ~5 min |
-| `physics.yml` | `benchmark/physics/**` · `scenario/{physics,suite}.py` · `tools/benchmark-run.py` · `rust/fylite_data/**` | 数据层构建 + 物理校验批（能评的那条真跑） | ~4 min |
+| `physics.yml` | `benchmark/physics/**` · `scenario/{physics,suite}.py` · `tools/benchmark-run.py` · `rust/fylite_engine/**` | 数据层构建 + 物理校验批（能评的那条真跑） | ~4 min |
 | `app.yml` | `app/**` · `tools/make-app-*.mjs` · `tools/app-pages/**` | 站点静态门（不需要浏览器与 wasm 的那几道） | ~1 min |
 | `full.yml` | **每周一 03:00 UTC** · 手动 · 提交信息含 `[ci full]` | 以上全部 + imas-python / imas-core 跨实现对拍 | ~15 min |
 

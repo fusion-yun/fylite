@@ -5,11 +5,11 @@
 //! Skipped (loudly) without a kernel library; needs the `hdf5` feature.
 #![cfg(feature = "hdf5")]
 
-use fylite_data::case;
-use fylite_data::detect::Format;
-use fylite_data::fyodoc::Bundle;
-use fylite_data::io::{self, Layout};
-use fylite_data::kernel::Kernel;
+use fylite_engine::case;
+use fylite_engine::detect::Format;
+use fylite_engine::fyodoc::Bundle;
+use fylite_engine::io::{self, Layout};
+use fylite_engine::kernel::Kernel;
 use std::path::Path;
 
 #[test]

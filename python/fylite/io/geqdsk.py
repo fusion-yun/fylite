@@ -105,7 +105,7 @@ def gfile_name(shot=None, time_s=None) -> str:
 
 
 def read_geqdsk(path: str | Path) -> dict:
-    """一份 g-file -> 字典。**读入在数据层**（`rust/fylite_data/`）。
+    """一份 g-file -> 字典。**读入在数据层**（`rust/fylite_engine/`）。
 
     ★★2026-09-02：这里从前是本文件自己的固定列读法。本仓曾有三份 g-file 读入
     ——这一份、`app/assets/geqdsk.js`，与数据层那份；JS 的注释自己写着它返回的
@@ -129,7 +129,7 @@ def read_geqdsk(path: str | Path) -> dict:
 def _read_geqdsk_reference(path: str | Path) -> dict:
     """★★**第二个见证，不是产品路径。**
 
-    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_data/`）。
+    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_engine/`）。
     这一份**固定 16 列**的读法留下来，只为 `test_gfile_equivalence.py` 有一个
     **独立**的答案可比：一个解析器切错了位置不会报错，它给的是一串量级正常、
     错了一格的数，而「把常数重抄一遍再比」那种见证会与被测的那份一起错。

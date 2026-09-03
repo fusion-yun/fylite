@@ -115,12 +115,12 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/east         # 或 …/iter
 
 | | 内核 | 数据层 |
 | :--- | :--- | :--- |
-| 文件 | `_lib/libfylite_kernel.so` | `_lib/libfylite_data.so` |
+| 文件 | `_lib/libfylite_kernel.so` | `_lib/libfylite_engine.so` |
 | 做什么 | 算数：GS 正逆解、磁面、输运核、NEO / TGLF 端口 | 取数与格式：mdsip、g/a-file、HDF5 / netCDF、多源装配 |
-| 源码在哪 | **私有仓 `fylite_kernel`**（本仓不带内核源码） | 本仓 `rust/fylite_data/`，**源码公开** |
+| 源码在哪 | **私有仓 `fylite_kernel`**（本仓不带内核源码） | 本仓 `rust/fylite_engine/`，**源码公开** |
 | 谁构建 | 内核仓自己的 `rust/build.sh`，装进本仓这个 `_lib/` | 本仓的 `bash rust/build.sh` |
 | 系统库 | `ldd` 只有 `libgcc_s` / `libm` / `libc` 加动态链接器——**没有 gfortran，没有 lapack/blas** | 另链 `libhdf5` 与 `libnetcdf`（`--static` 可从源码编进） |
-| 覆盖 | `$FY_KERNEL_LIB` | `$FY_DATA_LIB` |
+| 覆盖 | `$FY_KERNEL_LIB` | `$FY_ENGINE_LIB` |
 
 两者都是 **C-ABI cdylib、可重入、无全局态**，都由 **进程内 ctypes** 调用
 （装载器分别是 `fylite.kernel` 与 `fylite.io.fydoc`），都**预编译入仓**并由
@@ -135,7 +135,7 @@ ABI 版本只有一个源头——内核的 `c_api.rs`——由内核仓的 `bui
 重建数据层需要 Rust 工具链（内核要另一个检出）：
 
 ```bash
-bash rust/build.sh                # -> python/fylite/_lib/libfylite_data.so
+bash rust/build.sh                # -> python/fylite/_lib/libfylite_engine.so
 bash rust/build.sh --exe          # 另建那个可执行文件 fylite-app -> python/fylite/_bin/
 bash rust/build.sh --no-install   # 只编译，不安装
 bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没装那两个 C 库的机器）

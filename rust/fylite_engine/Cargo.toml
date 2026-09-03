@@ -7,22 +7,22 @@
 # ★**源码公开**，与内核相反：这里是协议编解码与文件格式，不是物理 IP。
 # 一份源，三个制品：
 #
-#   libfylite_data.so   Python 直接 load（取代 `python/fylite/io/mds.py` 那 480 行）
+#   libfylite_engine.so   Python 直接 load（取代 `python/fylite/io/mds.py` 那 480 行）
 #   fylite-app          **唯一的可执行文件**：内嵌整个 `app/` + mdsip 请求面，
 #                       并承载全部命令词（`app` / `data` / `case`；无子命令时
 #                       跑 `app`，所以双击仍然可用）
-#   fylite_data.wasm    浏览器用 —— ★**不含 mdsip**（用户裁定 2026-09-02：
+#   fylite_engine.wasm    浏览器用 —— ★**不含 mdsip**（用户裁定 2026-09-02：
 #                       纯浏览器端不包含 mdsip 支持；浏览器本就打不开裸 TCP，
 #                       FYL-DESIGN-06 §1 早已关死那条）
 [package]
-name = "fylite_data"
+name = "fylite_engine"
 version = "0.0.1"
 edition = "2021"
 license = "Apache-2.0"
 description = "fylite data plane — MDSplus mdsip codec and file-format readers"
 
 [lib]
-name = "fylite_data"
+name = "fylite_engine"
 crate-type = ["cdylib", "rlib"]
 
 [features]
