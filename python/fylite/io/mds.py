@@ -1,13 +1,11 @@
 """Direct EAST MDSplus (efit_east tree) -> measurement dict.
 
-Data source resolution (local preferred):
-  - ``KEFIT_MDS_SERVER`` set (``host`` or ``host:port``; the site's own
-    address comes from whoever runs the server, and from the device deck's
-    ``fylite:mds.server`` — it is not written down here)
-    -> thin-client remote access (``efit_east_path=host[:port]::``).
-  - else local tree root ``KEFIT_MDS_ROOT``
-    (default ``~/workspace/machine_desc/east_mdsplus``), which must contain an
-    ``efit_east`` subdirectory.
+Data source: ``KEFIT_MDS_SERVER`` (``host`` or ``host:port``, port 8000 by
+default; the site's own address comes from whoever runs the server, and from
+the device deck's ``fylite:mds.server`` — it is not written down here), else
+the device document's declared server.  Transport is the engine's read-only
+mdsip client (:class:`fylite.kernel.MdsSession`); see :func:`_session` for
+what left with the site ``MDSplus`` package (2026-09-04).
 
 Nodes read (all on the shared GTIME base):
   \\EFIT_EAST::TOP.MEASUREMENTS:EXPMPI   (t, 38|76)  probes  -> EXPMP2
@@ -59,20 +57,51 @@ def _probe_gate() -> tuple[float, float]:
     return float(op["min_tesla"]), float(op["max_tesla"])
 
 
-def _setup_env() -> str:
-    server = os.environ.get("KEFIT_MDS_SERVER")
-    if server:
-        os.environ["efit_east_path"] = f"{server}::"
-        return f"remote:{server}"
-    root = Path(os.environ.get(
-        "KEFIT_MDS_ROOT",
-        os.path.expanduser("~/workspace/machine_desc/east_mdsplus")))
-    if not (root / "efit_east").is_dir():
-        raise MdsError(
-            f"no local efit_east tree under {root} — set KEFIT_MDS_ROOT or "
-            f"KEFIT_MDS_SERVER")
-    os.environ.setdefault("efit_east_path", str(root / "efit_east"))
-    return f"local:{root}"
+def _server(spec: str | None = None) -> tuple[str, int]:
+    """``host`` or ``host:port`` → ``(host, port)``; port defaults to 8000 (mdsip)."""
+    spec = spec or os.environ.get("KEFIT_MDS_SERVER") or device.MDS_SERVER
+    host, _, port = str(spec).partition(":")
+    return host, (int(port) if port else 8000)
+
+
+def _session(tree: str, shot: int, server: str | None = None):
+    """An open, read-only mdsip session on ``tree`` / ``shot``.
+
+    ★★2026-09-04：transport is the ENGINE's mdsip client
+    (:class:`fylite.kernel.MdsSession`), not the site ``MDSplus`` package.
+    Two things left with that package: the local-tree mode
+    (``KEFIT_MDS_ROOT`` + ``MDSplus.Tree``) — the engine speaks the wire
+    protocol, not the tree file format, and the only tree that mode ever
+    pointed at lived under the retired ``machine_desc/`` — and the
+    ``efit_east_path`` environment plumbing that mode needed.
+    """
+    from .. import kernel
+    host, port = _server(server)
+    s = kernel.MdsSession(host, port)
+    try:
+        s.open_tree(tree, int(shot))
+    except kernel.KernelError as e:
+        s.close()
+        raise MdsError(f"cannot open {tree} shot {shot} on {host}:{port}: {e}") from e
+    return s
+
+
+def _get(s, node: str) -> np.ndarray:
+    """``data(node)`` as a numpy array in row-major index order.
+
+    ★The wire gives dims **fastest-varying axis first** (`mdsip.rs`);
+    numpy's ``a[it][ch]`` wants the slowest first, so a 2-D answer is
+    reshaped with the dims REVERSED — the same rule ``mdsbind`` applies on
+    the Rust side.  Reversing the bytes instead of the dims would read a
+    silently transposed table, which this repository has met once already.
+    """
+    v, dims = s.read("data", node)
+    return v.reshape(tuple(reversed(dims))) if len(dims) > 1 else v
+
+
+def _dim_of(s, node: str) -> np.ndarray:
+    v, _dims = s.read("dim_of", node)
+    return v
 
 
 def _pick(gt: np.ndarray, time_s: float, interp: str):
@@ -91,16 +120,12 @@ def fetch_measurements(shot: int, time_s: float, *,
     the caller sets it; ``sample_time_s`` reports the actual sample used).
     ``btor`` overrides the BCENTR/FPOL-derived toroidal field.
     """
-    source = _setup_env()
-    import MDSplus  # deferred: available in the shared venv
-
-    try:
-        tree = MDSplus.Tree("efit_east", int(shot))
-    except Exception as e:
-        raise MdsError(f"cannot open efit_east shot {shot} ({source}): {e}") from e
+    host, port = _server()
+    source = f"{host}:{port}"
+    s = _session("efit_east", shot)
 
     def get(path):
-        return np.asarray(tree.getNode(path).getData().data())
+        return _get(s, path)
 
     M = r"\EFIT_EAST::TOP.MEASUREMENTS:"
     G = r"\EFIT_EAST::TOP.RESULTS.GEQDSK:"
@@ -146,6 +171,7 @@ def fetch_measurements(shot: int, time_s: float, *,
                     f"no \\BCENTR and no FPOL for shot {shot}: pass btor= "
                     f"explicitly") from e
 
+    s.close()
     return {"shot": int(shot), "time_s": float(time_s),
             "sample_time_s": sample_t, "sample_index": it,
             "plasma": float(plasma[it]), "btor": float(btor),
@@ -162,7 +188,7 @@ def fetch_thomson(shot: int, time_s: float, *,
     the TXCS core ion temperature — the raw inputs for a kprfit=1 pressure
     constraint (:func:`pressure_from_thomson`).
 
-    Thin-client reads (``MDSplus.Connection``, like the est2 path):
+    Reads through the engine's mdsip client (like the est2 path):
 
     * ``ts_east``: ``\\TE_CORETS`` / ``\\NE_CORETS`` — rows are laser slices
       with **column 0 = time [s]** and columns 1..N the values at the N
@@ -174,18 +200,12 @@ def fetch_thomson(shot: int, time_s: float, *,
     Returns raw, UNFILTERED points (te [eV], ne [m^-3], r/z [m]); quality
     gating (dead-channel floor, ne range) is the assembler's job.
     """
-    import MDSplus  # deferred: thin client from the shared environment
-
-    host = server or os.environ.get("KEFIT_MDS_SERVER") or device.MDS_SERVER
-    conn = MDSplus.Connection(host)
-    try:
-        conn.openTree("ts_east", int(shot))
-    except Exception as e:
-        raise MdsError(f"cannot open ts_east shot {shot} on {host}: {e}") from e
-    te2 = np.asarray(conn.get(r"\TE_CORETS").data(), dtype=float)
-    ne2 = np.asarray(conn.get(r"\NE_CORETS").data(), dtype=float)
-    r = np.asarray(conn.get(r"\R_CORETS").data(), dtype=float)
-    z = np.asarray(conn.get(r"\Z_CORETS").data(), dtype=float)
+    host, port = _server(server)
+    s = _session("ts_east", shot, server)
+    te2 = _get(s, r"\TE_CORETS")
+    ne2 = _get(s, r"\NE_CORETS")
+    r = _get(s, r"\R_CORETS")
+    z = _get(s, r"\Z_CORETS")
     if te2.ndim != 2 or te2.shape[1] < 2:
         raise MdsError(f"TE_CORETS shape {te2.shape} not (slices, 1+npts)")
     slice_t = te2[:, 0]                    # column 0 carries the slice time
@@ -201,8 +221,8 @@ def fetch_thomson(shot: int, time_s: float, *,
     # to a flat fractional sigma.
     te_err = ne_err = None
     try:
-        teE = np.asarray(conn.get(r"\TE_CORETSERR").data(), dtype=float)
-        neE = np.asarray(conn.get(r"\NE_CORETSERR").data(), dtype=float)
+        teE = _get(s, r"\TE_CORETSERR")
+        neE = _get(s, r"\NE_CORETSERR")
         if teE.shape == te2.shape and neE.shape == ne2.shape:
             te_err = teE[it, 1:]
             ne_err = neE[it, 1:]
@@ -215,9 +235,9 @@ def fetch_thomson(shot: int, time_s: float, *,
 
     ti0 = None
     try:
-        conn.openTree("analysis", int(shot))
-        tiv = np.asarray(conn.get(r"\TI0_TXCS").data(), dtype=float)
-        tit = np.asarray(conn.get(r"dim_of(\TI0_TXCS)").data(), dtype=float)
+        s.open_tree("analysis", int(shot))
+        tiv = _get(s, r"\TI0_TXCS")
+        tit = _dim_of(s, r"\TI0_TXCS")
         sel = np.abs(tit - sample_t) <= 0.2
         if not sel.any():
             sel = np.zeros(len(tit), bool)
@@ -226,6 +246,7 @@ def fetch_thomson(shot: int, time_s: float, *,
     except Exception:
         pass                               # TXCS absent -> electron-only
 
+    s.close()
     return {"shot": int(shot), "time_s": float(time_s),
             "sample_time_s": sample_t, "slice_index": it,
             "r": list(map(float, r)), "z": list(map(float, z)),
@@ -233,7 +254,7 @@ def fetch_thomson(shot: int, time_s: float, *,
             "te_err": None if te_err is None else list(map(float, te_err)),
             "ne_err": None if ne_err is None else list(map(float, ne_err)),
             "ti0": ti0,
-            "source": f"mdsplus:{host}:ts_east:{shot}"}
+            "source": f"mdsplus:{host}:{port}:ts_east:{shot}"}
 
 
 def _thomson_rel_sigma(th: dict, ne, te, *, cap: float):
@@ -414,17 +435,12 @@ def fetch_diamagnetic(shot: int, time_s: float, *, node: str = r"\Diahi1",
     — pass ``scale_mwb_per_v`` explicitly to get ``dflux_mwb``, else only
     the raw volts are returned and nothing should be wired into the fit.
     """
-    import MDSplus  # deferred: thin client from the shared environment
-
-    host = server or os.environ.get("KEFIT_MDS_SERVER") or device.MDS_SERVER
-    conn = MDSplus.Connection(host)
-    try:
-        conn.openTree("east", int(shot))
-    except Exception as e:
-        raise MdsError(f"cannot open east shot {shot} on {host}: {e}") from e
+    host, port = _server(server)
+    s = _session("east", shot, server)
     nd = node if node.startswith("\\") else "\\" + node
-    d = np.asarray(conn.get(nd).data(), dtype=float)
-    t = np.asarray(conn.get(f"dim_of({nd})").data(), dtype=float)
+    d = _get(s, nd)
+    t = _dim_of(s, nd)
+    s.close()
     n = min(len(d), len(t))
     d, t = d[:n], t[:n]
     b = (t >= baseline_window[0]) & (t <= baseline_window[1])
@@ -439,7 +455,7 @@ def fetch_diamagnetic(shot: int, time_s: float, *, node: str = r"\Diahi1",
            "dflux_mwb": (volts * scale_mwb_per_v
                          if scale_mwb_per_v is not None else None),
            "scale_mwb_per_v": scale_mwb_per_v,
-           "source": f"mdsplus:{host}:east:{shot}"}
+           "source": f"mdsplus:{host}:{port}:east:{shot}"}
     return out
 
 
@@ -449,12 +465,10 @@ def fetch_diamagnetic(shot: int, time_s: float, *, node: str = r"\Diahi1",
 #: usable one.  Noted so the next audit does not have to re-derive it.
 def efit_reference(shot: int, time_s: float) -> dict:
     """efit_east reference GEQDSK slice (for comparison/reporting only)."""
-    _setup_env()
-    import MDSplus
-    tree = MDSplus.Tree("efit_east", int(shot))
+    s = _session("efit_east", shot)
 
     def get(path):
-        return np.asarray(tree.getNode(path).getData().data())
+        return _get(s, path)
 
     G = r"\EFIT_EAST::TOP.RESULTS.GEQDSK:"
     A = r"\EFIT_EAST::TOP.RESULTS.AEQDSK:"
@@ -477,4 +491,5 @@ def efit_reference(shot: int, time_s: float) -> dict:
             out[key] = float(get(path)[it])
         except Exception:
             out[key] = float("nan")
+    s.close()
     return out

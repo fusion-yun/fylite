@@ -25,6 +25,73 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
+#: ★★**参照读法住在这里，不在包里**（2026-09-04）。它曾是 `fylite.io.geqdsk` 的
+#: `_read_geqdsk_reference` / `_read_floats`——固定 16 列切数的那一份。产品路径早已只剩
+#: 中间层那一份（`read_geqdsk` → `kernel.read_gfile`），包里再留一份就是「同一功能第二份
+#: 实现」；而这道闸需要一个**独立**的见证。见证属于闸，所以搬到闸里来——逐字搬，一个
+#: 数字都没改。
+def _read_floats(f, n: int) -> list[float]:
+    vals: list[float] = []
+    while len(vals) < n:
+        line = f.readline()
+        if not line:
+            raise EOFError(f"GEQDSK truncated: wanted {n}, got {len(vals)}")
+        line = line.rstrip("\n")
+        for i in range(0, len(line), 16):
+            chunk = line[i:i + 16].strip()
+            if chunk:
+                vals.append(float(chunk))
+    return vals[:n]
+
+
+def _read_geqdsk_reference(path) -> dict:
+    """★★**第二个见证，不是产品路径。**
+
+    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_engine/`）。
+    这一份**固定 16 列**的读法留下来，只为 `test_gfile_equivalence.py` 有一个
+    **独立**的答案可比：一个解析器切错了位置不会报错，它给的是一串量级正常、
+    错了一格的数，而「把常数重抄一遍再比」那种见证会与被测的那份一起错。
+    两份实现来路不同（一份切列、一份扫模式），比起来才算数。
+
+    ★它有一个已知的不足，也正是搬走的理由之一：`float()` 不认 Fortran 的 `D`
+    指数（`1.5D+01` 抛 `ValueError`）。判据把这条钉住了，别顺手「修好」它——
+    修好它这份见证就不再独立。
+    """
+    with open(path) as f:
+        header = f.readline()
+        toks = header.split()
+        nw, nh = int(toks[-2]), int(toks[-1])
+        rdim, zdim, rcentr, rleft, zmid = _read_floats(f, 5)
+        rmaxis, zmaxis, simag, sibry, bcentr = _read_floats(f, 5)
+        current, _simag2, _x, _rmaxis2, _x2 = _read_floats(f, 5)
+        _zmaxis2, _x3, _sibry2, _x4, _x5 = _read_floats(f, 5)
+        fpol = _read_floats(f, nw)
+        pres = _read_floats(f, nw)
+        ffprim = _read_floats(f, nw)
+        pprime = _read_floats(f, nw)
+        psirz = _read_floats(f, nw * nh)
+        qpsi = _read_floats(f, nw)
+        try:
+            nbbbs, limitr = [int(t) for t in f.readline().split()[:2]]
+            bdry = _read_floats(f, 2 * nbbbs)
+            lim = _read_floats(f, 2 * limitr)
+        except Exception:
+            nbbbs = limitr = 0
+            bdry = lim = []
+    rbbbs = bdry[0::2]
+    zbbbs = bdry[1::2]
+    return {
+        "header": header.rstrip("\n"), "nw": nw, "nh": nh,
+        "rdim": rdim, "zdim": zdim, "rcentr": rcentr, "rleft": rleft,
+        "zmid": zmid, "rmaxis": rmaxis, "zmaxis": zmaxis,
+        "simag": simag, "sibry": sibry, "bcentr": bcentr, "current": current,
+        "fpol": fpol, "pres": pres, "ffprim": ffprim, "pprime": pprime,
+        "psirz": psirz, "qpsi": qpsi,
+        "nbbbs": nbbbs, "rbbbs": rbbbs, "zbbbs": zbbbs,
+        "limitr": limitr, "rlim": lim[0::2], "zlim": lim[1::2],
+    }
+
+
 #: 仓内自带的那份 —— 它保证这道闸在只有本仓的检出上也跑得起来。
 BUNDLED = ROOT / "rust" / "fylite_engine" / "testdata" / "g_synthetic.geqdsk"
 
@@ -64,7 +131,7 @@ def test_the_two_readers_agree_on_every_number(path, data_lib):
 
     #: ★参照是**固定列**那份（`_read_geqdsk_reference`），不是 `read_geqdsk`
     #: ——后者 2026-09-02 起已经是数据层的薄壳，拿它当参照就是自己比自己。
-    ref = py._read_geqdsk_reference(path)
+    ref = _read_geqdsk_reference(path)
     got = kernel.read_gfile(path)
 
     assert (got["nw"], got["nh"]) == (ref["nw"], ref["nh"])
@@ -88,7 +155,7 @@ def test_the_header_survives_verbatim(path, data_lib):
     from fylite import kernel
     from fylite.io import geqdsk as py
     assert (kernel.read_gfile(path)["header"]
-            == py._read_geqdsk_reference(path)["header"])
+            == _read_geqdsk_reference(path)["header"])
 
 
 def test_the_rust_reader_reads_a_fortran_d_exponent_and_the_python_one_raises():
@@ -114,7 +181,7 @@ def test_the_rust_reader_reads_a_fortran_d_exponent_and_the_python_one_raises():
 
     line = " 1.500000000D+01 -2.500000000D-02"
     with pytest.raises(ValueError):
-        py._read_floats(io.StringIO(line + "\n"), 2)
+        _read_floats(io.StringIO(line + "\n"), 2)
     #: ★而产品路径（数据层的薄壳）读得出来 —— 这就是换掉它买到的东西。
 
     #: 同一行喂给数据层：它读得出来（借一份最小的 g-file 外壳）。

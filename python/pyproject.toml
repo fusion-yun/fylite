@@ -56,11 +56,15 @@ version = { file = "VERSION" }
 [project.optional-dependencies]
 yaml = ["PyYAML"]
 plot = ["matplotlib"]  # fylite.plot / fylite report figures: rendering
-#: ★fyo 文档的 `.h5` 出入口（`fylite.fyo.write`/`read`、`fylite.appsession.to_hdf5`、
-#: `fylite.io.imas_h5`）一直是惰性 import 的可选能力，但此前**没有声明过**——
-#: 可选能力必须经 extras 隔离（NR-DEP-001），否则「装了能不能用」只能靠试。
+#: ★`h5py` 今天只剩**一个**读者：`fylite.io.est2.measurements_from_est2_hdf5`（est2 离线
+#: 转储，那不是 fyo 布局）。★★2026-09-04 起 fyo 文档的 `.h5` 出入口（`fyo.write` / `read`、
+#: `appsession.to_hdf5`）走中间层 `libfylite_engine.so`（`fylite.io.fydoc`），不再经 h5py；
+#: `fylite.io.imas_h5` 已删（零调用者，且中间层本来就读 IMAS HDF5）。可选能力仍经 extras
+#: 隔离（NR-DEP-001）。
 hdf5 = ["h5py"]
-mds = []  # requires the MDSplus python package (site-installed, not on PyPI)
+#: ★★`mds = []` 曾在这里：它声明「要站点安装的 MDSplus python 包」。2026-09-04 起
+#: `fylite.io.mds` 与 `io.est2` 的在线路径都走中间层的 mdsip 客户端（`kernel.MdsSession`），
+#: 本包不再 import `MDSplus`——那条 extra 随之撤掉，不是漏了。
 
 #: ★Development group (PEP 735, `uv sync` installs it by default) — NOT wheel
 #: dependencies: the package stays numpy-only at runtime.

@@ -947,43 +947,6 @@ def derive(doc: dict, *, psin=None, n_surfaces: int = 41,
 # --------------------------------------------------------------------------- #
 # The disk face                                                                #
 # --------------------------------------------------------------------------- #
-def _is_array(v) -> bool:
-    return isinstance(v, np.ndarray) or (
-        isinstance(v, (list, tuple)) and v
-        and all(isinstance(x, (int, float, np.number)) for x in v))
-
-
-def _write_group(h5, node: dict) -> None:
-    import h5py
-    for k, v in node.items():
-        if k.startswith("@"):
-            h5.attrs[k] = v if isinstance(v, str) else str(v)
-        elif isinstance(v, dict):
-            _write_group(h5.create_group(k.replace("/", "_")), v)
-        elif isinstance(v, (list, tuple)) and v and isinstance(v[0], dict):
-            #: an IMAS array of structure: one indexed subgroup per element,
-            #: so a time_slice keeps its ORDER on disk
-            grp = h5.create_group(k.replace("/", "_"))
-            grp.attrs["fylite:aos"] = True
-            for i, item in enumerate(v):
-                _write_group(grp.create_group(f"{i}"), item)
-        elif _is_array(v):
-            h5.create_dataset(k.replace("/", "_"), data=np.asarray(v, float))
-        elif isinstance(v, (list, tuple)) and all(isinstance(x, str) for x in v):
-            #: a list of names (coil labels, channel ids) — an attribute, so
-            #: it stays beside the array it labels rather than becoming a
-            #: parallel dataset a reader has to know to zip
-            h5.attrs[k] = list(v)
-        elif isinstance(v, bool) or isinstance(v, (int, float, np.number)):
-            h5.attrs[k] = v
-        elif isinstance(v, str):
-            h5.attrs[k] = v
-        elif v is None:
-            continue
-        else:
-            raise TypeError(f"fyo document: cannot write {k!r} "
-                            f"({type(v).__name__})")
-    _ = h5py
 
 
 def write(doc: dict, path: str | Path) -> Path:
@@ -996,9 +959,15 @@ def write(doc: dict, path: str | Path) -> Path:
     """
     p = Path(path)
     if p.suffix.lower() in (".h5", ".hdf5"):
-        import h5py
-        with h5py.File(p, "w") as h5:
-            _write_group(h5, doc)
+        #: ★★2026-09-04：the HDF5 branch is the ENGINE's (`fylite.io.fydoc`,
+        #: fyo layout).  It used to be a walker of its own here over the
+        #: h5 library — groups for mappings, datasets for arrays, `@`-keys
+        #: as attributes, a `fylite:aos` marker for arrays of structure — a
+        #: second spelling of a layout the engine already writes and reads.
+        #: What the walker refused (an `object()`), the engine's JSON step
+        #: refuses too.
+        from .io import fydoc
+        fydoc.write(doc, p, format="hdf5", layout="fyo")
         return p
     import json
     p.write_text(json.dumps(_jsonable(doc), indent=1))
@@ -1017,41 +986,20 @@ def _jsonable(obj):
     return obj
 
 
-def _unwrap(v):
-    """An HDF5 attribute back to a plain Python value.
-
-    ★A one-element array is a scalar; a list of names stays a list.  h5py
-    hands both back as arrays, and ``.item()`` on the second one raises —
-    which is how a coil-name list turned a read into a crash.
-    """
-    if hasattr(v, "shape"):
-        return v.item() if v.shape == () or v.size == 1 else \
-            [x.decode() if isinstance(x, bytes) else x for x in v.tolist()]
-    return v
-
-
-def _read_group(h5) -> dict:
-    out = {k: _unwrap(v) for k, v in h5.attrs.items()}
-    for k, v in h5.items():
-        if hasattr(v, "keys"):
-            if v.attrs.get("fylite:aos"):
-                out[k] = [_read_group(v[i]) for i in
-                          sorted(v.keys(), key=int)]
-            else:
-                out[k] = _read_group(v)
-        else:
-            out[k] = np.asarray(v)
-    out.pop("fylite:aos", None)
-    return out
 
 
 def read(path: str | Path) -> dict:
     """Read back what :func:`write` wrote (HDF5 or JSON by suffix)."""
     p = Path(path)
     if p.suffix.lower() in (".h5", ".hdf5"):
-        import h5py
-        with h5py.File(p, "r") as h5:
-            return _read_group(h5)
+        #: the engine's reader; arrays come back as nested lists (JSON form),
+        #: which is what the JSON branch below hands back as well
+        from .io import fydoc
+        b = fydoc.read(p)
+        try:
+            return b.to_dict()
+        finally:
+            b.close()
     return load_document(p)
 
 

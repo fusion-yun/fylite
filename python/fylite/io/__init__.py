@@ -12,9 +12,17 @@ and these are its feeders:
   transcribed that solver's internals. Its live EAST MDSplus read moved
   into :mod:`.est2`, beside the reduction it always called.)
 * :mod:`.mds` — EAST MDSplus (``efit_east`` tree) → measurement dict,
-  Thomson / diamagnetic fetches;
+  Thomson / diamagnetic fetches.  ★Transport is the engine's read-only mdsip
+  client (:class:`fylite.kernel.MdsSession`) since 2026-09-04 — the site
+  ``MDSplus`` package is not imported anywhere in this package any more, and
+  the local-tree mode (``KEFIT_MDS_ROOT``) went with it: the engine speaks
+  the wire protocol, not the tree file format, and the only local tree that
+  mode ever pointed at lived under the retired ``machine_desc/``;
 * :mod:`.est2` — the est2-basis reduction (windowed means, drift, POINT)
-  shared by the live MDSplus path and the offline fyo/HDF5 dump reader;
+  shared by the live mdsip path and the offline fyo/HDF5 dump reader;
+* (`.imas_h5` and `.jetto_bin` — an IMAS-HDF5 flat reader and a JETTO
+  binary reader — were removed 2026-09-04: no caller anywhere, and the
+  engine reads IMAS HDF5 itself, in both layouts.)
 * :mod:`.fydoc` — the data layer's document face (``libfylite_engine.so``):
   any file → a bundle of fyo documents by CONTENT sniffing, and back out as
   fyo or IMAS DD layout (JSON / HDF5 / netCDF / g-file), plus merge and

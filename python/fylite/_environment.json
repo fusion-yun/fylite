@@ -51,20 +51,12 @@
    "$note": "★2026-09-02 新增：数据平面从内核仓搬进本仓、成为独立的库（rust/fylite_engine/）。它与 FY_KERNEL_LIB 指的是两份不同的 .so、两个不同的符号前缀（fylite_engine_* / fylite_rs_*）。"
   },
   "KEFIT_MDS_SERVER": {
-   "governs": "the MDSplus server host for the EAST trees",
+   "governs": "the mdsip server for the EAST trees (`host` or `host:port`, port 8000 by default), read through the engine's read-only mdsip client",
    "needed_for": "shot/time input modes (--east and a bare shot)",
    "default": "the device deck's declared server",
    "example": "127.0.0.1:8000",
    "affects_result": true,
    "affects_result_why": "which server the measured shot is read from"
-  },
-  "KEFIT_MDS_ROOT": {
-   "governs": "a LOCAL MDSplus tree root, read instead of a server",
-   "needed_for": "shot/time modes without network",
-   "default": "unset - the server path is used",
-   "example": "/data/east/trees",
-   "affects_result": true,
-   "affects_result_why": "which local tree the measured shot is read from"
   },
   "KEFIT_LIMITER": {
    "governs": "which limiter contour is used when none is named explicitly",
@@ -99,5 +91,5 @@
    "affects_result_why": "an address for the reader; the register carries each item's sha256 so a bound store can be verified, not substituted"
   }
  },
- "$note": "The KEFIT_ prefix is the EFIT lineage's; the code that carried that name left with LICENSE 3.1 but these variables keep it because they are what an existing deployment sets.  ★★2026-09-01 移除四项：FY_ORACLE / FY_ORACLE_STORE / FY_ORACLE_PORT / KEFIT_REFERENCE_BUNDLE。它们的读者随 `fylite._oracle`、`fylite._port` 与 `_paths.reference_bundle()` 一起移除——冻结参考库是被移除求解器的输出，驱动私有检出的钩子不该从公开模块伸出去，而那个 ASIPP 参考包不可再分发。★这张表由 `tests/test_environment_table.py` 逐项核对「声明了就必须真的有人读」，所以删代码不删声明会红——本条就是那道闸抓出来的。"
+ "$note": "The KEFIT_ prefix is the EFIT lineage's; the code that carried that name left with LICENSE 3.1 but these variables keep it because they are what an existing deployment sets.  ★★2026-09-01 移除四项：FY_ORACLE / FY_ORACLE_STORE / FY_ORACLE_PORT / KEFIT_REFERENCE_BUNDLE。它们的读者随 `fylite._oracle`、`fylite._port` 与 `_paths.reference_bundle()` 一起移除——冻结参考库是被移除求解器的输出，驱动私有检出的钩子不该从公开模块伸出去，而那个 ASIPP 参考包不可再分发。★这张表由 `tests/test_environment_table.py` 逐项核对「声明了就必须真的有人读」，所以删代码不删声明会红——本条就是那道闸抓出来的。★★2026-09-04 移除 KEFIT_MDS_ROOT：它选的是「本地树文件而不是服务器」，读者是站点的 MDSplus python 包（`MDSplus.Tree`）。在线路径改走中间层的 mdsip 客户端之后，本包不再 import 那个包——引擎说的是线上协议，不是树文件格式；而那个模式唯一指向过的本地树在已废弃的 `machine_desc/` 下。"
 }

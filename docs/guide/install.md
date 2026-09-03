@@ -12,7 +12,11 @@ title: 安装与环境 (Install & Environment)
 | :--- | :--- | :--- |
 | `yaml` | `PyYAML` | YAML 形式的输入/装置文件 |
 | `plot` | `matplotlib` | `fylite.plot` 磁面图渲染、`fylite plot` 子命令 |
-| `mds` | （站点安装的 `MDSplus`，不在 PyPI） | 从 MDSplus 树取数 |
+| `hdf5` | `h5py` | 只有 est2 离线转储（`io.est2.measurements_from_est2_hdf5`）还读它；fyo 文档的 `.h5` 走中间层，不需要 |
+
+★**从 MDSplus 取数不需要任何 extra**（2026-09-04 起）：mdsip 客户端在中间层
+`libfylite_engine.so` 里，`io.mds` / `io.est2` 的在线路径经它取数，站点的 `MDSplus` python 包
+不再是依赖。
 
 ```bash
 cd python && pip install -e '.[plot,yaml]'    # 或按需

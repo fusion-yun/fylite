@@ -26,19 +26,6 @@ from pathlib import Path
 import numpy as np
 
 
-def _read_floats(f, n: int) -> list[float]:
-    vals: list[float] = []
-    while len(vals) < n:
-        line = f.readline()
-        if not line:
-            raise EOFError(f"GEQDSK truncated: wanted {n}, got {len(vals)}")
-        line = line.rstrip("\n")
-        for i in range(0, len(line), 16):
-            chunk = line[i:i + 16].strip()
-            if chunk:
-                vals.append(float(chunk))
-    return vals[:n]
-
 
 #: g-file numbers are five to a line, 16 columns each, ``%16.9E``.
 _PER_LINE = 5
@@ -115,7 +102,9 @@ def read_geqdsk(path: str | Path) -> dict:
     ★**返回的仍然是 list**，不是 ndarray：本包有 17 个文件读这本字典，它们的
     契约是这本字典的形状，而换掉读入器不该是换掉那个形状的时机。
 
-    ★另一份（`_read_geqdsk_reference`）留着当判据的第二个见证，不在产品路径上。
+    ★★2026-09-04：那份固定列的 Python 参照读法（`_read_geqdsk_reference`）**不在本包里了**
+    ——它搬进了它唯一的读者 `tests/test_gfile_equivalence.py`，作为那道闸自己的见证。
+    包里只剩一份实现；见证留在判它的地方。
     """
     from .. import kernel
 
@@ -125,53 +114,6 @@ def read_geqdsk(path: str | Path) -> dict:
         out[name] = [float(x) for x in g[name]]
     return out
 
-
-def _read_geqdsk_reference(path: str | Path) -> dict:
-    """★★**第二个见证，不是产品路径。**
-
-    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_engine/`）。
-    这一份**固定 16 列**的读法留下来，只为 `test_gfile_equivalence.py` 有一个
-    **独立**的答案可比：一个解析器切错了位置不会报错，它给的是一串量级正常、
-    错了一格的数，而「把常数重抄一遍再比」那种见证会与被测的那份一起错。
-    两份实现来路不同（一份切列、一份扫模式），比起来才算数。
-
-    ★它有一个已知的不足，也正是搬走的理由之一：`float()` 不认 Fortran 的 `D`
-    指数（`1.5D+01` 抛 `ValueError`）。判据把这条钉住了，别顺手「修好」它——
-    修好它这份见证就不再独立。
-    """
-    with open(path) as f:
-        header = f.readline()
-        toks = header.split()
-        nw, nh = int(toks[-2]), int(toks[-1])
-        rdim, zdim, rcentr, rleft, zmid = _read_floats(f, 5)
-        rmaxis, zmaxis, simag, sibry, bcentr = _read_floats(f, 5)
-        current, _simag2, _x, _rmaxis2, _x2 = _read_floats(f, 5)
-        _zmaxis2, _x3, _sibry2, _x4, _x5 = _read_floats(f, 5)
-        fpol = _read_floats(f, nw)
-        pres = _read_floats(f, nw)
-        ffprim = _read_floats(f, nw)
-        pprime = _read_floats(f, nw)
-        psirz = _read_floats(f, nw * nh)
-        qpsi = _read_floats(f, nw)
-        try:
-            nbbbs, limitr = [int(t) for t in f.readline().split()[:2]]
-            bdry = _read_floats(f, 2 * nbbbs)
-            lim = _read_floats(f, 2 * limitr)
-        except Exception:
-            nbbbs = limitr = 0
-            bdry = lim = []
-    rbbbs = bdry[0::2]
-    zbbbs = bdry[1::2]
-    return {
-        "header": header.rstrip("\n"), "nw": nw, "nh": nh,
-        "rdim": rdim, "zdim": zdim, "rcentr": rcentr, "rleft": rleft,
-        "zmid": zmid, "rmaxis": rmaxis, "zmaxis": zmaxis,
-        "simag": simag, "sibry": sibry, "bcentr": bcentr, "current": current,
-        "fpol": fpol, "pres": pres, "ffprim": ffprim, "pprime": pprime,
-        "psirz": psirz, "qpsi": qpsi,
-        "nbbbs": nbbbs, "rbbbs": rbbbs, "zbbbs": zbbbs,
-        "limitr": limitr, "rlim": lim[0::2], "zlim": lim[1::2],
-    }
 
 
 def grid(g: dict):

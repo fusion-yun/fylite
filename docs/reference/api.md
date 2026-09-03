@@ -51,11 +51,11 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | 模块 | 用途 |
 | :--- | :--- |
 | `kernel` | C-ABI 面：`gs_free_solve` / `gs_inverse_solve`、`trace_surface` 磁面追踪、GEO / NEO / TGLF 端口、`core_march` 输运核；装载器与 ABI 守卫也在这里 |
-| `fyo` | fyo 语义文档层：`equilibrium`（g-file→文档，`as_equilibrium` 是唯一的门）、`reconstruction`、`Ladder` 一次描迹（输运度量 + Miller 形状，同一批面）、`read` / `write`（JSON-LD / HDF5） |
+| `fyo` | fyo 语义文档层：`equilibrium`（g-file→文档，`as_equilibrium` 是唯一的门）、`reconstruction`、`Ladder` 一次描迹（输运度量 + Miller 形状，同一批面）、`read` / `write`（JSON-LD 在本层；`.h5` 交给中间层 `io.fydoc`，2026-09-04 起） |
 | `device` | **机器**：①牌在哪（`$FYLITE_DEVICE_DIR`，缺则抛 `MachineDataMissing`）②牌说什么（几何 / 通道图 / 被动集，文档优先、deck 兜底）③**导体做什么**（互感 / 电阻矩阵、网格响应与磁通折叠、通道空间电路矩阵、回路推进）④**视线做什么**（弦几何与沿磁通图的线积分） |
 | `io.geqdsk` | g/a-file 读写，以及 g 文件蕴含的 `(R, Z)` 网格与 ψ_N 图 |
-| `io.est2` | est2 基底约化（窗口均值、漂移、POINT），在线 MDSplus 与离线 HDF5 转储共用的**唯一**一条约化 |
-| `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁） |
+| `io.est2` | est2 基底约化（窗口均值、漂移、POINT），在线 mdsip 与离线 HDF5 转储共用的**唯一**一条约化 |
+| `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁）。★传输走中间层的 mdsip 客户端（`kernel.MdsSession`），本包不 import 站点的 `MDSplus` 包（2026-09-04） |
 | `io.fydoc` | **数据层**的 Python 面（`libfylite_engine.so`，`rust/fylite_engine/`）：按内容识别文件类型，不同数据源 ↔ fyo 文档的读写与合并；MDSplus 只读、HDF5 / netCDF 的 fyo 与 IMAS 两种布局都在这一层 |
 | `io.gacode` | GACODE `input.gacode` 剖面 + 几何包 |
 | `io.efund` | efund deck 格式（`east_geom.txt`）——**不是数据源**：盒与线圈匝数在装置文档里，读 deck 只为**核对**文档 |

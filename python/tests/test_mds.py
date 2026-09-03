@@ -1,4 +1,4 @@
-"""Verification 2: direct EAST MDSplus input (local tree cache).
+"""Verification 2: direct EAST MDSplus input (through the engine's mdsip client).
 
 Current, honestly-documented status (2026-07-21, shot 70754 @ 3.5 s):
   - measurement fetch works (76 probes / 35 loops / 12 coils / Ip / BTOR
@@ -13,10 +13,10 @@ Current, honestly-documented status (2026-07-21, shot 70754 @ 3.5 s):
 import pytest
 
 import fylite
-from conftest import has_local_mds
+from conftest import has_mds_server
 
 pytestmark = pytest.mark.skipif(
-    not has_local_mds(), reason="no local EAST MDSplus tree / MDSplus module")
+    not has_mds_server(), reason="no mdsip server named (KEFIT_MDS_SERVER)")
 
 
 @pytest.fixture(scope="module")

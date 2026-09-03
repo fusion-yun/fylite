@@ -295,32 +295,35 @@ def read_east_mds(shot: int, time_s: float, *,
     * ``\\ipm`` (kA) -> ``PLASMA`` [A]; ``\\focs_it`` -> ``BTOR``.
 
     ``server`` defaults to :data:`device.MDS_SERVER` (or the
-    ``KEFIT_MDS_SERVER`` env).  Requires the ``MDSplus`` thin client.
+    ``KEFIT_MDS_SERVER`` env).  Reads through the engine's mdsip client.
     """
-    import MDSplus  # deferred: from the shared login environment
     import numpy as np
+    from .. import kernel
+    from .mds import _server
 
-    host = server or os.environ.get("KEFIT_MDS_SERVER") or device.MDS_SERVER
-    conn = MDSplus.Connection(host)
+    host, port = _server(server)
+    #: ★★2026-09-04：transport is the engine's mdsip client, not the site
+    #: ``MDSplus`` package (see :mod:`.mds` for what left with it).  One
+    #: session, one current tree — re-select only on a switch, as before.
+    conn = kernel.MdsSession(host, port)
     _cur = {"tree": None}
 
     def read_tree(tree):
-        conn.openTree(tree, int(shot))
+        conn.open_tree(tree, int(shot))
         _cur["tree"] = tree
 
     def get(leaf, tree):
         """Full series ``(data, time)`` for one leaf on ``tree`` — the node
         provider handed to the shared est2 reducer; None on NNF (absent node).
-        MDSplus.Connection has a single current-tree context, so re-select only
-        on a switch."""
+        """
         nd = leaf if leaf.startswith("\\") else "\\" + leaf
         if tree != _cur["tree"]:
             read_tree(tree)
         try:
-            s = np.asarray(conn.get(nd).data(), dtype=float)
-            tb = np.asarray(conn.get(f"dim_of({nd})").data(), dtype=float)
-            return s, tb
-        except Exception:                      # noqa: BLE001 — NNF is data
+            s, _d = conn.read("data", nd)
+            tb, _d = conn.read("dim_of", nd)
+            return np.asarray(s, dtype=float), np.asarray(tb, dtype=float)
+        except kernel.KernelError:             # NNF is data, not a failure
             return None
 
     # Full est2 reduction (loops/probes/PF/Ip/Btor + optional POINT) is the ONE
@@ -330,8 +333,8 @@ def read_east_mds(shot: int, time_s: float, *,
         get, shot, time_s, window_ms=window_ms, btor=btor,
         drift_window=drift_window, read_point=read_point,
         point_window_ms=point_window_ms, point_fringe_gate=point_fringe_gate,
-        source=f"mdsplus:{host}:east:{shot}", error=KefitReadError)
-    conn.closeAllTrees()
+        source=f"mdsplus:{host}:{port}:east:{shot}", error=KefitReadError)
+    conn.close()
     return meas
 
 

@@ -73,20 +73,13 @@ def gref():
     return GREF
 
 
-def has_local_mds() -> bool:
-    #: ★2026-09-01 去掉缺省值里那条开发机路径（`~/workspace/machine_desc/...`）：
-    #: 本仓是公开的，一个只在作者机器上成立的缺省，对别人只是一次静默的 False。
-    root_env = os.environ.get("KEFIT_MDS_ROOT")
-    if not root_env:
-        return False
-    root = Path(root_env)
-    if not (root / "efit_east").is_dir():
-        return False
-    try:
-        import MDSplus  # noqa: F401
-        return True
-    except ImportError:
-        return False
+def has_mds_server() -> bool:
+    """★2026-09-04：曾叫 `has_local_mds`，看的是 `KEFIT_MDS_ROOT` 下有没有本地树、
+    装没装站点的 `MDSplus` 包。两样都退役了：在线路径走中间层的 mdsip 客户端，
+    本包不 import `MDSplus`，本地树模式随之撤销。今天这道门只问一件事——有没有
+    人指了一台 mdsip 服务器。"""
+    return bool(os.environ.get("KEFIT_MDS_SERVER"))
+
 
 
 # --------------------------------------------------------------------------- #

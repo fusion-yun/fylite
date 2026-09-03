@@ -182,6 +182,7 @@ Rust 侧不再等 Python 先投影成 JSON。
 | C ABI | `c_api.rs` `fylite_engine_{read, read_text, write, detect, bundle_*, doc_*, assemble, fetch}` | Python（`fylite.io.fydoc`） |
 | 命令行 | `fylite data info / dump / convert / merge / assemble / fetch / tables`（Python 宿主；`fylite-app data …` 是同一条，见 `FYL-DESIGN-15` C-8） | 人与脚本 |
 | Python | `fylite.io.fydoc.{read, write, detect, assemble, fetch, Bundle}` | 本仓的 Python 宿主 |
+| Python（经由） | `fylite.fyo.read` / `write` 的 `.h5` 分支、`fylite.io.mds` 与 `io.est2` 的在线路径（`kernel.MdsSession`）——★2026-09-04 起这三处**不再各有一份**（h5py 走树、站点 `MDSplus` 包），都交给本层；`io.imas_h5` / `io.jetto_bin` 两个零调用者的读者同批删除 | 本仓的 Python 宿主 |
 
 一个请求就是一份装配文档（JSON 或 YAML），或一条 `fetch`：
 

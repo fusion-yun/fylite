@@ -6,7 +6,7 @@
    与内核生成的 `_fyo_interface.TABLES["EQUILIBRIUM"]` 逐行相同——两份拼写只有在
    被对拍时才算一份契约（`abox-mds-bind.py` 抬头那条教训）。这一条**不需要**库
    构建好，读源码就判。
-2. **fyo HDF5 两侧互读**：Python `fyo.write` 写的 `.h5` 数据层读得回、逐数相同；
+2. **fyo HDF5 经 Python 面写、经数据层读回**：`fyo.write` 写的 `.h5` 数据层读得回、逐数相同（★2026-09-04 起 `fyo.write` 的 `.h5` 分支本身就是数据层——这条从「两份实现互读」变成「一份实现、两个面」的回环，仍值得判：Python 面把文档交给数据层时不能丢字段）；
    数据层写的 `.h5` `fyo.read` 读得回。
 3. **g-file 经 IMAS 布局走一圈数不变**：g-file → netCDF（IMAS 布局）→ 读回 → g-file，
    `psirz` 逐位相同，限制器经 `wall` IDS 回来。
@@ -53,10 +53,8 @@ def test_detect_reads_the_content_not_the_name(fydoc, tmp_path):
     assert fydoc.detect(j) == ("json", "fyo")
 
 
-def test_fyo_hdf5_written_by_python_is_read_by_the_data_layer(fydoc, tmp_path):
+def test_fyo_hdf5_written_through_the_python_face_is_read_by_the_data_layer(fydoc, tmp_path):
     from fylite import fyo
-    h5py = pytest.importorskip("h5py")
-    _ = h5py
     doc = fyo.equilibrium(fyo.geqdsk.read_geqdsk(BUNDLED), check_convention=False)
     p = tmp_path / "py.h5"
     fyo.write(doc, p)
