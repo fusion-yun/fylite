@@ -95,7 +95,7 @@ Desktop.ini
 *.swo
 
 # ── Rust（数据层，2026-09-02 起本仓有 Rust 源码）───────────────────────────
-#: ★★本仓从此接受 Rust：`rust/fylite_engine/` 是**中间层**（2026-09-04 自 `fylite_data`
+#: ★★本仓从此接受 Rust：`rust/fylite_runtime/` 是**中间层**（2026-09-04 自 `fylite_data`
 #: 改名，FYL-DESIGN-16 N-1；mdsip 编解码，后续收编
 #: g-file/est2），源码公开——它是协议与格式，不是物理 IP。物理内核仍在私有仓。
 #: 构建目录不跟踪；制品与其它制品同规矩（见本文件抬头：`*.so` `*.wasm` 不跟踪）。

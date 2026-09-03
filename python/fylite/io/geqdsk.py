@@ -92,7 +92,7 @@ def gfile_name(shot=None, time_s=None) -> str:
 
 
 def read_geqdsk(path: str | Path) -> dict:
-    """一份 g-file -> 字典。**读入在数据层**（`rust/fylite_engine/`）。
+    """一份 g-file -> 字典。**读入在数据层**（`rust/fylite_runtime/`）。
 
     ★★2026-09-02：这里从前是本文件自己的固定列读法。本仓曾有三份 g-file 读入
     ——这一份、`app/assets/geqdsk.js`，与数据层那份；JS 的注释自己写着它返回的

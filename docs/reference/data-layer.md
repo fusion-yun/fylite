@@ -7,7 +7,7 @@ title: 数据层 (The Data Layer · `fylite data`)
 **内核只算数，取数与格式归这一层。** 它把不同来路的数据读成 fyo 文档、把 fyo 文档写成
 别的格式、合并多个来源，并按一份装配文档把它们拼成一份；物理一行没有。
 
-一份 Rust 源（`rust/fylite_engine/`，**源码公开**——这里是协议编解码与文件格式，不是物理），
+一份 Rust 源（`rust/fylite_runtime/`，**源码公开**——这里是协议编解码与文件格式，不是物理），
 三个面：命令行 `fylite data …`、Python 的 `fylite.io.fydoc`、以及供本仓 Rust 宿主用的
 库 API。三个面调用同一份代码，所以命令行能做的 Python 都能做，反之亦然。
 

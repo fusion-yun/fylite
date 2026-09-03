@@ -619,7 +619,7 @@ mod tests {
     use std::path::PathBuf;
 
     fn tmp(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("fylite_engine_nc_{}_{}", std::process::id(), name));
+        let d = std::env::temp_dir().join(format!("fylite_runtime_nc_{}_{}", std::process::id(), name));
         let _ = std::fs::remove_dir_all(&d);
         std::fs::create_dir_all(&d).unwrap();
         d
@@ -627,7 +627,7 @@ mod tests {
 
     fn sample() -> Bundle {
         let mut eq = new_document("equilibrium", "fylite:equilibrium/test");
-        eq.set("ids_properties/comment", "fylite_engine".into()).unwrap();
+        eq.set("ids_properties/comment", "fylite_runtime".into()).unwrap();
         eq.set("time", vec![1.0, 2.0].into()).unwrap();
         eq.set("vacuum_toroidal_field/r0", 1.75.into()).unwrap();
         eq.set("vacuum_toroidal_field/b0", vec![1.8, 1.79].into()).unwrap();
@@ -711,7 +711,7 @@ mod tests {
         assert_eq!(eq.get("time_slice/0/profiles_1d/q"), b.docs[0].get("time_slice/0/profiles_1d/q"));
         assert_eq!(eq.get("time_slice/0/profiles_2d/0/psi"), b.docs[0].get("time_slice/0/profiles_2d/0/psi"));
         assert_eq!(eq.get("time_slice/1/profiles_2d/0/grid_type/name").and_then(Node::as_str), Some("rectangular"));
-        assert_eq!(eq.get("ids_properties/comment").and_then(Node::as_str), Some("fylite_engine"));
+        assert_eq!(eq.get("ids_properties/comment").and_then(Node::as_str), Some("fylite_runtime"));
         assert_eq!(eq.get("ids_properties/homogeneous_time").and_then(Node::as_i64), Some(1));
         assert_eq!(eq.get("vacuum_toroidal_field/r0").and_then(Node::as_f64), Some(1.75));
         assert_eq!(eq.get("vacuum_toroidal_field/b0").and_then(Node::to_f64_vec), Some(vec![1.8, 1.79]));

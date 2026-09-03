@@ -3,7 +3,7 @@
 ★★**这道闸是搬迁本身的判据。** 本仓从前有两份 g-file 实现——
 `python/fylite/io/geqdsk.py`（752 行）与 `app/assets/geqdsk.js`（286 行），
 后者的注释自己写着「returns the same field names fylite's own `read_geqdsk`
-returns, so the two can be compared directly」。数据层（`rust/fylite_engine/`）
+returns, so the two can be compared directly」。数据层（`rust/fylite_runtime/`）
 写了第三份，为的是最终只剩一份；而搬迁的规矩是
 `tests/PHYSICS-MIGRATION.md` 那本台账一直在走的那条——**一条判据只有在对面
 已经存在之后才算搬过去**。所以这里不删任何一份，先判它们相等。
@@ -47,7 +47,7 @@ def _read_floats(f, n: int) -> list[float]:
 def _read_geqdsk_reference(path) -> dict:
     """★★**第二个见证，不是产品路径。**
 
-    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_engine/`）。
+    2026-09-02 起 :func:`read_geqdsk` 走数据层（Rust，`rust/fylite_runtime/`）。
     这一份**固定 16 列**的读法留下来，只为 `test_gfile_equivalence.py` 有一个
     **独立**的答案可比：一个解析器切错了位置不会报错，它给的是一串量级正常、
     错了一格的数，而「把常数重抄一遍再比」那种见证会与被测的那份一起错。
@@ -93,7 +93,7 @@ def _read_geqdsk_reference(path) -> dict:
 
 
 #: 仓内自带的那份 —— 它保证这道闸在只有本仓的检出上也跑得起来。
-BUNDLED = ROOT / "rust" / "fylite_engine" / "testdata" / "g_synthetic.geqdsk"
+BUNDLED = ROOT / "rust" / "fylite_runtime" / "testdata" / "g_synthetic.geqdsk"
 
 #: 真炮。★出处是 fydata（私有），所以是「有就跑」——合成那份已经覆盖了语法，
 #: 这些覆盖的是真文件的脾气（各家 vintage 的写法差异）。
@@ -120,7 +120,7 @@ def data_lib():
     from fylite import kernel
     lib = kernel.load_data()
     if lib is None:
-        pytest.skip("libfylite_engine.so not built (rust/build.sh)")
+        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
     return lib
 
 

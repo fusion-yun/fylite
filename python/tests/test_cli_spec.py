@@ -220,14 +220,14 @@ def test_a_missing_corpus_is_refused_not_empty(tmp_path):
 # One file, three hosts (FYL-DESIGN-15)
 # --------------------------------------------------------------------------- #
 #
-# ★The spec is shared with the Rust executable (`rust/fylite_engine/src/cli/
+# ★The spec is shared with the Rust executable (`rust/fylite_runtime/src/cli/
 # mod.rs` includes it at compile time) and with the browser (its launch
 # parameters are `hosts.app.params`).  These gates pin what the sharing
 # means: the Rust side really includes THIS file, the browser really reads
 # exactly the declared names, and a host-specific option stays with its host.
 
 APP_ASSETS = REPO / "app" / "assets"
-RUST_CLI = REPO / "rust" / "fylite_engine" / "src" / "cli" / "mod.rs"
+RUST_CLI = REPO / "rust" / "fylite_runtime" / "src" / "cli" / "mod.rs"
 _URL_READER = __import__("re").compile(
     r"URLSearchParams\((?:root|window)\.location\.search\)\.get\('([a-z_]+)'\)")
 
@@ -244,7 +244,7 @@ def test_the_spec_names_three_hosts_and_is_version_two():
 
 def test_the_rust_host_includes_this_very_file():
     if not RUST_CLI.is_file():
-        pytest.skip("no rust/fylite_engine checkout")
+        pytest.skip("no rust/fylite_runtime checkout")
     m = __import__("re").search(r'include_str!\("([^"]+)"\)', RUST_CLI.read_text())
     assert m, "the Rust cli does not include_str! the spec"
     assert (RUST_CLI.parent / m.group(1)).resolve() == engine.CLI_SPEC_PATH.resolve()

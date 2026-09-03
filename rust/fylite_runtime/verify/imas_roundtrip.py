@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """IMAS 互操作的对拍：数据层写的文件 imas-python / imas-core 读得回来，反之亦然。
 
-    python rust/fylite_engine/verify/imas_roundtrip.py [--bin target/release/fylite-app] [--keep]
+    python rust/fylite_runtime/verify/imas_roundtrip.py [--bin target/release/fylite-app] [--keep]
 
 ★不进 `cargo test`：要 imas-python（`pip install "imas-python[netcdf]" imas-core`），
 那是一个带 DD 的大包，装不装是用户的事。但**这一份判据才是「兼容 imas-python」这句话
@@ -36,7 +36,7 @@ ROOT = HERE.parent
 def build_reference(fac):
     eq = fac.equilibrium()
     eq.ids_properties.homogeneous_time = 1
-    eq.ids_properties.comment = "fylite_engine reference"
+    eq.ids_properties.comment = "fylite_runtime reference"
     eq.time = np.array([1.0, 2.0])
     eq.vacuum_toroidal_field.r0 = 1.75
     eq.vacuum_toroidal_field.b0 = np.array([1.8, 1.79])
@@ -179,7 +179,7 @@ def main() -> int:
     args = ap.parse_args()
     import imas
     fac = imas.IDSFactory(args.dd)
-    work = pathlib.Path(tempfile.mkdtemp(prefix="fylite_engine_verify_"))
+    work = pathlib.Path(tempfile.mkdtemp(prefix="fylite_runtime_verify_"))
     print(f"work dir {work}")
     ref = build_reference(fac)
     expected = {ids.metadata.name: leaves_of(ids) for ids in ref}

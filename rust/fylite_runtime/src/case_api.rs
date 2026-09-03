@@ -9,14 +9,14 @@
 //! codec is this crate's own, which is why the JSON form lives HERE and not
 //! in the kernel (the kernel reads no documents — `fyo.rs`).
 //!
-//! ★Same conventions as `c_api.rs`: symbols `fylite_engine_*`, strings as
+//! ★Same conventions as `c_api.rs`: symbols `fylite_runtime_*`, strings as
 //! `(pointer, byte length)`, no C strings; the answer is a buffer this
-//! library owns and the caller releases with `fylite_engine_case_free`.
+//! library owns and the caller releases with `fylite_runtime_case_free`.
 
 use crate::case;
 use std::path::Path;
 
-/// Hand a string back as a buffer the caller frees with `fylite_engine_case_free`.
+/// Hand a string back as a buffer the caller frees with `fylite_runtime_case_free`.
 fn hand_out(s: &str, out: *mut *mut u8, out_len: *mut u64) {
     let b = s.as_bytes();
     let mut v = b.to_vec().into_boxed_slice();
@@ -55,14 +55,14 @@ unsafe fn text<'a>(p: *const u8, n: u64) -> Option<&'a str> {
 /// pointers, **-2** the plan does not parse or compose, **-3** an input
 /// could not be resolved, **-4** the kernel could not be loaded).  In every
 /// case `*out` / `*out_len` receive a UTF-8 buffer to release with
-/// `fylite_engine_case_free(pointer, length)`.
+/// `fylite_runtime_case_free(pointer, length)`.
 ///
 /// # Safety
 /// `plan`: `plan_len` bytes; `base`: `base_len` bytes; `kernel`:
 /// `kernel_len` bytes (a length of zero may pass null).  `out` and
 /// `out_len` must be valid to write.
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_case_json(
+pub unsafe extern "C" fn fylite_runtime_case_json(
     plan: *const u8, plan_len: u64,
     base: *const u8, base_len: u64,
     kernel: *const u8, kernel_len: u64,
@@ -74,7 +74,7 @@ pub unsafe extern "C" fn fylite_engine_case_json(
     *out_len = 0;
     let (Some(plan_s), Some(base_s), Some(kernel_s)) = (text(plan, plan_len), text(base, base_len), text(kernel, kernel_len))
     else {
-        hand_out("fylite_engine_case_json: bad pointer or length (or not UTF-8)", out, out_len);
+        hand_out("fylite_runtime_case_json: bad pointer or length (or not UTF-8)", out, out_len);
         return -1;
     };
     let base_p = if base_s.is_empty() { None } else { Some(Path::new(base_s)) };
@@ -89,18 +89,18 @@ pub unsafe extern "C" fn fylite_engine_case_json(
             e.code
         }
         Err(_) => {
-            hand_out("fylite_engine_case_json: panicked", out, out_len);
+            hand_out("fylite_runtime_case_json: panicked", out, out_len);
             -1
         }
     }
 }
 
-/// Release a buffer handed out by `fylite_engine_case_json`.
+/// Release a buffer handed out by `fylite_runtime_case_json`.
 ///
 /// # Safety
 /// `p` / `n` must be exactly what that call handed back, released once.
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_case_free(p: *mut u8, n: u64) {
+pub unsafe extern "C" fn fylite_runtime_case_free(p: *mut u8, n: u64) {
     if p.is_null() {
         return;
     }

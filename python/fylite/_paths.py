@@ -37,12 +37,12 @@ BIN_DIR = PKG / "_bin"
 #: replayed from ``tests/oracles/``), and a recording needs no path.
 #: ★★2026-09-02 改名：`libfylite_kernel.so` -> `libfylite_kernel.so`。本目录从此有**两份**
 #: `.so`，来路不同：内核（物理，私有仓 fylite_kernel 构建）与数据层（取数与格式，
-#: 本仓 `rust/fylite_engine/` 构建）。名字自带区分，好过靠读者记住哪一份是哪一层。
+#: 本仓 `rust/fylite_runtime/` 构建）。名字自带区分，好过靠读者记住哪一份是哪一层。
 KERNEL_LIB = LIB_DIR / "libfylite_kernel.so"
 
 #: 数据层：mdsip 编解码，后续收编 g-file / est2。★与内核**不同的符号前缀**
-#: （`fylite_engine_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。
-DATA_LIB = LIB_DIR / "libfylite_engine.so"
+#: （`fylite_runtime_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。
+DATA_LIB = LIB_DIR / "libfylite_runtime.so"
 
 #: ★★2026-09-01 移除：`$KEFIT_REFERENCE_BUNDLE` 与 `reference_bundle()`。
 #: 那是一个指向 ASIPP **不可再分发**参考包（`kefit_reference_bundle`，致谢里的

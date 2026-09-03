@@ -1,5 +1,5 @@
 //! The JSON door, end to end — skipped (loudly) when no kernel library is reachable.
-use fylite_engine::case;
+use fylite_runtime::case;
 use std::path::Path;
 
 #[test]
@@ -16,7 +16,7 @@ fn a_corpus_case_goes_through_the_json_door() {
     let composed = format!("[{text}, {{\"type\": \"spo:ComputationPlan\", \"parameters\": [{{\"sets_parameter\": \"code/evolve#nsteps\", \"literal_value\": 6}}]}}]");
     let r = case::run_json(&composed, Some(root.join("cases").as_path()), kernel.as_deref().map(Path::new)).unwrap();
     assert!(!r.refused, "{}", r.record_json);
-    let rec = fylite_engine::json::parse(&r.record_json).unwrap();
+    let rec = fylite_runtime::json::parse(&r.record_json).unwrap();
     let m = rec.as_map().unwrap();
     assert_eq!(m.get("run_state").and_then(|n| n.as_str()), Some("succeeded"));
     assert_eq!(m.get("type").and_then(|n| n.as_str()), Some("spo:ComputationRecord"));

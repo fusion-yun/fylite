@@ -20,7 +20,7 @@
 //!                  --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o east_138569_magnetics.json
 //! ```
 //!
-//! ★Every MDSplus read goes through `fylite_engine::mdsip`'s read-only
+//! ★Every MDSplus read goes through `fylite_runtime::mdsip`'s read-only
 //! client; there is no expression endpoint here — `assemble`'s `$link`
 //! expressions are decomposed into «verb + node path + integer» by
 //! `mdsbind::decompose` before anything is sent, and what cannot be

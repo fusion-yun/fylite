@@ -45,9 +45,9 @@
 //!
 //! | 制品 | 给谁 | 带 mdsip 吗 | 带 HDF5 / netCDF 吗 |
 //! | --- | --- | --- | --- |
-//! | `libfylite_engine.so` | Python（`ctypes`，与内核库同一种取法） | 是 | 是（链 C 库） |
+//! | `libfylite_runtime.so` | Python（`ctypes`，与内核库同一种取法） | 是 | 是（链 C 库） |
 //! | `fylite-app` | **唯一的可执行文件**：桌面查看器 + `data` / `case` 命令行 | 是 | 是 |
-//! | `fylite_engine.wasm` | 浏览器 | **否**（用户裁定；浏览器打不开裸 TCP） | **否**（`--no-default-features`：g-file 与 JSON） |
+//! | `fylite_runtime.wasm` | 浏览器 | **否**（用户裁定；浏览器打不开裸 TCP） | **否**（`--no-default-features`：g-file 与 JSON） |
 
 #![allow(dead_code)]
 
@@ -98,7 +98,7 @@ pub mod c_api;
 //: fyo 数据集。原生专用：要 dlopen、要读盘。
 #[cfg(not(target_arch = "wasm32"))]
 pub mod kernel;
-//: the JSON door: one plan text in, one record text out (`fylite_engine_case_json`)
+//: the JSON door: one plan text in, one record text out (`fylite_runtime_case_json`)
 #[cfg(not(target_arch = "wasm32"))]
 pub mod case_api;
 #[cfg(not(target_arch = "wasm32"))]

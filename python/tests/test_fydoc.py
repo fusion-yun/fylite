@@ -1,8 +1,8 @@
-"""闸子：数据层的文档面（`fylite.io.fydoc` ↔ `rust/fylite_engine`）。
+"""闸子：数据层的文档面（`fylite.io.fydoc` ↔ `rust/fylite_runtime`）。
 
 ★★三条判据，各守一条契约：
 
-1. **路径表一份**：`rust/fylite_engine/src/eqdsk_fyo.rs` 里抄的 `EQUILIBRIUM_SLOTS`
+1. **路径表一份**：`rust/fylite_runtime/src/eqdsk_fyo.rs` 里抄的 `EQUILIBRIUM_SLOTS`
    与内核生成的 `_fyo_interface.TABLES["EQUILIBRIUM"]` 逐行相同——两份拼写只有在
    被对拍时才算一份契约（`abox-mds-bind.py` 抬头那条教训）。这一条**不需要**库
    构建好，读源码就判。
@@ -20,8 +20,8 @@ import numpy as np
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-BUNDLED = ROOT / "rust" / "fylite_engine" / "testdata" / "g_synthetic.geqdsk"
-RS = ROOT / "rust" / "fylite_engine" / "src" / "eqdsk_fyo.rs"
+BUNDLED = ROOT / "rust" / "fylite_runtime" / "testdata" / "g_synthetic.geqdsk"
+RS = ROOT / "rust" / "fylite_runtime" / "src" / "eqdsk_fyo.rs"
 
 
 def test_the_equilibrium_slot_table_is_the_kernels():
@@ -39,7 +39,7 @@ def test_the_equilibrium_slot_table_is_the_kernels():
 def fydoc():
     from fylite import kernel
     if kernel.load_data() is None:
-        pytest.skip("libfylite_engine.so not built (rust/build.sh)")
+        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
     from fylite.io import fydoc as m
     return m
 

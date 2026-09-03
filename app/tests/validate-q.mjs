@@ -47,7 +47,7 @@ globalThis.FyPhys.useKernel(
 const P = globalThis.FyPhys, M = presets(globalThis.FyoDevice).iter;
 
 // --- minimal g-file reader -------------------------------------------------
-const txt = readFileSync(HERE + '../../rust/fylite_engine/testdata/g_synthetic.geqdsk', 'utf8');
+const txt = readFileSync(HERE + '../../rust/fylite_runtime/testdata/g_synthetic.geqdsk', 'utf8');
 const lines = txt.split('\n');
 const head = lines[0];
 const nw = parseInt(head.slice(-8, -4)), nh = parseInt(head.slice(-4));

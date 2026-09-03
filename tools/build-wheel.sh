@@ -29,10 +29,10 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PROJ="$DIR/python"
 OUT="${1:-$PROJ/dist}"
 SO="$PROJ/fylite/_lib/libfylite_kernel.so"
-#: ★★2026-09-02：轮里现在有**两份** `.so`。数据层（`libfylite_engine.so`，公开仓
-#: `rust/fylite_engine/` 构建）与内核是两条来路，缺任何一份轮都不完整——但只有内核
+#: ★★2026-09-02：轮里现在有**两份** `.so`。数据层（`libfylite_runtime.so`，公开仓
+#: `rust/fylite_runtime/` 构建）与内核是两条来路，缺任何一份轮都不完整——但只有内核
 #: 这份由本脚本所在的仓构建，所以数据层那份在这里只**查在不在**，不代它构建。
-DATA_SO="$PROJ/fylite/_lib/libfylite_engine.so"
+DATA_SO="$PROJ/fylite/_lib/libfylite_runtime.so"
 [ -f "$DATA_SO" ] || { echo "[wheel] 找不到 $DATA_SO —— 先在公开仓跑 rust/build.sh" >&2
                        echo "[wheel]   （数据层在公开仓，取数与格式都靠它）" >&2
                        exit 1; }

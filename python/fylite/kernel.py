@@ -7403,8 +7403,8 @@ def lengyel_inverse(*, geometry: dict, params: dict, t_e_target_ev: float,
 # an expression, on this side or that one.
 # --------------------------------------------------------------------------- #
 
-#: ★★数据层是**另一个** `.so`，不是内核那份：`libfylite_engine.so`，符号前缀
-#: `fylite_engine_*`。两个库、两条来路（内核由私有仓构建，数据层由本仓
+#: ★★数据层是**另一个** `.so`，不是内核那份：`libfylite_runtime.so`，符号前缀
+#: `fylite_runtime_*`。两个库、两条来路（内核由私有仓构建，数据层由本仓
 #: `rust/build.sh` 构建），同一个 `_lib/` 目录。前缀分开是让同进程 load 两份
 #: **不可能**撞名，也让符号名自己说出一次调用问的是哪一层。
 _data_cache: tuple[ctypes.CDLL | None] | None = None
@@ -7416,7 +7416,7 @@ def load_data() -> ctypes.CDLL | None:
     if _data_cache is not None:
         return _data_cache[0]
     from ._paths import DATA_LIB
-    path = Path(os.environ.get("FY_ENGINE_LIB") or DATA_LIB).expanduser()
+    path = Path(os.environ.get("FY_RUNTIME_LIB") or DATA_LIB).expanduser()
     if not path.exists():
         _data_cache = (None,)
         return None
@@ -7456,16 +7456,16 @@ _BYTES = ctypes.POINTER(ctypes.c_uint8)
 _I64ARR = np.ctypeslib.ndpointer(np.int64, flags="C_CONTIGUOUS")
 _ARRU64 = np.ctypeslib.ndpointer(np.uint64, flags="C_CONTIGUOUS")
 
-_dsig("fylite_engine_mds_open", [_BYTES, _U64, ctypes.c_uint16, _BYTES, _U64, _I32,
+_dsig("fylite_runtime_mds_open", [_BYTES, _U64, ctypes.c_uint16, _BYTES, _U64, _I32,
                             ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
-_dsig("fylite_engine_mds_open_tree", [_VOID, _BYTES, _U64, ctypes.c_int64], _I32)
-_dsig("fylite_engine_mds_read", [_VOID, _I32, _BYTES, _U64, _I64ARR, _U64, _I32,
+_dsig("fylite_runtime_mds_open_tree", [_VOID, _BYTES, _U64, ctypes.c_int64], _I32)
+_dsig("fylite_runtime_mds_read", [_VOID, _I32, _BYTES, _U64, _I64ARR, _U64, _I32,
                             ctypes.POINTER(ctypes.c_uint64)], _I32)
-_dsig("fylite_engine_mds_last_f64", [_VOID, _ARR, _U64], _I32)
-_dsig("fylite_engine_mds_last_dims", [_VOID, _ARRU64, _U64,
+_dsig("fylite_runtime_mds_last_f64", [_VOID, _ARR, _U64], _I32)
+_dsig("fylite_runtime_mds_last_dims", [_VOID, _ARRU64, _U64,
                                  ctypes.POINTER(ctypes.c_uint64)], _I32)
-_dsig("fylite_engine_mds_last_error", [_VOID, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_mds_close", [_VOID], None)
+_dsig("fylite_runtime_mds_last_error", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_mds_close", [_VOID], None)
 
 
 def _b(text: str):
@@ -7495,7 +7495,7 @@ class MdsSession:
         err = (ctypes.c_uint8 * 512)()
         hb, hn, _k1 = _b(host)
         ub, un, _k2 = _b(user or os.environ.get("USER") or "fylite")
-        rc = lib.fylite_engine_mds_open(hb, hn, int(port), ub, un, int(timeout_ms),
+        rc = lib.fylite_runtime_mds_open(hb, hn, int(port), ub, un, int(timeout_ms),
                                     ctypes.byref(h),
                                     ctypes.cast(err, _BYTES), len(err))
         if rc != 0:
@@ -7515,16 +7515,16 @@ class MdsSession:
         return VERBS[name]
 
     def _fail(self, what: str, rc: int):
-        n = self._lib.fylite_engine_mds_last_error(self._h, None, 0)
+        n = self._lib.fylite_runtime_mds_last_error(self._h, None, 0)
         buf = (ctypes.c_uint8 * max(int(n), 1))()
-        self._lib.fylite_engine_mds_last_error(self._h, ctypes.cast(buf, _BYTES),
+        self._lib.fylite_runtime_mds_last_error(self._h, ctypes.cast(buf, _BYTES),
                                            len(buf))
         why = bytes(buf)[:max(int(n), 0)].decode("utf-8", "replace")
         raise KernelError(f"{what} returned {rc}: {why}")
 
     def open_tree(self, tree: str, shot: int) -> None:
         tb, tn, _k = _b(tree)
-        rc = self._lib.fylite_engine_mds_open_tree(self._h, tb, tn, int(shot))
+        rc = self._lib.fylite_runtime_mds_open_tree(self._h, tb, tn, int(shot))
         if rc != 0:
             self._fail(f"open_tree({tree!r}, {shot})", rc)
 
@@ -7541,27 +7541,27 @@ class MdsSession:
         sub = np.asarray(items, dtype=np.int64)
         nb, nn, _k = _b(node)
         n = ctypes.c_uint64()
-        rc = self._lib.fylite_engine_mds_read(
+        rc = self._lib.fylite_runtime_mds_read(
             self._h, self._verb(verb), nb, nn, sub, len(items),
             1 if inside else 0, ctypes.byref(n))
         if rc != 0:
             self._fail(f"read({verb!r}, {node!r})", rc)
         out = np.empty(int(n.value), dtype=np.float64)
-        rc = self._lib.fylite_engine_mds_last_f64(self._h, out, out.size)
+        rc = self._lib.fylite_runtime_mds_last_f64(self._h, out, out.size)
         if rc != 0:
             self._fail("last_f64", rc)
         nd = ctypes.c_uint64()
-        self._lib.fylite_engine_mds_last_dims(self._h, np.empty(0, np.uint64), 0,
+        self._lib.fylite_runtime_mds_last_dims(self._h, np.empty(0, np.uint64), 0,
                                           ctypes.byref(nd))
         dims = np.empty(int(nd.value), dtype=np.uint64)
         if dims.size:
-            self._lib.fylite_engine_mds_last_dims(self._h, dims, dims.size,
+            self._lib.fylite_runtime_mds_last_dims(self._h, dims, dims.size,
                                               ctypes.byref(nd))
         return out, tuple(int(d) for d in dims)
 
     def close(self) -> None:
         if getattr(self, "_h", None) is not None:
-            self._lib.fylite_engine_mds_close(self._h)
+            self._lib.fylite_runtime_mds_close(self._h)
             self._h = None
 
     def __enter__(self):
@@ -7587,16 +7587,16 @@ class MdsSession:
 # 存在之后才算搬过去」（`tests/PHYSICS-MIGRATION.md` 那本台账的做法）。
 # --------------------------------------------------------------------------- #
 
-_dsig("fylite_engine_gfile_parse", [_BYTES, _U64, ctypes.POINTER(_VOID),
+_dsig("fylite_runtime_gfile_parse", [_BYTES, _U64, ctypes.POINTER(_VOID),
                                   _BYTES, _U64], _I32)
-_dsig("fylite_engine_gfile_dims", [_VOID, ctypes.POINTER(ctypes.c_uint64),
+_dsig("fylite_runtime_gfile_dims", [_VOID, ctypes.POINTER(ctypes.c_uint64),
                                  ctypes.POINTER(ctypes.c_uint64)], _I32)
-_dsig("fylite_engine_gfile_scalars", [_VOID, _ARR, _U64], _I32)
-_dsig("fylite_engine_gfile_array", [_VOID, _BYTES, _U64, _ARR, _U64],
+_dsig("fylite_runtime_gfile_scalars", [_VOID, _ARR, _U64], _I32)
+_dsig("fylite_runtime_gfile_array", [_VOID, _BYTES, _U64, _ARR, _U64],
       ctypes.c_int64)
-_dsig("fylite_engine_gfile_header", [_VOID, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_gfile_format", [_VOID, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_gfile_free", [_VOID], None)
+_dsig("fylite_runtime_gfile_header", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_gfile_format", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_gfile_free", [_VOID], None)
 
 #: 标量的名字与次序 —— 与 `geqdsk.rs` 的 `GFile::SCALARS` 一一对应。
 #: ★这是一张**手抄**的表，抄错了不会报错（读者拿到的是另一个量），所以
@@ -7621,61 +7621,61 @@ def read_gfile(text_or_path) -> dict:
     tb, tn, _k = _b(text)
     h = _VOID()
     err = (ctypes.c_uint8 * 512)()
-    rc = lib.fylite_engine_gfile_parse(tb, tn, ctypes.byref(h),
+    rc = lib.fylite_runtime_gfile_parse(tb, tn, ctypes.byref(h),
                                      ctypes.cast(err, _BYTES), len(err))
     if rc != 0:
         why = bytes(err).split(b"\0", 1)[0].decode("utf-8", "replace")
         raise KernelError(f"g-file parse failed ({rc}): {why}")
     try:
         nw, nh = ctypes.c_uint64(), ctypes.c_uint64()
-        lib.fylite_engine_gfile_dims(h, ctypes.byref(nw), ctypes.byref(nh))
+        lib.fylite_runtime_gfile_dims(h, ctypes.byref(nw), ctypes.byref(nh))
         sc = np.empty(len(GFILE_SCALARS), dtype=np.float64)
-        lib.fylite_engine_gfile_scalars(h, sc, sc.size)
+        lib.fylite_runtime_gfile_scalars(h, sc, sc.size)
         out = {"nw": int(nw.value), "nh": int(nh.value)}
         for name, v in zip(GFILE_SCALARS, sc):
             out[name] = int(v) if name in ("nbbbs", "limitr") else float(v)
         for name in GFILE_ARRAYS:
             nb, nn, _k2 = _b(name)
-            n = lib.fylite_engine_gfile_array(h, nb, nn, np.empty(0), 0)
+            n = lib.fylite_runtime_gfile_array(h, nb, nn, np.empty(0), 0)
             if n < 0:
                 raise KernelError(f"g-file array {name!r} refused ({n})")
             buf = np.empty(int(n), dtype=np.float64)
-            lib.fylite_engine_gfile_array(h, nb, nn, buf, buf.size)
+            lib.fylite_runtime_gfile_array(h, nb, nn, buf, buf.size)
             out[name] = buf
-        n = lib.fylite_engine_gfile_header(h, None, 0)
+        n = lib.fylite_runtime_gfile_header(h, None, 0)
         hb = (ctypes.c_uint8 * max(int(n), 1))()
-        lib.fylite_engine_gfile_header(h, ctypes.cast(hb, _BYTES), len(hb))
+        lib.fylite_runtime_gfile_header(h, ctypes.cast(hb, _BYTES), len(hb))
         out["header"] = bytes(hb)[:max(int(n), 0)].decode("utf-8", "replace")
         return out
     finally:
-        lib.fylite_engine_gfile_free(h)
+        lib.fylite_runtime_gfile_free(h)
 
 
 # --------------------------------------------------------------------------- #
-# DOCUMENTS —— 数据层的「数据源 ↔ fyo」那一面（`rust/fylite_engine/src/c_api.rs`）
+# DOCUMENTS —— 数据层的「数据源 ↔ fyo」那一面（`rust/fylite_runtime/src/c_api.rs`）
 #
 # ★句柄是一束文档；取值走路径 `"<ids>[_<occ>]/a/b/c"`；子树以 JSON 进出，数值叶子
 # 另有 f64 快道。宿主的薄壳在 `fylite.io.fydoc`——这里只登记签名，与 mdsip / g-file
 # 同一政策：签名一处，`load_data` 逐个核对符号在不在。
 # --------------------------------------------------------------------------- #
 
-_dsig("fylite_engine_read", [_BYTES, _U64, ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
-_dsig("fylite_engine_read_text", [_BYTES, _U64, _BYTES, _U64, ctypes.POINTER(_VOID),
+_dsig("fylite_runtime_read", [_BYTES, _U64, ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
+_dsig("fylite_runtime_read_text", [_BYTES, _U64, _BYTES, _U64, ctypes.POINTER(_VOID),
                                 _BYTES, _U64], _I32)
-_dsig("fylite_engine_bundle_new", [ctypes.POINTER(_VOID)], _I32)
-_dsig("fylite_engine_write", [_VOID, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64],
+_dsig("fylite_runtime_bundle_new", [ctypes.POINTER(_VOID)], _I32)
+_dsig("fylite_runtime_write", [_VOID, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64],
       _I32)
-_dsig("fylite_engine_detect", [_BYTES, _U64, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_bundle_json", [_VOID, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_bundle_keys", [_VOID, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_doc_json", [_VOID, _BYTES, _U64, _BYTES, _U64], ctypes.c_int64)
-_dsig("fylite_engine_doc_array", [_VOID, _BYTES, _U64, _ARR, _U64, _ARRU64, _U64,
+_dsig("fylite_runtime_detect", [_BYTES, _U64, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_bundle_json", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_bundle_keys", [_VOID, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_doc_json", [_VOID, _BYTES, _U64, _BYTES, _U64], ctypes.c_int64)
+_dsig("fylite_runtime_doc_array", [_VOID, _BYTES, _U64, _ARR, _U64, _ARRU64, _U64,
                                 ctypes.POINTER(ctypes.c_uint64)], ctypes.c_int64)
-_dsig("fylite_engine_doc_set_json", [_VOID, _BYTES, _U64, _BYTES, _U64], _I32)
-_dsig("fylite_engine_doc_set_array", [_VOID, _BYTES, _U64, _ARR, _ARRU64, _U64], _I32)
-_dsig("fylite_engine_bundle_merge", [_VOID, _VOID, _I32], _I32)
-_dsig("fylite_engine_assemble", [_BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _I32,
+_dsig("fylite_runtime_doc_set_json", [_VOID, _BYTES, _U64, _BYTES, _U64], _I32)
+_dsig("fylite_runtime_doc_set_array", [_VOID, _BYTES, _U64, _ARR, _ARRU64, _U64], _I32)
+_dsig("fylite_runtime_bundle_merge", [_VOID, _VOID, _I32], _I32)
+_dsig("fylite_runtime_assemble", [_BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _I32,
                                ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
-_dsig("fylite_engine_fetch", [_BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64,
+_dsig("fylite_runtime_fetch", [_BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64, _BYTES, _U64,
                             _I32, _BYTES, _U64, _I32, ctypes.POINTER(_VOID), _BYTES, _U64], _I32)
-_dsig("fylite_engine_bundle_free", [_VOID], None)
+_dsig("fylite_runtime_bundle_free", [_VOID], None)

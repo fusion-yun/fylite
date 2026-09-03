@@ -58,7 +58,7 @@ yaml = ["PyYAML"]
 plot = ["matplotlib"]  # fylite.plot / fylite report figures: rendering
 #: ★`h5py` 今天只剩**一个**读者：`fylite.io.est2.measurements_from_est2_hdf5`（est2 离线
 #: 转储，那不是 fyo 布局）。★★2026-09-04 起 fyo 文档的 `.h5` 出入口（`fyo.write` / `read`、
-#: `appsession.to_hdf5`）走中间层 `libfylite_engine.so`（`fylite.io.fydoc`），不再经 h5py；
+#: `appsession.to_hdf5`）走中间层 `libfylite_runtime.so`（`fylite.io.fydoc`），不再经 h5py；
 #: `fylite.io.imas_h5` 已删（零调用者，且中间层本来就读 IMAS HDF5）。可选能力仍经 extras
 #: 隔离（NR-DEP-001）。
 hdf5 = ["h5py"]

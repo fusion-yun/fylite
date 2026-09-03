@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# 构建 fylite 的**中间层** `rust/fylite_engine/`（engine：格式 · 装配 · 计划→内核→记录 · 内核加载 · Rust 命令行 · app 伺服；原「数据层」`fylite_data`，2026-09-04 改名，FYL-DESIGN-16 N-1）。
+# 构建 fylite 的**中间层** `rust/fylite_runtime/`（格式 · 装配 · 计划→内核→记录 · 内核加载 ·
+# Rust 命令行 · app 伺服）。★2026-09-04 两次改名：`fylite_data` → `fylite_engine` → `fylite_runtime`
+# （FYL-DESIGN-16 N-1 / N-2）。`data` 只说了六项职责里的两项；`engine` 与 Python 包 `fylite.engine`
+# 撞词，而那是另一个组件（DE-COMP-03 执行与溯源机械核）。
 #
-#   ./rust/build.sh              -> libfylite_engine.so，装进 python/fylite/_lib/
+#   ./rust/build.sh              -> libfylite_runtime.so，装进 python/fylite/_lib/
 #   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fylite-app（内嵌整个 app/，
 #                                   并承载 app / data / case 三条命令），装进 python/fylite/_bin/
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
@@ -11,15 +14,15 @@
 # 而那两个已经收进 fylite-app（用户裁定「仅保留一个可执行程序」）。给 `--cli` 会被
 # 按名拒绝并指向 `--exe`，不会静默地少装东西。
 #
-# ★数据层链两个 C 库（libhdf5、libnetcdf；`fylite_engine/Cargo.toml` 的 [features] 说明
+# ★数据层链两个 C 库（libhdf5、libnetcdf；`fylite_runtime/Cargo.toml` 的 [features] 说明
 # 为什么）。缺省动态链接系统库：Debian/Ubuntu `apt install libhdf5-dev libnetcdf-dev`，
 # conda `conda install hdf5 netcdf4`。`--static` 走 hdf5-metno-src / netcdf-src 从源码编，
 # 第一次要十来分钟。
 #
-# ★IMAS DD 的结构表（`fylite_engine/ids/*.tsv`、`src/ids_tables.rs`）是**提交进仓的生成物**，
+# ★IMAS DD 的结构表（`fylite_runtime/ids/*.tsv`、`src/ids_tables.rs`）是**提交进仓的生成物**，
 # 由 `tools/dd-ids-table.py` 从 DD 的 IDSDef.xml 生成——本脚本不重生成它们。
 #
-# ★★2026-09-02 这一层从内核仓搬过来。理由写在 `fylite_engine/src/lib.rs` 抬头：
+# ★★2026-09-02 这一层从内核仓搬过来。理由写在 `fylite_runtime/src/lib.rs` 抬头：
 # 网络协议与文件格式是**宿主的活**，内核那本自己就是这么写的。源码在本仓是公开的
 # ——它是协议编解码，不是物理 IP。
 #
@@ -29,7 +32,7 @@
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$DIR/.." && pwd)"
-CRATE="$DIR/fylite_engine"
+CRATE="$DIR/fylite_runtime"
 INSTALL=1
 EXE=0
 FEATURES=""
@@ -51,21 +54,21 @@ done
 : "${RUSTUP_HOME:=$HOME/.rustup}"
 export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$CARGO_HOME=/cargo --remap-path-prefix=$RUSTUP_HOME=/rustup"
 
-echo "[engine] cargo build --release $FEATURES ..."
+echo "[runtime] cargo build --release $FEATURES ..."
 cargo build --release $FEATURES --manifest-path "$CRATE/Cargo.toml"
-SO="$CRATE/target/release/libfylite_engine.so"
-[ -f "$SO" ] || { echo "[engine] 没有产出 $SO" >&2; exit 1; }
+SO="$CRATE/target/release/libfylite_runtime.so"
+[ -f "$SO" ] || { echo "[runtime] 没有产出 $SO" >&2; exit 1; }
 
 homes=$(strings -n 6 "$SO" | grep -c "$HOME" || true)
 [ "$homes" = 0 ] || { echo "::error:: $SO 里有 $homes 条开发机路径" >&2; exit 1; }
-exp=$(nm -D --defined-only "$SO" | grep -c 'fylite_engine_' || true)
+exp=$(nm -D --defined-only "$SO" | grep -c 'fylite_runtime_' || true)
 [ "$exp" -gt 0 ] || { echo "::error:: C ABI 导出没了（strip 过头）" >&2; exit 1; }
-echo "[engine] harden-ok  $(basename "$SO")  ($exp exports)"
+echo "[runtime] harden-ok  $(basename "$SO")  ($exp exports)"
 
 if [ "$INSTALL" = 1 ]; then
     mkdir -p "$ROOT/python/fylite/_lib"
-    cp "$SO" "$ROOT/python/fylite/_lib/libfylite_engine.so"
-    echo "[engine] installed -> python/fylite/_lib/libfylite_engine.so"
+    cp "$SO" "$ROOT/python/fylite/_lib/libfylite_runtime.so"
+    echo "[runtime] installed -> python/fylite/_lib/libfylite_runtime.so"
 fi
 
 # ★★The mdsip REQUEST contract — the verb codes and the `*` sentinel.
@@ -118,16 +121,16 @@ if [ "$EXE" = 1 ]; then
     #: 生成物（`tools/make-app-embed.mjs`），`include_bytes!` 走 `FYLITE_APP_DIR`。
     #: 搬到本仓之后 `app/` 就在隔壁，所以这里能给出确定的值——从前它是跨仓的。
     export FYLITE_APP_DIR="$ROOT/app"
-    echo "[engine] cargo build --release --features desktop (fylite-app) ..."
+    echo "[runtime] cargo build --release --features desktop (fylite-app) ..."
     cargo build --release --features desktop --bin fylite-app \
         --manifest-path "$CRATE/Cargo.toml"
-    echo "[engine] -> $CRATE/target/release/fylite-app"
+    echo "[runtime] -> $CRATE/target/release/fylite-app"
     #: ★FYL-DESIGN-15 R-4：轮里的 `fylite app` / `data` / `case` 都把命令逐字交给
     #: 这个可执行文件（Python 侧前置命令词），所以它装进 `_bin/`（构建时在就随轮走）。
     if [ "$INSTALL" = 1 ]; then
         mkdir -p "$ROOT/python/fylite/_bin"
         cp "$CRATE/target/release/fylite-app" "$ROOT/python/fylite/_bin/fylite-app"
-        echo "[engine] installed -> python/fylite/_bin/fylite-app"
+        echo "[runtime] installed -> python/fylite/_bin/fylite-app"
     fi
 fi
-echo "[engine] done."
+echo "[runtime] done."

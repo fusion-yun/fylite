@@ -1,4 +1,4 @@
-// app/（本仓）-> fylite_engine 的 rust/fylite_engine/src/bin/app/assets.rs（内嵌资源表，生成物）
+// app/（本仓）-> fylite_runtime 的 rust/fylite_runtime/src/bin/app/assets.rs（内嵌资源表，生成物）
 //
 // ★为什么生成而不是手写：桌面版把整个 `app/` 编进可执行文件，需要一张
 // 「路径 -> include_bytes! -> MIME」的表。手写它意味着每加一页、每换一个
@@ -15,11 +15,11 @@ import { readdirSync, statSync, readFileSync, writeFileSync, existsSync } from '
 const HERE = new URL('.', import.meta.url).pathname;
 const APP = HERE + '../app/';
 
-//: ★★2026-09-02：`app/` 与 `rust/fylite_engine/` 都在本仓了——数据层从内核仓搬了
+//: ★★2026-09-02：`app/` 与 `rust/fylite_runtime/` 都在本仓了——数据层从内核仓搬了
 //: 过来，于是这张表的读者与被读的目录同处一棵树。从前这里要跨仓解析内核检出
 //: （`$FYLITE_KERNEL`，探测不到就报错），那一整段随之取消：现在是一个相对路径，
 //: 猜不错也不需要猜。
-const OUT = HERE + '../rust/fylite_engine/src/bin/app/assets.rs';
+const OUT = HERE + '../rust/fylite_runtime/src/bin/app/assets.rs';
 const SKIP = new Set(['tests', 'server']);
 
 const MIME = {
@@ -67,7 +67,7 @@ if (unknown.length) {
 const rows = files.map((f) => {
   const ext = f.slice(f.lastIndexOf('.'));
   //: ★★路径过 `$FYLITE_APP_DIR`，不是相对 `.rs` 文件往上数。仓拆开之前
-  //: 这里写的是 `../../../../../app/${f}`——从 `rust/fylite_engine/src/bin/app/` 上溯
+  //: 这里写的是 `../../../../../app/${f}`——从 `rust/fylite_runtime/src/bin/app/` 上溯
   //: 五级到仓根再进 `app/`，同一个仓里成立。2026-09-01 `app/` 搬到主仓之后，
   //: 那条相对路径指向内核仓里并不存在的 `app/`，96 个文件全部
   //: `couldn't read`。★不改成绝对路径：那会把构建机的目录布局**编进内核源码**
@@ -100,5 +100,5 @@ if (check) {
   console.log(`[embed] assets.rs 与 app/ 一致（${files.length} 个文件）`);
 } else {
   writeFileSync(OUT, src);
-  console.log(`[embed] -> rust/fylite_engine/src/bin/app/assets.rs（${files.length} 个文件）`);
+  console.log(`[embed] -> rust/fylite_runtime/src/bin/app/assets.rs（${files.length} 个文件）`);
 }

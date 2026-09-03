@@ -1,4 +1,4 @@
-"""数据源 ↔ fyo 文档：`libfylite_engine.so` 的文档面（`rust/fylite_engine/src/io.rs`）。
+"""数据源 ↔ fyo 文档：`libfylite_runtime.so` 的文档面（`rust/fylite_runtime/src/io.rs`）。
 
 ★★这是 :func:`fylite.fyo.write` / :func:`fylite.fyo.read` 之外的**第二条盘上通路**，
 两者的分工：``fyo.write`` 写的是本包自己的 fyo 布局（JSON-LD / HDF5），这里除了同一
@@ -61,7 +61,7 @@ class Bundle:
         pb, pn, _k = _b(str(Path(path)))
         h = _VOID()
         err = _buf(1024)
-        rc = lib.fylite_engine_read(pb, pn, ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
+        rc = lib.fylite_runtime_read(pb, pn, ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
         if rc != 0:
             raise KernelError(f"read {path}: {_err_text(err)}")
         return cls(h)
@@ -74,7 +74,7 @@ class Bundle:
         fb, fn, _k2 = _b(format)
         h = _VOID()
         err = _buf(1024)
-        rc = lib.fylite_engine_read_text(tb, tn, fb, fn, ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
+        rc = lib.fylite_runtime_read_text(tb, tn, fb, fn, ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
         if rc != 0:
             raise KernelError(f"read {format} text: {_err_text(err)}")
         return cls(h)
@@ -88,14 +88,14 @@ class Bundle:
     def empty(cls) -> "Bundle":
         lib = kernel.require_data()
         h = _VOID()
-        lib.fylite_engine_bundle_new(ctypes.byref(h))
+        lib.fylite_runtime_bundle_new(ctypes.byref(h))
         return cls(h)
 
     # ---- lifecycle ---------------------------------------------------------
 
     def close(self) -> None:
         if self._h:
-            self._lib.fylite_engine_bundle_free(self._h)
+            self._lib.fylite_runtime_bundle_free(self._h)
             self._h = None
 
     def __enter__(self):
@@ -115,29 +115,29 @@ class Bundle:
     @property
     def keys(self) -> list[str]:
         """``["equilibrium", "wall_1", …]``。"""
-        n = self._lib.fylite_engine_bundle_keys(self._h, None, 0)
+        n = self._lib.fylite_runtime_bundle_keys(self._h, None, 0)
         buf = _buf(n)
-        self._lib.fylite_engine_bundle_keys(self._h, ctypes.cast(buf, _BYTES), len(buf))
+        self._lib.fylite_runtime_bundle_keys(self._h, ctypes.cast(buf, _BYTES), len(buf))
         text = _text(buf, n)
         return [k for k in text.split("\n") if k]
 
     def to_dict(self) -> dict:
         """整束：单份文档本身，多份为 ``{"<ids>[_<occ>]": doc}``。"""
-        n = self._lib.fylite_engine_bundle_json(self._h, None, 0)
+        n = self._lib.fylite_runtime_bundle_json(self._h, None, 0)
         buf = _buf(n)
-        self._lib.fylite_engine_bundle_json(self._h, ctypes.cast(buf, _BYTES), len(buf))
+        self._lib.fylite_runtime_bundle_json(self._h, ctypes.cast(buf, _BYTES), len(buf))
         return json.loads(_text(buf, n))
 
     def get(self, path: str, default=KeyError):
         """一条路径下的子树（JSON 形：数组是嵌套列表）。"""
         pb, pn, _k = _b(path)
-        n = self._lib.fylite_engine_doc_json(self._h, pb, pn, None, 0)
+        n = self._lib.fylite_runtime_doc_json(self._h, pb, pn, None, 0)
         if n < 0:
             if default is KeyError:
                 raise KeyError(path)
             return default
         buf = _buf(n)
-        self._lib.fylite_engine_doc_json(self._h, pb, pn, ctypes.cast(buf, _BYTES), len(buf))
+        self._lib.fylite_runtime_doc_json(self._h, pb, pn, ctypes.cast(buf, _BYTES), len(buf))
         return json.loads(_text(buf, n))
 
     def array(self, path: str) -> np.ndarray:
@@ -145,7 +145,7 @@ class Bundle:
         pb, pn, _k = _b(path)
         ndim = ctypes.c_uint64()
         dims = np.zeros(16, dtype=np.uint64)
-        n = self._lib.fylite_engine_doc_array(self._h, pb, pn, np.empty(0), 0, dims, dims.size,
+        n = self._lib.fylite_runtime_doc_array(self._h, pb, pn, np.empty(0), 0, dims, dims.size,
                                             ctypes.byref(ndim))
         if n == -2:
             raise KeyError(path)
@@ -154,7 +154,7 @@ class Bundle:
         if n < 0:
             raise KernelError(f"array {path}: {n}")
         out = np.empty(int(n), dtype=np.float64)
-        self._lib.fylite_engine_doc_array(self._h, pb, pn, out, out.size, dims, dims.size,
+        self._lib.fylite_runtime_doc_array(self._h, pb, pn, out, out.size, dims, dims.size,
                                         ctypes.byref(ndim))
         shape = tuple(int(d) for d in dims[:int(ndim.value)])
         return out.reshape(shape) if shape else out[0]
@@ -167,17 +167,17 @@ class Bundle:
         if isinstance(value, np.ndarray) and value.dtype.kind in "fiu":
             arr = np.ascontiguousarray(value, dtype=np.float64)
             dims = np.asarray(arr.shape, dtype=np.uint64)
-            rc = self._lib.fylite_engine_doc_set_array(self._h, pb, pn, arr.ravel(), dims, dims.size)
+            rc = self._lib.fylite_runtime_doc_set_array(self._h, pb, pn, arr.ravel(), dims, dims.size)
         else:
             jb, jn, _k2 = _b(json.dumps(_jsonable(value), allow_nan=True))
-            rc = self._lib.fylite_engine_doc_set_json(self._h, pb, pn, jb, jn)
+            rc = self._lib.fylite_runtime_doc_set_json(self._h, pb, pn, jb, jn)
         if rc != 0:
             raise KernelError(f"set {path}: {rc}")
         return self
 
     def merge(self, other: "Bundle", *, keep: bool = False) -> "Bundle":
         """把另一束合进来（缺省后者覆盖；``keep`` 只补缺）。"""
-        self._lib.fylite_engine_bundle_merge(self._h, other._h, 1 if keep else 0)
+        self._lib.fylite_runtime_bundle_merge(self._h, other._h, 1 if keep else 0)
         return self
 
     def write(self, path, *, format: str | None = None, layout: str = "fyo") -> str:
@@ -187,7 +187,7 @@ class Bundle:
         fb, fn, _k2 = _b(format or "")
         lb, ln, _k3 = _b(layout)
         err = _buf(4096)
-        rc = self._lib.fylite_engine_write(self._h, pb, pn, fb, fn, lb, ln, ctypes.cast(err, _BYTES), len(err))
+        rc = self._lib.fylite_runtime_write(self._h, pb, pn, fb, fn, lb, ln, ctypes.cast(err, _BYTES), len(err))
         if rc != 0:
             raise KernelError(f"write {path}: {_err_text(err)}")
         return _err_text(err)
@@ -210,7 +210,7 @@ def detect(path) -> tuple[str, str]:
     lib = kernel.require_data()
     pb, pn, _k = _b(str(Path(path)))
     buf = _buf(1024)
-    n = lib.fylite_engine_detect(pb, pn, ctypes.cast(buf, _BYTES), len(buf))
+    n = lib.fylite_runtime_detect(pb, pn, ctypes.cast(buf, _BYTES), len(buf))
     if n < 0:
         raise KernelError(f"detect {path}: {_text(buf, min(len(buf), 1024)).split(chr(0))[0]}")
     fmt, _, lay = _text(buf, n).partition(" ")
@@ -272,7 +272,7 @@ def assemble(path, *, shot: int | None = None, time=None, max_points: int | None
     ub, un, _k3 = _b(user or "")
     h = _VOID()
     err = _buf(1 << 16)
-    rc = lib.fylite_engine_assemble(pb, pn, jb, jn, ub, un, int(timeout_ms),
+    rc = lib.fylite_runtime_assemble(pb, pn, jb, jn, ub, un, int(timeout_ms),
                                   ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
     if rc != 0:
         raise KernelError(f"assemble {path}: {_err_text(err)}")
@@ -302,7 +302,7 @@ def fetch(machine, ids, *, shot: int, time=None, max_points: int | None = None, 
     ub, un, _k6 = _b(user or "")
     h = _VOID()
     err = _buf(1 << 16)
-    rc = lib.fylite_engine_fetch(mb, mn, ib, in_, jb, jn, vb, vn, hb, hn, int(port or 0), ub, un,
+    rc = lib.fylite_runtime_fetch(mb, mn, ib, in_, jb, jn, vb, vn, hb, hn, int(port or 0), ub, un,
                                int(timeout_ms), ctypes.byref(h), ctypes.cast(err, _BYTES), len(err))
     if rc != 0:
         raise KernelError(f"fetch {machine}: {_err_text(err)}")
@@ -325,19 +325,19 @@ def case_json(plan, *, base=None, kernel_lib=None) -> dict:
 
     ★The whole run — composing the plan, resolving its inputs, the kernel's
     single door ``fylite_rs_fyo``, the record with the datasets INLINE on
-    their output ports — is the data layer's ``fylite_engine_case_json``; this
+    their output ports — is the data layer's ``fylite_runtime_case_json``; this
     is a thin face on it, so Python and the shell (``fylite case json``) go
     through one implementation.  A refused case still comes back as a record
     (``run_state: rejected``) with the kernel's sentence in ``comment``;
     only a plan that yields no record at all raises.
     """
     lib = kernel.require_data()
-    f = lib.fylite_engine_case_json
+    f = lib.fylite_runtime_case_json
     f.argtypes = [_BYTES, ctypes.c_uint64, _BYTES, ctypes.c_uint64, _BYTES, ctypes.c_uint64,
                   ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_uint64)]
     f.restype = ctypes.c_int32
-    lib.fylite_engine_case_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
-    lib.fylite_engine_case_free.restype = None
+    lib.fylite_runtime_case_free.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+    lib.fylite_runtime_case_free.restype = None
     text = plan if isinstance(plan, str) else json.dumps(plan, ensure_ascii=False)
     pb, pn, _k1 = _b(text)
     bb, bn, _k2 = _b(str(Path(base)) if base is not None else "")
@@ -349,7 +349,7 @@ def case_json(plan, *, base=None, kernel_lib=None) -> dict:
         body = ctypes.string_at(out.value, n.value).decode("utf-8", "replace") if out.value else ""
     finally:
         if out.value:
-            lib.fylite_engine_case_free(out.value, n.value)
+            lib.fylite_runtime_case_free(out.value, n.value)
     if rc < 0:
-        raise KernelError(f"fylite_engine_case_json returned {rc}: {body}")
+        raise KernelError(f"fylite_runtime_case_json returned {rc}: {body}")
     return json.loads(body)

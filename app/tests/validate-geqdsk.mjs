@@ -44,7 +44,7 @@ globalThis.FyPhys.useKernel(_KERNEL);
 //: 顺带地，这道闸的**含义变了而判据没变**：它比的一直是「JS ↔ fylite 的
 //: Python 读入器」，而 Python 那一侧现在是数据层（Rust）的薄壳——于是它成了
 //: 三份实现之间缺的那条边（JS ↔ 数据层），一行路径换来的。
-const SRC = HERE + '../../rust/fylite_engine/testdata/g_synthetic.geqdsk';
+const SRC = HERE + '../../rust/fylite_runtime/testdata/g_synthetic.geqdsk';
 const py = (path) => JSON.parse(execFileSync('python3', ['-c', `
 import sys, json; sys.path.insert(0, '${HERE}../../python')
 from fylite.io import geqdsk as G

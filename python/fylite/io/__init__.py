@@ -23,7 +23,7 @@ and these are its feeders:
 * (`.imas_h5` and `.jetto_bin` — an IMAS-HDF5 flat reader and a JETTO
   binary reader — were removed 2026-09-04: no caller anywhere, and the
   engine reads IMAS HDF5 itself, in both layouts.)
-* :mod:`.fydoc` — the data layer's document face (``libfylite_engine.so``):
+* :mod:`.fydoc` — the data layer's document face (``libfylite_runtime.so``):
   any file → a bundle of fyo documents by CONTENT sniffing, and back out as
   fyo or IMAS DD layout (JSON / HDF5 / netCDF / g-file), plus merge and
   JSON-LD assembly of several sources;

@@ -5,7 +5,7 @@
     python tools/dd-ids-table.py --dd-xml IDSDef.xml  # 用一份 DD 的 IDSDef.xml
     python tools/dd-ids-table.py --version 4.1.1 --ids equilibrium core_profiles
 
-★★**它是什么。** `rust/fylite_engine/` 要把 fyo 文档写成 **imas-python 能原样读回**的
+★★**它是什么。** `rust/fylite_runtime/` 要把 fyo 文档写成 **imas-python 能原样读回**的
 netCDF 与 HDF5。那两种布局都不是「把树平铺」那么简单：netCDF 的**维度名**由 DD 的
 坐标声明推出来（`imas/backends/netcdf/nc_metadata.py`——`1...N` 生一个以路径命名的
 维、`../grid/dim1` 共用被引用量的维、`time` 在齐次时间下并成根 `time`），读回时
@@ -22,7 +22,7 @@ netCDF 与 HDF5。那两种布局都不是「把树平铺」那么简单：netCD
 ★**DD 的文字一个字不抄**（fyo `CLAUDE.md`：CC BY-ND 的 `documentation` 只留指针，
 不进本仓）。这里只有路径、种类、维数、单位、坐标——结构，不是文字。
 
-## 表的格式（`rust/fylite_engine/ids/<ids>.tsv`）
+## 表的格式（`rust/fylite_runtime/ids/<ids>.tsv`）
 
     # fylite/ids-table/1
     # dd_version 4.1.1
@@ -39,7 +39,7 @@ same_as：逐维 `coordinateN_same_as`，同样 `|` 分隔。alternatives：`alt
 规则是它们与本体同维（`nc_metadata.py` 的 errorbar 分支），数据层按同一条规则现算，
 省下三分之一的行。
 
-同时生成 `rust/fylite_engine/src/ids_tables.rs`：`include_str!` 全部表的一张索引。
+同时生成 `rust/fylite_runtime/src/ids_tables.rs`：`include_str!` 全部表的一张索引。
 """
 
 from __future__ import annotations
@@ -50,8 +50,8 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-OUT = ROOT / "rust" / "fylite_engine" / "ids"
-RS = ROOT / "rust" / "fylite_engine" / "src" / "ids_tables.rs"
+OUT = ROOT / "rust" / "fylite_runtime" / "ids"
+RS = ROOT / "rust" / "fylite_runtime" / "src" / "ids_tables.rs"
 SCHEMA = "fylite/ids-table/1"
 
 KIND = {"structure": "S", "struct_array": "A", "FLT": "F", "INT": "I", "CPX": "C", "STR": "T"}

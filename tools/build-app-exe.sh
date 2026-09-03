@@ -20,16 +20,16 @@ set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 #: ★★2026-09-02：查看器的**内容**（内嵌的整个 `app/`）与**代码**
-#: （`rust/fylite_engine/src/bin/app/`）现在都在本仓——数据层从内核仓搬了过来。
+#: （`rust/fylite_runtime/src/bin/app/`）现在都在本仓——数据层从内核仓搬了过来。
 #: 从前这里要跨仓解析内核检出，那一步随之取消。
-CRATE="$DIR/rust/fylite_engine"
+CRATE="$DIR/rust/fylite_runtime"
 
 OUT="$CRATE/target"
 WHICH="${1:-both}"
 
 cd "$DIR"
 # 资源表先与 app/ 对齐——漏这一步的后果是运行时 404，只有别人才会发现
-#: ★它写的是 `rust/fylite_engine/src/bin/app/assets.rs` —— 同一棵树里。
+#: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
 node tools/make-app-embed.mjs
 
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。

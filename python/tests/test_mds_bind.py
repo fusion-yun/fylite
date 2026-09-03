@@ -159,7 +159,7 @@ def test_the_two_hosts_get_the_same_wire_codes():
 def test_the_data_library_exports_the_plane_and_the_kernel_does_not():
     """★★两件事一起判，因为它们是同一条边界的两面。
 
-    数据层（`libfylite_engine.so`，本仓 `rust/fylite_engine/`）要有这七条；
+    数据层（`libfylite_runtime.so`，本仓 `rust/fylite_runtime/`）要有这七条；
     **内核（`libfylite_kernel.so`）一条都不许有**。这一组 2026-09-02 曾短暂地长在
     内核的 C ABI 上（ABI 124），当天判定为分层错误并搬走——判据留在这里，
     免得它某天又长回去：网络协议不是算数那层的接口。
@@ -167,11 +167,11 @@ def test_the_data_library_exports_the_plane_and_the_kernel_does_not():
     from fylite import kernel
     data = kernel.load_data()
     if data is None:
-        pytest.skip("libfylite_engine.so not built (rust/build.sh)")
+        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
     names = ("open", "open_tree", "read", "last_f64", "last_dims",
              "last_error", "close")
     for n in names:
-        assert hasattr(data, f"fylite_engine_mds_{n}"), n
+        assert hasattr(data, f"fylite_runtime_mds_{n}"), n
     core = kernel.load()
     if core is not None:
         back = [n for n in names if hasattr(core, f"fylite_rs_mds_{n}")]

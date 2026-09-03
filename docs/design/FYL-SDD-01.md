@@ -16,7 +16,7 @@ modified:
   by: FyLite Maintainers
   change: 'v0.13：**三种发布形态与统一命令行入册**（`FYL-DESIGN-15` 的规范条款上提）。
     ①布局表：`rust/fylite/` 注明在私有内核仓、制品装进本仓且不入库，新增
-    `rust/fylite_engine/`（DE-COMP-09 数据层，兼 Rust 宿主的命令行）与三条发布路径的脚本；
+    `rust/fylite_runtime/`（DE-COMP-09 数据层，兼 Rust 宿主的命令行）与三条发布路径的脚本；
     ②新增组件 **DE-COMP-09 数据层**（取数与格式 + Rust 命令行；一份源三个制品）；
     ③DE-COMP-06 声明面：`_cli.json` 自 2026-09-02 起是**三个宿主共同的**命令行定义，
     新增不变式「命令行只有一份声明式定义」；④DE-COMP-03 机械核：`app` / `data` / `case`
@@ -124,7 +124,7 @@ FyLite 是单仓交付的独立软件包，对外呈现两个宿主与七个接�
 | 目录 | 组件 | 说明 |
 | :--- | :--- | :--- |
 | `rust/fylite/` | DE-COMP-01 Rust 计算核 | 单 crate；本机 cdylib 与 wasm 模块同源构建（`rust/build.sh`，wasm 产物出 `rust/wasm/dist/`）。★★**2026-09-01 仓一分为二后这棵 crate 在私有仓 `fylite_kernel`**：那边的 `rust/build.sh` 把制品与生成物（`libfylite_kernel.so`、三个 `.wasm`、`_abi.py` / `version.js` / `fyo-interface.*`）**装进本仓**。本行留在布局表里，因为它指派的是那些制品的落点与本仓对它的依赖方向，不是本仓的源码目录。★制品**不入库**（`.gitignore` 抬头）：打包发布时装入 |
-| `rust/fylite_engine/` | DE-COMP-09 中间层（数据层） | ★2026-09-04 自 `rust/fylite_data/` 改名（`FYL-DESIGN-16` N-1：`data` 只说了六项职责里的两项）。本仓**唯一的 Rust 源码树**，源码公开（协议编解码与文件格式，不是物理 IP）：mdsip 只读客户端、g/a-file、HDF5 / netCDF、YAML 子集、多源装配，外加 **Rust 宿主的命令行**（`src/cli/`，由共享规格 `python/fylite/_cli.json` 编译期建出）。一份源**两个**制品：`libfylite_engine.so`（Python 经 ctypes 取）与 `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，承载 `app` / `data` / `case` 三条命令词）。★2026-09-03 前另有 `fylite-data` / `fylite-case` 两个薄壳别名，已撤（`FYL-DESIGN-15` C-8）。构建 `rust/build.sh`（本仓的那一份）|
+| `rust/fylite_runtime/` | DE-COMP-09 中间层（数据层） | ★2026-09-04 自 `rust/fylite_data/` 改名，同日再自 `fylite_engine` 改为 `fylite_runtime`（`FYL-DESIGN-16` N-1 / N-2：`data` 只说了六项职责里的两项；`engine` 与本表下方 DE-COMP-03 的 Python 包 `fylite.engine` 撞词，而那是**另一个组件**）。本仓**唯一的 Rust 源码树**，源码公开（协议编解码与文件格式，不是物理 IP）：mdsip 只读客户端、g/a-file、HDF5 / netCDF、YAML 子集、多源装配，外加 **Rust 宿主的命令行**（`src/cli/`，由共享规格 `python/fylite/_cli.json` 编译期建出）。一份源**两个**制品：`libfylite_runtime.so`（Python 经 ctypes 取）与 `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，承载 `app` / `data` / `case` 三条命令词）。★2026-09-03 前另有 `fylite-data` / `fylite-case` 两个薄壳别名，已撤（`FYL-DESIGN-15` C-8）。构建 `rust/build.sh`（本仓的那一份）|
 | `python/fylite/*.py` | DE-COMP-02 Python 装配层 | 平铺物理 / 装配模块；`python/` 内含 `pyproject.toml` / `pytest.ini` / `tests/` |
 | `python/fylite/engine/` | DE-COMP-03 机械核 | 子包（CLI / 服务 / 清单 / 溯源 / 注册 / 版本 / 原生库装载） |
 | `python/fylite/scenario/` | DE-COMP-04 场景层 | 四条场景线各一模块 |
@@ -267,7 +267,7 @@ graph TD
 | Description | 取数与格式，**不做物理**：不同数据源 ↔ fyo 文档的读写转换（MDSplus 只读、a-file、g-file、JSON(-LD)、HDF5、netCDF、YAML 子集，各带 fyo 与 IMAS DD 两种布局）、多源合并、按 JSON-LD / YAML 装配、按炮号与时间的服务端切片；外加 **Rust 宿主的命令行**与算例的输入 / 输出半边（一份 fyo 计划进、一份 spo 记录出，经运行期 dlopen 的内核）。源码公开——这里是协议与格式，不是物理 IP。 |
 | Traces to | FR-DATA-002, FR-TOOL-001, FR-TOOL-004 |
 | Invariant | 本层**禁止 (MUST NOT)** 实现任何物理或数值（判据同 DE-COMP-02：同一物理量的第二份实现即缺陷）；对 MDSplus **必须 (MUST)** 只读，且**禁止 (MUST NOT)** 暴露取表达式的入口（每个 TDI 串由校验过的节点路径与整数拼出）；浏览器制品**禁止 (MUST NOT)** 含 mdsip（浏览器打不开裸 TCP）。 |
-| Interface | `libfylite_engine.so` 的 C ABI（`fylite_engine_*`，Python 侧 `fylite.io.fydoc`）；**一个**可执行文件 `fylite-app`（命令词 `app` / `data` / `case`），其命令行由 DE-COMP-06 的规格建出。 |
+| Interface | `libfylite_runtime.so` 的 C ABI（`fylite_runtime_*`，Python 侧 `fylite.io.fydoc`）；**一个**可执行文件 `fylite-app`（命令词 `app` / `data` / `case`），其命令行由 DE-COMP-06 的规格建出。 |
 | Note | 2026-09-02 从内核仓搬来：内核那本自己写着 *the kernel computes numbers; the hosts put them into documents*，而网络协议与文件格式按同一条判据是宿主的活（DE-COMP-02 的分层理由）。搬动同时收掉了两份重复实现——两个 g-file 读入（Python 与 JS 各一）与两份 mdsip 客户端。设计正本 `FYL-DESIGN-14`，命令行部分 `FYL-DESIGN-15`。 |
 
 (fylite-sdd-composition-invariants)=

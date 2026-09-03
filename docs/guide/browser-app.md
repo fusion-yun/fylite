@@ -155,7 +155,7 @@ fylite-app --mdsip 127.0.0.1:8000
 对的，拿它做等式约束是错的。
 
 闸子**既不需要浏览器也不需要 mdsip 服务器**：编解码与参数面守卫在 `cargo test` 里
-（`rust/fylite_engine/src/mdsip.rs` 17 项、`rust/fylite_engine/src/bin/app/api.rs` 6 项），
+（`rust/fylite_runtime/src/mdsip.rs` 17 项、`rust/fylite_runtime/src/bin/app/api.rs` 6 项），
 端到端那一层由
 `app/tests/validate-app-mdsip.mjs` 对着**真机录下来的帧**跑发布出去的那个宿主——宿主问了
 夹具里没有的问题，门会红。夹具怎么录见 `tools/mds-record.mjs`。★那份录音是装置内网的

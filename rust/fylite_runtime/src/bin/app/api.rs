@@ -14,7 +14,7 @@
 //! 与 Node 网关**同一组端点、同一套 JSON 形状**，因为页面是同一份：
 //! `/api/health` `/api/shot` `/api/tree` `/api/node` `/api/signal`
 //! `/api/measurements`。★没有取表达式的端点，因为
-//! [`fylite_engine::mdsip::Client`] 没有取表达式的方法——每个 TDI 串都在内核里由
+//! [`fylite_runtime::mdsip::Client`] 没有取表达式的方法——每个 TDI 串都在内核里由
 //! 校验过的节点路径与整数拼出（FYL-DESIGN-06 §5）。
 //!
 //! ★★**守卫在两侧各做一遍**，与网关同一形状：这里先查树名/节点路径/整数，
@@ -24,7 +24,7 @@
 //! 只是 `ok:false` 且带一句为什么——页面据此把面板画成禁用并说明原因，
 //! 这比 404（面板消失）教给读者的多。
 
-use fylite_engine::mdsip::{self, tcp, Client, MdsipError};
+use fylite_runtime::mdsip::{self, tcp, Client, MdsipError};
 
 /// EFIT 的测量子树与结果子树前缀 —— 与 `gateway.mjs` 逐字相同。
 const M: &str = "\\EFIT_EAST::TOP.MEASUREMENTS:";
@@ -249,7 +249,7 @@ fn health(cfg: &Cfg) -> String {
 
 /// 这次请求要连的服务器：页面给的（若给了）优先，否则启动时那个。
 ///
-/// ★★守卫在这里做一遍，`fylite_engine::mdsip::tcp::connect` 再做一遍——两遍查同一条
+/// ★★守卫在这里做一遍，`fylite_runtime::mdsip::tcp::connect` 再做一遍——两遍查同一条
 /// 规则是有意的（FYL-DESIGN-06 §5）。这里查的是**形状**：主机名/点分地址加一个
 /// 端口，别的一律拒，且**在开 socket 之前**。
 fn server_of(q: &Query, cfg: &Cfg) -> Result<String, Fail> {

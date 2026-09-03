@@ -242,8 +242,8 @@ the protocol face without paying for numpy or the kernel.
 
 ## Reading and writing data
 
-The **data layer** (`rust/fylite_engine/`, source open, built into
-`libfylite_engine.so` and the `fylite data` command) converts between data
+The **data layer** (`rust/fylite_runtime/`, source open, built into
+`libfylite_runtime.so` and the `fylite data` command) converts between data
 sources and fyo documents, merges several sources, and assembles them from a
 JSON-LD description. Files are recognised by **content**, never by name.
 
@@ -292,7 +292,7 @@ back here with h5py and with the data layer's own reader (the layout is the one
 `verify/imas_roundtrip.py` checks against imas-python). A from-source HDF5 needs zlib for it
 (`--static` carries `hdf5/zlib`; the IMAS layout deflates every chunked dataset).
 
-The same run is **one function** on the data layer: `fylite_engine_case_json`
+The same run is **one function** on the data layer: `fylite_runtime_case_json`
 takes the plan as JSON-LD text (one document, or an array composed in order)
 and returns the record as JSON-LD text with the datasets inline on their
 output ports. `fylite case json plan.jsonld` and, in Python,
@@ -327,7 +327,7 @@ check register itself — what each check reads, its formula, its assumptions �
 `docs/reference/benchmark.md`.
 
 The IMAS layouts are checked against the real readers, not against a
-description of them: `rust/fylite_engine/verify/imas_roundtrip.py` writes with
+description of them: `rust/fylite_runtime/verify/imas_roundtrip.py` writes with
 imas-python, reads with this library, writes with this library, and reads
 back with imas-python and imas-core, leaf by leaf.
 
@@ -375,7 +375,7 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 | path | contents |
 | :--- | :--- |
 | `python/fylite/` | assembly, device plumbing, IO, scenarios, the CLI and protocol engine |
-| `rust/fylite_engine/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fylite data` command |
+| `rust/fylite_runtime/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fylite data` command |
 | `python/tests/` | the Python tier — assembly, IO, the protocol/CLI faces, the registries, the ABI marshalling (`python/pytest.ini`) |
 | | ★the physics/numerics tier is **not here**: it lives in the kernel repository with the code it judges |
 | `app/` | the static browser site and its gates |

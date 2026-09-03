@@ -1,6 +1,6 @@
 //! 数据层的 C ABI —— Python 经 `ctypes` 取数的那一面。
 //!
-//! ★★符号前缀是 **`fylite_engine_`**，不是内核的 `fylite_rs_`。两个 `.so` 会被同一个
+//! ★★符号前缀是 **`fylite_runtime_`**，不是内核的 `fylite_rs_`。两个 `.so` 会被同一个
 //! Python 进程同时 load（物理走内核那份、取数走这份），前缀分开是让它们**不可能**
 //! 撞名；而且从符号名就看得出一个调用问的是哪一层。
 //!
@@ -32,7 +32,7 @@
 //      NUL-terminated `char*`: this ABI has no C-string contract and adding
 //      one for four arguments would be a second convention to keep.
 //
-// ★The read-only guard is NOT relaxed by any of this.  `fylite_engine_mds_read`
+// ★The read-only guard is NOT relaxed by any of this.  `fylite_runtime_mds_read`
 // takes a verb code, a node path and integers — `mdsip::tdi` assembles the
 // TDI text and `is_node_path` refuses anything that is a language rather than
 // a path.  There is still no export that takes an expression.
@@ -121,7 +121,7 @@ mod mds_abi {
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_mds_open(
+pub unsafe extern "C" fn fylite_runtime_mds_open(
     host: *const u8, host_n: u64, port: u16, user: *const u8, user_n: u64,
     timeout_ms: i32, out_handle: *mut *mut std::ffi::c_void,
     err: *mut u8, err_cap: u64) -> i32 {
@@ -144,13 +144,13 @@ pub unsafe extern "C" fn fylite_engine_mds_open(
 }
 
 /// Open `tree` at `shot`.  0 = ok, `-1` bad argument, `-2` the server refused
-/// (reason available from `fylite_engine_mds_last_error`).
+/// (reason available from `fylite_runtime_mds_last_error`).
 ///
 /// # Safety
-/// `handle` from `fylite_engine_mds_open`; `tree`: `tree_n` bytes.
+/// `handle` from `fylite_runtime_mds_open`; `tree`: `tree_n` bytes.
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_mds_open_tree(
+pub unsafe extern "C" fn fylite_runtime_mds_open_tree(
     handle: *mut std::ffi::c_void, tree: *const u8, tree_n: u64, shot: i64) -> i32 {
     if handle.is_null() {
         return -1;
@@ -168,19 +168,19 @@ pub unsafe extern "C" fn fylite_engine_mds_open_tree(
 /// `i64::MIN` in `sub` means `*`.
 ///
 /// On success writes the element count to `n_out` and KEEPS the answer in the
-/// handle for `fylite_engine_mds_last_f64` / `_last_dims` — one round trip, two
+/// handle for `fylite_runtime_mds_last_f64` / `_last_dims` — one round trip, two
 /// calls, because the caller cannot size its buffer before the server has
 /// answered.
 ///
 /// 0 = ok, `-1` bad argument, `-2` refused/failed, `-3` unknown verb.
 ///
 /// # Safety
-/// `handle` from `fylite_engine_mds_open`; `node`: `node_n` bytes; `sub`: `nsub`
+/// `handle` from `fylite_runtime_mds_open`; `node`: `node_n` bytes; `sub`: `nsub`
 /// i64s; `n_out` one u64.
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_mds_read(
+pub unsafe extern "C" fn fylite_runtime_mds_read(
     handle: *mut std::ffi::c_void, verb: i32, node: *const u8, node_n: u64,
     sub: *const i64, nsub: u64, inside: i32, n_out: *mut u64) -> i32 {
     if handle.is_null() || n_out.is_null() {
@@ -215,10 +215,10 @@ pub unsafe extern "C" fn fylite_engine_mds_read(
 /// held, `-3` the answer is text (use `_last_text`), `-4` buffer too small.
 ///
 /// # Safety
-/// `handle` from `fylite_engine_mds_open`; `out`: `cap` doubles.
+/// `handle` from `fylite_runtime_mds_open`; `out`: `cap` doubles.
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_mds_last_f64(
+pub unsafe extern "C" fn fylite_runtime_mds_last_f64(
     handle: *mut std::ffi::c_void, out: *mut f64, cap: u64) -> i32 {
     if handle.is_null() || out.is_null() {
         return -1;
@@ -237,10 +237,10 @@ pub unsafe extern "C" fn fylite_engine_mds_last_f64(
 /// Writes the rank to `n_out`.  Same status codes as `_last_f64`.
 ///
 /// # Safety
-/// `handle` from `fylite_engine_mds_open`; `out`: `cap` u64s; `n_out` one u64.
+/// `handle` from `fylite_runtime_mds_open`; `out`: `cap` u64s; `n_out` one u64.
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_mds_last_dims(
+pub unsafe extern "C" fn fylite_runtime_mds_last_dims(
     handle: *mut std::ffi::c_void, out: *mut u64, cap: u64, n_out: *mut u64) -> i32 {
     if handle.is_null() || n_out.is_null() {
         return -1;
@@ -263,10 +263,10 @@ pub unsafe extern "C" fn fylite_engine_mds_last_dims(
 /// buffer and ask again), or `-1` on a null handle.
 ///
 /// # Safety
-/// `handle` from `fylite_engine_mds_open`; `out`: `cap` bytes.
+/// `handle` from `fylite_runtime_mds_open`; `out`: `cap` bytes.
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_mds_last_error(
+pub unsafe extern "C" fn fylite_runtime_mds_last_error(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
@@ -280,10 +280,10 @@ pub unsafe extern "C" fn fylite_engine_mds_last_error(
 /// double free, exactly as it is for any other `Box`.
 ///
 /// # Safety
-/// `handle` must come from `fylite_engine_mds_open` and not have been closed.
+/// `handle` must come from `fylite_runtime_mds_open` and not have been closed.
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_mds_close(handle: *mut std::ffi::c_void) {
+pub unsafe extern "C" fn fylite_runtime_mds_close(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {
         drop(Box::from_raw(handle as *mut mds_abi::Session));
     }
@@ -314,7 +314,7 @@ mod gfile_abi {
 /// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_parse(
+pub unsafe extern "C" fn fylite_runtime_gfile_parse(
     text: *const u8, text_n: u64, out_handle: *mut *mut std::ffi::c_void,
     err: *mut u8, err_cap: u64) -> i32 {
     if out_handle.is_null() {
@@ -337,10 +337,10 @@ pub unsafe extern "C" fn fylite_engine_gfile_parse(
 /// `nw` 与 `nh`。0 = ok。
 ///
 /// # Safety
-/// `handle` 来自 `fylite_engine_gfile_parse`；`nw`/`nh` 各一个 u64。
+/// `handle` 来自 `fylite_runtime_gfile_parse`；`nw`/`nh` 各一个 u64。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_dims(
+pub unsafe extern "C" fn fylite_runtime_gfile_dims(
     handle: *mut std::ffi::c_void, nw: *mut u64, nh: *mut u64) -> i32 {
     if handle.is_null() || nw.is_null() || nh.is_null() {
         return -1;
@@ -357,7 +357,7 @@ pub unsafe extern "C" fn fylite_engine_gfile_dims(
 /// `handle` 来自 parse；`out`: `cap` 个 f64。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_scalars(
+pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
     handle: *mut std::ffi::c_void, out: *mut f64, cap: u64) -> i32 {
     if handle.is_null() || out.is_null() {
         return -1;
@@ -378,7 +378,7 @@ pub unsafe extern "C" fn fylite_engine_gfile_scalars(
 /// `handle` 来自 parse；`name`: `name_n` 字节；`out`: `cap` 个 f64。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_array(
+pub unsafe extern "C" fn fylite_runtime_gfile_array(
     handle: *mut std::ffi::c_void, name: *const u8, name_n: u64,
     out: *mut f64, cap: u64) -> i64 {
     if handle.is_null() {
@@ -399,7 +399,7 @@ pub unsafe extern "C" fn fylite_engine_gfile_array(
 /// `handle` 来自 parse；`out`: `cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_header(
+pub unsafe extern "C" fn fylite_runtime_gfile_header(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
@@ -414,7 +414,7 @@ pub unsafe extern "C" fn fylite_engine_gfile_header(
 /// `handle` 来自 parse；`out`: `cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_format(
+pub unsafe extern "C" fn fylite_runtime_gfile_format(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
@@ -429,7 +429,7 @@ pub unsafe extern "C" fn fylite_engine_gfile_format(
 /// `handle` 来自 parse，且未被释放过。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_gfile_free(handle: *mut std::ffi::c_void) {
+pub unsafe extern "C" fn fylite_runtime_gfile_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {
         drop(Box::from_raw(handle as *mut gfile_abi::GFile));
     }
@@ -498,7 +498,7 @@ mod doc_abi {
 /// `path`: `path_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_read(
+pub unsafe extern "C" fn fylite_runtime_read(
     path: *const u8, path_n: u64, out_handle: *mut *mut std::ffi::c_void,
     err: *mut u8, err_cap: u64) -> i32 {
     if out_handle.is_null() {
@@ -524,7 +524,7 @@ pub unsafe extern "C" fn fylite_engine_read(
 /// `text`: `text_n` 字节；`format`: `format_n` 字节；其余同 `_read`。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_read_text(
+pub unsafe extern "C" fn fylite_runtime_read_text(
     text: *const u8, text_n: u64, format: *const u8, format_n: u64,
     out_handle: *mut *mut std::ffi::c_void, err: *mut u8, err_cap: u64) -> i32 {
     if out_handle.is_null() {
@@ -559,7 +559,7 @@ pub unsafe extern "C" fn fylite_engine_read_text(
 /// `out_handle` 一个指针。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_bundle_new(out_handle: *mut *mut std::ffi::c_void) -> i32 {
+pub unsafe extern "C" fn fylite_runtime_bundle_new(out_handle: *mut *mut std::ffi::c_void) -> i32 {
     if out_handle.is_null() {
         return -1;
     }
@@ -576,7 +576,7 @@ pub unsafe extern "C" fn fylite_engine_bundle_new(out_handle: *mut *mut std::ffi
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_write(
+pub unsafe extern "C" fn fylite_runtime_write(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64,
     format: *const u8, format_n: u64, layout: *const u8, layout_n: u64,
     err: *mut u8, err_cap: u64) -> i32 {
@@ -620,7 +620,7 @@ pub unsafe extern "C" fn fylite_engine_write(
 /// `path`: `path_n` 字节；`out`: `cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_detect(path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
+pub unsafe extern "C" fn fylite_runtime_detect(path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
     let Some(p) = mds_abi::s(path, path_n) else { return -1 };
     match crate::io::detect(std::path::Path::new(p)) {
         Ok(d) => mds_abi::put(&format!("{} {}", d.format.name(), d.layout.name()), out, cap),
@@ -635,7 +635,7 @@ pub unsafe extern "C" fn fylite_engine_detect(path: *const u8, path_n: u64, out:
 /// `handle` 来自 `_read`；`out`: `cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_bundle_json(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
+pub unsafe extern "C" fn fylite_runtime_bundle_json(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
     }
@@ -649,7 +649,7 @@ pub unsafe extern "C" fn fylite_engine_bundle_json(handle: *mut std::ffi::c_void
 /// 同 `_bundle_json`。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_bundle_keys(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
+pub unsafe extern "C" fn fylite_runtime_bundle_keys(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
     }
@@ -664,7 +664,7 @@ pub unsafe extern "C" fn fylite_engine_bundle_keys(handle: *mut std::ffi::c_void
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_doc_json(
+pub unsafe extern "C" fn fylite_runtime_doc_json(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
@@ -685,7 +685,7 @@ pub unsafe extern "C" fn fylite_engine_doc_json(
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_doc_array(
+pub unsafe extern "C" fn fylite_runtime_doc_array(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64,
     out: *mut f64, cap: u64, dims: *mut u64, dims_cap: u64, ndim_out: *mut u64) -> i64 {
     if handle.is_null() || ndim_out.is_null() {
@@ -716,7 +716,7 @@ pub unsafe extern "C" fn fylite_engine_doc_array(
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`json`: `json_n` 字节。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_doc_set_json(
+pub unsafe extern "C" fn fylite_runtime_doc_set_json(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, json: *const u8, json_n: u64) -> i32 {
     if handle.is_null() {
         return -1;
@@ -740,7 +740,7 @@ pub unsafe extern "C" fn fylite_engine_doc_set_json(
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_doc_set_array(
+pub unsafe extern "C" fn fylite_runtime_doc_set_array(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64,
     data: *const f64, dims: *const u64, ndim: u64) -> i32 {
     if handle.is_null() || data.is_null() {
@@ -761,7 +761,7 @@ pub unsafe extern "C" fn fylite_engine_doc_set_array(
 /// 两个句柄都来自 `_read`/`_bundle_new`。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_bundle_merge(
+pub unsafe extern "C" fn fylite_runtime_bundle_merge(
     dst: *mut std::ffi::c_void, src: *mut std::ffi::c_void, policy: i32) -> i32 {
     if dst.is_null() || src.is_null() {
         return -1;
@@ -784,7 +784,7 @@ pub unsafe extern "C" fn fylite_engine_bundle_merge(
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_assemble(
+pub unsafe extern "C" fn fylite_runtime_assemble(
     path: *const u8, path_n: u64, params: *const u8, params_n: u64, user: *const u8, user_n: u64, timeout_ms: i32,
     out_handle: *mut *mut std::ffi::c_void, err: *mut u8, err_cap: u64) -> i32 {
     if out_handle.is_null() {
@@ -813,14 +813,14 @@ pub unsafe extern "C" fn fylite_engine_assemble(
 
 /// 从装置清单（fydata `machine.yaml`）取一炮的若干 IDS：几何 + MDSplus 绑定，按 `params`
 /// 的 `shot` / `time` 开窗。`ids` 逗号分隔；`provider` 可空（取清单的缺省）；`host` 可空
-/// （用绑定文档里的），`port <= 0` 同理。返回码同 `fylite_engine_assemble`；`-2` 读不到清单。
+/// （用绑定文档里的），`port <= 0` 同理。返回码同 `fylite_runtime_assemble`；`-2` 读不到清单。
 ///
 /// # Safety
 /// 各 `(ptr, n)` 对是 `n` 字节的 UTF-8；`out_handle` 一个指针；`err`: `err_cap`。
 #[cfg(all(feature = "mdsip", not(target_arch = "wasm32")))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
-pub unsafe extern "C" fn fylite_engine_fetch(
+pub unsafe extern "C" fn fylite_runtime_fetch(
     manifest: *const u8, manifest_n: u64, ids: *const u8, ids_n: u64, params: *const u8, params_n: u64,
     provider: *const u8, provider_n: u64, host: *const u8, host_n: u64, port: i32,
     user: *const u8, user_n: u64, timeout_ms: i32,
@@ -877,7 +877,7 @@ fn report_text(r: &crate::assembly::Assembled) -> String {
 /// `handle` 来自 `_read`/`_bundle_new`/`_assemble`，且未被释放过。
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
-pub unsafe extern "C" fn fylite_engine_bundle_free(handle: *mut std::ffi::c_void) {
+pub unsafe extern "C" fn fylite_runtime_bundle_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {
         drop(Box::from_raw(handle as *mut doc_abi::Handle));
     }

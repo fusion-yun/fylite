@@ -38,7 +38,7 @@ def d():
 
 
 def _record(datasets: dict, *, run_state="succeeded") -> dict:
-    """一份记录的形，与 `fylite case run` 写的同一套（`rust/fylite_engine/src/case.rs`）。"""
+    """一份记录的形，与 `fylite case run` 写的同一套（`rust/fylite_runtime/src/case.rs`）。"""
     return {"id": "run/test", "type": "spo:ComputationRecord", "run_state": run_state,
             "inputs": [{"type": "spo:PortBinding",
                         "binds_port": {"type": "spo:Port", "port_name": port,
@@ -144,7 +144,7 @@ def test_the_product_path_judges_a_file_on_disk(d):
     """★这一条在没有内核的检出里也该跑得动——否则整册只剩「未评估」。"""
     from fylite import kernel
     if kernel.load_data() is None:
-        pytest.skip("libfylite_engine.so not built (rust/build.sh)")
+        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
     e = sc.entry("equilibrium-gfile", d)
     row = sc.run_entry(e)
     assert row["state"] == ph.PASS, row.get("refused") or row["results"]
