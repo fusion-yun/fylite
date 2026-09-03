@@ -1,18 +1,18 @@
 ---
-title: 物理与数值 · 平衡重构的反问题 (Physics & Numerics — Equilibrium Reconstruction)
-subtitle: inverse.rs —— 外层 Picard、内层约束线性最小二乘、基函数、约束行族与截断谱正则化
+title: 平衡重构的反问题 (Equilibrium Reconstruction)
+subtitle: 外层 Picard、内层约束线性最小二乘、基函数、约束行族与截断谱正则化
 ---
 
 (phys03-intro)=
 # 引言：反问题的结构 (Introduction)
 
-〔范围〕本章详述 `inverse.rs`（约 2400 行）实现的**磁测量约束平衡重构**：给定磁通环 / 磁探针
+〔范围〕本章详述**磁测量约束的平衡重构**：给定磁通环 / 磁探针
 读数、线圈电流（可带 σ 先验）、总电流 $I_p$，以及可选的动理学压强点、磁面平均电流约束与
 径向锚，反求 $p'(\bar\psi)$、$FF'(\bar\psi)$ 的多项式系数与 $\psi(R,Z)$。它复用
 {ref}`phys02-intro` 的全部正解原语（离散 $\Delta^{\ast}$、边界判定、Green 边界），只**替换电流源**。
 
-〔结构〕〔源码〕模块头部声明所采用的是 Lao 等 1985 年发表的结构 {cite}`lao1985efit`：
-**外层** Picard 迭代更新平衡，**内层**对 $p'$、$FF'$ 的多项式系数作**线性**最小二乘拟合，
+〔结构〕〔实现〕模块头部声明所采用的是 Lao 等 1985 年发表的结构 {cite}`lao1985efit`：
+**外层** Picard 迭代更新平衡，**内层**对 $p'$、$FF'$ 的多项式系数作线性最小二乘拟合，
 以总电流为**等式约束**。同一头部声明清洁室纪律（作者未读 EFIT 源码；验收为黑箱：同通道
 拟合优度在 Fortran 路径的 10 % 内、标量差在 K-12 后验 1σ 内）。
 
@@ -25,20 +25,20 @@ $\beta_p+\ell_i/2$（Shafranov 积分）{cite}`shafranov1971determination`〔凭
 (phys03-basis)=
 # 基函数与电流列 (Basis Functions and the Current Columns)
 
-〔边缘零化约化多项式基〕〔源码〕以 $x=\bar\psi\in[0,1]$，
+〔边缘零化约化多项式基〕〔实现〕以 $x=\bar\psi\in[0,1]$，
 
 $$
 \phi^{p}_k(x)=x^k-x^{n_{pp}}\ (k=0,\dots,n_{pp}-1),\qquad
 \phi^{F}_k(x)=x^k-x^{n_{ff}}\ (k=0,\dots,n_{ff}-1)
 $$ (eq-p03-basis)
 
-由构造 $p'(1)=FF'(1)=0$。源码注：这对应 EFIT 公开输入 `PCURBD = FCURBD = 1` 的缺省；
-`KPPCUR=2 / KFFCUR=3` ⇒ $n_{pp}=1$、$n_{ff}=2$（Python 缺省）。**为什么需要边缘条件**：源码记录
+由构造 $p'(1)=FF'(1)=0$。实现注：这对应 EFIT 公开输入 `PCURBD = FCURBD = 1` 的缺省；
+`KPPCUR=2 / KFFCUR=3` ⇒ $n_{pp}=1$、$n_{ff}=2$（Python 缺省）。**为什么需要边缘条件**：实现记录
 "无此条件时纯磁通环拟合退化——实测条件数 $8\times10^{16}$、系数 $\pm10^8$"。环境变量
 `FY_EDGE_FREE(_FF)` 可切回裸幂基 $x^k$（理由：Fortran 路径自己的边缘 $p'$ 非零，$+1.57\times10^4$，
 为轴值的 17 %）。
 
-〔基电流列〕〔源码〕每个基函数在每个掩膜格上的"单位系数电流"
+〔基电流列〕〔实现〕每个基函数在每个掩膜格上的"单位系数电流"
 
 $$
 b^{p}_k(\text{cell})=R\,\phi^p_k(x)\,\Delta A,\qquad
@@ -51,7 +51,7 @@ $$ (eq-p03-cols)
 (phys03-rows)=
 # 设计矩阵的行族 (The Row Families of the Design Matrix)
 
-〔行序〕〔源码〕每轮外迭代在当前掩膜上重装：磁类行（$n_{\rm loops}$）· 压强行（$n_p$）·
+〔行序〕〔实现〕每轮外迭代在当前掩膜上重装：磁类行（$n_{\rm loops}$）· 压强行（$n_p$）·
 两条软边缘零先验 · 每个拟合线圈一条先验 · 磁面平均电流行（$n_j$）· 径向锚行。
 
 (phys03-rows-mag)=
@@ -63,18 +63,18 @@ b_d=\text{meas}_d-\texttt{meas\_scale}\cdot(\text{规定电流 } j_{\rm pre}\tex
 $$ (eq-p03-magrow)
 
 $M_d$ 为通道 $d$ 对格点单位电流的响应（{ref}`phys12-em`）；权重 `wts`，0 表示屏蔽。
-〔源码〕`meas_scale` 是"EFIT 的 Wb/rad 符号 $-1/(2\pi)$，由 Python 提供"；Python 层实际传
+〔实现〕`meas_scale` 是"EFIT 的 Wb/rad 符号 $-1/(2\pi)$，由 Python 提供"；Python 层实际传
 $+1/(2\pi)$（"环约定：+全磁通 / 2π"）并把探针行（特斯拉）预乘 $2\pi$，使其经共同缩放后仍以
-自身单位出现。〔观测算子〕〔已确立〕磁类观测对电流**线性**，其雅可比就是 Green 响应阵——
+自身单位出现。〔观测算子〕〔已确立〕磁类观测对电流线性，其雅可比就是 Green 响应阵——
 这是"正反共用一核"的依据（`GK-TMT-09`，跨仓）。
 
-〔线圈列〕〔源码〕`CoilObs`：$A_{d,n_c+f}=\text{rows}[d,\text{ch}]$，**不**乘 `meas_scale`（"线圈响应行就是
+〔线圈列〕〔实现〕`CoilObs`：$A_{d,n_c+f}=\text{rows}[d,\text{ch}]$，不乘 `meas_scale`（"线圈响应行就是
 通道本身，每安培"）；每个拟合线圈一条先验行 $(\texttt{meas\_sigma}/\sigma_c)\,\Delta I_c=0$
 ——先验权重是 $1/\sigma_c$ 缩放进测量权重所处的公共规范；$\sigma_c\le0$ 或非有限的通道**精确
 保持**。每轮 $\psi_{ext,\rm eff}=\psi_{ext}+\sum_c\Delta I_c\psi_c$。
 
 :::{important}
-〔两个 σ 的问题〕〔源码 / 用户指南保真度章〕加权最小二乘只有在 $w=1/\sigma$ 时才是后验；本仓
+〔两个 σ 的问题〕〔实现 / 用户指南保真度章〕加权最小二乘只有在 $w=1/\sigma$ 时才是后验；本仓
 卷宗给的磁通环权重是 0/1 掩膜，等于宣称 $\sigma_{\rm loop}=1$ Wb/rad。对着一条百分之几的线圈
 先验，这等于说"磁通环不值钱"——实测 20 % 的线圈先验只把电流挪了 $3\times10^{-4}$。故
 `meas_sigma`（"权重 1.0 代表多大的测量误差"）是**必须由读者给出**的参数，不是可省的缺省。
@@ -83,7 +83,7 @@ $+1/(2\pi)$（"环约定：+全磁通 / 2π"）并把探针行（特斯拉）预
 (phys03-rows-pressure)=
 ## 压强行 (Pressure Rows)
 
-〔源码〕给定动理学压强点 $p(x_j)$，以 $p(x)=-\text{span}_{pr}\int_x^1p'(t)\dd t$、
+〔实现〕给定动理学压强点 $p(x_j)$，以 $p(x)=-\text{span}_{pr}\int_x^1p'(t)\dd t$、
 $\text{span}_{pr}=(\psi_b-\psi_a)/(-2\pi)$：
 
 $$
@@ -91,7 +91,7 @@ A_{j,k}=-\text{span}_{pr}\,[I_k(x_j)-I_{\rm top}(x_j)],\qquad
 I_k(x)=\frac{1-x^{k+1}}{k+1},\quad I_{\rm top}(x)=\frac{1-x^{n_{pp}+1}}{n_{pp}+1}
 $$ (eq-p03-prow)
 
-$FF'$ 列为零。源码逐字记录了符号翻转一次又回退的历史（2026-08-14），判据是在此规范下 $p'$
+$FF'$ 列为零。实现逐字记录了符号翻转一次又回退的历史（2026-08-14），判据是在此规范下 $p'$
 应为负（$p'(\text{axis})=-5.90\times10^4$ 对 EFIT 自身 $-9.4\times10^4$）。Python：
 $w_p=1/(0.05\max\abs{p})$（`pressure_sigma_frac = 0.05`），缺省 9 个点落在 $[0.1,0.9]$。
 〔出处〕以动理学压强约束 $p'$ 是 Lao 等 1990 年的"kinetic EFIT"路线 {cite}`lao1990equilibrium`〔凭记忆〕。
@@ -99,7 +99,7 @@ $w_p=1/(0.05\max\abs{p})$（`pressure_sigma_frac = 0.05`），缺省 9 个点落
 (phys03-rows-fsa)=
 ## 磁面平均电流行 (Flux-Surface-Averaged Current Rows)
 
-〔测度〕〔源码〕`fsa_current_row` 实现 EFIT 公开开关 `KZEROJ/SIZEROJ/VZEROJ`（`RZEROJ = 0`）
+〔测度〕〔实现〕`fsa_current_row` 实现 EFIT 公开开关 `KZEROJ/SIZEROJ/VZEROJ`（`RZEROJ = 0`）
 的测度：$p'$、$FF'$ 在一个磁面上为常数，故
 
 $$
@@ -109,7 +109,7 @@ $$
 \text{raw}_{j,n_{pp}+k}=\frac{\phi^F_k(x_j)\expval{R^{-2}}}{\mu_0\expval{R^{-1}}}
 $$ (eq-p03-fsa)
 
-$\expval\cdot$ 由 `surfaces::surface_integrals`（权重 $R\,\dd l/\abs{\nabla\psi}$，{ref}`phys04-fsa`）在
+$\expval\cdot$ 由 `surface_integrals`（权重 $R\,\dd l/\abs{\nabla\psi}$，{ref}`phys04-fsa`）在
 $\psi_a+x\,\text{span}$ 处描迹的等值线（64 条射线）上求得。**行作为形状施加**：
 $A_j=\text{raw}_j-v_j\cdot\overline{\text{raw}}$、$b_j=0$、权重 `wj`——"齐次、线性，幅值完全留给 $I_p$ 等式"。
 描不出的磁面权重置零并计入 `fsa_rows_used`。Python 记录可用权重带 $10^{-7}\dots10^{-3}$；权重 1
@@ -121,14 +121,14 @@ $A_j=\text{raw}_j-v_j\cdot\overline{\text{raw}}$、$b_j=0$、权重 `wj`——"�
 (phys03-rows-anchor)=
 ## 径向锚行与边缘先验 (Radial Anchor and Edge Priors)
 
-〔源码〕径向锚（2026-08-31 起缺省；`ANCHOR_W_DEFAULT = 10.0` $=1/\sigma_R$，$\sigma_R=0.1$ m）：
+〔实现〕径向锚（2026-08-31 起缺省；`ANCHOR_W_DEFAULT = 10.0` $=1/\sigma_R$，$\sigma_R=0.1$ m）：
 
 $$
 A_{rc,k}=\sum_{\rm cells}(R-R_{\rm anchor})\,b_k/I_p,\qquad b=0
 $$ (eq-p03-anchor)
 
 即 $\sum_{\rm cells}(R-R_{\rm anchor})j\,\dd A=0$ ⇔ 电流质心 $=R_{\rm anchor}$。**垂直**锚刻意保留
-为反馈**力**而非最小二乘行：源码实测"一条最小二乘行不能阻止逃逸（磁轴走到 $+96.7$ mm）"。
+为反馈**力**而非最小二乘行：实现实测"一条最小二乘行不能阻止逃逸（磁轴走到 $+96.7$ mm）"。
 边缘零软先验（全 1 行，权重 `FY_EDGE_WP/WF`，缺省 0 即惰性）。
 
 〔$I_p$ 等式〕$g_k=\sum_{\rm cells}b_k(\text{cell})$（线圈列为 0），目标 $I_p-I_{\rm pre}$。
@@ -136,13 +136,13 @@ $$ (eq-p03-anchor)
 (phys03-lstsq)=
 # 约束最小二乘：列均衡 + 截断谱 + Lagrange 消元 (The Constrained Least-Squares Solve)
 
-〔问题〕$\min\norm{W(Ac-b)}^2$ s.t. $g\cdot c=I_p$。〔源码〕`constrained_lstsq(_h)` 的实现：
+〔问题〕$\min\norm{W(Ac-b)}^2$ s.t. $g\cdot c=I_p$。〔实现〕`constrained_lstsq(_h)` 的实现：
 
 1. 正规方程 $N=A^TW^2A$、$r=A^TW^2b$（$w=0$ 的行跳过）。
-2. **列均衡** $S=\mathrm{diag}(N_{ii}^{-1/2})$，$\tilde N=SNS$（单位对角）——源码理由："$p'$ 与 $FF'$ 列
+2. **列均衡** $S=\mathrm{diag}(N_{ii}^{-1/2})$，$\tilde N=SNS$（单位对角）——实现理由："$p'$ 与 $FF'$ 列
    相差约 $10^6$ 量级"。〔已确立〕对角缩放是改善条件数的标准预处理 {cite}`golub2013matrix`。
 3. 循环 Jacobi 特征分解（{ref}`phys01-linalg`），特征值降序。
-4. **截断**：丢弃 $\lambda<\lambda_{\max}/\texttt{CONDIN}$，`CONDIN = 1.0e8`（源码："EFIT 的 `CONDIN`
+4. **截断**：丢弃 $\lambda<\lambda_{\max}/\texttt{CONDIN}$，`CONDIN = 1.0e8`（实现："EFIT 的 `CONDIN`
    输入所起的角色（公开开关名；数值由此处实验选定，不取自受限源码）"；`FY_CONDIN` 可覆盖）。
    **保留数带滞回**（`n_keep` 跨外迭代持久）：一个模只有高于 $3\times$ 截断才进入、低于
    $\text{截断}/3$ 才退出——无记忆截断"一步之内旋转系数向量……0.3 松弛的场吃到 30 % span 的踢"。
@@ -154,15 +154,15 @@ $$ (eq-p03-anchor)
 截断必要的原因，也是 {ref}`phys14-fit` 剖面拟合改走 SVD 的原因；(ii) 步 3–5 等价于对 $\tilde N$
 的**截断特征分解正则化**，与截断 SVD 属同一族 {cite}`hansen1998rank`；(iii) 等式约束的 Lagrange
 消元与"两次求解再线性组合"的写法是约束最小二乘的教科书路线 {cite}`lawson1974solving,bjorck1996numerical`。
-源码对 3–5 未给文献，只给 EFIT 开关名。
+实现对 3–5 未给文献，只给 EFIT 开关名。
 
-〔实测〕〔源码〕EAST #137985 上 `FY_CONDIN=1e7` 时 (3,4) 基给 $q_0$ 对参考 $+2.6\%$（缺省基
+〔实测〕〔实现〕EAST #137985 上 `FY_CONDIN=1e7` 时 (3,4) 基给 $q_0$ 对参考 $+2.6\%$（缺省基
 $-47.1\%$），"阈值在 $3\times10^7$ 与 $10^7$ 之间"，代价 $\Delta R$ $-6.4\to-17.3$ mm。
 
 (phys03-outer)=
 # 外层迭代 (The Outer Iteration)
 
-〔源码〕`solve_inverse_coils`（`solve_inverse` 是 `coil=None` 的封装）每轮：
+〔实现〕`solve_inverse_coils`（`solve_inverse` 是 `coil=None` 的封装）每轮：
 
 1. **磁轴**：真空室内（有等离子体后限于上轮电流支撑 ±2 格膨胀）$s\psi$ 极大节点 + 亚网格牛顿
    修正（{eq}`eq-p02-axis`）。
@@ -188,7 +188,7 @@ $-47.1\%$），"阈值在 $3\times10^7$ 与 $10^7$ 之间"，代价 $\Delta R$ $
 结果：`psi, coefs, psi_axis, psi_bnd, axis_r, axis_z, ip, iterations, residual, bnd_kind, fb_amp, fb_amp_r, coil_delta, coil_pull = max|ΔI_c|/σ_c, fsa_rows_used, trunc_keep`。
 Python 缺省：`npp=1, nff=2, relax=0.3, max_iter=800, tol=1e-9, fb_gain=8.0, warmup=40`。
 
-〔真空室涡流〕〔源码 / Python〕可选把 $n_{\rm ves}$（EAST 40）段真空室电流作为零均值通道
+〔真空室涡流〕〔实现 / Python〕可选把 $n_{\rm ves}$（EAST 40）段真空室电流作为零均值通道
 一并拟合（先验 `vessel_sigma`，`meas_sigma = median(PSIBIT)`），可截到极向谐波
 $1,\cos m\theta,\sin m\theta$（`vessel_modes`）；文档化的**否定结果**："剩余残差不是缺失的被动电流"。
 用户指南保真度章的实测：只有磁通环时真空室涡流的可辨识份额为 5.6 %；加 79 个探针后升到
@@ -197,7 +197,7 @@ $1,\cos m\theta,\sin m\theta$（`vessel_modes`）；文档化的**否定结果**
 (phys03-post)=
 # 后处理闭式 (Post-Processing Closed Forms)
 
-〔源码〕由拟合系数得剖面（`surfaces.rs`、`recon_rs.fit_profiles`）：
+〔实现〕由拟合系数得剖面（磁面描迹层、`recon_rs.fit_profiles`）：
 
 $$
 A(x)=\sum_kc^F_k\left[\frac{1-x^{k+1}}{k+1}-\frac{1-x^{n_{ff}+1}}{n_{ff}+1}\right],\qquad
@@ -209,7 +209,7 @@ p(x)=-\text{span}_{pr}\sum_kc^p_k\,[I_k(x)-I_{\rm top}(x)],\qquad \text{span}_{p
 $$ (eq-p03-p)
 
 〔已确立〕{eq}`eq-p03-F` 即 $\dv{}{\psi}\big(\tfrac12F^2\big)=FF'$ 自边界向内积分；$R_0$ 取装置
-`RCENTR`（EAST 1.75 m；源码记录旧字面量 1.85 m 给 $q$ 带来 5.7 % 误差）。
+`RCENTR`（EAST 1.75 m；实现记录旧字面量 1.85 m 给 $q$ 带来 5.7 % 误差）。
 
 (phys03-limits)=
 # 适用域与失效条件 (Applicability & Failure Modes)
@@ -218,7 +218,7 @@ $$ (eq-p03-p)
    （用户指南保真度章："基的表达力，不是噪声"）；须加压强或 FSA 行（{ref}`phys03-rows-pressure`、
    {ref}`phys03-rows-fsa`）。
 2. **线圈电流逐道不可辨识**：一圈磁通环只看到外部线圈的几个低阶多极矩；拟合只对**真空场**负责。
-   源码测试因此在**场空间**断言而非逐道。
+   实现测试因此在**场空间**断言而非逐道。
 3. **两个 σ**：`meas_sigma` 与 $\sigma_c$ 必须同时给出（{ref}`phys03-rows-mag`）。
 4. **结果不是 σ 的光滑函数**：边缘时片的 Picard 迭代是混沌的，$10^{-16}$ 的输入差可把解送到
    另一处（保真度章实测 5–9/9 片跳变）。判据须按此设计（"钉在 7，因为判据就是 7"）。
@@ -250,21 +250,20 @@ $$ (eq-p03-p)
 :::
 
 (phys03-asbuilt)=
-# 与内核的对应 (Correspondence to the Kernel)
+# 与 fyo 的对应 (Correspondence to fyo)
 
-:::{table} 反演内容与内核函数、C-ABI、Python 入口的对应（2026-09-02 快照）。
+:::{table} 反演三档约束各自消费的测量与产出。
 :name: tbl-p03-asbuilt
 :align: left
 
-| 本章内容 | 内核函数（`inverse.rs`） | C-ABI（`fylite_rs_*`） | Python |
-| :--- | :--- | :--- | :--- |
-| 磁行 + $I_p$ 等式的反演 | `solve_inverse` | `gs_inverse_solve`（out12） | `fylite.kernel.gs_inverse_solve`；`S.analysis.reconstruction` |
-| + FSA 电流行 | `solve_inverse_coils`（FSA 三元组） | `gs_inverse_solve_fsa`（out12[8] = `fsa_rows_used`） | `recon_rs.reconstruct(fsa=…)` |
-| + 线圈作为带 σ 的观测量 | `solve_inverse_coils`（`CoilObs`） | `gs_inverse_solve_coils`（out12[8] = `coil_pull`，`coil_out = i0 + ΔI`；`-8`） | `recon_rs.reconstruct(coil_sigma=…)` |
-| 约束最小二乘 | `constrained_lstsq(_h)` | —（内部） | — |
-| 压强行 / FSA 行 | `pressure_row`, `fsa_current_row` | —（内部） | `S.analysis.profit` 供压强点 |
-| 后处理 $F$、$p$ | `surfaces.rs`（闭式） | — | `recon_rs.fit_profiles` |
-| 自洽外环（自举回灌） | — | `gs_inverse_solve` 的 `j_pre` | `scenario.analysis.loop`（{ref}`phys07-intro`） |
+| 内容 | 结果落在 fyo 的哪里 | Python 入口 |
+| :--- | :--- | :--- |
+| 磁行 + $I_p$ 等式的反演 | 读 `fyo:magnetics`（磁通环、磁探针）→ 出 `fyo:equilibrium` | `fylite.kernel.gs_inverse_solve`；`S.analysis.reconstruction` |
+| ＋ 磁面平均电流行 | 同上，另受 `fyo:core_profiles` 的电流密度约束 | `recon_rs.reconstruct(fsa=…)` |
+| ＋ 线圈作为带 $\sigma$ 的观测量 | 同上，另读写 `fyo:pf_active` 的线圈电流（拟合后回写） | `recon_rs.reconstruct(coil_sigma=…)` |
+| 约束最小二乘、压强行 / 电流行 | —（反演内部的行装配） | `S.analysis.profit` 供压强点 |
+| 后处理 $F$、$p$ | `fyo:equilibrium` 的 `profiles_1d` | `recon_rs.fit_profiles` |
+| 自洽外环（自举回灌） | `fyo:equilibrium` ↔ `fyo:core_transport` 往复 | `scenario.analysis.loop`（{ref}`phys07-intro`） |
 :::
 
 (phys03-sources)=
@@ -274,14 +273,14 @@ $$ (eq-p03-p)
 DIII-D 重构综述与动理学约束 {cite}`lao2005efit,lao1990equilibrium`；磁测量的信息极限
 {cite}`shafranov1971determination`；截断谱正则化 {cite}`hansen1998rank`；约束最小二乘
 {cite}`lawson1974solving,bjorck1996numerical`；缩放预处理 {cite}`golub2013matrix`；磁诊断原理
-{cite}`hutchinson2002principles`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references-physics.bib` 的 `note`（{ref}`phys00-evidence`）。
+{cite}`hutchinson2002principles`。标 〔凭记忆〕 者为编者补出的对应，条目字段的核验状态见 `references.bib` 的 `note`（{ref}`phys00-evidence`）。
 
 〔转引〕EFIT 的公开开关名（`CONDIN`、`KPPCUR/KFFCUR`、`PCURBD/FCURBD`、`KZEROJ/SIZEROJ/VZEROJ/RZEROJ/FWTXXJ`、
-`PSIBIT`、`FWTSI/FWTMP2`）按 Lao 等的公开文献与 EFIT 用户文档口径引用，**不**引用其源码；本模块
-的作者未读该源码（清洁室声明）。与 LIUQE {cite}`moret2015liuqe`、NICE {cite}`faugeras2020nice`
+`PSIBIT`、`FWTSI/FWTMP2`）按 Lao 等的公开文献与 EFIT 用户文档口径引用，不引用其源码；本模块
+的作者未读该实现（清洁室声明）。与 LIUQE {cite}`moret2015liuqe`、NICE {cite}`faugeras2020nice`
 的范式比较见 `GK-TMT-02` / `GK-TMT-05`（跨仓）。
 
-〔本仓选择（源码未注出处）〕边缘零化约化基 $x^k-x^n$ 的写法；列均衡 + 截断特征分解 +
+〔本仓选择（实现未注出处）〕边缘零化约化基 $x^k-x^n$ 的写法；列均衡 + 截断特征分解 +
 $3\times/\div3$ 滞回；`CONDIN = 10^8`；FSA 行作为形状（去均值）施加；径向锚作为最小二乘行而垂直锚
 作为力；热身解析族 $(\beta_0,e_{mp},e_{np})=(0.55,1,1)$ 与 40 轮 / 50 轮交接；系数松弛 0.3。
 其证据是 {numref}`tbl-p03-verify` 与用户指南保真度章的实测，不是文献。
