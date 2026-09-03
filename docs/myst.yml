@@ -7,6 +7,11 @@
 # 一本书没有这个问题：根就是这本书，`INDEX.md` 就是它的封面，三个原来的「书」变成
 # 三个部分，各自的 toc 原样并进来。
 #
+# ★★今天是**五篇**：那三部分里长到自成一篇的两块先后被提出来——`physics/`
+# （2026-09-02，从 `reference/`）与 `examples/`（2026-09-03，从 `guide/`）。判据是同一条：
+# 一块内容答的是**另一个问题**、篇幅又与母篇其余部分相当，它就该是一篇，而不是母篇
+# 目录里的第三级。
+#
 # ★于是**三份子 `myst.yml` 已删**：一本书只有一个目录源。仍在各目录里的
 # `guide/public.yml` 是另一件事——它点名「哪几篇随浏览器演示公开发布」，由
 # `tools/build-guide.sh` / `tools/make-guide-pages.mjs` 读，与本文件的 toc 互不替代
@@ -51,41 +56,54 @@ project:
     - file: INDEX.md
 
     - title: 用户指南 (Guide) —— 怎么用，结果怎么读
-      #: ★分组按**读者要什么**排，不按「随不随演示发布」排。后者是另一件事，由
+      #: ★★2026-09-03 **拍平**：此前这里是三个小标题（装起来跑起来 / 会算什么怎么给
+      #: 输入 / 典型算例）套着十九页。第三组已经离开——它成了单独一篇「典型算例」，
+      #: 与 `physics/` 同一个理由（自成一篇的东西不该寄在别人下面）。剩下的十四页
+      #: 是**一条读下去的线**：装 → 跑 → 三个宿主各怎么用 → 结果怎么读 → 逐个主题。
+      #: 一条线不需要小标题分段，分了反而要读者先选组再选章。
+      #:
+      #: ★分组曾经按**读者要什么**排，不按「随不随演示发布」排。后者是另一件事，由
       #: `guide/public.yml` 单独点名——两者一旦合成一条规则，往 guide/ 加一篇仓内
-      #: 章节就会静默地把它发布出去。
+      #: 章节就会静默地把它发布出去。这条仍然成立，且与拍平无关。
       children:
         - file: guide/index.md
-        - title: 装起来、跑起来 (Install & Run)
-          children:
-            - file: guide/install.md
-            - file: guide/quickstart.md
-            - file: guide/browser.md
-            - file: guide/python.md
-            - file: guide/reading-results.md
-        - title: 会算什么、怎么给输入 (What It Computes)
-          children:
-            - file: guide/limits.md
-            - file: guide/input-modes.md
-            - file: guide/constraints.md
-            - file: guide/forward-and-evolution.md
-            - file: guide/reconstruction.md
-            - file: guide/stability-and-control.md
-        - title: 典型算例 (Worked Examples · 一族一章，逐条可跑)
-          children:
-            - file: guide/cases.md
-            - file: guide/example-zerod.md
-            - file: guide/example-transport.md
-            - file: guide/example-evolve.md
-            - file: guide/example-design.md
-            - file: guide/example-reconstruction.md
+        - file: guide/install.md
+        - file: guide/quickstart.md
+        - file: guide/cli.md
+        - file: guide/python.md
+        - file: guide/browser.md
         - file: guide/browser-app.md
+        - file: guide/reading-results.md
+        - file: guide/limits.md
+        - file: guide/input-modes.md
+        - file: guide/constraints.md
+        - file: guide/forward-and-evolution.md
+        - file: guide/reconstruction.md
+        - file: guide/stability-and-control.md
+
+    - title: 典型算例 (Worked Examples) —— 一族一章，逐条可跑
+      #: ★★2026-09-03 从 `guide/` 提上来单独成篇（`physics/` 前一天走的同一条路）：
+      #: 五族算例加一页语料目录，每章的命令与数字都是在本仓实测的，答的是「照抄一条
+      #: 完整路径」而不是「怎么用」。文件名里那六个 `example-` 前缀随之去掉——目录名
+      #: 已经说了，`guide/cases.md` 则成了本篇的 `index.md`。
+      children:
+        - file: examples/index.md
+        - file: examples/zerod.md
+        - file: examples/transport.md
+        - file: examples/evolve.md
+        - file: examples/design.md
+        - file: examples/reconstruction.md
 
     - title: 参考 (Reference) —— 一个数能不能用，凭什么
       children:
         - file: reference/fidelity.md
         - file: reference/kernels.md
         - file: reference/api.md
+        #: ★命令行从 `api.md` 的一节提成一章：它是另一个面（十四条命令、三个宿主
+        #: 共用一份定义），而 `api.md` 答的是「Python 里从哪进去」。数据层再从命令行
+        #: 里单开一页——七条子命令、两种布局、四类数据源，一节装不下。
+        - file: reference/cli.md
+        - file: reference/data-layer.md
         - title: 判据与报告 (Criteria & Reports)
           children:
             - file: reference/benchmark.md

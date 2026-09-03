@@ -38,15 +38,15 @@
 //! 文件类型**看内容识别**（[`detect`]），[`io`] 统一分派，[`assembly`] 按一份
 //! JSON-LD / YAML 装配多个数据源（或从 fydata 的装置清单 `machine.yaml` 摊出
 //! 「几何 + 绑定」，`fetch`），[`c_api`] 把这些交给 Python（`fylite.io.fydoc`），
-//! `src/bin/data` 是命令行 `fylite-data`。
+//! [`cli::data`] 是命令行 `fylite data …` 的实现（`src/bin/app` 是唯一的可执行文件，
+//! 它按命令词分派到这里）。
 //!
 //! ## 制品，一份源
 //!
 //! | 制品 | 给谁 | 带 mdsip 吗 | 带 HDF5 / netCDF 吗 |
 //! | --- | --- | --- | --- |
 //! | `libfylite_data.so` | Python（`ctypes`，与内核库同一种取法） | 是 | 是（链 C 库） |
-//! | `fylite-data` | 命令行 | 是 | 是 |
-//! | `fylite-app` | 单文件桌面查看器 | 是 | 是 |
+//! | `fylite-app` | **唯一的可执行文件**：桌面查看器 + `data` / `case` 命令行 | 是 | 是 |
 //! | `fylite_data.wasm` | 浏览器 | **否**（用户裁定；浏览器打不开裸 TCP） | **否**（`--no-default-features`：g-file 与 JSON） |
 
 #![allow(dead_code)]

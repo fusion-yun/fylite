@@ -326,7 +326,7 @@ def case_json(plan, *, base=None, kernel_lib=None) -> dict:
     ★The whole run — composing the plan, resolving its inputs, the kernel's
     single door ``fylite_rs_fyo``, the record with the datasets INLINE on
     their output ports — is the data layer's ``fylite_data_case_json``; this
-    is a thin face on it, so Python and the shell (``fylite-case json``) go
+    is a thin face on it, so Python and the shell (``fylite case json``) go
     through one implementation.  A refused case still comes back as a record
     (``run_state: rejected``) with the kernel's sentence in ``comment``;
     only a plan that yields no record at all raises.

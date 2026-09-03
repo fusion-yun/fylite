@@ -6,7 +6,7 @@ self.FyI18n.register('en', {
   'report.lead': 'This page renders the <strong>record</strong> of one case (an <code>spo:ComputationRecord</code> with its output datasets inline on the ports) together with its <strong>plan</strong> (a <code>fyo:ScenarioSpecification</code>) as a report: the parameter table, the port table, the readings, line charts drawn against each quantity’s own coordinate, and — when the equilibrium record carries a boundary outline — the poloidal section. What is drawn, and how, is decided by a <strong>presentation specification</strong> (<code>spo:PresentationSpecification</code>); without one, the page derives it by rule, the same rule <code>fylite cases --report</code> uses for the spec it writes beside its report.',
   'report.bound': '<strong>This page computes nothing</strong>: it reads the record and never recomputes; the spec copies no number, every series binds a quantity of the record by path. View kinds this page cannot draw (comparison verdicts, view kinds from elsewhere) are refused by name; the rest renders.',
   'report.load': 'Load',
-  'report.load.what': 'Pick a <code>record.jsonld</code> (what <code>fylite cases --report</code> or <code>fylite-case json</code> wrote); the <code>plan.jsonld</code>, <code>presentation.jsonld</code> and dataset files beside it may be picked with it; or fetch from a URL.',
+  'report.load.what': 'Pick a <code>record.jsonld</code> (what <code>fylite cases --report</code> or <code>fylite case json</code> wrote); the <code>plan.jsonld</code>, <code>presentation.jsonld</code> and dataset files beside it may be picked with it; or fetch from a URL.',
   'report.files': 'Files',
   'report.drop': 'Drop files here',
   'report.src': 'or a URL',

@@ -109,5 +109,5 @@ fylite cases --report evolve-iter-15ma --out out/report
   （绑一份平衡梯子或导入 g 文件）。
 - 台基是**内部边界条件**，不是台基模型：它规定 ρ_ped 处的值，不预言台基高度。
 - 无边界/偏滤器耦合；杂质按给定浓度与冷却率进辐射项，不输运。
-- 与 JINTRAC / TORAX 的逐点对拍见公开登记册（`benchmark/`）的 B-02 / B-05 记录——
+- 与 JINTRAC / TORAX 的逐点对拍见公开登记册（`docs/benchmark/`）的 B-02 / B-05 记录——
   那里写着**哪些量是喂进去的**，这一节的数不能当成对拍结论读。

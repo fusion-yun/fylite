@@ -83,7 +83,7 @@
     fetch(src).then(function (r) { if (!r.ok) throw new Error(r.status + ' ' + src); return r.json(); })
       .then(function (record) {
         //: the plan, the spec and the file-bound datasets live beside the record when
-        //: `fylite-case run` / `fylite cases --report` wrote it; each is optional
+        //: `fylite case run` / `fylite cases --report` wrote it; each is optional
         var wants = ['plan.jsonld', 'presentation.jsonld'];
         (record.inputs || []).forEach(function (b) {
           var c = b.bound_concretization || {};

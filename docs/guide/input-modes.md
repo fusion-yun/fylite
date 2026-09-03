@@ -19,8 +19,11 @@ title: 输入模式 (Input Modes)
 | 处理级 `efit_east` 树（76 探针） | `io.mds` | efit_east（`green2012`） |
 | IMAS 形式的 magnetics 文件（JSON/YAML） | `fyo.as_measurements(path, time_s)` | 由文档声明的 `fylite:channel_basis` 定 |
 | fyo / JSON-LD 测量文档 | 同上——语义文档与普通 IMAS dict 走同一道契约 | 同上 |
-| 现成的 `&IN1` k-file | `io.kfile`（解析 / 组装）；**驱动它的 EFIT 求解器不在本分发里** | 文件自带 |
+| 现成的 `&IN1` k-file | **没有入口了**：`io.kfile` 于 2026-09-01 随它服务的求解器一并移除（它的主体是给 `libefit.so` 备输入的**写入机**） | — |
 :::
+
+★k-file 那一行留在表里，是因为旧文档、旧脚本还会提到它。今天从 EFIT 侧进来的路只有
+处理级 `efit_east` 树那一条；k-file 既不读也不写。
 
 ★**扁平字典自带 `basis`**：下游要挑权重掩膜、限制器或表集时不必按 `len(expmp2)` 反推
 ——那正是「各自假设一次」的来路。
@@ -30,7 +33,7 @@ title: 输入模式 (Input Modes)
 **这是最容易静默出错的地方。** 两条路的探针道数与 Green 表都不同：
 
 - **est2 / GUI_v5**：79 道，表集 `green2018_wpf_64`；
-- **efit_east / IMAS / k-file**：76 道，表集 `green2012`。
+- **efit_east / IMAS**：76 道，表集 `green2012`。
 
 混用不会报错，只会给出错的结果。基由**文档自己声明**（`fylite:channel_basis`）或按通道数
 判定，判不出属于任何已知基时**当场抛错**，而不是产出一份没人读得了的文档。
@@ -39,9 +42,11 @@ title: 输入模式 (Input Modes)
 
 `BRSP` 的每一路是**安培·总匝**。这条契约有两个后果：
 
-1. 从 MDSplus 取数时，`io.est2` 走 `PF_NODES × PF_TURNS` 再经 `PF_EFIT_ORDER`
-   重排；而 `efit_east` 树的 `FCCURT` **本身就已是 A·匝且已按 BRSP 序**——
-   两条路各有其映射，不必一致（曾因把这两张图当成一张而误立缺口）。
+1. 从 MDSplus 取数时，`io.est2` 走每路 Rogowski 的节点名 × 匝数（`PF_NODES` ×
+   `PF_TURNS`）再按 EFIT 线圈序重排（`PF_EFIT_ORDER`）——★这三样是**装置文档的字段**，
+   不是模块常量：匝数与文档同源，换一台机器就换一份。而 `efit_east` 树的 `FCCURT`
+   **本身就已是 A·匝且已按 BRSP 序**——两条路各有其映射，不必一致（曾因把这两张图
+   当成一张而误立缺口）。
 2. 电路层（`fylite.device` §3）以 A·总匝为态，故**每匝空间的回路方程
    $U/N = M_1\dot x + R_1 x$ 不需要匝数表**。
 
@@ -70,8 +75,8 @@ title: 输入模式 (Input Modes)
 - **内核不限分辨率。** `kernel.gs_free_solve` 收的是两条**任意长度**的网格坐标数组
   （`grid_r` / `grid_z`），`kernel.Grid` 也只是 `(r0, z0, dr, dz, nr, nz)`；
 - `$FYLITE_DEVICE_DIR/east_device.yaml` 的 `solver_dims`（`nw=nh=65`）现在是**装置文档的声明**，
-  由 `device.verify_solver_dims` 对独立的 `east_geom.txt` 核验——两边不一致要 fail loud，
-  而不是让两套数字各自漂移；
+  由 `device.verify_solver_dims` 对装置目录里独立的 efund deck（`east_geom.txt`）核验——
+  两边不一致要 fail loud，而不是让两套数字各自漂移；
 - 磁通环与探针的**响应行**不再查表，由内核按给定网格现算
   （`kernel.mutual_outer` / `kernel.probe_response`）；线圈→环的那一行（EFIT 的 `rsilfc`，
   过去唯一还要读 `rfcoil.ddd` 的地方）也已改为现算

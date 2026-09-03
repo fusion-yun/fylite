@@ -124,7 +124,7 @@ FyLite 是单仓交付的独立软件包，对外呈现两个宿主与七个接�
 | 目录 | 组件 | 说明 |
 | :--- | :--- | :--- |
 | `rust/fylite/` | DE-COMP-01 Rust 计算核 | 单 crate；本机 cdylib 与 wasm 模块同源构建（`rust/build.sh`，wasm 产物出 `rust/wasm/dist/`）。★★**2026-09-01 仓一分为二后这棵 crate 在私有仓 `fylite_kernel`**：那边的 `rust/build.sh` 把制品与生成物（`libfylite_kernel.so`、三个 `.wasm`、`_abi.py` / `version.js` / `fyo-interface.*`）**装进本仓**。本行留在布局表里，因为它指派的是那些制品的落点与本仓对它的依赖方向，不是本仓的源码目录。★制品**不入库**（`.gitignore` 抬头）：打包发布时装入 |
-| `rust/fylite_data/` | DE-COMP-09 数据层 | 本仓**唯一的 Rust 源码树**，源码公开（协议编解码与文件格式，不是物理 IP）：mdsip 只读客户端、g/a-file、HDF5 / netCDF、YAML 子集、多源装配，外加 **Rust 宿主的命令行**（`src/cli/`，由共享规格 `python/fylite/_cli.json` 编译期建出）。一份源三个制品：`libfylite_data.so`（Python 经 ctypes 取）、`fylite-app`（单一可执行文件，内嵌整个 `app/`）、`fylite-data` / `fylite-case`（同一份代码的薄壳别名）。构建 `rust/build.sh`（本仓的那一份）|
+| `rust/fylite_data/` | DE-COMP-09 数据层 | 本仓**唯一的 Rust 源码树**，源码公开（协议编解码与文件格式，不是物理 IP）：mdsip 只读客户端、g/a-file、HDF5 / netCDF、YAML 子集、多源装配，外加 **Rust 宿主的命令行**（`src/cli/`，由共享规格 `python/fylite/_cli.json` 编译期建出）。一份源**两个**制品：`libfylite_data.so`（Python 经 ctypes 取）与 `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，承载 `app` / `data` / `case` 三条命令词）。★2026-09-03 前另有 `fylite-data` / `fylite-case` 两个薄壳别名，已撤（`FYL-DESIGN-15` C-8）。构建 `rust/build.sh`（本仓的那一份）|
 | `python/fylite/*.py` | DE-COMP-02 Python 装配层 | 平铺物理 / 装配模块；`python/` 内含 `pyproject.toml` / `pytest.ini` / `tests/` |
 | `python/fylite/engine/` | DE-COMP-03 机械核 | 子包（CLI / 服务 / 清单 / 溯源 / 注册 / 版本 / 原生库装载） |
 | `python/fylite/scenario/` | DE-COMP-04 场景层 | 四条场景线各一模块 |
@@ -216,7 +216,7 @@ graph TD
 | Traces to | FR-TOOL-001..003, FR-DATA-003, NR-DEP-001 |
 | Invariant | `fylite.engine` 顶层导入仅标准库；numpy 与重型依赖一律函数内惰性导入。 |
 | Note | 后端注册（原 DE-LOG-03）**已退出本组件**，`engine/registry.py` 删除——退役理由见 DE-LOG-03 条目。★★本不变式此前**并不成立**且无门禁，2026-08-21 已修并立闸（`python/tests/test_engine_imports_only_stdlib.py`）。两处破口性质不同：一是 `engine/provenance.py` 顶层裸 `import numpy`（字面文本，四个用处改为函数内导入）；二是这条不变式**根本无从观测**——导入任何子模块都会先跑包的 `__init__`，而 `fylite/__init__.py` 当时顶层就 `from . import device, engine, io, kernel` / `.run` / `.scenario`，实测 `import fylite.engine` 拉进 numpy 与九个 `fylite.scenario.*`、耗时 ~155 ms，engine 自己再克制也没用。现 `fylite/__init__.py` 改为惰性（PEP 562 `__getattr__`），名字照旧、按需构建：`import fylite` 2.7 ms 且不加载 numpy，`import fylite.engine` 91 ms 且不加载 numpy。★顺带去掉了本包唯一的**导入环**：`run` 曾把 `scenario.analysis.recon_rs` 的两个私有辅助函数再导出（包内无调用者），而 `recon_rs` 反向导入 `KefitRunError`——于是 `__init__` 必须强制 `run` 先于 `scenario`，而那条顺序只是一行注释、无人校验。剪掉那次再导出后只剩单向，`__init__` 不再需要任何顺序。 |
-| Interface | `fylite.engine` 入口（CLI main / serve / mcp）。★命令行由 **DE-COMP-06 的 `_cli.json`** 机械建出；其中 `app` / `data` / `case` 三条由 Rust 可执行文件承载，本层**逐字委托**（`--bin-dir` → 包内 `_bin/` → `$PATH`，找不到时按名说明要构建什么并退出 2；`FYL-DESIGN-15` R-4），不另写第二份实现。 |
+| Interface | `fylite.engine` 入口（CLI main / serve / mcp）。★命令行由 **DE-COMP-06 的 `_cli.json`** 机械建出；其中 `app` / `data` / `case` 三条由那**一个** Rust 可执行文件承载，本层**逐字委托**（`--bin-dir` → 包内 `_bin/` → `$PATH`，命令词放回最前面；找不到时按名说明要构建什么并退出 2；`FYL-DESIGN-15` R-4），不另写第二份实现。 |
 
 (de-comp-04)=
 **DE-COMP-04: 场景层**（scenario layer）
@@ -267,7 +267,7 @@ graph TD
 | Description | 取数与格式，**不做物理**：不同数据源 ↔ fyo 文档的读写转换（MDSplus 只读、a-file、g-file、JSON(-LD)、HDF5、netCDF、YAML 子集，各带 fyo 与 IMAS DD 两种布局）、多源合并、按 JSON-LD / YAML 装配、按炮号与时间的服务端切片；外加 **Rust 宿主的命令行**与算例的输入 / 输出半边（一份 fyo 计划进、一份 spo 记录出，经运行期 dlopen 的内核）。源码公开——这里是协议与格式，不是物理 IP。 |
 | Traces to | FR-DATA-002, FR-TOOL-001, FR-TOOL-004 |
 | Invariant | 本层**禁止 (MUST NOT)** 实现任何物理或数值（判据同 DE-COMP-02：同一物理量的第二份实现即缺陷）；对 MDSplus **必须 (MUST)** 只读，且**禁止 (MUST NOT)** 暴露取表达式的入口（每个 TDI 串由校验过的节点路径与整数拼出）；浏览器制品**禁止 (MUST NOT)** 含 mdsip（浏览器打不开裸 TCP）。 |
-| Interface | `libfylite_data.so` 的 C ABI（`fylite_data_*`，Python 侧 `fylite.io.fydoc`）；三个可执行文件 `fylite-app` / `fylite-data` / `fylite-case`，其命令行由 DE-COMP-06 的规格建出。 |
+| Interface | `libfylite_data.so` 的 C ABI（`fylite_data_*`，Python 侧 `fylite.io.fydoc`）；**一个**可执行文件 `fylite-app`（命令词 `app` / `data` / `case`），其命令行由 DE-COMP-06 的规格建出。 |
 | Note | 2026-09-02 从内核仓搬来：内核那本自己写着 *the kernel computes numbers; the hosts put them into documents*，而网络协议与文件格式按同一条判据是宿主的活（DE-COMP-02 的分层理由）。搬动同时收掉了两份重复实现——两个 g-file 读入（Python 与 JS 各一）与两份 mdsip 客户端。设计正本 `FYL-DESIGN-14`，命令行部分 `FYL-DESIGN-15`。 |
 
 (fylite-sdd-composition-invariants)=

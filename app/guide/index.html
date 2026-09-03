@@ -3,12 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>fylite 用户指南 (fylite User Guide) · fylite 用户指南</title>
+<title>怎么开始 (Getting Started) · fylite 用户指南</title>
 <link rel="icon" href="../assets/fy_mark.svg">
-<meta name="description" content="fylite 是一个自足的托卡马克平衡—输运—湍流内核：一套 Grad-Shafranov 正逆解、
-一步 1.5 维芯部输运、新经典与回旋朗道流体闭包，以及一条平衡重构链，写成一个
-可重入的 Rust 内核；Python 层做装配与编排，浏览器端跑的是同一个内核编译出的
-WebAssembly。">
+<meta name="description" content="本篇讲怎么用与结果怎么读。fylite 是什么、本书分几部分，见封面。">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="guide.css">
@@ -19,7 +16,7 @@ WebAssembly。">
 <header class="top">
   <a class="brand" href="../index.html"><img src="../assets/fy_mark.svg" alt="" width="32" height="32"></a>
   <div class="titles">
-  <h1>fylite 用户指南 (fylite User Guide)</h1>
+  <h1>怎么开始 (Getting Started)</h1>
   <span class="sub">fylite 用户指南</span>
   </div>
   <nav>
@@ -31,7 +28,7 @@ WebAssembly。">
 
 <div class="guide-wrap">
 <aside class="guide-toc" aria-label="目录">
-    <span class="here">fylite 用户指南 (fylite User Guide)</span>
+    <span class="here">怎么开始 (Getting Started)</span>
     <a href="browser.html">浏览器用法 (Using the Browser Pages)</a>
     <a href="python.html">Python 用法 (Using the Python Package)</a>
     <a href="reading-results.html">结果怎么读 (Reading a Result)</a>
@@ -40,24 +37,26 @@ WebAssembly。">
 
 <main class="doc guide-body">
 
-<p>fylite 是一个<strong>自足的托卡马克平衡—输运—湍流内核</strong>：一套 Grad-Shafranov 正逆解、
-一步 1.5 维芯部输运、新经典与回旋朗道流体闭包，以及一条平衡重构链，写成<strong>一个
-可重入的 Rust 内核</strong>；Python 层做装配与编排，浏览器端跑的是同一个内核编译出的
-WebAssembly。</p>
-<p>本书讲<strong>怎么用</strong>与<strong>结果怎么读</strong>。两种用法互不依赖：</p>
+<p>本篇讲<strong>怎么用</strong>与<strong>结果怎么读</strong>。fylite 是什么、本书分几部分，见<a href="../INDEX.md">封面</a>。</p>
+<h2>三种发布形态，装哪一种取决于你手边有什么</h2>
 <figure class="numbered"><table>
 <thead>
 <tr>
-<th><p>用法</p></th>
+<th><p>形态</p></th>
 <th><p>要装什么</p></th>
 <th><p>适合</p></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><p><a href="browser.html">浏览器</a></p></td>
+<td><p><a href="browser.html">浏览器站点</a></p></td>
 <td><p>什么都不用装</p></td>
 <td><p>上手、教学、快速试算、把一次运行分享给别人</p></td>
+</tr>
+<tr>
+<td><p><a href="browser.html">单一可执行文件</a> <code>fylite-app</code></p></td>
+<td><p>一个文件，双击即用；不装任何运行时</p></td>
+<td><p>离线、没有 Python 的机器（尤其 Windows）、要从 MDSplus 取数</p></td>
 </tr>
 <tr>
 <td><p><a href="python.html">Python 包</a></p></td>
@@ -66,23 +65,26 @@ WebAssembly。</p>
 </tr>
 </tbody>
 </table></figure>
-<p>两条路径调用的是<strong>同一个内核</strong>：同一份 <code>c_api</code> 导出面，原生库与 WebAssembly
-模块出自同一次编译配置。所以浏览器里得到的数与脚本里得到的数是同一个数——
-这一点由自动门在每次改动时校验，不靠承诺。</p>
-<h2>这本书之外</h2>
+<p>三者装的是<strong>同一份页面</strong>与<strong>同一版内核制品</strong>，命令行也由同一个定义文件建出——
+所以三条路上同名的命令是同一条命令（见<a href="install.html">安装与环境</a>的分发面一节）。</p>
+<p>★<strong>两条路径调用的是同一个内核</strong>：同一份 <code>c_api</code> 导出面，原生库与 WebAssembly
+模块出自同一次编译配置。所以浏览器里得到的数与脚本里得到的数是同一个数——这一点由
+自动门在每次改动时校验，不靠承诺。</p>
+<h2>往下读</h2>
 <ul>
 <li>
-<p><a href="reading-results.html">结果怎么读</a>——每个结果带的溯源信息是什么意思，
-以及为什么「不算」比「算一个看起来像答案的数」更重要。</p>
+<p>先跑起来：<a href="quickstart.html">快速上手</a> → <a href="browser.html">浏览器用法</a> 或
+<a href="python.html">Python 用法</a>。</p>
 </li>
 <li>
-<p><a href="limits.html">能力与边界</a>——现在能算什么、不能算什么、alpha 期的稳定性承诺。</p>
+<p>想知道一个结果该怎么信：<a href="reading-results.html">结果怎么读</a>、
+<a href="limits.html">能力与边界</a>。</p>
+</li>
+<li>
+<p>要一条能照抄的完整路径：<a href="../examples/index.md">算例语料</a>以及它下面的五族典型算例——
+每章的命令与数字都是在本仓实测的。</p>
 </li>
 </ul>
-<h2>状态</h2>
-<p><strong>alpha。</strong> 能力与数值口径仍在移动：入口、结果格式可能变化且不保证迁移路径。
-缺口是<strong>列出来</strong>的，不是用返回零的函数填上的；超出模型适用范围的请求返回错误，
-而不是一个看起来像答案的数。</p>
 </main>
 </div>
 

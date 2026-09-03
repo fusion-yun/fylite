@@ -38,7 +38,7 @@ def d():
 
 
 def _record(datasets: dict, *, run_state="succeeded") -> dict:
-    """一份记录的形，与 `fylite-case run` 写的同一套（`rust/fylite_data/src/case.rs`）。"""
+    """一份记录的形，与 `fylite case run` 写的同一套（`rust/fylite_data/src/case.rs`）。"""
     return {"id": "run/test", "type": "spo:ComputationRecord", "run_state": run_state,
             "inputs": [{"type": "spo:PortBinding",
                         "binds_port": {"type": "spo:Port", "port_name": port,

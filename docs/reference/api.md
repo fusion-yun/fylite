@@ -56,7 +56,6 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `io.geqdsk` | g/a-file 读写，以及 g 文件蕴含的 `(R, Z)` 网格与 ψ_N 图 |
 | `io.est2` | est2 基底约化（窗口均值、漂移、POINT），在线 MDSplus 与离线 HDF5 转储共用的**唯一**一条约化 |
 | `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁） |
-| `io.kfile` | EFIT k-file 组装与 namelist 解析（`&IN1`/`&INWANT`/`&INS` 分组、MSE、压强、曲率行） |
 | `io.fydoc` | **数据层**的 Python 面（`libfylite_data.so`，`rust/fylite_data/`）：按内容识别文件类型，不同数据源 ↔ fyo 文档的读写与合并；MDSplus 只读、HDF5 / netCDF 的 fyo 与 IMAS 两种布局都在这一层 |
 | `io.gacode` | GACODE `input.gacode` 剖面 + 几何包 |
 | `io.efund` | efund deck 格式（`east_geom.txt`）——**不是数据源**：盒与线圈匝数在装置文档里，读 deck 只为**核对**文档 |
@@ -83,70 +82,12 @@ index 13）、同一份内核文件。一次 NEO 调用同时返回三支电流�
 逐模块写在[物理与数值](../physics/00-overview.md)十五章——方程、假设、参数域、数值格式、
 一手出处与验证锚点，模块到章节的映射见[内核](kernels.md)的模块地图。
 
-## CLI
+## 命令行
 
-命令行的**定义**只有一处：`python/fylite/_cli.json`（`FYL-DESIGN-15`）。Python 的 `fylite`
-由它建 argparse；Rust 的单一可执行文件 `fylite-app` 在编译期纳入同一个文件并由它建自己的
-解析器；浏览器页面的启动参数是它的 `hosts.app.params`。所以 `fylite app --help` 与
-`fylite-app --help` 读到的是同一份用法，只是排版不同。
+Python 的入口与命令行的入口是**同一批能力的两个面**，但命令行的全表另开一页：
+[命令行](cli.md)（十四条命令、谁承载哪一条、`fylite cases` / `fylite case` 的动词），
+其中数据层那一条再单开一页：[数据层](data-layer.md)。
 
-```bash
-fylite --help                    # 十四条命令：下面按「谁承载」分两组
-# —— Python 宿主自己实现的 ——
-fylite run --east --shot 70754 --time 3.5     # 一次反演（Rust inverse；见 reconstruction）
-fylite plot g137985.04000 -o flux.png         # 渲染 g-file 的磁面图
-fylite describe [--text]                      # 能力目录（JSON-LD）；--text 含环境变量面
-fylite cases [ID] [--check|--plan|--run]      # 场景语料（与 --benchmark 的 V&V 登记册）
-fylite cases --report ID [--from REC] [--lang en]   # 算例报告：MyST + SVG（见 case-report）
-fylite manifest [--seal]                      # 核对 / 重封制品清单
-fylite replay LEDGER · report RUN · whence FILE · alias RUN NAME
-fylite serve                                  # JSON-RPC 2.0 over stdio
-fylite mcp                                    # MCP stdio 服务器
-# —— Rust 可执行文件承载、Python 逐字委托的 ——
-fylite app [--port N] [--no-open] [--mdsip HOST:PORT] [--page data] [--device east] [--lang en] [--theme dark]
-fylite data info|dump|convert|merge|assemble|fetch|tables …  # 数据层（= fylite-data）
-fylite case describe|plan|run|json …                    # 算例（= fylite-case）
-```
-
-安装后 `fylite` 与 `python -m fylite` 是同一个入口。`app` / `data` / `case` 三条在 Python 里
-**不重写**：`fylite` 找到 `_bin/` 里的可执行文件（或 `--bin-dir`、`$PATH`）把命令词原样交过去，
-找不到就按名说明要构建什么并退出 2。只属一个宿主的参数在规格里标 `hosts`：`--bin-dir` 只有
-Python 有，`--app-dir`（伺服一棵活目录，开发用）只有 Rust 有。`run` 走 Rust inverse
-（`engine.serve.run_reconstruction`）；EFIT 血统的驱动与 `libefit.so` 不在本分发里。
-
-### `fylite cases` —— 两份语料，一个动词
-
-```bash
-fylite cases                        # 列出 cases/ 的 25 条算例
-fylite cases <id>                   # 打印那份计划（fyo:ScenarioSpecification）
-fylite cases --check                # 结构检查（词汇只有 fyo / spo，无孤儿文件）
-fylite cases --plan  <id>           # 只映射不跑：控件 -> 入口字段的完整账
-fylite cases --run   <id> [--predict]
-fylite cases --report <id> [--from DIR] [--out DIR] [--presentation SPEC] [--lang zh|en]
-
-fylite cases --benchmark            # 公开 V&V 登记册（benchmark/）：类 · 结论 · 复测 · 纳入类别
-fylite cases --benchmark <ID>       # 一条 fyo:ComparisonRecord
-fylite cases --benchmark --check
-FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # 该记录的私仓门
-```
-
-用法与逐族示例见用户指南的[算例语料](../guide/cases.md)与其后五章。
-
-### `fylite case` —— 不经 Python 的那条路
-
-同一条命令词的另一半：`fylite case …` 由 Python 逐字委托给 Rust 可执行文件
-`fylite-case`（两种拼法同源，见上），它直通内核单入口 `fylite_rs_fyo`：
-
-```bash
-fylite case describe
-fylite case plan <plan.jsonld>... [--set k=v]... [--bind port=path]...
-fylite case run  <plan.jsonld>... --record DIR [--format jsonld|hdf5|netcdf|imas-hdf5]
-fylite case json <plan.jsonld>...        # 一份计划进，一份记录出（stdout）
-```
-
-多份计划按序合成（后者覆盖前者）。★`--format imas-hdf5`（或计划自己在输出端口上要
-`fyo:ImasHdf5Format`）写出**一个 IMAS 数据入口**：`imas/master.h5` + 逐 IDS 的 `<ids>.h5`。
-
-Python 侧同一道门是 `fylite.io.fydoc.case_json(plan, base=…)`：一份 `fyo:ScenarioSpecification`
-进，一份 `spo:ComputationRecord` 出（产出数据集内联在端口上），被拒绝的算例也**回记录**
-（`run_state: rejected`，内核的话在 `comment` 里）而不是抛异常。
+一句话的对应关系：命令行的**定义**只有 `python/fylite/_cli.json` 一处，Python 的
+`fylite` 由它建 argparse，Rust 那个唯一的可执行文件在编译期纳入同一份文件——
+所以两边的用法一字不差。

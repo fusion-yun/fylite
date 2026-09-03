@@ -2,8 +2,10 @@
 //! What each subcommand TAKES is in `_cli.json` (`case`); this module is
 //! only what they DO.
 //!
-//! Reached as `fylite-app case …` (the single executable) or as
-//! `fylite-case …` (the thin alias binary) — the same code either way.
+//! Reached as `fylite case …` (the Python console script, which hands the
+//! words on verbatim) or as `fylite-app case …` (the one executable) —
+//! the same code either way.  ★2026-09-03 the `fylite-case` alias binary was
+//! retired: one executable carries every command word.
 //!
 //! One structure in, one structure out (FYL-REPORT-06): the plan documents
 //! compose into ONE `fyo:ScenarioSpecification` (later ones override
@@ -26,7 +28,7 @@ use crate::kernel::Kernel;
 use std::path::{Path, PathBuf};
 
 fn die(msg: &str) -> ! {
-    eprintln!("fylite-case: {msg}");
+    eprintln!("fylite case: {msg}");
     std::process::exit(2);
 }
 
@@ -379,7 +381,7 @@ fn run_cmd(args: &Args) {
             }
         }
         (Err(e), _) => {
-            eprintln!("fylite-case: the kernel refused `{}`: {}", plan.code, e);
+            eprintln!("fylite case: the kernel refused `{}`: {}", plan.code, e);
             eprintln!("  record: {}  (run_state: rejected)", record_dir.join("record.jsonld").display());
             std::process::exit(1);
         }

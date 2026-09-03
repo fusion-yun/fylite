@@ -1,11 +1,14 @@
 # fylite 用户指南 —— `docs/guide/` 里**面向公开发布**的那个子集。
 #
-# 这不是一本独立的书：`docs/guide/` 只有一本，由它自己的 `myst.yml` 定目录，
-# 再由站点 `docs/myst.yml` 以 `site.projects` 挂在 `/guide` 上（站点自己没有 toc）。
-# 本文件划的是**发布面**——哪几篇编译成静态 HTML 落进 `app/guide/`、随浏览器演示
-# 一同公开。仓内其余章节（install / quickstart / input-modes / constraints /
-# reconstruction / forward-and-evolution / stability-and-control / browser-app）
-# 引仓内路径与文档编号，公开页上那些都是断链，所以它们不在这张表里。
+# 这不是一本独立的书：`docs/` 整个是**一本**（2026-09-02 起），目录源只有
+# `docs/myst.yml` 一处，`guide/` 是它的一篇。本文件划的是另一件事——**发布面**：
+# 哪几篇编译成静态 HTML 落进 `app/guide/`、随浏览器演示一同公开。仓内其余章节
+# （install / quickstart / cli / input-modes / constraints / reconstruction /
+# forward-and-evolution / stability-and-control / browser-app）引仓内路径与文档编号，
+# 公开页上那些都是断链，所以它们不在这张表里。
+#
+# ★2026-09-03 `cli.md` 新增而**不发布**，理由同上：它引 `python/fylite/_cli.json`
+# 与设计集编号，且讲的是装好包之后的事——公开页的读者手里没有那个包。
 #
 # ★为什么是一张表而不是按目录取：目录是**这本书的顺序**，发布面是**另一件事**。
 # 两者一旦合成一条规则，往 guide/ 加一篇仓内章节就会静默地把它发布出去。
@@ -14,6 +17,8 @@
 #
 # 2026-09-01：本表原为 `docs/user_guide/myst.yml`，那时它是一本独立的书；
 # 收编进 `docs/guide/` 后只留 toc 这一件职责，故改名 `public.yml`。
+# 2026-09-03：五族典型算例离开 `guide/` 自成一篇（`docs/examples/`）——它们本来
+# 就不在这张表里（引 `cases/` 仓内路径），所以发布面一页未动。
 #
 # 构建：bash tools/build-guide.sh   （产物 -> app/guide/，入库，与 app 的其余
 # 生成物同一惯例）

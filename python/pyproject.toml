@@ -99,11 +99,13 @@ include = ["fylite*"]
 #: `_backends.py` (module source, packaged as code), then with the backend
 #: registry itself (FYL-SDD-01 DE-LOG-03, retired).
 fylite = ["_lib/*.so", "_spec/*", "_manifest/*", "_cli.json",
-          #: ★the Rust executables the `app` / `data` / `case` commands hand
-          #: their words to (FYL-DESIGN-15): installed by `rust/build.sh
-          #: --cli` / `--exe`; the wheel carries them when they are there,
-          #: and `fylite app` says what to build when they are not.
-          "_bin/fylite-app", "_bin/fylite-data", "_bin/fylite-case",
+          #: ★the ONE Rust executable the `app` / `data` / `case` commands hand
+          #: their words to (FYL-DESIGN-15): installed by `rust/build.sh --exe`;
+          #: the wheel carries it when it is there, and `fylite app` says what
+          #: to build when it is not.  ★★2026-09-03 the two alias binaries
+          #: `_bin/fylite-data` / `_bin/fylite-case` left this list because they
+          #: left the tree — one executable now carries every command word.
+          "_bin/fylite-app",
           "_fyo_vocab.json", "_environment.json",
           #: A-Box 分解出来的 MDSplus 绑定表（`tools/abox-mds-bind.py` 生成）。
           #: 轮里要带：装了包却没有它，按语义路径取数这条路在安装出来的

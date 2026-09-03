@@ -6,9 +6,11 @@
 //! 拉起系统浏览器，页面照常用 WebAssembly 计算。**没有安装、没有解压、
 //! 没有外部运行时**——分发一个 `.exe` 或一个 ELF 就是分发整个演示。
 //!
-//! ★2026-09-02（FYL-DESIGN-15）：它同时是 Rust 侧的**单一可执行文件**——
+//! ★★2026-09-03（FYL-DESIGN-15）：它是本仓**唯一的可执行文件**——
 //! `fylite-app data …` 与 `fylite-app case …` 就是从前的 `fylite-data` /
-//! `fylite-case`（那两个二进制仍在，只是成了调用同一份代码的薄壳）。
+//! `fylite-case`。那两个二进制**已经撤掉**：它们各十行，做的就是把 `data` /
+//! `case` 前置到 argv 再调用同一份代码，而那一次前置由调用方给就够了
+//! （Python 宿主委托时前置，人在命令行上直接写 `fylite data …`）。
 //! 命令行的**定义**在 `python/fylite/_cli.json`：Python 的 `fylite` 命令与本程序
 //! 从同一个文件各自建自己的解析器，用法、选项、帮助一字不差；
 //! 只属于一个宿主的少数参数在文件里标了 `hosts`。
@@ -46,6 +48,8 @@
 //! fylite-app                          # 找一个空闲端口，开浏览器
 //! fylite-app --port 8123 --no-open    # 指定端口，只伺服
 //! fylite-app --page data --device east --lang en --mdsip 127.0.0.1:8000
+//! fylite-app data info shot.h5        # 数据层（= `fylite data info shot.h5`）
+//! fylite-app case run plan.jsonld --record rec/
 //! ```
 
 mod api;

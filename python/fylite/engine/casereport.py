@@ -3,8 +3,8 @@
 ★★What this renders and what it refuses.  The inputs are two fyo / spo
 documents: the PLAN (``fyo:ScenarioSpecification`` — what was asked) and
 the RECORD (``spo:ComputationRecord`` — what came back, its datasets inline
-on the output ports as ``fylite-case json`` / :func:`fylite.io.fydoc.case_json`
-hand them over, or beside it as files when ``fylite-case run`` wrote them).
+on the output ports as ``fylite case json`` / :func:`fylite.io.fydoc.case_json`
+hand them over, or beside it as files when ``fylite case run`` wrote them).
 Between them sits a PRESENTATION SPECIFICATION (``spo:PresentationSpecification``,
 FYL-REPORT-06 §13 / FYO-ADR-09): panels of views, each view a list of series
 bound to quantities of the record.  The spec is either supplied (a case may
@@ -708,7 +708,7 @@ def render_myst(plan: dict | None, record: dict, spec: dict, out_dir: Path, *, l
     w(":::")
     w("")
     w("重跑：`fylite cases --report <case id>`（经数据层的 JSON 门 `fylite_data_case_json`）或 "
-      "`fylite-case run <plan.jsonld>` 后 `fylite cases --report --from <记录目录>`；呈现规格见旁边的 `presentation.jsonld`。")
+      "`fylite case run <plan.jsonld>` 后 `fylite cases --report --from <记录目录>`；呈现规格见旁边的 `presentation.jsonld`。")
     w("")
     return "\n".join(L)
 

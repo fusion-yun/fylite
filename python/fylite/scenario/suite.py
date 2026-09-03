@@ -8,7 +8,7 @@
 
 ★★**产出从哪来，只有两条路，都不许猜**：
 
-* ``--from <记录目录>`` —— 读一份**已经跑出来**的记录（``fylite-case run`` 写的
+* ``--from <记录目录>`` —— 读一份**已经跑出来**的记录（``fylite case run`` 写的
   ``record.jsonld`` 或它的目录）。这条路不需要内核，因此在公开检出里也走得通；
 * 现跑 —— 经数据层的 JSON 门（:func:`fylite.io.fydoc.case_json`）把算例交给内核。
   **内核不在场就按名拒绝**（`libfylite_kernel.so`），不退化成任何别的算法。

@@ -4,8 +4,10 @@
 //! subcommand TAKES is in `_cli.json` (`data`); this module is only what
 //! they DO.
 //!
-//! Reached as `fylite-app data …` (the single executable) or as
-//! `fylite-data …` (the thin alias binary) — the same code either way.
+//! Reached as `fylite data …` (the Python console script, which hands the
+//! words on verbatim) or as `fylite-app data …` (the one executable) —
+//! the same code either way.  ★2026-09-03 the `fylite-data` alias binary was
+//! retired: one executable carries every command word.
 //!
 //! `--time` is `4.5` (one point), `4:5` (a window) or `4,4.5,5` (a list of
 //! points); MDSplus sources are windowed on their own time base and the
@@ -14,8 +16,8 @@
 //! 4–5 s, magnetics:
 //!
 //! ```text
-//! fylite-data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
-//!                   --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o east_138569_magnetics.json
+//! fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
+//!                  --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o east_138569_magnetics.json
 //! ```
 //!
 //! ★Every MDSplus read goes through `fylite_data::mdsip`'s read-only
@@ -32,7 +34,7 @@ use crate::io::{self, Layout};
 use std::path::{Path, PathBuf};
 
 fn die(msg: &str) -> ! {
-    eprintln!("fylite-data: {msg}");
+    eprintln!("fylite data: {msg}");
     std::process::exit(2);
 }
 

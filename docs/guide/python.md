@@ -51,20 +51,25 @@ fylite describe                             # 能力目录，JSON-LD 形式
 fylite cases --check                        # 算例语料；--report 出一份算例报告
 fylite report <run>  ·  whence <文件>  ·  alias <run> <名字>   # 记录：渲染 / 溯源 / 起名
 fylite manifest  ·  serve  ·  mcp           # 清单校验 / JSON-RPC / MCP（后两者走 stdio）
-# —— 由本机可执行文件承载、这里逐字转交的 ——
-fylite app --page model --lang en           # 起本机服务并开浏览器（= fylite-app）
-fylite data info shot.h5  ·  fylite data convert a.json b.nc   # 数据层（= fylite-data）
-fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出（= fylite-case）
+# —— 由本机可执行文件承载、这里逐字转交的（三条，同一个可执行文件）——
+fylite app --page model --lang en           # 起本机服务并开浏览器
+fylite data info shot.h5  ·  fylite data convert a.json b.nc   # 数据层
+fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出
 ```
+
+逐条参数与它们各自的动词见参考篇的[命令行](../reference/cli.md)；按任务走一遍见
+[命令行](cli.md)那一章。
 
 `describe` 出的是**机器可读的能力目录**：有哪些入口、各要什么、各给什么。
 它也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。
 
 :::{note} 后三条为什么是「转交」
-`app` / `data` / `case` 的实现在一个 Rust 可执行文件里，Python 侧**不重写第二份**：
-它找到随包带的可执行文件（或 `--bin-dir`、`$PATH`）把命令原样交过去。没找到时它**按名
-说明要构建哪一个**并以退出码 2 结束，而不是退化成一个能力更少的实现。
-`fylite data --help` 与 `fylite-data --help` 读到的是同一份用法——两边由同一个定义文件建出。
+`app` / `data` / `case` 的实现在**一个** Rust 可执行文件里（`fylite-app`，本仓只有这一个），
+Python 侧**不重写第二份**：它找到随包带的那个可执行文件（或 `--bin-dir`、`$PATH`），
+把命令词放回最前面，其余的字原样交过去。没找到时它**按名说明要构建什么**并以退出码 2
+结束，而不是退化成一个能力更少的实现。
+`fylite data --help` 与 `fylite-app data --help` 读到的是同一份用法——两边由同一个定义
+文件建出。
 :::
 
 ## 与浏览器互通

@@ -2,10 +2,14 @@
 # 构建 fylite 的**数据层**（`rust/fylite_data/`）。
 #
 #   ./rust/build.sh              -> libfylite_data.so，装进 python/fylite/_lib/
-#   ./rust/build.sh --exe        -> 另外构建单文件桌面查看器 fylite-app
-#   ./rust/build.sh --cli        -> 另外构建命令行 fylite-data 与 fylite-case，装进 python/fylite/_bin/
+#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fylite-app（内嵌整个 app/，
+#                                   并承载 app / data / case 三条命令），装进 python/fylite/_bin/
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
+#
+# ★★2026-09-03 `--cli` 没有了：它从前另建 fylite-data / fylite-case 两个薄壳二进制，
+# 而那两个已经收进 fylite-app（用户裁定「仅保留一个可执行程序」）。给 `--cli` 会被
+# 按名拒绝并指向 `--exe`，不会静默地少装东西。
 #
 # ★数据层链两个 C 库（libhdf5、libnetcdf；`fylite_data/Cargo.toml` 的 [features] 说明
 # 为什么）。缺省动态链接系统库：Debian/Ubuntu `apt install libhdf5-dev libnetcdf-dev`，
@@ -28,13 +32,14 @@ ROOT="$(cd "$DIR/.." && pwd)"
 CRATE="$DIR/fylite_data"
 INSTALL=1
 EXE=0
-CLI=0
 FEATURES=""
 for a in "$@"; do
     case "$a" in
         --no-install) INSTALL=0 ;;
         --exe) EXE=1 ;;
-        --cli) CLI=1 ;;
+        #: ★按名拒绝而不是默默当成 --exe：调用方以为自己装了两个二进制，
+        #: 而现在只有一个——说清楚比悄悄换掉好。
+        --cli) echo "--cli 已撤：fylite-data / fylite-case 已收进 fylite-app，用 --exe" >&2; exit 2 ;;
         --static) FEATURES="--features static" ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
     esac
@@ -108,19 +113,6 @@ print("[build] mds request: %d verbs" % len(verbs))
 PYMDS
 echo "[build] mds request -> python/fylite/_mds_request.py, app/assets/mds-request.js"
 
-if [ "$CLI" = 1 ]; then
-    echo "[data] cargo build --release --bin fylite-data --bin fylite-case ..."
-    #: ★`fylite-case`：一份 fyo 计划进、一份 fyo 记录出，经内核（运行期 dlopen
-    #: `libfylite_kernel.so`，不在本脚本的构建面里——它由内核仓的 build.sh 装进同一个 `_lib/`）
-    cargo build --release $FEATURES --bin fylite-data --bin fylite-case --manifest-path "$CRATE/Cargo.toml"
-    if [ "$INSTALL" = 1 ]; then
-        mkdir -p "$ROOT/python/fylite/_bin"
-        cp "$CRATE/target/release/fylite-data" "$ROOT/python/fylite/_bin/fylite-data"
-        cp "$CRATE/target/release/fylite-case" "$ROOT/python/fylite/_bin/fylite-case"
-        echo "[data] installed -> python/fylite/_bin/fylite-data, python/fylite/_bin/fylite-case"
-    fi
-fi
-
 if [ "$EXE" = 1 ]; then
     #: ★查看器把整个 `app/` 编进可执行文件；资源表 `src/bin/app/assets.rs` 是
     #: 生成物（`tools/make-app-embed.mjs`），`include_bytes!` 走 `FYLITE_APP_DIR`。
@@ -130,8 +122,8 @@ if [ "$EXE" = 1 ]; then
     cargo build --release --features desktop --bin fylite-app \
         --manifest-path "$CRATE/Cargo.toml"
     echo "[data] -> $CRATE/target/release/fylite-app"
-    #: ★FYL-DESIGN-15 R-4：轮里的 `fylite app` 把命令逐字交给这个可执行文件，
-    #: 所以它与另外两个一样装进 `_bin/`（构建时在就随轮走）。
+    #: ★FYL-DESIGN-15 R-4：轮里的 `fylite app` / `data` / `case` 都把命令逐字交给
+    #: 这个可执行文件（Python 侧前置命令词），所以它装进 `_bin/`（构建时在就随轮走）。
     if [ "$INSTALL" = 1 ]; then
         mkdir -p "$ROOT/python/fylite/_bin"
         cp "$CRATE/target/release/fylite-app" "$ROOT/python/fylite/_bin/fylite-app"

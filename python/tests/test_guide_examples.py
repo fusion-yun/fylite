@@ -28,23 +28,32 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-GUIDE = ROOT / "docs" / "guide"
+DOCS = ROOT / "docs"
+#: ★★2026-09-03 the worked examples became a PART of their own (`docs/examples/`,
+#: lifted out of `docs/guide/`), and the `example-` filename prefix went with the
+#: move — the directory says it.  So the chapter names below are the new ones and
+#: `cases.md` is now `examples/index.md`.
+EXAMPLES = DOCS / "examples"
+GUIDE = DOCS / "guide"
 #: the worked examples and their entry page — the chapters that must carry a
 #: 「边界」 section and that this gate reads for runnable calls
-CHAPTERS = ("cases.md", "example-zerod.md", "example-transport.md",
-            "example-evolve.md", "example-design.md", "example-reconstruction.md")
-#: ★the path rules below apply to the WHOLE BOOK, not just the worked examples:
-#: the rot they catch (a retired tree named as though it were there) is exactly
-#: what the older topic chapters had, and gating only the new chapters would
-#: have let them keep it.
-BOOK = tuple(sorted(p.name for p in GUIDE.glob("*.md")))
+CHAPTERS = ("examples/index.md", "examples/zerod.md", "examples/transport.md",
+            "examples/evolve.md", "examples/design.md", "examples/reconstruction.md")
+#: ★the path rules below apply to BOTH parts, not just the worked examples: the
+#: rot they catch (a retired tree named as though it were there) is exactly what
+#: the older topic chapters had, and gating only the worked examples would have
+#: let them keep it.  Names are stored as they are read below — `guide/x.md` and
+#: `examples/x.md` both exist (`reconstruction.md`), so a bare basename would
+#: collapse two chapters into one.
+BOOK = tuple(sorted([f"examples/{p.name}" for p in EXAMPLES.glob("*.md")]
+                    + [f"guide/{p.name}" for p in GUIDE.glob("*.md")]))
 
 
 @pytest.fixture(scope="module")
 def text() -> dict[str, str]:
-    missing = [c for c in CHAPTERS if not (GUIDE / c).is_file()]
-    assert not missing, f"the guide lost a worked-example chapter: {missing}"
-    return {c: (GUIDE / c).read_text(encoding="utf-8") for c in BOOK}
+    missing = [c for c in CHAPTERS if not (DOCS / c).is_file()]
+    assert not missing, f"the examples part lost a chapter: {missing}"
+    return {c: (DOCS / c).read_text(encoding="utf-8") for c in BOOK}
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +76,7 @@ def test_every_case_the_guide_names_is_in_the_catalogue(text, catalogue):
     unknown = {c: sorted(ids - catalogue) for c, ids in named.items() if ids - catalogue}
     assert not unknown, {"named by the guide, not in the catalogue": unknown,
                          "catalogue has": sorted(catalogue)}
-    assert named["cases.md"], "the corpus chapter names no case at all"
+    assert named["examples/index.md"], "the corpus chapter names no case at all"
 
 
 def test_every_cases_flag_the_guide_shows_is_declared(text):
@@ -140,13 +149,24 @@ def test_no_chapter_promises_a_retired_path(text):
     marks it as retired.  Device files are spelled `$FYLITE_DEVICE_DIR/…` now.
     """
     RETIRED = ("machine_desc/", "examples/")
+    #: ★★`docs/examples/` is the BOOK's worked-examples part (2026-09-03), a live
+    #: path that merely ends in the name of a retired one — the repo-root
+    #: `examples/` tree.  Substring matching cannot tell them apart, so the live
+    #: spelling is named here.  Without this the rule fires on every correct
+    #: reference to the new part, which is the failure mode that makes a gate get
+    #: switched off rather than obeyed.
+    LIVE = ("docs/examples/",)
     MARKS = ("废弃", "退役", "已删除", "不存在", "历史", "test_machine_desc",
              "b4dce77", "不在本仓", "archive")
     bad = []
     for chapter, body in text.items():
         for n, line in enumerate(body.splitlines(), 1):
             for lit in re.findall(r"`([^`\n]+)`", line):
-                if not any(r in lit for r in RETIRED):
+                #: strip the live spellings first, then ask about what is left
+                probe = lit
+                for live in LIVE:
+                    probe = probe.replace(live, "")
+                if not any(r in probe for r in RETIRED):
                     continue
                 if any(m in line for m in MARKS):
                     continue
@@ -165,7 +185,7 @@ def test_each_chapter_states_what_its_family_cannot_answer(text):
     the refusals table)."""
     for chapter in CHAPTERS:
         body = text[chapter]
-        if chapter == "cases.md":
+        if chapter == "examples/index.md":
             assert "拒绝" in body, "the corpus chapter drops the refusals"
             continue
         assert re.search(r"^## .*边界", body, re.M), f"{chapter} has no 边界 section"

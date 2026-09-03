@@ -219,7 +219,7 @@ modified:
 
 | 接口 | 形态 | 方向 |
 | :--- | :--- | :--- |
-| 命令行 | `fylite` 单命令多子命令（Python 宿主）与 `fylite-app` / `fylite-data` / `fylite-case`（Rust 宿主）；两者由同一份规格建出（FR-TOOL-004） | 用户 → 系统 |
+| 命令行 | `fylite` 单命令多子命令（Python 宿主）与 `fylite-app`（Rust 宿主，**唯一的可执行文件**，同样是单命令多子命令）；两者由同一份规格建出（FR-TOOL-004） | 用户 → 系统 |
 | JSON-RPC | JSON-RPC 2.0 over stdio | 集成方 ↔ 系统 |
 | MCP | MCP server over stdio | LLM 宿主 ↔ 系统 |
 | 浏览器页面 | 静态页面 + WebAssembly 模块；启动参数由命令行规格声明 | 用户 ↔ 系统 |

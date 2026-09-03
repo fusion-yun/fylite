@@ -140,11 +140,11 @@ python -m fylite describe     # the capability catalogue, as JSON-LD
 
 The user guide is [`docs/guide/`](docs/guide/index.md) — start at
 [quick start](docs/guide/quickstart.md), or go straight to the **worked
-examples**, one runnable chapter per family: [the case corpus](docs/guide/cases.md)
-· [0-D](docs/guide/example-zerod.md) · [1.5-D](docs/guide/example-transport.md)
-· [time evolution](docs/guide/example-evolve.md) ·
-[discharge design](docs/guide/example-design.md) ·
-[equilibrium reconstruction](docs/guide/example-reconstruction.md). Every command
+examples**, one runnable chapter per family: [the case corpus](docs/examples/index.md)
+· [0-D](docs/examples/zerod.md) · [1.5-D](docs/examples/transport.md)
+· [time evolution](docs/examples/evolve.md) ·
+[discharge design](docs/examples/design.md) ·
+[equilibrium reconstruction](docs/examples/reconstruction.md). Every command
 and number in them was measured in this repository, and every chapter says what
 its family **cannot** answer. The API map is
 [`docs/reference/api.md`](docs/reference/api.md).
@@ -243,7 +243,7 @@ the protocol face without paying for numpy or the kernel.
 ## Reading and writing data
 
 The **data layer** (`rust/fylite_data/`, source open, built into
-`libfylite_data.so` and the `fylite-data` command) converts between data
+`libfylite_data.so` and the `fylite data` command) converts between data
 sources and fyo documents, merges several sources, and assembles them from a
 JSON-LD description. Files are recognised by **content**, never by name.
 
@@ -263,15 +263,15 @@ A case is **one structure in, one structure out**: a `fyo:ScenarioSpecification`
 (the documents under `cases/`, an `spo:ComputationPlan`) goes in, an
 `spo:ComputationRecord` with its produced datasets comes out. The kernel
 completes the case from its structure — settings by name, bound inputs by fyo
-path — and the data layer owns both ends: the `fylite-case` command reads and
+path — and the data layer owns both ends: the `fylite case` command reads and
 composes the plan documents, resolves bound inputs through the format readers,
 loads `libfylite_kernel.so` at run time and writes the record and the datasets
 as fyo documents.
 
 ```sh
-fylite-case describe                                   # what the kernel completes, and what it declares
-fylite-case plan cases/evolve-default.jsonld --set nsteps=12
-fylite-case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
+fylite case describe                                   # what the kernel completes, and what it declares
+fylite case plan cases/evolve-default.jsonld --set nsteps=12
+fylite case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
 #  -> records/evolve/{record.jsonld, plan.jsonld, core_profiles.fyo.jsonld, summary.fyo.jsonld, ...}
 ```
 
@@ -279,7 +279,7 @@ Several plan documents compose (later ones override earlier ones, then `--set`
 and `--bind`). A case the kernel cannot complete is **refused with the missing
 thing named** — a capability not yet sunk, an equilibrium ladder not bound —
 and the refusal is recorded too (`run_state: rejected`). Build it with
-`./rust/build.sh --cli`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
+`./rust/build.sh --exe`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
 or `python/fylite/_lib/`.
 
 A plan can state its own delivery: an output port binding whose
@@ -295,7 +295,7 @@ back here with h5py and with the data layer's own reader (the layout is the one
 The same run is **one function** on the data layer: `fylite_data_case_json`
 takes the plan as JSON-LD text (one document, or an array composed in order)
 and returns the record as JSON-LD text with the datasets inline on their
-output ports. `fylite-case json plan.jsonld` and, in Python,
+output ports. `fylite case json plan.jsonld` and, in Python,
 `fylite.io.fydoc.case_json(plan)` are faces on it. The kernel behind both is
 its own single door, `fylite_rs_fyo`: settings by name and inputs by fyo path
 in, fields by fyo path out, no handle and no state between calls.
@@ -332,11 +332,11 @@ imas-python, reads with this library, writes with this library, and reads
 back with imas-python and imas-core, leaf by leaf.
 
 ```bash
-fylite-data info  g063982.04800                          # what is this file?
-fylite-data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
-fylite-data merge machine.h5 shot.nc -o all.jsonld         # later sources win
-fylite-data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
-fylite-data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
+fylite data info  g063982.04800                          # what is this file?
+fylite data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
+fylite data merge machine.h5 shot.nc -o all.jsonld         # later sources win
+fylite data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
+fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
                   --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o mag.json   # 4–5 s, sliced on the server
 ```
 
@@ -375,7 +375,7 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 | path | contents |
 | :--- | :--- |
 | `python/fylite/` | assembly, device plumbing, IO, scenarios, the CLI and protocol engine |
-| `rust/fylite_data/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fylite-data` command |
+| `rust/fylite_data/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fylite data` command |
 | `python/tests/` | the Python tier — assembly, IO, the protocol/CLI faces, the registries, the ABI marshalling (`python/pytest.ini`) |
 | | ★the physics/numerics tier is **not here**: it lives in the kernel repository with the code it judges |
 | `app/` | the static browser site and its gates |

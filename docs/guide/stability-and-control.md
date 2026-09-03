@@ -65,12 +65,11 @@ r = K.close_vertical_loop(sysv, t_end=1.0, dt=2e-4, kp=300., kd=0.3,
 
 :::{important}
 **本节与下一节的两个入口都经 `fylite.run.forward_equilibrium` 取那两次 GS 解，而它在
-本分发里是录得参考的读取器。** `libefit.so` 与 Green 表按 LICENSE 3.1 移除，录得的答案
-留下了：`shape.shape_response` 与 `pulse.design_trajectory` 对**录过的**输入照旧算得出来
-（`tests/data/oracle/efit.forward_equilibrium/` 297 条；`tests/test_shape.py` 即跑在这条路
-上），对没录过的抛 `OracleMissing`——一列中心差分要的是**两次新的** GS 解，所以在新位形上
-这两个入口今天走不通。下面的数字是当年实测，结论仍成立：差分真求解器与解析摄动的差别不随
-求解器换人而变。原委见 [Fortran 制品去哪了](#fortran-artifacts)。
+本分发里不作答。** `libefit.so`、Green 表与它们的**全部录得输出**按 LICENSE 3.1 移除，
+所以 `shape.shape_response` 与 `pulse.design_trajectory` 走到那一步就拿到
+`KefitRunError`——一列中心差分要的是**两次新的** GS 解，这两个入口今天走不通。
+下面的数字是当年实测，结论仍成立：差分真求解器与解析摄动的差别不随求解器换人而变。
+原委见 [Fortran 制品去哪了](#fortran-artifacts)。
 :::
 
 TokSys 走解析摄动 GS（`gspert`）；fylite **直接差分真求解器**——一次正解 0.05 s，
@@ -157,4 +156,4 @@ $\gamma$ **必须在同一导体集上比**。rzrig 把主动线圈放进电路�
 问法）。两者都对，但不可混比。
 :::
 
-★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`），见[算例语料](cases.md)起的五章。
+★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`），见[算例语料](../examples/index.md)起的五章。

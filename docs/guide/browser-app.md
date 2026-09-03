@@ -19,7 +19,7 @@ title: 浏览器演示 (Browser App)
 | 建模 (Physics modelling) `model` | **1.5D 定态输运**（固定几何解稳态剖面）· **含时演化**（按 `FYL-DESIGN-10` P-19 将迁往放电设计页）· **功率平衡反演**。设计见 `FYL-DESIGN-10` | [model](https://fusion-yun.github.io/fylite/pages/model.html) |
 | 实验分析 (Experiment analysis) `analysis` | **剖面拟合** · **平衡重构**（磁测量，可加动理学约束）· **时间序列** · **批处理**。设计见 `FYL-DESIGN-12` | [analysis](https://fusion-yun.github.io/fylite/pages/analysis.html) |
 | 装置数据 (Device data) `data` | **MDSplus 浏览**（浏览树、指定炮号、取回信号；经本地网关，**不算物理**）。设计见 `FYL-DESIGN-13` | [data](https://fusion-yun.github.io/fylite/pages/data.html) |
-| 算例报告 (Case report) `report` | 一份 **fyo 计划 + spo 记录**渲染成报告：参数表、端口表、读数、按量自身坐标画的折线图、带边界轮廓时的极向截面。文件选择 / 拖放 / `?src=` 三个门；**不算物理**——它读记录，不重算。与 Python 端 `fylite cases --report` **同一条规则**（`app/tests/validate-report.mjs` 逐字段比对两端推出的呈现规格）。见 [算例语料](cases.md) | [report](https://fusion-yun.github.io/fylite/pages/report.html) |
+| 算例报告 (Case report) `report` | 一份 **fyo 计划 + spo 记录**渲染成报告：参数表、端口表、读数、按量自身坐标画的折线图、带边界轮廓时的极向截面。文件选择 / 拖放 / `?src=` 三个门；**不算物理**——它读记录，不重算。与 Python 端 `fylite cases --report` **同一条规则**（`app/tests/validate-report.mjs` 逐字段比对两端推出的呈现规格）。见 [算例语料](../examples/index.md) | [report](https://fusion-yun.github.io/fylite/pages/report.html) |
 | 物理功能与边界 (Capability) | — | [features](https://fusion-yun.github.io/fylite/features.html) · [en](https://fusion-yun.github.io/fylite/features.en.html) |
 | 版权与致谢 (Copyright and credits) | — | [credits](https://fusion-yun.github.io/fylite/credits.html) · [en](https://fusion-yun.github.io/fylite/credits.en.html) |
 
@@ -82,8 +82,8 @@ title: 浏览器演示 (Browser App)
   重算这一栏」——那时去取上游的数，等于动了你手上的滑块。
   ★**总线是页面内的**。0D 栏 2026-08-22 移到设计场景之后，「0D 工况 → 1.5D 输运」变成
   **跨页面**的事：在设计页导出「工况」文件，在建模页导入。跨页面怎么传得更好（以及怎么
-  把**完整平衡**而不只是七个标量传过去），评估见
-  实测笔记 `docs/note/equilibrium-handoff.md`。
+  把**完整平衡**而不只是七个标量传过去），评估记在内核仓的实测笔记里
+  （`equilibrium-handoff`），不在本仓。
 - **依赖排序**：一条栏声明它 `needs` 谁，**运行顺序是这些声明的拓扑序**，不是段落写下来的
   顺序。上游被关掉时，下游栏的标题条上写「待 ⟨上游⟩」，而不是拿着过期的控件值硬算。
 
@@ -111,8 +111,8 @@ n<sub>e</sub>(0)（1.5D 栏与自洽外环共读）。栏一关或一折会把�
 建模页的 1.5D 栏能直接读 **g 文件**（EQDSK）：形状取自它**解出的边界**、q95 取自它自己的
 q 剖面、B 取 `bcentr`；★**n<sub>e</sub>(0) 与边界温度不在 g 文件里，因此不会被设定**——
 边界值定的正是这一栏结果的标度，留给你。★几何仍是那条边界的 **Miller 拟合**；把**逐面
-度规**整个传过去是下一步，评估见
-实测笔记 `docs/note/equilibrium-handoff.md`。
+度规**整个传过去是下一步，评估记在内核仓的实测笔记里（`equilibrium-handoff`），
+不在本仓。
 
 :::{note}
 上述绝对路径在 `myst build --html` 产出的站点上直接可用。本地 `myst start`
@@ -155,7 +155,8 @@ fylite-app --mdsip 127.0.0.1:8000
 对的，拿它做等式约束是错的。
 
 闸子**既不需要浏览器也不需要 mdsip 服务器**：编解码与参数面守卫在 `cargo test` 里
-（`rust/fylite/src/mdsip.rs` 13 项、`bin/app/api.rs` 6 项），端到端那一层由
+（`rust/fylite_data/src/mdsip.rs` 17 项、`rust/fylite_data/src/bin/app/api.rs` 6 项），
+端到端那一层由
 `app/tests/validate-app-mdsip.mjs` 对着**真机录下来的帧**跑发布出去的那个宿主——宿主问了
 夹具里没有的问题，门会红。夹具怎么录见 `tools/mds-record.mjs`。★那份录音是装置内网的
 实验数据，**不随本分发发布**：拿得到的人用 `FYLITE_MDS_FIXTURE` 指过去，拿不到的这道门
@@ -165,8 +166,10 @@ fylite-app --mdsip 127.0.0.1:8000
 
 ### 预设装置
 
-页面**预设**的装置是 fyo/JSON-LD 文档，放在 `app/devices/` 下，由
-`app/devices/catalogue.jsonld` 列出。每份预设由 `tools/fyo-device-to-app.py` 从 A-Box 的装置描述生成。
+页面**预设**的装置是 fyo/JSON-LD 文档，放在 `app/devices/` 下（今天两份：`east.jsonld`
+与 `iter.jsonld`），由 `app/devices/catalogue.jsonld` 列出。它们是**入库的产物**：当初从
+A-Box 的装置描述生成，★而那个生成器**不在本仓**——所以预设今天按入库文件维护，出处逐条
+写在目录文件的 `prov:wasDerivedFrom` 里。
 
 ★★**预设不是内部件的逐字节副本**（2026-09-02 两次裁定叠加）：仓内 `machine_desc/` 已废弃，
 没有可对拍的在仓源；而且发布件是**再加工件**——`c58c2c6` 把已发布内容里的内网地址与开发机
@@ -200,9 +203,9 @@ build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无�
 预设（`importFyo` 早就拒绝占用预设的 id，现在这条规则改在 `all()` 合并处生效，
 因为 localStorage 是能被绕过去写的）。
 
-其余装置是**输入**：`tools/fyo-device-to-app.py` 从 A-Box 生成的
-`fylite_device_<装置>.json` 是页面能直接读的导入文档，导入后 `?device=<装置>` 即可选中。
-装置数据不随 `app/` 发布——`publish-app.yml` 只拷 `app/`。
+其余装置是**输入**：页面读的是 fyo/JSON-LD 装置文档，从 A-Box 拖出来
+（`tools/abox-to-machine-desc.py`，见[安装与环境](install.md)），按 `+` 导入，
+导入后 `?device=<装置>` 即可选中。装置数据本身不随 `app/` 发布。
 
 **装置选择栏**（每页工具条左端）＝一份清单 + 两个动作：
 
@@ -215,20 +218,16 @@ build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无�
 导入的装置存在**本浏览器的 localStorage** 里，刷新后仍在；隐私模式下浏览器可能拒绝
 存储，届时状态行会说明「刷新后这台装置会消失」。
 
-现成可导入的四台（`tools/fyo-device-to-app.py` 生成，`east` 例外为手工维护）：
+★★**曾经这里列着四份现成的 `fylite_device_<装置>.json`**（EAST / ITER / CFETR / BEST）。
+那张表已经不成立：生成它们的工具不在本仓，CFETR 与 BEST 两台按上面那条许可裁定撤下，
+而 EAST 那份是手工维护件、只在内核仓的历史里（见[安装与环境](install.md)）。今天要哪台，
+从 A-Box 拖一份出来。
 
-| | |
-| :--- | :--- |
-| `fylite_device_east.json` | EAST，含 79 道探针、35 道磁通环与参考放电——**手工维护，只在内核仓历史里**（见[安装与环境](install.md)） |
-| `fylite_device_iter.json` | ITER |
-| `fylite_device_cfetr.json` | CFETR |
-| `fylite_device_best.json` | BEST |
-
-`cfedr`（上游无壁）、`jt60sa`（无线圈）、`west`（无装置级 B0）**没有**导入文档——
+`cfedr`（上游无壁）、`jt60sa`（无线圈）、`west`（无装置级 B0）拖不出可用的装置文档——
 生成器按理由拒绝，不编数。
 
-页面所用 wasm 制品的来历与重生方式见
-实测笔记 `docs/note/app-provenance.md`。
+页面所用 wasm 制品由内核仓构建（见[安装与环境](install.md)的 WebAssembly 一节）；
+它们的尺寸、导出面与哈希底账记在内核仓的实测笔记里，不在本仓。
 
 ## 页脚：版权行与本页二维码
 
@@ -239,12 +238,14 @@ build 唯一自带的机器成了 app 里**唯一不是文档**的机器：无�
 
 ## 物理功能与边界页
 
-`/app/features.html` 是 `FEATURE.md` 的**面向读者的摘要**：现在能算什么物理、**明确算不了
+`/app/features.html`（与英文版 `/app/features.en.html`）讲：现在能算什么物理、**明确算不了
 什么**（含「拒绝作答」的那几类）、每一项**凭什么被认为是对的**（验证依据四层），以及接下来
-补什么。★页面上引用的每个数字都必须与 `FEATURE.md` 记录的一致——它是口径，页面是摘要。
+补什么。同一批口径在本书里由[保真度边界](../reference/fidelity.md)与
+[物理校验](../reference/benchmark.md)两章承载——页面是摘要，两章是口径，数字必须一致。
 
 ## 版权与致谢页
 
 站点还有 `/app/credits.html`（与它的英文版 `/app/credits.en.html`），**版权、许可、逐项出处、致谢与参考文献都在这一页**
-（每个页面的页脚都通到它）。它是仓库 `LICENSE` / `NOTICE` / `ACKNOWLEDGEMENTS.md` 的可读
-摘要——有法律效力的逐文件声明仍以那三份为准，页面上说的每一句都必须能在它们里面找到。
+（每个页面的页脚都通到它）。它是 `LICENSE`、`NOTICE`（随内核源码留在 `fylite_kernel`，打轮时装入分发件）与本书
+[致谢](../ACKNOWLEDGEMENTS.md)的可读摘要——有法律效力的逐文件声明仍以前两份为准，
+页面上说的每一句都必须能在它们里面找到。

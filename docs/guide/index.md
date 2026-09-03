@@ -38,5 +38,5 @@ title: 怎么开始 (Getting Started)
   [Python 用法](python.md)。
 - 想知道一个结果该怎么信：[结果怎么读](reading-results.md)、
   [能力与边界](limits.md)。
-- 要一条能照抄的完整路径：[算例语料](cases.md)以及它下面的五族典型算例——
+- 要一条能照抄的完整路径：[算例语料](../examples/index.md)以及它下面的五族典型算例——
   每章的命令与数字都是在本仓实测的。

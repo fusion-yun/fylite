@@ -105,7 +105,7 @@ flowchart LR
 **产出从哪来，只有三条路，都不许猜**：
 
 1. 算例声明的**产出文件**（`product`：一份 g-file 就是一份平衡产出）；
-2. **已经跑出来的记录**（`--from`，`fylite-case run` 写的 `record.jsonld`）；
+2. **已经跑出来的记录**（`--from`，`fylite case run` 写的 `record.jsonld`）；
 3. 经数据层的 JSON 门**现跑**（要 `libfylite_kernel.so`）。
 
 内核不在场时第三条**按名拒绝**，那些条目记成「未评估」并写明缺的是哪一件——

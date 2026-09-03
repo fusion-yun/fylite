@@ -269,15 +269,17 @@ def _cli_mcp(args, parser) -> int:
 # on verbatim (FYL-DESIGN-15 C-3).  What is stripped is the one Python-only
 # option, `--bin-dir` — the spec marks it `hosts: ["python"]`, and the Rust
 # parser would refuse it by name.
+#
+# ★★2026-09-03 ONE executable (user ruling).  There used to be three, and the
+# lookup here was a LIST per command: try the alias binary `fylite-data`, then
+# fall back to `fylite-app` with the word put back in front.  The alias
+# binaries were ten lines each and did exactly that prepending themselves —
+# so the fallback was the whole implementation and the alias was the
+# redundant half.  Now the word is always put back in front, by the one
+# caller that ever needed to.
 
-#: the executables, by the command they carry: the alias binary first (it
-#: is what `rust/build.sh --cli` installs), then the single executable with
-#: the command word put back in front
-_RUST_EXES = {
-    "app": [("fylite-app", ())],
-    "data": [("fylite-data", ()), ("fylite-app", ("data",))],
-    "case": [("fylite-case", ()), ("fylite-app", ("case",))],
-}
+#: the one executable, and the command word it is handed in front
+_RUST_EXE = "fylite-app"
 
 
 def _find_exe(name: str, bin_dir=None):
@@ -310,17 +312,18 @@ def _strip_option(words: list, flag: str) -> list:
 def _delegate(args, parser, command: str) -> int:
     import subprocess
     tail = _strip_option(list(getattr(args, "_argv", []))[1:], "--bin-dir")
-    for exe, prefix in _RUST_EXES[command]:
-        path = _find_exe(exe, getattr(args, "bin_dir", None))
-        if path:
-            return subprocess.call([path, *prefix, *tail])
-    names = " / ".join(e for e, _ in _RUST_EXES[command])
-    print(f"fylite {command}: no {names} executable found — this Python host "
-          f"delegates `{command}` to the Rust executable. Build one with "
-          f"`bash rust/build.sh --cli` (fylite-data / fylite-case into "
-          f"python/fylite/_bin/) or `bash tools/build-app-exe.sh linux` "
-          f"(fylite-app), or point --bin-dir at a directory holding it.",
-          file=sys.stderr)
+    path = _find_exe(_RUST_EXE, getattr(args, "bin_dir", None))
+    if path:
+        #: ★the command word is put back in front: `tail` is the line as typed
+        #: MINUS argv[0]'s command word, and the executable's own parser wants
+        #: it (its no-subcommand default is `app`, so an omitted word would
+        #: silently start a web server instead of converting a file).
+        return subprocess.call([path, command, *tail])
+    print(f"fylite {command}: no {_RUST_EXE} executable found — this Python "
+          f"host delegates `{command}` to the Rust executable, which is the "
+          f"only one there is. Build it with `bash rust/build.sh --exe` "
+          f"(into python/fylite/_bin/) or `bash tools/build-app-exe.sh linux`, "
+          f"or point --bin-dir at a directory holding it.", file=sys.stderr)
     return 2
 
 
@@ -413,7 +416,7 @@ def _cli_cases(args, parser) -> int:
         return _cli_physics(args, parser)
     #: ★the REPORT face of a case (2026-09-02, FYL-REPORT-06 §13): run it through the
     #: data layer's JSON door and render plan + record into MyST + SVG through a
-    #: presentation spec — or render a record `fylite-case run` already wrote (--from).
+    #: presentation spec — or render a record `fylite case run` already wrote (--from).
     if getattr(args, "report", False):
         from . import casereport
         src = getattr(args, "from_record", None)

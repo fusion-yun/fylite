@@ -51,7 +51,7 @@ fylite cases --run pulse-iter
 
 ★**这是按名拒绝，不是缺功能。** 实测过：不跑设计栏直接按它，得到的数与设计栏**逐位
 相同**——它是那条栏输入的一次组合，不是一条独立能力。要它的答案，在浏览器的
-[放电设计页](browser-app.md)上按；要 Python 侧的等价物，见 `scenario.design.pulse`
+[放电设计页](../guide/browser-app.md)上按；要 Python 侧的等价物，见 `scenario.design.pulse`
 （前馈轨迹、通道限值、带界最小二乘）。
 
 ## 三 · 平顶位形（自由边界反解）
@@ -117,7 +117,7 @@ d["pass"], d["shape_error"]                     # 7, 0.1617371112287015
   `**solve_kw` 一路传到 `gs_free_solve` 那里报 `unexpected keyword argument`；
   `breakdown` 则**收** `device=`。两者不一样，不是笔误。
 - 逐通道电流上限缺省从装置牌的 `power_supply` 组读；**拖回来的 ITER 牌没有这一组**
-  （见[安装与环境](install.md)里那条「拖回来不是等价替换」），所以上面显式给了
+  （见[安装与环境](../guide/install.md)里那条「拖回来不是等价替换」），所以上面显式给了
   `i_max_aturn` / `i_max`。不给且牌里也没有，会得到 `KeyError: 'power_supply'`——
   按名失败，不是静默取一个缺省限值。
 
@@ -131,7 +131,7 @@ fylite cases --report discharge-iter --out out/discharge
 ```
 
 - **自由边界反解不是平衡反演**：这里给的是**要什么位形**、求线圈电流；反演给的是
-  **测到了什么**、求位形。两者的输入与判据完全不同，见[诊断分析：平衡反演](example-reconstruction.md)。
+  **测到了什么**、求位形。两者的输入与判据完全不同，见[诊断分析：平衡反演](reconstruction.md)。
 - 线圈几何、匝数、电阻与限值**全部取自装置牌**；换一台机器就是换一份牌，代码不动。
 - 垂直稳定性是另一件事：`fb_amp` 只是这一解所需的反馈幅度，γ 与被动导体集的关系见
-  [稳定性与控制](stability-and-control.md)。
+  [稳定性与控制](../guide/stability-and-control.md)。

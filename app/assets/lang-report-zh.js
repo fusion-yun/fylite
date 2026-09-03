@@ -9,7 +9,7 @@ self.FyI18n.register('zh', {
   'report.lead': '这一页把一次算例的<strong>记录</strong>（<code>spo:ComputationRecord</code>，产出数据集内联在端口上）连同它的<strong>计划</strong>（<code>fyo:ScenarioSpecification</code>）渲染成一份报告：参数表、端口表、读数表、按量的自身坐标画出的折线图、以及——当平衡记录带着边界轮廓时——极向截面。画什么、怎么画，由一份<strong>呈现规格</strong>（<code>spo:PresentationSpecification</code>）说了算；没带规格时按规则推出一份，与 <code>fylite cases --report</code> 写在报告旁的那份相同。',
   'report.bound': '<strong>这一页不算任何东西</strong>：它只读记录，不复算；规格里不抄任何数，每条序列按路径绑到记录里的量。视图种类本页画不了的（对拍判定、非本仓的视图种类）按名拒绝，其余照渲染。',
   'report.load': '载入',
-  'report.load.what': '选一份 <code>record.jsonld</code>（<code>fylite cases --report</code> 或 <code>fylite-case json</code> 的产物），可一并选同目录的 <code>plan.jsonld</code>、<code>presentation.jsonld</code> 与数据集文件；或填一个地址取回。',
+  'report.load.what': '选一份 <code>record.jsonld</code>（<code>fylite cases --report</code> 或 <code>fylite case json</code> 的产物），可一并选同目录的 <code>plan.jsonld</code>、<code>presentation.jsonld</code> 与数据集文件；或填一个地址取回。',
   'report.files': '文件',
   'report.drop': '把文件拖到这里',
   'report.src': '或一个地址',

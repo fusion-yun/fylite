@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """IMAS 互操作的对拍：数据层写的文件 imas-python / imas-core 读得回来，反之亦然。
 
-    python rust/fylite_data/verify/imas_roundtrip.py [--bin target/release/fylite-data] [--keep]
+    python rust/fylite_data/verify/imas_roundtrip.py [--bin target/release/fylite-app] [--keep]
 
 ★不进 `cargo test`：要 imas-python（`pip install "imas-python[netcdf]" imas-core`），
 那是一个带 DD 的大包，装不装是用户的事。但**这一份判据才是「兼容 imas-python」这句话
@@ -156,16 +156,24 @@ def compare(name, a: dict, b: dict) -> int:
 
 
 def run(bin_path, *args):
-    r = subprocess.run([bin_path, *args], capture_output=True, text=True)
+    """One `fylite-app data …` call.
+
+    ★The `data` word is supplied here.  There is ONE executable (2026-09-03);
+    it dispatches on the command word, and its no-word default is `app` —
+    so omitting the word would start a web server instead of converting a
+    file, and would do it without an error.
+    """
+    argv = [bin_path, "data", *args]
+    r = subprocess.run(argv, capture_output=True, text=True)
     if r.returncode != 0:
         print(r.stdout, r.stderr)
-        raise SystemExit(f"{bin_path} {' '.join(args)} failed ({r.returncode})")
+        raise SystemExit(f"{' '.join(argv)} failed ({r.returncode})")
     return r
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--bin", default=str(ROOT / "target" / "release" / "fylite-data"))
+    ap.add_argument("--bin", default=str(ROOT / "target" / "release" / "fylite-app"))
     ap.add_argument("--keep", action="store_true")
     ap.add_argument("--dd", default="4.1.1")
     args = ap.parse_args()

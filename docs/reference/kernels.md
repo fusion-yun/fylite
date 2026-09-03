@@ -56,7 +56,7 @@ Python 侧不复写其中任何一段离散化或闭式：装配、装置接线�
 | 入口 | 导出 **249 个** `fylite_rs_*` C 函数（2026-09-02 实测） |
 | 构建 | **内核仓**的 `bash rust/build.sh`（单棵 cargo crate；`--no-install` 只编译）——它把制品与生成物装进本仓 |
 | 分发 | **不入库**：打包时装进 wheel，随 `python/pyproject.toml` 的 `package-data` 走；**pip 不编译它** |
-| 调用 | **进程内** ctypes，装载器即 `fylite.kernel`；`$FY_RUST_LIB` 覆盖随包路径 |
+| 调用 | **进程内** ctypes，装载器即 `fylite.kernel`；`$FY_KERNEL_LIB` 覆盖随包路径 |
 
 :::{note}
 ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`——由 `build.sh`
@@ -116,7 +116,7 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 | :--- | :--- |
 | 读 | MDSplus（mdsip 只读客户端，按炮号与时间在服务端切片）· EFIT a-file / g-file · JSON(-LD) · YAML 子集（fydata 的 A-Box）· HDF5 · netCDF |
 | 写 | JSON(-LD) · g-file · HDF5 · netCDF，各带 **fyo** 与 **IMAS DD** 两种布局（IMAS 布局以 imas-python / imas-core 读得回为判据） |
-| 制品 | `libfylite_data.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite-app`（单一可执行文件，内嵌整个 `app/`）· `fylite-data` / `fylite-case`（同一份代码的薄壳别名） |
+| 制品 | `libfylite_data.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，并承载 `app` / `data` / `case` 三条命令） |
 | 命令行 | `src/cli/`——由 `python/fylite/_cli.json` **编译期**建出；与 Python 的 `fylite` 同一份定义（[API 速查](api.md)的 CLI 一节） |
 | 设计正本 | `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（发布形态与统一命令行） |
 

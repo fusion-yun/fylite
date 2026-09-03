@@ -7,7 +7,7 @@ title: 算例报告（计划 + 记录 → MyST + SVG / 页面）
 `fylite cases --report <case id>` 把**一份 fyo 计划**（`cases/<id>.jsonld`，`fyo:ScenarioSpecification`）
 经数据层的 JSON 门跑成**一份 spo 记录**（`spo:ComputationRecord`，产出数据集内联在端口上），再经一份
 **呈现规格**（`spo:PresentationSpecification`）渲染为 MyST markdown 与 SVG 图；`--from <record.jsonld | 目录>`
-渲染 `fylite-case run` 已写下的记录。`app/pages/report.html` 读同样的文件，在浏览器里画同样的图。
+渲染 `fylite case run` 已写下的记录。`app/pages/report.html` 读同样的文件，在浏览器里画同样的图。
 
 ## 产物
 

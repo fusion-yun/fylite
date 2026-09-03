@@ -36,10 +36,13 @@ ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 BOOK = DOCS / "myst.yml"
 
-#: 书里四篇各占一个目录；两页在根上（封面与致谢）。
+#: 书里五篇各占一个目录；两页在根上（封面与致谢）。
 #: ★★2026-09-02 `physics/` 从 `reference/` 提上来单独成篇：十五章 4 800 行，是参考篇
 #: 其余部分的三倍，答的也是另一个问题（「哪条方程、出自哪里、验到什么容差」）。
-SECTIONS = ("guide", "reference", "physics", "design")
+#: ★★2026-09-03 `examples/` 同理从 `guide/` 提上来：五族可跑算例加一页语料目录，答的是
+#: 「照抄一条完整路径」而不是「怎么用」。两次判据相同——**答另一个问题、篇幅又与母篇
+#: 其余部分相当**，那就是一篇，不是母篇目录下的第三级。
+SECTIONS = ("guide", "examples", "reference", "physics", "design")
 #: 在树里、**有意**不入册的目录，各自的理由写在 `docs/myst.yml` 抬头与 `INDEX.md`
 NOT_IN_THE_BOOK = ("benchmark",)
 #: 不是章节、也不含章节的目录

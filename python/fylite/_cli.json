@@ -1,22 +1,18 @@
 {
  "spec_version": 2,
  "prog": "fylite",
- "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. One command family on three hosts: the Python console script (this spec built into argparse), the single Rust executable fylite-app (the same spec built into its parser; carries app / data / case natively) and the browser app (its launch parameters are the `hosts.app.params` below). Commands list the hosts that carry them; a host that does not carry a command delegates it (Python -> the bundled Rust executable) or refuses it by name.",
+ "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. One command family on three hosts: the Python console script (this spec built into argparse), the ONE Rust executable fylite-app (the same spec built into its parser; carries app / data / case natively) and the browser app (its launch parameters are the `hosts.app.params` below). Commands list the hosts that carry them; a host that does not carry a command delegates it (Python -> the bundled Rust executable, command word first) or refuses it by name.",
  "hosts": {
   "python": {
    "exe": "fylite",
    "kind": "console-script",
-   "note": "argparse parser built from this file (engine/cli.py). Carries every command; `app`, `data` and `case` are delegated to the bundled Rust executables under fylite/_bin/ (or --bin-dir)."
+   "note": "argparse parser built from this file (engine/cli.py). Carries every command; `app`, `data` and `case` are delegated verbatim to the one bundled Rust executable under fylite/_bin/ (or --bin-dir), with the command word put back in front."
   },
   "rust": {
    "exe": "fylite-app",
    "kind": "single-executable",
    "default_command": "app",
-   "aliases": {
-    "data": "fylite-data",
-    "case": "fylite-case"
-   },
-   "note": "One executable, the whole app/ embedded. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works; `data` and `case` are the same code the thin fylite-data / fylite-case binaries call."
+   "note": "THE executable — one, since 2026-09-03. The whole app/ is embedded and every command word is carried here: `app`, `data`, `case`. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works. The thin fylite-data / fylite-case alias binaries were retired into this one; whoever needs `data` supplies the word (`fylite-app data ...`, or `fylite data ...` through the Python host)."
   },
   "app": {
    "entry": "index.html",
@@ -340,7 +336,7 @@
       "--from"
      ],
      "dest": "from_record",
-     "help": "(--report) a record.jsonld or a `fylite-case run` directory to render instead of running the case"
+     "help": "(--report) a record.jsonld or a `fylite case run` directory to render instead of running the case"
     },
     {
      "flags": [
@@ -660,7 +656,7 @@
     "rust",
     "python"
    ],
-   "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD / YAML document, fetching a shot from a fydata machine manifest (fylite-data)",
+   "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD / YAML document, fetching a shot from a fydata machine manifest",
    "handler": "fylite.engine.cli:_cli_data",
    "args": [
     {
@@ -671,7 +667,7 @@
       "python"
      ],
      "metavar": "DIR",
-     "help": "(Python host) directory holding fylite-data (default: the package's _bin/, then $PATH)"
+     "help": "(Python host) directory holding fylite-app (default: the package's _bin/, then $PATH)"
     }
    ],
    "commands": [
@@ -1078,7 +1074,7 @@
     "rust",
     "python"
    ],
-   "help": "a case from a fyo plan to a fyo record, through the kernel (fylite-case): one structure in, one structure out",
+   "help": "a case from a fyo plan to a fyo record, through the kernel: one structure in, one structure out",
    "handler": "fylite.engine.cli:_cli_case",
    "args": [
     {
@@ -1089,7 +1085,7 @@
       "python"
      ],
      "metavar": "DIR",
-     "help": "(Python host) directory holding fylite-case (default: the package's _bin/, then $PATH)"
+     "help": "(Python host) directory holding fylite-app (default: the package's _bin/, then $PATH)"
     }
    ],
    "commands": [

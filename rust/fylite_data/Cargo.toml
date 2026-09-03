@@ -8,7 +8,9 @@
 # 一份源，三个制品：
 #
 #   libfylite_data.so   Python 直接 load（取代 `python/fylite/io/mds.py` 那 480 行）
-#   fylite-app          单文件桌面查看器：内嵌整个 `app/` + mdsip 请求面
+#   fylite-app          **唯一的可执行文件**：内嵌整个 `app/` + mdsip 请求面，
+#                       并承载全部命令词（`app` / `data` / `case`；无子命令时
+#                       跑 `app`，所以双击仍然可用）
 #   fylite_data.wasm    浏览器用 —— ★**不含 mdsip**（用户裁定 2026-09-02：
 #                       纯浏览器端不包含 mdsip 支持；浏览器本就打不开裸 TCP，
 #                       FYL-DESIGN-06 §1 早已关死那条）
@@ -47,24 +49,17 @@ static = ["hdf5/static", "hdf5/zlib", "netcdf/static"]
 #: `cargo test` 的产物因此不受它影响。
 desktop = ["mdsip"]
 
+#: ★★2026-09-03：**一个可执行文件**（用户裁定）。此前这里有三个 `[[bin]]`——
+#: `fylite-app` 加上 `fylite-data` / `fylite-case` 两个十行的薄壳，后两者只做一件事：
+#: 把 `data` / `case` 前置到 argv，再调用同一份 `cli::parse` 与 `cli::data::run` /
+#: `cli::case::run`。那一份前置现在由**调用方**给：Python 宿主委托时前置命令词
+#: （`engine/cli.py` 的 `_RUST_EXES`），人在命令行上则直接 `fylite data …`。
+#: 少两个二进制、少两条 `_bin/` 项、少一处「用法里 `fylite-data data` 折回
+#: `fylite-data`」的字符串替换——而能力一条没少。
 [[bin]]
 name = "fylite-app"
 path = "src/bin/app/main.rs"
 required-features = ["desktop"]
-
-#: 数据层的命令行：看一眼文件是什么、格式互转、合并、按 JSON-LD 装配多个数据源。
-#: 原生专用（要读盘）；wasm 构建里没有它。
-[[bin]]
-name = "fylite-data"
-path = "src/bin/data/main.rs"
-required-features = ["mdsip"]
-
-#: 算例的命令行：一份 fyo 计划进、一份 fyo 记录出，经内核（运行期 dlopen
-#: `libfylite_kernel.so`）。原生专用；不要求任何特性——JSON 计划与 JSON-LD 记录
-#: 零依赖，HDF5 / netCDF 产出只在带那两个特性时可选。
-[[bin]]
-name = "fylite-case"
-path = "src/bin/case/main.rs"
 
 [dependencies]
 #: ★两个都是可选的、都只在原生目标上有意义（见 `[features]`）。版本钉到次版本：

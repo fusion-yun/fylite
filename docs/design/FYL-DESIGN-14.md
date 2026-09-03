@@ -152,7 +152,7 @@ YAML：块式映射与序列、三种标量写法、少量单行流式 `{}` / `[
 多文档。`yaml.rs`（约五百行）只认这些，不认的**报错**而不是猜；标量按 YAML 1.1 断型
 （`0123` 是八进制、`yes` 是真——与 PyYAML 同），只在浮点上更宽（`2.2e6` / `140E9` 按数读，
 PyYAML 按 YAML 1.1 读成字符串；fydata 里有 6 处）。判据是对拍：`verify/yaml_gate.py`
-拿 fydata 的 47 份文件比 `fylite-data dump --raw` 与 `yaml.safe_load`，逐叶子相同。
+拿 fydata 的 47 份文件比 `fylite data dump --raw` 与 `yaml.safe_load`，逐叶子相同。
 于是装配文档的 `file:` 源可以直接指 fydata 的 YAML，装置清单 `machine.yaml` 可以摊成
 装配（`assembly::from_manifest`：炮 → epoch，提供者 → 几何文件，绑定 → 绑定文档）——
 Rust 侧不再等 Python 先投影成 JSON。
@@ -176,14 +176,14 @@ Rust 侧不再等 Python 先投影成 JSON。
 | :--- | :--- | :--- |
 | Rust API | `io::{detect, read, read_node, write, merge_paths}` · `assembly::{assemble_file, from_manifest}` · `mdsbind::{TimeSel, resolve, read_one}` | 本仓的 Rust 宿主 |
 | C ABI | `c_api.rs` `fylite_data_{read, read_text, write, detect, bundle_*, doc_*, assemble, fetch}` | Python（`fylite.io.fydoc`） |
-| 命令行 | `fylite-data info / dump / convert / merge / assemble / fetch / tables` | 人与脚本 |
+| 命令行 | `fylite data info / dump / convert / merge / assemble / fetch / tables`（Python 宿主；`fylite-app data …` 是同一条，见 `FYL-DESIGN-15` C-8） | 人与脚本 |
 | Python | `fylite.io.fydoc.{read, write, detect, assemble, fetch, Bundle}` | 本仓的 Python 宿主 |
 
 一个请求就是一份装配文档（JSON 或 YAML），或一条 `fetch`：
 
 ```text
-fylite-data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
-                  --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o east_138569_magnetics.json
+fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
+                 --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o east_138569_magnetics.json
 ```
 
 = 清单里 `providers.magnetics.default`（`pcs`，几何 38 探针 / 35 磁通环）+
