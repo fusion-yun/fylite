@@ -1,47 +1,143 @@
-# fylite 文档站 —— **书集**（a collection of books）。
+# fylite 文档 —— **一本书**（2026-09-02 起）。
 #
-#   guide/      用户指南——怎么用；`public.yml` 点名的那几篇随浏览器演示公开发布
-#   reference/  参考——保真度边界 · 内核清单 · API · 报告模板
-#   design/     设计集——运行概念 · 需求 · 设计描述 · 逐页设计笔记（FYL-*）
+# ★★**为什么从「书集」改回一本。** 分仓那阵这里是 `site.projects` 挂三本独立的书
+# （guide / reference / design），每本自带 `myst.yml`。那个形制有一处躲不开的代价：
+# MyST 1.10.1 在多 project 站点下**不构建根 project**，于是站点根上没有页面，`/`
+# 只能 302 到列表里的第一本——「哪本排第一」成了承重的排版决定，而封面无处可放。
+# 一本书没有这个问题：根就是这本书，`INDEX.md` 就是它的封面，三个原来的「书」变成
+# 三个部分，各自的 toc 原样并进来。
 #
-# ★★2026-09-02 新建。分仓时（2026-09-01）这两本书搬进本仓，而**挂它们的站点配置
-# 留在了内核仓**——于是本仓的 `docs/` 有两本书却没有站点，`myst-preview.sh` 里那条
-# `fylite:fylite/docs` 一直在静默地跳过（脚本的判据是 `docs/myst.yml` 在不在）。
-# 这份文件补上那一半。
+# ★于是**三份子 `myst.yml` 已删**：一本书只有一个目录源。仍在各目录里的
+# `guide/public.yml` 是另一件事——它点名「哪几篇随浏览器演示公开发布」，由
+# `tools/build-guide.sh` / `tools/make-guide-pages.mjs` 读，与本文件的 toc 互不替代
+# （两者一旦合成一条规则，往 guide/ 加一篇仓内章节就会静默地把它发布出去）。
 #
-# ★★同日 `design/` 也从内核仓搬了过来（连同它独占的 17 张图，`figures/`）。分仓时
-# 它按「讲的是内核就留在内核仓」归了那边，但它讲的其实是**四个页面与它们的运行
-# 概念**——读者是用这套东西的人，不是改 Rust 的人。★书里仍按 `rust/…` 指内核源码
-# 35 处：那些路径在**内核仓**下成立，与 `NOTICE` 描述内核而不随内核走是同一姿态
-# （README「What ships, and what does not」已经说过 Rust 源码不发布）。
+# ★三处**不入册**的目录，逐条说明为什么不入：
+#   benchmark/  V&V 登记册与对拍报告。它们是**按路径引用的记录**——门禁、CI 的底账
+#               校验、算例语料的 `account` 字段都写着 `docs/benchmark/…`；机器读的是
+#               `registry.jsonld`。一份被路径引用的记录不需要 URL，也不该因为书的
+#               编排变动而换位置。
+#   figures/    图，由章节引用，不是章节。
+#   _build/     产物。
 #
-# ★内核仓那边**也有一本叫 `reference/` 的书**，同名不同书：那边讲的是内核的 C ABI
-# （`FYL-ABI-01`），本仓这本讲 Python 包与页面的用法。别把两边的内容互相搬。
-#
-# 两本书**各自独立**：每本自带 `myst.yml`，可以单独 `cd docs/<book> && myst build`。
-# 本文件只做一件事：把两本挂成一个站点（`site.projects`），各占一个子路径。
-#
-# ★站点根上没有页面，这与内核仓那份同一个原因：MyST 1.10.1 在多 project 站点下
-# 不构建根 project（三种写法都实测过），于是 `/` 会 302 到**列表里的第一个**
-# project。让它落在「用户指南」——那一页本来就是一篇介绍。
-# ★重排这张表就是搬走落地页，别当成整理顺序。
+# 构建：cd docs && myst build --html   （预览：myst start；把警告当错误：--strict）
+# 门禁：python/tests/test_docs_books.py
 version: 1
+project:
+  id: fylite-docs
+  title: fylite 文档 (Documentation)
+  subtitle: 用法 · 参考 · 设计
+  authors:
+    - name: FuYun / fylite maintainers
+  license:
+    content: CC-BY-4.0
+  numbering:
+    headings: true
+  #: 物理与数值各篇的文献库（178 条，每条带 note 字段记核验状态）。
+  #: ★路径随本文件走，并随 `physics/` 一同提上一级：它原先是
+  #: `reference/references-physics.bib`，由 `reference/myst.yml` 声明。
+  bibliography:
+    - physics/references.bib
+  #: 物理与数值各章使用的宏（与 SpResearch book/tmt 同一套，便于跨仓对读）。
+  math:
+    '\vb': '\mathbf{#1}'
+    '\pdv': '\frac{\partial #1}{\partial #2}'
+    '\dv': '\frac{\mathrm{d} #1}{\mathrm{d} #2}'
+    '\dd': '\mathrm{d}'
+    '\expval': '\left\langle #1 \right\rangle'
+    '\abs': '\left| #1 \right|'
+    '\norm': '\left\| #1 \right\|'
+  toc:
+    - file: INDEX.md
+
+    - title: 用户指南 (Guide) —— 怎么用，结果怎么读
+      #: ★分组按**读者要什么**排，不按「随不随演示发布」排。后者是另一件事，由
+      #: `guide/public.yml` 单独点名——两者一旦合成一条规则，往 guide/ 加一篇仓内
+      #: 章节就会静默地把它发布出去。
+      children:
+        - file: guide/index.md
+        - title: 装起来、跑起来 (Install & Run)
+          children:
+            - file: guide/install.md
+            - file: guide/quickstart.md
+            - file: guide/browser.md
+            - file: guide/python.md
+            - file: guide/reading-results.md
+        - title: 会算什么、怎么给输入 (What It Computes)
+          children:
+            - file: guide/limits.md
+            - file: guide/input-modes.md
+            - file: guide/constraints.md
+            - file: guide/forward-and-evolution.md
+            - file: guide/reconstruction.md
+            - file: guide/stability-and-control.md
+        - title: 典型算例 (Worked Examples · 一族一章，逐条可跑)
+          children:
+            - file: guide/cases.md
+            - file: guide/example-zerod.md
+            - file: guide/example-transport.md
+            - file: guide/example-evolve.md
+            - file: guide/example-design.md
+            - file: guide/example-reconstruction.md
+        - file: guide/browser-app.md
+
+    - title: 参考 (Reference) —— 一个数能不能用，凭什么
+      children:
+        - file: reference/fidelity.md
+        - file: reference/kernels.md
+        - file: reference/api.md
+        - title: 判据与报告 (Criteria & Reports)
+          children:
+            - file: reference/benchmark.md
+            - file: reference/report-template.md
+            - file: reference/case-report.md
+
+    - title: 物理与数值 (Physics & Numerics) —— 每个模块实际实现的方程、假设、参数域与算法
+      #: ★★2026-09-02 从 `reference/` 提上来单独成篇：十五章 4 800 行，是参考篇其余
+      #: 部分的三倍，讲的也是另一件事——参考篇答「这个数能不能用」，本篇答「这个数
+      #: 背后是哪条方程、出自哪里、验到什么容差」。章标题里那十五个重复的
+      #: 「物理与数值 · 」前缀随之去掉：篇名已经说了。
+      children:
+        - file: physics/00-overview.md
+        - file: physics/01-numerics.md
+        - file: physics/02-equilibrium.md
+        - file: physics/03-reconstruction.md
+        - file: physics/04-geometry.md
+        - file: physics/05-transport.md
+        - file: physics/06-zerod.md
+        - file: physics/07-neoclassical.md
+        - file: physics/08-turbulence.md
+        - file: physics/09-heating.md
+        - file: physics/10-sources.md
+        - file: physics/11-edge.md
+        - file: physics/12-electromagnetics.md
+        - file: physics/13-pulse-breakdown.md
+        - file: physics/14-diagnostics.md
+
+    - title: 设计集 (Design) —— 它为什么长这样
+      #: ★路径权威是 `design/INDEX.md`（文档以 `document_id` 指认，经那张表解析路径）；
+      #: 文档集增删或改版时，本 toc 与那张表在同一变更中更新。
+      children:
+        - file: design/INDEX.md
+        - title: 规格 (Specifications)
+          children:
+            - file: design/FYL-CONOPS-00.md
+            - file: design/FYL-SRS-01.md
+            - file: design/FYL-SDD-01.md
+        - title: 四个页面，逐页 (The Four Pages)
+          children:
+            - file: design/FYL-DESIGN-09.md
+            - file: design/FYL-DESIGN-10.md
+            - file: design/FYL-DESIGN-12.md
+            - file: design/FYL-DESIGN-13.md
+        - title: 横跨四页的三层 (Across the Pages)
+          children:
+            - file: design/FYL-DESIGN-11.md
+            - file: design/FYL-DESIGN-14.md
+            - file: design/FYL-DESIGN-15.md
+
+    - file: ACKNOWLEDGEMENTS.md
 site:
   title: fylite Documentation
-  projects:
-    #: ★第一本在承重（见上）——`guide` 排最前不是偏好，是落地页。
-    - path: guide
-      slug: guide
-    - path: reference
-      slug: reference
-    - path: design
-      slug: design
-  nav:
-    - title: 用户指南 (Guide)
-      url: /guide
-    - title: 参考 (Reference)
-      url: /reference
-    - title: 设计集 (Design)
-      url: /design
   options:
     logo: figures/fylite_logo.svg

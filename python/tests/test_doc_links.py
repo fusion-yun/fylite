@@ -23,16 +23,15 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
-BOOKS = ("design", "guide", "reference", "report")
+BOOK = DOCS / "myst.yml"
 
 #: a link with a scheme, an anchor-only link, or a non-page target is not a page
 #: reference and is out of scope here
 LINK = re.compile(r"\]\((?!https?:|mailto:|#)([^)\s#]+\.md)(?:#[^)\s]*)?\)")
 
 
-def toc_targets(book: str) -> set[Path]:
-    """Resolved `- file:` entries of one book's myst.yml."""
-    myst = DOCS / book / "myst.yml"
+def toc_targets(myst: Path) -> set[Path]:
+    """Resolved `- file:` entries of a myst/public yml."""
     body = "\n".join(
         ln for ln in myst.read_text(encoding="utf-8").splitlines()
         if not ln.lstrip().startswith("#")
@@ -41,36 +40,13 @@ def toc_targets(book: str) -> set[Path]:
             for rel in re.findall(r"-\s+file:\s*(\S+)", body)}
 
 
-#: ★★2026-09-01 仓一分为二：`design` / `report` 两本书跟 Rust 源码留在
-#: fylite_kernel（它们讲的是内核），`guide` / `reference` / `cases` 在本仓。
-#: 于是这道闸只能检查**本仓在场的那几本**。
+#: ★★2026-09-02 `docs/` 收成**一本书**：一个 `myst.yml`，一个 toc。此前这里按
+#: 「四本书各自 myst.yml」枚举，还要处理「某一本搬去了另一个仓」的缺席——那两件
+#: 事都没有了：`docs/myst.yml` 的 toc 就是全部已发布页面。
 #:
-#: ★不在场就跳过，但**要点名跳过了谁**——声明缺席≠默认没有。此前这里是
-#: 无条件 `read_text()`，缺一本就是模块级 `FileNotFoundError`，而 pytest 在
-#: 收集期出错会**中断整档**：一本书搬到另一个仓，代价是本仓 2037 条一条都跑
-#: 不了。闸子该报告边界变了，不该把自己变成一堵墙。
-ABSENT: list[str] = []
-PUBLISHED: set[Path] = set()
-for _b in BOOKS:
-    if (DOCS / _b / "myst.yml").is_file():
-        PUBLISHED |= toc_targets(_b)
-    else:
-        ABSENT.append(_b)
-
-
-def test_the_absent_books_are_the_ones_that_moved_to_the_kernel_repo():
-    """★哪几本缺席是**判据**，不是背景。
-
-    缺席集合一旦变大，说明又有一本书离开了本仓而没人说；变小则说明书回来了
-    而这份名单没跟上。两种都该在这里红一次，而不是让上面那个循环默默少查一本。
-
-    ★2026-09-02 变小过一次：`design` 从内核仓搬了回来。它按「讲的是内核就留在
-    那边」归过去，而它讲的是四个页面与它们的运行概念——读者在这边。
-    """
-    assert sorted(ABSENT) == ["report"], (
-        f"本仓在场的书变了：缺席的是 {sorted(ABSENT)}，此前是 ['report']"
-        "（那一本讲内核的评估研究，跟 Rust 源码留在 fylite_kernel）。"
-        "若确有搬动，改这里的名单，并说明书去了哪。")
+#: ★「本仓有哪几部分、少了哪一部分」现在由 `test_docs_books.py` 一处回答，不在
+#: 这里重复一遍——两处台账记同一件事，迟早只有一处被改。
+PUBLISHED: set[Path] = toc_targets(BOOK)
 
 BOOK_PAGES = sorted(p for p in PUBLISHED if p.is_file())
 
@@ -87,13 +63,18 @@ def test_the_published_set_is_not_empty():
     空集。改成**逐本非空**：判据从「总数够多」换成「每一本在场的书都真的贡献
     了页」——它不随书的数目漂移，而空集正是它抓的那件事。
     """
-    per_book = Counter(p.relative_to(DOCS).parts[0] for p in BOOK_PAGES)
-    present = [b for b in BOOKS if b not in ABSENT]
-    assert present, "本仓一本书都不在场——这道闸下面的每条断言都会空过"
-    empty = [b for b in present if not per_book[b]]
+    #: ★★2026-09-02 又改了一次口径。收成一本书之后「逐本非空」没有了主语，而
+    #: 上一版那个「按当时规模标定的整数」的教训仍然管用：判据改成**每一个成章的
+    #: 目录都真的贡献了页**——不随部分的数目漂移，空集仍然抓得住。
+    per_dir = Counter(p.relative_to(DOCS).parts[0] for p in BOOK_PAGES)
+    sections = sorted({d.name for d in DOCS.iterdir()
+                       if d.is_dir() and d.name not in ("_build", "figures",
+                                                        "benchmark")})
+    assert sections, "docs/ 下一个成章的目录都没有——下面每条断言都会空过"
+    empty = [d for d in sections if not per_dir[d]]
     assert not empty, (
-        f"这些书在场却一页都没解析出来：{empty}（各书页数 {dict(per_book)}）——"
-        "多半是 myst.yml 的 toc 写法变了，而不是书空了")
+        f"这些目录在场却一页都没解析出来：{empty}（各目录页数 {dict(per_dir)}）——"
+        "多半是 docs/myst.yml 的 toc 写法变了，而不是目录空了")
 
 
 @pytest.mark.parametrize("page", BOOK_PAGES, ids=lambda p: str(p.relative_to(DOCS)))

@@ -1,3 +1,7 @@
+---
+title: 致谢 (Acknowledgements)
+---
+
 # 致谢
 
 fylite 是 fyo 语义契约的一个独立、轻量实现，覆盖托卡马克平衡、输运与 0-D 建模。
@@ -151,7 +155,9 @@ Rust crate `rayon`（可选 `parallel` 特性）。浏览器前端**不携带任
 
 本文为可读的致谢全表。具约束力的、逐文件的声明见：
 
-- [`LICENSE`](LICENSE)——Apache License 2.0 全文
-- [`NOTICE`](NOTICE)——逐文件的移植出处、修改说明，以及「不含什么」
-- [`ACKNOWLEDGEMENTS.en.md`](ACKNOWLEDGEMENTS.en.md)——本文的英文版
-- [`CONTRIBUTORS.md`](CONTRIBUTORS.md)——维护者与版权归属
+- 仓根 `LICENSE`——Apache License 2.0 全文
+- 仓根 `CONTRIBUTORS.md`——维护者与版权归属
+
+★这两处按**仓内路径**引用而不给链接：它们是许可件，不是本书的章，站点上没有它们
+的页面。一条指向书外 `.md` 的 markdown 链接不会 404——MyST 会把那个文件当作原始
+Markdown 资源伺服出去，读者拿到的是一个没有版式、也不在目录里的页面。

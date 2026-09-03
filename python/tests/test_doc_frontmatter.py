@@ -47,14 +47,18 @@ def test_there_are_documents_to_check():
     #: 走后本仓只剩两本（17 篇），这条就红了——而它红的不是「扫不到文档」，是
     #: 「书少了两本」，那件事由 `test_docs_books` 点名。**按当时规模标定的整数，会在
     #: 规模合法变化时误报**，而误报的代价是把它调松，调松之后它就再也拦不住空集。
-    #: 改成「每一本在场的书都真的贡献了文档」——不随书的数目漂移，空集仍然抓得住。
+    #: 改成「每一部分都真的贡献了文档」——不随部分的数目漂移，空集仍然抓得住。
+    #: ★2026-09-02：`docs/` 收成**一本书**，子目录不再各有 `myst.yml`，于是「哪些是
+    #: 成章的目录」改由「不是 `figures/` / `benchmark/` / `_build/`」认——这三处
+    #: 不入册的理由写在 `docs/myst.yml` 抬头，`test_docs_books` 双向断言着。
     from collections import Counter
-    per_book = Counter(p.relative_to(DOCS).parts[0] for p in DOCUMENTS)
-    books = sorted({d.name for d in DOCS.iterdir()
-                    if d.is_dir() and (d / "myst.yml").is_file()})
-    assert books, "docs/ 下一本书都没有"
-    empty = [b for b in books if not per_book[b]]
-    assert not empty, f"这些书在场却一篇文档都没扫到：{empty}（各书 {dict(per_book)}）"
+    per_dir = Counter(p.relative_to(DOCS).parts[0] for p in DOCUMENTS)
+    sections = sorted({d.name for d in DOCS.iterdir()
+                       if d.is_dir() and d.name not in ("_build", "figures",
+                                                        "benchmark")})
+    assert sections, "docs/ 下一个成章的目录都没有"
+    empty = [d for d in sections if not per_dir[d]]
+    assert not empty, f"这些目录在场却一篇文档都没扫到：{empty}（各目录 {dict(per_dir)}）"
 
 
 @pytest.mark.parametrize("path", DOCUMENTS, ids=lambda p: str(p.relative_to(DOCS)))

@@ -160,11 +160,11 @@ def test_the_template_doc_states_the_same_order():
     assert tuple(listed) == report.SECTIONS, (
         f"the template doc lists {listed}, report.SECTIONS says "
         f"{report.SECTIONS} — change both or neither")
-    #: and the docs book actually carries the page.  ★It is the REFERENCE
-    #: book's own toc since `docs/` was split into four books (2026-09-01);
-    #: a page in no toc is a page nobody reaches.
-    assert "report-template.md" in (
-        ROOT / "docs/reference/myst.yml").read_text()
+    #: and the docs book actually carries the page — a page in no toc is a page
+    #: nobody reaches.  ★`docs/` was four books (2026-09-01), then one book
+    #: again (2026-09-02); there is one toc now, in `docs/myst.yml`.
+    assert "reference/report-template.md" in (
+        ROOT / "docs/myst.yml").read_text()
 
 
 def test_the_cli_command_is_declared_and_reachable():

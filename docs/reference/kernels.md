@@ -22,21 +22,21 @@ title: 内核 (The Kernel)
 ## 模块地图
 
 每个模块**实际实现**的方程、假设、参数域与数值算法，逐条带一手出处，在参考书的
-[物理与数值](physics-00-overview.md)十五章里；下表第三列是模块到章节的映射。
+[物理与数值](../physics/00-overview.md)十五章里；下表第三列是模块到章节的映射。
 
 | 层 | 模块 | 详述 |
 | :--- | :--- | :--- |
-| 数值底座 | `kernels.rs` `linalg.rs` | [01 数值内核](physics-01-numerics.md) |
-| 平衡正解 / 反解 | `equilibrium.rs` · `inverse.rs` | [02](physics-02-equilibrium.md) · [03](physics-03-reconstruction.md) |
-| 磁面、局域几何与归一 | `surfaces.rs` `geometry.rs` `mapping.rs` `bundle.rs` | [04 几何与归一](physics-04-geometry.md) |
-| 芯部输运、0-D | `transport.rs` · `zerod.rs` | [05](physics-05-transport.md) · [06](physics-06-zerod.md) |
-| 新经典 | `neoclassical.rs` `dke.rs` | [07 新经典](physics-07-neoclassical.md) |
-| 湍流与代理 | `gyrofluid.rs` `closure_tables.rs` `flr_tables.rs` `nn.rs` `bgb.rs` | [08 湍流](physics-08-turbulence.md) |
-| 加热与电流驱动、源项 | `heating.rs` · `sources.rs` | [09](physics-09-heating.md) · [10](physics-10-sources.md) |
-| 边缘、中性粒子与台基 | `edge.rs` `edge_tables.rs` `neutrals.rs` `pedestal.rs` `pedestal_tables.rs` | [11 边缘与台基](physics-11-edge.md) |
-| 电磁、演化、稳定性、控制 | `electromagnetics.rs` `evolution.rs` `stability.rs` `control.rs` | [12 电磁与控制](physics-12-electromagnetics.md) |
-| 放电设计、击穿 | `pulse.rs` `breakdown.rs` | [13 放电设计与击穿](physics-13-pulse-breakdown.md) |
-| 拟合与诊断 | `fitting.rs` `diagnostics.rs` | [14 拟合与诊断](physics-14-diagnostics.md) |
+| 数值底座 | `kernels.rs` `linalg.rs` | [01 数值内核](../physics/01-numerics.md) |
+| 平衡正解 / 反解 | `equilibrium.rs` · `inverse.rs` | [02](../physics/02-equilibrium.md) · [03](../physics/03-reconstruction.md) |
+| 磁面、局域几何与归一 | `surfaces.rs` `geometry.rs` `mapping.rs` `bundle.rs` | [04 几何与归一](../physics/04-geometry.md) |
+| 芯部输运、0-D | `transport.rs` · `zerod.rs` | [05](../physics/05-transport.md) · [06](../physics/06-zerod.md) |
+| 新经典 | `neoclassical.rs` `dke.rs` | [07 新经典](../physics/07-neoclassical.md) |
+| 湍流与代理 | `gyrofluid.rs` `closure_tables.rs` `flr_tables.rs` `nn.rs` `bgb.rs` | [08 湍流](../physics/08-turbulence.md) |
+| 加热与电流驱动、源项 | `heating.rs` · `sources.rs` | [09](../physics/09-heating.md) · [10](../physics/10-sources.md) |
+| 边缘、中性粒子与台基 | `edge.rs` `edge_tables.rs` `neutrals.rs` `pedestal.rs` `pedestal_tables.rs` | [11 边缘与台基](../physics/11-edge.md) |
+| 电磁、演化、稳定性、控制 | `electromagnetics.rs` `evolution.rs` `stability.rs` `control.rs` | [12 电磁与控制](../physics/12-electromagnetics.md) |
+| 放电设计、击穿 | `pulse.rs` `breakdown.rs` | [13 放电设计与击穿](../physics/13-pulse-breakdown.md) |
+| 拟合与诊断 | `fitting.rs` `diagnostics.rs` | [14 拟合与诊断](../physics/14-diagnostics.md) |
 | 文档层与场景（非物理） | `fyo.rs` `scenario.rs` | — |
 | 唯一的 C 边界 | `c_api.rs` | — |
 
