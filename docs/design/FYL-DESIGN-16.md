@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "0.1"
+version: "0.2"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,14 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.1 初稿：评估 fylite 与 fylite_kernel 的关系并写成目标架构——内核可替换
+  change: 'v0.2 两条用户裁定（2026-09-04）：①「宿主」是**多宿主**，不是双宿主——CLI（`fylite` /
+    `fylite-app`）、Python 库、网页、AI 面各是一个，全篇改口，并给 `FYL-CONOPS-00` /
+    `FYL-SRS-01` 加一条改口行；②`fylite_data` 是**中间层**，`data` 这个名字只说了它六项职责里
+    的两项——评估五个候选名，裁定 N-1：推荐 `fylite_engine`（与 Python `fylite.engine` 是同一
+    组件的两种语言，DE-COMP-03），备选 `fylite_runtime`；命令词 `fylite data …` 不随之改
+    （它说的是数据动词，不是层名）。改名的波及面已量（本仓 303 处 / 31 个 C 导出 / 内核仓 7 文件），
+    **本版只裁不改**。
+    v0.1 初稿：评估 fylite 与 fylite_kernel 的关系并写成目标架构——内核可替换
     （本地 / 远端、不同版本与实现），统一以 fyo 文档门为唯一接口；`fylite_data` 是数据
     集成与转换层并定为 SpData 的一个 profile；GUI / CLI / AI 是其上的前端。以 2026-09-04
     实测为底：Python 宿主 125 个、浏览器 146 个扁平 C 调用，文档门只承载 3 个 code；
@@ -31,7 +38,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v0.1 |
+| 版本 (Version) | v0.2 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -44,7 +51,7 @@ modified:
 | 受众 (Audience) | fylite / fylite_kernel maintainers · 要接第二个内核实现或远端内核的人 · sp 平台集成方 |
 | 分发范围 (Distribution) | public |
 | 安全分级 (Security Classification) | public |
-| 上游输入 (Upstream Inputs) | `FYL-CONOPS-00`（双宿主、零安装离线可用）· `FYL-SRS-01` NR-ENV-004（双宿主同核）/ FR-DATA-002..003 · `FYL-SDD-01` DE-COMP-01（计算核）/ DE-COMP-02（装配层：不实现物理）/ DE-COMP-09（数据层）· `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（一个可执行文件、一份命令行规格）· 内核仓 `fyo.rs`（「the kernel computes numbers; the hosts put them into documents」）· `SP-REPORT-15`（fylite 为 sp 协议成员的集成规划）· `SPM-ADR-111`（执行体六相协议）· SpData `01_core` / `02_mapping` / SRS FR-CONF-002（投影不得分叉契约语义） |
+| 上游输入 (Upstream Inputs) | `FYL-CONOPS-00`（双宿主、零安装离线可用——「双」在本篇改口为「多」，见 {ref}`fylite-kernel-contract-deltas`）· `FYL-SRS-01` NR-ENV-004（双宿主同核）/ FR-DATA-002..003 · `FYL-SDD-01` DE-COMP-01（计算核）/ DE-COMP-02（装配层：不实现物理）/ DE-COMP-09（数据层）· `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（一个可执行文件、一份命令行规格）· 内核仓 `fyo.rs`（「the kernel computes numbers; the hosts put them into documents」）· `SP-REPORT-15`（fylite 为 sp 协议成员的集成规划）· `SPM-ADR-111`（执行体六相协议）· SpData `01_core` / `02_mapping` / SRS FR-CONF-002（投影不得分叉契约语义） |
 | 批准 (Approval) | — |
 | 取代关系 (Supersedes / Superseded by) | 不取代任何文档；改口 `FYL-SRS-01` NR-ENV-004 与 `FYL-SDD-01` DE-COMP-02「双薄面」的两条表述（{ref}`fylite-kernel-contract-deltas`） |
 :::
@@ -52,10 +59,16 @@ modified:
 (fylite-kernel-contract-intro)=
 # 可替换内核 (The Replaceable Kernel)
 
-〔一句话〕**内核是可替换的一层，fyo 文档门是它唯一的接口；`fylite_data` 负责数据的
-集成与转换；GUI / CLI / AI 是其上的前端。** 一个内核可以是本地的 `libfylite_kernel.so`、
-页内的 wasm、另一台机器上的进程，或另一种实现；宿主对它们说同一种话——一份 fyo
+〔一句话〕**内核是可替换的一层，fyo 文档门是它唯一的接口；中间层（今天叫
+`fylite_data`，改名见 N-1）负责数据的集成与转换、计划的合成与内核的选择；其上是
+多个宿主——CLI、Python 库、网页、AI 面。** 一个内核可以是本地的 `libfylite_kernel.so`、
+页内的 wasm、另一台机器上的进程，或另一种实现；每个宿主对它们说同一种话——一份 fyo
 计划进，一份 fyo 记录出。
+
+★**「多宿主」，不是「双宿主」**（用户裁定 2026-09-04）。`FYL-CONOPS-00` 起的「双宿主」
+指 Python 与浏览器两个**运行时**；按前端数，今天已经是四个：CLI（`fylite` 控制台脚本与
+`fylite-app` 可执行文件）、Python 库、网页、AI 面（`serve` / `mcp` / BYOK）。它们的差别只在
+**谁写计划**（H-3），所以「几个」不是承重的数——本篇一律写「多宿主」。
 
 〔为什么〕这张图今天**只对一条路成立**。`fylite case` 经数据层的 `fylite_rs_fyo` 一扇门
 走的正是「结构进、结构出」；而 Python 宿主与浏览器页面各自绑在几百个扁平 C 导出上，
@@ -105,12 +118,13 @@ modified:
 
 ```{mermaid}
 flowchart TB
-  subgraph F[前端 Front ends]
-    GUI[浏览器页面 app/]
-    CLI[fylite · fylite-app]
-    AI[serve / mcp · BYOK LLM]
+  subgraph F[多宿主 Hosts]
+    GUI[网页 app/]
+    CLI[CLI：fylite · fylite-app]
+    PY[Python 库]
+    AI[AI 面：serve / mcp · BYOK LLM]
   end
-  subgraph D[数据层 fylite_data — SpData profile]
+  subgraph D[中间层 fylite_data → fylite_engine（N-1）— SpData profile]
     ASM[装配 assemble / fetch]
     FMT[格式 g-file · JSON-LD · HDF5 · netCDF · mdsip]
     CASE[case.rs：计划 → 门 → 记录]
@@ -131,8 +145,8 @@ flowchart TB
 
 | 层 | 职责 | 禁止 |
 | :--- | :--- | :--- |
-| 前端 | 把用户意图写成一份 fyo 计划；把一份 fyo 记录呈现出来 | 不做装配算术，不直接触碰任何内核符号 |
-| 数据层 | 计划的合成与绑定（多份计划、`--set` / `--bind`、按路径取输入）；结果装成文档；格式与来源的读写与转换；内核的**发现与选择** | 不算物理；不写 MDSplus |
+| 宿主（多个） | 把用户意图写成一份 fyo 计划；把一份 fyo 记录呈现出来 | 不做装配算术，不直接触碰任何内核符号 |
+| 中间层 | 计划的合成与绑定（多份计划、`--set` / `--bind`、按路径取输入）；结果装成文档；格式与来源的读写与转换；内核的**发现与选择**；Rust 宿主的命令行与 `app/` 的伺服 | 不算物理；不写 MDSplus |
 | 内核 | 完成一个 code：从结构到结构 | 不读文件、不开网络、不认识装置 |
 | 内核契约 | code 表 + 按路径的 manifest；每个后端自报「完成哪些 code、产哪些路径、什么单位」 | 不再有宿主可见的 ABI 号 |
 
@@ -177,7 +191,42 @@ V&V 登记册已经承载这种记录，不新开体例。
 （本地 / wasm / 远端地址）、哪个版本、什么指纹，`whence` 追得回去。两个后端给出不同的
 数是**可能的、合法的**，前提是记录里说得清是谁给的。
 
-## 数据层 D-1..D-4 (The data layer, and SpData)
+## 中间层 N-1 · D-1..D-4 (The middle layer: its name, and SpData)
+
+(fylite-kernel-contract-naming)=
+**N-1 这一层叫什么。** 〔已确立〕用户裁定（2026-09-04）：`fylite_data` 是**中间层**，
+`data` 只说了它六项职责里的两项。按 {numref}`tbl-fylite-kernel-asis-calls` 与
+`FYL-DESIGN-14` / `-15` 的 as-built，这一层今天做的是：①格式读写与转换；②多源装配；
+③计划合成与绑定 → 门 → 记录（`case.rs`）；④内核的加载与选择（`kernel.rs`，K-4 后是后端表）；
+⑤Rust 宿主的全部命令行（`src/cli/`）；⑥内嵌并伺服 `app/`。①②是数据，③④⑤⑥不是。
+
+:::{table} 候选名，按「名字说的是不是这一层做的事」判。
+:name: tbl-fylite-kernel-naming
+
+| 候选 | 说到了 | 没说到 / 冲突 | 判 |
+| :--- | :--- | :--- | :--- |
+| `fylite_data`（现名） | ①② | ③④⑤⑥；读者会以为它只是 I/O | 否 |
+| `fylite_io` | ① | 比现名更窄 | 否 |
+| `fylite_core` | — | 「核」是内核的名字；两个 core 必混 | 否 |
+| `fylite_host` | ③④⑤⑥ | 「宿主」已由用户定为前端那一层的名字（多宿主）；一个 crate 叫 host 就把 Python 与网页排除在宿主之外 | 否 |
+| `fylite_fyo` | ①②③ | ④⑤⑥；与本体仓 `fyo` 和 Python `fylite.fyo`（文档层）同名，读者分不清是词表还是运行时 | 否 |
+| **`fylite_engine`** | ③④⑤⑥ + ①②作为它的 I/O | 与 Python `fylite.engine` 同名——**这正是要的**：`FYL-SDD-01` DE-COMP-03「机械核」定义的职责（CLI / 服务 / 清单 / 溯源 / 原生库装载）与此 crate 逐条重合；D-2 / D-3 已经让 Python 那一份退成它的驱动。同一组件、两种语言、一个名字 | **推荐** |
+| `fylite_runtime` | ③④⑥ | ⑤勉强；「运行时」在 wasm 语境里另有所指（页内 wasm 的宿主运行时是浏览器） | 备选 |
+:::
+
+〔工作假设〕**裁定：改名为 `fylite_engine`**（制品 `libfylite_engine.so`，C 导出前缀
+`fylite_engine_*`，环境变量 `FY_ENGINE_LIB`）。三件事随之说清：
+
+- **命令词 `fylite data …` 不改。** 它说的是七个数据动词（`info` / `dump` / `convert` /
+  `merge` / `assemble` / `fetch` / `tables`），不是层名；`fylite case …` 与 `fylite app`
+  本来就是同一个 crate 的另外两组动词。用户指南与参考里的命令行一字不动。
+- **Python `fylite.engine` 与 `fylite.io.fydoc` 的去向。** `fydoc` 是这层 `.so` 的
+  ctypes 面，改名后归 `fylite.engine` 之下；`engine` 的「导入期纯 stdlib」不变（ctypes 是
+  stdlib，装载惰性）。这是 D-2 的落点，不是本条新增的要求。
+- **波及面已量，本版只裁不改。** 本仓 `fylite_data` 303 处 / 67 文件、`libfylite_data`
+  29 处、`fylite_data_*` C 导出 **31** 个（153 处调用点）、`FY_DATA_LIB` 3 处、散文「数据层」
+  138 处；内核仓 7 文件、fydoc 2 文件。改名是一次机械提交（`git mv` + 全仓替换 + 重建两个制品
+  + `_environment.json` 一行），但它跨两个仓、动 C ABI 名，**要单独一次决定与一次提交**。
 
 (fylite-kernel-contract-data)=
 〔已确立〕对照实测（2026-09-04）：
@@ -190,14 +239,14 @@ V&V 登记册已经承载这种记录，不新开体例。
 | 装配 | mapping 文档：逻辑目标路径 → 后端源 | `fylite:Assembly/1`：`$source` / `$link` / `merge` / `select`，出处块 `fylite:assembly` |
 | `fylite_data` 没有的 | | `$op` 变换、查询 / 修补语法、惰性指针与分级载荷、标识符通配、conformance 向量 |
 
-**D-1 `fylite_data` 是 SpData 的一个 profile，不是它的简化重写。** 事实上它是生态里
+**D-1 中间层是 SpData 的一个 profile，不是它的简化重写。** 事实上它是生态里
 最完整的 Rust 数据面，而 SpData 的 Rust 投影还是空壳。SpData SRS `FR-CONF-002`
 规定任何投影**不得分叉契约语义**；`fylite_data` 的 `$link` 分解、合并键、时间开窗
 今天都是自己定的。定为 profile 的含义：凡与 SpData 重叠的语义（树、路径、mapping、
 PROV）**以 SpData 为准**并跑它的 conformance 向量；不重叠的（mdsip 编解码、IMAS
 两种布局、g-file）是 profile 自己的扩展，写明「profile 不含」的那些不算缺陷。
 
-**D-2 数据层是内核的发现者与选择者。** K-4 的后端表住在数据层（`case.rs` / `kernel.rs`
+**D-2 中间层是内核的发现者与选择者。** K-4 的后端表住在数据层（`case.rs` / `kernel.rs`
 今天已经在 `dlopen` 内核并读它的 code 表）；Python 的 `fylite.kernel` 与页面的加载器
 退为**本地后端**的两个驱动。理由与 `FYL-DESIGN-14` L-1 同源：一棵中立的树居中，
 N 个后端是 N 条驱动而不是 N 份宿主代码。
@@ -206,13 +255,13 @@ N 个后端是 N 条驱动而不是 N 份宿主代码。
 取绑定输入——`case.rs` 已做；Python `scenario.cases.plan` 与页面的会话文档合成是
 同一件事的第二、第三份，收敛到数据层。
 
-**D-4 数据层不算物理，也不写 MDSplus。** 与 `FYL-DESIGN-14` L-8 同；本篇只是重申它在
-四层里的位置，防止「装配搬进内核」（K-3）被误读成「装配搬进数据层」——度规与剖面是
-物理，归内核；合成与绑定是文档操作，归数据层。
+**D-4 中间层不算物理，也不写 MDSplus。** 与 `FYL-DESIGN-14` L-8 同；本篇只是重申它在
+四层里的位置，防止「装配搬进内核」（K-3）被误读成「装配搬进中间层」——度规与剖面是
+物理，归内核；合成与绑定是文档操作，归中间层。
 
-## 前端 H-1..H-3 (Front ends)
+## 多宿主 H-1..H-3 (Hosts)
 
-**H-1 前端只写计划、只读记录。** 页面控件的每一次改动产生的是计划里的一个字段，
+**H-1 宿主只写计划、只读记录。** 页面控件的每一次改动产生的是计划里的一个字段，
 「计算」键送出一份计划；1.5-D 栏读 g-file、0-D 工况跨页交接（`FYL-DESIGN-09` / `-10`）
 都成为「计划里的一个绑定」。页面里的装配算术随 K-3 撤出。
 
@@ -221,8 +270,9 @@ N 个后端是 N 条驱动而不是 N 份宿主代码。
 两侧守卫（`FYL-DESIGN-13` P-12）。静态站点没有进程，只有本地后端；这与「静态即无
 服务端组件」（`FYL-DESIGN-15` R-3）一致。
 
-**H-3 三个前端已在，不增不减。** CLI（`fylite` / `fylite-app`）、页面、AI 面
-（`serve` / `mcp` / BYOK）的差别只在**谁写计划**；它们共享一份计划的词汇
+**H-3 宿主是多个，数目不承重。** CLI（`fylite` / `fylite-app`）、Python 库、网页、AI 面
+（`serve` / `mcp` / BYOK）今天四个，差别只在**谁写计划**；再来一个（notebook、另一种
+GUI、另一台机器上的代理）不改本篇任何一条；它们共享一份计划的词汇
 （`fyo:ScenarioSpecification`）与一份记录的词汇（`spo:ComputationRecord`），
 不各有一份。
 
@@ -231,12 +281,13 @@ N 个后端是 N 条驱动而不是 N 份宿主代码。
 
 | 出处 | 现文 | 改为 | 理由 |
 | :--- | :--- | :--- | :--- |
-| `FYL-SRS-01` NR-ENV-004 | 双宿主**必须**共享同一计算核 | 双宿主**必须**共享同一**内核契约**；同一 code 在两个后端上的一致性由登记册记录（K-6） | 「同核」是本地 `.so` 与 wasm 出自同一次编译这一**实现事实**，不是需求；可替换之后它仍成立于本地后端，但不再是双宿主一致的定义 |
+| `FYL-CONOPS-00` / `FYL-SRS-01` 通篇「双宿主」 | Python 与浏览器两个宿主 | **多宿主**：CLI、Python 库、网页、AI 面……数目不承重（H-3） | 用户裁定 2026-09-04；「双」记的是分仓前的两个运行时，不是设计约束。本仓另有 44 处散文沿用旧词，随各文档版本行改 |
+| `FYL-SRS-01` NR-ENV-004 | 双宿主**必须**共享同一计算核 | **多宿主必须**共享同一**内核契约**；同一 code 在两个后端上的一致性由登记册记录（K-6） | 「同核」是本地 `.so` 与 wasm 出自同一次编译这一**实现事实**，不是需求；可替换之后它仍成立于本地后端，但不再是多宿主一致的定义 |
 | `FYL-SDD-01` DE-COMP-02「双薄面」 | 宿主做装配（数组整形、单位与名字、调用顺序） | 宿主做**计划**；装配是内核 code 的一部分（K-3） | 「装配」里藏着物理（度规、剖面），三份拼法已被量到 |
 | `FYL-SDD-01` DE-COMP-01 Interface | C-ABI 导出面 + `ABI_VERSION` | 文档门 + code 表 + manifest（K-1 / K-2）；C-ABI 与 ABI 号降为本地后端内部 | 契约必须与实现分离才可替换 |
-| `engine.crosshost` 抬头「单核双宿主」 | 两个构建的一致性 | 两个后端的一致性（K-6） | 同上 |
+| `engine.crosshost` 抬头「单核双宿主」 | 两个构建的一致性 | 任意两个后端的一致性（K-6）；「双」同上改「多」 | 同上 |
 
-〔工作假设〕这四条改口在本篇只是**提出**；落文本走 `FYL-SRS-01` / `FYL-SDD-01` 各自的
+〔工作假设〕这五条改口在本篇只是**提出**；落文本走 `FYL-SRS-01` / `FYL-SDD-01` 各自的
 版本行，本篇不改它们。
 
 (fylite-kernel-contract-plan)=
@@ -244,10 +295,10 @@ N 个后端是 N 条驱动而不是 N 份宿主代码。
 
 | 期 | 做什么 | 判据 |
 | :--- | :--- | :--- |
-| **P0 契约** | code 表 + manifest 定为唯一接口（K-1 / K-2）写进 SRS / SDD；后端表的形（K-4）定下；与 `SP-REPORT-15` T-0.4 对齐远端 envelope（K-5） | 两处改口落文本；`fylite case describe` 的输出即契约的可读形 |
+| **P0 契约** | code 表 + manifest 定为唯一接口（K-1 / K-2）写进 SRS / SDD；后端表的形（K-4）定下；与 `SP-REPORT-15` T-0.4 对齐远端 envelope（K-5）；**改名 `fylite_engine`（N-1）单独一次提交** | 两处改口落文本；`fylite case describe` 的输出即契约的可读形 |
 | **P1 补 code** | 其余 7 个装配型能力工具（`discharge` `breakdown` `feasible` `vstab` `zerod` `coupled` `reconstruction` `tglf` 之中尚未成 code 的）补成内核 code；Python 与页面改走文档门 | `scenario/` 与页面 JS 里 `fylite_rs_*` 归零；十个工具全部声明 `kernel_entry`；crosshost 对十个工具运行 |
 | **P2 后端表** | 本地 `.so`、wasm、远端三种后端登记；`--kernel` 按名或地址选；`/api/case` 端点 | 同一份计划在三种后端上各出一份记录，`environment` 各不相同、`whence` 各追得回 |
-| **P3 数据层 profile** | `fylite_data` 跑 SpData conformance 向量；重叠语义对齐；「profile 不含」清单写进 `FYL-DESIGN-14` | 向量全过或逐条说明不含；`FR-CONF-002` 不违 |
+| **P3 中间层 profile** | 中间层跑 SpData conformance 向量；重叠语义对齐；「profile 不含」清单写进 `FYL-DESIGN-14` | 向量全过或逐条说明不含；`FR-CONF-002` 不违 |
 
 〔工作假设〕P1 是关键路径：它是唯一动物理代码的一期，也是量最大的一期
 （271 个调用点）。P0 与 P3 是文本与门禁，P2 在 P1 之后是加法。
@@ -262,7 +313,7 @@ N 个后端是 N 条驱动而不是 N 份宿主代码。
 | G-3 | 内核不认识装置（目标表「禁止」列），但今天 `device.py` 的导体几何现算（互感、响应行）是 Python 调内核扁平函数完成的——这批是「装配」还是「装置层」，归内核 code 还是留在宿主，需逐个裁 | 开；P1 |
 | G-4 | 两个后端给出不同的数时，登记册记录的**纳入类别**（V / B / C）怎么定——今天三类都以「外部答案」为对照，后端间对照是第四种 | 开；P2 |
 | G-5 | wasm 后端的 code 表怎么自报：`fyo-interface.js` 是生成物而非运行期查询 | 开；P2 |
-| G-6 | `fylite_data` 与 SpData 重叠语义的**对齐代价**未量：`$link` 分解、`merge_key`、时间开窗三处各自定义，可能与 SpData 的 `$op` / 标识符语法冲突 | 开；P3 前先量 |
+| G-6 | 中间层与 SpData 重叠语义的**对齐代价**未量：`$link` 分解、`merge_key`、时间开窗三处各自定义，可能与 SpData 的 `$op` / 标识符语法冲突 | 开；P3 前先量 |
 
 (fylite-kernel-contract-trace)=
 # 追溯 (Traceability)
@@ -274,5 +325,6 @@ N 个后端是 N 条驱动而不是 N 份宿主代码。
 | K-4 / K-7 | `FYL-DESIGN-15` R-4（找不到就说、不退化） | 数据层 `kernel.rs`；`engine.provenance` |
 | K-5 | `SPM-ADR-111`；`SP-REPORT-15` T-1.6 / T-0.4 | 平台 ADR（协议成员） |
 | K-6 | `engine.crosshost`；`FYL-SRS-01` NR-ENV-004 | 公开 V&V 登记册 |
+| N-1 | 用户裁定 2026-09-04；`FYL-SDD-01` DE-COMP-03 / DE-COMP-09 | Cargo 包名、制品名、C 导出前缀、`_environment.json`、`FYL-DESIGN-14` / `-15` 与 `FYL-SDD-01` 布局表 |
 | D-1 | SpData SRS FR-CONF-002；`FYL-DESIGN-14` L-1 / L-8 | `FYL-DESIGN-14`（profile 不含清单） |
 | H-1..H-3 | `FYL-DESIGN-09` / `-10` / `-13` / `-15` | 四个页面设计书的 as-built |
