@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "0.9"
+version: "1.0"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,12 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.9 G-13 修正：`validate-report.mjs` 由已撤除的命令行改为库调用 `casereport.run_and_render`，
+  change: 'v1.0 §八 的试改落地（U-15 · U-23）：`app/assets/edit.js`——方把手写 `sets_parameter`、圆路点写
+    绑到 boundary 端口的文档（带 `fylite:edited_from`）、剖面节点走单调三次插值、通道权重写手填层且
+    卷宗禁用者打不开；每次试改是一个版本，撤销与「回到 #k」都是换回一版计划；轮廓自交 / 出限制器
+    **按名拒绝且不改数**。试改闸 `validate-edit.mjs` 十七项通过。★**内核已在本环境构建**（wasm 三份 +
+    两个 `.so` + 数据层），于是：**G-13 关**——两端规格比对首次真跑，两端各 9 张图 0 拒绝逐字段一致；
+    带生成表单的 model 页在真内核下三档闭包与原生一致到 1e-7。· v0.9 G-13 修正：`validate-report.mjs` 由已撤除的命令行改为库调用 `casereport.run_and_render`，
     失败形态从「命令不存在（抛异常）」变为「内核未构建（跳过）」——本环境无内核，故只验到这一步，
     两端逐字段比对仍待有内核处运行。· v0.8 离线（U-20）落地：`tools/make-sw.mjs` 生成 `app/sw.js` 与 `app/manifest.webmanifest`
     （预缓存清单由走树得出，96 项），`host.js` 只在**站点面**注册（桌面版的字节在可执行文件里，缓存
@@ -61,7 +66,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v0.9 |
+| 版本 (Version) | v1.0 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -670,6 +675,8 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★§八 试改已落（2026-09-04） | — | **交互试改**（U-15 · U-23）：`app/assets/edit.js` 把一次拖动落成**计划的一个版本**。**方把手**（R₀ a κ δᵤ δₗ）写 `sets_parameter`，位置 ↔ 参数值可逆（实测四位往返一致）；**圆路点**写一份绑到 `boundary` 端口的文档并带 `fylite:edited_from`；**剖面节点**走单调三次插值（PCHIP）——过每一个节点、单调段不过冲，与分析页的拟合基是两个问题两处答；**通道权重**写手填层，卷宗禁用的通道**打不开**并说出理由。撤销 / 「回到 #k」都是换回一版计划，从中间改出新枝时丢掉重做尾巴。轮廓**自交**或**出限制器**按名拒绝且**一个数都不改**；没有限制器时**不谎称通过**而是说明没判。档位表在一处，且**没有任何手势返回 C**（D-9：滑杆与把手到不了退火 / 扫描）。**未落**：把编辑器接到页面画布上的指针事件（`plot.js` 的 `handles` 与 `rOf/zOf` 已具备）；B 档求解的触发 | `validate-edit.mjs` 两节十七项通过，含「拒绝不改数」与「卷宗禁用打不开」两条否定断言 |
+| ★内核构建与真机验证（2026-09-04） | — | 本环境**构建了内核**：三份 wasm（v125，导出 235 / 12 / 11）装进 `app/assets/`，`libfylite_kernel.so` · `libfylite_kernel_ext.so` · `libfylite_runtime.so` 装进 `python/fylite/_lib/`。据此**补验了此前只能跳过的部分** | ①`validate-report.mjs` 首次跑通（G-13 关）；②`validate-transport-app.mjs`：**带生成表单的 model 页**三档闭包（常数 χ · 刚性 · 中子）与原生一致——度规 7e-8、剖面 4e-7，即 U-1 的表单生成**没有改变任何数值行为**；③Python 套件由 17 失败降到 6（余下 3 条缺 matplotlib、2 条缺外部 oracle、1 条溯源账已刷新）。★wasm **按仓规不入库**（`.gitignore` 写明「不要加例外把某一份放回来」），故只在工作树里 |
 | ★U-20 已落（2026-09-04） | — | **离线是默认态**：`tools/make-sw.mjs` **生成**（不是手写）`app/sw.js` 的预缓存清单——手写的清单会静默丢掉上周新加的资源，而那种失败只在离线时出现；`app/manifest.webmanifest` 同批生成。缓存**按应用版本命名**，装新版时把旧的一扫而空（页面与 wasm 是同一份构建，用新页面配旧模块正是这条命名要防的）；`/api/` **永不入缓存**（桌面版的数据面必须是活的，一句缓存下来的「网关未连」会比网关活得久）；`install` 逐个加而不是 `addAll`，因为一个 404 的资源（本检出没有的 wasm）会让整站**一份缓存都没有**。注册只在**站点面**发生，由「请求面答不答」决定，与本文件其余判断同一条规矩。**未落**：桌面版的目录形态无需此物；离线时的更新提示 | `validate-offline.mjs` 两节八项通过：生成物无漂移、**16 张页面加载的每一个资源都在清单里**、`/api/` 排除、缓存名带版本；浏览器一节**真的把网断掉**——重新打开 `index.html`（脚本、五张图与样式表全部从缓存出来），再打开**一张断网前从未访问过的** `page_model.html`（132 个控件由词表画出），断网后打到服务器的请求数为 **0**。★闸子首跑的失败是闸子自己的：它断言散文页有 `FyI18n`，而散文页按设计就不加载 i18n |
 | ★U1 提前落地一件（2026-09-04） | — | **文档集与往返**（U-18 · U-19）：`app/assets/bundle.js` 把一次工作打成**一个存储法 zip**——`plan.jsonld` · `inputs/*.jsonld` · `record.jsonld`（含 `fylite:state`，故它同时是断点）· `presentation.jsonld` · `environment.json` · 可选 `report.md` 与 `figures/`。读回时**按 `@type` 分类，不问文件名**；不认识的成员**列出而不丢**；一套里出现第二份计划时取其一并把另一份点名。缺哪一份就少哪一条投影，不报错（`capabilities()` 把这句话变成可查询的）。zip **不写时间戳**——带时间戳的 zip 每次导出都是不同的字节，往返闸就无从比起。写 zip 而不引库：全站没有构建步骤也没有第三方运行时，七十行存储法比一个依赖便宜。**未落**：`fylite:AppSession/1` 的退役（要中间层 wasm，属 U1）；桌面侧的目录形态 | `validate-bundle.mjs` 十二项通过：分类、`plan` / `presentation` 逐字节往返、`record` 逐叶子往返、整份 zip 逐字节可重现、布局与钉住的定义域穿过往返、部分集合的能力判定、未知成员与重复成员的处置。★关键的一条是**外部读者**：字节交给 **Python 的 `zipfile`**（CRC 全过、UTF-8 名完好）与 **`unzip -t`**——自己写的读者认自己写的 zip 什么也证明不了 |
 | ★U0 已落（2026-09-04，第四步） | — | **工作台与布局**：`app/assets/workbench.js` 把规格的每个视图做成 12 列栅格上的一块瓦片——拖标题移动、拖右下角缩放，落点写 `fylite:layout`，并把 `has_view` **按先行后列重排**（U-14：不认识该词的渲染器读的是次序，所以次序必须与看到的一致）；框选缩放与光标**按坐标族共享**（时序动、剖面不动，U-17）；瞬态与入规格**两种状态**，未钉住的瓦片带「未钉住」标记，钉住把定义域写进 `fylite:domain` 并清标记；图层开关立刻入规格（U-16）。导入的规格与导入的会话文件同样不可信：布局一律夹进栅格。`plot.js` 补正向映射 `toPixel` 与绘图框 `box`（画光标需要，与既有的逆映射对称）。**未落**：把工作台挂进某一页（要先有记录）；自组视图（任选两量）的入口；瓦片菜单里的换轴与图层清单 | `validate-workbench.mjs` 两节十三项通过。★闸子逮到一处真缺陷：夹到栅格内的钳位只写在拖拽处理器里，程序化的 `move()`（预设布局、导入的规格、自己算坐标的调用方）能把一块瓦片放到第 6 列却给 12 列宽，CSS 静默溢出——钳位已移进 API |
@@ -715,7 +722,7 @@ C 档。
 | **G-9** | **预览图与页面无闸**：八张图是概念图，`-11` G-12 对 `desktop-*.svg` 的同一缺口 | `tools/make-frontend-design-figures.py` | P2 |
 | **G-10** | **`stem` · `table` · `baseline` 三个词未进规格词表**，Python 端 `casereport.py` 对 `stem` 无 SVG、对 `baseline` 无成对渲染；U-21 / U-22 今天只在浏览器端可落 | `docs/examples/context.jsonld` · `casereport.py` | P1 |
 | **G-11** | **权重编辑的判据来源**：U-23 要求页面知道「卷宗禁用」的通道集合；该信息在装置文档的哪个槽（`fylite:channel_map` 或另一处）未查 | `fyo-interface.js` `TABLES.DEVICE` | P1 |
-| **G-13** | **两端规格比对仍未真正跑过**。★调用已修（2026-09-04）：`validate-report.mjs` 由撤除的命令行改为库调用 `casereport.run_and_render`，失败形态从「命令不存在→抛异常」变为「内核未构建→**跳过**」，这一步实测。★**仍开的是**：本环境没有内核，两端逐字段比对**一次也没跑过**；U-12「两端推出同一份规格」要到有内核处才被真正断言，`validate-fig.mjs` 只管页面这一边 | 实测 `node app/tests/validate-report.mjs`（今日：skip，理由是 `libfylite_runtime.so` 未构建） | P1 |
+| ~~**G-13**~~ | ~~两端规格比对没在跑~~ **已关（2026-09-04）**：调用改为库调用后，内核在本环境构建完成，`validate-report.mjs` **首次真正跑通**——两端各 9 张图（8 条线图 + 1 张极向截面）、0 拒绝、4 张表，`casereport.js` 与 `casereport.py` 逐字段一致。U-12「两端推出同一份规格」自此有门在断言 | 实测 `node app/tests/validate-report.mjs`：`ok: casereport.js and casereport.py agree on the record` | — |
 | **G-12** | **场景 `note` 的渲染位置未量**：U-24 把长注放在表单顶部折叠段，它是否把首屏输出推出 900 px（P-26）未在 `page_*` 上实测 | `-11` V-13 闸 | P2 |
 
 〔开放项〕**词表与 i18n 的关系。** U-2 让 `gloss` 与 `choices` 的文字来自词表而非页面
