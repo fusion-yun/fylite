@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "1.0"
+version: "1.1"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,11 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.0 §八 的试改落地（U-15 · U-23）：`app/assets/edit.js`——方把手写 `sets_parameter`、圆路点写
+  change: 'v1.1 §五 源栈落地（U-5 · U-6 · U-7）：`app/assets/sources.js` 写 `fylite:Assembly/1`，页面只排
+    次序与开关。★真跑中间层发现两件事：**`merge` 是后者覆盖前者，而栈是上者优先**——同序写会静默
+    反转优先级，故 `assembly()` 倒序写并由闸用真装配器验证；**中间层不记逐量出处**（只记 `merged`），
+    故 U-6 的表今天由页面推出并标 `derived`，新缺口 G-14。源栈闸 `validate-sources.mjs` 三节十六项通过。
+    · v1.0 §八 的试改落地（U-15 · U-23）：`app/assets/edit.js`——方把手写 `sets_parameter`、圆路点写
     绑到 boundary 端口的文档（带 `fylite:edited_from`）、剖面节点走单调三次插值、通道权重写手填层且
     卷宗禁用者打不开；每次试改是一个版本，撤销与「回到 #k」都是换回一版计划；轮廓自交 / 出限制器
     **按名拒绝且不改数**。试改闸 `validate-edit.mjs` 十七项通过。★**内核已在本环境构建**（wasm 三份 +
@@ -66,7 +70,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v1.0 |
+| 版本 (Version) | v1.1 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -675,6 +679,7 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★§五 源栈已落（2026-09-04） | — | **多源组合**（U-5 · U-6 · U-7）：`app/assets/sources.js` 把一个端口上的若干层排成栈，产出一份 `fylite:Assembly/1`（别名映射 · 有序 `merge` · 可选 `select`），**页面自己不合并**（D-3）。关掉的层不进 `$source`（关掉是不参与，不是权重为 0）；`mdsbind` 源写成 `mdsbind:` URI 而不是 `file:`；上游**记录可以当一层源**并带世代号，上游重跑后该层标为**过期**而不静默更新——这一条把 `-10` P-4 的两种交接、P-21 的命名工件、`handoff.js` 的单槽与 `-12` G-2 收成一件事。**未落**：把源栈接到页面 DOM（拖动排序的控件）；`select` 的界面 | `validate-sources.mjs` 三节十六项通过。★★**第三节把页面写出的装配文档交给真的中间层执行**（`fylite.io.fydoc.assemble`，经 C ABI），实测栈顶赢重叠的叶子（`P1.field = 1,2`）、把栈倒过来赢家跟着换（`9,9`）、未被盖住的叶子从下层按 `name` 对齐补齐。这一节不能在浏览器里自证：优先级反了的话，数照样装配、表照样渲染，只是答案来自读者排在最后的那一源 |
 | ★§八 试改已落（2026-09-04） | — | **交互试改**（U-15 · U-23）：`app/assets/edit.js` 把一次拖动落成**计划的一个版本**。**方把手**（R₀ a κ δᵤ δₗ）写 `sets_parameter`，位置 ↔ 参数值可逆（实测四位往返一致）；**圆路点**写一份绑到 `boundary` 端口的文档并带 `fylite:edited_from`；**剖面节点**走单调三次插值（PCHIP）——过每一个节点、单调段不过冲，与分析页的拟合基是两个问题两处答；**通道权重**写手填层，卷宗禁用的通道**打不开**并说出理由。撤销 / 「回到 #k」都是换回一版计划，从中间改出新枝时丢掉重做尾巴。轮廓**自交**或**出限制器**按名拒绝且**一个数都不改**；没有限制器时**不谎称通过**而是说明没判。档位表在一处，且**没有任何手势返回 C**（D-9：滑杆与把手到不了退火 / 扫描）。**未落**：把编辑器接到页面画布上的指针事件（`plot.js` 的 `handles` 与 `rOf/zOf` 已具备）；B 档求解的触发 | `validate-edit.mjs` 两节十七项通过，含「拒绝不改数」与「卷宗禁用打不开」两条否定断言 |
 | ★内核构建与真机验证（2026-09-04） | — | 本环境**构建了内核**：三份 wasm（v125，导出 235 / 12 / 11）装进 `app/assets/`，`libfylite_kernel.so` · `libfylite_kernel_ext.so` · `libfylite_runtime.so` 装进 `python/fylite/_lib/`。据此**补验了此前只能跳过的部分** | ①`validate-report.mjs` 首次跑通（G-13 关）；②`validate-transport-app.mjs`：**带生成表单的 model 页**三档闭包（常数 χ · 刚性 · 中子）与原生一致——度规 7e-8、剖面 4e-7，即 U-1 的表单生成**没有改变任何数值行为**；③Python 套件由 17 失败降到 6（余下 3 条缺 matplotlib、2 条缺外部 oracle、1 条溯源账已刷新）。★wasm **按仓规不入库**（`.gitignore` 写明「不要加例外把某一份放回来」），故只在工作树里 |
 | ★U-20 已落（2026-09-04） | — | **离线是默认态**：`tools/make-sw.mjs` **生成**（不是手写）`app/sw.js` 的预缓存清单——手写的清单会静默丢掉上周新加的资源，而那种失败只在离线时出现；`app/manifest.webmanifest` 同批生成。缓存**按应用版本命名**，装新版时把旧的一扫而空（页面与 wasm 是同一份构建，用新页面配旧模块正是这条命名要防的）；`/api/` **永不入缓存**（桌面版的数据面必须是活的，一句缓存下来的「网关未连」会比网关活得久）；`install` 逐个加而不是 `addAll`，因为一个 404 的资源（本检出没有的 wasm）会让整站**一份缓存都没有**。注册只在**站点面**发生，由「请求面答不答」决定，与本文件其余判断同一条规矩。**未落**：桌面版的目录形态无需此物；离线时的更新提示 | `validate-offline.mjs` 两节八项通过：生成物无漂移、**16 张页面加载的每一个资源都在清单里**、`/api/` 排除、缓存名带版本；浏览器一节**真的把网断掉**——重新打开 `index.html`（脚本、五张图与样式表全部从缓存出来），再打开**一张断网前从未访问过的** `page_model.html`（132 个控件由词表画出），断网后打到服务器的请求数为 **0**。★闸子首跑的失败是闸子自己的：它断言散文页有 `FyI18n`，而散文页按设计就不加载 i18n |
@@ -715,6 +720,7 @@ C 档。
 | **G-2** | **A 档在文档门上未实测**：拖把手每帧一次门调用（编码 + 一列重算）能否 ≤ 50 ms，`-16` G-1 同问；U-8 的「每次调用 ≤ 200 ms」是工作假设 | `-16` G-1 · U-8 | P0 |
 | **G-3** | **规格词表缺三个词**：`fylite:layout` · `fylite:visible` · `fylite:domain` 尚未进 `context.jsonld`，U-14 / U-16 / U-17 无处落 | `docs/examples/context.jsonld` | P1 |
 | **G-4** | **`--resume` 不在 `_cli.json`**，Python `cases.run` 无 `resume=`；U-19 的移步今天只有浏览器一端 | `python/fylite/_cli.json` · `-17` E-5 | P1 |
+| **G-14** | **中间层不记逐量出处**：装配后的文档只带 `fylite:assembly.merged`（哪几个源参与）与 `shot`，没有「这一片叶子来自哪一源」。于是 U-6 的「表是页面画的，**数据是中间层记的**」今天只有前半句成立——`sources.js` 由它**持有**的那几份源文档推出出处并逐行标 `derived`，`mdsbind` 之类拿不到内容的源被点名列出而不是当作没给 | 实测 `fydoc.assemble` 的返回：`fylite:assembly = {merged: [...], shot: 0}` | P1 |
 | ~~**G-5**~~ | ~~静态站点断网重开不可载入~~ **已关（2026-09-04）**：`tools/make-sw.mjs` 生成的预缓存 service worker 与 manifest，`validate-offline.mjs` 断网实测重开与首访新页均成立 | `validate-offline.mjs` | — |
 | **G-6** | **ρ → R 映射的来源未定**：U-17 允许以中平面 R 作横轴，需要记录里有 `equilibrium` 的 `profiles_1d/r_outboard` 或等价量；今天的 `LADDER` 表有无此列未查 | `fyo-interface.js` `TABLES.LADDER` | P2 |
 | **G-7** | **路点编辑的「在限制器之内」判据**：多边形包含测试在页面里做还是在中间层做（它是文档操作，D-4 归中间层）未裁 | U-15 | P2 |
