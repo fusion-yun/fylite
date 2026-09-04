@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "0.7"
+version: "0.8"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,10 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.7 文档集与往返闸（U-18 / U-19，本属 U1，其页面半边不依赖中间层故提前落地）：
+  change: 'v0.8 离线（U-20）落地：`tools/make-sw.mjs` 生成 `app/sw.js` 与 `app/manifest.webmanifest`
+    （预缓存清单由走树得出，96 项），`host.js` 只在**站点面**注册（桌面版的字节在可执行文件里，缓存
+    只会端出昨天的构建）；离线闸 `validate-offline.mjs` **真的断网重开**并断言从未访问过的页面也能打开。
+    **G-5 关。** · v0.7 文档集与往返闸（U-18 / U-19，本属 U1，其页面半边不依赖中间层故提前落地）：
     `app/assets/bundle.js` 写出并读回一份存储法 zip（计划 · 输入 · 记录 · 规格 · environment · 报告），
     分类按 `@type` 不按文件名，不认识的成员列出不丢；`validate-bundle.mjs` 断言设计点名的判据并把字节
     交给 **Python 的 zipfile 与 unzip -t** 两个外部读者。**至此设计点名的四道闸全部存在且通过。**
@@ -56,7 +59,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v0.7 |
+| 版本 (Version) | v0.8 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -665,6 +668,7 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★U-20 已落（2026-09-04） | — | **离线是默认态**：`tools/make-sw.mjs` **生成**（不是手写）`app/sw.js` 的预缓存清单——手写的清单会静默丢掉上周新加的资源，而那种失败只在离线时出现；`app/manifest.webmanifest` 同批生成。缓存**按应用版本命名**，装新版时把旧的一扫而空（页面与 wasm 是同一份构建，用新页面配旧模块正是这条命名要防的）；`/api/` **永不入缓存**（桌面版的数据面必须是活的，一句缓存下来的「网关未连」会比网关活得久）；`install` 逐个加而不是 `addAll`，因为一个 404 的资源（本检出没有的 wasm）会让整站**一份缓存都没有**。注册只在**站点面**发生，由「请求面答不答」决定，与本文件其余判断同一条规矩。**未落**：桌面版的目录形态无需此物；离线时的更新提示 | `validate-offline.mjs` 两节八项通过：生成物无漂移、**16 张页面加载的每一个资源都在清单里**、`/api/` 排除、缓存名带版本；浏览器一节**真的把网断掉**——重新打开 `index.html`（脚本、五张图与样式表全部从缓存出来），再打开**一张断网前从未访问过的** `page_model.html`（132 个控件由词表画出），断网后打到服务器的请求数为 **0**。★闸子首跑的失败是闸子自己的：它断言散文页有 `FyI18n`，而散文页按设计就不加载 i18n |
 | ★U1 提前落地一件（2026-09-04） | — | **文档集与往返**（U-18 · U-19）：`app/assets/bundle.js` 把一次工作打成**一个存储法 zip**——`plan.jsonld` · `inputs/*.jsonld` · `record.jsonld`（含 `fylite:state`，故它同时是断点）· `presentation.jsonld` · `environment.json` · 可选 `report.md` 与 `figures/`。读回时**按 `@type` 分类，不问文件名**；不认识的成员**列出而不丢**；一套里出现第二份计划时取其一并把另一份点名。缺哪一份就少哪一条投影，不报错（`capabilities()` 把这句话变成可查询的）。zip **不写时间戳**——带时间戳的 zip 每次导出都是不同的字节，往返闸就无从比起。写 zip 而不引库：全站没有构建步骤也没有第三方运行时，七十行存储法比一个依赖便宜。**未落**：`fylite:AppSession/1` 的退役（要中间层 wasm，属 U1）；桌面侧的目录形态 | `validate-bundle.mjs` 十二项通过：分类、`plan` / `presentation` 逐字节往返、`record` 逐叶子往返、整份 zip 逐字节可重现、布局与钉住的定义域穿过往返、部分集合的能力判定、未知成员与重复成员的处置。★关键的一条是**外部读者**：字节交给 **Python 的 `zipfile`**（CRC 全过、UTF-8 名完好）与 **`unzip -t`**——自己写的读者认自己写的 zip 什么也证明不了 |
 | ★U0 已落（2026-09-04，第四步） | — | **工作台与布局**：`app/assets/workbench.js` 把规格的每个视图做成 12 列栅格上的一块瓦片——拖标题移动、拖右下角缩放，落点写 `fylite:layout`，并把 `has_view` **按先行后列重排**（U-14：不认识该词的渲染器读的是次序，所以次序必须与看到的一致）；框选缩放与光标**按坐标族共享**（时序动、剖面不动，U-17）；瞬态与入规格**两种状态**，未钉住的瓦片带「未钉住」标记，钉住把定义域写进 `fylite:domain` 并清标记；图层开关立刻入规格（U-16）。导入的规格与导入的会话文件同样不可信：布局一律夹进栅格。`plot.js` 补正向映射 `toPixel` 与绘图框 `box`（画光标需要，与既有的逆映射对称）。**未落**：把工作台挂进某一页（要先有记录）；自组视图（任选两量）的入口；瓦片菜单里的换轴与图层清单 | `validate-workbench.mjs` 两节十三项通过。★闸子逮到一处真缺陷：夹到栅格内的钳位只写在拖拽处理器里，程序化的 `move()`（预设布局、导入的规格、自己算坐标的调用方）能把一块瓦片放到第 6 列却给 12 列宽，CSS 静默溢出——钳位已移进 API |
 | ★U0 已落（2026-09-04，第三步） | — | **执行与断点**：`app/assets/run.js` 把一次多步运行做成**一串门调用**——步预算分片（每次调用瞄准 200 ms，交互档 DE-LOG-04）、进度由**调用方数出来**而非内核回报（门上没有回调）、剩余时间**报出不承诺**、`cancel()` 把剩余预算切到 0（本片结束即停，已算的步全在），`terminate` 只留作**硬中断**并另有其名。步进器是**注入的**：`run.js` 不认识 worker、wasm 或 fyo，这正是等价性能在无内核环境下被断言的原因。`app/assets/checkpoint.js` 把断点存进 IndexedDB——**没有断点格式**，存的就是那份记录的原文本（与导出同一批字节，U-18）；清单行的每个值都读自记录；`resumable()` 按 K-7 的内核身份判可否续，不符按名拒绝并说出两个哈希，显式允许漂移时把它写进 `environment` 与 `caveat`（U-11 · S-6）。**未落**：把 `worker.js` 的 `evolve` 逐步驱动接到 `FyRun`（要 wasm）；单步 code 的「求解中 · 预算 ≤ 1.5 s」措辞；硬中断的超时判定 | `validate-checkpoint.mjs` 两节十四项通过。★**闸子逮到两处真缺陷**：①恢复后的行军从步 0 重新开始，「N 步一次 ≡ k 步 + 恢复(N−k) 步」当场不成立（改为从 `state.step` 续号）；②分片可以跨过断点间隔，实测 30 步、每 10 步一存的行军**一次也没存**（改为分片不得越过断点边界）。第三处是闸子自己的假阳性：它把注释里的 `terminate()` 当成代码 |
@@ -702,7 +706,7 @@ C 档。
 | **G-2** | **A 档在文档门上未实测**：拖把手每帧一次门调用（编码 + 一列重算）能否 ≤ 50 ms，`-16` G-1 同问；U-8 的「每次调用 ≤ 200 ms」是工作假设 | `-16` G-1 · U-8 | P0 |
 | **G-3** | **规格词表缺三个词**：`fylite:layout` · `fylite:visible` · `fylite:domain` 尚未进 `context.jsonld`，U-14 / U-16 / U-17 无处落 | `docs/examples/context.jsonld` | P1 |
 | **G-4** | **`--resume` 不在 `_cli.json`**，Python `cases.run` 无 `resume=`；U-19 的移步今天只有浏览器一端 | `python/fylite/_cli.json` · `-17` E-5 | P1 |
-| **G-5** | **静态站点断网重开不可载入**：无 manifest、无 service worker；NR-ENV-001 的「离线可用」只量了「载入后」 | §一 之 7 | P1 |
+| ~~**G-5**~~ | ~~静态站点断网重开不可载入~~ **已关（2026-09-04）**：`tools/make-sw.mjs` 生成的预缓存 service worker 与 manifest，`validate-offline.mjs` 断网实测重开与首访新页均成立 | `validate-offline.mjs` | — |
 | **G-6** | **ρ → R 映射的来源未定**：U-17 允许以中平面 R 作横轴，需要记录里有 `equilibrium` 的 `profiles_1d/r_outboard` 或等价量；今天的 `LADDER` 表有无此列未查 | `fyo-interface.js` `TABLES.LADDER` | P2 |
 | **G-7** | **路点编辑的「在限制器之内」判据**：多边形包含测试在页面里做还是在中间层做（它是文档操作，D-4 归中间层）未裁 | U-15 | P2 |
 | **G-8** | **报告页与四页的外壳关系**：`-11` G-9 说 `report` 是否入闸的四页要在 `page_*` 提正本时一并定；本篇把报告页当第五页画（{numref}`fig-u18-report`），但外壳的 ⑤ 槽对一个不算的页说什么，未裁 | `-11` G-9 | P2 |
