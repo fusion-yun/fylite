@@ -277,3 +277,11 @@ await page.waitForFunction((re) => new RegExp(re).test(
 ★**`validate-report.mjs` 今天跑不动**（`FYL-DESIGN-18` G-13）：它调 `python3 -m fylite cases --report`，
 而 2026-09-04 的裁定撤掉了 Python 侧的命令行。于是「两端推出同一份规格」这条判据目前没有门在断言——
 `validate-fig.mjs` 只管页面这一边。
+
+〔`validate-checkpoint.mjs`〕**断点闸**（`FYL-DESIGN-18` U-8..U-11 · U-19）：`assets/run.js` 把一次
+多步运行做成一串门调用（预算分片 · 进度按步实测 · 取消 = 切预算），`assets/checkpoint.js` 把断点
+存进 IndexedDB——**断点就是那份记录**，存取逐字节相同。闸子的核心判据是设计里那一条：**N 步一次
+调用 ≡ k 步 + 恢复(N−k) 步**；这里用一个**确定性的假步进器**（状态是依赖入参的累加），所以不需要
+内核也能断言「行军把状态带过了接缝、并且只要还差的那些步」。取消一节读的是**兑现值**：取消不是
+异常、不是 terminate，已算的步必须还在。★首跑逮到两处真缺陷（恢复后步号从头、分片跨过断点间隔），
+都记在 `FYL-DESIGN-18` §十三 的 U0 第三步行里。
