@@ -41,8 +41,41 @@
 // host-supplied `Transport` over a WebSocket (see the `mdsip` module).
 // =========================================================================== //
 
+//: ★★THE TWO POINTER HELPERS LIVE HERE, not inside `mds_abi`.  They are how
+//: every export in this file reads a string out of the caller's memory and
+//: writes one back — nothing about them is MDSplus.  They sat in the mdsip
+//: grab-bag, and because that module is native-only, seventeen exports that
+//: touch neither a socket nor a file were unreachable from wasm by
+//: association.  Measured 2026-09-04: with them moved, those seventeen
+//: compile for `wasm32-unknown-unknown` unchanged (`FYL-DESIGN-18` G-15).
+mod abi {
+    /// `(ptr, len)` -> `&str`, or `None` when it is not UTF-8 / is null.
+    ///
+    /// # Safety
+    /// `p` must point at `n` readable bytes.
+    pub unsafe fn s<'a>(p: *const u8, n: u64) -> Option<&'a str> {
+        if p.is_null() {
+            return None;
+        }
+        std::str::from_utf8(std::slice::from_raw_parts(p, n as usize)).ok()
+    }
+    /// Copy `text` into `(out, cap)`; returns the length it wanted.
+    ///
+    /// # Safety
+    /// `out` must point at `cap` writable bytes.
+    pub unsafe fn put(text: &str, out: *mut u8, cap: u64) -> i64 {
+        let b = text.as_bytes();
+        if !out.is_null() && cap > 0 {
+            let n = b.len().min(cap as usize);
+            std::ptr::copy_nonoverlapping(b.as_ptr(), out, n);
+        }
+        b.len() as i64
+    }
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 mod mds_abi {
+    pub use super::abi::{put, s};
     #[cfg(feature = "mdsip")]
     pub use crate::mdsip::{self, tcp::TcpTransport, Answer, Client, Index, Verb};
 
@@ -57,29 +90,7 @@ mod mds_abi {
         pub err: String,
     }
 
-    /// `(ptr, len)` -> `&str`, or `None` when it is not UTF-8 / is null.
-    ///
-    /// # Safety
-    /// `p` must point at `n` readable bytes.
-    pub unsafe fn s<'a>(p: *const u8, n: u64) -> Option<&'a str> {
-        if p.is_null() {
-            return None;
-        }
-        std::str::from_utf8(std::slice::from_raw_parts(p, n as usize)).ok()
-    }
 
-    /// Copy `text` into `(out, cap)`; returns the length it wanted.
-    ///
-    /// # Safety
-    /// `out` must point at `cap` writable bytes.
-    pub unsafe fn put(text: &str, out: *mut u8, cap: u64) -> i64 {
-        let b = text.as_bytes();
-        if !out.is_null() && cap > 0 {
-            let n = b.len().min(cap as usize);
-            std::ptr::copy_nonoverlapping(b.as_ptr(), out, n);
-        }
-        b.len() as i64
-    }
 
     pub fn verb_of(code: i32) -> Option<Verb> {
         match code {
@@ -125,7 +136,7 @@ pub unsafe extern "C" fn fylite_runtime_mds_open(
     host: *const u8, host_n: u64, port: u16, user: *const u8, user_n: u64,
     timeout_ms: i32, out_handle: *mut *mut std::ffi::c_void,
     err: *mut u8, err_cap: u64) -> i32 {
-    let (Some(h), Some(u)) = (mds_abi::s(host, host_n), mds_abi::s(user, user_n))
+    let (Some(h), Some(u)) = (abi::s(host, host_n), abi::s(user, user_n))
     else { return -1 };
     if out_handle.is_null() {
         return -1;
@@ -136,7 +147,7 @@ pub unsafe extern "C" fn fylite_runtime_mds_open(
             0
         }
         Err(e) => {
-            mds_abi::put(&format!("{e:?}"), err, err_cap);
+            abi::put(&format!("{e:?}"), err, err_cap);
             *out_handle = std::ptr::null_mut();
             -2
         }
@@ -156,7 +167,7 @@ pub unsafe extern "C" fn fylite_runtime_mds_open_tree(
         return -1;
     }
     let sess = &mut *(handle as *mut mds_abi::Session);
-    let Some(t) = mds_abi::s(tree, tree_n) else { return -1 };
+    let Some(t) = abi::s(tree, tree_n) else { return -1 };
     match sess.client.open_tree(t, shot) {
         Ok(_) => { sess.err.clear(); 0 }
         Err(e) => { sess.err = format!("{e:?}"); -2 }
@@ -187,7 +198,7 @@ pub unsafe extern "C" fn fylite_runtime_mds_read(
         return -1;
     }
     let sess = &mut *(handle as *mut mds_abi::Session);
-    let Some(nd) = mds_abi::s(node, node_n) else { return -1 };
+    let Some(nd) = abi::s(node, node_n) else { return -1 };
     let Some(v) = mds_abi::verb_of(verb) else { return -3 };
     let idx = if nsub == 0 {
         Vec::new()
@@ -272,7 +283,7 @@ pub unsafe extern "C" fn fylite_runtime_mds_last_error(
         return -1;
     }
     let sess = &*(handle as *mut mds_abi::Session);
-    mds_abi::put(&sess.err, out, cap)
+    abi::put(&sess.err, out, cap)
 }
 
 /// Close the session and free the handle.  ★Idempotent only in the sense that
@@ -301,7 +312,8 @@ pub unsafe extern "C" fn fylite_runtime_mds_close(handle: *mut std::ffi::c_void)
 // 调用方在服务器/文件答复之前无法给缓冲区定长。
 // =========================================================================== //
 
-#[cfg(not(target_arch = "wasm32"))]
+//: ★no gate: the g-file helper reads TEXT the caller already has, and touches
+//: neither a socket nor a file (G-15).
 mod gfile_abi {
     pub use crate::geqdsk::GFile;
 }
@@ -312,7 +324,6 @@ mod gfile_abi {
 ///
 /// # Safety
 /// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_parse(
     text: *const u8, text_n: u64, out_handle: *mut *mut std::ffi::c_void,
@@ -320,14 +331,14 @@ pub unsafe extern "C" fn fylite_runtime_gfile_parse(
     if out_handle.is_null() {
         return -1;
     }
-    let Some(s) = mds_abi::s(text, text_n) else { return -1 };
+    let Some(s) = abi::s(text, text_n) else { return -1 };
     match crate::geqdsk::parse(s) {
         Ok(g) => {
             *out_handle = Box::into_raw(Box::new(g)) as *mut std::ffi::c_void;
             0
         }
         Err(e) => {
-            mds_abi::put(&e.to_string(), err, err_cap);
+            abi::put(&e.to_string(), err, err_cap);
             *out_handle = std::ptr::null_mut();
             -2
         }
@@ -338,7 +349,6 @@ pub unsafe extern "C" fn fylite_runtime_gfile_parse(
 ///
 /// # Safety
 /// `handle` 来自 `fylite_runtime_gfile_parse`；`nw`/`nh` 各一个 u64。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_dims(
     handle: *mut std::ffi::c_void, nw: *mut u64, nh: *mut u64) -> i32 {
@@ -355,7 +365,6 @@ pub unsafe extern "C" fn fylite_runtime_gfile_dims(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 个 f64。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
     handle: *mut std::ffi::c_void, out: *mut f64, cap: u64) -> i32 {
@@ -376,7 +385,6 @@ pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
 ///
 /// # Safety
 /// `handle` 来自 parse；`name`: `name_n` 字节；`out`: `cap` 个 f64。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_array(
     handle: *mut std::ffi::c_void, name: *const u8, name_n: u64,
@@ -385,7 +393,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_array(
         return -1;
     }
     let g = &*(handle as *mut gfile_abi::GFile);
-    let Some(nm) = mds_abi::s(name, name_n) else { return -1 };
+    let Some(nm) = abi::s(name, name_n) else { return -1 };
     let Some(v) = g.array(nm) else { return -2 };
     if !out.is_null() && (v.len() as u64) <= cap {
         std::ptr::copy_nonoverlapping(v.as_ptr(), out, v.len());
@@ -397,7 +405,6 @@ pub unsafe extern "C" fn fylite_runtime_gfile_array(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 字节。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_header(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
@@ -405,14 +412,13 @@ pub unsafe extern "C" fn fylite_runtime_gfile_header(
         return -1;
     }
     let g = &*(handle as *mut gfile_abi::GFile);
-    mds_abi::put(&g.header, out, cap)
+    abi::put(&g.header, out, cap)
 }
 
 /// 写回一份 g-file 文本。返回字节数。
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 字节。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_format(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
@@ -420,14 +426,13 @@ pub unsafe extern "C" fn fylite_runtime_gfile_format(
         return -1;
     }
     let g = &*(handle as *mut gfile_abi::GFile);
-    mds_abi::put(&crate::geqdsk::format_gfile(g), out, cap)
+    abi::put(&crate::geqdsk::format_gfile(g), out, cap)
 }
 
 /// 释放句柄。
 ///
 /// # Safety
 /// `handle` 来自 parse，且未被释放过。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {
@@ -448,7 +453,8 @@ pub unsafe extern "C" fn fylite_runtime_gfile_free(handle: *mut std::ffi::c_void
 // ★两步取法与上面的 mdsip / g-file 同一形状：先问长度，再给缓冲区。
 // =========================================================================== //
 
-#[cfg(not(target_arch = "wasm32"))]
+//: ★no gate: not one line of this module mentions a socket or a file — it is
+//: the document-handle helper every `doc_*` export uses (G-15).
 mod doc_abi {
     use crate::document::{Array, ArrayData, MergePolicy, Node};
     use crate::fyodoc::{self, Bundle};
@@ -504,14 +510,14 @@ pub unsafe extern "C" fn fylite_runtime_read(
     if out_handle.is_null() {
         return -1;
     }
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     match crate::io::read(std::path::Path::new(p)) {
         Ok(bundle) => {
             *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle })) as *mut std::ffi::c_void;
             0
         }
         Err(e) => {
-            mds_abi::put(&e.to_string(), err, err_cap);
+            abi::put(&e.to_string(), err, err_cap);
             *out_handle = std::ptr::null_mut();
             -2
         }
@@ -522,7 +528,6 @@ pub unsafe extern "C" fn fylite_runtime_read(
 ///
 /// # Safety
 /// `text`: `text_n` 字节；`format`: `format_n` 字节；其余同 `_read`。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_read_text(
     text: *const u8, text_n: u64, format: *const u8, format_n: u64,
@@ -530,8 +535,8 @@ pub unsafe extern "C" fn fylite_runtime_read_text(
     if out_handle.is_null() {
         return -1;
     }
-    let Some(t) = mds_abi::s(text, text_n) else { return -1 };
-    let f = if format_n == 0 { "json" } else { match mds_abi::s(format, format_n) { Some(f) => f, None => return -1 } };
+    let Some(t) = abi::s(text, text_n) else { return -1 };
+    let f = if format_n == 0 { "json" } else { match abi::s(format, format_n) { Some(f) => f, None => return -1 } };
     let result: Result<crate::fyodoc::Bundle, String> = match f {
         "json" | "jsonld" => crate::json::parse(t).map(crate::fyodoc::Bundle::from_node).map_err(|e| e.to_string()),
         "geqdsk" | "gfile" => crate::geqdsk::parse(t)
@@ -546,7 +551,7 @@ pub unsafe extern "C" fn fylite_runtime_read_text(
             0
         }
         Err(e) => {
-            mds_abi::put(&e, err, err_cap);
+            abi::put(&e, err, err_cap);
             *out_handle = std::ptr::null_mut();
             -2
         }
@@ -557,7 +562,6 @@ pub unsafe extern "C" fn fylite_runtime_read_text(
 ///
 /// # Safety
 /// `out_handle` 一个指针。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_new(out_handle: *mut *mut std::ffi::c_void) -> i32 {
     if out_handle.is_null() {
@@ -584,12 +588,12 @@ pub unsafe extern "C" fn fylite_runtime_write(
         return -1;
     }
     let h = &*(handle as *mut doc_abi::Handle);
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     let fmt = if format_n == 0 { None } else {
-        match mds_abi::s(format, format_n).and_then(crate::detect::Format::parse) { Some(f) => Some(f), None => return -1 }
+        match abi::s(format, format_n).and_then(crate::detect::Format::parse) { Some(f) => Some(f), None => return -1 }
     };
     let lay = if layout_n == 0 { crate::io::Layout::Fyo } else {
-        match mds_abi::s(layout, layout_n).and_then(crate::io::Layout::parse) { Some(l) => l, None => return -1 }
+        match abi::s(layout, layout_n).and_then(crate::io::Layout::parse) { Some(l) => l, None => return -1 }
     };
     match crate::io::write(std::path::Path::new(p), &h.bundle, fmt, lay) {
         Ok(rep) => {
@@ -603,11 +607,11 @@ pub unsafe extern "C" fn fylite_runtime_write(
                     note.push_str(&format!("{k}: dropped {:?}; ", dropped));
                 }
             }
-            mds_abi::put(&note, err, err_cap);
+            abi::put(&note, err, err_cap);
             0
         }
         Err(e) => {
-            mds_abi::put(&e.to_string(), err, err_cap);
+            abi::put(&e.to_string(), err, err_cap);
             -2
         }
     }
@@ -621,10 +625,10 @@ pub unsafe extern "C" fn fylite_runtime_write(
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_detect(path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     match crate::io::detect(std::path::Path::new(p)) {
-        Ok(d) => mds_abi::put(&format!("{} {}", d.format.name(), d.layout.name()), out, cap),
-        Err(e) => { mds_abi::put(&e.to_string(), out, cap); -2 }
+        Ok(d) => abi::put(&format!("{} {}", d.format.name(), d.layout.name()), out, cap),
+        Err(e) => { abi::put(&e.to_string(), out, cap); -2 }
     }
 }
 
@@ -633,21 +637,19 @@ pub unsafe extern "C" fn fylite_runtime_detect(path: *const u8, path_n: u64, out
 ///
 /// # Safety
 /// `handle` 来自 `_read`；`out`: `cap` 字节。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_json(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
         return -1;
     }
     let h = &*(handle as *mut doc_abi::Handle);
-    mds_abi::put(&crate::json::to_string(&h.bundle.to_node(), false), out, cap)
+    abi::put(&crate::json::to_string(&h.bundle.to_node(), false), out, cap)
 }
 
 /// 束里有哪些文档：`"<ids>[_<occ>]"` 一行一个。返回字节数。
 ///
 /// # Safety
 /// 同 `_bundle_json`。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_keys(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
@@ -655,14 +657,13 @@ pub unsafe extern "C" fn fylite_runtime_bundle_keys(handle: *mut std::ffi::c_voi
     }
     let h = &*(handle as *mut doc_abi::Handle);
     let keys: Vec<String> = h.bundle.keys().iter().map(|(i, o)| crate::fyodoc::ids_key(i, *o)).collect();
-    mds_abi::put(&keys.join("\n"), out, cap)
+    abi::put(&keys.join("\n"), out, cap)
 }
 
 /// 一条路径下的子树，JSON 文本。返回字节数；`-1` 参数不合法；`-2` 没有这条路径。
 ///
 /// # Safety
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 字节。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_doc_json(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
@@ -670,10 +671,10 @@ pub unsafe extern "C" fn fylite_runtime_doc_json(
         return -1;
     }
     let h = &*(handle as *mut doc_abi::Handle);
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     let Some((doc, rest)) = doc_abi::locate(&h.bundle, p) else { return -2 };
     let Some(node) = doc.walk(&rest, true) else { return -2 };
-    mds_abi::put(&crate::json::to_string(node, false), out, cap)
+    abi::put(&crate::json::to_string(node, false), out, cap)
 }
 
 /// 一个数值叶子按 f64 取，连同形状（行主序）。返回元素数（`cap` 不够也返回）；
@@ -682,7 +683,6 @@ pub unsafe extern "C" fn fylite_runtime_doc_json(
 /// # Safety
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 个 f64；`dims`: `dims_cap`
 /// 个 u64；`ndim_out` 一个 u64。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
 pub unsafe extern "C" fn fylite_runtime_doc_array(
@@ -692,7 +692,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_array(
         return -1;
     }
     let h = &*(handle as *mut doc_abi::Handle);
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     let Some((doc, rest)) = doc_abi::locate(&h.bundle, p) else { return -2 };
     let Some(node) = doc.walk(&rest, true) else { return -2 };
     let Some(vals) = node.to_f64_vec() else { return -3 };
@@ -714,7 +714,6 @@ pub unsafe extern "C" fn fylite_runtime_doc_array(
 ///
 /// # Safety
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`json`: `json_n` 字节。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_doc_set_json(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, json: *const u8, json_n: u64) -> i32 {
@@ -722,7 +721,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_set_json(
         return -1;
     }
     let h = &mut *(handle as *mut doc_abi::Handle);
-    let (Some(p), Some(j)) = (mds_abi::s(path, path_n), mds_abi::s(json, json_n)) else { return -1 };
+    let (Some(p), Some(j)) = (abi::s(path, path_n), abi::s(json, json_n)) else { return -1 };
     let Ok(value) = crate::json::parse(j) else { return -2 };
     let Some((doc, rest)) = doc_abi::locate_mut(&mut h.bundle, p) else { return -3 };
     if rest.is_empty() {
@@ -737,7 +736,6 @@ pub unsafe extern "C" fn fylite_runtime_doc_set_json(
 ///
 /// # Safety
 /// `data`: `dims` 各维之积个 f64；`dims`: `ndim` 个 u64。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
 pub unsafe extern "C" fn fylite_runtime_doc_set_array(
@@ -747,7 +745,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_set_array(
         return -1;
     }
     let h = &mut *(handle as *mut doc_abi::Handle);
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     let dims: Vec<u64> = if ndim == 0 || dims.is_null() { Vec::new() } else { std::slice::from_raw_parts(dims, ndim as usize).to_vec() };
     let n: usize = dims.iter().product::<u64>().max(1) as usize;
     let vals = std::slice::from_raw_parts(data, n);
@@ -759,7 +757,6 @@ pub unsafe extern "C" fn fylite_runtime_doc_set_array(
 ///
 /// # Safety
 /// 两个句柄都来自 `_read`/`_bundle_new`。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_merge(
     dst: *mut std::ffi::c_void, src: *mut std::ffi::c_void, policy: i32) -> i32 {
@@ -790,21 +787,21 @@ pub unsafe extern "C" fn fylite_runtime_assemble(
     if out_handle.is_null() {
         return -1;
     }
-    let Some(p) = mds_abi::s(path, path_n) else { return -1 };
+    let Some(p) = abi::s(path, path_n) else { return -1 };
     let overrides = match overrides_of(params, params_n) {
         Ok(o) => o,
-        Err(e) => { mds_abi::put(&e, err, err_cap); *out_handle = std::ptr::null_mut(); return -3; }
+        Err(e) => { abi::put(&e, err, err_cap); *out_handle = std::ptr::null_mut(); return -3; }
     };
-    let user = if user_n == 0 { "nobody".to_string() } else { match mds_abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
+    let user = if user_n == 0 { "nobody".to_string() } else { match abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
     let connector = crate::assembly::tcp_connector(user, timeout_ms.max(1) as u64);
     match crate::assembly::assemble_file(std::path::Path::new(p), Some(&connector), &overrides) {
         Ok(r) => {
-            mds_abi::put(&report_text(&r), err, err_cap);
+            abi::put(&report_text(&r), err, err_cap);
             *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle: r.bundle })) as *mut std::ffi::c_void;
             0
         }
         Err(e) => {
-            mds_abi::put(&e.to_string(), err, err_cap);
+            abi::put(&e.to_string(), err, err_cap);
             *out_handle = std::ptr::null_mut();
             -2
         }
@@ -828,25 +825,25 @@ pub unsafe extern "C" fn fylite_runtime_fetch(
     if out_handle.is_null() {
         return -1;
     }
-    let Some(m) = mds_abi::s(manifest, manifest_n) else { return -1 };
-    let Some(ids) = mds_abi::s(ids, ids_n) else { return -1 };
+    let Some(m) = abi::s(manifest, manifest_n) else { return -1 };
+    let Some(ids) = abi::s(ids, ids_n) else { return -1 };
     let ids: Vec<&str> = ids.split(',').map(str::trim).filter(|s| !s.is_empty()).collect();
-    let provider = if provider_n == 0 { None } else { mds_abi::s(provider, provider_n) };
-    let host = if host_n == 0 { None } else { mds_abi::s(host, host_n) };
+    let provider = if provider_n == 0 { None } else { abi::s(provider, provider_n) };
+    let host = if host_n == 0 { None } else { abi::s(host, host_n) };
     let port = if port > 0 { Some(port as u16) } else { None };
     let overrides = match overrides_of(params, params_n) {
         Ok(o) => o,
-        Err(e) => { mds_abi::put(&e, err, err_cap); *out_handle = std::ptr::null_mut(); return -3; }
+        Err(e) => { abi::put(&e, err, err_cap); *out_handle = std::ptr::null_mut(); return -3; }
     };
-    let user = if user_n == 0 { "nobody".to_string() } else { match mds_abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
+    let user = if user_n == 0 { "nobody".to_string() } else { match abi::s(user, user_n) { Some(u) => u.to_string(), None => return -1 } };
     let (a, notes) = match crate::assembly::from_manifest(std::path::Path::new(m), &ids, provider, host, port, &overrides) {
         Ok(x) => x,
-        Err(e) => { mds_abi::put(&e.to_string(), err, err_cap); *out_handle = std::ptr::null_mut(); return -2; }
+        Err(e) => { abi::put(&e.to_string(), err, err_cap); *out_handle = std::ptr::null_mut(); return -2; }
     };
     let connector = crate::assembly::tcp_connector(user, timeout_ms.max(1) as u64);
     let mut r = crate::assembly::assemble(&a, Some(&connector));
     r.notes.splice(0..0, notes);
-    mds_abi::put(&report_text(&r), err, err_cap);
+    abi::put(&report_text(&r), err, err_cap);
     *out_handle = Box::into_raw(Box::new(doc_abi::Handle { bundle: r.bundle })) as *mut std::ffi::c_void;
     0
 }
@@ -856,7 +853,7 @@ unsafe fn overrides_of(params: *const u8, params_n: u64) -> Result<crate::assemb
     if params_n == 0 {
         return Ok(crate::assembly::Overrides::default());
     }
-    let text = mds_abi::s(params, params_n).ok_or("params is not UTF-8")?;
+    let text = abi::s(params, params_n).ok_or("params is not UTF-8")?;
     if text.trim().is_empty() {
         return Ok(crate::assembly::Overrides::default());
     }
@@ -875,7 +872,6 @@ fn report_text(r: &crate::assembly::Assembled) -> String {
 ///
 /// # Safety
 /// `handle` 来自 `_read`/`_bundle_new`/`_assemble`，且未被释放过。
-#[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {

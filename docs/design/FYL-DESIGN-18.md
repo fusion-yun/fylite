@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "1.2"
+version: "1.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,13 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.2 按用户裁定「Python 不接入前端」改口：源栈闸不再借 Python 执行合并——它是**另一个宿主**，
+  change: 'v1.3 中间层的 wasm 门**修好一半**（用户「评估修 runtime」）：实测发现拦路的不是 mdsip——29 个
+    C 导出**全部**带 `not(target_arch = "wasm32")` 的一刀切排除，而真碰文件系统的只有 4 个、碰套接字的 7 个。
+    把通用指针助手 `s` / `put` 从 mdsip 杂货铺里提出来、`doc_abi` 与 `gfile_abi` 去掉连坐门、17 个既不读盘也不
+    开套接字的导出解禁，`fylite_runtime.wasm` 遂有 **17 个导出、零 import**（文档模型含 `bundle_merge` ·
+    `read_text` · `doc_*` · g-file 七件）。本机侧零回归（crate 自测 102 项全过、Python 套件与改前同）。
+    **仍缺 `assemble`**：它读盘（19 处 `std::fs`），浏览器要的是「文档按别名递进来」的变体——那是中间层的
+    API 改动，未做。· v1.2 按用户裁定「Python 不接入前端」改口：源栈闸不再借 Python 执行合并——它是**另一个宿主**，
     不在前端的路径上；前端通往中间层的门是 wasm。实测记为 **G-15**：`fylite_runtime` 能编成 wasm 但
     **零导出**（`c_api` 与 `assembly` 整模块在 `mdsip` 特性门后，而 wasm 层正是 `--no-default-features`），
     故 H-4 / W-1 **今天不成立**，源栈写出的装配文档**浏览器还没有东西能执行它**。闸改为断言文档合
@@ -75,7 +81,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v1.2 |
+| 版本 (Version) | v1.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -725,7 +731,7 @@ C 档。
 | **G-2** | **A 档在文档门上未实测**：拖把手每帧一次门调用（编码 + 一列重算）能否 ≤ 50 ms，`-16` G-1 同问；U-8 的「每次调用 ≤ 200 ms」是工作假设 | `-16` G-1 · U-8 | P0 |
 | **G-3** | **规格词表缺三个词**：`fylite:layout` · `fylite:visible` · `fylite:domain` 尚未进 `context.jsonld`，U-14 / U-16 / U-17 无处落 | `docs/examples/context.jsonld` | P1 |
 | **G-4** | **`--resume` 不在 `_cli.json`**，Python `cases.run` 无 `resume=`；U-19 的移步今天只有浏览器一端 | `python/fylite/_cli.json` · `-17` E-5 | P1 |
-| **G-15** | **前端通往中间层的门today不存在**：`fylite_runtime` 能编成 `wasm32-unknown-unknown`，但产物 **86 字节、零导出**——`pub mod c_api` 与 `pub mod assembly` 都写在 `#[cfg(feature = "mdsip")]` 下，而 wasm 层按设计是 `--no-default-features`。于是 `FYL-DESIGN-16` H-4 / 分期 W-1 **今天不成立**：页面写得出装配文档，浏览器里没有东西能执行它。★装配器与 mdsbind 的耦合是实的（15 处引用：源解析 · `$link` 解析 · 会话连接），所以拆门不是改一行 `cfg`——**只用文件源的装配**需要把 mdsbind 那一支单独门起来。这是中间层的活，不是前端的 | 实测 `cargo build --target wasm32-unknown-unknown --no-default-features`：86 字节 0 导出；`lib.rs:92,116` 的两处 `cfg` | P0 |
+| **G-15** | **中间层的 wasm 门已开一半（2026-09-04）**。★**先修正一处判断**：拦路的**不是 mdsip**——29 个 C 导出**全部**带 `#[cfg(not(target_arch = "wasm32"))]` 的一刀切排除，关不关 mdsip 都一样；其中真读盘的只有 `read` / `write` / `detect` / `assemble` 四个，真开套接字的 7 个，**其余约 18 个只吃指针**，被两个辅助模块（`mds_abi` 这个杂货铺、`doc_abi`、`gfile_abi`）连坐。★**已做**：把通用指针助手 `s` / `put` 从 mdsip 杂货铺提进 `mod abi`，`doc_abi`（40 行，零 mdsip 引用）与 `gfile_abi` 去掉连坐门，17 个导出解禁 → `fylite_runtime.wasm` **17 个导出、零 import、内存已导出**（`read_text` · `bundle_new/json/keys/merge/free` · `doc_json/doc_array/doc_set_*` · `gfile_*` 七件）。本机侧零回归。★**仍开的**：①`assemble` 留在本机——它 19 处 `std::fs`，浏览器里没有文件系统，需要一个「文档按别名递进来」的变体（中间层 API 改动，未做）；②这份 1.8 MB 的 wasm **尚未装进 `app/assets/`、尚未接线**，`geqdsk.js` 等三份 JS 实现因此还没退役（H-4 的正收益） | 实测：改前 86 字节 0 导出；改后 1 808 525 字节 17 导出；`cargo test` 102 项全过 | P1 |
 | **G-14** | **中间层不记逐量出处**：装配后的文档只带 `fylite:assembly.merged`（哪几个源参与）与 `shot`，没有「这一片叶子来自哪一源」。于是 U-6 的「表是页面画的，**数据是中间层记的**」今天只有前半句成立——`sources.js` 由它**持有**的那几份源文档推出出处并逐行标 `derived`，`mdsbind` 之类拿不到内容的源被点名列出而不是当作没给 | 实测 `fydoc.assemble` 的返回：`fylite:assembly = {merged: [...], shot: 0}` | P1 |
 | ~~**G-5**~~ | ~~静态站点断网重开不可载入~~ **已关（2026-09-04）**：`tools/make-sw.mjs` 生成的预缓存 service worker 与 manifest，`validate-offline.mjs` 断网实测重开与首访新页均成立 | `validate-offline.mjs` | — |
 | **G-6** | **ρ → R 映射的来源未定**：U-17 允许以中平面 R 作横轴，需要记录里有 `equilibrium` 的 `profiles_1d/r_outboard` 或等价量；今天的 `LADDER` 表有无此列未查 | `fyo-interface.js` `TABLES.LADDER` | P2 |
