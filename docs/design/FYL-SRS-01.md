@@ -2,7 +2,7 @@
 document_id: FYL-SRS-01
 title: FyLite 软件需求规格 (FyLite Software Requirements Specification)
 shortname: fylite-srs
-version: "1.0"
+version: "1.1"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,8 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.1 附录〈提案登记〉增列 `FYL-DESIGN-18` 的编号：FR-UI-003..008 · NR-QUAL-007（NR-QUAL-006
+    仍空置）· DE-LOG-13..15；正文条款不变。
     v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。四处实质变化：
     ①「双宿主」退役（`FYL-CONOPS-00` v1.0）：HOST 域改写——FR-HOST-001 说的是**两个运行时**
     （本机 / 浏览器），FR-HOST-003 说的是**四个宿主**（命令行 · Python 库 · 浏览器页面 ·
@@ -44,7 +46,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-SRS-01` |
 | 文档名称 (Title) | FyLite 软件需求规格 (FyLite Software Requirements Specification) |
 | 短名 / Slug | `fylite-srs` |
-| 版本 (Version) | v1.0 |
+| 版本 (Version) | v1.1 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Specification (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 29148 |
@@ -305,6 +307,9 @@ NR-QUAL-006），页面提案与内核契约的设计元素又都想用 `DE-LOG-
 | DE-LOG-09 | `FYL-DESIGN-10` | 自述与能力一致 |
 | DE-LOG-10 | `FYL-DESIGN-10`（正本）；`-12` 引用 | 判定块为一等产物 |
 | DE-COMP-05 增列 | `-09` / `-10` / `-11` / `-13` | 浏览器前端逐页列明形态、投递面与门禁 |
+| FR-UI-003..008 | `FYL-DESIGN-18` | 控件由 code 控制词表生成 · 端口多源合并与逐量出处 · 步预算分片执行 · 断点即记录、跨宿主恢复 · 一份呈现规格驱动页面与报告 · 试改改写计划可撤销 |
+| NR-QUAL-007 | `FYL-DESIGN-18` | 表单 ↔ 词表、两端规格、断点等价、文档集往返四道门禁（NR-QUAL-006 仍空置） |
+| DE-LOG-13 / -14 / -15 | `FYL-DESIGN-18` | 表单生成 · 断点即记录 · 呈现规格双向 |
 | DE-LOG-11 / -12 | `FYL-SDD-01` v1.0 **已取用** | 文档门与扁平树 · 内核无状态（内核契约，来自 `FYL-DESIGN-16`） |
 
 (fylite-srs-trace)=

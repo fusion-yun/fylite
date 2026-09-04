@@ -161,6 +161,9 @@ project:
             - file: design/FYL-DESIGN-10.md
             - file: design/FYL-DESIGN-12.md
             - file: design/FYL-DESIGN-13.md
+          #: ★2026-09-04 `-18` 是四页**共用**的那一层（输入生成 · 图形交互 · 文档交换），
+          #: 排在四页之后：先读外壳，再读四页各自的物理，最后读它们共用的机制。
+            - file: design/FYL-DESIGN-18.md
 
     - file: ACKNOWLEDGEMENTS.md
 site:
