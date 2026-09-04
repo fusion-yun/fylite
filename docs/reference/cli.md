@@ -14,10 +14,10 @@ title: 命令行 (Command Line Reference)
 | 宿主 | 是什么 | 怎么用这份定义 |
 | :--- | :--- | :--- |
 | `fylite` | Python 控制台脚本 | 运行期读它，建出 argparse |
-| `fylite-app` | **唯一的可执行文件**（Rust） | 编译期纳入它，建出自己的解析器 |
+| `fylite` | **唯一的可执行文件**（Rust） | 编译期纳入它，建出自己的解析器 |
 | 浏览器页面 | 静态站点 | 它的 `hosts.app.params` 就是页面的启动参数 |
 
-所以 `fylite app --help` 与 `fylite-app --help` 读到的是同一份用法，只是排版不同——不是
+所以 `fylite app --help` 与 `fylite --help` 读到的是同一份用法，只是排版不同——不是
 两份文字碰巧一致。只属一个宿主的参数在定义里标了 `hosts`：`--bin-dir` 只有 Python 有，
 `--app-dir`（伺服一棵活目录，开发用）只有 Rust 有。
 
@@ -54,12 +54,12 @@ fylite case describe|plan|run|json …
 :::{note}
 **为什么只有一个可执行文件。** 2026-09-03 之前还有 `fylite-data` 与 `fylite-case` 两个
 二进制。它们各十行，做的就是把 `data` / `case` 前置到自己的命令行再调用同一份代码——
-而那一次前置由调用方给就够了。于是它们撤掉，`fylite-app` 成为唯一的可执行文件：
+而那一次前置由调用方给就够了。于是它们撤掉，`fylite` 成为唯一的可执行文件：
 不带子命令时它跑 `app`（起服务、开浏览器），所以双击仍然可用；带命令词时它就是那条命令。
 
 ```bash
 fylite data info shot.h5        # 经 Python 宿主
-fylite-app data info shot.h5    # 直接调那个可执行文件——同一份代码
+fylite data info shot.h5    # 直接调那个可执行文件——同一份代码
 ```
 :::
 

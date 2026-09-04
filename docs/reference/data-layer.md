@@ -51,7 +51,7 @@ fylite data fetch    --machine <machine.yaml> --ids A,B --shot N -o <out>
 fylite data tables                                # 内置 DD 表：版本与 IDS 名
 ```
 
-★与 `fylite-app data …` 是同一条命令：**只有一个可执行文件**，Python 侧的 `fylite`
+★与 `fylite data …` 是同一条命令：**只有一个可执行文件**，Python 侧的 `fylite`
 把命令词原样交给它（见[命令行](cli.md)）。
 
 ### `info` —— 这是什么文件

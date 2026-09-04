@@ -19,7 +19,13 @@
 # 可执行文件因此**不直接内嵌 `app/`**，而是内嵌一棵**按这一版规则装好的树**——
 # 与静态站点用的是同一个装配器（`tools/build-site.sh`），所以两种制品逐字节同源。
 #
-# 用法：bash tools/build-app-exe.sh [--internal] [linux|windows|windows-msvc|both]
+# ★★2026-09-04 用户裁定：**三种构建方式**，差别在带不带浏览器那一半：
+#   --mode cli   纯 CLI —— 可执行文件不内嵌 `app/`、不起服务，`app` 命令按名拒绝；
+#                算力走**原生内核 `.so`**（`case` 运行期 dlopen）。实测 3.38 MB。
+#   --mode web   Web UI —— 内嵌整个 `app/`（含三个 `.wasm`），算力在**浏览器**里。
+#   --mode full  完整（缺省）—— 两路都在：内嵌前端 + 原生内核。实测 8.47 MB。
+#
+# 用法：bash tools/build-app-exe.sh [--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
 #   --internal    = 内部版（带全部装置）；缺省是公开版
 #   windows       = GNU ABI，链接器要 mingw（apt，需 root）
 #   windows-msvc  = MSVC ABI，靠 cargo-xwin，**不需要 root**
@@ -33,7 +39,20 @@ CRATE="$DIR/rust/fylite_runtime"
 
 OUT="$CRATE/target"
 FLAVOUR=public
-if [ "${1:-}" = "--internal" ]; then FLAVOUR=internal; shift; fi
+MODE=full
+while :; do
+  case "${1:-}" in
+    --internal) FLAVOUR=internal; shift ;;
+    --mode)     MODE="${2:?--mode 要 cli|web|full}"; shift 2 ;;
+    *) break ;;
+  esac
+done
+case "$MODE" in
+  cli)  FEATURES="cli,hdf5,netcdf" ;;
+  web)  FEATURES="webui,hdf5,netcdf" ;;
+  full) FEATURES="desktop,hdf5,netcdf" ;;
+  *)    echo "[exe] --mode 要 cli|web|full（给了 $MODE）" >&2; exit 2 ;;
+esac
 WHICH="${1:-both}"
 
 cd "$DIR"
@@ -41,29 +60,36 @@ cd "$DIR"
 #: ★★先装一棵**这一版的树**，再内嵌它。装配器就是站点那一个，所以「桌面版带什么」
 #: 与「站点带什么」按构造相同——两个发布者各装一遍，某一天它们会不一样，而**先
 #: 发现的人是拿到制品的那个**。装出来的树里，装置文档与目录都已按规则筛过。
-STAGE="$DIR/dist/app-$FLAVOUR"
-if [ "$FLAVOUR" = internal ]; then
-  bash tools/build-site.sh --internal "$STAGE" >/dev/null
+if [ "$MODE" = cli ]; then
+  #: ★纯 CLI 档不内嵌任何页面，所以既不装树也不重生成资源表——一个不带前端的
+  #: 发行**不该**把 app 的字节背在身上，那正是这一档存在的理由。
+  echo "[exe] 模式 cli：不内嵌 app/（算力走原生内核 .so）"
+  STAGE=""
 else
-  bash tools/build-site.sh "$STAGE" >/dev/null
-fi
-echo "[exe] $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/devices/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
+  STAGE="$DIR/dist/app-$FLAVOUR"
+  if [ "$FLAVOUR" = internal ]; then
+    bash tools/build-site.sh --internal "$STAGE" >/dev/null
+  else
+    bash tools/build-site.sh "$STAGE" >/dev/null
+  fi
+  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/devices/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
 
-# 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
-#: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
-node tools/make-app-embed.mjs --flavour "$FLAVOUR"
+  # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
+  #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
+  node tools/make-app-embed.mjs --flavour "$FLAVOUR"
+fi
 
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。
 #: ★★指向**装好的那棵树**，不是 `app/`：公开版的目录是筛过的，而 `app/devices`
 #: 那条符号链接后面是整份语料。
-export FYLITE_APP_DIR="$STAGE"
+[ -n "$STAGE" ] && export FYLITE_APP_DIR="$STAGE"
 
 cd "$CRATE"
 
 build_linux() {
   echo "[exe] linux x86-64 …"
-  cargo build --release --features desktop --bin fylite-app
-  ls -l "$OUT/release/fylite-app"
+  cargo build --release --no-default-features --features "$FEATURES" --bin fylite
+  ls -l "$OUT/release/fylite"
 }
 
 build_windows() {
@@ -76,8 +102,8 @@ build_windows() {
   fi
   echo "[exe] windows x86-64（交叉编译）…"
   CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc \
-    cargo build --release --features desktop --bin fylite-app --target "$target"
-  local exe="$OUT/$target/release/fylite-app.exe"
+    cargo build --release --no-default-features --features "$FEATURES" --bin fylite --target "$target"
+  local exe="$OUT/$target/release/fylite.exe"
   file "$exe" | grep -q 'PE32+' || { echo "[exe] 产物不是 PE32+" >&2; exit 1; }
   ls -l "$exe"
   echo "[exe] sha256: $(sha256sum "$exe" | cut -d' ' -f1)"
@@ -110,8 +136,8 @@ build_windows_msvc() {
     echo "[exe] 缺 cargo-xwin —— cargo install cargo-xwin --locked" >&2; exit 1
   fi
   echo "[exe] windows x86-64 / MSVC ABI（交叉编译）…"
-  cargo xwin build --release --features desktop --bin fylite-app --target "$target"
-  local exe="$OUT/$target/release/fylite-app.exe"
+  cargo xwin build --release --features desktop --bin fylite --target "$target"
+  local exe="$OUT/$target/release/fylite.exe"
   file "$exe" | grep -q 'PE32+' || { echo "[exe] 产物不是 PE32+" >&2; exit 1; }
   ls -l "$exe"
   echo "[exe] sha256: $(sha256sum "$exe" | cut -d' ' -f1)"

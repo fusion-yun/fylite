@@ -2026,7 +2026,7 @@ def d_hosts(x, y, w, h):
     hx = x + 14
     #: ★一个宿主：Node 网关 `app/server/` 2026-09-01 退役，`/api/*` 只剩这一份。
     for s, sub in (("单文件宿主 `rust/…/bin/app/api.rs`",
-                    "fylite-app --mdsip 127.0.0.1:8000"),
+                    "fylite --mdsip 127.0.0.1:8000"),
                    ("离线回放 `app/tests/_mdsip-replay.mjs`",
                     "夹具 fixtures/mdsip-east.json（真机录的帧）")):
         rect(hx, top + 12, (w - 34) / 2, 26, "card-back", rx=5)

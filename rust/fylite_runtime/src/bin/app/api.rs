@@ -1,4 +1,4 @@
-//! `fylite-app` 的只读 mdsip 请求面 —— 让 `pages/data.html` 与反演页的
+//! `fylite` 的只读 mdsip 请求面 —— 让 `pages/data.html` 与反演页的
 //! 「直接从 MDSplus 读」在**单文件可执行体里**也能用。
 //!
 //! ## 为什么在这里

@@ -106,7 +106,7 @@ wasm、另一台机器上的进程，或另一种实现；每个宿主对它们�
 | 版本 | `ABI_VERSION = 125`，由内核仓构建生成进 `_abi.py`；装载器见到不符**硬拒** |
 | 换内核 | `$FY_KERNEL_LIB`（Python）/ `FYLITE_KERNEL_LIB`（中间层）——都只是**文件路径**；两边各自 `dlopen` 同一个 `.so` |
 | 第二种实现 | 无落点：没有后端表，没有「哪个后端完成哪些能力」的声明 |
-| 远端 | 没有远端**内核**。存在的两样都是远端 **fylite**：`fylite serve` / `mcp` 暴露整个 fylite；`fylite-app` 的 `/api/*` 五个端点（`health` `shot` `tree` `node` `signal` `measurements`）全是 mdsip 取数 |
+| 远端 | 没有远端**内核**。存在的两样都是远端 **fylite**：`fylite serve` / `mcp` 暴露整个 fylite；`fylite` 的 `/api/*` 五个端点（`health` `shot` `tree` `node` `signal` `measurements`）全是 mdsip 取数 |
 | 跨宿主一致性 | `engine.crosshost`：比的是**同一内核的两个构建**（原生 vs wasm），只对声明了 `kernel_entry` 的工具运行——今天一个 |
 | 内核的全局态 | **零**：`static mut` · `thread_local` · `lazy_static` · `OnceLock` · `Mutex` 在 36 个源文件里一处都没有 |
 | 内核的依赖 | `Cargo.toml` 依赖表只有 `rayon`（可选）；`cdylib` + `rlib`，同一份 `c_api.rs` 也编 `wasm32-unknown-unknown`；**没有文档模型，没有 JSON 解析器** |
@@ -152,7 +152,7 @@ for (k, v) in req.inputs {
 flowchart TB
   subgraph F[多宿主 Hosts]
     GUI[网页 app/]
-    CLI[CLI：fylite · fylite-app]
+    CLI[CLI：fylite · fylite]
     PY[Python 库]
     AI[AI 面：serve / mcp · BYOK LLM]
   end
@@ -189,7 +189,7 @@ flowchart TB
 
 ## 内核契约 K-1..K-8 (The kernel contract)
 
-**K-1 文档门是唯一的内核接口。** 宿主（Python、浏览器、`fylite-app`）**只**经「一份计划进、
+**K-1 文档门是唯一的内核接口。** 宿主（Python、浏览器、`fylite`）**只**经「一份计划进、
 一份记录出」调用内核。`c_api.rs` 的 442 个导出降为**本地后端的实现细节**：`fylite.kernel`
 与 `app/assets/fylite.js` 里那 125 / 146 个调用点，或者搬进内核成为 code 的一部分，或者
 留下但只被本地后端自己用。判据：`scenario/` 与页面 JS 里不再出现 `fylite_rs_*` 符号名
@@ -486,7 +486,7 @@ data …` 不改（它说的是七个数据动词，不是层名）；`fylite.io
 送出一份计划；1.5-D 栏读 g-file、0-D 工况跨页交接（`FYL-DESIGN-09` / `-10`）都成为计划里的
 一个绑定。页面里的装配算术随 K-3 撤出。
 
-**H-2 浏览器的本地后端是页内内核 wasm，经中间层的 wasm 到达；远端后端是 `fylite-app` 的
+**H-2 浏览器的本地后端是页内内核 wasm，经中间层的 wasm 到达；远端后端是 `fylite` 的
 一个端点。** JS 不再直接调内核的扁平导出（今天 `fylite.js` 344 处）。因为门只有一扇，
 `/api/case` 是**一个**端点，不是一族；它与今天的五个 mdsip 端点同守回环、同做两侧守卫
 （`FYL-DESIGN-13` P-12）。静态站点没有进程，只有本地后端；与「静态即无服务端组件」
@@ -494,7 +494,7 @@ data …` 不改（它说的是七个数据动词，不是层名）；`fylite.io
 
 **H-3 宿主是多个，数目不承重。**〔已确立〕用户裁定（2026-09-04）：是**多宿主**，不是
 `FYL-CONOPS-00` 起的「双宿主」——「双」记的是分仓前 Python 与浏览器两个**运行时**。按前端
-数今天四个：CLI（`fylite` / `fylite-app`）、Python 库、网页、AI 面（`serve` / `mcp` / BYOK）；
+数今天四个：CLI（`fylite` / `fylite`）、Python 库、网页、AI 面（`serve` / `mcp` / BYOK）；
 差别只在**谁写计划**。再来一个（notebook、另一种 GUI、另一台机器上的代理）不改本篇任何
 一条；它们共享一份计划的词汇（`fyo:ScenarioSpecification`）与一份记录的词汇
 （`spo:ComputationRecord`）。

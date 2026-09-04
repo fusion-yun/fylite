@@ -81,7 +81,7 @@ page.on('console', (m) => {
   //: 那里本来就没有网关。浏览器仍会为一个 404 响应记一行 console error，
   //: 而把它算成脚本错误，等于要求这一页在没有网关时不去问网关在不在。
   //: 〔2026-08-31：接上单文件查看器的请求面之后才发现——同一份页面对着
-  //: `fylite-app`（有 /api）通过，对着静态服务器只差这一行。〕
+  //: `fylite`（有 /api）通过，对着静态服务器只差这一行。〕
   if (m.type() === 'error' && !/favicon/.test(m.text()) &&
       !/api\/health/.test(m.location() && m.location().url || ''))
     errs.push('console: ' + m.text().slice(0, 200));

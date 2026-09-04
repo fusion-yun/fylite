@@ -5,7 +5,7 @@
 //! they DO.
 //!
 //! Reached as `fylite data …` (the Python console script, which hands the
-//! words on verbatim) or as `fylite-app data …` (the one executable) —
+//! words on verbatim) or as `fylite data …` (the one executable) —
 //! the same code either way.  ★2026-09-03 the `fylite-data` alias binary was
 //! retired: one executable carries every command word.
 //!

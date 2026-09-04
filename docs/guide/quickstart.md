@@ -95,7 +95,7 @@ python -m fylite --help        # 十四条命令，定义在 python/fylite/_cli.
 python -m fylite cases         # 算例语料：25 条计划文档
 python -m fylite describe      # 能力目录（JSON-LD）：制品清单、工作流、数据制品
 python -m fylite mcp           # 作为 MCP stdio 服务器跑起来
-python -m fylite app           # 起本机服务、开浏览器 —— 委托给那个可执行文件 fylite-app
+python -m fylite app           # 起本机服务、开浏览器 —— 委托给那个可执行文件 fylite
 python -m fylite data info x.h5   # 数据层；`case …` 同理，都交给同一个可执行文件
 ```
 
@@ -104,7 +104,7 @@ python -m fylite data info x.h5   # 数据层；`case …` 同理，都交给同
 ★`run` 走 Rust inverse（EFIT 血统的驱动与 `libefit.so` 不在本分发里）；
 `describe` / `manifest` / `serve` / `mcp` 四个不依赖内核，`engine` 导入期是纯 stdlib 的。
 `app` / `data` / `case` 三条由**那一个** Rust 可执行文件承载，Python 侧把命令词放回最前面
-再原样交过去——同一个定义文件，`fylite app --help` 与 `fylite-app --help` 同源。
+再原样交过去——同一个定义文件，`fylite app --help` 与 `fylite --help` 同源。
 
 ## 走查
 

@@ -8,7 +8,7 @@
 # 一份源，三个制品：
 #
 #   libfylite_runtime.so   Python 直接 load（取代 `python/fylite/io/mds.py` 那 480 行）
-#   fylite-app          **唯一的可执行文件**：内嵌整个 `app/` + mdsip 请求面，
+#   fylite          **唯一的可执行文件**：内嵌整个 `app/` + mdsip 请求面，
 #                       并承载全部命令词（`app` / `data` / `case`；无子命令时
 #                       跑 `app`，所以双击仍然可用）
 #   fylite_runtime.wasm    浏览器用 —— ★**不含 mdsip**（用户裁定 2026-09-02：
@@ -47,19 +47,39 @@ netcdf = ["dep:netcdf", "hdf5"]
 static = ["hdf5/static", "hdf5/zlib", "netcdf/static"]
 #: 桌面查看器。`required-features` 让它不进默认构建——`cargo build` 与
 #: `cargo test` 的产物因此不受它影响。
-desktop = ["mdsip"]
+#: ★★2026-09-04 用户裁定：`fylite` 有**三种构建方式**，差别在带不带浏览器那一半。
+#:   纯 CLI  —— 不带 `webui`：可执行文件里没有内嵌的 `app/`、没有 HTTP 服务，
+#:              `app` 命令按名拒绝。`data` / `case` 照常（`case` 运行期 dlopen
+#:              原生内核 `.so`——「仅包含 .so」说的就是这一档）。
+#:   Web UI  —— 带 `webui`：内嵌整个 `app/`（含三个 `.wasm`），起回环服务、开浏览器。
+#:   完整    —— `desktop`：`webui` + `mdsip`，两路都在。
+#: 分档不是为了省字节而已：一个不带浏览器前端的发行**不该**把 app 的字节背在身上，
+#: 而带不带，读者应当能从 `--help` 上看出来，而不是运行到一半才发现。
+#: 这个 bin 的最小档：只要命令行本身。三种方式都含它。
+cli = []
+#: ★`webui` 含 `mdsip`：内嵌前端与它的只读请求面（`/api/*`）是同一半——页面上的
+#: 装置数据面板就是经那组端点取数的，去掉 mdsip 那个模块就编不出来。想要「有网页
+#: 但不许连 MDSplus」不是构建期的事，是运行期不给 `--mdsip`（那时 `/api/health`
+#: 照答，只是说自己没有数据源——`FYL-DESIGN-13` P-10）。
+webui = ["cli", "mdsip"]
+desktop = ["webui", "mdsip", "cli"]
 
 #: ★★2026-09-03：**一个可执行文件**（用户裁定）。此前这里有三个 `[[bin]]`——
-#: `fylite-app` 加上 `fylite-data` / `fylite-case` 两个十行的薄壳，后两者只做一件事：
+#: `fylite` 加上 `fylite-data` / `fylite-case` 两个十行的薄壳，后两者只做一件事：
 #: 把 `data` / `case` 前置到 argv，再调用同一份 `cli::parse` 与 `cli::data::run` /
 #: `cli::case::run`。那一份前置现在由**调用方**给：Python 宿主委托时前置命令词
 #: （`engine/cli.py` 的 `_RUST_EXES`），人在命令行上则直接 `fylite data …`。
 #: 少两个二进制、少两条 `_bin/` 项、少一处「用法里 `fylite-data data` 折回
 #: `fylite-data`」的字符串替换——而能力一条没少。
 [[bin]]
-name = "fylite-app"
+name = "fylite"
 path = "src/bin/app/main.rs"
-required-features = ["desktop"]
+#: ★★2026-09-04 由 `desktop` 放宽到 `cli`：三种构建方式都出这一个可执行文件，
+#: 差别在带不带 `webui`（内嵌前端 + HTTP 服务）与 `mdsip`。钉死 `desktop` 就
+#: 只剩「完整」一档，纯 CLI 那一档根本编不出来。
+#: `cli` 本身不带任何东西——它在这里的作用是「这个 bin 是有意要构建的」，
+#: 而不是 `cargo build` 顺手把它编出来（那正是 `required-features` 当初要防的）。
+required-features = ["cli"]
 
 [dependencies]
 #: ★两个都是可选的、都只在原生目标上有意义（见 `[features]`）。版本钉到次版本：

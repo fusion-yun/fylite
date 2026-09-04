@@ -6,17 +6,17 @@
 // ## 三层，各是什么
 //
 //   1. **mdsip**：`_mdsip-replay.mjs` 回放真服务器录下的帧（EAST #137985）。
-//   2. **请求面**：`fylite-app`——**发布出去的那个宿主本身**，不是仿制品。
+//   2. **请求面**：`fylite`——**发布出去的那个宿主本身**，不是仿制品。
 //      2026-09-01 退役 `app/server/` 之后，`/api/*` 只有这一份实现。
 //   3. **静态文件**：这里现起一个只读 HTTP，从**磁盘**上的 `app/` 伺服，
 //      `/api/*` 转给第 2 层。
 //
-// ★为什么第 3 层不直接用 `fylite-app` 自己的静态面：它伺服的是**编进二进制**的
+// ★为什么第 3 层不直接用 `fylite` 自己的静态面：它伺服的是**编进二进制**的
 // 那一份，改了 `app/` 要重新 build 才看得见。门要能在改完页面之后立刻跑。两份是否
 // 一致由 `validate-embed.mjs` 单独把关，所以这里从磁盘读不会放过「只改了源树、忘了
 // 重嵌」这种错——那本来就是另一道门的事。
 //
-// ★这一层**没有任何协议代码**：它是静态文件加一个转发，mdsip 只被 `fylite-app`
+// ★这一层**没有任何协议代码**：它是静态文件加一个转发，mdsip 只被 `fylite`
 // 说。这正是退役 `app/server/` 的意思——一组端点只留一份实现。
 import http from 'node:http';
 import fs from 'node:fs';
@@ -27,7 +27,7 @@ import { replayMdsip } from './_mdsip-replay.mjs';
 const HERE = new URL('.', import.meta.url).pathname;
 const APP = path.resolve(HERE, '..');
 export const EXE = process.env.FYLITE_APP
-  || path.resolve(HERE, '../../rust/fylite/target/release/fylite-app');
+  || path.resolve(HERE, '../../rust/fylite/target/release/fylite');
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -38,7 +38,7 @@ const TYPES = {
 };
 
 /**
- * 起 `fylite-app`，等它把自己选中的端口印在第一行。
+ * 起 `fylite`，等它把自己选中的端口印在第一行。
  *
  * ★导出给别的门用：退役 `app/server/` 之后，「起一个带请求面的宿主」只有这一种
  * 做法了。`mdsip` 可以是回放器的端口，也可以是真站点（`host:port`）。

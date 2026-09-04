@@ -676,14 +676,14 @@ mod tests {
     }
 
     fn run(s: &str) -> Args {
-        match parse(spec(), HOST, "fylite-app", &argv(s)) {
+        match parse(spec(), HOST, "fylite", &argv(s)) {
             Parsed::Run(a) => a,
             other => panic!("{s:?} did not parse: {other:?}"),
         }
     }
 
     fn err(s: &str) -> String {
-        match parse(spec(), HOST, "fylite-app", &argv(s)) {
+        match parse(spec(), HOST, "fylite", &argv(s)) {
             Parsed::Error(e) => e,
             other => panic!("{s:?} should have been refused: {other:?}"),
         }
@@ -694,7 +694,7 @@ mod tests {
         let names: Vec<&str> = spec().commands_for(HOST).iter().map(|c| c.name.as_str()).collect();
         assert_eq!(names, ["app", "data", "case"]);
         assert_eq!(spec().default_command.as_deref(), Some("app"));
-        assert_eq!(spec().prog, "fylite-app");
+        assert_eq!(spec().prog, "fylite");
     }
 
     #[test]
@@ -737,13 +737,13 @@ mod tests {
 
     #[test]
     fn help_is_generated_from_the_spec() {
-        let u = usage(spec(), HOST, "fylite-app", &[]);
+        let u = usage(spec(), HOST, "fylite", &[]);
         assert!(u.contains("app ") && u.contains("data ") && u.contains("case "));
         assert!(u.contains("runs `app`"));
-        let u = usage(spec(), HOST, "fylite-app", &["data", "convert"]);
+        let u = usage(spec(), HOST, "fylite", &["data", "convert"]);
         assert!(u.contains("--to json|geqdsk|hdf5|netcdf|imas-hdf5"), "{u}");
         assert!(!u.contains("--bin-dir"));
-        match parse(spec(), HOST, "fylite-app", &argv("case run --help")) {
+        match parse(spec(), HOST, "fylite", &argv("case run --help")) {
             Parsed::Help(h) => assert!(h.contains("--record")),
             other => panic!("{other:?}"),
         }

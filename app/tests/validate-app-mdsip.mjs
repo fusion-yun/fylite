@@ -1,6 +1,6 @@
 // 门：**发布出去的那个宿主，对着真服务器录下来的帧**。
 //
-//   node app/tests/validate-app-mdsip.mjs [--exe <fylite-app>]
+//   node app/tests/validate-app-mdsip.mjs [--exe <fylite>]
 //
 // ★这道门从前叫「两个宿主，一组端点，同一个答案」：仓里的 Node 网关
 // （`app/server/gateway.mjs` + `mdsip.mjs`）与单文件查看器自己带的 Rust 请求面

@@ -188,7 +188,7 @@ Rust 侧不再等 Python 先投影成 JSON。★这正是 `FYL-DESIGN-16` K-8「
 | :--- | :--- | :--- |
 | Rust API | `io::{detect, read, read_node, read_as, write, merge_paths}` · `assembly::{parse, assemble, assemble_file, from_manifest, select}` · `mdsbind::{parse_table, decompose, table_from_abox, …}` | 本仓的 Rust 宿主（命令行、伺服、`case.rs`） |
 | C ABI | `c_api.rs` 的 31 个 `fylite_runtime_*`：`read` / `read_text` / `write` / `detect` · `bundle_*` · `doc_*` · `gfile_*` · `mds_*` · `assemble` / `fetch` · `case_*` | Python（`fylite.io.fydoc`） |
-| 命令行 | `fylite data info / dump / convert / merge / assemble / fetch / tables`（Python 宿主逐字委托；`fylite-app data …` 是同一条，`FYL-DESIGN-15` C-8） | 人与脚本 |
+| 命令行 | `fylite data info / dump / convert / merge / assemble / fetch / tables`（Python 宿主逐字委托；`fylite data …` 是同一条，`FYL-DESIGN-15` C-8） | 人与脚本 |
 | Python | `fylite.io.fydoc.{read, write, detect, assemble, fetch, Bundle}` | 本仓的 Python 宿主 |
 | Python（经由） | `fylite.fyo.read` / `write` 的 `.h5` 分支、`appsession.to_hdf5`、`fylite.io.mds` 与 `io.est2` 的在线路径（`kernel.MdsSession`）——2026-09-04 起这些**不再各有一份**（h5py 走树、站点 `MDSplus` 包），都交给本层；`io.imas_h5` / `io.jetto_bin` 两个零调用者的读者同批删除 | 本仓的 Python 宿主 |
 

@@ -327,7 +327,7 @@ pub fn parse_answer(msg: &[u8]) -> Result<Answer, MdsipError> {
     //: so this client could not complete a handshake against a real server.
     //: The JS client beside it (`app/server/mdsip.mjs`) carries the same rule
     //: and has always talked to EAST; this one had never been pointed at a
-    //: live server until `fylite-app` grew a request face (2026-08-31).
+    //: live server until `fylite` grew a request face (2026-08-31).
     if body.is_empty() {
         return Ok(Answer { status, dtype, dims, elem_len, data: Data::F64(Vec::new()) });
     }
@@ -933,7 +933,7 @@ mod tests {
         //: ★★★THE LOGIN ACKNOWLEDGEMENT IS THIS MESSAGE.  It carries
         //: `dtype = 0` and zero bytes, so a decoder that consults its width
         //: table first rejects the FIRST message of every session — which is
-        //: exactly what this client did until `fylite-app` was pointed at
+        //: exactly what this client did until `fylite` was pointed at
         //: EAST's server through a tunnel (2026-08-31) and could not log in.
         //: A node that exists and holds nothing answers the same shape.
         let ans = parse_answer(&answer_bytes(1, 0, &[], &[]))

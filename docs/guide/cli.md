@@ -109,11 +109,11 @@ fylite manifest [--seal]              # 核对（或重封）制品清单
 其余的字原样交过去。没找到时它**按名说明要构建哪一个**并以退出码 2 结束，而不是
 退化成一个能力更少的实现。
 
-所以 `fylite data --help` 与 `fylite-app data --help` 读到的是同一份用法——两边由同一个
+所以 `fylite data --help` 与 `fylite data --help` 读到的是同一份用法——两边由同一个
 定义文件建出，不是两份文字碰巧一致。
 
 :::{note}
 **只有一个可执行文件。** 2026-09-03 起 `fylite-data` / `fylite-case` 两个二进制已经撤掉，
 它们做的事（把命令词前置）由调用方给就够了。今天：一条 Python 命令 `fylite`，一个
-Rust 可执行文件 `fylite-app`，两者用法同源。
+Rust 可执行文件 `fylite`，两者用法同源。
 :::

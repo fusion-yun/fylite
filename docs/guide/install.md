@@ -30,14 +30,14 @@ fylite 以**三种形态**到达使用者（`FYL-DESIGN-15`），三者装的是
 
 | 形态 | 给谁 | 怎么得到 | 计算在哪 |
 | :--- | :--- | :--- | :--- |
-| **单一可执行文件** `fylite-app` | 离线、或没有 Python 的人（尤其 Windows） | `bash tools/build-app-exe.sh`；双击即开浏览器 | 页面里的 wasm；`case` 子命令用原生内核 |
+| **单一可执行文件** `fylite` | 离线、或没有 Python 的人（尤其 Windows） | `bash tools/build-app-exe.sh`；双击即开浏览器 | 页面里的 wasm；`case` 子命令用原生内核 |
 | **静态网页** | 联网的人，零安装 | `bash tools/build-site.sh` 出一个目录，放到任何静态主机 | 页面里的 wasm，加载后离线可用 |
-| **动态网页** | 要读 MDSplus 的人 | 同一份页面由 `fylite-app`（= `fylite app`）伺服，多答 `/api/*` | 页面里的 wasm |
+| **动态网页** | 要读 MDSplus 的人 | 同一份页面由 `fylite`（= `fylite app`）伺服，多答 `/api/*` | 页面里的 wasm |
 | **Python 包**（wheel） | 写脚本、LLM 宿主、集成方 | `bash tools/build-wheel.sh` | 原生内核 |
 
 三者的命令行来自同一个定义文件 `python/fylite/_cli.json`。**可执行文件只有一个**
-（`fylite-app`）：`fylite app` / `data` / `case` 三条由 Python 把命令词交给它，所以
-`fylite data …` 与 `fylite-app data …` 是同一条命令在两个宿主上的两种写法。
+（`fylite`）：`fylite app` / `data` / `case` 三条由 Python 把命令词交给它，所以
+`fylite data …` 与 `fylite data …` 是同一条命令在两个宿主上的两种写法。
 
 ★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
 所以轮带**平台 tag**，alpha 期的公开面是 **Linux x86-64 一个**：别的平台在装的
@@ -140,7 +140,7 @@ ABI 版本只有一个源头——内核的 `c_api.rs`——由内核仓的 `bui
 
 ```bash
 bash rust/build.sh                # -> python/fylite/_lib/libfylite_runtime.so
-bash rust/build.sh --exe          # 另建那个可执行文件 fylite-app -> python/fylite/_bin/
+bash rust/build.sh --exe          # 另建那个可执行文件 fylite -> python/fylite/_bin/
 bash rust/build.sh --no-install   # 只编译，不安装
 bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没装那两个 C 库的机器）
 ```

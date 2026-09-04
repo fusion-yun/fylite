@@ -6,7 +6,7 @@
 // ★WHAT `jmds` IS FOR.  One person, one workstation, a JRE and nothing else:
 // no server process and no site install of MDSplus.  FYL-DESIGN-06 §1 marks
 // that native case `●` and the browser case `✗`; the browser one is covered by
-// the shipped host (`fylite-app`) and this lane does not touch it.  The jar is
+// the shipped host (`fylite`) and this lane does not touch it.  The jar is
 // only useful if what it writes IS the document that host answers, so that is
 // what is asserted: every `/api/signal` field equal, both arrays equal BIT FOR
 // BIT.
@@ -98,7 +98,7 @@ if (!SERVER) {
 } else {
   console.log(`\nthe same document, two implementations — ${SERVER} ${TREE} ${NODE}`);
 
-  //: ★另一边是**发布出去的那个宿主**（`fylite-app`），不是仿制品：这道门比的是
+  //: ★另一边是**发布出去的那个宿主**（`fylite`），不是仿制品：这道门比的是
   //: jar 与读者手里那个东西答的是不是同一份文档。
   const host = await startApp(SERVER);
   const base = host.url.replace(/\/$/, '');

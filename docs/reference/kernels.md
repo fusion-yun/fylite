@@ -116,7 +116,7 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 | :--- | :--- |
 | 读 | MDSplus（mdsip 只读客户端，按炮号与时间在服务端切片）· EFIT a-file / g-file · JSON(-LD) · YAML 子集（fydata 的 A-Box）· HDF5 · netCDF |
 | 写 | JSON(-LD) · g-file · HDF5 · netCDF，各带 **fyo** 与 **IMAS DD** 两种布局（IMAS 布局以 imas-python / imas-core 读得回为判据） |
-| 制品 | `libfylite_runtime.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，并承载 `app` / `data` / `case` 三条命令） |
+| 制品 | `libfylite_runtime.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite`（**唯一的可执行文件**，内嵌整个 `app/`，并承载 `app` / `data` / `case` 三条命令） |
 | 命令行 | `src/cli/`——由 `python/fylite/_cli.json` **编译期**建出；与 Python 的 `fylite` 同一份定义（[API 速查](api.md)的 CLI 一节） |
 | 设计正本 | `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（发布形态与统一命令行） |
 

@@ -5,13 +5,13 @@
 # 撞词，而那是另一个组件（DE-COMP-03 执行与溯源机械核）。
 #
 #   ./rust/build.sh              -> libfylite_runtime.so，装进 python/fylite/_lib/
-#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fylite-app（内嵌整个 app/，
+#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fylite（内嵌整个 app/，
 #                                   并承载 app / data / case 三条命令），装进 python/fylite/_bin/
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
 #
 # ★★2026-09-03 `--cli` 没有了：它从前另建 fylite-data / fylite-case 两个薄壳二进制，
-# 而那两个已经收进 fylite-app（用户裁定「仅保留一个可执行程序」）。给 `--cli` 会被
+# 而那两个已经收进 fylite（用户裁定「仅保留一个可执行程序」）。给 `--cli` 会被
 # 按名拒绝并指向 `--exe`，不会静默地少装东西。
 #
 # ★数据层链两个 C 库（libhdf5、libnetcdf；`fylite_runtime/Cargo.toml` 的 [features] 说明
@@ -42,7 +42,7 @@ for a in "$@"; do
         --exe) EXE=1 ;;
         #: ★按名拒绝而不是默默当成 --exe：调用方以为自己装了两个二进制，
         #: 而现在只有一个——说清楚比悄悄换掉好。
-        --cli) echo "--cli 已撤：fylite-data / fylite-case 已收进 fylite-app，用 --exe" >&2; exit 2 ;;
+        --cli) echo "--cli 已撤：fylite-data / fylite-case 已收进 fylite，用 --exe" >&2; exit 2 ;;
         --static) FEATURES="--features static" ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
     esac
@@ -121,16 +121,16 @@ if [ "$EXE" = 1 ]; then
     #: 生成物（`tools/make-app-embed.mjs`），`include_bytes!` 走 `FYLITE_APP_DIR`。
     #: 搬到本仓之后 `app/` 就在隔壁，所以这里能给出确定的值——从前它是跨仓的。
     export FYLITE_APP_DIR="$ROOT/app"
-    echo "[runtime] cargo build --release --features desktop (fylite-app) ..."
-    cargo build --release --features desktop --bin fylite-app \
+    echo "[runtime] cargo build --release --features desktop (fylite) ..."
+    cargo build --release --features desktop --bin fylite \
         --manifest-path "$CRATE/Cargo.toml"
-    echo "[runtime] -> $CRATE/target/release/fylite-app"
+    echo "[runtime] -> $CRATE/target/release/fylite"
     #: ★FYL-DESIGN-15 R-4：轮里的 `fylite app` / `data` / `case` 都把命令逐字交给
     #: 这个可执行文件（Python 侧前置命令词），所以它装进 `_bin/`（构建时在就随轮走）。
     if [ "$INSTALL" = 1 ]; then
         mkdir -p "$ROOT/python/fylite/_bin"
-        cp "$CRATE/target/release/fylite-app" "$ROOT/python/fylite/_bin/fylite-app"
-        echo "[runtime] installed -> python/fylite/_bin/fylite-app"
+        cp "$CRATE/target/release/fylite" "$ROOT/python/fylite/_bin/fylite"
+        echo "[runtime] installed -> python/fylite/_bin/fylite"
     fi
 fi
 echo "[runtime] done."

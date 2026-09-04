@@ -6,7 +6,7 @@
 #   Python 包       —— tools/build-wheel.sh
 #   本脚本          —— 给联网的人，零安装：一个目录，放到 GitHub Pages / 任何静态主机
 #
-# ★「动态网页」没有自己的构建：它是**同一份字节**由 `fylite-app`（= `fylite app`）伺服，
+# ★「动态网页」没有自己的构建：它是**同一份字节**由 `fylite`（= `fylite app`）伺服，
 # 并多答一组 `/api/*`；页面用 `/api/health` 是否回答来判别，不看主机名（assets/host.js）。
 # 所以这个目录与可执行文件内嵌的那张表（`tools/make-app-embed.mjs`）取的是**同一个子集**：
 # 去 `tests/`、去 `server/`——发出去的站点不该比可执行文件多，也不该少。
@@ -72,4 +72,4 @@ n=$(find "$OUT" -type f | wc -l)
 sz=$(du -sh "$OUT" | cut -f1)
 echo "[site] $OUT：$n 个文件，$sz"
 echo "[site] 本机预览：python3 -m http.server -d $OUT 8000   （静态：无 /api/*）"
-echo "[site] 动态预览：fylite-app --app-dir $OUT            （同一份字节 + /api/*）"
+echo "[site] 动态预览：fylite --app-dir $OUT            （同一份字节 + /api/*）"

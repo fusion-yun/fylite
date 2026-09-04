@@ -1,4 +1,4 @@
-//! `fylite-app` —— 把浏览器演示装进一个可执行文件；也是 Rust 宿主的**唯一**命令行。
+//! `fylite` —— 把浏览器演示装进一个可执行文件；也是 Rust 宿主的**唯一**命令行。
 //!
 //! ## 它是什么
 //!
@@ -7,7 +7,7 @@
 //! 没有外部运行时**——分发一个 `.exe` 或一个 ELF 就是分发整个演示。
 //!
 //! ★★2026-09-03（FYL-DESIGN-15）：它是本仓**唯一的可执行文件**——
-//! `fylite-app data …` 与 `fylite-app case …` 就是从前的 `fylite-data` /
+//! `fylite data …` 与 `fylite case …` 就是从前的 `fylite-data` /
 //! `fylite-case`。那两个二进制**已经撤掉**：它们各十行，做的就是把 `data` /
 //! `case` 前置到 argv 再调用同一份代码，而那一次前置由调用方给就够了
 //! （Python 宿主委托时前置，人在命令行上直接写 `fylite data …`）。
@@ -42,29 +42,41 @@
 //!
 //! ## 用法
 //!
-//! 用法由 `_cli.json` 生成，`fylite-app --help` 打印；这里只留三行示例：
+//! 用法由 `_cli.json` 生成，`fylite --help` 打印；这里只留三行示例：
 //!
 //! ```text
-//! fylite-app                          # 找一个空闲端口，开浏览器
-//! fylite-app --port 8123 --no-open    # 指定端口，只伺服
-//! fylite-app --page data --device east --lang en --mdsip 127.0.0.1:8000
-//! fylite-app data info shot.h5        # 数据层（= `fylite data info shot.h5`）
-//! fylite-app case run plan.jsonld --record rec/
+//! fylite                          # 找一个空闲端口，开浏览器
+//! fylite --port 8123 --no-open    # 指定端口，只伺服
+//! fylite --page data --device east --lang en --mdsip 127.0.0.1:8000
+//! fylite data info shot.h5        # 数据层（= `fylite data info shot.h5`）
+//! fylite case run plan.jsonld --record rec/
 //! ```
 
+#[cfg(feature = "webui")]
 mod api;
+#[cfg(feature = "webui")]
 mod assets;
 
-use fylite_runtime::cli::{self, Args, Parsed, Spec};
+use fylite_runtime::cli::{self, Parsed};
+//: ★纯 CLI 档没有伺服那一半，这些就都没有读者。跟着 `webui` 走，免得那一档
+//: 每次构建都印四条 unused import ——一堆恒常的警告会把真正新出现的那一条淹掉。
+#[cfg(feature = "webui")]
+use fylite_runtime::cli::{Args, Spec};
+#[cfg(feature = "webui")]
 use std::io::{BufRead, BufReader, Read, Write};
+#[cfg(feature = "webui")]
 use std::net::{Ipv4Addr, SocketAddr, TcpListener, TcpStream};
+#[cfg(feature = "webui")]
 use std::path::{Component, Path, PathBuf};
 
 /// 站点根：路径为空或 `/` 时给这一页。
+#[cfg(feature = "webui")]
 const INDEX: &str = "index.html";
 /// 请求行的上限。一个正常的 URL 远短于此；超过的直接拒，不去分配。
+#[cfg(feature = "webui")]
 const MAX_REQUEST_LINE: usize = 8 * 1024;
 
+#[cfg(feature = "webui")]
 /// 资源从哪里来：内嵌的表，或（开发时）一棵目录。
 enum Source {
     Embedded,
@@ -74,7 +86,7 @@ enum Source {
 fn main() {
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let spec = cli::spec();
-    let args = match cli::parse(spec, cli::HOST, "fylite-app", &argv) {
+    let args = match cli::parse(spec, cli::HOST, "fylite", &argv) {
         Parsed::Help(text) => {
             print!("{text}");
             return;
@@ -88,11 +100,19 @@ fn main() {
     match args.word(0) {
         "data" => cli::data::run(&args),
         "case" => cli::case::run(&args),
+        #[cfg(feature = "webui")]
         "app" => serve_app(spec, &args),
+        //: ★纯 CLI 档：`app` **按名拒绝**，并说清这是哪一种构建。不给一个
+        //: 「起不来的服务」，也不装作没有这个命令——读者要知道的是「这份
+        //: 可执行文件不带浏览器前端」，那是一句话的事。
+        #[cfg(not(feature = "webui"))]
+        "app" => die("这是**纯 CLI** 构建：没有内嵌浏览器前端，也没有 HTTP 服务。\n\
+                     要网页界面，用带 webui 的构建（tools/build-app-exe.sh --mode web|full）。"),
         other => die(&format!("命令 {other:?} 不归本程序；--help 列出它有的")),
     }
 }
 
+#[cfg(feature = "webui")]
 /// `app`：起服务、开浏览器。选项按 `_cli.json` 的 `app` 命令。
 fn serve_app(spec: &Spec, args: &Args) {
     let port: Option<u16> = args.flag("port").map(|p| match p.parse::<u16>() {
@@ -176,6 +196,7 @@ fn serve_app(spec: &Spec, args: &Args) {
     }
 }
 
+#[cfg(feature = "webui")]
 /// 打开的地址：`--page` 决定路径，其余带 `app_param` 的选项按 `hosts.app.params`
 /// 里声明的载体（`query`）写进查询串——参数的**名字**只在 `_cli.json` 里说一次。
 fn launch_url(spec: &Spec, args: &Args, base: &str) -> String {
@@ -200,6 +221,7 @@ fn launch_url(spec: &Spec, args: &Args, base: &str) -> String {
     url
 }
 
+#[cfg(feature = "webui")]
 /// 最小的百分号编码：字母数字与 `-_.~` 原样，其余逐字节编码。
 fn percent(s: &str) -> String {
     let mut out = String::new();
@@ -214,10 +236,11 @@ fn percent(s: &str) -> String {
 }
 
 fn die(msg: &str) -> ! {
-    eprintln!("fylite-app: {msg}");
+    eprintln!("fylite: {msg}");
     std::process::exit(2)
 }
 
+#[cfg(feature = "webui")]
 /// 绑定回环地址。给定端口就用它（占用即失败并说清楚）；否则让系统挑。
 fn bind(port: Option<u16>) -> std::io::Result<TcpListener> {
     let want = port.unwrap_or(0);
@@ -234,6 +257,7 @@ fn bind(port: Option<u16>) -> std::io::Result<TcpListener> {
     })
 }
 
+#[cfg(feature = "webui")]
 /// 用系统默认浏览器打开 URL。
 ///
 /// ★三个平台三条命令，没有第四条路：这是唯一一处平台相关代码，
@@ -258,6 +282,7 @@ fn open_browser(url: &str) -> std::io::Result<()> {
     cmd.stdout(Stdio::null()).stderr(Stdio::null()).spawn().map(|_| ())
 }
 
+#[cfg(feature = "webui")]
 /// 站点内路径 -> 资源。精确匹配，不拼接路径。
 fn lookup(path: &str) -> Option<(&'static [u8], &'static str)> {
     let key = path.trim_start_matches('/');
@@ -268,6 +293,7 @@ fn lookup(path: &str) -> Option<(&'static [u8], &'static str)> {
         .map(|(_, body, mime)| (*body, *mime))
 }
 
+#[cfg(feature = "webui")]
 /// 扩展名 -> content-type，与 `tools/make-app-embed.mjs` 的表同一份。
 fn mime_of(path: &str) -> &'static str {
     match path.rsplit_once('.').map(|(_, e)| e).unwrap_or("") {
@@ -289,6 +315,7 @@ fn mime_of(path: &str) -> &'static str {
     }
 }
 
+#[cfg(feature = "webui")]
 /// 站点内路径 -> 目录里的文件（`--app-dir`）。只接受相对的、不含 `..` 的路径。
 fn lookup_dir(dir: &Path, path: &str) -> Option<(Vec<u8>, &'static str)> {
     let key = path.trim_start_matches('/');
@@ -304,6 +331,7 @@ fn lookup_dir(dir: &Path, path: &str) -> Option<(Vec<u8>, &'static str)> {
     std::fs::read(&full).ok().map(|body| (body, mime_of(key)))
 }
 
+#[cfg(feature = "webui")]
 fn serve(mut stream: TcpStream, cfg: &api::Cfg, source: &Source) -> std::io::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
 
@@ -357,6 +385,7 @@ fn serve(mut stream: TcpStream, cfg: &api::Cfg, source: &Source) -> std::io::Res
     }
 }
 
+#[cfg(feature = "webui")]
 fn respond(stream: &mut TcpStream, status: u16, mime: &str, body: &[u8], with_body: bool) -> std::io::Result<()> {
     let reason = match status {
         200 => "OK",
@@ -382,7 +411,7 @@ fn respond(stream: &mut TcpStream, status: u16, mime: &str, body: &[u8], with_bo
     stream.flush()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "webui"))]
 mod tests {
     use super::*;
 
@@ -426,7 +455,7 @@ mod tests {
     /// 活目录的查找同样拒绝穿越：`..`、绝对路径、根名都不是一个站点内路径。
     #[test]
     fn the_live_directory_refuses_traversal_too() {
-        let dir = std::env::temp_dir().join(format!("fylite-app-test-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("fylite-test-{}", std::process::id()));
         std::fs::create_dir_all(dir.join("assets")).unwrap();
         std::fs::write(dir.join(INDEX), "<html>hello</html>").unwrap();
         std::fs::write(dir.join("assets/x.wasm"), b"\0asm").unwrap();
@@ -455,13 +484,13 @@ mod tests {
             .split_whitespace()
             .map(str::to_string)
             .collect();
-        let args = match cli::parse(spec, cli::HOST, "fylite-app", &argv) {
+        let args = match cli::parse(spec, cli::HOST, "fylite", &argv) {
             Parsed::Run(a) => a,
             other => panic!("{other:?}"),
         };
         let url = launch_url(spec, &args, "http://127.0.0.1:1/");
         assert_eq!(url, "http://127.0.0.1:1/pages/data.html?device=east&lang=en&theme=dark");
-        let none = match cli::parse(spec, cli::HOST, "fylite-app", &[]) {
+        let none = match cli::parse(spec, cli::HOST, "fylite", &[]) {
             Parsed::Run(a) => launch_url(spec, &a, "http://127.0.0.1:1/"),
             other => panic!("{other:?}"),
         };

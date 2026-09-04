@@ -120,7 +120,7 @@ FyLite 以一个公开仓（本仓）加一个私有内核仓交付，对外呈�
 | 目录 | 组件 | 说明 |
 | :--- | :--- | :--- |
 | （私有仓 `fylite_kernel`）`rust/fylite/` | DE-COMP-01 内核 | 单 crate；本机 cdylib 与 wasm 模块同源构建。**制品落进本仓、不入库**：`python/fylite/_lib/libfylite_kernel.so`、`app/assets/fylite_{rs,tglf,dke}.wasm`，以及生成物（`_abi.py` / `_fyo_interface.py` / `app/assets/fyo-interface.js` / `version.js` 等，禁手改）。本行留在表里是因为它指派的是制品落点与依赖方向 |
-| `rust/fylite_runtime/` | DE-COMP-09 中间层 | 本仓**唯一的 Rust 源码树**，源码公开（协议编解码、文件格式、计划与门，不是物理 IP）。一份源两个制品：`libfylite_runtime.so`（Python 经 ctypes）与 `fylite-app`（**唯一的可执行文件**，内嵌整个 `app/`，承载 `app` / `data` / `case`）；第三个制品 `fylite_runtime.wasm` 是裁定（`FYL-DESIGN-16` H-4），尚无构建脚本。构建 `rust/build.sh` |
+| `rust/fylite_runtime/` | DE-COMP-09 中间层 | 本仓**唯一的 Rust 源码树**，源码公开（协议编解码、文件格式、计划与门，不是物理 IP）。一份源两个制品：`libfylite_runtime.so`（Python 经 ctypes）与 `fylite`（**唯一的可执行文件**，内嵌整个 `app/`，承载 `app` / `data` / `case`）；第三个制品 `fylite_runtime.wasm` 是裁定（`FYL-DESIGN-16` H-4），尚无构建脚本。构建 `rust/build.sh` |
 | `python/fylite/*.py` `io/` | DE-COMP-02 Python 装配层 | `fyo.py` `device.py` `kernel.py` `run.py` `plot.py` `nn.py` `appsession.py` 与 `io/`（`fydoc` `geqdsk` `mds` `est2` `gacode` `efund` `reference`）；`python/` 内含 `pyproject.toml` / `pytest.ini` / `tests/` |
 | `python/fylite/engine/` | DE-COMP-03 执行体 | 22 个模块：命令行 · `serve` / `mcp` · 清单 · 溯源 · 重放 · 报告 · 底账 · 版本 · 别名 · 跨运行时 · 语料 / 物理校验 / 套件 / 登记册（2026-09-04 自 `scenario/` 迁入） |
 | `python/fylite/scenario/` | DE-COMP-04 场景层（退役中） | `analysis/` `control/` `design/` `model/` 四条线的装配 + `waveform.py`；按 `FYL-DESIGN-16` K-3 逐个进内核 |
@@ -140,7 +140,7 @@ FyLite 以一个公开仓（本仓）加一个私有内核仓交付，对外呈�
 ```{mermaid}
 flowchart TB
   subgraph H[多宿主 Hosts]
-    CLI[命令行 fylite · fylite-app]
+    CLI[命令行 fylite · fylite]
     PY[Python 库 DE-COMP-02 · 04]
     APP[浏览器 DE-COMP-05]
     AI[AI 工具面 serve / mcp]
@@ -224,7 +224,7 @@ flowchart TB
 
 | Field | Value |
 |:---|:---|
-| Description | 静态页面与 wasm 制品（制品不入库，构建时装入）；页面控件驱动单步求解并即时回显。同一份页面字节两种交付：静态站点（`tools/build-site.sh`）与单一可执行文件内嵌（`fylite-app`，另答一组只读 `/api/*`）——差别由页面在运行时判别（`assets/host.js` 探 `/api/health`），**禁止 (MUST NOT)** 构建时分叉出两份页面（`FYL-DESIGN-15` R-1 / R-3）。 |
+| Description | 静态页面与 wasm 制品（制品不入库，构建时装入）；页面控件驱动单步求解并即时回显。同一份页面字节两种交付：静态站点（`tools/build-site.sh`）与单一可执行文件内嵌（`fylite`，另答一组只读 `/api/*`）——差别由页面在运行时判别（`assets/host.js` 探 `/api/health`），**禁止 (MUST NOT)** 构建时分叉出两份页面（`FYL-DESIGN-15` R-1 / R-3）。 |
 | Traces to | FR-HOST-001, FR-HOST-002, NR-ENV-001, NR-ENV-002 |
 | Invariant | 页面仅消费 wasm 模块与静态资产；加载后离线可用（零远程请求依赖）。 |
 | Interface | 三个散文页各中英两份（`tools/make-app-pages.mjs` 生成，无 i18n 运行时）；四个功能页 + 一个算例报告页（运行时切换语言）；五张 `page_*` v2 外壳页（`tools/make-page-v2.mjs` 生成，`FYL-DESIGN-11`）。**启动参数**（`device` / `lang` / `theme` / `page`）在共享规格的 `hosts.app.params` 里声明一次（`FYL-DESIGN-15` C-6）。逐页设计：`FYL-DESIGN-09` / `-10` / `-12` / `-13`，外壳 `-11`。 |
@@ -308,7 +308,7 @@ L3=DE-COMP-03 的记录半边，L4=DE-COMP-05 与 DE-COMP-03 的 CLI / MCP 面�
 | Description | 六件事：①格式读写与转换（MDSplus 只读、a-file、g-file、JSON(-LD)、HDF5、netCDF、YAML 子集，各带 fyo 与 IMAS DD 两种布局）；②多源装配（`assembly`，按 JSON-LD / YAML，按炮号与时间的服务端切片）；③计划合成与绑定 → 门 → 记录（`case.rs`）；④内核的加载与选择（`kernel.rs`，dlopen）；⑤Rust 宿主的全部命令行（`src/cli/`）；⑥内嵌并伺服 `app/`（`src/bin/app/`，含只读 mdsip 请求面 `api.rs`）。①②是数据层（`FYL-DESIGN-14`），⑤⑥见 `FYL-DESIGN-15`，③④见 `FYL-DESIGN-16`。**SpData 的一个 profile**（D-1）。 |
 | Traces to | FR-DATA-001..002, FR-TOOL-001, FR-TOOL-004, FR-KERNEL-001..003 |
 | Invariant | **禁止 (MUST NOT)** 实现任何物理或数值（判据同 DE-COMP-02）；对 MDSplus **必须 (MUST)** 只读且**禁止 (MUST NOT)** 暴露取表达式的入口（每个 TDI 串由校验过的节点路径与整数拼出）；浏览器制品**禁止 (MUST NOT)** 含 mdsip、hdf5、netcdf（`--no-default-features`）；携带内核状态时**禁止 (MUST NOT)** 解释或编辑它（DE-LOG-12）。 |
-| Interface | `libfylite_runtime.so` 的 C ABI（`fylite_runtime_*`，31 个；Python 侧 `fylite.io.fydoc`）；`fylite-app`（命令词 `app` / `data` / `case`）；`fylite_runtime.wasm`（裁定，未建）。 |
+| Interface | `libfylite_runtime.so` 的 C ABI（`fylite_runtime_*`，31 个；Python 侧 `fylite.io.fydoc`）；`fylite`（命令词 `app` / `data` / `case`）；`fylite_runtime.wasm`（裁定，未建）。 |
 | 今天 / 目标 | 今天：dlopen 一个内核、`fylite_rs_fyo` 三元组入参、TSV 出参、`Outcome::parse` + `documents()` 按路径建树。目标（DE-LOG-11）：扁平树编码器 / 解码器各一份，后端表三种后端，wasm 上由 JS 接线两个模块。 |
 
 (fylite-sdd-composition-invariants)=

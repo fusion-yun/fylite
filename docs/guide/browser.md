@@ -39,9 +39,9 @@ title: 浏览器用法 (Using the Browser Pages)
 走不通。给离线的人、或没有 Python 的机器（尤其 Windows）的是**一个文件**：
 
 ```bash
-fylite-app                      # 挑一个空闲端口，起本机服务，拉起系统浏览器
-fylite-app --page data --device east --lang en --theme dark
-fylite-app --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
+fylite                      # 挑一个空闲端口，起本机服务，拉起系统浏览器
+fylite --page data --device east --lang en --theme dark
+fylite --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 ```
 
 它把整个站点编进了自己，起服务只绑**回环地址**、只答 `GET`/`HEAD`、不写任何文件。
@@ -50,7 +50,7 @@ fylite-app --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 
 `--page` / `--device` / `--lang` / `--theme` 是**启动参数**：它们同样可以直接写在地址里
 （`?device=east&lang=en`），因为两者是同一份定义的两种写法——命令行与页面读的是同一个
-参数表（`fylite-app --help` 列出全部）。
+参数表（`fylite --help` 列出全部）。
 
 ## 一次典型的使用
 
@@ -90,7 +90,7 @@ fylite-app --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 要用它，就用上一节那个单一可执行文件并接上服务器：
 
 ```bash
-fylite-app --mdsip 127.0.0.1:8000     # 例如经 ssh 隧道到装置的 mdsip 服务器
+fylite --mdsip 127.0.0.1:8000     # 例如经 ssh 隧道到装置的 mdsip 服务器
 ```
 
 端点是**只读的窄口**：没有取任意表达式的入口，守卫在宿主与客户端两侧各查一遍，

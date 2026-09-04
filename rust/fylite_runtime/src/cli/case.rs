@@ -3,7 +3,7 @@
 //! only what they DO.
 //!
 //! Reached as `fylite case …` (the Python console script, which hands the
-//! words on verbatim) or as `fylite-app case …` (the one executable) —
+//! words on verbatim) or as `fylite case …` (the one executable) —
 //! the same code either way.  ★2026-09-03 the `fylite-case` alias binary was
 //! retired: one executable carries every command word.
 //!

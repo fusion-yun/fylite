@@ -94,7 +94,7 @@ fylite case run  cases/evolve-iter-15ma.jsonld --record out/ --format imas-hdf5
 fylite case json cases/evolve-default.jsonld            # 一份计划进，一份记录出（stdout）
 ```
 
-★`fylite case …` 与 `fylite-app case …` 是同一件东西：Python 侧把命令词**原样交给**
+★`fylite case …` 与 `fylite case …` 是同一件东西：Python 侧把命令词**原样交给**
 那个可执行文件（本仓只有一个），两边读同一份 `_cli.json`（`FYL-DESIGN-15`）。找不到它
 时按名说明要构建什么并退出 2，不会退回一条 Python 实现。
 

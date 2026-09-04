@@ -3,7 +3,7 @@
 //   node app/tests/validate-mds-page.mjs [--playwright DIR] [--chrome BIN]
 //
 // ★It brings its own site.  `_site.mjs` serves `app/` off the disk, puts the
-// SHIPPED request face (`fylite-app`) behind `/api/`, and gives that face a
+// SHIPPED request face (`fylite`) behind `/api/`, and gives that face a
 // replayed mdsip server — so this gate needs no static server, no tunnel and
 // no institute network, and everything between the page and the socket is the
 // shipped code.

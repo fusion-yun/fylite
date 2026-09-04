@@ -17,13 +17,13 @@ modified:
   change: |-
     v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。v0.2 那次「两个薄壳别名
     撤销」的沿革（R-2 / R-4 / R-5 / C-8 里各一段「v0.1 写的是…现在…」）收成现行陈述加
-    一句记录；as-built 改标 2026-09-04（`_bin/fylite-app` 一项、`rust/build.sh --cli` 已撤、
+    一句记录；as-built 改标 2026-09-04（`_bin/fylite` 一项、`rust/build.sh --cli` 已撤、
     `data` 子命令七条含 `fetch`）；发布形态表按 `FYL-DESIGN-16` H-4 补第四个制品
     `fylite_runtime.wasm`（裁定，未建）并注明静态站点的装置描述已是实拷；术语「三个宿主」
     在本篇指**三份命令行的建出者**（Python · Rust · 浏览器启动参数），与 `-16` 的多宿主
     不冲突，写明。缺口表补 W-1 一行。
     · v0.2 只保留一个可执行文件（用户裁定 2026-09-03）：`fylite-data` / `fylite-case`
-    撤销，`fylite-app` 承载全部命令词；`hosts.rust.aliases` 去掉，`--cli` 并入 `--exe`。
+    撤销，`fylite` 承载全部命令词；`hosts.rust.aliases` 去掉，`--cli` 并入 `--exe`。
     · v0.1 初稿：三种发布形态一份设计（R-1..R-6）；三个宿主的命令行收敛到 `_cli.json`
     （C-1..C-8）。
 ---
@@ -58,7 +58,7 @@ modified:
 # 发布形态与命令行 (Release Forms and the Command Line)
 
 〔一句话〕**三种发布形态，一份源；三份命令行，一个定义文件。**
-fylite 以三种形态到达使用者：一个内嵌整个 `app/` 的**单一可执行文件**（`fylite-app`）、
+fylite 以三种形态到达使用者：一个内嵌整个 `app/` 的**单一可执行文件**（`fylite`）、
 一个**静态网页**（`app/` + wasm 制品，可选地由一个进程伺服而成为**动态**网页）、一个
 **Python 包**（wheel）。三者装的是同一份页面、同一份内核制品；它们的命令行——
 Rust 可执行文件、Python 的 `fylite`、浏览器页面的启动参数——从**同一个文件**
@@ -68,7 +68,7 @@ Rust 可执行文件、Python 的 `fylite`、浏览器页面的启动参数—�
 文件、浏览器的启动参数——与 `FYL-CONOPS-00` v1.0 的四个宿主（命令行 · Python 库 ·
 浏览器 · AI 面）是两种切法：AI 面没有命令行，命令行这一个宿主有两个建出者。
 
-〔为什么〕2026-09-02 之前这三样东西各自成立、互不引用：`fylite-app` 手写了一个四选项的
+〔为什么〕2026-09-02 之前这三样东西各自成立、互不引用：`fylite` 手写了一个四选项的
 参数循环，两个数据 / 算例二进制各手写一份 `Args`（同一段代码复制两遍，各带一张
 「哪些选项带值」的名单——不在名单上的未知选项被**静默接受**），Python 的 `fylite` 由
 `_cli.json` 机械生成（11 条命令），页面从 URL 读 `?device=`，此外没有任何一处说页面
@@ -88,15 +88,15 @@ Linux x86-64、桌面单文件是第四条通道、内核源保持闭源）；�
 
 | 形态 | 给谁 | 装的是什么 | 计算在哪 | 请求面（`/api/*`） | 构建 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **单一可执行文件** `fylite-app`（Linux ELF / Windows PE32+） | 离线的人、没有 Python 的人（尤其 Windows） | 整个 `app/`（内嵌字节，生成表 `src/bin/app/assets.rs`）+ mdsip 只读客户端 + `data` / `case` 的全部代码 | 页面里的 **wasm**（不是原生内核）；`case` 子命令经 dlopen 用原生内核 | **有**：`/api/health` 恒答；六个只读 mdsip 端点在给了 `--mdsip` 时活 | `tools/build-app-exe.sh` |
+| **单一可执行文件** `fylite`（Linux ELF / Windows PE32+） | 离线的人、没有 Python 的人（尤其 Windows） | 整个 `app/`（内嵌字节，生成表 `src/bin/app/assets.rs`）+ mdsip 只读客户端 + `data` / `case` 的全部代码 | 页面里的 **wasm**（不是原生内核）；`case` 子命令经 dlopen 用原生内核 | **有**：`/api/health` 恒答；六个只读 mdsip 端点在给了 `--mdsip` 时活 | `tools/build-app-exe.sh` |
 | **静态网页**（站点） | 联网的人，零安装 | `app/`（减 `tests/`）+ `assets/fylite_{rs,tglf,dke}.wasm`；装置描述 `app/devices/*.jsonld` 是实拷（脚本里那段 `cp -L` 落实体的讲究是符号链接时代留下的，今天无链接可解） | 页面里的 wasm；加载后离线可用 | **无**：页面探 `/api/health` 不通即自禁用装置数据面板 | `tools/build-site.sh` |
-| **动态网页** | 本机、或经隧道可达 mdsip 的人 | **同一份 `app/` 字节**，由一个进程伺服 | 页面里的 wasm | **有**：伺服进程答 `/api/*` | `fylite-app`（= `fylite app`） |
-| **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_runtime.so` + `_cli.json` 等声明面 + `_bin/fylite-app`（**一个**可执行文件，构建时在则带） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；`app` 委托可执行文件 | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
+| **动态网页** | 本机、或经隧道可达 mdsip 的人 | **同一份 `app/` 字节**，由一个进程伺服 | 页面里的 wasm | **有**：伺服进程答 `/api/*` | `fylite`（= `fylite app`） |
+| **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_runtime.so` + `_cli.json` 等声明面 + `_bin/fylite`（**一个**可执行文件，构建时在则带） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；`app` 委托可执行文件 | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
 :::
 
 〔评注〕「静态」与「动态」不是两套页面：它们是**同一份字节的两种伺服方式**。区别只在有
 没有一个进程站在页面后面答 `/api/*`，而页面用**端点是否回答**（不是主机名）判别
-（`assets/host.js`）。所以动态网页没有自己的构建：`fylite-app` 就是它。
+（`assets/host.js`）。所以动态网页没有自己的构建：`fylite` 就是它。
 
 〔裁定，未建〕**第四个制品 `fylite_runtime.wasm`**（`FYL-DESIGN-16` H-4，用户裁定
 2026-09-04）：中间层也进浏览器，由 JS 调用，`--no-default-features`（无 mdsip / hdf5 /
@@ -110,15 +110,15 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 (MUST NOT)** 带另一个形态没有的页面或参数名；不同之处只能是**运行时**判别的
 （`host.js` 的 `data-fy-host`），不能是构建时分叉的页面。
 
-**R-2 只有一个可执行文件，它是 Rust 宿主的全部命令行。** `fylite-app` 不带子命令即
-`app`（起服务、开浏览器——双击仍可用）；`fylite-app data …` 与 `fylite-app case …` 承载
+**R-2 只有一个可执行文件，它是 Rust 宿主的全部命令行。** `fylite` 不带子命令即
+`app`（起服务、开浏览器——双击仍可用）；`fylite data …` 与 `fylite case …` 承载
 数据与算例两组动词。★2026-09-03 用户裁定：此前的两个薄壳别名二进制（各十行，只把
 命令词前置到 argv）撤销——那一次前置由调用方给即可，撤掉之后少两个二进制、少两条
 `_bin/` 项、少一处用法里的字符串折回，**能力一条没少**。
 
 **R-3 静态即无服务端组件；动态即同一份字节被一个进程伺服。** 静态站点的构建只做三件事：
 取 `app/` 的发布子集（去 `tests/`）、核对装置描述在、核对三个 wasm 在。动态网页由
-`fylite-app`（或 wheel 里的 `fylite app`，它委托同一个可执行文件）伺服，并答 `/api/*`；
+`fylite`（或 wheel 里的 `fylite app`，它委托同一个可执行文件）伺服，并答 `/api/*`；
 请求面**只绑回环**、只读、无表达式端点（`FYL-REPORT-05` §3b.5 与 `api.rs` 抬头）。
 把原生内核接到请求面（页面改走 HTTP 而不是 wasm）是 `FYL-DESIGN-16` K-4 / H-2 的
 远端后端 `/api/case`，归那一篇的分期 P2，本篇不做。
@@ -126,14 +126,14 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 **R-4 wheel 承载全部命令，原生的三条委托。** Python 的 `fylite` 列出规格里的每一条命令；
 `app` / `data` / `case` 不在 Python 里重写，而是把命令词**逐字**交给 `_bin/` 里的可执行
 文件：**把命令词放回最前面**，其余的字原样交过去（查找次序 `--bin-dir` → 包内 `_bin/`
-→ `$PATH`，只认一个名字 `fylite-app`）。★命令词**总是**前置，`app` 也不例外：那个
+→ `$PATH`，只认一个名字 `fylite`）。★命令词**总是**前置，`app` 也不例外：那个
 可执行文件无词时的缺省是 `app`，省掉词就意味着 `fylite data convert` 会静默地起一个
 网页服务而不是转换文件。找不到可执行文件时按名说明要构建什么，退出码 2——**不**
 退化成一个能力更少的 Python 实现。
 
 **R-5 版本同源与制品不入库，照旧。** `VERSION` 是发行版本的唯一来源；`.so` / `.wasm` /
 `_bin/*` 不进 git，打包时装入（`FYL-REPORT-05` §6.1、本仓 `.gitignore` 抬头）。
-`package-data` 里的 `_bin/` 项只有一项 `_bin/fylite-app`。
+`package-data` 里的 `_bin/` 项只有一项 `_bin/fylite`。
 
 **R-6 每个形态一条构建命令，产物与门禁在表里。** 见 {numref}`tbl-fylite-release-build`。
 构建脚本**不生成**规格的副本——三份命令行都直接读 `_cli.json`（编译期 `include_str!`、
@@ -145,10 +145,10 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 
 | 形态 | 命令 | 产物 | 门禁 |
 | :--- | :--- | :--- | :--- |
-| 单一可执行文件 | `bash tools/build-app-exe.sh [linux\|windows\|windows-msvc\|both]`（先跑 `node tools/make-app-embed.mjs`） | `rust/fylite_runtime/target/release/fylite-app`、`…/x86_64-pc-windows-{gnu,msvc}/release/fylite-app.exe` | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
+| 单一可执行文件 | `bash tools/build-app-exe.sh [linux\|windows\|windows-msvc\|both]`（先跑 `node tools/make-app-embed.mjs`） | `rust/fylite_runtime/target/release/fylite`、`…/x86_64-pc-windows-{gnu,msvc}/release/fylite.exe` | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
 | 静态网页 | `bash tools/build-site.sh [输出目录]` | `dist/site/`：`app/` 发布子集 + 三个 wasm + 装置描述 | 脚本自检：三个 wasm 在、无 `tests/`、无悬空符号链接 |
-| 动态网页 | `fylite-app [--port N] [--mdsip HOST:PORT] …` 或 `fylite app …` | 运行中的进程 | `app/tests/validate-app-mdsip.mjs --exe <fylite-app>` |
-| Python 包 | `bash rust/build.sh --exe`（中间层 `.so` + `_bin/fylite-app`；`--cli` 已撤，给它会被按名拒绝并指向 `--exe`）→ 内核仓 `rust/build.sh`（内核 `.so`、生成物）→ `bash tools/build-wheel.sh` | `python/dist/fylite-<ver>-py3-none-manylinux_x_y_x86_64.whl` | `test_bundled_artifacts.py`（ABI 一致、制品不入库）；`test_cli_spec.py` |
+| 动态网页 | `fylite [--port N] [--mdsip HOST:PORT] …` 或 `fylite app …` | 运行中的进程 | `app/tests/validate-app-mdsip.mjs --exe <fylite>` |
+| Python 包 | `bash rust/build.sh --exe`（中间层 `.so` + `_bin/fylite`；`--cli` 已撤，给它会被按名拒绝并指向 `--exe`）→ 内核仓 `rust/build.sh`（内核 `.so`、生成物）→ `bash tools/build-wheel.sh` | `python/dist/fylite-<ver>-py3-none-manylinux_x_y_x86_64.whl` | `test_bundled_artifacts.py`（ABI 一致、制品不入库）；`test_cli_spec.py` |
 :::
 
 (fylite-release-cli-spec)=
@@ -193,7 +193,7 @@ NOT)** 再出现一张「选项名单」（这正是 2026-09-02 之前两份 Rus
 `unknown option "--bin-dir"`），不是静默吃掉。
 
 **C-3 不承载的命令要么委托要么按名拒绝。** Python 承载全部命令，其中 `app` / `data` /
-`case` 逐字委托给 Rust 可执行文件（R-4）；Rust 只承载这三条，对 `fylite-app run …` 答
+`case` 逐字委托给 Rust 可执行文件（R-4）；Rust 只承载这三条，对 `fylite run …` 答
 「命令不归本程序」。两个方向都**不**试图用另一套实现回答。
 
 **C-4 帮助与拒绝由规格生成。** Rust 的 `--help` 是 `cli::usage` 从规格排出来的（概要行 +
@@ -211,13 +211,13 @@ NOT)** 再出现一张「选项名单」（这正是 2026-09-02 之前两份 Rus
 核对：每个声明的 `query` 参数在 `app/assets/` 里恰有读者，且页面不读未声明的名字；
 `app` 命令的每个 `app_param` 指向一个已声明的参数，反之亦然（Rust 单元测试同此）。
 
-**C-7 Rust 宿主的缺省命令是 `app`。** `fylite-app` 与 `fylite-app --port 8123` 都是 `app`
+**C-7 Rust 宿主的缺省命令是 `app`。** `fylite` 与 `fylite --port 8123` 都是 `app`
 （第一个词是选项即取缺省命令）；这是双击可用的条件，写在规格里
 （`hosts.rust.default_command`）而不是代码里。
 
-**C-8 一个可执行文件，命令词由调用方给。** `[[bin]]` 只有 `fylite-app` 一个，规格里没有
+**C-8 一个可执行文件，命令词由调用方给。** `[[bin]]` 只有 `fylite` 一个，规格里没有
 `hosts.rust.aliases`，Python 侧的委托表是一个名字加一次前置；用法里没有需要折回的字符串
-——`fylite-app data --help` 打的就是它自己的名字。★v0.1 的 C-8 是「别名二进制是薄壳」，
+——`fylite data --help` 打的就是它自己的名字。★v0.1 的 C-8 是「别名二进制是薄壳」，
 2026-09-03 用户裁定改为本条（理由见 R-2）。
 
 (fylite-release-cli-asbuilt)=
@@ -236,14 +236,14 @@ NOT)** 再出现一张「选项名单」（这正是 2026-09-02 之前两份 Rus
   与 `--app-dir`（活目录，同一张 MIME 表，仍拒绝 `..`）。`Cargo.toml` 只有一个 `[[bin]]`。
 - **Python**：`engine/cli.py` 的 `build_cli` 支持 `hosts` 过滤、嵌套命令、组级选项下放、
   非 argparse 键过滤；`cli_main` 记下原始词；`_cli_app` / `_cli_data` / `_cli_case` 委托
-  （`--bin-dir` → `_bin/` → `$PATH`，只认 `fylite-app`）。`pyproject.toml` 的
-  `package-data` 有 `_bin/fylite-app` 一项。
+  （`--bin-dir` → `_bin/` → `$PATH`，只认 `fylite`）。`pyproject.toml` 的
+  `package-data` 有 `_bin/fylite` 一项。
 - **浏览器**：`assets/i18n.js` 的 `initial()` 先读 `?lang=`（并记住）；`assets/theme.js`
   在 `apply(stored())` 之前读 `?theme=`（`light` / `dark` 记住，`system` 清除）；
   `?device=` 原已在。
 - **门禁**：`test_cli_spec.py`（命令表含三条 Rust 命令；嵌套解析；`hosts.app.params` ↔
   页面读者 ↔ `app_param`；python 特有参数不进 Rust 用法）；Rust `cargo test --lib cli::`
-  与 `--bin fylite-app`。
+  与 `--bin fylite`。
 - **规范落点**：FR-TOOL-004（`FYL-SRS-01`）、DE-COMP-03 / -06 / -09（`FYL-SDD-01`）——
   本篇的规范条款已上提，本篇留作理由与 as-built。
 

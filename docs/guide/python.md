@@ -64,11 +64,11 @@ fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出
 它也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。
 
 :::{note} 后三条为什么是「转交」
-`app` / `data` / `case` 的实现在**一个** Rust 可执行文件里（`fylite-app`，本仓只有这一个），
+`app` / `data` / `case` 的实现在**一个** Rust 可执行文件里（`fylite`，本仓只有这一个），
 Python 侧**不重写第二份**：它找到随包带的那个可执行文件（或 `--bin-dir`、`$PATH`），
 把命令词放回最前面，其余的字原样交过去。没找到时它**按名说明要构建什么**并以退出码 2
 结束，而不是退化成一个能力更少的实现。
-`fylite data --help` 与 `fylite-app data --help` 读到的是同一份用法——两边由同一个定义
+`fylite data --help` 与 `fylite data --help` 读到的是同一份用法——两边由同一个定义
 文件建出。
 :::
 
