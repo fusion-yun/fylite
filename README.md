@@ -432,7 +432,7 @@ fylite cases --report --from records/<run>  # render a record `fylite case run` 
 ```
 
 ★The frozen test corpus is not here either: `tests/data` is a symlink to
-`fydata/oracle/` (recorded oracle answers, upstream release cases,
+`fydoc/oracle/` (recorded oracle answers, upstream release cases,
 reference profiles; the same tree the kernel checkout mounts at its `tests/data`). Without it the physics tier is not collected, and the
 run header says so by name rather than failing 965 times.
 

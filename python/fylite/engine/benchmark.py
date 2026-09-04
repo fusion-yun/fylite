@@ -12,7 +12,7 @@ either — ``--benchmark`` selects this one (2026-09-02 整合收敛).
 ``docs/cases/registry.jsonld`` is the source, ``tools/benchmark-publish.py``
 (there) writes this directory — the same records with every in-tree pointer
 turned into an out-of-tree one (``$FYLITE_KERNEL/…`` for the private checkout,
-``$FYDATA_ORACLE/…`` for the reference store), each reference dataset given
+``$FYDOC_ORACLE/…`` for the reference store), each reference dataset given
 its admissibility class and sha256, and one extra finding per record: the
 outcome of running its gates on the day of publication.  Nothing here is
 edited by hand; a stale record is fixed at the source and re-rendered.
@@ -43,7 +43,11 @@ BASES = ("reference_stated", "measured_band", "machine_precision")
 VERDICTS = ("pass", "fail", "inconclusive", "unevaluated")
 STATES = ("proposed", "under_test", "accepted", "retired")
 KERNEL_ENV = "FYLITE_KERNEL"
-STORE_ENV = "FYDATA_ORACLE"
+STORE_ENV = "FYDOC_ORACLE"
+#: 旧名，仍然认。2026-09-04 冻结判据库随 `oracle/` 自 fydata 迁入 fydoc，变量名跟着改；
+#: 但名字是**部署已经设好的东西**，改名而不认旧名，会让既有部署静默退回 `tests/data`
+#: ——那正是本包最不该发生的一类失灵（指针解析不报错，只是解析不到）。
+STORE_ENV_LEGACY = "FYDATA_ORACLE"
 
 
 def registry_dir(explicit=None) -> Path:
@@ -194,22 +198,23 @@ def problems(rec: dict, d: Path) -> list[str]:
 # running the gates
 # --------------------------------------------------------------------------- #
 def store_dir() -> Path | None:
-    """Where `$FYDATA_ORACLE/…` pointers resolve: the variable, else the checkout's
+    """Where `$FYDOC_ORACLE/…` pointers resolve: the variable, else the checkout's
     `tests/data` (the symlink `.gitignore` describes); None when neither is a directory."""
-    raw = os.environ.get(STORE_ENV)
+    raw = os.environ.get(STORE_ENV) or os.environ.get(STORE_ENV_LEGACY)
     cands = [Path(raw).expanduser()] if raw else []
     cands.append(Path(__file__).resolve().parents[3] / "tests" / "data")
     return next((c for c in cands if c.is_dir()), None)
 
 
 def resolve_pointer(uri: str) -> Path | None:
-    """A record's `$FYDATA_ORACLE/…` pointer as a local path, or None when the store
+    """A record's `$FYDOC_ORACLE/…` pointer as a local path, or None when the store
     is not bound.  Other pointers (`$FYLITE_KERNEL/…`) are not resolved here — they
     name the private checkout, which :func:`kernel_checkout` binds."""
-    if not uri.startswith("$" + STORE_ENV + "/"):
+    if not uri.startswith(("$" + STORE_ENV + "/", "$" + STORE_ENV_LEGACY + "/")):
         return None
     root = store_dir()
-    return root / uri[len(STORE_ENV) + 2:] if root else None
+    name = STORE_ENV if uri.startswith("$" + STORE_ENV + "/") else STORE_ENV_LEGACY
+    return root / uri[len(name) + 2:] if root else None
 
 
 def kernel_checkout(explicit=None) -> Path | None:

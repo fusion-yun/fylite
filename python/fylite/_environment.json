@@ -82,11 +82,11 @@
    "affects_result": false,
    "affects_result_why": "selects where the gates execute; the record's numbers are the register's, not this run's"
   },
-  "FYDATA_ORACLE": {
-   "governs": "the reference store the public V&V register's pointers are relative to: fydata's `oracle/` tree (frozen answers, upstream release cases, reference tables) — the SAME tree both checkouts mount at tests/data; not `$FY_ORACLE_STORE` (that named its `oracle/oracle/` sub-tree, retired 2026-09-01)",
-   "needed_for": "reading a record's `$FYDATA_ORACLE/…` pointer back to a file; no code path in this package reads it — it is a documented address, declared here so a caller can bind it",
+  "FYDOC_ORACLE": {
+   "governs": "the reference store the public V&V register's pointers are relative to: fydoc's `oracle/` tree (it lived in fydata until 2026-09-04; the variable was renamed with it, and nothing in this package reads either name) (frozen answers, upstream release cases, reference tables) — the SAME tree both checkouts mount at tests/data; not `$FY_ORACLE_STORE` (that named its `oracle/oracle/` sub-tree, retired 2026-09-01)",
+   "needed_for": "reading a record's `$FYDOC_ORACLE/…` pointer back to a file — `fylite.engine.benchmark.store_dir()` / `resolve_pointer()` read it (via the module constant STORE_ENV, which the environment-table scan does not see; that entry previously claimed nothing read it, which was wrong).  The old name FYDATA_ORACLE is still honoured as a fallback.",
    "default": "none - the store is private data and is not shipped; the pointer stays symbolic",
-   "example": "../fydata/oracle",
+   "example": "../fydoc/oracle",
    "affects_result": false,
    "affects_result_why": "an address for the reader; the register carries each item's sha256 so a bound store can be verified, not substituted"
   }

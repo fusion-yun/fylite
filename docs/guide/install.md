@@ -183,6 +183,6 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 ★要做一次**新的**自由边界正解，走 `fylite.kernel.gs_free_solve`——那是本仓自己的 GS，
 且它**说自己是谁**：把 EFIT 的名字安到另一个求解器的数上，比抛错更糟。
 
-★公开 V&V 登记册里指向参考文件的那些指针，写的是 `$FYDATA_ORACLE/…`（私有 `fydata` 仓的
+★公开 V&V 登记册里指向参考文件的那些指针，写的是 `$FYDOC_ORACLE/…`（私有 `fydoc` 仓的
 `oracle/` 树）。那是一个**符号地址**：本包没有任何代码路径读它，登记册每条自带 sha256，
 所以绑上的 store 可以**被校验**，不能被顶替。

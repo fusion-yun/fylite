@@ -13,7 +13,7 @@ comparable. That is what this directory holds.
 
 ★★**本目录是渲染件，不是手写件**（2026-09-02 起）。真源是内核仓的登记册
 `docs/cases/registry.jsonld`；内核仓的 `tools/benchmark-publish.py` 把它渲染到这里：
-同一批记录，仓内指针改为仓外地址（`$FYLITE_KERNEL/…` 私仓检出、`$FYDATA_ORACLE/…`
+同一批记录，仓内指针改为仓外地址（`$FYLITE_KERNEL/…` 私仓检出、`$FYDOC_ORACLE/…`
 参考库），每项参考数据标**纳入类别** 与 **sha256**，并给每条记录追加一条 finding——
 发布当日把它的门跑一遍的结果（`finding_kind: re-run…`）。改记录要改真源再重渲染。
 
@@ -65,7 +65,7 @@ benchmark」）：受限参考**也收录**，但** 只收指针**——路径�
 | :--- | :--- | :--- |
 | `public` | 上游**公开发布** 的算例与答案（GACODE、TORAX、FUSE、fusion_surrogates…）、解析解、已发表的表 | 包名、版本、sha256——存指针不存本体 |
 | `public-derived` | 由公开上游产物经本仓工具转换的表（METIS 认证表、GACODE 库的录音） | 同上，外加转换脚本名 |
-| `restricted` | 受限许可的源码 / 二进制的输出（JINTRAC 运行树、ITER 参考算例、离仓求解器的录音） | **仅指针**：`$FYDATA_ORACLE` 下的路径、sha256、许可 |
+| `restricted` | 受限许可的源码 / 二进制的输出（JINTRAC 运行树、ITER 参考算例、离仓求解器的录音） | **仅指针**：`$FYDOC_ORACLE` 下的路径、sha256、许可 |
 | `restricted-derived` | 表值由受限运行的产物派生（答案侧可复取，输入侧不可） | 仅指针 |
 | `experiment` | 实验炮与装置数据，未经数据属主同意不可再分发 | 仅指针 |
 | `private-artefact` | 内核仓的制品（神经权重导出件、导出脚本） | `$FYLITE_KERNEL` 指针 + sha256 |
@@ -74,8 +74,8 @@ benchmark」）：受限参考**也收录**，但** 只收指针**——路径�
 「这条比较存在、参考是哪一份（sha256）、门叫什么、发布当日跑成什么样」。这不是
 遗漏，是纳入类别在起作用：一条记录说清自己属于哪一类，比不出现在册子里诚实。
 
-参考库 `$FYDATA_ORACLE` 是 fydata 仓（私有）的 `oracle/` 树；本仓与内核仓各以一条
-符号链接 `tests/data -> …/fydata/oracle` 挂载它（`.gitignore` 说明了建法）。
+参考库 `$FYDOC_ORACLE` 是 fydoc 仓（私有）的 `oracle/` 树（2026-09-04 前在 fydata）；本仓与内核仓各以一条
+符号链接 `tests/data -> …/fydoc/oracle` 挂载它（`.gitignore` 说明了建法）。
 
 ## 怎么读一条记录
 

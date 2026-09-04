@@ -110,7 +110,7 @@ def test_the_register_stays_neutral_about_who_is_being_tested():
 
 
 def test_no_pointer_names_a_private_checkout_by_an_absolute_path(registry):
-    """★A public reader gets `$FYLITE_KERNEL/…` and `$FYDATA_ORACLE/…` — variables
+    """★A public reader gets `$FYLITE_KERNEL/…` and `$FYDOC_ORACLE/…` — variables
     they bind themselves — never `/home/<someone>/…`."""
     text = REGISTRY.read_text(encoding="utf-8")
     assert not re.search(r'"storage_uri": "/', text)

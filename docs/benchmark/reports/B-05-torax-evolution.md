@@ -28,7 +28,7 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDATA_ORACLE/torax/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/torax/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - ★★**不能读作『两码都对不对得上真实托卡马克』**：两侧共享网络与算例，其余各自实现，所以带是关于两个实现链的事实，不是关于物理的证据。
 - ★不复现的部分：TORAX 的有效 D/V 分解、输运求解器本身、台基模型、源项组合。本条比的是闭包与输运装配，不是仿真。
@@ -75,14 +75,14 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/torax/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
-| $FYDATA_ORACLE/torax/evolution_qlknn.json | sha256:9f1168276a17457aa32a0b694f5ba221844c26008430fc213fdb4a0a0cf466e7 | public | 417755 B |
+| $FYDOC_ORACLE/torax/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
+| $FYDOC_ORACLE/torax/evolution_qlknn.json | sha256:9f1168276a17457aa32a0b694f5ba221844c26008430fc213fdb4a0a0cf466e7 | public | 417755 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_evolution.py::test_level2_the_pass_through_columns_are_exact tests/test_torax_evolution.py::test_level2_the_gradients_agree_in_the_confinement_region tests/test_torax_evolution.py::test_the_shear_corrections_are_applied_and_matter tests/test_torax_evolution.py::test_level3_transport_on_torax_own_inputs tests/test_torax_evolution.py::test_level3_the_assembly_is_load_bearing tests/test_torax_evolution.py::test_level3_end_to_end_localises_to_the_pedestal_foot

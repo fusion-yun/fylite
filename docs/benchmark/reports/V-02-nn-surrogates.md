@@ -53,13 +53,13 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/nn_tables/sat2_em_d3d_azf-1.npz | — | private-artefact |  |
 | $FYLITE_KERNEL/nn_tables/epednn.npz | — | private-artefact |  |
-| $FYDATA_ORACLE/fuse/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | public | 1477 B |
+| $FYDOC_ORACLE/fuse/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | public | 1477 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_nn_surrogate.py
