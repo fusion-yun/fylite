@@ -137,23 +137,26 @@ project:
       #: 文档集增删或改版时，本 toc 与那张表在同一变更中更新。
       children:
         - file: design/INDEX.md
-        - title: 规格 (Specifications)
+        - title: 规格链 (Specifications)
           children:
             - file: design/FYL-CONOPS-00.md
             - file: design/FYL-SRS-01.md
             - file: design/FYL-SDD-01.md
-        - title: 四个页面，逐页 (The Four Pages)
+        - title: 内核与中间层 (Kernel and Middle Layer)
+          #: ★2026-09-04 按四层架构分组（`FYL-DESIGN-16` 是架构正本，先读它）：
+          #: 内核契约 → 中间层的数据半边 → 发布形态与命令行。
           children:
+            - file: design/FYL-DESIGN-16.md
+            - file: design/FYL-DESIGN-14.md
+            - file: design/FYL-DESIGN-15.md
+        - title: 浏览器前端 (Browser Front End)
+          #: 外壳在前（四页共用的那一层），四页各一篇；`-10` 兼持四页共同纪律与 `P-` 总表。
+          children:
+            - file: design/FYL-DESIGN-11.md
             - file: design/FYL-DESIGN-09.md
             - file: design/FYL-DESIGN-10.md
             - file: design/FYL-DESIGN-12.md
             - file: design/FYL-DESIGN-13.md
-        - title: 横跨四页的三层 (Across the Pages)
-          children:
-            - file: design/FYL-DESIGN-11.md
-            - file: design/FYL-DESIGN-14.md
-            - file: design/FYL-DESIGN-15.md
-            - file: design/FYL-DESIGN-16.md
 
     - file: ACKNOWLEDGEMENTS.md
 site:

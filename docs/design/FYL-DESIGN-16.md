@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "2.0"
+version: "2.1"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,9 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v2.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）。v0.1..v1.4 是十四次
+  change: 'v2.1 改口落文本：五条既有裁定的改口已随全书重排进入 CONOPS / SRS / SDD v1.0
+    （KERNEL 域、DE-LOG-11 / -12），改口表改为〔已确立〕对照，分期 P0 的第一项标已落。
+    v2.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）。v0.1..v1.4 是十四次
     同日增量，每次把上一版的改口、作废与换理由叠在正文上；本版按裁定的**现行状态**重排，
     历史只留在本条与追溯表。实质变化四处：①编号去重——「补数据」改 B-1..B-4（原与「状态」
     同用 S-），「状态持有」三选项不再占 P- 号（与分期 P0..P3、SPM-ADR-111 的 P-1..P-6 三重
@@ -40,7 +42,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v2.0 |
+| 版本 (Version) | v2.1 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -531,8 +533,12 @@ wasm 实例的内存之间，性质不变。〔开放猜想〕链成一个 wasm 
 | `FYL-SDD-01` DE-COMP-01 Interface | C-ABI 导出面 + `ABI_VERSION` | 文档门 + code 表 + 输出声明（K-1 / K-2）；门上是扁平树（F-1）；C-ABI 与 ABI 号降为本地后端内部 | 契约必须与实现分离才可替换 |
 | `engine.crosshost` 抬头「单核双宿主」 | 两个构建的一致性 | 任意两个后端的一致性（K-6） | 同上 |
 
-〔工作假设〕这五条改口在本篇只是**提出**；落文本走 `FYL-SRS-01` / `FYL-SDD-01` 各自的
-版本行，本篇不改它们。
+〔已确立〕★**五条已于 2026-09-04 落文本**（同日全书重排）：`FYL-CONOPS-00` v1.0 把
+「宿主」与「运行时」分开命名；`FYL-SRS-01` v1.0 改写 HOST 域与 NR-ENV-004，并新立
+KERNEL 域 FR-KERNEL-001..004 承载 K-1 / K-2 / K-4 / K-8 / F-1..F-4 / S-1..S-4；
+`FYL-SDD-01` v1.0 改 DE-LOG-01 为「一份内核契约、多宿主」、DE-LOG-02 降为本地后端内部，
+新增 DE-LOG-11（文档门与扁平树）与 DE-LOG-12（内核无状态）。`engine.crosshost` 抬头那
+一句随分期 P1 改。本表留作改口的对照。
 
 (fylite-kernel-contract-plan)=
 # 分期：一条总线 (One Ordered Plan)
@@ -544,7 +550,7 @@ wasm 实例的内存之间，性质不变。〔开放猜想〕链成一个 wasm 
 
 | # | 期 | 做什么 | 判据 |
 | ---: | :--- | :--- | :--- |
-| 1 | **P0 契约** | code 表 + 输出声明定为唯一接口（K-1 / K-2）写进 SRS / SDD；后端表的形（K-4）定下；与 `SP-REPORT-15` T-0.4 对齐远端 envelope（K-5）；改名（N-1）**已落** | 两处改口落文本；`fylite case describe` 的输出即契约的可读形 |
+| 1 | **P0 契约** | code 表 + 输出声明定为唯一接口（K-1 / K-2）写进 SRS / SDD **已落**（FR-KERNEL-001..004 · DE-LOG-11 / -12，2026-09-04）；后端表的形（K-4）定下；与 `SP-REPORT-15` T-0.4 对齐远端 envelope（K-5）；改名（N-1）**已落** | 改口落文本 ✓；`fylite case describe` 的输出即契约的可读形 |
 | 2 | **T-1 树的四份实现** | 定扁平树格式（F-1 / F-3）；中间层编码 + 解码、内核阅读器 + 构建器同期落；旧门一字不动 | 往返闸：编码 → 内核走 → 内核建树交回 → 解码 → 与源文档逐叶子比 |
 | 3 | **T-2 一个 code 走新门** | 门加一条收树的路，先只接 `transport`（最小） | 同一算例两条门逐位相同 |
 | 4 | **W-1 中间层进 wasm** | `fylite_runtime` 的 wasm 目标 + JS 接线（H-4 / H-5）；`geqdsk.js` / `fyo.js` / `session.js` 的职责移交 | 浏览器与本机读同一份 g-file 得同一批数；JS 不再自带 g-file 实现 |
