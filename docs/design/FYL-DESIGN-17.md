@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-17
 title: "场景运行命令 `fy run` 的详细设计 (The `fy run` Command: Detailed Design)"
 shortname: fylite-preset-scenarios
-version: "1.2"
+version: "1.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,7 +15,11 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v1.2 **P1 落地**（用户「完整实现 cli 设计」，2026-09-04）：`_cli.json` 加 `run`
+    v1.3 补上七条门禁里只有对着产物才答得出的两条（`python/tests/test_run_behaviour.py`）：
+    ①两种位置参数形产出同一份计划（实测相等），⑤`--offline` 解析不到时按名拒绝而不是
+    连出去。同批把 `--dry-run` 下解析不到的输入端口由「拒绝」改为「一行输出」（A-3 后半，
+    理由写在那一行里）。
+    · v1.2 **P1 落地**（用户「完整实现 cli 设计」，2026-09-04）：`_cli.json` 加 `run`
     （`open_parameters`）与 `list`（七条子命令）、去 `case` 与 `data facts`、加 `retired`；
     解析器收开放记号并按名拒绝退役词；新增 `src/corpus.rs`（语料四级 + 模板）、
     `cli/run.rs`（两段解析 · 开关 · 装置两条路 · 测量三级 · 来源账 · 记录）、`cli/list.rs`
@@ -59,7 +63,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-17` |
 | 文档名称 (Title) | 场景运行命令 `fy run` 的详细设计 (The `fy run` Command: Detailed Design) |
 | 短名 / Slug | `fylite-preset-scenarios` |
-| 版本 (Version) | v1.2 |
+| 版本 (Version) | v1.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -804,18 +808,21 @@ device, measurements, kernel}`）；2 语法（不落记录）。沿用原 `case
 | **P2-c** | `series` · `vstab` · `discharge` · `breakdown` · `pulse` 的 code；`feasible` / `vertical` / `evolution` / `tglf` 的模板 | `fy list scenarios` 里不再有「模板有、门没有」的条目 |
 :::
 
-〔门禁〕七条，都便宜：
+〔门禁〕七条，都便宜（★①与⑤只有对着**产物**才答得出，落在
+`python/tests/test_run_behaviour.py`；其余五条是静态的，落在 `test_cli_spec.py` 与
+`test_scenario_templates.py`）：
 
-1. **等价式**——场景形 `fy run <线> <场景> k=v` 与计划文件形 `fy run <模板路径> k=v` 产出逐字节
-   相同的 `plan.jsonld`（去掉 `fylite:from` 后比较）；
+1. **等价式** ✅——场景形 `fy run <线> <场景> k=v` 与计划文件形 `fy run <模板路径> k=v` 产出逐字节
+   相同的 `plan.jsonld`（去掉 `fylite:from` 后比较）；实测相等，且 `fylite:from` 本身记下了
+   是哪一种形；
 2. **模板与门对账**（E-8）——每份模板的 `prescribes_code` 要么在 `CASE_CODES` 里，要么
    `lines.jsonld` 里有 `runnable: false` 与理由，**否则红**；不设模板的场景也须在 `lines.jsonld`
    里有理由；
 3. **词表对账**——每份模板的 `fylite:vocabulary` ⊇ 语料同 code 全部 `sets_parameter` 的名字
    （今天的实测数：46 · 114 · 33 · 23 · 19 · 17 · 14 · 8 · 5），且每条预设用到的名字都在模板里；
 4. **同名禁止**（E-12 ③④）——模板里没有与固定选项同名的参数，没有只差 `-` / `_` 的两个名字；
-5. **离线**——`--offline` 下、且构建不带 `mdsip` 特性时，E-15 第 1、2 级的用例全绿，第 3 级
-   的用例给出 `refusal.stage: measurements` 而不是 panic；
+5. **离线** ✅——`--offline` 下解析不到测量时给出 `refusal.stage: measurements` 并退 1，
+   而不是 panic、也不是连出去；不带 `mdsip` 特性的构建同此（第 3 级不存在）；
 6. **同词同义**（J-6）——`run` 的 `--device` / `--shot` / `--time` / `--mdsip` / `--mds-user` /
    `--timeout-ms` / `--format` / `--kernel` / `-o` 在规格里与 `fetch` / `app` 的同名项
    `type` · `choices` · `action` 逐字相同（`test_cli_spec.py` 加一条）；
@@ -861,7 +868,7 @@ device, measurements, kernel}`）；2 语法（不落记录）。沿用原 `case
 | :--- | :--- | :--- | :--- |
 | **A-1** | {numref}`tbl-e17-catalogue` 给 `pulse` 与 `vstab` 标 ✅ 模板，E-17 又把 `vstab` 定为 control 线的缺省 | **不发**这两份；P1-a 发的是**语料的九个 code** 各一份（含 `pfwave`），control 线的缺省落成 `breakdown` | 一份模板要 `prescribes_code` 指向一个**真实存在**的 code IRI 与一份真实的参数词表。`pulse` 没有 code（语料的 `pulse-iter` 用的是 `code/pfwave`），`vstab` 有内核 entry 而无 case code 与词表——发出去只能是两个凭空造的名字。本篇的分期表本来就写着「9 份模板（现有 code 各一）」，两处互相矛盾，这次按分期表落，目录表随之改（{numref}`tbl-e17-catalogue` 的这两行现记为不设模板，理由进 `lines.jsonld`）。 |
 | **A-2** | `fy list` 不给子命令时打总览 | 按名拒绝并列出七条子命令 | 组命令要子命令，这是 C-5 既有的行为（`fy data` 同此），而拒绝话术本来就把七条都列了出来。为一条命令改解析器的通例，换来的只是同一份名单的另一种排版。 |
-| **A-3** | `--dry-run` 停在装内核之前 | 还**一个字节都不写**：装置文档在内存里装、不落盘，第 3 级只打「将取什么」 | E-19 说记录目录不写；实现时发现装置那一步仍会写 `device.fyo.jsonld`，而一次 `--dry-run` 在别人的工作目录里留下文件，与「先看看会发生什么」是相反的承诺。 |
+| **A-3** | `--dry-run` 停在装内核之前 | 还**一个字节都不写**（装置文档在内存里装、不落盘，第 3 级只打「将取什么」），且**解析不到的输入端口是一行输出而不是一次拒绝** | 前半：E-19 说记录目录不写，而实现时装置那一步仍会写 `device.fyo.jsonld`——一次 `--dry-run` 在别人的工作目录里留下文件，与「先看看会发生什么」是相反的承诺。后半：`fy run analysis --only-magnetic --dry-run` 本来会因为 `measurements` 没绑而退 1，于是「看一眼计划」要先把每个输入备齐——恰好取消了看一眼的用处。真跑的那一次照旧拒绝（`refusal.stage: measurements`），闸子两边都查。 |
 
 〔评注〕**没有落的那一半，是内核的那一半。** 门今天认三个 code，所以九条场景里六条走到
 `refusal.stage: kernel`——那不是缺陷，是 {numref}`tbl-e17-stages` 的 P2。本次落地把「入口

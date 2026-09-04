@@ -912,12 +912,26 @@ fn build(args: &Args, target: &Target, out_dir: &Path, dry: bool) -> Result<(Pla
                     || args.flag("shot").is_some()
                     || !port.optional;
                 if need_input {
-                    let m = resolve_measurements(args, t, &name, args.flag("device"), out_dir, dry)?;
-                    if m.bound {
-                        plan.bind_override(&format!("{name}={}", m.endpoint))
-                            .map_err(|e| refuse("compose", e.0))?;
+                    match resolve_measurements(args, t, &name, args.flag("device"), out_dir, dry) {
+                        Ok(m) => {
+                            if m.bound {
+                                plan.bind_override(&format!("{name}={}", m.endpoint))
+                                    .map_err(|e| refuse("compose", e.0))?;
+                            }
+                            prov.set(&format!("__port_{name}"), m.from);
+                        }
+                        //: ★★`--dry-run` 下解析不到**不是拒绝，是一行输出**。这条命令
+                        //: 回答的是「会发生什么」，而「这个端口今天绑不上，因为…」正是
+                        //: 要回答的一部分——要求先把每个输入备齐才肯给出计划，恰好
+                        //: 取消了先看一眼的用处。真跑的那一次照旧拒绝。
+                        Err(r) if dry => {
+                            prov.set(
+                                &format!("__port_{name}"),
+                                format!("unresolved ({}): {}", r.stage, r.message.lines().next().unwrap_or("")),
+                            );
+                        }
+                        Err(r) => return Err(r),
                     }
-                    prov.set(&format!("__port_{name}"), m.from);
                 }
             }
         }
