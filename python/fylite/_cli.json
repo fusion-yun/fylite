@@ -1,13 +1,13 @@
 {
  "spec_version": 2,
  "prog": "fy",
- "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. ONE command line, built from this file twice: the Rust executable `fy` (compiled in; carries app / data / case) and the browser app (its launch parameters are the `hosts.app.params` below). ★2026-09-04 the Python host left: that package is a LIBRARY now, with no console script and no argparse layer, so the commands only it carried (run · plot · describe · cases · manifest · replay · report · whence · alias · serve · mcp) left this file with it.",
+ "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. ONE command line, built from this file twice: the Rust executable `fy` (compiled in; carries app / data / run / list) and the browser app (its launch parameters are the `hosts.app.params` below). ★2026-09-04 the Python host left: that package is a LIBRARY now, with no console script and no argparse layer. Same day, second ruling: `case` folded into `run` (one entry to the kernel door, taking either a line and scenario or the plan files themselves) and the discovery face gathered into `list`; what those words were is in `retired`, and the parser refuses them BY NAME with the replacement (FYL-DESIGN-17 E-10 / E-23 / E-24).",
  "hosts": {
   "rust": {
    "exe": "fy",
    "kind": "single-executable",
    "default_command": "app",
-   "note": "THE executable, and since 2026-09-04 the ONLY one: named `fy` (it was `fylite-app`, then `fylite` — the same name as the Python console script, which made a $PATH lookup find that script itself and fork forever; the Python command line has since been removed altogether and this package is a library). The whole app/ is embedded and every command word is carried here: `app`, `data`, `case`. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works. The thin fylite-data / fylite-case alias binaries were retired into this one; whoever needs `data` supplies the word (`fy data ...`)."
+   "note": "THE executable, and since 2026-09-04 the ONLY one: named `fy` (it was `fylite-app`, then `fylite` — the same name as the Python console script, which made a $PATH lookup find that script itself and fork forever; the Python command line has since been removed altogether and this package is a library). The whole app/ is embedded and every command word is carried here: `app`, `data`, `run`, `list` — one verb each: serve the page, move data, compute, look. With no subcommand it runs `app` so a double-click still works."
   },
   "app": {
    "entry": "index.html",
@@ -561,6 +561,299 @@
     {
      "name": "tables",
      "help": "the built-in IMAS DD tables: version and IDS names"
+    }
+   ]
+  },
+  {
+   "name": "run",
+   "hosts": [
+    "rust"
+   ],
+   "open_parameters": "scenario",
+   "help": "run one modelling or analysis case: `run <line> [<scenario>]` composes the scenario template, or `run <plan.jsonld>...` composes the plans given. Scenario parameters are written `key=value` (equivalently `--key=value`, `--key`, `--no-key`) and are checked against the template, not against this file.",
+   "args": [
+    {
+     "flags": [
+      "target"
+     ],
+     "nargs": "+",
+     "metavar": "LINE|SCENARIO|PLAN",
+     "help": "a line (analysis / model / design / control) with an optional scenario name, or one or more plan documents (a path, or a name ending .json / .jsonld / .yaml)"
+    },
+    {
+     "flags": [
+      "--device"
+     ],
+     "metavar": "east|device.jsonld",
+     "help": "the device: a name resolved on the facts path, or a manifest. Binds the whole device document to the `device` port and fills the template's device-derived defaults."
+    },
+    {
+     "flags": [
+      "--shot"
+     ],
+     "type": "int",
+     "help": "shot number (same word as `data fetch --shot`); equivalently shot=N"
+    },
+    {
+     "flags": [
+      "--time"
+     ],
+     "metavar": "T",
+     "help": "time selection: 4.5 (one point), 4:5 (a window) or 4,4.5,5 (a list); equivalently time=T"
+    },
+    {
+     "flags": [
+      "--preset"
+     ],
+     "metavar": "NAME",
+     "help": "a named plan from the case corpus, applied over the template"
+    },
+    {
+     "flags": [
+      "--plan"
+     ],
+     "action": "append",
+     "metavar": "FILE",
+     "help": "an explicit plan document, applied over the preset (repeatable, in order)"
+    },
+    {
+     "flags": [
+      "--input"
+     ],
+     "metavar": "FILE",
+     "help": "bind this document to the template's primary input port (measurements / points / equilibrium)"
+    },
+    {
+     "flags": [
+      "--bind"
+     ],
+     "action": "append",
+     "metavar": "port=path",
+     "help": "bind an input port to a file (repeatable)"
+    },
+    {
+     "flags": [
+      "--code"
+     ],
+     "metavar": "IRI",
+     "help": "the code IRI to run under, when a plan carries more than one"
+    },
+    {
+     "flags": [
+      "--cases"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a case corpus (scenario templates and presets) to consult BEFORE the built-in one; repeat, or separate several with the platform path separator. Prepends to $FY_CASES_PATH rather than replacing it."
+    },
+    {
+     "flags": [
+      "--facts"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
+    },
+    {
+     "flags": [
+      "-o",
+      "--record"
+     ],
+     "metavar": "DIR",
+     "help": "record directory: plan.jsonld, record.jsonld, the device and measurement documents used, and one <ids>.fyo.jsonld per produced dataset (default $FYLITE_RUN_DIR/<timestamp>-<scenario>/)"
+    },
+    {
+     "flags": [
+      "--format"
+     ],
+     "choices": [
+      "jsonld",
+      "hdf5",
+      "netcdf",
+      "imas-hdf5"
+     ],
+     "help": "dataset format (imas-hdf5 writes ONE IMAS data entry: imas/master.h5 + one file per IDS)"
+    },
+    {
+     "flags": [
+      "--kernel"
+     ],
+     "metavar": "PATH",
+     "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
+    },
+    {
+     "flags": [
+      "--mdsip"
+     ],
+     "metavar": "HOST[:PORT]",
+     "help": "mdsip server for the fetch stage, overriding $FYLITE_MDSIP_SERVER and the manifest"
+    },
+    {
+     "flags": [
+      "--mds-user"
+     ],
+     "metavar": "NAME",
+     "help": "mdsip user name (default $FYLITE_MDSIP_USER, then $USER)"
+    },
+    {
+     "flags": [
+      "--timeout-ms"
+     ],
+     "type": "int",
+     "metavar": "MS",
+     "help": "mdsip request timeout in milliseconds (default 10000)"
+    },
+    {
+     "flags": [
+      "--offline"
+     ],
+     "action": "store_true",
+     "help": "never open a socket: resolve measurements from --input or the corpus, or refuse (also $FYLITE_OFFLINE=1)"
+    },
+    {
+     "flags": [
+      "--dry-run"
+     ],
+     "action": "store_true",
+     "help": "compose and print the plan and the resolution table; do not fetch, do not load the kernel"
+    },
+    {
+     "flags": [
+      "--json"
+     ],
+     "action": "store_true",
+     "help": "with --dry-run the composed plan; otherwise the record with its datasets inline, on stdout"
+    },
+    {
+     "flags": [
+      "--quiet"
+     ],
+     "action": "store_true",
+     "help": "no progress lines"
+    }
+   ]
+  },
+  {
+   "name": "list",
+   "hosts": [
+    "rust"
+   ],
+   "help": "what is available: devices, experiment shots, scenario templates, presets, corpus roots, the kernel's code table. Read-only — it composes nothing, fetches nothing, writes nothing.",
+   "args": [
+    {
+     "flags": [
+      "--facts"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
+    },
+    {
+     "flags": [
+      "--cases"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a case corpus (scenario templates and presets) to consult BEFORE the built-in one; repeat, or separate several with the platform path separator. Prepends to $FY_CASES_PATH rather than replacing it."
+    },
+    {
+     "flags": [
+      "--kernel"
+     ],
+     "metavar": "PATH",
+     "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
+    },
+    {
+     "flags": [
+      "--json"
+     ],
+     "action": "store_true",
+     "help": "machine-readable answer"
+    }
+   ],
+   "commands": [
+    {
+     "name": "devices",
+     "help": "facts device entries: which root supplies each, card or manifest, licence",
+     "args": [
+      {
+       "flags": [
+        "name"
+       ],
+       "nargs": "*",
+       "help": "print these devices in full (providers, epochs, bindings, licence)"
+      }
+     ]
+    },
+    {
+     "name": "experiments",
+     "help": "facts experiment entries: machine, shot, slices, supplying root",
+     "args": [
+      {
+       "flags": [
+        "name"
+       ],
+       "nargs": "*",
+       "help": "a machine, or a machine and a shot, to print in full"
+      }
+     ]
+    },
+    {
+     "name": "scenarios",
+     "help": "scenario templates: line, code, whether the kernel door accepts it today, ports",
+     "args": [
+      {
+       "flags": [
+        "name"
+       ],
+       "nargs": "*",
+       "help": "print these templates in full (parameter table, switches, ports)"
+      },
+      {
+       "flags": [
+        "--line"
+       ],
+       "choices": [
+        "analysis",
+        "model",
+        "design",
+        "control"
+       ],
+       "help": "only this scenario line"
+      }
+     ]
+    },
+    {
+     "name": "presets",
+     "help": "named plans in the case corpus: scenario, device, runnable, supplying root",
+     "args": [
+      {
+       "flags": [
+        "name"
+       ],
+       "nargs": "*",
+       "help": "print these presets in full (the plan document as it stands)"
+      },
+      {
+       "flags": [
+        "--line"
+       ],
+       "choices": [
+        "analysis",
+        "model",
+        "design",
+        "control"
+       ],
+       "help": "only this scenario line"
+      },
+      {
+       "flags": [
+        "--scenario"
+       ],
+       "metavar": "NAME",
+       "help": "only presets of this scenario"
+      }
+     ]
     },
     {
      "name": "facts",
@@ -581,176 +874,26 @@
        "help": "list this domain's entries and the root each supplied"
       }
      ]
-    }
-   ]
-  },
-  {
-   "name": "case",
-   "hosts": [
-    "rust"
-   ],
-   "help": "a case from a fyo plan to a fyo record, through the kernel: one structure in, one structure out",
-   "args": [
-    {
-     "flags": [
-      "--facts"
-     ],
-     "action": "append",
-     "metavar": "PATH",
-     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
-    }
-   ],
-   "commands": [
-    {
-     "name": "describe",
-     "help": "what the kernel completes: codes, entries, their declared blocks",
-     "args": [
-      {
-       "flags": [
-        "--kernel"
-       ],
-       "metavar": "PATH",
-       "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
-      }
-     ]
     },
     {
-     "name": "plan",
-     "help": "compose the plan documents and print the composed plan without running it",
-     "args": [
-      {
-       "flags": [
-        "plans"
-       ],
-       "nargs": "+",
-       "metavar": "plan.jsonld",
-       "help": "fyo:ScenarioSpecification documents; later ones override earlier ones"
-      },
-      {
-       "flags": [
-        "--set"
-       ],
-       "action": "append",
-       "metavar": "k=v",
-       "help": "override one parameter (repeatable; applied last)"
-      },
-      {
-       "flags": [
-        "--bind"
-       ],
-       "action": "append",
-       "metavar": "port=path",
-       "help": "bind an input port to a file (repeatable)"
-      },
-      {
-       "flags": [
-        "--code"
-       ],
-       "metavar": "IRI",
-       "help": "the code IRI to run under"
-      },
-      {
-       "flags": [
-        "--json"
-       ],
-       "action": "store_true",
-       "help": "print the composed plan as JSON"
-      }
-     ]
+     "name": "kernel",
+     "help": "what the kernel completes: codes, entries, their declared blocks"
     },
     {
-     "name": "run",
-     "help": "run the composed plan through the kernel and write the record and its datasets",
-     "args": [
-      {
-       "flags": [
-        "plans"
-       ],
-       "nargs": "+",
-       "metavar": "plan.jsonld",
-       "help": "fyo:ScenarioSpecification documents; later ones override earlier ones"
-      },
-      {
-       "flags": [
-        "--set"
-       ],
-       "action": "append",
-       "metavar": "k=v",
-       "help": "override one parameter (repeatable; applied last)"
-      },
-      {
-       "flags": [
-        "--bind"
-       ],
-       "action": "append",
-       "metavar": "port=path",
-       "help": "bind an input port to a file (repeatable)"
-      },
-      {
-       "flags": [
-        "--code"
-       ],
-       "metavar": "IRI",
-       "help": "the code IRI to run under"
-      },
-      {
-       "flags": [
-        "-o",
-        "--record"
-       ],
-       "metavar": "DIR",
-       "help": "record directory: record.jsonld, plan.jsonld and one <ids>.fyo.jsonld per produced dataset"
-      },
-      {
-       "flags": [
-        "--format"
-       ],
-       "choices": [
-        "jsonld",
-        "hdf5",
-        "netcdf",
-        "imas-hdf5"
-       ],
-       "help": "dataset format (imas-hdf5 writes ONE IMAS data entry: imas/master.h5 + imas/<ids>.h5)"
-      },
-      {
-       "flags": [
-        "--kernel"
-       ],
-       "metavar": "PATH",
-       "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
-      },
-      {
-       "flags": [
-        "--quiet"
-       ],
-       "action": "store_true",
-       "help": "no progress lines"
-      }
-     ]
-    },
-    {
-     "name": "json",
-     "help": "the JSON door: the record with its datasets inline, on stdout",
-     "args": [
-      {
-       "flags": [
-        "plans"
-       ],
-       "nargs": "+",
-       "metavar": "plan.jsonld",
-       "help": "fyo:ScenarioSpecification documents"
-      },
-      {
-       "flags": [
-        "--kernel"
-       ],
-       "metavar": "PATH",
-       "help": "libfylite_kernel.so (default $FYLITE_KERNEL_LIB, then the checkout's python/fylite/_lib/)"
-      }
-     ]
+     "name": "lines",
+     "help": "the four scenario lines and the default scenario of each"
     }
    ]
   }
- ]
+ ],
+ "retired": {
+  "case describe": "list kernel",
+  "case plan": "run <the same plans> --dry-run",
+  "case run": "run <the same plans>",
+  "case json": "run <the same plans> --json",
+  "case list": "list presets",
+  "case show": "list presets <name>",
+  "case": "run",
+  "data facts": "list facts"
+ }
 }

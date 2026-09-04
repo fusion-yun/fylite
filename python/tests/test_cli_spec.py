@@ -43,7 +43,9 @@ def test_the_spec_names_two_hosts_and_is_version_two():
     #: nothing carries is a line of documentation for a program that has none
     for c in SPEC["commands"]:
         assert c["hosts"] == ["rust"], c["name"]
-    assert {c["name"] for c in SPEC["commands"]} == {"app", "data", "case"}
+    #: ★★2026-09-04 第二条裁定（FYL-DESIGN-17 E-10）：`case` 收进 `run`，发现面收进
+    #: `list`。四条命令词各是一个动词——起页面 · 搬数据 · 算 · 看。
+    assert {c["name"] for c in SPEC["commands"]} == {"app", "data", "run", "list"}
     #: and no argument may be marked for a host that no longer exists
     def hosts_of(node):
         if isinstance(node, dict):
@@ -88,3 +90,80 @@ def test_the_browser_reads_exactly_the_declared_launch_parameters():
     for name, arg in bound.items():
         assert arg["flags"] == [f"--{name}"]
         assert arg.get("choices") == declared[name].get("choices")
+
+
+def _command(name):
+    return next(c for c in SPEC["commands"] if c["name"] == name)
+
+
+def _flags(cmd):
+    """{long flag: the argument declaration} for one command."""
+    out = {}
+    for a in cmd.get("args", []):
+        for f in a["flags"]:
+            if f.startswith("--"):
+                out[f] = a
+    return out
+
+
+def test_a_retired_word_says_where_it_went():
+    """`retired` is the data behind the parser's refusal (E-23).
+
+    ★It is a table rather than a branch for the usual reason: the words that
+    left are the ones a reader still has in a shell history and in already
+    published documentation, and the useful reply names the replacement.  A
+    replacement that does not start with a command this file still carries
+    would send them somewhere else that does not exist.
+    """
+    retired = SPEC["retired"]
+    live = {c["name"] for c in SPEC["commands"]}
+    assert "case" in retired and "data facts" in retired
+    for old, new in retired.items():
+        assert new.split()[0] in live, f"{old!r} points at {new!r}, which is not a command"
+        #: a retired word must not also be a live one — that is two words for
+        #: one thing, which is what the fold removed
+        assert old.split()[0] not in live or old.split()[0] == "data", old
+
+
+def test_only_run_takes_a_parameter_table_of_its_own():
+    """`open_parameters` is the seam between this file and the templates.
+
+    The scenario parameters (279 names across nine codes) are NOT here: they
+    belong to the scenario, and a scenario is data (E-11).  What is here is
+    the declaration that the command has such a table, so the parser collects
+    unknown tokens instead of refusing them — and only that one command does.
+    """
+    assert _command("run")["open_parameters"] == "scenario"
+    for c in SPEC["commands"]:
+        if c["name"] != "run":
+            assert "open_parameters" not in c, c["name"]
+
+
+def test_a_word_means_the_same_thing_on_every_command():
+    """J-6, as a gate: `--device` / `--shot` / `--time` and the connection
+    options are declared identically on `run` and on `data fetch`.
+
+    ★`required` is deliberately excluded from the comparison: `data fetch`
+    cannot run without a device and `run` can (a scenario may need none).
+    What must not differ is what the word MEANS — its type, its choices, the
+    way it takes a value.
+    """
+    run, fetch = _flags(_command("run")), _flags(_command("data")["commands"][5])
+    assert _command("data")["commands"][5]["name"] == "fetch"
+    shared = set(run) & set(fetch)
+    assert {"--device", "--shot", "--time", "--mds-user", "--timeout-ms"} <= shared
+    for f in sorted(shared):
+        for key in ("type", "action", "choices"):
+            assert run[f].get(key) == fetch[f].get(key), f"{f} differs in {key}"
+
+
+def test_the_discovery_face_is_one_command_with_one_subcommand_per_corpus():
+    """E-24: `list` answers "what is available", and nothing else does."""
+    lst = _command("list")
+    assert {c["name"] for c in lst["commands"]} == {
+        "devices", "experiments", "scenarios", "presets", "facts", "kernel", "lines"}
+    #: `data` no longer answers it (its `facts` subcommand moved here)
+    assert "facts" not in {c["name"] for c in _command("data")["commands"]}
+    #: and `run` grew no --list / --show of its own
+    assert "--list" not in _flags(_command("run"))
+    assert "--show" not in _flags(_command("run"))

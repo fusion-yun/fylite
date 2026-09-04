@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-15
 title: "发布形态与统一命令行 (Release Forms and the Unified Command Line)"
 shortname: fylite-release-cli
-version: "1.0"
+version: "1.1"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,7 +15,14 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。v0.2 那次「两个薄壳别名
+    v1.1 命令词由三条改为四条（`FYL-DESIGN-17` E-10 / E-23 / E-24 落地，2026-09-04）：
+    `case` 收进 `run`、发现面收进 `list`，于是 `fy` 是 `app` / `data` / `run` / `list`，
+    一个词一个动词。R-2 / R-4 / C-5 的枚举随之改写；C-1 补一句**规格与模板的分工**
+    （静态语法在 `_cli.json`，场景的参数表在模板——`open_parameters` 是那道缝的声明）；
+    as-built 一节按落地重记（`cli/case.rs` 撤除，新增 `cli/run.rs` · `cli/list.rs` ·
+    `corpus.rs`，`retired` 表进规格）。裁定的**理由**一条没改：一份规格、一个可执行文件、
+    不承载的命令按名拒绝——这次只是被拒绝的那两个词换成了 `case` 与 `data facts`。
+    · v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。v0.2 那次「两个薄壳别名
     撤销」的沿革（R-2 / R-4 / R-5 / C-8 里各一段「v0.1 写的是…现在…」）收成现行陈述加
     一句记录；as-built 改标 2026-09-04（可执行文件改名 `fy` 且**不再随轮发**、`rust/build.sh --cli` 已撤、
     `data` 子命令七条含 `fetch`）；发布形态表按 `FYL-DESIGN-16` H-4 补第四个制品
@@ -36,7 +43,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-15` |
 | 文档名称 (Title) | 发布形态与统一命令行 (Release Forms and the Unified Command Line) |
 | 短名 / Slug | `fylite-release-cli` |
-| 版本 (Version) | v1.0 |
+| 版本 (Version) | v1.1 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -98,10 +105,10 @@ Linux x86-64、桌面单文件是第四条通道、内核源保持闭源）；�
 
 | 形态 | 给谁 | 装的是什么 | 计算在哪 | 请求面（`/api/*`） | 构建 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **单一可执行文件** `fylite`（Linux ELF / Windows PE32+） | 离线的人、没有 Python 的人（尤其 Windows） | 整个 `app/`（内嵌字节，生成表 `src/bin/app/assets.rs`）+ mdsip 只读客户端 + `data` / `case` 的全部代码 | 页面里的 **wasm**（不是原生内核）；`case` 子命令经 dlopen 用原生内核 | **有**：`/api/health` 恒答；六个只读 mdsip 端点在给了 `--mdsip` 时活 | `tools/build-app-exe.sh` |
+| **单一可执行文件** `fy`（Linux ELF / Windows PE32+） | 离线的人、没有 Python 的人（尤其 Windows） | 整个 `app/`（内嵌字节，生成表 `src/bin/app/assets.rs`）+ mdsip 只读客户端 + `data` / `run` / `list` 的全部代码 + 九份场景模板（`corpus.rs` 的 `include_str!`） | 页面里的 **wasm**（不是原生内核）；`run` 经 dlopen 用原生内核 | **有**：`/api/health` 恒答；六个只读 mdsip 端点在给了 `--mdsip` 时活 | `tools/build-app-exe.sh` |
 | **静态网页**（站点） | 联网的人，零安装 | `app/`（减 `tests/`）+ `assets/fylite_{rs,tglf,dke}.wasm`；装置描述 `app/facts/device/*.jsonld` 是实拷（脚本里那段 `cp -L` 落实体的讲究是符号链接时代留下的，今天无链接可解） | 页面里的 wasm；加载后离线可用 | **无**：页面探 `/api/health` 不通即自禁用装置数据面板 | `tools/build-site.sh` |
 | **动态网页** | 本机、或经隧道可达 mdsip 的人 | **同一份 `app/` 字节**，由一个进程伺服 | 页面里的 wasm | **有**：伺服进程答 `/api/*` | `fylite`（= `fylite app`） |
-| **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_runtime.so` + `_cli.json` 等声明面（**不带**可执行文件，2026-09-04 用户裁定） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；`app` / `data` / `case` 委托 `$PATH` 上的 `fy` | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
+| **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_runtime.so` + `_cli.json` 等声明面（**不带**可执行文件，2026-09-04 用户裁定） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；命令行整层已撤，用 `$PATH` 上的 `fy` | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
 :::
 
 〔评注〕「静态」与「动态」不是两套页面：它们是**同一份字节的两种伺服方式**。区别只在有
@@ -121,8 +128,10 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 （`host.js` 的 `data-fy-host`），不能是构建时分叉的页面。
 
 **R-2 只有一个可执行文件，它是 Rust 宿主的全部命令行。** `fylite` 不带子命令即
-`app`（起服务、开浏览器——双击仍可用）；`fylite data …` 与 `fylite case …` 承载
-数据与算例两组动词。★2026-09-03 用户裁定：此前的两个薄壳别名二进制（各十行，只把
+`app`（起服务、开浏览器——双击仍可用）；`fy data …` 搬数据、`fy run …` 算一个算例、
+`fy list …` 看有什么可用。★2026-09-04 第二次收敛（`FYL-DESIGN-17`）：`case` 收进
+`run`（位置参数既收线与场景，也收计划文件），`data facts` 收进 `list facts`——两个词
+指同一件事时，撤掉的那个**按名拒绝并指出去处**，不静默转发。★2026-09-03 用户裁定：此前的两个薄壳别名二进制（各十行，只把
 命令词前置到 argv）撤销——那一次前置由调用方给即可，撤掉之后少两个二进制、少两条
 `_bin/` 项、少一处用法里的字符串折回，**能力一条没少**。
 
@@ -133,7 +142,7 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 远端后端 `/api/case`，归那一篇的分期 P2，本篇不做。
 
 **R-4 命令行只有一条，它是那个可执行文件。** `fy` 承载规格里的每一条命令
-（`app` / `data` / `case`）；无命令词时跑 `app`，所以双击可用。Python 包**不是**
+（`app` / `data` / `run` / `list`）；无命令词时跑 `app`，所以双击可用。Python 包**不是**
 第二份命令行：它是库，没有控制台脚本，也不再把命令词转交给谁。
 
 ★★**沿革（三次改名与两条裁定，值得留着）。** 二进制先叫 `fylite-app`，2026-09-04
@@ -187,7 +196,7 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 | `hosts.rust.default_command` | 顶层 | Rust 可执行文件无命令词时运行的命令（`app`） |
 | `hosts.app.params[]` | 顶层 | 浏览器启动参数：`name` · `carrier`（`query` 写进 `?name=`；`path` 决定页面）· `choices` · `help` |
 | `commands[].hosts` | 命令 | 承载它的建出者；**缺省 = 全部** |
-| `commands[].commands[]` | 命令 | 子命令（组）：`data` / `case` |
+| `commands[].commands[]` | 命令 | 子命令（组）：`data` / `list` |
 | `commands[].handler` | 命令 | Python 的处理函数（`module:function`）；Rust 按命令名分派，不读它 |
 | `args[].hosts` | 参数 | 只属一个建出者的参数（`--bin-dir` 属 python，`--app-dir` 属 rust） |
 | `args[].app_param` | 参数 | 这个选项写入 URL 的启动参数名（`--device` → `device`） |
@@ -195,10 +204,18 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 
 ## 裁定 C-1..C-8 (Rulings on the command line)
 
-**C-1 一个文件。** 命令、参数、帮助只写在 `_cli.json`；任何建出者的代码里**禁止 (MUST
+**C-1 一个文件，以及它的边界。** 命令、参数、帮助只写在 `_cli.json`；任何建出者的代码里**禁止 (MUST
 NOT)** 再出现一张「选项名单」（这正是 2026-09-02 之前两份 Rust `Args` 里那张 `takes_value`
 名单）。Rust 由它建解析器与用法（`cli::parse` / `cli::usage`）；页面读的启动参数名由它
 声明、由门禁核对。★第三个建出者（Python 的 argparse）随 2026-09-04 的裁定撤除。
+
+★★**边界在哪：这份文件管语法，不管场景的参数表。** `fy run` 后面的
+`chi0=0.4` / `--only-magnetic` 是**场景的**参数（`FYL-DESIGN-17` E-11），逐 code 几十到
+上百个，且随语料增删——把它们抄进本文件，规格与模板就是两份，而先发现两份不一样的是
+敲错了名字的那个人。所以本文件只声明**「这条命令后面有一张开放的表」**（`open_parameters`），
+解析器据此把不认识的记号收起来而不是拒绝，由 `run.rs` 拿着模板按名拒绝。一条没有这个
+声明的命令，行为与从前逐字相同。同理，撤掉的命令词写在 `retired` 里而不是写在代码里
+的一个 `match` 分支上。
 
 **C-2 少量特有参数用 `hosts` 标出，不用代码分支。** 命令级 `hosts` 说谁承载；参数级
 `hosts` 说谁接受。缺省是全部。★2026-09-04 之后只剩两处特有：`--app-dir`（rust：伺服
@@ -216,7 +233,7 @@ NOT)** 再出现一张「选项名单」（这正是 2026-09-02 之前两份 Rus
 不写死在 `main.rs` 里。未知选项、缺参数、类型不符、不在 `choices` 里、`required`
 缺席——都按名拒绝，退出码 2。
 
-**C-5 嵌套命令与组级选项。** `data` / `case` 是组；组自己的参数对每个子命令有效，且
+**C-5 嵌套命令与组级选项。** `data` / `list` 是组；组自己的参数对每个子命令有效，且
 **写在子命令之前或之后都可以**：解析器对祖先的参数不分位置。
 
 **C-6 浏览器的启动参数定义一次。** `hosts.app.params` 是页面从 URL 接受什么的唯一声明；
@@ -243,12 +260,15 @@ NOT)** 再出现一张「选项名单」（这正是 2026-09-02 之前两份 Rus
   `manifest` `replay` `report` `whence` `alias` `serve` `mcp`，`hosts: ["python"]`）；
   `app`（`--port` `--no-open` `--mdsip` `--mds-user` `--page` `--device` `--lang` `--theme`；
   `--app-dir` 属 rust、`--bin-dir` 属 python）、`data`（`info` `dump` `convert` `merge`
-  `assemble` `fetch` `tables`）、`case`（`describe` `plan` `run` `json`）——后两组的参数
+  `assemble` `fetch` `tables`）、`run`（开放参数表）、`list`（`devices` `experiments`
+  `scenarios` `presets` `facts` `kernel` `lines`）——这几组的参数
   从两个二进制的手写用法**逐条**转录，两处冲突改名：`info` / `dump` 的位置参数叫 `file`。
 - **Rust**：`rust/fylite_runtime/src/cli/mod.rs`（规格驱动解析器：命令树下降、`--k=v`、
   短选项、`--` 结束选项、`append`、位置参数按 `nargs` 绑定、`required` / `choices` /
-  类型检查、用法生成）；`cli/data.rs` 与 `cli/case.rs`；`src/bin/app/main.rs` 用解析器
-  分派 `app` / `data` / `case`，`app` 带 `--page/--device/--lang/--theme`（拼成启动 URL）
+  类型检查、用法生成、开放参数收集、退役词按名拒绝）；`cli/data.rs` · `cli/run.rs` ·
+  `cli/list.rs`（`cli/case.rs` 于 2026-09-04 撤除，其四个处理器分别并入后两者）；
+  `src/bin/app/main.rs` 用解析器分派 `app` / `data` / `run` / `list`，`app` 带
+  `--page/--device/--lang/--theme`（拼成启动 URL）
   与 `--app-dir`（活目录，同一张 MIME 表，仍拒绝 `..`）。`Cargo.toml` 只有一个 `[[bin]]`。
 - **Python**：★**没有了**（2026-09-04）。`engine/cli.py`、`__main__.py` 与
   `[project.scripts]` 一并撤除；`pyproject.toml` 的 `package-data` 既无 `_bin/` 项，

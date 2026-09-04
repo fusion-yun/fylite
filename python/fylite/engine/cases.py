@@ -934,6 +934,16 @@ _RETIRED_PREFIXES = ("fylite:", "vv:")
 #: landing here is exactly the mistake :func:`problems` exists to catch.
 _NOT_CASES = {"catalogue.jsonld", "context.jsonld"}
 
+#: ★★2026-09-04：`scenario/` 住的不是算例，是**场景模板**——`fy run` 的参数表
+#: （`FYL-DESIGN-17` E-11）。它形状上也是 `fyo:ScenarioSpecification`（模板就是一份
+#: 把词表说全了的计划，于是 `fy run <模板>` 与 `fy run <线> <场景>` 走同一条合成），
+#: 但它**不是这本目录登记的东西**：它自带目录 `scenario/lines.jsonld`，由
+#: `tools/make-scenario-templates.py` 生成、由 `python/tests/test_scenario_templates.py`
+#: 逐条对账。所以孤儿检查跳过这一棵——不跳的话，一份模板会被报成「谁也没引的计划」，
+#: 而那句话是错的。★按**目录名**排除，与 `_NOT_CASES` 按文件名排除同一个姿态：
+#: 落进 `docs/examples/` 别处的一份不认得的 `.jsonld` 仍然要被抓住。
+_NOT_CASE_DIRS = {"scenario"}
+
 
 def _case_problems(doc: dict, cid: str, bars: set) -> list[str]:
     """What is structurally wrong with ONE case document (empty = sound)."""
@@ -994,7 +1004,11 @@ def problems(d: Path | None = None) -> list[str]:
     bad: list[str] = []
     #: ★一个例子一个目录之后，盘上的计划在 `<章>/` 里，孤儿检查要跟着下一层；
     #: 记的是**目录相对路径**，与目录里的 `storage_uri` 同形。
-    on_disk = {str(p.relative_to(d).as_posix()) for p in d.rglob("*.jsonld")} - _NOT_CASES
+    on_disk = {
+        str(p.relative_to(d).as_posix())
+        for p in d.rglob("*.jsonld")
+        if not set(p.relative_to(d).parts[:-1]) & _NOT_CASE_DIRS
+    } - _NOT_CASES
     named: set[str] = set()
     for e in catalogue(d):
         cid, doc_name = e.get("case_id"), e.get("file")

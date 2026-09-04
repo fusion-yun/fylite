@@ -6,7 +6,7 @@
 #
 #   ./rust/build.sh              -> libfylite_runtime.so，装进 python/fylite/_lib/
 #   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fy（内嵌整个 app/，
-#                                   并承载 app / data / case 三条命令），留在
+#                                   并承载 app / data / run / list 四条命令），留在
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
@@ -130,7 +130,7 @@ if [ "$EXE" = 1 ]; then
     #: `python/fylite/_bin/`，于是同一个二进制有两份、轮里带着一份平台相关的东西，
     #: 而「哪一份在跑」要靠查找顺序回答。现在只有一份，在 `target/release/`——
     #: 装到 `$PATH` 上是发行的事（`tools/build-app-exe.sh`），不是 `pip install` 的事。
-    #: Python 宿主委托 `app` / `data` / `case` 时按名在 `$PATH` 上找 `fy`
+    #: 命令行只有它一个：`app` / `data` / `run` / `list`（`case` 于 2026-09-04 收进 `run`）
     #: （`engine/cli.py` 的 `_RUST_EXE`），找不到就说清楚怎么构建。
 fi
 echo "[runtime] done."
