@@ -399,7 +399,7 @@ _KERNEL_ABSENT_SAYS = (
     "'NoneType' object has no attribute 'fylite_rs_",
 )
 
-#: 判据语料（`tests/data` → fydoc 的 `oracle/`，一条符号链接）。它是**私有**的，
+#: 判据语料（`tests/data` → fydoc 的 `cases/`，一条符号链接）。它是**私有**的，
 #: README 已经写明公开检出里没有它。政策与内核那条同一条：不在场 = 缺输入。
 STORE = Path(__file__).resolve().parents[1] / "tests" / "data"
 

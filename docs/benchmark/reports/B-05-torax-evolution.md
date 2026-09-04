@@ -78,11 +78,11 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 | $FYDOC_ORACLE/torax/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
 | $FYDOC_ORACLE/torax/evolution_qlknn.json | sha256:9f1168276a17457aa32a0b694f5ba221844c26008430fc213fdb4a0a0cf466e7 | public | 417755 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_evolution.py::test_level2_the_pass_through_columns_are_exact tests/test_torax_evolution.py::test_level2_the_gradients_agree_in_the_confinement_region tests/test_torax_evolution.py::test_the_shear_corrections_are_applied_and_matter tests/test_torax_evolution.py::test_level3_transport_on_torax_own_inputs tests/test_torax_evolution.py::test_level3_the_assembly_is_load_bearing tests/test_torax_evolution.py::test_level3_end_to_end_localises_to_the_pedestal_foot

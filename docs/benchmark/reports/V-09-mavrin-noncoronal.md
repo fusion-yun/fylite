@@ -65,11 +65,11 @@ title: V-09 · Mavrin-2017 非日冕电荷态与冷却率，以及 L_INT 求积
 | $FYDOC_ORACLE/torax/record_mavrin_noncoronal.py | sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1 | public | 7978 B |
 | $FYLITE_KERNEL/rust/tools/gen_mavrin_tables.py | sha256:b404e1732b190cd66894ab23d3851757c59b291f53c412e289699bb029eaabb2 | private-artefact | 8496 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_edge_noncoronal.py

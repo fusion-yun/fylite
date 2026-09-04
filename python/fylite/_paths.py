@@ -33,7 +33,7 @@ BIN_DIR = PKG / "_bin"
 #: ``libneo.so``, ``libgeo.so``, ``libtglf.so`` — left with LICENSE 3.1/3.2
 #: along with every binding to them, and their constants have gone with the
 #: loader that turned a missing one into a diagnostic.  What survives of
-#: those libraries is a set of RECORDINGS (``tests/data/oracle``,
+#: those libraries is a set of RECORDINGS (``tests/data/frozen-libs``,
 #: replayed from ``tests/oracles/``), and a recording needs no path.
 #: ★★2026-09-02 改名：`libfylite_kernel.so` -> `libfylite_kernel.so`。本目录从此有**两份**
 #: `.so`，来路不同：内核（物理，私有仓 fylite_kernel 构建）与数据层（取数与格式，

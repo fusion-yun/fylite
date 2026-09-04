@@ -60,11 +60,11 @@ title: B-01 · FUSE 的 ITER 算例，四层
 | $FYDOC_ORACLE/fuse/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public | 25616 B |
 | $FYDOC_ORACLE/fuse/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public | 55840 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_fuse_benchmark.py

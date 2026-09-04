@@ -134,11 +134,11 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 | $FYLITE_KERNEL@bf4fd07:machine_desc/east/fylite_pressure_east.json | sha256:72f7f6fe341d4c4e97410a4255cb20cf89b0411d63e554369e3bd7cbcf9e83ea | experiment | 1225 B |
 | $FYLITE_KERNEL@bf4fd07:machine_desc/east/oracle_east137985_4000ms.fyo.jsonld | sha256:29145961f63fa6fa7d997894daad587db66dd4c13a0e0ae0357590e4cf5b41e4 | experiment | 104523 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported

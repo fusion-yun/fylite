@@ -6,7 +6,7 @@ and the per-file list is the substance of it.  On 2026-08-21 **eleven of its
 eighteen entries pointed at nothing**::
 
     python/fylite/{mapping,sources,solver,gacode_io,geo,neo,tglf,machine}.py
-    tests/data/{tglf_ga_std,tgyro_treg01,oracle}
+    tests/data/{tglf/ga-std,tgyro/treg01,frozen-libs}
 
 Not one of those files had been deleted as a work — they had MOVED, into the
 Rust kernel or into the ``scenario/`` and ``io/`` subpackages, and the notice
@@ -60,7 +60,7 @@ def _listed() -> set[str]:
 
 def test_every_path_the_notice_names_exists():
     """★The half that had rotted.  A glob is satisfied by ANY match, which is
-    the right reading: ``tests/data/oracle/tglf*`` says "the tglf recordings are
+    the right reading: ``tests/data/frozen-libs/tglf*`` says "the tglf recordings are
     derived", not "exactly these files are"."""
     missing = []
     for p in sorted(_listed()):

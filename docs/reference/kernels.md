@@ -97,7 +97,7 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 
 | | |
 | :--- | :--- |
-| 位置 | `tests/data/oracle/`（`$FY_ORACLE_STORE` 可覆盖），**15 个入口目录、625 条记录、9.7 MB** |
+| 位置 | `tests/data/frozen-libs/`（`$FY_ORACLE_STORE` 可覆盖），**15 个入口目录、625 条记录、9.7 MB** |
 | 分组 | EFIT 正解 297 · NEO 自举与漂移动理学 209 · 磁面几何 105 · TGLF 输入映射 14 |
 | 布局 | `<入口>/<输入摘要 24 位十六进制>.json`，每条**连输入一并存**；构件（g-file 正文）内容寻址、整条流压缩为 `artifacts.xz` |
 | 读者 | `python/fylite/_oracle.py`；`$FY_ORACLE`：`replay`（缺省）/ `record` |

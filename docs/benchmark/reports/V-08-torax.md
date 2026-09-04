@@ -71,11 +71,11 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 | :--- | :--- | :--- | :--- |
 | $FYDOC_ORACLE/torax/ | sha256-manifest:37c13ef663e4f940274b2aa7647f982de32e1edcf5337f990650bb8ce40f3b4d | public | 13 files, 1948111 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_benchmark.py

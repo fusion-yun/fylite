@@ -63,11 +63,11 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 | :--- | :--- | :--- | :--- |
 | $FYDOC_ORACLE/torax/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `oracle/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/oracle tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_evolution.py::test_level1_composition_on_torax_own_inputs tests/test_torax_evolution.py::test_level1_would_have_caught_the_unclipped_leading_flux

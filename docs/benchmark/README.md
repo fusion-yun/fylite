@@ -74,8 +74,8 @@ benchmark」）：受限参考**也收录**，但** 只收指针**——路径�
 「这条比较存在、参考是哪一份（sha256）、门叫什么、发布当日跑成什么样」。这不是
 遗漏，是纳入类别在起作用：一条记录说清自己属于哪一类，比不出现在册子里诚实。
 
-参考库 `$FYDOC_ORACLE` 是 fydoc 仓（私有）的 `oracle/` 树（2026-09-04 前在 fydata）；本仓与内核仓各以一条
-符号链接 `tests/data -> …/fydoc/oracle` 挂载它（`.gitignore` 说明了建法）。
+参考库 `$FYDOC_ORACLE` 是 fydoc 仓（私有）的 `cases/` 树（2026-09-04 前在 fydata）；本仓与内核仓各以一条
+符号链接 `tests/data -> …/fydoc/cases` 挂载它（`.gitignore` 说明了建法）。
 
 ## 怎么读一条记录
 
