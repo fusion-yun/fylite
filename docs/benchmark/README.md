@@ -26,6 +26,7 @@ comparable. That is what this directory holds.
 | [`scenarios/`](scenarios/) | 对拍场景（`fyo:ScenarioSpecification`，无代码的场景规格）——记录的 `scenario` 指向它 | 两者 |
 | [`reports/README.md`](reports/README.md) | 索引：每条记录一行——类、参考、纳入类别、登记册结论、复测结论、报告 | 人 |
 | [`context.jsonld`](context.jsonld) | fyo / spo 词汇的 JSON-LD `@context`（与内核仓登记册同一份） | 程序 |
+| [`plan/`](plan/) | **验证定序册**（手写）：按物理依赖排的算例与阻塞关系——`README.md` 是执行流程（可作提示词整篇交给模型），`SUMMARY.md` 一页汇总，`plan.jsonld` 机读 | 两者 |
 
 ## 三类记录，不要混
 
