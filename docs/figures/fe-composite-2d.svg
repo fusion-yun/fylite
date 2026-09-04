@@ -1,0 +1,342 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="极向截面整合视图：磁面、LCFS、装置几何、诊断各为一层，可开关，各有非颜色通道">
+<title>fylite 前端 — 二维整合视图与图层</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+
+.tile { fill:var(--panel); stroke:var(--accent); stroke-width:1.2; }
+.tile-sel { fill:var(--sel); stroke:var(--accent); stroke-width:1.6; stroke-dasharray:6 3; }
+.grip { fill:var(--accent); }
+.ghost { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:6 4; opacity:.8; }
+.knot { fill:var(--panel); stroke:var(--lcfs); stroke-width:2; }
+.knot-drag { fill:var(--lcfs); stroke:var(--panel); stroke-width:1.5; }
+.coil { fill:var(--coil); opacity:.55; }
+.coil-neg { fill:none; stroke:var(--coil); stroke-width:1.6; }
+.probe { fill:var(--alt); }
+.loop { fill:none; stroke:var(--alt); stroke-width:1.4; }
+.chord { stroke:var(--warn); stroke-width:1.2; stroke-dasharray:2 3; }
+.fluxl { fill:none; stroke:var(--flux); stroke-width:1.1; }
+.cursor { stroke:var(--lcfs); stroke-width:1.4; }
+.zoombox { fill:var(--accent); opacity:.12; stroke:var(--accent); stroke-width:1; stroke-dasharray:4 3; }
+.step-done { fill:var(--accent); }
+.step-ckpt { fill:var(--alt); }
+.step-todo { fill:var(--grid); }
+.step-cur { fill:var(--panel); stroke:var(--accent); stroke-width:2; }
+.arrow { fill:none; stroke:var(--muted); stroke-width:1.4; marker-end:url(#arr); }
+.arrow-a { fill:none; stroke:var(--accent); stroke-width:1.6; marker-end:url(#arra); }
+.src { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.src-top { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.src-off { fill:var(--panel); stroke:var(--grid); stroke-width:1; stroke-dasharray:4 3; opacity:.7; }
+.prov { fill:var(--head); }
+.tag { fill:none; stroke:var(--muted); stroke-width:1; }
+.tag-a { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.tag-b { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.sw-on { fill:var(--accent); }
+.sw-off { fill:var(--grid); }
+.sw-k { fill:#ffffff; }
+.doc { fill:var(--panel); stroke:var(--fg); stroke-width:1; }
+.doc-t { fill:var(--fg); }
+.seg { fill:none; stroke:var(--grid); stroke-width:1; }
+.seg-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.meas { fill:var(--alt); }
+.ref { fill:none; stroke:var(--coil); stroke-width:1.6; stroke-dasharray:5 3; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker><marker id="arra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="84.0" class="strip"/>
+<line x1="0.0" y1="84.0" x2="1600.0" y2="84.0" class="strip-edge"/>
+<rect x="18.0" y="6.0" width="28.0" height="28.0" rx="6" class="mark"/>
+<text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
+<text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">实验分析 / 反演</text>
+<text x="207.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">由测量恢复位型 · 正向算子 · 不确定度</text>
+<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
+<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<circle cx="1568.0" cy="20.0" r="7" class="navg"/>
+<path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>
+<line x1="1542.0" y1="11.0" x2="1542.0" y2="29.0" class="sep"/>
+<rect x="1510.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1517.0 13.0v14M1517.0 13.0h5M1517.0 20.0h5M1517.0 27.0h5" class="navg"/>
+<circle cx="1528.0" cy="13.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="20.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="27.0" r="1.9" class="navgf"/>
+<rect x="1478.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic-on"/>
+<path d="M1484.0 24.0Q1492.0 11.0 1500.0 22.0" class="navg-on"/>
+<circle cx="1487.0" cy="21.0" r="1.6" class="navg-onf"/>
+<circle cx="1492.0" cy="16.0" r="1.6" class="navg-onf"/>
+<circle cx="1497.0" cy="20.0" r="1.6" class="navg-onf"/>
+<rect x="1446.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1452.0 14.0C1458.0 14.0 1460.0 26.0 1468.0 26.0" class="navg"/>
+<rect x="1414.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1420.0 25.0L1425.0 15.0L1431.0 15.0L1436.0 25.0" class="navg"/>
+<line x1="0.0" y1="40.0" x2="1600.0" y2="40.0" class="strip-inner"/>
+<text x="18.0" y="66.0" class="mut" font-size="12" text-anchor="start">装置</text>
+<rect x="52.0" y="48.0" width="200.0" height="26.0" rx="5" class="input"/>
+<text x="61.0" y="65.4" class="lbl" font-size="12" text-anchor="start">EAST</text>
+<path d="M234.0 59.0l4 5 4-5" class="caret"/>
+<rect x="260.0" y="48.0" width="26.0" height="26.0" rx="5" class="btn"/>
+<text x="273.0" y="65.3" class="mut" font-size="12" text-anchor="middle">×</text>
+<rect x="298.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="329.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导入</text>
+<rect x="368.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="399.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导出</text>
+<circle cx="454.0" cy="61.0" r="4.5" class="dot-ok"/>
+<text x="466.0" y="65.0" class="mut" font-size="12" text-anchor="start">平衡反演 · 完成 · 位形误差 0.0242 · 8 层中 6 层显示</text>
+<rect x="0.0" y="81.0" width="1600.0" height="3.0" class="prog-bg"/>
+<rect x="26.0" y="100.0" width="760.0" height="760.0" rx="8" class="panel"/>
+<rect x="26.0" y="100.0" width="760.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="122.0" width="760.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="130.0" x2="786.0" y2="130.0" class="sep"/>
+<text x="38.0" y="119.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">极向截面 · fyo:PoloidalSectionView · 等比例</text>
+<rect x="40.0" y="140.0" width="732.0" height="700.0" rx="6" class="panel"/>
+<rect x="86.0" y="152.0" width="664.0" height="664.0" class="axes"/>
+<line x1="86.0" y1="318.0" x2="750.0" y2="318.0" class="grid"/>
+<line x1="252.0" y1="152.0" x2="252.0" y2="816.0" class="grid"/>
+<line x1="86.0" y1="484.0" x2="750.0" y2="484.0" class="grid"/>
+<line x1="418.0" y1="152.0" x2="418.0" y2="816.0" class="grid"/>
+<line x1="86.0" y1="650.0" x2="750.0" y2="650.0" class="grid"/>
+<line x1="584.0" y1="152.0" x2="584.0" y2="816.0" class="grid"/>
+<polygon points="722.1,484.0 718.7,442.5 708.8,401.8 692.8,362.4 671.6,325.2 646.0,290.6 617.1,259.4 585.8,232.0 553.1,208.9 519.6,190.5 485.8,177.2 451.9,169.1 418.0,166.3 384.1,169.1 350.2,177.2 316.4,190.5 282.9,208.9 250.2,232.0 218.9,259.4 190.0,290.6 164.4,325.2 143.2,362.4 127.2,401.8 117.3,442.5 113.9,484.0 117.3,525.5 127.2,566.2 143.2,605.6 164.4,642.8 190.0,677.4 218.9,708.6 250.2,736.0 282.9,759.1 316.4,777.5 350.2,790.8 384.1,798.9 418.0,801.7 451.9,798.9 485.8,790.8 519.6,777.5 553.1,759.1 585.8,736.0 617.1,708.6 646.0,677.4 671.6,642.8 692.8,605.6 708.8,566.2 718.7,525.5 722.1,484.0" class="wall"/>
+<polygon points="704.8,484.0 701.7,444.1 692.3,404.9 677.3,367.1 657.2,331.3 633.1,298.1 605.8,268.0 576.3,241.7 545.5,219.5 513.9,201.8 482.0,189.0 450.0,181.2 418.0,178.6 386.0,181.2 354.0,189.0 322.1,201.8 290.5,219.5 259.7,241.7 230.2,268.0 202.9,298.1 178.8,331.3 158.7,367.1 143.7,404.9 134.3,444.1 131.2,484.0 134.3,523.9 143.7,563.1 158.7,600.9 178.8,636.7 202.9,669.9 230.2,700.0 259.7,726.3 290.5,748.5 322.1,766.2 354.0,779.0 386.0,786.8 418.0,789.4 450.0,786.8 482.0,779.0 513.9,766.2 545.5,748.5 576.3,726.3 605.8,700.0 633.1,669.9 657.2,636.7 677.3,600.9 692.3,563.1 701.7,523.9 704.8,484.0" class="wall"/>
+<rect x="154.7" y="223.7" width="22.0" height="16.0" rx="2" class="coil"/>
+<rect x="659.3" y="223.7" width="22.0" height="16.0" rx="2" class="coil-neg"/>
+<rect x="114.8" y="476.0" width="22.0" height="16.0" rx="2" class="coil"/>
+<rect x="699.2" y="476.0" width="22.0" height="16.0" rx="2" class="coil"/>
+<rect x="154.7" y="728.3" width="22.0" height="16.0" rx="2" class="coil-neg"/>
+<rect x="659.3" y="728.3" width="22.0" height="16.0" rx="2" class="coil"/>
+<rect x="274.2" y="163.9" width="22.0" height="16.0" rx="2" class="coil"/>
+<rect x="539.8" y="788.1" width="22.0" height="16.0" rx="2" class="coil-neg"/>
+<polygon points="444.6,484.0 444.4,479.3 443.9,474.6 443.1,470.0 442.0,465.6 440.7,461.4 439.0,457.5 437.1,453.8 435.0,450.4 432.7,447.5 430.3,444.9 427.7,442.8 425.0,441.1 422.2,439.8 419.5,439.1 416.7,438.8 413.9,439.1 411.2,439.8 408.6,441.1 406.1,442.8 403.7,444.9 401.5,447.5 399.5,450.4 397.7,453.8 396.1,457.5 394.7,461.4 393.5,465.6 392.6,470.0 392.0,474.6 391.6,479.3 391.4,484.0 391.6,488.7 392.0,493.4 392.6,498.0 393.5,502.4 394.7,506.6 396.1,510.5 397.7,514.2 399.5,517.6 401.5,520.5 403.7,523.1 406.1,525.2 408.6,526.9 411.2,528.2 413.9,528.9 416.7,529.2 419.5,528.9 422.2,528.2 425.0,526.9 427.7,525.2 430.3,523.1 432.7,520.5 435.0,517.6 437.1,514.2 439.0,510.5 440.7,506.6 442.0,502.4 443.1,498.0 443.9,493.4 444.4,488.7 444.6,484.0" class="fluxl"/>
+<polygon points="471.1,484.0 470.8,474.6 469.7,465.2 468.0,456.1 465.6,447.3 462.6,438.8 459.1,430.9 455.0,423.6 450.5,416.9 445.6,410.9 440.5,405.8 435.1,401.5 429.5,398.1 423.9,395.7 418.3,394.2 412.7,393.7 407.2,394.2 401.9,395.7 396.9,398.1 392.1,401.5 387.6,405.8 383.4,410.9 379.6,416.9 376.2,423.6 373.3,430.9 370.7,438.8 368.6,447.3 367.0,456.1 365.8,465.2 365.1,474.6 364.9,484.0 365.1,493.4 365.8,502.8 367.0,511.9 368.6,520.7 370.7,529.2 373.3,537.1 376.2,544.4 379.6,551.1 383.4,557.1 387.6,562.2 392.1,566.5 396.9,569.9 401.9,572.3 407.2,573.8 412.7,574.3 418.3,573.8 423.9,572.3 429.5,569.9 435.1,566.5 440.5,562.2 445.6,557.1 450.5,551.1 455.0,544.4 459.1,537.1 462.6,529.2 465.6,520.7 468.0,511.9 469.7,502.8 470.8,493.4 471.1,484.0" class="fluxl"/>
+<polygon points="497.7,484.0 497.1,469.8 495.4,455.8 492.6,442.1 488.7,428.9 483.8,416.3 478.1,404.4 471.6,393.4 464.4,383.3 456.7,374.4 448.6,366.7 440.2,360.3 431.6,355.2 423.0,351.5 414.5,349.3 406.1,348.5 398.0,349.3 390.2,351.5 382.9,355.2 376.0,360.3 369.6,366.7 363.7,374.4 358.4,383.3 353.7,393.4 349.7,404.4 346.2,416.3 343.4,428.9 341.2,442.1 339.6,455.8 338.6,469.8 338.3,484.0 338.6,498.2 339.6,512.2 341.2,525.9 343.4,539.1 346.2,551.7 349.7,563.6 353.7,574.6 358.4,584.7 363.7,593.6 369.6,601.3 376.0,607.7 382.9,612.8 390.2,616.5 398.0,618.7 406.1,619.5 414.5,618.7 423.0,616.5 431.6,612.8 440.2,607.7 448.6,601.3 456.7,593.6 464.4,584.7 471.6,574.6 478.1,563.6 483.8,551.7 488.7,539.1 492.6,525.9 495.4,512.2 497.1,498.2 497.7,484.0" class="fluxl"/>
+<polygon points="524.2,484.0 523.4,465.1 520.9,446.4 516.8,428.2 511.2,410.5 504.2,393.7 496.0,377.8 486.8,363.1 476.6,349.8 465.8,337.9 454.5,327.6 442.9,319.0 431.1,312.2 419.5,307.3 408.0,304.4 396.9,303.4 386.2,304.4 376.1,307.3 366.7,312.2 357.9,319.0 349.8,327.6 342.5,337.9 336.0,349.8 330.3,363.1 325.3,377.8 321.1,393.7 317.8,410.5 315.1,428.2 313.3,446.4 312.1,465.1 311.8,484.0 312.1,502.9 313.3,521.6 315.1,539.8 317.8,557.5 321.1,574.3 325.3,590.2 330.3,604.9 336.0,618.2 342.5,630.1 349.8,640.4 357.9,649.0 366.7,655.8 376.1,660.7 386.2,663.6 396.9,664.6 408.0,663.6 419.5,660.7 431.1,655.8 442.9,649.0 454.5,640.4 465.8,630.1 476.6,618.2 486.8,604.9 496.0,590.2 504.2,574.3 511.2,557.5 516.8,539.8 520.9,521.6 523.4,502.9 524.2,484.0" class="fluxl"/>
+<polygon points="550.8,484.0 549.7,460.4 546.3,437.1 540.8,414.2 533.2,392.2 523.8,371.1 512.9,351.3 500.5,332.9 487.1,316.2 472.9,301.4 458.1,288.5 443.1,277.8 428.1,269.3 413.3,263.2 399.0,259.5 385.1,258.2 372.0,259.5 359.8,263.2 348.4,269.3 337.9,277.8 328.4,288.5 320.0,301.4 312.4,316.2 305.9,332.9 300.3,351.3 295.6,371.1 291.8,392.2 288.9,414.2 286.8,437.1 285.6,460.4 285.2,484.0 285.6,507.6 286.8,530.9 288.9,553.8 291.8,575.8 295.6,596.9 300.3,616.7 305.9,635.1 312.4,651.8 320.0,666.6 328.4,679.5 337.9,690.2 348.4,698.7 359.8,704.8 372.0,708.5 385.1,709.8 399.0,708.5 413.3,704.8 428.1,698.7 443.1,690.2 458.1,679.5 472.9,666.6 487.1,651.8 500.5,635.1 512.9,616.7 523.8,596.9 533.2,575.8 540.8,553.8 546.3,530.9 549.7,507.6 550.8,484.0" class="fluxl"/>
+<polygon points="577.4,484.0 575.9,455.7 571.5,427.7 564.4,400.3 554.6,373.8 542.6,348.5 528.5,324.8 512.8,302.7 495.8,282.7 477.9,264.8 459.6,249.4 441.0,236.5 422.6,226.3 404.6,219.0 387.3,214.6 370.9,213.1 355.5,214.6 341.2,219.0 328.1,226.3 316.2,236.5 305.5,249.4 296.1,264.8 287.8,282.7 280.7,302.7 274.6,324.8 269.6,348.5 265.6,373.8 262.5,400.3 260.4,427.7 259.1,455.7 258.6,484.0 259.1,512.3 260.4,540.3 262.5,567.7 265.6,594.2 269.6,619.5 274.6,643.2 280.7,665.3 287.8,685.3 296.1,703.2 305.5,718.6 316.2,731.5 328.1,741.7 341.2,749.0 355.5,753.4 370.9,754.9 387.3,753.4 404.6,749.0 422.6,741.7 441.0,731.5 459.6,718.6 477.9,703.2 495.8,685.3 512.8,665.3 528.5,643.2 542.6,619.5 554.6,594.2 564.4,567.7 571.5,540.3 575.9,512.3 577.4,484.0" class="fluxl"/>
+<polygon points="590.6,484.0 589.1,453.8 584.5,424.0 577.0,394.7 566.8,366.5 554.1,339.4 539.3,313.9 522.7,290.3 504.8,268.6 485.8,249.3 466.3,232.4 446.5,218.2 426.9,206.8 407.6,198.4 389.0,192.9 371.3,190.6 354.5,191.4 339.0,195.3 324.6,202.2 311.6,212.1 299.8,224.9 289.3,240.5 280.1,258.6 272.0,279.2 265.1,301.9 259.4,326.5 254.6,352.8 250.9,380.5 248.2,409.3 246.4,438.8 245.5,468.9 245.5,499.1 246.4,529.2 248.2,558.7 250.9,587.5 254.6,615.2 259.4,641.5 265.1,666.1 272.0,688.8 280.1,709.4 289.3,727.5 299.8,743.1 311.6,755.9 324.6,765.8 339.0,772.7 354.5,776.6 371.3,777.4 389.0,775.1 407.6,769.6 426.9,761.2 446.5,749.8 466.3,735.6 485.8,718.7 504.8,699.4 522.7,677.7 539.3,654.1 554.1,628.6 566.8,601.5 577.0,573.3 584.5,544.0 589.1,514.2 590.6,484.0" class="lcfs"/>
+<polygon points="590.6,484.0 589.0,455.2 584.2,426.8 576.4,398.9 565.7,372.0 552.5,346.2 537.1,321.9 520.0,299.4 501.5,278.7 482.0,260.3 462.0,244.2 441.9,230.7 422.0,219.8 402.6,211.8 384.0,206.6 366.3,204.4 349.8,205.2 334.5,208.9 320.5,215.5 307.8,224.9 296.5,237.1 286.5,252.0 277.7,269.2 270.1,288.8 263.7,310.4 258.3,333.9 253.9,359.0 250.5,385.3 248.0,412.8 246.3,441.0 245.5,469.6 245.5,498.4 246.3,527.0 248.0,555.2 250.5,582.7 253.9,609.0 258.3,634.1 263.7,657.6 270.1,679.2 277.7,698.8 286.5,716.0 296.5,730.9 307.8,743.1 320.5,752.5 334.5,759.1 349.8,762.8 366.3,763.6 384.0,761.4 402.6,756.2 422.0,748.2 441.9,737.3 462.0,723.8 482.0,707.7 501.5,689.3 520.0,668.6 537.1,646.1 552.5,621.8 565.7,596.0 576.4,569.1 584.2,541.2 589.0,512.8 590.6,484.0" class="tgt"/>
+<path d="M431.92 484.0h12M437.92 478.0v12" class="okmark"/>
+<path d="M412.0 771.4879999999999l12 12M424.0 771.4879999999999l-12 12" class="badmark"/>
+<circle cx="712.0" cy="484.0" r="2.6" class="probe"/>
+<circle cx="693.7" cy="387.6" r="2.6" class="probe"/>
+<circle cx="643.7" cy="300.6" r="2.6" class="probe"/>
+<circle cx="574.1" cy="231.5" r="2.6" class="probe"/>
+<circle cx="496.7" cy="187.2" r="2.6" class="probe"/>
+<circle cx="418.0" cy="171.9" r="2.6" class="probe"/>
+<circle cx="339.3" cy="187.2" r="2.6" class="probe"/>
+<circle cx="261.9" cy="231.5" r="2.6" class="probe"/>
+<circle cx="192.3" cy="300.6" r="2.6" class="probe"/>
+<circle cx="142.3" cy="387.6" r="2.6" class="probe"/>
+<circle cx="124.0" cy="484.0" r="2.6" class="probe"/>
+<circle cx="142.3" cy="580.4" r="2.6" class="probe"/>
+<circle cx="192.3" cy="667.4" r="2.6" class="probe"/>
+<circle cx="261.9" cy="736.5" r="2.6" class="probe"/>
+<circle cx="339.3" cy="780.8" r="2.6" class="probe"/>
+<circle cx="418.0" cy="796.1" r="2.6" class="probe"/>
+<circle cx="496.7" cy="780.8" r="2.6" class="probe"/>
+<circle cx="574.1" cy="736.5" r="2.6" class="probe"/>
+<circle cx="643.7" cy="667.4" r="2.6" class="probe"/>
+<circle cx="693.7" cy="580.4" r="2.6" class="probe"/>
+<circle cx="704.3" cy="418.0" r="4.5" class="loop"/>
+<circle cx="579.4" cy="207.3" r="4.5" class="loop"/>
+<circle cx="360.0" cy="158.6" r="4.5" class="loop"/>
+<circle cx="174.5" cy="300.6" r="4.5" class="loop"/>
+<circle cx="131.7" cy="550.0" r="4.5" class="loop"/>
+<circle cx="256.6" cy="760.7" r="4.5" class="loop"/>
+<circle cx="476.0" cy="809.4" r="4.5" class="loop"/>
+<circle cx="661.5" cy="667.4" r="4.5" class="loop"/>
+<line x1="364.9" y1="158.0" x2="364.9" y2="810.0" class="chord"/>
+<line x1="418.0" y1="158.0" x2="418.0" y2="810.0" class="chord"/>
+<line x1="471.1" y1="158.0" x2="471.1" y2="810.0" class="chord"/>
+<text x="418.0" y="836.0" class="mut" font-size="10.5" text-anchor="middle">R [m] — Z [m] · 1 px : 1 px（-12 G-16 由构造关闭）</text>
+<rect x="806.0" y="100.0" width="768.0" height="470.0" rx="8" class="panel"/>
+<rect x="806.0" y="100.0" width="768.0" height="30.0" rx="8" class="head"/>
+<rect x="806.0" y="122.0" width="768.0" height="8.0" class="head-sq"/>
+<line x1="806.0" y1="130.0" x2="1574.0" y2="130.0" class="sep"/>
+<text x="818.0" y="119.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">图层（写在呈现规格里：flux_layer · structure_layer · overlay_layer）</text>
+<rect x="820.0" y="144.0" width="30.0" height="16.0" rx="8" class="sw-on"/>
+<circle cx="842.0" cy="152.0" r="6" class="sw-k"/>
+<text x="858.0" y="156.5" class="lbl" font-size="11.5" text-anchor="start">磁面 ψ 等值线</text>
+<text x="820.0" y="174.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：细实线 · 淡</text>
+<text x="1560.0" y="154.0" class="mono" font-size="10" text-anchor="end">flux_layer</text>
+<text x="1560.0" y="174.0" class="mono" font-size="10" text-anchor="end">profiles_2d/psi</text>
+<line x1="820.0" y1="184.0" x2="1560.0" y2="184.0" class="sep"/>
+<rect x="820.0" y="194.0" width="30.0" height="16.0" rx="8" class="sw-on"/>
+<circle cx="842.0" cy="202.0" r="6" class="sw-k"/>
+<text x="858.0" y="206.5" class="lbl" font-size="11.5" text-anchor="start">LCFS</text>
+<text x="820.0" y="224.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：粗实线 · 红</text>
+<text x="1560.0" y="204.0" class="mono" font-size="10" text-anchor="end">flux_layer</text>
+<text x="1560.0" y="224.0" class="mono" font-size="10" text-anchor="end">boundary/outline</text>
+<line x1="820.0" y1="234.0" x2="1560.0" y2="234.0" class="sep"/>
+<rect x="820.0" y="244.0" width="30.0" height="16.0" rx="8" class="sw-on"/>
+<circle cx="842.0" cy="252.0" r="6" class="sw-k"/>
+<text x="858.0" y="256.5" class="lbl" font-size="11.5" text-anchor="start">目标 / 参考轮廓</text>
+<text x="820.0" y="274.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：虚线 · 灰</text>
+<text x="1560.0" y="254.0" class="mono" font-size="10" text-anchor="end">overlay_layer</text>
+<text x="1560.0" y="274.0" class="mono" font-size="10" text-anchor="end">reference</text>
+<line x1="820.0" y1="284.0" x2="1560.0" y2="284.0" class="sep"/>
+<rect x="820.0" y="294.0" width="30.0" height="16.0" rx="8" class="sw-on"/>
+<circle cx="842.0" cy="302.0" r="6" class="sw-k"/>
+<text x="858.0" y="306.5" class="lbl" font-size="11.5" text-anchor="start">磁轴 · X 点</text>
+<text x="820.0" y="324.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：＋ · ×</text>
+<text x="1560.0" y="304.0" class="mono" font-size="10" text-anchor="end">flux_layer</text>
+<text x="1560.0" y="324.0" class="mono" font-size="10" text-anchor="end">global_quantities</text>
+<line x1="820.0" y1="334.0" x2="1560.0" y2="334.0" class="sep"/>
+<rect x="820.0" y="344.0" width="30.0" height="16.0" rx="8" class="sw-on"/>
+<circle cx="842.0" cy="352.0" r="6" class="sw-k"/>
+<text x="858.0" y="356.5" class="lbl" font-size="11.5" text-anchor="start">限制器 · 真空室</text>
+<text x="820.0" y="374.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：点划线 · 灰蓝</text>
+<text x="1560.0" y="354.0" class="mono" font-size="10" text-anchor="end">structure_layer</text>
+<text x="1560.0" y="374.0" class="mono" font-size="10" text-anchor="end">wall/description_2d</text>
+<line x1="820.0" y1="384.0" x2="1560.0" y2="384.0" class="sep"/>
+<rect x="820.0" y="394.0" width="30.0" height="16.0" rx="8" class="sw-on"/>
+<circle cx="842.0" cy="402.0" r="6" class="sw-k"/>
+<text x="858.0" y="406.5" class="lbl" font-size="11.5" text-anchor="start">PF 线圈（电流填充）</text>
+<text x="820.0" y="424.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：实心=正 · 空心=负</text>
+<text x="1560.0" y="404.0" class="mono" font-size="10" text-anchor="end">structure_layer</text>
+<text x="1560.0" y="424.0" class="mono" font-size="10" text-anchor="end">pf_active/coil</text>
+<line x1="820.0" y1="434.0" x2="1560.0" y2="434.0" class="sep"/>
+<rect x="820.0" y="444.0" width="30.0" height="16.0" rx="8" class="sw-off"/>
+<circle cx="828.0" cy="452.0" r="6" class="sw-k"/>
+<text x="858.0" y="456.5" class="lbl" font-size="11.5" text-anchor="start">磁探针 · 磁通环</text>
+<text x="820.0" y="474.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：点 · 圈</text>
+<text x="1560.0" y="454.0" class="mono" font-size="10" text-anchor="end">overlay_layer</text>
+<text x="1560.0" y="474.0" class="mono" font-size="10" text-anchor="end">magnetics</text>
+<line x1="820.0" y1="484.0" x2="1560.0" y2="484.0" class="sep"/>
+<rect x="820.0" y="494.0" width="30.0" height="16.0" rx="8" class="sw-off"/>
+<circle cx="828.0" cy="502.0" r="6" class="sw-k"/>
+<text x="858.0" y="506.5" class="lbl" font-size="11.5" text-anchor="start">干涉仪弦</text>
+<text x="820.0" y="524.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：点线 · 橙</text>
+<text x="1560.0" y="504.0" class="mono" font-size="10" text-anchor="end">overlay_layer</text>
+<text x="1560.0" y="524.0" class="mono" font-size="10" text-anchor="end">interferometer</text>
+<rect x="806.0" y="584.0" width="768.0" height="60.0" rx="5" class="tag"/>
+<text x="815.0" y="602.0" class="mut" font-size="11" text-anchor="start">U-16  图层即规格里的 layer 词：开关状态随规格导出，报告照画。</text>
+<text x="815.0" y="618.0" class="mut" font-size="11" text-anchor="start">P-27  每层一个非颜色通道；关掉的层在图例里留一行灰字，不消失。</text>
+<text x="815.0" y="634.0" class="mut" font-size="11" text-anchor="start">缺的层按名列出（如无 magnetics 文档 → 「磁探针：无数据」）。</text>
+<rect x="806.0" y="666.0" width="768.0" height="194.0" rx="8" class="panel"/>
+<rect x="806.0" y="666.0" width="768.0" height="30.0" rx="8" class="head"/>
+<rect x="806.0" y="688.0" width="768.0" height="8.0" class="head-sq"/>
+<line x1="806.0" y1="696.0" x2="1574.0" y2="696.0" class="sep"/>
+<text x="818.0" y="685.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">图例（图内，跟随图层）</text>
+<text x="820.0" y="720.0" class="lbl" font-size="11" text-anchor="start">● 磁面 ψ 等值线</text>
+<text x="1204.0" y="720.0" class="lbl" font-size="11" text-anchor="start">● LCFS</text>
+<text x="820.0" y="744.0" class="lbl" font-size="11" text-anchor="start">● 目标 / 参考轮廓</text>
+<text x="1204.0" y="744.0" class="lbl" font-size="11" text-anchor="start">● 磁轴 · X 点</text>
+<text x="820.0" y="768.0" class="lbl" font-size="11" text-anchor="start">● 限制器 · 真空室</text>
+<text x="1204.0" y="768.0" class="lbl" font-size="11" text-anchor="start">● PF 线圈（电流填充）</text>
+<text x="820.0" y="792.0" class="mut" font-size="11" text-anchor="start">○ 磁探针 · 磁通环</text>
+<text x="1204.0" y="792.0" class="mut" font-size="11" text-anchor="start">○ 干涉仪弦</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图 · FYL-DESIGN-18 §八 —— 一张等比例的图，八层各自可关，每层一个非颜色通道</text>
+</svg>
