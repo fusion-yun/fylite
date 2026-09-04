@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "0.8"
+version: "0.9"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,9 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.8 离线（U-20）落地：`tools/make-sw.mjs` 生成 `app/sw.js` 与 `app/manifest.webmanifest`
+  change: 'v0.9 G-13 修正：`validate-report.mjs` 由已撤除的命令行改为库调用 `casereport.run_and_render`，
+    失败形态从「命令不存在（抛异常）」变为「内核未构建（跳过）」——本环境无内核，故只验到这一步，
+    两端逐字段比对仍待有内核处运行。· v0.8 离线（U-20）落地：`tools/make-sw.mjs` 生成 `app/sw.js` 与 `app/manifest.webmanifest`
     （预缓存清单由走树得出，96 项），`host.js` 只在**站点面**注册（桌面版的字节在可执行文件里，缓存
     只会端出昨天的构建）；离线闸 `validate-offline.mjs` **真的断网重开**并断言从未访问过的页面也能打开。
     **G-5 关。** · v0.7 文档集与往返闸（U-18 / U-19，本属 U1，其页面半边不依赖中间层故提前落地）：
@@ -59,7 +61,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v0.8 |
+| 版本 (Version) | v0.9 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -713,7 +715,7 @@ C 档。
 | **G-9** | **预览图与页面无闸**：八张图是概念图，`-11` G-12 对 `desktop-*.svg` 的同一缺口 | `tools/make-frontend-design-figures.py` | P2 |
 | **G-10** | **`stem` · `table` · `baseline` 三个词未进规格词表**，Python 端 `casereport.py` 对 `stem` 无 SVG、对 `baseline` 无成对渲染；U-21 / U-22 今天只在浏览器端可落 | `docs/examples/context.jsonld` · `casereport.py` | P1 |
 | **G-11** | **权重编辑的判据来源**：U-23 要求页面知道「卷宗禁用」的通道集合；该信息在装置文档的哪个槽（`fylite:channel_map` 或另一处）未查 | `fyo-interface.js` `TABLES.DEVICE` | P1 |
-| **G-13** | **两端规格比对today没在跑**：`app/tests/validate-report.mjs` 调 `python3 -m fylite cases --report`，而 2026-09-04 的裁定撤掉了 Python 侧命令行（实测 `No module named fylite.__main__`）。U-12「两端推出同一份规格」今天没有任何门在断言 | 实测 `node app/tests/validate-report.mjs`；`FYL-DESIGN-15` 的撤除记录 | P0 |
+| **G-13** | **两端规格比对仍未真正跑过**。★调用已修（2026-09-04）：`validate-report.mjs` 由撤除的命令行改为库调用 `casereport.run_and_render`，失败形态从「命令不存在→抛异常」变为「内核未构建→**跳过**」，这一步实测。★**仍开的是**：本环境没有内核，两端逐字段比对**一次也没跑过**；U-12「两端推出同一份规格」要到有内核处才被真正断言，`validate-fig.mjs` 只管页面这一边 | 实测 `node app/tests/validate-report.mjs`（今日：skip，理由是 `libfylite_runtime.so` 未构建） | P1 |
 | **G-12** | **场景 `note` 的渲染位置未量**：U-24 把长注放在表单顶部折叠段，它是否把首屏输出推出 900 px（P-26）未在 `page_*` 上实测 | `-11` V-13 闸 | P2 |
 
 〔开放项〕**词表与 i18n 的关系。** U-2 让 `gloss` 与 `choices` 的文字来自词表而非页面
