@@ -1,4 +1,4 @@
-"""闸子：物理校验批（`fylite.scenario.suite` + `tools/benchmark-run.py`）。
+"""闸子：物理校验批（`fylite.engine.suite` + `tools/benchmark-run.py`）。
 
 ★★这份闸子守的是**批次的诚实**，不是物理（物理在 `test_physics_checks.py`）：
 
@@ -20,8 +20,8 @@ import numpy as np
 import pytest
 
 from fylite import fyo
-from fylite.scenario import physics as ph
-from fylite.scenario import suite as sc
+from fylite.engine import physics as ph
+from fylite.engine import suite as sc
 
 from test_physics_checks import bundle, summary_doc          # noqa: E402  (同目录的构造件)
 

@@ -26,7 +26,7 @@ from fylite.engine import whence as W
 def a_run(tmp_path, monkeypatch):
     monkeypatch.setenv("FYLITE_RUN_DIR", str(tmp_path))
     monkeypatch.setenv("FYLITE_SESSION", "wh")
-    from fylite.scenario import cases
+    from fylite.engine import cases
     r = cases.run("evolve-default")
     return tmp_path, Path(r["run_dir"])
 

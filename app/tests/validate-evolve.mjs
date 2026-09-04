@@ -510,7 +510,7 @@ for d in json.load(sys.stdin):
     # cases this entry cannot yet run (the particle channel, and every
     # device-geometry case) is recorded in TODO as coverage the sinking owes
     # back — not hidden here behind a silently narrower filter.
-    import fylite.scenario.cases as CASES
+    import fylite.engine.cases as CASES
     import fylite.scenario.model as MODEL
 
     cfg = d["doc"].get("fylite:config") or {}

@@ -135,7 +135,7 @@ def entry(entry_id: str, d: Path | None = None) -> dict:
 def problems(part: Mapping, d: Path | None = None) -> list[str]:
     """一条声明**结构上**哪里不对（空 = 站得住）。
 
-    ★与 :func:`fylite.scenario.benchmark.problems` 同一姿态：命令行的 ``--check``
+    ★与 :func:`fylite.engine.benchmark.problems` 同一姿态：命令行的 ``--check``
     与闸子（``python/tests/test_physics_suite.py``）读**同一个函数**，两处因此
     不会对「什么算一条站得住的声明」给出不同答案。
     """
@@ -452,7 +452,7 @@ def record_document(row: Mapping, *, report_uri: str | None = None,
         "compared_reference": [{
             "type": "spo:InformationContentEntity",
             "name": "物理定律与文档自身的定义",
-            "comment": "判据册在 `fylite.scenario.physics`：定律（正性、有限性、"
+            "comment": "判据册在 `fylite.engine.physics`：定律（正性、有限性、"
                        "Grad–Shafranov）、定义（ψ 端点、V′、β_N 与 Greenwald 的式子、"
                        "τ_E 的定义式）与算例声明的期望（上下界、准稳态窗口）"}],
         "criteria": [_criterion(r) for r in res],
@@ -520,7 +520,7 @@ def render_report(row: Mapping, *, recorded: str | None = None) -> str:
     for c in row.get("caveat") or []:
         w += [f"> 算例注记：{c}", ""]
     w += ["---", "",
-          "本报告由 `tools/benchmark-run.py` 渲染（判据册 `fylite.scenario.physics`）；"
+          "本报告由 `tools/benchmark-run.py` 渲染（判据册 `fylite.engine.physics`）；"
           "机器可读的一份在同名 `.jsonld` 里。", ""]
     return "\n".join(w)
 

@@ -596,7 +596,7 @@ def evolve(*, a: float, r0: float, b0: float,
 
     ``te_axis`` / ``edge_te`` in eV, ``ne_axis`` in m^-3, ``p_e`` in W —
     SI in, SI out; the page's own keV / 1e19 / MW sliders are converted by
-    whoever reads the page (`scenario.cases`).
+    whoever reads the page (`engine.cases`).
     """
     #: ★★S-2c 批四 — THE TRACED GEOMETRY TIER.  With `equilibrium` given,
     #: the metric is not built from four scalars: it is the ladder of a real

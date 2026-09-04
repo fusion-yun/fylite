@@ -20,7 +20,7 @@
     {
       "type": "spo:InformationContentEntity",
       "name": "物理定律与文档自身的定义",
-      "comment": "判据册在 `fylite.scenario.physics`：定律（正性、有限性、Grad–Shafranov）、定义（ψ 端点、V′、β_N 与 Greenwald 的式子、τ_E 的定义式）与算例声明的期望（上下界、准稳态窗口）"
+      "comment": "判据册在 `fylite.engine.physics`：定律（正性、有限性、Grad–Shafranov）、定义（ψ 端点、V′、β_N 与 Greenwald 的式子、τ_E 的定义式）与算例声明的期望（上下界、准稳态窗口）"
     }
   ],
   "criteria": [

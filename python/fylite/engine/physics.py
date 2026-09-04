@@ -36,11 +36,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, Mapping, Sequence
 
-from .. import fyo as _fyo
+#: ★:mod:`fylite.fyo` pulls numpy, so it is read inside :meth:`_Reader.raw`
+#: rather than at module scope — ``fylite.engine`` is stdlib-pure at import
+#: time (gated by ``tests/test_engine_imports_only_stdlib.py``).
 
 #: 四态，与 :mod:`fylite.engine.provenance` 同一套拼写（那边是 K-17 的正本；
 #: 这里按名字引，不另起一套词）。
-from ..engine.provenance import CONDITIONAL, FAIL, PASS, UNEVALUATED
+from .provenance import CONDITIONAL, FAIL, PASS, UNEVALUATED
 
 __all__ = ["CHECKS", "Check", "Result", "evaluate", "summarize", "check_ids",
            "PASS", "CONDITIONAL", "FAIL", "UNEVALUATED"]
@@ -138,6 +140,7 @@ class Reader:
         return self.datasets.get(_BLOCK_DOC.get(block, block.lower()))
 
     def raw(self, block: str, slot: str):
+        from .. import fyo as _fyo
         #: ★槽名不在表里 = 声明写错了（算例点了一个内核不产的量），与「文档里
         #: 没有这个量」是两个事实，都记为缺席但话不同——绝不让它抛穿一条检查
         table = _fyo.TABLES.get(block)
@@ -923,7 +926,7 @@ def evaluate(datasets: Mapping[str, dict], *, only: Sequence[str] | None = None,
     """把册子上的检查逐条量到这份产出上。
 
     ``datasets`` 是 ``{端口名: fyo 文档}``（一次运行记录的产出，见
-    :func:`fylite.scenario.suite.datasets_of`）。``options`` 逐条给参数
+    :func:`fylite.engine.suite.datasets_of`）。``options`` 逐条给参数
     （``tolerance``、``bounds``、``p_heat_terms``…），算例声明什么就传什么。
     """
     ids = list(only) if only else list(CHECKS)

@@ -36,8 +36,8 @@ formulae), and the operating window each case declares.
 | 仓根 [`../../BENCHMARK.md`](../../BENCHMARK.md) | 同一份统计，加一段「这是什么」（生成件） | 人 |
 | [`context.jsonld`](context.jsonld) | JSON-LD `@context`：承公开登记册那一份，只补本册子多出来的几个词 | 程序 |
 
-★**生成件不手改**：判据册在 `python/fylite/scenario/physics.py`，取产出与落文档在
-`python/fylite/scenario/suite.py`，写盘在 `tools/benchmark-run.py`。改结论要改判据或
+★**生成件不手改**：判据册在 `python/fylite/engine/physics.py`，取产出与落文档在
+`python/fylite/engine/suite.py`，写盘在 `tools/benchmark-run.py`。改结论要改判据或
 改算例声明，再重跑。
 
 ## 怎么跑
@@ -78,4 +78,4 @@ JSON 门**现跑**（要 `libfylite_kernel.so`）。内核不在场时第三条�
 
 判据册里现有的检查、它们各读哪些量、各假设了什么，见
 [`docs/reference/benchmark.md`](../../docs/reference/benchmark.md)（文档书里的一页），
-或 `python -c "from fylite.scenario import physics; print(physics.CHECKS.keys())"`。
+或 `python -c "from fylite.engine import physics; print(physics.CHECKS.keys())"`。

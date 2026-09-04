@@ -290,7 +290,7 @@ PROV）**以 SpData 为准**并跑它的 conformance 向量；不重叠的（mds
 N 个后端是 N 条驱动而不是 N 份宿主代码。
 
 **D-3 计划的合成只在一处。** 多份计划按序合成、`--set` / `--bind` 后叠、按 fyo 路径
-取绑定输入——`case.rs` 已做；Python `scenario.cases.plan` 与页面的会话文档合成是
+取绑定输入——`case.rs` 已做；Python `engine.cases.plan` 与页面的会话文档合成是
 同一件事的第二、第三份，收敛到数据层。
 
 **D-4 中间层不算物理，也不写 MDSplus。** 与 `FYL-DESIGN-14` L-8 同；本篇只是重申它在

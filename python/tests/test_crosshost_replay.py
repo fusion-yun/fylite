@@ -490,7 +490,7 @@ def test_a_real_recorded_ledger_is_sorted_into_runnable_and_refused(
     for the wrong reason, and from outside it reads like an answer.
     """
     from fylite.engine import ledger
-    from fylite.scenario import cases
+    from fylite.engine import cases
 
     monkeypatch.setenv("FYLITE_RUN_DIR", str(tmp_path))
     monkeypatch.setenv("FYLITE_SESSION", "a7")
@@ -516,7 +516,7 @@ def test_the_ledger_sorting_covers_every_node(tmp_path, monkeypatch):
     would be a run nobody said anything about, which is the shape of every
     silent gap this repository has had to dig out."""
     from fylite.engine import ledger
-    from fylite.scenario import cases
+    from fylite.engine import cases
 
     monkeypatch.setenv("FYLITE_RUN_DIR", str(tmp_path))
     monkeypatch.setenv("FYLITE_SESSION", "a7b")

@@ -30,4 +30,4 @@
 
 ---
 
-本报告由 `tools/benchmark-run.py` 渲染（判据册 `fylite.scenario.physics`）；机器可读的一份在同名 `.jsonld` 里。
+本报告由 `tools/benchmark-run.py` 渲染（判据册 `fylite.engine.physics`）；机器可读的一份在同名 `.jsonld` 里。

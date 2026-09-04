@@ -7,8 +7,8 @@
     python tools/benchmark-run.py --from records/      # 不跑，读已经跑出来的记录来判
     python tools/benchmark-run.py --json               # 机器读的一份（不写盘）
 
-★★**这个工具不判物理，也不产生数**：判据册在 `fylite.scenario.physics`，取产出与
-落文档在 `fylite.scenario.suite`，这里只做三件事——挑哪几条、把库产出的文档写到
+★★**这个工具不判物理，也不产生数**：判据册在 `fylite.engine.physics`，取产出与
+落文档在 `fylite.engine.suite`，这里只做三件事——挑哪几条、把库产出的文档写到
 盘上的哪里、以什么退出码收场。理由与本仓其它 `tools/` 一样：一个既算数又写盘的
 脚本，两年后没人敢改它的输出格式。
 
@@ -29,8 +29,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "python"))
 
-from fylite.scenario import physics as ph          # noqa: E402
-from fylite.scenario import suite as sc            # noqa: E402
+from fylite.engine import physics as ph          # noqa: E402
+from fylite.engine import suite as sc            # noqa: E402
 
 #: 写盘的四样（相对仓根），一处声明——`--write` 与 `--check` 读同一张表
 OUT_SUMMARY_JSON = "benchmark/physics/summary.jsonld"

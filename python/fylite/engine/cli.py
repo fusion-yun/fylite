@@ -133,7 +133,7 @@ def _library_refusals():
     异常**：退出码是 CLI 的关切，翻译落在这里；库调用者（含 pytest 的 fixture）
     接得住它们。
     """
-    from ..scenario.cases import CorpusMissing, RunFailed
+    from .cases import CorpusMissing, RunFailed
     return (CorpusMissing, RunFailed)
 
 
@@ -151,7 +151,7 @@ def cli_main(argv=None) -> int:
     try:
         return resolve_entry(handlers[args.cmd])(args, ap)
     except _library_refusals() as exc:
-        #: ★★2026-09-01：语料缺席从库里抛上来的是 `scenario.cases.CorpusMissing`，
+        #: ★★2026-09-01：语料缺席从库里抛上来的是 `engine.cases.CorpusMissing`，
         #: 一个**普通异常**；退出码是 CLI 的关切，翻译落在这里。此前它在库里直接
         #: 抛 `SystemExit`——CLI 看着对，代价是任何库调用者（含 pytest 的 fixture）
         #: 都接不住它，因为 `SystemExit` 是 `BaseException`。
@@ -386,10 +386,10 @@ def _cases_dir(explicit=None):
     empty listing (an empty listing reads as「there are no cases」, which is
     a different fact).
     """
-    #: ★one resolver: `scenario.cases` owns the corpus (S-2 gave it a second
+    #: ★one resolver: `engine.cases` owns the corpus (S-2 gave it a second
     #: consumer, the mapping layer), and two spellings of "where is cases/"
     #: is how the CLI and the mapper would one day disagree about it.
-    from ..scenario import cases as _cases
+    from . import cases as _cases
     return _cases.corpus_dir(explicit)
 
 
@@ -432,7 +432,7 @@ def _cli_cases(args, parser) -> int:
         print(dest)
         return 0
     d = _cases_dir(args.dir)
-    from ..scenario import cases as _cases
+    from . import cases as _cases
     entries = _cases.catalogue(d)
 
     #: getattr, because test rigs build bare namespaces for the older
@@ -518,7 +518,7 @@ def _cli_cases(args, parser) -> int:
 
 def _cli_physics(args, parser) -> int:
     """List / show / check / run the physics-check suite (`fylite cases --physics`)."""
-    from ..scenario import suite as _sc
+    from . import suite as _sc
     d = _sc.suite_dir(args.dir)
     doc = _sc.load_suite(d)
     parts = {str(p.get("id", "")).rsplit("/", 1)[-1]: p for p in doc.get("has_part") or []}
@@ -576,7 +576,7 @@ def _cli_physics(args, parser) -> int:
 
 def _cli_benchmark(args, parser) -> int:
     """List / show / check / run the public V&V register (`fylite cases --benchmark`)."""
-    from ..scenario import benchmark as _bm
+    from . import benchmark as _bm
     d = _bm.registry_dir(args.dir)
     if getattr(args, "run_case", False) or getattr(args, "plan", False):
         if not args.name:
@@ -632,7 +632,7 @@ _RETIRED_PREFIXES = ("fylite:", "vv:")
 
 def _case_problems(doc, cid: str, bars: set) -> list:
     """What is structurally wrong with one case document (empty = sound)."""
-    from ..scenario import cases as _cases
+    from . import cases as _cases
     out = []
     if doc.get("type") != "fyo:ScenarioSpecification":
         out.append(f"type is {doc.get('type')!r}, not fyo:ScenarioSpecification")

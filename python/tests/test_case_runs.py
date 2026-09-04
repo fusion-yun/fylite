@@ -1,6 +1,6 @@
 """S-2: every corpus case is either runnable from Python or refused by name.
 
-★The deliverable being gated is the ACCOUNTING (`scenario/cases.py`): a case's
+★The deliverable being gated is the ACCOUNTING (`engine/cases.py`): a case's
 page-control config maps onto a Python entry field by field, and a key that is
 neither mapped nor consciously classified (sub-capability / shared / ui) fails
 here — silent drops are the failure mode S-2 exists to prevent.  The refusals
@@ -20,7 +20,8 @@ from pathlib import Path
 
 import pytest
 
-from fylite.scenario import BROWSER_ONLY_BARS, TOOLS, cases
+from fylite.engine import cases
+from fylite.scenario import BROWSER_ONLY_BARS, TOOLS
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -85,7 +86,7 @@ def test_every_runnable_case_accounts_for_every_field(cid):
     a = p["accounting"]
     assert not a["unclassified"], (
         f"{cid}: config keys neither mapped nor classified: "
-        f"{a['unclassified']} — classify them in scenario/cases.py "
+        f"{a['unclassified']} — classify them in engine/cases.py "
         "(map / sub / shared / ui), never drop them silently")
     assert a["mapped"], f"{cid}: nothing mapped at all"
     #: the tool the plan names is the register's own correspondence

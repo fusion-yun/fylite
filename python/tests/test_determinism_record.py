@@ -136,7 +136,7 @@ def test_the_thread_count_does_not_change_a_number(case, tmp_path,
     one is not parametrized here because it is a ~14 s free-boundary anneal
     and this is the default tier; the physics tier carries it.
     """
-    from fylite.scenario import cases
+    from fylite.engine import cases
 
     seen = {}
     for n in ("1", "4"):
@@ -158,7 +158,7 @@ def test_the_thread_count_does_not_change_a_number(case, tmp_path,
 def test_the_run_manifest_carries_the_environment(tmp_path, monkeypatch):
     """★The record has to be IN the delivered manifest, not merely
     computable — a reader opening a run directory is the whole point."""
-    from fylite.scenario import cases
+    from fylite.engine import cases
 
     monkeypatch.setenv("RAYON_NUM_THREADS", "2")
     monkeypatch.setenv("FYLITE_RUN_DIR", str(tmp_path))

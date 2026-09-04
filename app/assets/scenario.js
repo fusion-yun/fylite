@@ -1262,7 +1262,7 @@
      * the app SHIPPING a corpus of them and offering it from a menu.
      *
      * ★WHY: the corpus is documentation data.  It sits at `cases/` and
-     * is read by `fylite cases`, by `fylite.scenario.cases`, and by the
+     * is read by `fylite cases`, by `fylite.engine.cases`, and by the
      * book — one corpus, one reader set.  Carrying a second copy inside
      * `app/` meant a symlink into the repo root, a subset rule in the
      * publish pipeline (nine device cases stripped and the catalogue

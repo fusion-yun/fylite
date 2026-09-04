@@ -120,7 +120,7 @@ record["run_state"]        # 'succeeded'
 | `reconstruction-default` | `analysis.reconstruction` 在，但这条算例冻的是**合成孪生生成器**的旋钮，而那个生成器只在 `worker.js` 里 |
 | `evolve-jintrac-*` | 参考运行是第三方产物（受限），本仓跑不动；它们是**对拍记录的输入侧说明**，不是可执行算例 |
 
-★**宁可拒绝，不给假数**（拒绝逐条带理由，见 `fylite.scenario.cases.REFUSALS`）。想跑
+★**宁可拒绝，不给假数**（拒绝逐条带理由，见 `fylite.engine.cases.REFUSALS`）。想跑
 反演，走[诊断分析：平衡反演](reconstruction.md)那一章的 Python 入口。
 
 ## 五族典型算例

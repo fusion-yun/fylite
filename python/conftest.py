@@ -96,7 +96,7 @@ def has_mds_server() -> bool:
 # runs on it; an explicitly set $FYLITE_DEVICE_DIR always wins, and with no
 # deck anywhere the skips below behave exactly as before.
 from fylite import device as _device  # noqa: E402
-from fylite.scenario.cases import CorpusMissing as _CorpusMissing  # noqa: E402
+from fylite.engine.cases import CorpusMissing as _CorpusMissing  # noqa: E402
 
 #: ★★2026-09-01：`machine_desc/` 已不在本仓（装置描述的所有权不在本项目）。
 #: 这里曾在仓内自动认领一份 deck；现在**只认 $FYLITE_DEVICE_DIR**，没有就按下面
@@ -204,7 +204,7 @@ def pytest_runtest_setup(item):
         #: ★★2026-09-01 语料移出本仓、09-02 又搬了回来（仓根 `cases/`）。这条
         #: 救援路径**留着**：语料是仓数据、不进轮，装了轮而没有检出的调用者仍会
         #: 撞上它。而
-        #: `scenario.cases` 找不到语料时抛的是 **`SystemExit`**——那是它 CLI 面的
+        #: `engine.cases` 找不到语料时抛的是 **`SystemExit`**——那是它 CLI 面的
         #: 错误路径（「run from a checkout or pass --dir」），对库调用者是个
         #: 意外形状：pytest 把它当致命错误，五个模块因此报 ERROR 而不是 skip。
         #: ★这里只认**那一条**消息，不是见 SystemExit 就救：一个真的调了

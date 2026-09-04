@@ -12,8 +12,8 @@
     "en": "The physics-check suite: preset cases and their criteria"
   },
   "abstract": {
-    "zh": "一条一条：跑哪个算例（scenario，指向 cases/ 语料里的 fyo:ScenarioSpecification），按哪些判据判（criteria）。判据册本身在 `fylite.scenario.physics`：定律（有限性、正性、Grad–Shafranov）与定义（ψ 端点、V′、τ_E 的定义式、β_N 与 Greenwald 的式子）对每个算例一律跑——它们不需要谁来声明；期望（上下界、准稳态窗口）是场景的性质，所以由这里逐条带。★本册子与公开 V&V 登记册（../registry.jsonld）问的不是同一个问题：那边的参考是外部答案，这边的参考是定律与文档自身的定义。",
-    "en": "One row per preset case: which scenario to run and which criteria to judge it by. The check register itself lives in `fylite.scenario.physics`; laws and definitions run for every case, while expectations (bounds, steady-state windows) are properties of the scenario and are therefore carried here, case by case. This is a different register from the public V&V one (../registry.jsonld): there the reference is an external answer, here it is physical law and the documents' own definitions."
+    "zh": "一条一条：跑哪个算例（scenario，指向 cases/ 语料里的 fyo:ScenarioSpecification），按哪些判据判（criteria）。判据册本身在 `fylite.engine.physics`：定律（有限性、正性、Grad–Shafranov）与定义（ψ 端点、V′、τ_E 的定义式、β_N 与 Greenwald 的式子）对每个算例一律跑——它们不需要谁来声明；期望（上下界、准稳态窗口）是场景的性质，所以由这里逐条带。★本册子与公开 V&V 登记册（../registry.jsonld）问的不是同一个问题：那边的参考是外部答案，这边的参考是定律与文档自身的定义。",
+    "en": "One row per preset case: which scenario to run and which criteria to judge it by. The check register itself lives in `fylite.engine.physics`; laws and definitions run for every case, while expectations (bounds, steady-state windows) are properties of the scenario and are therefore carried here, case by case. This is a different register from the public V&V one (../registry.jsonld): there the reference is an external answer, here it is physical law and the documents' own definitions."
   },
   "recorded": "2026-09-02",
   "caveat": [

@@ -8,7 +8,7 @@ check the measured numbers — those live in the gates the records name, which
 run in the kernel checkout; duplicating them here would be the second copy the
 register exists to avoid.
 
-★★The structural checks are ONE function (`scenario.benchmark.problems`),
+★★The structural checks are ONE function (`engine.benchmark.problems`),
 shared with `fylite cases --benchmark --check`, so the CLI and this gate
 cannot disagree about what a sound record is.
 """
@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from fylite.scenario import benchmark as bm
+from fylite.engine import benchmark as bm
 
 ROOT = Path(__file__).resolve().parents[2]
 BM = ROOT / "benchmark"

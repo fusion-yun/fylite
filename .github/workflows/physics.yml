@@ -1,4 +1,4 @@
-# 物理校验批 —— 判据册（`fylite.scenario.physics`）与批次（`scenario.suite` +
+# 物理校验批 —— 判据册（`fylite.engine.physics`）与批次（`engine.suite` +
 # `tools/benchmark-run.py`）改了就跑，外加**真跑一条**。
 #
 # ★★为什么要单独一档而不是并进 Python 档：这一档要**构建数据层**（`libfylite_runtime.so`，
@@ -27,8 +27,8 @@ on:
   #   branches: [develop, main, "claude/**"]
   #   paths:
   #     - "benchmark/physics/**"
-  #     - "python/fylite/scenario/physics.py"
-  #     - "python/fylite/scenario/suite.py"
+  #     - "python/fylite/engine/physics.py"
+  #     - "python/fylite/engine/suite.py"
   #     - "python/tests/test_physics_checks.py"
   #     - "python/tests/test_physics_suite.py"
   #     - "tools/benchmark-run.py"
@@ -38,8 +38,8 @@ on:
   #   branches: [develop, main]
   #   paths:
   #     - "benchmark/physics/**"
-  #     - "python/fylite/scenario/physics.py"
-  #     - "python/fylite/scenario/suite.py"
+  #     - "python/fylite/engine/physics.py"
+  #     - "python/fylite/engine/suite.py"
   #     - "python/tests/test_physics_checks.py"
   #     - "python/tests/test_physics_suite.py"
   #     - "tools/benchmark-run.py"

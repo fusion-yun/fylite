@@ -1,4 +1,4 @@
-"""闸子：物理校验册（`fylite.scenario.physics`）量的是物理，不是措辞。
+"""闸子：物理校验册（`fylite.engine.physics`）量的是物理，不是措辞。
 
 ★★判据是**解析构造**，不是录音：本文件里的平衡是一族 Grad–Shafranov 的精确解
 （ψ = aR⁴ + bR²Z² + cZ² + dR² + e ⟹ Δ*ψ = (8a+2b)R² + 2c，取 p′、ff′ 为常数即可
@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 
 from fylite import fyo
-from fylite.scenario import physics as ph
+from fylite.engine import physics as ph
 
 MU0 = 4e-7 * math.pi
 E = 1.602176634e-19

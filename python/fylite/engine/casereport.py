@@ -746,7 +746,7 @@ def render(src: str | Path | dict, *, plan: dict | None = None, out: str | Path 
 def run_and_render(case_id: str, corpus=None, *, out=None, presentation=None, lang: str = "zh") -> Path:
     """Run a corpus case through the JSON door and render its report."""
     from ..io import fydoc
-    from ..scenario import cases
+    from . import cases
     d = cases.corpus_dir() if corpus is None else Path(corpus)
     _entry, plan = cases.load(case_id, d)
     record = fydoc.case_json(plan, base=d)

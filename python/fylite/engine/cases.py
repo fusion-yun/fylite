@@ -26,7 +26,7 @@ classified, and the gate (``test_case_runs.py``) refuses an unclassified key:
 no Python counterpart is refused with the reason, not approximated:
 
 * ``pulse`` / ``profile`` / ``series`` / ``batch`` / ``interp`` — browser-only
-  by declaration (:data:`..BROWSER_ONLY_BARS`);
+  by declaration (:data:`fylite.scenario.BROWSER_ONLY_BARS`);
 * ``evolve`` — refused PER CASE rather than per bar since 2026-08-26: the
   bar's time loop is the kernel's now (`evolve_heat`), so a case inside that
   entry's declared scope runs, and one outside it is refused with the
@@ -51,7 +51,18 @@ import math
 from contextlib import contextmanager
 from pathlib import Path
 
-from . import BROWSER_ONLY_BARS, TOOLS
+
+def _browser_only_bars() -> dict:
+    """The bars declared browser-only — from :mod:`fylite.scenario`, lazily."""
+    from ..scenario import BROWSER_ONLY_BARS
+    return BROWSER_ONLY_BARS
+
+#: ★★``BROWSER_ONLY_BARS`` / ``TOOLS`` live in :mod:`fylite.scenario`, which
+#: pulls numpy and the four assembly subpackages.  They are imported INSIDE the
+#: two functions that use them, because ``fylite.engine`` is stdlib-pure at
+#: import time (FYL-SDD-01 DE-COMP-03, gated by
+#: ``tests/test_engine_imports_only_stdlib.py``) — and a corpus catalogue that
+#: loaded the whole assembly layer just to be listed would breach that.
 
 # --------------------------------------------------------------------------- #
 # the corpus on disk
@@ -780,7 +791,7 @@ _BUILDERS = {"zerod": _zerod_args, "transport": _transport_args,
 #: reason for every bar the corpus carries
 REFUSALS = {
     **{bar: f"browser-only by declaration: {why}"
-       for bar, why in BROWSER_ONLY_BARS.items()},
+       for bar, why in _browser_only_bars().items()},
     "reconstruction": (
         "`analysis.reconstruction` exists, but the case freezes the "
         "SYNTHETIC-TWIN generator's knobs, and that generator (twin "
@@ -816,7 +827,7 @@ def args_for(bar: str, cfg: dict, *, predict: bool = False,
                          f"{REFUSALS[bar]}")
     if bar not in _BUILDERS:
         raise SystemExit(f"bar {bar!r} has no mapping and no registered "
-                         "refusal — that is a gap in scenario/cases.py")
+                         "refusal — that is a gap in engine/cases.py")
     if acct is None:
         acct = Accounting({k: v for k, v in cfg.items() if ":" not in k})
     kw = {"predict": predict} if bar == "zerod" else {}
@@ -838,13 +849,14 @@ def plan(case_id: str, d=None, *, predict: bool = False) -> dict:
     if bar not in _BUILDERS:
         raise SystemExit(f"fylite cases --run {case_id}: bar {bar!r} has no "
                          "mapping and no registered refusal — that is a gap "
-                         "in scenario/cases.py, not in the case")
+                         "in engine/cases.py, not in the case")
     cfg = settings(doc)
     #: ★the accounting is assembled HERE because `plan` owes it to its caller
     #: and `args_for` does not — but it is HANDED DOWN rather than rebuilt, so
     #: the corpus and the browser gate go through ONE call to the builder
     acct = Accounting({k: v for k, v in cfg.items() if ":" not in k})
     args = args_for(bar, cfg, predict=predict, acct=acct)
+    from ..scenario import TOOLS
     tool = next(t for t, spec in TOOLS.items() if spec["bar"] == bar)
     return {"case_id": case_id, "bar": bar, "tool": tool,
             "device": entry.get("device"),

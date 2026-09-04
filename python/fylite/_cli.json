@@ -279,7 +279,7 @@
       "--physics"
      ],
      "action": "store_true",
-     "help": "address the physics-check suite (benchmark/physics/suite.jsonld) instead of the scenario corpus: list the preset cases and their criteria, print one, --check the suite's structure, --run one and judge its product against the check register (fylite.scenario.physics); with --from, judge a recorded run instead of running the case"
+     "help": "address the physics-check suite (benchmark/physics/suite.jsonld) instead of the scenario corpus: list the preset cases and their criteria, print one, --check the suite's structure, --run one and judge its product against the check register (fylite.engine.physics); with --from, judge a recorded run instead of running the case"
     },
     {
      "flags": [

@@ -128,7 +128,7 @@ python tools/benchmark-run.py --from records/     # 判已经跑出来的记录�
 在 Python 里，判据册与批次都是普通函数：
 
 ```python
-from fylite.scenario import physics, suite
+from fylite.engine import physics, suite
 
 rows = physics.evaluate({"equilibrium": eq_doc, "summary": sum_doc})   # 逐条结论
 physics.summarize(rows)                                               # {"overall": ..., "counts": {...}}
@@ -158,13 +158,13 @@ suite.run_entry(suite.entry("zerod-iter-15ma"))                       # 取产�
 }
 ```
 
-结构由 `fylite.scenario.suite.problems` 判：算例文件在不在检出里、判据在不在册子上、
+结构由 `fylite.engine.suite.problems` 判：算例文件在不在检出里、判据在不在册子上、
 声明的界点的是不是内核产得出的量。`fylite cases --physics --check` 与
 `python/tests/test_physics_suite.py` 读的是**同一个函数**。
 
 ## 添一条检查
 
-在 `python/fylite/scenario/physics.py` 里加一个 `Check`：声明 `kind`（定律 / 定义 /
+在 `python/fylite/engine/physics.py` 里加一个 `Check`：声明 `kind`（定律 / 定义 /
 期望）、`title`、`formula`、`reads`（`(表, 槽)` 对，槽名必须在内核的槽表里）、默认
 容差与容差来路，以及 `assumes`——**它假设了什么，逐条写出来**。判据函数收一个
 `Reader` 和一份参数，返回一个 `Result`；读不到的量记进 `missing` 并给

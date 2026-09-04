@@ -960,7 +960,7 @@ def test_the_browser_drives_every_in_scope_corpus_case_through_the_entry():
     entry-driving path and removes no hand-written physics, so the size
     metric stays flat while THIS one moves.
     """
-    from fylite.scenario import cases
+    from fylite.engine import cases
 
     evolve = [e["case_id"] for e in cases.catalogue()
               if e["bar"] == "evolve"]
@@ -997,7 +997,7 @@ def test_the_scope_ledger_is_one_declaration_and_both_hosts_read_it():
     the browser tests against is a row the kernel declared, and Python's
     refusal vocabulary is built from the same rows."""
     from fylite import _fyo_interface as FI
-    from fylite.scenario import cases
+    from fylite.engine import cases
 
     rows = FI.BLOCKS["ENTRY_SCOPE"]
     assert rows, "the kernel declares no scope ledger"
