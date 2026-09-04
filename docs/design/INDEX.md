@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "5.4"
+version: "5.5"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,7 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v5.5 `FYL-DESIGN-14` 升 v1.3（imas-python 的 documentation 警告＝L-4「一个字不抄」的影子）。
     v5.4 `FYL-DESIGN-14` 升 v1.2（L-13 搬家表；G-10 关闭）。
     v5.3 `FYL-DESIGN-14` 升 v1.1（G-10：wall 转 IMAS 出空件）；`FYL-SDD-01` 升 v1.3
     （更正实测：失败的 fetch 退出码是 1；原记的 0 取自管道末端的 head）。
@@ -46,7 +47,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v5.4 |
+| 版本 (Version) | v5.5 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -109,7 +110,7 @@ modified:
 | :--- | :--- | :--- |
 | [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核以 fyo 文档门为唯一接口，门上是双向扁平树；内核无状态、状态随文档走；`fylite_runtime` 是中间层（SpData profile、后端表）；多宿主只写计划只读记录；一条总线九步 | v2.1 · WD |
 | [`FYL-DESIGN-15`](FYL-DESIGN-15.md) | **发布形态与统一命令行**——单一可执行文件 `fylite` · 静态 / 动态网页 · Python 包，一份源；三份命令行由 `_cli.json` 一个文件建出（R-1..R-6 · C-1..C-8） | v1.0 · WD |
-| [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **中间层的数据半边**——数据源 ↔ fyo：MDSplus 只读、a/g-file、JSON-LD、HDF5、netCDF 各带 fyo 与 IMAS 布局，多源合并与按 A-Box 装配（L-1..L-12）。★v1.2：**L-13 搬家表**（`limiter` / `vessel` → `description_2d[]`），G-10 已关 | v1.2 · WD |
+| [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **中间层的数据半边**——数据源 ↔ fyo：MDSplus 只读、a/g-file、JSON-LD、HDF5、netCDF 各带 fyo 与 IMAS 布局，多源合并与按 A-Box 装配（L-1..L-12）。★v1.2：**L-13 搬家表**（`limiter` / `vessel` → `description_2d[]`），G-10 已关 · ★v1.3：记下 L-4 许可裁定在 imas-python 警告上的影子 | v1.3 · WD |
 | [`FYL-DESIGN-13`](FYL-DESIGN-13.md) | **装置数据页**（`data`）——什么也不算的工具页：如实降级 · 抽稀不是归约 · 守卫两侧各做一遍 · 目录说存在不说记了 · 产物是足迹（P-10..P-12 · P-18 · P-24 · P-30） | v1.0 · WD |
 | [`FYL-DESIGN-12`](FYL-DESIGN-12.md) | **实验分析页**（`analysis`）——剖面拟合 · 平衡反演 · 时间序列 · 批处理；磁测量约束不住内部剖面，定下来的是动理学约束（P-9 · P-16 · P-22 · P-23 · P-29） | v1.0 · WD |
 | [`FYL-DESIGN-11`](FYL-DESIGN-11.md) | **视觉设计——桌面版应用的外壳**——四页共用一条常驻两行工具条、只差三个槽、16:9 首屏落一处输出；已落在 `page_*` 五页，未提为正本（V-1..V-15） | v1.0 · WD |

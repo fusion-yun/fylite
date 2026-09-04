@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-14
 title: "中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo)"
 shortname: fylite-data-layer
-version: "1.2"
+version: "1.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,9 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.3 记一处可观察的后果（实测）：imas-python 读回本层写的 IMAS netCDF 会对每个变量印
+    「documentation differs from the DD」——我们不带 `documentation` 属性，而 DD 有正文；
+    `nc_validate` 仍 PASS。抄 DD 的文字能消警告，而 L-4 的许可规则正禁止那样做。
     v1.2 新增裁定 **L-13（搬家表）** 并据此**关闭 G-10**：`limiter` / `vessel` 自 IDS 顶层落进
     `description_2d[0]`，三条判据（源在 · 目标有 · 源在 DD 里没有）保证幂等；搬家记进
     `DdReport.relocated` 并由命令行转述。实测同一份 EAST 源：`wall.h5` 3 548 → 71 344 字节。
@@ -41,7 +44,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-14` |
 | 文档名称 (Title) | 中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo) |
 | 短名 / Slug | `fylite-data-layer` |
-| 版本 (Version) | v1.2 |
+| 版本 (Version) | v1.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -126,6 +129,14 @@ imas-python `nc_validate` 过。单元测试里的期望值（维名、坐标、
 `tools/dd-ids-table.py` 从 imas-python 读的同一份 XML 生成 `ids/<ids>.tsv`（82 个 IDS，
 1.6 MB，只有路径 / 种类 / 维数 / 单位 / 坐标——**DD 的文字一个字不抄**，fyo 本体仓的
 CC BY-ND 规则），`ids_meta.rs` 是 `nc_metadata.py` 的逐条移植。表是提交进仓的生成物。
+
+★★**这条许可裁定在读者那里是看得见的，记下来免得有人「修」它。** 实测 2026-09-04：
+imas-python 读回本层写的 IMAS netCDF 时，对每一个变量各印一条
+`WARNING Documentation of variable X differs from the DD`——因为我们的变量只带
+`units` / `coordinates` / `_FillValue`，**根本没有 `documentation` 属性**，而 DD 那边有正文。
+`nc_validate` 仍然 **PASS**，imas-python 也照常把整棵树读回来，所以这不是缺陷，是
+「一个字不抄」在输出上的影子。**把 DD 的说明文字抄进来就能消掉这些警告，而那正是这条
+规则禁止的事。**
 
 **L-5 HDF5 的数据轴是转置，不是反形状。** imas-core 按 Fortran 序存数据轴
 （`dims[i+AOSRank] = size[dim-i-1]`）：`(4, 3)` 的 numpy 数组在盘上是 `(3, 4)` 且
