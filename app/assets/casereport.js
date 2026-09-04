@@ -493,7 +493,12 @@
     return { spec: spec, figures: figs };
   }
 
+  //: ★`index` / `resolve` are exported for `fig.js`, which draws the SAME spec
+  //: onto the function pages' canvases.  Two resolvers would be two answers to
+  //: 「这条序列绑的是哪个量」 and the page and the report would drift apart —
+  //: the one thing the presentation spec exists to prevent (U-12).
   root.FyCaseReport = { derive: derive, quantities: quantities, coordinateOf: coordinateOf, figures: figures,
+                        index: index, resolve: resolve, datasets: datasets, label: label, lang: lang,
                         svgLineChart: svgLineChart, svgPoloidal: svgPoloidal, renderInto: renderInto,
                         hasArrays: hasArrays, lastSpec: null, lastFigures: null };
 })(typeof self !== 'undefined' ? self : this);

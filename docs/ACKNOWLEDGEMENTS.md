@@ -22,6 +22,20 @@ fylite的开发是中国科学院等离子体物理研究所（ASIPP）**「集�
 - **黄耀与 EAST PCS 组**——等离子体控制系统接口说明（磁探针几何与平衡↔PCS 变量的交叉核对）。
 - **吴学民、盛回**——KEFIT 运行流程的梳理与指导，并提供 benchmark 算例。
  
+## 随页面分发的第三方软件 (Third-party software shipped with the pages)
+
+下列软件**以二进制 / 源码原样随浏览器页面分发**，不是移植、不是参照，而是别人的代码在
+读者的浏览器里运行。列在这里是**许可义务**，不是客套。
+
+| 上游 | 版本 | 许可 | 用途 | 位置 |
+| :--- | :--- | :--- | :--- | :--- |
+| **h5wasm**（美国国家标准与技术研究院，**NIST**） | 0.10.3 | NIST 公共服务条款（见 `app/assets/vendor/h5wasm/LICENSE.txt`，原样保留） | 在浏览器里读 HDF5：本仓的 HDF5 面链 `libhdf5` 这个 C 库，而该库在 `wasm32-unknown-unknown` 上编不出来（实测：`libc::FILE` / `off_t` / `ssize_t` 不存在），故浏览器侧由它把 `.h5` 解成一份 fyo 文档，再进源栈 | `app/assets/vendor/h5wasm/`，按需 `import()`（约 4.2 MB，不进预缓存） |
+
+★**明确承认**：h5wasm 系 **NIST** 开发的软件；其许可要求「明确承认 NIST 为该软件的来源」，
+此处即为该承认。本仓**未对其作任何修改**——`tools/vendor-h5wasm.mjs` 只拷贝、不打补丁，
+逐文件的 sha256 记在 `app/assets/vendor/h5wasm/PROVENANCE.md`。h5wasm 内含经 Emscripten
+编译的 **HDF5 C 库**（HDF Group），其许可随该包一并分发。
+
 ## 移植的上游代码（白盒翻译）
 
 下列模块系上游代码的**白盒移植**，而非依文献所作的独立实现。此项区分属许可义务，

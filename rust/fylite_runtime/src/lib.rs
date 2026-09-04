@@ -88,7 +88,6 @@ pub mod netcdf;
 #[cfg(feature = "mdsip")]
 pub mod mdsip;
 
-#[cfg(feature = "mdsip")]
 pub mod c_api;
 
 //: ★★一个 CASE 的输入 / 输出半边（FYL-REPORT-06 一份结构进、一份结构出）：

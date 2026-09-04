@@ -31,8 +31,18 @@ const out = mkdtempSync(join(tmpdir(), 'fylite-report-'));
 //: `$FYLITE_PYTHON` names the interpreter (a command line: `uv run --with numpy python`
 //: on a host that keeps numpy out of the system python); plain `python3` otherwise
 const PY = (process.env.FYLITE_PYTHON || 'python3').split(/\s+/);
+//: ★★A LIBRARY CALL, NOT A COMMAND.  This read
+//:     python3 -m fylite cases --report evolve-default --out <dir>
+//: until 2026-09-04, when the ruling that removed the Python command line took
+//: that verb with it.  The gate then died on `No module named fylite.__main__`
+//: — which is not one of the shapes the skip below recognises, so it THREW,
+//: and the two-ended comparison this file exists for stopped being asserted
+//: anywhere without anything going red on purpose (`FYL-DESIGN-18` G-13).
+//: `run_and_render` is the same work as one call (`docs/reference/case-report.md`).
+const DRIVE = 'from fylite.engine import casereport; ' +
+              'casereport.run_and_render("evolve-default", out=' + JSON.stringify(out) + ')';
 try {
-  execFileSync(PY[0], [...PY.slice(1), '-m', 'fylite', 'cases', '--report', 'evolve-default', '--out', out],
+  execFileSync(PY[0], [...PY.slice(1), '-c', DRIVE],
     { cwd: ROOT, env: { ...process.env, PYTHONPATH: join(ROOT, 'python') }, stdio: 'pipe' });
 } catch (e) {
   const msg = String(e.stderr || e.message);

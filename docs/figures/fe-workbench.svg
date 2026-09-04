@@ -1,0 +1,349 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="工作台：视图是可移动、可缩放的瓦片，布局写回呈现规格，同一份规格驱动报告">
+<title>fylite 前端 — 工作台</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+
+.tile { fill:var(--panel); stroke:var(--accent); stroke-width:1.2; }
+.tile-sel { fill:var(--sel); stroke:var(--accent); stroke-width:1.6; stroke-dasharray:6 3; }
+.grip { fill:var(--accent); }
+.ghost { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:6 4; opacity:.8; }
+.knot { fill:var(--panel); stroke:var(--lcfs); stroke-width:2; }
+.knot-drag { fill:var(--lcfs); stroke:var(--panel); stroke-width:1.5; }
+.coil { fill:var(--coil); opacity:.55; }
+.coil-neg { fill:none; stroke:var(--coil); stroke-width:1.6; }
+.probe { fill:var(--alt); }
+.loop { fill:none; stroke:var(--alt); stroke-width:1.4; }
+.chord { stroke:var(--warn); stroke-width:1.2; stroke-dasharray:2 3; }
+.fluxl { fill:none; stroke:var(--flux); stroke-width:1.1; }
+.cursor { stroke:var(--lcfs); stroke-width:1.4; }
+.zoombox { fill:var(--accent); opacity:.12; stroke:var(--accent); stroke-width:1; stroke-dasharray:4 3; }
+.step-done { fill:var(--accent); }
+.step-ckpt { fill:var(--alt); }
+.step-todo { fill:var(--grid); }
+.step-cur { fill:var(--panel); stroke:var(--accent); stroke-width:2; }
+.arrow { fill:none; stroke:var(--muted); stroke-width:1.4; marker-end:url(#arr); }
+.arrow-a { fill:none; stroke:var(--accent); stroke-width:1.6; marker-end:url(#arra); }
+.src { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.src-top { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.src-off { fill:var(--panel); stroke:var(--grid); stroke-width:1; stroke-dasharray:4 3; opacity:.7; }
+.prov { fill:var(--head); }
+.tag { fill:none; stroke:var(--muted); stroke-width:1; }
+.tag-a { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.tag-b { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.sw-on { fill:var(--accent); }
+.sw-off { fill:var(--grid); }
+.sw-k { fill:#ffffff; }
+.doc { fill:var(--panel); stroke:var(--fg); stroke-width:1; }
+.doc-t { fill:var(--fg); }
+.seg { fill:none; stroke:var(--grid); stroke-width:1; }
+.seg-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.meas { fill:var(--alt); }
+.ref { fill:none; stroke:var(--coil); stroke-width:1.6; stroke-dasharray:5 3; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker><marker id="arra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="84.0" class="strip"/>
+<line x1="0.0" y1="84.0" x2="1600.0" y2="84.0" class="strip-edge"/>
+<rect x="18.0" y="6.0" width="28.0" height="28.0" rx="6" class="mark"/>
+<text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
+<text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">物理建模 / 预测</text>
+<text x="207.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">1.5D 输运 · 含时演化（两条功能栏，各有计算键）</text>
+<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
+<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<circle cx="1568.0" cy="20.0" r="7" class="navg"/>
+<path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>
+<line x1="1542.0" y1="11.0" x2="1542.0" y2="29.0" class="sep"/>
+<rect x="1510.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1517.0 13.0v14M1517.0 13.0h5M1517.0 20.0h5M1517.0 27.0h5" class="navg"/>
+<circle cx="1528.0" cy="13.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="20.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="27.0" r="1.9" class="navgf"/>
+<rect x="1478.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1484.0 24.0Q1492.0 11.0 1500.0 22.0" class="navg"/>
+<circle cx="1487.0" cy="21.0" r="1.6" class="navgf"/>
+<circle cx="1492.0" cy="16.0" r="1.6" class="navgf"/>
+<circle cx="1497.0" cy="20.0" r="1.6" class="navgf"/>
+<rect x="1446.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic-on"/>
+<path d="M1452.0 14.0C1458.0 14.0 1460.0 26.0 1468.0 26.0" class="navg-on"/>
+<rect x="1414.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1420.0 25.0L1425.0 15.0L1431.0 15.0L1436.0 25.0" class="navg"/>
+<line x1="0.0" y1="40.0" x2="1600.0" y2="40.0" class="strip-inner"/>
+<text x="18.0" y="66.0" class="mut" font-size="12" text-anchor="start">装置</text>
+<rect x="52.0" y="48.0" width="200.0" height="26.0" rx="5" class="input"/>
+<text x="61.0" y="65.4" class="lbl" font-size="12" text-anchor="start">EAST</text>
+<path d="M234.0 59.0l4 5 4-5" class="caret"/>
+<rect x="260.0" y="48.0" width="26.0" height="26.0" rx="5" class="btn"/>
+<text x="273.0" y="65.3" class="mut" font-size="12" text-anchor="middle">×</text>
+<rect x="298.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="329.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导入</text>
+<rect x="368.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="399.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导出</text>
+<circle cx="454.0" cy="61.0" r="4.5" class="dot-ok"/>
+<text x="466.0" y="65.0" class="mut" font-size="12" text-anchor="start">工作台 · 6 个视图 · 布局未保存（呈现规格 v3 → v4）</text>
+<rect x="0.0" y="81.0" width="1600.0" height="3.0" class="prog-bg"/>
+<rect x="26.0" y="100.0" width="250.0" height="760.0" rx="8" class="panel"/>
+<rect x="26.0" y="100.0" width="250.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="122.0" width="250.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="130.0" x2="276.0" y2="130.0" class="sep"/>
+<text x="38.0" y="119.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">可用视图（按规则从记录推出 + 自组）</text>
+<rect x="40.0" y="140.0" width="222.0" height="36.0" rx="5" class="src-off"/>
+<text x="50.0" y="155.0" class="mut" font-size="11.5" text-anchor="start">剖面 Tₑ Tᵢ nₑ</text>
+<text x="50.0" y="169.0" class="mono" font-size="9.5" text-anchor="start">line_chart</text>
+<text x="252.0" y="162.0" class="mut" font-size="10" text-anchor="end">已在台上</text>
+<rect x="40.0" y="184.0" width="222.0" height="36.0" rx="5" class="src-off"/>
+<text x="50.0" y="199.0" class="mut" font-size="11.5" text-anchor="start">时序 Iₚ β_N</text>
+<text x="50.0" y="213.0" class="mono" font-size="9.5" text-anchor="start">line_chart</text>
+<text x="252.0" y="206.0" class="mut" font-size="10" text-anchor="end">已在台上</text>
+<rect x="40.0" y="228.0" width="222.0" height="36.0" rx="5" class="src-off"/>
+<text x="50.0" y="243.0" class="mut" font-size="11.5" text-anchor="start">极向截面</text>
+<text x="50.0" y="257.0" class="mono" font-size="9.5" text-anchor="start">map</text>
+<text x="252.0" y="250.0" class="mut" font-size="10" text-anchor="end">已在台上</text>
+<rect x="40.0" y="272.0" width="222.0" height="36.0" rx="5" class="src-off"/>
+<text x="50.0" y="287.0" class="mut" font-size="11.5" text-anchor="start">读数</text>
+<text x="50.0" y="301.0" class="mono" font-size="9.5" text-anchor="start">scalar_readout</text>
+<text x="252.0" y="294.0" class="mut" font-size="10" text-anchor="end">已在台上</text>
+<rect x="40.0" y="316.0" width="222.0" height="36.0" rx="5" class="src"/>
+<text x="50.0" y="331.0" class="lbl" font-size="11.5" text-anchor="start">χ 对 ρ</text>
+<text x="50.0" y="345.0" class="mono" font-size="9.5" text-anchor="start">line_chart</text>
+<text x="252.0" y="338.0" class="acc-t" font-size="10" text-anchor="end">拖到台上 →</text>
+<rect x="40.0" y="360.0" width="222.0" height="36.0" rx="5" class="src-off"/>
+<text x="50.0" y="375.0" class="mut" font-size="11.5" text-anchor="start">验收表</text>
+<text x="50.0" y="389.0" class="mono" font-size="9.5" text-anchor="start">acceptance</text>
+<text x="252.0" y="382.0" class="mut" font-size="10" text-anchor="end">已在台上</text>
+<rect x="40.0" y="404.0" width="222.0" height="36.0" rx="5" class="src"/>
+<text x="50.0" y="419.0" class="lbl" font-size="11.5" text-anchor="start">台基外推距离</text>
+<text x="50.0" y="433.0" class="mono" font-size="9.5" text-anchor="start">line_chart</text>
+<text x="252.0" y="426.0" class="acc-t" font-size="10" text-anchor="end">拖到台上 →</text>
+<rect x="40.0" y="448.0" width="222.0" height="36.0" rx="5" class="src"/>
+<text x="50.0" y="463.0" class="lbl" font-size="11.5" text-anchor="start">＋ 自组：任选两量</text>
+<text x="50.0" y="477.0" class="mono" font-size="9.5" text-anchor="start">xy</text>
+<text x="252.0" y="470.0" class="acc-t" font-size="10" text-anchor="end">拖到台上 →</text>
+<rect x="26.0" y="498.0" width="222.0" height="60.0" rx="5" class="tag"/>
+<text x="35.0" y="516.0" class="mut" font-size="11" text-anchor="start">U-14 布局是规格的扩展词</text>
+<text x="35.0" y="532.0" class="mut" font-size="11" text-anchor="start">fylite:layout {x,y,w,h}</text>
+<text x="35.0" y="548.0" class="mut" font-size="11" text-anchor="start">Python 渲染器不认它，顺序流排</text>
+<rect x="296.0" y="100.0" width="1278.0" height="736.0" rx="8" class="panel"/>
+<line x1="402.5" y1="100.0" x2="402.5" y2="836.0" class="grid"/>
+<line x1="509.0" y1="100.0" x2="509.0" y2="836.0" class="grid"/>
+<line x1="615.5" y1="100.0" x2="615.5" y2="836.0" class="grid"/>
+<line x1="722.0" y1="100.0" x2="722.0" y2="836.0" class="grid"/>
+<line x1="828.5" y1="100.0" x2="828.5" y2="836.0" class="grid"/>
+<line x1="935.0" y1="100.0" x2="935.0" y2="836.0" class="grid"/>
+<line x1="1041.5" y1="100.0" x2="1041.5" y2="836.0" class="grid"/>
+<line x1="1148.0" y1="100.0" x2="1148.0" y2="836.0" class="grid"/>
+<line x1="1254.5" y1="100.0" x2="1254.5" y2="836.0" class="grid"/>
+<line x1="1361.0" y1="100.0" x2="1361.0" y2="836.0" class="grid"/>
+<line x1="1467.5" y1="100.0" x2="1467.5" y2="836.0" class="grid"/>
+<line x1="296.0" y1="192.0" x2="1574.0" y2="192.0" class="grid"/>
+<line x1="296.0" y1="284.0" x2="1574.0" y2="284.0" class="grid"/>
+<line x1="296.0" y1="376.0" x2="1574.0" y2="376.0" class="grid"/>
+<line x1="296.0" y1="468.0" x2="1574.0" y2="468.0" class="grid"/>
+<line x1="296.0" y1="560.0" x2="1574.0" y2="560.0" class="grid"/>
+<line x1="296.0" y1="652.0" x2="1574.0" y2="652.0" class="grid"/>
+<line x1="296.0" y1="744.0" x2="1574.0" y2="744.0" class="grid"/>
+<rect x="302.0" y="106.0" width="520.5" height="356.0" rx="6" class="tile"/>
+<rect x="302.0" y="106.0" width="520.5" height="26.0" rx="6" class="head"/>
+<rect x="302.0" y="124.0" width="520.5" height="8.0" class="head-sq"/>
+<text x="312.0" y="123.0" class="head-t" font-size="11.5" text-anchor="start" font-weight="700">剖面 · Tₑ Tᵢ nₑ 对 ρ</text>
+<text x="812.5" y="123.0" class="mut" font-size="11" text-anchor="end">≡  ⤢  ×</text>
+<path d="M818.5 450.0l-8 8M818.5 456.0l-2 2" class="grip" stroke="var(--accent)" stroke-width="2"/>
+<rect x="310.0" y="138.0" width="504.5" height="316.0" rx="6" class="panel"/>
+<rect x="346.0" y="150.0" width="456.5" height="280.0" class="axes"/>
+<line x1="346.0" y1="220.0" x2="802.5" y2="220.0" class="grid"/>
+<line x1="460.1" y1="150.0" x2="460.1" y2="430.0" class="grid"/>
+<line x1="346.0" y1="290.0" x2="802.5" y2="290.0" class="grid"/>
+<line x1="574.2" y1="150.0" x2="574.2" y2="430.0" class="grid"/>
+<line x1="346.0" y1="360.0" x2="802.5" y2="360.0" class="grid"/>
+<line x1="688.4" y1="150.0" x2="688.4" y2="430.0" class="grid"/>
+<polyline points="346.0,172.4 357.4,172.6 368.8,173.2 380.2,174.3 391.6,175.7 403.1,177.5 414.5,179.8 425.9,182.4 437.3,185.5 448.7,188.9 460.1,192.7 471.5,196.9 482.9,201.5 494.4,206.4 505.8,211.7 517.2,217.4 528.6,223.3 540.0,229.6 551.4,236.3 562.8,243.2 574.2,250.4 585.7,257.8 597.1,265.6 608.5,273.5 619.9,281.7 631.3,290.0 642.7,298.6 654.1,307.2 665.5,316.0 677.0,324.8 688.4,333.7 699.8,342.5 711.2,351.3 722.6,360.0 734.0,368.5 745.4,376.7 756.9,384.6 768.3,391.9 779.7,398.6 791.1,404.1 802.5,407.6" class="c1"/>
+<polyline points="346.0,211.6 357.4,211.8 368.8,212.5 380.2,213.6 391.6,215.2 403.1,217.2 414.5,219.7 425.9,222.6 437.3,225.9 448.7,229.6 460.1,233.7 471.5,238.2 482.9,243.1 494.4,248.3 505.8,253.9 517.2,259.7 528.6,265.9 540.0,272.3 551.4,279.0 562.8,286.0 574.2,293.1 585.7,300.4 597.1,307.8 608.5,315.3 619.9,322.9 631.3,330.5 642.7,338.2 654.1,345.7 665.5,353.2 677.0,360.5 688.4,367.7 699.8,374.6 711.2,381.1 722.6,387.4 734.0,393.1 745.4,398.4 756.9,403.1 768.3,407.0 779.7,410.1 791.1,412.3 802.5,413.2" class="c2"/>
+<polyline points="346.0,262.0 357.4,262.1 368.8,262.4 380.2,262.8 391.6,263.5 403.1,264.3 414.5,265.3 425.9,266.5 437.3,267.9 448.7,269.5 460.1,271.2 471.5,273.1 482.9,275.2 494.4,277.5 505.8,280.0 517.2,282.6 528.6,285.5 540.0,288.4 551.4,291.6 562.8,295.0 574.2,298.5 585.7,302.1 597.1,306.0 608.5,310.0 619.9,314.1 631.3,318.5 642.7,322.9 654.1,327.6 665.5,332.3 677.0,337.2 688.4,342.3 699.8,347.4 711.2,352.7 722.6,358.1 734.0,363.6 745.4,369.2 756.9,374.8 768.3,380.4 779.7,386.0 791.1,391.5 802.5,396.4" class="c3"/>
+<rect x="834.5" y="106.0" width="414.0" height="448.0" rx="6" class="tile"/>
+<rect x="834.5" y="106.0" width="414.0" height="26.0" rx="6" class="head"/>
+<rect x="834.5" y="124.0" width="414.0" height="8.0" class="head-sq"/>
+<text x="844.5" y="123.0" class="head-t" font-size="11.5" text-anchor="start" font-weight="700">极向截面 · 6 层</text>
+<text x="1238.5" y="123.0" class="mut" font-size="11" text-anchor="end">≡  ⤢  ×</text>
+<path d="M1244.5 542.0l-8 8M1244.5 548.0l-2 2" class="grip" stroke="var(--accent)" stroke-width="2"/>
+<rect x="842.5" y="138.0" width="398.0" height="408.0" rx="6" class="panel"/>
+<rect x="878.5" y="161.0" width="350.0" height="350.0" class="axes"/>
+<line x1="878.5" y1="248.5" x2="1228.5" y2="248.5" class="grid"/>
+<line x1="966.0" y1="161.0" x2="966.0" y2="511.0" class="grid"/>
+<line x1="878.5" y1="336.0" x2="1228.5" y2="336.0" class="grid"/>
+<line x1="1053.5" y1="161.0" x2="1053.5" y2="511.0" class="grid"/>
+<line x1="878.5" y1="423.5" x2="1228.5" y2="423.5" class="grid"/>
+<line x1="1141.0" y1="161.0" x2="1141.0" y2="511.0" class="grid"/>
+<polygon points="1204.7,336.0 1203.0,315.0 1198.1,294.3 1190.2,274.4 1179.6,255.5 1166.9,238.0 1152.5,222.2 1137.0,208.3 1120.7,196.6 1104.0,187.3 1087.2,180.5 1070.4,176.4 1053.5,175.0 1036.6,176.4 1019.8,180.5 1003.0,187.3 986.3,196.6 970.0,208.3 954.5,222.2 940.1,238.0 927.4,255.5 916.8,274.4 908.9,294.3 904.0,315.0 902.3,336.0 904.0,357.0 908.9,377.7 916.8,397.6 927.4,416.5 940.1,434.0 954.5,449.8 970.0,463.7 986.3,475.4 1003.0,484.7 1019.8,491.5 1036.6,495.6 1053.5,497.0 1070.4,495.6 1087.2,491.5 1104.0,484.7 1120.7,475.4 1137.0,463.7 1152.5,449.8 1166.9,434.0 1179.6,416.5 1190.2,397.6 1198.1,377.7 1203.0,357.0 1204.7,336.0" class="wall"/>
+<polygon points="1074.5,336.0 1074.4,332.3 1074.0,328.6 1073.3,325.0 1072.4,321.5 1071.3,318.2 1069.9,315.0 1068.4,312.1 1066.7,309.5 1064.8,307.1 1062.8,305.1 1060.7,303.4 1058.5,302.0 1056.3,301.1 1054.1,300.5 1051.9,300.3 1049.8,300.5 1047.6,301.1 1045.6,302.0 1043.7,303.4 1041.8,305.1 1040.1,307.1 1038.6,309.5 1037.2,312.1 1036.0,315.0 1034.9,318.2 1034.1,321.5 1033.4,325.0 1032.9,328.6 1032.6,332.3 1032.5,336.0 1032.6,339.7 1032.9,343.4 1033.4,347.0 1034.1,350.5 1034.9,353.8 1036.0,357.0 1037.2,359.9 1038.6,362.5 1040.1,364.9 1041.8,366.9 1043.7,368.6 1045.6,370.0 1047.6,370.9 1049.8,371.5 1051.9,371.7 1054.1,371.5 1056.3,370.9 1058.5,370.0 1060.7,368.6 1062.8,366.9 1064.8,364.9 1066.7,362.5 1068.4,359.9 1069.9,357.0 1071.3,353.9 1072.4,350.5 1073.3,347.0 1074.0,343.4 1074.4,339.7 1074.5,336.0" class="fluxl"/>
+<polygon points="1095.5,336.0 1095.2,328.5 1094.3,321.2 1092.8,313.9 1090.8,307.0 1088.2,300.3 1085.2,294.0 1081.7,288.2 1078.0,282.9 1073.9,278.2 1069.6,274.2 1065.2,270.8 1060.7,268.1 1056.1,266.2 1051.6,265.0 1047.2,264.6 1043.0,265.0 1038.9,266.2 1035.0,268.1 1031.3,270.8 1028.0,274.2 1024.9,278.2 1022.1,282.9 1019.6,288.2 1017.5,294.0 1015.7,300.3 1014.2,307.0 1013.0,313.9 1012.2,321.2 1011.7,328.5 1011.5,336.0 1011.7,343.5 1012.2,350.8 1013.0,358.1 1014.2,365.0 1015.7,371.7 1017.5,378.0 1019.6,383.8 1022.1,389.1 1024.9,393.8 1028.0,397.8 1031.3,401.2 1035.0,403.9 1038.9,405.8 1043.0,407.0 1047.2,407.4 1051.6,407.0 1056.1,405.8 1060.7,403.9 1065.2,401.2 1069.6,397.8 1073.9,393.8 1078.0,389.1 1081.7,383.8 1085.2,378.0 1088.2,371.7 1090.8,365.0 1092.8,358.1 1094.3,350.8 1095.2,343.5 1095.5,336.0" class="fluxl"/>
+<polygon points="1116.5,336.0 1116.0,324.8 1114.4,313.7 1111.9,302.9 1108.5,292.4 1104.2,282.4 1099.1,273.0 1093.5,264.3 1087.3,256.4 1080.7,249.4 1073.8,243.2 1066.8,238.2 1059.8,234.1 1052.8,231.2 1046.0,229.5 1039.4,228.9 1033.2,229.5 1027.3,231.2 1021.8,234.1 1016.7,238.2 1012.0,243.2 1007.9,249.4 1004.1,256.4 1000.9,264.3 998.1,273.0 995.7,282.4 993.8,292.4 992.4,302.9 991.3,313.7 990.7,324.8 990.5,336.0 990.7,347.2 991.3,358.3 992.4,369.1 993.8,379.6 995.7,389.6 998.1,399.0 1000.9,407.7 1004.1,415.6 1007.9,422.6 1012.0,428.8 1016.7,433.8 1021.8,437.9 1027.3,440.8 1033.2,442.5 1039.4,443.1 1046.0,442.5 1052.8,440.8 1059.8,437.9 1066.8,433.8 1073.8,428.8 1080.7,422.6 1087.3,415.6 1093.5,407.7 1099.1,399.0 1104.2,389.6 1108.5,379.6 1111.9,369.1 1114.4,358.3 1116.0,347.2 1116.5,336.0" class="fluxl"/>
+<polygon points="1137.5,336.0 1136.7,321.1 1134.4,306.3 1130.6,291.9 1125.5,277.9 1119.2,264.6 1111.7,252.1 1103.5,240.4 1094.5,229.9 1085.1,220.5 1075.4,212.3 1065.6,205.5 1055.9,200.2 1046.5,196.3 1037.3,194.0 1028.7,193.2 1020.6,194.0 1013.0,196.3 1006.1,200.2 999.8,205.5 994.2,212.3 989.2,220.5 984.9,229.9 981.1,240.4 977.9,252.1 975.3,264.6 973.2,277.9 971.6,291.9 970.4,306.3 969.7,321.1 969.5,336.0 969.7,350.9 970.4,365.7 971.6,380.1 973.2,394.1 975.3,407.4 977.9,419.9 981.1,431.6 984.9,442.1 989.2,451.5 994.2,459.7 999.8,466.5 1006.1,471.8 1013.0,475.7 1020.6,478.0 1028.7,478.8 1037.3,478.0 1046.5,475.7 1055.9,471.8 1065.6,466.5 1075.4,459.7 1085.1,451.5 1094.5,442.1 1103.5,431.6 1111.7,419.9 1119.2,407.4 1125.5,394.1 1130.6,380.1 1134.4,365.7 1136.7,350.9 1137.5,336.0" class="fluxl"/>
+<polygon points="1144.5,336.0 1143.7,320.1 1141.3,304.4 1137.3,289.0 1131.9,274.0 1125.2,259.8 1117.4,246.4 1108.7,233.9 1099.2,222.5 1089.3,212.3 1079.0,203.4 1068.5,195.9 1058.2,189.9 1048.0,185.4 1038.2,182.6 1028.9,181.4 1020.1,181.8 1011.9,183.8 1004.3,187.5 997.4,192.7 991.2,199.4 985.7,207.6 980.8,217.2 976.6,228.0 972.9,240.0 969.9,253.0 967.4,266.8 965.4,281.4 964.0,296.6 963.0,312.2 962.6,328.0 962.6,344.0 963.0,359.8 964.0,375.4 965.4,390.6 967.4,405.2 969.9,419.0 972.9,432.0 976.6,444.0 980.8,454.8 985.7,464.4 991.2,472.6 997.4,479.3 1004.3,484.5 1011.9,488.2 1020.1,490.2 1028.9,490.6 1038.2,489.4 1048.0,486.6 1058.2,482.1 1068.5,476.1 1079.0,468.6 1089.3,459.7 1099.2,449.5 1108.7,438.1 1117.4,425.6 1125.2,412.2 1131.9,398.0 1137.3,383.0 1141.3,367.6 1143.7,351.9 1144.5,336.0" class="lcfs"/>
+<rect x="1260.5" y="106.0" width="307.5" height="172.0" rx="6" class="tile"/>
+<rect x="1260.5" y="106.0" width="307.5" height="26.0" rx="6" class="head"/>
+<rect x="1260.5" y="124.0" width="307.5" height="8.0" class="head-sq"/>
+<text x="1270.5" y="123.0" class="head-t" font-size="11.5" text-anchor="start" font-weight="700">读数</text>
+<text x="1558.0" y="123.0" class="mut" font-size="11" text-anchor="end">≡  ⤢  ×</text>
+<path d="M1564.0 266.0l-8 8M1564.0 272.0l-2 2" class="grip" stroke="var(--accent)" stroke-width="2"/>
+<text x="1268.5" y="152.0" class="lbl" font-size="12" text-anchor="start">τ_E</text>
+<text x="1560.0" y="152.0" class="acc-t" font-size="12" text-anchor="end">3.42 s</text>
+<line x1="1268.5" y1="165.0" x2="1560.0" y2="165.0" class="sep"/>
+<text x="1268.5" y="178.0" class="lbl" font-size="12" text-anchor="start">β_N</text>
+<text x="1560.0" y="178.0" class="acc-t" font-size="12" text-anchor="end">1.86</text>
+<line x1="1268.5" y1="191.0" x2="1560.0" y2="191.0" class="sep"/>
+<text x="1268.5" y="204.0" class="lbl" font-size="12" text-anchor="start">q₉₅</text>
+<text x="1560.0" y="204.0" class="acc-t" font-size="12" text-anchor="end">3.1</text>
+<rect x="1260.5" y="290.0" width="307.5" height="264.0" rx="6" class="tile"/>
+<rect x="1260.5" y="290.0" width="307.5" height="26.0" rx="6" class="head"/>
+<rect x="1260.5" y="308.0" width="307.5" height="8.0" class="head-sq"/>
+<text x="1270.5" y="307.0" class="head-t" font-size="11.5" text-anchor="start" font-weight="700">验收</text>
+<text x="1558.0" y="307.0" class="mut" font-size="11" text-anchor="end">≡  ⤢  ×</text>
+<path d="M1564.0 542.0l-8 8M1564.0 548.0l-2 2" class="grip" stroke="var(--accent)" stroke-width="2"/>
+<text x="1268.5" y="338.0" class="mono" font-size="10.5" text-anchor="start">balance_worst</text>
+<text x="1560.0" y="338.0" class="ok-t" font-size="10.5" text-anchor="end">9.8e-13</text>
+<text x="1268.5" y="358.0" class="mono" font-size="10.5" text-anchor="start">dt_capped</text>
+<text x="1560.0" y="358.0" class="ok-t" font-size="10.5" text-anchor="end">0</text>
+<text x="1268.5" y="378.0" class="mono" font-size="10.5" text-anchor="start">ped_extrapolation</text>
+<text x="1560.0" y="378.0" class="warn-t" font-size="10.5" text-anchor="end">0.49</text>
+<text x="1268.5" y="398.0" class="mono" font-size="10.5" text-anchor="start">settled</text>
+<text x="1560.0" y="398.0" class="mut" font-size="10.5" text-anchor="end">[TBD]</text>
+<rect x="302.0" y="474.0" width="520.5" height="356.0" rx="6" class="tile-sel"/>
+<rect x="302.0" y="474.0" width="520.5" height="26.0" rx="6" class="head"/>
+<rect x="302.0" y="492.0" width="520.5" height="8.0" class="head-sq"/>
+<text x="312.0" y="491.0" class="head-t" font-size="11.5" text-anchor="start" font-weight="700">时序 · Iₚ（光标共享）</text>
+<text x="812.5" y="491.0" class="mut" font-size="11" text-anchor="end">≡  ⤢  ×</text>
+<path d="M818.5 818.0l-8 8M818.5 824.0l-2 2" class="grip" stroke="var(--accent)" stroke-width="2"/>
+<rect x="310.0" y="506.0" width="504.5" height="316.0" rx="6" class="panel"/>
+<rect x="346.0" y="518.0" width="456.5" height="280.0" class="axes"/>
+<line x1="346.0" y1="588.0" x2="802.5" y2="588.0" class="grid"/>
+<line x1="460.1" y1="518.0" x2="460.1" y2="798.0" class="grid"/>
+<line x1="346.0" y1="658.0" x2="802.5" y2="658.0" class="grid"/>
+<line x1="574.2" y1="518.0" x2="574.2" y2="798.0" class="grid"/>
+<line x1="346.0" y1="728.0" x2="802.5" y2="728.0" class="grid"/>
+<line x1="688.4" y1="518.0" x2="688.4" y2="798.0" class="grid"/>
+<polyline points="346.0,770.0 361.2,745.5 376.4,724.1 391.6,705.4 406.9,689.0 422.1,674.6 437.3,662.1 452.5,651.1 467.7,641.5 482.9,633.0 498.2,625.7 513.4,619.2 528.6,613.6 543.8,608.6 559.0,604.3 574.2,600.5 589.5,597.2 604.7,594.3 619.9,591.8 635.1,589.6 650.3,587.6 665.5,585.9 680.8,584.4 696.0,583.1 711.2,582.0 726.4,581.0 741.6,580.1 756.9,579.4 772.1,578.7 787.3,578.1 802.5,577.6" class="c1"/>
+<line x1="587.9" y1="518.0" x2="587.9" y2="798.0" class="cursor"/>
+<rect x="834.5" y="566.0" width="733.5" height="264.0" rx="6" class="tile"/>
+<rect x="834.5" y="566.0" width="733.5" height="26.0" rx="6" class="head"/>
+<rect x="834.5" y="584.0" width="733.5" height="8.0" class="head-sq"/>
+<text x="844.5" y="583.0" class="head-t" font-size="11.5" text-anchor="start" font-weight="700">剖面 · χ 对 ρ（拖入中…）</text>
+<text x="1558.0" y="583.0" class="mut" font-size="11" text-anchor="end">≡  ⤢  ×</text>
+<path d="M1564.0 818.0l-8 8M1564.0 824.0l-2 2" class="grip" stroke="var(--accent)" stroke-width="2"/>
+<text x="848.5" y="620.0" class="acc-t" font-size="11" text-anchor="start">松手落在 (5, 5, 7×3)；写回 fylite:layout</text>
+<text x="306.0" y="852.0" class="mut" font-size="10.5" text-anchor="start">12 列栅格 · 拖标题移动 · 拖右下角缩放 · 首行第一块是首屏输出（P-26）</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图 · FYL-DESIGN-18 §八 —— 工作台编辑的是呈现规格，不是图片</text>
+</svg>

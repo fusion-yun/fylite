@@ -1,0 +1,340 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="运行是一串门调用：每步交回状态，进度按步实测，断点是一份记录，恢复是再入">
+<title>fylite 前端 — 执行进度、断点与恢复</title>
+<style>
+:root {
+  --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --line:#e3e6ea; --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a;
+  --coil:#8a53c4; --wall:#5a6270; --flux:#9aa6b8; --warn:#a75909;
+  --head:#eceff3; --sel:#e7f0fb; --strip:#ffffff; --pill:#fdf1e3;
+}
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:var(--fg); }
+.bg { fill:var(--bg); }
+.strip { fill:var(--strip); }
+.strip-ghost { fill:var(--strip); opacity:.55; }
+.strip-edge { stroke:var(--line); stroke-width:1.5; }
+.strip-inner { stroke:var(--line); stroke-width:1; }
+.mark { fill:var(--accent); }
+.markt { fill:#ffffff; }
+.title { fill:var(--fg); }
+.mut { fill:var(--muted); }
+.lbl { fill:var(--fg); }
+.acc-t { fill:var(--accent); }
+.sep { stroke:var(--line); stroke-width:1; }
+.pill { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.pillt { fill:var(--warn); }
+.navic { fill:none; stroke:none; }
+.navic-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.navg { fill:none; stroke:var(--muted); stroke-width:1.6;
+        stroke-linecap:round; stroke-linejoin:round; }
+.navg-on { fill:none; stroke:var(--accent); stroke-width:1.8;
+           stroke-linecap:round; stroke-linejoin:round; }
+.navgf { fill:var(--muted); stroke:none; }
+.navg-onf { fill:var(--accent); stroke:none; }
+.input { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.caret { fill:none; stroke:var(--muted); stroke-width:1.4; stroke-linecap:round; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; }
+.btn-a { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.btn-at { fill:var(--accent); }
+.dot-busy { fill:var(--accent); }
+.dot-ok { fill:var(--alt); }
+.dot-idle { fill:none; stroke:var(--muted); stroke-width:1.4; }
+.dot-bad { fill:var(--warn); }
+.prog-bg { fill:var(--line); }
+.prog { fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--line); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--line); stroke-width:1; }
+.head-sq { fill:var(--head); stroke:none; }
+.head-t { fill:var(--fg); }
+.axes { fill:none; stroke:var(--grid); stroke-width:1; }
+.grid { stroke:var(--grid); stroke-width:.7; }
+.track { stroke:var(--grid); stroke-width:4; stroke-linecap:round; }
+.track-on { stroke:var(--accent); stroke-width:4; stroke-linecap:round; }
+.handle { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; }
+.c2 { stroke:var(--lcfs); stroke-width:2; }
+.c3 { stroke:var(--alt); stroke-width:1.8; }
+.c4 { stroke:var(--coil); stroke-width:1.6; }
+.c5 { stroke:var(--muted); stroke-width:1.4; stroke-dasharray:4 3; }
+.zero { stroke:var(--muted); stroke-width:1; }
+.lane { stroke:var(--grid); stroke-width:1; stroke-dasharray:2 3; }
+.w1 { fill:var(--lcfs); opacity:.28; }
+.w2 { fill:var(--alt); opacity:.30; }
+.w3 { fill:var(--coil); opacity:.30; }
+.s1 { stroke:var(--alt); stroke-width:1.4; }
+.s1f { fill:var(--alt); }
+.wall { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:5 4; }
+.lcfs { fill:none; stroke:var(--lcfs); stroke-width:2.2; }
+.bar-v { fill:var(--accent); opacity:.55; }
+.bar-over { fill:var(--warn); opacity:.72; }
+.lim { stroke:var(--wall); stroke-width:1.4; stroke-dasharray:3 2; }
+.future { fill:url(#hatch); }
+.future-e { fill:none; stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; }
+.solved { fill:var(--accent); }
+.interp { fill:var(--panel); stroke:var(--muted); stroke-width:1.4; }
+.edit { stroke:var(--lcfs); stroke-width:1.6; }
+.editf { fill:var(--lcfs); }
+.tgt { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 3; }
+.ff { fill:none; stroke:var(--coil); stroke-width:2; }
+.fb { fill:none; stroke:var(--coil); stroke-width:2; stroke-dasharray:5 3; }
+.chip-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.chip-off { fill:none; stroke:var(--grid); stroke-width:1; }
+.gauge-bg { fill:var(--grid); opacity:.5; }
+.gauge { fill:var(--alt); }
+.warnbox { fill:none; stroke:var(--warn); stroke-width:1.4; stroke-dasharray:4 3; }
+.warn-t { fill:var(--warn); }
+.c-dot { stroke:var(--accent); stroke-width:1.8; stroke-dasharray:1.5 3.5;
+         stroke-linecap:round; }
+.postband { fill:var(--accent); opacity:.16; }
+.okmark { fill:none; stroke:var(--alt); stroke-width:2; stroke-linecap:round;
+          stroke-linejoin:round; }
+.badmark { fill:none; stroke:var(--lcfs); stroke-width:2; stroke-linecap:round; }
+.mono { fill:var(--fg); font-family:ui-monospace,"SFMono-Regular",Menlo,
+        Consolas,"Liberation Mono",monospace; }
+.ph0 { fill:var(--accent); opacity:.09; }
+.ph1 { fill:var(--alt); opacity:.13; }
+.ph2 { fill:var(--warn); opacity:.09; }
+.null1 { fill:none; stroke:var(--flux); stroke-width:1.2; }
+.null2 { fill:none; stroke:var(--accent); stroke-width:1.8; }
+.foot { fill:var(--muted); }
+.zone { fill:none; stroke:var(--accent); stroke-width:1.2; stroke-dasharray:5 4; }
+.zone-t { fill:var(--accent); }
+.brace { fill:none; stroke:var(--accent); stroke-width:1.2; }
+.bar-h { fill:var(--grid); }
+.bar-seen { fill:var(--accent); opacity:.20; }
+.fold { stroke:var(--lcfs); stroke-width:2; stroke-dasharray:6 4; }
+.fold-t { fill:var(--lcfs); }
+.tick { stroke:var(--muted); stroke-width:1.4; }
+.ok-t { fill:var(--alt); }
+.bad-t { fill:var(--lcfs); }
+.rowsel { fill:var(--sel); }
+.badge { fill:var(--accent); }
+.badget { fill:#ffffff; }
+.bar-rest { fill:var(--grid); opacity:.45; }
+.bar-seen { fill:var(--sel); }
+.bar-edge { fill:none; stroke:var(--grid); stroke-width:1; }
+.brk { fill:none; stroke:var(--bg); stroke-width:6; }
+
+.tile { fill:var(--panel); stroke:var(--accent); stroke-width:1.2; }
+.tile-sel { fill:var(--sel); stroke:var(--accent); stroke-width:1.6; stroke-dasharray:6 3; }
+.grip { fill:var(--accent); }
+.ghost { fill:none; stroke:var(--muted); stroke-width:1.6; stroke-dasharray:6 4; opacity:.8; }
+.knot { fill:var(--panel); stroke:var(--lcfs); stroke-width:2; }
+.knot-drag { fill:var(--lcfs); stroke:var(--panel); stroke-width:1.5; }
+.coil { fill:var(--coil); opacity:.55; }
+.coil-neg { fill:none; stroke:var(--coil); stroke-width:1.6; }
+.probe { fill:var(--alt); }
+.loop { fill:none; stroke:var(--alt); stroke-width:1.4; }
+.chord { stroke:var(--warn); stroke-width:1.2; stroke-dasharray:2 3; }
+.fluxl { fill:none; stroke:var(--flux); stroke-width:1.1; }
+.cursor { stroke:var(--lcfs); stroke-width:1.4; }
+.zoombox { fill:var(--accent); opacity:.12; stroke:var(--accent); stroke-width:1; stroke-dasharray:4 3; }
+.step-done { fill:var(--accent); }
+.step-ckpt { fill:var(--alt); }
+.step-todo { fill:var(--grid); }
+.step-cur { fill:var(--panel); stroke:var(--accent); stroke-width:2; }
+.arrow { fill:none; stroke:var(--muted); stroke-width:1.4; marker-end:url(#arr); }
+.arrow-a { fill:none; stroke:var(--accent); stroke-width:1.6; marker-end:url(#arra); }
+.src { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.src-top { fill:var(--sel); stroke:var(--accent); stroke-width:1.2; }
+.src-off { fill:var(--panel); stroke:var(--grid); stroke-width:1; stroke-dasharray:4 3; opacity:.7; }
+.prov { fill:var(--head); }
+.tag { fill:none; stroke:var(--muted); stroke-width:1; }
+.tag-a { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.tag-b { fill:var(--pill); stroke:var(--warn); stroke-width:1; }
+.sw-on { fill:var(--accent); }
+.sw-off { fill:var(--grid); }
+.sw-k { fill:#ffffff; }
+.doc { fill:var(--panel); stroke:var(--fg); stroke-width:1; }
+.doc-t { fill:var(--fg); }
+.seg { fill:none; stroke:var(--grid); stroke-width:1; }
+.seg-on { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.meas { fill:var(--alt); }
+.ref { fill:none; stroke:var(--coil); stroke-width:1.6; stroke-dasharray:5 3; }
+</style>
+<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--bg)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--grid)" stroke-width="2.4"/></pattern></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="900.0" class="bg"/>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker><marker id="arra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+<rect x="0.0" y="0.0" width="1600.0" height="84.0" class="strip"/>
+<line x1="0.0" y1="84.0" x2="1600.0" y2="84.0" class="strip-edge"/>
+<rect x="18.0" y="6.0" width="28.0" height="28.0" rx="6" class="mark"/>
+<text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
+<text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">物理建模 / 预测</text>
+<text x="207.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">1.5D 输运 · 含时演化（两条功能栏，各有计算键）</text>
+<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
+<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<circle cx="1568.0" cy="20.0" r="7" class="navg"/>
+<path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>
+<line x1="1542.0" y1="11.0" x2="1542.0" y2="29.0" class="sep"/>
+<rect x="1510.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1517.0 13.0v14M1517.0 13.0h5M1517.0 20.0h5M1517.0 27.0h5" class="navg"/>
+<circle cx="1528.0" cy="13.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="20.0" r="1.9" class="navgf"/>
+<circle cx="1528.0" cy="27.0" r="1.9" class="navgf"/>
+<rect x="1478.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1484.0 24.0Q1492.0 11.0 1500.0 22.0" class="navg"/>
+<circle cx="1487.0" cy="21.0" r="1.6" class="navgf"/>
+<circle cx="1492.0" cy="16.0" r="1.6" class="navgf"/>
+<circle cx="1497.0" cy="20.0" r="1.6" class="navgf"/>
+<rect x="1446.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic-on"/>
+<path d="M1452.0 14.0C1458.0 14.0 1460.0 26.0 1468.0 26.0" class="navg-on"/>
+<rect x="1414.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
+<path d="M1420.0 25.0L1425.0 15.0L1431.0 15.0L1436.0 25.0" class="navg"/>
+<line x1="0.0" y1="40.0" x2="1600.0" y2="40.0" class="strip-inner"/>
+<text x="18.0" y="66.0" class="mut" font-size="12" text-anchor="start">装置</text>
+<rect x="52.0" y="48.0" width="200.0" height="26.0" rx="5" class="input"/>
+<text x="61.0" y="65.4" class="lbl" font-size="12" text-anchor="start">EAST</text>
+<path d="M234.0 59.0l4 5 4-5" class="caret"/>
+<rect x="260.0" y="48.0" width="26.0" height="26.0" rx="5" class="btn"/>
+<text x="273.0" y="65.3" class="mut" font-size="12" text-anchor="middle">×</text>
+<rect x="298.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="329.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导入</text>
+<rect x="368.0" y="48.0" width="62.0" height="26.0" rx="5" class="btn"/>
+<text x="399.0" y="65.3" class="lbl" font-size="12" text-anchor="middle">导出</text>
+<circle cx="454.0" cy="61.0" r="4.5" class="dot-busy"/>
+<text x="466.0" y="65.0" class="mut" font-size="12" text-anchor="start">含时演化 · 第 23/60 步 · 每步 36 ms（实测）· 剩余约 1.3 s（报出，不承诺）</text>
+<rect x="0.0" y="81.0" width="1600.0" height="3.0" class="prog-bg"/>
+<rect x="0.0" y="81.0" width="613.3" height="3.0" class="prog"/>
+<rect x="26.0" y="100.0" width="1548.0" height="150.0" rx="8" class="panel"/>
+<rect x="26.0" y="100.0" width="1548.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="122.0" width="1548.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="130.0" x2="1574.0" y2="130.0" class="sep"/>
+<text x="38.0" y="119.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">步带 · 计划字段 fylite:step_budget = 60（S-3）· 每步一次门调用，状态随记录进出（S-4）</text>
+<rect x="41.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="66.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="91.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="117.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="142.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="167.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="193.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="218.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="243.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="269.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="294.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-ckpt"/>
+<rect x="319.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="345.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="370.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="395.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="421.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="446.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="471.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="497.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="522.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="547.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-ckpt"/>
+<rect x="573.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="598.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-done"/>
+<rect x="623.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-cur"/>
+<rect x="649.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="674.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="699.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="725.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="750.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="775.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="801.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="826.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="851.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="877.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="902.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="927.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="953.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="978.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1003.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1029.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1054.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1079.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1105.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1130.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1155.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1181.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1206.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1231.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1257.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1282.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1307.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1333.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1358.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1383.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1409.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1434.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1459.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1485.0" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1510.3" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<rect x="1535.7" y="150.0" width="23.3" height="26.0" rx="2" class="step-todo"/>
+<text x="40.0" y="196.0" class="mut" font-size="11" text-anchor="start">■ 已算   ■ 断点（记录已落 IndexedDB）   □ 当前   ░ 未算</text>
+<text x="293.3" y="214.0" class="ok-t" font-size="10.5" text-anchor="middle">▲ ckpt @10</text>
+<text x="546.7" y="214.0" class="ok-t" font-size="10.5" text-anchor="middle">▲ ckpt @20</text>
+<text x="622.7" y="230.0" class="acc-t" font-size="10.5" text-anchor="middle">▲ 现在（第 24 次调用在内核里）</text>
+<text x="1560.0" y="196.0" class="warn-t" font-size="11" text-anchor="end">取消 = 把剩余预算切到 0，本步结束即停（U-9）；不 terminate</text>
+<text x="1560.0" y="214.0" class="mut" font-size="10.5" text-anchor="end">硬中断（仅当一步超预算 ×10）= terminate + 重放 init，标为「硬」</text>
+<rect x="26.0" y="264.0" width="700.0" height="596.0" rx="8" class="panel"/>
+<rect x="26.0" y="264.0" width="700.0" height="30.0" rx="8" class="head"/>
+<rect x="26.0" y="286.0" width="700.0" height="8.0" class="head-sq"/>
+<line x1="26.0" y1="294.0" x2="726.0" y2="294.0" class="sep"/>
+<text x="38.0" y="283.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">一步的往返（H-5 · F-2）</text>
+<rect x="40.0" y="314.0" width="90.0" height="40.0" rx="6" class="src-top"/>
+<text x="85.0" y="339.0" class="lbl" font-size="12" text-anchor="middle" font-weight="700">页面</text>
+<text x="146.0" y="331.0" class="lbl" font-size="11.5" text-anchor="start">计划 + fylite:state(k) → 中间层 wasm</text>
+<text x="146.0" y="347.0" class="mut" font-size="10.5" text-anchor="start">编码为四段扁平树</text>
+<path d="M85.0 356.0L85.0 370.0" class="arrow"/>
+<rect x="40.0" y="372.0" width="90.0" height="40.0" rx="6" class="src"/>
+<text x="85.0" y="397.0" class="lbl" font-size="12" text-anchor="middle" font-weight="700">中间层</text>
+<text x="146.0" y="389.0" class="lbl" font-size="11.5" text-anchor="start">字节 → 内核 wasm</text>
+<text x="146.0" y="405.0" class="mut" font-size="10.5" text-anchor="start">JS 不看字节</text>
+<path d="M85.0 414.0L85.0 428.0" class="arrow"/>
+<rect x="40.0" y="430.0" width="90.0" height="40.0" rx="6" class="doc"/>
+<text x="85.0" y="455.0" class="lbl" font-size="12" text-anchor="middle" font-weight="700">内核</text>
+<text x="146.0" y="447.0" class="lbl" font-size="11.5" text-anchor="start">code/evolve · 1 步 · 建树交回</text>
+<text x="146.0" y="463.0" class="mut" font-size="10.5" text-anchor="start">无状态；状态在树里（S-1 / S-2）</text>
+<path d="M85.0 472.0L85.0 486.0" class="arrow"/>
+<rect x="40.0" y="488.0" width="90.0" height="40.0" rx="6" class="src"/>
+<text x="85.0" y="513.0" class="lbl" font-size="12" text-anchor="middle" font-weight="700">中间层</text>
+<text x="146.0" y="505.0" class="lbl" font-size="11.5" text-anchor="start">解码 → 记录(k+1) · fylite:state(k+1)</text>
+<text x="146.0" y="521.0" class="mut" font-size="10.5" text-anchor="start">只搬不改（S-5 ③）</text>
+<path d="M85.0 530.0L85.0 544.0" class="arrow"/>
+<rect x="40.0" y="546.0" width="90.0" height="40.0" rx="6" class="src-top"/>
+<text x="85.0" y="571.0" class="lbl" font-size="12" text-anchor="middle" font-weight="700">页面</text>
+<text x="146.0" y="563.0" class="lbl" font-size="11.5" text-anchor="start">画增量 · 更新进度 · 每 10 步落断点</text>
+<text x="146.0" y="579.0" class="mut" font-size="10.5" text-anchor="start">策略归宿主（S-5 ④⑤）</text>
+<text x="40.0" y="610.0" class="acc-t" font-size="11" text-anchor="start">N 步一次调用 ≡ k 步 + 恢复(N−k) 步，逐位相同 —— 这是断点闸的判据。</text>
+<text x="40.0" y="630.0" class="mut" font-size="11" text-anchor="start">进度不来自回调（门上没有回调）：它是页面数出来的调用次数与量出来的每步耗时。</text>
+<rect x="746.0" y="264.0" width="828.0" height="250.0" rx="8" class="panel"/>
+<rect x="746.0" y="264.0" width="828.0" height="30.0" rx="8" class="head"/>
+<rect x="746.0" y="286.0" width="828.0" height="8.0" class="head-sq"/>
+<line x1="746.0" y1="294.0" x2="1574.0" y2="294.0" class="sep"/>
+<text x="758.0" y="283.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">断点 = 记录（U-10）· IndexedDB fylite:checkpoints</text>
+<text x="760.0" y="328.0" class="lbl" font-size="12" text-anchor="start" font-weight="700">evolve-flattop · @20</text>
+<text x="760.0" y="344.0" class="mono" font-size="10" text-anchor="start">r-…c4a1 · state 7.9 KiB · wasm sha256 3f9a…</text>
+<rect x="1490.0" y="318.0" width="70.0" height="24.0" rx="5" class="btn-a"/>
+<text x="1525.0" y="334.0" class="btn-at" font-size="11.5" text-anchor="middle">恢复</text>
+<line x1="760.0" y1="358.0" x2="1560.0" y2="358.0" class="sep"/>
+<text x="760.0" y="380.0" class="lbl" font-size="12" text-anchor="start" font-weight="700">evolve-flattop · @10</text>
+<text x="760.0" y="396.0" class="mono" font-size="10" text-anchor="start">r-…b210 · state 7.9 KiB · wasm sha256 3f9a…</text>
+<rect x="1490.0" y="370.0" width="70.0" height="24.0" rx="5" class="btn-a"/>
+<text x="1525.0" y="386.0" class="btn-at" font-size="11.5" text-anchor="middle">恢复</text>
+<line x1="760.0" y1="410.0" x2="1560.0" y2="410.0" class="sep"/>
+<text x="760.0" y="432.0" class="lbl" font-size="12" text-anchor="start" font-weight="700">transport-steady · 完成</text>
+<text x="760.0" y="448.0" class="mono" font-size="10" text-anchor="start">r-…9e77 · 无状态（单步 code）</text>
+<rect x="1490.0" y="422.0" width="70.0" height="24.0" rx="5" class="btn-a"/>
+<text x="1525.0" y="438.0" class="btn-at" font-size="11.5" text-anchor="middle">打开</text>
+<line x1="760.0" y1="462.0" x2="1560.0" y2="462.0" class="sep"/>
+<text x="760.0" y="484.0" class="lbl" font-size="12" text-anchor="start" font-weight="700">evolve-east-hmode · @400</text>
+<text x="760.0" y="500.0" class="mono" font-size="10" text-anchor="start">r-…1d02 · wasm sha256 77c0… ≠ 当前</text>
+<rect x="1490.0" y="474.0" width="70.0" height="24.0" rx="5" class="btn"/>
+<text x="1525.0" y="490.0" class="warn-t" font-size="11.5" text-anchor="middle">拒绝 · S-6</text>
+<rect x="746.0" y="528.0" width="828.0" height="332.0" rx="8" class="panel"/>
+<rect x="746.0" y="528.0" width="828.0" height="30.0" rx="8" class="head"/>
+<rect x="746.0" y="550.0" width="828.0" height="8.0" class="head-sq"/>
+<line x1="746.0" y1="558.0" x2="1574.0" y2="558.0" class="sep"/>
+<text x="758.0" y="547.6" class="head-t" font-size="12.5" text-anchor="start" font-weight="700">移步（U-19）· 同一份文档集在别处继续</text>
+<path d="M760.0 574.0h138.0l12 12v44.0h-150.0z" class="doc"/>
+<path d="M898.0 574.0v12h12" class="doc"/>
+<text x="768.0" y="596.0" class="doc-t" font-size="11.5" text-anchor="start" font-weight="700">bundle.zip</text>
+<text x="768.0" y="612.0" class="mut" font-size="10.5" text-anchor="start">plan · inputs · record@20</text>
+<text x="760.0" y="652.0" class="mono" font-size="10.5" text-anchor="start">→ 桌面：fy case run plan.jsonld --resume record.jsonld</text>
+<text x="760.0" y="672.0" class="mono" font-size="10.5" text-anchor="start">→ Python：cases.run(plan, resume=record)</text>
+<text x="760.0" y="692.0" class="mono" font-size="10.5" text-anchor="start">→ 另一台浏览器：导入即认（按内容识别，不问文件名）</text>
+<text x="760.0" y="718.0" class="mut" font-size="10.5" text-anchor="start">断点带着写它的内核身份；别的内核拒绝，除非显式开关并记入记录。</text>
+<text x="800.0" y="888.0" class="foot" font-size="11" text-anchor="middle">概念图 · 36 ms/步为 evolve-default 语料实测（_manifest/evolve.jsonld），其余数值示意 · FYL-DESIGN-18 §六</text>
+</svg>
