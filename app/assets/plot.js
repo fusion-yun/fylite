@@ -583,6 +583,22 @@
           ctx.arc(X(s.x[i]), Y(s.y[i]), s.radius || 3, 0, 2 * Math.PI);
           ctx.fill();
         }
+      } else if (s.kind === 'stems') {
+        //: ★A RESIDUAL IS A STEM, NEVER A POLYLINE (`FYL-DESIGN-12` · U-21):
+        //: the abscissa is a channel index, and joining channel 3 to
+        //: channel 4 draws a slope between two things that have no
+        //: neighbourhood.  Line from the zero line, dot at the tip.
+        var yz = Y(Math.max(ymin, Math.min(ymax, 0)));
+        ctx.lineWidth = s.width || 1.4;
+        for (i = 0; i < s.x.length; i++) {
+          if (!isFinite(s.y[i])) continue;
+          ctx.beginPath();
+          ctx.moveTo(X(s.x[i]), yz); ctx.lineTo(X(s.x[i]), Y(s.y[i]));
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(X(s.x[i]), Y(s.y[i]), s.radius || 2.4, 0, 2 * Math.PI);
+          ctx.fill();
+        }
       } else if (s.kind === 'bars') {
         var bw = Math.max(2, (p.w - pad.l - pad.r) / (s.x.length * 1.7));
         for (i = 0; i < s.x.length; i++) {

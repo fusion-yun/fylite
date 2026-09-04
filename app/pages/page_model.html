@@ -818,6 +818,14 @@ self.FyLite.load('../assets/fylite_rs.wasm')
 <script src="../assets/session.js"></script>
 <script src="../assets/handoff.js"></script>
 <script src="../assets/plot.js"></script>
+<!-- ★THE FIGURES A SPEC DRAWS (FYL-DESIGN-18 U-12, stage U0).  `casereport.js`
+     already carries the ONE resolver — which quantity a series binds, which
+     coordinate a profile is drawn against — and `fig.js` paints those same
+     views onto this page's canvases instead of into the report's SVG.  Loading
+     both here is what makes 「页面与报告画同一份规格」 true of this page rather
+     than only of the report page. -->
+<script src="../assets/casereport.js"></script>
+<script src="../assets/fig.js"></script>
 <!-- the scenario's own controller: one file, one section per part,
      in the order the page runs them -->
 <script src="../assets/scenario-model.js"></script>

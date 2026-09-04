@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "0.3"
+version: "0.4"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,11 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.3 U0 第一步落地（model 页）：141 个手写控件誊录为 `app/assets/vocab-model.js`，页面只剩
+  change: 'v0.4 U0 第二步落地：`app/assets/fig.js` 由呈现规格画图（复用 `casereport.js` 的唯一解析器），
+    `plot.js` 增 `stems` 记号，规格词表补 `layout` / `visible` / `domain`（G-3 关），规格闸
+    `app/tests/validate-fig.mjs` 十项通过并当场逮到一处自造缺陷。新缺口 G-13：两端规格比对的闸
+    `validate-report.mjs` 调的是已撤除的 Python 命令行，今天根本没跑——U-12 的判据是纸面的。
+    · v0.3 U0 第一步落地（model 页）：141 个手写控件誊录为 `app/assets/vocab-model.js`，页面只剩
     `data-form` 挂点，`app/assets/form.js` 按词表画控件；表单闸 `app/tests/validate-form.mjs` 双向成立；
     首屏输出仍在 790 px；一处潜在缺陷（`width` 默认值不在格上）由闸子暴露并改正。§十三 U0 行记
     已落与未落。· v0.2 按分析工作适用性评估修改：补三种视图（U-21 茎与表 · U-22 对照记录）、通道权重在图上编辑
@@ -40,7 +44,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v0.3 |
+| 版本 (Version) | v0.4 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -649,6 +653,7 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★U0 已落（2026-09-04，第二步） | — | **规格驱动的图形**：`app/assets/fig.js` 把 `spo:PresentationSpecification` 的五种视图（`line_chart` · `stem` · `map` · `table` · `scalar_readout`）画到页面画布上，解析一律走 `casereport.js` 导出的 `index` / `resolve` / `coordinateOf`（**不另写第二份**）；`plot.js` 增 `stems` 记号（U-21：不连续横轴不画折线）；`series_role: baseline` 以虚线区分（U-22）；`fylite:domain` 与 `fylite:visible` 被采用（U-17 · U-16）；画不了的视图按名拒绝并计入 `refused`（P-6 · P-10）。规格词表 `docs/examples/context.jsonld` 补 `layout` / `visible` / `domain` 与 `fylite:` 前缀（**G-3 关**）。**未落**：功能栏仍直接调 `FyPlot`——把它们改成「产出记录 → 画规格」要先有记录，而记录要内核（G-13 与 `-16` 分期）；交互（框选 · 光标 · 钉住）属工作台 | `validate-fig.mjs` 三节十项通过：解析不重复、词表三词在、浏览器里五种视图各画对（横轴取自坐标声明、茎带零线与通道序号、表逐行、baseline 有非颜色通道、钉住的定义域被采用、三种画不了各出一句指名的拒绝）。★闸子首跑即逮到 `fig.js` 自身一处缺陷：未知 `view_kind` 画了拒绝句却仍计为「已画」 |
 | ★U0 已落（2026-09-04，第一步） | — | **`model` 页的表单生成**：`tools/transcribe-form-vocab.mjs` 一次性把 141 个控件（108 滑杆 · 8 枚举 · 25 布尔）誊录进 `app/assets/vocab-model.js`，页面只剩 `data-form` 挂点；`app/assets/form.js` 在 `scenario.js` 之前同步画出控件（同 id · 同 i18n 键 · 同读数），控制器与会话层一行不改。**未落**：词表的 `iri` / `tier` / `group` 全为 `[TBD]`（G-1）；数字孪生未画；分组仍由页面结构决定（U-3 待 U2）；`transport` 的 `BLOCKS` 与词表未对账 | `validate-form.mjs` 三节通过（141 ↔ 141 双向；浏览器逐条相符；`FySession.collect` 读回默认值）；`page_model.html` 无 `<input>` / `<select>`；首屏输出 790 px 不变；闸子暴露并改正一处潜在缺陷（`width` 默认 0.35 不在 0.02 格上，浏览器一直吸附为 0.36） |
 | **U1 中间层进 wasm 之后** | W-1 | 源栈经 `assemble`；`geqdsk.js` / `session.js` 退役（H-4 已定）；`AppSession/1` 退役为文档集；service worker 预缓存 | 往返闸通过；静态站点断网重开可载入 |
 | **U2 十个工具全过门之后** | P1 | 词表从内核 code 表读（K-2 增列落地）；四页全部生成；U-8 对所有多步 code；`--resume` 入 `_cli.json` | 四页 `fylite_rs_*` 归零（`-16` P1 判据）+ 四页手写控件归零；断点闸对每个多步 code |
@@ -683,6 +688,7 @@ C 档。
 | **G-9** | **预览图与页面无闸**：八张图是概念图，`-11` G-12 对 `desktop-*.svg` 的同一缺口 | `tools/make-frontend-design-figures.py` | P2 |
 | **G-10** | **`stem` · `table` · `baseline` 三个词未进规格词表**，Python 端 `casereport.py` 对 `stem` 无 SVG、对 `baseline` 无成对渲染；U-21 / U-22 今天只在浏览器端可落 | `docs/examples/context.jsonld` · `casereport.py` | P1 |
 | **G-11** | **权重编辑的判据来源**：U-23 要求页面知道「卷宗禁用」的通道集合；该信息在装置文档的哪个槽（`fylite:channel_map` 或另一处）未查 | `fyo-interface.js` `TABLES.DEVICE` | P1 |
+| **G-13** | **两端规格比对today没在跑**：`app/tests/validate-report.mjs` 调 `python3 -m fylite cases --report`，而 2026-09-04 的裁定撤掉了 Python 侧命令行（实测 `No module named fylite.__main__`）。U-12「两端推出同一份规格」今天没有任何门在断言 | 实测 `node app/tests/validate-report.mjs`；`FYL-DESIGN-15` 的撤除记录 | P0 |
 | **G-12** | **场景 `note` 的渲染位置未量**：U-24 把长注放在表单顶部折叠段，它是否把首屏输出推出 900 px（P-26）未在 `page_*` 上实测 | `-11` V-13 闸 | P2 |
 
 〔开放项〕**词表与 i18n 的关系。** U-2 让 `gloss` 与 `choices` 的文字来自词表而非页面

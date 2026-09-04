@@ -2,6 +2,7 @@
   "@context": {
     "@version": 1.1,
     "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:",
     "spo": "https://fusion-yun.github.io/spo/latest/",
     "bfo": {
       "@id": "http://purl.obolibrary.org/obo/BFO_",
@@ -182,6 +183,16 @@
     },
     "has_coordinate_system": {
       "@id": "spo:has_coordinate_system"
+    },
+    "layout": {
+      "@id": "fylite:layout"
+    },
+    "visible": {
+      "@id": "fylite:visible"
+    },
+    "domain": {
+      "@id": "fylite:domain",
+      "@container": "@list"
     }
   }
 }

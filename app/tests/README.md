@@ -264,3 +264,16 @@ await page.waitForFunction((re) => new RegExp(re).test(
 词表的默认值。★它不需要 `fy` 可执行体——控件在任何 worker 回答之前就已存在，静态伺服
 `app/` 即可。词表由 `tools/transcribe-form-vocab.mjs` **一次性**誊录而来，此后词表是源，
 不再改页面。
+
+〔`validate-fig.mjs`〕**规格闸的页面半边**（`FYL-DESIGN-18` U-12 · U-16 · U-17 · U-21 · U-22）：
+`assets/fig.js` 把一份 `spo:PresentationSpecification` 画到功能页的画布上，解析（哪条序列绑哪个量、
+一维量对哪个坐标）一律走 `casereport.js` 导出的 `index` / `resolve` / `coordinateOf`——**页面与报告
+用同一份解析器**，闸子静态断言 `fig.js` 里没有第二份。浏览器一节喂一份**合成记录**（不需要 wasm，
+也不需要 `fy`：被测的是投影，不是内核的算术），并把 `FyPlot` 换成**记录器**——判据是「被要求画的是
+什么」而不是像素，否则一条残差画成折线（U-21 唯一禁止的事）只要颜色对就能过。十项：五种视图各画对、
+茎的横轴是通道序号且带零线、baseline 与 computed 在非颜色通道上分得开、`fylite:domain` 被采用、
+三种画不了的各出一句**指名道姓**的拒绝且不计入「已画」。
+
+★**`validate-report.mjs` 今天跑不动**（`FYL-DESIGN-18` G-13）：它调 `python3 -m fylite cases --report`，
+而 2026-09-04 的裁定撤掉了 Python 侧的命令行。于是「两端推出同一份规格」这条判据目前没有门在断言——
+`validate-fig.mjs` 只管页面这一边。
