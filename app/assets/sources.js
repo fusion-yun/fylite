@@ -8,14 +8,23 @@
 // aliases, an ordered `merge`, an optional `select` — and what it consumes is
 // the document that came back.
 //
-// ★★THE STACK IS TOP-WINS; `merge` IS LAST-WINS.  Measured against the real
-// assembler: with `merge: ["geometry", "meas"]`, a leaf present in both comes
-// out of `meas`.  The stack in §五 is drawn the other way round — the first row
+// ★★THE STACK IS TOP-WINS; `merge` IS LAST-WINS.  The contract is stated by the
+// middle layer itself, in the module header of
+// `rust/fylite_runtime/src/assembly.rs`: 「`merge` 里的源逐个读进来合并（后者覆盖
+// 前者，叶子级）」.  The stack in §五 is drawn the other way round — the first row
 // is the one that wins — so `assembly()` writes `merge` in REVERSE stack order.
 // Writing it in stack order would invert every priority silently: the numbers
 // still assemble, the table still renders, and the answer comes from the source
-// the reader ranked last.  `validate-sources.mjs` runs the document this file
-// writes through the actual middle layer and asserts the top row won.
+// the reader ranked last.
+//
+// ★Where that is checked, and where it is NOT.  `validate-sources.mjs` asserts
+// the ORDER this file writes against that stated contract.  It does not execute
+// the merge, because the browser has no way to: `fylite_runtime` compiles to
+// wasm but exports nothing — `c_api` and `assembly` are both behind the `mdsip`
+// feature the wasm tier switches off (G-15), so `FYL-DESIGN-16` H-4 / phase W-1
+// has not landed.  Until it does, this file writes a document that nothing in
+// the browser can run, and says so rather than borrowing another host's answer:
+// **Python is not in the front end's path** (user ruling, 2026-09-04).
 //
 // ★Per-quantity provenance is DERIVED here, and says so (U-6, G-14).  The
 // middle layer records which sources were merged (`fylite:assembly.merged`) but

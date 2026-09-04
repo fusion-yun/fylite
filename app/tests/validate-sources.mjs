@@ -4,23 +4,33 @@
 //
 //     node app/tests/validate-sources.mjs [--playwright <dir>] [--chrome <bin>]
 //
-// ★★The assertion that matters is made by the REAL assembler.  The stack is
-// drawn top-wins; `merge` is last-wins; so the document the page writes has to
-// reverse the order, and a mistake there is invisible from inside the browser —
-// the numbers still assemble, the table still renders, and the answer quietly
-// comes from the source the reader ranked last.  So this gate takes the
-// assembly document the page produced, hands it to `fylite.io.fydoc.assemble`
-// (the middle layer through its C ABI), and asserts the value that came back is
-// the TOP row's.  Nothing short of running it can catch an inverted priority.
+// ★★WHAT THIS GATE MAY NOT DO, and why it once did it.  An earlier version
+// handed the document the page writes to `fylite.io.fydoc.assemble` — the
+// middle layer through its PYTHON binding — and asserted the merge came out
+// top-row-first.  That is not this gate's to assert.  **Python is not in the
+// front end's path** (user ruling, 2026-09-04): the browser's middle layer is
+// `fylite_runtime` compiled to wasm (`FYL-DESIGN-16` H-4, phase W-1), and that
+// door does not exist yet — measured, see G-15: the crate builds for wasm32 and
+// exports NOTHING, because `c_api` and `assembly` are both behind the `mdsip`
+// feature that the wasm tier switches off.  Having another host perform the
+// operation and reporting the answer as the front end's makes a path that is
+// missing look like a path that works.
 //
-// ★It skips, rather than passing, when the middle layer is not built: an
-// assertion about the merge that never reached the merge is not evidence.
-import { readFileSync, existsSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+// ★The distinction against the seventeen gates here that DO run Python: those
+// compare — the browser computes an answer, `python/fylite` computes the same
+// answer independently, and the gate holds the two together (对拍, the shape
+// `README.md` describes and `U-12` requires).  Comparing two implementations is
+// not the same as borrowing one.
+//
+// ★So this gate asserts what the front end is responsible for: the ORDER the
+// stack draws, the document it writes, and that the document matches the
+// contract `rust/fylite_runtime/src/assembly.rs` states in its own header.
+// Whether that document merges correctly is the middle layer's to prove, on its
+// own side, and the browser's to re-prove once it has a door.
+import { readFileSync, existsSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, extname } from 'node:path';
-import { tmpdir } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const APP = join(HERE, '..');
@@ -68,7 +78,7 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
   await pg.addScriptTag({ url: '../assets/sources.js' });
 
   const r = await pg.evaluate(() => {
-    const out = { steps: [], docs: null, asm: null, asmSwapped: null };
+    const out = { steps: [], asm: null, asmSwapped: null, topAlias: null };
     const say = (n, p, d) => out.steps.push({ name: n, pass: !!p, detail: d || '' });
     if (!window.FySources) { say('FySources 已加载', false); return out; }
 
@@ -144,16 +154,17 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
         FySources.stale(layer, 'r-100') === true && FySources.stale(layer, 'r-99') === false);
 
     //: hand the documents and the assembly out for the middle layer to run
-    out.docs = { 'meas.json': meas, 'dossier.json': dossier };
+    out.topAlias = null;
     //: ★the layer handed to §三 drops the mdsbind source, and not to make the
     //: gate pass: what §三 measures is the MERGE ORDER, and an mdsbind layer
     //: would send the middle layer to a server.  With a binding file that does
     //: not exist the assembler correctly reports it as a failure — which is a
     //: fact about the fixture, not about the page's document.
-    const off = FySources.stack('magnetics', s.layers().filter((l) => l.kind !== 'mdsbind'));
-    out.asm = off.assembly();
-    off.move(0, 1);
-    out.asmSwapped = off.assembly();     // the same stack, other way up
+    out.asm = s.assembly();
+    out.topAlias = s.layers()[0].alias;
+    s.move(0, 1);
+    out.asmSwapped = s.assembly();       // the same stack, other way up
+    s.move(0, 1);
     return out;
   });
 
@@ -163,45 +174,36 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
   await br.close();
   srv.close();
 
-  // --- 〔三〕 the real middle layer runs what the page wrote -------------------
-  console.log('\n〔三〕真的中间层执行这份装配文档，看谁赢了');
-  if (!r.asm) fail('页面没有产出装配文档');
-  else if (!existsSync(join(ROOT, 'python', 'fylite', '_lib', 'libfylite_runtime.so'))) {
-    console.log('  跳过 —— 中间层未构建（rust/build.sh）；没到过合并的断言不是证据');
+  // --- 〔三〕 the document matches the middle layer's stated contract ---------
+  console.log('\n〔三〕装配文档合中间层自己写下的契约（不借别的宿主来执行它）');
+  //: the contract is the module header of `rust/fylite_runtime/src/assembly.rs`:
+  //: `$source` is alias -> URI, `merge` names those aliases in order, and the
+  //: semantics are 「后者覆盖前者」.  Reading it here rather than running it is
+  //: the point — see this file's header.
+  const asmRs = join(ROOT, 'rust', 'fylite_runtime', 'src', 'assembly.rs');
+  if (!existsSync(asmRs)) {
+    console.log('  跳过 —— 本检出没有中间层源码，契约无处可读');
+  } else if (!r.asm) {
+    fail('页面没有产出装配文档');
   } else {
-    const dir = mkdtempSync(join(tmpdir(), 'fy-src-'));
-    for (const [name, doc] of Object.entries(r.docs)) writeFileSync(join(dir, name), JSON.stringify(doc));
-    writeFileSync(join(dir, 'asm.json'), JSON.stringify(r.asm));
-    writeFileSync(join(dir, 'asm-swapped.json'), JSON.stringify(r.asmSwapped));
-    const run = (f) => JSON.parse(execFileSync('python3', ['-c', `
-import json, sys
-from fylite.io import fydoc
-b, failed = fydoc.assemble(${JSON.stringify(join(dir, f))})
-d = b.to_dict()
-probe = {p['name']: p for p in d.get('b_field_pol_probe', [])}
-print(json.dumps({'failed': failed,
-                  'p1_field': probe.get('P1', {}).get('field', {}).get('data'),
-                  'p1_pos': probe.get('P1', {}).get('position'),
-                  'merged': (d.get('fylite:assembly') or {}).get('merged')}))
-`], { encoding: 'utf8', cwd: ROOT, env: { ...process.env, PYTHONPATH: join(ROOT, 'python') } }));
-    try {
-      const top = run('asm.json'), swapped = run('asm-swapped.json');
-      if (top.failed.length) fail(`中间层拒绝了页面写的装配文档：${top.failed}`);
-      else ok(`中间层执行成功，merged = ${top.merged.join(' → ')}`);
-      //: the fetch layer is the top row and carries P1.field = [1, 2];
-      //: the dossier carries [9, 9].  Top-wins means [1, 2] comes out.
-      if (String(top.p1_field) !== '1,2')
-        fail(`栈顶没赢：P1.field = ${top.p1_field}（栈顶给的是 1,2）—— merge 的次序反了`);
-      else ok('栈顶的那一层赢了重叠的叶子（U-7），实测 P1.field = 1,2');
-      if (String(swapped.p1_field) !== '9,9')
-        fail(`把栈倒过来之后赢家没换：P1.field = ${swapped.p1_field}`);
-      else ok('把栈倒过来，赢家跟着换（实测 9,9）—— 次序确实是承重的');
-      if (!top.p1_pos || top.p1_pos.r !== 2.2)
-        fail(`没有从另一层补上几何：P1.position = ${JSON.stringify(top.p1_pos)}`);
-      else ok('没被盖住的叶子从下层补齐（L-12 按 name 对齐，两份的通道次序不同）');
-    } catch (e) {
-      fail(`中间层执行失败：${String(e.message).split('\n').slice(-3).join(' ')}`);
-    }
+    const header = readFileSync(asmRs, 'utf8').split('\n').filter((l) => l.startsWith('//'))
+      .join('\n');
+    if (!/后者覆盖前者/.test(header))
+      fail('assembly.rs 的头注不再声明「后者覆盖前者」—— 倒序写 merge 的依据没了，重新读它');
+    else ok('契约就在 assembly.rs 的头注里：merge 后者覆盖前者');
+    const src2 = r.asm.$source, mg = r.asm.merge;
+    const aliasesOk = Array.isArray(mg) && mg.every((a) => typeof src2[a] === 'string');
+    if (!aliasesOk) fail('merge 里出现了 $source 没有的别名');
+    else ok(`merge 的每个别名都在 $source 里（${mg.length} 个）`);
+    if (mg[mg.length - 1] !== r.topAlias)
+      fail(`栈顶 ${r.topAlias} 没有排在 merge 的末位 —— 按契约它会被别人盖住`);
+    else ok(`栈顶 ${r.topAlias} 排在 merge 末位，按契约它赢（这是文档层面的断言）`);
+    if (String(r.asmSwapped.merge) === String(mg))
+      fail('把栈倒过来之后 merge 没有变 —— 次序没有承重');
+    else ok('把栈倒过来，merge 跟着倒（次序是承重的）');
+    console.log('  note  这一节不执行合并。浏览器今天没有中间层的门（G-15：'
+                + 'c_api 与 assembly 都在 mdsip 特性门后，wasm 层零导出），'
+                + '「合并真按这个次序发生」要等 W-1 落地后在浏览器里自己证。');
   }
 }
 
