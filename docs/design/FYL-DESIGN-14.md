@@ -55,11 +55,11 @@ modified:
 (fylite-data-layer-intro)=
 # 数据层 (The Data Layer)
 
-★**crate 已改名**（2026-09-04，`FYL-DESIGN-16` N-1 / N-2）：`rust/fylite_data/` →
+★**crate 已改名**（2026-09-04，`FYL-DESIGN-16` N-1）：`rust/fylite_data/` →
 `rust/fylite_runtime/`（同日中途曾叫 `fylite_engine`，因与 Python 包 `fylite.engine` 撞词而再改），
 制品 `libfylite_runtime.so`，C 导出 `fylite_runtime_*`。
 
-★★**`rust/fylite_runtime/`（Rust crate，中间层）≠ `python/fylite/engine/`（Python 包，DE-COMP-03 执行与溯源机械核）。** 两者是不同组件；2026-09-04 那个 crate 一度也叫 `engine`，正因撞词而改名（`FYL-DESIGN-16` N-2）。真重叠只有四项：命令行解析（有意的两份）· 内核装载 · 计划→内核→记录 · g-file ↔ `fyo:equilibrium`。本篇讲的是这一层里**数据**那一半（格式、装配），
+★★**`rust/fylite_runtime/`（Rust crate，中间层）≠ `python/fylite/engine/`（Python 包，DE-COMP-03 执行与溯源机械核）。** 两者是不同组件；2026-09-04 那个 crate 一度也叫 `engine`，正因撞词而改名（`FYL-DESIGN-16` N-1）。真重叠只有四项：命令行解析（有意的两份）· 内核装载 · 计划→内核→记录 · g-file ↔ `fyo:equilibrium`。本篇讲的是这一层里**数据**那一半（格式、装配），
 所以标题不改；下文的路径已随改名机械更新。
 
 〔一句话〕**内核只算数，数据归这一层**：`rust/fylite_runtime/`（源码公开）把不同数据源读成
