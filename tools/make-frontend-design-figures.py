@@ -568,7 +568,8 @@ def draw_composite(d: Path) -> None:
             line(x2 + 14, ry + 44, x2 + w2 - 14, ry + 44, "sep")
     note(x2, y0 + 484, w2, ["U-16  图层即规格里的 layer 词：开关状态随规格导出，报告照画。",
                             "P-27  每层一个非颜色通道；关掉的层在图例里留一行灰字，不消失。",
-                            "缺的层按名列出（如无 magnetics 文档 → 「磁探针：无数据」）。"])
+                            "缺的层按名列出（如无 magnetics 文档 → 「磁探针：无数据」）。",
+                            "U-23  点一个探针改权重 / 开关，写进手填层；卷宗禁用的打不开。"])
     yy = panel(x2, y0 + 566, w2, H - y0 - 606, "图例（图内，跟随图层）")
     for i, (nm, on, chan, _, _) in enumerate(layers[:8]):
         cx_, cy_ = x2 + 14 + (i % 2) * (w2 / 2), yy + 14 + (i // 2) * 24
@@ -611,11 +612,12 @@ def draw_profiles(d: Path) -> None:
     rect(ax + aw * 0.55, ay + ah * 0.35, aw * 0.3, ah * 0.4, "zoombox")
     text(ax + aw * 0.55 + 6, ay + ah * 0.35 + 14, "框选缩放 · 滚轮 · 双击复位", "acc-t", 10.5)
     # legend with non-colour channels
-    lx, ly = ax + 12, ay + ah - 62
+    lx, ly = ax + 12, ay + ah - 78
     text(lx, ly, "—— 计算 · code/evolve（实线）", "lbl", 11)
     text(lx, ly + 16, "- - 参考 · g-file（虚线）", "lbl", 11)
     text(lx, ly + 32, "● 测量 · Thomson #138569（点）", "lbl", 11)
     text(lx, ly + 48, "▒ 后验带 · 覆盖：68 %（P-29 写明）", "lbl", 11)
+    text(lx, ly + 64, "·· 对照 · 记录 r-…b210（baseline，U-22）", "mut", 11)
     text(ax + aw / 2, ay + ah + 20, "横轴选项来自量的容器声明的坐标集；无映射的选项灰掉并说明，不隐藏（P-3）", "mut", 10.5, "middle")
 
     # right: the time-trace stack

@@ -321,10 +321,11 @@ polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
 <text x="820.0" y="524.0" class="mut" font-size="10.5" text-anchor="start">非颜色通道：点线 · 橙</text>
 <text x="1560.0" y="504.0" class="mono" font-size="10" text-anchor="end">overlay_layer</text>
 <text x="1560.0" y="524.0" class="mono" font-size="10" text-anchor="end">interferometer</text>
-<rect x="806.0" y="584.0" width="768.0" height="60.0" rx="5" class="tag"/>
+<rect x="806.0" y="584.0" width="768.0" height="76.0" rx="5" class="tag"/>
 <text x="815.0" y="602.0" class="mut" font-size="11" text-anchor="start">U-16  图层即规格里的 layer 词：开关状态随规格导出，报告照画。</text>
 <text x="815.0" y="618.0" class="mut" font-size="11" text-anchor="start">P-27  每层一个非颜色通道；关掉的层在图例里留一行灰字，不消失。</text>
 <text x="815.0" y="634.0" class="mut" font-size="11" text-anchor="start">缺的层按名列出（如无 magnetics 文档 → 「磁探针：无数据」）。</text>
+<text x="815.0" y="650.0" class="mut" font-size="11" text-anchor="start">U-23  点一个探针改权重 / 开关，写进手填层；卷宗禁用的打不开。</text>
 <rect x="806.0" y="666.0" width="768.0" height="194.0" rx="8" class="panel"/>
 <rect x="806.0" y="666.0" width="768.0" height="30.0" rx="8" class="head"/>
 <rect x="806.0" y="688.0" width="768.0" height="8.0" class="head-sq"/>

@@ -241,10 +241,11 @@ polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
 <circle cx="720.0" cy="770.1" r="3" class="meas"/>
 <rect x="430.2" y="402.9" width="193.2" height="245.6" class="zoombox"/>
 <text x="436.2" y="416.9" class="acc-t" font-size="10.5" text-anchor="start">框选缩放 · 滚轮 · 双击复位</text>
-<text x="88.0" y="740.0" class="lbl" font-size="11" text-anchor="start">—— 计算 · code/evolve（实线）</text>
-<text x="88.0" y="756.0" class="lbl" font-size="11" text-anchor="start">- - 参考 · g-file（虚线）</text>
-<text x="88.0" y="772.0" class="lbl" font-size="11" text-anchor="start">● 测量 · Thomson #138569（点）</text>
-<text x="88.0" y="788.0" class="lbl" font-size="11" text-anchor="start">▒ 后验带 · 覆盖：68 %（P-29 写明）</text>
+<text x="88.0" y="724.0" class="lbl" font-size="11" text-anchor="start">—— 计算 · code/evolve（实线）</text>
+<text x="88.0" y="740.0" class="lbl" font-size="11" text-anchor="start">- - 参考 · g-file（虚线）</text>
+<text x="88.0" y="756.0" class="lbl" font-size="11" text-anchor="start">● 测量 · Thomson #138569（点）</text>
+<text x="88.0" y="772.0" class="lbl" font-size="11" text-anchor="start">▒ 后验带 · 覆盖：68 %（P-29 写明）</text>
+<text x="88.0" y="788.0" class="mut" font-size="11" text-anchor="start">·· 对照 · 记录 r-…b210（baseline，U-22）</text>
 <text x="398.0" y="822.0" class="mut" font-size="10.5" text-anchor="middle">横轴选项来自量的容器声明的坐标集；无映射的选项灰掉并说明，不隐藏（P-3）</text>
 <rect x="766.0" y="100.0" width="808.0" height="760.0" rx="8" class="panel"/>
 <rect x="766.0" y="100.0" width="808.0" height="30.0" rx="8" class="head"/>
