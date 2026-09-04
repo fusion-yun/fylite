@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "0.6"
+version: "0.7"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,11 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.6 K-8（用户裁定 2026-09-04，两句）：**装置信息从 A-Box 读入、由中间层导入、以**整份
+  change: 'v0.7 K-8a / K-8b：**实测**今天的路径形会静默取错数——内核当场把路径按 / 切开只留最后一段、
+    `pack` 后写者胜，两份文档里同名收尾的路径并成一条（`entry/transport` 三次调用，`rc=0` 无一句话）；
+    并定下「完整 fyo 结构体」在 ABI 上的形：每张已声明的表一个类型、槽按声明齐全，走树留在中间层
+    （内核无文档模型也无 JSON，给它一个就是把 `document.rs`+`json.rs` 再写一遍）。
+    v0.6 K-8（用户裁定 2026-09-04，两句）：**装置信息从 A-Box 读入、由中间层导入、以**整份
     fyo 结构体**进内核；内核不管数据源头，也不收路径**。第二句改动了今天的门（`fylite_rs_fyo` 现收
     「路径, 维数, 数值」三元组），理由是走树的责任该在内核一处而不是每个宿主一份。据此关闭 G-3，并改正目标表里过强的一句——内核「不认识装置」改为
     「不认识数据源头」：它早有 `@fyo-table DEVICE`（34 槽）声明机器的 fyo 路径，也早在算 M / R /
@@ -53,7 +57,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v0.6 |
+| 版本 (Version) | v0.7 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -223,6 +227,44 @@ code 的一部分，或者留下但只被本地后端自己用。判据：`scena
 
 ★这也让 K-2 更整齐：进是文档，出是 manifest + 平铺数据，**两头同一种东西**。
 ★★不影响 K-1：门仍然只有一扇。变的是那扇门的入参形状，不是门的数目。
+
+(fylite-kernel-contract-path-defect)=
+**K-8a 今天的路径形不只是笨，它会静默取错数（实测）。** 〔已确立〕2026-09-04 直接经
+`fylite_rs_fyo` 实测。内核收下路径之后**当场把路径丢掉**——`case.rs`：
+
+```rust
+for (k, v) in req.inputs {
+    let key = k.rsplit('/').next().unwrap_or(k);   // 只留最后一段
+    if iblock.iter().any(|r| r[0] == key) { iv.push((key, v)); }
+```
+
+而 `pack` 对重复的 key **后写者胜**，不报错、不留注记。于是两份**不同文档**里同名收尾的
+路径会并成一条。拿 `entry/transport` 量：
+
+| 绑了什么 | 答案 `y[-3:]` |
+| :--- | :--- |
+| 只绑 `equilibrium/profiles_1d/grid/rho` | 2548.98 · 1426.53 · 100 |
+| 只绑 `core_profiles/profiles_1d/grid/rho` | 9895.92 · 5406.12 · 100 |
+| **两条都绑** | **9895.92 · 5406.12 · 100**（后者胜，`rc=0`，无一句话） |
+
+两条路径写的是**两个文档的两个量**，内核把它们当成同一个 `rho`。声明里 `rho` 被三个入口
+declared、`vprime` 被两个——同名收尾不是假想。
+
+★所以「按路径」这个说法本身就是虚的：门**看起来**按路径，**实际上**按叶子名，而两者不一致
+时没有任何一侧会说话。K-8 的文档形正是关掉这一类：一份完整的结构体交进来，内核按自己的表
+取自己的槽，**缺一槽按名拒绝**，两份文档各是各的，不再有一个共享的名字空间可撞。
+
+(fylite-kernel-contract-struct-form)=
+**K-8b 「完整的 fyo 结构体」在 ABI 上是什么。** 〔工作假设〕内核**没有文档模型，也没有
+JSON 解析器**（36 个源文件，依赖表为空，全是数值与表）。给它一个，就是把中间层的
+`document.rs`（710 行）与 `json.rs`（488 行）在内核里再写一遍——正是本篇要消掉的那类第二
+实现。所以「结构体」按字面取：**每张已声明的表（`EQUILIBRIUM` / `DEVICE` /
+`CORE_PROFILES` …）一个类型，槽按声明齐全**，ABI 上按表交付而不是按调用方挑出来的一袋路径。
+走树仍然只有一处，只是那一处在**中间层**（它已经有 `document.rs` / `json.rs` / `fyodoc.rs`），
+而内核收到的是走完之后的完整结构。
+
+★这与 K-8 的理由一致：责任要么整个在内核，要么整个在中间层，**不能像今天这样一半一半**
+——调用方走树、内核丢路径、谁都不负责名字。
 
 ★**解除了 K-3 的第一道拦阻**：`discharge` / `breakdown` / `feasible` / `vstab` /
 `reconstruction` 五个工具此前被判为「要装置、故搬不进内核」，按本条它们只是**多收一份
