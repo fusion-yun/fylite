@@ -4,7 +4,7 @@
 //
 //   node tests/app/validate-q.mjs
 //
-// Reads tests/data/synthetic/g_synthetic.geqdsk directly, so it needs no
+// Reads tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk directly, so it needs no
 // network and no build.  Kept beside the publish workflow rather than in
 // app/, because app/ ships to the public site and this is a development
 // gate.  Last run: <= 0.72 % on ten surfaces from x = 0.1 to 0.95.

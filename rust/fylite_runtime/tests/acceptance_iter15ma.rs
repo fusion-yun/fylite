@@ -1,5 +1,5 @@
 //! The acceptance case (2026-09-02): ITER 15 MA D-T evolution, fyo / JSON-LD
-//! in, IMAS DD HDF5 out — `cases/evolve-iter-15ma.jsonld` declares the
+//! in, IMAS DD HDF5 out — `docs/examples/evolve/evolve-iter-15ma.jsonld` declares the
 //! delivery itself (four output ports asking for `fyo:ImasHdf5Format`).
 //!
 //! Skipped (loudly) without a kernel library; needs the `hdf5` feature.
@@ -20,7 +20,9 @@ fn iter_15ma_dt_evolution_lands_as_an_imas_data_entry() {
         eprintln!("SKIP: no kernel library (set FYLITE_KERNEL_LIB)");
         return;
     }
-    let plan_path = root.join("cases/evolve-iter-15ma.jsonld");
+    //: ★2026-09-04 语料由 `cases/` 迁入 `docs/examples/<族>/`（一例一目录）。
+    //: 这条路径是那次搬迁的**另一半**：只搬不改，本用例就会去开一个不在的文件。
+    let plan_path = root.join("docs/examples/evolve/evolve-iter-15ma.jsonld");
     let (src, node) = case::read_source(&plan_path).unwrap();
     let plan = case::compose(vec![(src, node)]).unwrap();
     assert_eq!(plan.bar(), "evolve");
