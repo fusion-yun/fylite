@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-17
 title: "场景运行命令 `fy run` 的详细设计 (The `fy run` Command: Detailed Design)"
 shortname: fylite-preset-scenarios
-version: "1.0"
+version: "1.1"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,7 +15,16 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v1.0 由「评估」升为「详细设计」（用户：*详细设计命令行完成日常建模分析，如
+    v1.1 两条用户裁定（2026-09-04）：**`case` 收进 `run`，`case` 命令弃用**；**新增 `list` 命令**，
+    列出 facts 装置、实验条目、场景模板、预设、语料根与内核 code 表（E-24）。`fy` 从此是 `app` /
+    `data` / `run` / `list` 四条命令词：`run` 的位置参数既收线与场景，也收计划文件（E-2 的名字 / 路径规则）；原
+    `case describe` / `plan` / `run` / `json` 分别成为 `list kernel` / `run … --dry-run` /
+    `run …` / `run … --json`，`data facts` 成为 `list facts`（迁移表 tbl-e17-migration）；发现面
+    **只在 `list` 上**（E-4），`run` 不再有 `--list` / `--show`；`--set` 整个撤除，`--code` 保留为固定
+    选项；`fy case …` 按名拒绝并指向对应写法，映射表在 `_cli.json` 的 `retired` 键里（E-23）。
+    Rust 库模块 `crate::case`（合成器）保留，撤的是命令词与 `cli/case.rs`。E-2 / E-4 / E-5 /
+    E-6 / E-10 / E-21 相应修订，E-23 / E-24 新增；J-1 / J-7 改写；门禁 ① 改为 `run` 两种形之间的等价式。
+    · v1.0 由「评估」升为「详细设计」（用户：*详细设计命令行完成日常建模分析，如
     `fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true`*，2026-09-04）。
     新增第四条命令词 `run <线> [<场景>]`（E-10），场景是位置参数不是命令词；两段解析
     （静态语法在 `_cli.json`，参数表在场景模板，E-11）；参数记法 `key=value` ≡ `--key=value`、
@@ -25,7 +34,7 @@ modified:
     只供资源不供物理参数，全表（E-16）；每线一条缺省场景（E-17）；模板声明的开关
     （E-18，`only_magnetic` 是第一个）；记录目录自足与 `--dry-run`（E-19）；退出码与拒绝阶段
     （E-20）；`run` 不是第二个合成器（E-21）；模板随 `fy` 内嵌、预设走语料路径（E-22，
-    关闭 v0.1 的开放项）。E-4 / E-5 修订（发现面上 `run`；`--set` 留在 `case`）。场景目录
+    关闭 v0.1 的开放项）。E-4 / E-5 修订（发现面上 `run`，v1.1 改为 `list`；`--set` 留在 `case`，v1.1 撤除）。场景目录
     逐条覆盖文档明确涉及的全部场景（CONOPS S-L1..S-L5 · 三页十三条栏 · 语料 9 个 code ·
     工具表 10 件 · 指南五章），含不设模板者的理由。`_cli.json` 增量与解析器改动写成落地清单。
     · v0.1 初稿：预设是数据不是动词（E-1..E-9），三张清单不一样长，六条常用预设，两档分期。
@@ -39,7 +48,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-17` |
 | 文档名称 (Title) | 场景运行命令 `fy run` 的详细设计 (The `fy run` Command: Detailed Design) |
 | 短名 / Slug | `fylite-preset-scenarios` |
-| 版本 (Version) | v1.0 |
+| 版本 (Version) | v1.1 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -54,7 +63,7 @@ modified:
 | 安全分级 (Security Classification) | public |
 | 上游输入 (Upstream Inputs) | `FYL-DESIGN-15` v1.0（一条命令行、一份规格；R-1..R-6 · C-1..C-8）· `FYL-DESIGN-16`（K-1 文档门 · K-8 装置整份进内核 · B-1 先问后跑 · D-3 合成只在一处）· `FYL-DESIGN-14`（L-10 时间选择 · L-11 A-Box 读者）· `FYL-DESIGN-09` / `-10` / `-12`（三页十三条栏）· `FYL-CONOPS-00`（S-L1..S-L5；离线包络）· `FYL-SRS-01` FR-DATA-001 / FR-TOOL-001 / FR-TOOL-004 · 语料 `docs/examples/`（25 条，9 个 code，`code/<x>#<name>` 词表）· `fylite.scenario.TOOLS` / `LINES` · `rust/fylite_runtime/src/{facts,assembly,case}.rs` 与 `cli/{data,case}.rs` 的现行实现 · 2026-09-04 用户裁定（Python 侧没有命令行） |
 | 批准 (Approval) | — |
-| 取代关系 (Supersedes / Superseded by) | 本版取代 v0.1；`E-` 为本篇的裁定前缀。`FYL-DESIGN-15` R-2 / R-4 对命令词的枚举（`app` / `data` / `case`）需在该篇下一版补 `run`，本篇不代改 |
+| 取代关系 (Supersedes / Superseded by) | 本版取代 v1.0 / v0.1；`E-` 为本篇的裁定前缀。**`fy case` 自本版起弃用**（E-23）；`FYL-DESIGN-15` R-2 / R-4 对命令词的枚举（`app` / `data` / `case`）需在该篇下一版改为 `app` / `data` / `run`，本篇不代改 |
 :::
 
 (fylite-preset-intro)=
@@ -69,7 +78,7 @@ fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true
 线（`analysis`）选出缺省场景（`reconstruction`）；场景**模板**给出参数表与缺省值；
 `--device east` 经 facts 语料装出整份装置文档并补上装置相关的缺省；`shot=` / `time=`
 解析出测量文档（先离线语料，再取数）；`--only-magnetic=true` 是模板声明的**开关**，展开成
-六个基础参数；合成好的计划走 `case` 的同一条门进内核；记录目录里落着计划、装置、测量、
+六个基础参数；合成好的计划进内核的文档门；记录目录里落着计划、装置、测量、
 记录与数据集，**离线可重放**。
 
 〔为什么升版〕v0.1 回答的是「预设怎么调、预设哪几个」，裁定是「不新增命令词，
@@ -78,7 +87,21 @@ fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true
 ②参数是 `key=value` 而不是 `--set key=value`，且每个参数**有类型、有缺省、有出处**（模板）；
 ③装置与测量**由命令自己解析**，不要求用户先手工 `fy data fetch`。这三样都不是 `case` 的
 职责——`case` 是「一份计划进，一份记录出」的**文档门**（`FYL-DESIGN-16` K-1），不该学会
-线、装置与炮号。于是本版加**一条**命令词 `run`，它是 `case` 之上的**解析层**，而不是第二条门。
+线、装置与炮号。v1.0 因此在 `case` 之上加了一层 `run`。
+
+〔已确立〕**v1.1：`case` 收进 `run`，`case` 弃用**（用户裁定 2026-09-04）。两条命令并存的代价
+在 v1.0 里已经写出来了：同一个门有两个入口，一个收计划文件、一个收线与场景，而它们的选项
+表**几乎逐条重合**（`-o` · `--format` · `--kernel` · `--bind` · `--facts` · `--json` · `--quiet`）。
+`run` 的位置参数本来就能分辨名字与路径（E-2），所以「收计划文件」不需要第二条命令词：
+`fy run plan.jsonld` 与 `fy run analysis` 走同一条解析、同一个合成器、同一条门。原 `case` 的四条
+子命令各有对应写法（{numref}`tbl-e17-migration`）；`fy case …` 按名拒绝并指向那个写法（E-23）。
+
+〔已确立〕**v1.1：新增 `list` 命令**（用户裁定 2026-09-04：*添加 list 命令，列出 facts device、
+scenario 等预设信息*）。「有什么可用」这个问题此前散在三处（`data facts` · `case describe` ·
+v1.0 草案里 `run` 的 `--list` / `--show`），答案各是一种形。v1.1 把它们收成**一条只读的命令词**：
+`fy list devices | experiments | scenarios | presets | facts | kernel`，每类语料一条子命令，给名字
+就打那一条的全部（{numref}`tbl-e17-list`，E-24）。`fy` 从此是 **`app` / `data` / `run` / `list`**
+四条命令词：一条起页面，一条搬数据，一条算，一条看。
 
 (fylite-preset-asis)=
 # 一 · 家底 (As-Is)
@@ -115,13 +138,13 @@ fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true
 
 | | 判据 | 出处 | v1.0 变化 |
 | :--- | :--- | :--- | :--- |
-| **J-1** | **不因场景新增命令词**：场景、装置、预设都是**数据**；`run` 是四条命令词里的最后一条 | `FYL-DESIGN-15` R-4；v0.1 S-1 的否决 | 由「不新增命令词」改写：`run` 是**一个**词承载全部场景，与 S-1（每场景一词）相反 |
+| **J-1** | **不因场景新增命令词**：场景、装置、预设都是**数据**；`fy` 只有 `app` / `data` / `run` / `list` 四条命令词，每条一个动词 | `FYL-DESIGN-15` R-4；v0.1 S-1 的否决 | v1.0 由「不新增命令词」改写为「一个词承载全部场景」；v1.1 `run` 取代 `case`，`list` 收拢发现面 |
 | **J-2** | **一份规格**：静态语法进 `_cli.json`；**动态参数表进模板**，两者都不进代码 | `FYL-DESIGN-15` C-1 | 补第二半 |
 | **J-3** | **离线可用**：给了 `--input` 或语料里有这发炮，命令**不得**开套接字；`--offline` 下永不 | `FYL-CONOPS-00` 包络 | 不变 |
-| **J-4** | **跑不成也回一份记录**，缺什么点名，且说出是**哪个阶段**缺的 | `fy case` 现行行为 | 补「阶段」 |
+| **J-4** | **跑不成也回一份记录**，缺什么点名，且说出是**哪个阶段**缺的 | 原 `fy case` 现行行为 | 补「阶段」 |
 | **J-5** | **加一条场景 = 加一份模板文档**，加一条预设 = 加一份计划文档 | `FYL-DESIGN-16` K-（门只认文档） | 不变 |
 | **J-6** | **同词同义**：`--device` / `--shot` / `--time` 在 `fy` 的每条命令上一种含义、一种记法 | `fy data fetch` 已用这三个词 | 不变 |
-| **J-7** | **合成只在一处**：`run` 调用 `case` 的合成器与运行器，不复制 | `FYL-DESIGN-16` D-3 | 新增 |
+| **J-7** | **合成只在一处，入口也只有一个**：合成器是 Rust 库模块 `crate::case`，命令词只有 `run`；两种位置参数形（线 / 计划文件）走同一段代码 | `FYL-DESIGN-16` D-3 | v1.0 新增；v1.1 补「入口只有一个」 |
 
 (fylite-preset-grammar)=
 # 三 · 语法 (Grammar)
@@ -129,11 +152,11 @@ fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true
 〔已确立·设计〕
 
 ```text
-fy run                                  → 打印四条线与各自的缺省场景
-fy run <line> --list                    → 该线的场景、模板来源、今天能否跑
-fy run <line> [<scenario>] --show       → 该场景的参数表（名 · 类型 · 缺省 · 来源 · 开关 · 端口）
-fy run <line> [<scenario>] [<selector>...] [<parameter>...] [<option>...]
+fy run <target> [<selector>...] [<parameter>...] [<option>...]
+fy list [<kind> [<name>...]] [--line L] [--json]     → 发现面（tbl-e17-list）；run 自己没有 --list / --show
 
+target    ::= <line> [<scenario>]          ; 场景形
+            | <plan> [<plan>...]           ; 计划文件形（原 fy case run）：含 `/` 或以 .json/.jsonld/.yaml 结尾（E-2）
 line      ::= "analysis" | "model" | "design" | "control"
 scenario  ::= <name>                       ; 缺省由线决定（E-17）
 selector  ::= "--device" ID | "--preset" NAME | "--plan" FILE | "--input" FILE | "--bind" PORT=FILE
@@ -146,7 +169,13 @@ key       ::= [a-z][a-z0-9_-]*             ; `-` 与 `_` 等价（E-12）
 value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `4,4.5,5`）
 ```
 
-〔已确立·设计〕**三类记号，三种归属。** 位置参数两个（线、场景）；**固定选项**是规格里
+〔已确立·设计〕**两种形，一条路。** 场景形由线与场景选出模板；计划文件形（v1.1，原 `fy case run`）
+把给出的计划按序合成，模板由合成后计划的 `prescribes_code` 末段解析（`code/transport` →
+`scenario/transport`），于是 `key=value` 在两种形上**同样受模板校验**；找不到模板时开放参数
+**不校验直接透传**（等于原 `--set`），`--dry-run` 把它们标成 `cli (unchecked)`。第一个位置参数
+是四个线词之一就是场景形，否则按 E-2 判路径；两者都不是时按名拒绝并列出四个线词。
+
+〔已确立·设计〕**三类记号，三种归属。** 位置参数（线与场景，或计划文件）；**固定选项**是规格里
 写死的那些（`_cli.json`，解析器认识）；**参数**是模板里的那些（解析器**不认识**，只收集）。
 用户例句里 `--device east` 是固定选项，`shot=123456` / `time=4.4` 是**通用参数**（每个
 消费测量的场景都收），`--only-magnetic=true` 是**场景参数**（反演模板的一个开关）。
@@ -160,20 +189,63 @@ value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `
 | `--device ID` | facts 里 `device` 域的标识，或一份 `device.jsonld` 路径 | 装出整份装置文档绑到 `device` 端口；补装置相关缺省（E-14） | `fy data fetch --device` |
 | `--shot N` / `--time T` | 整数 / 时间选择 | 与 `shot=N` / `time=T` **同一个参数**（E-12：固定选项名优先）；写成旗标是为了与 `fetch` 同形 | `fy data fetch --shot/--time` |
 | `--preset NAME` | 预设名或计划文件路径（E-2） | 在模板与装置之上叠一份具名计划 | — |
-| `--plan FILE`（可重复） | 计划文件 | 显式计划，按序叠在预设之上 | `fy case run <plans>` |
+| `--plan FILE`（可重复） | 计划文件 | 场景形下的显式计划，按序叠在预设之上（计划文件形直接把文件写成位置参数） | 原 `fy case run <plans>` |
 | `--input FILE` | 文档 | 绑到场景模板声明的**主输入端口**（反演 = `measurements`，`profile` = `points`，`vstab` = `equilibrium`） | `--bind <主端口>=FILE` 的糖 |
-| `--bind PORT=FILE`（可重复） | 端口绑定 | 其余端口 | `fy case run --bind` |
+| `--bind PORT=FILE`（可重复） | 端口绑定 | 其余端口 | 原 `fy case run --bind` |
+| `--code IRI` | code IRI | 一份计划带多个 code 时选一个（计划文件形） | 原 `fy case --code` |
 | `--cases PATH`（可重复） | 语料根 | 预设 / 模板的搜索路径前置（E-3） | `--facts` 的同构 |
-| `--facts PATH`（可重复） | 语料根 | 装置 / 实验条目的搜索路径前置 | `data` / `case` 组级同名 |
-| `-o, --record DIR` | 目录 | 记录目录；缺省 `$FYLITE_RUN_DIR/<戳>-<场景>/`（E-16） | `fy case run -o` |
-| `--format F` | `jsonld` / `hdf5` / `netcdf` / `imas-hdf5` | 数据集格式 | `fy case run --format` |
-| `--kernel PATH` | `.so` | 内核 | `fy case --kernel` |
+| `--facts PATH`（可重复） | 语料根 | 装置 / 实验条目的搜索路径前置 | `data` 组级同名 |
+| `-o, --record DIR` | 目录 | 记录目录；缺省 `$FYLITE_RUN_DIR/<戳>-<场景>/`（E-16）；给了 `--json` 而不给 `-o` 时不落目录 | 原 `fy case run -o` |
+| `--format F` | `jsonld` / `hdf5` / `netcdf` / `imas-hdf5` | 数据集格式 | 原 `fy case run --format` |
+| `--kernel PATH` | `.so` | 内核 | 原 `fy case --kernel` |
 | `--mdsip HOST[:PORT]` / `--mds-user NAME` / `--timeout-ms MS` | 连接 | 取数阶段的连接（E-15） | `fy app --mdsip`；`fetch --host/--port/--mds-user/--timeout-ms` |
 | `--offline` | 旗标 | 取数阶段**禁止**开套接字；解析不到测量即拒绝（J-3） | — |
-| `--dry-run` | 旗标 | 合成并打印计划与解析表，不取数、不装内核（E-19） | `fetch --dry-run` |
-| `--list` / `--show` | 旗标 | 发现面（E-4） | `data facts` 的同形 |
-| `--json` / `--quiet` | 旗标 | 机器可读 / 不打进度 | 各命令同名 |
+| `--dry-run` | 旗标 | 合成并打印计划与解析表，不取数、不装内核（E-19） | `fetch --dry-run`；原 `fy case plan` |
+| `--json` / `--quiet` | 旗标 | 机器可读 / 不打进度。`--json` 的含义随动作定：与 `--dry-run` 是合成好的计划，单独用是**记录连数据集内联打到 stdout**（原 `fy case json`） | 各命令同名 |
 :::
+
+〔已确立·设计〕**原 `case` 四条子命令的去处**（v1.1）：
+
+:::{table} 迁移表。左列自本版起按名拒绝，拒绝话术指向右列（E-23）。
+:name: tbl-e17-migration
+:align: left
+
+| 原写法 | 新写法 | 说明 |
+| :--- | :--- | :--- |
+| `fy case describe [--kernel P]` | `fy list kernel [--kernel P]` | 内核认哪些 code、哪些 entry、各自的声明块 |
+| `fy case plan P… [--set k=v] [--bind …] [--code C] [--json]` | `fy run P… [k=v …] [--bind …] [--code C] --dry-run [--json]` | 合成到内核之前为止；`--json` 打合成好的计划 |
+| `fy case run P… [--set k=v] … -o DIR [--format F]` | `fy run P… [k=v …] … -o DIR [--format F]` | 同一段代码；`--set` 整个撤除（E-5） |
+| `fy case json P… [--kernel P]` | `fy run P… --json [--kernel P]` | 记录连数据集内联到 stdout；不给 `-o` 就不落目录；退出码同 E-20 |
+| `fy case list` / `fy case show N`（v0.1 E-4，未落地） | `fy list presets` / `fy list presets N` | 预设是 `list` 的一类 |
+| `fy data facts [--roots] [domain]` | `fy list facts [--roots] [domain]` | 原样搬家：语料根与逐条条目的来源根；`data` 从此只搬数据、不回答「有什么」 |
+| `fy run --list` / `fy run … --show`（v1.1 草案，未落地） | `fy list scenarios [N]` | 发现面只在 `list` 上 |
+:::
+
+〔已确立·设计〕**`fy list`：一条只读的命令词，每类语料一条子命令（E-24）。** 不给子命令时打总览
+（语料根 · 各类条目的数目 · 内核找没找到）；给子命令打该类的清单；子命令后再给名字，打那一条
+的全部。**永不**开套接字；只有 `kernel` 与 `scenarios` 的「门认不认」一列会装内核，找不到内核时
+那一列写「内核未找到」而不是失败。组级选项 `--facts` / `--cases` / `--kernel` / `--json`。
+
+:::{table} `fy list` 的子命令。「来源」列说数据从哪个部件来——`list` 自己不持有任何清单。
+:name: tbl-e17-list
+:align: left
+
+| 子命令 | 打什么（清单行） | 给名字时 | 来源 | 原来在 |
+| :--- | :--- | :--- | :--- | :--- |
+| `devices [<id>]` | facts `device` 域：标识 · 供它的根 · 卡片 / 清单（有清单才抓得动）· 许可（`rights.json` / `dataset_fair`）· 公开 / 内部 | 一台的全部：清单的 `epochs`、`providers` 及各自缺省、绑定的 IDS 计数、许可原文 | `facts::entries("device")` · `Entry::manifest_path` / `rights_path` · `assembly::from_manifest`（只读清单，不装文档） | 散在 `data facts device` 与 `fetch --dry-run` |
+| `experiments [<device> [<shot>]]` | facts `experiment` 域：装置 · 炮 · 切片数 · 来源根 | 一发炮的切片时刻表（`fylite:slices`）、失败与缺席节点 | `facts::entries("experiment")` · `manifest.fyo.jsonld` | 无 |
+| `scenarios [<name>] [--line L]` | 模板：名 · 线 · code · **门认不认**（E-8）· 主输入端口 · 通用参数 · 模板来源（内嵌 / 语料路径） | 参数表全表（名 · 类型 · 缺省 · `from_device` · 范围）· 开关及其展开 · 端口 | 模板目录 + `lines.jsonld` + 内核 code 表 | v1.1 草案 `run --list` / `--show` |
+| `presets [<name>] [--line L] [--scenario S]` | 语料预设：名 · 场景 · 装置 · 可跑与否及理由 · 来源根 | 那份计划文档（合成前，原样） | `--cases` 四级路径 + `catalogue.jsonld` | v0.1 `case list` / `case show` |
+| `facts [<domain>] [--roots]` | 语料根（优先级序）；给域时逐条条目与供它的根 | — | `facts::roots` / `problems` / `entries` | `data facts`（原样搬家） |
+| `kernel` | 内核路径与校验和 · `CASE_CODES` · entry 表 · 每个 entry 的声明块 | — | `Kernel::load` · `fyo_interface::BLOCKS` | `case describe` |
+| `lines` | 四条线 · 缺省场景 · 各线的场景数 | — | `lines.jsonld` | 无 |
+:::
+
+〔已确立·设计〕**为什么是一条命令词而不是各处一个 `--list`。** 「有什么」在 `fy` 里有六类答案，
+而它们的形一样：一列名字、每个名字来自哪个根、今天能不能用。把六个 `--list` 分挂在三条命令上，
+用户要先知道装置归 `data`、场景归 `run`、内核归 `case` 才问得出口；`list` 把那层先验知识收掉。
+★它是**只读**的：不合成、不取数、不写记录——这条边界让它可以在任何机器上、没有内核、没有网络
+时回答，而 `run --dry-run` 仍然是「这条命令**会**做什么」的那一问，两者不重叠。
 
 〔已确立·设计〕**用户例句的解析轨迹**（{numref}`tbl-e17-trace`）——这张表就是 `--dry-run`
 要打印的东西：
@@ -189,7 +261,7 @@ value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `
 | 3 | `--device east` | 固定选项 | `facts::find("device","east")` → 根 R；`from_manifest` 装出 `fyo:DeviceDescription`（提供者取清单缺省：`pf_active: base` · `wall: base` · …）→ 绑 `device` 端口；`from_device` 表补 `basis` 等缺省（E-14） | P1-b |
 | 4 | `shot=123456` `time=4.4` | 通用参数 | 测量解析（E-15）：无 `--input` → 查 `experiment/east/123456` 的 `slice_04400ms` → 无 → 取数：`ids` = 模板 `measurements` 端口声明的 IDS，`Overrides{shot, time: 4.4}` → `measurements.fyo.jsonld` 落进记录目录 → 绑 `measurements` 端口 | P1-c |
 | 5 | `--only-magnetic=true` | 参数（开关） | 名归一 `only_magnetic`；模板 `switches` 里有 → 展开 `{kin,neon,probefit,pointfit,farfit,vesselfit} = false`，来源记 `cli:switch only_magnetic` | P1-a |
-| 6 | （合成） | — | `case::compose([模板, 装置缺省, 预设(无), --plan(无)])` + `set_override` × 6 + `bind_override` × 2；`plan.jsonld` 写出 | P1-a |
+| 6 | （合成） | — | `crate::case::compose([模板, 装置缺省, 预设(无), --plan(无)])` + `set_override` × 6 + `bind_override` × 2（Rust 库模块，原 `case` 命令的合成器）；`plan.jsonld` 写出 | P1-a |
 | 7 | （门） | — | `code/reconstruction` **今天不在 `CASE_CODES`** → 记录 `run_state: rejected`，`refusal.stage: kernel`，退出 1（E-20）；P2-b 之后出结果 | P2-b |
 :::
 
@@ -207,7 +279,7 @@ value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `
 拒绝、退出 2）。差别只有一处：规格在 `run` 命令上声明 `"open_parameters": "scenario"`
 （{numref}`tbl-e17-spec`），解析器遇到**不是固定选项**的 `--key=value` / `--key` / `--no-key`
 / `key=value` 记号时**不拒绝**，按出现顺序收进一张 `(key, raw_value, spelling)` 表。
-没有这条声明的命令（`app` / `data` / `case`）行为不变。
+没有这条声明的命令（`app` / `data`）行为不变。
 
 〔已确立·设计〕**第二段（动态）**在 `run.rs` 里、模板加载之后：逐条对照模板的参数表——
 
@@ -234,7 +306,8 @@ value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `
 # 五 · 合成次序与来源 (Precedence and Provenance)
 
 〔已确立·设计〕自低到高，后者覆盖前者；**每个值带 `from`**（写进 `plan.jsonld` 每条
-`spo:ParameterSetting` 的 `fylite:from` 字段），`--show` / `--dry-run` 逐列打印：
+`spo:ParameterSetting` 的 `fylite:from` 字段），`fy list scenarios <名>`（模板与装置两层）与
+`run --dry-run`（六层全部）逐列打印：
 
 | 层 | 来源 | `from` 值 | 说明 |
 | ---: | :--- | :--- | :--- |
@@ -249,20 +322,20 @@ value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `
 **不供任何物理参数**（E-16）。一个 `FY_DEFAULT_SHOT` 会让同一条命令在两台机器上算两发炮，
 而记录里看不出为什么。
 
-〔已确立·设计〕**与 `case` 的等价式**（J-7，也是门禁 ①的断言）：
+〔已确立·设计〕**两种形的等价式**（J-7，也是门禁 ①的断言）：
 
 ```bash
 fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true -o rec/
-# ≡（P1 之后逐字节相同的 plan.jsonld）
-fy case run <scenario/reconstruction.jsonld> [<device-defaults.jsonld>] \
-   --set shot=123456 --set time=4.4 \
-   --set kin=false --set neon=false --set probefit=false \
-   --set pointfit=false --set farfit=false --set vesselfit=false \
+# ≡（P1 之后逐字节相同的 plan.jsonld）——计划文件形，原 `fy case run` 的写法
+fy run scenario/reconstruction.jsonld [device-defaults.jsonld] \
+   shot=123456 time=4.4 \
+   kin=false neon=false probefit=false pointfit=false farfit=false vesselfit=false \
    --bind device=rec/device.fyo.jsonld --bind measurements=rec/measurements.fyo.jsonld -o rec/
 ```
 
-`run` 比 `case` 多做的只有**解析**：把线变成模板、把装置名变成文档、把炮号变成文档、
-把开关变成参数。合成与运行是同一段代码（E-21）。
+场景形比计划文件形多做的只有**解析**：把线变成模板、把装置名变成文档、把炮号变成文档、
+把开关变成参数。合成与运行是同一段代码（E-21）。v1.0 把右边写成 `fy case run … --set …`；
+v1.1 起那条命令词没有了，右边就是 `run` 自己的另一种形。
 
 (fylite-preset-device)=
 # 六 · 装置信息怎么进来 (Applying the Device Facts)
@@ -326,9 +399,9 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 
 〔已确立·设计〕**这一条修订 E-6，但不推翻它的三条理由**：①离线包络——第 1、2 级不开
 套接字，`--offline` 下第 3 级不存在；②可缓存——取回的文档就是文件，第 1 级吃它；
-③失败面分开——`refusal.stage` 把「取不到」与「算不出」分成两个词。`fy case` **仍然**不开
-套接字（E-6 的主语没变）；开套接字的是 `run` 的一个**前置阶段**，且只在「给了 `shot=`、
-前两级落空、未 `--offline`」三件同时成立时发生。
+③失败面分开——`refusal.stage` 把「取不到」与「算不出」分成两个词。计划文件形（原 `fy case`
+的用法）**仍然**不开套接字：它不给 `shot=`，第 3 级就不存在；开套接字的是一个**前置阶段**，
+且只在「给了 `shot=`、前两级落空、未 `--offline`」三件同时成立时发生。
 
 〔已确立·设计〕**连接参数的次序**：`--mdsip` > `$FYLITE_MDSIP_SERVER` > 清单里提供者的
 `uri`；用户名 `--mds-user` > `$FYLITE_MDSIP_USER` > `$USER`。与 `fy app` / `fy data fetch`
@@ -396,7 +469,7 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 〔已确立·设计〕**模板住在哪、预设住在哪（E-22）。** 模板：`docs/examples/scenario/<name>.jsonld`
 （语料根下一个新目录），**同时**在构建时内嵌进 `fy`（与 `_cli.json` 同一机制：一张
 `include_str!` 表，`tools/make-scenario-embed.py` 生成——或并入 `make-app-embed.mjs` 的名单）。
-搜索路径上找到的同名模板**覆盖**内嵌的那份（排障用；`--show` 打印来源）。预设：语料路径
+搜索路径上找到的同名模板**覆盖**内嵌的那份（排障用；`fy list scenarios` 打印每份的来源）。预设：语料路径
 `--cases` → `$FY_CASES_PATH` → 检出 `docs/examples/` → `$FY_CASES_BUNDLED`，与 facts 四步
 同构（E-3）。**理由**：模板与内核的 code 表是一对，两者错版的后果（模板说有、门说无）由
 门禁 ②当场抓住；预设是数据，随语料走。
@@ -520,7 +593,7 @@ records/20260904T1530Z-reconstruction/
 `plan.jsonld` 先于一切写出（`case.rs` 现行：「一份记录引用它」）；取数阶段失败时目录里有
 `plan.jsonld` 与 `record.jsonld`（`refusal.stage: measurements`），没有测量文件。
 
-〔已确立·设计〕**退出码（E-20）**——与 `case` 的三个值同义，只多了「阶段」：
+〔已确立·设计〕**退出码（E-20）**——沿用原 `case` 的三个值，只多了「阶段」：
 
 | 码 | 含义 | 记录 | `refusal.stage` |
 | ---: | :--- | :--- | :--- |
@@ -543,16 +616,20 @@ records/20260904T1530Z-reconstruction/
 
 | 键 | 值 | 说明 |
 | :--- | :--- | :--- |
-| `name` | `run` | 第四条命令词 |
+| `name` | `run` | 第三条命令词，取代 `case`（v1.1） |
 | `hosts` | `["rust"]` | 与其余三条同 |
 | `open_parameters` | `"scenario"` | ★本篇唯一的格式扩展：未知的 `--k=v` / `--k` / `--no-k` / `k=v` 记号收集而不拒绝 |
-| `args[0]` | `line`，`choices: [analysis, model, design, control]`，`nargs: "?"` | 无线时打印四条线 |
-| `args[1]` | `scenario`，`nargs: "?"` | 缺省由 `lines.jsonld` 给 |
-| `args[2..]` | {numref}`tbl-e17-fixed` 的每一项，形制同 `data fetch` / `case run` 的同名项（`action`、`metavar`、`choices`、`type` 逐字相同） | 同词同义（J-6）由闸子 ⑥ 钉住 |
+| `args[0..]` | `target`，`nargs: "+"` | 线 `[场景]` 或计划文件（可多份）。★不用 `choices`：路径也从这里进 |
+| `retired`（顶层键） | `{"case describe": "list kernel", "case plan": "run … --dry-run", "case run": "run …", "case json": "run … --json", "data facts": "list facts"}` | 撤掉的命令词 / 子命令与去处；解析器据此按名拒绝并指向（E-23）。数据不进代码（C-1） |
+| 命令 `list` | `hosts: ["rust"]`；子命令 `devices` `experiments` `scenarios` `presets` `facts` `kernel` `lines`（{numref}`tbl-e17-list`）；组级 `--facts` `--cases` `--kernel` `--json`；子命令的位置参数 `name`，`nargs: "*"`；`scenarios` / `presets` 另有 `--line`，`presets` 另有 `--scenario`，`facts` 另有 `--roots` | 第四条命令词（E-24）；子命令表与 `data` 同形（C-5） |
+| 其余 `args` | {numref}`tbl-e17-fixed` 的每一项，形制同 `data fetch` / `app` 的同名项与原 `case run` 的同名项（`action`、`metavar`、`choices`、`type` 逐字相同） | 同词同义（J-6）由闸子 ⑥ 钉住 |
 :::
 
-〔已确立·设计〕**解析器改动（`cli/mod.rs`）**：一处——命令带 `open_parameters` 时，未知
-记号进 `Args.open: Vec<(String, Option<String>, Spelling)>`，`Spelling ∈ {Bare, Flag, NoFlag}`。
+〔已确立·设计〕**解析器改动（`cli/mod.rs`）**：两处——①命令带 `open_parameters` 时，未知
+记号进 `Args.open: Vec<(String, Option<String>, Spelling)>`，`Spelling ∈ {Bare, Flag, NoFlag}`；
+②命令词在 `retired` 里时按名拒绝，话术带上那条子命令的去处（`fy case run x.jsonld` →
+「`case` 已收进 `run`：`fy run x.jsonld`」），退出 2。与 `rust/build.sh --cli` 的处理同一姿态：
+**按名拒绝而不是默默当成**。
 `--k v`（空格形）**不**收：`v` 会与位置参数 `scenario` 二义（`--only-magnetic true` 里的
 `true` 是场景名还是值？）；规则写进 `--help`。
 
@@ -564,10 +641,16 @@ records/20260904T1530Z-reconstruction/
 | `apply_device(plan, id)` | 路一：`resolve_device` + `from_manifest` → 写 `device.fyo.jsonld` → `bind_override`；路二：`from_device` 表 → `set_override`（`from = device:`） | `cli/data.rs` · `assembly.rs` |
 | `resolve_measurements(plan, shot, time)` | 三级；第 3 级 = `fetch` 的函数体 | `cli/data.rs::fetch`（抽成库函数，`fetch` 子命令与本函数共用） |
 | `apply_open(plan, args.open, vocab)` | 第二段解析：归一、类型、范围、开关展开、来源 | `case::set_override` 的值解析 |
-| `run(args)` | 合成 → `case run` 的函数体（抽成库函数） | `cli/case.rs` |
+| `run(args)` | 合成 → 运行 → 记录；原 `cli/case.rs` 的 `run_cmd` / `plan_cmd`（`--dry-run`）/ `json_cmd`（`--json`）**并入本模块** | 原 `cli/case.rs`（撤除） |
 
-★**两处「抽成库函数」是本篇对现有代码的全部触动**：`fetch` 与 `case run` 的函数体各自从子命令
-处理器里抽出一个可调用的函数，子命令与 `run` 共用。这正是 J-7 / E-21 的实现形。
+〔已确立·设计〕**新模块 `cli/list.rs`**：{numref}`tbl-e17-list` 逐行一个函数，全部只读；原
+`cli/case.rs::describe` 与 `cli/data.rs` 的 `facts` 处理器搬进来。`scenarios` 的「门认不认」一列
+调用 `Kernel::load` 的**可失败**版本（找不到内核不是错，是一列的取值）。
+
+★**对现有代码的全部触动**：`fetch` 的函数体从 `data` 子命令处理器里抽出一个可调用的函数，
+`fetch` 子命令与 `run` 共用；`cli/case.rs` 的四个处理器搬进 `run.rs`，该文件撤除；`crate::case`
+（`compose` / `set_override` / `bind_override` / `resolve_inputs` / `kernel_settings`）**原样保留**——
+撤的是命令词，不是合成器。这正是 J-7 / E-21 的实现形。
 
 (fylite-preset-rulings)=
 # 十三 · 裁定 E-1..E-22 (Rulings)
@@ -578,24 +661,28 @@ records/20260904T1530Z-reconstruction/
 语料里；一条**场景模板**同样是一份文档（v1.0 补）。`fy` 的命令词**禁止 (MUST NOT)** 因为
 新增场景或预设而增加。
 
-**E-2 名字与路径同位。** `--preset` / `--plan` 的值：**含 `/` 或以 `.json` / `.jsonld` / `.yaml`
-结尾**的当路径，否则当名字；两者都解析不到时按名拒绝，列最接近的三个名字。（v1.0：主语
-由 `case run` 的位置参数改为 `run` 的这两个选项；`case run` 的位置参数**仍只收路径**。）
+**E-2 名字与路径同位（v1.1 修订）。** `run` 的位置参数与 `--preset` / `--plan` 的值：**含 `/`
+或以 `.json` / `.jsonld` / `.yaml` 结尾**的当路径，否则当名字（位置参数上，名字先对四个线词）；
+两者都解析不到时按名拒绝，列最接近的三个名字。（v1.0 曾把位置参数留给 `case run` 只收路径；
+v1.1 `case` 撤除，路径回到 `run` 的位置参数。）
 
 **E-3 语料解析与 `facts` 同构。** `--cases PATH`（可重复）→ `$FY_CASES_PATH` → 检出
 `docs/examples/` → `$FY_CASES_BUNDLED`；先到先得，决胜单位是条目。（v1.0：补第三、四级，
 与 `facts.rs` 四级逐位对应。）
 
-**E-4 发现面（v1.0 修订）。** `fy run`（无参数）列线；`fy run <线> --list` 列场景并逐条
-说今天能否跑（E-8）；`fy run <线> <场景> --show` 打印参数表与来源。v0.1 的 `fy case list` /
-`fy case show <名字>` **保留**，管的是语料里的**预设**（计划文档），不管模板。
+**E-4 发现面只在 `list` 上（v1.1 修订）。** `fy list` 是唯一回答「有什么可用」的命令词
+（{numref}`tbl-e17-list`）：装置、实验条目、场景模板、预设、语料根、内核 code 表、四条线，
+各一条子命令，给名字打那一条的全部。`run` **不带** `--list` / `--show`；`data` **不再**带
+`facts`（迁入 `list facts`）；原 `case describe` 迁入 `list kernel`。v0.1 的 `fy case list` /
+`fy case show` 未曾落地，其内容是 `list presets`。
 
-**E-5 固定选项只有三个与物理相邻：`--device` / `--shot` / `--time`（v1.0 修订）。** 其余
-场景参数一律 `key=value`（或同义的 `--key=value` / `--key` / `--no-key`），**不用 `--set`**——
-`--set` 留在 `case`。v0.1 担心的「第四个词开一个先例」由 E-11 化解：解析器**不认识**场景参数，
+**E-5 固定选项只有三个与物理相邻：`--device` / `--shot` / `--time`（v1.1 修订）。** 其余
+场景参数一律 `key=value`（或同义的 `--key=value` / `--key` / `--no-key`）。**`--set` 整个撤除**
+（v1.0 曾留在 `case`；`case` 撤了，它没有别的地方可留）；计划文件形上 `key=value` 就是原来的
+`--set k=v`，只是多了模板校验。v0.1 担心的「第四个词开一个先例」由 E-11 化解：解析器**不认识**场景参数，
 所以加一个参数不改规格、不发二进制。
 
-**E-6 `fy case` 不开套接字；`fy run` 的取数是一个有界的前置阶段（v1.0 修订）。** 条件三件
+**E-6 不给 `shot=` 就不开套接字；取数是一个有界的前置阶段（v1.1 修订）。** 条件三件
 同时成立才发生：给了 `shot=`、E-15 的前两级落空、未 `--offline` / `$FYLITE_OFFLINE`。取回的
 文档**先落记录目录再进门**。三条理由（离线 · 可缓存 · 失败面分开）保持成立，见
 {ref}`fylite-preset-measurements`。
@@ -605,16 +692,19 @@ records/20260904T1530Z-reconstruction/
 
 **E-8 语料不得广告门拒绝的东西。** 每条**模板**与每条**预设**必须能被判定「今天可跑 /
 不可跑」，不可跑者在数据里给理由（模板：`lines.jsonld` 的 `runnable` 字段；预设：目录条目
-字段）。`--list` 逐条打印。不设模板的场景**也**在 `lines.jsonld` 里登记理由
+字段）。`fy list scenarios` / `fy list presets` 逐条打印。不设模板的场景**也**在 `lines.jsonld` 里登记理由
 （{numref}`tbl-e17-catalogue` ✗ 列的每一条）。
 
 **E-9 预设的命名。** `<code>-<限定>`，限定自粗到细；**禁止 (MUST NOT)** 与另一条只差大小写
 或连字符。模板命名**等于 code 的末段**（`scenario/reconstruction` ↔ `code/reconstruction`）。
 
-**E-10 `run` 是第四条命令词，也是最后一条。** `fy run <线> [<场景>]`：线是四个固定词
-（`analysis` / `model` / `design` / `control`，与 `fylite.scenario.LINES` 同词），场景是**位置
-参数**，取值来自模板目录。★`FYL-DESIGN-15` R-2 / R-4 枚举的三条命令词要在该篇下一版补上
-`run`；J-1 从此写作「不因场景新增命令词」。
+**E-10 `run` 取代 `case`，`list` 收拢发现面；`fy` 是 `app` / `data` / `run` / `list` 四条命令词（v1.1 修订）。**
+`fy run <线> [<场景>]` 或 `fy run <计划>…`：线是四个固定词（`analysis` / `model` / `design` /
+`control`，与 `fylite.scenario.LINES` 同词），场景是**位置参数**，取值来自模板目录；计划文件
+也是位置参数（E-2）。〔已确立〕用户裁定（2026-09-04）：*case 功能收敛进 run，弃用 case 命令*。
+★`FYL-DESIGN-15` R-2 / R-4 枚举的 `app` / `data` / `case` 要在该篇下一版改为 `app` / `data` /
+`run` / `list`；J-1 从此写作「不因场景新增命令词」——四条词各是一个动词（起页面 · 搬数据 ·
+算 · 看），场景、装置、预设从来不是词。
 
 **E-11 两段解析。** 静态语法（位置参数、固定选项）在 `_cli.json`，由规格驱动的解析器处理；
 动态参数表在模板，由 `run.rs` 在模板加载后处理。规格用 `open_parameters` 声明「这条命令
@@ -629,8 +719,8 @@ records/20260904T1530Z-reconstruction/
 参数记法，只对固定选项合法。
 
 **E-13 合成次序与来源。** 模板缺省 → 装置（`from_device`）→ 预设 → `--plan`（按序）→
-命令行（参数；开关展开低于显式参数）→ 端口绑定。每个值带 `fylite:from`；`--show` /
-`--dry-run` 逐列打印；`plan.jsonld` 落盘时保留。
+命令行（参数；开关展开低于显式参数）→ 端口绑定。每个值带 `fylite:from`；`list scenarios <名>` /
+`run --dry-run` 逐列打印；`plan.jsonld` 落盘时保留。
 
 **E-14 装置信息两条路进计划。** 路一：整份 `fyo:DeviceDescription`（清单装出，或卡片本身）
 绑到 `device` 端口，副本落记录目录；模板声明它要卡片还是清单，不够时按名拒绝
@@ -661,11 +751,24 @@ records/20260904T1530Z-reconstruction/
 facts 路径、没有网络的机器上用 `--input` / `--bind` 重放。
 
 **E-20 退出码与阶段。** 0 跑完；1 合成之后的任何拒绝（记录在场，`refusal.stage ∈ {compose,
-device, measurements, kernel}`）；2 语法（不落记录）。与 `case` 的三个值同义。
+device, measurements, kernel}`）；2 语法（不落记录）。沿用原 `case` 的三个值。
 
-**E-21 `run` 不是第二个合成器。** `run.rs` 调用 `case::compose` / `set_override` /
-`bind_override` 与 `case run` 的函数体；`fetch` 的函数体同样共用。**禁止 (MUST NOT)** 在
-`run.rs` 里出现第二份「后者覆盖前者」的实现（`FYL-DESIGN-16` D-3）。
+**E-21 合成器只有一份，在库模块 `crate::case` 里（v1.1 修订）。** `run.rs` 调用
+`case::compose` / `set_override` / `bind_override` / `resolve_inputs`，两种位置参数形走同一条
+调用链；`fetch` 的函数体同样共用。**禁止 (MUST NOT)** 在 `run.rs` 里出现第二份「后者覆盖
+前者」的实现（`FYL-DESIGN-16` D-3）。★模块名 `case` 保留：它说的是「一个算例」，与命令词无关。
+
+**E-23 `case` 弃用：按名拒绝并指向。** `case` 及其四条子命令自 `_cli.json` 的 `commands` 撤除，
+`data facts` 同去；都迁入顶层 `retired` 键（每条一个去处，{numref}`tbl-e17-migration`）；`fy case …` 退出 2，
+话术带去处；`cli/case.rs` 撤除，`crate::case` 保留（E-21）。**禁止 (MUST NOT)** 保留一个静默
+转发到 `run` 的 `case`：转发会让两个词长期并存，而 `--cli` → `--exe`、`fylite-data` / `fylite-case`
+两次撤销的姿态都是**按名拒绝**。Python 库门 `fylite.io.fydoc.case_json` 不受影响——它不是命令行。
+
+**E-24 `list` 是唯一的发现面，且只读。** 子命令按语料的类分（{numref}`tbl-e17-list`），
+每条打「名字 · 来自哪个根 · 今天能不能用」三样，给名字时打那一条的全部；`--json` 逐条同形。
+**禁止 (MUST NOT)** 在 `list` 里合成计划、取数或写记录；**禁止 (MUST NOT)** 在 `run` / `data` /
+`app` 上再长出 `--list` 一类的旗标——新的一类语料进 `list`，作为一条子命令。〔已确立〕用户
+裁定（2026-09-04）。
 
 **E-22 模板随 `fy` 内嵌，预设走语料路径。** 模板与内核 code 表是一对，错版由门禁 ②抓；
 语料路径上的同名模板覆盖内嵌份（排障）。这条关闭 v0.1 的开放项「语料装到哪里」的**模板**
@@ -680,19 +783,19 @@ device, measurements, kernel}`）；2 语法（不落记录）。与 `case` 的�
 
 | 期 | 内容 | 关闭判据 |
 | :--- | :--- | :--- |
-| **P1-a** | `_cli.json` 加 `run`（`open_parameters`）；`cli/mod.rs` 收集开放记号；`run.rs` 的模板加载、第二段解析、开关、`--list` / `--show` / `--dry-run`；`lines.jsonld` 与 9 份模板（现有 code 各一）；模板内嵌 | `fy run model transport chi0=0.4 --dry-run` 打出与 `fy case plan <模板> --set chi0=0.4` 逐字节相同的计划；未知名按名拒绝 |
+| **P1-a** | `_cli.json` 加 `run`（`open_parameters`）与 `list`（七条子命令）、去 `case` 与 `data facts`、加 `retired`（E-23）；`cli/case.rs` 的三个处理器并入 `run.rs`，`describe` 与 `data facts` 并入新的 `cli/list.rs`；`test_cli_spec.py` 期望命令集 `{app, data, run, list}`；`cli/mod.rs` 收集开放记号、按 `retired` 拒绝；`run.rs` 的模板加载、第二段解析、开关、`--dry-run`；`list scenarios` / `lines` / `kernel` / `facts`；`lines.jsonld` 与 9 份模板（现有 code 各一）；模板内嵌 | `fy run model transport chi0=0.4 --dry-run` 与 `fy run <模板路径> chi0=0.4 --dry-run` 打出逐字节相同的计划；`fy case run x` 退出 2 并指向 `fy run x`；未知名按名拒绝 |
 | **P1-b** | 装置两条路（E-14）；`device.fyo.jsonld` 落地；`from_device` 表先落 `transport` / `zerod` / `evolve` 三份 | `fy run model --device east --dry-run` 打印装置来源根与逐参数 `from = device:` |
 | **P1-c** | 测量三级（E-15）；`fetch` 函数体抽出；`--offline` / `$FYLITE_OFFLINE`；`experiment/<device>/<shot>` 切片选择 | 用 fydata 的 `experiment/east/137985` 离线跑通第 2 级（`--offline` 下）；第 3 级在有 mdsip 的机器上取回并落地 |
-| **P1-d** | 三条门认的场景端到端（`transport` · `evolve` · `zerod`）；`case list` / `case show`（E-4）；E-8 的 `runnable` 字段与 `--list` | 三条各出一份记录；`--list` 里 `reconstruction` 显示为不可跑并给理由 |
+| **P1-d** | 三条门认的场景端到端（`transport` · `evolve` · `zerod`）；`list devices` / `experiments` / `presets`（E-24）；E-8 的 `runnable` 字段 | 三条各出一份记录；`fy list scenarios` 里 `reconstruction` 显示为不可跑并给理由；`fy list devices east` 打出清单的提供者缺省与许可 |
 | **P2-a** | 内核 case 门补 `code/profile` | `fy run analysis profile --input pts.jsonld` 出记录 |
 | **P2-b** | 内核 case 门补 `code/reconstruction`；用户例句跑通 | `fy run analysis --device east shot=137985 time=4.0 --only-magnetic=true` 与库路径 `reconstruct_shot` 逐位一致 |
-| **P2-c** | `series` · `vstab` · `discharge` · `breakdown` · `pulse` 的 code；`feasible` / `vertical` / `evolution` / `tglf` 的模板 | `--list` 里不再有「模板有、门没有」的条目 |
+| **P2-c** | `series` · `vstab` · `discharge` · `breakdown` · `pulse` 的 code；`feasible` / `vertical` / `evolution` / `tglf` 的模板 | `fy list scenarios` 里不再有「模板有、门没有」的条目 |
 :::
 
 〔门禁〕七条，都便宜：
 
-1. **等价式**——`fy run … k=v` 与 `fy case run <模板> --set k=v` 产出逐字节相同的 `plan.jsonld`
-   （去掉 `fylite:from` 后比较）；
+1. **等价式**——场景形 `fy run <线> <场景> k=v` 与计划文件形 `fy run <模板路径> k=v` 产出逐字节
+   相同的 `plan.jsonld`（去掉 `fylite:from` 后比较）；
 2. **模板与门对账**（E-8）——每份模板的 `prescribes_code` 要么在 `CASE_CODES` 里，要么
    `lines.jsonld` 里有 `runnable: false` 与理由，**否则红**；不设模板的场景也须在 `lines.jsonld`
    里有理由；
@@ -702,7 +805,7 @@ device, measurements, kernel}`）；2 语法（不落记录）。与 `case` 的�
 5. **离线**——`--offline` 下、且构建不带 `mdsip` 特性时，E-15 第 1、2 级的用例全绿，第 3 级
    的用例给出 `refusal.stage: measurements` 而不是 panic；
 6. **同词同义**（J-6）——`run` 的 `--device` / `--shot` / `--time` / `--mdsip` / `--mds-user` /
-   `--timeout-ms` / `--format` / `--kernel` / `-o` 在规格里与 `fetch` / `case run` / `app` 的同名项
+   `--timeout-ms` / `--format` / `--kernel` / `-o` 在规格里与 `fetch` / `app` 的同名项
    `type` · `choices` · `action` 逐字相同（`test_cli_spec.py` 加一条）；
 7. **目录覆盖**——{numref}`tbl-e17-catalogue` 里每一行的名字在 `lines.jsonld` 里出现一次
    （模板、并入或不设的理由之一），且反向亦然（`test_docs_*` 一条）。
@@ -714,14 +817,15 @@ device, measurements, kernel}`）；2 语法（不落记录）。与 `case` 的�
 | :--- | :--- | :--- | :--- |
 | **G-1** | 磁重构与动理学反演没有命令行入口（v0.1 起）；本篇给出入口形状，门要 P2-b | `CASE_CODES` 3 条 | P0 |
 | **G-2** | 语料广告门拒绝的东西；本篇把判定放进 `lines.jsonld`（E-8） | `reconstruction.md` L14 | P0 |
-| **G-3** | 没有发现面；本篇 `--list` / `--show`（E-4） | — | P1 |
+| **G-3** | 没有发现面；本篇 `fy list`（E-4 / E-24） | — | P1 |
 | **G-4** | 语料不随 `fy` 走；本篇：模板内嵌（E-22），预设四级（E-3） | `docs/examples/` 在书里 | P1 |
 | **G-5** | 三张清单的差集本篇已逐条对账（{numref}`tbl-e17-catalogue`）；剩下的是 P2-c 的 code 与四份待设模板 | — | P2 |
 | **G-6** | `from_device` 表的 fyo 路径逐场景待定（fyo v0.9 的 `DeviceDescription` 形） | {ref}`fylite-preset-device` 〔待定〕 | P1-b |
 | **G-7** | `fylite:vocabulary` / `switches` / `ports` 在本体里没有对应类 | fydoc 工单 | P1 后 |
 | **G-8** | EAST 绑定表无 Thomson 绑定：`kinetic` 开关开时第 3 级取不全，只能走第 1 级（`--input`） | `_mds_bind.json` 的 IDS 计数 | P2-b |
 | **G-9** | 语料 25 条**没有一条声明输入端口**；模板落地时要补 `fylite:ports`，预设照抄 | 实测 | P1-a |
-| **G-10** | `FYL-DESIGN-15` R-2 / R-4 与 `docs/guide/cli.md` · `docs/reference/cli.md` 的「三条命令」表述，在 P1-a 落地后要改成四条 | 本篇 E-10 | P1-a |
+| **G-10** | `FYL-DESIGN-15` R-2 / R-4 与 `docs/guide/cli.md` · `docs/reference/cli.md` 今天写的是 `app` / `data` / `case`；P1-a 落地后要改成 `app` / `data` / `run`，并把 `fy case …` 的示例改写成迁移表右列 | 本篇 E-10 / E-23 | P1-a |
+| **G-11** | 计划文件形上「找不到模板时开放参数不校验透传」是 E-11 的一个漏斗：一份 `prescribes_code` 不在模板目录里的计划可以带任何名字进门，由内核按名拒绝兜底 | {ref}`fylite-preset-grammar` | P1-a（`--dry-run` 标 `unchecked`） |
 
 〔关系〕本篇是 `FYL-DESIGN-15`（命令行的**形**）与 `FYL-DESIGN-16`（内核的**门**）之间的
 那一层：`run` 用 `-15` 的规格机制说话，用 `-16` 的文档门算数，自己只做**解析**。`FYL-SRS-01`
