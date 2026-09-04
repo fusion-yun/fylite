@@ -135,7 +135,7 @@ def test_the_record_is_strict_json(root):
     「MachineDataMissing 转跳过」的钩子接不到，于是这条以断言失败落地，看起来像
     「记录不是严格 JSON」。**缺输入要长得像缺输入**，不能借另一条判据的嘴说话。
     """
-    p = _call("fylite_vstab", {"eq": "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk",
+    p = _call("fylite_vstab", {"eq": "tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk",
                                "coil_aturns": [0.0] * 12})
     text = (Path(p["run_dir"]) / "manifest.json").read_text()
     json.loads(text, parse_constant=lambda c: pytest.fail(f"not JSON: {c}"))
@@ -146,7 +146,7 @@ def test_the_record_is_strict_json(root):
 # --------------------------------------------------------------------------- #
 
 def test_reading_a_file_back_leaves_handles_but_no_record(root):
-    p = _call("fylite_inspect", {"path": "tests/data/FYDOC-CASE-12-synthetic/"
+    p = _call("fylite_inspect", {"path": "tests/data/FYDOC-CASE-12-synthetic/corpus/"
                                          "g_synthetic.geqdsk"})
     d = Path(p["run_dir"])
     assert (d / handles.ARRAYS).is_file()          # handles, so it composes
@@ -158,8 +158,8 @@ def test_a_render_lands_in_the_run_not_beside_its_input(root, tmp_path):
     g-file a model hands this tool is usually a path inside the user's own
     checkout, so the render landed in their working copy with nothing
     recording who wrote it (measured: one probe call left a 217 kB PNG in
-    ``tests/data/FYDOC-CASE-12-synthetic/``)."""
-    src = Path("tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk").resolve()
+    ``tests/data/FYDOC-CASE-12-synthetic/corpus/``)."""
+    src = Path("tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk").resolve()
     before = set(src.parent.iterdir())
     p = _call("fylite_plot", {"gfile": str(src)})
     assert set(src.parent.iterdir()) == before, "the render polluted the input tree"

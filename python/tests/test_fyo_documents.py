@@ -22,7 +22,7 @@ from fylite import fyo
 from fylite.io import geqdsk
 
 ROOT = Path(__file__).resolve().parents[2]
-GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"
+GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk"
 
 pytestmark = pytest.mark.skipif(not GFILE.exists(),
                                 reason="bundled g-file not present")

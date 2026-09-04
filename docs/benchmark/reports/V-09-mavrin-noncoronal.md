@@ -61,8 +61,8 @@ title: V-09 · Mavrin-2017 非日冕电荷态与冷却率，以及 L_INT 求积
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-16-torax/mavrin_noncoronal.json | sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba | public | 85471 B |
-| $FYDOC_ORACLE/FYDOC-CASE-16-torax/record_mavrin_noncoronal.py | sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1 | public | 7978 B |
+| $FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json | sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba | public | 85471 B |
+| $FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py | sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1 | public | 7978 B |
 | $FYLITE_KERNEL/rust/tools/gen_mavrin_tables.py | sha256:b404e1732b190cd66894ab23d3851757c59b291f53c412e289699bb029eaabb2 | private-artefact | 8496 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。

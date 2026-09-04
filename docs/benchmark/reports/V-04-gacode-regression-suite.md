@@ -67,8 +67,8 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-05-gacode/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | public | 93406 B |
-| $FYDOC_ORACLE/FYDOC-CASE-05-gacode/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | public | 35720 B |
+| $FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | public | 93406 B |
+| $FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | public | 35720 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

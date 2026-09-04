@@ -56,9 +56,9 @@ title: B-01 · FUSE 的 ITER 算例，四层
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_eped.json | sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1 | public | 1491 B |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public | 25616 B |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public | 55840 B |
+| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_eped.json | sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1 | public | 1491 B |
+| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public | 25616 B |
+| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public | 55840 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

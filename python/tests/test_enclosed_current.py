@@ -28,7 +28,7 @@ import pytest
 from fylite import fyo
 
 ROOT = Path(__file__).resolve().parents[2]
-GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"
+GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk"
 
 #: the current this g-file states in its own header [A]
 GFILE_IP = 700_000.0

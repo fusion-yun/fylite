@@ -58,11 +58,11 @@ title: V-07 · TGYRO 映射层：整份 localdump 全键对照扩到六个算例
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg02/ | sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10 | public | 31 files, 42295 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg03/ | sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40 | public | 31 files, 42712 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg04/ | sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127 | public | 31 files, 41917 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg05/ | sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48 | public | 31 files, 42149 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/iter01/ | sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3 | public | 43 files, 137151 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg02/ | sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10 | public | 31 files, 42295 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg03/ | sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40 | public | 31 files, 42712 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg04/ | sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127 | public | 31 files, 41917 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg05/ | sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48 | public | 31 files, 42149 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/iter01/ | sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3 | public | 43 files, 137151 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

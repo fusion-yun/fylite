@@ -109,7 +109,7 @@ fylite = ["_lib/*.so", "_spec/*", "_manifest/*", "_cli.json",
           #: to build when it is not.  ★★2026-09-03 the two alias binaries
           #: `_bin/fylite-data` / `_bin/fylite-case` left this list because they
           #: left the tree — one executable now carries every command word.
-          "_bin/fylite-app",
+          "_bin/fylite",
           "_fyo_vocab.json", "_environment.json",
           #: A-Box 分解出来的 MDSplus 绑定表（`tools/abox-mds-bind.py` 生成）。
           #: 轮里要带：装了包却没有它，按语义路径取数这条路在安装出来的

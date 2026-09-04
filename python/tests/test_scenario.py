@@ -47,7 +47,7 @@ _DESIGN07_CANDIDATES = (
 )
 DESIGN07 = next((ROOT / c for c in _DESIGN07_CANDIDATES if (ROOT / c).exists()),
                 None)
-GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"
+GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk"
 
 needs_kernel = pytest.mark.skipif(not kernel.available(),
                                   reason="Rust kernel not built")

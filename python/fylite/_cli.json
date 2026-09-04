@@ -1,7 +1,7 @@
 {
  "spec_version": 2,
  "prog": "fylite",
- "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. One command family on three hosts: the Python console script (this spec built into argparse), the ONE Rust executable fylite-app (the same spec built into its parser; carries app / data / case natively) and the browser app (its launch parameters are the `hosts.app.params` below). Commands list the hosts that carry them; a host that does not carry a command delegates it (Python -> the bundled Rust executable, command word first) or refuses it by name.",
+ "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. One command family on three hosts: the Python console script (this spec built into argparse), the ONE Rust executable fylite (the same spec built into its parser; carries app / data / case natively) and the browser app (its launch parameters are the `hosts.app.params` below). Commands list the hosts that carry them; a host that does not carry a command delegates it (Python -> the bundled Rust executable, command word first) or refuses it by name.",
  "hosts": {
   "python": {
    "exe": "fylite",
@@ -9,10 +9,10 @@
    "note": "argparse parser built from this file (engine/cli.py). Carries every command; `app`, `data` and `case` are delegated verbatim to the one bundled Rust executable under fylite/_bin/ (or --bin-dir), with the command word put back in front."
   },
   "rust": {
-   "exe": "fylite-app",
+   "exe": "fylite",
    "kind": "single-executable",
    "default_command": "app",
-   "note": "THE executable — one, since 2026-09-03. The whole app/ is embedded and every command word is carried here: `app`, `data`, `case`. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works. The thin fylite-data / fylite-case alias binaries were retired into this one; whoever needs `data` supplies the word (`fylite-app data ...`, or `fylite data ...` through the Python host)."
+   "note": "THE executable — one, since 2026-09-03. The whole app/ is embedded and every command word is carried here: `app`, `data`, `case`. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works. The thin fylite-data / fylite-case alias binaries were retired into this one; whoever needs `data` supplies the word (`fylite data ...`, or `fylite data ...` through the Python host)."
   },
   "app": {
    "entry": "index.html",
@@ -551,7 +551,7 @@
     "rust",
     "python"
    ],
-   "help": "serve the embedded browser app on the loopback address and open it in the system browser (the single-file viewer; on the Python host this runs the bundled fylite-app)",
+   "help": "serve the embedded browser app on the loopback address and open it in the system browser (the single-file viewer; on the Python host this runs the bundled fylite)",
    "handler": "fylite.engine.cli:_cli_app",
    "args": [
     {
@@ -646,7 +646,7 @@
       "python"
      ],
      "metavar": "DIR",
-     "help": "(Python host) directory holding fylite-app (default: the package's _bin/, then $PATH)"
+     "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
     }
    ]
   },
@@ -667,7 +667,7 @@
       "python"
      ],
      "metavar": "DIR",
-     "help": "(Python host) directory holding fylite-app (default: the package's _bin/, then $PATH)"
+     "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
     }
    ],
    "commands": [
@@ -1085,7 +1085,7 @@
       "python"
      ],
      "metavar": "DIR",
-     "help": "(Python host) directory holding fylite-app (default: the package's _bin/, then $PATH)"
+     "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
     }
    ],
    "commands": [

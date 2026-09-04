@@ -56,7 +56,7 @@ title: B-02 · JINTRAC 作业 102530（ITER 15 MA 平顶段）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-09-jintrac/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/ | sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220 | restricted | 7 files, 10531309 B |
+| $FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/ | sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220 | restricted | 7 files, 10531309 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

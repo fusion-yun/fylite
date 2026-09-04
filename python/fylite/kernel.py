@@ -45,7 +45,7 @@ import numpy as np
 
 from . import _deck_names
 from . import _fyo_interface
-from ._paths import KERNEL_LIB
+from ._paths import KERNEL_LIB, KERNEL_EXT_LIB
 
 __all__ = [
     "KernelError", "KernelBackendError", "ABI_VERSION",
@@ -186,6 +186,8 @@ except ImportError:  # not built yet
     _LH_EFFICIENCY_MODEL_NAMES = ()
 
 _ENV_LIB = "FY_KERNEL_LIB"
+#: 扩展包（TGLF + DKE）的那一份。
+_ENV_EXT_LIB = "FY_KERNEL_EXT_LIB"
 
 # ctypes shorthands used by the `_sig` declarations below
 _ARR = np.ctypeslib.ndpointer(np.float64, flags="C_CONTIGUOUS")
@@ -209,6 +211,61 @@ def _sig(name: str, argtypes, restype) -> None:
 def _lib_path() -> Path:
     override = os.environ.get(_ENV_LIB)
     return Path(override).expanduser() if override else KERNEL_LIB
+
+
+def _ext_path() -> Path:
+    override = os.environ.get(_ENV_EXT_LIB)
+    return Path(override).expanduser() if override else KERNEL_EXT_LIB
+
+
+class _MissingExt:
+    """扩展包不在时，站在那 15 个入口位置上的东西。
+
+    ★★**按名拒绝，不是 AttributeError。** 缺一个 `.so` 与打错一个函数名是两件
+    完全不同的事，而 `getattr` 把它们说成同一句话。这个可调用对象被调用时说清楚
+    三件：缺的是哪个包、要的是哪个入口、以及怎么把它拿回来。
+    """
+
+    __slots__ = ("_name", "_path")
+
+    def __init__(self, name: str, path: Path) -> None:
+        self._name, self._path = name, path
+
+    def __call__(self, *_a, **_k):
+        raise KernelError(
+            f"{self._name} 在扩展包里（TGLF / DKE），而 {self._path} 不在。"
+            f"这是一份**只带核心**的安装（纯 CLI 档）。要它就装上扩展："
+            f"内核仓 `rust/build.sh` 会把两个 .so 都装进 python/fylite/_lib/，"
+            f"或指定 ${_ENV_EXT_LIB}。")
+
+
+class _Kernel:
+    """两个库，一个取用面。
+
+    ★★2026-09-04 内核分包之后，235 个入口在核心的 `.so` 里、15 个（TGLF 与 DKE）
+    在扩展的 `.so` 里。**调用方一处也不必改**：每个入口在装载时就绑成本对象的一个
+    真属性，所以取用仍是一次普通的属性查找，没有 `__getattr__` 的每次调用开销。
+
+    ★两个库必须出自同一次构建。扩展导出 `fylite_ext_abi_version`，装载时与核心的
+    比对——分开发布就有分开漂移的可能，而漂移的表现是**取到一个签名对不上的函数**，
+    那比装不上更坏。
+    """
+
+    def __init__(self, core: ctypes.CDLL, ext: ctypes.CDLL | None) -> None:
+        self._core, self._ext = core, ext
+
+    def __getattr__(self, name: str):
+        #: 只有未预绑的名字才走到这里（`_SIGNATURES` 之外的，如 `fylite_rs_alloc`）。
+        for lib in (self._core, self._ext):
+            if lib is None:
+                continue
+            try:
+                fn = getattr(lib, name)
+            except AttributeError:
+                continue
+            setattr(self, name, fn)   #: 绑上，下次是普通查找
+            return fn
+        raise AttributeError(name)
 
 
 # Cache: None = not tried yet; (lib_or_None,) = tried (a 1-tuple so a failed
@@ -249,12 +306,35 @@ def load() -> ctypes.CDLL | None:
             f"rebuild it (rust/build.sh) or unset ${_ENV_LIB}")
     lib.fylite_rs_ping.restype = ctypes.c_double
     lib.fylite_rs_ping.argtypes = [ctypes.c_double]
+
+    #: ★★扩展包（TGLF + DKE）：**可以不在**。纯 CLI 的发行只带核心，而「不在」
+    #: 与「装错了」必须给出不同的话——前者是一种发行形态，后者是缺陷。
+    ext = None
+    ext_path = _ext_path()
+    if ext_path.exists():
+        ext = ctypes.CDLL(str(ext_path))
+        ext.fylite_ext_abi_version.restype = ctypes.c_uint32
+        ext.fylite_ext_abi_version.argtypes = []
+        got_ext = int(ext.fylite_ext_abi_version())
+        if got_ext != got:
+            raise KernelError(
+                f"{ext_path} 是按 ABI v{got_ext} 编的，而 {path} 说 v{got} —— "
+                f"两个 .so 不是同一次构建的产物。重跑内核仓的 rust/build.sh，"
+                f"或让 ${_ENV_EXT_LIB} 指向配套的那一份。")
+
+    k = _Kernel(lib, ext)
     for name, (argtypes, restype) in _SIGNATURES.items():
-        fn = getattr(lib, name)
+        target = lib if hasattr(lib, name) else ext
+        if target is None:
+            #: 扩展缺席：这一格放一个会说话的拒绝，而不是留空。
+            setattr(k, name, _MissingExt(name, ext_path))
+            continue
+        fn = getattr(target, name)
         fn.argtypes = argtypes
         fn.restype = restype
-    _cache = (lib,)
-    return lib
+        setattr(k, name, fn)
+    _cache = (k,)
+    return k
 
 
 def available() -> bool:

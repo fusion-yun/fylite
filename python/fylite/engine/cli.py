@@ -264,7 +264,7 @@ def _cli_mcp(args, parser) -> int:
 # ---- the commands the Rust host carries natively ---------------------------- #
 #
 # `app` / `data` / `case` are in the spec for every host, so `fylite app
-# --help` and `fylite-app --help` read the same words.  The Python host does
+# --help` and `fylite --help` read the same words.  The Python host does
 # not reimplement them: it finds the bundled executable and hands the words
 # on verbatim (FYL-DESIGN-15 C-3).  What is stripped is the one Python-only
 # option, `--bin-dir` — the spec marks it `hosts: ["python"]`, and the Rust
@@ -272,25 +272,53 @@ def _cli_mcp(args, parser) -> int:
 #
 # ★★2026-09-03 ONE executable (user ruling).  There used to be three, and the
 # lookup here was a LIST per command: try the alias binary `fylite-data`, then
-# fall back to `fylite-app` with the word put back in front.  The alias
+# fall back to `fylite` with the word put back in front.  The alias
 # binaries were ten lines each and did exactly that prepending themselves —
 # so the fallback was the whole implementation and the alias was the
 # redundant half.  Now the word is always put back in front, by the one
 # caller that ever needed to.
 
 #: the one executable, and the command word it is handed in front
-_RUST_EXE = "fylite-app"
+_RUST_EXE = "fylite"
+
+
+def _is_this_python_host(path) -> bool:
+    """Is `path` the console script THIS package installs?
+
+    ★★2026-09-04 起 Rust 可执行文件与 Python 控制台脚本**同名**（都叫 `fylite`，
+    用户裁定）。同名之后 `$PATH` 那一步就有了一个新的失败方式，而且是最坏的一种：
+    `shutil.which("fylite")` 会找到**我们自己**，于是 `fylite data …` 委托给
+    `fylite data …`，一层层 fork 到进程表满——没有报错，只有机器变慢。
+
+    两者好分：控制台脚本是一个 `#!` 文本脚本，而且它导入的正是本模块所在的包。
+    原生可执行文件是 ELF / PE / Mach-O，头两个字节就说了。所以判据是**读文件**，
+    不是猜路径。
+    """
+    try:
+        with open(path, "rb") as f:
+            head = f.read(2)
+            if head != b"#!":
+                return False          #: 二进制 —— 那就是我们要的那个
+            f.seek(0)
+            return b"fylite.engine" in f.read(4096)
+    except OSError:
+        return False
 
 
 def _find_exe(name: str, bin_dir=None):
-    """Where a bundled executable is: --bin-dir, the package's _bin/, $PATH."""
+    """Where a bundled executable is: --bin-dir, the package's _bin/, $PATH.
+
+    ★`$PATH` 那一步会跳过本包自己的控制台脚本（见 `_is_this_python_host`）。
+    """
     import shutil
     from pathlib import Path
     for d in ([Path(bin_dir)] if bin_dir else []) + [_paths.PKG / "_bin"]:
         for cand in (d / name, d / (name + ".exe")):
             if cand.is_file():
                 return str(cand)
-    return shutil.which(name)
+    found = shutil.which(name)
+    #: ★同名之后这一步必须挑一次：找到的若是我们自己，那不是「找到了」。
+    return None if (found and _is_this_python_host(found)) else found
 
 
 def _strip_option(words: list, flag: str) -> list:

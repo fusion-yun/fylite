@@ -100,7 +100,7 @@ def test_reconstruction_figure_takes_geometry_and_neo(tmp_path):
                                   "jpar_sauter_1999": list(1.3 * np.exp(-psin))}}
     cur = {"psin": psin, "j_ohm": 1 - 0.3 * psin,
            "j_bootstrap": 0.3 * np.exp(-psin), "j_total": 1 + 0 * psin}
-    g = Path(__file__).resolve().parents[2] / "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"
+    g = Path(__file__).resolve().parents[2] / "tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk"
     out = plot_reconstruction(_fake_result(), g, tmp_path / "full.png",
                               current=cur, geometry=device_geometry(),
                               neo=neo, dpi=80)

@@ -41,6 +41,14 @@
    "affects_result": true,
    "affects_result_why": "names which kernel binary computes the answer; its sha256 is recorded beside this, and the two together say what ran"
   },
+  "FY_KERNEL_EXT_LIB": {
+   "governs": "the kernel EXTENSION library (TGLF + DKE) to load instead of the bundled one",
+   "needed_for": "nothing - a full install ships it; a CLI-only install deliberately does not",
+   "default": "the packaged _lib/libfylite_kernel_ext.so, when present",
+   "example": "rust/target/release/libfylite_kernel_ext.so",
+   "affects_result": true,
+   "affects_result_why": "names which binary computes the turbulent and drift-kinetic answers. ★It must come from the same build as the core: the extension exports fylite_ext_abi_version and the loader refuses a pair that disagrees, because two libraries shipped apart can drift apart, and a drifted pair resolves a call to a signature that no longer matches - worse than not loading at all. Absent, the 15 TGLF/DKE entries refuse by name rather than raising AttributeError."
+  },
   "FY_RUNTIME_LIB": {
    "governs": "the runtime (middle-layer) library to load instead of the bundled one — formats, assembly, plan->kernel->record, kernel loading. ★2026-09-04 renamed twice with the crate: FY_DATA_LIB -> FY_ENGINE_LIB -> FY_RUNTIME_LIB (fylite_data -> fylite_engine -> fylite_runtime, FYL-DESIGN-16 N-1 and N-2). `data` named two of the layer's six jobs; `engine` collided with the Python package `fylite.engine`, which is a different component. Neither old name is read any more",
    "needed_for": "nothing - the wheel ships it",

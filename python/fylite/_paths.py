@@ -39,6 +39,10 @@ BIN_DIR = PKG / "_bin"
 #: `.so`，来路不同：内核（物理，私有仓 fylite_kernel 构建）与数据层（取数与格式，
 #: 本仓 `rust/fylite_runtime/` 构建）。名字自带区分，好过靠读者记住哪一份是哪一层。
 KERNEL_LIB = LIB_DIR / "libfylite_kernel.so"
+#: ★★2026-09-04 内核分**两个包**（用户裁定）：核心一个 `.so`，TGLF 与 DKE 一个。
+#: 两者出自同一次构建，装载方开两个句柄——见 `kernel.load()`。扩展**可以缺席**
+#: （纯 CLI 的发行不带它），缺席时那 15 个入口按名拒绝，而不是 AttributeError。
+KERNEL_EXT_LIB = LIB_DIR / "libfylite_kernel_ext.so"
 
 #: 数据层：mdsip 编解码，后续收编 g-file / est2。★与内核**不同的符号前缀**
 #: （`fylite_runtime_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。

@@ -53,7 +53,7 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/nn_tables/sat2_em_d3d_azf-1.npz | — | private-artefact |  |
 | $FYLITE_KERNEL/nn_tables/epednn.npz | — | private-artefact |  |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | public | 1477 B |
+| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | public | 1477 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

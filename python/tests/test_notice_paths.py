@@ -60,7 +60,7 @@ def _listed() -> set[str]:
 
 def test_every_path_the_notice_names_exists():
     """★The half that had rotted.  A glob is satisfied by ANY match, which is
-    the right reading: ``tests/data/FYDOC-CASE-03-frozen-libs/tglf*`` says "the tglf recordings are
+    the right reading: ``tests/data/FYDOC-CASE-03-frozen-libs/corpus/tglf*`` says "the tglf recordings are
     derived", not "exactly these files are"."""
     missing = []
     for p in sorted(_listed()):
