@@ -50,12 +50,19 @@ function walk(dir, base = '') {
   return out;
 }
 
-//: ★the wasm is NOT in the repository (it is built into `app/assets/` by the
-//: kernel repo).  It is precached when present and skipped when not, so a
-//: source checkout generates a list that a build then extends — and the list
-//: says which of the two it is.
-const files = walk(APP).filter((f) => !/\.(map|md)$/.test(f));
-const wasm = files.filter((f) => f.endsWith('.wasm'));
+//: ★★THE WASM IS ALWAYS LISTED, PRESENT OR NOT — and that is what makes this
+//: file deterministic.  The three modules are built into `app/assets/` by the
+//: kernel repo and are NOT in git (`.gitignore`), so walking the tree gives a
+//: different answer on a checkout that has built them and one that has not:
+//: whoever regenerates without a build would silently drop them from the
+//: published site's precache, and `--check` would go red for everyone else.
+//: They are part of the published site by definition, so they are named here
+//: rather than discovered.  `install` tolerates a member that 404s, which is
+//: exactly the source-checkout case.
+const WASM = ['assets/fylite_rs.wasm', 'assets/fylite_tglf.wasm', 'assets/fylite_dke.wasm'];
+const walked = walk(APP).filter((f) => !/\.(map|md)$/.test(f) && !f.endsWith('.wasm'));
+const files = walked.concat(WASM).sort();
+const wasm = WASM.filter((f) => existsSync(join(APP, f)));
 
 const version = (() => {
   const m = /app:\s*'([^']+)'/.exec(readFileSync(join(APP, 'assets', 'version.js'), 'utf8'));
@@ -136,7 +143,7 @@ for (const [name, body] of targets) {
     console.log(`  app/${name}  (${(body.length / 1024).toFixed(1)} kB)`);
   }
 }
-if (!check) console.log(`  预缓存 ${files.length} 个文件（其中 wasm ${wasm.length} 个${wasm.length ? '' : '，本检出没有 wasm'}）`);
+if (!check) console.log(`  预缓存 ${files.length} 个文件（含三份 wasm；本检出实有 ${wasm.length} 份）`);
 if (stale.length) {
   console.error(`生成物已漂移，请重跑 node tools/make-sw.mjs：\n  ${stale.join('\n  ')}`);
   process.exit(1);
