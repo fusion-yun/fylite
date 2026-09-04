@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "1.2"
+version: "1.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,13 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.2 「状态管理归谁」（用户提问 2026-09-04）：把「管理」拆成五件事——声明与产生归内核、
+  change: 'v1.3 新增一章「中间层也进浏览器」（用户裁定：`fylite_runtime` 编成 wasm 由 JS 调用）。四层图
+    从此三个宿主同一张；JS 侧 `geqdsk.js`(286，本仓第三份 g-file 实现) / `fyo.js`(221) / `session.js`(241)
+    的职责归中间层；扁平树的编解码从预期三份降为两份。wasm 上两个模块由 **JS 接线**（无 dlopen，JS 只搬
+    不透明字节）。★★如实改口两处：撤回回调时给的「浏览器没有中间层」理由**作废**（撤回不变，另外两条
+    本来就是决定性的）；状态「不能只放中间层」的理由**换成**「持久化要碰宿主设施，wasm 里的中间层一样
+    够不着」（结论不变）。G-5 关闭在望。
+    v1.2 「状态管理归谁」（用户提问 2026-09-04）：把「管理」拆成五件事——声明与产生归内核、
     携带归中间层、持久化与决定归各宿主。实测持久化**早已分散**（Python engine 的 holder/restart ·
     handles · versioning · ledger/replay；浏览器四处 localStorage 含 handoff.js；远端即调用方），
     而三个「只放某一层」的答案各被一条事实否掉（内核=全局态回来、中间层=浏览器侧根本没有中间层、
@@ -90,7 +96,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v1.2 |
+| 版本 (Version) | v1.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -542,13 +548,15 @@ GUI、另一台机器上的代理）不改本篇任何一条；它们共享一�
 
 | | |
 | :--- | :--- |
-| **浏览器** | 实测只有三个 wasm 制品，**全是内核**；`fylite_runtime.wasm` 只在注释里，没有任何脚本构建它。那侧的宿主是 **JavaScript**（`app/assets/fylite.js`，344 处内核引用）。回调就得**用 JS 把整套树 API 再实现一遍**，每次取值一次 wasm→JS 穿越——把树写第三遍，正是本篇要消的那件事 |
+| ~~浏览器~~ | ~~那侧宿主是 JavaScript，回调就得用 JS 把整套树 API 再实现一遍~~ ★★**这一条已作废**（用户裁定 2026-09-04：`fylite_runtime` 进 wasm、由 JS 调用，见 {ref}`fylite-kernel-contract-runtime-wasm`）。中间层到了浏览器，那侧的树也是 Rust。**如实记下：撤回回调时我给的三条理由，这一条不再成立。** |
 | **远端内核**（K-5） | 每次取值一次网络往返 |
 | **溯源**（K-7） | 输入集变成「内核当时恰好问了什么」，运行期才定，记录说不清、算例不可复算 |
 
-★决定性的是后两条，不是性能：回调式买到「一份实现」，卖掉的是**另外两个后端**与**可复算**，
-而 K-4 明写三种后端一张表。★★用户裁定**整条撤回**，包括评估时给自己留的那个「只做取消 /
-进度 / 注记」的窄口子——**门上没有回调，一个也没有**。
+★决定性的本来就是后两条，不是浏览器那条：回调式买到「一份实现」，卖掉的是**远端后端**与
+**可复算**，而 K-4 明写三种后端一张表、K-7 要记录说得清什么跑了。**浏览器那条作废之后这两条
+仍各自足够**，所以撤回不动摇——但一条理由塌了就该说它塌了，不该留在表里充数。
+★★用户裁定**整条撤回**，包括评估时给自己留的那个「只做取消 / 进度 / 注记」的窄口子——
+**门上没有回调，一个也没有**；取消由 S-3 的步数预算承担。
 
 (fylite-kernel-contract-more-data)=
 ## 内核跑到一半要补数据，怎么办 (When the kernel needs more data mid-run)
@@ -696,8 +704,10 @@ K-8 的双向扁平树上——**状态是内核建出来的那棵树的一枝**
 
 * **不能只放内核**——S-1 已裁：内核留住状态就要句柄册，那是全局态，量到的那个零会没；
   远端要会话亲和与崩溃清理；跨后端再也对拍不了。
-* **不能只放中间层**——实测浏览器那侧**没有中间层**：三个 wasm 制品全是内核，宿主是
-  JavaScript。策略只住在 `fylite_runtime` 里，浏览器就续不了跑。
+* **不能只放中间层**——★★**这条的理由换了**（2026-09-04 同日）：原先写的是「浏览器那侧没有
+  中间层」，而 `fylite_runtime` 进 wasm 之后**它有了**。今天的理由是另一条，而且更硬：
+  ④ 持久化要碰的是**宿主的设施**——落盘、`localStorage`、远端调用方的存储——**wasm 里的中间层
+  一样够不着**，仍要经宿主。能搬进中间层的是「携带」，不是「持久化」。
 * **不能只放 Python `engine`**——同一条镜像过来：CLI、浏览器、远端都拿不到。
 
 **S-5 中间层只搬不改。** 状态经中间层时**不解释、不编辑**。它是声明过的子树，所以中间层
@@ -713,6 +723,63 @@ K-8 的双向扁平树上——**状态是内核建出来的那棵树的一枝**
 ★★**一句话**：**机制居中，策略分散**。机制是那棵文档里的状态子树——内核声明它、产生它，
 中间层原样搬运它；策略是各宿主自己的事，因为各宿主的生命周期本来就不同（一次 CLI 调用、
 一个 Python 会话、一个浏览器标签页、一个远端请求），而**它们已经各有一套了**。
+
+(fylite-kernel-contract-runtime-wasm)=
+# 中间层也进浏览器 (The Middle Layer Ships to the Browser Too)
+
+〔已确立〕用户裁定（2026-09-04）：**`fylite_runtime` 编成 wasm，由 JS 调用**。
+`Cargo.toml` 抬头早就写着这条打算（`fylite_runtime.wasm ... ★不含 mdsip`），只是没有脚本
+构建它；现在它是裁定。
+
+## 它改掉了什么 (What it changes)
+
+**四层图从此在三个宿主上是同一张。** 此前浏览器那一列缺一层：宿主是 JS，直接调内核 wasm。
+现在每个宿主底下都有中间层——本机经 `ctypes` 取 `.so`，浏览器经 JS 取 `fylite_runtime.wasm`，
+远端就是那个进程。
+
+**JS 那边少三份实现。** 实测浏览器今天自带：`geqdsk.js` **286 行**（★本仓的**第三份** g-file
+实现——Python 那份 2026-09-04 已并入中间层，JS 这份还在）· `fyo.js` 221 · `session.js` 241。
+中间层的 wasm 一到，这三份的职责就有了唯一实现。★生成物 `fyo-interface.js` / `deck-names.js` /
+`mds-request.js` 是另一回事：它们本来就是从内核声明生成的，留着。
+
+**扁平树的实现从三份变两份。** K-8 的四段缓冲此前预期「浏览器得用 JS 建」；现在**编码器与
+解码器只有中间层一份**（Rust），三个宿主共用。M-2 因此比记它的时候更划算。
+
+## wasm 上两个模块怎么见面 (Two wasm modules, one page)
+
+★本机那条路上，中间层用 `dlopen` 取内核（`fylite_runtime/src/kernel.rs`）。**wasm 上没有
+`dlopen`**，而内核与中间层是**两个 wasm 模块**（内核私有、中间层公开，不能互相 `use`）。
+
+〔工作假设〕**JS 当接线员，不当翻译。** 页面实例化两个模块；中间层建好四段缓冲，JS 把
+**字节**递给内核模块，再把内核交回的树递回中间层。JS **一个字节都不需要看懂**——它搬的是
+不透明缓冲，语义在两端。★这与 K-8 的形正好合拍：树是扁平的、索引相连的内存布局，本来就是
+为跨边界传递设计的；从一次 C ABI 调用换成两个 wasm 实例的内存之间，性质不变。
+
+〔开放猜想〕另一条是把两者链成**一个** wasm 制品。它省掉接线，但要在构建期把私有内核与公开
+中间层链在一起——发布面与许可面都要重判，本篇不预设。
+
+## 边界：wasm 那档没有什么 (What the wasm build does not carry)
+
+`--no-default-features` 关掉三项，都是**原生专用**且理由早已成立：
+
+| 特性 | wasm 上 | 为什么 |
+| :--- | :--- | :--- |
+| `mdsip` | 无 | 浏览器打不开裸 TCP（`FYL-DESIGN-06` §1 早已关死）；另有用户裁定（2026-09-02） |
+| `hdf5` / `netcdf` | 无 | 两个 C 库，链不进 wasm |
+| `dlopen` 取内核 | 无 | 见上，改由 JS 接线 |
+
+所以 wasm 那档的中间层是：**文档模型 · JSON · YAML · g-file · 内容识别 · fyo 语义 ·
+装配（文件源）· 扁平树的编解码 · 计划合成**。★正好是浏览器要的那些，一个不多。
+
+## 随之要改的 (Consequences)
+
+* **H-2 改口**：浏览器的本地后端仍是页内内核 wasm，但**它经中间层的 wasm 到达**，不再由 JS
+  直接调内核的扁平导出。K-1 的判据（`scenario/` 与页面 JS 里不再出现 `fylite_rs_*`）在浏览器
+  这一侧因此有了可走的路——今天 `app/assets/fylite.js` 有 **344 处**。
+* **G-5 关闭在望**：「wasm 后端的 code 表怎么自报」——中间层的 wasm 在场之后，它像本机那样
+  问内核要 code 表即可，不必再靠生成的 `fyo-interface.js` 冒充运行期查询。
+* **回调那条理由作废**（见上），但撤回不变。
+* **状态那条理由换了**（见上），结论不变。
 
 (fylite-kernel-contract-deltas)=
 # 要改口的既有裁定 (Deltas to Standing Rulings)
@@ -750,7 +817,7 @@ K-8 的双向扁平树上——**状态是内核建出来的那棵树的一枝**
 | G-2 | 远端后端的 envelope：复用 `fylite serve` 的 JSON-RPC 与 `DriverRequest`，还是另立 `compute.` 方法族 | 开；随 `SP-REPORT-15` T-0.4 裁定 |
 | G-3 | ~~内核不认识装置，而导体几何现算归谁~~ | **已关**（K-8，用户裁定 2026-09-04）：装置按 fyo 路径进内核，来路归中间层。内核认识几何，不认识源头 |
 | G-4 | 两个后端给出不同的数时，登记册记录的**纳入类别**（V / B / C）怎么定——今天三类都以「外部答案」为对照，后端间对照是第四种 | 开；P2 |
-| G-5 | wasm 后端的 code 表怎么自报：`fyo-interface.js` 是生成物而非运行期查询 | 开；P2 |
+| G-5 | wasm 后端的 code 表怎么自报 | **关闭在望**：中间层进 wasm 之后（{ref}`fylite-kernel-contract-runtime-wasm`）它像本机那样问内核要，不再靠生成的 `fyo-interface.js` 冒充运行期查询 |
 | G-6 | 中间层与 SpData 重叠语义的**对齐代价**未量：`$link` 分解、`merge_key`、时间开窗三处各自定义，可能与 SpData 的 `$op` / 标识符语法冲突 | 开；P3 前先量 |
 
 (fylite-kernel-contract-trace)=
