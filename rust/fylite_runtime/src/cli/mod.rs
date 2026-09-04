@@ -15,9 +15,23 @@
 //! * [`usage`] — the help text, generated from the spec, one format for
 //!   every command and every host.
 //!
-//! What it does not do: no dispatch.  The bodies (`data`, `case`, the app
-//! server) match on [`Args::command`] themselves — the spec says what a
+//! What it does not do: no dispatch.  The bodies (`data`, `run`, `list`, the
+//! app server) match on [`Args::command`] themselves — the spec says what a
 //! command TAKES, the host says what it DOES.
+//!
+//! ★★Two things here are NOT the usual argument parsing, and both are the
+//! spec's doing rather than this module's (FYL-DESIGN-17):
+//!
+//! * **open parameters** (`open_parameters` on a command) — `run` carries a
+//!   parameter table this file does not hold: it belongs to the scenario
+//!   template, because a scenario is data.  So the tokens this parser does
+//!   not recognise are COLLECTED ([`Args::open`]) instead of refused, and
+//!   `run.rs` refuses them by name against the template it loaded.  A
+//!   command without the declaration behaves exactly as before.
+//! * **retired words** (`retired` at the top of the spec) — `case` folded
+//!   into `run` and `data facts` into `list facts`; a retired word is
+//!   refused BY NAME with the replacement, never silently forwarded.  Two
+//!   words for one thing is what the fold was for.
 //!
 //! ★Hand-rolled on purpose.  The crate has no dependencies beyond the two
 //! optional C-library bindings and it stays that way; a spec of this size
@@ -27,8 +41,9 @@ use crate::document::Node;
 use crate::json;
 use std::sync::OnceLock;
 
-pub mod case;
 pub mod data;
+pub mod list;
+pub mod run;
 
 /// The spec, verbatim, from the one place it lives.
 /// 改过名的选项：报「不认识」之前先看看它是不是搬了家。
@@ -102,6 +117,56 @@ pub struct CommandDef {
     pub args: Vec<ArgDef>,
     pub commands: Vec<CommandDef>,
     pub hosts: Option<Vec<String>>,
+    /// The command takes a parameter table this file does not declare
+    /// (`open_parameters` in the spec; `run` says `"scenario"`).  Unknown
+    /// `--k=v` / `--k` / `--no-k` / `k=v` tokens go to [`Args::open`]
+    /// instead of being refused here.
+    pub open_parameters: Option<String>,
+}
+
+/// How an open parameter was written — the spelling decides the value when
+/// none was given, and it is what an error message quotes back.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Spelling {
+    /// `k=v`
+    Bare,
+    /// `--k=v` or `--k`
+    Flag,
+    /// `--no-k`
+    NoFlag,
+}
+
+/// One collected open parameter, in the order it was written.
+#[derive(Clone, Debug)]
+pub struct OpenArg {
+    /// The name as written, dashes and all (`only-magnetic`).
+    pub key: String,
+    /// The literal after `=`; `None` for `--k` / `--no-k`.
+    pub value: Option<String>,
+    pub spelling: Spelling,
+}
+
+impl OpenArg {
+    /// The value a template sees: the literal, or the boolean the spelling
+    /// stands for (`--k` = true, `--no-k` = false).
+    pub fn literal(&self) -> &str {
+        match (&self.value, self.spelling) {
+            (Some(v), _) => v,
+            (None, Spelling::NoFlag) => "false",
+            (None, _) => "true",
+        }
+    }
+
+    /// How it was written, for an error message.
+    pub fn as_written(&self) -> String {
+        match (self.spelling, &self.value) {
+            (Spelling::Bare, Some(v)) => format!("{}={v}", self.key),
+            (Spelling::Bare, None) => self.key.clone(),
+            (Spelling::Flag, Some(v)) => format!("--{}={v}", self.key),
+            (Spelling::Flag, None) => format!("--{}", self.key),
+            (Spelling::NoFlag, _) => format!("--no-{}", self.key),
+        }
+    }
 }
 
 /// A browser launch parameter (`hosts.app.params`).
@@ -123,6 +188,9 @@ pub struct Spec {
     /// The command run when the argv names none (`hosts.rust.default_command`).
     pub default_command: Option<String>,
     pub app_params: Vec<AppParam>,
+    /// Retired command words and where each went (`retired` in the spec),
+    /// longest key first so `case run` is found before `case`.
+    pub retired: Vec<(String, String)>,
 }
 
 /// The parsed command line.
@@ -132,6 +200,9 @@ pub struct Args {
     pub command: Vec<String>,
     /// Every positional value, in order, after the command words.
     pub positional: Vec<String>,
+    /// The tokens this file does not declare, for a command that says it
+    /// takes a parameter table of its own (`open_parameters`).
+    pub open: Vec<OpenArg>,
     values: Vec<(String, Option<String>)>,
 }
 
@@ -258,6 +329,7 @@ fn command_def(n: &Node) -> CommandDef {
         args: m.get("args").and_then(Node::as_list).map(|l| l.iter().map(arg_def).collect()).unwrap_or_default(),
         commands: m.get("commands").and_then(Node::as_list).map(|l| l.iter().map(command_def).collect()).unwrap_or_default(),
         hosts: hosts_of(m.get("hosts")),
+        open_parameters: m.get("open_parameters").and_then(Node::as_str).map(str::to_string),
     }
 }
 
@@ -289,6 +361,16 @@ pub fn parse_spec(text: &str) -> Result<Spec, String> {
         commands: m.get("commands").and_then(Node::as_list).map(|l| l.iter().map(command_def).collect()).unwrap_or_default(),
         default_command: rust.and_then(|r| r.get("default_command")).and_then(Node::as_str).map(str::to_string),
         app_params,
+        retired: {
+            let mut v: Vec<(String, String)> = m
+                .get("retired")
+                .and_then(Node::as_map)
+                .map(|r| r.iter().filter_map(|(k, x)| x.as_str().map(|s| (k.to_string(), s.to_string()))).collect())
+                .unwrap_or_default();
+            //: longest first: `case run` must be found before `case`
+            v.sort_by(|a, b| b.0.split_whitespace().count().cmp(&a.0.split_whitespace().count()));
+            v
+        },
     })
 }
 
@@ -302,6 +384,21 @@ impl Spec {
     /// The commands `host` carries, top level.
     pub fn commands_for(&self, host: &str) -> Vec<&CommandDef> {
         self.commands.iter().filter(|c| carried(&c.hosts, host)).collect()
+    }
+
+    /// Where a retired word went, given the words the argv opens with.
+    ///
+    /// ★Longest match: `fy case run x` is answered by the `case run` row,
+    /// not by the `case` one — the reader is holding a whole command line,
+    /// and the useful reply names the whole replacement.
+    pub fn retired_hint(&self, words: &[&str]) -> Option<(&str, &str)> {
+        self.retired
+            .iter()
+            .find(|(k, _)| {
+                let ks: Vec<&str> = k.split_whitespace().collect();
+                ks.len() <= words.len() && ks.iter().zip(words).all(|(a, b)| a == b)
+            })
+            .map(|(k, v)| (k.as_str(), v.as_str()))
     }
 
     /// Resolve a command path (`["data", "convert"]`) for `host`.
@@ -381,6 +478,9 @@ pub fn usage(spec: &Spec, host: &str, prog: &str, path: &[&str]) -> String {
             syn.push(' ');
             syn.push_str(&synopsis_of(a));
         }
+        if c.open_parameters.is_some() {
+            syn.push_str(" [key=value...]");
+        }
     }
     out.push_str(&syn);
     out.push('\n');
@@ -446,8 +546,46 @@ pub fn usage(spec: &Spec, host: &str, prog: &str, path: &[&str]) -> String {
             }
         }
     }
+    if let Some(kind) = last.and_then(|c| c.open_parameters.as_deref()) {
+        out.push_str(&format!(
+            "\n{kind} parameters:\n  \
+             Anything else written `key=value` — equivalently `--key=value`, `--key` (true) or\n  \
+             `--no-key` (false) — is a parameter of the {kind} itself.  The names, types and\n  \
+             defaults are the {kind} template's, not this file's: `{prog} list scenarios <name>`\n  \
+             prints the table.  `-` and `_` are the same character in a name; `--key value`\n  \
+             (a space instead of `=`) is not a parameter.\n"
+        ));
+    }
     out.push_str("\n  -h, --help  show this usage\n");
     out
+}
+
+/// A name a template could plausibly declare: a letter, then letters,
+/// digits, `_`, `-` or `.` (`turb-nky`, `provider.magnetics`).
+fn open_key_ok(k: &str) -> bool {
+    !k.is_empty()
+        && k.starts_with(|c: char| c.is_ascii_alphabetic())
+        && k.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-' || c == '.')
+}
+
+/// `k=v` written without dashes, on a command that takes a parameter table.
+fn open_bare(tok: &str) -> Option<OpenArg> {
+    let (k, v) = tok.split_once('=')?;
+    open_key_ok(k).then(|| OpenArg { key: k.to_string(), value: Some(v.to_string()), spelling: Spelling::Bare })
+}
+
+/// `--k=v`, `--k`, `--no-k` — the same parameter, three spellings (E-12).
+fn open_flag(name: &str, inline: Option<String>) -> Option<OpenArg> {
+    let bare = name.strip_prefix("--")?;
+    if let Some(k) = bare.strip_prefix("no-") {
+        //: `--no-k` IS the value `false`; carrying another one is a mistake
+        //: worth saying out loud rather than resolving silently.
+        if inline.is_some() || !open_key_ok(k) {
+            return None;
+        }
+        return Some(OpenArg { key: k.to_string(), value: None, spelling: Spelling::NoFlag });
+    }
+    open_key_ok(bare).then(|| OpenArg { key: bare.to_string(), value: inline, spelling: Spelling::Flag })
 }
 
 fn check_value(a: &ArgDef, v: &str) -> Result<(), String> {
@@ -488,6 +626,15 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
                 level = &c.commands;
                 i = 1;
             } else {
+                //: ★★a word that USED to be a command is not an unknown word:
+                //: the reader has a command line that worked last month, and
+                //: what they need is the replacement, not a pointer at --help.
+                let words: Vec<&str> = argv.iter().map(String::as_str).collect();
+                if let Some((old, new)) = spec.retired_hint(&words) {
+                    return Parsed::Error(format!(
+                        "{prog}: `{old}` is retired — use `{prog} {new}`"
+                    ));
+                }
                 return Parsed::Error(format!(
                     "{prog}: unknown command {w:?}; --help lists the commands"
                 ));
@@ -517,6 +664,13 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
                     level = &c.commands;
                     i += 1;
                 } else {
+                    let mut words: Vec<&str> = path.iter().map(String::as_str).collect();
+                    words.push(w);
+                    if let Some((old, new)) = spec.retired_hint(&words) {
+                        return Parsed::Error(format!(
+                            "{prog}: `{old}` is retired — use `{prog} {new}`"
+                        ));
+                    }
                     return Parsed::Error(format!(
                         "{prog} {}: unknown subcommand {w:?}; --help lists them",
                         path.join(" ")
@@ -535,6 +689,8 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
     // the arguments a command takes: its own, plus its ancestors' (a group's
     // options apply to every subcommand under it)
     let defs: Vec<&ArgDef> = chain.iter().flat_map(|c| c.args_for(host)).collect();
+    //: does THIS command carry a table of its own (`open_parameters`)?
+    let open_ok = chain.last().map(|c| c.open_parameters.is_some()).unwrap_or(false);
     let where_ = format!("{prog} {}", path.join(" "));
     let mut args = Args { command: path.clone(), ..Default::default() };
     let mut positional: Vec<String> = Vec::new();
@@ -543,6 +699,28 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
         let tok = &argv[i];
         i += 1;
         if only_positional || tok == "-" || !tok.starts_with('-') {
+            //: ★`k=v` on a command with a parameter table is a PARAMETER, not
+            //: a positional (E-12 ①).  After `--` it is a positional again —
+            //: which is how a path that really contains `=` gets through.
+            if !only_positional && open_ok {
+                if let Some(o) = open_bare(tok) {
+                    //: ★★E-12 ④ **the name decides, not the spelling**: `shot=1`
+                    //: is the declared `--shot`, because that word already means
+                    //: one thing everywhere in `fy` (`data fetch --shot`).  A
+                    //: template may therefore not declare a name this file has.
+                    let as_flag = format!("--{}", o.key);
+                    if let Some(d) = defs.iter().find(|d| !d.positional && d.flags.contains(&as_flag)) {
+                        let v = o.value.clone().unwrap_or_default();
+                        if let Err(e) = check_value(d, &v) {
+                            return Parsed::Error(format!("{where_}: {e}"));
+                        }
+                        args.values.push((d.name.clone(), Some(v)));
+                        continue;
+                    }
+                    args.open.push(o);
+                    continue;
+                }
+            }
             positional.push(tok.clone());
             continue;
         }
@@ -560,6 +738,16 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
         let def = match defs.iter().find(|d| !d.positional && d.flags.contains(&name)) {
             Some(d) => *d,
             None => {
+                //: ★an option this file does not declare, on a command that
+                //: says its parameters live elsewhere: collect it and let the
+                //: template refuse it by name (E-11).  The refusal still
+                //: happens — one stage later, where the names are known.
+                if open_ok {
+                    if let Some(o) = open_flag(&name, inline.clone()) {
+                        args.open.push(o);
+                        continue;
+                    }
+                }
                 //: ★★「你打错了」与「它改名了」是两件事，而 `unknown option` 把它们
                 //: 说成同一句。手边的命令行和已经发出去的文档里还写着旧名的人，需要
                 //: 的是新名字，不是一句「去看 --help」。表很小，改名也不常有。
@@ -707,9 +895,10 @@ mod tests {
     }
 
     #[test]
-    fn the_spec_parses_and_the_rust_host_carries_three_commands() {
+    fn the_spec_parses_and_the_rust_host_carries_four_commands() {
         let names: Vec<&str> = spec().commands_for(HOST).iter().map(|c| c.name.as_str()).collect();
-        assert_eq!(names, ["app", "data", "case"]);
+        //: ★one verb each: serve the page, move data, compute, look.
+        assert_eq!(names, ["app", "data", "run", "list"]);
         assert_eq!(spec().default_command.as_deref(), Some("app"));
         //: ★the program name comes from `hosts.rust.exe` — `fy` since 2026-09-04.
         //: `main.rs` hands THIS to the parser, so a rename lands in the usage
@@ -737,10 +926,57 @@ mod tests {
         let a = run("data merge a.json b.json -o out.json --keep");
         assert_eq!(a.all("inputs"), ["a.json", "b.json"]);
         assert_eq!(a.flag("out"), Some("out.json"));
-        let a = run("case run p1.jsonld p2.jsonld --set a=1 --set b=2 -o rec");
-        assert_eq!(a.all("plans"), ["p1.jsonld", "p2.jsonld"]);
-        assert_eq!(a.all("set"), ["a=1", "b=2"]);
+        let a = run("run p1.jsonld p2.jsonld -o rec");
+        assert_eq!(a.all("target"), ["p1.jsonld", "p2.jsonld"]);
         assert_eq!(a.flag("record"), Some("rec"));
+        let a = run("list scenarios reconstruction --line analysis");
+        assert_eq!(a.command, ["list", "scenarios"]);
+        assert_eq!(a.all("name"), ["reconstruction"]);
+        assert_eq!(a.flag("line"), Some("analysis"));
+    }
+
+    #[test]
+    fn a_scenario_parameter_is_collected_not_refused() {
+        //: the four spellings of one parameter (E-12), and the fixed options
+        //: around them keeping their own meaning
+        let a = run("run analysis --device east shot=123456 time=4.4 --only-magnetic=true");
+        assert_eq!(a.all("target"), ["analysis"]);
+        assert_eq!(a.flag("device"), Some("east"));
+        //: `shot=` and `time=` are FIXED options under those names, not open
+        //: ones — the name decides, not the spelling (E-12 ④)
+        assert!(a.open.iter().all(|o| o.key != "shot" && o.key != "time"), "{:?}", a.open);
+        assert_eq!(a.flag("shot"), Some("123456"));
+        assert_eq!(a.flag("time"), Some("4.4"));
+        //: and the same values written as flags land in the same place
+        let b = run("run analysis --device east --shot 123456 --time 4.4");
+        assert_eq!((b.flag("shot"), b.flag("time")), (a.flag("shot"), a.flag("time")));
+        //: a bare `k=v` whose name IS a declared option is type-checked there
+        assert!(err("run analysis shot=nine").contains("wants an integer"));
+        let one = a.open.iter().find(|o| o.key == "only-magnetic").expect("collected");
+        assert_eq!(one.literal(), "true");
+        let a = run("run model transport --alpha --no-bootstrap chi0=0.4");
+        let got: Vec<(&str, &str)> = a.open.iter().map(|o| (o.key.as_str(), o.literal())).collect();
+        assert_eq!(got, [("alpha", "true"), ("bootstrap", "false"), ("chi0", "0.4")]);
+        //: after `--`, a token with `=` is a path again, not a parameter
+        let a = run("run -- weird=name.jsonld");
+        assert!(a.open.is_empty());
+        assert_eq!(a.all("target"), ["weird=name.jsonld"]);
+        //: and a command WITHOUT the declaration is unchanged: still refused
+        assert!(err("data tables --only-magnetic=true").contains("unknown option"));
+    }
+
+    #[test]
+    fn a_retired_word_is_refused_with_its_replacement() {
+        //: ★the whole line matters: `case run` answers with `run`, and the
+        //: bare word answers too — neither is silently forwarded.
+        let e = err("case run plan.jsonld -o rec");
+        assert!(e.contains("`case run` is retired") && e.contains("run <the same plans>"), "{e}");
+        let e = err("case describe");
+        assert!(e.contains("list kernel"), "{e}");
+        let e = err("case");
+        assert!(e.contains("`case` is retired"), "{e}");
+        let e = err("data facts device");
+        assert!(e.contains("`data facts` is retired") && e.contains("list facts"), "{e}");
     }
 
     #[test]
@@ -762,12 +998,16 @@ mod tests {
     #[test]
     fn help_is_generated_from_the_spec() {
         let u = usage(spec(), HOST, &spec().prog, &[]);
-        assert!(u.contains("app ") && u.contains("data ") && u.contains("case "));
+        assert!(u.contains("app ") && u.contains("data ") && u.contains("run ") && u.contains("list "));
         assert!(u.contains("runs `app`"));
         let u = usage(spec(), HOST, &spec().prog, &["data", "convert"]);
         assert!(u.contains("--to json|geqdsk|hdf5|netcdf|imas-hdf5"), "{u}");
         assert!(!u.contains("--bin-dir"));
-        match parse(spec(), HOST, "fylite", &argv("case run --help")) {
+        //: the open table is announced where it applies, and nowhere else
+        let u = usage(spec(), HOST, &spec().prog, &["run"]);
+        assert!(u.contains("[key=value...]") && u.contains("scenario parameters:"), "{u}");
+        assert!(!usage(spec(), HOST, &spec().prog, &["data", "merge"]).contains("key=value..."));
+        match parse(spec(), HOST, "fylite", &argv("run --help")) {
             Parsed::Help(h) => assert!(h.contains("--record")),
             other => panic!("{other:?}"),
         }

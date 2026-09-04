@@ -474,3 +474,122 @@ mod tests {
         assert_eq!(find("device", "iter").unwrap().rights_path().unwrap(), d.join(RIGHTS));
     }
 }
+
+// ───────────────────────── experiment 域：一台机器的一发炮 ─────────────────────────
+//
+// ★★这一域比别的深一层：`experiment/<machine>/<shot>/`，而 [`find`] 与 [`entries`]
+// 只认 `<域>/<标识>` 那一层。所以它有自己的两个函数，而不是把上面那两个改宽——
+// 改宽的代价是每个域都要多回答一个「你有几层」，而只有这一域有第二层。
+//
+// 一发炮的目录里：`manifest.fyo.jsonld`（`fylite:slices` 逐片记时刻与文件）与逐时刻的
+// `slice_<毫秒>ms.fyo.jsonld`。清单缺席时按文件名兜底——文件名里就写着毫秒。
+
+/// 语料里的一发炮。
+#[derive(Debug, Clone)]
+pub struct Shot {
+    pub machine: String,
+    pub shot: String,
+    /// 供它的那个根。
+    pub root: PathBuf,
+    /// `<root>/experiment/<machine>/<shot>`。
+    pub dir: PathBuf,
+}
+
+impl Shot {
+    /// 这发炮的清单（有则在）。
+    pub fn manifest(&self) -> Option<PathBuf> {
+        let p = self.dir.join("manifest.fyo.jsonld");
+        p.is_file().then_some(p)
+    }
+
+    /// 逐片：时刻（秒）与文档路径，按时刻排序。
+    ///
+    /// 先读清单的 `fylite:slices`；没有清单就按文件名 `slice_<毫秒>ms` 兜底。
+    /// ★两条路给同一个答案，所以调用方不必知道走的是哪一条。
+    pub fn slices(&self) -> Vec<(f64, PathBuf)> {
+        let mut out: Vec<(f64, PathBuf)> = Vec::new();
+        if let Some(m) = self.manifest() {
+            if let Ok(text) = std::fs::read_to_string(&m) {
+                if let Ok(node) = crate::json::parse(&text) {
+                    if let Some(list) = node
+                        .as_map()
+                        .and_then(|x| x.get("fylite:slices"))
+                        .and_then(crate::document::Node::as_list)
+                    {
+                        for s in list {
+                            let Some(sm) = s.as_map() else { continue };
+                            let Some(t) = sm.get("fylite:time_s").and_then(crate::document::Node::as_f64) else {
+                                continue;
+                            };
+                            let Some(doc) = sm.get("fylite:document").and_then(crate::document::Node::as_str) else {
+                                continue;
+                            };
+                            let p = self.dir.join(doc);
+                            if p.is_file() {
+                                out.push((t, p));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if out.is_empty() {
+            let Ok(rd) = std::fs::read_dir(&self.dir) else { return out };
+            for e in rd.flatten() {
+                let p = e.path();
+                let Some(name) = p.file_name().and_then(|s| s.to_str()) else { continue };
+                let Some(ms) = name.strip_prefix("slice_").and_then(|r| r.split("ms").next()) else {
+                    continue;
+                };
+                if let Ok(v) = ms.parse::<f64>() {
+                    out.push((v / 1000.0, p));
+                }
+            }
+        }
+        out.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+        out
+    }
+}
+
+/// 一发具体的炮：第一个有 `experiment/<machine>/<shot>` 的根供出它。
+pub fn shot(machine: &str, shot: &str) -> Option<Shot> {
+    for r in roots() {
+        let dir = r.join("experiment").join(machine).join(shot);
+        if dir.is_dir() {
+            return Some(Shot {
+                machine: machine.to_string(),
+                shot: shot.to_string(),
+                root: r,
+                dir,
+            });
+        }
+    }
+    None
+}
+
+/// 路径上的每一发炮（可按机器过滤），按机器、炮号排序，逐条决胜。
+pub fn shots(machine: Option<&str>) -> Vec<Shot> {
+    let mut out: Vec<Shot> = Vec::new();
+    for r in roots() {
+        let Ok(machines) = std::fs::read_dir(r.join("experiment")) else { continue };
+        let mut dirs: Vec<PathBuf> = machines.flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
+        dirs.sort();
+        for md in dirs {
+            let Some(m) = md.file_name().and_then(|s| s.to_str()).map(str::to_string) else { continue };
+            if machine.map(|want| want != m).unwrap_or(false) {
+                continue;
+            }
+            let Ok(rd) = std::fs::read_dir(&md) else { continue };
+            let mut shots: Vec<PathBuf> = rd.flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
+            shots.sort();
+            for sd in shots {
+                let Some(id) = sd.file_name().and_then(|s| s.to_str()).map(str::to_string) else { continue };
+                if out.iter().any(|x| x.machine == m && x.shot == id) {
+                    continue;
+                }
+                out.push(Shot { machine: m.clone(), shot: id, root: r.clone(), dir: sd });
+            }
+        }
+    }
+    out
+}

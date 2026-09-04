@@ -101,7 +101,8 @@ fn main() {
     };
     match args.word(0) {
         "data" => cli::data::run(&args),
-        "case" => cli::case::run(&args),
+        "run" => cli::run::run(&args),
+        "list" => cli::list::run(&args),
         #[cfg(feature = "webui")]
         "app" => serve_app(spec, &args),
         //: ★纯 CLI 档：`app` **按名拒绝**，并说清这是哪一种构建。不给一个
