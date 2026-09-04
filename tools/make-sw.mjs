@@ -60,7 +60,17 @@ function walk(dir, base = '') {
 //: rather than discovered.  `install` tolerates a member that 404s, which is
 //: exactly the source-checkout case.
 const WASM = ['assets/fylite_rs.wasm', 'assets/fylite_tglf.wasm', 'assets/fylite_dke.wasm'];
-const walked = walk(APP).filter((f) => !/\.(map|md)$/.test(f) && !f.endsWith('.wasm'));
+//: ★★VENDORED THIRD-PARTY MEGABYTES ARE NOT PRECACHED (`FYL-DESIGN-18` U-25).
+//: `assets/vendor/h5wasm/` is ~4.2 MB — more than this repository's three
+//: kernel modules together — and it is an ON-DEMAND capability: `h5source.js`
+//: pulls it with a dynamic `import()` the first time somebody opens an HDF5
+//: file.  Precaching it would make every reader pay, on every first visit, for
+//: something most of them never use, and would quadruple what an offline
+//: install costs.  A reader who DOES open one gets it kept by the service
+//: worker's runtime cache, so the second time is offline-capable too.
+const VENDOR = /^assets\/vendor\//;
+const walked = walk(APP).filter((f) => !/\.(map|md)$/.test(f) && !f.endsWith('.wasm')
+                                       && !VENDOR.test(f));
 const files = walked.concat(WASM).sort();
 const wasm = WASM.filter((f) => existsSync(join(APP, f)));
 

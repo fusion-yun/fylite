@@ -34,6 +34,7 @@ const PRECACHE = [
   "assets/fyo.js",
   "assets/fyodev.js",
   "assets/geqdsk.js",
+  "assets/h5source.js",
   "assets/handoff.js",
   "assets/host.js",
   "assets/i18n.js",

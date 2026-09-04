@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "1.3"
+version: "1.4"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,11 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.3 中间层的 wasm 门**修好一半**（用户「评估修 runtime」）：实测发现拦路的不是 mdsip——29 个
+  change: 'v1.4 **导入 h5wasm**（用户裁定）：新裁定 **U-25**——浏览器读 HDF5 不靠再写一份实现，而是让
+    h5wasm 把 `.h5` 解成 fyo 文档，**再进源栈当普通一层**；C 库留在它自己的 Emscripten 模块里，本仓的
+    wasm 保持零 import。约 4.2 MB **按需 `import()`、不进预缓存**（比本仓三份内核 wasm 加起来还大）。
+    NIST 许可的三项义务逐条落实（原样保留声明 · 明确承认来源 · 未改动并留 sha256）。HDF5 闸
+    `validate-h5.mjs` 十一项通过，与原生读法**逐叶子相同**（14 片）。· v1.3 中间层的 wasm 门**修好一半**（用户「评估修 runtime」）：实测发现拦路的不是 mdsip——29 个
     C 导出**全部**带 `not(target_arch = "wasm32")` 的一刀切排除，而真碰文件系统的只有 4 个、碰套接字的 7 个。
     把通用指针助手 `s` / `put` 从 mdsip 杂货铺里提出来、`doc_abi` 与 `gfile_abi` 去掉连坐门、17 个既不读盘也不
     开套接字的导出解禁，`fylite_runtime.wasm` 遂有 **17 个导出、零 import**（文档模型含 `bundle_merge` ·
@@ -81,7 +85,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v1.3 |
+| 版本 (Version) | v1.4 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -605,9 +609,9 @@ C 档。
 里（§一 之 7 的理由不变）。`handoff.js` 的单槽退役为「记录作为源」（U-5）。
 
 (fylite-app-frontend-rulings)=
-# 十 · 裁定汇总 U-1..U-24 (Rulings)
+# 十 · 裁定汇总 U-1..U-25 (Rulings)
 
-:::{table} 本篇二十四条裁定，一行一条；「删掉」列是 J-10 的账。
+:::{table} 本篇二十五条裁定，一行一条；「删掉」列是 J-10 的账。
 :name: tbl-u18-rulings
 :align: left
 
@@ -637,6 +641,7 @@ C 档。
 | U-22 | 对照是规格里的角色 `baseline` | `-12` 钉住列 | 页面私有的「钉住列」状态 |
 | U-23 | 通道权重在图上编辑，写手填层；卷宗禁用的不能打开 | `-12` G-9 | 逐通道权重滑杆表 |
 | U-24 | 解释性文字：词表一句 · 场景一段 · 页面一段 | L-4 · 语料 `note` | — |
+| U-25 | 浏览器读 HDF5 = 第三方读者解成 fyo 文档，再进源栈；按需加载、不进预缓存 | L-9 · U-5 · H-5 | 「再写一份 HDF5 实现」这条路 |
 :::
 
 (fylite-app-frontend-proposals)=
@@ -690,6 +695,7 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★U-25 h5wasm 已导入（2026-09-04） | — | **浏览器读 HDF5**：`app/assets/vendor/h5wasm/`（0.10.3，逐字节 vendor，未改一处）+ `app/assets/h5source.js`。形状是**源栈的一层**，不是中间层的新格式——`.h5` → fyo 文档 → 与取数来的那份**没有分别**（U-5）。★**为什么不是把 `hdf5.rs` 搬进 wasm**：实测 `hdf5-metno-sys` 在 `wasm32-unknown-unknown` 上**编不出来**（`libc::FILE` / `off_t` / `ssize_t` 不存在），L-9 的裁定因此成立；把 C 库留在它自己的 Emscripten 模块里，本仓的 wasm 保持**零 import**（H-5）。★**代价与它的安置**：两个 ESM 文件约 **4.2 MB**，比本仓三份内核 wasm 加起来（约 1.56 MB）还大；故**动态 `import()`**、**排除在预缓存之外**（`make-sw.mjs` 按规则排除 `assets/vendor/`），打开过的读者由 service worker 的运行时缓存留下，没打开过的人**一个字节也不下**。★**许可**：NIST 条款三项义务逐条落实——声明原样保留、`ACKNOWLEDGEMENTS` 明确承认 NIST 为来源、未作任何修改并逐文件留 sha256。**未落**：IMAS 布局**按名拒绝**（张量化与轴转置，L-5 / L-6），只读本仓写的 fyo 布局；把它接到页面的文件选择控件上 | `validate-h5.mjs` 三节十一项通过：许可与出处在场、预缓存**按规则**不含它、浏览器读一份本仓写的 `.h5` 与**原生读法逐叶子相同（14 片）**、标量没退化成长度 1 的数组、非 HDF5 按名拒绝、首读 350 ms 次读 4 ms、作为源栈一层参与装配。★闸首跑逮到两处：致谢里还没承认 NIST（许可义务未落），以及**预缓存的排除是碰巧成立**（`sw.js` 尚未重生成）——后者已改成生成器里的规则 |
 | ★§五 源栈已落（2026-09-04，**文档半边**） | — | **多源组合**（U-5 · U-6 · U-7）：`app/assets/sources.js` 把一个端口上的若干层排成栈，产出一份 `fylite:Assembly/1`（别名映射 · 有序 `merge` · 可选 `select`），**页面自己不合并**（D-3）。关掉的层不进 `$source`（关掉是不参与，不是权重为 0）；`mdsbind` 源写成 `mdsbind:` URI 而不是 `file:`；上游**记录可以当一层源**并带世代号，上游重跑后该层标为**过期**而不静默更新——这一条把 `-10` P-4 的两种交接、P-21 的命名工件、`handoff.js` 的单槽与 `-12` G-2 收成一件事。**未落**：把源栈接到页面 DOM（拖动排序的控件）；`select` 的界面 | `validate-sources.mjs` 三节十六项通过。★**第三节只断言文档合契约**（`merge` 的别名都在 `$source` 里、栈顶排末位、倒栈则倒序），**不执行合并**——见 G-15 与〔用户裁定〕：Python 是另一个宿主，不在前端路径上，让它代替浏览器执行一个浏览器走不通的操作，会把缺失的路径显示成可用的路径。「合并真按这个次序发生」留给 W-1 在浏览器里自证 |
 | ★§八 试改已落（2026-09-04） | — | **交互试改**（U-15 · U-23）：`app/assets/edit.js` 把一次拖动落成**计划的一个版本**。**方把手**（R₀ a κ δᵤ δₗ）写 `sets_parameter`，位置 ↔ 参数值可逆（实测四位往返一致）；**圆路点**写一份绑到 `boundary` 端口的文档并带 `fylite:edited_from`；**剖面节点**走单调三次插值（PCHIP）——过每一个节点、单调段不过冲，与分析页的拟合基是两个问题两处答；**通道权重**写手填层，卷宗禁用的通道**打不开**并说出理由。撤销 / 「回到 #k」都是换回一版计划，从中间改出新枝时丢掉重做尾巴。轮廓**自交**或**出限制器**按名拒绝且**一个数都不改**；没有限制器时**不谎称通过**而是说明没判。档位表在一处，且**没有任何手势返回 C**（D-9：滑杆与把手到不了退火 / 扫描）。**未落**：把编辑器接到页面画布上的指针事件（`plot.js` 的 `handles` 与 `rOf/zOf` 已具备）；B 档求解的触发 | `validate-edit.mjs` 两节十七项通过，含「拒绝不改数」与「卷宗禁用打不开」两条否定断言 |
 | ★内核构建与真机验证（2026-09-04） | — | 本环境**构建了内核**：三份 wasm（v125，导出 235 / 12 / 11）装进 `app/assets/`，`libfylite_kernel.so` · `libfylite_kernel_ext.so` · `libfylite_runtime.so` 装进 `python/fylite/_lib/`。据此**补验了此前只能跳过的部分** | ①`validate-report.mjs` 首次跑通（G-13 关）；②`validate-transport-app.mjs`：**带生成表单的 model 页**三档闭包（常数 χ · 刚性 · 中子）与原生一致——度规 7e-8、剖面 4e-7，即 U-1 的表单生成**没有改变任何数值行为**；③Python 套件由 17 失败降到 6（余下 3 条缺 matplotlib、2 条缺外部 oracle、1 条溯源账已刷新）。★wasm **按仓规不入库**（`.gitignore` 写明「不要加例外把某一份放回来」），故只在工作树里 |

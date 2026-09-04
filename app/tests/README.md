@@ -328,3 +328,12 @@ await page.waitForFunction((re) => new RegExp(re).test(
 前端通往中间层的门是 **wasm**，而它今天不存在（`FYL-DESIGN-18` G-15：`fylite_runtime` 编得出 wasm 但
 零导出，`c_api` 与 `assembly` 都在 `mdsip` 特性门后）。第三节现在只断言**文档合 `assembly.rs` 头注
 写下的契约**，并把「合并真按这个次序发生」明确留给 W-1。
+
+〔`validate-h5.mjs`〕**HDF5 闸**（`FYL-DESIGN-18` U-25）：浏览器读 HDF5 走的是**第三方读者**
+（h5wasm，vendor 在 `assets/vendor/h5wasm/`）把 `.h5` 解成一份 fyo 文档，再当源栈的普通一层。
+夹具是一对：`fixtures/equilibrium.h5`（本仓自己写的 fyo 布局）与 `fixtures/equilibrium.json`
+（**原生读者**从同一份文件读回来的东西），两份都入库，所以这道闸是**纯 JS** 的——参照物是数据，
+不是第二个进程。判据是**与原生读法逐叶子相同**：结构对而取值错（转置、int64 属性变 BigInt、
+标量退化成长度 1 的数组）都能通过「看着对」而只在取值上现形。另断言两件容易悄悄回退的事：
+那 4.2 MB **在有人真打开文件之前不许加载**（读 `FyH5.loaded()`），以及**预缓存里没有它**
+（`make-sw.mjs` 按规则排除 `assets/vendor/`，不是碰巧）。
