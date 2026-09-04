@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "1.1"
+version: "1.2"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,14 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.1 新增一章「内核的状态」：**无状态，状态在文档里**（S-1..S-4）。实测内核 36 个源文件里
+  change: 'v1.2 「状态管理归谁」（用户提问 2026-09-04）：把「管理」拆成五件事——声明与产生归内核、
+    携带归中间层、持久化与决定归各宿主。实测持久化**早已分散**（Python engine 的 holder/restart ·
+    handles · versioning · ledger/replay；浏览器四处 localStorage 含 handoff.js；远端即调用方），
+    而三个「只放某一层」的答案各被一条事实否掉（内核=全局态回来、中间层=浏览器侧根本没有中间层、
+    Python engine=另外三个宿主拿不到）。新增 S-5（中间层只搬不改，改了续跑语义就有第二份实现）与
+    S-6（状态带写它那个内核的身份，认不出就按名拒绝——照抄 replay 的 allow_version_drift 规矩）。
+    结论：机制居中，策略分散。
+    v1.1 新增一章「内核的状态」：**无状态，状态在文档里**（S-1..S-4）。实测内核 36 个源文件里
     全局态为零（static mut / thread_local / lazy_static / OnceLock / Mutex 一处都没有），而 evolve_heat
     已经在传二十个成对的槽——那是一个入口自己发明的约定，改为 fyo 文档里一块声明过的 `fylite:state`
     子树，搭在 K-8 的双向树上。持句柄（P-2）否决：远端要会话亲和、wasm 要实例寿命、答案取决于看不见的
@@ -83,7 +90,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v1.1 |
+| 版本 (Version) | v1.2 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -662,6 +669,50 @@ K-8 的双向扁平树上——**状态是内核建出来的那棵树的一枝**
 
 ★★**一句话的因果**：因为内核无状态，所以状态必须显式；因为状态显式且是一棵树，所以
 「补数据再入」「断点续跑」「取消」「从中间复算」四件事**用的是同一个机制**，不是四套。
+
+## 状态管理归谁：机制居中，策略分散 (Where state management lives)
+
+〔已确立〕用户提问（2026-09-04）：状态管理放在中间层还是内核？——**先把「管理」拆开**，
+因为它不是一件事，而五件事分属三层。
+
+:::{table} 状态的五件事，各归各。
+:name: tbl-fylite-kernel-state-who
+
+| | 做什么 | 归谁 | 为什么只能是它 |
+| :--- | :--- | :--- | :--- |
+| ① | **声明**状态是什么（哪些槽、什么形） | **内核** | 只有它知道续跑要什么。今天 `evolve_heat` 的二十个槽就声明在 `fyo.rs` |
+| ② | **产生 / 消费**状态 | **内核** | 同上；写在它建的那棵树上（K-8） |
+| ③ | **携带**状态（随计划进、随记录出） | **中间层** | 它本来就在搬文档；状态是文档的一枝，不必另立通道 |
+| ④ | **持久化**（落盘、命名、版本、回收） | **宿主，各自** | 实测各宿主早已各有一套（见下） |
+| ⑤ | **决定**何时存、何时续、何时停 | **计划**，由宿主执行 | S-3：单步多步是计划的选择 |
+:::
+
+**④ 已经是分散的，而且应当继续分散。**〔已确立〕实测：Python `engine` 有 holder / `restart()`
+（`body.py`，48 处）· 数据句柄与运行根（`handles.py`）· 不可变迭代版本与陈旧判定
+（`versioning.py`）· 底账与重放（`ledger.py` / `replay.py`）；浏览器那侧四个资源在用
+`localStorage` / `sessionStorage`（含跨页交接 `handoff.js`）；远端那档持有者就是**调用方**。
+
+★**所以「管理放中间层还是内核」这个问法本身要修正**：两个都不是**唯一**的答案。
+
+* **不能只放内核**——S-1 已裁：内核留住状态就要句柄册，那是全局态，量到的那个零会没；
+  远端要会话亲和与崩溃清理；跨后端再也对拍不了。
+* **不能只放中间层**——实测浏览器那侧**没有中间层**：三个 wasm 制品全是内核，宿主是
+  JavaScript。策略只住在 `fylite_runtime` 里，浏览器就续不了跑。
+* **不能只放 Python `engine`**——同一条镜像过来：CLI、浏览器、远端都拿不到。
+
+**S-5 中间层只搬不改。** 状态经中间层时**不解释、不编辑**。它是声明过的子树，所以中间层
+**读得懂**——但读得懂不等于可以改：中间层一旦动状态，续跑语义就有了第二份实现，正是本篇一路
+在删的那件事。
+
+**S-6 状态带着写它的那个内核的身份；内核拒绝不是自己写的状态。** 内核换了版本，旧状态可能
+已经不成立。判据落在门上：状态子树带内核的版本与指纹（K-7 的环境指纹已经在记录里），内核
+**按名拒绝**认不出的状态，除非调用方显式说「知道，照跑」。★先例现成：`engine/replay.py`
+今天就在守制品的版本漂移，`allow_version_drift` 是一个**要显式给**的开关，给了还要在记录里
+说明。状态照抄这条规矩即可，不必发明。
+
+★★**一句话**：**机制居中，策略分散**。机制是那棵文档里的状态子树——内核声明它、产生它，
+中间层原样搬运它；策略是各宿主自己的事，因为各宿主的生命周期本来就不同（一次 CLI 调用、
+一个 Python 会话、一个浏览器标签页、一个远端请求），而**它们已经各有一套了**。
 
 (fylite-kernel-contract-deltas)=
 # 要改口的既有裁定 (Deltas to Standing Rulings)
