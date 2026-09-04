@@ -146,10 +146,10 @@ manifest_catalog()            # the capability catalogue, as JSON-LD
 The user guide is [`docs/guide/`](docs/guide/index.md) — start at
 [quick start](docs/guide/quickstart.md), or go straight to the **worked
 examples**, one runnable chapter per family: [the case corpus](docs/examples/index.md)
-· [0-D](docs/examples/zerod.md) · [1.5-D](docs/examples/transport.md)
-· [time evolution](docs/examples/evolve.md) ·
-[discharge design](docs/examples/design.md) ·
-[equilibrium reconstruction](docs/examples/reconstruction.md). Every command
+· [0-D](docs/examples/zerod/zerod.md) · [1.5-D](docs/examples/transport/transport.md)
+· [time evolution](docs/examples/evolve/evolve.md) ·
+[discharge design](docs/examples/design/design.md) ·
+[equilibrium reconstruction](docs/examples/reconstruction/reconstruction.md). Every command
 and number in them was measured in this repository, and every chapter says what
 its family **cannot** answer. The API map is
 [`docs/reference/api.md`](docs/reference/api.md).
@@ -345,7 +345,7 @@ fy data info  g063982.04800                          # what is this file?
 fy data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
 fy data merge machine.h5 shot.nc -o all.jsonld         # later sources win
 fy data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
-fy data fetch --machine east --ids magnetics \
+fy data fetch --device east --ids magnetics \
                   --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o mag.json   # 4–5 s, sliced on the server
 ```
 

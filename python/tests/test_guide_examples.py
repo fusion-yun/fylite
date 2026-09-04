@@ -37,15 +37,21 @@ EXAMPLES = DOCS / "examples"
 GUIDE = DOCS / "guide"
 #: the worked examples and their entry page — the chapters that must carry a
 #: 「边界」 section and that this gate reads for runnable calls
-CHAPTERS = ("examples/index.md", "examples/zerod.md", "examples/transport.md",
-            "examples/evolve.md", "examples/design.md", "examples/reconstruction.md")
+#: ★★2026-09-04 一个例子一个目录（用户裁定）：语料收进 `docs/examples/`，每一章
+#: 与它走的那几份 scenario 文件同住 —— `examples/<章>/<章>.md` + `<算例>.jsonld`。
+#: 页名 = 目录名（不是 `index.md`）：站点 URL 随文件名，都叫 index 会挤成
+#: `examples/index-1..5`。语料的目录 `catalogue.jsonld` 仍在 `examples/` 根上。
+CHAPTERS = ("examples/index.md", "examples/zerod/zerod.md",
+            "examples/transport/transport.md", "examples/evolve/evolve.md",
+            "examples/design/design.md", "examples/reconstruction/reconstruction.md")
 #: ★the path rules below apply to BOTH parts, not just the worked examples: the
 #: rot they catch (a retired tree named as though it were there) is exactly what
 #: the older topic chapters had, and gating only the worked examples would have
 #: let them keep it.  Names are stored as they are read below — `guide/x.md` and
 #: `examples/x.md` both exist (`reconstruction.md`), so a bare basename would
 #: collapse two chapters into one.
-BOOK = tuple(sorted([f"examples/{p.name}" for p in EXAMPLES.glob("*.md")]
+BOOK = tuple(sorted([f"examples/{p.relative_to(EXAMPLES).as_posix()}"
+                     for p in EXAMPLES.rglob("*.md")]
                     + [f"guide/{p.name}" for p in GUIDE.glob("*.md")]))
 
 
@@ -58,8 +64,12 @@ def text() -> dict[str, str]:
 
 @pytest.fixture(scope="module")
 def catalogue() -> set[str]:
-    cat = ROOT / "cases" / "catalogue.jsonld"
-    if not cat.is_file():
+    #: ★位置问库（`cases.corpus_dir()`），不再各写一份路径——语料 2026-09-04 收进
+    #: `docs/examples/`，写死的那一份会让这条闸子静静转为 skip 而不是跟着搬家。
+    from fylite.engine import cases as _cases
+    try:
+        cat = _cases.corpus_dir() / "catalogue.jsonld"
+    except Exception:                               # noqa: BLE001
         pytest.skip("the scenario corpus is not in this checkout")
     doc = json.loads(cat.read_text(encoding="utf-8"))
     return {str(m.get("id", "")).rsplit("/", 1)[-1] for m in doc.get("has_part") or []}

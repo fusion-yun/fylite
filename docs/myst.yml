@@ -87,12 +87,15 @@ project:
       #: 完整路径」而不是「怎么用」。文件名里那六个 `example-` 前缀随之去掉——目录名
       #: 已经说了，`guide/cases.md` 则成了本篇的 `index.md`。
       children:
+        #: ★2026-09-04 一个例子一个目录：散文与它走的 scenario 文件同住
+        #: （`examples/<章>/<章>.md` + `examples/<章>/<算例>.jsonld`）。页名 = 目录名，
+        #: 不用 `index.md`——站点 URL 随文件名，都叫 index 会挤成 `examples/index-1..5`。
         - file: examples/index.md
-        - file: examples/zerod.md
-        - file: examples/transport.md
-        - file: examples/evolve.md
-        - file: examples/design.md
-        - file: examples/reconstruction.md
+        - file: examples/zerod/zerod.md
+        - file: examples/transport/transport.md
+        - file: examples/evolve/evolve.md
+        - file: examples/design/design.md
+        - file: examples/reconstruction/reconstruction.md
 
     - title: 参考 (Reference) —— 一个数能不能用，凭什么
       children:

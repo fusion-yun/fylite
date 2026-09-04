@@ -126,16 +126,24 @@ def corpus_dir(explicit=None) -> Path:
     ★仍然 **`app/` 里没有任何东西读它**：浏览器那份副本 2026-09-01 撤除，所以只有
     一份语料，没有需要保持同步的发布子集。
     """
+    #: ★★★2026-09-04 用户裁定：**语料收进 `docs/examples/`，一个例子一个目录**
+    #: （散文与它走的那几份 scenario 文件同住）。理由是那份散文与那份计划从来是
+    #: 一件事的两半：读者读的那一章、与他照着跑的那份文档，此前隔着两棵树，
+    #: 于是「改了计划忘了改章」是**没有任何一处会红**的失配。同住之后它是一次
+    #: 编辑。★目录仍是**语料**（`catalogue.jsonld` 在 `docs/examples/` 根上），
+    #: 只是它的每一项现在写成 `<章>/<文件>`。
+    #: ★旧位置（仓根 `cases/`、更早的 `docs/cases/`）仍然认：别处的检出不该因为
+    #: 一次搬家就断，而认错位置的代价只是多看两个目录。
     here = Path(__file__).resolve().parents[3]
     roots = ([Path(explicit)] if explicit else
-             #: 仓根优先；`docs/cases` 作为旧位置仍认，免得别处的检出一换就断。
-             [Path("cases"), here / "cases",
+             [Path("docs/examples"), here / "docs" / "examples",
+              Path("cases"), here / "cases",
               Path("docs/cases"), here / "docs" / "cases"])
     for r in roots:
         if (r / "catalogue.jsonld").is_file():
             return r
     raise CorpusMissing(
-        "fylite cases: no corpus found (looked for catalogue.jsonld in "
+        "the scenario corpus: no catalogue.jsonld found (looked in "
         + ", ".join(str(r) for r in roots)
         + ") — the scenario corpus is repository data and does not ship "
           "with the wheel; run from a checkout or pass --dir")
@@ -984,7 +992,9 @@ def problems(d: Path | None = None) -> list[str]:
     from ..scenario import BROWSER_ONLY_BARS, TOOLS
     bars = {t["bar"] for t in TOOLS.values() if t["bar"]} | set(BROWSER_ONLY_BARS)
     bad: list[str] = []
-    on_disk = {p.name for p in d.glob("*.jsonld")} - _NOT_CASES
+    #: ★一个例子一个目录之后，盘上的计划在 `<章>/` 里，孤儿检查要跟着下一层；
+    #: 记的是**目录相对路径**，与目录里的 `storage_uri` 同形。
+    on_disk = {str(p.relative_to(d).as_posix()) for p in d.rglob("*.jsonld")} - _NOT_CASES
     named: set[str] = set()
     for e in catalogue(d):
         cid, doc_name = e.get("case_id"), e.get("file")

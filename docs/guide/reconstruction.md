@@ -106,6 +106,6 @@ li 1.95±0.057、βp 0.302±0.015、$W_{mhd}$ 37.0±1.8 kJ、χ² 11.8±0.43。
 - POINT 的 $n_e$ 线积分仍有已知的实测-前向偏移；
 - 内部剖面**不可定量使用**——见[保真度边界](../reference/fidelity.md)。
 
-★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`，见[算例语料](../examples/index.md)与[诊断分析：平衡反演](../examples/reconstruction.md)）。本节用到的 EAST 测量文档、交付平衡与离线参考随 `machine_desc/` 一并退役，只在**内核仓的历史**里（`b4dce77^`）；取法见[安装与环境](install.md)——本节用到的是那份
+★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`，见[算例语料](../examples/index.md)与[诊断分析：平衡反演](../examples/reconstruction/reconstruction.md)）。本节用到的 EAST 测量文档、交付平衡与离线参考随 `machine_desc/` 一并退役，只在**内核仓的历史**里（`b4dce77^`）；取法见[安装与环境](install.md)——本节用到的是那份
 装置目录里的 `case_east137985_4000ms.fyo.jsonld`。★**实验数据不入本仓**，这条由
 `python/tests/test_examples_are_fyo.py` 机检。

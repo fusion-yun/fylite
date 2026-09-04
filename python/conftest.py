@@ -201,7 +201,8 @@ def pytest_runtest_setup(item):
     except _device.MachineDataMissing as exc:
         pytest.skip(str(exc))
     except _CorpusMissing as exc:
-        #: ★★2026-09-01 语料移出本仓、09-02 又搬了回来（仓根 `cases/`）。这条
+        #: ★★语料搬过三次：出本仓、回仓根 `cases/`、2026-09-04 收进 `docs/examples/`
+        #: （一个例子一个目录，散文与 scenario 同住）。这条
         #: 救援路径**留着**：语料是仓数据、不进轮，装了轮而没有检出的调用者仍会
         #: 撞上它。而
         #: `engine.cases` 找不到语料时抛的是 **`SystemExit`**——那是它 CLI 面的
@@ -210,7 +211,7 @@ def pytest_runtest_setup(item):
         #: ★这里只认**那一条**消息，不是见 SystemExit 就救：一个真的调了
         #: `sys.exit()` 的缺陷仍然照红。判据与上面「缺装置数据」的那条同形——
         #: 缺输入是跳过并点名，缺实现才是失败。
-        pytest.skip("找不到算例语料（仓根 cases/）；"
+        pytest.skip("找不到算例语料（`docs/examples/`）；"
                     "要跑这条，把语料检出后用 --dir 指过去")
     except FileNotFoundError as exc:
         if _is_machine_data(exc):
@@ -246,7 +247,7 @@ def pytest_runtest_call(item):
     except _CorpusMissing as exc:
         #: 与 setup 钩子同一条政策：缺语料是跳过并点名，不是失败。两个阶段都覆盖，
         #: 是为了让「语料不在」只有一种结局——此前它在一处是 ERROR、另一处是 skip。
-        pytest.skip("找不到算例语料（仓根 cases/）；"
+        pytest.skip("找不到算例语料（`docs/examples/`）；"
                     "把语料检出后用 --dir 指过去即可跑这条")
     except FileNotFoundError as exc:
         if _is_machine_data(exc):

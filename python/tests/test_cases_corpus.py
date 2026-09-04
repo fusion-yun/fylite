@@ -1,4 +1,4 @@
-"""算例语料的结构不变式（`cases/`）。
+"""算例语料的结构不变式（`docs/examples/`：一个例子一个目录）。
 
 ★★2026-09-04：这条闸子从 `test_cli_spec.py` 搬来，同批把被它调用的那个函数从
 `engine/cli.py` 搬进 `engine/cases.py`。它从前只经命令行的 `fylite cases --check`

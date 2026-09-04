@@ -35,6 +35,13 @@ pytestmark = pytest.mark.skipif(
 
 
 def _pulled() -> list[pathlib.Path]:
+    #: ★★2026-09-04 实测：`pytestmark` 的 skipif 挡不住这一步。`@parametrize` 在
+    #: **收集期**求值，早于任何 skip 判定，所以 `facts/` 不在时这里抛
+    #: `FileNotFoundError`，**整轮 pytest 收集失败**——一个可选的本地输入不在场，
+    #: 打断的却是全部 1700 多条闸子。缺输入的结局只能是跳过并点名（`conftest.py`
+    #: 那条政策的原话），所以这里先问目录在不在。
+    if not DEVICES.is_dir():
+        return []
     return sorted(d for d in DEVICES.iterdir() if d.is_dir())
 
 

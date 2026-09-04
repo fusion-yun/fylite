@@ -88,7 +88,7 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/iter
 
 ★★**拖回来不是等价替换。** 实测：拖回的 ITER 牌**没有** `power_supply` 组，于是
 `scenario.design.pulse.channel_limits` 会 `KeyError`；壁面轮廓的写法也从 `points` 换成
-`r` / `z` 两个数组。拖回之后要复核读它的那几处——见[放电设计](../examples/design.md)那一章
+`r` / `z` 两个数组。拖回之后要复核读它的那几处——见[放电设计](../examples/design/design.md)那一章
 里怎么显式给限值。
 
 ★★**EAST 那张牌拖不回来。** 它一直是**手工维护**的，且严格富于上游（est2 79 探针基底、
@@ -103,7 +103,7 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/east
 ★A-Box 里**有** EAST 的实验切片（`abox/experiment/east/137985/slice_*.fyo.jsonld`），
 但那是**另一次约化**：实测同一时刻的 I_p 为 400 940 A，而退役件里是 393 460 A（差 1.9 %），
 反演在它上面不收敛（内核 −105100）。**它不是那份算例文档的替代品**，见
-[诊断分析：平衡反演](../examples/reconstruction.md)。
+[诊断分析：平衡反演](../examples/reconstruction/reconstruction.md)。
 :::
 
 ```bash

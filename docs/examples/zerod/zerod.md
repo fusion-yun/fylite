@@ -112,7 +112,7 @@ casereport.render(cases.run("zerod-iter-15ma"), out="out/zerod")
 ## 边界
 
 - 剖面在两档里都是**规定形状**（峰化因子给定），0-D 不解输运方程——要剖面演化见
-  [含时演化](evolve.md)。
+  [含时演化](../evolve/evolve.md)。
 - 聚变功率用 Bosch–Hale ⟨σv⟩，杂质辐射按 `zeff` 与所选杂质的冷却率；**没有**边界/偏滤器模型。
 - 相位由 `t_ru` / `t_ft` / `t_end` 三个时刻切分，梯形波形由内核单源给出
   （`K.zerod_waveform`），浏览器与 Python 读的是同一条。

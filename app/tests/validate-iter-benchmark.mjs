@@ -1,6 +1,6 @@
 // ITER 15 MA 感应燃烧：含时演化栏对 ASTRA 参考剖面的对拍（T-C2）。
 //
-// ★★这道闸子把算例说明里的一句话变成数。`cases/evolve-iter-15ma.jsonld`
+// ★★这道闸子把算例说明里的一句话变成数。`docs/examples/evolve/evolve-iter-15ma.jsonld`
 // 一直写着「跑到 8 s 时 W_th ≈ 342 MJ、τ_E ≈ 3.6 s、β_N ≈ 1.8、Q ≈ 11 ——
 // 与 ITER 15 MA 的设计点同量级」。「同量级」没有参考数、没有容差，也没有
 // 任何东西在跑它：改一个缺省、换一版内核，它照样是那句话。
@@ -34,7 +34,7 @@
 //
 //   node app/tests/validate-iter-benchmark.mjs [--playwright DIR] [--url BASE]
 
-import { readFileSync, mkdtempSync } from 'node:fs';
+import { existsSync, readFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { browser, flag } from './_browser.mjs';
@@ -57,6 +57,14 @@ const band = (got, lo, hi, what, unit = '') =>
 // --- ASTRA 参考表 ----------------------------------------------------------
 
 const REF = ROOT + '/tests/data/reference/iter15ma_astra_burn.csv';
+//: ★★2026-09-04：参考表是**私有**语料（`tests/data` → fydoc 的算例书，一条符号
+//: 链接），公开检出里没有它。缺输入的结局只能是**跳过并点名**——此前这里直接
+//: `readFileSync`，于是缺一份可选输入时整道闸子以 ENOENT 崩掉，读日志的人看到的
+//: 是一段 Node 栈，而不是「这条要私有语料」。
+if (!existsSync(REF)) {
+  console.log(`跳过：没有 ASTRA 参考表 ${REF}\n  它随 fydoc（私有）走：ln -s <fydoc>/cases tests/data`);
+  process.exit(0);
+}
 const lines = readFileSync(REF, 'utf8').split('\n').filter((l) => l && !l.startsWith('#'));
 const head = lines[0].split(',');
 const ref = lines.slice(1).map((l) => {

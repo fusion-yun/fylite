@@ -128,14 +128,14 @@ record["run_state"]        # 'succeeded'
 | `evolve-jintrac-*` | 参考运行是第三方产物（受限），本仓跑不动；它们是**对拍记录的输入侧说明**，不是可执行算例 |
 
 ★**宁可拒绝，不给假数**（拒绝逐条带理由，见 `fylite.engine.cases.REFUSALS`）。想跑
-反演，走[诊断分析：平衡反演](reconstruction.md)那一章的 Python 入口。
+反演，走[诊断分析：平衡反演](reconstruction/reconstruction.md)那一章的 Python 入口。
 
 ## 五族典型算例
 
 | 章 | 算例 | 问的是 |
 | :--- | :--- | :--- |
-| [0-D 放电](zerod.md) | `zerod-iter-15ma` | 一发放电的功率平衡与时间轨迹 |
-| [1.5-D 芯部输运](transport.md) | `transport-iter-15ma` | 给定度规与 χ，剖面长什么样 |
-| [含时演化](evolve.md) | `evolve-iter-15ma` | 剖面随时间怎么走，能不能点燃 |
-| [放电设计](design.md) | `breakdown-iter` · `discharge-iter` | 线圈电流该给多少，才有这个位形 |
-| [诊断分析：平衡反演](reconstruction.md) | EAST #137985 @ 4 s | 给定测量，位形是什么 |
+| [0-D 放电](zerod/zerod.md) | `zerod-iter-15ma` | 一发放电的功率平衡与时间轨迹 |
+| [1.5-D 芯部输运](transport/transport.md) | `transport-iter-15ma` | 给定度规与 χ，剖面长什么样 |
+| [含时演化](evolve/evolve.md) | `evolve-iter-15ma` | 剖面随时间怎么走，能不能点燃 |
+| [放电设计](design/design.md) | `breakdown-iter` · `discharge-iter` | 线圈电流该给多少，才有这个位形 |
+| [诊断分析：平衡反演](reconstruction/reconstruction.md) | EAST #137985 @ 4 s | 给定测量，位形是什么 |

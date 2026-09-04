@@ -1,8 +1,8 @@
 {
  "@context": [
-  "context.jsonld",
+  "../context.jsonld",
   {
-   "@base": "../"
+   "@base": "../../../"
   }
  ],
  "id": "cases/transport-iter-15ma",
