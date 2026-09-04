@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "4.1"
+version: "4.2"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,9 @@ created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v4.1：`FYL-DESIGN-16` 升 v0.8（新增「内核怎样收下一棵树」：M-1..M-4 四条路，
+  change: 'v4.2：`FYL-DESIGN-16` 升 v1.0（**flat tree 定为交互接口且双向**；回调式整条撤回；
+    新增「内核跑到一半要补数据怎么办」S-1..S-4）。
+    v4.1：`FYL-DESIGN-16` 升 v0.8（新增「内核怎样收下一棵树」：M-1..M-4 四条路，
     推荐 M-2 已解析扁平树——约 300 行零依赖阅读器，解析不进内核，大 f64 数组零拷贝；分期 T-1..T-4）。
     v4.0：`FYL-DESIGN-16` 升 v0.6（K-8：装置从 A-Box 读入、由中间层导入、以**整份 fyo
     结构体**进内核，内核不管数据源头也不收路径；据此关闭 G-3，并改正目标表「不认识装置」为
@@ -99,7 +101,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v4.1 |
+| 版本 (Version) | v4.2 |
 | 发布日期 (Date of Issue) | 2026-09-02 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -152,7 +154,7 @@ SRS / SDD。
 | [`FYL-DESIGN-13`](FYL-DESIGN-13.md) | **装置数据页**（`data`）——四页里唯一的**工具页**：没有内核、没有 worker、没有功能栏，**它什么也不算**。缺进程时如实降级（P-10）· 抽稀不是归约（P-11）· 守卫两侧各做一遍、两个宿主一组端点（P-12）· 目录说存在从不说这一炮记了（P-18）· 产物是「你看过了什么」（P-24）。★v0.2 增 **P-30**（抽稀必须画得出来：采样点画出、图注写两个数、横拖是回服务器重取）与视觉词汇表；外壳的输入槽在这一页装的是 **mdsip 数据源**，出口槽为空且不留空格。★v0.3：落地（`page_data` 空态图，首处输出 335 px） | v0.3 · WD |
 | [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **数据层**（`rust/fylite_runtime/`，源码公开）——不同数据源 ↔ fyo 文档的读写转换、多源合并、按 JSON-LD 装配。只读 MDSplus / a-file；读写 JSON / g-file / HDF5 / netCDF，各带 fyo 与 IMAS DD 两种布局；IMAS 布局以 imas-python / imas-core 读回逐叶子相同为判据，元数据从 DD 的 `IDSDef.xml` 生成（`nc_metadata.py` 逐条移植）；文件类型看内容识别。裁定 L-1..L-9，缺口 G-1..G-6 | v0.1 · WD |
 | [`FYL-DESIGN-15`](FYL-DESIGN-15.md) | **发布形态与统一命令行**——单一可执行文件 `fylite-app`（Rust 宿主的全部命令行：`app` 缺省、`data` / `case` 子命令）· 静态网页（`app/` + 三个 wasm，`tools/build-site.sh`）与动态网页（同一份字节由 `fylite-app` 伺服并答 `/api/*`）· Python 包（承载全部命令，`app` / `data` / `case` 逐字委托）；三个宿主的命令行从同一个 `_cli.json` 建出，只属一个宿主的参数标 `hosts`，浏览器启动参数 `device` / `lang` / `theme` / `page` 定义一次并受门核对。裁定 R-1..R-6、C-1..C-8，缺口 6 条 | v0.1 · WD |
-| [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核（本地 `.so` / 页内 wasm / 远端进程 / 另一种实现）以 **fyo 文档门为唯一接口**：code 表声明能力、manifest 声明结果，ABI 号降为本地后端内部物；装配搬进内核，宿主退成计划构造器；`fylite_runtime` 定为 **SpData 的 profile**（重叠语义以 SpData 为准并跑其向量）并持有后端表；前端只写计划只读记录。实测底账：Python 125 / 浏览器 146 个扁平调用 vs 文档门 3 个 code。裁定 K-1..K-7 · **N-1（改名：推荐 `fylite_runtime`）** · D-1..D-4 · H-1..H-3，五条既有裁定改口（含「双宿主」→「多宿主」），分期 P0..P3，缺口 G-1..G-6。★v0.2：**多宿主**（CLI / Python 库 / 网页 / AI 面）与**中间层**改口 · ★v0.3 / v0.4：改名**已执行**，落定 `fylite_runtime`（N-2 记下 N-1 那条被证伪的理由与两层的重叠实测）· ★v0.5 / v0.6：**K-8**（装置：A-Box → 中间层 → 整份 fyo 结构体 → 内核；G-3 已关，目标表「不认识装置」改为「不认识数据源头」）· ★★v0.7 **K-8a 实测缺陷**（路径被按 / 切尾丢掉、重复键后写者胜，两文档同名收尾静默并成一条，`rc=0`）· ★v0.8 **内核收树的四条路与分期**（推荐 M-2 已解析扁平树） | v0.8 · WD |
+| [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核（本地 `.so` / 页内 wasm / 远端进程 / 另一种实现）以 **fyo 文档门为唯一接口**：code 表声明能力、manifest 声明结果，ABI 号降为本地后端内部物；装配搬进内核，宿主退成计划构造器；`fylite_runtime` 定为 **SpData 的 profile**（重叠语义以 SpData 为准并跑其向量）并持有后端表；前端只写计划只读记录。实测底账：Python 125 / 浏览器 146 个扁平调用 vs 文档门 3 个 code。裁定 K-1..K-7 · **N-1（改名：推荐 `fylite_runtime`）** · D-1..D-4 · H-1..H-3，五条既有裁定改口（含「双宿主」→「多宿主」），分期 P0..P3，缺口 G-1..G-6。★v0.2：**多宿主**（CLI / Python 库 / 网页 / AI 面）与**中间层**改口 · ★v0.3 / v0.4：改名**已执行**，落定 `fylite_runtime`（N-2 记下 N-1 那条被证伪的理由与两层的重叠实测）· ★v0.5 / v0.6：**K-8**（装置：A-Box → 中间层 → 整份 fyo 结构体 → 内核；G-3 已关，目标表「不认识装置」改为「不认识数据源头」）· ★★v0.7 **K-8a 实测缺陷**（路径被按 / 切尾丢掉、重复键后写者胜，两文档同名收尾静默并成一条，`rc=0`）· ★v0.8/v0.9/v1.0 **内核收树**：flat tree 定为交互接口、**双向可读可写**（今天两侧各在做文本活，双向树一并删掉四处）；**回调式已撤回**（浏览器侧宿主是 JS、远端每次取值一次往返、溯源说不清输入集）；补数据走 **S-1 先问后跑 / S-2 按名拒绝带树再入 / S-3 编进内核**，惰性取数否决 | v1.0 · WD |
 
 (fylite-design-index-archive)=
 # 归档文档 (Archived Documents)
