@@ -63,7 +63,6 @@
     "rust"
    ],
    "help": "serve the embedded browser app on the loopback address and open it in the system browser (the single-file viewer)",
-   "handler": "fylite.engine.cli:_cli_app",
    "args": [
     {
      "flags": [
@@ -157,7 +156,6 @@
     "rust"
    ],
    "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD / YAML document, fetching a shot from a fydata machine manifest",
-   "handler": "fylite.engine.cli:_cli_data",
    "args": [
     {
      "flags": [
@@ -592,7 +590,6 @@
     "rust"
    ],
    "help": "a case from a fyo plan to a fyo record, through the kernel: one structure in, one structure out",
-   "handler": "fylite.engine.cli:_cli_case",
    "args": [
     {
      "flags": [

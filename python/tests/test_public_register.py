@@ -23,11 +23,17 @@ import pytest
 from fylite.engine import benchmark as bm
 
 ROOT = Path(__file__).resolve().parents[2]
-BM = ROOT / "benchmark"
+#: ★★2026-09-04：**问库，不要再猜一次路径。** 这里从前写死 `ROOT / "benchmark"`，
+#: 册子搬到 `docs/benchmark/` 之后这十条闸子整体转为 skip —— 一条 skip 不会让任何人
+#: 停下来看，于是册子的结构问题攒在暗处。位置只有 `bm.registry_dir()` 一处知道。
+try:
+    BM = bm.registry_dir()
+except Exception:                                   # noqa: BLE001 — 不在检出里
+    BM = ROOT / "benchmark"
 REGISTRY = BM / "registry.jsonld"
 
 pytestmark = pytest.mark.skipif(not REGISTRY.is_file(),
-                                reason="benchmark/registry.jsonld not in this checkout")
+                                reason="the V&V register is not in this checkout")
 
 
 @pytest.fixture(scope="module")

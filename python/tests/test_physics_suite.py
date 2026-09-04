@@ -26,10 +26,15 @@ from fylite.engine import suite as sc
 from test_physics_checks import bundle, summary_doc          # noqa: E402  (同目录的构造件)
 
 ROOT = Path(__file__).resolve().parents[2]
-SUITE = ROOT / "benchmark" / "physics" / "suite.jsonld"
+#: ★2026-09-04 同 `test_public_register.py`：位置问库（`sc.suite_dir()`），不再写死——
+#: 册子搬去 `docs/` 之后写死的那一份让这些闸子静静转为 skip。
+try:
+    SUITE = sc.suite_dir() / "suite.jsonld"
+except Exception:                                   # noqa: BLE001
+    SUITE = ROOT / "benchmark" / "physics" / "suite.jsonld"
 
 pytestmark = pytest.mark.skipif(not SUITE.is_file(),
-                                reason="benchmark/physics/suite.jsonld not in this checkout")
+                                reason="the physics suite is not in this checkout")
 
 
 @pytest.fixture(scope="module")

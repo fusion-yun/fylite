@@ -56,12 +56,15 @@ def _root() -> Path:
 def suite_dir(explicit=None) -> Path:
     """``benchmark/physics/`` —— 仓库数据，不随轮子走；不在场按名拒绝。"""
     here = _root()
-    roots = [Path(explicit)] if explicit else [Path(REGISTER), here / REGISTER]
+    #: ★2026-09-04 同 `benchmark.registry_dir`：`docs/` 下是今天的位置，旧位置仍认。
+    roots = ([Path(explicit)] if explicit else
+             [Path("docs") / REGISTER, here / "docs" / REGISTER,
+              Path(REGISTER), here / REGISTER])
     for r in roots:
         if (r / SUITE).is_file():
             return r
     raise CorpusMissing(
-        "fylite benchmark: no physics suite found (looked for " + SUITE + " in "
+        "the physics suite: no " + SUITE + " found (looked in "
         + ", ".join(str(r) for r in roots)
         + ") — the suite is repository data and does not ship with the wheel; "
           "run from a checkout or pass --dir")

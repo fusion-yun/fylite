@@ -51,14 +51,22 @@ STORE_ENV_LEGACY = "FYDATA_ORACLE"
 
 
 def registry_dir(explicit=None) -> Path:
-    """The `benchmark/` register — repo data beside the checkout, absent → refuse."""
+    """The V&V register — repo data beside the checkout, absent → refuse.
+
+    ★★2026-09-04 实测：它搬到 `docs/benchmark/` 之后这里没跟上，于是**十条闸子
+    整体转为 skip**（`test_public_register.py` 报「registry.jsonld not in this
+    checkout」）而没有一处报错——一个解析不到的指针不会失败，只会安静地不看。
+    新旧位置都认：搬家期间两边都可能是对的，而认错位置的代价是「看起来绿」。
+    """
     here = Path(__file__).resolve().parents[3]
-    roots = ([Path(explicit)] if explicit else [Path("benchmark"), here / "benchmark"])
+    roots = ([Path(explicit)] if explicit else
+             [Path("docs/benchmark"), here / "docs" / "benchmark",
+              Path("benchmark"), here / "benchmark"])
     for r in roots:
         if (r / "registry.jsonld").is_file():
             return r
     raise CorpusMissing(
-        "fylite cases --benchmark: no register found (looked for registry.jsonld in "
+        "the V&V register: no registry.jsonld found (looked in "
         + ", ".join(str(r) for r in roots)
         + ") — the V&V register is repository data and does not ship with the wheel; "
           "run from a checkout or pass --dir")
