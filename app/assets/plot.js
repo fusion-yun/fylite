@@ -454,6 +454,18 @@
     //: what a click event gives.
     canvas.fyxy = {
       xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax,
+      //: ★the plot box in CSS pixels, and the FORWARD map beside the inverse
+      //: one.  A caller that can turn a click into a value but not a value
+      //: into a position can read the figure and not annotate it — which is
+      //: half of what「把光标停在 t = 3.20 s」needs (`FYL-DESIGN-18` U-17).
+      //: `prepare()` leaves the context scaled by the device pixel ratio, so
+      //: these are the coordinates a caller draws in.
+      box: { l: pad.l, r: p.w - pad.r, t: pad.t, b: p.h - pad.b },
+      toPixel: function (x, y) {
+        var w = p.w - pad.l - pad.r, h = p.h - pad.t - pad.b;
+        return { px: pad.l + (x - xmin) / ((xmax - xmin) || 1) * w,
+                 py: p.h - pad.b - (y - ymin) / ((ymax - ymin) || 1) * h };
+      },
       toData: function (px, py) {
         var w = p.w - pad.l - pad.r, h = p.h - pad.t - pad.b;
         return { x: xmin + (px - pad.l) / (w || 1) * (xmax - xmin),

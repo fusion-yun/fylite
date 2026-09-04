@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "0.5"
+version: "0.6"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,11 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.5 U0 第三步落地：`app/assets/run.js`（步预算分片 · 进度按步实测 · 取消切预算）与
+  change: 'v0.6 U0 第四步落地：`app/assets/workbench.js`（瓦片布局写回 `fylite:layout`、`has_view` 按
+    先行后列重排、缩放与光标按坐标族共享、钉住把瞬态写进规格、图层开关即时入规格），`plot.js` 补
+    正向映射 `toPixel` 与 `box`；工作台闸 `validate-workbench.mjs` 十三项通过并逮到一处真缺陷
+    （程序化 `move()` 未把宽度夹在 12 列内）。**U0 四条至此在本环境内全部落地**，余下的接线要内核。
+    · v0.5 U0 第三步落地：`app/assets/run.js`（步预算分片 · 进度按步实测 · 取消切预算）与
     `app/assets/checkpoint.js`（断点即记录，IndexedDB；内核身份不符按名拒绝，漂移写进 environment）；
     断点闸 `validate-checkpoint.mjs` 十四项通过，并逮到两处真缺陷——恢复后步号从头开始（等价性判据
     当场不成立）、分片可跨过断点间隔使 `checkpointEvery` 形同虚设（实测一次也没落）。
@@ -48,7 +52,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v0.5 |
+| 版本 (Version) | v0.6 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -657,6 +661,7 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★U0 已落（2026-09-04，第四步） | — | **工作台与布局**：`app/assets/workbench.js` 把规格的每个视图做成 12 列栅格上的一块瓦片——拖标题移动、拖右下角缩放，落点写 `fylite:layout`，并把 `has_view` **按先行后列重排**（U-14：不认识该词的渲染器读的是次序，所以次序必须与看到的一致）；框选缩放与光标**按坐标族共享**（时序动、剖面不动，U-17）；瞬态与入规格**两种状态**，未钉住的瓦片带「未钉住」标记，钉住把定义域写进 `fylite:domain` 并清标记；图层开关立刻入规格（U-16）。导入的规格与导入的会话文件同样不可信：布局一律夹进栅格。`plot.js` 补正向映射 `toPixel` 与绘图框 `box`（画光标需要，与既有的逆映射对称）。**未落**：把工作台挂进某一页（要先有记录）；自组视图（任选两量）的入口；瓦片菜单里的换轴与图层清单 | `validate-workbench.mjs` 两节十三项通过。★闸子逮到一处真缺陷：夹到栅格内的钳位只写在拖拽处理器里，程序化的 `move()`（预设布局、导入的规格、自己算坐标的调用方）能把一块瓦片放到第 6 列却给 12 列宽，CSS 静默溢出——钳位已移进 API |
 | ★U0 已落（2026-09-04，第三步） | — | **执行与断点**：`app/assets/run.js` 把一次多步运行做成**一串门调用**——步预算分片（每次调用瞄准 200 ms，交互档 DE-LOG-04）、进度由**调用方数出来**而非内核回报（门上没有回调）、剩余时间**报出不承诺**、`cancel()` 把剩余预算切到 0（本片结束即停，已算的步全在），`terminate` 只留作**硬中断**并另有其名。步进器是**注入的**：`run.js` 不认识 worker、wasm 或 fyo，这正是等价性能在无内核环境下被断言的原因。`app/assets/checkpoint.js` 把断点存进 IndexedDB——**没有断点格式**，存的就是那份记录的原文本（与导出同一批字节，U-18）；清单行的每个值都读自记录；`resumable()` 按 K-7 的内核身份判可否续，不符按名拒绝并说出两个哈希，显式允许漂移时把它写进 `environment` 与 `caveat`（U-11 · S-6）。**未落**：把 `worker.js` 的 `evolve` 逐步驱动接到 `FyRun`（要 wasm）；单步 code 的「求解中 · 预算 ≤ 1.5 s」措辞；硬中断的超时判定 | `validate-checkpoint.mjs` 两节十四项通过。★**闸子逮到两处真缺陷**：①恢复后的行军从步 0 重新开始，「N 步一次 ≡ k 步 + 恢复(N−k) 步」当场不成立（改为从 `state.step` 续号）；②分片可以跨过断点间隔，实测 30 步、每 10 步一存的行军**一次也没存**（改为分片不得越过断点边界）。第三处是闸子自己的假阳性：它把注释里的 `terminate()` 当成代码 |
 | ★U0 已落（2026-09-04，第二步） | — | **规格驱动的图形**：`app/assets/fig.js` 把 `spo:PresentationSpecification` 的五种视图（`line_chart` · `stem` · `map` · `table` · `scalar_readout`）画到页面画布上，解析一律走 `casereport.js` 导出的 `index` / `resolve` / `coordinateOf`（**不另写第二份**）；`plot.js` 增 `stems` 记号（U-21：不连续横轴不画折线）；`series_role: baseline` 以虚线区分（U-22）；`fylite:domain` 与 `fylite:visible` 被采用（U-17 · U-16）；画不了的视图按名拒绝并计入 `refused`（P-6 · P-10）。规格词表 `docs/examples/context.jsonld` 补 `layout` / `visible` / `domain` 与 `fylite:` 前缀（**G-3 关**）。**未落**：功能栏仍直接调 `FyPlot`——把它们改成「产出记录 → 画规格」要先有记录，而记录要内核（G-13 与 `-16` 分期）；交互（框选 · 光标 · 钉住）属工作台 | `validate-fig.mjs` 三节十项通过：解析不重复、词表三词在、浏览器里五种视图各画对（横轴取自坐标声明、茎带零线与通道序号、表逐行、baseline 有非颜色通道、钉住的定义域被采用、三种画不了各出一句指名的拒绝）。★闸子首跑即逮到 `fig.js` 自身一处缺陷：未知 `view_kind` 画了拒绝句却仍计为「已画」 |
 | ★U0 已落（2026-09-04，第一步） | — | **`model` 页的表单生成**：`tools/transcribe-form-vocab.mjs` 一次性把 141 个控件（108 滑杆 · 8 枚举 · 25 布尔）誊录进 `app/assets/vocab-model.js`，页面只剩 `data-form` 挂点；`app/assets/form.js` 在 `scenario.js` 之前同步画出控件（同 id · 同 i18n 键 · 同读数），控制器与会话层一行不改。**未落**：词表的 `iri` / `tier` / `group` 全为 `[TBD]`（G-1）；数字孪生未画；分组仍由页面结构决定（U-3 待 U2）；`transport` 的 `BLOCKS` 与词表未对账 | `validate-form.mjs` 三节通过（141 ↔ 141 双向；浏览器逐条相符；`FySession.collect` 读回默认值）；`page_model.html` 无 `<input>` / `<select>`；首屏输出 790 px 不变；闸子暴露并改正一处潜在缺陷（`width` 默认 0.35 不在 0.02 格上，浏览器一直吸附为 0.36） |
