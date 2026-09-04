@@ -4,7 +4,7 @@
 - 判决 (verdict)：**通过**（pass）
 - 产出 (datasets)：`equilibrium`
 - 记录 (record)：`product/g_synthetic.geqdsk`
-- 日期：2026-09-02
+- 日期：2026-09-04
 
 > 判的是盘上的产出文件（g_synthetic.geqdsk），不是本批跑出来的
 

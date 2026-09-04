@@ -1,5 +1,10 @@
 {
-  "@context": ["context.jsonld", {"@base": "../../"}],
+  "@context": [
+    "context.jsonld",
+    {
+      "@base": "../../"
+    }
+  ],
   "id": "benchmark/plan/dag",
   "type": "spo:InformationContentEntity",
   "title": {
@@ -15,7 +20,8 @@
     "★本册子是**手写件**，与 ../registry.jsonld（内核仓渲染）和 ../physics/（生成件）不同：它是计划与定序，不是一次运行的结果。改它就是改计划，不需要重跑什么；但**它声称的现状**（entries[].status、record_state）必须与 ../reports/README.md 与 ../physics/SUMMARY.md 对得上，那两处才是现状的真源。",
     "「拟」（record_state: proposed）的记录编号是**占位**，不是已发的号：公开登记册的号由内核仓的登记册真源发放，本册子写下 V-15 / B-07 一类编号只表示「计划里有这么一条，尚未立」。落记录时以真源发的号为准，并回填本册子。",
     "阻塞规则（blocking_rule）是**本册子规定的工作约定**，不是物理定律：它把「上游不成立时下游的数不可判读」这一认识论事实固定成执行规则。它可被显式豁免（exempt_from_blocking），但豁免必须具名并写明理由——默认是阻塞。",
-    "payload: ptr 的算例来源（ITER IDM 四组）本体在 $ITER_SCENARIO_ROOT，未取回时相关条目一律记「未评估（缺参考侧）」，**不拿别的算例顶替**。顶替一次，这一级的结论就永远说不清是在量什么。"
+    "payload: ptr 的算例来源（ITER IDM 四组）本体在 $ITER_SCENARIO_ROOT，未取回时相关条目一律记「未评估（缺参考侧）」，**不拿别的算例顶替**。顶替一次，这一级的结论就永远说不清是在量什么。",
+    "★2026-09-04 第一轮执行后回填：`status` 与 `status_note` 记的是**那一轮**的结果，逐条经过与八处发现在 `RUN-2026-09-04.md`。条目上出现的 `depends_on` 是**对所属阶段的覆盖**（发现 F-8：以 deck 为输入的组件级比较不消费 S1 的平衡产物）。"
   ],
   "exempt_from_blocking": [
     {
@@ -26,15 +32,24 @@
     }
   ],
   "blocking_rule": "对每条计划条目 x：若其任一上游阶段的判决为 fail，则 x 不执行，记为 blocked 并写明挡它的是哪一条；若上游为 unevaluated（含 blocked），则 x 记为 blocked-unknown；若上游为 conditional，x 可执行，但其判决的上确界继承为 conditional。上游全部 pass 时 x 才可能得 pass。",
-  "verdict_lattice": ["pass", "conditional", "fail", "unevaluated", "blocked", "blocked-unknown"],
+  "verdict_lattice": [
+    "pass",
+    "conditional",
+    "fail",
+    "unevaluated",
+    "blocked",
+    "blocked-unknown"
+  ],
   "has_part": [
-
     {
       "id": "plan/S0-conventions",
       "type": "spo:InformationContentEntity",
       "stage": "S0",
       "stage_order": 0,
-      "title": {"zh": "S0 数据通路与口径", "en": "S0 Data path and conventions"},
+      "title": {
+        "zh": "S0 数据通路与口径",
+        "en": "S0 Data path and conventions"
+      },
       "question": {
         "zh": "一份数进出这套代码，值、单位、坐标标签、径向标签与符号约定（COCOS）有没有变。",
         "en": "Do values, units, coordinate and radial labels, and the sign convention (COCOS) survive a round trip?"
@@ -50,19 +65,44 @@
           "title": "g-file 读写往返与 COCOS 口径",
           "comparison_kind": "verification",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-12", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk", "license": "public-derived", "payload": "in",
-             "comment": "自造件，由 fylite `tools/make_synthetic_case.py` 生成；凭据是可复算"},
-            {"oracle_case": "FYDOC-CASE-13", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-13-teq/", "license": "restricted", "payload": "ptr",
-             "comment": "TEQ 写出的 ITER 参考 g-file，作格式与口径的第二来源；本体在 $ITER_SCENARIO_ROOT，未取回时本项记未评估"}
+            {
+              "oracle_case": "FYDOC-CASE-12",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk",
+              "license": "public-derived",
+              "payload": "in",
+              "comment": "自造件，由 fylite `tools/make_synthetic_case.py` 生成；凭据是可复算"
+            },
+            {
+              "oracle_case": "FYDOC-CASE-13",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-13-teq/",
+              "license": "restricted",
+              "payload": "ptr",
+              "comment": "TEQ 写出的 ITER 参考 g-file，作格式与口径的第二来源；本体在 $ITER_SCENARIO_ROOT，未取回时本项记未评估"
+            }
           ],
-          "record": "V-15", "record_state": "proposed",
-          "gate": ["$FYLITE_KERNEL/tests/（拟）"],
+          "record": "V-15",
+          "record_state": "proposed",
+          "gate": [
+            "$FYLITE_KERNEL/tests/（拟）"
+          ],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "往返后逐字段", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision",
-             "tolerance_note": "读—写—再读的不动点是恒等式，不是物理，故取机器精度"},
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "COCOS 标签与符号一致", "tolerance_basis": "machine_precision",
-             "tolerance_note": "标签是离散值，判等不判带"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "往返后逐字段",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision",
+              "tolerance_note": "读—写—再读的不动点是恒等式，不是物理，故取机器精度"
+            },
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "COCOS 标签与符号一致",
+              "tolerance_basis": "machine_precision",
+              "tolerance_note": "标签是离散值，判等不判带"
+            }
           ],
           "status": "planned"
         },
@@ -71,48 +111,84 @@
           "title": "产出自洽：定律与文档自身的定义",
           "comparison_kind": "verification",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-12", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk", "license": "public-derived", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-12",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk",
+              "license": "public-derived",
+              "payload": "in"
+            }
           ],
-          "record": "physics/equilibrium-gfile", "record_state": "existing",
-          "gate": ["python tools/benchmark-run.py"],
+          "record": "physics/equilibrium-gfile",
+          "record_state": "existing",
+          "gate": [
+            "python tools/benchmark-run.py"
+          ],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "finite · psi-endpoints · boundary-closed · grad-shafranov",
-             "tolerance_basis": "measured_band", "tolerance_note": "判据册在 `fylite.engine.physics`；量到的数在 ../physics/SUMMARY.md，本册子不复制"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "finite · psi-endpoints · boundary-closed · grad-shafranov",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "判据册在 `fylite.engine.physics`；量到的数在 ../physics/SUMMARY.md，本册子不复制"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮现跑：4 条通过 · 8 条未评估（产出里没有那些量）"
         },
         {
           "id": "plan/S0/api-boundary-recordings",
           "title": "已离场四库在 Python API 边界上的录音仍可回放",
           "comparison_kind": "verification",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-03", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/", "license": "public-derived", "payload": "in",
-             "comment": "libefit / libtglf / libneo / libgeo 已不可再取得；每条记录同时带输入与输出，故可回放不可重算"}
+            {
+              "oracle_case": "FYDOC-CASE-03",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/",
+              "license": "public-derived",
+              "payload": "in",
+              "comment": "libefit / libtglf / libneo / libgeo 已不可再取得；每条记录同时带输入与输出，故可回放不可重算"
+            }
           ],
-          "record": "V-01", "record_state": "existing",
-          "gate": ["$FYLITE_KERNEL/tests/test_neo_analytic_rust.py"],
+          "record": "V-01",
+          "record_state": "existing",
+          "gate": [
+            "$FYLITE_KERNEL/tests/test_neo_analytic_rust.py"
+          ],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐条回放", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision",
-             "tolerance_note": "参考是本仓录下的字节，不是另一次运行"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐条回放",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision",
+              "tolerance_note": "参考是本仓录下的字节，不是另一次运行"
+            }
           ],
-          "status": "existing",
-          "caveat": ["★这条只证接口这一侧没漂，不证当年那四支库是对的：参考侧已不可再取得，它的可信度到此为止。"]
+          "status": "pass",
+          "caveat": [
+            "★这条只证接口这一侧没漂，不证当年那四支库是对的：参考侧已不可再取得，它的可信度到此为止。"
+          ],
+          "status_note": "本轮 62 条通过（`test_neo_analytic_rust.py`）"
         }
       ]
     },
-
     {
       "id": "plan/S1-equilibrium",
       "type": "spo:InformationContentEntity",
       "stage": "S1",
       "stage_order": 1,
-      "title": {"zh": "S1 平衡正问题（Grad–Shafranov 正解）", "en": "S1 The equilibrium forward problem"},
+      "title": {
+        "zh": "S1 平衡正问题（Grad–Shafranov 正解）",
+        "en": "S1 The equilibrium forward problem"
+      },
       "question": {
         "zh": "给定 p′ 与 ff′（或压强与电流剖面）与边界条件，解出的 ψ(R,Z) 是不是那道方程的解，几何量对不对得上参考平衡。",
         "en": "Given p' and ff' and a boundary condition, is the solved psi(R,Z) a solution of that equation, and do the derived geometric quantities match the reference equilibrium?"
       },
-      "depends_on": ["plan/S0-conventions"],
+      "depends_on": [
+        "plan/S0-conventions"
+      ],
       "why_here": {
         "zh": "★平衡是本仓其余一切的**坐标系**：度规、体元、面平均、局域梯度全部由它派生。平衡错，下游的通量比较仍会得到「吻合」的数——因为两侧在各自的坐标里都自洽。",
         "en": "The equilibrium is the coordinate system for everything else; if it is wrong, downstream flux comparisons can still look consistent, because each side is self-consistent in its own coordinates."
@@ -123,68 +199,114 @@
           "title": "ITER 参考平衡集（TEQ / CORSICA 写出）",
           "comparison_kind": "validation",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-13", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-13-teq/", "license": "restricted", "payload": "ptr",
-             "comment": "四份 ITER IDM 文档；代码名取自各 g-file 首行，非从标题推断"}
+            {
+              "oracle_case": "FYDOC-CASE-13",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-13-teq/",
+              "license": "restricted",
+              "payload": "ptr",
+              "comment": "四份 ITER IDM 文档；代码名取自各 g-file 首行，非从标题推断"
+            }
           ],
-          "record": "C-06", "record_state": "proposed",
+          "record": "C-06",
+          "record_state": "proposed",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "GS 残差（在参考 ψ 上）", "norm": "relative",
-             "tolerance_basis": "measured_band", "tolerance_note": "带在第一次实测后定；事前写下的带只会被凑上"},
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "q95 · 体积 · 边界外形", "tolerance_basis": "reference_stated",
-             "tolerance_note": "取参考自报精度；参考未自报时本项记未评估，不自拟带"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "GS 残差（在参考 ψ 上）",
+              "norm": "relative",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "带在第一次实测后定；事前写下的带只会被凑上"
+            },
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "q95 · 体积 · 边界外形",
+              "tolerance_basis": "reference_stated",
+              "tolerance_note": "取参考自报精度；参考未自报时本项记未评估，不自拟带"
+            }
           ],
           "status": "blocked-unknown",
-          "caveat": ["本体在 $ITER_SCENARIO_ROOT（1.7 GB，ITER IDM Internal Use），未取回；取回前本条不可执行。"]
+          "caveat": [
+            "本体在 $ITER_SCENARIO_ROOT（1.7 GB，ITER IDM Internal Use），未取回；取回前本条不可执行。"
+          ]
         },
         {
           "id": "plan/S1/tosca-iter-equilibria",
           "title": "ITER 平衡运行空间（TOSCA，2009 批，li 扫描）",
           "comparison_kind": "validation",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-07", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-07-tosca/", "license": "restricted", "payload": "ptr",
-             "comment": "两份 ITER IDM 文档；`2N6NEU` 的代码归属是**推断**，可被后来的证据推翻（见 case.yaml 的 attribution）"}
+            {
+              "oracle_case": "FYDOC-CASE-07",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-07-tosca/",
+              "license": "restricted",
+              "payload": "ptr",
+              "comment": "两份 ITER IDM 文档；`2N6NEU` 的代码归属是**推断**，可被后来的证据推翻（见 case.yaml 的 attribution）"
+            }
           ],
-          "record": "C-07", "record_state": "proposed",
+          "record": "C-07",
+          "record_state": "proposed",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "li 扫描下的形状与 q 剖面", "tolerance_basis": "reference_stated",
-             "tolerance_note": "同上；本组的价值在**扫描**，单点吻合不足以支持结论"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "li 扫描下的形状与 q 剖面",
+              "tolerance_basis": "reference_stated",
+              "tolerance_note": "同上；本组的价值在**扫描**，单点吻合不足以支持结论"
+            }
           ],
           "status": "blocked-unknown",
-          "caveat": ["同 C-06：本体未取回。★另有一处认识论风险：本组一份文档的代码归属是推断得来的，若结论依赖「参考是 TOSCA」，须先落实归属。"]
+          "caveat": [
+            "同 C-06：本体未取回。★另有一处认识论风险：本组一份文档的代码归属是推断得来的，若结论依赖「参考是 TOSCA」，须先落实归属。"
+          ]
         },
         {
           "id": "plan/S1/fuse-iter-layers",
           "title": "FUSE 的 ITER 算例，四层",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-04", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/upstream/", "license": "public", "payload": "in",
-             "comment": "FUSE.jl 1.1.5（git 22fff68bd），Apache-2.0；★本组目前**只有问题、没有答案**（上游未随码发布输出，本机未跑）"}
+            {
+              "oracle_case": "FYDOC-CASE-04",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/upstream/",
+              "license": "public",
+              "payload": "in",
+              "comment": "FUSE.jl 1.1.5（git 22fff68bd），Apache-2.0；★本组目前**只有问题、没有答案**（上游未随码发布输出，本机未跑）"
+            }
           ],
-          "record": "B-01", "record_state": "existing",
+          "record": "B-01",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "四层逐层", "tolerance_basis": "measured_band",
-             "tolerance_note": "见登记册 B-01；本册子不复制数"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "四层逐层",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "见登记册 B-01；本册子不复制数"
+            }
           ],
-          "status": "existing",
-          "caveat": ["★2026-09-04 fydoc 侧遗弃了 FUSE 0.7.0 的旧答案并改钉 1.1.5，新答案尚未产生。B-01 现有结论建立在旧参考上——**再判之前先把参考侧对齐到 1.1.5**，否则这条记录的参考版本与算例书自陈的不一致。"]
+          "status": "unevaluated",
+          "caveat": [
+            "★2026-09-04 fydoc 侧遗弃了 FUSE 0.7.0 的旧答案并改钉 1.1.5，新答案尚未产生。B-01 现有结论建立在旧参考上——**再判之前先把参考侧对齐到 1.1.5**，否则这条记录的参考版本与算例书自陈的不一致。"
+          ],
+          "status_note": "参考侧已被 fydoc 遗弃（0.7.0 → `corpus/retired-0.7.0/`），门仍按旧路径读：9 条 setup error。待裁定（RUN 记录 F-6）"
         }
       ]
     },
-
     {
       "id": "plan/S2-geometry",
       "type": "spo:InformationContentEntity",
       "stage": "S2",
       "stage_order": 2,
-      "title": {"zh": "S2 通量面几何与度规", "en": "S2 Flux-surface geometry and metrics"},
+      "title": {
+        "zh": "S2 通量面几何与度规",
+        "en": "S2 Flux-surface geometry and metrics"
+      },
       "question": {
         "zh": "由平衡派生的面量——V′、⟨|∇ρ|²⟩、⟨B²⟩、面平均与 Miller 参数化——与另一实现是否逐位一致。",
         "en": "Do the surface-derived metrics agree with another implementation, term by term?"
       },
-      "depends_on": ["plan/S1-equilibrium"],
+      "depends_on": [
+        "plan/S1-equilibrium"
+      ],
       "why_here": {
         "zh": "★★度规是 S3 · S4 · S5 · S7 的**共同输入**。度规差 1 %，新经典与湍流通量各差 1 %，而两者比值不变——于是下游的对拍看起来毫无异常。这是本图里扇出最大的一个结点，也是最不该放过的一个。",
         "en": "The metrics are the common input of stages S3, S4, S5 and S7; a 1 % metric error propagates into every flux while leaving their ratios intact, so downstream benchmarks show nothing."
@@ -194,49 +316,90 @@
           "id": "plan/S2/geo-vs-gacode",
           "title": "GEO 端口对 GACODE 的 Fortran",
           "comparison_kind": "verification",
+          "depends_on": [
+            "plan/S0-conventions"
+          ],
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-05", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/upstream/", "license": "public", "payload": "in",
-             "comment": "GACODE rev 6357db306，含上游自带的 out.* 参考答案"},
-            {"oracle_case": "FYDOC-CASE-03", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/geo.flux_surface", "license": "public-derived", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-05",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/upstream/",
+              "license": "public",
+              "payload": "in",
+              "comment": "GACODE rev 6357db306，含上游自带的 out.* 参考答案"
+            },
+            {
+              "oracle_case": "FYDOC-CASE-03",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/geo.flux_surface",
+              "license": "public-derived",
+              "payload": "in"
+            }
           ],
-          "record": "V-01", "record_state": "existing",
-          "gate": ["$FYLITE_KERNEL/tests/test_rust_kernels.py"],
+          "record": "V-01",
+          "record_state": "existing",
+          "gate": [
+            "$FYLITE_KERNEL/tests/test_rust_kernels.py"
+          ],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐字段", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision",
-             "tolerance_note": "同一函数的两个实现，判据是机器精度；物理带会掩盖变形"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐字段",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision",
+              "tolerance_note": "同一函数的两个实现，判据是机器精度；物理带会掩盖变形"
+            }
           ],
-          "status": "existing"
+          "status": "unevaluated",
+          "status_note": "`test_rust_kernels.py`：10 条通过，24 条因**缺装置牌**不可评（RUN 记录 F-4）"
         },
         {
           "id": "plan/S2/volume-conventions-metis",
           "title": "0-D 体元约定，对 METIS 认证套件的平衡",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-10", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv", "license": "public-derived", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-10",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
+              "license": "public-derived",
+              "payload": "in"
+            }
           ],
-          "record": "B-04", "record_state": "existing",
+          "record": "B-04",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "体元与面平均约定", "tolerance_basis": "measured_band",
-             "tolerance_note": "见登记册 B-04"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "体元与面平均约定",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "见登记册 B-04"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 12 条通过"
         }
       ]
     },
-
     {
       "id": "plan/S3-neoclassical",
       "type": "spo:InformationContentEntity",
       "stage": "S3",
       "stage_order": 3,
-      "title": {"zh": "S3 新经典输运与自举电流", "en": "S3 Neoclassical transport and bootstrap current"},
+      "title": {
+        "zh": "S3 新经典输运与自举电流",
+        "en": "S3 Neoclassical transport and bootstrap current"
+      },
       "question": {
         "zh": "在给定局域态与度规上，新经典系数、自举电流与动理学方程的解，与 NEO 及已发表的拟合是否一致。",
         "en": "On a given local state and metric, do the neoclassical coefficients, the bootstrap current and the drift-kinetic solution agree with NEO and with published fits?"
       },
-      "depends_on": ["plan/S2-geometry"],
+      "depends_on": [
+        "plan/S2-geometry"
+      ],
       "why_here": {
         "zh": "新经典消费度规与局域梯度，不消费湍流。它与 S4 是**并列的两支**，不是前后：把它排在湍流之前只因它的参考侧更硬（上游自带答案、解析极限齐全），失败时更容易定位。",
         "en": "Neoclassical consumes metrics and local gradients but not turbulence; it is a sibling of S4, placed first only because its reference side is harder and failures localize more easily."
@@ -246,49 +409,99 @@
           "id": "plan/S3/neo-vs-gacode",
           "title": "NEO 端口对 GACODE 的 Fortran（reg01..05 与上游回归 21 例）",
           "comparison_kind": "verification",
+          "depends_on": [
+            "plan/S0-conventions"
+          ],
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-05", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/upstream/neo/", "license": "public", "payload": "in"},
-            {"oracle_case": "FYDOC-CASE-03", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/neo.bootstrap", "license": "public-derived", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-05",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/upstream/neo/",
+              "license": "public",
+              "payload": "in"
+            },
+            {
+              "oracle_case": "FYDOC-CASE-03",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/neo.bootstrap",
+              "license": "public-derived",
+              "payload": "in"
+            }
           ],
-          "record": "V-01 · V-04", "record_state": "existing",
-          "gate": ["$FYLITE_KERNEL/tests/test_neo.py", "$FYLITE_KERNEL/tests/test_neo_analytic_rust.py"],
+          "record": "V-01 · V-04",
+          "record_state": "existing",
+          "gate": [
+            "$FYLITE_KERNEL/tests/test_neo.py",
+            "$FYLITE_KERNEL/tests/test_neo_analytic_rust.py"
+          ],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐字段", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐字段",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 `test_neo.py` 4 · `test_neo_analytic_rust.py` 62 · `V-04` 42 条通过"
         },
         {
           "id": "plan/S3/redl-bootstrap",
           "title": "Redl-2021 自举电流系数，两个实现",
           "comparison_kind": "verification",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-16", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/redl_coefficients.json", "license": "public-derived", "payload": "in",
-             "comment": "TORAX git b4d40633，Apache-2.0；记录脚本随件（record_redl.py）"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "V-08", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-16",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/redl_coefficients.json",
+              "license": "public-derived",
+              "payload": "in",
+              "comment": "TORAX git b4d40633，Apache-2.0；记录脚本随件（record_redl.py）"
+            }
+          ],
+          "record": "V-08",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐系数", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision",
-             "tolerance_note": "同一篇文献的两个实现——这是 V，不是 B"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐系数",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision",
+              "tolerance_note": "同一篇文献的两个实现——这是 V，不是 B"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 4 条通过"
         }
       ]
     },
-
     {
       "id": "plan/S4-turbulence",
       "type": "spo:InformationContentEntity",
       "stage": "S4",
       "stage_order": 4,
-      "title": {"zh": "S4 湍流输运与其神经代理", "en": "S4 Turbulent transport and its surrogates"},
+      "title": {
+        "zh": "S4 湍流输运与其神经代理",
+        "en": "S4 Turbulent transport and its surrogates"
+      },
       "question": {
         "zh": "在给定局域态与度规上，线性本征值、拟线性通量与其代理网络的输出，与 TGLF / GENE / GYRO 及上游代理是否一致。",
         "en": "On a given local state, do linear eigenvalues, quasi-linear fluxes and the surrogate networks agree with TGLF / GENE / GYRO and the upstream surrogates?"
       },
-      "depends_on": ["plan/S2-geometry"],
+      "depends_on": [
+        "plan/S2-geometry"
+      ],
       "why_here": {
         "zh": "湍流消费度规与局域梯度；它不消费新经典。★与 S3 并列，两支都通过之后才谈得上 S6 的通量匹配——通量匹配求的是两支之和与源的平衡。",
         "en": "Turbulence consumes metrics and local gradients, not neoclassical output; it is a sibling of S3, and only when both pass does flux matching in S6 mean anything."
@@ -298,85 +511,170 @@
           "id": "plan/S4/tglf-vs-fortran",
           "title": "TGLF 端口对它翻译自的 Fortran（上游九例 + 真实 deck 的七个局域态）",
           "comparison_kind": "verification",
+          "depends_on": [
+            "plan/S0-conventions"
+          ],
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-14", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/", "license": "public / restricted-derived", "payload": "in",
-             "comment": "ga-std/ 与 upstream/ 为公开算例；jintrac-102530/ 的局域态派生自受限运行，仅指针"},
-            {"oracle_case": "FYDOC-CASE-05", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/upstream/tglf/", "license": "public", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-14",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/",
+              "license": "public / restricted-derived",
+              "payload": "in",
+              "comment": "ga-std/ 与 upstream/ 为公开算例；jintrac-102530/ 的局域态派生自受限运行，仅指针"
+            },
+            {
+              "oracle_case": "FYDOC-CASE-05",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/upstream/tglf/",
+              "license": "public",
+              "payload": "in"
+            }
           ],
-          "record": "V-01 · V-04", "record_state": "existing",
-          "gate": ["$FYLITE_KERNEL/tests/test_tglf_vs_fortran.py", "$FYLITE_KERNEL/tests/test_tglf_momentum.py"],
+          "record": "V-01 · V-04",
+          "record_state": "existing",
+          "gate": [
+            "$FYLITE_KERNEL/tests/test_tglf_vs_fortran.py",
+            "$FYLITE_KERNEL/tests/test_tglf_momentum.py"
+          ],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐字段 / 逐 ky", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision",
-             "tolerance_note": "★饱和规则（SAT_RULE）必须两侧显式写出：跨规则比较过去两次被误读成物理差异，见 V-01 报告"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐字段 / 逐 ky",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision",
+              "tolerance_note": "★饱和规则（SAT_RULE）必须两侧显式写出：跨规则比较过去两次被误读成物理差异，见 V-01 报告"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 `test_tglf_vs_fortran.py` 5 · `test_tglf_momentum.py` 13 条通过"
         },
         {
           "id": "plan/S4/qlknn-surrogate",
           "title": "QLKNN_7_11：单网对上游测试向量，组合层对上游 flux_map",
           "comparison_kind": "verification",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-11", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json", "license": "public", "payload": "in",
-             "comment": "fusion_surrogates v0.4.7（git d678186）"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "V-03", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-11",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json",
+              "license": "public",
+              "payload": "in",
+              "comment": "fusion_surrogates v0.4.7（git d678186）"
+            }
+          ],
+          "record": "V-03",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐向量", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐向量",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision"
+            }
           ],
-          "status": "existing"
+          "status": "unevaluated",
+          "status_note": "缺导出的网络权重（`$FYLITE_NN_DIR`）：19 跳 4 未通过。★那 4 条应当是跳过而不是未通过（RUN 记录 F-5）"
         },
         {
           "id": "plan/S4/momentum-vs-gyro",
           "title": "环向动量输运对 GYRO 非线性回旋动理学（Waltz 2007 Table I）",
           "comparison_kind": "validation",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-18", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json", "license": "public", "payload": "in",
-             "comment": "已发表文献表，doi:10.1063/1.2824376"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "C-05 · V-05", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-18",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
+              "license": "public",
+              "payload": "in",
+              "comment": "已发表文献表，doi:10.1063/1.2824376"
+            }
+          ],
+          "record": "C-05 · V-05",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "Table I 逐项", "tolerance_basis": "reference_stated",
-             "tolerance_note": "参考是非线性回旋动理学的一次模拟，取文献自报精度"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "Table I 逐项",
+              "tolerance_basis": "reference_stated",
+              "tolerance_note": "参考是非线性回旋动理学的一次模拟，取文献自报精度"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 `C-05` 13 · `V-05` 13 条通过"
         },
         {
           "id": "plan/S4/gene-iter-baseline",
           "title": "GENE 在 ITER 基准位形的线性本征值与拟线性通量",
           "comparison_kind": "validation",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-06", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-06-gene/corpus/", "license": "public", "payload": "in",
-             "comment": "Zenodo doi:10.5281/zenodo.7706684，CC BY 4.0，md5 已逐件核过"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "C-08", "record_state": "proposed",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-06",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-06-gene/corpus/",
+              "license": "public",
+              "payload": "in",
+              "comment": "Zenodo doi:10.5281/zenodo.7706684，CC BY 4.0，md5 已逐件核过"
+            }
+          ],
+          "record": "C-08",
+          "record_state": "proposed",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "线性增长率与实频（逐 ky）", "tolerance_basis": "reference_stated",
-             "tolerance_note": "参考是回旋动理学初值解，不是同一函数的另一实现——这是 C 不是 V"},
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "拟线性通量", "tolerance_basis": "measured_band",
-             "tolerance_note": "带在实测后定；★上游同时发布了 filtered 与 unfiltered 两版，比之前须先声明用哪一版"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "线性增长率与实频（逐 ky）",
+              "tolerance_basis": "reference_stated",
+              "tolerance_note": "参考是回旋动理学初值解，不是同一函数的另一实现——这是 C 不是 V"
+            },
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "拟线性通量",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "带在实测后定；★上游同时发布了 filtered 与 unfiltered 两版，比之前须先声明用哪一版"
+            }
           ],
           "status": "planned",
-          "caveat": ["★这是本册子发现的一处缺口：该组算例已在 fydoc 收录且**公开可复取**，fylite 侧尚无任何记录引用它。它是 S4 目前唯一一条对回旋动理学一手答案的确认路径（C-05 的参考是文献表，覆盖面窄）。"]
+          "caveat": [
+            "★这是本册子发现的一处缺口：该组算例已在 fydoc 收录且**公开可复取**，fylite 侧尚无任何记录引用它。它是 S4 目前唯一一条对回旋动理学一手答案的确认路径（C-05 的参考是文献表，覆盖面窄）。"
+          ]
         }
       ]
     },
-
     {
       "id": "plan/S5-sources",
       "type": "spo:InformationContentEntity",
       "stage": "S5",
       "stage_order": 5,
-      "title": {"zh": "S5 源、汇与边缘闭包", "en": "S5 Sources, sinks and the edge closure"},
+      "title": {
+        "zh": "S5 源、汇与边缘闭包",
+        "en": "S5 Sources, sinks and the edge closure"
+      },
       "question": {
         "zh": "加热沉积、聚变反应率、辐射冷却与分界面/靶板闭包，各自与它们所依据的那一篇是否一致。",
         "en": "Do heating deposition, fusion reactivity, radiative cooling and the separatrix/target closure each agree with the paper they implement?"
       },
-      "depends_on": ["plan/S2-geometry"],
+      "depends_on": [
+        "plan/S2-geometry"
+      ],
       "why_here": {
         "zh": "源项按度规沉积（体积分与面平均），所以在 S2 之下；但它不依赖 S3 / S4——源与通量在输运方程里是**两侧**，各自可单独钉住。这是本图里唯一一处「并联三支」：加热 · 聚变与辐射 · 边缘。",
         "en": "Sources deposit through the metrics, hence below S2, but they do not depend on S3/S4: sources and fluxes are the two sides of the transport equation and can be pinned independently."
@@ -386,60 +684,127 @@
           "id": "plan/S5/metis-hcd",
           "title": "ICRH / ECCD，对 METIS 认证参考表",
           "comparison_kind": "validation",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-10", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv", "license": "public-derived", "payload": "in",
-             "comment": "METIS git d613989 的认证归档（17 例中请求 ICRH 或 ECCD 的）经本仓工具转出"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "C-04", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-10",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
+              "license": "public-derived",
+              "payload": "in",
+              "comment": "METIS git d613989 的认证归档（17 例中请求 ICRH 或 ECCD 的）经本仓工具转出"
+            }
+          ],
+          "record": "C-04",
+          "record_state": "existing",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "逐例", "tolerance_basis": "measured_band", "tolerance_note": "见登记册 C-04"}],
-          "status": "existing"
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐例",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "见登记册 C-04"
+            }
+          ],
+          "status": "pass",
+          "status_note": "本轮 `cargo test heating::` 57 条通过"
         },
         {
           "id": "plan/S5/fusion-and-radiation",
           "title": "Bosch–Hale D-T 反应率与 Mavrin-2017 非日冕冷却率",
           "comparison_kind": "verification",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-16", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/bosch_hale_dt.json", "license": "public-derived", "payload": "in"},
-            {"oracle_case": "FYDOC-CASE-16", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json", "license": "public-derived", "payload": "in"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "V-08 · V-09", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-16",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/bosch_hale_dt.json",
+              "license": "public-derived",
+              "payload": "in"
+            },
+            {
+              "oracle_case": "FYDOC-CASE-16",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json",
+              "license": "public-derived",
+              "payload": "in"
+            }
+          ],
+          "record": "V-08 · V-09",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐点", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐点",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 `V-08` 4 · `V-09` 8 条通过"
         },
         {
           "id": "plan/S5/edge-lengyel",
           "title": "extended Lengyel：闭式 · 两点态 · 正向与逆向求解",
           "comparison_kind": "verification",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-16", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json", "license": "public-derived", "payload": "in"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "V-10 · V-11 · V-12 · V-13", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-16",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+              "license": "public-derived",
+              "payload": "in"
+            }
+          ],
+          "record": "V-10 · V-11 · V-12 · V-13",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "逐量", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐量",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 `V-10`..`V-13` 共 28 条通过"
         }
       ]
     },
-
     {
       "id": "plan/S6-flux-matching",
       "type": "spo:InformationContentEntity",
       "stage": "S6",
       "stage_order": 6,
-      "title": {"zh": "S6 定态通量匹配", "en": "S6 Steady-state flux matching"},
+      "title": {
+        "zh": "S6 定态通量匹配",
+        "en": "S6 Steady-state flux matching"
+      },
       "question": {
         "zh": "把 S3 与 S4 的通量、S5 的源放进同一道定态方程，求出的梯度剖面与 TGYRO 是否一致。",
         "en": "With the S3/S4 fluxes and the S5 sources in one steady-state equation, do the solved gradient profiles agree with TGYRO?"
       },
-      "depends_on": ["plan/S3-neoclassical", "plan/S4-turbulence", "plan/S5-sources"],
+      "depends_on": [
+        "plan/S3-neoclassical",
+        "plan/S4-turbulence",
+        "plan/S5-sources"
+      ],
       "why_here": {
         "zh": "★★通量匹配是**第一处三支汇合**：它求的是「湍流+新经典通量 = 源的积分」这一等式的根。任一支错，这里都收敛到一个错的根，而收敛本身照样发生——所以三支未过时这一级的数**不可判读**，不是「参考价值降低」。",
         "en": "Flux matching is the first confluence of three branches; if any branch is wrong the solver still converges, only to the wrong root. Hence its numbers are not interpretable until all three pass."
@@ -449,48 +814,113 @@
           "id": "plan/S6/tgyro-mapping",
           "title": "TGYRO 映射层：整份 out.tglf.localdump 全键对照（treg01..05 + iter01）",
           "comparison_kind": "verification",
-          "oracle": [
-            {"oracle_case": "FYDOC-CASE-15", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/", "license": "public", "payload": "in",
-             "comment": "GACODE rev 6357db306 的 treg01..05 与 iter01；★本组 case.yaml 的 outputs 为空——参考侧目前只有 deck 与映射的中间件"}
+          "depends_on": [
+            "plan/S0-conventions"
           ],
-          "record": "V-06 · V-07", "record_state": "existing",
+          "depends_on_note": "★以 deck 为输入的组件级比较：它的输入是**冻结的局域态**，不消费 S1 的平衡产物，因此上游只到 S0（口径）。2026-09-04 第一轮执行时发现的修正——按阶段挂在 S1 之下，会让「参考侧不在场」错误地阻塞一批本来可判的比较。",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-15",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/",
+              "license": "public",
+              "payload": "in",
+              "comment": "GACODE rev 6357db306 的 treg01..05 与 iter01；★本组 case.yaml 的 outputs 为空——参考侧目前只有 deck 与映射的中间件"
+            }
+          ],
+          "record": "V-06 · V-07",
+          "record_state": "existing",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "全键逐字段", "norm": "relative",
-             "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9}, "tolerance_basis": "machine_precision"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "全键逐字段",
+              "norm": "relative",
+              "tolerance": {
+                "type": "spo:QuantityValue",
+                "numeric_value": 1e-09
+              },
+              "tolerance_basis": "machine_precision"
+            }
           ],
-          "status": "existing"
+          "status": "pass",
+          "status_note": "本轮 `V-06` 35 · `V-07` 88 条通过"
         },
         {
           "id": "plan/S6/tgyro-converged-profiles",
           "title": "定态解本身：匹配出的梯度剖面对 TGYRO 的收敛答案",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-15", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/", "license": "public", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-15",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/",
+              "license": "public",
+              "payload": "in"
+            }
           ],
-          "record": "B-07", "record_state": "proposed",
+          "record": "B-07",
+          "record_state": "proposed",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "收敛梯度剖面（逐半径）", "tolerance_basis": "measured_band",
-             "tolerance_note": "带在实测后定；★零假设要写明：不做通量匹配、直接取初始剖面能得到多少"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "收敛梯度剖面（逐半径）",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "带在实测后定；★零假设要写明：不做通量匹配、直接取初始剖面能得到多少"
+            }
           ],
           "status": "planned",
-          "caveat": ["★缺口：现有两条（V-06 / V-07）只钉住**映射层**——喂给 TGLF 的那份局域态逐键对得上。定态解本身尚无记录。需要先在参考侧跑出 TGYRO 的收敛答案（本组 outputs 为空），或改取上游随件的收敛记录。"]
+          "caveat": [
+            "★缺口：现有两条（V-06 / V-07）只钉住**映射层**——喂给 TGLF 的那份局域态逐键对得上。定态解本身尚无记录。需要先在参考侧跑出 TGYRO 的收敛答案（本组 outputs 为空），或改取上游随件的收敛记录。"
+          ]
+        },
+        {
+          "id": "plan/S6/transport-self-consistency",
+          "title": "定态输运推进的产出自洽（`transport-iter-15ma`）",
+          "comparison_kind": "verification",
+          "oracle": [
+            {
+              "oracle_case": "—",
+              "storage_uri": "—（本仓产出，非外部答案）",
+              "license": "—",
+              "payload": "in",
+              "comment": "物理校验册的算例 `transport-iter-15ma`：参考是物理定律与文档自身的定义"
+            }
+          ],
+          "record": "physics/transport-iter-15ma",
+          "record_state": "existing",
+          "gate": [
+            "python tools/benchmark-run.py"
+          ],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "定律与定义（`fylite.engine.physics`）",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "判据册在 `fylite.engine.physics`，量到的数在 ../physics/"
+            }
+          ],
+          "status": "pass",
+          "status_note": "2026-09-04 现跑：3 条通过 · 10 条未评估"
         }
       ]
     },
-
     {
       "id": "plan/S7-zerod",
       "type": "spo:InformationContentEntity",
       "stage": "S7",
       "stage_order": 7,
-      "title": {"zh": "S7 零维整合", "en": "S7 Zero-dimensional integration"},
+      "title": {
+        "zh": "S7 零维整合",
+        "en": "S7 Zero-dimensional integration"
+      },
       "question": {
         "zh": "体积平均的功率、约束时间、β_N 与 Greenwald 分数，与 0-D 参考（METIS 认证套件、ITPA 参考算例）是否一致。",
         "en": "Do the volume-averaged powers, confinement time, beta_N and Greenwald fraction agree with the 0-D references?"
       },
-      "depends_on": ["plan/S2-geometry", "plan/S5-sources"],
+      "depends_on": [
+        "plan/S2-geometry",
+        "plan/S5-sources"
+      ],
       "why_here": {
         "zh": "0-D 消费体元（S2）与源（S5），**不消费**通量闭包——它把输运折进一条约束定标。所以它与 S6 并列，可以在通量匹配还没通过时先跑；★但它的通过**不能**被读作输运模型正确：那是另一句话。",
         "en": "0-D consumes volumes and sources but not the flux closure, so it is a sibling of S6; its passing must not be read as evidence about the transport model."
@@ -501,44 +931,107 @@
           "title": "0-D 量对 METIS 认证套件",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-10", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv", "license": "public-derived", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-10",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
+              "license": "public-derived",
+              "payload": "in"
+            }
           ],
-          "record": "B-04", "record_state": "existing",
+          "record": "B-04",
+          "record_state": "existing",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "逐量", "tolerance_basis": "measured_band"}],
-          "status": "existing"
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐量",
+              "tolerance_basis": "measured_band"
+            }
+          ],
+          "status": "pass",
+          "status_note": "本轮 12 条通过"
         },
         {
           "id": "plan/S7/itpa-tc33",
           "title": "ITPA TC-33 ITER 15 MA 参考算例（IMAS IDS）",
           "comparison_kind": "validation",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-08", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-08-itpa-tc33/corpus/", "license": "public", "payload": "in",
-             "comment": "Zenodo doi:10.5281/zenodo.21391776，CC BY 4.0；两个时刻（415 s / 450 s）的 IDS"}
+            {
+              "oracle_case": "FYDOC-CASE-08",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-08-itpa-tc33/corpus/",
+              "license": "public",
+              "payload": "in",
+              "comment": "Zenodo doi:10.5281/zenodo.21391776，CC BY 4.0；两个时刻（415 s / 450 s）的 IDS"
+            }
           ],
-          "record": "C-09", "record_state": "proposed",
+          "record": "C-09",
+          "record_state": "proposed",
           "gate": [],
           "criteria": [
-            {"type": "fyo:AcceptanceCriterion", "quantity_label": "0-D 全局量（415 s / 450 s）", "tolerance_basis": "reference_stated",
-             "tolerance_note": "★参考不是某一个程序的输出，而是**机构共识的参考算例**——它的权威来自共识过程，不来自某次运行的精度；容差取发布件自报的口径"}
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "0-D 全局量（415 s / 450 s）",
+              "tolerance_basis": "reference_stated",
+              "tolerance_note": "★参考不是某一个程序的输出，而是**机构共识的参考算例**——它的权威来自共识过程，不来自某次运行的精度；容差取发布件自报的口径"
+            }
           ],
           "status": "planned",
-          "caveat": ["★缺口：公开可复取（CC BY 4.0）、已在 fydoc 收录、fylite 侧无记录。它是本图里**最强的一条 C 路径**：ITER 场景的机构参考算例，且不受限——C-01 / C-02 的参考是受限件，读者复算不了。"]
+          "caveat": [
+            "★缺口：公开可复取（CC BY 4.0）、已在 fydoc 收录、fylite 侧无记录。它是本图里**最强的一条 C 路径**：ITER 场景的机构参考算例，且不受限——C-01 / C-02 的参考是受限件，读者复算不了。"
+          ]
+        },
+        {
+          "id": "plan/S7/zerod-self-consistency",
+          "title": "0-D 产出的自洽（`zerod-iter-15ma`）",
+          "comparison_kind": "verification",
+          "oracle": [
+            {
+              "oracle_case": "—",
+              "storage_uri": "—（本仓产出，非外部答案）",
+              "license": "—",
+              "payload": "in",
+              "comment": "物理校验册的算例 `zerod-iter-15ma`：参考是物理定律与文档自身的定义"
+            }
+          ],
+          "record": "physics/zerod-iter-15ma",
+          "record_state": "existing",
+          "gate": [
+            "python tools/benchmark-run.py"
+          ],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "定律与定义（`fylite.engine.physics`）",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "判据册在 `fylite.engine.physics`，量到的数在 ../physics/"
+            }
+          ],
+          "status": "fail",
+          "status_note": "2026-09-04 现跑：3 条通过 · **1 条未通过**（`finite`）· 9 条未评估",
+          "caveat": [
+            "★★`finite` 判负的根因不是数值发散：内核在注入功率为零处**按设计**写 NaN（`rust/fylite/src/zerod.rs:328`），而 `finite` 明写「NaN 不是一个物理态，也不是『还没算』——后者应当缺席而不是写成 NaN」。两条各自成立的约定在此冲突，待裁定。在裁定之前，本级判 fail，S9 中消费本级产物的部分按阻塞规则记 blocked。"
+          ]
         }
       ]
     },
-
     {
       "id": "plan/S8-evolution",
       "type": "spo:InformationContentEntity",
       "stage": "S8",
       "stage_order": 8,
-      "title": {"zh": "S8 1.5-D 时间演化", "en": "S8 1.5-D time evolution"},
+      "title": {
+        "zh": "S8 1.5-D 时间演化",
+        "en": "S8 1.5-D time evolution"
+      },
       "question": {
         "zh": "把平衡（S1）、通量闭包（S6）与源（S5）耦合起来推进时间，剖面的时间轨迹与另一个演化码是否一致。",
         "en": "Coupling equilibrium, the flux closure and the sources, does the time trajectory of the profiles agree with another evolution code?"
       },
-      "depends_on": ["plan/S1-equilibrium", "plan/S5-sources", "plan/S6-flux-matching"],
+      "depends_on": [
+        "plan/S1-equilibrium",
+        "plan/S5-sources",
+        "plan/S6-flux-matching"
+      ],
       "why_here": {
         "zh": "★★演化是**第二处汇合**，且带回路：平衡随剖面重解、通量随梯度重算。上游任一处的偏差在这里会被时间积分**放大或抵消**，两种都发生过。因此这一级的对拍在 S1 / S5 / S6 未过时**不可判读**——一条吻合的轨迹既可能来自两处正确，也可能来自两处互相抵消。",
         "en": "Evolution is the second confluence and carries feedback; upstream deviations are amplified or cancelled by time integration, so a matching trajectory is not evidence unless the upstream stages pass."
@@ -549,100 +1042,244 @@
           "title": "TORAX 五秒 ITER 混合演化：输入装配与输运装配的端到端",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-16", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn.json", "license": "public-derived", "payload": "in"},
-            {"oracle_case": "FYDOC-CASE-16", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/upstream/test_data/test_iterhybrid_predictor_corrector.nc", "license": "public", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-16",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn.json",
+              "license": "public-derived",
+              "payload": "in"
+            },
+            {
+              "oracle_case": "FYDOC-CASE-16",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/upstream/test_data/test_iterhybrid_predictor_corrector.nc",
+              "license": "public",
+              "payload": "in"
+            }
           ],
-          "record": "V-14 · B-05", "record_state": "existing",
+          "record": "V-14 · B-05",
+          "record_state": "existing",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "轨迹逐时刻", "tolerance_basis": "measured_band"}],
-          "status": "existing"
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "轨迹逐时刻",
+              "tolerance_basis": "measured_band"
+            }
+          ],
+          "status": "unevaluated",
+          "status_note": "缺 QLKNN_7_11 权重：`V-14` 2 跳 · `B-05` 6 跳（RUN 记录 F-5）"
         },
         {
           "id": "plan/S8/jintrac-iter-jet",
           "title": "JINTRAC 两次运行：ITER 15 MA 平顶（102530）与 JET #58894（101612）",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-09", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/", "license": "restricted", "payload": "in",
-             "comment": "UKAEA / EUROfusion 运行现场快照，仅指针；★165 条符号链接中 106 条是断的，不可原地重跑"}
+            {
+              "oracle_case": "FYDOC-CASE-09",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/",
+              "license": "restricted",
+              "payload": "in",
+              "comment": "UKAEA / EUROfusion 运行现场快照，仅指针；★165 条符号链接中 106 条是断的，不可原地重跑"
+            }
           ],
-          "record": "B-02 · B-03", "record_state": "existing",
+          "record": "B-02 · B-03",
+          "record_state": "existing",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "逐通道", "tolerance_basis": "measured_band"}],
-          "status": "existing"
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "逐通道",
+              "tolerance_basis": "measured_band"
+            }
+          ],
+          "status": "unevaluated",
+          "status_note": "`fylite.io.imas_h5` 于 2026-09-04 被删（理由「no caller anywhere」在跨仓不成立），门 import 失败：`B-02` 17 error · `B-03` 4 error（RUN 记录 F-3）"
         },
         {
           "id": "plan/S8/fuse-iter-time",
           "title": "FUSE ITER_time：上游自带的含时回归算例",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-04", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/upstream/src/test_cases.jl", "license": "public", "payload": "in"}
+            {
+              "oracle_case": "FYDOC-CASE-04",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/upstream/src/test_cases.jl",
+              "license": "public",
+              "payload": "in"
+            }
           ],
-          "record": "B-08", "record_state": "proposed",
+          "record": "B-08",
+          "record_state": "proposed",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "轨迹逐时刻", "tolerance_basis": "measured_band"}],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "轨迹逐时刻",
+              "tolerance_basis": "measured_band"
+            }
+          ],
           "status": "blocked-unknown",
-          "caveat": ["★参考侧缺答案：fydoc 该组自陈「目前只有问题、没有答案」——上游未随码发布输出，本机未在 1.1.5 上跑过。执行前须先在参考侧跑出答案并按算例书体例登记，**不得**用已遗弃的 0.7.0 旧记录顶替。"]
+          "caveat": [
+            "★参考侧缺答案：fydoc 该组自陈「目前只有问题、没有答案」——上游未随码发布输出，本机未在 1.1.5 上跑过。执行前须先在参考侧跑出答案并按算例书体例登记，**不得**用已遗弃的 0.7.0 旧记录顶替。"
+          ]
         },
         {
           "id": "plan/S8/dina-iter-scenarios",
           "title": "DINA 的 ITER 含时场景（电流爬升 / 平顶 / 下降）",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-02", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-02-dina/", "license": "restricted", "payload": "ptr"}
+            {
+              "oracle_case": "FYDOC-CASE-02",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-02-dina/",
+              "license": "restricted",
+              "payload": "ptr"
+            }
           ],
-          "record": "B-09", "record_state": "proposed",
+          "record": "B-09",
+          "record_state": "proposed",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "轨迹逐时刻", "tolerance_basis": "measured_band"}],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "轨迹逐时刻",
+              "tolerance_basis": "measured_band"
+            }
+          ],
           "status": "blocked-unknown",
-          "caveat": ["本体在 $ITER_SCENARIO_ROOT（ITER IDM，Internal Use），未取回。★它是唯一覆盖**电流爬升与下降**的参考——现有 S8 三条全在平顶或准稳态窗口。"]
+          "caveat": [
+            "本体在 $ITER_SCENARIO_ROOT（ITER IDM，Internal Use），未取回。★它是唯一覆盖**电流爬升与下降**的参考——现有 S8 三条全在平顶或准稳态窗口。"
+          ]
+        },
+        {
+          "id": "plan/S8/evolve-self-consistency",
+          "title": "1.5-D 演化产出的自洽（`evolve-default` · `evolve-iter-15ma` · `evolve-east-hmode`）",
+          "comparison_kind": "verification",
+          "oracle": [
+            {
+              "oracle_case": "—",
+              "storage_uri": "—（本仓产出，非外部答案）",
+              "license": "—",
+              "payload": "in",
+              "comment": "物理校验册的算例 `evolve-*`：参考是物理定律与文档自身的定义"
+            }
+          ],
+          "record": "physics/evolve-*",
+          "record_state": "existing",
+          "gate": [
+            "python tools/benchmark-run.py"
+          ],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "定律与定义（`fylite.engine.physics`）",
+              "tolerance_basis": "measured_band",
+              "tolerance_note": "判据册在 `fylite.engine.physics`，量到的数在 ../physics/"
+            }
+          ],
+          "status": "pass",
+          "status_note": "2026-09-04 现跑：`evolve-default` 6 条通过 · `evolve-iter-15ma` 7 条通过 · `evolve-east-hmode` 未评估（内核按名拒绝：该算例在 `evolve_heat` 的沉下范围之外）"
         }
       ]
     },
-
     {
       "id": "plan/S9-scenario-validation",
       "type": "spo:InformationContentEntity",
       "stage": "S9",
       "stage_order": 9,
-      "title": {"zh": "S9 装置级确认", "en": "S9 Device-level validation"},
+      "title": {
+        "zh": "S9 装置级确认",
+        "en": "S9 Device-level validation"
+      },
       "question": {
         "zh": "整条链路放在一个真实装置的参考场景上，答案该不该被相信。",
         "en": "Placed on a real device's reference scenario, should the whole chain's answer be believed?"
       },
-      "depends_on": ["plan/S8-evolution", "plan/S7-zerod"],
+      "depends_on": [
+        "plan/S8-evolution",
+        "plan/S7-zerod"
+      ],
       "why_here": {
         "zh": "★确认（C）回答的是「该不该信这个模型」，与前面各级的「这段代码算的是不是它声称的函数」（V）不是同一句话。把它排在最后，不是因为它最难，而是因为**在上游未验证时它没有意义**：链路某处的偏差与模型本身的偏差在这里不可分辨。",
         "en": "Validation answers whether the model should be believed, a different question from verification; it comes last because with unverified upstream, a chain error and a model error are indistinguishable here."
       },
       "entries": [
         {
-          "id": "plan/S9/iter-15ma-astra",
-          "title": "ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例与 ASTRA 的 α 通道",
+          "id": "plan/S9/alpha-channel-astra",
+          "title": "α 加热通道，对 ASTRA 的 ITER 15 MA 燃烧算例",
           "comparison_kind": "validation",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-01", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/corpus/", "license": "restricted", "payload": "in",
-             "comment": "ITER Organization 参考算例（2010-04-07 批次），66 列 · 153 点源表随件"}
+            {
+              "oracle_case": "FYDOC-CASE-01",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/corpus/",
+              "license": "restricted",
+              "payload": "in",
+              "comment": "ITER Organization 参考算例（2010-04-07 批次），66 列 · 153 点源表随件"
+            }
           ],
-          "record": "C-01 · C-02", "record_state": "existing",
-          "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "全局量与 α 通道", "tolerance_basis": "reference_stated"}],
-          "status": "existing",
-          "caveat": ["★C-01 的发布日复测记为「未评估（1 stale）」——按本册子的规则，这不是通过；它是本级现状的一部分。"]
+          "record": "C-02",
+          "record_state": "existing",
+          "gate": [
+            "$FYLITE_KERNEL/rust/fylite/src/heating.rs"
+          ],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "α 功率密度与分配",
+              "tolerance_basis": "reference_stated"
+            }
+          ],
+          "status": "pass",
+          "status_note": "2026-09-04：两条 cargo 门通过（`heating::tests::the_alpha_power_density_is_astras_own_answer_for_iter_15ma_at_burn` 等）"
+        },
+        {
+          "id": "plan/S9/iter-15ma-reference",
+          "title": "ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例",
+          "comparison_kind": "validation",
+          "oracle": [
+            {
+              "oracle_case": "FYDOC-CASE-01",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/corpus/",
+              "license": "restricted",
+              "payload": "in",
+              "comment": "ITER Organization 参考算例（2010-04-07 批次），66 列 · 153 点源表随件"
+            }
+          ],
+          "record": "C-01",
+          "record_state": "existing",
+          "gate": [
+            "app/tests/validate-iter-benchmark.mjs"
+          ],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "全局量",
+              "tolerance_basis": "reference_stated"
+            }
+          ],
+          "status": "unevaluated",
+          "status_note": "本条的门是**浏览器门**（node + playwright + 已伺服的站点），本轮未驱动；且按阻塞规则，它消费 S8 的产物，而 S8 本轮为 unevaluated",
+          "caveat": [
+            "★C-01 的发布日复测记为「未评估（1 stale）」——按本册子的规则，这不是通过；它是本级现状的一部分。"
+          ]
         }
       ]
     },
-
     {
       "id": "plan/R-reconstruction",
       "type": "spo:InformationContentEntity",
       "stage": "R",
       "stage_order": 10,
-      "title": {"zh": "支线 R 平衡反演（重构）", "en": "Branch R: equilibrium reconstruction"},
+      "title": {
+        "zh": "支线 R 平衡反演（重构）",
+        "en": "Branch R: equilibrium reconstruction"
+      },
       "question": {
         "zh": "由一组磁测量反演出的平衡，与另一个码在同一份测量集上的离线答案是否一致。",
         "en": "Does the equilibrium inverted from a set of magnetic measurements agree with another code's offline answer on the same measurements?"
       },
-      "depends_on": ["plan/S0-conventions", "plan/S1-equilibrium", "plan/S2-geometry"],
+      "depends_on": [
+        "plan/S0-conventions",
+        "plan/S1-equilibrium",
+        "plan/S2-geometry"
+      ],
       "why_here": {
         "zh": "反演是正问题（S1）加一层最优化，**不在 S3..S9 的干路上**：它不消费通量，也不被通量消费。单列一支，是为了它失败时不去阻塞输运链，反之亦然。",
         "en": "Reconstruction is the forward problem plus an optimization layer and sits off the transport trunk; keeping it a branch prevents its failures from blocking the transport chain and vice versa."
@@ -653,25 +1290,46 @@
           "title": "EAST #137985 @ 4.0 s 的平衡反演",
           "comparison_kind": "benchmark",
           "oracle": [
-            {"oracle_case": "—", "storage_uri": "$FYDOC_ORACLE/（实验测量集，见登记册 B-06）", "license": "experiment", "payload": "ptr",
-             "comment": "实验炮与装置数据，未经数据属主同意不可再分发；仅指针"}
+            {
+              "oracle_case": "—",
+              "storage_uri": "$FYDOC_ORACLE/（实验测量集，见登记册 B-06）",
+              "license": "experiment",
+              "payload": "ptr",
+              "comment": "实验炮与装置数据，未经数据属主同意不可再分发；仅指针"
+            }
           ],
-          "record": "B-06", "record_state": "existing",
+          "record": "B-06",
+          "record_state": "existing",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "反演出的平衡与形状", "tolerance_basis": "measured_band"}],
-          "status": "existing"
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "反演出的平衡与形状",
+              "tolerance_basis": "measured_band"
+            }
+          ],
+          "status": "unevaluated",
+          "status_note": "18 条全部因缺装置牌 collection error（RUN 记录 F-4）"
         }
       ]
     },
-
     {
       "id": "plan/K-control",
       "type": "spo:InformationContentEntity",
       "stage": "K",
       "stage_order": 11,
-      "title": {"zh": "支线 K 垂直稳定与控制", "en": "Branch K: vertical stability and control"},
-      "question": {"zh": "刚性位移模型给出的增长率与控制裕度，与 TokSys 的 rzrig 是否一致。", "en": "Do the rigid-displacement growth rate and control margins agree with TokSys rzrig?"},
-      "depends_on": ["plan/S1-equilibrium", "plan/S2-geometry"],
+      "title": {
+        "zh": "支线 K 垂直稳定与控制",
+        "en": "Branch K: vertical stability and control"
+      },
+      "question": {
+        "zh": "刚性位移模型给出的增长率与控制裕度，与 TokSys 的 rzrig 是否一致。",
+        "en": "Do the rigid-displacement growth rate and control margins agree with TokSys rzrig?"
+      },
+      "depends_on": [
+        "plan/S1-equilibrium",
+        "plan/S2-geometry"
+      ],
       "why_here": {
         "zh": "稳定性消费平衡与导体几何，不消费输运。与 R 同理单列一支。",
         "en": "Stability consumes the equilibrium and conductor geometry, not transport; a branch for the same reason as R."
@@ -681,24 +1339,48 @@
           "id": "plan/K/toksys-rzrig",
           "title": "垂直稳定性，对 TokSys rzrig",
           "comparison_kind": "validation",
-          "oracle": [{"oracle_case": "—", "storage_uri": "—（见登记册 C-03）", "license": "—", "payload": "in"}],
-          "record": "C-03", "record_state": "existing",
+          "oracle": [
+            {
+              "oracle_case": "—",
+              "storage_uri": "—（见登记册 C-03）",
+              "license": "—",
+              "payload": "in"
+            }
+          ],
+          "record": "C-03",
+          "record_state": "existing",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "增长率", "tolerance_basis": "measured_band"}],
-          "status": "existing",
-          "caveat": ["★本条在登记册里**没有算例来源指针**（纳入类别一栏为「—」）。按本册子的收录判据，这是一处待补：参考是什么、取自哪一份，须落到 fydoc 算例书里才谈得上复算。"]
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "增长率",
+              "tolerance_basis": "measured_band"
+            }
+          ],
+          "status": "unevaluated",
+          "caveat": [
+            "★本条在登记册里**没有算例来源指针**（纳入类别一栏为「—」）。按本册子的收录判据，这是一处待补：参考是什么、取自哪一份，须落到 fydoc 算例书里才谈得上复算。"
+          ],
+          "status_note": "因缺装置牌跳过（RUN 记录 F-4）"
         }
       ]
     },
-
     {
       "id": "plan/P-breakdown",
       "type": "spo:InformationContentEntity",
       "stage": "P",
       "stage_order": 12,
-      "title": {"zh": "支线 P 起始与击穿", "en": "Branch P: initiation and breakdown"},
-      "question": {"zh": "击穿判据与起始阶段的电路 / 输运模型，与 TRANSMAK 的研究结论是否一致。", "en": "Do the breakdown criteria and the initiation-phase circuit/transport model agree with the TRANSMAK study?"},
-      "depends_on": ["plan/S0-conventions"],
+      "title": {
+        "zh": "支线 P 起始与击穿",
+        "en": "Branch P: initiation and breakdown"
+      },
+      "question": {
+        "zh": "击穿判据与起始阶段的电路 / 输运模型，与 TRANSMAK 的研究结论是否一致。",
+        "en": "Do the breakdown criteria and the initiation-phase circuit/transport model agree with the TRANSMAK study?"
+      },
+      "depends_on": [
+        "plan/S0-conventions"
+      ],
       "why_here": {
         "zh": "起始发生在闭合磁面成形之前，**不消费 S1 的平衡**——它是本图里唯一只挂在 S0 之下的一支。",
         "en": "Initiation precedes closed flux surfaces and does not consume the S1 equilibrium; it is the only branch hanging directly off S0."
@@ -709,17 +1391,32 @@
           "title": "等离子体起始（TRANSMAK 研究）",
           "comparison_kind": "validation",
           "oracle": [
-            {"oracle_case": "FYDOC-CASE-17", "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-17-transmak/", "license": "restricted", "payload": "ptr",
-             "comment": "ITER IDM 3TPCKG v1.0，合同终报；★是**报告体**，不是数据集——可比的量须先从报告里逐条摘出并登记"}
+            {
+              "oracle_case": "FYDOC-CASE-17",
+              "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-17-transmak/",
+              "license": "restricted",
+              "payload": "ptr",
+              "comment": "ITER IDM 3TPCKG v1.0，合同终报；★是**报告体**，不是数据集——可比的量须先从报告里逐条摘出并登记"
+            }
           ],
-          "record": "C-10", "record_state": "proposed",
+          "record": "C-10",
+          "record_state": "proposed",
           "gate": [],
-          "criteria": [{"type": "fyo:AcceptanceCriterion", "quantity_label": "[TBD]", "tolerance_basis": "reference_stated",
-                        "tolerance_note": "参考侧未取回且为报告体，判据待其可比量确定后再写；此处不预填"}],
+          "criteria": [
+            {
+              "type": "fyo:AcceptanceCriterion",
+              "quantity_label": "[TBD]",
+              "tolerance_basis": "reference_stated",
+              "tolerance_note": "参考侧未取回且为报告体，判据待其可比量确定后再写；此处不预填"
+            }
+          ],
           "status": "blocked-unknown",
-          "caveat": ["本体在 $ITER_SCENARIO_ROOT，未取回。★即使取回，它与其余算例来源有一处性质差别：报告里的图与结论不是机读答案，逐条摘出这一步本身要留痕，否则「参考是什么」不可复算。"]
+          "caveat": [
+            "本体在 $ITER_SCENARIO_ROOT，未取回。★即使取回，它与其余算例来源有一处性质差别：报告里的图与结论不是机读答案，逐条摘出这一步本身要留痕，否则「参考是什么」不可复算。"
+          ]
         }
       ]
     }
-  ]
+  ],
+  "last_run": "benchmark/plan/RUN-2026-09-04"
 }
