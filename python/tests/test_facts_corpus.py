@@ -261,11 +261,16 @@ def test_a_named_root_that_is_not_there_is_named(tmp_path):
 
 def _exe():
     """The built executable, or a skip — it is a build product, not a source."""
-    for p in (ROOT / "python" / "fylite" / "_bin" / "fylite",
-              ROOT / "rust" / "fylite_runtime" / "target" / "release" / "fylite"):
-        if p.is_file():
-            return p
-    pytest.skip("no fylite executable built (bash tools/build-app-exe.sh --mode cli linux)")
+    #: ★★2026-09-04 只有一个地方可找：`fy` 是 `rust/build.sh --exe` 的产物，
+    #: 而 Python 包**不再带**一份（用户裁定；`FYL-DESIGN-15` R-4/R-5）。
+    p = ROOT / "rust" / "fylite_runtime" / "target" / "release" / "fy"
+    if p.is_file():
+        return p
+    import shutil
+    found = shutil.which("fy")
+    if found:
+        return pathlib.Path(found)
+    pytest.skip("no `fy` executable built (bash rust/build.sh --exe)")
 
 
 def test_the_two_resolvers_agree(tmp_path):

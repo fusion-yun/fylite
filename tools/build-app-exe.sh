@@ -88,8 +88,8 @@ cd "$CRATE"
 
 build_linux() {
   echo "[exe] linux x86-64 …"
-  cargo build --release --no-default-features --features "$FEATURES" --bin fylite
-  ls -l "$OUT/release/fylite"
+  cargo build --release --no-default-features --features "$FEATURES" --bin fy
+  ls -l "$OUT/release/fy"
 }
 
 build_windows() {
@@ -102,8 +102,8 @@ build_windows() {
   fi
   echo "[exe] windows x86-64（交叉编译）…"
   CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc \
-    cargo build --release --no-default-features --features "$FEATURES" --bin fylite --target "$target"
-  local exe="$OUT/$target/release/fylite.exe"
+    cargo build --release --no-default-features --features "$FEATURES" --bin fy --target "$target"
+  local exe="$OUT/$target/release/fy.exe"
   file "$exe" | grep -q 'PE32+' || { echo "[exe] 产物不是 PE32+" >&2; exit 1; }
   ls -l "$exe"
   echo "[exe] sha256: $(sha256sum "$exe" | cut -d' ' -f1)"
@@ -136,8 +136,8 @@ build_windows_msvc() {
     echo "[exe] 缺 cargo-xwin —— cargo install cargo-xwin --locked" >&2; exit 1
   fi
   echo "[exe] windows x86-64 / MSVC ABI（交叉编译）…"
-  cargo xwin build --release --features desktop --bin fylite --target "$target"
-  local exe="$OUT/$target/release/fylite.exe"
+  cargo xwin build --release --features desktop --bin fy --target "$target"
+  local exe="$OUT/$target/release/fy.exe"
   file "$exe" | grep -q 'PE32+' || { echo "[exe] 产物不是 PE32+" >&2; exit 1; }
   ls -l "$exe"
   echo "[exe] sha256: $(sha256sum "$exe" | cut -d' ' -f1)"

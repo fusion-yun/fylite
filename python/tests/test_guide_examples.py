@@ -66,10 +66,13 @@ def catalogue() -> set[str]:
 
 
 def test_every_case_the_guide_names_is_in_the_catalogue(text, catalogue):
-    """★Both spellings: `fylite cases --run <id>` and `cases/<id>.jsonld`."""
+    """★Three spellings: the library call `cases.run("<id>")` (since 2026-09-04,
+    when the CLI layer went), the old `fylite cases --run <id>` (still in the
+    "从前是…" historical lines), and the file itself `cases/<id>.jsonld`."""
     named: dict[str, set[str]] = {}
     for chapter, body in text.items():
         ids = set(re.findall(r"fylite cases (?:--\w+ )*([a-z0-9-]+)\b", body))
+        ids |= set(re.findall(r"cases\.(?:run|load|plan)\(\"([a-z0-9-]+)\"", body))
         ids |= set(re.findall(r"cases/([a-z0-9-]+)\.jsonld", body))
         ids -= {"--run", "--report", "--plan", "--check", "--benchmark", "context", "catalogue"}
         named[chapter] = ids
@@ -77,19 +80,6 @@ def test_every_case_the_guide_names_is_in_the_catalogue(text, catalogue):
     assert not unknown, {"named by the guide, not in the catalogue": unknown,
                          "catalogue has": sorted(catalogue)}
     assert named["examples/index.md"], "the corpus chapter names no case at all"
-
-
-def test_every_cases_flag_the_guide_shows_is_declared(text):
-    spec = json.loads((ROOT / "python" / "fylite" / "_cli.json").read_text(encoding="utf-8"))
-    cmd = next(c for c in spec["commands"] if c["name"] == "cases")
-    declared = {f for a in cmd["args"] for f in a["flags"]}
-    shown = set()
-    for body in text.values():
-        shown |= set(re.findall(r"fylite cases ((?:--[\w-]+ ?)+)", body))
-    flags = {f for group in shown for f in group.split() if f.startswith("--")}
-    assert flags, "the worked examples show no CLI flag at all"
-    assert flags <= declared, {"shown but not declared": sorted(flags - declared),
-                               "declared": sorted(declared)}
 
 
 def test_every_scenario_entry_the_guide_calls_exists_with_the_keywords_shown(text):

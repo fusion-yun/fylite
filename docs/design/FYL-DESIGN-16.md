@@ -106,7 +106,7 @@ wasm、另一台机器上的进程，或另一种实现；每个宿主对它们�
 | 版本 | `ABI_VERSION = 125`，由内核仓构建生成进 `_abi.py`；装载器见到不符**硬拒** |
 | 换内核 | `$FY_KERNEL_LIB`（Python）/ `FYLITE_KERNEL_LIB`（中间层）——都只是**文件路径**；两边各自 `dlopen` 同一个 `.so` |
 | 第二种实现 | 无落点：没有后端表，没有「哪个后端完成哪些能力」的声明 |
-| 远端 | 没有远端**内核**。存在的两样都是远端 **fylite**：`fylite serve` / `mcp` 暴露整个 fylite；`fylite` 的 `/api/*` 五个端点（`health` `shot` `tree` `node` `signal` `measurements`）全是 mdsip 取数 |
+| 远端 | 没有远端**内核**。存在的两样都是远端 **fylite**：`engine.serve.serve_stdio()` / `mcp_stdio()` 暴露整个 fylite；`fy` 的 `/api/*` 五个端点（`health` `shot` `tree` `node` `signal` `measurements`）全是 mdsip 取数 |
 | 跨宿主一致性 | `engine.crosshost`：比的是**同一内核的两个构建**（原生 vs wasm），只对声明了 `kernel_entry` 的工具运行——今天一个 |
 | 内核的全局态 | **零**：`static mut` · `thread_local` · `lazy_static` · `OnceLock` · `Mutex` 在 36 个源文件里一处都没有 |
 | 内核的依赖 | `Cargo.toml` 依赖表只有 `rayon`（可选）；`cdylib` + `rlib`，同一份 `c_api.rs` 也编 `wasm32-unknown-unknown`；**没有文档模型，没有 JSON 解析器** |
@@ -215,7 +215,7 @@ flowchart TB
 
 **K-5 远端内核共形六相协议，不另立协议。** 远端调用的生命周期就是 `SPM-ADR-111` 的
 P-1..P-6（interpret_inputs → provision → stage → execute → interpret_outputs + harvest →
-dispose）；载荷就是那份计划与那份记录。`fylite serve` 的 JSON-RPC envelope 复用为 `compute.`
+dispose）；载荷就是那份计划与那份记录。`engine.serve` 的 JSON-RPC envelope 复用为 `compute.`
 方法族还是另立，与 `SP-REPORT-15` T-0.4 一并裁定（G-2）。
 
 **K-6 跨后端一致性是登记册的一类记录。** `engine.crosshost` 今天比「同一内核的两个构建」；
@@ -569,7 +569,7 @@ KERNEL 域 FR-KERNEL-001..004 承载 K-1 / K-2 / K-4 / K-8 / F-1..F-4 / S-1..S-4
 | 编号 | 缺口 | 状态 |
 | :--- | :--- | :--- |
 | G-1 | 装配搬进内核后，页面交互（拖滑块重算一栏）的延迟预算是否仍满足 `FYL-CONOPS-00` 的响应包络——一次门调用比一次扁平调用多一次编码 | 开；P1 实测 |
-| G-2 | 远端后端的 envelope：复用 `fylite serve` 的 JSON-RPC 与 `DriverRequest`，还是另立 `compute.` 方法族 | 开；随 `SP-REPORT-15` T-0.4 裁定 |
+| G-2 | 远端后端的 envelope：复用 `engine.serve` 的 JSON-RPC 与 `DriverRequest`，还是另立 `compute.` 方法族 | 开；随 `SP-REPORT-15` T-0.4 裁定 |
 | G-3 | ~~内核不认识装置，而导体几何现算归谁~~ | **已关**（K-8）：装置以整份文档进内核，来路归中间层 |
 | G-4 | 两个后端给出不同的数时，登记册记录的纳入类别（V / B / C）怎么定——今天三类都以「外部答案」为对照，后端间对照是第四种 | 开；P2 |
 | G-5 | ~~wasm 后端的 code 表怎么自报~~ | **随 W-1 即关**（H-4）：中间层的 wasm 像本机那样问内核要，不再靠生成的 `fyo-interface.js` 冒充运行期查询 |

@@ -520,7 +520,23 @@ impl<T: Transport> Reader for Session<T> {
     fn read_items(&mut self, tree: &str, shot: i64, verb: Verb, node: &str, idx: &[Index], inside: bool) -> Result<Node, String> {
         self.ensure_tree(tree, shot).map_err(|e| e.to_string())?;
         let ans = self.client.read(verb, node, idx, inside).map_err(|e| e.to_string())?;
-        Ok(answer_to_node(&ans, None))
+        let v = answer_to_node(&ans, None);
+        //: ★★An EMPTY payload with a SUCCESS status is the one answer that must not
+        //: reach the document.  TDI subscripts a SIGNAL by the value of its
+        //: dimension, not by position: measured 2026-09-04 against a local server
+        //: holding EAST #70754, `\AMINOR[40]` asks for the sample at t = 40 s and
+        //: answers nothing — successfully — while `data(\AMINOR)[40]` answers
+        //: 0.4687 m.  Written through, that fills a whole equilibrium with `[]`
+        //: and reports «0 failures», which is worse than any error: the caller
+        //: sees a document.  So an empty read is a failure, and it names the
+        //: expression that produced it.
+        if v.as_array().map(|a| a.is_empty()).unwrap_or(false) {
+            let what = crate::mdsip::tdi(verb, node, idx, inside).map(|s| format!("{s:?}")).unwrap_or_else(|_| format!("{node:?}"));
+            return Err(format!(
+                "{what} answered no data (empty payload, success status) — in TDI a subscript on a signal \
+                 selects by the DIMENSION's value, not by position; write DATA(node)[i] to index samples"));
+        }
+        Ok(v)
     }
 
     fn time_base(&mut self, tree: &str, shot: i64, node: &str, axis: i64) -> Result<Arc<Vec<f64>>, String> {
@@ -1053,6 +1069,35 @@ mod tests {
         let pf = r.bundle.get("pf_active").unwrap();
         assert_eq!(pf.get("coil/0/current/data").map(Node::shape), Some(vec![2, 3]));
         assert!(sent.borrow().iter().any(|s| s.contains("data(\\BDRY[0,*,5])")), "{:?}", sent.borrow());
+    }
+
+    #[test]
+    fn an_empty_answer_is_a_failure_not_an_empty_leaf() {
+        //: ★the shape of the EAST equilibrium binding before 2026-09-04: a bare
+        //: `\AMINOR[{time_slice}]` (no `DATA(…)`) subscripts the SIGNAL, so the
+        //: server answers success + nothing.  Measured against a local mdsip
+        //: server holding #70754.  Written through, every slice scalar became `[]`
+        //: and the run reported no failures at all.
+        let table_doc = crate::json::parse(r#"{
+          "$schema": "fylite/mds-bind/1",
+          "sources": {"efit_east": {"tree": "efit_east", "uri": "mdsplus://127.0.0.1/x?tree_name=efit_east"}},
+          "bindings": [
+            {"ids": "equilibrium", "path": "time_slice/0/boundary/minor_radius", "source": "efit_east", "verb": "raw", "node": "\\AMINOR", "subscript": [{"int": 40}], "subscript_inside": false, "value": null, "scale": null}
+          ]
+        }"#).unwrap();
+        let table = parse_table(&table_doc).unwrap();
+        let (session, _sent) = scripted(vec![
+            frame_f64(&[1.0], &[]),          // login
+            frame_f64(&[265389633.0], &[]),  // TreeOpen
+            frame_f64(&[], &[0]),            // \AMINOR[40] — success, no samples
+        ]);
+        let mut sessions = BTreeMap::new();
+        sessions.insert("efit_east".to_string(), session);
+        let r = resolve(&table, &mut sessions, &Params { shot: 70754, ..Default::default() }, None);
+        assert_eq!(r.read, 0);
+        assert_eq!(r.failures.len(), 1, "{:?}", r.failures);
+        assert!(r.failures[0].2.contains("empty payload"), "{:?}", r.failures);
+        assert!(r.failures[0].2.contains("DATA(node)[i]"), "{:?}", r.failures);
     }
 
     #[test]

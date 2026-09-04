@@ -46,9 +46,13 @@ formulae), and the operating window each case declares.
 python tools/benchmark-run.py                     # 跑一遍，统计表打到屏幕
 python tools/benchmark-run.py --write             # 并写进本目录与仓根 BENCHMARK.md
 python tools/benchmark-run.py --from records/     # 不跑，判已经跑出来的记录
-fylite cases --physics                            # 列出预设算例与它们的判据
-fylite cases --physics --check                    # 结构检查（与 pytest 闸子同一函数）
-fylite cases --physics --run equilibrium-gfile    # 跑一条，打印报告
+```
+
+```python
+from fylite.engine import suite                   # ★2026-09-04：从前的 `fylite cases --physics`
+suite.entries()                                   # 列出预设算例与它们的判据
+[suite.problems(e) for e in suite.entries()]      # 结构检查（与 pytest 闸子同一函数）
+suite.run_entry(suite.entry("equilibrium-gfile")) # 跑一条
 ```
 
 ★★**产出从哪来，只有三条路，都不许猜**：算例声明的**产出文件**（`product`，

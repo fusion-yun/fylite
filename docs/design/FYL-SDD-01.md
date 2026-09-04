@@ -41,7 +41,7 @@ modified:
     · v0.12 `docs/` 定为书集、`note/` 不入册（★2026-09-02 已改回一本书，见 v1.0）。
     · v0.11 语料与 V&V 登记册合并；页面不再取算例。
     · v0.10 装置牌一份真源；`mapping/` 入布局表（★后已退役）。
-    · v0.9 报告面 `fylite report`。· v0.8 `cases/` 提升；CLI 为主要调试环境。
+    · v0.9 报告面 `engine.report`。· v0.8 `cases/` 提升；CLI 为主要调试环境。
     · v0.7 DE-COMP-08 语义层、DE-LOG-07 语义单源、DE-COMP-05.2 LLM 位置纪律。
     · v0.6 DE-COMP-05.1 BYOK LLM 前端。· v0.5 装置牌宿主 `device.py`。
     · v0.4 及以前：五视图初稿，DE-LOG-03 后端注册表（2026-08-21 退役）。
@@ -133,7 +133,7 @@ FyLite 以一个公开仓（本仓）加一个私有内核仓交付，对外呈�
 | `app/` | DE-COMP-05 浏览器前端 | 三个散文页（中英各一）· `pages/` 五页正本（`pulse_design` `model` `analysis` `data` `report`）+ 五张 `page_*` v2 外壳页（生成物，未提为正本）· `assets/`（JS、样式、wasm 制品、生成物）· `devices/`（装置描述誊录）· `guide/`（用户指南的公开子集，生成物）· `tests/` 门禁 |
 | `python/fylite/_manifest/` `_spec/` `_cli.json` `_environment.json` `_fyo_vocab.json` | DE-COMP-06 声明面 | 数据非代码；随 wheel 分发。13 份能力清单、4 份 vendored schema、一份三宿主共用的命令行规格、一份环境变量表、一份 fyo 词表 |
 | **`facts/`**（仓根，**gitignored**）+ `python/fylite/device.py` | DE-COMP-07 参考事实 | ★★2026-09-04 用户裁定：这些收成**一个语料** **`facts/`**——**关于具名个体的断言**，按域分轴（`facts/device/<id>` 今天有内容，`amns` / `experiment` 是同一轴上的下一格），逐个一目录（卡片 `<id>/<id>_device.yaml` + 许可账 `<id>/rights.json`）加页面文档 `<id>.jsonld`，由 `tools/abox-to-facts.py` 自外部 A-Box 拖回；**`app/facts` 是指向仓根 `facts/` 的符号链接**（单一数据源，单一发布规则，且**一个名字**——仓内路径、页面取用与发布路径都是 `facts/device/`）。语料不随源码发布（gitignore），但**进制品**：构建分**公开版 / 内部版**，谁进哪一版由 `tools/facts-publish.py` 一处判——公开版不带 EAST（一次真实放电 #137985 的实测读数）与上游标 `redistributable: false` 的 IDS。闸子 `python/tests/test_facts_corpus.py`。★`models/` 不在其中：神经网络权重不是关于世界的断言，是制品 |
-| `cases/` | 场景语料（数据） | fyo / JSON-LD 会话文档 + `catalogue.jsonld` + `context.jsonld`；读者是 `fylite cases`、`fylite.engine.cases` 与书，**浏览器不读**；不随 wheel 分发 |
+| `cases/` | 场景语料（数据） | fyo / JSON-LD 会话文档 + `catalogue.jsonld` + `context.jsonld`；读者是 `fylite.engine.cases` 与书，**浏览器不读**；不随 wheel 分发 |
 | `docs/` | 文档：**一本书，五篇** | `guide/` `examples/` `reference/` `physics/` `design/` 一份 `myst.yml`；**不入册**：`benchmark/`（公开 V&V 登记册：`registry.jsonld` + `reports/` + `scenarios/` + `physics/`——按路径被引用的记录）、`figures/`、`_build/`。实测笔记与归档设计笔记随内核进了私有仓 |
 | `tools/` | 辅助 + 发布路径 | 三种发布形态各一条构建路径（`build-app-exe.sh` · `build-site.sh` · `build-wheel.sh`）、页面 / 图 / 预览生成器、A-Box 投影（`abox-mds-bind.py` `abox-to-machine-desc.py`）、语料与基准工具 |
 | `TODO.md` `VERSION` | 台账 · 发行版本 | 仓级开放任务台账；`VERSION` 是发行版本的唯一来源 |
@@ -211,7 +211,7 @@ flowchart TB
 | Description | 与物理无关的机械：命令行构建与入口、JSON-RPC / MCP 服务、能力目录与清单校验、运行溯源（`whence`）、底账与重放（`ledger` / `replay`）、报告渲染（`report.py`，统一模板 `docs/reference/report-template.md`）、迭代版本、别名、跨运行时一致性（`crosshost`）、语料与物理校验（`cases` / `physics` / `suite` / `benchmark`）、ABI 核对与原生库装载。 |
 | Traces to | FR-TOOL-001..004, FR-DATA-003, NR-DEP-001, NR-ENV-004 |
 | Invariant | `fylite.engine` 顶层导入仅标准库；numpy 与重型依赖一律函数内惰性导入（闸子 `test_engine_imports_only_stdlib.py`；`fylite/__init__.py` 为此改为 PEP 562 惰性，`import fylite` 2.7 ms 不加载 numpy）。 |
-| Interface | `fylite.engine` 入口（`cli_main` / serve / mcp）。命令行由 DE-COMP-06 的 `_cli.json` 机械建出；`app` / `data` / `case` 三条由**那一个** Rust 可执行文件承载，本层**逐字委托**（`--bin-dir` → 包内 `_bin/` → `$PATH`，命令词放回最前；找不到时按名说明要构建什么并退出 2），不另写第二份实现。 |
+| Interface | `fylite.engine` 入口（`cli_main` / serve / mcp）。命令行由 DE-COMP-06 的 `_cli.json` 机械建出；`app` / `data` / `case` 三条由**那一个** Rust 可执行文件承载，本层**逐字委托**（`--bin-dir` → `$PATH` 上的 `fy`，命令词放回最前；找不到时按名说明要构建什么并退出 2；★2026-09-04 起本包**不产出可执行文件**），不另写第二份实现。 |
 | Note | 后端注册（原 DE-LOG-03）已退出本组件。★与中间层的重叠只有四项（命令行解析——有意的两份、内核装载、计划→内核→记录、g-file ↔ `fyo:equilibrium`），重心互不相交（`FYL-DESIGN-16` N-1）。 |
 
 (de-comp-04)=
@@ -230,7 +230,7 @@ flowchart TB
 
 | Field | Value |
 |:---|:---|
-| Description | 静态页面与 wasm 制品（制品不入库，构建时装入）；页面控件驱动单步求解并即时回显。同一份页面字节两种交付：静态站点（`tools/build-site.sh`）与单一可执行文件内嵌（`fylite`，另答一组只读 `/api/*`）——差别由页面在运行时判别（`assets/host.js` 探 `/api/health`），**禁止 (MUST NOT)** 构建时分叉出两份页面（`FYL-DESIGN-15` R-1 / R-3）。 |
+| Description | 静态页面与 wasm 制品（制品不入库，构建时装入）；页面控件驱动单步求解并即时回显。同一份页面字节两种交付：静态站点（`tools/build-site.sh`）与单一可执行文件内嵌（`fy`，另答一组只读 `/api/*`）——差别由页面在运行时判别（`assets/host.js` 探 `/api/health`），**禁止 (MUST NOT)** 构建时分叉出两份页面（`FYL-DESIGN-15` R-1 / R-3）。 |
 | Traces to | FR-HOST-001, FR-HOST-002, NR-ENV-001, NR-ENV-002 |
 | Invariant | 页面仅消费 wasm 模块与静态资产；加载后离线可用（零远程请求依赖）。 |
 | Interface | 三个散文页各中英两份（`tools/make-app-pages.mjs` 生成，无 i18n 运行时）；四个功能页 + 一个算例报告页（运行时切换语言）；五张 `page_*` v2 外壳页（`tools/make-page-v2.mjs` 生成，`FYL-DESIGN-11`）。**启动参数**（`device` / `lang` / `theme` / `page`）在共享规格的 `hosts.app.params` 里声明一次（`FYL-DESIGN-15` C-6）。逐页设计：`FYL-DESIGN-09` / `-10` / `-12` / `-13`，外壳 `-11`。 |

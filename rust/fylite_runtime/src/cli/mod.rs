@@ -694,7 +694,10 @@ mod tests {
         let names: Vec<&str> = spec().commands_for(HOST).iter().map(|c| c.name.as_str()).collect();
         assert_eq!(names, ["app", "data", "case"]);
         assert_eq!(spec().default_command.as_deref(), Some("app"));
-        assert_eq!(spec().prog, "fylite");
+        //: ★the program name comes from `hosts.rust.exe` — `fy` since 2026-09-04.
+        //: `main.rs` hands THIS to the parser, so a rename lands in the usage
+        //: text of both hosts at once and cannot be forgotten in one of them.
+        assert_eq!(spec().prog, "fy");
     }
 
     #[test]
@@ -737,10 +740,10 @@ mod tests {
 
     #[test]
     fn help_is_generated_from_the_spec() {
-        let u = usage(spec(), HOST, "fylite", &[]);
+        let u = usage(spec(), HOST, &spec().prog, &[]);
         assert!(u.contains("app ") && u.contains("data ") && u.contains("case "));
         assert!(u.contains("runs `app`"));
-        let u = usage(spec(), HOST, "fylite", &["data", "convert"]);
+        let u = usage(spec(), HOST, &spec().prog, &["data", "convert"]);
         assert!(u.contains("--to json|geqdsk|hdf5|netcdf|imas-hdf5"), "{u}");
         assert!(!u.contains("--bin-dir"));
         match parse(spec(), HOST, "fylite", &argv("case run --help")) {

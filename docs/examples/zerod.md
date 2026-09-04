@@ -13,8 +13,12 @@ title: 典型算例 · 0-D 放电 (Worked Example · 0-D Discharge)
 ## 跑它
 
 ```bash
-export FYLITE_DEVICE_DIR=~/fylite-decks/iter    # 见「安装与环境」：牌从 A-Box 拖回     # 装置牌见「安装与环境」
-fylite cases --run zerod-iter-15ma
+export FYLITE_DEVICE_DIR=~/fylite-decks/iter    # 装置牌见「安装与环境」：从 A-Box 拖回
+```
+
+```python
+from fylite.engine import cases
+cases.run("zerod-iter-15ma")
 ```
 
 ```text
@@ -81,14 +85,15 @@ z1["tier"]                                              # 'predicted'
 | 回答得了 | 各路功率的记账、聚变产额 | 「这套加热撑不撑得起这个温度」 |
 | 回答不了 | 上面那一列 | 剖面形状（仍是规定的） |
 
-命令行上是 `fylite cases --run zerod-iter-15ma --predict`。★**两档不是精度差别，是问题
+预测档是 `cases.run("zerod-iter-15ma", predict=True)`。★**两档不是精度差别，是问题
 差别**：甲问「给定这条轨迹，功率怎么记账」，乙问「这条轨迹自洽吗」。把甲的数当成乙的
 答案，是这一层最常见的误读。
 
 ## 报告
 
-```bash
-fylite cases --report zerod-iter-15ma --out out/zerod
+```python
+from fylite.engine import casereport, cases
+casereport.render(cases.run("zerod-iter-15ma"), out="out/zerod")
 ```
 
 八张图，全部由规格按「量对自身坐标」推出，无一处猜坐标轴：

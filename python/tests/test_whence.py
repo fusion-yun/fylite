@@ -149,28 +149,3 @@ def test_a_file_that_is_not_there_raises_rather_than_reporting_not_found():
         W.whence("/definitely/not/here.json")
 
 
-def test_the_cli_exit_code_is_the_verdict(a_run, tmp_path, capsys):
-    """★A driver whose report has to be read to find out whether it worked is
-    one nobody puts in a pipeline."""
-    from fylite.engine import cli
-
-    root, rd = a_run
-    assert cli.cli_main(["whence", str(rd / "result.json"),
-                         "--root", str(root)]) == 0
-    miss = tmp_path / "nope.txt"
-    miss.write_text("hello")
-    assert cli.cli_main(["whence", str(miss), "--root", str(root)]) == 1
-    out = capsys.readouterr().out
-    assert rd.name in out and "these bytes" in out
-
-
-def test_the_cli_takes_several_files_and_fails_if_any_misses(a_run, tmp_path):
-    from fylite.engine import cli
-
-    root, rd = a_run
-    miss = tmp_path / "nope2.txt"
-    miss.write_text("hello")
-    assert cli.cli_main(["whence", str(rd / "result.json"),
-                         str(rd / "arrays.npz"), "--root", str(root)]) == 0
-    assert cli.cli_main(["whence", str(rd / "result.json"), str(miss),
-                         "--root", str(root)]) == 1

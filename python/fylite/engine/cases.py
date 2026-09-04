@@ -914,3 +914,93 @@ def run(case_id: str, d=None, *, predict: bool = False) -> dict:
     result = json.loads(out["content"][0]["text"])
     return {**p, "run": result.get("run"), "run_dir": result.get("run_dir"),
             "result_keys": sorted(result)}
+
+
+#: Vocabularies retired from the corpus: a document still carrying one has not
+#: been migrated (`fylite:` predates the fyo/spo convergence, `vv:` left with
+#: the V&V register's own context).
+_RETIRED_PREFIXES = ("fylite:", "vv:")
+
+#: The corpus directory holds the catalogue and the shared ``@context`` beside
+#: the cases.  Excepted BY NAME, not by pattern: an unrecognised ``.jsonld``
+#: landing here is exactly the mistake :func:`problems` exists to catch.
+_NOT_CASES = {"catalogue.jsonld", "context.jsonld"}
+
+
+def _case_problems(doc: dict, cid: str, bars: set) -> list[str]:
+    """What is structurally wrong with ONE case document (empty = sound)."""
+    out = []
+    if doc.get("type") != "fyo:ScenarioSpecification":
+        out.append(f"type is {doc.get('type')!r}, not fyo:ScenarioSpecification")
+    if str(doc.get("id", "")).rsplit("/", 1)[-1] != cid:
+        out.append(f"document id {doc.get('id')!r} does not name the catalogue entry")
+    bar = bar_of(doc)
+    if bar not in bars:
+        out.append(f"prescribes_code names bar {bar!r}, which neither the tool "
+                   "register nor the browser-only register knows")
+    if not doc.get("prescribed_task_kind"):
+        out.append("no prescribed_task_kind")
+    if not _lang(doc.get("title")):
+        out.append("no title")
+    params = doc.get("parameters")
+    if not params:
+        out.append("no parameter settings")
+    for p in params or []:
+        ref = str(p.get("sets_parameter", ""))
+        if not ref.startswith(f"code/{bar}#") or "literal_value" not in p:
+            out.append(f"parameter setting {ref!r} is not `code/{bar}#<name>` "
+                       "with a literal_value")
+            break
+
+    def walk(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if k.startswith(_RETIRED_PREFIXES):
+                    yield k
+                yield from walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                yield from walk(v)
+        elif isinstance(x, str) and any(t in x for t in _RETIRED_PREFIXES):
+            yield x[:60]
+    hits = list(walk(doc))
+    if hits:
+        out.append(f"retired vocabulary present ({len(hits)}): {hits[0]!r}")
+    return out
+
+
+def problems(d: Path | None = None) -> list[str]:
+    """What is structurally wrong with the whole corpus (empty = sound).
+
+    Catalogue ↔ disk in BOTH directions (a named document that is not there,
+    a document nobody names), plus :func:`_case_problems` per document.
+
+    ★★2026-09-04 这个函数从 `engine/cli.py` 搬来。它从前只经命令行的
+    ``fylite cases --check`` 到达，而那一层随「Python 侧无命令行」的裁定撤除——
+    **检查本身不是命令行的**，它是语料的一条不变式，所以它留在库里，
+    调用方（闸子、脚本、别的宿主）直接调它。
+    """
+    d = corpus_dir(d)
+    from ..scenario import BROWSER_ONLY_BARS, TOOLS
+    bars = {t["bar"] for t in TOOLS.values() if t["bar"]} | set(BROWSER_ONLY_BARS)
+    bad: list[str] = []
+    on_disk = {p.name for p in d.glob("*.jsonld")} - _NOT_CASES
+    named: set[str] = set()
+    for e in catalogue(d):
+        cid, doc_name = e.get("case_id"), e.get("file")
+        if not cid or not doc_name:
+            bad.append(f"entry {cid or doc_name!r}: missing id/concretization")
+            continue
+        named.add(doc_name)
+        f = d / doc_name
+        if not f.is_file():
+            bad.append(f"{cid}: names {doc_name}, which is not on disk")
+            continue
+        try:
+            doc = json.loads(f.read_text(encoding="utf-8"))
+        except ValueError as exc:
+            bad.append(f"{cid}: {doc_name} does not parse ({exc})")
+            continue
+        bad.extend(f"{cid}: {why}" for why in _case_problems(doc, cid, bars))
+    bad.extend(f"orphan file not in the catalogue: {o}" for o in sorted(on_disk - named))
+    return bad

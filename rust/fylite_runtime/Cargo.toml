@@ -71,8 +71,12 @@ desktop = ["webui", "mdsip", "cli"]
 #: （`engine/cli.py` 的 `_RUST_EXES`），人在命令行上则直接 `fylite data …`。
 #: 少两个二进制、少两条 `_bin/` 项、少一处「用法里 `fylite-data data` 折回
 #: `fylite-data`」的字符串替换——而能力一条没少。
+#: ★★2026-09-04 名字是 `fy`（用户裁定）。它此前叫 `fylite-app`，然后叫 `fylite`——
+#: 而 `fylite` 正是 Python 包装的控制台脚本的名字，同名逼出了 `engine/cli.py` 里
+#: 一段「找到的这个 `fylite` 是不是我自己」的读文件判据（不判就是无限 fork）。
+#: 两个名字不同之后，那个失败方式在**源头**上没有了。
 [[bin]]
-name = "fylite"
+name = "fy"
 path = "src/bin/app/main.rs"
 #: ★★2026-09-04 由 `desktop` 放宽到 `cli`：三种构建方式都出这一个可执行文件，
 #: 差别在带不带 `webui`（内嵌前端 + HTTP 服务）与 `mdsip`。钉死 `desktop` 就

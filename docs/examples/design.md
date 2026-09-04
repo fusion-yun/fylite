@@ -16,8 +16,9 @@ title: 典型算例 · 放电设计 (Worked Example · Discharge Design)
 
 ## 一 · 场零（击穿前）
 
-```bash
-fylite cases --run breakdown-iter
+```python
+from fylite.engine import cases
+cases.run("breakdown-iter")
 ```
 
 ```text
@@ -43,8 +44,8 @@ breakdown-iter  bar=breakdown -> fylite_breakdown  [device iter]
 
 ## 二 · 轨迹（浏览器专属）
 
-```bash
-fylite cases --run pulse-iter
+```python
+cases.run("pulse-iter")
 # 拒绝：browser-only by declaration —— PF supply sizing over the design bar's
 # target controls；它读设计栏的输入并给出电源电流与电压，不回答新问题
 ```
@@ -56,8 +57,9 @@ fylite cases --run pulse-iter
 
 ## 三 · 平顶位形（自由边界反解）
 
-```bash
-fylite cases --run discharge-iter
+```python
+from fylite.engine import cases
+cases.run("discharge-iter")
 ```
 
 ```text
@@ -126,8 +128,9 @@ d["pass"], d["shape_error"]                     # 7, 0.1617371112287015
 
 ## 报告与边界
 
-```bash
-fylite cases --report discharge-iter --out out/discharge
+```python
+from fylite.engine import casereport, cases
+casereport.render(cases.run("discharge-iter"), out="out/discharge")
 ```
 
 - **自由边界反解不是平衡反演**：这里给的是**要什么位形**、求线圈电流；反演给的是

@@ -965,7 +965,7 @@ self.FyI18n.register('zh', {
   'mdssrc.read': '读取',
   'mdssrc.probing': '正在探数据网关…',
   'mdssrc.ready': '网关在，装置服务器 <code>{server}</code>。给炮号与时刻即可读。',
-  'mdssrc.nogateway': '<strong>没有数据网关</strong>，这一栏读不了数——它需要一个能开套接字的进程（浏览器开不了，FYL-DESIGN-06 §1）。<strong>本页其余部分不受影响</strong>：随卷宗发的那一炮与合成孪生照常。起一台：<code>fylite --mdsip &lt;mdsip 服务器&gt;</code>（经 ssh 隧道时就是 <code>127.0.0.1:8000</code>），再从它给的地址打开本页。',
+  'mdssrc.nogateway': '<strong>没有数据网关</strong>，这一栏读不了数——它需要一个能开套接字的进程（浏览器开不了，FYL-DESIGN-06 §1）。<strong>本页其余部分不受影响</strong>：随卷宗发的那一炮与合成孪生照常。起一台：<code>fy --mdsip &lt;mdsip 服务器&gt;</code>（经 ssh 隧道时就是 <code>127.0.0.1:8000</code>），再从它给的地址打开本页。',
   'mdssrc.notEast': '<strong>只对 EAST 有效。</strong>当前装置是 <strong>{device}</strong>。<code>\\EFIT_EAST::TOP…</code> 是一台机器自己的树，没有通用写法；换一台装置就要换一份取数约定，那不是这一栏能替它决定的。',
   'mdssrc.badshot': '炮号要是整数。',
   'mdssrc.badtime': '时刻要是秒数。',

@@ -79,8 +79,9 @@ hdf5 = ["h5py"]
 [dependency-groups]
 dev = ["scipy", "matplotlib"]
 
-[project.scripts]
-fylite = "fylite.engine:cli_main"
+#: ★★2026-09-04 用户裁定：**Python 侧没有命令行**。控制台脚本 `fylite`
+#: （`[project.scripts]`）与 `engine/cli.py` / `__main__.py` 一并撤除——装上这个包
+#: 得到的是一个**库**。命令行只有一个：Rust 的 `fy`（`bash rust/build.sh --exe`）。
 
 # ★★2026-09-02：本文件回到 `python/`，包 `fylite/` 就在它旁边 —— **平铺，不是 src
 # 布局**，于是上一版那对 `package-dir = {"" = "python"}` / `where = ["python"]`
@@ -102,14 +103,13 @@ include = ["fylite*"]
 #: ★`_backends.json` left this list because it left the tree — first as
 #: `_backends.py` (module source, packaged as code), then with the backend
 #: registry itself (FYL-SDD-01 DE-LOG-03, retired).
-fylite = ["_lib/*.so", "_spec/*", "_manifest/*", "_cli.json",
-          #: ★the ONE Rust executable the `app` / `data` / `case` commands hand
-          #: their words to (FYL-DESIGN-15): installed by `rust/build.sh --exe`;
-          #: the wheel carries it when it is there, and `fylite app` says what
-          #: to build when it is not.  ★★2026-09-03 the two alias binaries
-          #: `_bin/fylite-data` / `_bin/fylite-case` left this list because they
-          #: left the tree — one executable now carries every command word.
-          "_bin/fylite",
+#: ★★2026-09-04 两项一起撤（用户裁定）：`_bin/` —— 本包**不产出可执行文件**，
+#: 那一个由 `rust/build.sh --exe` 出、名叫 `fy`、装到 `$PATH` 上是发行的事；
+#: `_cli.json` —— 本包**没有命令行层**了，那份规格今天只有两个消费者，Rust 宿主
+#: （编译期 `include_str!` 读源码树里的它）与浏览器页面的启动参数，轮里带着它
+#: 只是带着一份没人读的字节。★它仍留在 `python/fylite/` 下，是历史位置；搬家是
+#: 另一件事，搬则 Rust 的 `include_str!` 与本表同一次改。
+fylite = ["_lib/*.so", "_spec/*", "_manifest/*",
           "_fyo_vocab.json", "_environment.json",
           #: A-Box 分解出来的 MDSplus 绑定表（`tools/abox-mds-bind.py` 生成）。
           #: 轮里要带：装了包却没有它，按语义路径取数这条路在安装出来的

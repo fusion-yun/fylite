@@ -138,13 +138,6 @@ def test_a_supplied_presentation_is_drawn_as_given(tmp_path):
     assert "stroke-dasharray" in (tmp_path / "c" / "figures" / "fig-01.svg").read_text()
 
 
-def test_the_cli_declares_the_report_flags():
-    spec = json.loads((ROOT / "python" / "fylite" / "_cli.json").read_text(encoding="utf-8"))
-    cmd = next(c for c in spec["commands"] if c["name"] == "cases")
-    flags = {a["flags"][0] for a in cmd["args"]}
-    assert {"--report", "--from", "--out", "--presentation", "--lang"} <= flags
-
-
 def test_the_corpus_case_renders_through_the_json_door(tmp_path):
     from fylite import kernel
     try:

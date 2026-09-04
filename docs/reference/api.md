@@ -84,10 +84,10 @@ index 13）、同一份内核文件。一次 NEO 调用同时返回三支电流�
 
 ## 命令行
 
-Python 的入口与命令行的入口是**同一批能力的两个面**，但命令行的全表另开一页：
-[命令行](cli.md)（十四条命令、谁承载哪一条、`fylite cases` / `fylite case` 的动词），
+★★2026-09-04 起 **Python 侧没有命令行**：`fylite` 控制台脚本、`python -m fylite` 与
+`engine/cli.py` 一并撤除，本页上的这些入口就是全部的用法。机器上那一条命令行是
+Rust 的 `fy`，全表另开一页：[命令行](cli.md)（`app` / `data` / `case` 三条），
 其中数据层那一条再单开一页：[数据层](data-layer.md)。
 
-一句话的对应关系：命令行的**定义**只有 `python/fylite/_cli.json` 一处，Python 的
-`fylite` 由它建 argparse，Rust 那个唯一的可执行文件在编译期纳入同一份文件——
-所以两边的用法一字不差。
+命令行的**定义**仍只有 `python/fylite/_cli.json` 一处，`fy` 在编译期纳入它——从前
+Python 也由它建 argparse，那第三个读者随该层一起走了。

@@ -43,6 +43,11 @@ struct Line {
     /// 去掉缩进与行尾注释后的内容；空行与纯注释行以空 `text` 留在表里
     /// （结构层用 [`Parser::structural_peek`] 跳过，块标量按原样读）。
     text: String,
+    /// 同一行**未去注释**的内容。★`#` 只有在引号外才是注释，而这是逐行判的：
+    /// 一个跨行的引号标量，它的续行上的 `#` 并不在「引号外」——按行看却像是。
+    /// 实测（fydata `static/now/lh_antenna.yaml`）：`… in shot #101858 (2021) [S9]; the`
+    /// 那一行被从 `#` 起截断，字符串于是**静静地少了一句出处**。折行时读这一份。
+    full: String,
 }
 
 fn err<T>(line: usize, m: impl Into<String>) -> Result<T> {
@@ -171,7 +176,7 @@ impl Parser {
             //: `- key: v` — the item is a mapping whose first entry is on this line;
             //: `- - x` — a nested sequence.  Splice a synthetic line back in.
             if is_seq_item(&rest) || split_key(&rest).is_some() && !starts_quoted(&rest) && !is_flow(&rest) {
-                self.lines.insert(self.pos, Line { no, indent: inner_indent, text: rest });
+                self.lines.insert(self.pos, Line { no, indent: inner_indent, text: rest.clone(), full: rest });
                 items.push(self.block(inner_indent)?);
             } else {
                 items.push(self.inline_value(&rest, no, indent)?);
@@ -202,7 +207,22 @@ impl Parser {
             return err(no, format!("anchors, aliases and tags are not supported: {r:?}"));
         }
         if is_flow(r) {
-            let mut p = Flow { s: r.as_bytes(), i: 0, no };
+            //: ★A flow collection may run over several lines — PyYAML wraps at its
+            //: default width, so `nodes: [AMINOR, DRSEP, …` in fydata's own
+            //: `machine.yaml` closes two lines further down.  Gather until the
+            //: brackets balance; each line arrives with its comment already
+            //: stripped, so joining with a space is the whole of the folding rule.
+            let mut text = r.to_string();
+            while flow_depth(&text) > 0 {
+                let l = match self.peek() {
+                    Some(l) => l.text.clone(),
+                    None => return err(no, "unterminated flow collection"),
+                };
+                self.pos += 1;
+                text.push(' ');
+                text.push_str(l.trim());
+            }
+            let mut p = Flow { s: text.as_bytes(), i: 0, no };
             let v = p.value()?;
             p.ws();
             if p.i != p.s.len() {
@@ -225,7 +245,7 @@ impl Parser {
                     None => return err(no, "unterminated quoted string"),
                 };
                 text.push('\n');
-                text.push_str(&l.text);
+                text.push_str(&l.full);   //: ★inside the quotes, a `#` is text
                 self.pos += 1;
                 if closed(&text) {
                     break;
@@ -344,6 +364,25 @@ fn is_flow(s: &str) -> bool {
     s.starts_with('[') || s.starts_with('{')
 }
 
+/// How many flow collections are still open at the end of `s` — brackets inside
+/// quotes do not count.  Used to fold a flow collection that spans lines.
+fn flow_depth(s: &str) -> i32 {
+    let b = s.as_bytes();
+    let (mut sq, mut dq, mut depth) = (false, false, 0i32);
+    for i in 0..b.len() {
+        match b[i] {
+            b'\'' if !dq => sq = !sq,
+            b'"' if !sq => {
+                if !(i > 0 && b[i - 1] == b'\\') { dq = !dq; }
+            }
+            b'[' | b'{' if !sq && !dq => depth += 1,
+            b']' | b'}' if !sq && !dq => depth -= 1,
+            _ => {}
+        }
+    }
+    depth.max(0)
+}
+
 /// `key: rest` → (key, rest)。键可以带引号；`:` 后必须是空白或行尾；URL 里的 `:`
 /// 不算（`mdsplus://…` 后面没有空格）。
 fn split_key(s: &str) -> Option<(String, String)> {
@@ -362,6 +401,15 @@ fn split_key(s: &str) -> Option<(String, String)> {
                 break;
             }
             i += 1;
+        }
+        //: ★the quote never closed on THIS line, so this is not a `"key": value`
+        //: line — it is the first line of a scalar that folds on.  Say «not a key»
+        //: rather than stepping past the end: `i + 1` used to run off the string
+        //: and panic (measured 2026-09-04 on fydata's own
+        //: `east_magnetics_signal_names.yaml`, «start byte index 79 is out of
+        //: bounds for string of length 78»).
+        if i >= b.len() {
+            return None;
         }
         i += 1;
         let rest = s[i..].trim_start();
@@ -661,14 +709,15 @@ pub fn parse(text: &str) -> Result<Node> {
         }
         let expanded = raw.replace('\t', "    ");
         let indent = expanded.len() - expanded.trim_start().len();
+        let full = expanded.trim().to_string();
         let body = strip_comment(expanded.trim_start());
         if body.is_empty() {
             //: blank / comment-only lines matter only inside block scalars,
             //: which read them through `text.is_empty()`
-            lines.push(Line { no, indent, text: String::new() });
+            lines.push(Line { no, indent, text: String::new(), full });
             continue;
         }
-        lines.push(Line { no, indent, text: body.to_string() });
+        lines.push(Line { no, indent, text: body.to_string(), full });
     }
     let mut p = Parser { lines, pos: 0 };
     let root = if p.structural_peek().is_none() { Node::Null } else { p.block(0)? };
@@ -763,6 +812,35 @@ tilde: ~
         assert_eq!(d.get("literal").and_then(Node::as_str), Some("line one\nline two\n"));
         assert!(d.get("empty").unwrap().is_null());
         assert!(d.get("tilde").unwrap().is_null());
+    }
+
+    #[test]
+    fn a_flow_collection_may_run_over_several_lines() {
+        //: ★measured on fydata's own `machine.yaml` (EAST, `read_rules`): PyYAML
+        //: wraps a long flow sequence, and reading that file is the whole point of
+        //: this module — before this, `fylite data fetch --machine …` died at the
+        //: wrap with «expected `,` or `]`».
+        let text = "\
+rule:
+  nodes: [AMINOR, DRSEP, GAPIN,
+          RXPT1, ZXPT2]
+  from_units: {cm: 0.01,
+               mm: 0.001}   # a comment on the closing line
+  probe: 'units_of(<node>)'
+next: 1
+";
+        let d = parse(text).unwrap();
+        assert_eq!(d.get("rule/nodes").map(Node::shape), Some(vec![5]));
+        assert_eq!(d.get("rule/nodes").and_then(Node::as_array).and_then(|a| a.as_str()).map(|v| v[4].clone()), Some("ZXPT2".to_string()));
+        assert_eq!(d.get("rule/from_units/mm").and_then(Node::as_f64), Some(0.001));
+        assert_eq!(d.get("rule/probe").and_then(Node::as_str), Some("units_of(<node>)"));
+        assert_eq!(d.get("next").and_then(Node::as_i64), Some(1));
+        //: a bracket inside quotes is text, not depth
+        let q = parse("a: ['x]', 'y']\nb: 2\n").unwrap();
+        assert_eq!(q.get("a").and_then(Node::as_array).and_then(|a| a.as_str()).map(|v| v[0].clone()), Some("x]".to_string()));
+        assert_eq!(q.get("b").and_then(Node::as_i64), Some(2));
+        //: and one that never closes is an error, not a hang
+        assert!(parse("a: [1, 2\nb: 3\n").is_err());
     }
 
     #[test]

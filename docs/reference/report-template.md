@@ -4,7 +4,7 @@ title: 运行报告模板（统一体例）
 
 # 运行报告模板
 
-`fylite report <run>` 把**一次已记录的运行**渲染成**一份 MyST markdown 报告**。
+`fylite.engine.report.render(<run>)` 把**一次已记录的运行**渲染成**一份 MyST markdown 报告**。
 模板是统一的：任何工具、任何场景线的运行，报告都长同一个形状——读过一份就读过
 了所有份。本页是该模板的**规范正文**；机器正本是
 `python/fylite/engine/report.py` 的 `SECTIONS` 常量，`test_report.py`
@@ -26,7 +26,7 @@ title: 运行报告模板（统一体例）
    **逐字引自 `acceptance.json`**；报告不重新评判（宁可拒绝不给假数，
    对散文同样成立）。
 5. **复现性** —— 代码修订（含 dirty 标记，如实）、内核 sha256、环境指纹、
-   落盘工件哈希表、重放命令（`fylite replay <ledger>`）。
+   落盘工件哈希表、重放入口（`fylite.engine.replay.replay(<ledger>)`）。
 
 ## 图表体例（学术惯例）
 
@@ -51,17 +51,20 @@ title: 运行报告模板（统一体例）
 报告是**生成件**，不是治理文档：frontmatter 只有 `title` / `subtitle` /
 `date`（取运行的 `created` 时间戳），`subtitle` 声明「正本为运行目录，
 本报告是其投影」。**没有 15289 控制信息块**——那是给人执笔、有署名与
-版本演进的文档用的；一份可由 `fylite report` 随时重新生成的投影不该
+版本演进的文档用的；一份可由 `report.render()` 随时重新生成的投影不该
 佩戴它。
 
 ## 用法
 
-```bash
-fylite report r-20260826-000236              # 报告落在运行目录 report.md
-fylite report r-20260826-000236 --out out/   # 落到别处（figures/ 随行）
-fylite report r-20260826-000236 --no-figures # 只要文字与表
-fylite report r-20260826-000236 --stdout     # 直接打印（不渲染图）
+```python
+from fylite.engine import report
+report.render("r-20260826-000236")                    # 报告落在运行目录 report.md
+report.render("r-20260826-000236", out_dir="out/")    # 落到别处（figures/ 随行）
+report.render("r-20260826-000236", figures=False)     # 只要文字与表
 ```
+
+★★2026-09-04 起这是**库调用**：`fylite report …` 那条命令随「Python 侧无命令行」的
+裁定撤除，函数没变。
 
 生成的报告是普通 MyST 页面：可单独阅读，也可被 `docs/` 书或任何 mystmd
 站点收录编号——文档面（mystmd）消费运行报告，正是 CLI（基准面）与

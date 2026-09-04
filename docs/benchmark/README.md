@@ -91,12 +91,13 @@ benchmark」）：受限参考**也收录**，但** 只收指针**——路径�
 
 ## 复算
 
-```bash
-fylite cases --benchmark               # 列出记录：类、登记册结论、复测结论、纳入类别
-fylite cases --benchmark V-01          # 打印一条记录（JSON-LD）
-fylite cases --benchmark --check       # 结构检查（与 python/tests/test_public_register.py 同一函数）
-fylite cases --benchmark --plan V-01   # 这条记录的门在哪跑、哪些跑不了
-FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-01   # 在私仓检出里跑它的 pytest 门
+```python
+from fylite.engine import benchmark as bm         # ★2026-09-04：从前的 `fylite cases --benchmark`
+bm.records()                     # 列出记录：类、登记册结论、复测结论、纳入类别
+bm.load("V-01")                  # 一条记录（JSON-LD）
+[bm.problems(r, bm.registry_dir()) for r in bm.graph()]   # 结构检查（与 test_public_register.py 同一函数）
+bm.gate_plan(bm.load("V-01"), bm.kernel_checkout())       # 这条记录的门在哪跑、哪些跑不了
+bm.run("V-01")                   # 在私仓检出里跑它的 pytest 门（$FYLITE_KERNEL）
 ```
 
 每条记录的 `run.realizes[]` 指明哪些闸子把它钉住。`$FYLITE_KERNEL/tests/…` 的门在内核

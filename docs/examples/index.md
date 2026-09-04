@@ -20,21 +20,26 @@ title: 算例语料 (The Case Corpus)
 换一份规格不会改变结论，重跑一次不会改写计划，而报告永远是记录的**投影**——它不能
 比记录多说一个字。
 
-## 四个动词
+## 五个入口
 
-```bash
-fylite cases                      # 列出语料：25 条，各自的能力栏、装置、名字
-fylite cases zerod-iter-15ma      # 打印那份计划（JSON-LD 原文）
-fylite cases --check              # 结构检查：每条目录项都在盘上、无孤儿文件、词汇只有 fyo / spo
-fylite cases --plan  <id>         # 只映射不跑：计划的每个控件落到 Python 入口的哪个字段
-fylite cases --run   <id>         # 跑，并留下清单 / 验收 / 账本
-fylite cases --report <id>        # 跑，并渲染成 MyST + SVG 报告
+★★2026-09-04 起这些是**库调用**：从前的 `fylite cases …` 命令行随「Python 侧无命令行」
+的裁定撤除，被它包着的函数一个没少，只是现在直接调。
+
+```python
+from fylite.engine import cases, casereport
+
+cases.catalogue()                  # 列出语料：25 条，各自的能力栏、装置、名字
+cases.load("zerod-iter-15ma")      # 那份计划（JSON-LD 原文）+ 它的目录项
+cases.problems()                   # 结构检查：每条目录项都在盘上、无孤儿文件、词汇只有 fyo / spo
+cases.plan("zerod-iter-15ma")      # 只映射不跑：计划的每个控件落到 Python 入口的哪个字段
+cases.run("zerod-iter-15ma")       # 跑，并留下清单 / 验收 / 账本
+casereport.render(cases.run("zerod-iter-15ma"), out="out/")   # 跑完渲染成 MyST + SVG
 ```
 
-`--plan` 是读者最该先按的那个键。它把**语料的控件词表**逐条分类，一个都不许漏：
+`plan()` 是读者最该先调的那个。它把**语料的控件词表**逐条分类，一个都不许漏：
 
-```text
-$ fylite cases --plan zerod-iter-15ma
+```python
+>>> cases.plan("zerod-iter-15ma")
 { "case_id": "zerod-iter-15ma", "bar": "zerod", "tool": "zerod", "device": "iter",
   "accounting": { "mapped": {...21 项...}, "sub": {...11 项...}, "ui": {"slice": ...} } }
 ```
@@ -52,13 +57,15 @@ $ fylite cases --plan zerod-iter-15ma
 
 ## 跑一次留下什么
 
-```text
-$ fylite cases --run transport-iter-15ma
-transport-iter-15ma  bar=transport -> fylite_transport
-  run r-20260902-190432  (/root/.cache/fylite/runs/s-…/r-20260902-190432)
-  fields: 13 mapped, 6 sub-capability, 0 shared, 0 ui
-  acceptance: pass  converged=pass, settled=pass
-  report: fylite report r-20260902-190432
+```python
+>>> cases.run("transport-iter-15ma")
+{ "case_id": "transport-iter-15ma", "bar": "transport", "tool": "transport",
+  "run": "r-20260902-190432",
+  "run_dir": "/root/.cache/fylite/runs/s-…/r-20260902-190432",
+  "accounting": { "mapped": 13, "sub": 6, "shared": 0, "ui": 0 },
+  "result_keys": [...] }
+# 验收在运行目录的 acceptance.json 里：pass（converged=pass, settled=pass）
+# 渲染成报告：from fylite.engine import report; report.render("r-20260902-190432")
 ```
 
 运行目录里是清单（`manifest.json`）、结果（`result.json`，数组只存**摘要**：形状 /
@@ -71,8 +78,9 @@ unevaluated`——上面那条 `settled=pass` 是判据说话，而 0-D 那条 `
 
 ## 变成一份报告
 
-```bash
-fylite cases --report evolve-iter-15ma --out out/
+```python
+from fylite.engine import casereport, cases
+casereport.render(cases.run("evolve-iter-15ma"), out="out/")
 ```
 
 出来的是一整个目录：`report.md`（MyST，五节：摘要 · 方法 · 结果 · 验收 · 复现性）、
@@ -88,15 +96,14 @@ fylite cases --report evolve-iter-15ma --out out/
 计划文档也能直接交给数据层的可执行件，走内核的单入口 `fylite_rs_fyo`：
 
 ```bash
-fylite case plan cases/evolve-iter-15ma.jsonld          # 只解析与合成，不跑
-fylite case run  cases/evolve-iter-15ma.jsonld --record out/
-fylite case run  cases/evolve-iter-15ma.jsonld --record out/ --format imas-hdf5
-fylite case json cases/evolve-default.jsonld            # 一份计划进，一份记录出（stdout）
+fy case plan cases/evolve-iter-15ma.jsonld          # 只解析与合成，不跑
+fy case run  cases/evolve-iter-15ma.jsonld --record out/
+fy case run  cases/evolve-iter-15ma.jsonld --record out/ --format imas-hdf5
+fy case json cases/evolve-default.jsonld            # 一份计划进，一份记录出（stdout）
 ```
 
-★`fylite case …` 与 `fylite case …` 是同一件东西：Python 侧把命令词**原样交给**
-那个可执行文件（本仓只有一个），两边读同一份 `_cli.json`（`FYL-DESIGN-15`）。找不到它
-时按名说明要构建什么并退出 2，不会退回一条 Python 实现。
+★`fy` 是本仓**唯一的可执行文件**（`bash rust/build.sh --exe`），它读的规格与本页
+描述的那些 Python 入口出自同一份 `_cli.json`（`FYL-DESIGN-15`）。
 
 多份计划按序合成（后者覆盖前者），再叠 `--set k=v` / `--bind 端口=路径`。★
 `--format imas-hdf5`（或计划自己在输出端口上要 `fyo:ImasHdf5Format`）写出的是**一个

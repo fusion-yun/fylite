@@ -90,21 +90,29 @@ meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld
 
 ## 命令行与协议面
 
+★★2026-09-04 起 **Python 包没有命令行**（用户裁定）：`fylite` 控制台脚本与
+`python -m fylite` 都不再有，装上它得到的是一个库。命令行只剩一个可执行文件：
+
 ```bash
-python -m fylite --help        # 十四条命令，定义在 python/fylite/_cli.json（FYL-DESIGN-15）
-python -m fylite cases         # 算例语料：25 条计划文档
-python -m fylite describe      # 能力目录（JSON-LD）：制品清单、工作流、数据制品
-python -m fylite mcp           # 作为 MCP stdio 服务器跑起来
-python -m fylite app           # 起本机服务、开浏览器 —— 委托给那个可执行文件 fylite
-python -m fylite data info x.h5   # 数据层；`case …` 同理，都交给同一个可执行文件
+bash rust/build.sh --exe       # -> rust/fylite_runtime/target/release/fy
+fy --help                      # 三条命令：app / data / case（定义在 python/fylite/_cli.json）
+fy app                         # 起本机服务、开浏览器
+fy data info x.h5              # 数据层
 ```
 
-按任务走一遍见[命令行](cli.md)那一章，逐条参数见参考篇的[命令行](../reference/cli.md)。
+协议面与目录改从库里起：
 
-★`run` 走 Rust inverse（EFIT 血统的驱动与 `libefit.so` 不在本分发里）；
-`describe` / `manifest` / `serve` / `mcp` 四个不依赖内核，`engine` 导入期是纯 stdlib 的。
-`app` / `data` / `case` 三条由**那一个** Rust 可执行文件承载，Python 侧把命令词放回最前面
-再原样交过去——同一个定义文件，`fylite app --help` 与 `fylite --help` 同源。
+```python
+from fylite.engine import manifest_catalog          # 能力目录（JSON-LD）
+from fylite.engine.serve import mcp_stdio, serve_stdio   # MCP / JSON-RPC，都走 stdio
+from fylite.engine import cases                     # 算例语料：catalogue() / load() / run()
+```
+
+按任务走一遍见[命令行](cli.md)那一章（末节是十一条旧动词的逐条库对照），逐条参数见
+参考篇的[命令行](../reference/cli.md)。
+
+★反演走 Rust inverse（EFIT 血统的驱动与 `libefit.so` 不在本分发里）；能力目录、清单校验
+与两个 stdio 服务都不依赖内核，`fylite.engine` 导入期是纯 stdlib 的。
 
 ## 走查
 
@@ -112,8 +120,9 @@ python -m fylite data info x.h5   # 数据层；`case …` 同理，都交给同
 `examples/` 整个目录也已删除。（书里那一篇「典型算例」住在 `docs/examples/`，与它同名
 而无关。）它的位置被两样东西接替，各自更硬：
 
-- **`cases/`** —— 25 条算例的计划文档（`fyo:ScenarioSpecification`），`fylite cases`
-  可列、可查、可跑、可出报告。本书的[典型算例](../examples/index.md)五章就走这条路。
+- **`cases/`** —— 25 条算例的计划文档（`fyo:ScenarioSpecification`），
+  `fylite.engine.cases` 可列（`catalogue()`）、可查（`load()`）、可跑（`run()`）、
+  可出报告（`engine.casereport.render()`）。本书的[典型算例](../examples/index.md)五章就走这条路。
 - **`docs/benchmark/`** —— 公开 V&V 登记册：对着外部答案量过什么、量到多少、哪条门钉住它。
 
 浏览器上的同一批能力（含**装置数据**页：浏览 EAST MDSplus、指定炮号、取回信号，以及

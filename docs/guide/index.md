@@ -17,7 +17,7 @@ title: 怎么开始 (Getting Started)
 * - [浏览器站点](browser.md)
   - 什么都不用装
   - 上手、教学、快速试算、把一次运行分享给别人
-* - [单一可执行文件](browser.md) `fylite`
+* - [单一可执行文件](browser.md) `fy`
   - 一个文件，双击即用；不装任何运行时
   - 离线、没有 Python 的机器（尤其 Windows）、要从 MDSplus 取数
 * - [Python 包](python.md)

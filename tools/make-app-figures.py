@@ -2026,7 +2026,7 @@ def d_hosts(x, y, w, h):
     hx = x + 14
     #: ★一个宿主：Node 网关 `app/server/` 2026-09-01 退役，`/api/*` 只剩这一份。
     for s, sub in (("单文件宿主 `rust/…/bin/app/api.rs`",
-                    "fylite --mdsip 127.0.0.1:8000"),
+                    "fy --mdsip 127.0.0.1:8000"),
                    ("离线回放 `app/tests/_mdsip-replay.mjs`",
                     "夹具 fixtures/mdsip-east.json（真机录的帧）")):
         rect(hx, top + 12, (w - 34) / 2, 26, "card-back", rx=5)
@@ -2050,6 +2050,11 @@ def build_data() -> str:
     add(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H_DATA}" '
         f'width="{W}" height="{H_DATA}" role="img" '
         f'aria-label="fylite 装置数据页界面概念图">')
+    #: ★这条注记从前是**手写进已提交的 SVG 里**的，于是第一次重生成就把它抹掉了
+    #: （2026-09-04 实测）。生成物上的话要留下来，就得写在生成器里。
+    add("<!-- ★这一格画的是「填了个服务器地址」的样子，写 `mds.invalid`：\n"
+        "     真地址是运行方内网上的一台机器，不进公开仓（与 `_manifest/\n"
+        "     east_mdsplus.jsonld`、`desktop-data.svg` 同一条政策）。 -->")
     add("<title>fylite 装置数据页 — 界面概念图</title>")
     add(f"<style>{STYLE}</style>")
     rect(0, 0, W, H_DATA, "bg", rx=0)

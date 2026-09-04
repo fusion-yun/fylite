@@ -73,4 +73,4 @@ jobs:
         run: python verify/imas_roundtrip.py
       - name: fydata 的 YAML 与 PyYAML 逐叶子（fydata 不在场时自跳）
         working-directory: rust/fylite_runtime
-        run: pip install pyyaml && python verify/yaml_gate.py --bin ../../python/fylite/_bin/fylite
+        run: pip install pyyaml && python verify/yaml_gate.py --bin target/release/fy

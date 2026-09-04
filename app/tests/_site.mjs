@@ -27,7 +27,7 @@ import { replayMdsip } from './_mdsip-replay.mjs';
 const HERE = new URL('.', import.meta.url).pathname;
 const APP = path.resolve(HERE, '..');
 export const EXE = process.env.FYLITE_APP
-  || path.resolve(HERE, '../../rust/fylite/target/release/fylite');
+  || path.resolve(HERE, '../../rust/fylite_runtime/target/release/fy');
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

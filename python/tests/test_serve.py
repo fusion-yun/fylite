@@ -102,18 +102,6 @@ def test_main_serves_lines_and_reports_parse_errors():
     assert r3["result"]["@id"] == "fylite:neo"
 
 
-def test_cli_serve_subprocess_round_trip():
-    proc = subprocess.run(
-        [sys.executable, "-m", "fylite", "serve"],
-        input=json.dumps(_req("fylite.describe")) + "\n",
-        capture_output=True, text=True, timeout=120,
-        env={"PYTHONPATH": "python", "PATH": "/usr/bin:/bin"},
-        cwd=str(__import__("pathlib").Path(__file__).resolve().parents[2]))
-    assert proc.returncode == 0, proc.stderr
-    resp = json.loads(proc.stdout.splitlines()[0])
-    assert resp["result"]["@id"] == "fylite:catalog"
-
-
 # --------------------------------------------------------------------------- #
 # T-1.4 wiring facts
 # --------------------------------------------------------------------------- #

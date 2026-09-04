@@ -11,7 +11,7 @@ title: 安装与环境 (Install & Environment)
 | extra | 内容 | 何时需要 |
 | :--- | :--- | :--- |
 | `yaml` | `PyYAML` | YAML 形式的输入/装置文件 |
-| `plot` | `matplotlib` | `fylite.plot` 磁面图渲染、`fylite plot` 子命令 |
+| `plot` | `matplotlib` | `fylite.plot` 磁面图渲染 |
 | `hdf5` | `h5py` | 只有 est2 离线转储（`io.est2.measurements_from_est2_hdf5`）还读它；fyo 文档的 `.h5` 走中间层，不需要 |
 
 ★**从 MDSplus 取数不需要任何 extra**（2026-09-04 起）：mdsip 客户端在中间层
@@ -30,14 +30,14 @@ fylite 以**三种形态**到达使用者（`FYL-DESIGN-15`），三者装的是
 
 | 形态 | 给谁 | 怎么得到 | 计算在哪 |
 | :--- | :--- | :--- | :--- |
-| **单一可执行文件** `fylite` | 离线、或没有 Python 的人（尤其 Windows） | `bash tools/build-app-exe.sh`；双击即开浏览器 | 页面里的 wasm；`case` 子命令用原生内核 |
+| **单一可执行文件** `fy` | 离线、或没有 Python 的人（尤其 Windows） | `bash tools/build-app-exe.sh`；双击即开浏览器 | 页面里的 wasm；`case` 子命令用原生内核 |
 | **静态网页** | 联网的人，零安装 | `bash tools/build-site.sh` 出一个目录，放到任何静态主机 | 页面里的 wasm，加载后离线可用 |
-| **动态网页** | 要读 MDSplus 的人 | 同一份页面由 `fylite`（= `fylite app`）伺服，多答 `/api/*` | 页面里的 wasm |
+| **动态网页** | 要读 MDSplus 的人 | 同一份页面由 `fy`（= `fy app`）伺服，多答 `/api/*` | 页面里的 wasm |
 | **Python 包**（wheel） | 写脚本、LLM 宿主、集成方 | `bash tools/build-wheel.sh` | 原生内核 |
 
-三者的命令行来自同一个定义文件 `python/fylite/_cli.json`。**可执行文件只有一个**
-（`fylite`）：`fylite app` / `data` / `case` 三条由 Python 把命令词交给它，所以
-`fylite data …` 与 `fylite data …` 是同一条命令在两个宿主上的两种写法。
+命令行来自同一个定义文件 `python/fylite/_cli.json`，而**可执行文件只有一个**：`fy`
+（`app` / `data` / `case`）。★2026-09-04 起 **wheel 不带可执行文件、Python 侧也没有
+命令行**：装上包得到的是一个库，`fy` 由 `bash rust/build.sh --exe` 出、装到 `$PATH` 上。
 
 ★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
 所以轮带**平台 tag**，alpha 期的公开面是 **Linux x86-64 一个**：别的平台在装的

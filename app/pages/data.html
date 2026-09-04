@@ -231,7 +231,7 @@
              the same for everybody.  The site server this page was written for
              sits on an operator's internal network and is NOT written down in
              a published page; a live gateway overwrites this box with the
-             target it is actually pointed at (`fylite --mdsip <addr>`). -->
+             target it is actually pointed at (`fy --mdsip <addr>`). -->
         <input type="text" id="mds-server" list="mds-servers" value="127.0.0.1:8000"
           data-i18n-ph="mds.server.ph"></div>
       <button id="mds-server-use" class="ghost" data-i18n="mds.server.use">切过去</button>
@@ -242,7 +242,7 @@
       <!-- ★2026-09-01 起只剩一个宿主：仓里的 Node 网关（`app/server/`）已退役，
            `/api/*` 只有单文件查看器这一份实现。这一页本来就编在它里面。 -->
       <p class="note" data-i18n="mds.gw.howto"></p>
-      <p class="mds-cmd">fylite --mdsip 127.0.0.1:8000</p>
+      <p class="mds-cmd">fy --mdsip 127.0.0.1:8000</p>
       <p class="note" data-i18n="mds.gw.tunnel"></p>
       <p class="mds-cmd">ssh -O forward -L 8000:&lt;mdsip 服务器&gt;:8000 &lt;跳板机&gt;</p>
     </div>

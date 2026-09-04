@@ -114,12 +114,18 @@ flowchart LR
 
 ## 怎么用
 
-```bash
-fylite cases --physics                            # 列出预设算例与它们的判据
-fylite cases --physics --check                    # 结构检查（与 pytest 闸子同一函数）
-fylite cases --physics --plan zerod-iter-15ma     # 这一条要读哪些量、判哪几条
-fylite cases --physics --run equilibrium-gfile    # 跑一条，打印报告
+```python
+from fylite.engine import suite
+suite.entries()                        # 列出预设算例与它们的判据
+[suite.problems(e) for e in suite.entries()]      # 结构检查（与 pytest 闸子同一函数）
+suite.entry("zerod-iter-15ma")         # 这一条要读哪些量、判哪几条
+suite.run_entry(suite.entry("equilibrium-gfile"))  # 跑一条
+```
 
+★★2026-09-04 起这些是**库调用**：`fylite cases --physics …` 随「Python 侧无命令行」的
+裁定撤除，函数一个没少。整批仍走脚本：
+
+```bash
 python tools/benchmark-run.py                     # 整批，统计表打到屏幕
 python tools/benchmark-run.py --write             # 并写进 benchmark/physics/ 与仓根 BENCHMARK.md
 python tools/benchmark-run.py --from records/     # 判已经跑出来的记录（不需要内核）
@@ -159,7 +165,7 @@ suite.run_entry(suite.entry("zerod-iter-15ma"))                       # 取产�
 ```
 
 结构由 `fylite.engine.suite.problems` 判：算例文件在不在检出里、判据在不在册子上、
-声明的界点的是不是内核产得出的量。`fylite cases --physics --check` 与
+声明的界点的是不是内核产得出的量。`suite.problems()` 与
 `python/tests/test_physics_suite.py` 读的是**同一个函数**。
 
 ## 添一条检查

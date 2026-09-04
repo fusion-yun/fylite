@@ -252,22 +252,3 @@ def test_the_identity_keys_are_the_ones_the_service_stamps():
         f"{replay.IDENTITY_KEYS}")
 
 
-def test_the_cli_command_is_declared_and_reachable():
-    """The declarative CLI is data; a command that is declared but has no
-    handler (or vice versa) is the shape this repo's tool face keeps
-    catching."""
-    spec = json.loads((ROOT / "python/fylite/_cli.json").read_text())
-    cmd = next(c for c in spec["commands"] if c["name"] == "replay")
-    mod, func = cmd["handler"].split(":")
-    import importlib
-    assert callable(getattr(importlib.import_module(mod), func))
-    #: the flags the handler reads must be the flags the command declares
-    flags = {a.get("dest") or a["flags"][-1].lstrip("-").replace("-", "_")
-             for a in cmd["args"]}
-    body = re.search(r"def _cli_replay\(.*?\n(?=\ndef )",
-                     (ROOT / "python/fylite/engine/cli.py").read_text(),
-                     re.S).group(0)
-    for used in re.findall(r"args\.(\w+)", body):
-        assert used in flags, (
-            f"_cli_replay reads args.{used}, which `fylite replay` does not "
-            "declare")

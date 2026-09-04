@@ -11,7 +11,7 @@ title: 典型算例 · 诊断分析：平衡反演 (Worked Example · Equilibriu
 本章用 EAST #137985 @ 4.0 s：这也是公开登记册里 **B-06** 记录的那一发。
 
 :::{important}
-语料里的 `reconstruction-default` **跑不了**，`fylite cases --run` 会点名拒绝：那条算例
+语料里的 `reconstruction-default` **跑不了**，`cases.run()` 会点名拒绝：那条算例
 冻的是**合成孪生生成器**的旋钮（由测量孪生平衡加种子噪声造测量），而那个生成器只在
 浏览器的 `worker.js` 里，Python 侧没有对应物。真实测量走的是下面这条路。
 :::
@@ -117,5 +117,5 @@ rows = recon_rs.run_series(shot=137985, times=[3.0, 3.5, 4.0, 4.5], device=dev)
 - 磁探针与磁通环的响应由**装置牌的导体几何现算**（`recon_rs.coil_loop_rows`），
   不读 Green 表——所以换机器只换牌。
 - `q0` 这类轴上量对基函数阶数敏感；B-06 里有一整段专门讲这个缺口怎么收窄的。
-- 本仓不带 EFIT 求解器（`libefit.so` 随许可离开），`fylite run` 子命令因此**跑不动**；
+- 本仓不带 EFIT 求解器（`libefit.so` 随许可离开），反演入口因此**跑不动**；
   与它的对照只能引 B-06 冻结下来的那份离线答案。

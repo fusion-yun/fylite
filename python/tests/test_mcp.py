@@ -135,20 +135,6 @@ def test_main_loop_serves_lines_and_skips_notifications():
     assert r3["error"]["code"] == -32700
 
 
-def test_cli_mcp_subprocess_round_trip():
-    lines = (json.dumps(_req("initialize", {})) + "\n"
-             + json.dumps(_req("tools/list", rid=2)) + "\n")
-    proc = subprocess.run(
-        [sys.executable, "-m", "fylite", "mcp"],
-        input=lines, capture_output=True, text=True, timeout=120,
-        env={"PYTHONPATH": "python", "PATH": "/usr/bin:/bin"},
-        cwd=str(REPO))
-    assert proc.returncode == 0, proc.stderr
-    out = [json.loads(x) for x in proc.stdout.splitlines()]
-    assert out[0]["result"]["serverInfo"]["name"] == "fylite"
-    assert any(t["name"] == "fylite_run" for t in out[1]["result"]["tools"])
-
-
 # --------------------------------------------------------------------------- #
 # route C — schema emission
 # --------------------------------------------------------------------------- #

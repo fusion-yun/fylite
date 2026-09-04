@@ -1,18 +1,13 @@
 {
  "spec_version": 2,
- "prog": "fylite",
- "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. One command family on three hosts: the Python console script (this spec built into argparse), the ONE Rust executable fylite (the same spec built into its parser; carries app / data / case natively) and the browser app (its launch parameters are the `hosts.app.params` below). Commands list the hosts that carry them; a host that does not carry a command delegates it (Python -> the bundled Rust executable, command word first) or refuses it by name.",
+ "prog": "fy",
+ "description": "fylite — a self-contained tokamak equilibrium / transport / turbulence kernel. ONE command line, built from this file twice: the Rust executable `fy` (compiled in; carries app / data / case) and the browser app (its launch parameters are the `hosts.app.params` below). ★2026-09-04 the Python host left: that package is a LIBRARY now, with no console script and no argparse layer, so the commands only it carried (run · plot · describe · cases · manifest · replay · report · whence · alias · serve · mcp) left this file with it.",
  "hosts": {
-  "python": {
-   "exe": "fylite",
-   "kind": "console-script",
-   "note": "argparse parser built from this file (engine/cli.py). Carries every command; `app`, `data` and `case` are delegated verbatim to the one bundled Rust executable under fylite/_bin/ (or --bin-dir), with the command word put back in front."
-  },
   "rust": {
-   "exe": "fylite",
+   "exe": "fy",
    "kind": "single-executable",
    "default_command": "app",
-   "note": "THE executable — one, since 2026-09-03. The whole app/ is embedded and every command word is carried here: `app`, `data`, `case`. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works. The thin fylite-data / fylite-case alias binaries were retired into this one; whoever needs `data` supplies the word (`fylite data ...`, or `fylite data ...` through the Python host)."
+   "note": "THE executable, and since 2026-09-04 the ONLY one: named `fy` (it was `fylite-app`, then `fylite` — the same name as the Python console script, which made a $PATH lookup find that script itself and fork forever; the Python command line has since been removed altogether and this package is a library). The whole app/ is embedded and every command word is carried here: `app`, `data`, `case`. With no subcommand it runs `app` (serve the UI on loopback and open the browser) so a double-click still works. The thin fylite-data / fylite-case alias binaries were retired into this one; whoever needs `data` supplies the word (`fy data ...`)."
   },
   "app": {
    "entry": "index.html",
@@ -63,495 +58,11 @@
  },
  "commands": [
   {
-   "name": "run",
-   "hosts": [
-    "python"
-   ],
-   "help": "run one equilibrium reconstruction",
-   "handler": "fylite.engine.cli:_cli_run",
-   "exclusive": [
-    [
-     "--input",
-     "--east"
-    ]
-   ],
-   "args": [
-    {
-     "flags": [
-      "--input"
-     ],
-     "help": "measurement document: IMAS-shaped JSON/YAML or a JSON-LD normal form (needs --time)"
-    },
-    {
-     "flags": [
-      "--east"
-     ],
-     "action": "store_true",
-     "help": "GUI_v5 est2 path: read 79 probes straight from the 'east' MDSplus tree (self-contained, no fydata); implies --preset gui_v5"
-    },
-    {
-     "flags": [
-      "--server"
-     ],
-     "help": "MDSplus server host; default is the device deck's declared server"
-    },
-    {
-     "flags": [
-      "--shot"
-     ],
-     "type": "int",
-     "help": "shot number (with --time: the data source; with --input: stamped on the result)"
-    },
-    {
-     "flags": [
-      "--time"
-     ],
-     "type": "float",
-     "help": "time [s]"
-    },
-    {
-     "flags": [
-      "--out"
-     ],
-     "help": "directory for the g-file (default: a fresh run directory under $FYLITE_RUN_DIR, never the working directory)"
-    },
-    {
-     "flags": [
-      "--point"
-     ],
-     "action": "store_true",
-     "help": "(--east only) add the 11-chord POINT polarimeter-interferometer: line-integrated n_e + Faraday-rotation internal current constraint (POINT-constrained / 'kinetic' reconstruction). signel/sigpol default to placeholders — set real calibration via --point-sig"
-    },
-    {
-     "flags": [
-      "--point-sig"
-     ],
-     "nargs": 2,
-     "type": "float",
-     "metavar": [
-      "SIGNEL",
-      "SIGPOL"
-     ],
-     "help": "uniform POINT error bars (density, Faraday); override the placeholder defaults"
-    },
-    {
-     "flags": [
-      "--point-window-ms"
-     ],
-     "type": "float",
-     "metavar": "MS",
-     "help": "POINT time-average half-window [ms] (default 30 ms, from the GUI_v5 .fig)"
-    },
-    {
-     "flags": [
-      "--point-fringe-gate"
-     ],
-     "type": "float",
-     "metavar": "FRAC",
-     "default": 0.15,
-     "help": "POINT fringe-jump gate: drop a chord whose |line-integrated n_e| falls below FRAC x median (default 0.15; <=0 disables)"
-    },
-    {
-     "flags": [
-      "--pressure"
-     ],
-     "action": "store_true",
-     "help": "(--east only) add the Thomson+TXCS kprfit=1 direct-pressure constraint (Li-2013 rung); stack on --point"
-    },
-    {
-     "flags": [
-      "--pressure-sig"
-     ],
-     "type": "float",
-     "metavar": "FRAC",
-     "help": "fractional pressure error bar sigpre_frac (default 0.2)"
-    },
-    {
-     "flags": [
-      "--te-ceiling"
-     ],
-     "type": "float",
-     "metavar": "EV",
-     "help": "Thomson Te outlier ceiling [eV] (default 8000)"
-    },
-    {
-     "flags": [
-      "--thomson-ne"
-     ],
-     "action": "store_true",
-     "help": "(--east --point only) pin the density spline with Thomson local n_e points (R_NE_TS rows) — strengthens the Faraday forward model"
-    },
-    {
-     "flags": [
-      "--no-probes"
-     ],
-     "action": "store_true",
-     "help": "drop the magnetic probes from the fit (flux-loop-only): the quality baseline while per-channel probe calibration is missing"
-    },
-    {
-     "flags": [
-      "--plot"
-     ],
-     "nargs": "?",
-     "const": true,
-     "metavar": "PATH",
-     "help": "render the flux map after the run (default <gfile>.png)"
-    },
-    {
-     "flags": [
-      "--json"
-     ],
-     "action": "store_true",
-     "dest": "as_json",
-     "help": "print the run summary as JSON"
-    }
-   ]
-  },
-  {
-   "name": "plot",
-   "hosts": [
-    "python"
-   ],
-   "help": "render a GEQDSK flux map to PNG/JPG",
-   "handler": "fylite.engine.cli:_cli_plot",
-   "args": [
-    {
-     "flags": [
-      "gfile"
-     ]
-    },
-    {
-     "flags": [
-      "-o",
-      "--out"
-     ],
-     "help": "output image (default <gfile>.png)"
-    }
-   ]
-  },
-  {
-   "name": "describe",
-   "hosts": [
-    "python"
-   ],
-   "help": "print the machine-readable capability catalog (JSON-LD): the first-batch artifact manifest set — efit/neo/tglf compute artifacts, the kinetic-reconstruction workflow, and the EAST MDSplus data artifact",
-   "handler": "fylite.engine.cli:_cli_describe",
-   "args": [
-    {
-     "flags": [
-      "--text"
-     ],
-     "action": "store_true",
-     "help": "human-readable listing instead of JSON-LD"
-    }
-   ]
-  },
-  {
-   "name": "cases",
-   "hosts": [
-    "python"
-   ],
-   "help": "list / show / check / RUN the three corpora: the scenario corpus (cases/: fyo/spo ScenarioSpecification documents + catalogue), with --benchmark the public V&V register (benchmark/: fyo:ComparisonRecord documents rendered from the kernel repository), and with --physics the physics-check suite (benchmark/physics/: preset cases judged against physical law, the documents' own definitions and the case's declared expectations) — the CLI is the primary debugging environment; --run maps a case's parameter settings onto the corresponding Python entry (S-2) and records the run, runs a record's private gates in $FYLITE_KERNEL, or (with --physics) runs a preset case and judges its product; --report renders a case (or a recorded run, --from) into MyST + SVG through a presentation spec",
-   "handler": "fylite.engine.cli:_cli_cases",
-   "args": [
-    {
-     "flags": [
-      "name"
-     ],
-     "nargs": "?",
-     "help": "a case id from the catalogue (or, with --benchmark, a record id such as V-01): print that document"
-    },
-    {
-     "flags": [
-      "--dir"
-     ],
-     "help": "corpus directory (default: ./cases, then the checkout's cases/; with --benchmark ./benchmark) — repo data, does NOT ship with the wheel"
-    },
-    {
-     "flags": [
-      "--benchmark"
-     ],
-     "action": "store_true",
-     "help": "address the public V&V register (benchmark/) instead of the scenario corpus: list records, print one, --check its structure, --plan / --run its gates"
-    },
-    {
-     "flags": [
-      "--physics"
-     ],
-     "action": "store_true",
-     "help": "address the physics-check suite (benchmark/physics/suite.jsonld) instead of the scenario corpus: list the preset cases and their criteria, print one, --check the suite's structure, --run one and judge its product against the check register (fylite.engine.physics); with --from, judge a recorded run instead of running the case"
-    },
-    {
-     "flags": [
-      "--check"
-     ],
-     "action": "store_true",
-     "help": "structural check: every catalogue entry's document exists and parses, no orphan files, at most one initial case per bar; non-zero exit on failure"
-    },
-    {
-     "flags": [
-      "--json"
-     ],
-     "action": "store_true",
-     "dest": "as_json",
-     "help": "machine-readable output"
-    },
-    {
-     "flags": [
-      "--plan"
-     ],
-     "action": "store_true",
-     "help": "print the case -> entry mapping and the full field accounting (mapped / sub-capability / shared / ui), without running"
-    },
-    {
-     "flags": [
-      "--run"
-     ],
-     "action": "store_true",
-     "dest": "run_case",
-     "help": "map the named case onto its Python entry and run it through the tool face — leaves manifest / acceptance / ledger; bars with no faithful mapping are refused by name"
-    },
-    {
-     "flags": [
-      "--predict"
-     ],
-     "action": "store_true",
-     "help": "(zerod cases) engage tier B: solve the energy balance with the case's confinement-scaling knobs instead of only evaluating the prescription"
-    },
-    {
-     "flags": [
-      "--kernel"
-     ],
-     "help": "(--benchmark --run) the kernel checkout whose private gates to run (default: $FYLITE_KERNEL); refused by name when absent"
-    },
-    {
-     "flags": [
-      "--report"
-     ],
-     "action": "store_true",
-     "help": "render the named case as a REPORT: run it through the data layer's JSON door (one fyo plan in, one spo record out) and write MyST markdown + SVG figures + the presentation spec it was drawn by (FYL-REPORT-06 §13); with --from, render an existing record instead of running"
-    },
-    {
-     "flags": [
-      "--from"
-     ],
-     "dest": "from_record",
-     "help": "(--report) a record.jsonld or a `fylite case run` directory to render instead of running the case"
-    },
-    {
-     "flags": [
-      "--out"
-     ],
-     "help": "(--report) output directory (default: $FYLITE_RUN_DIR or ./records, under the record id; with --from, beside the record)"
-    },
-    {
-     "flags": [
-      "--presentation"
-     ],
-     "help": "(--report) a spo:PresentationSpecification document to draw by, instead of the one derived by rule"
-    },
-    {
-     "flags": [
-      "--lang"
-     ],
-     "default": "zh",
-     "help": "(--report) language of captions and prose: zh (default) or en"
-    }
-   ]
-  },
-  {
-   "name": "manifest",
-   "hosts": [
-    "python"
-   ],
-   "help": "check, re-seal, or export the authored JSON-LD artifact manifests (python/fylite/_manifest/*.jsonld — files are the source; the engine only loads/validates/seals them)",
-   "handler": "fylite.engine.cli:_cli_manifest",
-   "args": [
-    {
-     "flags": [
-      "--seal"
-     ],
-     "action": "store_true",
-     "help": "recompute derived hash fields (semantic_signature/storage_hash) in place"
-    },
-    {
-     "flags": [
-      "--out"
-     ],
-     "metavar": "DIR",
-     "help": "export the manifest set + derived catalog to DIR"
-    }
-   ]
-  },
-  {
-   "name": "replay",
-   "hosts": [
-    "python"
-   ],
-   "help": "re-run a recorded session from its ledger: resolve each node by its artifact_ref, feed handles along the edges, and compare the artefacts with the ones recorded",
-   "handler": "fylite.engine.cli:_cli_replay",
-   "args": [
-    {
-     "flags": [
-      "ledger"
-     ],
-     "help": "path to a session's ledger.jsonld (workflow-ir instance)"
-    },
-    {
-     "flags": [
-      "--session"
-     ],
-     "help": "name for the replay's own session directory (default replay-<original>)"
-    },
-    {
-     "flags": [
-      "--allow-version-drift"
-     ],
-     "action": "store_true",
-     "dest": "allow_version_drift",
-     "help": "replay even where the published artifact version has moved since the run; the report says which nodes drifted"
-    },
-    {
-     "flags": [
-      "--json"
-     ],
-     "action": "store_true",
-     "dest": "as_json",
-     "help": "print the replay report as JSON"
-    }
-   ]
-  },
-  {
-   "name": "report",
-   "hosts": [
-    "python"
-   ],
-   "help": "render one recorded run as a MyST report (unified academic template: 摘要/方法/结果/验收/复现性; array summaries and figures, never bulk arrays) — default lands report.md in the run directory",
-   "handler": "fylite.engine.cli:_cli_report",
-   "args": [
-    {
-     "flags": [
-      "run"
-     ],
-     "help": "run id (searched under $FYLITE_RUN_DIR) or path to a run directory"
-    },
-    {
-     "flags": [
-      "--out"
-     ],
-     "help": "output file or directory (default: <run>/report.md; figures land beside it)"
-    },
-    {
-     "flags": [
-      "--no-figures"
-     ],
-     "action": "store_false",
-     "dest": "figures",
-     "help": "skip figure rendering; the report says so instead of thinning silently"
-    },
-    {
-     "flags": [
-      "--stdout"
-     ],
-     "action": "store_true",
-     "help": "print the report instead of writing a file (no figures are rendered)"
-    }
-   ]
-  },
-  {
-   "name": "whence",
-   "hosts": [
-    "python"
-   ],
-   "help": "say which run produced a file and where that run came from — the lookup is BY CONTENT (the file is hashed against the sha256 every run manifest records), so a copied or renamed artefact still resolves and a modified one honestly does not",
-   "handler": "fylite.engine.cli:_cli_whence",
-   "args": [
-    {
-     "flags": [
-      "file"
-     ],
-     "nargs": "+",
-     "help": "one or more files to trace back"
-    },
-    {
-     "flags": [
-      "--root"
-     ],
-     "help": "run root to search (default $FYLITE_RUN_DIR / the cache)"
-    },
-    {
-     "flags": [
-      "--json"
-     ],
-     "action": "store_true",
-     "dest": "as_json",
-     "help": "the full record instead of the one-line lineage"
-    }
-   ]
-  },
-  {
-   "name": "alias",
-   "hosts": [
-    "python"
-   ],
-   "help": "give a run a readable name (`name@vN`) or list the register — the name is BESIDE the run id, never instead of it: handles, ledger edges and manifests keep holding ids",
-   "handler": "fylite.engine.cli:_cli_alias",
-   "args": [
-    {
-     "flags": [
-      "run"
-     ],
-     "nargs": "?",
-     "help": "the run id to name (omit with --list)"
-    },
-    {
-     "flags": [
-      "name"
-     ],
-     "nargs": "?",
-     "help": "the readable name; the version is the register's to assign"
-    },
-    {
-     "flags": [
-      "--list"
-     ],
-     "action": "store_true",
-     "dest": "as_list",
-     "help": "print the register instead of adding to it"
-    },
-    {
-     "flags": [
-      "--root"
-     ],
-     "help": "run root (default $FYLITE_RUN_DIR)"
-    }
-   ]
-  },
-  {
-   "name": "serve",
-   "hosts": [
-    "python"
-   ],
-   "help": "serve the capability catalog + entry invocation as JSON-RPC 2.0 over stdio (experimental; one message per line, EOF to stop)",
-   "handler": "fylite.engine.cli:_cli_serve",
-   "args": []
-  },
-  {
-   "name": "mcp",
-   "hosts": [
-    "python"
-   ],
-   "help": "serve fylite as a Model Context Protocol (MCP) stdio server: curated tools (describe/run/inspect/plot) + tools reflected from the artifact manifests; results are shaped summaries",
-   "handler": "fylite.engine.cli:_cli_mcp",
-   "args": []
-  },
-  {
    "name": "app",
    "hosts": [
-    "rust",
-    "python"
+    "rust"
    ],
-   "help": "serve the embedded browser app on the loopback address and open it in the system browser (the single-file viewer; on the Python host this runs the bundled fylite)",
+   "help": "serve the embedded browser app on the loopback address and open it in the system browser (the single-file viewer)",
    "handler": "fylite.engine.cli:_cli_app",
    "args": [
     {
@@ -637,38 +148,17 @@
      ],
      "metavar": "DIR",
      "help": "(development) serve this directory instead of the embedded app/ — the same request face, a live tree"
-    },
-    {
-     "flags": [
-      "--bin-dir"
-     ],
-     "hosts": [
-      "python"
-     ],
-     "metavar": "DIR",
-     "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
     }
    ]
   },
   {
    "name": "data",
    "hosts": [
-    "rust",
-    "python"
+    "rust"
    ],
    "help": "the data layer: what a file is, format conversion, merging, assembling several data sources by a JSON-LD / YAML document, fetching a shot from a fydata machine manifest",
    "handler": "fylite.engine.cli:_cli_data",
    "args": [
-    {
-     "flags": [
-      "--bin-dir"
-     ],
-     "hosts": [
-      "python"
-     ],
-     "metavar": "DIR",
-     "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
-    },
     {
      "flags": [
       "--facts"
@@ -951,8 +441,8 @@
         "--machine"
        ],
        "required": true,
-       "metavar": "machine.yaml",
-       "help": "the fydata machine manifest"
+       "metavar": "east|machine.yaml",
+       "help": "the device: a name resolved on the facts path (facts/device/<name>/machine.yaml), or a path to a machine manifest"
       },
       {
        "flags": [
@@ -1099,22 +589,11 @@
   {
    "name": "case",
    "hosts": [
-    "rust",
-    "python"
+    "rust"
    ],
    "help": "a case from a fyo plan to a fyo record, through the kernel: one structure in, one structure out",
    "handler": "fylite.engine.cli:_cli_case",
    "args": [
-    {
-     "flags": [
-      "--bin-dir"
-     ],
-     "hosts": [
-      "python"
-     ],
-     "metavar": "DIR",
-     "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
-    },
     {
      "flags": [
       "--facts"

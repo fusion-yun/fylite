@@ -46,7 +46,7 @@
 //!
 //! ```text
 //! fylite                          # 找一个空闲端口，开浏览器
-//! fylite --port 8123 --no-open    # 指定端口，只伺服
+//! fy --port 8123 --no-open    # 指定端口，只伺服
 //! fylite --page data --device east --lang en --mdsip 127.0.0.1:8000
 //! fylite data info shot.h5        # 数据层（= `fylite data info shot.h5`）
 //! fylite case run plan.jsonld --record rec/
@@ -86,7 +86,9 @@ enum Source {
 fn main() {
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let spec = cli::spec();
-    let args = match cli::parse(spec, cli::HOST, "fylite", &argv) {
+    //: ★2026-09-04 用法里的程序名取自规格（`hosts.rust.exe`，今天是 `fy`），
+    //: 不再写死在这里——写死过一次，改名之后 `fy --help` 仍自称 `fylite`。
+    let args = match cli::parse(spec, cli::HOST, &spec.prog, &argv) {
         Parsed::Help(text) => {
             print!("{text}");
             return;
@@ -484,13 +486,13 @@ mod tests {
             .split_whitespace()
             .map(str::to_string)
             .collect();
-        let args = match cli::parse(spec, cli::HOST, "fylite", &argv) {
+        let args = match cli::parse(spec, cli::HOST, &spec.prog, &argv) {
             Parsed::Run(a) => a,
             other => panic!("{other:?}"),
         };
         let url = launch_url(spec, &args, "http://127.0.0.1:1/");
         assert_eq!(url, "http://127.0.0.1:1/pages/data.html?device=east&lang=en&theme=dark");
-        let none = match cli::parse(spec, cli::HOST, "fylite", &[]) {
+        let none = match cli::parse(spec, cli::HOST, &spec.prog, &[]) {
             Parsed::Run(a) => launch_url(spec, &a, "http://127.0.0.1:1/"),
             other => panic!("{other:?}"),
         };

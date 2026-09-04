@@ -123,36 +123,6 @@ def test_the_curated_tool_schema_only_offers_options_that_reach_the_door():
         "run_reconstruction ignores")
 
 
-def test_the_cli_sends_the_same_option_names(monkeypatch, tmp_path):
-    seen = {}
-    monkeypatch.setattr(_serve, "run_reconstruction",
-                        lambda opts: seen.update(opts) or {"q0": 1.0})
-    monkeypatch.setattr(_serve, "deliver_gfile", lambda res, out: "g.geqdsk")
-    rc = engine.cli_main(["run", "--east", "--shot", "137985", "--time", "4.0",
-                          "--point", "--out", str(tmp_path), "--json"])
-    assert rc == 0
-    handled = set(_serve._RUN_DIRECT) | {"input", "east", "shot", "time_s",
-                                         "point_sig", "pressure_sig",
-                                         "te_ceiling", "out"}
-    assert not set(seen) - handled, sorted(set(seen) - handled)
-    assert seen["east"] and seen["shot"] == 137985 and seen["time_s"] == 4.0
-
-
-def test_the_cli_refuses_a_document_without_a_time(capsys):
-    with pytest.raises(SystemExit):
-        engine.cli_main(["run", "--input", "meas.jsonld"])
-    assert "--time" in capsys.readouterr().err
-
-
-def test_the_cli_reports_a_failure_rather_than_a_traceback(monkeypatch,
-                                                           capsys):
-    def boom(opts):
-        raise recon_rs.KefitRunError("no deck here")
-    monkeypatch.setattr(_serve, "run_reconstruction", boom)
-    assert engine.cli_main(["run", "--shot", "1", "--time", "1.0"]) == 1
-    assert "FAILED: no deck here" in capsys.readouterr().err
-
-
 # --------------------------------------------------------------------------- #
 # delivery — the half that is real
 # --------------------------------------------------------------------------- #

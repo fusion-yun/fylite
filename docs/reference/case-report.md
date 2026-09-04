@@ -4,10 +4,10 @@ title: 算例报告（计划 + 记录 → MyST + SVG / 页面）
 
 # 算例报告
 
-`fylite cases --report <case id>` 把**一份 fyo 计划**（`cases/<id>.jsonld`，`fyo:ScenarioSpecification`）
+`fylite.engine.casereport.render(...)` 把**一份 fyo 计划**（`cases/<id>.jsonld`，`fyo:ScenarioSpecification`）
 经数据层的 JSON 门跑成**一份 spo 记录**（`spo:ComputationRecord`，产出数据集内联在端口上），再经一份
 **呈现规格**（`spo:PresentationSpecification`）渲染为 MyST markdown 与 SVG 图；`--from <record.jsonld | 目录>`
-渲染 `fylite case run` 已写下的记录。`app/pages/report.html` 读同样的文件，在浏览器里画同样的图。
+渲染 `fy case run` 已写下的记录。`app/pages/report.html` 读同样的文件，在浏览器里画同样的图。
 
 ## 产物
 
@@ -29,12 +29,15 @@ title: 算例报告（计划 + 记录 → MyST + SVG / 页面）
 
 ## 用法
 
-```bash
-fylite cases --report evolve-default                  # records/<run id>/report.md
-fylite cases --report evolve-default --out out/ --lang en
-fylite cases --report --from records/<run id>         # an existing record directory
-fylite cases --report evolve-default --presentation my-views.jsonld   # draw by a supplied spec
+```python
+from fylite.engine import cases, casereport
+casereport.render(cases.run("evolve-default"))                       # records/<run id>/report.md
+casereport.render(cases.run("evolve-default"), out="out/", lang="en")
+casereport.render("records/<run id>")                                # an existing record directory
+casereport.render(cases.run("evolve-default"), plan=my_views)        # draw by a supplied spec
 ```
+
+★★2026-09-04 起这是**库调用**（`fylite cases --report …` 随 Python 侧命令行一并撤除）。
 
 浏览器：打开 `app/pages/report.html`，选择 `record.jsonld`（可连同 `plan.jsonld`、`presentation.jsonld`
 与数据集文件），或 `report.html?src=<url>`。两端对同一份记录推出同一份规格

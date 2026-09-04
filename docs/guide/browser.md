@@ -41,7 +41,7 @@ title: 浏览器用法 (Using the Browser Pages)
 ```bash
 fylite                      # 挑一个空闲端口，起本机服务，拉起系统浏览器
 fylite --page data --device east --lang en --theme dark
-fylite --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
+fy --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 ```
 
 它把整个站点编进了自己，起服务只绑**回环地址**、只答 `GET`/`HEAD`、不写任何文件。
@@ -90,7 +90,7 @@ fylite --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 要用它，就用上一节那个单一可执行文件并接上服务器：
 
 ```bash
-fylite --mdsip 127.0.0.1:8000     # 例如经 ssh 隧道到装置的 mdsip 服务器
+fy --mdsip 127.0.0.1:8000     # 例如经 ssh 隧道到装置的 mdsip 服务器
 ```
 
 端点是**只读的窄口**：没有取任意表达式的入口，守卫在宿主与客户端两侧各查一遍，

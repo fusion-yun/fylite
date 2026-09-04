@@ -167,19 +167,3 @@ def test_the_template_doc_states_the_same_order():
         ROOT / "docs/myst.yml").read_text()
 
 
-def test_the_cli_command_is_declared_and_reachable():
-    """Same shape as test_replay's gate: declared flags == read flags."""
-    spec = json.loads((ROOT / "python/fylite/_cli.json").read_text())
-    cmd = next(c for c in spec["commands"] if c["name"] == "report")
-    mod, func = cmd["handler"].split(":")
-    import importlib
-    assert callable(getattr(importlib.import_module(mod), func))
-    flags = {a.get("dest") or a["flags"][-1].lstrip("-").replace("-", "_")
-             for a in cmd["args"]}
-    body = re.search(r"def _cli_report\(.*?\n(?=\ndef )",
-                     (ROOT / "python/fylite/engine/cli.py").read_text(),
-                     re.S).group(0)
-    for used in re.findall(r"args\.(\w+)", body):
-        assert used in flags, (
-            f"_cli_report reads args.{used}, which `fylite report` does "
-            "not declare")

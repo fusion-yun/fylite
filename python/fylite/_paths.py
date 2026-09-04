@@ -5,10 +5,13 @@ import os
 from pathlib import Path
 
 PKG = Path(__file__).resolve().parent
-#: ``_lib/`` holds the callable solver (shared library, ctypes); ``_bin/``
-#: optional helper executables.  Neither carries machine data.
+#: ``_lib/`` holds the callable solver (shared library, ctypes); it carries no
+#: machine data.  ★★2026-09-04 ``BIN_DIR`` (``_bin/``) went with the user's
+#: ruling that **this package ships no executable**: the one there is is built
+#: by ``rust/build.sh --exe`` as ``fy`` and found on ``$PATH``
+#: (``engine.cli._find_exe``).  Nothing here read ``BIN_DIR`` anyway — the
+#: lookup always spelled the directory itself.
 LIB_DIR = PKG / "_lib"
-BIN_DIR = PKG / "_bin"
 #: ★No bundled device deck: this distribution ships none (see
 #: :mod:`fylite.device`).  ``DATA_DIR`` is resolved from
 #: ``$FYLITE_DEVICE_DIR`` on first ACCESS, through this module's

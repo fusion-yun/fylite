@@ -167,7 +167,7 @@
    * it is an address on an operator's internal network, and a published page
    * is not the place to write one down.  Nothing is lost for the reader who
    * has one — `renderServers` offers whatever the GATEWAY names first
-   * (`fylite --mdsip <addr>`), so an operator's own address arrives from
+   * (`fy --mdsip <addr>`), so an operator's own address arrives from
    * the host that is actually pointed at it, which is also the only place that
    * knows it is still right.
    *

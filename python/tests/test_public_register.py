@@ -117,19 +117,19 @@ def test_no_pointer_names_a_private_checkout_by_an_absolute_path(registry):
     assert not re.search(r"/home/[a-z]", text)
 
 
-def test_the_cli_lists_and_checks_the_register(capsys):
-    from fylite.engine import cli as m
-    import argparse
-    ns = argparse.Namespace(benchmark=True, dir=None, name=None, check=True, as_json=False,
-                            plan=False, run_case=False, kernel=None)
-    rc = m._cli_cases(ns, None)
-    out = capsys.readouterr().out
-    assert rc == 0, out
-    ns.check = False
-    ns.as_json = True
-    assert m._cli_cases(ns, None) == 0
-    got = json.loads(capsys.readouterr().out)
-    assert [r["record_id"] for r in got["records"]] == [
+def test_the_register_lists_and_checks_through_the_library(capsys):
+    """★2026-09-04 这条从 CLI 处理器改到库上。
+
+    它原来走 `engine.cli._cli_cases(--benchmark --check)`——而那一层已随
+    「Python 侧无命令行」的裁定撤除。**问的事情没变**：登记册里每条记录都能
+    被解析、都通得过自检，且 `records()` 给出的顺序就是 `@graph` 的顺序。
+    改的只是问的门：库自己（`engine.benchmark`），不再借一个包装。
+    """
+    recs = bm.records(BM)
+    assert recs, "the register lists nothing"
+    for rec in bm.graph(BM):
+        assert bm.problems(rec, BM) == [], (bm.short_id(rec), bm.problems(rec, BM))
+    assert [r["record_id"] for r in recs] == [
         bm.short_id(r) for r in json.loads(REGISTRY.read_text(encoding="utf-8"))["@graph"]]
 
 

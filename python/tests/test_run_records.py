@@ -179,29 +179,6 @@ def test_a_catalog_query_opens_no_run_at_all(root):
 # the command line records the same way
 # --------------------------------------------------------------------------- #
 
-def test_the_cli_writes_the_same_record(root, monkeypatch, capsys):
-    from fylite import engine
-
-    monkeypatch.setattr(serve, "run_reconstruction",
-                        lambda opts: {"q0": 1.1, "q95": 3.3,
-                                      "qpsi": np.linspace(1.0, 3.0, 65),
-                                      "device": "stub", "iterations": 4,
-                                      "residual": 1e-11, "psi_axis": -0.1,
-                                      "psi_bry": 0.0, "ip": 4e5,
-                                      "bcentr": -1.8, "rmaxis": 1.85,
-                                      "zmaxis": 0.0, "converged": True})
-    monkeypatch.setattr(serve, "deliver_gfile", lambda res, out: "g.geqdsk")
-    assert engine.cli_main(["run", "--shot", "1", "--time", "1.0"]) == 0
-    out = capsys.readouterr().out
-    run_dir = Path([ln.split(":", 1)[1].strip() for ln in out.splitlines()
-                    if ln.startswith("run ")][0])
-    m = json.loads((run_dir / "manifest.json").read_text())
-    assert m["config"]["tool"] == "fylite run"
-    assert m["config"]["arguments"]["shot"] == 1
-    #: the loop-convergence criterion IS evaluable here, and it passed
-    states = {c["name"]: c["state"] for c in m["acceptance"]["criteria"]}
-    assert states["converged"] == "pass"
-
 
 # --------------------------------------------------------------------------- #
 # per-capability acceptance criteria

@@ -11,8 +11,9 @@ title: 典型算例 · 1.5-D 芯部输运 (Worked Example · 1.5-D Core Transpor
 
 ## 跑它
 
-```bash
-fylite cases --run transport-iter-15ma
+```python
+from fylite.engine import cases
+cases.run("transport-iter-15ma")
 ```
 
 ```text
@@ -84,8 +85,9 @@ t = S.model.transport(chi_given=chi_from_flux)   # 把它换算出的 χ 喂回�
 
 ## 报告
 
-```bash
-fylite cases --report transport-iter-15ma --out out/transport
+```python
+from fylite.engine import casereport, cases
+casereport.render(cases.run("transport-iter-15ma"), out="out/transport")
 ```
 
 剖面对 `rho_tor`，源与度规各自成图。★`y` 是**求解量**，不是温度：这一档解的是一条

@@ -109,7 +109,7 @@ modified:
 **本机网关 / 请求面（local gateway / request face）**
 :   浏览器打不开裸 TCP，wasm 也不改变这件事（`FYL-DESIGN-06` §1），所以这一页前面
     站着一个只读窄端点的本机进程。**只此一份**：桌面单文件宿主的请求面
-    `rust/fylite_runtime/src/bin/app/api.rs`（`fylite --mdsip HOST:PORT`），
+    `rust/fylite_runtime/src/bin/app/api.rs`（`fy --mdsip HOST:PORT`），
     它调用中间层的 mdsip 客户端 `rust/fylite_runtime/src/mdsip.rs`。
     ★沿革一句：仓里曾另有一台 Node 网关（`app/server/`），2026-09-01 退役
     （{numref}`tbl-fylite-data-hosts`）。本篇下文「网关」指的都是这份请求面。
@@ -145,7 +145,7 @@ modified:
 ## P-10 缺进程时如实降级 (degrade by naming the missing process)
 
 〔已确立〕没有请求面时，这一页**不画空图、不弹错误横幅**，而是**印出启动它的那条
-命令**（`fylite --mdsip HOST:PORT`；服务器在所内网段够不着时先搭 SSH 隧道，再让
+命令**（`fy --mdsip HOST:PORT`；服务器在所内网段够不着时先搭 SSH 隧道，再让
 `--mdsip` 指向隧道口）。理由写在控制器头上：「一个用空图来失败的工具，教给读者的是
 这台装置没有数据」。
 
@@ -429,7 +429,7 @@ DE-LOG-04 的例外，而是它的边界：那条纪律管的是「本机算得�
 
 | 宿主 | 实现 | 起法 | 状态 |
 | :--- | :--- | :--- | :--- |
-| 桌面单文件宿主 | `rust/fylite_runtime/src/bin/app/api.rs`（`fylite_runtime::mdsip` 支撑） | `fylite --mdsip HOST:PORT` | 已落地（内核仓 `FYL-REPORT-05` §3b.5） |
+| 桌面单文件宿主 | `rust/fylite_runtime/src/bin/app/api.rs`（`fylite_runtime::mdsip` 支撑） | `fy --mdsip HOST:PORT` | 已落地（内核仓 `FYL-REPORT-05` §3b.5） |
 | ~~Node 网关~~ | ~~`app/server/gateway.mjs`~~ | —— | **2026-09-01 退役** |
 :::
 

@@ -12,8 +12,9 @@ title: 典型算例 · 含时演化 (Worked Example · Time Evolution)
 
 ## 跑它
 
-```bash
-fylite cases --run evolve-iter-15ma
+```python
+from fylite.engine import cases
+cases.run("evolve-iter-15ma")
 ```
 
 ```text
@@ -23,7 +24,7 @@ evolve-iter-15ma  bar=evolve -> fylite_evolve
 ```
 
 **78 项归了子能力**，比映射的还多——那是这条栏在页面上带的四个控制面板（台基、锯齿、
-杂质、电流道…）里、基准运行不读的那些。逐条有名有姓，`fylite cases --plan evolve-iter-15ma`
+杂质、电流道…）里、基准运行不读的那些。逐条有名有姓，`cases.plan("evolve-iter-15ma")`
 可以全部列出来。
 
 ## 它算出了什么
@@ -76,7 +77,7 @@ sorted(e)[:8]
 这条算例的计划**自己声明**了产出格式：四个输出端口都要 `fyo:ImasHdf5Format`。所以
 
 ```bash
-fylite case run cases/evolve-iter-15ma.jsonld --record out/iter15ma
+fy case run cases/evolve-iter-15ma.jsonld --record out/iter15ma
 ```
 
 写出的不是逐 IDS 的 JSON-LD，而是**一个 IMAS 数据入口**——`out/iter15ma/imas/master.h5`
@@ -95,8 +96,9 @@ te.max()        # 23341.8 eV — 与上表同一个数
 
 ## 报告
 
-```bash
-fylite cases --report evolve-iter-15ma --out out/report
+```python
+from fylite.engine import casereport, cases
+casereport.render(cases.run("evolve-iter-15ma"), out="out/report")
 ```
 
 九张图：剖面三张（对 `rho_tor`）、迹线五张（对 `time`）、**极向截面一张**。截面画得出来，

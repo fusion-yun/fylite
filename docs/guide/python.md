@@ -38,39 +38,24 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 测量剖面拟合，GCV 定平
 不需要装置描述、不需要炮号、不需要网络。确实需要装置的那些入口**显式**要一份——
 经环境变量或直接把路径交给入口，不会偷偷去找。
 
-## 命令行
+## 命令行在别处
 
-装上包就有 `fylite`（`python -m fylite` 是同一个入口）。命令分两类：
+★★2026-09-04 起**本包没有命令行**：没有 `fylite` 控制台脚本，没有 `python -m fylite`。
+装上它得到的是一个**库**——本章前面那些调用就是全部的用法。
 
-```bash
-fylite --help                       # 全部命令
-# —— 这个宿主自己实现的 ——
-fylite run --east --shot 70754 --time 3.5   # 一次平衡反演
-fylite plot g137985.04000 -o flux.png       # 画一份 g-file 的磁面图
-fylite describe                             # 能力目录，JSON-LD 形式
-fylite cases --check                        # 算例语料；--report 出一份算例报告
-fylite report <run>  ·  whence <文件>  ·  alias <run> <名字>   # 记录：渲染 / 溯源 / 起名
-fylite manifest  ·  serve  ·  mcp           # 清单校验 / JSON-RPC / MCP（后两者走 stdio）
-# —— 由本机可执行文件承载、这里逐字转交的（三条，同一个可执行文件）——
-fylite app --page model --lang en           # 起本机服务并开浏览器
-fylite data info shot.h5  ·  fylite data convert a.json b.nc   # 数据层
-fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出
+机器上那一条命令行是 Rust 的 **`fy`**（`bash rust/build.sh --exe`），它承载 `app` /
+`data` / `case` 三条；从前由 Python 承载的十一条动词都是库调用，逐条对照在
+[命令行](cli.md)那一章的末节。两个常用的：
+
+```python
+from fylite.engine import manifest_catalog
+manifest_catalog()          # 能力目录（JSON-LD）：有哪些入口、各要什么、各给什么
+
+from fylite.engine.serve import mcp_stdio       # MCP stdio 服务器
+raise SystemExit(mcp_stdio())                   # 宿主配置里写成一行 `python -c`
 ```
 
-逐条参数与它们各自的动词见参考篇的[命令行](../reference/cli.md)；按任务走一遍见
-[命令行](cli.md)那一章。
-
-`describe` 出的是**机器可读的能力目录**：有哪些入口、各要什么、各给什么。
-它也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。
-
-:::{note} 后三条为什么是「转交」
-`app` / `data` / `case` 的实现在**一个** Rust 可执行文件里（`fylite`，本仓只有这一个），
-Python 侧**不重写第二份**：它找到随包带的那个可执行文件（或 `--bin-dir`、`$PATH`），
-把命令词放回最前面，其余的字原样交过去。没找到时它**按名说明要构建什么**并以退出码 2
-结束，而不是退化成一个能力更少的实现。
-`fylite data --help` 与 `fylite data --help` 读到的是同一份用法——两边由同一个定义
-文件建出。
-:::
+能力目录也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。
 
 ## 与浏览器互通
 

@@ -135,21 +135,3 @@ def test_an_unknown_name_still_reports_the_run_root(runs):
         handles.find_run("no-such-thing")
 
 
-def test_the_cli_names_a_run_and_lists_the_register(runs, capsys):
-    from fylite.engine import cli
-
-    root, (a, b) = runs
-    assert cli.cli_main(["alias", a, "iter-burn"]) == 0
-    assert cli.cli_main(["alias", b, "iter-burn"]) == 0
-    assert cli.cli_main(["alias", "--list"]) == 0
-    out = capsys.readouterr().out
-    assert "iter-burn@v1" in out and "iter-burn@v2" in out
-    assert a in out and b in out
-
-
-def test_the_cli_exit_code_is_the_verdict(runs, capsys):
-    from fylite.engine import cli
-
-    root, (a, _) = runs
-    assert cli.cli_main(["alias", a, "Not Valid"]) == 1
-    assert "not a usable alias" in capsys.readouterr().err

@@ -5,8 +5,9 @@
 # 撞词，而那是另一个组件（DE-COMP-03 执行与溯源机械核）。
 #
 #   ./rust/build.sh              -> libfylite_runtime.so，装进 python/fylite/_lib/
-#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fylite（内嵌整个 app/，
-#                                   并承载 app / data / case 三条命令），装进 python/fylite/_bin/
+#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fy（内嵌整个 app/，
+#                                   并承载 app / data / case 三条命令），留在
+#                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
 #
@@ -121,16 +122,15 @@ if [ "$EXE" = 1 ]; then
     #: 生成物（`tools/make-app-embed.mjs`），`include_bytes!` 走 `FYLITE_APP_DIR`。
     #: 搬到本仓之后 `app/` 就在隔壁，所以这里能给出确定的值——从前它是跨仓的。
     export FYLITE_APP_DIR="$ROOT/app"
-    echo "[runtime] cargo build --release --features desktop (fylite) ..."
-    cargo build --release --features desktop --bin fylite \
+    echo "[runtime] cargo build --release --features desktop (fy) ..."
+    cargo build --release --features desktop --bin fy \
         --manifest-path "$CRATE/Cargo.toml"
-    echo "[runtime] -> $CRATE/target/release/fylite"
-    #: ★FYL-DESIGN-15 R-4：轮里的 `fylite app` / `data` / `case` 都把命令逐字交给
-    #: 这个可执行文件（Python 侧前置命令词），所以它装进 `_bin/`（构建时在就随轮走）。
-    if [ "$INSTALL" = 1 ]; then
-        mkdir -p "$ROOT/python/fylite/_bin"
-        cp "$CRATE/target/release/fylite" "$ROOT/python/fylite/_bin/fylite"
-        echo "[runtime] installed -> python/fylite/_bin/fylite"
-    fi
+    echo "[runtime] -> $CRATE/target/release/fy"
+    #: ★★2026-09-04 用户裁定：**Python 侧不产出可执行文件**。此前这里把 `fy` 拷进
+    #: `python/fylite/_bin/`，于是同一个二进制有两份、轮里带着一份平台相关的东西，
+    #: 而「哪一份在跑」要靠查找顺序回答。现在只有一份，在 `target/release/`——
+    #: 装到 `$PATH` 上是发行的事（`tools/build-app-exe.sh`），不是 `pip install` 的事。
+    #: Python 宿主委托 `app` / `data` / `case` 时按名在 `$PATH` 上找 `fy`
+    #: （`engine/cli.py` 的 `_RUST_EXE`），找不到就说清楚怎么构建。
 fi
 echo "[runtime] done."

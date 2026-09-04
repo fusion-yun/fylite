@@ -123,16 +123,20 @@ re-exported here):
 * :mod:`.handles` — the run root + data handles (``fylite://<run-id>/<port>``);
 * :mod:`.ledger` — the session ledger (a ``workflow-ir/2.0`` instance);
 * :mod:`.documents` — document / signal / channel-map mechanics;
-* :mod:`.cli` — the argparse builder over ``_cli.json``;
 * :mod:`.fitters` — profile representation (the interpolant, generic numerics);
 * :mod:`._util` — helpers shared by two or more of the above.
 
-Only :mod:`.serve` and :mod:`.cli` reach into the physics modules, and only
-inside their handlers — the engine's own import surface stays stdlib.
+Only :mod:`.serve` reaches into the physics modules, and only inside its
+handlers — the engine's own import surface stays stdlib.
+
+★★2026-09-04 用户裁定：**Python 侧不再有命令行层**。`cli.py`（`_cli.json` 上的
+argparse 建造者、`cli_main`、以及把 `app` / `data` / `case` 委派给原生可执行文件的
+那一段）与 `__main__.py`、控制台脚本 `fylite` 一并撤除——本包从此是**库**。
+命令行只剩一个：Rust 的 `fy`（`rust/fylite_runtime`，规格仍是同一份 `_cli.json`）。
 """
 
 from . import (  # noqa: F401  (submodules are part of the public surface)
-    body, cli, documents, fitters, handles, ledger, manifest,
+    body, documents, fitters, handles, ledger, manifest,
     provenance, serve, versioning,
 )
 from .body import (
@@ -140,9 +144,6 @@ from .body import (
     ConcurrentInvocationError, DELIVER, Disposition, EngineError,
     EnvironmentAcquireError, ExecuteError, ExecutionBody, PoisonedBodyError,
     RECLAIM, RETAIN, RunTrace,
-)
-from .cli import (
-    CLI_SPEC_PATH, build_cli, cli_main, load_cli_spec,
 )
 from .documents import (
     apply_channel_map, invert_channel_map, load_document, signal_at,
@@ -209,8 +210,6 @@ __all__ = [
     "to_anthropic_tool", "to_openai_tool",
     # document / signal / channel-map mechanics
     "load_document", "signal_at", "apply_channel_map", "invert_channel_map",
-    # CLI
-    "CLI_SPEC_PATH", "load_cli_spec", "build_cli", "cli_main",
     # profile representation
     #: ★★`BackendError`, `backend`, `backend_names`, `backend_meta`,
     #: `declare_family`, `register_backend`, `families` and

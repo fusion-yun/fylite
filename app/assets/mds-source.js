@@ -59,7 +59,7 @@
       '<label for="reconstruction-mds-server" data-i18n="mdssrc.server">mdsip 服务器</label>' +
       //: ★预填隧道口地址：站点自己的 mdsip 地址在装置内网上，不写进公开页面
       //: （2026-09-02）；这一格本来就是**锁着的**，真值由宿主启动时给
-      //: （`fylite --mdsip <地址>`），这里只是让读者看见它长什么样。
+      //: （`fy --mdsip <地址>`），这里只是让读者看见它长什么样。
       '<input type="text" id="reconstruction-mds-server" size="18"' +
       ' value="127.0.0.1:8000" disabled></div>' +
       '</div>' +

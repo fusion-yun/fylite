@@ -1,5 +1,5 @@
 ---
-title: 数据层 (The Data Layer · `fylite data`)
+title: 数据层 (The Data Layer · `fy data`)
 ---
 
 # 数据层
@@ -8,8 +8,10 @@ title: 数据层 (The Data Layer · `fylite data`)
 别的格式、合并多个来源，并按一份装配文档把它们拼成一份；物理一行没有。
 
 一份 Rust 源（`rust/fylite_runtime/`，**源码公开**——这里是协议编解码与文件格式，不是物理），
-三个面：命令行 `fylite data …`、Python 的 `fylite.io.fydoc`、以及供本仓 Rust 宿主用的
+三个面：命令行 `fy data …`、Python 的 `fylite.io.fydoc`、以及供本仓 Rust 宿主用的
 库 API。三个面调用同一份代码，所以命令行能做的 Python 都能做，反之亦然。
+（★2026-09-04 起 Python 侧**没有命令行**：`fylite data …` 那条写法随该层撤除，
+命令行只有 `fy`。Python 面见本页末节。）
 
 本页讲**它能做什么、怎么用**。每条选择背后的理由（为什么文件类型看内容而不看扩展名、
 为什么 HDF5 的数据轴要转置、「IMAS 兼容」的判据是什么）在设计集的 `FYL-DESIGN-14`。
@@ -35,29 +37,34 @@ IMAS DD 的键名 + `fylite:` 本地词）；「IMAS 布局」是 **imas-python 
 「IMAS 兼容」在这里是**量出来的**，不是声明的：`verify/imas_roundtrip.py` 让 imas-python
 造一份参考数据 → 本层写出 IMAS netCDF 与 IMAS HDF5 → 本层读回逐叶子比 → imas-python /
 imas-core 读回逐叶子比 → 过 imas-python 的 `nc_validate`。IMAS 布局的维名、坐标与块大小
-取自 DD 的 `IDSDef.xml` 生成表（82 个 IDS，随仓提交；当前 **DD 4.1.1**，`fylite data tables`
+取自 DD 的 `IDSDef.xml` 生成表（82 个 IDS，随仓提交；当前 **DD 4.1.1**，`fy data tables`
 打印），不是从 fyo 的 schema 推的。
 :::
 
-## 七条子命令
+## 八条子命令
 
 ```bash
-fylite data info     <file>                       # 这是什么文件
-fylite data dump     <file> [--ids A] [--path P]  # 打印一棵子树（JSON）
-fylite data convert  <in> <out> [--to F] [--layout fyo|imas]
-fylite data merge    <in>... -o <out>             # 多份合成一份
-fylite data assemble <assembly> -o <out>          # 按一份装配文档取多个源
-fylite data fetch    --machine <machine.yaml> --ids A,B --shot N -o <out>
-fylite data tables                                # 内置 DD 表：版本与 IDS 名
+fy data info     <file> [--json]                  # 这是什么文件
+fy data dump     <file> [--ids A] [--path P] [--compact] [--raw]   # 打印一棵子树（JSON）
+fy data convert  <in> <out> [--to F] [--layout fyo|imas] [--ids A,B]
+fy data merge    <in>... -o <out> [--keep] [--merge-key name|none] # 多份合成一份
+fy data assemble <assembly> -o <out> [--shot N] [--time T] [--select ids/path]... [--param k=v]...
+fy data fetch    --machine <装置名|machine.yaml> --ids A,B --shot N -o <out> [--provider P] [--dry-run]
+fy data tables                                    # 内置 DD 表：版本与 IDS 名
+fy data facts    [<domain>] [--roots]             # facts 搜索路径：哪些语料在场、每条由谁供
 ```
 
-★与 `fylite data …` 是同一条命令：**只有一个可执行文件**，Python 侧的 `fylite`
-把命令词原样交给它（见[命令行](cli.md)）。
+**组级选项 `--facts PATH`** 对上面每一条有效（写在子命令前后都可以）：把一份语料**插到
+自带那份之前**，可重复、也可用平台路径分隔符串起来；它是**前插**而不是替换
+`$FY_FACTS_PATH`。`fy case …` 同此。
+
+★用法以那个可执行文件自己排出来的为准（`fy data <子命令> --help`）——本页与它同源
+（`python/fylite/_cli.json`），但只有它是**产物**。
 
 ### `info` —— 这是什么文件
 
 ```bash
-$ fylite data info cases/evolve-default.jsonld
+$ fy data info cases/evolve-default.jsonld
 cases/evolve-default.jsonld: json (fyo layout)
 ```
 
@@ -70,8 +77,8 @@ IMAS HDF5 是**一个目录**、而 netCDF-4 本身就是 HDF5（同一个魔数
 ### `dump` —— 打印一棵子树
 
 ```bash
-fylite data dump shot.h5 --ids equilibrium --path equilibrium/time_slice/profiles_1d/psi
-fylite data dump fydata/machine/tokamak/east/machine.yaml --raw   # 不是文档的 JSON/YAML
+fy data dump shot.h5 --ids equilibrium --path equilibrium/time_slice/profiles_1d/psi
+fy data dump facts/device/east/machine.yaml --raw          # 不是文档的 JSON/YAML
 ```
 
 取值路径是 `"<ids>[_<occ>]/a/b/c"`：头一段是 IDS，其余是文档路径，不带索引的名字段落到
@@ -81,9 +88,9 @@ fyo 文档**的 JSON / YAML 用（装置清单、装配文档），也是 YAML �
 ### `convert` / `merge` —— 换格式、合成
 
 ```bash
-fylite data convert g063982.04800 shot.nc --layout imas    # imas-python 打得开
-fylite data convert shot.nc out/ --to imas-hdf5            # 一个 IMAS 数据入口（目录）
-fylite data merge machine.h5 shot.nc -o all.jsonld         # 后者覆盖前者
+fy data convert g063982.04800 shot.nc --layout imas    # imas-python 打得开
+fy data convert shot.nc out/ --to imas-hdf5            # 一个 IMAS 数据入口（目录）
+fy data merge machine.h5 shot.nc -o all.jsonld         # 后者覆盖前者
 ```
 
 `--to` 取 `json` / `geqdsk` / `hdf5` / `netcdf` / `imas-hdf5`，不给时按输出扩展名定；
@@ -102,10 +109,21 @@ fylite data merge machine.h5 shot.nc -o all.jsonld         # 后者覆盖前者
 把 fydata 的装置清单摊成「几何 + MDSplus 绑定」，再取指定的 IDS：
 
 ```bash
-fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml \
-                  --ids magnetics --shot 138569 --time 4:5 \
-                  --host 127.0.0.1 --port 8000 -o east_138569_magnetics.json
+fy data fetch --machine east \
+              --ids magnetics --shot 138569 --time 4:5 \
+              --host 127.0.0.1 --port 8000 -o east_138569_magnetics.json
 ```
+
+★★**`--machine` 收一个装置名**：`east` 走的是与其它条目同一条 facts 搜索路径
+（`--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 自带的 `_facts/`，见
+[`facts`](#facts)），解析到 `facts/device/east/machine.yaml`。这样「这次用哪一份 EAST」
+由**一个**开关统一决定；写死路径做不到——换一份语料要逐条命令行改字符串，而**漏改的那条
+照常成功**，用旧那份跑完不报错。
+
+清单路径仍然收，且先看：已经写好的命令行一条都不改口。带分隔符或带后缀的**不**退回按名字找，
+所以一条打错的路径报的是「没有这个文件」，而不是「语料里没有这台机器」——两句话指向的处置
+毫不相干。名字不在语料里时，错误会一并说出查过哪些根、语料里有哪些装置；名字在、但那条
+条目只有一张卡片没有清单时（多数装置如此），也直说，而不是等到解析 YAML 才失败。
 
 出来的是一份 `fyo:magnetics`：`b_field_pol_probe[n].field.{data, time}` 是 4–5 s 的切片，
 `position` 来自几何，`fylite:assembly` 记下炮号、时间窗与每个源。`--dry-run` 只打印
@@ -125,6 +143,10 @@ fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml \
 
 ★**点不外推**：窗里没有样本是**失败**，不是一个空数组。
 
+其余几个开关：`--select ids[/子树]` 只留列出的（可重复、可逗号分隔）；`--param k=v` 覆盖
+装配文档里的槽（整数）；`--provider P`（仅 `fetch`）指定清单里的提供者变体；
+`--mds-user NAME` 与 `--timeout-ms MS` 是 mdsip 登录名与请求超时（缺省 `$USER` / 10 000 ms）。
+
 :::{important}
 **MDSplus 只读是由构造保证的，不是由纪律保证的。** 客户端只认「动词 + 节点路径 + 整数」，
 没有表达式端点；装配文档里的 `$link` 表达式先被分解成这三样才发得出去，分解不了的
@@ -134,12 +156,25 @@ fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml \
 ### `tables` —— 内置的 DD 表
 
 ```bash
-$ fylite data tables
+$ fy data tables
 DD 4.1.1
   amns_data
   b_field_non_axisymmetric
   ...
 ```
+
+(facts)=
+### `facts` —— 谁供了这一条
+
+```bash
+$ fy data facts                     # 每个域、每条条目，以及供它的那份语料
+$ fy data facts device              # 只看一个域
+$ fy data facts --roots             # 只看搜索路径本身，按优先序
+```
+
+搜索路径是 `--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 包内自带的 `_facts/`，
+**先到先得，决胜单位是条目**（不是整份语料）。`--machine east` 这类按名字解析的开关
+走的就是它，所以「这次用哪一份 EAST」由一个开关统一决定。
 
 ## Python 面
 

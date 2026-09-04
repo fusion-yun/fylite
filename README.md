@@ -130,12 +130,17 @@ t = S.model.transport(power=4.0)        # one 1.5-D transport step
 f = S.analysis.profit(x, y, sigma_frac=0.05)   # profile fit, GCV smoothing
 ```
 
-The same capabilities have a command-line face:
+★★2026-09-04 (user ruling): **this package has no command line.** `pip install
+fylite` gives you a LIBRARY — no `fylite` console script, no `python -m fylite`.
+The one command line there is is the Rust executable `fy` (`bash rust/build.sh
+--exe`), which carries `app` / `data` / `case`; everything the Python verbs used
+to do is a library call, listed side by side in
+[the CLI guide](docs/guide/cli.md).
 
-```bash
-python -m fylite --help       # fourteen commands, defined in python/fylite/_cli.json
-python -m fylite cases        # the scenario corpus: 25 plan documents
-python -m fylite describe     # the capability catalogue, as JSON-LD
+```python
+from fylite.engine import cases, manifest_catalog
+cases.catalogue()             # the scenario corpus: 25 plan documents
+manifest_catalog()            # the capability catalogue, as JSON-LD
 ```
 
 The user guide is [`docs/guide/`](docs/guide/index.md) — start at
@@ -215,7 +220,7 @@ prose pages (entrance, features, credits) generated in Chinese and English
 alike, scenario pages (`design` / `model` / `analysis`) that switch language
 in place, and two tool pages that compute nothing themselves: a data browser,
 and a **case report** page that renders a plan and its record — the same
-presentation spec `fylite cases --report` derives, drawn by a port of the same
+presentation spec `engine.casereport.render` derives, drawn by a port of the same
 rules (`app/tests/validate-report.mjs` holds the two hosts to one spec). Open
 `app/index.html` or serve the directory; the published copy is
 <https://fusion-yun.github.io/fylite/>.
@@ -230,12 +235,12 @@ fylite describes itself rather than being described: the JSON-LD manifests in
 `python/fylite/_manifest/` are authored files; the engine only loads,
 validates and seals them.
 
-| command | what it is for |
+| entry point | what it is for |
 | :--- | :--- |
-| `fylite describe` | the machine-readable capability catalogue (JSON-LD) |
-| `fylite manifest` | check / re-seal / export the authored manifests |
-| `fylite serve` | catalogue + entry invocation as JSON-RPC 2.0 over stdio (experimental) |
-| `fylite mcp` | an MCP stdio server: curated tools plus tools reflected from the manifests |
+| `engine.manifest_catalog()` | the machine-readable capability catalogue (JSON-LD) |
+| `engine.manifest.write_manifests()` / `seal_manifests()` | check / re-seal / export the authored manifests |
+| `engine.serve.serve_stdio()` | catalogue + entry invocation as JSON-RPC 2.0 over stdio (experimental) |
+| `engine.serve.mcp_stdio()` | an MCP stdio server: curated tools plus tools reflected from the manifests |
 
 `python/fylite/engine/` stays stdlib-pure at import time, so a host can load
 the protocol face without paying for numpy or the kernel.
@@ -243,7 +248,7 @@ the protocol face without paying for numpy or the kernel.
 ## Reading and writing data
 
 The **data layer** (`rust/fylite_runtime/`, source open, built into
-`libfylite_runtime.so` and the `fylite data` command) converts between data
+`libfylite_runtime.so` and the `fy data` command) converts between data
 sources and fyo documents, merges several sources, and assembles them from a
 JSON-LD description. Files are recognised by **content**, never by name.
 
@@ -263,15 +268,15 @@ A case is **one structure in, one structure out**: a `fyo:ScenarioSpecification`
 (the documents under `cases/`, an `spo:ComputationPlan`) goes in, an
 `spo:ComputationRecord` with its produced datasets comes out. The kernel
 completes the case from its structure — settings by name, bound inputs by fyo
-path — and the data layer owns both ends: the `fylite case` command reads and
+path — and the data layer owns both ends: the `fy case` command reads and
 composes the plan documents, resolves bound inputs through the format readers,
 loads `libfylite_kernel.so` at run time and writes the record and the datasets
 as fyo documents.
 
 ```sh
-fylite case describe                                   # what the kernel completes, and what it declares
-fylite case plan cases/evolve-default.jsonld --set nsteps=12
-fylite case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
+fy case describe                                   # what the kernel completes, and what it declares
+fy case plan cases/evolve-default.jsonld --set nsteps=12
+fy case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
 #  -> records/evolve/{record.jsonld, plan.jsonld, core_profiles.fyo.jsonld, summary.fyo.jsonld, ...}
 ```
 
@@ -295,7 +300,7 @@ back here with h5py and with the data layer's own reader (the layout is the one
 The same run is **one function** on the data layer: `fylite_runtime_case_json`
 takes the plan as JSON-LD text (one document, or an array composed in order)
 and returns the record as JSON-LD text with the datasets inline on their
-output ports. `fylite case json plan.jsonld` and, in Python,
+output ports. `fy case json plan.jsonld` and, in Python,
 `fylite.io.fydoc.case_json(plan)` are faces on it. The kernel behind both is
 its own single door, `fylite_rs_fyo`: settings by name and inputs by fyo path
 in, fields by fyo path out, no handle and no state between calls.
@@ -317,8 +322,12 @@ that is absent is `unevaluated` **by name** — never silently passed.
 ```bash
 python tools/benchmark-run.py            # run the batch, print the statistics
 python tools/benchmark-run.py --write    # write benchmark/physics/ + BENCHMARK.md
-fylite cases --physics                   # the preset cases and their criteria
-fylite cases --physics --run equilibrium-gfile
+```
+
+```python
+from fylite.engine import suite          # was `fylite cases --physics` before 2026-09-04
+suite.entries()                          # the preset cases and their criteria
+suite.run_entry(suite.entry("equilibrium-gfile"))
 ```
 
 The summary table is [`BENCHMARK.md`](BENCHMARK.md); the register, its per-case
@@ -332,11 +341,11 @@ imas-python, reads with this library, writes with this library, and reads
 back with imas-python and imas-core, leaf by leaf.
 
 ```bash
-fylite data info  g063982.04800                          # what is this file?
-fylite data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
-fylite data merge machine.h5 shot.nc -o all.jsonld         # later sources win
-fylite data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
-fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
+fy data info  g063982.04800                          # what is this file?
+fy data convert g063982.04800 shot.nc --layout imas   # imas-python opens it
+fy data merge machine.h5 shot.nc -o all.jsonld         # later sources win
+fy data assemble east.jsonld -o east.h5 --shot 70754   # $source + $link
+fy data fetch --machine east --ids magnetics \
                   --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o mag.json   # 4–5 s, sliced on the server
 ```
 
@@ -374,14 +383,14 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 
 | path | contents |
 | :--- | :--- |
-| `python/fylite/` | assembly, device plumbing, IO, scenarios, the CLI and protocol engine |
-| `rust/fylite_runtime/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fylite data` command |
-| `python/tests/` | the Python tier — assembly, IO, the protocol/CLI faces, the registries, the ABI marshalling (`python/pytest.ini`) |
+| `python/fylite/` | assembly, device plumbing, IO, scenarios, the protocol engine (a LIBRARY: no CLI since 2026-09-04) |
+| `rust/fylite_runtime/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fy data` command |
+| `python/tests/` | the Python tier — assembly, IO, the protocol faces, the registries, the ABI marshalling (`python/pytest.ini`) |
 | | ★the physics/numerics tier is **not here**: it lives in the kernel repository with the code it judges |
 | `app/` | the static browser site and its gates |
 | ~~`machine_desc/`~~ | abolished 2026-09-02 — decks come from the A-Box, found through `$FYLITE_DEVICE_DIR` |
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
-| ~~`examples/`~~ | removed 2026-09-02 — the runnable specifications are `cases/`, read through `fylite cases` |
+| ~~`examples/`~~ | removed 2026-09-02 — the runnable specifications are `cases/`, read through `fylite.engine.cases` |
 | `benchmark/` `cases/` | the V&V registry and the worked cases |
 | `benchmark/physics/` + [`BENCHMARK.md`](BENCHMARK.md) | the **physics-check register**: preset cases judged against physical law, the documents' own definitions and each case's declared window (`tools/benchmark-run.py`) |
 | `docs/` | the MyST book: user guide, reference, cases |
@@ -421,14 +430,17 @@ with its admissibility class and sha256, every gate with the checkout it runs
 in, and the outcome of running those gates on the day of publication. It is
 read through the same verb as the scenario corpus:
 
-```bash
-fylite cases                      # the scenario corpus (cases/)
-fylite cases --benchmark          # the V&V register: kind, verdict, re-run, admissibility
-fylite cases --benchmark V-01     # one record, JSON-LD
-fylite cases --benchmark --check  # structure (the same function the test tier runs)
-FYLITE_KERNEL=../fylite_kernel fylite cases --benchmark --run V-09   # its private gates
-fylite cases --report evolve-default        # run a case -> report.md + figures/*.svg + presentation.jsonld
-fylite cases --report --from records/<run>  # render a record `fylite case run` wrote
+```python
+from fylite.engine import cases, casereport
+from fylite.engine import benchmark as bm
+
+cases.catalogue()                 # the scenario corpus (cases/)
+bm.records()                      # the V&V register: kind, verdict, re-run, admissibility
+bm.load("V-01")                   # one record, JSON-LD
+[bm.problems(r, bm.registry_dir()) for r in bm.graph()]   # structure (the test tier's own function)
+bm.run("V-09")                    # its private gates ($FYLITE_KERNEL=../fylite_kernel)
+casereport.render(cases.run("evolve-default"))   # a case -> report.md + figures/*.svg + presentation.jsonld
+casereport.render("records/<run>")               # render a record `fy case run` wrote
 ```
 
 ★The frozen test corpus is not here either: `tests/data` is a symlink to

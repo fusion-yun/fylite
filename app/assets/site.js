@@ -112,7 +112,7 @@
   //: switched in place, `site.js` injecting its nav and footer — but NOT a
   //: scenario: it has no parts, no worker and no run button, because it does
   //: not compute anything.  `data` is the first: it reads a live MDSplus
-  //: server through the shipped host (`fylite --mdsip …`), and what it shows is the
+  //: server through the shipped host (`fy --mdsip …`), and what it shows is the
   //: device's own archive, not a result of ours.
   //:
   //: ★It is listed apart rather than pushed into `SCENARIOS` for one concrete

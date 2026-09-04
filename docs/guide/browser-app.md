@@ -129,14 +129,14 @@ q 剖面、B 取 `bcentr`；★**n<sub>e</sub>(0) 与边界温度不在 g 文件
 （`FYL-DESIGN-06` §1）。所以它前面站着一个**只读窄端点**的本地进程：
 
 ```bash
-fylite --mdsip 127.0.0.1:8000
+fy --mdsip 127.0.0.1:8000
 ```
 
 ★**启动参数是同一个文件定义的**（`FYL-DESIGN-15`）：页面从 URL 接受 `device`（钉住装置）、
 `lang`（`zh` / `en`）、`theme`（`light` / `dark` / `system`），`page` 决定打开哪一页；
 它们在 `python/fylite/_cli.json` 的 `hosts.app.params` 里各说一次，`fylite --page data
 --device east --lang en` 把它们写进打开的地址，页面读的名字受门核对。`fylite --help`
-列出全部选项——用法由同一个文件生成，与 `fylite app --help` 同源。
+列出全部选项——用法由同一个文件生成，与 `fy app --help` 同源。
 
 ★**只此一份**（2026-09-01 起）。从前仓里还有一台 Node 网关（`app/server/gateway.mjs`），
 与它「两个宿主、一组端点」互为判据；那台网关已退役，理由与替代的判据见 `FYL-DESIGN-13`。
