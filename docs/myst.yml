@@ -152,6 +152,7 @@ project:
             - file: design/FYL-DESIGN-16.md
             - file: design/FYL-DESIGN-14.md
             - file: design/FYL-DESIGN-15.md
+            - file: design/FYL-DESIGN-17.md
         - title: 浏览器前端 (Browser Front End)
           #: 外壳在前（四页共用的那一层），四页各一篇；`-10` 兼持四页共同纪律与 `P-` 总表。
           children:
