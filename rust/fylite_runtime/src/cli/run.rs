@@ -757,6 +757,52 @@ fn fetch_measurements(
     ))
 }
 
+/// 这次运行要写哪种格式：`--format` 优先，否则计划的输出端口自己要的那种，
+/// 都没有就 `jsonld`。★一处判定：`build` 拿它来**先问**这份构建写不写得了，
+/// `execute` 拿它来写——两处若各判一次，某一天它们会给出不同的答案。
+fn effective_format(args: &Args, plan: &Plan) -> String {
+    let asked = plan.outputs.iter().find_map(|r| r.format_iri.clone());
+    args.flag("format")
+        .map(str::to_string)
+        .or_else(|| {
+            asked.map(|f| match f.as_str() {
+                "fyo:ImasHdf5Format" | "imas_hdf5" => "imas-hdf5".to_string(),
+                other if other.ends_with("ImasHdf5Format") => "imas-hdf5".to_string(),
+                other if other.ends_with("ld+json") => "jsonld".to_string(),
+                other => other.to_string(),
+            })
+        })
+        .unwrap_or_else(|| "jsonld".into())
+        .to_ascii_lowercase()
+}
+
+/// 这份构建写得了这种格式吗（`hdf5` / `netcdf` 是编译期特性）。
+///
+/// ★★**先问，别写到一半才发现**（`FYL-DESIGN-16` B-1 的同一条姿态）。实测过反面：
+/// 一份不带 `hdf5` 特性的 `fy` 跑 `evolve-iter-15ma`（它的输出端口要 IMAS HDF5）
+/// 会**先把内核跑完**，再在写第一个数据集时以 `exit 2` 停住——那个码在本篇里的
+/// 意思是「语法错，没有记录」，而这里既不是语法错、又已经算出了结果。
+/// 现在它是合成阶段的一次按名拒绝：退 1、落记录、说清楚换什么。
+fn writable(format: &str) -> Result<(), String> {
+    let (need, have) = match format {
+        "jsonld" | "json" => return Ok(()),
+        "hdf5" | "h5" => ("hdf5", cfg!(feature = "hdf5")),
+        "netcdf" | "nc" => ("netcdf", cfg!(feature = "netcdf")),
+        "imas-hdf5" | "imas" => ("hdf5", cfg!(feature = "hdf5")),
+        other => {
+            return Err(format!(
+                "unknown format `{other}` — one of jsonld, hdf5, netcdf, imas-hdf5"
+            ))
+        }
+    };
+    if have {
+        return Ok(());
+    }
+    Err(format!(
+        "this build cannot write `{format}`: it was compiled without the `{need}` feature.\n           Either rebuild with it (`bash rust/build.sh --exe`, or `--static` on a machine \n           without libhdf5 / libnetcdf), or ask for a format it has: --format jsonld"
+    ))
+}
+
 // ───────────────────────────── 记录目录 ─────────────────────────────
 
 fn ensure_dir(dir: &Path) -> Result<(), Refusal> {
@@ -988,7 +1034,7 @@ pub fn run(args: &Args) {
         if args.has("json") {
             println!("{}", json::to_string(&node, true));
         } else {
-            print_dry(&target, &plan, &prov, device.as_ref(), &record_dir);
+            print_dry(args, &target, &plan, &prov, device.as_ref(), &record_dir);
         }
         return;
     }
@@ -1014,7 +1060,7 @@ fn record_dir(args: &Args, target: &Target) -> PathBuf {
     PathBuf::from(parent).join(format!("{}-{}", stamp.replace([':', '-'], ""), target.tag()))
 }
 
-fn print_dry(target: &Target, plan: &Plan, prov: &Prov, device: Option<&DeviceDoc>, record_dir: &Path) {
+fn print_dry(args: &Args, target: &Target, plan: &Plan, prov: &Prov, device: Option<&DeviceDoc>, record_dir: &Path) {
     match target {
         Target::Scenario { line, template } => println!(
             "{line} · {}  ->  {}   (template {}, {} parameters declared)",
@@ -1037,6 +1083,9 @@ fn print_dry(target: &Target, plan: &Plan, prov: &Prov, device: Option<&DeviceDo
         println!("  device   {} from {}  -> {}", d.id, d.root, d.file);
     }
     println!("  record   {}  (not written: --dry-run)", record_dir.display());
+    if let Err(e) = writable(&effective_format(args, plan)) {
+        println!("  format   ★ {}", e.lines().next().unwrap_or(""));
+    }
     println!("\n  {:<20} {:<22} {}", "parameter", "value", "from");
     for s in &plan.settings {
         println!(
@@ -1086,6 +1135,14 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
     let plan_text = json::to_string(&plan_node, true) + "\n";
     write_text(&record_dir.join("plan.jsonld"), &plan_text);
 
+    //: ★格式是**计划的一部分**（输出端口自己要的那种），所以「这份构建写不写得了」
+    //: 与「缺哪个绑定」同属合成阶段——在装内核之前问，而不是把内核跑完、再在写第一
+    //: 个数据集时停住。问得早，那次拒绝才带得上记录（E-20：退 1 必有记录）。
+    if let Err(e) = writable(&effective_format(args, &plan)) {
+        finish_refused(&plan, record_dir, &record_id, "compose", &e, &started_at, prov);
+        return;
+    }
+
     let kernel = match Kernel::load(args.flag("kernel").map(Path::new)) {
         Ok(k) => k,
         Err(e) => {
@@ -1121,20 +1178,8 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
     let outcome = match &result {
         Ok(raw) => match case::parse_outcome(raw) {
             Ok(o) => {
-                let asked = plan.outputs.iter().find_map(|r| r.format_iri.clone());
-                let format = args
-                    .flag("format")
-                    .map(str::to_string)
-                    .or_else(|| {
-                        asked.map(|f| match f.as_str() {
-                            "fyo:ImasHdf5Format" | "imas_hdf5" => "imas-hdf5".to_string(),
-                            other if other.ends_with("ImasHdf5Format") => "imas-hdf5".to_string(),
-                            other if other.ends_with("ld+json") => "jsonld".to_string(),
-                            other => other.to_string(),
-                        })
-                    })
-                    .unwrap_or_else(|| "jsonld".into())
-                    .to_ascii_lowercase();
+                //: `build` 已经问过这份构建写不写得了（`writable`）；这里只是取同一个答案。
+                let format = effective_format(args, &plan);
                 let docs = case::documents(&o, raw, &record_id);
                 if format == "imas-hdf5" || format == "imas" {
                     let mut bundle = crate::fyodoc::Bundle::new();
@@ -1215,10 +1260,8 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
                             let ext = match other {
                                 "hdf5" | "h5" => "h5",
                                 "netcdf" | "nc" => "nc",
-                                _ => {
-                                    eprintln!("fy run: unknown --format {other}");
-                                    std::process::exit(2);
-                                }
+                                //: `writable` 在合成阶段已经拒过每一个别的取值
+                                _ => unreachable!("writable() accepted {other}"),
                             };
                             let file = format!("{ids}.{ext}");
                             let bundle = crate::fyodoc::Bundle::one(doc.clone());
@@ -1390,6 +1433,22 @@ mod tests {
         assert_eq!(nearest_slice(&s, "3.0005").unwrap().0, 3.0);
         //: ★邻片是另一个时刻的等离子体：超出容差就没有答案，不取最近的那一片
         assert!(nearest_slice(&s, "3.5").is_none());
+    }
+
+    #[test]
+    fn a_format_this_build_cannot_write_is_refused_before_the_kernel_runs() {
+        assert!(writable("jsonld").is_ok());
+        assert!(writable("nonsense").unwrap_err().contains("unknown format"));
+        //: 逐特性：带着它就写得了，不带就给出一句说清楚换什么的话
+        for (fmt, feat) in [("hdf5", cfg!(feature = "hdf5")), ("netcdf", cfg!(feature = "netcdf"))] {
+            match writable(fmt) {
+                Ok(()) => assert!(feat, "{fmt} accepted without the feature"),
+                Err(e) => {
+                    assert!(!feat, "{fmt} refused with the feature: {e}");
+                    assert!(e.contains("--format jsonld"), "{e}");
+                }
+            }
+        }
     }
 
     #[test]
