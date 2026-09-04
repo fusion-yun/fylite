@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "5.5"
+version: "5.6"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,8 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v5.6 `FYL-DESIGN-17` 升 v1.0（由评估升为详细设计：第四条命令词 `run <线> [<场景>]`，两段解析、
+    参数记法、合成次序、装置两条路、测量三级、环境变量全表、场景目录；E-10..E-22，E-4 / E-5 / E-6 修订）。
     v5.5 `FYL-DESIGN-14` 升 v1.3（imas-python 的 documentation 警告＝L-4「一个字不抄」的影子）。
     v5.4 `FYL-DESIGN-14` 升 v1.2（L-13 搬家表；G-10 关闭）。
     v5.3 `FYL-DESIGN-14` 升 v1.1（G-10：wall 转 IMAS 出空件）；`FYL-SDD-01` 升 v1.3
@@ -47,7 +49,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v5.5 |
+| 版本 (Version) | v5.6 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -95,7 +97,7 @@ modified:
 | 前缀 | 正本 | 范围 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `K-` `F-` `B-` `S-` `N-` `D-` `H-` | `FYL-DESIGN-16` | K-1..K-8 · F-1..F-4 · B-1..B-4 · S-1..S-6 · N-1 · D-1..D-4 · H-1..H-5 | 内核契约 · 扁平树 · 补数据 · 状态 · 命名 · 中间层 · 宿主。★`-16` 的 `D-` 与 `-09` 的 `D-` 是两套，各在各篇内唯一 |
-| `E-` | `FYL-DESIGN-17` | E-1..E-9 | 预设场景与算例入口 |
+| `E-` | `FYL-DESIGN-17` | E-1..E-22 | 场景运行命令 `fy run`（v0.1 的 E-1..E-9 保留编号，E-4 / E-5 / E-6 在 v1.0 修订） |
 | `L-` | `FYL-DESIGN-14` | L-1..L-12 | 数据半边 |
 | `R-` `C-` | `FYL-DESIGN-15` | R-1..R-6 · C-1..C-8 | 发布形态 · 命令行 |
 | `V-` | `FYL-DESIGN-11` | V-1..V-15 | 外壳与不随宿主改变的视觉 |
@@ -109,7 +111,7 @@ modified:
 
 | 文档标识 | 主题（简） | 版本 / 状态 |
 | :--- | :--- | :--- |
-| [`FYL-DESIGN-17`](FYL-DESIGN-17.md) | **预设场景与算例入口**——常用场景怎么从命令行调：预设是**数据不是动词**（不新增命令词，`fy case run <名字>`），名字解析与 `facts` 同构，发现面 `case list` / `case show`，只有 `--device` / `--shot` / `--time` 三个通用旗标，取数与算数两条命令不合并。实测三张清单不一样长（门 3 · 语料 9 · 工具 10），**磁重构与动理学平衡反演今天没有命令行入口**（G-1）、语料在广告门拒绝的东西（G-2）。裁定 E-1..E-9，建议六条常用预设，分期 P1（不动内核）/ P2（内核补 code） | v0.1 · WD |
+| [`FYL-DESIGN-17`](FYL-DESIGN-17.md) | **场景运行命令 `fy run` 的详细设计**——一条命令跑一次日常建模或分析：`fy run <线> [<场景>] [--device D] [shot=N time=T] [key=value …]`。第四条也是最后一条命令词（E-10）；**两段解析**（静态语法在 `_cli.json`，参数表在场景模板；未知参数按名拒绝，E-11）；参数记法 `key=value` ≡ `--key=value`、`--flag` ≡ `flag=true`（E-12）；合成次序模板 → 装置 → 预设 → `--plan` → 命令行 → 端口，逐值记来源（E-13）；装置信息两条路（整份文档绑端口 + `from_device` 缺省，E-14）；测量三级解析 `--input` → 离线切片 → 取数落进记录目录（E-15，修订 E-6）；环境变量只供资源不供物理参数，全表（E-16）；每线一条缺省场景（E-17）；模板声明的开关（`only_magnetic`，E-18）；记录目录自足（E-19）；退出码与阶段（E-20）；不设第二个合成器（E-21）；模板内嵌、预设走语料路径（E-22）。场景目录逐条覆盖文档明确涉及的全部场景（S-L1..S-L5 · 十三条栏 · 9 code · 10 工具 · 指南五章），分期 P1-a..d / P2-a..c，七条门禁 | v1.0 · WD |
 | [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核以 fyo 文档门为唯一接口，门上是双向扁平树；内核无状态、状态随文档走；`fylite_runtime` 是中间层（SpData profile、后端表）；多宿主只写计划只读记录；一条总线九步 | v2.1 · WD |
 | [`FYL-DESIGN-15`](FYL-DESIGN-15.md) | **发布形态与统一命令行**——单一可执行文件 `fy` · 静态 / 动态网页 · Python 包，一份源；三份命令行由 `_cli.json` 一个文件建出（R-1..R-6 · C-1..C-8） | v1.0 · WD |
 | [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **中间层的数据半边**——数据源 ↔ fyo：MDSplus 只读、a/g-file、JSON-LD、HDF5、netCDF 各带 fyo 与 IMAS 布局，多源合并与按 A-Box 装配（L-1..L-12）。★v1.2：**L-13 搬家表**（`limiter` / `vessel` → `description_2d[]`），G-10 已关 · ★v1.3：记下 L-4 许可裁定在 imas-python 警告上的影子 | v1.3 · WD |
