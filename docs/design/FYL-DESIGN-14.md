@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-14
 title: "中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo)"
 shortname: fylite-data-layer
-version: "1.0"
+version: "1.1"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,9 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.1 新增缺口 G-10（实测 2026-09-04）：`wall` 转 IMAS 布局出空 IDS——源把 `limiter` / `vessel`
+    放在顶层而 DD 的家在 `description_2d[]` 之下，归一化据实丢弃（有报告，不静默），但产物是空件。
+    同一次导出 pf_active / tf / magnetics 内容齐全。
     v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。标题改为「中间层的数据
     半边」：这个 crate 2026-09-04 已定名 `fylite_runtime` 并定位为**中间层**（`FYL-DESIGN-16`
     N-1），本篇写的是它六项职责里的前两项——格式读写与多源装配；另外四项（计划与门、
@@ -35,7 +38,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-14` |
 | 文档名称 (Title) | 中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo) |
 | 短名 / Slug | `fylite-data-layer` |
-| 版本 (Version) | v1.0 |
+| 版本 (Version) | v1.1 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -223,3 +226,4 @@ fylite data fetch --machine <A-Box>/east/machine.yaml --ids magnetics \
 | G-7 | 一列点落在多维节点上时沿新的第 0 轴堆叠（记说明）；`Points` 逐点各一次往返，长列表该改成一次区间读再本地挑 | 开 |
 | G-8 | 装置清单 `machine.yaml` 是起步草稿；`from_manifest` 只看 `epochs` / `providers` / `bindings.mdsplus` 三段，清单变形要跟着改 | 开 |
 | G-9 | 与 SpData 重叠语义（`$link` 分解、`merge_key`、时间开窗）的对齐代价未量（`FYL-DESIGN-16` D-1 / G-6：本层是 SpData 的一个 profile） | 开；`-16` 分期 P3 前先量 |
+| G-10 | **`wall` 转 IMAS 布局出的是一份空 IDS**（实测 2026-09-04，EAST）：源文档把 `limiter` / `vessel` 放在 `wall/` 顶层，而 DD 4.1.1 的家在 `wall/description_2d[]/{limiter,vessel}`，于是 L-7 的归一化把它们当作非 DD 路径丢掉。★**丢得是响的**（`DdReport` 逐条点名，L-7 正是为此存在），但产物是一份只有 `ids_properties/homogeneous_time` 的 `wall.h5`。同一次导出里 `pf_active`（16 个线圈单元）· `tf` · `magnetics`（38 探针 / 35 磁通环）内容齐全。判据：`limiter` / `vessel` 落进 `description_2d`，或明确声明本层不转这一支、让 `wall` 按名拒绝而不是出空件 | 开 |

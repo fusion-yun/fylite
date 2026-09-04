@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "5.2"
+version: "5.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,8 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v5.3 `FYL-DESIGN-14` 升 v1.1（G-10：wall 转 IMAS 出空件）；`FYL-SDD-01` 升 v1.3
+    （更正实测：失败的 fetch 退出码是 1；原记的 0 取自管道末端的 head）。
     v5.2 `FYL-SDD-01` 升 v1.2（facts 搜索路径：多源、优先级、逐条决胜）。
     v5.1 `FYL-SDD-01` 升 v1.1（装置语料 `devices/` 与公开版 / 内部版构建入册）。
     v5.0 全书重排（用户「优化重写整个设计文档整体架构和详细章节」，2026-09-04）。
@@ -43,7 +45,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v5.2 |
+| 版本 (Version) | v5.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -106,13 +108,13 @@ modified:
 | :--- | :--- | :--- |
 | [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核以 fyo 文档门为唯一接口，门上是双向扁平树；内核无状态、状态随文档走；`fylite_runtime` 是中间层（SpData profile、后端表）；多宿主只写计划只读记录；一条总线九步 | v2.1 · WD |
 | [`FYL-DESIGN-15`](FYL-DESIGN-15.md) | **发布形态与统一命令行**——单一可执行文件 `fylite` · 静态 / 动态网页 · Python 包，一份源；三份命令行由 `_cli.json` 一个文件建出（R-1..R-6 · C-1..C-8） | v1.0 · WD |
-| [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **中间层的数据半边**——数据源 ↔ fyo：MDSplus 只读、a/g-file、JSON-LD、HDF5、netCDF 各带 fyo 与 IMAS 布局，多源合并与按 A-Box 装配（L-1..L-12） | v1.0 · WD |
+| [`FYL-DESIGN-14`](FYL-DESIGN-14.md) | **中间层的数据半边**——数据源 ↔ fyo：MDSplus 只读、a/g-file、JSON-LD、HDF5、netCDF 各带 fyo 与 IMAS 布局，多源合并与按 A-Box 装配（L-1..L-12）。★v1.1：缺口 G-10——`wall` 转 IMAS 出空 IDS（实测） | v1.1 · WD |
 | [`FYL-DESIGN-13`](FYL-DESIGN-13.md) | **装置数据页**（`data`）——什么也不算的工具页：如实降级 · 抽稀不是归约 · 守卫两侧各做一遍 · 目录说存在不说记了 · 产物是足迹（P-10..P-12 · P-18 · P-24 · P-30） | v1.0 · WD |
 | [`FYL-DESIGN-12`](FYL-DESIGN-12.md) | **实验分析页**（`analysis`）——剖面拟合 · 平衡反演 · 时间序列 · 批处理；磁测量约束不住内部剖面，定下来的是动理学约束（P-9 · P-16 · P-22 · P-23 · P-29） | v1.0 · WD |
 | [`FYL-DESIGN-11`](FYL-DESIGN-11.md) | **视觉设计——桌面版应用的外壳**——四页共用一条常驻两行工具条、只差三个槽、16:9 首屏落一处输出；已落在 `page_*` 五页，未提为正本（V-1..V-15） | v1.0 · WD |
 | [`FYL-DESIGN-10`](FYL-DESIGN-10.md) | **物理建模页**（`model`）——三条栏全部不含时：定态输运 · 边界与度规 · 功率平衡反演；兼持**四页共同的纪律**与 `P-` 编号总表（P-1..P-8 · P-13..P-15 · P-17 · P-19..P-21 · P-25..P-28） | v2.0 · WD |
 | [`FYL-DESIGN-09`](FYL-DESIGN-09.md) | **放电设计页**（`pulse_design`）——一份脉冲脚本、三个模式（配置 / 设计 / 仿真）、同一套视图；平顶 PF 电流是 LCFS 锁定下的反馈轨迹；仿真两档保真度（D-1..D-25） | v2.0 · WD |
-| [`FYL-SDD-01`](FYL-SDD-01.md) | 软件设计描述——五视图；四层组合（九组件保号，DE-COMP-01 内核可替换、DE-COMP-09 中间层、DE-COMP-04 退役中）；逻辑视图新增 DE-LOG-11 文档门 · DE-LOG-12 内核无状态。★v1.1：装置语料与公开版 / 内部版构建入册 · ★v1.2：facts **搜索路径**（多源、前置、逐条决胜） | v1.2 · WD |
+| [`FYL-SDD-01`](FYL-SDD-01.md) | 软件设计描述——五视图；四层组合（九组件保号，DE-COMP-01 内核可替换、DE-COMP-09 中间层、DE-COMP-04 退役中）；逻辑视图新增 DE-LOG-11 文档门 · DE-LOG-12 内核无状态。★v1.1：装置语料与公开版 / 内部版构建入册 · ★v1.2：facts **搜索路径**（多源、前置、逐条决胜）· ★v1.3：更正一处实测（失败的 fetch 退出码是 1，不是 0） | v1.3 · WD |
 | [`FYL-SRS-01`](FYL-SRS-01.md) | 软件需求规格——五任务域 + 横切域（HOST · **KERNEL** · DATA · TOOL）FR、包络 / 依赖 / 质量 NR、外部接口、提案登记附录、追溯矩阵 | v1.0 · WD |
 | [`FYL-CONOPS-00`](FYL-CONOPS-00.md) | FyLite 运行概念——轻量验证 / 展示 FYTOK-CONOPS-00 五类应用任务；包络四条；建设原则六条；宿主与运行时；内核可替换为演进方向 | v1.0 · WD |
 
