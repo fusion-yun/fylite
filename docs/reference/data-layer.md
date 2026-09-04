@@ -49,7 +49,7 @@ fy data dump     <file> [--ids A] [--path P] [--compact] [--raw]   # 打印一�
 fy data convert  <in> <out> [--to F] [--layout fyo|imas] [--ids A,B]
 fy data merge    <in>... -o <out> [--keep] [--merge-key name|none] # 多份合成一份
 fy data assemble <assembly> -o <out> [--shot N] [--time T] [--select ids/path]... [--param k=v]...
-fy data fetch    --machine <装置名|machine.yaml> --ids A,B --shot N -o <out> [--provider P] [--dry-run]
+fy data fetch    --device <装置名|device.jsonld> --ids A,B --shot N -o <out> [--provider P] [--dry-run]
 fy data tables                                    # 内置 DD 表：版本与 IDS 名
 fy data facts    [<domain>] [--roots]             # facts 搜索路径：哪些语料在场、每条由谁供
 ```
@@ -78,7 +78,7 @@ IMAS HDF5 是**一个目录**、而 netCDF-4 本身就是 HDF5（同一个魔数
 
 ```bash
 fy data dump shot.h5 --ids equilibrium --path equilibrium/time_slice/profiles_1d/psi
-fy data dump facts/device/east/machine.yaml --raw          # 不是文档的 JSON/YAML
+fy data dump facts/device/east/abox/device.jsonld --raw          # 不是文档的 JSON/YAML
 ```
 
 取值路径是 `"<ids>[_<occ>]/a/b/c"`：头一段是 IDS，其余是文档路径，不带索引的名字段落到
@@ -109,14 +109,14 @@ fy data merge machine.h5 shot.nc -o all.jsonld         # 后者覆盖前者
 把 fydata 的装置清单摊成「几何 + MDSplus 绑定」，再取指定的 IDS：
 
 ```bash
-fy data fetch --machine east \
+fy data fetch --device east \
               --ids magnetics --shot 138569 --time 4:5 \
               --host 127.0.0.1 --port 8000 -o east_138569_magnetics.json
 ```
 
-★★**`--machine` 收一个装置名**：`east` 走的是与其它条目同一条 facts 搜索路径
+★★**`--device` 收一个装置名**：`east` 走的是与其它条目同一条 facts 搜索路径
 （`--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 自带的 `_facts/`，见
-[`facts`](#facts)），解析到 `facts/device/east/machine.yaml`。这样「这次用哪一份 EAST」
+[`facts`](#facts)），解析到 `facts/device/east/abox/device.jsonld`。这样「这次用哪一份 EAST」
 由**一个**开关统一决定；写死路径做不到——换一份语料要逐条命令行改字符串，而**漏改的那条
 照常成功**，用旧那份跑完不报错。
 
@@ -173,7 +173,7 @@ $ fy data facts --roots             # 只看搜索路径本身，按优先序
 ```
 
 搜索路径是 `--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 包内自带的 `_facts/`，
-**先到先得，决胜单位是条目**（不是整份语料）。`--machine east` 这类按名字解析的开关
+**先到先得，决胜单位是条目**（不是整份语料）。`--device east` 这类按名字解析的开关
 走的就是它，所以「这次用哪一份 EAST」由一个开关统一决定。
 
 ## Python 面

@@ -31,6 +31,15 @@ pub mod case;
 pub mod data;
 
 /// The spec, verbatim, from the one place it lives.
+/// 改过名的选项：报「不认识」之前先看看它是不是搬了家。
+///
+/// ★只放**真的改过名**的：把它当同义词表用，就等于两个名字都还在，而那正是
+/// 改名要消掉的东西——旧名此后只出现在这一句错误话术里。
+const RENAMED: &[(&str, &str)] = &[
+    //: 2026-09-04：取值主用法是 facts 上的装置名，`--machine` 读起来像在要一个文件。
+    ("--machine", "--device"),
+];
+
 pub const SPEC_TEXT: &str = include_str!("../../../../python/fylite/_cli.json");
 
 /// The host this executable is (`hosts` in the spec).
@@ -551,8 +560,16 @@ pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
         let def = match defs.iter().find(|d| !d.positional && d.flags.contains(&name)) {
             Some(d) => *d,
             None => {
+                //: ★★「你打错了」与「它改名了」是两件事，而 `unknown option` 把它们
+                //: 说成同一句。手边的命令行和已经发出去的文档里还写着旧名的人，需要
+                //: 的是新名字，不是一句「去看 --help」。表很小，改名也不常有。
+                let hint = RENAMED
+                    .iter()
+                    .find(|(old, _)| *old == name)
+                    .map(|(_, new)| format!(" — renamed to {new}"))
+                    .unwrap_or_default();
                 return Parsed::Error(format!(
-                    "{where_}: unknown option {name:?}; --help has the usage"
+                    "{where_}: unknown option {name:?}{hint}; --help has the usage"
                 ))
             }
         };
@@ -729,6 +746,10 @@ mod tests {
     #[test]
     fn refusals_are_by_name() {
         assert!(err("data convert in out --bogus").contains("unknown option \"--bogus\""));
+        //: ★改过名的旧选项要说出新名字，而不是只说「不认识」。
+        let renamed = err("data fetch --machine east --ids wall --shot 1");
+        assert!(renamed.contains("--machine") && renamed.contains("renamed to --device"),
+                "{renamed}");
         assert!(err("data merge a.json").contains("-o/--out is required"));
         assert!(err("data convert in out --to xml").contains("takes one of"));
         assert!(err("app --port x").contains("wants an integer"));

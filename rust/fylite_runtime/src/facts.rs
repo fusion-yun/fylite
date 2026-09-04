@@ -54,10 +54,75 @@ pub struct Entry {
     pub dir: Option<PathBuf>,
 }
 
+/// fydoc 那侧的 A-Box 目录名：**一条条目的数据部分**。
+///
+/// ★★★这是「数据」与「散文」之间那条线，而它已经在树里了，不必另立白名单：
+/// fydoc 的一台机器是 `<id>/{abox/, corpus/, figures/, *.md, *.bib, provenance.yaml}`，
+/// 其中只有 `abox/` 是断言，其余是书。实测 13 台全有 `abox/`，而 `tools/`（书的
+/// 构建脚本）没有——于是「有 `abox/` 就是条目」一条判据就把它挡在机器表之外。
+/// 此前没有这条判据时，`fy data facts device` 对着 fydoc 会把 `tools` 列成第 14 台机器。
+///
+/// ★分清它要紧的不是体积是**权属**：`corpus/` 装的是上游的 `.nc` / `.xlsx`，
+/// 权属另算，它一旦进制品就是一次再分发。
+pub const ABOX: &str = "abox";
+
+/// 本仓生成的许可账（上游声明 + 本仓裁定，完整），与卡片同住。
+pub const RIGHTS: &str = "rights.json";
+
+/// fydoc 那侧的许可记录：A-Box 自己的 FAIR 件，相对条目目录。
+///
+/// ★★★**不另立 `rights.yaml`**（用户裁定 2026-09-04：收敛进 `dataset_fair`）。
+/// 理由不是省一个文件：许可这件事只该有一处可编辑的真源，而 FAIR 件**本来就是**
+/// 回答「这份数据可以拿来做什么」的那一份——`license` / `rights_holder` /
+/// `license_by_ids` 都已经在里面。再开一个 `rights.yaml`，两份就会各自漂。
+pub const FAIR: [&str; 4] = [ABOX, "static", "now", "dataset_fair.jsonld"];
+
+/// 装置清单在条目里的约定位置，相对条目目录。
+///
+/// ★一个名字定在一处：解析器、错误话术与文档都问它，免得「叫什么」这件事在三个
+/// 地方各写一遍、改一处漏两处。
+///
+/// ★★2026-09-04 由条目根的 `machine.yaml` 改为 **`abox/device.jsonld`**（用户裁定）。
+/// 清单本来就是**关于这台装置的断言**，它属于 A-Box；留在 `abox/` 外面，就等于说
+/// 「数据在 abox 里，但告诉你怎么取数据的那份不在」。收进来之后 fydoc 的一台机器
+/// 才是一个**自足的**条目：数据、许可、清单同在 `abox/` 下，打包只取这一棵。
+pub const MANIFEST: [&str; 2] = [ABOX, "device.jsonld"];
+
+/// `MANIFEST` 拼在某个条目目录下的完整路径（也用于错误话术）。
+pub fn manifest_under(dir: &Path) -> PathBuf {
+    MANIFEST.iter().fold(dir.to_path_buf(), |a, s| a.join(s))
+}
+
 impl Entry {
     /// 许可账的路径（存在才给）。
+    ///
+    /// ★两处都认：本仓生成的 `rights.json`（上游声明 + 本仓裁定，完整），
+    /// 与 fydoc 的 `abox/static/now/dataset_fair.jsonld`（上游声明 + 本仓裁定
+    /// 同住一件）。**都在同一个根里**，所以这不是跨根拼账。
     pub fn rights_path(&self) -> Option<PathBuf> {
-        let p = self.dir.as_ref()?.join("rights.json");
+        let d = self.dir.as_ref()?;
+        let generated = d.join(RIGHTS);
+        if generated.is_file() {
+            return Some(generated);
+        }
+        let fair = FAIR.iter().fold(d.clone(), |a, seg| a.join(seg));
+        fair.is_file().then_some(fair)
+    }
+
+    /// 这条条目的 A-Box 目录（fydoc 形状），存在才给。
+    pub fn abox_path(&self) -> Option<PathBuf> {
+        let p = self.dir.as_ref()?.join(ABOX);
+        p.is_dir().then_some(p)
+    }
+
+    /// 这条条目的装置清单（`<dir>/machine.yaml`），存在才给。
+    ///
+    /// ★★**不是每条 device 条目都有**：语料里多数装置只有一张卡片
+    /// （`<id>_device.yaml` + 许可账），能取的是描述而不是一次抓取。所以这里
+    /// 返回 `Option` 而不是拼出路径就走——「有这台机器」与「这台机器抓得动」
+    /// 是两件事，把它们混成一句，用户看到的会是一条 YAML 解析错误。
+    pub fn manifest_path(&self) -> Option<PathBuf> {
+        let p = manifest_under(self.dir.as_ref()?);
         p.is_file().then_some(p)
     }
 }
@@ -197,6 +262,19 @@ pub fn domains() -> Vec<String> {
     out
 }
 
+/// 这个目录是一条**条目**，还是恰好躺在域目录下的别的东西？
+///
+/// ★★判据是「里面有没有本层认得出的部件」——A-Box、许可账、装置清单、装置牌。
+/// 一个都认不出，那它就不是这一层的条目：fydoc 的 `device/tools/`（书的构建脚本）
+/// 正是这种东西，而在有这条判据之前它会被列成一台机器。
+/// ★反过来说，这也把「能消费什么」写成了一处可读的清单——加一种部件就在这里加。
+fn is_entry_dir(dir: &Path, ident: &str) -> bool {
+    dir.join(ABOX).is_dir()
+        || manifest_under(dir).is_file()
+        || dir.join(format!("{ident}_device.yaml")).is_file()
+        || dir.join(RIGHTS).is_file()
+}
+
 /// 第一个带有 `<域>/<标识>` 的根，没有则 `None`。
 ///
 /// 一条条目可以是一份文档（`<id>.jsonld`）、一个目录（`<id>/`，卡片与许可账），
@@ -205,7 +283,7 @@ pub fn find(domain: &str, ident: &str) -> Option<Entry> {
     for r in roots() {
         let doc = r.join(domain).join(format!("{ident}.jsonld"));
         let dir = r.join(domain).join(ident);
-        let (has_doc, has_dir) = (doc.is_file(), dir.is_dir());
+        let (has_doc, has_dir) = (doc.is_file(), dir.is_dir() && is_entry_dir(&dir, ident));
         if has_doc || has_dir {
             return Some(Entry {
                 domain: domain.to_string(),
@@ -339,5 +417,60 @@ mod tests {
         let rs = roots();
         assert_eq!(under(&base, &rs).len(), 1, "{rs:?}");
         use_roots(None);
+    }
+
+    /// ★★★域目录下不是每个目录都是条目：fydoc 的 `device/tools/`（书的构建脚本）
+    /// 在有形状判据之前会被列成第 14 台机器。
+    #[test]
+    fn a_directory_with_nothing_recognisable_is_not_an_entry() {
+        let base = tmp("shape");
+        std::fs::create_dir_all(base.join("device").join("tools")).unwrap();
+        std::fs::write(base.join("device").join("tools").join("README.md"), "prose\n").unwrap();
+        std::fs::create_dir_all(base.join("device").join("iter").join(ABOX)).unwrap();
+
+        //: ★`--facts` 是前置不是替换，真检出的 `facts/` 仍在路径上——所以断言只看
+        //: 本用例造出来的这两个名字，与本模块其它用例同一姿态。
+        use_roots(Some(vec![base.clone()]));
+        let names: Vec<String> = entries("device").into_iter().map(|e| e.ident).collect();
+        assert!(names.contains(&"iter".to_string()), "{names:?}");
+        assert!(!names.contains(&"tools".to_string()), "{names:?}");
+        assert!(find("device", "tools").is_none());
+    }
+
+    /// ★fydoc 形状：有 `abox/` 就是一条条目，且认得出它的数据部分在哪。
+    #[test]
+    fn an_abox_makes_an_entry_and_is_reachable() {
+        let base = tmp("abox");
+        let a = base.join("device").join("iter").join(ABOX);
+        std::fs::create_dir_all(&a).unwrap();
+        use_roots(Some(vec![base]));
+        let e = find("device", "iter").unwrap();
+        assert_eq!(e.abox_path().unwrap(), a);
+    }
+
+    /// ★★许可账收敛进 FAIR 件：fydoc 那侧没有 `rights.json`，账在
+    /// `abox/static/now/dataset_fair.jsonld`——同一个根，不是跨根拼。
+    #[test]
+    fn the_fair_record_serves_as_the_ledger() {
+        let base = tmp("fair");
+        let d = base.join("device").join("iter");
+        let fair = FAIR.iter().fold(d.clone(), |acc, s| acc.join(s));
+        std::fs::create_dir_all(fair.parent().unwrap()).unwrap();
+        std::fs::write(&fair, "{}").unwrap();
+        use_roots(Some(vec![base]));
+        assert_eq!(find("device", "iter").unwrap().rights_path().unwrap(), fair);
+    }
+
+    /// ★两者都在时用本仓生成的那份——它是完整的（上游声明 + 本仓裁定）。
+    #[test]
+    fn the_generated_ledger_wins_over_the_fair_record() {
+        let base = tmp("both");
+        let d = base.join("device").join("iter");
+        let fair = FAIR.iter().fold(d.clone(), |acc, s| acc.join(s));
+        std::fs::create_dir_all(fair.parent().unwrap()).unwrap();
+        std::fs::write(&fair, "{}").unwrap();
+        std::fs::write(d.join(RIGHTS), "{}").unwrap();
+        use_roots(Some(vec![base]));
+        assert_eq!(find("device", "iter").unwrap().rights_path().unwrap(), d.join(RIGHTS));
     }
 }

@@ -45,13 +45,31 @@ from pathlib import Path
 
 from ._paths import PKG
 
-__all__ = ["FACTS_ENV", "Entry", "roots", "use", "find", "entries",
-           "domains", "rights", "problems", "FactsMissing"]
+__all__ = ["FACTS_ENV", "ABOX", "RIGHTS", "FAIR", "MANIFEST", "Entry", "roots", "use",
+           "find", "entries", "domains", "rights", "problems", "FactsMissing"]
 
 #: The search path.  ``os.pathsep``-separated, like ``$PATH`` — the same
 #: separator the platform already uses for the same idea, rather than a
 #: private one a reader would have to look up.
 FACTS_ENV = "FY_FACTS_PATH"
+
+#: fydoc 那侧的 A-Box 目录名：**一条条目的数据部分**。★★★用户裁定 2026-09-04：
+#: **`abox/` 外是散文，内是数据**。这条线已经在树里了，不必另立白名单——fydoc 的一台
+#: 机器是 `<id>/{abox/, corpus/, figures/, *.md, *.bib, provenance.yaml}`，实测 13 台全有
+#: `abox/`，而 `tools/`（书的构建脚本）没有，于是它自己就落在机器表之外。
+ABOX = "abox"
+
+#: 本仓生成的许可账（上游声明 + 本仓裁定，完整），与卡片同住。
+RIGHTS = "rights.json"
+
+#: fydoc 那侧的许可记录，相对条目目录。★★★**不另立 `rights.yaml`**（用户裁定）：
+#: 许可只该有一处可编辑的真源，而 FAIR 件本来就是回答「这份数据可以拿来做什么」的
+#: 那一份。它也是 JSON，所以两种账用同一个读者。
+FAIR = (ABOX, "static", "now", "dataset_fair.jsonld")
+
+#: 装置清单：★2026-09-04 由条目根的 `machine.yaml` 收进 A-Box（用户裁定）——
+#: 清单也是关于这台装置的断言，它属于 `abox/`。
+MANIFEST = (ABOX, "device.jsonld")
 
 #: Where a wheel keeps the corpus it was built with.  Populated at packaging
 #: time by ``tools/facts-publish.py``; absent in a source checkout, which is
@@ -87,8 +105,33 @@ class Entry:
 
     @property
     def rights_path(self) -> Path | None:
-        p = self.dir / "rights.json" if self.dir else None
-        return p if p and p.is_file() else None
+        """许可账：本仓生成的那份优先，否则 fydoc 的 FAIR 件。都在同一个根里。"""
+        if self.dir is None:
+            return None
+        generated = self.dir / RIGHTS
+        if generated.is_file():
+            return generated
+        fair = self.dir.joinpath(*FAIR)
+        return fair if fair.is_file() else None
+
+    @property
+    def abox_path(self) -> Path | None:
+        """这条条目的 A-Box 目录（fydoc 形状），存在才给。"""
+        p = self.dir / ABOX if self.dir else None
+        return p if p and p.is_dir() else None
+
+
+def _is_entry_dir(d: Path, ident: str) -> bool:
+    """这个目录是一条条目，还是恰好躺在域目录下的别的东西？
+
+    ★★判据是「里面有没有本层认得出的部件」——A-Box、装置清单、装置牌、许可账。
+    一个都认不出就不是条目：fydoc 的 `device/tools/` 正是这种东西，而在有这条判据
+    之前 ``fy data facts device`` 会把它列成第 14 台机器。
+    """
+    return ((d / ABOX).is_dir()
+            or d.joinpath(*MANIFEST).is_file()
+            or (d / f"{ident}_device.yaml").is_file()
+            or (d / RIGHTS).is_file())
 
 
 def _split(raw: str) -> list[Path]:
@@ -198,7 +241,7 @@ def find(domain: str, ident: str) -> Entry | None:
     for r in roots():
         doc = r / domain / f"{ident}.jsonld"
         sub = r / domain / ident
-        has_doc, has_dir = doc.is_file(), sub.is_dir()
+        has_doc, has_dir = doc.is_file(), sub.is_dir() and _is_entry_dir(sub, ident)
         if has_doc or has_dir:
             return Entry(domain=domain, ident=ident, root=r,
                          document=doc if has_doc else None,
@@ -233,7 +276,8 @@ def entries(domain: str) -> list[Entry]:
             continue
         for p in d.iterdir():
             if p.is_dir():
-                names.add(p.name)
+                if _is_entry_dir(p, p.name):
+                    names.add(p.name)
             elif p.suffix == ".jsonld" and p.stem != "catalogue":
                 names.add(p.stem)
     out = []

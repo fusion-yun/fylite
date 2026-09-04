@@ -29,7 +29,7 @@ fy --help
 fy data info    shot.h5                        # 这是什么文件
 fy data convert g063982.04800 shot.nc --layout imas    # imas-python 打得开
 fy data merge   machine.h5 shot.nc -o all.jsonld       # 后者覆盖前者
-fy data fetch   --machine east --ids magnetics \
+fy data fetch   --device east --ids magnetics \
                 --shot 138569 --time 4:5 -o east.json  # 取一发炮的磁测量
 fy data facts                                  # 哪些语料在场、每条条目由谁供
 ```

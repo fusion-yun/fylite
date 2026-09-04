@@ -58,12 +58,40 @@ pub fn ids_of(doc: &Node) -> Option<String> {
             if IdsMeta::get(name).is_some() {
                 return Some(name.to_string());
             }
+            //: ★★★fydoc 的 A-Box 用**大驼峰**声明类型（`fyo:Wall` / `fyo:PfActive`），
+            //: 而 IDS 名是蛇形（`wall` / `pf_active`）。不折算这一步，`@type` 认不出来就
+            //: 悄悄落到 `_ids`——而 A-Box 里没有 `_ids`，于是这份源**一条也不进束**，
+            //: 产物是一份 317 字节的空 netCDF，**退出码 0**。实测：挂 fydoc 直接取
+            //: EAST 70754 的 wall + pf_active，得到的就是那个空件。
+            let snake = camel_to_snake(name);
+            if IdsMeta::get(&snake).is_some() {
+                return Some(snake);
+            }
         }
     }
     if let Some(i) = m.get("_ids").and_then(Node::as_str) {
         return Some(i.to_string());
     }
     None
+}
+
+/// `PfActive` -> `pf_active`。只在 `@type` 的局部名上用。
+///
+/// ★只做大驼峰→蛇形这一件事：已经是蛇形的原样返回（`wall` -> `wall`），
+/// 所以两种写法都认，而不是把一种翻译成另一种。
+fn camel_to_snake(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 4);
+    for (i, c) in s.chars().enumerate() {
+        if c.is_ascii_uppercase() {
+            if i != 0 {
+                out.push('_');
+            }
+            out.push(c.to_ascii_lowercase());
+        } else {
+            out.push(c);
+        }
+    }
+    out
 }
 
 pub fn occurrence_of(doc: &Node) -> i64 {
@@ -559,5 +587,26 @@ mod tests {
         m.insert("tf_2", Node::map());
         let c = Bundle::from_node(Node::Map(m));
         assert_eq!(c.keys(), vec![("tf".to_string(), 0), ("tf".to_string(), 2)]);
+    }
+
+    /// ★★★A-Box 用大驼峰声明类型，IDS 名是蛇形。不折算就**静默**认不出——
+    /// 实测后果是一份 317 字节的空 netCDF 加一个 0 退出码。
+    #[test]
+    fn a_camel_case_type_names_its_ids() {
+        let mk = |ty: &str| {
+            let mut n = Node::map();
+            n.as_map_mut().unwrap().insert("@type", Node::from(ty));
+            n
+        };
+        assert_eq!(ids_of(&mk("fyo:PfActive")).as_deref(), Some("pf_active"));
+        assert_eq!(ids_of(&mk("fyo:Wall")).as_deref(), Some("wall"));
+        //: 已经是蛇形的照旧认，不是把一种翻成另一种
+        assert_eq!(ids_of(&mk("fyo:wall")).as_deref(), Some("wall"));
+        //: ★`dataset_fair` **是**一个真的 DD IDS，所以 `fyo:DatasetFair` 认出来是对的
+        assert_eq!(ids_of(&mk("fyo:DatasetFair")).as_deref(), Some("dataset_fair"));
+        //: ★★不是 IDS 的仍然不认。清单自己就是这种：`abox/device.jsonld` 的
+        //: `@type` 是 `fyo:DeviceManifest`——它要是被当成一个 IDS，取数就会把
+        //: 「怎么取」那份文件本身当成数据装进产物。
+        assert_eq!(ids_of(&mk("fyo:DeviceManifest")), None);
     }
 }

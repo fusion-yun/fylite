@@ -16,7 +16,7 @@
 //! 4–5 s, magnetics:
 //!
 //! ```text
-//! fylite data fetch --machine fydata/machine/tokamak/east/machine.yaml --ids magnetics \
+//! fy data fetch --device east --ids magnetics \
 //!                  --shot 138569 --time 4:5 --host mds.ipp.ac.cn -o east_138569_magnetics.json
 //! ```
 //!
@@ -293,9 +293,64 @@ fn assemble(args: &Args) {
     write_assembled(args, &r, &out);
 }
 
+/// `--device` 取一个**装置名**，或一条清单路径。
+///
+/// ★★2026-09-04 由 `--machine` 改名（用户裁定）：取值主用法是 facts 上的**装置名**
+/// （`--device east`），而 `--machine` 读起来像在要一个文件——名字与它收的东西对不上。
+///
+/// ★★名字是主用法：`--device east` 走的是与其它条目同一条 facts 搜索路径
+/// （`--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 自带的 `_facts/`），于是
+/// 「这次用哪一份 EAST」由**一个**开关统一决定。写死路径的命令行做不到这件事：
+/// 换一份语料要逐条命令行改字符串，而漏改的那条**照常成功**——用旧那份跑完，
+/// 不报错。名字则让那次替换只发生在一处。
+///
+/// ★路径仍然收，且**先看**：已经写好的命令行一条都不改口。
+/// ★★带分隔符或带后缀的**不退回按名字找**：一条打错的路径若被当成名字，
+/// 报出来的会是「语料里没有这台机器」——那句话指向的处置（去拉语料）与真正的
+/// 毛病（路径打错了）毫不相干。
+///
+/// 返回 `Result` 而不是就地 `die`：这样错误话术本身进得了用例。
+#[cfg(feature = "mdsip")]
+fn resolve_device(spec: &str) -> Result<PathBuf, String> {
+    let as_path = PathBuf::from(spec);
+    if as_path.is_file() {
+        return Ok(as_path);
+    }
+    let looks_like_path =
+        spec.contains('/') || spec.contains(std::path::MAIN_SEPARATOR) || as_path.extension().is_some();
+    if looks_like_path {
+        return Err(format!("fetch: --device {spec}: no such file"));
+    }
+
+    let roots: Vec<String> = facts::roots().iter().map(|r| r.display().to_string()).collect();
+    let Some(entry) = facts::find("device", spec) else {
+        let known: Vec<String> = facts::entries("device").into_iter().map(|e| e.ident).collect();
+        let where_ = if roots.is_empty() {
+            format!(" — the facts path is empty; set ${} or pass --facts", facts::FACTS_ENV)
+        } else {
+            format!(" — looked in {}", roots.join(", "))
+        };
+        let has = if known.is_empty() {
+            String::new()
+        } else {
+            format!("; it carries {}", known.join(", "))
+        };
+        return Err(format!("fetch: --device {spec}: no device by that name{where_}{has}"));
+    };
+    entry.manifest_path().ok_or_else(|| {
+        format!(
+            "fetch: --device {spec}: {} has the entry but no {} — that device is described \
+             by a card, not by a manifest this can fetch against",
+            entry.root.join("device").join(spec).display(),
+            facts::MANIFEST.join("/")
+        )
+    })
+}
+
 #[cfg(feature = "mdsip")]
 fn fetch(args: &Args) {
-    let manifest = PathBuf::from(args.flag("machine").unwrap_or_else(|| die("fetch: --machine <machine.yaml>?")));
+    let spec = args.flag("device").unwrap_or_else(|| die("fetch: --device <name|device.jsonld>?"));
+    let manifest = resolve_device(spec).unwrap_or_else(|e| die(&e));
     let ids: Vec<&str> = args
         .flag("ids")
         .unwrap_or_else(|| die("fetch: --ids a,b?"))
@@ -422,5 +477,100 @@ fn facts_face(args: &Args) {
     for e in items {
         let rights = if e.rights_path().is_some() { "" } else { "  (无许可账)" };
         println!("{:<16} {}{}", e.ident, e.root.display(), rights);
+    }
+}
+
+
+#[cfg(all(test, feature = "mdsip"))]
+mod tests {
+    use super::*;
+
+    fn tmp(tag: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("fymachine-{tag}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    /// 造一条 device 条目：目录 + 卡片，`manifest` 为真时再给一份清单。
+    fn device(root: &Path, ident: &str, manifest: bool) {
+        let d = root.join("device").join(ident);
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join(format!("{ident}_device.yaml")), "name: x\n").unwrap();
+        if manifest {
+            //: ★清单在 A-Box 里（`abox/device.jsonld`），所以夹具要把那一级目录也造出来。
+            let m = facts::manifest_under(&d);
+            std::fs::create_dir_all(m.parent().unwrap()).unwrap();
+            std::fs::write(m, "{\"device\": \"X\"}\n").unwrap();
+        }
+    }
+
+    /// ★裸名字走搜索路径，解析到那个根的 `abox/device.jsonld`。
+    #[test]
+    fn a_bare_name_resolves_through_the_facts_path() {
+        let base = tmp("name");
+        device(&base, "east", true);
+        facts::use_roots(Some(vec![base.clone()]));
+        assert_eq!(
+            resolve_device("east").unwrap(),
+            facts::manifest_under(&base.join("device").join("east"))
+        );
+    }
+
+    /// ★★决胜的仍是**第一个有这条条目的根**——与 `facts::find` 同一把尺，
+    /// 不是「第一个有清单的根」：后者会让高优先级那份 EAST 被跳过去。
+    #[test]
+    fn the_first_root_that_has_the_entry_wins() {
+        let base = tmp("order");
+        let (hi, lo) = (base.join("hi"), base.join("lo"));
+        device(&hi, "east", true);
+        device(&lo, "east", true);
+        facts::use_roots(Some(vec![hi.clone(), lo]));
+        assert_eq!(resolve_device("east").unwrap(), facts::manifest_under(&hi.join("device").join("east")));
+    }
+
+    /// ★路径仍然先看：已经写好的命令行不改口。
+    #[test]
+    fn an_existing_path_is_still_taken_as_a_path() {
+        let base = tmp("path");
+        device(&base, "east", true);
+        facts::use_roots(Some(vec![base.clone()]));
+        let p = facts::manifest_under(&base.join("device").join("east"));
+        assert_eq!(resolve_device(p.to_str().unwrap()).unwrap(), p);
+    }
+
+    /// ★★★打错的路径必须报「没有这个文件」，**不能**报成「语料里没有这台机器」。
+    #[test]
+    fn a_mistyped_path_is_not_reported_as_a_missing_device() {
+        let base = tmp("typo");
+        device(&base, "east", true);
+        facts::use_roots(Some(vec![base]));
+        let e = resolve_device("facts/device/east/machien.yaml").unwrap_err();
+        assert!(e.contains("no such file"), "{e}");
+        assert!(!e.contains("no device by that name"), "{e}");
+    }
+
+    /// ★名字不在语料里时，把**查过哪些根**和**语料里有哪些**一并说出来。
+    #[test]
+    fn an_unknown_name_names_the_roots_and_what_is_there() {
+        let base = tmp("unknown");
+        device(&base, "east", true);
+        device(&base, "iter", false);
+        facts::use_roots(Some(vec![base.clone()]));
+        let e = resolve_device("nosuch").unwrap_err();
+        assert!(e.contains("no device by that name"), "{e}");
+        assert!(e.contains(&base.display().to_string()), "{e}");
+        assert!(e.contains("east") && e.contains("iter"), "{e}");
+    }
+
+    /// ★★「有这台机器」与「这台机器抓得动」是两件事，错误话术要分得开。
+    #[test]
+    fn a_card_only_device_says_so_rather_than_failing_later() {
+        let base = tmp("card");
+        device(&base, "iter", false);
+        facts::use_roots(Some(vec![base]));
+        let e = resolve_device("iter").unwrap_err();
+        assert!(e.contains(&facts::MANIFEST.join("/")), "{e}");
+        assert!(e.contains("card"), "{e}");
     }
 }

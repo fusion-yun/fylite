@@ -432,15 +432,15 @@
     },
     {
      "name": "fetch",
-     "help": "flatten a fydata machine manifest (machine.yaml) into geometry + MDSplus bindings and assemble the named IDS for one shot",
+     "help": "flatten a device manifest (abox/device.jsonld) into geometry + MDSplus bindings and assemble the named IDS for one shot",
      "args": [
       {
        "flags": [
-        "--machine"
+        "--device"
        ],
        "required": true,
-       "metavar": "east|machine.yaml",
-       "help": "the device: a name resolved on the facts path (facts/device/<name>/machine.yaml), or a path to a machine manifest"
+       "metavar": "east|device.jsonld",
+       "help": "the device: a name resolved on the facts path (facts/device/<name>/abox/device.jsonld), or a path to a device manifest"
       },
       {
        "flags": [

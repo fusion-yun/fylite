@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-14
 title: "中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo)"
 shortname: fylite-data-layer
-version: "1.3"
+version: "1.5"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,15 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.5 该选项由 `--machine` **改名为 `--device`**（用户裁定）：它收的主用法是 facts 上的
+    装置名，`--machine` 读起来像在要一个文件。旧名不再受理，但**报错会说出新名字**
+    （`unknown option "--machine" — renamed to --device`）——「你打错了」与「它改名了」
+    指向的处置不同，一句 `unknown option` 把两者说成一样。
+    v1.4 `--machine`（当时的名字）收**装置名**：`fy data fetch --machine east` 解析走与其它条目同一条
+    facts 搜索路径（`--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 自带的 `_facts/`），落到
+    `facts/device/<名>/machine.yaml`。写死路径做不到「一处换语料」——漏改的那条命令行**照常
+    成功**，用旧那份跑完不报错。清单路径仍先看且照收；带分隔符或带后缀的**不**退回按名字找，
+    故打错的路径报「没有这个文件」，不报成「语料里没有这台机器」。闸子 `cli::data::tests`（6 条）。
     v1.3 记一处可观察的后果（实测）：imas-python 读回本层写的 IMAS netCDF 会对每个变量印
     「documentation differs from the DD」——我们不带 `documentation` 属性，而 DD 有正文；
     `nc_validate` 仍 PASS。抄 DD 的文字能消警告，而 L-4 的许可规则正禁止那样做。
@@ -230,8 +239,8 @@ Rust 侧不再等 Python 先投影成 JSON。★这正是 `FYL-DESIGN-16` K-8「
 一个请求就是一份装配文档（JSON 或 YAML），或一条 `fetch`：
 
 ```text
-fylite data fetch --machine <A-Box>/east/machine.yaml --ids magnetics \
-                 --shot 138569 --time 4:5 --host <mdsip 主机> -o east_138569_magnetics.json
+fy data fetch --device east --ids magnetics \
+              --shot 138569 --time 4:5 --host <mdsip 主机> -o east_138569_magnetics.json
 ```
 
 = 清单里 `providers.magnetics.default`（`pcs`，几何 38 探针 / 35 磁通环）+
