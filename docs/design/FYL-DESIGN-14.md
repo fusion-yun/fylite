@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-14
 title: "中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo)"
 shortname: fylite-data-layer
-version: "1.1"
+version: "1.2"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,9 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.2 新增裁定 **L-13（搬家表）** 并据此**关闭 G-10**：`limiter` / `vessel` 自 IDS 顶层落进
+    `description_2d[0]`，三条判据（源在 · 目标有 · 源在 DD 里没有）保证幂等；搬家记进
+    `DdReport.relocated` 并由命令行转述。实测同一份 EAST 源：`wall.h5` 3 548 → 71 344 字节。
     v1.1 新增缺口 G-10（实测 2026-09-04）：`wall` 转 IMAS 布局出空 IDS——源把 `limiter` / `vessel`
     放在顶层而 DD 的家在 `description_2d[]` 之下，归一化据实丢弃（有报告，不静默），但产物是空件。
     同一次导出 pf_active / tf / magnetics 内容齐全。
@@ -38,7 +41,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-14` |
 | 文档名称 (Title) | 中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo) |
 | 短名 / Slug | `fylite-data-layer` |
-| 版本 (Version) | v1.1 |
+| 版本 (Version) | v1.2 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -147,6 +150,24 @@ CC BY-ND 规则），`ids_meta.rs` 是 `nc_metadata.py` 的逐条移植。表是
 `mdsip::Client::read`；分解不了的（下标读另一个节点、未知动词、`getenv(...)`）列在
 失败里，不猜、不发。`fylite/mds-bind/1` 扁平表与 A-Box 的 `$source`/`$link` 文档都认。
 
+**L-13 同一个量在 fyo 与 DD 里挂的地方不同时，按一张**表**搬家，不按规则猜。**
+★★实测 2026-09-04：EAST 的 `wall` 文档把 `limiter` 与 `vessel` 挂在 IDS 顶层，而 DD 4.1.1
+的家在 `wall/description_2d[]/` 之下。L-7 的归一化据实把顶层那两支当作「DD 不认的路径」
+丢掉——**丢得是响的**（报告逐条点名），但产物是一份只剩 `ids_properties` 的空 `wall`。
+**一份空的 IDS 比一个错误更坏：它看着像结果。**
+
+搬家表（`fyodoc::RELOCATIONS`）逐条写明「哪个 IDS、文档里在哪、DD 里的家在哪」，
+今天两条，都是 `wall`。每条搬之前核三件事：**源路径在文档里在**、**目标路径在 DD 里有**、
+**源路径在 DD 里没有**——三条缺一即不搬。第三条是幂等的保证：一份已经是 DD 形的文档
+再归一化一次不会被搬第二层（闸子里正着反着各判一次）。
+
+★**为什么是表不是规则。**「顶层的键若在某个中间层下面找得到同名的就搬过去」听着通用，
+实则是猜：DD 里同名而不同义的路径不止一处，猜错会把一支数据搬到一个**看着合理**的错
+地方，而且照样不报错。表是有据的、可数的、可核的；规则不是。
+
+★搬家进 `DdReport.relocated` 并由命令行转述（`relocated ["limiter -> description_2d/limiter", …]`）：
+一支数据换了挂点，读者从产物上看不出它原来在哪，所以那句话必须由工具说出来。
+
 **L-9 两个 C 库，特性门控，wasm 不带。** HDF5 的文件格式与 netCDF-4 的方言自己写一份
 能与 imas-python 互读的实现是一个季度的活、且是第三实现；目标是逐字兼容，所以链
 `libhdf5` / `libnetcdf`（`hdf5-metno` / `netcdf` crate），缺省动态链接系统库，
@@ -226,4 +247,4 @@ fylite data fetch --machine <A-Box>/east/machine.yaml --ids magnetics \
 | G-7 | 一列点落在多维节点上时沿新的第 0 轴堆叠（记说明）；`Points` 逐点各一次往返，长列表该改成一次区间读再本地挑 | 开 |
 | G-8 | 装置清单 `machine.yaml` 是起步草稿；`from_manifest` 只看 `epochs` / `providers` / `bindings.mdsplus` 三段，清单变形要跟着改 | 开 |
 | G-9 | 与 SpData 重叠语义（`$link` 分解、`merge_key`、时间开窗）的对齐代价未量（`FYL-DESIGN-16` D-1 / G-6：本层是 SpData 的一个 profile） | 开；`-16` 分期 P3 前先量 |
-| G-10 | **`wall` 转 IMAS 布局出的是一份空 IDS**（实测 2026-09-04，EAST）：源文档把 `limiter` / `vessel` 放在 `wall/` 顶层，而 DD 4.1.1 的家在 `wall/description_2d[]/{limiter,vessel}`，于是 L-7 的归一化把它们当作非 DD 路径丢掉。★**丢得是响的**（`DdReport` 逐条点名，L-7 正是为此存在），但产物是一份只有 `ids_properties/homogeneous_time` 的 `wall.h5`。同一次导出里 `pf_active`（16 个线圈单元）· `tf` · `magnetics`（38 探针 / 35 磁通环）内容齐全。判据：`limiter` / `vessel` 落进 `description_2d`，或明确声明本层不转这一支、让 `wall` 按名拒绝而不是出空件 | 开 |
+| ~~G-10~~ | ~~`wall` 转 IMAS 布局出的是一份空 IDS~~ | **已关（2026-09-04）**：新增 L-13 的搬家表，`limiter` / `vessel` 落进 `description_2d[0]`。实测同一份 EAST 源：`wall.h5` 3 548 → **71 344 字节**，限制器 64 点轮廓（r ∈ [1.331, 2.35] m）与真空室内外环各 40 点都在 DD 的路径上；闸子 `fyodoc::tests::wall_limiter_and_vessel_move_under_description_2d` |

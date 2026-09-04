@@ -248,6 +248,65 @@ pub struct DdReport {
     pub promoted: Vec<String>,
     /// 合成出来的路径（根 `time`、`homogeneous_time`）。
     pub synthesized: Vec<String>,
+    /// 搬了家的路径（`from -> to`），见 [`RELOCATIONS`]。
+    pub relocated: Vec<String>,
+}
+
+/// **同一个量在 fyo 与 DD 里挂的地方不同**时，搬家的那张表。
+///
+/// ★★2026-09-04 实测：EAST 的 `wall` 文档把 `limiter` 与 `vessel` 挂在 IDS 顶层，
+/// 而 DD 4.1.1 的家在 `wall/description_2d[]/` 之下。归一化据实把顶层那两支当作
+/// 「DD 不认的路径」丢掉——**丢得是响的**（报告里逐条点名），但产物是一份只剩
+/// `ids_properties` 的空 `wall`。一份空的 IDS 比一个错误更坏：它看着像结果。
+///
+/// ★**一张表，不是一条推断规则**。「顶层的键在某个中间层下面找得到同名的，就搬
+/// 过去」听着通用，实则是猜：DD 里同名而不同义的路径不止一处，猜错了会把一支数据
+/// 搬到一个**看着合理**的错地方，而且照样不报错。所以只搬写在这里的、逐条有据的
+/// 那几支，其余仍旧丢掉并报告。
+///
+/// 每条的判据（`apply_relocations` 逐条核）：源路径在文档里**在**、目标路径在 DD 里
+/// **有**、而源路径在 DD 里**没有**。三条缺一即不搬——那说明这份文档已经是 DD 的形，
+/// 或者这条表项过期了。
+pub const RELOCATIONS: &[(&str, &str, &str)] = &[
+    //: (IDS, 文档里的路径, DD 里的家)
+    ("wall", "limiter", "description_2d/limiter"),
+    ("wall", "vessel", "description_2d/vessel"),
+];
+
+/// 按 [`RELOCATIONS`] 把该搬的支搬到 DD 的位置上，逐条记进报告。
+///
+/// ★目标里的 `description_2d` 在 DD 里是**结构数组**，所以搬进去的是它的第 0 个
+/// 元素——与 `build_dd` 对「DD 说数组而文档给映射」的处置同一条（那里记 promoted）。
+fn apply_relocations(ids: &str, tree: &mut Node, meta: &IdsMeta, report: &mut DdReport) {
+    for (which, from, to) in RELOCATIONS {
+        if *which != ids {
+            continue;
+        }
+        let Some(m) = tree.as_map() else { return };
+        if !m.contains_key(*from) || meta.has(from) || !meta.has(to) {
+            continue;
+        }
+        let Some(value) = tree.as_map_mut().and_then(|m| m.remove(*from)) else { continue };
+        //: `a/b` -> 在 `a` 这个结构数组的第 0 个元素里放 `b`
+        let (head, tail) = to.split_once('/').unwrap_or((to, ""));
+        let slot = tree.as_map_mut().unwrap();
+        let elem = match slot.remove(head) {
+            Some(Node::List(mut l)) => {
+                if l.is_empty() { l.push(Node::map()); }
+                Node::List(l)
+            }
+            Some(other) => Node::List(vec![other]),
+            None => Node::List(vec![Node::map()]),
+        };
+        let Node::List(mut items) = elem else { continue };
+        if tail.is_empty() {
+            items[0] = value;
+        } else if let Some(im) = items[0].as_map_mut() {
+            im.insert(tail, value);
+        }
+        slot.insert(head, Node::List(items));
+        report.relocated.push(format!("{from} -> {to}"));
+    }
 }
 
 /// 把一份 fyo 文档整理成 imas-python 会认的 DD 树。
@@ -258,8 +317,10 @@ pub struct DdReport {
 /// * 缺 `ids_properties/homogeneous_time` 的补上：有时间片就 1（齐次），否则 2（常量）；
 /// * 齐次时间下缺根 `time` 的，从时间片的 `time` 合成。
 pub fn dd_normalize(ids: &str, doc: &Node, meta: &IdsMeta) -> (Node, DdReport) {
-    let (tree, dropped) = to_dd(doc);
+    let (mut tree, dropped) = to_dd(doc);
     let mut report = DdReport { dropped, ..Default::default() };
+    //: ★搬家在丢弃**之前**：否则该搬的那几支已经被当作「DD 不认的路径」丢掉了。
+    apply_relocations(ids, &mut tree, meta, &mut report);
     let mut out = Node::map();
     walk_dd(meta, &tree, String::new(), &mut out, &mut report);
 
@@ -299,7 +360,6 @@ pub fn dd_normalize(ids: &str, doc: &Node, meta: &IdsMeta) -> (Node, DdReport) {
             *m = fresh;
         }
     }
-    let _ = ids;
     (out, report)
 }
 
@@ -413,6 +473,49 @@ mod tests {
         assert_eq!(ids_of(&from_dd("wall", dd, "x", 2)).as_deref(), Some("wall"));
         assert_eq!(split_ids_key("equilibrium_1"), ("equilibrium".to_string(), 1));
         assert_eq!(split_ids_key("core_profiles"), ("core_profiles".to_string(), 0));
+    }
+
+    #[test]
+    fn wall_limiter_and_vessel_move_under_description_2d() {
+        //: ★★实测 2026-09-04：EAST 的 wall 文档把 `limiter` / `vessel` 挂在 IDS 顶层，
+        //: 而 DD 4.1.1 的家在 `description_2d[]/` 之下。没有这张搬家表时，归一化把
+        //: 两支都当作「DD 不认的路径」丢掉——**丢得是响的**，但产物是一份只剩
+        //: `ids_properties` 的空 wall（3.5 KB），而一份空的 IDS 比一个错误更坏：
+        //: 它看着像结果。搬家之后同一份源出 71 KB，limiter 的 64 点轮廓在里面。
+        let Some(meta) = IdsMeta::get("wall") else {
+            //: DD 表是生成物（`tools/dd-ids-table.py`）；没有它就没得判，跳过而不是假过。
+            eprintln!("no wall DD table in this checkout — skipping");
+            return;
+        };
+        let mut doc = new_document("wall", "urn:test:wall");
+        {
+            let m = doc.as_map_mut().unwrap();
+            let mut lim = Map::new();
+            let mut unit = Map::new();
+            unit.insert("name", Node::Str("limiter".into()));
+            let mut outline = Map::new();
+            outline.insert("r", Node::Array(Array::vec_f64(vec![1.3, 2.3, 2.3, 1.3])));
+            outline.insert("z", Node::Array(Array::vec_f64(vec![-1.0, -1.0, 1.0, 1.0])));
+            unit.insert("outline", Node::Map(outline));
+            lim.insert("unit", Node::List(vec![Node::Map(unit)]));
+            m.insert("limiter", Node::Map(lim));
+        }
+        let (out, rep) = dd_normalize("wall", &doc, &meta);
+
+        //: 搬到位了，且**说了出来**——一支数据换了挂点，读者从产物上看不出它原来在哪。
+        assert!(rep.relocated.iter().any(|s| s.starts_with("limiter ->")), "{:?}", rep.relocated);
+        assert!(!rep.dropped.iter().any(|p| p == "limiter"), "still dropped: {:?}", rep.dropped);
+
+        let r = out.get("description_2d/0/limiter/unit/0/outline/r")
+            .and_then(Node::to_f64_vec)
+            .expect("limiter outline survived the move");
+        assert_eq!(r.len(), 4);
+
+        //: ★源已经是 DD 的形时**不搬**：判据里那三条（源在、目标有、源在 DD 里没有）
+        //: 缺一即不动，否则第二次归一化会把它再搬一层。
+        let (again, rep2) = dd_normalize("wall", &from_dd("wall", out, "urn:test:wall", 0), &meta);
+        assert!(rep2.relocated.is_empty(), "relocated twice: {:?}", rep2.relocated);
+        assert!(again.get("description_2d/0/limiter/unit/0/outline/r").is_some());
     }
 
     #[test]
