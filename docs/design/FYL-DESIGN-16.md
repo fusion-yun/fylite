@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "0.4"
+version: "0.6"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,12 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.4 N-2（用户裁定 2026-09-04，同日）：中间层再改名 `fylite_engine` → `fylite_runtime`。
+  change: 'v0.6 K-8（用户裁定 2026-09-04，两句）：**装置信息从 A-Box 读入、由中间层导入、以**整份
+    fyo 结构体**进内核；内核不管数据源头，也不收路径**。第二句改动了今天的门（`fylite_rs_fyo` 现收
+    「路径, 维数, 数值」三元组），理由是走树的责任该在内核一处而不是每个宿主一份。据此关闭 G-3，并改正目标表里过强的一句——内核「不认识装置」改为
+    「不认识数据源头」：它早有 `@fyo-table DEVICE`（34 槽）声明机器的 fyo 路径，也早在算 M / R /
+    响应行。这解除了 K-3 对五个「要装置」工具的拦阻。
+    v0.4 N-2（用户裁定 2026-09-04，同日）：中间层再改名 `fylite_engine` → `fylite_runtime`。
     N-1 给的理由「与 Python `fylite.engine` 同名正是要的，DE-COMP-03 的职责与此 crate 逐条重合」
     **经逐条核查为假（二比五：serve / mcp / 清单溯源三项该 crate 零处）**——两者是共用一个词的
     两个不同组件（真重叠只有四项，重心互不相交）。错的理由留在正文里记着，不抹掉。
@@ -48,7 +53,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v0.4 |
+| 版本 (Version) | v0.6 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -116,8 +121,8 @@ modified:
 | 跨宿主一致性 | `engine.crosshost`：比的是**同一内核的两个构建**（原生 vs wasm），只对声明了 `kernel_entry` 的工具运行——今天一个 |
 :::
 
-〔已确立〕`fylite_rs_fyo` 已经是可替换内核该有的形：code + 按名的设置 + 按 fyo 路径的
-输入进，按 fyo 路径的 manifest（字段与偏移）+ 平铺数据出，缓冲区由内核持有、调用方经
+〔已确立〕`fylite_rs_fyo` 已经是可替换内核该有的形：code + 按名的设置 + 输入进
+（**今天按 fyo 路径；K-8 改为整份 fyo 结构体**），按 fyo 路径的 manifest（字段与偏移）+ 平铺数据出，缓冲区由内核持有、调用方经
 `fylite_rs_free` 释放，装成文档是数据层 `case.rs` 的事。内核仓 `fyo.rs` 抬头那句
 「the kernel computes numbers; the hosts put them into documents」写的就是这个分工——
 它只是尚未成为**唯一**的门。
@@ -156,7 +161,7 @@ flowchart TB
 | :--- | :--- | :--- |
 | 宿主（多个） | 把用户意图写成一份 fyo 计划；把一份 fyo 记录呈现出来 | 不做装配算术，不直接触碰任何内核符号 |
 | 中间层 | 计划的合成与绑定（多份计划、`--set` / `--bind`、按路径取输入）；结果装成文档；格式与来源的读写与转换；内核的**发现与选择**；Rust 宿主的命令行与 `app/` 的伺服 | 不算物理；不写 MDSplus |
-| 内核 | 完成一个 code：从结构到结构 | 不读文件、不开网络、不认识装置 |
+| 内核 | 完成一个 code：从结构到结构（**装置几何按 fyo 路径作为输入进来**，见 K-8） | 不读文件、不开网络、**不认识数据源头** |
 | 内核契约 | code 表 + 按路径的 manifest；每个后端自报「完成哪些 code、产哪些路径、什么单位」 | 不再有宿主可见的 ABI 号 |
 
 (fylite-kernel-contract-rulings)=
@@ -185,6 +190,43 @@ code 的一部分，或者留下但只被本地后端自己用。判据：`scena
 每条记：怎么到达（路径 / 已加载的模块 / 地址）、code 表、manifest 能力、环境指纹。
 选择规则显式（`--kernel <名或地址>`、环境变量、缺省本地），**不静默回退**：要的后端不在
 场就说不在场，不换一个能力更少的顶上。
+
+**K-8 装置：A-Box → 中间层 → **整份 fyo 结构体**进内核；内核不问来路。** 〔已确立〕
+用户裁定（2026-09-04，两句）：*device 信息从 abox 读入，由 runtime 导入，kernel 不需要管
+数据源头*；*kernel 不接受 path，只接受完整的 fyo 结构体*。
+
+**两件事，分开说。**
+
+**其一，来路归中间层。** 这条关掉 G-3。内核 `fyo.rs` 里早有一张 `@fyo-table DEVICE`
+（`fyo:DeviceDescription`，34 个槽）声明机器的形——线圈矩形
+（`pf_active/coil/element/geometry/rectangle/{r,z,width,height}`）、匝数
+（`turns_with_sign`）、通道图（`fylite:channel_map`）、真空室单元与其电阻率
+（`wall/description_2d/vessel/…/fylite:resistivity_uohm_m`）、限制器轮廓。内核认识**这个形**，
+不认识 `$FYLITE_DEVICE_DIR`、`machine.yaml`、epoch 与提供者。
+
+| 谁 | 做什么 |
+| :--- | :--- |
+| A-Box（fydoc / fydata） | 装置的真源：epoch × 提供者 × 绑定 |
+| 中间层 `fylite_runtime` | 读 A-Box（`assembly.rs` / `from_manifest` 已在做），装成一份完整的 `fyo:DeviceDescription`，随计划交给内核 |
+| 内核 | 收下那份结构体，算 M / R / 响应行——它**已经**这么算（`mutual_matrix_self` · `mutual_matrix_cross` · `resistances` · `channel_fold` · `plasma_filaments` · `vertical_stiffness`） |
+
+**其二，交付单位是文档，不是叶子地址。** ★★这一条**改动了今天的门**：`fylite_rs_fyo` 现在
+收的是「设置按名 + 输入**按 fyo 路径**」——一组 `(路径, 维数, 数值)` 三元组，由调用方逐条摊平。
+按本裁定，它应当收**整份 fyo 结构体**（`fyo:equilibrium`、`fyo:DeviceDescription`、
+`fyo:core_profiles` …），内核自己在结构里走。
+
+理由不是美观，是**谁承担走树的责任**。路径形把「`time_slice` 是结构数组、要落到第 0 个」
+这类知识留在调用方，于是每多一个宿主就多一份走法——本仓已经为此立过一条生成的
+`AOS_PATHS` 声明，正因为两个走树的实现各写过一遍。文档形把它收进内核一处：调用方交出
+一份合法文档，内核按自己的表取自己要的槽，**取不到就按名拒绝**，而不是收下一个少了几条
+路径的袋子照算。
+
+★这也让 K-2 更整齐：进是文档，出是 manifest + 平铺数据，**两头同一种东西**。
+★★不影响 K-1：门仍然只有一扇。变的是那扇门的入参形状，不是门的数目。
+
+★**解除了 K-3 的第一道拦阻**：`discharge` / `breakdown` / `feasible` / `vstab` /
+`reconstruction` 五个工具此前被判为「要装置、故搬不进内核」，按本条它们只是**多收一份
+装置文档**，与 `evolve` 收度规、`zerod` 收相位表同类。
 
 **K-5 远端内核共形六相协议，不另立协议。** 远端调用的生命周期就是 `SPM-ADR-111`
 的 P-1..P-6（interpret_inputs → provision → stage → execute → interpret_outputs + harvest →
@@ -348,7 +390,7 @@ GUI、另一台机器上的代理）不改本篇任何一条；它们共享一�
 | :--- | :--- | :--- |
 | G-1 | 装配搬进内核后，页面**交互**（拖滑块重算一栏）的延迟预算是否仍满足 `FYL-CONOPS-00` 的响应包络——一次门调用比一次扁平调用多一次序列化 | 开；P1 实测 |
 | G-2 | 远端后端的 envelope：复用 `fylite serve` 的 JSON-RPC 与 `DriverRequest`，还是另立 `compute.` 方法族 | 开；随 `SP-REPORT-15` T-0.4 裁定 |
-| G-3 | 内核不认识装置（目标表「禁止」列），但今天 `device.py` 的导体几何现算（互感、响应行）是 Python 调内核扁平函数完成的——这批是「装配」还是「装置层」，归内核 code 还是留在宿主，需逐个裁 | 开；P1 |
+| G-3 | ~~内核不认识装置，而导体几何现算归谁~~ | **已关**（K-8，用户裁定 2026-09-04）：装置按 fyo 路径进内核，来路归中间层。内核认识几何，不认识源头 |
 | G-4 | 两个后端给出不同的数时，登记册记录的**纳入类别**（V / B / C）怎么定——今天三类都以「外部答案」为对照，后端间对照是第四种 | 开；P2 |
 | G-5 | wasm 后端的 code 表怎么自报：`fyo-interface.js` 是生成物而非运行期查询 | 开；P2 |
 | G-6 | 中间层与 SpData 重叠语义的**对齐代价**未量：`$link` 分解、`merge_key`、时间开窗三处各自定义，可能与 SpData 的 `$op` / 标识符语法冲突 | 开；P3 前先量 |
@@ -360,7 +402,8 @@ GUI、另一台机器上的代理）不改本篇任何一条；它们共享一�
 | :--- | :--- | :--- |
 | K-1 / K-2 | 内核仓 `fyo.rs` 抬头；`FYL-SDD-01` DE-COMP-01 | `FYL-SRS-01`（新 FR：内核接口）· `FYL-SDD-01` DE-COMP-01 Interface |
 | K-3 | 用户裁定 2026-09-03；`FYL-SDD-01` DE-COMP-02 Invariant | `FYL-SDD-01` DE-COMP-02 |
-| K-4 / K-7 | `FYL-DESIGN-15` R-4（找不到就说、不退化） | 数据层 `kernel.rs`；`engine.provenance` |
+| K-4 / K-7 | `FYL-DESIGN-15` R-4（找不到就说、不退化） | 中间层 `kernel.rs`；`engine.provenance` |
+| K-8 | 用户裁定 2026-09-04；内核 `fyo.rs` `@fyo-table DEVICE`；`FYL-DESIGN-14` `from_manifest` | 中间层的装置绑定；`scenario/control` · `design` · `analysis` 的搬迁面 |
 | K-5 | `SPM-ADR-111`；`SP-REPORT-15` T-1.6 / T-0.4 | 平台 ADR（协议成员） |
 | K-6 | `engine.crosshost`；`FYL-SRS-01` NR-ENV-004 | 公开 V&V 登记册 |
 | N-1 · N-2 | 用户裁定 2026-09-04（两次）；`FYL-SDD-01` DE-COMP-03 / DE-COMP-09 | Cargo 包名、制品名、C 导出前缀、`_environment.json`、`FYL-DESIGN-14` / `-15` 与 `FYL-SDD-01` 布局表 |
