@@ -1,4 +1,4 @@
-"""`devices/` 是拖回来的装置信息，而它带着一份**许可账**——这里守那份账。
+"""`facts/` 是拖回来的参考数据，而每一条都带着一份**许可账**——这里守那份账。
 
 ★★**为什么这道闸子存在。** 2026-09-04 起本仓的构建分两种：**内部版**带全部装置，
 **公开版**不带 EAST（它是一次真实放电 #137985 的实测读数，属运行方），也不带上游
@@ -7,10 +7,10 @@ ITER Organization——那不是本仓能给的授权）。
 
 这条分界一旦只活在某个人的记忆里，它的失败方式是**静默的**：一次公开构建多带了一台
 机器，没有任何东西会红，而错误在制品发出去之后才可能被发现，且发现者不是我们。所以
-判据落成文件（`devices/<id>/rights.json`）、问答面落成一条命令
-（`tools/abox-to-devices.py --publishable --flavour public`），本模块守它们一致。
+判据落成文件（`facts/device/<id>/rights.json`）、问答面落成一条命令
+（`tools/facts-publish.py --flavour public --list`），本模块守它们一致。
 
-★`devices/` 是 gitignored 的**拖回输入**：没有它时本模块整体跳过（skip 不是 pass，
+★`facts/` 是 gitignored 的**拖回输入**：没有它时本模块整体跳过（skip 不是 pass，
 理由与 `test_machine_desc.py` 同一条）。有它时，下列每一条都必须成立。
 """
 from __future__ import annotations
@@ -23,12 +23,14 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-DEVICES = ROOT / "devices"
-TOOL = ROOT / "tools" / "abox-to-devices.py"
+FACTS = ROOT / "facts"
+#: 今天只有 device 一域有内容；amns / experiment 进来时本模块按域走，不必改。
+DEVICES = FACTS / "device"
+TOOL = ROOT / "tools" / "facts-publish.py"
 
 pytestmark = pytest.mark.skipif(
     not DEVICES.is_dir(),
-    reason="没有 devices/ —— 它是拖回的输入（tools/abox-to-devices.py --all）",
+    reason="没有 facts/device/ —— 它是拖回的输入（tools/abox-to-facts.py --all）",
 )
 
 
@@ -98,12 +100,13 @@ def test_third_party_blocks_are_carried_through():
 
 
 def _ask(flavour: str) -> list[str]:
-    out = subprocess.run([sys.executable, str(TOOL), "--publishable",
-                          "--flavour", flavour],
+    out = subprocess.run([sys.executable, str(TOOL), "--flavour", flavour, "--list"],
                          capture_output=True, text=True, timeout=120)
     if out.returncode != 0:
-        pytest.skip(f"上游 A-Box 不在（{out.stderr.strip()[:80]}）")
-    return [ln.split()[0] for ln in out.stdout.splitlines() if ln.strip()]
+        pytest.skip(f"发布计划问不出来（{out.stderr.strip()[:80]}）")
+    #: 问答面按 `<域>/<id>` 作答；本模块只看 device 那一域。
+    return [ln.split("/", 1)[1].strip() for ln in out.stdout.splitlines()
+            if ln.strip().startswith("device/")]
 
 
 def test_the_question_face_agrees_with_the_ledgers():
@@ -128,19 +131,19 @@ def test_the_question_face_agrees_with_the_ledgers():
 def test_nothing_internal_only_reaches_a_public_artifact():
     """★这道闸子真正的用处：**发出去的东西**里不得有只进内部版的机器。
 
-    ★★判的是**发布者**，不是源树。2026-09-04 起 `app/devices` 是指向仓根
-    `devices/` 的符号链接（单一数据源），所以源树里当然什么都有——那是对的，本机
+    ★★判的是**发布者**，不是源树。2026-09-04 起 `app/facts/device` 是指向
+    `facts/device/` 的符号链接（单一数据源），所以源树里当然什么都有——那是对的，本机
     开发要用 EAST。会不会发出去，取决于两个发布者：静态站点与桌面可执行文件，
-    而它们都问同一个问题面 `tools/devices-publish.py`。这里就问那个面。
+    而它们都问同一个问题面 `tools/facts-publish.py`。这里就问那个面。
     """
     internal_only = {d.name for d in _pulled() if not _rights(d)["public"]}
     if not internal_only:
         pytest.skip("没有只进内部版的机器")
-    r = subprocess.run([sys.executable, str(ROOT / "tools" / "devices-publish.py"),
-                        "--flavour", "public", "--list"],
+    r = subprocess.run([sys.executable, str(TOOL), "--flavour", "public", "--list"],
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
-    shipped = {ln.strip() for ln in r.stdout.splitlines() if ln.strip()}
+    shipped = {ln.split("/", 1)[1].strip() for ln in r.stdout.splitlines()
+               if ln.strip().startswith("device/")}
     leaked = sorted(internal_only & shipped)
     assert not leaked, (
         f"这些机器只进内部版，公开版的发布计划却带着它们：{leaked}")

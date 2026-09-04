@@ -54,7 +54,7 @@ for (const f of ['i18n.js', 'lang-zh.js', 'lang-en.js',
 // without a server; the page passes nothing and resolves it from its own
 // script URL.
 globalThis.fetch = async (url) => {
-  const f = url.replace(/^.*\/devices\//, DEVICES_DIR);
+  const f = url.replace(/^.*\/(?:devices|facts\/device)\//, DEVICES_DIR);
   if (!existsSync(f)) return { ok: false, status: 404 };
   const text = readFileSync(f, 'utf8');
   return { ok: true, status: 200, json: async () => JSON.parse(text) };

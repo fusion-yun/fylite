@@ -8,7 +8,7 @@
 // on both `analysis` and `ts_east`, and asking `east` for `\PCRL01` returns
 // `%TREE-W-NNF`: not empty data, *absent*.  The site's own UDA client is
 // pleasant to use for exactly one reason — somebody wrote that mapping down.
-// `app/devices/east-signals.json` is that mapping (73 diagnostics, 376
+// `app/facts/device/east-signals.json` is that mapping (73 diagnostics, 376
 // signals, harvested from the EAST Wiki); this panel is how it is read.
 //
 // ★★IT IS NOT IN A PUBLIC RELEASE.  The harvest is an operator's internal
@@ -72,12 +72,12 @@
   function load() {
     if (state.doc) return Promise.resolve(state.doc);
     // Same-origin and relative, like every other request this page makes.
-    return fetch('devices/east-signals.json', { headers: { accept: 'application/json' } })
+    return fetch('facts/device/east-signals.json', { headers: { accept: 'application/json' } })
       .then(function (r) {
         // ★404 与「读失败」是两件事，说成一件是这一栏最容易骗人的地方。
         // 目录采自 EAST 内网 Wiki，2026-09-02 随实验数据一起移出公开分发；
         // 于是**没有它才是缺省状态**，而不是出了故障。持有那份文件的人把它放
-        // 回 `devices/east-signals.json`，这一栏自己就回来了。
+        // 回 `facts/device/east-signals.json`，这一栏自己就回来了。
         if (r.status === 404) { var e = new Error('absent'); e.absent = true; throw e; }
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();

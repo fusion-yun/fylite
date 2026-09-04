@@ -1454,7 +1454,7 @@
   /**
    * The machines, fetched once per page.
    *
-   * ★The preset devices are fyo/JSON-LD documents fetched from `app/devices/`
+   * ★The preset devices are fyo/JSON-LD documents fetched from `app/facts/device/`
    * (they were a script that pushed a global), so `FYLITE_MACHINE` is null
    * until they arrive — and a controller that reads it while its own file is
    * being evaluated reads that null.  That is not a bug in the controller:

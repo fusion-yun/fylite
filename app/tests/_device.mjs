@@ -2,7 +2,7 @@
 //
 // ★★2026-09-02：这段抬头从前写着「EAST is not a preset: its deck lives in
 // `machine_desc/` at the repository root」。**那已经不成立**：2026-08-22 用户裁定
-// 装置数据入 `app/`，而分仓之后 `app/devices/east.jsonld` 与 `iter.jsonld` 是随
+// 装置数据入 `app/`，而分仓之后 `app/facts/device/east.jsonld` 与 `iter.jsonld` 是随
 // `app/` 一起发布的**真文档**（不是链接——分仓那阵它们曾是指向 `machine_desc/`
 // 的符号链接，克隆下来就是两条断链，已改回实拷）。源树那一份今天是 `devices/`
 // ——本仓 gitignored 的拖回输入。
@@ -20,10 +20,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const HERE = new URL('.', import.meta.url).pathname;
-//: ★2026-09-04 `machine_desc/` 改名 `devices/`（用户裁定）：一台机器一目录，
-//: 卡片 + 许可账同住，gitignored，由 `tools/abox-to-devices.py` 拖回。
-export const DEVICE_DIR = HERE + '../../devices';
-export const PRESET_DIR = HERE + '../devices';
+//: ★2026-09-04 `machine_desc/` → `devices/` → **`facts/device/`**（用户裁定）：
+//: 一个个体一目录，卡片 + 许可账同住，gitignored，由 `tools/abox-to-facts.py` 拖回。
+//: 页面那一侧经 `app/facts`（指向仓根 `facts/` 的符号链接）取同一份字节——**一个名字**。
+export const DEVICE_DIR = HERE + '../../facts/device';
+export const PRESET_DIR = HERE + '../facts/device';
 
 /** The fyo device document for `id`, or null when neither copy is present. */
 export function deviceDoc(id) {
@@ -81,6 +82,6 @@ export function envWithDeck(id) {
 /** Message for a gate that cannot run without the deck. */
 export function missingDeviceMessage(id) {
   return `装置数据缺失：${DEVICE_DIR}/${id}/fylite_device_${id}.json 不存在。`
-       + `\n发布的预设在 app/devices/，源树在私有仓的 machine_desc/；两处都没有。`
+       + `\n发布的预设在 app/facts/device/，源树同一处；两处都没有。`
        + `该文件由 data/${id}/ 的装置卷宗生成。`;
 }

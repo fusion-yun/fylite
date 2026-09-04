@@ -33,9 +33,9 @@ import pytest
 from fylite import device
 
 ROOT = Path(__file__).resolve().parents[2]
-#: ★2026-09-04 `machine_desc/` 改名 `devices/`（用户裁定：单一数据源；`app/devices`
-#: 是指向它的符号链接）。目录换了名字，本模块守的东西没变。
-DESC = ROOT / "devices"
+#: ★2026-09-04 `machine_desc/` → `devices/` → **`facts/device/`**（用户裁定）。
+#: `app/facts/device` 是指向它的符号链接。目录换了两次名字，本模块守的东西没变。
+DESC = ROOT / "facts" / "device"
 FYDATA_ENV = "FYDATA_DIR"
 
 #: EAST is hand-maintained; every other document is generated.
@@ -43,7 +43,7 @@ HANDWRITTEN = {"east"}
 
 DOCS = sorted(DESC.glob("*/*_device.yaml"))
 
-pytestmark = pytest.mark.skipif(not DOCS, reason="no devices/ in this tree")
+pytestmark = pytest.mark.skipif(not DOCS, reason="no facts/device/ in this tree")
 
 
 def _ids(p: Path) -> str:
@@ -393,7 +393,7 @@ def test_every_preset_is_the_import_document_it_claims_to_be():
                          f"outside the redacted provenance fields")
     assert not drift, (
         "re-run `python3 tools/fyo-device-to-app.py --all --preset "
-        "-o app/devices` and commit:\n  " + "\n  ".join(drift))
+        "-o app/facts/device` and commit:\n  " + "\n  ".join(drift))
     if absent and len(absent) == len(entries):
         pytest.skip("no import document in this tree to compare the presets "
                     "against (machine_desc/ is a pulled input): " + ", ".join(absent))
@@ -431,7 +431,7 @@ def test_every_preset_says_where_its_numbers_came_from():
 
 @pytest.mark.skipif(not CATALOGUE.is_file(), reason="this tree ships no presets")
 def test_the_catalogue_and_the_directory_agree():
-    """★A document in `app/devices/` that the catalogue does not list is a
+    """★A document in `app/facts/device/` that the catalogue does not list is a
     machine being published with nothing recording where it came from —
     which is the failure mode the catalogue exists to prevent, arriving by
     the back door."""

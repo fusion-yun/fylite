@@ -1,4 +1,4 @@
-// Gate for `app/devices/east-signals.json` — the EAST diagnostic catalogue.
+// Gate for `app/facts/device/east-signals.json` — the EAST diagnostic catalogue.
 //
 //   node app/tests/validate-east-catalog.mjs
 //   FYLITE_MDSIP_SERVER=127.0.0.1:8000 node app/tests/validate-east-catalog.mjs
@@ -32,11 +32,11 @@ import { replayMdsip, haveFixture, FIXTURE_ABSENT } from './_mdsip-replay.mjs';
 //: **跳过**——它守的是「目录里的名字客户端肯不肯发」，没有目录就无从守起，而
 //: 拿一份手写的样本去守，守住的是样本不是目录。
 const CATALOGUE = process.env.FYLITE_SIGNAL_CATALOGUE
-  || new URL('../devices/east-signals.json', import.meta.url).pathname;
+  || new URL('../facts/device/east-signals.json', import.meta.url).pathname;
 if (!existsSync(CATALOGUE)) {
   console.log(`SKIP —— 没有 EAST 诊断目录：${CATALOGUE}`);
   console.log('  它随 fydata（私有）走。有 fydata 的话：');
-  console.log('    cp <fydata>/corpus/device/east/east_signals.json app/devices/east-signals.json');
+  console.log('    cp <fydata>/corpus/device/east/east_signals.json app/facts/device/east-signals.json');
   console.log('  或：FYLITE_SIGNAL_CATALOGUE=<fydata>/corpus/device/east/east_signals.json');
   process.exit(0);
 }

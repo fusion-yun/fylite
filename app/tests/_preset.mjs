@@ -1,7 +1,7 @@
 // The preset machines a published page ships, read the way a page reads them.
 //
-// ★★A preset is an fyo/JSON-LD document under `app/devices/`, listed by
-// `app/devices/catalogue.jsonld`, and parsed by `FyoDevice.fromFyo` — the
+// ★★A preset is an fyo/JSON-LD document under `app/facts/device/`, listed by
+// `app/facts/device/catalogue.jsonld`, and parsed by `FyoDevice.fromFyo` — the
 // same reader an imported file goes through.  It used to be
 // `assets/dev-iter.js`, a script that pushed a descriptor onto a global, so
 // a gate could get the machine by loading one more file.  It cannot now, and
@@ -15,7 +15,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 
 const HERE = new URL('.', import.meta.url).pathname;
-export const DEVICES_DIR = HERE + '../devices/';
+export const DEVICES_DIR = HERE + '../facts/device/';
 
 /** The catalogue document, or null when this tree ships no presets. */
 export function catalogue() {

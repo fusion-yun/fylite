@@ -35,7 +35,7 @@ pytest 用例，因为被测的东西在浏览器里：多数用 Playwright 打�
 EAST 之间录的请求→应答对），宿主指向它。★★**那份夹具不在本仓**：它是 EAST 内网的实验
 数据，随私有的 `fydata` 走（`corpus/experiment/east/mdsip-137985.json`）。拷回原位、或
 `FYLITE_MDS_FIXTURE=<路径>`，这一组门就照跑；两条都落空时它们**跳过**，不退回假服务器。
-同理 `validate-east-catalog.mjs` 要的 `app/devices/east-signals.json`（`fydata`
+同理 `validate-east-catalog.mjs` 要的 `app/facts/device/east-signals.json`（`fydata`
 `corpus/device/east/east_signals.json`，或 `FYLITE_SIGNAL_CATALOGUE=<路径>`）。★判据是**命中**：宿主拼错一个字就命不中任何一条
 记录，门会红并把那句表达式印出来。另钉三条只有真服务器才暴露的解码规则（空载荷、
 `TIME_INSERTED` 的 u64、定宽文本的填充是分隔符），以及每个端点答多少个键。

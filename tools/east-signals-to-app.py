@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate ``app/devices/east-signals.json`` — the diagnostic catalogue the
+"""Generate ``app/facts/device/east-signals.json`` — the diagnostic catalogue the
 device-data page selects signals by.
 
     python tools/east-signals-to-app.py \\
@@ -176,7 +176,7 @@ def build(doc, source_path, source_sha):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--source", required=True, help="east_signal_catalog.yaml from fydata")
-    ap.add_argument("-o", "--out", default="app/devices/east-signals.json")
+    ap.add_argument("-o", "--out", default="app/facts/device/east-signals.json")
     a = ap.parse_args(argv)
 
     src = pathlib.Path(a.source).expanduser()

@@ -196,7 +196,7 @@ ok('and a key opens one', clampedAfter === notes.n - 1,
 // nothing this repository ships has an empty flux-loop set.  It is still
 // guarded where the allocation happens (`assets/worker.js`, the note on
 // `gridChannelResponse`); restoring a magnetics-free descriptor to
-// `devices/` brings this loop's coverage back with it, no edit needed.
+// `facts/device/` brings this loop's coverage back with it, no edit needed.
 const dev0 = await page.evaluate(
   () => document.querySelector('select').value);
 ok('the default machine is the first the catalogue declares, every load',

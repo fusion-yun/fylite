@@ -110,11 +110,17 @@ Cargo.lock
 #: 把它列成未跟踪——所以规矩今天才落到文件里。
 python/fylite/_bin/
 
-# ── 装置信息（拖回的输入，2026-09-04 用户裁定）────────────────────────────
-#: ★★`devices/` 是**按需从 A-Box 拖回**的装置信息（`tools/abox-to-devices.py`），
-#: 一台机器一目录：卡片 `<id>_device.yaml` + 许可账 `rights.json`。
-#: **不随 fylite 源码发布**——所以在这里；但**可以进构建出来的制品**，由许可账
-#: 逐台判：内部版带全部，公开版不含 EAST（真实放电数据）与上游禁止再分发的 IDS。
-#: 判据的问答面是 `tools/abox-to-devices.py --publishable --flavour public|internal`，
-#: 闸子 `python/tests/test_devices_corpus.py`。
-/devices/
+# ── 参考数据 facts/（拖回的输入，2026-09-04 用户裁定）─────────────────────
+#: ★★`facts/` 装的是**关于具名个体的断言**——A-Box 的字面含义，用一个不需要术语表
+#: 就读得懂的词说出来。按域分轴：`facts/device/<id>` 今天有内容，
+#: `facts/amns/<provider>` 与 `facts/experiment/<machine>/<shot>` 是同一个轴上的下一格。
+#: 与 `cases/` 成对：`cases/` 是**要跑什么**，`facts/` 是**跑在什么之上**。
+#: ★`models/` 不在这里：神经网络权重不是关于世界的断言，是制品。
+#:
+#: 按需从 A-Box 拖回（`tools/abox-to-facts.py`），一个个体一目录：卡片 + 许可账
+#: `rights.json`。**不随 fylite 源码发布**——所以在这里；但**可以进构建出来的制品**，
+#: 由许可账逐个判：内部版带全部，公开版不含 EAST（真实放电数据）与上游禁止再分发的 IDS。
+#: 页面那一侧经 `app/facts`（指向仓根 `facts/` 的符号链接）取同一份字节——**一个名字
+#: 贯穿仓内、页面与发布路径**。问答面 `tools/facts-publish.py --flavour public|internal --list`，
+#: 闸子 `python/tests/test_facts_corpus.py`。
+/facts/

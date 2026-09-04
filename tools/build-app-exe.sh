@@ -14,7 +14,7 @@
 # 且体积是资源本身的大小加上一层薄壳。
 #
 # ★★2026-09-04：构建分**公开版**与**内部版**（用户裁定）。装置数据来自仓根
-# `devices/`（`app/devices` 是指向它的符号链接——单一数据源），谁进哪一版由每台
+# `devices/`（`app/facts/device` 是指向它的符号链接——单一数据源），谁进哪一版由每台
 # 机器的 `devices/<id>/rights.json` 判：公开版不带 EAST，也不带上游禁止再分发的 IDS。
 # 可执行文件因此**不直接内嵌 `app/`**，而是内嵌一棵**按这一版规则装好的树**——
 # 与静态站点用的是同一个装配器（`tools/build-site.sh`），所以两种制品逐字节同源。
@@ -72,7 +72,7 @@ else
   else
     bash tools/build-site.sh "$STAGE" >/dev/null
   fi
-  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/devices/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
+  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/facts/*/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
 
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
@@ -80,7 +80,7 @@ else
 fi
 
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。
-#: ★★指向**装好的那棵树**，不是 `app/`：公开版的目录是筛过的，而 `app/devices`
+#: ★★指向**装好的那棵树**，不是 `app/`：公开版的目录是筛过的，而 `app/facts/device`
 #: 那条符号链接后面是整份语料。
 [ -n "$STAGE" ] && export FYLITE_APP_DIR="$STAGE"
 

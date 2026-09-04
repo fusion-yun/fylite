@@ -189,7 +189,7 @@ answer. What the physics can and cannot do today is [`FEATURE.md`](FEATURE.md).
   declared, with a reason, rather than defaulted.
 - **`app/` ships four device presets**, because a page that can be handed any
   machine still needs one to open with — a redistribution decision recorded
-  with its provenance in `app/devices/catalogue.jsonld`.
+  with its provenance in `app/facts/device/catalogue.jsonld`.
 
 ## Where the physics lives
 

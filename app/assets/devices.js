@@ -6,8 +6,10 @@
 // machine, so this file is a registry, a resolution rule and a place to keep
 // imported descriptors.
 //
-// PRESET devices are fyo/JSON-LD documents under `app/devices/`, listed by
-// `app/devices/catalogue.jsonld`.  Imported ones live in localStorage and are
+// PRESET devices are fyo/JSON-LD documents under `app/facts/device/`, listed by
+// `app/facts/device/catalogue.jsonld`.  ★2026-09-04 `app/facts/device/` -> `app/facts/device/`:
+// `app/facts` is a symlink to the repository's `facts/` corpus, so the page fetches
+// the same bytes the build publishes, under one name everywhere.  Imported ones live in localStorage and are
 // merged in here, which is what lets an imported machine survive a reload.
 // The worker gets the resolved descriptor in its `init` message and never
 // reads a global — a Worker cannot see localStorage, so an imported device
@@ -19,7 +21,7 @@
 // That made the one machine this build ships the only machine in the app
 // that was not an fyo document — it could not be diffed against
 // `machine_desc/iter/`, could not be re-imported, and went through a
-// different reader than every other machine.  It is `devices/iter.jsonld`
+// different reader than every other machine.  It is `facts/device/iter.jsonld`
 // now, parsed by the same `FyoDevice.fromFyo` an imported file goes through,
 // so there is one reader and one shape.
 //
@@ -47,9 +49,9 @@
   var HERE = (function () {
     try {
       var me = document.currentScript && document.currentScript.src;
-      if (me) return me.replace(/[^/]*$/, '') + '../devices/';
+      if (me) return me.replace(/[^/]*$/, '') + '../facts/device/';
     } catch (e) { /* no document, e.g. a worker or a test host */ }
-    return '../devices/';
+    return '../facts/device/';
   })();
 
   //: preset id -> descriptor, filled by load()
@@ -61,12 +63,12 @@
   function builtins() { return presets; }
 
   /**
-   * Read `devices/catalogue.jsonld` and every document it lists.
+   * Read `facts/device/catalogue.jsonld` and every document it lists.
    *
    * ★★A preset that fails to parse is REPORTED and skipped, never
    * substituted: a page that silently ran on a different machine than the
    * one it names would put a wrong provenance under every figure.  With no
-   * catalogue at all (a checkout served without `devices/`, an offline
+   * catalogue at all (a checkout served without `facts/`, an offline
    * copy) the app still works — it simply has no preset, and every machine
    * arrives by import, which is the path a user's own tokamak takes anyway.
    *

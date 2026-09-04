@@ -15,9 +15,9 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v1.1 装置语料入册：DE-COMP-07 改写——装置信息收成仓根 `devices/`（gitignored，`app/devices`
+    v1.1 装置语料入册：DE-COMP-07 改写——装置信息收成仓根 `devices/`（gitignored，`app/facts/device`
     是指向它的符号链接），带逐台许可账；构建分公开版 / 内部版，发布规则一处实现
-    （`tools/devices-publish.py`）；新增不变式「没有许可账即不发布」。同批记下一处实测：
+    （`tools/facts-publish.py`）；新增不变式「没有许可账即不发布」。同批记下一处实测：
     中间层读不了 A-Box 的 machine.jsonld（路径方言不同），且 `fetch` 失败仍退出 0。
     v1.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）。组合视图按 `FYL-DESIGN-16`
     v2.0 的**四层**重排（多宿主 → 中间层 → 内核，语义层横跨），布局表按 2026-09-04 的仓树
@@ -99,7 +99,7 @@ FyLite 以一个公开仓（本仓）加一个私有内核仓交付，对外呈�
 `FYL-SRS-01` §外部接口的十一个接口面。系统边界上有四条固定关系：
 
 1. **实验数据在外，装置描述誊录在内**：炮的测量只在运行时经 mdsip 取回；装置描述的
-   真源是外部 A-Box，本仓持有公开誊录 `app/devices/*.jsonld`（FR-DATA-001）。
+   真源是外部 A-Box，本仓持有公开誊录 `app/facts/device/*.jsonld`（FR-DATA-001）。
 2. **生态零代码耦合**：不导入任何 `sp` / `fy*` 包；互操作只经声明清单与语言中立的
    进程间接口（NR-DEP-002）。
 3. **一份内核契约，多宿主**：宿主经中间层、中间层经文档门到达内核；内核可替换
@@ -126,7 +126,7 @@ FyLite 以一个公开仓（本仓）加一个私有内核仓交付，对外呈�
 | `python/fylite/scenario/` | DE-COMP-04 场景层（退役中） | `analysis/` `control/` `design/` `model/` 四条线的装配 + `waveform.py`；按 `FYL-DESIGN-16` K-3 逐个进内核 |
 | `app/` | DE-COMP-05 浏览器前端 | 三个散文页（中英各一）· `pages/` 五页正本（`pulse_design` `model` `analysis` `data` `report`）+ 五张 `page_*` v2 外壳页（生成物，未提为正本）· `assets/`（JS、样式、wasm 制品、生成物）· `devices/`（装置描述誊录）· `guide/`（用户指南的公开子集，生成物）· `tests/` 门禁 |
 | `python/fylite/_manifest/` `_spec/` `_cli.json` `_environment.json` `_fyo_vocab.json` | DE-COMP-06 声明面 | 数据非代码；随 wheel 分发。13 份能力清单、4 份 vendored schema、一份三宿主共用的命令行规格、一份环境变量表、一份 fyo 词表 |
-| **`devices/`**（仓根，**gitignored**）+ `python/fylite/device.py` | DE-COMP-07 装置接入 | ★★2026-09-04 用户裁定：装置信息收成**一个语料**`devices/`——逐台一目录（卡片 `<id>/<id>_device.yaml` + 许可账 `<id>/rights.json`）加页面文档 `<id>.jsonld`，由 `tools/abox-to-devices.py` 自外部 A-Box 拖回；**`app/devices` 是指向它的符号链接**（单一数据源，单一发布规则）。语料不随源码发布（gitignore），但**进制品**：构建分**公开版 / 内部版**，谁进哪一版由 `tools/devices-publish.py` 一处判——公开版不带 EAST（一次真实放电 #137985 的实测读数）与上游标 `redistributable: false` 的 IDS。闸子 `python/tests/test_devices_corpus.py` |
+| **`facts/`**（仓根，**gitignored**）+ `python/fylite/device.py` | DE-COMP-07 参考事实 | ★★2026-09-04 用户裁定：这些收成**一个语料** **`facts/`**——**关于具名个体的断言**，按域分轴（`facts/device/<id>` 今天有内容，`amns` / `experiment` 是同一轴上的下一格），逐个一目录（卡片 `<id>/<id>_device.yaml` + 许可账 `<id>/rights.json`）加页面文档 `<id>.jsonld`，由 `tools/abox-to-facts.py` 自外部 A-Box 拖回；**`app/facts` 是指向仓根 `facts/` 的符号链接**（单一数据源，单一发布规则，且**一个名字**——仓内路径、页面取用与发布路径都是 `facts/device/`）。语料不随源码发布（gitignore），但**进制品**：构建分**公开版 / 内部版**，谁进哪一版由 `tools/facts-publish.py` 一处判——公开版不带 EAST（一次真实放电 #137985 的实测读数）与上游标 `redistributable: false` 的 IDS。闸子 `python/tests/test_facts_corpus.py`。★`models/` 不在其中：神经网络权重不是关于世界的断言，是制品 |
 | `cases/` | 场景语料（数据） | fyo / JSON-LD 会话文档 + `catalogue.jsonld` + `context.jsonld`；读者是 `fylite cases`、`fylite.engine.cases` 与书，**浏览器不读**；不随 wheel 分发 |
 | `docs/` | 文档：**一本书，五篇** | `guide/` `examples/` `reference/` `physics/` `design/` 一份 `myst.yml`；**不入册**：`benchmark/`（公开 V&V 登记册：`registry.jsonld` + `reports/` + `scenarios/` + `physics/`——按路径被引用的记录）、`figures/`、`_build/`。实测笔记与归档设计笔记随内核进了私有仓 |
 | `tools/` | 辅助 + 发布路径 | 三种发布形态各一条构建路径（`build-app-exe.sh` · `build-site.sh` · `build-wheel.sh`）、页面 / 图 / 预览生成器、A-Box 投影（`abox-mds-bind.py` `abox-to-machine-desc.py`）、语料与基准工具 |
@@ -277,11 +277,11 @@ flowchart TB
 
 | Field | Value |
 |:---|:---|
-| Description | 装置描述的读法与定位。语料是仓根 `devices/`（gitignored，自外部 A-Box 拖回），`app/devices` 是指向它的**符号链接**——★2026-09-04 改回链接，与 2026-09-02 那次「改回实拷」相反，理由变了：那时链接指向**另一个仓**（克隆即断链），现在指向**本仓内**的一个目录（未拖回时才悬空，而那是「输入没准备好」的正常状态）。Python 侧 `device.py` 合「牌在哪」与「牌说什么」为一个模块。 |
+| Description | 参考事实的读法与定位。语料是仓根 `facts/`（gitignored，自外部 A-Box 拖回，按域分轴），`app/facts` 是指向它的**符号链接**——★2026-09-04 改回链接，与 2026-09-02 那次「改回实拷」相反，理由变了：那时链接指向**另一个仓**（克隆即断链），现在指向**本仓内**的一个目录（未拖回时才悬空，而那是「输入没准备好」的正常状态）。Python 侧 `device.py` 合「牌在哪」与「牌说什么」为一个模块。 |
 | Traces to | FR-DATA-001 |
-| Invariant | 实验数据不入仓不随包；装置描述的**权威值在 A-Box**，本仓誊录不手改（订正方向是 A-Box → 本仓）；测试基准仅用内核自产合成算例。★每台机器**必须 (MUST)** 带一份许可账 `rights.json`（上游声明 + 本仓裁定）；**没有账即不发布**。发布规则**禁止 (MUST NOT)** 有第二处实现：两个发布者（静态站点、桌面可执行文件）都问 `tools/devices-publish.py`。 |
+| Invariant | 实验数据不入仓不随包；装置描述的**权威值在 A-Box**，本仓誊录不手改（订正方向是 A-Box → 本仓）；测试基准仅用内核自产合成算例。★每个条目**必须 (MUST)** 带一份许可账 `rights.json`（上游声明 + 本仓裁定）；**没有账即不发布**。发布规则**禁止 (MUST NOT)** 有第二处实现：两个发布者（静态站点、桌面可执行文件）都问 `tools/facts-publish.py`。 |
 | Interface | 环境变量 / 显式路径 / 页面目录 → `fyo:DeviceDescription` 文档。 |
-| 今天 | 拖回是 **Python** 那条路（`tools/abox-to-devices.py`）：它做 fydoc 布局 ↔ fydata 方言的路径映射。★实测 2026-09-04：中间层的 `from_manifest` **读不了** A-Box 的 `machine.jsonld`——清单里的提供者路径是 fydata 方言（`fyo/latest/…/wall.yaml`），而 A-Box 自己的树是 `static/now/wall.jsonld`，于是 `fetch` 报 `failed: geometry:wall`、**却仍写出一份空文档并退出 0**。两处待修（映射 + 那个静默的 0）。 |
+| 今天 | 拖回是 **Python** 那条路（`tools/abox-to-facts.py`）：它做 fydoc 布局 ↔ fydata 方言的路径映射。★实测 2026-09-04：中间层的 `from_manifest` **读不了** A-Box 的 `machine.jsonld`——清单里的提供者路径是 fydata 方言（`fyo/latest/…/wall.yaml`），而 A-Box 自己的树是 `static/now/wall.jsonld`，于是 `fetch` 报 `failed: geometry:wall`、**却仍写出一份空文档并退出 0**。两处待修（映射 + 那个静默的 0）。 |
 | 目标 | `FYL-DESIGN-16` K-8：中间层读 A-Box（`assembly::from_manifest`）装成完整文档随计划交给内核；内核不认识数据源头。 |
 
 (de-comp-08)=
