@@ -420,6 +420,8 @@ fn json_cmd(args: &Args) {
 
 /// Run one `case` subcommand (`args.command == ["case", <sub>]`).
 pub fn run(args: &Args) {
+    //: `--facts` 是组级选项，`data` 与 `case` 同一份声明。
+    super::data::apply_facts(args);
     //: a closed pipe ends the listing, it is not a panic (`| head`)
     unsafe { signal(13, 0) };
     match args.word(1) {

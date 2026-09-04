@@ -2,7 +2,7 @@
 document_id: FYL-SDD-01
 title: FyLite 软件设计描述 (FyLite Software Design Description)
 shortname: fylite-sdd
-version: "1.1"
+version: "1.2"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,10 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.2 facts 搜索路径入册（用户裁定 2026-09-04）：多源语料按优先级，`--facts` 组级选项 +
+    `$FY_FACTS_PATH` + 检出的 `facts/` + 发行版自带的 `_facts/`；**前置而非替换**，**决胜单位是
+    条目**（禁止跨根拼一份文档），每条记得住是哪个根供的。正本在中间层 `fylite_runtime::facts`，
+    Python 侧第二份由闸子比对。DE-COMP-07 的接口与不变式相应改写。
     v1.1 装置语料入册：DE-COMP-07 改写——装置信息收成仓根 `devices/`（gitignored，`app/facts/device`
     是指向它的符号链接），带逐台许可账；构建分公开版 / 内部版，发布规则一处实现
     （`tools/facts-publish.py`）；新增不变式「没有许可账即不发布」。同批记下一处实测：
@@ -49,7 +53,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-SDD-01` |
 | 文档名称 (Title) | FyLite 软件设计描述 (FyLite Software Design Description) |
 | 短名 / Slug | `fylite-sdd` |
-| 版本 (Version) | v1.1 |
+| 版本 (Version) | v1.2 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 1016-2009 |
@@ -280,9 +284,11 @@ flowchart TB
 | Description | 参考事实的读法与定位。语料是仓根 `facts/`（gitignored，自外部 A-Box 拖回，按域分轴），`app/facts` 是指向它的**符号链接**——★2026-09-04 改回链接，与 2026-09-02 那次「改回实拷」相反，理由变了：那时链接指向**另一个仓**（克隆即断链），现在指向**本仓内**的一个目录（未拖回时才悬空，而那是「输入没准备好」的正常状态）。Python 侧 `device.py` 合「牌在哪」与「牌说什么」为一个模块。 |
 | Traces to | FR-DATA-001 |
 | Invariant | 实验数据不入仓不随包；装置描述的**权威值在 A-Box**，本仓誊录不手改（订正方向是 A-Box → 本仓）；测试基准仅用内核自产合成算例。★每个条目**必须 (MUST)** 带一份许可账 `rights.json`（上游声明 + 本仓裁定）；**没有账即不发布**。发布规则**禁止 (MUST NOT)** 有第二处实现：两个发布者（静态站点、桌面可执行文件）都问 `tools/facts-publish.py`。 |
-| Interface | 环境变量 / 显式路径 / 页面目录 → `fyo:DeviceDescription` 文档。 |
+| Interface | **搜索路径**：`--facts`（组级选项，`data` / `case` 两条命令词都有）→ `$FY_FACTS_PATH`（平台分隔符分隔）→ 检出的 `facts/` → 发行版自带的 `_facts/`；`fylite data facts [--roots] [域]` 是它的问答面。页面经 `app/facts` 取同一份字节。 |
+| Invariant（多源） | **前置而非替换**：`--facts` 加在自带的之前，不把它挤掉。★★决胜的单位是**条目**——第一个有 `<域>/<id>` 的根供出文档、卡片与许可账**三样**，**禁止 (MUST NOT)** 跨根拼一份文档：两个根描述同一台机器时各有各的对，拼出来的是一台没人运行的机器，而且不报错。值级合并是另一层（`assembly` 由清单声明怎么合）。每条解析结果**必须 (MUST)** 记得住是哪个根供的。 |
+| 实现 | 正本在中间层 `fylite_runtime::facts`（命令行走它）；`fylite.facts` 是 Python 侧的第二份，**有意的两份**，判据同 `_cli.json` 的三个解析器——闸子 `test_the_two_resolvers_agree` 比对「每条由哪个根供出」。 |
 | 今天 | 拖回是 **Python** 那条路（`tools/abox-to-facts.py`）：它做 fydoc 布局 ↔ fydata 方言的路径映射。★实测 2026-09-04：中间层的 `from_manifest` **读不了** A-Box 的 `machine.jsonld`——清单里的提供者路径是 fydata 方言（`fyo/latest/…/wall.yaml`），而 A-Box 自己的树是 `static/now/wall.jsonld`，于是 `fetch` 报 `failed: geometry:wall`、**却仍写出一份空文档并退出 0**。两处待修（映射 + 那个静默的 0）。 |
-| 目标 | `FYL-DESIGN-16` K-8：中间层读 A-Box（`assembly::from_manifest`）装成完整文档随计划交给内核；内核不认识数据源头。 |
+| 目标 | `FYL-DESIGN-16` K-8：中间层读 A-Box（`assembly::from_manifest`）装成完整文档随计划交给内核；内核不认识数据源头。★搜索路径已在中间层（`facts.rs`），下一步是让 `from_manifest` 按 `<域>/<id>` 取而不是按路径取。 |
 
 (de-comp-08)=
 **DE-COMP-08: 语义层（fyo，跨宿主逻辑组件）**

@@ -22,7 +22,7 @@
      "name": "device",
      "carrier": "query",
      "type": "str",
-     "help": "machine to pin (an id from app/devices/catalogue.jsonld); the URL wins over the stored choice"
+     "help": "machine to pin (an id from app/facts/device/catalogue.jsonld); the URL wins over the stored choice"
     },
     {
      "name": "lang",
@@ -603,7 +603,7 @@
      ],
      "app_param": "device",
      "metavar": "ID",
-     "help": "machine to pin in the opened page (an id from app/devices/catalogue.jsonld)"
+     "help": "machine to pin in the opened page (an id from app/facts/device/catalogue.jsonld)"
     },
     {
      "flags": [
@@ -668,6 +668,14 @@
      ],
      "metavar": "DIR",
      "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
+    },
+    {
+     "flags": [
+      "--facts"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
     }
    ],
    "commands": [
@@ -1065,6 +1073,26 @@
     {
      "name": "tables",
      "help": "the built-in IMAS DD tables: version and IDS names"
+    },
+    {
+     "name": "facts",
+     "help": "the facts search path: which corpora are in play, and which one supplies each entry",
+     "args": [
+      {
+       "flags": [
+        "--roots"
+       ],
+       "action": "store_true",
+       "help": "just the roots, in priority order"
+      },
+      {
+       "flags": [
+        "domain"
+       ],
+       "nargs": "?",
+       "help": "list this domain's entries and the root each supplied"
+      }
+     ]
     }
    ]
   },
@@ -1086,6 +1114,14 @@
      ],
      "metavar": "DIR",
      "help": "(Python host) directory holding fylite (default: the package's _bin/, then $PATH)"
+    },
+    {
+     "flags": [
+      "--facts"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
     }
    ],
    "commands": [

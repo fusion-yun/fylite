@@ -321,6 +321,32 @@ def _find_exe(name: str, bin_dir=None):
     return None if (found and _is_this_python_host(found)) else found
 
 
+def _apply_facts(args) -> None:
+    """`--facts` -> the process-wide search path, before anything reads it.
+
+    ★Several `--facts` accumulate (the option is `append`), and each may itself
+    be a `os.pathsep` list — the two spellings mean the same thing and both are
+    accepted, because a reader who knows `$PATH` will try the separator and a
+    reader who knows argparse will repeat the flag.
+    """
+    raw = getattr(args, "facts", None)
+    if not raw:
+        return
+    import os as _os
+
+    from .. import facts as _facts
+    parts = []
+    for item in raw:
+        parts.extend(p for p in str(item).split(_os.pathsep) if p.strip())
+    _facts.use(parts)
+    bad = _facts.problems()
+    if bad:
+        #: 名字给了就该指到东西上：给错了当场说，而不是等到某个条目找不到时
+        #: 才报「没有这台机器」——那句话会把「路径写错了」说成「语料里没有它」。
+        for line in bad:
+            print(f"fylite: {line}", file=sys.stderr)
+
+
 def _strip_option(words: list, flag: str) -> list:
     """The words without `flag VALUE` / `flag=VALUE`."""
     out, skip = [], False
@@ -340,6 +366,11 @@ def _strip_option(words: list, flag: str) -> list:
 def _delegate(args, parser, command: str) -> int:
     import subprocess
     tail = _strip_option(list(getattr(args, "_argv", []))[1:], "--bin-dir")
+    #: ★★`--facts` is NOT stripped: both hosts carry it now (the resolver lives in
+    #: the middle layer, `fylite_runtime::facts`).  It is applied here as well so
+    #: that anything this Python process reads before delegating resolves against
+    #: the same path the executable will use — one flag, one meaning, two hosts.
+    _apply_facts(args)
     path = _find_exe(_RUST_EXE, getattr(args, "bin_dir", None))
     if path:
         #: ★the command word is put back in front: `tail` is the line as typed

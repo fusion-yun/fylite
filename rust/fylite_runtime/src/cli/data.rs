@@ -27,6 +27,7 @@
 //! decomposed is listed among the failures.
 
 use super::Args;
+use crate::facts;
 use crate::detect::Format;
 use crate::document::{MergePolicy, Node};
 use crate::fyodoc::{self, Bundle};
@@ -350,7 +351,9 @@ extern "C" {
 pub fn run(args: &Args) {
     //: a closed pipe ends a listing (`tables | head`), it is not a panic
     unsafe { signal(13, 0) };
+    apply_facts(args);
     match args.word(1) {
+        "facts" => facts_face(args),
         "info" => info(args),
         "dump" => dump(args),
         "convert" => convert(args),
@@ -359,5 +362,61 @@ pub fn run(args: &Args) {
         "fetch" => fetch(args),
         "tables" => tables(),
         other => die(&format!("unknown data subcommand {other:?}; --help has the usage")),
+    }
+}
+
+/// `--facts` -> 本进程的搜索路径，在任何东西读它之前。
+///
+/// ★★组级选项，`data` 与 `case` 都有（`_cli.json` 一处声明，两个宿主各自建出）。
+/// **前置而不是替换**：给了自己的根，自带的与检出的仍在其后兜底。
+/// ★被指名却不在的根**当场说**：等到某个条目找不到才报「没有这台机器」，会把
+/// 「路径写错了」说成「语料里没有它」——两句话指向完全不同的处置。
+pub fn apply_facts(args: &Args) {
+    let given = args.all("facts");
+    if !given.is_empty() {
+        facts::use_roots(Some(facts::parse_roots(given)));
+    }
+    for line in facts::problems() {
+        eprintln!("fylite: {line}");
+    }
+}
+
+/// `fylite data facts [--roots] [域]` —— 搜索路径的问答面。
+///
+/// ★★多源之后「这份文档是哪来的」不再显然，所以它要有一个**问得出来**的答案：
+/// 没有它，一次答案不对的运行只能靠猜是哪个根供的。
+fn facts_face(args: &Args) {
+    let roots = facts::roots();
+    //: ★位置参数按**名字**取（`flag("domain")`），不是按命令词的深度——
+    //: `word(2)` 数的是子命令那一串，位置参数不在其中。
+    let domain = args.flag("domain").unwrap_or("");
+    if args.has("roots") || domain.is_empty() {
+        if roots.is_empty() {
+            eprintln!(
+                "fylite: facts 搜索路径上没有语料 —— 给 --facts，或设 ${}，\n\
+                 或在检出里跑 python3 tools/abox-to-facts.py --all",
+                facts::FACTS_ENV
+            );
+        }
+        for (i, r) in roots.iter().enumerate() {
+            println!("{}. {}", i + 1, r.display());
+        }
+        if args.has("roots") {
+            return;
+        }
+        for d in facts::domains() {
+            println!("   {d}: {} 条", facts::entries(&d).len());
+        }
+        return;
+    }
+    let items = facts::entries(domain);
+    if items.is_empty() {
+        eprintln!("fylite: 域 {domain:?} 在搜索路径上没有条目");
+        return;
+    }
+    //: 逐条把「谁供的」印出来——这正是多源要能回答的那个问题。
+    for e in items {
+        let rights = if e.rights_path().is_some() { "" } else { "  (无许可账)" };
+        println!("{:<16} {}{}", e.ident, e.root.display(), rights);
     }
 }

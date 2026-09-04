@@ -31,11 +31,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pathlib
 import shutil
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+#: ★★优先级与「谁供了这一条」由 `fylite.facts` 一处决定，本工具不自己走目录。
+#: 两处各实现一遍搜索顺序，某天它们会给出不同的答案——而发布是那个答案**发出去**
+#: 的地方，先发现的人是拿到制品的那个。
+sys.path.insert(0, str(ROOT / "python"))
+from fylite import facts as _facts  # noqa: E402
 #: ★★2026-09-04 `devices/` → `facts/`，按域分轴（用户裁定）。今天只有 `device` 一域
 #: 有内容；`amns` / `experiment` 进来时本工具**不必改**——它按域走目录。
 FACTS = ROOT / "facts"
@@ -45,50 +51,43 @@ FACTS = ROOT / "facts"
 #: 「存的和发的不同名」要记。`app/facts` 是指向仓根 `facts/` 的符号链接。
 
 
-def rights(entry_dir: pathlib.Path) -> dict | None:
-    p = entry_dir / "rights.json"
-    if not p.is_file():
-        return None
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-
-
-def domains() -> list[pathlib.Path]:
-    """`facts/` 下有内容的那几个域。"""
-    if not FACTS.is_dir():
-        return []
-    return sorted(d for d in FACTS.iterdir() if d.is_dir())
-
-
-def plan(domain: pathlib.Path, flavour: str):
-    """(可发的 id, [(不可发的 id, 为什么)])。
+def plan(domain: str, flavour: str):
+    """(可发的 [(id, 文档路径, 供它的根)], [(id, 为什么不发)])。
 
     ★**没有许可账 = 不发。**「账说不行」与「没有账」在这里是同一个答案，理由是
     同一条：发布的默认答案必须是「不能」，否则一个新拖回来的条目会因为**没人给它
     写账**而被发出去。
     """
     ok, no = [], []
-    for doc in sorted(domain.glob("*.jsonld")):
-        name = doc.stem
-        if name == "catalogue":
-            continue
-        r = rights(domain / name)
+    for e in _facts.entries(domain):
+        if e.document is None:
+            continue                      #: 只有卡片没有页面文档：不是发布物
+        r = _facts.rights(domain, e.ident)
         if r is None:
-            no.append((name, "没有 rights.json —— 许可未声明，默认不发"))
+            no.append((e.ident, "没有 rights.json —— 许可未声明，默认不发"))
         elif flavour == "internal" and r.get("internal", True):
-            ok.append(name)
+            ok.append((e.ident, e.document, e.root))
         elif flavour == "public" and r.get("public"):
-            ok.append(name)
+            ok.append((e.ident, e.document, e.root))
         else:
-            no.append((name, (r.get("ruling") or "").strip() or "rights.json 说这一版不带"))
+            no.append((e.ident, (r.get("ruling") or "").strip()
+                       or "rights.json 说这一版不带"))
     return ok, no
 
 
-def catalogue(domain: pathlib.Path, out: pathlib.Path, shipped: set) -> None:
-    src = domain / "catalogue.jsonld"
-    if not src.is_file():
+def catalogue(domain: str, out: pathlib.Path, shipped: set) -> None:
+    """目录按**实际发出去的那几个**重写，取自搜索路径上第一个有它的根。
+
+    ★一份广告了一台不在这里的机器的目录，读者点下去得到 404，而页面会把它读成
+    「装置数据坏了」而不是「这一版不带它」。
+    """
+    src = None
+    for r in _facts.roots():
+        c = r / domain / "catalogue.jsonld"
+        if c.is_file():
+            src = c
+            break
+    if src is None:
         return
     d = json.loads(src.read_text(encoding="utf-8"))
     kept, dropped = [], []
@@ -110,34 +109,57 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--flavour", choices=("public", "internal"), default="public")
     ap.add_argument("--out", type=pathlib.Path)
-    ap.add_argument("--list", action="store_true", help="只列出这一版带哪几台")
+    ap.add_argument("--list", action="store_true", help="只列出这一版带哪几个")
+    ap.add_argument("--facts", action="append", metavar="PATH",
+                    help="要参与的 facts 语料，按优先级；可重复，也可用平台路径分隔符分隔"
+                         "（缺省读 $FY_FACTS_PATH 与自带的那一份）")
+    ap.add_argument("--roots", action="store_true",
+                    help="只打印生效的搜索路径（排错用）")
     a = ap.parse_args(argv)
 
-    if not domains():
-        print("[facts] 没有 facts/ —— 这一版不带任何参考数据"
-              "（拖回：python3 tools/abox-to-facts.py --all）", file=sys.stderr)
+    #: ★★多源：`--facts` / `$FY_FACTS_PATH` 上的每一个根都参与，按优先级逐条决胜，
+    #: 而**决胜的单位是条目**——第一个有 `<域>/<id>` 的根供出它的全部（文档、卡片、
+    #: 许可账）。不跨根拼一份文档：那会造出一台没人运行的机器，而且不报错。
+    if a.facts:
+        parts = []
+        for item in a.facts:
+            parts.extend(x for x in item.split(os.pathsep) if x.strip())
+        _facts.use(parts)
+    for line in _facts.problems():
+        print(f"[facts] {line}", file=sys.stderr)
+
+    if a.roots:
+        for r in _facts.roots():
+            print(r)
         return 0
 
-    total = 0
-    for domain in domains():
+    doms = _facts.domains()
+    if not doms:
+        print("[facts] facts 搜索路径上没有语料"
+              "（拖回：python3 tools/abox-to-facts.py --all；或给 --facts / "
+              f"${_facts.FACTS_ENV}）", file=sys.stderr)
+        return 0
+
+    for domain in doms:
         ok, no = plan(domain, a.flavour)
-        name = domain.name
         if a.list or not a.out:
-            for e in ok:
-                print(f"{name}/{e}")
-            for e, why in no:
-                print(f"# {name}/{e}: {why}", file=sys.stderr)
+            for ident, _doc, _root in ok:
+                print(f"{domain}/{ident}")
+            for ident, why in no:
+                print(f"# {domain}/{ident}: {why}", file=sys.stderr)
             continue
-        out = a.out / "facts" / name
+        out = a.out / "facts" / domain
         out.mkdir(parents=True, exist_ok=True)
-        for e in ok:
-            shutil.copyfile(domain / f"{e}.jsonld", out / f"{e}.jsonld")
-        for e, why in no:
-            print(f"  {a.flavour} 版：不带 {name}/{e}（{why[:56]}…）")
-        catalogue(domain, out, set(ok))
-        total += len(ok)
-        print(f"[facts] {name}: {a.flavour} 版 {len(ok)} 个"
-              + (f"（{' '.join(ok)}）" if ok else ""))
+        for ident, doc, _root in ok:
+            shutil.copyfile(doc, out / f"{ident}.jsonld")
+        for ident, why in no:
+            print(f"  {a.flavour} 版：不带 {domain}/{ident}（{why[:56]}…）")
+        catalogue(domain, out, {i for i, _d, _r in ok})
+        #: ★发出去的东西要说得清是哪几个根供的——多源之后这不再是显然的。
+        srcs = sorted({r.name for _i, _d, r in ok})
+        print(f"[facts] {domain}: {a.flavour} 版 {len(ok)} 个"
+              + (f"（{' '.join(i for i, _d, _r in ok)}）" if ok else "")
+              + (f" ← {' + '.join(srcs)}" if len(srcs) > 1 else ""))
     return 0
 
 

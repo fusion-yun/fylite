@@ -115,3 +115,8 @@ pub mod cli;
 pub mod mdsbind;
 #[cfg(feature = "mdsip")]
 pub mod assembly;
+
+//: ★★2026-09-04：facts 的搜索路径（多个语料，按优先级，逐条决胜）。放在中间层，
+//: 因为「哪一份文件是这条断言」是数据集成的事——而 `data` / `case` 两条命令词都
+//: 在这一层跑。Python 侧另有一份 `fylite.facts`，两份由闸子比对。
+pub mod facts;

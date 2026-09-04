@@ -114,4 +114,10 @@ fylite = ["_lib/*.so", "_spec/*", "_manifest/*", "_cli.json",
           #: A-Box 分解出来的 MDSplus 绑定表（`tools/abox-mds-bind.py` 生成）。
           #: 轮里要带：装了包却没有它，按语义路径取数这条路在安装出来的
           #: 包上就是空的，而 import 不会失败。
-          "_mds_bind.json"]
+          "_mds_bind.json",
+          #: ★★发行版自带的 facts 语料（2026-09-04）。`tools/build-wheel.sh` 用
+          #: `tools/facts-publish.py --flavour public` 把**这一版允许发布的那些**
+          #: 装进来——许可闸就是那一处，打包不另判。装了包即有一份可用的语料，
+          #: 而 `$FY_FACTS_PATH` / `--facts` 可以在它之前插入自己的根（先到先得，
+          #: 决胜单位是条目）。源码检出里没有这个目录，所以它的缺席不是错。
+          "_facts/*/*.jsonld"]

@@ -124,3 +124,6 @@ python/fylite/_bin/
 #: 贯穿仓内、页面与发布路径**。问答面 `tools/facts-publish.py --flavour public|internal --list`，
 #: 闸子 `python/tests/test_facts_corpus.py`。
 /facts/
+#: ★发行版自带的那一份是**打包时生成**的（`build-wheel.sh` 调 `facts-publish.py`），
+#: 与 `_lib/` `_bin/` 同规矩：制品不入库，打包时装入。
+/python/fylite/_facts/

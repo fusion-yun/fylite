@@ -9,6 +9,14 @@
    "affects_result": true,
    "affects_result_why": "names WHICH TOKAMAK is solved — every geometry, coil and Green table in the answer comes from this deck"
   },
+  "FY_FACTS_PATH": {
+   "governs": "the facts search path: os.pathsep-separated corpora of assertions about named individuals, consulted in order",
+   "needed_for": "nothing - a distribution may bundle one, and a checkout has its own facts/",
+   "default": "the bundled fylite/_facts/ if present, then the checkout's facts/",
+   "example": "/srv/site-facts:/home/me/my-facts",
+   "affects_result": true,
+   "affects_result_why": "names WHICH corpus supplies each entry, and different corpora describe the same machine differently. Resolution is per entry and the first root wins the whole of it - document, card and rights ledger together - because a machine assembled half from one root and half from another is one nobody operates, produced without an error. The root that supplied each entry is recorded (fylite.facts.Entry.root) for the same reason a run manifest names its inputs."
+  },
   "FYLITE_NN_DIR": {
    "governs": "where exported neural surrogates live (TGLF-NN and any other model in that family), as .npz written by tools/nn-export.jl",
    "needed_for": "fylite.nn.load and every capability that asks for a surrogate; nothing else",

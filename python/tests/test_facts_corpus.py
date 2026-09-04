@@ -166,3 +166,145 @@ def test_the_committed_embed_table_is_the_public_one():
     assert not leaked, (
         f"committed 的内嵌表里有只进内部版的机器：{leaked}。"
         "重跑 `node tools/make-app-embed.mjs`（缺省是公开版）再提交。")
+
+
+# --------------------------------------------------------------------------- #
+# 多源：搜索路径、优先级、以及**不跨根拼**                                      #
+# --------------------------------------------------------------------------- #
+def _make_root(tmp, ident="east", note="override", with_rights=True):
+    d = tmp / "device"
+    (d / ident).mkdir(parents=True, exist_ok=True)
+    (d / f"{ident}.jsonld").write_text(
+        json.dumps({"@type": "fylite:DeviceDescription/1",
+                    "fylite:device_id": ident, "note": note}), encoding="utf-8")
+    if with_rights:
+        (d / ident / "rights.json").write_text(
+            json.dumps({"device": ident, "internal": True, "public": True,
+                        "ruling": note}), encoding="utf-8")
+    return tmp
+
+
+def test_the_first_root_wins_the_whole_entry(tmp_path):
+    """★★优先级的单位是**条目**，不是值。
+
+    两个根都描述 EAST，而它们描述得不一样（一个带参考放电，另一个线圈几何更新）。
+    取第一个根的文档、却取第二个根的许可账——或者反过来——会造出一台**没人运行的
+    机器**，而且不报错。所以文档、卡片、许可账三样必须同根。
+    """
+    from fylite import facts
+
+    hi = _make_root(tmp_path / "hi", note="HIGH")
+    try:
+        facts.use([hi])
+        e = facts.find("device", "east")
+        assert e is not None and e.root == hi
+        assert "HIGH" in e.document.read_text(encoding="utf-8")
+        #: 许可账必须来自**同一个**根
+        assert e.rights_path is not None
+        assert e.rights_path.parent.parent.parent == hi
+        assert facts.rights("device", "east")["ruling"] == "HIGH"
+    finally:
+        facts.use(None)
+
+
+def test_a_lower_root_still_contributes_what_the_higher_one_lacks(tmp_path):
+    """★并集，逐条决胜——低优先级的根补上高优先级没有的那些，不补它有的。"""
+    from fylite import facts
+
+    hi = _make_root(tmp_path / "hi", ident="onlyhere", note="HIGH")
+    try:
+        facts.use([hi, ROOT / "facts"])
+        ids = {e.ident: e.root for e in facts.entries("device")}
+        assert ids.get("onlyhere") == hi, "高优先级独有的那台没进并集"
+        if (ROOT / "facts" / "device" / "iter.jsonld").is_file():
+            assert ids.get("iter") == ROOT / "facts", "低优先级该供的那台没供上"
+    finally:
+        facts.use(None)
+
+
+def test_an_entry_with_no_ledger_is_not_publishable(tmp_path):
+    """★没有许可账 = 不发。与「账说不行」同一个答案，理由同一条：默认必须是「不能」。"""
+    from fylite import facts
+
+    hi = _make_root(tmp_path / "hi", ident="unledgered", with_rights=False)
+    try:
+        facts.use([hi])
+        assert facts.find("device", "unledgered") is not None
+        assert facts.rights("device", "unledgered") is None
+        r = subprocess.run([sys.executable, str(TOOL), "--facts", str(hi),
+                            "--flavour", "internal", "--list"],
+                           capture_output=True, text=True, timeout=120)
+        assert r.returncode == 0, r.stderr
+        assert "device/unledgered" not in r.stdout, \
+            "没有账的条目进了发布计划"
+        assert "unledgered" in r.stderr, "拒绝了，却没说是哪一条、为什么"
+    finally:
+        facts.use(None)
+
+
+def test_a_named_root_that_is_not_there_is_named(tmp_path):
+    """★路径给错了要当场说。
+
+    等到某个条目找不到时才报「没有这台机器」，会把「路径写错了」说成「语料里没有
+    它」——两句话指向完全不同的处置。
+    """
+    from fylite import facts
+
+    missing = tmp_path / "nope"
+    try:
+        facts.use([missing])
+        bad = facts.problems()
+        assert bad and str(missing) in bad[0]
+    finally:
+        facts.use(None)
+
+
+def _exe():
+    """The built executable, or a skip — it is a build product, not a source."""
+    for p in (ROOT / "python" / "fylite" / "_bin" / "fylite",
+              ROOT / "rust" / "fylite_runtime" / "target" / "release" / "fylite"):
+        if p.is_file():
+            return p
+    pytest.skip("no fylite executable built (bash tools/build-app-exe.sh --mode cli linux)")
+
+
+def test_the_two_resolvers_agree(tmp_path):
+    """★★搜索路径有**两份实现**，这条把它们钉在一起。
+
+    Rust 那份（`fylite_runtime::facts`）是命令行走的，Python 这份
+    （`fylite.facts`）是包里调用走的——与 `_cli.json` 的三个解析器同一姿态：
+    一份规则、多处建出、一道闸子比对。两处各判一遍优先级，某天它们会给出不同的
+    答案，而**先发现的人是拿到制品的那个**。
+
+    比的是最容易分头出错的那件事：**每一条由哪个根供出**。
+    """
+    from fylite import facts
+
+    hi = _make_root(tmp_path / "hi", ident="east", note="HIGH")
+    _make_root(tmp_path / "hi", ident="onlyhigh", note="HIGH")
+    exe = _exe()
+
+    r = subprocess.run([str(exe), "data", "facts", "--facts", str(hi), "device"],
+                       capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    rust = {}
+    for line in r.stdout.splitlines():
+        parts = line.split()
+        if len(parts) >= 2:
+            rust[parts[0]] = pathlib.Path(parts[1]).resolve()
+
+    try:
+        facts.use([hi])
+        py = {e.ident: e.root.resolve() for e in facts.entries("device")}
+    finally:
+        facts.use(None)
+
+    assert py, "the Python resolver found nothing to compare"
+    assert set(py) == set(rust), (
+        "the two resolvers disagree about WHICH entries exist:\n"
+        f"  python only: {sorted(set(py) - set(rust))}\n"
+        f"  rust only  : {sorted(set(rust) - set(py))}")
+    differ = {k: (py[k], rust[k]) for k in py if py[k] != rust[k]}
+    assert not differ, (
+        "the two resolvers disagree about WHICH ROOT supplies an entry — "
+        f"that is the answer a record has to be able to name: {differ}")
