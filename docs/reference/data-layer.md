@@ -41,7 +41,7 @@ imas-core 读回逐叶子比 → 过 imas-python 的 `nc_validate`。IMAS 布局
 打印），不是从 fyo 的 schema 推的。
 :::
 
-## 八条子命令
+## 七条子命令
 
 ```bash
 fy data info     <file> [--json]                  # 这是什么文件
@@ -51,12 +51,15 @@ fy data merge    <in>... -o <out> [--keep] [--merge-key name|none] # 多份合�
 fy data assemble <assembly> -o <out> [--shot N] [--time T] [--select ids/path]... [--param k=v]...
 fy data fetch    --device <装置名|device.jsonld> --ids A,B --shot N -o <out> [--provider P] [--dry-run]
 fy data tables                                    # 内置 DD 表：版本与 IDS 名
-fy data facts    [<domain>] [--roots]             # facts 搜索路径：哪些语料在场、每条由谁供
 ```
+
+★★**`facts` 这条子命令搬去了 `list`**（2026-09-04，`FYL-DESIGN-17` E-24：发现面只有
+一处）。`fy data facts` 按名拒绝并指向 `fy list facts`——`data` 从此只搬数据，不回答
+「有什么」。
 
 **组级选项 `--facts PATH`** 对上面每一条有效（写在子命令前后都可以）：把一份语料**插到
 自带那份之前**，可重复、也可用平台路径分隔符串起来；它是**前插**而不是替换
-`$FY_FACTS_PATH`。`fy case …` 同此。
+`$FY_FACTS_PATH`。`fy run …` 与 `fy list …` 同此。
 
 ★用法以那个可执行文件自己排出来的为准（`fy data <子命令> --help`）——本页与它同源
 （`python/fylite/_cli.json`），但只有它是**产物**。
@@ -164,17 +167,21 @@ DD 4.1.1
 ```
 
 (facts)=
-### `facts` —— 谁供了这一条
+### 谁供了这一条 —— `fy list facts`
 
 ```bash
-$ fy data facts                     # 每个域、每条条目，以及供它的那份语料
-$ fy data facts device              # 只看一个域
-$ fy data facts --roots             # 只看搜索路径本身，按优先序
+$ fy list facts                     # 每个域、每条条目，以及供它的那份语料
+$ fy list facts device              # 只看一个域
+$ fy list facts --roots             # 只看搜索路径本身，按优先序
 ```
 
 搜索路径是 `--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 包内自带的 `_facts/`，
 **先到先得，决胜单位是条目**（不是整份语料）。`--device east` 这类按名字解析的开关
 走的就是它，所以「这次用哪一份 EAST」由一个开关统一决定。
+
+★同一条命令还打**算例语料**那条路径（场景模板与预设，`--cases` > `$FY_CASES_PATH` >
+检出的 `docs/examples/` > 自带的那份）：两条路径回答两个问题，一次问完省得再问一次。
+逐台装置的详情走 [`fy list devices`](cli.md#fylite-cli-list)。
 
 ## Python 面
 

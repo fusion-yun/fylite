@@ -10,8 +10,7 @@ title: 命令行 (Command Line Reference)
 
 :::{important}
 **Python 包没有命令行**（2026-09-04 用户裁定）：没有 `fylite` 控制台脚本，没有
-`python -m fylite`，也没有 argparse 那一层。从前由它承载的十一条动词是**库调用**，
-逐条对照见[用户指南](../guide/cli.md#从前的十一条动词今天怎么写)。
+`python -m fylite`，也没有 argparse 那一层。
 :::
 
 ## 一份定义，两个宿主
@@ -23,69 +22,165 @@ title: 命令行 (Command Line Reference)
 | `fy` | **唯一的可执行文件**（Rust） | 编译期纳入它，建出自己的解析器 |
 | 浏览器页面 | 静态站点 | 它的 `hosts.app.params` 就是页面的启动参数 |
 
-★这份文件从前有第三个读者——Python 的 argparse 建造者——它与那一层一起撤了；文件里
-只属它的十一条命令、`hosts: ["python"]` 标记与 `--bin-dir` 也一并撤除，闸子
+★这份文件从前有第三个读者——Python 的 argparse 建造者——它与那一层一起撤了；闸子
 `test_cli_spec.py` 现在钉的就是「没有第三个宿主的残留」。
 
-## 三条命令
+## 四条命令
 
 ```bash
 fy --help
 fy app  [--port N] [--no-open] [--mdsip HOST:PORT] [--mds-user NAME]
         [--page P] [--device D] [--lang L] [--theme T] [--app-dir DIR]
-fy data info|dump|convert|merge|assemble|fetch|tables|facts … [--facts PATH]
-fy case describe|plan|run|json … [--facts PATH]
+fy data info|dump|convert|merge|assemble|fetch|tables … [--facts PATH]
+fy run  <line> [<scenario>] | <plan.jsonld>... [key=value ...] [options]
+fy list devices|experiments|scenarios|presets|facts|kernel|lines … [--facts PATH] [--cases PATH]
 ```
 
-不带命令词时它跑 `app`（起服务、开浏览器），所以双击仍然可用。
+一个词一个动词：起页面 · 搬数据 · 算 · 看。不带命令词时它跑 `app`，所以双击仍然可用。
 
 :::{note}
 **为什么只有一个可执行文件。** 2026-09-03 之前还有 `fylite-data` 与 `fylite-case` 两个
-二进制。它们各十行，做的就是把 `data` / `case` 前置到自己的命令行再调用同一份代码——
-而那一次前置由调用方给就够了。于是它们撤掉。名字换过两次：`fylite-app` → `fylite` →
-**`fy`**（2026-09-04）；中间那一次与 Python 控制台脚本同名，`$PATH` 上找到的会是那个
-脚本自己、于是无限 fork——两个名字分开之后，那条失败方式在源头上没有了。
+二进制，各十行，做的就是把命令词前置到自己的命令行再调用同一份代码——那一次前置由
+调用方给就够了。名字换过两次：`fylite-app` → `fylite` → **`fy`**（2026-09-04）；中间那
+一次与 Python 控制台脚本同名，`$PATH` 上找到的会是那个脚本自己、于是无限 fork。
 :::
+
+(fylite-cli-run)=
+## `fy run` —— 一次日常建模或分析
+
+```bash
+fy run <line> [<scenario>] [selectors] [key=value ...] [options]
+fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
+```
+
+两种位置参数形，一条路：**场景形**由线（`analysis` / `model` / `design` / `control`）
+选出缺省场景，场景选出模板；**计划文件形**（从前的 `fy case run`）把给出的计划按序
+合成，模板由合成后计划的 code 末段反查。含 `/` 或以 `.json` / `.jsonld` / `.yaml`
+结尾的位置参数当路径，否则当名字。
+
+### 参数：四种写法，一个意思
+
+| 写法 | 等价于 | 说明 |
+| :--- | :--- | :--- |
+| `key=value` | `--key=value` | 裸写法；名字若与固定选项同名（`shot` · `time`），**固定选项优先** |
+| `--key=value` | `key=value` | — |
+| `--key` | `key=true` | 只对布尔参数合法 |
+| `--no-key` | `key=false` | 同上 |
+
+名字里 `-` 与 `_` 等价。**值要用 `=`**：`--key value`（空格）不是参数写法，那个值会被
+当成位置参数。
+
+参数**不在** `_cli.json` 里：它属于场景，而场景是数据。名字、类型、缺省与取值范围来自
+**场景模板**（`docs/examples/scenario/<name>.jsonld`，随可执行文件内嵌，可被语料路径上
+的同名文件覆盖）。未知的名字在第二段解析里按名拒绝并给出最接近的三个。
+
+### 固定选项
+
+| 选项 | 作用 |
+| :--- | :--- |
+| `--device ID` | 装置：facts 里的名字或一份清单路径。整份装置文档绑到 `device` 端口，并补上模板声明的装置缺省 |
+| `--shot N` / `--time T` | 炮号与时刻；与 `shot=N` / `time=T` 同一个参数。时间记法 `4.5`（点）/ `4:5`（窗）/ `4,4.5,5`（表） |
+| `--preset NAME` | 语料里的具名计划，叠在模板与装置之上 |
+| `--plan FILE` | 显式计划（可重复，按序） |
+| `--input FILE` | 绑到模板声明的**主输入端口** |
+| `--bind PORT=FILE` | 绑其余端口（可重复） |
+| `--code IRI` | 一份计划带多个 code 时选一个 |
+| `--cases PATH` / `--facts PATH` | 语料根前置（可重复） |
+| `-o, --record DIR` | 记录目录；缺省 `$FYLITE_RUN_DIR/<戳>-<场景>/` |
+| `--format F` | `jsonld` / `hdf5` / `netcdf` / `imas-hdf5` |
+| `--kernel PATH` | 内核 `.so` |
+| `--mdsip HOST[:PORT]` / `--mds-user NAME` / `--timeout-ms MS` | 取数阶段的连接 |
+| `--offline` | 取数阶段禁止开套接字（也可 `$FYLITE_OFFLINE=1`） |
+| `--dry-run` | 合成并打印计划与来源表，不取数、不装内核、不写文件 |
+| `--json` | 与 `--dry-run` 合用打计划；单独用把记录连数据集内联打到 stdout |
+| `--quiet` | 不打进度 |
+
+### 合成次序
+
+自低到高，后者覆盖前者，每个值在 `plan.jsonld` 里带一条 `fylite:from`：
+
+1. **模板缺省** `template:<场景>`
+2. **装置** `device:<id>@<root>`——模板的 `from_device` 表按 fyo 路径取值；取不到就不设
+3. **预设** `preset:<路径>`
+4. **`--plan`** `plan:<路径>`，按序
+5. **命令行** `cli`；开关展开记 `cli:switch <名>`，且**低于**同一行上显式给的参数
+6. **端口绑定** `cli:input` / `cli:bind` / `resolved:<来源>`
+
+### 测量文档三级解析
+
+给了 `--input` 就用它；否则给了 `shot=` 就在 facts 的 `experiment/<装置>/<炮>` 里找
+最近的一片（容差 1 ms，超出**不取邻片**）；再否则去取数，取回的文档**先落进记录目录**
+再绑端口——于是同一次分析可以离线重放。`--offline` 下第三级不存在。
+
+### 记录目录与退出码
+
+```text
+rec/
+  plan.jsonld              合成好的计划，每个参数带 fylite:from
+  device.fyo.jsonld        装出来的装置文档（给了 --device 且它有清单时）
+  measurements.fyo.jsonld  第三级取回的测量
+  record.jsonld            spo:ComputationRecord；run_state · fylite:refusal_stage
+  <ids>.fyo.jsonld         产出的数据集
+```
+
+| 退出码 | 含义 | 记录 |
+| ---: | :--- | :--- |
+| 0 | 跑完 | 全套 |
+| 1 | 合成之后的拒绝，`fylite:refusal_stage` ∈ `compose` / `device` / `measurements` / `kernel` | 有（`run_state: rejected`） |
+| 2 | 语法：未知选项、未知参数、类型不符、范围外 | 无 |
+
+(fylite-cli-list)=
+## `fy list` —— 有什么可用
+
+七条子命令，一类语料一条；给名字就把那一条打全。**只读**：不合成、不取数、不写记录、
+不开套接字。
+
+| 子命令 | 打什么 |
+| :--- | :--- |
+| `devices [<id>...]` | facts 的装置：由哪个根供、卡片还是清单、许可账在不在；给名字打年代、逐 IDS 的提供者与缺省 |
+| `experiments [<machine> [<shot>]]` | 语料里的炮与片数；给到炮号打逐片的时刻表 |
+| `scenarios [<name>...] [--line L]` | 场景：线、code、今天门认不认、参数个数；给名字打参数表全表、开关与端口 |
+| `presets [<name>...] [--line L] [--scenario S]` | 语料里的具名计划；给名字打那份计划文档 |
+| `facts [<domain>] [--roots]` | 两条搜索路径：facts 与算例语料，逐条说是谁供的 |
+| `kernel` | 内核认哪些 code、哪些 entry、各自的声明块 |
+| `lines` | 四条线与各自的缺省场景 |
+
+组级选项 `--facts PATH` · `--cases PATH` · `--kernel PATH` · `--json`。
+
+★`scenarios` 的「今天」一列装内核来答；**装不上不是错**，那一列改说目录里记的判定，
+其余照打。
 
 ## `fy data` —— 数据层
 
-八条子命令：`info` / `dump` / `convert` / `merge` / `assemble` / `fetch` / `tables` / `facts`，
-外加组级选项 `--facts PATH`（`case` 亦同）。
-它能读哪些源、写哪两种布局、`--time` 怎么写、为什么 MDSplus 只读——**单开一页**：
-[数据层](data-layer.md)。
+七条子命令：`info` / `dump` / `convert` / `merge` / `assemble` / `fetch` / `tables`，
+外加组级选项 `--facts PATH`。它能读哪些源、写哪两种布局、`--time` 怎么写、为什么
+MDSplus 只读——**单开一页**：[数据层](data-layer.md)。
 
-## `fy case` —— 一份计划进，一份记录出
+(fylite-cli-migration)=
+## 从前的 `case` 今天怎么写
 
-直通内核单入口 `fylite_rs_fyo`，不经 Python 装配：
+`case` 与 `data facts` 已撤（`FYL-DESIGN-17` E-23 / E-24）。旧词**按名拒绝并指出去处**，
+而不是静默转发——转发会让两个词长期并存，而那正是这次合并要消掉的东西。
 
-```bash
-fy case describe [--kernel PATH]
-fy case plan <plan.jsonld>... [--set k=v]... [--bind port=path]... [--code NAME]
-fy case run  <plan.jsonld>... --record DIR [--format jsonld|hdf5|netcdf|imas-hdf5]
-             [--code NAME] [--kernel PATH] [--quiet]
-fy case json <plan.jsonld>... [--kernel PATH]   # 一份计划进，一份记录出（stdout）
-```
+| 从前 | 今天 |
+| :--- | :--- |
+| `fy case describe` | `fy list kernel` |
+| `fy case plan P… --set k=v` | `fy run P… k=v --dry-run` |
+| `fy case run P… --set k=v -o DIR` | `fy run P… k=v -o DIR` |
+| `fy case json P…` | `fy run P… --json` |
+| `fy data facts [域]` | `fy list facts [域]` |
 
-`--kernel` 显式指一份内核 `.so`（缺省按 `$FYLITE_KERNEL_LIB` 与包内 `_lib/` 找），
-`--code NAME` 在一份计划带多个代码时选一个，`--quiet` 只留记录本身。
-
-多份计划按序合成（后者覆盖前者，`--set` / `--bind` 最后）。★`--format imas-hdf5`
-（或计划自己在输出端口上要 `fyo:ImasHdf5Format`）写出**一个 IMAS 数据入口**：
-`imas/master.h5` + 逐 IDS 的 `<ids>.h5`。
-
-★**跑不成的算例也回一份记录**（`run_state: rejected`，内核的话在 `comment` 里），
-不是抛一个异常：一份跑不了的计划必须说出它缺什么。
+★`--set` 整个撤了：`key=value` 就是它，只是多了模板校验。Rust 库模块 `crate::case`
+（合成器）**留着**——撤的是命令词，不是合成器。
 
 Python 侧同一道门是 `fylite.io.fydoc.case_json(plan, base=…)`：一份
-`fyo:ScenarioSpecification` 进，一份 `spo:ComputationRecord` 出，产出数据集内联在端口上。
+`fyo:ScenarioSpecification` 进，一份 `spo:ComputationRecord` 出。
 
 ## 算例语料与 V&V 登记册
 
-从前是 `fylite cases …` 一条动词，今天是库：
-
 ```python
 from fylite.engine import cases
-cases.catalogue()          # 列出 cases/ 的算例
+cases.catalogue()          # 列出语料里的算例
 cases.load("zerod-iter-15ma")
 cases.run("zerod-iter-15ma")
 from fylite.engine import benchmark as bm
@@ -96,7 +191,7 @@ bm.records(); bm.problems(rec, d); bm.run("V-09")   # 公开 V&V 登记册
 
 ## 相关
 
-- [命令行怎么用](../guide/cli.md) —— 按任务走的那一遍，以及十一条动词的库对照表
-- [数据层](data-layer.md) —— `fy data` 八条子命令详解
+- [命令行怎么用](../guide/cli.md) —— 按任务走的那一遍
+- [数据层](data-layer.md) —— `fy data` 七条子命令详解
 - [API 速查](api.md) —— Python 的入口地图
-- 设计集 `FYL-DESIGN-15` —— 一份规格几个宿主，以及每条裁定的理由
+- 设计集 `FYL-DESIGN-15`（一份规格几个宿主）· `FYL-DESIGN-17`（`run` 与 `list` 的详细设计）

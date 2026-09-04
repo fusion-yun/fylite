@@ -268,21 +268,29 @@ A case is **one structure in, one structure out**: a `fyo:ScenarioSpecification`
 (the documents under `cases/`, an `spo:ComputationPlan`) goes in, an
 `spo:ComputationRecord` with its produced datasets comes out. The kernel
 completes the case from its structure — settings by name, bound inputs by fyo
-path — and the data layer owns both ends: the `fy case` command reads and
+path — and the data layer owns both ends: the `fy run` command reads and
 composes the plan documents, resolves bound inputs through the format readers,
 loads `libfylite_kernel.so` at run time and writes the record and the datasets
 as fyo documents.
 
 ```sh
-fy case describe                                   # what the kernel completes, and what it declares
-fy case plan cases/evolve-default.jsonld --set nsteps=12
-fy case run  cases/evolve-default.jsonld --set nsteps=12 --record records/evolve
+fy list kernel                                     # what the kernel completes, and what it declares
+fy run docs/examples/evolve/evolve-default.jsonld nsteps=12 --dry-run
+fy run docs/examples/evolve/evolve-default.jsonld nsteps=12 --record records/evolve
 #  -> records/evolve/{record.jsonld, plan.jsonld, core_profiles.fyo.jsonld, summary.fyo.jsonld, ...}
 ```
 
-Several plan documents compose (later ones override earlier ones, then `--set`
-and `--bind`). A case the kernel cannot complete is **refused with the missing
-thing named** — a capability not yet sunk, an equilibrium ladder not bound —
+The same command takes a **line and a scenario** instead of files, and then it
+resolves the device and the shot itself:
+
+```sh
+fy run analysis --device east shot=137985 time=4.0 --only-magnetic -o rec/
+fy list scenarios --line analysis                  # what there is, and whether it runs today
+```
+
+Several plan documents compose (later ones override earlier ones, then the
+`key=value` parameters and `--bind`). A case the kernel cannot complete is
+**refused with the missing thing named** — a capability not yet sunk, an equilibrium ladder not bound —
 and the refusal is recorded too (`run_state: rejected`). Build it with
 `./rust/build.sh --exe`; the kernel is found by `--kernel`, `$FYLITE_KERNEL_LIB`
 or `python/fylite/_lib/`.
@@ -300,7 +308,7 @@ back here with h5py and with the data layer's own reader (the layout is the one
 The same run is **one function** on the data layer: `fylite_runtime_case_json`
 takes the plan as JSON-LD text (one document, or an array composed in order)
 and returns the record as JSON-LD text with the datasets inline on their
-output ports. `fy case json plan.jsonld` and, in Python,
+output ports. `fy run plan.jsonld --json` and, in Python,
 `fylite.io.fydoc.case_json(plan)` are faces on it. The kernel behind both is
 its own single door, `fylite_rs_fyo`: settings by name and inputs by fyo path
 in, fields by fyo path out, no handle and no state between calls.
@@ -433,7 +441,7 @@ bm.load("V-01")                   # one record, JSON-LD
 [bm.problems(r, bm.registry_dir()) for r in bm.graph()]   # structure (the test tier's own function)
 bm.run("V-09")                    # its private gates ($FYLITE_KERNEL=../fylite_kernel)
 casereport.render(cases.run("evolve-default"))   # a case -> report.md + figures/*.svg + presentation.jsonld
-casereport.render("records/<run>")               # render a record `fy case run` wrote
+casereport.render("records/<run>")               # render a record `fy run` wrote
 ```
 
 ★The frozen test corpus is not here either: `tests/data` is a symlink to
