@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-12
 title: 实验分析页 (The Analysis Page)
 shortname: fylite-analysis-page
-version: "0.2"
-date: 2026-09-01
+version: "1.0"
+date: 2026-09-04
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,21 +12,25 @@ ai_assistance:
   - Claude Code
 created: 2026-09-01T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-01T00:00:00Z
+  date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.2：按 `FYL-DESIGN-11` 的外壳裁定细化视觉。引用四页共用的新三条
-    **P-25 / P-26 / P-27**（正本在 `FYL-DESIGN-10`），本页自己新增 **P-29**
-    ——不确定度画成什么样取决于它度量了什么：后验带是带且抬头写它包了什么、
-    残差是零线上的杆、测量是点而拟合是线。配一张视觉词汇表。★同批记下一件事：
-    **本页是四页里唯一满足 16:9 首屏判据的**（首处输出 553 px），而这条今天成立
-    靠的是两个可被一次改动破坏的条件，因此闸子对四页一视同仁地跑（G-17）。
-    新增缺口 G-15 / G-16 / G-17、提案 NR-QUAL-006 与追溯一行。
-    v0.1 初稿：自 `FYL-DESIGN-10` v0.2 拆出。浏览器前端四页各有一份设计
-    文档，这一份写**实验分析页**（`analysis`）。★裁定与缺口**编号不重排、条搬家
-    不改号**：P-9（误差棒只说抽了的那几样）与 P-16（折叠的控件仍是控件）随本页
-    迁来，缺口 G-2 / G-4 / G-5 / G-6 / G-7 / G-9 同理；四页共同的十一条纪律
-    留在 `FYL-DESIGN-10`，本篇**引用而不抄**。新增本页自己的裁定 P-22
-    （动理学约束是这一页的分别所在）与 P-23（预设只填不跑）。'
+  change: 'v1.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）：按现行状态重排，
+    沿革收进本条。裁定 P-9 / P-16 / P-22 / P-23 / P-29、缺口 G-2..G-17、门禁、提案与
+    追溯一条不丢。实质改动：①路径按 2026-09-04 仓树核实——部件标识是
+    `data-part="reconstruction"`（原误记为 `analysis`），主 worker 是 `scenario.js`
+    起的 `app/assets/worker.js`，B-06 报告在本仓 `docs/benchmark/reports/`，逐页 QR
+    文件已不在仓里，门禁在 `app/tests/`；②B-06 的 q95 按该报告 2026-08-31 的订正改为
+    +5.55 %（原引 +1.44 % 系假磁通粉饰所得），q₀ −58.9 % 不变；③首屏提案号
+    NR-QUAL-006 改为 NR-QUAL-005（SRS 侧登记只有这一个号），补 NR-QUAL-004 引用行，
+    DE-LOG-10 标明正本在 `FYL-DESIGN-10`；④「本篇在四页里的位置」与编号规矩合为摘要末
+    一处；⑤落地状态改标 2026-09-04，补 `page_analysis.html`（v2 外壳，未提正本）与
+    「与内核契约的关系」一节（按 `FYL-DESIGN-16` K-1 / K-3 / H-1 写目标态，未落地）；
+    ⑥G-17 补记 `validate-page-v2.mjs` 已在 `page_*` 四页上守 P-26、正本不在其中；
+    ⑦追溯矩阵 P-29 行补齐第三列。上游版本号按今天核实更新。
+    历史：v0.1 初稿，自 `FYL-DESIGN-10` v0.2 拆出；P-9 / P-16 与 G-2 / G-4 / G-5 /
+    G-6 / G-7 / G-9 随本页迁来不改号；新立 P-22 / P-23 · v0.2 按 `FYL-DESIGN-11`
+    外壳裁定细化视觉，引用 P-25 / P-26 / P-27，新立 P-29 与视觉词汇表，记下本页是四页
+    里唯一满足首屏判据的（553 px），新增 G-15 / G-16 / G-17、首屏提案与追溯一行。'
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -37,8 +41,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-12` |
 | 文档名称 (Title) | 实验分析页 (The Analysis Page) |
 | 短名 / Slug | `fylite-analysis-page` |
-| 版本 (Version) | v0.2 |
-| 发布日期 (Date of Issue) | 2026-09-01 |
+| 版本 (Version) | v1.0 |
+| 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -50,7 +54,7 @@ modified:
 | 受众 (Audience) | experimental analysts / physicists / maintainers |
 | 分发范围 (Distribution) | public |
 | 安全分级 (Security Classification) | public |
-| 上游输入 (Upstream Inputs) | `FYL-CONOPS-00` v0.4（S-L2、建设原则）; `FYL-SRS-01` v0.4（FR-ANALYSIS-*、FR-DATA-*、FR-HOST-*）; `FYL-SDD-01` v0.11（DE-COMP-05 / 07、DE-LOG-04 / 07）; `FYL-DESIGN-10`（四页共同的纪律） |
+| 上游输入 (Upstream Inputs) | `FYL-CONOPS-00` v0.4（S-L2、建设原则）; `FYL-SRS-01` v0.5（FR-ANALYSIS-*、FR-DATA-*、FR-HOST-*、NR-ENV-004 / 005）; `FYL-SDD-01` v0.13（DE-COMP-05 / 07、DE-LOG-04 / 07）; `FYL-DESIGN-10` v1.2（四页共同的纪律）; `FYL-DESIGN-11` v0.4（外壳、首屏判据、视觉系统）; `FYL-DESIGN-16` v2.0（内核契约：K-1 / K-3 / H-1 / H-3） |
 | 批准 (Approval) | — |
 | 取代关系 (Supersedes / Superseded by) | 承接 `FYL-DESIGN-10` v0.2 中属于分析页的部分 |
 :::
@@ -78,14 +82,20 @@ modified:
 好的磁场拟合。把解定下来的是**动理学约束**——这正是「动理学重构」的分别所在，也是
 这一页何以不是一个磁反演小工具（P-22）。
 
-:::{note} 本篇在四页里的位置
+:::{note} 本篇在四页里的位置，与编号的规矩
 四页各有一份设计文档：`pulse_design` → `FYL-DESIGN-09`（唯一有时间轴的一页）；
 `model` → `FYL-DESIGN-10`；`analysis` → **本篇**；`data` → `FYL-DESIGN-13`。
+外壳与视觉系统在 `FYL-DESIGN-11`；页面与内核之间的契约在 `FYL-DESIGN-16`。
 
-★**四页共同的十四条纪律**（P-1..P-8 · P-13 · P-14 · P-15 · P-25 · P-26 · P-27）写在 `FYL-DESIGN-10`
-{ref}`fylite-pages-common`，本篇**引用它们，不抄一遍**——同一条纪律抄四份，第一次
-改动就会剩三份是旧的。`P-` 编号在四页之间是**一条全局序列**，对照表见
-`FYL-DESIGN-10` {numref}`tbl-fylite-pages-numbering`。
+★**四页共同的十四条纪律**（P-1..P-8 · P-13 · P-14 · P-15 · P-25 · P-26 · P-27）写在
+`FYL-DESIGN-10` {ref}`fylite-pages-common`，本篇**引用它们，不抄一遍**——同一条
+纪律抄四份，第一次改动就会剩三份是旧的。`P-` 编号在四页之间是**一条全局序列**，
+对照表见 `FYL-DESIGN-10` {numref}`tbl-fylite-pages-numbering`。
+
+★**编号不重排、条搬家不改号**（`FYL-DESIGN-10` {ref}`fylite-pages-numbering`）：
+本篇自 `FYL-DESIGN-10` v0.2 拆出时，P-9（误差棒只说抽了的那几样）与 P-16（折叠的
+控件仍是控件）随本页迁来，缺口 G-2 / G-4 / G-5 / G-6 / G-7 / G-9 同理；本页自己立的
+是 P-22 / P-23 / P-29 与 G-14..G-17。控制器与闸子按号引用这些条，号是不动的。
 :::
 
 (fylite-analysis-conventions)=
@@ -93,7 +103,8 @@ modified:
 
 实质断言携认识论状态标签（〔已确立〕/〔工作假设〕/〔开放猜想〕），不使用 RFC 2119
 规范关键字；缺失值记 `[TBD]`，不虚构。场景页 / 功能栏 / 判定块 / 拒绝 / 出处几个词
-沿 `FYL-DESIGN-10` §约定，不重定义。
+沿 `FYL-DESIGN-10` §约定，不重定义。前端是**多宿主**（CLI · Python 库 · 网页 · AI 面，
+`FYL-DESIGN-16` H-3），本篇只写网页这一个宿主；「本机 / 浏览器」指两个运行时。
 
 **后验（posterior）**
 :   一次拟合之外再跑 N 次重解，用**被扰动的输入**得到解的散布。它给出的不是「所有
@@ -110,8 +121,10 @@ modified:
 (fylite-analysis-composition)=
 # 页面的构造 (How the Page Is Put Together)
 
-〔已确立〕一个部件（`data-part="analysis"`，控制器 `app/assets/scenario-analysis.js`）、
-四条功能栏、一个主 worker、一条状态行——四条栏**轮流**在这条状态行上说话。
+〔已确立〕一个部件（`data-part="reconstruction"`，控制器 `app/assets/scenario-analysis.js`
+以 `FyScenario.part('reconstruction')` 登记）、四条功能栏、一个主 worker（`scenario.js`
+为每页起一个 `app/assets/worker.js`）、一条状态行——四条栏**轮流**在这条状态行上
+说话。
 
 〔已确立〕栏间靠**页面总线**相接（P-4 的两种机制之一）：剖面拟合的产物成为平衡
 反演的动理学约束，重构结果成为时间序列与批处理的底本。这与建模页靠**页内文档**
@@ -123,6 +136,8 @@ modified:
 
 (fylite-analysis-decisions)=
 # 设计裁定 (Design Decisions)
+
+四页共同的纪律只引用（{ref}`fylite-analysis-abstract` 的注）；下面是本页自己的五条。
 
 (fylite-analysis-p9)=
 ## P-9 误差棒只说它抽了的那几样 (an error bar is defined by what was sampled)
@@ -159,8 +174,8 @@ id 不动、值照样进消息与会话文件、门禁照样用 `getElementById`
 (fylite-analysis-p22)=
 ## P-22 ★动理学约束是这一页的分别所在 (the kinetic constraint is the point)
 
-〔已确立·本轮新立〕这一页的边界句是：**磁测量单独约束不住内部剖面**。很不一样的
-剖面能给出几乎一样好的磁场拟合；把解定下来的是动理学约束。
+〔已确立〕这一页的边界句是：**磁测量单独约束不住内部剖面**。很不一样的剖面能给出
+几乎一样好的磁场拟合；把解定下来的是动理学约束。
 
 〔理由〕这不是一句谦辞，它决定三件界面上的事：
 
@@ -170,9 +185,9 @@ id 不动、值照样进消息与会话文件、门禁照样用 `getElementById`
 2. **纯磁预设必须自报它是纯磁的。** 它是一个有用的对照，不是一个更快的等价物；
    页面不得让它看起来只是「少勾了几个框」。
 3. **q₀ 一类芯部量的误差不能只由磁残差判。** 磁残差很小与内部剖面对，是两件事
-   ——`docs/note/benchmark/reports/B-06-east-reconstruction.md` 正是本仓第一条能
-   区分这两者的记录：磁轴 5.07 / 6.54 mm、ψ 图 rms 1.18 %、q95 +1.44 %，而 q₀
-   **−58.9 %**。
+   ——本仓登记册报告 `docs/benchmark/reports/B-06-east-reconstruction.md` 正是第一条
+   能区分这两者的记录：磁轴 R +5.07 / Z +6.54 mm、ψ 图 rms 1.18 %、q95 +5.55 %
+   （早先记的 +1.44 % 经该报告 2026-08-31 订正为假磁通粉饰所得），而 q₀ **−58.9 %**。
 
 〔工作假设〕**推论——「重构剖面」不得回喂拟合而不加标注。** 剖面拟合栏的「由卷宗
 剖面重采样」那一档在面板上标明它是**合成的**：「一份重采样的剖面若以数据的身份
@@ -181,7 +196,7 @@ id 不动、值照样进消息与会话文件、门禁照样用 `getElementById`
 (fylite-analysis-p23)=
 ## P-23 ★预设只填不跑 (a preset fills the form; it does not press the button)
 
-〔已确立·本轮新立〕分析预设（纯磁反演 / 动理学重构 / 爬升段 …）**只把控件填好**，
+〔已确立〕分析预设（纯磁反演 / 动理学重构 / 爬升段 …）**只把控件填好**，
 不代用户运行。
 
 〔理由〕两条：
@@ -194,7 +209,8 @@ id 不动、值照样进消息与会话文件、门禁照样用 `getElementById`
 
 〔已确立〕这条与 `FYL-DESIGN-09` D-2「预设是文档不是表单缺省值」是同一族纪律的
 两侧：D-2 管**预设是什么**（一份会话文档），P-23 管**它被施用时发生什么**（填，
-不跑）。
+不跑）。放到 `FYL-DESIGN-16` H-1「宿主只写计划、只读记录」下看，它们是同一条的两面：
+预设填的就是计划里的字段，「运行」键才送出计划（{ref}`fylite-analysis-kernel`）。
 
 (fylite-analysis-p29)=
 ## P-29 ★不确定度画成什么样，取决于它度量了什么 (an uncertainty band must say what it covers)
@@ -223,42 +239,8 @@ id 不动、值照样进消息与会话文件、门禁照样用 `getElementById`
 剖面。落法是：约束清单里每一路带一个在场 / 缺席标记（勾 / 叉 + 文字，不是有色 /
 无色），并且**只有磁测量时那一栏明说「内部剖面未被约束」**——不是省略这句话。
 
-```{figure} ../figures/an-vocab.svg
-:name: fig-fylite-analysis-vocab
-:align: center
-:width: 100%
-
-实验分析页的视觉词汇（P-27 在本页的清单）。前三行是 P-29 的三种图元；四、五行是
-P-22（动理学约束在场 / 只有磁测量，勾叉加文字）；其余分别落 P-16（折起的控件带
-计数芯片，说明它仍在生效）· P-23（按钮写「填入」并旁注不会自动运行）· P-9（缺席
-的诊断写「无此炮」而不是留空）· P-13（复算与测量并排 + 闭合差；χ² 旁写它的分母）·
-P-8（批处理逐炮列出失败原因，不是一个进度条）。
-```
-
-(fylite-analysis-visual)=
-## 这一页在外壳上的三个槽与首屏 (this page's slots, and its first screen)
-
-〔工作假设〕外壳三槽（`FYL-DESIGN-10` {ref}`fylite-pages-p25`）在本页取值：
-④ 装置 `EAST`；⑤ **哪一条栏在跑，以及它准备好了没有**（例：`剖面拟合 · 就绪
-（线圈响应矩阵 109 ms）`）；⑥ 交给建模场景。
-
-〔已确立·实测〕**这一页是四页里唯一满足 P-26 的**：首条功能栏在 412 px、首处输出
-在 553 px，16:9 首屏之内看得见图。**它之所以能做到，不是因为做了什么，而是因为
-它的引言只有 181 px 且第一条栏默认展开**——另外三页要补的正是这两件事。
-
-:::{note}
-★把「本页已达标」写下来，是为了让它**不许退**。这条今天成立，靠的是两个可以被
-一次改动破坏的条件（引言的长度、默认展开的是哪一条栏）；P-26 的闸子因此对四页
-一视同仁地跑，不因为这一页现在是绿的就跳过它。**一条只在别处跑的闸子，等于给这一页
-发了一张永久豁免。**
-:::
-
-〔工作假设〕**本页仍要补的一件小事**：位形截面必须**等比例**。一幅拉伸过的
-poloidal 截面会让读者把拉长比读错，而拉长比恰恰是这一页解出来的量之一。判据写在
-{ref}`fylite-analysis-gaps` 的 G-16。
-
 (fylite-analysis-ui)=
-# 交互界面 (Interaction Surface)
+# 交互界面与视觉 (Interaction Surface and Visual Vocabulary)
 
 :::{figure} ../figures/analysis-page.svg
 :name: fig-fylite-analysis-page
@@ -288,6 +270,46 @@ poloidal 截面会让读者把拉长比读错，而拉长比恰恰是这一页�
 | ⑩ | 栏四 · 批处理队列 | P-7 | 整队用开跑那一刻的设定；每行自报三态之一 |
 :::
 
+(fylite-analysis-visual)=
+## 这一页在外壳上的三个槽与首屏 (this page's slots, and its first screen)
+
+〔工作假设〕外壳三槽（`FYL-DESIGN-10` {ref}`fylite-pages-p25`）在本页取值：
+④ 装置 `EAST`；⑤ **哪一条栏在跑，以及它准备好了没有**（例：`剖面拟合 · 就绪
+（线圈响应矩阵 109 ms）`）；⑥ 交给建模场景。
+
+〔已确立·实测 2026-09-01〕**在原四页里，这一页是唯一满足 P-26 的**：首条功能栏在
+412 px、首处输出在 553 px，16:9 首屏之内看得见图。**它之所以能做到，不是因为做了
+什么，而是因为它的引言只有 181 px 且第一条栏默认展开**——另外三页要补的正是这两件事。
+在 v2 外壳页 `page_analysis.html` 上首处输出是 336 px（`FYL-DESIGN-11`
+{ref}`fylite-visual-asbuilt`），四张 `page_*` 页都过了这条判据。
+
+:::{note}
+★把「本页已达标」写下来，是为了让它**不许退**。这条今天成立，靠的是两个可以被
+一次改动破坏的条件（引言的长度、默认展开的是哪一条栏）；P-26 的闸子因此对四页
+一视同仁地跑，不因为这一页现在是绿的就跳过它。**一条只在别处跑的闸子，等于给这一页
+发了一张永久豁免**（{ref}`fylite-analysis-gaps` G-17）。
+:::
+
+〔工作假设〕**本页仍要补的一件小事**：位形截面必须**等比例**。一幅拉伸过的
+poloidal 截面会让读者把拉长比读错，而拉长比恰恰是这一页解出来的量之一。判据写在
+{ref}`fylite-analysis-gaps` 的 G-16。
+
+## 视觉词汇 (Visual vocabulary)
+
+```{figure} ../figures/an-vocab.svg
+:name: fig-fylite-analysis-vocab
+:align: center
+:width: 100%
+
+实验分析页的视觉词汇（P-27 在本页的清单）。前三行是 P-29 的三种图元；四、五行是
+P-22（动理学约束在场 / 只有磁测量，勾叉加文字）；其余分别落 P-16（折起的控件带
+计数芯片，说明它仍在生效）· P-23（按钮写「填入」并旁注不会自动运行）· P-9（缺席
+的诊断写「无此炮」而不是留空）· P-13（复算与测量并排 + 闭合差；χ² 旁写它的分母）·
+P-8（批处理逐炮列出失败原因，不是一个进度条）。
+```
+
+这十二行今天多数只有颜色一个通道——落实状态见 G-15。
+
 (fylite-analysis-tiers)=
 # 计算与响应分档 (Compute Tiers and Response Budgets)
 
@@ -305,10 +327,11 @@ poloidal 截面会让读者把拉长比读错，而拉长比恰恰是这一页�
 
 〔工作假设〕这四行的实测预算全是 `[TBD]`，而 NR-ENV-005 要求逐功能声明——这是一条
 **成立的缺口**（同 `FYL-DESIGN-09` G-8 的形状），不是本表的疏漏：没量过就写
-`[TBD]`，不填一个好看的数字。
+`[TBD]`，不填一个好看的数字（G-14）。装配搬进内核后这四档是否仍在包络之内，是
+`FYL-DESIGN-16` G-1 要在 P1 实测的事。
 
 (fylite-analysis-asbuilt)=
-# 落地状态 (As-built, 2026-09-01)
+# 落地状态 (As-built, 2026-09-04)
 
 :::{table} 分析页的功能栏与它们各自调用的内核入口（择要）。
 :name: tbl-fylite-analysis-asbuilt
@@ -322,13 +345,35 @@ poloidal 截面会让读者把拉长比读错，而拉长比恰恰是这一页�
 | 批处理 | `recon`（逐条） | 同上，逐条 | 已落地 |
 :::
 
-〔已确立〕页面标识：`app/pages/analysis.html`，部件 `data-part="analysis"`，控制器
-`app/assets/scenario-analysis.js`，QR `assets/qr-analysis.svg`。
+〔已确立〕页面标识：正本 `app/pages/analysis.html`，部件 `data-part="reconstruction"`，
+控制器 `app/assets/scenario-analysis.js`。`app/pages/` 今天有 `pulse_design` · `model` ·
+`analysis` · `data` · `report` 五页正本，加 `page_*` 五张 v2 外壳页（生成物，
+`tools/make-page-v2.mjs`）；`page_analysis.html` 是本页的 v2 外壳，**尚未提为正本**
+（`FYL-DESIGN-11` G-9 仍开），原页面既是正本也是对照组。原记的逐页 QR
+`assets/qr-analysis.svg` 今天不在仓里（`app/assets/` 只有 `qr-site.svg`）。
+
+(fylite-analysis-kernel)=
+## 与内核契约的关系 (Where this page stands against the kernel contract)
+
+〔已确立·实测 2026-09-04〕这一页今天怎么到内核：控制器 `scenario-analysis.js` 本身
+**没有一处** `fylite_rs_` 符号，它只向主 worker 发四个命令（上表：`profile_fit` ·
+`recon` · `recon_mc` · `recon_series`）；扁平导出的调用点在 worker 一侧——
+`app/assets/fylite.js` 344 处，`worker.js` 7 处。换言之，本页与内核之间已经隔着
+一层「命令进、消息出」，但那层是页面自己的，不是 `FYL-DESIGN-16` 的文档门。
+
+〔工作假设·目标态，未落地〕按 `FYL-DESIGN-16` K-1（文档门是唯一的内核接口）、K-3
+（装配搬进内核，宿主退成计划构造器）与 H-1（宿主只写计划、只读记录）：这一页此后
+**只写一份 fyo 计划、只读一份记录**；今天在 worker 一侧做的装配算术随 K-3 撤进内核
+——`reconstruction` 正是 K-3 点名要补成内核 code 的五个工具之一。分期在 P1
+（`FYL-DESIGN-16` {ref}`fylite-kernel-contract-plan`），判据是页面 JS 里 `fylite_rs_*`
+归零。P-23「预设只填不跑」与 H-1 是同一条的两面：预设填的是计划的字段，「运行」键
+才送出计划。
 
 (fylite-analysis-gaps)=
 # 缺口清单 (Gaps)
 
-〔已确立〕编号按 `FYL-DESIGN-10` {ref}`fylite-pages-numbering` 的规矩不重排。
+〔已确立〕编号按 `FYL-DESIGN-10` {ref}`fylite-pages-numbering` 的规矩不重排。今天
+十条全开。
 
 (fylite-analysis-g2)=
 **G-2 发布不唤醒读者.** `publish` 不会叫醒 `take` 它的那条栏，页面自己维护一张
@@ -353,7 +398,7 @@ poloidal 截面会让读者把拉长比读错，而拉长比恰恰是这一页�
 **G-9 逐道残差表打不开卷宗自己不用的道.** 这是有意的职权划分（用一个复选框推翻
 一次标定决定不是这张表的事），但它意味着重新标定必须回到卷宗去做。
 
-**G-14 四档预算未实测（本篇新立）.** {numref}`tbl-fylite-analysis-tiers` 四行全是
+**G-14 四档预算未实测.** {numref}`tbl-fylite-analysis-tiers` 四行全是
 `[TBD]`。判据：预算随能力目录机器可读发布；实测超预算按回归缺陷处理（同
 NR-ENV-005）。
 
@@ -366,14 +411,16 @@ NR-ENV-005）。
 而拉长比是这一页解出来的量之一。判据：截面画布的每单位像素在 R 与 Z 上相等，
 闸子按画布的实测宽高与数据域范围之比断言（容差 1 %）。
 
-**G-17 首屏达标无闸子（P-26）.** 本页今天满足首屏判据，但靠的是两个可被一次改动
-破坏的条件（引言长度、默认展开的是哪一条栏）。判据：P-26 的闸子对四页一视同仁地
-跑，本页绿也照跑——**一条只在别处跑的闸子等于给这一页发了永久豁免**。
+**G-17 首屏达标在正本上无闸子（P-26）.** 本页满足首屏判据，但靠的是两个可被一次
+改动破坏的条件（引言长度、默认展开的是哪一条栏）。今天 `app/tests/validate-page-v2.mjs`
+〔三〕在 1600 × 900 下对 `page_*` 四页一视同仁地断言首处输出在 900 px 之内，
+**正本 `analysis.html` 不在其中**。判据不变：P-26 的闸子对四页一视同仁地跑，本页绿
+也照跑——**一条只在别处跑的闸子等于给这一页发了永久豁免**；随 G-9 提正本一并关。
 
 (fylite-analysis-gates)=
 # 验收与门禁 (Acceptance Gates)
 
-:::{table} 现有门禁（择要）。
+:::{table} 现有门禁（择要；均在 `app/tests/`）。
 :name: tbl-fylite-analysis-gates
 :align: left
 
@@ -383,10 +430,11 @@ NR-ENV-005）。
 | `validate-closure.mjs` / `validate-recon-slices.mjs` | `⟨j·B⟩ ↔ ⟨j_φ⟩` 换算与 σ_neo；活炮的时片表可点，并记下试过哪些片 |
 | `validate-predict-check.mjs` | 两页之间的一条边：预测压强剖面作本页的动理学约束 |
 | `validate-geqdsk.mjs` | g-file 往返：写出去的与读回来的是同一条边界 |
+| `validate-page-v2.mjs` | v2 外壳页：四页 DOM 同形只差三槽；16:9 首屏一处输出（P-26，见 G-17） |
 | `validate-site.mjs` / `validate-version.mjs` | 站点形状（四页都在其中）、版本片 |
 :::
 
-〔工作假设〕本篇提出**两件**新门禁：
+〔工作假设〕本篇提出**两件**新门禁（今天都还不在 `app/tests/`）：
 
 1. `validate-posterior-scope.mjs`——断言后验面板上「抽了哪几样」的清单与实际扰动
    的输入**逐项一致**，且未跑后验时结果行**不出现** σ 字样（P-9 · P-5）。
@@ -407,8 +455,9 @@ NR-ENV-005）。
 | FR-ANALYSIS-006 | SRS · ANALYSIS | 判据只有一处：批式与逐片路径不得另立判据，未解出的条目须写明是哪一条不成立 | P-7 |
 | FR-ANALYSIS-007 | SRS · ANALYSIS | 约束来源须逐类可见并标明缺失原因（缺数据 / 缺接线）；纯磁配置须自报其为纯磁 | P-22 |
 | FR-ANALYSIS-008 | SRS · ANALYSIS | 预设施用只设置输入，不得触发计算 | P-23 |
-| NR-QUAL-006 | SRS · QUAL | 场景页在 16:9 参考视口首屏内须至少呈现一处输出 | P-26（正本在 `FYL-DESIGN-10`） |
-| DE-LOG-10 | SDD · 逻辑视图 | 判定块为一等产物（四页共用，正本在 `FYL-DESIGN-10`） | P-5 · P-8 |
+| NR-QUAL-005 | SRS · QUAL | 功能页面在 16:9 参考视口首屏内须至少呈现一处输出（正本在 `FYL-DESIGN-11` V-13，四页纪律 P-26 在 `FYL-DESIGN-10`；本篇引用） | P-26 · G-17 |
+| NR-QUAL-004 | SRS · QUAL | 判定类信息不得以颜色为唯一编码（正本在 `FYL-DESIGN-11`；本篇引用） | P-27 · P-29 · G-15 |
+| DE-LOG-10 | SDD · 逻辑视图 | 判定块为一等产物（四页共用，正本在 `FYL-DESIGN-10`；本篇引用） | P-5 · P-8 |
 :::
 
 (fylite-analysis-out)=
@@ -421,6 +470,7 @@ NR-ENV-005）。
 | 从 MDSplus 取数与浏览 | 装置数据页（`FYL-DESIGN-13`）；本页**消费**取回来的测量，不自己取 |
 | 逐时片反演一整炮并当作一条时间轴读 | 时间序列栏解的是**若干个时刻**，不是一条轴；真要一条轴，那是放电页的事 |
 | 重新标定卷宗的道 | 卷宗（G-9 的职权划分） |
+| 页面与内核之间的门、装配的归属、后端的选择 | `FYL-DESIGN-16`；本篇只记这一页今天走哪条路、目标态是什么（{ref}`fylite-analysis-kernel`） |
 | 控制器动力学 | S-L3 控制仿真 |
 
 (fylite-analysis-trace)=
@@ -435,15 +485,15 @@ NR-ENV-005）。
 | P-9 误差棒只说抽了的 | FR-ANALYSIS-002（约束权重取自逐点实测 σ） | 提案 FR-ANALYSIS-005 |
 | P-16 折叠的控件仍是控件 | — | **今天没有条款**（列此备案，暂不提案） |
 | P-22 动理学约束是分别所在 | FR-ANALYSIS-001（基于磁测量的平衡重构）· FR-ANALYSIS-003（动理学约束） | 提案 FR-ANALYSIS-007 |
-| **P-29 不确定度的画法取决于它度量了什么** | FR-ANALYSIS-* 的误差报告口径；P-9 的视觉落法；`FYL-DESIGN-11` V-8 第 3 条 |
-| P-23 预设只填不跑 | FR-HOST-002（批式不伪装交互）· FR-DATA-001 | 提案 FR-ANALYSIS-008 |
+| P-23 预设只填不跑 | FR-HOST-002（批式不伪装交互）· FR-DATA-001；`FYL-DESIGN-16` H-1 | 提案 FR-ANALYSIS-008 |
+| **P-29 不确定度的画法取决于它度量了什么** | FR-ANALYSIS-* 的误差报告口径；P-9 的视觉落法；`FYL-DESIGN-11` V-8 第 3 条 | 提案 NR-QUAL-004 的同一族（正本 `FYL-DESIGN-11`） |
 | 四页共同的十四条 | 见 `FYL-DESIGN-10` §追溯矩阵 | 同上 |
 :::
 
 :::{note} Rationale
 这一页覆盖 `FYL-CONOPS-00` 的 S-L2（实验分析）在浏览器一侧的交互档，今天判为
 ✓ 轻量档全覆盖。本文件不改变那个判定；它记录的是**已经落地的东西为什么长这样**，
-以及那六条今天仍成立的缺口。★其中 G-2 值得单独一说：它是这一页唯一一条会让
+以及今天仍开着的那些缺口。★其中 G-2 值得单独一说：它是这一页唯一一条会让
 **读者看到一个静默过期的答案**的缺口，而这一页别处的纪律（P-5 · P-8）全都是为了
 不让这种事发生——一条打了补丁的总线，是那套纪律上唯一的洞。
 :::
