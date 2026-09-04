@@ -1,0 +1,738 @@
+{
+ "@context": [
+  "context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "cases/evolve-fuse-arc",
+ "type": "fyo:ScenarioSpecification",
+ "title": {
+  "zh": "FUSE · ARC（输入对照，不是 FUSE 的答案）",
+  "en": "FUSE · ARC (inputs only, not FUSE's answer)"
+ },
+ "note": {
+  "zh": "★★<strong>这不是 FUSE 的答案，是 FUSE 的输入。</strong>ARC 这一档的机器、成分与注入功率取自 FUSE 的 <code>case_parameters(:ARC)</code>（commit <code>494d565</code>，<code>src/cases/ARC.jl</code>）；而 FUSE 给出的<strong>结果</strong>来自 <code>ActorStationaryPlasma</code>——TGLF 通量匹配加 EPED 台基的迭代，本栏走的是<strong>规定 χ 的推进</strong>。χ₀ = 0.4 m²/s 是本仓 ITER 对标（对 ASTRA）定下的，<strong>没有为这台机器重新标定过</strong>，FUSE 也从来没给过它。所以这一档跑出来的数<strong>不能拿去和 FUSE 对</strong>——能对的是下面那张表里标着 FUSE 的那些格。 ★<strong>本仓不携带 FUSE 的任何东西</strong>：这份文档里是从一个 FUSE 检出里读出的标量，出处逐条写在下面；源码与数据文件都没有进仓。 ★控件 · FUSE 的值 · 落到控件 · 出处： · <code>amin</code> · 1.18161 · <strong>1.2</strong> · [由 FUSE 推出] a = R₀ϵ = 4.6229×0.2556 · <code>rmaj</code> · 3.91236 · <strong>3.9</strong> · [由 FUSE 推出] R/a = 1/ϵ = 3.91236 · <code>kappa</code> · 1.8915 · <strong>1.9</strong> · [FUSE] boundary_from=:scalars，κ 与 δ 直接取 · <code>delta</code> · 0.558 · <strong>0.56</strong> · [FUSE] boundary_from=:scalars，κ 与 δ 直接取 · <code>bunit</code> · -11.4 · <strong>11.4</strong> · [FUSE] ini.equilibrium.B0（取模） · <code>ip</code> · 1.2e+07 · <strong>12000</strong> · [FUSE] ini.equilibrium.ip，A → kA · <code>q95</code> · — · <strong>4.3</strong> · [由 FUSE 推出] FUSE 不给 q₉₅（它由平衡解出）；用柱近似加形状因子估：5a²B/(R₀I_p) = 1.435，形状因子 3.03（★是估计，不是 FUSE 的答案） · <code>zeff</code> · 1.52 · <strong>1.5</strong> · [FUSE] ini.core_profiles.zeff · <code>cimp</code> · — · <strong>0.16</strong> · [由 FUSE 推出] 由控件 Z_eff 反解本栏的 1 + c·Z(Z−1)，Z(Ar) = 18；落格后隐含 Z_eff = 1.49 · <code>dtfrac</code> · — · <strong>0.45</strong> · [由 FUSE 推出] 准中性：2f + 2f_He + Z·c = 1，f_He = 0.03，得 f = 0.4556 · <code>species</code> · Ar · <strong>Ar</strong> · [FUSE] ini.core_profiles.impurity · <code>peakt</code> · 1.8 · <strong>1.8</strong> · [FUSE] ini.core_profiles.Te_shaping · <code>peakn</code> · 3 · <strong>3</strong> · [FUSE] ini.core_profiles.ne_shaping · <code>te0</code> · 24450 · <strong>24.5</strong> · [FUSE] ini.core_profiles.Te_core，eV → keV · <code>ti0</code> · — · <strong>20.8</strong> · [由 FUSE 推出] T_i(0) = T_e(0) × Ti_Te_ratio = 0.85 · <code>edgene</code> · — · <strong>20.5</strong> · [由 FUSE 推出] ne_setting = :greenwald_fraction 定的是**线/体平均**，本栏没有这一格：按本栏自己的剖面 n = n_e + (n₀−n_e)(1−x²)^3（体平均 = n_e + (n₀−n_e)/(p+1)）与芯/台基比 1.8 联立解出，⟨n_e⟩ = 24.62×10¹⁹ · <code>ne0</code> · — · <strong>37</strong> · [FUSE] ini.core_profiles.ne_core_to_ped_ratio · <code>edgete</code> · 5000 · <strong>5</strong> · [FUSE] ini.core_profiles.Te_ped，eV → keV · <code>edgeti</code> · — · <strong>4.26</strong> · [由 FUSE 推出] T_ped × Ti_Te_ratio · <code>pe</code> · — · <strong>0</strong> · [由 FUSE 推出] ★分配是本工具的约定，不是 FUSE 的：EC 0 + LH 0 + NB 0/2 → 电子 · IC 50 + NB 0/2 → 离子 · <code>pi</code> · — · <strong>50</strong> · [由 FUSE 推出] 同上 · <code>pedestal</code> · — · <strong>False</strong> · [★本仓的，不是 FUSE 的] FUSE 这一档自己写死了 Te_ped，就用它，台基模型不开 ★<strong>落格</strong>（滑杆有自己的步长，文档写的就是页面真正持有的值，不是 FUSE 的原值）：<code>amin</code> 1.18161→1.2 · <code>rmaj</code> 3.91236→3.9 · <code>kappa</code> 1.8915→1.9 · <code>delta</code> 0.558→0.56 · <code>q95</code> 4.3467→4.3 · <code>zeff</code> 1.52→1.5 · <code>cimp</code> 0.163399→0.16 · <code>dtfrac</code> 0.4556→0.45 · <code>te0</code> 24.45→24.5 · <code>ti0</code> 20.825→20.8 · <code>edgene</code> 20.5183→20.5 · <code>ne0</code> 36.933→37 · <code>edgeti</code> 4.25→4.26 ★本栏其余控件（dt、步数、闭包、波与束流那几组）是本仓的缺省，FUSE 的 ini 里没有对应项。",
+  "en": "★★<strong>This is FUSE's INPUT, not FUSE's ANSWER.</strong> The machine, composition and launched power of the ARC case come from FUSE's <code>case_parameters(:ARC)</code> (commit <code>494d565</code>, <code>src/cases/ARC.jl</code>). FUSE's own answer comes out of <code>ActorStationaryPlasma</code> — a TGLF flux match with an EPED pedestal — whereas this bar marches a <strong>prescribed chi</strong>. chi_0 = 0.4 m^2/s is what this repository's ITER benchmark against ASTRA settled on; it was <strong>not re-derived for this machine</strong> and FUSE never stated it. So the numbers this case produces are <strong>not comparable with FUSE's</strong>; what is comparable is the half of the table below tagged FUSE. ★<strong>Nothing of FUSE's is carried in this repository</strong>: what is here are scalars read out of a FUSE checkout, each with its provenance below. No source and no data file was copied. ★control · FUSE · as held · provenance： · <code>amin</code> · 1.18161 · <strong>1.2</strong> · [derived from FUSE] a = R₀ϵ = 4.6229×0.2556 · <code>rmaj</code> · 3.91236 · <strong>3.9</strong> · [derived from FUSE] R/a = 1/ϵ = 3.91236 · <code>kappa</code> · 1.8915 · <strong>1.9</strong> · [FUSE] boundary_from=:scalars，κ 与 δ 直接取 · <code>delta</code> · 0.558 · <strong>0.56</strong> · [FUSE] boundary_from=:scalars，κ 与 δ 直接取 · <code>bunit</code> · -11.4 · <strong>11.4</strong> · [FUSE] ini.equilibrium.B0（取模） · <code>ip</code> · 1.2e+07 · <strong>12000</strong> · [FUSE] ini.equilibrium.ip，A → kA · <code>q95</code> · — · <strong>4.3</strong> · [derived from FUSE] FUSE 不给 q₉₅（它由平衡解出）；用柱近似加形状因子估：5a²B/(R₀I_p) = 1.435，形状因子 3.03（★是估计，不是 FUSE 的答案） · <code>zeff</code> · 1.52 · <strong>1.5</strong> · [FUSE] ini.core_profiles.zeff · <code>cimp</code> · — · <strong>0.16</strong> · [derived from FUSE] 由控件 Z_eff 反解本栏的 1 + c·Z(Z−1)，Z(Ar) = 18；落格后隐含 Z_eff = 1.49 · <code>dtfrac</code> · — · <strong>0.45</strong> · [derived from FUSE] 准中性：2f + 2f_He + Z·c = 1，f_He = 0.03，得 f = 0.4556 · <code>species</code> · Ar · <strong>Ar</strong> · [FUSE] ini.core_profiles.impurity · <code>peakt</code> · 1.8 · <strong>1.8</strong> · [FUSE] ini.core_profiles.Te_shaping · <code>peakn</code> · 3 · <strong>3</strong> · [FUSE] ini.core_profiles.ne_shaping · <code>te0</code> · 24450 · <strong>24.5</strong> · [FUSE] ini.core_profiles.Te_core，eV → keV · <code>ti0</code> · — · <strong>20.8</strong> · [derived from FUSE] T_i(0) = T_e(0) × Ti_Te_ratio = 0.85 · <code>edgene</code> · — · <strong>20.5</strong> · [derived from FUSE] ne_setting = :greenwald_fraction 定的是**线/体平均**，本栏没有这一格：按本栏自己的剖面 n = n_e + (n₀−n_e)(1−x²)^3（体平均 = n_e + (n₀−n_e)/(p+1)）与芯/台基比 1.8 联立解出，⟨n_e⟩ = 24.62×10¹⁹ · <code>ne0</code> · — · <strong>37</strong> · [FUSE] ini.core_profiles.ne_core_to_ped_ratio · <code>edgete</code> · 5000 · <strong>5</strong> · [FUSE] ini.core_profiles.Te_ped，eV → keV · <code>edgeti</code> · — · <strong>4.26</strong> · [derived from FUSE] T_ped × Ti_Te_ratio · <code>pe</code> · — · <strong>0</strong> · [derived from FUSE] ★分配是本工具的约定，不是 FUSE 的：EC 0 + LH 0 + NB 0/2 → 电子 · IC 50 + NB 0/2 → 离子 · <code>pi</code> · — · <strong>50</strong> · [derived from FUSE] 同上 · <code>pedestal</code> · — · <strong>False</strong> · [★this repository, NOT FUSE] FUSE 这一档自己写死了 Te_ped，就用它，台基模型不开 ★<strong>Snapped to the slider lattice</strong> (the document states what the page actually holds, not FUSE's exact value): <code>amin</code> 1.18161→1.2 · <code>rmaj</code> 3.91236→3.9 · <code>kappa</code> 1.8915→1.9 · <code>delta</code> 0.558→0.56 · <code>q95</code> 4.3467→4.3 · <code>zeff</code> 1.52→1.5 · <code>cimp</code> 0.163399→0.16 · <code>dtfrac</code> 0.4556→0.45 · <code>te0</code> 24.45→24.5 · <code>ti0</code> 20.825→20.8 · <code>edgene</code> 20.5183→20.5 · <code>ne0</code> 36.933→37 · <code>edgeti</code> 4.25→4.26 ★Every other control of this bar (dt, step count, closure, the wave and beam groups) is this repository's default; FUSE's ini has no counterpart."
+ },
+ "prescribed_task_kind": "fyo:PhysicsModelingTask",
+ "prescribes_code": {
+  "id": "code/evolve",
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "capability `evolve` of the fylite tool register (python/fylite/scenario/__init__.py TOOLS['evolve']); the parameter IRIs `code/evolve#<name>` are this capability's control vocabulary"
+ },
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": {
+    "en": "ARC"
+   }
+  }
+ },
+ "generated_by_process": {
+  "type": "spo:ComputationalProcess",
+  "realizes": {
+   "type": "spo:Code",
+   "name": "tools/fuse-case-to-fylite.py",
+   "comment": "the case transform (repository tooling)"
+  },
+  "has_input": [
+   {
+    "type": "spo:Code",
+    "name": "FUSE.jl (ProjectTorreyPines)",
+    "commit": "494d565",
+    "license": "Apache-2.0",
+    "comment": "src/cases/ARC.jl · case_parameters(:ARC)"
+   }
+  ],
+  "comment": "per-setting `comment` legend: `fuse` = value copied from the FUSE case; `derived` = computed from FUSE values by the transform; `ours` = this repository's own choice"
+ },
+ "parameters": [
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#amin",
+   "literal_value": 1.2,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#rmaj",
+   "literal_value": 3.9,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#kappa",
+   "literal_value": 1.9,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#delta",
+   "literal_value": 0.56,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#bunit",
+   "literal_value": 11.4,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ip",
+   "literal_value": 12000.0,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#q95",
+   "literal_value": 4.3,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#zeff",
+   "literal_value": 1.5,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#cimp",
+   "literal_value": 0.16,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dtfrac",
+   "literal_value": 0.45,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#species",
+   "literal_value": "Ar",
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#peakt",
+   "literal_value": 1.8,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#peakn",
+   "literal_value": 3.0,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#te0",
+   "literal_value": 24.5,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ti0",
+   "literal_value": 20.8,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgene",
+   "literal_value": 20.5,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ne0",
+   "literal_value": 37.0,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgete",
+   "literal_value": 5.0,
+   "comment": "fuse"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgeti",
+   "literal_value": 4.26,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pe",
+   "literal_value": 0.0,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pi",
+   "literal_value": 50.0,
+   "comment": "derived"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#geometry",
+   "literal_value": "miller",
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-heat",
+   "literal_value": true,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-density",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-current",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ch-momentum",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dt",
+   "literal_value": 0.02,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#nsteps",
+   "literal_value": 400,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dttarget",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#nlev",
+   "literal_value": 31,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#vloop",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dep",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#depw",
+   "literal_value": 0.35,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fuel",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#alpha",
+   "literal_value": true,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#brem",
+   "literal_value": true,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ohmic",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#bootstrap",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#icd",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#closure",
+   "literal_value": "0",
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#chiratio",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dchi",
+   "literal_value": 0.3,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pinch",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dpc",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#useref",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#sawtooth",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#sawmix",
+   "literal_value": 1.2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#couple",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#relax",
+   "literal_value": 0.5,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#chi0",
+   "literal_value": 0.4,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#torque",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#prandtl",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#edgepsin",
+   "literal_value": 0.95,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#freeiter",
+   "literal_value": 600,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wave",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveramp",
+   "literal_value": 0.2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveflat",
+   "literal_value": 1.5,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveend",
+   "literal_value": 2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavestart",
+   "literal_value": 0.1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveend2",
+   "literal_value": 0.1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavepower",
+   "literal_value": true,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavevloop",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#wavefuel",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#waveip",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#resume",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beam",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beampower",
+   "literal_value": 4,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamenergy",
+   "literal_value": 60,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamrtan",
+   "literal_value": 1.26,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamz",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamwidth",
+   "literal_value": 0.1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamdir",
+   "literal_value": "1",
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamstop",
+   "literal_value": "janev",
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf1",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf2",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamf3",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamshells",
+   "literal_value": 24,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#beamorbit",
+   "literal_value": true,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lh",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhpower1",
+   "literal_value": 2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar1lo",
+   "literal_value": 1.91,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar1hi",
+   "literal_value": 2.43,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhpower2",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar2lo",
+   "literal_value": 1.8,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhnpar2hi",
+   "literal_value": 2.23,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhuplo",
+   "literal_value": 1.8,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhuphi",
+   "literal_value": 2.2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhetacd",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhxi",
+   "literal_value": 3,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhwidth",
+   "literal_value": 0.05,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#lhshells",
+   "literal_value": 24,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmrhomin",
+   "literal_value": 0.2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmiter",
+   "literal_value": 30,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmtol",
+   "literal_value": 0.02,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmdx",
+   "literal_value": 0.05,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmdxmax",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmouter",
+   "literal_value": 1,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmotol",
+   "literal_value": 0.05,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#fmorlx",
+   "literal_value": 0.5,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#dchiz",
+   "literal_value": 0.3,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pinchz",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#zfuel",
+   "literal_value": 0,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipctl",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipkp",
+   "literal_value": 2,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#ipki",
+   "literal_value": 3,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#quasi",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbevery",
+   "literal_value": 10,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbnrad",
+   "literal_value": 6,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbnky",
+   "literal_value": 6,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#turbrelax",
+   "literal_value": 0.5,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#couplefixed",
+   "literal_value": false,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#degp",
+   "literal_value": 3,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#degf",
+   "literal_value": 3,
+   "comment": "ours"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/evolve#pedestal",
+   "literal_value": false,
+   "comment": "ours"
+  }
+ ]
+}

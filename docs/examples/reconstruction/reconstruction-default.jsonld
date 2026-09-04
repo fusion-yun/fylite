@@ -1,0 +1,270 @@
+{
+ "@context": [
+  "context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "cases/reconstruction-default",
+ "type": "fyo:ScenarioSpecification",
+ "title": {
+  "zh": "合成孪生反演（出厂设置）",
+  "en": "Synthetic-twin reconstruction (as shipped)"
+ },
+ "note": {
+  "zh": "★S-1 提取档（2026-08-26）：由 analysis.html 的出厂控件值机械提取，不是页面导出的会话文件——接线后应由页面导出替换以完成往返校验。内容：合成孪生反演的完整旋钮（Ip 450 kA・β 0.60・噪声 0.005・种子 7 的合成测量，动理学约束开，逐项拟合开关与权重照出厂）。`npp`/`nff` 两个基函数阶下拉由页面按装置在运行时填充，HTML 里没有诚实的缺省，故本档不含——套用时留给页面自己的值。",
+  "en": "★S-1 extraction (2026-08-26): mechanically lifted from analysis.html factory control values, NOT a page-exported session file — once the bar is wired, replace with a page export to close the round trip. Contents: the full knob set of the synthetic-twin reconstruction (synthetic measurements at Ip 450 kA, β 0.60, noise 0.005, seed 7; kinetic constraint on; per-diagnostic fit switches and weights as shipped). The `npp`/`nff` basis-order selects are filled at runtime per device and have no honest HTML default, so this file omits them — applying leaves the page's own values."
+ },
+ "prescribed_task_kind": "fyo:ExperimentAnalysisTask",
+ "prescribes_code": {
+  "id": "code/reconstruction",
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "capability `reconstruction` of the fylite tool register (python/fylite/scenario/__init__.py TOOLS['reconstruction']); the parameter IRIs `code/reconstruction#<name>` are this capability's control vocabulary"
+ },
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": {
+    "en": "EAST"
+   },
+   "described_by": {
+    "id": "machine_desc/east",
+    "type": "fyo:MachineDescription"
+   }
+  }
+ },
+ "parameters": [
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#basis",
+   "literal_value": "delivered"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#ip",
+   "literal_value": 450
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#beta0",
+   "literal_value": 0.6
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#emp",
+   "literal_value": 1.4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#enp",
+   "literal_value": 1.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#noise",
+   "literal_value": 0.005
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#seed",
+   "literal_value": 7
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#kin",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#kpts",
+   "literal_value": 9
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#kw",
+   "literal_value": 0.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#knoise",
+   "literal_value": 0.03
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#tite",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#pfast",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#pfastpk",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#neon",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#ne0",
+   "literal_value": 3.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#nepk",
+   "literal_value": 0.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#zeff",
+   "literal_value": 1.5
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#closure",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#closit",
+   "literal_value": 4
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#clostol",
+   "literal_value": 0.01
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#sigvint",
+   "literal_value": "1"
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#vesselfit",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#vridge",
+   "literal_value": 0.05
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#vit",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#vminsurv",
+   "literal_value": 0.1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#vinject",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#pointfit",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#farfit",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#farw",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#farit",
+   "literal_value": 2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#pointnoise",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#probefit",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#probew",
+   "literal_value": 1
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#coilfit",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#coilsig",
+   "literal_value": 0.07
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#loopsig",
+   "literal_value": 0.03
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#outk",
+   "literal_value": 3
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#caltol",
+   "literal_value": 0.2
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#mcn",
+   "literal_value": 16
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#mc-pres",
+   "literal_value": true
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#mcloops",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#mccoils",
+   "literal_value": 0
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#mc-basis",
+   "literal_value": false
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#warmup",
+   "literal_value": 40
+  },
+  {
+   "type": "spo:ParameterSetting",
+   "sets_parameter": "code/reconstruction#maxit",
+   "literal_value": 800
+  }
+ ]
+}
