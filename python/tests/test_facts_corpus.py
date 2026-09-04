@@ -296,7 +296,9 @@ def test_the_two_resolvers_agree(tmp_path):
     _make_root(tmp_path / "hi", ident="onlyhigh", note="HIGH")
     exe = _exe()
 
-    r = subprocess.run([str(exe), "data", "facts", "--facts", str(hi), "device"],
+    #: ★★2026-09-04：这一问搬去了 `list`（`FYL-DESIGN-17` E-24：发现面只有一处）。
+    #: 本闸子比的是**两个解析器**，不是命令词——搬家不改它问的东西，只改怎么问。
+    r = subprocess.run([str(exe), "list", "facts", "--facts", str(hi), "device"],
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
     rust = {}
