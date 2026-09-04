@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "0.2"
+version: "0.3"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -14,7 +14,10 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.2 按分析工作适用性评估修改：补三种视图（U-21 茎与表 · U-22 对照记录）、通道权重在图上编辑
+  change: 'v0.3 U0 第一步落地（model 页）：141 个手写控件誊录为 `app/assets/vocab-model.js`，页面只剩
+    `data-form` 挂点，`app/assets/form.js` 按词表画控件；表单闸 `app/tests/validate-form.mjs` 双向成立；
+    首屏输出仍在 790 px；一处潜在缺陷（`width` 默认值不在格上）由闸子暴露并改正。§十三 U0 行记
+    已落与未落。· v0.2 按分析工作适用性评估修改：补三种视图（U-21 茎与表 · U-22 对照记录）、通道权重在图上编辑
     （U-23）、视图状态由三种收成两种（U-17 改写：瞬态 / 入规格，瓦片带标记）、解释性文字的去向（U-24：
     词表只给一句 gloss，长注留在场景 `note` 与页面）；新增〈十五 · 评估〉记三种角色的学习曲线；缺口
     G-10..G-12。· v0.1 初稿：回答「fylite app 前端怎么详细设计」——输入页由 scenario fyo 文档**生成**
@@ -37,7 +40,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v0.2 |
+| 版本 (Version) | v0.3 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -646,6 +649,7 @@ C 档。
 | 期 | 前置 | 做什么 | 判据 |
 | :--- | :--- | :--- | :--- |
 | **U0 不动内核** | 无 | 从今天的 `BLOCKS` + `_manifest/*.jsonld` 生成五个 raw entry 的词表草表（缺 `range` / `tier` 的先由页面现有 `min/max` 誊录，标 `[TBD]`）；`form.js` 生成一页（先 `model`，因为它的 41 点解在页线程上，A 档最容易量）；`fig/*.js` 从画布改画规格（先 `line_chart` 与 `map`）；`evolve` 的断点进 IndexedDB；`fylite:layout` 与工作台 | 表单闸 · 规格闸对 `model` 页通过；`page_model.html` 手写 `.ctl` 归零 |
+| ★U0 已落（2026-09-04，第一步） | — | **`model` 页的表单生成**：`tools/transcribe-form-vocab.mjs` 一次性把 141 个控件（108 滑杆 · 8 枚举 · 25 布尔）誊录进 `app/assets/vocab-model.js`，页面只剩 `data-form` 挂点；`app/assets/form.js` 在 `scenario.js` 之前同步画出控件（同 id · 同 i18n 键 · 同读数），控制器与会话层一行不改。**未落**：词表的 `iri` / `tier` / `group` 全为 `[TBD]`（G-1）；数字孪生未画；分组仍由页面结构决定（U-3 待 U2）；`transport` 的 `BLOCKS` 与词表未对账 | `validate-form.mjs` 三节通过（141 ↔ 141 双向；浏览器逐条相符；`FySession.collect` 读回默认值）；`page_model.html` 无 `<input>` / `<select>`；首屏输出 790 px 不变；闸子暴露并改正一处潜在缺陷（`width` 默认 0.35 不在 0.02 格上，浏览器一直吸附为 0.36） |
 | **U1 中间层进 wasm 之后** | W-1 | 源栈经 `assemble`；`geqdsk.js` / `session.js` 退役（H-4 已定）；`AppSession/1` 退役为文档集；service worker 预缓存 | 往返闸通过；静态站点断网重开可载入 |
 | **U2 十个工具全过门之后** | P1 | 词表从内核 code 表读（K-2 增列落地）；四页全部生成；U-8 对所有多步 code；`--resume` 入 `_cli.json` | 四页 `fylite_rs_*` 归零（`-16` P1 判据）+ 四页手写控件归零；断点闸对每个多步 code |
 :::

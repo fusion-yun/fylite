@@ -122,24 +122,16 @@
       <h2 data-i18n="m.shared">共用参数</h2>
       <div class="grid2">
       <div>
-      <div class="ctl" data-shape><label><span data-i18n="x.amin">小半径 a [m]</span> <span class="val" id="model-v-amin"></span></label>
-        <input type="range" id="model-amin" min="0.2" max="3.0" step="0.05" value="0.6"></div>
-      <div class="ctl" data-shape><label><span data-i18n="x.rmaj">R/a</span> <span class="val" id="model-v-rmaj"></span></label>
-        <input type="range" id="model-rmaj" min="1.5" max="6" step="0.05" value="3.0"></div>
-      <div class="ctl" data-shape><label><span data-i18n="x.kappa">拉长比 κ</span> <span class="val" id="model-v-kappa"></span></label>
-        <input type="range" id="model-kappa" min="1.0" max="2.2" step="0.02" value="1.6"></div>
-      <div class="ctl" data-shape><label><span data-i18n="x.delta">三角度 δ</span> <span class="val" id="model-v-delta"></span></label>
-        <input type="range" id="model-delta" min="-0.5" max="0.8" step="0.02" value="0.3"></div>
+      <div data-form="amin"></div>
+      <div data-form="rmaj"></div>
+      <div data-form="kappa"></div>
+      <div data-form="delta"></div>
       </div>
       <div>
-      <div class="ctl" data-shape><label><span data-i18n="x.q95">边界 q</span> <span class="val" id="model-v-q95"></span></label>
-        <input type="range" id="model-q95" min="1.5" max="8" step="0.1" value="3.5"></div>
-      <div class="ctl" data-shape><label><span data-i18n="x.bunit">B<sub>0</sub> [T]</span> <span class="val" id="model-v-bunit"></span></label>
-        <input type="range" id="model-bunit" min="0.5" max="14" step="0.1" value="2.0"></div>
-      <div class="ctl"><label><span data-i18n="x.ne0">中心密度 n<sub>e</sub>(0) [10<sup>19</sup> m<sup>-3</sup>]</span> <span class="val" id="model-v-ne0"></span></label>
-        <input type="range" id="model-ne0" min="0.5" max="60" step="0.5" value="3.0"></div>
-      <div class="ctl"><label><span data-i18n="x.chi0">χ₀ [m²/s]</span> <span class="val" id="model-v-chi0"></span></label>
-        <input type="range" id="model-chi0" min="0.05" max="5" step="0.05" value="0.6"></div>
+      <div data-form="q95"></div>
+      <div data-form="bunit"></div>
+      <div data-form="ne0"></div>
+      <div data-form="chi0"></div>
       </div>
       </div>
       <!-- ★which bar still reads the six SHAPE sliders.  They cannot simply
@@ -164,43 +156,27 @@
 <div>
     <div data-part="model" class="panel">
       <h2 data-i18n="x.model">输运模型</h2>
-      <div class="ctl"><label for="model-transport-closure" data-i18n="x.closure">闭包</label>
-        <select id="model-transport-closure">
-          <option value="0" data-i18n="x.cl.const"></option>
-          <option value="1" data-i18n="x.cl.stiff"></option>
-          <option value="2" data-i18n="x.cl.neo"></option>
-          <option value="3" data-i18n="x.cl.turb"></option>
-        </select></div>
-      <div class="ctl"><label><span data-i18n="x.power">加热源峰值（任意单位）</span> <span class="val" id="model-v-power"></span></label>
-        <input type="range" id="model-power" min="0" max="40" step="0.5" value="12"></div>
-      <div class="ctl"><label><span data-i18n="x.width">加热沉积宽度 ρ</span> <span class="val" id="model-v-width"></span></label>
-        <input type="range" id="model-width" min="0.1" max="0.8" step="0.02" value="0.35"></div>
-      <div class="ctl"><label><span data-i18n="x.pinch">箍缩速度 v [m/s]</span> <span class="val" id="model-v-pinch"></span></label>
-        <input type="range" id="model-pinch" min="-3" max="1" step="0.05" value="0"></div>
-      <div class="ctl"><label><span data-i18n="x.edge">边界值 T(1) [keV]</span> <span class="val" id="model-v-edge"></span></label>
-        <input type="range" id="model-edge" min="0.05" max="6" step="0.05" value="0.3"></div>
-      <div class="ctl"><label><span data-i18n="x.dpc">Pereverzev–Corrigan d<sub>PC</sub> [m²/s]</span> <span class="val" id="model-v-dpc"></span></label>
-        <input type="range" id="model-dpc" min="0" max="4" step="0.05" value="0"></div>
-      <div class="ctl"><label><span data-i18n="x.n">网格点数</span> <span class="val" id="model-v-n"></span></label>
-        <input type="range" id="model-n" min="11" max="121" step="10" value="41"></div>
+      <div data-form="transport-closure"></div>
+      <div data-form="power"></div>
+      <div data-form="width"></div>
+      <div data-form="pinch"></div>
+      <div data-form="edge"></div>
+      <div data-form="dpc"></div>
+      <div data-form="n"></div>
       <p class="note" data-i18n="x.model_note"></p>
     </div>
 
     <div data-part="model" class="panel" id="model-phys-panel" hidden>
       <h2 data-i18n="x.phys">规定密度剖面（物理闭包用）</h2>
-      <div class="ctl"><label><span data-i18n="x.nepeak">密度峰化 n<sub>e</sub> ∝ 1 − c ρ²</span> <span class="val" id="model-v-nepeak"></span></label>
-        <input type="range" id="model-nepeak" min="0" max="0.9" step="0.05" value="0.4"></div>
+      <div data-form="nepeak"></div>
       <p class="note" data-i18n="x.phys_note"></p>
     </div>
 
     <div data-part="model" class="panel" id="model-turb-panel" hidden>
       <h2 data-i18n="x.turb">湍流闭包预算（TGLF）</h2>
-      <div class="ctl"><label><span data-i18n="x.turb_nrad">求值半径数</span> <span class="val" id="model-v-turb-nrad"></span></label>
-        <input type="range" id="model-turb-nrad" min="3" max="12" step="1" value="6"></div>
-      <div class="ctl"><label><span data-i18n="x.turb_nky">k<sub>y</sub> 点数</span> <span class="val" id="model-v-turb-nky"></span></label>
-        <input type="range" id="model-turb-nky" min="4" max="16" step="1" value="6"></div>
-      <div class="ctl"><label><span data-i18n="x.turb_outer">外迭代上限</span> <span class="val" id="model-v-turb-outer"></span></label>
-        <input type="range" id="model-turb-outer" min="2" max="12" step="1" value="6"></div>
+      <div data-form="turb-nrad"></div>
+      <div data-form="turb-nky"></div>
+      <div data-form="turb-outer"></div>
       <p class="note" data-i18n="x.turb_note"></p>
     </div>
 </div>
@@ -239,16 +215,11 @@
 <div class="evolve-controls">
     <div data-part="model" class="panel">
       <h2 data-i18n="e.time">时间与通道</h2>
-      <div class="ctl"><label for="model-evolve-geometry" data-i18n="e.geom">几何来源</label>
-        <select id="model-evolve-geometry">
-          <option value="miller" data-i18n="e.geom.miller"></option>
-          <option value="device" data-i18n="e.geom.device"></option>
-          <option value="gfile" data-i18n="e.geom.gfile"></option>
-        </select></div>
+      <div data-form="evolve-geometry"></div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-ch-heat" checked> <span data-i18n="e.ch.heat">热道 T<sub>e</sub>/T<sub>i</sub></span></label>
-        <label><input type="checkbox" id="model-evolve-ch-density"> <span data-i18n="e.ch.density">粒子道 n<sub>e</sub></span></label>
-        <label><input type="checkbox" id="model-evolve-ch-current"> <span data-i18n="e.ch.current">电流道 ψ</span></label>
+        <span data-form="evolve-ch-heat"></span>
+        <span data-form="evolve-ch-density"></span>
+        <span data-form="evolve-ch-current"></span>
         <!-- ★★the toroidal-momentum channel.  Not a fourth channel of
              `core_march` — the kernel keeps it as its own entry
              (`solve_momentum`), so it is switched on beside the other three
@@ -256,26 +227,19 @@
              is no E x B shear and the turbulent closure is missing its most
              important suppression mechanism, which is the whole reason it
              is here. -->
-        <label><input type="checkbox" id="model-evolve-ch-momentum"> <span data-i18n="e.ch.momentum">动量道 ω<sub>φ</sub></span></label>
+        <span data-form="evolve-ch-momentum"></span>
       </div>
       <p class="note" data-i18n="e.ch.note"></p>
       <div id="model-evolve-mom" hidden>
-        <div class="ctl"><label><span data-i18n="e.torque">力矩 T<sub>φ</sub> [N·m]</span> <span class="val" id="model-evolve-v-torque"></span></label>
-          <input type="range" id="model-evolve-torque" min="0" max="10" step="0.1" value="1"></div>
-        <div class="ctl"><label><span data-i18n="e.prandtl">动量普朗特数 χ<sub>φ</sub>/χ<sub>i</sub></span> <span class="val" id="model-evolve-v-prandtl"></span></label>
-          <input type="range" id="model-evolve-prandtl" min="0.1" max="3" step="0.05" value="1"></div>
+        <div data-form="evolve-torque"></div>
+        <div data-form="evolve-prandtl"></div>
         <p class="note" data-i18n="e.mom_note"></p>
       </div>
-      <div class="ctl"><label><span data-i18n="e.dt">时间步 dt [s]</span> <span class="val" id="model-evolve-v-dt"></span></label>
-        <input type="range" id="model-evolve-dt" min="0.0005" max="0.2" step="0.0005" value="0.002"></div>
-      <div class="ctl"><label><span data-i18n="e.nsteps">步数</span> <span class="val" id="model-evolve-v-nsteps"></span></label>
-        <input type="range" id="model-evolve-nsteps" min="5" max="400" step="5" value="60"></div>
-      <div class="ctl"><label><span data-i18n="e.dttarget">自适应目标变化（0 = 关）</span> <span class="val" id="model-evolve-v-dttarget"></span></label>
-        <input type="range" id="model-evolve-dttarget" min="0" max="0.2" step="0.005" value="0.02"></div>
-      <div class="ctl"><label><span data-i18n="e.nlev">磁面 / 网格点数</span> <span class="val" id="model-evolve-v-nlev"></span></label>
-        <input type="range" id="model-evolve-nlev" min="11" max="61" step="2" value="31"></div>
-      <div class="ctl"><label><span data-i18n="e.edgepsin">梯子外边界 ψ<sub>N</sub></span> <span class="val" id="model-evolve-v-edgepsin"></span></label>
-        <input type="range" id="model-evolve-edgepsin" min="0.90" max="0.99" step="0.005" value="0.95"></div>
+      <div data-form="evolve-dt"></div>
+      <div data-form="evolve-nsteps"></div>
+      <div data-form="evolve-dttarget"></div>
+      <div data-form="evolve-nlev"></div>
+      <div data-form="evolve-edgepsin"></div>
       <p class="note" data-i18n="e.edgepsin_note"></p>
       <!-- ★★THE BUDGET THE FREE-BOUNDARY SOLVE GETS, and it is a control
            because the answer to "was that enough" is not knowable in
@@ -286,8 +250,7 @@
            means is fixed — and the row beside the cross-section says
            which of the two happened. -->
       <div id="model-evolve-freebox" hidden>
-        <div class="ctl"><label><span data-i18n="e.freeiter">自由边界迭代上限</span> <span class="val" id="model-evolve-v-freeiter"></span></label>
-          <input type="range" id="model-evolve-freeiter" min="20" max="10000" step="20" value="600"></div>
+        <div data-form="evolve-freeiter"></div>
         <p class="note" data-i18n="e.freeiter_note"></p>
       </div>
       <p class="note" data-i18n="e.time_note"></p>
@@ -303,32 +266,27 @@
     <div data-part="model" class="panel">
       <h2 data-i18n="e.wave">波形（放电分段）</h2>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-wave"> <span data-i18n="e.wave.on">按波形推进（关 = 全程恒定）</span></label>
+        <span data-form="evolve-wave"></span>
       </div>
-      <div class="ctl"><label><span data-i18n="e.wave.ramp">升段结束 t<sub>1</sub> [s]</span> <span class="val" id="model-evolve-v-waveramp"></span></label>
-        <input type="range" id="model-evolve-waveramp" min="0" max="20" step="0.05" value="0.2"></div>
-      <div class="ctl"><label><span data-i18n="e.wave.flat">平顶结束 t<sub>2</sub> [s]</span> <span class="val" id="model-evolve-v-waveflat"></span></label>
-        <input type="range" id="model-evolve-waveflat" min="0" max="60" step="0.05" value="1.5"></div>
-      <div class="ctl"><label><span data-i18n="e.wave.end">放电结束 t<sub>3</sub> [s]</span> <span class="val" id="model-evolve-v-waveend"></span></label>
-        <input type="range" id="model-evolve-waveend" min="0" max="80" step="0.05" value="2.0"></div>
-      <div class="ctl"><label><span data-i18n="e.wave.start">t = 0 的份额</span> <span class="val" id="model-evolve-v-wavestart"></span></label>
-        <input type="range" id="model-evolve-wavestart" min="0" max="1" step="0.05" value="0.1"></div>
-      <div class="ctl"><label><span data-i18n="e.wave.end2">t = t<sub>3</sub> 的份额</span> <span class="val" id="model-evolve-v-waveend2"></span></label>
-        <input type="range" id="model-evolve-waveend2" min="0" max="1" step="0.05" value="0.1"></div>
+      <div data-form="evolve-waveramp"></div>
+      <div data-form="evolve-waveflat"></div>
+      <div data-form="evolve-waveend"></div>
+      <div data-form="evolve-wavestart"></div>
+      <div data-form="evolve-waveend2"></div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-wavepower" checked> <span data-i18n="e.wave.power">加热跟随</span></label>
-        <label><input type="checkbox" id="model-evolve-wavevloop"> <span data-i18n="e.wave.vloop">环电压跟随（＝电流促动器）</span></label>
-        <label><input type="checkbox" id="model-evolve-wavefuel"> <span data-i18n="e.wave.fuel">加料跟随</span></label>
+        <span data-form="evolve-wavepower"></span>
+        <span data-form="evolve-wavevloop"></span>
+        <span data-form="evolve-wavefuel"></span>
         <!-- ★★T-C16: the I_p TARGET follows the waveform, which is the only
              way「跟一条 I_p 时序」 is a thing this page can be asked to do —
              upstream's controller tracks a pulse_schedule, and a loop that
              could only ever hold a constant would be tracking a degenerate
              one.  ★It moves the loop's SET POINT, not the loop voltage: with
              the feedback off it does nothing at all, and the page says so. -->
-        <label><input type="checkbox" id="model-evolve-waveip"> <span data-i18n="e.wave.ip">I<sub>p</sub> 目标跟随（要开 I<sub>p</sub> 反馈才有效）</span></label>
+        <span data-form="evolve-waveip"></span>
       </div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-resume"> <span data-i18n="e.wave.resume">从上一次的终态续跑</span></label>
+        <span data-form="evolve-resume"></span>
       </div>
       <p class="note" id="model-evolve-resume-note"></p>
       <p class="note" data-i18n="e.wave_note"></p>
@@ -336,25 +294,16 @@
 
     <div data-part="model" class="panel">
       <h2 data-i18n="e.profiles">起始剖面与边界</h2>
-      <div class="ctl"><label><span data-i18n="e.te0">T<sub>e</sub>(0) [keV]</span> <span class="val" id="model-evolve-v-te0"></span></label>
-        <input type="range" id="model-evolve-te0" min="0.2" max="30" step="0.1" value="3.0"></div>
-      <div class="ctl"><label><span data-i18n="e.ti0">T<sub>i</sub>(0) [keV]</span> <span class="val" id="model-evolve-v-ti0"></span></label>
-        <input type="range" id="model-evolve-ti0" min="0.2" max="30" step="0.1" value="2.5"></div>
-      <div class="ctl"><label><span data-i18n="e.peakt">温度峰化指数</span> <span class="val" id="model-evolve-v-peakt"></span></label>
-        <input type="range" id="model-evolve-peakt" min="0.5" max="3" step="0.1" value="1.5"></div>
-      <div class="ctl"><label><span data-i18n="e.peakn">密度峰化指数</span> <span class="val" id="model-evolve-v-peakn"></span></label>
-        <input type="range" id="model-evolve-peakn" min="0.1" max="4" step="0.1" value="0.5"></div>
-      <div class="ctl">
-        <label><input type="checkbox" id="model-evolve-pedestal"> <span data-i18n="e.pedestal">台基模型（EPED1-NN 解出边界温度）</span></label></div>
+      <div data-form="evolve-te0"></div>
+      <div data-form="evolve-ti0"></div>
+      <div data-form="evolve-peakt"></div>
+      <div data-form="evolve-peakn"></div>
+      <div data-form="evolve-pedestal"></div>
       <p class="note" id="model-evolve-pedestal-note" hidden></p>
-      <div class="ctl"><label><span data-i18n="e.edgete">边界 T<sub>e</sub>(a) [keV]</span> <span class="val" id="model-evolve-v-edgete"></span></label>
-        <input type="range" id="model-evolve-edgete" min="0.02" max="8" step="0.02" value="0.3"></div>
-      <div class="ctl"><label><span data-i18n="e.edgeti">边界 T<sub>i</sub>(a) [keV]</span> <span class="val" id="model-evolve-v-edgeti"></span></label>
-        <input type="range" id="model-evolve-edgeti" min="0.02" max="8" step="0.02" value="0.3"></div>
-      <div class="ctl"><label><span data-i18n="e.edgene">边界 n<sub>e</sub>(a) [10<sup>19</sup> m<sup>-3</sup>]</span> <span class="val" id="model-evolve-v-edgene"></span></label>
-        <input type="range" id="model-evolve-edgene" min="0.1" max="40" step="0.1" value="0.5"></div>
-      <div class="ctl"><label><span data-i18n="e.vloop">环电压 V<sub>loop</sub> [V]（电流道边界）</span> <span class="val" id="model-evolve-v-vloop"></span></label>
-        <input type="range" id="model-evolve-vloop" min="-1" max="5" step="0.05" value="0"></div>
+      <div data-form="evolve-edgete"></div>
+      <div data-form="evolve-edgeti"></div>
+      <div data-form="evolve-edgene"></div>
+      <div data-form="evolve-vloop"></div>
       <!-- ★★T-C16: THE I_p LOOP, and it lives here because what it ACTS ON is
            the slider right above: with the loop off that is the boundary rate
            the current channel runs at; with it on the slider is the loop's
@@ -381,25 +330,18 @@
            current-diffusion time** — which is the rule a reader on a third
            machine should follow.  Both measured points are stated because
            neither is universal. -->
-      <div class="ctl"><label class="chk"><input type="checkbox" id="model-evolve-ipctl">
-        <span data-i18n="e.ipctl">I<sub>p</sub> 反馈（调环电压追请求电流）</span></label></div>
-      <div class="ctl"><label><span data-i18n="e.ipkp">比例增益 [V / 相对误差]</span> <span class="val" id="model-evolve-v-ipkp"></span></label>
-        <input type="range" id="model-evolve-ipkp" min="0" max="10" step="0.1" value="2.0"></div>
-      <div class="ctl"><label><span data-i18n="e.ipki">积分增益 [V/s / 相对误差]</span> <span class="val" id="model-evolve-v-ipki"></span></label>
-        <input type="range" id="model-evolve-ipki" min="0" max="8" step="0.05" value="3.0"></div>
+      <div data-form="evolve-ipctl"></div>
+      <div data-form="evolve-ipkp"></div>
+      <div data-form="evolve-ipki"></div>
       <p class="note" data-i18n="e.prof_note"></p>
     </div>
 
     <div data-part="model" class="panel">
       <h2 data-i18n="e.sources">加热与源</h2>
-      <div class="ctl"><label><span data-i18n="e.pe">电子加热 P<sub>e</sub> [MW]</span> <span class="val" id="model-evolve-v-pe"></span></label>
-        <input type="range" id="model-evolve-pe" min="0" max="60" step="0.5" value="4"></div>
-      <div class="ctl"><label><span data-i18n="e.pi">离子加热 P<sub>i</sub> [MW]</span> <span class="val" id="model-evolve-v-pi"></span></label>
-        <input type="range" id="model-evolve-pi" min="0" max="60" step="0.5" value="4"></div>
-      <div class="ctl"><label><span data-i18n="e.dep">沉积中心 / 宽度 ρ</span> <span class="val" id="model-evolve-v-dep"></span></label>
-        <input type="range" id="model-evolve-dep" min="0" max="0.9" step="0.02" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.depw">沉积宽度 ρ</span> <span class="val" id="model-evolve-v-depw"></span></label>
-        <input type="range" id="model-evolve-depw" min="0.05" max="0.8" step="0.05" value="0.30"></div>
+      <div data-form="evolve-pe"></div>
+      <div data-form="evolve-pi"></div>
+      <div data-form="evolve-dep"></div>
+      <div data-form="evolve-depw"></div>
       <!-- ★★THE BEAM, instead of the Gaussian above (T-M2).  What the two
            sliders above draw is a SHAPE: a density scan moves the plasma
            and not the place the beam stops, which is exactly backwards.
@@ -410,43 +352,26 @@
            It needs a psi_N map on the (R, Z) grid, so it exists on the
            solved-equilibrium and g-file tiers and NOT on Miller. -->
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-beam"> <span data-i18n="e.beam">NBI 沉积（取代规定高斯）</span></label>
+        <span data-form="evolve-beam"></span>
       </div>
       <div id="model-evolve-beambox" hidden>
-        <div class="ctl"><label><span data-i18n="e.beam.power">束功率 P<sub>NBI</sub> [MW]</span> <span class="val" id="model-evolve-v-beampower"></span></label>
-          <input type="range" id="model-evolve-beampower" min="0.5" max="40" step="0.5" value="4"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.energy">全能量 E [keV]</span> <span class="val" id="model-evolve-v-beamenergy"></span></label>
-          <input type="range" id="model-evolve-beamenergy" min="20" max="200" step="5" value="60"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.rtan">切向半径 R<sub>tan</sub> [m]</span> <span class="val" id="model-evolve-v-beamrtan"></span></label>
-          <input type="range" id="model-evolve-beamrtan" min="0.2" max="3" step="0.01" value="1.26"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.z">束高度 z [m]</span> <span class="val" id="model-evolve-v-beamz"></span></label>
-          <input type="range" id="model-evolve-beamz" min="-0.6" max="0.6" step="0.02" value="0"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.width">束半宽 [m]</span> <span class="val" id="model-evolve-v-beamwidth"></span></label>
-          <input type="range" id="model-evolve-beamwidth" min="0.02" max="0.3" step="0.01" value="0.10"></div>
-        <div class="ctl"><label for="model-evolve-beamdir" data-i18n="e.beam.dir">注入方向</label>
-          <select id="model-evolve-beamdir">
-            <option value="1" data-i18n="e.beam.dir.co"></option>
-            <option value="-1" data-i18n="e.beam.dir.counter"></option>
-          </select></div>
-        <div class="ctl"><label for="model-evolve-beamstop" data-i18n="e.beam.stop">阻止截面模型</label>
-          <select id="model-evolve-beamstop">
-            <option value="janev" data-i18n="e.beam.stop.janev"></option>
-            <option value="metis" data-i18n="e.beam.stop.metis"></option>
-          </select></div>
+        <div data-form="evolve-beampower"></div>
+        <div data-form="evolve-beamenergy"></div>
+        <div data-form="evolve-beamrtan"></div>
+        <div data-form="evolve-beamz"></div>
+        <div data-form="evolve-beamwidth"></div>
+        <div data-form="evolve-beamdir"></div>
+        <div data-form="evolve-beamstop"></div>
         <!-- ★EAST's positive-ion sources record full / half / third
              fractions and they change the stopping depth materially, so
              the split is the reader's rather than a hidden single energy.
              The three are normalised to sum to one. -->
-        <div class="ctl"><label><span data-i18n="e.beam.f1">全能份额</span> <span class="val" id="model-evolve-v-beamf1"></span></label>
-          <input type="range" id="model-evolve-beamf1" min="0" max="1" step="0.05" value="1"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.f2">半能份额</span> <span class="val" id="model-evolve-v-beamf2"></span></label>
-          <input type="range" id="model-evolve-beamf2" min="0" max="1" step="0.05" value="0"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.f3">三分之一能份额</span> <span class="val" id="model-evolve-v-beamf3"></span></label>
-          <input type="range" id="model-evolve-beamf3" min="0" max="1" step="0.05" value="0"></div>
-        <div class="ctl"><label><span data-i18n="e.beam.shells">沉积壳层数</span> <span class="val" id="model-evolve-v-beamshells"></span></label>
-          <input type="range" id="model-evolve-beamshells" min="8" max="48" step="4" value="24"></div>
+        <div data-form="evolve-beamf1"></div>
+        <div data-form="evolve-beamf2"></div>
+        <div data-form="evolve-beamf3"></div>
+        <div data-form="evolve-beamshells"></div>
         <div class="ctl checks">
-          <label><input type="checkbox" id="model-evolve-beamorbit" checked> <span data-i18n="e.beam.orbit">首轨损失（仅逆流注入）</span></label>
+          <span data-form="evolve-beamorbit"></span>
         </div>
         <p class="note" data-i18n="e.beam_note"></p>
       </div>
@@ -460,7 +385,7 @@
            thing more: |F(psi)| per surface, because accessibility goes as
            |B| ~ F/R.  Miller carries neither, so it is disabled there. -->
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-lh"> <span data-i18n="e.lh">LH 沉积与电流驱动（低杂波）</span></label>
+        <span data-form="evolve-lh"></span>
       </div>
       <div id="model-evolve-lhbox" hidden>
         <!-- ★★THE LAUNCHERS ARE THE MACHINE'S, NOT THE MARKUP'S (T-M15).
@@ -478,12 +403,9 @@
              fact — and the note under the box says which is which. -->
         <p class="note" id="model-evolve-lh-src"></p>
         <div id="model-evolve-lhgrp1">
-          <div class="ctl"><label><span id="model-evolve-lh-p1-lab"></span> <span class="val" id="model-evolve-v-lhpower1"></span></label>
-            <input type="range" id="model-evolve-lhpower1" min="0" max="6" step="0.1"></div>
-          <div class="ctl"><label><span id="model-evolve-lh-n1lo-lab"></span> <span class="val" id="model-evolve-v-lhnpar1lo"></span></label>
-            <input type="range" id="model-evolve-lhnpar1lo" min="1" max="4" step="0.01"></div>
-          <div class="ctl"><label><span id="model-evolve-lh-n1hi-lab"></span> <span class="val" id="model-evolve-v-lhnpar1hi"></span></label>
-            <input type="range" id="model-evolve-lhnpar1hi" min="1" max="4" step="0.01"></div>
+          <div data-form="evolve-lhpower1"></div>
+          <div data-form="evolve-lhnpar1lo"></div>
+          <div data-form="evolve-lhnpar1hi"></div>
         </div>
         <!-- ★a second system whose absorbed power is zero is DROPPED, not
              carried as a zero — the same rule `lh.east_launchers` applies to
@@ -493,68 +415,50 @@
              one antenna: a control for hardware the machine does not have
              is an invitation to invent it. -->
         <div id="model-evolve-lhgrp2">
-          <div class="ctl"><label><span id="model-evolve-lh-p2-lab"></span> <span class="val" id="model-evolve-v-lhpower2"></span></label>
-            <input type="range" id="model-evolve-lhpower2" min="0" max="6" step="0.1"></div>
-          <div class="ctl"><label><span id="model-evolve-lh-n2lo-lab"></span> <span class="val" id="model-evolve-v-lhnpar2lo"></span></label>
-            <input type="range" id="model-evolve-lhnpar2lo" min="1" max="4" step="0.01"></div>
-          <div class="ctl"><label><span id="model-evolve-lh-n2hi-lab"></span> <span class="val" id="model-evolve-v-lhnpar2hi"></span></label>
-            <input type="range" id="model-evolve-lhnpar2hi" min="1" max="4" step="0.01"></div>
+          <div data-form="evolve-lhpower2"></div>
+          <div data-form="evolve-lhnpar2lo"></div>
+          <div data-form="evolve-lhnpar2hi"></div>
         </div>
         <!-- ★★THE UP-SHIFT IS A RANGE, not a factor, and it is the input
              that decides where the current lands: a launched band resonates
              above the plasma unless multi-pass propagation up-shifts it, and
              the factor itself is poorly known.  A range widens the effective
              band and therefore sigma_j, which is the honest form. -->
-        <div class="ctl"><label><span data-i18n="e.lh.uplo">n<sub>∥</sub> 上移因子 下端</span> <span class="val" id="model-evolve-v-lhuplo"></span></label>
-          <input type="range" id="model-evolve-lhuplo" min="0.5" max="4" step="0.05" value="1.80"></div>
-        <div class="ctl"><label><span data-i18n="e.lh.uphi">n<sub>∥</sub> 上移因子 上端</span> <span class="val" id="model-evolve-v-lhuphi"></span></label>
-          <input type="range" id="model-evolve-lhuphi" min="0.5" max="4" step="0.05" value="2.20"></div>
-        <div class="ctl"><label><span data-i18n="e.lh.eta">η<sub>CD</sub> [10<sup>19</sup> A W<sup>-1</sup> m<sup>-2</sup>]</span> <span class="val" id="model-evolve-v-lhetacd"></span></label>
-          <input type="range" id="model-evolve-lhetacd" min="0.1" max="5" step="0.05" value="1.00"></div>
-        <div class="ctl"><label><span data-i18n="e.lh.xi">朗道共振倍数 ξ = v<sub>∥</sub>/v<sub>th,e</sub></span> <span class="val" id="model-evolve-v-lhxi"></span></label>
-          <input type="range" id="model-evolve-lhxi" min="2" max="4" step="0.1" value="3.0"></div>
-        <div class="ctl"><label><span data-i18n="e.lh.width">阻尼层最小宽度 ψ<sub>N</sub></span> <span class="val" id="model-evolve-v-lhwidth"></span></label>
-          <input type="range" id="model-evolve-lhwidth" min="0.01" max="0.3" step="0.01" value="0.05"></div>
-        <div class="ctl"><label><span data-i18n="e.lh.shells">沉积壳层数</span> <span class="val" id="model-evolve-v-lhshells"></span></label>
-          <input type="range" id="model-evolve-lhshells" min="8" max="48" step="4" value="24"></div>
+        <div data-form="evolve-lhuplo"></div>
+        <div data-form="evolve-lhuphi"></div>
+        <div data-form="evolve-lhetacd"></div>
+        <div data-form="evolve-lhxi"></div>
+        <div data-form="evolve-lhwidth"></div>
+        <div data-form="evolve-lhshells"></div>
         <p class="note" data-i18n="e.lh_note"></p>
       </div>
       <p class="note" id="model-evolve-lh-off" hidden></p>
-      <div class="ctl"><label><span data-i18n="e.fuel">加料速率 [10<sup>20</sup> s<sup>-1</sup>]</span> <span class="val" id="model-evolve-v-fuel"></span></label>
-        <input type="range" id="model-evolve-fuel" min="0" max="20" step="0.5" value="2"></div>
+      <div data-form="evolve-fuel"></div>
       <!-- ★T-C20：杂质的那一份，同一条沉积、自己的速率。★这是**规定的**源，
            不是溅射/注入/壁再循环模型——那三样没有可判的外部算例，本仓就不写
            （与主离子加料同一条规矩）。缺省 0：「只有再分配」是一个正当的答案。 -->
-      <div class="ctl"><label><span data-i18n="e.zfuel">杂质加料速率 [10<sup>20</sup> s<sup>-1</sup>]</span> <span class="val" id="model-evolve-v-zfuel"></span></label>
-        <input type="range" id="model-evolve-zfuel" min="0" max="5" step="0.05" value="0"></div>
+      <div data-form="evolve-zfuel"></div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-alpha"> <span data-i18n="e.alpha">α 加热（D-T）</span></label>
-        <label><input type="checkbox" id="model-evolve-brem" checked> <span data-i18n="e.brem">韧致辐射</span></label>
-        <label><input type="checkbox" id="model-evolve-ohmic" checked> <span data-i18n="e.ohmic">欧姆加热</span></label>
-        <label><input type="checkbox" id="model-evolve-bootstrap" checked> <span data-i18n="e.bs">自举电流（Redl）</span></label>
+        <span data-form="evolve-alpha"></span>
+        <span data-form="evolve-brem"></span>
+        <span data-form="evolve-ohmic"></span>
+        <span data-form="evolve-bootstrap"></span>
       </div>
-      <div class="ctl"><label><span data-i18n="e.icd">驱动电流 I<sub>CD</sub> [kA]</span> <span class="val" id="model-evolve-v-icd"></span></label>
-        <input type="range" id="model-evolve-icd" min="0" max="1000" step="10" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.zeff">Z<sub>eff</sub></span> <span class="val" id="model-evolve-v-zeff"></span></label>
-        <input type="range" id="model-evolve-zeff" min="1" max="4" step="0.1" value="1.5"></div>
+      <div data-form="evolve-icd"></div>
+      <div data-form="evolve-zeff"></div>
       <!-- ★the species menu is FILLED FROM THE KERNEL on ready, never
            written here: an unknown name radiates zero rather than
            complaining, so a hand-written menu that drifted from the ADAS
            table would offer species with no line radiation at all. -->
-      <div class="ctl"><label for="model-evolve-species" data-i18n="e.species">杂质物种（线辐射）</label>
-        <select id="model-evolve-species">
-          <option value="" data-i18n="e.species.none"></option>
-        </select></div>
-      <div class="ctl"><label><span data-i18n="e.cimp">杂质浓度 n<sub>z</sub>/n<sub>e</sub> [%]</span> <span class="val" id="model-evolve-v-cimp"></span></label>
-        <input type="range" id="model-evolve-cimp" min="0" max="5" step="0.01" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.dtfrac">燃料占比 n<sub>D</sub> = n<sub>T</sub> = f·n<sub>e</sub></span> <span class="val" id="model-evolve-v-dtfrac"></span></label>
-        <input type="range" id="model-evolve-dtfrac" min="0.1" max="0.5" step="0.025" value="0.500"></div>
+      <div data-form="evolve-species"></div>
+      <div data-form="evolve-cimp"></div>
+      <div data-form="evolve-dtfrac"></div>
       <!-- ★the impurity in the quasi-neutrality.  Without it Z_eff entered
            the resistivity, the radiation and the bootstrap while the main
            ion stayed undiluted — a Z_eff = 1.7 plasma with the fusion rate
            and the ion heat capacity of a pure hydrogenic one. -->
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-quasi"> <span data-i18n="e.quasi">杂质进准中性（主离子被稀释）</span></label>
+        <span data-form="evolve-quasi"></span>
       </div>
       <p class="note" id="model-evolve-quasi-note" hidden></p>
       <p class="note" data-i18n="e.src_note"></p>
@@ -562,20 +466,7 @@
 
     <div data-part="model" class="panel">
       <h2 data-i18n="e.closure">闭包与耦合</h2>
-      <div class="ctl"><label for="model-evolve-closure" data-i18n="x.closure">闭包</label>
-        <select id="model-evolve-closure">
-          <option value="0" data-i18n="x.cl.const"></option>
-          <option value="2" data-i18n="x.cl.neo"></option>
-          <option value="3" data-i18n="x.cl.turb"></option>
-        <!-- ★★T-C13 — THE ONE TIER THAT DOES NOT PRESCRIBE chi.  The other
-             three answer「用这个 chi 推进会怎样」; this one answers「哪一组
-             梯度让模型通量等于源项要求的通量」, which is the question a
-             predictive transport code exists for.  The matcher itself is the
-             KERNEL's (`flux_match`, six ABI entries, held against TGYRO's own
-             iteration table) — it had been in every shipped artifact since
-             07-31 with no caller anywhere in this front end. -->
-          <option value="4" data-i18n="e.cl.match"></option>
-        </select></div>
+      <div data-form="evolve-closure"></div>
       <p class="note" id="model-evolve-fm-off" hidden></p>
       <!-- ★the turbulent tier's budget.  TGLF at every radius on every step
            is minutes of arithmetic for a plasma whose turbulence
@@ -590,16 +481,12 @@
              relaxation is the matcher's own per-point backoff — so these two
              are withdrawn there rather than shown and ignored. -->
         <div id="model-evolve-turbmarch">
-          <div class="ctl"><label><span data-i18n="e.turb.every">TGLF 求值节律（每 N 步）</span> <span class="val" id="model-evolve-v-turbevery"></span></label>
-            <input type="range" id="model-evolve-turbevery" min="1" max="50" step="1" value="10"></div>
+          <div data-form="evolve-turbevery"></div>
         </div>
-        <div class="ctl"><label><span data-i18n="x.turb_nrad">求值半径数</span> <span class="val" id="model-evolve-v-turbnrad"></span></label>
-          <input type="range" id="model-evolve-turbnrad" min="3" max="12" step="1" value="6"></div>
-        <div class="ctl"><label><span data-i18n="x.turb_nky">k<sub>y</sub> 点数</span> <span class="val" id="model-evolve-v-turbnky"></span></label>
-          <input type="range" id="model-evolve-turbnky" min="4" max="16" step="1" value="6"></div>
+        <div data-form="evolve-turbnrad"></div>
+        <div data-form="evolve-turbnky"></div>
         <div id="model-evolve-turbmarch2">
-          <div class="ctl"><label><span data-i18n="e.turb.relax">χ<sub>turb</sub> 欠松弛</span> <span class="val" id="model-evolve-v-turbrelax"></span></label>
-            <input type="range" id="model-evolve-turbrelax" min="0.1" max="1" step="0.05" value="0.5"></div>
+          <div data-form="evolve-turbrelax"></div>
         </div>
         <p class="note" data-i18n="e.turb_note"></p>
       </div>
@@ -614,16 +501,11 @@
            root find of is that model's flux and matching where it was never
            evaluated would be matching an interpolation. -->
       <div id="model-evolve-fmbox" hidden>
-        <div class="ctl"><label><span data-i18n="e.fm.rhomin">匹配区内边界 ρ̂</span> <span class="val" id="model-evolve-v-fmrhomin"></span></label>
-          <input type="range" id="model-evolve-fmrhomin" min="0.05" max="0.5" step="0.01" value="0.20"></div>
-        <div class="ctl"><label><span data-i18n="e.fm.iter">牛顿迭代上限</span> <span class="val" id="model-evolve-v-fmiter"></span></label>
-          <input type="range" id="model-evolve-fmiter" min="2" max="60" step="1" value="30"></div>
-        <div class="ctl"><label><span data-i18n="e.fm.tol">收敛判据（相对通量差）</span> <span class="val" id="model-evolve-v-fmtol"></span></label>
-          <input type="range" id="model-evolve-fmtol" min="0.002" max="0.2" step="0.002" value="0.02"></div>
-        <div class="ctl"><label><span data-i18n="e.fm.dx">雅可比探针步长 Δ(a/L<sub>T</sub>)</span> <span class="val" id="model-evolve-v-fmdx"></span></label>
-          <input type="range" id="model-evolve-fmdx" min="0.01" max="0.5" step="0.01" value="0.05"></div>
-        <div class="ctl"><label><span data-i18n="e.fm.dxmax">牛顿步夹持 |Δ(a/L<sub>T</sub>)|</span> <span class="val" id="model-evolve-v-fmdxmax"></span></label>
-          <input type="range" id="model-evolve-fmdxmax" min="0.2" max="4" step="0.1" value="1.0"></div>
+        <div data-form="evolve-fmrhomin"></div>
+        <div data-form="evolve-fmiter"></div>
+        <div data-form="evolve-fmtol"></div>
+        <div data-form="evolve-fmdx"></div>
+        <div data-form="evolve-fmdxmax"></div>
         <!-- ★★T-C14: THE OUTER LOOP, and why it is two controls rather than a
              switch.  What the matcher above closes is conduction; what it
              CANNOT close is everything that has to be held fixed while a
@@ -639,50 +521,37 @@
              ★`couple` stays REFUSED on this tier: it is a per-STEP cadence
              and this tier has no time axis; two controls saying one thing
              would read as though they could be used together. -->
-        <div class="ctl"><label><span data-i18n="e.fm.outer">外环轮数上限（源→台基→输运→电流→锯齿→平衡）</span> <span class="val" id="model-evolve-v-fmouter"></span></label>
-          <input type="range" id="model-evolve-fmouter" min="1" max="10" step="1" value="1"></div>
-        <div class="ctl"><label><span data-i18n="e.fm.otol">外环收敛判据（压强与电流剖面的相对变化）</span> <span class="val" id="model-evolve-v-fmotol"></span></label>
-          <input type="range" id="model-evolve-fmotol" min="0.01" max="0.2" step="0.005" value="0.05"></div>
+        <div data-form="evolve-fmouter"></div>
+        <div data-form="evolve-fmotol"></div>
         <!-- ★★外环的欠松弛：一轮把下一轮甩出去多远。1 = 不阻尼，实测在
              `evolve-east-hmode` 上会跑飞（第六轮的牛顿路径 99 → 311 → 922 %）；
              阻尼不移动不动点——不动点上稳态解返回的就是喂进去的那一条。 -->
-        <div class="ctl"><label><span data-i18n="e.fm.orelax">外环欠松弛（q 与 ψ 的轮间混合）</span> <span class="val" id="model-evolve-v-fmorlx"></span></label>
-          <input type="range" id="model-evolve-fmorlx" min="0.2" max="1" step="0.05" value="0.5"></div>
+        <div data-form="evolve-fmorlx"></div>
         <p class="note" data-i18n="e.fm_note"></p>
         <p class="note" data-i18n="e.fm_outer_note"></p>
       </div>
-      <div class="ctl"><label><span data-i18n="e.chiratio">χ<sub>e</sub>/χ<sub>i</sub>（规定）</span> <span class="val" id="model-evolve-v-chiratio"></span></label>
-        <input type="range" id="model-evolve-chiratio" min="0.2" max="3" step="0.1" value="1.0"></div>
-      <div class="ctl"><label><span data-i18n="e.dchi">D<sub>n</sub>/χ<sub>e</sub>（规定）</span> <span class="val" id="model-evolve-v-dchi"></span></label>
-        <input type="range" id="model-evolve-dchi" min="0.05" max="1.5" step="0.05" value="0.3"></div>
-      <div class="ctl"><label><span data-i18n="e.pinch">粒子箍缩 v [m/s]</span> <span class="val" id="model-evolve-v-pinch"></span></label>
-        <input type="range" id="model-evolve-pinch" min="-3" max="1" step="0.05" value="0"></div>
+      <div data-form="evolve-chiratio"></div>
+      <div data-form="evolve-dchi"></div>
+      <div data-form="evolve-pinch"></div>
       <!-- ★★T-C20：第二种离子自己的输运。内核的密度道一直是逐离子种的，装配层
            一直收 ions 列表——缺的是这两个数：闭包按 n_ion × n 开了空间却只填第一
            种，杂质拿到的是 D = 0、v = 0，等于被冻住。★缺省与主离子相同，所以
            打开第二种离子本身不改变任何东西；这两个控件买到的是「杂质可以输运得
            不一样」这件事，而那正是有两种离子唯一有意思的地方。★与主离子的那两个
            一样是**规定的**——本档没有粒子闭包。 -->
-      <div class="ctl"><label><span data-i18n="e.dchiz">杂质 D<sub>z</sub>/χ<sub>e</sub>（规定）</span> <span class="val" id="model-evolve-v-dchiz"></span></label>
-        <input type="range" id="model-evolve-dchiz" min="0.05" max="1.5" step="0.05" value="0.3"></div>
-      <div class="ctl"><label><span data-i18n="e.pinchz">杂质箍缩 v<sub>z</sub> [m/s]</span> <span class="val" id="model-evolve-v-pinchz"></span></label>
-        <input type="range" id="model-evolve-pinchz" min="-3" max="1" step="0.05" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.dpc">Pereverzev–Corrigan d<sub>PC</sub> [m²/s]</span> <span class="val" id="model-evolve-v-dpc"></span></label>
-        <input type="range" id="model-evolve-dpc" min="0" max="4" step="0.05" value="0"></div>
+      <div data-form="evolve-dchiz"></div>
+      <div data-form="evolve-pinchz"></div>
+      <div data-form="evolve-dpc"></div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-useref"> <span data-i18n="e.useref">以导入的参考剖面为初值 / 规定密度</span></label>
+        <span data-form="evolve-useref"></span>
       </div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-sawtooth"> <span data-i18n="e.saw">锯齿混合（需电流道）</span></label>
+        <span data-form="evolve-sawtooth"></span>
       </div>
-      <div class="ctl"><label><span data-i18n="e.sawmix">混合半径 r<sub>mix</sub> = k · r<sub>q=1</sub></span> <span class="val" id="model-evolve-v-sawmix"></span></label>
-        <input type="range" id="model-evolve-sawmix" min="1" max="1.4" step="0.05" value="1.20"></div>
-      <div class="ctl"><label><span data-i18n="e.ip">等离子体电流 I<sub>p</sub> [kA]</span> <span class="val" id="model-evolve-v-ip"></span></label>
-        <input type="range" id="model-evolve-ip" min="50" max="20000" step="50" value="400"></div>
-      <div class="ctl"><label><span data-i18n="e.couple">耦合节律 K（0 = 冻结几何）</span> <span class="val" id="model-evolve-v-couple"></span></label>
-        <input type="range" id="model-evolve-couple" min="0" max="40" step="1" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.relax">β<sub>0</sub> 欠松弛</span> <span class="val" id="model-evolve-v-relax"></span></label>
-        <input type="range" id="model-evolve-relax" min="0.1" max="1" step="0.05" value="0.5"></div>
+      <div data-form="evolve-sawmix"></div>
+      <div data-form="evolve-ip"></div>
+      <div data-form="evolve-couple"></div>
+      <div data-form="evolve-relax"></div>
       <!-- ★★the coupling's plasma source.  The free-boundary solver takes a
            TWO-PARAMETER current family, so a coupled march could only hand
            its pressure back through (emp, enp) — a shape outside that
@@ -690,13 +559,11 @@
            refinement takes p' and FF' as polynomials, so the transport's
            own gradient goes in as itself. -->
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-evolve-couplefixed"> <span data-i18n="e.cfix">回灌走定形边界（p′/FF′ 多项式）</span></label>
+        <span data-form="evolve-couplefixed"></span>
       </div>
       <div id="model-evolve-cfix" hidden>
-        <div class="ctl"><label><span data-i18n="e.cfix.degp">p′ 多项式次数</span> <span class="val" id="model-evolve-v-degp"></span></label>
-          <input type="range" id="model-evolve-degp" min="1" max="6" step="1" value="3"></div>
-        <div class="ctl"><label><span data-i18n="e.cfix.degf">FF′ 多项式次数</span> <span class="val" id="model-evolve-v-degf"></span></label>
-          <input type="range" id="model-evolve-degf" min="1" max="6" step="1" value="3"></div>
+        <div data-form="evolve-degp"></div>
+        <div data-form="evolve-degf"></div>
         <p class="note" data-i18n="e.cfix_note"></p>
       </div>
       <p class="note" id="model-evolve-couple-note" data-i18n="e.couple_note"></p>
@@ -818,50 +685,30 @@
 <div>
     <div data-part="model" class="panel">
       <h2 data-i18n="i.setup">几何与网格</h2>
-      <div class="ctl"><label for="model-interp-geometry" data-i18n="e.geom">几何来源</label>
-        <select id="model-interp-geometry">
-          <option value="miller" data-i18n="e.geom.miller"></option>
-          <option value="device" data-i18n="e.geom.device"></option>
-          <option value="gfile" data-i18n="e.geom.gfile"></option>
-        </select></div>
-      <div class="ctl"><label><span data-i18n="e.nlev">磁面 / 网格点数</span> <span class="val" id="model-interp-v-nlev"></span></label>
-        <input type="range" id="model-interp-nlev" min="11" max="61" step="2" value="31"></div>
-      <div class="ctl"><label><span data-i18n="e.edgepsin">梯子外边界 ψ<sub>N</sub></span> <span class="val" id="model-interp-v-edgepsin"></span></label>
-        <input type="range" id="model-interp-edgepsin" min="0.90" max="0.99" step="0.005" value="0.95"></div>
-      <div class="ctl"><label><span data-i18n="i.gradfloor">梯度地板（特征梯度的份额）</span> <span class="val" id="model-interp-v-gradfloor"></span></label>
-        <input type="range" id="model-interp-gradfloor" min="0.0005" max="0.05" step="0.0005" value="0.001"></div>
-      <div class="ctl"><label><span data-i18n="e.ip">等离子体电流 I<sub>p</sub> [kA]</span> <span class="val" id="model-interp-v-ip"></span></label>
-        <input type="range" id="model-interp-ip" min="50" max="20000" step="50" value="400"></div>
+      <div data-form="interp-geometry"></div>
+      <div data-form="interp-nlev"></div>
+      <div data-form="interp-edgepsin"></div>
+      <div data-form="interp-gradfloor"></div>
+      <div data-form="interp-ip"></div>
       <p class="note" id="model-interp-refstate"></p>
       <p class="note" data-i18n="i.setup_note"></p>
     </div>
 
     <div data-part="model" class="panel">
       <h2 data-i18n="i.sources">维持这条剖面的源</h2>
-      <div class="ctl"><label><span data-i18n="e.pe">电子加热 P<sub>e</sub> [MW]</span> <span class="val" id="model-interp-v-pe"></span></label>
-        <input type="range" id="model-interp-pe" min="0" max="60" step="0.5" value="2"></div>
-      <div class="ctl"><label><span data-i18n="e.pi">离子加热 P<sub>i</sub> [MW]</span> <span class="val" id="model-interp-v-pi"></span></label>
-        <input type="range" id="model-interp-pi" min="0" max="60" step="0.5" value="2"></div>
-      <div class="ctl"><label><span data-i18n="e.dep">沉积中心 ρ</span> <span class="val" id="model-interp-v-dep"></span></label>
-        <input type="range" id="model-interp-dep" min="0" max="0.9" step="0.02" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.depw">沉积宽度 ρ</span> <span class="val" id="model-interp-v-depw"></span></label>
-        <input type="range" id="model-interp-depw" min="0.05" max="0.8" step="0.05" value="0.35"></div>
-      <div class="ctl"><label><span data-i18n="i.vloop">环电压 V<sub>loop</sub> [V]（0 = 不计欧姆）</span> <span class="val" id="model-interp-v-vloop"></span></label>
-        <input type="range" id="model-interp-vloop" min="0" max="5" step="0.05" value="0"></div>
+      <div data-form="interp-pe"></div>
+      <div data-form="interp-pi"></div>
+      <div data-form="interp-dep"></div>
+      <div data-form="interp-depw"></div>
+      <div data-form="interp-vloop"></div>
       <div class="ctl checks">
-        <label><input type="checkbox" id="model-interp-alpha"> <span data-i18n="e.alpha">α 加热（D-T）</span></label>
-        <label><input type="checkbox" id="model-interp-brem" checked> <span data-i18n="e.brem">辐射</span></label>
+        <span data-form="interp-alpha"></span>
+        <span data-form="interp-brem"></span>
       </div>
-      <div class="ctl"><label for="model-interp-species" data-i18n="e.species">杂质物种（线辐射）</label>
-        <select id="model-interp-species">
-          <option value="" data-i18n="e.species.none"></option>
-        </select></div>
-      <div class="ctl"><label><span data-i18n="e.cimp">杂质浓度 n<sub>z</sub>/n<sub>e</sub> [%]</span> <span class="val" id="model-interp-v-cimp"></span></label>
-        <input type="range" id="model-interp-cimp" min="0" max="5" step="0.05" value="0"></div>
-      <div class="ctl"><label><span data-i18n="e.zeff">Z<sub>eff</sub></span> <span class="val" id="model-interp-v-zeff"></span></label>
-        <input type="range" id="model-interp-zeff" min="1" max="4" step="0.1" value="1.5"></div>
-      <div class="ctl"><label><span data-i18n="e.dtfrac">燃料占比 n<sub>D</sub> = n<sub>T</sub> = f·n<sub>e</sub></span> <span class="val" id="model-interp-v-dtfrac"></span></label>
-        <input type="range" id="model-interp-dtfrac" min="0.1" max="0.5" step="0.025" value="0.500"></div>
+      <div data-form="interp-species"></div>
+      <div data-form="interp-cimp"></div>
+      <div data-form="interp-zeff"></div>
+      <div data-form="interp-dtfrac"></div>
       <p class="note" data-i18n="i.src_note"></p>
     </div>
 </div>
@@ -903,6 +750,16 @@
      and the copies had drifted into three different link sets. -->
 <footer></footer>
 
+<!-- ★THE CONTROLS ARE DRAWN, NOT WRITTEN (FYL-DESIGN-18 U-1 / U-2, stage U0).
+     `vocab-model.js` is the page's control vocabulary — one entry per
+     parameter, transcribed once from the markup this page used to carry —
+     and `form.js` replaces every `data-form` mount above with the control that
+     entry describes, same id, same i18n key, same readout.  Both load without
+     `defer` and BEFORE the controllers, so `scenario.js` finds `#model-amin`
+     exactly where it always did.  `tests/validate-form.mjs` holds the page and
+     the vocabulary to each other in both directions. -->
+<script src="../assets/vocab-model.js"></script>
+<script src="../assets/form.js"></script>
 <script src="../assets/device.js"></script>
 <script src="../assets/fyodev.js"></script>
 <script src="../assets/devices.js"></script>

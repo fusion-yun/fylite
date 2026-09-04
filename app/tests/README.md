@@ -254,3 +254,13 @@ await page.waitForFunction((re) => new RegExp(re).test(
 `a` = 0.036 m、q95 = 0.013、拟合电流 215 MA——求解器返回了，返回的却不是等离子体，
 而闸子只数了失败的片数，没有问过成功的那几片长什么样。所以第二条规矩：**断言失败被
 报出来，同时要断言成功的那些确实是它们自称的东西。**
+
+〔`validate-form.mjs`〕**表单闸**（`FYL-DESIGN-18` U-1 / U-2，分期 U0）：`pages/model.html` 的
+参数控件不再手写——页面只带 `data-form` 挂点，`assets/vocab-model.js` 是控制词表，
+`assets/form.js` 在加载时按词表画出控件（同 id、同 i18n 键、同读数）。闸子**双向**查：
+页面里没有 `<input>` / `<select>`，每个挂点有且仅有一条词表条目、反之亦然；`page_model.html`
+带同一组挂点且 `vocab-model.js → form.js` 排在 `scenario.js` 之前；有 Playwright 时再开浏览器
+逐条比对元素的 tag / min / max / step / value / 读数，并断言 `FySession.collect` 读回的是
+词表的默认值。★它不需要 `fy` 可执行体——控件在任何 worker 回答之前就已存在，静态伺服
+`app/` 即可。词表由 `tools/transcribe-form-vocab.mjs` **一次性**誊录而来，此后词表是源，
+不再改页面。
