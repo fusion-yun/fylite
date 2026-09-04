@@ -21,7 +21,8 @@
     "「拟」（record_state: proposed）的记录编号是**占位**，不是已发的号：公开登记册的号由内核仓的登记册真源发放，本册子写下 V-15 / B-07 一类编号只表示「计划里有这么一条，尚未立」。落记录时以真源发的号为准，并回填本册子。",
     "阻塞规则（blocking_rule）是**本册子规定的工作约定**，不是物理定律：它把「上游不成立时下游的数不可判读」这一认识论事实固定成执行规则。它可被显式豁免（exempt_from_blocking），但豁免必须具名并写明理由——默认是阻塞。",
     "payload: ptr 的算例来源（ITER IDM 四组）本体在 $ITER_SCENARIO_ROOT，未取回时相关条目一律记「未评估（缺参考侧）」，**不拿别的算例顶替**。顶替一次，这一级的结论就永远说不清是在量什么。",
-    "★2026-09-04 第一轮执行后回填：`status` 与 `status_note` 记的是**那一轮**的结果，逐条经过与八处发现在 `RUN-2026-09-04.md`。条目上出现的 `depends_on` 是**对所属阶段的覆盖**（发现 F-8：以 deck 为输入的组件级比较不消费 S1 的平衡产物）。"
+    "★2026-09-04 第一轮执行后回填：`status` 与 `status_note` 记的是**那一轮**的结果，逐条经过与八处发现在 `RUN-2026-09-04.md`。条目上出现的 `depends_on` 是**对所属阶段的覆盖**（发现 F-8：以 deck 为输入的组件级比较不消费 S1 的平衡产物）。",
+    "★装置牌的信息源是 **fydoc 的装置书 `facts/device/`**（用户裁定 2026-09-04），拖回工具 `tools/abox-to-facts.py`；**EAST 那张是手维护件，上游没有**，而所有消费装置牌的门都锚在 EAST 上——换一台机器顶上属本册子 §5 明令禁止的顶替。"
   ],
   "exempt_from_blocking": [
     {
@@ -354,7 +355,7 @@
             }
           ],
           "status": "unevaluated",
-          "status_note": "`test_rust_kernels.py`：10 条通过，24 条因**缺装置牌**不可评（RUN 记录 F-4）"
+          "status_note": "`test_rust_kernels.py`：10 条通过，24 条不可评——缺的**具体是 EAST 那张手维护装置牌**（rzrig 判据与 `east_measurements()` 锚在 EAST 上；六张自 fydoc A-Box 拖回的卡片里没有它）。换机器顶上是顶替，不做（RUN 记录 F-4 · 第七节）"
         },
         {
           "id": "plan/S2/volume-conventions-metis",
@@ -1309,7 +1310,7 @@
             }
           ],
           "status": "unevaluated",
-          "status_note": "18 条全部因缺装置牌 collection error（RUN 记录 F-4）"
+          "status_note": "18 条全部 collection error：缺 EAST 装置牌与两份 EAST deck 文档（`equilibrium_east137985_4000ms.fyo.jsonld` · `fylite_pressure_east.json`），三仓皆无（RUN 记录第七节）"
         }
       ]
     },
@@ -1361,7 +1362,7 @@
           "caveat": [
             "★本条在登记册里**没有算例来源指针**（纳入类别一栏为「—」）。按本册子的收录判据，这是一处待补：参考是什么、取自哪一份，须落到 fydoc 算例书里才谈得上复算。"
           ],
-          "status_note": "因缺装置牌跳过（RUN 记录 F-4）"
+          "status_note": "跳过：缺 EAST 装置牌。★本条判据 `dFzdz = 278916.0` 是 rzrig **在 EAST 上**量的，故只能用 EAST 卡片（RUN 记录第七节）"
         }
       ]
     },

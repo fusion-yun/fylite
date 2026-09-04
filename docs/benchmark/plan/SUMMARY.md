@@ -113,10 +113,15 @@ graph TD
 
 | 缺件 | 挡住谁 | 解锁代价 |
 | :--- | :--- | :--- |
-| 装置牌（`$FYLITE_DEVICE_DIR`） | `V-01` 第五门 24 条 · `B-06` 18 条 · `C-03` | **须裁定**：活位置在哪一仓（现存件只在 fydoc `todelete/` 下） |
+| 装置牌（`$FYLITE_DEVICE_DIR`）——具体是 **EAST 那一张** | `V-01` 第五门 24 条 · `B-06` 18 条 · `C-03` | 源已定：fydoc 装置书 `facts/device/`，`python tools/abox-to-facts.py --all` 拖回六张卡片；**EAST 例外**——手维护、上游 A-Box 里没有、本仓 gitignore，**三仓皆无**。而受阻的门全锚在 EAST 上（rzrig 判据 · `#137985` 反演 · `east_measurements()`），**换机器顶上是顶替，不做**。须裁定它归哪一仓 |
 | 神经网络权重（`$FYLITE_NN_DIR`） | `V-02` `V-03` `V-14` `B-05` | 导出即可（`tools/nn-export.jl`） |
 | `fylite.io.imas_h5`（2026-09-04 被删） | `B-02` `B-03` | **须裁定**：恢复，还是把门改走引擎自己的读取 |
 | FUSE 参考侧（0.7.0 已遗弃） | `B-01` | **须裁定**：对着 `retired-0.7.0/` 验，还是在 1.1.5 上重跑参考侧 |
+
+★★拖回装置卡片这一步**逼出一处内核缺陷并已修**（F-9）：`mutual_matrix(coils, vessel)`
+在第二组为空时走到 `chunks_mut(0)`，Rust panic 撞上 `extern "C"` 的不可展开边界 = **进程
+`abort`**。触发只需要一张没有被动结构的装置牌（A-Box 生成的 ITER 牌就是）；此前不可见，
+只因在用的那张 EAST 牌总是带被动集。六处同形通路一并加判，`cargo test -p fylite` 439 通过。
 
 ★★另有一处**判负**：`zerod-iter-15ma` 的 `finite`（S7）——内核在注入功率为零处按设计写
 NaN，而定律检查明写 NaN 不是物理态。**两条各自成立的约定在此冲突**，待裁定；在裁定之前

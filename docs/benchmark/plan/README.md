@@ -65,7 +65,21 @@
    `unevaluated`（缺参考侧），**不降格取近似件**。
 3. **内核检出**。多数门在 `$FYLITE_KERNEL`（私仓）里跑；公开检出跑不了的条目记
    `unevaluated` 并写明缺的是哪一件——**按名拒绝，不拿别的算法顶上**。
-4. **现状真源**。本册子声称的 `status` / `record_state` 必须与
+4. **装置牌**（`$FYLITE_DEVICE_DIR`）。**信息源是 fydoc 的装置书 `facts/device/`**
+   （A-Box 快照），按需拖回本仓的 `facts/`（gitignore，不进版本库）：
+
+   ```bash
+   python tools/abox-to-facts.py --list      # 有哪些机器
+   python tools/abox-to-facts.py --all       # 拖回；一机一目录一张卡片
+   FYLITE_DEVICE_DIR=$PWD/facts/device/<机器> pytest …
+   ```
+
+   ★★**EAST 是例外**：它的卡片是**手维护**的（比 A-Box 严格更富：est2 79 探针基、
+   拟合控制块、被动集、电源参数），`abox-to-facts.py` **按名拒绝**生成它。而消费装置牌
+   的门几乎都锚在 EAST 上（rzrig 判据、`#137985` 的反演、`east_measurements()`）。
+   **换一台机器顶上是本册子明令禁止的顶替**——同一个坑 `test_benchmark_toksys.py` 的
+   注释里记着踩过一次：合成 g-file 配真机线圈电流，两例都错，且**不可见**。
+5. **现状真源**。本册子声称的 `status` / `record_state` 必须与
    [`../reports/README.md`](../reports/README.md) 与 [`../physics/SUMMARY.md`](../physics/SUMMARY.md)
    对得上；不一致时**以那两处为准**，并回填本册子。
 
