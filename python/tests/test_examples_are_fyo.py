@@ -32,6 +32,16 @@ from pathlib import Path
 
 import pytest
 
+
+#: ★★★空语料时 pytest 仍会为 `parametrize([])` 造一个「跳过」用例，并拿一个
+#: 占位值来问它的 id——id 函数若在那上面抛异常，整个模块就**收集失败**。
+#: 而「收集失败」与「语料不在」是两回事：后者本模块已经用 skipif 说清楚了，
+#: 前者会让人以为判据坏了。所以 id 函数对拿不准的值给个名字，不抛。
+def _pid(p, sep="/") -> str:
+    return f"{p.parent.name}{sep}{p.name}" if isinstance(p, Path) else "no-corpus"
+
+
+
 ROOT = Path(__file__).resolve().parents[2]
 EXAMPLES = ROOT / "examples"
 
@@ -110,7 +120,7 @@ def test_there_are_case_manifests_to_check():
     assert len(_cases()) >= 5
 
 
-@pytest.mark.parametrize("case", _cases(), ids=lambda p: p.parent.name)
+@pytest.mark.parametrize("case", _cases(), ids=lambda p: _pid(p).split("/")[0])
 def test_case_manifest_is_well_formed(case: Path):
     doc = json.loads(case.read_text())
     assert doc["@id"] == f"fylite:examples/{case.parent.name}"
@@ -126,7 +136,7 @@ def test_case_manifest_is_well_formed(case: Path):
     assert doc.get("fylite:notes"), f"{case.parent.name}: no honest boundary"
 
 
-@pytest.mark.parametrize("case", _cases(), ids=lambda p: p.parent.name)
+@pytest.mark.parametrize("case", _cases(), ids=lambda p: _pid(p).split("/")[0])
 def test_every_input_uri_resolves_or_declares_how_to_resolve_it(case: Path):
     """An input is EITHER in the tree beside the case OR names its variable.
 
@@ -155,7 +165,7 @@ def test_every_input_uri_resolves_or_declares_how_to_resolve_it(case: Path):
             f"{case.parent.name}/{port['port_id']}: {uri} resolves to nothing"
 
 
-@pytest.mark.parametrize("case", _cases(), ids=lambda p: p.parent.name)
+@pytest.mark.parametrize("case", _cases(), ids=lambda p: _pid(p).split("/")[0])
 def test_declared_hashes_match_the_files_they_name(case: Path):
     """A hash that is not checked is decoration.
 

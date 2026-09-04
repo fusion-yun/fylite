@@ -161,7 +161,11 @@ def problems(rec: dict, d: Path) -> list[str]:
         if name.startswith("$"):
             if not g.get("caveat"):
                 out.append(f"out-of-tree gate {name} carries no caveat")
-        elif not (d.parents[0] / name).exists():
+        #: ★★闸子的路径是**相对仓根**的（`app/tests/…`、`python/tests/…`），
+        #: 所以这里要问仓根，而不是从册子目录数上去。原写法是 `d.parents[0]`——
+        #: 按旧位置 `<仓根>/benchmark` 数一级正好，册子迁进 `docs/` 之后同样数
+        #: 一级只到 `docs/`，于是每一条都报「闸子没了」，而闸子就在原处。
+        elif not (Path(__file__).resolve().parents[3] / name).exists():
             out.append(f"in-tree gate {name} is gone")
     for c in run.get("has_input", []):
         uri = c.get("storage_uri", "")

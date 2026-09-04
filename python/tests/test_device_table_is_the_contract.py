@@ -32,6 +32,16 @@ import pytest
 
 from fylite import _fyo_interface as IFACE
 
+
+#: ★★★空语料时 pytest 仍会为 `parametrize([])` 造一个「跳过」用例，并拿一个
+#: 占位值来问它的 id——id 函数若在那上面抛异常，整个模块就**收集失败**。
+#: 而「收集失败」与「语料不在」是两回事：后者本模块已经用 skipif 说清楚了，
+#: 前者会让人以为判据坏了。所以 id 函数对拿不准的值给个名字，不抛。
+def _pid(p, sep="/") -> str:
+    return f"{p.parent.name}{sep}{p.name}" if isinstance(p, Path) else "no-corpus"
+
+
+
 ROOT = Path(__file__).resolve().parents[2]
 DESC = ROOT / "machine_desc"
 
@@ -74,7 +84,7 @@ def _walk(doc, path: str):
     return True, node
 
 
-@pytest.mark.parametrize("doc_path", DOCS, ids=lambda p: f"{p.parent.name}/{p.name}")
+@pytest.mark.parametrize("doc_path", DOCS, ids=_pid)
 def test_no_declared_field_hides_under_a_non_canonical_name(doc_path: Path):
     """★★The one that matters: a field that is THERE but spelled otherwise.
 
@@ -127,7 +137,7 @@ def _legacy_hit(doc, path: str) -> str | None:
 
 @pytest.mark.parametrize(
     "doc_path", [p for p in DOCS if p.suffix == ".json"],
-    ids=lambda p: p.parent.name)
+    ids=lambda p: _pid(p).split("/")[0])
 def test_a_browser_document_resolves_every_slot_its_machine_has(doc_path: Path):
     """★The browser document is the one an import channel parses, and
     `FyoDevice.fromFyo` is strict about what it needs: coils, a limiter, a

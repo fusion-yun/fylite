@@ -143,7 +143,11 @@ def problems(part: Mapping, d: Path | None = None) -> list[str]:
     不会对「什么算一条站得住的声明」给出不同答案。
     """
     d = suite_dir() if d is None else Path(d)
-    root = d.parents[1] if d.name == "physics" else _root()
+    #: ★★★声明里的路径是**相对仓根**的，所以这里就取仓根。原来写的是
+    #: `d.parents[1]`——那是按旧位置 `<仓根>/benchmark/physics` 数的两级；
+    #: 册子 2026-09-04 迁进 `docs/` 之后同样数两级只到 `docs/`，于是每一条
+    #: 算例都被判成「不在检出里」。数层级的写法一搬家就错，改为直接问仓根。
+    root = _root()
     out: list[str] = []
     pid = str(part.get("id", ""))
     if not pid.startswith("physics/"):

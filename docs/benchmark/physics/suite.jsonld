@@ -12,7 +12,7 @@
     "en": "The physics-check suite: preset cases and their criteria"
   },
   "abstract": {
-    "zh": "一条一条：跑哪个算例（scenario，指向 cases/ 语料里的 fyo:ScenarioSpecification），按哪些判据判（criteria）。判据册本身在 `fylite.engine.physics`：定律（有限性、正性、Grad–Shafranov）与定义（ψ 端点、V′、τ_E 的定义式、β_N 与 Greenwald 的式子）对每个算例一律跑——它们不需要谁来声明；期望（上下界、准稳态窗口）是场景的性质，所以由这里逐条带。★本册子与公开 V&V 登记册（../registry.jsonld）问的不是同一个问题：那边的参考是外部答案，这边的参考是定律与文档自身的定义。",
+    "zh": "一条一条：跑哪个算例（scenario，指向 docs/examples/ 语料里的 fyo:ScenarioSpecification），按哪些判据判（criteria）。判据册本身在 `fylite.engine.physics`：定律（有限性、正性、Grad–Shafranov）与定义（ψ 端点、V′、τ_E 的定义式、β_N 与 Greenwald 的式子）对每个算例一律跑——它们不需要谁来声明；期望（上下界、准稳态窗口）是场景的性质，所以由这里逐条带。★本册子与公开 V&V 登记册（../registry.jsonld）问的不是同一个问题：那边的参考是外部答案，这边的参考是定律与文档自身的定义。",
     "en": "One row per preset case: which scenario to run and which criteria to judge it by. The check register itself lives in `fylite.engine.physics`; laws and definitions run for every case, while expectations (bounds, steady-state windows) are properties of the scenario and are therefore carried here, case by case. This is a different register from the public V&V one (../registry.jsonld): there the reference is an external answer, here it is physical law and the documents' own definitions."
   },
   "recorded": "2026-09-02",
@@ -27,11 +27,11 @@
         "zh": "缺省演化：一次 1.5-D 输运推进的自洽性",
         "en": "The default march: self-consistency of one 1.5-D transport advance"
       },
-      "scenario": "cases/evolve-default",
+      "scenario": "docs/examples/evolve/evolve-default",
       "concretized_as": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "cases/evolve-default.jsonld",
+          "storage_uri": "docs/examples/evolve/evolve-default.jsonld",
           "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
         }
       ],
@@ -63,11 +63,11 @@
         "zh": "ITER 15 MA 感应燃烧：定律、定义，加上这一炮该落在哪",
         "en": "ITER 15 MA inductive burn: laws, definitions, and where this pulse should land"
       },
-      "scenario": "cases/evolve-iter-15ma",
+      "scenario": "docs/examples/evolve/evolve-iter-15ma",
       "concretized_as": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "cases/evolve-iter-15ma.jsonld",
+          "storage_uri": "docs/examples/evolve/evolve-iter-15ma.jsonld",
           "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
         }
       ],
@@ -112,11 +112,11 @@
         "zh": "EAST 长脉冲（装置牌）：带电流道与锯齿的演化",
         "en": "EAST long pulse (device deck): the march with the current channel and sawteeth"
       },
-      "scenario": "cases/evolve-east-hmode",
+      "scenario": "docs/examples/evolve/evolve-east-hmode",
       "concretized_as": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "cases/evolve-east-hmode.jsonld",
+          "storage_uri": "docs/examples/evolve/evolve-east-hmode.jsonld",
           "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
         }
       ],
@@ -147,11 +147,11 @@
         "zh": "ITER 15 MA 定态剖面：固定几何、单通道",
         "en": "ITER 15 MA steady profiles: fixed geometry, one channel"
       },
-      "scenario": "cases/transport-iter-15ma",
+      "scenario": "docs/examples/transport/transport-iter-15ma",
       "concretized_as": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "cases/transport-iter-15ma.jsonld",
+          "storage_uri": "docs/examples/transport/transport-iter-15ma.jsonld",
           "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
         }
       ],
@@ -177,11 +177,11 @@
         "zh": "ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住",
         "en": "ITER 15 MA 0-D power balance: does the τ_E definition hold"
       },
-      "scenario": "cases/zerod-iter-15ma",
+      "scenario": "docs/examples/zerod/zerod-iter-15ma",
       "concretized_as": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "cases/zerod-iter-15ma.jsonld",
+          "storage_uri": "docs/examples/zerod/zerod-iter-15ma.jsonld",
           "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
         }
       ],
@@ -222,11 +222,11 @@
         "zh": "ITER 平顶位形（自由边界反解）：Grad–Shafranov 与几何定义",
         "en": "ITER flattop configuration (free boundary): Grad–Shafranov and the geometric definitions"
       },
-      "scenario": "cases/discharge-iter",
+      "scenario": "docs/examples/design/discharge-iter",
       "concretized_as": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "cases/discharge-iter.jsonld",
+          "storage_uri": "docs/examples/design/discharge-iter.jsonld",
           "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
         }
       ],
@@ -259,7 +259,7 @@
       "product": [
         {
           "type": "spo:Concretization",
-          "storage_uri": "rust/fylite_data/testdata/g_synthetic.geqdsk",
+          "storage_uri": "rust/fylite_runtime/testdata/g_synthetic.geqdsk",
           "format_iri": "https://fusion-yun.github.io/fyo/latest/GeqdskFormat",
           "comment": "本仓自带的合成 g-file（数据层的判据件）"
         }

@@ -32,6 +32,16 @@ import pytest
 
 from fylite import device
 
+
+#: ★★★空语料时 pytest 仍会为 `parametrize([])` 造一个「跳过」用例，并拿一个
+#: 占位值来问它的 id——id 函数若在那上面抛异常，整个模块就**收集失败**。
+#: 而「收集失败」与「语料不在」是两回事：后者本模块已经用 skipif 说清楚了，
+#: 前者会让人以为判据坏了。所以 id 函数对拿不准的值给个名字，不抛。
+def _pid(p, sep="/") -> str:
+    return f"{p.parent.name}{sep}{p.name}" if isinstance(p, Path) else "no-corpus"
+
+
+
 ROOT = Path(__file__).resolve().parents[2]
 #: ★2026-09-04 `machine_desc/` → `devices/` → **`facts/device/`**（用户裁定）。
 #: `app/facts/device` 是指向它的符号链接。目录换了两次名字，本模块守的东西没变。
@@ -46,8 +56,8 @@ DOCS = sorted(DESC.glob("*/*_device.yaml"))
 pytestmark = pytest.mark.skipif(not DOCS, reason="no facts/device/ in this tree")
 
 
-def _ids(p: Path) -> str:
-    return p.parent.name
+def _ids(p) -> str:
+    return _pid(p, sep="") if not isinstance(p, Path) else p.parent.name
 
 
 @pytest.mark.parametrize("doc", DOCS, ids=_ids)

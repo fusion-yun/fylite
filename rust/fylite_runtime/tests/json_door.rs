@@ -5,7 +5,8 @@ use std::path::Path;
 #[test]
 fn a_corpus_case_goes_through_the_json_door() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    let plan = root.join("cases/evolve-default.jsonld");
+    //: ★语料 2026-09-04 由 `cases/` 迁入 `docs/examples/<族>/`（一例一目录）。
+    let plan = root.join("docs/examples/evolve/evolve-default.jsonld");
     let text = std::fs::read_to_string(&plan).expect("the corpus is in the checkout");
     let kernel = std::env::var("FYLITE_KERNEL_LIB").ok();
     if kernel.is_none() && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file() {

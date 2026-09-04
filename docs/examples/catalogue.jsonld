@@ -1,120 +1,296 @@
 {
- "@context": [
-  "context.jsonld",
-  {
-   "@base": "../../"
-  }
- ],
- "id": "cases/catalogue",
- "type": "spo:InformationContentEntity",
- "title": {
-  "zh": "算例语料目录",
-  "en": "The scenario corpus"
- },
- "note": {
-  "zh": "每一份算例是一份 fyo:ScenarioSpecification（spo:ComputationPlan）：它规定哪一项能力（prescribes_code）、以什么参数设置（has_parameter_setting，值为 JSON 字面量）、关于哪台机器 / 哪一炮（about_discharge）、调用方还须绑定哪些输入端口（has_port_binding，未绑定即为开放端口）以及本仓不具备的能力（caveat）。算例只带输入，不带结果：它是一次运行的单一输入结构，运行的记录是另一份文档（spo:ComputationRecord）。★目录的成员顺序就是列出顺序；每个成员的 concretized_as 指向承载它的文件。★2026-09-02：由页面会话文档形态（AppSession/1，私有词表）改写而来（词汇归 fyo / spo，FYO-ADR-07）；页面自 2026-09-01 起不读本语料，读者是 `fylite cases` 与 `fylite.engine.cases`。 ★★2026-09-04 收敛：语料只收**完整算例**——一条算例自带跑完一次所需的全部控件，不靠调用方另外补一份本仓没有的参考件，也不靠一个只在浏览器里存在的入口。据此撤掉 16 条。〔一〕**对标算例各收敛成一条**：FUSE 九档（ARC/DTT/EXCITE/FPP/K-DEMO/KSTAR/MANTA/SPARC/ITER）只有 114 个控件里的 21 个机器标量不同，其余全是本仓缺省，且它们自己声明「是 FUSE 的输入、不是 FUSE 的答案」——留 `evolve-fuse-iter` 一条（它是台基外推那条判据的载体：定 χ 燃烧会跑出 EPED1-NN 的训练箱）；JINTRAC 四条本仓一条都跑不动，参考值在 fydoc、比较记录在 V&V 登记册（`benchmark/registry.jsonld`），语料里再留四份就是第三处副本——留 `evolve-jintrac-iter-15ma-flattop` 一条，作为那条比较记录的输入侧说明。〔二〕`evolve-iter-15ma-benchmark` 有两个**未绑定的输入端口**（一张参考 g 文件、一张参考剖面表），本仓拿不出这两份件，按定义就不是完整算例；读参考剖面表的能力还在（`fylite.io.reference`）。〔三〕`pulse-iter` / `profile-default` / `series-default` / `reconstruction-default` 的功能栏（`pfwave` / `profile` / `series` / `reconstruction`）Python 侧没有独立入口，而页面的算例菜单 2026-09-01 已撤除，语料里再没有谁会套用它们；那几栏的能力边界仍由 `fylite.scenario.BROWSER_ONLY_BARS` 与 `engine.cases.REFUSALS` **按名**声明，不靠一份跑不了的算例来记。 ★★**装置中立**：语料不是装置花名册。机器标量经 `devices/` 的装置牌进来，语料每层能力最多留一条绑定装置牌的示例（device 几何层是 `evolve-east-hmode`）；要换一台机器，换的是装置牌，不是往语料里再加一条算例。",
-  "en": "Each case is one fyo:ScenarioSpecification (an spo:ComputationPlan): which capability it prescribes (prescribes_code), with which parameter settings (has_parameter_setting, values as JSON literals), which machine / pulse it is about (about_discharge), which input ports the caller still has to bind (has_port_binding; an unbound binding is an OPEN port) and which capabilities this repository lacks (caveat). A case carries inputs and never a result: it is the single input structure of a run, whose record is a separate document (spo:ComputationRecord). ★The member order is the listing order; each member's concretized_as names the file that carries it. ★2026-09-02: rewritten from the page session-document form (AppSession/1, private vocabulary) (vocabulary fyo / spo only, FYO-ADR-07); the pages have not read this corpus since 2026-09-01 — its readers are `fylite cases` and `fylite.engine.cases`. ★★2026-09-04, converged: the corpus admits COMPLETE cases only — a case carries every control one run needs, and leans neither on a reference file this repository does not hold nor on an entry that exists only in the browser. Sixteen were withdrawn on that rule. (1) **One case per external code.** The nine FUSE decks (ARC/DTT/EXCITE/FPP/K-DEMO/KSTAR/MANTA/SPARC/ITER) differed in 21 machine scalars out of 114 controls, every other value being this repository's default, and they state of themselves that they are FUSE's INPUT and not FUSE's answer; `evolve-fuse-iter` stays, because it is the one that carries the pedestal-extrapolation criterion (a fixed-chi burn runs out of EPED1-NN's training box). None of the four JINTRAC cases can be run here; the reference values live in fydoc and the comparison record in the V&V register (`benchmark/registry.jsonld`), so four copies here were a third transcription — `evolve-jintrac-iter-15ma-flattop` stays as the input-side statement of that record. (2) `evolve-iter-15ma-benchmark` had two UNBOUND input ports (a reference g-file and a reference profile table) that this repository cannot supply, which is not a complete case by definition; the capability that reads such a table remains (`fylite.io.reference`). (3) The bars behind `pulse-iter` / `profile-default` / `series-default` / `reconstruction-default` (`pfwave` / `profile` / `series` / `reconstruction`) have no Python entry of their own, and the page's case menu was withdrawn on 2026-09-01, so nothing applies them any more; those capability boundaries are still declared BY NAME in `fylite.scenario.BROWSER_ONLY_BARS` and `engine.cases.REFUSALS` rather than recorded as a case that cannot run. ★★**Device-neutral**: the corpus is not a roster of machines. Machine scalars enter through the decks under `devices/`, and the corpus keeps at most one deck-bound example per capability tier (`evolve-east-hmode` for the device geometry tier); another machine means another deck, not another case."
- },
- "recorded": "2026-09-04",
- "has_part": [
-  {
-   "id": "cases/evolve-default",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+  "@context": [
+    "context.jsonld",
     {
-     "type": "spo:Concretization",
-     "storage_uri": "evolve/evolve-default.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+      "@base": "../../"
     }
-   ]
+  ],
+  "id": "cases/catalogue",
+  "type": "spo:InformationContentEntity",
+  "title": {
+    "zh": "算例语料目录",
+    "en": "The scenario corpus"
   },
-  {
-   "id": "cases/evolve-iter-15ma",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
-    {
-     "type": "spo:Concretization",
-     "storage_uri": "evolve/evolve-iter-15ma.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
+  "note": {
+    "zh": "每一份算例是一份 fyo:ScenarioSpecification（spo:ComputationPlan）：它规定哪一项能力（prescribes_code）、以什么参数设置（has_parameter_setting，值为 JSON 字面量）、关于哪台机器 / 哪一炮（about_discharge）、调用方还须绑定哪些输入端口（has_port_binding，未绑定即为开放端口）以及本仓不具备的能力（caveat）。算例只带输入，不带结果：它是一次运行的单一输入结构，运行的记录是另一份文档（spo:ComputationRecord）。★目录的成员顺序就是列出顺序；每个成员的 concretized_as 指向承载它的文件。★2026-09-02：由页面会话文档形态（AppSession/1，私有词表）改写而来（词汇归 fyo / spo，FYO-ADR-07）；页面自 2026-09-01 起不读本语料，读者是 `fylite cases` 与 `fylite.engine.cases`。 ★★2026-09-04 收敛：语料只收**完整算例**——一条算例自带跑完一次所需的全部控件，不靠调用方另外补一份本仓没有的参考件，也不靠一个只在浏览器里存在的入口。据此撤掉 16 条。〔一〕**对标算例各收敛成一条**：FUSE 九档（ARC/DTT/EXCITE/FPP/K-DEMO/KSTAR/MANTA/SPARC/ITER）只有 114 个控件里的 21 个机器标量不同，其余全是本仓缺省，且它们自己声明「是 FUSE 的输入、不是 FUSE 的答案」——留 `evolve-fuse-iter` 一条（它是台基外推那条判据的载体：定 χ 燃烧会跑出 EPED1-NN 的训练箱）；JINTRAC 四条本仓一条都跑不动，参考值在 fydoc、比较记录在 V&V 登记册（`benchmark/registry.jsonld`），语料里再留四份就是第三处副本——留 `evolve-jintrac-iter-15ma-flattop` 一条，作为那条比较记录的输入侧说明。〔二〕`evolve-iter-15ma-benchmark` 有两个**未绑定的输入端口**（一张参考 g 文件、一张参考剖面表），本仓拿不出这两份件，按定义就不是完整算例；读参考剖面表的能力还在（`fylite.io.reference`）。〔三〕`pulse-iter` / `profile-default` / `series-default` / `reconstruction-default` 的功能栏（`pfwave` / `profile` / `series` / `reconstruction`）Python 侧没有独立入口，而页面的算例菜单 2026-09-01 已撤除，语料里再没有谁会套用它们；那几栏的能力边界仍由 `fylite.scenario.BROWSER_ONLY_BARS` 与 `engine.cases.REFUSALS` **按名**声明，不靠一份跑不了的算例来记。 ★★**装置中立**：语料不是装置花名册。机器标量经 `devices/` 的装置牌进来，语料每层能力最多留一条绑定装置牌的示例（device 几何层是 `evolve-east-hmode`）；要换一台机器，换的是装置牌，不是往语料里再加一条算例。",
+    "en": "Each case is one fyo:ScenarioSpecification (an spo:ComputationPlan): which capability it prescribes (prescribes_code), with which parameter settings (has_parameter_setting, values as JSON literals), which machine / pulse it is about (about_discharge), which input ports the caller still has to bind (has_port_binding; an unbound binding is an OPEN port) and which capabilities this repository lacks (caveat). A case carries inputs and never a result: it is the single input structure of a run, whose record is a separate document (spo:ComputationRecord). ★The member order is the listing order; each member's concretized_as names the file that carries it. ★2026-09-02: rewritten from the page session-document form (AppSession/1, private vocabulary) (vocabulary fyo / spo only, FYO-ADR-07); the pages have not read this corpus since 2026-09-01 — its readers are `fylite cases` and `fylite.engine.cases`. ★★2026-09-04, converged: the corpus admits COMPLETE cases only — a case carries every control one run needs, and leans neither on a reference file this repository does not hold nor on an entry that exists only in the browser. Sixteen were withdrawn on that rule. (1) **One case per external code.** The nine FUSE decks (ARC/DTT/EXCITE/FPP/K-DEMO/KSTAR/MANTA/SPARC/ITER) differed in 21 machine scalars out of 114 controls, every other value being this repository's default, and they state of themselves that they are FUSE's INPUT and not FUSE's answer; `evolve-fuse-iter` stays, because it is the one that carries the pedestal-extrapolation criterion (a fixed-chi burn runs out of EPED1-NN's training box). None of the four JINTRAC cases can be run here; the reference values live in fydoc and the comparison record in the V&V register (`benchmark/registry.jsonld`), so four copies here were a third transcription — `evolve-jintrac-iter-15ma-flattop` stays as the input-side statement of that record. (2) `evolve-iter-15ma-benchmark` had two UNBOUND input ports (a reference g-file and a reference profile table) that this repository cannot supply, which is not a complete case by definition; the capability that reads such a table remains (`fylite.io.reference`). (3) The bars behind `pulse-iter` / `profile-default` / `series-default` / `reconstruction-default` (`pfwave` / `profile` / `series` / `reconstruction`) have no Python entry of their own, and the page's case menu was withdrawn on 2026-09-01, so nothing applies them any more; those capability boundaries are still declared BY NAME in `fylite.scenario.BROWSER_ONLY_BARS` and `engine.cases.REFUSALS` rather than recorded as a case that cannot run. ★★**Device-neutral**: the corpus is not a roster of machines. Machine scalars enter through the decks under `devices/`, and the corpus keeps at most one deck-bound example per capability tier (`evolve-east-hmode` for the device geometry tier); another machine means another deck, not another case."
   },
-  {
-   "id": "cases/evolve-east-hmode",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+  "recorded": "2026-09-04",
+  "has_part": [
     {
-     "type": "spo:Concretization",
-     "storage_uri": "evolve/evolve-east-hmode.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
-  },
-  {
-   "id": "cases/transport-iter-15ma",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+      "id": "cases/breakdown-iter",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "design/breakdown-iter.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
     {
-     "type": "spo:Concretization",
-     "storage_uri": "transport/transport-iter-15ma.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
-  },
-  {
-   "id": "cases/zerod-iter-15ma",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+      "id": "cases/discharge-iter",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "design/discharge-iter.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
     {
-     "type": "spo:Concretization",
-     "storage_uri": "zerod/zerod-iter-15ma.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
-  },
-  {
-   "id": "cases/breakdown-iter",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+      "id": "cases/evolve-default",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-default.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
     {
-     "type": "spo:Concretization",
-     "storage_uri": "design/breakdown-iter.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
-  },
-  {
-   "id": "cases/discharge-iter",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+      "id": "cases/evolve-east-hmode",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-east-hmode.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
     {
-     "type": "spo:Concretization",
-     "storage_uri": "design/discharge-iter.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
-  },
-  {
-   "id": "cases/evolve-fuse-iter",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+      "id": "cases/evolve-fuse-arc",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-arc.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
     {
-     "type": "spo:Concretization",
-     "storage_uri": "evolve/evolve-fuse-iter.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
-    }
-   ]
-  },
-  {
-   "id": "cases/evolve-jintrac-iter-15ma-flattop",
-   "type": "fyo:ScenarioSpecification",
-   "concretized_as": [
+      "id": "cases/evolve-fuse-dtt",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-dtt.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
     {
-     "type": "spo:Concretization",
-     "storage_uri": "evolve/evolve-jintrac-iter-15ma-flattop.jsonld",
-     "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+      "id": "cases/evolve-fuse-excite",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-excite.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-fuse-fpp",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-fpp.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-fuse-iter",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-iter.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-fuse-kdemo",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-kdemo.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-fuse-kstar",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-kstar.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-fuse-manta",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-manta.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-fuse-sparc",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-fuse-sparc.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-iter-15ma",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-iter-15ma.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-iter-15ma-benchmark",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-iter-15ma-benchmark.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-jintrac-iter-15ma-flattop",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-jintrac-iter-15ma-flattop.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-jintrac-iter-15ma-rampup",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-jintrac-iter-15ma-rampup.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-jintrac-iter-5ma-lmode",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-jintrac-iter-5ma-lmode.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/evolve-jintrac-jet-58894",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "evolve/evolve-jintrac-jet-58894.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/profile-default",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "transport/profile-default.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/pulse-iter",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "design/pulse-iter.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/reconstruction-default",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "reconstruction/reconstruction-default.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/series-default",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "reconstruction/series-default.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/transport-iter-15ma",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "transport/transport-iter-15ma.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
+    },
+    {
+      "id": "cases/zerod-iter-15ma",
+      "type": "fyo:ScenarioSpecification",
+      "concretized_as": [
+        {
+          "type": "spo:Concretization",
+          "storage_uri": "zerod/zerod-iter-15ma.jsonld",
+          "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+        }
+      ]
     }
-   ]
-  }
- ]
+  ]
 }

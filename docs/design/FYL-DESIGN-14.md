@@ -53,7 +53,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-14` |
 | 文档名称 (Title) | 中间层的数据半边：数据源 ↔ fyo (The Data Half of the Middle Layer — Data Sources ↔ fyo) |
 | 短名 / Slug | `fylite-data-layer` |
-| 版本 (Version) | v1.3 |
+| 版本 (Version) | v1.5 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
