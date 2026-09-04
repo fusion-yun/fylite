@@ -87,7 +87,6 @@ pub static ASSETS: &[(&str, &[u8], &str)] = &[
     ("credits.en.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/credits.en.html")), "text/html; charset=utf-8"),
     ("credits.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/credits.html")), "text/html; charset=utf-8"),
     ("devices/catalogue.jsonld", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/devices/catalogue.jsonld")), "application/ld+json; charset=utf-8"),
-    ("devices/east.jsonld", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/devices/east.jsonld")), "application/ld+json; charset=utf-8"),
     ("devices/iter.jsonld", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/devices/iter.jsonld")), "application/ld+json; charset=utf-8"),
     ("features.en.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/features.en.html")), "text/html; charset=utf-8"),
     ("features.html", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/features.html")), "text/html; charset=utf-8"),

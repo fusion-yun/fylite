@@ -33,7 +33,9 @@ import pytest
 from fylite import device
 
 ROOT = Path(__file__).resolve().parents[2]
-DESC = ROOT / "machine_desc"
+#: ★2026-09-04 `machine_desc/` 改名 `devices/`（用户裁定：单一数据源；`app/devices`
+#: 是指向它的符号链接）。目录换了名字，本模块守的东西没变。
+DESC = ROOT / "devices"
 FYDATA_ENV = "FYDATA_DIR"
 
 #: EAST is hand-maintained; every other document is generated.
@@ -41,7 +43,7 @@ HANDWRITTEN = {"east"}
 
 DOCS = sorted(DESC.glob("*/*_device.yaml"))
 
-pytestmark = pytest.mark.skipif(not DOCS, reason="no machine_desc/ in this tree")
+pytestmark = pytest.mark.skipif(not DOCS, reason="no devices/ in this tree")
 
 
 def _ids(p: Path) -> str:

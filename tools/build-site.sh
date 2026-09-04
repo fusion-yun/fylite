@@ -18,10 +18,17 @@
 #      发布要 `cp -L` 落成实体——一个指向仓外的链接在静态主机上是一个 404；
 #   3. 输出目录里不能有悬空链接或 `tests/`。
 #
-# 用法：bash tools/build-site.sh [输出目录]   （默认 dist/site）
+#   4. ★★2026-09-04 起构建分**公开版**与**内部版**（用户裁定）：公开版不带 EAST
+#      装置数据（一次真实放电 #137985 的实测读数，属运行方），也不带上游逐 IDS
+#      明写 `redistributable: false` 的那些。判据不在本脚本里，在每台机器的
+#      `devices/<id>/rights.json`，由 `tools/abox-to-devices.py --publishable` 作答。
+#
+# 用法：bash tools/build-site.sh [--internal] [输出目录]   （默认 公开版 · dist/site）
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$DIR/app"
+FLAVOUR=public
+if [ "${1:-}" = "--internal" ]; then FLAVOUR=internal; shift; fi
 OUT="${1:-$DIR/dist/site}"
 
 for w in fylite_rs.wasm fylite_tglf.wasm fylite_dke.wasm; do
@@ -34,12 +41,20 @@ done
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
-#: 发布子集：与 make-app-embed.mjs 的 SKIP 同一份名单
-(cd "$APP" && find . -mindepth 1 -maxdepth 1 ! -name tests ! -name server -print0) \
+#: 发布子集：与 make-app-embed.mjs 的 SKIP 同一份名单。
+#: ★★`devices` 也跳过——它是**指向仓根 `devices/` 的符号链接**（2026-09-04 用户裁定：
+#: 单一数据源），而那个目录装的是整个语料：逐台的卡片、许可账、以及只进内部版的机器。
+#: `cp -RL` 会把它整棵解引用拷出去，那正是这次要防的事。装置文档改为按规则**逐份发**。
+(cd "$APP" && find . -mindepth 1 -maxdepth 1 ! -name tests ! -name server ! -name devices -print0) \
   | while IFS= read -r -d '' entry; do
-      #: `-L`：链接落实体（装置牌），同时把仓内其它链接也一并解引用
+      #: `-L`：仓内其它链接一并解引用（静态主机上一条指向仓外的链接就是 404）
       cp -RL "$APP/$entry" "$OUT/${entry#./}"
     done
+
+#: ★★**一条规则，一处实现**：谁进这一种构建，由 `tools/devices-publish.py` 作答
+#: （它读每台机器的 `devices/<id>/rights.json`）。本脚本不自己判许可——两个地方各判
+#: 一遍，某一天它们会给出不同的答案，而先发现的人是拿到制品的那个。
+python3 "$DIR/tools/devices-publish.py" --flavour "$FLAVOUR" --out "$OUT/devices"
 
 #: 自检
 bad=0

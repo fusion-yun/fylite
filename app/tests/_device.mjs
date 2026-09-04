@@ -4,8 +4,8 @@
 // `machine_desc/` at the repository root」。**那已经不成立**：2026-08-22 用户裁定
 // 装置数据入 `app/`，而分仓之后 `app/devices/east.jsonld` 与 `iter.jsonld` 是随
 // `app/` 一起发布的**真文档**（不是链接——分仓那阵它们曾是指向 `machine_desc/`
-// 的符号链接，克隆下来就是两条断链，已改回实拷）。`machine_desc/` 本身留在私有
-// 的内核仓。
+// 的符号链接，克隆下来就是两条断链，已改回实拷）。源树那一份今天是 `devices/`
+// ——本仓 gitignored 的拖回输入。
 //
 // 所以取法是**先看发布出去的那份，再回退到源树**：前者在只有本仓的检出上就有，
 // 后者只在两边都检出的机器上才有。两者内容逐字节相同（`catalogue.jsonld` 的注记
@@ -20,7 +20,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const HERE = new URL('.', import.meta.url).pathname;
-export const DEVICE_DIR = HERE + '../../machine_desc';
+//: ★2026-09-04 `machine_desc/` 改名 `devices/`（用户裁定）：一台机器一目录，
+//: 卡片 + 许可账同住，gitignored，由 `tools/abox-to-devices.py` 拖回。
+export const DEVICE_DIR = HERE + '../../devices';
 export const PRESET_DIR = HERE + '../devices';
 
 /** The fyo device document for `id`, or null when neither copy is present. */

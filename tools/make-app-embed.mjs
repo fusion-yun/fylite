@@ -11,6 +11,7 @@
 // 不收 `tests/` 与 `server/`：与发布流水线送出去的那份 `app/` 保持同一子集
 // ——桌面版分发的东西不该比站点多。
 import { readdirSync, statSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 
 const HERE = new URL('.', import.meta.url).pathname;
 const APP = HERE + '../app/';
@@ -20,7 +21,11 @@ const APP = HERE + '../app/';
 //: （`$FYLITE_KERNEL`，探测不到就报错），那一整段随之取消：现在是一个相对路径，
 //: 猜不错也不需要猜。
 const OUT = HERE + '../rust/fylite_runtime/src/bin/app/assets.rs';
-const SKIP = new Set(['tests', 'server']);
+//: ★★`devices` 也跳过：2026-09-04 起 `app/devices` 是**指向仓根 `devices/` 的符号
+//: 链接**（用户裁定：单一数据源），而那个目录装的是整个语料——逐台的卡片、许可账、
+//: 以及只进内部版的机器。`statSync` 跟随链接，所以照原样走下去会把整份语料编进
+//: 可执行文件。装置文档改为按**同一条发布规则**逐份加进来（见下）。
+const SKIP = new Set(['tests', 'server', 'devices']);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -55,7 +60,28 @@ function walk(dir, prefix = '') {
   return out;
 }
 
-const files = walk(APP);
+//: ★★装置文档按发布规则加，不按目录加。规则只有一处实现——
+//: `tools/devices-publish.py`（它读每台机器的 `devices/<id>/rights.json`）。这里
+//: 只问它「这一版带哪几台」，不自己判许可：两个发布者各判一遍，某一天它们会给出
+//: 不同的答案，而先发现的人是拿到制品的那个。
+//: 缺省是**公开版**——committed 的这张表因此是公开版的那一张；内部版构建重跑本
+//: 生成器（`--flavour internal`），树会变脏，而那正是「这不是公开制品」的信号。
+function plannedDevices() {
+  const flavour = process.argv.includes('--flavour')
+    ? process.argv[process.argv.indexOf('--flavour') + 1] : 'public';
+  const r = spawnSync('python3',
+    [HERE + 'devices-publish.py', '--flavour', flavour, '--list'],
+    { encoding: 'utf8' });
+  if (r.status !== 0) return [];
+  const ids = r.stdout.split('\n').map((s) => s.trim()).filter(Boolean);
+  const out = ids.map((id) => `devices/${id}.jsonld`)
+                 .filter((f) => existsSync(APP + f));
+  if (out.length && existsSync(APP + 'devices/catalogue.jsonld'))
+    out.push('devices/catalogue.jsonld');
+  return out;
+}
+
+const files = [...walk(APP), ...plannedDevices()].sort();
 const unknown = [...new Set(files.map((f) => f.slice(f.lastIndexOf('.'))))]
   .filter((e) => !(e in MIME));
 if (unknown.length) {

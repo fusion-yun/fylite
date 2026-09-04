@@ -109,3 +109,12 @@ Cargo.lock
 #: 没人在本机跑过 `rust/build.sh --exe` 才成立。改名那次第一次装了它，`git status` 当场
 #: 把它列成未跟踪——所以规矩今天才落到文件里。
 python/fylite/_bin/
+
+# ── 装置信息（拖回的输入，2026-09-04 用户裁定）────────────────────────────
+#: ★★`devices/` 是**按需从 A-Box 拖回**的装置信息（`tools/abox-to-devices.py`），
+#: 一台机器一目录：卡片 `<id>_device.yaml` + 许可账 `rights.json`。
+#: **不随 fylite 源码发布**——所以在这里；但**可以进构建出来的制品**，由许可账
+#: 逐台判：内部版带全部，公开版不含 EAST（真实放电数据）与上游禁止再分发的 IDS。
+#: 判据的问答面是 `tools/abox-to-devices.py --publishable --flavour public|internal`，
+#: 闸子 `python/tests/test_devices_corpus.py`。
+/devices/

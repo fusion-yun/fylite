@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""从 A-Box 拖回 ``machine_desc/<id>/<id>_device.yaml``。
+"""从 A-Box 拖回 ``devices/<id>/<id>_device.yaml``，并把它的**许可**一并带来。
 
 ★★2026-09-02 从内核仓搬到本仓并改名（原 ``fydata-to-fyo-device.py``）：装置牌是
-**按需拖回的输入**，不是随仓走的数据。``machine_desc/`` 在本仓 gitignore ——
+**按需拖回的输入**，不是随仓走的数据。``devices/`` 在本仓 gitignore ——
 要用的时候跑这个，用完不进版本库。
 
-    python tools/abox-to-machine-desc.py --all          # 全部机器
-    python tools/abox-to-machine-desc.py iter west      # 指定几台
+    python tools/abox-to-devices.py --all          # 全部机器
+    python tools/abox-to-devices.py iter west      # 指定几台
 
 ★★**它不是一次「刷新」，是一次「换成上游今天的样子」。** 2026-09-02 实测：内核仓
 committed 的那七张卡片是从**旧 epoch / 旧布局**生成的，拖回来的与它们不同，而且不止
 出处路径——ITER 那张会**丢掉 `machine.fylite:b0`（5.3 T）**，壁面轮廓也从 `points`
 换成 `r`/`z` 两个数组。所以拖回来之后要复核消费者，不能当作等价替换。
 
-★**What this closes.**  `machine_desc/` held ONE machine — EAST — and the
+★**What this closes.**  the pulled tree held ONE machine — EAST — and the
 only other device this repository could describe was a browser asset
 (`app/assets/dev-iter.js`, since retired) in a shape nothing on the Python
 side could read.  So "which machines does fylite know?" had two answers, in
@@ -34,15 +34,15 @@ missing an IDS group, because a half-read machine is worse than an error —
 but a machine whose description genuinely has no interferometer is a fact,
 not a half-read file, and it has to be sayable.
 
-★**EAST is not regenerated.**  `machine_desc/east/east_device.yaml` is
+★**EAST is not regenerated.**  `devices/east/east_device.yaml` is
 hand-maintained and strictly richer than fydata's EAST tree (the est2 79-probe
 basis, the fit-control block, the passive set, the power-supply parameters —
 none of which is upstream).  Asking for it here is refused, not silently
 overwritten.
 
-    python3 tools/fydata-to-fyo-device.py --list
-    python3 tools/fydata-to-fyo-device.py iter
-    python3 tools/fydata-to-fyo-device.py --all
+    python3 tools/abox-to-devices.py --list
+    python3 tools/abox-to-devices.py iter
+    python3 tools/abox-to-devices.py --all
 """
 
 from __future__ import annotations
@@ -66,7 +66,11 @@ FYDOC = pathlib.Path(
     os.environ.get("FYDOC")
     or next((str(c) for c in (pathlib.Path(__file__).resolve().parents[2] / "fydoc",)
              if c.is_dir()), "fydoc"))
-OUT = ROOT / "machine_desc"
+#: ★★2026-09-04 用户裁定：装置信息收在仓根 `devices/`，**入 .gitignore**——不随
+#: fylite 源码发布，但**可以进二进制与生成制品**（受 `rights.json` 的许可闸约束，
+#: 见 `publishable()`）。原名 `machine_desc/`，改名是因为它装的不只是「牌」：
+#: 一台机器一目录，卡片 + 出处 + 许可三样同住。
+OUT = ROOT / "devices"
 
 #: EAST's document is hand-maintained and richer than the upstream tree.
 HANDWRITTEN = {"east"}
@@ -335,7 +339,7 @@ def magnetics(doc: dict, source: str) -> dict:
     """★The DD's own ARRAYS — the canonical spelling (`@fyo-table DEVICE`).
 
     It emitted `{count, channel: [...]}` for one batch, which is what
-    `machine_desc/east/east_device.yaml` wrote before that table existed and
+    `devices/east/east_device.yaml` wrote before that table existed and
     what `app/assets/fyodev.js` never wrote.  A count beside the array it
     counts is a second source for a fact the first one carries.
     """
@@ -424,6 +428,18 @@ def _iter_gfile_field(fydata: pathlib.Path) -> tuple[float, float] | None:
     return float(head[2]), float(axis[4])
 
 
+def _num(v):
+    """一个标量：裸数，或 `{data|value, unit}` 包装里的那个数。取不出就是 None。"""
+    if isinstance(v, dict):
+        v = v.get("data", v.get("value", v.get("@value")))
+    if isinstance(v, (list, tuple)):
+        v = v[0] if len(v) == 1 else None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
 def machine_block(name: str, tf: dict | None, limiter_units: list[dict],
                   extra_note: str | None, field: tuple | None = None) -> dict:
     out: dict = {"@type": "fyo:machine", "name": name}
@@ -436,8 +452,12 @@ def machine_block(name: str, tf: dict | None, limiter_units: list[dict],
         out["fylite:b0"] = abs(float(bcentr))
         out["fylite:b0_note"] = ("|BCENTR| from the same header; the sign "
                                  "there is the g-file's COCOS convention")
-    elif tf and tf.get("r0") is not None:
-        out["r_centre"] = float(tf["r0"])
+    elif tf and _num(tf.get("r0")) is not None:
+        #: ★`r0` 与 `b_field_phi_vacuum_r` 同形：可能是裸数，也可能是
+        #: `{data|value, unit}` 包装（实测 cmod 是后者，而这里从前只当裸数读，
+        #: 于是 `float(dict)` 当场抛异常、`--all` 在第四台上整批停住）。同一个
+        #: 解包规则两处共用，不各写一份。
+        out["r_centre"] = _num(tf.get("r0"))
         out["r_centre_note"] = "tf.r0 from the upstream description"
         rb = tf.get("b_field_phi_vacuum_r")
         #: ★`data` FIRST, `value` as the fallback.  fydata standardised the
@@ -445,7 +465,7 @@ def machine_block(name: str, tf: dict | None, limiter_units: list[dict],
         #: `value` made `fylite:b0` vanish from best / cfedr / cfetr WITHOUT
         #: an error — a dropped field reads as「上游没有这个量」, which is the
         #: worst failure mode a converter has.
-        value = rb.get("data", rb.get("value")) if isinstance(rb, dict) else rb
+        value = _num(rb)
         if value is not None:
             out["fylite:b0"] = float(value) / float(tf["r0"])
             out["fylite:b0_note"] = (
@@ -485,6 +505,28 @@ def _grid(units: list[dict]) -> dict | None:
 # --------------------------------------------------------------------------- #
 # assembly                                                                     #
 # --------------------------------------------------------------------------- #
+def _has_content(name: str, node) -> bool:
+    """这一组里有没有**实际内容**（而不只是一个壳）。
+
+    ★★这把尺必须与闸子 `test_machine_desc.py::_has_content` **逐字**是同一把：
+    转换器数一套、闸子数另一套，就会出现「工具认为写了张好卡片、闸子认为它什么也
+    没转出来」——2026-09-04 实测正是如此（工具数「任何带 fylite:source 的组」，
+    而 `tf` 总是带，于是五台只有 tf 的机器各写出一张空卡片）。
+    """
+    if not isinstance(node, dict):
+        return bool(node)
+    if name == "magnetics":
+        return any(node.get(k) for k in ("flux_loop", "b_field_pol_probe"))
+    if name == "pf_active":
+        return bool(node.get("coil"))
+    if name == "wall":
+        d2 = node.get("description_2d") or [{}]
+        return bool((d2[0] or {}).get("limiter", {}).get("unit"))
+    if name in ("interferometer", "polarimeter"):
+        return bool(node.get("channel"))
+    return bool(node)
+
+
 def build(dev: str, fydata: pathlib.Path) -> dict:
     dev_dir = device_root(fydata) / dev
     manifest, manifest_path = _manifest(dev_dir)
@@ -500,7 +542,7 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
         "_basis": f"{_cite(manifest_path.parent)} (epoch "
                   f"{(manifest.get('epochs') or [{}])[0].get('id', '?')})",
         "provenance": {
-            "generator": "tools/abox-to-machine-desc.py",
+            "generator": "tools/abox-to-devices.py",
             "source": _cite(manifest_path),
             "identity_iri": manifest.get("identity_iri"),
             "source_files": rel,
@@ -533,6 +575,22 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
 
     if "magnetics" in files:
         doc["magnetics"] = magnetics(_load(files["magnetics"]), rel["magnetics"])
+        #: ★★**解析得到一个文件、而那个文件不带内容**，与「上游没有这个 IDS」是
+        #: 两件事，必须分开说。实测 2026-09-04：ITER 的默认 magnetics 提供者
+        #: `providers/magnetics/imas_md.jsonld` 是一份**元数据旁挂**（出处 + 许可，
+        #: CC-BY-4.0 / Zenodo DOI），真正的数据在同目录的 `imas_md.h5`（485 KB）——
+        #: 而本转换器只读 JSON / YAML。于是这一组安静地空了出来，而空组读作
+        #: 「ITER 没有磁测量」，那是假的。
+        if not _has_content("magnetics", doc["magnetics"]):
+            src = rel["magnetics"]
+            doc["magnetics"] = _absent(
+                "magnetics",
+                f"解析到 {src}，但它不带测量内容——"
+                f"（实测：该提供者是元数据旁挂，数据在同名 .h5 里，"
+                f"本转换器只读 JSON / YAML）")
+            doc["magnetics"]["fylite:source"] = src
+            doc["magnetics"]["b_field_pol_probe"] = []
+            doc["magnetics"]["flux_loop"] = []
     else:
         doc["magnetics"] = _absent(
             "magnetics", "the upstream tree carries no magnetics IDS — this "
@@ -587,14 +645,94 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
 HEADER = """\
 # {machine} device description — fyo/JSON-LD semantics over IMAS DD v4 keys.
 #
-# GENERATED by tools/fydata-to-fyo-device.py from
+# GENERATED by tools/abox-to-devices.py from
 #   fydata/abox/device/tokamak/{dev}/
 # Do not hand-edit: re-run the generator, then diff.
 #
-# Read through fylite.device.load_device, like machine_desc/east/.  A group
+# Read through fylite.device.load_device, like devices/east/.  A group
 # the upstream description does not carry is present and marked
 # `fylite:absent` — declared, not defaulted, and not quietly missing.
 """
+
+
+#: 一台机器可不可以进**发布出去的制品**，由两件事共同决定，两件都记在 `rights.json` 里：
+#:
+#:   1. **A-Box 自己声明的许可**（`declared`）——上游的事实，本仓不改写；
+#:   2. **本仓的裁定**（`ruling`）——谁可以进哪一种构建。
+#:
+#: ★★2026-09-04 用户裁定（本仓是 ASIPP 自有数据的权属方，这一条是权属方的决定）：
+#:   * fylite 构建分**内部版**与**公开版**；
+#:   * **公开版不含 EAST 装置数据**——它带着一次真实放电（#137985 的实测通道电流与
+#:     磁通环读数），那是运行方的数据，不随公开制品走；
+#:   * 其余装置的事实源于公开文献，可打包；
+#:   * **其他 NOT OPEN 数据同理**——按同一条内部 / 公开分界处理。
+#:
+#: 于是判据落成一句可执行的话：**公开版只带「上游没有说不可以」的那些**。
+#: 上游明写 `redistributable: false` 的（ITER 的 `tf` 与 `pf_active`，权属方是
+#: ITER Organization 而不是本仓）**不因本仓的裁定而放行**——那不是本仓能给的授权。
+INTERNAL_ONLY = {
+    "east": "公开版不含 EAST 装置数据（用户裁定 2026-09-04）：它带着一次真实放电"
+            "（#137985）的实测读数，那是运行方的数据。",
+}
+
+#: 上游逐 IDS 明说不可再分发的，公开版一律不带——与本仓的裁定无关，是第三方权属。
+def _blocked_ids(fair: dict) -> dict:
+    by = fair.get("license_by_ids")
+    if not isinstance(by, dict):
+        return {}
+    return {k: v for k, v in by.items()
+            if isinstance(v, dict) and v.get("redistributable") is False}
+
+
+def _fair(dev_dir: pathlib.Path) -> dict | None:
+    """A-Box 自己的 FAIR 记录，没有就是没有（不猜）。"""
+    p = _abox(dev_dir) / "static" / "now" / "dataset_fair.jsonld"
+    if not p.is_file():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def rights(dev: str, dev_dir: pathlib.Path) -> dict:
+    """这台机器的许可账：上游声明 + 本仓裁定 -> 它进得了哪一种构建。
+
+    ★这份账**与卡片同住**（`devices/<id>/rights.json`）。一份没有许可账的装置描述，
+    下一个人无从判断它能不能发出去——而制品闸子要的正是那个判断，且它必须来自
+    记下来的事实，不是来自谁还记得。
+    """
+    fair = _fair(dev_dir) or {}
+    rh = fair.get("rights_holder")
+    blocked = _blocked_ids(fair)
+    out: dict = {
+        "device": dev,
+        "source": _cite(_abox(dev_dir)),
+        "declared": fair.get("license"),
+        "rights_holder": rh if isinstance(rh, str) else (json.dumps(rh, ensure_ascii=False) if rh else None),
+        "internal": True,          # 内部版带全部
+        "public": dev not in INTERNAL_ONLY,
+        "public_excluded_ids": sorted(blocked),
+        "ruling": INTERNAL_ONLY.get(dev,
+                    "公开版可带（用户裁定 2026-09-04：其余装置的事实源于公开文献）"),
+        "note": None,
+    }
+    if not fair:
+        out["note"] = "A-Box 没有 static/now/dataset_fair.jsonld —— 上游许可未声明。"
+    if blocked:
+        out["note"] = ((out["note"] + " ") if out["note"] else "") + (
+            "上游逐 IDS 明写 redistributable=false 的不进公开版（第三方权属，"
+            f"rights_holder={out['rights_holder']!r}）：" + "、".join(sorted(blocked)))
+    return out
+
+
+def write_rights(dev: str, dev_dir: pathlib.Path, out_root: pathlib.Path) -> pathlib.Path:
+    d = out_root / dev
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / "rights.json"
+    p.write_text(json.dumps(rights(dev, dev_dir), ensure_ascii=False, indent=2) + "\n",
+                 encoding="utf-8")
+    return p
 
 
 def write(dev: str, doc: dict, out_root: pathlib.Path) -> pathlib.Path:
@@ -617,12 +755,26 @@ def main(argv=None) -> int:
     ap.add_argument("--all", action="store_true",
                     help="every machine with a manifest, EAST excepted")
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--publishable", action="store_true",
+                    help="只列出进得了这一种构建的机器（许可闸；不写文件）")
+    ap.add_argument("--flavour", choices=("public", "internal"), default="public",
+                    help="哪一种构建：public（缺省，不含 EAST 与上游禁分发的 IDS）"
+                         "/ internal（全部）")
     a = ap.parse_args(argv)
 
     if not device_root(a.fydata).is_dir():
         print(f"no fydata device tree at {a.fydata}", file=sys.stderr)
         return 2
     known = devices(a.fydata)
+    if a.publishable:
+        #: ★制品闸的**唯一**问答面：哪一台进哪一种构建。构建脚本读它，不自己判许可。
+        root = device_root(a.fydata)
+        for dev in known:
+            r = rights(dev, root / dev)
+            if a.flavour == "internal" or r["public"]:
+                ex = r["public_excluded_ids"] if a.flavour == "public" else []
+                print(dev + ("" if not ex else "  # 去掉 " + " ".join(ex)))
+        return 0
     if a.list:
         for d in known:
             print(d, "(hand-maintained here)" if d in HANDWRITTEN else "")
@@ -631,26 +783,41 @@ def main(argv=None) -> int:
     if not want:
         ap.error("name a machine, or pass --all/--list")
     rc = 0
+    root = device_root(a.fydata)
     for dev in want:
-        if dev in HANDWRITTEN:
-            if not a.all:
-                print(f"{dev}: hand-maintained here and strictly richer than "
-                      f"the upstream tree — refusing to overwrite",
-                      file=sys.stderr)
-                rc = 1
-            continue
         if dev not in known:
             print(f"{dev}: no machine manifest under {a.fydata}", file=sys.stderr)
             rc = 1
+            continue
+        #: ★★许可账**先于卡片**写，而且对每一台都写——包括手工维护的那台，以及
+        #: 转不出卡片的那些。理由：一份没有许可账的装置描述，下一个人无从判断它能不能
+        #: 发出去；而「没有账」与「账说不行」在制品闸子那里必须是同一个答案（都不发）。
+        rp = write_rights(dev, root / dev, a.out)
+        r = json.loads(rp.read_text(encoding="utf-8"))
+        mark = "内部版 + 公开版" if r["public"] else "仅内部版"
+        print(f"  {dev}: {mark}（上游 declared {r['declared']!r}"
+              + (f"，公开版去掉 {' '.join(r['public_excluded_ids'])}"
+                 if r["public_excluded_ids"] else "") + ")")
+        if dev in HANDWRITTEN:
+            if not a.all:
+                print(f"{dev}: hand-maintained here and strictly richer than "
+                      f"the upstream tree — refusing to overwrite the card "
+                      f"(rights.json written)", file=sys.stderr)
+                rc = 1
             continue
         doc = build(dev, a.fydata)
         #: ★★A-Box 里没有 epoch 的机器（实测 cmod / d3d / hl2m / hl3 只有一份
         #: `machine.jsonld`，没有任何 IDS 文件）会转出一张**空卡片**。空卡片比没有
         #: 卡片更坏：`load_device` 会拒绝它，而任何「这台机器有描述吗」的检查都会
         #: 答「有」。所以不写，并说清楚为什么。
-        groups = [k for k, v in doc.items()
-                  if not str(k).startswith(("@", "_", "prov"))
-                  and isinstance(v, dict) and v.get("fylite:source")]
+        #: ★★数的是 `magnetics` / `pf_active` / `wall` **有内容的那几组**，与闸子
+        #: `test_every_generated_group_names_the_file_it_came_from` 同一把尺。
+        #: 从前这里数的是「任何带 `fylite:source` 的组」，而 `tf` 总是带——于是
+        #: 只有 tf 的机器（实测 cmod · d3d · hl3 · sparc · ste1）照样写出一张卡片，
+        #: 而那张卡片正是本段注释说的**空卡片**：`load_device` 拒绝它，任何
+        #: 「这台机器有描述吗」的检查却答「有」。两处各数各的，就会这样。
+        groups = [k for k in ("magnetics", "pf_active", "wall")
+                  if _has_content(k, doc.get(k))]
         if not groups:
             print(f"{dev}: A-Box 里没有可转换的 IDS（没有 epoch 或没有静态文件）"
                   f"——不写空卡片", file=sys.stderr)
