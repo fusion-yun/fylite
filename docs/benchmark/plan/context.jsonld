@@ -1,0 +1,37 @@
+{
+  "@comment": [
+    "验证定序册的 JSON-LD @context —— 承 `../context.jsonld`（公开 V&V 登记册那一份，fyo / spo 词汇），",
+    "只补本册子多出来的几个词。★补出来的词映射到 `urn:fylite:` 下，不映射到 fyo: / spo: 下：",
+    "fyo 与 spo 没有定义它们，把本地概念挂到别人的命名空间里就是编造 IRI。读者因此一眼看得出",
+    "哪几个词是本仓自己的：stage / stage_order / depends_on / question / entries / oracle /",
+    "oracle_case / payload / record_state / gate / blocking_rule / verdict_lattice / exempt_from_blocking。",
+    "★★`has_part` 与 `concretized_as` 照抄物理校验册（`../physics/context.jsonld`）的定义，不另起一套：",
+    "同一个键在两本册子里若展开成两个 IRI，那就是两份会漂的契约。"
+  ],
+  "@context": [
+    "../context.jsonld",
+    {
+      "@version": 1.1,
+      "fylite": "urn:fylite:",
+      "has_part": {"@id": "bfo:0000178", "@container": "@list"},
+      "concretized_as": {"@reverse": "bfo:0000059", "@container": "@set"},
+      "stage": {"@id": "fylite:plan/stage"},
+      "stage_order": {"@id": "fylite:plan/stage_order"},
+      "depends_on": {"@id": "fylite:plan/depends_on", "@container": "@set"},
+      "question": {"@id": "fylite:plan/question"},
+      "why_here": {"@id": "fylite:plan/why_here"},
+      "entries": {"@id": "fylite:plan/entries", "@container": "@list"},
+      "oracle": {"@id": "fylite:plan/oracle", "@container": "@set"},
+      "oracle_case": {"@id": "fylite:plan/oracle_case"},
+      "payload": {"@id": "fylite:plan/payload"},
+      "record": {"@id": "fylite:plan/record"},
+      "record_state": {"@id": "fylite:plan/record_state"},
+      "gate": {"@id": "fylite:plan/gate", "@container": "@set"},
+      "status": {"@id": "fylite:plan/status"},
+      "blocking_rule": {"@id": "fylite:plan/blocking_rule"},
+      "verdict_lattice": {"@id": "fylite:plan/verdict_lattice", "@container": "@list"},
+      "exempt_from_blocking": {"@id": "fylite:plan/exempt_from_blocking", "@container": "@set"},
+      "tolerance_note": {"@id": "fylite:plan/tolerance_note"}
+    }
+  ]
+}

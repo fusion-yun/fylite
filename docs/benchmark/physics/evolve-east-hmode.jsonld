@@ -9,8 +9,8 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "EAST 长脉冲（装置牌）：带电流道与锯齿的演化",
-  "recorded": "2026-09-02",
-  "scenario": "cases/evolve-east-hmode",
+  "recorded": "2026-09-04",
+  "scenario": "docs/examples/evolve/evolve-east-hmode",
   "compared_subject": {
     "type": "spo:Code",
     "name": "fylite",
@@ -23,15 +23,258 @@
       "comment": "判据册在 `fylite.engine.physics`：定律（正性、有限性、Grad–Shafranov）、定义（ψ 端点、V′、β_N 与 Greenwald 的式子、τ_E 的定义式）与算例声明的期望（上下界、准稳态窗口）"
     }
   ],
-  "criteria": [],
-  "findings": [],
+  "criteria": [
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "finite",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "NaN / Inf 不是一个物理态，也不是「还没算」——后者应当缺席而不是写成 NaN"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "positive-temperature",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "positive-density",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "grad-shafranov",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "二阶中心差分，残差按 ‖Δ*ψ‖ 与 ‖RHS‖ 的均方根归一——网格越粗，截断误差越大",
+        "只在边界内、离网格边一格以上的点上取",
+        "ψ 每弧度、`Δ*ψ = −μ₀R²p′ − ff′`；相反符号支更小时给注记而不是判负"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "grid-monotone",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "psi-endpoints",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated"
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "volume-monotone",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "轴上 V′ = 0 是解析的，所以只看内部点"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "boundary-closed",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "闭合按采样步量而不按小半径：等值线是采出来的，首末差一个采样步之内就是闭合的",
+        "越界按距离量：正落在限制器上的点是「贴着」，不是越界（射线法对这种点是随机的）",
+        "没有限制器时只量闭合性，并在结论里说明"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "pressure-consistency",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "热压强、单一等效离子、无快离子压强；带快粒子的算例会有正的口径差",
+        "两侧网格不同时按 ψ_norm 插值，缺共同横坐标就不评"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "energy-balance",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "P_heat 取哪几项是约定：缺省 p_ohm + p_aux + p_alpha − p_rad，可由算例声明"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "greenwald-definition",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "n̄_e 取体积平均；记录若用线平均会有几个百分点的口径差",
+        "a 取边界外形的 (R_max − R_min)/2"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "beta-normalized-definition",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "⟨p⟩ 是平衡压强的体积平均（热压强口径）"
+      ]
+    },
+    {
+      "type": "fyo:AcceptanceCriterion",
+      "quantity_label": "declared-bounds",
+      "norm": "relative",
+      "tolerance_basis": "reference_stated",
+      "caveat": [
+        "运行限不是定律，是这个场景的判据，所以由算例带"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "产出的每个数都是有限的",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有数值叶子",
+      "caveat": [
+        "读不到：no numeric leaf in any dataset"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "绝对温度为正",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有温度",
+      "caveat": [
+        "读不到：CORE_PROFILES/te, CORE_PROFILES/ti, SUMMARY/te_axis, SUMMARY/ti_axis"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "粒子数密度为正",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有密度",
+      "caveat": [
+        "读不到：CORE_PROFILES/ne, CORE_PROFILES/ni, SUMMARY/ne_axis"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "二维平衡满足 Grad–Shafranov 方程",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺二维 ψ 或它的源函数（p′ / ff′），这条评不了",
+      "caveat": [
+        "读不到：equilibrium (document), equilibrium (document), equilibrium (document), equilibrium (document)"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "网格与时间轴单调，归一化网格在 [0, 1]",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有网格或时间轴",
+      "caveat": [
+        "读不到：no grid or time axis"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "一维 ψ 的两端就是 ψ_axis 与 ψ_boundary",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺一维 ψ 或它的两个全局端点",
+      "caveat": [
+        "读不到：EQUILIBRIUM/psi_1d, EQUILIBRIUM/psi_axis, EQUILIBRIUM/psi_boundary"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "体积随 ρ 单调增，V′ 在轴外为正",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "梯子上没有体积",
+      "caveat": [
+        "读不到：LADDER/volume, LADDER/vprime"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "最外闭合磁面闭合，且在限制器内",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "产出里没有边界外形",
+      "caveat": [
+        "读不到：EQUILIBRIUM/boundary_r, EQUILIBRIUM/boundary_z"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "平衡压强对得上剖面的动理压强",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺平衡压强或电子剖面",
+      "caveat": [
+        "读不到：EQUILIBRIUM/pressure, CORE_PROFILES/ne, CORE_PROFILES/te"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "能量约束时间的定义式逐时刻成立",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺热能或能量约束时间",
+      "caveat": [
+        "读不到：SUMMARY/w_th, SUMMARY/tau_e"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "记下的 Greenwald 分数对得上定义",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺记下的 Greenwald 分数、I_p 或密度剖面",
+      "caveat": [
+        "读不到：SUMMARY/greenwald, SUMMARY/ip, CORE_PROFILES/ne"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "记下的 β_N 对得上定义",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "缺 β_N、I_p、B₀ 或压强剖面",
+      "caveat": [
+        "读不到：SUMMARY/beta_n, SUMMARY/ip, EQUILIBRIUM/b0, EQUILIBRIUM/pressure"
+      ]
+    },
+    {
+      "type": "fyo:ComparisonFinding",
+      "title": "算例声明的运行界（β_N、f_G、q95…）",
+      "deviation_literal": "—",
+      "verdict": "unevaluated",
+      "comment": "声明的量一个也读不到：SUMMARY/q95, SUMMARY/greenwald",
+      "caveat": [
+        "读不到：SUMMARY/q95, SUMMARY/greenwald"
+      ]
+    }
+  ],
   "assertion_state": "under_test",
   "overall_verdict": "unevaluated",
   "run": {
     "type": "spo:ComputationRecord",
     "id": null,
     "comment": [
-      "",
+      "本批现跑了这个算例（数据层 JSON 门 + 内核）",
       "datasets: —"
     ]
   },
@@ -43,6 +286,6 @@
   },
   "caveat": [
     "装置牌不在本仓（machine_desc/east）时这一条没有产出可判",
-    "本条没有产出可判：the case could not be run: KernelError: fylite_data_case_json returned -4: no kernel library with the fyo door found; looked at:\n  /home/user/fylite/python/fylite/_lib/libfylite_kernel.so (absent)\n  /home/user/fylite/../python/fylite/_lib/libfylite_kernel.so (absent)\n  /home/user/fylite/../../python/fylite/_lib/libfylite_kernel.so (absent)\n  /usr/bin/python/fylite/_lib/libfylite_kernel.so (absent)\n  /usr/bin/libfylite_kernel.so (absent)\n  /usr/python/fylite/_lib/libfylite_kernel.so (absent)\n  /usr/libfylite_kernel.so (absent)\n  /python/fylite/_lib/libfylite_kernel.so (absent)\n  /libfylite_kernel.so (absent)\n  /home/user/fylite/../fylite_kernel/rust/fylite/target/release/libfylite_kernel.so (absent)\n  /home/user/fylite/../fylite_kernel/rust/fylite/target/debug/libfylite_kernel.so (absent)\n  /home/user/fylite/../../fylite_kernel/rust/fylite/target/release/libfylite_kernel.so (absent)\n  /home/user/fylite/../../fylite_kernel/rust/fylite/target/debug/libfylite_kernel.so (absent)\n  /home/user/fylite/../../../fylite_kernel/rust/fylite/target/release/libfylite_kernel.so (absent)\n  /home/user/fylite/../../../fylite_kernel/rust/fylite/target/debug/libfylite_kernel.so (absent)\n(pass --kernel <path>, set FYLITE_KERNEL_LIB, or build it with the kernel's rust/build.sh)"
+    "本条没有产出可判：the kernel rejected the case: refused: [-33] this case is outside the sunk scope of `evolve_heat`; it needs the `device` tier's equilibrium — bind the traced ladder as input `equilibrium/time_slice/profiles_1d/rho_tor` (with `equilibrium/time_slice/profiles_1d/dvolume_drho_tor` and `equilibrium/time_slice/profiles_1d/gm3`)"
   ]
 }

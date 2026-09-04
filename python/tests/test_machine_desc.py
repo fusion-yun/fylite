@@ -144,11 +144,14 @@ def test_every_generated_group_names_the_file_it_came_from(doc: Path):
     #: 拖回工具当时改了自己那三处写死的路径，**这条判据没跟**——于是从 fydata
     #: 拖回来的每一张卡片都在这里红，而卡片本身是好的。判的仍是同一件事：这一行
     #: 有没有指向某个具体文件，不是它长什么样。
+    #: ★★★★2026-09-04 第五种：fydoc 的装置树移到 **`facts/device/<id>/abox/…`**
+    #: （装置书），拖回工具跟着读那里，**这条判据又没跟**——同一形状第三次。本条判的
+    #: 只是「有没有指向某个具体文件」，所以这里认路径的**尾巴**（`abox/` 或
+    #: `tokamak/<id>/`）而不再逐个枚举前缀：前缀是布局，会再搬；尾巴是这条判据真正
+    #: 依赖的东西。
     for src in named:
-        assert src and re.match(
-            r"(?:(?:machine|device)/tokamak/\w+/"
-            r"|device/\w+/abox/"
-            r"|abox/device/tokamak/\w+/)", str(src)), src
+        assert src and re.search(
+            r"(?:(?:machine|device)/tokamak/\w+/|(?:^|/)abox/)", str(src)), src
 
 
 def _fydata() -> Path:

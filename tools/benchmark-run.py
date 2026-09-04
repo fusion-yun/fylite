@@ -2,7 +2,7 @@
 """批量跑物理校验：预设算例 → 逐条判据 → 记录 · 报告 · 统计表。
 
     python tools/benchmark-run.py                      # 跑一遍，只把统计表打到屏幕上
-    python tools/benchmark-run.py --write              # 并写进 benchmark/physics/ 与 BENCHMARK.md
+    python tools/benchmark-run.py --write              # 并写进校验册目录与仓根 BENCHMARK.md
     python tools/benchmark-run.py --only zerod-iter-15ma
     python tools/benchmark-run.py --from records/      # 不跑，读已经跑出来的记录来判
     python tools/benchmark-run.py --json               # 机器读的一份（不写盘）
@@ -32,9 +32,15 @@ sys.path.insert(0, str(ROOT / "python"))
 from fylite.engine import physics as ph          # noqa: E402
 from fylite.engine import suite as sc            # noqa: E402
 
-#: 写盘的四样（相对仓根），一处声明——`--write` 与 `--check` 读同一张表
-OUT_SUMMARY_JSON = "benchmark/physics/summary.jsonld"
-OUT_SUMMARY_MD = "benchmark/physics/SUMMARY.md"
+#: 写盘的四样，一处声明——`--write` 与 `--check` 读同一张表。
+#: ★★2026-09-04 两份统计改为**写进解析出来的校验册目录**（`sc.suite_dir()` 给的那个），
+#: 不再自己按仓根拼一次路径。它们原来写死成 `benchmark/physics/…`，而册子 2026-09-02
+#: 搬到了 `docs/benchmark/physics/`：`--write` 于是把逐条记录写对了地方，再在写统计时
+#: 以 FileNotFoundError 中断（目录若还在，则是更坏的一种——逐条写新址、统计写旧址，
+#: 两处从此各说各话）。同一个坑 `test_public_register.py` 当天已经踩过一次：**问库，
+#: 不要再猜一次路径**。仓根那份 `BENCHMARK.md` 仍按仓根解析——它本来就在仓根。
+OUT_SUMMARY_JSON = "summary.jsonld"
+OUT_SUMMARY_MD = "SUMMARY.md"
 OUT_TOP_MD = "BENCHMARK.md"
 
 
@@ -68,7 +74,7 @@ def summary_document(batch: dict) -> dict:
 
 
 def write_batch(batch: dict, out_dir: Path, root: Path) -> list[Path]:
-    """把一批写进 `benchmark/physics/`（逐条 + 统计）与仓根 `BENCHMARK.md`。"""
+    """把一批写进校验册目录 `out_dir`（逐条 + 统计）与仓根 `BENCHMARK.md`。"""
     written: list[Path] = []
     out_dir.mkdir(parents=True, exist_ok=True)
     for row in batch["entries"]:
@@ -79,10 +85,10 @@ def write_batch(batch: dict, out_dir: Path, root: Path) -> list[Path]:
         jf.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         rep.write_text(sc.render_report(row, recorded=batch["recorded"]), encoding="utf-8")
         written += [jf, rep]
-    sj = root / OUT_SUMMARY_JSON
+    sj = out_dir / OUT_SUMMARY_JSON
     sj.write_text(json.dumps(summary_document(batch), ensure_ascii=False, indent=2) + "\n",
                   encoding="utf-8")
-    sm = root / OUT_SUMMARY_MD
+    sm = out_dir / OUT_SUMMARY_MD
     sm.write_text(sc.render_summary(batch, title="物理校验批：统计"), encoding="utf-8")
     top = root / OUT_TOP_MD
     top.write_text(sc.render_summary(batch, title="fylite 物理校验 (Physics checks)", top=True),

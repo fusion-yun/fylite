@@ -9,7 +9,7 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "一份盘上的平衡产出（合成 g-file）：Grad–Shafranov 与几何定义",
-  "recorded": "2026-09-02",
+  "recorded": "2026-09-04",
   "scenario": null,
   "compared_subject": {
     "type": "spo:Code",
