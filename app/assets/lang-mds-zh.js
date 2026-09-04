@@ -28,11 +28,11 @@ self.FyI18n.register('zh', {
   'mds.server.set': '目标已改为 <code>{server}</code>。树、炮号与曲线都已清空——重新「打开」再取，<strong>同一个炮号在另一台装置上不是同一炮</strong>。',
   'mds.server.free': '网关绑在回环地址上，所以这一格是开的：可以指到任何一台<strong>网关那边</strong>连得通的 mdsip 服务器（用户名不在这里改——mdsip 不做认证，页面自报的用户名什么也证明不了）。',
   //: ★这句只说**事实**，不再断言原因。原文写「没有绑在回环地址上，所以……」，
-  //: 那是 Node 网关锁住的唯一理由；单文件查看器 `fylite-app` 也报 locked，
+  //: 那是 Node 网关锁住的唯一理由；单文件查看器 `fylite` 也报 locked，
   //: 而它一律绑回环——原因不同，事实相同。把不成立的那半句说给读者，
   //: 比不解释更糟。
   //: ★单文件查看器那条路：同一组端点的第二个宿主。
-  'mds.server.locked': '这台网关<strong>只接受启动时点名的服务器</strong>：<code>{list}</code>。换别的要重起它。（站点那侧的 Node 网关在非回环绑定时如此；单文件查看器 <code>fylite-app</code> 一律如此。）',
+  'mds.server.locked': '这台网关<strong>只接受启动时点名的服务器</strong>：<code>{list}</code>。换别的要重起它。（站点那侧的 Node 网关在非回环绑定时如此；单文件查看器 <code>fylite</code> 一律如此。）',
 
   // --- shot ----------------------------------------------------------
   'mds.pick.shot': '树与炮号',

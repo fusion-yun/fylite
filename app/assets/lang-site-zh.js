@@ -46,7 +46,7 @@ self.FyI18n.register('zh', {
   'home.card.scenario.analysis.h': '实验分析 / 反演 →',
   'home.card.scenario.analysis.p': '由磁通环、磁探针、POINT 与 Thomson 反推平衡状态，压强剖面作动理学约束，误差棒由后验采样给出。',
   'home.card.tool.data.h': '装置数据 →',
-  'home.card.tool.data.p': '直接看装置自己的档案：浏览 MDSplus 树、指定炮号、取回选定信号。★这一页<strong>不算任何东西</strong>——它显示的是装置存下来的数，不是本站算出来的结果；也因此它需要一台够得着的 mdsip 服务器：用单文件查看器打开（<code>fylite-app --mdsip 主机:端口</code>），或在页面上填一台。',
+  'home.card.tool.data.p': '直接看装置自己的档案：浏览 MDSplus 树、指定炮号、取回选定信号。★这一页<strong>不算任何东西</strong>——它显示的是装置存下来的数，不是本站算出来的结果；也因此它需要一台够得着的 mdsip 服务器：用单文件查看器打开（<code>fylite --mdsip 主机:端口</code>），或在页面上填一台。',
   'home.card.tool.report.h': '算例报告 →',
   'home.card.tool.report.p': '把一次算例的记录（fyo 计划 + spo 记录，产出内联在端口上）渲染成一份报告：参数表、端口表、读数、按量自身坐标画的折线图、带边界轮廓时的极向截面。★这一页<strong>不算任何东西</strong>——画什么由一份呈现规格说了算，没带规格就按规则推一份，与 <code>fylite cases --report</code> 写在报告旁的那份相同。',
   // --- the v2 page shell (assets/shell.js) --------------------------------

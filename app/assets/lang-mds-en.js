@@ -24,11 +24,11 @@ self.FyI18n.register('en', {
   'mds.server.free': 'The gateway is bound to loopback, so this box is open: it can be pointed at any mdsip server <strong>the gateway</strong> can reach. (The username is not set here — mdsip does not authenticate, so a username the page chose would prove nothing.)',
   //: ★States the FACT, not the reason.  It used to say "is not bound to
   //: loopback, so …", which is the Node gateway's only reason for
-  //: locking; the single-file viewer `fylite-app` reports locked too and
+  //: locking; the single-file viewer `fylite` reports locked too and
   //: is always on loopback.  Same fact, different reason — and telling a
   //: reader the half that does not hold is worse than not explaining.
   //: ★The single-file route: a second host for the same endpoints.
-  'mds.server.locked': 'This gateway <strong>only accepts the servers named when it was started</strong>: <code>{list}</code>. Anything else needs it restarted. (The Node gateway locks when it is bound off loopback; the single-file viewer <code>fylite-app</code> always does.)',
+  'mds.server.locked': 'This gateway <strong>only accepts the servers named when it was started</strong>: <code>{list}</code>. Anything else needs it restarted. (The Node gateway locks when it is bound off loopback; the single-file viewer <code>fylite</code> always does.)',
 
   // --- shot ----------------------------------------------------------
   'mds.pick.shot': 'Tree and shot',

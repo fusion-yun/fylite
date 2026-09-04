@@ -968,7 +968,7 @@ self.FyI18n.register('en', {
   'mdssrc.read': 'Read',
   'mdssrc.probing': 'Looking for the data gateway…',
   'mdssrc.ready': 'Gateway up, machine server <code>{server}</code>. Give a shot and a time.',
-  'mdssrc.nogateway': '<strong>No data gateway</strong>, so this bar cannot fetch — it needs a process that can open a socket (a browser cannot, FYL-DESIGN-06 §1). <strong>The rest of the page is unaffected</strong>: the bundled discharge and the synthetic twin work as before. Start one with <code>fylite-app --mdsip &lt;mdsip server&gt;</code> (through an ssh tunnel that is <code>127.0.0.1:8000</code>) and open this page at the address it prints.',
+  'mdssrc.nogateway': '<strong>No data gateway</strong>, so this bar cannot fetch — it needs a process that can open a socket (a browser cannot, FYL-DESIGN-06 §1). <strong>The rest of the page is unaffected</strong>: the bundled discharge and the synthetic twin work as before. Start one with <code>fylite --mdsip &lt;mdsip server&gt;</code> (through an ssh tunnel that is <code>127.0.0.1:8000</code>) and open this page at the address it prints.',
   'mdssrc.notEast': '<strong>EAST only.</strong> The current machine is <strong>{device}</strong>. <code>\\EFIT_EAST::TOP…</code> is one machine\'s tree and there is no generic form of it; another device needs its own fetching convention, which is not something this panel can decide for it.',
   'mdssrc.badshot': 'A shot number is an integer.',
   'mdssrc.badtime': 'A time is a number of seconds.',

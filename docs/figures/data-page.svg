@@ -405,7 +405,7 @@ polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
 <text x="1114.2" y="1138.0" class="lbl" font-size="9.6" text-anchor="middle">/api/measurements</text>
 <rect x="30.0" y="1089.0" width="587.0" height="26.0" rx="5" class="card-back"/>
 <text x="40.0" y="1099.0" class="lbl" font-size="9.8" text-anchor="start">单文件宿主 `rust/…/bin/app/api.rs`</text>
-<text x="40.0" y="1110.0" class="mut" font-size="8.4" text-anchor="start">fylite-app --mdsip 127.0.0.1:8000</text>
+<text x="40.0" y="1110.0" class="mut" font-size="8.4" text-anchor="start">fylite --mdsip 127.0.0.1:8000</text>
 <rect x="623.0" y="1089.0" width="587.0" height="26.0" rx="5" class="card-back"/>
 <text x="633.0" y="1099.0" class="lbl" font-size="9.8" text-anchor="start">离线回放 `app/tests/_mdsip-replay.mjs`</text>
 <text x="633.0" y="1110.0" class="mut" font-size="8.4" text-anchor="start">夹具 fixtures/mdsip-east.json（真机录的帧）</text>

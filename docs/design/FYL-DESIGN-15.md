@@ -89,7 +89,7 @@ Linux x86-64、桌面单文件是第四条通道、内核源保持闭源）；�
 | 形态 | 给谁 | 装的是什么 | 计算在哪 | 请求面（`/api/*`） | 构建 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **单一可执行文件** `fylite`（Linux ELF / Windows PE32+） | 离线的人、没有 Python 的人（尤其 Windows） | 整个 `app/`（内嵌字节，生成表 `src/bin/app/assets.rs`）+ mdsip 只读客户端 + `data` / `case` 的全部代码 | 页面里的 **wasm**（不是原生内核）；`case` 子命令经 dlopen 用原生内核 | **有**：`/api/health` 恒答；六个只读 mdsip 端点在给了 `--mdsip` 时活 | `tools/build-app-exe.sh` |
-| **静态网页**（站点） | 联网的人，零安装 | `app/`（减 `tests/`）+ `assets/fylite_{rs,tglf,dke}.wasm`；装置描述 `app/devices/*.jsonld` 是实拷（脚本里那段 `cp -L` 落实体的讲究是符号链接时代留下的，今天无链接可解） | 页面里的 wasm；加载后离线可用 | **无**：页面探 `/api/health` 不通即自禁用装置数据面板 | `tools/build-site.sh` |
+| **静态网页**（站点） | 联网的人，零安装 | `app/`（减 `tests/`）+ `assets/fylite_{rs,tglf,dke}.wasm`；装置描述 `app/facts/device/*.jsonld` 是实拷（脚本里那段 `cp -L` 落实体的讲究是符号链接时代留下的，今天无链接可解） | 页面里的 wasm；加载后离线可用 | **无**：页面探 `/api/health` 不通即自禁用装置数据面板 | `tools/build-site.sh` |
 | **动态网页** | 本机、或经隧道可达 mdsip 的人 | **同一份 `app/` 字节**，由一个进程伺服 | 页面里的 wasm | **有**：伺服进程答 `/api/*` | `fylite`（= `fylite app`） |
 | **Python 包**（wheel，alpha 期 Linux x86-64） | 写脚本的人、LLM 宿主、集成方 | `python/fylite/` + `_lib/libfylite_kernel.so` + `_lib/libfylite_runtime.so` + `_cli.json` 等声明面 + `_bin/fylite`（**一个**可执行文件，构建时在则带） | 原生内核（ctypes） | `serve`（JSON-RPC stdio）/ `mcp`（MCP stdio）；`app` 委托可执行文件 | `tools/build-wheel.sh`（内核制品由内核仓 `rust/build.sh` 装入） |
 :::

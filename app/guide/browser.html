@@ -77,16 +77,16 @@
 <h2>单一可执行文件：离线的同一套页面</h2>
 <p>站点是静态的，但 <code>file://</code> 下浏览器取不到 <code>.wasm</code>，所以「双击本地的 index.html」这条路
 走不通。给离线的人、或没有 Python 的机器（尤其 Windows）的是<strong>一个文件</strong>：</p>
-<pre><code class="language-bash">fylite-app                      # 挑一个空闲端口，起本机服务，拉起系统浏览器
-fylite-app --page data --device east --lang en --theme dark
-fylite-app --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
+<pre><code class="language-bash">fylite                      # 挑一个空闲端口，起本机服务，拉起系统浏览器
+fylite --page data --device east --lang en --theme dark
+fylite --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 </code></pre>
 <p>它把整个站点编进了自己，起服务只绑<strong>回环地址</strong>、只答 <code>GET</code>/<code>HEAD</code>、不写任何文件。
 页面字节与站点<strong>一模一样</strong>——差别只在它另答一组只读的 <code>/api/*</code>，页面靠「那组端点答不答」
 判断自己在哪种宿主上，而不是看主机名。</p>
 <p><code>--page</code> / <code>--device</code> / <code>--lang</code> / <code>--theme</code> 是<strong>启动参数</strong>：它们同样可以直接写在地址里
 （<code>?device=east&#x26;lang=en</code>），因为两者是同一份定义的两种写法——命令行与页面读的是同一个
-参数表（<code>fylite-app --help</code> 列出全部）。</p>
+参数表（<code>fylite --help</code> 列出全部）。</p>
 <h2>一次典型的使用</h2>
 <ol>
 <li>
@@ -129,7 +129,7 @@ fylite-app --mdsip 127.0.0.1:8000    # 顺带接上取数（下一节）
 浏览器打不开裸 TCP，wasm 也不改变这件事。在<strong>纯静态站点</strong>上它取不到数据，
 <strong>页面自己会这么说</strong>（面板画成禁用并给出理由），而不是空着让你猜。</p>
 <p>要用它，就用上一节那个单一可执行文件并接上服务器：</p>
-<pre><code class="language-bash">fylite-app --mdsip 127.0.0.1:8000     # 例如经 ssh 隧道到装置的 mdsip 服务器
+<pre><code class="language-bash">fylite --mdsip 127.0.0.1:8000     # 例如经 ssh 隧道到装置的 mdsip 服务器
 </code></pre>
 <p>端点是<strong>只读的窄口</strong>：没有取任意表达式的入口，守卫在宿主与客户端两侧各查一遍，
 且只绑回环地址——它坐在一个不做认证的协议前面，要给别人用，前面得放一个会认证的

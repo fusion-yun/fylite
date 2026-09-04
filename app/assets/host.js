@@ -1,6 +1,6 @@
 // Which host is serving this page — the published site, or the desktop viewer?
 //
-// The single-file viewer (`fylite-app`) serves the SAME BYTES as the website:
+// The single-file viewer (`fylite`) serves the SAME BYTES as the website:
 // `app/` is embedded in the executable verbatim, so a page cannot be built
 // differently for the two.  Anything that must differ has to be decided at
 // runtime, and this is the one place that decides it.  The answer is published

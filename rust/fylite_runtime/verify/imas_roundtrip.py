@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """IMAS 互操作的对拍：数据层写的文件 imas-python / imas-core 读得回来，反之亦然。
 
-    python rust/fylite_runtime/verify/imas_roundtrip.py [--bin target/release/fylite-app] [--keep]
+    python rust/fylite_runtime/verify/imas_roundtrip.py [--bin target/release/fylite] [--keep]
 
 ★不进 `cargo test`：要 imas-python（`pip install "imas-python[netcdf]" imas-core`），
 那是一个带 DD 的大包，装不装是用户的事。但**这一份判据才是「兼容 imas-python」这句话
@@ -156,7 +156,7 @@ def compare(name, a: dict, b: dict) -> int:
 
 
 def run(bin_path, *args):
-    """One `fylite-app data …` call.
+    """One `fylite data …` call.
 
     ★The `data` word is supplied here.  There is ONE executable (2026-09-03);
     it dispatches on the command word, and its no-word default is `app` —
@@ -173,7 +173,7 @@ def run(bin_path, *args):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--bin", default=str(ROOT / "target" / "release" / "fylite-app"))
+    ap.add_argument("--bin", default=str(ROOT / "target" / "release" / "fylite"))
     ap.add_argument("--keep", action="store_true")
     ap.add_argument("--dd", default="4.1.1")
     args = ap.parse_args()

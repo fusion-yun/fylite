@@ -3,7 +3,7 @@
 // ★This page has NO kernel and NO worker.  Every other page in `app/` runs
 // fylite in wasm and its controller is mostly about feeding a kernel; this one
 // computes nothing.  What it does is ask a same-origin gateway
-// (`fylite-app`, whose request face is `rust/fylite/src/bin/app/api.rs`)
+// (`fylite`, whose request face is `rust/fylite/src/bin/app/api.rs`)
 // four questions and draw the answers, because
 // FYL-DESIGN-06 §1 closed the only alternative: mdsip is raw TCP, a page has
 // no socket, and wasm does not give it one.
@@ -167,7 +167,7 @@
    * it is an address on an operator's internal network, and a published page
    * is not the place to write one down.  Nothing is lost for the reader who
    * has one — `renderServers` offers whatever the GATEWAY names first
-   * (`fylite-app --mdsip <addr>`), so an operator's own address arrives from
+   * (`fylite --mdsip <addr>`), so an operator's own address arrives from
    * the host that is actually pointed at it, which is also the only place that
    * knows it is still right.
    *
@@ -1570,7 +1570,7 @@
       //: with the wrong discharge — the one mistake this file format can make
       //: that nobody reading it later could detect.
       shots: shots,
-      taken_by: 'fylite-app (fylite)',
+      taken_by: 'fylite (fylite)',
       note: 'every `stride`-th sample of [first, last]; not a mean and not a min/max envelope',
       signals: got.map(function (e) {
         var s = e.s;

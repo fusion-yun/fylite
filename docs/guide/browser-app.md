@@ -166,8 +166,8 @@ fylite --mdsip 127.0.0.1:8000
 
 ### 预设装置
 
-页面**预设**的装置是 fyo/JSON-LD 文档，放在 `app/devices/` 下（今天两份：`east.jsonld`
-与 `iter.jsonld`），由 `app/devices/catalogue.jsonld` 列出。它们是**入库的产物**：当初从
+页面**预设**的装置是 fyo/JSON-LD 文档，放在 `app/facts/device/` 下（今天两份：`east.jsonld`
+与 `iter.jsonld`），由 `app/facts/device/catalogue.jsonld` 列出。它们是**入库的产物**：当初从
 A-Box 的装置描述生成，★而那个生成器**不在本仓**——所以预设今天按入库文件维护，出处逐条
 写在目录文件的 `prov:wasDerivedFrom` 里。
 

@@ -75,11 +75,11 @@ fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出
 <a href="cli.html">命令行</a>那一章。</p>
 <p><code>describe</code> 出的是<strong>机器可读的能力目录</strong>：有哪些入口、各要什么、各给什么。
 它也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。</p>
-<aside class="admonition note"><p class="admonition-title">Note</p><p class="admonition-title">后三条为什么是「转交」</p><p><code>app</code> / <code>data</code> / <code>case</code> 的实现在<strong>一个</strong> Rust 可执行文件里（<code>fylite-app</code>，本仓只有这一个），
+<aside class="admonition note"><p class="admonition-title">Note</p><p class="admonition-title">后三条为什么是「转交」</p><p><code>app</code> / <code>data</code> / <code>case</code> 的实现在<strong>一个</strong> Rust 可执行文件里（<code>fylite</code>，本仓只有这一个），
 Python 侧<strong>不重写第二份</strong>：它找到随包带的那个可执行文件（或 <code>--bin-dir</code>、<code>$PATH</code>），
 把命令词放回最前面，其余的字原样交过去。没找到时它<strong>按名说明要构建什么</strong>并以退出码 2
 结束，而不是退化成一个能力更少的实现。
-<code>fylite data --help</code> 与 <code>fylite-app data --help</code> 读到的是同一份用法——两边由同一个定义
+<code>fylite data --help</code> 与 <code>fylite data --help</code> 读到的是同一份用法——两边由同一个定义
 文件建出。</p></aside>
 <h2>与浏览器互通</h2>
 <p>浏览器页面导出的会话文件可以在 Python 里加载并继续；反过来，Python 算出的结果

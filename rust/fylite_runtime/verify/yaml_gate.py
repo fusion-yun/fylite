@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """YAML 子集读者的门：拿 fydata 的每一份 YAML，比对 `fylite data dump` 与 PyYAML `safe_load`。
 
-用法：verify/yaml_gate.py [--bin fylite-app] [fydata 根目录]
+用法：verify/yaml_gate.py [--bin fylite] [fydata 根目录]
 没有 fydata（或没有 PyYAML）就跳过——这是核对，不是单元测试。
 """
 import json, math, os, subprocess, sys
@@ -58,7 +58,7 @@ def lenient_float(a, b):
 
 def main():
     args = sys.argv[1:]
-    binary = "fylite-app"
+    binary = "fylite"
     if args[:1] == ["--bin"]:
         binary, args = args[1], args[2:]
     root = Path(args[0]) if args else Path(os.environ.get("FYDATA_ROOT", "/home/user/fydata"))
