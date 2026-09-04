@@ -27,18 +27,25 @@ no Python counterpart is refused with the reason, not approximated:
 
 * ``pulse`` / ``profile`` / ``series`` / ``batch`` / ``interp`` — browser-only
   by declaration (:data:`fylite.scenario.BROWSER_ONLY_BARS`);
+* ``reconstruction`` — ``analysis.reconstruction`` exists, but a case of that
+  bar freezes the SYNTHETIC-TWIN generator's knobs, and that generator
+  (measured probes/loops from a twin equilibrium plus seeded noise) lives in
+  ``worker.js`` with no Python counterpart.
 * ``evolve`` — refused PER CASE rather than per bar since 2026-08-26: the
   bar's time loop is the kernel's now (`evolve_heat`), so a case inside that
   entry's declared scope runs, and one outside it is refused with the
   FEATURE named (:data:`_EVOLVE_UNSUNK` plus the four scope tests).  That
-  table is the remaining work list — measured on the corpus: **11 of 13**
-  cases run since the pedestal was sunk (2026-08-26), and the last two want
-  the device / g-file geometry tiers with the current channel and the
-  sawtooth.
-* ``reconstruction`` — ``analysis.reconstruction`` exists, but the case
-  freezes the SYNTHETIC-TWIN generator's knobs, and that generator (measured
-  probes/loops from a twin equilibrium plus seeded noise) lives in
-  ``worker.js`` with no Python counterpart.
+  table is the remaining work list — measured on the corpus after the
+  2026-09-04 convergence: **3 of 5** evolve cases run, and the two refusals
+  are of DIFFERENT kinds — `evolve-east-hmode` wants the device tier's
+  equilibrium (a FILE this repository does not carry, 「把那份件给我」) and
+  `evolve-jintrac-iter-15ma-flattop` wants closure 3 (a CAPABILITY not yet
+  sunk, 「等下一批」).
+
+★★两条 bar 级的拒绝**留在表里而语料里没有对应算例**（2026-09-04）：那四条跑不了
+的算例撤了，能力边界却没有变——它由 :data:`fylite.scenario.BROWSER_ONLY_BARS` 与
+:data:`REFUSALS` **按名**声明，不靠一份跑不了的算例来记。写一条那样的算例进语料，
+仍会被这里按名拒绝。
 
 ★页面合成层的单源原则：凡内核已单源的（梯形波形 ``K.zerod_waveform``、Miller 边界
 ``target_boundary``、面元度规 ``K.geo_surface``）经内核走；本模块只**复刻页面的

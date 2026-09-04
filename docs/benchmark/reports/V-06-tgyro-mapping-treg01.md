@@ -26,7 +26,7 @@ title: V-06 · TGYRO 映射层：整份 out.tglf.localdump 全键对照（treg01
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/tgyro/treg01/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg01/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - （判据）out.tglf.localdump 打六位有效数字，这就是容差的来源
 - （判据）★一个不发出的键不是中立的，它是一句「缺省相同」的无声断言
@@ -54,7 +54,7 @@ title: V-06 · TGYRO 映射层：整份 out.tglf.localdump 全键对照（treg01
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/tgyro/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public | 24 files, 81461 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public | 24 files, 81461 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

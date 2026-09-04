@@ -42,7 +42,7 @@ from fylite import kernel as K
 from fylite.io.geqdsk import read_geqdsk, grid
 
 ROOT = Path(__file__).resolve().parents[2]
-SYNTHETIC = ROOT / "tests/data/synthetic/g_synthetic.geqdsk"
+SYNTHETIC = ROOT / "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"
 MU0 = 4e-7 * np.pi
 
 

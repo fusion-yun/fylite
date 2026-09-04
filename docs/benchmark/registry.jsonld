@@ -207,7 +207,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tglf/ga-std/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/ga-std/",
       "checksum": "sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca",
       "comment": "5 files, 3782 B",
       "provenance_class": "registered",
@@ -220,7 +220,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/treg01/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg01/",
       "checksum": "sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6",
       "comment": "24 files, 81461 B",
       "provenance_class": "registered",
@@ -233,7 +233,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/frozen-libs/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/",
       "checksum": "sha256-manifest:1e75b0c9e861cdff925e832bf0586d5acf6a00f54773795ba9894a62b46048ce",
       "comment": "862 files, 13941886 B",
       "provenance_class": "registered",
@@ -247,7 +247,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tglf/jintrac-102530/gbflux_jintrac.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/jintrac-102530/gbflux_jintrac.json",
       "checksum": "sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46",
       "comment": "4238 B",
       "provenance_class": "registered",
@@ -261,7 +261,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tglf/ga-standard-rotating.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/ga-standard-rotating.json",
       "checksum": "sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b",
       "comment": "4655 B",
       "provenance_class": "registered",
@@ -274,7 +274,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/waltz2007-momentum/table_I_and_tglf.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/table_I_and_tglf.json",
       "checksum": "sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557",
       "comment": "3504 B",
       "provenance_class": "registered",
@@ -411,7 +411,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/fuse/iter_tglfnn.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_tglfnn.json",
       "checksum": "sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662",
       "comment": "1477 B",
       "provenance_class": "registered",
@@ -568,7 +568,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/qlknn/qlknn_7_11_upstream.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-11-qlknn/qlknn_7_11_upstream.json",
       "checksum": "sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1",
       "comment": "10144 B",
       "provenance_class": "registered",
@@ -728,7 +728,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/mavrin_noncoronal.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/mavrin_noncoronal.json",
       "checksum": "sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba",
       "comment": "85471 B",
       "provenance_class": "registered",
@@ -741,7 +741,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/record_mavrin_noncoronal.py",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/record_mavrin_noncoronal.py",
       "checksum": "sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1",
       "comment": "7978 B",
       "provenance_class": "registered",
@@ -895,7 +895,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/extended_lengyel.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
@@ -908,7 +908,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/record_extended_lengyel.py",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/record_extended_lengyel.py",
       "checksum": "sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4",
       "comment": "20611 B",
       "provenance_class": "registered",
@@ -1040,7 +1040,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/extended_lengyel.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
@@ -1202,7 +1202,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/extended_lengyel.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
@@ -1339,7 +1339,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/extended_lengyel.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
@@ -1502,7 +1502,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/fuse/iter_eped.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_eped.json",
       "checksum": "sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1",
       "comment": "1491 B",
       "provenance_class": "registered",
@@ -1515,7 +1515,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/fuse/iter_init.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_init.json",
       "checksum": "sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc",
       "comment": "25616 B",
       "provenance_class": "registered",
@@ -1528,7 +1528,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/fuse/iter_tglf_decks.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/iter_tglf_decks.json",
       "checksum": "sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66",
       "comment": "55840 B",
       "provenance_class": "registered",
@@ -1750,7 +1750,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/jintrac/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-09-jintrac/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/",
       "checksum": "sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220",
       "comment": "7 files, 10531309 B",
       "provenance_class": "registered",
@@ -1926,7 +1926,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/jintrac/runJINTRAC_101612/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-09-jintrac/runJINTRAC_101612/",
       "checksum": "sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47",
       "comment": "124 files, 26113662 B, 106 broken symlinks not hashed",
       "provenance_class": "registered",
@@ -2022,7 +2022,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/astra/iter15ma_astra_burn.csv",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/iter15ma_astra_burn.csv",
       "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
       "comment": "20703 B",
       "provenance_class": "registered",
@@ -2156,7 +2156,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/astra/iter15ma_astra_burn.csv",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/iter15ma_astra_burn.csv",
       "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
       "comment": "20703 B",
       "provenance_class": "registered",
@@ -2339,7 +2339,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/metis/metis_cert_hcd.csv",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/metis_cert_hcd.csv",
       "checksum": "sha256:344a7584194c5541da74c7b5089b9ba9db8b17ca5d178f177c95a41c9a20690a",
       "comment": "46105 B",
       "provenance_class": "registered",
@@ -2635,7 +2635,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/metis/metis_cert_zerod.csv",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/metis_cert_zerod.csv",
       "checksum": "sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8",
       "comment": "99956 B",
       "provenance_class": "registered",
@@ -2764,7 +2764,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/waltz2007-momentum/table_I_and_tglf.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/table_I_and_tglf.json",
       "checksum": "sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557",
       "comment": "3504 B",
       "provenance_class": "registered",
@@ -2863,7 +2863,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tglf/ga-standard-rotating.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/ga-standard-rotating.json",
       "checksum": "sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b",
       "comment": "4655 B",
       "provenance_class": "registered",
@@ -3132,7 +3132,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/gacode/tglf.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/tglf.json",
       "checksum": "sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789",
       "comment": "93406 B",
       "provenance_class": "registered",
@@ -3147,7 +3147,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/gacode/neo.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/neo.json",
       "checksum": "sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e",
       "comment": "35720 B",
       "provenance_class": "registered",
@@ -3291,7 +3291,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/treg01/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg01/",
       "checksum": "sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6",
       "comment": "24 files, 81461 B",
       "provenance_class": "registered",
@@ -3309,7 +3309,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/tgyro/treg01/README.md",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg01/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3468,7 +3468,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/treg02/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg02/",
       "checksum": "sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10",
       "comment": "31 files, 42295 B",
       "provenance_class": "registered",
@@ -3483,7 +3483,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/treg03/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg03/",
       "checksum": "sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40",
       "comment": "31 files, 42712 B",
       "provenance_class": "registered",
@@ -3497,7 +3497,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/treg04/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg04/",
       "checksum": "sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127",
       "comment": "31 files, 41917 B",
       "provenance_class": "registered",
@@ -3510,7 +3510,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/treg05/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg05/",
       "checksum": "sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48",
       "comment": "31 files, 42149 B",
       "provenance_class": "registered",
@@ -3524,7 +3524,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/tgyro/iter01/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/iter01/",
       "checksum": "sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3",
       "comment": "43 files, 137151 B",
       "provenance_class": "registered",
@@ -3797,7 +3797,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/",
       "checksum": "sha256-manifest:37c13ef663e4f940274b2aa7647f982de32e1edcf5337f990650bb8ce40f3b4d",
       "comment": "13 files, 1948111 B",
       "provenance_class": "registered",
@@ -3817,7 +3817,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/torax/README.md",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3954,7 +3954,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/evolution_qlknn_inputs.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/evolution_qlknn_inputs.json",
       "checksum": "sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae",
       "comment": "1157345 B",
       "provenance_class": "registered",
@@ -3972,7 +3972,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/torax/README.md",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -4193,7 +4193,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/evolution_qlknn_inputs.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/evolution_qlknn_inputs.json",
       "checksum": "sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae",
       "comment": "1157345 B",
       "provenance_class": "registered",
@@ -4207,7 +4207,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/torax/evolution_qlknn.json",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/evolution_qlknn.json",
       "checksum": "sha256:9f1168276a17457aa32a0b694f5ba221844c26008430fc213fdb4a0a0cf466e7",
       "comment": "417755 B",
       "provenance_class": "registered",
@@ -4224,7 +4224,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/torax/README.md",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"

@@ -26,7 +26,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/torax/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/FYDOC-CASE-16-torax/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - （判据）同一个网络、同一组输入列：这是一个函数的两个实现，容差只能是机器精度，物理带只会盖住缺陷
 - （判据）用逐通道峰值归一而非逐点相对：五个通道是比值且大量恰零，逐点比在 1e-14 量级的项上报出无意义的大数
@@ -61,7 +61,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/torax/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
+| $FYDOC_ORACLE/FYDOC-CASE-16-torax/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

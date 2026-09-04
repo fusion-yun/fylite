@@ -691,7 +691,7 @@ def _mcp_plot_tool(args: dict, call: dict | None = None):
     worse: the g-file a model hands this tool is usually a path inside the
     user's own checkout, so the render lands in their working copy, with
     nothing recording who wrote it.  (Measured: a single probe call left a
-    217 kB PNG in ``tests/data/synthetic/``.)  Unset, it goes to a fresh run
+    217 kB PNG in ``tests/data/FYDOC-CASE-12-synthetic/``.)  Unset, it goes to a fresh run
     directory like every other product of a call.
     """
     from ..plot import plot_gfile

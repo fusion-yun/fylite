@@ -135,7 +135,7 @@ def test_the_fyo_face_carries_no_upstream_vocabulary():
 # ...and it is WIRED.  The cases above read the source; this one runs it.
 # --------------------------------------------------------------------------- #
 _GFILE = Path(fylite.__file__).resolve().parents[2] / \
-    "tests/data/synthetic/g_synthetic.geqdsk"
+    "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"
 
 _PSIN = np.linspace(0.0, 1.0, 101)
 _NE = 4e19 * (1 - 0.8 * _PSIN ** 2)                 # m^-3

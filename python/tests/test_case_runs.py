@@ -205,21 +205,27 @@ def test_the_evolve_scope_ledger_names_what_is_missing():
     case is refused against it BY FEATURE, and the in-scope count may only
     grow.
 
-    Measured after the pedestal batch (2026-08-26): 11 of 13 run.  A batch
-    that sinks a feature deletes its row, which is why the assertion below
-    is a FLOOR — growth needs no edit here, a regression fails.
-
     ★★2026-08-27, after S-2c 批二–批五: **every capability the corpus names
-    is sunk**, and the two cases still refused are refused for a different
-    KIND of reason — the reference file is not here.  Device and shot decks
-    stay out of this repository by rule, so a case carries controls and not
-    data.  The gate now holds that distinction rather than blurring it:
-    「等下一批」 and 「把那份件给我」 are different sentences and only the
-    second has a next move the reader can take today.
+    is sunk**, and the cases still refused are refused for a different KIND
+    of reason — the reference file is not here.  Device and shot decks stay
+    out of this repository by rule, so a case carries controls and not data.
+    The gate holds that distinction rather than blurring it: 「等下一批」 and
+    「把那份件给我」 are different sentences and only the second has a next
+    move the reader can take today.
+
+    ★★2026-09-04, after the corpus converged (25 cases -> 9): the floor is no
+    longer a HEAD COUNT.  It was ``len(evolve) >= 13`` and ``len(ran) >= 11``,
+    and both read as 「能力只增不减」 only while every FUSE deck sat in the
+    corpus as its own case — eight of the nine differed in 21 machine scalars
+    out of 114 controls, so most of what those floors counted was the roster
+    and not the entry.  Withdrawing the roster would have failed a floor while
+    nothing about ``evolve_heat`` changed, which is the signature of a floor
+    counting the wrong thing.  What is asserted instead is BY NAME: each case
+    that ran still runs, and every refusal still names a row of the ledger
+    (below).  Measured 2026-09-04: 3 of 5.
     """
     evolve = [e["case_id"] for e in cases.catalogue()
               if e["bar"] == "evolve"]
-    assert len(evolve) >= 13
     ran, refused = [], {}
     for cid in evolve:
         try:
@@ -227,9 +233,13 @@ def test_the_evolve_scope_ledger_names_what_is_missing():
             ran.append(cid)
         except SystemExit as e:
             refused[cid] = str(e)
-    assert len(ran) >= 11, (
-        f"only {len(ran)} evolve cases are in scope; 11 were after the "
-        "pedestal was sunk (S-2c 批一) — a capability left the entry")
+    #: ★the three that ran on 2026-09-04, BY NAME — a name says WHICH
+    #: capability left the entry, where a count only says that one did
+    for cid in ("evolve-default", "evolve-iter-15ma", "evolve-fuse-iter"):
+        assert cid in ran, (
+            f"{cid} used to run and is now refused ({refused.get(cid)}) — "
+            "a capability left the entry")
+    assert len(ran) + len(refused) == len(evolve)
     capability = set(cases._EVOLVE_UNSUNK.values()) | {
         "closure", "alternation", "heat channel"}
     #: ★a refusal about DATA, which is not a capability and must not be
@@ -366,11 +376,15 @@ def test_every_runnable_evolve_case_closes_its_energy_books(run_root):
     Every runnable evolve case is marched and its worst per-channel
     conservation residual read back.  The scheme conserves by construction,
     so these are machine noise; what the sweep buys over the single-case
-    crate gate is coverage of the ASSEMBLY — eleven different machines,
-    metrics, impurities, burns and pedestals, each of which is a fresh chance
-    for a source to land on the wrong weight.
+    crate gate is coverage of the ASSEMBLY — different metrics,
+    impurities, burns and pedestals, each of which is a fresh chance for a
+    source to land on the wrong weight.
 
-    Measured 2026-08-26: worst 9.8e-13 (evolve-fuse-manta, 400 steps).
+    Measured 2026-08-26: worst 9.8e-13 (400 steps) over the thirteen evolve
+    cases the corpus then carried; nine of those were FUSE decks differing
+    only in machine scalars and were withdrawn on 2026-09-04, so the sweep is
+    now three cases wide.  What it buys is the ASSEMBLY coverage it still has,
+    not the head count.
     """
     import numpy as np
     worst, where = 0.0, None

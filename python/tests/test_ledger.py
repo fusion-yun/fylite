@@ -129,7 +129,7 @@ def test_a_call_that_names_no_published_artifact_is_refused():
 
 def test_a_lookup_does_not_appear_in_the_ledger(session):
     _call("fylite_zerod", {})
-    _call("fylite_inspect", {"path": "tests/data/synthetic/g_synthetic.geqdsk"})
+    _call("fylite_inspect", {"path": "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"})
     assert len(_doc(session)["fylite:projection"]["dag"]["nodes"]) == 1
 
 

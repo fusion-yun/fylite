@@ -65,7 +65,7 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/nn_tables/qlknn_7_11.npz | — | private-artefact |  |
-| $FYDOC_ORACLE/qlknn/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | public | 10144 B |
+| $FYDOC_ORACLE/FYDOC-CASE-11-qlknn/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | public | 10144 B |
 | $FYLITE_KERNEL/rust/tools/export_qlknn_7_11.py | sha256:0a2b3fb35b8778db1fc1df66386cb61b1db0b822164b1b282e5508649d211f08 | private-artefact | 11543 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。

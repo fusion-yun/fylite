@@ -61,7 +61,7 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `io.efund` | efund deck 格式（`east_geom.txt`）——**不是数据源**：盒与线圈匝数在装置文档里，读 deck 只为**核对**文档 |
 | `appsession` | 浏览器会话文档（`fylite:AppSession/1`）的另一端：读回页面导出的输入与输出 |
 | `engine` | 执行体与交付引擎、JSON-LD 制品清单、CLI 与协议面（**导入期纯 stdlib**） |
-| `run` | `forward_equilibrium`——EFIT 的**录得参考读取器**（`tests/data/frozen-libs/`），不是求解器 |
+| `run` | `forward_equilibrium`——EFIT 的**录得参考读取器**（`tests/data/FYDOC-CASE-03-frozen-libs/`），不是求解器 |
 | `plot` | 通量图与单图重构渲染（需 `matplotlib`） |
 | `engine.casereport` | **算例报告**：计划 + 记录 → 呈现规格 → MyST + 手写 SVG（不需要 matplotlib）；见[算例报告](case-report.md) |
 | `engine.cases` | 算例语料：`catalogue` / `load` / `settings` / `plan` / `run`，以及按名拒绝的 `REFUSALS` |

@@ -16,7 +16,7 @@ def _eqdict():
     from fylite.io import geqdsk
     return geqdsk.read_geqdsk(
         str(Path(__file__).resolve().parents[2]
-            / "tests/data/synthetic/g_synthetic.geqdsk"))
+            / "tests/data/FYDOC-CASE-12-synthetic/g_synthetic.geqdsk"))
 
 
 def test_self_consistent_mechanics(monkeypatch):

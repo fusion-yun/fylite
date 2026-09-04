@@ -65,12 +65,12 @@ title: V-01 · GACODE 三个白盒端口对它们翻译自的 Fortran
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/tglf/ga-std/ | sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca | public | 5 files, 3782 B |
-| $FYDOC_ORACLE/tgyro/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public | 24 files, 81461 B |
-| $FYDOC_ORACLE/frozen-libs/ | sha256-manifest:1e75b0c9e861cdff925e832bf0586d5acf6a00f54773795ba9894a62b46048ce | public-derived | 862 files, 13941886 B |
-| $FYDOC_ORACLE/tglf/jintrac-102530/gbflux_jintrac.json | sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46 | restricted-derived | 4238 B |
-| $FYDOC_ORACLE/tglf/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | public-derived | 4655 B |
-| $FYDOC_ORACLE/waltz2007-momentum/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
+| $FYDOC_ORACLE/FYDOC-CASE-14-tglf/ga-std/ | sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca | public | 5 files, 3782 B |
+| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public | 24 files, 81461 B |
+| $FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/ | sha256-manifest:1e75b0c9e861cdff925e832bf0586d5acf6a00f54773795ba9894a62b46048ce | public-derived | 862 files, 13941886 B |
+| $FYDOC_ORACLE/FYDOC-CASE-14-tglf/jintrac-102530/gbflux_jintrac.json | sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46 | restricted-derived | 4238 B |
+| $FYDOC_ORACLE/FYDOC-CASE-14-tglf/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | public-derived | 4655 B |
+| $FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
