@@ -45,6 +45,7 @@
     'a_minor',             // Minor radius [m] carried on an equilibrium's global quantities, where the DD has no slot for it.
     'angle_deg',           // Poloidal angle [deg] of a magnetic probe.
     'channel_aturns',      // Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start.
+    'chi_prev',            // The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors.
     'chi_turb',            // The turbulent ion diffusivity [m^2/s] the extension's code/turbulence evaluated between two blocks of the march (第十八刀, 2026-09-05): bound under inputs/evolve for the block that follows (closure 3), and the previous answer it relaxes against; a solver's given profile, not a DD transport model, so prefixed.
     'config',              // The input configuration a result was produced from.
     'created',             // ISO-8601 timestamp the document was written.
@@ -83,9 +84,10 @@
     'vprime',              // dV/dρ [m²] on the transport grid — the flux-surface volume derivative the 1.
     'vprime_old',          // The previous ladder's dV/drho [m^2] remapped by psi_N onto the new one (第十九刀, 2026-09-05): code/refit hands it back after an alternation and the next block's FIRST step binds it under inputs/evolve (`vprime_moved`) so the moving-volume term sees the volume the equilibrium actually moved.
     'weight',              // A channel's weight on a coil element, inside fylite:channel_map.
+    'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
   var REVISION = 1;
-  var DIGEST = "6f991d3212268fd9";
+  var DIGEST = "63bf63a7aa0615b0";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -352,6 +354,9 @@
         "metric": { path: "fylite:metric", units: "1", rank: "1d" },
         "velocity": { path: "fylite:velocity", units: "m/s", rank: "1d" },
         "chi_given": { path: "fylite:chi_given", units: "m^2/s", rank: "1d" },
+        "chi_turb": { path: "fylite:chi_turb", units: "m^2/s", rank: "1d" },
+        "chi_prev": { path: "fylite:chi_prev", units: "m^2/s", rank: "1d" },
+        "y": { path: "fylite:y", units: "1", rank: "1d" },
       }
     },
     UQ: {

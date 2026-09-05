@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "6f991d3212268fd9";
+pub const DIGEST: &str = "63bf63a7aa0615b0";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -243,6 +243,9 @@ pub const TABLES: &[Table] = &[
         Slot { key: "metric", path: "fylite:metric", units: "1", rank: "1d" },
         Slot { key: "velocity", path: "fylite:velocity", units: "m/s", rank: "1d" },
         Slot { key: "chi_given", path: "fylite:chi_given", units: "m^2/s", rank: "1d" },
+        Slot { key: "chi_turb", path: "fylite:chi_turb", units: "m^2/s", rank: "1d" },
+        Slot { key: "chi_prev", path: "fylite:chi_prev", units: "m^2/s", rank: "1d" },
+        Slot { key: "y", path: "fylite:y", units: "1", rank: "1d" },
     ] },
     Table { name: "UQ", doc_type: "fyo:uq", slots: &[
         Slot { key: "sample_ip", path: "fylite:sample_ip", units: "A", rank: "2d" },
@@ -590,4 +593,4 @@ pub const ENTRIES: &[Entry] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "chi_turb", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "flux_loop", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "max_power", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "null_r", "null_z", "orbit_loss_fraction", "p_fast_third", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "psi_prev", "q", "q_prev", "q_psi_norm", "r2_average", "r_major", "r_minor", "radii", "reconstructed", "result", "rho", "shift", "shinethrough", "sigma_prev", "source", "target", "time", "trapped_fraction", "truth", "verify", "vprime", "vprime_old", "weight"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "chi_prev", "chi_turb", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "flux_loop", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "max_power", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "null_r", "null_z", "orbit_loss_fraction", "p_fast_third", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "psi_prev", "q", "q_prev", "q_psi_norm", "r2_average", "r_major", "r_minor", "radii", "reconstructed", "result", "rho", "shift", "shinethrough", "sigma_prev", "source", "target", "time", "trapped_fraction", "truth", "verify", "vprime", "vprime_old", "weight", "y_init"];

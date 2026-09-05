@@ -4136,143 +4136,68 @@ function dlnpdr(sp) {
 
 
 
-function turbulentChi(sp, neo, x, y, chiNeo) {
-  var nr = sp.radii.length, sub = new Float64Array(nr), xs = new Float64Array(nr);
-  for (var i = 0; i < nr; i++) {
-    var k = sp.radii[i], o = 20 * k, aMin = neo.surf[o];
-    xs[i] = x[k];
-    var rLoc = neo.surf[o + 1] / aMin, q = Math.abs(neo.surf[o + 6]);
-    //: ★a/L_T from the CURRENT iterate — this is the whole reason the
-    //: closure is re-evaluated at all.  Centred where it can be; the
-    //: gradient is taken against rmin (a LENGTH), not the radial label,
-    //: because TGLF's normalisation is a/L and `a` is a length too.
-    var k0 = Math.min(Math.max(k, 1), y.length - 2);
-    var dT = y[k0 + 1] - y[k0 - 1];
-    var dr = (neo.surf[20 * (k0 + 1) + 1] - neo.surf[20 * (k0 - 1) + 1]) / aMin;
-    //: `dr` is already in units of `a` (both lengths came from the same
-    //: block and were divided by `aMin`), so a/L_T is just -(dT/dr)/T
-    var rlt = (dr !== 0 && y[k] > 0) ? -(dT / dr) / y[k] : 0;
-    rlt = Math.max(Math.min(rlt, 20), 0.1);
-    var rln = Math.max(Math.min(aMin * neo.surf[o + 17], 20), 0);
-    var deck = {
-      miller14: [rLoc, neo.surf[o + 2] / aMin, 0.0, q,
-                 neo.surf[o + 8], 0.0, neo.surf[o + 10], 0.0,
-                 0.0, 0.0, 0.0, 0.0, 1.0, 128],
-      //: q' from the same q and shear the neoclassical block carries, so
-      //: the two closures cannot end up describing different surfaces
-      pPrime: 0.0, qPrime: (q / Math.max(rLoc, 1e-3)) * (q / Math.max(rLoc, 1e-3))
-                            * neo.surf[o + 7],
-      width: sp.width, kx0: 0.0, thetaTrapped: 0.7,
-      zs: [-1.0, 1.0], mass: [0.0002723, 1.0], as: [1.0, 1.0],
-      taus: [1.0, 1.0], rlns: [rln, rln], rlts: [rlt, rlt],
-      signBt: 1.0, xnue: 0.0, zeff: 1.0, xnuModel: 2.0, xnuFactor: 1.0,
-      park: 1.0, wdiaTrapped: 0.0, vparModel: 0.0, alphaMach: 0.0,
-      alphaP: 1.0, signIt: 1.0, betae: 0.0, useBper: 0.0, useBpar: 0.0,
-      dampPsi: 0.0, dampSig: 0.0, linskerFactor: 0.0, useMhdRule: 1.0,
-      wdZero: 0.1, vexbShear: 0.0, alphaE: 1.0, alphaQuench: 0.0,
-      rlnpCutoff: 18.0, vpar: [0, 0], vparShear: [0, 0],
-      nbasis: 4, nxgrid: 16, ky: sp.ky, satRule: sp.satRule,
-    };
-    //: ★★THE E x B SHEAR, and it is the kernel's number rather than this
-    //: file's.  `VEXB_SHEAR` is four conventions deep — which sign, which
-    //: radius the rotation derivative is taken against, which length it is
-    //: normalised by, and which sound speed — so it is asked of
-    //: `mapping::tglf_local`, which already carries all four together with
-    //: the `c_s` its own derived block defines.  Zero when the momentum
-    //: channel is off, and zero is then a STATEMENT (no rotation was
-    //: solved) rather than the placeholder it used to be.
-    //:
-    //: ★The parallel-velocity half of that block (`vpar`, `vpar_shear`) is
-    //: deliberately left out: this deck runs `VPAR_MODEL = 0`, under which
-    //: TGLF does not read them, and shipping them into a model that ignores
-    //: them would be reporting a coupling that is not in the run.
-    if (sp.w0) {
-      var i6 = 6 * k;
-      var loc = fy.tglfLocal({
-        surf20: neo.surf.subarray(o, o + 20), signb: neo.signb,
-        signq: neo.signq, w0: sp.w0[k], w0p: sp.w0p[k],
-        iz: [neo.ion[i6]], imass: [neo.ion[i6 + 1]], ini: [neo.ion[i6 + 2]],
-        iti: [neo.ion[i6 + 3]], idlnn: [neo.ion[i6 + 4]],
-        idlnt: [neo.ion[i6 + 5]], betaeScale: 1, nuScale: 1,
-        rotation: true });
-      deck.vexbShear = loc.vexbShear;
-    }
-    var u = tglf.tglfUnits(deck.miller14, deck.pPrime, deck.qPrime,
-                           deck.width, deck.thetaTrapped);
-    var kg = tglf.tglfKygrid({ zs: deck.zs, mass: deck.mass, as: deck.as,
-                               taus: deck.taus, nky: sp.ky.length });
-    var f = tglf.tglfFlux({
-      miller18: deck.miller14.concat([deck.pPrime, deck.qPrime,
-                                      deck.width, deck.kx0]),
-      scal30: [u.rUnit, u.qUnit, u.bUnit, deck.signBt, u.ft, kg.rhoIon,
-               deck.width, dlnpdr(deck), deck.vexbShear, deck.alphaE,
-               deck.alphaQuench, deck.xnue, deck.zeff, deck.xnuModel,
-               deck.xnuFactor, deck.park, deck.wdiaTrapped,
-               deck.thetaTrapped, deck.vparModel, deck.alphaMach,
-               deck.alphaP, deck.signIt, deck.betae, deck.useBper,
-               deck.useBpar, deck.dampPsi, deck.dampSig,
-               deck.linskerFactor, deck.useMhdRule, deck.wdZero],
-      geom4: [deck.pPrime, deck.qPrime, deck.kx0, deck.miller14[13]],
-      zs: deck.zs, mass: deck.mass, as: deck.as, taus: deck.taus,
-      rlns: deck.rlns, rlts: deck.rlts, vpar: deck.vpar,
-      vparShear: deck.vparShear, ky: sp.ky,
-      nbasis: deck.nbasis, nxgrid: deck.nxgrid, satRule: sp.satRule });
-    //: the ion energy flux, gyro-Bohm normalised, turned into a diffusivity
-    //: by the same drive and the same unit the neoclassical path uses
-    var qi = Math.abs(f.energy[1]);
-    sub[i] = qi / Math.max(rlt, 1e-6) * neo.chigb[k];
-  }
-  //: ★interpolated back onto the solver grid, and the SUBSET is reported.
-  //: A tier that quietly evaluated six radii and drew twenty-one would be
-  //: presenting an interpolation as a calculation.
-  var out = new Float64Array(x.length);
-  for (var j = 0; j < x.length; j++) out[j] = interp1(xs, sub, x[j]);
-  return { chi: out, sub: sub, xs: xs };
-}
-
+/**
+ * The model page's turbulent-transport panel, on two doors.
+ *
+ * ★第二十五刀 (2026-09-05): what this function wrote out — Chang-Hinton chi on
+ * the bar's surfaces (`neoChi` on blocks the page built), TGLF on the
+ * sampled radii (`turbulentChi`, the deck and the flat `tglf*` exports),
+ * the relaxed total, one steady `transportStep` — is `code/turbulence`
+ * (the extension binary) and `code/transport` closure `turbulent` (the
+ * core) now.  What stays here is the CADENCE between the two binaries: the
+ * extension answers chi_turb on the state as it stands, the core folds it
+ * into the closure and takes the step, and the loop runs until the axis
+ * settles or the outer count is spent.  The per-pass readings the page
+ * shows come off the core's record.
+ */
 function transportTurb(msg) {
-  var t0 = Date.now(), sp = msg.spec, neo = msg.neo;
+  var t0 = Date.now(), bar = msg.bar;
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
   var start = function () {
-    var x = Float64Array.from(sp.x), y = Float64Array.from(sp.y0);
-    var chiPrev = null, r = null, settled = false, passes = 0, last = null;
-    for (var it = 0; it < sp.outer; it++) {
-      var chiNeo = fy.neoChi(x, y, neo, sp.chi0);
-      var tb = turbulentChi(sp, neo, x, y, chiNeo);
-      var chi = new Float64Array(x.length);
-      for (var k = 0; k < x.length; k++) {
-        var want = chiNeo[k] + tb.chi[k];
-        //: ★under-relaxed on CHI, not on the temperature.  The turbulent
-        //: channel is stiff — chi rises steeply with a/L_T — so an
-        //: unrelaxed outer loop oscillates between an over- and an
-        //: under-transported profile rather than converging.
-        chi[k] = chiPrev ? chiPrev[k] + sp.relax * (want - chiPrev[k]) : want;
-      }
-      chiPrev = chi;
-      r = fy.transportStep({
-        x: x, yOld: y, vprime: Float64Array.from(sp.vprime),
-        metric: Float64Array.from(sp.metric),
-        velocity: Float64Array.from(sp.velocity),
-        source: Float64Array.from(sp.source),
-        model: 3, p0: sp.chi0, p1: 0.25, p2: 1.75,
-        neo: neo, chiGiven: chi, dPc: sp.dPc || 0,
-        dt: Infinity, theta: 1, edgeValue: sp.edge,
-        tol: 1e-10, maxInner: 200 });
+    try { return loop(); }
+    catch (e) { return post({ type: 'error', where: 'transport_turb', message: String(e && e.message || e) }); }
+  };
+  var loop = function () {
+    var x = new Float64Array(bar.n);
+    for (var i = 0; i < bar.n; i++) x[i] = bar.amin * i / (bar.n - 1);
+    var y = null, chiPrev = null, settled = false, passes = 0, rec = null, tr = null;
+    for (var it = 0; it < bar.outer; it++) {
+      var tin = { 'fylite:rho': Array.from(x) };
+      if (y) tin['fylite:y'] = Array.from(y);
+      tr = tglf.complete('code/turbulence', {
+        settings: { amin: bar.amin, rmaj: bar.rmaj, q95: bar.q95, kappa: bar.kappa, delta: bar.delta,
+                    nepeak: bar.nepeak, ne0: bar.ne0, bunit: bar.bunit, edge: bar.edge,
+                    n_rad: bar.nrad, n_ky: bar.nky, sat_rule: 1, width: 1.65 },
+        inputs: { transport: tin } });
+      var cin = { 'fylite:rho': Array.from(x), 'fylite:chi_turb': Array.from(fieldFlat(tr, 'chi_turb')) };
+      if (y) cin['fylite:y_init'] = Array.from(y);
+      if (chiPrev) cin['fylite:chi_prev'] = Array.from(chiPrev);
+      rec = fy.complete('code/transport', {
+        settings: { closure: 'turbulent', chi0: bar.chi0, p1: 0.25, p2: 1.75, power: bar.power, width: bar.width,
+                    edge: bar.edge, pinch: bar.pinch, dpc: bar.dpc, amin: bar.amin, rmaj: bar.rmaj,
+                    kappa: bar.kappa, delta: bar.delta, q95: bar.q95, bunit: bar.bunit, ne0: bar.ne0,
+                    nepeak: bar.nepeak, turb_relax: bar.relax, steps: 1 },
+        inputs: { transport: cin } });
+      var X = function (k) { return rec.facts[k].value; };
+      y = fieldFlat(rec, 'y');
+      chiPrev = flat(rec.fields.core_transport.model['0'].profiles_1d.electrons.energy.d);
       passes += 1;
-      var move = Math.abs(r.y[0] - y[0]) / Math.max(Math.abs(r.y[0]), 1e-12);
-      y = Float64Array.from(r.y);
-      last = { chi: chi, chiNeo: chiNeo, turb: tb };
-      post({ type: 'turb_pass', it: passes, t0: y[0], move: move,
-             chiMin: Math.min.apply(null, Array.from(chi)),
-             chiMax: Math.max.apply(null, Array.from(chi)) });
-      if (move < sp.tol) { settled = true; break; }
+      post({ type: 'turb_pass', it: passes, t0: y[0], move: X('move'),
+             chiMin: Math.min.apply(null, Array.from(chiPrev)),
+             chiMax: Math.max.apply(null, Array.from(chiPrev)) });
+      if (X('move') < bar.tol) { settled = true; break; }
     }
+    var lad = rec.fields.equilibrium.time_slice.profiles_1d;
+    var X2 = function (k) { return rec.facts[k].value; };
     post({ type: 'transport_turb', y: Array.from(y),
-           chi: Array.from(last.chi), chiNeo: Array.from(last.chiNeo),
-           chiTurb: Array.from(last.turb.chi),
-           subX: Array.from(last.turb.xs), subChi: Array.from(last.turb.sub),
+           chi: Array.from(chiPrev), chiNeo: Array.from(fieldFlat(rec, 'chi_neo')),
+           chiTurb: Array.from(fieldFlat(rec, 'chi_turb')),
+           subX: Array.from(fieldFlat(tr, 'xs')), subChi: Array.from(fieldFlat(tr, 'sub')),
+           vprime: Array.from(flat(lad.dvolume_drho_tor)), gradR2: Array.from(flat(lad.gm3)),
+           chiGb: Array.from(fieldFlat(rec, 'chi_gb')), source: Array.from(fieldFlat(rec, 'source')),
            outer: passes, settled: settled,
-           iterations: r.innerIterations, converged: r.converged,
-           residual: r.residual, ms: Date.now() - t0,
+           iterations: X2('inner_iterations'), converged: X2('converged') !== 0,
+           residual: X2('residual'), ms: Date.now() - t0,
            bytes: tglf.bytes, sha256: tglf.sha256 });
   };
   if (tglf) return start();

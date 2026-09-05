@@ -92,129 +92,6 @@ FyScenario.whenDevices(function () {
   /** The same grid as a fraction of the minor radius, for prescriptions. */
   function rhoBar(x, i) { return x[x.length - 1] > 0 ? x[i] / x[x.length - 1] : 0; }
 
-  /**
-   * dV/dr on every grid point, from the kernel's own surface solver.
-   *
-   * ★One call per surface, and the axis is handled by EXTRAPOLATION rather
-   * than by evaluating at r = 0: the surface degenerates there and `geo_do`
-   * is not asked a question it cannot answer.  V' -> 0 linearly on axis, so
-   * the first interval is where the transcription's half-cell rule does its
-   * work — faking a value there would quietly change the axis boundary.
-   */
-  function metrics(x) {
-    var q0 = 1.0, qa = +$('q95').value, a = +$('amin').value;
-    var rmaj = +$('rmaj').value * a;
-    var vp = new Float64Array(x.length), gr = new Float64Array(x.length);
-    var shear = new Float64Array(x.length);
-    for (var i = 1; i < x.length; i++) {
-      var rb = rhoBar(x, i);
-      //: a plain parabolic q(r) — this page prescribes the profile rather
-      //: than solving current diffusion for it, and says so.  The 含时演化
-      //: bar is where q is a RESULT.
-      var q = q0 + (qa - q0) * rb * rb;
-      var dq = 2 * (qa - q0) * rb;
-      shear[i] = rb * dq / q;
-      //: metres in, metres out: `geo_do` is scale-covariant, so a surface
-      //: given in metres returns dV/dr in m^2 and a dimensionless <|grad
-      //: r|^2>.  Handing it r/a is what made chi's own metre disappear.
-      var g = fy.geoSurface({
-        rmin: x[i], rmaj: rmaj, q: q, shear: shear[i],
-        kappa: +$('kappa').value, sKappa: 0, delta: +$('delta').value,
-        sDelta: 0, nTheta: 201 });
-      vp[i] = g.volumePrime;
-      gr[i] = g.fsaGradR2;
-    }
-    vp[0] = 0; gr[0] = gr.length > 1 ? gr[1] : 1;
-    return { vprime: vp, gradR2: gr, qEdge: qa };
-  }
-
-  //: ★SI, because that is what the surface block means.  This page used to
-  //: convert to the TGYRO port's CGS here — `CM_PER_M`, `G_PER_T`, a
-  //: density unit of 1e13 and a deuteron in grams — and every page that
-  //: filled the block had to know to do the same.  The conversion is behind
-  //: the ABI now (`c_api.rs::surface_from_block`), once, for every entry
-  //: that takes the layout.
-  var EV_PER_KEV = 1e3;
-  //: the `ne0` field is in 1e19 m^-3, and m^-3 is what the block takes
-  var NE_UNIT = 1e19;
-  //: deuterium mass, kg
-  var MD = 3.3435837724e-27;
-
-  /**
-   * The physical surface at every grid point, for the neoclassical closure.
-   *
-   * ★What this page owns and what the kernel owns.  Everything NEO-side —
-   * the ion temperature norm, the electron density norm, the deuterium mass
-   * norm, `nu_1`, the gyro-Bohm de-normalisation — is the kernel's.  This
-   * function supplies PHYSICAL quantities and one unit per point, and that
-   * is the whole of its responsibility.
-   *
-   * ★★The density profile is PRESCRIBED, not solved: this page has one
-   * channel and it is the temperature.  Saying so matters because a
-   * neoclassical chi depends on density, so a reader could otherwise take
-   * the density here for a result.
-   */
-  function neoBlocks(x, m) {
-    var a = +$('amin').value, b = +$('bunit').value, ne0 = +$('ne0').value;
-    //: ★the peaking is a CONTROL now.  It was 0.4, written twice, and a
-    //: neoclassical chi depends on the density it was hard-coded into.
-    var cpk = +$('nepeak').value;
-    var n = x.length;
-    var surf = new Float64Array(20 * n), ion = new Float64Array(6 * n);
-    var chigb = new Float64Array(n);
-    var rmaj = +$('rmaj').value * a, kap = +$('kappa').value,
-        del = +$('delta').value, q0 = 1.0, qa = +$('q95').value;
-    for (var k = 0; k < n; k++) {
-      var r = Math.max(rhoBar(x, k), 1e-6);
-      var q = q0 + (qa - q0) * r * r;
-      var shear = r * (2 * (qa - q0) * r) / q;
-      //: prescribed, and said to be so on the page
-      var ne = ne0 * (1 - cpk * r * r) * NE_UNIT;
-      var dlnnedr = (2 * cpk * r / Math.max(1 - cpk * r * r, 1e-6)) / a; // 1/m
-      //: the temperature the block carries is the STARTING one; the kernel
-      //: overwrites the first ion's from the iterate at every Picard step,
-      //: and the other temperature stays at this profile — this bar solves
-      //: ONE channel
-      var te = tStart(x, k) * EV_PER_KEV;
-      var o = 20 * k;
-      surf[o] = a; surf[o + 1] = r * a; surf[o + 2] = rmaj;
-      surf[o + 3] = 0; surf[o + 4] = 0; surf[o + 5] = 0;
-      surf[o + 6] = q; surf[o + 7] = shear;
-      surf[o + 8] = kap; surf[o + 9] = 0;
-      surf[o + 10] = del; surf[o + 11] = 0;
-      surf[o + 12] = 0; surf[o + 13] = 0;
-      surf[o + 14] = b; surf[o + 15] = te; surf[o + 16] = ne;
-      surf[o + 17] = dlnnedr; surf[o + 18] = dlnnedr; surf[o + 19] = 0;
-      var i6 = 6 * k;
-      ion[i6] = 1.0; ion[i6 + 1] = MD;
-      ion[i6 + 2] = ne; ion[i6 + 3] = te;
-      ion[i6 + 4] = dlnnedr; ion[i6 + 5] = dlnnedr;
-      chigb[k] = chiGyroBohm(te, b, a);
-    }
-    return { surf: surf, ion: ion, nion: 1, signb: -1, signq: 1,
-             rhoStar: 0.001, nTheta: 17, tToEv: EV_PER_KEV, chigb: chigb };
-  }
-
-  /**
-   * The gyro-Bohm diffusivity rho_s^2 c_s / a, in m^2/s.
-   *
-   * ★The ONE unit this side supplies.  SI throughout, on the deuterium mass
-   * — the same mass the kernel normalises to, which is why the two halves
-   * compose instead of differing by a mass ratio nobody would notice.
-   */
-  function chiGyroBohm(teEv, bT, aM) {
-    var MD = 3.3435837724e-27, QE = 1.602176634e-19;
-    var cs = Math.sqrt(teEv * QE / MD);
-    var rhos = MD * cs / (QE * bT);
-    return rhos * rhos * cs / aM;
-  }
-
-  /** The starting profile, in keV — also what the passive channel is pinned to. */
-  function tStart(x, k) {
-    var rb = rhoBar(x, k);
-    return +$('edge').value + 2 * (1 - rb * rb);
-  }
-
   function solve() {
     var x = rhoGrid();
     var chi0 = +$('chi0').value;
@@ -223,11 +100,11 @@ FyScenario.whenDevices(function () {
     //: ★★the bar is `case.rs::transport_case` (FYL-DESIGN-16 K-3, 2026-09-05):
     //: the Miller metric from these controls, the Gaussian source, the start
     //: profile, the closure by name — constant · stiff · neoclassical (whose
-    //: per-surface blocks, `neoBlocks` above, the kernel now builds from the
-    //: same seven numbers) — one steady solve.  What stays here is the grid
-    //: (bound, so the page's own `a·i/(n-1)` spacing is the one solved on) and
-    //: the reading back.  `neoBlocks` / `metrics` remain for the turbulent
-    //: run beside this, which has not sunk.
+    //: per-surface blocks the kernel builds from the same seven numbers) —
+    //: one steady solve.  What stays here is the grid (bound, so the page's
+    //: own `a·i/(n-1)` spacing is the one solved on) and the reading back.
+    //: ★第二十五刀: the turbulent run beside this (`turbRun`) sank the same
+    //: way — its blocks and metric are the two doors' now.
     var settings = { closure: String(closure), chi0: chi0, p1: 0.25, p2: 1.75,
                      power: +$('power').value, width: +$('width').value,
                      edge: +$('edge').value, pinch: +$('pinch').value, dpc: +$('dpc').value,
@@ -252,6 +129,7 @@ FyScenario.whenDevices(function () {
              chi: flat(rec.fields.core_transport.model['0'].profiles_1d.electrons.energy.d),
              metrics: m, src: flat(rec.fields.source),
              closure: closure, neo: null,
+             chiGb: rec.fields.chi_gb ? flat(rec.fields.chi_gb) : null,
              iterations: rec.facts.inner_iterations.value,
              converged: rec.facts.converged.value !== 0,
              residual: rec.facts.residual.value,
@@ -282,31 +160,17 @@ FyScenario.whenDevices(function () {
   }
 
   function turbRun() {
-    var x = rhoGrid(), m = metrics(x);
-    var chi0 = +$('chi0').value;
-    var p0 = +$('power').value, w = +$('width').value;
-    var src = new Float64Array(x.length), y0 = new Float64Array(x.length);
-    for (var i = 0; i < x.length; i++) {
-      src[i] = p0 * Math.exp(-Math.pow(rhoBar(x, i) / w, 2));
-      y0[i] = tStart(x, i);
-    }
-    var metric = new Float64Array(x.length);
-    for (var q = 0; q < x.length; q++) metric[q] = m.vprime[q] * m.gradR2[q];
-    var vel = new Float64Array(x.length); vel.fill(+$('pinch').value);
-    var neo = neoBlocks(x, m);
-
-    //: ★the radial SUBSET and the ky count are controls, because they are
-    //: the two numbers that decide whether this tier is a wait or a walk
-    //: away.  Cost is linear in their product; the page states the estimate
-    //: before the run rather than after it.
+    var x = rhoGrid();
+    //: ★第二十五刀: the bar's scalars go as they are; the surface blocks, the
+    //: metric, the source and the start profile are the kernel's (both doors
+    //: build them from the same prescription the transport solve uses)
     var nRad = +$('turb-nrad').value | 0, nKy = +$('turb-nky').value | 0;
-    var radii = [];
-    for (var j = 0; j < nRad; j++)
-      radii.push(Math.round(1 + (x.length - 3) * (j / Math.max(1, nRad - 1))));
-    var ky = [], lo = 0.05, hi = 0.8;
-    for (var kk = 0; kk < nKy; kk++)
-      ky.push(+(lo * Math.pow(hi / lo, kk / Math.max(1, nKy - 1))).toFixed(6));
-
+    var bar = { n: x.length, amin: +$('amin').value, rmaj: +$('rmaj').value, kappa: +$('kappa').value,
+                delta: +$('delta').value, q95: +$('q95').value, bunit: +$('bunit').value,
+                ne0: +$('ne0').value, nepeak: +$('nepeak').value, chi0: +$('chi0').value,
+                power: +$('power').value, width: +$('width').value, edge: +$('edge').value,
+                pinch: +$('pinch').value, dpc: +$('dpc').value, nrad: nRad, nky: nKy,
+                outer: +$('turb-outer').value | 0, relax: 0.5, tol: 1e-4 };
     var t0 = (self.performance || Date).now();
     if (!turbWorker) {
       turbWorker = new Worker(self.FySite.url('assets/worker.js'));
@@ -332,7 +196,10 @@ FyScenario.whenDevices(function () {
                  chiNeo: Float64Array.from(d.chiNeo),
                  chiTurb: Float64Array.from(d.chiTurb),
                  subX: d.subX, subChi: d.subChi,
-                 metrics: m, src: src, closure: 3, neo: neo,
+                 metrics: { vprime: Float64Array.from(d.vprime), gradR2: Float64Array.from(d.gradR2),
+                            qEdge: bar.q95 },
+                 src: Float64Array.from(d.source), closure: 3, neo: null,
+                 chiGb: Float64Array.from(d.chiGb),
                  outer: d.outer, settled: d.settled,
                  iterations: d.iterations, converged: d.converged,
                  residual: d.residual,
@@ -353,15 +220,9 @@ FyScenario.whenDevices(function () {
         setBusy(false, T('x.fail', { why: String(e && e.message || e) }), 'err');
       };
     }
-    setBusy(true, T('x.turb.running', { n: radii.length * ky.length }));
+    setBusy(true, T('x.turb.running', { n: nRad * nKy }));
     S.progress(0.2);
-    turbWorker.postMessage({
-      cmd: 'transport_turb', neo: neo,
-      spec: { x: x, y0: y0, vprime: m.vprime, metric: metric, velocity: vel,
-              source: src, edge: +$('edge').value, chi0: chi0,
-              dPc: +$('dpc').value,
-              radii: radii, ky: ky, satRule: 1, width: 1.65,
-              outer: +$('turb-outer').value | 0, relax: 0.5, tol: 1e-4 } });
+    turbWorker.postMessage({ cmd: 'transport_turb', bar: bar });
     return turbSettle();
   }
 
@@ -655,11 +516,11 @@ FyScenario.whenDevices(function () {
         'fylite:inner_iterations': last.iterations,
         'fylite:residual': last.residual,
       };
-      if (last.closure === 2)
+      if (last.chiGb)
         //: the gyro-Bohm unit is what makes the exported chi a number in
         //: m^2/s rather than a dimensionless one — it has to travel
         doc['fylite:profile']['fylite:chi_gyrobohm'] =
-          FySession.sig(last.neo.chigb);
+          FySession.sig(last.chiGb);
       return JSON.stringify(doc, null, 1);
     },
     apply: function (text, name) {
