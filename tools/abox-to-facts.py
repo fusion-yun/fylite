@@ -797,6 +797,9 @@ def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     if not isinstance(doc, dict):
         return None
     finite(dev, doc)
+    identity(dev, doc)
+    grid(dev, doc)
+    vacuum_field(dev, doc)
     p = out_root / f"{dev}.jsonld"
     #: ★`allow_nan=False`：Python 的缺省会写出裸 `NaN` / `Infinity`，**那不是 JSON**。
     #: 上面的 `finite()` 已经把唯一一种无歧义的情形（成对轮廓末尾的补位）摘掉了；
@@ -804,6 +807,134 @@ def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     p.write_text(json.dumps(doc, ensure_ascii=False, indent=1, allow_nan=False) + "\n",
                  encoding="utf-8")
     return p
+
+
+#: ★分辨率的缺省：EFIT 的老约定，也是本仓随包 `libefit.so` 的编译期维度。
+#: **只在卡片没有编译期维度可抄时才用**——见 `grid()` 抬头。
+DEFAULT_GRID_N = 65
+
+
+def identity(dev: str, doc: dict) -> None:
+    """让文档**自报家门**：`fylite:device_id` 与 `name`。
+
+    ★★为什么这一步存在（2026-09-05 实测）。发布出去的文档只在 `@id` 里带机器名
+    （`fylite:device/east/est2` —— 那串还编着变体），而页面的读法
+    `app/assets/fyodev.js` 认的是 `fylite:device_id`，认不到就叫 `imported`。
+    自带的那批不受影响（id 由目录 `catalogue.jsonld` 给），**受影响的是拿到一份
+    文档、把它拖进页面的读者**：三台机器进来会叫 `imported`、`imported-imported`、
+    `imported-imported-2`，而且不报错。页面自己的写法 `FyoDevice.toFyo` 从来就写
+    这两个键，所以这不是新契约，是发布侧漏了它写的那一份。
+
+    ★`name` 取卡片的 `_machine`（manifest 的 `device` 字段，如 `EAST`）——不造词：
+    卡片没有就不写，读者那侧退回 id。
+    """
+    doc.setdefault("fylite:device_id", dev)
+    machine = doc.get("_machine")
+    if isinstance(machine, str) and machine.strip():
+        doc.setdefault("name", machine.strip())
+
+
+def grid(dev: str, doc: dict) -> None:
+    """把卡片的 `machine.default_grid` 铸成文档的 `fylite:grid`。
+
+    ★★为什么这一步存在（2026-09-05 实测）。页面的装置读法 `app/assets/fyodev.js`
+    **硬要** `fylite:grid`，而**没有任何一份发布出去的文档带它**——于是浏览器的装置
+    面板一台预设机器也列不出来（每台带一句「文档里没有 fylite:grid」，不是崩溃，
+    所以更难发现）。三种制品全带着这个毛病，构建从头到尾是绿的。
+
+    ★★**盒是机器的，分辨率是计算的**——这句不是本函数的发明，是闸子
+    `test_east_descriptions_agree.py::test_the_grid_box_agrees` 早就写着的契约，
+    也是 `fyodev.js` 抬头那句「`fylite:grid` 是计算的属性，不是机器的」的另一半。
+    所以：
+
+    * **盒**逐字抄卡片的 `machine.default_grid`（`r_min` / `r_max` / `z_min` /
+      `z_max`）。它本来就在每一份卡片里——手工那张记的是参考表盒（EAST 的
+      `g093060.01000` 表头），生成的那些由 `machine_block()` 从本文档的限制器轮廓
+      加 5 cm 边距导出。**这里不另算一遍**：算两遍就是两份答案。
+    * **分辨率**取卡片自己的编译期维度 `solver_dims.nw` / `.nh`（EAST 65×65，那是
+      随包 `libefit.so` 的数组维度，改不了——它的 `default_grid.note` 原话就是
+      「盒可选，分辨率不可」）；卡片没有那一组时用 `DEFAULT_GRID_N`，并在
+      `fylite:grid_note` 里说明这个数是**选的**、不是量出来的。
+
+    ★卡片没有 `machine.default_grid` 就**不写**这个键，而不是编一个盒：一个凭空的
+    计算域会让重构在一个不含等离子体的框里跑，而那不会报错，只会给出一个看起来
+    合理的错答案。页面那侧会因此拒绝这一台并说出理由，这正是想要的。
+    """
+    m = doc.get("machine")
+    box = m.get("default_grid") if isinstance(m, dict) else None
+    if not isinstance(box, dict):
+        return
+    need = ("r_min", "r_max", "z_min", "z_max")
+    if not all(isinstance(box.get(k), (int, float)) for k in need):
+        return
+    sd = doc.get("solver_dims")
+    nw = sd.get("nw") if isinstance(sd, dict) else None
+    nh = sd.get("nh") if isinstance(sd, dict) else None
+    compiled = isinstance(nw, int) and isinstance(nh, int)
+    nr, nz = (nw, nh) if compiled else (DEFAULT_GRID_N, DEFAULT_GRID_N)
+    doc["fylite:grid"] = {
+        "nr": nr, "nz": nz,
+        "rmin": box["r_min"], "rmax": box["r_max"],
+        "zmin": box["z_min"], "zmax": box["z_max"],
+    }
+    why = box.get("note") or ""
+    doc["fylite:grid_note"] = (
+        ("分辨率取本文档 `solver_dims` 的编译期维度（随包 libefit.so 的数组维度，改不了）。"
+         if compiled else
+         f"分辨率是**选的**缺省 {DEFAULT_GRID_N}×{DEFAULT_GRID_N}（EFIT 约定），"
+         "不是量出来的：本文档没有编译期维度可抄。")
+        + "盒逐字取 `machine.default_grid`" + (f"：{why}" if why else "。"))
+
+
+def vacuum_field(dev: str, doc: dict) -> None:
+    """把卡片记的标称环向场铸成文档的 `tf.r0` / `tf.b0`。
+
+    ★★同 `grid()` 一样是**契约路径的映射**，不是新的物理。生成的契约表
+    （`app/assets/fyo-interface.js` 的 `TABLES.DEVICE`）把这两格钉在 `tf/r0` 与
+    `tf/b0`，而卡片把同样两个数记在 `machine.r_centre` 与 `machine.fylite:b0`——
+    后者由 `machine_block()` 自上游的 `b_field_phi_vacuum_r / r0` 导出（或 ITER
+    那样自参考平衡表头取）。两处名字不同，于是页面读任何一台都拿不到，
+    而**没有任何东西会红**：装置面板只是列不出机器。
+
+    ★`tf.r0` 在上游可能是裸数，也可能是 `{value, unit, …}` 一个块（实测 ITER 是块、
+    BEST 是裸数）。页面要的是数，所以这里**只在拿得到裸数时才写**，写不出就不写：
+    一个把 `{value: 6.2}` 当数用的读者会得到 `NaN`，而 `NaN` 在求解器里不会当场炸，
+    它会给出一个看起来合理的错平衡。
+
+    ★★**拿不到就不写，绝不编。** 实测有两台没有标称场：ITER（上游的 `tf` 只有 r0
+    且把 b0 标为「需要确认」，真值要从参考平衡表头取，而那份 g 文件不在本检出里）与
+    WEST（上游没有 `b_field_phi_vacuum_r`）。页面因此按名拒绝这两台并说出理由——
+    那是对的：EAST 的环向场本来就是**逐炮的测量**（`\\focs_it`），卡片不把它当机器常量
+    正是它的严谨处，而页面需要一个数来画图是页面的事，不是卡片该迁就的事。
+    """
+    m = doc.get("machine")
+    if not isinstance(m, dict):
+        return
+    tf = doc.get("tf")
+    if not isinstance(tf, dict):
+        tf = {}
+        doc["tf"] = tf
+    took = []
+
+    def plain(v):
+        """裸数就取，`{value: …}` 一类的块不取——见抬头。"""
+        return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+    if plain(tf.get("r0")) is None:
+        r0 = plain(m.get("r_centre"))
+        if r0 is not None:
+            tf["r0"] = r0
+            took.append("r0 <- machine.r_centre")
+    if plain(tf.get("b0")) is None:
+        b0 = plain(m.get("fylite:b0"))
+        if b0 is not None:
+            tf["b0"] = b0
+            took.append("b0 <- machine.fylite:b0")
+    if took:
+        doc["fylite:tf_note"] = (
+            "标称环向场按契约路径落到 `tf`：" + "；".join(took)
+            + "。★数是卡片的，这里只搬位置不改值。"
+            + (f" b0 的由来：{m['fylite:b0_note']}" if m.get("fylite:b0_note") else ""))
 
 
 def _nonfinite(node, trail: str = ""):
