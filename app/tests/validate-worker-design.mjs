@@ -164,4 +164,42 @@ assert.equal(pu.resistance.length, pu.nch);
 inbox.splice(0, inbox.length);
 ok(`pulse: 4 waypoints, ${pu.nv} passive conductors, check at k=2: a=${pu.checks[0].shape.a.toFixed(3)} (asked ${wps[2].target.a.toFixed(3)})`);
 
+// --- 6. the four 0-D commands ------------------------------------------------------
+const tz = Array.from({ length: 60 }, (_, i) => i / 59 * 10);
+const trap = (flat, lo) => Float64Array.from(tz, (t) => t < 1 ? Math.max(lo, flat * t) : t < 8 ? flat : Math.max(lo, flat * (10 - t) / 2));
+const z = { t: tz, ip: trap(1.5e7, 0), ne0: trap(1e20, 2e18), te0: trap(20, 0.2), pInj: Float64Array.from(tz, (t) => t >= 1 && t <= 8 ? 33e6 : 0),
+            rho: Array.from({ length: 41 }, (_, i) => i / 40), par: [0.9, 1, 1.5, 0.05, 6.2, 1.75, 1.9, 1.8, 0.9, 0.5],
+            geom: { r0: 6.2, a: 1.75, kappa: 1.9 }, phases: [0, 1, 8, 10], li: 0.9, phiAvail: 0 };
+send({ cmd: 'zerod', ...z });
+const zr = take('zerod');
+assert.equal(zr.nt, 60); assert.equal(zr.nr, 41);
+assert.equal(zr.result.vLoop.length, 60); assert.equal(zr.result.ne.length, 60 * 41);
+assert.ok(zr.result.pFus[30] > 0, 'fusion power on the flat top');
+assert.equal(zr.limits.neBar.length, 60); assert.equal(zr.limits.pLH.length, 60);
+assert.ok(zr.limits.flux && Number.isFinite(zr.limits.flux.phiInd), 'the flux account rode along');
+inbox.splice(0, inbox.length);
+ok(`zerod: Q(mid) ${zr.result.q[30].toFixed(2)}, f_GW(mid) ${zr.limits.fGw[30].toFixed(2)}, Φ_ind ${zr.limits.flux.phiInd.toFixed(1)} Wb`);
+
+send({ cmd: 'zerodflux', t: tz, vLoop: Array.from(zr.result.vLoop), ip: Array.from(z.ip), phases: [0, 1, 8, 10], r0: 6.2, a: 1.75, li: 1.49, phiAvail: 100 });
+const zf = take('zerodflux');
+assert.equal(zf.li, 1.49);
+assert.ok(zf.result.phiInd > zr.limits.flux.phiInd, 'a larger l_i charges more inductive flux');
+inbox.splice(0, inbox.length);
+ok(`zerodflux at l_i 1.49: Φ_ind ${zf.result.phiInd.toFixed(1)} Wb (was ${zr.limits.flux.phiInd.toFixed(1)})`);
+
+send({ cmd: 'zerodb', t: tz, ip: z.ip, ne0: z.ne0, pAux: z.pInj, rho: z.rho, par: z.par, pred: [0, 1, 2.5, 5.3, 0] });
+const zb = take('zerodb');
+assert.equal(zb.result.te0.length, 60); assert.ok(zb.result.wTh[30] > 0);
+inbox.splice(0, inbox.length);
+ok(`zerodb: T_e0(mid) ${zb.result.te0[30].toFixed(2)} keV, τ_E ${zb.result.tauE[30].toFixed(2)} s`);
+
+const nS = 12, flatTz = (a) => { const out = new Float64Array(nS * 60); for (let s2 = 0; s2 < nS; s2++) for (let i = 0; i < 60; i++) out[s2 * 60 + i] = a[i] * (1 + 0.02 * ((s2 % 5) - 2)); return out; };
+const parS = new Float64Array(nS * 10); for (let s2 = 0; s2 < nS; s2++) parS.set(z.par, s2 * 10);
+send({ cmd: 'zerodmc', nSample: nS, nt: 60, slice: 30, t: tz, ip: flatTz(z.ip), ne0: flatTz(z.ne0), te0: flatTz(z.te0), pInj: flatTz(z.pInj), rho: z.rho, par: parS });
+const zm = take('zerodmc');
+assert.equal(zm.n, nS); assert.equal(zm.stats.pFus.n, nS); assert.ok(zm.stats.pFus.p95 >= zm.stats.pFus.p05);
+assert.equal(zm.samples.pFus.length, nS);
+inbox.splice(0, inbox.length);
+ok(`zerodmc: ${nS} samples, P_fus p05..p95 ${(zm.stats.pFus.p05 / 1e6).toFixed(0)}..${(zm.stats.pFus.p95 / 1e6).toFixed(0)} MW`);
+
 console.log(`validate-worker-design: ${n} 项通过`);

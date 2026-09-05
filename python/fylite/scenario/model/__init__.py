@@ -86,9 +86,11 @@ class Waveform:
     t_off: float = 1e9
 
     def at(self, t):
-        return K.zerod_waveform((0.0, 0.0, 0.0, 0.0), t, "actuator",
-                                      flat=self.power_w, start=self.t_on,
-                                      end=self.t_off)
+        #: the kernel's `actuator` rule, in one line of numpy: on between
+        #: `t_on` and `t_off` inclusive, off elsewhere — the same closed
+        #: interval `code/zerod` applies to its own `paux` setting
+        t = np.asarray(t, float)
+        return np.where((t >= self.t_on) & (t <= self.t_off), float(self.power_w), 0.0)
 
 
 @dataclass
@@ -171,6 +173,50 @@ def centre_waveform(scn: Scenario, t, which: str) -> np.ndarray:
     return K.zerod_waveform(scn.phases.bounds, t, which, flat=flat)
 
 
+def _zerod_plan(scn: Scenario, t, n_rho: int, *, extra: dict | None = None) -> dict:
+    """The plan for ``code/zerod``: the phase table and the flat-tops as
+    settings (the kernel builds the three centre waveforms on the bound time
+    base — the same trapezoids, the same 2 % / 1 % residuals), the actuators
+    summed here and bound under ``summary/p_aux``."""
+    ph = scn.phases
+    p_inj = scn.nbi.at(t) + scn.ic.at(t) + scn.ec.at(t) + scn.lh.at(t)
+    settings = {"t_bd": float(ph.t_breakdown), "t_ru": float(ph.t_rampup_end),
+                "t_ft": float(ph.t_flattop_end), "t_end": float(ph.t_end),
+                "ip": float(scn.ip_flattop) / 1e3, "ne": float(scn.ne_flattop) / 1e19,
+                "te": float(scn.te_flattop), "n_rho": float(n_rho),
+                "tite": float(scn.ti_over_te), "pn": float(scn.peaking_n),
+                "pt": float(scn.peaking_t), "edge_frac": float(scn.edge_frac),
+                "r0": float(scn.r0), "a": float(scn.a), "kappa": float(scn.kappa),
+                "zeff": float(scn.zeff), "li": float(scn.li), "dtf": float(scn.dt_fraction)}
+    settings.update(extra or {})
+    return {"settings": settings,
+            "inputs": {"summary": {"time": np.asarray(t, float),
+                                   "heating_current_drive": {"power_additional": {"value": np.asarray(p_inj, float)}}}}}
+
+
+def _read_evaluate(rec: dict, scn: Scenario, t, n_rho: int) -> dict:
+    arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    sm = rec["fields"]["summary"]
+    cp = rec["fields"]["core_profiles"]
+    nt = t.size
+    #: the SUMMARY rows end in `/value` (the DD's spelling): `fusion/power/value`
+    p_alpha = np.asarray(sm["fusion"]["power"]["value"]["data"], float)
+    p_neutron = np.asarray(sm["fusion"]["neutron_power_total"]["value"]["data"], float)
+    codes = arr("phase")
+    labels = [K.PHASE_NAMES[int(c)] if np.isfinite(c) and 0 <= int(c) < len(K.PHASE_NAMES) else "" for c in codes]
+    return {"t": t, "rho": np.linspace(0.0, 1.0, n_rho),
+            "ip": np.asarray(sm["global_quantities"]["ip"]["value"]["data"], float),
+            "v_loop": np.asarray(sm["global_quantities"]["v_loop"]["value"]["data"], float),
+            "p_fus": p_alpha + p_neutron, "p_alpha": p_alpha,
+            "p_inj": np.asarray(sm["heating_current_drive"]["power_additional"]["value"]["data"], float),
+            "q": np.asarray(sm["global_quantities"]["fusion_gain"]["value"]["data"], float),
+            "ne": np.asarray(cp["profiles_1d"]["electrons"]["density"]["data"], float).reshape(nt, n_rho),
+            "te": np.asarray(cp["profiles_1d"]["electrons"]["temperature"]["data"], float).reshape(nt, n_rho) / 1e3,
+            "ti": np.asarray(cp["profiles_1d"]["t_i_average"]["data"], float).reshape(nt, n_rho) / 1e3,
+            "phase": labels,
+            "volume": float(rec["facts"]["volume"]["value"])}
+
+
 def evaluate(scn: Scenario, time=None, n_rho: int = 41) -> dict:
     """Time traces + per-slice profiles for a prescribed scenario.
 
@@ -178,31 +224,21 @@ def evaluate(scn: Scenario, time=None, n_rho: int = 41) -> dict:
     prescribed n_e / T_e / T_i profiles per slice, and the phase label of
     each slice.
 
-    ★The whole 0-D pass is ONE kernel call.  It used to be a Python loop
-    over time slices calling four numpy formulas; the loop is gone, not
-    because it was slow but because every formula it called had a second
-    home.  ``Q`` is NaN where nothing is injected — 0 would read as "no
-    gain" rather than "undefined".
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the sixth tool to sink): ONE knock on the
+    document door (``code/zerod``).  It used to be one flat kernel call
+    preceded by three waveform calls and followed by a label call; the
+    waveforms are the kernel's to build from the phase table now, and the
+    labels come back with the record.  ``Q`` is NaN where nothing is
+    injected — 0 would read as "no gain" rather than "undefined".
     """
+    from ...io import fydoc
     ph = scn.phases
     t = (np.linspace(ph.t_breakdown, ph.t_end, 120) if time is None
          else np.asarray(time, float))
-    rho = np.linspace(0.0, 1.0, n_rho)
-    ip = centre_waveform(scn, t, "ip")
-    p_inj = (scn.nbi.at(t) + scn.ic.at(t) + scn.ec.at(t) + scn.lh.at(t))
-    out = K.zerod_evaluate(t, ip, centre_waveform(scn, t, "ne"),
-                                 centre_waveform(scn, t, "te"), p_inj, rho,
-                                 kernel_params(scn))
-    return {"t": t, "rho": rho, "ip": ip, "v_loop": out["v_loop"],
-            "p_fus": out["p_fus"], "p_alpha": out["p_alpha"],
-            "p_inj": p_inj, "q": out["q"], "ne": out["ne"], "te": out["te"],
-            "ti": out["ti"], "phase": ph.labels(t),
-            "volume": out["volume"]}
+    rec = fydoc.complete("code/zerod", _zerod_plan(scn, t, n_rho))
+    return _read_evaluate(rec, scn, t, n_rho)
 
 
-# --------------------------------------------------------------------------- #
-# 0-D
-# --------------------------------------------------------------------------- #
 def zerod(scn: Scenario | None = None, *, time=None, n_rho: int = 41,
           predict: bool = False, law: str = "ipb98y2",
           h_factor: float = 1.0, bt: float = 0.0, m_eff: float = 2.5,
@@ -218,49 +254,37 @@ def zerod(scn: Scenario | None = None, *, time=None, n_rho: int = 41,
     SOLVED with the named confinement scaling, and the temperature is a
     result.  ★The two must not be read side by side unlabelled; nothing in
     the numbers distinguishes them, which is why the tier is recorded in the
-    result and in its provenance.
+    result and in its provenance — and why the kernel's record says
+    ``predicted`` itself.
     """
-    #: ★JSON-shaped overrides are first-class: the tool face (and the case
-    #: corpus behind `fylite cases --run`) can only say `{"phases": {...},
-    #: "nbi": {...}}`, and refusing the dict spelling would make a scenario
-    #: expressible in a notebook but not in a recorded, replayable call.
+    from ...io import fydoc
     if isinstance(overrides.get("phases"), dict):
         overrides["phases"] = Phases(**overrides["phases"])
     for act in ("nbi", "ic", "ec", "lh"):
         if isinstance(overrides.get(act), dict):
             overrides[act] = Waveform(**overrides[act])
     scn = Scenario(**overrides) if scn is None else scn
-    out = evaluate(scn, time=time, n_rho=n_rho)
+    ph = scn.phases
+    t = (np.linspace(ph.t_breakdown, ph.t_end, 120) if time is None
+         else np.asarray(time, float))
+    extra = {}
+    if predict:
+        extra = {"predict": 1.0, "tau_law": law, "hfac": float(h_factor), "meff": float(m_eff),
+                 "bt": float(bt), "w0": float(w0)}
+    rec = fydoc.complete("code/zerod", _zerod_plan(scn, t, n_rho, extra=extra))
+    out = _read_evaluate(rec, scn, t, n_rho)
     out["tier"] = "prescribed"
     if predict:
-        pr = K.zerod_predict(out["t"], out["ip"],
-                             centre_waveform(scn, out["t"], "ne"),
-                             out["p_inj"], out["rho"], kernel_params(scn),
-                             law=law, h_factor=h_factor, m_eff=m_eff, bt=bt,
-                             w0=w0)
-        out["prediction"] = pr
+        arr = lambda k: np.asarray(rec["fields"]["prediction_" + k]["data"], float)  # noqa: E731
+        out["prediction"] = {k: arr(k) for k in
+                             ("w_th", "tau_e", "te0", "p_ohm", "p_alpha", "p_heat", "p_lh", "balance")}
         out["tier"] = "predicted"
+        assert float(rec["facts"]["predicted"]["value"]) == 1.0
     out["provenance"] = provenance("zerod", tier=out["tier"],
                                    law=law if predict else None)
     return out
 
 
-#: ★The reduced tier's two DEFAULTS, written once.  They were spelled twice —
-#: identically — in `transport` and in `coupled`, which is how a "demo
-#: default" quietly becomes two different demos: change the peaking in one
-#: and the two tools stop describing the same case while both still run.
-#: They are DEFAULTS, not physics: a Gaussian deposition and a parabolic
-#: initial profile, standing in until a caller supplies its own.
-#:
-#: ★★2026-09-02：**参数是这一层的，形状是内核的。**  The parabola used to be
-#: spelled here as ``edge + 2(1-x²)`` — and the kernel has held that family
-#: all along (:func:`fylite.kernel.zerod_profile`, ``(1-ρ²)^peaking`` with a
-#: finite edge), evaluated by the browser through the same entry.  Two
-#: spellings of one closed form is the shape this package exists to avoid,
-#: so this now CALLS it: the reparameterisation is ``edge_frac = edge/centre``
-#: and the two agree to 8.9e-16 across peaking, inverted (edge > centre) and
-#: flat cases.  What stays here is the CHOICE of centre and peaking, which is
-#: what a demo default is.
 def _default_source(x, power: float, width: float):
     """Gaussian deposition ``P exp(-(x/w)^2)`` — a placeholder input.
 
@@ -319,50 +343,67 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
 
     The geometry is PRESCRIBED here — that is the reduced tier.  ``coupled``
     is the tool that takes it from a solved equilibrium.
+
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the seventh tool to sink): the outer
+    march — the steps, the settle rule, the history — is
+    ``case.rs::transport_case`` (``code/transport``) now.  This function
+    binds the grid, the geometry, the source, the start, the convection and
+    a given diffusivity on the declared rows, names the closure, and reads
+    the record back.  ``neo`` (the neoclassical closure) is not on the door
+    yet: its per-surface blocks are the evolution line's assembly and go
+    with it; asking for it here refuses, as it did.
     """
+    from ...io import fydoc
+    if neo is not None or closure == "neoclassical":
+        from ... import kernel as _K
+        raise _K.KernelError("closure 'neoclassical' needs the per-surface neo blocks, which are the "
+                             "evolution line's assembly; not on the transport door")
+    if closure == "given" and chi_given is None:
+        from ... import kernel as _K
+        raise _K.KernelError("closure 'given' needs chi_given")
     x = np.linspace(0.0, 1.0, int(n_rho)) if rho is None else np.asarray(rho, float)
     n = x.size
+    if n < 3:
+        raise ValueError("the transport grid needs at least three points")
     vp = np.maximum(x, 1e-6) * 2.0 if vprime is None else np.asarray(vprime, float)
     src = (_default_source(x, power, width) if source is None
            else np.asarray(source, float))
     y = (_default_profile(x, edge_value) if y_init is None
          else np.asarray(y_init, float).copy())
-    if n < 3:
-        raise ValueError("the transport grid needs at least three points")
-
-    hist = []
-    settled = steps <= 1
-    res = None
-    for i in range(max(int(steps), 1)):
-        #: ★`metric` / `velocity` / `d_pc` are pass-throughs the kernel has
-        #: always taken (the browser's transport bar sends all three); the
-        #: entry not exposing them meant a Miller flux weight or a pinch was
-        #: expressible in the worker but not in a recorded Python run.
-        res = K.transport_step(x, y, vprime=vp, source=src, model=closure,
-                               metric=(None if metric is None
-                                       else np.asarray(metric, float)),
-                               velocity=(None if velocity is None
-                                         else np.asarray(velocity, float)),
-                               d_pc=float(d_pc),
-                               p0=chi0, p1=p1, p2=p2, dt=dt, theta=theta,
-                               edge_value=edge_value, relax=relax,
-                               relax_coeff=relax_coeff, tol=tol,
-                               max_inner=max_inner, neo=neo,
-                               chi_given=chi_given)
-        change = float(np.max(np.abs(res["y"] - y))
-                       / max(np.max(np.abs(res["y"])), 1e-30))
-        y = res["y"]
-        hist.append({"step": i + 1, "change": change,
-                     "inner_iterations": res["inner_iterations"],
-                     "converged": res["converged"],
-                     "residual": res["residual"], "axis": float(y[0])})
-        if steps > 1 and change < 1e-6:
-            settled = True
-            break
-    return {"rho": x, "y": y, "vprime": vp, "source": src,
-            "steps": len(hist), "settled": bool(settled), "history": hist,
-            "inner_iterations": res["inner_iterations"],
-            "converged": res["converged"], "residual": res["residual"],
+    if y.ndim == 2:
+        #: ★a time-series profile handed in as the start (a 0-D run's `te`, (nt, nr))
+        #: means its LAST slice — the state that series ended at.  The flat
+        #: operator used to read the first n values of the flattened array, i.e.
+        #: the first slice, silently; the door refuses a wrong length, so the
+        #: choice is made here, once, and said.
+        y = y[-1].copy()
+    if y.size != n:
+        raise ValueError(f"y_init has {y.size} points, the grid {n}")
+    inputs = {"fylite:rho": x, "fylite:vprime": vp, "fylite:source": src, "fylite:y_init": y}
+    if metric is not None:
+        inputs["fylite:metric"] = np.asarray(metric, float)
+    if velocity is not None:
+        inputs["fylite:velocity"] = np.asarray(velocity, float)
+    if chi_given is not None:
+        inputs["fylite:chi_given"] = np.asarray(chi_given, float)
+    settings = {"closure": str(closure), "chi0": float(chi0), "p1": float(p1), "p2": float(p2),
+                "edge": float(edge_value), "dpc": float(d_pc), "theta": float(theta),
+                "steps": float(max(int(steps), 1)), "relax": float(relax),
+                "relax_coeff": float(relax_coeff), "tol": float(tol), "max_inner": float(max_inner)}
+    if np.isfinite(dt):
+        settings["dt"] = float(dt)
+    rec = fydoc.complete("code/transport", {"settings": settings, "inputs": {"transport": inputs}})
+    f = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    hist = [{"step": i + 1, "change": float(c), "inner_iterations": int(it), "converged": bool(cv),
+             "residual": float(r), "axis": float(ax)}
+            for i, (c, it, cv, r, ax) in enumerate(zip(arr("history_change"), arr("history_inner_iterations"),
+                                                       arr("history_converged"), arr("history_residual"),
+                                                       arr("history_axis")))]
+    return {"rho": x, "y": arr("y"), "vprime": vp, "source": src,
+            "steps": int(f("steps")), "settled": bool(f("settled")), "history": hist,
+            "inner_iterations": int(f("inner_iterations")),
+            "converged": bool(f("converged")), "residual": f("residual"),
             "provenance": provenance("transport", closure=closure,
                                      steady=not np.isfinite(dt))}
 

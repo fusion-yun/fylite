@@ -3837,93 +3837,91 @@ function reconMcRun(msg0) {
  * The whole trace is one call — 0-D is cheaper than a single GS solve, so
  * there is no reason to slice it.
  */
-function zerodRun(msg) {
-  var t0 = Date.now();
-  var tr = fy.zerodEvaluate({
-    t: msg.t, ip: msg.ip, ne0: msg.ne0, te0: msg.te0, pInj: msg.pInj,
-    rho: msg.rho, par: msg.par,
-  });
-  post({ type: 'zerod', result: tr, nt: msg.t.length, nr: msg.rho.length,
-         limits: zerodCriteria(msg, tr), ms: Date.now() - t0 });
+/**
+ * The plan for `code/zerod` off a page message: the bound waveforms (the
+ * page's `t / ip / ne0 / te0 / pInj` on SUMMARY rows), the ten parameters as
+ * settings, the geometry and the phase table when the criteria need them.
+ *
+ * ★★FYL-DESIGN-16 K-3 (2026-09-05, the sixth tool to sink): the four 0-D
+ * commands below used to compose eight flat exports here — the evaluation,
+ * then `zerodCriteria` (averages · stored energy · limits · loop voltage ·
+ * flux budget · P_LH per instant), the predictive tier, the flux account at a
+ * solved l_i, the Monte-Carlo sweep.  They are `case.rs::zerod_case` now, one
+ * code with a `stage`; this worker builds the plan and reshapes the record
+ * into the answers the page already reads.
+ */
+function zerodPlan(msg, extra) {
+  var par = msg.par || [];
+  var settings = {
+    tite: par[0], pn: par[1], pt: par[2], edge_frac: par[3], r0: par[4], a: par[5],
+    kappa: par[6], zeff: par[7], li: par[8], dtf: par[9],
+    n_rho: (msg.rho && msg.rho.length) || 41,
+    bt: Math.abs(self.FyDevice.tf(M).b0),
+  };
+  if (msg.geom) { settings.r0 = msg.geom.r0; settings.a = msg.geom.a; settings.kappa = msg.geom.kappa; }
+  if (msg.phases && msg.phases.length === 4) {
+    settings.t_bd = msg.phases[0]; settings.t_ru = msg.phases[1];
+    settings.t_ft = msg.phases[2]; settings.t_end = msg.phases[3];
+  }
+  if (msg.li !== undefined) settings.li = msg.li;
+  if (msg.phiAvail !== undefined) settings.phi_avail = msg.phiAvail;
+  var k;
+  for (k in (extra || {})) if (extra.hasOwnProperty(k)) settings[k] = extra[k];
+  var summary = { time: Array.from(msg.t) };
+  if (msg.ip) summary.global_quantities = { ip: { value: Array.from(msg.ip) } };
+  if (msg.ne0 || msg.te0) {
+    summary.local = { magnetic_axis: {} };
+    if (msg.ne0) summary.local.magnetic_axis.n_e = { value: Array.from(msg.ne0) };
+    //: keV on the page, eV on the wire
+    if (msg.te0) summary.local.magnetic_axis.t_e = { value: Array.from(msg.te0, function (v) { return v * 1e3; }) };
+  }
+  var pAux = msg.pInj || msg.pAux;
+  if (pAux) summary.heating_current_drive = { power_additional: { value: Array.from(pAux) } };
+  if (msg.vLoop) {
+    summary.global_quantities = summary.global_quantities || {};
+    summary.global_quantities.v_loop = { value: Array.from(msg.vLoop) };
+  }
+  return { settings: settings, inputs: { summary: summary } };
 }
 
-/**
- * The criteria of a 0-D trace: what makes each instant RUNNABLE, and what
- * the whole pulse costs in poloidal flux.
- *
- * ★Computed here rather than on the page for the reason every other number
- * on these pages is: the page thread would need its own spelling of the
- * Greenwald density, of the beta conventions and of the flux account, and
- * a criterion with two hosts is a criterion that can disagree with itself.
- * Per-instant arrays come back because scrubbing to a slice must be free —
- * the whole trace is a few hundred algebraic evaluations.
- *
- * `wTh` is the integral of the PRESCRIBED profiles (tier A's own statement
- * about itself); the density that enters the Greenwald ratio is the LINE
- * average of the same profile, which is the average that ratio is defined
- * with.
- */
-function zerodCriteria(msg, tr) {
+/** The record's summary rows as the page's `tr` object. */
+function zerodTraces(rec, nt, nr) {
+  var sm = rec.fields.summary, cp = rec.fields.core_profiles;
+  var pAlpha = Float64Array.from(sm.fusion.power.value.data);
+  var pNeu = sm.fusion.neutron_power_total.value.data;
+  var pFus = new Float64Array(nt);
+  for (var k = 0; k < nt; k++) pFus[k] = pAlpha[k] + pNeu[k];
+  var kev = function (a) { return Float64Array.from(a, function (v) { return v / 1e3; }); };
+  return { vLoop: Float64Array.from(sm.global_quantities.v_loop.value.data), pFus: pFus,
+           pAlpha: pAlpha, q: Float64Array.from(sm.global_quantities.fusion_gain.value.data),
+           ne: fieldFlat(rec, 'core_profiles').length ? Float64Array.from([].concat.apply([], cp.profiles_1d.electrons.density.data)) : new Float64Array(nt * nr),
+           te: kev([].concat.apply([], cp.profiles_1d.electrons.temperature.data)),
+           ti: kev([].concat.apply([], cp.profiles_1d.t_i_average.data)),
+           volume: rec.facts.volume.value };
+}
+
+function zerodFluxOf(rec) {
+  var F = function (k) { return rec.facts[k] ? rec.facts[k].value : null; };
+  if (F('flux_phi_ind') === null) return null;
+  var ts = F('flux_t_sustain');
+  return { phiInd: F('flux_phi_ind'), phiResRamp: F('flux_phi_res_ramp'), phiRamp: F('flux_phi_ramp'),
+           phiConsumed: F('flux_phi_consumed'), vFlattop: F('flux_v_flattop'), lP: F('flux_l_p'),
+           tSustain: ts < 0 ? null : ts };
+}
+
+function zerodRun(msg) {
+  var t0 = Date.now();
+  var rec;
+  try { rec = fy.complete('code/zerod', zerodPlan(msg, { criteria: 1 })); }
+  catch (e) { post({ type: 'error', where: 'zerod', message: e.message }); return; }
   var nt = msg.t.length, nr = msg.rho.length;
-  var par = msg.par, tf = self.FyDevice.tf(M);
-  //: the parameter block's own layout — r0, a, kappa sit where the kernel
-  //: reads them, and re-deriving them here from the page's controls would
-  //: be a second machine
-  var r0 = msg.geom.r0, a = msg.geom.a, kappa = msg.geom.kappa;
-  var out = { neBar: [], fGw: [], nGw: [], qCyl: [], wTh: [], betaT: [],
-              betaP: [], betaN: [], fTroyon: [], pOhm: [], pHeat: [] };
-  //: ★THE L-H THRESHOLD IN THE ANALYSIS TIER (T-D9), and why it arrives
-  //: through the predictive call.  「这炮进不进得了 H 模」 is asked before
-  //: anything else when a shot is being scheduled, and the analysis tier —
-  //: the default — had no row for it: Martin 2008 was reached only from the
-  //: prediction pass.  It has exactly ONE host, `zerod::p_lh_threshold`, and
-  //: in this ABI the only door to that host is `zerod_predict`.  So the door
-  //: is used and exactly one output is read back: `p_lh` is a function of the
-  //: prescribed density's volume average, the vacuum field and the elliptical
-  //: surface, and of NOTHING the confinement march produces.  Every other
-  //: output of the call is discarded here — which is what the placeholder
-  //: `pred` block says: a law, an H factor and a W0 the answer cannot depend
-  //: on.  The alternative was a second spelling of the scaling on this side,
-  //: and a criterion with two hosts is a criterion that can disagree with
-  //: itself.
-  var lh = null;
-  try {
-    lh = fy.zerodPredict({ t: msg.t, ip: msg.ip, ne0: msg.ne0,
-                           pAux: msg.pInj, rho: msg.rho, par: msg.par,
-                           pred: [0, 1.0, 2.0, Math.abs(tf.b0), 0] }).pLH;
-  } catch (e) { lh = null; }
-  out.pLH = lh ? Array.from(lh) : null;
-  for (var k = 0; k < nt; k++) {
-    var ne = tr.ne.slice(k * nr, (k + 1) * nr);
-    var te = tr.te.slice(k * nr, (k + 1) * nr);
-    var ti = tr.ti.slice(k * nr, (k + 1) * nr);
-    var av = fy.zerodAverages({ rho: msg.rho, f: ne });
-    var w = fy.zerodStoredEnergy({ rho: msg.rho, ne: ne, te: te, ti: ti,
-                                   volume: tr.volume });
-    var L = fy.zerodLimits({ ip: msg.ip[k], r0: r0, a: a, kappa: kappa,
-                             bt: tf.b0, neBar: av.line, wTh: w,
-                             volume: tr.volume });
-    //: ★the heating power this TIER has, term by term, so the L-H margin is
-    //: not quietly the injected power alone.  P_ohm = Ip^2 Rp with the
-    //: kernel's own Rp — V_loop x Ip would carry the inductive term and be
-    //: wrong through the whole ramp.
-    var teAv = fy.zerodAverages({ rho: msg.rho, f: te });
-    var rp = fy.zerodLoopVoltage({
-      ip: msg.ip[k], teAvg: Math.max(teAv.volume, 1e-3), r0: r0, a: a,
-      kappa: kappa, zeff: par[7], li: par[8], dipDt: 0 }).rp;
-    var pOhm = msg.ip[k] * msg.ip[k] * rp;
-    out.neBar.push(av.line); out.nGw.push(L.nGreenwald);
-    out.fGw.push(L.fGreenwald); out.qCyl.push(L.qCyl);
-    out.wTh.push(w); out.betaT.push(L.betaT); out.betaP.push(L.betaP);
-    out.betaN.push(L.betaN); out.fTroyon.push(L.fTroyon);
-    out.pOhm.push(pOhm);
-    out.pHeat.push((msg.pInj[k] || 0) + pOhm + (tr.pAlpha[k] || 0));
-  }
-  out.flux = fy.zerodFluxBudget({
-    t: msg.t, vLoop: tr.vLoop, ip: msg.ip, phases: msg.phases,
-    r0: r0, a: a, li: msg.li === undefined ? 0.9 : msg.li,
-    phiAvail: msg.phiAvail || 0 });
-  return out;
+  var tr = zerodTraces(rec, nt, nr);
+  var C = function (k) { return Array.from(rec.fields['criteria_' + k].data); };
+  var limits = { neBar: C('ne_bar'), fGw: C('f_greenwald'), nGw: C('n_greenwald'), qCyl: C('q_cyl'),
+                 wTh: C('w_th'), betaT: C('beta_t'), betaP: C('beta_p'), betaN: C('beta_n'),
+                 fTroyon: C('f_troyon'), pOhm: C('p_ohm'), pHeat: C('p_heat'), pLH: C('p_lh'),
+                 flux: zerodFluxOf(rec) };
+  post({ type: 'zerod', result: tr, nt: nt, nr: nr, limits: limits, ms: Date.now() - t0 });
 }
 
 /**
@@ -3938,17 +3936,19 @@ function zerodCriteria(msg, tr) {
  * worth, and it is a SECOND answer beside the first: the assumption is not
  * replaced, because a 0-D account quietly wearing a solved l_i would look
  * like it had computed the current diffusion it explicitly does not.
- *
- * One command rather than a second sum on the page thread, for the same
- * reason every other criterion is computed here.
  */
 function zerodFluxRun(msg) {
   var t0 = Date.now();
-  var b = fy.zerodFluxBudget({
-    t: msg.t, vLoop: msg.vLoop, ip: msg.ip, phases: msg.phases,
-    r0: msg.r0, a: msg.a, li: msg.li,
-    phiAvail: msg.phiAvail || 0 });
-  post({ type: 'zerodflux', result: b, li: msg.li, ms: Date.now() - t0 });
+  var rec;
+  try {
+    rec = fy.complete('code/zerod', { settings: { stage: 'flux', t_bd: msg.phases[0], t_ru: msg.phases[1],
+                                                  t_ft: msg.phases[2], t_end: msg.phases[3], r0: msg.r0, a: msg.a,
+                                                  li: msg.li, phi_avail: msg.phiAvail || 0 },
+                                      inputs: { summary: { time: Array.from(msg.t),
+                                                           global_quantities: { ip: { value: Array.from(msg.ip) },
+                                                                                v_loop: { value: Array.from(msg.vLoop) } } } } });
+  } catch (e) { post({ type: 'error', where: 'zerodflux', message: e.message }); return; }
+  post({ type: 'zerodflux', result: zerodFluxOf(rec), li: msg.li, ms: Date.now() - t0 });
 }
 
 /**
@@ -3956,14 +3956,19 @@ function zerodFluxRun(msg) {
  *
  * Kept a SEPARATE command from `zerod` rather than a flag on it, so that
  * nothing can produce a tier-B number while a caller believes it asked for
- * tier A.
+ * tier A — and the kernel's own record says `predicted` beside its answer.
  */
 function zerodPredictRun(msg) {
   var t0 = Date.now();
-  var tr = fy.zerodPredict({
-    t: msg.t, ip: msg.ip, ne0: msg.ne0, pAux: msg.pAux,
-    rho: msg.rho, par: msg.par, pred: msg.pred,
-  });
+  var pred = msg.pred || [0, 1, 2.5, Math.abs(self.FyDevice.tf(M).b0), 0];
+  var rec;
+  try {
+    rec = fy.complete('code/zerod', zerodPlan(msg, { stage: 'predict', tau_law: pred[0], hfac: pred[1],
+                                                       meff: pred[2], bt: pred[3], w0: pred[4] }));
+  } catch (e) { post({ type: 'error', where: 'zerodb', message: e.message }); return; }
+  var P = function (k) { return Float64Array.from(rec.fields['prediction_' + k].data); };
+  var tr = { wTh: P('w_th'), tauE: P('tau_e'), te0: P('te0'), pOhm: P('p_ohm'), pAlpha: P('p_alpha'),
+             pHeat: P('p_heat'), pLH: P('p_lh'), balance: P('balance') };
   post({ type: 'zerodb', result: tr, nt: msg.t.length, ms: Date.now() - t0 });
 }
 
@@ -3977,34 +3982,39 @@ function zerodPredictRun(msg) {
  *
  * The samples arrive already built.  Deciding what a perturbed waveform
  * looks like is the page's job (FYL-DESIGN-05 §4); what follows from it is
- * this one's.  Only STATISTICS come back — returning a thousand traces would
- * cost more in transfer than the whole sweep costs in arithmetic.
+ * the kernel's (`stage: uq`).  Only STATISTICS come back — returning a
+ * thousand traces would cost more in transfer than the whole sweep costs in
+ * arithmetic.
  */
 function zerodMonteCarlo(msg) {
   var t0 = Date.now();
   var n = msg.nSample, nt = msg.nt, nr = msg.rho.length;
-  var keys = ['pFus', 'q', 'vLoop', 'pAlpha'];
-  var acc = {};
-  keys.forEach(function (k) { acc[k] = new Float64Array(n); });
-  var k0 = msg.slice;
-  for (var s = 0; s < n; s++) {
-    var off = s * nt;
-    var tr = fy.zerodEvaluate({
-      t: msg.t, ip: msg.ip.subarray(off, off + nt),
-      ne0: msg.ne0.subarray(off, off + nt),
-      te0: msg.te0.subarray(off, off + nt),
-      pInj: msg.pInj.subarray(off, off + nt),
-      rho: msg.rho, par: msg.par.subarray(s * 10, s * 10 + 10),
-    });
-    acc.pFus[s] = tr.pFus[k0];
-    acc.q[s] = tr.q[k0];
-    acc.vLoop[s] = tr.vLoop[k0];
-    acc.pAlpha[s] = tr.pAlpha[k0];
-  }
-  var stats = {};
-  keys.forEach(function (k) { stats[k] = summariseSamples(acc[k]); });
+  var rows = function (a, w) {
+    var out = [];
+    for (var s = 0; s < n; s++) out.push(Array.from(a.subarray(s * w, (s + 1) * w)));
+    return out;
+  };
+  var plan = { settings: { stage: 'uq', n_sample: n, slice: msg.slice, n_rho: nr,
+                           tite: msg.par[0], pn: msg.par[1], pt: msg.par[2], edge_frac: msg.par[3],
+                           r0: msg.par[4], a: msg.par[5], kappa: msg.par[6], zeff: msg.par[7],
+                           li: msg.par[8], dtf: msg.par[9] },
+               inputs: { summary: { time: Array.from(msg.t), global_quantities: { ip: { value: Array.from(msg.ip.subarray(0, nt)) } } },
+                         uq: { 'fylite:sample_ip': rows(msg.ip, nt), 'fylite:sample_ne_axis': rows(msg.ne0, nt),
+                               'fylite:sample_te_axis': rows(msg.te0, nt), 'fylite:sample_p_aux': rows(msg.pInj, nt),
+                               'fylite:sample_params': rows(msg.par, 10) } } };
+  var rec;
+  try { rec = fy.complete('code/zerod', plan); }
+  catch (e) { post({ type: 'error', where: 'zerodmc', message: e.message }); return; }
+  var stat = function (k) {
+    var r = rec.fields['uq_' + k].data;
+    if (!r[0]) return { n: 0, dropped: r[1] };
+    return { n: r[0], dropped: r[1], mean: r[2], p05: r[3], p25: r[4], p50: r[5], p75: r[6], p95: r[7],
+             min: r[8], max: r[9] };
+  };
+  var stats = { pFus: stat('p_fus'), q: stat('q'), vLoop: stat('v_loop'), pAlpha: stat('p_alpha') };
   post({ type: 'zerodmc', stats: stats, n: n, ms: Date.now() - t0,
-         samples: { pFus: acc.pFus, q: acc.q } });
+         samples: { pFus: Float64Array.from(rec.fields.uq_samples_p_fus.data),
+                    q: Float64Array.from(rec.fields.uq_samples_q.data) } });
 }
 
 /**

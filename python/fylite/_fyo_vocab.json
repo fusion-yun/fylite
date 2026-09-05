@@ -194,6 +194,10 @@
       "gated": false,
       "gloss": "Fraction of beam power that passed straight through unabsorbed. ★The browser's beam-total block wrote `shinethrough_fraction` for this until 2026-08-25 while its own per-component block and `fyo.py` wrote `shinethrough`; one quantity, two names. Not gated: it is also the deposition result's own key."
     },
+    "source": {
+      "gated": false,
+      "gloss": "The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport). Not gated: `source` is the ordinary name of the array in both hosts and a DD word besides (core_sources/source)."
+    },
     "target": {
       "gated": false,
       "gloss": "The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`). Not gated: `target` is the ordinary name of the requested shape in both hosts' design bars."
@@ -213,6 +217,10 @@
     "verify": {
       "gated": false,
       "gloss": "Waypoint indices of a pulse plan at which the kernel re-solves the free boundary and reports the shape obtained (`code/pulse`). Not gated: `verify` is also the ordinary field name of the page's pulse message."
+    },
+    "vprime": {
+      "gated": false,
+      "gloss": "dV/dρ [m²] on the transport grid — the flux-surface volume derivative the 1.5-D operator weighs its fluxes with (`code/transport`, bound under transport). Not gated: `vprime` is the ordinary name of that geometry array in both hosts."
     },
     "weight": {
       "gated": false,

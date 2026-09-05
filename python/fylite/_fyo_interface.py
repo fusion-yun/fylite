@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '7631ac08b193ed2f'
+DIGEST = '42fe98dc24a4ddb0'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -232,6 +232,28 @@ TABLES = {
     'TF': {
         "type": 'fyo:tf',
         "slots": {
+        },
+    },
+    'TRANSPORT_INPUTS': {
+        "type": 'fyo:transport_inputs',
+        "slots": {
+            'rho': {"path": 'fylite:rho', "units": '1', "rank": '1d'},
+            'y_init': {"path": 'fylite:y_init', "units": '1', "rank": '1d'},
+            'vprime': {"path": 'fylite:vprime', "units": 'm^2', "rank": '1d'},
+            'source': {"path": 'fylite:source', "units": '1', "rank": '1d'},
+            'metric': {"path": 'fylite:metric', "units": '1', "rank": '1d'},
+            'velocity': {"path": 'fylite:velocity', "units": 'm/s', "rank": '1d'},
+            'chi_given': {"path": 'fylite:chi_given', "units": 'm^2/s', "rank": '1d'},
+        },
+    },
+    'UQ': {
+        "type": 'fyo:uq',
+        "slots": {
+            'sample_ip': {"path": 'fylite:sample_ip', "units": 'A', "rank": '2d'},
+            'sample_ne_axis': {"path": 'fylite:sample_ne_axis', "units": 'm^-3', "rank": '2d'},
+            'sample_te_axis': {"path": 'fylite:sample_te_axis', "units": 'keV', "rank": '2d'},
+            'sample_p_aux': {"path": 'fylite:sample_p_aux', "units": 'W', "rank": '2d'},
+            'sample_params': {"path": 'fylite:sample_params', "units": '1', "rank": '2d'},
         },
     },
 }
@@ -495,4 +517,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']
