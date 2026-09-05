@@ -6396,15 +6396,12 @@ function evolveRun(msg) {
               psiBnd: g.psiBnd, axisR: g.axisR, axisZ: g.axisZ,
               r0: g.r0, z0: g.z0, dr: g.dr, dz: g.dz, nr: g.nr, nz: g.nz,
               limR: Float64Array.from(g.limR), limZ: Float64Array.from(g.limZ) };
-    geo = evLadderMetric({
-      psi: Float64Array.from(g.psi), psiAxis: g.psiAxis, psiBnd: g.psiBnd,
-      axisR: g.axisR, axisZ: g.axisZ,
-      gridR0: g.r0, gridZ0: g.z0, dr: g.dr, dz: g.dz, nr: g.nr, nz: g.nz,
-      limR: Float64Array.from(g.limR), limZ: Float64Array.from(g.limZ),
-      qTable: Float64Array.from(g.qTable), fTable: Float64Array.from(g.fTable),
-      b0: Math.abs(g.b0), aMinor: g.a,
-      rMaj: g.rmaj, n: sp.n, edgePsin: sp.edgePsin, nTheta: 121,
-      source: 'gfile' });
+    //: ★第二十八刀: the g-file tier's metric is the PROBE's too — the document
+    //: (its gauge stated) traced by the kernel on the page's own level rule
+    //: (`n`, 121 theta points); how many surfaces it keeps is only known
+    //: once it answers, so the grid size waits for the probe
+    geo = { rho: null, n: 0, a: g.a, r0: g.rmaj, b0: Math.abs(g.b0), source: 'gfile', pending: true,
+            psiAxis: g.psiAxis, psiBnd: g.psiBnd, doc: interpGfileDoc(g) };
   } else {
     //: ★第二十六刀: the analytic tier's metric is the PROBE's (below): the
     //: kernel spells the page's grid (x_i = i/(n-1), rho = a·x) and builds
@@ -6419,6 +6416,94 @@ function evolveRun(msg) {
   //: equilibrium, so the analytic tier would march current diffusion from
   //: psi = 0 — a run, not a refusal, and one whose q is whatever the
   //: solver's clamp says.  So the test moved to what is actually absent.
+
+  // --- the state it starts from --------------------------------------------
+  var n = geo.pending ? geo.n : geo.rho.length;
+  //: ★★T-4 第五刀 (第二十四刀): THE START STATE COMES FROM THE PROBE.  What
+  //: this function used to build by hand before its first block — the
+  //: parabolic profiles or the reference's, the dilution and its check, the
+  //: pedestal edge at start, the waveform factor at t_start, the torque
+  //: deposit, beta_N — is `code/evolve` with `probe: 1` now, and the page
+  //: reads the answer.  The ladder's psi keeps the page's spelling
+  //: (`evPsiOf`) and is bound like the other ladder rows; a resumed state
+  //: is bound as the state and comes back as it went.
+  var rp = sp.useRef && msg.refProf ? msg.refProf : null;
+  var rs = msg.resume || null;
+  //: ★the grid is known before the probe on every tier but the g-file's,
+  //: where the kernel decides how many surfaces it keeps: the resume check
+  //: and the start psi wait for the answer there
+  var sizeKnown = n > 0;
+  if (sizeKnown && rs && (!rs.te || rs.te.length !== n))
+    return post({ type: 'error', where: 'evolve',
+                  message: FyI18n.t('e.err.resume_grid',
+                                    { was: rs.te ? rs.te.length : 0, now: n }) });
+  var psi0 = null;
+  if (sizeKnown) {
+    psi0 = new Float64Array(n);
+    for (var i = 0; i < n; i++)
+      psi0[i] = rs && rs.psi && rs.psi.length === n ? rs.psi[i] : evPsiOf(geo, i);
+  } else if (rs && rs.psi) {
+    psi0 = Float64Array.from(rs.psi);
+  }
+  var st = { te: null, ti: null, ne: null, ni: null, nz: null, psi: psi0, q: null,
+             omega: momentum && sizeKnown ? new Float64Array(n) : null };
+  var spProbe = assign({}, sp); spProbe.beam = false; spProbe.lh = false;
+  var pp = evEntryPlan({ channels: channels, momentum: momentum }, st, geo, spProbe, field);
+  var ps = pp.settings;
+  ps.probe = 1; ps.state = rs ? 1 : 0; ps.reference = rp ? 1 : 0;
+  ps.t_start = msg.tStart || 0;
+  if (geo.pending && geo.source === 'miller') { ps.geometry = 'miller'; ps.q95 = sp.q95; ps.n = n; }
+  if (geo.pending && geo.source === 'gfile') {
+    ps.geometry = 'gfile'; ps.n = Math.max(5, sp.n | 0); ps.edge_psin = sp.edgePsin; ps.n_theta = 121;
+  }
+  var arrOr = function (v) { return v ? Array.from(v) : undefined; };
+  var pin = { equilibrium: geo.doc || pp.equilibrium };
+  if (rs) {
+    pin.core_profiles = { profiles_1d: {
+      grid: psi0 ? { psi: Array.from(psi0) } : {},
+      electrons: { temperature: Array.from(rs.te), density: Array.from(rs.ne) },
+      t_i_average: Array.from(rs.ti) } };
+    if (!psi0) delete pin.core_profiles.profiles_1d.grid;
+  } else if (rp) {
+    var refT = { grid: { rho_tor: Array.from(rp.rho) },
+                 electrons: { temperature: arrOr(rp.te), density: arrOr(rp.ne) },
+                 t_i_average: arrOr(rp.ti) };
+    if (!refT.electrons.temperature) delete refT.electrons.temperature;
+    if (!refT.electrons.density) delete refT.electrons.density;
+    if (!refT.t_i_average) delete refT.t_i_average;
+    pin.core_profiles = { profiles_1d: refT };
+  }
+  var prec;
+  try { prec = fy.complete('code/evolve', { settings: ps, inputs: pin }); }
+  catch (eP) {
+    return post({ type: 'error', where: 'evolve', message: String(eP && eP.message || eP) });
+  }
+  var PF = function (k) { return fieldFlat(prec, k); };
+  var PN = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var PX = function (k) { return prec.facts[k] ? prec.facts[k].value : NaN; };
+  var pcp = prec.fields.core_profiles.profiles_1d;
+  if (geo.pending) {
+    var plad = prec.fields.equilibrium.time_slice.profiles_1d;
+    var row = function (k) { return plad[k] ? PN(plad[k]) : null; };
+    var wasGfile = geo.source === 'gfile', gAxis = geo.psiAxis, gBnd = geo.psiBnd;
+    geo = { rho: row('rho_tor'), vprime: row('dvolume_drho_tor'), gm3: row('gm3'), gm2: row('gm2'),
+            r2: row('fylite:r2_average'), fpol: row('f'), q: row('q'), shear: row('magnetic_shear'),
+            kappa: row('elongation'), delta: row('triangularity_upper'), rmaj: row('fylite:r_major'),
+            rmin: row('fylite:r_minor'), shift: row('fylite:shift'), psin: row('fylite:psi_norm'),
+            a: wasGfile ? PX('a') : sp.a, r0: wasGfile ? PX('r0_geo') : sp.r0,
+            b0: wasGfile ? PX('b0') : Math.abs(sp.b0), source: wasGfile ? 'gfile' : 'miller' };
+    if (wasGfile) { geo.psiAxis = gAxis; geo.psiBnd = gBnd; }
+    if (!sizeKnown) {
+      n = geo.rho.length;
+      if (rs && (!rs.te || rs.te.length !== n))
+        return post({ type: 'error', where: 'evolve',
+                      message: FyI18n.t('e.err.resume_grid', { was: rs.te ? rs.te.length : 0, now: n }) });
+      st.psi = psi0 && psi0.length === n ? psi0 : PN(plad.psi);
+      if (momentum) st.omega = new Float64Array(n);
+    }
+  }
+  //: ★第二十八刀: what the channels and the executors need is asked of the
+  //: geometry the probe RESOLVED (its rows exist on every tier now)
   if (channels.current && !geo.gm2)
     return post({ type: 'error', where: 'evolve',
                   message: FyI18n.t('e.err.nogm2') });
@@ -6460,68 +6545,6 @@ function evolveRun(msg) {
   if (sp.lh && (!field || !geo.fpol))
     return post({ type: 'error', where: 'evolve',
                   message: FyI18n.t('e.err.lh_nofield') });
-
-  // --- the state it starts from --------------------------------------------
-  var n = geo.pending ? geo.n : geo.rho.length;
-  //: ★★T-4 第五刀 (第二十四刀): THE START STATE COMES FROM THE PROBE.  What
-  //: this function used to build by hand before its first block — the
-  //: parabolic profiles or the reference's, the dilution and its check, the
-  //: pedestal edge at start, the waveform factor at t_start, the torque
-  //: deposit, beta_N — is `code/evolve` with `probe: 1` now, and the page
-  //: reads the answer.  The ladder's psi keeps the page's spelling
-  //: (`evPsiOf`) and is bound like the other ladder rows; a resumed state
-  //: is bound as the state and comes back as it went.
-  var rp = sp.useRef && msg.refProf ? msg.refProf : null;
-  var rs = msg.resume || null;
-  if (rs && (!rs.te || rs.te.length !== n))
-    return post({ type: 'error', where: 'evolve',
-                  message: FyI18n.t('e.err.resume_grid',
-                                    { was: rs.te ? rs.te.length : 0, now: n }) });
-  var psi0 = new Float64Array(n);
-  for (var i = 0; i < n; i++)
-    psi0[i] = rs && rs.psi && rs.psi.length === n ? rs.psi[i] : evPsiOf(geo, i);
-  var st = { te: null, ti: null, ne: null, ni: null, nz: null, psi: psi0, q: null,
-             omega: momentum ? new Float64Array(n) : null };
-  var spProbe = assign({}, sp); spProbe.beam = false; spProbe.lh = false;
-  var pp = evEntryPlan({ channels: channels, momentum: momentum }, st, geo, spProbe, field);
-  var ps = pp.settings;
-  ps.probe = 1; ps.state = rs ? 1 : 0; ps.reference = rp ? 1 : 0;
-  ps.t_start = msg.tStart || 0;
-  if (geo.pending) { ps.geometry = 'miller'; ps.q95 = sp.q95; ps.n = n; }
-  var arrOr = function (v) { return v ? Array.from(v) : undefined; };
-  var pin = { equilibrium: pp.equilibrium };
-  if (rs) {
-    pin.core_profiles = { profiles_1d: {
-      grid: { psi: Array.from(psi0) },
-      electrons: { temperature: Array.from(rs.te), density: Array.from(rs.ne) },
-      t_i_average: Array.from(rs.ti) } };
-  } else if (rp) {
-    var refT = { grid: { rho_tor: Array.from(rp.rho) },
-                 electrons: { temperature: arrOr(rp.te), density: arrOr(rp.ne) },
-                 t_i_average: arrOr(rp.ti) };
-    if (!refT.electrons.temperature) delete refT.electrons.temperature;
-    if (!refT.electrons.density) delete refT.electrons.density;
-    if (!refT.t_i_average) delete refT.t_i_average;
-    pin.core_profiles = { profiles_1d: refT };
-  }
-  var prec;
-  try { prec = fy.complete('code/evolve', { settings: ps, inputs: pin }); }
-  catch (eP) {
-    return post({ type: 'error', where: 'evolve', message: String(eP && eP.message || eP) });
-  }
-  var PF = function (k) { return fieldFlat(prec, k); };
-  var PN = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
-  var PX = function (k) { return prec.facts[k] ? prec.facts[k].value : NaN; };
-  var pcp = prec.fields.core_profiles.profiles_1d;
-  if (geo.pending) {
-    var plad = prec.fields.equilibrium.time_slice.profiles_1d;
-    var row = function (k) { return plad[k] ? PN(plad[k]) : null; };
-    geo = { rho: row('rho_tor'), vprime: row('dvolume_drho_tor'), gm3: row('gm3'), gm2: row('gm2'),
-            r2: row('fylite:r2_average'), fpol: row('f'), q: row('q'), shear: row('magnetic_shear'),
-            kappa: row('elongation'), delta: row('triangularity_upper'), rmaj: row('fylite:r_major'),
-            rmin: row('fylite:r_minor'), shift: row('fylite:shift'), psin: row('fylite:psi_norm'),
-            a: sp.a, r0: sp.r0, b0: Math.abs(sp.b0), source: 'miller' };
-  }
   st.te = PN(pcp.electrons.temperature); st.ti = PN(pcp.t_i_average);
   st.ne = PN(pcp.electrons.density); st.ni = PN(pcp['fylite:ion_density']);
   sp.bulkId = PX('bulk_id'); sp.impurityId = PX('imp_id');

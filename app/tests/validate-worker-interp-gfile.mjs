@@ -2,15 +2,16 @@
 //
 // ★第二十七刀 (2026-09-05): `interpRun` on a g-file binds the page's equilibrium
 // document (full-turn Wb, axis at the maximum — `fylite:psi_convention`) and the
-// kernel traces the ladder.  Until this cut the kernel read every document as
+// kernel traces the ladder.  Until that cut the kernel read every document as
 // per radian, so this path's rho_tor came out exactly sqrt(2 pi) too large —
-// measured, and nothing held it.  This gate holds it: the ladder the kernel
-// returns for the `interp` command equals `evLadderMetric` (the page's own
-// spelling, span / 2 pi, its level rule, 121 theta points) on the same payload,
-// to 1e-12 relative.  No fixture: it is one worker path against the other.
+// measured, and nothing held it.  The fixture was recorded when the page still
+// carried its own ladder spelling (`evLadderMetric`: span / 2 pi, its level rule,
+// 121 theta points) and the two paths were measured EQUAL (worst relative
+// difference 0); ★第二十八刀 retired that page function, so the fixture is the
+// spelling now, held bit for bit.
 //
-// Run: node app/tests/validate-worker-interp-gfile.mjs
-import { readFileSync, existsSync } from 'node:fs';
+// Run: node app/tests/validate-worker-interp-gfile.mjs [--record]
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -19,6 +20,8 @@ import { deviceDoc } from './_device.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HERE, '..', 'assets') + path.sep;
+const FIX = path.join(HERE, 'fixtures', 'worker-interp-gfile.json');
+const RECORD = process.argv.includes('--record');
 const BASE = 'http://127.0.0.1:0/';
 
 globalThis.self = globalThis;
@@ -71,23 +74,16 @@ assert.equal(errs.length, 0, 'worker error: ' + errs.map((e) => e.message).join(
 const out = inbox.find((m) => m.type === 'interp');
 assert.ok(out, 'no interp answer');
 
-//: the page's own ladder on the same payload
-const lad = globalThis.evLadderMetric({
-  psi: g.psi, psiAxis: g.psiAxis, psiBnd: g.psiBnd, axisR: g.axisR, axisZ: g.axisZ,
-  gridR0: g.r0, gridZ0: g.z0, dr: g.dr, dz: g.dz, nr: g.nr, nz: g.nz,
-  limR: Float64Array.from(g.limR), limZ: Float64Array.from(g.limZ),
-  qTable: Float64Array.from(g.qTable), fTable: Float64Array.from(g.fTable),
-  b0: Math.abs(g.b0), aMinor: out.aMinor, rMaj: g.rmaj, n, edgePsin, nTheta: 121, source: 'gfile' });
-const close = (got, want, key) => {
-  assert.equal(got.length, want.length, `${key}: ${got.length} vs ${want.length} surfaces`);
-  let worst = 0;
-  for (let i = 0; i < got.length; i++) {
-    const d = Math.abs(got[i] - want[i]) / Math.max(Math.abs(want[i]), 1e-300);
-    if (want[i] === 0 && got[i] === 0) continue;
-    worst = Math.max(worst, d);
-  }
-  assert.ok(worst <= 1e-12, `${key}: worst relative difference ${worst.toExponential(2)} > 1e-12`);
-  return worst;
-};
-const w = ['rho', 'vprime', 'gm3', 'gm7', 'psin'].map((k) => close(out[k], lad[k], k));
-console.log(`validate-worker-interp-gfile: g-file 档的梯子与页面自己的拼法一致（${out.rho.length} 级，最坏 ${Math.max(...w).toExponential(1)}），rho_edge ${out.rho[out.rho.length - 1].toFixed(4)} m，a ${out.aMinor.toFixed(4)} m`);
+const got = JSON.parse(JSON.stringify({ rho: Array.from(out.rho), vprime: Array.from(out.vprime), gm3: Array.from(out.gm3),
+                                         gm7: Array.from(out.gm7), psin: Array.from(out.psin), aMinor: out.aMinor,
+                                         te: Array.from(out.te), chiE: Array.from(out.chiE) }));
+if (RECORD) {
+  writeFileSync(FIX, JSON.stringify(got));
+  console.log(`recorded ${got.rho.length} surfaces -> ${path.relative(process.cwd(), FIX)}`);
+  process.exit(0);
+}
+const ref = JSON.parse(readFileSync(FIX, 'utf8'));
+for (const key of ['rho', 'vprime', 'gm3', 'gm7', 'psin', 'te', 'chiE'])
+  assert.deepEqual(got[key], ref[key], `${key} bit for bit`);
+assert.equal(got.aMinor, ref.aMinor, 'a bit for bit');
+console.log(`validate-worker-interp-gfile: g-file 档的梯子逐位（${got.rho.length} 级，夹具录于页面自己的拼法与内核相等之时），rho_edge ${got.rho[got.rho.length - 1].toFixed(4)} m，a ${got.aMinor.toFixed(4)} m`);
