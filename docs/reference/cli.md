@@ -73,9 +73,19 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 :::{important}
 **装置信息随发行版走，而且只有一份**（2026-09-05 用户裁定）。按许可筛过的那几台收成
 **一个制品** `facts.rs`，由 `rust/build.sh --<版别>` 编进 `libfylite_runtime.so` 与
-`fylite_runtime.wasm`：命令行读它、轮读它（经那份 `.so`）、页面也读它（经那份 wasm，
-`app/assets/factsdb.js`）。所以一份发行版**盘上没有语料也答得出** `fy list devices`
-与 `fy run --device`，而三个宿主读的是同一批字节。
+`fylite_runtime.wasm`。所以一份发行版**盘上没有语料也答得出** `fy list devices`
+与 `fy run --device`。
+
+同一批字节，**三个宿主三条读法**：
+
+| 谁在读 | 怎么读 |
+| :--- | :--- |
+| 命令行 `fy` · Python 库 | `libfylite_runtime.so` 里那张表 |
+| **`fy app` 内嵌的页面** | 本进程的 `/api/facts?domain=…[&id=…]` —— 那张表已经在这个进程里，不必再取一份 wasm |
+| 静态站点的页面 | `fylite_runtime.wasm` 里那张表（`app/assets/factsdb.js` 先探 `/api/facts`，探不到才走这条） |
+
+★`/api/facts` 读的是**整条搜索路径**，不只是编进去的那一档：`fy app --facts /我的语料`
+之后，页面看到的与 `fy list devices` 看到的是同一批。
 
 ★★此前是两份：页面 fetch 的 JSON 一份，命令行编进二进制的表一份——同一批 432 KB、
 两条通路，而**没有任何东西保证它们描述同一批机器**。目录说有七台、文件只有六台，

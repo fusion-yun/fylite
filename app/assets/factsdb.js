@@ -30,6 +30,49 @@
   var inst = null;      //: 实例，取回来之后一直用
   var pending = null;   //: 正在取的那次，免得并发触发两次下载
 
+  //: ★★**两个宿主，两条读法，同一批字节。**
+  //:   · 桌面查看器（`fy app`）—— 走它自己的 `/api/facts`：那个进程**本身就是**原生
+  //:     的中间层，`facts.rs` 那张表已经在它的地址空间里。让内嵌页面再取一份同层的
+  //:     wasm，等于把刚消掉的重复换个层次又做一遍（实测 +2.25 MB）。
+  //:   · 静态站点 —— 没有 `/api/*`，走 `fylite_runtime.wasm`。那是它唯一的读法。
+  //: ★探测方式与 `host.js` 同一条：**看请求面答不答，不看主机名**；而主机名只作
+  //: 反向过滤——查看器绑的是回环地址，所以别处根本不必发这个请求（发布出去的站点
+  //: 因此一个多余请求也没有）。
+  //: ★探一次就记住：`null` = 还没探，`false` = 没有这条路，函数 = 有。
+  var apiFace = null;
+  var ROOT = (function () {
+    try {
+      var me = document.currentScript && document.currentScript.src;
+      if (me) return me.replace(/assets\/factsdb\.js(\?.*)?$/, '');
+    } catch (e) { /* worker / test host */ }
+    return '';
+  })();
+
+  function loopback() {
+    try {
+      var h = location.hostname;
+      return h === '127.0.0.1' || h === 'localhost' || h === '::1' || h === '[::1]';
+    } catch (e) { return false; }
+  }
+
+  /** `/api/facts?…` if this host answers it, else `null` — probed once. */
+  function api(query) {
+    if (apiFace === false) return Promise.resolve(null);
+    if (typeof fetch !== 'function' || !loopback()) { apiFace = false; return Promise.resolve(null); }
+    return fetch(ROOT + 'api/facts?' + query, { headers: { accept: 'application/json' } })
+      .then(function (r) {
+        //: ★400 与 404 不是一回事：前者是「这条路在，你问错了」（一台不在这一版里的
+        //: 机器），后者是「这个宿主没有这条路」。只有后者才该退回 wasm——把前者也退
+        //: 回去，会让一个明确的「不带这台」变成一次静默的第二次查询。
+        if (r.status === 404) { apiFace = false; return null; }
+        apiFace = true;
+        if (r.status === 400) return { missing: true };
+        if (!r.ok) throw new Error('api/facts: HTTP ' + r.status);
+        return r.text();
+      })
+      .catch(function () { apiFace = false; return null; });
+  }
+
   function versioned(url) {
     //: 与 `fylite.js` 的 `versioned()` 同一条规矩：磁盘上的真文件带版本
     //: （`tools/soname.sh`），页面写不带版本的名字，这里补上。
@@ -113,6 +156,14 @@
 
   /** Every id in a domain, `catalogue` included.  Resolves to an array. */
   function ids(domain) {
+    return api('domain=' + encodeURIComponent(domain)).then(function (t) {
+      if (t && !t.missing) return (JSON.parse(t).ids) || [];
+      if (t && t.missing) return [];
+      return idsFromWasm(domain);
+    });
+  }
+
+  function idsFromWasm(domain) {
     return load().then(function (e) {
       return withStr(e, domain, function (dp, dn) {
         var t = pull(e, function (o, c) { return e.fylite_runtime_facts_ids(dp, u64(dn), o, c); });
@@ -129,6 +180,15 @@
    * 拿它对读者说前一句，抛出来的才是后一句。
    */
   function doc(domain, ident) {
+    return api('domain=' + encodeURIComponent(domain) + '&id=' + encodeURIComponent(ident))
+      .then(function (t) {
+        if (t && t.missing) return null;      //: 这条路在，而这一版不带它
+        if (typeof t === 'string') return JSON.parse(t);
+        return docFromWasm(domain, ident);
+      });
+  }
+
+  function docFromWasm(domain, ident) {
     return load().then(function (e) {
       return withStr(e, domain, function (dp, dn) {
         return withStr(e, ident, function (ip, inn) {
@@ -145,7 +205,9 @@
 
   /** How many entries this build carries (catalogues excluded). */
   function count() {
-    return load().then(function (e) { return num(e.fylite_runtime_facts_count()); });
+    return ids('device').then(function (a) {
+      return a.filter(function (n) { return n !== 'catalogue'; }).length;
+    });
   }
 
   root.FyFactsDb = { load: load, ids: ids, doc: doc, count: count, REQUIRED: REQUIRED };

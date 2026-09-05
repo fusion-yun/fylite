@@ -123,6 +123,22 @@ fn serve_app(spec: &Spec, args: &Args) {
         _ => die("--port 要一个 1..65535 的端口号"),
     });
     let open = !args.has("no-open");
+    //: ★★`--facts` 也管**页面**（2026-09-05）。内嵌页面读装置信息走的是本进程的
+    //: `/api/facts`，而那条路问的是 `facts::entries` / `find`——也就是整条搜索路径。
+    //: 所以在这里前置一次，页面看到的与 `fy list devices` 看到的就是同一批。
+    //: ★两个答案是这类工具最贵的失误：读者在页面上选了一台机器，命令行却说没有它，
+    //: 而两边都没错——错的是它们问的不是同一条路径。
+    //: ★★`--facts` 的取值要**逐线程**再设一次，因为那个覆盖是 `thread_local`
+    //: （`facts::use_roots` 抬头说明了为什么：它不是可重入的作用域）。本服务是
+    //: 每连接一个线程，所以在主线程设一次**对请求线程无效**——实测：命令行看得见
+    //: `--facts` 指的那台机器，而同一个进程里的页面看不见。两个答案，且两边都不报错。
+    let facts_roots: Option<Vec<PathBuf>> = {
+        let extra = args.all("facts");
+        (!extra.is_empty()).then(|| fylite_runtime::facts::parse_roots(extra))
+    };
+    if let Some(r) = &facts_roots {
+        fylite_runtime::facts::use_roots(Some(r.clone()));
+    }
     //: ★没有缺省服务器：一个查看器不该在别人机器上悄悄向某个地址开连接。
     //: 不给 `--mdsip` 时请求面照在，只是答 `ok:false` 并说明原因。
     let mdsip: Option<String> = args.flag("mdsip").map(str::to_string);
@@ -183,7 +199,13 @@ fn serve_app(spec: &Spec, args: &Args) {
             Ok(s) => {
                 let cfg = std::sync::Arc::clone(&cfg);
                 let source = std::sync::Arc::clone(&source);
+                let roots = facts_roots.clone();
                 std::thread::spawn(move || {
+                    //: ★见上：搜索路径的覆盖是 thread_local，所以每个请求线程要自己
+                    //: 设一次；不设的话页面与命令行会给出两个答案。
+                    if let Some(r) = roots {
+                        fylite_runtime::facts::use_roots(Some(r));
+                    }
                     if let Err(e) = serve(s, &cfg, &source) {
                         //: 客户端中途断开是常态（刷新、关页），不值得刷屏
                         if e.kind() != std::io::ErrorKind::BrokenPipe

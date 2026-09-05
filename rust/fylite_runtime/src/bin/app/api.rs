@@ -51,6 +51,9 @@ pub fn handle(target: &str, cfg: &Cfg) -> (u16, String) {
     let q = Query::parse(query);
     let out = match path {
         "/api/health" => return (200, health(cfg)),
+        //: ★★装置信息**不经 mdsip**，所以它在这一支的最前面、与 `health` 同类：
+        //: 没接服务器的查看器照样答得出。见 `facts()` 抬头。
+        "/api/facts" => facts(&q),
         "/api/shot" => shot(cfg, &q),
         "/api/tree" => tree(cfg, &q),
         "/api/node" => node(cfg, &q),
@@ -62,6 +65,48 @@ pub fn handle(target: &str, cfg: &Cfg) -> (u16, String) {
         Ok(body) => (200, body),
         Err(Fail::Bad(m)) => (400, format!("{{\"error\":{},\"kind\":\"BadRequest\"}}", jstr(&m))),
         Err(Fail::Mds(e)) => (502, format!("{{\"error\":{},\"kind\":\"server\"}}", jstr(&e.to_string()))),
+    }
+}
+
+/// `/api/facts?domain=device[&id=east]` —— 装置信息，走**本进程自己的那一份**。
+///
+/// ★★2026-09-05 用户裁定「页面也走中间层 wasm，撤掉 `facts.jsonld`」之后，装置信息
+/// 只有一个制品（`facts.rs`），由 `.so` 与 `.wasm` 各编进去。对**静态站点**而言那份
+/// wasm 是页面唯一的读法；但对**这个可执行文件**而言它是多余的第二份：本程序本身
+/// 就是原生的中间层，那张表已经在它的地址空间里，再内嵌一份同层的 wasm 等于把刚
+/// 消掉的重复换个层次又做一遍（实测 +2.25 MB，其中 432 KB 是装置信息、1.8 MB 是
+/// 同一层代码的第二份）。所以内嵌页面改问这条路，可执行文件不再带那份 wasm。
+///
+/// ★读的是 `facts::find` / `entries`，**不是**只读编进去的那一档：于是
+/// `fy app --facts /我的语料` 之后页面看到的与 `fy list devices` 看到的是同一批，
+/// 而不是两个答案。这是把「搜索路径」的语义一路带到页面上，不是额外开一个口子。
+///
+/// 答复：给了 `id` 就是那一份文档本身（原样转发，不重新序列化——重新序列化就是
+/// 第二条序列化路径，而两条路径就是两份字节）；没给就是 `{"ids":[…]}`。
+fn facts(q: &Query) -> Result<String, Fail> {
+    let domain = q.get("domain").unwrap_or("device");
+    if domain.is_empty() || !domain.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return Err(Fail::Bad(format!("bad domain {domain:?}")));
+    }
+    match q.get("id") {
+        Some(id) if !id.is_empty() => {
+            //: ★`catalogue` 与逐台文档走**同一条**路：页面先读目录再逐台读，
+            //: 两次问的若是两个口子，某天它们会不一致。
+            let hit = fylite_runtime::facts::find(domain, id)
+                .ok_or_else(|| Fail::Bad(format!("no {domain}/{id} on the facts path")))?;
+            hit.read()
+                .ok_or_else(|| Fail::Bad(format!("{domain}/{id}: the document could not be read")))
+        }
+        _ => {
+            let mut ids: Vec<String> =
+                fylite_runtime::facts::entries(domain).into_iter().map(|e| e.ident).collect();
+            //: ★目录也报出来：页面按目录的次序展示，而次序是目录说的，不是这里排的。
+            if fylite_runtime::facts::find(domain, "catalogue").is_some() {
+                ids.push("catalogue".into());
+            }
+            let items: Vec<String> = ids.iter().map(|s| jstr(s)).collect();
+            Ok(format!("{{\"ids\":[{}]}}", items.join(",")))
+        }
     }
 }
 
@@ -586,6 +631,25 @@ mod tests {
 
     fn no_server() -> Cfg {
         Cfg { server: None, user: String::from("tester") }
+    }
+
+    #[test]
+    fn facts_answers_without_a_server_and_names_what_it_lacks() {
+        //: ★★装置信息**不经 mdsip**：一台没接服务器的查看器照样答得出这条路。
+        //: 这一条钉的正是那件事——它与 `/api/health` 同类，而不是与取数那几条同类。
+        let (code, body) = handle("/api/facts?domain=device", &no_server());
+        assert_eq!(code, 200, "{body}");
+        assert!(body.starts_with("{\"ids\":["), "{body}");
+
+        //: ★「这一版不带这台」是 400 加一句点名，不是 404、也不是一个空文档：
+        //: 页面拿这三者说三句不同的话（这个宿主没有这条路 / 这一版不带它 / 它坏了）。
+        let (code, body) = handle("/api/facts?domain=device&id=nosuch-machine", &no_server());
+        assert_eq!(code, 400, "{body}");
+        assert!(body.contains("nosuch-machine"), "{body}");
+
+        //: 域名只收 ASCII 字母数字与下划线——它要拼进搜索路径，不该是一段任意文本。
+        let (code, _) = handle("/api/facts?domain=../etc", &no_server());
+        assert_eq!(code, 400);
     }
 
     #[test]

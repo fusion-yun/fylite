@@ -147,6 +147,14 @@
      ],
      "metavar": "DIR",
      "help": "(development) serve this directory instead of the embedded app/ — the same request face, a live tree"
+    },
+    {
+     "flags": [
+      "--facts"
+     ],
+     "action": "append",
+     "metavar": "PATH",
+     "help": "a facts corpus the PAGE should see too, ahead of the built-in one (repeat, or separate several with the platform path separator). The embedded page reads devices through this process's own /api/facts, so what it lists is what `fy list devices` lists — one search path, not two."
     }
    ]
   },

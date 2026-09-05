@@ -78,11 +78,21 @@ else
   bash tools/build-site.sh "--$FLAVOUR" "$STAGE" >/dev/null
   echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE"
 
+  #: ★★**这份可执行文件不带中间层的 wasm**（2026-09-05）。它本身就是原生的中间层，
+  #: 那张 facts 表已经在它的地址空间里；内嵌页面因此改问它自己的 `/api/facts`
+  #: （`app/assets/factsdb.js` 先探这条路，探不到才退回 wasm——静态站点走的正是后者）。
+  #: 再内嵌一份同层的 wasm，等于把刚消掉的重复换个层次又做一遍：实测 +2.25 MB，
+  #: 其中只有 432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份。
+  #: ★这一条**有意打破**「站点与可执行文件内嵌同一个子集」那句：两者差的正是这一份，
+  #: 而差的理由是两个宿主读同一批字节的**路不同**，不是内容不同。
+  rm -f "$STAGE"/assets/fylite_runtime.wasm*
+  echo "[exe] 内嵌树里去掉 fylite_runtime.wasm（页面改走本进程的 /api/facts）"
+
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
-  #: ★装置文档**不在**这张表里（2026-09-05 起页面经中间层 wasm 读它们），所以这里
-  #: 不再需要问「哪一台在不在」。
-  node tools/make-app-embed.mjs --flavour "$FLAVOUR"
+  #: ★`--from` 指**装好的那一棵**：表描述的必须就是编译期真在的那一棵，否则
+  #: `include_bytes!` 指着不存在的文件，一屏 `couldn't read`。
+  node tools/make-app-embed.mjs --flavour "$FLAVOUR" --from "$STAGE"
 fi
 
 #: ★★装置信息**编进二进制**（2026-09-05 用户裁定），而且**只编一遍**：同日续裁

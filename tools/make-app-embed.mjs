@@ -14,7 +14,19 @@ import { readdirSync, statSync, lstatSync, realpathSync, readFileSync, writeFile
 import { spawnSync } from 'node:child_process';
 
 const HERE = new URL('.', import.meta.url).pathname;
-const APP = HERE + '../app/';
+//: ★★`--from DIR` —— 描述**要内嵌的那一棵树**，不是源树。缺省仍是 `app/`（提交进仓
+//: 的那张表因此是源树的），而 `tools/build-app-exe.sh` 给的是它装好的那一棵：
+//: 可执行文件从 2026-09-05 起**不带 `fylite_runtime.wasm`**（内嵌页面走它自己的
+//: `/api/facts`，那份表已经在这个进程里），于是「表描述的」与「编译期真在的」必须
+//: 是同一棵——否则 `include_bytes!` 在编译期指着一个不存在的文件，而那是一屏
+//: `couldn't read`，看起来像编译坏了。
+const FROM = (() => {
+  const i = process.argv.indexOf('--from');
+  if (i < 0) return null;
+  const d = process.argv[i + 1];
+  return d.endsWith('/') ? d : d + '/';
+})();
+const APP = FROM || (HERE + '../app/');
 
 //: ★★2026-09-02：`app/` 与 `rust/fylite_runtime/` 都在本仓了——数据层从内核仓搬了
 //: 过来，于是这张表的读者与被读的目录同处一棵树。从前这里要跨仓解析内核检出
@@ -129,7 +141,11 @@ function checkWasmIsVersioned(list) {
     ? (/FyRuntimeVersion\s*=\s*'([^']*)'/.exec(readFileSync(APP + 'assets/runtime-version.js', 'utf8')) || [])[1]
     : null;
   const want = (s) => (s === 'fylite_runtime.wasm' ? rv : m[1]);
-  const bad = WASM_STEMS.filter((s) => !want(s) || !list.includes(`assets/${s}.${want(s)}`));
+  //: ★★只核对**这棵树里真有的**那些 stem。可执行文件那一棵有意不带中间层的 wasm
+  //: （见 FROM 那段），而「不带」与「带了个没版本的」是两回事：前者是设计，后者是
+  //: 那个静默降级的缺陷。所以判据是「有这个 stem 的任何名字，就必须是版本化的真名」。
+  const present = (s) => list.some((f) => f === `assets/${s}` || f.startsWith(`assets/${s}.`));
+  const bad = WASM_STEMS.filter((s) => present(s) && (!want(s) || !list.includes(`assets/${s}.${want(s)}`)));
   if (bad.length) {
     console.error(`[embed] 这些 wasm 不是版本化的真文件：${bad.join(' ')}`);
     console.error(`[embed]   表里要的是 assets/<名>.${m[1]}（tools/soname.sh 的命名）`);
