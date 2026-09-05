@@ -45,11 +45,24 @@
   'use strict';
 
   //: 本进程的请求面在哪里。页面从自己的脚本 URL 反推，与 `factsdb.js` 同一条。
+  //:
+  //: ★★**Worker 里也要算对**（2026-09-05 真浏览器实测修）。worker 里没有
+  //: `document`，而这里从前就此返回空串——空串的意思是「相对当前脚本」，于是
+  //: 探测发到 `app/assets/api/health`（worker 脚本住在 `assets/`），404。
+  //: 后果不是一句报错：worker 会据此判定「这个宿主没有请求面」而退回实例化内核
+  //: wasm，**而桌面版的可执行文件里已经没有那份 wasm 了**（同日裁定），于是
+  //: 页面上什么也算不出来。worker 里 `self.location.href` 就是 worker 脚本自己的
+  //: URL，站点根是它的上一级。
   var ROOT = (function () {
     try {
       var me = document.currentScript && document.currentScript.src;
       if (me) return me.replace(/assets\/kernelapi\.js(\?.*)?$/, '');
     } catch (e) { /* worker / test host */ }
+    try {
+      //: worker：`assets/worker.js` -> 站点根
+      var here = String(self.location.href);
+      if (/assets\/[^/]*$/.test(here)) return here.replace(/assets\/[^/]*$/, '');
+    } catch (e) { /* 没有 location 的宿主 */ }
     return '';
   })();
 

@@ -81,11 +81,22 @@
     return url + '.' + v;
   }
 
-  /** Fetch and instantiate the middle layer.  Resolves to the exports. */
+  /**
+   * Fetch and instantiate the middle layer.  Resolves to the exports.
+   *
+   * ★★**站点根，不是页面所在目录**（2026-09-05 实测修）。这里从前写的是相对名
+   * `assets/fylite_runtime.wasm`，而它是相对**当前页面**解析的：首页
+   * （`/index.html`）碰巧对，`/pages/pulse_design.html` 上就变成
+   * `/pages/assets/fylite_runtime.wasm.0.0.1` —— 404。后果不是一句报错：装置一台
+   * 也读不进，`FYLITE_MACHINE` 是 `null`，页面在第一次画图时以
+   * `Cannot read properties of null (reading 'limiter')` 死掉。**四个功能页全中**，
+   * 而站点构建、node 闸子（它们自己 stub 掉 `fetch`）全绿——只有真浏览器看得见。
+   * `ROOT` 是从本脚本自己的 URL 反推的站点根（上面那段），`/api/*` 一直用的就是它。
+   */
   function load(url) {
     if (inst) return Promise.resolve(inst);
     if (pending) return pending;
-    var u = versioned(url || 'assets/fylite_runtime.wasm');
+    var u = versioned(url ? url : ROOT + 'assets/fylite_runtime.wasm');
     pending = fetch(u)
       .then(function (r) {
         if (!r.ok) throw new Error('fetch ' + u + ': HTTP ' + r.status);

@@ -353,9 +353,17 @@
         var m = ev.data;
         // the kernel handshake is the same on every page, so it is answered
         // here; a part that wants to react registers 'ready' as well
-        if (m.type === 'ready')
+        if (m.type === 'ready') {
           kernel = { abi: m.abi, sha256: m.sha256, bytes: m.bytes,
                      timing: m.timing, grid: m.grid };
+          //: ★★**一个留得住的信号**（2026-09-05）。「内核就绪」此前只在状态行上
+          //: 出现一瞬——各栏的初始状态紧接着就把它盖掉（实测：0.49 s 时状态已是
+          //: 「待机」，而 `status.kernel_ready` 一次也没在 MutationObserver 里留下
+          //: 痕迹）。于是所有等这句话的浏览器闸子都只能超时，而**页面本身是好的**。
+          //: 状态行是给读者看的，会改词、会被覆盖、还随语言变；判据不该挂在它上面。
+          //: 这一格是同一件事的持久形：内核到了就一直在，谁都能同步问一次。
+          root.FYLITE_KERNEL = kernel;
+        }
         if (m.type === 'ready') parts.forEach(function (p) {
           if (p.on.ready) p.on.ready(m);
         });
@@ -1423,6 +1431,10 @@
     P.runAll = runAll;
     P.addPart = addPart;
     P.finalize = finalize;
+    //: ★页面级的重画口。每个部件的 api 上一直有 `refresh`，但**页面**没有——于是
+    //: 「内核到了，把画过的再画一次」这件事没有地方可叫。`FyScenario.redraw()`
+    //: （下面）就是叫它的那一处。
+    P.refresh = refresh;
     return P;
   }
 
@@ -1495,6 +1507,21 @@
     else setTimeout(bootWithDevices, 0);
   }
 
+  /**
+   * 把每一页都重画一遍。
+   *
+   * ★★为什么需要它（2026-09-05 真浏览器实测）：页面线程的内核是**取回来的**，
+   * 而画图的助手是内核的（`FYL-DESIGN-07` D-4：页面不留第二份闭式）。启动时因此
+   * 总有一小段「已经画了、还没有内核」的窗口——那一拍画不出来是对的，画不出来
+   * **之后没人再叫一次**才是缺陷：读者看到的是一张永远空着的截面，直到他自己动
+   * 一下控件。页面在 `useKernel` 之后叫这一处。
+   */
+  function redraw() {
+    Object.keys(pages).forEach(function (k) {
+      if (pages[k] && pages[k].refresh) pages[k].refresh();
+    });
+  }
+
   root.FyScenario = { part: part, boot: boot, pages: pages,
-                      whenDevices: whenDevices };
+                      whenDevices: whenDevices, redraw: redraw };
 })(typeof self !== 'undefined' ? self : globalThis);

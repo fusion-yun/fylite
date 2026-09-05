@@ -1719,6 +1719,14 @@ FyScenario.whenDevices(function () {
 
   function draw() {
     var t = readTarget();
+    //: ★★**内核还没到就先不画**（2026-09-05 真浏览器实测）。`P.millerBoundary`
+    //: 是内核的（`FYL-DESIGN-07` D-4：页面不留第二份闭式），而页面线程的内核是
+    //: **取回来的**——本页抬头那句「一个还没载完内核的页面本来就还没画」说的正是
+    //: 这件事，只是从来没有人把它写成一行判断：于是启动竞态会以一句
+    //: `FyPhys.millerBoundary: no kernel` 抛在读者面前，而下一次刷新它又好了。
+    //: ★内核到达之后有人会再叫一次 `draw()`（页面挂在 `useKernel` 之后的重画），
+    //: 所以这里返回不是「这一版不画」，是「等下一拍」。
+    if (!P.kernel()) return;
     var tgt = P.millerBoundary(t, 121);
     var flat = new Float64Array(tgt.length * 2);
     tgt.forEach(function (p, i) { flat[2 * i] = p[0]; flat[2 * i + 1] = p[1]; });

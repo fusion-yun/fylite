@@ -1100,7 +1100,14 @@
 // helpers, and a page that has not finished loading its kernel simply has not
 // drawn yet.
 self.FyLite.attach('../assets/fylite_rs.wasm')
-  .then(function (fy) { self.FyPhys.useKernel(fy); })
+  .then(function (fy) {
+    self.FyPhys.useKernel(fy);
+    //: ★★内核到了就**再画一次**（2026-09-05）。取内核是异步的，而画图的助手是
+    //: 内核的（`FYL-DESIGN-07` D-4），所以启动时总有一小段「已经画了、还没有内核」
+    //: 的窗口——那一拍画不出来是对的，画不出来之后没人再叫一次才是缺陷：读者看到
+    //: 的是一张永远空着的截面，直到他自己动一下控件。
+    if (self.FyScenario && self.FyScenario.redraw) self.FyScenario.redraw();
+  })
   .catch(function (e) { console.error('page kernel: ' + e.message); });
 </script>
 <script src="../assets/geqdsk.js"></script>

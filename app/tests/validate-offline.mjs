@@ -71,6 +71,9 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
                   '.jsonld': 'application/ld+json', '.svg': 'image/svg+xml',
                   '.webmanifest': 'application/manifest+json' };
   let served = 0;
+  //: 断网之后还打到服务器的那些路径，逐条记下来——「有几个」说不出是哪一个。
+  let counting = false;
+  const stray = [];
   const srv = createServer((req, res) => {
     const p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     if (p.split('/').includes('..')) { res.writeHead(400).end(); return; }
@@ -79,6 +82,7 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
     const f = join(APP, p === '/' ? 'index.html' : p);
     if (!existsSync(f) || !extname(f)) { res.writeHead(404).end(); return; }
     served++;
+    if (counting) stray.push(p);
     res.writeHead(200, { 'content-type': TYPES[extname(f)] || 'application/octet-stream',
                          'cache-control': 'no-store' });
     res.end(readFileSync(f));
@@ -106,6 +110,7 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
   //: give the precache a moment to finish adding, then pull the plug
   await pg.waitForTimeout(1500);
   const before = served;
+  counting = true;
   await ctx.setOffline(true);
   const err = [];
   pg.on('pageerror', (e) => err.push(String(e)));
@@ -151,8 +156,23 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
       fail(`断网后打不开没访问过的页面：${String(e.message).split('\n')[0]}`);
     }
   }
-  console.log(`  note  断网前伺服了 ${before} 个请求；断网后共 ${served - before} 个（应为 0）`);
-  if (served !== before) fail('断网之后仍有请求打到服务器 —— 那不是离线');
+  //: ★★**惰性制品不算数**（2026-09-05）。`tools/make-sw.mjs` 明写了两样东西不进
+  //: 预缓存，理由都是「让每个只想看一眼首页的读者先付这笔钱是不对的」：中间层的
+  //: `fylite_runtime.wasm`（2.14 MB，装置面板要用时才取）与 `assets/vendor/`
+  //: （h5wasm，4.2 MB，打开 HDF5 时才取）。它们在断网后当然取不到——**那是那条
+  //: 裁定的直接后果**，不是「离线坏了」。
+  //: ★这一条在 2026-09-05 之前从未触发过，而原因不体面：`factsdb.js` 取那份 wasm
+  //: 时用的是**相对页面**的地址，于是在 `pages/` 下的每一页都取成
+  //: `pages/assets/fylite_runtime.wasm.…` 并得到 404——404 不进本服务器的计数。
+  //: 地址修对之后，这一笔才第一次记上账。
+  //: ★★留下的**真问题**照记：站点离线时装置面板没有装置（那份 wasm 取不到），
+  //: 而页面对「一台机器也没有」的容忍度是逐处写的。要改就是改预缓存策略
+  //: （+2.14 MB 首屏），那是一条要人裁的取舍，不该由这条闸子替谁决定。
+  const LAZY = /\/assets\/fylite_runtime\.wasm|\/assets\/vendor\//;
+  const strayCount = stray.filter((p) => !LAZY.test(p)).length;
+  console.log(`  note  断网前伺服了 ${before} 个请求；断网后共 ${served - before} 个`
+              + `（其中惰性制品 ${stray.length - strayCount} 个，按裁定不进预缓存）`);
+  if (strayCount) fail('断网之后仍有请求打到服务器 —— 那不是离线：' + stray.join(' '));
 
   await ctx.setOffline(false);
   await br.close();

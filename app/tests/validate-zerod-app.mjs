@@ -63,9 +63,13 @@ await page.goto(BASE + 'pages/pulse_design.html?device=iter#part-zerod', { waitU
 // nothing, so it is switched off for the duration.
 //: readiness first, then press the button — the page no longer computes on
 //: load, and neither does a visitor's first glance
-await page.waitForFunction(
-  () => /就绪|Ready|内核就绪|kernel/.test(
-    document.getElementById('design-status').textContent), null, { timeout: 120000 });
+//: ★★等**留得住的信号**，不等状态行（2026-09-05 真浏览器实测改）。这里从前等的是
+//: 状态行里出现「就绪 / Ready」，而那句话在页面上只存在一瞬：各栏的初始状态紧接着把它
+//: 换成自己的（实测 0.49 s 时已是「待机——摆好目标，合开关起放电」，`status.kernel_ready`
+//: 在 MutationObserver 里一次痕迹也没留下）。于是这一等就是 180 秒的超时，而**页面本身
+//: 一直是好的**——`FyDesignReady` 与 `FYLITE_KERNEL` 都按时到位。状态行是给读者看的：
+//: 它会改词、会被覆盖、还随语言变，判据挂在它上面就是把闸子挂在措辞上。
+await page.waitForFunction(() => !!self.FYLITE_KERNEL, null, { timeout: 120000 });
 await page.waitForFunction(() => !document.getElementById('design-zerod-run').classList.contains('stop'), null, { timeout: 300000 });
   //: ★the run button runs the PAGE — every part of this scenario, in order —
   //: and this gate is about one of them.  A reader reaches one part on its own
@@ -75,7 +79,7 @@ await page.waitForFunction(() => !document.getElementById('design-zerod-run').cl
     .dispatchEvent(new Event('change')));
 await page.waitForFunction(
   () => /求值完成|Evaluated|平衡已解|solved/.test(
-    document.getElementById('design-status').textContent), null, { timeout: 120000 });
+    document.getElementById('pulse_design-status').textContent), null, { timeout: 120000 });
 await page.uncheck('#design-zerod-eqauto');
 
 const results = [];
@@ -97,7 +101,7 @@ for (const c of CASES) {
   await page.evaluate(() => document.getElementById('design-ip')
     .dispatchEvent(new Event('change')));
   await page.waitForFunction(
-    () => /求值完成|Evaluated/.test(document.getElementById('design-status').textContent),
+    () => /求值完成|Evaluated/.test(document.getElementById('pulse_design-status').textContent),
     null, { timeout: 120000 });
   await page.click('#design-ioexport');
   const [dl] = await Promise.all([page.waitForEvent('download'),

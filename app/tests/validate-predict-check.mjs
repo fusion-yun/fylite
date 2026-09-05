@@ -52,7 +52,12 @@ const errs = [];
 const watch = (p) => {
   p.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
   p.on('console', (m) => {
-    if (m.type() === 'error' && !/favicon/.test(m.text()))
+    //: ★★`/api/*` 上的 404 **不是错误，是答案**（2026-09-05）：静态宿主没有请求面，页面据此
+    //: 判断该走 wasm（`factsdb.js` / `kernelapi.js` 探的就是这件事——探「这条路答不答」，
+    //: 不看主机名）。发布出去的站点不在回环地址上，一个探测也不发；本地静态服务器上那几条
+    //: 404 是这套判别的正常足迹，不该让「页面没有报错」变红。
+    if (m.type() === 'error' && !/favicon/.test(m.text())
+        && !/\/api\//.test((m.location() && m.location().url) || ''))
       errs.push('console: ' + m.text().slice(0, 200));
   });
 };
@@ -63,10 +68,13 @@ const model = await ctx.newPage();
 watch(model);
 await model.goto(BASE + 'pages/model.html?device=east',
                  { waitUntil: 'networkidle' });
-await model.waitForFunction(
-  () => /就绪|Ready|完成|Done|失败|Failed/i.test(
-    (document.querySelector('[data-bar="evolve"] .funcbar-state') || {})
-      .textContent || ''), null, { timeout: 180000 });
+//: ★★等**留得住的信号**，不等状态行（2026-09-05 真浏览器实测改）。这里从前等的是
+//: 状态行里出现「就绪 / Ready」，而那句话在页面上只存在一瞬：各栏的初始状态紧接着把它
+//: 换成自己的（实测 0.49 s 时已是「待机——摆好目标，合开关起放电」，`status.kernel_ready`
+//: 在 MutationObserver 里一次痕迹也没留下）。于是这一等就是 180 秒的超时，而**页面本身
+//: 一直是好的**——`FyDesignReady` 与 `FYLITE_KERNEL` 都按时到位。状态行是给读者看的：
+//: 它会改词、会被覆盖、还随语言变，判据挂在它上面就是把闸子挂在措辞上。
+await model.waitForFunction(() => !!self.FYLITE_KERNEL, null, { timeout: 180000 });
 
 /** 从导出菜单里存一份文件下来；没有下载就回 null。 */
 async function exportPressure(name) {
