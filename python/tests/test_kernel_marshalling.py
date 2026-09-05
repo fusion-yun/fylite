@@ -783,37 +783,6 @@ def test_an_adaptive_steady_solve_is_refused_at_the_boundary():
                      dt_min=1e-9, dt_max=1.0, edge_te=300.0, edge_ti=300.0)
 
 
-def test_the_sawtooth_mixes_what_it_says_and_leaves_the_rest_alone():
-    n = 61
-    rho = np.linspace(0.0, 1.0, n)
-    vp = 2.0 * rho + 1e-3
-    b0 = 2.5
-    psi = 2 * np.pi * b0 * 0.5 * rho ** 2 / 0.7      # q < 1 on axis
-    te = 3000.0 - 2500.0 * rho ** 2
-    ne = 6e19 * (1 - 0.5 * rho ** 2)
-    c = K.sawtooth_crash(rho, vprime=vp, psi=psi, b0=b0, profiles=[te, ne],
-                         r_mix=0.4)
-    i = c["i_mix"]
-    for before, after in ((te, c["profiles"][0]), (ne, c["profiles"][1])):
-        #: the content the plasma keeps, not the arithmetic mean
-        w = lambda v: np.trapezoid(vp[:i] * v[:i], rho[:i])   # noqa: E731
-        assert w(after) == pytest.approx(w(before), rel=1e-9)
-        assert np.allclose(after[:i], after[0])
-        assert np.array_equal(after[i:], before[i:])          # untouched
-    assert c["q"][3] == pytest.approx(1.0, abs=2e-2)
-    assert c["psi_moved"] > 0.0
-
-
-def test_a_discharge_that_is_not_sawtoothing_says_so():
-    rho = np.linspace(0.0, 1.0, 5)
-    assert K.q_crossing(rho, [1.2, 1.4, 1.8, 2.2, 3.0]) is None
-    assert K.q_crossing(rho, [0.8, 0.9, 1.1, 1.6, 2.4]) == pytest.approx(0.375)
-    #: ★a request the model cannot honour is a refusal, not a silent no-op
-    with pytest.raises(K.KernelError, match="mixing radius"):
-        K.sawtooth_crash(rho, vprime=np.ones(5), psi=np.ones(5), b0=2.5,
-                         profiles=[np.ones(5)], r_mix=2.0)
-
-
 # --- the operating domain, the flux account, and the start ------------------
 #
 # ★These entries carry the design scenario's own CRITERIA, and they have no

@@ -21,7 +21,7 @@ the current profile between rounds**, 5 % by default
 ★★**What is here and what is deliberately not.**  The six steps are the
 caller's, passed in as callables: this package has a flux match
 (:func:`fylite.kernel.flux_match`), an EPED1-NN (:func:`fylite.kernel.eped1nn`),
-a sawtooth (:func:`fylite.kernel.sawtooth_crash`) and a free-boundary solve
+a sawtooth (the kernel's ``sawtooth_crash``, an oracle-only export since T-4 第六刀) and a free-boundary solve
 (:func:`fylite.kernel.gs_free_solve`), but *which* of them a given run uses,
 and on what geometry, is a scenario decision and not a loop decision.  What
 the loop owns — and what a second host can therefore be held against — is the

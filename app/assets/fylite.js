@@ -1553,35 +1553,6 @@
   };
 
   /**
-   * One Delta* solve on a rectangle: `Delta* psi = rhs`, Dirichlet values
-   * taken from `psi`'s own border and the interior overwritten.
-   *
-   * ★This is the kernel's fast direct solve (Hockney) and nothing else —
-   * no Picard, no axis, no normalisation.  It was bound because the
-   * fixed-boundary refinement on this site used to run its Picard in the
-   * worker; that loop is now `gsFixedBox` below and this entry has no
-   * caller on the page.  It stays bound because it is the one piece of the
-   * chain a reader can check ALONE: hand it a border and a source and the
-   * field comes back, with no axis rule and no plasma mask in between —
-   * which is exactly what `app/tests/validate-evolve.mjs` does natively to
-   * the box the session file carries.
-   *
-   * `o` = `{r, z, psi, rhs}`; the solved field comes back.
-   */
-  Fy.prototype.deltaStarSolve = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, n = nr * nz;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z),
-          psi = s.fixed('deltastar.psi', o.psi, n),
-          rhs = s.fixed('deltastar.rhs', o.rhs, n);
-      var rc = self.e.fylite_rs_deltastar_solve(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), psi.ptr, rhs.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_deltastar_solve', rc);
-      return s.get(psi);
-    });
-  };
-
-  /**
    * A FIXED-boundary Grad-Shafranov solve with polynomial p' and FF'.
    *
    * `o` = `{r, z, psi, psiBoundary, pprime, ffprime, relax, maxIter, tol}`;
@@ -3079,61 +3050,6 @@
                                     : niCgs.slice(j * n, (j + 1) * n),
                   z: z[j], id: -1 });
     return this.radIon({ te: te, ne: neCgs, ions: ions }).brem;
-  };
-
-  /**
-   * The innermost radius where `q = q_crit`, or null when there is none.
-   *
-   * ★Null is an ANSWER: a discharge that is not sawtoothing has no q = 1
-   * surface, and the entry says so with its own code rather than with a
-   * radius off the end of the grid.
-   */
-  Fy.prototype.qCrossing = function (rho, q, qCrit) {
-    var self = this, n = rho.length;
-    return this.scope(function (s) {
-      var r = s.put(rho), qq = s.put(q), out = s.zeros(1);
-      var rc = self.e.fylite_rs_q_crossing(
-        r.ptr, qq.ptr, BigInt(n), num(qCrit, 1), out.ptr);
-      if (rc === -5) return null;
-      if (rc !== 0) throw new SolveError('fylite_rs_q_crossing', rc);
-      return s.get(out)[0];
-    });
-  };
-
-  /**
-   * One sawtooth crash: the profiles flattened inside `rMix` conserving
-   * `integral V' y drho`, and `psi` rebuilt there from `q = 1`.
-   *
-   * ★`rMix` has NO default here, and the kernel says why: reduced models
-   * take it as `k r_1` with `k` between 1 and about 1.4 depending on whose
-   * paper is followed, so a default would be a physics choice made silently
-   * on every crash.  `profiles` is a list of arrays, mixed together and
-   * returned in the same order.
-   */
-  Fy.prototype.sawtoothCrash = function (o) {
-    var self = this, n = o.rho.length, np_ = o.profiles.length;
-    return this.scope(function (s) {
-      var flat = new Float64Array(np_ * n);
-      for (var j = 0; j < np_; j++) {
-        if (o.profiles[j].length !== n)
-          throw new Error('FyLite.sawtoothCrash: profile ' + j + ' has ' +
-                          o.profiles[j].length + ' points, expected ' + n);
-        flat.set(o.profiles[j], j * n);
-      }
-      var rho = s.put(o.rho), vp = s.put(o.vprime), psi = s.put(o.psi),
-          pr = s.put(flat), out = s.zeros(np_ * n + 2 * n + 2);
-      var rc = self.e.fylite_rs_sawtooth_crash(
-        rho.ptr, vp.ptr, psi.ptr, pr.ptr, BigInt(n), BigInt(np_),
-        o.b0, o.rMix, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_sawtooth_crash', rc);
-      var v = s.get(out), mixed = [];
-      for (var k = 0; k < np_; k++) mixed.push(v.slice(k * n, (k + 1) * n));
-      return { profiles: mixed,
-               psi: v.slice(np_ * n, np_ * n + n),
-               q: v.slice(np_ * n + n, np_ * n + 2 * n),
-               psiMoved: v[np_ * n + 2 * n],
-               iMix: v[np_ * n + 2 * n + 1] | 0 };
-    });
   };
 
   /**

@@ -104,7 +104,7 @@ __all__ = [
     "channel_field", "breakdown_design",
     "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
     "gs_fixed_box",
-    "boundary_flux", "harmonic_interior", "gs_free_solve",
+    "boundary_flux", "gs_free_solve",
     #: T-D6′ — the same solve on a tabulated (delivered) p'/FF' shape
     "gs_free_solve_tab", "FREE_SOLVE_TAB_KEYS",
     "gs_inverse_solve",
@@ -118,9 +118,7 @@ __all__ = [
     "deltastar_apply", "core_march", "label_drift", "solve_momentum",
     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
     "d_from_flux", "gyrobohm_gamma", "alpha_heating",
-    "q_crossing",
-    "sawtooth_crash",
-    "solve_density",
+            "solve_density",
     "tglf_flux_searched", "chi_from_flux", "gyrobohm_q", "shell_area",
     "neo_current_unit",
     "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
@@ -4399,57 +4397,8 @@ def scenario(entry: str, *, params: dict | None = None,
     return got
 
 
-_sig("fylite_rs_q_crossing", [_ARR, _ARR, _U64, _F64, _ARR], _I32)
-def q_crossing(rho, q, *, q_crit: float = 1.0):
-    """The innermost radius where ``q`` crosses ``q_crit``, or ``None``.
-
-    ★``None`` is the answer for a discharge that is not sawtoothing, and a
-    caller has to be able to act on it — so it is not a radius of zero.
-    """
-    lib = require()
-    r, qq = _f(rho), _f(q)
-    out = np.empty(1)
-    rc = lib.fylite_rs_q_crossing(r, qq, r.size, float(q_crit), out)
-    if rc == -5:
-        return None
-    if rc != 0:
-        raise KernelError(f"fylite_rs_q_crossing returned {rc}")
-    return float(out[0])
 
 
-_sig("fylite_rs_sawtooth_crash",
-     [_ARR] * 4 + [_U64, _U64, _F64, _F64, _ARR], _I32)
-def sawtooth_crash(rho, *, vprime, psi, b0: float, profiles, r_mix: float):
-    """One sawtooth crash: mix ``profiles`` inside ``r_mix``, q → 1 there.
-
-    Returns ``{profiles, psi, q, psi_moved, i_mix}``.  Each profile is
-    flattened conserving ``∫V'y dρ`` over the mixed region — the integral
-    the plasma actually keeps — and everything outside is untouched.
-
-    ★★A MIXING model, not Kadomtsev and not Porcelli: no helicity pairing,
-    no fast-ion stabilisation, and the trigger is ``q(0) < q_crit`` alone.
-    ``r_mix`` has no default for the same reason TGLF's ``width`` has none.
-    """
-    lib = require()
-    r = _f(rho)
-    n = r.size
-    rows = [np.broadcast_to(np.asarray(p, float), (n,)) for p in profiles]
-    block = _f(np.concatenate(rows)) if rows else _f(np.empty(0))
-    out = np.empty(len(rows) * n + 2 * n + 2)
-    rc = lib.fylite_rs_sawtooth_crash(r, _f(vprime), _f(psi), block, n,
-                                      len(rows), float(b0), float(r_mix),
-                                      out)
-    if rc != 0:
-        raise KernelError(
-            "sawtooth_crash: the mixing radius must sit on the grid and "
-            "cover at least two cells, and every profile must be as long "
-            f"as rho (kernel returned {rc})")
-    m = len(rows) * n
-    return {"profiles": [out[j * n:(j + 1) * n].copy()
-                         for j in range(len(rows))],
-            "psi": out[m:m + n].copy(), "q": out[m + n:m + 2 * n].copy(),
-            "psi_moved": float(out[m + 2 * n]),
-            "i_mix": int(out[m + 2 * n + 1])}
 
 
 _sig("fylite_rs_alpha_heating", [_ARR] * 3 + [_U64] + [_F64] * 3 + [_ARR],
@@ -5185,32 +5134,8 @@ def deltastar_apply(grid_r, grid_z, psi):
     return out.reshape(rg.size, zg.size)
 
 
-_sig("fylite_rs_deltastar_solve", [_ARR, _U64, _ARR, _U64, _ARR, _ARR], _I32)
-def harmonic_interior(grid_r, grid_z, field):
-    """Keep the border, replace the interior with the solution of
-    ``Δ*ψ = 0``.
-
-    ★A true external (vacuum) field is source-free on any region holding no
-    conductors, so the non-harmonic content of an EXTRACTED vacuum is
-    extraction noise (plasma-filament quantisation).  This projects it out
-    without touching the real field — provided the interior really holds no
-    sources: vessel currents inside the grid would be smeared.
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    psi = _f(np.array(field, dtype=float, copy=True))
-    rhs = np.zeros_like(psi)
-    rc = lib.fylite_rs_deltastar_solve(rg, rg.size, zg, zg.size, psi, rhs)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_deltastar_solve returned {rc}")
-    return psi
 
 
-#: ★the FSA-current entry: the plain inverse's argument list plus
-#: `(xj, vzeroj, wj, n_j)`.  Registered beside the entry it extends, and
-#: reached through the SAME Python door — `gs_inverse_solve` dispatches on
-#: whether a current constraint was given, so there is one function here
-#: and not two that differ by three arguments.
 _sig("fylite_rs_gs_inverse_solve_fsa", [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _U64, _U64, _F64, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _F64, _U64, _F64, _F64, _F64, _F64, _U64, _ARR, _ARR, _ARR], _I32)
 _sig("fylite_rs_gs_inverse_solve", [ _ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _U64, _U64, _F64, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR, _U64, _F64, _U64, _F64, _F64, _F64, _F64, _U64, _ARR, _ARR, _ARR], _I32)
 def gs_inverse_solve(grid_r, grid_z, psi_ext, *, loops_m, meas, weights,
