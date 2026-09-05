@@ -71,11 +71,11 @@ function walk(dir, base = '') {
 //: 机器也列不出来**：装置信息就编在那份 wasm 里，取不到就没有机器，而页面对「一台
 //: 机器也没有」的容忍度是逐处写的（实测：`Cannot read properties of null`）。
 //: 今天中间层出两份产物，同一份源码、同一段装置门代码，差别只在导出面：
-//: `fylite_facts.wasm` 0.43 MB（只有装置那扇门）与 `fylite_runtime.wasm` 2.14 MB。
+//: `fylite_web.wasm` 0.51 MB（页面真读的两扇门：装置与 g-file）与 `fylite_runtime.wasm` 2.14 MB。
 //: 小的那份进预缓存（占今日预缓存总量 4.64 MB 的 9%），大的那份**站点根本不发**
 //: ——页面没有任何一处载入它（`FYL-DESIGN-16` H-4 的其余消费者尚未落地）。
 const WASM_STEMS = ['assets/fylite_rs.wasm', 'assets/fylite_kernel_ext.wasm',
-                    'assets/fylite_facts.wasm'];
+                    'assets/fylite_web.wasm'];
 //: ★★VENDORED THIRD-PARTY MEGABYTES ARE NOT PRECACHED (`FYL-DESIGN-18` U-25).
 //: `assets/vendor/h5wasm/` is ~4.2 MB — more than this repository's three
 //: kernel modules together — and it is an ON-DEMAND capability: `h5source.js`

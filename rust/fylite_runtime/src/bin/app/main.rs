@@ -436,7 +436,10 @@ fn serve(mut stream: TcpStream, cfg: &api::Cfg, source: &Source) -> std::io::Res
                 .find_map(|kv| kv.strip_prefix("name="))
                 .map(|v| v.replace("%20", " "))
                 .unwrap_or_default();
-            api::read_file(&name, &body)
+            let shape = q.split('&')
+                .find_map(|kv| kv.strip_prefix("shape="))
+                .unwrap_or("");
+            api::read_file(&name, shape, &body)
         };
         return respond(&mut stream, status, "application/json; charset=utf-8",
                        answer.as_bytes(), true);

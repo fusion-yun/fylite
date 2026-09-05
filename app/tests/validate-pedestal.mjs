@@ -83,7 +83,7 @@ const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
 page.on('console', (m) => {
   if (m.type() === 'error' && !/favicon/.test(m.text())
-      && !/\/api\/health/.test((m.location() || {}).url || ''))
+      && !/\/api\//.test((m.location() || {}).url || ''))
     errs.push('console: ' + m.text().slice(0, 200));
 });
 await page.goto(BASE + 'pages/model.html?device=east',

@@ -54,7 +54,12 @@ const page = await ctx.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
 page.on('console', (m) => {
-  if (m.type() === 'error') errs.push('console: ' + m.text().slice(0, 200));
+  //: ★★`/api/*` 上的 404 是**答案不是错误**（2026-09-05）：静态宿主没有请求面，页面据此
+  //: 判断该走 wasm（facts · 算力 · g-file 三处都探它）。发布出去的站点不在回环地址上，
+  //: 一个探测也不发。
+  if (m.type() === 'error'
+      && !/\/api\//.test((m.location() && m.location().url) || ''))
+    errs.push('console: ' + m.text().slice(0, 200));
 });
 
 await page.goto(BASE + 'pages/pulse_design.html?device=iter#part-zerod', { waitUntil: 'networkidle' });

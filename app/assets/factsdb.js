@@ -12,7 +12,7 @@
 // 是物理核（私有仓），这一份是中间层（本仓 `rust/fylite_runtime/`）。它零导入
 // （`FYL-DESIGN-16` H-5），所以实例化不需要任何宿主函数。
 //
-// ★★取的是 **`fylite_facts.wasm`（0.43 MB），不是 `fylite_runtime.wasm`（2.14 MB）**
+// ★★取的是 **`fylite_web.wasm`（0.51 MB），不是 `fylite_runtime.wasm`（2.14 MB）**
 // （2026-09-05）。两者同一份源码、同一段装置门代码，差别只在还导出了什么——wasm 上
 // 每个导出都是链接的根，所以带全套 C 导出的那一份把 JSON / YAML / g-file / 文档树 /
 // IDS 结构表全留着，而页面从中间层只读装置信息。小的那一份**进得了 service worker 的
@@ -29,32 +29,15 @@
 (function (root) {
   'use strict';
 
-  var REQUIRED = [
-    'fylite_runtime_alloc', 'fylite_runtime_free',
-    'fylite_runtime_facts_ids', 'fylite_runtime_facts_doc',
-    'fylite_runtime_facts_count', 'memory',
-  ];
+  //: ★★载入与字符串编解码**不在这里了**（2026-09-05）：它们搬进 `runtimeweb.js`，
+  //: 因为 g-file 的读法也开始用同一份 wasm（`geqdsk.js`，H-4 第一块）——一段被两处
+  //: 用的代码留在其中一处的文件里，下一个读者要靠记忆知道去哪儿找。这里只剩装置
+  //: 那扇门自己的语义：探哪条路、怎么问、答复怎么读。
+  var W = root.FyRuntimeWeb;
 
-  var inst = null;      //: 实例，取回来之后一直用
-  var pending = null;   //: 正在取的那次，免得并发触发两次下载
-
-  //: ★★**两个宿主，两条读法，同一批字节。**
-  //:   · 桌面查看器（`fy app`）—— 走它自己的 `/api/facts`：那个进程**本身就是**原生
-  //:     的中间层，`facts.rs` 那张表已经在它的地址空间里。让内嵌页面再取一份同层的
-  //:     wasm，等于把刚消掉的重复换个层次又做一遍（实测 +2.25 MB）。
-  //:   · 静态站点 —— 没有 `/api/*`，走 `fylite_runtime.wasm`。那是它唯一的读法。
-  //: ★探测方式与 `host.js` 同一条：**看请求面答不答，不看主机名**；而主机名只作
-  //: 反向过滤——查看器绑的是回环地址，所以别处根本不必发这个请求（发布出去的站点
-  //: 因此一个多余请求也没有）。
-  //: ★探一次就记住：`null` = 还没探，`false` = 没有这条路，函数 = 有。
+  //: 探过一次就记住：`null` = 还没探，`false` = 没有这条路，函数 = 有。
   var apiFace = null;
-  var ROOT = (function () {
-    try {
-      var me = document.currentScript && document.currentScript.src;
-      if (me) return me.replace(/assets\/factsdb\.js(\?.*)?$/, '');
-    } catch (e) { /* worker / test host */ }
-    return '';
-  })();
+  var ROOT = W ? W.root() : '';
 
   function loopback() {
     try {
@@ -183,12 +166,10 @@
   }
 
   function idsFromWasm(domain) {
-    return load().then(function (e) {
-      return withStr(e, domain, function (dp, dn) {
-        var t = pull(e, function (o, c) { return e.fylite_runtime_facts_ids(dp, u64(dn), o, c); });
-        if (typeof t !== 'string') throw new Error('facts_ids(' + domain + ') -> ' + t);
-        return t ? t.split('\n') : [];
-      });
+    return W.load().then(function () {
+      var t = W.callText('fylite_runtime_facts_ids', domain);
+      if (typeof t !== 'string') throw new Error('facts_ids(' + domain + ') -> ' + t);
+      return t ? t.split('\n') : [];
     });
   }
 
@@ -208,11 +189,13 @@
   }
 
   function docFromWasm(domain, ident) {
-    return load().then(function (e) {
-      return withStr(e, domain, function (dp, dn) {
-        return withStr(e, ident, function (ip, inn) {
-          var t = pull(e, function (o, c) {
-            return e.fylite_runtime_facts_doc(dp, u64(dn), ip, u64(inn), o, c);
+    return W.load().then(function (e) {
+      //: ★这一扇门要两个字符串，`callText` 只递一个——所以这里自己摆两段缓冲，
+      //: 用的仍是 `runtimeweb.js` 的那套助手（一处实现）。
+      return W.withStr(e, domain, function (dp, dn) {
+        return W.withStr(e, ident, function (ip, inn) {
+          var t = W.pull(e, function (o, c) {
+            return e.fylite_runtime_facts_doc(dp, W.u64(dn), ip, W.u64(inn), o, c);
           });
           if (t === -2) return null;
           if (typeof t !== 'string') throw new Error('facts_doc(' + domain + '/' + ident + ') -> ' + t);
@@ -229,5 +212,8 @@
     });
   }
 
-  root.FyFactsDb = { load: load, ids: ids, doc: doc, count: count, REQUIRED: REQUIRED };
+    //: ★`load` 转手给中间层的载入器：调用方（`devices.js` 的 boot）不必知道那份
+  //: wasm 是谁在管。
+  root.FyFactsDb = { load: function (u) { return W.load(u); },
+                     ids: ids, doc: doc, count: count };
 })(typeof self !== 'undefined' ? self : this);

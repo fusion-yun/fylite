@@ -78,7 +78,7 @@ export function presetProblems() { return { ...skipped }; }
  * Put the page's own facts layer into this host, reading the **shipped wasm**.
  *
  * ★★2026-09-05 用户裁定之后，`devices.js` 的 `load()` 不再 fetch 目录与逐台文档，
- * 而是问 `FyFactsDb`——静态站点上那是 `assets/fylite_facts.wasm` 里编着的
+ * 而是问 `FyFactsDb`——静态站点上那是 `assets/fylite_web.wasm` 里编着的
  * `facts.rs`。于是一条只在磁盘上摆几份 `.jsonld` 的闸子测不到页面真正走的那条路：
  * 它会以「这一版一台机器也没有」通过或失败，而两种都与被测代码无关。
  *
@@ -96,7 +96,7 @@ export function installFactsDb(root) {
   const v = root.FyRuntimeVersion;
   //: ★2026-09-05：装置那扇门搬进 `fylite_facts.wasm`（0.43 MB，只带这一面），
   //: 与页面读的是同一份产物（`factsdb.js`）。
-  const wasm = ASSETS + `fylite_facts.wasm.${v}`;
+  const wasm = ASSETS + `fylite_web.wasm.${v}`;
   if (!existsSync(wasm))
     return { ok: false, why: `${wasm} 不在检出里——先跑 bash rust/build.sh` };
   const prior = root.fetch;
@@ -111,6 +111,10 @@ export function installFactsDb(root) {
     if (prior) return prior(url);
     return { ok: false, status: 404 };
   };
+  //: ★★载入器在前（2026-09-05）：`factsdb.js` 不再自己 fetch 那份 wasm，它问
+  //: `FyRuntimeWeb`——那是 H-4 第一块落地时拆出来的一处实现，`geqdsk.js` 也用它。
+  vm.runInThisContext(readFileSync(ASSETS + 'runtimeweb.js', 'utf8'),
+                      { filename: 'runtimeweb.js' });
   vm.runInThisContext(readFileSync(ASSETS + 'factsdb.js', 'utf8'),
                       { filename: 'factsdb.js' });
   return { ok: true, wasm };

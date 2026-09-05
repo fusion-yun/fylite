@@ -47,12 +47,15 @@ const PLAN = [
     why: '同上；惰性载入，只有开湍流档的读者才付这笔钱',
   },
   {
-    file: 'fylite_facts.wasm',
-    what: '装置信息（只带 facts 那扇门）',
-    from: '本仓 rust/build.sh（缺省那一份）',
-    reader: ['factsdb.js'],
+    file: 'fylite_web.wasm',
+    what: '中间层的**浏览器面**：装置那扇门 + g-file 那扇门',
+    from: '本仓 rust/build.sh（缺省那一份，feature `abi_gfile`）',
+    //: ★★**只有载入器按名取它**：`factsdb.js`（装置）与 `geqdsk.js`（g-file）都经
+    //: `FyRuntimeWeb` 到达，不各自拼 URL——那正是把载入器单独拆出来的目的。名字从
+    //: `fylite_facts.wasm` 改过来（2026-09-05 落地 H-4 第一块）：它不再只带装置那一面。
+    reader: ['runtimeweb.js'],
     site: true, precache: true, exe: false,
-    why: '静态站点的装置数据；0.43 MB，小到进得了预缓存，于是断网也列得出机器',
+    why: '静态站点的装置数据与 g-file 读法；0.51 MB，进得了预缓存，于是断网也用得上',
   },
   {
     file: 'fylite_runtime.wasm',
@@ -60,9 +63,10 @@ const PLAN = [
     from: '本仓 rust/build.sh --full-wasm（缺省不出）',
     reader: null,                        //: ★有意为空
     site: false, precache: false, exe: false,
-    why: 'FYL-DESIGN-16 H-4 的消费者尚未落地：页面一处也不载入它。'
-       + '2.14 MB，发出去就是死重——H-4 落地那天把 build.sh 的缺省与 build-site.sh '
-       + '各改一行即可',
+    why: 'H-4 的第一块已落地（g-file 走 `fylite_web.wasm`），而**全套**这一份的消费者'
+       + '——文档树 / 打包 / 读文本（`fyo.js` · `session.js` 的职责）——仍未落地，'
+       + '页面一处也不载入它。2.14 MB，发出去就是死重；那天把 build.sh 的缺省与 '
+       + 'build-site.sh 各改一行即可',
   },
 ];
 

@@ -687,6 +687,7 @@ self.FyI18n.register('zh', {
   'sess.no_config': '文档里没有 fylite:config',
   'gfile.one_line': 'g 文件：只有一行，不是 GEQDSK',
   'gfile.no_dims': 'g 文件：头行末尾读不出 nw / nh',
+  'gfile.not_ready': 'g 文件读法还没就绪：中间层那份 wasm 还没载入（离线且从未取过时会到这一步）',
   'gfile.short': 'g 文件：数值不足（要 {want}，只剩 {left}）',
   'abi.mismatch': 'fylite 内核的接口版本是 v{got}，本页是按 v{want} 写的——签名按版本冻结，版本不一致不能当作兼容',
   'abi.missing': 'fylite 内核缺少导出：{names}',

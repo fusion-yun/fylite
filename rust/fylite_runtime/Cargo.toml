@@ -50,7 +50,11 @@ mdsip = []
 #: （2026-09-05：此前那 2.14 MB 按裁定不进预缓存，断网就没有机器可选）。
 #: ★注意这不是第二份实现：装置那扇门（`facts.rs` 与 `c_api.rs` 的三个导出）两份产物
 #: 用的是同一段代码，差别只在**还导出了什么**。
-abi_full = []
+#: ★★再细一层（2026-09-05，落地 H-4）：页面要的是 g-file 那扇门，不是全套。
+#: 分开之后站点发的那一份只带它真读的东西——实测 facts 0.43 MB · facts+gfile 0.55 MB ·
+#: 全套 2.14 MB。`abi_full` 保持「全都有」的意思，原生那两个制品照旧用它。
+abi_gfile = []
+abi_full = ["abi_gfile"]
 hdf5 = ["dep:hdf5"]
 netcdf = ["dep:netcdf", "hdf5"]
 #: ★`hdf5/zlib` rides along: the IMAS HDF5 backend layout writes every chunked

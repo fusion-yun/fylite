@@ -12,7 +12,7 @@
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
 #   ./rust/build.sh --full-wasm  另出中间层的**全套** wasm（2.14 MB）。缺省只出
-#                                `fylite_facts.wasm`（0.43 MB，只带装置那扇门）——
+#                                `fylite_web.wasm`（0.51 MB，页面真读的那两扇门）——
 #                                全套那一份今天没有读者，见 wasm 那一段的注记。
 #   ./rust/build.sh --fetch-kernel  内核检查前先在内核仓 git fetch（只动 refs）
 #   ./rust/build.sh --no-kernel-check  跳过内核检查
@@ -235,7 +235,7 @@ fi
 if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown; then
     #: ★★**两份 wasm，同一份源码，差别只在导出面**（2026-09-05）。
     #:
-    #:   fylite_facts.wasm    只导出装置那扇门（alloc / free / facts_*）。实测 0.43 MB。
+    #:   fylite_web.wasm      页面真读的那两扇门：装置（facts_*）与 g-file。实测 0.51 MB。
     #:   fylite_runtime.wasm  另加 g-file · 文档树 · 打包 · 读文本。实测 2.14 MB。
     #:
     #: 为什么要小的那一份：wasm 上每个 `#[no_mangle]` 都是链接的**根**，导出面因此
@@ -250,11 +250,11 @@ if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx
     #: 都要为它写一句特例——`make-sw.mjs` 与 `make-app-embed.mjs` 各写过一句。
     #: `--full-wasm` 仍然出得来：`FYL-DESIGN-16` H-4 的消费者（g-file / fyo / 会话搬进
     #: 中间层）落地时要用它，那天把这里的缺省翻过来即可。
-    VARIANTS="facts"
-    [ "${FULL_WASM:-0}" = 1 ] && VARIANTS="facts full"
+    VARIANTS="web"
+    [ "${FULL_WASM:-0}" = 1 ] && VARIANTS="web full"
     for variant in $VARIANTS; do
         case "$variant" in
-          facts) feats=""            ; name=fylite_facts.wasm   ;;
+          web)   feats="abi_gfile"   ; name=fylite_web.wasm     ;;
           full)  feats="abi_full"    ; name=fylite_runtime.wasm ;;
         esac
         echo "[runtime] wasm32（$variant）：cargo build --release --no-default-features ${feats:+--features $feats} ..."

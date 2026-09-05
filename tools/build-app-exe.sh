@@ -85,7 +85,7 @@ else
   #: 其中只有 432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份。
   #: ★这一条**有意打破**「站点与可执行文件内嵌同一个子集」那句：两者差的正是这一份，
   #: 而差的理由是两个宿主读同一批字节的**路不同**，不是内容不同。
-  rm -f "$STAGE"/assets/fylite_runtime.wasm* "$STAGE"/assets/fylite_facts.wasm*
+  rm -f "$STAGE"/assets/fylite_runtime.wasm* "$STAGE"/assets/fylite_web.wasm*
   echo "[exe] 内嵌树里去掉中间层的两份 wasm（页面改走本进程的 /api/facts）"
 
   #: ★★**内核那两份 wasm 也不带**（2026-09-05 用户裁定：「webui 中 fylite_rs /
