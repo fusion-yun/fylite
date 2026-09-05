@@ -7951,230 +7951,121 @@ function interpRun(msg) {
   if (!prof || !prof.rho || prof.rho.length < 3)
     return post({ type: 'error', where: 'interp',
                   message: FyI18n.t('i.err.noref') });
-  //: the species, resolved where the kernel is — the same rule the march
-  //: follows, and for the same reason: an unknown name radiates zero
-  sp.impurityId = -1; sp.impurityZ = 0;
-  sp.bulkId = fy.adasId('D');
-  if (sp.impurity) {
-    sp.impurityId = fy.adasId(sp.impurity);
-    sp.impurityZ = (self.FyLite.ADAS_Z || {})[sp.impurity];
-    sp.impurityA = (self.FyLite.ADAS_A || {})[sp.impurity];
-    if (sp.impurityId < 0 || !(sp.impurityZ > 0) || !(sp.impurityA > 0))
+  //: ★★the bar itself is `case.rs::interpretive_case` (FYL-DESIGN-16 K-3,
+  //: 2026-09-05): the species resolved where the kernel is, the metric tier,
+  //: the reference profiles read onto its radii without extrapolation, the
+  //: sources (the volume-normalised deposition, alpha, ADAS radiation, the
+  //: Ohmic term from a PRESCRIBED loop voltage), the two inversions, the
+  //: valid-only interior average and the energy account — one recipe for this
+  //: page and for Python (the kernel repository's `test_interpretive_code.py`
+  //: holds it to the old flat assembly bit for bit).  What stays here is the
+  //: PLAN: which tier, and — on the device tier — the free-boundary solve whose
+  //: ladder is bound in, until that solve sinks with the evolve line.
+  var settings = {
+    geometry: sp.geometry === 'device' ? 'ladder' : (sp.geometry || 'miller'),
+    n: sp.n, edge_psin: sp.edgePsin, a: sp.a, r0: sp.r0, kappa: sp.kappa,
+    delta: sp.delta, q95: sp.q95, b0: sp.b0, n_theta: 121,
+    grad_floor: sp.gradFloor, p_e: sp.pE, p_i: sp.pI,
+    dep_centre: sp.depCentre, dep_width: sp.depWidth, v_loop: sp.vLoop,
+    alpha: sp.alpha ? 1 : 0, brem: sp.brem ? 1 : 0,
+    impurity: sp.impurity || '', c_imp: sp.cImp, zeff: sp.zeff,
+    dt_fraction: sp.dtFraction };
+  //: a control the page did not set is a setting the kernel does not see —
+  //: the door refuses a non-scalar, and `undefined` is one
+  Object.keys(settings).forEach(function (k) {
+    if (settings[k] === undefined || settings[k] === null) delete settings[k];
+  });
+  var cp = { grid: { rho_tor: Array.from(prof.rho) },
+             electrons: { temperature: Array.from(prof.te),
+                          density: Array.from(prof.ne) } };
+  if (prof.ti && prof.ti.length) cp.t_i_average = Array.from(prof.ti);
+  var inputs = { core_profiles: { profiles_1d: cp } };
+  var free = null;
+  if (sp.geometry === 'device') {
+    if (!msg.chan)
       return post({ type: 'error', where: 'interp',
-                    message: FyI18n.t('e.err.species',
-                                      { name: sp.impurity }) });
+                    message: FyI18n.t('recon.noref') });
+    var p = { beta0: 0.55, emp: 1.0, enp: 1.0, r0: sp.r0Src };
+    var eq = summarize(freeSolve(Float64Array.from(msg.chan), p, sp.ip,
+                                 evFreeOpts(sp)), p, {});
+    var lad;
+    try { lad = evLadderFromSolve(eq, sp); }
+    catch (e) { return post({ type: 'error', where: 'interp', message: e.message }); }
+    //: ★the metric this bar inverts on is only as good as the equilibrium
+    //: it was traced from, so the solve's own verdict rides with it
+    free = freeReport(eq);
+    settings.a = lad.a; settings.r0 = lad.r0; settings.b0 = lad.b0;
+    inputs.equilibrium = { time_slice: { profiles_1d: {
+      rho_tor: Array.from(lad.rho), dvolume_drho_tor: Array.from(lad.vprime),
+      gm3: Array.from(lad.gm3), gm7: Array.from(lad.gm7),
+      'fylite:psi_norm': Array.from(lad.psin) } } };
+  } else if (sp.geometry === 'gfile') {
+    var g = msg.gfile;
+    if (!g)
+      return post({ type: 'error', where: 'interp',
+                    message: FyI18n.t('e.err.nogfile') });
+    inputs.equilibrium = interpGfileDoc(g);
   }
-
-  var geo = interpGeometry(msg, sp);
-  if (!geo) return;
-  if (!geo.gm7)
-    return post({ type: 'error', where: 'interp',
-                  message: FyI18n.t('i.err.nogm7') });
-
-  var n = geo.rho.length, i;
-  //: the reference on the metric's own radii.  ★Outside the table's span
-  //: there is no measurement, and this refuses rather than extrapolating:
-  //: an inversion run on an invented profile is an invented chi.
-  var te = interpOnto(geo.rho, prof.rho, prof.te);
-  var ti = interpOnto(geo.rho, prof.rho, prof.ti);
-  var ne = interpOnto(geo.rho, prof.rho, prof.ne);
-  if (!te || !ne)
-    return post({ type: 'error', where: 'interp',
-                  message: FyI18n.t('i.err.span', {
-                    lo: prof.rho[0].toFixed(3),
-                    hi: prof.rho[prof.rho.length - 1].toFixed(3),
-                    need: geo.rho[n - 1].toFixed(3) }) });
-  if (!ti) ti = te;
-
-  // --- the sources that hold those profiles up -----------------------------
-  //: ★the megawatts on the slider are megawatts: the Gaussian is normalised
-  //: by its VOLUME INTEGRAL, exactly as the march normalises its own
-  var qE = evDeposit(geo.rho, geo.vprime, sp.depCentre, sp.depWidth,
-                     sp.pE * 1e6);
-  var qI = evDeposit(geo.rho, geo.vprime, sp.depCentre, sp.depWidth,
-                     sp.pI * 1e6);
-  var diag = { pAux: (sp.pE + sp.pI) * 1e6, pAuxBeam: 0, pAuxLh: 0,
-               torqueBeam: null, pAlpha: 0, pRad: 0, pLine: 0,
-               pOhm: 0 };
-  var neCgs = new Float64Array(n), niCgs = new Float64Array(n),
-      tiKev = new Float64Array(n), ni = new Float64Array(n);
-  for (i = 0; i < n; i++) {
-    ni[i] = ne[i];
-    neCgs[i] = ne[i] * EV_M3_TO_CM3;
-    niCgs[i] = ni[i] * EV_M3_TO_CM3;
-    tiKev[i] = ti[i] * 1e-3;
-  }
-  var alpha = null, rad = null, ohm = null;
-  if (sp.alpha) {
-    var al = fy.alphaHeating({ ne: ne, teEv: te, tiKev: tiKev,
-                               dtFraction: sp.dtFraction, zeff: sp.zeff,
-                               zsum: sp.dtFraction * (1 / 2 + 1 / 3) });
-    alpha = al.total;
-    for (i = 0; i < n; i++) { qE[i] += al.e[i]; qI[i] += al.i[i]; }
-    diag.pAlpha = evVolInt(geo.rho, geo.vprime, al.total);
-  }
-  if (sp.brem) {
-    var ions = [{ n: niCgs, z: 1, id: sp.bulkId }];
-    if (sp.impurityId >= 0 && sp.cImp > 0) {
-      var nz = new Float64Array(n);
-      for (i = 0; i < n; i++) nz[i] = neCgs[i] * sp.cImp;
-      ions.push({ n: nz, z: sp.impurityZ, id: sp.impurityId });
-    }
-    var rd = fy.radIon({ te: te, ne: neCgs, ions: ions });
-    rad = new Float64Array(n);
-    for (i = 0; i < n; i++) {
-      rad[i] = rd.total[i] * EV_ERG_TO_W;
-      qE[i] -= rad[i];
-    }
-    diag.pRad = evVolInt(geo.rho, geo.vprime, rad);
-    diag.pLine = evVolInt(geo.rho, geo.vprime, (function () {
-      var l = new Float64Array(n);
-      for (var k = 0; k < n; k++) l[k] = rd.line[k] * EV_ERG_TO_W;
-      return l;
-    })());
-  }
-  if (sp.vLoop !== 0) {
-    //: ★the Ohmic term from a PRESCRIBED loop voltage and the Spitzer
-    //: conductivity of these profiles — E_par = V_loop/(2 pi R0).  It is
-    //: not the march's lagged rate (there is no march here) and the page
-    //: says which of the two it is.
-    var cr = fy.collisionRates({ neCgs: neCgs, te: te, niCgs: niCgs, ti: ti,
-                                 mass: [EV_MD_G], z: [1], therm: [1] });
-    var eta = fy.spitzerEta(te, evFill(n, sp.zeff), cr.loglam);
-    var epar = sp.vLoop / (2 * Math.PI * geo.r0);
-    ohm = new Float64Array(n);
-    for (i = 0; i < n; i++) {
-      ohm[i] = epar * epar / Math.max(eta[i], 1e-12);
-      qE[i] += ohm[i];
-    }
-    diag.pOhm = evVolInt(geo.rho, geo.vprime, ohm);
-  }
-
-  // --- the inversion, one channel each -------------------------------------
-  var inv = function (dens, temp, src) {
-    return fy.interpretiveChannel({
-      rho: geo.rho, vprime: geo.vprime, gm7: geo.gm7, gm3: geo.gm3,
-      density: dens, temperature: temp, source: src,
-      gradFloor: sp.gradFloor });
-  };
-  var re = inv(ne, te, qE), ri = inv(ni, ti, qI);
-
-  //: ★the volume-averaged chi over the VALID points only, and how many
-  //: those were: an average that quietly included the floor region would be
-  //: the one number a reader quotes and the one the kernel refused to give.
-  //: ★★AND WITHOUT THE TWO END NODES.  The inversion differences the
-  //: profile node by node, so the first and last node carry a ONE-SIDED
-  //: difference where every interior node has a centred one.  Measured by
-  //: round trip against a known chi0 on a 31-point grid: the interior
-  //: recovers it to 2 %, the node next to the axis is 50 % high and the
-  //: boundary node 110 % — and the boundary node carries the LARGEST V',
-  //: so a volume average that included it would put most of that error
-  //: into the one number a reader quotes.  They are still PLOTTED: an
-  //: average that quietly dropped points is as bad as one that quietly
-  //: kept them, so the row says which it is and the caveat says why.
-  var avg = function (r) {
-    var num = 0, den = 0, used = 0, valid = 0;
-    for (var k = 0; k < n; k++) {
-      if (r.valid[k] && isFinite(r.chi[k])) valid += 1;
-      if (k === 0 || k === n - 1) continue;
-      if (!r.valid[k] || !isFinite(r.chi[k])) continue;
-      var w = geo.vprime[k];
-      num += r.chi[k] * w; den += w; used += 1;
-    }
-    return { chi: den > 0 ? num / den : NaN, n: valid, used: used };
-  };
-  var at = function (r, x) {
-    var want = x * geo.rho[n - 1];
-    for (var k = 0; k < n; k++)
-      if (geo.rho[k] >= want) return r.valid[k] ? r.chi[k] : NaN;
-    return NaN;
-  };
-
-  var pres = new Float64Array(n), w = new Float64Array(n);
-  for (i = 0; i < n; i++) {
-    pres[i] = (ne[i] * te[i] + ni[i] * ti[i]) * EV_QE;
-    w[i] = 1.5 * pres[i];
-  }
-  var wTh = evVolInt(geo.rho, geo.vprime, w);
-  var pLoss = diag.pAux + diag.pAlpha + diag.pOhm - diag.pRad;
-
+  var rec;
+  try { rec = fy.complete('code/interpretive', { settings: settings, inputs: inputs }); }
+  catch (e) { return post({ type: 'error', where: 'interp', message: e.message }); }
+  var F = function (k) { return fieldFlat(rec, k); };
+  var X = function (k) { return rec.facts[k].value; };
+  var cpr = rec.fields.core_profiles.profiles_1d;
+  var ladr = rec.fields.equilibrium.time_slice.profiles_1d;
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var validE = F('valid_e'), validI = F('valid_i');
+  var asBool = function (v) { return Array.from(v, function (x) { return x !== 0; }); };
+  var on = function (k, flag) { return X(flag) ? F(k) : null; };
+  var src = sp.geometry === 'device' ? 'device' : settings.geometry;
   post({ type: 'interp',
-         rho: geo.rho, psin: geo.psin, vprime: geo.vprime,
-         gm3: geo.gm3, gm7: geo.gm7,
-         te: te, ti: ti, ne: ne,
-         chiE: re.chi, chiI: ri.chi,
-         validE: re.valid, validI: ri.valid,
-         qE: re.qPb, qI: ri.qPb, powerE: re.power, powerI: ri.power,
-         srcE: qE, srcI: qI,
-         alpha: alpha, rad: rad, ohm: ohm,
-         avgE: avg(re), avgI: avg(ri),
-         chiEHalf: at(re, 0.5), chiIHalf: at(ri, 0.5),
-         wTh: wTh, tauE: pLoss > 0 ? wTh / pLoss : NaN,
-         diag: diag, geoSource: geo.source,
+         rho: flat(ladr.rho_tor), psin: flat(ladr['fylite:psi_norm']),
+         vprime: flat(ladr.dvolume_drho_tor),
+         gm3: flat(ladr.gm3), gm7: flat(ladr.gm7),
+         te: flat(cpr.electrons.temperature), ti: flat(cpr.t_i_average),
+         ne: flat(cpr.electrons.density),
+         chiE: F('chi_e'), chiI: F('chi_i'),
+         validE: asBool(validE), validI: asBool(validI),
+         qE: F('q_e'), qI: F('q_i'), powerE: F('power_e'), powerI: F('power_i'),
+         srcE: F('src_e'), srcI: F('src_i'),
+         alpha: on('alpha', 'alpha_on'), rad: on('rad', 'brem_on'),
+         ohm: on('ohm', 'ohm_on'),
+         avgE: { chi: X('avg_chi_e'), n: X('avg_n_e'), used: X('avg_used_e') },
+         avgI: { chi: X('avg_chi_i'), n: X('avg_n_i'), used: X('avg_used_i') },
+         chiEHalf: X('chi_e_half'), chiIHalf: X('chi_i_half'),
+         wTh: X('w_th'), tauE: X('tau_e'),
+         diag: { pAux: X('p_aux'), pAuxBeam: 0, pAuxLh: 0, torqueBeam: null,
+                 pAlpha: X('p_alpha'), pRad: X('p_rad'), pLine: X('p_line'),
+                 pOhm: X('p_ohm') },
+         geoSource: src,
          //: null on the two tiers that do not solve one — a g-file and a
          //: Miller shape are given, not converged to
-         free: geo.free || null,
-         b0: geo.b0, aMinor: geo.a, rMajor: geo.r0,
+         free: free,
+         b0: X('b0'), aMinor: X('a_minor'), rMajor: X('r_major'),
          ms: Date.now() - t0 });
 }
 
-/** `y(x)` of a table at the metric's radii, or null if the table is short. */
-function interpOnto(rho, srcX, srcY) {
-  if (!srcY || !srcY.length) return null;
-  var n = rho.length, out = new Float64Array(n), m = srcX.length;
-  for (var i = 0; i < n; i++) {
-    var at = rho[i];
-    //: ★no extrapolation, either end.  The axis is the one exception and it
-    //: is not one: a table that starts at rho > 0 has no measurement there,
-    //: so the answer is a refusal rather than a flat top nobody measured.
-    if (at < srcX[0] - 1e-9 || at > srcX[m - 1] + 1e-9) return null;
-    var lo = 0, hi = m - 1;
-    if (at <= srcX[0]) { out[i] = srcY[0]; continue; }
-    if (at >= srcX[m - 1]) { out[i] = srcY[m - 1]; continue; }
-    while (hi - lo > 1) { var k = (lo + hi) >> 1; if (srcX[k] > at) hi = k; else lo = k; }
-    var t = (at - srcX[lo]) / (srcX[hi] - srcX[lo]);
-    var v = srcY[lo] + t * (srcY[hi] - srcY[lo]);
-    if (!isFinite(v)) return null;
-    out[i] = v;
-  }
-  return out;
-}
-
-/** The metric the interpretive bar runs on — the same three tiers. */
-function interpGeometry(msg, sp) {
-  if (sp.geometry === 'device') {
-    if (!msg.chan) {
-      post({ type: 'error', where: 'interp',
-             message: FyI18n.t('recon.noref') });
-      return null;
-    }
-    var prof = { beta0: 0.55, emp: 1.0, enp: 1.0, r0: sp.r0Src };
-    var eq = summarize(freeSolve(Float64Array.from(msg.chan), prof, sp.ip,
-                                 evFreeOpts(sp)),
-                       prof, {});
-    var lad = evLadderFromSolve(eq, sp);
-    //: ★the metric this bar inverts on is only as good as the equilibrium
-    //: it was traced from, so the solve's own verdict rides with it
-    if (lad) lad.free = freeReport(eq);
-    return lad;
-  }
-  if (sp.geometry === 'gfile') {
-    var g = msg.gfile;
-    if (!g) {
-      post({ type: 'error', where: 'interp',
-             message: FyI18n.t('e.err.nogfile') });
-      return null;
-    }
-    return evLadderMetric({
-      psi: Float64Array.from(g.psi), psiAxis: g.psiAxis, psiBnd: g.psiBnd,
-      axisR: g.axisR, axisZ: g.axisZ,
-      gridR0: g.r0, gridZ0: g.z0, dr: g.dr, dz: g.dz, nr: g.nr, nz: g.nz,
-      limR: Float64Array.from(g.limR), limZ: Float64Array.from(g.limZ),
-      qTable: Float64Array.from(g.qTable), fTable: Float64Array.from(g.fTable),
-      b0: Math.abs(g.b0), aMinor: g.a, rMaj: g.rmaj,
-      n: sp.n, edgePsin: sp.edgePsin, nTheta: 121, source: 'gfile' });
-  }
-  return evMillerMetric(sp);
+/**
+ * The page's g-file payload as the `fyo:equilibrium` document the kernel's
+ * g-file tier reads: the psi map `[R, Z]` in the page's own gauge with its axis
+ * and boundary values beside it (the tier normalises, so the gauge cancels),
+ * the axis, the limiter, q and F on the uniform psi_N grid, the field, and
+ * the boundary outline the minor radius is measured from.
+ */
+function interpGfileDoc(g) {
+  var i, r = new Array(g.nr), z = new Array(g.nz);
+  for (i = 0; i < g.nr; i++) r[i] = g.r0 + g.dr * i;
+  for (i = 0; i < g.nz; i++) z[i] = g.z0 + g.dz * i;
+  if (!g.bndR || !g.bndZ || g.bndR.length < 3)
+    throw new Error('interp: the g-file payload carries no boundary outline (nbbbs = 0)');
+  return { vacuum_toroidal_field: { r0: g.rmaj, b0: g.b0 },
+           time_slice: {
+             global_quantities: { magnetic_axis: { r: g.axisR, z: g.axisZ },
+                                  psi_axis: g.psiAxis, psi_boundary: g.psiBnd },
+             profiles_1d: { q: Array.from(g.qTable), f: Array.from(g.fTable) },
+             profiles_2d: { grid: { dim1: r, dim2: z }, psi: Array.from(g.psi) },
+             boundary: { outline: { r: Array.from(g.bndR), z: Array.from(g.bndZ) } } },
+           'fylite:limiter': { r: Array.from(g.limR), z: Array.from(g.limZ) } };
 }
 
 /**

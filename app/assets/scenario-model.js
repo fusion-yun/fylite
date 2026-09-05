@@ -1296,6 +1296,10 @@ FyScenario.whenDevices(function () {
       //: interpolates them on
       qTable: Array.from(g.qpsi), fTable: Array.from(g.fpol),
       b0: Math.abs(g.bcentr), a: sm.a, rmaj: sm.r0,
+      //: ★the outline itself rides along (2026-09-05): the kernel's g-file
+      //: tier measures the minor radius from it with the SAME shape metric,
+      //: rather than trusting a number the page measured
+      bndR: Array.from(g.rbbbs), bndZ: Array.from(g.zbbbs),
     };
   }
 

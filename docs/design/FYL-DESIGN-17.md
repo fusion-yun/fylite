@@ -524,7 +524,7 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 | model | **`evolve`** | 含时演化：热通道推进到稳态，功率平衡怎么走；`couple=N` 即平衡交替 | S-L1；`-10` 栏二；指南「正解与演化」 | `evolve` / `code/evolve`(114) / `model.evolve`；entry `evolve_heat`；`ENTRY_SCOPE` 里 `beam` · `lh` · `wave` · `ipctl` · `ch-density` … 为 unsunk，给了按名拒绝 | （同上） | ✅ | ✅ |
 | model | `coupled` | 平衡—输运静态交替 | `-10`（2026-08-26 栏让给 `evolve`） | `model.coupled`，无栏 | — | ⤵ `evolve` 的 `couple` | — |
 | model | `tglf` | 局域线性稳定性与准线性通量 | S-L1 湍流闭包；`TOOLS['tglf']` | `model.tglf`；两条栏里的 `closure=turbulent` 模式 | `inputs` | ⤵ `transport` / `evolve` 的 `closure` · `turb-*`；独立模板 P2-c 候选 | — |
-| model | `interp` | 剖面插到内核网格 | `-10` 栏 `interp` | 浏览器专有工具 | — | ✗ 工具不是场景 | — |
+| model | `interp` | 剖面插到内核网格；功率平衡反演 χ | `-10` 栏 `interp` | `code/interpretive`（worker 的 `interpRun` 经文档门；2026-09-05 K-3 第八刀） | — | ✗ 工具不是场景：门上的 code，不出 `fy` 场景模板 | — |
 | model / design | **`zerod`** | 0-D 放电：这套相位表与波形落在运行域哪里；`uqon` 即不确定度 | S-L4；`-09` 栏一 | `zerod` / `code/zerod`(33) / `model.zerod` | （`device` 可选） | ✅ | ✅ |
 | design | **`discharge`** | 静态线圈反解 / 自由边界正解：目标形状 → 线圈电流 | S-L1 平衡正演 · S-L5 静态反解；`-09` 栏二；指南「前向自由边界正解」 | `discharge` / `code/discharge`(23) / `design.discharge` | `device`(要线圈几何) | ✅ | ⛔ P2-c |
 | design | **`breakdown`** | 击穿零场设计与逐通道限值 | S-L3 / S-L4；`-09` 栏四；指南「击穿与上升段」 | `breakdown` / `code/breakdown`(17) / `design.breakdown` | `device` | ✅ | ⛔ P2-c |

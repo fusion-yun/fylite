@@ -11,7 +11,8 @@
 //   3. `design`（两遍退火）答回 history 三条、形状六个量有限、判据在、pass 在 0..2；
 //      同一请求再发一次**逐位相同**（门无状态）；
 //   4. 缺 schedule 的 design 仍然答（内核按 passes 造表）——页面从不发 schedule=null 之外的
-//      东西，但 worker 不该因此死。
+//      东西，但 worker 不该因此死；
+//   5-6. pulse 与四条 0-D 命令；7. 模型页的 interpretive 栏（Miller 档，`code/interpretive`）。
 //
 // 物理的对拍在内核仓（`tests/test_discharge_code.py`：旧 Python 配方 vs 内核，安匝 1e-9）；
 // 这里判的是**页面这一侧接得上、说得清**。
@@ -201,5 +202,36 @@ assert.equal(zm.n, nS); assert.equal(zm.stats.pFus.n, nS); assert.ok(zm.stats.pF
 assert.equal(zm.samples.pFus.length, nS);
 inbox.splice(0, inbox.length);
 ok(`zerodmc: ${nS} samples, P_fus p05..p95 ${(zm.stats.pFus.p05 / 1e6).toFixed(0)}..${(zm.stats.pFus.p95 / 1e6).toFixed(0)} MW`);
+
+// --- 7. the model page's interpretive bar (Miller tier) ------------------------------
+//: the reference profiles on a metre grid a shade wider than the metric, so the
+//: no-extrapolation rule is satisfied; the sources all on
+const ia = 0.45, ir = Array.from({ length: 61 }, (_, i) => i / 60 * ia * 1.02);
+const ix = ir.map((r) => Math.min(r / ia, 1));
+send({ cmd: 'interp',
+       spec: { geometry: 'miller', n: 31, edgePsin: 0.95, a: ia, r0: 1.85, kappa: 1.6, delta: 0.4, q95: 3.5, b0: 2.0,
+               ip: 5e5, r0Src: 1.85, gradFloor: 1e-3, pE: 1.5, pI: 1.0, depCentre: 0, depWidth: 0.3, vLoop: 0.8,
+               alpha: true, brem: true, impurity: 'C', cImp: 0.02, zeff: 1.8, dtFraction: 0.5 },
+       profiles: { rho: ir, te: ix.map((x) => 100 + 2400 * Math.pow(1 - x * x, 1.5)),
+                   ti: ix.map((x) => 100 + 1900 * (1 - x * x)), ne: ix.map((x) => 5e18 + 4.5e19 * Math.sqrt(1 - x * x)) } });
+const ip1 = take('interp');
+assert.equal(ip1.rho.length, 31); assert.equal(ip1.chiE.length, 31); assert.equal(ip1.validE.length, 31);
+assert.equal(ip1.geoSource, 'miller'); assert.equal(ip1.free, null);
+assert.ok(ip1.validE.some(Boolean) && Number.isFinite(ip1.avgE.chi) && ip1.avgE.chi > 0, 'a valid interior average');
+assert.ok(ip1.alpha && ip1.rad && ip1.ohm, 'the three state-dependent sources rode along');
+assert.ok(ip1.diag.pAlpha > 0 && ip1.diag.pRad > 0 && ip1.diag.pOhm > 0);
+assert.ok(ip1.wTh > 0 && Number.isFinite(ip1.tauE));
+assert.equal(ip1.aMinor, ia); assert.equal(ip1.b0, 2.0);
+inbox.splice(0, inbox.length);
+ok(`interp (miller): <chi_e> ${ip1.avgE.chi.toFixed(3)} m^2/s over ${ip1.avgE.used} interior points, tau_E ${ip1.tauE.toFixed(3)} s`);
+
+send({ cmd: 'interp', spec: { geometry: 'miller', n: 31, a: ia, r0: 1.85, kappa: 1.6, delta: 0.4, q95: 3.5, b0: 2.0,
+                              gradFloor: 1e-3, pE: 1, pI: 1, depCentre: 0, depWidth: 0.3, vLoop: 0, alpha: false, brem: false,
+                              impurity: '', cImp: 0, zeff: 1, dtFraction: 0.5 },
+       profiles: { rho: ir.slice(0, 30), te: ix.slice(0, 30).map(() => 1000), ti: ix.slice(0, 30).map(() => 1000), ne: ix.slice(0, 30).map(() => 1e19) } });
+const ipErr = inbox.splice(inbox.findIndex((m) => m.type === 'error'), 1)[0];
+assert.ok(ipErr && /no extrapolation/.test(ipErr.message), 'a short reference is refused by name: ' + (ipErr && ipErr.message));
+inbox.splice(0, inbox.length);
+ok('interp: a reference that does not span the metric is refused, not extrapolated');
 
 console.log(`validate-worker-design: ${n} 项通过`);

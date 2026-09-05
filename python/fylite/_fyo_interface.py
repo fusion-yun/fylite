@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '42fe98dc24a4ddb0'
+DIGEST = '1d7730f2adf26c66'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -270,6 +270,7 @@ BLOCKS = {
         {'key': 'discharge', 'shape': '', 'units': 'assembled', 'gloss': "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march"},
         {'key': 'pulse', 'shape': '', 'units': 'assembled', 'gloss': "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints"},
         {'key': 'reconstruction', 'shape': '', 'units': 'assembled', 'gloss': 'one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit'},
+        {'key': 'interpretive', 'shape': '', 'units': 'assembled', 'gloss': "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
