@@ -13,11 +13,15 @@
 # 伺服自己内嵌的字节——因此能从 Linux 一条命令交叉编译出 .exe，
 # 且体积是资源本身的大小加上一层薄壳。
 #
-# ★★2026-09-04：构建分**公开版**与**内部版**（用户裁定）。装置数据来自仓根
-# `devices/`（`app/facts/device` 是指向它的符号链接——单一数据源），谁进哪一版由每台
-# 机器的 `devices/<id>/rights.json` 判：公开版不带 EAST，也不带上游禁止再分发的 IDS。
+# ★★2026-09-04：构建分**公开版**与**内部版**（用户裁定）。谁进哪一版由每台机器的
+# `rights.json` 判：公开版不带 EAST，也不带上游禁止再分发的 IDS。
 # 可执行文件因此**不直接内嵌 `app/`**，而是内嵌一棵**按这一版规则装好的树**——
 # 与静态站点用的是同一个装配器（`tools/build-site.sh`），所以两种制品逐字节同源。
+#
+# ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。装置文档从此
+# 只有一份 `facts.rs`，由 `rust/build.sh --<版别>` 编进 `fylite_runtime` 的 `.so` 与
+# `.wasm`；页面经那份 wasm 读，命令行经同一张表读。本脚本因此**只核对版别**，不再
+# 逐台发文档——此前同一批 432 KB 在一个可执行文件里装了两遍。
 #
 # ★★2026-09-04 用户裁定：**三种构建方式**，差别在带不带浏览器那一半：
 #   --mode cli   纯 CLI —— 可执行文件不内嵌 `app/`、不起服务，`app` 命令按名拒绝；
@@ -72,31 +76,32 @@ else
   #: ★两边都**明写**版别，不靠各自的缺省：缺省今天是 internal，而两个脚本的缺省
   #: 若某天分了岔，先发现的人是拿到制品的那个。
   bash tools/build-site.sh "--$FLAVOUR" "$STAGE" >/dev/null
-  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/facts/*/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
+  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE"
 
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
-  #: ★`--facts` 指**装好的那一棵**：2026-09-05 起仓里没有 `facts/`，而生成器要问
-  #: 「这一条在不在」。问装好的那棵，与表里 `include_bytes!` 编译期解析的是同一棵。
-  node tools/make-app-embed.mjs --flavour "$FLAVOUR" --facts "$STAGE/facts"
+  #: ★装置文档**不在**这张表里（2026-09-05 起页面经中间层 wasm 读它们），所以这里
+  #: 不再需要问「哪一台在不在」。
+  node tools/make-app-embed.mjs --flavour "$FLAVOUR"
 fi
 
-#: ★★装置信息**编进二进制**（2026-09-05 用户裁定）。`build.rs` 读这个变量，把装好的
-#: 那棵树里的每份装置文档写成一张表编进库——于是一份纯二进制自己就答得出
-#: `fy list devices` 与 `fy run --device`，不再需要盘上有语料。
-#: ★指的是**装好的**那一棵（已按 rights.json 筛过），不是暂存的全量：许可闸只有一处
-#: 实现，这里不自己判。CLI 档没有 `$STAGE`，那就退回暂存区——它同样是筛过的那一版。
-if [ -n "$STAGE" ]; then
-  export FY_FACTS_DIR="$STAGE/facts"
-elif [ -d "$DIR/dist/facts" ]; then
-  export FY_FACTS_DIR="$DIR/dist/facts"
+#: ★★装置信息**编进二进制**（2026-09-05 用户裁定），而且**只编一遍**：同日续裁
+#: 「页面也走中间层 wasm，撤掉 `facts.jsonld`」之后，页面与命令行读的是同一张表。
+#: 那张表由 `rust/build.sh --$FLAVOUR` 在编译期编进 `fylite_runtime`——本脚本不自己
+#: 编，只**核对**手上这一份是不是要发的那一版：版别在编译期定死，发布时挑不了。
+FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/app/assets/runtime-version.js" 2>/dev/null || true)
+if [ "$FLAV" != "$FLAVOUR" ]; then
+  echo "[exe] 装着的中间层编的是 **${FLAV:-<无>}** 版的装置信息，而这次要出 $FLAVOUR 版。" >&2
+  echo "[exe]   重建：bash rust/build.sh --$FLAVOUR" >&2
+  exit 1
 fi
-[ -n "${FY_FACTS_DIR:-}" ] && echo "[exe] 装置信息内嵌自 $FY_FACTS_DIR"
+export FY_FACTS_RS="$DIR/dist/facts.rs"
+[ -s "$FY_FACTS_RS" ] || { echo "[exe] 找不到 $FY_FACTS_RS —— 先跑 bash rust/build.sh --$FLAVOUR" >&2; exit 1; }
+echo "[exe] 装置信息（$FLAVOUR 版）内嵌自 $FY_FACTS_RS"
 
 
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。
-#: ★★指向**装好的那棵树**，不是 `app/`：公开版的目录是筛过的，而 `app/facts/device`
-#: 那条符号链接后面是整份语料。
+#: ★指向**装好的那棵树**，不是 `app/`：那一棵是这一版真正要发的字节。
 [ -n "$STAGE" ] && export FYLITE_APP_DIR="$STAGE"
 
 cd "$CRATE"

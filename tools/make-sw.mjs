@@ -65,6 +65,9 @@ function walk(dir, base = '') {
 //: 一切正常，断网重载 404，而这正是这份文件存在的理由。
 //: 规则的另一半在 `app/assets/fylite.js` 的 `versioned()`（导出为 `FyLite.wasmUrl`）；
 //: 这里按同一条拼，并由 `--check` 保证生成物与磁盘一致。
+//: ★中间层那一份**不进预缓存**：它是装置面板要用时才取的（`factsdb.js` 惰性载入），
+//: 而它有两兆多。把它塞进首屏的预缓存，等于让每个只想看一眼首页的读者先付这笔钱。
+//: 离线时装置面板因此可能取不到——那是一句「这一版没带装置信息」，不是页面打不开。
 const WASM_STEMS = ['assets/fylite_rs.wasm', 'assets/fylite_kernel_ext.wasm'];
 //: ★★VENDORED THIRD-PARTY MEGABYTES ARE NOT PRECACHED (`FYL-DESIGN-18` U-25).
 //: `assets/vendor/h5wasm/` is ~4.2 MB — more than this repository's three

@@ -190,47 +190,59 @@ def test_nothing_internal_only_reaches_a_public_artifact():
         f"这些机器只进内部版，公开版的发布计划却带着它们：{leaked}")
 
 
-def test_the_committed_embed_table_is_the_default_one():
-    """桌面可执行文件内嵌的那张表（committed 生成物）与**缺省版别**的发布计划一致。
+def test_the_embed_table_carries_no_device_document():
+    """内嵌资源表里**一台装置也没有**——那份重复已经撤掉，且不许回来。
 
-    ★★2026-09-05 裁定（`FYL-DESIGN-19` A-14）把缺省从公开版翻成**内部版**：
-    fylite 以内部工具发布，全功能构建含 EAST。这条闸子随之换了方向——从前它问
-    「表里有没有混进内部机器」，今天问「表是不是缺省那一张」。
+    ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。
+    在此之前同一批 432 KB 在一个可执行文件里装两遍：一遍在这张表里（给页面的
+    HTTP 面 `include_bytes!`），一遍在 `facts.rs` 里（给命令行）。两份字节、两条
+    通路，而**没有任何东西保证它们描述同一批机器**——目录说有七台、文件只有六台，
+    这种事不会有任何东西红。
 
-    翻向不是把许可闸松掉。许可判据一个字没动，仍逐条在
-    `facts/<域>/<id>/rights.json`，由上一条闸子
-    （`test_the_public_plan_never_carries_an_internal_only_machine`）盯着**公开版
-    的发布计划**——那才是会发出去的东西。这张表里只有**路径**，装置字节整棵
-    `facts/` 是 gitignored 的生成物，所以表本身发布不了任何受限数据。
+    今天页面经 `fylite_runtime.wasm` 读那唯一一份，所以这张表里不该再有装置文档。
+    本条守的是**那份重复不回来**：它一旦回来，回来的方式是有人给生成器加回一段
+    「按发布规则逐台加进来」，而那一段看起来完全合理。
 
-    为什么方向要对：表里的 `include_bytes!` 在**编译期**求值。表与缺省生成的
-    `facts/` 若不同版，`cargo build --bin fy` 直接编不过（表多了一台）或页面少一台
-    （表少了一台）。前者响，后者静默——而静默的那个只有拿到制品的人才会发现。
-
-    ★从前这条断言拿 `"devices/<id>.jsonld"` 去匹配，而表里的路径 2026-09-04 起是
-    `facts/device/<id>.jsonld`：它因此**永远为真**。换向时一并修好。
+    ★这条**从前是反过来的**（「表要与缺省版的发布计划一致」）。方向换了，因为表里
+    该有的东西换了；再往前它拿 `devices/<id>.jsonld` 匹配，而路径 2026-09-04 起是
+    `facts/device/<id>.jsonld`，于是那一版**恒真、从未生效**。
     """
     table = ROOT / "rust" / "fylite_runtime" / "src" / "bin" / "app" / "assets.rs"
     if not table.is_file():
         pytest.skip("no assets.rs")
     text = table.read_text(encoding="utf-8")
-    embedded = {d.name for d in _pulled()
-                if f'"facts/device/{d.name}.jsonld"' in text}
-    assert embedded, (
-        "内嵌表里一台装置都没有——路径写法变了？表里该有 "
-        "`facts/device/<id>.jsonld`（本条从前正是这样静默了）")
+    leaked = [ln.strip() for ln in text.splitlines() if '"facts/' in ln]
+    assert not leaked, (
+        "内嵌资源表里又有 facts 文档了——那是 2026-09-05 撤掉的那一份重复：\n  "
+        + "\n  ".join(leaked[:5]))
 
+
+def test_the_compiled_in_tier_is_the_default_flavour():
+    """编进 `libfylite_runtime.so` 的那几台 = 缺省版别的发布计划。
+
+    ★★这是许可闸的**可执行形**。装置文档从 2026-09-05 起只有一个制品
+    （`facts.rs`，由 `.so` 与 `.wasm` 各编进去），所以「发出去的是哪几台」这个问题
+    今天只有一处答案可查——就是这里。编多了一台，命令行、页面、轮**同时**多一台，
+    而三处都不会红。
+
+    ★读的是**装着的那份 `.so`**，不是源码：源码里那张表是空的（`build.rs` 在
+    `$OUT_DIR` 里生成它），所以只有问运行时才问得到真话。
+    """
+    from fylite import facts as _f
+    have = {d.name for d in _pulled()}
+    if not have:
+        pytest.skip("没拖语料")
+    if _f.bundled_count() == 0:
+        pytest.skip("这份 .so 没编装置信息（bash rust/build.sh）")
     r = subprocess.run([sys.executable, str(TOOL), "--flavour", "internal", "--list"],
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
     planned = {ln.split("/", 1)[1].strip() for ln in r.stdout.splitlines()
-               if ln.strip().startswith("device/")}
-    #: 只比**本地拖到了的**那些：搜索路径上有而本机没拖的，不该让这条闸子红。
-    planned &= {d.name for d in _pulled()}
-    assert embedded == planned, (
-        f"内嵌表与缺省（internal）发布计划不一致：表多了 {sorted(embedded - planned)}，"
-        f"表少了 {sorted(planned - embedded)}。"
-        "重跑 `node tools/make-app-embed.mjs`（缺省即内部版）再提交。")
+               if ln.strip().startswith("device/")} & have
+    built = {n for n in _f.bundled_ids("device") if n != "catalogue"} & have
+    assert built == planned, (
+        f"编进 .so 的与缺省（internal）发布计划不一致：多了 {sorted(built - planned)}，"
+        f"少了 {sorted(planned - built)}。重跑 `bash rust/build.sh --internal`。")
 
 
 # --------------------------------------------------------------------------- #

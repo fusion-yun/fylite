@@ -72,10 +72,19 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 同一份 `c_api.rs` 按 cargo feature 另编**两份**（`bash rust/build.sh --wasm-check`），
 与两个 `.so` 一一对应：
 
-| 制品 | feature | 函数导出 | 大小 | 何时取 |
+| 制品 | 出自 | 函数导出 | 大小 | 何时取 |
 | :--- | :--- | ---: | ---: | :--- |
-| `fylite_rs.wasm` | `core,capi` | 235 | 1 012 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
-| `fylite_kernel_ext.wasm` | `tglf,dke` | 19 | 485 KiB | 按需（湍流闭包；NEO 漂移动理学同在其中） |
+| `fylite_rs.wasm` | 内核 `core,capi` | 235 | 1 012 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
+| `fylite_kernel_ext.wasm` | 内核 `tglf,dke` | 19 | 485 KiB | 按需（湍流闭包；NEO 漂移动理学同在其中） |
+| `fylite_runtime.wasm` | **中间层**（本仓） | 24 | 2 190 KiB | **按需**——装置面板要读装置信息时才取（`app/assets/factsdb.js`） |
+
+★★第三份 2026-09-05 加入（用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**）。
+它与前两份**不是一回事**：前两份是物理核（私有仓 `fylite_kernel`），这一份是中间层
+（`rust/fylite_runtime/`），零导入（`FYL-DESIGN-16` H-5），版本号也另有一个
+（`app/assets/runtime-version.js`，与内核的不是同一个数）。它大是因为装置信息
+（432 KB）编在里面——那正是从前那份 `facts.jsonld` 的内容，现在只此一份。
+★**不进 service worker 的预缓存**：它是装置面板要用时才取的，塞进首屏等于让每个
+只想看一眼首页的读者先付这笔钱。
 
 ★★**2026-09-05 用户裁定：dke 与 tglf 合为 `kernel_ext`**，`.so` 与 `.wasm` 同规矩。
 此前 wasm 出三份，理由是「按需各取其一，合并会让只要 DKE 的读者连 TGLF 一起下载」。

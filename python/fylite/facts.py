@@ -102,6 +102,27 @@ class Entry:
     document: Path | None
     #: the directory holding the card and the rights ledger
     dir: Path | None
+    #: the document TEXT, for an entry that comes from the bundled tier —
+    #: compiled into ``libfylite_runtime.so``, with no file on disk.
+    #: ★Mutually exclusive with ``document``: one of the two carries it.
+    text: str | None = None
+
+    def read(self) -> str | None:
+        """This entry's document text — bundled straight, on-disk read out.
+
+        ★Consumers go through this ONE door rather than each doing
+        ``document.read_text()``: written the other way, every such site
+        quietly gets nothing on the bundled tier (``document`` is ``None``),
+        and "nothing" shows up as a missing machine, not as an error.
+        """
+        if self.text is not None:
+            return self.text
+        if self.document is not None:
+            try:
+                return self.document.read_text(encoding="utf-8")
+            except OSError:
+                return None
+        return None
 
     @property
     def rights_path(self) -> Path | None:
@@ -237,6 +258,80 @@ def domains() -> list[str]:
     return sorted(seen)
 
 
+#: ★★自带的那一档：**编在 `libfylite_runtime.so` 里**（2026-09-05 用户裁定：
+#: 页面也走中间层 wasm，撤掉 `facts.jsonld`）。装置文档从此只有一个制品
+#: `facts.rs`，`.so` 与 `.wasm` 各编进去；这里经 C ABI 读那一份，与 Rust 命令行、
+#: 与浏览器读的是同一批字节。轮因此不再带 `_facts/` 那棵树。
+#: ★读不到就当没有：一份没装 `.so` 的检出是常态，而那与「语料坏了」不是一回事。
+_BUNDLED_MISSING = object()
+_bundled_lib: object = _BUNDLED_MISSING
+
+
+def _lib():
+    global _bundled_lib
+    if _bundled_lib is _BUNDLED_MISSING:
+        _bundled_lib = None
+        try:
+            import ctypes
+
+            from . import _paths
+
+            lib = ctypes.CDLL(str(_paths.DATA_LIB))
+            lib.fylite_runtime_facts_ids.restype = ctypes.c_int64
+            lib.fylite_runtime_facts_doc.restype = ctypes.c_int64
+            lib.fylite_runtime_facts_count.restype = ctypes.c_int64
+            _bundled_lib = lib
+        except Exception:
+            _bundled_lib = None
+    return _bundled_lib
+
+
+def _ask(fn, *args) -> str | int:
+    """The two-call read: ask for the length, then ask again with a buffer."""
+    import ctypes
+
+    n = fn(*args, None, 0)
+    if n < 0:
+        return int(n)
+    if n == 0:
+        return ""
+    buf = (ctypes.c_uint8 * int(n))()
+    got = fn(*args, ctypes.cast(buf, ctypes.POINTER(ctypes.c_uint8)), n)
+    if got < 0:
+        return int(got)
+    return bytes(buf)[: min(int(got), int(n))].decode("utf-8", "replace")
+
+
+def bundled_ids(domain: str) -> list[str]:
+    """Identifiers the compiled-in tier carries, ``catalogue`` included."""
+    lib = _lib()
+    if lib is None:
+        return []
+    d = domain.encode()
+    t = _ask(lib.fylite_runtime_facts_ids, d, len(d))
+    return t.split("\n") if isinstance(t, str) and t else []
+
+
+def bundled_doc(domain: str, ident: str) -> str | None:
+    """That entry's document text, or ``None`` when this build lacks it."""
+    lib = _lib()
+    if lib is None:
+        return None
+    d, i = domain.encode(), ident.encode()
+    t = _ask(lib.fylite_runtime_facts_doc, d, len(d), i, len(i))
+    return t if isinstance(t, str) else None
+
+
+def bundled_count() -> int:
+    lib = _lib()
+    return int(lib.fylite_runtime_facts_count()) if lib is not None else 0
+
+
+#: 自带那一档的伪根名——它不是一条路径，所以不能写成一个真目录名：打印出来的
+#: 「是谁供的」要一眼看得出这一份**不在盘上**。
+BUNDLED_ROOT = Path("<bundled>")
+
+
 def find(domain: str, ident: str) -> Entry | None:
     """The first root that carries ``<domain>/<ident>``, or ``None``.
 
@@ -253,6 +348,12 @@ def find(domain: str, ident: str) -> Entry | None:
             return Entry(domain=domain, ident=ident, root=r,
                          document=doc if has_doc else None,
                          dir=sub if has_dir else None)
+    #: ★最后一档：编进 `.so` 的那一份。**排在盘上每个根之后**，理由与从前
+    #: `_facts/` 排最后一样——一份打包时冻结的语料不该盖住刚拖回来的。
+    text = bundled_doc(domain, ident)
+    if text is not None:
+        return Entry(domain=domain, ident=ident, root=BUNDLED_ROOT,
+                     document=None, dir=None, text=text)
     return None
 
 
@@ -287,6 +388,7 @@ def entries(domain: str) -> list[Entry]:
                     names.add(p.name)
             elif p.suffix == ".jsonld" and p.stem != "catalogue":
                 names.add(p.stem)
+    names.update(n for n in bundled_ids(domain) if n != "catalogue")
     out = []
     for n in sorted(names):
         hit = find(domain, n)

@@ -69,6 +69,19 @@ pub fn embedded_count() -> usize {
     EMBEDDED.iter().filter(|(_, id, _)| *id != "catalogue").count()
 }
 
+/// 某一域里的每一个标识，**含** `catalogue`——给 C ABI 的那一面用。
+///
+/// ★与 [`embedded_idents`] 的分别只有一处：那个滤掉 `catalogue`（它不是一台机器），
+/// 这个不滤（页面要先读目录才知道有哪几台）。
+pub fn embedded_ids(domain: &str) -> Vec<&'static str> {
+    EMBEDDED.iter().filter(|(d, _, _)| *d == domain).map(|(_, id, _)| *id).collect()
+}
+
+/// 自带那一档里某一条的正文；`catalogue` 也走这里。
+pub fn embedded_doc(domain: &str, ident: &str) -> Option<&'static str> {
+    embedded_text(domain, ident)
+}
+
 /// 打包时告诉本模块「自带的那份在哪」。发行方在构建时给；源码检出里没有。
 pub const BUNDLED_ENV: &str = "FY_FACTS_BUNDLED";
 

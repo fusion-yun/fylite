@@ -71,9 +71,20 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 当成位置参数。
 
 :::{important}
-**装置信息随发行版走**（2026-09-05 用户裁定）。三种制品各自带着按许可筛过的那几台
-装置描述：可执行文件**编在二进制里**，轮装在 `fylite/_facts/`，站点发在 `facts/` 下。
-所以一份发行版**盘上没有语料也答得出** `fy list devices` 与 `fy run --device`。
+**装置信息随发行版走，而且只有一份**（2026-09-05 用户裁定）。按许可筛过的那几台收成
+**一个制品** `facts.rs`，由 `rust/build.sh --<版别>` 编进 `libfylite_runtime.so` 与
+`fylite_runtime.wasm`：命令行读它、轮读它（经那份 `.so`）、页面也读它（经那份 wasm，
+`app/assets/factsdb.js`）。所以一份发行版**盘上没有语料也答得出** `fy list devices`
+与 `fy run --device`，而三个宿主读的是同一批字节。
+
+★★此前是两份：页面 fetch 的 JSON 一份，命令行编进二进制的表一份——同一批 432 KB、
+两条通路，而**没有任何东西保证它们描述同一批机器**。目录说有七台、文件只有六台，
+这种事不会有任何东西红。今天没有第二份可以跟它不一致。
+
+★**版别在编译期定死**：`--public` / `--internal` 是给 `rust/build.sh` 的，不是给
+发布脚本的；站点与可执行文件的构建只**核对**手上这一份是不是要发的那一版
+（`app/assets/runtime-version.js` 的 `FyFactsFlavour`），不一致就红着退出。
+
 `--facts` / `$FY_FACTS_PATH` 是**前置**：把自己的根排在自带的那一份之前，从不替换它。
 `fy list facts --roots` 会把自带的那一档打成一行 `<bundled>`，并说它带了几条。
 

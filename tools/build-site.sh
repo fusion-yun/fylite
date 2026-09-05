@@ -45,14 +45,35 @@ KVER=$(sed -n "s/.*kernel: *'\([^']*\)'.*/\1/p" "$APP/assets/version.js")
 [ -n "$KVER" ] || {
   echo "[site] 读不出 app/assets/version.js 的 kernel 版本 —— 先在内核仓跑构建" >&2
   exit 1; }
-WASM_STEMS="fylite_rs.wasm fylite_kernel_ext.wasm"
-for w in $WASM_STEMS; do
+#: ★★中间层那一份**版本另有出处**（`assets/runtime-version.js`，本仓 `rust/build.sh`
+#: 生成）：它与内核不是同一个版本号。拿内核的版本去找它会永远找不到。
+RVER=$(sed -n "s/.*FyRuntimeVersion *= *'\([^']*\)'.*/\1/p" "$APP/assets/runtime-version.js" 2>/dev/null || true)
+[ -n "$RVER" ] || {
+  echo "[site] 读不出 app/assets/runtime-version.js —— 先跑 bash rust/build.sh" >&2
+  exit 1; }
+KERNEL_WASM="fylite_rs.wasm fylite_kernel_ext.wasm"
+WASM_STEMS="$KERNEL_WASM fylite_runtime.wasm"
+for w in $KERNEL_WASM; do
   [ -f "$APP/assets/$w.$KVER" ] || {
     echo "[site] 找不到 app/assets/$w.$KVER —— 先在内核仓跑 rust/build.sh --wasm-check" >&2
-    echo "[site]   （wasm 不入库；内核仓的构建脚本把三份装进公开仓的 app/assets/）" >&2
+    echo "[site]   （wasm 不入库；内核仓的构建脚本把两份装进公开仓的 app/assets/）" >&2
     exit 1
   }
 done
+[ -f "$APP/assets/fylite_runtime.wasm.$RVER" ] || {
+  echo "[site] 找不到 app/assets/fylite_runtime.wasm.$RVER —— 先跑 bash rust/build.sh" >&2
+  exit 1; }
+
+#: ★★**版别在编译期定死，发布时挑不了**（2026-09-05 用户裁定：页面也走中间层 wasm，
+#: 撤掉 `facts.jsonld`）。装置信息编在那份 wasm 里，所以这里能做的只有**核对**：
+#: 手上这一份是哪一版，与要发的这一版是不是同一个。不一致就红着退出并说清怎么重建——
+#: 静默发出去的后果是一个标着「公开版」而带着 EAST 的站点。
+FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$APP/assets/runtime-version.js")
+if [ "$FLAV" != "$FLAVOUR" ]; then
+  echo "[site] 装着的中间层 wasm 编的是 **$FLAV** 版的装置信息，而这次要发 $FLAVOUR 版。" >&2
+  echo "[site]   重建：bash rust/build.sh --$FLAVOUR" >&2
+  exit 1
+fi
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
@@ -71,14 +92,17 @@ mkdir -p "$OUT"
 #: `.wasm.0`、`.wasm` 各一兆多。站点因此凭空胖三兆，而没有任何读者会取那两个别名：
 #: 页面按版本名取（`app/assets/fylite.js` 的 `versioned()`）。
 #: ★删的是别名，不是真文件；下面的自检会核对这一点两头都成立。
+ver_of() { [ "$1" = fylite_runtime.wasm ] && echo "$RVER" || echo "$KVER"; }
 for w in $WASM_STEMS; do
-  rm -f "$OUT/assets/$w" "$OUT/assets/$w.${KVER%%.*}"
+  v=$(ver_of "$w")
+  rm -f "$OUT/assets/$w" "$OUT/assets/$w.${v%%.*}"
 done
 
-#: ★★**一条规则，一处实现**：谁进这一种构建，由 `tools/facts-publish.py` 作答
-#: （它读每个条目的 `facts/<域>/<id>/rights.json`）。本脚本不自己判许可——两个地方各判
-#: 一遍，某一天它们会给出不同的答案，而先发现的人是拿到制品的那个。
-python3 "$DIR/tools/facts-publish.py" --flavour "$FLAVOUR" --out "$OUT"
+#: ★★**站点不再发装置文档**（2026-09-05 用户裁定）。它们编在 `fylite_runtime.wasm` 里，
+#: 页面经那份 wasm 读（`app/assets/factsdb.js`）。此前这里调 `facts-publish.py` 逐台发
+#: JSON，于是同一批 432 KB 在制品里有两份、两条通路，而没有任何东西保证它们描述同一批
+#: 机器。许可闸没有松：它在 `rust/build.sh` 那一步施用（`--public` / `--internal`），
+#: 上面那段核对确保这次发的与编进去的是同一版。
 
 #: 自检
 bad=0
@@ -87,12 +111,13 @@ bad=0
 while IFS= read -r -d '' l; do echo "[site] 悬空链接：$l" >&2; bad=1; done \
   < <(find "$OUT" -xtype l -print0)
 for w in $WASM_STEMS; do
-  [ -s "$OUT/assets/$w.$KVER" ] || { echo "[site] 输出里缺 assets/$w.$KVER" >&2; bad=1; }
+  v=$(ver_of "$w")
+  [ -s "$OUT/assets/$w.$v" ] || { echo "[site] 输出里缺 assets/$w.$v" >&2; bad=1; }
   #: ★★两级别名**不该**留在站点里：`cp -RL` 把它们解引用成第二、第三份一兆多的
   #: 字节，站点凭空胖三兆，而没有任何读者会取它们——页面按版本名取
   #: （`app/assets/fylite.js` 的 `versioned()`）。上面已经删过，这里把「不该有」
   #: 变成一条会失败的断言，而不是一句注释里的保证。
-  for alias in "$w" "$w.${KVER%%.*}"; do
+  for alias in "$w" "$w.${v%%.*}"; do
     [ ! -e "$OUT/assets/$alias" ] || {
       echo "[site] 输出里有别名 assets/$alias（应只发版本化的真文件）" >&2; bad=1; }
   done

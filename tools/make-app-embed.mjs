@@ -95,45 +95,13 @@ function walk(dir, prefix = '') {
 //: internal）对得上；公开版构建重跑本生成器（`--flavour public`），树会变脏，而那
 //: 正是「这一份不是缺省制品」的信号。★表里只有**路径**，装置字节不入库
 //: （`facts/` 整棵是生成物），所以这张表本身不发布任何受限数据。
-//: ★★**在哪儿查有没有**：`--facts DIR`，缺省 `dist/facts`（`abox-to-facts.py` 的
-//: 暂存区）。2026-09-05 之前这里查的是 `app/facts/...`，而那是一条指向仓根 `facts/`
-//: 的符号链接；两者都随「fylite 下已无 facts 目录」那条裁定去掉了。
-//: ★**查的树与编的树可以是两棵**，这是有意的：这里只回答「这一条在不在」，而表里
-//: 写的路径在编译期经 `$FYLITE_APP_DIR` 解析——`build-app-exe.sh` 把它指向**装好的
-//: 那一棵**（已按许可筛过）。两棵树由同一个问答面（`facts-publish.py`）决定成员，
-//: 所以「查得到而编不出」只可能发生在有人绕开那个问答面的时候。
-function factsDir() {
-  const i = process.argv.indexOf('--facts');
-  const d = i >= 0 ? process.argv[i + 1] : HERE + '../dist/facts';
-  return d.endsWith('/') ? d : d + '/';
-}
-
-function plannedDevices() {
-  const flavour = process.argv.includes('--flavour')
-    ? process.argv[process.argv.indexOf('--flavour') + 1] : 'internal';
-  const r = spawnSync('python3',
-    [HERE + 'facts-publish.py', '--flavour', flavour, '--list'],
-    { encoding: 'utf8' });
-  if (r.status !== 0) return [];
-  //: ★问答面按 `<域>/<id>` 作答，而**表里的路径一个名字贯穿**：页面取
-  //: `facts/device/<id>.jsonld`，内嵌表里也是它，装好的那棵树里也是它。
-  const FACTS = factsDir();
-  const out = [];
-  const seen = new Set();
-  for (const line of r.stdout.split('\n')) {
-    const s = line.trim();
-    if (!s) continue;
-    const [domain, id] = s.includes('/') ? s.split('/', 2) : ['device', s];
-    const dir = `facts/${domain}`;
-    if (existsSync(`${FACTS}${domain}/${id}.jsonld`)) {
-      out.push(`${dir}/${id}.jsonld`);
-      seen.add([dir, domain]);
-    }
-  }
-  for (const [dir, domain] of seen)
-    if (existsSync(`${FACTS}${domain}/catalogue.jsonld`)) out.push(`${dir}/catalogue.jsonld`);
-  return out;
-}
+//: ★★**装置文档不再进这张表**（2026-09-05 用户裁定：页面也走中间层 wasm，撤掉
+//: `facts.jsonld`）。此前这里按发布规则逐台把 `facts/device/<id>.jsonld` 加进来，
+//: 于是同一批 432 KB 在一个可执行文件里装了两遍：一遍在这张表里（给页面的 HTTP 面），
+//: 一遍在 `facts.rs` 里（给命令行）。今天页面经 `fylite_runtime.wasm` 读那一份，
+//: 表里因此一条装置也没有——少的正是那多出来的一遍。
+//: ★许可闸没有松：进 `facts.rs` 的仍是 `tools/facts-publish.py` 按每台 `rights.json`
+//: 选出来的那几台，只是它现在编进 wasm 与 `.so`，不再落成可 fetch 的文件。
 
 //: ★★两份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-DESIGN-19` G-8）。
 //: 生成器按「目录里现有的名字」写表，于是在一份 wasm 还没版本化的检出上重跑它，
@@ -142,7 +110,7 @@ function plannedDevices() {
 //: 「有人重跑过生成器」的干净 diff。本次实测正是这样撞上的。
 //: 版本从 `assets/version.js` 读——与 `tools/build-site.sh` 同一处来源，所以
 //: 「表以为的版本」与「站点发的版本」不可能是两个数。
-const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm'];
+const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm', 'fylite_runtime.wasm'];
 function checkWasmIsVersioned(list) {
   const vjs = APP + 'assets/version.js';
   if (!existsSync(vjs)) {
@@ -154,7 +122,14 @@ function checkWasmIsVersioned(list) {
     console.error('[embed] app/assets/version.js 里没有 kernel 版本');
     process.exit(1);
   }
-  const bad = WASM_STEMS.filter((s) => !list.includes(`assets/${s}.${m[1]}`));
+  //: ★中间层那一份的版本另有出处（`assets/runtime-version.js`，由本仓
+  //: `rust/build.sh` 生成）：它与内核不是同一个版本号，拿内核的版本去找它会
+  //: 永远找不到，而“找不到”在这里是拒绝——一条假的红线比没有红线更贵。
+  const rv = existsSync(APP + 'assets/runtime-version.js')
+    ? (/FyRuntimeVersion\s*=\s*'([^']*)'/.exec(readFileSync(APP + 'assets/runtime-version.js', 'utf8')) || [])[1]
+    : null;
+  const want = (s) => (s === 'fylite_runtime.wasm' ? rv : m[1]);
+  const bad = WASM_STEMS.filter((s) => !want(s) || !list.includes(`assets/${s}.${want(s)}`));
   if (bad.length) {
     console.error(`[embed] 这些 wasm 不是版本化的真文件：${bad.join(' ')}`);
     console.error(`[embed]   表里要的是 assets/<名>.${m[1]}（tools/soname.sh 的命名）`);
@@ -164,7 +139,7 @@ function checkWasmIsVersioned(list) {
   }
 }
 
-const files = [...walk(APP), ...plannedDevices()].sort();
+const files = [...walk(APP)].sort();
 checkWasmIsVersioned(files);
 const extOf = (f) => { const l = logicalName(f); return l.slice(l.lastIndexOf('.')); };
 const unknown = [...new Set(files.map(extOf))].filter((e) => !(e in MIME));
