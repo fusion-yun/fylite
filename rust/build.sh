@@ -11,6 +11,9 @@
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
+#   ./rust/build.sh --full-wasm  另出中间层的**全套** wasm（2.14 MB）。缺省只出
+#                                `fylite_facts.wasm`（0.43 MB，只带装置那扇门）——
+#                                全套那一份今天没有读者，见 wasm 那一段的注记。
 #   ./rust/build.sh --fetch-kernel  内核检查前先在内核仓 git fetch（只动 refs）
 #   ./rust/build.sh --no-kernel-check  跳过内核检查
 #
@@ -69,6 +72,8 @@ for a in "$@"; do
         --public)   FACTS_FLAVOUR=public ;;
         --internal) FACTS_FLAVOUR=internal ;;
         --no-facts) FACTS_FLAVOUR= ;;
+        #: ★中间层的**全套** wasm（2.14 MB）。缺省不出——见下面那段。
+        --full-wasm) FULL_WASM=1 ;;
         --no-kernel-check) KCHECK=0 ;;
         --fetch-kernel) KFETCH=1 ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
@@ -238,7 +243,16 @@ if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx
     #: 2.14 MB 太大，进不了 service worker 的预缓存（那会让只看一眼首页的读者先付
     #: 这笔钱），于是**断网时站点一台机器也列不出来**——实测撞上过。0.43 MB 进得去。
     #: ★这不是第二份实现：装置那扇门两份产物用的是同一段 `facts.rs` / `c_api.rs`。
-    for variant in facts full; do
+    #: ★★**缺省只出装置那一份**（2026-09-05「清理规划 wasm 打包的内容」）。全套那一份
+    #: 今天没有任何读者：站点不发它（`build-site.sh`）、可执行文件不内嵌（`build-app-exe.sh`）、
+    #: 页面一处也不载入（实测 grep：只有 `factsdb.js` 用中间层，而它取的是装置那一份）。
+    #: 一个 2.14 MB、谁也不读的产物待在 `app/assets/` 里，唯一的作用是让每个下游脚本
+    #: 都要为它写一句特例——`make-sw.mjs` 与 `make-app-embed.mjs` 各写过一句。
+    #: `--full-wasm` 仍然出得来：`FYL-DESIGN-16` H-4 的消费者（g-file / fyo / 会话搬进
+    #: 中间层）落地时要用它，那天把这里的缺省翻过来即可。
+    VARIANTS="facts"
+    [ "${FULL_WASM:-0}" = 1 ] && VARIANTS="facts full"
+    for variant in $VARIANTS; do
         case "$variant" in
           facts) feats=""            ; name=fylite_facts.wasm   ;;
           full)  feats="abi_full"    ; name=fylite_runtime.wasm ;;

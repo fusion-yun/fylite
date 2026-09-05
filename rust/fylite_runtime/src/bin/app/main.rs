@@ -418,21 +418,33 @@ fn serve(mut stream: TcpStream, cfg: &api::Cfg, source: &Source) -> std::io::Res
     //: ——那是请求体的事，不是 URL 的事（URL 有长度上限，且会进日志与历史记录）。
     //: ★这仍然不是「上传」：请求体读完就当参数用，一个字节也不落盘。本服务器
     //: 依旧没有写入面、没有目录列表。
-    if method == "POST" && path == "/api/kernel" {
+    if method == "POST" && (path == "/api/kernel" || path == "/api/read") {
         if length > api::MAX_BODY {
             return respond(&mut stream, 413, "application/json; charset=utf-8",
                            b"{\"error\":\"request body too large\"}", true);
         }
         let mut body = vec![0u8; length];
         reader.read_exact(&mut body)?;
-        let (status, answer) = api::kernel(&String::from_utf8_lossy(&body));
+        //: ★★两条 POST，两种正文：算力那条是 JSON 文本，文件那条是**字节**
+        //: （HDF5 不是文本，`from_utf8_lossy` 会把它改坏）。所以正文在这里保持
+        //: `Vec<u8>`，由各自的处理函数决定怎么看它。
+        let (status, answer) = if path == "/api/kernel" {
+            api::kernel(&String::from_utf8_lossy(&body))
+        } else {
+            let q = target.split_once('?').map(|(_, q)| q).unwrap_or("");
+            let name = q.split('&')
+                .find_map(|kv| kv.strip_prefix("name="))
+                .map(|v| v.replace("%20", " "))
+                .unwrap_or_default();
+            api::read_file(&name, &body)
+        };
         return respond(&mut stream, status, "application/json; charset=utf-8",
                        answer.as_bytes(), true);
     }
 
     if method != "GET" && method != "HEAD" {
         return respond(&mut stream, 405, "text/plain; charset=utf-8",
-                       b"only GET, HEAD, and POST /api/kernel", true);
+                       b"only GET, HEAD, and POST /api/kernel or /api/read", true);
     }
 
     //: ★请求面在静态查找之前：`/api/...` 不是站点里的文件，而资源表是精确
