@@ -688,6 +688,7 @@ self.FyI18n.register('en', {
   'sess.no_config': 'the document carries no fylite:config',
   'gfile.one_line': 'g-file: a single line — this is not GEQDSK',
   'gfile.no_dims': 'g-file: cannot read nw / nh at the end of the header line',
+  'gfile.not_ready': 'the g-file reader is not ready: the middle-layer wasm has not loaded (offline and never fetched lands here)',
   'gfile.short': 'g-file: not enough numbers (need {want}, {left} left)',
   'abi.mismatch': 'the fylite kernel speaks interface version v{got} but this page was written against v{want} — signatures are frozen per version, so a mismatch is not compatibility',
   'abi.missing': 'the fylite kernel is missing exports: {names}',

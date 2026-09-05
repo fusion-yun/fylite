@@ -65,10 +65,17 @@ function walk(dir, base = '') {
 //: 一切正常，断网重载 404，而这正是这份文件存在的理由。
 //: 规则的另一半在 `app/assets/fylite.js` 的 `versioned()`（导出为 `FyLite.wasmUrl`）；
 //: 这里按同一条拼，并由 `--check` 保证生成物与磁盘一致。
-//: ★中间层那一份**不进预缓存**：它是装置面板要用时才取的（`factsdb.js` 惰性载入），
-//: 而它有两兆多。把它塞进首屏的预缓存，等于让每个只想看一眼首页的读者先付这笔钱。
-//: 离线时装置面板因此可能取不到——那是一句「这一版没带装置信息」，不是页面打不开。
-const WASM_STEMS = ['assets/fylite_rs.wasm', 'assets/fylite_kernel_ext.wasm'];
+//: ★★**装置那一份进预缓存，中间层的全套不进**（2026-09-05 改）。
+//: 这里从前只有两份内核 wasm，中间层那一份（`fylite_runtime.wasm`，2.14 MB）被排除，
+//: 理由是「别让只看一眼首页的读者先付这笔钱」——理由成立，后果却是**断网时站点一台
+//: 机器也列不出来**：装置信息就编在那份 wasm 里，取不到就没有机器，而页面对「一台
+//: 机器也没有」的容忍度是逐处写的（实测：`Cannot read properties of null`）。
+//: 今天中间层出两份产物，同一份源码、同一段装置门代码，差别只在导出面：
+//: `fylite_web.wasm` 0.51 MB（页面真读的两扇门：装置与 g-file）与 `fylite_runtime.wasm` 2.14 MB。
+//: 小的那份进预缓存（占今日预缓存总量 4.64 MB 的 9%），大的那份**站点根本不发**
+//: ——页面没有任何一处载入它（`FYL-DESIGN-16` H-4 的其余消费者尚未落地）。
+const WASM_STEMS = ['assets/fylite_rs.wasm', 'assets/fylite_kernel_ext.wasm',
+                    'assets/fylite_web.wasm'];
 //: ★★VENDORED THIRD-PARTY MEGABYTES ARE NOT PRECACHED (`FYL-DESIGN-18` U-25).
 //: `assets/vendor/h5wasm/` is ~4.2 MB — more than this repository's three
 //: kernel modules together — and it is an ON-DEMAND capability: `h5source.js`

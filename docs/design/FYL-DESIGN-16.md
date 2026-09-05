@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "2.2"
+version: "2.5"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -14,7 +14,22 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
-  change: 'v2.2 收进 2026-09-05 两条用户裁定，算力面因此从「两个实现路径」收到一个：
+  change: 'v2.5 **H-4 第一块落地**（用户「落地 H-4」，2026-09-05）：`geqdsk.js` 里那份
+    第三份 g-file 解析撤除，页面问中间层——站点经 `fylite_web.wasm`（0.51 MB，同一份源码
+    多一个 `abi_gfile`）的 `fylite_runtime_gfile_json`，桌面经 `POST /api/read?shape=gfile`，
+    中间是同一个 `GFile::to_node`。实测两条路与旧 JS 读法 26 个键逐值相同、与 python 读法
+    逐字段 0.0e+0。载入器拆成一处 `runtimeweb.js`（装置门与 g-file 门共用）。`fyo.js` /
+    `session.js` 未动，理由与判读写在 H-4 的落地进度里。
+    v2.4 增 H-7 / H-8（2026-09-05 两条用户裁定）：**hdf5 走 fy app 的文件端点、
+    静态站点保留 h5wasm** —— `POST /api/read` 字节进、fyo 文档出，读法是中间层自己的
+    （`io::read`，与 `fy data`、与 python 对拍同一份）；两条读法各自对仓里那份原生参照
+    负责（`validate-h5.mjs` / `validate-file-api.mjs`），实测逐叶子相同，可执行文件因此
+    14.72 -> 10.72 MB。**wasm 打包清单** —— 每一份产物都要说得出谁读它，清单与构建脚本
+    由 `validate-wasm-plan.mjs` 对照；中间层全套那一份缺省不再产出（`--full-wasm` 才出）。
+    v2.3 增 K-11（中间层出两份 wasm：0.43 MB 的 `fylite_facts.wasm` 只带装置那扇门
+    并进预缓存，2.14 MB 的全套暂不发）——答用户「wasm 线需要有 device 数据，如何解决？」，
+    实测断网后逃逸请求由 1 个降为 0 个、站点由 12 MB 降为 10 MB，G-11 随之关闭。
+    v2.2 收进 2026-09-05 两条用户裁定，算力面因此从「两个实现路径」收到一个：
     **（一）webui 的内核功能由 api 端提供，只静态网页走 wasm** —— 落成 H-6：`POST /api/kernel`
     是一次内核调用的逐参数转述，参数种类表由内核仓自 `c_api.rs` 生成给两侧（251 个导出桥接
     248 个；结构门与分配器一对按名拒绝）；页面一处调用点都没改（`FyLite.attach()` 探
@@ -54,7 +69,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v2.2 |
+| 版本 (Version) | v2.5 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -199,7 +214,7 @@ flowchart TB
 (fylite-kernel-contract-rulings)=
 # 裁定 (Rulings)
 
-## 内核契约 K-1..K-10 (The kernel contract)
+## 内核契约 K-1..K-11 (The kernel contract)
 
 **K-1 文档门是唯一的内核接口。** 宿主（Python、浏览器、`fylite`）**只**经「一份计划进、
 一份记录出」调用内核。`c_api.rs` 的 442 个导出降为**本地后端的实现细节**：`fylite.kernel`
@@ -262,6 +277,29 @@ fylite_kernel 静态库，.so 是留给 python 层，wasm 留给静态网页发�
 | `libfylite_kernel_static.a` | `fy`（单一可执行文件） | **链进去**；`Kernel::linked()` 直接调结构门，页面经 `/api/kernel` 逐调用到达（H-6） | 归档 27.7 MB；链进 web 档的可执行文件 **+3.10 MB**（11.61 → 14.71 MB，同一份资源树、同一组 feature） |
 | `libfylite_kernel.so` + `_ext.so` | Python 层 | 运行期 `dlopen`（`fylite.kernel`；`FYLITE_KERNEL_LIB` / `--kernel` 仍然优先） | 2.03 + 1.09 MB，随轮发（轮 3.05 MB 压缩后） |
 | `fylite_rs.wasm` + `fylite_kernel_ext.wasm` | **静态站点** | 页面实例化，`FyLite.attach()` 探不到 `/api/*` 时的那条路 | 0.99 + 0.47 MB；可执行文件自 2026-09-05 起**不带**它们 |
+
+**K-11 中间层出两份 wasm，差别只在导出面；站点发小的那一份。**〔已确立〕2026-09-05
+用户提问「wasm 线需要有 device 数据，如何解决？」——问的是一个实测出来的缺口：装置
+信息编在中间层的 wasm 里，而那一份 2.14 MB，按 U-25 的同一条理由不进 service worker
+的预缓存，于是**断网时静态站点一台机器也列不出来**（实测：`FYLITE_MACHINE` 为 null，
+页面在第一次画图时抛）。
+
+| 产物 | 导出面 | 大小 | 谁发它 |
+| :--- | :--- | :--- | :--- |
+| `fylite_facts.wasm` | 只有装置那扇门（`alloc` / `free` / `facts_ids` / `_doc` / `_count`） | **0.43 MB**（gzip 0.09） | 静态站点，**进预缓存** |
+| `fylite_runtime.wasm` | 另加 g-file · 文档树 · 打包 · 读文本（`abi_full`） | 2.14 MB（gzip 0.28） | 暂不发——页面没有读者 |
+
+★**不是第二份实现**：两份产物同一份源码、同一段 `facts.rs` 与 `c_api.rs`，差别只在
+cargo feature `abi_full` 开不开。wasm 上每个 `#[no_mangle]` 都是链接的**根**，所以
+导出面决定产物大小——关掉那一片导出，死代码消除把 JSON / YAML / g-file / 文档树 /
+IDS 结构表全剪掉，同一批装置字节（0.41 MB 文本）就是产物的绝大部分。
+
+★**站点暂不发全套那一份**：页面今天没有任何一处载入它（H-4 的其余消费者——g-file /
+fyo / 会话搬进中间层——尚未落地）。实测：发它会因 `cp -RL` 解引用变成三份，站点从
+12 MB 长到 16 MB；不发则是 **10 MB**。H-4 落地那天把 `build-site.sh` 里那一行删掉即可。
+
+★实测（真浏览器，断网重载）：装置三台、活动机器已选、内核已挂、**断网后打到服务器的
+请求 0 个**。此前同一条闸子是「1 个」——那一个正是这份 wasm。
 
 ★三种形出自同一次构建、同一份 `c_api.rs`（`FYL-SDD-01` DE-LOG-01 不变）。静态库是内核仓
 新加的第三个包 `fylite_static`，它没有自己的代码：`extern crate` 两行把核心与扩展的
@@ -522,7 +560,7 @@ data …` 不改（它说的是七个数据动词，不是层名）；`fylite.io
 **D-4 中间层不算物理，也不写 MDSplus。** 与 `FYL-DESIGN-14` L-8 同。K-3「装配搬进内核」不是
 「搬进中间层」：度规与剖面是物理，归内核；合成与绑定是文档操作，归中间层。
 
-## 多宿主 H-1..H-6 (Hosts)
+## 多宿主 H-1..H-8 (Hosts)
 
 **H-1 宿主只写计划、只读记录。** 页面控件的每一次改动产生的是计划里的一个字段，「计算」键
 送出一份计划；1.5-D 栏读 g-file、0-D 工况跨页交接（`FYL-DESIGN-09` / `-10`）都成为计划里的
@@ -543,7 +581,41 @@ data …` 不改（它说的是七个数据动词，不是层名）；`fylite.io
 
 (fylite-kernel-contract-runtime-wasm)=
 **H-4 中间层也进浏览器：`fylite_runtime` 编成 wasm，由 JS 调用。**〔已确立〕用户裁定
-（2026-09-04）。`Cargo.toml` 抬头早写着这条打算（`fylite_runtime.wasm ... ★不含 mdsip`），
+（2026-09-04）；**第一块已落地**（2026-09-05 用户「落地 H-4」）。
+
+:::{admonition} 落地进度（2026-09-05）
+:class: note
+
+| 那三份 JS 实现 | 状态 | 实测 |
+| :--- | :--- | :--- |
+| `geqdsk.js` 的 g-file 解析（45 行） | **已撤**：页面问中间层 | 站点走 `fylite_web.wasm` 的 `fylite_runtime_gfile_json`，桌面走 `POST /api/read?shape=gfile`；两条路与旧 JS 读法 26 个键逐值相同，与 python 读法逐字段 0.0e+0 |
+| `fyo.js` 221 行 | 未动 | 见下面那段「为什么不是一次搬完」 |
+| `session.js` 241 行 | 未动 | 同上 |
+
+**产物**：中间层的浏览器面从 `fylite_facts.wasm`（0.43 MB）变成 **`fylite_web.wasm`
+（0.51 MB）**——同一份源码多一个 `abi_gfile` feature，多 80 KB 就把第三份 g-file 实现
+换掉了。全套那一份仍是 2.14 MB 且仍无读者（H-8 的清单里记着）。
+
+**载入器只有一处**：`app/assets/runtimeweb.js`（`FyRuntimeWeb`）——装置那扇门
+（`factsdb.js`）与 g-file 那扇门（`geqdsk.js`）都经它到达，不各自拼 URL、不各自摆
+缓冲。这是从 `factsdb.js` 里拆出来的：一段被两处用的代码留在其中一处的文件里，
+下一个读者要靠记忆知道去哪儿找。
+
+**为什么 `parse` 仍是同步的**：它的调用点在 `appio.js` 的「逐个候选格式试着读，读不动
+就抛」那个循环里，而那段控制流有成文的事故史（几种文本格式互相抢同一个文件）。改成
+异步要动那段；所以桌面走同步 XHR（回环、本进程），站点走**已经实例化好的**那份 wasm
+（装置面板启动时已载入它；不列装置的页面由 `geqdsk.js` 自己预热，且**只在探不到请求面
+时**预热——桌面宿主上取那 0.51 MB 是白花的）。
+
+**为什么不是一次搬完**：`geqdsk.js` 那一份是**同一个算法的第三份实现**——搬走它，行为
+的锚是现成的（python 读法、旧 JS 读法、两条新路，四者对同一份 g-file 逐值比过）。
+`fyo.js` 与 `session.js` 不是那种东西：它们是页面在**生成的契约表**（`fyo-interface.js`）
+之上的胶水——把它们搬进中间层，等于让中间层长出「拼一份会话信封」这类职责，那是新的
+设计而不是一次移植，而且要 2.14 MB 那一份的文档树门（今天页面一处不调）。〔判读〕
+这一块该与 K-3（装配搬进内核）一起裁，因为两者都在动「谁拼计划」这条线。
+:::
+
+`Cargo.toml` 抬头早写着这条打算（`fylite_runtime.wasm ... ★不含 mdsip`），
 只是没有脚本构建它。后果三条：
 
 - **四层图在三种宿主上是同一张**（{ref}`fylite-kernel-contract-target`）。
@@ -615,6 +687,63 @@ wasm 实例的内存之间，性质不变。〔开放猜想〕链成一个 wasm 
 该不同——**它们是两个内核**，而续算闸（`checkpoint.js`，S-6）判的正是「写这份状态的内核
 是不是当前这个」。
 
+(fylite-kernel-contract-api-read)=
+**H-7 桌面宿主替页面读文件；静态站点留着它自己的读法。**〔已确立〕用户裁定
+（2026-09-05）：*hdf5 走 fy app 的文件端点，静态站点保留 h5wasm*。
+
+`POST /api/read?name=<原名>`：一份文件的**字节**进，一份 fyo 文档出。读法是中间层
+自己的（`io::read` 按内容识别格式），所以「桌面版读到的」与 `fy data` 读到的、与
+`python/tests` 对拍的是同一份实现。
+
+| | 桌面宿主（`fy app`） | 静态站点 |
+| :--- | :--- | :--- |
+| HDF5 | `/api/read` -> 本进程链着的 libhdf5 | h5wasm（NIST，4.1 MB，惰性，不进预缓存） |
+| g-file | 页面的 JS 读法（`geqdsk.js`） | 同左 |
+
+★为什么值得分开：h5wasm 之所以有 4.1 MB，是因为 HDF5 那个 C 库以 base64 骑在里面；
+而这个进程**本来就链着 libhdf5**。桌面版再背一份第二实现，与装置信息（K-9）、算力
+（H-6）那两次收敛掉的是同一种重复。实测可执行文件因此从 14.72 MB 降到 **10.72 MB**。
+静态站点没有 `/api/*`，h5wasm 在那里是唯一的读法，所以留着——**不是妥协，是那一侧
+的事实**：`hdf5` / `netcdf` 是两个 C 库，feature 上就是原生专用，wasm 构建根本没有
+它们（`FYL-DESIGN-14` L-9）。
+
+★页面怎么选：探 `/api/health` 的 `file` 格（`h5source.js` 的 `face()`），与
+`factsdb.js` / `kernelapi.js` 同一条纪律——探这条路答不答，不看主机名。判据是**这一次
+构建带不带 hdf5 那一面**，不是「有没有这条路由」：路由在而库不在，答的会是一句读不动。
+
+★两条读法各自对**同一个参照**负责，而不是互相对照：`fixtures/equilibrium.json` 是
+原生读法对 `fixtures/equilibrium.h5` 的结果，两份都在仓里。`validate-h5.mjs` 拿它验
+浏览器那一路，`validate-file-api.mjs` 拿它验请求面那一路。互相对照的坏处是两边一起漂
+的时候没人会红。实测两路都与参照逐叶子相同。
+
+★g-file **暂不搬**：页面那份 JS 读法（`geqdsk.js`，286 行）在两个宿主上都在用。搬它
+是 H-4 的活，而 H-4 落地要连着「中间层进浏览器」一起做——今天单把 g-file 挪到
+`/api/read` 会让静态站点与桌面版在同一件事上分成两条路，而静态站点那条并不会因此变短。
+
+(fylite-kernel-contract-wasm-plan)=
+**H-8 wasm 打包有一张清单，每一份都要说得出谁读它。**〔已确立〕用户 2026-09-05
+「清理规划 wasm 打包的内容」。缘由是同一周里两次同样的事故：内核那两份（1.46 MB）
+内嵌在可执行文件里而同一进程链着原生内核；中间层全套那一份（2.14 MB）装进
+`app/assets/`、拷进站点，而页面一处也不载入。两次都不是「构建坏了」——构建全绿，
+制品也都是好的，只是**没有人问过「谁读它」**。
+
+| 产物 | 谁读它 | 站点 | 预缓存 | 可执行文件 |
+| :--- | :--- | :--- | :--- | :--- |
+| `fylite_rs.wasm` 0.99 MB | `worker.js` · `scenario-model.js` · 三张页面 | 发 | 进 | 不带 |
+| `fylite_kernel_ext.wasm` 0.47 MB | `fylite.js` 的 `loadExt()` | 发 | 进 | 不带 |
+| `fylite_facts.wasm` 0.43 MB | `factsdb.js` | 发 | 进 | 不带 |
+| `fylite_runtime.wasm` 2.14 MB | **无**（H-4 未落地） | 不发 | 不进 | 不带 |
+| `assets/vendor/h5wasm` 4.1 MB | `h5source.js`（静态站点那一路） | 发 | **不进**（惰性，U-25） | 不带 |
+
+清单落在 `app/tests/validate-wasm-plan.mjs`：它对每一行查「页面源码里有没有人按名取它」
+（只认代码行里的引号字面量，注记不算）、查构建脚本发不发、查预缓存进不进、查内嵌树
+删没删。**加一份 wasm 就要在那张表里加一行**——那正是它的用处：让「多一份产物」变成
+一次需要写下理由的改动，而不是一次谁也没注意到的构建输出。
+
+★中间层全套那一份从此**缺省不出**（`rust/build.sh --full-wasm` 才出）。一个谁也不读的
+2.14 MB 待在 `app/assets/` 里，唯一的作用是让每个下游脚本为它写一句特例——`make-sw.mjs`
+与 `make-app-embed.mjs` 各写过一句。
+
 (fylite-kernel-contract-deltas)=
 # 要改口的既有裁定 (Deltas to Standing Rulings)
 
@@ -670,6 +799,7 @@ KERNEL 域 FR-KERNEL-001..004 承载 K-1 / K-2 / K-4 / K-8 / F-1..F-4 / S-1..S-4
 | G-7 | ~~wasm 上两个模块由 JS 接线 vs 链成一个制品~~ | **原生那侧已关**（K-9，2026-09-05 用户裁定）：`fy` 链一份静态库，核心与扩展在同一个制品里，接线没有了；发布面与许可面与轮相同（源码不公开、二进制随发行走）。**wasm 那侧仍开**：静态站点上内核与中间层还是两个模块由 JS 接线 |
 | G-8 | `fylite:state` 的形：一块还是逐 code 一块；跨 code 的状态（`coupled` 里平衡与输运各有）怎么并 | 开；P1 与 S-2 一同定 |
 | G-9 | **NOTICE 不随 `fy` 与站点走**：轮有（`build-wheel.sh` 两份逐字节比对，Apache-2.0 §4(d)），而可执行文件与静态站点只带 `credits.html` 里的 GACODE 署名段。今天的裁定把**原生的**内核代码放进了可执行文件，这条因此更显眼——但它不是今天才有的：可执行文件此前内嵌的两份内核 wasm 同样是派生物 | 开；发行前定（把 NOTICE 落进站点与内嵌树，还是判定 `credits.html` 已满足） |
+| G-11 | ~~静态站点离线时没有装置数据~~ | **已关**（K-11，2026-09-05）：中间层出一份 0.43 MB 的 `fylite_facts.wasm` 并进预缓存；实测断网后 0 个请求逃逸，装置三台俱在 |
 | G-10 | 逐调用桥在**迭代型入口**（`*_init` / `*_next` / `*_result`）上按迭代次数发请求，延迟未量。与 G-1 是同一个问题的两侧：那条量的是「装配搬进内核后一次门调用多一次编码」，这条量的是「一次迭代多一次回环往返」 | 开；P1 与 G-1 一同量 |
 
 (fylite-kernel-contract-trace)=

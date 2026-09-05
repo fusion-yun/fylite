@@ -11,6 +11,9 @@
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
+#   ./rust/build.sh --full-wasm  另出中间层的**全套** wasm（2.14 MB）。缺省只出
+#                                `fylite_web.wasm`（0.51 MB，页面真读的那两扇门）——
+#                                全套那一份今天没有读者，见 wasm 那一段的注记。
 #   ./rust/build.sh --fetch-kernel  内核检查前先在内核仓 git fetch（只动 refs）
 #   ./rust/build.sh --no-kernel-check  跳过内核检查
 #
@@ -69,6 +72,8 @@ for a in "$@"; do
         --public)   FACTS_FLAVOUR=public ;;
         --internal) FACTS_FLAVOUR=internal ;;
         --no-facts) FACTS_FLAVOUR= ;;
+        #: ★中间层的**全套** wasm（2.14 MB）。缺省不出——见下面那段。
+        --full-wasm) FULL_WASM=1 ;;
         --no-kernel-check) KCHECK=0 ;;
         --fetch-kernel) KFETCH=1 ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
@@ -242,17 +247,43 @@ fi
 #: 这一份是中间层。名字因此带 `runtime`，装法与它们同一条规则（`tools/soname.sh`）。
 #: ★`--no-default-features`：wasm 上没有套接字（mdsip），也不链 libhdf5 / libnetcdf。
 if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown; then
-    echo "[runtime] wasm32：cargo build --release --no-default-features ..."
-    WOUT="$CRATE/target/wasm32-unknown-unknown/release/fylite_runtime.wasm"
-    rm -f "$WOUT"
-    cargo build --release --target wasm32-unknown-unknown --no-default-features \
-        --manifest-path "$CRATE/Cargo.toml"
-    [ -f "$WOUT" ] || { echo "[runtime] 没有产出 $WOUT" >&2; exit 1; }
-    homes=$(strings -n 6 "$WOUT" | grep -c "$HOME" || true)
-    [ "$homes" = 0 ] || { echo "::error:: $WOUT 里有 $homes 条开发机路径" >&2; exit 1; }
-    echo "[runtime] harden-ok  fylite_runtime.wasm ($(stat -c%s "$WOUT") bytes)"
+    #: ★★**两份 wasm，同一份源码，差别只在导出面**（2026-09-05）。
+    #:
+    #:   fylite_web.wasm      页面真读的那两扇门：装置（facts_*）与 g-file。实测 0.51 MB。
+    #:   fylite_runtime.wasm  另加 g-file · 文档树 · 打包 · 读文本。实测 2.14 MB。
+    #:
+    #: 为什么要小的那一份：wasm 上每个 `#[no_mangle]` 都是链接的**根**，导出面因此
+    #: 决定产物大小；而页面今天从中间层只读装置信息（`factsdb.js` 用五个导出）。
+    #: 2.14 MB 太大，进不了 service worker 的预缓存（那会让只看一眼首页的读者先付
+    #: 这笔钱），于是**断网时站点一台机器也列不出来**——实测撞上过。0.43 MB 进得去。
+    #: ★这不是第二份实现：装置那扇门两份产物用的是同一段 `facts.rs` / `c_api.rs`。
+    #: ★★**缺省只出装置那一份**（2026-09-05「清理规划 wasm 打包的内容」）。全套那一份
+    #: 今天没有任何读者：站点不发它（`build-site.sh`）、可执行文件不内嵌（`build-app-exe.sh`）、
+    #: 页面一处也不载入（实测 grep：只有 `factsdb.js` 用中间层，而它取的是装置那一份）。
+    #: 一个 2.14 MB、谁也不读的产物待在 `app/assets/` 里，唯一的作用是让每个下游脚本
+    #: 都要为它写一句特例——`make-sw.mjs` 与 `make-app-embed.mjs` 各写过一句。
+    #: `--full-wasm` 仍然出得来：`FYL-DESIGN-16` H-4 的消费者（g-file / fyo / 会话搬进
+    #: 中间层）落地时要用它，那天把这里的缺省翻过来即可。
+    VARIANTS="web"
+    [ "${FULL_WASM:-0}" = 1 ] && VARIANTS="web full"
+    for variant in $VARIANTS; do
+        case "$variant" in
+          web)   feats="abi_gfile"   ; name=fylite_web.wasm     ;;
+          full)  feats="abi_full"    ; name=fylite_runtime.wasm ;;
+        esac
+        echo "[runtime] wasm32（$variant）：cargo build --release --no-default-features ${feats:+--features $feats} ..."
+        WOUT="$CRATE/target/wasm32-unknown-unknown/release/fylite_runtime.wasm"
+        rm -f "$WOUT"
+        cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            ${feats:+--features "$feats"} --manifest-path "$CRATE/Cargo.toml"
+        [ -f "$WOUT" ] || { echo "[runtime] 没有产出 $WOUT" >&2; exit 1; }
+        homes=$(strings -n 6 "$WOUT" | grep -c "$HOME" || true)
+        [ "$homes" = 0 ] || { echo "::error:: $WOUT 里有 $homes 条开发机路径" >&2; exit 1; }
+        echo "[runtime] harden-ok  $name ($(stat -c%s "$WOUT") bytes)"
+        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/app/assets" "$name" "$RVER"
+    done
     if [ "$INSTALL" = 1 ]; then
-        fy_install_versioned "$WOUT" "$ROOT/app/assets" fylite_runtime.wasm "$RVER"
+        true
         #: ★★页面要拼出版本化的真文件名，所以它得知道中间层是哪一版。
         #: 单开一个生成物而不是往 `version.js` 里塞：那一份是**内核仓**生成的
         #: （kernel / abi / app 三个数），本仓往里写会在下一次内核构建时被抹掉，

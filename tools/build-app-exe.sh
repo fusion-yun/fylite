@@ -85,8 +85,8 @@ else
   #: 其中只有 432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份。
   #: ★这一条**有意打破**「站点与可执行文件内嵌同一个子集」那句：两者差的正是这一份，
   #: 而差的理由是两个宿主读同一批字节的**路不同**，不是内容不同。
-  rm -f "$STAGE"/assets/fylite_runtime.wasm*
-  echo "[exe] 内嵌树里去掉 fylite_runtime.wasm（页面改走本进程的 /api/facts）"
+  rm -f "$STAGE"/assets/fylite_runtime.wasm* "$STAGE"/assets/fylite_web.wasm*
+  echo "[exe] 内嵌树里去掉中间层的两份 wasm（页面改走本进程的 /api/facts）"
 
   #: ★★**内核那两份 wasm 也不带**（2026-09-05 用户裁定：「webui 中 fylite_rs /
   #: fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm」；同日续裁
@@ -101,6 +101,15 @@ else
   #: 实测省下 1.46 MB（fylite_rs.wasm 0.99 + fylite_kernel_ext.wasm 0.47）。
   rm -f "$STAGE"/assets/fylite_rs.wasm* "$STAGE"/assets/fylite_kernel_ext.wasm*
   echo "[exe] 内嵌树里去掉内核 wasm（算力在本进程里：静态库 + /api/kernel）"
+
+  #: ★★**h5wasm 也不带**（2026-09-05 用户裁定：hdf5 走 fy app 的文件端点，静态站点
+  #: 保留 h5wasm）。那是 NIST 的 Emscripten 包，4.1 MB——HDF5 那个 C 库以 base64 骑在
+  #: 里面——而**这个进程本来就链着 libhdf5**：页面把文件字节 POST 给 `/api/read`，
+  #: 由中间层自己的读者（`io::read`，与 `fy data`、与 python 对拍的同一份）读完送回。
+  #: 与内核那次同形：桌面版不该背一份第二实现。静态站点没有 `/api/*`，那里 h5wasm 是
+  #: 唯一的读法，所以站点照发（仍惰性、仍不进预缓存）。
+  rm -rf "$STAGE"/assets/vendor
+  echo "[exe] 内嵌树里去掉 assets/vendor（h5wasm 4.1 MB —— 页面改走 /api/read）"
 
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。

@@ -123,7 +123,8 @@ function walk(dir, prefix = '') {
 //: 「有人重跑过生成器」的干净 diff。本次实测正是这样撞上的。
 //: 版本从 `assets/version.js` 读——与 `tools/build-site.sh` 同一处来源，所以
 //: 「表以为的版本」与「站点发的版本」不可能是两个数。
-const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm', 'fylite_runtime.wasm'];
+const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm',
+                    'fylite_web.wasm', 'fylite_runtime.wasm'];
 function checkWasmIsVersioned(list) {
   const vjs = APP + 'assets/version.js';
   if (!existsSync(vjs)) {
@@ -141,7 +142,8 @@ function checkWasmIsVersioned(list) {
   const rv = existsSync(APP + 'assets/runtime-version.js')
     ? (/FyRuntimeVersion\s*=\s*'([^']*)'/.exec(readFileSync(APP + 'assets/runtime-version.js', 'utf8')) || [])[1]
     : null;
-  const want = (s) => (s === 'fylite_runtime.wasm' ? rv : m[1]);
+  //: ★中间层的两份产物（`fylite_facts.wasm` / `fylite_runtime.wasm`）版本另有出处。
+  const want = (s) => (s.startsWith('fylite_web') || s.startsWith('fylite_runtime') ? rv : m[1]);
   //: ★★只核对**这棵树里真有的**那些 stem。可执行文件那一棵**三份 wasm 都不带**
   //: （2026-09-05 两次裁定：装置信息走本进程的 `/api/facts`，算力走 `/api/kernel`
   //: 与链进去的内核静态库；见 `tools/build-app-exe.sh` 里删文件那两段），而
