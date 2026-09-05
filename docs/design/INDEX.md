@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "5.24"
+version: "5.25"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -15,6 +15,10 @@ modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v5.25 `FYL-DESIGN-19` 升 v0.4（A-15 落地一块、剩两块：EAST 被动结构 90 个 loop 已进 fydata 与
+    fydoc，双门禁 0 error；电源那批**一半本来就在**——匝数与 IC1/IC2 早在 `providers/pf_active/base.yaml`，
+    剩下的卡在新记的 G-10「一个 IDS 一份文档，没有合成轴」；`operational` 仍卡 G-9。另记 G-11：
+    fydoc 的 `dataset_fair.jsonld` 带着 fydata 侧没有的再分发裁定块，重跑誊录器会静默删掉）。
     v5.24 `FYL-DESIGN-19` 升 v0.3（两条用户裁定：缺省即全功能版含 EAST，作为内部工具发布——A-14
     并已实施，六处缺省翻成 `internal`，公开面自此必须明写 `--public`，内嵌资源表闸随之换向并修好
     一条恒真断言；EAST 四块进 fydoc 的 A-Box——A-15，并更正 A-10：79 探针基**已在** fydoc，缺的是
@@ -93,7 +97,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v5.24 |
+| 版本 (Version) | v5.25 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -157,7 +161,7 @@ modified:
 
 | 文档标识 | 主题（简） | 版本 / 状态 |
 | :--- | :--- | :--- |
-| [`FYL-DESIGN-19`](FYL-DESIGN-19.md) | **facts 的发行形态**——评估「从 fydoc 收集 device A-Box，合并成 `facts.jsonld`（进 app）与 `facts.rs`（进 rust）两份生成物，fylite 顶层不保留 `facts/`」。方向判**对**：它与本仓已有的四处生成物同一条规矩，且治住 2026-09-05 实测的两次失败（全功能构建**编不过**；公开版站点打包 **0 台**却成功）。两处按字面带不动——**清单不是卡片**（取数要的那一份，实测 13 台里只有 EAST 有）与**域有三个不是一个**（`device` · `amns` 5.8 MB · `experiment`）；一处改写——两份生成物是搜索路径的**自带那一档**而非替代，于是 `--facts` 指自己机器的能力留着、「顶层不留 `facts/`」照样成立。尺寸实测：并进去约 550 KB，A-Box 的 10.8 MB HDF5 与 `amns` 不并。★v0.2 收进「只带必要 IDS」的裁定：A-13 的逐 IDS 白名单（`wall` · `pf_active` · `tf` · `magnetics` 加 `interferometer` · `thomson_scattering` · `ece`），判据是**谁读它**而不是体量——`wall_ggd` 一项 10.1 MB 占装置书 88% 却无消费者（代码读的是 `wall` 的限制器轮廓，不是 GGD 网格）；白名单文本面实测 731 KB。★v0.3 收进两条裁定：**A-14 缺省即全功能版**（含 EAST，作为内部工具发布——六处缺省已翻成 `internal`，公开面自此必须明写 `--public`；许可判据未动，仍逐条在 `rights.json`），**A-15 EAST 三块的迁移路线**（fydata A-Box → `abox2jsonld.py` → fydoc，因 fydoc 的 `abox/` 是生成物、不得手改），并更正 A-10：**79 探针基已在 fydoc**（`efit_w_pf.jsonld` 记 79 探针 + 35 磁通环，与卡片逐数相同），缺的是 `pf_passive` / 电源四件 / `operational` 三块。裁定 A-1..A-15，三档分期加一期已实施，五条门禁，缺口 G-1..G-9 | v0.3 · WD |
+| [`FYL-DESIGN-19`](FYL-DESIGN-19.md) | **facts 的发行形态**——评估「从 fydoc 收集 device A-Box，合并成 `facts.jsonld`（进 app）与 `facts.rs`（进 rust）两份生成物，fylite 顶层不保留 `facts/`」。方向判**对**：它与本仓已有的四处生成物同一条规矩，且治住 2026-09-05 实测的两次失败（全功能构建**编不过**；公开版站点打包 **0 台**却成功）。两处按字面带不动——**清单不是卡片**（取数要的那一份，实测 13 台里只有 EAST 有）与**域有三个不是一个**（`device` · `amns` 5.8 MB · `experiment`）；一处改写——两份生成物是搜索路径的**自带那一档**而非替代，于是 `--facts` 指自己机器的能力留着、「顶层不留 `facts/`」照样成立。尺寸实测：并进去约 550 KB，A-Box 的 10.8 MB HDF5 与 `amns` 不并。★v0.2 收进「只带必要 IDS」的裁定：A-13 的逐 IDS 白名单（`wall` · `pf_active` · `tf` · `magnetics` 加 `interferometer` · `thomson_scattering` · `ece`），判据是**谁读它**而不是体量——`wall_ggd` 一项 10.1 MB 占装置书 88% 却无消费者（代码读的是 `wall` 的限制器轮廓，不是 GGD 网格）；白名单文本面实测 731 KB。★v0.3 收进两条裁定：**A-14 缺省即全功能版**（含 EAST，作为内部工具发布——六处缺省已翻成 `internal`，公开面自此必须明写 `--public`；许可判据未动，仍逐条在 `rights.json`），**A-15 EAST 三块的迁移路线**（fydata A-Box → `abox2jsonld.py` → fydoc，因 fydoc 的 `abox/` 是生成物、不得手改），并更正 A-10：**79 探针基已在 fydoc**（`efit_w_pf.jsonld` 记 79 探针 + 35 磁通环，与卡片逐数相同），缺的是 `pf_passive` / 电源四件 / `operational` 三块。裁定 A-1..A-15，三档分期加一期已实施（缺省翻向 + 被动结构迁移），五条门禁，缺口 G-1..G-11 | v0.4 · WD |
 | [`FYL-DESIGN-18`](FYL-DESIGN-18.md) | **应用前端详细设计**——前端不持有第二份真源：输入页是**计划经控制词表**的投影（一条声明一个控件，八行类型 → 控件表）；一个端口可组合多个源（源栈，中间层合并，逐量出处，「记录作为源」收编页间交接）；执行是一串门调用（步预算是计划字段，进度按步实测，取消切预算，**断点是一份记录**，恢复是再入，内核身份不符则拒绝）；输出经**场景自带的呈现规格**渲染为报告，工作台改的是同一份规格（`fylite:layout`）。交互图形：LCFS 把手 / 路点与剖面节点的试改（改写计划、可撤销、A/B/C 档）· 二维整合视图（图层即规格里的 layer 词）· 剖面查看器（任选两个共格点的量作轴、多信道叠加、框选缩放、时序按坐标族共域共光标）· 工作台。导入 / 导出 / 移步离线只有一种交换单元：文档集。裁定 U-1..U-24（★v0.2：茎 / 表 / 对照视图、图上改权重、视图状态两种、解释性文字去向，附〈评估〉），提案 FR-UI-003..008 · NR-QUAL-007 · DE-LOG-13..15，三期四闸，缺口 G-1..G-12，八张预览图。★v0.3：U0 第一步已落——`model` 页 141 个控件由 `vocab-model.js` + `form.js` 生成，表单闸 `validate-form.mjs` 双向成立；v0.4：图形由 `fig.js` 按呈现规格画，规格闸 `validate-fig.mjs` 成立；v0.5：执行分片与断点仓，断点闸 `validate-checkpoint.mjs` 成立（等价性判据可断言）；v0.6：工作台与 `fylite:layout`，U0 四条落齐；v0.7：文档集（存储法 zip，外部读者验证），**四道闸全部成立**；v0.8：离线预缓存（断网实测），G-5 关；v0.9：报告闸的调用已修；v1.0：§八 试改（把手 · 路点 · 剖面节点 · 通道权重，拒绝不改数），内核已构建、两端规格比对首次跑通（**G-13 关**），带生成表单的 model 页与原生一致到 1e-7；v1.1：§五 源栈（栈顶优先 ↔ merge 末位优先，由契约断言），G-14 · **G-15**（wasm 门已开一半：17 个导出；`assemble` 仍读盘）；v1.4：**U-25 导入 h5wasm**（源栈一层 · 4.2 MB 按需 · NIST 许可三项义务落实）；v1.5：随 `-17` v1.1 的 E-23 把 `fy case run` 改为 `fy run` | v1.5 · WD |
 | [`FYL-DESIGN-17`](FYL-DESIGN-17.md) | **场景运行命令 `fy run` 的详细设计**（v1.2 起含 as-built）——一条命令跑一次日常建模或分析：`fy run <线> [<场景>] [--device D] [shot=N time=T] [key=value …]`，或 `fy run <计划文件>…`。**v1.1：`case` 收进 `run`、`case` 弃用（按名拒绝并指向，E-23）；新增只读的发现面 `fy list devices | experiments | scenarios | presets | facts | kernel | lines`（E-24）——`fy` = `app` / `data` / `run` / `list`（E-10）。**两段解析（静态语法在 `_cli.json`，参数表在场景模板；未知参数按名拒绝，E-11）；参数记法 `key=value` ≡ `--key=value`、`--flag` ≡ `flag=true`（E-12）；合成次序模板 → 装置 → 预设 → `--plan` → 命令行 → 端口，逐值记来源（E-13）；装置信息两条路（整份文档绑端口 + `from_device` 缺省，E-14）；测量三级解析 `--input` → 离线切片 → 取数落进记录目录（E-15）；环境变量只供资源不供物理参数，全表（E-16）；每线一条缺省场景（E-17）；模板声明的开关（`only_magnetic`，E-18）；记录目录自足（E-19）；退出码与阶段（E-20）；合成器只有一份（E-21）；模板内嵌、预设走语料路径（E-22）。场景目录逐条覆盖文档明确涉及的全部场景（S-L1..S-L5 · 十三条栏 · 9 code · 10 工具 · 指南五章），迁移表，分期 P1-a..d / P2-a..c，七条门禁 | v1.3 · WD |
 | [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核以 fyo 文档门为唯一接口，门上是双向扁平树；内核无状态、状态随文档走；`fylite_runtime` 是中间层（SpData profile、后端表）；多宿主只写计划只读记录；一条总线九步 | v2.1 · WD |

@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-19
 title: "facts 的发行形态——从 fydoc 的装置书到两份生成物 (Distributing the Facts: from fydoc's Device Book to Two Generated Artifacts)"
 shortname: fylite-facts-distribution
-version: "0.3"
+version: "0.4"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -15,7 +15,20 @@ modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v0.3 收进两条用户裁定（2026-09-05）：**（一）缺省即全功能版，含 EAST，fylite 以
+    v0.4 记 A-15 的**落地与剩余**（2026-09-05 同日）：`pf_passive` **已迁**——fydata 新增
+    `abox/device/tokamak/east/fyo/latest/static/now/pf_passive.yaml`（90 个 loop：真空室内外壳
+    各 40 段加室内铜被动板 10 块），在 `machine.yaml` 的 `epochs[now].ids` 登记，两道门禁
+    0 error，再由 `abox2jsonld.py` 誊录进 fydoc 并在 `provenance.yaml` 记 `unverified`。
+    另有三处逐项复核出来的事实，改写了 A-15 的剩余范围：**电源那一批有一半已经在**——
+    逐 deck 元件匝数（140×6 · 44 · 44 · 204 · 204 · 60 · 60 · 32 · 32）就是 fydata
+    `providers/pf_active/base.yaml` 里的 `turns_with_sign`，IC1 / IC2 也已是它的 coil；
+    真正缺的是 `power_supply`（τ · 限流 · 14 路限压）· `pf_active_circuits.resistivity` ·
+    `pf_channel_elements`（12 通道权重图）。它们**卡在一处结构缺口**：fydata 的解析面是
+    「一个 IDS 一份文档、按 provider 选一份」，而这几件与几何**同 IDS 不同来路**，今天没有
+    合成轴可写（G-10）。`operational` 仍卡在 G-9。另记 G-11：fydoc 的
+    `dataset_fair.jsonld` 带着一个 fydata 侧没有的 `dev:redistribution` 块（2026-09-04 的
+    再分发裁定），重跑誊录器会把它**静默删掉**——本次实测撞上，已还原该文件、未收重跑结果。
+    · v0.3 收进两条用户裁定（2026-09-05）：**（一）缺省即全功能版，含 EAST，fylite 以
     内部工具发布**——落成 A-14 并**已实施**：六处缺省从 `public` 翻成 `internal`
     （`abox-to-facts.py` · `facts-publish.py` · `build-site.sh` · `build-wheel.sh` ·
     `make-app-embed.mjs` · `build-app-exe.sh`），公开面自此必须**明写** `--flavour
@@ -54,7 +67,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-19` |
 | 文档名称 (Title) | facts 的发行形态——从 fydoc 的装置书到两份生成物 |
 | 短名 / Slug | `fylite-facts-distribution` |
-| 版本 (Version) | v0.3 |
+| 版本 (Version) | v0.4 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -358,9 +371,32 @@ fydoc abox*。执行时复核出两件必须先说清的事：
 
 故路线**要求 (SHALL)** 为：手工卡片 → `fydata/abox/device/tokamak/east/fyo/latest/static/now/`
 的 A-Box YAML → 在 `machine.yaml` 登记 → 跑 `abox2jsonld.py` → fydoc 的 `abox/` →
-在 fydoc 的 `provenance.yaml` 记这次核验。★`operational` 一块没有 IDS 归属，落进
-A-Box 时**必须**自带一个说得清「它不是设备描述」的位置，否则它会被下一个读者当成一份
-IDS 断言——那是本条唯一一处需要新造约定的地方（G-9）。
+在 fydoc 的 `provenance.yaml` 记这次核验。
+
+**A-15 的落地情况（实测 2026-09-05，v0.4 补记）。** 逐项复核之后，四件事的实际分布与
+裁定初写时的设想**不同**，逐条记明：
+
+:::{table} EAST 四块的实际去向。「已在源里」不是推断，是逐文件比对出来的。
+:name: tbl-a19-east
+:align: left
+
+| 块 | 状态 | 依据 |
+| :--- | :--- | :--- |
+| **79 探针基** | **本来就在 fydoc** | `providers/magnetics/efit_w_pf.jsonld` 记 `b_field_pol_probe` 79 · `flux_loop` 35，与卡片 `magnetics:` 段逐数相同 |
+| **被动结构** | **已迁**（90 个 loop） | fydata `static/now/pf_passive.yaml` → `machine.yaml` 登记 → fydoc `abox/static/now/pf_passive.jsonld`；两道门禁 0 error |
+| **电源参数** | **一半本来就在，另一半卡住** | 逐 deck 元件匝数 = `providers/pf_active/base.yaml` 的 `turns_with_sign`（140×6 · 44 · 44 · 204 · 204 · 60 · 60 · 32 · 32，逐位相同）；IC1 / IC2 也已是它的 coil。缺 `power_supply` · `pf_active_circuits.resistivity` · `pf_channel_elements`——见 G-10 |
+| **拟合控制块** | **未迁** | `operational:` 无 IDS 归属，A-Box 里没有它的位置——G-9 |
+:::
+
+★**IC 线圈有两个来路，数不一样**，这不是缺口而是分歧，记下免得下一个人当成缺件补：
+fydata `base.yaml`（Guo 2012）记 IC1 在 `r = 2.400` · `z = 0.600`、`turns 2`；卡片的
+`ic_coil:`（TokSys `east_obj_2013`）记 `r = 2.309` · `z = 0.7425`、`turns 2`。**两者相差
+14 cm**。哪一个是今天的机器，本篇不裁——但**禁止 (MUST NOT)** 在不说明的情况下用其中
+一个覆盖另一个。
+
+★`operational` 一块没有 IDS 归属，落进 A-Box 时**必须**自带一个说得清「它不是设备描述」
+的位置，否则它会被下一个读者当成一份 IDS 断言——那是本条唯一一处需要新造约定的地方
+（G-9）。
 
 (fylite-facts-sizes)=
 # 七 · 并什么、不并什么 (What Goes In)
@@ -420,10 +456,15 @@ IDS 断言——那是本条唯一一处需要新造约定的地方（G-9）。
 | **P2** | 顶层 `facts/` 与 `app/facts` 符号链接撤除（A-3）；`make-app-embed.mjs` 与 `build-site.sh` 改取生成物；`facts-publish.py` 的职责收成「生成哪一版」 | `bash rust/build.sh --exe` 与 `tools/build-site.sh` 在**没有 `facts/`** 的检出上都成功，且站点带该版的机器 |
 | **P3** | `experiment` 域并入（A-5）；`fy run` 的测量第 2 级在自带档上跑通 | `fy run analysis --device east shot=137985 time=4.0 --offline` 在空搜索路径上解析到切片 |
 
-**P0（已实施，2026-09-05）** —— A-14 的缺省翻向：六处缺省改成 `internal`，内嵌资源表
-换向重生成，`test_facts_corpus.py` 的表闸改名改向并修好那条恒真断言。关闭判据：
-`test_facts_corpus.py` 全绿（24 条），且 `--flavour public --list` 的计划里仍无 EAST。
-★A-15 的三块迁移**未实施**，前置是 G-9（`operational` 落在 A-Box 的哪里）。
+**P0（已实施，2026-09-05）** —— 两条：
+
+* **A-14 的缺省翻向**：六处缺省改成 `internal`，内嵌资源表换向重生成，
+  `test_facts_corpus.py` 的表闸改名改向并修好那条恒真断言。关闭判据：
+  `test_facts_corpus.py` 全绿（24 条），且 `--flavour public --list` 的计划里仍无 EAST。
+* **A-15 的被动结构一块**：fydata 新增 `pf_passive.yaml`（90 个 loop）并在 `machine.yaml`
+  登记，`check_abox_shape.py` / `check_abox_tbox.py` 双 0 error；`abox2jsonld.py` 誊录进
+  fydoc，`provenance.yaml` 记 `unverified`。★另三块的实际状态见 {numref}`tbl-a19-east`：
+  电源那批**一半本来就在**，剩下的卡在 G-10；`operational` 卡在 G-9。
 
 〔门禁〕五条：①两份生成物描述同一批机器同一批字节（A-9）；②生成物里的机器集 = 该版
 `rights.json` 允许的集合，两个方向都查（A-6）；③空搜索路径上 `fy list devices` 与
@@ -444,6 +485,8 @@ IDS 断言——那是本条唯一一处需要新造约定的地方（G-9）。
 | **G-5** | 更新节拍（F）没有答案：装置书改了之后，已发出去的制品怎么知道自己旧了 | 〔工作假设〕 | P3 |
 | **G-6** | `facts.py`（Python 侧解析器）要不要也读自带档；不读的话 Python 与 Rust 在「空路径」上答案不同，而那道比对闸子会红 | `test_facts_corpus.py::test_the_two_resolvers_agree` | P1 |
 | ~~**G-8**~~ | ~~`make-app-embed.mjs` 按**目录里现有的文件名**写表，于是在一份没有版本化 wasm（只有裸 `fylite_rs.wasm` 等）的检出上重生成会**静默降级**——表从 `.wasm.0.0.1` 变回 `.wasm`，站点与可执行文件随之丢掉 2026-09-05 的版本化命名~~ **已修（2026-09-05）**：生成器改为**按名拒绝**——三份 wasm 必须以 `assets/<名>.<版>` 的真名在场，版本从 `assets/version.js` 读（与 `build-site.sh` 同一来源）。★本次实测正是这样撞上的：重生成后 diff 里除了要加的 east 一行，还多出三行降级；已手工回改，并把这条形状变成生成器自己拒绝的事 | 本次 `node tools/make-app-embed.mjs` 的 diff；`tools/soname.sh` | 关闭 |
+| **G-10** | fydata 的解析面是「**一个 IDS 一份文档、按 provider 选一份**」，而 EAST 的电源那一批（`power_supply` · `pf_active_circuits.resistivity` · `pf_channel_elements`）与线圈几何**同属 `pf_active`、来路不同**（Walker 2010 / TokSys vs Guo 2012）。放进 `base.yaml` 是把一份来路的数挂在另一份来路的名下；另起一个 provider 则选中它就丢了几何。今天**没有合成轴**可写，A-15 这一半因此停在这里 | `machine.yaml` `providers.pf_active`（四个变体，`default: base`）；`check_abox_shape.py` S5 只认「被清单引到」，不认「被合成」 | P0（A-15 的另一半） |
+| **G-11** | fydoc `abox/static/now/dataset_fair.jsonld` 带着一个 `dev:redistribution` 块（2026-09-04 再分发裁定：公开版不含 EAST），而 fydata 的 `dataset_fair.yaml` **没有**它——重跑誊录器会把它**整块删掉，且不报错**。那是「EAST 不进公开面」的判据。`dev:` 是 fydoc 自有命名空间，落进 fydata 会被 S1 判为未知键，所以它该往哪放需要装置书维护者裁一次 | 本次重跑的 diff；fydoc `abox/README.md`「生成物、不得手改」 | P0 |
 | **G-9** | `operational`（EFIT 拟合控制与读数卫生阈值）**没有 IDS 归属**，A-Box 里落在哪、以什么谓词说，无现成约定；落错的后果是下一个读者把它当成一份 IDS 断言 | EAST 卡片 `operational:` 段自记「非设备描述、无 IDS 归属」 | P0（A-15 的前置） |
 
 〔关系〕本篇与 `FYL-DESIGN-17` E-3 / E-22 是**同一条规矩用在第二类语料上**：那一篇管
