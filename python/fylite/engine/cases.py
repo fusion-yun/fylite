@@ -644,8 +644,12 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
             "this case carries controls and not data (device and shot decks "
             "stay out of this repository).  Import the reference file and "
             "pass it as `equilibrium=`")
-    if cfg.get("couple"):
-        missing.append(f"{_EVOLVE_UNSUNK['couple']} (couple > 0)")
+    #: ★第十九刀: the alternation itself (`couple > 0` on the device tier) is the
+    #: entry's — `code/refit` between blocks, `model.evolve(couple=…)`; what stays
+    #: out is the fixed-boundary refinement, and off the device tier the page
+    #: reads `couple` as nothing at all
+    if cfg.get("couple") and cfg.get("couplefixed"):
+        missing.append(f"{_EVOLVE_UNSUNK['couple']} (couple > 0 with coupleFixed)")
     for key, why in _EVOLVE_REQUIRED.items():
         if not cfg.get(key):
             missing.append(why)

@@ -274,6 +274,26 @@
   "shift": {
    "gated": false,
    "gloss": "Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures. Not gated: `shift` is an ordinary local name in both hosts' geometry code."
+  },
+  "r2_average": {
+   "gated": true,
+   "gloss": "<R^2> [m^2] per ladder surface, the toroidal-momentum capacity's weight (第十五刀): the DD has gm1 = <1/R^2> and no <R^2>, so this row of the traced ladder is ours; code/refit states it beside the other ladder rows (第十九刀) and code/evolve's ladder tier binds it."
+  },
+  "vprime_old": {
+   "gated": false,
+   "gloss": "The previous ladder's dV/drho [m^2] remapped by psi_N onto the new one (第十九刀, 2026-09-05): code/refit hands it back after an alternation and the next block's FIRST step binds it under inputs/evolve (`vprime_moved`) so the moving-volume term sees the volume the equilibrium actually moved. Not gated: the door's raw output field and the readback key are bare by construction; the document slot under inputs/evolve is the prefixed one."
+  },
+  "p_fast_third": {
+   "gated": false,
+   "gloss": "The fast-ion pressure's trace third (p_par + 2 p_perp)/3 [Pa] on the ladder, as the beam left it at the last step (T-M12): bound under inputs/evolve for code/refit so the shape fit and the beta_p target see the same total pressure the march did (第十九刀). Not gated: a bound solver array under inputs/evolve, prefixed there by construction."
+  },
+  "eq_x": {
+   "gated": false,
+   "gloss": "The previous equilibrium's p(psi_N) table — its psi_N abscissa — bound under inputs/refit (第十九刀): the beta_p the last FREE solve carried, which the pressure feedback moves beta0 against (the page's evEqPressure(eqFree, geo)). Not gated: a bound solver table, prefixed under inputs/refit by construction."
+  },
+  "eq_p": {
+   "gated": false,
+   "gloss": "The previous equilibrium's p(psi_N) table — the pressure [Pa] — bound under inputs/refit beside eq_x (第十九刀). Not gated: a bound solver table, prefixed under inputs/refit by construction."
   }
  }
 }

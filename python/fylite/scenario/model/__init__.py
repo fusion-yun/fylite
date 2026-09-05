@@ -382,8 +382,32 @@ def evolve(*, a: float, r0: float, b0: float,
            wave: dict | None = None, ipctl: bool = False,
            ip_kp: float = 0.0, ip_ki: float = 0.0,
            nbi: dict | None = None, lh_antennas: dict | None = None,
-           executors: dict | None = None, turb: dict | None = None) -> dict:
+           executors: dict | None = None, turb: dict | None = None,
+           couple: dict | None = None) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
+
+    ★2026-09-05 第十九刀: ``couple`` runs the DEVICE tier's equilibrium
+    alternation — the page's coupled block.  The start is ``code/refit`` with
+    ``fit: 0`` (one free-boundary solve on the device's coils at the channel
+    currents, the ladder traced off it); then blocks of ``every`` steps of
+    ``code/evolve`` on that ladder, and between blocks ``code/refit`` with
+    ``fit: 1``: the transport pressure's shape fitted to the analytic current
+    family (``evFitShape``), the pressure amplitude ``beta0`` moved by the ratio
+    of the two beta_p (the march's against the previous equilibrium's own,
+    under-relaxed by ``relax``), a new free solve, the ladder re-traced, the
+    state remapped by psi_N, the flux rebuilt in the march's gauge and the old
+    V' handed to the next block's first step (``vprime_old``).  This function
+    keeps the CADENCE only.  ``couple = {every, aturns, ip, beta0, emp, enp,
+    r0, relax, device, limiter, max_iter, gs_relax, gs_tol, fb_gain, n_theta}``
+    (``aturns`` and ``ip`` required; ``r0`` the profile family's reference
+    radius; ``device`` a device document, default the bundled one).  With
+    ``couple`` the geometry arguments and ``equilibrium`` are not read: the
+    ladder is the solve's, ``n_rho`` its node count, ``edge_psin`` its edge.
+    The answer's ``rounds`` is one record per block (``block, steps, settled,
+    beta0, fit, bp_target, bp_eq, free``), ``free_solves`` every solve's verdict
+    (block 0 first).  ★The fixed-boundary refinement (``coupleFixed``) is not
+    sunk and is not offered here; the turbulent closure is not combined with
+    ``couple`` in this tool (the page combines them).
 
     ★2026-09-05 第十八刀: ``closure="turbulent"`` marches on the neoclassical
     chi_i plus a TGLF-derived one.  TGLF lives in the EXTENSION library, so
@@ -510,11 +534,27 @@ def evolve(*, a: float, r0: float, b0: float,
         raise ValueError(
             "quasi=True puts an impurity into the quasi-neutrality, so it "
             "needs one: pass `impurity=` (and its `imp_z`)")
-    if closure not in ("constant", "neoclassical"):
+    if closure not in ("constant", "neoclassical", "turbulent"):
         raise ValueError(
-            f"closure {closure!r}: this tool marches on the constant or the "
-            "neoclassical closure; the turbulent and flux-match tiers need "
-            "the extension module and are not sunk")
+            f"closure {closure!r}: this tool marches on the constant, the "
+            "neoclassical or the turbulent closure (the last through the "
+            "extension's door between blocks); the flux-match tier is a root "
+            "find, not a march, and is not sunk")
+    if couple is not None:
+        for key in ("aturns", "ip"):
+            if key not in couple:
+                raise ValueError(
+                    f"couple needs {key!r}: the alternation solves the free boundary "
+                    "on the device's coils at the channel currents the run was "
+                    "designed with, and normalises the current to ip")
+        if closure == "turbulent":
+            raise ValueError(
+                "couple with the turbulent closure is not combined in this tool: "
+                "run one or the other (the page combines them)")
+        if couple.get("fixed"):
+            raise ValueError(
+                "the fixed-boundary refinement (coupleFixed) is not sunk: the "
+                "alternation runs on the free solve alone")
     if ipctl and not current:
         raise ValueError(
             "ipctl=True needs the current channel: the loop drives the "
@@ -566,7 +606,12 @@ def evolve(*, a: float, r0: float, b0: float,
                          "wave_fuel": float(bool(wave.get("fuel", False))),
                          "wave_ip": float(bool(wave.get("ip", False)))})
     inputs: dict = {}
-    if equilibrium is None:
+    if couple is not None:
+        #: the ladder tier's two shape scalars are what the page's sliders hand it
+        #: (the ladder's own rows carry the traced shapes)
+        settings.update({"geometry": "ladder", "edge_psin": float(edge_psin),
+                         "n": float(max(5, int(n_rho))), "kappa": float(kappa), "delta": float(delta)})
+    elif equilibrium is None:
         settings.update({"a": float(a), "r0": float(r0), "b0": float(b0),
                          "kappa": float(kappa), "delta": float(delta),
                          "q95": float(q95), "n": float(max(5, int(n_rho)))})
@@ -597,11 +642,14 @@ def evolve(*, a: float, r0: float, b0: float,
         inputs["core_transport"] = {"model": [{"profiles_1d": {
             "electrons": {"energy": {"d": np.asarray(chi_e_profile, float)}},
             "total_ion_energy": {"d": np.asarray(chi_i_profile, float)}}}]}
-    turb_evals, chi_turb = 0, None
+    turb_evals, chi_turb, rounds, free_solves = 0, None, None, None
     if closure == "turbulent":
         rec, turb_evals, chi_turb = _turbulent_march(settings, inputs, turb or {},
                                                      momentum=momentum, quasi=quasi,
                                                      beam=nbi is not None, lh=lh_antennas is not None)
+    elif couple is not None:
+        rec, rounds, free_solves = _coupled_march(settings, inputs, couple, momentum=momentum, quasi=quasi,
+                                                  wave_power=bool(wave) and bool(wave.get("power", True)))
     else:
         rec = fydoc.complete("code/evolve", {"settings": settings, "inputs": inputs})
 
@@ -613,7 +661,7 @@ def evolve(*, a: float, r0: float, b0: float,
     sm = F["summary"]
     gq = sm["global_quantities"]
     steps = int(fact("steps"))
-    geometry = "miller" if equilibrium is None else "ladder"
+    geometry = "device" if couple is not None else ("miller" if equilibrium is None else "ladder")
     ref_used = tuple(k for k in ("te", "ti", "ne") if fact("ref_" + k) == 1.0)
     return {
         "rho": np.asarray(cp["grid"]["rho_tor"]["data"], float),
@@ -659,6 +707,8 @@ def evolve(*, a: float, r0: float, b0: float,
         "beam": F.get("beam"), "lh": F.get("lh"),
         #: 第十八刀 — the turbulent tier's last evaluation and the count
         "chi_turb": chi_turb, "turb_evals": turb_evals,
+        #: 第十九刀 — the alternation's record per block, and every free solve
+        "rounds": rounds, "free_solves": free_solves,
         "notes": list(rec.get("notes", [])),
         "provenance": provenance("evolve", closure="constant",
                                  channels=("heat", "current") if current
@@ -672,6 +722,8 @@ def evolve(*, a: float, r0: float, b0: float,
                                                  if v is not None) or None,
                                  turbulence=("tglf (extension door, blocks of %d)" % int((turb or {}).get("every", 2))
                                              if closure == "turbulent" else None),
+                                 coupled=("code/refit between blocks of %d (free solve, pressure amplitude by beta_p)"
+                                          % int((couple or {}).get("every", 1)) if couple is not None else None),
                                  pedestal="eped1nn" if pedestal else None,
                                  loop="kernel (evolve_heat)"),
     }
@@ -795,6 +847,187 @@ def _turbulent_march(settings: dict, inputs: dict, turb: dict, *, momentum: bool
     out["facts"]["ped_extrap"]["value"] = max(float(b["facts"]["ped_extrap"]["value"]) for b in blocks)
     out["notes"] = [s for b in blocks for s in b.get("notes", [])]
     return out, evals, chi
+
+
+_COUPLE_DEFAULTS = {"every": 1, "beta0": 0.55, "emp": 1.0, "enp": 1.0, "relax": 0.5}
+
+#: the ladder rows `code/refit` states and `code/evolve`'s ladder tier binds
+_LADDER_ROWS = ("rho_tor", "dvolume_drho_tor", "gm3", "gm7", "gm2", "f", "q", "fylite:r_minor", "fylite:r_major",
+                "fylite:r2_average", "magnetic_shear", "elongation", "triangularity_upper", "fylite:shift",
+                "fylite:psi_norm", "psi")
+
+
+def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool, quasi: bool,
+                   wave_power: bool):
+    """The page's block cadence around `code/refit` — see :func:`evolve` (第十九刀)."""
+    from ...io import fydoc
+    from ..design import _device
+
+    c = {**_COUPLE_DEFAULTS, **couple}
+    every = max(1, int(c["every"]))
+    n_steps = int(settings["n_steps"])
+    dev = _device(c.get("device"))
+    aturns = np.asarray(c["aturns"], float)
+    fixed = {"ip": float(c["ip"]), "emp": float(c["emp"]), "enp": float(c["enp"]),
+             "relax": float(c["relax"]), "n": float(settings["n"]), "edge_psin": float(settings["edge_psin"]),
+             "n_theta": float(c.get("n_theta", 121))}
+    if "r0" in c:
+        fixed["r0"] = float(c["r0"])
+    for key in ("max_iter", "gs_relax", "gs_tol", "fb_gain", "b0", "r0_tf"):
+        if key in c:
+            fixed[key] = float(c[key])
+    if c.get("limiter"):
+        fixed["limiter"] = str(c["limiter"])
+    if "b0" not in fixed or "r0_tf" not in fixed or "r0" not in fixed:
+        #: the vacuum field off the device document — the page's `tf: {r0, b0}`
+        #: (`FyDevice.tf`), else the deck's `machine/r_centre` and the TF coil's
+        #: `b_field_tor_vacuum_r` (B0 * R0) as `device.py` reads it
+        tf = dev.get("tf") or {}
+        mach = dev.get("machine") or {}
+        r0_tf = tf.get("r0", mach.get("r_centre"))
+        b0_tf = tf.get("b0")
+        if b0_tf is None and (dev.get("tf") or {}).get("b_field_tor_vacuum_r") is not None and r0_tf:
+            b0_tf = float(dev["tf"]["b_field_tor_vacuum_r"]) / float(r0_tf)
+        if r0_tf is None or b0_tf is None:
+            raise ValueError("couple needs the vacuum field: pass b0 and r0_tf, or a device document "
+                             "with tf/{r0, b0} (or machine/r_centre and tf/b_field_tor_vacuum_r)")
+        fixed.setdefault("b0", float(b0_tf))
+        fixed.setdefault("r0_tf", float(r0_tf))
+        fixed.setdefault("r0", float(r0_tf))
+    arr = lambda rec, k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    fact = lambda rec, k: float(rec["facts"][k]["value"])  # noqa: E731
+
+    def refit(beta0, fit, *, ladder=None, state=None, p_fast=None, eq_prev=None):
+        st = dict(fixed, beta0=float(beta0), fit=float(fit))
+        inp = {"device": dev, "discharge": {"fylite:channel_aturns": aturns}}
+        if fit:
+            st["a"] = float(ladder["a"])
+            inp["equilibrium"] = {"time_slice": {"profiles_1d": {
+                "rho_tor": ladder["rho_tor"], "dvolume_drho_tor": ladder["dvolume_drho_tor"],
+                "fylite:psi_norm": ladder["fylite:psi_norm"]}}}
+            prof = {"electrons": {"temperature": state["te"], "density": state["ne"]},
+                    "t_i_average": state["ti"], "fylite:ion_density": state["ni"]}
+            if "omega" in state:
+                prof["rotation_frequency_tor_sonic"] = state["omega"]
+            if "nz" in state:
+                prof["fylite:impurity_density"] = state["nz"]
+            inp["core_profiles"] = {"profiles_1d": prof}
+            if p_fast is not None:
+                inp["evolve"] = {"fylite:p_fast_third": p_fast}
+            if eq_prev is not None:
+                inp["refit"] = {"fylite:eq_x": arr(eq_prev, "profile_x"), "fylite:eq_p": arr(eq_prev, "pres")}
+        return fydoc.complete("code/refit", {"settings": st, "inputs": inp})
+
+    def ladder_of(rec):
+        lad = rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+        out = {k: np.asarray(lad[k]["data"], float) for k in _LADDER_ROWS}
+        out["a"], out["r0"], out["b0"] = fact(rec, "a"), fact(rec, "r0"), fact(rec, "b0")
+        return out
+
+    def free_of(rec, block):
+        return {"block": block, "converged": bool(fact(rec, "converged")), "settled": bool(fact(rec, "settled")),
+                "residual": fact(rec, "residual"), "iterations": int(fact(rec, "iterations")),
+                "max_iter": int(fact(rec, "max_iter")), "tol": fact(rec, "tol")}
+
+    def state_of(rec):
+        cp = rec["fields"]["core_profiles"]["profiles_1d"]
+        st = {"te": np.asarray(cp["electrons"]["temperature"]["data"], float),
+              "ne": np.asarray(cp["electrons"]["density"]["data"], float),
+              "ti": np.asarray(cp["t_i_average"]["data"], float),
+              "ni": np.asarray(cp["fylite:ion_density"]["data"], float)}
+        if momentum and "rotation_frequency_tor_sonic" in cp:
+            st["omega"] = np.asarray(cp["rotation_frequency_tor_sonic"]["data"], float)
+        if quasi and "fylite:impurity_density" in cp:
+            st["nz"] = np.asarray(cp["fylite:impurity_density"]["data"], float)
+        return st
+
+    beta0 = float(c["beta0"])
+    eq = refit(beta0, 0)
+    beta0 = fact(eq, "beta0")
+    ladder = ladder_of(eq)
+    free_solves = [free_of(eq, 0)]
+    rounds, blocks = [], []
+    prev, left, block = None, n_steps, 0
+    while left > 0:
+        block += 1
+        st_plan = dict(settings, n_steps=float(min(every, left)),
+                       a=ladder["a"], r0=ladder["r0"], b0=ladder["b0"])
+        inp = dict(inputs)
+        inp["equilibrium"] = {"time_slice": {"profiles_1d": {k: ladder[k] for k in _LADDER_ROWS}}}
+        if prev is not None:
+            fc = prev["facts"]
+            st_plan.update({"resume": 1.0, "state": 1.0, "t_start": fc["t_end"]["value"], "dt_start": fc["dt_next"]["value"],
+                            "edge_te_in": fc["edge_te_out"]["value"], "edge_ti_in": fc["edge_ti_out"]["value"],
+                            "capped_in": fc["dt_capped"]["value"], "saw_elapsed_in": fc["saw_elapsed_out"]["value"],
+                            "dt_fraction_in": fc["dt_fraction_used"]["value"],
+                            "ipctl_ratio0_in": fc["ipctl_ratio0_out"]["value"], "ipctl_integral_in": fc["ipctl_integral_out"]["value"],
+                            "ipctl_calibrated_in": fc["ipctl_calibrated_out"]["value"],
+                            #: the first step after the alternation: the lagged pair dropped, the volume moved
+                            "lag_reset": 1.0, "vprime_moved": 1.0})
+            st = state_of(eq)
+            prof = {"grid": {"psi": ladder["psi"]},
+                    "electrons": {"temperature": st["te"], "density": st["ne"]},
+                    "t_i_average": st["ti"], "fylite:ion_density": st["ni"]}
+            if "omega" in st:
+                prof["rotation_frequency_tor_sonic"] = st["omega"]
+            if "nz" in st:
+                prof["fylite:impurity_density"] = st["nz"]
+            inp["core_profiles"] = {"profiles_1d": prof}
+            n_new = ladder["rho_tor"].size
+            ex = arr(prev, "exch_prev_out")
+            ex_max = float(np.max(ex[np.isfinite(ex)])) if np.any(np.isfinite(ex)) else 0.0
+            #: the exchange ceiling keeps the previous closure's fastest rate (the
+            #: page reads its last closure unchanged across the alternation); the
+            #: executors are evaluated afresh on the new psi map (no carried arrays)
+            inp["evolve"] = {"fylite:psi_prev": np.zeros(n_new), "fylite:sigma_prev": np.zeros(n_new),
+                             "fylite:exch_prev": np.full(n_new, ex_max), "fylite:vprime_old": arr(eq, "vprime_old")}
+        rec = fydoc.complete("code/evolve", {"settings": st_plan, "inputs": inp})
+        blocks.append(rec)
+        took = int(rec["facts"]["steps"]["value"])
+        left -= took
+        settled = float(rec["facts"]["settled"]["value"]) != 0.0
+        rounds.append({"block": block, "steps": n_steps - left, "settled": settled, "beta0": beta0,
+                       "fit": None, "bp_target": float("nan"), "bp_eq": float("nan"), "free": None})
+        prev = rec
+        if settled or left <= 0:
+            break
+        #: the alternation on the state the block ended with
+        st = state_of(rec)
+        p_fast = None
+        if "beam" in rec["fields"]:
+            kp = float(arr(rec, "wave_k")[took - 1]) if wave_power else 1.0
+            p_fast = (arr(rec, "beam_p_par") + 2.0 * arr(rec, "beam_p_perp")) / 3.0 * kp
+        eq = refit(beta0, 1, ladder=ladder, state=st, p_fast=p_fast, eq_prev=eq)
+        beta0 = fact(eq, "beta0")
+        ladder = ladder_of(eq)
+        free = free_of(eq, block)
+        free_solves.append(free)
+        fit = ({"emp": fact(eq, "fit_emp"), "enp": fact(eq, "fit_enp"), "rms": fact(eq, "fit_rms")}
+               if fact(eq, "fit_found") else None)
+        rounds[-1].update({"beta0": beta0, "fit": fit, "bp_target": fact(eq, "bp_target"),
+                           "bp_eq": fact(eq, "bp_eq"), "free": free})
+    #: the stitched record: the last block's fields (on the last ladder), the traces concatenated
+    import copy as _copy
+    out = _copy.deepcopy(blocks[-1])
+
+    def node(rec, path):
+        n = rec["fields"]
+        for p in path:
+            n = n[p]
+        return n
+    for path in _TRACES:
+        try:
+            parts = [np.asarray(node(b, path)["data"], float)[:int(b["facts"]["steps"]["value"])] for b in blocks]
+        except KeyError:
+            continue
+        node(out, path)["data"] = np.concatenate(parts)
+    out["facts"]["steps"]["value"] = float(sum(int(b["facts"]["steps"]["value"]) for b in blocks))
+    out["facts"]["saw_count"]["value"] = float(sum(int(b["facts"]["saw_count"]["value"]) for b in blocks))
+    out["facts"]["dt_capped"]["value"] = float(sum(int(b["facts"]["dt_capped"]["value"]) for b in blocks))
+    out["facts"]["balance_worst"]["value"] = max(float(b["facts"]["balance_worst"]["value"]) for b in blocks)
+    out["facts"]["ped_extrap"]["value"] = max(float(b["facts"]["ped_extrap"]["value"]) for b in blocks)
+    out["notes"] = [s for b in blocks for s in b.get("notes", [])]
+    return out, rounds, free_solves
 
 
 # --------------------------------------------------------------------------- #

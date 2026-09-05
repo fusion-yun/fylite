@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "6f23d7860741ef64";
+pub const DIGEST: &str = "91ba04c194ba4c61";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -267,6 +267,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "interpretive", shape: "", units: "assembled", gloss: "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account" },
         Row { key: "coupled", shape: "", units: "assembled", gloss: "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature" },
         Row { key: "beam", shape: "", units: "assembled", gloss: "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units" },
+        Row { key: "refit", shape: "", units: "assembled", gloss: "the equilibrium alternation between two blocks of the march (the page's coupled block): the pressure-shape fit and the beta_p feedback on the transport state, one free-boundary solve on the device's coils, the analytic p'/FF' the field implies, its q profile, the ladder traced off the solved field, the state remapped onto it; or (fit = 0) the solve and the ladder alone, for the device tier's start" },
         Row { key: "turbulence", shape: "", units: "extension", gloss: "the turbulent closure between two blocks of the march (the page's turbulentChi): the surface blocks from the ladder and the state, one TGLF flux evaluation per sampled radius (units, ky grid, the quasilinear flux), chi = Q_i / (a/L_T) in gyro-Bohm units interpolated onto the ladder, relaxed against the previous block's" },
         Row { key: "wave", shape: "", units: "assembled", gloss: "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics" },
     ] },
@@ -297,7 +298,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "quasi", shape: "quasi", units: "sunk", gloss: "impurity dilution (composition-derived fuel fraction)" },
         Row { key: "resume", shape: "", units: "sunk", gloss: "a resumed state" },
         Row { key: "closure", shape: "closure", units: "unsunk", gloss: "the flux-match closure (4): a root find, not a march" },
-        Row { key: "couple", shape: "couple", units: "unsunk", gloss: "the equilibrium alternation" },
+        Row { key: "couple", shape: "coupleFixed", units: "unsunk", gloss: "the fixed-boundary refinement inside the equilibrium alternation (coupleFixed)" },
     ] },
     Block { name: "EVOLVE_HEAT_IN", rows: &[
         Row { key: "rho", shape: "n", units: "m", gloss: "the grid (metres, like the page's)" },
@@ -334,6 +335,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "lh_e", shape: "n", units: "W/m^3", gloss: "the wave's electron deposition (lh = 1)" },
         Row { key: "lh_j", shape: "n", units: "A/m^2", gloss: "the wave-driven current (with ch_current)" },
         Row { key: "chi_turb", shape: "n", units: "m^2/s", gloss: "the turbulent ion diffusivity added to the neoclassical one (closure = 3)" },
+        Row { key: "vprime_old", shape: "n", units: "m^2", gloss: "dV/drho the block's first step starts from (vprime_moved = 1); the volume change across that step" },
     ] },
     Block { name: "EVOLVE_HEAT_OUT", rows: &[
         Row { key: "te", shape: "n", units: "eV", gloss: "the profile the loop reached" },
@@ -476,6 +478,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "ipctl_calibrated_in", shape: "1", units: "1", gloss: "1 when the previous block had already calibrated the loop" },
         Row { key: "closure", shape: "1", units: "1", gloss: "0 = constant chi (chi0 / chi_ratio); 2 = neoclassical (Chang-Hinton chi_i, chi_e = chi_i * chi_ratio); 3 = turbulent (the neoclassical chi_i plus the caller's chi_turb, held for the block); the given-profile tier stays chi_source = 1" },
         Row { key: "beam", shape: "1", units: "1", gloss: "1 = the beam arrays below are the auxiliary deposition (the Gaussian and i_cd are inert)" },
+        Row { key: "vprime_moved", shape: "1", units: "1", gloss: "1 = the first step carries the volume change from vprime_old to vprime" },
+        Row { key: "lag_reset", shape: "1", units: "1", gloss: "1 = the resumed block has no lagged flux / conductivity (the state was remapped): no Ohmic term on its first step" },
         Row { key: "lh", shape: "1", units: "1", gloss: "1 = the lower-hybrid arrays below add to the electron deposition and the driven current" },
     ] },
     Block { name: "PROFIT_IN", rows: &[
@@ -584,4 +588,4 @@ pub const ENTRIES: &[Entry] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "chi_turb", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "flux_loop", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "max_power", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "null_r", "null_z", "orbit_loss_fraction", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "psi_prev", "q", "q_psi_norm", "r_major", "r_minor", "reconstructed", "result", "rho", "shift", "shinethrough", "sigma_prev", "source", "target", "time", "trapped_fraction", "truth", "verify", "vprime", "weight"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "chi_turb", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "flux_loop", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "max_power", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "null_r", "null_z", "orbit_loss_fraction", "p_fast_third", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "psi_prev", "q", "q_psi_norm", "r2_average", "r_major", "r_minor", "reconstructed", "result", "rho", "shift", "shinethrough", "sigma_prev", "source", "target", "time", "trapped_fraction", "truth", "verify", "vprime", "vprime_old", "weight"];

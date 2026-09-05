@@ -7921,7 +7921,9 @@ function evScopeMiss(sp) {
       //: the flux-match tier (4) is not
       if ((v | 0) === 4) miss.push(r.gloss);
     } else if (r.key === 'couple') {
-      if (+v) miss.push(r.gloss);
+      //: ★第十九刀: the alternation itself is the entry's (`code/refit`
+      //: between blocks); what stays out is the fixed-boundary refinement
+      if (v && +sp.couple > 0) miss.push(r.gloss);
     } else if (r.units === 'required') {
       if (!v) miss.push(r.gloss);
     } else if (r.key === 'resume') {
@@ -7938,6 +7940,107 @@ function evScopeMiss(sp) {
     }
   }
   return miss;
+}
+
+/**
+ * The equilibrium half of a coupled block, through the KERNEL's `code/refit`.
+ *
+ * ★★★第十九刀 (2026-09-05).  Between two blocks of the march the loop below
+ * used to run a dozen flat exports in a row: `evFitShape` (the transport
+ * pressure's shape fitted to the analytic current family), the two beta_p
+ * and the under-relaxed move of `beta0`, `freeSolve` (`fy.gsFreeSolve` on
+ * the coil flux), `summarize` (the analytic truth, the q profile, the
+ * boundary), `evLadderFromSolve` (`fy.equilibriumLadder`), `evRemap` of the
+ * state onto the new ladder by psi_N, `evPsiOf` for the flux in the march's
+ * gauge, the old V' remapped for the first step's moving volume.  All of it
+ * is `case.rs::refit_case` now — one plan in, one record out — and the SAME
+ * door with `fit: 0` is the device tier's start (the solve and the ladder,
+ * nothing fitted).  What this function keeps is the plan and the reading.
+ *
+ * `o.fit`: 1 for the alternation (state + ladder + previous equilibrium's
+ * p(psi_N) bound), 0 for the start.  Returns the pieces the march needs in
+ * the shapes it already used: `eq` (what `summarize` returned, minus the
+ * display-only parts), `geo` (what `evLadderMetric` returned), `field`, and
+ * with `fit` the remapped `st`, `vprimeOld`, `fit`, `bpTarget`, `bpEq`,
+ * `beta0` and the solve's `free` report.
+ */
+function evRefit(sp, chan, o) {
+  var arr = function (v) { return v ? Array.from(v) : null; };
+  var t = self.FyDevice.tf(M), fo = evFreeOpts(sp);
+  var settings = {
+    ip: sp.ip, beta0: o.beta0, emp: sp.emp, enp: sp.enp, r0: sp.r0Src,
+    b0: t.b0, r0_tf: t.r0, relax: sp.relax, n: sp.n, edge_psin: sp.edgePsin, n_theta: 121,
+    gs_relax: fo.relax, gs_tol: fo.tol, fb_gain: 8.0, max_iter: fo.maxIter, fit: o.fit ? 1 : 0 };
+  var inputs = { device: deviceDoc(), discharge: { 'fylite:channel_aturns': Array.from(chan) } };
+  if (o.fit) {
+    var geo = o.geo, st = o.st;
+    settings.a = geo.a;
+    inputs.equilibrium = { time_slice: { profiles_1d: {
+      rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), 'fylite:psi_norm': arr(geo.psin) } } };
+    var cp = { electrons: { temperature: arr(st.te), density: arr(st.ne) },
+               t_i_average: arr(st.ti), 'fylite:ion_density': arr(st.ni) };
+    if (st.omega) cp.rotation_frequency_tor_sonic = arr(st.omega);
+    if (st.nz) cp['fylite:impurity_density'] = arr(st.nz);
+    inputs.core_profiles = { profiles_1d: cp };
+    //: the fast branches' trace third rides along (T-M12), so the fit and the
+    //: beta_p target see the same total pressure the march did
+    if (o.pFastThird) inputs.evolve = { 'fylite:p_fast_third': arr(o.pFastThird) };
+    //: the previous equilibrium's own p(psi_N) — the FREE solve's, whatever the
+    //: march ran on (`evEqPressure(eqFree, geo)`)
+    if (o.eqPrev && o.eqPrev.profiles && o.eqPrev.profiles.p)
+      inputs.refit = { 'fylite:eq_x': arr(o.eqPrev.profiles.x), 'fylite:eq_p': arr(o.eqPrev.profiles.p) };
+  }
+  Object.keys(settings).forEach(function (k) {
+    if (settings[k] === undefined || settings[k] === null) delete settings[k];
+  });
+  var rec = fy.complete('code/refit', { settings: settings, inputs: inputs });
+  var X = function (k) { return rec.facts[k].value; };
+  var F = function (k) { return fieldFlat(rec, k); };
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var lad = rec.fields.equilibrium.time_slice.profiles_1d;
+  var eq = {
+    psi: F('psi'), psiAxis: X('psi_axis'), psiBnd: X('psi_bnd'), axisR: X('axis_r'), axisZ: X('axis_z'),
+    ip: X('ip'), residual: X('residual'), iterations: X('iterations'),
+    converged: X('converged') === 1, settled: X('settled') === 1,
+    maskDelta: X('mask_delta') < 0 ? null : X('mask_delta'), tol: fo.tol, maxIter: fo.maxIter,
+    bndKind: X('bnd_kind'), xptR: X('xpt_r'), xptZ: X('xpt_z'), fbAmp: X('fb_amp'),
+    profiles: { x: F('profile_x'), pprime: F('pprime'), ffprime: F('ffprime'), p: F('pres'), jc: X('jc') },
+    q: { x: F('q_x'), q: F('q'), f: F('f'), q0: X('q0'), q95: X('q95') },
+    lcfs: F('boundary'),
+    shape: { r0: X('r0'), a: X('a'), kappa: X('kappa'), deltaU: X('delta_upper'), deltaL: X('delta_lower'),
+             z0: X('z0'), delta: 0.5 * (X('delta_upper') + X('delta_lower')) },
+  };
+  var geoNew = {
+    rho: flat(lad.rho_tor), vprime: flat(lad.dvolume_drho_tor), gm3: flat(lad.gm3), gm7: flat(lad.gm7),
+    gm2: flat(lad.gm2), r2: flat(lad['fylite:r2_average']), fpol: flat(lad.f), q: flat(lad.q),
+    psin: flat(lad['fylite:psi_norm']), shear: flat(lad.magnetic_shear), kappa: flat(lad.elongation),
+    delta: flat(lad.triangularity_upper), rmaj: flat(lad['fylite:r_major']), rmin: flat(lad['fylite:r_minor']),
+    shift: flat(lad['fylite:shift']),
+    a: X('a'), r0: X('r0'), b0: X('b0'), source: 'device',
+    psiAxis: eq.psiAxis, psiBnd: eq.psiBnd, dpsi: (eq.psiBnd - eq.psiAxis) / (2 * Math.PI),
+  };
+  var field = { psi: eq.psi, psiAxis: eq.psiAxis, psiBnd: eq.psiBnd,
+                axisR: eq.axisR, axisZ: eq.axisZ,
+                r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
+                nr: grid.nr, nz: grid.nz,
+                limR: M.limiter.r, limZ: M.limiter.z };
+  var out = { eq: eq, geo: geoNew, field: field,
+              free: { converged: eq.converged, settled: eq.settled, residual: eq.residual,
+                      iterations: eq.iterations, maxIter: eq.maxIter, tol: eq.tol },
+              beta0: X('beta0') };
+  if (o.fit) {
+    var cpr = rec.fields.core_profiles.profiles_1d;
+    out.st = { te: flat(cpr.electrons.temperature), ti: flat(cpr.t_i_average), ne: flat(cpr.electrons.density),
+               ni: flat(cpr['fylite:ion_density']),
+               omega: cpr.rotation_frequency_tor_sonic ? flat(cpr.rotation_frequency_tor_sonic) : null,
+               nz: cpr['fylite:impurity_density'] ? flat(cpr['fylite:impurity_density']) : null,
+               psi: flat(cpr.grid.psi), q: null };
+    out.vprimeOld = F('vprime_old');
+    out.fit = X('fit_found') ? { emp: X('fit_emp'), enp: X('fit_enp'), rms: X('fit_rms') } : null;
+    out.bpTarget = X('bp_target');
+    out.bpEq = X('bp_eq');
+  }
+  return out;
 }
 
 /**
@@ -7965,8 +8068,13 @@ function evScopeMiss(sp) {
  * `evolveRun` (the readings, the record, the one `post` that carries them)
  * is untouched and there is still ONE exit.
  */
-function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
-  var n = geo.rho.length, prev = null, steps = 0, tNow = tStart || 0;
+function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
+  //: ★第十九刀: one BLOCK of the march when `blk` is given — the steps it
+  //: takes counted from `blk.steps0`, the continuation (`blk.prev`) the
+  //: previous block's last record with its arrays on this ladder, and the
+  //: first step told that the lag is broken and the volume moved
+  var n = geo.rho.length, prev = blk && blk.prev || null, steps = blk ? blk.steps0 : 0;
+  var stop = blk ? blk.steps0 + blk.take : sp.nSteps, first = true, tNow = tStart || 0;
   //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
   //: per call so the page can report as it goes: the plan carries the ladder
   //: this run is on (bound rows — the traced tiers' own rmin/rmaj beside the
@@ -8098,7 +8206,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
                 //: the page's own start: the dilution it built, the rotation at rest
                 ni: st.ni, nz: st.nz || null, omega: st.omega || null };
   var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
-  while (steps < sp.nSteps) {
+  while (steps < stop) {
     if (prev) {
       settings.resume = 1;
       settings.t_start = prev.t_end;
@@ -8117,12 +8225,20 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
     }
     var carried = { 'fylite:psi_prev': arr(state.psiPrev), 'fylite:sigma_prev': arr(state.sigmaPrev),
                     'fylite:exch_prev': arr(state.exchPrev) };
-    if (prev && sp.beam) {
+    if (prev && sp.beam && prev.beam_e) {
       carried['fylite:beam_e'] = prev.beam_e; carried['fylite:beam_i'] = prev.beam_i;
       carried['fylite:beam_torque'] = prev.beam_torque; carried['fylite:beam_j'] = prev.beam_j;
       carried['fylite:beam_p_par'] = prev.beam_p_par; carried['fylite:beam_p_perp'] = prev.beam_p_perp;
     }
-    if (prev && sp.lh) { carried['fylite:lh_e'] = prev.lh_e; carried['fylite:lh_j'] = prev.lh_j; }
+    if (prev && sp.lh && prev.lh_e) { carried['fylite:lh_e'] = prev.lh_e; carried['fylite:lh_j'] = prev.lh_j; }
+    //: ★第十九刀 — the first step after an alternation: the lagged flux and
+    //: conductivity sit on the previous ladder and are dropped (the loop's
+    //: `ctx.psiPrev = null`), and the moving-volume term takes the old V'
+    //: remapped onto this ladder (`vprime_old`) for this one step
+    settings.lag_reset = first && blk && blk.lagReset ? 1 : 0;
+    settings.vprime_moved = first && blk && blk.vprimeOld ? 1 : 0;
+    if (settings.vprime_moved) carried['fylite:vprime_old'] = Array.from(blk.vprimeOld);
+    first = false;
     if (turb) {
       //: the cadence (the loop's `steps % turbEvery === 0`, on the state the step starts from)
       if (steps % turbEvery === 0) turbEval(state);
@@ -8275,12 +8391,12 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
              ni: st.ni, nz: st.nz || null, omega: st.omega || null,
              chiE: ctx.lastChi.e, chiI: ctx.lastChi.i,
              jni: ctx.lastBs || null,
-             geoSource: geo.source, coupled: 0, viaEntry: true });
+             geoSource: geo.source, coupled: blk ? blk.index : 0, viaEntry: true });
     }
     prev = o;
     if (o.settled) break;
   }
-  return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled), beam: beam, lh: lh };
+  return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled), beam: beam, lh: lh, prev: prev };
 }
 
 //: set by `evolveRun` before the scope test; a module-level flag rather than
@@ -8366,19 +8482,20 @@ function evolveRun(msg) {
     if (!msg.chan) return post({ type: 'error', where: 'evolve',
                                  message: FyI18n.t('recon.noref') });
     chan = Float64Array.from(msg.chan);
-    eq = summarize(freeSolve(chan, prof, sp.ip, evFreeOpts(sp)), prof, {});
+    //: ★第十九刀: the start is `code/refit` with `fit: 0` — the free solve on
+    //: the coils at these currents and the ladder traced off it, the same door
+    //: the alternation below knocks on between blocks (it used to be
+    //: `summarize(freeSolve(…))` + `evLadderFromSolve` here, flat exports)
+    var rf0;
+    try { rf0 = evRefit(sp, chan, { fit: 0, beta0: beta0 }); }
+    catch (e0) { return post({ type: 'error', where: 'evolve', message: String(e0 && e0.message || e0) }); }
+    eq = rf0.eq; geo = rf0.geo; field = rf0.field;
     //: ★★THE EQUILIBRIUM THIS MARCH STANDS ON, and whether the solver got
     //: there.  Block 0 is the one every frozen-geometry run uses for its
     //: whole march, so a run with `couple = 0` has exactly this one entry
     //: and it is still the thing that decides whether the metric ladder
     //: means anything.
     freeLog.push(assign({ block: 0 }, freeReport(eq)));
-    geo = evLadderFromSolve(eq, sp);
-    field = { psi: eq.psi, psiAxis: eq.psiAxis, psiBnd: eq.psiBnd,
-              axisR: eq.axisR, axisZ: eq.axisZ,
-              r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-              nr: grid.nr, nz: grid.nz,
-              limR: M.limiter.r, limZ: M.limiter.z };
   } else if (sp.geometry === 'gfile') {
     var g = msg.gfile;
     field = { psi: Float64Array.from(g.psi), psiAxis: g.psiAxis,
@@ -9117,12 +9234,86 @@ function evolveRun(msg) {
   var entryMiss = evScopeMiss(sp);
   var viaEntry = blocks > 0 && entryMiss.length === 0;
   if (viaEntry) {
-    var em = evEntryMarch(ctx, st, geo, sp, trace, crashes, tNow, field);
-    steps = em.steps;
-    tNow = em.tNow;
-    if (em.beam) beam = em.beam;
-    if (em.lh) lh = em.lh;
-    settledEarly = em.settled;
+    //: ★★第十九刀 — the block cadence on the entry path.  `couple = K` on the
+    //: device tier runs the entry K steps at a time and knocks on `code/refit`
+    //: between blocks; everything the loop below did in its equilibrium half
+    //: is that door's (`evRefit`).  What stays here is the loop's own
+    //: bookkeeping: the round record, the `evolve_couple` post, the picture.
+    var lastO = null;
+    for (var eb = 0; eb < blocks; eb++) {
+      var ebTake = Math.min(perBlock, sp.nSteps - steps);
+      if (ebTake <= 0) break;
+      var em = evEntryMarch(ctx, st, geo, sp, trace, crashes, tNow, field,
+                            { index: eb, steps0: steps, take: ebTake, prev: lastO,
+                              lagReset: eb > 0, vprimeOld: eb > 0 ? vprimeOld : null });
+      steps = em.steps;
+      tNow = em.tNow;
+      if (em.beam) beam = em.beam;
+      if (em.lh) lh = em.lh;
+      settledEarly = em.settled;
+      lastO = em.prev;
+      //: the block's own record, in the loop's shape; the step-controller
+      //: fields the entry does not report stay null
+      rounds.push({ block: eb + 1, steps: steps, settled: em.settled,
+                    delta: null, psiRepaired: null, dt: lastO ? lastO.dt_used[0] : null, retries: null,
+                    fit: null, bpTarget: NaN, bpEq: NaN, bpFix: NaN,
+                    beta0: beta0, refined: null, refineWhy: null, free: null });
+      if (settledEarly) break;
+      if (!(sp.couple > 0 && sp.geometry === 'device' && eb < blocks - 1)) continue;
+      //: the fast branches' trace third, as the loop hands it to the fit
+      var pfT = null;
+      if (ctx.pFastPar) {
+        pfT = new Float64Array(n);
+        for (var kf = 0; kf < n; kf++) pfT[kf] = (ctx.pFastPar[kf] + 2 * ctx.pFastPerp[kf]) / 3;
+      }
+      var rf;
+      try {
+        rf = evRefit(sp, chan, { fit: 1, beta0: beta0, geo: geo, st: st, pFastThird: pfT, eqPrev: eqFree });
+      } catch (e1) {
+        return post({ type: 'error', where: 'evolve', message: String(e1 && e1.message || e1) });
+      }
+      var psinOld = geo.psin;
+      beta0 = rf.beta0; fit = rf.fit; bpTarget = rf.bpTarget; bpEq = rf.bpEq; bpFix = NaN;
+      eq = rf.eq; eqFree = eq;
+      var freeNowE = assign({ block: eb + 1 }, rf.free);
+      freeLog.push(freeNowE);
+      vprimeOld = rf.vprimeOld;
+      st = rf.st;
+      geo = rf.geo; field = rf.field;
+      ctx.geo = geo; ctx.rho = geo.rho; n = geo.rho.length;
+      ctx.psiPrev = null;
+      ctx.omega = st.omega;
+      //: the executors follow the equilibrium they stop in: the next block's
+      //: first step evaluates them afresh on the new psi map (no carried
+      //: arrays), which is the loop's `rebuildBeam()`
+      beam = null; lh = null;
+      //: the turbulent chi the relaxation continues from moves onto the new
+      //: ladder by psi_N with the state (the loop kept the stale array)
+      if (ctx.turbChi) ctx.turbChi = evRemap(psinOld, ctx.turbChi, geo.psin);
+      //: the continuation: the last record's scalars, its arrays on the new
+      //: ladder; the lagged pair is dropped (`lag_reset`), the exchange ceiling
+      //: keeps the previous closure's fastest rate (the loop reads `ctx.lastCr`
+      //: unchanged across the alternation)
+      var exMax = 0;
+      for (var ke = 0; ke < lastO.exch_prev_out.length; ke++) {
+        var exv = lastO.exch_prev_out[ke];
+        if (isFinite(exv) && exv > exMax) exMax = exv;
+      }
+      lastO = assign(lastO, {
+        te: st.te, ti: st.ti, ne_out: st.ne, psi: st.psi, ni_main: st.ni, nz: st.nz, omega: st.omega,
+        psi_prev_out: new Float64Array(n), sigma_prev_out: new Float64Array(n), exch_prev_out: evFill(n, exMax),
+        beam_e: null, beam_i: null, beam_torque: null, beam_j: null, beam_p_par: null, beam_p_perp: null,
+        lh_e: null, lh_j: null });
+      sendOutlines();
+      post({ type: 'evolve_couple', block: eb + 1, beta0: beta0, free: freeNowE,
+             refined: null, refineWhy: null,
+             fit: fit, bpTarget: bpTarget, bpEq: bpEq, bpFix: bpFix,
+             lcfs: eq.lcfs, shape: eq.shape });
+      var recE = rounds[rounds.length - 1];
+      recE.free = freeNowE;
+      recE.fit = fit; recE.beta0 = beta0;
+      recE.bpTarget = bpTarget; recE.bpEq = bpEq; recE.bpFix = bpFix;
+    }
     blocks = 0;
   }
 
