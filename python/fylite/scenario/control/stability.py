@@ -208,51 +208,39 @@ def vertical_mode(eq, *, coil_aturns,
                   vessel_scale: float = 1.0,
                   eta_scale: float = 1.0,
                   mass: float = 0.0) -> VerticalStability:
-    """Rigid vertical mode of an equilibrium against the device's vessel.
+    """The growth-rate discriminator — assembled BY THE KERNEL from documents.
 
-    ★It used to take a Green-table directory as its second positional
-    argument and never read it: the conductors are
-    :func:`fylite.device.conductor_set`'s, and they are the document's.
+    ★★2026-09-05 (FYL-DESIGN-16 K-3): the passive-circuit recipe this function
+    held — deck → conductors → channel fold → stiffness; passive set scaled
+    about the axis → mutual matrix, resistances, coupling gradient → the
+    dispersion root and the regime — is ``case.rs::vstab_case`` with
+    ``circuit: passive`` now.  This builds the PLAN and reads the RECORD; the
+    regime comes back read off the two stiffnesses in ONE place (the kernel),
+    which is what :func:`fylite.scenario.control.vstab`'s docstring asked for.
 
-    ``coil_aturns``: the 12 BRSP channel values [A-turn]; distributed onto
-    deck elements through the measured channel weights (E-14).
-    ``vessel_scale`` shrinks/expands the vessel radially about the
-    magnetic axis (the wall-proximity discriminator); ``eta_scale``
-    scales the vessel resistivity (the resistance discriminator).
-
-    Passive structure: pass ``device`` (the loaded ``east_device.yaml``)
-    with ``passive_groups`` to include the outer shell and the in-vessel
-    copper plates — the linearized model needs geometry only, so all
-    three groups are usable here even though EFIT tabulates responses for
-    the inner shell alone (E-17).  The legacy ``eta_vessel_uohm_m`` form
-    (inner shell only) still works.
+    ``vessel_scale`` moves the passive elements radially about the magnetic
+    axis (the wall-proximity discriminator); ``eta_scale`` scales their
+    resistances; ``mass`` adds the inertia term to the dispersion.  Pass
+    ``device`` (the deck as a dict) with ``passive_groups``, or the legacy
+    ``eta_vessel_uohm_m`` for the inner shell alone.
     """
     from ... import fyo
+    from ...io import fydoc
+    from .vertical import _device_document
     doc = fyo.as_equilibrium(eq)
-    plasma = plasma_filaments(doc, coarsen=coarsen)
-    cond = conductor_set()
-    geo = {"coils": cond["coils"], "vessel": cond["vessel"]}
-    #: ★active loops: deck elements at the channel ampere-turns, folded by
-    #: the KERNEL (`Wᵀx`, one direction, one host).  Spelling the fold out
-    #: as a double loop here was one of several inline copies of a map whose
-    #: index direction is its whole content.
-    el_at = kernel.channel_fold(cond["weights"], coil_aturns)
-    active = [(e.r, e.z, 1.0) for e in geo["coils"]]
-    k = vertical_stiffness(plasma, active, el_at)
-    # passive structure, optionally scaled toward/away from the axis
-    if device is not None:
-        base, etas, _ = passive_set(device, passive_groups)
-    elif eta_vessel_uohm_m is not None:
-        base = geo["vessel"]
-        etas = np.full(len(base), float(eta_vessel_uohm_m))
-    else:
+    if device is None and eta_vessel_uohm_m is None:
         raise ValueError("pass either device= (with passive_groups) or "
                          "eta_vessel_uohm_m= for the inner shell")
-    r0, z0 = fyo.axis_of(doc)
-    vessel = [Element(r0 + vessel_scale * (e.r - r0),
-                               z0 + vessel_scale * (e.z - z0),
-                               e.w, e.h, e.a, e.a2) for e in base]
-    M = _device_mod.mutual_matrix(vessel, nu=3, nv=3)
-    R = _device_mod.resistance_vector(vessel, etas) * float(eta_scale)
-    loops = [(e.r, e.z, 1.0) for e in vessel]
-    return vertical_growth_rate(plasma, loops, M, R, stiffness=k, mass=mass)
+    dev = _device_document(device)
+    settings = {"circuit": "passive", "passive": ",".join(passive_groups), "ic": 0.0,
+                "coarsen": float(coarsen), "vessel_scale": float(vessel_scale),
+                "eta_scale": float(eta_scale), "mass": float(mass)}
+    if eta_vessel_uohm_m is not None:
+        settings["eta_vessel"] = float(eta_vessel_uohm_m)
+    plan = {"settings": settings,
+            "inputs": {"device": dev, "equilibrium": doc,
+                       "discharge": {"fylite:channel_aturns": np.asarray(coil_aturns, float)}}}
+    rec = fydoc.complete("code/vstab", plan)
+    f = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    regime = ("stable", "resistive-wall", "ideal-unstable")[int(f("regime_code"))]
+    return VerticalStability(f("gamma"), regime, f("k"), f("k_ideal"), f("margin"))
