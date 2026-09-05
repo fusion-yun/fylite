@@ -63,16 +63,12 @@ __all__ = [
     "direct_integrals", "gradient",
     "shell_sum", "li3", "q_profile", "profile_shape_fit", "sample", "ray_level",
     "redl_coefficients", "redl_bootstrap", "trapped_fraction_eps",
-    "lh_accessibility", "lh_resonance", "lh_shape", "lh_efficiency",
-    "lh_normalize", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
-    "field_ion_sum", "beam_footprint", "fill_gaps",
-    "BEAM_STOPPING_MODELS", "IMPURITY_FORMS", "beam_stopping",
+    "lh_accessibility", "lh_resonance", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
+    "field_ion_sum", "beam_footprint", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS", "beam_stopping",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
     "beam_current_integral", "beam_current",
     "beam_deposit_ray",
-    "pchip", "svd", "svd_solve", "besselj", "bessel_zeros",
-    "tomography_basis",
-    "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
+    "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
     "chord_mask", "line_integral", "chord_reduce", "pinhole_angles",
     "current_centroid",
     "ideal_stiffness", "dispersion_root", "vertical_plant", "vertical_loop",
@@ -93,8 +89,7 @@ __all__ = [
     "lengyel_closed", "LENGYEL_SOL_KEYS", "LENGYEL_SOL_DEFAULTS",
     "LENGYEL_STATE_KEYS", "lengyel_two_point", "lengyel_z_eff",
     "LENGYEL_OUTCOMES", "lengyel_inverse", "lengyel_forward",
-    "reintegrate", "flux_residual", "flux_match_step", "flux_match_backoff",
-    "flux_match", "FluxMatchError",
+    "reintegrate", "flux_residual", "flux_match", "FluxMatchError",
     "adas_id", "adas_species", "adas_cooling", "rad_ion", "rad_sync",
     "exchange_power", "volume_int",
     "target_flux",
@@ -1514,59 +1509,10 @@ def lh_resonance(psin, te, *, n_parallel: float, xi: float = 3.0,
             "shape": shape if width > 0 else None}
 
 
-#: Current-drive efficiency models `lh_efficiency` accepts; the index IS
+#: Current-drive efficiency models `lh_deposit`'s `cd_model` names; the index IS
 #: the ABI code, so append, never reorder.
-#: The models `lh_efficiency`'s `cd_model` argument indexes into.
+#: The models `lh_deposit`'s `cd_model` argument indexes into.
 LH_EFFICIENCY_MODELS = _LH_EFFICIENCY_MODEL_NAMES
-
-
-_sig("fylite_rs_lh_efficiency", [_ARR, _ARR, _U64, ctypes.c_uint32, _ARR], _I32)
-def lh_efficiency(ne, te, *, model: str = "fisch"):
-    """The local current-drive efficiency WEIGHT of a lower-hybrid wave.
-
-    ``"fisch"`` is ``T_e/n_e`` — the scaling behind ``η_CD ∝ T_e/n_e``,
-    applied as the shape that redistributes a launcher's total current
-    across the resonant layer.
-
-    ★It takes a model NAME rather than being the one weight there is: this
-    is the point in the LH chain where a different CD model changes the
-    answer, and a kernel admitting only one makes that choice invisible to
-    whoever is living with it.
-    """
-    lib = require()
-    try:
-        code = LH_EFFICIENCY_MODELS.index(model)
-    except ValueError:
-        raise KernelError(f"unknown LH efficiency model {model!r}; "
-                          f"have {list(LH_EFFICIENCY_MODELS)}") from None
-    ne_a = _f(np.atleast_1d(ne))
-    te_a = _f(np.broadcast_to(np.atleast_1d(te), ne_a.shape))
-    out = np.empty(ne_a.size)
-    rc = lib.fylite_rs_lh_efficiency(ne_a, te_a, ne_a.size, code, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lh_efficiency returned {rc}")
-    return out
-
-
-_sig("fylite_rs_lh_normalize", [_ARR, _ARR, _U64, _ARR], _I32)
-def lh_normalize(w, area):
-    """``w / Σ(w·area)`` — a weight turned into a current-density profile
-    carrying unit total current.
-
-    Returns ``None`` when the weight integrates to nothing: "no current
-    here" is a legitimate answer for a wave that never resonated, and only
-    the caller can say what to do about it.
-    """
-    lib = require()
-    w_a = _f(np.atleast_1d(w))
-    a_a = _f(np.broadcast_to(np.atleast_1d(area), w_a.shape))
-    out = np.empty(w_a.size)
-    rc = lib.fylite_rs_lh_normalize(w_a, a_a, w_a.size, out)
-    if rc == -5:
-        return None
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lh_normalize returned {rc}")
-    return out
 
 
 _sig("fylite_rs_field_ion_sum", [_ARR, _U64] + [_F64] * 4 + [_ARR], _I32)
@@ -1613,51 +1559,6 @@ def beam_footprint(n_r: int, half_r: float, n_z: int, half_z: float):
         raise KernelError(f"fylite_rs_beam_footprint returned {rc}")
     rows = out[:3 * int(got.value)].reshape(-1, 3)
     return [(float(a), float(b), float(w)) for a, b, w in rows]
-
-
-_sig("fylite_rs_fill_gaps", [_ARR, _U64, _I32, _I32, _F64, _ARR], _I32)
-def fill_gaps(v, *, monotone: bool = False, default=None):
-    """Repair the non-finite entries of a sampled table.
-
-    A contour can fail on one level while its neighbours succeed; the gap is
-    filled by linear interpolation IN INDEX and the ends clamp to the
-    nearest good value.  ``monotone=True`` then takes the running maximum —
-    right for a quantity that cannot decrease outward (a minor radius, an
-    enclosed volume), wrong for anything else, hence a flag.
-
-    Every entry non-finite raises unless ``default`` says what to put there.
-    """
-    lib = require()
-    a = _f(np.atleast_1d(v))
-    out = np.empty(a.size)
-    rc = lib.fylite_rs_fill_gaps(a, a.size, 1 if monotone else 0,
-                                 0 if default is None else 1,
-                                 0.0 if default is None else float(default),
-                                 out)
-    if rc == -5:
-        raise KernelError("fill_gaps: every entry is non-finite and no "
-                          "default was given — there is nothing to "
-                          "interpolate from")
-    if rc != 0:
-        raise KernelError(f"fylite_rs_fill_gaps returned {rc}")
-    return out
-
-
-_sig("fylite_rs_lh_shape", [_ARR, _U64, _F64, _F64, _ARR], _I32)
-def lh_shape(psin, centre: float, width: float):
-    """A normalised deposition shape on ψ_N (sums to 1).
-
-    The shape is a MODELLING choice — a single-pass damping layer of finite
-    width — normalised so the power it distributes is the power the launcher
-    absorbed, whatever the grid.
-    """
-    lib = require()
-    p = _f(psin)
-    out = np.empty(p.size)
-    rc = lib.fylite_rs_lh_shape(p, p.size, float(centre), float(width), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lh_shape returned {rc}")
-    return out
 
 
 _sig("fylite_rs_first_orbit_loss", ([_ARR] * 3 + [_U64] + [_F64] * 6 + [_I32, _ARR]), _I32)
@@ -1919,55 +1820,6 @@ def svd_solve(a, b, *, rcond: float = 1e-3, n_singular=None) -> dict:
         raise KernelError(f"fylite_rs_svd_solve returned {rc}")
     return {"x": x, "n_singular": int(info[0]), "condition": float(info[1]),
             "singular_values": sv}
-
-
-_sig("fylite_rs_besselj", [_U64, _ARR, _U64, _ARR], _I32)
-def besselj(m: int, x):
-    """``J_m(x)`` for integer ``m ≥ 0`` — the kernel's, so a tomography basis
-    is the same basis in every host."""
-    lib = require()
-    x_a = _f(np.atleast_1d(x))
-    out = np.empty(x_a.size)
-    rc = lib.fylite_rs_besselj(int(m), x_a, x_a.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_besselj returned {rc}")
-    return out.reshape(np.shape(x)) if np.shape(x) else out
-
-
-_sig("fylite_rs_bessel_zeros", [_U64, _U64, _ARR], _I32)
-def bessel_zeros(m: int, n: int):
-    """The first ``n`` positive zeros of ``J_m``.
-
-    They are what makes the tomography basis vanish at the boundary: mode
-    ``l`` is ``J_m(z_{m,l} ψ_N)``, so an emissivity expanded on it is zero
-    at ψ_N = 1 by construction rather than by fitting.
-    """
-    lib = require()
-    out = np.empty(int(n))
-    rc = lib.fylite_rs_bessel_zeros(int(m), int(n), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_bessel_zeros returned {rc}")
-    return out
-
-
-_sig("fylite_rs_tomography_basis", [_ARR, _ARR, _U64, _U64, _U64, _ARR], _I32)
-def tomography_basis(psin, theta, *, m_max: int = 1, l_max: int = 4):
-    """The Fourier-Bessel basis on ``(ψ_N, θ)``: ``(n_points, n_basis)``.
-
-    Column order: ``(m=0, l=1..L)``, then for each ``m ≥ 1`` the cosine
-    block followed by the sine block.  ★The truncation is the regulariser —
-    a low-order expansion cannot fit noise it has no freedom for.
-    """
-    lib = require()
-    p = _f(np.atleast_1d(psin))
-    t = _f(np.broadcast_to(np.atleast_1d(theta), p.shape))
-    nb = int(l_max) + 2 * int(m_max) * int(l_max)
-    out = np.empty(p.size * nb)
-    rc = lib.fylite_rs_tomography_basis(p, t, p.size, int(m_max), int(l_max),
-                                        out)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_tomography_basis returned {rc}")
-    return out.reshape(p.size, rc)
 
 
 # --------------------------------------------------------------------------- #
@@ -3054,52 +2906,6 @@ def flux_residual(f, g, *, method: int = 3):
         raise KernelError(f"fylite_rs_flux_residual returned {rc}"
                           + (" — method must be 2 or 3" if rc == -7 else ""))
     return out
-
-
-_sig("fylite_rs_flux_match_step", [_ARR] * 5 + [_U64, _F64, _ARR], _I32)
-def flux_match_step(jf, jg, f, g, relax, *, dx_max: float = 1.0):
-    """The clamped Newton step of a flux match.
-
-    ★The TARGET Jacobian is in the matrix: raising a gradient changes the
-    profile and therefore the sources, so a step from the flux Jacobian
-    alone systematically overshoots.  A singular matrix raises — it means
-    the model flux is insensitive to one of the gradients, which is a
-    statement about the physics.
-    """
-    lib = require()
-    f_a, g_a, rl = _f(f), _f(g), _f(relax)
-    n = f_a.size
-    jf_a, jg_a = _f(np.reshape(jf, (n, n))), _f(np.reshape(jg, (n, n)))
-    out = np.empty(n)
-    rc = lib.fylite_rs_flux_match_step(jf_a.ravel(), jg_a.ravel(), f_a, g_a,
-                                       rl, n, float(dx_max), out)
-    if rc != 0:
-        raise KernelError(
-            "fylite_rs_flux_match_step: the Newton matrix is singular — the "
-            "model flux is insensitive to at least one gradient here"
-            if rc == -6 else f"fylite_rs_flux_match_step returned {rc}")
-    return out
-
-
-_sig("fylite_rs_flux_match_backoff", ([_ARR] * 6 + [_U64, _F64] + [_ARR] * 2), _I32)
-def flux_match_backoff(x0, x_try, step, res0, res, relax, *,
-                       relax_factor: float = 2.0) -> dict:
-    """The per-point relaxation backoff of a flux match.
-
-    Where the residual ROSE the component is reverted and its relaxation
-    cut; where it has already been cut three times the point is thrown
-    TWICE as far instead, on the theory that it is stuck rather than
-    overshooting.  Returns ``{"x", "relax", "reevaluate"}``.
-    """
-    lib = require()
-    args = [_f(a) for a in (x0, x_try, step, res0, res, relax)]
-    n = args[0].size
-    ox, orl = np.empty(n), np.empty(n)
-    rc = lib.fylite_rs_flux_match_backoff(*args, n, float(relax_factor),
-                                          ox, orl)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_flux_match_backoff returned {rc}")
-    return {"x": ox, "relax": orl, "reevaluate": bool(rc)}
 
 
 class FluxMatchError(KernelError):
@@ -6391,7 +6197,6 @@ def gs_fixed_box(grid_r, grid_z, psi, *, psi_boundary: float,
 
 
 _sig("fylite_rs_geo_surface", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
-_sig("fylite_rs_geo_surface_r2", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 _sig("fylite_rs_geo_surface_gm2", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 def geo_surface(*, rmin_over_a, rmaj_over_a, q, shear, drmaj=0.0,
                 zmag=0.0, dzmag=0.0, kappa=1.0, s_kappa=0.0,

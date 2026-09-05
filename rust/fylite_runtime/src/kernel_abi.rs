@@ -36,8 +36,6 @@ extern "C" {
     fn fylite_rs_beam_slowing(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: f64, _7: *mut f64) -> i32;
     fn fylite_rs_beam_stopping(_0: f64, _1: f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: i32, _7: *const f64, _8: i32, _9: i32, _10: *mut f64) -> i32;
     fn fylite_rs_beam_torque(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: *mut f64) -> i32;
-    fn fylite_rs_bessel_zeros(_0: u64, _1: u64, _2: *mut f64) -> i32;
-    fn fylite_rs_besselj(_0: u64, _1: *const f64, _2: u64, _3: *mut f64) -> i32;
     fn fylite_rs_bgb_chi(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: *mut f64, _11: *mut f64) -> i32;
     fn fylite_rs_bound_deriv(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64) -> i32;
     fn fylite_rs_boundary_flux(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: *const f64, _5: *const f64, _6: *const f64, _7: u64, _8: f64, _9: *mut f64) -> i32;
@@ -97,21 +95,17 @@ extern "C" {
     fn fylite_rs_field_sign(_0: f64, _1: *mut f64) -> i32;
     fn fylite_rs_filament_flux(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *const f64, _5: u64, _6: *const f64, _7: u64, _8: *mut f64) -> i32;
     fn fylite_rs_fill_filaments(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: u64, _5: f64, _6: *mut f64) -> i32;
-    fn fylite_rs_fill_gaps(_0: *const f64, _1: u64, _2: i32, _3: i32, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_first_orbit_loss(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: i32, _11: *mut f64) -> i32;
     fn fylite_rs_fitted_current(_0: *const f64, _1: u64, _2: u64, _3: *const f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: *const f64, _9: u64, _10: u64, _11: *const f64, _12: *mut f64) -> i32;
     fn fylite_rs_fitted_profiles(_0: *const f64, _1: u64, _2: u64, _3: f64, _4: f64, _5: u64, _6: *mut f64, _7: *mut f64) -> i32;
     fn fylite_rs_flux_jacobian(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: f64, _5: *mut f64) -> i32;
-    fn fylite_rs_flux_match_backoff(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: f64, _8: *mut f64, _9: *mut f64) -> i32;
     fn fylite_rs_flux_match_init(_0: *const f64, _1: u64, _2: u64, _3: f64, _4: f64, _5: f64, _6: u64, _7: i32, _8: f64, _9: *mut f64, _10: u64) -> i32;
     fn fylite_rs_flux_match_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: u64, _5: *mut f64) -> i32;
     fn fylite_rs_flux_match_result(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64, _6: *mut f64, _7: *mut f64) -> i32;
     fn fylite_rs_flux_match_state_len(_0: u64, _1: u64);
-    fn fylite_rs_flux_match_step(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: f64, _7: *mut f64) -> i32;
     fn fylite_rs_flux_residual(_0: *const f64, _1: *const f64, _2: u64, _3: i32, _4: *mut f64) -> i32;
     fn fylite_rs_geo_surface(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
     fn fylite_rs_geo_surface_gm2(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
-    fn fylite_rs_geo_surface_r2(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
     fn fylite_rs_gfile_profile(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: *mut f64) -> i32;
     fn fylite_rs_gradient(_0: *const f64, _1: *const f64, _2: u64, _3: i32, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_grid_response(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: u64, _9: *const f64, _10: u64, _11: u64, _12: u64, _13: *mut f64) -> i32;
@@ -142,10 +136,7 @@ extern "C" {
     fn fylite_rs_lengyel_z_eff(_0: f64, _1: f64, _2: f64, _3: *const u8, _4: *const u64, _5: *const f64, _6: u64, _7: *mut f64) -> i32;
     fn fylite_rs_lh_accessibility(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_lh_deposit(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: *const f64, _9: *const f64, _10: u64, _11: f64, _12: f64, _13: f64, _14: f64, _15: u32, _16: *mut f64, _17: *mut f64, _18: *mut f64) -> i32;
-    fn fylite_rs_lh_efficiency(_0: *const f64, _1: *const f64, _2: u64, _3: u32, _4: *mut f64) -> i32;
-    fn fylite_rs_lh_normalize(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64) -> i32;
     fn fylite_rs_lh_resonance(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: f64, _5: f64, _6: *mut f64, _7: *mut f64) -> i32;
-    fn fylite_rs_lh_shape(_0: *const f64, _1: u64, _2: f64, _3: f64, _4: *mut f64) -> i32;
     fn fylite_rs_li3(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: *mut f64) -> i32;
     fn fylite_rs_line_integral(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: *const f64, _6: u64, _7: f64, _8: *const f64, _9: *const f64, _10: u64, _11: f64, _12: i32, _13: *mut f64, _14: *mut f64) -> i32;
     fn fylite_rs_loop_model(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: u64, _5: f64, _6: *mut f64) -> i32;
@@ -213,7 +204,6 @@ extern "C" {
     fn fylite_rs_spitzer_eta(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *mut f64) -> i32;
     fn fylite_rs_spitzer_eta_perp(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *mut f64) -> i32;
     fn fylite_rs_start_currents(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: u64, _9: *const f64, _10: *const f64, _11: u64, _12: *const f64, _13: *const f64, _14: *const f64, _15: u64, _16: f64, _17: f64, _18: u32, _19: f64, _20: f64, _21: f64, _22: *const f64, _23: u64, _24: u64, _25: *mut f64, _26: *mut f64, _27: *mut f64) -> i32;
-    fn fylite_rs_start_currents_multi(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: u64, _9: *const f64, _10: *const f64, _11: u64, _12: *const f64, _13: *const f64, _14: *const f64, _15: u64, _16: *const f64, _17: *const f64, _18: u64, _19: f64, _20: *const f64, _21: *const f64, _22: *const f64, _23: u64, _24: f64, _25: f64, _26: *const f64, _27: u64, _28: u64, _29: *mut f64, _30: *mut f64, _31: *mut f64, _32: *mut f64, _33: *mut f64) -> i32;
     fn fylite_rs_step_circuits(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: *const f64, _7: *mut f64) -> i32;
     fn fylite_rs_strike_points(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: *const f64, _9: *const f64, _10: u64, _11: u64, _12: *mut f64) -> i32;
     fn fylite_rs_surface_derived(_0: *const f64, _1: f64, _2: f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: u64, _11: f64, _12: f64, _13: *mut f64, _14: *mut f64) -> i32;
@@ -232,7 +222,6 @@ extern "C" {
     fn fylite_rs_tglf_presets(_0: i32, _1: i32, _2: i32, _3: *mut f64) -> i32;
     fn fylite_rs_tglf_units(_0: *const f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_to_uniform_extrap(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64, _4: u64) -> i32;
-    fn fylite_rs_tomography_basis(_0: *const f64, _1: *const f64, _2: u64, _3: u64, _4: u64, _5: *mut f64) -> i32;
     fn fylite_rs_tomography_rows(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: *const f64, _8: u64, _9: *const f64, _10: *const f64, _11: u64, _12: f64, _13: f64, _14: u64, _15: u64, _16: u64, _17: u64, _18: *mut f64) -> i32;
     fn fylite_rs_trace_surface(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: f64, _9: f64, _10: *const f64, _11: *const f64, _12: u64, _13: u64, _14: *mut f64, _15: *mut f64) -> i32;
     fn fylite_rs_transport_step(_0: *const f64, _1: *const f64, _2: u64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: i32, _10: f64, _11: f64, _12: f64, _13: f64, _14: f64, _15: f64, _16: f64, _17: f64, _18: f64, _19: f64, _20: u64, _21: *const f64, _22: *const f64, _23: u64, _24: *const f64, _25: *const f64, _26: *const f64, _27: *mut f64, _28: *mut f64) -> i32;
@@ -288,8 +277,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_beam_slowing",
     "fylite_rs_beam_stopping",
     "fylite_rs_beam_torque",
-    "fylite_rs_bessel_zeros",
-    "fylite_rs_besselj",
     "fylite_rs_bgb_chi",
     "fylite_rs_bound_deriv",
     "fylite_rs_boundary_flux",
@@ -349,21 +336,17 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_field_sign",
     "fylite_rs_filament_flux",
     "fylite_rs_fill_filaments",
-    "fylite_rs_fill_gaps",
     "fylite_rs_first_orbit_loss",
     "fylite_rs_fitted_current",
     "fylite_rs_fitted_profiles",
     "fylite_rs_flux_jacobian",
-    "fylite_rs_flux_match_backoff",
     "fylite_rs_flux_match_init",
     "fylite_rs_flux_match_next",
     "fylite_rs_flux_match_result",
     "fylite_rs_flux_match_state_len",
-    "fylite_rs_flux_match_step",
     "fylite_rs_flux_residual",
     "fylite_rs_geo_surface",
     "fylite_rs_geo_surface_gm2",
-    "fylite_rs_geo_surface_r2",
     "fylite_rs_gfile_profile",
     "fylite_rs_gradient",
     "fylite_rs_grid_response",
@@ -394,10 +377,7 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_lengyel_z_eff",
     "fylite_rs_lh_accessibility",
     "fylite_rs_lh_deposit",
-    "fylite_rs_lh_efficiency",
-    "fylite_rs_lh_normalize",
     "fylite_rs_lh_resonance",
-    "fylite_rs_lh_shape",
     "fylite_rs_li3",
     "fylite_rs_line_integral",
     "fylite_rs_loop_model",
@@ -465,7 +445,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_spitzer_eta",
     "fylite_rs_spitzer_eta_perp",
     "fylite_rs_start_currents",
-    "fylite_rs_start_currents_multi",
     "fylite_rs_step_circuits",
     "fylite_rs_strike_points",
     "fylite_rs_surface_derived",
@@ -484,7 +463,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_tglf_presets",
     "fylite_rs_tglf_units",
     "fylite_rs_to_uniform_extrap",
-    "fylite_rs_tomography_basis",
     "fylite_rs_tomography_rows",
     "fylite_rs_trace_surface",
     "fylite_rs_transport_step",
@@ -548,8 +526,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_beam_slowing", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
     ("fylite_rs_beam_stopping", &["f64", "f64", "in_f64", "in_f64", "in_f64", "u64", "i32", "in_f64", "i32", "i32", "out_f64"]),
     ("fylite_rs_beam_torque", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
-    ("fylite_rs_bessel_zeros", &["u64", "u64", "out_f64"]),
-    ("fylite_rs_besselj", &["u64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_bgb_chi", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "out_f64", "out_f64"]),
     ("fylite_rs_bound_deriv", &["in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_boundary_flux", &["in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64"]),
@@ -609,21 +585,17 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_field_sign", &["f64", "out_f64"]),
     ("fylite_rs_filament_flux", &["in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_fill_filaments", &["in_f64", "in_f64", "u64", "f64", "u64", "f64", "out_f64"]),
-    ("fylite_rs_fill_gaps", &["in_f64", "u64", "i32", "i32", "f64", "out_f64"]),
     ("fylite_rs_first_orbit_loss", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "i32", "out_f64"]),
     ("fylite_rs_fitted_current", &["in_f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "u64", "in_f64", "out_f64"]),
     ("fylite_rs_fitted_profiles", &["in_f64", "u64", "u64", "f64", "f64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_flux_jacobian", &["in_f64", "u64", "in_f64", "u64", "f64", "out_f64"]),
-    ("fylite_rs_flux_match_backoff", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64", "out_f64"]),
     ("fylite_rs_flux_match_init", &["in_f64", "u64", "u64", "f64", "f64", "f64", "u64", "i32", "f64", "out_f64", "u64"]),
     ("fylite_rs_flux_match_next", &["out_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_flux_match_result", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_flux_match_state_len", &["u64", "u64"]),
-    ("fylite_rs_flux_match_step", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_flux_residual", &["in_f64", "in_f64", "u64", "i32", "out_f64"]),
     ("fylite_rs_geo_surface", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_geo_surface_gm2", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
-    ("fylite_rs_geo_surface_r2", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_gfile_profile", &["in_f64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_gradient", &["in_f64", "in_f64", "u64", "i32", "f64", "out_f64"]),
     ("fylite_rs_grid_response", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "out_f64"]),
@@ -654,10 +626,7 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_lengyel_z_eff", &["f64", "f64", "f64", "in_u8", "in_u64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_lh_accessibility", &["in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
     ("fylite_rs_lh_deposit", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "u32", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_lh_efficiency", &["in_f64", "in_f64", "u64", "u32", "out_f64"]),
-    ("fylite_rs_lh_normalize", &["in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_lh_resonance", &["in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64", "out_f64"]),
-    ("fylite_rs_lh_shape", &["in_f64", "u64", "f64", "f64", "out_f64"]),
     ("fylite_rs_li3", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_line_integral", &["in_f64", "in_f64", "in_f64", "u64", "f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "u64", "f64", "i32", "out_f64", "out_f64"]),
     ("fylite_rs_loop_model", &["in_f64", "u64", "in_f64", "u64", "u64", "f64", "out_f64"]),
@@ -725,7 +694,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_spitzer_eta", &["in_f64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_spitzer_eta_perp", &["in_f64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_start_currents", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "u32", "f64", "f64", "f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_start_currents_multi", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_step_circuits", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "in_f64", "out_f64"]),
     ("fylite_rs_strike_points", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "in_f64", "in_f64", "u64", "u64", "out_f64"]),
     ("fylite_rs_surface_derived", &["in_f64", "f64", "f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64", "out_f64"]),
@@ -744,7 +712,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_tglf_presets", &["i32", "i32", "i32", "out_f64"]),
     ("fylite_rs_tglf_units", &["in_f64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_to_uniform_extrap", &["in_f64", "in_f64", "u64", "out_f64", "u64"]),
-    ("fylite_rs_tomography_basis", &["in_f64", "in_f64", "u64", "u64", "u64", "out_f64"]),
     ("fylite_rs_tomography_rows", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "f64", "f64", "u64", "u64", "u64", "u64", "out_f64"]),
     ("fylite_rs_trace_surface", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_transport_step", &["in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "i32", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "out_f64", "out_f64"]),
@@ -874,14 +841,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_beam_torque" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_beam_torque(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, f.f64(4)?, f.f64(5)?, p[6] as *mut f64) })
-        }
-        "fylite_rs_bessel_zeros" => {
-            f.want(&["u64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_bessel_zeros(f.u64(0)?, f.u64(1)?, p[2] as *mut f64) })
-        }
-        "fylite_rs_besselj" => {
-            f.want(&["u64", "in_f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_besselj(f.u64(0)?, p[1] as *const f64, f.u64(2)?, p[3] as *mut f64) })
         }
         "fylite_rs_bgb_chi" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "out_f64", "out_f64"], name)?;
@@ -1119,10 +1078,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "in_f64", "u64", "f64", "u64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_fill_filaments(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.f64(3)?, f.u64(4)?, f.f64(5)?, p[6] as *mut f64) })
         }
-        "fylite_rs_fill_gaps" => {
-            f.want(&["in_f64", "u64", "i32", "i32", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_fill_gaps(p[0] as *const f64, f.u64(1)?, f.i32(2)?, f.i32(3)?, f.f64(4)?, p[5] as *mut f64) })
-        }
         "fylite_rs_first_orbit_loss" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "i32", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_first_orbit_loss(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.i32(10)?, p[11] as *mut f64) })
@@ -1138,10 +1093,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_flux_jacobian" => {
             f.want(&["in_f64", "u64", "in_f64", "u64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_flux_jacobian(p[0] as *const f64, f.u64(1)?, p[2] as *const f64, f.u64(3)?, f.f64(4)?, p[5] as *mut f64) })
-        }
-        "fylite_rs_flux_match_backoff" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_match_backoff(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, f.f64(7)?, p[8] as *mut f64, p[9] as *mut f64) })
         }
         "fylite_rs_flux_match_init" => {
             f.want(&["in_f64", "u64", "u64", "f64", "f64", "f64", "u64", "i32", "f64", "out_f64", "u64"], name)?;
@@ -1160,10 +1111,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             unsafe { fylite_rs_flux_match_state_len(f.u64(0)?, f.u64(1)?) };
             Ret::Unit
         }
-        "fylite_rs_flux_match_step" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_match_step(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, f.u64(5)?, f.f64(6)?, p[7] as *mut f64) })
-        }
         "fylite_rs_flux_residual" => {
             f.want(&["in_f64", "in_f64", "u64", "i32", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_flux_residual(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.i32(3)?, p[4] as *mut f64) })
@@ -1175,10 +1122,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_geo_surface_gm2" => {
             f.want(&["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_geo_surface_gm2(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.f64(12)?, f.f64(13)?, p[14] as *const f64, f.u64(15)?, p[16] as *mut f64) })
-        }
-        "fylite_rs_geo_surface_r2" => {
-            f.want(&["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_geo_surface_r2(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.f64(12)?, f.f64(13)?, p[14] as *const f64, f.u64(15)?, p[16] as *mut f64) })
         }
         "fylite_rs_gfile_profile" => {
             f.want(&["in_f64", "in_f64", "u64", "f64", "out_f64"], name)?;
@@ -1300,21 +1243,9 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "u32", "out_f64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_lh_deposit(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, p[7] as *const f64, p[8] as *const f64, p[9] as *const f64, f.u64(10)?, f.f64(11)?, f.f64(12)?, f.f64(13)?, f.f64(14)?, f.u32(15)?, p[16] as *mut f64, p[17] as *mut f64, p[18] as *mut f64) })
         }
-        "fylite_rs_lh_efficiency" => {
-            f.want(&["in_f64", "in_f64", "u64", "u32", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_lh_efficiency(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.u32(3)?, p[4] as *mut f64) })
-        }
-        "fylite_rs_lh_normalize" => {
-            f.want(&["in_f64", "in_f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_lh_normalize(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, p[3] as *mut f64) })
-        }
         "fylite_rs_lh_resonance" => {
             f.want(&["in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_lh_resonance(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, p[6] as *mut f64, p[7] as *mut f64) })
-        }
-        "fylite_rs_lh_shape" => {
-            f.want(&["in_f64", "u64", "f64", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_lh_shape(p[0] as *const f64, f.u64(1)?, f.f64(2)?, f.f64(3)?, p[4] as *mut f64) })
         }
         "fylite_rs_li3" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "out_f64"], name)?;
@@ -1585,10 +1516,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "u32", "f64", "f64", "f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_start_currents(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, p[7] as *const f64, f.u64(8)?, p[9] as *const f64, p[10] as *const f64, f.u64(11)?, p[12] as *const f64, p[13] as *const f64, p[14] as *const f64, f.u64(15)?, f.f64(16)?, f.f64(17)?, f.u32(18)?, f.f64(19)?, f.f64(20)?, f.f64(21)?, p[22] as *const f64, f.u64(23)?, f.u64(24)?, p[25] as *mut f64, p[26] as *mut f64, p[27] as *mut f64) })
         }
-        "fylite_rs_start_currents_multi" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_start_currents_multi(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, p[7] as *const f64, f.u64(8)?, p[9] as *const f64, p[10] as *const f64, f.u64(11)?, p[12] as *const f64, p[13] as *const f64, p[14] as *const f64, f.u64(15)?, p[16] as *const f64, p[17] as *const f64, f.u64(18)?, f.f64(19)?, p[20] as *const f64, p[21] as *const f64, p[22] as *const f64, f.u64(23)?, f.f64(24)?, f.f64(25)?, p[26] as *const f64, f.u64(27)?, f.u64(28)?, p[29] as *mut f64, p[30] as *mut f64, p[31] as *mut f64, p[32] as *mut f64, p[33] as *mut f64) })
-        }
         "fylite_rs_step_circuits" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "in_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_step_circuits(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, f.u64(4)?, f.f64(5)?, p[6] as *const f64, p[7] as *mut f64) })
@@ -1660,10 +1587,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_to_uniform_extrap" => {
             f.want(&["in_f64", "in_f64", "u64", "out_f64", "u64"], name)?;
             Ret::I32(unsafe { fylite_rs_to_uniform_extrap(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, p[3] as *mut f64, f.u64(4)?) })
-        }
-        "fylite_rs_tomography_basis" => {
-            f.want(&["in_f64", "in_f64", "u64", "u64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_tomography_basis(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.u64(3)?, f.u64(4)?, p[5] as *mut f64) })
         }
         "fylite_rs_tomography_rows" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "f64", "f64", "u64", "u64", "u64", "u64", "out_f64"], name)?;

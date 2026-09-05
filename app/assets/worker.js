@@ -6091,12 +6091,9 @@ function evOutsideLadder(field, edges, pDep, edgePsin) {
  * ONE call: which surfaces the wave can reach, where each end of the
  * launched band resonates, the damping layer between them, the Fisch
  * current-drive weighting, the normalisation and the sigma envelope are
- * `lh_deposit`.  `lh_accessibility` supplies the resonant TEMPERATURE the
- * page reports beside it (which `lh_deposit` does not return) and
- * `lh_efficiency` the local CD weight; `lh_resonance` and `lh_shape` are
- * deliberately not called, because `lh_deposit` already hosts them and one
- * number with two hosts is a number that can disagree with itself.  This
- * side does the ASSEMBLY, and it is the same assembly
+ * `lh_deposit` — reached through `code/wave` (2026-09-05), which also reports
+ * the resonant temperature and the local CD weight beside it, so no second
+ * host spells either.  This side hands over the PLAN, and it is the same plan
  * `fylite.scenario.model.lh.deposit` performs.
  *
  * ★★IT NEEDS THE SAME psi_N MAP THE BEAM NEEDS, for the shell table's

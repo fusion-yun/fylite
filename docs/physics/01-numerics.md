@@ -129,7 +129,6 @@ $$ (eq-p01-subdiv)
 | `interp_linear(x, xp, yp)` | 分段线性，二分查找，`slope*(x - xp[j]) + yp[j]` | **钳制**到 $[x_{p,0},x_{p,-1}]$ | `xp` 空或长度不合；$n=1$ 取常数 |
 | `resample_uniform(src, n)` | $t=\frac{i}{n-1}(m-1)$，$k=\min(\lfloor t\rfloor,m-2)$，$s_k+(t-k)(s_{k+1}-s_k)$ | — | — |
 | `to_uniform_extrap(x, y, n)` | 采样到均匀 $[0,1]$ | **两端线性外推** | `x.len() < 2`、长度不合、$n=0$ |
-| `fill_gaps(v, monotone, default)` | 非有限项按**索引**线性插值填补 | 钳制；可选运行最大值（单调化） | 全 NaN 时取 `default` 或 `None` |
 | `gradient(y, x)` | numpy 非均匀网格二阶内点公式（下式） | 一阶单侧 | $n<2$ 或长度不合 → NaN 向量 |
 | `log_gradient(y, x, floor)` | $-\dd\ln y/\dd x$ | 同上 | `floor=None` 时 $y\le0$ → NaN |
 :::

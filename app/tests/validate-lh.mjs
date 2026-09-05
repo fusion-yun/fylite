@@ -7,7 +7,7 @@
 // accessibility gate, the Landau-resonant layer, the Fisch current-drive
 // weighting and the sigma envelope, all of it the kernel's and all of it in
 // ONE call (`lh_deposit`), with `lh_accessibility` for the resonant
-// temperature the page reports beside it and `lh_efficiency` for the local
+// temperature the page reports beside it and the fisch closed form for the local
 // CD weight.
 //
 // ★★THE ORACLE IS THE KERNEL, called from Python on the inputs the page
@@ -324,8 +324,11 @@ def run(path):
     #: a page that mixed those two arrays up would be caught
     acc = K.lh_accessibility(ne, fpol / np.maximum(rmaj, 1e-6),
                              n_parallel=bands[0][1], xi=inp["fylite:xi"])
-    #: ★and the local CD weight on ITS own entry
-    eff = K.lh_efficiency(ne, te, model=inp["fylite:cd_model"])
+    #: ★and the local CD weight — the `fisch` model's closed form (`T_e / max(n_e, 1)`,
+    #: `heating::lh_efficiency`), which `code/wave` reports as `cd_weight`; the
+    #: flat export that used to spell it retired with T-4 (2026-09-05)
+    assert inp["fylite:cd_model"] == "fisch", inp["fylite:cd_model"]
+    eff = np.where(ne <= 0.0, 0.0, te / np.maximum(ne, 1.0))
 
     res_lo = [L["fylite:resonance_psin_lo"] for L in lau]
     res_hi = [L["fylite:resonance_psin_hi"] for L in lau]
@@ -527,7 +530,7 @@ for (const id of LIVE) {
   ok(r.nacc_entry_err < TOL,
      `${id}：n_∥,acc vs kernel.lh_accessibility(n_e, |F|/R)`,
      r.nacc_entry_err.toExponential(2));
-  ok(r.cdw_err < TOL, `${id}：局域电流驱动权重 vs kernel.lh_efficiency`,
+  ok(r.cdw_err < TOL, `${id}：局域电流驱动权重 vs fisch 闭式（heating::lh_efficiency）`,
      r.cdw_err.toExponential(2));
 }
 ok(ref.base.nacc_max > 1.2 * ref.base.nacc_min,

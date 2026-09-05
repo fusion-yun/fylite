@@ -1208,7 +1208,7 @@ const clsNote = await page.evaluate(() => {
 });
 ok('the double null is selectable, and the page names the entry that takes a set of nulls',
    !!clsOpts && clsOpts.find((o) => o.v === 'dn').dis === false
-     && /start_currents_multi/.test(clsNote),
+     && /code\/discharge/.test(clsNote),
    clsNote.replace(/\s+/g, ' ').slice(-150));
 
 const clsState = async () => await page.evaluate(() => {
@@ -1412,7 +1412,7 @@ ok('a session written before this control still says what it asked for',
 // The kernel entry the start design goes through took exactly one field null
 // (`xR`/`xZ`/`useX`), so 双零 was listed on the page and DISABLED with that
 // signature named as the reason.  It now takes a SET
-// (`fylite_rs_start_currents_multi`), and the anneal's rows were widened the
+// (`code/discharge`'s start design, `pulse::start_currents` with a set of nulls), and the anneal's rows were widened the
 // same way — three rows per null on both sides of the inverse solve.
 //
 // ★A FRESH PAGE again: the section above ended inside a session import.

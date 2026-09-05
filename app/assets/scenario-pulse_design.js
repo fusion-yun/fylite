@@ -1864,8 +1864,8 @@ FyScenario.whenDevices(function () {
   //   双零    ★T-D18: SELECTABLE.  It used to be offered and disabled,
   //           naming `fylite_rs_start_currents` — whose signature took
   //           exactly one null (`xR`, `xZ`, `useX`) — as the reason.  The
-  //           kernel entry the start design goes through now takes a SET
-  //           (`fylite_rs_start_currents_multi`), and the anneal takes the
+  //           kernel case the start design goes through (`code/discharge`,
+  //           `pulse::start_currents`) takes a SET, and the anneal takes the
   //           same set, so 双零 asks for two nulls: one above the requested
   //           axis and one below, each with its own three rows, and each
   //           with its own pair of fields on the page.  A divertor with two
@@ -2016,7 +2016,7 @@ FyScenario.whenDevices(function () {
   //          be on the boundary's own flux surface.
   //
   // ★They go into BOTH sides of the inverse solve — the linear start
-  // (`fylite_rs_start_currents_multi`) and the anneal — because a target the
+  // (`code/discharge`'s `pulse::start_currents`) and the anneal — because a target the
   // start reaches and the anneal then walks away from is not a target.
   var CTL_DIRS = { out: [1, 0], in: [-1, 0], up: [0, 1], down: [0, -1] };
   var ctlRows = [];

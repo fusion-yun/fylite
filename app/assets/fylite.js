@@ -147,12 +147,12 @@
     //: the other four are the pieces a page reports BESIDE it —
     //: accessibility, the resonant layer, the CD weight and the damping
     //: shape — which is why they are bound rather than re-derived.
-    //: ★`lh_resonance` and `lh_shape` are deliberately NOT here: the
-    //: resonant surface and the damping layer they compute are already
-    //: INSIDE `lh_deposit`, and a page that called them a second time to
-    //: print the answer beside it would give one number two hosts.
+    //: ★`lh_resonance` is deliberately NOT here (and `lh_shape` · `lh_efficiency`
+    //: retired with T-4, 2026-09-05): the resonant surface, the damping layer
+    //: and the CD weight are INSIDE `lh_deposit` / `code/wave`, and a page that
+    //: called them a second time to print the answer beside it would give one
+    //: number two hosts.
     'fylite_rs_lh_deposit', 'fylite_rs_lh_accessibility',
-    'fylite_rs_lh_efficiency',
     //: ★ADDED 2026-08-23 — the boxed fixed-boundary solve (T-M7) and the
     //: two metric entries that carry `<R^2>` (T-M8).  Listed so a build
     //: without them fails at LOAD: the refinement and the momentum channel
@@ -170,8 +170,7 @@
     //: nulls, and the two pieces of wall geometry that turn 「间隙 = 某值」
     //: and 「打击点落在这段壁上」 into the isoflux rows it takes.  Listed
     //: here for the reason every name above is: a build without them must
-    //: fail at LOAD, not at the first double-null design.
-    'fylite_rs_start_currents_multi', 'fylite_rs_shape_gap_row',
+    //: fail at LOAD, not at the first double-null design. 'fylite_rs_shape_gap_row',
     'fylite_rs_wall_snap',
     //: ★T-A9 (自举—欧姆—拟合电流的自洽闭环) — the three the closure needs:
     //: the flux-surface averages `<1/R>` / `<1/R^2>` / `<B^2>` that the
@@ -1945,66 +1944,6 @@
         r.push(v[3 * i]); z.push(v[3 * i + 1]); a.push(v[3 * i + 2]);
       }
       return { r: r, z: z, a: a };
-    });
-  };
-
-  /**
-   * The channel currents that make a requested boundary isoflux — the state
-   * a shape anneal is entitled to start from.
-   *
-   * ★It is NOT an equilibrium: force balance is nowhere in it.  What comes
-   * back with it (`psiRms`, `bX`) is what it achieved, so a caller can tell
-   * a usable start from an impossible target without paying for eight
-   * equilibrium solves to find out.
-   */
-  Fy.prototype.startCurrents = function (o) {
-    var self = this, el = o.elements, nch = o.nch;
-    //: ★T-D18: the nulls are a SET.  `xPoints` is the new spelling; the old
-    //: `useX`/`xR`/`xZ` is read as the set of one it always was, so a caller
-    //: that never asked for two gets the same rows in the same order — and,
-    //: measured, the same numbers.
-    var xs = o.xPoints ? o.xPoints.slice()
-           : (o.useX ? [{ r: num(o.xR, 0), z: num(o.xZ, 0) }] : []);
-    //: ★T-D7: extra isoflux rows at points the WALL chose — 「the boundary
-    //: passes through here」.  A gap request and a strike-point request are
-    //: both one of these; `gapRow` / `wallSnap` below make the point.
-    var ct = o.control || [];
-    //: a zero-length block is a zero-byte allocation, which this heap
-    //: refuses — the kernel reads only the count it is given, so an empty
-    //: set travels as one unread word
-    var pad = function (v) { return v.length ? v : [0]; };
-    return this.scope(function (s) {
-      var r = s.put(el.r), z = s.put(el.z), w = s.put(el.w), h = s.put(el.h),
-          a = s.put(el.a), a2 = s.put(el.a2), wt = s.put(o.weights),
-          br = s.put(o.bndR), bz = s.put(o.bndZ),
-          fr = s.put(o.filR), fz = s.put(o.filZ), fa = s.put(o.filA),
-          xr = s.put(pad(xs.map(function (p) { return p.r; }))),
-          xz = s.put(pad(xs.map(function (p) { return p.z; }))),
-          cr = s.put(pad(ct.map(function (p) { return p.r; }))),
-          cz = s.put(pad(ct.map(function (p) { return p.z; }))),
-          cw = s.put(pad(ct.map(function (p) { return num(p.w, 1); }))),
-          im = o.iMax ? s.put(o.iMax) : null,
-          out = s.zeros(nch), fl = s.zeros(nch), st = s.zeros(4),
-          xst = s.zeros(2 * xs.length + 2), cst = s.zeros(ct.length + 1);
-      var rc = self.e.fylite_rs_start_currents_multi(
-        r.ptr, z.ptr, w.ptr, h.ptr, a.ptr, a2.ptr, BigInt(el.r.length),
-        wt.ptr, BigInt(nch), br.ptr, bz.ptr, BigInt(o.bndR.length),
-        fr.ptr, fz.ptr, fa.ptr, BigInt(o.filR.length),
-        xr.ptr, xz.ptr, BigInt(xs.length), num(o.xWeight, 1),
-        cr.ptr, cz.ptr, cw.ptr, BigInt(ct.length),
-        num(o.length, 1), num(o.lambda, 1e-3), im ? im.ptr : 0,
-        BigInt(num(o.nu, 3)), BigInt(num(o.nv, 3)),
-        out.ptr, fl.ptr, st.ptr, xst.ptr, cst.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_start_currents_multi', rc);
-      var f = s.get(fl), bind = [], v = s.get(st),
-          xv = s.get(xst), cv = s.get(cst), nulls = [], ctl = [];
-      for (var c = 0; c < nch; c++) if (f[c] === 1) bind.push(c);
-      for (var k = 0; k < xs.length; k++)
-        nulls.push({ r: xs[k].r, z: xs[k].z, b: xv[2 * k],
-                     dpsi: xv[2 * k + 1] });
-      for (k = 0; k < ct.length; k++) ctl.push(cv[k]);
-      return { x: s.get(out), psiRms: v[0], bX: v[1] < 0 ? null : v[1],
-               psiXOffset: v[2], bind: bind, nulls: nulls, ctlDpsi: ctl };
     });
   };
 
@@ -3959,26 +3898,6 @@
       var v = s.get(out), a = new Float64Array(n);
       for (var k = 0; k < n; k++) a[k] = v[2 * k];
       return { nAccessible: a, tResonant: v[1] };
-    });
-  };
-
-  /**
-   * The LOCAL current-drive efficiency weight of a lower-hybrid wave —
-   * Fisch-type `T_e/n_e`, the shape that redistributes a launcher's total
-   * current across the resonant layer.
-   *
-   * ★It takes a model NAME because this is the one place in the LH chain
-   * where a different CD model changes the answer.
-   */
-  Fy.prototype.lhEfficiency = function (o) {
-    var self = this, n = o.ne.length;
-    return this.scope(function (s) {
-      var ne = s.put(o.ne), te = s.fixed('lhEfficiency.te', o.te, n),
-          out = s.zeros(n);
-      var rc = self.e.fylite_rs_lh_efficiency(
-        ne.ptr, te.ptr, BigInt(n), LH_CD_MODEL[o.model || 'fisch'], out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_lh_efficiency', rc);
-      return s.get(out);
     });
   };
 
