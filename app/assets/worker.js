@@ -4982,106 +4982,6 @@ function evRemap(xs, v, xt) {
 // --- the metric ------------------------------------------------------------
 
 /**
- * The metric a SOLVED field determines: rho_tor [m], V' [m^2], <|grad
- * rho|^2>, <|grad rho|^2/R^2>, q and F — one traced surface set, the
- * kernel's.
- *
- * ★The axis node is PREPENDED rather than traced: the innermost contour
- * degenerates, so V'(0) = 0 and the flux-surface averages repeat their
- * innermost traced value.  That asymmetry is the kernel's own
- * `with_axis_node` rule and it is applied here once for every consumer.
- */
-function evLadderMetric(o) {
-  var nlev = Math.max(4, (o.n | 0) - 1);
-  var lo = 0.02, hi = o.edgePsin || 0.95;
-  var levels = new Float64Array(nlev);
-  for (var i = 0; i < nlev; i++) levels[i] = lo + (hi - lo) * i / (nlev - 1);
-  var psin2d = new Float64Array(o.psi.length);
-  var span = o.psiBnd - o.psiAxis;
-  for (var k = 0; k < o.psi.length; k++)
-    psin2d[k] = (o.psi[k] - o.psiAxis) / span;
-  var lad = fy.equilibriumLadder({
-    r0: o.gridR0, z0: o.gridZ0, dr: o.dr, dz: o.dz, nr: o.nr, nz: o.nz,
-    psin: psin2d, axisR: o.axisR, axisZ: o.axisZ,
-    limR: o.limR, limZ: o.limZ, levels: levels,
-    qTable: o.qTable, fTable: o.fTable,
-    //: ★ONE gauge, converted once.  Both carriers hand this function the
-    //: app's own psi [Wb, axis = max] — the free-boundary solver's directly,
-    //: an EQDSK's through `psiFromGfile` — and the ladder wants Wb per
-    //: radian.  The factor lived at the two call sites and one of them had
-    //: it and the other did not.
-    dpsi: (o.psiBnd - o.psiAxis) / (2 * Math.PI), b0: o.b0,
-    aMinor: o.aMinor, nTheta: o.nTheta || 121 });
-  var m = lad.kept, n = m + 1;
-  var head = function (src, axis) {
-    var a = new Float64Array(n);
-    a[0] = axis === undefined ? src[0] : axis;
-    for (var j = 0; j < m; j++) a[j + 1] = src[j];
-    return a;
-  };
-  //: ★★THE MILLER ROWS COME BACK NORMALISED BY `a_minor` (`r/a`, `rmaj/a`,
-  //: `zmag/a` — the kernel says so at `miller_from_polys`), and the surface
-  //: block the neoclassical closure reads takes METRES.  Multiplying here,
-  //: once, is what keeps every consumer below in one unit; the shears, the
-  //: shift and the elongation are dimensionless and are left alone.
-  var metres = function (src) {
-    var out = new Float64Array(m);
-    for (var j = 0; j < m; j++) out[j] = src[j] * o.aMinor;
-    return out;
-  };
-  return {
-    rho: head(lad.rho, 0), vprime: head(lad.vprime, 0),
-    gm3: head(lad.gm3), gm7: head(lad.gm7), gm2: head(lad.gm2),
-    //: ★<R^2> [m^2] (T-M8).  `head` repeats the innermost TRACED value at
-    //: the prepended axis node, the same rule every other flux-surface
-    //: average on this ladder follows — and unlike the Miller rows it needs
-    //: no `a_minor`, because it is an average over the grid's own metres
-    //: rather than a normalised shape coefficient.
-    r2: head(lad.fsaR2),
-    fpol: head(lad.fpol),
-    q: head(lad.q), psin: head(lad.psin, 0),
-    shear: head(lad.miller.shear, 0), kappa: head(lad.miller.kappa),
-    delta: head(lad.miller.delta),
-    rmaj: head(metres(lad.miller.rmaj)),
-    rmin: head(metres(lad.miller.rmin), 0),
-    shift: head(lad.miller.shift, 0),
-    a: o.aMinor, r0: o.rMaj, b0: Math.abs(o.b0), source: o.source || 'ladder',
-    psiAxis: o.psiAxis, psiBnd: o.psiBnd, dpsi: o.dpsi,
-  };
-}
-
-/** The ladder of a free-boundary solve, q and F taken from that same field. */
-function evLadderFromSolve(eq, sp) {
-  var gx = grid;
-  //: q and F on a UNIFORM psi_N grid, which is what the ladder entry
-  //: interpolates them on — resampled here rather than assumed
-  //: ★★REFUSED rather than defaulted.  The ladder turns q into rho_tor
-  //: (`rho ~ sqrt(integral q dpsi)`), so a q table standing in at 1 does not
-  //: produce a coarse metric — it produces a DIFFERENT radial coordinate,
-  //: silently, and every profile on it is then a profile of another plasma.
-  if (!eq.q || !eq.shape || !(eq.shape.a > 0))
-    throw new Error(FyI18n.t('e.err.noladder'));
-  var prof = { x: eq.profiles.x, pprime: eq.profiles.pprime,
-               ffprime: eq.profiles.ffprime, p: eq.profiles.p };
-  var NQ = 33, qT = new Float64Array(NQ), fT = new Float64Array(NQ);
-  for (var i = 0; i < NQ; i++) {
-    var x = i / (NQ - 1);
-    qT[i] = Math.abs(evInterp(eq.q.x, eq.q.q, x));
-    fT[i] = evInterp(prof.x, eq.q.f, x);
-  }
-  var sm = eq.shape;
-  return evLadderMetric({
-    psi: eq.psi, psiAxis: eq.psiAxis, psiBnd: eq.psiBnd,
-    axisR: eq.axisR, axisZ: eq.axisZ,
-    gridR0: gx.r[0], gridZ0: gx.z[0], dr: gx.dr, dz: gx.dz,
-    nr: gx.nr, nz: gx.nz, limR: M.limiter.r, limZ: M.limiter.z,
-    qTable: qT, fTable: fT,
-    b0: Math.abs(self.FyDevice.tf(M).b0), aMinor: sm.a, rMaj: sm.r0,
-    n: sp.n, edgePsin: sp.edgePsin, nTheta: 121, source: 'device',
-  });
-}
-
-/**
  * The poloidal flux the current channel marches, in the KERNEL's gauge.
  *
  * ★★Two properties, and each was measured rather than assumed.  (1) The
@@ -5394,15 +5294,13 @@ function interpRun(msg) {
     if (!msg.chan)
       return post({ type: 'error', where: 'interp',
                     message: FyI18n.t('recon.noref') });
-    var p = { beta0: 0.55, emp: 1.0, enp: 1.0, r0: sp.r0Src };
-    var eq = summarize(freeSolve(Float64Array.from(msg.chan), p, sp.ip,
-                                 evFreeOpts(sp)), p, {});
-    var lad;
-    try { lad = evLadderFromSolve(eq, sp); }
-    catch (e) { return post({ type: 'error', where: 'interp', message: e.message }); }
-    //: ★the metric this bar inverts on is only as good as the equilibrium
-    //: it was traced from, so the solve's own verdict rides with it
-    free = freeReport(eq);
+    //: ★第二十九刀: the free solve AND its ladder are `code/refit`'s (the
+    //: evolve page's device tier since 第十九刀); the page reads them back
+    var rf;
+    try { rf = evRefit(assign({}, sp, { emp: 1.0, enp: 1.0, relax: 0.5 }), Float64Array.from(msg.chan), { fit: 0, beta0: 0.55 }); }
+    catch (e) { return post({ type: 'error', where: 'interp', message: String(e && e.message || e) }); }
+    var lad = rf.geo;
+    free = freeReport(rf.eq);
     settings.a = lad.a; settings.r0 = lad.r0; settings.b0 = lad.b0;
     inputs.equilibrium = { time_slice: { profiles_1d: {
       rho_tor: Array.from(lad.rho), dvolume_drho_tor: Array.from(lad.vprime),
