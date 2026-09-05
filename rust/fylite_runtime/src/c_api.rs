@@ -324,6 +324,7 @@ mod gfile_abi {
 ///
 /// # Safety
 /// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_parse(
     text: *const u8, text_n: u64, out_handle: *mut *mut std::ffi::c_void,
@@ -349,6 +350,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_parse(
 ///
 /// # Safety
 /// `handle` 来自 `fylite_runtime_gfile_parse`；`nw`/`nh` 各一个 u64。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_dims(
     handle: *mut std::ffi::c_void, nw: *mut u64, nh: *mut u64) -> i32 {
@@ -365,6 +367,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_dims(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 个 f64。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
     handle: *mut std::ffi::c_void, out: *mut f64, cap: u64) -> i32 {
@@ -385,6 +388,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
 ///
 /// # Safety
 /// `handle` 来自 parse；`name`: `name_n` 字节；`out`: `cap` 个 f64。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_array(
     handle: *mut std::ffi::c_void, name: *const u8, name_n: u64,
@@ -405,6 +409,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_array(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 字节。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_header(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
@@ -419,6 +424,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_header(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 字节。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_format(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
@@ -433,6 +439,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_format(
 ///
 /// # Safety
 /// `handle` 来自 parse，且未被释放过。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {
@@ -623,6 +630,7 @@ pub extern "C" fn fylite_runtime_facts_count() -> i64 {
 ///
 /// # Safety
 /// `text`: `text_n` 字节；`format`: `format_n` 字节；其余同 `_read`。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_read_text(
     text: *const u8, text_n: u64, format: *const u8, format_n: u64,
@@ -657,6 +665,7 @@ pub unsafe extern "C" fn fylite_runtime_read_text(
 ///
 /// # Safety
 /// `out_handle` 一个指针。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_new(out_handle: *mut *mut std::ffi::c_void) -> i32 {
     if out_handle.is_null() {
@@ -732,6 +741,7 @@ pub unsafe extern "C" fn fylite_runtime_detect(path: *const u8, path_n: u64, out
 ///
 /// # Safety
 /// `handle` 来自 `_read`；`out`: `cap` 字节。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_json(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
@@ -745,6 +755,7 @@ pub unsafe extern "C" fn fylite_runtime_bundle_json(handle: *mut std::ffi::c_voi
 ///
 /// # Safety
 /// 同 `_bundle_json`。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_keys(handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
     if handle.is_null() {
@@ -759,6 +770,7 @@ pub unsafe extern "C" fn fylite_runtime_bundle_keys(handle: *mut std::ffi::c_voi
 ///
 /// # Safety
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 字节。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_doc_json(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, out: *mut u8, cap: u64) -> i64 {
@@ -778,6 +790,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_json(
 /// # Safety
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`out`: `cap` 个 f64；`dims`: `dims_cap`
 /// 个 u64；`ndim_out` 一个 u64。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
 pub unsafe extern "C" fn fylite_runtime_doc_array(
@@ -809,6 +822,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_array(
 ///
 /// # Safety
 /// `handle` 来自 `_read`；`path`: `path_n` 字节；`json`: `json_n` 字节。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_doc_set_json(
     handle: *mut std::ffi::c_void, path: *const u8, path_n: u64, json: *const u8, json_n: u64) -> i32 {
@@ -831,6 +845,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_set_json(
 ///
 /// # Safety
 /// `data`: `dims` 各维之积个 f64；`dims`: `ndim` 个 u64。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 #[allow(clippy::too_many_arguments)]
 pub unsafe extern "C" fn fylite_runtime_doc_set_array(
@@ -852,6 +867,7 @@ pub unsafe extern "C" fn fylite_runtime_doc_set_array(
 ///
 /// # Safety
 /// 两个句柄都来自 `_read`/`_bundle_new`。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_merge(
     dst: *mut std::ffi::c_void, src: *mut std::ffi::c_void, policy: i32) -> i32 {
@@ -967,6 +983,7 @@ fn report_text(r: &crate::assembly::Assembled) -> String {
 ///
 /// # Safety
 /// `handle` 来自 `_read`/`_bundle_new`/`_assemble`，且未被释放过。
+#[cfg(feature = "abi_full")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_bundle_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {

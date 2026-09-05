@@ -228,17 +228,34 @@ fi
 #: 这一份是中间层。名字因此带 `runtime`，装法与它们同一条规则（`tools/soname.sh`）。
 #: ★`--no-default-features`：wasm 上没有套接字（mdsip），也不链 libhdf5 / libnetcdf。
 if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown; then
-    echo "[runtime] wasm32：cargo build --release --no-default-features ..."
-    WOUT="$CRATE/target/wasm32-unknown-unknown/release/fylite_runtime.wasm"
-    rm -f "$WOUT"
-    cargo build --release --target wasm32-unknown-unknown --no-default-features \
-        --manifest-path "$CRATE/Cargo.toml"
-    [ -f "$WOUT" ] || { echo "[runtime] 没有产出 $WOUT" >&2; exit 1; }
-    homes=$(strings -n 6 "$WOUT" | grep -c "$HOME" || true)
-    [ "$homes" = 0 ] || { echo "::error:: $WOUT 里有 $homes 条开发机路径" >&2; exit 1; }
-    echo "[runtime] harden-ok  fylite_runtime.wasm ($(stat -c%s "$WOUT") bytes)"
+    #: ★★**两份 wasm，同一份源码，差别只在导出面**（2026-09-05）。
+    #:
+    #:   fylite_facts.wasm    只导出装置那扇门（alloc / free / facts_*）。实测 0.43 MB。
+    #:   fylite_runtime.wasm  另加 g-file · 文档树 · 打包 · 读文本。实测 2.14 MB。
+    #:
+    #: 为什么要小的那一份：wasm 上每个 `#[no_mangle]` 都是链接的**根**，导出面因此
+    #: 决定产物大小；而页面今天从中间层只读装置信息（`factsdb.js` 用五个导出）。
+    #: 2.14 MB 太大，进不了 service worker 的预缓存（那会让只看一眼首页的读者先付
+    #: 这笔钱），于是**断网时站点一台机器也列不出来**——实测撞上过。0.43 MB 进得去。
+    #: ★这不是第二份实现：装置那扇门两份产物用的是同一段 `facts.rs` / `c_api.rs`。
+    for variant in facts full; do
+        case "$variant" in
+          facts) feats=""            ; name=fylite_facts.wasm   ;;
+          full)  feats="abi_full"    ; name=fylite_runtime.wasm ;;
+        esac
+        echo "[runtime] wasm32（$variant）：cargo build --release --no-default-features ${feats:+--features $feats} ..."
+        WOUT="$CRATE/target/wasm32-unknown-unknown/release/fylite_runtime.wasm"
+        rm -f "$WOUT"
+        cargo build --release --target wasm32-unknown-unknown --no-default-features \
+            ${feats:+--features "$feats"} --manifest-path "$CRATE/Cargo.toml"
+        [ -f "$WOUT" ] || { echo "[runtime] 没有产出 $WOUT" >&2; exit 1; }
+        homes=$(strings -n 6 "$WOUT" | grep -c "$HOME" || true)
+        [ "$homes" = 0 ] || { echo "::error:: $WOUT 里有 $homes 条开发机路径" >&2; exit 1; }
+        echo "[runtime] harden-ok  $name ($(stat -c%s "$WOUT") bytes)"
+        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/app/assets" "$name" "$RVER"
+    done
     if [ "$INSTALL" = 1 ]; then
-        fy_install_versioned "$WOUT" "$ROOT/app/assets" fylite_runtime.wasm "$RVER"
+        true
         #: ★★页面要拼出版本化的真文件名，所以它得知道中间层是哪一版。
         #: 单开一个生成物而不是往 `version.js` 里塞：那一份是**内核仓**生成的
         #: （kernel / abi / app 三个数），本仓往里写会在下一次内核构建时被抹掉，

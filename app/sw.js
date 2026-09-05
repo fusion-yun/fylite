@@ -27,6 +27,7 @@ const PRECACHE = [
   "assets/form.js",
   "assets/fy_mark.svg",
   "assets/fylite.js",
+  "assets/fylite_facts.wasm.0.0.1",
   "assets/fylite_kernel_ext.wasm.0.0.1",
   "assets/fylite_logo.svg",
   "assets/fylite_rs.wasm.0.0.1",

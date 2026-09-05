@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "2.2"
+version: "2.3"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -14,7 +14,10 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
-  change: 'v2.2 收进 2026-09-05 两条用户裁定，算力面因此从「两个实现路径」收到一个：
+  change: 'v2.3 增 K-11（中间层出两份 wasm：0.43 MB 的 `fylite_facts.wasm` 只带装置那扇门
+    并进预缓存，2.14 MB 的全套暂不发）——答用户「wasm 线需要有 device 数据，如何解决？」，
+    实测断网后逃逸请求由 1 个降为 0 个、站点由 12 MB 降为 10 MB，G-11 随之关闭。
+    v2.2 收进 2026-09-05 两条用户裁定，算力面因此从「两个实现路径」收到一个：
     **（一）webui 的内核功能由 api 端提供，只静态网页走 wasm** —— 落成 H-6：`POST /api/kernel`
     是一次内核调用的逐参数转述，参数种类表由内核仓自 `c_api.rs` 生成给两侧（251 个导出桥接
     248 个；结构门与分配器一对按名拒绝）；页面一处调用点都没改（`FyLite.attach()` 探
@@ -54,7 +57,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v2.2 |
+| 版本 (Version) | v2.3 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -199,7 +202,7 @@ flowchart TB
 (fylite-kernel-contract-rulings)=
 # 裁定 (Rulings)
 
-## 内核契约 K-1..K-10 (The kernel contract)
+## 内核契约 K-1..K-11 (The kernel contract)
 
 **K-1 文档门是唯一的内核接口。** 宿主（Python、浏览器、`fylite`）**只**经「一份计划进、
 一份记录出」调用内核。`c_api.rs` 的 442 个导出降为**本地后端的实现细节**：`fylite.kernel`
@@ -262,6 +265,29 @@ fylite_kernel 静态库，.so 是留给 python 层，wasm 留给静态网页发�
 | `libfylite_kernel_static.a` | `fy`（单一可执行文件） | **链进去**；`Kernel::linked()` 直接调结构门，页面经 `/api/kernel` 逐调用到达（H-6） | 归档 27.7 MB；链进 web 档的可执行文件 **+3.10 MB**（11.61 → 14.71 MB，同一份资源树、同一组 feature） |
 | `libfylite_kernel.so` + `_ext.so` | Python 层 | 运行期 `dlopen`（`fylite.kernel`；`FYLITE_KERNEL_LIB` / `--kernel` 仍然优先） | 2.03 + 1.09 MB，随轮发（轮 3.05 MB 压缩后） |
 | `fylite_rs.wasm` + `fylite_kernel_ext.wasm` | **静态站点** | 页面实例化，`FyLite.attach()` 探不到 `/api/*` 时的那条路 | 0.99 + 0.47 MB；可执行文件自 2026-09-05 起**不带**它们 |
+
+**K-11 中间层出两份 wasm，差别只在导出面；站点发小的那一份。**〔已确立〕2026-09-05
+用户提问「wasm 线需要有 device 数据，如何解决？」——问的是一个实测出来的缺口：装置
+信息编在中间层的 wasm 里，而那一份 2.14 MB，按 U-25 的同一条理由不进 service worker
+的预缓存，于是**断网时静态站点一台机器也列不出来**（实测：`FYLITE_MACHINE` 为 null，
+页面在第一次画图时抛）。
+
+| 产物 | 导出面 | 大小 | 谁发它 |
+| :--- | :--- | :--- | :--- |
+| `fylite_facts.wasm` | 只有装置那扇门（`alloc` / `free` / `facts_ids` / `_doc` / `_count`） | **0.43 MB**（gzip 0.09） | 静态站点，**进预缓存** |
+| `fylite_runtime.wasm` | 另加 g-file · 文档树 · 打包 · 读文本（`abi_full`） | 2.14 MB（gzip 0.28） | 暂不发——页面没有读者 |
+
+★**不是第二份实现**：两份产物同一份源码、同一段 `facts.rs` 与 `c_api.rs`，差别只在
+cargo feature `abi_full` 开不开。wasm 上每个 `#[no_mangle]` 都是链接的**根**，所以
+导出面决定产物大小——关掉那一片导出，死代码消除把 JSON / YAML / g-file / 文档树 /
+IDS 结构表全剪掉，同一批装置字节（0.41 MB 文本）就是产物的绝大部分。
+
+★**站点暂不发全套那一份**：页面今天没有任何一处载入它（H-4 的其余消费者——g-file /
+fyo / 会话搬进中间层——尚未落地）。实测：发它会因 `cp -RL` 解引用变成三份，站点从
+12 MB 长到 16 MB；不发则是 **10 MB**。H-4 落地那天把 `build-site.sh` 里那一行删掉即可。
+
+★实测（真浏览器，断网重载）：装置三台、活动机器已选、内核已挂、**断网后打到服务器的
+请求 0 个**。此前同一条闸子是「1 个」——那一个正是这份 wasm。
 
 ★三种形出自同一次构建、同一份 `c_api.rs`（`FYL-SDD-01` DE-LOG-01 不变）。静态库是内核仓
 新加的第三个包 `fylite_static`，它没有自己的代码：`extern crate` 两行把核心与扩展的
@@ -670,6 +696,7 @@ KERNEL 域 FR-KERNEL-001..004 承载 K-1 / K-2 / K-4 / K-8 / F-1..F-4 / S-1..S-4
 | G-7 | ~~wasm 上两个模块由 JS 接线 vs 链成一个制品~~ | **原生那侧已关**（K-9，2026-09-05 用户裁定）：`fy` 链一份静态库，核心与扩展在同一个制品里，接线没有了；发布面与许可面与轮相同（源码不公开、二进制随发行走）。**wasm 那侧仍开**：静态站点上内核与中间层还是两个模块由 JS 接线 |
 | G-8 | `fylite:state` 的形：一块还是逐 code 一块；跨 code 的状态（`coupled` 里平衡与输运各有）怎么并 | 开；P1 与 S-2 一同定 |
 | G-9 | **NOTICE 不随 `fy` 与站点走**：轮有（`build-wheel.sh` 两份逐字节比对，Apache-2.0 §4(d)），而可执行文件与静态站点只带 `credits.html` 里的 GACODE 署名段。今天的裁定把**原生的**内核代码放进了可执行文件，这条因此更显眼——但它不是今天才有的：可执行文件此前内嵌的两份内核 wasm 同样是派生物 | 开；发行前定（把 NOTICE 落进站点与内嵌树，还是判定 `credits.html` 已满足） |
+| G-11 | ~~静态站点离线时没有装置数据~~ | **已关**（K-11，2026-09-05）：中间层出一份 0.43 MB 的 `fylite_facts.wasm` 并进预缓存；实测断网后 0 个请求逃逸，装置三台俱在 |
 | G-10 | 逐调用桥在**迭代型入口**（`*_init` / `*_next` / `*_result`）上按迭代次数发请求，延迟未量。与 G-1 是同一个问题的两侧：那条量的是「装配搬进内核后一次门调用多一次编码」，这条量的是「一次迭代多一次回环往返」 | 开；P1 与 G-1 一同量 |
 
 (fylite-kernel-contract-trace)=

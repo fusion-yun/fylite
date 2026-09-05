@@ -15,7 +15,14 @@ modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v5.27 `FYL-DESIGN-16` 升 v2.2 · `FYL-DESIGN-15` 升 v1.2（2026-09-05 两条用户裁定，
+    v5.28 `FYL-DESIGN-16` 升 v2.3（新增 K-11，答用户「wasm 线需要有 device 数据，如何解决？」）：
+    中间层从此出**两份 wasm，同一份源码、差别只在导出面**——`fylite_facts.wasm` 0.43 MB
+    只带装置那扇门并**进 service worker 预缓存**，`fylite_runtime.wasm` 2.14 MB 带全套 C 导出
+    但站点暂不发（页面没有读者，H-4 的其余消费者未落地）。缺口的成因是 wasm 上每个
+    `#[no_mangle]` 都是链接的根：导出面决定产物大小，而 2.14 MB 大到进不了预缓存，于是
+    断网时站点一台机器也列不出来。实测（真浏览器断网重载）：装置三台俱在、断网后逃逸
+    请求 0 个（此前 1 个）、站点 12 MB -> 10 MB。G-11 关闭。
+    · v5.27 `FYL-DESIGN-16` 升 v2.2 · `FYL-DESIGN-15` 升 v1.2（2026-09-05 两条用户裁定，
     算力面从「一次发行两个实现路径」收到一个）：**（一）webui 中 fylite_rs /
     fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm** —— H-6：`POST /api/kernel`
     是一次内核调用的逐参数转述，参数种类表由内核仓自 `c_api.rs` 生成给服务端与页面两侧
