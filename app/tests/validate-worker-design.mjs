@@ -139,4 +139,29 @@ assert.ok(d3.history.length >= 1);
 inbox.splice(0, inbox.length);
 ok(`schedule=null: the kernel's own geometric table ran (${d3.history.length - 1} passes)`);
 
+// --- 5. pulse ------------------------------------------------------------------
+const wps = [0.0, 0.5, 1.5, 2.5].map((tk, k) => ({
+  t: tk, ip: [0, 0.6 * ip, ip, 0.4 * ip][k],
+  target: { r0: target.r0, z0: target.z0, a: target.a * [0.8, 0.9, 1, 0.9][k], kappa: target.kappa,
+            deltaU: target.deltaU, deltaL: target.deltaL } }));
+send({ cmd: 'pulse', waypoints: wps, nPoints: 24, xWeight: 0, verify: [2], iMax: null,
+       prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 }, solve: { maxIter: 400, relax: 0.3 } });
+const pu = take('pulse');
+assert.equal(pu.t.length, 4);
+assert.equal(pu.nch, M.channels.length);
+assert.equal(pu.x.length, 4 * pu.nch);
+assert.equal(pu.v.length, 4 * pu.nch);
+assert.ok(Array.from(pu.v).every(Number.isFinite), 'finite voltages');
+assert.ok(Array.from(pu.x.slice(0, pu.nch)).every((c) => c === 0), 'no plasma at t=0: zero currents');
+assert.equal(pu.designs.length, 4);
+assert.equal(pu.designs[0].psiRms, 0);
+assert.ok(pu.designs[2].psiRms > 0);
+assert.equal(pu.checks.length, 1);
+assert.equal(pu.checks[0].k, 2);
+assert.ok(!pu.checks[0].error, 'the check solved: ' + (pu.checks[0].error || ''));
+assert.ok(Number.isFinite(pu.checks[0].shape.a), 'the checked waypoint has a shape');
+assert.equal(pu.resistance.length, pu.nch);
+inbox.splice(0, inbox.length);
+ok(`pulse: 4 waypoints, ${pu.nv} passive conductors, check at k=2: a=${pu.checks[0].shape.a.toFixed(3)} (asked ${wps[2].target.a.toFixed(3)})`);
+
 console.log(`validate-worker-design: ${n} 项通过`);

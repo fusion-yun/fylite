@@ -529,7 +529,7 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 | design | **`discharge`** | 静态线圈反解 / 自由边界正解：目标形状 → 线圈电流 | S-L1 平衡正演 · S-L5 静态反解；`-09` 栏二；指南「前向自由边界正解」 | `discharge` / `code/discharge`(23) / `design.discharge` | `device`(要线圈几何) | ✅ | ⛔ P2-c |
 | design | **`breakdown`** | 击穿零场设计与逐通道限值 | S-L3 / S-L4；`-09` 栏四；指南「击穿与上升段」 | `breakdown` / `code/breakdown`(17) / `design.breakdown` | `device` | ✅ | ⛔ P2-c |
 | design | **`pfwave`** | PF 电源整定与波形 | `-09` 栏三 | 浏览器专有组合，无 Python 入口；语料 `pulse-iter` 用 `code/pfwave`（14 个参数） | `device` | ✅（as-built A-1：它有 code 与词表，`pulse` 没有） | ⛔ P2-c |
-| design | `pulse` | 整脉冲前馈电压设计（GSPulse 型）与逐片校验；重线性化并入 | `-09` 栏五 · 批式 C；指南「前馈轨迹设计」「形状响应矩阵」 | `pulse` 栏 / `design.pulse.design_trajectory` · `verify_trajectory` · `design.shape.shape_response` | `measurements`(初始平衡) · `device` | ✗ 无 code IRI（语料的 `pulse-iter` 用 `code/pfwave`）；模板要一个真实的 code——P2-c（as-built A-1） | — |
+| design | `pulse` | 整脉冲前馈电压设计（GSPulse 型）与逐片校验；重线性化并入 | `-09` 栏五 · 批式 C；指南「前馈轨迹设计」「形状响应矩阵」 | `pulse` 栏 / `design.pulse.feedforward`（`code/pulse`，2026-09-05；`design_trajectory` · `verify_trajectory` 随 EFIT 谱系求解器退役） | `measurements`(初始平衡) · `device` | ✗ 无 code IRI（语料的 `pulse-iter` 用 `code/pfwave`）；模板要一个真实的 code——P2-c（as-built A-1） | — |
 | design | `sim` | 交互时间推进（滑块） | `-09` 栏六 | 浏览器专有 | — | ✗ 交互档不是批式动作（P-1） | — |
 | design | `feasible` | 二维参数扫描的可行域 | S-L5；`TOOLS['feasible']` | `design.feasible`，无栏、无语料 | `device` | 待设（P2-c）：扫描轴写成参数 `axis1.*` · `axis2.*`〔待定〕 | — |
 | control | `vstab` | 刚体 n=0 垂直稳定：k · k_ideal · γ | S-L3；指南「n=0 垂直不稳定性」 | `control.vstab`；entry `vstab` 已在 | `equilibrium` · `device`(线圈 A·匝) | ✗ 有内核 entry，无 case code 与词表——P2-c（as-built A-1） | — |

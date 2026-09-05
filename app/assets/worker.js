@@ -842,103 +842,102 @@ function pulseRun(msg) {
            message: FyI18n.t('pulse.too_few') });
     return;
   }
-  var t = [], x = new Float64Array(nt * NCH), designs = [];
+  //: ★★the chain — every waypoint's start, the circuit, the feed-forward
+  //: voltages, the checks — is `case.rs::pulse_case` (FYL-DESIGN-16 K-3,
+  //: 2026-09-05).  This worker builds the plan and reads the record; what
+  //: stays here is the DISPLAY of each check (`summarize` on the field the
+  //: kernel returns), exactly as `designRun` keeps its own.
+  var nulls = msg.xWeight > 0 ? nullSet(wps[0]) : [];
+  var ctl = controlUsable(controlPoints(msg.control));
+  var settings = { n_points: msg.nPoints || 24, nu: 4,
+                   x_weight: nulls.length ? (msg.xWeight || 1) : 0,
+                   lam: msg.lambda === undefined ? 1e-3 : msg.lambda };
+  if (msg.etaCoil !== undefined) settings.eta_coil_uohm_m = msg.etaCoil * 1e6;
+  if (msg.etaVessel !== undefined) settings.eta_vessel_uohm_m = msg.etaVessel * 1e6;
+  var sv = msg.solve || {};
+  settings.relax = sv.relax || 0.3;
+  settings.max_iter = sv.maxIter || 600;
+  settings.tol = sv.tol || 1e-9;
+  settings.fb_gain = sv.fbGain === undefined ? 8.0 : sv.fbGain;
+  var inputs = { device: deviceDoc() };
+  var prof = msg.prof || {};
+  if (prof.tab) {
+    inputs.equilibrium = { time_slice: [{ profiles_1d: {
+      'fylite:psi_norm': Array.from(prof.tab.x),
+      dpressure_dpsi: Array.from(prof.tab.pprime),
+      f_df_dpsi: Array.from(prof.tab.ffprime) } }] };
+  } else {
+    settings.beta0 = prof.beta0 === undefined ? 0.55 : prof.beta0;
+    settings.emp = prof.emp === undefined ? 1 : prof.emp;
+    settings.enp = prof.enp === undefined ? 1 : prof.enp;
+  }
+  var target = wps.map(function (wp) {
+    var g = wp.target;
+    return [g.r0, g.z0 === undefined ? 0 : g.z0, g.a, g.kappa,
+            g.deltaU === undefined ? 0 : g.deltaU, g.deltaL === undefined ? 0 : g.deltaL];
+  });
+  inputs.pulse = { 'fylite:time': wps.map(function (wp) { return wp.t; }),
+                   'fylite:ip': wps.map(function (wp) { return wp.ip; }),
+                   'fylite:target': target };
+  var verify = (msg.verify || []).filter(function (k) { return k >= 0 && k < nt && wps[k].ip > 0; });
+  if (verify.length) inputs.pulse['fylite:verify'] = verify;
+  var discharge = {};
+  if (nulls.length) {
+    discharge['fylite:null_r'] = nulls.map(function (p) { return p.r; });
+    discharge['fylite:null_z'] = nulls.map(function (p) { return p.z; });
+  }
+  if (ctl.length) {
+    discharge['fylite:control_r'] = ctl.map(function (c) { return c.r; });
+    discharge['fylite:control_z'] = ctl.map(function (c) { return c.z; });
+    discharge['fylite:control_w'] = ctl.map(function (c) { return c.w; });
+  }
+  if (msg.iMax && msg.iMax.length) discharge['fylite:i_max_aturn'] = Array.from(msg.iMax);
+  if (Object.keys(discharge).length) inputs.discharge = discharge;
+  post({ type: 'progress', phase: 'pulse', pass: 0, total: nt });
+  var rec;
+  try { rec = fy.complete('code/pulse', { settings: settings, inputs: inputs }); }
+  catch (e) { post({ type: 'error', where: 'pulse', message: e.message }); return; }
+  var t = rec.fields.time.data;
+  var x = fieldFlat(rec, 'aturns');
+  var rms = rec.fields.design_psi_rms.data, bxs = rec.fields.design_b_x.data,
+      bound = rec.fields.design_at_bound.data;
+  var designs = [];
   for (var k = 0; k < nt; k++) {
-    var wp = wps[k];
-    t.push(wp.t);
-    var bnd = P.millerBoundary(wp.target, msg.nPoints || 24);
-    var bndR = [], bndZ = [];
-    bnd.forEach(function (p) { bndR.push(p[0]); bndZ.push(p[1]); });
-    var d;
-    if (wp.ip <= 0) {
-      //: before breakdown there is no plasma to hold: the channels carry
-      //: what the previous waypoint left them, and asking a boundary
-      //: design for a zero-current plasma would return an arbitrary
-      //: solution to a homogeneous problem
-      d = { x: k ? x.slice((k - 1) * NCH, k * NCH)
-                 : new Float64Array(NCH), psiRms: 0, bX: null, bind: [] };
-    } else {
-      var fil = fy.fillFilaments({ bndR: bndR, bndZ: bndZ, ip: wp.ip,
-                                   nRing: 4, peaking: 1 });
-      var wpx = msg.xWeight > 0 ? nullSet(wp) : [];
-      try {
-        d = fy.startCurrents({
-          elements: elementArrays(M.coils), nch: NCH, weights: chanW,
-          bndR: bndR, bndZ: bndZ, filR: fil.r, filZ: fil.z, filA: fil.a,
-          xPoints: wpx, xWeight: msg.xWeight || 1,
-          control: controlUsable(controlPoints(msg.control)),
-          length: 2 * Math.PI * wp.target.r0 * wp.target.a,
-          lambda: msg.lambda === undefined ? 1e-3 : msg.lambda,
-          iMax: msg.iMax || null, nu: 4, nv: 4 });
-      } catch (e) {
-        post({ type: 'error', where: 'pulse', message: e.message });
-        return;
-      }
-    }
-    for (var c = 0; c < NCH; c++) x[k * NCH + c] = d.x[c];
-    designs.push({ psiRms: d.psiRms, bX: d.bX, bind: d.bind });
+    var bind = [];
+    for (var c = 0; c < NCH; c++) if (bound[k][c] === 1) bind.push(c);
+    designs.push({ psiRms: rms[k], bX: isFinite(bxs[k]) ? bxs[k] : null, bind: bind });
     post({ type: 'progress', phase: 'pulse', pass: k + 1, total: nt });
   }
-
-  //: the circuit matrices of THIS machine, channels first then the passive
-  //: structure — the same assembly the vertical plant uses
-  var cm, ff;
-  try {
-    cm = fy.channelMatrices({
-      coils: elementArrays(M.coils), vessel: elementArrays(M.vessel || []),
-      nch: NCH, weights: chanW,
-      etaCoil: new Array(NEL).fill(msg.etaCoil || 1.8e-8),
-      etaVessel: new Array((M.vessel || []).length)
-                   .fill(msg.etaVessel || 7.6e-7),
-      nu: 3, nv: 3 });
-    ff = fy.feedforwardVoltages({ m: cm.m, r: cm.r, nch: NCH, t: t, x: x });
-  } catch (e) {
-    post({ type: 'error', where: 'pulse', message: e.message });
-    return;
-  }
-
-  //: verification: re-solve the free boundary at the waypoints asked for,
-  //: and report the shape actually obtained
   var checks = [];
-  (msg.verify || []).forEach(function (k) {
-    if (k < 0 || k >= nt || wps[k].ip <= 0) return;
-    try {
-      var wp = wps[k];
-      var chan = x.slice(k * NCH, (k + 1) * NCH);
-      //: ★the same warm start and the same anchors the design bar's first
-      //: solve gets, and for the same reason: these currents came from a
-      //: boundary design, so the field they make has a minimum where the
-      //: plasma belongs and a cold solve walks the column out of the
-      //: machine.  Verification that answered "no plasma" for a design
-      //: that is merely UNCHECKED would be worse than no verification.
-      var wb = P.millerBoundary(wp.target, msg.nPoints || 24);
-      var wr = [], wz = [];
-      wb.forEach(function (p) { wr.push(p[0]); wz.push(p[1]); });
-      var wf = fy.fillFilaments({ bndR: wr, bndZ: wz, ip: wp.ip,
-                                  nRing: 4, peaking: 1 });
-      var pe = psiExtOf(chan);
-      var pp = fy.filamentFlux({ r: wf.r, z: wf.z, a: wf.a,
-                                 gridR: grid.r, gridZ: grid.z });
-      var seed = new Float64Array(pe.length);
-      for (var i = 0; i < pe.length; i++) seed[i] = pe[i] + pp[i];
-      var res = freeSolve(chan, msg.prof, wp.ip,
-                          assign(msg.solve, {
-                            psiInit: seed, rcAnchor: wp.target.r0,
-                            zcAnchor: wp.target.z0 === undefined
-                                      ? 0 : wp.target.z0 }));
-      var sum = summarize(res, null);
-      checks.push({ k: k, t: t[k], shape: sum.shape,
-                    bndKind: sum.bndKind, criteria: sum.criteria,
-                    fbRatio: sum.criteria ? sum.criteria.fbRatio : null,
-                    target: wp.target });
-    } catch (e) {
-      checks.push({ k: k, t: t[k], error: e.message });
+  var idx = rec.fields.check_index.data, okv = rec.fields.check_ok.data;
+  var notes = rec.notes || [];
+  var num = function (name, j) { return rec.fields[name].data[j]; };
+  for (var j = 0; j < idx.length; j++) {
+    var kk = idx[j];
+    if (!okv[j]) {
+      var why = notes.filter(function (n) { return n.indexOf('verify ' + kk + ':') === 0; })[0];
+      checks.push({ k: kk, t: t[kk], error: why || 'the verify solve failed' });
+      continue;
     }
-  });
-
+    var res = {
+      psi: Float64Array.from([].concat.apply([], rec.fields.check_psi.data[j])),
+      psiAxis: num('check_psi_axis', j), psiBnd: num('check_psi_bnd', j),
+      axisR: num('check_axis_r', j), axisZ: num('check_axis_z', j), ip: num('check_ip', j),
+      residual: num('check_residual', j), iterations: num('check_iterations', j),
+      converged: num('check_converged', j) === 1, settled: num('check_settled', j) === 1,
+      bndKind: num('check_bnd_kind', j), xptR: num('check_xpt_r', j), xptZ: num('check_xpt_z', j),
+      fbAmp: num('check_fb_amp', j), zc: num('check_zc', j), maskDelta: null,
+      tol: settings.tol, maxIter: settings.max_iter,
+    };
+    var sum = summarize(res, null);
+    checks.push({ k: kk, t: t[kk], shape: sum.shape, bndKind: sum.bndKind, criteria: sum.criteria,
+                  fbRatio: sum.criteria ? sum.criteria.fbRatio : null, target: wps[kk].target });
+  }
+  var ff = { v: fieldFlat(rec, 'voltage'), y: fieldFlat(rec, 'passive_current'),
+             nv: rec.dims.n_v };
   post({ type: 'pulse', t: t, x: x, v: ff.v, y: ff.y, nch: NCH,
          nv: ff.nv, designs: designs, checks: checks,
-         resistance: cm.r.slice(0, NCH) },
+         resistance: rec.fields.resistance.data.slice(0, NCH) },
        [x.buffer]);
 }
 

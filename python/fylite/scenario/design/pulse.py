@@ -1,54 +1,32 @@
-"""Feedforward pulse design: target shape trajectory -> voltage waveforms (E-10).
+"""线一 · 脉冲 —— feed-forward pulse design: a shape trajectory in, voltage waveforms out.
 
-The design problem P1 does not answer.  P1 asks "given voltages, what happens";
-this asks the inverse: **given a shape trajectory, what voltages produce
-it** — and answers it for the whole pulse at once rather than time slice
-by time slice.
+★★2026-09-05 (FYL-DESIGN-16 K-3, the fourth tool to sink).  This module used to
+hold ``design_trajectory`` / ``verify_trajectory`` — the GSPulse-shaped whole-pulse
+least-squares design, linearised on the finite-difference shape response of
+``run.forward_equilibrium``.  That solver is the EFIT lineage removed under LICENSE
+3.1, and its recorded answers do not ship either: every call raised
+``KefitRunError`` (measured — the kernel repository's ``test_pulse.py`` errored at
+collection on every machine).  A design nobody can run is not a design; both
+functions and their private dynamics helpers are retired.
 
-Shape of the algorithm, after GSPulse (J. Wai / CFS, MIT; see the
-FYD-PORT-01-FYLITE absorption chapter): an outer whole-pulse quadratic
-program alternating with a per-time equilibrium update.  Two deliberate
-differences here:
+What the pulse line IS today is the design page's feed-forward chain — every
+waypoint's currents designed by the linear isoflux start, the conductor circuit
+assembled once, the per-channel voltages by the exact inverse of the circuit
+integrator, and a free-boundary check at chosen waypoints — and that chain is
+``case.rs::pulse_case`` (``code/pulse``), one recipe for the page and for Python.
+:func:`feedforward` builds the PLAN and reads the RECORD back.
 
-* the QP is solved as **plain least squares in pure numpy**.  The only
-  constraint is the conductor dynamics, which is a linear equality — so
-  substituting it out leaves an unconstrained problem, and fylite keeps
-  its numpy-only dependency instead of pulling in a QP package;
-* the linearization uses the **finite-difference shape response of the
-  real solver** (:mod:`fylite.scenario.design.shape`, E-16), not an analytic perturbed
-  GS.  Re-linearizing between outer iterations is what plays the role of
-  GSPulse's Picard update.
-
-Cost (all terms optional through weights):
-
-    J = sum_k || W_e (obs_k - obs_ref_k) ||^2
-      + lam_v || V ||^2 + lam_dv || dV/dt ||^2
-
-subject to the implicit-Euler conductor dynamics driving obs_k through
-the response matrix.
-
-**Feasibility is reported, never silently truncated** (``feasible``,
-``residual_m``): a design that cannot reach its targets must say so —
-the shape-control counterpart of the lesson in the free-boundary
-chapter, where a parameter existed, accepted values, and changed
-nothing.
+:func:`channel_limits` stays: the supply ratings folded into the design's units,
+which ``fylite cases`` and the older gates still read (``code/breakdown`` folds the
+same numbers inside the kernel).
 """
 from __future__ import annotations
 
-import tempfile
-
 import numpy as np
 
-from ...device import (channel_matrices, conductor_set, passive_set,
-                       pf_channel_map)
+from ...device import pf_channel_map
 
-from ...io import geqdsk
-
-from . import shape
-from ...run import forward_equilibrium
-from ... import kernel
-
-__all__ = ["design_trajectory", "verify_trajectory", "channel_limits"]
+__all__ = ["feedforward", "channel_limits"]
 
 
 def channel_limits(device) -> dict:
@@ -57,8 +35,8 @@ def channel_limits(device) -> dict:
     ★It used to take a ``table_dir`` first and never read it: every number
     here comes from the device document and the frozen channel map.  A
     parameter that is threaded through three call sites and used by none
-    says the deck is consulted when it is not.  ★★:func:`design_trajectory`
-    has now lost the same parameter for the same reason — with the last
+    says the deck is consulted when it is not.  ★★The retired trajectory
+    design had lost the same parameter for the same reason — with the last
     Green-table read gone from the package, no entry point on this line has
     anything to do with a table directory.
 
@@ -111,203 +89,98 @@ def channel_limits(device) -> dict:
 #: 判据也不在本仓。**代价已经付过了，冻结的那份只剩下坏处。**
 
 
-def _dynamics_maps(M, R, t, n_ch):
-    """Linear maps x = x_free + L @ vec(V) for implicit-Euler dynamics.
+def feedforward(waypoints, *, verify=(), n_points: int = 24, x_weight: float = 0.0,
+                nulls=None, control=None, i_max_aturn=None, profile=None,
+                eta_coil_uohm_m: float | None = None, eta_vessel_uohm_m: float | None = None,
+                limiter: str | None = None, device=None, **solve_kw) -> dict:
+    """A feed-forward pulse — BY THE KERNEL (``code/pulse``).
 
-    State is the full conductor vector (channels first, then passive);
-    only the first ``n_ch`` rows are driven.  Returns the free response
-    (zero voltage) and the sensitivity of every channel state to every
-    voltage sample, as arrays (n_t, n) and (n_t, n, n_t, n_ch).
+    ``waypoints`` is a sequence of ``(t, ip, target)`` with ``target`` the Miller
+    description (``r0``, ``z0``, ``a``, ``kappa``, ``delta_upper``, ``delta_lower``)
+    as a mapping or a 6-tuple; ``ip <= 0`` means no plasma at that waypoint (the
+    currents are held).  ``verify`` names waypoint indices to re-solve; ``nulls``
+    is a list of ``(r, z)`` field nulls shared by every start (weighted by
+    ``x_weight``), ``control`` a list of ``(r, z, w)`` isoflux control points.
+    ``profile`` is ``{"beta0", "emp", "enp"}`` (analytic) or
+    ``{"psin", "dpressure_dpsi", "f_df_dpsi"}`` (the delivered table) for the
+    verify solves; ``solve_kw`` are ``relax`` · ``max_iter`` · ``tol`` · ``fb_gain``.
+
+    Returns the record's arrays under the names its callers know: ``time``,
+    ``currents`` (nt, n_ch) [A-turn], ``voltages`` (nt, n_ch) [V per turn],
+    ``passive_currents`` (nt, n_v), ``resistance``, the per-waypoint design
+    statistics and, per verified waypoint, the solve's shape and field.
     """
-    n = M.shape[0]
-    dts = np.diff(np.asarray(t, float))
-    steps = [np.linalg.solve(M / dt + np.diag(R), M / dt) for dt in dts]
-    gains = [np.linalg.solve(M / dt + np.diag(R), np.eye(n)[:, :n_ch])
-             for dt in dts]
-    n_t = len(t)
-    L = np.zeros((n_t, n, n_t, n_ch))
-    for k in range(1, n_t):
-        L[k] = np.einsum("ij,jab->iab", steps[k - 1], L[k - 1])
-        L[k, :, k, :] += gains[k - 1]
-    return L
-
-
-def _march(M, R, x0, t, V, n_ch):
-    """State trajectory of the conductor set under channel voltages ``V``.
-
-    ★★**内核入口，不是这里再写一遍。**  ``kernel.evolve_circuits`` IS this
-    advance — same implicit Euler, same interval-END voltage sample — and
-    its own docstring records the failure this replaces: *"a caller that had
-    ψ_plasma looped over ``step_circuits`` in Python instead — the same
-    advance assembled a second way, with nothing comparing the two."*  This
-    file had that shape three times over (``M/dt + diag(R)`` factorised in
-    numpy at three call sites); the entry reproduces all three to 1.3e-15.
-
-    ``V`` is ``(n_t, n_ch)`` — only the channels are driven; the passive
-    conductors take zero voltage, which is what makes them passive.
-    """
-    n = M.shape[0]
-    v_full = np.zeros((len(t), n))
-    v_full[:, :n_ch] = np.asarray(V, float)
-    i0 = np.zeros(n)
-    i0[:n_ch] = np.asarray(x0, float)
-    return np.asarray(kernel.evolve_circuits(M, R, i0, t, v_full), float)
-
-
-def design_trajectory(measurements, time, targets: shape.ShapeTargets,
-                      obs_ref, x0, *, device,
-                      passive_groups=("inner_shell",), profile=None,
-                      weights=None, lam_v: float = 1e-6, lam_dv: float = 1e-4,
-                      n_outer: int = 2, tol_m: float = 5e-3,
-                      limits: bool = False, v_max_per_turn=None,
-                      i_max_aturn=None, out=None, **run_kw) -> dict:
-    """Design per-turn channel voltages that track a shape trajectory.
-
-    Args:
-        time: (n_t,) design grid [s], strictly increasing.
-        obs_ref: (n_t, n_obs) target observable trajectory [m]; NaN marks
-            "don't care" entries, which drop out of the cost.
-        x0: initial channel state [A-turn].
-        weights: (n_obs,) per-observable weights; default 1 for every
-            finite target.
-        n_outer: re-linearization passes (the Picard-like outer loop).
-        tol_m: feasibility threshold on the RMS tracking residual [m].
-        limits: when True the supply VOLTAGE limits become HARD box
-            constraints on the design (E-23), so an over-ambitious target
-            comes back as tracking residual rather than as an
-            unrealizable waveform.  Current limits cannot be a box on the
-            design variable (they constrain the state), so they are
-            checked and REPORTED per channel instead of silently ignored.
-        v_max_per_turn / i_max_aturn: override the limits derived from
-            ``device`` by :func:`channel_limits`.
-    """
-    t = np.asarray(time, float)
-    ref = np.asarray(obs_ref, float)
-    x0 = np.asarray(x0, float)
-    n_t, n_obs = ref.shape
-    n_ch = x0.size
-    profile = dict(profile or {"betap0": 0.69})
-    outdir = out or tempfile.mkdtemp(prefix="fylite_pulse_")
-
-    eta_c = device["pf_active_circuits"]["resistivity_uohm_m"]
-    cond = conductor_set()
-    pas_el, pas_eta, _ = passive_set(device, passive_groups)
-    #: ★the channel-space block assembly is `channel_matrices` with THIS
-    #: passive set — it used to be spelled out again here in numpy, which
-    #: is the same M and R a second time
-    cm = channel_matrices(cond, eta_coil_uohm_m=eta_c,
-                                   passive=(pas_el, pas_eta), nu=3, nv=3)
-    M, R = cm["M"], cm["R"]
-    n = M.shape[0]
-
-    mask = np.isfinite(ref)
-    w = np.ones(n_obs) if weights is None else np.asarray(weights, float)
-
-    lim = channel_limits(device)
-    L = _dynamics_maps(M, R, t, n_ch)          # (n_t, n, n_t, n_ch)
-    V = np.zeros((n_t, n_ch))
-    history, iters = [], []
-    for _ in range(max(1, n_outer)):
-        # linearize the shape map about the CURRENT design's mean state
-        state = _march(M, R, x0, t, V, n_ch)
-        x_lin = state[:, :n_ch].mean(axis=0)
-        resp = shape.shape_response(measurements, x_lin, targets, profile=profile,
-                                    out=outdir, **run_kw)
-        J = resp["J"]                                   # (n_obs, n_ch)
-
-        # free response (V = 0) and the sensitivity of obs to vec(V)
-        free = _march(M, R, x0, t, np.zeros((n_t, n_ch)), n_ch)
-        obs_free = resp["base"][None, :] + (free[:, :n_ch] - x_lin[None, :]) @ J.T
-        S = np.einsum("oc,kcia->koia", J, L[:, :n_ch, :, :])   # (n_t,n_obs,n_t,n_ch)
-
-        rows, rhs = [], []
-        for k in range(n_t):
-            for o in range(n_obs):
-                if not mask[k, o]:
-                    continue
-                rows.append(w[o] * S[k, o].reshape(-1))
-                rhs.append(w[o] * (ref[k, o] - obs_free[k, o]))
-        A_track = np.asarray(rows)
-        b_track = np.asarray(rhs)
-
-        nv = n_t * n_ch
-        A_eff = np.sqrt(lam_v) * np.eye(nv)
-        D = np.zeros((max(n_t - 1, 1) * n_ch, nv))
-        for k in range(n_t - 1):
-            dt = t[k + 1] - t[k]
-            D[k * n_ch:(k + 1) * n_ch, (k + 1) * n_ch:(k + 2) * n_ch] = np.eye(n_ch) / dt
-            D[k * n_ch:(k + 1) * n_ch, k * n_ch:(k + 1) * n_ch] = -np.eye(n_ch) / dt
-        A = np.vstack([A_track, A_eff, np.sqrt(lam_dv) * D])
-        b = np.concatenate([b_track, np.zeros(nv), np.zeros(D.shape[0])])
-        if limits:
-            vmax = (np.asarray(v_max_per_turn, float) if v_max_per_turn is not None
-                    else lim["v_max_per_turn"])
-            vmax = np.broadcast_to(vmax, (n_ch,))
-            hi = np.tile(vmax, n_t)
-            sol, n_used = kernel.bounded_lstsq(A, b, -hi, hi)
-            iters.append(n_used)
+    from ...io import fydoc
+    from . import _device
+    known = {"relax", "max_iter", "tol", "fb_gain"}
+    bad = set(solve_kw) - known
+    if bad:
+        raise TypeError(f"feedforward() got unexpected solver settings {sorted(bad)}; "
+                        f"the kernel takes {sorted(known)}")
+    keys = ("r0", "z0", "a", "kappa", "delta_upper", "delta_lower")
+    t, ip, tg = [], [], []
+    for w in waypoints:
+        tk, ipk, target = w
+        t.append(float(tk))
+        ip.append(float(ipk))
+        if isinstance(target, dict):
+            tg.append([float(target.get(k, 0.0 if k in ("z0", "delta_upper", "delta_lower") else 1.0))
+                       for k in keys])
         else:
-            #: ★同一个族的解法器：有界那一支已经走 `kernel.bounded_lstsq`，
-            #: 无界这一支从前落回 `np.linalg.lstsq`，于是同一个最小二乘在一个
-            #: 函数里有两套来源。`rcond` 取 numpy 自己的缺省口径
-            #: （`max(m, n) * eps`），所以换过来**答案不动**（实测同形系统
-            #: 7.2e-16），换来的是奇异值截断次数与条件数可见。
-            fit = kernel.svd_solve(A, b,
-                                   rcond=max(A.shape) * np.finfo(float).eps)
-            sol = fit["x"]
-        V = sol.reshape(n_t, n_ch)
-        resid = float(np.sqrt(np.mean((A_track @ sol - b_track) ** 2)))
-        history.append(resid)
-
-    # final predicted state trajectory
-    state = _march(M, R, x0, t, V, n_ch)
-    imax = (np.asarray(i_max_aturn, float) if i_max_aturn is not None
-            else lim["i_max_aturn"])
-    vmax = (np.asarray(v_max_per_turn, float) if v_max_per_turn is not None
-            else lim["v_max_per_turn"])
-    v_peak = np.max(np.abs(V), axis=0)
-    i_peak = np.max(np.abs(state[:, :n_ch]), axis=0)
-    over_v = np.flatnonzero(v_peak > vmax * (1.0 + 1e-9))
-    # Self-check before believing the current limits: the INITIAL state is a
-    # real shot's currents, so any channel whose limit it already violates has
-    # a wrong limit, not a violating design.  The element-to-turns
-    # correspondence those limits rest on is exactly what ledger E-15 leaves
-    # open, so such channels are reported as suspect and excluded from the
-    # violation list rather than blamed on the trajectory.
-    suspect = np.flatnonzero(np.abs(x0) > imax)
-    ok_i = np.setdiff1d(np.arange(n_ch), suspect)
-    over_i = ok_i[i_peak[ok_i] > imax[ok_i]]
-    return {"time": t, "voltages": V, "currents": state[:, :n_ch],
-            "passive_currents": state[:, n_ch:], "residual_m": history[-1],
-            "residual_history": history, "feasible": history[-1] <= tol_m,
-            "tol_m": tol_m, "labels": targets.labels(), "outdir": outdir,
-            "n_channels": n_ch, "limits_enforced": bool(limits),
-            "v_max_per_turn": vmax, "i_max_aturn": imax,
-            "v_peak_per_turn": v_peak, "i_peak_aturn": i_peak,
-            "channels_over_voltage": over_v.tolist(),
-            "channels_over_current": over_i.tolist(),
-            "channels_current_limit_suspect": suspect.tolist(),
-            "current_limit_note": (
-                "channels listed as suspect have limits the equilibrium's own "
-                "currents already exceed -- the limit is wrong, not the "
-                "design; see ledger E-15 (element-to-turns mapping)"),
-            "within_limits": bool(over_v.size == 0 and over_i.size == 0),
-            "bounded_iterations": iters}
-
-
-def verify_trajectory(measurements, design, targets: shape.ShapeTargets, *,
-                      profile=None, every: int = 1, out=None, **run_kw) -> dict:
-    """Run the designed currents through the real solver and report the
-    achieved observables — the check that the design is not a fiction of
-    its own linearization."""
-    profile = dict(profile or {"betap0": 0.69})
-    outdir = out or design["outdir"]
-    ks = range(0, len(design["time"]), every)
-    got = []
-    for k in ks:
-        r = forward_equilibrium({**measurements,
-                                 "brsp": list(design["currents"][k])},
-                                out=outdir, **profile, **run_kw)
-        got.append(shape.shape_observables(geqdsk.read_geqdsk(r["gfile"]), targets))
-    return {"k": list(ks), "t": design["time"][list(ks)],
-            "observables": np.asarray(got)}
+            tg.append([float(v) for v in target])
+    settings = {"n_points": float(n_points), "x_weight": float(x_weight)}
+    settings.update({k: float(v) for k, v in solve_kw.items()})
+    if eta_coil_uohm_m is not None:
+        settings["eta_coil_uohm_m"] = float(eta_coil_uohm_m)
+    if eta_vessel_uohm_m is not None:
+        settings["eta_vessel_uohm_m"] = float(eta_vessel_uohm_m)
+    if limiter is not None:
+        settings["limiter"] = str(limiter)
+    inputs = {"device": _device(device),
+              "pulse": {"fylite:time": np.asarray(t, float), "fylite:ip": np.asarray(ip, float),
+                        "fylite:target": np.asarray(tg, float).reshape(len(t), 6)}}
+    if verify:
+        inputs["pulse"]["fylite:verify"] = np.asarray(list(verify), float)
+    discharge = {}
+    if nulls:
+        discharge["fylite:null_r"] = np.asarray([p[0] for p in nulls], float)
+        discharge["fylite:null_z"] = np.asarray([p[1] for p in nulls], float)
+    if control:
+        discharge["fylite:control_r"] = np.asarray([c[0] for c in control], float)
+        discharge["fylite:control_z"] = np.asarray([c[1] for c in control], float)
+        discharge["fylite:control_w"] = np.asarray([c[2] if len(c) > 2 else 1.0 for c in control], float)
+    if i_max_aturn is not None:
+        discharge["fylite:i_max_aturn"] = np.atleast_1d(np.asarray(i_max_aturn, float))
+    if discharge:
+        inputs["discharge"] = discharge
+    prof = dict(profile or {})
+    if "psin" in prof:
+        inputs["equilibrium"] = {"time_slice": [{"profiles_1d": {
+            "fylite:psi_norm": np.asarray(prof["psin"], float),
+            "dpressure_dpsi": np.asarray(prof["dpressure_dpsi"], float),
+            "f_df_dpsi": np.asarray(prof["f_df_dpsi"], float)}}]}
+    else:
+        for k in ("beta0", "emp", "enp"):
+            if k in prof:
+                settings[k] = float(prof[k])
+    rec = fydoc.complete("code/pulse", {"settings": settings, "inputs": inputs})
+    arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    fact = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    n_ch = int(rec["dims"]["n"])
+    checks = []
+    idx = arr("check_index")
+    for j in range(idx.size):
+        checks.append({"k": int(idx[j]), "t": t[int(idx[j])], "ok": bool(arr("check_ok")[j]),
+                       "shape": dict(zip(keys, (float(v) for v in arr("check_shape")[j]))),
+                       "psi": arr("check_psi")[j],
+                       **{k: float(arr("check_" + k)[j]) for k in
+                          ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip", "residual", "iterations",
+                           "converged", "settled", "bnd_kind", "xpt_r", "xpt_z", "fb_amp", "zc")}})
+    return {"time": arr("time"), "currents": arr("aturns").reshape(len(t), n_ch),
+            "voltages": arr("voltage").reshape(len(t), n_ch),
+            "passive_currents": arr("passive_current").reshape(len(t), -1),
+            "resistance": arr("resistance"), "n_channels": n_ch,
+            "n_passive": int(fact("n_passive")),
+            "design_psi_rms": arr("design_psi_rms"), "design_b_x": arr("design_b_x"),
+            "design_at_bound": arr("design_at_bound").reshape(len(t), n_ch),
+            "checks": checks, "notes": list(rec.get("notes", []))}

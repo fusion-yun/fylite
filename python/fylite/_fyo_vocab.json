@@ -70,6 +70,18 @@
       "gated": false,
       "gloss": "The input configuration a result was produced from. Not gated: ordinary local name."
     },
+    "control_r": {
+      "gated": true,
+      "gloss": "R [m] of the isoflux control points (gap / strike rows) a shape design pins the boundary through (`code/discharge` · `code/pulse`); with `control_z` and `control_w`. Gated: the hosts hold control rows as objects, never under this name."
+    },
+    "control_w": {
+      "gated": true,
+      "gloss": "The weight of each isoflux control row relative to the boundary rows; with `control_r`. Gated: as control_r."
+    },
+    "control_z": {
+      "gated": true,
+      "gloss": "Z [m] of the isoflux control points; with `control_r`. Gated: as control_r."
+    },
     "created": {
       "gated": false,
       "gloss": "ISO-8601 timestamp the document was written. Not gated: ordinary local name."
@@ -98,6 +110,10 @@
       "gated": false,
       "gloss": "Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns. Not gated: `i_max_aturn` is also the ordinary keyword of design.breakdown and a case-recipe argument."
     },
+    "ip": {
+      "gated": false,
+      "gloss": "The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held. Not gated: `ip` is the ordinary name of the plasma current everywhere."
+    },
     "length": {
       "gated": false,
       "gloss": "Effective length [m] of a magnetic probe, the span its reading averages over. The DD has no spelling for it on `b_field_pol_probe`. Not gated: `length` is an ordinary identifier in both hosts and no spelling check could bind it."
@@ -113,6 +129,14 @@
     "name": {
       "gated": false,
       "gloss": "Human-readable name of the block it sits on — a coil, a launcher, a saved case. ★Never gatable: `name` is an ordinary key seventy times over in both hosts, which is the exact false-positive class this column exists to record."
+    },
+    "null_r": {
+      "gated": true,
+      "gloss": "R [m] of the field nulls a shape design asks for, one per null (`code/discharge` · `code/pulse`); with `null_z`. Gated: the hosts hold nulls as point objects, never under this name."
+    },
+    "null_z": {
+      "gated": true,
+      "gloss": "Z [m] of the field nulls a shape design asks for, one per null (`code/discharge` · `code/pulse`); with `null_r`. Gated: as null_r."
     },
     "orbit_loss_fraction": {
       "gated": false,
@@ -158,6 +182,14 @@
       "gated": false,
       "gloss": "Fraction of beam power that passed straight through unabsorbed. ★The browser's beam-total block wrote `shinethrough_fraction` for this until 2026-08-25 while its own per-component block and `fyo.py` wrote `shinethrough`; one quantity, two names. Not gated: it is also the deposition result's own key."
     },
+    "target": {
+      "gated": false,
+      "gloss": "The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`). Not gated: `target` is the ordinary name of the requested shape in both hosts' design bars."
+    },
+    "time": {
+      "gated": false,
+      "gloss": "The waypoint times [s] of a pulse plan (`code/pulse`), strictly increasing. Not gated: `time` is the ordinary name of that axis in both hosts."
+    },
     "trapped_fraction": {
       "gated": true,
       "gloss": "Trapped-particle fraction f_t at each surface."
@@ -165,6 +197,10 @@
     "truth": {
       "gated": false,
       "gloss": "The reference answer a synthetic case was generated from. Not gated: ordinary local name."
+    },
+    "verify": {
+      "gated": false,
+      "gloss": "Waypoint indices of a pulse plan at which the kernel re-solves the free boundary and reports the shape obtained (`code/pulse`). Not gated: `verify` is also the ordinary field name of the page's pulse message."
     },
     "weight": {
       "gated": false,
