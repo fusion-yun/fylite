@@ -187,7 +187,7 @@ chromium；装的那份是别的版本时，用 `--chrome <可执行文件>`（�
 | `validate-q.mjs` | 页面算的 q 剖面 vs EFIT g 文件自带的 q |
 | `validate-geqdsk.mjs` | g 文件读写往返，以及与 Python 侧读数一致 |
 | `validate-device.mjs` | 装置描述符的读写往返，以及坏描述符必须被拒 |
-| `validate-zerod.mjs` | 0D **参数映射**（手写十标量 vs `kernel_params()`）逐项——★原为「转写」闸，numpy 0-D 退役后改指（FYL-DESIGN-08 N-1） |
+| `validate-zerod.mjs` | 0D **参数映射**（手写十标量 vs 内核条目的参数块）逐项——★原为「转写」闸，numpy 0-D 退役后改指（FYL-DESIGN-08 N-1） |
 | `validate-zerod-app.mjs` | 0D 页面整条波形 vs 原生 |
 | `validate-pulse-sim.mjs` | 脉冲设计与交互仿真两页（浏览器）：校验片是否落在三个相位、逐通道峰值是否是有限数、**已解片 / 插值片**是否分得清（读 `data-slice`，不读散文）；仿真侧的开关相位机、**推滑块只改未来**（逐点比对发布的历史）、平衡节拍的年龄、未声明摆幅报未知、结束后不可续开 |
 | `validate-recon.mjs` | **动理学反演、自举电流与后验**：拟合是否回到自身约束（Ip、磁通环残差）· li(3) 是否确为内核那一条积分（导出的 ψ 图经 ctypes 交回 `libfylite_kernel.so` 重算）· j<sub>bs</sub> 是否确为内核 Redl-2021（导出的十条逐面输入交回 `kernel.redl_bootstrap` 重算）· NEO 两版系数是否真的不同 · 79 道探针预测是否确为解出的 ψ 按各自角投影（原生重算 1e-5，并与交付重构的 cmpr2 在加权道上对到 2.3 %）· POINT 两路的弦积分是否对原生 1e-5、且法拉第在中平面上下变号 · 后验的 mean/σ/16-50-84 % 能否由导出的成员值用 numpy 重算 · 误差棒是否确实随压强 σ 出现与消失（σ=0 宽度恰为 0；同种子同后验）。★这道也跑 **EAST**：唯一内置装置不带参考放电，没有可拟合的测量 |

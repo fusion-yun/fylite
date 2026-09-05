@@ -23,14 +23,12 @@ import numpy as np
 
 from dataclasses import dataclass, field
 
-from ... import device, kernel as K
 from . import gyrofluid as _tglf
-from ..design import _conductors, _grid_axes, _limiter
+from ... import kernel as K
 from .. import provenance
 
 __all__ = ["zerod", "transport", "coupled", "tglf",
-           "Phases", "Waveform", "Scenario", "evaluate",
-           "kernel_params", "centre_waveform"]
+           "Phases", "Waveform", "Scenario", "evaluate"]
 
 
 # --------------------------------------------------------------------------- #
@@ -63,19 +61,6 @@ class Phases:
     def bounds(self) -> tuple:
         return (self.t_breakdown, self.t_rampup_end, self.t_flattop_end,
                 self.t_end)
-
-    def label(self, t) -> str:
-        return K.zerod_phase_labels(self.bounds, [float(t)])[0]
-
-    def labels(self, t) -> list:
-        """The phase name of every sample — one call, not one per slice."""
-        return K.zerod_phase_labels(self.bounds, t)
-
-    def waveform(self, t, flattop_value, *, start_value=0.0, end_value=0.0):
-        """Trapezoid on this phase structure — the kernel's."""
-        return K.zerod_waveform(self.bounds, t, "trapezoid",
-                                      flat=flattop_value, start=start_value,
-                                      end=end_value)
 
 
 @dataclass
@@ -135,42 +120,6 @@ class Scenario:
     ic: Waveform = field(default_factory=Waveform)
     ec: Waveform = field(default_factory=Waveform)
     lh: Waveform = field(default_factory=Waveform)
-
-    @property
-    def volume(self) -> float:
-        """The ellipsoidal volume the 0-D layer integrates over [m^3].
-
-        ★Not the volume a reconstructed boundary encloses — the kernel
-        exports this convention separately so the difference stays visible
-        instead of a 0-D average quietly dividing by the wrong volume.
-        """
-        return K.zerod_volume(self.r0, self.a, self.kappa)
-
-
-def kernel_params(scn: Scenario) -> dict:
-    """The ten scalars the kernel's 0-D entries take, from a scenario."""
-    return {"ti_over_te": scn.ti_over_te, "peaking_n": scn.peaking_n,
-            "peaking_t": scn.peaking_t, "edge_frac": scn.edge_frac,
-            "r0": scn.r0, "a": scn.a, "kappa": scn.kappa, "zeff": scn.zeff,
-            "li": scn.li, "dt_fraction": scn.dt_fraction}
-
-
-def centre_waveform(scn: Scenario, t, which: str) -> np.ndarray:
-    """The on-axis waveform of ``ip`` / ``ne`` / ``te`` on the time grid.
-
-    ★★The three differ ONLY in what they start and end at, and the kernel
-    owns that difference: the current starts and ends at zero, while density
-    and temperature keep a small residual (2 % and 1 % of flattop) so the
-    ramp phases do not divide by nothing.  Those two fractions are the
-    model, not a call-site detail — left here, one caller could run a
-    discharge that reaches absolute zero density and never see why its ramp
-    went singular.
-    """
-    flat = {"ip": scn.ip_flattop, "ne": scn.ne_flattop,
-            "te": scn.te_flattop}.get(which)
-    if flat is None:
-        raise ValueError(f"unknown waveform {which!r}; have ip / ne / te")
-    return K.zerod_waveform(scn.phases.bounds, t, which, flat=flat)
 
 
 def _zerod_plan(scn: Scenario, t, n_rho: int, *, extra: dict | None = None) -> dict:
@@ -285,42 +234,6 @@ def zerod(scn: Scenario | None = None, *, time=None, n_rho: int = 41,
     return out
 
 
-def _default_source(x, power: float, width: float):
-    """Gaussian deposition ``P exp(-(x/w)^2)`` — a placeholder input.
-
-    ★Still spelled here: the kernel has no general Gaussian deposition entry
-    (``lh_shape`` / ``beam_deposit`` are the physical depositions, not this
-    placeholder).  It is a stand-in source, not a model.
-    """
-    return power * np.exp(-(x / width) ** 2)
-
-
-def _shape(x, *, centre: float, edge: float, peaking: float):
-    """``edge + (centre - edge)(1 - x²)^peaking`` — the kernel's family.
-
-    ★``centre == edge`` is flat and needs no scaling; ``centre == 0`` has no
-    ``edge_frac`` to give, so it is answered directly rather than by dividing
-    by zero.  Both are the same number the closed form gives.
-    """
-    centre, edge = float(centre), float(edge)
-    if centre == 0.0:
-        return np.full(np.asarray(x, float).shape, edge, float) \
-            if edge == 0.0 else edge * (1.0 - np.maximum(
-                1.0 - np.asarray(x, float) ** 2, 0.0) ** float(peaking))
-    return K.zerod_profile(x, centre, peaking=float(peaking),
-                           edge_frac=edge / centre)
-
-
-def _default_profile(x, edge_value: float):
-    """Parabolic start ``edge + 2(1 - x^2)`` — a placeholder initial state."""
-    return _shape(x, centre=edge_value + 2.0, edge=edge_value, peaking=1.0)
-
-
-
-
-# --------------------------------------------------------------------------- #
-# 1.5-D, fixed geometry
-# --------------------------------------------------------------------------- #
 def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
               metric=None, velocity=None, d_pc: float = 0.0,
               power: float = 4.0, width: float = 0.35,
@@ -366,20 +279,24 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
     if n < 3:
         raise ValueError("the transport grid needs at least three points")
     vp = np.maximum(x, 1e-6) * 2.0 if vprime is None else np.asarray(vprime, float)
-    src = (_default_source(x, power, width) if source is None
-           else np.asarray(source, float))
-    y = (_default_profile(x, edge_value) if y_init is None
-         else np.asarray(y_init, float).copy())
-    if y.ndim == 2:
-        #: ★a time-series profile handed in as the start (a 0-D run's `te`, (nt, nr))
-        #: means its LAST slice — the state that series ended at.  The flat
-        #: operator used to read the first n values of the flattened array, i.e.
-        #: the first slice, silently; the door refuses a wrong length, so the
-        #: choice is made here, once, and said.
-        y = y[-1].copy()
-    if y.size != n:
-        raise ValueError(f"y_init has {y.size} points, the grid {n}")
-    inputs = {"fylite:rho": x, "fylite:vprime": vp, "fylite:source": src, "fylite:y_init": y}
+    #: the source and the start are the KERNEL's defaults when not given — the
+    #: Gaussian `P exp(-(x/w)^2)` and `edge + 2 (1 - x^2)` through its own
+    #: profile family — and come back on the record
+    inputs = {"fylite:rho": x, "fylite:vprime": vp}
+    if source is not None:
+        inputs["fylite:source"] = np.asarray(source, float)
+    if y_init is not None:
+        y = np.asarray(y_init, float).copy()
+        if y.ndim == 2:
+            #: ★a time-series profile handed in as the start (a 0-D run's `te`, (nt, nr))
+            #: means its LAST slice — the state that series ended at.  The flat
+            #: operator used to read the first n values of the flattened array, i.e.
+            #: the first slice, silently; the door refuses a wrong length, so the
+            #: choice is made here, once, and said.
+            y = y[-1].copy()
+        if y.size != n:
+            raise ValueError(f"y_init has {y.size} points, the grid {n}")
+        inputs["fylite:y_init"] = y
     if metric is not None:
         inputs["fylite:metric"] = np.asarray(metric, float)
     if velocity is not None:
@@ -387,6 +304,7 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
     if chi_given is not None:
         inputs["fylite:chi_given"] = np.asarray(chi_given, float)
     settings = {"closure": str(closure), "chi0": float(chi0), "p1": float(p1), "p2": float(p2),
+                "power": float(power), "width": float(width),
                 "edge": float(edge_value), "dpc": float(d_pc), "theta": float(theta),
                 "steps": float(max(int(steps), 1)), "relax": float(relax),
                 "relax_coeff": float(relax_coeff), "tol": float(tol), "max_inner": float(max_inner)}
@@ -400,7 +318,7 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
             for i, (c, it, cv, r, ax) in enumerate(zip(arr("history_change"), arr("history_inner_iterations"),
                                                        arr("history_converged"), arr("history_residual"),
                                                        arr("history_axis")))]
-    return {"rho": x, "y": arr("y"), "vprime": vp, "source": src,
+    return {"rho": x, "y": arr("y"), "vprime": vp, "source": arr("source"),
             "steps": int(f("steps")), "settled": bool(f("settled")), "history": hist,
             "inner_iterations": int(f("inner_iterations")),
             "converged": bool(f("converged")), "residual": f("residual"),
@@ -622,95 +540,76 @@ def coupled(*, aturns: list, ip: float, beta0: float = 0.55, emp: float = 1.0,
             power: float = 4.0, width: float = 0.35, chi0: float = 1.0,
             closure: str = "constant", edge_value: float = 0.3,
             t_ref: float = 2.0, relax: float = 0.5, tol: float = 1e-3,
-            limiter=None, **solve_kw) -> dict:
-    """Self-consistent alternation: solve, trace, transport, feed back.
+            limiter: str | None = None, device=None, **solve_kw) -> dict:
+    """Self-consistent alternation — BY THE KERNEL (``code/coupled``).
 
-    Each outer iteration solves a free-boundary equilibrium, traces the
-    metric ON THE FIELD IT JUST SOLVED, advances the temperature on that
-    metric, and moves ``beta0`` toward the volume-averaged temperature the
-    transport step produced.
+    Each outer round solves a free-boundary equilibrium from the channel
+    currents, traces the metric ON THE FIELD IT JUST SOLVED, solves the
+    temperature to steady on that metric, and moves ``beta0`` toward the
+    volume-averaged temperature the transport solve produced.
 
-    ★★The feedback is the pressure AMPLITUDE only.  ``gs_free_solve`` takes
-    ``(beta0, emp, enp)``; there is no entry for an arbitrary ``p(psi)``, so
-    this loop can change how much pressure there is and not how it is
-    distributed.
+    ★★The feedback is the pressure AMPLITUDE only.  The analytic profile
+    takes ``(beta0, emp, enp)``; there is no entry for an arbitrary
+    ``p(psi)``, so this loop can change how much pressure there is and not
+    how it is distributed.
 
-    ★What is between two outer iterations has not been solved.  ``history``
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the tenth tool to sink): this was the
+    last host-side assembly that solved a free boundary itself.  The loop —
+    the solve, the trace, the steady step, the feedback — is
+    ``case.rs::coupled_case`` now; the kernel repository's
+    ``test_coupled_code.py`` holds the door to the old recipe bit for bit on
+    the EAST reference discharge.  ``solve_kw`` are the solve's own
+    ``max_iter`` · ``gs_relax`` · ``gs_tol`` · ``fb_gain``; ``limiter`` names
+    a limiter unit of the device document (default: its first).
+
+    ★What is between two outer rounds has not been solved.  ``history``
     therefore reports per round: the equilibrium's own iteration count and
-    residual, the number of surfaces that traced, the transport step's
+    residual, the number of surfaces that traced, the transport solve's
     inner iterations, and the relative change in ``beta0`` — the quantities
     that say whether the loop settled or merely stopped.
     """
-    cond = _conductors()
-    rg, zg = _grid_axes()
-    grid = K.grid_of(rg, zg)
-    lim_r, lim_z = _limiter(limiter)
-    chan = np.asarray(aturns, float)
-    rho = np.linspace(0.0, 1.0, int(n_rho))
-    src = _default_source(rho, power, width)
-    y = _default_profile(rho, edge_value)
-
-    history = []
-    b0 = float(beta0)
-    for it in range(1, int(n_outer) + 1):
-        eq = K.gs_free_solve(rg, zg,
-                             device.psi_from_channels(cond, rg, zg, chan),
-                             ip=ip, limiter_r=lim_r, limiter_z=lim_z,
-                             beta0=b0, emp=emp, enp=enp, r0=r0, **solve_kw)
-        vp_prev = None if not history else vp
-        vp, traced = _metric_on(
-            grid, eq["psi"], psi_axis=eq["psi_axis"], psi_bnd=eq["psi_bnd"],
-            axis=(eq["axis_r"], eq["axis_z"]), rho=rho,
-            limiter=(lim_r, lim_z), n_theta=n_theta)
-        #: ★What actually moves round to round is the METRIC, not the axis
-        #: temperature.  With a fixed source and a prescribed chi the axis
-        #: value barely responds (measured elsewhere: 5e-4 per round against
-        #: 1.8e-2 in V'), so a "did the loop couple?" check written on the
-        #: temperature would pass on a loop that had come unwired.
-        metric_change = (float(np.max(np.abs(vp - vp_prev))
-                               / max(np.max(np.abs(vp)), 1e-30))
-                         if vp_prev is not None else float("nan"))
-        step = K.transport_step(rho, y, vprime=vp, source=src, model=closure,
-                                p0=chi0, dt=float("inf"), theta=1.0,
-                                edge_value=edge_value)
-        y = step["y"]
-        #: the volume-weighted average is what the amplitude feedback acts
-        #: on; weighting by V' rather than by radius is what makes it a
-        #: volume average and not a shape-dependent one
-        den = float(np.sum(vp))
-        t_avg = float(np.sum(y * vp) / den) if den > 0 else float(y[0])
-        target = float(np.clip(beta0 * t_avg / max(t_ref, 1e-9), 0.05, 0.95))
-        nxt = b0 + relax * (target - b0)
-        change = abs(nxt - b0) / max(abs(b0), 1e-9)
-        b0 = nxt
-        history.append({"it": it, "beta0": b0, "change": change,
-                        "t_avg": t_avg, "axis": float(y[0]),
-                        "surfaces": traced, "metric_change": metric_change,
-                        "gs_iterations": int(eq["iterations"]),
-                        "gs_residual": float(eq["residual"]),
-                        "inner_iterations": step["inner_iterations"],
-                        "converged": step["converged"]})
-        if change < tol:
-            break
-    converged = bool(history and history[-1]["change"] < tol)
-    return {"rho": rho, "te": y, "vprime": vp, "beta0": b0,
+    from ...io import fydoc
+    from ..design import _device
+    known = {"max_iter", "gs_relax", "gs_tol", "fb_gain"}
+    bad = set(solve_kw) - known
+    if bad:
+        raise TypeError(f"coupled() got unexpected solver settings {sorted(bad)}; "
+                        f"the kernel takes {sorted(known)}")
+    settings = {"ip": float(ip), "beta0": float(beta0), "emp": float(emp), "enp": float(enp),
+                "r0": float(r0), "n_outer": float(max(1, int(n_outer))), "n_rho": float(n_rho),
+                "n_theta": float(n_theta), "power": float(power), "width": float(width),
+                "chi0": float(chi0), "closure": str(closure), "edge_value": float(edge_value),
+                "t_ref": float(t_ref), "relax": float(relax), "tol": float(tol)}
+    settings.update({k: float(v) for k, v in solve_kw.items()})
+    if limiter is not None:
+        settings["limiter"] = str(limiter)
+    rec = fydoc.complete("code/coupled", {
+        "settings": settings,
+        "inputs": {"device": _device(device),
+                   "discharge": {"fylite:channel_aturns": np.asarray(aturns, float)}}})
+    F = rec["fields"]
+    arr = lambda k: np.asarray(F[k]["data"], float)  # noqa: E731
+    fact = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    cols = {k: arr("history_" + k) for k in ("it", "beta0", "change", "t_avg", "axis", "surfaces",
+                                              "metric_change", "gs_iterations", "gs_residual",
+                                              "inner_iterations", "converged")}
+    history = [{"it": int(cols["it"][i]), "beta0": float(cols["beta0"][i]),
+                "change": float(cols["change"][i]), "t_avg": float(cols["t_avg"][i]),
+                "axis": float(cols["axis"][i]), "surfaces": int(cols["surfaces"][i]),
+                "metric_change": float(cols["metric_change"][i]),
+                "gs_iterations": int(cols["gs_iterations"][i]),
+                "gs_residual": float(cols["gs_residual"][i]),
+                "inner_iterations": int(cols["inner_iterations"][i]),
+                "converged": bool(cols["converged"][i])}
+               for i in range(cols["it"].size)]
+    converged = bool(fact("converged"))
+    return {"rho": np.asarray(F["core_profiles"]["profiles_1d"]["grid"]["rho_tor_norm"]["data"], float),
+            "te": arr("te"),
+            "vprime": np.asarray(F["equilibrium"]["time_slice"]["profiles_1d"]["dvolume_drho_tor"]["data"], float),
+            "source": arr("source"), "beta0": fact("beta0"),
             "history": history, "converged": converged,
-            "iterations": len(history),
-            #: ★★Two statements, not one, because they are two different
-            #: limits and only the first was ever written down.  The
-            #: FEEDBACK is the pressure amplitude (`gs_free_solve` takes
-            #: `beta0, emp, enp` and has no entry for an arbitrary p(psi)).
-            #: The METRIC is re-traced on each newly solved equilibrium
-            #: and each round is then solved to STEADY (`dt = inf`), so
-            #: there is no time term for a moving metric to appear in:
-            #: `dV'/dt` is not unwired here, it is not defined here.  This
-            #: alternation is a sequence of steady solves on successive
-            #: metrics, and what it converges to is a fixed point of that
-            #: sequence — not a discharge evolved through it.  ★The
-            #: time-marching path IS where the volume change lives, and it
-            #: carries it: `closure.loop_transport` hands the previous
-            #: round's V' to `assembly.solve_core`.  A reader who sees only
-            #: "converged" is entitled to know which equation converged.
+            "iterations": int(fact("iterations")),
+            "notes": list(rec.get("notes", [])),
             "provenance": provenance("coupled", closure=closure,
                                      converged=converged,
                                      feedback="pressure amplitude only",
@@ -718,60 +617,6 @@ def coupled(*, aturns: list, ip: float, beta0: float = 0.55, emp: float = 1.0,
                                             "each round solved to steady, so "
                                             "no time term and no dV'/dt "
                                             "here")}
-
-
-def _metric_on(grid: K.Grid, psi, *, psi_axis: float, psi_bnd: float,
-               axis, rho, limiter, n_theta: int):
-    """``dV/drho`` from the solved field, by tracing each surface.
-
-    ★The metric is white-glove cheap next to the equilibrium — tracing
-    twenty surfaces costs about 1 % of one Grad-Shafranov solve — which is
-    what closed the question of whether the loop needed a cheaper metric.
-    ``N_outer x one GS`` is the whole cost.
-
-    ★★It used to take the raw solve dict and read ``eq["psi_bnd"]``,
-    ``eq["axis_r"]`` and three more — :data:`fylite.kernel.FREE_SOLVE_KEYS`,
-    the kernel's ABI return names, spelled inside the model layer.  That was
-    a FOURTH vocabulary in here beside the NEO deck, TGYRO's CGS and TGLF's
-    deck, and the one hardest to see: those names are neither a file format
-    nor a standard, so no gate looking for either could find them.
-
-    They stop at the kernel boundary now — :func:`coupled` unpacks the solve
-    once and passes quantities.  A free-boundary solve cannot become an
-    ``fyo:equilibrium`` on the way (it has no 1-D profiles and no boundary
-    outline, only the four scalars and the map), so passing them by name is
-    the honest form; inventing a half-document would be worse than the ABI
-    keys were.
-
-    ★And there is a live reason to keep the spellings from travelling: the
-    kernel says ``psi_bnd``, ``recon_rs.reconstruct``'s result says
-    ``psi_bry`` and the DD says ``psi_boundary`` — three spellings of one
-    quantity already, and each new consumer that reads one by name picks a
-    side.
-    """
-    n = len(rho)
-    vp = np.zeros(n)
-    traced = 0
-    span = psi_bnd - psi_axis
-    for k in range(1, n):
-        x = float(rho[k]) * 0.98
-        try:
-            tr = K.trace_surface(grid, psi, psi_axis + span * x,
-                                 axis=axis,
-                                 limiter=limiter, n_theta=n_theta)
-        except K.KernelError:
-            vp[k] = np.nan
-            continue
-        #: dV/dpsi -> dV/drho by the chain rule on the prescribed x(rho)
-        vp[k] = abs(tr["dv_dpsi"] * span * 0.98)
-        if tr["n"] > 8:
-            traced += 1
-    #: the axis is SET, not asked: the surface degenerates there
-    vp[0] = 0.0
-    for k in range(1, n):
-        if not np.isfinite(vp[k]):
-            vp[k] = vp[k - 1] if k > 1 else 0.0
-    return vp, traced
 
 
 # --------------------------------------------------------------------------- #

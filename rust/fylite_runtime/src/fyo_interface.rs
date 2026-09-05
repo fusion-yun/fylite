@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "1a4dfce05f99bdc4";
+pub const DIGEST: &str = "195f1dbd0c9eb058";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -236,6 +236,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "pulse", shape: "", units: "assembled", gloss: "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints" },
         Row { key: "reconstruction", shape: "", units: "assembled", gloss: "one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit" },
         Row { key: "interpretive", shape: "", units: "assembled", gloss: "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account" },
+        Row { key: "coupled", shape: "", units: "assembled", gloss: "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

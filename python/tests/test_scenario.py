@@ -430,13 +430,13 @@ def test_no_scenario_module_reads_a_gfile_key():
     #: Neither a file format nor a standard, so neither this rule's original
     #: list nor ``test_deck_names_have_one_source`` could see them — and they
     #: had quietly become a FOURTH vocabulary in this layer, beside the NEO
-    #: deck, TGYRO's CGS and TGLF's deck.  ``_metric_on`` read five.
+    #: deck, TGYRO's CGS and TGLF's deck.  the coupled loop's metric read five.
     #:
     #: ★These are allowed AT the kernel boundary and nowhere else: a function
     #: that calls the kernel must unpack what it returns, and forbidding that
     #: would just push the same names one frame out.  What the rule forbids is
     #: the names TRAVELLING — being read in a function that did not make the
-    #: call, which is how `_metric_on` came to spell them.
+    #: call, which is how the coupled loop came to spell them.
     #:
     #: ★``psi_bnd`` earns its place twice over: the kernel spells it that way,
     #: ``reconstruct``'s result says ``psi_bry``, the DD says
@@ -447,7 +447,7 @@ def test_no_scenario_module_reads_a_gfile_key():
 
     #: ★The exemption is for the functions that CALL A SOLVE — the entries
     #: that return these keys — not for any function that touches the kernel.
-    #: The looser rule was tried and it let `_metric_on` keep reading
+    #: The looser rule was tried and it let the coupled loop keep reading
     #: `psi_bnd`: that function calls `K.trace_surface`, so "calls the kernel"
     #: was true of the very code this rule was written for.  You may unpack
     #: what you solved for; you may not unpack what someone else solved.

@@ -419,26 +419,6 @@ def feasible(*, axis1: dict, axis2: dict, r0: float, z0: float = 0.0,
 # --------------------------------------------------------------------------- #
 # assembly helpers
 # --------------------------------------------------------------------------- #
-def _grid_axes():
-    """The computational box, from the document that defines it.
-
-    ★No longer read by this line: ``code/discharge`` takes the box off the
-    device document inside the kernel (``case.rs::device_box``).  It stays
-    for ``scenario.model.coupled``, the last host-side assembly that solves a
-    free boundary itself — and goes the day that one sinks.
-    """
-    box = _device_mod.grid_box()
-    return box["rgrid"], box["zgrid"]
-
-
-def _limiter(limiter):
-    """The wall contour — see :func:`_grid_axes` for why this is still here."""
-    if limiter is not None:
-        return np.asarray(limiter[0], float), np.asarray(limiter[1], float)
-    return (np.asarray(_device_mod.XLIM, float),
-            np.asarray(_device_mod.YLIM, float))
-
-
 #: ★``_summary`` used to live here too — the solve's twelve numbers were this
 #: host's to fold.  They are the kernel's record now.
 

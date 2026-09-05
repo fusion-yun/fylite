@@ -22,12 +22,12 @@
 // is still two things.
 //
 // ★That layer is the PARAMETER MAP.  Below, the ten scalars are written out by
-// hand in the order the ABI documents; `zerod.evaluate` builds them from a
-// `Scenario` dataclass through `kernel_params()`.  A field read into the wrong
+// hand in the order the ABI documents; the Python face used to build them from a
+// `Scenario` dataclass through a `kernel_params()` helper (gone with the door, 2026-09-05).  A field read into the wrong
 // slot — peaking_n where peaking_t belongs, li where zeff does — produces a
 // perfectly smooth discharge of a different plasma, and nothing else in the
 // suite would notice.  That is what these cases now pin, and it is why the
-// hand-written vector must NOT be replaced by a call to `kernel_params()`:
+// hand-written vector must NOT be replaced by a call into the package:
 // the moment the two sides build the vector the same way, this gate stops
 // testing anything.
 //
