@@ -36,8 +36,21 @@ crate-type = ["cdylib", "rlib"]
 # 布局逐字兼容才是目标，所以链真的库。`static` 把它们一起从源码编进 `.so`
 # （发行给没装库的机器）；缺省动态链接系统库（`apt install libhdf5-dev libnetcdf-dev`）。
 # wasm 构建 `--no-default-features`：那边只有 g-file 与 JSON 两种格式。
-default = ["mdsip", "hdf5", "netcdf"]
+#: ★★`abi_full` 是**除装置信息之外**的那一整片 C 导出（g-file · 文档树 · 打包 ·
+#: 读文本）。原生的 `.so` 与可执行文件都要它，所以它在缺省里；分出来是为了能编出
+#: 一份**只带装置信息**的 wasm——见 `abi_full` 那条注记与 `rust/build.sh` 的第二次
+#: wasm 构建。
+default = ["mdsip", "hdf5", "netcdf", "abi_full"]
 mdsip = []
+#: ★★整片非装置的 C 导出。为什么要能关掉它：wasm 上每一个 `#[no_mangle]` 都是链接
+#: 的**根**，于是导出面决定了产物大小——带全套导出的中间层 wasm 实测 2.14 MB，而页面
+#: 今天从它那里只读装置信息（`app/assets/factsdb.js` 用的是 alloc / free / facts_* 五个）。
+#: 关掉之后，死代码消除把 JSON / YAML / g-file / 文档树 / IDS 结构表全部剪掉，同一份源码
+#: 编出 0.43 MB —— 小到可以进 service worker 的预缓存，于是**静态站点离线也有装置数据**
+#: （2026-09-05：此前那 2.14 MB 按裁定不进预缓存，断网就没有机器可选）。
+#: ★注意这不是第二份实现：装置那扇门（`facts.rs` 与 `c_api.rs` 的三个导出）两份产物
+#: 用的是同一段代码，差别只在**还导出了什么**。
+abi_full = []
 hdf5 = ["dep:hdf5"]
 netcdf = ["dep:netcdf", "hdf5"]
 #: ★`hdf5/zlib` rides along: the IMAS HDF5 backend layout writes every chunked

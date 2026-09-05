@@ -12,8 +12,16 @@
 // 是物理核（私有仓），这一份是中间层（本仓 `rust/fylite_runtime/`）。它零导入
 // （`FYL-DESIGN-16` H-5），所以实例化不需要任何宿主函数。
 //
-// ★★**惰性**：只有真要读装置时才取这份 wasm。装置面板不是首屏必需的东西，而这份
-// wasm 比那份 JSON 大——把它放进启动路径，等于让每个只想看一眼首页的读者付这笔钱。
+// ★★取的是 **`fylite_facts.wasm`（0.43 MB），不是 `fylite_runtime.wasm`（2.14 MB）**
+// （2026-09-05）。两者同一份源码、同一段装置门代码，差别只在还导出了什么——wasm 上
+// 每个导出都是链接的根，所以带全套 C 导出的那一份把 JSON / YAML / g-file / 文档树 /
+// IDS 结构表全留着，而页面从中间层只读装置信息。小的那一份**进得了 service worker 的
+// 预缓存**，于是断网时站点仍然列得出机器；2.14 MB 那一份按裁定不进预缓存，实测断网
+// 之后装置面板一台也没有。
+//
+// ★★**惰性**：只有真要读装置时才取这份 wasm。装置面板不是首屏必需的东西——首页
+// 不列机器。★但它**进预缓存**（0.43 MB，`tools/make-sw.mjs`）：惰性说的是「什么时候
+// 取」，预缓存说的是「离线时取不取得到」，两件事。
 //
 // 取字符串的写法与库里其余导出一致：`cap = 0` 先问长度，再给足缓冲问第二次。
 // 输入串也要落进库的线性内存（wasm 上宿主与库不共享地址空间），所以有 alloc/free。
@@ -96,7 +104,7 @@
   function load(url) {
     if (inst) return Promise.resolve(inst);
     if (pending) return pending;
-    var u = versioned(url ? url : ROOT + 'assets/fylite_runtime.wasm');
+    var u = versioned(url ? url : ROOT + 'assets/fylite_facts.wasm');
     pending = fetch(u)
       .then(function (r) {
         if (!r.ok) throw new Error('fetch ' + u + ': HTTP ' + r.status);

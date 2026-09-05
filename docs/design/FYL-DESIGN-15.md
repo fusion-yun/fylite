@@ -193,7 +193,7 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 | 形态 | 命令 | 产物 | 门禁 |
 | :--- | :--- | :--- | :--- |
 | 单一可执行文件 | `bash tools/build-app-exe.sh --mode cli\|web\|full [linux\|windows\|both]` | `rust/fylite_runtime/target/release/fy`、`…/x86_64-pc-windows-{gnu,msvc}/release/fy.exe`。**内嵌树里一份 wasm 也没有**（2026-09-05）：装置信息与算力都是本进程的 | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；`validate-kernel-api.mjs`（两条算力路逐位比对）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
-| 静态网页 | `bash tools/build-site.sh [--internal\|--public] [输出目录]` | `dist/site/`：`app/` 发布子集 + 三个 wasm（装置描述与算力都在 wasm 里，不另发文件） | 脚本自检：三个 wasm 在、无 `tests/`、无悬空符号链接；`validate-site.mjs` |
+| 静态网页 | `bash tools/build-site.sh [--internal\|--public] [输出目录]` | `dist/site/`（实测 10 MB）：`app/` 发布子集 + 三个 wasm——两个内核（算力）加 `fylite_facts.wasm`（装置信息，0.43 MB，**进预缓存**）。中间层的全套 `fylite_runtime.wasm` 暂不发：页面没有读者 | 脚本自检：三个 wasm 在、全套那一份**不在**、无 `tests/`、无悬空符号链接；`validate-site.mjs` · `validate-offline.mjs`（断网后逃逸请求为 0） |
 | 动态网页 | `fy [--port N] [--mdsip HOST:PORT] …`（= `fy app …`） | 运行中的进程 | `app/tests/validate-app-mdsip.mjs --exe <fy>` |
 | Python 包 | `bash rust/build.sh --exe`（中间层 `.so`；`fy` 留在 `target/release/`，**不进轮**；`--cli` 已撤，给它会被按名拒绝并指向 `--exe`）→ 内核仓 `rust/build.sh`（内核 `.so`、生成物）→ `bash tools/build-wheel.sh` | `python/dist/fylite-<ver>-py3-none-manylinux_x_y_x86_64.whl` | `test_bundled_artifacts.py`（ABI 一致、制品不入库）；`test_cli_spec.py` |
 :::
