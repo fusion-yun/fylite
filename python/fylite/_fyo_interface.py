@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '4d97a3ce688ed247'
+DIGEST = 'b86954802dfb5e44'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -182,6 +182,17 @@ TABLES = {
             'fpol': {"path": 'time_slice/profiles_1d/f', "units": 'T.m', "rank": '1d'},
         },
     },
+    'LH_ANTENNAS': {
+        "type": 'fyo:lh_antennas',
+        "slots": {
+            'name': {"path": 'antenna/name', "units": '', "rank": '0d'},
+            'frequency': {"path": 'antenna/frequency', "units": 'Hz', "rank": '0d'},
+            'power_launched': {"path": 'antenna/power_launched/data', "units": 'W', "rank": '0d'},
+            'power_reflected': {"path": 'antenna/power_reflected/data', "units": 'W', "rank": '0d'},
+            'n_parallel_min': {"path": 'antenna/fylite:n_parallel_min', "units": '1', "rank": '0d'},
+            'n_parallel_max': {"path": 'antenna/fylite:n_parallel_max', "units": '1', "rank": '0d'},
+        },
+    },
     'MAGNETICS': {
         "type": 'fyo:magnetics',
         "slots": {
@@ -288,6 +299,7 @@ BLOCKS = {
         {'key': 'interpretive', 'shape': '', 'units': 'assembled', 'gloss': "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account"},
         {'key': 'coupled', 'shape': '', 'units': 'assembled', 'gloss': "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature"},
         {'key': 'beam', 'shape': '', 'units': 'assembled', 'gloss': "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units"},
+        {'key': 'wave', 'shape': '', 'units': 'assembled', 'gloss': "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
@@ -535,4 +547,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']

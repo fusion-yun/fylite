@@ -6114,143 +6114,88 @@ function evOutsideLadder(field, edges, pDep, edgePsin) {
  * lands.
  */
 function evLhDeposit(field, geo, st, sp) {
-  var nsh = Math.max(4, sp.lhShells | 0), i;
-  var edges = new Float64Array(nsh + 1), psinC = new Float64Array(nsh);
-  for (i = 0; i <= nsh; i++) edges[i] = i / nsh;
-  for (i = 0; i < nsh; i++) psinC[i] = 0.5 * (edges[i] + edges[i + 1]);
-
+  var nsh = Math.max(4, sp.lhShells | 0), i, k;
   var span = field.psiBnd - field.psiAxis;
   if (!isFinite(span) || span === 0)
     throw new Error(FyI18n.t('e.err.lh_nopsi'));
-  var ng = field.nr * field.nz, psin2d = new Float64Array(ng);
-  for (i = 0; i < ng; i++) psin2d[i] = (field.psi[i] - field.psiAxis) / span;
-
-  var table = fy.shellTable({
-    r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
-    nr: field.nr, nz: field.nz, psin2d: psin2d,
-    axisR: field.axisR, axisZ: field.axisZ,
-    limR: field.limR, limZ: field.limZ, levels: edges, nTheta: 181 });
-  var dvol = new Float64Array(nsh);
-  for (i = 0; i < nsh; i++) dvol[i] = Math.max(table.dvolume[i], 1e-9);
-  var rmajC = fy.interp(psinC, edges, table.rmajor);
-
-  //: ★the three profiles the wave is read against, held flat from the
-  //: ladder's last SOLVED node out to psi_N = 1 — the same rule the beam
-  //: uses, and for the same reason: extrapolating a gradient into the
-  //: region this bar does not model would invent the pedestal it is missing
-  //: and the wave would resonate in it.
-  var np0 = geo.psin.length, hold = geo.psin[np0 - 1] < 1 - 1e-9;
-  var nprof = hold ? np0 + 1 : np0;
-  var psinProf = new Float64Array(nprof), neP = new Float64Array(nprof),
-      teP = new Float64Array(nprof), fP = new Float64Array(nprof);
-  for (i = 0; i < np0; i++) {
-    psinProf[i] = geo.psin[i];
-    neP[i] = Math.max(st.ne[i], 1e16);
-    teP[i] = Math.max(st.te[i], 1);
-    fP[i] = Math.abs(geo.fpol[i]);
-  }
-  if (hold) {
-    psinProf[np0] = 1;
-    neP[np0] = neP[np0 - 1]; teP[np0] = teP[np0 - 1]; fP[np0] = fP[np0 - 1];
-  }
-  var neC = fy.interp(psinC, psinProf, neP);
-  var teC = fy.interp(psinC, psinProf, teP);
-  var fC = fy.interp(psinC, psinProf, fP);
-
-  //: ★the launchers.  A system with no ABSORBED power is DROPPED rather
-  //: than carried as a zero — the same rule `lh.east_launchers` applies to a
-  //: shot that ran only one of EAST's two systems — so the second row is
-  //: switched off by setting its power to zero and nothing else changes.
-  var launched = [[sp.lhNpar1Lo, sp.lhNpar1Hi], [sp.lhNpar2Lo, sp.lhNpar2Hi]];
-  var powers = [sp.lhPower1, sp.lhPower2];
-  //: ★the launcher names come from the DEVICE (T-M15); the two literals
-  //: remain only as the fallback for a session file written before they
-  //: travelled with the run
-  var names = (sp.lhNames && sp.lhNames.length) ? sp.lhNames
-                                               : ['LH1', 'LH2'];
   if (!(sp.lhUpLo > 0) || !(sp.lhUpHi >= sp.lhUpLo))
     throw new Error(FyI18n.t('e.err.lh_upshift'));
-  var bands = [], pw = [], tags = [], raw = [];
+  var launched = [[sp.lhNpar1Lo, sp.lhNpar1Hi], [sp.lhNpar2Lo, sp.lhNpar2Hi]];
+  var powers = [sp.lhPower1, sp.lhPower2];
+  var names = (sp.lhNames && sp.lhNames.length) ? sp.lhNames : ['LH1', 'LH2'];
+  var antennas = [], raw = [];
   for (i = 0; i < 2; i++) {
     if (!(powers[i] > 0)) continue;
     var lo = launched[i][0], hi = launched[i][1];
     if (!(lo > 0) || !(hi >= lo)) throw new Error(FyI18n.t('e.err.lh_band'));
-    //: ★`_effective_band`: the launched band scaled by the up-shift.  A
-    //: RANGE widens it, so both the deposition width and sigma_j grow with
-    //: the up-shift's own uncertainty instead of ignoring it.
-    bands.push([lo * sp.lhUpLo, hi * sp.lhUpHi]);
+    antennas.push({ name: names[i], frequency: 0,
+                    power_launched: { data: powers[i] }, power_reflected: { data: 0 },
+                    'fylite:n_parallel_min': lo, 'fylite:n_parallel_max': hi });
     raw.push([lo, hi]);
-    pw.push(powers[i]);
-    tags.push(names[i]);
   }
-  if (!bands.length) throw new Error(FyI18n.t('e.err.lh_nopower'));
-
-  var dep = fy.lhDeposit({
-    psin: psinC, dvol: dvol, rmaj: rmajC, ne: neC, te: teC, fPol: fC,
-    bands: bands, powers: Float64Array.from(pw),
-    etaCd: sp.lhEtaCd, r0: Math.abs(geo.r0) || 1, xi: sp.lhXi,
-    widthFloor: sp.lhWidthFloor, cdModel: 'fisch' });
-
-  //: dS = dV/(2 pi R) — the kernel's, and the weight that turns a current
-  //: density into an ampere
-  var areaW = fy.shellArea({ dvol: dvol, rmaj: rmajC }).area;
-  //: ★the LOCAL current-drive weight, reported as ITSELF.  It is the shape
-  //: that decides where inside the damping layer the current sits, and it
-  //: is a different statement from "the wave can get there" — so the two
-  //: are two rows and never a product.
-  var cdWeight = fy.lhEfficiency({ ne: neC, te: teC, model: 'fisch' });
-
-  //: ★accessibility, per launcher, as a VOLUME fraction: the surfaces where
-  //: the band's upper end clears the local limit.  `lh_deposit` applies this
-  //: gate internally to the shape; what is computed here is only how much of
-  //: the plasma it left reachable, which is the number a reader needs when
-  //: the profile surprises them.
-  var per = [], k;
-  var vTot = fy.shellSum(evFill(nsh, 1), dvol);
-  for (k = 0; k < bands.length; k++) {
-    var reach = new Float64Array(nsh);
-    for (i = 0; i < nsh; i++) reach[i] = bands[k][1] >= dep.nAcc[i] ? 1 : 0;
-    //: ★one point, because `t_resonant` is a property of n_par and xi
-    //: alone — the same call `lh.resonant_te_ev` makes, with the same
-    //: throw-away density and field.  Asking for it per shell would look
-    //: like a profile and be a constant.
-    var one = new Float64Array([1e19]), oneB = new Float64Array([2]);
-    var accLo = fy.lhAccessibility({ ne: one, bTot: oneB,
-                                     nParallel: bands[k][0], xi: sp.lhXi });
-    var accHi = fy.lhAccessibility({ ne: one, bTot: oneB,
-                                     nParallel: bands[k][1], xi: sp.lhXi });
-    per.push({
-      name: tags[k], power: pw[k], band: raw[k], bandEffective: bands[k],
-      iLh: dep.iLau[k],
-      //: NaN travels as null: "this band end resonates nowhere in this
-      //: plasma" is a result, and a zero would read as "at the axis"
-      resLo: isFinite(dep.resLo[k]) ? dep.resLo[k] : null,
-      resHi: isFinite(dep.resHi[k]) ? dep.resHi[k] : null,
-      //: ★the resonant TEMPERATURE of each band end — `lh_deposit` does not
-      //: return it, and without it "nothing resonated" cannot be told from
-      //: "nothing was reachable"
-      tResLo: accLo.tResonant, tResHi: accHi.tResonant,
-      reachFraction: vTot > 0 ? fy.shellSum(reach, dvol) / vTot : 0 });
+  if (!antennas.length) throw new Error(FyI18n.t('e.err.lh_nopower'));
+  //: ★★the assembly is `case.rs::wave_case` (FYL-DESIGN-16 K-3, 2026-09-05):
+  //: the shell table on the psi map, the profiles and |F| at the shell
+  //: centres, the bands scaled by the up-shift, one `lh_deposit`, the
+  //: per-launcher resonance diagnostics — ONE recipe for this page and for
+  //: `fylite.scenario.model.lh.deposit` (`test_wave_code.py` in the kernel
+  //: repository holds it to the old flat assembly bit for bit).  What stays
+  //: here is the PLAN: the field as an `fyo:equilibrium` document (F on the
+  //: ladder's own psi_N, which the case reads beside it), the state as
+  //: `core_profiles`, the launchers as the DD's `lh_antennas` antennas.
+  var rg = new Array(field.nr), zg = new Array(field.nz);
+  for (i = 0; i < field.nr; i++) rg[i] = field.r0 + field.dr * i;
+  for (i = 0; i < field.nz; i++) zg[i] = field.z0 + field.dz * i;
+  var np0 = geo.psin.length, fAbs = new Array(np0), neP = new Array(np0), teP = new Array(np0);
+  for (i = 0; i < np0; i++) {
+    fAbs[i] = Math.abs(geo.fpol[i]);
+    neP[i] = Math.max(st.ne[i], 1e16);
+    teP[i] = Math.max(st.te[i], 1);
   }
-
-  var teMax = 0;
-  for (i = 0; i < nsh; i++) teMax = Math.max(teMax, teC[i]);
+  var eqDoc = {
+    vacuum_toroidal_field: { r0: Math.abs(geo.r0) || 1, b0: Math.abs(geo.b0) || 1 },
+    time_slice: {
+      global_quantities: { magnetic_axis: { r: field.axisR, z: field.axisZ },
+                           psi_axis: field.psiAxis, psi_boundary: field.psiBnd },
+      profiles_1d: { f: fAbs, 'fylite:psi_norm': Array.from(geo.psin) },
+      profiles_2d: { grid: { dim1: rg, dim2: zg }, psi: Array.from(field.psi) } },
+    'fylite:limiter': { r: Array.from(field.limR), z: Array.from(field.limZ) } };
+  var cp = { profiles_1d: { grid: { 'fylite:psi_norm': Array.from(geo.psin) },
+                            electrons: { density: neP, temperature: teP } } };
+  var settings = { eta_cd: sp.lhEtaCd, xi: sp.lhXi, upshift_min: sp.lhUpLo, upshift_max: sp.lhUpHi,
+                   n_shells: nsh, width_floor: sp.lhWidthFloor, cd_model: 'fisch', n_theta: 181 };
+  var rec = fy.complete('code/wave', { settings: settings,
+                                       inputs: { equilibrium: eqDoc, core_profiles: cp,
+                                                 lh_antennas: { antenna: antennas } } });
+  var F = function (k) { return fieldFlat(rec, k); };
+  var X = function (k) { return rec.facts[k].value; };
+  var src = rec.fields.core_sources.source['0'].profiles_1d;
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var nl = rec.dims.n_launchers | 0;
+  var lP = F('launcher_power'), lCur = F('launcher_current'),
+      lElo = F('launcher_band_min'), lEhi = F('launcher_band_max'),
+      lRlo = F('launcher_res_min'), lRhi = F('launcher_res_max'),
+      lTlo = F('launcher_t_res_min'), lThi = F('launcher_t_res_max'),
+      lReach = F('launcher_reach_fraction');
+  var per = [], pw = [];
+  for (k = 0; k < nl; k++) {
+    pw.push(lP[k]);
+    per.push({ name: antennas[k].name, power: lP[k], band: raw[k], bandEffective: [lElo[k], lEhi[k]],
+               iLh: lCur[k],
+               resLo: isFinite(lRlo[k]) ? lRlo[k] : null, resHi: isFinite(lRhi[k]) ? lRhi[k] : null,
+               tResLo: lTlo[k], tResHi: lThi[k], reachFraction: lReach[k] });
+  }
+  var bands = per.map(function (r) { return r.bandEffective; });
   return {
-    psin: psinC, edges: edges, dvolume: dvol, area: areaW, rmajor: rmajC,
-    ne: neC, te: teC, fPol: fC, nAcc: dep.nAcc, cdWeight: cdWeight,
-    pDep: dep.pDep, jLh: dep.jLh, sigmaJ: dep.sigmaJ,
-    //: ★the three numbers stay APART: what the launchers absorbed, what the
-    //: shells say was deposited, and what was driven.  A launcher whose band
-    //: resonates nowhere deposits NOTHING, so the two powers differ by
-    //: exactly the systems that found no resonant surface — which is a
-    //: statement worth being able to read off the page.
-    pLaunched: pw.reduce(function (a, b) { return a + b; }, 0),
-    pDeposited: fy.shellSum(dep.pDep, dvol),
-    iLh: dep.iLh, iLhShell: fy.shellSum(dep.jLh, areaW),
-    neBar: dep.neBar, teMax: teMax,
-    deposited: per.some(function (r) { return r.resLo !== null
-                                              || r.resHi !== null; }),
-    launchers: per,
+    psin: flat(src.grid['fylite:psi_norm']), edges: F('psin_edges'), dvolume: F('dvolume'),
+    area: F('area'), rmajor: F('rmajor'),
+    ne: F('ne'), te: F('te'), fPol: F('f_pol'), nAcc: F('n_acc'), cdWeight: F('cd_weight'),
+    pDep: flat(src.electrons.energy), jLh: flat(src.j_parallel), sigmaJ: F('sigma_j'),
+    pLaunched: X('p_absorbed'), pDeposited: X('p_deposited'),
+    iLh: X('i_lh'), iLhShell: X('i_lh_shell'),
+    neBar: X('ne_bar'), teMax: X('te_max'),
+    deposited: !!X('resonated'),
+    launchers: per, bands: bands,
     inputs: { r0: geo.r0, etaCd: sp.lhEtaCd, xi: sp.lhXi,
               widthFloor: sp.lhWidthFloor, cdModel: 'fisch',
               upshift: [sp.lhUpLo, sp.lhUpHi], nShells: nsh },

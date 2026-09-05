@@ -303,54 +303,6 @@ def effective_slowing_time(tau_s, e_beam, e_crit, *, mass=2.0) -> np.ndarray:
 # --------------------------------------------------------------------------- #
 # Flux-surface table + chord geometry
 # --------------------------------------------------------------------------- #
-def _surface_table(doc: dict, psin_edges) -> dict:
-    """Shell volumes and mid-shell geometry for a ψ_N edge grid — the
-    kernel's (:func:`fylite.kernel.shell_table`).
-
-    Volumes are the Green's-theorem integral over the traced surface — exact
-    per straight edge for a surface of revolution — so the deposited power
-    density is a true W/m³ and not a shape, and the shells are the same
-    outlines the transport metrics integrate over.
-
-    ★The tracing loop, the ``V(0) = 0`` convention and the per-quantity gap
-    repair moved with it.  That move FIXED a crash: a level whose outline is
-    long but degenerate (ψ_N = 0 on ``g137985.04000``) made the shape metric
-    RAISE here, where the surrounding code was written to treat a failed
-    level as a gap — so the beam and wave models could not run at all on that
-    reconstruction.
-
-    The table also carries ``grid`` / ``psin2d`` (kernel order) / ``r_edge``:
-    a beam samples against this table.
-    """
-    from ... import fyo, kernel
-    try:
-        grid, psin2d, _ = fyo.flux_map_of(doc)
-    except ValueError as exc:
-        raise BeamError(f"nbi: {exc}") from exc
-    try:
-        #: ★the document stores psi[R, Z] — the kernel's order — so the
-        #: transpose this call used to perform (with its own ★comment, the
-        #: third copy of it in the package) is gone with the g-file
-        out = kernel.shell_table(
-            grid, psin2d, axis=fyo.axis_of(doc),
-            #: as the document has it, empty included — what an empty
-            #: limiter means is the kernel's rule (`surfaces::trace`: the grid)
-            limiter=fyo.limiter_of(doc),
-            levels=np.asarray(psin_edges, float))
-    except kernel.KernelError as e:
-        raise BeamError("nbi: no flux surface could be contoured") from e
-    #: ★kept in the KERNEL's order, psin2d[R, Z]: the one reader is
-    #: `_deposit_one`, which hands it straight back to the kernel.  It used
-    #: to be stored [z, r] and transposed twice — out of the g-file and
-    #: back in for the kernel — each with its own comment.
-    out.update(grid=grid, psin2d=psin2d,
-               r_edge=float(grid.r0 + grid.dr * (grid.nr - 1)))
-    return out
-
-
-# --------------------------------------------------------------------------- #
-# Deposition
-# --------------------------------------------------------------------------- #
 def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
             n_shells: int = 24, stopping_model: str = "janev",
             n_samples: int = 601, n_width_r: int = 3, n_width_z: int = 3,

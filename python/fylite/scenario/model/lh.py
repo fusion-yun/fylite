@@ -51,7 +51,6 @@ from dataclasses import dataclass
 import numpy as np
 
 from ... import kernel
-from .nbi import _surface_table
 
 #: Electron rest energy in eV.
 #:
@@ -186,7 +185,8 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
             upshift=1.0, n_shells: int = 24,
             width_floor: float = 0.05,
             cd_model: str = "fisch") -> dict | None:
-    """LH power deposition and driven current on a ψ_N grid.
+    """LH power deposition and driven current on a ψ_N grid — BY THE KERNEL
+    (``code/wave``).
 
     ``eq`` an ``fyo:equilibrium`` document (or a g-file at the door); ``ne``
     (m⁻³) / ``te`` (eV) on ``psin_prof``;
@@ -199,40 +199,33 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
     resonant surface and deposits nothing.  Real LHCD damps after multi-pass
     propagation up-shifts ``n_∥``; passing a factor (or a ``(min, max)`` range,
     which *widens* the effective band and therefore ``sigma_j``) states that
-    assumption explicitly instead of burying it.  A range is the honest form: the
-    up-shift factor is itself poorly known, and it dominates the deposition
-    location — the very reason K-20 requires this term to enter a fit softly.
+    assumption explicitly instead of burying it.
 
     ``eta_cd`` is the current-drive figure of merit ``n̄_e R₀ I_LH / P_abs`` in
     **A W⁻¹ m⁻²** — required, not defaulted: it is the calibrated coefficient of
     this model (EAST LHCD values are of order ``1e19``; the ledger tracks it as
     ``[TBD]`` pending a shot-matched calibration).  ``xi`` is the Landau
-    resonance multiple ``v_∥/v_th,e``.
+    resonance multiple ``v_∥/v_th,e``.  ``cd_model`` names the local
+    current-drive weighting the kernel applies inside the resonant layer
+    (``"fisch"`` = ``T_e/n_e``, the only one so far).
 
-    ``cd_model`` names the local current-drive weighting the kernel applies
-    inside the resonant layer (``"fisch"`` = ``T_e/n_e``, the default and
-    the only one so far).  ★It is an argument rather than a line of
-    arithmetic here because it is the one place in this chain where a
-    different CD model changes the answer.
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the twelfth tool to sink): the whole
+    assembly — the shell table, the profiles and |F| at the shell centres, the
+    bands scaled by the up-shift, the one ``lh_deposit`` and the per-launcher
+    resonance diagnostics — is ``case.rs::wave_case`` now, one recipe for this
+    face and for the page; the kernel repository's ``test_wave_code.py`` holds
+    the door to the old recipe bit for bit.  What stays here is the plan: the
+    launchers as the DD's ``lh_antennas`` antennas (the absorbed power as
+    ``power_launched - power_reflected``, the band namespaced).
 
-    Returns ``None`` when no launcher deposits (no absorbed power, or no
-    accessible resonant surface) — a result, not a failure.  Otherwise a dict on
-    the shell-centre grid ``psin``:
-
-    ``j_lh`` / ``sigma_j``
-        driven current density (A/m²) and its per-surface uncertainty, the latter
-        the spread between the two ends of each launcher's ``n_∥`` band.
-    ``p_dep``
-        absorbed power density (W/m³).
-    ``i_lh`` / ``p_absorbed``
-        driven current (A) and absorbed power (W), integrated over the plasma.
-    ``n_parallel_accessible`` / ``resonance``
-        the accessibility limit per surface and, per launcher, where the band
-        resonates — the two things to look at when the profile surprises you.
-    ``per_launcher``
-        the same summary per system, for attribution.
+    Returns ``None`` when no launcher has power — a result, not a failure.
+    Otherwise a dict on the shell-centre grid ``psin``: ``j_lh`` / ``sigma_j``
+    (A/m²), ``p_dep`` (W/m³), ``i_lh`` / ``p_absorbed``, ``n_parallel_accessible``,
+    ``deposited`` (False when the launchers had power but nothing resonated —
+    compare ``t_resonant_ev`` with ``max(te)``), and ``per_launcher``.
     """
     from ... import fyo
+    from ...io import fydoc
     doc = fyo.as_equilibrium(eq)
     if isinstance(launchers, Launcher):
         launchers = [launchers]
@@ -244,68 +237,57 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
             "deposit: eta_cd is required — the LH current-drive efficiency "
             "n_e R0 I/P is a calibrated coefficient (order 1e19 A/W/m^2 for "
             "EAST LHCD) and is not defaulted here")
-
     ne = np.asarray(ne, float)
-    te = np.maximum(np.asarray(te, float), 1.0)
+    te = np.asarray(te, float)
     if psin_prof is None:
         psin_prof = np.linspace(0.0, 1.0, len(ne))
     psin_prof = np.asarray(psin_prof, float)
-
-    edges = np.linspace(0.0, 1.0, int(n_shells) + 1)
-    psin_c = 0.5 * (edges[:-1] + edges[1:])
-    table = _surface_table(doc, edges)
-    dvol = np.maximum(table["dvolume"], 1e-9)
-    rmaj_c = 0.5 * (table["rmajor"][:-1] + table["rmajor"][1:])
-    ne_c = kernel.interp(psin_c, psin_prof, ne)
-    te_c = kernel.interp(psin_c, psin_prof, te)
-    #: |F(ψ)| per shell; the kernel reads |B| ~ F/R off it (the toroidal
-    #: field dominates accessibility, B_t >> B_p), together with dS = dV/2πR
-    fpol = np.abs(fyo.profile_of(doc, "f"))
-    f_c = kernel.interp(psin_c, np.linspace(0.0, 1.0, len(fpol)), fpol)
-
-    r0 = fyo.field_of(doc)[0] or fyo.axis_of(doc)[0] or 1.75
-    ne_bar = float(np.average(ne_c, weights=dvol))
-
-    #: ★★The whole per-launcher chain is ONE kernel call
-    #: (:func:`fylite.kernel.lh_deposit`): resonance at both band ends, the
-    #: accessibility gate, the damping layer, the CD weighting, the
-    #: normalisation, and the sigma envelope.  It used to be this loop, six
-    #: kernel calls deep, with the arithmetic between them here — which made
-    #: the chain, not its pieces, the thing that could differ between hosts.
-    bands = [_effective_band(l.n_parallel, upshift) for l in launchers]
-    dep = kernel.lh_deposit(psin_c, dvol=dvol, rmaj=rmaj_c, ne=ne_c, te=te_c,
-                            f_pol=f_c, bands=bands,
-                            powers=[l.power_w for l in launchers],
-                            eta_cd=float(eta_cd), r0=r0, xi=xi,
-                            width_floor=width_floor, cd_model=cd_model)
-    j_lh, sigma_j, p_dep = dep["j_lh"], dep["sigma_j"], dep["p_dep"]
-    n_acc = dep["n_acc"]
-
+    if np.isscalar(upshift):
+        u_lo = u_hi = float(upshift)
+    else:
+        u_lo, u_hi = float(upshift[0]), float(upshift[1])
+    if not 0.0 < u_lo <= u_hi:
+        raise LHError(f"bad upshift {upshift!r} — need 0 < min <= max")
+    settings = {"eta_cd": float(eta_cd), "xi": float(xi), "upshift_min": u_lo, "upshift_max": u_hi,
+                "n_shells": float(n_shells), "width_floor": float(width_floor), "cd_model": str(cd_model)}
+    antennas = [{"name": l.name, "frequency": float(l.frequency),
+                 "power_launched": {"data": float(l.power_w)}, "power_reflected": {"data": 0.0},
+                 "fylite:n_parallel_min": float(l.n_parallel[0]),
+                 "fylite:n_parallel_max": float(l.n_parallel[1])} for l in launchers]
+    cp = {"profiles_1d": {"grid": {"fylite:psi_norm": psin_prof},
+                          "electrons": {"density": ne, "temperature": te}}}
+    try:
+        rec = fydoc.complete("code/wave", {"settings": settings,
+                                           "inputs": {"equilibrium": doc, "core_profiles": cp,
+                                                      "lh_antennas": {"antenna": antennas}}})
+    except fydoc.Refused as e:
+        raise LHError(f"lh: {e}") from e
+    F = rec["fields"]
+    arr = lambda k: np.asarray(F[k]["data"], float)  # noqa: E731
+    fact = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    src = F["core_sources"]["source"]["0"]["profiles_1d"]
+    nan_none = lambda v: None if np.isnan(v) else float(v)  # noqa: E731
     per_launcher = []
     for k, lau in enumerate(launchers):
-        res = {tag: (None if np.isnan(v) else float(v)) for tag, v in
-               (("lo", dep["res_lo"][k]), ("hi", dep["res_hi"][k]))}
         per_launcher.append({
             "name": lau.name, "frequency": lau.frequency,
             "p_absorbed": lau.power_w, "n_parallel": lau.n_parallel,
-            "n_parallel_effective": bands[k], "resonance_psin": res,
-            "i_lh": float(dep["i_lau"][k]),
-            "t_resonant_ev": {t: float(resonant_te_ev(n, xi)) for t, n in
-                              (("lo", bands[k][0]), ("hi", bands[k][1]))}})
-
+            "n_parallel_effective": (float(arr("launcher_band_min")[k]), float(arr("launcher_band_max")[k])),
+            "resonance_psin": {"lo": nan_none(arr("launcher_res_min")[k]), "hi": nan_none(arr("launcher_res_max")[k])},
+            "i_lh": float(arr("launcher_current")[k]),
+            "t_resonant_ev": {"lo": float(arr("launcher_t_res_min")[k]), "hi": float(arr("launcher_t_res_max")[k])},
+            "reach_fraction": float(arr("launcher_reach_fraction")[k])})
     return {
-        # False == the launchers had power but nothing resonated/was accessible.
-        # The diagnostics below say why (compare t_resonant_ev with max(te), and
-        # n_parallel_effective with n_parallel_accessible) — far more useful than
-        # returning None at this point.
-        "deposited": bool(np.any(j_lh)),
-        "psin": psin_c, "psin_edges": edges, "dvolume": dvol,
-        "j_lh": j_lh, "sigma_j": sigma_j, "p_dep": p_dep,
-        "i_lh": dep["i_lh"],
-        "p_absorbed": float(sum(l.power_w for l in launchers)),
-        "n_parallel_accessible": n_acc,
+        "deposited": bool(fact("deposited")),
+        "psin": np.asarray(src["grid"]["fylite:psi_norm"]["data"], float),
+        "psin_edges": arr("psin_edges"), "dvolume": arr("dvolume"),
+        "j_lh": np.asarray(src["j_parallel"]["data"], float), "sigma_j": arr("sigma_j"),
+        "p_dep": np.asarray(src["electrons"]["energy"]["data"], float),
+        "i_lh": fact("i_lh"), "p_absorbed": fact("p_absorbed"),
+        "n_parallel_accessible": arr("n_acc"),
         "eta_cd": float(eta_cd), "xi": float(xi),
         "per_launcher": per_launcher,
+        "notes": list(rec.get("notes", [])),
     }
 
 
