@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "5.21"
+version: "5.22"
 date: 2026-09-04
 language: bilingual
 contributors:
@@ -15,6 +15,9 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v5.22 新增 `FYL-DESIGN-19`（facts 的发行形态：评估「从 fydoc 收装置 A-Box，合成 `facts.jsonld`
+    与 `facts.rs` 两份生成物，顶层不留 `facts/`」——方向判对，改写为搜索路径的**自带那一档**；
+    裁定 A-1..A-12）。
     v5.21 `FYL-DESIGN-18` 升 v1.5（合并后随 `-17` v1.1 的 E-23 改口：`fy case run` → `fy run`）。
     v5.20 **两条线合并**（`develop` ← `claude/fylite-frontend-design-78szkh`）。★两边都在改这本
     登记册，且**各自用过 v5.6..v5.9 指不同的事**——命令行那条线在写 `FYL-DESIGN-17`，前端那条线
@@ -82,7 +85,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v5.21 |
+| 版本 (Version) | v5.22 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -131,6 +134,7 @@ modified:
 | :--- | :--- | :--- | :--- |
 | `K-` `F-` `B-` `S-` `N-` `D-` `H-` | `FYL-DESIGN-16` | K-1..K-8 · F-1..F-4 · B-1..B-4 · S-1..S-6 · N-1 · D-1..D-4 · H-1..H-5 | 内核契约 · 扁平树 · 补数据 · 状态 · 命名 · 中间层 · 宿主。★`-16` 的 `D-` 与 `-09` 的 `D-` 是两套，各在各篇内唯一 |
 | `E-` | `FYL-DESIGN-17` | E-1..E-24 | 场景运行命令 `fy run` 与发现面 `fy list`（v0.1 的 E-1..E-9 保留编号；E-4 / E-5 / E-6 在 v1.0 修订，E-2 / E-4 / E-5 / E-6 / E-10 / E-21 在 v1.1 再修订） |
+| `A-` | `FYL-DESIGN-19` | A-1..A-12 | facts 的发行形态：装置书 → 两份生成物 |
 | `U-` | `FYL-DESIGN-18` | U-1..U-25 | 应用前端：输入生成 · 源栈 · 执行与断点 · 呈现规格 · 交互图形 · 文档集 · 第三方读者（U-25）；下一号 U-26。★`-18` 的 `J-` 是判据不是裁定，与 `-17` 的 `J-` 各在各篇内唯一 |
 | `L-` | `FYL-DESIGN-14` | L-1..L-12 | 数据半边 |
 | `R-` `C-` | `FYL-DESIGN-15` | R-1..R-6 · C-1..C-8 | 发布形态 · 命令行 |
@@ -145,6 +149,7 @@ modified:
 
 | 文档标识 | 主题（简） | 版本 / 状态 |
 | :--- | :--- | :--- |
+| [`FYL-DESIGN-19`](FYL-DESIGN-19.md) | **facts 的发行形态**——评估「从 fydoc 收集 device A-Box，合并成 `facts.jsonld`（进 app）与 `facts.rs`（进 rust）两份生成物，fylite 顶层不保留 `facts/`」。方向判**对**：它与本仓已有的四处生成物同一条规矩，且治住 2026-09-05 实测的两次失败（全功能构建**编不过**；公开版站点打包 **0 台**却成功）。两处按字面带不动——**清单不是卡片**（取数要的那一份，实测 13 台里只有 EAST 有）与**域有三个不是一个**（`device` · `amns` 5.8 MB · `experiment`）；一处改写——两份生成物是搜索路径的**自带那一档**而非替代，于是 `--facts` 指自己机器的能力留着、「顶层不留 `facts/`」照样成立。尺寸实测：并进去约 550 KB，A-Box 的 10.8 MB HDF5 与 `amns` 不并。裁定 A-1..A-12，三档分期，四条门禁，缺口 G-1（EAST 手工卡片三仓皆无）..G-6 | v0.1 · WD |
 | [`FYL-DESIGN-18`](FYL-DESIGN-18.md) | **应用前端详细设计**——前端不持有第二份真源：输入页是**计划经控制词表**的投影（一条声明一个控件，八行类型 → 控件表）；一个端口可组合多个源（源栈，中间层合并，逐量出处，「记录作为源」收编页间交接）；执行是一串门调用（步预算是计划字段，进度按步实测，取消切预算，**断点是一份记录**，恢复是再入，内核身份不符则拒绝）；输出经**场景自带的呈现规格**渲染为报告，工作台改的是同一份规格（`fylite:layout`）。交互图形：LCFS 把手 / 路点与剖面节点的试改（改写计划、可撤销、A/B/C 档）· 二维整合视图（图层即规格里的 layer 词）· 剖面查看器（任选两个共格点的量作轴、多信道叠加、框选缩放、时序按坐标族共域共光标）· 工作台。导入 / 导出 / 移步离线只有一种交换单元：文档集。裁定 U-1..U-24（★v0.2：茎 / 表 / 对照视图、图上改权重、视图状态两种、解释性文字去向，附〈评估〉），提案 FR-UI-003..008 · NR-QUAL-007 · DE-LOG-13..15，三期四闸，缺口 G-1..G-12，八张预览图。★v0.3：U0 第一步已落——`model` 页 141 个控件由 `vocab-model.js` + `form.js` 生成，表单闸 `validate-form.mjs` 双向成立；v0.4：图形由 `fig.js` 按呈现规格画，规格闸 `validate-fig.mjs` 成立；v0.5：执行分片与断点仓，断点闸 `validate-checkpoint.mjs` 成立（等价性判据可断言）；v0.6：工作台与 `fylite:layout`，U0 四条落齐；v0.7：文档集（存储法 zip，外部读者验证），**四道闸全部成立**；v0.8：离线预缓存（断网实测），G-5 关；v0.9：报告闸的调用已修；v1.0：§八 试改（把手 · 路点 · 剖面节点 · 通道权重，拒绝不改数），内核已构建、两端规格比对首次跑通（**G-13 关**），带生成表单的 model 页与原生一致到 1e-7；v1.1：§五 源栈（栈顶优先 ↔ merge 末位优先，由契约断言），G-14 · **G-15**（wasm 门已开一半：17 个导出；`assemble` 仍读盘）；v1.4：**U-25 导入 h5wasm**（源栈一层 · 4.2 MB 按需 · NIST 许可三项义务落实）；v1.5：随 `-17` v1.1 的 E-23 把 `fy case run` 改为 `fy run` | v1.5 · WD |
 | [`FYL-DESIGN-17`](FYL-DESIGN-17.md) | **场景运行命令 `fy run` 的详细设计**（v1.2 起含 as-built）——一条命令跑一次日常建模或分析：`fy run <线> [<场景>] [--device D] [shot=N time=T] [key=value …]`，或 `fy run <计划文件>…`。**v1.1：`case` 收进 `run`、`case` 弃用（按名拒绝并指向，E-23）；新增只读的发现面 `fy list devices | experiments | scenarios | presets | facts | kernel | lines`（E-24）——`fy` = `app` / `data` / `run` / `list`（E-10）。**两段解析（静态语法在 `_cli.json`，参数表在场景模板；未知参数按名拒绝，E-11）；参数记法 `key=value` ≡ `--key=value`、`--flag` ≡ `flag=true`（E-12）；合成次序模板 → 装置 → 预设 → `--plan` → 命令行 → 端口，逐值记来源（E-13）；装置信息两条路（整份文档绑端口 + `from_device` 缺省，E-14）；测量三级解析 `--input` → 离线切片 → 取数落进记录目录（E-15）；环境变量只供资源不供物理参数，全表（E-16）；每线一条缺省场景（E-17）；模板声明的开关（`only_magnetic`，E-18）；记录目录自足（E-19）；退出码与阶段（E-20）；合成器只有一份（E-21）；模板内嵌、预设走语料路径（E-22）。场景目录逐条覆盖文档明确涉及的全部场景（S-L1..S-L5 · 十三条栏 · 9 code · 10 工具 · 指南五章），迁移表，分期 P1-a..d / P2-a..c，七条门禁 | v1.3 · WD |
 | [`FYL-DESIGN-16`](FYL-DESIGN-16.md) | **可替换内核与四层分工**——内核以 fyo 文档门为唯一接口，门上是双向扁平树；内核无状态、状态随文档走；`fylite_runtime` 是中间层（SpData profile、后端表）；多宿主只写计划只读记录；一条总线九步 | v2.1 · WD |
