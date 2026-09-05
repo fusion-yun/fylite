@@ -941,11 +941,6 @@ function pulseRun(msg) {
        [x.buffer]);
 }
 
-function flatten(poly) {
-  var f = new Float64Array(poly.length * 2);
-  poly.forEach(function (p, i) { f[2 * i] = p[0]; f[2 * i + 1] = p[1]; });
-  return f;
-}
 
 // --- reconstruction --------------------------------------------------------
 
@@ -4017,30 +4012,6 @@ function zerodMonteCarlo(msg) {
                     q: Float64Array.from(rec.fields.uq_samples_q.data) } });
 }
 
-/**
- * Order statistics of a sample.
- *
- * ★Percentiles, not mean ± sigma: these outputs are NOT symmetric — P_fus
- * goes as <sigma v> which is steeply non-linear in temperature, so a
- * symmetric band around the mean would claim a lower bound the samples never
- * visit.  NaNs (Q with nothing injected) are dropped, and how many were
- * dropped is reported rather than absorbed.
- */
-function summariseSamples(a) {
-  var v = Array.prototype.filter.call(a, isFinite).sort(function (x, y) {
-    return x - y;
-  });
-  if (!v.length) return { n: 0, dropped: a.length };
-  var at = function (p) {
-    var i = p * (v.length - 1), lo = Math.floor(i), hi = Math.ceil(i);
-    return v[lo] + (v[hi] - v[lo]) * (i - lo);
-  };
-  var mean = 0;
-  for (var i = 0; i < v.length; i++) mean += v[i];
-  return { n: v.length, dropped: a.length - v.length, mean: mean / v.length,
-           p05: at(0.05), p25: at(0.25), p50: at(0.50), p75: at(0.75),
-           p95: at(0.95), min: v[0], max: v[v.length - 1] };
-}
 
 // --- the turbulence closure (TGLF), loaded on demand ------------------------
 
@@ -4727,25 +4698,6 @@ function evEnclosedIp(geo, psi) {
   return out;
 }
 
-/**
- * A deposition shape carrying `total` watts (or particles/s).
- *
- * ★Normalised by the VOLUME INTEGRAL, which is the only way a slider in MW
- * means megawatts.  The old bar's "heating power density peak" was a number
- * in arbitrary units — its own caption said so — and nothing downstream
- * could be a power.
- */
-function evDeposit(rho, vprime, centre, width, total) {
-  var n = rho.length, edge = rho[n - 1], g = new Float64Array(n);
-  for (var i = 0; i < n; i++) {
-    var x = (rho[i] / edge - centre) / Math.max(width, 1e-3);
-    g[i] = Math.exp(-x * x);
-  }
-  var norm = evVolInt(rho, vprime, g);
-  if (!(norm > 0)) return new Float64Array(n);
-  for (var k = 0; k < n; k++) g[k] *= total / norm;
-  return g;
-}
 
 /**
  * ★★THE BEAM, replacing the prescribed Gaussian (T-M2).
@@ -4885,15 +4837,6 @@ function evBeamRead(fields, F, X, nc, plan, field, geo, sp) {
               orbit: !!sp.beamOrbit },
   };
 }
-function evBeamDeposit(field, geo, st, sp) {
-  var plan = evBeamPlan(field, geo, st, sp);
-  var rec = fy.complete('code/beam', { settings: plan.settings,
-                                       inputs: { equilibrium: plan.eqDoc, core_profiles: plan.cp,
-                                                 nbi: { unit: [plan.unit] } } });
-  return evBeamRead(rec.fields, function (k) { return fieldFlat(rec, k); },
-                    function (k) { return rec.facts[k].value; }, rec.dims.n_components | 0,
-                    plan, field, geo, sp);
-}
 
 
 /**
@@ -4965,58 +4908,6 @@ function evBeamReport(b, sp) {
 }
 
 
-/**
- * ★★HOW MUCH OF A SHELL-BINNED DEPOSITION LIES OUTSIDE THE LADDER (T-M11).
- *
- * The metric ladder stops at `edgePsin` (0.95) and the deposition shells
- * run to psi_N = 1, so the two quadratures over "the same" absorbed power
- * are not over the same plasma: whatever is deposited beyond the ladder's
- * outermost surface is power the march never receives.  That part is a
- * CALIBRE difference — refining either grid does not remove it — and it has
- * to be measured before the rest of the gap can be called discretisation.
- *
- * ★It is measured, not estimated.  `shell_table` is called a second time on
- * the deposition edges WITH `edgePsin` inserted as a knot, so the split of
- * the straddling shell is the kernel's own traced volume and not a linear
- * guess; the sub-shells inherit their parent shell's density (which IS what
- * a shell quadrature says the density is there), and the sum is
- * `shell_sum`.  Nothing here re-spells a volume.
- */
-function evOutsideLadder(field, edges, pDep, edgePsin) {
-  var nsh = edges.length - 1, i;
-  if (!(edgePsin > edges[0]) || !(edgePsin < edges[nsh])) return null;
-  //: the deposition edges with the ladder's boundary inserted, deduplicated
-  var merged = [], eps = 1e-12;
-  for (i = 0; i <= nsh; i++) {
-    if (merged.length && Math.abs(edges[i] - merged[merged.length - 1]) < eps)
-      continue;
-    if (edgePsin > merged[merged.length - 1] + eps && edgePsin < edges[i] - eps)
-      merged.push(edgePsin);
-    merged.push(edges[i]);
-  }
-  var span = field.psiBnd - field.psiAxis;
-  var ng = field.nr * field.nz, psin2d = new Float64Array(ng);
-  for (i = 0; i < ng; i++) psin2d[i] = (field.psi[i] - field.psiAxis) / span;
-  var t2 = fy.shellTable({
-    r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
-    nr: field.nr, nz: field.nz, psin2d: psin2d,
-    axisR: field.axisR, axisZ: field.axisZ,
-    limR: field.limR, limZ: field.limZ,
-    levels: Float64Array.from(merged), nTheta: 181 });
-  var m = merged.length - 1;
-  var sub = new Float64Array(m), dvSub = new Float64Array(m);
-  for (i = 0; i < m; i++) {
-    var c = 0.5 * (merged[i] + merged[i + 1]);
-    dvSub[i] = Math.max(t2.dvolume[i], 0);
-    if (c <= edgePsin) continue;
-    //: the parent deposition shell this sub-shell sits in
-    var k = 0;
-    while (k < nsh - 1 && c > edges[k + 1]) k += 1;
-    sub[i] = pDep[k];
-  }
-  return { power: fy.shellSum(sub, dvSub), edgePsin: edgePsin,
-           volume: fy.shellSum(evFill(m, 1), dvSub) };
-}
 
 /**
  * ★★THE LOWER-HYBRID WAVE (T-M10) — the other half of the wave sources the
@@ -5134,14 +5025,6 @@ function evLhRead(fields, F, X, nl, plan, geo, sp) {
               upshift: [sp.lhUpLo, sp.lhUpHi], nShells: nsh },
   };
 }
-function evLhDeposit(field, geo, st, sp) {
-  var plan = evLhPlan(field, geo, st, sp);
-  var rec = fy.complete('code/wave', { settings: plan.settings,
-                                       inputs: { equilibrium: plan.eqDoc, core_profiles: plan.cp,
-                                                 lh_antennas: { antenna: plan.antennas } } });
-  return evLhRead(rec.fields, function (k) { return fieldFlat(rec, k); },
-                  function (k) { return rec.facts[k].value; }, rec.dims.n_launchers | 0, plan, geo, sp);
-}
 
 
 /**
@@ -5173,115 +5056,6 @@ function evLhReport(lh) {
   };
 }
 
-/**
- * ★★T-M14 — THE SHELL → LADDER REMAP IS CONSERVATIVE NOW.
- *
- * What it replaced: a POINT sample of a shell AVERAGE at the ladder nodes,
- * followed by the march's trapezoid.  That rule does not conserve the
- * integral — measured on the reference case, the march's ladder integral of
- * the same beam sat +3.16 % above the shells' own quadrature over the shared
- * domain at 21 surfaces (+1.68 % at 61, converging but never gone), which is
- * power nobody injected.  T-M11 measured and reported the gap; this closes
- * the discretisation half of it.
- *
- * How this one works — 逐区间积分, against the kernel's own volumes:
- *
- *   1. Each ladder node owns a DUAL CELL in psi_N (midpoint to midpoint;
- *      the axis node from 0, the edge node to `edgePsin`).
- *   2. `shell_table` is called once on the union of dual-cell boundaries
- *      and deposition-shell edges, so every sub-shell volume is the
- *      kernel's traced volume — the same authority `evOutsideLadder`
- *      already leans on — and each sub-shell inherits its parent shell's
- *      density, which IS what a shell quadrature says the density is there.
- *   3. A node's value is its dual-cell energy divided by its own trapezoid
- *      quadrature weight (`w_i * V'_i`), so the march's reported ladder
- *      integral (`evVolInt`, trapezoid on f·V') reproduces the dual-cell
- *      energies EXACTLY, by construction.
- *
- * ★The axis node's V' is zero, so its weight cannot carry energy: its
- * dual-cell energy is folded into the first traced node and the axis VALUE
- * repeats its neighbour (the same `with_axis_node` convention the metric
- * itself follows).  What remains of the old gap is the CALIBRE half —
- * shells beyond `edgePsin`, declared and reported, never remapped — plus
- * contour-tracing consistency between independent `shell_table` partitions
- * of one field (measured ~1e-3 relative, where 3.16 % used to be).
- *
- * ★One OPERATOR per (field, ladder, shell edges), applied to every array of
- * the same shells (`pE`, `pI`, `pDep`, `jNbi`, …): the trace is the
- * expensive part and the application is a sparse sum, and a second copy of
- * the rule would be a second chance to write it differently.
- */
-function evShellLadderOp(field, geo, edges) {
-  var n = geo.rho.length, nsh = edges.length - 1, i;
-  //: dual-cell boundaries in psi_N — node i owns [half[i], half[i+1]]
-  var half = new Float64Array(n + 1);
-  half[0] = Math.min(geo.psin[0], edges[0]);
-  for (i = 1; i < n; i++) half[i] = 0.5 * (geo.psin[i - 1] + geo.psin[i]);
-  half[n] = geo.psin[n - 1];
-  //: merged, deduplicated knots over the LADDER's domain: shell edges
-  //: beyond `edgePsin` belong to the calibre half (`evOutsideLadder`)
-  var eps = 1e-12, knots = [], a = 0, b = 0;
-  var push = function (v) {
-    if (!knots.length || v > knots[knots.length - 1] + eps) knots.push(v);
-  };
-  while (a <= n || b <= nsh) {
-    var va = a <= n ? half[a] : Infinity;
-    var vb = b <= nsh ? edges[b] : Infinity;
-    if (va <= vb) { push(va); a += 1; }
-    else { if (vb <= half[n] + eps) push(vb); b += 1; }
-  }
-  while (knots.length && knots[knots.length - 1] > half[n] + eps) knots.pop();
-
-  var span = field.psiBnd - field.psiAxis;
-  var ng = field.nr * field.nz, psin2d = new Float64Array(ng);
-  for (i = 0; i < ng; i++) psin2d[i] = (field.psi[i] - field.psiAxis) / span;
-  var t = fy.shellTable({
-    r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
-    nr: field.nr, nz: field.nz, psin2d: psin2d,
-    axisR: field.axisR, axisZ: field.axisZ,
-    limR: field.limR, limZ: field.limZ,
-    levels: Float64Array.from(knots), nTheta: 181 });
-
-  var m = knots.length - 1;
-  var subDual = new Int32Array(m), subShell = new Int32Array(m),
-      dvSub = new Float64Array(m);
-  for (i = 0; i < m; i++) {
-    var c = 0.5 * (knots[i] + knots[i + 1]);
-    dvSub[i] = Math.max(t.dvolume[i], 0);
-    var d = 0;
-    while (d < n - 1 && c > half[d + 1]) d += 1;
-    subDual[i] = d;
-    var k = 0;
-    while (k < nsh - 1 && c > edges[k + 1]) k += 1;
-    subShell[i] = k;
-  }
-  //: the trapezoid's own node weights, the rule `evVolInt` applies
-  var w = new Float64Array(n);
-  for (i = 0; i < n; i++) {
-    var lo = i > 0 ? geo.rho[i - 1] : geo.rho[0];
-    var hi = i < n - 1 ? geo.rho[i + 1] : geo.rho[n - 1];
-    w[i] = 0.5 * (hi - lo);
-  }
-  return {
-    apply: function (values) {
-      var E = new Float64Array(n), g = new Float64Array(n), j;
-      for (j = 0; j < m; j++) E[subDual[j]] += values[subShell[j]] * dvSub[j];
-      //: forward-carry through nodes whose quadrature weight cannot hold
-      //: energy (the axis node, V' = 0) — conservation before shape
-      var carry = 0;
-      for (j = 0; j < n; j++) {
-        var den = w[j] * geo.vprime[j];
-        var e = E[j] + carry;
-        if (den > 1e-300) { g[j] = e / den; carry = 0; }
-        else { g[j] = 0; carry = e; }
-      }
-      //: the axis node repeats its neighbour, for the march and the
-      //: figures — its trapezoid weight is zero either way
-      if (n > 1 && w[0] * geo.vprime[0] <= 1e-300) g[0] = g[1];
-      return g;
-    },
-  };
-}
 
 
 
@@ -6706,29 +6480,10 @@ function evolveRun(msg) {
   //: So it is switched on beside them and advanced beside them, and
   //: `evMomentumStep` says what that split costs.
   var momentum = !!sp.chMomentum;
-  //: ★★THE SPECIES IS RESOLVED HERE, where the kernel is, and a name the
-  //: table does not carry is an ERROR rather than a plasma that radiates
-  //: nothing: `adas_id` answers -1 for an unknown name and downstream that
-  //: is indistinguishable from "no impurity", which is precisely the trap
-  //: the kernel's own comment warns about.  Z comes from the periodic
-  //: table beside the binding (`FyLite.ADAS_Z`), checked by the gate.
-  sp.impurityId = -1; sp.impurityZ = 0;
-  //: the hydrogenic bulk, named so the ADAS total is a total (see the
-  //: radiation block).  It is in the shipped table, so this cannot fail
-  //: quietly — and if it ever did, the check below would catch it.
-  sp.bulkId = fy.adasId('D');
-  if (sp.bulkId < 0)
-    return post({ type: 'error', where: 'evolve',
-                  message: FyI18n.t('e.err.species', { name: 'D' }) });
-  if (sp.impurity) {
-    sp.impurityId = fy.adasId(sp.impurity);
-    sp.impurityZ = (self.FyLite.ADAS_Z || {})[sp.impurity];
-    sp.impurityA = (self.FyLite.ADAS_A || {})[sp.impurity];
-    if (sp.impurityId < 0 || !(sp.impurityZ > 0) || !(sp.impurityA > 0))
-      return post({ type: 'error', where: 'evolve',
-                    message: FyI18n.t('e.err.species',
-                                      { name: sp.impurity }) });
-  }
+  //: ★T-4 第五刀: the species, the start profiles, the dilution, the
+  //: pedestal edge and the actuators at t_start are the PROBE's now
+  //: (`code/evolve` with `probe: 1`, below the geometry); a name the
+  //: table does not carry is its refusal.
   if (!(channels.heat || channels.density || channels.current))
     return post({ type: 'error', where: 'evolve',
                   message: FyI18n.t('e.err.nochannel') });
@@ -6855,138 +6610,68 @@ function evolveRun(msg) {
 
   // --- the state it starts from --------------------------------------------
   var n = geo.rho.length;
-  var st = { te: new Float64Array(n), ti: new Float64Array(n),
-             ne: new Float64Array(n), ni: new Float64Array(n),
-             psi: new Float64Array(n), q: null,
-             //: ★the rotation starts at REST and is present only when the
-             //: channel is on.  `null` is what tells every consumer below
-             //: — the closure's E x B shear among them — that no rotation
-             //: was solved; a zero array would say "solved, and it came out
-             //: zero", which is a different statement.
-             omega: momentum ? new Float64Array(n) : null };
-  //: ★the reference's own profiles, when the reader asked to start on them.
-  //: They arrive on rho_tor [m] — the label this bar marches on — so this is
-  //: an interpolation onto the ladder and nothing else: no re-gridding
-  //: convention, no fit, no smoothing.
+  //: ★★T-4 第五刀 (第二十四刀): THE START STATE COMES FROM THE PROBE.  What
+  //: this function used to build by hand before its first block — the
+  //: parabolic profiles or the reference's, the dilution and its check, the
+  //: pedestal edge at start, the waveform factor at t_start, the torque
+  //: deposit, beta_N — is `code/evolve` with `probe: 1` now, and the page
+  //: reads the answer.  The ladder's psi keeps the page's spelling
+  //: (`evPsiOf`) and is bound like the other ladder rows; a resumed state
+  //: is bound as the state and comes back as it went.
   var rp = sp.useRef && msg.refProf ? msg.refProf : null;
-  var refAt = function (key, at) {
-    var xs = rp.rho, vs = rp[key];
-    if (!vs) return NaN;
-    if (at <= xs[0]) return vs[0];
-    for (var j = 1; j < xs.length; j++)
-      if (xs[j] >= at) {
-        var w = (at - xs[j - 1]) / (xs[j] - xs[j - 1]);
-        return vs[j - 1] + w * (vs[j] - vs[j - 1]);
-      }
-    return vs[vs.length - 1];
-  };
-  for (var i = 0; i < n; i++) {
-    var xb = geo.rho[i] / geo.rho[n - 1];
-    var sh = Math.pow(Math.max(1 - xb * xb, 0), sp.peakT);
-    var shn = Math.pow(Math.max(1 - xb * xb, 0), sp.peakN);
-    st.te[i] = sp.edgeTe + (sp.te0 - sp.edgeTe) * sh;
-    st.ti[i] = sp.edgeTi + (sp.ti0 - sp.edgeTi) * sh;
-    st.ne[i] = sp.edgeNe + (sp.ne0 - sp.edgeNe) * shn;
-    if (rp) {
-      var rte = refAt('te', geo.rho[i]), rti = refAt('ti', geo.rho[i]),
-          rne = refAt('ne', geo.rho[i]);
-      if (isFinite(rte) && rte > 0) st.te[i] = rte;
-      //: a reference with no ion temperature leaves T_i where the controls
-      //: put it rather than silently making it the electron one
-      if (isFinite(rti) && rti > 0) st.ti[i] = rti;
-      if (isFinite(rne) && rne > 0) st.ne[i] = rne;
-    }
-    st.ni[i] = st.ne[i];
-    st.psi[i] = evPsiOf(geo, i);
+  var rs = msg.resume || null;
+  if (rs && (!rs.te || rs.te.length !== n))
+    return post({ type: 'error', where: 'evolve',
+                  message: FyI18n.t('e.err.resume_grid',
+                                    { was: rs.te ? rs.te.length : 0, now: n }) });
+  var psi0 = new Float64Array(n);
+  for (var i = 0; i < n; i++)
+    psi0[i] = rs && rs.psi && rs.psi.length === n ? rs.psi[i] : evPsiOf(geo, i);
+  var st = { te: null, ti: null, ne: null, ni: null, nz: null, psi: psi0, q: null,
+             omega: momentum ? new Float64Array(n) : null };
+  var spProbe = assign({}, sp); spProbe.beam = false; spProbe.lh = false;
+  var pp = evEntryPlan({ channels: channels, momentum: momentum }, st, geo, spProbe, field);
+  var ps = pp.settings;
+  ps.probe = 1; ps.state = rs ? 1 : 0; ps.reference = rp ? 1 : 0;
+  ps.t_start = msg.tStart || 0;
+  var arrOr = function (v) { return v ? Array.from(v) : undefined; };
+  var pin = { equilibrium: pp.equilibrium };
+  if (rs) {
+    pin.core_profiles = { profiles_1d: {
+      grid: { psi: Array.from(psi0) },
+      electrons: { temperature: Array.from(rs.te), density: Array.from(rs.ne) },
+      t_i_average: Array.from(rs.ti) } };
+  } else if (rp) {
+    var refT = { grid: { rho_tor: Array.from(rp.rho) },
+                 electrons: { temperature: arrOr(rp.te), density: arrOr(rp.ne) },
+                 t_i_average: arrOr(rp.ti) };
+    if (!refT.electrons.temperature) delete refT.electrons.temperature;
+    if (!refT.electrons.density) delete refT.electrons.density;
+    if (!refT.t_i_average) delete refT.t_i_average;
+    pin.core_profiles = { profiles_1d: refT };
   }
-
-  //: ★★THE IMPURITY IN THE QUASI-NEUTRALITY, when the reader asks for it.
-  //: Until now Z_eff entered the resistivity, the radiation and the
-  //: bootstrap while the main ion was undiluted — n_i = n_e — so a plasma
-  //: with Z_eff = 1.7 had the fusion rate and the ion heat capacity of a
-  //: pure hydrogenic one.  `ion_dilution` is the kernel's own LOC_N_ION = 1
-  //: posture: n_i = (Z_imp - Z_eff)/(Z_imp - 1) n_e, and it REFUSES a Z_eff
-  //: that this impurity cannot produce rather than flooring it.
-  //:
-  //: ★The impurity then goes into the march's ION LIST, where the kernel
-  //: derives n_e = sum_s Z_s n_s from it — the same closure it applies to
-  //: any composition, so nothing here has to assert quasi-neutrality by
-  //: hand.
-  //:
-  //: ★★★T-C20 — AND THE DENSITY CHANNEL IS NO LONGER REFUSED BESIDE IT.
-  //: The refusal read「这一版没有杂质输运来在两者之间裁决」, and that was a
-  //: statement about the WIRING wearing a physics statement's clothes: the
-  //: kernel's density channel has always been per-ion and the assembly layer
-  //: has always taken an `ions` list; what was missing was a closure that
-  //: filled the second species' D/v and a source that filled its block.
-  //: Both exist now (`evClosure`, `evSourceFlat`).
-  //: ★★And the refusal's REASON dissolves exactly when they do.  It was
-  //: 「n_e 在演化而 Z_eff 被钉死，那是两套成分」 — true, and it stops being
-  //: true the moment BOTH ions are channels: then `n_e = sum_s Z_s n_s` is
-  //: quasi-neutrality's answer (the kernel's own rule, not an assertion made
-  //: here) and **Z_eff is a RESULT**, computed from the two species that
-  //: were solved for.  The slider stops being an input and the page says so.
-  //: ★What Z_eff still sets in that mode is the STARTING composition — the
-  //: dilution the first state is built from — and that is a different job
-  //: from pinning it for all time.
+  var prec;
+  try { prec = fy.complete('code/evolve', { settings: ps, inputs: pin }); }
+  catch (eP) {
+    return post({ type: 'error', where: 'evolve', message: String(eP && eP.message || eP) });
+  }
+  var PF = function (k) { return fieldFlat(prec, k); };
+  var PN = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var PX = function (k) { return prec.facts[k] ? prec.facts[k].value : NaN; };
+  var pcp = prec.fields.core_profiles.profiles_1d;
+  st.te = PN(pcp.electrons.temperature); st.ti = PN(pcp.t_i_average);
+  st.ne = PN(pcp.electrons.density); st.ni = PN(pcp['fylite:ion_density']);
+  sp.bulkId = PX('bulk_id'); sp.impurityId = PX('imp_id');
+  sp.impurityZ = PX('imp_z') || 0; sp.impurityA = PX('imp_mass') || 0;
   var zList = [1], edgeNi = [rp ? st.ne[n - 1] : sp.edgeNe];
   if (sp.quasi) {
-    if (!(sp.impurityId >= 0) || !(sp.impurityZ > 1))
+    st.nz = PN(pcp['fylite:impurity_density']);
+    if (PX('quasi_check') > 1e-6)
       return post({ type: 'error', where: 'evolve',
-                    message: FyI18n.t('e.err.quasi_species') });
-    var nMain = fy.ionDilution(st.ne, sp.zeff, sp.impurityZ);
-    if (!nMain)
-      return post({ type: 'error', where: 'evolve',
-                    message: FyI18n.t('e.err.quasi_zeff',
-                                      { zeff: sp.zeff, z: sp.impurityZ,
-                                        name: sp.impurity }) });
-    st.nz = new Float64Array(n);
-    for (var qz = 0; qz < n; qz++) {
-      st.ni[qz] = nMain[qz];
-      st.nz[qz] = (st.ne[qz] - nMain[qz]) / sp.impurityZ;
-    }
-    //: ★what the composition IMPLIES for the fuel: n_D = n_T = n_i/2, so
-    //: the D-T fraction is half the dilution — a derived number, and the
-    //: control that used to set it is disabled on the page while it is.
-    sp.dtEffective = 0.5 * nMain[0] / st.ne[0];
+                    message: FyI18n.t('e.err.quasi_check') });
+    sp.dtEffective = PX('dt_fraction_used');
     zList = [1, sp.impurityZ];
     edgeNi = [st.ni[n - 1], st.nz[n - 1]];
-    //: ★the composition is CHECKED against the closure that will be applied
-    //: to it, rather than assumed: a mix whose electron density is not the
-    //: one the reader asked for is a different plasma.
-    var back = fy.quasiNeutralNe([{ n: st.ni, z: 1 },
-                                  { n: st.nz, z: sp.impurityZ }]);
-    for (var qc = 0; qc < n; qc++)
-      if (Math.abs(back[qc] - st.ne[qc]) > 1e-6 * Math.abs(st.ne[qc]))
-        return post({ type: 'error', where: 'evolve',
-                      message: FyI18n.t('e.err.quasi_check') });
-  }
-
-  //: ★★CONTINUING A MARCH, rather than starting a new one.  A discharge is
-  //: not one phase, and every run before this one began again from a
-  //: prescribed analytic shape — so a ramp-up followed by a flat-top could
-  //: only be modelled by pretending the flat-top started from a parabola.
-  //:
-  //: What is resumed is the STATE and only the state: the four profiles the
-  //: channels own.  The geometry, the grid and every control are read afresh
-  //: from this message, which is the point — continuing is how a reader
-  //: CHANGES something and carries the plasma across the change.
-  //:
-  //: ★The grid must match, and it is checked here rather than interpolated:
-  //: silently re-gridding a state would put a smoothing step between two
-  //: halves of what the file calls one march.
-  if (msg.resume) {
-    var rs = msg.resume;
-    if (!rs.te || rs.te.length !== n)
-      return post({ type: 'error', where: 'evolve',
-                    message: FyI18n.t('e.err.resume_grid',
-                                      { was: rs.te ? rs.te.length : 0,
-                                        now: n }) });
-    for (var q2 = 0; q2 < n; q2++) {
-      st.te[q2] = rs.te[q2]; st.ti[q2] = rs.ti[q2];
-      st.ne[q2] = rs.ne[q2]; st.ni[q2] = rs.ne[q2];
-      if (rs.psi && rs.psi.length === n) st.psi[q2] = rs.psi[q2];
-    }
   }
 
   var sendOutlines = function () {
@@ -7002,60 +6687,21 @@ function evolveRun(msg) {
   };
   sendOutlines();
 
-  //: ★the edge the channels are PINNED to is the state's own last point when
-  //: the reference supplied it: a march started on published profiles and
-  //: held to a different edge would be solving a third problem
-  var edgeTe = rp ? st.te[n - 1] : sp.edgeTe;
-  var edgeTi = rp ? st.ti[n - 1] : sp.edgeTi;
-
-  //: ★★THE PEDESTAL IS A RESULT NOW, when asked (T-M4): with the model on,
-  //: the edge temperature is the EPED1-NN surrogate's pedestal top —
-  //: p_ped/(2 n_e,ped k), EPED's own T_e = T_i convention — and the two
-  //: sliders that used to set it are disabled on the page.  The ladder
-  //: stops at `edgePsin` (~0.95) and EPED's own top sits at psi_N =
-  //: 1 - width (~0.96 on ITER), so the Dirichlet point IS the pedestal
-  //: top this bar's metric can stand on; the pedestal INTERIOR is not on
-  //: the ladder and is not modelled — the model supplies the boundary
-  //: value, nothing else.
-  //:
-  //: ★beta_N feeds back: EPED takes the GLOBAL beta_N, which is what the
-  //: march is computing — so the model is re-evaluated each step on the
-  //: PREVIOUS step's reading, lagged one step exactly like the Ohmic
-  //: rate.  The first evaluation uses the initial profiles' own beta_N.
-  //: ★a reference-pinned run keeps the reference's edge: reproducing
-  //: published profiles under a different boundary would be a third
-  //: problem again.
-  var evBetaNOf = function (state) {
-    var pv = new Float64Array(n);
-    for (var bq = 0; bq < n; bq++)
-      pv[bq] = (state.ne[bq] * state.te[bq]
-                + state.ni[bq] * state.ti[bq]) * EV_QE;
-    var vol = evVolume(geo.rho, geo.vprime);
-    var pAvg = vol > 0 ? evVolInt(geo.rho, geo.vprime, pv) / vol : 0;
-    var betaT = 2 * EV_MU0 * pAvg / (geo.b0 * geo.b0);
-    var ipMA = Math.abs(sp.ip) / 1e6;
-    return ipMA > 0 ? betaT * 100 * geo.a * Math.abs(geo.b0) / ipMA : 0;
-  };
+  //: the Dirichlet edge the march starts from — the reference's own edge on
+  //: a reference start, the case's otherwise, the EPED1-NN pedestal top when
+  //: the model is on (T-M4: p_ped/(2 n_e,ped k), T_e = T_i); the record the
+  //: readings and the export carry is the probe's evaluation
+  var edgeTe = PX('edge_te_out'), edgeTi = PX('edge_ti_out');
   var ctx0Pedestal = null;
-  var evPedestalEval = function (betan) {
-    var inp = {
-      a: geo.a, betan: Math.max(0.05, betan), bt: Math.abs(geo.b0),
-      delta: sp.delta, ip: Math.abs(sp.ip) / 1e6, kappa: sp.kappa,
-      //: deuterium, or the DT average when the burn is on — the same
-      //: composition statement the alpha channel makes
-      mass: sp.alpha ? 2.5 : 2.0,
-      neped: sp.edgeNe / 1e19, r: geo.r0, zeffped: sp.zeff };
-    var res = fy.eped1nn(inp);
-    return { inputs: inp,
-             pPed: res.pPed[0], width: res.width[0],
-             pPedAll: Array.from(res.pPed), widthAll: Array.from(res.width),
-             extrapolation: res.extrapolation, worstInput: res.worstInput,
-             tPed: res.pPed[0] / (2 * sp.edgeNe * EV_QE) };
-  };
   if (sp.pedestal && !rp) {
-    ctx0Pedestal = evPedestalEval(evBetaNOf(st));
-    edgeTe = ctx0Pedestal.tPed;
-    edgeTi = ctx0Pedestal.tPed;
+    ctx0Pedestal = {
+      inputs: { a: geo.a, betan: Math.max(0.05, PX('beta_n')), bt: Math.abs(geo.b0),
+                delta: sp.delta, ip: Math.abs(sp.ip) / 1e6, kappa: sp.kappa,
+                mass: PX('ped_mass'), neped: PX('ped_neped'), r: geo.r0, zeffped: sp.zeff },
+      pPed: PX('ped_pped'), width: PX('ped_width'),
+      pPedAll: Array.from(PF('ped_p_ped_all')), widthAll: Array.from(PF('ped_width_all')),
+      extrapolation: PX('ped_extrap'), worstInput: PX('ped_worst') | 0,
+      tPed: PX('ped_tped') };
   }
 
   var ctx = { sp: sp, geo: geo, rho: geo.rho, channels: channels,
@@ -7088,60 +6734,15 @@ function evolveRun(msg) {
               //: closure sizes its per-ion arrays to match
               nIon: zList.length };
 
-  //: ★★THE ACTUATORS IN TIME.  Everything above is a flat-top: the powers
-  //: and the loop voltage were constants for the whole march, so what this
-  //: bar could model was one segment of a discharge and never a discharge.
-  //: The shape is the KERNEL's trapezoid over the four phase times
-  //: `[0, t_rampup_end, t_flattop_end, t_end]` — the same one the 0-D line
-  //: uses, rather than four lines of arithmetic written again here.
-  //:
-  //: ★The FLAT-TOP value is 1: the trapezoid multiplies the sliders rather
-  //: than replacing them, so a reader who switches the waveform off gets
-  //: back exactly the run they had.  `start` and `end` are the fractions at
-  //: t = 0 and t = t_end.
-  //:
-  //: ★V_loop is the CURRENT actuator here, and that is not a substitution:
-  //: with the current channel on, I_p is a result of the flux the loop
-  //: voltage moves, so a "current ramp" IS a loop-voltage waveform.  The
-  //: I_p control stays what it always was — the equilibrium's current, used
-  //: by the readings and by a coupled re-solve.
-  var wfAt = function (t) {
-    if (!sp.wave) return 1;
-    var v = fy.zerodWaveform({
-      phases: [0, sp.waveRamp, sp.waveFlat, sp.waveEnd],
-      t: [t], flat: 1, start: sp.waveStart, end: sp.waveEnd2, which: 0 });
-    return isFinite(v[0]) ? v[0] : 1;
-  };
-  //: ★★THE BEAM, when the reader asked for one.  It is re-evaluated per
-  //: COUPLING BLOCK rather than per step: the deposition depends on n_e and
-  //: T_e through the stopping cross-section, and re-attenuating 600 samples
-  //: on nine rays every step would put a ray trace inside the inner loop
-  //: for a change the block cadence already bounds.  The page says which
-  //: cadence it ran on, and a frozen-geometry march evaluates it once.
-  //:
-  //: ★A beam that CANNOT be evaluated is a refusal, not a silent fall back
-  //: to the Gaussian: a march reporting a deposition profile the reader did
-  //: not ask for is the failure this whole item exists to remove.
+  //: the actuators at t_start, off the probe: the waveform factor the run
+  //: starts at and the prescribed torque deposit (the record's `torque` with
+  //: the momentum channel and no beam; a beam sets its own per step)
+  ctx.waveNow = PX('wave_now');
+  ctx.pFastPar = null; ctx.pFastPerp = null;
+  ctx.torque = Float64Array.from(PF('torque'));
+  //: the executors' reports, filled from the entry's own records as the
+  //: blocks return them (a refused / absent executor stays null)
   var beam = null, lh = null;
-  //: ★第十七刀: on the entry path the executors are the ENTRY's (evaluated
-  //: inside `code/evolve` on the same equilibrium); the loop path builds
-  //: them here.  The scope test is the same one `viaEntry` runs below.
-  var entryAhead = true;
-  //: ★T-4 第四刀: what the loop's `rebuildSources` built is the ENTRY's now —
-  //: the deposits, the fuelling, the loop voltage and the current target at
-  //: every step's waveform factor.  What the page still reads off `ctx` after
-  //: the march is the prescribed torque profile on the ladder (the record's
-  //: `torque` with the momentum channel and no beam; a beam sets its own per
-  //: step) and the waveform factor the run started at.
-  var rebuildSources = function (t) {
-    var k = wfAt(t === undefined ? 0 : t);
-    ctx.waveNow = k;
-    ctx.pFastPar = null;
-    ctx.pFastPerp = null;
-    ctx.torque = evDeposit(geo.rho, geo.vprime, sp.depCentre, sp.depWidth,
-                           sp.torque * (sp.wavePower ? k : 1));
-  };
-  rebuildSources(msg.tStart || 0);
 
   //: ★the clock CONTINUES on a resumed march: the waveform is a function
   //: of discharge time, and a second segment that restarted the clock would
