@@ -134,28 +134,11 @@ ok('a declared swing becomes a flat-top duration',
      `κ 1.85 → 1.2 : ${(pr.pLH[1] / 1e6).toFixed(1)} → ` +
      `${(pr2.pLH[1] / 1e6).toFixed(1)} MW`);
 
-  //: (2) the ohmic split.  V_loop = Ip Rp + Lp dIp/dt exactly, and Lp is the
-  //: published external inductance mu0 R0 (ln(8R0/a) + li/2 - 2) — written
-  //: out here rather than read back from the same call.
-  const LV = fy.zerodLoopVoltage({ ip: IP, teAvg: 8.0, r0: R0, a: A,
-                                   kappa: KAP, zeff: 1.8, li: 0.9,
-                                   dipDt: 1.0e6 });
-  const MU0 = 4e-7 * Math.PI;
-  const lpWant = MU0 * R0 * (Math.log(8 * R0 / A) + 0.9 / 2 - 2);
-  ok('the loop voltage splits into a resistive and an inductive term',
-     Math.abs(LV.vLoop - (IP * LV.rp + LV.lp * 1.0e6)) < 1e-9,
-     `V = ${LV.vLoop.toFixed(4)} V`);
-  ok('and its inductance is the published external one',
-     rel(LV.lp, lpWant) < 1e-12, `L_p = ${(LV.lp * 1e6).toFixed(3)} uH`);
-  //: ★the reason the criteria pass may not use V_loop x Ip: on this ramp the
-  //: two differ by more than the ohmic power itself
-  const flat = fy.zerodLoopVoltage({ ip: IP, teAvg: 8.0, r0: R0, a: A,
-                                     kappa: KAP, zeff: 1.8, li: 0.9,
-                                     dipDt: 0 });
-  ok('V_loop x Ip is NOT the ohmic power while the current is moving',
-     Math.abs(LV.vLoop * IP - IP * IP * flat.rp) > IP * IP * flat.rp,
-     `${(LV.vLoop * IP / 1e6).toFixed(2)} MW against ` +
-     `${(IP * IP * flat.rp / 1e6).toFixed(2)} MW ohmic`);
+  //: (2) the ohmic split — V_loop = Ip Rp + Lp dIp/dt and the published
+  //: external inductance — used to be checked here through the flat
+  //: `zerodLoopVoltage` binding.  That export is oracle-only since T-4
+  //: (2026-09-05): the same check lives in the kernel repository's
+  //: `tests/test_oracle_marshalling.py`, against the same entry.
 }
 
 // --- divertor observables --------------------------------------------------

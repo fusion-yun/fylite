@@ -157,32 +157,10 @@ def test_a_mis_shaped_plasma_flux_is_refused():
         K.evolve_circuits(m, r, np.zeros(2), t, v, psi_plasma=np.zeros((2, 2)))
 
 
-# --------------------------------------------------------------------------- #
-# the g-file profile extraction
-# --------------------------------------------------------------------------- #
-def test_gfile_profile_names_its_four_outputs():
-    x = np.linspace(0.0, 1.0, 65)
-    shape = (1.0 - x ** 1.4) ** 2.0
-    out = K.gfile_profile(shape * 4.0e4, shape * 1.2, rcentr=1.85)
-    assert set(out) == {"beta0", "emp", "enp", "shape_residual"}
-    assert all(np.isfinite(v) for v in out.values())
 
 
-def test_gfile_profile_refuses_profiles_of_different_lengths():
-    with pytest.raises(K.KernelError, match="ffprim"):
-        K.gfile_profile(np.ones(9), np.ones(8), rcentr=1.85)
 
 
-def test_gfile_profile_raises_rather_than_returning_a_near_member():
-    """A profile with no on-axis normalisation cannot be read into the
-    family; the entry says so instead of fitting the nearest member."""
-    with pytest.raises(K.KernelError):
-        K.gfile_profile(np.zeros(33), np.ones(33), rcentr=1.85)
-
-
-# --------------------------------------------------------------------------- #
-# the bootstrap's mapping layer
-# --------------------------------------------------------------------------- #
 def test_redl_surface_inputs_come_back_named_and_per_surface():
     ps = np.array([0.2, 0.5, 0.9])
     prof = np.linspace(0.0, 1.0, 11)
@@ -285,25 +263,6 @@ def test_the_uniform_resamplers_keep_the_ends():
     assert abs(q[0]) < 1e-12 and abs(q[-1] - 10.0) < 1e-12
 
 
-# --------------------------------------------------------------------------- #
-# the field-direction convention, and the TGLF species table
-# --------------------------------------------------------------------------- #
-def test_field_sign_is_not_numpy_sign_at_zero():
-    """★The one input where the entry and the expression it replaced differ.
-
-    ``mapping.derive`` spelled this ``int(np.sign(torfluxa))`` while
-    ``bundle::derive`` — the call immediately above it — spelled it its own
-    way.  They agree on every real file and disagree at ``torfluxa == 0``,
-    where numpy says ``0``: an orientation the GEO solve refuses, handed
-    back inside a dict whose forty other entries had been built with ``+1``.
-    A dict that disagrees with itself is the defect, not the zero.
-    """
-    for x in (1.7, -1.7, 1e300, -1e-300, 3.0):
-        assert K.field_sign(x) == np.sign(x)
-    assert K.field_sign(0.0) == 1.0 != np.sign(0.0)
-    assert K.field_sign(-0.0) == 1.0
-    #: it is a SIGN — no magnitude leaks through
-    assert abs(K.field_sign(-4.2)) == 1.0
 
 
 def _st(**over):
@@ -448,30 +407,6 @@ def test_miller_boundary_z_is_bit_identical_and_r_is_within_an_ulp_or_two():
     assert worst_ulp <= 16.0, f"max {worst_ulp} ulp"
 
 
-def test_analytic_shape_is_bit_identical_on_the_normalised_flux_domain():
-    """x is a NORMALISED flux and lives in [0, 1]; there the port is exact.
-
-    ★The reference is ELEMENTWISE ``float ** float``, because that is what
-    was replaced — a scalar ``Math.pow`` per grid node.  Writing it as
-    ``x ** emp`` on an ndarray instead makes this test fail by an ulp, and
-    the reason is worth stating: numpy's VECTORISED power is not its own
-    scalar power.  Which is this batch's whole subject in miniature — a
-    second implementation drifts from the first even inside one library.
-    """
-    rng = np.random.default_rng(3)
-    for _ in range(100):
-        beta0, emp, enp, r0 = (rng.uniform(0, 1), rng.uniform(0.5, 4.0),
-                               rng.uniform(0.5, 4.0), rng.uniform(1.0, 3.0))
-        r, x = rng.uniform(0.5, 4.0, 64), rng.uniform(0.0, 1.0, 64)
-        got = K.analytic_shape(r, x, beta0=beta0, emp=emp, enp=enp, r0=r0)
-        want = np.array([
-            (beta0 * float(r[i]) / r0 + (1 - beta0) * r0 / float(r[i]))
-            * (1.0 - float(x[i]) ** emp) ** enp for i in range(64)])
-        assert np.array_equal(got, want)
-    #: ★past the boundary the base goes non-positive and the shape is ZERO,
-    #: not a fractional power of a negative number
-    assert list(K.analytic_shape([1.7, 1.7], [1.0, 2.0], beta0=0.5, emp=2.0,
-                                 enp=1.5, r0=1.85)) == [0.0, 0.0]
 
 
 def test_b_field_is_the_central_difference_at_half_a_cell():
@@ -695,20 +630,6 @@ def test_label_drift_is_zero_unless_the_field_moves():
     assert np.allclose(got, -0.5 * rho * 0.4 / 2.0)
 
 
-def test_momentum_weights_come_back_as_three_profiles():
-    n = 9
-    _, vp, gm3 = _core_grid(n)
-    w = K.momentum_weights(vprime=vp, dens=np.full(n, 2e19), gm3=gm3,
-                           r2=np.full(n, 9.0), mass=3.34e-27,
-                           torque=np.full(n, 5.0))
-    for k in ("capacity", "metric", "source_rate"):
-        assert w[k].shape == (n,)
-    assert np.allclose(w["source_rate"], 5.0 / (2e19 * 3.34e-27 * 9.0))
-    #: ★a massless species is refused rather than dividing by zero
-    with pytest.raises(K.KernelError):
-        K.momentum_weights(vprime=vp, dens=np.full(n, 2e19), gm3=gm3,
-                           r2=np.full(n, 9.0), mass=0.0,
-                           torque=np.zeros(n))
 
 
 def test_solve_momentum_reports_its_march():
@@ -936,8 +857,12 @@ def test_the_flux_bill_uses_the_inductance_the_loop_voltage_was_computed_with():
     t = np.linspace(0.0, 10.0, 101)
     b = K.zerod_flux_budget(t, np.ones_like(t), np.full_like(t, 4e5),
                             [0.0, 1.0, 8.0, 10.0], r0=1.85, a=0.45, li=0.9)
-    _, _, lp = K.zerod_loop_voltage(4e5, 2.0, 1.85, 0.45, 1.65, li=0.9)
-    assert b["l_p"] == pytest.approx(lp, rel=1e-15)
+    #: ★the tie to `zerod_loop_voltage`'s L_p moved to the kernel repository
+    #: (`tests/test_oracle_marshalling.py`) with that export (oracle-only
+    #: since T-4, 2026-09-05); here the bill is held to the published
+    #: external inductance directly
+    lp = 4e-7 * np.pi * 1.85 * (np.log(8 * 1.85 / 0.45) + 0.9 / 2 - 2)
+    assert b["l_p"] == pytest.approx(lp, rel=1e-12)
     assert b["phi_ind"] == pytest.approx(lp * 4e5, rel=1e-12)
     #: one volt for ten seconds is ten webers
     assert b["phi_consumed"] == pytest.approx(10.0, abs=1e-9)

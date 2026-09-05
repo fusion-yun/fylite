@@ -50,11 +50,10 @@ from ._paths import KERNEL_LIB, KERNEL_EXT_LIB
 __all__ = [
     "KernelError", "KernelBackendError", "ABI_VERSION",
     "load", "available", "require", "Grid", "grid_of",
-    "dt_reactivity", "bgb_chi", "neutrals_mc",
+    "dt_reactivity",
     "nn_ensemble", "nn_weight_count",
     "zerod_volume", "zerod_evaluate", "zerod_predict",
     "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
-    "zerod_profile", "zerod_fusion_power", "zerod_loop_voltage",
     "zerod_limits", "zerod_flux_budget", "zerod_stored_energy",
     "zerod_averages", "strike_points", "wall_clearance",
     "start_currents", "fill_filaments", "feedforward_voltages",
@@ -62,12 +61,12 @@ __all__ = [
     "trace_surface", "contour", "shape_metrics", "enclosed_volume",
     "direct_integrals", "gradient",
     "shell_sum", "li3", "q_profile", "profile_shape_fit", "sample",
-    "redl_coefficients", "redl_bootstrap", "trapped_fraction_eps",
+    "redl_bootstrap", "trapped_fraction_eps",
     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
     "beam_current",
-        "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
+    "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
     "chord_mask", "line_integral", "chord_reduce", "pinhole_angles",
     "current_centroid",
     "ideal_stiffness", "dispersion_root", "vertical_plant", "vertical_loop",
@@ -82,27 +81,27 @@ __all__ = [
     "plasma_filaments",
     "spitzer_eta", "spitzer_eta_perp", "eped1nn",
     "ICRH_MINORITY", "ICRH_GAS", "ICRH_REFUSALS", "IcrhRefused",
-    "icrh_resonance", "icrh_minority", "icrh_profile", "icrh_fwcd",
-    "EDGE_SPECIES", "NE_TAU_CORONAL_LIMIT", "edge_noncoronal",
-    "edge_l_int", "LENGYEL_GEOMETRY_KEYS", "LENGYEL_DEFAULTS",
-    "lengyel_closed", "LENGYEL_SOL_KEYS", "LENGYEL_SOL_DEFAULTS",
-    "LENGYEL_STATE_KEYS", "lengyel_two_point", "lengyel_z_eff",
+    "icrh_resonance", "icrh_minority", "icrh_profile",
+    "NE_TAU_CORONAL_LIMIT",
+    "LENGYEL_GEOMETRY_KEYS", "LENGYEL_DEFAULTS",
+    "LENGYEL_SOL_KEYS", "LENGYEL_SOL_DEFAULTS",
+    "LENGYEL_STATE_KEYS",
     "LENGYEL_OUTCOMES", "lengyel_inverse", "lengyel_forward",
     "reintegrate", "flux_match", "FluxMatchError",
     "adas_id", "adas_species", "adas_cooling", "rad_ion", "rad_sync",
     "exchange_power", "volume_int",
-        "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
-    "tglf_local", "neo_local", "TGLF_SPECIES_ROWS", "field_sign",
+    "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
+    "tglf_local", "neo_local", "TGLF_SPECIES_ROWS",
     "neo_geo14", "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
-    "miller_boundary", "analytic_shape", "b_field", "analytic_current",
+    "miller_boundary", "b_field", "analytic_current",
     "sample_grid",
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "neo_sauter", "dke_solve", "neo_gyrobohm",
     "SAUTER_1999", "REDL_2021",
     "ridge_lstsq", "bounded_lstsq", "profile_fit", "profile_sample",
-    "null_disc", "channel_field", "breakdown_design",
+    "channel_field", "breakdown_design",
     "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
     "gs_fixed_box",
     "boundary_flux", "harmonic_interior", "gs_free_solve",
@@ -116,13 +115,13 @@ __all__ = [
     "ohmic_power", "quasi_neutral_ne", "b_unit_from_rho",
     "ion_dilution", "with_axis_node",
     "shape_observables", "two_temperature_march",
-    "deltastar_apply", "core_march", "label_drift", "momentum_weights", "solve_momentum",
+    "deltastar_apply", "core_march", "label_drift", "solve_momentum",
     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
     "d_from_flux", "gyrobohm_gamma", "alpha_heating",
     "q_crossing",
     "sawtooth_crash",
     "solve_density",
-    "tglf_flux_searched", "tomography_rows", "chi_from_flux", "gyrobohm_q", "shell_area",
+    "tglf_flux_searched", "chi_from_flux", "gyrobohm_q", "shell_area",
     "neo_current_unit",
     "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
     "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "shell_table", "beam_deposit",
@@ -131,10 +130,8 @@ __all__ = [
     "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
     "redl_drive", "redl_surface_inputs", "REDL_INPUT_ROWS",
-    "gfile_profile",
     "solve_psi",
-    "bound_deriv", "gyrobohm", "bundle_derive", "BUNDLE_ROWS",
-    "GYROBOHM_ROWS", "MXH_HARMONICS",
+    "bound_deriv",
     "design_null",
 ]
 
@@ -485,75 +482,6 @@ def nn_ensemble(surrogate, x):
     return mean, spread
 
 
-_sig("fylite_rs_bgb_chi",
-     [_ARR, _ARR, _ARR, _ARR, _U64] + [_F64] * 5 + [_ARR, _ARR], _I32)
-def bgb_chi(rho, te_ev, ne, q, *, b0, alphas=None):
-    """Mixed Bohm/gyro-Bohm closure (bgb.rs) — ``(chi_e, chi_i)`` [m²/s].
-
-    ★``rho`` must be the flux label the transport solve uses: the frozen
-    Bohm coefficients were measured against JINTRAC 101612's recorded
-    per-face Bohm column in ITS flux label (±0.5 % flat); the same formula
-    read against the midplane radius is 30-40 % off at the edge.  ``te_ev``
-    in eV.  ``alphas`` = (e_bohm, e_gb, i_bohm, i_gb); None (or any
-    non-finite entry) selects the module's frozen constants — the Bohm
-    pair measured, the gyro-Bohm pair literature values (that channel has
-    no oracle in 101612: its recorded column is identically zero).
-    """
-    lib = require()
-    rho, te_ev, ne, q = (np.ascontiguousarray(_f(v))
-                         for v in (rho, te_ev, ne, q))
-    n = rho.size
-    if not (te_ev.size == ne.size == q.size == n):
-        raise KernelError("bgb_chi: profile lengths disagree")
-    a = [float("nan")] * 4 if alphas is None else [float(v) for v in alphas]
-    chi_e = np.empty(n)
-    chi_i = np.empty(n)
-    rc = lib.fylite_rs_bgb_chi(rho, te_ev, ne, q, n, float(b0),
-                               a[0], a[1], a[2], a[3], chi_e, chi_i)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_bgb_chi returned {rc}")
-    return chi_e, chi_i
-
-
-_sig("fylite_rs_neutrals_mc",
-     [_ARR, _ARR, _ARR, _ARR, _ARR, _U64] + [_F64] * 4 + [_U64, _U64]
-     + [_ARR] * 5 + [_ARR], _I32)
-def neutrals_mc(r_edges, ne, te_ev, ti_ev, ni, *, mass_amu=2.0, e0_ev=3.0,
-                e_loss_ev=13.6, albedo=0.0, n_particles=200_000, seed=1):
-    """1-D cylindrical Monte-Carlo neutral transport (neutrals.rs).
-
-    ``r_edges``: n+1 shell edges [m]; plasma fields per shell (eV, m⁻³).
-    Deterministic in ``seed``.  Every tally is PER UNIT SOURCE (one
-    atom/s into the unit-length cylinder): scale by the physical influx
-    — that number is the caller's, not the kernel's.  Returns a dict with
-    ``n0`` [m⁻³], ``s_ion`` [m⁻³ s⁻¹], ``q_cx_i``/``q_ion_i``/``q_ion_e``
-    [W m⁻³] (each per unit source), ``ionized``/``escaped`` fractions
-    (their sum is exactly 1) and ``mean_cx``.
-    """
-    lib = require()
-    r_edges, ne, te_ev, ti_ev, ni = (np.ascontiguousarray(_f(v))
-                                     for v in (r_edges, ne, te_ev, ti_ev,
-                                               ni))
-    n = ne.size
-    if r_edges.size != n + 1 or not (te_ev.size == ti_ev.size == ni.size
-                                     == n):
-        raise KernelError("neutrals_mc: r_edges must have n+1 entries and "
-                          "the plasma fields n each")
-    outs = [np.empty(n) for _ in range(5)]
-    out3 = np.empty(3)
-    rc = lib.fylite_rs_neutrals_mc(r_edges, ne, te_ev, ti_ev, ni, n,
-                                   float(mass_amu), float(e0_ev),
-                                   float(e_loss_ev), float(albedo),
-                                   int(n_particles), int(seed), *outs,
-                                   out3)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_neutrals_mc returned {rc}")
-    return {"n0": outs[0], "s_ion": outs[1], "q_cx_i": outs[2],
-            "q_ion_i": outs[3], "q_ion_e": outs[4],
-            "ionized": float(out3[0]), "escaped": float(out3[1]),
-            "mean_cx": float(out3[2])}
-
-
 _sig("fylite_rs_zerod_volume", [_F64, _F64, _F64], _F64)
 def zerod_volume(r0, a, kappa) -> float:
     """Ellipsoidal plasma volume ``2 pi² R0 a² kappa`` [m³]."""
@@ -636,51 +564,6 @@ def zerod_phase_labels(phases, t) -> list:
     spelling applied."""
     idx = zerod_waveform(phases, t, "phase").astype(int)
     return [PHASE_NAMES[i] for i in idx]
-
-
-_sig("fylite_rs_zerod_profile", [_ARR, _U64, _F64, _F64, _F64, _ARR], _I32)
-def zerod_profile(rho, centre: float, *, peaking: float = 1.5,
-                  edge_frac: float = 0.05):
-    """The prescribed radial shape ``(1 - rho²)^peaking`` with a finite
-    edge, scaled to an on-axis value."""
-    lib = require()
-    r = _f(np.atleast_1d(rho))
-    out = np.empty(r.size)
-    rc = lib.fylite_rs_zerod_profile(r, r.size, float(centre),
-                                     float(peaking), float(edge_frac), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_profile returned {rc}")
-    return out
-
-
-_sig("fylite_rs_zerod_fusion_power", ([_ARR] * 3 + [_U64, _F64, _F64, _ARR]), _I32)
-def zerod_fusion_power(rho, ne, ti_kev, volume: float, *,
-                       dt_fraction: float = 0.5):
-    """D-T fusion power [W] and the alpha share, from prescribed profiles."""
-    lib = require()
-    r, n, t = (_f(np.atleast_1d(a)) for a in (rho, ne, ti_kev))
-    out = np.empty(2)
-    rc = lib.fylite_rs_zerod_fusion_power(r, n, t, r.size, float(volume),
-                                          float(dt_fraction), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_fusion_power returned {rc}")
-    return float(out[0]), float(out[1])
-
-
-_sig("fylite_rs_zerod_loop_voltage", [_F64] * 8 + [_ARR], _I32)
-def zerod_loop_voltage(ip: float, te_kev_avg: float, r0: float, a: float,
-                       kappa: float, *, zeff: float = 1.8, li: float = 0.9,
-                       dip_dt: float = 0.0):
-    """``(V_loop, R_p, L_p)`` — Spitzer-like resistivity with a
-    trapped-particle correction, plus the inductive term."""
-    lib = require()
-    out = np.empty(3)
-    rc = lib.fylite_rs_zerod_loop_voltage(
-        float(ip), float(te_kev_avg), float(r0), float(a), float(kappa),
-        float(zeff), float(li), float(dip_dt), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_loop_voltage returned {rc}")
-    return float(out[0]), float(out[1]), float(out[2])
 
 
 _sig("fylite_rs_zerod_limits", [_F64] * 8 + [_ARR], _I32)
@@ -3153,27 +3036,6 @@ def miller_boundary(*, r0: float, a: float, kappa: float = 1.0,
     return np.column_stack([orr, ozz])
 
 
-_sig("fylite_rs_analytic_shape", [_F64] * 4 + [_ARR, _ARR, _U64, _ARR], _I32)
-def analytic_shape(r, x, *, beta0: float, emp: float, enp: float,
-                   r0: float):
-    """The analytic current shape ``(beta0 r/r0 + (1-beta0) r0/r)(1-x^emp)^enp``.
-
-    Zero wherever the base has gone non-positive.  Vectorised over
-    ``(r, x)``: the browser twin evaluated it once per grid node, and a
-    scalar entry would pay an ABI crossing per node to remove a duplicate.
-    """
-    lib = require()
-    r_a, x_a = _f(np.atleast_1d(r)), _f(np.atleast_1d(x))
-    if r_a.size != x_a.size:
-        raise KernelError("analytic_shape: r and x differ in length")
-    out = np.empty(r_a.size)
-    rc = lib.fylite_rs_analytic_shape(float(beta0), float(emp), float(enp),
-                                      float(r0), r_a, x_a, r_a.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_analytic_shape returned {rc}")
-    return out
-
-
 def _grid6(g):
     """``(r0, z0, dr, dz, nr, nz)`` from a :class:`Grid` or a plain dict.
 
@@ -3259,36 +3121,6 @@ def analytic_current(psi, r_of, mask, *, grid: dict, psi_axis: float,
         raise KernelError(f"fylite_rs_analytic_current returned {rc}")
     return out.reshape(nr - 2, nz - 2)
 
-
-_sig("fylite_rs_field_sign", [_F64, _ARR], _I32)
-def field_sign(torfluxa: float) -> float:
-    """Which way ``B_t`` points, read off the signed toroidal flux.
-
-    ★``sign(torfluxa)`` is the obvious spelling and it differs at exactly
-    one input: this returns ``+1`` for a zero flux, where ``sign`` returns
-    ``0``.  ``0`` is not an orientation — the GEO solve refuses a surface
-    whose ``signb`` vanishes — and the bundle a caller holds alongside it
-    was built with ``+1``.  One host, so the dict cannot disagree with
-    itself.
-    """
-    lib = require()
-    out = np.empty(1)
-    rc = lib.fylite_rs_field_sign(float(torfluxa), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_field_sign returned {rc}")
-    return float(out[0])
-
-
-# --------------------------------------------------------------------------- #
-# The TGLF port's own entries, and NEO's.
-#
-# ★These marshallings used to live in `fylite/tglf.py` and `fylite/neo.py`,
-# which also declared their `argtypes` inline at each call site — the same
-# defect `rusteq` carried: a second marshalling of one entry, in a layer
-# whose job is reading a deck.  What stays on the caller's side is the DECK
-# GRAMMAR (which name means which slot, and what a missing one defaults to);
-# what arrives here is packed arrays.
-# --------------------------------------------------------------------------- #
 
 def _species_arrays(species, n: int):
     """The six-or-eight parallel species arrays, each truncated to ``n``."""
@@ -3572,7 +3404,8 @@ _sig("fylite_rs_neo_gyrobohm", [_F64] * 3 + [_ARR], _I32)
 def neo_gyrobohm(dens_1, temp_1, rho_star) -> dict:
     """NEO's OWN gyro-Bohm normalisers — ``{pflux, eflux, mflux}``.
 
-    ★Not :func:`gyrobohm`, which is the electron-referenced set a flux
+    ★Not the kernel's ``gyrobohm`` (an oracle-only export since T-4,
+    2026-09-05), which is the electron-referenced set a flux
     MATCH happens in.  These are the reference set NEO returns its fluxes
     in, so dividing by them is the step that makes a NEO number and a TGLF
     number comparable at all — and the three exponents are the whole
@@ -3760,32 +3593,6 @@ def trapped_fraction_eps(eps):
     return out
 
 
-_sig("fylite_rs_redl_coefficients", [_ARR] * 4 + [_U64, _ARR], _I32)
-def redl_coefficients(ft, zeff, nu_e_star=0.0, nu_i_star=0.0) -> dict:
-    r"""Redl-2021 ``L31``/``L32``/``L34``/``alpha`` (the analytic model).
-
-    ★Not what the NEO-lineage solver branch computes: the two differ in
-    ``L34`` off the collisionless axis (4.1 % at ν\* = 0.1, 15.7 % at
-    ν\* = 1).  Both live in ``neoclassical.rs``, named apart, with the note
-    that says which upstream each follows.
-    """
-    ft, zeff, nue, nui = np.broadcast_arrays(
-        *[np.asarray(a, float) for a in (ft, zeff, nu_e_star, nu_i_star)])
-    shape = ft.shape
-    ft, zeff, nue, nui = (_f(a).ravel() for a in (ft, zeff, nue, nui))
-    lib = require()
-    out = np.empty(4 * ft.size)
-    rc = lib.fylite_rs_redl_coefficients(ft, zeff, nue, nui, ft.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_redl_coefficients returned {rc}")
-    rows = out.reshape(-1, 4)
-    keys = ("L31", "L32", "L34", "alpha")
-    return {k: rows[:, i].reshape(shape) if shape else float(rows[0, i])
-            for i, k in enumerate(keys)}
-
-
-# the analytic Redl-2021 bootstrap model (NOT the solver's branch —
-# see the note in neoclassical.rs on the two L34s)
 _sig("fylite_rs_redl_bootstrap", ([_U64] + [_ARR] * 10 + [_F64] * 3 + [_I32, _ARR]), _I32)
 def redl_bootstrap(*, eps, q_abs, ne, te, ti, ni, zeff, p_th, i_psi, psi_bar,
                    r_maj: float, b0: float, z_ion: float = 1.0,
@@ -3856,36 +3663,6 @@ def profile_shape_fit(x, y) -> dict:
         raise KernelError(f"fylite_rs_profile_shape_fit returned {rc}"
                           + (" — the fit did not settle" if rc == -2 else ""))
     return {"a": float(out[0]), "b": float(out[1]), "residual": float(out[2])}
-
-
-_sig("fylite_rs_gfile_profile", [_ARR, _ARR, _U64, _F64, _ARR], _I32)
-def gfile_profile(pprime, ffprim, *, rcentr: float) -> dict:
-    """This code's analytic profile parameters, extracted from an EFIT
-    forward g-file: ``{beta0, emp, enp, shape_residual}``.
-
-    ★The amplitude is an IDENTITY, not a calibration: the R-weight split
-    is the same in both codes — ``beta_eff`` from ``μ₀R₀²p′/FF′`` equals
-    EFIT's BETAP0 to machine precision at every x and every scan point.
-    The whole difference between the codes was always the SHAPE.
-
-    ★★The shape is an EXTRACTION, not an approximation: a g-file's profile
-    is exactly of the family ``(1-xᵃ)ᵇ`` (residual ~1e-9), with ``b`` the
-    k-file EMP and ``a`` drifting with ``(betap0, emp, enp)`` in a way that
-    resisted a closed form — so it is fitted per case rather than
-    tabulated.  Raises when the fit does not settle or the profile carries
-    no on-axis normalisation: a shape that is not of the family must not
-    come back as the nearest member of it.
-    """
-    lib = require()
-    pp, ff = _f(np.atleast_1d(pprime)), _f(np.atleast_1d(ffprim))
-    if ff.size != pp.size:
-        raise KernelError(f"pprime has {pp.size} points, ffprim {ff.size}")
-    out = np.empty(4)
-    rc = lib.fylite_rs_gfile_profile(pp, ff, pp.size, float(rcentr), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_gfile_profile returned {rc}")
-    return {"beta0": float(out[0]), "emp": float(out[1]),
-            "enp": float(out[2]), "shape_residual": float(out[3])}
 
 
 _sig("fylite_rs_sample", ([_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _ARR, _U64, _I32, _ARR]), _I32)
@@ -4082,21 +3859,6 @@ def profile_sample(coef, x) -> np.ndarray:
     if rc != 0:
         raise KernelError(f"fylite_rs_profile_sample returned {rc}")
     return out
-
-
-# --------------------------------------------------------------------------- #
-# breakdown null design (breakdown.rs)
-# --------------------------------------------------------------------------- #
-#: The order `bundle_derive` writes its 21 scalar rows in.
-BUNDLE_ROWS = ("b_unit", "s", "drmaj", "dzmag", "skappa", "sdelta", "szeta",
-               "dlnnedr", "dlntedr", "w0p", "volp", "vol", "surf",
-               "ave_grad_r", "grad_r0", "bp2", "bt2", "bt0", "bp0",
-               "cs", "rhos")
-#: ...and the six gyro-Bohm rows that follow them.
-GYROBOHM_ROWS = ("rho_star", "chi_gb", "gamma_gb", "q_gb", "pi_gb", "s_gb")
-#: The MXH harmonics `bundle_derive` takes and shears, in row order.
-MXH_HARMONICS = ("cos0", "cos1", "cos2", "cos3", "cos4", "cos5", "cos6",
-                 "sin3", "sin4", "sin5", "sin6")
 
 
 #: Electron mass in units of the deuteron mass — the ratio NEO's species
@@ -4694,7 +4456,7 @@ def alpha_heating(*, ne, te, ti_kev, dt_fraction: float = 0.5,
     Bosch-Hale reactivity and the Stix slowing-down partition — rather than
     a transcription of an upstream routine, because upstream's regression
     set carries no D-T.  Two gates: the cross-tier identity (the volume
-    integral of ``p_total`` is :func:`zerod_fusion_power`'s alpha share on
+    integral of ``p_total`` is the kernel's ``zerod_fusion_power`` alpha share on
     the same profiles) and, since 2026-08-22, an EXTERNAL one — ASTRA's
     ITER 15 MA burn case in ``tests/data/reference/``, which the kernel matches
     to 3 % point-by-point and 0.3 % in the integral.
@@ -4812,48 +4574,6 @@ def factor_dispersion(factors) -> float:
     if rc != 0:
         raise KernelError(f"fylite_rs_factor_dispersion returned {rc}")
     return float(out[0])
-
-
-_sig("fylite_rs_tomography_rows", ([_F64] * 4 + [_U64, _U64, _ARR, _ARR, _U64, _ARR, _ARR, _U64, _F64, _F64] + [_U64] * 4 + [_ARR]), _I32)
-def tomography_rows(grid: Grid, psin2d, chords, *, boundary=None, axis,
-                    m_max: int = 1, l_max: int = 4, n_samples: int = 601,
-                    n_basis: int):
-    """The tomography response matrix — row per chord, column per basis mode.
-
-    ``chords`` is ``(n_chord, 7)`` as ``[ox, oy, oz, dx, dy, dz, length]``.
-
-    ★★Three statements in one call, each of which has cost this repo on its
-    own: ψ_N ≤ 1 is NOT a containment test (ψ is not monotone outside the
-    plasma), the angle is the GEOMETRIC poloidal angle about the magnetic
-    axis (the convention the basis was built in — measure it about the
-    geometric centre and every odd mode rotates), and the integral is the
-    midpoint rule the chord layer uses.  And the matrix belongs to the MAP:
-    it is rebuilt when the equilibrium changes.
-    """
-    lib = require()
-    p = _f(psin2d)
-    if p.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psin2d has shape {p.shape}, expected "
-                          f"{(grid.nr, grid.nz)}")
-    ch = _f(np.asarray(chords, float).reshape(-1, 7))
-    if boundary is None:
-        br = bz = np.zeros(0)
-    else:
-        br, bz = _f(boundary[0]), _f(boundary[1])
-    out = np.empty(ch.shape[0] * int(n_basis))
-    rc = lib.fylite_rs_tomography_rows(
-        grid.r0, grid.z0, grid.dr, grid.dz, grid.nr, grid.nz, p.ravel(),
-        ch.ravel(), ch.shape[0], br, bz, br.size, float(axis[0]),
-        float(axis[1]), int(m_max), int(l_max), int(n_samples),
-        int(n_basis), out)
-    if rc == -2:
-        raise KernelError(
-            "every chord missed the plasma — check the view geometry "
-            "against the equilibrium (no sight line has samples inside the "
-            "LCFS)")
-    if rc != 0:
-        raise KernelError(f"fylite_rs_tomography_rows returned {rc}")
-    return out.reshape(ch.shape[0], int(n_basis))
 
 
 _sig("fylite_rs_solve_density", ([_ARR] * 7 + [_U64, _F64, _F64, _U64] + [_F64] * 3 + [_U64, _ARR]), _I32)
@@ -5158,28 +4878,6 @@ def label_drift(rho, *, b0: float, b0_dot: float):
     if rc != 0:
         raise KernelError(f"fylite_rs_label_drift returned {rc}")
     return out
-
-
-_sig("fylite_rs_momentum_weights", [_ARR] * 5 + [_U64, _F64, _ARR], _I32)
-def momentum_weights(*, vprime, dens, gm3, r2, mass: float, torque) -> dict:
-    """The momentum channel's FVM weights — capacity, flux metric, source rate.
-
-    ``C = V' n m ⟨R²⟩``, ``M = V'⟨|∇ρ|²⟩ n m ⟨R²⟩``, ``S = T/(n m ⟨R²⟩)``.
-    ω is an angular frequency [rad/s] and ``torque`` a torque density
-    [J/m³], so this is SI throughout — the one place it differs from the
-    heat weights beyond the 3/2.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(vprime, float))
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape))
-         for x in (vprime, dens, gm3, r2, torque)]
-    n = a[0].size
-    out = np.empty(3 * n)
-    rc = lib.fylite_rs_momentum_weights(*a, n, float(mass), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_momentum_weights returned {rc}")
-    return {"capacity": out[:n].copy(), "metric": out[n:2 * n].copy(),
-            "source_rate": out[2 * n:].copy()}
 
 
 _sig("fylite_rs_solve_momentum",
@@ -5939,96 +5637,6 @@ def bound_deriv(f, r):
     return out
 
 
-_sig("fylite_rs_gyrobohm", [_ARR, _ARR, _ARR, _U64, _F64, _ARR], _I32)
-def gyrobohm(te_kev, ne_1e19, b_unit, a: float) -> dict:
-    """The gyro-Bohm units a flux comparison happens in.
-
-    ★``a`` is the minor radius of the LAST closed surface, not of the
-    outermost solved one — getting that wrong scales ``chi_gb`` by a/a′ and
-    ``q_gb`` by its square.
-    """
-    lib = require()
-    te, ne, bu = (_f(np.atleast_1d(x)) for x in (te_kev, ne_1e19, b_unit))
-    out = np.empty(8 * te.size)
-    rc = lib.fylite_rs_gyrobohm(te, ne, bu, te.size, float(a), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_gyrobohm returned {rc}")
-    rows = out.reshape(8, -1)
-    return dict(zip(("cs", "rhos") + GYROBOHM_ROWS, [r.copy() for r in rows]))
-
-
-_sig("fylite_rs_bundle_derive", [_ARR, _U64, _ARR, _ARR, _U64, _ARR, _F64, _U64] + [_ARR] * 4, _I32)
-def bundle_derive(prof: dict, *, ni, ti, mxh=None, torfluxa: float,
-                  ntheta: int = 1001) -> dict:
-    """Derived geometry + gyro-Bohm units from a profile set — the kernel's.
-
-    ``prof`` carries ``rmin rmaj q rho zmag kappa delta zeta ne te w0`` on
-    one radial grid; ``ni``/``ti`` are ``(n_ion, n_rad)``; ``mxh`` is the
-    optional extended-harmonic set keyed by :data:`MXH_HARMONICS`.
-
-    ★A port of GACODE's ``expro_compute_derived``: same formulas, the same
-    three-point derivative, and the flux-surface metrics from GEO.  The axis
-    is degenerate for GEO — V and V′ vanish there — so the metrics that do
-    not vanish are extrapolated from their two neighbours rather than
-    evaluated on a surface with no interior.
-    """
-    lib = require()
-    keys = ("rmin", "rmaj", "q", "rho", "zmag", "kappa", "delta", "zeta",
-            "ne", "te", "w0")
-    n = np.size(prof["rmin"])
-    rows = []
-    for k in keys:
-        v = prof.get(k)
-        if v is None:
-            v = np.ones(n) if k == "kappa" else np.zeros(n)
-        rows.append(np.broadcast_to(np.asarray(v, float), (n,)))
-    p_a = _f(np.ascontiguousarray(np.stack(rows)))
-    ni_a = _f(np.atleast_2d(np.asarray(ni, float)))
-    ti_a = _f(np.broadcast_to(np.atleast_2d(np.asarray(ti, float)),
-                              ni_a.shape))
-    n_ion = ni_a.shape[0]
-    mxh = mxh or {}
-    mx = _f(np.stack([np.broadcast_to(np.asarray(mxh.get(h, 0.0), float), (n,))
-                      for h in MXH_HARMONICS]))
-    out = np.empty(21 * n)
-    gb = np.empty(6 * n)
-    ion = np.empty(2 * n_ion * n)
-    shear = np.empty(11 * n)
-    rc = lib.fylite_rs_bundle_derive(p_a.ravel(), n, ni_a.ravel(),
-                                     ti_a.ravel(), n_ion, mx.ravel(),
-                                     float(torfluxa), int(ntheta),
-                                     out, gb, ion, shear)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_bundle_derive returned {rc}")
-    res = {k: v.copy() for k, v in zip(BUNDLE_ROWS, out.reshape(21, n))}
-    res.update({k: v.copy() for k, v in zip(GYROBOHM_ROWS, gb.reshape(6, n))})
-    ion = ion.reshape(2, n_ion, n)
-    res["dlnnidr"] = ion[0].copy()
-    res["dlntidr"] = ion[1].copy()
-    res.update({f"shape_s{h}": v.copy()
-                for h, v in zip(MXH_HARMONICS, shear.reshape(11, n))})
-    return res
-
-
-_sig("fylite_rs_null_disc", [_F64] * 3 + [_U64, _U64, _ARR, _ARR], _I32)
-def null_disc(r0: float, z0: float, radius: float, *, n_ring: int = 4,
-              n_theta: int = 16):
-    """The disc a field null is JUDGED on: centre, then concentric rings.
-
-    ★Part of the design, not a plotting detail: "|B| below a few mT" means
-    nothing without "over what region", and the radius and the two counts
-    are exactly what fixes that region.
-    """
-    lib = require()
-    n = 1 + int(n_ring) * int(n_theta)
-    r, z = np.empty(n), np.empty(n)
-    rc = lib.fylite_rs_null_disc(float(r0), float(z0), float(radius),
-                                 int(n_ring), int(n_theta), r, z)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_null_disc returned {rc}")
-    return r, z
-
-
 _sig("fylite_rs_channel_field", ([_ARR] * 6 + [_U64, _ARR, _U64] + [_ARR, _ARR, _U64, _U64, _U64] + [_ARR] * 3), _I32)
 def channel_field(elems, weights, pr, pz, *, nu: int = 3, nv: int = 3):
     """Per-CHANNEL ``(psi, B_r, B_z)`` at points — ``(npts, nch)`` each.
@@ -6507,8 +6115,6 @@ _sig("fylite_rs_icrh_resonance", [_ARR, _ARR, _ARR], _I32)
 _sig("fylite_rs_icrh_minority", [_ARR, _ARR, _ARR, _F64, _ARR], _I32)
 _sig("fylite_rs_icrh_profile",
      [_ARR, _ARR, _U64, _F64, _F64, _F64, _F64, _ARR], _I32)
-_sig("fylite_rs_icrh_fwcd",
-     [_F64, _F64, ctypes.c_uint32, _F64, _F64, _F64, _I32, _ARR], _I32)
 
 _ICRH_LAYER_KEYS = ("r_res", "x_res", "harmonic", "b_res", "offset")
 _ICRH_HEAT_KEYS = ("p_el", "p_ion", "w_fast", "e_mean", "t_eff", "e_crit",
@@ -6590,93 +6196,9 @@ def icrh_profile(x, vpr, *, x_res: float, width: float, p_total: float,
             "p_el": out[2 * n:].copy()}
 
 
-def icrh_fwcd(*, te0_ev: float, zeff: float, model: int = 0,
-              power_w: float = 0.0, ne0: float = 0.0, r0: float = 0.0,
-              direction: int = 1) -> dict:
-    """Fast-wave current drive: ``{eta, current_a}``."""
-    lib = require()
-    out = np.empty(2)
-    rc = lib.fylite_rs_icrh_fwcd(float(te0_ev), float(zeff), int(model),
-                                 float(power_w), float(ne0), float(r0),
-                                 int(direction), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_icrh_fwcd returned {rc}")
-    return {"eta": float(out[0]), "current_a": float(out[1])}
-
-
-# --------------------------------------------------------------------------- #
-# Edge atomic data — Mavrin-2017 NON-coronal (TX-4, the data layer)
-# --------------------------------------------------------------------------- #
-#: ★★NOT a second spelling of :func:`rad_ion`'s coronal cooling rate.  The
-#: coronal one is a function of `T_e` alone and assumes the charge state
-#: distribution has settled; in a divertor it usually has not.  The
-#: non-coronal rate takes the residence parameter `n_e*tau` as well, and the
-#: two differ by orders of magnitude exactly where an edge model is asked.
-#: Both are kept and each says which it is.
-
-#: the species these fits carry.  ★`He3`/`He4` alias to `He` — same electron
-#: shell — and anything else radiates ZERO, which is upstream's own
-#: modelling statement about heavy impurities at the EDGE (tungsten's edge
-#: contribution is negligible beside its core one, which a different model
-#: answers) rather than a silent failure.
-EDGE_SPECIES = ("He", "Li", "Be", "C", "N", "O", "Ne", "Ar")
-
-#: above this residence parameter the plasma is CORONAL and the fit
-#: SATURATES rather than extrapolating [m^-3 s]
 NE_TAU_CORONAL_LIMIT = 1.0e19
 
-_sig("fylite_rs_edge_noncoronal",
-     [ctypes.c_char_p, _U64, _ARR, _U64, _F64, _ARR], _I32)
-_sig("fylite_rs_edge_l_int",
-     [ctypes.c_char_p, _U64, _F64, _F64, _F64, _U64, _ARR], _I32)
 
-
-def edge_noncoronal(symbol: str, t_e_ev, *, ne_tau: float) -> dict:
-    """Non-coronal mean charge state and cooling rate.
-
-    ``t_e_ev`` [eV], ``ne_tau`` [m^-3 s].  Returns
-    ``{mean_charge_state, cooling_rate}`` [dimensionless], [W m^3], each on
-    ``t_e_ev``.
-
-    ★Three clippings are part of the MODEL, not guards on it: ``T_e`` into
-    the species' own fit range (a third-order polynomial extrapolated is
-    not a small error), ``ne_tau`` at the coronal limit, and an unknown
-    species to zero.
-    """
-    lib = require()
-    t = _f(np.atleast_1d(np.asarray(t_e_ev, float)).ravel())
-    n = t.size
-    b = str(symbol).encode()
-    out = np.empty(2 * n)
-    rc = lib.fylite_rs_edge_noncoronal(b, len(b), t, n, float(ne_tau), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_edge_noncoronal returned {rc}")
-    return {"mean_charge_state": out[:n].copy(),
-            "cooling_rate": out[n:].copy()}
-
-
-def edge_l_int(symbol: str, *, start_ev: float, stop_ev: float,
-               ne_tau: float, resolution: int) -> float:
-    """``L_INT = ∫ L_z sqrt(T_e) dT_e`` [eV^1.5 W m^3] — the integrated
-    cooling rate the extended Lengyel model consumes.
-
-    ★★``resolution`` is PART OF THE ANSWER and has no default: this is a
-    trapezoid on a log-spaced grid, and upstream's own callers use 100
-    points.  A caller that quietly used more would not reproduce the model
-    it claims to reproduce — it would reproduce a better-integrated cousin
-    of it.
-    """
-    lib = require()
-    b = str(symbol).encode()
-    out = np.empty(1)
-    rc = lib.fylite_rs_edge_l_int(b, len(b), float(start_ev), float(stop_ev),
-                                  float(ne_tau), int(resolution), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_edge_l_int returned {rc}")
-    return float(out[0])
-
-
-#: the 13 columns `fylite_rs_lengyel_closed` reads, in order
 LENGYEL_GEOMETRY_KEYS = (
     "major_radius", "minor_radius", "elongation_psi95",
     "triangularity_psi95", "magnetic_field_on_axis", "plasma_current",
@@ -6694,43 +6216,7 @@ LENGYEL_DEFAULTS = {
     "T_i_T_e_ratio_separatrix": 1.0,
 }
 
-_LENGYEL_CLOSED_KEYS = ("shaping_factor", "b_pol_avg",
-                        "cylindrical_safety_factor", "fieldline_pitch_at_omp",
-                        "kappa_e", "alpha_t", "q_parallel")
 
-_sig("fylite_rs_lengyel_closed", [_ARR, _F64, _F64, _ARR], _I32)
-
-
-def lengyel_closed(geometry: dict, *, t_e_separatrix_ev: float,
-                   z_eff_separatrix: float) -> dict:
-    """The extended Lengyel model's closed forms — the half that does not
-    iterate.
-
-    ``geometry`` takes :data:`LENGYEL_GEOMETRY_KEYS`; the last three have
-    upstream defaults in :data:`LENGYEL_DEFAULTS`.  Returns the separatrix
-    geometry, ``kappa_e`` [W/(m eV^3.5)], ``alpha_t`` and ``q_parallel``
-    [W/m^2].
-
-    ★★``t_e_separatrix_ev`` is in **eV**.  The model's own
-    ``T_e_separatrix`` output is in keV while its ``T_e_target`` is in eV —
-    upstream's arrangement, which is why the unit is in this argument's
-    name rather than left to a docstring a caller may not read.
-    """
-    lib = require()
-    kw = {**LENGYEL_DEFAULTS, **geometry}
-    missing = [k for k in LENGYEL_GEOMETRY_KEYS if k not in kw]
-    if missing:
-        raise KernelError(f"lengyel geometry missing: {', '.join(missing)}")
-    block = _f([float(kw[k]) for k in LENGYEL_GEOMETRY_KEYS])
-    out = np.empty(7)
-    rc = lib.fylite_rs_lengyel_closed(block, float(t_e_separatrix_ev),
-                                      float(z_eff_separatrix), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lengyel_closed returned {rc}")
-    return dict(zip(_LENGYEL_CLOSED_KEYS, out))
-
-
-#: the 14 columns `fylite_rs_lengyel_two_point` reads, in order
 LENGYEL_SOL_KEYS = (
     "connection_length_divertor", "connection_length_target",
     "SOL_conduction_fraction", "divertor_broadening_factor",
@@ -6760,76 +6246,7 @@ LENGYEL_SOL_DEFAULTS = {
 LENGYEL_STATE_KEYS = ("q_parallel", "alpha_t", "kappa_e", "c_z_prefactor",
                       "T_e_target_eV")
 
-_LENGYEL_TWO_POINT_KEYS = (
-    "electron_temp_at_cc_interface", "divertor_entrance_electron_temp",
-    "T_e_separatrix_eV", "separatrix_total_pressure", "required_power_loss",
-    "parallel_heat_flux_at_target", "parallel_heat_flux_at_cc_interface",
-)
 
-_sig("fylite_rs_lengyel_two_point", [_ARR, _ARR, _ARR], _I32)
-_sig("fylite_rs_lengyel_z_eff",
-     [_F64, _F64, _F64, ctypes.c_char_p, _ARRU, _ARR, _U64, _ARR], _I32)
-
-
-def lengyel_two_point(params: dict, state: dict) -> dict:
-    """The two-point model's derived properties at a state you supply.
-
-    ``params`` takes :data:`LENGYEL_SOL_KEYS` (model settings default from
-    :data:`LENGYEL_SOL_DEFAULTS`); ``state`` takes
-    :data:`LENGYEL_STATE_KEYS`.
-
-    ★★These are PURE FUNCTIONS of the state, which is what makes them
-    checkable before any solver exists: the whole state is five numbers, so
-    a port can be held to upstream's derived values at a converged state it
-    did not have to find for itself.
-
-    ★``T_e_separatrix_eV`` comes back in **eV** — the model's internal unit.
-    Its top-level output of that name is in keV while ``T_e_target`` stays
-    in eV, and converting here would put two meanings behind one name.
-    """
-    lib = require()
-    kw = {**LENGYEL_SOL_DEFAULTS, **params}
-    missing = [k for k in LENGYEL_SOL_KEYS if k not in kw]
-    if missing:
-        raise KernelError(f"lengyel params missing: {', '.join(missing)}")
-    missing = [k for k in LENGYEL_STATE_KEYS if k not in state]
-    if missing:
-        raise KernelError(f"lengyel state missing: {', '.join(missing)}")
-    p = _f([float(kw[k]) for k in LENGYEL_SOL_KEYS])
-    s = _f([float(state[k]) for k in LENGYEL_STATE_KEYS])
-    out = np.empty(7)
-    rc = lib.fylite_rs_lengyel_two_point(p, s, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lengyel_two_point returned {rc}")
-    return dict(zip(_LENGYEL_TWO_POINT_KEYS, out))
-
-
-def lengyel_z_eff(impurities: dict, *, t_e_ev: float, ne_tau: float,
-                  z_i: float = 1.0) -> float:
-    """``Z_eff`` from a background ion and ``{symbol: concentration}``.
-
-    Each impurity's mean charge state comes from the Mavrin non-coronal fit
-    at ``t_e_ev`` [eV] and ``ne_tau`` [m^-3 s]; quasineutrality closes the
-    background density.
-
-    ★A species the fits do not carry contributes NOTHING — the same
-    modelling statement :func:`edge_noncoronal` makes, and it must not
-    quietly change ``Z_eff`` either.
-    """
-    lib = require()
-    names = list(impurities)
-    blob = "".join(names).encode()
-    lens = np.ascontiguousarray([len(n.encode()) for n in names], np.uint64)
-    conc = _f([float(impurities[n]) for n in names])
-    out = np.empty(1)
-    rc = lib.fylite_rs_lengyel_z_eff(float(t_e_ev), float(ne_tau), float(z_i),
-                                     blob, lens, conc, len(names), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lengyel_z_eff returned {rc}")
-    return float(out[0])
-
-
-#: how `fylite_rs_lengyel_inverse` reports why the model declined
 LENGYEL_OUTCOMES = ("SUCCESS", "C_Z_PREFACTOR_NEGATIVE",
                     "Q_CC_SQUARED_NEGATIVE")
 

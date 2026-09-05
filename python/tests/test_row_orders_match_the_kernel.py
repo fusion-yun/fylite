@@ -90,8 +90,9 @@ def _collect(hits):
 
 #: tuple -> (export, extractor).  Each is an OUTPUT buffer the kernel fills.
 COVERED = {
-    "BUNDLE_ROWS":     ("bundle_derive",      lambda b: _from_loop(b, 0)),
-    "GYROBOHM_ROWS":   ("bundle_derive",      lambda b: _from_loop(b, 1)),
+    #: ★`BUNDLE_ROWS` / `GYROBOHM_ROWS` left with `bundle_derive` (oracle-only
+    #: since T-4, 2026-09-05): the kernel repository's
+    #: `tests/test_oracle_marshalling.py` holds them to the same write order.
     "GEO_SCALARS":     ("geo_surface",        lambda b: _from_indexed(b, "o")),
     "FREE_SOLVE_KEYS": ("gs_free_solve",      lambda b: _from_indexed(b, "o")),
     "FREE_SOLVE_TAB_KEYS": ("gs_free_solve_tab",
@@ -132,9 +133,6 @@ UNCHECKED = {
     "SURFACE_KEYS": "an INPUT block — Python packs it, the kernel reads it "
                     "back by index; checking it needs the reader, not a "
                     "write buffer",
-    "MXH_HARMONICS": "an input row order AND the suffix of an output dict; "
-                     "the kernel copies the block wholesale, so there is no "
-                     "per-slot write to read",
     "REDL_INPUT_ROWS": "written through a helper that fills rows by loop "
                        "index rather than by name",
     "GEO_SHAPE_KEYS": "used as a SET for validation, never positionally",
@@ -146,10 +144,6 @@ UNCHECKED = {
     "LENGYEL_GEOMETRY_KEYS": "an INPUT block — same case as SURFACE_KEYS",
     "LENGYEL_SOL_KEYS": "an INPUT block — same case as SURFACE_KEYS",
     "LENGYEL_STATE_KEYS": "an INPUT block — same case as SURFACE_KEYS",
-    #: ★not positional at all: the species crosses the ABI as a UTF-8
-    #: SYMBOL (`fylite_rs_edge_noncoronal` takes `symbol`/`symbol_len`), so
-    #: the tuple is a vocabulary and its order carries nothing
-    "EDGE_SPECIES": "crosses the ABI as a symbol string, never as an index",
 }
 
 #: tuple -> (pattern over c_api.rs, what the match arms are).  These three

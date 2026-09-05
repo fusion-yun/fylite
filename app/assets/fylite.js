@@ -1839,31 +1839,6 @@
   };
 
   /**
-   * The ohmic loop voltage and the two circuit terms behind it —
-   * `{ vLoop, rp, lp }`.
-   *
-   * ★Bound here so the criteria pass can charge an ANALYSIS-tier discharge
-   * its ohmic power without a second resistivity: `P_ohm = Ip^2 Rp`, and Rp
-   * is the kernel's neoclassical-corrected Spitzer, not a copy of it.  The
-   * tier-A trace reports V_loop, which is `Ip Rp + Lp dIp/dt` — the
-   * inductive term makes V_loop x Ip the wrong ohmic power everywhere the
-   * current is moving, which is exactly where an L-H margin is asked about.
-   * `dipDt` may be left at 0 when only Rp is wanted; it does not enter it.
-   */
-  Fy.prototype.zerodLoopVoltage = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var out = s.zeros(3);
-      var rc = self.e.fylite_rs_zerod_loop_voltage(
-        o.ip, o.teAvg, o.r0, o.a, o.kappa, o.zeff, o.li,
-        num(o.dipDt, 0), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_zerod_loop_voltage', rc);
-      var v = s.get(out);
-      return { vLoop: v[0], rp: v[1], lp: v[2] };
-    });
-  };
-
-  /**
    * The operating point's dimensionless standing.
    *
    * `neBar` is the LINE-AVERAGED density: the Greenwald ratio is defined
@@ -2322,22 +2297,6 @@
       var rr = s.get(orr), zz = s.get(ozz), out = [];
       for (var q = 0; q < m; q++) out.push([rr[q], zz[q]]);
       return out;
-    });
-  };
-
-  /**
-   * The analytic current shape at `n` points.  ★Vectorised deliberately:
-   * the caller evaluates it once per grid node, and a scalar entry would
-   * pay an ABI crossing per node.
-   */
-  Fy.prototype.analyticShape = function (o) {
-    var self = this, n = o.r.length;
-    return this.scope(function (s) {
-      var r = s.put(o.r), x = s.put(o.x), out = s.zeros(n);
-      var rc = self.e.fylite_rs_analytic_shape(
-        o.beta0, o.emp, o.enp, o.r0, r.ptr, x.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_analytic_shape', rc);
-      return s.get(out);
     });
   };
 
@@ -4343,21 +4302,6 @@
 
 
 
-  /** Analytic shape factor S(R, x) — the Rust AnalyticProfile. */
-  /**
-   * The analytic current shape — the KERNEL's (`surfaces::analytic_shape`).
-   * Scalar or array, same rule as `bField`.
-   */
-  function analyticShape(prof, r, x) {
-    if (!KERNEL)
-      throw new Error('FyPhys.analyticShape: no kernel — call FyPhys.useKernel()');
-    var one = typeof r === 'number';
-    var o = KERNEL.analyticShape({
-      beta0: prof.beta0, emp: prof.emp, enp: prof.enp, r0: prof.r0,
-      r: one ? [r] : r, x: one ? [x] : x });
-    return one ? o[0] : o;
-  }
-
   /**
    * Recover the current scale j_c the free-boundary solve applied, then
    * the p'(x) / FF'(x) / p(x) it implies.  The solver normalizes
@@ -4708,7 +4652,7 @@
     coilGridResponse: coilGridResponse, coilPointResponse: coilPointResponse,
     gridChannelResponse: gridChannelResponse,
     combine: combine, loopResponse: loopResponse,
-    plasmaMask: plasmaMask, analyticShape: analyticShape,
+    plasmaMask: plasmaMask,
     fittedCurrent: fittedCurrent, fittedCurrentAnalytic: fittedCurrentAnalytic,
     loopModel: loopModel,
     totalCurrent: totalCurrent,
