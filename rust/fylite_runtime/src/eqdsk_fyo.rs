@@ -17,7 +17,7 @@ use crate::fyodoc;
 use crate::geqdsk::GFile;
 
 /// `[key, path]` —— 内核表的前两列；单位与秩在那边。
-pub const EQUILIBRIUM_SLOTS: [(&str, &str); 21] = [
+pub const EQUILIBRIUM_SLOTS: [(&str, &str); 22] = [
     //: ★`time` joined the kernel table on 2026-09-02 (the IDS time base the IMAS layout
     //: needs); a g-file carries no time, so neither conversion reads or writes this slot —
     //: it is here because this array is DECLARED to be the kernel table's first two columns
@@ -36,6 +36,10 @@ pub const EQUILIBRIUM_SLOTS: [(&str, &str); 21] = [
     ("pressure",       "time_slice/profiles_1d/pressure"),
     ("f_df_dpsi",      "time_slice/profiles_1d/f_df_dpsi"),
     ("dpressure_dpsi", "time_slice/profiles_1d/dpressure_dpsi"),
+    //: ★2026-09-05 the delivered profile table's axis (`code/discharge`); a g-file
+    //: carries its p'/FF' on the uniform normalised-flux grid implicitly, so the
+    //: conversion neither reads nor writes it
+    ("psi_norm_1d", "time_slice/profiles_1d/fylite:psi_norm"),
     ("q_1d",           "time_slice/profiles_1d/q"),
     ("grid_r",         "time_slice/profiles_2d/grid/dim1"),
     ("grid_z",         "time_slice/profiles_2d/grid/dim2"),
@@ -336,7 +340,10 @@ mod tests {
     fn every_dd_slot_path_exists_in_the_dd() {
         let meta = crate::ids_meta::IdsMeta::get("equilibrium").unwrap();
         for (_, p) in EQUILIBRIUM_SLOTS {
-            if !p.starts_with("fylite:") {
+            //: a namespaced segment ANYWHERE makes the path ours, not the DD's
+            //: (`time_slice/profiles_1d/fylite:psi_norm` hangs a fylite leaf
+            //: under a DD node)
+            if !p.split('/').any(|seg| seg.starts_with("fylite:")) {
                 assert!(meta.has(p), "{p}");
             }
         }

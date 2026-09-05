@@ -363,4 +363,6 @@ def test_the_generated_vocabularies_load_before_their_reader():
     #: ★2026-09-05 起是**五**个：`validate-kernel-api.mjs` 也自建宿主——它比的是
     #: 同一批内核调用走 `/api/kernel` 与走 wasm 的结果（当天用户裁定：webui 的算力
     #: 由 api 端提供，只静态网页走 wasm），所以它同样要先加载那两份生成文件。
-    assert len(harness) == 5, harness
+    #: ★同日稍后是**六**个：`validate-fyo-tree.mjs`（W-1，页面这一侧的树门）也自建宿主，
+    #: 它在真 wasm 上敲 `fylite_rs_fyo_tree`，先要 `fylite.js` 的 ABI 检查过。
+    assert len(harness) == 6, harness

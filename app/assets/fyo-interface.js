@@ -14,6 +14,7 @@
 (function (root) {
   'use strict';
   var GATED = [
+    'anneal_schedule',     // The ridge weights of a shape anneal, one per pass, stiff → loose (`code/discharge`); absent, the kernel lays a geometric table from anneal_hi to anneal_lo over `passes`.
     'channel_basis',       // Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel).
     'coil_current_units',  // Whether coil currents are amperes or ampere-turns, e.
     'power_injected',      // Power [W] a beam PUT IN, as against `power` (absorbed) beside it.
@@ -27,6 +28,7 @@
     'a2',                  // Angle [deg] of the element side of length `height` with the horizontal; 90 is a plain rectangle.
     'a_minor',             // Minor radius [m] carried on an equilibrium's global quantities, where the DD has no slot for it.
     'angle_deg',           // Poloidal angle [deg] of a magnetic probe.
+    'channel_aturns',      // Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start.
     'config',              // The input configuration a result was produced from.
     'created',             // ISO-8601 timestamp the document was written.
     'deposited',           // Whether a wave source actually resonated and put power in — a result, not a failure, and one a persisted document has to be able to state.
@@ -34,6 +36,7 @@
     'equilibrium',         // The equilibrium block a step writes beside its own numbers — the browser's stationary loop writes `fylite:equilibrium` for step 6's re-solve account.
     'eta_cd',              // Current-drive efficiency actually used by a wave source.
     'fast_energy',         // Stored fast-ion energy [J] of a beam deposition.
+    'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'length',              // Effective length [m] of a magnetic probe, the span its reading averages over.
     'max_power',           // Nameplate maximum power [W] of a heating system's launcher — what the hardware may deliver, as opposed to what a shot injected.
     'n_parallel',          // The launched parallel refractive-index band (lower, upper) of an LH antenna.
@@ -49,7 +52,7 @@
     'weight',              // A channel's weight on a coil element, inside fylite:channel_map.
   ];
   var REVISION = 1;
-  var DIGEST = "d7c4ffeac4f2eec4";
+  var DIGEST = "6a11dc9d490ff674";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -181,6 +184,7 @@
         "pressure": { path: "time_slice/profiles_1d/pressure", units: "Pa", rank: "1d" },
         "f_df_dpsi": { path: "time_slice/profiles_1d/f_df_dpsi", units: "T^2.m^2/Wb", rank: "1d" },
         "dpressure_dpsi": { path: "time_slice/profiles_1d/dpressure_dpsi", units: "Pa/Wb", rank: "1d" },
+        "psi_norm_1d": { path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
         "q_1d": { path: "time_slice/profiles_1d/q", units: "1", rank: "1d" },
         "grid_r": { path: "time_slice/profiles_2d/grid/dim1", units: "m", rank: "1d" },
         "grid_z": { path: "time_slice/profiles_2d/grid/dim2", units: "m", rank: "1d" },

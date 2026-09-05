@@ -297,5 +297,245 @@
     });
   }
 
-  root.FyKernelApi = { probe: probe, exportsFor: exportsFor, Heap: Heap, complete: complete };
+
+  // --- 树门：扁平树的编解码，以及 wasm 上的 `fylite_rs_fyo_tree` -------------------
+  //
+  // ★FYL-DESIGN-16 W-1（2026-09-05）。静态站点没有 `/api/*`，页面要走文档门就得在
+  // wasm 上敲 `fylite_rs_fyo_tree`——四段缓冲进、四段缓冲出（`tree.rs` 抬头；
+  // TREE_FORMAT 由 `fyo-interface.js` 生成）。这里是那四段的 JS 编解码，与内核仓
+  // `tests/oracles/tree.py` 逐字节同形（`app/tests/validate-fyo-tree.mjs` 对着它编出
+  // 的夹具比）。★数在 JS 里没有 int / float 之分：`number` 一律编成 F64，`bigint`
+  // 才是 Int；数组一律 F64Array（`BigInt64Array` 才是 I64Array）。内核的 settings
+  // 收任一数值种类，所以这不改变任何一个 code 的读法。
+  //
+  // 解出来的记录是**普通 JS 值**（对象 · 数组 · 数 · 串；多维数组按形状嵌套），
+  // 与 `/api/case` 答回的 JSON 一个形状——于是 `completeSync` 在两条路上给的是
+  // 同一种东西，调用方不必知道算力从哪来。
+
+  var T_NONE = 0xFFFFFFFF;
+  var K_NULL = 0, K_BOOL = 1, K_INT = 2, K_F64 = 3, K_STR = 4,
+      K_F64S = 5, K_I64S = 6, K_STRS = 7, K_LIST = 8, K_MAP = 9;
+  var utf8 = { enc: new TextEncoder(), dec: new TextDecoder('utf-8') };
+
+  function isTable(v) {
+    //: a rectangular numeric table (nested arrays / typed arrays) -> [shape, flat]
+    if (v instanceof Float64Array || v instanceof Float32Array
+        || v instanceof Int32Array || v instanceof Uint32Array
+        || v instanceof Int16Array || v instanceof Uint16Array || v instanceof Uint8Array) {
+      return [[v.length], Array.prototype.slice.call(v)];
+    }
+    if (!Array.isArray(v) || v.length === 0) return null;
+    if (v.every(function (x) { return typeof x === 'number'; })) return [[v.length], v.slice()];
+    if (!v.every(function (x) { return Array.isArray(x) || ArrayBuffer.isView(x); })) return null;
+    var first = isTable(v[0]);
+    if (!first) return null;
+    var flat = [], i, t;
+    for (i = 0; i < v.length; i++) {
+      t = isTable(v[i]);
+      if (!t || t[0].join(',') !== first[0].join(',')) return null;
+      flat = flat.concat(t[1]);
+    }
+    return [[v.length].concat(first[0]), flat];
+  }
+
+  function encodeTree(rootValue) {
+    var nodes = [], names = [], f64s = [], ints = [];
+    function name(s) {
+      var b = utf8.enc.encode(String(s)), off = names.length, i;
+      for (i = 0; i < b.length; i++) names.push(b[i]);
+      return [off, b.length];
+    }
+    function shape(sh) {
+      var off = ints.length, i;
+      ints.push(BigInt(sh.length));
+      for (i = 0; i < sh.length; i++) ints.push(BigInt(sh[i]));
+      return off;
+    }
+    function write(key, v) {
+      var nm = key === null ? [0, 0] : name(key);
+      var rec = [K_NULL, nm[0], nm[1], T_NONE, T_NONE, 0, 0, T_NONE];
+      var children = [], t, i, pairs;
+      if (v === null || v === undefined) {
+        /* Null */
+      } else if (typeof v === 'boolean') {
+        rec[0] = K_BOOL; rec[5] = ints.length; rec[6] = 1; ints.push(v ? 1n : 0n);
+      } else if (typeof v === 'bigint') {
+        rec[0] = K_INT; rec[5] = ints.length; rec[6] = 1; ints.push(v);
+      } else if (typeof v === 'number') {
+        rec[0] = K_F64; rec[5] = f64s.length; rec[6] = 1; f64s.push(v);
+      } else if (typeof v === 'string') {
+        rec[0] = K_STR; t = name(v); rec[5] = t[0]; rec[6] = t[1];
+      } else if (v instanceof BigInt64Array) {
+        rec[0] = K_I64S; rec[7] = shape([v.length]); rec[5] = ints.length; rec[6] = v.length;
+        for (i = 0; i < v.length; i++) ints.push(v[i]);
+      } else if (Array.isArray(v) && v.length && v.every(function (x) { return typeof x === 'string'; })) {
+        rec[0] = K_STRS; rec[7] = shape([v.length]);
+        pairs = v.map(name);
+        rec[5] = ints.length; rec[6] = v.length;
+        for (i = 0; i < pairs.length; i++) { ints.push(BigInt(pairs[i][0])); ints.push(BigInt(pairs[i][1])); }
+      } else if ((t = isTable(v)) !== null) {
+        rec[0] = K_F64S; rec[7] = shape(t[0]); rec[5] = f64s.length; rec[6] = t[1].length;
+        for (i = 0; i < t[1].length; i++) f64s.push(Number(t[1][i]));
+      } else if (Array.isArray(v)) {
+        rec[0] = K_LIST;
+        for (i = 0; i < v.length; i++) children.push([null, v[i]]);
+      } else if (typeof v === 'object') {
+        rec[0] = K_MAP;
+        Object.keys(v).forEach(function (k) { children.push([k, v[k]]); });
+      } else {
+        throw new Error('FyKernelApi.tree: cannot encode a ' + typeof v + ' at ' + key);
+      }
+      var idx = nodes.length;
+      nodes.push(rec);
+      var prev = null, ci;
+      for (i = 0; i < children.length; i++) {
+        ci = write(children[i][0], children[i][1]);
+        if (prev === null) nodes[idx][3] = ci; else nodes[prev][4] = ci;
+        prev = ci;
+      }
+      return idx;
+    }
+    write(null, rootValue);
+    var flat = new Uint32Array(nodes.length * 8), i, j;
+    for (i = 0; i < nodes.length; i++) for (j = 0; j < 8; j++) flat[i * 8 + j] = nodes[i][j] >>> 0;
+    return { nodes: flat, names: Uint8Array.from(names), f64s: Float64Array.from(f64s),
+             ints: BigInt64Array.from(ints) };
+  }
+
+  function decodeTree(b) {
+    var nodes = b.nodes, names = b.names, f64s = b.f64s, ints = b.ints;
+    function text(off, ln) { return utf8.dec.decode(names.subarray(off, off + ln)); }
+    function shapeOf(i) {
+      var so = nodes[i * 8 + 7];
+      if (so === T_NONE) return [];
+      var nd = Number(ints[so]), sh = [], k;
+      for (k = 0; k < nd; k++) sh.push(Number(ints[so + 1 + k]));
+      return sh;
+    }
+    function nest(flat, sh) {
+      if (sh.length <= 1) return flat;
+      var step = flat.length / sh[0], out = [], k;
+      for (k = 0; k < sh[0]; k++) out.push(nest(flat.slice(k * step, (k + 1) * step), sh.slice(1)));
+      return out;
+    }
+    function val(i) {
+      var k = nodes[i * 8], po = nodes[i * 8 + 5], pl = nodes[i * 8 + 6], c, out, j;
+      switch (k) {
+        case K_NULL: return null;
+        case K_BOOL: return ints[po] !== 0n;
+        case K_INT: return Number(ints[po]);
+        case K_F64: return f64s[po];
+        case K_STR: return text(po, pl);
+        case K_F64S: return nest(Array.prototype.slice.call(f64s.subarray(po, po + pl)), shapeOf(i));
+        case K_I64S:
+          out = [];
+          for (j = 0; j < pl; j++) out.push(Number(ints[po + j]));
+          return nest(out, shapeOf(i));
+        case K_STRS:
+          out = [];
+          for (j = 0; j < pl; j++) out.push(text(Number(ints[po + 2 * j]), Number(ints[po + 2 * j + 1])));
+          return out;
+        case K_LIST:
+          out = [];
+          for (c = nodes[i * 8 + 3]; c !== T_NONE; c = nodes[c * 8 + 4]) out.push(val(c));
+          return out;
+        default:
+          out = {};
+          for (c = nodes[i * 8 + 3]; c !== T_NONE; c = nodes[c * 8 + 4]) {
+            out[text(nodes[c * 8 + 1], nodes[c * 8 + 2])] = val(c);
+          }
+          return out;
+      }
+    }
+    return nodes.length ? val(0) : null;
+  }
+
+  function refusalError(refusal) {
+    var err = new Error('the kernel refused (' + refusal.code + '): ' + refusal.message);
+    err.code = refusal.code;
+    err.refusal = refusal;
+    return err;
+  }
+
+  /**
+   * The document door, SYNCHRONOUS, on a kernel handle: `fy.e` is either a wasm
+   * instance's exports (the static site) or the `/api/kernel` bridge from
+   * `exportsFor` (the desktop host, `fy.via === 'api'`).  On the bridge the
+   * structure door is not bridged by name, so the plan goes to `/api/case`
+   * over the same synchronous XHR the bridge uses; on wasm the four buffers
+   * are written into linear memory and `fylite_rs_fyo_tree` is called.
+   *
+   * Returns the record as plain JS; a refusal THROWS an Error carrying `.code`
+   * and `.refusal`, as `FyKernelApi.complete` does.
+   */
+  function completeSync(fy, code, plan, base) {
+    var e = fy && fy.e;
+    if (!e) throw new Error('FyKernelApi.completeSync: no kernel handle');
+    if (fy.via === 'api' || typeof e.fylite_rs_fyo_tree !== 'function') {
+      if (typeof e.fylite_rs_fyo_tree !== 'function' && fy.via !== 'api') {
+        throw new Error('this kernel has no fylite_rs_fyo_tree — rebuild it (ABI >= 126)');
+      }
+      var x = new XMLHttpRequest();
+      x.open('POST', (base || ROOT) + 'api/case', false);
+      x.setRequestHeader('content-type', 'application/json');
+      x.send(JSON.stringify({ code: String(code), plan: plan || {} }));
+      var j = null;
+      try { j = JSON.parse(x.responseText); } catch (err) { /* not JSON */ }
+      if (x.status !== 200) throw new Error('/api/case: HTTP ' + x.status + ' — ' + ((j && j.error) || x.responseText));
+      if (j && j.refusal) throw refusalError(j.refusal);
+      return j.record;
+    }
+    var b = encodeTree(plan || {});
+    var codeB = utf8.enc.encode(String(code));
+    var mem = e.memory;
+    function alloc(n) {
+      var p = e.fylite_rs_alloc(BigInt(Math.max(8, n)));
+      if (!p) throw new Error('FyKernelApi.completeSync: wasm allocation of ' + n + ' bytes failed');
+      return Number(p);
+    }
+    var pCode = alloc(codeB.length), pNodes = alloc(b.nodes.byteLength), pNames = alloc(b.names.byteLength),
+        pF64 = alloc(b.f64s.byteLength), pInts = alloc(b.ints.byteLength), pOut = alloc(64);
+    //: views are taken AFTER every alloc: growth invalidates them
+    new Uint8Array(mem.buffer).set(codeB, pCode);
+    new Uint32Array(mem.buffer, pNodes, b.nodes.length).set(b.nodes);
+    new Uint8Array(mem.buffer).set(b.names, pNames);
+    new Float64Array(mem.buffer, pF64, b.f64s.length).set(b.f64s);
+    new BigInt64Array(mem.buffer, pInts, b.ints.length).set(b.ints);
+    new Uint8Array(mem.buffer, pOut, 64).fill(0);
+    var rc = e.fylite_rs_fyo_tree(
+      pCode, BigInt(codeB.length),
+      pNodes, BigInt(b.nodes.length / 8), pNames, BigInt(b.names.length),
+      pF64, BigInt(b.f64s.length), pInts, BigInt(b.ints.length),
+      pOut, pOut + 8, pOut + 16, pOut + 24, pOut + 32, pOut + 40, pOut + 48, pOut + 56);
+    var dv = new DataView(mem.buffer);
+    var oNodes = dv.getUint32(pOut, true), nn = Number(dv.getBigUint64(pOut + 8, true)),
+        oNames = dv.getUint32(pOut + 16, true), ml = Number(dv.getBigUint64(pOut + 24, true)),
+        oF64 = dv.getUint32(pOut + 32, true), nf = Number(dv.getBigUint64(pOut + 40, true)),
+        oInts = dv.getUint32(pOut + 48, true), ni = Number(dv.getBigUint64(pOut + 56, true));
+    var out = {
+      nodes: nn ? new Uint32Array(mem.buffer, oNodes, nn * 8).slice() : new Uint32Array(0),
+      names: ml ? new Uint8Array(mem.buffer, oNames, ml).slice() : new Uint8Array(0),
+      f64s: nf ? new Float64Array(mem.buffer, oF64, nf).slice() : new Float64Array(0),
+      ints: ni ? new BigInt64Array(mem.buffer, oInts, ni).slice() : new BigInt64Array(0),
+    };
+    if (nn) e.fylite_rs_free(oNodes, BigInt(nn * 32));
+    if (ml) e.fylite_rs_free(oNames, BigInt(ml));
+    if (nf) e.fylite_rs_free(oF64, BigInt(nf * 8));
+    if (ni) e.fylite_rs_free(oInts, BigInt(ni * 8));
+    e.fylite_rs_free(pCode, BigInt(Math.max(8, codeB.length)));
+    e.fylite_rs_free(pNodes, BigInt(Math.max(8, b.nodes.byteLength)));
+    e.fylite_rs_free(pNames, BigInt(Math.max(8, b.names.byteLength)));
+    e.fylite_rs_free(pF64, BigInt(Math.max(8, b.f64s.byteLength)));
+    e.fylite_rs_free(pInts, BigInt(Math.max(8, b.ints.byteLength)));
+    e.fylite_rs_free(pOut, 64n);
+    var tree = decodeTree(out);
+    if (rc < 0) {
+      throw refusalError((tree && tree.refusal) || { code: rc, message: 'fylite_rs_fyo_tree returned ' + rc });
+    }
+    return tree;
+  }
+
+  root.FyKernelApi = { probe: probe, exportsFor: exportsFor, Heap: Heap, complete: complete,
+                       completeSync: completeSync,
+                       tree: { encode: encodeTree, decode: decodeTree, NONE: T_NONE } };
 }(typeof self !== 'undefined' ? self : this));

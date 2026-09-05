@@ -30,7 +30,7 @@ importScripts('i18n.js', 'lang-zh.js', 'lang-en.js',
               //: `/api/kernel` 的那份导出面。两者都在 `fylite.js` 之前，因为
               //: `FyLite.attach()` 要用它们决定这个宿主该走哪条路。
               'kernel-abi.js', 'kernelapi.js',
-              'device.js', 'fylite.js');
+              'device.js', 'fyodev.js', 'fylite.js');
 
 // The machine arrives in the `init` message rather than as a global.  A
 // Worker cannot read localStorage, so a device the visitor imported would be
@@ -47,7 +47,6 @@ var coilRowCache = { loops: null, probes: null };
 //: the field the last START was designed with — coils plus the filament
 //: cloud it was designed against.  The anneal that follows is entitled to
 //: begin from it.
-var startSeed = null;
 
 /** `{...a, ...b}` — this file is ES5, and `Object.assign` is not in it. */
 function assign(a, b) {
@@ -615,202 +614,144 @@ function summarize(res, prof, opts) {
 // reach the target; the plasma's own response to the current change is
 // what the re-solve supplies.
 
+/**
+ * The machine as the fyo DEVICE DOCUMENT the kernel's document door reads.
+ *
+ * ★FYL-DESIGN-16 K-8 / W-1 (2026-09-05): a code that takes whole documents
+ * (`code/discharge`, `code/breakdown`, `code/vstab`) reads the coils, the
+ * channel map, the box and the limiter off ONE document, never off a list
+ * of arrays this page assembled.  `FyoDevice.toFyo` is the page's writer
+ * (the same one the device editor exports with); the measured channel map
+ * rides beside it in the spelling `device_coils` reads.
+ */
+function deviceDoc() {
+  var doc = self.FyoDevice.toFyo(M);
+  doc.pf_channel_elements = M.channels.map(function (ch) {
+    return ch.map(function (t) { return { element: t[0], weight: t[1] }; });
+  });
+  return doc;
+}
+
+/**
+ * The plan for `code/discharge`, off the page's message.  ★The page's own
+ * numbers, unchanged: 4×4 response quadrature, the nulls as a set, one
+ * isoflux row per usable control point with its own weight.
+ */
+function designPlan(msg, o) {
+  var t = msg.target;
+  var settings = {
+    r0: t.r0, z0: t.z0 === undefined ? 0 : t.z0, a: t.a, kappa: t.kappa,
+    delta_upper: t.deltaU === undefined ? 0 : t.deltaU,
+    delta_lower: t.deltaL === undefined ? 0 : t.deltaL,
+    ip: msg.ip, n_points: msg.nPoints || 24, nu: 4,
+    x_weight: o.nulls.length ? (msg.xWeight || 1) : 0,
+    n_ring: msg.nRing || 4, peaking: msg.peaking === undefined ? 1 : msg.peaking,
+    lam: msg.lambda === undefined ? 1e-3 : msg.lambda,
+  };
+  var discharge = {};
+  if (o.nulls.length) {
+    discharge['fylite:null_r'] = o.nulls.map(function (p) { return p.r; });
+    discharge['fylite:null_z'] = o.nulls.map(function (p) { return p.z; });
+  }
+  if (o.ctl.length) {
+    discharge['fylite:control_r'] = o.ctl.map(function (c) { return c.r; });
+    discharge['fylite:control_z'] = o.ctl.map(function (c) { return c.z; });
+    discharge['fylite:control_w'] = o.ctl.map(function (c) { return c.w; });
+  }
+  if (msg.iMax && msg.iMax.length) discharge['fylite:i_max_aturn'] = Array.from(msg.iMax);
+  var inputs = { device: deviceDoc() };
+  if (o.stage === 'start') {
+    settings.stage = 'start';
+  } else {
+    settings.stage = 'anneal';
+    settings.gamma = msg.gamma;
+    settings.warm = msg.warm ? 1 : 0;
+    var sv = msg.solve || {};
+    settings.relax = sv.relax || 0.3;
+    settings.max_iter = sv.maxIter || 600;
+    settings.tol = sv.tol || 1e-9;
+    settings.fb_gain = sv.fbGain === undefined ? 8.0 : sv.fbGain;
+    var prof = msg.prof || {};
+    if (prof.tab) {
+      //: the delivered p'/FF' table rides in on the equilibrium's declared rows
+      inputs.equilibrium = { time_slice: [{ profiles_1d: {
+        'fylite:psi_norm': Array.from(prof.tab.x),
+        dpressure_dpsi: Array.from(prof.tab.pprime),
+        f_df_dpsi: Array.from(prof.tab.ffprime) } }] };
+    } else {
+      settings.beta0 = prof.beta0; settings.emp = prof.emp; settings.enp = prof.enp;
+    }
+    discharge['fylite:channel_aturns'] = Array.from(msg.chan);
+    discharge['fylite:anneal_schedule'] = Array.from(msg.schedule || []);
+  }
+  if (Object.keys(discharge).length) inputs.discharge = discharge;
+  return { settings: settings, inputs: inputs };
+}
+
+/** A record's `fields/<name>/data` flattened to a Float64Array (row-major). */
+function fieldFlat(rec, name) {
+  var d = rec.fields[name].data, out = [];
+  (function walk(v) {
+    if (Array.isArray(v)) v.forEach(walk); else out.push(v);
+  })(d);
+  return Float64Array.from(out);
+}
+
 function designRun(msg) {
-  var target = msg.target, prof = msg.prof, ip = msg.ip;
-  var chan = Float64Array.from(msg.chan);
-  var bnd = P.millerBoundary(target, msg.nPoints || 24);
+  var target = msg.target, prof = msg.prof;
   //: ★T-D18 / T-D7: the nulls are a SET and the shape-control rows are
-  //: another, and BOTH are points the field is being asked about — so both
-  //: join the same point list, in the order the rows are assembled below.
-  //: With no null and no control row this list is the boundary alone, which
-  //: is exactly what it was.
+  //: another; both go to the kernel as the plan's bound inputs
   var nulls = msg.xWeight > 0 ? nullSet(msg) : [];
   var ctl = controlUsable(controlPoints(msg.control));
-  var NB = bnd.length, NX = nulls.length, NC = ctl.length;
-  var ptsR = new Float64Array(NB + NX + NC);
-  var ptsZ = new Float64Array(ptsR.length);
-  bnd.forEach(function (p, i) { ptsR[i] = p[0]; ptsZ[i] = p[1]; });
-  nulls.forEach(function (p, k) {
-    ptsR[NB + k] = p.r; ptsZ[NB + k] = p.z;
-  });
-  ctl.forEach(function (c, k) {
-    ptsR[NB + NX + k] = c.r; ptsZ[NB + NX + k] = c.z;
-  });
-  var NP = ptsR.length;
-  var cb = channelBlocks(M.coils, ptsR, ptsZ, 4, 4);
-  var gPsi = cb.psi, gBr = cb.br, gBz = cb.bz;
-
-  var g2 = 0;
-  for (var j = 1; j < NB; j++)
-    for (var k = 0; k < NCH; k++) {
-      var v = gPsi[k * NP + j] - gPsi[k * NP];
-      g2 += v * v;
-    }
-  var GS = Math.sqrt(g2 / ((NB - 1) * NCH));
-  var L = 2 * Math.PI * target.r0 * target.a;   // Tesla row -> Weber row
-
-  function step(res, cur, alpha, gam) {
-    //: ★THREE X-point rows, not two.  `B_r = B_z = 0` pins a null somewhere
-    //: in the machine and never says the null must sit ON the boundary; a
-    //: null at another flux level is not a divertor, and that is exactly
-    //: what this page produced — X-point rows on, boundary still classified
-    //: limiter, on every machine.  The isoflux row psi(X) = psi(P_0) is the
-    //: one that asks for the topology.
-    var nrow = (NB - 1) + 3 * NX + NC;
-    var a = new Float64Array(nrow * NCH), b = new Float64Array(nrow),
-        w = new Float64Array(nrow);
-    //: one read for every boundary point, not one call per point — the
-    //: same shape as `pages/design`'s `correction()`, which is the
-    //: point: the two are now one formula reached from two hosts
-    var psiB = P.sample(grid, res.psi, ptsR.slice(0, NB), ptsZ.slice(0, NB));
-    for (var j = 1; j < NB; j++) {
-      for (var k = 0; k < NCH; k++)
-        a[(j - 1) * NCH + k] = gPsi[k * NP + j] - gPsi[k * NP];
-      b[j - 1] = -(psiB[j] - psiB[0]);
-      w[j - 1] = 1;
-    }
-    for (var m = 0; m < NX; m++) {
-      var xp = nulls[m], col = NB + m, q0 = (NB - 1) + 3 * m;
-      var bf = P.bField(grid, res.psi, xp.r, xp.z);
-      var psiX = P.sample(grid, res.psi, [xp.r], [xp.z])[0];
-      for (k = 0; k < NCH; k++) {
-        a[q0 * NCH + k] = gPsi[k * NP + col] - gPsi[k * NP];
-        a[(q0 + 1) * NCH + k] = gBr[k * NP + col] * L;
-        a[(q0 + 2) * NCH + k] = gBz[k * NP + col] * L;
-      }
-      b[q0] = -(psiX - psiB[0]);
-      b[q0 + 1] = -bf.br * L; b[q0 + 2] = -bf.bz * L;
-      w[q0] = w[q0 + 1] = w[q0 + 2] = msg.xWeight;
-    }
-    //: ★T-D7: one isoflux row per shape-control point — the boundary row's
-    //: own formula at a place the wall chose, which is what lets a gap and a
-    //: strike point be targeted by the anneal without it learning any
-    //: geometry.  The weight is the row's, not the class's.
-    //: ★★And the row is paired CONSISTENTLY with the boundary the
-    //: criteria measure (T-D6′ fallout, measured).  On a DIVERTED
-    //: answer the plasma edge is the separatrix at psi_b = psi(X) — a
-    //: contour the target boundary's own flux level need not touch — so
-    //: pinning psi(C) to psi(P0) steers a curve the gap criterion never
-    //: measures (asked ROG 0.20 → 0.101, asked 0.02 → 0.108, both sides
-    //: wrong); and pinning to psi_b while differencing the Green rows
-    //: against P0 is an inconsistent linearisation that scrambles the
-    //: direction outright (measured: 0.20 → 0.011).  So: diverted
-    //: answers difference against the SOLVED X point's own response and
-    //: target psi_b; limiter answers keep the P0 pairing bit for bit.
-    var gXC = null;
-    if (res.bndKind === 1 && isFinite(res.xptR)) {
-      gXC = channelBlocks(M.coils, Float64Array.from([res.xptR]),
-                          Float64Array.from([res.xptZ]), 4, 4).psi;
-    }
-    for (m = 0; m < NC; m++) {
-      var col2 = NB + NX + m, q2r = (NB - 1) + 3 * NX + m;
-      var psiC = P.sample(grid, res.psi, [ctl[m].r], [ctl[m].z])[0];
-      for (k = 0; k < NCH; k++)
-        a[q2r * NCH + k] = gPsi[k * NP + col2]
-          - (gXC ? gXC[k] : gPsi[k * NP]);
-      b[q2r] = gXC ? -(psiC - res.psiBnd) : -(psiC - psiB[0]);
-      w[q2r] = ctl[m].w;
-    }
-    var lam = new Float64Array(NCH).fill(alpha * GS);
-    var d = P.ridgeLstsq(a, b, w, nrow, NCH, lam);
-    if (!d) return null;
-    //: gam, not msg.gamma: a collapsed pass retries from the same base at
-    //: half the step (see the pass loop), so the step size is the loop's
-    var out = new Float64Array(NCH);
-    for (k = 0; k < NCH; k++) out[k] = cur[k] + gam * d[k];
-    return out;
-  }
-
-  //: ★SIX terms, not five: the vertical placement is a control of this bar
-  //: and was absent from the objective, so a pass whose boundary had drifted
-  //: most of a metre off the requested midplane could be picked as the best
-  //: one — and be reported as the design.  Z0 is normalised by the minor
-  //: radius, the same length R0 is normalised by.
-  function shapeError(sm) {
-    if (!sm) return Infinity;
-    var z0 = target.z0 === undefined ? 0 : target.z0;
-    return Math.sqrt((Math.pow((sm.r0 - target.r0) / target.a, 2)
-                    + Math.pow((sm.z0 - z0) / target.a, 2)
-                    + Math.pow((sm.a - target.a) / target.a, 2)
-                    + Math.pow((sm.kappa - target.kappa) / target.kappa, 2)
-                    + Math.pow(sm.deltaU - target.deltaU, 2)
-                    + Math.pow(sm.deltaL - target.deltaL, 2)) / 6);
-  }
-
-  var res;
-  //: ★only when the caller says this run began at a DESIGNED start.  A run
-  //: continuing from a reference discharge or from hand-typed currents is
-  //: standing on a machine state already, and anchoring that one would bias
-  //: an answer that needs no help.
-  var warm = msg.warm && startSeed && startSeed.length === NG
-    ? { psiInit: startSeed, rcAnchor: target.r0,
-        zcAnchor: target.z0 === undefined ? 0 : target.z0 }
-    : {};
-  try { res = freeSolve(chan, prof, ip, assign(msg.solve, warm)); }
+  var total = (msg.schedule || []).length;
+  post({ type: 'progress', phase: 'design', pass: 0, total: total, err: NaN });
+  //: ★★the anneal itself is `case.rs::discharge_case` (FYL-DESIGN-16 K-3,
+  //: 2026-09-05): target points, response rows, ridge scale, the designed
+  //: start's seed and anchor, the collapse-and-halve rule, best-of — one
+  //: recipe for this page and for Python.  What stays here is the DISPLAY:
+  //: the criteria, the flux segments, the profiles and the vertical mode of
+  //: the answer, read off the field the kernel returns.
+  var rec;
+  try { rec = fy.complete('code/discharge', designPlan(msg, { stage: 'anneal', nulls: nulls, ctl: ctl })); }
   catch (e) { post({ type: 'error', where: 'design', message: e.message }); return; }
-  var best = { chan: chan, sum: summarize(res, prof), pass: 0, res: res };
-  var history = [{ pass: 0, alpha: null, err: shapeError(best.sum.shape),
-                   shape: best.sum.shape }];
-  best.err = history[0].err;
-  post({ type: 'progress', phase: 'design', pass: 0, total: msg.schedule.length,
-         err: best.err });
-
-  for (var p = 0; p < msg.schedule.length; p++) {
-    //: ★a pass that LOSES the plasma is not "a worse intermediate state to
-    //: travel from" — it is a dead end whose linearisation means nothing.
-    //: The fixed-current Picard map has no radial restoring force, so an
-    //: overlong step tips the column into a radial escape (measured from
-    //: the EAST reference start once pass 0 solved diverted: the full step
-    //: walked out to a 0.03 m column at R = 2.34, and the HALF step from
-    //: the same base reached err 0.051).  A collapsed pass — minor radius
-    //: under a quarter of the requested one — is retried from its base at
-    //: half the step, up to three halvings; the retreat is in the history.
-    //: The Python host carries the same rule.
-    var nxt, r2, sum, gam = msg.gamma, halved = 0, failed = null;
-    for (;;) {
-      nxt = step(res, chan, msg.schedule[p], gam);
-      if (!nxt) { failed = 'no-step'; break; }
-      try { r2 = freeSolve(nxt, prof, ip, assign(msg.solve, { psiInit: res.psi })); }
-      catch (e) { failed = e.message; break; }
-      sum = summarize(r2, prof);
-      var collapsed = !sum.shape || !isFinite(sum.shape.a)
-        || sum.shape.a < 0.25 * target.a;
-      if (!collapsed || halved >= 3) break;
-      gam *= 0.5; halved += 1;
-    }
-    if (failed === 'no-step') break;
-    if (failed !== null) {
-      history.push({ pass: p + 1, alpha: msg.schedule[p], err: null,
-                     error: failed });
-      break;
-    }
-    chan = nxt; res = r2;
-    var err = shapeError(sum.shape);
-    var entry = { pass: p + 1, alpha: msg.schedule[p], err: err,
-                  shape: sum.shape, residual: res.residual };
-    if (halved) entry.stepHalvings = halved;
-    history.push(entry);
-    // The anneal keeps travelling from the LAST pass, not from the best
-    // one.  Rolling back a regression was tried and measurably hurts: the
-    // good basin usually lies past a worse intermediate state, and
-    // reverting cuts the run short (a 0.45 -> 0.50: 0.048 at pass 7 while
-    // travelling, 0.162 at pass 1 when reverting; same for du 0.65 and
-    // dl 0.00).  A run that cannot improve at all ends at pass 0 and says
-    // so — that is a reporting matter, not a reason to hobble the search.
-    if (err < best.err)
-      best = { chan: chan, sum: sum, err: err, pass: p + 1, res: res };
-    post({ type: 'progress', phase: 'design', pass: p + 1,
-           total: msg.schedule.length, err: err });
-  }
+  var F = function (k) { return rec.facts[k].value; };
+  var chan = Float64Array.from(rec.fields.aturns.data);
+  var res = {
+    psi: fieldFlat(rec, 'psi'), psiAxis: F('psi_axis'), psiBnd: F('psi_bnd'),
+    axisR: F('axis_r'), axisZ: F('axis_z'), ip: F('ip'), residual: F('residual'),
+    iterations: F('iterations'), converged: F('converged') === 1, settled: F('settled') === 1,
+    bndKind: F('bnd_kind'), xptR: F('xpt_r'), xptZ: F('xpt_z'), fbAmp: F('fb_amp'), zc: F('zc'),
+    maskDelta: null, tol: (msg.solve && msg.solve.tol) || 1e-9,
+    maxIter: (msg.solve && msg.solve.maxIter) || 600,
+  };
+  var sum = summarize(res, prof);
   //: the vertical mode of the answer that is being returned, not of every
   //: pass along the way — it costs a mutual assembly over the whole
   //: conductor set
-  if (best.sum.criteria)
-    best.sum.criteria.vertical = verticalOf(best.res, best.sum.profiles,
-                                            best.chan);
-  post({ type: 'design', chan: best.chan, result: best.sum, pass: best.pass,
-         history: history, targetBoundary: flatten(bnd) },
-       [best.sum.psi.buffer, best.sum.lcfs.buffer]);
+  if (sum.criteria) sum.criteria.vertical = verticalOf(res, sum.profiles, chan);
+  var hp = rec.fields.history_pass.data, ha = rec.fields.history_alpha.data,
+      he = rec.fields.history_err.data, hr = rec.fields.history_residual.data,
+      hh = rec.fields.history_halvings.data, hs = rec.fields.history_shape.data;
+  var notes = rec.notes || [], history = [];
+  for (var i = 0; i < hp.length; i++) {
+    var pass = hp[i];
+    if (!isFinite(he[i])) {
+      //: the pass that stopped the search: recorded with its reason
+      var why = notes.filter(function (n) { return n.indexOf('pass ' + pass + ':') === 0; })[0];
+      history.push({ pass: pass, alpha: ha[i], err: null, error: why || 'the pass failed' });
+      break;
+    }
+    var entry = { pass: pass, alpha: i === 0 ? null : ha[i], err: he[i],
+                  shape: { r0: hs[i][0], z0: hs[i][1], a: hs[i][2], kappa: hs[i][3],
+                           deltaU: hs[i][4], deltaL: hs[i][5] },
+                  residual: hr[i] };
+    if (hh[i]) entry.stepHalvings = hh[i];
+    history.push(entry);
+    post({ type: 'progress', phase: 'design', pass: pass, total: total, err: he[i] });
+  }
+  post({ type: 'design', chan: chan, result: sum, pass: F('pass'),
+         history: history, targetBoundary: fieldFlat(rec, 'target_boundary') },
+       [sum.psi.buffer, sum.lcfs.buffer]);
 }
 
 // --- the START, and the pulse ----------------------------------------------
@@ -820,62 +761,43 @@ function designRun(msg) {
  *
  * ★Why this command exists.  The anneal above is a LOCAL method: it
  * linearises the boundary's response about the equilibrium it is standing
- * on.  The Python host says so and REFUSES a zero start; this page had
- * nothing to offer a machine without a reference discharge, started from
- * zero currents anyway, and reported the outcome in the same words it uses
- * for a converged design.  Measured across the four bundled devices: the
- * one machine with a reference shot landed within 3 cm of its target and
- * the three without missed by 0.36 - 0.77 m.
+ * on.  Started from zero currents on a machine without a reference discharge
+ * it lands 0.36 – 0.77 m from the target and reports the outcome in the same
+ * words it uses for a converged design (measured across the four bundled
+ * devices).  So the start is DESIGNED — by the kernel, `code/discharge` with
+ * `stage: start`: one linear isoflux solve for the currents that make the
+ * requested boundary a flux contour of coils + a filament cloud.
  *
  * What comes back is NOT an equilibrium — force balance is nowhere in it —
  * and the numbers beside it (`psiRms`, `bX`) say how well the request could
  * be met at all, before any equilibrium is paid for.
  */
 function startRun(msg) {
-  var target = msg.target;
-  var bnd = P.millerBoundary(target, msg.nPoints || 24);
-  var bndR = [], bndZ = [];
-  bnd.forEach(function (p) { bndR.push(p[0]); bndZ.push(p[1]); });
-  var fil = fy.fillFilaments({ bndR: bndR, bndZ: bndZ, ip: msg.ip,
-                               nRing: msg.nRing || 4,
-                               peaking: msg.peaking === undefined
-                                        ? 1 : msg.peaking });
-  //: ★T-D18: a SET of nulls, so 双零 is a request this entry can carry;
-  //: ★T-D7: the shape-control rows, which are isoflux rows like the
-  //: boundary's own at points the wall named.
   var nulls = msg.xWeight > 0 ? nullSet(msg) : [];
   var cpts = controlPoints(msg.control), ctl = controlUsable(cpts);
-  var d;
-  try {
-    d = fy.startCurrents({
-      elements: elementArrays(M.coils), nch: NCH, weights: chanW,
-      bndR: bndR, bndZ: bndZ, filR: fil.r, filZ: fil.z, filA: fil.a,
-      xPoints: nulls, xWeight: msg.xWeight || 1, control: ctl,
-      length: 2 * Math.PI * target.r0 * target.a,
-      lambda: msg.lambda === undefined ? 1e-3 : msg.lambda,
-      iMax: msg.iMax || null, nu: 4, nv: 4 });
-  } catch (e) {
-    post({ type: 'error', where: 'start', message: e.message });
-    return;
-  }
-  //: the field this design was made WITH, kept for the anneal that follows
-  try {
-    var pe = psiExtOf(d.x);
-    var pp = fy.filamentFlux({ r: fil.r, z: fil.z, a: fil.a,
-                               gridR: grid.r, gridZ: grid.z });
-    startSeed = new Float64Array(pe.length);
-    for (var i = 0; i < pe.length; i++) startSeed[i] = pe[i] + pp[i];
-  } catch (e) { startSeed = null; }
-  post({ type: 'start', chan: d.x, psiRms: d.psiRms, bX: d.bX,
-         psiXOffset: d.psiXOffset, bind: d.bind,
+  var rec;
+  try { rec = fy.complete('code/discharge', designPlan(msg, { stage: 'start', nulls: nulls, ctl: ctl })); }
+  catch (e) { post({ type: 'error', where: 'start', message: e.message }); return; }
+  var F = function (k) { return rec.facts[k].value; };
+  var flags = rec.fields.start_at_bound.data, bind = [];
+  for (var c = 0; c < flags.length; c++) if (flags[c] === 1) bind.push(c);
+  var bxe = rec.fields.start_b_x_each.data, pxe = rec.fields.start_psi_x_each.data;
+  //: ★the anneal that follows re-seeds itself from these currents (`warm`):
+  //: the field this design was made with is the kernel's to rebuild, not a
+  //: buffer this worker keeps between two commands
+  var bX = F('start_b_x');
+  post({ type: 'start', chan: Float64Array.from(rec.fields.aturns.data),
+         psiRms: F('start_psi_rms'), bX: isFinite(bX) && bX >= 0 ? bX : null,
+         psiXOffset: F('start_psi_x_offset'), bind: bind,
          //: per null and per control row, so a start that met one null and
          //: missed the other can say which — before an anneal is paid for
-         nulls: d.nulls, ctlDpsi: d.ctlDpsi,
+         nulls: nulls.map(function (p, k) { return { r: p.r, z: p.z, b: bxe[k], dpsi: pxe[k] }; }),
+         ctlDpsi: Array.from(rec.fields.start_ctl_dpsi.data),
          ctlRows: cpts.map(function (c) {
            return { ok: c.ok, kind: c.kind, r: c.r, z: c.z, seg: c.seg,
                     want: c.want, label: c.row.label, why: c.why || null };
          }),
-         targetBoundary: flatten(bnd) });
+         targetBoundary: fieldFlat(rec, 'target_boundary') });
 }
 
 /**

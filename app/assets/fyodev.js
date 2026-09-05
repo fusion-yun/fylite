@@ -60,16 +60,18 @@
 
   function toFyo(m) {
     var coils = m.coils.map(function (c) {
-      return {
-        name: c.name,
-        element: [{
-          geometry: {
-            geometry_type: 'rectangle',
-            rectangle: { r: c.r, z: c.z, width: c.w, height: c.h },
-          },
-          turns_with_sign: c.turns,
-        }],
+      var el = {
+        geometry: {
+          geometry_type: 'rectangle',
+          rectangle: { r: c.r, z: c.z, width: c.w, height: c.h },
+        },
+        turns_with_sign: c.turns,
       };
+      //: ★the two tilts go out as they came in (`fromFyo` reads them): a
+      //: document that dropped them would read back as untilted rectangles
+      if (c.a1 !== undefined) el['fylite:a1'] = c.a1;
+      if (c.a2 !== undefined) el['fylite:a2'] = c.a2;
+      return { name: c.name, element: [el] };
     });
     var limiterUnit = { outline: { r: m.limiter.r, z: m.limiter.z } };
     var vesselUnits = [];

@@ -45,6 +45,12 @@ node app/tests/validate-app-mdsip.mjs        # 离线，不需要服务器
 FYLITE_MDSIP_SERVER=<主机:端口> node app/tests/validate-jmds.mjs           # 独立实现对照（要真服务器）
 ```
 
+〔`validate-fyo-tree.mjs`〕**树门在页面这一侧**（FYL-DESIGN-16 W-1，2026-09-05）：`kernelapi.js`
+的扁平树编解码与 wasm 上的 `fylite_rs_fyo_tree`。三段判据：同一份计划 JS 编出的四段缓冲与
+内核仓 `tests/oracles/tree.py` 编出的**逐字节相等**（夹具 `fixtures/fyo-tree-plan.json` 由那边
+生成）；decode(encode(x)) 往返；真 wasm 上 `code/transport` 完成、未知 code 拒绝 −30、缺文档
+按名拒绝。离线，不要 fy 宿主——这正是静态站点那条路。`node app/tests/validate-fyo-tree.mjs`。
+
 〔`validate-jmds.mjs`〕**独立实现的对照**：`tools/jmds` 那个纯 Java 客户端与宿主逐字段比、
 两条数组**逐位**比。要一台真服务器（Java 客户端的握手与本仓的不同形，回放答不了它——
 那正是不拿夹具糊弄它的理由）。实测 #165704 `\PCRL01` 1376 点全同。

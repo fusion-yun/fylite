@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "d7c4ffeac4f2eec4";
+pub const DIGEST: &str = "6a11dc9d490ff674";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -135,6 +135,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "pressure", path: "time_slice/profiles_1d/pressure", units: "Pa", rank: "1d" },
         Slot { key: "f_df_dpsi", path: "time_slice/profiles_1d/f_df_dpsi", units: "T^2.m^2/Wb", rank: "1d" },
         Slot { key: "dpressure_dpsi", path: "time_slice/profiles_1d/dpressure_dpsi", units: "Pa/Wb", rank: "1d" },
+        Slot { key: "psi_norm_1d", path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
         Slot { key: "q_1d", path: "time_slice/profiles_1d/q", units: "1", rank: "1d" },
         Slot { key: "grid_r", path: "time_slice/profiles_2d/grid/dim1", units: "m", rank: "1d" },
         Slot { key: "grid_z", path: "time_slice/profiles_2d/grid/dim2", units: "m", rank: "1d" },
@@ -440,4 +441,4 @@ pub const ENTRIES: &[Entry] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "channel_basis", "coil_current_units", "config", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "fast_energy", "length", "max_power", "n_parallel", "name", "orbit_loss_fraction", "page", "pitch", "power_injected", "psi_convention", "psi_norm", "q", "q_psi_norm", "reconstructed", "result", "shinethrough", "trapped_fraction", "truth", "weight"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "coil_current_units", "config", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "fast_energy", "i_max_aturn", "length", "max_power", "n_parallel", "name", "orbit_loss_fraction", "page", "pitch", "power_injected", "psi_convention", "psi_norm", "q", "q_psi_norm", "reconstructed", "result", "shinethrough", "trapped_fraction", "truth", "weight"];

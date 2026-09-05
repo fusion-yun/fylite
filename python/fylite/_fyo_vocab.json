@@ -50,6 +50,14 @@
       "gated": false,
       "gloss": "Poloidal angle [deg] of a magnetic probe. Carried BESIDE the DD `poloidal_angle` (rad) rather than derived from it: the conversion is lossy -- 12 of EAST's 79 probe angles do not survive degrees->radians->degrees -- and a k-file writes the degrees. Not gated: `angle_deg` is also the ordinary field name of the in-memory probe-geometry dict in both hosts."
     },
+    "anneal_schedule": {
+      "gated": true,
+      "gloss": "The ridge weights of a shape anneal, one per pass, stiff → loose (`code/discharge`); absent, the kernel lays a geometric table from anneal_hi to anneal_lo over `passes`. Gated: it has no bare host-side name — both hosts spell it on the wire only."
+    },
+    "channel_aturns": {
+      "gated": false,
+      "gloss": "Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start. Not gated: `channel_aturns` is also the ordinary parameter name of the kernel binding's channel_fold."
+    },
     "channel_basis": {
       "gated": true,
       "gloss": "Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel). A vector read in the wrong basis is silently rescaled by the turn count, which is why this one is gated."
@@ -85,6 +93,10 @@
     "fast_energy": {
       "gated": false,
       "gloss": "Stored fast-ion energy [J] of a beam deposition. Not gated: the deposition result dict spells it the same way."
+    },
+    "i_max_aturn": {
+      "gated": false,
+      "gloss": "Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns. Not gated: `i_max_aturn` is also the ordinary keyword of design.breakdown and a case-recipe argument."
     },
     "length": {
       "gated": false,

@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'd7c4ffeac4f2eec4'
+DIGEST = '6a11dc9d490ff674'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -144,6 +144,7 @@ TABLES = {
             'pressure': {"path": 'time_slice/profiles_1d/pressure', "units": 'Pa', "rank": '1d'},
             'f_df_dpsi': {"path": 'time_slice/profiles_1d/f_df_dpsi', "units": 'T^2.m^2/Wb', "rank": '1d'},
             'dpressure_dpsi': {"path": 'time_slice/profiles_1d/dpressure_dpsi', "units": 'Pa/Wb', "rank": '1d'},
+            'psi_norm_1d': {"path": 'time_slice/profiles_1d/fylite:psi_norm', "units": '1', "rank": '1d'},
             'q_1d': {"path": 'time_slice/profiles_1d/q', "units": '1', "rank": '1d'},
             'grid_r': {"path": 'time_slice/profiles_2d/grid/dim1', "units": 'm', "rank": '1d'},
             'grid_z': {"path": 'time_slice/profiles_2d/grid/dim2', "units": 'm', "rank": '1d'},
@@ -471,4 +472,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'channel_basis', 'coil_current_units', 'config', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'length', 'max_power', 'n_parallel', 'name', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'trapped_fraction', 'truth', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'i_max_aturn', 'length', 'max_power', 'n_parallel', 'name', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'trapped_fraction', 'truth', 'weight']

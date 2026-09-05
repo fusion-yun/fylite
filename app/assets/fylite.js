@@ -213,6 +213,18 @@
   // Every alloc may grow the memory and DETACH existing views, so views
   // are never cached across an allocation.
 
+  /**
+   * The DOCUMENT door on this kernel, synchronous: a plan in, the record out
+   * (FYL-DESIGN-16 W-1).  On wasm it is `fylite_rs_fyo_tree`; on the desktop
+   * host's bridge it is `/api/case`.  A refusal throws (`.code`, `.refusal`).
+   */
+  Fy.prototype.complete = function (code, plan) {
+    if (!root.FyKernelApi || !root.FyKernelApi.completeSync) {
+      throw new Error('the document door needs assets/kernelapi.js loaded first');
+    }
+    return root.FyKernelApi.completeSync(this, code, plan);
+  };
+
   Fy.prototype.f64 = function () {
     return new Float64Array(this.e.memory.buffer);
   };
@@ -4204,11 +4216,24 @@
                   ADAS_Z: ADAS_Z, ADAS_A: ADAS_A, SolveError: SolveError };
   //: ★the document door, when the desktop host is there (kernelapi.js); on the static
   //: site it rejects with a sentence — see FyKernelApi.complete.
+  //: ★W-1 (2026-09-05): on the static site the door is the wasm's own
+  //: `fylite_rs_fyo_tree`, reached through ONE attached kernel kept here — a
+  //: page that completes ten cases instantiates the module once.
+  var doorKernel = null;
   root.FyLite.complete = function (code, plan, base) {
-    if (!root.FyKernelApi || !root.FyKernelApi.complete) {
+    var api = root.FyKernelApi;
+    if (!api || !api.complete) {
       return Promise.reject(new Error('the document door needs assets/kernelapi.js loaded first'));
     }
-    return root.FyKernelApi.complete(code, plan, base);
+    var viaApi = api.probe ? api.probe(base) : Promise.resolve(null);
+    return viaApi.then(function (info) {
+      if (info) return api.complete(code, plan, base);
+      if (!doorKernel) {
+        doorKernel = load('fylite_rs.wasm', { required: ['fylite_rs_fyo_tree', 'fylite_rs_alloc',
+                                                          'fylite_rs_free', 'fylite_rs_abi_version', 'memory'] });
+      }
+      return doorKernel.then(function (fy) { return fy.complete(code, plan); });
+    });
   };
 
   // ==========================================================================
