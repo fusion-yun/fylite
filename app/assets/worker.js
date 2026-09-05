@@ -4023,23 +4023,6 @@ function zerodMonteCarlo(msg) {
 var tglf = null;
 
 /**
- * The pressure-gradient scale length the saturation rules take, built the
- * way the source builds it: a density-weighted sum over species, then
- * clamped.  The clamp is the source's (`RLNP_CUTOFF`, 18 above and 4
- * below) and is reproduced rather than dropped — it is what keeps a steep
- * deck from driving the rule outside where it was fitted.
- */
-function dlnpdr(sp) {
-  var ptot = 0, grad = 0;
-  for (var i = 0; i < sp.as.length; i++) {
-    ptot += sp.as[i] * sp.taus[i];
-    grad += sp.as[i] * sp.taus[i] * (sp.rlns[i] + sp.rlts[i]);
-  }
-  var v = sp.miller14[1] * grad / Math.max(ptot, 0.01);
-  return Math.max(Math.min(v, sp.rlnpCutoff), 4.0);
-}
-
-/**
  * The turbulent tier: a TGLF-derived diffusivity driving the transport
  * solve, on an OUTER loop.
  *
@@ -4995,68 +4978,6 @@ function evRemap(xs, v, xt) {
 }
 
 // --- the metric ------------------------------------------------------------
-
-/**
- * The metric from four scalars — the reduced tier, and the page says so.
- *
- * The label is the minor radius r [m] (not rho_tor): `geo_surface` returns
- * dV/dr and <|grad r|^2> for the surface it was asked about, so r is the
- * label whose metrics these ARE.  ★★`gm2` used to be null here, on the claim
- * 「a Miller surface set does not determine <|grad r|^2/R^2>」 — WRONG: the
- * surface set fixes R(theta) and |grad r|(theta), and `geometry::solve`
- * merely had no such column.  S-2c 批二 added the column instead of keeping
- * the refusal.  The old note's other half stands: no SUBSTITUTE would do —
- * gm2 is neither <|grad r|^2>/<R^2> (5 % apart at R0/a = 6) nor 1/R0^2.
- */
-function evMillerMetric(sp) {
-  var n = Math.max(5, sp.n | 0), a = sp.a, r0 = sp.r0;
-  var rho = new Float64Array(n), vp = new Float64Array(n),
-      gm3 = new Float64Array(n), gm7 = new Float64Array(n),
-      r2 = new Float64Array(n), gm2 = new Float64Array(n),
-      q = new Float64Array(n),
-      shear = new Float64Array(n), kap = new Float64Array(n),
-      del = new Float64Array(n), rmaj = new Float64Array(n),
-      shift = new Float64Array(n), psin = new Float64Array(n);
-  var q0 = 1.0, qa = sp.q95;
-  for (var i = 0; i < n; i++) {
-    var x = i / (n - 1);
-    rho[i] = a * x;
-    psin[i] = x * x;             //: psi_N ~ (r/a)^2 near a circular plasma
-    q[i] = q0 + (qa - q0) * x * x;
-    shear[i] = q[i] !== 0 ? x * (2 * (qa - q0) * x) / q[i] : 0;
-    kap[i] = sp.kappa; del[i] = sp.delta; rmaj[i] = r0; shift[i] = 0;
-    if (i === 0) continue;
-    var g = fy.geoSurface({ rmin: rho[i], rmaj: r0, q: q[i], shear: shear[i],
-                            kappa: sp.kappa, sKappa: 0, delta: sp.delta,
-                            sDelta: 0, nTheta: 201 });
-    vp[i] = g.volumePrime;
-    gm3[i] = g.fsaGradR2;
-    //: <|grad r|>, which the interpretive inversion needs for the FLUX
-    //: while the conduction law uses <|grad r|^2> beside it — upstream's
-    //: convention, and the reason a profile made by a chi0 conduction
-    //: solve inverts to chi0/gm7 rather than to chi0
-    gm7[i] = g.fsaGradR;
-    //: ★<R^2> [m^2] (T-M8), the toroidal-momentum capacity's weight.  The
-    //: geometry above is handed to `geo_surface` in METRES, so this comes
-    //: back in metres squared and needs no a^2.  It is NOT R_maj^2: on a
-    //: circular surface it is R_maj^2 + 1.5 r^2, and that difference is
-    //: what the momentum channel used to be wrong by.
-    r2[i] = g.fsaR2;
-    //: ★<|grad r|^2/R^2> [m^-2] (S-2c 批二), from the same surface solve and
-    //: in the same label (r [m]) — one label's metric, so no chain rule
-    gm2[i] = g.fsaGradR2OverR2;
-  }
-  //: the axis is SET, not asked: the surface degenerates there
-  vp[0] = 0; gm3[0] = gm3[1]; gm7[0] = gm7[1]; r2[0] = r2[1]; gm2[0] = gm2[1];
-  return { rho: rho, vprime: vp, gm3: gm3, gm7: gm7, gm2: gm2, r2: r2,
-           fpol: evFill(n, Math.abs(sp.b0) * r0), q: q, shear: shear,
-           kappa: kap, delta: del, rmaj: rmaj, shift: shift, psin: psin,
-           //: the surface's own minor radius [m].  On this tier the label IS
-           //: that radius, so the two arrays coincide — they do not on the
-           //: ladder tiers, where the label is rho_tor.
-           rmin: rho.slice(),
-           a: a, r0: r0, b0: Math.abs(sp.b0), source: 'miller' };
-}
 
 /**
  * The metric a SOLVED field determines: rho_tor [m], V' [m^2], <|grad
@@ -6482,7 +6403,11 @@ function evolveRun(msg) {
       rMaj: g.rmaj, n: sp.n, edgePsin: sp.edgePsin, nTheta: 121,
       source: 'gfile' });
   } else {
-    geo = evMillerMetric(sp);
+    //: ★第二十六刀: the analytic tier's metric is the PROBE's (below): the
+    //: kernel spells the page's grid (x_i = i/(n-1), rho = a·x) and builds
+    //: every row on it; nothing is bound but the size
+    geo = { rho: null, n: Math.max(5, sp.n | 0), a: sp.a, r0: sp.r0, b0: Math.abs(sp.b0),
+            source: 'miller', pending: true };
   }
   //: ★★What the current channel needs is TWO things, and until S-2c 批二
   //: only one of them was ever missing, so the refusal tested only that
@@ -6534,7 +6459,7 @@ function evolveRun(msg) {
                   message: FyI18n.t('e.err.lh_nofield') });
 
   // --- the state it starts from --------------------------------------------
-  var n = geo.rho.length;
+  var n = geo.pending ? geo.n : geo.rho.length;
   //: ★★T-4 第五刀 (第二十四刀): THE START STATE COMES FROM THE PROBE.  What
   //: this function used to build by hand before its first block — the
   //: parabolic profiles or the reference's, the dilution and its check, the
@@ -6559,6 +6484,7 @@ function evolveRun(msg) {
   var ps = pp.settings;
   ps.probe = 1; ps.state = rs ? 1 : 0; ps.reference = rp ? 1 : 0;
   ps.t_start = msg.tStart || 0;
+  if (geo.pending) { ps.geometry = 'miller'; ps.q95 = sp.q95; ps.n = n; }
   var arrOr = function (v) { return v ? Array.from(v) : undefined; };
   var pin = { equilibrium: pp.equilibrium };
   if (rs) {
@@ -6584,6 +6510,15 @@ function evolveRun(msg) {
   var PN = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
   var PX = function (k) { return prec.facts[k] ? prec.facts[k].value : NaN; };
   var pcp = prec.fields.core_profiles.profiles_1d;
+  if (geo.pending) {
+    var plad = prec.fields.equilibrium.time_slice.profiles_1d;
+    var row = function (k) { return plad[k] ? PN(plad[k]) : null; };
+    geo = { rho: row('rho_tor'), vprime: row('dvolume_drho_tor'), gm3: row('gm3'), gm2: row('gm2'),
+            r2: row('fylite:r2_average'), fpol: row('f'), q: row('q'), shear: row('magnetic_shear'),
+            kappa: row('elongation'), delta: row('triangularity_upper'), rmaj: row('fylite:r_major'),
+            rmin: row('fylite:r_minor'), shift: row('fylite:shift'), psin: row('fylite:psi_norm'),
+            a: sp.a, r0: sp.r0, b0: Math.abs(sp.b0), source: 'miller' };
+  }
   st.te = PN(pcp.electrons.temperature); st.ti = PN(pcp.t_i_average);
   st.ne = PN(pcp.electrons.density); st.ni = PN(pcp['fylite:ion_density']);
   sp.bulkId = PX('bulk_id'); sp.impurityId = PX('imp_id');
