@@ -404,10 +404,15 @@ def evolve(*, a: float, r0: float, b0: float,
     ``couple`` the geometry arguments and ``equilibrium`` are not read: the
     ladder is the solve's, ``n_rho`` its node count, ``edge_psin`` its edge.
     The answer's ``rounds`` is one record per block (``block, steps, settled,
-    beta0, fit, bp_target, bp_eq, free``), ``free_solves`` every solve's verdict
-    (block 0 first).  ★The fixed-boundary refinement (``coupleFixed``) is not
-    sunk and is not offered here; the turbulent closure is not combined with
-    ``couple`` in this tool (the page combines them).
+    beta0, fit, bp_target, bp_eq, bp_fix, free, refined, refine_why``),
+    ``free_solves`` every solve's verdict (block 0 first).  ★第二十刀:
+    ``fixed=True`` (with ``deg_p`` / ``deg_f``, default 3) adds the page's
+    fixed-boundary refinement to each alternation — the plasma source replaced
+    by p' and FF' as polynomials of the transport's own pressure on a sub-box
+    whose border is the free solve's, held to its own zero test; a refinement
+    that fails is REPORTED (``refine_why``) and the family's answer stands.  The
+    turbulent closure is not combined with ``couple`` in this tool (the page
+    combines them).
 
     ★2026-09-05 第十八刀: ``closure="turbulent"`` marches on the neoclassical
     chi_i plus a TGLF-derived one.  TGLF lives in the EXTENSION library, so
@@ -551,10 +556,6 @@ def evolve(*, a: float, r0: float, b0: float,
             raise ValueError(
                 "couple with the turbulent closure is not combined in this tool: "
                 "run one or the other (the page combines them)")
-        if couple.get("fixed"):
-            raise ValueError(
-                "the fixed-boundary refinement (coupleFixed) is not sunk: the "
-                "alternation runs on the free solve alone")
     if ipctl and not current:
         raise ValueError(
             "ipctl=True needs the current channel: the loop drives the "
@@ -870,7 +871,9 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
     aturns = np.asarray(c["aturns"], float)
     fixed = {"ip": float(c["ip"]), "emp": float(c["emp"]), "enp": float(c["enp"]),
              "relax": float(c["relax"]), "n": float(settings["n"]), "edge_psin": float(settings["edge_psin"]),
-             "n_theta": float(c.get("n_theta", 121))}
+             "n_theta": float(c.get("n_theta", 121)),
+             "deg_p": float(c.get("deg_p", 3)), "deg_f": float(c.get("deg_f", 3))}
+    refine = bool(c.get("fixed"))
     if "r0" in c:
         fixed["r0"] = float(c["r0"])
     for key in ("max_iter", "gs_relax", "gs_tol", "fb_gain", "b0", "r0_tf"):
@@ -898,7 +901,7 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
     fact = lambda rec, k: float(rec["facts"][k]["value"])  # noqa: E731
 
     def refit(beta0, fit, *, ladder=None, state=None, p_fast=None, eq_prev=None):
-        st = dict(fixed, beta0=float(beta0), fit=float(fit))
+        st = dict(fixed, beta0=float(beta0), fit=float(fit), couple_fixed=float(bool(fit and refine)))
         inp = {"device": dev, "discharge": {"fylite:channel_aturns": aturns}}
         if fit:
             st["a"] = float(ladder["a"])
@@ -915,7 +918,8 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
             if p_fast is not None:
                 inp["evolve"] = {"fylite:p_fast_third": p_fast}
             if eq_prev is not None:
-                inp["refit"] = {"fylite:eq_x": arr(eq_prev, "profile_x"), "fylite:eq_p": arr(eq_prev, "pres")}
+                #: the FREE solve's own p(psi_N), whichever equilibrium the march stood on
+                inp["refit"] = {"fylite:eq_x": arr(eq_prev, "free_profile_x"), "fylite:eq_p": arr(eq_prev, "free_pres")}
         return fydoc.complete("code/refit", {"settings": st, "inputs": inp})
 
     def ladder_of(rec):
@@ -987,7 +991,8 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
         left -= took
         settled = float(rec["facts"]["settled"]["value"]) != 0.0
         rounds.append({"block": block, "steps": n_steps - left, "settled": settled, "beta0": beta0,
-                       "fit": None, "bp_target": float("nan"), "bp_eq": float("nan"), "free": None})
+                       "fit": None, "bp_target": float("nan"), "bp_eq": float("nan"), "bp_fix": float("nan"),
+                       "free": None, "refined": None, "refine_why": None})
         prev = rec
         if settled or left <= 0:
             break
@@ -1004,8 +1009,19 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
         free_solves.append(free)
         fit = ({"emp": fact(eq, "fit_emp"), "enp": fact(eq, "fit_enp"), "rms": fact(eq, "fit_rms")}
                if fact(eq, "fit_found") else None)
+        refined = None
+        if refine and fact(eq, "fixed_ok"):
+            refined = {k: fact(eq, f) for k, f in (("ip", "fixed_ip"), ("ip_target", "fixed_ip_target"),
+                                                    ("res_p", "res_p"), ("res_f", "res_f"), ("deg_p", "deg_p"),
+                                                    ("deg_f", "deg_f"), ("iterations", "fixed_iterations"),
+                                                    ("residual", "fixed_residual"), ("zero_psi", "zero_psi"),
+                                                    ("zero_ip_rel", "zero_ip_rel"), ("ff_shift", "fixed_ff_shift"))}
+        why = None
+        if refine and not fact(eq, "fixed_ok"):
+            why = next((t[len("refine: "):] for t in eq.get("notes", []) if t.startswith("refine: ")), "the refinement failed")
         rounds[-1].update({"beta0": beta0, "fit": fit, "bp_target": fact(eq, "bp_target"),
-                           "bp_eq": fact(eq, "bp_eq"), "free": free})
+                           "bp_eq": fact(eq, "bp_eq"), "bp_fix": fact(eq, "bp_fix"), "free": free,
+                           "refined": refined, "refine_why": why})
     #: the stitched record: the last block's fields (on the last ladder), the traces concatenated
     import copy as _copy
     out = _copy.deepcopy(blocks[-1])

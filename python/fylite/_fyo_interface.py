@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '91ba04c194ba4c61'
+DIGEST = '28d9883126713f0e'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -339,7 +339,7 @@ BLOCKS = {
         {'key': 'quasi', 'shape': 'quasi', 'units': 'sunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
         {'key': 'resume', 'shape': '', 'units': 'sunk', 'gloss': 'a resumed state'},
         {'key': 'closure', 'shape': 'closure', 'units': 'unsunk', 'gloss': 'the flux-match closure (4): a root find, not a march'},
-        {'key': 'couple', 'shape': 'coupleFixed', 'units': 'unsunk', 'gloss': 'the fixed-boundary refinement inside the equilibrium alternation (coupleFixed)'},
+        {'key': 'couple', 'shape': 'couple', 'units': 'sunk', 'gloss': 'the equilibrium alternation, the fixed-boundary refinement included (code/refit between blocks, 第十九·二十刀)'},
     ],
     'EVOLVE_HEAT_IN': [
         {'key': 'rho', 'shape': 'n', 'units': 'm', 'gloss': "the grid (metres, like the page's)"},

@@ -12,6 +12,11 @@
 // 让它的 `evScopeMiss` 一律不命中，`--site` 指过去）；切门之后同样的配置必须走条目（viaEntry）：
 //   plain   热 + 电流通道，couple 2，五步（三块：2 · 2 · 1）
 //   beam    热 + 电流 + 动量通道，一束顺流注入，couple 2 —— 束随平衡重建（新 ψ 图新弦）
+//   fixed   plain 加固定边界细化（第二十刀：`coupleFixed`，p′ / FF′ 三次多项式）——细化的记录
+//           （零测试 · 拟合残差 · I_p · 解出的子网格）或它按名的拒绝，两条路要一样。
+//           ★在这台机器上两次交替都走**拒绝**那条路（等离子体缩到 a ≈ 0.18 m，围不出 ≥ 6 格的
+//           子网格——`refine_box`，与循环路径同一句话）；细化本身在内核仓 `tests/test_evolve_couple_code.py`
+//           用 EAST 参考放电判（零测试 · 记录的一致性 · 压强从边界向内回积）。
 //
 // ★判到多紧：线圈通量在两条路上是**同一组 4×4 细丝的同一个和，加的次序不同**（页面按通道响应
 // 缓存后合成，内核按元件折叠后一次装配；网格轴的 linspace 也是两种写法），所以自由边界解只能到浮点和的
@@ -85,7 +90,20 @@ const ip = 2 * Math.PI * target.a * target.a * b0 * (1 + target.kappa * target.k
 send({ cmd: 'start', target, ip, nPoints: 24, xWeight: 0, control: [], iMax: null,
        nRing: 4, peaking: 1, lambda: 1e-3 });
 const st = take('start');
-const chan = Array.from(st.chan);
+inbox.splice(0, inbox.length);
+//: ★the designed START is a linear isoflux answer, not an equilibrium: on the
+//: first published machine the free solve on those currents shrank the plasma
+//: to a tenth of the target (measured: a = 0.12 m for 0.6 * a_max asked), and a
+//: plasma that small has no sub-grid to refine on.  Two passes of the anneal
+//: (the design page's own `design` command, `code/discharge`) put the boundary
+//: where it was asked, and the alternation — refinement included — runs on
+//: currents a design would actually hand over.
+send({ cmd: 'design', chan: Array.from(st.chan), target, ip, warm: true,
+       prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 },
+       schedule: [0.1, 0.03], gamma: 0.4, nPoints: 24, xWeight: 0, control: [],
+       solve: { maxIter: 400, relax: 0.3, tol: 1e-8 } });
+const dsg = take('design');
+const chan = Array.from(dsg.chan);
 inbox.splice(0, inbox.length);
 
 const nSteps = 5;
@@ -111,6 +129,7 @@ const base = {
 const CASES = {
   plain: {},
   beam: { beam: true, chMomentum: true },
+  fixed: { coupleFixed: true, degP: 3, degF: 3 },
 };
 const arr = (v) => (v ? Array.from(v) : null);
 const num = (v) => (v === undefined ? null : v);
@@ -136,11 +155,22 @@ for (const name of Object.keys(CASES)) {
     steps: steps.map((s) => ({ step: s.step, coupled: s.coupled, n: s.rho.length, rho: arr(s.rho), psin: arr(s.psin),
                                te: arr(s.te), ti: arr(s.ti), ne: arr(s.ne), q: arr(s.q), jni: arr(s.jni),
                                omega: arr(s.omega), reading: rd(s.reading) })),
-    couples: couples.map((c) => ({ block: c.block, beta0: c.beta0, fit: c.fit, bpTarget: c.bpTarget, bpEq: c.bpEq,
+    couples: couples.map((c) => ({ block: c.block, beta0: c.beta0, fit: c.fit, bpTarget: c.bpTarget, bpEq: c.bpEq, bpFix: c.bpFix,
                                    free: c.free, shape: c.shape, lcfs: c.lcfs.length, refined: c.refined, refineWhy: c.refineWhy })),
     rounds: done.rounds.map((r) => ({ block: r.block, steps: r.steps, settled: r.settled, fit: r.fit, beta0: r.beta0,
-                                      bpTarget: r.bpTarget, bpEq: r.bpEq, free: r.free })),
+                                      bpTarget: r.bpTarget, bpEq: r.bpEq, bpFix: r.bpFix, free: r.free,
+                                      refined: r.refined, refineWhy: r.refineWhy })),
     freeSolves: done.freeSolves,
+    //: the last refinement's solved box (the session file's checkable claim)
+    refinedField: done.refinedField ? {
+      nr: done.refinedField.r.length, nz: done.refinedField.z.length,
+      r0: done.refinedField.r[0], z0: done.refinedField.z[0],
+      psi: arr(done.refinedField.psi), psiAxis: done.refinedField.psiAxis, psiBnd: done.refinedField.psiBnd,
+      axisR: done.refinedField.axisR, axisZ: done.refinedField.axisZ,
+      limR: arr(done.refinedField.limR), limZ: arr(done.refinedField.limZ),
+      dpCoef: arr(done.refinedField.dpCoef), dgCoef: arr(done.refinedField.dgCoef),
+      ip: done.refinedField.ip, ipTarget: done.refinedField.ipTarget, ffShift: done.refinedField.ffShift,
+      ipRaw: done.refinedField.ipRaw } : null,
     final: { te: arr(done.te), ti: arr(done.ti), ne: arr(done.ne), psi: arr(done.psi), q: arr(done.q), omega: arr(done.omega),
              rho: arr(done.rho), psin: arr(done.psin), vprime: arr(done.vprime), gm3: arr(done.gm3), gm2: arr(done.gm2),
              fpol: arr(done.fpol), qGeo: arr(done.qGeo), aMinor: done.aMinor, rMajor: done.rMajor, b0: done.b0,
@@ -209,10 +239,12 @@ for (const name of Object.keys(CASES)) {
   close(g.couples, r.couples, name + ': the alternations');
   close(g.rounds, r.rounds, name + ': the rounds');
   close(g.freeSolves, r.freeSolves, name + ': the free solves');
+  close(g.refinedField, r.refinedField, name + ': the refined box');
   const fin = (f) => Object.assign({}, f, { q: f.q ? f.q.slice(1) : null });
   close(fin(g.final), fin(r.final), name + ': the final state');
 }
+const fx = got.fixed.couples.map((c) => (c.refined ? `细化 I_p ${(c.refined.ip / 1e3).toFixed(1)} kA` : '细化拒绝'));
 console.log(`validate-worker-evolve-couple: ${Object.keys(CASES).length} 个配置在 ${id} 上到 ${REL.toExponential(0)}`
-            + `（实测最坏 ${worst.toExponential(2)}），三块两次交替，`
+            + `（实测最坏 ${worst.toExponential(2)}），三块两次交替（fixed：${fx.join(' · ')}），`
             + `beta0 ${got.plain.couples.map((c) => c.beta0.toFixed(4)).join(' → ')}，`
             + `T_e(0) 终值 ${got.plain.final.te[0].toFixed(1)} eV`);

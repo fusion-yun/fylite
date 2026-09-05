@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "91ba04c194ba4c61";
+pub const DIGEST: &str = "28d9883126713f0e";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -298,7 +298,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "quasi", shape: "quasi", units: "sunk", gloss: "impurity dilution (composition-derived fuel fraction)" },
         Row { key: "resume", shape: "", units: "sunk", gloss: "a resumed state" },
         Row { key: "closure", shape: "closure", units: "unsunk", gloss: "the flux-match closure (4): a root find, not a march" },
-        Row { key: "couple", shape: "coupleFixed", units: "unsunk", gloss: "the fixed-boundary refinement inside the equilibrium alternation (coupleFixed)" },
+        Row { key: "couple", shape: "couple", units: "sunk", gloss: "the equilibrium alternation, the fixed-boundary refinement included (code/refit between blocks, 第十九·二十刀)" },
     ] },
     Block { name: "EVOLVE_HEAT_IN", rows: &[
         Row { key: "rho", shape: "n", units: "m", gloss: "the grid (metres, like the page's)" },

@@ -615,12 +615,12 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     #: budget describing a run that is not going to happen, and — worse —
     #: an unmapped switch left in `pending` reads as「未归类」rather than
     #: as「这个能力还没沉下来」.
-    #: ★`closure` and `couple` are declared `unsunk` like the rest, but they
-    #: are not booleans: a closure of 0 and a couple of 0 are IN scope.  The
+    #: ★`closure` is declared `unsunk` like the rest, but it is not a
+    #: boolean: a closure of 0 is IN scope (`couple` sank whole, 第二十刀).  The
     #: declaration says WHICH controls decide the scope; what counts as
     #: 「on」 for a numeric control is this host's reading of its own corpus,
     #: and it is written out rather than left to `truthy`.
-    numeric = {"closure", "couple"}
+    numeric = {"closure"}
     missing = [why for key, why in _EVOLVE_UNSUNK.items()
                if key not in numeric and cfg.get(key)]
     closure = str(cfg.get("closure", "0"))
@@ -644,12 +644,10 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
             "this case carries controls and not data (device and shot decks "
             "stay out of this repository).  Import the reference file and "
             "pass it as `equilibrium=`")
-    #: ★第十九刀: the alternation itself (`couple > 0` on the device tier) is the
-    #: entry's — `code/refit` between blocks, `model.evolve(couple=…)`; what stays
-    #: out is the fixed-boundary refinement, and off the device tier the page
-    #: reads `couple` as nothing at all
-    if cfg.get("couple") and cfg.get("couplefixed"):
-        missing.append(f"{_EVOLVE_UNSUNK['couple']} (couple > 0 with coupleFixed)")
+    #: ★第十九·二十刀: the alternation (`couple > 0` on the device tier, the
+    #: fixed-boundary refinement included) is the entry's — `code/refit` between
+    #: blocks, `model.evolve(couple=…)`; it is a `sunk` row of the ledger now,
+    #: and off the device tier the page reads `couple` as nothing at all
     for key, why in _EVOLVE_REQUIRED.items():
         if not cfg.get(key):
             missing.append(why)

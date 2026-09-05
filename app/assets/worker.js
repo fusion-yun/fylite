@@ -7911,19 +7911,16 @@ function evScopeMiss(sp) {
   var miss = [];
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i], field = r.shape, v = field ? sp[field] : undefined;
-    //: `closure` and `couple` are numeric: 0 is IN scope.  The declaration
-    //: says WHICH controls decide the scope; what counts as「on」for a
-    //: numeric one is this host reading its own control, and it is written
-    //: out rather than left to truthiness.
+    //: `closure` is numeric: 0 is IN scope.  The declaration says WHICH
+    //: controls decide the scope; what counts as「on」for a numeric one is
+    //: this host reading its own control, and it is written out rather than
+    //: left to truthiness.  (`couple` sank whole — 第十九·二十刀 — and is a
+    //: `sunk` row now.)
     if (r.key === 'closure') {
       //: ★第十六刀: the neoclassical closure (2) is the entry's; 第十八刀: the
       //: turbulent one (3) too, on the extension's chi between blocks; only
       //: the flux-match tier (4) is not
       if ((v | 0) === 4) miss.push(r.gloss);
-    } else if (r.key === 'couple') {
-      //: ★第十九刀: the alternation itself is the entry's (`code/refit`
-      //: between blocks); what stays out is the fixed-boundary refinement
-      if (v && +sp.couple > 0) miss.push(r.gloss);
     } else if (r.units === 'required') {
       if (!v) miss.push(r.gloss);
     } else if (r.key === 'resume') {
@@ -7964,13 +7961,21 @@ function evScopeMiss(sp) {
  * with `fit` the remapped `st`, `vprimeOld`, `fit`, `bpTarget`, `bpEq`,
  * `beta0` and the solve's `free` report.
  */
+/** The zero test's four numbers, read back off the door's `refine:` note. */
+function evRefineZeroNumbers(note) {
+  var m = /psi ([-+0-9.e]+) \(tol ([-+0-9.e]+)\), I_p ([-+0-9.e]+)% \(tol ([0-9]+)%\)/.exec(note || '');
+  return m ? { psi: m[1], psiTol: m[2], ip: m[3], ipTol: m[4] } : { psi: '?', psiTol: '?', ip: '?', ipTol: '1' };
+}
+
 function evRefit(sp, chan, o) {
   var arr = function (v) { return v ? Array.from(v) : null; };
   var t = self.FyDevice.tf(M), fo = evFreeOpts(sp);
   var settings = {
     ip: sp.ip, beta0: o.beta0, emp: sp.emp, enp: sp.enp, r0: sp.r0Src,
     b0: t.b0, r0_tf: t.r0, relax: sp.relax, n: sp.n, edge_psin: sp.edgePsin, n_theta: 121,
-    gs_relax: fo.relax, gs_tol: fo.tol, fb_gain: 8.0, max_iter: fo.maxIter, fit: o.fit ? 1 : 0 };
+    gs_relax: fo.relax, gs_tol: fo.tol, fb_gain: 8.0, max_iter: fo.maxIter, fit: o.fit ? 1 : 0,
+    //: 第二十刀: the fixed-boundary refinement is a stage of the same door
+    couple_fixed: o.fit && sp.coupleFixed ? 1 : 0, deg_p: sp.degP, deg_f: sp.degF };
   var inputs = { device: deviceDoc(), discharge: { 'fylite:channel_aturns': Array.from(chan) } };
   if (o.fit) {
     var geo = o.geo, st = o.st;
@@ -8024,10 +8029,46 @@ function evRefit(sp, chan, o) {
                 r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
                 nr: grid.nr, nz: grid.nz,
                 limR: M.limiter.r, limZ: M.limiter.z };
-  var out = { eq: eq, geo: geoNew, field: field,
+  //: the FREE solve's own p(psi_N) — what the next alternation's beta_p reads,
+  //: whichever equilibrium the march stands on
+  var eqFree = { profiles: { x: F('free_profile_x'), p: F('free_pres') } };
+  var out = { eq: eq, eqFree: eqFree, geo: geoNew, field: field,
               free: { converged: eq.converged, settled: eq.settled, residual: eq.residual,
                       iterations: eq.iterations, maxIter: eq.maxIter, tol: eq.tol },
-              beta0: X('beta0') };
+              beta0: X('beta0'), refined: null, refineWhy: null, bpFix: NaN };
+  if (o.fit && sp.coupleFixed) {
+    //: ★the refinement's own record, and its refusal by NAME: the door reports
+    //: a failed refinement (`fixed_why`) and the family's answer stands, as the
+    //: loop did; the page's wording is rebuilt here from the door's facts
+    if (X('fixed_ok')) {
+      out.refined = {
+        ip: X('fixed_ip'), ipTarget: X('fixed_ip_target'),
+        resP: X('res_p'), resF: X('res_f'), degP: X('deg_p'), degF: X('deg_f'),
+        iterations: X('fixed_iterations'), residual: X('fixed_residual'),
+        zero: { psi: X('zero_psi'), ip: X('zero_ip'), ipRef: X('fixed_ip_target'), ipRel: X('zero_ip_rel'),
+                iterations: X('zero_iterations'), residual: X('zero_residual'),
+                freeIterations: eq.iterations, freeResidual: eq.residual,
+                axisR: X('zero_axis_r'), axisZ: X('zero_axis_z') },
+        field: { r: F('box_r'), z: F('box_z'), psi: F('box_psi'),
+                 psiAxis: X('fixed_psi_axis'), psiBnd: eq.psiBnd,
+                 axisR: X('fixed_axis_r'), axisZ: X('fixed_axis_z'),
+                 limR: F('box_limiter_r'), limZ: F('box_limiter_z'),
+                 dpCoef: Array.from(F('dp_coef')), dgCoef: Array.from(F('dg_coef')),
+                 ip: X('fixed_ip'), ipTarget: X('fixed_ip_target'), ffShift: X('fixed_ff_shift'), ipRaw: X('fixed_ip_raw') },
+      };
+      out.bpFix = X('bp_fix');
+    } else {
+      var why = X('fixed_why'), note = (rec.notes || []).filter(function (t) { return t.indexOf('refine: ') === 0; })[0] || '';
+      var fr = { it: eq.iterations, fresid: eq.residual.toExponential(1) };
+      out.refineWhy = why === 1 ? FyI18n.t('e.err.refine_box')
+        : why === 2 ? FyI18n.t('e.err.refine_zerofail', assign(fr, { why: note.replace(/^refine: /, '') }))
+        : why === 3 ? FyI18n.t('e.err.refine_zero', assign(fr, evRefineZeroNumbers(note)))
+        : why === 4 ? FyI18n.t('e.err.refine_grew')
+        : why === 5 ? FyI18n.t('e.err.refine_axis')
+        : why === 6 ? FyI18n.t('e.err.refine_open', { diag: note.replace(/^refine: [^:]*: /, '') })
+        : (note.replace(/^refine: /, '') || FyI18n.t('e.err.refine'));
+    }
+  }
   if (o.fit) {
     var cpr = rec.fields.core_profiles.profiles_1d;
     out.st = { te: flat(cpr.electrons.temperature), ti: flat(cpr.t_i_average), ne: flat(cpr.electrons.density),
@@ -8474,7 +8515,7 @@ function evolveRun(msg) {
   //: were asked for — so a march built on a field the solver had not found
   //: read exactly like one built on a field it had.
   var freeLog = [];
-  var geo = null, eq = null, chan = null, beta0 = sp.beta0;
+  var geo = null, eq = null, chan = null, beta0 = sp.beta0, eqFree0 = null;
   var prof = { beta0: beta0, emp: sp.emp, enp: sp.enp, r0: sp.r0Src };
   //: what the cross-section is traced on — the same psi the metric came from
   var field = null;
@@ -8490,6 +8531,7 @@ function evolveRun(msg) {
     try { rf0 = evRefit(sp, chan, { fit: 0, beta0: beta0 }); }
     catch (e0) { return post({ type: 'error', where: 'evolve', message: String(e0 && e0.message || e0) }); }
     eq = rf0.eq; geo = rf0.geo; field = rf0.field;
+    eqFree0 = rf0.eqFree;
     //: ★★THE EQUILIBRIUM THIS MARCH STANDS ON, and whether the solver got
     //: there.  Block 0 is the one every frozen-geometry run uses for its
     //: whole march, so a run with `couple = 0` has exactly this one entry
@@ -8999,7 +9041,7 @@ function evolveRun(msg) {
   //: pressure IS the transport's — so reading beta_p off it would feed the
   //: (emp, enp, beta0) loop its own answer and freeze it.  That loop is
   //: about the FAMILY, so it keeps seeing the family.
-  var eqFree = eq, refinedField = null;
+  var eqFree = eqFree0 || eq, refinedField = null;
   var dtNow = sp.dt;
   //: ★the closure once BEFORE the first step, so the exchange cap below has
   //: a rate to bound the first step with.  Without it the cap starts one
@@ -9273,8 +9315,10 @@ function evolveRun(msg) {
         return post({ type: 'error', where: 'evolve', message: String(e1 && e1.message || e1) });
       }
       var psinOld = geo.psin;
-      beta0 = rf.beta0; fit = rf.fit; bpTarget = rf.bpTarget; bpEq = rf.bpEq; bpFix = NaN;
-      eq = rf.eq; eqFree = eq;
+      beta0 = rf.beta0; fit = rf.fit; bpTarget = rf.bpTarget; bpEq = rf.bpEq; bpFix = rf.bpFix;
+      eq = rf.eq; eqFree = rf.eqFree;
+      var refinedE = rf.refined, refineWhyE = rf.refineWhy;
+      if (refinedE) refinedField = refinedE.field;
       var freeNowE = assign({ block: eb + 1 }, rf.free);
       freeLog.push(freeNowE);
       vprimeOld = rf.vprimeOld;
@@ -9305,14 +9349,20 @@ function evolveRun(msg) {
         beam_e: null, beam_i: null, beam_torque: null, beam_j: null, beam_p_par: null, beam_p_perp: null,
         lh_e: null, lh_j: null });
       sendOutlines();
+      var refRec = refinedE ? {
+        ip: refinedE.ip, ipTarget: refinedE.ipTarget, resP: refinedE.resP, resF: refinedE.resF,
+        degP: refinedE.degP, degF: refinedE.degF, iterations: refinedE.iterations, residual: refinedE.residual,
+        zero: refinedE.zero } : null;
       post({ type: 'evolve_couple', block: eb + 1, beta0: beta0, free: freeNowE,
-             refined: null, refineWhy: null,
+             refined: refRec, refineWhy: refineWhyE,
              fit: fit, bpTarget: bpTarget, bpEq: bpEq, bpFix: bpFix,
              lcfs: eq.lcfs, shape: eq.shape });
       var recE = rounds[rounds.length - 1];
       recE.free = freeNowE;
       recE.fit = fit; recE.beta0 = beta0;
       recE.bpTarget = bpTarget; recE.bpEq = bpEq; recE.bpFix = bpFix;
+      recE.refineWhy = refineWhyE;
+      recE.refined = refRec;
     }
     blocks = 0;
   }
