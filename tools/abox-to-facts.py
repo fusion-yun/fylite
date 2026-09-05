@@ -841,9 +841,13 @@ def main(argv=None) -> int:
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--publishable", action="store_true",
                     help="只列出进得了这一种构建的机器（许可闸；不写文件）")
-    ap.add_argument("--flavour", choices=("public", "internal"), default="public",
-                    help="哪一种构建：public（缺省，不含 EAST 与上游禁分发的 IDS）"
-                         "/ internal（全部）")
+    #: ★缺省是 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）：fylite 以内部
+    #: 工具发布，全功能构建含 EAST。许可判据没有跟着松——它仍在每台自己的
+    #: `rights.json` 里；变的只是「不说话时装哪一版」。公开面因此必须**明写**
+    #: `--flavour public`，见 A-14 的门禁。
+    ap.add_argument("--flavour", choices=("public", "internal"), default="internal",
+                    help="哪一种构建：internal（缺省，全部，含 EAST）"
+                         "/ public（不含 EAST 与上游禁分发的 IDS）")
     a = ap.parse_args(argv)
 
     if not device_root(a.fydata).is_dir():

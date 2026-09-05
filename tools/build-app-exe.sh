@@ -25,8 +25,9 @@
 #   --mode web   Web UI —— 内嵌整个 `app/`（含三个 `.wasm`），算力在**浏览器**里。
 #   --mode full  完整（缺省）—— 两路都在：内嵌前端 + 原生内核。实测 8.47 MB。
 #
-# 用法：bash tools/build-app-exe.sh [--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
-#   --internal    = 内部版（带全部装置）；缺省是公开版
+# 用法：bash tools/build-app-exe.sh [--public|--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
+#   缺省 = 内部版（带全部装置，含 EAST）——2026-09-05 裁定，FYL-DESIGN-19 A-14
+#   --public      = 公开版（按 rights.json 筛，不带 EAST）；公开面必须明写这一句
 #   windows       = GNU ABI，链接器要 mingw（apt，需 root）
 #   windows-msvc  = MSVC ABI，靠 cargo-xwin，**不需要 root**
 set -euo pipefail
@@ -38,10 +39,11 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CRATE="$DIR/rust/fylite_runtime"
 
 OUT="$CRATE/target"
-FLAVOUR=public
+FLAVOUR=internal
 MODE=full
 while :; do
   case "${1:-}" in
+    --public)   FLAVOUR=public;   shift ;;
     --internal) FLAVOUR=internal; shift ;;
     --mode)     MODE="${2:?--mode 要 cli|web|full}"; shift 2 ;;
     *) break ;;
@@ -67,11 +69,9 @@ if [ "$MODE" = cli ]; then
   STAGE=""
 else
   STAGE="$DIR/dist/app-$FLAVOUR"
-  if [ "$FLAVOUR" = internal ]; then
-    bash tools/build-site.sh --internal "$STAGE" >/dev/null
-  else
-    bash tools/build-site.sh "$STAGE" >/dev/null
-  fi
+  #: ★两边都**明写**版别，不靠各自的缺省：缺省今天是 internal，而两个脚本的缺省
+  #: 若某天分了岔，先发现的人是拿到制品的那个。
+  bash tools/build-site.sh "--$FLAVOUR" "$STAGE" >/dev/null
   echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/facts/*/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
 
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现

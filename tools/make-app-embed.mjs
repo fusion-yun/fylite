@@ -89,11 +89,14 @@ function walk(dir, prefix = '') {
 //: `tools/facts-publish.py`（它读每个条目的 `facts/<域>/<id>/rights.json`）。这里
 //: 只问它「这一版带哪几台」，不自己判许可：两个发布者各判一遍，某一天它们会给出
 //: 不同的答案，而先发现的人是拿到制品的那个。
-//: 缺省是**公开版**——committed 的这张表因此是公开版的那一张；内部版构建重跑本
-//: 生成器（`--flavour internal`），树会变脏，而那正是「这不是公开制品」的信号。
+//: 缺省是**内部版**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）——committed 的这张表
+//: 因此是内部版的那一张，与 `facts/` 的缺省生成（`abox-to-facts.py` 也已缺省
+//: internal）对得上；公开版构建重跑本生成器（`--flavour public`），树会变脏，而那
+//: 正是「这一份不是缺省制品」的信号。★表里只有**路径**，装置字节不入库
+//: （`facts/` 整棵是生成物），所以这张表本身不发布任何受限数据。
 function plannedDevices() {
   const flavour = process.argv.includes('--flavour')
-    ? process.argv[process.argv.indexOf('--flavour') + 1] : 'public';
+    ? process.argv[process.argv.indexOf('--flavour') + 1] : 'internal';
   const r = spawnSync('python3',
     [HERE + 'facts-publish.py', '--flavour', flavour, '--list'],
     { encoding: 'utf8' });
@@ -116,7 +119,37 @@ function plannedDevices() {
   return out;
 }
 
+//: ★★三份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-DESIGN-19` G-8）。
+//: 生成器按「目录里现有的名字」写表，于是在一份 wasm 还没版本化的检出上重跑它，
+//: 表会从 `.wasm.0.0.1` **静默降回** `.wasm`——站点与可执行文件随之丢掉版本化命名，
+//: 而丢了不报错：页面照样能开，只是缓存与版本对不上号，且下一个人看到的是一份
+//: 「有人重跑过生成器」的干净 diff。本次实测正是这样撞上的。
+//: 版本从 `assets/version.js` 读——与 `tools/build-site.sh` 同一处来源，所以
+//: 「表以为的版本」与「站点发的版本」不可能是两个数。
+const WASM_STEMS = ['fylite_rs.wasm', 'fylite_tglf.wasm', 'fylite_dke.wasm'];
+function checkWasmIsVersioned(list) {
+  const vjs = APP + 'assets/version.js';
+  if (!existsSync(vjs)) {
+    console.error('[embed] 读不出 app/assets/version.js —— 先在内核仓跑构建');
+    process.exit(1);
+  }
+  const m = /kernel:\s*'([^']*)'/.exec(readFileSync(vjs, 'utf8'));
+  if (!m || !m[1]) {
+    console.error('[embed] app/assets/version.js 里没有 kernel 版本');
+    process.exit(1);
+  }
+  const bad = WASM_STEMS.filter((s) => !list.includes(`assets/${s}.${m[1]}`));
+  if (bad.length) {
+    console.error(`[embed] 这些 wasm 不是版本化的真文件：${bad.join(' ')}`);
+    console.error(`[embed]   表里要的是 assets/<名>.${m[1]}（tools/soname.sh 的命名）`);
+    console.error('[embed]   先在内核仓跑 rust/build.sh --wasm-check，再重跑本生成器');
+    console.error('[embed]   ——照写会把版本化命名静默降级（FYL-DESIGN-19 G-8）');
+    process.exit(1);
+  }
+}
+
 const files = [...walk(APP), ...plannedDevices()].sort();
+checkWasmIsVersioned(files);
 const extOf = (f) => { const l = logicalName(f); return l.slice(l.lastIndexOf('.')); };
 const unknown = [...new Set(files.map(extOf))].filter((e) => !(e in MIME));
 if (unknown.length) {

@@ -31,15 +31,16 @@ OUT="${1:-$PROJ/dist}"
 #: ★★装进轮里的 facts 语料（2026-09-04）：**这一版允许发布的那些**，由
 #: `tools/facts-publish.py` 一处判许可——打包不另判，否则同一条规则就有了第二份
 #: 实现，而先发现它们不一致的人是拿到轮子的那个。
-#: ★缺省是**公开版**；`--internal` 传下去就装全部。
+#: ★缺省是**内部版**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）：全功能，含 EAST。
+#: 要发公开面就 `FACTS_FLAVOUR=public` 明写——缺省不再替公开面挡一道。
 FACTS_DIR="$PROJ/fylite/_facts"
 rm -rf "$FACTS_DIR"
-if python3 "$DIR/tools/facts-publish.py" --flavour "${FACTS_FLAVOUR:-public}" \
+if python3 "$DIR/tools/facts-publish.py" --flavour "${FACTS_FLAVOUR:-internal}" \
         --out "$FACTS_DIR.stage" >/dev/null 2>&1 && [ -d "$FACTS_DIR.stage/facts" ]; then
     mv "$FACTS_DIR.stage/facts" "$FACTS_DIR"
     rm -rf "$FACTS_DIR.stage"
     echo "[wheel] facts: $(find "$FACTS_DIR" -name '*.jsonld' | wc -l) 份"\
-         "（${FACTS_FLAVOUR:-public} 版）"
+         "（${FACTS_FLAVOUR:-internal} 版）"
 else
     rm -rf "$FACTS_DIR.stage"
     echo "[wheel] facts: 搜索路径上没有语料——轮里不带（装了包的人可用 \$FY_FACTS_PATH 指一份）"

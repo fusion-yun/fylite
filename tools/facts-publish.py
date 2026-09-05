@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """把 `devices/` 里**这一版构建可以带**的装置文档发到一个输出目录。
 
+    python3 tools/facts-publish.py                    --out dist/site   # 缺省 internal
     python3 tools/facts-publish.py --flavour public   --out dist/site
-    python3 tools/facts-publish.py --flavour internal --out dist/site
     python3 tools/facts-publish.py --flavour public   --list      # 只问不发
 
 ★★**为什么是一个独立的工具。** 2026-09-04 起本仓的构建分内部版与公开版，而
@@ -107,7 +107,9 @@ def catalogue(domain: str, out: pathlib.Path, shipped: set) -> None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--flavour", choices=("public", "internal"), default="public")
+    #: ★缺省 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）。许可判据没有松：
+    #: 它仍逐条在 `facts/<域>/<id>/rights.json`。公开面必须明写 `--flavour public`。
+    ap.add_argument("--flavour", choices=("public", "internal"), default="internal")
     ap.add_argument("--out", type=pathlib.Path)
     ap.add_argument("--list", action="store_true", help="只列出这一版带哪几个")
     ap.add_argument("--facts", action="append", metavar="PATH",

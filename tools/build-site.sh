@@ -22,13 +22,19 @@
 #      装置数据（一次真实放电 #137985 的实测读数，属运行方），也不带上游逐 IDS
 #      明写 `redistributable: false` 的那些。判据不在本脚本里，在每个条目的
 #      `facts/<域>/<id>/rights.json`，由 `tools/facts-publish.py` 作答。
+#      ★2026-09-05 裁定（FYL-DESIGN-19 A-14）：**缺省是内部版**——fylite 作为内部
+#      工具发布，全功能构建含 EAST。判据一个字没改，改的是「不说话时装哪一版」；
+#      公开面因此必须**明写** `--public`，那正是 A-14 要求门禁核对的那句。
 #
-# 用法：bash tools/build-site.sh [--internal] [输出目录]   （默认 公开版 · dist/site）
+# 用法：bash tools/build-site.sh [--public|--internal] [输出目录]  （默认 内部版 · dist/site）
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP="$DIR/app"
-FLAVOUR=public
-if [ "${1:-}" = "--internal" ]; then FLAVOUR=internal; shift; fi
+FLAVOUR=internal
+case "${1:-}" in
+  --public)   FLAVOUR=public;   shift ;;
+  --internal) FLAVOUR=internal; shift ;;
+esac
 OUT="${1:-$DIR/dist/site}"
 
 #: ★★2026-09-05 起 wasm **按版本命名**（`tools/soname.sh`，与 `.so` 同规矩）：

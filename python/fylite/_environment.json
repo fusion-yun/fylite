@@ -100,11 +100,19 @@
   },
   "FYDOC_ORACLE": {
    "governs": "the reference store the public V&V register's pointers are relative to: fydoc's `oracle/` tree (it lived in fydata until 2026-09-04; the variable was renamed with it, and nothing in this package reads either name) (frozen answers, upstream release cases, reference tables) — the SAME tree both checkouts mount at tests/data; not `$FY_ORACLE_STORE` (that named its `oracle/oracle/` sub-tree, retired 2026-09-01)",
-   "needed_for": "reading a record's `$FYDOC_ORACLE/…` pointer back to a file — `fylite.engine.benchmark.store_dir()` / `resolve_pointer()` read it (via the module constant STORE_ENV, which the environment-table scan does not see; that entry previously claimed nothing read it, which was wrong).  The old name FYDATA_ORACLE is still honoured as a fallback.",
+   "needed_for": "reading a record's `$FYDOC_ORACLE/…` pointer back to a file — `fylite.engine.benchmark.store_dir()` / `resolve_pointer()` read it via the module constant STORE_ENV.  The old name FYDATA_ORACLE is still honoured as a fallback and is declared separately below.",
    "default": "none - the store is private data and is not shipped; the pointer stays symbolic",
    "example": "../fydoc/oracle",
    "affects_result": false,
    "affects_result_why": "an address for the reader; the register carries each item's sha256 so a bound store can be verified, not substituted"
+  },
+  "FYDATA_ORACLE": {
+   "governs": "the SAME reference store as FYDOC_ORACLE, under the name it had before 2026-09-04 (the `oracle/` tree moved fydata -> fydoc and the variable was renamed with it); read only when FYDOC_ORACLE is unset",
+   "needed_for": "keeping an existing deployment working across that rename — `fylite.engine.benchmark.store_dir()` falls back to it (module constant STORE_ENV_LEGACY), and `resolve_pointer()` also accepts `$FYDATA_ORACLE/…` pointers.  Renaming without honouring the old name would silently drop such a deployment back to `tests/data`: an unresolved pointer does not fail, it is merely not read.",
+   "default": "none - FYDOC_ORACLE is the name to set for a new deployment",
+   "example": "../fydoc/oracle",
+   "affects_result": false,
+   "affects_result_why": "same address, older spelling"
   }
  },
  "$note": "The KEFIT_ prefix is the EFIT lineage's; the code that carried that name left with LICENSE 3.1 but these variables keep it because they are what an existing deployment sets.  ★★2026-09-01 移除四项：FY_ORACLE / FY_ORACLE_STORE / FY_ORACLE_PORT / KEFIT_REFERENCE_BUNDLE。它们的读者随 `fylite._oracle`、`fylite._port` 与 `_paths.reference_bundle()` 一起移除——冻结参考库是被移除求解器的输出，驱动私有检出的钩子不该从公开模块伸出去，而那个 ASIPP 参考包不可再分发。★这张表由 `tests/test_environment_table.py` 逐项核对「声明了就必须真的有人读」，所以删代码不删声明会红——本条就是那道闸抓出来的。★★2026-09-04 移除 KEFIT_MDS_ROOT：它选的是「本地树文件而不是服务器」，读者是站点的 MDSplus python 包（`MDSplus.Tree`）。在线路径改走中间层的 mdsip 客户端之后，本包不再 import 那个包——引擎说的是线上协议，不是树文件格式；而那个模式唯一指向过的本地树在已废弃的 `machine_desc/` 下。"

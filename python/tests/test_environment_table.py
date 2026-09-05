@@ -1,9 +1,10 @@
 """The declared environment surface, held against the source both ways.
 
-★★Eleven variables across three prefixes (`FYLITE_` / `FY_` / `KEFIT_` — the
-last is the EFIT lineage's, kept because that is what existing deployments
-set), and until now **not one place listed them**.  A first-time caller — and
-an LLM is always a first-time caller — learned them one failed call at a time.
+★★Fourteen variables across five prefixes (`FYLITE_` / `FY_` / `KEFIT_` /
+`RAYON_` / `FYDOC_`+`FYDATA_` — `KEFIT_` is the EFIT lineage's, kept because
+that is what existing deployments set), and until the table existed **not one
+place listed them**.  A first-time caller — and an LLM is always a first-time
+caller — learned them one failed call at a time.
 
 A hand-written list would drift on the first refactor, so it is gated in both
 directions: every variable the package actually reads must be declared, and
@@ -30,7 +31,11 @@ PKG = Path(fylite.__file__).resolve().parent
 #: this package's variable — rayon reads it inside the kernel — but the run
 #: manifest now RECORDS it, so it is a variable the package reads, and the
 #: both-ways rule is what keeps「记了什么」and「声明了什么」the same list.
-PREFIXES = ("FYLITE_", "FY_", "KEFIT_", "RAYON_", "FYDATA_")
+#: ★★`FYDOC_` 2026-09-05 补入。它缺席时这道两向闸子**两向都错了**：
+#: `FYDOC_ORACLE`（今天的名字）不带任何已知前缀，扫描看不见它，于是「声明了没人读」
+#: 一侧红；而它的旧名 `FYDATA_ORACLE` 带 `FYDATA_` 前缀、被看见了却没人声明，于是
+#: 「读了没声明」一侧也红。两条红指向的是**同一个漏掉的前缀**，不是两处代码缺陷。
+PREFIXES = ("FYLITE_", "FY_", "KEFIT_", "RAYON_", "FYDATA_", "FYDOC_")
 
 
 def _string_constants() -> dict:

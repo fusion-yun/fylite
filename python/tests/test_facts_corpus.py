@@ -156,23 +156,47 @@ def test_nothing_internal_only_reaches_a_public_artifact():
         f"这些机器只进内部版，公开版的发布计划却带着它们：{leaked}")
 
 
-def test_the_committed_embed_table_is_the_public_one():
-    """桌面可执行文件内嵌的那张表（committed 生成物）不得带只进内部版的机器。
+def test_the_committed_embed_table_is_the_default_one():
+    """桌面可执行文件内嵌的那张表（committed 生成物）与**缺省版别**的发布计划一致。
 
-    ★★这一条守的是一种**很容易发生**的事故：有人为了本机调试跑了一次
-    `--flavour internal` 的生成器，表变脏了，而那张表**是提交进仓的**——下一个
-    人拉下来构建出的「公开版」就带着 EAST。表脏本身是可见的（`git status`），
-    但脏得对不对，只有这条断言看得出来。
+    ★★2026-09-05 裁定（`FYL-DESIGN-19` A-14）把缺省从公开版翻成**内部版**：
+    fylite 以内部工具发布，全功能构建含 EAST。这条闸子随之换了方向——从前它问
+    「表里有没有混进内部机器」，今天问「表是不是缺省那一张」。
+
+    翻向不是把许可闸松掉。许可判据一个字没动，仍逐条在
+    `facts/<域>/<id>/rights.json`，由上一条闸子
+    （`test_the_public_plan_never_carries_an_internal_only_machine`）盯着**公开版
+    的发布计划**——那才是会发出去的东西。这张表里只有**路径**，装置字节整棵
+    `facts/` 是 gitignored 的生成物，所以表本身发布不了任何受限数据。
+
+    为什么方向要对：表里的 `include_bytes!` 在**编译期**求值。表与缺省生成的
+    `facts/` 若不同版，`cargo build --bin fy` 直接编不过（表多了一台）或页面少一台
+    （表少了一台）。前者响，后者静默——而静默的那个只有拿到制品的人才会发现。
+
+    ★从前这条断言拿 `"devices/<id>.jsonld"` 去匹配，而表里的路径 2026-09-04 起是
+    `facts/device/<id>.jsonld`：它因此**永远为真**。换向时一并修好。
     """
     table = ROOT / "rust" / "fylite_runtime" / "src" / "bin" / "app" / "assets.rs"
     if not table.is_file():
         pytest.skip("no assets.rs")
     text = table.read_text(encoding="utf-8")
-    internal_only = {d.name for d in _pulled() if not _rights(d)["public"]}
-    leaked = sorted(dev for dev in internal_only if f'"devices/{dev}.jsonld"' in text)
-    assert not leaked, (
-        f"committed 的内嵌表里有只进内部版的机器：{leaked}。"
-        "重跑 `node tools/make-app-embed.mjs`（缺省是公开版）再提交。")
+    embedded = {d.name for d in _pulled()
+                if f'"facts/device/{d.name}.jsonld"' in text}
+    assert embedded, (
+        "内嵌表里一台装置都没有——路径写法变了？表里该有 "
+        "`facts/device/<id>.jsonld`（本条从前正是这样静默了）")
+
+    r = subprocess.run([sys.executable, str(TOOL), "--flavour", "internal", "--list"],
+                       capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    planned = {ln.split("/", 1)[1].strip() for ln in r.stdout.splitlines()
+               if ln.strip().startswith("device/")}
+    #: 只比**本地拖到了的**那些：搜索路径上有而本机没拖的，不该让这条闸子红。
+    planned &= {d.name for d in _pulled()}
+    assert embedded == planned, (
+        f"内嵌表与缺省（internal）发布计划不一致：表多了 {sorted(embedded - planned)}，"
+        f"表少了 {sorted(planned - embedded)}。"
+        "重跑 `node tools/make-app-embed.mjs`（缺省即内部版）再提交。")
 
 
 # --------------------------------------------------------------------------- #
