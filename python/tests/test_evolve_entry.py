@@ -894,14 +894,23 @@ def test_a_first_block_ignores_every_carried_row():
     junk.update(psi_prev=np.full(n, -7.5), sigma_prev=np.full(n, 3.3e6),
                 exch_prev=np.full(n, 9.9e4))
     noisy = dict(call["params"])
-    noisy.update(t_start=42.0, dt_start=0.5, edge_te_in=9999.0,
-                 edge_ti_in=8888.0, capped_in=17.0)
+    #: ★第二十二刀 (2026-09-05): `t_start` is NOT a carried row any more — it is
+    #: the clock's origin on a first block too (the page's resume is a fresh
+    #: march from a bound state with the clock continued), so it is checked
+    #: apart below: it moves the time base and nothing else
+    noisy.update(dt_start=0.5, edge_te_in=9999.0, edge_ti_in=8888.0, capped_in=17.0)
     got = K.scenario("evolve_heat", params=noisy, inputs=junk, **call["dims"])
     for key in ("te", "ti", "psi", "q"):
         assert np.array_equal(np.asarray(clean[key]), np.asarray(got[key])), (
             f"{key} moved when the carried rows were filled with a first "
             "block; `resume = 0` must ignore them")
     assert clean["t_end"] == got["t_end"]
+    moved = dict(call["params"], t_start=42.0)
+    late = K.scenario("evolve_heat", params=moved, inputs=call["inputs"], **call["dims"])
+    for key in ("te", "ti", "psi", "q"):
+        assert np.array_equal(np.asarray(clean[key]), np.asarray(late[key])), (
+            f"{key} moved with the clock's origin; `t_start` may move the time base only")
+    assert late["t_end"] == clean["t_end"] + 42.0
 
 
 #: Each carried row, with the configuration in which it is LOAD-BEARING.

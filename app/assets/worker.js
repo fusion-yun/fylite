@@ -7924,9 +7924,10 @@ function evScopeMiss(sp) {
     } else if (r.units === 'required') {
       if (!v) miss.push(r.gloss);
     } else if (r.key === 'resume') {
-      //: the browser's resume does not ride on `sp` — it is a whole state
-      //: the page hands the worker, so the test is for THAT
-      if (msgHasResume) miss.push(r.gloss);
+      //: ★第二十二刀: the browser's resume is a whole state the page hands the
+      //: worker — bound as the entry's `state`, the clock continued by
+      //: `t_start`; a fresh march from there, which is what the loop did too
+      continue;
     } else if (r.units === 'sunk') {
       //: ★a capability the entry carries (2026-09-05 第十五刀: the density
       //: channel, the impurity in the quasi-neutrality, the momentum
@@ -8138,6 +8139,7 @@ function evEntryPlan(ctx, st, geo, sp, field) {
     sawtooth: sp.sawtooth ? 1 : 0, saw_mix: sp.sawtooth ? sp.sawMix : 0,
     saw_period: sp.sawPeriod || 0,
     i_cd_a: sp.iCd || 0, cd_centre: sp.cdCentre, cd_width: sp.cdWidth,
+    //: 第二十二刀: the clock continues on a resumed march (`msg.tStart`)
     resume: 0, t_start: 0, dt_start: 0, edge_te_in: 0, edge_ti_in: 0, capped_in: 0, saw_elapsed_in: 0,
     //: ★第十五刀 — the density channel (the impurity in the quasi-neutrality
     //: with it) and the momentum channel, the sliders in SI (fuel 1e20/s ->
@@ -8211,6 +8213,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
   //: first step told that the lag is broken and the volume moved
   var n = geo.rho.length, prev = blk && blk.prev || null, steps = blk ? blk.steps0 : 0;
   var stop = blk ? blk.steps0 + blk.take : sp.nSteps, first = true, tNow = tStart || 0;
+  var wPrev = blk && blk.wPrev !== undefined ? blk.wPrev : null;
   //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
   //: per call so the page can report as it goes: the plan carries the ladder
   //: this run is on (bound rows — the traced tiers' own rmin/rmaj beside the
@@ -8222,6 +8225,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
   var arr = function (v) { return v ? Array.from(v) : null; };
   var planBase = evEntryPlan(ctx, st, geo, sp, field);
   var settings = planBase.settings, ladder = planBase.ladder, equilibrium = planBase.equilibrium;
+  settings.t_start = tNow;
   var beamPlan = planBase.beamPlan, lhPlan = planBase.lhPlan;
   var beam = null, lh = null;
   //: the equilibrium document: the ladder rows, and — with an executor — the
@@ -8437,6 +8441,10 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
     rd.crashes = crashes.length;
     rd.crashed = r1 > 0 && !o.saw_refused[0];
     rd.balance = o.balance[0];
+    //: the loop's dW/dt: the stored energy's move over the step just taken,
+    //: nothing on the first step (第二十二刀: the resumed leg starts over too)
+    rd.dwdt = wPrev === null ? 0 : (rd.wTh - wPrev) / Math.max(rd.dt, 1e-12);
+    wPrev = rd.wTh;
     if (sp.pedestal) {
       rd.pedTPed = o.t_ped[0];
       rd.pedExtrap = o.ped_extrap;
@@ -8454,7 +8462,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
     prev = o;
     if (o.settled) break;
   }
-  return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled), beam: beam, lh: lh, prev: prev };
+  return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled), beam: beam, lh: lh, prev: prev, wPrev: wPrev };
 }
 
 /**
@@ -9595,13 +9603,14 @@ function evolveRun(msg) {
     //: between blocks; everything the loop below did in its equilibrium half
     //: is that door's (`evRefit`).  What stays here is the loop's own
     //: bookkeeping: the round record, the `evolve_couple` post, the picture.
-    var lastO = null;
+    var lastO = null, wPrevE = null;
     for (var eb = 0; eb < blocks; eb++) {
       var ebTake = Math.min(perBlock, sp.nSteps - steps);
       if (ebTake <= 0) break;
       var em = evEntryMarch(ctx, st, geo, sp, trace, crashes, tNow, field,
                             { index: eb, steps0: steps, take: ebTake, prev: lastO,
-                              lagReset: eb > 0, vprimeOld: eb > 0 ? vprimeOld : null });
+                              lagReset: eb > 0, vprimeOld: eb > 0 ? vprimeOld : null, wPrev: wPrevE });
+      wPrevE = em.wPrev;
       steps = em.steps;
       tNow = em.tNow;
       if (em.beam) beam = em.beam;

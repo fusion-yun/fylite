@@ -383,7 +383,8 @@ def evolve(*, a: float, r0: float, b0: float,
            ip_kp: float = 0.0, ip_ki: float = 0.0,
            nbi: dict | None = None, lh_antennas: dict | None = None,
            executors: dict | None = None, turb: dict | None = None,
-           couple: dict | None = None, fm: dict | None = None) -> dict:
+           couple: dict | None = None, fm: dict | None = None,
+           t_start: float = 0.0) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
 
     ★2026-09-05 第十九刀: ``couple`` runs the DEVICE tier's equilibrium
@@ -624,6 +625,8 @@ def evolve(*, a: float, r0: float, b0: float,
         "wave": float(bool(wave)), "ipctl": float(bool(ipctl)),
         "ip_kp": float(ip_kp), "ip_ki": float(ip_ki),
         "beam": float(nbi is not None), "lh": float(lh_antennas is not None),
+        #: 第二十二刀: the clock starts where the caller says (a continued run)
+        "t_start": float(t_start),
     }
     for k, v in (executors or {}).items():
         settings[k] = v if isinstance(v, str) else float(v)
