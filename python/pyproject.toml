@@ -109,7 +109,13 @@ include = ["fylite*"]
 #: （编译期 `include_str!` 读源码树里的它）与浏览器页面的启动参数，轮里带着它
 #: 只是带着一份没人读的字节。★它仍留在 `python/fylite/` 下，是历史位置；搬家是
 #: 另一件事，搬则 Rust 的 `include_str!` 与本表同一次改。
-fylite = ["_lib/*.so", "_spec/*", "_manifest/*",
+#: ★★`_lib/*.so.*.*.*` —— **完全版本化的那一个真文件**，不是三个名字里的任意一个
+#: （2026-09-05）。装出来的目录是 Linux 那套：`libfylite_kernel.so.0.0.1` 是真文件，
+#: `.so.0` 与 `.so` 是指向它的符号链接。而**轮里没有符号链接**：setuptools 跟随
+#: 链接、逐个存成副本，所以 `_lib/*.so*` 会把同一份两兆多的字节装进轮里**三遍**
+#: （三个库就是九份）。三个点的通配挑出的正是真文件那一个：`.so.0` 只有一个点，
+#: 匹配不上。装了包的一侧由 `_paths._lib()` 解析这个名字。
+fylite = ["_lib/*.so.*.*.*", "_spec/*", "_manifest/*",
           "_fyo_vocab.json", "_environment.json",
           #: A-Box 分解出来的 MDSplus 绑定表（`tools/abox-mds-bind.py` 生成）。
           #: 轮里要带：装了包却没有它，按语义路径取数这条路在安装出来的

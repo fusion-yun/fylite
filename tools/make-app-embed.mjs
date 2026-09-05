@@ -10,7 +10,7 @@
 //
 // 不收 `tests/` 与 `server/`：与发布流水线送出去的那份 `app/` 保持同一子集
 // ——桌面版分发的东西不该比站点多。
-import { readdirSync, statSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readdirSync, statSync, lstatSync, realpathSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
 const HERE = new URL('.', import.meta.url).pathname;
@@ -34,8 +34,17 @@ const MIME = {
   '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.jsonld': 'application/ld+json; charset=utf-8',
+  //: ★★`app/manifest.webmanifest`（`tools/make-sw.mjs` 的产物）落地时漏了这一格，
+  //: 于是本生成器**在 develop 上一直跑不起来**——按名拒绝，不猜 content-type。
+  //: 没人先发现，是因为 `rust/build.sh --exe` 读的是已提交的 `assets.rs`，只有
+  //: `tools/build-app-exe.sh` 会重跑生成器。规范值是 `application/manifest+json`。
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   //: ★这一行是整张表里唯一不能出错的：浏览器只在 `application/wasm` 下走
   //: 流式编译，MIME 错了就是一句 TypeError，而不是一个慢一点的页面。
+  //: ★★2026-09-05：磁盘上的名字是 `fylite_rs.wasm.0.0.1`（`tools/soname.sh`），
+  //: 「最后一个点之后」已经不是扩展名了——查表前先经 `logicalName()` 把版本后缀
+  //: 剥掉。这张表按逻辑名索引，发出去的仍是 `application/wasm`：本仓的加载器不
+  //: 依赖它（走 arrayBuffer），但内嵌服务器发对了，别的读者才不必猜。
   '.wasm': 'application/wasm',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
@@ -45,11 +54,27 @@ const MIME = {
   '.md': 'text/markdown; charset=utf-8',
 };
 
+//: 版本化制品的**逻辑名**：`fylite_rs.wasm.0.0.1` -> `fylite_rs.wasm`。
+//: 只认 `.so` / `.wasm` 后面跟一串以数字开头的版本——不写成「剥掉最后一段」，
+//: 那会把 `g900003.00230_ITER…` 这类本来就带点的文件名一起剥了。
+const SONAME = /^(.*\.(?:wasm|so))\.[0-9][0-9A-Za-z.+-]*$/;
+function logicalName(f) { const m = SONAME.exec(f); return m ? m[1] : f; }
+
 function walk(dir, prefix = '') {
   const out = [];
   for (const name of readdirSync(dir).sort()) {
     if (prefix === '' && SKIP.has(name)) continue;
     const full = dir + name;
+    //: ★★符号链接不进表（2026-09-05）。版本化之后 `app/assets/` 里一份 wasm 有
+    //: 三个名字：真文件 `.wasm.0.0.1` 加 `.wasm.0` 与 `.wasm` 两级链接。`statSync`
+    //: 跟随链接，照原样走下去会把**同一兆多字节编进可执行文件三遍**，而且其中两个
+    //: 名字站点根本不发（`build-site.sh` 只发真文件）。收真文件那一个就够——
+    //: 页面取的正是它（`fylite.js` 的 `versioned()`）。
+    //: ★只滤**指向版本化真文件的**那种链接，不是「所有链接一概不收」：上面那段
+    //: 老注释说的「真出现链接时收它指向的东西」对别的链接仍然成立，而这里要挡的
+    //: 是一个具体的形状——两个别名指着同一份字节。
+    if (lstatSync(full).isSymbolicLink() &&
+        SONAME.test(realpathSync(full).split('/').pop())) continue;
     //: 目录里现在没有符号链接了——`app/cases`（指向仓顶 `cases/`）随算例
     //: 菜单一同撤掉，`app/facts/device/*.jsonld` 仍是链接但由发布流水线落实体。
     //: `statSync` 跟随链接，这一点保持不变：真出现链接时收它指向的东西。
@@ -92,8 +117,8 @@ function plannedDevices() {
 }
 
 const files = [...walk(APP), ...plannedDevices()].sort();
-const unknown = [...new Set(files.map((f) => f.slice(f.lastIndexOf('.'))))]
-  .filter((e) => !(e in MIME));
+const extOf = (f) => { const l = logicalName(f); return l.slice(l.lastIndexOf('.')); };
+const unknown = [...new Set(files.map(extOf))].filter((e) => !(e in MIME));
 if (unknown.length) {
   console.error(`[embed] 不认识的扩展名：${unknown.join(' ')}`);
   console.error('[embed] 加进 MIME 表再跑——猜一个 content-type 比报错更糟');
@@ -101,7 +126,7 @@ if (unknown.length) {
 }
 
 const rows = files.map((f) => {
-  const ext = f.slice(f.lastIndexOf('.'));
+  const ext = extOf(f);
   //: ★★路径过 `$FYLITE_APP_DIR`，不是相对 `.rs` 文件往上数。仓拆开之前
   //: 这里写的是 `../../../../../app/${f}`——从 `rust/fylite_runtime/src/bin/app/` 上溯
   //: 五级到仓根再进 `app/`，同一个仓里成立。2026-09-01 `app/` 搬到主仓之后，

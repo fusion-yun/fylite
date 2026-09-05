@@ -58,7 +58,12 @@ DATA_SO="$PROJ/fylite/_lib/libfylite_runtime.so"
                   echo "[wheel]   （Rust 源码在 fylite_kernel；它会把 .so 装进本仓）" >&2
                   exit 1; }
 
-case "$(file -b "$SO")" in
+#: ★★`-L`：跟着符号链接问真文件（2026-09-05）。制品从这天起按 Linux 的习惯装成
+#: `libfylite_kernel.so -> .so.0 -> .so.0.0.1`，而 `file -b` 对一条链接答的是
+#: 「symbolic link to …」——不是 ELF，于是这道**平台闸**会把每一次打轮都拒掉，
+#: 拒的理由还是一句看起来像真事故的「不是 ELF x86-64」。`readelf` 自己跟随链接，
+#: 所以下面两处不必改。
+case "$(file -bL "$SO")" in
   *"ELF 64-bit"*"x86-64"*) ;;
   *) echo "[wheel] $SO 不是 ELF x86-64，本脚本只出 alpha 期声明的那一个面" >&2
      echo "[wheel] 实际是：$(file -b "$SO")" >&2; exit 1 ;;
@@ -76,6 +81,14 @@ BAD="$(readelf -d "$SO" | sed -n 's/.*NEEDED.*\[\(.*\)\]/\1/p' | grep -Ev "^($AL
 [ -z "$BAD" ] || { echo "[wheel] .so 依赖了 manylinux 允许名单外的库：$BAD" >&2; exit 1; }
 
 echo "[wheel] glibc 下限 $FLOOR -> $PLAT"
+#: ★★轮里装的是**完全版本化的那一个真文件**（`pyproject.toml` 的 `package-data`
+#: 是 `_lib/*.so.*.*.*`——轮里没有符号链接，装三个名字就是把同一份字节存三遍）。
+#: 把装了哪几版打出来：出了问题时，「这个轮里是哪一版内核」不该靠解压去查。
+. "$DIR/tools/soname.sh"
+for l in libfylite_kernel.so libfylite_kernel_ext.so libfylite_runtime.so; do
+    v="$(fy_installed_version "$PROJ/fylite/_lib" "$l")"
+    [ -n "$v" ] && echo "[wheel] $l  $v" || echo "[wheel] $l  ——（不在 _lib/）"
+done
 #: ★★Apache-2.0 §4(d)：NOTICE 必须随**分发**走。本包带的 `_lib/libfylite_kernel.so`
 #: 正是 GACODE 白盒移植的编译产物，这一条不是装饰。
 #: ★★2026-09-02：公开仓**已自带一份仓根 `NOTICE`**（用户裁定恢复），并由

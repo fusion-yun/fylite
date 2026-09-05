@@ -77,6 +77,32 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 | `fylite_tglf.wasm` | `tglf` | 12 | 391 KiB | 按需 |
 | `fylite_dke.wasm` | `dke` | 11 | 121 KiB | 按需（NEO 漂移动理学） |
 
+### 名字带版本
+
+★★2026-09-05 起制品**按语义版本命名**，照 Linux 动态链接库的习惯，`.wasm` 与 `.so`
+同一条规矩——一份字节三个名字：
+
+```text
+fylite_rs.wasm.0.0.1        真文件（唯一带字节的那个）
+fylite_rs.wasm.0     -> .0.0.1     兼容代（soname）
+fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
+```
+
+版本取内核 crate 的版本，与 `assets/version.js` 报的 `kernel` 是同一个数；ABI 号
+（`abi.rs` 的那个整数）是**另一个量**，不进文件名，由装载方自己核对。规则的唯一
+实现是 `tools/soname.sh`，两个仓的构建脚本都 source 它。
+
+**页面按版本名取**（`app/assets/fylite.js` 的 `versioned()`，导出为
+`FyLite.wasmUrl`）：调用点仍写不带版本的逻辑名，加载器把它翻成这一版的真文件名。
+站点构建只发真文件、不发那两级链接——`cp -RL` 会把它们解引用成第二、第三份一兆多
+的字节。轮同理：轮里没有符号链接，`package-data` 挑的是完全版本化的那一个
+（`_lib/*.so.*.*.*`），装了包的一侧由 `fylite._paths._lib()` 解析。
+
+★把版本缀在扩展名之后，静态主机会按 `application/octet-stream` 发这个文件。这在本仓
+不构成问题：页面的加载器**有意不用** `instantiateStreaming`，走 `fetch` →
+`arrayBuffer` → `instantiate`，那条路不看 Content-Type（这一点早于版本化就已如此，
+理由写在 `load()` 抬头）。内嵌服务器与内嵌资源表仍按逻辑名判出 `application/wasm`。
+
 （导出数与尺寸为 2026-09-02 对当日构建的实测。）浏览器构建走 `--no-default-features`：
 线程（`parallel`）不进——**页面本就没有套接字可开**，而结果与多线程档**逐位相同**
 （每个元素独立计算、同一套算术）。页面加载 `app/assets/*.wasm`，与内核仓

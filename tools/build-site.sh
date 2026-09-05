@@ -31,9 +31,18 @@ FLAVOUR=public
 if [ "${1:-}" = "--internal" ]; then FLAVOUR=internal; shift; fi
 OUT="${1:-$DIR/dist/site}"
 
-for w in fylite_rs.wasm fylite_tglf.wasm fylite_dke.wasm; do
-  [ -f "$APP/assets/$w" ] || {
-    echo "[site] 找不到 app/assets/$w —— 先在内核仓跑 rust/build.sh --wasm-check" >&2
+#: ★★2026-09-05 起 wasm **按版本命名**（`tools/soname.sh`，与 `.so` 同规矩）：
+#: `app/assets/` 里一份字节有三个名字——真文件 `fylite_rs.wasm.0.0.1` 加
+#: `.wasm.0` 与 `.wasm` 两级符号链接。版本从 `assets/version.js` 读，那是内核仓
+#: 构建写的同一份生成物，所以「站点发的版本」与「页面以为的版本」不可能是两个数。
+KVER=$(sed -n "s/.*kernel: *'\([^']*\)'.*/\1/p" "$APP/assets/version.js")
+[ -n "$KVER" ] || {
+  echo "[site] 读不出 app/assets/version.js 的 kernel 版本 —— 先在内核仓跑构建" >&2
+  exit 1; }
+WASM_STEMS="fylite_rs.wasm fylite_tglf.wasm fylite_dke.wasm"
+for w in $WASM_STEMS; do
+  [ -f "$APP/assets/$w.$KVER" ] || {
+    echo "[site] 找不到 app/assets/$w.$KVER —— 先在内核仓跑 rust/build.sh --wasm-check" >&2
     echo "[site]   （wasm 不入库；内核仓的构建脚本把三份装进公开仓的 app/assets/）" >&2
     exit 1
   }
@@ -51,6 +60,15 @@ mkdir -p "$OUT"
       cp -RL "$APP/$entry" "$OUT/${entry#./}"
     done
 
+#: ★★别名不发（2026-09-05）。上面的 `-L` 是有意的——仓内的链接要解引用，否则静态
+#: 主机上就是 404——但对版本化的 wasm，它把**同一份字节拷了三遍**：真文件、
+#: `.wasm.0`、`.wasm` 各一兆多。站点因此凭空胖三兆，而没有任何读者会取那两个别名：
+#: 页面按版本名取（`app/assets/fylite.js` 的 `versioned()`）。
+#: ★删的是别名，不是真文件；下面的自检会核对这一点两头都成立。
+for w in $WASM_STEMS; do
+  rm -f "$OUT/assets/$w" "$OUT/assets/$w.${KVER%%.*}"
+done
+
 #: ★★**一条规则，一处实现**：谁进这一种构建，由 `tools/facts-publish.py` 作答
 #: （它读每个条目的 `facts/<域>/<id>/rights.json`）。本脚本不自己判许可——两个地方各判
 #: 一遍，某一天它们会给出不同的答案，而先发现的人是拿到制品的那个。
@@ -62,8 +80,16 @@ bad=0
 [ ! -e "$OUT/server" ] || { echo "[site] 输出里有 server/" >&2; bad=1; }
 while IFS= read -r -d '' l; do echo "[site] 悬空链接：$l" >&2; bad=1; done \
   < <(find "$OUT" -xtype l -print0)
-for w in fylite_rs.wasm fylite_tglf.wasm fylite_dke.wasm; do
-  [ -s "$OUT/assets/$w" ] || { echo "[site] 输出里缺 assets/$w" >&2; bad=1; }
+for w in $WASM_STEMS; do
+  [ -s "$OUT/assets/$w.$KVER" ] || { echo "[site] 输出里缺 assets/$w.$KVER" >&2; bad=1; }
+  #: ★★两级别名**不该**留在站点里：`cp -RL` 把它们解引用成第二、第三份一兆多的
+  #: 字节，站点凭空胖三兆，而没有任何读者会取它们——页面按版本名取
+  #: （`app/assets/fylite.js` 的 `versioned()`）。上面已经删过，这里把「不该有」
+  #: 变成一条会失败的断言，而不是一句注释里的保证。
+  for alias in "$w" "$w.${KVER%%.*}"; do
+    [ ! -e "$OUT/assets/$alias" ] || {
+      echo "[site] 输出里有别名 assets/$alias（应只发版本化的真文件）" >&2; bad=1; }
+  done
 done
 [ -s "$OUT/index.html" ] || { echo "[site] 输出里缺 index.html" >&2; bad=1; }
 [ "$bad" = 0 ] || exit 1

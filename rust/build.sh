@@ -4,12 +4,19 @@
 # （FYL-DESIGN-16 N-1 / N-2）。`data` 只说了六项职责里的两项；`engine` 与 Python 包 `fylite.engine`
 # 撞词，而那是另一个组件（DE-COMP-03 执行与溯源机械核）。
 #
-#   ./rust/build.sh              -> libfylite_runtime.so，装进 python/fylite/_lib/
+#   ./rust/build.sh              -> libfylite_runtime.so.<版本>，装进 python/fylite/_lib/
+#                                   （附 .so.<major> 与 .so 两级符号链接，见 tools/soname.sh）
 #   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fy（内嵌整个 app/，
 #                                   并承载 app / data / run / list 四条命令），留在
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
 #   ./rust/build.sh --no-install    只构建
+#   ./rust/build.sh --fetch-kernel  内核检查前先在内核仓 git fetch（只动 refs）
+#   ./rust/build.sh --no-kernel-check  跳过内核检查
+#
+# ★★每次构建都先跑一次**内核检查**（2026-09-05）：装着的 `libfylite_kernel.so` 与
+# `_abi.py` 是不是内核仓检出今天这一版。**只看，不动**——不替谁构建内核，不改另一个
+# 仓，不一致就红着退出并打印该跑的那条命令。理由写在 check_kernel 抬头。
 #
 # ★★2026-09-03 `--cli` 没有了：它从前另建 fylite-data / fylite-case 两个薄壳二进制，
 # 而那两个已经收进 fylite（用户裁定「仅保留一个可执行程序」）。给 `--cli` 会被
@@ -37,6 +44,17 @@ CRATE="$DIR/fylite_runtime"
 INSTALL=1
 EXE=0
 FEATURES=""
+KCHECK=1
+KFETCH=0
+#: ★制品的版本化命名（`libfylite_runtime.so.0.0.1` + 两级符号链接）——规则与内核仓
+#: 装 `.so` / `.wasm` 用的是**同一份实现**，就在这里 source 的这个文件里。
+. "$ROOT/tools/soname.sh"
+#: 内核检出的解析器 —— 与 `tools/build-wheel.sh` 用的是同一个（见 check_kernel）。
+. "$ROOT/tools/kernel-path.sh"
+#: 版本从 crate 自己那儿读，不另立一处。★与仓根 `VERSION`（发行版本）是两个量：
+#: 那个说的是这一发行是哪一版，这个说的是中间层这个库是哪一版。
+RVER="$(sed -n '0,/^version *= *"\([^"]*\)".*/s//\1/p' "$CRATE/Cargo.toml")"
+[ -n "$RVER" ] || { echo "[runtime] 读不出 $CRATE/Cargo.toml 的 version" >&2; exit 1; }
 for a in "$@"; do
     case "$a" in
         --no-install) INSTALL=0 ;;
@@ -45,9 +63,102 @@ for a in "$@"; do
         #: 而现在只有一个——说清楚比悄悄换掉好。
         --cli) echo "--cli 已撤：fylite-data / fylite-case 已收进 fylite，用 --exe" >&2; exit 2 ;;
         --static) FEATURES="--features static" ;;
+        --no-kernel-check) KCHECK=0 ;;
+        --fetch-kernel) KFETCH=1 ;;
         *) echo "unknown option $a" >&2; exit 2 ;;
     esac
 done
+
+# --------------------------------------------------------------------------- #
+# 内核检查 —— **只看，不动**（用户裁定 2026-09-05）                            #
+# --------------------------------------------------------------------------- #
+#: 内核（`libfylite_kernel.so` / `_ext` / 三个 `.wasm`）由**私有仓 fylite_kernel**
+#: 构建并装进本仓的 `python/fylite/_lib/` 与 `app/assets/`。本脚本从不构建它，
+#: 现在也不替谁去构建它：这一节把「装着的那一版」与「内核仓检出今天是哪一版」
+#: 摆在一起，不一致就红着退出，并打印该跑的那一条命令。
+#:
+#: ★为什么值得在这里判：装着的 `.so` 与生成物 `_abi.py` 出自**同一次**内核构建，
+#: 但它们装进来之后就各自独立了——有人拉了内核仓的新提交、只跑了半边，或者拷了
+#: 一份别处的 `.so` 过来，两者就会说不同的话。而 ABI 对不上的后果不是编译失败，
+#: 是**装载期被拒**（响亮）或者更糟：版本对得上而字节是旧的，算得出数，只是数是
+#: 上一批的。文件名带上版本之后，前一半判据不必打开二进制就读得到。
+#:
+#: ★为什么**不**自动构建：内核仓是另一个仓，构建它要十几分钟且会写本仓的生成物。
+#: 一条 `bash rust/build.sh` 顺手改动另一个仓的检出、再顺手改动本仓的六个生成
+#: 文件，是「构建脚本做了没被要求的事」——那类惊喜的代价比省下的一条命令高。
+check_kernel() {
+    #: ★解析内核检出走 `tools/kernel-path.sh` —— 与 `build-wheel.sh` 同一个解析器。
+    #: 这里曾经有一份自己的探测；两处各探一遍，某一天它们会在同一台机器上给出
+    #: 不同的答案，而那正是本仓其它几处生成物反复写下的同一条理由。
+    local kroot=""
+    if fylite_resolve_kernel "$ROOT"; then kroot="$KERNEL"; fi
+
+    local ilib="$ROOT/python/fylite/_lib"
+    local iver iabi
+    iver="$(fy_installed_version "$ilib" libfylite_kernel.so)"
+    iabi="$(sed -n 's/^ABI_VERSION = \([0-9]*\).*/\1/p' \
+            "$ROOT/python/fylite/_abi.py" 2>/dev/null || true)"
+
+    if [ -z "$kroot" ]; then
+        #: ★检出不在场**不是错**：本仓是公开仓，只检出它一个是受支持的状态
+        #: （内核缺席时 `fy run` 说得清楚，页面走 wasm）。说一句就够了。
+        if [ -n "$iver" ]; then
+            echo "[kernel] 装着 kernel $iver (ABI ${iabi:-?})；没有内核仓检出可比对"
+        else
+            echo "[kernel] 未装内核，也没有内核仓检出 —— 本仓照常构建（fy run 需要它）"
+        fi
+        echo "[kernel]   要比对就给出：FYLITE_KERNEL=/path/to/fylite_kernel $0 $*"
+        return 0
+    fi
+
+    local kver kabi
+    fylite_kernel_declared "$kroot" || {
+        echo "::error:: 读不出内核仓声明的版本/ABI（$kroot）" >&2; return 1; }
+    kver="$KERNEL_VERSION"; kabi="$KERNEL_ABI"
+    echo "[kernel] checkout: $kroot  (kernel $kver · ABI $kabi)"
+
+    #: ★★「最新」是**相对于远端**说的，而远端要联网才知道。缺省不联网——
+    #: 只读已有的远端跟踪引用，并把「这份跟踪引用有多旧」如实说出来；
+    #: `--fetch-kernel` 才去 `git fetch`（它只动 refs，不动那个仓的工作树）。
+    if [ "$KFETCH" = 1 ]; then
+        echo "[kernel] git fetch（--fetch-kernel）…"
+        git -C "$kroot" fetch --quiet || echo "[kernel] fetch 失败，按已有的跟踪引用比" >&2
+    fi
+    local up behind
+    up="$(git -C "$kroot" rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || true)"
+    if [ -n "$up" ]; then
+        behind="$(git -C "$kroot" rev-list --count "HEAD..@{upstream}" 2>/dev/null || echo 0)"
+        if [ "${behind:-0}" != 0 ]; then
+            echo "[kernel] ★检出落后 $up $behind 个提交" \
+                 "$([ "$KFETCH" = 1 ] || echo '（未 fetch，这是上次取到的远端状态）')"
+            echo "[kernel]   git -C $kroot pull   —— 然后重新构建内核"
+        else
+            echo "[kernel] 与 $up 齐平$([ "$KFETCH" = 1 ] || echo '（未 fetch）')"
+        fi
+    fi
+
+    #: 一致性判据：装着的版本与 ABI，都要与内核仓检出**今天的源码**对得上。
+    if [ -z "$iver" ]; then
+        echo "[kernel] ★内核仓在场，但本仓没装内核 —— 页面走 wasm，fy run 不可用"
+        echo "[kernel]   要装：FYLITE_PUBLIC=$ROOT bash $kroot/rust/build.sh --wasm-check"
+        return 0
+    fi
+    local bad=0
+    [ "$iver" = "$kver" ] || {
+        echo "::error:: 装着的内核是 $iver，内核仓检出是 $kver" >&2; bad=1; }
+    [ "$iabi" = "$kabi" ] || {
+        echo "::error:: 装着的 ABI 是 ${iabi:-无}，内核仓检出是 $kabi" >&2; bad=1; }
+    if [ "$bad" != 0 ]; then
+        echo "::error::   本脚本不替你构建内核（只检查）。重新装它：" >&2
+        echo "::error::   FYLITE_PUBLIC=$ROOT bash $kroot/rust/build.sh --wasm-check" >&2
+        echo "::error::   确知不需要内核就跑本脚本时给 --no-kernel-check。" >&2
+        return 1
+    fi
+    echo "[kernel] ok  kernel $iver · ABI $iabi —— 与检出一致"
+}
+#: ★写成 `if`，不是 `[ … ] && check_kernel`：`set -e` 下后者在 KCHECK=0 时整条
+#: 命令返回 1，脚本当场退出——「跳过检查」的开关反而成了「不构建」的开关。
+if [ "$KCHECK" = 1 ]; then check_kernel; fi
 
 #: ★与内核同一条加固规矩：开发机路径不进制品。这里源码公开，所以泄漏的不是结构
 #: 而只是构建者的目录布局连用户名——仍然不该发出去。
@@ -67,9 +178,12 @@ exp=$(nm -D --defined-only "$SO" | grep -c 'fylite_runtime_' || true)
 echo "[runtime] harden-ok  $(basename "$SO")  ($exp exports)"
 
 if [ "$INSTALL" = 1 ]; then
-    mkdir -p "$ROOT/python/fylite/_lib"
-    cp "$SO" "$ROOT/python/fylite/_lib/libfylite_runtime.so"
-    echo "[runtime] installed -> python/fylite/_lib/libfylite_runtime.so"
+    #: ★★版本化装入（2026-09-05 用户裁定），与内核仓装 `.so` / `.wasm` 同一条规则、
+    #: 同一份实现（`tools/soname.sh`）：真文件 `libfylite_runtime.so.$RVER`，加
+    #: `.so.<major>` 与 `.so` 两级链接。装载方（`fylite.kernel`、`fy` 的 dlopen、
+    #: 轮）继续用不带版本的那个名字，拿到的仍是同一份字节——变的是「这台机器上
+    #: 装的是哪一版」现在 `ls` 就能回答，不必打开二进制。
+    fy_install_versioned "$SO" "$ROOT/python/fylite/_lib" libfylite_runtime.so "$RVER"
 fi
 
 # ★★The mdsip REQUEST contract — the verb codes and the `*` sentinel.

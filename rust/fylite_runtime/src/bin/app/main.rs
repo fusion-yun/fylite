@@ -296,10 +296,28 @@ fn lookup(path: &str) -> Option<(&'static [u8], &'static str)> {
         .map(|(_, body, mime)| (*body, *mime))
 }
 
+/// 版本化制品的**逻辑名**：`fylite_rs.wasm.0.0.1` -> `fylite_rs.wasm`。
+///
+/// ★★2026-09-05 起 `.so` / `.wasm` 按 Linux 动态链接库的习惯带版本后缀
+/// （`tools/soname.sh`），于是「最后一个点之后」不再是扩展名：`mime_of` 照原样
+/// 问下去会对每一个 wasm 答 `application/octet-stream`。这层只剥**这一种形状**
+/// ——`.so` / `.wasm` 后面跟一串以数字开头的版本——而不是笼统地「剥掉最后一段」，
+/// 那会把 `g900003.00230_ITER…` 这类本来就带点的文件名一起剥了。
+#[cfg(feature = "webui")]
+fn logical_name(path: &str) -> &str {
+    match path.rsplit_once('.') {
+        Some((head, tail))
+            if tail.starts_with(|c: char| c.is_ascii_digit())
+                && (head.ends_with(".wasm") || head.ends_with(".so")
+                    || logical_name(head) != head) => logical_name(head),
+        _ => path,
+    }
+}
+
 #[cfg(feature = "webui")]
 /// 扩展名 -> content-type，与 `tools/make-app-embed.mjs` 的表同一份。
 fn mime_of(path: &str) -> &'static str {
-    match path.rsplit_once('.').map(|(_, e)| e).unwrap_or("") {
+    match logical_name(path).rsplit_once('.').map(|(_, e)| e).unwrap_or("") {
         "html" => "text/html; charset=utf-8",
         "css" => "text/css; charset=utf-8",
         "js" | "mjs" => "text/javascript; charset=utf-8",
@@ -434,16 +452,32 @@ mod tests {
 
     /// ★wasm 的 content-type 是这张表里唯一不能错的一条：错了浏览器不走
     /// 流式编译，页面以一句 TypeError 失败，而不是慢一点。
+    ///
+    /// ★★按**逻辑名**判（2026-09-05）：表里的名字现在是
+    /// `assets/fylite_rs.wasm.0.0.1`，`ends_with(".wasm")` 一个都数不到——
+    /// 而「一个都没找到」在旧写法下不是红，是 `seen >= 3` 那条断言才发现。
     #[test]
     fn every_wasm_is_served_as_application_wasm() {
         let mut seen = 0;
         for (name, _, mime) in assets::ASSETS {
-            if name.ends_with(".wasm") {
+            if logical_name(name).ends_with(".wasm") {
                 assert_eq!(*mime, "application/wasm", "{name} 的 content-type 是 {mime}");
                 seen += 1;
             }
         }
         assert!(seen >= 3, "只找到 {seen} 个 wasm —— 站点应有三个内核模块");
+    }
+
+    /// 逻辑名只剥版本后缀，不剥别的。
+    #[test]
+    fn logical_name_strips_only_a_version_suffix() {
+        assert_eq!(logical_name("assets/fylite_rs.wasm.0.0.1"), "assets/fylite_rs.wasm");
+        assert_eq!(logical_name("assets/fylite_rs.wasm.0"), "assets/fylite_rs.wasm");
+        assert_eq!(logical_name("assets/fylite_rs.wasm"), "assets/fylite_rs.wasm");
+        assert_eq!(logical_name("_lib/libfylite_kernel.so.1.2.3"), "_lib/libfylite_kernel.so");
+        //: 本来就带点、且点后是数字的普通文件名不受影响
+        assert_eq!(logical_name("cases/g900003.00230_ITER.txt"), "cases/g900003.00230_ITER.txt");
+        assert_eq!(logical_name("assets/abi.json"), "assets/abi.json");
     }
 
     /// 查找是精确匹配，所以路径穿越无从谈起 —— 这条把「无从谈起」
@@ -462,8 +496,11 @@ mod tests {
         std::fs::create_dir_all(dir.join("assets")).unwrap();
         std::fs::write(dir.join(INDEX), "<html>hello</html>").unwrap();
         std::fs::write(dir.join("assets/x.wasm"), b"\0asm").unwrap();
+        std::fs::write(dir.join("assets/x.wasm.0.0.1"), b"\0asm").unwrap();
         assert_eq!(lookup_dir(&dir, "/").unwrap().1, "text/html; charset=utf-8");
         assert_eq!(lookup_dir(&dir, "/assets/x.wasm").unwrap().1, "application/wasm");
+        //: ★活目录伺服的也是版本化的那个名字——页面取的就是它
+        assert_eq!(lookup_dir(&dir, "/assets/x.wasm.0.0.1").unwrap().1, "application/wasm");
         for probe in ["../Cargo.toml", "/../../etc/passwd", "//etc/passwd", "assets/../index.html"] {
             assert!(lookup_dir(&dir, probe).is_none(), "{probe} 不该匹配到任何文件");
         }

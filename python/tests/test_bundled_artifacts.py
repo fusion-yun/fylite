@@ -64,7 +64,13 @@ def test_the_binaries_are_not_in_the_repository():
     页面 fetch 的就是那三个 `.wasm`），只是不该被跟踪；`.gitignore` 顶上那段写的
     是同一件事，这里是它的执行者。
     """
-    p = subprocess.run(["git", "ls-files", "--", "*.so", "*.wasm"],
+    #: ★★`*.so.*` / `*.wasm.*` 是**这道闸的一半**（2026-09-05）。制品从这天起按
+    #: Linux 的习惯带版本后缀（`tools/soname.sh`）：真文件叫 `fylite_rs.wasm.0.0.1`，
+    #: 扩展名不再在末尾，上面那两条 pathspec 一个都匹配不到。漏了这两条，这道闸
+    #: 会对一棵已经把五份二进制提交进去的树答绿——而它存在的全部理由就是不让那件事
+    #: 悄无声息地发生。`.gitignore` 抬头那两行是同一次改动的另一半。
+    p = subprocess.run(["git", "ls-files", "--",
+                        "*.so", "*.wasm", "*.so.*", "*.wasm.*"],
                        cwd=ROOT, capture_output=True, text=True)
     if p.returncode != 0:                       # not a work tree: nothing to say
         pytest.skip("not a git work tree")

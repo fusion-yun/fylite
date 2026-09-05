@@ -44,6 +44,25 @@
   }
   var ABI_EXPECT = root.FyVersion.abi;
 
+  //: ★★2026-09-05 起内核制品**按版本命名**（`tools/soname.sh`，与 `.so` 同一条
+  //: 规矩）：磁盘上的真文件是 `fylite_rs.wasm.0.0.1`，`fylite_rs.wasm` 只是指向它
+  //: 的符号链接。而**站点构建不发那条链接**（`cp -RL` 会把它解引用成第二份
+  //: 一兆多的字节），所以页面必须按版本名取。
+  //:
+  //: ★解析放在**加载器这一处**，不是八个调用点：页面、worker、六张 pages/ 里的
+  //: 内联脚本各写一次 `'assets/fylite_rs.wasm'`，把版本拼进每一处等于把
+  //: 「内核是哪一版」抄八遍——而这正是本文件上面那段 ABI 注释在讲的事故。
+  //: 调用方继续写不带版本的那个名字（它是**逻辑名**，一如 Linux 的 linker name），
+  //: 这里把它翻成这一版实际的文件名。
+  //:
+  //: ★**不回退到不带版本的名字**。取不到就让它响亮地失败：静默回退会装上一个
+  //: 与页面所声明的 ABI 无关的模块，而那正是版本化要防的那件事。
+  function versioned(url) {
+    var v = root.FyVersion.kernel;
+    if (!v || !/\.wasm$/.test(url)) return url;
+    return url + '.' + v;
+  }
+
   var REQUIRED = [
     'fylite_rs_alloc', 'fylite_rs_free', 'fylite_rs_ping',
     'fylite_rs_dt_reactivity', 'fylite_rs_zerod_volume',
@@ -4038,6 +4057,7 @@
    */
   function load(url, opts) {
     var required = (opts && opts.required) || REQUIRED;
+    url = versioned(url);
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error('fetch ' + url + ': HTTP ' + r.status);
       return r.arrayBuffer();
@@ -4120,6 +4140,11 @@
 
   root.FyLite = { load: load, fromBytes: fromBytes, ABI_EXPECT: ABI_EXPECT,
                   loadTglf: loadTglf, REQUIRED_TGLF: REQUIRED_TGLF,
+                  //: ★逻辑名 -> 这一版的真文件名。导出它是给**不经 `load()` 的
+                  //: 读者**用的：service worker 的预缓存表要按同一条规则算出
+                  //: 同一串 URL，否则页面取的和缓存里存的是两个名字，离线重载
+                  //: 当场 404——而在线时一切正常，所以没人会先发现。
+                  wasmUrl: versioned,
                   ADAS_Z: ADAS_Z, ADAS_A: ADAS_A, SolveError: SolveError };
 
   // ==========================================================================

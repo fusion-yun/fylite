@@ -12,6 +12,40 @@ PKG = Path(__file__).resolve().parent
 #: (``engine.cli._find_exe``).  Nothing here read ``BIN_DIR`` anyway — the
 #: lookup always spelled the directory itself.
 LIB_DIR = PKG / "_lib"
+
+
+def _lib(logical: str) -> Path:
+    """The shared library ``logical`` names — versioned or not.
+
+    ★★2026-09-05: the build installs shared objects the way Linux does
+    (``tools/soname.sh``) — ``libfylite_kernel.so.0.0.1`` is the real file
+    and ``libfylite_kernel.so.0`` / ``libfylite_kernel.so`` are symlinks to
+    it.  In a source checkout the plain name resolves and nothing here has
+    to think; ★**a wheel has no symlinks**, so what arrives on an installed
+    package is the versioned file alone (see ``pyproject.toml``'s
+    ``package-data``, which packages exactly that one).  Asking for the
+    plain name there would find nothing, and the failure would read
+    「找不到内核」 on a package that is carrying it.
+
+    So: the plain name if it is there, else the highest version present.
+    ★Highest rather than 「the only one」: the installer directory is a
+    staging target that holds one version at a time, but nothing in a wheel
+    or a container image enforces that, and picking arbitrarily out of two
+    would make「哪一份在跑」a question again.
+    """
+    plain = LIB_DIR / logical
+    if plain.exists():
+        return plain
+
+    def key(p: Path) -> tuple:
+        #: sort by numeric components, so ``.so.0.0.10`` beats ``.so.0.0.9``
+        return tuple(int(x) if x.isdigit() else -1
+                     for x in p.name[len(logical) + 1:].split("."))
+
+    found = sorted(LIB_DIR.glob(logical + ".*"), key=key)
+    #: ★缺席时仍然返回**那个不带版本的路径**，不是 None：调用方的报错文案说的是
+    #: 「找不到 libfylite_kernel.so」，而那正是读者要去构建的那个名字。
+    return found[-1] if found else plain
 #: ★No bundled device deck: this distribution ships none (see
 #: :mod:`fylite.device`).  ``DATA_DIR`` is resolved from
 #: ``$FYLITE_DEVICE_DIR`` on first ACCESS, through this module's
@@ -41,15 +75,15 @@ LIB_DIR = PKG / "_lib"
 #: ★★2026-09-02 改名：`libfylite_kernel.so` -> `libfylite_kernel.so`。本目录从此有**两份**
 #: `.so`，来路不同：内核（物理，私有仓 fylite_kernel 构建）与数据层（取数与格式，
 #: 本仓 `rust/fylite_runtime/` 构建）。名字自带区分，好过靠读者记住哪一份是哪一层。
-KERNEL_LIB = LIB_DIR / "libfylite_kernel.so"
+KERNEL_LIB = _lib("libfylite_kernel.so")
 #: ★★2026-09-04 内核分**两个包**（用户裁定）：核心一个 `.so`，TGLF 与 DKE 一个。
 #: 两者出自同一次构建，装载方开两个句柄——见 `kernel.load()`。扩展**可以缺席**
 #: （纯 CLI 的发行不带它），缺席时那 15 个入口按名拒绝，而不是 AttributeError。
-KERNEL_EXT_LIB = LIB_DIR / "libfylite_kernel_ext.so"
+KERNEL_EXT_LIB = _lib("libfylite_kernel_ext.so")
 
 #: 数据层：mdsip 编解码，后续收编 g-file / est2。★与内核**不同的符号前缀**
 #: （`fylite_runtime_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。
-DATA_LIB = LIB_DIR / "libfylite_runtime.so"
+DATA_LIB = _lib("libfylite_runtime.so")
 
 #: ★★2026-09-01 移除：`$KEFIT_REFERENCE_BUNDLE` 与 `reference_bundle()`。
 #: 那是一个指向 ASIPP **不可再分发**参考包（`kefit_reference_bundle`，致谢里的

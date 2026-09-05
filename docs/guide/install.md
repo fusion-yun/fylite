@@ -155,6 +155,11 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 | `fylite_tglf.wasm` | 回旋朗道流体（TGLF） | 按需 |
 | `fylite_dke.wasm` | NEO 漂移动理学 | 按需 |
 
+★上表写的是**逻辑名**。磁盘上（以及站点上）真正的文件带版本后缀——
+`fylite_rs.wasm.0.0.1`，加 `.wasm.0` 与 `.wasm` 两级符号链接，与 `_lib/` 里的三个
+`.so` 同一条规矩（Linux 动态链接库的习惯）。页面按版本名取；细节见
+{ref}`kernels` 的「名字带版本」。
+
 它们与原生 `.so` **出自同一份 `c_api.rs`**（内核仓），所以浏览器里得到的数与脚本里
 得到的数是同一个数——这一点由跨宿主门在每次改动时校验（`fylite.engine.crosshost`），
 不靠承诺。构建它们要内核检出；本仓只带入库的副本，Python 侧一份都不加载。
