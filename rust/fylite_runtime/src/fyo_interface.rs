@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "d427ca30ee019d8e";
+pub const DIGEST: &str = "85563e753d023c0a";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -173,6 +173,10 @@ pub const TABLES: &[Table] = &[
         Slot { key: "rmin", path: "time_slice/profiles_1d/fylite:r_minor", units: "m", rank: "1d" },
         Slot { key: "rmaj", path: "time_slice/profiles_1d/fylite:r_major", units: "m", rank: "1d" },
         Slot { key: "r2", path: "time_slice/profiles_1d/fylite:r2_average", units: "m^2", rank: "1d" },
+        Slot { key: "shear", path: "time_slice/profiles_1d/magnetic_shear", units: "1", rank: "1d" },
+        Slot { key: "kappa", path: "time_slice/profiles_1d/elongation", units: "1", rank: "1d" },
+        Slot { key: "delta", path: "time_slice/profiles_1d/triangularity_upper", units: "1", rank: "1d" },
+        Slot { key: "shift", path: "time_slice/profiles_1d/fylite:shift", units: "1", rank: "1d" },
     ] },
     Table { name: "LH_ANTENNAS", doc_type: "fyo:lh_antennas", slots: &[
         Slot { key: "name", path: "antenna/name", units: "", rank: "0d" },
@@ -252,7 +256,7 @@ pub const TABLES: &[Table] = &[
 /// packed block layouts: the position of a row IS its offset
 pub const BLOCKS: &[Block] = &[
     Block { name: "CASE_CODES", rows: &[
-        Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); marched by evolve_heat" },
+        Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
         Row { key: "vstab", shape: "vstab", units: "assembled", gloss: "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab" },
@@ -287,11 +291,11 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "ch-momentum", shape: "chMomentum", units: "sunk", gloss: "the momentum channel" },
         Row { key: "beam", shape: "beam", units: "unsunk", gloss: "the NBI executor (deposition, stopping, driven current)" },
         Row { key: "lh", shape: "lh", units: "unsunk", gloss: "the lower-hybrid executor" },
-        Row { key: "wave", shape: "wave", units: "unsunk", gloss: "the actuator waveform driver" },
-        Row { key: "ipctl", shape: "ipCtl", units: "unsunk", gloss: "the I_p feedback controller" },
+        Row { key: "wave", shape: "wave", units: "sunk", gloss: "the actuator waveform driver" },
+        Row { key: "ipctl", shape: "ipCtl", units: "sunk", gloss: "the I_p feedback controller" },
         Row { key: "quasi", shape: "quasi", units: "sunk", gloss: "impurity dilution (composition-derived fuel fraction)" },
         Row { key: "resume", shape: "", units: "sunk", gloss: "a resumed state" },
-        Row { key: "closure", shape: "closure", units: "unsunk", gloss: "a closure other than the constant one (neoclassical / turbulent / flux-match)" },
+        Row { key: "closure", shape: "closure", units: "unsunk", gloss: "a closure other than the constant or neoclassical one (turbulent / flux-match)" },
         Row { key: "couple", shape: "couple", units: "unsunk", gloss: "the equilibrium alternation" },
     ] },
     Block { name: "EVOLVE_HEAT_IN", rows: &[
@@ -316,6 +320,10 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "omega_init", shape: "n", units: "rad/s", gloss: "the rotation the block starts from (zeros = at rest)" },
         Row { key: "ni_init", shape: "n", units: "m^-3", gloss: "the main-ion density the block starts from (quasi = 1; zeros = from the dilution)" },
         Row { key: "nz_init", shape: "n", units: "m^-3", gloss: "the impurity density the block starts from (quasi = 1; zeros = from the dilution)" },
+        Row { key: "shear", shape: "n", units: "1", gloss: "magnetic shear r q'/q per surface (closure = 2)" },
+        Row { key: "kappa_s", shape: "n", units: "1", gloss: "elongation per surface (closure = 2)" },
+        Row { key: "delta_s", shape: "n", units: "1", gloss: "triangularity per surface (closure = 2)" },
+        Row { key: "shift", shape: "n", units: "1", gloss: "Shafranov shift gradient dR0/dr per surface (closure = 2)" },
     ] },
     Block { name: "EVOLVE_HEAT_OUT", rows: &[
         Row { key: "te", shape: "n", units: "eV", gloss: "the profile the loop reached" },
@@ -363,6 +371,15 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "d_n", shape: "n", units: "m^2/s", gloss: "the main ion's particle diffusivity the last step used" },
         Row { key: "v_n", shape: "n", units: "m/s", gloss: "its convection velocity" },
         Row { key: "dt_fraction_used", shape: "1", units: "1", gloss: "the fuel fraction the burn ran on: the caller's, or (quasi) n_i/(2 n_e) on axis" },
+        Row { key: "wave_k", shape: "nt", units: "1", gloss: "the waveform factor each step's sources were built with (1 without wave)" },
+        Row { key: "v_loop_used", shape: "nt", units: "V", gloss: "the loop voltage each step drove the edge flux at (the slider, the waveform, or the controller)" },
+        Row { key: "ip_psi", shape: "nt", units: "A", gloss: "the plasma current the psi profile carried at each step's start (0 when the loop is off)" },
+        Row { key: "ip_want", shape: "nt", units: "A", gloss: "the controller's calibrated set point that step" },
+        Row { key: "ip_err", shape: "nt", units: "1", gloss: "its relative error" },
+        Row { key: "ipctl_ratio0_out", shape: "1", units: "1", gloss: "the calibration ratio to hand the next block" },
+        Row { key: "ipctl_integral_out", shape: "1", units: "s", gloss: "the integrator to hand it" },
+        Row { key: "ipctl_calibrated_out", shape: "1", units: "1", gloss: "1 once the loop has calibrated" },
+        Row { key: "chi_neo", shape: "n", units: "m^2/s", gloss: "the neoclassical ion diffusivity the last step used (zeros on the other closures)" },
     ] },
     Block { name: "EVOLVE_HEAT_PARAMS", rows: &[
         Row { key: "b0", shape: "1", units: "T", gloss: "on-axis field of the metric" },
@@ -426,6 +443,23 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "prandtl", shape: "1", units: "1", gloss: "chi_phi = prandtl * chi_i (prescribed; floored at 1e-6)" },
         Row { key: "torque", shape: "1", units: "N.m", gloss: "total torque, deposited on the aux-power Gaussian (dep_centre / dep_width)" },
         Row { key: "dt_fraction_in", shape: "1", units: "1", gloss: "the fuel fraction the previous block ran on (read when resume = 1 and quasi = 1)" },
+        Row { key: "wave", shape: "1", units: "1", gloss: "1 = the trapezoid waveform drives the actuators" },
+        Row { key: "wave_ramp", shape: "1", units: "s", gloss: "end of the ramp-up phase" },
+        Row { key: "wave_flat", shape: "1", units: "s", gloss: "end of the flat-top" },
+        Row { key: "wave_end", shape: "1", units: "s", gloss: "end of the discharge" },
+        Row { key: "wave_start", shape: "1", units: "1", gloss: "the fraction at t = 0" },
+        Row { key: "wave_end2", shape: "1", units: "1", gloss: "the fraction at t = wave_end" },
+        Row { key: "wave_power", shape: "1", units: "1", gloss: "1 = the aux powers (and the torque) ride the waveform" },
+        Row { key: "wave_vloop", shape: "1", units: "1", gloss: "1 = the loop voltage rides it" },
+        Row { key: "wave_fuel", shape: "1", units: "1", gloss: "1 = the fuelling rates ride it" },
+        Row { key: "wave_ip", shape: "1", units: "1", gloss: "1 = the I_p set point rides it (the controller's target)" },
+        Row { key: "ipctl", shape: "1", units: "1", gloss: "1 = the I_p feedback loop drives the loop voltage (needs ch_current)" },
+        Row { key: "ip_kp", shape: "1", units: "V", gloss: "proportional gain on the relative current error" },
+        Row { key: "ip_ki", shape: "1", units: "V/s", gloss: "integral gain" },
+        Row { key: "ipctl_ratio0_in", shape: "1", units: "1", gloss: "the loop's calibration ratio, carried across blocks (read when resume = 1 and ipctl_calibrated_in = 1)" },
+        Row { key: "ipctl_integral_in", shape: "1", units: "s", gloss: "the integrator, carried across blocks" },
+        Row { key: "ipctl_calibrated_in", shape: "1", units: "1", gloss: "1 when the previous block had already calibrated the loop" },
+        Row { key: "closure", shape: "1", units: "1", gloss: "0 = constant chi (chi0 / chi_ratio); 2 = neoclassical (Chang-Hinton chi_i, chi_e = chi_i * chi_ratio); the given-profile tier stays chi_source = 1" },
     ] },
     Block { name: "PROFIT_IN", rows: &[
         Row { key: "x", shape: "n", units: "1", gloss: "the coordinate" },

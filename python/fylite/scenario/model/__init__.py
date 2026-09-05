@@ -378,7 +378,9 @@ def evolve(*, a: float, r0: float, b0: float,
            quasi: bool = False, d_over_chi_z: float | None = None,
            pinch_z: float | None = None, fuel_z: float = 0.0,
            momentum: bool = False, prandtl: float = 1.0,
-           torque: float = 0.0) -> dict:
+           torque: float = 0.0, closure: str = "constant",
+           wave: dict | None = None, ipctl: bool = False,
+           ip_kp: float = 0.0, ip_ki: float = 0.0) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
 
     ★2026-09-05 第十五刀: ``density=True`` marches the main-ion density beside
@@ -390,6 +392,13 @@ def evolve(*, a: float, r0: float, b0: float,
     the main ion's), and Z_eff a RESULT of the two species; ``momentum=True``
     advances the toroidal rotation beside the march (``chi_phi = prandtl *
     chi_i``, ``torque`` [N m] on the aux deposit, Dirichlet zero at the edge).
+    ★第十六刀: ``closure="neoclassical"`` marches on Chang-Hinton's ion chi
+    evaluated on the ladder's own surface rows (``chi_e = chi_i * chi_ratio``);
+    ``wave={ramp, flat, end, start, end2, power, vloop, fuel, ip}`` multiplies
+    the actuators by the kernel's trapezoid over the four phase times, per
+    step; ``ipctl=True`` (with ``current=True``) closes a PI loop (``ip_kp``,
+    ``ip_ki``) on the enclosed current's ratio to its own first reading and
+    drives the loop voltage with it.
 
     ★★2026-09-05 (FYL-DESIGN-16 K-3, the ninth tool to sink).  This function
     used to be the ASSEMBLY around the one declared entry ``evolve_heat``: the
@@ -467,6 +476,15 @@ def evolve(*, a: float, r0: float, b0: float,
         raise ValueError(
             "quasi=True puts an impurity into the quasi-neutrality, so it "
             "needs one: pass `impurity=` (and its `imp_z`)")
+    if closure not in ("constant", "neoclassical"):
+        raise ValueError(
+            f"closure {closure!r}: this tool marches on the constant or the "
+            "neoclassical closure; the turbulent and flux-match tiers need "
+            "the extension module and are not sunk")
+    if ipctl and not current:
+        raise ValueError(
+            "ipctl=True needs the current channel: the loop drives the "
+            "boundary flux rate and closes on the current read off psi")
 
     settings = {
         "geometry": "miller" if equilibrium is None else "gfile",
@@ -498,7 +516,18 @@ def evolve(*, a: float, r0: float, b0: float,
         "fuel_z_rate": float(fuel_z),
         "momentum": float(bool(momentum)), "prandtl": float(prandtl),
         "torque": float(torque),
+        "closure": "2" if closure == "neoclassical" else "0",
+        "wave": float(bool(wave)), "ipctl": float(bool(ipctl)),
+        "ip_kp": float(ip_kp), "ip_ki": float(ip_ki),
     }
+    if wave:
+        settings.update({"wave_ramp": float(wave["ramp"]), "wave_flat": float(wave["flat"]),
+                         "wave_end": float(wave["end"]), "wave_start": float(wave.get("start", 0.0)),
+                         "wave_end2": float(wave.get("end2", 0.0)),
+                         "wave_power": float(bool(wave.get("power", True))),
+                         "wave_vloop": float(bool(wave.get("vloop", False))),
+                         "wave_fuel": float(bool(wave.get("fuel", False))),
+                         "wave_ip": float(bool(wave.get("ip", False)))})
     inputs: dict = {}
     if equilibrium is None:
         settings.update({"a": float(a), "r0": float(r0), "b0": float(b0),
@@ -556,6 +585,8 @@ def evolve(*, a: float, r0: float, b0: float,
                   if momentum else None),
         "omega_axis": arr("omega_axis"),
         "dt_fraction_used": fact("dt_fraction_used"),
+        "wave_k": arr("wave_k"), "v_loop_used": arr("v_loop_used"),
+        "ip_psi": arr("ip_psi"), "chi_neo": arr("chi_neo"),
         "t": np.asarray(sm["time"]["data"], float),
         "te_axis": np.asarray(sm["local"]["magnetic_axis"]["t_e"]["value"]["data"], float),
         "ti_axis": np.asarray(sm["local"]["magnetic_axis"]["t_i_average"]["value"]["data"], float),

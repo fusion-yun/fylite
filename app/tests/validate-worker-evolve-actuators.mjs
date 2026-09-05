@@ -1,12 +1,12 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第十五刀：
-// 密度通道（含准中性里的杂质）与动量通道。
+// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第十六刀：
+// 执行器波形（`wave`）与新经典闭合（`closure = 2`）。
 //
 // 三个配置，切门**之前**用 `--record` 在 worker 自己的循环路径（`fy.coreMarch` 逐步、
 // `fy.solveMomentum` 在旁）录下答案；切门之后同样的三个配置必须走条目（viaEntry）
 // 而且逐位相同：
-//   density  密度通道 + 加料，主离子一种（Z_eff 是滑杆）
-//   quasi    密度通道 + 杂质进准中性（两种离子各自的 D/v 与加料，Z_eff 是结果）
-//   momentum 热通道 + 动量通道（规定的力矩、Prandtl 数）
+//   wave     热 + 密度通道，功率 / 加料乘以四相梯形波（斜坡 5 ms · 平顶 15 ms · 结束 30 ms）
+//   neo      热通道，Chang-Hinton 新经典 χ_i（页面自己的逐面块，回旋 Bohm 单位）
+//   neodens  新经典闭合 + 密度通道 + 力矩（三样同时）
 //
 // `evolveRun` 在「范围内」的场合（闭合 0/1、热通道，电流通道要 g 文件或装置档的 ψ）走
 // `evEntryMarch`：一步一步调 `evolve_heat`，每步把上一步的状态续回去。从前那是扁平导出
@@ -26,7 +26,7 @@ import { deviceDoc } from './_device.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HERE, '..', 'assets') + path.sep;
-const FIX = path.join(HERE, 'fixtures', 'worker-evolve-channels.json');
+const FIX = path.join(HERE, 'fixtures', 'worker-evolve-actuators.json');
 const BASE = 'http://127.0.0.1:0/';
 const RECORD = process.argv.includes('--record');
 
@@ -80,9 +80,10 @@ const base = {
   ip: 1.0e6, r0Src: 4.1 * a, emp: 1, enp: 1, beta0: 0.55, couple: 0,
 };
 const CASES = {
-  density: { chDensity: true },
-  quasi: { chDensity: true, quasi: true, fuelZ: 0.02 },
-  momentum: { chMomentum: true, torque: 3.0, prandtl: 0.8 },
+  wave: { chDensity: true, wave: true, waveRamp: 0.005, waveFlat: 0.015, waveEnd: 0.03, waveStart: 0.3, waveEnd2: 0.5,
+          wavePower: true, waveFuel: true, waveVloop: false, waveIp: false },
+  neo: { closure: 2 },
+  neodens: { closure: 2, chDensity: true, chMomentum: true, torque: 2.0 },
 };
 const arr = (v) => (v ? Array.from(v) : null);
 const got = {};
@@ -102,7 +103,7 @@ for (const name of Object.keys(CASES)) {
                                reading: JSON.parse(JSON.stringify({ t: s.reading.t, dt: s.reading.dt, steady: s.reading.steady,
                                           omega0: s.reading.omega0, mach: s.reading.mach, ne0: s.reading.ne0, betaN: s.reading.betaN })) })),
     final: { te: arr(done.te), ti: arr(done.ti), ne: arr(done.ne), ni: arr(done.ni), nz: arr(done.nz), omega: arr(done.omega),
-             torque: arr(done.torque), zeffProfile: arr(done.zeffProfile), zeffSolved: done.zeffSolved,
+             torque: arr(done.torque), zeffProfile: arr(done.zeffProfile), zeffSolved: done.zeffSolved, chiNeo: arr(done.chiNeo), chiI: arr(done.chiI),
              impurity: done.impurity, steps: done.steps, tEnd: done.tEnd, trace: done.trace.length },
   };
 }
@@ -112,6 +113,7 @@ if (RECORD) {
   process.exit(0);
 }
 const ref = JSON.parse(readFileSync(FIX, 'utf8'));
+
 for (const name of Object.keys(CASES)) {
   const g = got[name], r = ref[name];
   assert.equal(g.steps.length, r.steps.length, name + ': step count');
@@ -122,5 +124,5 @@ for (const name of Object.keys(CASES)) {
   }
   assert.deepEqual(g.final, r.final, name + ': the final state');
 }
-console.log(`validate-worker-evolve-channels: ${Object.keys(CASES).length} 个配置逐位（密度 · 准中性 · 动量），`
-            + `n_e(0) 终值 ${(got.quasi.final.ne[0] / 1e19).toFixed(3)}e19，ω(0) 终值 ${got.momentum.final.omega[0].toFixed(3)} rad/s`);
+console.log(`validate-worker-evolve-actuators: ${Object.keys(CASES).length} 个配置逐位（波形 · 新经典 · 新经典+密度+动量），`
+            + `T_e(0) 终值 ${got.wave.final.te[0].toFixed(1)} / ${got.neo.final.te[0].toFixed(1)} eV`);

@@ -624,7 +624,8 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     missing = [why for key, why in _EVOLVE_UNSUNK.items()
                if key not in numeric and cfg.get(key)]
     closure = str(cfg.get("closure", "0"))
-    if closure != "0":
+    #: ★第十六刀: the neoclassical closure (2) is the entry's; 3 / 4 are not
+    if closure not in ("0", "2"):
         missing.append(f"closure {closure} — {_EVOLVE_UNSUNK['closure']}")
     #: ★★S-2c 批四 — the traced tiers are sunk (`case.rs::evolve`, the equilibrium document traced in the kernel),
     #: but a case cannot CARRY the equilibrium: device and experimental decks
@@ -769,15 +770,17 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
         ["lhpower1", "lhnpar1lo", "lhnpar1hi", "lhpower2", "lhnpar2lo",
          "lhnpar2hi", "lhuplo", "lhuphi", "lhetacd", "lhxi", "lhwidth",
          "lhshells"], "the LH executor's knobs (inert while `lh` is off)")
-    acct.as_sub(
-        ["waveramp", "waveflat", "waveend", "wavestart", "waveend2",
-         "wavepower", "wavevloop", "wavefuel", "waveip"],
-        "the waveform driver's knobs (inert while `wave` is off)")
+    if not cfg.get("wave"):
+        acct.as_sub(
+            ["waveramp", "waveflat", "waveend", "wavestart", "waveend2",
+             "wavepower", "wavevloop", "wavefuel", "waveip"],
+            "the waveform driver's knobs (inert while `wave` is off)")
     if not sawtooth:
         keys = ["sawmix"] if current else ["sawtooth", "sawmix"]
         acct.as_sub(keys, "the sawtooth (inert: it is off, or the current "
                           "channel that makes q a result is)")
-    acct.as_sub(["ipkp", "ipki"], "the I_p controller's gains (inert)")
+    if not cfg.get("ipctl"):
+        acct.as_sub(["ipkp", "ipki"], "the I_p controller's gains (inert: the loop is off)")
     acct.as_sub(
         ["turbevery", "turbnrad", "turbnky", "turbrelax", "fmiter", "fmtol",
          "fmdx", "fmdxmax", "fmrhomin", "fmouter", "fmotol", "fmorlx",
@@ -826,6 +829,31 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
                     prandtl=float(acct.take("prandtl", "prandtl")))
     else:
         acct.as_sub(["torque", "prandtl"], "the momentum channel's two numbers (channel off)")
+    #: ★第十六刀 — the waveform, the I_p loop and the closure choice are the
+    #: entry's.  The waveform's knobs ride along only when it is on; the
+    #: controller needs the current channel (the page refuses the same way)
+    args["closure"] = "neoclassical" if closure == "2" else "constant"
+    wave = bool(acct.take("wave", "wave"))
+    if wave:
+        args["wave"] = dict(
+            ramp=float(acct.take("waveramp", "wave ramp end [s]")),
+            flat=float(acct.take("waveflat", "wave flat-top end [s]")),
+            end=float(acct.take("waveend", "wave end [s]")),
+            start=float(acct.take("wavestart", "wave start fraction")),
+            end2=float(acct.take("waveend2", "wave end fraction")),
+            power=bool(acct.take("wavepower", "wave drives the powers")),
+            vloop=bool(acct.take("wavevloop", "wave drives the loop voltage")),
+            fuel=bool(acct.take("wavefuel", "wave drives the fuelling")),
+            ip=bool(acct.take("waveip", "wave drives the I_p set point")))
+    ipctl = bool(acct.take("ipctl", "ipctl"))
+    if ipctl and not current:
+        raise SystemExit("the I_p controller needs the current channel "
+                         "(`ch-current`): it drives the boundary flux rate and "
+                         "closes on the current read off psi")
+    args["ipctl"] = ipctl
+    if ipctl:
+        args.update(ip_kp=float(acct.take("ipkp", "ip_kp")),
+                    ip_ki=float(acct.take("ipki", "ip_ki")))
     return args
 
 

@@ -7887,7 +7887,11 @@ function evScopeMiss(sp) {
     //: says WHICH controls decide the scope; what counts as「on」for a
     //: numeric one is this host reading its own control, and it is written
     //: out rather than left to truthiness.
-    if (r.key === 'closure' || r.key === 'couple') {
+    if (r.key === 'closure') {
+      //: ★第十六刀: the neoclassical closure (2) is the entry's; the turbulent
+      //: and flux-match tiers (3 / 4) are not
+      if ((v | 0) === 3 || (v | 0) === 4) miss.push(r.gloss);
+    } else if (r.key === 'couple') {
       if (+v) miss.push(r.gloss);
     } else if (r.units === 'required') {
       if (!v) miss.push(r.gloss);
@@ -7970,7 +7974,15 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
     quasi: sp.quasi ? 1 : 0, d_over_chi_z: sp.dOverChiZ, pinch_z: sp.pinchZ,
     fuel_z_rate: (sp.fuelZ || 0) * 1e20,
     'ch-momentum': ctx.momentum ? 1 : 0, prandtl: sp.prandtl, torque: sp.torque || 0,
-    dt_fraction_in: 0
+    dt_fraction_in: 0,
+    //: 第十六刀 — the waveform, the I_p loop, the closure
+    wave: sp.wave ? 1 : 0, wave_ramp: sp.waveRamp, wave_flat: sp.waveFlat, wave_end: sp.waveEnd,
+    wave_start: sp.waveStart, wave_end2: sp.waveEnd2,
+    wave_power: sp.wavePower ? 1 : 0, wave_vloop: sp.waveVloop ? 1 : 0, wave_fuel: sp.waveFuel ? 1 : 0,
+    wave_ip: sp.waveIp ? 1 : 0,
+    ipctl: sp.ipCtl ? 1 : 0, ip_kp: sp.ipKp, ip_ki: sp.ipKi,
+    ipctl_ratio0_in: 1, ipctl_integral_in: 0, ipctl_calibrated_in: 0,
+    closure: (sp.closure | 0) === 2 ? 2 : 0
   };
   Object.keys(settings).forEach(function (k) {
     if (settings[k] === undefined || settings[k] === null) delete settings[k];
@@ -7979,6 +7991,8 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
                  gm2: arr(geo.gm2), f: arr(geo.fpol), q: arr(geo.q),
                  'fylite:r_minor': arr(geo.rmin), 'fylite:r_major': arr(geo.rmaj),
                  'fylite:r2_average': arr(geo.r2),
+                 magnetic_shear: arr(geo.shear), elongation: arr(geo.kappa), triangularity_upper: arr(geo.delta),
+                 'fylite:shift': arr(geo.shift),
                  psi: arr(st.psi) };
   Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
   var zeros = new Float64Array(n);
@@ -7997,6 +8011,9 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
       settings.capped_in = prev.dt_capped;
       settings.saw_elapsed_in = prev.saw_elapsed_out;
       settings.dt_fraction_in = prev.dt_fraction_used;
+      settings.ipctl_ratio0_in = prev.ipctl_ratio0;
+      settings.ipctl_integral_in = prev.ipctl_integral;
+      settings.ipctl_calibrated_in = prev.ipctl_calibrated;
       state = { te: prev.te, ti: prev.ti, ne: prev.ne_out, psi: prev.psi,
                 psiPrev: prev.psi_prev_out, sigmaPrev: prev.sigma_prev_out, exchPrev: prev.exch_prev_out,
                 ni: prev.ni_main, nz: prev.nz, omega: prev.omega };
@@ -8032,13 +8049,29 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
               //: 第十五刀: the composition and the two channels
               ni_main: flat(cpr['fylite:ion_density']), zeff: flat(cpr.zeff),
               nz: sp.quasi && cpr['fylite:impurity_density'] ? flat(cpr['fylite:impurity_density']) : null,
-              omega: ctx.momentum && cpr.rotation_frequency_tor_sonic ? flat(cpr.rotation_frequency_tor_sonic) : null };
+              omega: ctx.momentum && cpr.rotation_frequency_tor_sonic ? flat(cpr.rotation_frequency_tor_sonic) : null,
+              //: 第十六刀
+              wave_k: F('wave_k'), v_loop_used: F('v_loop_used'), ip_psi: F('ip_psi'), ip_want: F('ip_want'),
+              ip_err: F('ip_err'), chi_neo: F('chi_neo'),
+              ipctl_ratio0: X('ipctl_ratio0_out'), ipctl_integral: X('ipctl_integral_out'),
+              ipctl_calibrated: X('ipctl_calibrated_out') };
     steps += 1;
     tNow = o.t_end;
     st.te = o.te; st.ti = o.ti; st.ne = o.ne_out; st.ni = o.ni_main;
     if (sp.quasi) st.nz = o.nz;
     if (ctx.momentum) { st.omega = o.omega; ctx.omega = o.omega; }
     ctx.lastZeff = o.zeff;
+    ctx.waveNow = o.wave_k[0];
+    //: the page's loop keeps `lastChiNeo` for the turbulent tiers only (the
+    //: neoclassical chi IS `chiI` there); the entry reports it as `chi_neo`
+    if (ctx.ipCtl && ctx.channels.current) {
+      ctx.vLoopNow = o.v_loop_used[0];
+      ctx.ipCtl.ratio0 = o.ipctl_calibrated ? o.ipctl_ratio0 : null;
+      ctx.ipCtl.integral = o.ipctl_integral;
+      ctx.ipCtl.last = { t: tNow, ip: o.ip_psi[0], want: o.ip_want[0], err: o.ip_err[0],
+                         vLoop: o.v_loop_used[0], integral: o.ipctl_integral };
+      ctx.ipCtl.log.push(ctx.ipCtl.last);
+    }
     if (ctx.channels.current) { st.psi = o.psi; st.q = o.q; }
     ctx.lastBs = ctx.channels.current ? o.j_bs : null;
     ctx.lastChi = { e: o.chi_e, i: o.chi_i };
@@ -8942,7 +8975,10 @@ function evolveRun(msg) {
       //: ★the actuators at THIS time, not at the start of the run.  With no
       //: waveform this is the same arithmetic it always was (the factor is
       //: exactly 1), which is why switching it off reproduces the old run.
-      if (sp.wave) rebuildSources(tNow);
+      //: ★the fuelling follows the waveform PER STEP like the heat does (it was
+      //: set once per block — a waveform the particle source never saw; caught
+      //: 2026-09-05 by the actuators gate against `code/evolve`)
+      if (sp.wave) { rebuildSources(tNow); if (channels.density) { sn.set(ctx.fuel); snZ = snZ && ctx.fuelZ; } }
       //: the turbulent closure's cadence, counted in STEPS by the loop that
       //: takes them
       if (sp.closure === 3
