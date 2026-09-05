@@ -275,10 +275,12 @@ class CurrentSource(Protocol):
     contract that declines to name a unit is not free of consequences.
 
     ★And the reference above named ``neo_surface_inputs``, which is this
-    module's OLD name for :func:`surface_inputs` and is also, still, a
-    different function in :mod:`fylite.kernel`.  That collision has already
-    cost this repository once: a blanket rename of the module-level name
-    rewrote the kernel's ABI symbol.
+    module's OLD name for :func:`surface_inputs` and was also, until T-4
+    (2026-09-05), a different function exported by the kernel.  That
+    collision has already cost this repository once: a blanket rename of
+    the module-level name rewrote the kernel's ABI symbol.  The export is
+    retired now (nothing called it); the Rust function stays behind the
+    ``code/*`` doors.
     ``context`` (optional) carries profile/equilibrium data a backend may need
     beyond the surface dicts (e.g. the g-file + n_e/T_e for the analytic
     :class:`fylite.scenario.model.neoclassical.RedlSource`); kernel backends ignore it.
@@ -471,8 +473,9 @@ def surface_inputs(eq, *, ne, te, psin_prof, ti=None, zeff=1.0,
       ``jpar * current_unit`` is ``<j·B>``
       (:func:`fylite.kernel.neo_current_unit`).
 
-    ★★It used to build the species table from
-    :func:`fylite.kernel.neo_surface_inputs`, which normalises every profile
+    ★★It used to build the species table from the kernel's
+    ``neo_surface_inputs`` (an export retired with T-4, 2026-09-05; the
+    Rust function stays), which normalises every profile
     TO THE FIRST SURFACE and leaves ``nu_1`` at NEO's nominal 0.1, and it
     returned nothing else.  For the loop, which renormalises the current to
     ``<j> = 1``, that was enough and honest.  For

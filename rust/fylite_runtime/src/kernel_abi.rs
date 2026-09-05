@@ -19,7 +19,6 @@ extern "C" {
     fn fylite_rs_adas_id(_0: *const u8, _1: u64) -> i32;
     fn fylite_rs_adas_species_count() -> i32;
     fn fylite_rs_adas_species_name(_0: u64, _1: *mut u8, _2: u64) -> i32;
-    fn fylite_rs_alpha_fast_ions(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: *mut f64) -> i32;
     fn fylite_rs_alpha_heating(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: *mut f64) -> i32;
     fn fylite_rs_analytic_current(_0: *const f64, _1: u64, _2: u64, _3: *const f64, _4: f64, _5: f64, _6: *const f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *mut f64) -> i32;
     fn fylite_rs_analytic_shape(_0: f64, _1: f64, _2: f64, _3: f64, _4: *const f64, _5: *const f64, _6: u64, _7: *mut f64) -> i32;
@@ -27,14 +26,10 @@ extern "C" {
     fn fylite_rs_b_field(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: *const f64, _8: *const f64, _9: u64, _10: *mut f64, _11: *mut f64) -> i32;
     fn fylite_rs_b_unit_from_rho(_0: f64, _1: *const f64, _2: *const f64, _3: u64, _4: *mut f64) -> i32;
     fn fylite_rs_beam_current(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: u64, _9: f64, _10: f64, _11: f64, _12: u64, _13: *mut f64) -> i32;
-    fn fylite_rs_beam_current_integral(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: u64, _5: *mut f64) -> i32;
     fn fylite_rs_beam_deposit(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: u64, _13: u64, _14: u64, _15: f64, _16: *const f64, _17: *const f64, _18: *const f64, _19: u64, _20: *const f64, _21: u64, _22: f64, _23: f64, _24: u32, _25: u32, _26: f64, _27: f64, _28: f64, _29: f64, _30: f64, _31: *mut f64, _32: *mut f64) -> i32;
-    fn fylite_rs_beam_deposit_ray(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: u64, _8: f64, _9: f64, _10: i32, _11: *const f64, _12: i32, _13: *mut f64, _14: *mut f64, _15: *mut f64) -> i32;
     fn fylite_rs_beam_energy_partition(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *mut f64) -> i32;
-    fn fylite_rs_beam_footprint(_0: u64, _1: f64, _2: u64, _3: f64, _4: *mut f64, _5: *mut u64) -> i32;
     fn fylite_rs_beam_shielding(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64) -> i32;
     fn fylite_rs_beam_slowing(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: f64, _7: *mut f64) -> i32;
-    fn fylite_rs_beam_stopping(_0: f64, _1: f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: i32, _7: *const f64, _8: i32, _9: i32, _10: *mut f64) -> i32;
     fn fylite_rs_beam_torque(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: *mut f64) -> i32;
     fn fylite_rs_bgb_chi(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: *mut f64, _11: *mut f64) -> i32;
     fn fylite_rs_bound_deriv(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64) -> i32;
@@ -98,12 +93,10 @@ extern "C" {
     fn fylite_rs_first_orbit_loss(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: i32, _11: *mut f64) -> i32;
     fn fylite_rs_fitted_current(_0: *const f64, _1: u64, _2: u64, _3: *const f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: *const f64, _9: u64, _10: u64, _11: *const f64, _12: *mut f64) -> i32;
     fn fylite_rs_fitted_profiles(_0: *const f64, _1: u64, _2: u64, _3: f64, _4: f64, _5: u64, _6: *mut f64, _7: *mut f64) -> i32;
-    fn fylite_rs_flux_jacobian(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_flux_match_init(_0: *const f64, _1: u64, _2: u64, _3: f64, _4: f64, _5: f64, _6: u64, _7: i32, _8: f64, _9: *mut f64, _10: u64) -> i32;
     fn fylite_rs_flux_match_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: u64, _5: *mut f64) -> i32;
     fn fylite_rs_flux_match_result(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64, _6: *mut f64, _7: *mut f64) -> i32;
     fn fylite_rs_flux_match_state_len(_0: u64, _1: u64);
-    fn fylite_rs_flux_residual(_0: *const f64, _1: *const f64, _2: u64, _3: i32, _4: *mut f64) -> i32;
     fn fylite_rs_geo_surface(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
     fn fylite_rs_geo_surface_gm2(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
     fn fylite_rs_gfile_profile(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: *mut f64) -> i32;
@@ -136,7 +129,6 @@ extern "C" {
     fn fylite_rs_lengyel_z_eff(_0: f64, _1: f64, _2: f64, _3: *const u8, _4: *const u64, _5: *const f64, _6: u64, _7: *mut f64) -> i32;
     fn fylite_rs_lh_accessibility(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_lh_deposit(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: *const f64, _9: *const f64, _10: u64, _11: f64, _12: f64, _13: f64, _14: f64, _15: u32, _16: *mut f64, _17: *mut f64, _18: *mut f64) -> i32;
-    fn fylite_rs_lh_resonance(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: f64, _5: f64, _6: *mut f64, _7: *mut f64) -> i32;
     fn fylite_rs_li3(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: *mut f64) -> i32;
     fn fylite_rs_line_integral(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: *const f64, _6: u64, _7: f64, _8: *const f64, _9: *const f64, _10: u64, _11: f64, _12: i32, _13: *mut f64, _14: *mut f64) -> i32;
     fn fylite_rs_loop_model(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: u64, _5: f64, _6: *mut f64) -> i32;
@@ -151,7 +143,6 @@ extern "C" {
     fn fylite_rs_neo_gyrobohm(_0: f64, _1: f64, _2: f64, _3: *mut f64) -> i32;
     fn fylite_rs_neo_inputs(_0: *const f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: *const f64, _11: u64, _12: *mut f64) -> i32;
     fn fylite_rs_neo_sauter(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: i32, _13: i32, _14: i32, _15: *mut f64) -> i32;
-    fn fylite_rs_neo_surface_inputs(_0: *const f64, _1: *const f64, _2: u64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: u64, _8: f64, _9: *mut f64) -> i32;
     fn fylite_rs_neutrals_mc(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: f64, _7: f64, _8: f64, _9: f64, _10: u64, _11: u64, _12: *mut f64, _13: *mut f64, _14: *mut f64, _15: *mut f64, _16: *mut f64, _17: *mut f64) -> i32;
     fn fylite_rs_nn_ensemble(_0: u64, _1: u64, _2: u64, _3: u64, _4: u64, _5: i32, _6: u64, _7: *const f64, _8: *const i32, _9: *const f64, _10: *const i32, _11: u64, _12: *const f64, _13: *const f64, _14: *const f64, _15: *const f64, _16: *const f64, _17: u64, _18: *const f64, _19: *mut f64, _20: *mut f64) -> i32;
     fn fylite_rs_nn_weight_count(_0: u64, _1: u64, _2: u64, _3: u64, _4: u64) -> u64;
@@ -174,7 +165,6 @@ extern "C" {
     fn fylite_rs_quasi_neutral_ne(_0: *const f64, _1: *const f64, _2: u64, _3: u64, _4: *mut f64) -> i32;
     fn fylite_rs_rad_ion(_0: *const f64, _1: *const f64, _2: u64, _3: *const f64, _4: *const f64, _5: *const i32, _6: u64, _7: *mut f64, _8: *mut f64, _9: *mut f64) -> i32;
     fn fylite_rs_rad_sync(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: *mut f64) -> i32;
-    fn fylite_rs_ray_level(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: u64, _14: *mut f64) -> i32;
     fn fylite_rs_redl_bootstrap(_0: u64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: *const f64, _11: f64, _12: f64, _13: f64, _14: i32, _15: *mut f64) -> i32;
     fn fylite_rs_redl_coefficients(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: *mut f64) -> i32;
     fn fylite_rs_redl_drive(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: f64, _7: f64, _8: *mut f64) -> i32;
@@ -211,7 +201,6 @@ extern "C" {
     fn fylite_rs_svd(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64) -> i32;
     fn fylite_rs_svd_solve(_0: *const f64, _1: *const f64, _2: u64, _3: u64, _4: f64, _5: i64, _6: *mut f64, _7: *mut f64, _8: *mut f64) -> i32;
     fn fylite_rs_table_ratio_check(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *const f64, _5: u64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: u64, _11: *mut f64, _12: *mut f64) -> i32;
-    fn fylite_rs_target_flux(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *mut f64) -> i32;
     fn fylite_rs_tglf_dlnpdr(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: f64, _7: *mut f64) -> i32;
     fn fylite_rs_tglf_flux(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: *const f64, _11: u64, _12: *const f64, _13: u64, _14: u64, _15: u64, _16: i32, _17: *mut f64) -> i32;
     fn fylite_rs_tglf_flux_searched(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: *const f64, _11: u64, _12: *const f64, _13: u64, _14: u64, _15: u64, _16: i32, _17: *const f64, _18: *mut f64) -> i32;
@@ -230,7 +219,6 @@ extern "C" {
     fn fylite_rs_two_temperature_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: *mut f64, _7: *mut f64);
     fn fylite_rs_two_temperature_result(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64, _6: *mut f64) -> i32;
     fn fylite_rs_two_temperature_state_len(_0: u64) -> u64;
-    fn fylite_rs_two_temperature_step(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: *const f64, _11: *const f64, _12: u64, _13: f64, _14: f64, _15: f64, _16: f64, _17: f64, _18: u64, _19: *mut f64) -> i32;
     fn fylite_rs_vertical_loop(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: u64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: *const f64, _11: *const f64, _12: u64, _13: i32, _14: *const f64, _15: *const f64, _16: u64, _17: *const f64, _18: f64, _19: f64, _20: *mut f64, _21: *mut f64, _22: *mut f64, _23: *mut f64) -> i32;
     fn fylite_rs_vertical_plant(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: *mut f64, _7: *mut f64, _8: *mut f64, _9: *mut f64) -> i32;
     fn fylite_rs_vertical_stiffness(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: u64, _9: f64, _10: *mut f64) -> i32;
@@ -260,7 +248,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_adas_id",
     "fylite_rs_adas_species_count",
     "fylite_rs_adas_species_name",
-    "fylite_rs_alpha_fast_ions",
     "fylite_rs_alpha_heating",
     "fylite_rs_analytic_current",
     "fylite_rs_analytic_shape",
@@ -268,14 +255,10 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_b_field",
     "fylite_rs_b_unit_from_rho",
     "fylite_rs_beam_current",
-    "fylite_rs_beam_current_integral",
     "fylite_rs_beam_deposit",
-    "fylite_rs_beam_deposit_ray",
     "fylite_rs_beam_energy_partition",
-    "fylite_rs_beam_footprint",
     "fylite_rs_beam_shielding",
     "fylite_rs_beam_slowing",
-    "fylite_rs_beam_stopping",
     "fylite_rs_beam_torque",
     "fylite_rs_bgb_chi",
     "fylite_rs_bound_deriv",
@@ -339,12 +322,10 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_first_orbit_loss",
     "fylite_rs_fitted_current",
     "fylite_rs_fitted_profiles",
-    "fylite_rs_flux_jacobian",
     "fylite_rs_flux_match_init",
     "fylite_rs_flux_match_next",
     "fylite_rs_flux_match_result",
     "fylite_rs_flux_match_state_len",
-    "fylite_rs_flux_residual",
     "fylite_rs_geo_surface",
     "fylite_rs_geo_surface_gm2",
     "fylite_rs_gfile_profile",
@@ -377,7 +358,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_lengyel_z_eff",
     "fylite_rs_lh_accessibility",
     "fylite_rs_lh_deposit",
-    "fylite_rs_lh_resonance",
     "fylite_rs_li3",
     "fylite_rs_line_integral",
     "fylite_rs_loop_model",
@@ -392,7 +372,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_neo_gyrobohm",
     "fylite_rs_neo_inputs",
     "fylite_rs_neo_sauter",
-    "fylite_rs_neo_surface_inputs",
     "fylite_rs_neutrals_mc",
     "fylite_rs_nn_ensemble",
     "fylite_rs_nn_weight_count",
@@ -415,7 +394,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_quasi_neutral_ne",
     "fylite_rs_rad_ion",
     "fylite_rs_rad_sync",
-    "fylite_rs_ray_level",
     "fylite_rs_redl_bootstrap",
     "fylite_rs_redl_coefficients",
     "fylite_rs_redl_drive",
@@ -452,7 +430,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_svd",
     "fylite_rs_svd_solve",
     "fylite_rs_table_ratio_check",
-    "fylite_rs_target_flux",
     "fylite_rs_tglf_dlnpdr",
     "fylite_rs_tglf_flux",
     "fylite_rs_tglf_flux_searched",
@@ -471,7 +448,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_two_temperature_next",
     "fylite_rs_two_temperature_result",
     "fylite_rs_two_temperature_state_len",
-    "fylite_rs_two_temperature_step",
     "fylite_rs_vertical_loop",
     "fylite_rs_vertical_plant",
     "fylite_rs_vertical_stiffness",
@@ -509,7 +485,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_adas_id", &["in_u8", "u64"]),
     ("fylite_rs_adas_species_count", &[]),
     ("fylite_rs_adas_species_name", &["u64", "out_u8", "u64"]),
-    ("fylite_rs_alpha_fast_ions", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_alpha_heating", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_analytic_current", &["in_f64", "u64", "u64", "in_f64", "f64", "f64", "in_f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_analytic_shape", &["f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "out_f64"]),
@@ -517,14 +492,10 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_b_field", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "in_f64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_b_unit_from_rho", &["f64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_beam_current", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "u64", "out_f64"]),
-    ("fylite_rs_beam_current_integral", &["in_f64", "in_f64", "in_f64", "u64", "u64", "out_f64"]),
     ("fylite_rs_beam_deposit", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "f64", "u64", "u64", "u64", "f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "f64", "f64", "u32", "u32", "f64", "f64", "f64", "f64", "f64", "out_f64", "out_f64"]),
-    ("fylite_rs_beam_deposit_ray", &["in_f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "i32", "in_f64", "i32", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_beam_energy_partition", &["in_f64", "in_f64", "in_f64", "u64", "out_f64"]),
-    ("fylite_rs_beam_footprint", &["u64", "f64", "u64", "f64", "out_f64", "out_u64"]),
     ("fylite_rs_beam_shielding", &["in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_beam_slowing", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
-    ("fylite_rs_beam_stopping", &["f64", "f64", "in_f64", "in_f64", "in_f64", "u64", "i32", "in_f64", "i32", "i32", "out_f64"]),
     ("fylite_rs_beam_torque", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
     ("fylite_rs_bgb_chi", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "out_f64", "out_f64"]),
     ("fylite_rs_bound_deriv", &["in_f64", "in_f64", "u64", "out_f64"]),
@@ -588,12 +559,10 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_first_orbit_loss", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "i32", "out_f64"]),
     ("fylite_rs_fitted_current", &["in_f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "u64", "in_f64", "out_f64"]),
     ("fylite_rs_fitted_profiles", &["in_f64", "u64", "u64", "f64", "f64", "u64", "out_f64", "out_f64"]),
-    ("fylite_rs_flux_jacobian", &["in_f64", "u64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_flux_match_init", &["in_f64", "u64", "u64", "f64", "f64", "f64", "u64", "i32", "f64", "out_f64", "u64"]),
     ("fylite_rs_flux_match_next", &["out_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_flux_match_result", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_flux_match_state_len", &["u64", "u64"]),
-    ("fylite_rs_flux_residual", &["in_f64", "in_f64", "u64", "i32", "out_f64"]),
     ("fylite_rs_geo_surface", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_geo_surface_gm2", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_gfile_profile", &["in_f64", "in_f64", "u64", "f64", "out_f64"]),
@@ -626,7 +595,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_lengyel_z_eff", &["f64", "f64", "f64", "in_u8", "in_u64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_lh_accessibility", &["in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
     ("fylite_rs_lh_deposit", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "u32", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_lh_resonance", &["in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64", "out_f64"]),
     ("fylite_rs_li3", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_line_integral", &["in_f64", "in_f64", "in_f64", "u64", "f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "u64", "f64", "i32", "out_f64", "out_f64"]),
     ("fylite_rs_loop_model", &["in_f64", "u64", "in_f64", "u64", "u64", "f64", "out_f64"]),
@@ -641,7 +609,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_neo_gyrobohm", &["f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_neo_inputs", &["in_f64", "f64", "f64", "f64", "f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_neo_sauter", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "f64", "f64", "f64", "f64", "i32", "i32", "i32", "out_f64"]),
-    ("fylite_rs_neo_surface_inputs", &["in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_neutrals_mc", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_nn_ensemble", &["u64", "u64", "u64", "u64", "u64", "i32", "u64", "in_f64", "in_i32", "in_f64", "in_i32", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "out_f64", "out_f64"]),
     ("fylite_rs_nn_weight_count", &["u64", "u64", "u64", "u64", "u64"]),
@@ -664,7 +631,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_quasi_neutral_ne", &["in_f64", "in_f64", "u64", "u64", "out_f64"]),
     ("fylite_rs_rad_ion", &["in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_i32", "u64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_rad_sync", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64"]),
-    ("fylite_rs_ray_level", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "out_f64"]),
     ("fylite_rs_redl_bootstrap", &["u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "f64", "f64", "f64", "i32", "out_f64"]),
     ("fylite_rs_redl_coefficients", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_redl_drive", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
@@ -701,7 +667,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_svd", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_svd_solve", &["in_f64", "in_f64", "u64", "u64", "f64", "i64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_table_ratio_check", &["in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "out_f64", "out_f64"]),
-    ("fylite_rs_target_flux", &["in_f64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_tglf_dlnpdr", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"]),
     ("fylite_rs_tglf_flux", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "i32", "out_f64"]),
     ("fylite_rs_tglf_flux_searched", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "i32", "in_f64", "out_f64"]),
@@ -720,7 +685,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_two_temperature_next", &["out_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_two_temperature_result", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_two_temperature_state_len", &["u64"]),
-    ("fylite_rs_two_temperature_step", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "u64", "out_f64"]),
     ("fylite_rs_vertical_loop", &["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "i32", "in_f64", "in_f64", "u64", "in_f64", "f64", "f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_vertical_plant", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_vertical_stiffness", &["in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64"]),
@@ -774,10 +738,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["u64", "out_u8", "u64"], name)?;
             Ret::I32(unsafe { fylite_rs_adas_species_name(f.u64(0)?, p[1] as *mut u8, f.u64(2)?) })
         }
-        "fylite_rs_alpha_fast_ions" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_alpha_fast_ions(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, p[7] as *mut f64) })
-        }
         "fylite_rs_alpha_heating" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_alpha_heating(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, p[7] as *mut f64) })
@@ -806,25 +766,13 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "u64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_beam_current(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, p[7] as *const f64, f.u64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.u64(12)?, p[13] as *mut f64) })
         }
-        "fylite_rs_beam_current_integral" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "u64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_beam_current_integral(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, f.u64(4)?, p[5] as *mut f64) })
-        }
         "fylite_rs_beam_deposit" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "f64", "u64", "u64", "u64", "f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "f64", "f64", "u32", "u32", "f64", "f64", "f64", "f64", "f64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_beam_deposit(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.u64(4)?, f.u64(5)?, p[6] as *const f64, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.u64(12)?, f.u64(13)?, f.u64(14)?, f.f64(15)?, p[16] as *const f64, p[17] as *const f64, p[18] as *const f64, f.u64(19)?, p[20] as *const f64, f.u64(21)?, f.f64(22)?, f.f64(23)?, f.u32(24)?, f.u32(25)?, f.f64(26)?, f.f64(27)?, f.f64(28)?, f.f64(29)?, f.f64(30)?, p[31] as *mut f64, p[32] as *mut f64) })
         }
-        "fylite_rs_beam_deposit_ray" => {
-            f.want(&["in_f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "i32", "in_f64", "i32", "out_f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_beam_deposit_ray(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.f64(3)?, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, f.u64(7)?, f.f64(8)?, f.f64(9)?, f.i32(10)?, p[11] as *const f64, f.i32(12)?, p[13] as *mut f64, p[14] as *mut f64, p[15] as *mut f64) })
-        }
         "fylite_rs_beam_energy_partition" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_beam_energy_partition(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, p[4] as *mut f64) })
-        }
-        "fylite_rs_beam_footprint" => {
-            f.want(&["u64", "f64", "u64", "f64", "out_f64", "out_u64"], name)?;
-            Ret::I32(unsafe { fylite_rs_beam_footprint(f.u64(0)?, f.f64(1)?, f.u64(2)?, f.f64(3)?, p[4] as *mut f64, p[5] as *mut u64) })
         }
         "fylite_rs_beam_shielding" => {
             f.want(&["in_f64", "in_f64", "u64", "out_f64"], name)?;
@@ -833,10 +781,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_beam_slowing" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_beam_slowing(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, f.u64(4)?, f.f64(5)?, f.f64(6)?, p[7] as *mut f64) })
-        }
-        "fylite_rs_beam_stopping" => {
-            f.want(&["f64", "f64", "in_f64", "in_f64", "in_f64", "u64", "i32", "in_f64", "i32", "i32", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_beam_stopping(f.f64(0)?, f.f64(1)?, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, f.u64(5)?, f.i32(6)?, p[7] as *const f64, f.i32(8)?, f.i32(9)?, p[10] as *mut f64) })
         }
         "fylite_rs_beam_torque" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"], name)?;
@@ -1090,10 +1034,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "u64", "u64", "f64", "f64", "u64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_fitted_profiles(p[0] as *const f64, f.u64(1)?, f.u64(2)?, f.f64(3)?, f.f64(4)?, f.u64(5)?, p[6] as *mut f64, p[7] as *mut f64) })
         }
-        "fylite_rs_flux_jacobian" => {
-            f.want(&["in_f64", "u64", "in_f64", "u64", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_jacobian(p[0] as *const f64, f.u64(1)?, p[2] as *const f64, f.u64(3)?, f.f64(4)?, p[5] as *mut f64) })
-        }
         "fylite_rs_flux_match_init" => {
             f.want(&["in_f64", "u64", "u64", "f64", "f64", "f64", "u64", "i32", "f64", "out_f64", "u64"], name)?;
             Ret::I32(unsafe { fylite_rs_flux_match_init(p[0] as *const f64, f.u64(1)?, f.u64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, f.u64(6)?, f.i32(7)?, f.f64(8)?, p[9] as *mut f64, f.u64(10)?) })
@@ -1110,10 +1050,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["u64", "u64"], name)?;
             unsafe { fylite_rs_flux_match_state_len(f.u64(0)?, f.u64(1)?) };
             Ret::Unit
-        }
-        "fylite_rs_flux_residual" => {
-            f.want(&["in_f64", "in_f64", "u64", "i32", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_residual(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.i32(3)?, p[4] as *mut f64) })
         }
         "fylite_rs_geo_surface" => {
             f.want(&["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"], name)?;
@@ -1243,10 +1179,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "u32", "out_f64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_lh_deposit(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, p[7] as *const f64, p[8] as *const f64, p[9] as *const f64, f.u64(10)?, f.f64(11)?, f.f64(12)?, f.f64(13)?, f.f64(14)?, f.u32(15)?, p[16] as *mut f64, p[17] as *mut f64, p[18] as *mut f64) })
         }
-        "fylite_rs_lh_resonance" => {
-            f.want(&["in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_lh_resonance(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, p[6] as *mut f64, p[7] as *mut f64) })
-        }
         "fylite_rs_li3" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_li3(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.u64(4)?, f.u64(5)?, p[6] as *const f64, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, p[11] as *mut f64) })
@@ -1302,10 +1234,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_neo_sauter" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "f64", "f64", "f64", "f64", "i32", "i32", "i32", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_neo_sauter(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, p[7] as *const f64, f.f64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.i32(12)?, f.i32(13)?, f.i32(14)?, p[15] as *mut f64) })
-        }
-        "fylite_rs_neo_surface_inputs" => {
-            f.want(&["in_f64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_neo_surface_inputs(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, f.u64(7)?, f.f64(8)?, p[9] as *mut f64) })
         }
         "fylite_rs_neutrals_mc" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;
@@ -1395,10 +1323,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_rad_sync" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_rad_sync(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, p[7] as *mut f64) })
-        }
-        "fylite_rs_ray_level" => {
-            f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_ray_level(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.u64(4)?, f.u64(5)?, p[6] as *const f64, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.f64(12)?, f.u64(13)?, p[14] as *mut f64) })
         }
         "fylite_rs_redl_bootstrap" => {
             f.want(&["u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "f64", "f64", "f64", "i32", "out_f64"], name)?;
@@ -1544,10 +1468,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "out_f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_table_ratio_check(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, p[4] as *const f64, f.u64(5)?, p[6] as *const f64, p[7] as *const f64, p[8] as *const f64, p[9] as *const f64, f.u64(10)?, p[11] as *mut f64, p[12] as *mut f64) })
         }
-        "fylite_rs_target_flux" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_target_flux(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, f.u64(3)?, p[4] as *mut f64) })
-        }
         "fylite_rs_tglf_dlnpdr" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_tglf_dlnpdr(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, f.u64(4)?, f.f64(5)?, f.f64(6)?, p[7] as *mut f64) })
@@ -1620,10 +1540,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_two_temperature_state_len" => {
             f.want(&["u64"], name)?;
             Ret::U64(unsafe { fylite_rs_two_temperature_state_len(f.u64(0)?) })
-        }
-        "fylite_rs_two_temperature_step" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_two_temperature_step(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, p[7] as *const f64, p[8] as *const f64, p[9] as *const f64, p[10] as *const f64, p[11] as *const f64, f.u64(12)?, f.f64(13)?, f.f64(14)?, f.f64(15)?, f.f64(16)?, f.f64(17)?, f.u64(18)?, p[19] as *mut f64) })
         }
         "fylite_rs_vertical_loop" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "i32", "in_f64", "in_f64", "u64", "in_f64", "f64", "f64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;

@@ -324,8 +324,8 @@ def run(path):
     #: a page that mixed those two arrays up would be caught
     acc = K.lh_accessibility(ne, fpol / np.maximum(rmaj, 1e-6),
                              n_parallel=bands[0][1], xi=inp["fylite:xi"])
-    #: ★and the local CD weight — the `fisch` model's closed form (`T_e / max(n_e, 1)`,
-    #: `heating::lh_efficiency`), which `code/wave` reports as `cd_weight`; the
+    #: ★and the local CD weight — the "fisch" model's closed form (T_e / max(n_e, 1),
+    #: heating::lh_efficiency), which code/wave reports as cd_weight; the
     #: flat export that used to spell it retired with T-4 (2026-09-05)
     assert inp["fylite:cd_model"] == "fisch", inp["fylite:cd_model"]
     eff = np.where(ne <= 0.0, 0.0, te / np.maximum(ne, 1.0))

@@ -1002,8 +1002,11 @@ def test_the_scope_ledger_is_one_declaration_and_both_hosts_read_it():
     rows = FI.BLOCKS["ENTRY_SCOPE"]
     assert rows, "the kernel declares no scope ledger"
     verdicts = {r["units"] for r in rows}
-    assert verdicts <= {"unsunk", "required"}, verdicts
-    #: Python's two dicts are exactly the two verdicts, nothing added here
+    #: ★a third verdict since 2026-09-05: `sunk` — a switch the page's
+    #: one-step-per-call march declares that the whole-case run makes inert
+    #: (`resume`); Python classifies those rows as inert subs, not refusals
+    assert verdicts <= {"unsunk", "required", "sunk"}, verdicts
+    #: Python's two dicts are exactly the two refusal verdicts, nothing added here
     assert set(cases._EVOLVE_UNSUNK) == {r["key"] for r in rows
                                          if r["units"] == "unsunk"}
     assert set(cases._EVOLVE_REQUIRED) == {r["key"] for r in rows

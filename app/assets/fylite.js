@@ -147,8 +147,8 @@
     //: the other four are the pieces a page reports BESIDE it —
     //: accessibility, the resonant layer, the CD weight and the damping
     //: shape — which is why they are bound rather than re-derived.
-    //: ★`lh_resonance` is deliberately NOT here (and `lh_shape` · `lh_efficiency`
-    //: retired with T-4, 2026-09-05): the resonant surface, the damping layer
+    //: ★`lh_resonance` was deliberately never here, and it, `lh_shape` and
+    //: `lh_efficiency` are retired exports since T-4 (2026-09-05): the resonant surface, the damping layer
     //: and the CD weight are INSIDE `lh_deposit` / `code/wave`, and a page that
     //: called them a second time to print the answer beside it would give one
     //: number two hosts.

@@ -61,14 +61,13 @@ __all__ = [
     "TRANSPORT_MODELS", "transport_step", "interpretive_channel",
     "trace_surface", "contour", "shape_metrics", "enclosed_volume",
     "direct_integrals", "gradient",
-    "shell_sum", "li3", "q_profile", "profile_shape_fit", "sample", "ray_level",
+    "shell_sum", "li3", "q_profile", "profile_shape_fit", "sample",
     "redl_coefficients", "redl_bootstrap", "trapped_fraction_eps",
-    "lh_accessibility", "lh_resonance", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
-    "field_ion_sum", "beam_footprint", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS", "beam_stopping",
+    "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
+    "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
-    "beam_current_integral", "beam_current",
-    "beam_deposit_ray",
-    "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
+    "beam_current",
+        "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
     "chord_mask", "line_integral", "chord_reduce", "pinhole_angles",
     "current_centroid",
     "ideal_stiffness", "dispersion_root", "vertical_plant", "vertical_loop",
@@ -89,11 +88,10 @@ __all__ = [
     "lengyel_closed", "LENGYEL_SOL_KEYS", "LENGYEL_SOL_DEFAULTS",
     "LENGYEL_STATE_KEYS", "lengyel_two_point", "lengyel_z_eff",
     "LENGYEL_OUTCOMES", "lengyel_inverse", "lengyel_forward",
-    "reintegrate", "flux_residual", "flux_match", "FluxMatchError",
+    "reintegrate", "flux_match", "FluxMatchError",
     "adas_id", "adas_species", "adas_cooling", "rad_ion", "rad_sync",
     "exchange_power", "volume_int",
-    "target_flux",
-    "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
+        "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
     "tglf_local", "neo_local", "TGLF_SPECIES_ROWS", "field_sign",
     "neo_geo14", "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
@@ -117,20 +115,20 @@ __all__ = [
     "FREE_SOLVE_KEYS",
     "ohmic_power", "quasi_neutral_ne", "b_unit_from_rho",
     "ion_dilution", "with_axis_node",
-    "shape_observables", "two_temperature_step", "two_temperature_march",
+    "shape_observables", "two_temperature_march",
     "deltastar_apply", "core_march", "label_drift", "momentum_weights", "solve_momentum",
     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
     "d_from_flux", "gyrobohm_gamma", "alpha_heating",
-    "alpha_fast_ions", "q_crossing",
+    "q_crossing",
     "sawtooth_crash",
     "solve_density",
     "tglf_flux_searched", "tomography_rows", "chi_from_flux", "gyrobohm_q", "shell_area",
     "neo_current_unit",
     "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
-    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "flux_jacobian", "shell_table", "beam_deposit",
+    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "shell_table", "beam_deposit",
     "fast_ion_pressure",
     "selfcal_single", "selfcal_slices",
-    "factor_dispersion", "neo_surface_inputs", "M_ELECTRON_OVER_MD",
+    "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
     "redl_drive", "redl_surface_inputs", "REDL_INPUT_ROWS",
     "gfile_profile",
@@ -1253,27 +1251,6 @@ def shell_table(grid: Grid, psin2d, *, axis, limiter, levels,
             "kappa": out[3 * n:].copy()}
 
 
-_sig("fylite_rs_flux_jacobian", (_ARR, _U64, _ARR, _U64, _F64, _ARR), _I32)
-def flux_jacobian(f0, perturbed, *, dx: float, n_evolve: int):
-    """The finite-difference Jacobian of a flux match, from evaluations the
-    CALLER made (``perturbed[ip]`` = the vector with channel ``ip`` moved by
-    ``dx`` at every radius).
-
-    ★The index pattern — which difference lands in which entry — is the
-    whole content of "one evaluation per channel, exact for a local model",
-    so it lives here rather than in the loop that calls the models.
-    """
-    lib = require()
-    a = _f(f0)
-    b = _f(np.ascontiguousarray(perturbed, dtype=float))
-    out = np.empty(a.size * a.size)
-    rc = lib.fylite_rs_flux_jacobian(a, a.size, b.ravel(), int(n_evolve),
-                                     float(dx), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_flux_jacobian returned {rc}")
-    return out.reshape(a.size, a.size)
-
-
 _sig("fylite_rs_lh_deposit", ([_ARR] * 6 + [_U64] + [_ARR] * 3 + [_U64] + [_F64] * 4 + [ctypes.c_uint32] + [_ARR] * 3), _I32)
 def lh_deposit(psin_c, *, dvol, rmaj, ne, te, f_pol, bands, powers,
                eta_cd: float, r0: float, xi: float = 3.0,
@@ -1483,35 +1460,6 @@ def lh_accessibility(ne, b_tot, *, n_parallel: float = 2.0,
             "t_resonant": float(rows[0, 1])}
 
 
-_sig("fylite_rs_lh_resonance", [_ARR, _ARR, _U64, _F64, _F64, _F64, _ARR, ctypes.c_void_p], _I32)
-def lh_resonance(psin, te, *, n_parallel: float, xi: float = 3.0,
-                 width: float = 0.0) -> dict:
-    """Where ``T_e`` crosses the Landau-resonant temperature, and the shape
-    deposited there.
-
-    ``{"psin": None}`` when the wave finds no resonant surface — ★a real
-    outcome (too cold for that ``n_∥``, so a single-pass model deposits
-    nothing), not an error.  With a monotone ``T_e`` the crossing is unique;
-    otherwise the OUTERMOST one is taken, because the wave meets it first.
-    """
-    lib = require()
-    p, t = _f(psin), _f(np.broadcast_to(np.asarray(te, float), np.shape(psin)))
-    out_p = np.empty(1)
-    shape = np.empty(p.size)
-    rc = lib.fylite_rs_lh_resonance(p, t, p.size, float(n_parallel),
-                                    float(xi), float(width), out_p,
-                                    shape.ctypes.data if width > 0 else None)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_lh_resonance returned {rc}")
-    if rc == 0:
-        return {"psin": None, "shape": None}
-    return {"psin": float(out_p[0]),
-            "shape": shape if width > 0 else None}
-
-
-#: Current-drive efficiency models `lh_deposit`'s `cd_model` names; the index IS
-#: the ABI code, so append, never reorder.
-#: The models `lh_deposit`'s `cd_model` argument indexes into.
 LH_EFFICIENCY_MODELS = _LH_EFFICIENCY_MODEL_NAMES
 
 
@@ -1537,30 +1485,6 @@ def field_ion_sum(zeff, *, main_mass: float = 2.0, main_charge: float = 1.0,
     return out
 
 
-#: the node count comes BACK through a pointer: a degenerate axis
-#: collapses to one node, so n_r*n_z is an upper bound, not the answer
-_sig("fylite_rs_beam_footprint", [_U64, _F64, _U64, _F64, _ARR, ctypes.POINTER(_U64)], _I32)
-def beam_footprint(n_r: int, half_r: float, n_z: int, half_z: float):
-    """The quadrature nodes sampling a beam's finite cross-section.
-
-    Returns ``[(dr, dz, weight), ...]`` over a uniform rectangular footprint.
-    ★A quadrature RULE is numerics: which nodes and which weights decides
-    how much of a narrow beam's edge is seen at all.  A degenerate axis
-    (``n ≤ 1`` or zero half-width) collapses to the centre node.
-    """
-    lib = require()
-    cap = 3 * max(int(n_r), 1) * max(int(n_z), 1)
-    out = np.empty(cap)
-    got = ctypes.c_uint64(0)
-    rc = lib.fylite_rs_beam_footprint(int(n_r), float(half_r), int(n_z),
-                                      float(half_z), out,
-                                      ctypes.byref(got))
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_footprint returned {rc}")
-    rows = out[:3 * int(got.value)].reshape(-1, 3)
-    return [(float(a), float(b), float(w)) for a, b, w in rows]
-
-
 _sig("fylite_rs_first_orbit_loss", ([_ARR] * 3 + [_U64] + [_F64] * 6 + [_I32, _ARR]), _I32)
 def first_orbit_loss(rmin, rmaj, q, *, a_edge: float, b0: float, r0: float,
                      mass: float, charge: float, energy: float,
@@ -1583,38 +1507,6 @@ def first_orbit_loss(rmin, rmaj, q, *, a_edge: float, b0: float, r0: float,
     if rc != 0:
         raise KernelError(f"fylite_rs_first_orbit_loss returned {rc}")
     return out != 0.0
-
-
-_sig("fylite_rs_beam_stopping", ([_F64] * 2 + [_ARR, _ARR, ctypes.c_void_p, _U64, _I32, _ARR, _I32, _I32, _ARR]), _I32)
-def beam_stopping(mass: float, energy: float, ne, te, *, ni=None,
-                  model: str = "janev", cross_section: bool = False,
-                  impurity_form: str = "exp", **imp):
-    """Beam stopping: the cross-section [m²] or the inverse mean free path.
-
-    ``model="janev"`` is the impurity-aware 1989 fit (EAST's carbon and
-    tungsten make that term matter); ``"metis"`` is the three-channel sum
-    blended with METIS's power law.  ``impurity_form`` selects how the
-    impurity polynomials are read — see the kernel's note on the one place
-    this port departs from its source.
-    """
-    lib = require()
-    if model not in BEAM_STOPPING_MODELS:
-        raise KernelError(f"unknown stopping model {model!r}")
-    if impurity_form not in IMPURITY_FORMS:
-        raise KernelError(f"unknown impurity form {impurity_form!r}")
-    ne_a = _f(np.atleast_1d(ne))
-    te_a = _f(np.broadcast_to(np.atleast_1d(te), ne_a.shape))
-    ni_a = None if ni is None else _f(np.broadcast_to(np.atleast_1d(ni),
-                                                      ne_a.shape))
-    out = np.empty(ne_a.size)
-    rc = lib.fylite_rs_beam_stopping(
-        float(mass), float(energy), ne_a, te_a,
-        None if ni_a is None else ni_a.ctypes.data, ne_a.size,
-        BEAM_STOPPING_MODELS[model], _imp5(**imp),
-        IMPURITY_FORMS[impurity_form], 0 if cross_section else 1, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_stopping returned {rc}")
-    return out
 
 
 _sig("fylite_rs_beam_slowing", ([_ARR] * 4 + [_U64, _F64, _F64, _ARR]), _I32)
@@ -1679,22 +1571,6 @@ def beam_shielding(ft, zeff) -> dict:
     return {"g": rows[:, 0].copy(), "factor": rows[:, 1].copy()}
 
 
-_sig("fylite_rs_beam_current_integral", [_ARR, _ARR, _ARR, _U64, _U64, _ARR], _I32)
-def beam_current_integral(v0, vc, vg, *, n_step: int = 101) -> dict:
-    """The Start-Cordey beam-current velocity integral and its exponent."""
-    lib = require()
-    v0_a = _f(np.atleast_1d(v0))
-    vc_a = _f(np.broadcast_to(np.atleast_1d(vc), v0_a.shape))
-    vg_a = _f(np.broadcast_to(np.atleast_1d(vg), v0_a.shape))
-    out = np.empty(2 * v0_a.size)
-    rc = lib.fylite_rs_beam_current_integral(v0_a, vc_a, vg_a, v0_a.size,
-                                             int(n_step), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_current_integral returned {rc}")
-    rows = out.reshape(-1, 2)
-    return {"integral": rows[:, 0].copy(), "ev": rows[:, 1].copy()}
-
-
 _sig("fylite_rs_beam_current", ([_ARR] * 8 + [_U64] + [_F64] * 3 + [_U64, _ARR]), _I32)
 def beam_current(p_dep, pitch, *, e_crit, e_gamma, tau_s, rmin, rmaj,
                  shield, energy: float, mass: float,
@@ -1721,40 +1597,6 @@ def beam_current(p_dep, pitch, *, e_crit, e_gamma, tau_s, rmin, rmaj,
     return out
 
 
-_sig("fylite_rs_beam_deposit_ray", ([_ARR, _ARR, _U64, _F64, _ARR, _ARR, _ARR, _U64] + [_F64] * 2 + [_I32, _ARR, _I32] + [_ARR] * 3), _I32)
-def beam_deposit_ray(psin, pitch, ds: float, *, ne_s, te_s, psin_edges,
-                     mass: float, energy: float, model: str = "janev",
-                     impurity_form: str = "exp", **imp) -> dict:
-    """Attenuate one energy component along one ray, binned into ψ_N shells.
-
-    ``ne_s``/``te_s`` are the profiles AT THE RAY'S OWN SAMPLES — ★not a
-    table: the caller has already evaluated its profile to get them, and
-    re-sampling would add an interpolation error (about 1 % on a 24-point
-    ladder) to a quantity that was exact.
-
-    Returns the absorbed fraction and the absorption-weighted pitch SUM per
-    shell, plus the shine-through — ★``absorbed.sum() + shinethrough`` is 1
-    to round-off, which is the only cheap check this model has.
-    """
-    lib = require()
-    p, pt = _f(psin), _f(pitch)
-    ne_a, te_a, ed = _f(ne_s), _f(te_s), _f(psin_edges)
-    n_shell = ed.size - 1
-    absorbed, pw, shine = np.empty(n_shell), np.empty(n_shell), np.empty(1)
-    rc = lib.fylite_rs_beam_deposit_ray(
-        p, pt, p.size, float(ds), ne_a, te_a,
-        ed, n_shell, float(mass), float(energy),
-        BEAM_STOPPING_MODELS[model], _imp5(**imp),
-        IMPURITY_FORMS[impurity_form], absorbed, pw, shine)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_deposit_ray returned {rc}")
-    return {"absorbed": absorbed, "pitch_weighted": pw,
-            "shinethrough": float(shine[0])}
-
-
-# --------------------------------------------------------------------------- #
-# the SVD, and the basis a chord tomography inverts on
-# --------------------------------------------------------------------------- #
 _sig("fylite_rs_pchip", [_ARR, _ARR, _U64, _ARR, _U64, _ARR], _I32)
 def pchip(x, y, xq):
     """Monotone cubic (PCHIP) interpolation — Fritsch-Carlson.
@@ -1945,7 +1787,6 @@ def line_integral(psin, r, z, ds: float, *, f_val, f_max_psin: float = 1.0,
         raise KernelError(f"fylite_rs_line_integral returned {rc}")
     return {"value": float(out[0]), "path_length": float(info[0]),
             "n_inside": int(info[1]), "psin_min": float(info[2])}
-
 
 
 _sig("fylite_rs_chord_reduce", ([_ARR] * 4 + [_U64, _F64, _ARR, _ARR, _U64, _F64, _I32, _ARR, _ARR]), _I32)
@@ -2895,19 +2736,6 @@ def reintegrate(gradient, r, anchor: float, *, log: bool = True):
     return out
 
 
-_sig("fylite_rs_flux_residual", [_ARR, _ARR, _U64, _I32, _ARR], _I32)
-def flux_residual(f, g, *, method: int = 3):
-    """Per-point flux-match residual: ``|f-g|`` (2) or ``(f-g)²`` (3)."""
-    lib = require()
-    f_a, g_a = _f(f), _f(g)
-    out = np.empty(f_a.size)
-    rc = lib.fylite_rs_flux_residual(f_a, g_a, f_a.size, int(method), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_flux_residual returned {rc}"
-                          + (" — method must be 2 or 3" if rc == -7 else ""))
-    return out
-
-
 class FluxMatchError(KernelError):
     """A flux match that could not proceed (singular Newton system, or a
     shape the channel-fastest layout cannot carry)."""
@@ -3150,25 +2978,6 @@ def volume_int(s, weight, x, *, mode: str = "sparse"):
     return out
 
 
-_sig("fylite_rs_target_flux", [_ARR] * 3 + [_U64, _ARR], _I32)
-def target_flux(power, volp, unit):
-    """An integrated power as a gyro-Bohm-normalised target flux.
-
-    Index 0 is zero by construction: no volume enclosed, nothing to carry.
-    """
-    lib = require()
-    p, v, u = _f(power), _f(volp), _f(np.broadcast_to(unit, np.shape(volp)))
-    out = np.empty(p.size)
-    rc = lib.fylite_rs_target_flux(p, v, u, p.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_target_flux returned {rc}")
-    return out
-
-
-#: The 20-float surface block three kernel entries share, in order.  ★It is
-#: a LAYOUT, not a dict: the kernel reads it positionally, so a caller that
-#: builds it by hand and gets one column wrong hands over a different
-#: plasma without anything raising.  Build it here.
 SURFACE_KEYS = ("a", "rmin", "rmaj", "zmag", "drmaj", "dzmag", "q", "shear",
                 "kappa", "s_kappa", "delta", "s_delta", "zeta", "s_zeta",
                 "b_unit", "te", "ne", "dlnnedr", "dlntedr")
@@ -4102,31 +3911,6 @@ def sample(grid: Grid, f, r, z, *, gradient_magnitude: bool = False):
     return out
 
 
-_sig("fylite_rs_ray_level", ([_F64] * 4 + [_U64] * 2 + [_ARR] + [_F64] * 6 + [_U64, _ARR]), _I32)
-def ray_level(grid: Grid, f, level, *, start, direction, span: float,
-              n_step: int = 400) -> float:
-    """Distance from ``start`` along ``direction`` to the ``level`` set.
-
-    NaN when the ray leaves the box without crossing.  ★A gap, an isoflux
-    distance and a boundary point at a given angle are all this one
-    question; each caller answering it on its own stencil is how a boundary
-    comes to move differently in two places on the same equilibrium.
-    """
-    lib = require()
-    f = _f(f)
-    if f.shape != (grid.nr, grid.nz):
-        raise KernelError(f"field has shape {f.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    out = np.empty(1)
-    rc = lib.fylite_rs_ray_level(*grid.args, f.ravel(), float(level),
-                                 float(start[0]), float(start[1]),
-                                 float(direction[0]), float(direction[1]),
-                                 float(span), int(n_step), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_ray_level returned {rc}")
-    return float(out[0])
-
-
 _sig("fylite_rs_direct_integrals", ( [_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _U64, _ARR, _ARR, _U64, _ARR, _U64, _ARR, _ARR]), _I32)
 def direct_integrals(grid: Grid, psin2d, *, f_table, boundary=None,
                      levels) -> dict:
@@ -4346,7 +4130,6 @@ def redl_drive(ne, te, ni, ti, psin, *, psi_axis: float, psi_bnd: float):
     return out[:n].copy(), out[n:].copy()
 
 
-
 #: What `redl_surface_inputs` writes, one row of `n_surface` each.
 REDL_INPUT_ROWS = ("eps", "q_abs", "ne", "te", "ti", "ni", "zeff",
                    "i_psi", "p_gfile")
@@ -4409,45 +4192,7 @@ def redl_surface_inputs(psin_surface, r_minor, r_maj, q, *, psin_prof, ne,
         raise KernelError(f"fylite_rs_redl_surface_inputs returned {rc}")
     return dict(zip(REDL_INPUT_ROWS, out.reshape(9, ns)))
 
-_sig("fylite_rs_neo_surface_inputs", ([_ARR, _ARR, _U64] + [_ARR] * 3 + [_VOID, _U64, _F64, _ARR]), _I32)
-def neo_surface_inputs(psin_surface, r_over_a, *, psin_prof, ne, te, ti=None,
-                       zeff: float = 1.0):
-    """The per-surface species state NEO takes — ``(n_surface, 7)`` as
-    ``[dens_i, temp_i, dens_e, temp_e, dlnndr, dlntdr_i, dlntdr_e]``.
 
-    ★NO CALLER in this package as of 2026-08-21.  It was the builder behind
-    ``neoclassical.surface_inputs`` until that moved onto the calibrated
-    per-surface path (this normalises every profile TO THE FIRST SURFACE and
-    supplies no collisionality, which is a shape and not a current).  The
-    entry is kept because the Rust side is still exported and the conventions
-    below are the documentation of what NEO reads — but nothing exercises it,
-    so treat it as unproven until something does.
-
-    ★★Three conventions travel with it, each a physics statement rather
-    than bookkeeping: densities and temperatures are normalised TO THE
-    FIRST SURFACE (NEO cares about ratios and gradients, and normalising to
-    a different surface silently rescales every collisionality); the
-    gradients are a-normalised logarithmic ones and a non-positive density
-    or temperature has NO scale length — left non-finite and zeroed rather
-    than floored, because a floor hands the local solver a large FINITE
-    gradient and it will use it; and the single ion is quasineutral at
-    ``n_i = n_e/Z_eff``.
-    """
-    lib = require()
-    ps, ra = _f(np.atleast_1d(psin_surface)), _f(np.atleast_1d(r_over_a))
-    pp, ne_a, te_a = (_f(np.atleast_1d(x)) for x in (psin_prof, ne, te))
-    ti_a = None if ti is None else _f(np.atleast_1d(ti))
-    out = np.empty(7 * ps.size)
-    rc = lib.fylite_rs_neo_surface_inputs(
-        ps, ra, ps.size, pp, ne_a, te_a,
-        None if ti_a is None else ti_a.ctypes.data, pp.size, float(zeff),
-        out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_neo_surface_inputs returned {rc}")
-    return out.reshape(ps.size, 7)
-
-
-#: The Miller row layout `equilibrium_ladder` writes, in ABI order.
 MILLER_ROW = ("psin", "r", "rmaj", "zmag", "q", "shear", "shift", "kappa",
               "s_kappa", "delta", "s_delta", "zeta", "s_zeta", "s_zmag")
 
@@ -4968,47 +4713,6 @@ def alpha_heating(*, ne, te, ti_kev, dt_fraction: float = 0.5,
             "p_i": out[2 * n:3 * n].copy(), "e_crit": out[3 * n:].copy()}
 
 
-_sig("fylite_rs_alpha_fast_ions", [_ARR] * 3 + [_U64] + [_F64] * 3 + [_ARR],
-     _I32)
-def alpha_fast_ions(*, ne, te, ti_kev, dt_fraction: float = 0.5,
-                    zeff: float = 1.0, zsum: float = 0.5) -> dict:
-    """The fast alphas the heating channel leaves behind.
-
-    ``{rate, n_fast, p_fast, w_fast, tau_s, tau_res}``: the alpha birth
-    rate [1/(m³·s)] — which in steady state IS the helium-ash particle
-    source — the fast-alpha density [m⁻³], their pressure [Pa] and stored
-    energy density [J/m³], and the slowing-down and residence times [s].
-    Arguments are :func:`alpha_heating`'s, and ``rate·E_α`` is that
-    function's ``p_total``.
-
-    ★**Steady state, not fast-ion transport.**  ``n_fast = rate·tau_res``
-    assumes the birth rate has been constant for longer than a slowing-down
-    time; there is no radial transport of the fast alphas, no orbit width
-    and no loss channel, so a ramp or a crash is outside it.
-
-    ★★``tau_res`` is the birth-to-rest time ``(tau_s/3)·ln(1+(E_α/E_c)^1.5)``
-    and NOT ``tau_s`` — and ``tau_s`` itself carries the alpha's ``1/Z_b²``,
-    which is a factor 4 the hydrogenic beam never sees.  Both land within
-    2 % of ASTRA's ITER 15 MA burn case (``tests/data/reference/``); either slip
-    puts them 40 % or 4× out.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(ne, float))
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape))
-         for x in (ne, te, ti_kev)]
-    n = a[0].size
-    out = np.empty(6 * n)
-    rc = lib.fylite_rs_alpha_fast_ions(*a, n, float(dt_fraction), float(zeff),
-                                       float(zsum), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_alpha_fast_ions returned {rc}")
-    return {"rate": out[:n].copy(), "n_fast": out[n:2 * n].copy(),
-            "p_fast": out[2 * n:3 * n].copy(),
-            "w_fast": out[3 * n:4 * n].copy(),
-            "tau_s": out[4 * n:5 * n].copy(),
-            "tau_res": out[5 * n:].copy()}
-
-
 _sig("fylite_rs_gyrobohm_gamma", [_F64] * 4, _F64)
 def gyrobohm_gamma(*, ne: float, c_s: float, rho_s: float, a: float) -> float:
     """The gyro-Bohm PARTICLE-flux unit of one surface [1/(m²·s)].
@@ -5209,39 +4913,6 @@ def solve_psi(rho, psi_init, *, vprime, gm2, fpol, b0: float, sigma_par,
         raise KernelError(f"fylite_rs_solve_psi returned {rc}")
     return {"psi": out[:n].copy(), "q": out[n:2 * n].copy(),
             "repaired": float(out[2 * n]), "steps": int(n_steps)}
-
-
-_sig("fylite_rs_two_temperature_step", ([_ARR] * 12 + [_U64] + [_F64] * 5 + [_U64, _ARR]), _I32)
-def two_temperature_step(rho, te_old, ti_old, *, ne, ni, vprime, gm3,
-                         chi_e, chi_i, q_e, q_i, s_exchange, dt: float,
-                         edge_te: float, edge_ti: float, d_pc: float = 0.0,
-                         tol: float = 1e-10, max_inner: int = 60):
-    """One coupled Te/Ti step — both channels, one exchange term.
-
-    ★The FVM WEIGHTS are the kernel's: capacity ``(3/2)V'n``, flux metric
-    ``V'⟨|∇ρ|²⟩n`` and a source RATE ``Q/((3/2)ne)`` with ``V'`` cancelled
-    analytically — left uncancelled it is 0/0 at the axis, where ``V'``
-    vanishes, i.e. a NaN in the one cell every profile is read at.
-
-    ★The exchange is applied HERE, negative to electrons and positive to
-    ions, rather than handed in per channel: it depends on ``Te − Ti``, and
-    splitting it into two independent sources is how a coupled pair stops
-    conserving the energy it exchanges.  ``chi_e``/``chi_i`` are this
-    iteration's closure values — the closure itself stays with the caller,
-    because a TGLF+NEO evaluation is not something the kernel can call.
-    """
-    lib = require()
-    arrs = [_f(np.broadcast_to(np.asarray(a, float), np.shape(rho)))
-            for a in (rho, te_old, ti_old, ne, ni, vprime, gm3, chi_e, chi_i,
-                      q_e, q_i, s_exchange)]
-    n = arrs[0].size
-    out = np.empty(2 * n)
-    rc = lib.fylite_rs_two_temperature_step(
-        *arrs, n, float(dt), float(edge_te), float(edge_ti), float(d_pc),
-        float(tol), int(max_inner), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_two_temperature_step returned {rc}")
-    return out[:n].copy(), out[n:].copy()
 
 
 _sig("fylite_rs_b_unit_from_rho", [_F64, _ARR, _ARR, _U64, _ARR], _I32)
@@ -5707,8 +5378,6 @@ def core_march(rho, *, te, ti, ni, z=(1.0,), edge_ni=None, psi=0.0,
             "steady": bool(info[1]), "delta": float(info[2]),
             "psi_repaired": float(info[3]), "dt": float(info[4]),
             "retries": int(info[5])}
-
-
 
 
 _sig("fylite_rs_shape_observables", ([_F64] * 4 + [_U64, _U64, _ARR, _F64, _ARR, _U64, _ARR, _U64, _ARR, _U64] + [_F64] * 3 + [_ARR]), _I32)

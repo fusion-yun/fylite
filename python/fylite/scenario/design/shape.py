@@ -28,7 +28,8 @@ reads naturally):
   response accuracy (E-19).
 
 ★The sampling and the ray casting are the kernel's
-(:func:`fylite.kernel.sample` / :func:`fylite.kernel.ray_level`): a gap, an
+(:func:`fylite.kernel.sample` / the kernel's ``ray_level`` behind
+:func:`shape_observables`): a gap, an
 isoflux distance and a boundary point at an angle are the same question,
 and answering it here on a private stencil is how a boundary comes to move
 differently in two places on one equilibrium.
@@ -76,8 +77,8 @@ class ShapeTargets:
 
 
 #: ★`_ray_gap` is gone: the ray cast belonged to the observable vector, and
-#: the vector is the kernel's now.  `kernel.ray_level` is still the entry
-#: for anyone who wants one ray on its own.
+#: the vector is the kernel's now.  The flat `ray_level` export went with
+#: T-4 (2026-09-05): one ray on its own is a question nobody asked.
 
 
 def shape_observables(eq, targets: ShapeTargets) -> np.ndarray:
