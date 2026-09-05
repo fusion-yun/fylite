@@ -102,6 +102,15 @@ else
   rm -f "$STAGE"/assets/fylite_rs.wasm* "$STAGE"/assets/fylite_kernel_ext.wasm*
   echo "[exe] 内嵌树里去掉内核 wasm（算力在本进程里：静态库 + /api/kernel）"
 
+  #: ★★**h5wasm 也不带**（2026-09-05 用户裁定：hdf5 走 fy app 的文件端点，静态站点
+  #: 保留 h5wasm）。那是 NIST 的 Emscripten 包，4.1 MB——HDF5 那个 C 库以 base64 骑在
+  #: 里面——而**这个进程本来就链着 libhdf5**：页面把文件字节 POST 给 `/api/read`，
+  #: 由中间层自己的读者（`io::read`，与 `fy data`、与 python 对拍的同一份）读完送回。
+  #: 与内核那次同形：桌面版不该背一份第二实现。静态站点没有 `/api/*`，那里 h5wasm 是
+  #: 唯一的读法，所以站点照发（仍惰性、仍不进预缓存）。
+  rm -rf "$STAGE"/assets/vendor
+  echo "[exe] 内嵌树里去掉 assets/vendor（h5wasm 4.1 MB —— 页面改走 /api/read）"
+
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
   #: ★`--from` 指**装好的那一棵**：表描述的必须就是编译期真在的那一棵，否则

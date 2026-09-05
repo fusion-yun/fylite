@@ -38,6 +38,8 @@
   var MOD = null;                       //: the loaded module, once
   var pending = null;                   //: the in-flight load, so N calls load once
   var seq = 0;
+  //: 本进程读不读文件：`null` = 还没探，`false` = 没有这条路，`true` = 有。
+  var apiFace = null;
 
   function base() {
     //: resolve beside THIS script, like `site.js` and `host.js` do, so the
@@ -46,6 +48,49 @@
     return s ? s.replace(/assets\/h5source\.js(\?.*)?$/, 'assets/') : 'assets/';
   }
   var ASSETS = base();
+
+  function loopback() {
+    try {
+      var h = location.hostname;
+      return h === '127.0.0.1' || h === 'localhost' || h === '::1' || h === '[::1]';
+    } catch (e) { return false; }
+  }
+
+  /**
+   * 这个宿主能替页面读文件吗？答 `true` / `false`，只探一次。
+   *
+   * ★★2026-09-05 用户裁定：*hdf5 走 fy app 的文件端点，静态站点保留 h5wasm*。
+   * 桌面查看器本来就链着 libhdf5——让内嵌页面再下载 4.1 MB 的第二实现，与装置信息、
+   * 算力那两次收敛掉的是同一种重复。静态站点没有 `/api/*`，那里 h5wasm 是唯一的读法，
+   * 所以它留着（也仍然惰性、仍然不进预缓存）。
+   * ★探的是**请求面答不答**并且它自报带着 hdf5 那一面（`/api/health` 的 `file` 格），
+   * 不看主机名——与 `factsdb.js` / `kernelapi.js` 同一条纪律。
+   */
+  function face() {
+    if (apiFace !== null) return Promise.resolve(apiFace);
+    if (typeof fetch !== 'function' || !loopback()) { apiFace = false; return Promise.resolve(false); }
+    return fetch(ASSETS.replace(/assets\/$/, '') + 'api/health',
+                 { headers: { accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { apiFace = !!(j && j.file); return apiFace; })
+      .catch(function () { apiFace = false; return false; });
+  }
+
+  /** 把字节交给本进程读，答一份 fyo 文档。 */
+  function readByProcess(u8, name) {
+    var url = ASSETS.replace(/assets\/$/, '') + 'api/read?name='
+            + encodeURIComponent(name || 'upload.h5');
+    return fetch(url, { method: 'POST', body: u8 }).then(function (r) {
+      return r.text().then(function (t) {
+        var j;
+        try { j = JSON.parse(t); } catch (e) { throw new Error('/api/read: ' + t.slice(0, 200)); }
+        //: ★端点的拒绝是**一句话**，原样转给读者：它与页面那侧的拒绝逐字同源
+        //: （不是 HDF5 · IMAS 布局半读不得），所以两条路给读者的话是一样的。
+        if (!r.ok || (j && j.error)) throw new Error((j && j.error) || ('HTTP ' + r.status));
+        return j;
+      });
+    });
+  }
 
   /** Load h5wasm — once, on demand. */
   function load() {
@@ -101,6 +146,20 @@
    */
   function read(bytes, opts) {
     opts = opts || {};
+    var u8x = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    return face().then(function (viaProcess) {
+      if (!viaProcess) return readHere(u8x, opts);
+      return readByProcess(u8x, opts.name || (opts.id || 'upload') + '.h5')
+        .then(function (doc) {
+          if (opts.id) doc['@id'] = doc['@id'] || opts.id;
+          return doc;
+        });
+    });
+  }
+
+  /** 在页面里读（h5wasm）——静态站点唯一的读法。 */
+  function readHere(bytes, opts) {
+    opts = opts || {};
     return load().then(function (h5) {
       var u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
       //: HDF5's own signature, checked before handing it over: h5wasm's failure
@@ -145,6 +204,8 @@
 
   root.FyH5 = {
     read: read, layer: layer,
+    //: ★两条路各自可问：闸子要能分别验，读者的「这一份是谁读的」也答得出。
+    readHere: readHere, readByProcess: readByProcess, face: face,
     /** Has the 4 MB module been loaded in this page yet? */
     loaded: function () { return !!MOD; },
     /** For a page that wants to warm it deliberately (a click, never on load). */

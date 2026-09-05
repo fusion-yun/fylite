@@ -166,6 +166,73 @@ pub fn kernel(body: &str) -> (u16, String) {
     }
 }
 
+// --------------------------------------------------------------------------
+// 文件 —— 页面把一份文件交给本进程读
+// --------------------------------------------------------------------------
+
+/// `POST /api/read?name=<原名>` —— 一份文件的字节进，一份 fyo 文档出。
+///
+/// ★★2026-09-05 用户裁定：*hdf5 走 fy app 的文件端点，静态站点保留 h5wasm*。
+/// 缘由是一件量得出来的事：浏览器读 HDF5 要 h5wasm（NIST 的 Emscripten 包，4.1 MB，
+/// 因为 HDF5 那个 C 库以 base64 骑在里面），而**这个进程本来就链着 libhdf5**。桌面版
+/// 再背一份 4.1 MB 的第二实现，与装置信息、算力那两次收敛掉的是同一种重复。
+///
+/// ★读法是中间层自己的（`io::read` 按内容识别格式，`Format::Hdf5` 走
+/// `hdf5::read_fyo`）——不是为这条端点另写的读者。于是「桌面版读到的」与
+/// `fy data` 读到的、与 `python/tests` 对拍的是同一份实现。
+///
+/// ★**按名拒绝 IMAS 单文件**，与页面那侧同一句话：IMAS 布局是一个**目录**
+/// （`master.h5` + 每个 IDS 一份），单文件里带着 `ids_properties` 而没有 `@type` 的，
+/// 半读一份会给出一份看着对、其实转置了的文档（`FYL-DESIGN-14` L-5 / L-6）。
+///
+/// ★不落盘超过一次：字节写进临时文件（中间层的读者按路径工作），读完就删。
+#[cfg(not(target_arch = "wasm32"))]
+pub fn read_file(name: &str, body: &[u8]) -> (u16, String) {
+    use std::io::Write;
+    //: ★原名只用来取扩展名与写进文档的 `source`，**不当路径用**：分隔符与上跳一律
+    //: 拒绝，临时文件名由本进程拼。
+    if name.contains('/') || name.contains('\\') || name.contains("..") {
+        return (400, format!("{{\"error\":{}}}", jstr("bad file name")));
+    }
+    if body.is_empty() {
+        return (400, format!("{{\"error\":{}}}", jstr("empty body")));
+    }
+    let ext = std::path::Path::new(name)
+        .extension()
+        .and_then(|e| e.to_str())
+        .filter(|e| e.len() <= 8 && e.chars().all(|c| c.is_ascii_alphanumeric()))
+        .map(|e| format!(".{e}"))
+        .unwrap_or_default();
+    let stem = format!("fy-api-{}-{}{}", std::process::id(),
+                       std::time::SystemTime::now()
+                           .duration_since(std::time::UNIX_EPOCH)
+                           .map(|d| d.as_nanos())
+                           .unwrap_or(0),
+                       ext);
+    let path = std::env::temp_dir().join(stem);
+    let write = std::fs::File::create(&path).and_then(|mut f| f.write_all(body));
+    if let Err(e) = write {
+        return (500, format!("{{\"error\":{}}}", jstr(&format!("temp file: {e}"))));
+    }
+    let out = fylite_runtime::io::read(&path);
+    let _ = std::fs::remove_file(&path);
+    match out {
+        Ok(bundle) => {
+            let node = bundle.to_node();
+            //: 与页面那侧逐字同一句拒绝（见抬头）。
+            let imas = node.get("ids_properties").is_some() && node.get("@type").is_none();
+            if imas {
+                return (400, format!("{{\"error\":{}}}", jstr(
+                    "按名拒绝：这看着是 IMAS 布局（结构数组张量化 · 数据轴转置，\
+                     FYL-DESIGN-14 L-5 / L-6）——本读者只读本仓写的 fyo 布局，\
+                     半读一份会给出一份看着对、其实转置了的文档")));
+            }
+            (200, fylite_runtime::json::to_string(&node, false))
+        }
+        Err(e) => (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+    }
+}
+
 /// `/api/health` 里那一格：算力在不在本进程里，以及它是哪一版 ABI。
 fn kernel_face() -> String {
     #[cfg(kernel_static)]
@@ -356,7 +423,7 @@ fn health(cfg: &Cfg) -> String {
     format!(
         "{{\"ok\":true,\"mdsip\":{},\"user\":{},\"sessions\":0,\"maxPoints\":{},\
          \"trees\":[\"efit_east\",\"east\",\"pcs_east\",\"analysis\",\"efitrt_east\"],\
-         \"servers\":{},\"locked\":false,\"kernel\":{}{}}}",
+         \"servers\":{},\"locked\":false,\"kernel\":{},\"file\":{}{}}}",
         match &cfg.server {
             Some(s) => jstr(s),
             None => String::from("null"),
@@ -372,6 +439,12 @@ fn health(cfg: &Cfg) -> String {
         //: 与算力这一侧必须同源，不等就该当场说，而不是让第一个改过签名的函数
         //: 去表现成一个奇怪的数。
         kernel_face(),
+        //: ★★**本进程能不能替页面读文件**（2026-09-05 用户裁定：hdf5 走 fy app 的
+        //: 文件端点，静态站点保留 h5wasm）。页面读这一格决定走哪条路：为真就把文件
+        //: 字节 POST 给 `/api/read`，为假（或整个 `/api/health` 不在，比如静态站点）
+        //: 就惰性载入 h5wasm 那 4.1 MB。判据是**这一次构建带不带 hdf5 那一面**，
+        //: 不是「有没有这条路由」——路由在而库不在，答的会是一句读不动。
+        cfg!(all(feature = "hdf5", not(target_arch = "wasm32"))),
         //: 没给 `--mdsip` 时照样答，并说清这一格要自己填——一个消失的控件什么
         //: 也没教给读者，而「往哪里填」正是读者要知道的。
         if cfg.server.is_none() {
