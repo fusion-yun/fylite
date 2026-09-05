@@ -99,6 +99,64 @@ pub unsafe extern "C" fn fylite_runtime_case_json(
 ///
 /// # Safety
 /// `p` / `n` must be exactly what that call handed back, released once.
+/// A case through the TREE door — `code` + a plan as JSON in, the record as JSON out.
+///
+/// ★★2026-09-05（T-1 中间层一半）。与 `fylite_runtime_case_json` 的分工：那一扇收的是
+/// 一份 `fyo:ScenarioSpecification`（计划文档，带端点、来源与记录的账），走**旧形**内核门；
+/// 这一扇收的是内核 `case::run_doc` 的**计划树本身**（`settings/*` · `inputs/*`），走
+/// **树形**门（`fylite_rs_fyo_tree`），交回的是记录树。JSON 只在**宿主与中间层**之间——
+/// 文本到 `Node` 是本 crate 的 `json.rs`，`Node` 到四段是 `tree.rs`；内核两头都是树。
+///
+/// Returns **0** with the record, **1** with the kernel's REFUSAL tree
+/// (`refusal/{code, message}`), or a negative code with a sentence instead of a
+/// record: **-1** bad pointers, **-2** the plan does not parse, **-4** the kernel
+/// could not be loaded, **-5** the loaded kernel has no tree door (ABI < 126),
+/// **-6** the kernel handed back a malformed tree.  `*out` / `*out_len` always
+/// receive a UTF-8 buffer to release with `fylite_runtime_case_free`.
+///
+/// # Safety
+/// `code`: `code_len` bytes; `plan`: `plan_len` bytes; `kernel`: `kernel_len`
+/// bytes (zero may pass null).  `out` and `out_len` must be valid to write.
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_case_tree_json(
+    code: *const u8, code_len: u64,
+    plan: *const u8, plan_len: u64,
+    kernel: *const u8, kernel_len: u64,
+    out: *mut *mut u8, out_len: *mut u64) -> i32 {
+    use crate::document::Node;
+    if out.is_null() || out_len.is_null() {
+        return -1;
+    }
+    *out = std::ptr::null_mut();
+    *out_len = 0;
+    let (Some(code_s), Some(plan_s), Some(kernel_s)) = (text(code, code_len), text(plan, plan_len), text(kernel, kernel_len))
+    else { hand_out("bad pointer or non-UTF-8 text", out, out_len); return -1; };
+    let node = match crate::json::parse(plan_s) {
+        Ok(n) => n,
+        Err(e) => { hand_out(&format!("the plan does not parse: {e:?}"), out, out_len); return -2; }
+    };
+    let kpath = if kernel_s.is_empty() { None } else { Some(Path::new(kernel_s)) };
+    let k = match crate::kernel::Kernel::load(kpath) {
+        Ok(k) => k,
+        Err(e) => { hand_out(&e.message, out, out_len); return -4; }
+    };
+    match k.run_tree(code_s, &node) {
+        Ok(rec) => { hand_out(&crate::json::to_string(&rec, true), out, out_len); 0 }
+        Err(e) if e.code == -5 || e.code == -6 => { hand_out(&e.message, out, out_len); e.code as i32 }
+        Err(e) => {
+            //: the refusal as a tree, so the caller reads `refusal/code` and
+            //: `refusal/message` the same way it reads a record
+            let mut r = crate::document::Map::new();
+            r.insert("code", Node::Int(e.code));
+            r.insert("message", Node::Str(e.message));
+            let mut root = crate::document::Map::new();
+            root.insert("refusal", Node::Map(r));
+            hand_out(&crate::json::to_string(&Node::Map(root), true), out, out_len);
+            1
+        }
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_case_free(p: *mut u8, n: u64) {
     if p.is_null() {

@@ -57,6 +57,10 @@ pub mod geqdsk;
 
 //: 文档树与 JSON(-LD) 编解码：零依赖，wasm 同样成立。
 pub mod document;
+//: ★★the flat tree: this side's encoder / decoder for the kernel's document door
+//: (FYL-DESIGN-16 F-1..F-4 / H-4; one implementation, three hosts).  No cfg: the
+//: wasm build needs it the day the middle layer goes into the page (W-1).
+pub mod tree;
 pub mod json;
 pub mod yaml;
 

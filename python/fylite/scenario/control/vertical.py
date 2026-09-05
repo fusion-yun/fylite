@@ -41,7 +41,7 @@ import numpy as np
 #: under an alias: a bare `device` name is silently the dict inside every
 #: function that takes one (`AttributeError` far from the cause).
 from ... import device as _device_mod
-from ... import kernel
+from ... import fyo, kernel
 from ...device import (Element, conductor_set, flux_loop_positions,
                        passive_set)
 from . import stability
@@ -70,129 +70,92 @@ def vertical_system(eq, *, coil_aturns, eta_coil_uohm_m,
                     eta_vessel_uohm_m=None, device=None,
                     passive_groups=("inner_shell",), ic_coils=(),
                     coarsen: int = 2) -> VerticalSystem:
-    """Build the linearized plant from an equilibrium + the device description.
+    """The linearised vertical plant — assembled BY THE KERNEL from documents.
+
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the first tool to sink): this function
+    used to hold the recipe — deck → conductors → channel fold → mutual
+    matrices, resistances, coupling gradient → rigid filaments off the ψ map
+    → the ``vstab`` entry — as ~130 lines calling twelve flat kernel exports.
+    Every number came from the kernel; the recipe was this host's, and the
+    page's worker held a second copy.  The recipe is ``case.rs::vstab_case``
+    now, reached through the document door: this function builds the PLAN
+    (three documents and five settings) and reads the RECORD.
 
     ``eq`` — an ``fyo:equilibrium`` document, or a g-file at the door.
+    ``device`` — the device document (the deck as a dict); ``None`` means the
+    configured deck.  ``ic_coils`` — the fast actuators as ``{r, z, dr, dz,
+    turns}`` dicts; a non-empty list REPLACES the document's ``ic_coil/coils``
+    in the plan (the caller's override goes INTO the document — the kernel
+    reads documents, not keyword arguments).  ``eta_vessel_uohm_m`` overrides
+    the document's vessel resistivity.
 
-    ★It took a Green-table directory as its second positional argument and
-    never opened it; the machine is the document's, resolved once below.
-
-    ``ic_coils``: list of dicts {r, z, dr, dz, turns} (from
-    ``east_device.yaml`` ``ic_coil.coils``) — the fast actuators; they are
-    full circuit members (rows in M*), driven by per-turn voltage.
+    What is still assembled here: the flux-loop rows ``loops_C`` / ``loops_P``
+    and the actuator map ``B_act`` — the diagnostic side, not the plant.  They
+    are the next thing to sink (a ``magnetics`` reading of the same device
+    document); until then this function keeps four flat calls for them.
     """
-    plasma = stability.plasma_filaments(eq, coarsen=coarsen)
-    ip = float(np.asarray(plasma[2]).sum())
-    #: ★★ONE resolution of the machine for the whole plant.  The geometry and
-    #: the channel map used to be resolved twice on different terms — this
-    #: line with a deck path, and a bare ``channel_weights()`` further down
-    #: with none — so a configuration whose fyo document carried rectangles
-    #: could take the element COUNT from the document and the elements
-    #: themselves from the deck, and build W against the wrong one.
-    cond = conductor_set()
-    geo = {"coils": cond["coils"], "vessel": cond["vessel"]}
-    if device is not None:
-        pas_el, pas_eta, _ = passive_set(device, passive_groups)
-    else:
-        pas_el = geo["vessel"]
-        pas_eta = np.full(len(pas_el), float(eta_vessel_uohm_m))
-    #: ★the channel-space block assembly is `channel_matrices` with THIS
-    #: passive set — it used to be spelled out again here in numpy, once
-    #: for the deck vessel and once for the extended structure
-    cm = _device_mod.channel_matrices(cond,
-                                   eta_coil_uohm_m=eta_coil_uohm_m,
-                                   passive=(pas_el, pas_eta), nu=3, nv=3)
-    W = cm["weights"]
+    from ...io import fydoc
+    doc = fyo.as_equilibrium(eq)
+    dev = _device_document(device)
+    ic_list = [dict(c) for c in ic_coils]
+    if ic_list:
+        dev = dict(dev)
+        dev["ic_coil"] = dict(dev.get("ic_coil") or {}, coils=ic_list)
+    settings = {"passive": ",".join(passive_groups), "ic": 1.0 if ic_list else 0.0,
+                "coarsen": float(coarsen), "eta_coil": float(eta_coil_uohm_m)}
+    if eta_vessel_uohm_m is not None:
+        settings["eta_vessel"] = float(eta_vessel_uohm_m)
+    plan = {"settings": settings,
+            "inputs": {"device": dev, "equilibrium": doc,
+                       "discharge": {"fylite:channel_aturns": np.asarray(coil_aturns, float)}}}
+    rec = fydoc.complete("code/vstab", plan)
+    n = int(rec["dims"]["n"])
+    fields, facts = rec["fields"], rec["facts"]
+    arr = lambda k: np.asarray(fields[k]["data"], float)  # noqa: E731
+    M_star = arr("m_star").reshape(n, n)
+    R, G, C_xi, mode = arr("r"), arr("g"), arr("c_xi"), arr("mode")
+    ip = float(facts["ip"]["value"])
+    k = float(facts["k"]["value"])
+    k_ideal = float(facts["k_ideal"]["value"])
+    gamma = float(facts["gamma"]["value"])
+    n_ic = int(facts["n_fast_coils"]["value"])
 
-    ic_elems = [Element(c["r"], c["z"], c["dr"], c["dz"]) for c in ic_coils]
-    ic_turns = np.array([float(c["turns"]) for c in ic_coils])
-    n_ic = len(ic_elems)
-
-    g_el = stability.coupling_gradient(plasma, [(e.r, e.z, 1.0) for e in geo["coils"]])
-    g_vs = stability.coupling_gradient(plasma, [(e.r, e.z, 1.0) for e in pas_el])
-    if n_ic:
-        # extend the channel-space matrices with the IC conductors (per-turn state)
-        M_ic = _device_mod.mutual_matrix(ic_elems, nu=3, nv=3) * np.outer(ic_turns, ic_turns)
-        M_ic_el = _device_mod.mutual_matrix(ic_elems, geo["coils"], nu=3, nv=3) * ic_turns[:, None]
-        M_ic_vs = _device_mod.mutual_matrix(ic_elems, pas_el, nu=3, nv=3) * ic_turns[:, None]
-        R_ic = _device_mod.resistance_vector(ic_elems, eta_coil_uohm_m, turns=ic_turns)
-        M = np.block([[cm["M"], np.vstack([(M_ic_el @ W.T).T, M_ic_vs.T])],
-                      [np.hstack([M_ic_el @ W.T, M_ic_vs]), M_ic]])
-        R = np.concatenate([cm["R"], R_ic])
-        g_ic = stability.coupling_gradient(
-            plasma, [(e.r, e.z, float(t)) for e, t in zip(ic_elems, ic_turns)])
-        G = np.concatenate([W @ g_el, g_vs, g_ic])
-    else:
-        M, R = cm["M"], cm["R"]
-        G = np.concatenate([W @ g_el, g_vs])
-    n = M.shape[0]
-
-    # stiffness from the active coils at their equilibrium ampere-turns
-    el_at = W.T @ np.asarray(coil_aturns, float)
-    k = stability.vertical_stiffness(plasma, [(e.r, e.z, 1.0) for e in geo["coils"]], el_at)
-
-    #: the rank-one elimination, the growth rate and the ideal stiffness are
-    #: the kernel's — one place where the plasma is removed from the circuit
-    #: equations, so the browser and this host cannot eliminate it differently
-    pl = kernel.vertical_plant(M, R, G, ip=ip, stiffness=float(k))
-    M_star, C_xi = pl["m_star"], pl["c_xi"]
-    k_ideal = pl["k_ideal"]
+    #: ---- the diagnostic side, still this host's (see the docstring) ----------
     B_act = np.zeros((n, n_ic))
     for j in range(n_ic):
         B_act[n - n_ic + j, j] = 1.0
-
-    #: ★★Flux-loop observation rows are now COMPUTED for everything.  They
-    #: used to be read from the Green tables for the tabulated channels and
-    #: vessel groups, and computed with `mutual_filaments` only for the
-    #: passive groups the tables did not cover — two paths for one quantity,
-    #: with the table as a shortcut.  The tables are gone (LICENSE 3.1) and
-    #: the remaining path is the one that was already here, so this is a
-    #: convergence rather than a substitution: one definition of the mutual,
-    #: evaluated by the kernel, for every conductor.
-    #:
-    #: ★The channel rows fold through the FROZEN channel map: a channel
-    #: drives one or two deck elements at measured weights, and its loop flux
-    #: is the weighted sum of theirs.  Two of the twelve are split pairs, so
-    #: taking one element per channel would be wrong for those two.
+    cond = conductor_set()
+    if device is not None:
+        pas_el, _pas_eta, _ = passive_set(device, passive_groups)
+    else:
+        pas_el = cond["vessel"]
+    ic_elems = [Element(c["r"], c["z"], c["dr"], c["dz"]) for c in ic_list]
+    ic_turns = np.array([float(c["turns"]) for c in ic_list])
     rsi, zsi = flux_loop_positions()
 
-    #: ★★The per-element psi at the loop positions is
-    #: :func:`fylite.device.point_response`'s first output, and this module used
-    #: to filament-average it here instead — a third spelling of the same
-    #: quantity (``rusteq`` had the second).  Gated bit-identical against
-    #: the loop it replaces before the change, so the anchors below did not
-    #: move: the kernel accumulates per filament and divides once, which is
-    #: what ``np.mean`` over nine filaments does too.
     def _rows(elems, turns=None):
         psi = _device_mod.point_response(elems, rsi, zsi, nu=3, nv=3)[0]
         return psi if turns is None else psi * np.asarray(turns, float)
 
-    #: ★★and the channel fold is the KERNEL's — :func:`fylite.device.channel_response`,
-    #: which is `element_response` and the fold in one call.  Spelling it as
-    #: `_rows(coils) @ W.T` here was the FOURTH host for a fold that has one
-    #: (and it rebuilt W from a second resolution of the machine while doing
-    #: it).  A channel drives one or two deck elements at measured weights and
-    #: two of the twelve are split pairs, so taking one element per channel
-    #: would be wrong for exactly those two.
     tabf = _device_mod.channel_response(cond, rsi, zsi, nu=3, nv=3)[0] * TWOPI
     tabv = _rows(pas_el) * TWOPI
-    ic_rows = (_rows(ic_elems, ic_turns) if n_ic
-               else np.empty((rsi.size, 0)))
+    ic_rows = (_rows(ic_elems, ic_turns) if n_ic else np.empty((rsi.size, 0)))
     loops_C = np.hstack([tabf, tabv, ic_rows])
-    #: ★the plasma's own flux-loop rows are the coupling gradient again,
-    #: un-normalised: the kernel returns dM/dZ per unit plasma current, and
-    #: these rows are per metre of rigid shift, so they are `ip` times it.
-    #: This used to call a private central-difference in `stability`; that
-    #: was the numpy half of a two-path arrangement, and the multiplication
-    #: below is the whole difference between the two quantities.
+    plasma = (arr("filament_r"), arr("filament_z"), arr("filament_current"))
     loops_P = ip * stability.coupling_gradient(
         plasma, [(r_, z_, 1.0) for r_, z_ in zip(rsi, zsi)])
-
     return VerticalSystem(M_star=M_star, R=R, G=G, C_xi=C_xi, B_act=B_act,
-                          ip=ip, k=float(k), k_ideal=k_ideal,
-                          gamma_openloop=pl["gamma_openloop"],
-                          mode=pl["mode"],
+                          ip=ip, k=k, k_ideal=k_ideal,
+                          gamma_openloop=gamma, mode=mode,
                           loops_C=loops_C, loops_P=loops_P)
+
+
+def _device_document(device) -> dict:
+    """The device as ONE document: the given dict, or the configured deck read whole."""
+    if device is not None:
+        return device
+    import yaml
+    return yaml.safe_load(_device_mod.deck_path("east_device.yaml").read_text(encoding="utf-8"))
 
 
 def close_vertical_loop(sys: VerticalSystem, *, t_end: float, dt: float,

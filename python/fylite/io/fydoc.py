@@ -353,3 +353,59 @@ def case_json(plan, *, base=None, kernel_lib=None) -> dict:
     if rc < 0:
         raise KernelError(f"fylite_runtime_case_json returned {rc}: {body}")
     return json.loads(body)
+
+
+# --------------------------------------------------------------------------- #
+# The document door, from Python: a plan in, a record out, through the middle layer.
+# --------------------------------------------------------------------------- #
+
+class Refused(KernelError):
+    """The kernel refused the case; ``code`` and ``record`` (the refusal tree)."""
+
+    def __init__(self, code: int, record: dict | None):
+        self.code = int(code)
+        self.record = record
+        msg = (record or {}).get("refusal", {}).get("message", "") if isinstance(record, dict) else ""
+        super().__init__(f"the kernel refused ({code}): {msg}")
+
+
+def complete(code: str, plan: dict, *, kernel_path: str | Path | None = None) -> dict:
+    """Complete a case: ``code`` + a plan through the TREE door, the record back.
+
+    ★★2026-09-05 — FYL-DESIGN-16 K-1 / H-4: Python does not encode the tree and
+    does not open the kernel's door itself.  The plan crosses to the middle layer
+    (``libfylite_runtime.so``) as JSON — text between host and middle layer is
+    allowed — and the middle layer's ONE encoder puts it through
+    ``fylite_rs_fyo_tree``.  So there is exactly one tree codec, in Rust, and
+    this function is 30 lines of ctypes.
+
+    The plan's layout is the kernel's (``case::run_doc``): ``settings/<key>``
+    scalars (numbers and strings), ``inputs/<fyo path…>`` whole documents.  The
+    record comes back as ``code`` · ``entry`` · ``dims`` · ``facts[key] = {value,
+    units}`` · ``fields[ids][path…] = {data, units}`` · ``notes``; ``data`` is a
+    nested list (JSON) — wrap it in ``numpy.asarray`` at the use site.
+
+    Raises :class:`Refused` when the kernel refused (its ``code`` and sentence),
+    :class:`KernelError` when the door could not even be reached.
+    """
+    lib = kernel.require_data()
+    cb, cn, _k0 = _b(code)
+    jb, jn, _k1 = _b(json.dumps(_jsonable(plan), allow_nan=True))
+    kpath = "" if kernel_path is None else str(kernel_path)
+    kb, kn, _k2 = _b(kpath)
+    out = ctypes.c_void_p()
+    n = ctypes.c_uint64(0)
+    u64 = ctypes.c_uint64
+    rc = lib.fylite_runtime_case_tree_json(cb, u64(cn), jb, u64(jn), kb, u64(kn),
+                                           ctypes.byref(out), ctypes.byref(n))
+    try:
+        text = ctypes.string_at(out, n.value).decode("utf-8", "replace") if out.value and n.value else ""
+    finally:
+        if out.value and n.value:
+            lib.fylite_runtime_case_free(out, n)
+    if rc < 0:
+        raise KernelError(f"fylite_runtime_case_tree_json returned {rc}: {text}")
+    record = json.loads(text) if text else None
+    if rc == 1:
+        raise Refused(int((record or {}).get("refusal", {}).get("code", rc)), record)
+    return record
