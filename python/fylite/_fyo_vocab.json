@@ -114,6 +114,14 @@
    "gated": false,
    "gloss": "Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns. Not gated: `i_max_aturn` is also the ordinary keyword of design.breakdown and a case-recipe argument."
   },
+  "impurity_density": {
+   "gated": true,
+   "gloss": "The impurity's density [m^-3] when it is IN the quasi-neutrality (`code/evolve` with quasi = 1): the second ion channel's state, beside `fylite:ion_density`. Same AOS reason as that one. Gated: no bare use in either host."
+  },
+  "ion_density": {
+   "gated": true,
+   "gloss": "Main-ion density [m^-3] as one flat profile on core_profiles/profiles_1d. The DD spells ions as an AOS (ion[]/density), which a flat state row cannot carry; `code/evolve` reads it as the state its density channel resumes from and writes the one it reached (第十五刀, 2026-09-05). Gated: nothing in either host uses a bare `ion_density`."
+  },
   "ip": {
    "gated": false,
    "gloss": "The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held. Not gated: `ip` is the ordinary name of the plasma current everywhere."
@@ -129,6 +137,14 @@
   "n_parallel": {
    "gated": false,
    "gloss": "The launched parallel refractive-index band (lower, upper) of an LH antenna. The DD carries only a per-shot `n_parallel_peak` signal, not the band the hardware can launch, so the band rides namespaced. Not gated: `n_parallel` is an ordinary argument and field name throughout `scenario/model/lh.py` and the kernel bindings."
+  },
+  "n_parallel_max": {
+   "gated": true,
+   "gloss": "Upper end of the same launched n_parallel band — see `n_parallel_min`."
+  },
+  "n_parallel_min": {
+   "gated": true,
+   "gloss": "Lower end of a lower-hybrid launcher's launched n_parallel band (`lh_antennas/antenna`, `code/wave`). The DD carries a peak, not a band; the band is what sets the deposition width and its uncertainty, so it rides namespaced. Written by `scenario.model.lh.deposit` and the worker's `evLhDeposit`."
   },
   "name": {
    "gated": false,
@@ -190,6 +206,10 @@
    "gated": false,
    "gloss": "The result block of a session document. Not gated: ordinary local name."
   },
+  "rho": {
+   "gated": false,
+   "gloss": "The transport grid [m] bound under `transport/fylite:rho` (`TRANSPORT_INPUTS`, `code/transport`) — the marched channel's own radial coordinate, which the DD spells as `rho_tor` under a profiles grid and this plan carries flat. Written by `scenario.model.transport` and the model page's transport bar. Not gated: `rho` is the ordinary variable name for a radial grid in every host and in the record's own `core_profiles/profiles_1d/grid/rho_tor`."
+  },
   "shinethrough": {
    "gated": false,
    "gloss": "Fraction of beam power that passed straight through unabsorbed. ★The browser's beam-total block wrote `shinethrough_fraction` for this until 2026-08-25 while its own per-component block and `fyo.py` wrote `shinethrough`; one quantity, two names. Not gated: it is also the deposition result's own key."
@@ -225,18 +245,6 @@
   "weight": {
    "gated": false,
    "gloss": "A channel's weight on a coil element, inside fylite:channel_map. Not gated: `weight` is an ordinary local name."
-  },
-  "n_parallel_min": {
-   "gated": true,
-   "gloss": "Lower end of a lower-hybrid launcher's launched n_parallel band (`lh_antennas/antenna`, `code/wave`). The DD carries a peak, not a band; the band is what sets the deposition width and its uncertainty, so it rides namespaced. Written by `scenario.model.lh.deposit` and the worker's `evLhDeposit`."
-  },
-  "n_parallel_max": {
-   "gated": true,
-   "gloss": "Upper end of the same launched n_parallel band — see `n_parallel_min`."
-  },
-  "rho": {
-   "gated": false,
-   "gloss": "The transport grid [m] bound under `transport/fylite:rho` (`TRANSPORT_INPUTS`, `code/transport`) — the marched channel's own radial coordinate, which the DD spells as `rho_tor` under a profiles grid and this plan carries flat. Written by `scenario.model.transport` and the model page's transport bar. Not gated: `rho` is the ordinary variable name for a radial grid in every host and in the record's own `core_profiles/profiles_1d/grid/rho_tor`."
   }
  }
 }

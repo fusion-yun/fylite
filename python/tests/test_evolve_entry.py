@@ -95,13 +95,19 @@ def test_the_sunk_loop_equals_the_explicit_python_loop():
     rb = cfg["rho"] / cfg["rho"][-1]
     shape = np.exp(-((rb - 0.0) / 0.3) ** 2)
     norm = _vol_int(cfg["rho"], cfg["vprime"], shape)
-    heat_e = shape * 4.0e6 / norm
-    heat_i = shape * 4.0e6 / norm
+    #: the page's order (`g *= total / norm`), which the entry follows since
+    #: 2026-09-05 (第十五刀): an ulp in a source is a bit in T_i some steps on
+    scale = 4.0e6 / norm
+    heat_e = shape * scale
+    heat_i = shape * scale
     ne_cgs = cfg["ne"] * 1e-6
 
     te, ti = cfg["te0"].copy(), cfg["ti0"].copy()
     dt_now = 0.002
-    last_nu = {"nu": None}
+    #: ★the closure once BEFORE the march — the page's rule, and the entry's
+    #: since the same day: the exchange ceiling bounds the FIRST step too
+    last_nu = {"nu": K.collision_rates(ne_cgs, te, ne_cgs, ti, mass=[MD_G],
+                                       z=[1.0], therm=[1.0])["nu_exch"]}
     dts = []
     for _stp in range(nt):
         q_e = heat_e - K.rad_ion(te, ne_cgs, ne_cgs, [1.0],

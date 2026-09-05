@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "97b37f7c0cacebce";
+pub const DIGEST: &str = "d427ca30ee019d8e";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -35,6 +35,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "ti", path: "profiles_1d/t_i_average", units: "eV", rank: "1d" },
         Slot { key: "zeff", path: "profiles_1d/zeff", units: "1", rank: "1d" },
         Slot { key: "ni", path: "profiles_1d/fylite:ion_density", units: "m^-3", rank: "1d" },
+        Slot { key: "omega", path: "profiles_1d/rotation_frequency_tor_sonic", units: "rad/s", rank: "1d" },
+        Slot { key: "nz", path: "profiles_1d/fylite:impurity_density", units: "m^-3", rank: "1d" },
     ] },
     Table { name: "CORE_SOURCES", doc_type: "fyo:core_sources", slots: &[
         Slot { key: "psin", path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
@@ -170,6 +172,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "fpol", path: "time_slice/profiles_1d/f", units: "T.m", rank: "1d" },
         Slot { key: "rmin", path: "time_slice/profiles_1d/fylite:r_minor", units: "m", rank: "1d" },
         Slot { key: "rmaj", path: "time_slice/profiles_1d/fylite:r_major", units: "m", rank: "1d" },
+        Slot { key: "r2", path: "time_slice/profiles_1d/fylite:r2_average", units: "m^2", rank: "1d" },
     ] },
     Table { name: "LH_ANTENNAS", doc_type: "fyo:lh_antennas", slots: &[
         Slot { key: "name", path: "antenna/name", units: "", rank: "0d" },
@@ -249,7 +252,7 @@ pub const TABLES: &[Table] = &[
 /// packed block layouts: the position of a row IS its offset
 pub const BLOCKS: &[Block] = &[
     Block { name: "CASE_CODES", rows: &[
-        Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; marched by evolve_heat" },
+        Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
         Row { key: "vstab", shape: "vstab", units: "assembled", gloss: "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab" },
@@ -280,13 +283,13 @@ pub const BLOCKS: &[Block] = &[
     ] },
     Block { name: "ENTRY_SCOPE", rows: &[
         Row { key: "ch-heat", shape: "chHeat", units: "required", gloss: "a heat channel — this entry marches nothing else" },
-        Row { key: "ch-density", shape: "chDensity", units: "unsunk", gloss: "the density channel" },
-        Row { key: "ch-momentum", shape: "momentum", units: "unsunk", gloss: "the momentum channel" },
+        Row { key: "ch-density", shape: "chDensity", units: "sunk", gloss: "the density channel" },
+        Row { key: "ch-momentum", shape: "chMomentum", units: "sunk", gloss: "the momentum channel" },
         Row { key: "beam", shape: "beam", units: "unsunk", gloss: "the NBI executor (deposition, stopping, driven current)" },
         Row { key: "lh", shape: "lh", units: "unsunk", gloss: "the lower-hybrid executor" },
         Row { key: "wave", shape: "wave", units: "unsunk", gloss: "the actuator waveform driver" },
         Row { key: "ipctl", shape: "ipCtl", units: "unsunk", gloss: "the I_p feedback controller" },
-        Row { key: "quasi", shape: "quasi", units: "unsunk", gloss: "impurity dilution (composition-derived fuel fraction)" },
+        Row { key: "quasi", shape: "quasi", units: "sunk", gloss: "impurity dilution (composition-derived fuel fraction)" },
         Row { key: "resume", shape: "", units: "sunk", gloss: "a resumed state" },
         Row { key: "closure", shape: "closure", units: "unsunk", gloss: "a closure other than the constant one (neoclassical / turbulent / flux-match)" },
         Row { key: "couple", shape: "couple", units: "unsunk", gloss: "the equilibrium alternation" },
@@ -309,6 +312,10 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "exch_prev", shape: "n", units: "1/s", gloss: "the exchange rates that step's closure produced" },
         Row { key: "chi_e_in", shape: "n", units: "m^2/s", gloss: "electron heat diffusivity profile (chi_source = 1)" },
         Row { key: "chi_i_in", shape: "n", units: "m^2/s", gloss: "ion heat diffusivity profile (chi_source = 1)" },
+        Row { key: "r2", shape: "n", units: "m^2", gloss: "<R^2> on the ladder — the momentum capacity's weight (ch_momentum = 1)" },
+        Row { key: "omega_init", shape: "n", units: "rad/s", gloss: "the rotation the block starts from (zeros = at rest)" },
+        Row { key: "ni_init", shape: "n", units: "m^-3", gloss: "the main-ion density the block starts from (quasi = 1; zeros = from the dilution)" },
+        Row { key: "nz_init", shape: "n", units: "m^-3", gloss: "the impurity density the block starts from (quasi = 1; zeros = from the dilution)" },
     ] },
     Block { name: "EVOLVE_HEAT_OUT", rows: &[
         Row { key: "te", shape: "n", units: "eV", gloss: "the profile the loop reached" },
@@ -348,6 +355,14 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "edge_te_out", shape: "1", units: "eV", gloss: "the Dirichlet edge to hand the next block" },
         Row { key: "edge_ti_out", shape: "1", units: "eV", gloss: "the same for the ions" },
         Row { key: "saw_elapsed_out", shape: "1", units: "s", gloss: "time since the last crash, for the next block's saw_elapsed_in" },
+        Row { key: "ni_main", shape: "n", units: "m^-3", gloss: "the main-ion density the loop reached" },
+        Row { key: "nz", shape: "n", units: "m^-3", gloss: "the impurity density (quasi = 1)" },
+        Row { key: "zeff_used", shape: "n", units: "1", gloss: "the Z_eff profile the last step's closure was evaluated on (the slider, or the two species' own)" },
+        Row { key: "omega", shape: "n", units: "rad/s", gloss: "the toroidal rotation the loop reached" },
+        Row { key: "omega_axis", shape: "nt", units: "rad/s", gloss: "axis rotation trace" },
+        Row { key: "d_n", shape: "n", units: "m^2/s", gloss: "the main ion's particle diffusivity the last step used" },
+        Row { key: "v_n", shape: "n", units: "m/s", gloss: "its convection velocity" },
+        Row { key: "dt_fraction_used", shape: "1", units: "1", gloss: "the fuel fraction the burn ran on: the caller's, or (quasi) n_i/(2 n_e) on axis" },
     ] },
     Block { name: "EVOLVE_HEAT_PARAMS", rows: &[
         Row { key: "b0", shape: "1", units: "T", gloss: "on-axis field of the metric" },
@@ -396,6 +411,21 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "saw_period", shape: "1", units: "s", gloss: "minimum time between sawtooth crashes; 0 = no period (crash whenever triggered)" },
         Row { key: "chi_source", shape: "1", units: "1", gloss: "0 = constant closure (chi0/chi_ratio); 1 = the caller's chi_e_in / chi_i_in profiles" },
         Row { key: "saw_elapsed_in", shape: "1", units: "s", gloss: "time since the last crash, carried across blocks (read when resume = 1)" },
+        Row { key: "ch_density", shape: "1", units: "1", gloss: "1 to march the ion density beside the heat (the main ion; the impurity too when quasi = 1)" },
+        Row { key: "d_over_chi", shape: "1", units: "1", gloss: "the main ion's particle diffusivity as a fraction of chi_e (prescribed)" },
+        Row { key: "pinch", shape: "1", units: "m/s", gloss: "the main ion's convection velocity in Gamma = -D dn/drho + v n (prescribed)" },
+        Row { key: "fuel", shape: "1", units: "1/s", gloss: "fuelling rate, deposit-normalised (particles per second into the main ion)" },
+        Row { key: "fuel_centre", shape: "1", units: "1", gloss: "its Gaussian centre in rho/rho_edge" },
+        Row { key: "fuel_width", shape: "1", units: "1", gloss: "its Gaussian width in rho/rho_edge" },
+        Row { key: "quasi", shape: "1", units: "1", gloss: "1 = the impurity is in the quasi-neutrality: main ion diluted by zeff (ion_dilution), the impurity a second ion channel; needs imp_id, imp_z > 1, imp_mass" },
+        Row { key: "imp_mass", shape: "1", units: "amu", gloss: "the impurity's mass number (the alpha's field-ion sum; quasi = 1)" },
+        Row { key: "d_over_chi_z", shape: "1", units: "1", gloss: "the impurity's D as a fraction of chi_e (quasi = 1, ch_density = 1)" },
+        Row { key: "pinch_z", shape: "1", units: "m/s", gloss: "the impurity's convection velocity" },
+        Row { key: "fuel_z", shape: "1", units: "1/s", gloss: "the impurity's own fuelling rate on the same deposit" },
+        Row { key: "ch_momentum", shape: "1", units: "1", gloss: "1 to advance the toroidal rotation beside the march (solve_momentum, one step per step)" },
+        Row { key: "prandtl", shape: "1", units: "1", gloss: "chi_phi = prandtl * chi_i (prescribed; floored at 1e-6)" },
+        Row { key: "torque", shape: "1", units: "N.m", gloss: "total torque, deposited on the aux-power Gaussian (dep_centre / dep_width)" },
+        Row { key: "dt_fraction_in", shape: "1", units: "1", gloss: "the fuel fraction the previous block ran on (read when resume = 1 and quasi = 1)" },
     ] },
     Block { name: "PROFIT_IN", rows: &[
         Row { key: "x", shape: "n", units: "1", gloss: "the coordinate" },
@@ -503,4 +533,4 @@ pub const ENTRIES: &[Entry] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "fast_energy", "flux_loop", "i_max_aturn", "ip", "length", "max_power", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "null_r", "null_z", "orbit_loss_fraction", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "q", "q_psi_norm", "reconstructed", "result", "rho", "shinethrough", "source", "target", "time", "trapped_fraction", "truth", "verify", "vprime", "weight"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "fast_energy", "flux_loop", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "max_power", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "null_r", "null_z", "orbit_loss_fraction", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "q", "q_psi_norm", "reconstructed", "result", "rho", "shinethrough", "source", "target", "time", "trapped_fraction", "truth", "verify", "vprime", "weight"];

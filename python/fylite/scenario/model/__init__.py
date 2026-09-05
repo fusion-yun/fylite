@@ -372,8 +372,24 @@ def evolve(*, a: float, r0: float, b0: float,
            equilibrium=None, n_surfaces: int | None = None,
            edge_psin: float = 0.95, reference=None,
            i_cd: float = 0.0, cd_centre: float = 0.4,
-           cd_width: float = 0.2) -> dict:
+           cd_width: float = 0.2,
+           density: bool = False, d_over_chi: float = 0.5, pinch: float = 0.0,
+           fuel: float = 0.0, fuel_centre: float = 1.0, fuel_width: float = 0.25,
+           quasi: bool = False, d_over_chi_z: float | None = None,
+           pinch_z: float | None = None, fuel_z: float = 0.0,
+           momentum: bool = False, prandtl: float = 1.0,
+           torque: float = 0.0) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
+
+    ★2026-09-05 第十五刀: ``density=True`` marches the main-ion density beside
+    the heat (a PRESCRIBED particle closure — ``D = d_over_chi * chi_e`` and a
+    constant ``pinch`` [m/s] — with ``fuel`` [1/s] deposited on a Gaussian);
+    ``quasi=True`` puts the named ``impurity`` INTO the quasi-neutrality: the
+    main ion diluted by ``zeff`` (``ion_dilution``), the impurity a second ion
+    channel with its own ``d_over_chi_z`` / ``pinch_z`` / ``fuel_z`` (defaults:
+    the main ion's), and Z_eff a RESULT of the two species; ``momentum=True``
+    advances the toroidal rotation beside the march (``chi_phi = prandtl *
+    chi_i``, ``torque`` [N m] on the aux deposit, Dirichlet zero at the edge).
 
     ★★2026-09-05 (FYL-DESIGN-16 K-3, the ninth tool to sink).  This function
     used to be the ASSEMBLY around the one declared entry ``evolve_heat``: the
@@ -447,6 +463,10 @@ def evolve(*, a: float, r0: float, b0: float,
             f"impurity {impurity!r} needs its charge (imp_z): the "
             "bremsstrahlung term goes as Z^2, so a concentration without a "
             "charge radiates a plasma nobody asked for")
+    if quasi and not impurity:
+        raise ValueError(
+            "quasi=True puts an impurity into the quasi-neutrality, so it "
+            "needs one: pass `impurity=` (and its `imp_z`)")
 
     settings = {
         "geometry": "miller" if equilibrium is None else "gfile",
@@ -469,6 +489,15 @@ def evolve(*, a: float, r0: float, b0: float,
         "saw_mix": float(saw_mix), "saw_period": float(saw_period),
         "i_cd_a": float(i_cd), "cd_centre": float(cd_centre),
         "cd_width": float(cd_width),
+        "density": float(bool(density)), "d_over_chi": float(d_over_chi),
+        "pinch": float(pinch), "fuel_rate": float(fuel),
+        "fuel_centre": float(fuel_centre), "fuel_width": float(fuel_width),
+        "quasi": float(bool(quasi)),
+        "d_over_chi_z": float(d_over_chi if d_over_chi_z is None else d_over_chi_z),
+        "pinch_z": float(pinch if pinch_z is None else pinch_z),
+        "fuel_z_rate": float(fuel_z),
+        "momentum": float(bool(momentum)), "prandtl": float(prandtl),
+        "torque": float(torque),
     }
     inputs: dict = {}
     if equilibrium is None:
@@ -518,6 +547,15 @@ def evolve(*, a: float, r0: float, b0: float,
         "ti": np.asarray(cp["t_i_average"]["data"], float),
         "ne": np.asarray(cp["electrons"]["density"]["data"], float),
         "te_init": arr("te_init"), "ti_init": arr("ti_init"),
+        #: 第十五刀 — the composition and the two channels (None where off)
+        "ni": np.asarray(cp["fylite:ion_density"]["data"], float),
+        "zeff": np.asarray(cp["zeff"]["data"], float),
+        "nz": (np.asarray(cp["fylite:impurity_density"]["data"], float)
+               if quasi else None),
+        "omega": (np.asarray(cp["rotation_frequency_tor_sonic"]["data"], float)
+                  if momentum else None),
+        "omega_axis": arr("omega_axis"),
+        "dt_fraction_used": fact("dt_fraction_used"),
         "t": np.asarray(sm["time"]["data"], float),
         "te_axis": np.asarray(sm["local"]["magnetic_axis"]["t_e"]["value"]["data"], float),
         "ti_axis": np.asarray(sm["local"]["magnetic_axis"]["t_i_average"]["value"]["data"], float),

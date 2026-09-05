@@ -7895,6 +7895,11 @@ function evScopeMiss(sp) {
       //: the browser's resume does not ride on `sp` — it is a whole state
       //: the page hands the worker, so the test is for THAT
       if (msgHasResume) miss.push(r.gloss);
+    } else if (r.units === 'sunk') {
+      //: ★a capability the entry carries (2026-09-05 第十五刀: the density
+      //: channel, the impurity in the quasi-neutrality, the momentum
+      //: channel) — on or off, it is in scope
+      continue;
     } else if (v) {
       miss.push(r.gloss);
     }
@@ -7956,7 +7961,16 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
     sawtooth: sp.sawtooth ? 1 : 0, saw_mix: sp.sawtooth ? sp.sawMix : 0,
     saw_period: sp.sawPeriod || 0,
     i_cd_a: sp.iCd || 0, cd_centre: sp.cdCentre, cd_width: sp.cdWidth,
-    resume: 0, t_start: 0, dt_start: 0, edge_te_in: 0, edge_ti_in: 0, capped_in: 0, saw_elapsed_in: 0
+    resume: 0, t_start: 0, dt_start: 0, edge_te_in: 0, edge_ti_in: 0, capped_in: 0, saw_elapsed_in: 0,
+    //: ★第十五刀 — the density channel (the impurity in the quasi-neutrality
+    //: with it) and the momentum channel, the sliders in SI (fuel 1e20/s ->
+    //: 1/s; the torque is N.m on both sides)
+    'ch-density': ctx.channels.density ? 1 : 0, d_over_chi: sp.dOverChi, pinch: sp.pinch,
+    fuel_rate: (sp.fuel || 0) * 1e20, fuel_centre: sp.fuelCentre, fuel_width: sp.fuelWidth,
+    quasi: sp.quasi ? 1 : 0, d_over_chi_z: sp.dOverChiZ, pinch_z: sp.pinchZ,
+    fuel_z_rate: (sp.fuelZ || 0) * 1e20,
+    'ch-momentum': ctx.momentum ? 1 : 0, prandtl: sp.prandtl, torque: sp.torque || 0,
+    dt_fraction_in: 0
   };
   Object.keys(settings).forEach(function (k) {
     if (settings[k] === undefined || settings[k] === null) delete settings[k];
@@ -7964,11 +7978,14 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
   var ladder = { rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), gm3: arr(geo.gm3),
                  gm2: arr(geo.gm2), f: arr(geo.fpol), q: arr(geo.q),
                  'fylite:r_minor': arr(geo.rmin), 'fylite:r_major': arr(geo.rmaj),
+                 'fylite:r2_average': arr(geo.r2),
                  psi: arr(st.psi) };
   Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
   var zeros = new Float64Array(n);
   var state = { te: st.te, ti: st.ti, ne: st.ne, psi: st.psi,
-                psiPrev: zeros, sigmaPrev: zeros, exchPrev: zeros };
+                psiPrev: zeros, sigmaPrev: zeros, exchPrev: zeros,
+                //: the page's own start: the dilution it built, the rotation at rest
+                ni: st.ni, nz: st.nz || null, omega: st.omega || null };
   var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
   while (steps < sp.nSteps) {
     if (prev) {
@@ -7979,16 +7996,23 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
       settings.edge_ti_in = prev.edge_ti_out;
       settings.capped_in = prev.dt_capped;
       settings.saw_elapsed_in = prev.saw_elapsed_out;
+      settings.dt_fraction_in = prev.dt_fraction_used;
       state = { te: prev.te, ti: prev.ti, ne: prev.ne_out, psi: prev.psi,
-                psiPrev: prev.psi_prev_out, sigmaPrev: prev.sigma_prev_out, exchPrev: prev.exch_prev_out };
+                psiPrev: prev.psi_prev_out, sigmaPrev: prev.sigma_prev_out, exchPrev: prev.exch_prev_out,
+                ni: prev.ni_main, nz: prev.nz, omega: prev.omega };
     }
     var plan = { settings: settings, inputs: {
       equilibrium: { time_slice: { profiles_1d: ladder } },
       core_profiles: { profiles_1d: { grid: { psi: arr(state.psi) },
                                       electrons: { temperature: arr(state.te), density: arr(state.ne) },
-                                      t_i_average: arr(state.ti) } },
+                                      t_i_average: arr(state.ti),
+                                      'fylite:ion_density': arr(state.ni),
+                                      'fylite:impurity_density': sp.quasi && state.nz ? arr(state.nz) : undefined,
+                                      rotation_frequency_tor_sonic: ctx.momentum && state.omega ? arr(state.omega) : undefined } },
       evolve: { 'fylite:psi_prev': arr(state.psiPrev), 'fylite:sigma_prev': arr(state.sigmaPrev),
                 'fylite:exch_prev': arr(state.exchPrev) } } };
+    var cp1 = plan.inputs.core_profiles.profiles_1d;
+    Object.keys(cp1).forEach(function (k) { if (cp1[k] === undefined || cp1[k] === null) delete cp1[k]; });
     var rec = fy.complete('code/evolve', plan);
     var F = function (k) { return fieldFlat(rec, k); };
     var X = function (k) { return rec.facts[k].value; };
@@ -8004,10 +8028,17 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
               p_line: flat(sm.global_quantities.power_line.value), p_ohm: flat(sm.global_quantities.power_ohm.value),
               dt_used: F('dt_used'), balance: F('balance'), t_ped: F('t_ped'), ped_extrap: X('ped_extrap'),
               t_end: X('t_end'), dt_next: X('dt_next'), edge_te_out: X('edge_te_out'), edge_ti_out: X('edge_ti_out'),
-              saw_elapsed_out: X('saw_elapsed_out') };
+              saw_elapsed_out: X('saw_elapsed_out'), dt_fraction_used: X('dt_fraction_used'),
+              //: 第十五刀: the composition and the two channels
+              ni_main: flat(cpr['fylite:ion_density']), zeff: flat(cpr.zeff),
+              nz: sp.quasi && cpr['fylite:impurity_density'] ? flat(cpr['fylite:impurity_density']) : null,
+              omega: ctx.momentum && cpr.rotation_frequency_tor_sonic ? flat(cpr.rotation_frequency_tor_sonic) : null };
     steps += 1;
     tNow = o.t_end;
-    st.te = o.te; st.ti = o.ti; st.ne = o.ne_out; st.ni = o.ne_out;
+    st.te = o.te; st.ti = o.ti; st.ne = o.ne_out; st.ni = o.ni_main;
+    if (sp.quasi) st.nz = o.nz;
+    if (ctx.momentum) { st.omega = o.omega; ctx.omega = o.omega; }
+    ctx.lastZeff = o.zeff;
     if (ctx.channels.current) { st.psi = o.psi; st.q = o.q; }
     ctx.lastBs = ctx.channels.current ? o.j_bs : null;
     ctx.lastChi = { e: o.chi_e, i: o.chi_i };
@@ -8044,6 +8075,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
       post({ type: 'evolve_step', step: steps, nSteps: sp.nSteps,
              rho: geo.rho, psin: geo.psin, reading: rd,
              te: st.te, ti: st.ti, ne: st.ne, q: st.q,
+             ni: st.ni, nz: st.nz || null, omega: st.omega || null,
              chiE: ctx.lastChi.e, chiI: ctx.lastChi.i,
              jni: ctx.lastBs || null,
              geoSource: geo.source, coupled: 0, viaEntry: true });
@@ -8423,6 +8455,8 @@ function evolveRun(msg) {
   }
 
   var ctx = { sp: sp, geo: geo, rho: geo.rho, channels: channels,
+              //: 第十五刀: the entry march reads the momentum switch here
+              momentum: momentum,
               //: ★T-C16: the loop's state lives on `ctx` because it is
               //: STATEFUL across steps (the integral) — a controller
               //: rebuilt each step is a proportional controller wearing an
@@ -9070,7 +9104,7 @@ function evolveRun(msg) {
       if (steps % Math.max(1, sp.report | 0) === 0 || steps === sp.nSteps)
         post({ type: 'evolve_step', step: steps, nSteps: sp.nSteps,
                rho: geo.rho, psin: geo.psin, reading: rd,
-               te: st.te, ti: st.ti, ne: st.ne, q: st.q,
+               te: st.te, ti: st.ti, ne: st.ne, q: st.q, ni: st.ni, nz: st.nz || null, omega: st.omega || null,
                chiE: ctx.lastChi ? ctx.lastChi.e : null,
                chiI: ctx.lastChi ? ctx.lastChi.i : null,
                jni: ctx.lastBs || null,

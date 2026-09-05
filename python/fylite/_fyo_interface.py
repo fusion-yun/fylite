@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '97b37f7c0cacebce'
+DIGEST = 'd427ca30ee019d8e'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -29,6 +29,8 @@ TABLES = {
             'ti': {"path": 'profiles_1d/t_i_average', "units": 'eV', "rank": '1d'},
             'zeff': {"path": 'profiles_1d/zeff', "units": '1', "rank": '1d'},
             'ni': {"path": 'profiles_1d/fylite:ion_density', "units": 'm^-3', "rank": '1d'},
+            'omega': {"path": 'profiles_1d/rotation_frequency_tor_sonic', "units": 'rad/s', "rank": '1d'},
+            'nz': {"path": 'profiles_1d/fylite:impurity_density', "units": 'm^-3', "rank": '1d'},
         },
     },
     'CORE_SOURCES': {
@@ -182,6 +184,7 @@ TABLES = {
             'fpol': {"path": 'time_slice/profiles_1d/f', "units": 'T.m', "rank": '1d'},
             'rmin': {"path": 'time_slice/profiles_1d/fylite:r_minor', "units": 'm', "rank": '1d'},
             'rmaj': {"path": 'time_slice/profiles_1d/fylite:r_major', "units": 'm', "rank": '1d'},
+            'r2': {"path": 'time_slice/profiles_1d/fylite:r2_average', "units": 'm^2', "rank": '1d'},
         },
     },
     'LH_ANTENNAS': {
@@ -290,7 +293,7 @@ TABLES = {
 #: position in the list BEING the offset into the flat buffer
 BLOCKS = {
     'CASE_CODES': [
-        {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; marched by evolve_heat"},
+        {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
         {'key': 'vstab', 'shape': 'vstab', 'units': 'assembled', 'gloss': "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab"},
@@ -321,13 +324,13 @@ BLOCKS = {
     ],
     'ENTRY_SCOPE': [
         {'key': 'ch-heat', 'shape': 'chHeat', 'units': 'required', 'gloss': 'a heat channel — this entry marches nothing else'},
-        {'key': 'ch-density', 'shape': 'chDensity', 'units': 'unsunk', 'gloss': 'the density channel'},
-        {'key': 'ch-momentum', 'shape': 'momentum', 'units': 'unsunk', 'gloss': 'the momentum channel'},
+        {'key': 'ch-density', 'shape': 'chDensity', 'units': 'sunk', 'gloss': 'the density channel'},
+        {'key': 'ch-momentum', 'shape': 'chMomentum', 'units': 'sunk', 'gloss': 'the momentum channel'},
         {'key': 'beam', 'shape': 'beam', 'units': 'unsunk', 'gloss': 'the NBI executor (deposition, stopping, driven current)'},
         {'key': 'lh', 'shape': 'lh', 'units': 'unsunk', 'gloss': 'the lower-hybrid executor'},
         {'key': 'wave', 'shape': 'wave', 'units': 'unsunk', 'gloss': 'the actuator waveform driver'},
         {'key': 'ipctl', 'shape': 'ipCtl', 'units': 'unsunk', 'gloss': 'the I_p feedback controller'},
-        {'key': 'quasi', 'shape': 'quasi', 'units': 'unsunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
+        {'key': 'quasi', 'shape': 'quasi', 'units': 'sunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
         {'key': 'resume', 'shape': '', 'units': 'sunk', 'gloss': 'a resumed state'},
         {'key': 'closure', 'shape': 'closure', 'units': 'unsunk', 'gloss': 'a closure other than the constant one (neoclassical / turbulent / flux-match)'},
         {'key': 'couple', 'shape': 'couple', 'units': 'unsunk', 'gloss': 'the equilibrium alternation'},
@@ -350,6 +353,10 @@ BLOCKS = {
         {'key': 'exch_prev', 'shape': 'n', 'units': '1/s', 'gloss': "the exchange rates that step's closure produced"},
         {'key': 'chi_e_in', 'shape': 'n', 'units': 'm^2/s', 'gloss': 'electron heat diffusivity profile (chi_source = 1)'},
         {'key': 'chi_i_in', 'shape': 'n', 'units': 'm^2/s', 'gloss': 'ion heat diffusivity profile (chi_source = 1)'},
+        {'key': 'r2', 'shape': 'n', 'units': 'm^2', 'gloss': "<R^2> on the ladder — the momentum capacity's weight (ch_momentum = 1)"},
+        {'key': 'omega_init', 'shape': 'n', 'units': 'rad/s', 'gloss': 'the rotation the block starts from (zeros = at rest)'},
+        {'key': 'ni_init', 'shape': 'n', 'units': 'm^-3', 'gloss': 'the main-ion density the block starts from (quasi = 1; zeros = from the dilution)'},
+        {'key': 'nz_init', 'shape': 'n', 'units': 'm^-3', 'gloss': 'the impurity density the block starts from (quasi = 1; zeros = from the dilution)'},
     ],
     'EVOLVE_HEAT_OUT': [
         {'key': 'te', 'shape': 'n', 'units': 'eV', 'gloss': 'the profile the loop reached'},
@@ -389,6 +396,14 @@ BLOCKS = {
         {'key': 'edge_te_out', 'shape': '1', 'units': 'eV', 'gloss': 'the Dirichlet edge to hand the next block'},
         {'key': 'edge_ti_out', 'shape': '1', 'units': 'eV', 'gloss': 'the same for the ions'},
         {'key': 'saw_elapsed_out', 'shape': '1', 'units': 's', 'gloss': "time since the last crash, for the next block's saw_elapsed_in"},
+        {'key': 'ni_main', 'shape': 'n', 'units': 'm^-3', 'gloss': 'the main-ion density the loop reached'},
+        {'key': 'nz', 'shape': 'n', 'units': 'm^-3', 'gloss': 'the impurity density (quasi = 1)'},
+        {'key': 'zeff_used', 'shape': 'n', 'units': '1', 'gloss': "the Z_eff profile the last step's closure was evaluated on (the slider, or the two species' own)"},
+        {'key': 'omega', 'shape': 'n', 'units': 'rad/s', 'gloss': 'the toroidal rotation the loop reached'},
+        {'key': 'omega_axis', 'shape': 'nt', 'units': 'rad/s', 'gloss': 'axis rotation trace'},
+        {'key': 'd_n', 'shape': 'n', 'units': 'm^2/s', 'gloss': "the main ion's particle diffusivity the last step used"},
+        {'key': 'v_n', 'shape': 'n', 'units': 'm/s', 'gloss': 'its convection velocity'},
+        {'key': 'dt_fraction_used', 'shape': '1', 'units': '1', 'gloss': "the fuel fraction the burn ran on: the caller's, or (quasi) n_i/(2 n_e) on axis"},
     ],
     'EVOLVE_HEAT_PARAMS': [
         {'key': 'b0', 'shape': '1', 'units': 'T', 'gloss': 'on-axis field of the metric'},
@@ -437,6 +452,21 @@ BLOCKS = {
         {'key': 'saw_period', 'shape': '1', 'units': 's', 'gloss': 'minimum time between sawtooth crashes; 0 = no period (crash whenever triggered)'},
         {'key': 'chi_source', 'shape': '1', 'units': '1', 'gloss': "0 = constant closure (chi0/chi_ratio); 1 = the caller's chi_e_in / chi_i_in profiles"},
         {'key': 'saw_elapsed_in', 'shape': '1', 'units': 's', 'gloss': 'time since the last crash, carried across blocks (read when resume = 1)'},
+        {'key': 'ch_density', 'shape': '1', 'units': '1', 'gloss': '1 to march the ion density beside the heat (the main ion; the impurity too when quasi = 1)'},
+        {'key': 'd_over_chi', 'shape': '1', 'units': '1', 'gloss': "the main ion's particle diffusivity as a fraction of chi_e (prescribed)"},
+        {'key': 'pinch', 'shape': '1', 'units': 'm/s', 'gloss': "the main ion's convection velocity in Gamma = -D dn/drho + v n (prescribed)"},
+        {'key': 'fuel', 'shape': '1', 'units': '1/s', 'gloss': 'fuelling rate, deposit-normalised (particles per second into the main ion)'},
+        {'key': 'fuel_centre', 'shape': '1', 'units': '1', 'gloss': 'its Gaussian centre in rho/rho_edge'},
+        {'key': 'fuel_width', 'shape': '1', 'units': '1', 'gloss': 'its Gaussian width in rho/rho_edge'},
+        {'key': 'quasi', 'shape': '1', 'units': '1', 'gloss': '1 = the impurity is in the quasi-neutrality: main ion diluted by zeff (ion_dilution), the impurity a second ion channel; needs imp_id, imp_z > 1, imp_mass'},
+        {'key': 'imp_mass', 'shape': '1', 'units': 'amu', 'gloss': "the impurity's mass number (the alpha's field-ion sum; quasi = 1)"},
+        {'key': 'd_over_chi_z', 'shape': '1', 'units': '1', 'gloss': "the impurity's D as a fraction of chi_e (quasi = 1, ch_density = 1)"},
+        {'key': 'pinch_z', 'shape': '1', 'units': 'm/s', 'gloss': "the impurity's convection velocity"},
+        {'key': 'fuel_z', 'shape': '1', 'units': '1/s', 'gloss': "the impurity's own fuelling rate on the same deposit"},
+        {'key': 'ch_momentum', 'shape': '1', 'units': '1', 'gloss': '1 to advance the toroidal rotation beside the march (solve_momentum, one step per step)'},
+        {'key': 'prandtl', 'shape': '1', 'units': '1', 'gloss': 'chi_phi = prandtl * chi_i (prescribed; floored at 1e-6)'},
+        {'key': 'torque', 'shape': '1', 'units': 'N.m', 'gloss': 'total torque, deposited on the aux-power Gaussian (dep_centre / dep_width)'},
+        {'key': 'dt_fraction_in', 'shape': '1', 'units': '1', 'gloss': 'the fuel fraction the previous block ran on (read when resume = 1 and quasi = 1)'},
     ],
     'PROFIT_IN': [
         {'key': 'x', 'shape': 'n', 'units': '1', 'gloss': 'the coordinate'},
@@ -549,4 +579,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'rho', 'shinethrough', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'rho', 'shinethrough', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']

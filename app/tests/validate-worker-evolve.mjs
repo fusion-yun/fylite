@@ -9,6 +9,11 @@
 //   * `--record` 把每步的 te / ti / ne / psi / q 与读数写进 fixtures/worker-evolve-entry.json
 //     （在切门**之前**跑一次，那就是旧配方的答案）；
 //   * 默认对着那份 fixture **逐位**判——门与扁平导出到达同一个条目，同样的数。
+//
+// ★fixture 于 2026-09-05 第十五刀重录一次：条目从此像页面自己的循环那样，**第一步也受
+// 交换时间上限**（页面在推进前先评估一次闭合），沉积按页面的乘法次序（`g * (total/norm)`），
+// α 先加、辐射后减——三处都是 ulp 级，但准中性那条闸在第六步就把它们抓出来了。旧 fixture
+// 记的是条目自己以前的算法，不是页面循环的答案，所以重录不是把闸子改宽。
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';

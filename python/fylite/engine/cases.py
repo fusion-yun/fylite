@@ -783,8 +783,34 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
          "fmdx", "fmdxmax", "fmrhomin", "fmouter", "fmotol", "fmorlx",
          "degp", "degf"],
         "the turbulent / flux-match closures' budgets (inert on closure 0)")
-    acct.as_sub(["dchi", "pinch", "dchiz", "pinchz", "zfuel", "fuel"],
-                "the density channel's transport and fuelling (channel off)")
+    #: ★★第十五刀 (2026-09-05) — the density channel, the impurity in the
+    #: quasi-neutrality and the momentum channel are the entry's.  The
+    #: sliders ride along only with their channel, the posture every other
+    #: drive on this case takes; the page's `fuel` is in 1e20/s and the
+    #: entry takes 1/s — one conversion, here.
+    density = bool(acct.take("ch-density", "density"))
+    args["density"] = density
+    quasi = bool(acct.take("quasi", "quasi"))
+    args["quasi"] = quasi
+    if quasi and not species:
+        raise SystemExit("`quasi` (the impurity in the quasi-neutrality) needs "
+                         "a named impurity (`species`)")
+    if density:
+        args.update(d_over_chi=float(acct.take("dchi", "d_over_chi")),
+                    pinch=float(acct.take("pinch", "pinch")),
+                    fuel=float(acct.take("fuel", "fuel (slider is 1e20/s)")) * 1e20)
+        if quasi:
+            args.update(d_over_chi_z=float(acct.take("dchiz", "d_over_chi_z")),
+                        pinch_z=float(acct.take("pinchz", "pinch_z")),
+                        fuel_z=float(acct.take("zfuel", "fuel_z (slider is 1e20/s)")) * 1e20)
+        else:
+            acct.as_sub(["dchiz", "pinchz", "zfuel"],
+                        "the impurity's transport and fuelling (inert: quasi is off)")
+    else:
+        acct.as_sub(["dchi", "pinch", "dchiz", "pinchz", "zfuel", "fuel"],
+                    "the density channel's transport and fuelling (channel off)")
+    momentum = bool(acct.take("ch-momentum", "momentum"))
+    args["momentum"] = momentum
     if not current:
         #: ★the page ignores these three without the channel, so they are
         #: INERT here rather than unmapped — 「declared and ignored, exactly
@@ -795,7 +821,11 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
                     "is off, as on the page)")
     acct.as_sub(["freeiter", "couplefixed", "relax", "edgepsin"],
                 "the equilibrium side (geometry prescribed on this tier)")
-    acct.as_sub(["torque", "prandtl"], "the momentum channel's two numbers")
+    if momentum:
+        args.update(torque=float(acct.take("torque", "torque [N m]")),
+                    prandtl=float(acct.take("prandtl", "prandtl")))
+    else:
+        acct.as_sub(["torque", "prandtl"], "the momentum channel's two numbers (channel off)")
     return args
 
 
