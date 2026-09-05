@@ -336,56 +336,38 @@ function surfaceShapes(res, count) {
  * assembly over the whole conductor set, which is the most expensive thing
  * on this page after the solve itself.
  */
-function verticalOf(res, prof2, chan) {
-  if (!prof2 || !M.vessel || !M.vessel.length) return null;
+function verticalOf(res, prof2, chan, lcfs) {
+  if (!prof2 || !M.vessel || !M.vessel.length || !lcfs || lcfs.length < 6) return null;
+  //: ★第三十刀: the criterion is `code/vstab`'s — sunk for Python from this
+  //: very function — off the device document, the page's equilibrium
+  //: document (its gauge stated) and the channel currents.  What stays here
+  //: is the two resistivities the page always supplied where the machine
+  //: named none, in the door's own unit (µΩ·m), and the reading back.
   try {
-    var g = { r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-              nr: grid.nr, nz: grid.nz };
-    var poly = P.boundarySurface(grid, res.psi, res.psiAxis, res.psiBnd,
-                                 res.axisR, res.axisZ, M.limiter.r,
-                                 M.limiter.z, 181);
-    var br = [], bz = [];
-    poly.forEach(function (p) { br.push(p[0]); bz.push(p[1]); });
-    var pl = fy.plasmaFilaments({
-      grid: g, psi: res.psi, psiAxis: res.psiAxis, psiBnd: res.psiBnd,
-      pprime: prof2.pprime, ffprim: prof2.ffprime, bndR: br, bndZ: bz,
-      ip: res.ip, coarsen: 2 });
-    if (!pl.r.length) return null;
-    var coils = elementArrays(M.coils), ves = elementArrays(M.vessel);
-    var ones = function (n) { var a = []; for (var i = 0; i < n; i++) a.push(1); return a; };
-    var gEl = fy.couplingGradient({ pr: pl.r, pz: pl.z, pa: pl.a,
-                                    lr: coils.r, lz: coils.z,
-                                    lt: ones(coils.r.length) });
-    var gVs = fy.couplingGradient({ pr: pl.r, pz: pl.z, pa: pl.a,
-                                    lr: ves.r, lz: ves.z,
-                                    lt: ones(ves.r.length) });
-    //: the channel fold is the SAME map the fields use — a channel drives
-    //: one or two elements at measured weights, and taking one element per
-    //: channel would be wrong for exactly the split pairs
-    var G = new Float64Array(NCH + gVs.length);
-    for (var c = 0; c < NCH; c++) {
-      var acc = 0;
-      for (var j = 0; j < NEL; j++) acc += chanMap[c * NEL + j] * gEl[j];
-      G[c] = acc;
-    }
-    for (var v = 0; v < gVs.length; v++) G[NCH + v] = gVs[v];
-    var etaC = M.coil_resistivity_uohm_m === undefined
-      ? 1.8e-8 : M.coil_resistivity_uohm_m * 1e-6;
-    var etaV = M.vessel_resistivity_uohm_m === undefined
-      ? 7.6e-7 : M.vessel_resistivity_uohm_m * 1e-6;
-    var cm = fy.channelMatrices({
-      coils: coils, vessel: ves, nch: NCH, weights: chanW,
-      etaCoil: new Array(NEL).fill(etaC),
-      etaVessel: new Array(ves.r.length).fill(etaV), nu: 3, nv: 3 });
-    var elCur = elementCurrents(chan);
-    var k = fy.verticalStiffness({ pr: pl.r, pz: pl.z, pa: pl.a,
-                                   lr: coils.r, lz: coils.z,
-                                   lt: ones(coils.r.length), cur: elCur,
-                                   step: 1e-3 });
-    var plant = fy.verticalPlant({ m: cm.m, r: cm.r, g: G, ip: res.ip, k: k });
-    return { gamma: plant.gamma, k: k, kIdeal: plant.kIdeal,
-             ratio: plant.kIdeal ? k / plant.kIdeal : null,
-             nFilaments: pl.r.length };
+    var etaC = M.coil_resistivity_uohm_m === undefined ? 1.8e-8 : M.coil_resistivity_uohm_m * 1e-6;
+    var etaV = M.vessel_resistivity_uohm_m === undefined ? 7.6e-7 : M.vessel_resistivity_uohm_m * 1e-6;
+    var br = [], bz = [], i;
+    for (i = 0; i + 1 < lcfs.length; i += 2) { br.push(lcfs[i]); bz.push(lcfs[i + 1]); }
+    var rg = new Array(grid.nr), zg = new Array(grid.nz);
+    for (i = 0; i < grid.nr; i++) rg[i] = grid.r[0] + grid.dr * i;
+    for (i = 0; i < grid.nz; i++) zg[i] = grid.z[0] + grid.dz * i;
+    var eqDoc = {
+      'fylite:psi_convention': 'full_flux_Wb_axis_max',
+      vacuum_toroidal_field: { r0: self.FyDevice.tf(M).r0, b0: Math.abs(self.FyDevice.tf(M).b0) },
+      time_slice: {
+        global_quantities: { ip: res.ip, magnetic_axis: { r: res.axisR, z: res.axisZ },
+                             psi_axis: res.psiAxis, psi_boundary: res.psiBnd },
+        profiles_1d: { dpressure_dpsi: Array.from(prof2.pprime), f_df_dpsi: Array.from(prof2.ffprime) },
+        profiles_2d: { grid: { dim1: rg, dim2: zg }, psi: Array.from(res.psi) },
+        boundary: { outline: { r: br, z: bz } } } };
+    var rec = fy.complete('code/vstab', {
+      settings: { passive: 'vessel', circuit: 'full', ic: 1, coarsen: 2, nu: 3, nv: 3, step: 1e-3,
+                  eta_coil: etaC * 1e6, eta_vessel: etaV * 1e6 },
+      inputs: { device: deviceDoc(), equilibrium: eqDoc, discharge: { 'fylite:channel_aturns': Array.from(chan) } } });
+    var X = function (k) { return rec.facts[k].value; };
+    var k = X('k'), kIdeal = X('k_ideal');
+    return { gamma: X('gamma'), k: k, kIdeal: kIdeal, ratio: kIdeal ? k / kIdeal : null,
+             nFilaments: X('n_filaments') };
   } catch (e) {
     return null;
   }
@@ -728,7 +710,7 @@ function designRun(msg) {
   //: the vertical mode of the answer that is being returned, not of every
   //: pass along the way — it costs a mutual assembly over the whole
   //: conductor set
-  if (sum.criteria) sum.criteria.vertical = verticalOf(res, sum.profiles, chan);
+  if (sum.criteria) sum.criteria.vertical = verticalOf(res, sum.profiles, chan, sum.lcfs);
   var hp = rec.fields.history_pass.data, ha = rec.fields.history_alpha.data,
       he = rec.fields.history_err.data, hr = rec.fields.history_residual.data,
       hh = rec.fields.history_halvings.data, hs = rec.fields.history_shape.data;
@@ -798,24 +780,6 @@ function startRun(msg) {
                     want: c.want, label: c.row.label, why: c.why || null };
          }),
          targetBoundary: fieldFlat(rec, 'target_boundary') });
-}
-
-/**
- * The six element arrays the kernel takes, out of a device's element list.
- *
- * ★The two tilt defaults are the DECK's, not zero: `a2` defaults to 90
- * degrees, which is what `channelField` above already assumes.  A second
- * spelling with a 0 default here would silently turn every untilted
- * rectangle into a degenerate one.
- */
-function elementArrays(els) {
-  var o = { r: [], z: [], w: [], h: [], a: [], a2: [] };
-  (els || []).forEach(function (e) {
-    o.r.push(e.r); o.z.push(e.z); o.w.push(e.w); o.h.push(e.h);
-    o.a.push(e.a1 === undefined ? 0 : e.a1);
-    o.a2.push(e.a2 === undefined ? 90 : e.a2);
-  });
-  return o;
 }
 
 /**
@@ -4355,7 +4319,7 @@ self.onmessage = function (ev) {
       //: one solve, one answer — the vertical mode of THIS field, since
       //: nothing else is going to be computed after it
       if (sum.criteria && msg.vertical !== false)
-        sum.criteria.vertical = verticalOf(res, sum.profiles, chan0);
+        sum.criteria.vertical = verticalOf(res, sum.profiles, chan0, sum.lcfs);
       return post({ type: 'solve', result: sum, chan: chan0,
                     ms: Date.now() - t0 });
     }
