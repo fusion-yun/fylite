@@ -626,8 +626,10 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     closure = str(cfg.get("closure", "0"))
     #: ★第十六刀: the neoclassical closure (2) is the entry's; 第十八刀: the
     #: turbulent one (3) too — the extension's door between blocks; 4 is not
-    if closure not in ("0", "2", "3"):
-        missing.append(f"closure {closure} — {_EVOLVE_UNSUNK['closure']}")
+    #: 第二十一刀: the flux-match tier (4) too — stages of the entry with the
+    #: extension's chi between them; a closure the ledger does not know is refused
+    if closure not in ("0", "2", "3", "4"):
+        missing.append(f"closure {closure} is not one the entry knows (0 · 2 · 3 · 4)")
     #: ★★S-2c 批四 — the traced tiers are sunk (`case.rs::evolve`, the equilibrium document traced in the kernel),
     #: but a case cannot CARRY the equilibrium: device and experimental decks
     #: stay out of this repository by rule, so the corpus holds controls and
@@ -791,13 +793,25 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
                             n_rad=int(acct.take("turbnrad", "TGLF sampled radii")),
                             n_ky=int(acct.take("turbnky", "TGLF ky count")),
                             relax=float(acct.take("turbrelax", "TGLF relaxation")))
-    else:
+    elif closure != "4":
         acct.as_sub(["turbevery", "turbnrad", "turbnky", "turbrelax"],
                     "the turbulent closure's cadence and budget (inert: closure is not 3)")
-    acct.as_sub(
-        ["fmiter", "fmtol", "fmdx", "fmdxmax", "fmrhomin", "fmouter", "fmotol", "fmorlx",
-         "degp", "degf"],
-        "the flux-match closure's budgets (inert: closure 4 is not sunk)")
+    #: ★第二十一刀 — the flux-match tier's budgets ride along with closure 4
+    #: (`model.evolve(closure="flux-match", fm=…)`); inert otherwise
+    if closure == "4":
+        args["fm"] = dict(n_rad=int(acct.take("turbnrad", "TGLF radii")), n_ky=int(acct.take("turbnky", "TGLF ky count")),
+                          iter=int(acct.take("fmiter", "flux-match iterations")), tol=float(acct.take("fmtol", "flux-match tolerance")),
+                          dx=float(acct.take("fmdx", "flux-match probe dx")), dx_max=float(acct.take("fmdxmax", "flux-match dx max")),
+                          rho_min=float(acct.take("fmrhomin", "flux-match innermost radius")),
+                          outer=int(acct.take("fmouter", "stationary rounds")), o_tol=float(acct.take("fmotol", "stationary tolerance")),
+                          o_relax=float(acct.take("fmorlx", "stationary relaxation")))
+        acct.as_sub(["turbevery", "turbrelax"], "the turbulent march's cadence and relaxation (inert: the flux-match tier does not march)")
+        acct.as_sub(["degp", "degf"], "the fixed-boundary refinement's degrees (the equilibrium half is not on the Miller tier)")
+    else:
+        acct.as_sub(
+            ["fmiter", "fmtol", "fmdx", "fmdxmax", "fmrhomin", "fmouter", "fmotol", "fmorlx",
+             "degp", "degf"],
+            "the flux-match closure's budgets (inert: closure is not 4)")
     #: ★★第十五刀 (2026-09-05) — the density channel, the impurity in the
     #: quasi-neutrality and the momentum channel are the entry's.  The
     #: sliders ride along only with their channel, the posture every other
@@ -844,7 +858,7 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     #: ★第十六刀 — the waveform, the I_p loop and the closure choice are the
     #: entry's.  The waveform's knobs ride along only when it is on; the
     #: controller needs the current channel (the page refuses the same way)
-    args["closure"] = {"2": "neoclassical", "3": "turbulent"}.get(closure, "constant")
+    args["closure"] = {"2": "neoclassical", "3": "turbulent", "4": "flux-match"}.get(closure, "constant")
     wave = bool(acct.take("wave", "wave"))
     if wave:
         args["wave"] = dict(

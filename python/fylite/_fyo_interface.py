@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '28d9883126713f0e'
+DIGEST = '3c0cabd8617760fc'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -310,6 +310,7 @@ BLOCKS = {
         {'key': 'beam', 'shape': '', 'units': 'assembled', 'gloss': "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units"},
         {'key': 'refit', 'shape': '', 'units': 'assembled', 'gloss': "the equilibrium alternation between two blocks of the march (the page's coupled block): the pressure-shape fit and the beta_p feedback on the transport state, one free-boundary solve on the device's coils, the analytic p'/FF' the field implies, its q profile, the ladder traced off the solved field, the state remapped onto it; or (fit = 0) the solve and the ladder alone, for the device tier's start"},
         {'key': 'turbulence', 'shape': '', 'units': 'extension', 'gloss': "the turbulent closure between two blocks of the march (the page's turbulentChi): the surface blocks from the ladder and the state, one TGLF flux evaluation per sampled radius (units, ky grid, the quasilinear flux), chi = Q_i / (a/L_T) in gyro-Bohm units interpolated onto the ladder, relaxed against the previous block's"},
+        {'key': 'steady_current', 'shape': '', 'units': 'assembled', 'gloss': "one stationary round's current half (the page's evStationaryCurrent, 第二十一刀): the steady poloidal flux at the matched profiles by the current channel alone (transport::core_march at the resistive time), the loop voltage found by secant on the enclosed current, the frozen-closure re-solve reported beside it, the sawtooth the new q may have made possible"},
         {'key': 'wave', 'shape': '', 'units': 'assembled', 'gloss': "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics"},
     ],
     'ENTRY_OUT_KIND': [
@@ -338,7 +339,7 @@ BLOCKS = {
         {'key': 'ipctl', 'shape': 'ipCtl', 'units': 'sunk', 'gloss': 'the I_p feedback controller'},
         {'key': 'quasi', 'shape': 'quasi', 'units': 'sunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
         {'key': 'resume', 'shape': '', 'units': 'sunk', 'gloss': 'a resumed state'},
-        {'key': 'closure', 'shape': 'closure', 'units': 'unsunk', 'gloss': 'the flux-match closure (4): a root find, not a march'},
+        {'key': 'closure', 'shape': 'closure', 'units': 'sunk', 'gloss': "the closures 0 · 2 · 3 · 4 are all the entry's (第十六 · 十八 · 二十一刀); the flux-match tier (4) runs as stages of code/evolve with the extension's chi evaluated by the host between them"},
         {'key': 'couple', 'shape': 'couple', 'units': 'sunk', 'gloss': 'the equilibrium alternation, the fixed-boundary refinement included (code/refit between blocks, 第十九·二十刀)'},
     ],
     'EVOLVE_HEAT_IN': [
@@ -634,4 +635,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'chi_turb', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'psi_prev', 'q', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'reconstructed', 'result', 'rho', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'chi_turb', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight']

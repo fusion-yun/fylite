@@ -294,6 +294,14 @@
   "eq_p": {
    "gated": false,
    "gloss": "The previous equilibrium's p(psi_N) table — the pressure [Pa] — bound under inputs/refit beside eq_x (第十九刀). Not gated: a bound solver table, prefixed under inputs/refit by construction."
+  },
+  "radii": {
+   "gated": false,
+   "gloss": "The ladder indices the extension's code/turbulence samples TGLF at, bound under inputs/turbulence (第十八刀; the flux-match tier binds its MATCH radii there, 第二十一刀, so the closure is evaluated exactly where the root find reads it). Not gated: a bound solver array, prefixed under inputs/turbulence by construction."
+  },
+  "q_prev": {
+   "gated": false,
+   "gloss": "The previous stationary round's q profile, bound under inputs/evolve for code/steady_current (第二十一刀): the round's new q and psi are under-relaxed toward it (fmORelax), never on the first round. Not gated: a bound solver array under inputs/evolve, prefixed there by construction. (The flux match's own carried blob, `fylite:fm_*`, is spelled dynamically by both hosts and is not listed here — the gate lists what it can see written.)"
   }
  }
 }

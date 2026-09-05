@@ -7918,9 +7918,9 @@ function evScopeMiss(sp) {
     //: `sunk` row now.)
     if (r.key === 'closure') {
       //: ★第十六刀: the neoclassical closure (2) is the entry's; 第十八刀: the
-      //: turbulent one (3) too, on the extension's chi between blocks; only
-      //: the flux-match tier (4) is not
-      if ((v | 0) === 4) miss.push(r.gloss);
+      //: turbulent one (3) too, on the extension's chi between blocks;
+      //: 第二十一刀: the flux-match tier (4) as stages — every closure is in
+      continue;
     } else if (r.units === 'required') {
       if (!v) miss.push(r.gloss);
     } else if (r.key === 'resume') {
@@ -7971,7 +7971,10 @@ function evRefit(sp, chan, o) {
   var arr = function (v) { return v ? Array.from(v) : null; };
   var t = self.FyDevice.tf(M), fo = evFreeOpts(sp);
   var settings = {
-    ip: sp.ip, beta0: o.beta0, emp: sp.emp, enp: sp.enp, r0: sp.r0Src,
+    ip: o.ip === undefined ? sp.ip : o.ip, beta0: o.beta0,
+    emp: o.emp === undefined ? sp.emp : o.emp, enp: o.enp === undefined ? sp.enp : o.enp, r0: sp.r0Src,
+    //: 第二十一刀: the stationary outer loop under-relaxes the family it hands the solve
+    fit_relax: o.fitRelax === undefined ? 1 : o.fitRelax,
     b0: t.b0, r0_tf: t.r0, relax: sp.relax, n: sp.n, edge_psin: sp.edgePsin, n_theta: 121,
     gs_relax: fo.relax, gs_tol: fo.tol, fb_gain: 8.0, max_iter: fo.maxIter, fit: o.fit ? 1 : 0,
     //: 第二十刀: the fixed-boundary refinement is a stage of the same door
@@ -8035,7 +8038,7 @@ function evRefit(sp, chan, o) {
   var out = { eq: eq, eqFree: eqFree, geo: geoNew, field: field,
               free: { converged: eq.converged, settled: eq.settled, residual: eq.residual,
                       iterations: eq.iterations, maxIter: eq.maxIter, tol: eq.tol },
-              beta0: X('beta0'), refined: null, refineWhy: null, bpFix: NaN };
+              beta0: X('beta0'), emp: X('emp'), enp: X('enp'), refined: null, refineWhy: null, bpFix: NaN };
   if (o.fit && sp.coupleFixed) {
     //: ★the refinement's own record, and its refusal by NAME: the door reports
     //: a failed refinement (`fixed_why`) and the family's answer stands, as the
@@ -8109,21 +8112,13 @@ function evRefit(sp, chan, o) {
  * `evolveRun` (the readings, the record, the one `post` that carries them)
  * is untouched and there is still ONE exit.
  */
-function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
-  //: ★第十九刀: one BLOCK of the march when `blk` is given — the steps it
-  //: takes counted from `blk.steps0`, the continuation (`blk.prev`) the
-  //: previous block's last record with its arrays on this ladder, and the
-  //: first step told that the lag is broken and the volume moved
-  var n = geo.rho.length, prev = blk && blk.prev || null, steps = blk ? blk.steps0 : 0;
-  var stop = blk ? blk.steps0 + blk.take : sp.nSteps, first = true, tNow = tStart || 0;
-  //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
-  //: per call so the page can report as it goes: the plan carries the ladder
-  //: this run is on (bound rows — the traced tiers' own rmin/rmaj beside the
-  //: metric), the state as it stands (`state`, then `resume` with the lagged
-  //: arrays the entry hands back), and the bar's controls spelled in SI.  It
-  //: used to be the flat export `fy.scenario('evolve_heat', …)` with the same
-  //: blocks packed here; `app/tests/validate-worker-evolve.mjs` holds the door
-  //: to that path's answer step by step.
+/**
+ * The entry's PLAN for this configuration: the controls spelled in SI, the
+ * ladder rows, the equilibrium document (the psi map with an executor), the
+ * executors' own plans.  Shared by the march (`evEntryMarch`) and the
+ * flux-match tier (`evFluxMatchEntry`, 第二十一刀) — one spelling.
+ */
+function evEntryPlan(ctx, st, geo, sp, field) {
   var arr = function (v) { return v ? Array.from(v) : null; };
   var settings = {
     geometry: 'ladder', n_steps: 1, state: 1,
@@ -8176,7 +8171,6 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
   //: read by the same `evBeamRead` / `evLhRead` the standalone calls use.
   var beamPlan = sp.beam ? evBeamPlan(field, geo, st, sp) : null;
   var lhPlan = sp.lh ? evLhPlan(field, geo, st, sp) : null;
-  var beam = null, lh = null;
   if (beamPlan) {
     Object.keys(beamPlan.settings).forEach(function (k) {
       settings[k === 'n_shells' ? 'beam_shells' : k] = beamPlan.settings[k];
@@ -8200,6 +8194,36 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
                  'fylite:shift': arr(geo.shift), 'fylite:psi_norm': arr(geo.psin),
                  psi: arr(st.psi) };
   Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
+  var eqBase = (beamPlan || lhPlan) ? (beamPlan || lhPlan).eqDoc : null;
+  var equilibrium = eqBase
+    ? { vacuum_toroidal_field: eqBase.vacuum_toroidal_field,
+        time_slice: { global_quantities: eqBase.time_slice.global_quantities,
+                      profiles_1d: ladder, profiles_2d: eqBase.time_slice.profiles_2d },
+        'fylite:limiter': eqBase['fylite:limiter'] }
+    : { time_slice: { profiles_1d: ladder } };
+  return { settings: settings, ladder: ladder, equilibrium: equilibrium, beamPlan: beamPlan, lhPlan: lhPlan };
+}
+
+function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
+  //: ★第十九刀: one BLOCK of the march when `blk` is given — the steps it
+  //: takes counted from `blk.steps0`, the continuation (`blk.prev`) the
+  //: previous block's last record with its arrays on this ladder, and the
+  //: first step told that the lag is broken and the volume moved
+  var n = geo.rho.length, prev = blk && blk.prev || null, steps = blk ? blk.steps0 : 0;
+  var stop = blk ? blk.steps0 + blk.take : sp.nSteps, first = true, tNow = tStart || 0;
+  //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
+  //: per call so the page can report as it goes: the plan carries the ladder
+  //: this run is on (bound rows — the traced tiers' own rmin/rmaj beside the
+  //: metric), the state as it stands (`state`, then `resume` with the lagged
+  //: arrays the entry hands back), and the bar's controls spelled in SI.  It
+  //: used to be the flat export `fy.scenario('evolve_heat', …)` with the same
+  //: blocks packed here; `app/tests/validate-worker-evolve.mjs` holds the door
+  //: to that path's answer step by step.
+  var arr = function (v) { return v ? Array.from(v) : null; };
+  var planBase = evEntryPlan(ctx, st, geo, sp, field);
+  var settings = planBase.settings, ladder = planBase.ladder, equilibrium = planBase.equilibrium;
+  var beamPlan = planBase.beamPlan, lhPlan = planBase.lhPlan;
+  var beam = null, lh = null;
   //: the equilibrium document: the ladder rows, and — with an executor — the
   //: psi map, the axis and the limiter the shell tables are traced on
   //: ★★第十八刀 — the turbulent closure, BETWEEN blocks.  The TGLF chain lives in
@@ -8234,13 +8258,6 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
     ctx.turbEvals = (ctx.turbEvals | 0) + 1;
   };
   if (turb) turbEval(st);
-  var eqBase = (beamPlan || lhPlan) ? (beamPlan || lhPlan).eqDoc : null;
-  var equilibrium = eqBase
-    ? { vacuum_toroidal_field: eqBase.vacuum_toroidal_field,
-        time_slice: { global_quantities: eqBase.time_slice.global_quantities,
-                      profiles_1d: ladder, profiles_2d: eqBase.time_slice.profiles_2d },
-        'fylite:limiter': eqBase['fylite:limiter'] }
-    : { time_slice: { profiles_1d: ladder } };
   var zeros = new Float64Array(n);
   var state = { te: st.te, ti: st.ti, ne: st.ne, psi: st.psi,
                 psiPrev: zeros, sigmaPrev: zeros, exchPrev: zeros,
@@ -8438,6 +8455,256 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
     if (o.settled) break;
   }
   return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled), beam: beam, lh: lh, prev: prev };
+}
+
+/**
+ * The flux-match tier, driven through the KERNEL (第二十一刀, 2026-09-05).
+ *
+ * ★★A ROOT FIND IN STAGES.  `evFluxMatch` used to run the kernel's Newton
+ * machine from here with a JavaScript callback that evaluated the closure
+ * (`evClosure`: the neoclassical chi, TGLF at the match radii, the exchange)
+ * and the sources at every probe.  The machine, the evaluation, the frozen
+ * burn, the lagged pedestal and the record are `case.rs::evolve` with
+ * `closure: 4` now — as STAGES, because TGLF lives in the extension module the
+ * core wasm cannot call: `start` hands back the state at x0 and the match
+ * radii, this function knocks on the extension's `code/turbulence` at those
+ * radii, `eval` takes the chi and asks for the next state (or marks the
+ * matched one final), and `finish` writes the record.  What is left here is
+ * the CADENCE, the per-iteration post, and the stationary outer loop's own
+ * bookkeeping — its current half is `code/steady_current`, its equilibrium
+ * half `evRefit` (第十九刀's door, with the loop's relaxation of the family).
+ *
+ * The page's `evaluate` ran the closure on x0 twice (once for the yardstick,
+ * once as the machine's first point); the door evaluates that state once and
+ * serves both, so `turbEvals` counts one call fewer for the same match.
+ */
+function evFluxMatchEntry(ctx, st, geo, sp, field, chan, prof, beta0, eqFree, edgeTe, edgeTi, freeLog) {
+  var arr = function (v) { return v ? Array.from(v) : null; };
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var CARRIED = ['fm_machine', 'fm_x', 'fm_w', 'fm_scalars', 'fm_alpha_e', 'fm_alpha_i', 'fm_alpha_total',
+                 'fm_hist_worst', 'fm_hist_conv', 'fm_hist_tped'];
+  var n = geo.rho.length;
+  var stateDoc = function (stx) {
+    var cp = { grid: { psi: arr(stx.psi), 'fylite:psi_norm': arr(geo.psin) },
+               electrons: { temperature: arr(stx.te), density: arr(stx.ne) },
+               t_i_average: arr(stx.ti), 'fylite:ion_density': arr(stx.ni),
+               'fylite:impurity_density': sp.quasi && stx.nz ? arr(stx.nz) : undefined };
+    Object.keys(cp).forEach(function (k) { if (cp[k] === undefined || cp[k] === null) delete cp[k]; });
+    if (!cp.grid['fylite:psi_norm']) delete cp.grid['fylite:psi_norm'];
+    if (!cp.grid.psi) delete cp.grid.psi;
+    return { profiles_1d: cp };
+  };
+  //: the extension's door at the MATCH radii on the state a stage asked for
+  //: (the page's `turbulentChi` with `ctx.matchRadii`, no relaxation on this tier)
+  var turbAt = function (rec) {
+    var lad = rec.fields.equilibrium.time_slice.profiles_1d;
+    var cpr = rec.fields.core_profiles.profiles_1d;
+    var rows = {};
+    ['rho_tor', 'fylite:r_minor', 'fylite:r_major', 'fylite:shift', 'q', 'magnetic_shear', 'elongation', 'triangularity_upper']
+      .forEach(function (k) { rows[k] = Array.from(flat(lad[k])); });
+    var plan = { settings: { a: rec.facts.a.value, b0: rec.facts.b0.value, n_rad: sp.turbNrad, n_ky: sp.turbNky,
+                             sat_rule: 1, width: 1.65, relax: 1 },
+                 inputs: { equilibrium: { time_slice: { profiles_1d: rows } },
+                           core_profiles: { profiles_1d: {
+                             grid: { rho_tor: rows.rho_tor },
+                             electrons: { temperature: Array.from(flat(cpr.electrons.temperature)), density: Array.from(flat(cpr.electrons.density)) },
+                             t_i_average: Array.from(flat(cpr.t_i_average)), 'fylite:ion_density': Array.from(flat(cpr['fylite:ion_density'])) } },
+                           turbulence: { 'fylite:radii': Array.from(fieldFlat(rec, 'fm_index')) } } };
+    var t = tglf.complete('code/turbulence', plan);
+    ctx.turbChi = fieldFlat(t, 'chi_turb');
+    ctx.turbSub = { xs: fieldFlat(t, 'xs'), sub: fieldFlat(t, 'sub') };
+    ctx.turbEvals = (ctx.turbEvals | 0) + 1;
+    return ctx.turbChi;
+  };
+  //: one match: the stages, the extension between them, the per-iteration post
+  var matchOnce = function (stStart, edge, round) {
+    var base = evEntryPlan(ctx, stStart, geo, sp, field);
+    var settings = base.settings;
+    settings.closure = 4; settings.n_rad = sp.turbNrad; settings.fm_rho_min = sp.fmRhoMin;
+    settings.fm_iter = sp.fmIter; settings.fm_tol = sp.fmTol; settings.fm_dx = sp.fmDx; settings.fm_dx_max = sp.fmDxMax;
+    settings.edge_te = edge.te; settings.edge_ti = edge.ti;
+    var inputs = { equilibrium: base.equilibrium, core_profiles: stateDoc(stStart) };
+    if (base.beamPlan) inputs.nbi = { unit: [base.beamPlan.unit] };
+    if (base.lhPlan) inputs.lh_antennas = { antenna: base.lhPlan.antennas };
+    var plan = function (stage, carried) {
+      var inp = assign(inputs, carried ? { evolve: carried } : {});
+      return { settings: assign(settings, { stage: stage }), inputs: inp };
+    };
+    var rec = fy.complete('code/evolve', plan('start', null));
+    var beamRec = rec.fields.beam || null, lhRec = rec.fields.lh || null;
+    var posted = 0, guard = 0;
+    for (;;) {
+      var carried = {};
+      CARRIED.forEach(function (k) { carried['fylite:' + k] = Array.from(fieldFlat(rec, k)); });
+      carried['fylite:chi_turb'] = Array.from(turbAt(rec));
+      var stage = rec.facts.fm_final.value === 1 ? 'finish' : 'eval';
+      rec = fy.complete('code/evolve', plan(stage, carried));
+      //: the page posted once per iteration boundary; the door keeps the
+      //: history, so a boundary is a history that grew
+      var hist = fieldFlat(rec, 'fm_hist_worst');
+      for (; posted < hist.length; posted++)
+        post({ type: 'evolve_match', iteration: posted + 1, iterations: sp.fmIter, worst: hist[posted],
+               tol: sp.fmTol, round: round, rounds: sp.fmOuter });
+      if (rec.facts.fm_phase.value === 3) break;
+      if (++guard > (2 + 4) * sp.fmIter + 80) throw new Error('the flux match did not finish');
+    }
+    var F = function (k) { return fieldFlat(rec, k); };
+    var X = function (k) { return rec.facts[k].value; };
+    var cpr = rec.fields.core_profiles.profiles_1d;
+    var stOut = { te: flat(cpr.electrons.temperature), ti: flat(cpr.t_i_average), ne: flat(cpr.electrons.density),
+                  ni: flat(cpr['fylite:ion_density']), nz: stStart.nz || null, psi: stStart.psi, q: stStart.q || null,
+                  omega: stStart.omega || null };
+    //: what the page's `evaluate` left in `ctx` at the matched state
+    ctx.lastChi = { e: F('chi_e'), i: F('chi_i') };
+    ctx.lastChiNeo = F('chi_neo');
+    ctx.lastZeff = F('zeff');
+    ctx.lastBs = null;
+    ctx.lastDiag = { pAlpha: X('p_alpha'), pRad: X('p_rad'), pLine: X('p_line'), pOhm: 0, pAux: X('p_aux'),
+                     pAuxBeam: X('p_aux_beam'), pAuxLh: X('p_aux_lh'),
+                     torqueBeam: isFinite(X('torque_beam')) ? X('torque_beam') : null };
+    if (sp.pedestal && X('ped_on')) {
+      ctx.pedestal = { tPed: X('ped_tped'), pPed: X('ped_pped'), width: X('ped_width'),
+                       extrapolation: X('ped_extrap'), worstInput: X('ped_worst_input') };
+    }
+    var histW = F('fm_hist_worst'), histC = F('fm_hist_conv'), histT = F('fm_hist_tped');
+    var history = [];
+    for (var h = 0; h < histW.length; h++)
+      history.push({ iteration: h + 1, worst: histW[h], converged: histC[h] === 1,
+                     tPed: isFinite(histT[h]) ? histT[h] : null });
+    var sel = Array.from(F('fm_index'), function (v) { return v | 0; });
+    var record = {
+      radii: Array.from(F('fm_radii')), rhoN: Array.from(F('fm_rho_n')), psin: Array.from(F('fm_psin')), index: sel,
+      alte: Array.from(F('fm_alte')), alti: Array.from(F('fm_alti')),
+      fluxE: Array.from(F('fm_flux_e')), fluxI: Array.from(F('fm_flux_i')),
+      targetE: Array.from(F('fm_target_e')), targetI: Array.from(F('fm_target_i')),
+      relE: Array.from(F('fm_rel_e')), relI: Array.from(F('fm_rel_i')),
+      history: history, iterations: X('fm_iterations'), converged: X('fm_converged') === 1,
+      worst: X('fm_worst'), tol: sp.fmTol, evaluations: X('fm_evals'),
+      channels: 2, nRadii: X('n_radii'), dx: sp.fmDx, dxMax: sp.fmDxMax, rhoMin: sp.fmRhoMin,
+      burnFrozen: !!sp.alpha, burnCheck: sp.alpha ? X('fm_burn_check') : null,
+      weightFloor: X('fm_weight_floor'), weightRef: X('fm_weight_ref'),
+      viaEntry: true,
+    };
+    return { st: stOut, record: record, edge: { te: X('edge_te_out'), ti: X('edge_ti_out') },
+             beamRec: beamRec, lhRec: lhRec };
+  };
+  //: the current half of a stationary round (`code/steady_current`)
+  var steadyCurrent = function (stx, first) {
+    if (!geo.gm2) return null;
+    var lad = { rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), gm3: arr(geo.gm3), gm2: arr(geo.gm2),
+                f: arr(geo.fpol), q: arr(geo.q), 'fylite:r_minor': arr(geo.rmin), 'fylite:r_major': arr(geo.rmaj) };
+    var settings = { a: geo.a, r0: geo.r0, b0: geo.b0, ip_a: sp.ip, zeff: sp.zeff, bootstrap: sp.bootstrap ? 1 : 0,
+                     quasi: sp.quasi ? 1 : 0, imp_z: sp.impurityZ || 0, tol_steady: sp.tolSteady, n_coupling: sp.nCoupling,
+                     relax: sp.fmORelax === undefined ? 1 : sp.fmORelax, first: first ? 1 : 0,
+                     sawtooth: sp.sawtooth ? 1 : 0, saw_mix: sp.sawtooth ? sp.sawMix : 0,
+                     i_cd_a: sp.iCd || 0, cd_centre: sp.cdCentre, cd_width: sp.cdWidth };
+    var evolve = {};
+    if (stx.q) evolve['fylite:q_prev'] = arr(stx.q);
+    if (ctx.beamJ) evolve['fylite:beam_j'] = arr(ctx.beamJ);
+    if (ctx.lhJ) evolve['fylite:lh_j'] = arr(ctx.lhJ);
+    var rec;
+    try {
+      rec = fy.complete('code/steady_current', { settings: settings, inputs: {
+        equilibrium: { time_slice: { profiles_1d: lad } }, core_profiles: stateDoc(stx), evolve: evolve } });
+    } catch (e) { return { failed: String(e && e.message || e) }; }
+    var X = function (k) { return rec.facts[k].value; };
+    var cpr = rec.fields.core_profiles.profiles_1d;
+    var psiOld = stx.psi;
+    stx.te = flat(cpr.electrons.temperature); stx.ti = flat(cpr.t_i_average); stx.ne = flat(cpr.electrons.density);
+    stx.ni = flat(cpr['fylite:ion_density']); stx.psi = flat(cpr.grid.psi); stx.q = fieldFlat(rec, 'q');
+    ctx.steadyRecord = { rho: geo.rho, vprime: geo.vprime, gm3: geo.gm3, gm2: geo.gm2, fpol: geo.fpol, b0: geo.b0,
+                         psiIn: psiOld, edgePsiRate: X('v_loop'), dt: X('dt_steady'),
+                         sigmaPar: fieldFlat(rec, 'sigma'), jNi: fieldFlat(rec, 'j_ni'),
+                         tolSteady: sp.tolSteady, nCoupling: sp.nCoupling,
+                         psiOut: X('frozen') ? fieldFlat(rec, 'psi_frozen') : fieldFlat(rec, 'psi_out_run'),
+                         psiOutRun: fieldFlat(rec, 'psi_out_run'), frozen: !!X('frozen'), frozenGap: X('frozen_gap'),
+                         q: stx.q, viaEntry: true };
+    return { psiRepaired: X('psi_repaired'), q0: X('q0'),
+             sawtooth: X('saw_r1') > 0 ? { r1: X('saw_r1'), rMix: X('saw_r_mix'), psiMoved: X('saw_psi_moved'), iMix: X('saw_i_mix'),
+                                          refused: X('saw_refused') ? FyI18n.t('e.err.sawmix') : undefined } : null,
+             ip: isFinite(X('ip')) ? X('ip') : null, ipRequested: sp.ip, vLoop: X('v_loop'), vLoopClamped: !!X('v_loop_clamped'),
+             dtSteady: X('dt_steady'), dPsi: X('d_psi') };
+  };
+  var pOf = function (state) {
+    var pv = new Float64Array(state.te.length);
+    for (var i2 = 0; i2 < pv.length; i2++) pv[i2] = (state.ne[i2] * state.te[i2] + state.ni[i2] * state.ti[i2]) * EV_QE;
+    return pv;
+  };
+  var relMax = function (a2, b2) {
+    var num = 0, den = 0;
+    for (var i3 = 0; i3 < a2.length; i3++) { num = Math.max(num, Math.abs(a2[i3] - b2[i3])); den = Math.max(den, Math.abs(b2[i3])); }
+    return den > 0 ? num / den : 0;
+  };
+  var edge = { te: edgeTe, ti: edgeTi };
+  var outerRounds = [], outerConverged = false, outerWhy = null, fluxMatch = null;
+  var beamRec = null, lhRec = null, eq = null;
+  for (var rnd = 0; rnd < sp.fmOuter; rnd++) {
+    var pPrev = pOf(st), qPrev = st.q ? Float64Array.from(st.q) : null;
+    var fmOut;
+    try { fmOut = matchOnce(st, edge, rnd + 1); }
+    catch (eFm) { throw new Error(FyI18n.t('e.err.fm_failed', { why: String(eFm && eFm.message || eFm) })); }
+    st = fmOut.st; fluxMatch = fmOut.record; edge = fmOut.edge;
+    if (fmOut.beamRec) beamRec = fmOut.beamRec;
+    if (fmOut.lhRec) lhRec = fmOut.lhRec;
+    if (!fluxMatch.converged) { outerWhy = 'match'; break; }
+    if (sp.fmOuter <= 1) { outerConverged = true; break; }
+    var cur = steadyCurrent(st, rnd === 0);
+    if (!cur || cur.failed) { outerWhy = (cur && cur.failed) || 'current'; break; }
+    //: the equilibrium half: the alternation at this round's current (device tier)
+    var psinBefore = geo.psin, eqRound = null;
+    if (sp.geometry !== 'device') {
+      eqRound = { skipped: sp.geometry === 'gfile' ? 'metric came from a g-file: no boundary to re-solve'
+                                                  : 'analytic geometry has no free boundary' };
+    } else {
+      var ipUse = isFinite(cur.ip) && Math.abs(cur.ip) > 0 ? cur.ip : sp.ip;
+      var pfT = null;
+      if (ctx.pFastPar) {
+        pfT = new Float64Array(n);
+        for (var kf = 0; kf < n; kf++) pfT[kf] = (ctx.pFastPar[kf] + 2 * ctx.pFastPerp[kf]) / 3;
+      }
+      var rf;
+      try {
+        rf = evRefit(sp, chan, { fit: 1, beta0: beta0, geo: geo, st: st, pFastThird: pfT, eqPrev: eqFree,
+                                 ip: ipUse, emp: prof.emp, enp: prof.enp,
+                                 fitRelax: sp.fmORelax === undefined ? 1 : sp.fmORelax });
+      } catch (eR) { eqRound = { failed: String(eR && eR.message || eR) }; }
+      if (eqRound && eqRound.failed) { outerWhy = eqRound.failed; break; }
+      var aOld = geo.a;
+      beta0 = rf.beta0; prof = { beta0: rf.beta0, emp: rf.emp, enp: rf.enp, r0: sp.r0Src };
+      eq = rf.eq; eqFree = rf.eqFree;
+      freeLog.push(assign({ block: rnd + 1 }, rf.free));
+      st = assign(rf.st, { q: st.q ? evRemap(psinBefore, st.q, rf.geo.psin) : null });
+      geo = rf.geo; field = rf.field;
+      ctx.geo = geo; ctx.rho = geo.rho; ctx.psiPrev = null; n = geo.rho.length;
+      pPrev = evRemap(psinBefore, pPrev, geo.psin);
+      if (qPrev) qPrev = evRemap(psinBefore, qPrev, geo.psin);
+      eqRound = { aOld: aOld, aNew: geo.a, beta0: rf.beta0, bpTarget: rf.bpTarget, bpEq: rf.bpEq, ipUsed: ipUse,
+                  free: rf.free, fit: rf.fit, refined: rf.refined ? { ip: rf.refined.ip, ipTarget: ipUse, resP: rf.refined.resP, resF: rf.refined.resF } : null,
+                  refineWhy: rf.refineWhy, geo: true };
+    }
+    var dP = relMax(pOf(st), pPrev);
+    var dQ = qPrev && st.q ? relMax(st.q, qPrev) : NaN;
+    var first = rnd === 0;
+    outerRounds.push({ round: rnd + 1, dPressure: dP, dQ: dQ, q0: cur.q0, ip: cur.ip, ipRequested: cur.ipRequested,
+                       psiRepaired: cur.psiRepaired, sawtooth: cur.sawtooth || null,
+                       vLoop: cur.vLoop, vLoopClamped: cur.vLoopClamped,
+                       matchIterations: fluxMatch.iterations, matchWorst: fluxMatch.worst,
+                       equilibrium: eqRound && eqRound.geo
+                         ? { aOld: eqRound.aOld, aNew: eqRound.aNew, beta0: eqRound.beta0, bpTarget: eqRound.bpTarget,
+                             bpEq: eqRound.bpEq, ipUsed: eqRound.ipUsed, free: eqRound.free }
+                         : null,
+                       equilibriumSkipped: eqRound ? (eqRound.skipped || null) : null });
+    post({ type: 'evolve_round', round: rnd + 1, rounds: sp.fmOuter, dPressure: dP, dQ: dQ });
+    if (!first && dP < sp.fmOTol && (isNaN(dQ) || dQ < sp.fmOTol)) { outerConverged = true; break; }
+  }
+  var stationary = sp.fmOuter > 1
+    ? { rounds: outerRounds, converged: outerConverged, why: outerWhy, tolerance: sp.fmOTol, maxRounds: sp.fmOuter,
+        equilibriumRounds: outerRounds.filter(function (r) { return r.equilibrium; }).length,
+        equilibriumWhy: (outerRounds.length && outerRounds[0].equilibriumSkipped) || null }
+    : null;
+  return { st: st, geo: geo, field: field, eq: eq, eqFree: eqFree, beta0: beta0, prof: prof,
+           record: fluxMatch, stationary: stationary, edgeTe: edge.te, edgeTi: edge.ti,
+           beamRec: beamRec, lhRec: lhRec };
 }
 
 //: set by `evolveRun` before the scope test; a module-level flag rather than
@@ -8904,7 +9171,7 @@ function evolveRun(msg) {
   //: ★第十七刀: on the entry path the executors are the ENTRY's (evaluated
   //: inside `code/evolve` on the same equilibrium); the loop path builds
   //: them here.  The scope test is the same one `viaEntry` runs below.
-  var entryAhead = sp.closure !== 4 && evScopeMiss(sp).length === 0;
+  var entryAhead = evScopeMiss(sp).length === 0;
   if (!entryAhead) rebuildBeam();
   var rebuildSources = function (t) {
     var k = wfAt(t === undefined ? 0 : t);
@@ -9068,7 +9335,54 @@ function evolveRun(msg) {
   // prescribed chi, so quietly becoming one again would be worse than
   // stopping.
   var fluxMatch = null, stationary = null;
-  if (sp.closure === 4) {
+  //: ★第二十一刀: the flux-match tier runs through the kernel's stages when the
+  //: ledger says the entry carries this configuration; the loop below stays for
+  //: what it does not (the page's resume)
+  var fmViaEntry = sp.closure === 4 && evScopeMiss(sp).length === 0;
+  if (fmViaEntry) {
+    ctx.zList = zList; ctx.edgeNi = edgeNi;
+    ctx.eqFree = eqFree;
+    var fmr;
+    try {
+      fmr = evFluxMatchEntry(ctx, st, geo, sp, field, chan, prof, beta0, eqFree, edgeTe, edgeTi, freeLog);
+    } catch (eFmE) {
+      return post({ type: 'error', where: 'evolve', message: String(eFmE && eFmE.message || eFmE) });
+    }
+    st = fmr.st; geo = fmr.geo; field = fmr.field; beta0 = fmr.beta0; prof = fmr.prof;
+    if (fmr.eq) { eq = fmr.eq; }
+    eqFree = fmr.eqFree;
+    fluxMatch = fmr.record; stationary = fmr.stationary;
+    edgeTe = fmr.edgeTe; edgeTi = fmr.edgeTi;
+    n = geo.rho.length;
+    if (sp.beam && fmr.beamRec && !beam) {
+      var rbF = (function (node) { return { F: function (k) { return fieldFlat({ fields: node }, k); },
+                                            X: function (k) { return fieldFlat({ fields: node }, k)[0]; },
+                                            dim: function (k) { return fieldFlat({ fields: node.dims }, k)[0] | 0; } }; })(fmr.beamRec);
+      var bp0 = evBeamPlan(field, geo, st, sp);
+      beam = evBeamRead(fmr.beamRec, rbF.F, rbF.X, rbF.dim('n_components'), bp0, field, geo, sp);
+      beam.cadence = 0;
+    }
+    var rdFmE = evReadings(ctx, st, ctx.lastDiag, 0);
+    rdFmE.dt = 0; rdFmE.delta = fluxMatch.worst; rdFmE.retries = 0;
+    rdFmE.steady = fluxMatch.converged;
+    rdFmE.crashes = 0; rdFmE.crashed = false; rdFmE.dwdt = 0;
+    if (sp.pedestal && ctx.pedestal) {
+      rdFmE.pedTPed = edgeTe;
+      rdFmE.pedPPed = ctx.pedestal.pPed;
+      rdFmE.pedWidth = ctx.pedestal.width;
+      rdFmE.pedExtrap = ctx.pedestal.extrapolation;
+    }
+    trace.push(rdFmE);
+    post({ type: 'evolve_step', step: 1, nSteps: 1,
+           rho: geo.rho, psin: geo.psin, reading: rdFmE,
+           te: st.te, ti: st.ti, ne: st.ne, q: st.q,
+           chiE: ctx.lastChi ? ctx.lastChi.e : null,
+           chiI: ctx.lastChi ? ctx.lastChi.i : null,
+           jni: ctx.lastBs || null,
+           geoSource: geo.source, coupled: 0, viaEntry: true });
+    blocks = 0;
+  }
+  if (sp.closure === 4 && !fmViaEntry) {
     //: ★the composition the steady-current round needs, handed to `ctx`
     //: once here rather than threaded through every call: it is the SAME
     //: pair the march below uses, so the two rounds cannot end up on

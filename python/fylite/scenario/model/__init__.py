@@ -383,7 +383,7 @@ def evolve(*, a: float, r0: float, b0: float,
            ip_kp: float = 0.0, ip_ki: float = 0.0,
            nbi: dict | None = None, lh_antennas: dict | None = None,
            executors: dict | None = None, turb: dict | None = None,
-           couple: dict | None = None) -> dict:
+           couple: dict | None = None, fm: dict | None = None) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
 
     ★2026-09-05 第十九刀: ``couple`` runs the DEVICE tier's equilibrium
@@ -413,6 +413,27 @@ def evolve(*, a: float, r0: float, b0: float,
     that fails is REPORTED (``refine_why``) and the family's answer stands.  The
     turbulent closure is not combined with ``couple`` in this tool (the page
     combines them).
+
+    ★2026-09-05 第二十一刀: ``closure="flux-match"`` does not march — it is the
+    page's T-C13 tier, a root find for the gradient vector (a/L_Te, a/L_Ti at
+    ``n_rad`` match radii) at which the model flux equals the power crossing
+    each surface, by the kernel's own Newton machine.  TGLF lives in the
+    extension, so the match is a conversation across two doors and this
+    function keeps the cadence only: ``code/evolve`` with ``stage: start``
+    hands back the state at x0, the extension's ``code/turbulence`` (at the
+    match radii) gives chi there, ``stage: eval`` feeds the machine and asks
+    for the next state, and so on until the machine is done and ``stage:
+    finish`` writes the record.  ``fm = {n_rad, rho_min, iter, tol, dx,
+    dx_max, n_ky, outer, o_tol, o_relax}`` (defaults 6 · 0.3 · 8 · 0.01 · 0.05
+    · 1 · 8 · 1 · 0.02 · 1).  With ``outer > 1`` the stationary outer loop
+    (T-C14) runs: after each match the current half (``code/steady_current``:
+    the steady flux at the matched profiles with the loop voltage found by
+    secant on the enclosed current, the sawtooth it may allow) and — with
+    ``couple`` given — the equilibrium half (``code/refit``, the ladder
+    re-traced and the state remapped), until the pressure and q move by less
+    than ``o_tol`` between rounds.  The answer is the matched state with the
+    match record (``match``), the rounds (``stationary``) and the closure at
+    the matched state; there is no time axis (``t`` is empty).
 
     ★2026-09-05 第十八刀: ``closure="turbulent"`` marches on the neoclassical
     chi_i plus a TGLF-derived one.  TGLF lives in the EXTENSION library, so
@@ -539,12 +560,20 @@ def evolve(*, a: float, r0: float, b0: float,
         raise ValueError(
             "quasi=True puts an impurity into the quasi-neutrality, so it "
             "needs one: pass `impurity=` (and its `imp_z`)")
-    if closure not in ("constant", "neoclassical", "turbulent"):
+    if closure not in ("constant", "neoclassical", "turbulent", "flux-match"):
         raise ValueError(
             f"closure {closure!r}: this tool marches on the constant, the "
             "neoclassical or the turbulent closure (the last through the "
-            "extension's door between blocks); the flux-match tier is a root "
-            "find, not a march, and is not sunk")
+            "extension's door between blocks), or solves the flux-match tier "
+            "(closure='flux-match': a root find, not a march — see `fm`)")
+    if closure == "flux-match":
+        if density or momentum or current:
+            raise ValueError(
+                "the flux-match tier solves the heat channel alone: the density, "
+                "momentum and current channels are the stationary outer loop's "
+                "(fm={'outer': N}), not the match's")
+        if wave:
+            raise ValueError("the flux-match tier has no time axis: no actuator waveform")
     if couple is not None:
         for key in ("aturns", "ip"):
             if key not in couple:
@@ -591,7 +620,7 @@ def evolve(*, a: float, r0: float, b0: float,
         "fuel_z_rate": float(fuel_z),
         "momentum": float(bool(momentum)), "prandtl": float(prandtl),
         "torque": float(torque),
-        "closure": {"neoclassical": "2", "turbulent": "3"}.get(closure, "0"),
+        "closure": {"neoclassical": "2", "turbulent": "3", "flux-match": "4"}.get(closure, "0"),
         "wave": float(bool(wave)), "ipctl": float(bool(ipctl)),
         "ip_kp": float(ip_kp), "ip_ki": float(ip_ki),
         "beam": float(nbi is not None), "lh": float(lh_antennas is not None),
@@ -643,6 +672,11 @@ def evolve(*, a: float, r0: float, b0: float,
         inputs["core_transport"] = {"model": [{"profiles_1d": {
             "electrons": {"energy": {"d": np.asarray(chi_e_profile, float)}},
             "total_ion_energy": {"d": np.asarray(chi_i_profile, float)}}}]}
+    if closure == "flux-match":
+        #: 第二十一刀 — a root find in stages, the extension's chi between them;
+        #: its answer is a matched STATE, not a march, so it is shaped as one
+        return _flux_match_answer(settings, inputs, fm or {}, couple=couple, quasi=quasi,
+                                  geometry="device" if couple is not None else ("miller" if equilibrium is None else "ladder"))
     turb_evals, chi_turb, rounds, free_solves = 0, None, None, None
     if closure == "turbulent":
         rec, turb_evals, chi_turb = _turbulent_march(settings, inputs, turb or {},
@@ -1044,6 +1078,251 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
     out["facts"]["ped_extrap"]["value"] = max(float(b["facts"]["ped_extrap"]["value"]) for b in blocks)
     out["notes"] = [s for b in blocks for s in b.get("notes", [])]
     return out, rounds, free_solves
+
+
+_FM_DEFAULTS = {"n_rad": 6, "rho_min": 0.3, "iter": 8, "tol": 0.01, "dx": 0.05, "dx_max": 1.0, "n_ky": 8,
+                "outer": 1, "o_tol": 0.02, "o_relax": 1.0, "sat_rule": 1, "width": 1.65}
+
+#: what the match carries between its stages, verbatim
+_FM_CARRIED = ("fm_machine", "fm_x", "fm_w", "fm_scalars", "fm_alpha_e", "fm_alpha_i", "fm_alpha_total",
+               "fm_hist_worst", "fm_hist_conv", "fm_hist_tped")
+
+
+def _flux_match_once(settings: dict, inputs: dict, f: dict, state: dict | None, ladder_hint: dict | None):
+    """One flux match: the stages of `code/evolve` with the extension's chi between them."""
+    from ...io import fydoc
+
+    arr = lambda rec, k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    fact = lambda rec, k: float(rec["facts"][k]["value"])  # noqa: E731
+    base = dict(settings, closure="4", n_rad=float(f["n_rad"]), fm_rho_min=float(f["rho_min"]), fm_iter=float(f["iter"]),
+                fm_tol=float(f["tol"]), fm_dx=float(f["dx"]), fm_dx_max=float(f["dx_max"]))
+    inp = dict(inputs)
+    if state is not None:
+        base["state"] = 1.0
+        prof = {"electrons": {"temperature": state["te"], "density": state["ne"]},
+                "t_i_average": state["ti"], "fylite:ion_density": state["ni"]}
+        if "psi" in state:
+            prof["grid"] = {"psi": state["psi"]}
+        inp["core_profiles"] = {"profiles_1d": prof}
+    if ladder_hint is not None:
+        inp["equilibrium"] = {"time_slice": {"profiles_1d": ladder_hint}}
+    rec = fydoc.complete("code/evolve", {"settings": dict(base, stage="start"), "inputs": inp})
+    lad = rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+    ladder = {k: np.asarray(lad[k]["data"], float) for k in
+              ("rho_tor", "fylite:r_minor", "fylite:r_major", "fylite:shift", "q", "magnetic_shear",
+               "elongation", "triangularity_upper")}
+    a, b0 = fact(rec, "a"), fact(rec, "b0")
+    radii = arr(rec, "fm_index")
+    first = rec
+    evals = 0
+
+    def chi_at(rec):
+        cp = rec["fields"]["core_profiles"]["profiles_1d"]
+        prof = {"grid": {"rho_tor": ladder["rho_tor"]},
+                "electrons": {"temperature": np.asarray(cp["electrons"]["temperature"]["data"], float),
+                              "density": np.asarray(cp["electrons"]["density"]["data"], float)},
+                "t_i_average": np.asarray(cp["t_i_average"]["data"], float),
+                "fylite:ion_density": np.asarray(cp["fylite:ion_density"]["data"], float)}
+        plan = {"settings": {"a": a, "b0": b0, "n_rad": float(f["n_rad"]), "n_ky": float(f["n_ky"]),
+                             "sat_rule": float(f["sat_rule"]), "width": float(f["width"]), "relax": 1.0},
+                "inputs": {"equilibrium": {"time_slice": {"profiles_1d": ladder}},
+                           "core_profiles": {"profiles_1d": prof},
+                           "turbulence": {"fylite:radii": radii}}}
+        t = fydoc.complete("code/turbulence", plan)
+        return np.asarray(t["fields"]["chi_turb"]["data"], float)
+
+    guard = 0
+    while True:
+        carried = {f"fylite:{k}": arr(rec, k) for k in _FM_CARRIED}
+        carried["fylite:chi_turb"] = chi_at(rec)
+        evals += 1
+        stage = "finish" if fact(rec, "fm_final") == 1.0 else "eval"
+        plan_in = dict(inp, evolve=carried)
+        rec = fydoc.complete("code/evolve", {"settings": dict(base, stage=stage), "inputs": plan_in})
+        if fact(rec, "fm_phase") == 3.0:
+            break
+        guard += 1
+        if guard > (2 + 4) * int(f["iter"]) + 80:
+            raise RuntimeError("the flux match did not finish")
+    return rec, first, evals
+
+
+def _flux_match_answer(settings: dict, inputs: dict, fm: dict, *, couple: dict | None, quasi: bool, geometry: str) -> dict:
+    """The flux-match tier's answer: the match, the stationary rounds, the matched state."""
+    from ...io import fydoc
+
+    f = {**_FM_DEFAULTS, **fm}
+    outer = max(1, int(f["outer"]))
+    arr = lambda rec, k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    fact = lambda rec, k: float(rec["facts"][k]["value"])  # noqa: E731
+    settings = dict(settings)
+    inputs = dict(inputs)
+    #: the device tier: the start is `code/refit` with fit 0, the ladder its
+    #: (第十九刀's rule, on this tier too)
+    ladder_hint = None
+    eq_prev = None
+    beta0 = None
+    dev = aturns = None
+    if couple is not None:
+        from ..design import _device
+        c = {**_COUPLE_DEFAULTS, **couple}
+        dev, aturns = _device(c.get("device")), np.asarray(c["aturns"], float)
+        fixed = {"ip": float(c["ip"]), "emp": float(c["emp"]), "enp": float(c["enp"]), "relax": float(c["relax"]),
+                 "n": float(settings["n"]), "edge_psin": float(settings["edge_psin"]), "n_theta": float(c.get("n_theta", 121))}
+        for key in ("max_iter", "gs_relax", "gs_tol", "fb_gain", "b0", "r0", "r0_tf", "limiter"):
+            if key in c:
+                fixed[key] = c[key] if isinstance(c[key], str) else float(c[key])
+        tf = dev.get("tf") or {}
+        mach = dev.get("machine") or {}
+        fixed.setdefault("r0_tf", float(tf.get("r0", mach.get("r_centre"))))
+        fixed.setdefault("b0", float(tf.get("b0")))
+        fixed.setdefault("r0", fixed["r0_tf"])
+        beta0 = float(c["beta0"])
+        eq_prev = fydoc.complete("code/refit", {"settings": dict(fixed, beta0=beta0, fit=0.0),
+                                                "inputs": {"device": dev, "discharge": {"fylite:channel_aturns": aturns}}})
+        beta0 = fact(eq_prev, "beta0")
+        lad = eq_prev["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+        ladder_hint = {k: np.asarray(lad[k]["data"], float) for k in _LADDER_ROWS}
+        settings.update({"a": fact(eq_prev, "a"), "r0": fact(eq_prev, "r0"), "b0": fact(eq_prev, "b0")})
+    state = None
+    rounds = []
+    rec = first = None
+    evals_total = 0
+    converged_outer, why = False, None
+    p_prev = q_prev = None
+    ladder_rows = None
+    for rnd in range(outer):
+        rec, first, evals = _flux_match_once(settings, inputs, f, state, ladder_hint)
+        evals_total += evals
+        cp = rec["fields"]["core_profiles"]["profiles_1d"]
+        state = {"te": np.asarray(cp["electrons"]["temperature"]["data"], float),
+                 "ti": np.asarray(cp["t_i_average"]["data"], float),
+                 "ne": np.asarray(cp["electrons"]["density"]["data"], float),
+                 "ni": np.asarray(cp["fylite:ion_density"]["data"], float)}
+        if "psi" in (state or {}):
+            pass
+        lad = rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+        ladder_rows = {k: np.asarray(v["data"], float) for k, v in lad.items() if isinstance(v, dict) and "data" in v}
+        if not fact(rec, "fm_converged"):
+            why = "match"
+            break
+        if outer <= 1:
+            converged_outer = True
+            break
+        #: the current half, on the ladder the match sat on
+        rho = ladder_rows["rho_tor"]
+        need = ("dvolume_drho_tor", "gm3", "gm2", "f", "q", "fylite:r_minor", "fylite:r_major")
+        if any(k not in ladder_rows for k in need):
+            why = "current: the ladder carries no gm2 / f (the Miller tier has no flux to march)"
+            break
+        psi = state.get("psi")
+        if psi is None:
+            psi = ladder_rows.get("psi")
+        if psi is None:
+            why = "current: no initial flux on this ladder"
+            break
+        st_cur = {"a": settings["a"], "r0": settings["r0"], "b0": settings["b0"], "ip_a": float(settings.get("ip_a", 0.0)),
+                  "zeff": settings.get("zeff", 1.5), "bootstrap": float(settings.get("bootstrap", 0.0)),
+                  "quasi": float(quasi), "tol_steady": 1e-9, "n_coupling": 2.0,
+                  "relax": float(f["o_relax"]), "first": float(rnd == 0), "sawtooth": float(settings.get("sawtooth", 0.0)),
+                  "saw_mix": float(settings.get("saw_mix", 1.0)), "imp_z": float(settings.get("imp_z", 0.0))}
+        cur_in = {"equilibrium": {"time_slice": {"profiles_1d": {k: ladder_rows[k] for k in ("rho_tor",) + need}}},
+                  "core_profiles": {"profiles_1d": {"grid": {"psi": psi},
+                                                    "electrons": {"temperature": state["te"], "density": state["ne"]},
+                                                    "t_i_average": state["ti"], "fylite:ion_density": state["ni"]}}}
+        if q_prev is not None:
+            cur_in["evolve"] = {"fylite:q_prev": q_prev}
+        cur = fydoc.complete("code/steady_current", {"settings": st_cur, "inputs": cur_in})
+        cpc = cur["fields"]["core_profiles"]["profiles_1d"]
+        state = {"te": np.asarray(cpc["electrons"]["temperature"]["data"], float),
+                 "ti": np.asarray(cpc["t_i_average"]["data"], float),
+                 "ne": np.asarray(cpc["electrons"]["density"]["data"], float),
+                 "ni": np.asarray(cpc["fylite:ion_density"]["data"], float),
+                 "psi": np.asarray(cpc["grid"]["psi"]["data"], float)}
+        q_now = arr(cur, "q")
+        p_now = (state["ne"] * state["te"] + state["ni"] * state["ti"]) * 1.602176634e-19
+        eq_round = None
+        if couple is not None:
+            #: the equilibrium half: the alternation at this round's current
+            ip_now = fact(cur, "ip")
+            ip_use = ip_now if np.isfinite(ip_now) and abs(ip_now) > 0 else float(c["ip"])
+            fixed_r = dict(fixed, ip=ip_use, beta0=beta0, fit=1.0, a=float(settings["a"]), fit_relax=float(f["o_relax"]),
+                           emp=float(fact(eq_prev, "emp")), enp=float(fact(eq_prev, "enp")))
+            eq = fydoc.complete("code/refit", {"settings": fixed_r, "inputs": {
+                "device": dev, "discharge": {"fylite:channel_aturns": aturns},
+                "equilibrium": {"time_slice": {"profiles_1d": {"rho_tor": rho, "dvolume_drho_tor": ladder_rows["dvolume_drho_tor"],
+                                                               "fylite:psi_norm": ladder_rows["fylite:psi_norm"]}}},
+                "core_profiles": {"profiles_1d": {"electrons": {"temperature": state["te"], "density": state["ne"]},
+                                                  "t_i_average": state["ti"], "fylite:ion_density": state["ni"]}},
+                "refit": {"fylite:eq_x": arr(eq_prev, "free_profile_x"), "fylite:eq_p": arr(eq_prev, "free_pres")}}})
+            psin_old = ladder_rows["fylite:psi_norm"]
+            lad2 = eq["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+            ladder_hint = {k: np.asarray(lad2[k]["data"], float) for k in _LADDER_ROWS}
+            cp2 = eq["fields"]["core_profiles"]["profiles_1d"]
+            state = {"te": np.asarray(cp2["electrons"]["temperature"]["data"], float),
+                     "ti": np.asarray(cp2["t_i_average"]["data"], float),
+                     "ne": np.asarray(cp2["electrons"]["density"]["data"], float),
+                     "ni": np.asarray(cp2["fylite:ion_density"]["data"], float),
+                     "psi": np.asarray(cp2["grid"]["psi"]["data"], float)}
+            settings.update({"a": fact(eq, "a"), "r0": fact(eq, "r0"), "b0": fact(eq, "b0")})
+            remap = lambda v: np.interp(ladder_hint["fylite:psi_norm"], psin_old, v)  # noqa: E731
+            if p_prev is not None:
+                p_prev = remap(p_prev)
+            q_now = remap(q_now)
+            p_now = remap(p_now)
+            eq_round = {"a_old": float(fixed_r["a"]), "a_new": fact(eq, "a"), "beta0": fact(eq, "beta0"),
+                        "bp_target": fact(eq, "bp_target"), "bp_eq": fact(eq, "bp_eq"), "ip_used": ip_use,
+                        "free": {"converged": bool(fact(eq, "converged")), "residual": fact(eq, "residual"),
+                                 "iterations": int(fact(eq, "iterations"))}}
+            beta0 = fact(eq, "beta0")
+            eq_prev = eq
+        rel = lambda a2, b2: float(np.max(np.abs(a2 - b2)) / np.max(np.abs(b2))) if np.max(np.abs(b2)) > 0 else 0.0  # noqa: E731
+        d_p = rel(p_now, p_prev) if p_prev is not None else float("nan")
+        d_q = rel(q_now, q_prev) if q_prev is not None else float("nan")
+        rounds.append({"round": rnd + 1, "d_pressure": d_p, "d_q": d_q, "q0": fact(cur, "q0"), "ip": fact(cur, "ip"),
+                       "ip_requested": fact(cur, "ip_requested"), "v_loop": fact(cur, "v_loop"),
+                       "v_loop_clamped": bool(fact(cur, "v_loop_clamped")),
+                       "sawtooth": ({"r1": fact(cur, "saw_r1"), "r_mix": fact(cur, "saw_r_mix"), "refused": bool(fact(cur, "saw_refused"))}
+                                    if fact(cur, "saw_r1") > 0 else None),
+                       "match_iterations": int(fact(rec, "fm_iterations")), "match_worst": fact(rec, "fm_worst"),
+                       "equilibrium": eq_round,
+                       "equilibrium_skipped": None if couple is not None else "no free boundary on this tier"})
+        p_prev, q_prev = p_now, q_now
+        if rnd > 0 and d_p < f["o_tol"] and (np.isnan(d_q) or d_q < f["o_tol"]):
+            converged_outer = True
+            break
+    F = rec["fields"]
+    cp = F["core_profiles"]["profiles_1d"]
+    match = {k: arr(rec, "fm_" + k) for k in ("radii", "rho_n", "psin", "index", "alte", "alti", "flux_e", "flux_i",
+                                               "target_e", "target_i", "rel_e", "rel_i", "hist_worst", "hist_conv", "hist_tped")}
+    match.update({"iterations": int(fact(rec, "fm_iterations")), "converged": bool(fact(rec, "fm_converged")),
+                  "worst": fact(rec, "fm_worst"), "tol": float(f["tol"]), "evaluations": int(fact(rec, "fm_evals")),
+                  "n_radii": int(fact(rec, "n_radii")), "burn_frozen": bool(fact(rec, "fm_burn_frozen")),
+                  "burn_check": fact(rec, "fm_burn_check"), "weight_floor": fact(rec, "fm_weight_floor"),
+                  "weight_ref": fact(rec, "fm_weight_ref")})
+    return {
+        "rho": np.asarray(cp["grid"]["rho_tor"]["data"], float),
+        "te": np.asarray(cp["electrons"]["temperature"]["data"], float),
+        "ti": np.asarray(cp["t_i_average"]["data"], float),
+        "ne": np.asarray(cp["electrons"]["density"]["data"], float),
+        "ni": np.asarray(cp["fylite:ion_density"]["data"], float),
+        "psi": state.get("psi") if state else None,
+        "chi_e": arr(rec, "chi_e"), "chi_i": arr(rec, "chi_i"), "chi_neo": arr(rec, "chi_neo"), "chi_turb": arr(rec, "chi_turb"),
+        "zeff": arr(rec, "zeff"), "q_e": arr(rec, "q_e"), "q_i": arr(rec, "q_i"),
+        "p_alpha": fact(rec, "p_alpha"), "p_rad": fact(rec, "p_rad"), "p_line": fact(rec, "p_line"), "p_aux": fact(rec, "p_aux"),
+        "edge_te": fact(rec, "edge_te_out"), "edge_ti": fact(rec, "edge_ti_out"),
+        "match": match,
+        "stationary": ({"rounds": rounds, "converged": converged_outer, "why": why, "tolerance": float(f["o_tol"]),
+                        "max_rounds": outer} if outer > 1 else None),
+        "turb_evals": evals_total, "t": np.zeros(0), "steps": 0, "settled": bool(fact(rec, "fm_converged")),
+        "geometry": geometry,
+        "notes": list(rec.get("notes", [])),
+        "provenance": provenance("evolve", closure="flux-match", channels=("heat",), geometry=geometry,
+                                 match="Newton in gradient space (transport::FluxMatch), the burn Picard-frozen per iteration, the pedestal lagged one iteration",
+                                 stationary=("%d rounds: match -> steady current -> %s" % (len(rounds), "equilibrium" if couple is not None else "no equilibrium half")
+                                             if outer > 1 else None),
+                                 loop="kernel (code/evolve stages + code/turbulence + code/steady_current)"),
+    }
 
 
 # --------------------------------------------------------------------------- #
