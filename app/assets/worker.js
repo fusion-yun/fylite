@@ -4608,6 +4608,28 @@ function evEnclosedIp(geo, psi) {
 
 
 /**
+ * The equilibrium document an executor reads off the page's field: the psi
+ * map in the page's own gauge — STATED (`fylite:psi_convention`, 第二十七刀:
+ * the kernel's readers honour it) — the axis, the limiter, and the one set of
+ * 1-D rows the caller hands over.  One spelling for the beam and the wave.
+ */
+function evFieldDoc(field, geo, prof1d) {
+  var i, rg = new Array(field.nr), zg = new Array(field.nz);
+  for (i = 0; i < field.nr; i++) rg[i] = field.r0 + field.dr * i;
+  for (i = 0; i < field.nz; i++) zg[i] = field.z0 + field.dz * i;
+  prof1d['fylite:psi_norm'] = Array.from(geo.psin);
+  return {
+    'fylite:psi_convention': 'full_flux_Wb_axis_max',
+    vacuum_toroidal_field: { r0: Math.abs(geo.r0) || 1, b0: Math.abs(geo.b0) || 1 },
+    time_slice: {
+      global_quantities: { magnetic_axis: { r: field.axisR, z: field.axisZ },
+                           psi_axis: field.psiAxis, psi_boundary: field.psiBnd },
+      profiles_1d: prof1d,
+      profiles_2d: { grid: { dim1: rg, dim2: zg }, psi: Array.from(field.psi) } },
+    'fylite:limiter': { r: Array.from(field.limR), z: Array.from(field.limZ) } };
+}
+
+/**
  * ★★THE BEAM, replacing the prescribed Gaussian (T-M2).
  *
  * What the bar had was a Gaussian in rho with a centre and a width, and a
@@ -4653,19 +4675,9 @@ function evBeamPlan(field, geo, st, sp) {
   //: `nbi` unit — and the echo of the inputs the report re-runs on.
   var ng = field.nr * field.nz, psin2d = new Float64Array(ng);
   for (i = 0; i < ng; i++) psin2d[i] = (field.psi[i] - field.psiAxis) / span;
-  var rg = new Array(field.nr), zg = new Array(field.nz);
-  for (i = 0; i < field.nr; i++) rg[i] = field.r0 + field.dr * i;
-  for (i = 0; i < field.nz; i++) zg[i] = field.z0 + field.dz * i;
   var np0 = geo.psin.length, qAbs = new Array(np0);
   for (i = 0; i < np0; i++) qAbs[i] = Math.abs(geo.q ? geo.q[i] : 1);
-  var eqDoc = {
-    vacuum_toroidal_field: { r0: Math.abs(geo.r0) || 1, b0: Math.abs(geo.b0) || 1 },
-    time_slice: {
-      global_quantities: { magnetic_axis: { r: field.axisR, z: field.axisZ },
-                           psi_axis: field.psiAxis, psi_boundary: field.psiBnd },
-      profiles_1d: { q: qAbs, 'fylite:psi_norm': Array.from(geo.psin) },
-      profiles_2d: { grid: { dim1: rg, dim2: zg }, psi: Array.from(field.psi) } },
-    'fylite:limiter': { r: Array.from(field.limR), z: Array.from(field.limZ) } };
+  var eqDoc = evFieldDoc(field, geo, { q: qAbs });
   var cp = { profiles_1d: { grid: { 'fylite:psi_norm': Array.from(geo.psin) },
                             electrons: { density: Array.from(st.ne),
                                          temperature: Array.from(st.te) } } };
@@ -4874,23 +4886,13 @@ function evLhPlan(field, geo, st, sp) {
   //: here is the PLAN: the field as an `fyo:equilibrium` document (F on the
   //: ladder's own psi_N, which the case reads beside it), the state as
   //: `core_profiles`, the launchers as the DD's `lh_antennas` antennas.
-  var rg = new Array(field.nr), zg = new Array(field.nz);
-  for (i = 0; i < field.nr; i++) rg[i] = field.r0 + field.dr * i;
-  for (i = 0; i < field.nz; i++) zg[i] = field.z0 + field.dz * i;
   var np0 = geo.psin.length, fAbs = new Array(np0), neP = new Array(np0), teP = new Array(np0);
   for (i = 0; i < np0; i++) {
     fAbs[i] = Math.abs(geo.fpol[i]);
     neP[i] = Math.max(st.ne[i], 1e16);
     teP[i] = Math.max(st.te[i], 1);
   }
-  var eqDoc = {
-    vacuum_toroidal_field: { r0: Math.abs(geo.r0) || 1, b0: Math.abs(geo.b0) || 1 },
-    time_slice: {
-      global_quantities: { magnetic_axis: { r: field.axisR, z: field.axisZ },
-                           psi_axis: field.psiAxis, psi_boundary: field.psiBnd },
-      profiles_1d: { f: fAbs, 'fylite:psi_norm': Array.from(geo.psin) },
-      profiles_2d: { grid: { dim1: rg, dim2: zg }, psi: Array.from(field.psi) } },
-    'fylite:limiter': { r: Array.from(field.limR), z: Array.from(field.limZ) } };
+  var eqDoc = evFieldDoc(field, geo, { f: fAbs });
   var cp = { profiles_1d: { grid: { 'fylite:psi_norm': Array.from(geo.psin) },
                             electrons: { density: neP, temperature: teP } } };
   var settings = { eta_cd: sp.lhEtaCd, xi: sp.lhXi, upshift_min: sp.lhUpLo, upshift_max: sp.lhUpHi,
@@ -5465,7 +5467,8 @@ function interpGfileDoc(g) {
   for (i = 0; i < g.nz; i++) z[i] = g.z0 + g.dz * i;
   if (!g.bndR || !g.bndZ || g.bndR.length < 3)
     throw new Error('interp: the g-file payload carries no boundary outline (nbbbs = 0)');
-  return { vacuum_toroidal_field: { r0: g.rmaj, b0: g.b0 },
+  return { 'fylite:psi_convention': 'full_flux_Wb_axis_max',
+           vacuum_toroidal_field: { r0: g.rmaj, b0: g.b0 },
            time_slice: {
              global_quantities: { magnetic_axis: { r: g.axisR, z: g.axisZ },
                                   psi_axis: g.psiAxis, psi_boundary: g.psiBnd },
