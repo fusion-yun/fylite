@@ -18,9 +18,11 @@
 //!
 //! 1. 显式覆盖 —— 命令行 `--facts`（见 [`use_roots`]）；
 //! 2. `$FY_FACTS_PATH` —— 平台路径分隔符分隔，从左到右；
-//! 3. 检出自己的 `facts/`（自可执行文件位置上溯探得），**排在自带的那份之前**——
+//! 3. 检出自己的暂存语料 `dist/facts/`（自可执行文件位置上溯探得），**排在自带的那份之前**——
 //!    否则一份打包时冻结的语料会悄无声息地盖住刚拖回来的那一份；
-//! 4. 发行版自带的那一份（`$FY_FACTS_BUNDLED`，打包时指定）。
+//! 4. 发行版**自带的那一份**——`$FY_FACTS_BUNDLED` 指一棵树，或（今天的做法）
+//!    **编进二进制的那张表**：装置信息随发行版走，一份纯二进制自己就答得出
+//!    `fy list devices` 与 `fy run --device`（2026-09-05 用户裁定）。
 //!
 //! ★不存在的根**静默跳过**，被指名却不可用的根由 [`problems`] 报出。两者不同：
 //! 「语料还没拖回来」是新检出的常态，而「这条路径设了、却不是语料」是一个值得
@@ -32,8 +34,53 @@
 
 use std::path::{Path, PathBuf};
 
+//: ★★自带的那一档：**编进二进制**的装置信息（2026-09-05 用户裁定「fylite 下已无
+//: facts 目录；装置信息打包进发行版二进制」）。表由 `build.rs` 写进 `$OUT_DIR`，
+//: 源里没有它——那些文档是受许可约束的数据，写成 `.rs` 提交进公开仓就是换一种语法
+//: 发布同一批字节。源码检出里这张表是空的，发行构建给 `$FY_FACTS_DIR` 时才有内容。
+include!(concat!(env!("OUT_DIR"), "/facts_table.rs"));
+
 /// 搜索路径的环境变量。与 `$PATH` 用同一个分隔符——同一个概念，平台已经有写法了。
 pub const FACTS_ENV: &str = "FY_FACTS_PATH";
+
+/// 自带那一档的伪根名。它不是一条路径，所以不能是空串或一个真目录名——
+/// 打印出来的「是谁供的」要一眼看得出这一份**不在盘上**。
+pub const BUNDLED_ROOT: &str = "<bundled>";
+
+/// 自带的那一档里，某个域的全部标识。
+fn embedded_idents(domain: &str) -> Vec<String> {
+    EMBEDDED
+        .iter()
+        .filter(|(d, id, _)| *d == domain && *id != "catalogue")
+        .map(|(_, id, _)| id.to_string())
+        .collect()
+}
+
+/// 自带的那一档里那一条的文本。
+fn embedded_text(domain: &str, ident: &str) -> Option<&'static str> {
+    EMBEDDED
+        .iter()
+        .find(|(d, id, _)| *d == domain && *id == ident)
+        .map(|(_, _, t)| *t)
+}
+
+/// 自带的那一档带了几条（排障与 `fy list facts --roots` 用）。
+pub fn embedded_count() -> usize {
+    EMBEDDED.iter().filter(|(_, id, _)| *id != "catalogue").count()
+}
+
+/// 某一域里的每一个标识，**含** `catalogue`——给 C ABI 的那一面用。
+///
+/// ★与 [`embedded_idents`] 的分别只有一处：那个滤掉 `catalogue`（它不是一台机器），
+/// 这个不滤（页面要先读目录才知道有哪几台）。
+pub fn embedded_ids(domain: &str) -> Vec<&'static str> {
+    EMBEDDED.iter().filter(|(d, _, _)| *d == domain).map(|(_, id, _)| *id).collect()
+}
+
+/// 自带那一档里某一条的正文；`catalogue` 也走这里。
+pub fn embedded_doc(domain: &str, ident: &str) -> Option<&'static str> {
+    embedded_text(domain, ident)
+}
 
 /// 打包时告诉本模块「自带的那份在哪」。发行方在构建时给；源码检出里没有。
 pub const BUNDLED_ENV: &str = "FY_FACTS_BUNDLED";
@@ -52,6 +99,30 @@ pub struct Entry {
     pub document: Option<PathBuf>,
     /// 卡片与许可账所在的目录，有则在
     pub dir: Option<PathBuf>,
+    /// 自带那一档的文档正文。**与 `document` 二选一**：这一条是编进二进制的，
+    /// 盘上没有对应的文件，所以 `document` 是 `None` 而这里有字。
+    pub text: Option<&'static str>,
+}
+
+impl Entry {
+    /// 这一条的文档正文——自带的直接给，盘上的读出来。
+    ///
+    /// ★消费方一律走这一个口，不要各自 `read_to_string(document)`：那样写的每一处
+    /// 都会在自带那一档上安静地拿不到东西（`document` 是 `None`），而「拿不到」的
+    /// 表现是少一台机器，不是一句错。
+    pub fn read(&self) -> Option<String> {
+        if let Some(t) = self.text {
+            return Some(t.to_string());
+        }
+        self.document
+            .as_ref()
+            .and_then(|p| std::fs::read_to_string(p).ok())
+    }
+
+    /// 有没有一份文档可读——盘上的或自带的。
+    pub fn has_document(&self) -> bool {
+        self.text.is_some() || self.document.is_some()
+    }
 }
 
 /// fydoc 那侧的 A-Box 目录名：**一条条目的数据部分**。
@@ -168,13 +239,18 @@ fn named() -> Vec<PathBuf> {
         .unwrap_or_default()
 }
 
-/// 检出自己的 `facts/`：自可执行文件位置上溯，找一个既有 `facts/` 又有 `python/`
-/// 的目录。★判据要**两样**：只看 `facts/` 会把任何恰好有同名目录的祖先当成检出。
+/// 检出自己的暂存语料 `dist/facts/`：自可执行文件位置上溯，找一个既有它、又有
+/// `python/` 的目录。★判据要**两样**：只看一个目录名会把任何恰好同名的祖先当成检出。
+///
+/// ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料落在
+/// `dist/facts/`（构建暂存区，`dist/` 本来就不入库）。仓顶那个目录只靠一行
+/// `.gitignore` 撑着，还有一条 `app/facts` 符号链接指着它——于是「哪些字节属于这个
+/// 仓」要靠记忆回答；搬进 `dist/` 之后由目录名自己回答。
 fn repo_facts() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;
     let mut here: &Path = exe.parent()?;
     loop {
-        let cand = here.join("facts");
+        let cand = here.join("dist").join("facts");
         if cand.is_dir() && here.join("python").is_dir() {
             return Some(cand);
         }
@@ -291,10 +367,20 @@ pub fn find(domain: &str, ident: &str) -> Option<Entry> {
                 root: r,
                 document: has_doc.then_some(doc),
                 dir: has_dir.then_some(dir),
+                text: None,
             });
         }
     }
-    None
+    //: ★最后一档：编进二进制的那一份。**排在盘上的每一个根之后**，理由与从前
+    //: `$FY_FACTS_BUNDLED` 排最后一样——一份打包时冻结的语料不该盖住刚拖回来的。
+    embedded_text(domain, ident).map(|t| Entry {
+        domain: domain.to_string(),
+        ident: ident.to_string(),
+        root: PathBuf::from(BUNDLED_ROOT),
+        document: None,
+        dir: None,
+        text: Some(t),
+    })
 }
 
 /// 某一域里的每一个标识，按名排序，各自来自赢下它的那个根。
@@ -321,6 +407,11 @@ pub fn entries(domain: &str) -> Vec<Entry> {
                     names.push(n);
                 }
             }
+        }
+    }
+    for n in embedded_idents(domain) {
+        if !names.contains(&n) {
+            names.push(n);
         }
     }
     names.sort();
@@ -375,7 +466,7 @@ mod tests {
         use_roots(Some(vec![hi.clone(), lo.clone()]));
         let e = find("device", "east").unwrap();
         assert_eq!(e.root, hi);
-        let doc = std::fs::read_to_string(e.document.as_ref().unwrap()).unwrap();
+        let doc = e.read().unwrap();
         assert!(doc.contains("HIGH"), "{doc}");
         //: 许可账来自同一个根——这一条才是「不跨根拼」的实质
         let rp = e.rights_path().unwrap();

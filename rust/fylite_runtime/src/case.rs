@@ -529,6 +529,18 @@ fn ids_of_doc(doc: &Node) -> Option<String> {
 
 /// Resolve the plan's input bindings into the slots the kernel takes.
 pub fn resolve_inputs(plan: &Plan, base: &Path) -> Result<ResolvedInputs, CaseError> {
+    resolve_inputs_any(plan, &[base])
+}
+
+/// 同上，但**逐条**在几个基目录里找（第一个找到的赢）。
+///
+/// ★★2026-09-05 实测的一个死角。一份计划里的输入可以有两种来路：预设自带的那些
+/// 相对**语料目录**，而 `--device` / 取回的测量落在**记录目录**里。调用方从前的写法是
+/// 「整份按语料目录解析，不行就整份按记录目录再来一遍」——那是**全有或全无**的，
+/// 于是一份两种来路都有的计划**两次都失败**，而报出来的是第一次的错（第二次的被
+/// `Err(_)` 丢掉了）。表现是 `fy run <场景> --device <id>` 说 `device.jsonld` 不在
+/// 语料目录里——而它明明就在刚写好的记录目录里。
+pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs, CaseError> {
     let mut slots = Vec::new();
     let mut resolved = Vec::new();
     for b in &plan.inputs {
@@ -555,10 +567,25 @@ pub fn resolve_inputs(plan: &Plan, base: &Path) -> Result<ResolvedInputs, CaseEr
             let path = e.strip_prefix("file://").unwrap_or(&e);
             let path = path.strip_prefix("file+json://").unwrap_or(path);
             let path = path.split('#').next().unwrap_or(path);
-            let p = Path::new(path);
-            let p = if p.is_absolute() { p.to_path_buf() } else { base.join(p) };
+            let rel = Path::new(path);
+            let p = if rel.is_absolute() {
+                rel.to_path_buf()
+            } else {
+                //: 逐个基目录试，第一个存在的赢；都不在就拿第一个来报错——那是最可能
+                //: 是「作者本来想指哪里」的那一个。
+                bases
+                    .iter()
+                    .map(|b| b.join(rel))
+                    .find(|q| q.is_file())
+                    .unwrap_or_else(|| bases[0].join(rel))
+            };
             if !p.is_file() {
-                return err(format!("input `{}`: `{}` is not a file (looked at {})", b.port, e, p.display()));
+                let looked = bases
+                    .iter()
+                    .map(|b| b.join(rel).display().to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                return err(format!("input `{}`: `{}` is not a file (looked at {looked})", b.port, e));
             }
             let bytes = std::fs::read(&p).map_err(|x| CaseError(format!("{}: {x}", p.display())))?;
             r.sha256 = Some(sha256_hex(&bytes));

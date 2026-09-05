@@ -20,18 +20,21 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const HERE = new URL('.', import.meta.url).pathname;
-//: ★2026-09-04 `machine_desc/` → `devices/` → **`facts/device/`**（用户裁定）：
-//: 一个个体一目录，卡片 + 许可账同住，gitignored，由 `tools/abox-to-facts.py` 拖回。
-//: 页面那一侧经 `app/facts`（指向仓根 `facts/` 的符号链接）取同一份字节——**一个名字**。
-export const DEVICE_DIR = HERE + '../../facts/device';
-export const PRESET_DIR = HERE + '../facts/device';
+//: ★2026-09-04 `machine_desc/` → `devices/` → `facts/device/`；★★2026-09-05 用户
+//: 裁定「fylite 下已无 facts 目录」，拖回的语料落在构建暂存区 **`dist/facts/device/`**：
+//: 一个个体一目录（卡片 + 许可账同住），旁边一份页面读得懂的 `<id>.jsonld`，
+//: gitignored，由 `tools/abox-to-facts.py` 从 fydoc 的 A-Box 拖回。
+//: ★**只有这一处来源了**。从前这里先看 `app/facts/device/`（指向仓根 `facts/` 的
+//: 符号链接）再回退源树；那条链接与仓根 `facts/` 都已撤，而**发布出去的那一份**
+//: 今天不是文件，是编进 `libfylite_runtime.so` / `fylite_runtime.wasm` 的
+//: `facts.rs`（同日裁定：页面也走中间层 wasm）。闸子要的是一份能拖进页面的文档
+//: 文本，所以读暂存区里的那一份——与编进制品的是同一批字节。
+export const DEVICE_DIR = HERE + '../../dist/facts/device';
 
-/** The fyo device document for `id`, or null when neither copy is present. */
+/** The fyo device document for `id`, or null when this checkout has none. */
 export function deviceDoc(id) {
-  for (const f of [`${PRESET_DIR}/${id}.jsonld`,
-                   `${DEVICE_DIR}/${id}/fylite_device_${id}.json`])
-    if (existsSync(f)) return JSON.parse(readFileSync(f, 'utf8'));
-  return null;
+  const f = `${DEVICE_DIR}/${id}.jsonld`;
+  return existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null;
 }
 
 /**
@@ -81,7 +84,7 @@ export function envWithDeck(id) {
 
 /** Message for a gate that cannot run without the deck. */
 export function missingDeviceMessage(id) {
-  return `装置数据缺失：${DEVICE_DIR}/${id}/fylite_device_${id}.json 不存在。`
-       + `\n发布的预设在 app/facts/device/，源树同一处；两处都没有。`
-       + `该文件由 data/${id}/ 的装置卷宗生成。`;
+  return `装置数据缺失：${DEVICE_DIR}/${id}.jsonld 不存在。`
+       + `\n它由 tools/abox-to-facts.py 从 fydoc 的 A-Box 拖回（暂存区 gitignored）：`
+       + `\n  python3 tools/abox-to-facts.py ${id}`;
 }

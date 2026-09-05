@@ -23,14 +23,17 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-FACTS = ROOT / "facts"
+#: ★★2026-09-05 用户裁定：**仓顶已无 `facts/`**。拖回来的语料落在 `dist/facts/`
+#: （构建暂存区），本模块随之改问那里——问错地方的表现不是红，是**整模块跳过**，
+#: 而跳过看起来和「这台机器上没拖语料」一模一样。
+FACTS = ROOT / "dist" / "facts"
 #: 今天只有 device 一域有内容；amns / experiment 进来时本模块按域走，不必改。
 DEVICES = FACTS / "device"
 TOOL = ROOT / "tools" / "facts-publish.py"
 
 pytestmark = pytest.mark.skipif(
     not DEVICES.is_dir(),
-    reason="没有 facts/device/ —— 它是拖回的输入（tools/abox-to-facts.py --all）",
+    reason="没有 dist/facts/device/ —— 它是拖回的输入（tools/abox-to-facts.py --all）",
 )
 
 
@@ -52,6 +55,37 @@ def _rights(d: pathlib.Path) -> dict:
 def test_there_is_something_to_check():
     """★空目录会让下面每一条断言都成立——先证明它不空。"""
     assert _pulled(), "devices/ 在，但一台机器都没有"
+
+
+def test_every_published_document_is_json_a_browser_can_parse():
+    """页面 `fetch` 的那一份必须是**严格 JSON**：不许 NaN / Infinity。
+
+    ★★2026-09-05 实测的一次真事故。WEST 的壁面轮廓 `Baffle` 末点 r/z 都是 NaN
+    （上游 MATLAB 定长数组的补位），`json.dumps` 缺省把它写成裸 `NaN`——而 **JSON 没有
+    这个词**。`app/assets/devices.js` 的 `r.json()` 当场抛 `SyntaxError`，于是这一台
+    在浏览器里整份读不出来；而三种制品（站点 · 可执行文件 · 轮）**全部**带着它发了
+    出去，构建从头到尾是绿的。
+
+    ★闸子问的是**发布出去的那一份**（`facts/<域>/<id>.jsonld`），不是卡片：卡片是
+    YAML，`.nan` 在那里是合法的；出问题的是**换语法那一步**。产出方
+    （`tools/abox-to-facts.py` 的 `finite()`）今天要么摘掉成对轮廓的末位补位、要么按名
+    拒绝，本条钉的是那一步真的做了。
+    """
+    docs = sorted(FACTS.glob("*/*.jsonld"))
+    if not docs:
+        pytest.skip("搜索路径上没有发布出去的文档")
+
+    def strict(c):
+        raise ValueError(c)
+
+    bad = []
+    for f in docs:
+        try:
+            json.loads(f.read_text(encoding="utf-8"), parse_constant=strict)
+        except ValueError as e:
+            bad.append(f"{f.relative_to(FACTS)}: {e}")
+    assert not bad, (
+        "这些发布出去的文档不是严格 JSON，浏览器读不出来：\n  " + "\n  ".join(bad))
 
 
 @pytest.mark.parametrize("dev", [d.name for d in _pulled()] or ["<none>"])
@@ -156,23 +190,59 @@ def test_nothing_internal_only_reaches_a_public_artifact():
         f"这些机器只进内部版，公开版的发布计划却带着它们：{leaked}")
 
 
-def test_the_committed_embed_table_is_the_public_one():
-    """桌面可执行文件内嵌的那张表（committed 生成物）不得带只进内部版的机器。
+def test_the_embed_table_carries_no_device_document():
+    """内嵌资源表里**一台装置也没有**——那份重复已经撤掉，且不许回来。
 
-    ★★这一条守的是一种**很容易发生**的事故：有人为了本机调试跑了一次
-    `--flavour internal` 的生成器，表变脏了，而那张表**是提交进仓的**——下一个
-    人拉下来构建出的「公开版」就带着 EAST。表脏本身是可见的（`git status`），
-    但脏得对不对，只有这条断言看得出来。
+    ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。
+    在此之前同一批 432 KB 在一个可执行文件里装两遍：一遍在这张表里（给页面的
+    HTTP 面 `include_bytes!`），一遍在 `facts.rs` 里（给命令行）。两份字节、两条
+    通路，而**没有任何东西保证它们描述同一批机器**——目录说有七台、文件只有六台，
+    这种事不会有任何东西红。
+
+    今天页面经 `fylite_runtime.wasm` 读那唯一一份，所以这张表里不该再有装置文档。
+    本条守的是**那份重复不回来**：它一旦回来，回来的方式是有人给生成器加回一段
+    「按发布规则逐台加进来」，而那一段看起来完全合理。
+
+    ★这条**从前是反过来的**（「表要与缺省版的发布计划一致」）。方向换了，因为表里
+    该有的东西换了；再往前它拿 `devices/<id>.jsonld` 匹配，而路径 2026-09-04 起是
+    `facts/device/<id>.jsonld`，于是那一版**恒真、从未生效**。
     """
     table = ROOT / "rust" / "fylite_runtime" / "src" / "bin" / "app" / "assets.rs"
     if not table.is_file():
         pytest.skip("no assets.rs")
     text = table.read_text(encoding="utf-8")
-    internal_only = {d.name for d in _pulled() if not _rights(d)["public"]}
-    leaked = sorted(dev for dev in internal_only if f'"devices/{dev}.jsonld"' in text)
+    leaked = [ln.strip() for ln in text.splitlines() if '"facts/' in ln]
     assert not leaked, (
-        f"committed 的内嵌表里有只进内部版的机器：{leaked}。"
-        "重跑 `node tools/make-app-embed.mjs`（缺省是公开版）再提交。")
+        "内嵌资源表里又有 facts 文档了——那是 2026-09-05 撤掉的那一份重复：\n  "
+        + "\n  ".join(leaked[:5]))
+
+
+def test_the_compiled_in_tier_is_the_default_flavour():
+    """编进 `libfylite_runtime.so` 的那几台 = 缺省版别的发布计划。
+
+    ★★这是许可闸的**可执行形**。装置文档从 2026-09-05 起只有一个制品
+    （`facts.rs`，由 `.so` 与 `.wasm` 各编进去），所以「发出去的是哪几台」这个问题
+    今天只有一处答案可查——就是这里。编多了一台，命令行、页面、轮**同时**多一台，
+    而三处都不会红。
+
+    ★读的是**装着的那份 `.so`**，不是源码：源码里那张表是空的（`build.rs` 在
+    `$OUT_DIR` 里生成它），所以只有问运行时才问得到真话。
+    """
+    from fylite import facts as _f
+    have = {d.name for d in _pulled()}
+    if not have:
+        pytest.skip("没拖语料")
+    if _f.bundled_count() == 0:
+        pytest.skip("这份 .so 没编装置信息（bash rust/build.sh）")
+    r = subprocess.run([sys.executable, str(TOOL), "--flavour", "internal", "--list"],
+                       capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    planned = {ln.split("/", 1)[1].strip() for ln in r.stdout.splitlines()
+               if ln.strip().startswith("device/")} & have
+    built = {n for n in _f.bundled_ids("device") if n != "catalogue"} & have
+    assert built == planned, (
+        f"编进 .so 的与缺省（internal）发布计划不一致：多了 {sorted(built - planned)}，"
+        f"少了 {sorted(planned - built)}。重跑 `bash rust/build.sh --internal`。")
 
 
 # --------------------------------------------------------------------------- #
@@ -220,11 +290,11 @@ def test_a_lower_root_still_contributes_what_the_higher_one_lacks(tmp_path):
 
     hi = _make_root(tmp_path / "hi", ident="onlyhere", note="HIGH")
     try:
-        facts.use([hi, ROOT / "facts"])
+        facts.use([hi, FACTS])
         ids = {e.ident: e.root for e in facts.entries("device")}
         assert ids.get("onlyhere") == hi, "高优先级独有的那台没进并集"
-        if (ROOT / "facts" / "device" / "iter.jsonld").is_file():
-            assert ids.get("iter") == ROOT / "facts", "低优先级该供的那台没供上"
+        if (FACTS / "device" / "iter.jsonld").is_file():
+            assert ids.get("iter") == FACTS, "低优先级该供的那台没供上"
     finally:
         facts.use(None)
 

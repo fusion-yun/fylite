@@ -12,13 +12,12 @@
 //
 //   node app/tests/validate-devices.mjs
 
-import { readFileSync, existsSync } from 'node:fs';
-import { DEVICES_DIR } from './_preset.mjs';
+import { readFileSync } from 'node:fs';
+import { DEVICES_DIR, installFactsDb, presetDocs } from './_preset.mjs';
 import vm from 'node:vm';
 
 const HERE = new URL('.', import.meta.url).pathname;
 const SITE = HERE + '../assets/';
-const DESC = HERE + '../../machine_desc/';
 
 globalThis.self = globalThis;
 
@@ -49,17 +48,17 @@ for (const f of ['i18n.js', 'lang-zh.js', 'lang-en.js',
                  'device.js', 'fyodev.js', 'geqdsk.js', 'devices.js'])
   vm.runInThisContext(readFileSync(SITE + f, 'utf8'), { filename: f });
 
-// ★The presets arrive by FETCH now, so a host with no `fetch` has none.
-// `load()` takes the directory, which is what lets this read them off disk
-// without a server; the page passes nothing and resolves it from its own
-// script URL.
-globalThis.fetch = async (url) => {
-  const f = url.replace(/^.*\/(?:devices|facts\/device)\//, DEVICES_DIR);
-  if (!existsSync(f)) return { ok: false, status: 404 };
-  const text = readFileSync(f, 'utf8');
-  return { ok: true, status: 200, json: async () => JSON.parse(text) };
-};
-await globalThis.FyDevices.load(DEVICES_DIR);
+//: ★★**装置从中间层 wasm 里来**（2026-09-05 用户裁定：页面也走中间层 wasm，撤掉
+//: `facts.jsonld`）。此前这里把 `fetch` 改写成读磁盘上的 `facts/device/*.jsonld`，
+//: 而 `devices.js` 的 `load()` 早已不 fetch 那些文件——它问 `FyFactsDb`。于是这条
+//: 闸子读到零台机器，报的是「the build ships 0 machine(s)」：句子是真的，指的却
+//: 不是被测代码，而是闸子在拿一条谁也不走的路喂它。
+const db = installFactsDb(globalThis);
+if (!db.ok) { console.error('装置注册表闸子：' + db.why); process.exit(1); }
+const boot = await globalThis.FyDevices.load(DEVICES_DIR);
+if (boot.failed.length)
+  console.log('  ★这一版读不进的：'
+              + boot.failed.map((f) => `${f.id}(${f.why})`).join('；'));
 
 const D = globalThis.FyDevices;
 let bad = 0;
@@ -78,18 +77,20 @@ ok(builtin.length >= 1, `the build ships ${builtin.length} machine(s) `
 // ★The real files, not fixtures.  A registry test on invented documents
 // checks the registry against a machine nobody has.
 //: ★★2026-09-01：这张表原是 `['iter', 'cfetr', 'best']`——按当时仓里有哪几台
-//: 写死的。cfetr 与 best 已随「PF 线圈表出处是私人通信」的裁定移出公开仓，于是
-//: 只剩 iter 一台，而下面那条 `>= 2` 就红了。红的不是注册表，是这张表过期了。
-//: 改成按 `machine_desc/` **实际在场**的来取，并保持「至少两台」——两台是这组
-//: 判据的下限（`importMany` 的「一次调用留下全部」与 id 冲突那两条都要多于一台
-//: 才检得动），所以它仍然是判据，不是摆设。
-const ids = ['east', 'iter'].filter(
-  (id) => existsSync(`${DESC}${id}/fylite_device_${id}.json`));
+//: 写死的。写死的名字会在语料动的当天变成谎，所以改成按**实际读得进**的来取，
+//: 并保持「至少两台」——两台是这组判据的下限（`importMany` 的「一次调用留下全部」
+//: 与 id 冲突那两条都要多于一台才检得动），所以它仍然是判据，不是摆设。
+//: ★2026-09-05：来源从退役的 `machine_desc/` 换成构建暂存区里的那批 fyo 文档
+//: （`dist/facts/device/`，`tools/abox-to-facts.py` 拖的那一份）——就是编进
+//: `facts.rs` 的同一批字节。导入走的是**文件文本**这条路，所以这里仍读磁盘：
+//: 它模拟的是读者从别处拿到一份文档拖进页面，不是这一版自带什么。
+const DOCS = presetDocs();
+const ids = Object.keys(DOCS).filter((id) => builtin.includes(id)).sort().slice(0, 2);
 const files = ids.map((id) => ({
   name: `fylite_device_${id}.json`,
-  text: readFileSync(`${DESC}${id}/fylite_device_${id}.json`, 'utf8'),
+  text: JSON.stringify(DOCS[id]),
 }));
-ok(files.length >= 2, `machine_desc carries importable documents (${ids.join(', ')})`);
+ok(files.length >= 2, `the corpus carries importable documents (${ids.join(', ')})`);
 
 // one unreadable file rides along: a partial import must SAY so
 files.push({ name: 'not-a-device.json', text: '{"@type":"fylite:Nope/1"}' });

@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import pathlib
 import re
@@ -78,7 +79,9 @@ FYDOC = pathlib.Path(
 #: ★`models/` **不在这里**：神经网络权重不是关于世界的断言，是制品——它更靠近内核
 #: 的 `.so` 而不是一份装置描述。它同样要许可账，但在自己的根下。
 DOMAIN = "device"
-OUT = ROOT / "facts" / DOMAIN
+#: ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料落进
+#: `dist/facts/`——一个构建暂存区（`dist/` 本来就不入库），发布器与打包器从这里取。
+OUT = ROOT / "dist" / "facts" / DOMAIN
 
 #: EAST's document is hand-maintained and richer than the upstream tree.
 HANDWRITTEN = {"east"}
@@ -793,9 +796,210 @@ def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     doc = yaml.safe_load(card.read_text(encoding="utf-8"))
     if not isinstance(doc, dict):
         return None
+    finite(dev, doc)
+    identity(dev, doc)
+    grid(dev, doc)
+    vacuum_field(dev, doc)
     p = out_root / f"{dev}.jsonld"
-    p.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    #: ★`allow_nan=False`：Python 的缺省会写出裸 `NaN` / `Infinity`，**那不是 JSON**。
+    #: 上面的 `finite()` 已经把唯一一种无歧义的情形（成对轮廓末尾的补位）摘掉了；
+    #: 到这里还剩非有限值，就该在这里当场炸，而不是发出去让 `JSON.parse` 去炸。
+    p.write_text(json.dumps(doc, ensure_ascii=False, indent=1, allow_nan=False) + "\n",
+                 encoding="utf-8")
     return p
+
+
+#: ★分辨率的缺省：EFIT 的老约定，也是本仓随包 `libefit.so` 的编译期维度。
+#: **只在卡片没有编译期维度可抄时才用**——见 `grid()` 抬头。
+DEFAULT_GRID_N = 65
+
+
+def identity(dev: str, doc: dict) -> None:
+    """让文档**自报家门**：`fylite:device_id` 与 `name`。
+
+    ★★为什么这一步存在（2026-09-05 实测）。发布出去的文档只在 `@id` 里带机器名
+    （`fylite:device/east/est2` —— 那串还编着变体），而页面的读法
+    `app/assets/fyodev.js` 认的是 `fylite:device_id`，认不到就叫 `imported`。
+    自带的那批不受影响（id 由目录 `catalogue.jsonld` 给），**受影响的是拿到一份
+    文档、把它拖进页面的读者**：三台机器进来会叫 `imported`、`imported-imported`、
+    `imported-imported-2`，而且不报错。页面自己的写法 `FyoDevice.toFyo` 从来就写
+    这两个键，所以这不是新契约，是发布侧漏了它写的那一份。
+
+    ★`name` 取卡片的 `_machine`（manifest 的 `device` 字段，如 `EAST`）——不造词：
+    卡片没有就不写，读者那侧退回 id。
+    """
+    doc.setdefault("fylite:device_id", dev)
+    machine = doc.get("_machine")
+    if isinstance(machine, str) and machine.strip():
+        doc.setdefault("name", machine.strip())
+
+
+def grid(dev: str, doc: dict) -> None:
+    """把卡片的 `machine.default_grid` 铸成文档的 `fylite:grid`。
+
+    ★★为什么这一步存在（2026-09-05 实测）。页面的装置读法 `app/assets/fyodev.js`
+    **硬要** `fylite:grid`，而**没有任何一份发布出去的文档带它**——于是浏览器的装置
+    面板一台预设机器也列不出来（每台带一句「文档里没有 fylite:grid」，不是崩溃，
+    所以更难发现）。三种制品全带着这个毛病，构建从头到尾是绿的。
+
+    ★★**盒是机器的，分辨率是计算的**——这句不是本函数的发明，是闸子
+    `test_east_descriptions_agree.py::test_the_grid_box_agrees` 早就写着的契约，
+    也是 `fyodev.js` 抬头那句「`fylite:grid` 是计算的属性，不是机器的」的另一半。
+    所以：
+
+    * **盒**逐字抄卡片的 `machine.default_grid`（`r_min` / `r_max` / `z_min` /
+      `z_max`）。它本来就在每一份卡片里——手工那张记的是参考表盒（EAST 的
+      `g093060.01000` 表头），生成的那些由 `machine_block()` 从本文档的限制器轮廓
+      加 5 cm 边距导出。**这里不另算一遍**：算两遍就是两份答案。
+    * **分辨率**取卡片自己的编译期维度 `solver_dims.nw` / `.nh`（EAST 65×65，那是
+      随包 `libefit.so` 的数组维度，改不了——它的 `default_grid.note` 原话就是
+      「盒可选，分辨率不可」）；卡片没有那一组时用 `DEFAULT_GRID_N`，并在
+      `fylite:grid_note` 里说明这个数是**选的**、不是量出来的。
+
+    ★卡片没有 `machine.default_grid` 就**不写**这个键，而不是编一个盒：一个凭空的
+    计算域会让重构在一个不含等离子体的框里跑，而那不会报错，只会给出一个看起来
+    合理的错答案。页面那侧会因此拒绝这一台并说出理由，这正是想要的。
+    """
+    m = doc.get("machine")
+    box = m.get("default_grid") if isinstance(m, dict) else None
+    if not isinstance(box, dict):
+        return
+    need = ("r_min", "r_max", "z_min", "z_max")
+    if not all(isinstance(box.get(k), (int, float)) for k in need):
+        return
+    sd = doc.get("solver_dims")
+    nw = sd.get("nw") if isinstance(sd, dict) else None
+    nh = sd.get("nh") if isinstance(sd, dict) else None
+    compiled = isinstance(nw, int) and isinstance(nh, int)
+    nr, nz = (nw, nh) if compiled else (DEFAULT_GRID_N, DEFAULT_GRID_N)
+    doc["fylite:grid"] = {
+        "nr": nr, "nz": nz,
+        "rmin": box["r_min"], "rmax": box["r_max"],
+        "zmin": box["z_min"], "zmax": box["z_max"],
+    }
+    why = box.get("note") or ""
+    doc["fylite:grid_note"] = (
+        ("分辨率取本文档 `solver_dims` 的编译期维度（随包 libefit.so 的数组维度，改不了）。"
+         if compiled else
+         f"分辨率是**选的**缺省 {DEFAULT_GRID_N}×{DEFAULT_GRID_N}（EFIT 约定），"
+         "不是量出来的：本文档没有编译期维度可抄。")
+        + "盒逐字取 `machine.default_grid`" + (f"：{why}" if why else "。"))
+
+
+def vacuum_field(dev: str, doc: dict) -> None:
+    """把卡片记的标称环向场铸成文档的 `tf.r0` / `tf.b0`。
+
+    ★★同 `grid()` 一样是**契约路径的映射**，不是新的物理。生成的契约表
+    （`app/assets/fyo-interface.js` 的 `TABLES.DEVICE`）把这两格钉在 `tf/r0` 与
+    `tf/b0`，而卡片把同样两个数记在 `machine.r_centre` 与 `machine.fylite:b0`——
+    后者由 `machine_block()` 自上游的 `b_field_phi_vacuum_r / r0` 导出（或 ITER
+    那样自参考平衡表头取）。两处名字不同，于是页面读任何一台都拿不到，
+    而**没有任何东西会红**：装置面板只是列不出机器。
+
+    ★`tf.r0` 在上游可能是裸数，也可能是 `{value, unit, …}` 一个块（实测 ITER 是块、
+    BEST 是裸数）。页面要的是数，所以这里**只在拿得到裸数时才写**，写不出就不写：
+    一个把 `{value: 6.2}` 当数用的读者会得到 `NaN`，而 `NaN` 在求解器里不会当场炸，
+    它会给出一个看起来合理的错平衡。
+
+    ★★**拿不到就不写，绝不编。** 实测有两台没有标称场：ITER（上游的 `tf` 只有 r0
+    且把 b0 标为「需要确认」，真值要从参考平衡表头取，而那份 g 文件不在本检出里）与
+    WEST（上游没有 `b_field_phi_vacuum_r`）。页面因此按名拒绝这两台并说出理由——
+    那是对的：EAST 的环向场本来就是**逐炮的测量**（`\\focs_it`），卡片不把它当机器常量
+    正是它的严谨处，而页面需要一个数来画图是页面的事，不是卡片该迁就的事。
+    """
+    m = doc.get("machine")
+    if not isinstance(m, dict):
+        return
+    tf = doc.get("tf")
+    if not isinstance(tf, dict):
+        tf = {}
+        doc["tf"] = tf
+    took = []
+
+    def plain(v):
+        """裸数就取，`{value: …}` 一类的块不取——见抬头。"""
+        return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+    if plain(tf.get("r0")) is None:
+        r0 = plain(m.get("r_centre"))
+        if r0 is not None:
+            tf["r0"] = r0
+            took.append("r0 <- machine.r_centre")
+    if plain(tf.get("b0")) is None:
+        b0 = plain(m.get("fylite:b0"))
+        if b0 is not None:
+            tf["b0"] = b0
+            took.append("b0 <- machine.fylite:b0")
+    if took:
+        doc["fylite:tf_note"] = (
+            "标称环向场按契约路径落到 `tf`：" + "；".join(took)
+            + "。★数是卡片的，这里只搬位置不改值。"
+            + (f" b0 的由来：{m['fylite:b0_note']}" if m.get("fylite:b0_note") else ""))
+
+
+def _nonfinite(node, trail: str = ""):
+    """逐个非有限浮点：`(路径, 下标, 值)`。"""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield from _nonfinite(v, f"{trail}.{k}" if trail else str(k))
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            if isinstance(v, float) and not math.isfinite(v):
+                yield trail, i, v
+            else:
+                yield from _nonfinite(v, f"{trail}[{i}]")
+    elif isinstance(node, float) and not math.isfinite(node):
+        yield trail, None, node
+
+
+def finite(dev: str, doc: dict) -> None:
+    """把文档改成 **JSON 写得出来**的样子，或者按名拒绝。
+
+    ★★为什么这一步存在（2026-09-05 实测）。WEST 的壁面轮廓 `Baffle` 是 44 个点，
+    而**末点的 r 与 z 都是 NaN**——上游 MATLAB 定长数组的补位，`metis2fyo.py` 照录进
+    A-Box，本工具再照录进 `facts/device/west.jsonld`。Python 的 `json.dumps` 缺省把它
+    写成裸 `NaN`，而 **JSON 没有这个词**：页面 `fetch(...).then(r => r.json())` 当场抛
+    `SyntaxError`，于是这一台装置在浏览器里整份读不出来。三种制品**全部**带着这份读不
+    出来的文档发了出去，而构建从头到尾是绿的——先发现的人是拿到制品的那个。
+
+    做两件事，分得很死：
+
+    * **成对轮廓的末位补位**（`{r: [...], z: [...]}` 两条同长、同在末位非有限）——摘掉。
+      它不是几何：同一份文件里其余 88 个 unit 都没有它，而这一个有。
+    * **其余任何非有限值**——**拒绝**，点名路径。中间的一个 NaN 是缺一个点，不是补位；
+      摘掉它会把折线接错，而那种错不报警。
+
+    ★为什么不写成 `null`：JS 里 `+null === 0`，一个 `null` 顶点会被画到原点去——比
+    `NaN`（画布直接跳过那一段）更糟。摘掉或拒绝，没有第三条。
+    """
+    dropped = []
+
+    def trim(node, trail=""):
+        if isinstance(node, dict):
+            r, z = node.get("r"), node.get("z")
+            if (isinstance(r, list) and isinstance(z, list) and len(r) == len(z) >= 2
+                    and isinstance(r[-1], float) and not math.isfinite(r[-1])
+                    and isinstance(z[-1], float) and not math.isfinite(z[-1])):
+                node["r"], node["z"] = r[:-1], z[:-1]
+                dropped.append(f"{trail}.r/z[{len(r) - 1}]")
+            for k, v in node.items():
+                trim(v, f"{trail}.{k}" if trail else str(k))
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                trim(v, f"{trail}[{i}]")
+
+    trim(doc)
+    if dropped:
+        print(f"  {dev}: 摘掉 {len(dropped)} 个成对轮廓的末位补位（NaN）："
+              + " ".join(dropped[:3]) + (" …" if len(dropped) > 3 else ""))
+    left = list(_nonfinite(doc))
+    if left:
+        where = ", ".join(f"{t}[{i}]={v}" if i is not None else f"{t}={v}"
+                          for t, i, v in left[:5])
+        raise SystemExit(
+            f"[facts] {dev}: 文档里有 {len(left)} 个非有限值，JSON 写不出来：{where}\n"
+            f"[facts]   它们不是成对轮廓的末位补位，摘掉会改变几何——请在上游"
+            f"（fydata 的转换器）修，不要在这里猜。")
 
 
 def write_catalogue(out_root: pathlib.Path) -> pathlib.Path:
@@ -841,9 +1045,13 @@ def main(argv=None) -> int:
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--publishable", action="store_true",
                     help="只列出进得了这一种构建的机器（许可闸；不写文件）")
-    ap.add_argument("--flavour", choices=("public", "internal"), default="public",
-                    help="哪一种构建：public（缺省，不含 EAST 与上游禁分发的 IDS）"
-                         "/ internal（全部）")
+    #: ★缺省是 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）：fylite 以内部
+    #: 工具发布，全功能构建含 EAST。许可判据没有跟着松——它仍在每台自己的
+    #: `rights.json` 里；变的只是「不说话时装哪一版」。公开面因此必须**明写**
+    #: `--flavour public`，见 A-14 的门禁。
+    ap.add_argument("--flavour", choices=("public", "internal"), default="internal",
+                    help="哪一种构建：internal（缺省，全部，含 EAST）"
+                         "/ public（不含 EAST 与上游禁分发的 IDS）")
     a = ap.parse_args(argv)
 
     if not device_root(a.fydata).is_dir():
@@ -888,12 +1096,18 @@ def main(argv=None) -> int:
             #: 不是「这台机器不参与打包」。卡片不在盘上时什么也不写。
             if write_document(dev, a.out) is not None:
                 print(f"  {dev}: 手工卡片保持原样，派生 {dev}.jsonld")
-            elif not a.all:
+            else:
+                #: ★★**`--all` 也要说**（2026-09-05 改）。从前这一支写着
+                #: `elif not a.all`，于是 `--all` 在卡片不在时**一声不吭**地少带一台，
+                #: 目录从 7 台变成 6 台而构建全绿——正是本工具一直在防的那类失灵。
+                #: 实测撞上：清 `dist/` 之后跑 `--all`，目录里就没有 EAST 了。
                 print(f"{dev}: hand-maintained here and strictly richer than "
                       f"the upstream tree — refusing to overwrite the card "
-                      f"(rights.json written). ★而盘上没有那张卡片："
-                      f"它随 machine_desc/ 一起删了（内核仓 b4dce77），"
-                      f"而这一台恰恰是不从上游拖的那一台。",
+                      f"(rights.json written). ★★而盘上没有那张卡片，"
+                      f"于是这一版**少一台机器**：它随 machine_desc/ 一起删了"
+                      f"（内核仓 b4dce77），而这一台恰恰是不从上游拖的那一台。"
+                      f"★三仓皆无（FYL-DESIGN-19 G-1）——**没有任何地方能把它再生成一次**，"
+                      f"所以它只可能来自某个人手上的一份拷贝。",
                       file=sys.stderr)
                 rc = 1
             continue

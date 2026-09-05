@@ -786,11 +786,18 @@
 <script src="../assets/vocab-model.js"></script>
 <script src="../assets/form.js"></script>
 <script src="../assets/device.js"></script>
+<script src="../assets/runtime-version.js"></script>
+<script src="../assets/factsdb.js"></script>
 <script src="../assets/fyodev.js"></script>
 <script src="../assets/devices.js"></script>
 <!-- the GENERATED kernel vocabularies (species table, deck name
      orders); `fylite.js` reads them instead of carrying a copy -->
 <script src="../assets/deck-names.js"></script>
+<!-- ★★算力：桌面宿主（fy app）里内核是本进程的，页面把调用交给
+     /api/kernel；静态站点没有那条路，仍然实例化 wasm。参数种类表
+     kernel-abi.js 由内核仓生成，两侧同源（2026-09-05 用户裁定）。 -->
+<script src="../assets/kernel-abi.js"></script>
+<script src="../assets/kernelapi.js"></script>
 <script src="../assets/fylite.js"></script>
 <script>
 // ★One kernel on the PAGE thread, so `physics.js` has no reason left to keep
@@ -804,8 +811,15 @@
 // caller: the two consumers (shape metrics, enclosed volume) are drawing-time
 // helpers, and a page that has not finished loading its kernel simply has not
 // drawn yet.
-self.FyLite.load('../assets/fylite_rs.wasm')
-  .then(function (fy) { self.FyPhys.useKernel(fy); })
+self.FyLite.attach('../assets/fylite_rs.wasm')
+  .then(function (fy) {
+    self.FyPhys.useKernel(fy);
+    //: ★★内核到了就**再画一次**（2026-09-05）。取内核是异步的，而画图的助手是
+    //: 内核的（`FYL-DESIGN-07` D-4），所以启动时总有一小段「已经画了、还没有内核」
+    //: 的窗口——那一拍画不出来是对的，画不出来之后没人再叫一次才是缺陷：读者看到
+    //: 的是一张永远空着的截面，直到他自己动一下控件。
+    if (self.FyScenario && self.FyScenario.redraw) self.FyScenario.redraw();
+  })
   .catch(function (e) { console.error('page kernel: ' + e.message); });
 </script>
 <script src="../assets/geqdsk.js"></script>

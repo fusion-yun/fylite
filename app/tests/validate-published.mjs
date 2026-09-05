@@ -58,7 +58,12 @@ const page = await ctx.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
 page.on('console', (m) => {
-  if (m.type() === 'error' && !/favicon/.test(m.text()))
+  //: ★★`/api/*` 上的 404 **不是错误，是答案**（2026-09-05）：静态宿主没有请求面，页面据此
+  //: 判断该走 wasm（`factsdb.js` / `kernelapi.js` 探的就是这件事——探「这条路答不答」，
+  //: 不看主机名）。发布出去的站点不在回环地址上，一个探测也不发；本地静态服务器上那几条
+  //: 404 是这套判别的正常足迹，不该让「页面没有报错」变红。
+  if (m.type() === 'error' && !/favicon/.test(m.text())
+      && !/\/api\//.test((m.location() && m.location().url) || ''))
     errs.push('console: ' + m.text().slice(0, 200));
 });
 

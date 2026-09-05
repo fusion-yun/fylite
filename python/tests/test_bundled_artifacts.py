@@ -149,8 +149,11 @@ def test_the_generated_prose_pages_carry_the_current_abi():
         "`node tools/make-app-pages.mjs`:\n  " + "\n  ".join(stale))
 
 
-#: The three feature-split artifacts the pages fetch.
-WASM = ("fylite_rs", "fylite_tglf", "fylite_dke")
+#: The two artifacts the pages fetch — one per native `.so` (2026-09-05 用户裁定:
+#: dke 与 tglf 合为 `kernel_ext`).  ★It was three until that ruling; the third
+#: (`fylite_dke.wasm`) was built and shipped in all three release forms while
+#: **nothing loaded it** — `app/assets/fylite.js` has no dke entry point.
+WASM = ("fylite_rs", "fylite_kernel_ext")
 
 #: ★2026-09-01：底账随 `docs/note/` 留在 fylite_kernel。探测得到就核，探不到就点名
 #: 跳过——一条永远红的判据与没有判据是同一件事，而且更吵。

@@ -360,4 +360,7 @@ def test_the_generated_vocabularies_load_before_their_reader():
     #: ★the count is asserted so that a harness DELETED or renamed shows up
     #: here as a change to argue about, rather than as a loop that silently
     #: found nothing to check (measured 2026-08-26: four)
-    assert len(harness) == 4, harness
+    #: ★2026-09-05 起是**五**个：`validate-kernel-api.mjs` 也自建宿主——它比的是
+    #: 同一批内核调用走 `/api/kernel` 与走 wasm 的结果（当天用户裁定：webui 的算力
+    #: 由 api 端提供，只静态网页走 wasm），所以它同样要先加载那两份生成文件。
+    assert len(harness) == 5, harness

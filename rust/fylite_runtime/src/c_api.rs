@@ -524,6 +524,101 @@ pub unsafe extern "C" fn fylite_runtime_read(
     }
 }
 
+// =========================================================================== //
+// 线性内存的两个把手 —— wasm 宿主要它们才递得进字符串、收得回答案
+// =========================================================================== //
+//: ★★wasm 上宿主与库**不共享地址空间**：JS 只能往库的线性内存里写，而要写就得先
+//: 有一块属于库的内存。本文件其余导出的取字符串写法（`cap = 0` 先问长度，再给足
+//: 缓冲问第二次）在原生那侧由调用方自己分配就够了，在 wasm 上不够——所以这两个。
+//: ★与内核那侧同形（`fylite_rs_alloc` / `_free`），页面因此一套写法读两个模块。
+//: ★三种目标都有它们：原生那侧多两个无害的导出，好过让同一份 JS 分两条路走。
+
+/// 分配 `n` 字节，返回指针；`n` 为 0 或分配失败返回空指针。
+///
+/// 调用方**必须**用同一个 `n` 调 [`fylite_runtime_free`] 还回来。
+#[no_mangle]
+pub extern "C" fn fylite_runtime_alloc(n: u64) -> *mut u8 {
+    if n == 0 {
+        return std::ptr::null_mut();
+    }
+    let mut v = Vec::<u8>::with_capacity(n as usize);
+    let p = v.as_mut_ptr();
+    std::mem::forget(v);
+    p
+}
+
+/// 还回 [`fylite_runtime_alloc`] 拿到的那一块。`n` 必须与当初一致。
+///
+/// # Safety
+/// `p` 必须出自 `fylite_runtime_alloc(n)`，且不曾被还过。
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_free(p: *mut u8, n: u64) {
+    if !p.is_null() && n > 0 {
+        drop(Vec::from_raw_parts(p, 0, n as usize));
+    }
+}
+
+// =========================================================================== //
+// facts —— 装置信息的**自带那一档**，编在这个库里
+// =========================================================================== //
+//: ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。
+//: 在此之前装置信息在一个制品里装两遍：一遍是页面 `fetch` 的 JSON（站点上是文件，
+//: 可执行文件里是 `assets.rs` 的 `include_bytes!`），一遍是 CLI 读的那张 Rust 表。
+//: 同一批 432 KB，两份字节，两条通路——而**没有任何东西保证它们描述同一批机器**。
+//: 收成一处之后只剩 `facts.rs` 一个制品，页面与命令行读的是同一份字节。
+//:
+//: 这两个导出**不碰套接字也不碰文件**，所以三种目标（`.so` / `fy` / wasm）都有它们。
+//: 取字符串的写法与本文件其余导出一致：`cap = 0` 先问长度，再给足缓冲问第二次。
+
+/// 某一域里的标识，换行分隔（`catalogue` 也在其中，它是那一域的目录）。
+///
+/// 返回想要的字节数（可能大于 `cap`）；`-1` 表示 `domain` 为空或不是 UTF-8。
+///
+/// # Safety
+/// `domain`: `domain_n` 字节；`out`: `cap` 个可写字节。
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_facts_ids(
+    domain: *const u8,
+    domain_n: u64,
+    out: *mut u8,
+    cap: u64,
+) -> i64 {
+    let Some(d) = abi::s(domain, domain_n) else { return -1 };
+    abi::put(&crate::facts::embedded_ids(d).join("\n"), out, cap)
+}
+
+/// 一条条目的文档正文（JSON）。`ident` 给 `catalogue` 即取那一域的目录。
+///
+/// 返回想要的字节数；`-1` 表示参数不是 UTF-8，`-2` 表示这一档里没有这一条。
+/// ★「没有这一条」与「长度为零」必须分得开：一份空文档是合法的，而一台不在这一版
+/// 制品里的机器不是——页面拿它区分「这一版不带它」与「它坏了」。
+///
+/// # Safety
+/// `domain`: `domain_n` 字节；`ident`: `ident_n` 字节；`out`: `cap` 个可写字节。
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_facts_doc(
+    domain: *const u8,
+    domain_n: u64,
+    ident: *const u8,
+    ident_n: u64,
+    out: *mut u8,
+    cap: u64,
+) -> i64 {
+    let (Some(d), Some(i)) = (abi::s(domain, domain_n), abi::s(ident, ident_n)) else {
+        return -1;
+    };
+    match crate::facts::embedded_doc(d, i) {
+        Some(t) => abi::put(t, out, cap),
+        None => -2,
+    }
+}
+
+/// 这一档里有几条（不含各域的 `catalogue`）。排障与「制品带了什么」用。
+#[no_mangle]
+pub extern "C" fn fylite_runtime_facts_count() -> i64 {
+    crate::facts::embedded_count() as i64
+}
+
 /// 从文本读：`format` 是 `json` / `geqdsk` / `afile`（空 = JSON）。状态码同 `_read`。
 ///
 /// # Safety

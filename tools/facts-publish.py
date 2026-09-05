@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""把 `devices/` 里**这一版构建可以带**的装置文档发到一个输出目录。
+"""把**这一版构建可以带**的装置文档收成一个制品：`facts.rs`。
 
-    python3 tools/facts-publish.py --flavour public   --out dist/site
-    python3 tools/facts-publish.py --flavour internal --out dist/site
-    python3 tools/facts-publish.py --flavour public   --list      # 只问不发
+    python3 tools/facts-publish.py                    --out dist   # 缺省 internal
+    python3 tools/facts-publish.py --flavour public   --out dist
+    python3 tools/facts-publish.py --flavour public   --list       # 只问不发
 
 ★★**为什么是一个独立的工具。** 2026-09-04 起本仓的构建分内部版与公开版，而
 `app/facts/device` 是**指向 `facts/device/` 的符号链接**（用户裁定：单一数据源，单一发布
@@ -17,12 +17,14 @@
 本工具，谁都不自己判许可——两个地方各判一遍，某一天它们会给出不同的答案，而**先
 发现的人是拿到制品的那个**。
 
-发什么：
+发什么：**一个文件**，`facts.rs`——`(域, 标识, 文档正文)` 的一张 Rust 表，逐台按
+`rights.json` 判，外加按实际发出去的那几台重写过的目录（`catalogue`）。
 
-* `facts/<域>/<id>.jsonld` —— 页面读的文档（发布路径与仓内路径同名），逐个按 `rights.json` 判；
-* `facts/<域>/catalogue.jsonld` —— 目录，**按实际发出去的那几个重写**。一份广告了一台
-  不在这里的机器的目录，读者点下去得到 404，而页面会把它读成「装置数据坏了」而不是
-  「这一版不带它」。
+★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。此前发的是
+「目录 + 逐台一份 JSON」，页面 fetch 它们，而命令行另有一张编进二进制的表——同一批
+432 KB、两份字节、两条通路，且**没有任何东西保证它们描述同一批机器**。今天只剩一份：
+`libfylite_runtime.so` 与 `fylite_runtime.wasm` 各把它编进去，命令行经
+`facts::embedded_*` 读，页面经 wasm 的 `fylite_runtime_facts_ids` / `_doc` 读。
 
 不发什么：`facts/<域>/<id>/`（卡片与许可账本身）——它们是本地输入，不是发布物。
 """
@@ -33,7 +35,6 @@ import argparse
 import json
 import os
 import pathlib
-import shutil
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -75,11 +76,29 @@ def plan(domain: str, flavour: str):
     return ok, no
 
 
-def catalogue(domain: str, out: pathlib.Path, shipped: set) -> None:
-    """目录按**实际发出去的那几个**重写，取自搜索路径上第一个有它的根。
+def _strict(c):
+    raise ValueError(f"bare {c}")
 
-    ★一份广告了一台不在这里的机器的目录，读者点下去得到 404，而页面会把它读成
-    「装置数据坏了」而不是「这一版不带它」。
+
+def _hashes(text: str) -> str:
+    """一段文本放进 Rust 原始字符串要几个 `#`。"""
+    n = 1
+    while '"' + "#" * n in text:
+        n += 1
+        if n > 64:
+            raise SystemExit("[facts] 文档里有 64 个连续的 '#'？——请手工核对")
+    return "#" * n
+
+
+def catalogue_doc(domain: str, shipped: set, out: pathlib.Path):
+    """目录按**实际发出去的那几个**重写，落成一个临时文件，返回它的路径。
+
+    ★一份广告了一台不在这里的机器的目录，读者点下去得到「没有这一条」，而页面会把它
+    读成「装置数据坏了」而不是「这一版不带它」。所以目录不是照抄，是按发布计划重写，
+    并把摘掉的那几台连理由一起记在 `fylite:not_presets` 里。
+
+    ★★写成文件再交给 `artifacts()`，与逐台的文档走**同一条**路径：那一条路径上有
+    「按严格 JSON 读一遍」的检查，而目录若走另一条路就绕过了它。
     """
     src = None
     for r in _facts.roots():
@@ -88,8 +107,8 @@ def catalogue(domain: str, out: pathlib.Path, shipped: set) -> None:
             src = c
             break
     if src is None:
-        return
-    d = json.loads(src.read_text(encoding="utf-8"))
+        return None
+    d = json.loads(src.read_text(encoding="utf-8"), parse_constant=_strict)
     kept, dropped = [], []
     for e in d.get("fylite:devices", []):
         (kept if e.get("fylite:device_id") in shipped else dropped).append(e)
@@ -99,15 +118,69 @@ def catalogue(domain: str, out: pathlib.Path, shipped: set) -> None:
             {"fylite:device_id": e.get("fylite:device_id"),
              "fylite:why": "不在这一版构建里——判据见 facts/<域>/<id>/rights.json 的裁定。"}
             for e in dropped)
-    out.joinpath("catalogue.jsonld").write_text(
-        json.dumps(d, ensure_ascii=False, indent=1) + chr(10), encoding="utf-8")
-    if dropped:
         print("  目录：摘掉 " + " ".join(e.get("fylite:device_id", "?") for e in dropped))
+    out.mkdir(parents=True, exist_ok=True)
+    p = out / f".catalogue.{domain}.jsonld"
+    p.write_text(json.dumps(d, ensure_ascii=False, indent=1, allow_nan=False) + chr(10),
+                 encoding="utf-8")
+    return p
+
+
+def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
+    """**一个制品**：`facts.rs`——装置信息编进 Rust 那一侧（`FYL-DESIGN-19` A-8）。
+
+    ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。
+    在此之前同一批字节要发两遍：一遍给页面 fetch（站点上是文件，可执行文件里是
+    `assets.rs` 的 `include_bytes!`），一遍编进 Rust 给命令行。两份字节、两条通路，
+    而**没有任何东西保证它们描述同一批机器**——`FYL-DESIGN-19` A-9 本来打算用一道
+    闸子去比对它们，而不必比对是更强的保证。
+
+    今天只剩这一份：`libfylite_runtime.so` 与 `fylite_runtime.wasm` 各编进它，
+    命令行经 `facts::embedded_*` 读，页面经 wasm 的
+    `fylite_runtime_facts_ids` / `_doc` 读——同一份字节，两个宿主。
+
+    ★许可闸一个字没动：进这份表的是 `plan()` 按每台 `rights.json` 选出来的那几台。
+    """
+    out.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for domain, ident, doc in rows_in:
+        #: ★按**严格 JSON** 读一遍再写出去：裸 NaN / Infinity 在这里当场炸。
+        #: `json.loads` 缺省认它们，而浏览器的 `JSON.parse` 不认——一份带 NaN 的
+        #: 文档编进制品之后，那一台在页面上整份读不出来，且构建全绿。
+        text = doc.read_text(encoding="utf-8")
+        try:
+            json.loads(text, parse_constant=_strict)
+        except ValueError as e:
+            raise SystemExit(f"[facts] {domain}/{ident}: 不是严格 JSON（{e}）——"
+                             f"上游修，不要编进制品")
+        h = _hashes(text)
+        rows.append(f'    ("{domain}", "{ident}", r{h}"{text}"{h}),')
+    src = (
+        "// facts —— 装置信息的**自带那一档**，生成物（`tools/facts-publish.py`），勿手改。\n"
+        "//\n"
+        "// ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。于是这是\n"
+        "// facts 唯一的制品：`libfylite_runtime.so` 与 `fylite_runtime.wasm` 各把它编进去，\n"
+        "// 命令行经 `facts::embedded_*` 读，页面经 wasm 的 `fylite_runtime_facts_ids` /\n"
+        "// `_doc` 读——同一份字节，两个宿主，没有第二份可以跟它不一致。\n"
+        "//\n"
+        f"// 版别 {flavour}；{len(rows)} 条（含各域的 catalogue）。\n"
+        "//\n"
+        "// 由 `build.rs` 抄进 `$OUT_DIR` 再 `include!` 进 `src/facts.rs`——**不入库**：\n"
+        "// 装置文档是受许可约束的数据，写成 `.rs` 提交进公开仓就是换一种语法发布同一批字节。\n"
+        "pub static EMBEDDED: &[(&str, &str, &str)] = &[\n"
+        + "\n".join(rows)
+        + ("\n" if rows else "")
+        + "];\n"
+    )
+    (out / "facts.rs").write_text(src, encoding="utf-8")
+    return len(rows)
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--flavour", choices=("public", "internal"), default="public")
+    #: ★缺省 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）。许可判据没有松：
+    #: 它仍逐条在 `facts/<域>/<id>/rights.json`。公开面必须明写 `--flavour public`。
+    ap.add_argument("--flavour", choices=("public", "internal"), default="internal")
     ap.add_argument("--out", type=pathlib.Path)
     ap.add_argument("--list", action="store_true", help="只列出这一版带哪几个")
     ap.add_argument("--facts", action="append", metavar="PATH",
@@ -140,6 +213,7 @@ def main(argv=None) -> int:
               f"${_facts.FACTS_ENV}）", file=sys.stderr)
         return 0
 
+    rows: list = []
     for domain in doms:
         ok, no = plan(domain, a.flavour)
         if a.list or not a.out:
@@ -148,18 +222,25 @@ def main(argv=None) -> int:
             for ident, why in no:
                 print(f"# {domain}/{ident}: {why}", file=sys.stderr)
             continue
-        out = a.out / "facts" / domain
-        out.mkdir(parents=True, exist_ok=True)
-        for ident, doc, _root in ok:
-            shutil.copyfile(doc, out / f"{ident}.jsonld")
         for ident, why in no:
             print(f"  {a.flavour} 版：不带 {domain}/{ident}（{why[:56]}…）")
-        catalogue(domain, out, {i for i, _d, _r in ok})
+        rows.extend((domain, ident, doc) for ident, doc, _r in ok)
+        cat = catalogue_doc(domain, {i for i, _d, _r in ok}, a.out)
+        if cat is not None:
+            rows.append((domain, "catalogue", cat))
         #: ★发出去的东西要说得清是哪几个根供的——多源之后这不再是显然的。
         srcs = sorted({r.name for _i, _d, r in ok})
         print(f"[facts] {domain}: {a.flavour} 版 {len(ok)} 个"
               + (f"（{' '.join(i for i, _d, _r in ok)}）" if ok else "")
               + (f" ← {' + '.join(srcs)}" if len(srcs) > 1 else ""))
+    if a.out is not None:
+        n = artifacts(a.out, a.flavour, rows)
+        #: 目录那份临时件用完就撤——制品只有一个文件，多出来的一个会让下一个人问
+        #: 「这个也是发布物吗」。
+        for _d, ident, doc in rows:
+            if ident == "catalogue":
+                doc.unlink(missing_ok=True)
+        print(f"[facts] 一个制品 -> {a.out / 'facts.rs'}（{n} 条，{a.flavour} 版）")
     return 0
 
 

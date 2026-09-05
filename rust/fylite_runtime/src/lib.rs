@@ -97,6 +97,18 @@ pub mod c_api;
 //: fyo 数据集。原生专用：要 dlopen、要读盘。
 #[cfg(not(target_arch = "wasm32"))]
 pub mod kernel;
+//: ★★内核的**第二扇门**：逐个 C 导出，按名调用（2026-09-05 用户裁定「webui 中
+//: fylite_rs / fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm」）。
+//: 上面那个 `kernel` 是**结构门**（计划进、记录出，`fy run` 走它）；这里这一对是
+//: **调用门**，页面在桌面宿主里走它——同一个内核，两种粒度，没有第二份物理。
+//:   · `kernel_call` 手写：一次调用在 HTTP 上的样子，以及信任边界（见其抬头）；
+//:   · `kernel_abi` 由**内核仓**生成：250 个 extern 声明与按名调度。没有那份静态库
+//:     的构建看不见它（`build.rs` 才打开 `cfg(kernel_static)`），于是公开仓单独
+//:     检出照样编得过，只是 `/api/kernel` 会说自己没有算力。
+#[cfg(not(target_arch = "wasm32"))]
+pub mod kernel_call;
+#[cfg(all(not(target_arch = "wasm32"), kernel_static))]
+pub mod kernel_abi;
 //: the JSON door: one plan text in, one record text out (`fylite_runtime_case_json`)
 #[cfg(not(target_arch = "wasm32"))]
 pub mod case_api;

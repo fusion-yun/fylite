@@ -45,7 +45,8 @@ def _pid(p, sep="/") -> str:
 ROOT = Path(__file__).resolve().parents[2]
 #: ★2026-09-04 `machine_desc/` → `devices/` → **`facts/device/`**（用户裁定）。
 #: `app/facts/device` 是指向它的符号链接。目录换了两次名字，本模块守的东西没变。
-DESC = ROOT / "facts" / "device"
+#: ★2026-09-05：仓顶已无 `facts/`，拖回来的落在 `dist/facts/`（用户裁定）。
+DESC = ROOT / "dist" / "facts" / "device"
 FYDATA_ENV = "FYDATA_DIR"
 
 #: EAST is hand-maintained; every other document is generated.

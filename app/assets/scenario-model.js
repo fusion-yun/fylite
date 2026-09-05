@@ -798,7 +798,7 @@ FyScenario.whenDevices(function () {
   //: the core kernel, on the page rather than in a worker: a steady solve on
   //: 41 points is microseconds, and a Worker round-trip would cost more than
   //: the arithmetic it carries
-  self.FyLite.load(self.FySite.url('assets/fylite_rs.wasm')).then(function (inst) {
+  self.FyLite.attach(self.FySite.url('assets/fylite_rs.wasm')).then(function (inst) {
     fy = inst;
     setBusy(false, T('x.ready'));
   }).catch(function (e) {

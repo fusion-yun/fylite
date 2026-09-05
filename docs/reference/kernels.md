@@ -69,13 +69,41 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 
 ## WebAssembly
 
-同一份 `c_api.rs` 按 cargo feature 另编三份（`bash rust/build.sh --wasm-check`）：
+同一份 `c_api.rs` 按 cargo feature 另编**两份**（`bash rust/build.sh --wasm-check`），
+与两个 `.so` 一一对应：
 
-| 制品 | feature | 函数导出 | 大小 | 何时取 |
+| 制品 | 出自 | 函数导出 | 大小 | 何时取 |
 | :--- | :--- | ---: | ---: | :--- |
-| `fylite_rs.wasm` | `core` | 234 | 869 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
-| `fylite_tglf.wasm` | `tglf` | 12 | 391 KiB | 按需 |
-| `fylite_dke.wasm` | `dke` | 11 | 121 KiB | 按需（NEO 漂移动理学） |
+| `fylite_rs.wasm` | 内核 `core,capi` | 235 | 1 012 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
+| `fylite_kernel_ext.wasm` | 内核 `tglf,dke` | 19 | 485 KiB | 按需（湍流闭包；NEO 漂移动理学同在其中） |
+| `fylite_runtime.wasm` | **中间层**（本仓） | 25 | 2 190 KiB | **只有静态站点取它**——装置面板要读装置信息时才取（`app/assets/factsdb.js`） |
+
+★★第三份 2026-09-05 加入（用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**）。
+它与前两份**不是一回事**：前两份是物理核（私有仓 `fylite_kernel`），这一份是中间层
+（`rust/fylite_runtime/`），零导入（`FYL-DESIGN-16` H-5），版本号也另有一个
+（`app/assets/runtime-version.js`，与内核的不是同一个数）。它大是因为装置信息
+（432 KB）编在里面——那正是从前那份 `facts.jsonld` 的内容，现在只此一份。
+★**不进 service worker 的预缓存**：它是装置面板要用时才取的，塞进首屏等于让每个
+只想看一眼首页的读者先付这笔钱。
+
+★★**单文件查看器不带它**。`fy` 本身就是原生的中间层——那张 facts 表已经在它的地址
+空间里，所以内嵌页面改问它自己的 `/api/facts`（`factsdb.js` 先探这条路，探不到才退回
+wasm；探测方式与 `host.js` 同一条：看请求面答不答，不看主机名，且只在回环地址上探，
+发布出去的站点因此一个多余请求也没有）。带上它会让可执行文件多背 2.25 MB——其中只有
+432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份，正是这次改造要消掉的那类重复。
+实测：exe 13.65 MB（与改造前持平），站点 11.29 MB（+1.89，那是静态面唯一的读法），
+轮 9.44 MB（−0.43，它连 wasm 都不要，只多了 `.so` 里那张表）。
+
+一句话：**同一批字节，三个宿主，三条读法**——`.so` 里的表（命令行与 Python）、
+`/api/facts`（查看器内嵌的页面）、`.wasm` 里的表（静态站点）。
+
+★★**2026-09-05 用户裁定：dke 与 tglf 合为 `kernel_ext`**，`.so` 与 `.wasm` 同规矩。
+此前 wasm 出三份，理由是「按需各取其一，合并会让只要 DKE 的读者连 TGLF 一起下载」。
+那条权衡的前提当时已经不成立：**没有任何东西载入 `fylite_dke.wasm`**（`fylite.js` 只有
+一个扩展载入口），所以那 121 KiB 是三种制品各背一份的死重。合并之后实测比两份之和
+**小 28 991 字节**、导出从 23 降到 19——两个 feature 共用核心的 `linalg` 与 `geometry`，
+从前各编一份。代价照记：真出现只要 DKE 的读者时会多下载 TGLF；feature 门仍在
+（`fylite_ext` 的 `tglf` / `dke` 保留），再分包不需要改设计。
 
 ### 名字带版本
 

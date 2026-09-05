@@ -51,6 +51,9 @@ pub fn handle(target: &str, cfg: &Cfg) -> (u16, String) {
     let q = Query::parse(query);
     let out = match path {
         "/api/health" => return (200, health(cfg)),
+        //: ★★装置信息**不经 mdsip**，所以它在这一支的最前面、与 `health` 同类：
+        //: 没接服务器的查看器照样答得出。见 `facts()` 抬头。
+        "/api/facts" => facts(&q),
         "/api/shot" => shot(cfg, &q),
         "/api/tree" => tree(cfg, &q),
         "/api/node" => node(cfg, &q),
@@ -62,6 +65,132 @@ pub fn handle(target: &str, cfg: &Cfg) -> (u16, String) {
         Ok(body) => (200, body),
         Err(Fail::Bad(m)) => (400, format!("{{\"error\":{},\"kind\":\"BadRequest\"}}", jstr(&m))),
         Err(Fail::Mds(e)) => (502, format!("{{\"error\":{},\"kind\":\"server\"}}", jstr(&e.to_string()))),
+    }
+}
+
+/// `/api/facts?domain=device[&id=east]` —— 装置信息，走**本进程自己的那一份**。
+///
+/// ★★2026-09-05 用户裁定「页面也走中间层 wasm，撤掉 `facts.jsonld`」之后，装置信息
+/// 只有一个制品（`facts.rs`），由 `.so` 与 `.wasm` 各编进去。对**静态站点**而言那份
+/// wasm 是页面唯一的读法；但对**这个可执行文件**而言它是多余的第二份：本程序本身
+/// 就是原生的中间层，那张表已经在它的地址空间里，再内嵌一份同层的 wasm 等于把刚
+/// 消掉的重复换个层次又做一遍（实测 +2.25 MB，其中 432 KB 是装置信息、1.8 MB 是
+/// 同一层代码的第二份）。所以内嵌页面改问这条路，可执行文件不再带那份 wasm。
+///
+/// ★读的是 `facts::find` / `entries`，**不是**只读编进去的那一档：于是
+/// `fy app --facts /我的语料` 之后页面看到的与 `fy list devices` 看到的是同一批，
+/// 而不是两个答案。这是把「搜索路径」的语义一路带到页面上，不是额外开一个口子。
+///
+/// 答复：给了 `id` 就是那一份文档本身（原样转发，不重新序列化——重新序列化就是
+/// 第二条序列化路径，而两条路径就是两份字节）；没给就是 `{"ids":[…]}`。
+fn facts(q: &Query) -> Result<String, Fail> {
+    let domain = q.get("domain").unwrap_or("device");
+    if domain.is_empty() || !domain.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return Err(Fail::Bad(format!("bad domain {domain:?}")));
+    }
+    match q.get("id") {
+        Some(id) if !id.is_empty() => {
+            //: ★`catalogue` 与逐台文档走**同一条**路：页面先读目录再逐台读，
+            //: 两次问的若是两个口子，某天它们会不一致。
+            let hit = fylite_runtime::facts::find(domain, id)
+                .ok_or_else(|| Fail::Bad(format!("no {domain}/{id} on the facts path")))?;
+            hit.read()
+                .ok_or_else(|| Fail::Bad(format!("{domain}/{id}: the document could not be read")))
+        }
+        _ => {
+            let mut ids: Vec<String> =
+                fylite_runtime::facts::entries(domain).into_iter().map(|e| e.ident).collect();
+            //: ★目录也报出来：页面按目录的次序展示，而次序是目录说的，不是这里排的。
+            if fylite_runtime::facts::find(domain, "catalogue").is_some() {
+                ids.push("catalogue".into());
+            }
+            let items: Vec<String> = ids.iter().map(|s| jstr(s)).collect();
+            Ok(format!("{{\"ids\":[{}]}}", items.join(",")))
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// 算力 —— 页面在这个宿主里调内核的那条路
+// --------------------------------------------------------------------------
+
+/// 一次调用的请求体上限。
+///
+/// ★与 [`fylite_runtime::kernel_call::MAX_FRAME`] 同量级但**更大**：那是解出来的
+/// 二进制帧，这里是它的 JSON 文本形（一个 f64 写成十来个字符）。两处各自成立，
+/// 因为它们量的是两样东西。
+pub const MAX_BODY: usize = 256 << 20;
+
+/// `POST /api/kernel` —— 一个内核符号、一批参数，算完把出参送回去。
+///
+/// ★★2026-09-05 用户裁定：「webui 中 fylite_rs / fylite_kernel_ext wasm 功能由 api
+/// 端提供，只静态网页走 wasm」。桌面宿主里的页面因此不再实例化内核 wasm；它把
+/// **本来要交给 wasm 的那次调用**原样交到这里，由链进本进程的静态库算。
+///
+/// ★这里没有任何一处知道某个函数是干什么的——参数怎么读、出参多长，全由内核仓
+/// 生成的那张表说了算（`kernel_abi::KINDS`，页面手上是同一次生成的
+/// `app/assets/kernel-abi.js`）。所以这条端点不是第二个计算接口，是同一个接口的
+/// 另一种到达方式。
+///
+/// ★没链内核的构建（公开仓单独检出）**照答**，答的是一句说得清的话而不是 404：
+/// 页面据此退回 wasm 或者把面板画成禁用，与 `/api/health` 同一条纪律。
+pub fn kernel(body: &str) -> (u16, String) {
+    #[cfg(kernel_static)]
+    {
+        use fylite_runtime::kernel_abi;
+        use fylite_runtime::kernel_call as kc;
+        let kinds_of = |n: &str| -> Option<&'static [&'static str]> {
+            kernel_abi::KINDS.iter().find(|(k, _)| *k == n).map(|(_, v)| *v)
+        };
+        let (name, mut frame) = match kc::parse_request(body, kinds_of) {
+            Ok(v) => v,
+            Err(e) => return (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+        };
+        let ret = match kernel_abi::call(&name, &mut frame) {
+            Ok(r) => r,
+            Err(e) => return (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+        };
+        let kinds = kinds_of(&name).unwrap_or(&[]);
+        (200, kc::render_answer(ret, &frame, kinds))
+    }
+    #[cfg(not(kernel_static))]
+    {
+        let _ = body;
+        (
+            501,
+            format!(
+                "{{\"error\":{}}}",
+                jstr(&fylite_runtime::kernel_call::CallError::NoKernel.to_string())
+            ),
+        )
+    }
+}
+
+/// `/api/health` 里那一格：算力在不在本进程里，以及它是哪一版 ABI。
+fn kernel_face() -> String {
+    #[cfg(kernel_static)]
+    {
+        use fylite_runtime::kernel_abi;
+        let mut f = fylite_runtime::kernel_call::Frame::default();
+        let abi = kernel_abi::call("fylite_rs_abi_version", &mut f)
+            .map(|r| r.as_f64())
+            .unwrap_or(0.0);
+        //: ★★身份也报：页面的续算闸按内核散列判「这份状态是不是当前这个内核写的」，
+        //: 而走这条路时没有一份 `.wasm` 可散列。这里给的是**链进来的那份归档**的
+        //: 散列（构建期 baked，见 `build.rs`）——正是跑起来的那些字节。
+        let sha = env!("FYLITE_KERNEL_SHA256");
+        let ver = env!("FYLITE_KERNEL_VERSION");
+        format!(
+            "{{\"linked\":true,\"abi\":{},\"symbols\":{},\"sha256\":{},\"version\":{}}}",
+            abi as u64,
+            kernel_abi::BRIDGED.len(),
+            if sha.is_empty() { String::from("null") } else { jstr(sha) },
+            if ver.is_empty() { String::from("null") } else { jstr(ver) }
+        )
+    }
+    #[cfg(not(kernel_static))]
+    {
+        String::from("{\"linked\":false,\"abi\":null,\"symbols\":0,\"sha256\":null,\"version\":null}")
     }
 }
 
@@ -227,7 +356,7 @@ fn health(cfg: &Cfg) -> String {
     format!(
         "{{\"ok\":true,\"mdsip\":{},\"user\":{},\"sessions\":0,\"maxPoints\":{},\
          \"trees\":[\"efit_east\",\"east\",\"pcs_east\",\"analysis\",\"efitrt_east\"],\
-         \"servers\":{},\"locked\":false{}}}",
+         \"servers\":{},\"locked\":false,\"kernel\":{}{}}}",
         match &cfg.server {
             Some(s) => jstr(s),
             None => String::from("null"),
@@ -235,6 +364,14 @@ fn health(cfg: &Cfg) -> String {
         jstr(&cfg.user),
         MAX_POINTS,
         servers,
+        //: ★★**算力在不在本进程里**（2026-09-05 用户裁定）。页面读这一格决定走哪条
+        //: 路：`linked` 为真就把内核调用交给 `/api/kernel`，为假（或整个 `/api/health`
+        //: 不在，比如静态站点）就实例化 wasm 自己算。探的是**这条路答不答**，
+        //: 不是主机名——与 `factsdb.js` 探 `/api/facts` 同一条纪律。
+        //: ★ABI 号一并报出：页面手上的那份契约（`assets/version.js` 的 `FyVersion.abi`）
+        //: 与算力这一侧必须同源，不等就该当场说，而不是让第一个改过签名的函数
+        //: 去表现成一个奇怪的数。
+        kernel_face(),
         //: 没给 `--mdsip` 时照样答，并说清这一格要自己填——一个消失的控件什么
         //: 也没教给读者，而「往哪里填」正是读者要知道的。
         if cfg.server.is_none() {
@@ -586,6 +723,25 @@ mod tests {
 
     fn no_server() -> Cfg {
         Cfg { server: None, user: String::from("tester") }
+    }
+
+    #[test]
+    fn facts_answers_without_a_server_and_names_what_it_lacks() {
+        //: ★★装置信息**不经 mdsip**：一台没接服务器的查看器照样答得出这条路。
+        //: 这一条钉的正是那件事——它与 `/api/health` 同类，而不是与取数那几条同类。
+        let (code, body) = handle("/api/facts?domain=device", &no_server());
+        assert_eq!(code, 200, "{body}");
+        assert!(body.starts_with("{\"ids\":["), "{body}");
+
+        //: ★「这一版不带这台」是 400 加一句点名，不是 404、也不是一个空文档：
+        //: 页面拿这三者说三句不同的话（这个宿主没有这条路 / 这一版不带它 / 它坏了）。
+        let (code, body) = handle("/api/facts?domain=device&id=nosuch-machine", &no_server());
+        assert_eq!(code, 400, "{body}");
+        assert!(body.contains("nosuch-machine"), "{body}");
+
+        //: 域名只收 ASCII 字母数字与下划线——它要拼进搜索路径，不该是一段任意文本。
+        let (code, _) = handle("/api/facts?domain=../etc", &no_server());
+        assert_eq!(code, 400);
     }
 
     #[test]

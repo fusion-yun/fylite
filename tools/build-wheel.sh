@@ -28,22 +28,16 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 #: `license-files` 解析都以它为准，写一次，下面三处引用它。
 PROJ="$DIR/python"
 OUT="${1:-$PROJ/dist}"
-#: ★★装进轮里的 facts 语料（2026-09-04）：**这一版允许发布的那些**，由
-#: `tools/facts-publish.py` 一处判许可——打包不另判，否则同一条规则就有了第二份
-#: 实现，而先发现它们不一致的人是拿到轮子的那个。
-#: ★缺省是**公开版**；`--internal` 传下去就装全部。
+#: ★★**轮里不再带 facts 语料**（2026-09-05 用户裁定：页面也走中间层 wasm，撤掉
+#: `facts.jsonld`）。装置文档只有一个制品 `facts.rs`，由 `rust/build.sh --<版别>`
+#: 编进 `libfylite_runtime.so`——而那一份 `.so` 本来就在轮里。于是轮里的装置信息
+#: 与命令行、与浏览器读的是同一批字节，而不是第三份拷贝。
+#: ★许可闸没有松：进那张表的仍是 `tools/facts-publish.py` 按每台 `rights.json` 选出
+#: 来的那几台；版别在编译 `.so` 时定死，打包时挑不了。
 FACTS_DIR="$PROJ/fylite/_facts"
 rm -rf "$FACTS_DIR"
-if python3 "$DIR/tools/facts-publish.py" --flavour "${FACTS_FLAVOUR:-public}" \
-        --out "$FACTS_DIR.stage" >/dev/null 2>&1 && [ -d "$FACTS_DIR.stage/facts" ]; then
-    mv "$FACTS_DIR.stage/facts" "$FACTS_DIR"
-    rm -rf "$FACTS_DIR.stage"
-    echo "[wheel] facts: $(find "$FACTS_DIR" -name '*.jsonld' | wc -l) 份"\
-         "（${FACTS_FLAVOUR:-public} 版）"
-else
-    rm -rf "$FACTS_DIR.stage"
-    echo "[wheel] facts: 搜索路径上没有语料——轮里不带（装了包的人可用 \$FY_FACTS_PATH 指一份）"
-fi
+FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/app/assets/runtime-version.js" 2>/dev/null || true)
+echo "[wheel] facts: 编在 libfylite_runtime.so 里（${FLAV:-未知} 版）——轮里不另带一份"
 
 SO="$PROJ/fylite/_lib/libfylite_kernel.so"
 #: ★★2026-09-02：轮里现在有**两份** `.so`。数据层（`libfylite_runtime.so`，公开仓

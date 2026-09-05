@@ -13,11 +13,15 @@
 # 伺服自己内嵌的字节——因此能从 Linux 一条命令交叉编译出 .exe，
 # 且体积是资源本身的大小加上一层薄壳。
 #
-# ★★2026-09-04：构建分**公开版**与**内部版**（用户裁定）。装置数据来自仓根
-# `devices/`（`app/facts/device` 是指向它的符号链接——单一数据源），谁进哪一版由每台
-# 机器的 `devices/<id>/rights.json` 判：公开版不带 EAST，也不带上游禁止再分发的 IDS。
+# ★★2026-09-04：构建分**公开版**与**内部版**（用户裁定）。谁进哪一版由每台机器的
+# `rights.json` 判：公开版不带 EAST，也不带上游禁止再分发的 IDS。
 # 可执行文件因此**不直接内嵌 `app/`**，而是内嵌一棵**按这一版规则装好的树**——
 # 与静态站点用的是同一个装配器（`tools/build-site.sh`），所以两种制品逐字节同源。
+#
+# ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。装置文档从此
+# 只有一份 `facts.rs`，由 `rust/build.sh --<版别>` 编进 `fylite_runtime` 的 `.so` 与
+# `.wasm`；页面经那份 wasm 读，命令行经同一张表读。本脚本因此**只核对版别**，不再
+# 逐台发文档——此前同一批 432 KB 在一个可执行文件里装了两遍。
 #
 # ★★2026-09-04 用户裁定：**三种构建方式**，差别在带不带浏览器那一半：
 #   --mode cli   纯 CLI —— 可执行文件不内嵌 `app/`、不起服务，`app` 命令按名拒绝；
@@ -25,8 +29,9 @@
 #   --mode web   Web UI —— 内嵌整个 `app/`（含三个 `.wasm`），算力在**浏览器**里。
 #   --mode full  完整（缺省）—— 两路都在：内嵌前端 + 原生内核。实测 8.47 MB。
 #
-# 用法：bash tools/build-app-exe.sh [--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
-#   --internal    = 内部版（带全部装置）；缺省是公开版
+# 用法：bash tools/build-app-exe.sh [--public|--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
+#   缺省 = 内部版（带全部装置，含 EAST）——2026-09-05 裁定，FYL-DESIGN-19 A-14
+#   --public      = 公开版（按 rights.json 筛，不带 EAST）；公开面必须明写这一句
 #   windows       = GNU ABI，链接器要 mingw（apt，需 root）
 #   windows-msvc  = MSVC ABI，靠 cargo-xwin，**不需要 root**
 set -euo pipefail
@@ -38,10 +43,11 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CRATE="$DIR/rust/fylite_runtime"
 
 OUT="$CRATE/target"
-FLAVOUR=public
+FLAVOUR=internal
 MODE=full
 while :; do
   case "${1:-}" in
+    --public)   FLAVOUR=public;   shift ;;
     --internal) FLAVOUR=internal; shift ;;
     --mode)     MODE="${2:?--mode 要 cli|web|full}"; shift 2 ;;
     *) break ;;
@@ -67,21 +73,59 @@ if [ "$MODE" = cli ]; then
   STAGE=""
 else
   STAGE="$DIR/dist/app-$FLAVOUR"
-  if [ "$FLAVOUR" = internal ]; then
-    bash tools/build-site.sh --internal "$STAGE" >/dev/null
-  else
-    bash tools/build-site.sh "$STAGE" >/dev/null
-  fi
-  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE（装置 $(ls "$STAGE"/facts/*/*.jsonld 2>/dev/null | grep -cv catalogue || echo 0) 台）"
+  #: ★两边都**明写**版别，不靠各自的缺省：缺省今天是 internal，而两个脚本的缺省
+  #: 若某天分了岔，先发现的人是拿到制品的那个。
+  bash tools/build-site.sh "--$FLAVOUR" "$STAGE" >/dev/null
+  echo "[exe] 模式 $MODE · $FLAVOUR 版内容：$STAGE"
+
+  #: ★★**这份可执行文件不带中间层的 wasm**（2026-09-05）。它本身就是原生的中间层，
+  #: 那张 facts 表已经在它的地址空间里；内嵌页面因此改问它自己的 `/api/facts`
+  #: （`app/assets/factsdb.js` 先探这条路，探不到才退回 wasm——静态站点走的正是后者）。
+  #: 再内嵌一份同层的 wasm，等于把刚消掉的重复换个层次又做一遍：实测 +2.25 MB，
+  #: 其中只有 432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份。
+  #: ★这一条**有意打破**「站点与可执行文件内嵌同一个子集」那句：两者差的正是这一份，
+  #: 而差的理由是两个宿主读同一批字节的**路不同**，不是内容不同。
+  rm -f "$STAGE"/assets/fylite_runtime.wasm*
+  echo "[exe] 内嵌树里去掉 fylite_runtime.wasm（页面改走本进程的 /api/facts）"
+
+  #: ★★**内核那两份 wasm 也不带**（2026-09-05 用户裁定：「webui 中 fylite_rs /
+  #: fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm」；同日续裁
+  #: 「fy 封装 fylite_kernel 静态库，.so 是留给 python 层，wasm 留给静态网页发布」）。
+  #: 算力是这个可执行文件自己的一部分——内核静态库链在里面，页面把调用交给
+  #: `/api/kernel`（`app/assets/kernelapi.js` 先探 `/api/health` 的 `kernel` 格，
+  #: 探不到才实例化 wasm——静态站点走的正是后者）。
+  #: ★这是同一天第二次消掉同一种重复：先是装置信息（两份字节、两条通路），
+  #: 现在是**算力**（同一批物理编两遍，一遍原生一遍 wasm，谁也不保证两者一致）。
+  #: 差别只在这一次两条路的等价性是**有闸子看着的**：`app/tests/validate-kernel-api.mjs`
+  #: 让同一批调用两边各走一遍并逐位比对。
+  #: 实测省下 1.46 MB（fylite_rs.wasm 0.99 + fylite_kernel_ext.wasm 0.47）。
+  rm -f "$STAGE"/assets/fylite_rs.wasm* "$STAGE"/assets/fylite_kernel_ext.wasm*
+  echo "[exe] 内嵌树里去掉内核 wasm（算力在本进程里：静态库 + /api/kernel）"
 
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
-  node tools/make-app-embed.mjs --flavour "$FLAVOUR"
+  #: ★`--from` 指**装好的那一棵**：表描述的必须就是编译期真在的那一棵，否则
+  #: `include_bytes!` 指着不存在的文件，一屏 `couldn't read`。
+  node tools/make-app-embed.mjs --flavour "$FLAVOUR" --from "$STAGE"
 fi
 
+#: ★★装置信息**编进二进制**（2026-09-05 用户裁定），而且**只编一遍**：同日续裁
+#: 「页面也走中间层 wasm，撤掉 `facts.jsonld`」之后，页面与命令行读的是同一张表。
+#: 那张表由 `rust/build.sh --$FLAVOUR` 在编译期编进 `fylite_runtime`——本脚本不自己
+#: 编，只**核对**手上这一份是不是要发的那一版：版别在编译期定死，发布时挑不了。
+FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/app/assets/runtime-version.js" 2>/dev/null || true)
+if [ "$FLAV" != "$FLAVOUR" ]; then
+  echo "[exe] 装着的中间层编的是 **${FLAV:-<无>}** 版的装置信息，而这次要出 $FLAVOUR 版。" >&2
+  echo "[exe]   重建：bash rust/build.sh --$FLAVOUR" >&2
+  exit 1
+fi
+export FY_FACTS_RS="$DIR/dist/facts.rs"
+[ -s "$FY_FACTS_RS" ] || { echo "[exe] 找不到 $FY_FACTS_RS —— 先跑 bash rust/build.sh --$FLAVOUR" >&2; exit 1; }
+echo "[exe] 装置信息（$FLAVOUR 版）内嵌自 $FY_FACTS_RS"
+
+
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。
-#: ★★指向**装好的那棵树**，不是 `app/`：公开版的目录是筛过的，而 `app/facts/device`
-#: 那条符号链接后面是整份语料。
+#: ★指向**装好的那棵树**，不是 `app/`：那一棵是这一版真正要发的字节。
 [ -n "$STAGE" ] && export FYLITE_APP_DIR="$STAGE"
 
 cd "$CRATE"

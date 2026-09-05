@@ -14,17 +14,31 @@ import { readdirSync, statSync, lstatSync, realpathSync, readFileSync, writeFile
 import { spawnSync } from 'node:child_process';
 
 const HERE = new URL('.', import.meta.url).pathname;
-const APP = HERE + '../app/';
+//: ★★`--from DIR` —— 描述**要内嵌的那一棵树**，不是源树。缺省仍是 `app/`（提交进仓
+//: 的那张表因此是源树的），而 `tools/build-app-exe.sh` 给的是它装好的那一棵：
+//: 可执行文件从 2026-09-05 起**一份 wasm 也不带**：装置信息走它自己的 `/api/facts`
+//: （那张表已经在这个进程里），算力走 `/api/kernel`（内核静态库链在里面）——两条都是
+//: 当天的用户裁定。于是「表描述的」与「编译期真在的」必须
+//: 是同一棵——否则 `include_bytes!` 在编译期指着一个不存在的文件，而那是一屏
+//: `couldn't read`，看起来像编译坏了。
+const FROM = (() => {
+  const i = process.argv.indexOf('--from');
+  if (i < 0) return null;
+  const d = process.argv[i + 1];
+  return d.endsWith('/') ? d : d + '/';
+})();
+const APP = FROM || (HERE + '../app/');
 
 //: ★★2026-09-02：`app/` 与 `rust/fylite_runtime/` 都在本仓了——数据层从内核仓搬了
 //: 过来，于是这张表的读者与被读的目录同处一棵树。从前这里要跨仓解析内核检出
 //: （`$FYLITE_KERNEL`，探测不到就报错），那一整段随之取消：现在是一个相对路径，
 //: 猜不错也不需要猜。
 const OUT = HERE + '../rust/fylite_runtime/src/bin/app/assets.rs';
-//: ★★`facts` 也跳过：2026-09-04 起 `app/facts` 是**指向仓根 `facts/` 的符号
-//: 链接**（用户裁定：单一数据源），而那个目录装的是整个语料——逐个的卡片、许可账、
-//: 以及只进内部版的机器。`statSync` 跟随链接，所以照原样走下去会把整份语料编进
-//: 可执行文件。装置文档改为按**同一条发布规则**逐份加进来（见下）。
+//: ★★`facts` 仍在跳过名单里，但**理由变了**：2026-09-05 用户裁定「fylite 下已无
+//: facts 目录」，`app/facts` 那条指向仓根的符号链接随之撤除，所以今天这里根本没有
+//: 这个目录可走。留着这一条是**防回归**——那条链接一旦被谁重新拉起来，`statSync`
+//: 会跟着它把整份语料（逐个的卡片、许可账、只进内部版的机器）编进可执行文件。
+//: 装置文档按**同一条发布规则**逐份加进来，从暂存的那棵树里取（见下）。
 const SKIP = new Set(['tests', 'server', 'facts']);
 
 const MIME = {
@@ -89,34 +103,63 @@ function walk(dir, prefix = '') {
 //: `tools/facts-publish.py`（它读每个条目的 `facts/<域>/<id>/rights.json`）。这里
 //: 只问它「这一版带哪几台」，不自己判许可：两个发布者各判一遍，某一天它们会给出
 //: 不同的答案，而先发现的人是拿到制品的那个。
-//: 缺省是**公开版**——committed 的这张表因此是公开版的那一张；内部版构建重跑本
-//: 生成器（`--flavour internal`），树会变脏，而那正是「这不是公开制品」的信号。
-function plannedDevices() {
-  const flavour = process.argv.includes('--flavour')
-    ? process.argv[process.argv.indexOf('--flavour') + 1] : 'public';
-  const r = spawnSync('python3',
-    [HERE + 'facts-publish.py', '--flavour', flavour, '--list'],
-    { encoding: 'utf8' });
-  if (r.status !== 0) return [];
-  //: ★问答面按 `<域>/<id>` 作答，而路径**一个名字贯穿**：仓里 `facts/device/`、
-  //: 页面取 `facts/device/`、内嵌表里也是 `facts/device/`（`app/facts` 是指向仓根
-  //: `facts/` 的符号链接）。
-  const out = [];
-  const seen = new Set();
-  for (const line of r.stdout.split('\n')) {
-    const s = line.trim();
-    if (!s) continue;
-    const [domain, id] = s.includes('/') ? s.split('/', 2) : ['device', s];
-    const dir = `facts/${domain}`;
-    const f = `${dir}/${id}.jsonld`;
-    if (existsSync(APP + f)) { out.push(f); seen.add(dir); }
+//: 缺省是**内部版**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）——committed 的这张表
+//: 因此是内部版的那一张，与 `facts/` 的缺省生成（`abox-to-facts.py` 也已缺省
+//: internal）对得上；公开版构建重跑本生成器（`--flavour public`），树会变脏，而那
+//: 正是「这一份不是缺省制品」的信号。★表里只有**路径**，装置字节不入库
+//: （`facts/` 整棵是生成物），所以这张表本身不发布任何受限数据。
+//: ★★**装置文档不再进这张表**（2026-09-05 用户裁定：页面也走中间层 wasm，撤掉
+//: `facts.jsonld`）。此前这里按发布规则逐台把 `facts/device/<id>.jsonld` 加进来，
+//: 于是同一批 432 KB 在一个可执行文件里装了两遍：一遍在这张表里（给页面的 HTTP 面），
+//: 一遍在 `facts.rs` 里（给命令行）。今天页面经 `fylite_runtime.wasm` 读那一份，
+//: 表里因此一条装置也没有——少的正是那多出来的一遍。
+//: ★许可闸没有松：进 `facts.rs` 的仍是 `tools/facts-publish.py` 按每台 `rights.json`
+//: 选出来的那几台，只是它现在编进 wasm 与 `.so`，不再落成可 fetch 的文件。
+
+//: ★★两份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-DESIGN-19` G-8）。
+//: 生成器按「目录里现有的名字」写表，于是在一份 wasm 还没版本化的检出上重跑它，
+//: 表会从 `.wasm.0.0.1` **静默降回** `.wasm`——站点与可执行文件随之丢掉版本化命名，
+//: 而丢了不报错：页面照样能开，只是缓存与版本对不上号，且下一个人看到的是一份
+//: 「有人重跑过生成器」的干净 diff。本次实测正是这样撞上的。
+//: 版本从 `assets/version.js` 读——与 `tools/build-site.sh` 同一处来源，所以
+//: 「表以为的版本」与「站点发的版本」不可能是两个数。
+const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm', 'fylite_runtime.wasm'];
+function checkWasmIsVersioned(list) {
+  const vjs = APP + 'assets/version.js';
+  if (!existsSync(vjs)) {
+    console.error('[embed] 读不出 app/assets/version.js —— 先在内核仓跑构建');
+    process.exit(1);
   }
-  for (const dir of seen)
-    if (existsSync(APP + `${dir}/catalogue.jsonld`)) out.push(`${dir}/catalogue.jsonld`);
-  return out;
+  const m = /kernel:\s*'([^']*)'/.exec(readFileSync(vjs, 'utf8'));
+  if (!m || !m[1]) {
+    console.error('[embed] app/assets/version.js 里没有 kernel 版本');
+    process.exit(1);
+  }
+  //: ★中间层那一份的版本另有出处（`assets/runtime-version.js`，由本仓
+  //: `rust/build.sh` 生成）：它与内核不是同一个版本号，拿内核的版本去找它会
+  //: 永远找不到，而“找不到”在这里是拒绝——一条假的红线比没有红线更贵。
+  const rv = existsSync(APP + 'assets/runtime-version.js')
+    ? (/FyRuntimeVersion\s*=\s*'([^']*)'/.exec(readFileSync(APP + 'assets/runtime-version.js', 'utf8')) || [])[1]
+    : null;
+  const want = (s) => (s === 'fylite_runtime.wasm' ? rv : m[1]);
+  //: ★★只核对**这棵树里真有的**那些 stem。可执行文件那一棵**三份 wasm 都不带**
+  //: （2026-09-05 两次裁定：装置信息走本进程的 `/api/facts`，算力走 `/api/kernel`
+  //: 与链进去的内核静态库；见 `tools/build-app-exe.sh` 里删文件那两段），而
+  //: 「不带」与「带了个没版本的」是两回事：前者是设计，后者是那个静默降级的缺陷。
+  //: 所以判据是「有这个 stem 的任何名字，就必须是版本化的真名」。
+  const present = (s) => list.some((f) => f === `assets/${s}` || f.startsWith(`assets/${s}.`));
+  const bad = WASM_STEMS.filter((s) => present(s) && (!want(s) || !list.includes(`assets/${s}.${want(s)}`)));
+  if (bad.length) {
+    console.error(`[embed] 这些 wasm 不是版本化的真文件：${bad.join(' ')}`);
+    console.error(`[embed]   表里要的是 assets/<名>.${m[1]}（tools/soname.sh 的命名）`);
+    console.error('[embed]   先在内核仓跑 rust/build.sh --wasm-check，再重跑本生成器');
+    console.error('[embed]   ——照写会把版本化命名静默降级（FYL-DESIGN-19 G-8）');
+    process.exit(1);
+  }
 }
 
-const files = [...walk(APP), ...plannedDevices()].sort();
+const files = [...walk(APP)].sort();
+checkWasmIsVersioned(files);
 const extOf = (f) => { const l = logicalName(f); return l.slice(l.lastIndexOf('.')); };
 const unknown = [...new Set(files.map(extOf))].filter((e) => !(e in MIME));
 if (unknown.length) {
