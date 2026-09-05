@@ -58,6 +58,7 @@
     'q',                   // Safety factor carried OUTSIDE profiles_1d (inside it, the DD's own bare `q` is correct).
     'reconstructed',       // The reconstructed counterpart of a truth block.
     'result',              // The result block of a session document.
+    'rho',                 // The transport grid [m] bound under `transport/fylite:rho` (`TRANSPORT_INPUTS`, `code/transport`) — the marched channel's own radial coordinate, which the DD spells as `rho_tor` under a profiles grid and this plan carries flat.
     'shinethrough',        // Fraction of beam power that passed straight through unabsorbed.
     'source',              // The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport).
     'target',              // The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`).

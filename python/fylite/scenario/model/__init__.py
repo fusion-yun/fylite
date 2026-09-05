@@ -242,7 +242,9 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
               dt: float = float("inf"), theta: float = 1.0,
               steps: int = 1, relax: float = 1.0, relax_coeff: float = 1.0,
               tol: float = 1e-10, max_inner: int = 200, neo=None,
-              chi_given=None) -> dict:
+              chi_given=None, b0: float | None = None, ne_axis: float | None = None,
+              ne_peaking: float = 0.0, a: float | None = None, rmaj: float | None = None,
+              kappa: float = 1.0, delta: float = 0.0, q95: float | None = None) -> dict:
     """Fixed-geometry 1.5-D core transport: advance or solve one channel.
 
     ``dt = inf`` with ``steps = 1`` is the steady solve — the well-posed use
@@ -262,15 +264,23 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
     ``case.rs::transport_case`` (``code/transport``) now.  This function
     binds the grid, the geometry, the source, the start, the convection and
     a given diffusivity on the declared rows, names the closure, and reads
-    the record back.  ``neo`` (the neoclassical closure) is not on the door
-    yet: its per-surface blocks are the evolution line's assembly and go
-    with it; asking for it here refuses, as it did.
+    the record back.  ★The neoclassical closure is on the door too (the
+    same day): its per-surface blocks are built in the kernel from the bar's
+    Miller shape (``a`` · ``rmaj`` · ``kappa`` · ``delta`` · ``q95``), the field
+    ``b0`` and the density ``ne_axis`` (with ``ne_peaking``); a caller that
+    still hands ``neo`` blocks is refused, because there is one builder now.
     """
     from ...io import fydoc
-    if neo is not None or closure == "neoclassical":
+    if neo is not None:
         from ... import kernel as _K
-        raise _K.KernelError("closure 'neoclassical' needs the per-surface neo blocks, which are the "
-                             "evolution line's assembly; not on the transport door")
+        raise _K.KernelError("the per-surface neo blocks are the kernel's now (`code/transport`, closure "
+                             "'neoclassical'): pass b0 / ne_axis / ne_peaking and the bar's Miller shape "
+                             "(a · rmaj · kappa · delta · q95) instead of blocks")
+    if closure == "neoclassical" and (b0 is None or ne_axis is None or rmaj is None or q95 is None):
+        from ... import kernel as _K
+        raise _K.KernelError("closure 'neoclassical' needs the field and the density the surfaces are built "
+                             "on: b0 [T], ne_axis [m^-3] (with ne_peaking), and the Miller shape rmaj (R0/a), "
+                             "q95, kappa, delta")
     if closure == "given" and chi_given is None:
         from ... import kernel as _K
         raise _K.KernelError("closure 'given' needs chi_given")
@@ -310,6 +320,15 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
                 "relax_coeff": float(relax_coeff), "tol": float(tol), "max_inner": float(max_inner)}
     if np.isfinite(dt):
         settings["dt"] = float(dt)
+    #: ★the neoclassical tier's surfaces (2026-09-05): the bar's Miller shape,
+    #: the field and the density, built in the kernel from these — the page's
+    #: `neoBlocks` and this face hand over the same seven numbers
+    for key, val in (("b0", b0), ("ne_axis", ne_axis), ("nepeak", ne_peaking if closure == "neoclassical" else None),
+                     ("amin", a), ("rmaj", rmaj), ("q95", q95)):
+        if val is not None:
+            settings[key] = float(val)
+    if closure == "neoclassical":
+        settings.update({"kappa": float(kappa), "delta": float(delta)})
     rec = fydoc.complete("code/transport", {"settings": settings, "inputs": {"transport": inputs}})
     f = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
     arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731

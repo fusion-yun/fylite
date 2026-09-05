@@ -216,85 +216,46 @@ FyScenario.whenDevices(function () {
   }
 
   function solve() {
-    var x = rhoGrid(), m = metrics(x);
+    var x = rhoGrid();
     var chi0 = +$('chi0').value;
     var closure = +$('closure').value | 0;
-    var stiff = closure === 1;
-    var p0 = +$('power').value, w = +$('width').value;
-    var src = new Float64Array(x.length);
-    for (var i = 0; i < x.length; i++)
-      src[i] = p0 * Math.exp(-Math.pow(rhoBar(x, i) / w, 2));
-    var chiOf = stiff
-      ? function (xx, y) {
-          var d = new Float64Array(xx.length);
-          for (var k = 0; k < xx.length; k++) {
-            var k0 = Math.min(k, y.length - 2);
-            var g = Math.abs((y[k0 + 1] - y[k0]) / (xx[k0 + 1] - xx[k0]));
-            //: a critical-gradient-like stiffening, prescribed here rather
-            //: than taken from a closure — the page says which it is
-            d[k] = chi0 * (0.25 + 1.75 * g / (1 + g));
-          }
-          return d;
-        }
-      : function () { return chi0; };
     var t0 = (self.performance || Date).now();
-    var y0 = new Float64Array(x.length);
-    for (var j = 0; j < x.length; j++) y0[j] = tStart(x, j);
-    var neo = closure === 2 ? neoBlocks(x, m) : null;
-    //: the kernel's own solver (FYL-DESIGN-07 D-4).  The closure is chosen
-    //: by index rather than passed as a function: a callback cannot cross the
-    //: ABI, and splitting the Picard loop across it would put the stiff
-    //: iteration back on this side — which is the arrangement D-4 exists to
-    //: prevent, and which cost this page a 3e-2 discrepancy when the
-    //: discretisation lived here.
-    var r = fy.transportStep({
-      x: x, yOld: y0,
-      vprime: m.vprime,
-      //: the flux weight carries <|grad r|^2>; the capacity does not.  They
-      //: are different weights in the equation and defaulting both to V'
-      //: would be a modelling choice made by omission.
-      metric: (function () {
-        var mm = new Float64Array(x.length);
-        for (var q = 0; q < x.length; q++) mm[q] = m.vprime[q] * m.gradR2[q];
-        return mm;
-      })(),
-      velocity: (function () {
-        var vv = new Float64Array(x.length);
-        vv.fill(+$('pinch').value);
-        return vv;
-      })(),
-      source: src,
-      model: closure, p0: chi0, p1: 0.25, p2: 1.75, neo: neo,
-      //: ★Pereverzev-Corrigan, which the kernel has had all along and this
-      //: page used to say was "not ported".  It is a control now: the stiff
-      //: and turbulent tiers are where a Picard loop needs it, and a
-      //: NEGATIVE coefficient is refused by the kernel rather than clamped.
-      dPc: +$('dpc').value,
-      dt: Infinity, theta: 1, edgeValue: +$('edge').value,
-      tol: 1e-10, maxInner: 200,
-    });
-    //: chi is redrawn here from the SAME formula the kernel selected, purely
-    //: for the plot — the solve did not use this array
-    var chiArr;
+    //: ★★the bar is `case.rs::transport_case` (FYL-DESIGN-16 K-3, 2026-09-05):
+    //: the Miller metric from these controls, the Gaussian source, the start
+    //: profile, the closure by name — constant · stiff · neoclassical (whose
+    //: per-surface blocks, `neoBlocks` above, the kernel now builds from the
+    //: same seven numbers) — one steady solve.  What stays here is the grid
+    //: (bound, so the page's own `a·i/(n-1)` spacing is the one solved on) and
+    //: the reading back.  `neoBlocks` / `metrics` remain for the turbulent
+    //: run beside this, which has not sunk.
+    var settings = { closure: String(closure), chi0: chi0, p1: 0.25, p2: 1.75,
+                     power: +$('power').value, width: +$('width').value,
+                     edge: +$('edge').value, pinch: +$('pinch').value, dpc: +$('dpc').value,
+                     theta: 1, tol: 1e-10, max_inner: 200,
+                     amin: +$('amin').value, rmaj: +$('rmaj').value,
+                     kappa: +$('kappa').value, delta: +$('delta').value, q95: +$('q95').value };
     if (closure === 2) {
-      //: ★the kernel does not hand the profile back, so it is recomputed
-      //: here from the CONVERGED temperature purely for the plot.  At
-      //: convergence the two agree by construction; mid-iteration they
-      //: would not, and drawing a mid-iteration chi beside a converged T
-      //: would be a picture of neither.
-      //: the same floor the solve used, so the curve and the solve
-      //: agree at the axis where the gradient vanishes
-      chiArr = fy.neoChi(x, r.y, neo, chi0);
-    } else {
-      chiArr = chiOf(x, r.y);
-      if (typeof chiArr === 'number') {
-        var c2 = new Float64Array(x.length); c2.fill(chiArr); chiArr = c2;
-      }
+      settings.bunit = +$('bunit').value;
+      settings.ne0 = +$('ne0').value;
+      settings.nepeak = +$('nepeak').value;
     }
-    return { x: x, y: r.y, chi: chiArr, metrics: m, src: src,
-             closure: closure, neo: neo,
-             iterations: r.innerIterations, converged: r.converged,
-             residual: r.residual, ms: Math.round((self.performance || Date).now() - t0) };
+    var rec = fy.complete('code/transport', {
+      settings: settings, inputs: { transport: { 'fylite:rho': Array.from(x) } } });
+    var flat = function (node) {
+      var out = [];
+      (function walk(v) { if (Array.isArray(v)) v.forEach(walk); else out.push(v); })(node.data);
+      return Float64Array.from(out);
+    };
+    var lad = rec.fields.equilibrium.time_slice.profiles_1d;
+    var m = { vprime: flat(lad.dvolume_drho_tor), gradR2: flat(lad.gm3), qEdge: +$('q95').value };
+    return { x: x, y: flat(rec.fields.y),
+             chi: flat(rec.fields.core_transport.model['0'].profiles_1d.electrons.energy.d),
+             metrics: m, src: flat(rec.fields.source),
+             closure: closure, neo: null,
+             iterations: rec.facts.inner_iterations.value,
+             converged: rec.facts.converged.value !== 0,
+             residual: rec.facts.residual.value,
+             ms: Math.round((self.performance || Date).now() - t0) };
   }
 
   //: ★★The 1.5D page runs on the main thread ON PURPOSE — 41 points is

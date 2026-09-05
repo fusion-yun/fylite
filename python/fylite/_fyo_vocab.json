@@ -233,6 +233,10 @@
   "n_parallel_max": {
    "gated": true,
    "gloss": "Upper end of the same launched n_parallel band — see `n_parallel_min`."
+  },
+  "rho": {
+   "gated": false,
+   "gloss": "The transport grid [m] bound under `transport/fylite:rho` (`TRANSPORT_INPUTS`, `code/transport`) — the marched channel's own radial coordinate, which the DD spells as `rho_tor` under a profiles grid and this plan carries flat. Written by `scenario.model.transport` and the model page's transport bar. Not gated: `rho` is the ordinary variable name for a radial grid in every host and in the record's own `core_profiles/profiles_1d/grid/rho_tor`."
   }
  }
 }
