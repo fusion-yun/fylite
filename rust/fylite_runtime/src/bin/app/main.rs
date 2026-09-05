@@ -430,9 +430,20 @@ fn serve(mut stream: TcpStream, cfg: &api::Cfg, source: &Source) -> std::io::Res
                        answer.as_bytes(), true);
     }
 
+    if method == "POST" && path == "/api/case" {
+        if length > api::MAX_BODY {
+            return respond(&mut stream, 413, "application/json; charset=utf-8",
+                           b"{\"error\":\"request body too large\"}", true);
+        }
+        let mut body = vec![0u8; length];
+        reader.read_exact(&mut body)?;
+        let (status, answer) = api::case(&String::from_utf8_lossy(&body));
+        return respond(&mut stream, status, "application/json; charset=utf-8",
+                       answer.as_bytes(), true);
+    }
     if method != "GET" && method != "HEAD" {
         return respond(&mut stream, 405, "text/plain; charset=utf-8",
-                       b"only GET, HEAD, and POST /api/kernel", true);
+                       b"only GET, HEAD, POST /api/kernel and POST /api/case", true);
     }
 
     //: ★请求面在静态查找之前：`/api/...` 不是站点里的文件，而资源表是精确

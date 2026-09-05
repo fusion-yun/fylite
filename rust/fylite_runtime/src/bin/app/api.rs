@@ -167,6 +167,13 @@ pub fn kernel(body: &str) -> (u16, String) {
 }
 
 /// `/api/health` 里那一格：算力在不在本进程里，以及它是哪一版 ABI。
+/// `POST /api/case` — the DOCUMENT door for the page (FYL-DESIGN-16 H-2 / P2:
+/// 「/api/case 是一个端点，不是一族」).  The logic and its test are the library's
+/// (`fylite_runtime::case_api::case_http`); this is the route.
+pub fn case(body: &str) -> (u16, String) {
+    fylite_runtime::case_api::case_http(body)
+}
+
 fn kernel_face() -> String {
     #[cfg(kernel_static)]
     {

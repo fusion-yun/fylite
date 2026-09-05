@@ -4202,6 +4202,14 @@
                   //: 当场 404——而在线时一切正常，所以没人会先发现。
                   wasmUrl: versioned,
                   ADAS_Z: ADAS_Z, ADAS_A: ADAS_A, SolveError: SolveError };
+  //: ★the document door, when the desktop host is there (kernelapi.js); on the static
+  //: site it rejects with a sentence — see FyKernelApi.complete.
+  root.FyLite.complete = function (code, plan, base) {
+    if (!root.FyKernelApi || !root.FyKernelApi.complete) {
+      return Promise.reject(new Error('the document door needs assets/kernelapi.js loaded first'));
+    }
+    return root.FyKernelApi.complete(code, plan, base);
+  };
 
   // ==========================================================================
   // Grid-shaped adapters — formerly `physics.js` (FYL-DESIGN-07 D-4).

@@ -254,5 +254,48 @@
     return e;
   }
 
-  root.FyKernelApi = { probe: probe, exportsFor: exportsFor, Heap: Heap };
+  /**
+   * The DOCUMENT door: `complete('code/vstab', plan)` -> Promise<record>.
+   *
+   * ★FYL-DESIGN-16 H-2 / P2: beside the per-call bridge (`exportsFor`, one flat export
+   * per request) the page's other way to the kernel is ONE endpoint, `POST /api/case`
+   * — a plan tree in, a record tree out.  The plan's layout is the kernel's
+   * (`settings/*` scalars, `inputs/<fyo path…>` documents); the record comes back as
+   * the kernel lays it out (`code` · `entry` · `dims` · `facts` · `fields` · `notes`).
+   *
+   * A refusal is an ANSWER: the promise rejects with an Error carrying `.code` (the
+   * kernel's negative code) and `.refusal` (the tree).  ★On the static site there is
+   * no `/api/*` and the middle layer is not in the page yet (W-1), so this rejects
+   * with a sentence that says so rather than pretending — the wasm's flat exports are
+   * still there for what the pages do today.
+   */
+  function complete(code, plan, base) {
+    if (typeof fetch !== 'function' || !loopback()) {
+      return Promise.reject(new Error(
+        'the document door (/api/case) needs the desktop host (`fy`); the static site ' +
+        'has no middle layer in the page yet (FYL-DESIGN-16 W-1)'));
+    }
+    return fetch((base || ROOT) + 'api/case', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ code: String(code), plan: plan || {} })
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = null;
+        try { j = JSON.parse(t); } catch (e) { /* not JSON: report the text */ }
+        if (r.status !== 200) {
+          throw new Error('/api/case: HTTP ' + r.status + ' — ' + ((j && j.error) || t));
+        }
+        if (j && j.refusal) {
+          var err = new Error('the kernel refused (' + j.refusal.code + '): ' + j.refusal.message);
+          err.code = j.refusal.code;
+          err.refusal = j.refusal;
+          throw err;
+        }
+        return j.record;
+      });
+    });
+  }
+
+  root.FyKernelApi = { probe: probe, exportsFor: exportsFor, Heap: Heap, complete: complete };
 }(typeof self !== 'undefined' ? self : this));

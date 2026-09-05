@@ -181,6 +181,63 @@ pub unsafe extern "C" fn fylite_runtime_linked_kernel(out: *mut *mut u8, out_len
     }
 }
 
+/// The document door as ONE HTTP answer: `{"code": …, "plan": {…}}` in, `(status, JSON)` out.
+///
+/// ★Lives in the library, not in the `fy` binary, so it is tested where the tests run
+/// (the binary embeds the whole app and cannot even be compiled on a host without the
+/// wasm artefacts).  `fy`'s `POST /api/case` is three lines around this.
+///
+/// Answers: **200** `{"record": …}`; **200** `{"refusal": {"code", "message"}}` when
+/// the kernel refused (a refusal is an answer, not a transport failure); **400** when
+/// the body does not parse or names no `code`; **501** when no kernel is reachable
+/// from this process (or it predates the tree door).
+pub fn case_http(body: &str) -> (u16, String) {
+    use crate::document::Node;
+    use crate::json;
+    use crate::kernel::Kernel;
+    let jstr = |s: &str| json::to_string(&Node::Str(s.to_string()), false);
+    let doc = match json::parse(body) {
+        Ok(d) => d,
+        Err(e) => return (400, format!("{{\"error\":{}}}", jstr(&format!("the request does not parse: {e:?}")))),
+    };
+    let Some(code) = doc.get("code").and_then(Node::as_str).map(str::to_string) else {
+        return (400, "{\"error\":\"the request names no `code`\"}".to_string());
+    };
+    let plan = doc.get("plan").cloned().unwrap_or_else(Node::map);
+    let k = match Kernel::load(None) {
+        Ok(k) => k,
+        Err(e) => return (501, format!("{{\"error\":{}}}", jstr(&e.message))),
+    };
+    match k.run_tree(&code, &plan) {
+        Ok(rec) => (200, format!("{{\"record\":{}}}", json::to_string(&rec, false))),
+        Err(e) if e.code == -5 || e.code == -6 => (501, format!("{{\"error\":{}}}", jstr(&e.message))),
+        Err(e) => (200, format!("{{\"refusal\":{{\"code\":{},\"message\":{}}}}}", e.code, jstr(&e.message))),
+    }
+}
+
+#[cfg(test)]
+mod http_door_tests {
+    use super::case_http;
+
+    #[test]
+    fn the_http_door_completes_transport_and_refuses_as_an_answer() {
+        let plan = r#"{"code":"code/transport","plan":{"settings":{"power":12.0,"width":0.36,"pinch":0.0,"edge":3.0,"dpc":0.0,"n":41.0,"amin":2.0,"rmaj":3.1,"kappa":1.86,"delta":0.48,"q95":3.0,"chi0":0.4,"closure":"0"}}}"#;
+        let (status, body) = case_http(plan);
+        if status == 501 {
+            eprintln!("skipping: {body}");
+            return;
+        }
+        assert_eq!(status, 200, "{body}");
+        assert!(body.starts_with("{\"record\":"), "{body}");
+        assert!(body.contains("\"entry\":\"transport\""), "{body}");
+        let (status, body) = case_http(r#"{"code":"code/nowhere","plan":{}}"#);
+        assert_eq!(status, 200);
+        assert!(body.starts_with("{\"refusal\":{\"code\":-30"), "{body}");
+        assert_eq!(case_http("not json").0, 400);
+        assert_eq!(case_http(r#"{"plan":{}}"#).0, 400);
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_case_free(p: *mut u8, n: u64) {
     if p.is_null() {
