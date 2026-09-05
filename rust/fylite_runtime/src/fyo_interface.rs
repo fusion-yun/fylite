@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "27bca7b9f23e1b6e";
+pub const DIGEST: &str = "d7c4ffeac4f2eec4";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -88,6 +88,12 @@ pub const TABLES: &[Table] = &[
         Slot { key: "r0", path: "tf/r0", units: "m", rank: "0d" },
         Slot { key: "b0", path: "tf/b0", units: "T", rank: "0d" },
         Slot { key: "grid", path: "fylite:grid", units: "1", rank: "0d" },
+        Slot { key: "grid_r_min", path: "machine/default_grid/r_min", units: "m", rank: "0d" },
+        Slot { key: "grid_r_max", path: "machine/default_grid/r_max", units: "m", rank: "0d" },
+        Slot { key: "grid_z_min", path: "machine/default_grid/z_min", units: "m", rank: "0d" },
+        Slot { key: "grid_z_max", path: "machine/default_grid/z_max", units: "m", rank: "0d" },
+        Slot { key: "grid_nw", path: "solver_dims/nw", units: "1", rank: "0d" },
+        Slot { key: "grid_nh", path: "solver_dims/nh", units: "1", rank: "0d" },
         Slot { key: "pf_eta", path: "pf_active_circuits/resistivity_uohm_m", units: "uohm.m", rank: "0d" },
         Slot { key: "vessel_eta_all", path: "fylite:vessel_resistivity_uohm_m", units: "uohm.m", rank: "0d" },
         Slot { key: "passive_eta", path: "pf_passive/fylite:group/resistivity_uohm_m", units: "uohm.m", rank: "0d" },
@@ -108,6 +114,12 @@ pub const TABLES: &[Table] = &[
         Slot { key: "channel_aturns", path: "fylite:channel_aturns", units: "A", rank: "1d" },
         Slot { key: "i_max_aturn", path: "fylite:i_max_aturn", units: "A", rank: "1d" },
         Slot { key: "x_ref", path: "fylite:x_ref", units: "A", rank: "1d" },
+        Slot { key: "anneal_schedule", path: "fylite:anneal_schedule", units: "1", rank: "1d" },
+        Slot { key: "null_r", path: "fylite:null_r", units: "m", rank: "1d" },
+        Slot { key: "null_z", path: "fylite:null_z", units: "m", rank: "1d" },
+        Slot { key: "control_r", path: "fylite:control_r", units: "m", rank: "1d" },
+        Slot { key: "control_z", path: "fylite:control_z", units: "m", rank: "1d" },
+        Slot { key: "control_w", path: "fylite:control_w", units: "1", rank: "1d" },
     ] },
     Table { name: "EQUILIBRIUM", doc_type: "fyo:equilibrium", slots: &[
         Slot { key: "ip", path: "time_slice/global_quantities/ip", units: "A", rank: "0d" },
@@ -185,6 +197,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
         Row { key: "vstab", shape: "vstab", units: "assembled", gloss: "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab" },
         Row { key: "breakdown", shape: "", units: "assembled", gloss: "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march" },
+        Row { key: "discharge", shape: "", units: "assembled", gloss: "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

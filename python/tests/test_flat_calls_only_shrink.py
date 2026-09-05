@@ -39,7 +39,7 @@ BASELINE = {
     'scenario/control/evolution.py': 1,
     'scenario/control/stability.py': 6,
     'scenario/control/vertical.py': 1,
-    'scenario/design/__init__.py': 13,
+    'scenario/design/__init__.py': 3,
     'scenario/design/pulse.py': 3,
     'scenario/design/shape.py': 1,
     'scenario/model/__init__.py': 17,

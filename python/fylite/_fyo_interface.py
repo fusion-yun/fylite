@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '27bca7b9f23e1b6e'
+DIGEST = 'd7c4ffeac4f2eec4'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -91,6 +91,12 @@ TABLES = {
             'r0': {"path": 'tf/r0', "units": 'm', "rank": '0d'},
             'b0': {"path": 'tf/b0', "units": 'T', "rank": '0d'},
             'grid': {"path": 'fylite:grid', "units": '1', "rank": '0d'},
+            'grid_r_min': {"path": 'machine/default_grid/r_min', "units": 'm', "rank": '0d'},
+            'grid_r_max': {"path": 'machine/default_grid/r_max', "units": 'm', "rank": '0d'},
+            'grid_z_min': {"path": 'machine/default_grid/z_min', "units": 'm', "rank": '0d'},
+            'grid_z_max': {"path": 'machine/default_grid/z_max', "units": 'm', "rank": '0d'},
+            'grid_nw': {"path": 'solver_dims/nw', "units": '1', "rank": '0d'},
+            'grid_nh': {"path": 'solver_dims/nh', "units": '1', "rank": '0d'},
             'pf_eta': {"path": 'pf_active_circuits/resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
             'vessel_eta_all': {"path": 'fylite:vessel_resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
             'passive_eta': {"path": 'pf_passive/fylite:group/resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
@@ -114,6 +120,12 @@ TABLES = {
             'channel_aturns': {"path": 'fylite:channel_aturns', "units": 'A', "rank": '1d'},
             'i_max_aturn': {"path": 'fylite:i_max_aturn', "units": 'A', "rank": '1d'},
             'x_ref': {"path": 'fylite:x_ref', "units": 'A', "rank": '1d'},
+            'anneal_schedule': {"path": 'fylite:anneal_schedule', "units": '1', "rank": '1d'},
+            'null_r': {"path": 'fylite:null_r', "units": 'm', "rank": '1d'},
+            'null_z': {"path": 'fylite:null_z', "units": 'm', "rank": '1d'},
+            'control_r': {"path": 'fylite:control_r', "units": 'm', "rank": '1d'},
+            'control_z': {"path": 'fylite:control_z', "units": 'm', "rank": '1d'},
+            'control_w': {"path": 'fylite:control_w', "units": '1', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -211,6 +223,7 @@ BLOCKS = {
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
         {'key': 'vstab', 'shape': 'vstab', 'units': 'assembled', 'gloss': "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab"},
         {'key': 'breakdown', 'shape': '', 'units': 'assembled', 'gloss': "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march"},
+        {'key': 'discharge', 'shape': '', 'units': 'assembled', 'gloss': "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},

@@ -244,8 +244,7 @@ LINES = OrderedDict([
 #: loudly rather than quietly.
 DOOR = {"evolve", "zerod", "transport",
         "vstab",
-        "breakdown"
-}
+        "breakdown", "discharge"}
 
 
 def widen(a: str, b: str) -> str:
