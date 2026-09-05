@@ -7932,77 +7932,88 @@ function evScopeMiss(sp) {
  */
 function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
   var n = geo.rho.length, prev = null, steps = 0, tNow = tStart || 0;
-  var zeros = new Float64Array(n);
-  var params = {
-    b0: geo.b0, chi0: sp.chi0, chi_ratio: sp.chiRatio,
-    edge_te: sp.edgeTe, edge_ti: sp.edgeTi,
+  //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
+  //: per call so the page can report as it goes: the plan carries the ladder
+  //: this run is on (bound rows — the traced tiers' own rmin/rmaj beside the
+  //: metric), the state as it stands (`state`, then `resume` with the lagged
+  //: arrays the entry hands back), and the bar's controls spelled in SI.  It
+  //: used to be the flat export `fy.scenario('evolve_heat', …)` with the same
+  //: blocks packed here; `app/tests/validate-worker-evolve.mjs` holds the door
+  //: to that path's answer step by step.
+  var arr = function (v) { return v ? Array.from(v) : null; };
+  var settings = {
+    geometry: 'ladder', n_steps: 1, state: 1,
+    a: geo.a, r0: geo.r0, b0: geo.b0, kappa: sp.kappa, delta: sp.delta,
+    te_axis: sp.te0, ti_axis: sp.ti0, ne_axis: sp.ne0,
+    edge_te: sp.edgeTe, edge_ti: sp.edgeTi, edge_ne: sp.edgeNe,
+    peaking_t: sp.peakT, peaking_n: sp.peakN,
+    chi0: sp.chi0, chi_ratio: sp.chiRatio, d_pc: sp.dPc,
     dt: sp.dt, dt_target: sp.dtTarget,
-    dt_min: sp.dtMin, dt_max: sp.dtMax, d_pc: sp.dPc,
-    //: ★MW on the control, W at the entry — one conversion, here, the same
-    //: place `ctx.pAux` makes it
-    p_e: sp.pE * 1e6, p_i: sp.pI * 1e6,
-    dep_centre: sp.depCentre, dep_width: sp.depWidth,
-    brem: sp.brem ? 1 : 0, bulk_id: sp.bulkId,
-    imp_id: sp.impurityId, imp_conc: sp.cImp, imp_z: sp.impurityZ,
+    p_e: sp.pE * 1e6, p_i: sp.pI * 1e6, dep_centre: sp.depCentre, dep_width: sp.depWidth,
+    brem: sp.brem ? 1 : 0, bulk: 'D', impurity: sp.impurity || '',
+    imp_conc: sp.impurity ? sp.cImp : 0, imp_z: sp.impurityZ || 0,
     alpha: sp.alpha ? 1 : 0, dt_fraction: sp.dtFraction, zeff: sp.zeff,
-    pedestal: sp.pedestal ? 1 : 0, ip: Math.abs(sp.ip),
-    a: geo.a, r0: geo.r0, kappa: sp.kappa, delta: sp.delta,
-    ch_current: ctx.channels.current ? 1 : 0,
-    ohmic: sp.ohmic ? 1 : 0, bootstrap: sp.bootstrap ? 1 : 0,
-    v_loop: sp.vLoop || 0,
+    pedestal: sp.pedestal ? 1 : 0, ip_a: Math.abs(sp.ip),
+    current: ctx.channels.current ? 1 : 0,
+    ohmic: sp.ohmic ? 1 : 0, bootstrap: sp.bootstrap ? 1 : 0, v_loop: sp.vLoop || 0,
     sawtooth: sp.sawtooth ? 1 : 0, saw_mix: sp.sawtooth ? sp.sawMix : 0,
-    //: ★T-C28 — the crash period.  No page control yet (`sp.sawPeriod` is
-    //: undefined today, so this is 0 = the pre-period behaviour); the row
-    //: and its carry are wired so the block loop stays equal to one long
-    //: run the day the control lands.
-    saw_period: sp.sawPeriod || 0, saw_elapsed_in: 0,
-    //: chi_source 0 = the constant closure; the given-profile tier (1) is
-    //: host-orchestration level and has no page control yet
-    chi_source: 0,
-    i_cd: sp.iCd || 0, cd_centre: sp.cdCentre, cd_width: sp.cdWidth,
-    resume: 0, t_start: 0, dt_start: 0,
-    edge_te_in: 0, edge_ti_in: 0, capped_in: 0
+    saw_period: sp.sawPeriod || 0,
+    i_cd_a: sp.iCd || 0, cd_centre: sp.cdCentre, cd_width: sp.cdWidth,
+    resume: 0, t_start: 0, dt_start: 0, edge_te_in: 0, edge_ti_in: 0, capped_in: 0, saw_elapsed_in: 0
   };
-  //: ★the metric is the HOST's half on both hosts — `evMillerMetric` or the
-  //: traced ladder built it above, and Python's `model.evolve` builds the
-  //: same columns the same way.  What crosses here is that assembly, not a
-  //: second opinion about it.
-  var inputs = {
-    rho: geo.rho, vprime: geo.vprime, gm3: geo.gm3,
-    te_init: st.te, ti_init: st.ti, ne: st.ne,
-    gm2: geo.gm2, fpol: geo.fpol, psi_init: st.psi,
-    rmin: geo.rmin, rmaj: geo.rmaj, q_init: geo.q,
-    psi_prev: zeros, sigma_prev: zeros, exch_prev: zeros
-  };
+  Object.keys(settings).forEach(function (k) {
+    if (settings[k] === undefined || settings[k] === null) delete settings[k];
+  });
+  var ladder = { rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), gm3: arr(geo.gm3),
+                 gm2: arr(geo.gm2), f: arr(geo.fpol), q: arr(geo.q),
+                 'fylite:r_minor': arr(geo.rmin), 'fylite:r_major': arr(geo.rmaj),
+                 psi: arr(st.psi) };
+  Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
+  var zeros = new Float64Array(n);
+  var state = { te: st.te, ti: st.ti, ne: st.ne, psi: st.psi,
+                psiPrev: zeros, sigmaPrev: zeros, exchPrev: zeros };
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
   while (steps < sp.nSteps) {
     if (prev) {
-      params.resume = 1;
-      params.t_start = prev.t_end;
-      params.dt_start = prev.dt_next;
-      params.edge_te_in = prev.edge_te_out;
-      params.edge_ti_in = prev.edge_ti_out;
-      params.capped_in = prev.dt_capped;
-      params.saw_elapsed_in = prev.saw_elapsed_out;
-      inputs.te_init = prev.te; inputs.ti_init = prev.ti;
-      inputs.ne = prev.ne_out; inputs.psi_init = prev.psi;
-      inputs.psi_prev = prev.psi_prev_out;
-      inputs.sigma_prev = prev.sigma_prev_out;
-      inputs.exch_prev = prev.exch_prev_out;
+      settings.resume = 1;
+      settings.t_start = prev.t_end;
+      settings.dt_start = prev.dt_next;
+      settings.edge_te_in = prev.edge_te_out;
+      settings.edge_ti_in = prev.edge_ti_out;
+      settings.capped_in = prev.dt_capped;
+      settings.saw_elapsed_in = prev.saw_elapsed_out;
+      state = { te: prev.te, ti: prev.ti, ne: prev.ne_out, psi: prev.psi,
+                psiPrev: prev.psi_prev_out, sigmaPrev: prev.sigma_prev_out, exchPrev: prev.exch_prev_out };
     }
-    var o = fy.scenario('evolve_heat', params, inputs, { n: n, nt: 1 });
+    var plan = { settings: settings, inputs: {
+      equilibrium: { time_slice: { profiles_1d: ladder } },
+      core_profiles: { profiles_1d: { grid: { psi: arr(state.psi) },
+                                      electrons: { temperature: arr(state.te), density: arr(state.ne) },
+                                      t_i_average: arr(state.ti) } },
+      evolve: { 'fylite:psi_prev': arr(state.psiPrev), 'fylite:sigma_prev': arr(state.sigmaPrev),
+                'fylite:exch_prev': arr(state.exchPrev) } } };
+    var rec = fy.complete('code/evolve', plan);
+    var F = function (k) { return fieldFlat(rec, k); };
+    var X = function (k) { return rec.facts[k].value; };
+    var cpr = rec.fields.core_profiles.profiles_1d, sm = rec.fields.summary;
+    var tr = rec.fields.core_transport.model['0'].profiles_1d;
+    var o = { te: flat(cpr.electrons.temperature), ti: flat(cpr.t_i_average), ne_out: flat(cpr.electrons.density),
+              psi: F('psi'), q: F('q'), j_bs: F('j_bs'), j_cd: F('j_cd'),
+              chi_e: flat(tr.electrons.energy.d), chi_i: flat(tr.total_ion_energy.d),
+              exch_prev_out: F('exch_prev_out'), psi_prev_out: F('psi_prev_out'), sigma_prev_out: F('sigma_prev_out'),
+              dt_capped: X('dt_capped'), settled: X('settled') !== 0,
+              saw_r1: F('saw_r1'), saw_mixed: F('saw_mixed'), saw_refused: F('saw_refused'),
+              p_alpha: flat(sm.fusion.power.value), p_rad: flat(sm.global_quantities.power_radiated.value),
+              p_line: flat(sm.global_quantities.power_line.value), p_ohm: flat(sm.global_quantities.power_ohm.value),
+              dt_used: F('dt_used'), balance: F('balance'), t_ped: F('t_ped'), ped_extrap: X('ped_extrap'),
+              t_end: X('t_end'), dt_next: X('dt_next'), edge_te_out: X('edge_te_out'), edge_ti_out: X('edge_ti_out'),
+              saw_elapsed_out: X('saw_elapsed_out') };
     steps += 1;
     tNow = o.t_end;
     st.te = o.te; st.ti = o.ti; st.ne = o.ne_out; st.ni = o.ne_out;
     if (ctx.channels.current) { st.psi = o.psi; st.q = o.q; }
     ctx.lastBs = ctx.channels.current ? o.j_bs : null;
-    //: ★the diffusivities the march actually ran on, from the entry — the
-    //: page draws them, and rebuilding them here from `chi0` would be right
-    //: only for as long as the closure stays constant
     ctx.lastChi = { e: o.chi_e, i: o.chi_i };
-    //: ★the exchange time the dt ceiling is computed from — the ENTRY's own
-    //: rates, which it hands back for the next block anyway.  The page shows
-    //: it beside the capped-step count, and a march that stated no exchange
-    //: time would leave that row with nothing to print.
     var nuMax = 0;
     for (var q = 0; q < n; q++) {
       var nu = o.exch_prev_out[q];
@@ -8011,20 +8022,12 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
     ctx.tauExch = nuMax > 0 ? 1 / nuMax : null;
     ctx.lastCd = (sp.iCd && ctx.channels.current) ? o.j_cd : null;
     ctx.dtCapped = o.dt_capped | 0;
-    //: ★the crash is the ENTRY's, and the page's record of it is built from
-    //: what the entry STATES about it — three readings and not one silence:
-    //: no q = 1 surface, a crash, or a crash the mixing model could not
-    //: honour.
     var r1 = o.saw_r1[0], mixed = o.saw_mixed[0];
     if (r1 > 0) {
       crashes.push({ step: steps, t: tNow, r1: r1, rMix: mixed,
                      refused: o.saw_refused[0]
                        ? FyI18n.t('e.err.sawmix') : undefined });
     }
-    //: ★the power account is the ENTRY's own, not a second one computed
-    //: here from the state it returned: `p_rad` / `p_alpha` / `p_ohm` are
-    //: what the step actually integrated, and re-deriving them would be a
-    //: second spelling of the sources under test.
     ctx.lastDiag = { pAux: (sp.pE + sp.pI) * 1e6, pAuxBeam: 0, pAuxLh: 0,
                      torqueBeam: null, pAlpha: o.p_alpha[0],
                      pRad: o.p_rad[0], pLine: o.p_line[0],
@@ -8049,8 +8052,6 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
              geoSource: geo.source, coupled: 0, viaEntry: true });
     }
     prev = o;
-    //: ★a march that reached its own steady state STOPS and says it did —
-    //: the entry's verdict, not a second test written here
     if (o.settled) break;
   }
   return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled) };

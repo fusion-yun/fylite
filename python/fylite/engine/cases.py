@@ -755,6 +755,10 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     #: 「not looked at」 are different facts and only the first is safe
     acct.as_sub(sorted(_EVOLVE_UNSUNK), "declared and OFF in this case; the "
                 "capability is not sunk yet (see _EVOLVE_UNSUNK)")
+    #: ★`resume` sank on 2026-09-05 (the page's entry march runs the case one
+    #: step per call and binds the lagged state back); a case runs whole, so
+    #: the switch is inert here rather than out of scope
+    acct.as_sub(["resume"], "a resumed state (sunk: the page's one-step-per-call march; a case runs whole, inert)")
     acct.as_sub(["geometry", "closure", "couple", "icd", "ch-heat"],
                 "the scope test above read these directly")
     acct.as_sub(

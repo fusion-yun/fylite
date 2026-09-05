@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'b86954802dfb5e44'
+DIGEST = '97b37f7c0cacebce'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -180,6 +180,8 @@ TABLES = {
             'gm2': {"path": 'time_slice/profiles_1d/gm2', "units": 'm^-2', "rank": '1d'},
             'q': {"path": 'time_slice/profiles_1d/q', "units": '1', "rank": '1d'},
             'fpol': {"path": 'time_slice/profiles_1d/f', "units": 'T.m', "rank": '1d'},
+            'rmin': {"path": 'time_slice/profiles_1d/fylite:r_minor', "units": 'm', "rank": '1d'},
+            'rmaj': {"path": 'time_slice/profiles_1d/fylite:r_major', "units": 'm', "rank": '1d'},
         },
     },
     'LH_ANTENNAS': {
@@ -326,7 +328,7 @@ BLOCKS = {
         {'key': 'wave', 'shape': 'wave', 'units': 'unsunk', 'gloss': 'the actuator waveform driver'},
         {'key': 'ipctl', 'shape': 'ipCtl', 'units': 'unsunk', 'gloss': 'the I_p feedback controller'},
         {'key': 'quasi', 'shape': 'quasi', 'units': 'unsunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
-        {'key': 'resume', 'shape': '', 'units': 'unsunk', 'gloss': 'a resumed state'},
+        {'key': 'resume', 'shape': '', 'units': 'sunk', 'gloss': 'a resumed state'},
         {'key': 'closure', 'shape': 'closure', 'units': 'unsunk', 'gloss': 'a closure other than the constant one (neoclassical / turbulent / flux-match)'},
         {'key': 'couple', 'shape': 'couple', 'units': 'unsunk', 'gloss': 'the equilibrium alternation'},
     ],

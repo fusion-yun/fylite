@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "b86954802dfb5e44";
+pub const DIGEST: &str = "97b37f7c0cacebce";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -168,6 +168,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "gm2", path: "time_slice/profiles_1d/gm2", units: "m^-2", rank: "1d" },
         Slot { key: "q", path: "time_slice/profiles_1d/q", units: "1", rank: "1d" },
         Slot { key: "fpol", path: "time_slice/profiles_1d/f", units: "T.m", rank: "1d" },
+        Slot { key: "rmin", path: "time_slice/profiles_1d/fylite:r_minor", units: "m", rank: "1d" },
+        Slot { key: "rmaj", path: "time_slice/profiles_1d/fylite:r_major", units: "m", rank: "1d" },
     ] },
     Table { name: "LH_ANTENNAS", doc_type: "fyo:lh_antennas", slots: &[
         Slot { key: "name", path: "antenna/name", units: "", rank: "0d" },
@@ -285,7 +287,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "wave", shape: "wave", units: "unsunk", gloss: "the actuator waveform driver" },
         Row { key: "ipctl", shape: "ipCtl", units: "unsunk", gloss: "the I_p feedback controller" },
         Row { key: "quasi", shape: "quasi", units: "unsunk", gloss: "impurity dilution (composition-derived fuel fraction)" },
-        Row { key: "resume", shape: "", units: "unsunk", gloss: "a resumed state" },
+        Row { key: "resume", shape: "", units: "sunk", gloss: "a resumed state" },
         Row { key: "closure", shape: "closure", units: "unsunk", gloss: "a closure other than the constant one (neoclassical / turbulent / flux-match)" },
         Row { key: "couple", shape: "couple", units: "unsunk", gloss: "the equilibrium alternation" },
     ] },
