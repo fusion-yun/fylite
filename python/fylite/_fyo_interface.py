@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'e1f5c3bb2fed609f'
+DIGEST = '6f23d7860741ef64'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -308,6 +308,7 @@ BLOCKS = {
         {'key': 'interpretive', 'shape': '', 'units': 'assembled', 'gloss': "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account"},
         {'key': 'coupled', 'shape': '', 'units': 'assembled', 'gloss': "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature"},
         {'key': 'beam', 'shape': '', 'units': 'assembled', 'gloss': "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units"},
+        {'key': 'turbulence', 'shape': '', 'units': 'extension', 'gloss': "the turbulent closure between two blocks of the march (the page's turbulentChi): the surface blocks from the ladder and the state, one TGLF flux evaluation per sampled radius (units, ky grid, the quasilinear flux), chi = Q_i / (a/L_T) in gyro-Bohm units interpolated onto the ladder, relaxed against the previous block's"},
         {'key': 'wave', 'shape': '', 'units': 'assembled', 'gloss': "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics"},
     ],
     'ENTRY_OUT_KIND': [
@@ -336,7 +337,7 @@ BLOCKS = {
         {'key': 'ipctl', 'shape': 'ipCtl', 'units': 'sunk', 'gloss': 'the I_p feedback controller'},
         {'key': 'quasi', 'shape': 'quasi', 'units': 'sunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
         {'key': 'resume', 'shape': '', 'units': 'sunk', 'gloss': 'a resumed state'},
-        {'key': 'closure', 'shape': 'closure', 'units': 'unsunk', 'gloss': 'a closure other than the constant or neoclassical one (turbulent / flux-match)'},
+        {'key': 'closure', 'shape': 'closure', 'units': 'unsunk', 'gloss': 'the flux-match closure (4): a root find, not a march'},
         {'key': 'couple', 'shape': 'couple', 'units': 'unsunk', 'gloss': 'the equilibrium alternation'},
     ],
     'EVOLVE_HEAT_IN': [
@@ -373,6 +374,7 @@ BLOCKS = {
         {'key': 'beam_p_perp', 'shape': 'n', 'units': 'Pa', 'gloss': 'the fast-ion perpendicular pressure'},
         {'key': 'lh_e', 'shape': 'n', 'units': 'W/m^3', 'gloss': "the wave's electron deposition (lh = 1)"},
         {'key': 'lh_j', 'shape': 'n', 'units': 'A/m^2', 'gloss': 'the wave-driven current (with ch_current)'},
+        {'key': 'chi_turb', 'shape': 'n', 'units': 'm^2/s', 'gloss': 'the turbulent ion diffusivity added to the neoclassical one (closure = 3)'},
     ],
     'EVOLVE_HEAT_OUT': [
         {'key': 'te', 'shape': 'n', 'units': 'eV', 'gloss': 'the profile the loop reached'},
@@ -513,7 +515,7 @@ BLOCKS = {
         {'key': 'ipctl_ratio0_in', 'shape': '1', 'units': '1', 'gloss': "the loop's calibration ratio, carried across blocks (read when resume = 1 and ipctl_calibrated_in = 1)"},
         {'key': 'ipctl_integral_in', 'shape': '1', 'units': 's', 'gloss': 'the integrator, carried across blocks'},
         {'key': 'ipctl_calibrated_in', 'shape': '1', 'units': '1', 'gloss': '1 when the previous block had already calibrated the loop'},
-        {'key': 'closure', 'shape': '1', 'units': '1', 'gloss': '0 = constant chi (chi0 / chi_ratio); 2 = neoclassical (Chang-Hinton chi_i, chi_e = chi_i * chi_ratio); the given-profile tier stays chi_source = 1'},
+        {'key': 'closure', 'shape': '1', 'units': '1', 'gloss': "0 = constant chi (chi0 / chi_ratio); 2 = neoclassical (Chang-Hinton chi_i, chi_e = chi_i * chi_ratio); 3 = turbulent (the neoclassical chi_i plus the caller's chi_turb, held for the block); the given-profile tier stays chi_source = 1"},
         {'key': 'beam', 'shape': '1', 'units': '1', 'gloss': '1 = the beam arrays below are the auxiliary deposition (the Gaussian and i_cd are inert)'},
         {'key': 'lh', 'shape': '1', 'units': '1', 'gloss': '1 = the lower-hybrid arrays below add to the electron deposition and the driven current'},
     ],
@@ -628,4 +630,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'rho', 'shinethrough', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'chi_turb', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'psi_prev', 'q', 'q_psi_norm', 'r_major', 'r_minor', 'reconstructed', 'result', 'rho', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'weight']

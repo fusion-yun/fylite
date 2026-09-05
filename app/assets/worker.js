@@ -7916,9 +7916,10 @@ function evScopeMiss(sp) {
     //: numeric one is this host reading its own control, and it is written
     //: out rather than left to truthiness.
     if (r.key === 'closure') {
-      //: ★第十六刀: the neoclassical closure (2) is the entry's; the turbulent
-      //: and flux-match tiers (3 / 4) are not
-      if ((v | 0) === 3 || (v | 0) === 4) miss.push(r.gloss);
+      //: ★第十六刀: the neoclassical closure (2) is the entry's; 第十八刀: the
+      //: turbulent one (3) too, on the extension's chi between blocks; only
+      //: the flux-match tier (4) is not
+      if ((v | 0) === 4) miss.push(r.gloss);
     } else if (r.key === 'couple') {
       if (+v) miss.push(r.gloss);
     } else if (r.units === 'required') {
@@ -8010,7 +8011,9 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
     wave_ip: sp.waveIp ? 1 : 0,
     ipctl: sp.ipCtl ? 1 : 0, ip_kp: sp.ipKp, ip_ki: sp.ipKi,
     ipctl_ratio0_in: 1, ipctl_integral_in: 0, ipctl_calibrated_in: 0,
-    closure: (sp.closure | 0) === 2 ? 2 : 0,
+    //: 第十八刀: the turbulent tier (3) marches on the chi the extension's
+    //: `code/turbulence` evaluates between blocks
+    closure: (sp.closure | 0) === 3 ? 3 : ((sp.closure | 0) === 2 ? 2 : 0),
     //: 第十七刀: the ladder's edge as the bar states it (the remap's knot)
     edge_psin: sp.edgePsin
   };
@@ -8050,6 +8053,38 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
   Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
   //: the equilibrium document: the ladder rows, and — with an executor — the
   //: psi map, the axis and the limiter the shell tables are traced on
+  //: ★★第十八刀 — the turbulent closure, BETWEEN blocks.  The TGLF chain lives in
+  //: the extension module, which the core wasm cannot call; so the extension's
+  //: own door (`code/turbulence`, the page's `turbulentChi` sunk: the surface
+  //: blocks, the sampled radii, the deck, units / ky grid / flux, chi in
+  //: gyro-Bohm units interpolated onto the ladder, relaxed against the previous
+  //: answer) is knocked on the state a block starts from, and the march takes
+  //: its answer as `chi_turb` for `turbEvery` steps.  The page's loop evaluated
+  //: it once BEFORE the march (`evClosure` for the exchange ceiling) and again
+  //: on every due step, the first due step being step 1 on the same state — a
+  //: relaxation that moves nothing; kept, so `turbEvals` counts as the loop's.
+  var turb = (sp.closure | 0) === 3;
+  var turbEvery = Math.max(1, sp.turbEvery | 0);
+  var turbPlan = function (stNow) {
+    var prof = { grid: { rho_tor: arr(geo.rho) },
+                 electrons: { temperature: arr(stNow.te), density: arr(stNow.ne) },
+                 t_i_average: arr(stNow.ti), 'fylite:ion_density': arr(stNow.ni),
+                 rotation_frequency_tor_sonic: ctx.momentum && stNow.omega ? arr(stNow.omega) : undefined };
+    Object.keys(prof).forEach(function (k) { if (prof[k] === undefined || prof[k] === null) delete prof[k]; });
+    var plan = { settings: { a: geo.a, b0: geo.b0, n_rad: sp.turbNrad, n_ky: sp.turbNky, sat_rule: 1,
+                             width: 1.65, relax: sp.turbRelax },
+                 inputs: { equilibrium: { time_slice: { profiles_1d: ladder } },
+                           core_profiles: { profiles_1d: prof } } };
+    if (ctx.turbChi) plan.inputs.evolve = { 'fylite:chi_turb': Array.from(ctx.turbChi) };
+    return plan;
+  };
+  var turbEval = function (stNow) {
+    var rec = tglf.complete('code/turbulence', turbPlan(stNow));
+    ctx.turbChi = fieldFlat(rec, 'chi_turb');
+    ctx.turbSub = { xs: fieldFlat(rec, 'xs'), sub: fieldFlat(rec, 'sub') };
+    ctx.turbEvals = (ctx.turbEvals | 0) + 1;
+  };
+  if (turb) turbEval(st);
   var eqBase = (beamPlan || lhPlan) ? (beamPlan || lhPlan).eqDoc : null;
   var equilibrium = eqBase
     ? { vacuum_toroidal_field: eqBase.vacuum_toroidal_field,
@@ -8088,6 +8123,11 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
       carried['fylite:beam_p_par'] = prev.beam_p_par; carried['fylite:beam_p_perp'] = prev.beam_p_perp;
     }
     if (prev && sp.lh) { carried['fylite:lh_e'] = prev.lh_e; carried['fylite:lh_j'] = prev.lh_j; }
+    if (turb) {
+      //: the cadence (the loop's `steps % turbEvery === 0`, on the state the step starts from)
+      if (steps % turbEvery === 0) turbEval(state);
+      carried['fylite:chi_turb'] = Array.from(ctx.turbChi);
+    }
     var plan = { settings: settings, inputs: {
       equilibrium: equilibrium,
       core_profiles: { profiles_1d: { grid: { psi: arr(state.psi), 'fylite:psi_norm': arr(geo.psin) },
@@ -8183,6 +8223,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
     ctx.waveNow = o.wave_k[0];
     //: the page's loop keeps `lastChiNeo` for the turbulent tiers only (the
     //: neoclassical chi IS `chiI` there); the entry reports it as `chi_neo`
+    if (turb) ctx.lastChiNeo = o.chi_neo;
     if (ctx.ipCtl && ctx.channels.current) {
       ctx.vLoopNow = o.v_loop_used[0];
       ctx.ipCtl.ratio0 = o.ipctl_calibrated ? o.ipctl_ratio0 : null;
@@ -8847,7 +8888,11 @@ function evolveRun(msg) {
   //: a rate to bound the first step with.  Without it the cap starts one
   //: step late — and the first step is the one a reader is most likely to
   //: have made enormous.
-  if (channels.heat) evClosure(ctx, st);
+  //: ★the pre-march closure evaluation is the LOOP's (its first exchange
+  //: ceiling); on the entry path the entry evaluates its own, and since
+  //: 第十八刀 the turbulent tier's first TGLF call is the extension door's
+  //: (`evEntryMarch`), not this flat-export path's
+  if (channels.heat && !entryAhead) evClosure(ctx, st);
 
   // --- T-C13: the flux-match tier solves, it does not march ----------------
   //

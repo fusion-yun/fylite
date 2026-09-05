@@ -624,8 +624,9 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     missing = [why for key, why in _EVOLVE_UNSUNK.items()
                if key not in numeric and cfg.get(key)]
     closure = str(cfg.get("closure", "0"))
-    #: ★第十六刀: the neoclassical closure (2) is the entry's; 3 / 4 are not
-    if closure not in ("0", "2"):
+    #: ★第十六刀: the neoclassical closure (2) is the entry's; 第十八刀: the
+    #: turbulent one (3) too — the extension's door between blocks; 4 is not
+    if closure not in ("0", "2", "3"):
         missing.append(f"closure {closure} — {_EVOLVE_UNSUNK['closure']}")
     #: ★★S-2c 批四 — the traced tiers are sunk (`case.rs::evolve`, the equilibrium document traced in the kernel),
     #: but a case cannot CARRY the equilibrium: device and experimental decks
@@ -781,11 +782,20 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
                           "channel that makes q a result is)")
     if not cfg.get("ipctl"):
         acct.as_sub(["ipkp", "ipki"], "the I_p controller's gains (inert: the loop is off)")
+    #: ★第十八刀 — the turbulent tier's cadence and budget ride along with
+    #: closure 3 (`model.evolve(closure="turbulent", turb=…)`); inert otherwise
+    if closure == "3":
+        args["turb"] = dict(every=int(acct.take("turbevery", "TGLF cadence [steps]")),
+                            n_rad=int(acct.take("turbnrad", "TGLF sampled radii")),
+                            n_ky=int(acct.take("turbnky", "TGLF ky count")),
+                            relax=float(acct.take("turbrelax", "TGLF relaxation")))
+    else:
+        acct.as_sub(["turbevery", "turbnrad", "turbnky", "turbrelax"],
+                    "the turbulent closure's cadence and budget (inert: closure is not 3)")
     acct.as_sub(
-        ["turbevery", "turbnrad", "turbnky", "turbrelax", "fmiter", "fmtol",
-         "fmdx", "fmdxmax", "fmrhomin", "fmouter", "fmotol", "fmorlx",
+        ["fmiter", "fmtol", "fmdx", "fmdxmax", "fmrhomin", "fmouter", "fmotol", "fmorlx",
          "degp", "degf"],
-        "the turbulent / flux-match closures' budgets (inert on closure 0)")
+        "the flux-match closure's budgets (inert: closure 4 is not sunk)")
     #: ★★第十五刀 (2026-09-05) — the density channel, the impurity in the
     #: quasi-neutrality and the momentum channel are the entry's.  The
     #: sliders ride along only with their channel, the posture every other
@@ -832,7 +842,7 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     #: ★第十六刀 — the waveform, the I_p loop and the closure choice are the
     #: entry's.  The waveform's knobs ride along only when it is on; the
     #: controller needs the current channel (the page refuses the same way)
-    args["closure"] = "neoclassical" if closure == "2" else "constant"
+    args["closure"] = {"2": "neoclassical", "3": "turbulent"}.get(closure, "constant")
     wave = bool(acct.take("wave", "wave"))
     if wave:
         args["wave"] = dict(

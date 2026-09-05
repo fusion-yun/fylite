@@ -382,8 +382,22 @@ def evolve(*, a: float, r0: float, b0: float,
            wave: dict | None = None, ipctl: bool = False,
            ip_kp: float = 0.0, ip_ki: float = 0.0,
            nbi: dict | None = None, lh_antennas: dict | None = None,
-           executors: dict | None = None) -> dict:
+           executors: dict | None = None, turb: dict | None = None) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
+
+    ★2026-09-05 第十八刀: ``closure="turbulent"`` marches on the neoclassical
+    chi_i plus a TGLF-derived one.  TGLF lives in the EXTENSION library, so
+    the extension's own door (``code/turbulence``, ``fylite_ext_fyo_tree``)
+    evaluates the page's ``turbulentChi`` — the surface blocks from the ladder
+    and the state, ``n_rad`` sampled radii, ``n_ky`` log-spaced ky, one
+    quasilinear flux each, chi in gyro-Bohm units interpolated onto the
+    ladder, relaxed by ``relax`` against the previous answer — and this
+    function keeps the page's CADENCE only: the door on the initial state
+    (``probe``), then blocks of ``every`` steps with the answer bound as
+    ``chi_turb``, the door again on the state each block ended with.
+    ``turb = {every, n_rad, n_ky, relax, sat_rule, width}`` (defaults 2 · 6 ·
+    8 · 1 · 1 · 1.65).  The answer's ``chi_turb`` is the last evaluation,
+    ``turb_evals`` how many there were; the traces are stitched across blocks.
 
     ★2026-09-05 第十七刀: the two executors run INSIDE the march.  ``nbi`` is
     the DD's ``nbi`` document (``{"unit": [...]}``, the shape ``model.nbi.deposit``
@@ -536,7 +550,7 @@ def evolve(*, a: float, r0: float, b0: float,
         "fuel_z_rate": float(fuel_z),
         "momentum": float(bool(momentum)), "prandtl": float(prandtl),
         "torque": float(torque),
-        "closure": "2" if closure == "neoclassical" else "0",
+        "closure": {"neoclassical": "2", "turbulent": "3"}.get(closure, "0"),
         "wave": float(bool(wave)), "ipctl": float(bool(ipctl)),
         "ip_kp": float(ip_kp), "ip_ki": float(ip_ki),
         "beam": float(nbi is not None), "lh": float(lh_antennas is not None),
@@ -583,7 +597,13 @@ def evolve(*, a: float, r0: float, b0: float,
         inputs["core_transport"] = {"model": [{"profiles_1d": {
             "electrons": {"energy": {"d": np.asarray(chi_e_profile, float)}},
             "total_ion_energy": {"d": np.asarray(chi_i_profile, float)}}}]}
-    rec = fydoc.complete("code/evolve", {"settings": settings, "inputs": inputs})
+    turb_evals, chi_turb = 0, None
+    if closure == "turbulent":
+        rec, turb_evals, chi_turb = _turbulent_march(settings, inputs, turb or {},
+                                                     momentum=momentum, quasi=quasi,
+                                                     beam=nbi is not None, lh=lh_antennas is not None)
+    else:
+        rec = fydoc.complete("code/evolve", {"settings": settings, "inputs": inputs})
 
     F = rec["fields"]
     arr = lambda k: np.asarray(F[k]["data"], float)  # noqa: E731
@@ -637,6 +657,8 @@ def evolve(*, a: float, r0: float, b0: float,
         "p_aux": arr("p_aux"), "p_aux_beam": arr("p_aux_beam"),
         "p_aux_lh": arr("p_aux_lh"), "j_lh": arr("j_lh"),
         "beam": F.get("beam"), "lh": F.get("lh"),
+        #: 第十八刀 — the turbulent tier's last evaluation and the count
+        "chi_turb": chi_turb, "turb_evals": turb_evals,
         "notes": list(rec.get("notes", [])),
         "provenance": provenance("evolve", closure="constant",
                                  channels=("heat", "current") if current
@@ -648,9 +670,131 @@ def evolve(*, a: float, r0: float, b0: float,
                                                  else None),
                                  executors=tuple(k for k, v in (("nbi", nbi), ("lh", lh_antennas))
                                                  if v is not None) or None,
+                                 turbulence=("tglf (extension door, blocks of %d)" % int((turb or {}).get("every", 2))
+                                             if closure == "turbulent" else None),
                                  pedestal="eped1nn" if pedestal else None,
                                  loop="kernel (evolve_heat)"),
     }
+
+
+_TURB_DEFAULTS = {"every": 2, "n_rad": 6, "n_ky": 8, "relax": 1.0, "sat_rule": 1, "width": 1.65}
+
+#: the per-step traces `code/evolve` reports, stitched across blocks (each cut at
+#: the block's own `steps`); everything else the last block states
+_TRACES = (("summary", "time"), ("summary", "local", "magnetic_axis", "t_e", "value"),
+           ("summary", "local", "magnetic_axis", "t_i_average", "value"), ("summary", "fusion", "power", "value"),
+           ("summary", "global_quantities", "power_radiated", "value"), ("summary", "global_quantities", "power_line", "value"),
+           ("summary", "global_quantities", "power_ohm", "value"), ("summary", "global_quantities", "beta_tor_norm", "value"),
+           ("dt_used",), ("balance",), ("t_ped",), ("saw_r1",), ("saw_mixed",), ("saw_refused",), ("omega_axis",),
+           ("wave_k",), ("v_loop_used",), ("ip_psi",), ("ip_want",), ("ip_err",), ("p_aux",), ("p_aux_beam",), ("p_aux_lh",))
+
+
+def _turbulent_march(settings: dict, inputs: dict, turb: dict, *, momentum: bool, quasi: bool,
+                     beam: bool, lh: bool):
+    """The page's cadence around the extension's door — see :func:`evolve`."""
+    from ...io import fydoc
+
+    t = {**_TURB_DEFAULTS, **turb}
+    every = max(1, int(t["every"]))
+    n_steps = int(settings["n_steps"])
+    probe = fydoc.complete("code/evolve", {"settings": {**settings, "probe": 1.0}, "inputs": inputs})
+    lad = probe["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+    ladder = {k: np.asarray(lad[k]["data"], float) for k in
+              ("rho_tor", "fylite:r_minor", "fylite:r_major", "fylite:shift", "q", "magnetic_shear",
+               "elongation", "triangularity_upper")}
+    a, b0 = float(probe["facts"]["a"]["value"]), float(probe["facts"]["b0"]["value"])
+
+    def state_of(rec):
+        cp = rec["fields"]["core_profiles"]["profiles_1d"]
+        st = {"te": np.asarray(cp["electrons"]["temperature"]["data"], float),
+              "ne": np.asarray(cp["electrons"]["density"]["data"], float),
+              "ti": np.asarray(cp["t_i_average"]["data"], float),
+              "ni": np.asarray(cp["fylite:ion_density"]["data"], float)}
+        if momentum and "rotation_frequency_tor_sonic" in cp:
+            st["omega"] = np.asarray(cp["rotation_frequency_tor_sonic"]["data"], float)
+        if quasi and "fylite:impurity_density" in cp:
+            st["nz"] = np.asarray(cp["fylite:impurity_density"]["data"], float)
+        return st
+
+    def door(st, prev):
+        prof = {"grid": {"rho_tor": ladder["rho_tor"]},
+                "electrons": {"temperature": st["te"], "density": st["ne"]},
+                "t_i_average": st["ti"], "fylite:ion_density": st["ni"]}
+        if "omega" in st:
+            prof["rotation_frequency_tor_sonic"] = st["omega"]
+        plan = {"settings": {"a": a, "b0": b0, "n_rad": float(t["n_rad"]), "n_ky": float(t["n_ky"]),
+                             "sat_rule": float(t["sat_rule"]), "width": float(t["width"]), "relax": float(t["relax"])},
+                "inputs": {"equilibrium": {"time_slice": {"profiles_1d": ladder}},
+                           "core_profiles": {"profiles_1d": prof}}}
+        if prev is not None:
+            plan["inputs"]["evolve"] = {"fylite:chi_turb": prev}
+        rec = fydoc.complete("code/turbulence", plan)
+        return np.asarray(rec["fields"]["chi_turb"]["data"], float)
+
+    arr = lambda rec, k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    chi = door(state_of(probe), None)
+    evals, prev, blocks, left = 1, None, [], n_steps
+    while left > 0:
+        st_plan = dict(settings, n_steps=float(min(every, left)))
+        inp = dict(inputs)
+        if prev is not None:
+            fc = prev["facts"]
+            st_plan.update({"resume": 1.0, "state": 1.0, "t_start": fc["t_end"]["value"], "dt_start": fc["dt_next"]["value"],
+                            "edge_te_in": fc["edge_te_out"]["value"], "edge_ti_in": fc["edge_ti_out"]["value"],
+                            "capped_in": fc["dt_capped"]["value"], "saw_elapsed_in": fc["saw_elapsed_out"]["value"],
+                            "dt_fraction_in": fc["dt_fraction_used"]["value"],
+                            "ipctl_ratio0_in": fc["ipctl_ratio0_out"]["value"], "ipctl_integral_in": fc["ipctl_integral_out"]["value"],
+                            "ipctl_calibrated_in": fc["ipctl_calibrated_out"]["value"]})
+            st = state_of(prev)
+            prof = {"grid": {"psi": arr(prev, "psi")},
+                    "electrons": {"temperature": st["te"], "density": st["ne"]},
+                    "t_i_average": st["ti"], "fylite:ion_density": st["ni"]}
+            if "omega" in st:
+                prof["rotation_frequency_tor_sonic"] = st["omega"]
+            if "nz" in st:
+                prof["fylite:impurity_density"] = st["nz"]
+            inp["core_profiles"] = {"profiles_1d": prof}
+            carried = {"fylite:psi_prev": arr(prev, "psi_prev_out"), "fylite:sigma_prev": arr(prev, "sigma_prev_out"),
+                       "fylite:exch_prev": arr(prev, "exch_prev_out")}
+            if beam:
+                carried.update({f"fylite:{k}": arr(prev, k) for k in
+                                ("beam_e", "beam_i", "beam_torque", "beam_j", "beam_p_par", "beam_p_perp")})
+            if lh:
+                carried.update({f"fylite:{k}": arr(prev, k) for k in ("lh_e", "lh_j")})
+        else:
+            carried = {}
+        carried["fylite:chi_turb"] = chi
+        inp["evolve"] = carried
+        rec = fydoc.complete("code/evolve", {"settings": st_plan, "inputs": inp})
+        blocks.append(rec)
+        left -= int(rec["facts"]["steps"]["value"])
+        prev = rec
+        if float(rec["facts"]["settled"]["value"]) != 0.0 or left <= 0:
+            break
+        chi = door(state_of(rec), chi)
+        evals += 1
+    #: the stitched record: the last block's fields, the traces concatenated
+    import copy as _copy
+    out = _copy.deepcopy(blocks[-1])
+
+    def node(rec, path):
+        n = rec["fields"]
+        for p in path:
+            n = n[p]
+        return n
+    for path in _TRACES:
+        try:
+            parts = [np.asarray(node(b, path)["data"], float)[:int(b["facts"]["steps"]["value"])] for b in blocks]
+        except KeyError:
+            continue
+        node(out, path)["data"] = np.concatenate(parts)
+    out["facts"]["steps"]["value"] = float(sum(int(b["facts"]["steps"]["value"]) for b in blocks))
+    out["facts"]["saw_count"]["value"] = float(sum(int(b["facts"]["saw_count"]["value"]) for b in blocks))
+    out["facts"]["dt_capped"]["value"] = float(sum(int(b["facts"]["dt_capped"]["value"]) for b in blocks))
+    out["facts"]["balance_worst"]["value"] = max(float(b["facts"]["balance_worst"]["value"]) for b in blocks)
+    out["facts"]["ped_extrap"]["value"] = max(float(b["facts"]["ped_extrap"]["value"]) for b in blocks)
+    out["notes"] = [s for b in blocks for s in b.get("notes", [])]
+    return out, evals, chi
 
 
 # --------------------------------------------------------------------------- #

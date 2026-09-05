@@ -29,7 +29,8 @@
   "2026-08-25: `sat_rule` left this register -- only `fyo.py` writes it today, so by the scope above it is a private extension, and the reverse gate (`test_a_term_that_becomes_shared_must_be_listed`) brings it back by itself the day the browser's TGLF path writes a document. Eleven terms joined in the same pass; they had been written by both hosts and listed by neither.",
   "",
   "2026-08-25 (merge): `equilibrium` joined when the browser's stationary loop started writing it as a block key -- the reverse gate found it, which is what that gate is for.",
-  "2026-08-26: the seven case-corpus terms (`bar` `case` `case_id` `cases` `device` `document` `initial`) joined when `fylite cases` gave the corpus a second (Python) reader beside scenario.js -- the reverse gate found them, which is what that gate is for."
+  "2026-08-26: the seven case-corpus terms (`bar` `case` `case_id` `cases` `device` `document` `initial`) joined when `fylite cases` gave the corpus a second (Python) reader beside scenario.js -- the reverse gate found them, which is what that gate is for.",
+  "2026-09-05 (第十八刀): `psi_prev` `sigma_prev` `exch_prev` `chi_turb` `r_minor` `r_major` `shift` joined — the entry march's carried state and the ladder's surface rows, written by the page's worker and by Python's model.evolve; the reverse gate found them, which is what that gate is for."
  ],
  "namespace": "urn:fylite:",
  "fyo_context": "https://fusion-yun.github.io/fyo/latest/",
@@ -245,6 +246,34 @@
   "weight": {
    "gated": false,
    "gloss": "A channel's weight on a coil element, inside fylite:channel_map. Not gated: `weight` is an ordinary local name."
+  },
+  "psi_prev": {
+   "gated": true,
+   "gloss": "The poloidal flux [Wb] the step before a resumed block ended at, bound under inputs/evolve so the entry's Ohmic term can difference it (第十四刀, 2026-09-05). Carried by the page's entry march and by Python's model.evolve alike; the DD has no slot for a solver's lagged state, which is why it is prefixed."
+  },
+  "sigma_prev": {
+   "gated": true,
+   "gloss": "The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both)."
+  },
+  "exch_prev": {
+   "gated": true,
+   "gloss": "The electron-ion exchange rates [1/s] the lagged step's closure produced, carried so a resumed block's first exchange ceiling is the loop's."
+  },
+  "chi_turb": {
+   "gated": false,
+   "gloss": "The turbulent ion diffusivity [m^2/s] the extension's code/turbulence evaluated between two blocks of the march (第十八刀, 2026-09-05): bound under inputs/evolve for the block that follows (closure 3), and the previous answer it relaxes against; a solver's given profile, not a DD transport model, so prefixed. Not gated: the door's own raw field (`fields/chi_turb`, an entry row name like `psi`) and the readback key are bare by construction; the DOCUMENT slot under inputs/evolve is the prefixed one."
+  },
+  "r_minor": {
+   "gated": true,
+   "gloss": "Minor radius [m] of each traced surface on the equilibrium ladder (profiles_1d), the DD's `r_inboard`/`r_outboard` pair collapsed to the Miller half-width the kernel's surface rows read (the neoclassical and turbulent closures, the beam's shell table)."
+  },
+  "r_major": {
+   "gated": true,
+   "gloss": "Major radius [m] of each traced surface's centre on the equilibrium ladder — the Miller `R0(r)` the surface rows read beside `r_minor`."
+  },
+  "shift": {
+   "gated": false,
+   "gloss": "Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures. Not gated: `shift` is an ordinary local name in both hosts' geometry code."
   }
  }
 }

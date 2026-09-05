@@ -1273,8 +1273,14 @@
     if (!(o.satRule >= 1 && o.satRule <= 3))
       throw new Error('FyLite.tglfFlux: satRule must be 1, 2 or 3');
     return this.scope(function (s) {
+      //: ★the kernel reads 32 scalars (T-C30 appended the Debye pair, 2026-08-29)
+      //: and this wrapper kept handing it 30 — the last two were read off the
+      //: next allocation (caught 2026-09-05, 第十八刀, by the turbulence door's
+      //: transcription).  A 30-long block is padded with the pair the page
+      //: meant: no Debye term, the upstream factor 1.
+      var s32 = o.scal30.length === 30 ? Array.prototype.slice.call(o.scal30).concat([0, 1]) : o.scal30;
       var m18 = s.fixed('miller18', o.miller18, 18),
-          s30 = s.fixed('scal30', o.scal30, 30),
+          s30 = s.fixed('scal32', s32, 32),
           g4 = s.fixed('geom4', o.geom4, 4),
           zs = s.put(o.zs), ma = s.put(o.mass), aa = s.put(o.as),
           ta = s.put(o.taus), ln = s.put(o.rlns), lt = s.put(o.rlts),
@@ -4022,6 +4028,8 @@
   //: listing its exports here would fail a build for something nobody uses.
   var REQUIRED_EXT = [
     'fylite_rs_alloc', 'fylite_rs_free', 'fylite_rs_abi_version',
+    //: 第十八刀: the extension's own document door (`code/turbulence`)
+    'fylite_ext_fyo_tree',
     'fylite_rs_tglf_linear', 'fylite_rs_tglf_units',
     //: the quasilinear flux chain.  It was in the artifact from the day the
     //: port landed and nothing asked for it, so its absence would never

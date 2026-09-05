@@ -471,6 +471,7 @@ pub const BRIDGED: &[&str] = &[
 
 /// 结构门那几个：**有意不桥**（见生成器抬头）。按名拒绝好过按名放行。
 pub const UNBRIDGED: &[&str] = &[
+    "fylite_ext_fyo_tree",  // 结构门：参数里有二级指针
     "fylite_rs_alloc",  // 分配与释放属于调用方那一侧
     "fylite_rs_free",  // 分配与释放属于调用方那一侧
     "fylite_rs_fyo",  // 结构门：参数里有二级指针

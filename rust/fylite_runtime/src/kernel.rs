@@ -51,6 +51,11 @@ pub struct Kernel {
     /// rather than the loader refusing the whole library — the keyed door
     /// still works on such a kernel, and saying so beats a missing-symbol crash.
     fyo_tree: Option<FyoTreeFn>,
+    //: ★第十八刀 (2026-09-05): the EXTENSION's door (`fylite_ext_fyo_tree`, the
+    //: turbulent closure the core does not carry) — linked in beside the core, or
+    //: the sibling `libfylite_kernel_ext.so` of a dlopen'd kernel; a code the core
+    //: refuses as unknown (-30) is tried there
+    ext_tree: Option<FyoTreeFn>,
     free: FreeFn,
 }
 
@@ -146,6 +151,14 @@ extern "C" {
         out_ints: *mut *mut i64, out_n_ints: *mut u64) -> i32;
     fn fylite_rs_free(p: *mut u8, n: u64);
     fn fylite_rs_abi_version() -> u32;
+    fn fylite_ext_fyo_tree(
+        code: *const u8, code_n: u64,
+        nodes: *const u32, n_nodes: u64, names: *const u8, names_n: u64,
+        f64s: *const f64, n_f64: u64, ints: *const i64, n_ints: u64,
+        out_nodes: *mut *mut u32, out_n_nodes: *mut u64,
+        out_names: *mut *mut u8, out_names_n: *mut u64,
+        out_f64s: *mut *mut f64, out_n_f64: *mut u64,
+        out_ints: *mut *mut i64, out_n_ints: *mut u64) -> i32;
 }
 
 impl Kernel {
@@ -161,6 +174,7 @@ impl Kernel {
             abi_version: Some(unsafe { fylite_rs_abi_version() }),
             fyo: fylite_rs_fyo,
             fyo_tree: Some(fylite_rs_fyo_tree),
+            ext_tree: Some(fylite_ext_fyo_tree),
             free: fylite_rs_free,
         }
     }
@@ -236,7 +250,18 @@ impl Kernel {
             let f: AbiFn = unsafe { std::mem::transmute(p) };
             unsafe { f() }
         });
-        Ok(Kernel { path: path.to_path_buf(), abi_version, fyo, fyo_tree, free })
+        //: the extension beside it, when the build shipped one (its own door)
+        let ext_tree: Option<FyoTreeFn> = path.file_name().and_then(|f| f.to_str()).and_then(|f| {
+            let sibling = path.with_file_name(f.replace("libfylite_kernel", "libfylite_kernel_ext"));
+            if sibling == path || !sibling.is_file() { return None; }
+            let c = CString::new(sibling.to_string_lossy().as_bytes()).ok()?;
+            let h = unsafe { dlopen(c.as_ptr(), RTLD_NOW) };
+            if h.is_null() { return None; }
+            let cs = CString::new("fylite_ext_fyo_tree").unwrap();
+            let p = unsafe { dlsym(h, cs.as_ptr()) };
+            if p.is_null() { None } else { Some(unsafe { std::mem::transmute::<*mut c_void, FyoTreeFn>(p) }) }
+        });
+        Ok(Kernel { path: path.to_path_buf(), abi_version, fyo, fyo_tree, ext_tree, free })
     }
 
     /// Complete one case: the code, its numeric and text settings, and its
@@ -315,12 +340,32 @@ impl Kernel {
         let (mut on, mut onn, mut om, mut oml, mut of, mut onf, mut oi, mut oni) = (
             std::ptr::null_mut::<u32>(), 0u64, std::ptr::null_mut::<u8>(), 0u64,
             std::ptr::null_mut::<f64>(), 0u64, std::ptr::null_mut::<i64>(), 0u64);
-        let rc = unsafe {
-            door(code.as_ptr(), code.len() as u64,
-                 b.nodes.as_ptr(), b.n_nodes() as u64, b.names.as_ptr(), b.names.len() as u64,
-                 b.f64s.as_ptr(), b.f64s.len() as u64, b.ints.as_ptr(), b.ints.len() as u64,
-                 &mut on, &mut onn, &mut om, &mut oml, &mut of, &mut onf, &mut oi, &mut oni)
+        let knock = |door: FyoTreeFn, on: &mut *mut u32, onn: &mut u64, om: &mut *mut u8, oml: &mut u64,
+                     of: &mut *mut f64, onf: &mut u64, oi: &mut *mut i64, oni: &mut u64| -> i32 {
+            unsafe {
+                door(code.as_ptr(), code.len() as u64,
+                     b.nodes.as_ptr(), b.n_nodes() as u64, b.names.as_ptr(), b.names.len() as u64,
+                     b.f64s.as_ptr(), b.f64s.len() as u64, b.ints.as_ptr(), b.ints.len() as u64,
+                     on, onn, om, oml, of, onf, oi, oni)
+            }
         };
+        let mut rc = knock(door, &mut on, &mut onn, &mut om, &mut oml, &mut of, &mut onf, &mut oi, &mut oni);
+        //: ★-30 is「no such code」: the extension's door completes what the core
+        //: does not carry (第十八刀: `code/turbulence`); the core's refusal tree is
+        //: released first
+        if rc == -30 {
+            if let Some(ext) = self.ext_tree {
+                unsafe {
+                    if !on.is_null() { (self.free)(on as *mut u8, onn * 32); }
+                    if !om.is_null() { (self.free)(om, oml); }
+                    if !of.is_null() { (self.free)(of as *mut u8, onf * 8); }
+                    if !oi.is_null() { (self.free)(oi as *mut u8, oni * 8); }
+                }
+                on = std::ptr::null_mut(); onn = 0; om = std::ptr::null_mut(); oml = 0;
+                of = std::ptr::null_mut(); onf = 0; oi = std::ptr::null_mut(); oni = 0;
+                rc = knock(ext, &mut on, &mut onn, &mut om, &mut oml, &mut of, &mut onf, &mut oi, &mut oni);
+            }
+        }
         let nodes: Vec<u32> = if on.is_null() || onn == 0 { Vec::new() } else {
             unsafe { std::slice::from_raw_parts(on, onn as usize * crate::tree::NODE_WORDS) }.to_vec() };
         let names: Vec<u8> = if om.is_null() || oml == 0 { Vec::new() } else {

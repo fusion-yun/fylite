@@ -471,8 +471,12 @@
   function completeSync(fy, code, plan, base) {
     var e = fy && fy.e;
     if (!e) throw new Error('FyKernelApi.completeSync: no kernel handle');
-    if (fy.via === 'api' || typeof e.fylite_rs_fyo_tree !== 'function') {
-      if (typeof e.fylite_rs_fyo_tree !== 'function' && fy.via !== 'api') {
+    //: ★第十八刀: the extension module has a door of its own (`fylite_ext_fyo_tree`,
+    //: the turbulent closure) — the same four segments, under its own name
+    var door = typeof e.fylite_rs_fyo_tree === 'function' ? e.fylite_rs_fyo_tree
+             : (typeof e.fylite_ext_fyo_tree === 'function' ? e.fylite_ext_fyo_tree : null);
+    if (fy.via === 'api' || !door) {
+      if (!door && fy.via !== 'api') {
         throw new Error('this kernel has no fylite_rs_fyo_tree — rebuild it (ABI >= 126)');
       }
       var x = new XMLHttpRequest();
@@ -502,7 +506,7 @@
     new Float64Array(mem.buffer, pF64, b.f64s.length).set(b.f64s);
     new BigInt64Array(mem.buffer, pInts, b.ints.length).set(b.ints);
     new Uint8Array(mem.buffer, pOut, 64).fill(0);
-    var rc = e.fylite_rs_fyo_tree(
+    var rc = door(
       pCode, BigInt(codeB.length),
       pNodes, BigInt(b.nodes.length / 8), pNames, BigInt(b.names.length),
       pF64, BigInt(b.f64s.length), pInts, BigInt(b.ints.length),
