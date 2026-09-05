@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'db65a7eb8502e645'
+DIGEST = '7631ac08b193ed2f'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -126,6 +126,18 @@ TABLES = {
             'control_r': {"path": 'fylite:control_r', "units": 'm', "rank": '1d'},
             'control_z': {"path": 'fylite:control_z', "units": 'm', "rank": '1d'},
             'control_w': {"path": 'fylite:control_w', "units": '1', "rank": '1d'},
+            'ip': {"path": 'fylite:ip', "units": 'A', "rank": '1d'},
+            'flux_loop': {"path": 'fylite:flux_loop', "units": 'Wb/rad', "rank": '1d'},
+            'loop_weight': {"path": 'fylite:loop_weight', "units": '1', "rank": '1d'},
+            'probe_field': {"path": 'fylite:probe_field', "units": 'T', "rank": '1d'},
+            'probe_weight': {"path": 'fylite:probe_weight', "units": '1', "rank": '1d'},
+            'b_tor': {"path": 'fylite:b_tor', "units": 'T', "rank": '1d'},
+            'pressure': {"path": 'fylite:pressure', "units": 'Pa', "rank": '1d'},
+            'pressure_x': {"path": 'fylite:pressure_x', "units": '1', "rank": '1d'},
+            'current_source': {"path": 'fylite:current_source', "units": 'A/m^2', "rank": '1d'},
+            'fsa_x': {"path": 'fylite:fsa_x', "units": '1', "rank": '1d'},
+            'fsa_shape': {"path": 'fylite:fsa_shape', "units": '1', "rank": '1d'},
+            'fsa_weight': {"path": 'fylite:fsa_weight', "units": '1', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -235,6 +247,7 @@ BLOCKS = {
         {'key': 'breakdown', 'shape': '', 'units': 'assembled', 'gloss': "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march"},
         {'key': 'discharge', 'shape': '', 'units': 'assembled', 'gloss': "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march"},
         {'key': 'pulse', 'shape': '', 'units': 'assembled', 'gloss': "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints"},
+        {'key': 'reconstruction', 'shape': '', 'units': 'assembled', 'gloss': 'one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit'},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
@@ -482,4 +495,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'weight']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'flux_loop', 'i_max_aturn', 'ip', 'length', 'max_power', 'n_parallel', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'weight']

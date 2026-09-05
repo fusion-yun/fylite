@@ -106,6 +106,10 @@
       "gated": false,
       "gloss": "Stored fast-ion energy [J] of a beam deposition. Not gated: the deposition result dict spells it the same way."
     },
+    "flux_loop": {
+      "gated": false,
+      "gloss": "The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`). Not gated: `flux_loop` is also the DD's own name for the loop array under magnetics, which both hosts spell bare there."
+    },
     "i_max_aturn": {
       "gated": false,
       "gloss": "Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns. Not gated: `i_max_aturn` is also the ordinary keyword of design.breakdown and a case-recipe argument."
@@ -153,6 +157,14 @@
     "power_injected": {
       "gated": true,
       "gloss": "Power [W] a beam PUT IN, as against `power` (absorbed) beside it. The two differ by shinethrough and orbit loss, and reading one for the other overstates the heating — gated because neither host uses the name for anything else."
+    },
+    "pressure": {
+      "gated": false,
+      "gloss": "A delivered pressure profile [Pa] on uniform normalised flux, the kinetic constraint of a reconstruction (`code/reconstruction`; the rows sit at `pressure_x`). Not gated: `pressure` is the ordinary name of that profile in both hosts' measurement sets."
+    },
+    "probe_weight": {
+      "gated": true,
+      "gloss": "The fit weight of each poloidal-field probe reading (EFIT's fwtmp2), one per probe; absent, the device's own `weight` per probe applies (`code/reconstruction`). Gated: the hosts hold it under EFIT's name (fwtmp2), never bare under this one."
     },
     "psi_convention": {
       "gated": true,

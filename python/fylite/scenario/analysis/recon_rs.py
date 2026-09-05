@@ -331,413 +331,109 @@ def reconstruct(meas: dict, *, npp: int = 1, nff: int = 2,
     Returns a dict with the reconstruction (``psi`` in full flux [Wb] on the
     table grid) and the scalars the Fortran path reports under the same
     names, so the two are directly comparable.
+
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the fifth tool to sink): the recipe —
+    the loop / coil / probe / kinetic / vessel rows, the one inverse solve,
+    F · q · l_i · the 1-D profiles · the boundary — is
+    ``case.rs::reconstruction_case`` (``code/reconstruction``) now, one copy
+    for this host and the page.  This function maps the flat measurement
+    dict onto the discharge slots the kernel declares, builds the PLAN and
+    reads the RECORD back into the dict its callers know.  The row helpers
+    above (:func:`response_matrix`, :func:`probe_response`,
+    :func:`coil_loop_rows`) stay for the gates that measure them.
     """
     #: ★loud up front, not at whichever kernel call happens to come first:
     #: this routine is a long chain of them and "no kernel" is one answer,
     #: not a dozen different ones depending on where the chain got to.
-    kernel.require()
-
-    box = device.grid_box()
-    rg = np.ascontiguousarray(np.asarray(box["rgrid"], float))
-    zg = np.ascontiguousarray(np.asarray(box["zgrid"], float))
-    nr, nz = rg.size, zg.size
-
-    #: ★ONE resolution of the machine for the whole fit.  The external flux
-    #: and the loops' coil rows are the same Green's function contracted at
-    #: two places, so they take the same conductor set — resolving twice is
-    #: how one of them ends up describing a different machine than the other.
-    cond = device.conductor_set()
-    aturns = np.asarray(meas["brsp"], float)
-    psi_ext = device.psi_from_channels(cond, rg, zg, aturns)
-
-    lm = response_matrix(rg, zg)
-    # loops see coils + plasma; the fit solves for the plasma part only
-    rsilfc = coil_loop_rows(cond)
-    b_loops = np.asarray(meas["coils"], float) - rsilfc @ aturns
-    wts = np.asarray(device.FWTSI_MASK, float)
-    if wts.size != b_loops.size:                      # pragma: no cover
-        raise ValueError(f"{wts.size} loop weights for {b_loops.size} loops")
-
-    # PROBE rows.  The loops constrain the plasma's total and its outboard
-    # reach; the probes are what senses the current DISTRIBUTION, and EFIT
-    # fits both.  Measured on the bundled case: loops alone leave the fit in
-    # a degenerate direction (li off 2.4x), probes bring it back.
-    #
-    # The solver applies ONE measurement scale to every row (the loops' EFIT
-    # Wb/rad convention, 1/2pi).  Probe rows are in tesla, so they are
-    # pre-multiplied by 2pi here and come out of that scaling in their own
-    # units — one visible factor instead of a second ABI parameter.
-    if probes:
-        prow, pang = probe_response(rg, zg)
-        from . import moments
-        b_pr, _, _, _, w_pr = moments.plasma_probe_field(
-            meas, weights=probe_weights)
-        n_pr = min(prow.shape[0], b_pr.size)
-        if float(np.max(np.abs(w_pr[:n_pr]))) > 0.0:
-            lm = np.vstack([lm, prow[:n_pr] * (2.0 * np.pi)])
-            b_loops = np.concatenate([b_loops, b_pr[:n_pr]])
-            wts = np.concatenate([wts, w_pr[:n_pr] * probe_weight_scale])
-    lm = np.ascontiguousarray(lm)
-    b_loops = np.ascontiguousarray(b_loops)
-    wts = np.ascontiguousarray(wts)
-
-    # optional pressure rows (kinetic tier)
-    pres = meas.get("pressure")
-    if pres is not None:
-        pres = np.asarray(pres, float)
-        xg = np.linspace(0.0, 1.0, pres.size)
-        xp = np.ascontiguousarray(
-            np.asarray(pressure_x, float) if pressure_x is not None
-            else np.linspace(0.1, 0.9, 9))
-        pmeas = np.ascontiguousarray(kernel.interp(xp, xg, pres))
-        scale = pressure_sigma_frac * float(np.abs(pmeas).max() or 1.0)
-        wp = np.ascontiguousarray(np.full(xp.size, 1.0 / scale))
-    else:
-        xp = pmeas = wp = np.zeros(1)
-
-    # prescribed (neoclassical) current: bootstrap and any driven current
-    # are known physics, so the fit is not asked to re-derive them.  The
-    # array is per INTERIOR cell, matching the solver's mask.
-    if current_source is None:
-        j_pre = np.zeros(1)
-    else:
-        j_pre = np.ascontiguousarray(np.asarray(current_source, float))
-        if j_pre.size != (nr - 2) * (nz - 2):
-            raise ValueError(
-                f"current_source has {j_pre.size} cells, expected "
-                f"{(nr - 2) * (nz - 2)} = (nr-2)*(nz-2)")
-
-    lr, lz = _limiter(limiter)
-
-    #: ★★THE VESSEL, when a caller asks for it.  Eddy currents in the
-    #: passive structure link the flux loops — the reference EFIT carries
-    #: them through ``rv6565.ddd``'s ``rsilvs``, and this path had no vessel
-    #: term at all.  Here they are FITTED, as forty channels of nominal zero
-    #: current with a prior width in amps, through the kernel entry that
-    #: already knows how to move a current from the right-hand side into the
-    #: parameter vector.
-    #:
-    #: ★Both responses are COMPUTED from the device document's own passive
-    #: geometry, exactly as the coil rows are (T-C37): a repository that
-    #: ships no ``rv6565.ddd`` can still ask this question.
-    #:
-    #: ★★★And the answer, measured on the reference discharge (T-C43).
-    #: 〔This comment used to say "the vessel buys very little, and
-    #: saturates", quoting a scan that stopped at sigma_v = 10 kA — while
-    #: the note it points at already ran to 30 kA, where the loop scatter
-    #: halves (3.82 -> 2.02 sigma) and the vertical feedback the fit needs
-    #: falls with it (69.9 -> 25.9 kA).  It does not saturate.〕
-    #:
-    #: ★★But what it buys there it buys by OVER-FITTING, and the shape of
-    #: the fitted current says so: poloidal harmonics m <= 3 explain 10.6 %
-    #: of it, neighbouring segments alternate at the kA level, and one
-    #: segment reaches 17.4 kA.  Truncating the eddy distribution to the
-    #: harmonics a passive structure can plausibly carry (``vessel_modes``)
-    #: takes all of it away again — every truncation from m <= 0 to m <= 5
-    #: leaves the scatter at 3.6…4.0 sigma and the feedback above 51 kA.
-    #: ⇒ **the leftover residual is not a missing passive current**, and
-    #: what it is instead is measured in ``tests/test_reconstruction.py``.
-    coil_block = None
-    if vessel_sigma is not None:
-        ves = cond["vessel"]
-        n_ves = len(ves)
-        v_psi = np.ascontiguousarray(
-            np.asarray(device.grid_response(ves, rg, zg), float)
-            .reshape(n_ves, nr * nz))
-        #: the rows are in each measurement row's OWN units — Wb/rad for a
-        #: loop, tesla for a probe — and take no ``meas_scale``
-        rsi_v, zsi_v = flux_loop_positions()
-        v_rows = [np.asarray(device.point_response(ves, rsi_v, zsi_v)[0],
-                             float) / (2.0 * np.pi)]
-        if wts.size > v_rows[0].shape[0]:
-            n_pr = wts.size - v_rows[0].shape[0]
-            geo = device.probe_geometry()
-            v_rows.append(np.asarray(device.probe_element_response(
-                ves, np.asarray(geo["r"], float)[:n_pr],
-                np.asarray(geo["z"], float)[:n_pr],
-                np.deg2rad(np.asarray(geo["angle_deg"], float)[:n_pr])),
-                float))
-        v_rows_m = np.vstack(v_rows)
-        if vessel_modes is not None:
-            #: ★★★A FEW degrees of freedom instead of forty: channel 0 is
-            #: the net current, then cos mθ and sin mθ up to
-            #: ``vessel_modes``, with θ measured about the machine centre.
-            #: A passive structure's eddy pattern is smooth in poloidal
-            #: angle; forty free segments are not, and the 40-channel fit
-            #: uses that freedom (above).  ``vessel_modes=0`` leaves only
-            #: the net current; passing nothing leaves all forty free.
-            #:
-            #: ★★★AND THE ANSWER IS NO — this is a negative result kept in
-            #: the tree because it excludes something.  Every truncation
-            #: measured (m <= 0, 1, 2, 3, 5 at sigma_v = 10 kA) leaves the
-            #: loop scatter at 3.6…4.0 sigma against 3.82 with no vessel at
-            #: all, and the vertical feedback at 51…56 kA against 69.9.  The
-            #: coherent up-down dipole the 40-channel fit contains (+15.9 kA
-            #: above the midplane, -18.1 kA below) is real, and on its own
-            #: it buys 3.82 -> 3.72 sigma.  ⇒ the 40-channel fit's 2.02 was
-            #: the INCOHERENT part, i.e. over-fitting.
-            zc_all = np.asarray([float(e.z) if hasattr(e, "z") else float(e[0].z)
-                                 for e in ves], float)
-            rc_all = np.asarray([float(e.r) if hasattr(e, "r") else float(e[0].r)
-                                 for e in ves], float)
-            th = np.arctan2(zc_all, rc_all - float(device.RCENTR))
-            modes = [np.ones_like(th)]
-            for m in range(1, int(vessel_modes) + 1):
-                modes += [np.cos(m * th), np.sin(m * th)]
-            f = np.asarray(modes, float)                    # (n_mode, n_ves)
-            v_psi = np.ascontiguousarray(f @ v_psi)
-            v_rows_m = np.ascontiguousarray(v_rows_m @ f.T)
-            n_ves = f.shape[0]
-        coil_block = dict(
-            coil_psi=v_psi,
-            coil_rows=np.ascontiguousarray(v_rows_m),
-            coil_currents=np.zeros(n_ves),
-            coil_sigma=np.full(n_ves, float(vessel_sigma)),
-            #: ★what a measurement weight of 1.0 stands for.  The deck ships
-            #: a 0/1 loop mask, which asserts one Wb/rad; the device
-            #: document also ships the real per-loop sigma, and the prior's
-            #: strength is meaningless against the wrong one.
-            meas_sigma=float(np.median(np.asarray(device.PSIBIT, float))))
-
-    #: ★the FSA rows and the fitted-conductor block are two different ABI
-    #: entries, and only one of them can take a given solve.  Say so.
-    if coil_block is not None and current_fsa is not None:
+    from ...io import fydoc
+    if current_fsa is not None and vessel_sigma is not None:
         raise TypeError(
             "vessel_sigma= and current_fsa= reach two different kernel "
             "entries (gs_inverse_solve_coils has no FSA-current rows); ask "
             "for one of them")
-    fsa_kw = {} if current_fsa is None else dict(
-        current_x=_fsa_field(current_fsa, "x"),
-        current_shape=_fsa_field(current_fsa, "shape"),
-        current_weights=current_fsa.get("weights"))
-
-    #: ★the marshalling is :mod:`fylite.kernel`'s.  This was the last module
-    #: outside it that still packed an ABI call itself, and the inverse
-    #: solve is the most argument-heavy entry there is — which is exactly
-    #: why its buffer sizing and its return-code check should exist once.
-    #:
-    #: ★★The two entries are written out, not selected into a variable, and
-    #: that is not style.  `test_no_scenario_module_reads_a_gfile_key` finds
-    #: the kernel's call SITE to decide which reads of ABI names are inside
-    #: the boundary and which are a scenario module rummaging in a deck; a
-    #: `solve = kernel.a if … else kernel.b` hides the site from it, and
-    #: every legitimate unpacking below then reads as a violation.  Measured
-    #: the moment the vessel block was added — the gate went red on five
-    #: lines that had not changed.
-    solve_kw = dict(
-        loops_m=lm, meas=b_loops, weights=wts,
-        #: loop convention: +full flux / 2 pi
-        meas_scale=1.0 / (2.0 * np.pi), npp=npp, nff=nff,
-        ip=float(meas["plasma"]), limiter_r=lr, limiter_z=lz,
-        pressure_x=None if pres is None else xp,
-        pressure_meas=None if pres is None else pmeas,
-        pressure_weights=None if pres is None else wp,
-        j_prescribed=None if j_pre.size <= 1 else j_pre,
-        relax=relax, max_iter=max_iter, tol=tol, fb_gain=fb_gain,
-        zc_anchor=zc_anchor, rc_anchor=rc_anchor, warmup=warmup)
-    if coil_block is None:
-        #: ★the FSA-current constraint (EFIT's KZEROJ/SIZEROJ/VZEROJ at
-        #: RZEROJ = 0).  It is a SHAPE — `j/<j>` over the given surfaces —
-        #: and the magnitude stays the Ip equality's; the kernel builds the
-        #: rows on the surfaces the CURRENT field has, every iteration.
-        #: ★★It and the vessel block are DIFFERENT ABI entries, so asking
-        #: for both is refused above rather than silently dropping one.
-        res = kernel.gs_inverse_solve(rg, zg, psi_ext, **fsa_kw, **solve_kw)
-    else:
-        res = kernel.gs_inverse_solve_coils(rg, zg, psi_ext, **coil_block,
-                                            **solve_kw)
-    psi, coefs, it = res["psi"], res["coefficients"], res["iterations"]
-    fsa_rows_used = res.get("fsa_rows_used")
-
-    psi_axis, psi_bnd = float(res["psi_axis"]), float(res["psi_bnd"])
-    axis_r, axis_z = float(res["axis_r"]), float(res["axis_z"])
-    ip = float(res["ip"])
-    #: ★★THE MACHINE'S, not a literal.  This was ``meas.get("rcentr", 1.85)``
-    #: — and the measurement dict has no ``rcentr`` key at all
-    #: (:func:`fylite.fyo.as_measurements` does not write one), so the
-    #: default ALWAYS fired and the reference radius of every reconstruction
-    #: this package produced was 1.85 m.  EAST's is **1.75 m**, which the
-    #: device document says and the reference discharge's own oracle
-    #: document agrees with (``vacuum_toroidal_field.r0``).  It is not
-    #: cosmetic: ``f_edge = |R₀B₀|`` sets F at the edge, F sets q, and every
-    #: delivered ``q``/``fpol``/``rcentr`` was 5.7 % out because of it.
-    #: ★It comes from the DOCUMENT and from nowhere else — not from the
-    #: measurement dict either.  ``rcentr`` is an EFIT deck spelling, and a
-    #: scenario module reading one away from the boundary is what
-    #: ``test_no_scenario_module_reads_a_gfile_key`` exists to stop: the
-    #: nominal geometric centre is a property of the MACHINE (the device
-    #: document's ``machine.r_centre``, which says so and says where it came
-    #: from), not of a slice's measurements.  A different machine states it
-    #: in its own document.
-    r0 = float(device.RCENTR)
-    #: ★And B₀ is a MEASUREMENT, so a missing one is refused rather than
-    #: guessed.  The old fallback was ``1.75 * 1.8`` — EAST's nominal
-    #: vacuum field, written into a machine-neutral module, and it would
-    #: have produced a full reconstruction with somebody else's toroidal
-    #: field in it without a word.
+    sel = limiter or os.environ.get("KEFIT_LIMITER")
+    if sel and sel not in _LIMITER_ALIASES:
+        raise ValueError(
+            f"limiter={sel!r} names a file; the document door takes the wall "
+            f"unit by its DD name ({', '.join(sorted(set(_LIMITER_ALIASES.values())))})")
     b0 = float(meas.get("btor", 0.0))
     if not b0:
         raise KefitRunError(
             "no toroidal field in the measurement set: F at the plasma edge "
             "is |R0 B0| and B0 is measured, not a property of the machine. "
             "Pass 'btor' (T at R0) with the measurements.")
-    f_edge = abs(r0 * b0)
-    #: ★★THE KERNEL'S SIGN.  ``span_pr`` is ``(psi_axis - psi_bnd)/2pi``
-    #: everywhere below the ABI — `inverse.rs` computes exactly that for its
-    #: pressure rows (`(psi_b - psi_a)/(-2pi)`), and it is what the closed
-    #: form of F requires: d(F²)/dpsi = 2FF' integrates to
-    #: ``F² = F_edge² + 2 span_pr A(x)`` only with the axis-minus-boundary
-    #: span.  This line had it the other way round, so the two consumers of
-    #: it both came out wrong in a way nothing raised: the reported pressure
-    #: profile carried the WRONG SIGN (a delivered g-file with negative
-    #: pressure — measured −1.065e4 Pa on axis where the fit's own kinetic
-    #: rows had matched +1.07e4), and F — hence q — was integrated the wrong
-    #: way along psi (F(0) 3.024 instead of 3.610 on the reference
-    #: discharge).  ★It survived because the only test of this arithmetic
-    #: compares `fit_profiles` against `f_from_coefficients` — and BOTH are
-    #: handed this same number, so a sign error cancels inside the check.
-    span_perrad = (psi_axis - psi_bnd) / (2.0 * np.pi)
-    cff = coefs[npp:]
-
-    def fpol_of_x(x):
-        #: the kernel's closed form of the fit's edge-zeroed FF' basis —
-        #: exact, where a quadrature would put a discretisation error into
-        #: a quantity that has none
-        return kernel.f_from_coefficients(cff, x, span_pr=span_perrad,
-                                          f_edge=f_edge)
-
-    #: F on the label the kernel reads it on.  A callback cannot cross the
-    #: ABI and this profile is what the coefficients mean anyway.
-    f_x = np.linspace(0.0, 1.0, 65)
-    grid = kernel.grid_of(rg, zg)
-    q = kernel.q_profile(grid, psi, psi_axis=psi_axis, psi_bnd=psi_bnd,
-                         axis=(axis_r, axis_z), limiter=(lr, lz),
-                         f_x=f_x, f_val=np.array([fpol_of_x(v) for v in f_x]),
-                         n_q=12, x_lo=0.02, x_hi=0.95)
-    li = kernel.li3(grid, psi, psi_axis=psi_axis, psi_bnd=psi_bnd,
-                    ip=ip, r0=r0)
-
-    #: ★★The 1-D profiles and the boundary, so the result is a whole
-    #: equilibrium rather than a psi map with summary numbers beside it.
-    #: Without them a caller holding this dict could not hand it to any model
-    #: — `fyo.as_equilibrium` had nothing to build a document from — and the
-    #: only bridge was to write a g-file and parse it back, through a fixed
-    #: format with fewer digits than a float64.  `loop.py` did exactly that,
-    #: twice per iteration.
-    #:
-    #: ★The basis is the SOLVE's own, read off `inverse.rs`'s current
-    #: construction rather than reconstructed from the paper:
-    #: `j_phi = R p'(psi) + FF'(psi)/(mu0 R)` is assembled there from
-    #: `r * (x^k - x^npp)` and `(x^k - x^nff) / (mu0 r)`, so those ARE the
-    #: two edge-zeroed bases and the coefficients need no rescaling.
-    #: `test_recon_profiles.py` pins that reading against the kernel's own
-    #: `f_from_coefficients` integral, which is an independent path to F.
-    prof1d = fit_profiles(coefs, npp=npp, nff=nff,
-                          span_perrad=span_perrad, f_edge=f_edge)
-    xg1 = prof1d["psin"]
-    #: ★q comes off the traced ladder, which spans [x_lo, x_hi] and not the
-    #: full [0, 1].  `to_uniform_extrap` is the KERNEL's extrapolation of a
-    #: profile traced over an interior range — the same rule that produced
-    #: `q0` and `q95` above, rather than a second one invented here.
-    qpsi = np.asarray(kernel.to_uniform_extrap(q["x"], q["q"], N_PROFILE), float)
-    bnd = kernel.trace_surface(grid, psi, psi_bnd,
-                               axis=(axis_r, axis_z), limiter=(lr, lz))
-    bpoly = np.asarray(bnd["poly"], float)[:int(bnd["n"])]
-
+    disc = {"fylite:channel_aturns": np.asarray(meas["brsp"], float),
+            "fylite:ip": np.array([float(meas["plasma"])]),
+            "fylite:flux_loop": np.asarray(meas["coils"], float),
+            "fylite:b_tor": np.array([b0])}
+    if probes and "expmp2" in meas:
+        disc["fylite:probe_field"] = np.asarray(meas["expmp2"], float)
+        n_pr = disc["fylite:probe_field"].size
+        if probe_weights is not None:
+            disc["fylite:probe_weight"] = np.asarray(probe_weights, float)[:n_pr]
+        elif meas.get("fwtmp2") is not None:
+            disc["fylite:probe_weight"] = np.asarray(meas["fwtmp2"], float)[:n_pr]
+    pres = meas.get("pressure")
+    if pres is not None:
+        disc["fylite:pressure"] = np.asarray(pres, float)
+        if pressure_x is not None:
+            disc["fylite:pressure_x"] = np.asarray(pressure_x, float)
+    if current_source is not None:
+        disc["fylite:current_source"] = np.asarray(current_source, float).ravel()
+    if current_fsa is not None:
+        disc["fylite:fsa_x"] = np.asarray(_fsa_field(current_fsa, "x"), float)
+        disc["fylite:fsa_shape"] = np.asarray(_fsa_field(current_fsa, "shape"), float)
+        if current_fsa.get("weights") is not None:
+            disc["fylite:fsa_weight"] = np.asarray(current_fsa["weights"], float)
+    settings = {"npp": float(npp), "nff": float(nff), "probes": 1.0 if probes else 0.0,
+                "probe_weight_scale": float(probe_weight_scale),
+                "pressure_sigma_frac": float(pressure_sigma_frac),
+                "relax": float(relax), "max_iter": float(max_iter), "tol": float(tol),
+                "fb_gain": float(fb_gain), "warmup": float(warmup),
+                "limiter": _LIMITER_ALIASES.get(sel or "default", "m-file")}
+    if vessel_sigma is not None:
+        settings["vessel_sigma"] = float(vessel_sigma)
+    if vessel_modes is not None:
+        settings["vessel_modes"] = float(vessel_modes)
+    if zc_anchor is not None:
+        settings["zc_anchor"] = float(zc_anchor)
+    if rc_anchor is not None:
+        settings["rc_anchor"] = float(rc_anchor)
+    rec = fydoc.complete("code/reconstruction",
+                         {"settings": settings, "inputs": {"device": device.document(), "discharge": disc}})
+    f = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    rg, zg = arr("grid_r"), arr("grid_z")
+    nr, nz = rg.size, zg.size
+    bpoly = arr("boundary").reshape(-1, 2)
+    q = {"x": arr("q_x"), "q": arr("q"), "q0": f("q0"), "q95": f("q95")}
     return {
         "backend": "rust", "result_source": "memory",
-        "psi": psi, "rgrid": rg, "zgrid": zg,
-        "psi_axis": psi_axis, "psi_bry": psi_bnd,
-        "rmaxis": axis_r, "zmaxis": axis_z, "ip": ip,
-        "q0": q["q0"], "q95": q["q95"], "q_profile": q, "ali": li,
-        "coefs": coefs, "npp": npp, "nff": nff,
-        "iterations": int(it), "residual": float(res["residual"]),
-        #: ★★Whether the Picard loop reached the tolerance IT WAS ASKED FOR,
-        #: stated by the code that knows both numbers.  It is here because
-        #: the acceptance register needs a criterion this entry can actually
-        #: meet: the shipped one scored `terror` and `chi_pressure`, two
-        #: fields of the EFIT driver's result that left with the driver, so
-        #: every delivered reconstruction came back `unevaluated` on both —
-        #: diligent-looking, and scoring nothing.  ★A run that stopped at
-        #: `max_iter` with a residual above `tol` is exactly the case a
-        #: caller must not read as a settled fit.
-        "converged": bool(float(res["residual"]) <= float(tol)),
-        "bnd_kind": int(res["bnd_kind"]), "fb_amp": float(res["fb_amp"]),
-        #: ★★the RADIAL feedback's amplitude, at last.  This module's own
-        #: docstring called out its absence twice as a defect — "a quantity a
-        #: solve puts into the answer and does not report is a quantity
-        #: nobody can check" — while going on not to report it.  It is zero
-        #: on the default path (the radial anchor is a row since
-        #: 2026-08-31) and non-zero through `FY_ANCHOR_W=0`, which is
-        #: exactly the comparison it is needed for.
-        "fb_amp_r": float(res["fb_amp_r"]),
-        #: ★how many directions the CONDIN truncation left the fit, out of
-        #: `npp + nff + <fitted channels>`; -1 means no fit ran.
-        "trunc_keep": int(res["trunc_keep"]),
-        #: ★★the fitted vessel currents [A], when they were fitted.  A
-        #: quantity a solve puts into the answer and does not report is a
-        #: quantity nobody can check.  〔This comment used to add "this path
-        #: already has one such — `fb_amp_r`, reported nowhere".  It is
-        #: reported now, in the slot beside `fb_amp`.〕
-        **({} if "coil_fit" not in res
-           else {"vessel_current": np.asarray(res["coil_fit"], float)}),
+        "psi": arr("psi").reshape(nr, nz), "rgrid": rg, "zgrid": zg,
+        "psi_axis": f("psi_axis"), "psi_bry": f("psi_bnd"),
+        "rmaxis": f("axis_r"), "zmaxis": f("axis_z"), "ip": f("ip"),
+        "q0": q["q0"], "q95": q["q95"], "q_profile": q, "ali": f("li3"),
+        "coefs": arr("coefficients"), "npp": npp, "nff": nff,
+        "iterations": int(f("iterations")), "residual": f("residual"),
+        "converged": bool(f("converged")),
+        "bnd_kind": int(f("bnd_kind")), "fb_amp": f("fb_amp"),
+        "fb_amp_r": f("fb_amp_r"),
+        "trunc_keep": int(f("trunc_keep")),
+        **({} if "vessel_current" not in rec["fields"]
+           else {"vessel_current": arr("vessel_current")}),
         "rleft": float(rg[0]), "rdim": float(rg[-1] - rg[0]),
         "zmid": float(0.5 * (zg[0] + zg[-1])),
         "zdim": float(zg[-1] - zg[0]), "nw": nr, "nh": nz,
-        #: ★WHERE THE MACHINE CAME FROM — one directory, because there is
-        #: now one source.  This field used to be the Green-table directory
-        #: (``tables``), which named a second place device facts could come
-        #: from; the last read from one is gone, so what a result has to
-        #: record is the device description it was fitted against.
         "device": str(device.data_dir()),
-        #: ★None when no current constraint was asked for; a NUMBER when
-        #: one was — and it is the number of rows that reached the fit, not
-        #: the number requested.
-        "fsa_rows_used": fsa_rows_used,
-        #: the whole equilibrium: profiles on a uniform psi_N grid, and the
-        #: boundary this solve actually settled on
-        #: ★the result dict keeps EFIT's spellings — it is a wire contract
-        #: (`engine.cli`, `engine.serve`) and renaming it is a separate,
-        #: user-visible change.  `fyo.reconstruction` is where they stop.
-        "psin_1d": xg1, "fpol": prof1d["f"], "pres": prof1d["pressure"],
-        "ffprim": prof1d["f_df_dpsi"], "pprime": prof1d["dpressure_dpsi"],
-        "qpsi": qpsi,
+        "fsa_rows_used": None if current_fsa is None else int(f("fsa_rows_used")),
+        "psin_1d": arr("psin_1d"), "fpol": arr("fpol"), "pres": arr("pres"),
+        "ffprim": arr("ffprim"), "pprime": arr("pprime"),
+        "qpsi": arr("qpsi"),
         "rbbbs": bpoly[:, 0], "zbbbs": bpoly[:, 1],
-        "rcentr": r0, "bcentr": b0,
-        "rlim": np.asarray(lr, float), "zlim": np.asarray(lz, float),
+        "rcentr": f("rcentr"), "bcentr": b0,
+        "rlim": arr("limiter_r"), "zlim": arr("limiter_z"),
     }
 
-
-#: ★``bootstrap_source`` was here: 134 lines putting NEO's bootstrap SHAPE on
-#: the grid with a caller-supplied magnitude (``f_bs``).  Deleted 2026-08-21.
-#:
-#: It had NO CALLER and NO TEST, and the argument its docstring made for the
-#: shape/magnitude split had just expired: "this package has never
-#: denormalized NEO's absolute ``<j_par B>``" stopped being true when
-#: :func:`fylite.kernel.neo_current_unit` landed and was checked against the
-#: standard bootstrap-fraction estimate.  So what remained was untested,
-#: unreachable code justified by a fact that no longer held — the shape of
-#: thing that is kept out of politeness and then trusted by somebody.
-#:
-#: What replaces it, for a caller who wants a bootstrap current on a grid:
-#: :func:`fylite.fyo.neoclassical_source` for the profile (in A/m², from any
-#: of the four backends), handed to :func:`reconstruct`'s ``current_source=``,
-#: which is the per-interior-cell array the solve actually takes.
-
-
-
-# ---------------------------------------------------------------------------
-# Orchestration over a scan
-#
-# ★★This came out of the deleted EFIT driver, and it belongs here rather than
-# there.  Running a list of times, isolating a slice that blew up, keeping a
-# structured per-slice report and resuming from a prior one — none of that is
-# equilibrium solving.  It is ORCHESTRATION, which under the architecture the
-# project settled on is Python's half of the split, while physics and numerics
-# live in the kernel.  It went out with run.py only because that is where it
-# happened to be written, and it comes back attached to the solver that
-# survived.
-# ---------------------------------------------------------------------------
 
 def _slice_status(result: dict) -> tuple[str, dict]:
     """Reduce one slice's per-diagnostic status → (``ok``|``partial``, detail)."""

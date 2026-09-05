@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "db65a7eb8502e645";
+pub const DIGEST: &str = "7631ac08b193ed2f";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -120,6 +120,18 @@ pub const TABLES: &[Table] = &[
         Slot { key: "control_r", path: "fylite:control_r", units: "m", rank: "1d" },
         Slot { key: "control_z", path: "fylite:control_z", units: "m", rank: "1d" },
         Slot { key: "control_w", path: "fylite:control_w", units: "1", rank: "1d" },
+        Slot { key: "ip", path: "fylite:ip", units: "A", rank: "1d" },
+        Slot { key: "flux_loop", path: "fylite:flux_loop", units: "Wb/rad", rank: "1d" },
+        Slot { key: "loop_weight", path: "fylite:loop_weight", units: "1", rank: "1d" },
+        Slot { key: "probe_field", path: "fylite:probe_field", units: "T", rank: "1d" },
+        Slot { key: "probe_weight", path: "fylite:probe_weight", units: "1", rank: "1d" },
+        Slot { key: "b_tor", path: "fylite:b_tor", units: "T", rank: "1d" },
+        Slot { key: "pressure", path: "fylite:pressure", units: "Pa", rank: "1d" },
+        Slot { key: "pressure_x", path: "fylite:pressure_x", units: "1", rank: "1d" },
+        Slot { key: "current_source", path: "fylite:current_source", units: "A/m^2", rank: "1d" },
+        Slot { key: "fsa_x", path: "fylite:fsa_x", units: "1", rank: "1d" },
+        Slot { key: "fsa_shape", path: "fylite:fsa_shape", units: "1", rank: "1d" },
+        Slot { key: "fsa_weight", path: "fylite:fsa_weight", units: "1", rank: "1d" },
     ] },
     Table { name: "EQUILIBRIUM", doc_type: "fyo:equilibrium", slots: &[
         Slot { key: "ip", path: "time_slice/global_quantities/ip", units: "A", rank: "0d" },
@@ -206,6 +218,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "breakdown", shape: "", units: "assembled", gloss: "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march" },
         Row { key: "discharge", shape: "", units: "assembled", gloss: "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march" },
         Row { key: "pulse", shape: "", units: "assembled", gloss: "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints" },
+        Row { key: "reconstruction", shape: "", units: "assembled", gloss: "one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },
@@ -448,4 +461,4 @@ pub const ENTRIES: &[Entry] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "fast_energy", "i_max_aturn", "ip", "length", "max_power", "n_parallel", "name", "null_r", "null_z", "orbit_loss_fraction", "page", "pitch", "power_injected", "psi_convention", "psi_norm", "q", "q_psi_norm", "reconstructed", "result", "shinethrough", "target", "time", "trapped_fraction", "truth", "verify", "weight"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "channel_aturns", "channel_basis", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "deposited", "dvolume", "equilibrium", "eta_cd", "fast_energy", "flux_loop", "i_max_aturn", "ip", "length", "max_power", "n_parallel", "name", "null_r", "null_z", "orbit_loss_fraction", "page", "pitch", "power_injected", "pressure", "probe_weight", "psi_convention", "psi_norm", "q", "q_psi_norm", "reconstructed", "result", "shinethrough", "target", "time", "trapped_fraction", "truth", "verify", "weight"];

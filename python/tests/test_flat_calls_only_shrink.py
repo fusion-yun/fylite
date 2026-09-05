@@ -35,7 +35,7 @@ BASELINE = {
     'scenario/analysis/__init__.py': 2,
     'scenario/analysis/loop.py': 4,
     'scenario/analysis/moments.py': 2,
-    'scenario/analysis/recon_rs.py': 12,
+    'scenario/analysis/recon_rs.py': 3,
     'scenario/control/evolution.py': 1,
     'scenario/control/stability.py': 6,
     'scenario/control/vertical.py': 1,
