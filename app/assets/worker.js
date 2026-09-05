@@ -964,6 +964,56 @@ function rng(seed) {
 // LOOPS on every member, which is a different experiment from the one the
 // error bars claim to be.
 
+/**
+ * The twin's truth off `code/forward` (第三十二刀): one free-boundary solve on
+ * the channel currents and the analytic profile, then everything a twin
+ * synthesises from that field — the profiles and cell current the family
+ * implies, the loop model through the loop rows, the FULL field at every
+ * probe on its own angle, q.  `opts` as `freeSolve` took them (`psiExt` for
+ * an injected vessel, `psiInit` for a warm start, the two anchors).
+ *
+ * ★The external flux is always HANDED OVER, never left for the door to
+ * assemble: the page's channel cache and the kernel's element fold sum the
+ * same Green's functions in a different order, and a twin whose readings
+ * moved by an ulp between the two would be a different shot.
+ */
+function forwardTruth(chan, prof, ip, opts) {
+  opts = opts || {};
+  var settings = {
+    beta0: prof.beta0, emp: prof.emp, enp: prof.enp, r0: prof.r0,
+    relax: opts.relax || 0.3, max_iter: opts.maxIter || 600,
+    tol: opts.tol || 1e-9, fb_gain: opts.fbGain === undefined ? 8.0 : opts.fbGain,
+    n_profile: 201, n_q: 20, n_theta: 121, x_lo: 0.06, x_hi: 1 - P.BOUNDARY_INSET,
+  };
+  if (opts.zcAnchor !== undefined) settings.zc_anchor = opts.zcAnchor;
+  if (opts.rcAnchor !== undefined) settings.rc_anchor = opts.rcAnchor;
+  var inputs = { device: deviceDoc(),
+                 discharge: { 'fylite:channel_aturns': Float64Array.from(chan), 'fylite:ip': [ip],
+                              'fylite:psi_ext': Float64Array.from(opts.psiExt || psiExtOf(chan)) } };
+  if (opts.psiInit)
+    inputs.equilibrium = { time_slice: { profiles_2d: { psi: Float64Array.from(opts.psiInit) } } };
+  var rec = fy.complete('code/forward', { settings: settings, inputs: inputs });
+  var X = function (k) { return rec.facts[k].value; };
+  var F = function (k) { return rec.fields[k] ? fieldFlat(rec, k) : null; };
+  var res = { psi: F('psi'), iterations: X('iterations'), psiAxis: X('psi_axis'),
+              psiBnd: X('psi_bnd'), axisR: X('axis_r'), axisZ: X('axis_z'),
+              ip: X('ip'), residual: X('residual'), bndKind: X('bnd_kind'),
+              xptR: X('xpt_r'), xptZ: X('xpt_z'), fbAmp: X('fb_amp'), zc: X('zc'),
+              converged: X('converged') === 1, settled: X('settled') === 1,
+              tol: settings.tol, maxIter: settings.max_iter };
+  var p = F('pres'), m = p.length;
+  var tp = { x: F('psin_1d'), pprime: F('pprime'), ffprime: F('ffprim'), p: p,
+             jc: X('jc'), spanPr: X('span_pr'),
+             //: the interpolator stays on this side: a convenience for the
+             //: page, not part of what the field implies
+             pAt: function (xq) {
+               var u = xq * (m - 1), k = Math.min(m - 2, Math.max(0, u | 0));
+               return p[k] + (u - k) * (p[k + 1] - p[k]);
+             } };
+  return { res: res, prof: tp, cur: F('current'), loops: F('loop_model'), probes: F('probe_field'),
+           q: { x: F('q_x'), q: F('q'), f: F('fpol'), q0: X('q0'), q95: X('q95') } };
+}
+
 /** What every member of a run shares: measurements, weights, Ip, the twin. */
 function reconInputs(msg) {
   var chan = Float64Array.from(msg.chan);
@@ -994,19 +1044,19 @@ function reconInputs(msg) {
         inp.vesselTruth = vTruth;
       }
     }
-    // 1. truth: a forward free-boundary solve
-    var t = freeSolve(chan, msg.prof, msg.ip,
-                      vExt ? Object.assign({}, msg.solve, { psiExt: vExt })
-                           : msg.solve);
+    // 1-3. the truth: one forward free-boundary solve, the current
+    //      distribution and profiles it implies, the loop readings through
+    //      the SAME rows the fit uses — `code/forward` (第三十二刀)
+    var fw = forwardTruth(chan, msg.prof, msg.ip,
+                          vExt ? Object.assign({}, msg.solve, { psiExt: vExt })
+                               : msg.solve);
+    var t = fw.res;
     inp.truthRes = t;
     inp.truth = summarize(t);
-    // 2. the current distribution the solver actually built, and the
-    //    profiles it implies (recovered from the converged field)
-    inp.truthProf = P.analyticTruth(grid, t, msg.prof, M.limiter.r,
-                                    M.limiter.z, 201);
-    inp.truthCur = P.fittedCurrentAnalytic(grid, t, msg.prof, inp.truthProf);
-    // 3. synthetic loop readings through the SAME rows the fit uses
-    meas = P.loopModel(loopsM, inp.truthCur, grid, MEAS_SCALE);
+    inp.truthProf = fw.prof;
+    inp.truthCur = fw.cur;
+    inp.truthQ = fw.q;
+    meas = fw.loops;
     //: the loops see the vessel's own flux too — without this the injected
     //: currents would be invisible to the very measurement that has to
     //: recover them
@@ -1022,17 +1072,7 @@ function reconInputs(msg) {
     //: to import.  A probe reads the FULL field, coils and vessel included,
     //: so this is taken off the truth's own psi map rather than off the
     //: plasma's contribution.
-    if (M.probes && M.probes.length) {
-      var prR = Float64Array.from(M.probes, function (p) { return p.r; });
-      var prZ = Float64Array.from(M.probes, function (p) { return p.z; });
-      var bfT = P.bField(grid, t.psi, prR, prZ);
-      var bT = new Float64Array(M.probes.length);
-      for (d = 0; d < M.probes.length; d++) {
-        var aT = M.probes[d].angle * Math.PI / 180;
-        bT[d] = bfT.br[d] * Math.cos(aT) + bfT.bz[d] * Math.sin(aT);
-      }
-      inp.probeTwin = bT;
-    }
+    if (M.probes && M.probes.length && fw.probes) inp.probeTwin = fw.probes;
     var amp = 0;
     for (d = 0; d < meas.length; d++) amp = Math.max(amp, Math.abs(meas[d]));
     var sigma = msg.noise * amp, gauss = rng(msg.seed || 12345);
@@ -1927,8 +1967,7 @@ function reconRun(msg0) {
     out.truth = inp.truth;
     out.truthProfiles = { x: inp.truthProf.x, pprime: inp.truthProf.pprime,
                           ffprime: inp.truthProf.ffprime, p: inp.truthProf.p };
-    out.truthQ = P.qProfile(grid, inp.truthRes, out.truthProfiles, M.limiter.r,
-                            M.limiter.z, F_EDGE, { nq: 20, ntheta: 121 });
+    out.truthQ = inp.truthQ;
     out.truthJphi = currentProfile(grid, inp.truthRes, inp.truthCur);
   }
   post(out);

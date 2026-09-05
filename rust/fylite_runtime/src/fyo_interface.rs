@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "d5490bb046ef0abd";
+pub const DIGEST: &str = "eb33fa972ba4d789";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -281,6 +281,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "turbulence", shape: "", units: "extension", gloss: "the turbulent closure between two blocks of the march (the page's turbulentChi): the surface blocks from the ladder and the state, one TGLF flux evaluation per sampled radius (units, ky grid, the quasilinear flux), chi = Q_i / (a/L_T) in gyro-Bohm units interpolated onto the ladder, relaxed against the previous block's" },
         Row { key: "steady_current", shape: "", units: "assembled", gloss: "one stationary round's current half (the page's evStationaryCurrent, 第二十一刀): the steady poloidal flux at the matched profiles by the current channel alone (transport::core_march at the resistive time), the loop voltage found by secant on the enclosed current, the frozen-closure re-solve reported beside it, the sawtooth the new q may have made possible" },
         Row { key: "wave", shape: "", units: "assembled", gloss: "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics" },
+        Row { key: "forward", shape: "", units: "assembled", gloss: "one forward free-boundary equilibrium on the device from the channel currents and the analytic p'/FF' family: the coil flux (or a given external flux, a warm start), one free solve, the analytic truth's profiles and cell current, the loop model and the probe readings that field implies" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

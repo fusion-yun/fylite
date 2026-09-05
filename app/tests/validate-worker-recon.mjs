@@ -20,9 +20,10 @@
 // equations in every configuration).  The deck is read the way the kernel's
 // own tests read it (`FYLITE_DEVICE_DIR`) when the staged copy is absent.
 //
-// Four configurations: the loops with the deck's kinetic rows (the page's
+// Six configurations: the loops with the deck's kinetic rows (the page's
 // stock question), the magnetics alone, the deck's probes on the raw basis,
-// and the coil currents fitted as observations (T-A5).
+// the coil currents fitted as observations (T-A5), and the twin twice (第三十二刀:
+// its truth off `code/forward`), once with a vessel current injected.
 //
 // Run: node app/tests/validate-worker-recon.mjs [--record]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -127,6 +128,12 @@ const CONFIGS = {
   //: the coil currents as observations (T-A5), delivered basis: 800 outer
   //: iterations, unconverged — the member the page returns, held as returned
   coils: { coilFit: { on: true, sigma: 0.07, loopSigma: 0.03 } },
+  //: ★第三十二刀: the TWIN — its truth is a forward free-boundary solve on the
+  //: deck's reference currents with the page's analytic profile, its readings
+  //: are that field's (noise drawn on the page); once with the vessel carrying
+  //: an injected current the loops see and the fit is not told about
+  twin: { source: 'twin' },
+  twin_inject: { source: 'twin', vessel: { on: false, rcond: 0.05, outer: 2, minSurvive: 0.10, twinInject: 5e3 } },
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
@@ -150,6 +157,17 @@ function pick(m) {
     kinetic: m.kineticX ? { x: arr(m.kineticX), p: arr(m.kineticP), weight: m.kineticWeight } : null,
     coilFit: m.coilFit ? { pull: m.coilFit.pull, fitted: m.coilFit.fitted, after: arr(m.coilFit.after),
                            before: arr(m.coilFit.before), sigma: arr(m.coilFit.sigma), measSigma: m.coilFit.measSigma } : null,
+    //: the twin's own truth and what was synthesised from it
+    truth: m.truth ? { psiAxis: m.truth.psiAxis, psiBnd: m.truth.psiBnd, axisR: m.truth.axisR, axisZ: m.truth.axisZ,
+                       ip: m.truth.ip, iterations: m.truth.iterations, residual: m.truth.residual, converged: m.truth.converged,
+                       bndKind: m.truth.bndKind, xptR: m.truth.xptR, xptZ: m.truth.xptZ, fbAmp: m.truth.fbAmp,
+                       shape: m.truth.shape, q95: m.truth.criteria && m.truth.criteria.q95, psi: arr(m.truth.psi) } : null,
+    truthProfiles: m.truthProfiles ? { x: arr(m.truthProfiles.x), pprime: arr(m.truthProfiles.pprime),
+                                       ffprime: arr(m.truthProfiles.ffprime), p: arr(m.truthProfiles.p) } : null,
+    truthQ: m.truthQ ? { x: arr(m.truthQ.x), q: arr(m.truthQ.q), f: arr(m.truthQ.f), q0: m.truthQ.q0, q95: m.truthQ.q95 } : null,
+    truthJphi: m.truthJphi ? { x: arr(m.truthJphi.x), j: arr(m.truthJphi.j) } : null,
+    clean: arr(m.clean),
+    vessel: m.vessel ? { truth: arr(m.vessel.truth), error: m.vessel.error } : null,
   };
 }
 
