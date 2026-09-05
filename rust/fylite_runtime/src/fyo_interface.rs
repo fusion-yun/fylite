@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "5d851c7c6453b421";
+pub const DIGEST: &str = "27bca7b9f23e1b6e";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -100,9 +100,14 @@ pub const TABLES: &[Table] = &[
         Slot { key: "ic_turns", path: "ic_coil/coils/turns", units: "1", rank: "0d" },
         Slot { key: "chan_element", path: "pf_channel_elements/fylite:row/element", units: "1", rank: "0d" },
         Slot { key: "chan_weight", path: "pf_channel_elements/fylite:row/weight", units: "1", rank: "0d" },
+        Slot { key: "ps_max_voltage", path: "power_supply/max_voltage_V", units: "V", rank: "1d" },
+        Slot { key: "ps_current_kA", path: "power_supply/current_limit_kA", units: "kA", rank: "0d" },
+        Slot { key: "element_turns", path: "pf_active_circuits/element_turns", units: "1", rank: "1d" },
     ] },
     Table { name: "DISCHARGE", doc_type: "fyo:discharge", slots: &[
         Slot { key: "channel_aturns", path: "fylite:channel_aturns", units: "A", rank: "1d" },
+        Slot { key: "i_max_aturn", path: "fylite:i_max_aturn", units: "A", rank: "1d" },
+        Slot { key: "x_ref", path: "fylite:x_ref", units: "A", rank: "1d" },
     ] },
     Table { name: "EQUILIBRIUM", doc_type: "fyo:equilibrium", slots: &[
         Slot { key: "ip", path: "time_slice/global_quantities/ip", units: "A", rank: "0d" },
@@ -179,6 +184,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
         Row { key: "vstab", shape: "vstab", units: "assembled", gloss: "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab" },
+        Row { key: "breakdown", shape: "", units: "assembled", gloss: "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

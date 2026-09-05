@@ -27,7 +27,7 @@ FILES = sorted(list((ROOT / "scenario").rglob("*.py")) + [ROOT / "device.py", RO
 ALIASES = {"kernel", "K"}
 DOORS = {"scenario", "grid_of", "require_data", "load", "abi_version"}
 
-#: 2026-09-05 measured baseline, after `code/vstab` (vertical_system 15 -> 5, vertical_mode 7 -> 1).
+#: 2026-09-05 measured baseline, after `code/vstab` (vertical_system 15 -> 5, vertical_mode 7 -> 6, breakdown 14 -> 13).
 #: Only ever lower these.
 BASELINE = {
     'device.py': 7,
@@ -39,7 +39,7 @@ BASELINE = {
     'scenario/control/evolution.py': 1,
     'scenario/control/stability.py': 6,
     'scenario/control/vertical.py': 1,
-    'scenario/design/__init__.py': 14,
+    'scenario/design/__init__.py': 13,
     'scenario/design/pulse.py': 3,
     'scenario/design/shape.py': 1,
     'scenario/model/__init__.py': 17,

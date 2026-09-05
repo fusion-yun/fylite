@@ -56,11 +56,7 @@
    "template": true,
    "code": "code/breakdown",
    "parameters": 17,
-   "runnable": false,
-   "reason": {
-    "zh": "内核的 case 门今天不认 code/breakdown（CASE_CODES 只有 evolve · transport · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/breakdown today (CASE_CODES carries evolve, transport, zerod only); FYL-DESIGN-17 P2."
-   }
+   "runnable": true
   },
   {
    "name": "discharge",
@@ -72,8 +68,8 @@
    "parameters": 23,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/discharge（CASE_CODES 只有 evolve · transport · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/discharge today (CASE_CODES carries evolve, transport, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/discharge（CASE_CODES 只有 breakdown · evolve · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/discharge today (CASE_CODES carries breakdown, evolve, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {
@@ -96,8 +92,8 @@
    "parameters": 14,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/pfwave（CASE_CODES 只有 evolve · transport · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/pfwave today (CASE_CODES carries evolve, transport, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/pfwave（CASE_CODES 只有 breakdown · evolve · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/pfwave today (CASE_CODES carries breakdown, evolve, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {
@@ -110,8 +106,8 @@
    "parameters": 5,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/profile（CASE_CODES 只有 evolve · transport · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/profile today (CASE_CODES carries evolve, transport, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/profile（CASE_CODES 只有 breakdown · evolve · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/profile today (CASE_CODES carries breakdown, evolve, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {
@@ -124,8 +120,8 @@
    "parameters": 46,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/reconstruction（CASE_CODES 只有 evolve · transport · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/reconstruction today (CASE_CODES carries evolve, transport, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/reconstruction（CASE_CODES 只有 breakdown · evolve · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/reconstruction today (CASE_CODES carries breakdown, evolve, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {
@@ -138,8 +134,8 @@
    "parameters": 8,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/series（CASE_CODES 只有 evolve · transport · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/series today (CASE_CODES carries evolve, transport, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/series（CASE_CODES 只有 breakdown · evolve · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/series today (CASE_CODES carries breakdown, evolve, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {

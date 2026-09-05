@@ -242,7 +242,10 @@ LINES = OrderedDict([
 #: without loading a kernel; `fy list scenarios` reads the LIVE table and the
 #: gate compares the two, so a kernel that grows a code makes this stale
 #: loudly rather than quietly.
-DOOR = {"evolve", "zerod", "transport"}
+DOOR = {"evolve", "zerod", "transport",
+        "vstab",
+        "breakdown"
+}
 
 
 def widen(a: str, b: str) -> str:

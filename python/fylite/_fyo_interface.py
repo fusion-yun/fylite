@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '5d851c7c6453b421'
+DIGEST = '27bca7b9f23e1b6e'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -103,12 +103,17 @@ TABLES = {
             'ic_turns': {"path": 'ic_coil/coils/turns', "units": '1', "rank": '0d'},
             'chan_element': {"path": 'pf_channel_elements/fylite:row/element', "units": '1', "rank": '0d'},
             'chan_weight': {"path": 'pf_channel_elements/fylite:row/weight', "units": '1', "rank": '0d'},
+            'ps_max_voltage': {"path": 'power_supply/max_voltage_V', "units": 'V', "rank": '1d'},
+            'ps_current_kA': {"path": 'power_supply/current_limit_kA', "units": 'kA', "rank": '0d'},
+            'element_turns': {"path": 'pf_active_circuits/element_turns', "units": '1', "rank": '1d'},
         },
     },
     'DISCHARGE': {
         "type": 'fyo:discharge',
         "slots": {
             'channel_aturns': {"path": 'fylite:channel_aturns', "units": 'A', "rank": '1d'},
+            'i_max_aturn': {"path": 'fylite:i_max_aturn', "units": 'A', "rank": '1d'},
+            'x_ref': {"path": 'fylite:x_ref', "units": 'A', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -205,6 +210,7 @@ BLOCKS = {
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
         {'key': 'vstab', 'shape': 'vstab', 'units': 'assembled', 'gloss': "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab"},
+        {'key': 'breakdown', 'shape': '', 'units': 'assembled', 'gloss': "the vacuum field null for breakdown: the device's coils, channel map and supply limits assembled into the judging-disc design (breakdown::design); no entry — a design, not a march"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},

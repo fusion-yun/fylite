@@ -380,20 +380,6 @@ def _deck_channels(cond):
     return _device_mod.element_arrays(cond["coils"]), cond["weights"]
 
 
-def _null_design(cond, **kw) -> dict:
-    """One field-null design — the kernel's, deck in.
-
-    ★``fylite.breakdown`` used to stand here: a module that sampled the
-    judging disc, evaluated the coils on it, folded the response onto
-    channels and reported the achieved null, with only the linear solve
-    borrowed from the kernel.  Every one of those steps is part of the same
-    design statement, so they went to `breakdown.rs` whole and this is what
-    is left — which deck, and what to call it.
-    """
-    elems, w = _deck_channels(cond)
-    return K.breakdown_design(elems, w, **kw)
-
-
 def loop_voltage(aturns_series, time, *, r0: float,
                  z0: float = 0.0) -> np.ndarray:
     """``V_loop = -dψ/dt`` at the null, from a current trajectory [V].
@@ -415,84 +401,76 @@ def breakdown(*, r0: float, z0: float = 0.0, radius: float = 0.3,
               weight_null: float = 1.0, weight_flux: float = 1.0,
               lam: float = 1e-12, limits: bool = True, i_max_aturn=None,
               x_ref=None) -> dict:
-    """Field-null design for the pre-plasma phase, with per-channel limits.
+    """Design the vacuum field null for breakdown — BY THE KERNEL, from the device document.
 
-    Vacuum only — no Grad-Shafranov solve at all, which is what makes this
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the second tool to sink): this function
+    used to read the deck's coils and channel map, fold the supply ratings
+    into per-channel limits (``pulse.channel_limits``), call the one kernel
+    export that does the design, and read the verdict off the numbers.  The
+    design was already the kernel's; the limits and the verdict were this
+    host's — and the pulse-design page held a second copy of both.  They are
+    ``case.rs::breakdown_case`` now.  This function builds the PLAN (the
+    device document, the disc, the tolerances, the optional overrides) and
+    reads the RECORD back into the dict its callers know.
+
+    Vacuum only — no Grad–Shafranov solve at all, which is what makes this
     the cheapest capability in the package.  When the design does not work
     the answer says WHICH channels are at or over their limit, and whether
     what failed was the null or the flux; a bare "infeasible" has no next
     move in it.
 
-    ★★``feasible`` requires BOTH the null and the requested flux, and that
-    is not pedantry — it is the degenerate case this tool is most likely to
-    report as a success.  Minimising |B| with no flux requirement has the
-    trivial solution "switch everything off", and a tight current box drives
-    the design straight into it: measured here, a 500 A-turn cap gives a
-    beautiful null (8e-7 T) while delivering 0.002 Wb of a 3 Wb request.
-    Judging on the null alone would have called that feasible.
+    ★★``feasible`` requires BOTH the null and the requested flux: minimising
+    |B| with no flux requirement has the trivial solution "switch everything
+    off", and a tight current box drives the design straight into it
+    (measured: a 500 A-turn cap gives a beautiful null while delivering
+    0.002 Wb of a 3 Wb request).  The kernel judges on both.
     """
+    from ...io import fydoc
     dev = _device(device)
-    imax = np.atleast_1d(np.asarray(
-        i_max_aturn if i_max_aturn is not None
-        else pulse.channel_limits(dev)["i_max_aturn"], float))
-    cond = _conductors()
-    #: ★a scalar cap means "the same cap on every channel" (the page's
-    #: uniform slider); un-broadcast it reached `blocked_by`'s per-channel
-    #: report and indexed past its single element.
-    n_ch = len(cond["channels"])
-    if imax.size == 1 and n_ch > 1:
-        imax = np.full(n_ch, float(imax[0]))
-    d = _null_design(cond, r0=r0, z0=z0, radius=radius,
-                     flux_target=flux_target, b_tol=b_tol,
-                     weight_null=weight_null, weight_flux=weight_flux,
-                     lam=lam, x_ref=x_ref,
-                     i_max=(imax if limits else None))
-    d.update({"b_tol": float(b_tol), "i_max_aturn": imax,
-              "limits_enforced": bool(limits),
-              "flux_target_Wb": flux_target,
-              "null_ok": bool(d["b_max"] <= b_tol),
-              "flux_error": (None if flux_target is None
-                             else float(d["flux_Wb"] - flux_target)),
-              "channels_over_current": list(d["over"]),
-              "channels_at_bound": list(d["at_bound"])})
-    #: ★A channel ON its bound is what "what is stopping this design" means.
-    #: A VIOLATION almost never fires — a projected gradient approaches a
-    #: bound from inside — so a report keyed only on violations answers
-    #: "nothing is blocking this" while three channels sit at their limits.
-    binding = list(d["channels_at_bound"]) + list(d["channels_over_current"])
-    flux_ok = (flux_target is None
-               or abs(d["flux_Wb"] - flux_target)
-               <= float(flux_tol) * abs(flux_target))
-    d["flux_ok"] = bool(flux_ok)
-    feasible = bool(d["null_ok"] and flux_ok
-                    and not d["channels_over_current"])
-    if feasible:
-        reason = None
-    elif d["channels_over_current"]:
-        reason = "channel_limit"
-    elif not flux_ok:
-        #: the null was met and the flux was not — usually the box driving
-        #: the design toward the trivial "everything off" solution, which is
-        #: an excellent null and a useless design
-        reason = ("flux_not_met_at_channel_limits" if binding
-                  else "flux_not_met")
-    else:
-        #: ★"Infeasible with nothing blocking it" is the answer with no move
-        #: in it that upstream's MUST exists to prevent.  When no channel is
-        #: at a limit, what failed is the NULL itself — a different problem
-        #: from a machine that cannot supply the current, and it must not be
-        #: reported as the same one.
-        reason = "null_not_met"
-    d.update({
-        "feasible": feasible, "reason": reason,
+    settings = {"r0": float(r0), "z0": float(z0), "radius": float(radius),
+                "b_tol": float(b_tol), "flux_tol": float(flux_tol),
+                "weight_null": float(weight_null), "weight_flux": float(weight_flux),
+                "lam": float(lam), "limits": 1.0 if limits else 0.0}
+    if flux_target is not None:
+        settings["flux_target"] = float(flux_target)
+    discharge = {}
+    if i_max_aturn is not None:
+        discharge["fylite:i_max_aturn"] = np.atleast_1d(np.asarray(i_max_aturn, float))
+    if x_ref is not None:
+        discharge["fylite:x_ref"] = np.atleast_1d(np.asarray(x_ref, float))
+    inputs = {"device": dev}
+    if discharge:
+        inputs["discharge"] = discharge
+    rec = fydoc.complete("code/breakdown", {"settings": settings, "inputs": inputs})
+    f = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    imax = arr("i_max_aturn")
+    at_bound = [int(i) for i in arr("at_bound")]
+    over = [int(i) for i in arr("over")]
+    reason = (None, "channel_limit", "flux_not_met_at_channel_limits",
+              "flux_not_met", "null_not_met")[int(f("reason_code"))]
+    flux_error = f("flux_error")
+    binding = sorted(set(at_bound) | set(over))
+    aturns = arr("aturns")
+    return {
+        "aturns": aturns, "iterations": int(f("iterations")),
+        "converged": bool(f("converged")),
+        "b_max": f("b_max"), "b_rms": f("b_rms"), "b_centre": f("b_centre"),
+        "flux_Wb": f("flux"),
+        "at_bound": at_bound, "over": over,
+        "b_tol": float(b_tol), "i_max_aturn": imax,
+        "limits_enforced": bool(f("limits_enforced")),
+        "flux_target_Wb": flux_target,
+        "null_ok": bool(f("null_ok")),
+        "flux_error": (None if flux_target is None or np.isnan(flux_error) else flux_error),
+        "channels_over_current": list(over), "channels_at_bound": list(at_bound),
+        "flux_ok": bool(f("flux_ok")),
+        "feasible": bool(f("feasible")), "reason": reason,
         "blocked_by": [{"channel": int(c), "name": _channel_name(dev, c),
-                        "aturn": float(d["aturns"][c]),
-                        "limit_aturn": float(imax[c]),
-                        "over": bool(c in d["channels_over_current"])}
-                       for c in sorted(set(binding))],
+                        "aturn": float(aturns[c]), "limit_aturn": float(imax[c]),
+                        "over": bool(c in over)} for c in binding],
         "provenance": provenance("breakdown", reason=reason),
-    })
-    return d
+    }
 
 
 def feasible(*, axis1: dict, axis2: dict, r0: float, z0: float = 0.0,
