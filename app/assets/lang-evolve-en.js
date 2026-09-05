@@ -345,6 +345,7 @@ self.FyI18n.register('en', {
   "e.err.fm_needheat": "the flux-match tier matches the heat channel pair: with the heat channel off there is no flux to match.",
   "e.err.fm_channels": "the flux-match tier solves the heat channel only: the density and current channels would each need their own matched channel and their own model flux (and this build has no particle closure — D/chi is a prescribed ratio), and the momentum channel is advanced beside a march there is none of. <strong>Refused rather than quietly left unsolved</strong>.",
   "e.err.fm_notime": "the flux-match tier <strong>has no time axis</strong>: a waveform and a continuation are both statements about a clock, and this is a root find for the steady state.",
+  "e.err.entry_scope": "This configuration is outside what the kernel entry carries ({what}). The browser loop that used to run such a configuration is retired (T-4, 2026-09-05): a capability sinks into the kernel or it is refused by name.",
   "e.err.fm_couple": "iterating the equilibrium AROUND a flux match is the self-consistent stationary outer loop, which is a different thing — refused here rather than half-built. Put the coupling cadence K back to 0.",
   "e.err.fm_failed": "the flux match stopped: {why}"
 });

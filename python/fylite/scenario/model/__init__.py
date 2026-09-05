@@ -384,7 +384,7 @@ def evolve(*, a: float, r0: float, b0: float,
            nbi: dict | None = None, lh_antennas: dict | None = None,
            executors: dict | None = None, turb: dict | None = None,
            couple: dict | None = None, fm: dict | None = None,
-           t_start: float = 0.0) -> dict:
+           t_start: float = 0.0, heat: bool = True) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
 
     ★2026-09-05 第十九刀: ``couple`` runs the DEVICE tier's equilibrium
@@ -567,6 +567,8 @@ def evolve(*, a: float, r0: float, b0: float,
             "neoclassical or the turbulent closure (the last through the "
             "extension's door between blocks), or solves the flux-match tier "
             "(closure='flux-match': a root find, not a march — see `fm`)")
+    if not heat and not (density or current or momentum):
+        raise ValueError("nothing to march: the heat pair is off and no other channel is on")
     if closure == "flux-match":
         if density or momentum or current:
             raise ValueError(
@@ -627,6 +629,8 @@ def evolve(*, a: float, r0: float, b0: float,
         "beam": float(nbi is not None), "lh": float(lh_antennas is not None),
         #: 第二十二刀: the clock starts where the caller says (a continued run)
         "t_start": float(t_start),
+        #: 第二十三刀: the heat pair is a switch like the other channels
+        "ch-heat": float(bool(heat)),
     }
     for k, v in (executors or {}).items():
         settings[k] = v if isinstance(v, str) else float(v)

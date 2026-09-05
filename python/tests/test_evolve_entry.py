@@ -228,8 +228,12 @@ def _hand_written_march(src_text: str) -> dict:
                 if c in fn}
 
     a0, b0 = fn["evolveRun"]
+    #: ★2026-09-05 (T-4 第四刀): the per-step loop ``for (var stp …)`` is
+    #: GONE — the page drives the kernel entry block by block and nothing
+    #: else.  The march that remains hand-written is the block loop and
+    #: what it reaches, so that is what is measured now.
     stp = next(i for i in range(a0, b0)
-               if "for (var stp = 0; stp < take; stp++)" in lines[i])
+               if "for (var eb = 0; eb < blocks; eb++)" in lines[i])
     sa, sb = extent(stp)
     seen, frontier = set(), called(sa, sb)
     while frontier:
@@ -313,7 +317,20 @@ def test_the_handwritten_march_only_shrinks():
     #: ★`evReadings` and the page's own progress reporting are inside this
     #: number and are not going anywhere, so it has a floor well above zero:
     #: it is a RATCHET, not a target.
-    BASELINE = 538
+    #: ★★Re-based 2026-09-05 (T-4 第四刀 / 第二十三刀).  The 538 above was
+    #: the per-step loop ``for (var stp …)`` and its closure — the path that
+    #: marched the physics in JS.  That loop was DELETED together with 28
+    #: functions only it reached, so its number is 0, not smaller.  What the
+    #: measure anchors on now is the only path left, the block loop that
+    #: calls the kernel entry, and its closure had always been excluded
+    #: from the old number by design (it was the "~0" path).  Its first
+    #: reading is **703** = 67 (the block loop body) + 636 (23 functions:
+    #: refit / entry plan / readings / remap and the volume, q-axis and
+    #: enclosed-current helpers still written on the page).  It is not a
+    #: growth of 538 → 703: the two numbers measure different objects, and
+    #: the old object is gone.  From here it ratchets down again; the
+    #: helpers named above are the next things to sink.
+    BASELINE = 703
     assert got["total"] <= BASELINE, (
         f"the hand-written march grew to {got['total']} lines "
         f"(loop body {got['loop']} + {len(got['functions'])} functions "

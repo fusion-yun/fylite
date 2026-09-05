@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "3c0cabd8617760fc";
+pub const DIGEST: &str = "6f991d3212268fd9";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -289,7 +289,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "evolve_heat", shape: "t_ped", units: "real", gloss: "eV, zero when the model is off" },
     ] },
     Block { name: "ENTRY_SCOPE", rows: &[
-        Row { key: "ch-heat", shape: "chHeat", units: "required", gloss: "a heat channel — this entry marches nothing else" },
+        Row { key: "ch-heat", shape: "chHeat", units: "sunk", gloss: "the heat channel — a switch of the entry since 第二十三刀 (a density- or current-only march runs too)" },
         Row { key: "ch-density", shape: "chDensity", units: "sunk", gloss: "the density channel" },
         Row { key: "ch-momentum", shape: "chMomentum", units: "sunk", gloss: "the momentum channel" },
         Row { key: "beam", shape: "beam", units: "sunk", gloss: "the NBI executor (deposition, stopping, driven current)" },
@@ -482,6 +482,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "vprime_moved", shape: "1", units: "1", gloss: "1 = the first step carries the volume change from vprime_old to vprime" },
         Row { key: "lag_reset", shape: "1", units: "1", gloss: "1 = the resumed block has no lagged flux / conductivity (the state was remapped): no Ohmic term on its first step" },
         Row { key: "lh", shape: "1", units: "1", gloss: "1 = the lower-hybrid arrays below add to the electron deposition and the driven current" },
+        Row { key: "heat_off", shape: "1", units: "1", gloss: "1 = do NOT march the heat pair (the other channels alone; the closure and the sources still evaluated) — spelled as the exception so a caller that never heard of it (zero-filled) marches the pair" },
     ] },
     Block { name: "PROFIT_IN", rows: &[
         Row { key: "x", shape: "n", units: "1", gloss: "the coordinate" },

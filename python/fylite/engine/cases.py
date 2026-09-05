@@ -765,6 +765,9 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     #: step per call and binds the lagged state back); a case runs whole, so
     #: the switch is inert here rather than out of scope
     acct.as_sub(["resume"], "a resumed state (sunk: the page's one-step-per-call march; a case runs whole, inert)")
+    #: 第二十三刀: the heat pair is a switch of the entry (a density- or
+    #: current-only march runs), no longer a `required` row of the ledger
+    args["heat"] = bool(cfg.get("ch-heat", True))
     acct.as_sub(["geometry", "closure", "couple", "icd", "ch-heat"],
                 "the scope test above read these directly")
     acct.as_sub(

@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '3c0cabd8617760fc'
+DIGEST = '6f991d3212268fd9'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -330,7 +330,7 @@ BLOCKS = {
         {'key': 'evolve_heat', 'shape': 't_ped', 'units': 'real', 'gloss': 'eV, zero when the model is off'},
     ],
     'ENTRY_SCOPE': [
-        {'key': 'ch-heat', 'shape': 'chHeat', 'units': 'required', 'gloss': 'a heat channel — this entry marches nothing else'},
+        {'key': 'ch-heat', 'shape': 'chHeat', 'units': 'sunk', 'gloss': 'the heat channel — a switch of the entry since 第二十三刀 (a density- or current-only march runs too)'},
         {'key': 'ch-density', 'shape': 'chDensity', 'units': 'sunk', 'gloss': 'the density channel'},
         {'key': 'ch-momentum', 'shape': 'chMomentum', 'units': 'sunk', 'gloss': 'the momentum channel'},
         {'key': 'beam', 'shape': 'beam', 'units': 'sunk', 'gloss': 'the NBI executor (deposition, stopping, driven current)'},
@@ -523,6 +523,7 @@ BLOCKS = {
         {'key': 'vprime_moved', 'shape': '1', 'units': '1', 'gloss': '1 = the first step carries the volume change from vprime_old to vprime'},
         {'key': 'lag_reset', 'shape': '1', 'units': '1', 'gloss': '1 = the resumed block has no lagged flux / conductivity (the state was remapped): no Ohmic term on its first step'},
         {'key': 'lh', 'shape': '1', 'units': '1', 'gloss': '1 = the lower-hybrid arrays below add to the electron deposition and the driven current'},
+        {'key': 'heat_off', 'shape': '1', 'units': '1', 'gloss': '1 = do NOT march the heat pair (the other channels alone; the closure and the sources still evaluated) — spelled as the exception so a caller that never heard of it (zero-filled) marches the pair'},
     ],
     'PROFIT_IN': [
         {'key': 'x', 'shape': 'n', 'units': '1', 'gloss': 'the coordinate'},
