@@ -69,13 +69,21 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 
 ## WebAssembly
 
-同一份 `c_api.rs` 按 cargo feature 另编三份（`bash rust/build.sh --wasm-check`）：
+同一份 `c_api.rs` 按 cargo feature 另编**两份**（`bash rust/build.sh --wasm-check`），
+与两个 `.so` 一一对应：
 
 | 制品 | feature | 函数导出 | 大小 | 何时取 |
 | :--- | :--- | ---: | ---: | :--- |
-| `fylite_rs.wasm` | `core` | 234 | 869 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
-| `fylite_tglf.wasm` | `tglf` | 12 | 391 KiB | 按需 |
-| `fylite_dke.wasm` | `dke` | 11 | 121 KiB | 按需（NEO 漂移动理学） |
+| `fylite_rs.wasm` | `core,capi` | 235 | 1 012 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
+| `fylite_kernel_ext.wasm` | `tglf,dke` | 19 | 485 KiB | 按需（湍流闭包；NEO 漂移动理学同在其中） |
+
+★★**2026-09-05 用户裁定：dke 与 tglf 合为 `kernel_ext`**，`.so` 与 `.wasm` 同规矩。
+此前 wasm 出三份，理由是「按需各取其一，合并会让只要 DKE 的读者连 TGLF 一起下载」。
+那条权衡的前提当时已经不成立：**没有任何东西载入 `fylite_dke.wasm`**（`fylite.js` 只有
+一个扩展载入口），所以那 121 KiB 是三种制品各背一份的死重。合并之后实测比两份之和
+**小 28 991 字节**、导出从 23 降到 19——两个 feature 共用核心的 `linalg` 与 `geometry`，
+从前各编一份。代价照记：真出现只要 DKE 的读者时会多下载 TGLF；feature 门仍在
+（`fylite_ext` 的 `tglf` / `dke` 保留），再分包不需要改设计。
 
 ### 名字带版本
 

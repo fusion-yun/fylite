@@ -126,6 +126,23 @@ fn json_layout(root: &Node) -> Layout {
     Layout::Fyo
 }
 
+/// 解析一份**已经在手的** JSON / YAML 文本成一棵原样的树。
+///
+/// ★与 [`read_node`] 的分别只在「文本从哪来」：自带那一档的装置文档编在二进制里，
+/// 盘上没有对应的路径可读（`facts::Entry::text`）。格式看内容，看不出来当 JSON。
+pub fn parse_node(text: &str) -> Result<Node> {
+    let looks_yaml = text
+        .lines()
+        .find(|l| !l.trim_start().starts_with('#') && !l.trim().is_empty())
+        .map(|l| !l.trim_start().starts_with(['{', '[']))
+        .unwrap_or(false);
+    if looks_yaml {
+        crate::yaml::parse(text).map_err(Into::into)
+    } else {
+        crate::json::parse(text).map_err(Into::into)
+    }
+}
+
 /// 读一份 JSON / YAML 文本成一棵原样的树（不套文档束）：装配文档、绑定表、装置清单
 /// 都从这里进。格式看内容，看不出来按扩展名，再看不出来当 JSON。
 pub fn read_node(path: &Path) -> Result<Node> {

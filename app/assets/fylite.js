@@ -714,7 +714,7 @@
 
   /**
    * One linear TGLF solve.  Lives in the SEPARATE module — call it on an
-   * instance from `FyLite.loadTglf()`, not on the core one.
+   * instance from `FyLite.loadExt()`, not on the core one.
    *
    * The port covers the electrostatic, collisionless configuration with
    * `vpar_model = 2` and `nbasis > 1`; every other branch returns an error
@@ -4043,12 +4043,14 @@
   /**
    * Fetch and instantiate a kernel module.
    *
-   * The kernel ships as MORE THAN ONE artifact: `fylite_rs.wasm` carries the
-   * equilibrium / reconstruction / 0-D surface these pages call, and
-   * `fylite_tglf.wasm` carries the gyro-Landau-fluid port, which they do
-   * not.  Combining them meant every visitor downloaded roughly twice what
-   * they use (measured: 223 KB + 326 KB against 496 KB combined), so the
-   * second one is fetched only by whatever actually needs it.
+   * The kernel ships as TWO artifacts, one per native `.so`:
+   * `fylite_rs.wasm` carries the equilibrium / reconstruction / 0-D surface
+   * these pages call at startup, and `fylite_kernel_ext.wasm` carries the
+   * extension pack (TGLF + DKE), which they do not.  The second one is
+   * fetched only by whatever actually needs it, so the other pages never pay
+   * for it (measured 2026-08-15: core 223 KB against 496 KB combined).
+   * ★2026-09-05 用户裁定把 TGLF 与 DKE 合成 `kernel_ext` 一份——此前 DKE 另出一份
+   * 而**没有任何东西载入它**，于是它只是每份制品都背着的死重。
    *
    * `opts.required` names the exports this caller depends on; absent, the
    * core set is checked.  ★Presence is the right question to ask: the ABI
@@ -4086,10 +4088,13 @@
     }).catch(function () { return null; });
   }
 
-  //: what a TGLF module must carry.  The allocator travels with it: a
+  //: what the extension module must carry.  The allocator travels with it: a
   //: separate module has its OWN linear memory, so buffers cannot be shared
   //: with the core one and have to be placed inside this instance.
-  var REQUIRED_TGLF = [
+  //: ★TGLF's exports are the ones named here because they are the ones a page
+  //: calls; DKE rides in the same module but has no browser caller yet, so
+  //: listing its exports here would fail a build for something nobody uses.
+  var REQUIRED_EXT = [
     'fylite_rs_alloc', 'fylite_rs_free', 'fylite_rs_abi_version',
     'fylite_rs_tglf_linear', 'fylite_rs_tglf_units',
     //: the quasilinear flux chain.  It was in the artifact from the day the
@@ -4100,13 +4105,18 @@
   ];
 
   /**
-   * Fetch the TGLF module.  Only `tglf.html` calls it, and only when the
-   * visitor asks for a scan — which is the whole point of the split: the
-   * other six pages never pay for these 323 KB.
+   * Fetch the extension module (TGLF + DKE).  Only a turbulence scan calls
+   * it, and only when the visitor asks for one — which is the whole point of
+   * the split: the other pages never pay for it.
    */
-  function loadTglf(url) {
-    return load(url || 'assets/fylite_tglf.wasm', { required: REQUIRED_TGLF });
+  function loadExt(url) {
+    return load(url || 'assets/fylite_kernel_ext.wasm', { required: REQUIRED_EXT });
   }
+
+  //: ★旧名留着，指向同一个函数（2026-09-05 合并）。撤名与合并是两件事：一份缓存
+  //: 里的旧页面仍会调 `loadTglf`，而那时报 `undefined is not a function` 的是读者，
+  //: 不是我们。它取的也是同一份新制品——别名不该把旧的 URL 一起留住。
+  function loadTglf(url) { return loadExt(url); }
 
   /**
    * The ATOMIC NUMBER of each species the kernel's ADAS table carries.
@@ -4139,7 +4149,7 @@
   var ADAS_Z = root.FyDeck.ADAS_Z, ADAS_A = root.FyDeck.ADAS_A;
 
   root.FyLite = { load: load, fromBytes: fromBytes, ABI_EXPECT: ABI_EXPECT,
-                  loadTglf: loadTglf, REQUIRED_TGLF: REQUIRED_TGLF,
+                  loadExt: loadExt, loadTglf: loadTglf, REQUIRED_EXT: REQUIRED_EXT,
                   //: ★逻辑名 -> 这一版的真文件名。导出它是给**不经 `load()` 的
                   //: 读者**用的：service worker 的预缓存表要按同一条规则算出
                   //: 同一串 URL，否则页面取的和缓存里存的是两个名字，离线重载

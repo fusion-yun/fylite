@@ -45,7 +45,7 @@ KVER=$(sed -n "s/.*kernel: *'\([^']*\)'.*/\1/p" "$APP/assets/version.js")
 [ -n "$KVER" ] || {
   echo "[site] 读不出 app/assets/version.js 的 kernel 版本 —— 先在内核仓跑构建" >&2
   exit 1; }
-WASM_STEMS="fylite_rs.wasm fylite_tglf.wasm fylite_dke.wasm"
+WASM_STEMS="fylite_rs.wasm fylite_kernel_ext.wasm"
 for w in $WASM_STEMS; do
   [ -f "$APP/assets/$w.$KVER" ] || {
     echo "[site] 找不到 app/assets/$w.$KVER —— 先在内核仓跑 rust/build.sh --wasm-check" >&2

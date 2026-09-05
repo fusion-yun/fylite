@@ -76,8 +76,23 @@ else
 
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
-  node tools/make-app-embed.mjs --flavour "$FLAVOUR"
+  #: ★`--facts` 指**装好的那一棵**：2026-09-05 起仓里没有 `facts/`，而生成器要问
+  #: 「这一条在不在」。问装好的那棵，与表里 `include_bytes!` 编译期解析的是同一棵。
+  node tools/make-app-embed.mjs --flavour "$FLAVOUR" --facts "$STAGE/facts"
 fi
+
+#: ★★装置信息**编进二进制**（2026-09-05 用户裁定）。`build.rs` 读这个变量，把装好的
+#: 那棵树里的每份装置文档写成一张表编进库——于是一份纯二进制自己就答得出
+#: `fy list devices` 与 `fy run --device`，不再需要盘上有语料。
+#: ★指的是**装好的**那一棵（已按 rights.json 筛过），不是暂存的全量：许可闸只有一处
+#: 实现，这里不自己判。CLI 档没有 `$STAGE`，那就退回暂存区——它同样是筛过的那一版。
+if [ -n "$STAGE" ]; then
+  export FY_FACTS_DIR="$STAGE/facts"
+elif [ -d "$DIR/dist/facts" ]; then
+  export FY_FACTS_DIR="$DIR/dist/facts"
+fi
+[ -n "${FY_FACTS_DIR:-}" ] && echo "[exe] 装置信息内嵌自 $FY_FACTS_DIR"
+
 
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。
 #: ★★指向**装好的那棵树**，不是 `app/`：公开版的目录是筛过的，而 `app/facts/device`

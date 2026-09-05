@@ -15,7 +15,9 @@
 import { readFileSync, existsSync } from 'node:fs';
 
 const HERE = new URL('.', import.meta.url).pathname;
-export const DEVICES_DIR = HERE + '../facts/device/';
+//: ★2026-09-05 用户裁定：仓顶已无 `facts/`，也没有 `app/facts` 那条链接；
+//: 拖回来的语料在 `dist/facts/`（构建暂存区）。
+export const DEVICES_DIR = HERE + '../../dist/facts/device/';
 
 /** The catalogue document, or null when this tree ships no presets. */
 export function catalogue() {

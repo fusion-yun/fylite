@@ -4918,7 +4918,7 @@ function transportTurb(msg) {
            bytes: tglf.bytes, sha256: tglf.sha256 });
   };
   if (tglf) return start();
-  self.FyLite.loadTglf('fylite_tglf.wasm').then(function (inst) {
+  self.FyLite.loadExt('fylite_kernel_ext.wasm').then(function (inst) {
     tglf = inst;
     start();
   }).catch(function (e) {
@@ -5103,7 +5103,7 @@ self.onmessage = function (ev) {
       //: a TGLF evaluation.
       if (((msg.spec.closure | 0) === 3 || (msg.spec.closure | 0) === 4)
           && !tglf) {
-        return self.FyLite.loadTglf('fylite_tglf.wasm').then(function (inst) {
+        return self.FyLite.loadExt('fylite_kernel_ext.wasm').then(function (inst) {
           tglf = inst;
           evolveRun(msg);
         }).catch(function (e) {

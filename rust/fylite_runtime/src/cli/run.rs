@@ -420,15 +420,30 @@ fn load_device(args: &Args, t: Option<&Template>, spec: &str, out_dir: &Path, dr
             ),
         ));
     }
-    let Some(doc) = entry.document.clone() else {
+    //: ★自带那一档的条目**盘上没有文件**（`document` 是 `None`，正文在二进制里），
+    //: 所以正文一律经 `entry.read()` 取，落记录时按文本写而不是拷文件。从前这里
+    //: 直接 `entry.document.clone()`，于是一份自带装置信息的发行版会在这里说
+    //: 「既没有卡片也没有清单」——而那台机器明明就在 `fy list devices` 里。
+    let Some(text) = entry.read() else {
         return Err(refuse(
             "device",
             format!("--device {spec}: the entry in {root} carries neither a card nor a manifest"),
         ));
     };
-    let node = crate::io::read_node(&doc)
+    let node = crate::io::parse_node(&text)
         .map_err(|e| refuse("device", format!("--device {spec}: {e}")))?;
-    let file = if dry { doc.display().to_string() } else { copy_into(&doc, out_dir, "device")? };
+    let file = match (&entry.document, dry) {
+        (Some(doc), true) => doc.display().to_string(),
+        (Some(doc), false) => copy_into(doc, out_dir, "device")?,
+        (None, true) => format!("{}:device/{spec}", facts::BUNDLED_ROOT),
+        (None, false) => {
+            ensure_dir(out_dir)?;
+            let name = "device.jsonld".to_string();
+            std::fs::write(out_dir.join(&name), &text)
+                .map_err(|e| refuse("device", format!("--device {spec}: {e}")))?;
+            name
+        }
+    };
     Ok(DeviceDoc { id: spec.to_string(), root, file, node })
 }
 
@@ -1152,16 +1167,16 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
     };
     let kernel_sha = std::fs::read(&kernel.path).ok().map(|b| crate::checksum::sha256_hex(&b));
 
-    //: 绑定的解析相对**计划自己的目录**；从记录目录里那两份文档来的是相对记录目录的。
-    let (slots, resolved) = match case::resolve_inputs(&plan, base) {
+    //: 绑定的解析**逐条**在两个基目录里找：计划自己的目录（预设自带的输入相对它），
+    //: 与记录目录（`--device` 与取回的测量落在那里）。
+    //: ★从前这里是「整份按前者，不行整份按后者」——全有或全无，于是一份两种来路都有
+    //: 的计划两次都失败。见 `case::resolve_inputs_in` 抬头。
+    let (slots, resolved) = match case::resolve_inputs_any(&plan, &[base, record_dir]) {
         Ok(x) => x,
-        Err(e) => match case::resolve_inputs(&plan, record_dir) {
-            Ok(x) => x,
-            Err(_) => {
-                finish_refused(&plan, record_dir, &record_id, "compose", &e.0, &started_at, prov);
-                return;
-            }
-        },
+        Err(e) => {
+            finish_refused(&plan, record_dir, &record_id, "compose", &e.0, &started_at, prov);
+            return;
+        }
     };
     let (numbers, texts) = match plan.kernel_settings() {
         Ok(x) => x,

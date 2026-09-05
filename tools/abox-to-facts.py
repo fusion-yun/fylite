@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import pathlib
 import re
@@ -78,7 +79,9 @@ FYDOC = pathlib.Path(
 #: ★`models/` **不在这里**：神经网络权重不是关于世界的断言，是制品——它更靠近内核
 #: 的 `.so` 而不是一份装置描述。它同样要许可账，但在自己的根下。
 DOMAIN = "device"
-OUT = ROOT / "facts" / DOMAIN
+#: ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料落进
+#: `dist/facts/`——一个构建暂存区（`dist/` 本来就不入库），发布器与打包器从这里取。
+OUT = ROOT / "dist" / "facts" / DOMAIN
 
 #: EAST's document is hand-maintained and richer than the upstream tree.
 HANDWRITTEN = {"east"}
@@ -793,9 +796,79 @@ def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     doc = yaml.safe_load(card.read_text(encoding="utf-8"))
     if not isinstance(doc, dict):
         return None
+    finite(dev, doc)
     p = out_root / f"{dev}.jsonld"
-    p.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    #: ★`allow_nan=False`：Python 的缺省会写出裸 `NaN` / `Infinity`，**那不是 JSON**。
+    #: 上面的 `finite()` 已经把唯一一种无歧义的情形（成对轮廓末尾的补位）摘掉了；
+    #: 到这里还剩非有限值，就该在这里当场炸，而不是发出去让 `JSON.parse` 去炸。
+    p.write_text(json.dumps(doc, ensure_ascii=False, indent=1, allow_nan=False) + "\n",
+                 encoding="utf-8")
     return p
+
+
+def _nonfinite(node, trail: str = ""):
+    """逐个非有限浮点：`(路径, 下标, 值)`。"""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield from _nonfinite(v, f"{trail}.{k}" if trail else str(k))
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            if isinstance(v, float) and not math.isfinite(v):
+                yield trail, i, v
+            else:
+                yield from _nonfinite(v, f"{trail}[{i}]")
+    elif isinstance(node, float) and not math.isfinite(node):
+        yield trail, None, node
+
+
+def finite(dev: str, doc: dict) -> None:
+    """把文档改成 **JSON 写得出来**的样子，或者按名拒绝。
+
+    ★★为什么这一步存在（2026-09-05 实测）。WEST 的壁面轮廓 `Baffle` 是 44 个点，
+    而**末点的 r 与 z 都是 NaN**——上游 MATLAB 定长数组的补位，`metis2fyo.py` 照录进
+    A-Box，本工具再照录进 `facts/device/west.jsonld`。Python 的 `json.dumps` 缺省把它
+    写成裸 `NaN`，而 **JSON 没有这个词**：页面 `fetch(...).then(r => r.json())` 当场抛
+    `SyntaxError`，于是这一台装置在浏览器里整份读不出来。三种制品**全部**带着这份读不
+    出来的文档发了出去，而构建从头到尾是绿的——先发现的人是拿到制品的那个。
+
+    做两件事，分得很死：
+
+    * **成对轮廓的末位补位**（`{r: [...], z: [...]}` 两条同长、同在末位非有限）——摘掉。
+      它不是几何：同一份文件里其余 88 个 unit 都没有它，而这一个有。
+    * **其余任何非有限值**——**拒绝**，点名路径。中间的一个 NaN 是缺一个点，不是补位；
+      摘掉它会把折线接错，而那种错不报警。
+
+    ★为什么不写成 `null`：JS 里 `+null === 0`，一个 `null` 顶点会被画到原点去——比
+    `NaN`（画布直接跳过那一段）更糟。摘掉或拒绝，没有第三条。
+    """
+    dropped = []
+
+    def trim(node, trail=""):
+        if isinstance(node, dict):
+            r, z = node.get("r"), node.get("z")
+            if (isinstance(r, list) and isinstance(z, list) and len(r) == len(z) >= 2
+                    and isinstance(r[-1], float) and not math.isfinite(r[-1])
+                    and isinstance(z[-1], float) and not math.isfinite(z[-1])):
+                node["r"], node["z"] = r[:-1], z[:-1]
+                dropped.append(f"{trail}.r/z[{len(r) - 1}]")
+            for k, v in node.items():
+                trim(v, f"{trail}.{k}" if trail else str(k))
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                trim(v, f"{trail}[{i}]")
+
+    trim(doc)
+    if dropped:
+        print(f"  {dev}: 摘掉 {len(dropped)} 个成对轮廓的末位补位（NaN）："
+              + " ".join(dropped[:3]) + (" …" if len(dropped) > 3 else ""))
+    left = list(_nonfinite(doc))
+    if left:
+        where = ", ".join(f"{t}[{i}]={v}" if i is not None else f"{t}={v}"
+                          for t, i, v in left[:5])
+        raise SystemExit(
+            f"[facts] {dev}: 文档里有 {len(left)} 个非有限值，JSON 写不出来：{where}\n"
+            f"[facts]   它们不是成对轮廓的末位补位，摘掉会改变几何——请在上游"
+            f"（fydata 的转换器）修，不要在这里猜。")
 
 
 def write_catalogue(out_root: pathlib.Path) -> pathlib.Path:
@@ -892,12 +965,18 @@ def main(argv=None) -> int:
             #: 不是「这台机器不参与打包」。卡片不在盘上时什么也不写。
             if write_document(dev, a.out) is not None:
                 print(f"  {dev}: 手工卡片保持原样，派生 {dev}.jsonld")
-            elif not a.all:
+            else:
+                #: ★★**`--all` 也要说**（2026-09-05 改）。从前这一支写着
+                #: `elif not a.all`，于是 `--all` 在卡片不在时**一声不吭**地少带一台，
+                #: 目录从 7 台变成 6 台而构建全绿——正是本工具一直在防的那类失灵。
+                #: 实测撞上：清 `dist/` 之后跑 `--all`，目录里就没有 EAST 了。
                 print(f"{dev}: hand-maintained here and strictly richer than "
                       f"the upstream tree — refusing to overwrite the card "
-                      f"(rights.json written). ★而盘上没有那张卡片："
-                      f"它随 machine_desc/ 一起删了（内核仓 b4dce77），"
-                      f"而这一台恰恰是不从上游拖的那一台。",
+                      f"(rights.json written). ★★而盘上没有那张卡片，"
+                      f"于是这一版**少一台机器**：它随 machine_desc/ 一起删了"
+                      f"（内核仓 b4dce77），而这一台恰恰是不从上游拖的那一台。"
+                      f"★三仓皆无（FYL-DESIGN-19 G-1）——**没有任何地方能把它再生成一次**，"
+                      f"所以它只可能来自某个人手上的一份拷贝。",
                       file=sys.stderr)
                 rc = 1
             continue

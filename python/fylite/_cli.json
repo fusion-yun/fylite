@@ -163,7 +163,7 @@
      ],
      "action": "append",
      "metavar": "PATH",
-     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
+     "help": "a facts corpus to consult BEFORE the built-in one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it. ★A release carries its device descriptions COMPILED IN, so this only puts a root ahead of them — it never takes them away."
     }
    ],
    "commands": [
@@ -570,7 +570,7 @@
     "rust"
    ],
    "open_parameters": "scenario",
-   "help": "run one modelling or analysis case: `run <line> [<scenario>]` composes the scenario template, or `run <plan.jsonld>...` composes the plans given. Scenario parameters are written `key=value` (equivalently `--key=value`, `--key`, `--no-key`) and are checked against the template, not against this file.",
+   "help": "run one modelling or analysis case: `run <line> [<scenario>]` composes the scenario template, or `run <plan.jsonld>...` composes the plans given. Scenario parameters are written `key=value` (equivalently `--key=value`, `--key`, `--no-key`) and are checked against the template, not against this file. Device descriptions travel INSIDE the release binary (2026-09-05 ruling): a release answers `list devices` and `run --device` with no corpus on disk, and `--facts` / $FY_FACTS_PATH only PREPEND roots ahead of that built-in one.",
    "args": [
     {
      "flags": [
@@ -652,7 +652,7 @@
      ],
      "action": "append",
      "metavar": "PATH",
-     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
+     "help": "a facts corpus to consult BEFORE the built-in one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it. ★A release carries its device descriptions COMPILED IN, so this only puts a root ahead of them — it never takes them away."
     },
     {
      "flags": [
@@ -738,7 +738,7 @@
    "hosts": [
     "rust"
    ],
-   "help": "what is available: devices, experiment shots, scenario templates, presets, corpus roots, the kernel's code table. Read-only — it composes nothing, fetches nothing, writes nothing.",
+   "help": "what is available: devices, experiment shots, scenario templates, presets, corpus roots, the kernel's code table. Read-only — it composes nothing, fetches nothing, writes nothing. Device descriptions travel INSIDE the release binary (2026-09-05 ruling): a release answers `list devices` and `run --device` with no corpus on disk, and `--facts` / $FY_FACTS_PATH only PREPEND roots ahead of that built-in one.",
    "args": [
     {
      "flags": [
@@ -746,7 +746,7 @@
      ],
      "action": "append",
      "metavar": "PATH",
-     "help": "a facts corpus to consult BEFORE the bundled one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it."
+     "help": "a facts corpus to consult BEFORE the built-in one; repeat, or separate several with the platform path separator. Prepends to $FY_FACTS_PATH rather than replacing it. ★A release carries its device descriptions COMPILED IN, so this only puts a root ahead of them — it never takes them away."
     },
     {
      "flags": [
@@ -774,7 +774,7 @@
    "commands": [
     {
      "name": "devices",
-     "help": "facts device entries: which root supplies each, card or manifest, licence",
+     "help": "facts device entries: which root supplies each (`<bundled>` = compiled into this binary), card or manifest, licence",
      "args": [
       {
        "flags": [
@@ -857,7 +857,7 @@
     },
     {
      "name": "facts",
-     "help": "the facts search path: which corpora are in play, and which one supplies each entry",
+     "help": "the facts search path: which corpora are in play, which one supplies each entry, and how many entries the binary itself carries",
      "args": [
       {
        "flags": [

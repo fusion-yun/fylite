@@ -65,8 +65,7 @@ function walk(dir, base = '') {
 //: 一切正常，断网重载 404，而这正是这份文件存在的理由。
 //: 规则的另一半在 `app/assets/fylite.js` 的 `versioned()`（导出为 `FyLite.wasmUrl`）；
 //: 这里按同一条拼，并由 `--check` 保证生成物与磁盘一致。
-const WASM_STEMS = ['assets/fylite_rs.wasm', 'assets/fylite_tglf.wasm',
-                    'assets/fylite_dke.wasm'];
+const WASM_STEMS = ['assets/fylite_rs.wasm', 'assets/fylite_kernel_ext.wasm'];
 //: ★★VENDORED THIRD-PARTY MEGABYTES ARE NOT PRECACHED (`FYL-DESIGN-18` U-25).
 //: `assets/vendor/h5wasm/` is ~4.2 MB — more than this repository's three
 //: kernel modules together — and it is an ON-DEMAND capability: `h5source.js`

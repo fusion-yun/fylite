@@ -129,6 +129,12 @@ python/fylite/_bin/
 #: 页面那一侧经 `app/facts`（指向仓根 `facts/` 的符号链接）取同一份字节——**一个名字
 #: 贯穿仓内、页面与发布路径**。问答面 `tools/facts-publish.py --flavour public|internal --list`，
 #: 闸子 `python/tests/test_facts_corpus.py`。
+#: ★★2026-09-05 用户裁定：**仓顶不再有 `facts/`**。拖回来的语料落进 `dist/facts/`
+#: （`dist/` 上面已经忽略了），`app/facts` 那条指向它的符号链接一并撤除。
+#: 这一行**留着**，而且它现在是一条**防回归**的规则，不是一条描述：仓顶那个目录
+#: 曾经只靠这一行撑着——它看起来像仓的一部分，还有一条符号链接指着它，于是「哪些
+#: 字节属于这个仓」要靠记忆回答。今天由目录名自己回答；万一有谁把它重新拉起来，
+#: 这一行仍然挡着 `git add -A`。
 /facts/
 #: ★发行版自带的那一份是**打包时生成**的（`build-wheel.sh` 调 `facts-publish.py`），
 #: 与 `_lib/` `_bin/` 同规矩：制品不入库，打包时装入。

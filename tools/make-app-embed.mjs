@@ -21,10 +21,11 @@ const APP = HERE + '../app/';
 //: （`$FYLITE_KERNEL`，探测不到就报错），那一整段随之取消：现在是一个相对路径，
 //: 猜不错也不需要猜。
 const OUT = HERE + '../rust/fylite_runtime/src/bin/app/assets.rs';
-//: ★★`facts` 也跳过：2026-09-04 起 `app/facts` 是**指向仓根 `facts/` 的符号
-//: 链接**（用户裁定：单一数据源），而那个目录装的是整个语料——逐个的卡片、许可账、
-//: 以及只进内部版的机器。`statSync` 跟随链接，所以照原样走下去会把整份语料编进
-//: 可执行文件。装置文档改为按**同一条发布规则**逐份加进来（见下）。
+//: ★★`facts` 仍在跳过名单里，但**理由变了**：2026-09-05 用户裁定「fylite 下已无
+//: facts 目录」，`app/facts` 那条指向仓根的符号链接随之撤除，所以今天这里根本没有
+//: 这个目录可走。留着这一条是**防回归**——那条链接一旦被谁重新拉起来，`statSync`
+//: 会跟着它把整份语料（逐个的卡片、许可账、只进内部版的机器）编进可执行文件。
+//: 装置文档按**同一条发布规则**逐份加进来，从暂存的那棵树里取（见下）。
 const SKIP = new Set(['tests', 'server', 'facts']);
 
 const MIME = {
@@ -94,6 +95,19 @@ function walk(dir, prefix = '') {
 //: internal）对得上；公开版构建重跑本生成器（`--flavour public`），树会变脏，而那
 //: 正是「这一份不是缺省制品」的信号。★表里只有**路径**，装置字节不入库
 //: （`facts/` 整棵是生成物），所以这张表本身不发布任何受限数据。
+//: ★★**在哪儿查有没有**：`--facts DIR`，缺省 `dist/facts`（`abox-to-facts.py` 的
+//: 暂存区）。2026-09-05 之前这里查的是 `app/facts/...`，而那是一条指向仓根 `facts/`
+//: 的符号链接；两者都随「fylite 下已无 facts 目录」那条裁定去掉了。
+//: ★**查的树与编的树可以是两棵**，这是有意的：这里只回答「这一条在不在」，而表里
+//: 写的路径在编译期经 `$FYLITE_APP_DIR` 解析——`build-app-exe.sh` 把它指向**装好的
+//: 那一棵**（已按许可筛过）。两棵树由同一个问答面（`facts-publish.py`）决定成员，
+//: 所以「查得到而编不出」只可能发生在有人绕开那个问答面的时候。
+function factsDir() {
+  const i = process.argv.indexOf('--facts');
+  const d = i >= 0 ? process.argv[i + 1] : HERE + '../dist/facts';
+  return d.endsWith('/') ? d : d + '/';
+}
+
 function plannedDevices() {
   const flavour = process.argv.includes('--flavour')
     ? process.argv[process.argv.indexOf('--flavour') + 1] : 'internal';
@@ -101,9 +115,9 @@ function plannedDevices() {
     [HERE + 'facts-publish.py', '--flavour', flavour, '--list'],
     { encoding: 'utf8' });
   if (r.status !== 0) return [];
-  //: ★问答面按 `<域>/<id>` 作答，而路径**一个名字贯穿**：仓里 `facts/device/`、
-  //: 页面取 `facts/device/`、内嵌表里也是 `facts/device/`（`app/facts` 是指向仓根
-  //: `facts/` 的符号链接）。
+  //: ★问答面按 `<域>/<id>` 作答，而**表里的路径一个名字贯穿**：页面取
+  //: `facts/device/<id>.jsonld`，内嵌表里也是它，装好的那棵树里也是它。
+  const FACTS = factsDir();
   const out = [];
   const seen = new Set();
   for (const line of r.stdout.split('\n')) {
@@ -111,22 +125,24 @@ function plannedDevices() {
     if (!s) continue;
     const [domain, id] = s.includes('/') ? s.split('/', 2) : ['device', s];
     const dir = `facts/${domain}`;
-    const f = `${dir}/${id}.jsonld`;
-    if (existsSync(APP + f)) { out.push(f); seen.add(dir); }
+    if (existsSync(`${FACTS}${domain}/${id}.jsonld`)) {
+      out.push(`${dir}/${id}.jsonld`);
+      seen.add([dir, domain]);
+    }
   }
-  for (const dir of seen)
-    if (existsSync(APP + `${dir}/catalogue.jsonld`)) out.push(`${dir}/catalogue.jsonld`);
+  for (const [dir, domain] of seen)
+    if (existsSync(`${FACTS}${domain}/catalogue.jsonld`)) out.push(`${dir}/catalogue.jsonld`);
   return out;
 }
 
-//: ★★三份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-DESIGN-19` G-8）。
+//: ★★两份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-DESIGN-19` G-8）。
 //: 生成器按「目录里现有的名字」写表，于是在一份 wasm 还没版本化的检出上重跑它，
 //: 表会从 `.wasm.0.0.1` **静默降回** `.wasm`——站点与可执行文件随之丢掉版本化命名，
 //: 而丢了不报错：页面照样能开，只是缓存与版本对不上号，且下一个人看到的是一份
 //: 「有人重跑过生成器」的干净 diff。本次实测正是这样撞上的。
 //: 版本从 `assets/version.js` 读——与 `tools/build-site.sh` 同一处来源，所以
 //: 「表以为的版本」与「站点发的版本」不可能是两个数。
-const WASM_STEMS = ['fylite_rs.wasm', 'fylite_tglf.wasm', 'fylite_dke.wasm'];
+const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm'];
 function checkWasmIsVersioned(list) {
   const vjs = APP + 'assets/version.js';
   if (!existsSync(vjs)) {

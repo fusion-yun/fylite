@@ -23,14 +23,17 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-FACTS = ROOT / "facts"
+#: ★★2026-09-05 用户裁定：**仓顶已无 `facts/`**。拖回来的语料落在 `dist/facts/`
+#: （构建暂存区），本模块随之改问那里——问错地方的表现不是红，是**整模块跳过**，
+#: 而跳过看起来和「这台机器上没拖语料」一模一样。
+FACTS = ROOT / "dist" / "facts"
 #: 今天只有 device 一域有内容；amns / experiment 进来时本模块按域走，不必改。
 DEVICES = FACTS / "device"
 TOOL = ROOT / "tools" / "facts-publish.py"
 
 pytestmark = pytest.mark.skipif(
     not DEVICES.is_dir(),
-    reason="没有 facts/device/ —— 它是拖回的输入（tools/abox-to-facts.py --all）",
+    reason="没有 dist/facts/device/ —— 它是拖回的输入（tools/abox-to-facts.py --all）",
 )
 
 
@@ -52,6 +55,37 @@ def _rights(d: pathlib.Path) -> dict:
 def test_there_is_something_to_check():
     """★空目录会让下面每一条断言都成立——先证明它不空。"""
     assert _pulled(), "devices/ 在，但一台机器都没有"
+
+
+def test_every_published_document_is_json_a_browser_can_parse():
+    """页面 `fetch` 的那一份必须是**严格 JSON**：不许 NaN / Infinity。
+
+    ★★2026-09-05 实测的一次真事故。WEST 的壁面轮廓 `Baffle` 末点 r/z 都是 NaN
+    （上游 MATLAB 定长数组的补位），`json.dumps` 缺省把它写成裸 `NaN`——而 **JSON 没有
+    这个词**。`app/assets/devices.js` 的 `r.json()` 当场抛 `SyntaxError`，于是这一台
+    在浏览器里整份读不出来；而三种制品（站点 · 可执行文件 · 轮）**全部**带着它发了
+    出去，构建从头到尾是绿的。
+
+    ★闸子问的是**发布出去的那一份**（`facts/<域>/<id>.jsonld`），不是卡片：卡片是
+    YAML，`.nan` 在那里是合法的；出问题的是**换语法那一步**。产出方
+    （`tools/abox-to-facts.py` 的 `finite()`）今天要么摘掉成对轮廓的末位补位、要么按名
+    拒绝，本条钉的是那一步真的做了。
+    """
+    docs = sorted(FACTS.glob("*/*.jsonld"))
+    if not docs:
+        pytest.skip("搜索路径上没有发布出去的文档")
+
+    def strict(c):
+        raise ValueError(c)
+
+    bad = []
+    for f in docs:
+        try:
+            json.loads(f.read_text(encoding="utf-8"), parse_constant=strict)
+        except ValueError as e:
+            bad.append(f"{f.relative_to(FACTS)}: {e}")
+    assert not bad, (
+        "这些发布出去的文档不是严格 JSON，浏览器读不出来：\n  " + "\n  ".join(bad))
 
 
 @pytest.mark.parametrize("dev", [d.name for d in _pulled()] or ["<none>"])
@@ -244,11 +278,11 @@ def test_a_lower_root_still_contributes_what_the_higher_one_lacks(tmp_path):
 
     hi = _make_root(tmp_path / "hi", ident="onlyhere", note="HIGH")
     try:
-        facts.use([hi, ROOT / "facts"])
+        facts.use([hi, FACTS])
         ids = {e.ident: e.root for e in facts.entries("device")}
         assert ids.get("onlyhere") == hi, "高优先级独有的那台没进并集"
-        if (ROOT / "facts" / "device" / "iter.jsonld").is_file():
-            assert ids.get("iter") == ROOT / "facts", "低优先级该供的那台没供上"
+        if (FACTS / "device" / "iter.jsonld").is_file():
+            assert ids.get("iter") == FACTS, "低优先级该供的那台没供上"
     finally:
         facts.use(None)
 

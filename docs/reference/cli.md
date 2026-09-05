@@ -70,6 +70,17 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 名字里 `-` 与 `_` 等价。**值要用 `=`**：`--key value`（空格）不是参数写法，那个值会被
 当成位置参数。
 
+:::{important}
+**装置信息随发行版走**（2026-09-05 用户裁定）。三种制品各自带着按许可筛过的那几台
+装置描述：可执行文件**编在二进制里**，轮装在 `fylite/_facts/`，站点发在 `facts/` 下。
+所以一份发行版**盘上没有语料也答得出** `fy list devices` 与 `fy run --device`。
+`--facts` / `$FY_FACTS_PATH` 是**前置**：把自己的根排在自带的那一份之前，从不替换它。
+`fy list facts --roots` 会把自带的那一档打成一行 `<bundled>`，并说它带了几条。
+
+★同日另一条：**仓顶不再有 `facts/` 目录**。在检出里拖回来的语料落在 `dist/facts/`
+（构建暂存区），`app/facts` 那条符号链接一并撤除。
+:::
+
 参数**不在** `_cli.json` 里：它属于场景，而场景是数据。名字、类型、缺省与取值范围来自
 **场景模板**（`docs/examples/scenario/<name>.jsonld`，随可执行文件内嵌，可被语料路径上
 的同名文件覆盖）。未知的名字在第二段解析里按名拒绝并给出最接近的三个。
@@ -85,7 +96,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 | `--input FILE` | 绑到模板声明的**主输入端口** |
 | `--bind PORT=FILE` | 绑其余端口（可重复） |
 | `--code IRI` | 一份计划带多个 code 时选一个 |
-| `--cases PATH` / `--facts PATH` | 语料根前置（可重复） |
+| `--cases PATH` / `--facts PATH` | 语料根**前置**（可重复）——排在自带的那一份之前，不替换它 |
 | `-o, --record DIR` | 记录目录；缺省 `$FYLITE_RUN_DIR/<戳>-<场景>/` |
 | `--format F` | `jsonld` / `hdf5` / `netcdf` / `imas-hdf5` |
 | `--kernel PATH` | 内核 `.so` |
@@ -137,11 +148,11 @@ rec/
 
 | 子命令 | 打什么 |
 | :--- | :--- |
-| `devices [<id>...]` | facts 的装置：由哪个根供、卡片还是清单、许可账在不在；给名字打年代、逐 IDS 的提供者与缺省 |
+| `devices [<id>...]` | facts 的装置：由哪个根供（`<bundled>` = 编在这份二进制里）、卡片还是清单、许可账在不在；给名字打年代、逐 IDS 的提供者与缺省 |
 | `experiments [<machine> [<shot>]]` | 语料里的炮与片数；给到炮号打逐片的时刻表 |
 | `scenarios [<name>...] [--line L]` | 场景：线、code、今天门认不认、参数个数；给名字打参数表全表、开关与端口 |
 | `presets [<name>...] [--line L] [--scenario S]` | 语料里的具名计划；给名字打那份计划文档 |
-| `facts [<domain>] [--roots]` | 两条搜索路径：facts 与算例语料，逐条说是谁供的 |
+| `facts [<domain>] [--roots]` | 两条搜索路径：facts 与算例语料，逐条说是谁供的；自带的那一档打成 `<bundled>` 并报条数 |
 | `kernel` | 内核认哪些 code、哪些 entry、各自的声明块 |
 | `lines` | 四条线与各自的缺省场景 |
 

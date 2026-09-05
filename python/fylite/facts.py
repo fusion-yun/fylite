@@ -26,7 +26,7 @@ Order, highest priority first:
 1. an explicit override — ``--facts`` on the command line, or
    :func:`use` in-process;
 2. ``$FY_FACTS_PATH`` — a ``os.pathsep``-separated list, read left to right;
-3. the repository's own ``facts/``, when running from a checkout — **before**
+3. the checkout's staged ``dist/facts/``, when running from one — **before**
    the bundled copy, so a corpus you just pulled is not shadowed by one frozen
    at packaging time;
 4. the corpus this distribution ships (``fylite/_facts/``), when it has one.
@@ -156,9 +156,16 @@ def use(paths=None) -> None:
 
 
 def _repo_facts() -> Path | None:
-    """The checkout's own ``facts/``, when this package is being run from one."""
-    #: PKG is <repo>/python/fylite; the corpus is <repo>/facts.
-    cand = PKG.parent.parent / "facts"
+    """The checkout's staged corpus, when this package is being run from one.
+
+    ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料从此落在
+    `dist/facts/`——一个构建暂存区（`dist/` 本来就不入库），而不是仓顶的一个目录。
+    仓顶那个目录曾经是「gitignore 的输入」，一种只靠一行 `.gitignore` 撑着的安排：
+    它看起来像仓的一部分，`app/facts` 还有一条符号链接指着它，于是「哪些字节属于
+    这个仓」要靠记忆回答。搬进 `dist/` 之后，那个问题由目录名自己回答。
+    """
+    #: PKG is <repo>/python/fylite; the staged corpus is <repo>/dist/facts.
+    cand = PKG.parent.parent / "dist" / "facts"
     return cand if cand.is_dir() else None
 
 

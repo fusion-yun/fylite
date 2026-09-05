@@ -116,7 +116,7 @@ fn devices(args: &Args) {
                             ("id", e.ident.clone().into()),
                             ("root", e.root.display().to_string().into()),
                             ("manifest", Node::Bool(e.manifest_path().is_some())),
-                            ("card", Node::Bool(e.document.is_some())),
+                            ("card", Node::Bool(e.has_document())),
                             ("rights", Node::Bool(e.rights_path().is_some())),
                         ])
                     })
@@ -540,16 +540,23 @@ fn no_corpus(domain: &str) {
 fn facts_face(args: &Args) {
     let roots = facts::roots();
     let domain = args.flag("domain").unwrap_or("");
+    let built_in = facts::embedded_count();
     if args.has("roots") || domain.is_empty() {
-        if roots.is_empty() {
+        if roots.is_empty() && built_in == 0 {
             eprintln!(
-                "fy list: facts 搜索路径上没有语料 —— 给 --facts，或设 ${}，\n\
-                 或在检出里跑 python3 tools/abox-to-facts.py --all",
+                "fy list: facts 搜索路径上没有语料，这份二进制也没有内嵌的 —— 给 --facts，\n\
+                 或设 ${}，或在检出里跑 python3 tools/abox-to-facts.py --all",
                 facts::FACTS_ENV
             );
         }
         for (i, r) in roots.iter().enumerate() {
             println!("{}. {}", i + 1, r.display());
+        }
+        //: ★★自带的那一档也是一个「根」，只是它不在盘上：装置信息编在这份二进制里
+        //: （2026-09-05 用户裁定）。**要打印出来**——不然一个发行版的读者看到一张空
+        //: 路径表，却又能 `list devices`，只能猜那些机器是从哪来的。
+        if built_in > 0 {
+            println!("{}. {}   ({built_in} 条，编在这份二进制里)", roots.len() + 1, facts::BUNDLED_ROOT);
         }
         if args.has("roots") {
             return;
