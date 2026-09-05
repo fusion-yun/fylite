@@ -68,16 +68,25 @@ hdf5 = ["h5py"]
 
 #: ★Development group (PEP 735, `uv sync` installs it by default) — NOT wheel
 #: dependencies: the package stays numpy-only at runtime.
-#:   scipy       the physics-tier fixture (`test_mapping._spline`,
-#:               CubicSpline) — which the DEFAULT tier's oracle-reachability
-#:               gate imports, so without scipy two default-tier tests are
-#:               red, not skipped.
-#:   matplotlib  `fylite report` figure rendering and `fylite.plot`; the
-#:               report degrades honestly without it, but the figure gates
-#:               (`test_report.py`) only exercise the rendering branch when
-#:               it is present.
+#:   matplotlib  `fylite report` figure rendering and `fylite.plot`.  ★It is
+#:               not merely nice to have: `test_report.py` guards its import
+#:               and skips, but THREE gates import matplotlib in the test
+#:               body with nothing to catch the ImportError — `test_plot.py`
+#:               ×2 and `test_loop.py::test_plot_current_components` — so
+#:               without it they are RED, not skipped.  `python-dateutil` /
+#:               `contourpy` / `pillow` arrive as its own dependencies.
+#: ★★`scipy` 2026-09-05 撤出本组。它当初写的理由是「physics 档的取件器
+#: （`test_mapping._spline`，CubicSpline）—— 而 DEFAULT 档的 oracle 可达性闸子
+#: import 它，所以没有 scipy 有两条默认档测试是红、不是跳过」。那条理由今天**两半
+#: 都不成立**：physics 档连同 `test_mapping.py` 已随 oracles 收敛进 fylite_kernel
+#: （`docs/benchmark/reports/` 里那些 `--with scipy` 的复现命令跑的是 `$FYLITE_KERNEL`
+#: 的 `tests/`，不是本仓），而包内两处「有 scipy 用 pchip、没有退回线性」的分支也早
+#: 已删除（`engine/fitters.py` 与 `kernel.pchip` 的注记记着为什么：单调三次由内核带）。
+#: 实测 2026-09-05：装与不装 scipy，`pytest python/tests` 的计数逐条相同。本仓今天
+#: 唯一提到 scipy 的测试是 `test_scenario.py` 的 D-4′ 闸子，它读的是 **AST**——断言
+#: scenario 层不 import 它，与它在不在环境里无关。
 [dependency-groups]
-dev = ["scipy", "matplotlib"]
+dev = ["matplotlib"]
 
 #: ★★2026-09-04 用户裁定：**Python 侧没有命令行**。控制台脚本 `fylite`
 #: （`[project.scripts]`）与 `engine/cli.py` / `__main__.py` 一并撤除——装上这个包

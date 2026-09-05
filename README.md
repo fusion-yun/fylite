@@ -105,7 +105,12 @@ to the distribution, and that is where it is discharged.
 # ★★工程文件都在 `python/` 下（`pyproject.toml` / `pytest.ini` / `conftest.py`），
 #   而 pytest 是从参数向上找 ini 的 —— 所以要么点名 `python/tests`，要么先 cd 进去。
 #   在**仓根裸跑 `pytest`** 找不到任何 ini，那不是本档。
-uv run --no-project --with pytest --with numpy python -m pytest python/tests
+# ★★`--with matplotlib` 不是可选的：三处画图闸子在**函数体里** import 它
+#   （`test_plot.py` 两处 + `test_loop.py::test_plot_current_components`），
+#   身前没有 importorskip 兜着 —— 少了这一项它们是**红**，不是跳过。
+#   （`python-dateutil` / `contourpy` / `pillow` 由 matplotlib 自己带进来，不必单列。）
+uv run --no-project --with pytest --with numpy --with matplotlib \
+  python -m pytest python/tests
 
 pip install -e python   # optional — numpy only；工程在 `python/`，不在仓根
 ```
