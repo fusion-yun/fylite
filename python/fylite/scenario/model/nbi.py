@@ -294,19 +294,12 @@ def effective_slowing_time(tau_s, e_beam, e_crit, *, mass=2.0) -> np.ndarray:
     return _shaped(out, ts)
 
 
-#: ★``electron_shielding`` was here, and it went with ``coulomb_log`` for
-#: the same reason: no caller anywhere.  It returned the ``"g"`` field of
-#: ``kernel.beam_shielding``; :func:`shielding_factor` below returns the
-#: ``"factor"`` field of the SAME call and is the one this layer uses.  A
-#: reader wanting ``G`` itself has the kernel entry, whose docstring is
-#: where Lin-Liu & Hinton, Phys. Plasmas 4 (1997) 4179 belongs.
-
-def shielding_factor(ft, zeff) -> np.ndarray:
-    """``1 − (1−G)/Z_eff`` — the fraction of the raw beam current that
-    survives electron shielding."""
-    return _shaped(kernel.beam_shielding(ft, zeff)["factor"], ft, zeff)
-
-
+#: ★``electron_shielding`` and ``shielding_factor`` were here — the ``"g"``
+#: and ``"factor"`` fields of ``kernel.beam_shielding``, shaped for a caller.
+#: Both left with their last callers: the first with ``coulomb_log`` (no
+#: caller anywhere), the second when the deposition sank into ``code/beam``
+#: (2026-09-05), which computes both inside the kernel and reports them as
+#: ``shielding`` / ``shielding_g`` on the record.
 # --------------------------------------------------------------------------- #
 # Flux-surface table + chord geometry
 # --------------------------------------------------------------------------- #
@@ -358,79 +351,13 @@ def _surface_table(doc: dict, psin_edges) -> dict:
 # --------------------------------------------------------------------------- #
 # Deposition
 # --------------------------------------------------------------------------- #
-def _deposit_one(table, beam: Beam, energy, power, psin_edges, ne, te,
-                 psin_prof, *, stopping_model, n_samples, n_width_r,
-                 n_width_z, stop_kw) -> dict:
-    """One energy component over the beam's finite cross-section — the
-    kernel's (:func:`fylite.kernel.beam_deposit`).
-
-    ★★The footprint's rays, the ray geometry, the profile evaluation at the
-    ray's OWN samples, the attenuation and the shell binning are ONE call
-    now.  They were a Python loop calling four kernel entries, with the
-    ray-by-ray accumulation in between — and each of those pieces is a
-    decision (``pitch(R) = R_tan/R`` exactly; which nodes and weights sample
-    the width; where the profile is read) that a second host could make
-    differently without any test noticing.
-
-    Returns ``{absorbed_fraction, pitch, shinethrough, power, energy}``.
-    """
-    from ... import kernel
-    try:
-        out = kernel.beam_deposit(
-            table["grid"], table["psin2d"],
-            tangency_radius=beam.tangency_radius, z_height=beam.z_height,
-            width_r=beam.width_r, width_z=beam.width_z,
-            direction=beam.direction, n_width_r=int(n_width_r),
-            n_width_z=int(n_width_z), n_samples=int(n_samples),
-            r_start=table["r_edge"], psin_prof=psin_prof,
-            ne=ne, te=te, psin_edges=psin_edges, mass=beam.mass,
-            energy=energy, model=stopping_model,
-            impurity_form=stop_kw.get("impurity_form", "exp"),
-            **{k: v for k, v in stop_kw.items() if k != "impurity_form"})
-    except kernel.KernelError as e:
-        raise BeamError(
-            f"beam {beam.name!r}: the ray never enters the plasma "
-            f"(tangency radius {beam.tangency_radius:.3f} m against the grid "
-            f"edge {table['r_edge']:.3f} m)") from e
-    absorbed = out["absorbed"]
-    pitch = np.divide(out["pitch_weighted"], absorbed,
-                      out=np.zeros_like(absorbed), where=absorbed > 0.0)
-    return {"absorbed_fraction": absorbed, "pitch": pitch,
-            "shinethrough": out["shinethrough"], "power": float(power),
-            "energy": float(energy)}
-
-
-def _orbit_loss_mask(table, psin_c, beam: Beam, energy, doc) -> np.ndarray:
-    """First-orbit-loss mask — ``True`` where a newly born ion's orbit width puts
-    it outside the boundary (METIS ``zicd0.m``).
-
-    Banana width ``Δ_b = √(r/R)·q·ρ_L`` (or the potato width
-    ``R(2qρ_L/R)^{2/3}`` when the banana exceeds the local minor radius) is
-    added to the Larmor radius and compared with the distance to the edge.
-    Following METIS, the loss is applied for **counter-injection only** —
-    co-injected ions drift inward.  The kernel's; what stays here is reading
-    the geometry off the shell table.
-    """
-    rmin = kernel.interp(psin_c, np.linspace(0, 1, table["rminor"].size), table["rminor"])
-    rmaj = kernel.interp(psin_c, np.linspace(0, 1, table["rmajor"].size), table["rmajor"])
-    from ... import fyo
-    qpsi = np.abs(fyo.profile_of(doc, "q"))
-    q = kernel.interp(psin_c, np.linspace(0.0, 1.0, qpsi.size), qpsi)
-    r0, b0 = fyo.field_of(doc)
-    return kernel.first_orbit_loss(
-        rmin, rmaj, q, a_edge=float(table["rminor"][-1]),
-        b0=abs(b0) or 1.0,
-        r0=abs(r0 or fyo.axis_of(doc)[0]) or 1.0,
-        mass=beam.mass, charge=beam.charge, energy=float(energy),
-        counter=beam.direction < 0)
-
-
 def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
             n_shells: int = 24, stopping_model: str = "janev",
             n_samples: int = 601, n_width_r: int = 3, n_width_z: int = 3,
             current_multiplier: float = 1.0, orbit_losses: bool = True,
             zsum=None, stop_kw: dict | None = None) -> dict:
-    """Beam deposition, fast-ion pressure and beam-driven current on a ψ_N grid.
+    """Beam deposition, fast-ion pressure and beam-driven current — BY THE
+    KERNEL (``code/beam``).
 
     ``eq`` an ``fyo:equilibrium`` document (or a g-file at the door); ``ne``
     (m⁻³) and ``te`` (eV) profiles on ``psin_prof`` (default a uniform ψ_N grid
@@ -438,8 +365,17 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
     field-ion sum ``Σ n_j Z_j²/(n_e A_j)`` if the plasma composition is known
     (see :func:`slowing_down`).
 
-    Returns a dict on the shell-centre grid ``psin``:
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the eleventh tool to sink).  The whole
+    assembly — the shell table on the psi map, the profiles at the shell
+    centres, the trapped fraction and the shielding, then per beam and per
+    energy component the deposition · first-orbit-loss mask · slowing-down ·
+    electron/ion split · fast-ion pressure and its pitch split · torque ·
+    driven current — is ``case.rs::beam_case`` now, one recipe for this face
+    and for the page; the kernel repository's ``test_beam_code.py`` holds
+    the door to the old recipe bit for bit.  What stays here is the plan:
+    the beams as the DD's ``nbi`` units, the profiles on their ψ_N grid.
 
+    Returns a dict on the shell-centre grid ``psin``:
     ``p_dep`` / ``p_e`` / ``p_i``
         absorbed power density and its electron / ion split (W/m³).
     ``p_fast``
@@ -465,13 +401,12 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
         per shell (N·m/m³), summed over components, and its volume integral
         (N·m).
     ``anisotropy``
-        the branch dict ``{"p_par", "p_perp"}`` — no longer ``None``: the
-        split is carried, though the G-S source still takes only its trace
-        third (see the module docstring's limitations).
+        the branch dict ``{"p_par", "p_perp"}``.
     ``per_beam``
         the same power/current summary per source, for attribution.
     """
     from ... import fyo
+    from ...io import fydoc
     doc = fyo.as_equilibrium(eq)
     if isinstance(beams, Beam):
         beams = [beams]
@@ -479,144 +414,71 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
     if not beams:
         raise BeamError("deposit: no beams")
     stop_kw = dict(stop_kw or {})
-
-    ne = np.maximum(np.asarray(ne, float), 1e16)
-    te = np.maximum(np.asarray(te, float), 1.0)
+    ne = np.asarray(ne, float)
+    te = np.asarray(te, float)
     if psin_prof is None:
         psin_prof = np.linspace(0.0, 1.0, ne.size)
     psin_prof = np.asarray(psin_prof, float)
-    ti = te if ti is None else np.maximum(np.asarray(ti, float), 1.0)
-
-    edges = np.linspace(0.0, 1.0, int(n_shells) + 1)
-    psin_c = 0.5 * (edges[1:] + edges[:-1])
-    table = _surface_table(doc, edges)
-    dvol = np.maximum(table["dvolume"], 1e-9)
-
-    def ne_of(x):
-        return kernel.interp(x, psin_prof, ne)
-
-    def te_of(x):
-        return kernel.interp(x, psin_prof, te)
-
-    ne_c, te_c, ti_c = ne_of(psin_c), te_of(psin_c), kernel.interp(psin_c, psin_prof, ti)
-    zeff_c = np.clip(np.full_like(psin_c, float(zeff)) if np.isscalar(zeff)
-                     else kernel.interp(psin_c, psin_prof, np.asarray(zeff, float)),
-                     1.0, 10.0)
-    del ti_c                                  # reserved: ion-channel diagnostics
-
-    # trapped fraction on the shell grid (Lin-Liu & Miller, via redl)
-    rmin_c = kernel.interp(psin_c, edges, table["rminor"])
-    rmaj_c = kernel.interp(psin_c, edges, table["rmajor"])
-    eps_c = np.clip(rmin_c / np.maximum(rmaj_c, 1e-6), 1e-4, 0.99)
-    ft_c = kernel.trapped_fraction_eps(eps_c)
-    shield = shielding_factor(ft_c, zeff_c)
-
-    #: ★dS = dV/(2πR), the kernel's — a surface of revolution integrates a
-    #: current density to a current with THIS weight and no other, and the
-    #: wave module needs the same line
-    area_w = kernel.shell_area(dvol, rmaj_c)
-    p_dep = np.zeros_like(psin_c)
-    p_i = np.zeros_like(psin_c)
-    w_fast = np.zeros_like(psin_c)            # fast-ion energy density (J/m³)
-    #: T-M12 — the pitch-preserving split and the prompt torque, accumulated
-    #: per component (each energy fraction has its own birth pitch and speed)
-    p_par = np.zeros_like(psin_c)
-    p_perp = np.zeros_like(psin_c)
-    torque = np.zeros_like(psin_c)
-    j_nbi = np.zeros_like(psin_c)
-    pitch_w = np.zeros_like(psin_c)
-    p_inj = p_shine = p_orbit = 0.0
-    per_beam = []
-    sd_last = None
-    tau_eff_w = np.zeros_like(psin_c)
-
-    for beam in beams:
-        b_abs = b_shine = b_orbit = 0.0
-        b_cur = 0.0
-        for energy, power in beam.components():
-            if power <= 0.0:
-                continue
-            p_inj += power
-            dep = _deposit_one(table, beam, energy, power, edges, ne, te,
-                               psin_prof, stopping_model=stopping_model,
-                               n_samples=n_samples, n_width_r=n_width_r,
-                               n_width_z=n_width_z, stop_kw=stop_kw)
-            frac = dep["absorbed_fraction"]
-            pitch = dep["pitch"]
-            b_shine += power * dep["shinethrough"]
-
-            if orbit_losses:
-                lost = _orbit_loss_mask(table, psin_c, beam, energy, doc)
-                p_orbit += power * float(frac[lost].sum())
-                b_orbit += power * float(frac[lost].sum())
-                frac = np.where(lost, 0.0, frac)
-
-            pd = power * frac / dvol                       # W/m³
-            b_abs += power * float(frac.sum())
-            p_dep += pd
-            pitch_w += pd * pitch
-
-            sd = slowing_down(te_c, ne_c, mass=beam.mass, zeff=zeff_c, zsum=zsum)
-            sd_last = sd
-            p_i += pd * ion_power_fraction(sd["e_crit"], energy)
-            tau_eff = effective_slowing_time(sd["tau_s"], energy, sd["e_crit"])
-            w_fast += kernel.fast_ion_pressure(pd, tau_eff)[0]
-            #: the SAME energy density, split by this component's birth
-            #: pitch (p_∥ = 2Wξ², p_⊥ = W(1−ξ²)) — the branches add, and
-            #: their trace third stays the isotropic ``p_fast`` to round-off
-            _, d_par, d_perp = kernel.fast_ion_pressure_split(pd, tau_eff,
-                                                              pitch)
-            p_par += d_par
-            p_perp += d_perp
-            #: the prompt toroidal torque, τ_φ = p_dep·(2/v_b)·ξ·R — the
-            #: kernel's, per component because v_b differs per fraction
-            torque += kernel.beam_torque(pd, pitch, rmaj_c,
-                                         energy=energy, mass=beam.mass)
-            tau_eff_w += pd * tau_eff
-
-            # --- beam-driven current (Start-Cordey/Stix, METIS zicd0) --------
-            #: the kernel's, both suppressions together: the bulk's electron
-            #: return current AND the beam ions' own trapping
-            dj = kernel.beam_current(
-                pd, pitch, e_crit=sd["e_crit"], e_gamma=sd["e_gamma"],
-                tau_s=sd["tau_s"], rmin=rmin_c, rmaj=rmaj_c, shield=shield,
-                energy=energy, mass=beam.mass,
-                multiplier=float(current_multiplier))
-            j_nbi += dj
-            b_cur += kernel.shell_sum(dj, area_w)
-        p_shine += b_shine
-        per_beam.append({"name": beam.name, "power": float(beam.power),
-                         "absorbed": b_abs, "shinethrough": b_shine,
-                         "orbit_loss": b_orbit, "i_nbi": b_cur})
-
-    pitch_c = np.divide(pitch_w, p_dep, out=np.zeros_like(p_dep), where=p_dep > 0.0)
-    tau_eff_c = np.divide(tau_eff_w, p_dep, out=np.zeros_like(p_dep), where=p_dep > 0.0)
-    #: the isotropic closure W = (3/2) p — the kernel's, and stated there
-    p_fast = kernel.fast_ion_pressure(2.0 * w_fast, np.ones_like(w_fast))[1]
-    #: the shell-table quadrature — the kernel's, the same rule `lh_deposit`
-    #: closes P_LH / I_LH with
-    p_abs = kernel.shell_sum(p_dep, dvol)
-    i_nbi = kernel.shell_sum(j_nbi, area_w)
-
+    for b in beams:
+        b.components()                       # the configuration's own refusals
+    settings = {"n_shells": float(n_shells), "stopping_model": str(stopping_model),
+                "n_samples": float(n_samples), "n_width_r": float(n_width_r),
+                "n_width_z": float(n_width_z), "current_multiplier": float(current_multiplier),
+                "orbit_losses": float(bool(orbit_losses)),
+                "impurity_form": str(stop_kw.pop("impurity_form", "exp"))}
+    settings.update({k: float(v) for k, v in stop_kw.items()})
+    if zsum is not None:
+        settings["zsum"] = float(zsum)
+    cp = {"grid": {"fylite:psi_norm": psin_prof},
+          "electrons": {"density": ne, "temperature": te}}
+    if ti is not None:
+        cp["t_i_average"] = np.asarray(ti, float)
+    if np.isscalar(zeff):
+        settings["zeff"] = float(zeff)
+    else:
+        cp["zeff"] = np.asarray(zeff, float)
+    units = [{"name": b.name, "energy": {"data": float(b.energy)},
+              "power_launched": {"data": float(b.power)},
+              "beam_power_fraction": {"data": np.asarray(b.power_fractions, float)},
+              "species": {"a": float(b.mass), "z_n": float(b.charge)},
+              "beamlets_group": [{"tangency_radius": float(b.tangency_radius),
+                                  "position": {"z": float(b.z_height)},
+                                  "direction": float(b.direction),
+                                  "width_horizontal": float(b.width_r),
+                                  "width_vertical": float(b.width_z)}]}
+             for b in beams]
+    try:
+        rec = fydoc.complete("code/beam", {"settings": settings,
+                                           "inputs": {"equilibrium": doc, "core_profiles": {"profiles_1d": cp},
+                                                      "nbi": {"unit": units}}})
+    except fydoc.Refused as e:
+        raise BeamError(f"nbi: {e}") from e
+    F = rec["fields"]
+    arr = lambda k: np.asarray(F[k]["data"], float)  # noqa: E731
+    fact = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    src = F["core_sources"]["source"]["0"]["profiles_1d"]
+    p_par, p_perp = arr("p_fast_par"), arr("p_fast_perp")
+    per_beam = [{"name": b.name, "power": float(b.power), "absorbed": float(a), "shinethrough": float(sh),
+                 "orbit_loss": float(ol), "i_nbi": float(cur)}
+                for b, a, sh, ol, cur in zip(beams, arr("beam_absorbed"), arr("beam_shinethrough"),
+                                             arr("beam_orbit_loss"), arr("beam_current"))]
     return {
-        "psin": psin_c, "psin_edges": edges, "dvolume": dvol,
-        "p_dep": p_dep, "p_e": np.maximum(p_dep - p_i, 0.0), "p_i": p_i,
-        "p_fast": p_fast, "j_nbi": j_nbi, "pitch": pitch_c,
-        "i_nbi": i_nbi, "p_absorbed": p_abs, "p_injected": p_inj,
-        "shinethrough": (p_shine / p_inj) if p_inj > 0 else 0.0,
-        "orbit_loss_fraction": (p_orbit / p_inj) if p_inj > 0 else 0.0,
-        "fast_energy": kernel.shell_sum(1.5 * p_fast, dvol),
-        "e_crit": sd_last["e_crit"] if sd_last else None,
-        "tau_s": sd_last["tau_s"] if sd_last else None,
-        "tau_eff": tau_eff_c, "shielding": shield, "ft": ft_c, "eps": eps_c,
+        "psin": np.asarray(src["grid"]["fylite:psi_norm"]["data"], float),
+        "psin_edges": arr("psin_edges"), "dvolume": arr("dvolume"),
+        "p_dep": arr("p_dep"), "p_e": np.asarray(src["electrons"]["energy"]["data"], float),
+        "p_i": np.asarray(src["total_ion_energy"]["data"], float),
+        "p_fast": arr("p_fast"), "j_nbi": np.asarray(src["j_parallel"]["data"], float),
+        "pitch": arr("pitch"), "i_nbi": fact("i_nbi"), "p_absorbed": fact("p_absorbed"),
+        "p_injected": fact("p_injected"), "shinethrough": fact("shinethrough"),
+        "orbit_loss_fraction": fact("orbit_loss_fraction"), "fast_energy": fact("fast_energy"),
+        "e_crit": arr("e_crit"), "tau_s": arr("tau_s"), "tau_eff": arr("tau_eff"),
+        "shielding": arr("shielding"), "ft": arr("ft"), "eps": arr("eps"),
         "stopping_model": stopping_model,
-        #: T-M12: the two branches and the prompt torque — the browser
-        #: assembly carries the same arrays so the gates can compare
         "p_fast_par": p_par, "p_fast_perp": p_perp,
-        "torque_nbi": torque,
-        "torque_total": kernel.shell_sum(torque, dvol),
+        "torque_nbi": arr("torque"), "torque_total": fact("torque_total"),
         "anisotropy": {"p_par": p_par, "p_perp": p_perp},
         "per_beam": per_beam,
+        "notes": list(rec.get("notes", [])),
     }
 
 

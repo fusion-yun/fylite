@@ -115,8 +115,7 @@ def test_no_function_is_only_a_second_name_for_a_kernel_entry(path: Path):
 
 def test_the_shaping_wrappers_are_not_mistaken_for_aliases():
     """★The other half: this rule must not push the assembly layer into
-    deleting the wrappers that DO work.  ``nbi.field_ion_sum`` and
-    ``nbi.shielding_factor`` restore the caller's shape — if this test ever
+    deleting the wrappers that DO work.  ``nbi.field_ion_sum`` restores the caller's shape — if this test ever
     starts flagging them, the rule has become the wrong rule.
 
     ★★It listed four, and two of them (``coulomb_log``,
@@ -130,7 +129,9 @@ def test_the_shaping_wrappers_are_not_mistaken_for_aliases():
     """
     nbi = PKG / "scenario" / "model" / "nbi.py"
     flagged = {name for name, _, _ in _bare_aliases(nbi)}
-    for keeper in ("field_ion_sum", "shielding_factor"):
+    #: ``shielding_factor`` was the other example until its last caller sank
+    #: (``code/beam``, 2026-09-05) and the dead-wrapper half retired it
+    for keeper in ("field_ion_sum",):
         assert keeper not in flagged, (
             f"nbi.{keeper} restores the caller's shape via _shaped(); "
             "flagging it means this rule is now catching real work")

@@ -49,7 +49,7 @@ BASELINE = {
     'scenario/model/ic.py': 2,
     'scenario/model/lh.py': 5,
     'scenario/model/mapping.py': 3,
-    'scenario/model/nbi.py': 29,
+    'scenario/model/nbi.py': 6,
     'scenario/model/neoclassical.py': 11,
     'scenario/model/qlknn_closure.py': 21,
     'scenario/waveform.py': 2,

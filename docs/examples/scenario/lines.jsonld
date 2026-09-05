@@ -88,8 +88,8 @@
    "parameters": 14,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/pfwave（CASE_CODES 只有 breakdown · discharge · evolve · interpretive · pulse · reconstruction · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/pfwave today (CASE_CODES carries breakdown, discharge, evolve, interpretive, pulse, reconstruction, transport, vstab, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/pfwave（CASE_CODES 只有 beam · breakdown · coupled · discharge · evolve · interpretive · pulse · reconstruction · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/pfwave today (CASE_CODES carries beam, breakdown, coupled, discharge, evolve, interpretive, pulse, reconstruction, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {
@@ -102,8 +102,8 @@
    "parameters": 5,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/profile（CASE_CODES 只有 breakdown · discharge · evolve · interpretive · pulse · reconstruction · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/profile today (CASE_CODES carries breakdown, discharge, evolve, interpretive, pulse, reconstruction, transport, vstab, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/profile（CASE_CODES 只有 beam · breakdown · coupled · discharge · evolve · interpretive · pulse · reconstruction · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/profile today (CASE_CODES carries beam, breakdown, coupled, discharge, evolve, interpretive, pulse, reconstruction, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {
@@ -126,8 +126,8 @@
    "parameters": 8,
    "runnable": false,
    "reason": {
-    "zh": "内核的 case 门今天不认 code/series（CASE_CODES 只有 breakdown · discharge · evolve · interpretive · pulse · reconstruction · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
-    "en": "The kernel's case door does not accept code/series today (CASE_CODES carries breakdown, discharge, evolve, interpretive, pulse, reconstruction, transport, vstab, zerod only); FYL-DESIGN-17 P2."
+    "zh": "内核的 case 门今天不认 code/series（CASE_CODES 只有 beam · breakdown · coupled · discharge · evolve · interpretive · pulse · reconstruction · transport · vstab · zerod）；FYL-DESIGN-17 P2。",
+    "en": "The kernel's case door does not accept code/series today (CASE_CODES carries beam, breakdown, coupled, discharge, evolve, interpretive, pulse, reconstruction, transport, vstab, zerod only); FYL-DESIGN-17 P2."
    }
   },
   {

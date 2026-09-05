@@ -5856,257 +5856,106 @@ function evDeposit(rho, vprime, centre, width, total) {
  * fed a made-up one would be reporting a stopping depth nobody computed.
  */
 function evBeamDeposit(field, geo, st, sp) {
-  var nsh = Math.max(4, sp.beamShells | 0), i, k;
-  //: the shells the deposition is BINNED into, and their centres.  Uniform
-  //: in psi_N because that is the label `beam_deposit` bins on.
-  var edges = new Float64Array(nsh + 1), psinC = new Float64Array(nsh);
-  for (i = 0; i <= nsh; i++) edges[i] = i / nsh;
-  for (i = 0; i < nsh; i++) psinC[i] = 0.5 * (edges[i] + edges[i + 1]);
-
-  //: ★psi_N on the (R, Z) grid, in the KERNEL's order (R-major) — the same
-  //: order `gs_free_solve` writes psi in and `shell_table` reads.  A
-  //: transpose here would put the beam through a plasma rotated by ninety
-  //: degrees and every number downstream would still look plausible.
+  var nsh = Math.max(4, sp.beamShells | 0), i, c;
   var span = field.psiBnd - field.psiAxis;
   if (!isFinite(span) || span === 0)
     throw new Error(FyI18n.t('e.err.beam_nopsi'));
+  var fr = [Math.max(0, sp.beamF1), Math.max(0, sp.beamF2),
+            Math.max(0, sp.beamF3)];
+  if (!(fr[0] + fr[1] + fr[2] > 0)) throw new Error(FyI18n.t('e.err.beam_fractions'));
+  //: ★★the assembly is `case.rs::beam_case` (FYL-DESIGN-16 K-3, 2026-09-05):
+  //: the shell table on the psi map, the profiles at the shell centres, the
+  //: trapped fraction and the shielding, then per energy component the
+  //: deposition · first-orbit-loss mask · slowing-down · electron/ion split ·
+  //: fast-ion pressure and its pitch split · torque · driven current — ONE
+  //: recipe for this page and for `fylite.scenario.model.nbi.deposit` (the
+  //: kernel repository's `test_beam_code.py` holds it to the old flat
+  //: assembly bit for bit).  What stays here is the PLAN: the field as an
+  //: `fyo:equilibrium` document (q on the ladder's own psi_N, which the case
+  //: reads beside it), the state as `core_profiles`, the beam as the DD's
+  //: `nbi` unit — and the echo of the inputs the report re-runs on.
   var ng = field.nr * field.nz, psin2d = new Float64Array(ng);
   for (i = 0; i < ng; i++) psin2d[i] = (field.psi[i] - field.psiAxis) / span;
-
-  var table = fy.shellTable({
-    r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
-    nr: field.nr, nz: field.nz, psin2d: psin2d,
-    axisR: field.axisR, axisZ: field.axisZ,
-    limR: field.limR, limZ: field.limZ, levels: edges, nTheta: 181 });
-  var dvol = new Float64Array(nsh);
-  for (i = 0; i < nsh; i++) dvol[i] = Math.max(table.dvolume[i], 1e-9);
-
-  //: ★★THE PROFILES THE RAY IS ATTENUATED THROUGH, and they must reach
-  //: psi_N = 1.  The metric ladder stops at `edgePsin` (0.95) — the march
-  //: has no answer beyond it — so the last SOLVED value is HELD across the
-  //: gap, which is a flat top and not a pedestal.  Extrapolating a gradient
-  //: into the region this bar does not model would be inventing the one
-  //: feature it is missing, and the beam would stop in it.
-  var np0 = geo.psin.length, hold = geo.psin[np0 - 1] < 1 - 1e-9;
-  var nprof = hold ? np0 + 1 : np0;
+  var rg = new Array(field.nr), zg = new Array(field.nz);
+  for (i = 0; i < field.nr; i++) rg[i] = field.r0 + field.dr * i;
+  for (i = 0; i < field.nz; i++) zg[i] = field.z0 + field.dz * i;
+  var np0 = geo.psin.length, qAbs = new Array(np0);
+  for (i = 0; i < np0; i++) qAbs[i] = Math.abs(geo.q ? geo.q[i] : 1);
+  var eqDoc = {
+    vacuum_toroidal_field: { r0: Math.abs(geo.r0) || 1, b0: Math.abs(geo.b0) || 1 },
+    time_slice: {
+      global_quantities: { magnetic_axis: { r: field.axisR, z: field.axisZ },
+                           psi_axis: field.psiAxis, psi_boundary: field.psiBnd },
+      profiles_1d: { q: qAbs, 'fylite:psi_norm': Array.from(geo.psin) },
+      profiles_2d: { grid: { dim1: rg, dim2: zg }, psi: Array.from(field.psi) } },
+    'fylite:limiter': { r: Array.from(field.limR), z: Array.from(field.limZ) } };
+  var cp = { profiles_1d: { grid: { 'fylite:psi_norm': Array.from(geo.psin) },
+                            electrons: { density: Array.from(st.ne),
+                                         temperature: Array.from(st.te) } } };
+  var unit = { name: 'nbi', energy: { data: sp.beamEnergy },
+               power_launched: { data: sp.beamPower },
+               beam_power_fraction: { data: fr },
+               species: { a: sp.beamMass, z_n: 1 },
+               beamlets_group: [{ tangency_radius: sp.beamRtan, position: { z: sp.beamZ },
+                                  direction: sp.beamDir, width_horizontal: sp.beamWidth,
+                                  width_vertical: sp.beamWidth }] };
+  var settings = { n_shells: nsh, stopping_model: sp.beamStopping, n_samples: sp.beamSamples,
+                   n_width_r: sp.beamNWidth, n_width_z: sp.beamNWidth,
+                   orbit_losses: sp.beamOrbit ? 1 : 0, zeff: sp.zeff, impurity_form: 'exp',
+                   n_theta: 181 };
+  var rec = fy.complete('code/beam', { settings: settings,
+                                       inputs: { equilibrium: eqDoc, core_profiles: cp,
+                                                 nbi: { unit: [unit] } } });
+  var F = function (k) { return fieldFlat(rec, k); };
+  var X = function (k) { return rec.facts[k].value; };
+  var src = rec.fields.core_sources.source['0'].profiles_1d;
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var nc = rec.dims.n_components | 0;
+  var cAbs = F('component_absorbed'), cRet = F('component_retained'),
+      cPitch = F('component_pitch'), cMask = F('component_orbit_mask'),
+      cE = F('component_energy'), cP = F('component_power'),
+      cShine = F('component_shinethrough'), cOrbit = F('component_orbit_loss'),
+      cAbsF = F('component_absorbed_fraction'), cCur = F('component_current');
+  var records = [];
+  for (c = 0; c < nc; c++) {
+    var sl = function (a) { return Array.from(a.subarray(c * nsh, (c + 1) * nsh)); };
+    records.push({ energy: cE[c], power: cP[c], absorbed: sl(cAbs), retained: sl(cRet),
+                   orbitMask: sp.beamOrbit ? sl(cMask) : null, pitch: sl(cPitch),
+                   shinethrough: cShine[c], orbitLoss: cOrbit[c],
+                   absorbedFraction: cAbsF[c], current: cCur[c] });
+  }
+  //: the input echo the report carries — the profile held to psi_N = 1 as the
+  //: re-run oracle reads it (a clamped interpolation, so the same numbers)
+  var hold = geo.psin[np0 - 1] < 1 - 1e-9, nprof = hold ? np0 + 1 : np0;
   var psinProf = new Float64Array(nprof), neP = new Float64Array(nprof),
       teP = new Float64Array(nprof);
   for (i = 0; i < np0; i++) {
-    psinProf[i] = geo.psin[i];
-    neP[i] = Math.max(st.ne[i], 1e16);
-    teP[i] = Math.max(st.te[i], 1);
+    psinProf[i] = geo.psin[i]; neP[i] = Math.max(st.ne[i], 1e16); teP[i] = Math.max(st.te[i], 1);
   }
-  if (hold) {
-    psinProf[np0] = 1;
-    neP[np0] = neP[np0 - 1]; teP[np0] = teP[np0 - 1];
-  }
-
-  var neC = fy.interp(psinC, psinProf, neP);
-  var teC = fy.interp(psinC, psinProf, teP);
-  var zeffC = new Float64Array(nsh);
-  for (i = 0; i < nsh; i++)
-    zeffC[i] = Math.min(10, Math.max(1, sp.zeff));
-  //: the field-ion sum that sets the critical energy — the kernel's, and a
-  //: CLOSURE rather than bookkeeping (E_c goes as zsum^(2/3), so assembling
-  //: it another way chooses a different critical energy without saying so)
-  var zsum = fy.fieldIonSum({ zeff: zeffC, mainMass: sp.beamMass,
-                              mainCharge: 1, impCharge: 6, impMass: 12 });
-
-  //: mid-shell geometry, on the shell centres the deposition lives on
-  var rminC = fy.interp(psinC, edges, table.rminor);
-  var rmajC = fy.interp(psinC, edges, table.rmajor);
-  var epsC = new Float64Array(nsh);
-  for (i = 0; i < nsh; i++)
-    epsC[i] = Math.min(0.99, Math.max(1e-4, rminC[i] / Math.max(rmajC[i], 1e-6)));
-  var ftC = fy.trappedFractionEps(epsC);
-  //: ★TWO numbers out of one entry, kept apart: `g` is the shielding
-  //: function and `factor` the surviving fraction.  The page reports the
-  //: factor beside the current rather than only their product.
-  var shieldOut = fy.beamShielding({ ft: ftC, zeff: zeffC });
-  var shield = shieldOut.factor;
-  //: dS = dV/(2 pi R) — the kernel's; a current density integrates to a
-  //: current with THIS weight and no other
-  var areaW = fy.shellArea({ dvol: dvol, rmaj: rmajC }).area;
-  //: |q| on the shell centres, for the orbit-loss mask
-  var qAbs = new Float64Array(np0);
-  for (i = 0; i < np0; i++) qAbs[i] = Math.abs(geo.q ? geo.q[i] : 1);
-  var qC = fy.interp(psinC, geo.psin, qAbs);
-
-  //: ★the energy COMPONENTS.  EAST's positive-ion sources record full /
-  //: half / third fractions, and they change the stopping depth materially
-  //: — a single-energy beam is a modelling choice, so it is the reader's
-  //: (the default is one full-energy component) rather than a hidden one.
-  var fr = [Math.max(0, sp.beamF1), Math.max(0, sp.beamF2),
-            Math.max(0, sp.beamF3)];
-  var frSum = fr[0] + fr[1] + fr[2];
-  if (!(frSum > 0)) throw new Error(FyI18n.t('e.err.beam_fractions'));
-  var power = sp.beamPower;
-  var comps = [];
-  for (k = 0; k < 3; k++) {
-    if (fr[k] <= 0) continue;
-    comps.push({ energy: sp.beamEnergy / (k + 1),
-                 power: power * fr[k] / frSum });
-  }
-
-  var pDep = new Float64Array(nsh), pI = new Float64Array(nsh),
-      pitchW = new Float64Array(nsh), jNbi = new Float64Array(nsh),
-      wFast = new Float64Array(nsh), tauW = new Float64Array(nsh),
-      pPar = new Float64Array(nsh), pPerp = new Float64Array(nsh),
-      torque = new Float64Array(nsh);
-  var pInj = 0, pShine = 0, pOrbit = 0;
-  var rEdge = field.r0 + field.dr * (field.nr - 1);
-  var records = [];
-
-  for (var c = 0; c < comps.length; c++) {
-    var comp = comps[c];
-    pInj += comp.power;
-    var dep = fy.beamDeposit({
-      r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
-      nr: field.nr, nz: field.nz, psin2d: psin2d,
-      tangencyRadius: sp.beamRtan, zHeight: sp.beamZ,
-      widthR: sp.beamWidth, widthZ: sp.beamWidth,
-      direction: sp.beamDir, nWidthR: sp.beamNWidth, nWidthZ: sp.beamNWidth,
-      nSamples: sp.beamSamples, rStart: rEdge,
-      psinProf: psinProf, ne: neP, te: teP, psinEdges: edges,
-      mass: sp.beamMass, energy: comp.energy,
-      model: sp.beamStopping, impurityForm: 'exp' });
-    var frac = Float64Array.from(dep.absorbed);
-    var pitch = new Float64Array(nsh);
-    for (i = 0; i < nsh; i++)
-      pitch[i] = frac[i] > 0 ? dep.pitchWeighted[i] / frac[i] : 0;
-    pShine += comp.power * dep.shinethrough;
-
-    //: ★first-orbit losses, counter-injection only — the kernel refuses to
-    //: invent one for a co-injected ion, which drifts INWARD
-    var lost = null, orbitFrac = 0;
-    if (sp.beamOrbit) {
-      lost = fy.firstOrbitLoss({
-        rmin: rminC, rmaj: rmajC, q: qC,
-        aEdge: table.rminor[nsh], b0: Math.abs(geo.b0) || 1,
-        r0: Math.abs(geo.r0) || 1, mass: sp.beamMass, charge: 1,
-        energy: comp.energy, counter: sp.beamDir < 0 });
-      for (i = 0; i < nsh; i++)
-        if (lost[i] !== 0) { orbitFrac += frac[i]; frac[i] = 0; }
-      pOrbit += comp.power * orbitFrac;
-    }
-
-    var pd = new Float64Array(nsh), absFrac = 0;
-    for (i = 0; i < nsh; i++) {
-      pd[i] = comp.power * frac[i] / dvol[i];
-      absFrac += frac[i];
-      pDep[i] += pd[i];
-      pitchW[i] += pd[i] * pitch[i];
-    }
-
-    var sd = fy.beamSlowing({ te: teC, ne: neC, zeff: zeffC, zsum: zsum,
-                              mass: sp.beamMass, eBeam: 1 });
-    var eBeamArr = new Float64Array(nsh);
-    for (i = 0; i < nsh; i++) eBeamArr[i] = comp.energy;
-    var part = fy.beamEnergyPartition({ eCrit: sd.eCrit, tauS: sd.tauS,
-                                        eBeam: eBeamArr });
-    for (i = 0; i < nsh; i++) {
-      pI[i] += pd[i] * part.ionFraction[i];
-      tauW[i] += pd[i] * part.tauEff[i];
-    }
-    //: the fast-ion energy density, out of the half of `shell_area` that
-    //: carries it — W = P tau_eff / 2, p = (2/3) W (the ISOTROPIC closure,
-    //: which a tangential beam does not satisfy; the page says so)
-    var fip = fy.shellArea({ dvol: dvol, rmaj: rmajC, pDep: pd,
-                             tauEff: part.tauEff });
-    for (i = 0; i < nsh; i++) wFast[i] += fip.wFast[i];
-    //: ★the SAME energy density, split by THIS component's birth pitch —
-    //: the pitch-preserving drag closure (p_par = 2 W xi^2, p_perp =
-    //: W (1 - xi^2)).  Per component, because each energy fraction is born
-    //: at its own pitch; the branches ADD, and their trace third stays the
-    //: isotropic p_fast to round-off.
-    var split = fy.fastIonPressureSplit({ pDep: pd, tauEff: part.tauEff,
-                                          pitch: pitch });
-    for (i = 0; i < nsh; i++) {
-      pPar[i] += split.pPar[i];
-      pPerp[i] += split.pPerp[i];
-    }
-    //: the PROMPT toroidal torque density, per component because v_b
-    //: differs per energy fraction — tau_phi = pd (2/v_b) xi R, the
-    //: kernel's; the sign is the pitch's
-    var tq = fy.beamTorque({ pDep: pd, pitch: pitch, rmaj: rmajC,
-                             energy: comp.energy, mass: sp.beamMass });
-    for (i = 0; i < nsh; i++) torque[i] += tq[i];
-
-    var dj = fy.beamCurrent({
-      pDep: pd, pitch: pitch, eCrit: sd.eCrit, eGamma: sd.eGamma,
-      tauS: sd.tauS, rmin: rminC, rmaj: rmajC, shield: shield,
-      energy: comp.energy, mass: sp.beamMass, multiplier: 1, nStep: 101 });
-    for (i = 0; i < nsh; i++) jNbi[i] += dj[i];
-
-    records.push({ energy: comp.energy, power: comp.power,
-                   //: ★★TWO fractions, and they are not the same array.
-                   //: `absorbed` is what `beam_deposit` returned — the
-                   //: number the oracle re-computes — and `retained` is
-                   //: what is left after the first-orbit mask, which is
-                   //: what became a power density.  A file carrying only
-                   //: one of them would make one of the two claims
-                   //: uncheckable.
-                   absorbed: Array.from(dep.absorbed),
-                   retained: Array.from(frac),
-                   orbitMask: lost ? Array.from(lost) : null,
-                   pitch: Array.from(pitch),
-                   shinethrough: dep.shinethrough,
-                   orbitLoss: orbitFrac,
-                   absorbedFraction: absFrac,
-                   current: fy.shellSum(dj, areaW) });
-  }
-
-  var pitchC = new Float64Array(nsh), tauC = new Float64Array(nsh),
-      pE = new Float64Array(nsh);
-  for (i = 0; i < nsh; i++) {
-    pitchC[i] = pDep[i] > 0 ? pitchW[i] / pDep[i] : 0;
-    tauC[i] = pDep[i] > 0 ? tauW[i] / pDep[i] : 0;
-    pE[i] = Math.max(pDep[i] - pI[i], 0);
-  }
-  var ones = new Float64Array(nsh);
-  for (i = 0; i < nsh; i++) ones[i] = 1;
-  var pFast = fy.shellArea({ dvol: ones, rmaj: ones,
-                             pDep: (function () {
-                               var a = new Float64Array(nsh);
-                               for (var j = 0; j < nsh; j++) a[j] = 2 * wFast[j];
-                               return a;
-                             })(), tauEff: ones }).pFast;
-
+  if (hold) { psinProf[np0] = 1; neP[np0] = neP[np0 - 1]; teP[np0] = teP[np0 - 1]; }
+  var edges = F('psin_edges'), rminC = F('rminor');
   return {
-    psin: psinC, edges: edges, dvolume: dvol, area: areaW,
-    rminor: rminC, rmajor: rmajC, eps: epsC, ft: ftC,
-    shielding: shield, shieldingG: shieldOut.g, zeff: zeffC, zsum: zsum,
-    pDep: pDep, pE: pE, pI: pI, pFast: pFast, pitch: pitchC, tauEff: tauC,
-    pPar: pPar, pPerp: pPerp, torque: torque,
-    //: the integrated torque `∫ tau_phi dV` (N·m) — what the momentum
-    //: channel takes in place of the slider when the beam is on
-    torqueTotal: fy.shellSum(torque, dvol),
-    jNbi: jNbi,
-    //: ★the three power accounts stay APART: what was injected, what the
-    //: plasma absorbed, what went through the far wall, and what a
-    //: first orbit carried out.  One "heating power" would hide three
-    //: different things a beam does.
-    pInjected: pInj,
-    pAbsorbed: fy.shellSum(pDep, dvol),
-    shinethrough: pInj > 0 ? pShine / pInj : 0,
-    orbitLossFraction: pInj > 0 ? pOrbit / pInj : 0,
-    iNbi: fy.shellSum(jNbi, areaW),
-    fastEnergy: fy.shellSum((function () {
-      var a = new Float64Array(nsh);
-      for (var j = 0; j < nsh; j++) a[j] = 1.5 * pFast[j];
-      return a;
-    })(), dvol),
+    psin: flat(src.grid['fylite:psi_norm']), edges: edges, dvolume: F('dvolume'), area: F('area'),
+    rminor: rminC, rmajor: F('rmajor'), eps: F('eps'), ft: F('ft'),
+    shielding: F('shielding'), shieldingG: F('shielding_g'), zeff: F('zeff'), zsum: F('zsum'),
+    pDep: F('p_dep'), pE: flat(src.electrons.energy), pI: flat(src.total_ion_energy),
+    pFast: F('p_fast'), pitch: F('pitch'), tauEff: F('tau_eff'),
+    pPar: F('p_fast_par'), pPerp: F('p_fast_perp'), torque: F('torque'),
+    torqueTotal: X('torque_total'),
+    jNbi: flat(src.j_parallel),
+    pInjected: X('p_injected'), pAbsorbed: X('p_absorbed'),
+    shinethrough: X('shinethrough'), orbitLossFraction: X('orbit_loss_fraction'),
+    iNbi: X('i_nbi'), fastEnergy: X('fast_energy'),
     components: records,
-    //: everything the oracle needs to re-run `beam_deposit` itself
     inputs: { r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
               nr: field.nr, nz: field.nz, psin2d: psin2d,
-              psinProf: psinProf, ne: neP, te: teP, rStart: rEdge,
+              psinProf: psinProf, ne: neP, te: teP, rStart: field.r0 + field.dr * (field.nr - 1),
               tangencyRadius: sp.beamRtan, zHeight: sp.beamZ,
               widthR: sp.beamWidth, widthZ: sp.beamWidth,
               direction: sp.beamDir, nWidthR: sp.beamNWidth,
               nWidthZ: sp.beamNWidth, nSamples: sp.beamSamples,
               mass: sp.beamMass, stopping: sp.beamStopping,
-              impurityForm: 'exp', aEdge: table.rminor[nsh],
+              impurityForm: 'exp', aEdge: X('a_edge'),
               b0: Math.abs(geo.b0) || 1, r0Field: Math.abs(geo.r0) || 1,
               orbit: !!sp.beamOrbit },
   };

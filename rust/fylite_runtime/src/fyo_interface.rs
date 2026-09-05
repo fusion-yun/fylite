@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "195f1dbd0c9eb058";
+pub const DIGEST: &str = "4d97a3ce688ed247";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -171,6 +171,18 @@ pub const TABLES: &[Table] = &[
     ] },
     Table { name: "MAGNETICS", doc_type: "fyo:magnetics", slots: &[
     ] },
+    Table { name: "NBI", doc_type: "fyo:nbi", slots: &[
+        Slot { key: "energy", path: "unit/energy/data", units: "eV", rank: "0d" },
+        Slot { key: "power", path: "unit/power_launched/data", units: "W", rank: "0d" },
+        Slot { key: "power_fraction", path: "unit/beam_power_fraction/data", units: "1", rank: "1d" },
+        Slot { key: "mass", path: "unit/species/a", units: "amu", rank: "0d" },
+        Slot { key: "charge", path: "unit/species/z_n", units: "1", rank: "0d" },
+        Slot { key: "tangency_radius", path: "unit/beamlets_group/tangency_radius", units: "m", rank: "0d" },
+        Slot { key: "z_height", path: "unit/beamlets_group/position/z", units: "m", rank: "0d" },
+        Slot { key: "direction", path: "unit/beamlets_group/direction", units: "1", rank: "0d" },
+        Slot { key: "width_r", path: "unit/beamlets_group/width_horizontal", units: "m", rank: "0d" },
+        Slot { key: "width_z", path: "unit/beamlets_group/width_vertical", units: "m", rank: "0d" },
+    ] },
     Table { name: "PF_ACTIVE", doc_type: "fyo:pf_active", slots: &[
     ] },
     Table { name: "PULSE", doc_type: "fyo:pulse", slots: &[
@@ -237,6 +249,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "reconstruction", shape: "", units: "assembled", gloss: "one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit" },
         Row { key: "interpretive", shape: "", units: "assembled", gloss: "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account" },
         Row { key: "coupled", shape: "", units: "assembled", gloss: "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature" },
+        Row { key: "beam", shape: "", units: "assembled", gloss: "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },
