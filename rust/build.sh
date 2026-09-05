@@ -150,6 +150,20 @@ check_kernel() {
         return 0
     fi
     local bad=0
+    #: ★链进 libfylite_runtime.so 的那份内核，对着归档现在的那份比（同版本、同 ABI、同摘要
+    #: 也可以是不同的字节——2026-09-05 实测）。运行时自报它链的是哪一份；json 是内核仓写的。
+    local rjson="$ROOT/rust/kernel-lib/kernel-static.json"
+    if [ -f "$rjson" ] && [ -f "$ilib/libfylite_runtime.so" ]; then
+        local linked_sha disk_sha
+        linked_sha="$(cd "$ROOT/python" && python3 -c 'from fylite.io import fydoc; j = fydoc.linked_kernel(); print((j or {}).get("sha256", ""))' 2>/dev/null || true)"
+        disk_sha="$(sed -n 's/.*"sha256": *"\([0-9a-f]*\)".*/\1/p' "$rjson")"
+        if [ -n "$linked_sha" ] && [ -n "$disk_sha" ] && [ "$linked_sha" != "$disk_sha" ]; then
+            echo "[kernel] ★运行时链着的内核（sha ${linked_sha:0:12}…）不是归档现在的那份（${disk_sha:0:12}…）——" \
+                 "内核在运行时之后重建过；本次构建会把它换成现在的归档"
+        elif [ -n "$linked_sha" ]; then
+            echo "[kernel] 运行时链着的内核与归档一致（sha ${linked_sha:0:12}…）"
+        fi
+    fi
     [ "$iver" = "$kver" ] || {
         echo "::error:: 装着的内核是 $iver，内核仓检出是 $kver" >&2; bad=1; }
     [ "$iabi" = "$kabi" ] || {

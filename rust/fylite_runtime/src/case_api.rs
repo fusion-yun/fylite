@@ -157,6 +157,30 @@ pub unsafe extern "C" fn fylite_runtime_case_tree_json(
     }
 }
 
+/// The fingerprint of the kernel LINKED INTO this library, as the JSON the kernel's
+/// build wrote beside its archive (`kernel-static.json`: version · abi · built · sha256).
+///
+/// Returns **0** with the JSON text, or **1** with an empty buffer when this library
+/// links no kernel (or the archive came without its json).  Release the buffer with
+/// `fylite_runtime_case_free`.  ★This is what lets a caller tell「the kernel inside the
+/// runtime」from「the kernel installed beside it」when both carry the same version, ABI
+/// and interface digest — see `kernel::Kernel::linked_fingerprint`.
+///
+/// # Safety
+/// `out` and `out_len` must be valid to write.
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_linked_kernel(out: *mut *mut u8, out_len: *mut u64) -> i32 {
+    if out.is_null() || out_len.is_null() {
+        return -1;
+    }
+    *out = std::ptr::null_mut();
+    *out_len = 0;
+    match crate::kernel::Kernel::linked_fingerprint() {
+        Some(j) => { hand_out(j, out, out_len); 0 }
+        None => 1,
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_case_free(p: *mut u8, n: u64) {
     if p.is_null() {

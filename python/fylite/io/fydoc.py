@@ -409,3 +409,23 @@ def complete(code: str, plan: dict, *, kernel_path: str | Path | None = None) ->
     if rc == 1:
         raise Refused(int((record or {}).get("refusal", {}).get("code", rc)), record)
     return record
+
+
+def linked_kernel() -> dict | None:
+    """The fingerprint of the kernel linked INTO ``libfylite_runtime.so``, or ``None``.
+
+    ★Version, ABI and the interface digest cannot tell two builds of one kernel
+    version apart; this can (``built`` · ``sha256`` of the archive at link time).
+    ``python/tests/test_linked_kernel_matches_the_archive.py`` holds it against the
+    archive on disk, and ``rust/build.sh``'s ``check_kernel`` does the same."""
+    lib = kernel.require_data()
+    out = ctypes.c_void_p()
+    n = ctypes.c_uint64(0)
+    rc = lib.fylite_runtime_linked_kernel(ctypes.byref(out), ctypes.byref(n))
+    if rc != 0 or not out.value or not n.value:
+        return None
+    try:
+        text = ctypes.string_at(out, n.value).decode("utf-8", "replace")
+    finally:
+        lib.fylite_runtime_case_free(out, n)
+    return json.loads(text)

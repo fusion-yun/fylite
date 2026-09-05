@@ -84,6 +84,18 @@ fn link_kernel() {
         }
         let dir = a.parent().unwrap_or(Path::new("."));
         println!("cargo:rerun-if-changed={}", a.display());
+        //: ★★2026-09-05 实测的坑：这份归档与装着的 .so 版本、ABI、接口摘要三者全同，却可以
+        //: 是**不同的字节**（内核仓两次构建之间，同一版本号）。链进本 crate 的那份没有任何
+        //: 自述，于是「运行时里的内核是哪一次构建」无处可查——八条门在它上面红、在新 .so 上
+        //: 绿，而没有一个数说得出为什么。内核仓的 build.sh 在归档旁写了 kernel-static.json
+        //: （built · sha256）；把它**编进本 crate**，运行期就答得出「我链的是哪一份」，
+        //: 而 `check_kernel` / 一条 Python 闸子就能拿它对着归档现在的那份比。
+        let json = dir.join("kernel-static.json");
+        println!("cargo:rerun-if-changed={}", json.display());
+        if let Ok(text) = std::fs::read_to_string(&json) {
+            let one_line: String = text.split_whitespace().collect::<Vec<_>>().join(" ");
+            println!("cargo:rustc-env=FYLITE_LINKED_KERNEL_JSON={one_line}");
+        }
         println!("cargo:rustc-link-search=native={}", dir.display());
         //: ★★**按路径交给链接器**，而不是 `-l static=`。差别不是风格：`-l static=`
         //: 让 rustc 在**自己的 LTO 那一步**收下这份归档，而归档里的对象没有

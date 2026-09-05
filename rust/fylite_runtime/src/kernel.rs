@@ -170,6 +170,20 @@ impl Kernel {
         cfg!(kernel_static)
     }
 
+    /// The linked kernel's own fingerprint — the `kernel-static.json` beside the archive
+    /// at the time THIS binary was built (`kernel_version` · `abi` · `built` · `sha256`).
+    ///
+    /// ★`None` when no archive was linked, or when the archive came without its json.
+    /// Compare it with the json on disk NOW to know whether the linked copy lags the
+    /// kernel — version, ABI and interface digest cannot tell two builds of one version
+    /// apart, and this can.
+    pub fn linked_fingerprint() -> Option<&'static str> {
+        #[cfg(kernel_static)]
+        { option_env!("FYLITE_LINKED_KERNEL_JSON") }
+        #[cfg(not(kernel_static))]
+        { None }
+    }
+
     /// Load the first candidate that exists and carries the door.
     pub fn load(explicit: Option<&Path>) -> Result<Kernel, KernelError> {
         //: ★★没人指定就用链进来的那一份。**显式给的路径仍然赢**（`--kernel` 或
