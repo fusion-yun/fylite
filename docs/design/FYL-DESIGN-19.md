@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-19
 title: "facts 的发行形态——从 fydoc 的装置书到两份生成物 (Distributing the Facts: from fydoc's Device Book to Two Generated Artifacts)"
 shortname: fylite-facts-distribution
-version: "0.1"
+version: "0.2"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -15,7 +15,15 @@ modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v0.1 初稿：评估用户提案「从 fydoc 收集 device A-Box，合并成两份文件——`facts.jsonld`
+    v0.2 收进用户裁定（2026-09-05）：**`wall_ggd` 不入仓；只带必要的 IDS——`wall` /
+    `pf_active` / `tf` / `magnetics`——加必要诊断**。据此把 A-4 的「并什么」从体量判据
+    改写为**逐 IDS 的白名单**（新增 A-13），并补实测：白名单的文本面 731 KB / 38 个文件，
+    而 `wall_ggd` 一项 10.1 MB——占装置书全部字节的 88%，且**没有消费者**（代码读的是
+    `wall.description_2d[].limiter.unit[]` 那条轮廓，不是 GGD 网格）。「必要诊断」按
+    **谁真的读它**定：`interferometer`（EAST 绑定表 24 条，动理学约束的 POINT 弦）·
+    `thomson_scattering`（`recon_rs.py` 25 处，但**无绑定**——`FYL-DESIGN-17` G-8）·
+    `ece`（1 处）；`bolometer` / `soft_x_rays` / 三个 spectrometer 无消费者，不带。
+    · v0.1 初稿：评估用户提案「从 fydoc 收集 device A-Box，合并成两份文件——`facts.jsonld`
     进 app、`facts.rs` 进 rust；fylite 顶层不再保留单独的 `facts/`」。方向判为**对**，
     且与本仓既有的四处生成物同一条规矩（A-1）；提案按字面有两处带不动的东西——**清单
     不是卡片**（取数要的那一份，实测 13 台里只有 EAST 有，A-4）与**域有三个不是一个**
@@ -32,7 +40,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-19` |
 | 文档名称 (Title) | facts 的发行形态——从 fydoc 的装置书到两份生成物 |
 | 短名 / Slug | `fylite-facts-distribution` |
-| 版本 (Version) | v0.1 |
+| 版本 (Version) | v0.2 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -228,8 +236,9 @@ cfetr · iter · jt60sa · west + 目录，**没有 east**）——它是问 `fa
 
 **A-4 并进去的是卡片，不是 A-Box；清单**也**并进去。** 卡片（`fyo:DeviceDescription`）
 是页面与内核要的那一份；清单（`abox/device.jsonld`）是取数要的那一份，**两份都是文本、
-都小**（实测清单只有 EAST 一份）。**禁止 (MUST NOT)** 把 `.h5` 并进任何一份生成物——
-实测那是 10.8 MB 里的 10.1 MB，且它是数据不是描述。
+都小**（实测清单只有 EAST 一份）。**禁止 (MUST NOT)** 把 `.h5` 并进任何一份生成物。
+★**哪些 IDS 进得来由 A-13 的白名单定**，不由体量定——体量只是白名单成立之后的一个
+结果（v0.2 修订：v0.1 这一条把「不并 10.8 MB 的 HDF5」当成判据，而判据应当是「谁读它」）。
 
 **A-5 三个域各有各的答案，不能只答一个。** `device` 并进去（A-4）；`experiment` 并进去
 （104 KB，`fy run` 的离线测量靠它，`FYL-DESIGN-17` E-15 第 2 级）；`amns` **不并**
@@ -261,6 +270,23 @@ fydoc 的装置书，要么承认它没了**。在它回到源之前，EAST 进�
 `facts.rs`，生成物叫 `facts_table.rs`（与 `ids_tables.rs` 同形）。**禁止 (MUST NOT)** 让
 同一个文件名在同一个 crate 里指两样东西。
 
+**A-13 只带必要的 IDS，白名单逐条列在这里。**〔已确立〕用户裁定（2026-09-05）：
+*`wall_ggd` 不入仓，仅包含必要的 IDS——`wall` / `pf_active` / `tf` / `magnetics`——
+和必要诊断*。据此：
+
+- **结构四件**（一台装置**是什么**）：`wall`（限制器 / 壁轮廓）· `pf_active`（线圈几何与
+  匝数）· `tf`（环向场）· `magnetics`（磁通环与探针的通道表）。这四件正是九份场景模板的
+  `device` 端口声明的那些（实测：反演与时间序列要四件全，设计线三条要前三件）。
+- **必要诊断**按**谁真的读它**定，不按「有没有」定：`interferometer`（EAST 绑定表 24 条，
+  动理学约束的 POINT 弦）· `thomson_scattering`（`recon_rs.py` 里 25 处，压强与 n_e 约束）·
+  `ece`（1 处）。
+- **不带**：`wall_ggd` · `bolometer` · `soft_x_rays` · `spectrometer_*` · `imas_md.h5`，
+  逐条的理由与体量见 {numref}`tbl-a19-ids`。
+
+★`thomson_scattering` 带的是**描述**，而今天**抓不动**：EAST 的绑定表里没有它
+（`FYL-DESIGN-17` G-8）。白名单说的是「这份描述该在生成物里」，不是「这条诊断今天取得到」——
+两件事分开说，否则读者会把一条缺绑定读成一条缺描述。
+
 **A-12 记录仍要说得出「这一份从哪来」。** 生成物里逐台带 `fylite:from`（fydoc 的提交号
 与路径），于是一份记录引用的装置描述仍可回溯到装置书的某一版——A-2 保住的是**路径**的
 出处，这一条保住的是**内容**的出处。
@@ -268,7 +294,33 @@ fydoc 的装置书，要么承认它没了**。在它回到源之前，EAST 进�
 (fylite-facts-sizes)=
 # 七 · 并什么、不并什么 (What Goes In)
 
-:::{table} 逐项取舍，尺寸为实测。
+:::{table} 逐 IDS 的白名单（A-13）。「谁读它」是判据，尺寸是结果。实测 2026-09-05，fydoc 装置书 13 台。
+:name: tbl-a19-ids
+:align: left
+
+| IDS | 体量 | 判 | 谁读它 / 为什么不带 |
+| :--- | ---: | :---: | :--- |
+| `wall` | 338.6 KB | **带** | 限制器轮廓：`plasmaMask` 判内外、页面画壁；九份模板的 `device` 端口都要 |
+| `pf_active` | 94.0 KB | **带** | 线圈几何与 `turns_with_sign`；自由边界解与线圈反解的输入 |
+| `tf` | 41.1 KB | **带** | 环向场；每台都有（13 台里 11 台带此文件） |
+| `magnetics` | 650.6 KB（含 `imas_md.h5` 477.8 KB） | **带文本，去 HDF5** | 磁通环与探针的通道表——反演的正向算子按它取；那份 `.h5` 是 IMAS 元数据，二进制不进 JSON 生成物 |
+| `interferometer` | 15.1 KB | **带** | 动理学约束的 POINT 弦；EAST 绑定表 24 条 |
+| `thomson_scattering` | 14.9 KB | **带（描述）** | 压强与 n_e 约束（`recon_rs.py` 25 处）；★今天**无绑定**，抓不动（`FYL-DESIGN-17` G-8） |
+| `ece` | 82.4 KB | **带** | `recon_rs.py` 1 处 |
+| **`wall_ggd`** | **10 367.3 KB** | **不带**〔用户裁定〕 | GGD **网格**形。代码读的是 `wall.description_2d[].limiter.unit[]` 那条轮廓，**没有任何消费者读 GGD**——它一项就占装置书全部字节的 **88%** |
+| `bolometer` | 311.8 KB | 不带 | 无消费者 |
+| `soft_x_rays` | 93.6 KB | 不带 | 无消费者（`FYL-CONOPS-00` S-L2 提过软 X 层析，实现不在） |
+| `spectrometer_visible` / `_uv` / `_x_ray_crystal` | ~270 KB | 不带 | 无消费者 |
+:::
+
+〔已确立〕白名单的**文本面**：**731.0 KB，38 个文件**（去掉 `imas_md.h5` 之后）。它是
+「从 A-Box 读进来的那些」；蒸馏成卡片之后是 **432 KB / 7 台**（{ref}`fylite-facts-asis`）。
+
+〔评注〕**这条裁定把 A-Box 的体量问题从「大」变成「不相干」。** 装置书 14 MB 里，
+10.1 MB 是一个没有读者的网格文件；白名单之后要经手的是 731 KB。所以「A-Box 太大不能并」
+这个顾虑本身是错的问法——真正的问法是「谁读它」，而按那个问法答完，体量自己就小了。
+
+:::{table} 其余各项的取舍，尺寸为实测。
 :name: tbl-a19-what
 :align: left
 
@@ -280,7 +332,8 @@ fydoc 的装置书，要么承认它没了**。在它回到源之前，EAST 进�
 | 逐台许可账 `rights.json` | KB 级 | **并**（作为每条的字段） | 发行版判据要能自证；A-6 |
 | `experiment/<机器>/<炮>` 切片 | 104 KB | **并** | `fy run` 离线测量第 2 级；A-5 |
 | `amns/` | 5.8 MB | **不并** | 无命令行读者，且体量与用途都不像「随程序走的描述」；A-5 |
-| A-Box 的 `.h5`（3 个） | 10.8 MB | **不并** | 数据不是描述；ITER 一个文件就 10.1 MB；A-4 |
+| A-Box 的 `.h5`（3 个） | 10.8 MB | **不并** | 二进制不进 JSON 生成物；且其中 10.1 MB 是白名单外的 `wall_ggd`（A-13） |
+| 白名单外的 IDS（bolometer · soft_x_rays · spectrometer_*） | ~680 KB | **不并** | 无消费者；A-13 |
 | A-Box 的其余文本（147 个文件里未被卡片吸收的那些） | ≤2.5 MB | **不并** | 卡片就是它的蒸馏；两份都带等于带两遍 |
 :::
 
@@ -308,6 +361,7 @@ fydoc 的装置书，要么承认它没了**。在它回到源之前，EAST 进�
 | :--- | :--- | :--- | :--- |
 | **G-1** | **EAST 的手工卡片三仓皆无**，而它是唯一有清单、唯一能抓真炮的那台；不回到 fydoc 就进不了生成物 | 本次复核；`535d087` 的记录 | P0 |
 | **G-2** | 13 台里 **6 台 A-Box 没有 magnetics / pf_active / wall**，转不出卡片（有意不写空卡片）——生成物因此只有 7 台，而目录要说清楚为什么少 | `abox-to-facts.py --all` 实测 | P1 |
+| **G-7** | `thomson_scattering` 进了白名单（有描述、有代码读者）却**没有绑定**，于是动理学那条路今天只能走 `--input`；白名单与可取性是两件事，要各有一处说法 | `_mds_bind.json` 无该 IDS；`FYL-DESIGN-17` G-8 | P2 |
 | **G-3** | 两份生成物的**命名与版次**未定（`facts.public.jsonld`？随 `tools/soname.sh` 的版本化命名走？） | 2026-09-05 制品命名裁定 | P1 |
 | **G-4** | `amns` 留在路径上之后**没有任何自带档**，于是它在一份纯制品上不可用——今天也如此，但本篇把它写成明账 | {numref}`tbl-a19-what` | P2 |
 | **G-5** | 更新节拍（F）没有答案：装置书改了之后，已发出去的制品怎么知道自己旧了 | 〔工作假设〕 | P3 |
