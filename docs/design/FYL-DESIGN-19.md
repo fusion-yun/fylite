@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-19
 title: "facts 的发行形态——从 fydoc 的装置书到两份生成物 (Distributing the Facts: from fydoc's Device Book to Two Generated Artifacts)"
 shortname: fylite-facts-distribution
-version: "0.4"
+version: "0.5"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -15,7 +15,23 @@ modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v0.4 记 A-15 的**落地与剩余**（2026-09-05 同日）：`pf_passive` **已迁**——fydata 新增
+    v0.5 **A-15 收口**（2026-09-05 第三、四条用户裁定：*接受混合来源* · *operational 作为
+    自定入 fyo*）。G-10 与 G-9 双双关闭，四块全部到位：
+    · **G-10**（一个 IDS 一份文档、没有合成轴）——裁定为**不要合成轴，接受混合来源**：
+    电气一侧（14 路电源 · 12 路 BRSP 通道权重图 · 电路模型电阻率）并进
+    `providers/pf_active/base.yaml`，来路逐段写明，而不再假装同源。fydoc 的校核判定随之
+    由 `consistent` 降为 `partial`——不是 `coil[]` 出了问题，是文档里多了一半无文献可核的
+    内容，整篇再说「逐位相符」就是以一半的校核度冒充全篇。
+    · **G-9**（`operational` 无归属）——裁定为**在 fyo 自定**：新模块
+    `fyo/schema/src/process/operational.linkml.yaml`，根类 `Operational` 走 `fyo_path`
+    而不是 `dd_path`（后者的意思是「它在 DD 里的路径」，而它不在 DD 里），两个读者各加一行
+    认第二个键。范围自我约束一条：**不把 EFIT 的 namelist 逐键铸成本体槽**——键名的权威是
+    EFIT 的源码与版本，且在手的那份读自一个 GUI，是界面暴露的子集而非定义域。
+    另在 fyo 开三个自有槽，都是为了不让一句假话写得合法：`circuit_model_resistivity`
+    （超导 PF 没有导体电阻率）· `time_constant`（不折成 DD 那对次序不可核的多项式系数）·
+    `element_weight`（DD 的 `connections` 是整数矩阵，圆整 0.175/0.825 会静默改变分流）。
+    新增 A-16 / A-17 记这两条裁定。
+    · v0.4 记 A-15 的**落地与剩余**（2026-09-05 同日）：`pf_passive` **已迁**——fydata 新增
     `abox/device/tokamak/east/fyo/latest/static/now/pf_passive.yaml`（90 个 loop：真空室内外壳
     各 40 段加室内铜被动板 10 块），在 `machine.yaml` 的 `epochs[now].ids` 登记，两道门禁
     0 error，再由 `abox2jsonld.py` 誊录进 fydoc 并在 `provenance.yaml` 记 `unverified`。
@@ -67,7 +83,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-19` |
 | 文档名称 (Title) | facts 的发行形态——从 fydoc 的装置书到两份生成物 |
 | 短名 / Slug | `fylite-facts-distribution` |
-| 版本 (Version) | v0.4 |
+| 版本 (Version) | v0.5 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -249,7 +265,7 @@ jt60sa · west + 目录）。翻向的理由与随之换向的门禁见 A-14；�
 不必重建二进制。
 
 (fylite-facts-rulings)=
-# 六 · 裁定 A-1..A-15 (Rulings)
+# 六 · 裁定 A-1..A-17 (Rulings)
 
 **A-1 装置描述是生成物，且源只有一个：fydoc 的装置书。** 本仓**禁止 (MUST NOT)** 手工
 维护任何一台装置的描述；`tools/abox-to-facts.py` 是那条唯一的转换。〔已确立〕上游裁定
@@ -384,8 +400,8 @@ fydoc abox*。执行时复核出两件必须先说清的事：
 | :--- | :--- | :--- |
 | **79 探针基** | **本来就在 fydoc** | `providers/magnetics/efit_w_pf.jsonld` 记 `b_field_pol_probe` 79 · `flux_loop` 35，与卡片 `magnetics:` 段逐数相同 |
 | **被动结构** | **已迁**（90 个 loop） | fydata `static/now/pf_passive.yaml` → `machine.yaml` 登记 → fydoc `abox/static/now/pf_passive.jsonld`；两道门禁 0 error |
-| **电源参数** | **一半本来就在，另一半卡住** | 逐 deck 元件匝数 = `providers/pf_active/base.yaml` 的 `turns_with_sign`（140×6 · 44 · 44 · 204 · 204 · 60 · 60 · 32 · 32，逐位相同）；IC1 / IC2 也已是它的 coil。缺 `power_supply` · `pf_active_circuits.resistivity` · `pf_channel_elements`——见 G-10 |
-| **拟合控制块** | **未迁** | `operational:` 无 IDS 归属，A-Box 里没有它的位置——G-9 |
+| **电源参数** | **已迁**（一半本来就在） | 逐 deck 元件匝数 = `providers/pf_active/base.yaml` 的 `turns_with_sign`（140×6 · 44 · 44 · 204 · 204 · 60 · 60 · 32 · 32，逐位相同）；IC1 / IC2 也已是它的 coil。另一半（14 路电源 · 12 路通道权重图 · 电路模型电阻率）2026-09-05 并进同一份文档，混合来源逐段写明——A-16 |
+| **拟合控制块** | **已迁** | `operational:` 无 IDS 归属，故在 fyo 自定一个根类给它——A-17；fydata `static/now/operational.yaml`，三组 54 键加一道探针准入门 |
 :::
 
 ★**IC 线圈有两个来路，数不一样**，这不是缺口而是分歧，记下免得下一个人当成缺件补：
@@ -395,8 +411,43 @@ fydata `base.yaml`（Guo 2012）记 IC1 在 `r = 2.400` · `z = 0.600`、`turns 
 一个覆盖另一个。
 
 ★`operational` 一块没有 IDS 归属，落进 A-Box 时**必须**自带一个说得清「它不是设备描述」
-的位置，否则它会被下一个读者当成一份 IDS 断言——那是本条唯一一处需要新造约定的地方
-（G-9）。
+的位置，否则它会被下一个读者当成一份 IDS 断言——那处新造的约定由 A-17 给出（G-9 关闭）。
+
+**A-16 电气一侧与线圈几何合住一份 `pf_active`，来路逐段写明。**〔已确立〕用户裁定
+（2026-09-05）：*接受混合来源*。
+
+- **不设合成轴**。fydata 的解析面是「一个 IDS 一份文档、按 provider 选一份」；电源与线圈
+  几何同属 `pf_active`，分成两份则选中其一就丢了另一半。为这一台机器造一条合成轴，是让
+  解析面从「选一份」变成「拼几份」——那一步的代价（谁覆盖谁、冲突怎么判）比它要解决的
+  问题大。故合住。
+- **代价照付，不藏**。合住之后这份文档**不再单源**，所以 fydoc 的校核判定由 `consistent`
+  降为 `partial`。降级**不是**因为 `coil[]` 出了问题——它仍与 Guo 2012 表 1 逐位相符——而是
+  因为整篇再说「逐位相符」就是**以一半的校核度冒充全篇**。来路写在每一段上，`fields` 逐项
+  标 `unpublished`。
+- **三处记法**，都是为了不让一句假话写得合法：`circuit_model_resistivity` 不叫
+  `resistivity`（EAST 的 PF 是超导的，写成导体电阻率即假）· `time_constant` 不折成
+  `filter_numerator` / `denominator`（那对系数的次序是 DD 的约定，写反了得到的是一个
+  **错而不非法**的滤波器）· `element_weight` 不塞进 `connections`（整数矩阵，把
+  0.175 / 0.825 圆整成 1/0 会静默地把电流在导体间重新分配）。三个都是 fyo 自有槽
+  （`fyo_owned: fydata-abox`，与既有的 `geometry_outline` 同类）。
+
+**A-17 `operational` 在 fyo 自定一个根类。**〔已确立〕用户裁定（2026-09-05）：
+*operational 作为自定入 fyo*。
+
+- **落处**：`fyo/schema/src/process/operational.linkml.yaml`，hand-curated、无 DD 血缘。
+  根类 `Operational` 加三个承载类（`ProbeAdmissionGate` · `CodeNamelistGroup` ·
+  `CodeNamelistParameter`）。
+- **根键走 `fyo_path` 不走 `dd_path`**。给一个自定类硬安一个 `dd_path` 会让注记说谎：那个键
+  的意思是「它在 DD 里的路径」，而它不在 DD 里。两个按根键解析的读者
+  （fydata `check_abox_shape.py` · fydoc `abox2jsonld.py`）各加一行认第二个键。
+- **范围自我约束**：**禁止 (MUST NOT)** 把另一个代码的 namelist 逐键铸成本体槽。理由两条，
+  都不是省事——(1) 键名的权威是那个代码的源码与版本，写进本体等于让 fyo 断言「这些是合法的
+  EFIT 旋钮」，一个 fyo 核不了的断言；(2) 在手的那一份读自一个 GUI 的 edit-field，是**界面
+  暴露的子集**，不是 namelist 的定义域，当全集入本体会让读者以为「不在表里的键不存在」。
+  故分工是：**能核的铸成类型**（探针准入门是带 T 量纲的物理阈值）·**核不了的照原样承载**
+  并写明是谁的拼法（每组必填 `code`，键名逐字保留，单位不注）。
+- **一处照原样保留的重复**：`gui_v5_fig` 与 `point_density_fit` 有六个键同义而拼法不同、
+  值一致。两组都留、**不合并**——合并要先断定哪一份拼法是权威的，而那是 EFIT 的事。
 
 (fylite-facts-sizes)=
 # 七 · 并什么、不并什么 (What Goes In)
@@ -461,10 +512,12 @@ fydata `base.yaml`（Guo 2012）记 IC1 在 `r = 2.400` · `z = 0.600`、`turns 
 * **A-14 的缺省翻向**：六处缺省改成 `internal`，内嵌资源表换向重生成，
   `test_facts_corpus.py` 的表闸改名改向并修好那条恒真断言。关闭判据：
   `test_facts_corpus.py` 全绿（24 条），且 `--flavour public --list` 的计划里仍无 EAST。
-* **A-15 的被动结构一块**：fydata 新增 `pf_passive.yaml`（90 个 loop）并在 `machine.yaml`
-  登记，`check_abox_shape.py` / `check_abox_tbox.py` 双 0 error；`abox2jsonld.py` 誊录进
-  fydoc，`provenance.yaml` 记 `unverified`。★另三块的实际状态见 {numref}`tbl-a19-east`：
-  电源那批**一半本来就在**，剩下的卡在 G-10；`operational` 卡在 G-9。
+* **A-15 全四块**：`pf_passive.yaml`（90 个 loop）· `operational.yaml`（三组 54 键加一道
+  探针准入门）两份新文档，`providers/pf_active/base.yaml` 并进电气一侧（14 路电源 · 12 路
+  BRSP 通道权重图 · 电路模型电阻率），三处都在 `machine.yaml` 登记；`check_abox_shape.py` /
+  `check_abox_tbox.py` 双 0 error，并以一次故意改错的键实测新根类确实在被逐键核对。
+  `abox2jsonld.py` 誊录进 fydoc（52 份），`provenance.yaml` 新增两条、改判一条。
+  fyo 侧新增一个模块加三个自有槽（A-16 / A-17）。逐块状态见 {numref}`tbl-a19-east`。
 
 〔门禁〕五条：①两份生成物描述同一批机器同一批字节（A-9）；②生成物里的机器集 = 该版
 `rights.json` 允许的集合，两个方向都查（A-6）；③空搜索路径上 `fy list devices` 与
@@ -485,9 +538,9 @@ fydata `base.yaml`（Guo 2012）记 IC1 在 `r = 2.400` · `z = 0.600`、`turns 
 | **G-5** | 更新节拍（F）没有答案：装置书改了之后，已发出去的制品怎么知道自己旧了 | 〔工作假设〕 | P3 |
 | **G-6** | `facts.py`（Python 侧解析器）要不要也读自带档；不读的话 Python 与 Rust 在「空路径」上答案不同，而那道比对闸子会红 | `test_facts_corpus.py::test_the_two_resolvers_agree` | P1 |
 | ~~**G-8**~~ | ~~`make-app-embed.mjs` 按**目录里现有的文件名**写表，于是在一份没有版本化 wasm（只有裸 `fylite_rs.wasm` 等）的检出上重生成会**静默降级**——表从 `.wasm.0.0.1` 变回 `.wasm`，站点与可执行文件随之丢掉 2026-09-05 的版本化命名~~ **已修（2026-09-05）**：生成器改为**按名拒绝**——三份 wasm 必须以 `assets/<名>.<版>` 的真名在场，版本从 `assets/version.js` 读（与 `build-site.sh` 同一来源）。★本次实测正是这样撞上的：重生成后 diff 里除了要加的 east 一行，还多出三行降级；已手工回改，并把这条形状变成生成器自己拒绝的事 | 本次 `node tools/make-app-embed.mjs` 的 diff；`tools/soname.sh` | 关闭 |
-| **G-10** | fydata 的解析面是「**一个 IDS 一份文档、按 provider 选一份**」，而 EAST 的电源那一批（`power_supply` · `pf_active_circuits.resistivity` · `pf_channel_elements`）与线圈几何**同属 `pf_active`、来路不同**（Walker 2010 / TokSys vs Guo 2012）。放进 `base.yaml` 是把一份来路的数挂在另一份来路的名下；另起一个 provider 则选中它就丢了几何。今天**没有合成轴**可写，A-15 这一半因此停在这里 | `machine.yaml` `providers.pf_active`（四个变体，`default: base`）；`check_abox_shape.py` S5 只认「被清单引到」，不认「被合成」 | P0（A-15 的另一半） |
+| ~~**G-10**~~ | ~~fydata 的解析面是「一个 IDS 一份文档、按 provider 选一份」，而 EAST 的电源那一批与线圈几何同属 `pf_active`、来路不同；今天没有合成轴可写~~ **已裁（2026-09-05，A-16）**：**不设合成轴，接受混合来源**——合住一份，来路逐段写明，校核判定随之由 `consistent` 降为 `partial` | 用户裁定；fydata `providers/pf_active/base.yaml`；fydoc `provenance.yaml` | 关闭 |
 | **G-11** | fydoc `abox/static/now/dataset_fair.jsonld` 带着一个 `dev:redistribution` 块（2026-09-04 再分发裁定：公开版不含 EAST），而 fydata 的 `dataset_fair.yaml` **没有**它——重跑誊录器会把它**整块删掉，且不报错**。那是「EAST 不进公开面」的判据。`dev:` 是 fydoc 自有命名空间，落进 fydata 会被 S1 判为未知键，所以它该往哪放需要装置书维护者裁一次 | 本次重跑的 diff；fydoc `abox/README.md`「生成物、不得手改」 | P0 |
-| **G-9** | `operational`（EFIT 拟合控制与读数卫生阈值）**没有 IDS 归属**，A-Box 里落在哪、以什么谓词说，无现成约定；落错的后果是下一个读者把它当成一份 IDS 断言 | EAST 卡片 `operational:` 段自记「非设备描述、无 IDS 归属」 | P0（A-15 的前置） |
+| ~~**G-9**~~ | ~~`operational`（EFIT 拟合控制与读数卫生阈值）**没有 IDS 归属**，A-Box 里落在哪、以什么谓词说，无现成约定~~ **已裁（2026-09-05，A-17）**：在 fyo 自定一个根类 `Operational`，根键走 `fyo_path`；namelist 逐组承载不逐键入本体 | 用户裁定；`fyo/schema/src/process/operational.linkml.yaml` | 关闭 |
 
 〔关系〕本篇与 `FYL-DESIGN-17` E-3 / E-22 是**同一条规矩用在第二类语料上**：那一篇管
 算例语料（模板内嵌、预设走路径），本篇管 facts。两条路径此后形状一致，`fy list facts`
