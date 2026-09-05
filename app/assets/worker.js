@@ -41,9 +41,6 @@ var fy = null, grid = null, coilG = null, loopsM = null;
 //: (2.7 MB on this deck) and most runs never fit probes.  A page that pays
 //: for them at load pays on every visit for a channel it may not use.
 var probesM = null, allM = null;
-//: ★declared up here with the other machine caches (filled in far below,
-//: beside the two functions that read it) so `init` can drop it.
-var coilRowCache = { loops: null, probes: null };
 //: the field the last START was designed with — coils plus the filament
 //: cloud it was designed against.  The anneal that follows is entitled to
 //: begin from it.
@@ -144,10 +141,6 @@ function init(machine) {
     loopsM = (M.loops && M.loops.length)
       ? P.loopResponse(fy, grid, M.loops) : null;
     probesM = null; allM = null;
-    //: ★the per-channel coil rows are a MACHINE cache like the two above:
-    //: dropped here so switching machines cannot fit one deck's coils
-    //: against another deck's loops
-    coilRowCache = { loops: null, probes: null };
     post({ type: 'ready', abi: fy.abi, sha256: fy.sha256,
            bytes: fy.bytes,
            //: ★the ADAS species menu is ASKED FOR, not written into the
@@ -1304,67 +1297,6 @@ function reconKinetic(msg, inp, seed) {
   return out;
 }
 
-// --- T-A5: the coil block -------------------------------------------------
-//
-// ★★WHAT THE PAGE HAS TO SUPPLY THAT IT NEVER HAD TO BEFORE: a sigma for the
-// FLUX LOOPS.  A weighted least squares is a posterior only when `w = 1/σ`,
-// and every deck here ships loop weights that are a 0/1 MASK — which asserts
-// σ_loop = 1 Wb/rad.  Against a coil prior of a few per cent that assertion
-// says the loops are worthless, and the fit leaves the currents exactly where
-// it found them: measured on EAST #137985 at 4 s, a 20 % coil prior against
-// mask weights moved the currents by 3e-4 of themselves and li(3) fell only
-// 21.30 -> 18.06.  So「fit the coils」 is not a switch that can be flipped on
-// its own — it obliges the reader to say how well the loops are measured, and
-// the control says so beside the switch.
-//
-// The sigmas are RELATIVE and stated as such: σ_coil = rel * |I_c| per
-// channel (a channel reading zero is therefore HELD, which is the right
-// answer — there is no relative calibration of nothing), σ_loop = rel *
-// max|plasma-only loop reading|, the same normalisation the posterior's own
-// loop perturbation already uses.
-function coilBlock(msg, inp) {
-  var cf = msg.coilFit;
-  if (!(cf && cf.on)) return null;
-  if (!coilG || !coilG.psiCh) return null;
-    //: ★`chanDrawn` when a posterior member perturbed the currents, `msg.chan`
-  //: otherwise — the SAME vector `psiExt` was built from.  Fitting a
-  //: correction against a different baseline than the field was built on is
-  //: two coil sets in one solve.
-  var nrow = inp.meas.length,
-      chan = inp.chanDrawn || Float64Array.from(msg.chan);
-  var rows = new Float64Array(nrow * NCH), c, i;
-  var lrows = coilLoopRows(), nl = inp.nLoops;
-  for (i = 0; i < nl; i++)
-    for (c = 0; c < NCH; c++) rows[i * NCH + c] = lrows[c * M.loops.length + i];
-  var off = nl;
-  if (inp.nProbes) {
-    var prows = coilProbeRows();
-    //: ★the probe rows carry the solver's 2 pi pre-scale (see the assembly
-    //: above), so the coil response at a probe has to carry it too — the
-    //: two must be in ONE unit or the fit trades a tesla for a Wb/rad.
-    for (i = 0; i < inp.nProbes; i++)
-      for (c = 0; c < NCH; c++)
-        rows[(off + i) * NCH + c] =
-          prows[c * M.probes.length + i] * (2 * Math.PI);
-    off += inp.nProbes;
-  }
-  //: ★A CHORD ROW THE COILS ARE INVISIBLE TO WOULD BE A LIE, not a
-  //: simplification: the Faraday integrand is built on B_R, and the coils
-  //: make B_R.  Rather than leave those rows' coil columns at zero, the
-  //: fit is refused when they are present — `withFaradayRows` has no
-  //: per-channel form and inventing one here would be a second host for
-  //: the chord geometry.
-  if (inp.nFaraday) return null;
-  var amp = 0;
-  for (i = 0; i < nl; i++)
-    if (inp.wts[i]) amp = Math.max(amp, Math.abs(inp.meas[i]));
-  var sig = new Float64Array(NCH);
-  for (c = 0; c < NCH; c++) sig[c] = Math.abs(cf.sigma * chan[c]);
-  return { coilPsi: coilG.psiCh, coilRows: rows, coilI0: chan,
-           coilSigma: sig,
-           measSigma: Math.max(cf.loopSigma * amp, 1e-300) };
-}
-
 /**
  * Solve one member and diagnose it.  Throws; the caller decides what that
  * means.
@@ -1377,44 +1309,81 @@ function coilBlock(msg, inp) {
  * it, or every number this function returns would be short by it.
  */
 function reconMember(msg, inp, kin, jPre) {
-  var call = {
-    r: grid.r, z: grid.z, psiExt: inp.psiExt, loopsM: inp.matrix || loopsM,
-    meas: inp.meas,
-    wts: inp.wts, measScale: MEAS_SCALE, npp: msg.npp, nff: msg.nff, ip: inp.ip,
-    limR: M.limiter.r, limZ: M.limiter.z,
-    xp: kin.xp, pmeas: kin.pmeas, wp: kin.wp,
-    relax: msg.solve && msg.solve.relax || 0.3,
-    maxIter: msg.solve && msg.solve.maxIter || 800,
-    tol: 1e-9, fbGain: 8.0, warmup: msg.warmup === undefined ? 40 : msg.warmup,
+  //: ★第三十一刀: the solve and its post-processing are `code/reconstruction`'s
+  //: ROWS-GIVEN tier — the two inverse entries, `plasmaMask`, `fittedCurrent`,
+  //: `loopModel`, `fittedProfiles`, `qProfile` and `li3` used to be called
+  //: here.  What stays is the page's own ROW ASSEMBLY (the twin's truth, the
+  //: reader's channel table, the probe and chord blocks, the kinetic rows in
+  //: the solver's gauge — `reconInputs` / `reconKinetic` / `withFaradayRows`
+  //: are untouched) and the chi^2 over the loops.  The rows the page built
+  //: are what the door is given: the external flux it assembled, the
+  //: plasma-only readings and their weights, the extra rows, the pressure
+  //: rows as rows.  The door builds the loop and probe Green's rows on the
+  //: same grid (the same kernel rows this page built its `loopsM` from),
+  //: solves, and post-processes in this page's spelling.
+  var nl = inp.nLoops, np_ = inp.nProbes || 0, nx = inp.nFaraday || 0;
+  var chan = inp.chanDrawn || Float64Array.from(msg.chan);
+  var disc = {
+    'fylite:channel_aturns': Float64Array.from(chan),
+    'fylite:ip': [inp.ip],
+    'fylite:b_tor': [self.FyDevice.tf(M).b0],
+    'fylite:psi_ext': Float64Array.from(inp.psiExt),
+    'fylite:loop_plasma': Float64Array.from(inp.meas.slice(0, nl)),
+    'fylite:loop_weight': Float64Array.from(inp.wts.slice(0, nl)),
   };
-  if (jPre && jPre.length) call.jPre = jPre;
-  var blk = coilBlock(msg, inp);
-  //: ★TWO ENTRIES, BY NAME.  Without a coil block this is the entry it has
-  //: always been and returns the numbers it has always returned; the coil
-  //: entry is not a flag on it.
-  var res = blk ? fy.gsInverseSolveCoils(Object.assign(call, blk))
-                : fy.gsInverseSolve(call);
-
-  // fit quality: forward-model the loops from the fitted coefficients
-  var mask = P.plasmaMask(grid, res.psi, res.psiAxis, res.psiBnd,
-                          M.limiter.r, M.limiter.z, 1);
-  var fitCur = P.fittedCurrent(grid, res.psi, res.psiAxis, res.psiBnd,
-                               res.coefs, msg.npp, msg.nff, mask);
-  //: ★the prescribed part is part of the PLASMA, so it is added back
-  //: before anything is forward-modelled or integrated — and it is masked
-  //: with THIS iterate's plasma, the way the solver re-masks it, not with
-  //: the one it was built on
-  if (jPre && jPre.length === fitCur.length)
-    for (var jp = 0; jp < fitCur.length; jp++)
-      if (mask[jp]) fitCur[jp] += jPre[jp];
-  var model = P.loopModel(loopsM, fitCur, grid, MEAS_SCALE);
+  if (np_) {
+    disc['fylite:probe_plasma'] = Float64Array.from(inp.meas.slice(nl, nl + np_));
+    disc['fylite:probe_weight'] = Float64Array.from(inp.wts.slice(nl, nl + np_));
+  }
+  if (nx) {
+    var NGm = grid.nr * grid.nz, offX = (nl + np_) * NGm;
+    disc['fylite:row_extra'] = Float64Array.from((inp.matrix || loopsM).slice(offX, offX + nx * NGm));
+    disc['fylite:meas_extra'] = Float64Array.from(inp.meas.slice(nl + np_, nl + np_ + nx));
+    disc['fylite:weight_extra'] = Float64Array.from(inp.wts.slice(nl + np_, nl + np_ + nx));
+  }
+  if (kin.xp && kin.xp.length) {
+    disc['fylite:pressure_x'] = Float64Array.from(kin.xp);
+    disc['fylite:pressure'] = Float64Array.from(kin.pmeas);
+    disc['fylite:pressure_weight'] = Float64Array.from(kin.wp);
+  }
+  //: ★`jPre` (T-A9) is the PRESCRIBED per-cell toroidal current [A]: with one
+  //: supplied the free coefficients only make up the remainder, and the door
+  //: adds it back into the reported current under the iterate's own mask
+  if (jPre && jPre.length) disc['fylite:current_source'] = Float64Array.from(jPre);
+  var settings = {
+    npp: msg.npp, nff: msg.nff,
+    relax: msg.solve && msg.solve.relax || 0.3,
+    max_iter: msg.solve && msg.solve.maxIter || 800,
+    tol: 1e-9, fb_gain: 8.0, warmup: msg.warmup === undefined ? 40 : msg.warmup,
+    n_profile: 201, n_q: 20, n_theta: 121, x_lo: 0.06, x_hi: 1 - P.BOUNDARY_INSET,
+  };
+  //: T-A5 — the coil currents as OBSERVATIONS.  The door builds the block this
+  //: page used to (`coilBlock`: sigma_c = rel |I_c|, sigma_loop = rel max|loop
+  //: reading|); with chord rows present it stays off, as it always did — the
+  //: Faraday integrand is built on B_R and the coils make B_R.
+  var cf = msg.coilFit, blk = !!(cf && cf.on && coilG && coilG.psiCh && !nx);
+  if (blk) { settings.coil_fit_sigma = cf.sigma; settings.coil_fit_loop_sigma = cf.loopSigma; }
+  var rec = fy.complete('code/reconstruction',
+                        { settings: settings, inputs: { device: deviceDoc(), discharge: disc } });
+  var X = function (k) { return rec.facts[k].value; };
+  var F = function (k) { return fieldFlat(rec, k); };
+  var res = { psi: F('psi'), coefs: F('coefficients'), iterations: X('iterations'),
+              psiAxis: X('psi_axis'), psiBnd: X('psi_bnd'), axisR: X('axis_r'),
+              axisZ: X('axis_z'), ip: X('ip'), residual: X('residual'),
+              bndKind: X('bnd_kind'), fbAmp: X('fb_amp') };
+  if (blk) {
+    res.coilPull = X('coil_pull'); res.coilFitted = X('coil_fitted');
+    res.coilFit = F('coil_current');
+  }
+  var fitCur = F('current');
+  var model = F('loop_model');
   //: ★chi^2 IS THE LOOPS' — one block, one unit, one panel.  The probe and
   //: chord blocks pull on the same solution and are reported beside it in
   //: their own units (`probeRows`, `faraday`); adding them into this number
   //: would put teslas and line integrals on a Wb/rad axis and make the one
   //: figure of merit the page quotes depend on which extra blocks were on.
   var chi2 = 0, nfit = 0;
-  for (var d = 0; d < inp.nLoops; d++) {
+  for (var d = 0; d < nl; d++) {
     if (!inp.wts[d]) continue;
     var r_ = inp.wts[d] * (model[d] - inp.meas[d]);
     chi2 += r_ * r_; nfit += 1;
@@ -1427,29 +1396,30 @@ function reconMember(msg, inp, kin, jPre) {
   out.ndof = Math.max(1, nfit + (kin.xp ? kin.xp.length : 0)
                       - (msg.npp + msg.nff));
   out.result.coefs = res.coefs;
-  out.ipFitted = P.totalCurrent(fitCur);
-  out.profiles = P.fittedProfiles(res.coefs, msg.npp, msg.nff,
-                                  res.psiAxis, res.psiBnd, 201);
-  out.q = P.qProfile(grid, res, out.profiles, M.limiter.r, M.limiter.z,
-                     F_EDGE, { nq: 20, ntheta: 121 });
+  out.ipFitted = X('ip_fitted');
+  out.profiles = { x: F('psin_1d'), pprime: F('pprime'), ffprime: F('ffprim'), p: F('pres'),
+                   spanPr: (res.psiAxis - res.psiBnd) / (2 * Math.PI) };
+  out.q = { x: F('q_x'), q: F('q'), f: F('fpol'), q0: X('q0'), q95: X('q95') };
   out.jphi = currentProfile(grid, res, fitCur);
-  //: li(3) is the kernel's integral over the psi map, so it costs one pass
-  //: and needs nothing traced; it is one of the scalars a reconstruction is
-  //: judged on, which is why it travels with every member and not only with
-  //: the run the page happens to draw
-  out.li3 = P.li3(grid, res, out.ipFitted, self.FyDevice.tf(M).r0);
+  //: li(3) is the kernel's integral over the psi map on the FITTED current,
+  //: one of the scalars a reconstruction is judged on, which is why it travels
+  //: with every member and not only with the run the page happens to draw
+  out.li3 = X('li3_fitted');
   //: ★the coil fit reports itself: how far it moved the currents (in units
   //: of the sigma it was given), and what it moved them to.  A member that
   //: bought its residual with a coil excursion no calibration allows is a
   //: THIRD way to be wrong, beside the two `notAPlasma` already tests, and
   //: it cannot be seen from any other number the run reports.
   if (blk) {
+    var ampL = 0;
+    for (var i = 0; i < nl; i++)
+      if (inp.wts[i]) ampL = Math.max(ampL, Math.abs(inp.meas[i]));
     out.coilPull = res.coilPull;
     out.coilFit = res.coilFit;
     out.coilFitted = res.coilFitted;
-    out.coilSigma = blk.coilSigma;
-    out.coilBefore = blk.coilI0;
-    out.measSigma = blk.measSigma;
+    out.coilSigma = Float64Array.from(chan, function (c) { return Math.abs(cf.sigma * c); });
+    out.coilBefore = chan;
+    out.measSigma = Math.max(cf.loopSigma * ampL, 1e-300);
   }
   out.raw = res;
   return out;
@@ -2025,61 +1995,6 @@ function probeRows() {
  * subtraction happens here, once, with the same element response the vacuum
  * field itself is built from.
  */
-//: ★★PER CHANNEL, NOT PER FOLDED VECTOR — and that is what T-A5 needed.
-//: 「What do the coils contribute at this loop」 and 「what does ONE channel
-//: contribute at this loop」 are the same Green's function contracted at
-//: different moments: the first is the second times the channel currents.
-//: While the currents were exactly known only the first was ever wanted, so
-//: the fold happened inside these two helpers and the per-channel table had
-//: no name.  A fit that carries the coil currents as unknowns needs exactly
-//: that table — it IS the coil columns — so the table is built once, cached,
-//: and the two folded answers are contractions of it.  One host for the
-//: response, two questions.  (`coilRowCache` is declared at the top with
-//: the other machine caches, so `init` can drop it on a machine change.)
-
-/** `(nch, n_loops)` Wb/rad per unit channel current. */
-function coilLoopRows() {
-  if (coilRowCache.loops) return coilRowCache.loops;
-  var nel = M.coils.length, n = M.loops.length;
-  var lr = Float64Array.from(M.loops, function (p) { return p[0]; });
-  var lz = Float64Array.from(M.loops, function (p) { return p[1]; });
-  var resp = P.coilPointResponse(fy, M.coils, lr, lz, 4, 4);
-  var out = new Float64Array(NCH * n);
-  for (var c = 0; c < NCH; c++)
-    for (var e = 0; e < nel; e++) {
-      var w = chanMap[c * NEL + e];
-      if (!w) continue;
-      for (var i = 0; i < n; i++)
-        //: the loop channel is Wb PER RADIAN, as every other loop number on
-        //: this page is; the response is full flux
-        out[c * n + i] += w * resp.psi[e * n + i] * MEAS_SCALE;
-    }
-  coilRowCache.loops = out;
-  return out;
-}
-
-/** `(nch, n_probes)` tesla per unit channel current. */
-function coilProbeRows() {
-  if (coilRowCache.probes) return coilRowCache.probes;
-  if (!M.probes || !M.probes.length) return null;
-  var pr = Float64Array.from(M.probes, function (p) { return p.r; });
-  var pz = Float64Array.from(M.probes, function (p) { return p.z; });
-  var ang = Float64Array.from(M.probes,
-                              function (p) { return p.angle * Math.PI / 180; });
-  //: ★the angle projection is the kernel's — see `elementProbeResponse`.
-  var resp = fy.elementProbeResponse(M.coils, pr, pz, ang, 3, 3);
-  var n = M.probes.length, nel = M.coils.length;
-  var out = new Float64Array(NCH * n);
-  for (var c = 0; c < NCH; c++)
-    for (var e = 0; e < nel; e++) {
-      var w = chanMap[c * NEL + e];
-      if (!w) continue;
-      for (var i = 0; i < n; i++) out[c * n + i] += w * resp[i * nel + e];
-    }
-  coilRowCache.probes = out;
-  return out;
-}
-
 //: ★★AND THE TWO FOLDED HELPERS ARE LEFT EXACTLY AS THEY WERE — they do
 //: NOT contract the table above, and that is deliberate.  Rewriting them as
 //: `sum_c I_c row_c` is the same arithmetic in a different summation order,

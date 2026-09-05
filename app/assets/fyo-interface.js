@@ -44,11 +44,13 @@
     'a2',                  // Angle [deg] of the element side of length `height` with the horizontal; 90 is a plain rectangle.
     'a_minor',             // Minor radius [m] carried on an equilibrium's global quantities, where the DD has no slot for it.
     'angle_deg',           // Poloidal angle [deg] of a magnetic probe.
+    'b_tor',               // The vacuum toroidal field at R_centre [T], a MEASUREMENT of the shot bound under discharge/fylite:b_tor: F at the plasma edge is |R_centre B0| and `code/reconstruction` refuses without it (第三十一刀: the page binds its machine's `tf.
     'channel_aturns',      // Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start.
     'chi_prev',            // The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors.
     'chi_turb',            // The turbulent ion diffusivity [m^2/s] the extension's code/turbulence evaluated between two blocks of the march (第十八刀, 2026-09-05): bound under inputs/evolve for the block that follows (closure 3), and the previous answer it relaxes against; a solver's given profile, not a DD transport model, so prefixed.
     'config',              // The input configuration a result was produced from.
     'created',             // ISO-8601 timestamp the document was written.
+    'current_source',      // A PRESCRIBED per-cell toroidal current [A] over the interior cells, bound under discharge/fylite:current_source — the bootstrap channel of `code/reconstruction` (T-A9): the free coefficients make up the remainder and the reported current carries it back under the iterate's mask.
     'deposited',           // Whether a wave source actually resonated and put power in — a result, not a failure, and one a persisted document has to be able to state.
     'dvolume',             // dV/dpsi_N on the grid a source profile is given on, so a reader can integrate the deposition without re-deriving the metric.
     'eq_p',                // The previous equilibrium's p(psi_N) table — the pressure [Pa] — bound under inputs/refit beside eq_x (第十九刀).
@@ -60,7 +62,9 @@
     'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'ip',                  // The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held.
     'length',              // Effective length [m] of a magnetic probe, the span its reading averages over.
+    'loop_plasma',         // The flux-loop readings with the coil share already removed [Wb/rad], one per loop, the rows-given tier's loop measurements (`code/reconstruction`).
     'max_power',           // Nameplate maximum power [W] of a heating system's launcher — what the hardware may deliver, as opposed to what a shot injected.
+    'meas_extra',          // The measurements of `row_extra`, one per extra row (`code/reconstruction`).
     'n_parallel',          // The launched parallel refractive-index band (lower, upper) of an LH antenna.
     'name',                // Human-readable name of the block it sits on — a coil, a launcher, a saved case.
     'orbit_loss_fraction', // Fraction of injected beam power lost on first orbit, at the TOTAL level (the per-component block spells its own `fylite:orbit_loss`).
@@ -68,12 +72,17 @@
     'page',                // Which application page wrote the document.
     'pitch',               // Pitch v_par/v of the deposited fast ions on the source grid.
     'pressure',            // A delivered pressure profile [Pa] on uniform normalised flux, the kinetic constraint of a reconstruction (`code/reconstruction`; the rows sit at `pressure_x`).
+    'pressure_weight',     // The kinetic rows' weights, one per `pressure_x` — binding it makes `pressure` the row VALUES in the solver's gauge rather than a profile to interpolate (`code/reconstruction`, the rows-given tier).
+    'pressure_x',          // The normalised-flux abscissae of the kinetic rows, one per row (`code/reconstruction`); with `pressure_weight` bound the rows are taken as given at these points, else `pressure` is interpolated onto them.
+    'probe_plasma',        // The poloidal-field probe readings with the coil field already removed [T], one per device probe, the rows-given tier's probe measurements; its weights ride on `probe_weight` as the host folded them.
+    'psi_ext',             // The external (coil, and any vessel) flux on the solve box [Wb, the host's own gauge], bound under discharge/fylite:psi_ext — binding it puts `code/reconstruction` on its ROWS-GIVEN tier (第三十一刀): the readings are then plasma-only and the door builds only the Green's rows, solves and post-processes.
     'q',                   // Safety factor carried OUTSIDE profiles_1d (inside it, the DD's own bare `q` is correct).
     'q_prev',              // The previous stationary round's q profile, bound under inputs/evolve for code/steady_current (第二十一刀): the round's new q and psi are under-relaxed toward it (fmORelax), never on the first round.
     'radii',               // The ladder indices the extension's code/turbulence samples TGLF at, bound under inputs/turbulence (第十八刀; the flux-match tier binds its MATCH radii there, 第二十一刀, so the closure is evaluated exactly where the root find reads it).
     'reconstructed',       // The reconstructed counterpart of a truth block.
     'result',              // The result block of a session document.
     'rho',                 // The transport grid [m] bound under `transport/fylite:rho` (`TRANSPORT_INPUTS`, `code/transport`) — the marched channel's own radial coordinate, which the DD spells as `rho_tor` under a profiles grid and this plan carries flat.
+    'row_extra',           // Response rows the host built itself — the analysis page's Faraday chord rows — `[n_extra, nr*nz]` in the rows' own units, appended after the loop and probe rows (`code/reconstruction`, the rows-given tier), with `meas_extra` and `weight_extra`.
     'shift',               // Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures.
     'shinethrough',        // Fraction of beam power that passed straight through unabsorbed.
     'source',              // The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport).
@@ -84,10 +93,11 @@
     'vprime',              // dV/dρ [m²] on the transport grid — the flux-surface volume derivative the 1.
     'vprime_old',          // The previous ladder's dV/drho [m^2] remapped by psi_N onto the new one (第十九刀, 2026-09-05): code/refit hands it back after an alternation and the next block's FIRST step binds it under inputs/evolve (`vprime_moved`) so the moving-volume term sees the volume the equilibrium actually moved.
     'weight',              // A channel's weight on a coil element, inside fylite:channel_map.
+    'weight_extra',        // The weights of `row_extra`, one per extra row, zero for a chord with no reading (`code/reconstruction`).
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
   var REVISION = 1;
-  var DIGEST = "63bf63a7aa0615b0";
+  var DIGEST = "d5490bb046ef0abd";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -215,6 +225,13 @@
         "fsa_x": { path: "fylite:fsa_x", units: "1", rank: "1d" },
         "fsa_shape": { path: "fylite:fsa_shape", units: "1", rank: "1d" },
         "fsa_weight": { path: "fylite:fsa_weight", units: "1", rank: "1d" },
+        "psi_ext": { path: "fylite:psi_ext", units: "Wb", rank: "2d" },
+        "loop_plasma": { path: "fylite:loop_plasma", units: "Wb/rad", rank: "1d" },
+        "probe_plasma": { path: "fylite:probe_plasma", units: "T", rank: "1d" },
+        "pressure_weight": { path: "fylite:pressure_weight", units: "1/Pa", rank: "1d" },
+        "row_extra": { path: "fylite:row_extra", units: "1", rank: "2d" },
+        "meas_extra": { path: "fylite:meas_extra", units: "1", rank: "1d" },
+        "weight_extra": { path: "fylite:weight_extra", units: "1", rank: "1d" },
       }
     },
     EQUILIBRIUM: {

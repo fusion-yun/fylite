@@ -310,6 +310,46 @@
   "chi_prev": {
    "gated": false,
    "gloss": "The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors. Not gated, like `chi_turb`: the readback key is bare by construction."
+  },
+  "psi_ext": {
+   "gated": false,
+   "gloss": "The external (coil, and any vessel) flux on the solve box [Wb, the host's own gauge], bound under discharge/fylite:psi_ext — binding it puts `code/reconstruction` on its ROWS-GIVEN tier (第三十一刀): the readings are then plasma-only and the door builds only the Green's rows, solves and post-processes. Not gated: `psiExt` / `psi_ext` is the bare local name of the same array in both hosts."
+  },
+  "loop_plasma": {
+   "gated": false,
+   "gloss": "The flux-loop readings with the coil share already removed [Wb/rad], one per loop, the rows-given tier's loop measurements (`code/reconstruction`). Not gated: the page's `meas` block, spelled under this slot only where it is bound."
+  },
+  "probe_plasma": {
+   "gated": false,
+   "gloss": "The poloidal-field probe readings with the coil field already removed [T], one per device probe, the rows-given tier's probe measurements; its weights ride on `probe_weight` as the host folded them. Not gated: the page's `probePlasma`, bare in the reply."
+  },
+  "pressure_weight": {
+   "gated": false,
+   "gloss": "The kinetic rows' weights, one per `pressure_x` — binding it makes `pressure` the row VALUES in the solver's gauge rather than a profile to interpolate (`code/reconstruction`, the rows-given tier). Not gated: the page's `wp`, a bare local."
+  },
+  "row_extra": {
+   "gated": false,
+   "gloss": "Response rows the host built itself — the analysis page's Faraday chord rows — `[n_extra, nr*nz]` in the rows' own units, appended after the loop and probe rows (`code/reconstruction`, the rows-given tier), with `meas_extra` and `weight_extra`. Not gated: a bound solver array, prefixed under inputs/discharge by construction."
+  },
+  "meas_extra": {
+   "gated": false,
+   "gloss": "The measurements of `row_extra`, one per extra row (`code/reconstruction`). Not gated: bound beside its rows, never bare."
+  },
+  "weight_extra": {
+   "gated": false,
+   "gloss": "The weights of `row_extra`, one per extra row, zero for a chord with no reading (`code/reconstruction`). Not gated: bound beside its rows, never bare."
+  },
+  "b_tor": {
+   "gated": false,
+   "gloss": "The vacuum toroidal field at R_centre [T], a MEASUREMENT of the shot bound under discharge/fylite:b_tor: F at the plasma edge is |R_centre B0| and `code/reconstruction` refuses without it (第三十一刀: the page binds its machine's `tf.b0`, the same number it always used as F_EDGE). Not gated: `btor` / `b_tor` is the ordinary name in both hosts' measurement sets."
+  },
+  "current_source": {
+   "gated": false,
+   "gloss": "A PRESCRIBED per-cell toroidal current [A] over the interior cells, bound under discharge/fylite:current_source — the bootstrap channel of `code/reconstruction` (T-A9): the free coefficients make up the remainder and the reported current carries it back under the iterate's mask. Not gated: the page's `jPre`, a bare local on both sides."
+  },
+  "pressure_x": {
+   "gated": false,
+   "gloss": "The normalised-flux abscissae of the kinetic rows, one per row (`code/reconstruction`); with `pressure_weight` bound the rows are taken as given at these points, else `pressure` is interpolated onto them. Not gated: the page's `xp`, a bare local."
   }
  }
 }

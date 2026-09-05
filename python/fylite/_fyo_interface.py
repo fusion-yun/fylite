@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '63bf63a7aa0615b0'
+DIGEST = 'd5490bb046ef0abd'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -140,6 +140,13 @@ TABLES = {
             'fsa_x': {"path": 'fylite:fsa_x', "units": '1', "rank": '1d'},
             'fsa_shape': {"path": 'fylite:fsa_shape', "units": '1', "rank": '1d'},
             'fsa_weight': {"path": 'fylite:fsa_weight', "units": '1', "rank": '1d'},
+            'psi_ext': {"path": 'fylite:psi_ext', "units": 'Wb', "rank": '2d'},
+            'loop_plasma': {"path": 'fylite:loop_plasma', "units": 'Wb/rad', "rank": '1d'},
+            'probe_plasma': {"path": 'fylite:probe_plasma', "units": 'T', "rank": '1d'},
+            'pressure_weight': {"path": 'fylite:pressure_weight', "units": '1/Pa', "rank": '1d'},
+            'row_extra': {"path": 'fylite:row_extra', "units": '1', "rank": '2d'},
+            'meas_extra': {"path": 'fylite:meas_extra', "units": '1', "rank": '1d'},
+            'weight_extra': {"path": 'fylite:weight_extra', "units": '1', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -639,4 +646,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'max_power', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'probe_weight', 'psi_convention', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight', 'y_init']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'y_init']
