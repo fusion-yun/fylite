@@ -854,6 +854,17 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     if ipctl:
         args.update(ip_kp=float(acct.take("ipkp", "ip_kp")),
                     ip_ki=float(acct.take("ipki", "ip_ki")))
+    #: ★第十七刀 — the two executors run inside `code/evolve` now, so their rows
+    #: are `sunk` and no longer refused by the scope test; but a corpus case
+    #: carries no `nbi` / `lh_antennas` DOCUMENT (the unit's geometry, the
+    #: launchers' bands), and an executor without its document is a refusal
+    #: by name, not a Gaussian under another name
+    for key, doc in (("beam", "nbi"), ("lh", "lh_antennas")):
+        if bool(acct.take(key, key)):
+            raise SystemExit(f"case `{key}`: the executor runs inside code/evolve "
+                             f"(第十七刀), but a corpus case carries no `{doc}` "
+                             "document — write it and call model.evolve(nbi=… / "
+                             "lh_antennas=…) directly")
     return args
 
 

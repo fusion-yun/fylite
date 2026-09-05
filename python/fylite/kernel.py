@@ -407,7 +407,18 @@ def grid_of(rg, zg) -> Grid:
         if not np.allclose(d, d[0], rtol=1e-9, atol=0.0):
             raise KernelError(f"{name} axis is not uniform — the kernel grid "
                               "is (origin, spacing, count)")
-    return Grid(rg[0], zg[0], rg[1] - rg[0], zg[1] - zg[0], rg.size, zg.size)
+    #: ★the spacing that REPRODUCES the axis to the bit, when one does — the
+    #: kernel's own rule (`case.rs::uniform_axis`, 2026-09-05 第十七刀): the first
+    #: difference or the span over the count, whichever regenerates every
+    #: point.  A g-file's Z axis is one ulp off under the first difference, and
+    #: every contour traced on that spacing moves at 1e-15.
+    def spacing(v):
+        d0, d1 = v[1] - v[0], (v[-1] - v[0]) / (v.size - 1)
+        for d in (d0, d1):
+            if np.all(v[0] + d * np.arange(v.size, dtype=float) == v):
+                return d
+        return d0
+    return Grid(rg[0], zg[0], spacing(rg), spacing(zg), rg.size, zg.size)
 
 
 # --------------------------------------------------------------------------- #

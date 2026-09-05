@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '85563e753d023c0a'
+DIGEST = 'e1f5c3bb2fed609f'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -297,7 +297,7 @@ TABLES = {
 #: position in the list BEING the offset into the flat buffer
 BLOCKS = {
     'CASE_CODES': [
-        {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); marched by evolve_heat"},
+        {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
         {'key': 'vstab', 'shape': 'vstab', 'units': 'assembled', 'gloss': "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab"},
@@ -330,8 +330,8 @@ BLOCKS = {
         {'key': 'ch-heat', 'shape': 'chHeat', 'units': 'required', 'gloss': 'a heat channel — this entry marches nothing else'},
         {'key': 'ch-density', 'shape': 'chDensity', 'units': 'sunk', 'gloss': 'the density channel'},
         {'key': 'ch-momentum', 'shape': 'chMomentum', 'units': 'sunk', 'gloss': 'the momentum channel'},
-        {'key': 'beam', 'shape': 'beam', 'units': 'unsunk', 'gloss': 'the NBI executor (deposition, stopping, driven current)'},
-        {'key': 'lh', 'shape': 'lh', 'units': 'unsunk', 'gloss': 'the lower-hybrid executor'},
+        {'key': 'beam', 'shape': 'beam', 'units': 'sunk', 'gloss': 'the NBI executor (deposition, stopping, driven current)'},
+        {'key': 'lh', 'shape': 'lh', 'units': 'sunk', 'gloss': 'the lower-hybrid executor'},
         {'key': 'wave', 'shape': 'wave', 'units': 'sunk', 'gloss': 'the actuator waveform driver'},
         {'key': 'ipctl', 'shape': 'ipCtl', 'units': 'sunk', 'gloss': 'the I_p feedback controller'},
         {'key': 'quasi', 'shape': 'quasi', 'units': 'sunk', 'gloss': 'impurity dilution (composition-derived fuel fraction)'},
@@ -365,6 +365,14 @@ BLOCKS = {
         {'key': 'kappa_s', 'shape': 'n', 'units': '1', 'gloss': 'elongation per surface (closure = 2)'},
         {'key': 'delta_s', 'shape': 'n', 'units': '1', 'gloss': 'triangularity per surface (closure = 2)'},
         {'key': 'shift', 'shape': 'n', 'units': '1', 'gloss': 'Shafranov shift gradient dR0/dr per surface (closure = 2)'},
+        {'key': 'beam_e', 'shape': 'n', 'units': 'W/m^3', 'gloss': "the beam's electron heating (beam = 1)"},
+        {'key': 'beam_i', 'shape': 'n', 'units': 'W/m^3', 'gloss': "the beam's ion heating"},
+        {'key': 'beam_torque', 'shape': 'n', 'units': 'N.m/m^3', 'gloss': "the beam's prompt torque density (the momentum source with ch_momentum)"},
+        {'key': 'beam_j', 'shape': 'n', 'units': 'A/m^2', 'gloss': 'the beam-driven current (with ch_current)'},
+        {'key': 'beam_p_par', 'shape': 'n', 'units': 'Pa', 'gloss': "the fast-ion parallel pressure (beta_N's trace third rides on it)"},
+        {'key': 'beam_p_perp', 'shape': 'n', 'units': 'Pa', 'gloss': 'the fast-ion perpendicular pressure'},
+        {'key': 'lh_e', 'shape': 'n', 'units': 'W/m^3', 'gloss': "the wave's electron deposition (lh = 1)"},
+        {'key': 'lh_j', 'shape': 'n', 'units': 'A/m^2', 'gloss': 'the wave-driven current (with ch_current)'},
     ],
     'EVOLVE_HEAT_OUT': [
         {'key': 'te', 'shape': 'n', 'units': 'eV', 'gloss': 'the profile the loop reached'},
@@ -394,7 +402,7 @@ BLOCKS = {
         {'key': 'saw_mixed', 'shape': 'nt', 'units': 'm', 'gloss': 'the mixing radius the crash actually used (0 = no crash)'},
         {'key': 'saw_refused', 'shape': 'nt', 'units': '1', 'gloss': '1 when a crash was triggered and the mixing model could not honour it — the state is left as the march reached it'},
         {'key': 'saw_count', 'shape': '1', 'units': '1', 'gloss': 'crashes over the march'},
-        {'key': 'j_cd', 'shape': 'n', 'units': 'A/m^2', 'gloss': 'the prescribed driven current (0 when i_cd is 0)'},
+        {'key': 'j_cd', 'shape': 'n', 'units': 'A/m^2', 'gloss': "the driven current the last step used apart from the wave's: the beam's (beam = 1) or the prescribed Gaussian (0 when i_cd is 0)"},
         {'key': 'ne_out', 'shape': 'n', 'units': 'm^-3', 'gloss': "the density the block ended with (the caller's, unless a crash mixed it)"},
         {'key': 'psi_prev_out', 'shape': 'n', 'units': 'Wb', 'gloss': 'the flux to hand the next block'},
         {'key': 'sigma_prev_out', 'shape': 'n', 'units': 'S/m', 'gloss': 'the conductivity to hand it'},
@@ -421,6 +429,11 @@ BLOCKS = {
         {'key': 'ipctl_integral_out', 'shape': '1', 'units': 's', 'gloss': 'the integrator to hand it'},
         {'key': 'ipctl_calibrated_out', 'shape': '1', 'units': '1', 'gloss': '1 once the loop has calibrated'},
         {'key': 'chi_neo', 'shape': 'n', 'units': 'm^2/s', 'gloss': 'the neoclassical ion diffusivity the last step used (zeros on the other closures)'},
+        {'key': 'p_aux', 'shape': 'nt', 'units': 'W', 'gloss': 'the auxiliary heating deposited that step (Gaussian or beam, plus the wave)'},
+        {'key': 'p_aux_beam', 'shape': 'nt', 'units': 'W', 'gloss': "the beam's share of it (0 without a beam)"},
+        {'key': 'p_aux_lh', 'shape': 'nt', 'units': 'W', 'gloss': "the wave's share of it (0 without a wave)"},
+        {'key': 'j_lh', 'shape': 'n', 'units': 'A/m^2', 'gloss': 'the wave-driven current the last step used (0 without a wave)'},
+        {'key': 'ohm', 'shape': 'n', 'units': 'W/m^3', 'gloss': "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel or on the first step)"},
     ],
     'EVOLVE_HEAT_PARAMS': [
         {'key': 'b0', 'shape': '1', 'units': 'T', 'gloss': 'on-axis field of the metric'},
@@ -501,6 +514,8 @@ BLOCKS = {
         {'key': 'ipctl_integral_in', 'shape': '1', 'units': 's', 'gloss': 'the integrator, carried across blocks'},
         {'key': 'ipctl_calibrated_in', 'shape': '1', 'units': '1', 'gloss': '1 when the previous block had already calibrated the loop'},
         {'key': 'closure', 'shape': '1', 'units': '1', 'gloss': '0 = constant chi (chi0 / chi_ratio); 2 = neoclassical (Chang-Hinton chi_i, chi_e = chi_i * chi_ratio); the given-profile tier stays chi_source = 1'},
+        {'key': 'beam', 'shape': '1', 'units': '1', 'gloss': '1 = the beam arrays below are the auxiliary deposition (the Gaussian and i_cd are inert)'},
+        {'key': 'lh', 'shape': '1', 'units': '1', 'gloss': '1 = the lower-hybrid arrays below add to the electron deposition and the driven current'},
     ],
     'PROFIT_IN': [
         {'key': 'x', 'shape': 'n', 'units': '1', 'gloss': 'the coordinate'},

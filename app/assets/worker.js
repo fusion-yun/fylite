@@ -5855,7 +5855,7 @@ function evDeposit(rho, vprime, centre, width, total) {
  * Miller.  A Miller shape has no psi map to attenuate along; a beam model
  * fed a made-up one would be reporting a stopping depth nobody computed.
  */
-function evBeamDeposit(field, geo, st, sp) {
+function evBeamPlan(field, geo, st, sp) {
   var nsh = Math.max(4, sp.beamShells | 0), i, c;
   var span = field.psiBnd - field.psiAxis;
   if (!isFinite(span) || span === 0)
@@ -5903,27 +5903,6 @@ function evBeamDeposit(field, geo, st, sp) {
                    n_width_r: sp.beamNWidth, n_width_z: sp.beamNWidth,
                    orbit_losses: sp.beamOrbit ? 1 : 0, zeff: sp.zeff, impurity_form: 'exp',
                    n_theta: 181 };
-  var rec = fy.complete('code/beam', { settings: settings,
-                                       inputs: { equilibrium: eqDoc, core_profiles: cp,
-                                                 nbi: { unit: [unit] } } });
-  var F = function (k) { return fieldFlat(rec, k); };
-  var X = function (k) { return rec.facts[k].value; };
-  var src = rec.fields.core_sources.source['0'].profiles_1d;
-  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
-  var nc = rec.dims.n_components | 0;
-  var cAbs = F('component_absorbed'), cRet = F('component_retained'),
-      cPitch = F('component_pitch'), cMask = F('component_orbit_mask'),
-      cE = F('component_energy'), cP = F('component_power'),
-      cShine = F('component_shinethrough'), cOrbit = F('component_orbit_loss'),
-      cAbsF = F('component_absorbed_fraction'), cCur = F('component_current');
-  var records = [];
-  for (c = 0; c < nc; c++) {
-    var sl = function (a) { return Array.from(a.subarray(c * nsh, (c + 1) * nsh)); };
-    records.push({ energy: cE[c], power: cP[c], absorbed: sl(cAbs), retained: sl(cRet),
-                   orbitMask: sp.beamOrbit ? sl(cMask) : null, pitch: sl(cPitch),
-                   shinethrough: cShine[c], orbitLoss: cOrbit[c],
-                   absorbedFraction: cAbsF[c], current: cCur[c] });
-  }
   //: the input echo the report carries — the profile held to psi_N = 1 as the
   //: re-run oracle reads it (a clamped interpolation, so the same numbers)
   var hold = geo.psin[np0 - 1] < 1 - 1e-9, nprof = hold ? np0 + 1 : np0;
@@ -5933,6 +5912,34 @@ function evBeamDeposit(field, geo, st, sp) {
     psinProf[i] = geo.psin[i]; neP[i] = Math.max(st.ne[i], 1e16); teP[i] = Math.max(st.te[i], 1);
   }
   if (hold) { psinProf[np0] = 1; neP[np0] = neP[np0 - 1]; teP[np0] = teP[np0 - 1]; }
+  return { settings: settings, eqDoc: eqDoc, cp: cp, unit: unit,
+           echo: { psin2d: psin2d, psinProf: psinProf, ne: neP, te: teP } };
+}
+
+/**
+ * The beam's record read off `code/beam`'s answer — the same reading for the
+ * standalone call (`evBeamDeposit`) and for the record the march carries
+ * under `fields.beam` since 第十七刀 (`F` / `X` / `nc` are the accessors, so
+ * one reading serves both shapes).
+ */
+function evBeamRead(fields, F, X, nc, plan, field, geo, sp) {
+  var sl, c;
+  var nsh = plan.settings.n_shells;
+  var src = fields.core_sources.source['0'].profiles_1d;
+  var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
+  var cAbs = F('component_absorbed'), cRet = F('component_retained'),
+      cPitch = F('component_pitch'), cMask = F('component_orbit_mask'),
+      cE = F('component_energy'), cP = F('component_power'),
+      cShine = F('component_shinethrough'), cOrbit = F('component_orbit_loss'),
+      cAbsF = F('component_absorbed_fraction'), cCur = F('component_current');
+  var records = [];
+  for (c = 0; c < nc; c++) {
+    sl = function (a) { return Array.from(a.subarray(c * nsh, (c + 1) * nsh)); };
+    records.push({ energy: cE[c], power: cP[c], absorbed: sl(cAbs), retained: sl(cRet),
+                   orbitMask: sp.beamOrbit ? sl(cMask) : null, pitch: sl(cPitch),
+                   shinethrough: cShine[c], orbitLoss: cOrbit[c],
+                   absorbedFraction: cAbsF[c], current: cCur[c] });
+  }
   var edges = F('psin_edges'), rminC = F('rminor');
   return {
     psin: flat(src.grid['fylite:psi_norm']), edges: edges, dvolume: F('dvolume'), area: F('area'),
@@ -5948,8 +5955,9 @@ function evBeamDeposit(field, geo, st, sp) {
     iNbi: X('i_nbi'), fastEnergy: X('fast_energy'),
     components: records,
     inputs: { r0: field.r0, z0: field.z0, dr: field.dr, dz: field.dz,
-              nr: field.nr, nz: field.nz, psin2d: psin2d,
-              psinProf: psinProf, ne: neP, te: teP, rStart: field.r0 + field.dr * (field.nr - 1),
+              nr: field.nr, nz: field.nz, psin2d: plan.echo.psin2d,
+              psinProf: plan.echo.psinProf, ne: plan.echo.ne, te: plan.echo.te,
+              rStart: field.r0 + field.dr * (field.nr - 1),
               tangencyRadius: sp.beamRtan, zHeight: sp.beamZ,
               widthR: sp.beamWidth, widthZ: sp.beamWidth,
               direction: sp.beamDir, nWidthR: sp.beamNWidth,
@@ -5960,6 +5968,16 @@ function evBeamDeposit(field, geo, st, sp) {
               orbit: !!sp.beamOrbit },
   };
 }
+function evBeamDeposit(field, geo, st, sp) {
+  var plan = evBeamPlan(field, geo, st, sp);
+  var rec = fy.complete('code/beam', { settings: plan.settings,
+                                       inputs: { equilibrium: plan.eqDoc, core_profiles: plan.cp,
+                                                 nbi: { unit: [plan.unit] } } });
+  return evBeamRead(rec.fields, function (k) { return fieldFlat(rec, k); },
+                    function (k) { return rec.facts[k].value; }, rec.dims.n_components | 0,
+                    plan, field, geo, sp);
+}
+
 
 /**
  * The beam's record, flattened for the wire and for the file.
@@ -6110,7 +6128,7 @@ function evOutsideLadder(field, edges, pDep, edgePsin) {
  * and therefore `sigma_j`, which is the uncertainty in WHERE the current
  * lands.
  */
-function evLhDeposit(field, geo, st, sp) {
+function evLhPlan(field, geo, st, sp) {
   var nsh = Math.max(4, sp.lhShells | 0), i, k;
   var span = field.psiBnd - field.psiAxis;
   if (!isFinite(span) || span === 0)
@@ -6161,14 +6179,15 @@ function evLhDeposit(field, geo, st, sp) {
                             electrons: { density: neP, temperature: teP } } };
   var settings = { eta_cd: sp.lhEtaCd, xi: sp.lhXi, upshift_min: sp.lhUpLo, upshift_max: sp.lhUpHi,
                    n_shells: nsh, width_floor: sp.lhWidthFloor, cd_model: 'fisch', n_theta: 181 };
-  var rec = fy.complete('code/wave', { settings: settings,
-                                       inputs: { equilibrium: eqDoc, core_profiles: cp,
-                                                 lh_antennas: { antenna: antennas } } });
-  var F = function (k) { return fieldFlat(rec, k); };
-  var X = function (k) { return rec.facts[k].value; };
-  var src = rec.fields.core_sources.source['0'].profiles_1d;
+  return { settings: settings, eqDoc: eqDoc, cp: cp, antennas: antennas, raw: raw, nsh: nsh };
+}
+
+/** The wave's record read off `code/wave`'s answer (standalone, or the march's `fields.lh`). */
+function evLhRead(fields, F, X, nl, plan, geo, sp) {
+  var k;
+  var antennas = plan.antennas, raw = plan.raw, nsh = plan.nsh;
+  var src = fields.core_sources.source['0'].profiles_1d;
   var flat = function (node) { return fieldFlat({ fields: { v: node } }, 'v'); };
-  var nl = rec.dims.n_launchers | 0;
   var lP = F('launcher_power'), lCur = F('launcher_current'),
       lElo = F('launcher_band_min'), lEhi = F('launcher_band_max'),
       lRlo = F('launcher_res_min'), lRhi = F('launcher_res_max'),
@@ -6198,6 +6217,15 @@ function evLhDeposit(field, geo, st, sp) {
               upshift: [sp.lhUpLo, sp.lhUpHi], nShells: nsh },
   };
 }
+function evLhDeposit(field, geo, st, sp) {
+  var plan = evLhPlan(field, geo, st, sp);
+  var rec = fy.complete('code/wave', { settings: plan.settings,
+                                       inputs: { equilibrium: plan.eqDoc, core_profiles: plan.cp,
+                                                 lh_antennas: { antenna: plan.antennas } } });
+  return evLhRead(rec.fields, function (k) { return fieldFlat(rec, k); },
+                  function (k) { return rec.facts[k].value; }, rec.dims.n_launchers | 0, plan, geo, sp);
+}
+
 
 /**
  * The wave's record, flattened for the wire and for the file.
@@ -7936,7 +7964,7 @@ function evScopeMiss(sp) {
  * `evolveRun` (the readings, the record, the one `post` that carries them)
  * is untouched and there is still ONE exit.
  */
-function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
+function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field) {
   var n = geo.rho.length, prev = null, steps = 0, tNow = tStart || 0;
   //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
   //: per call so the page can report as it goes: the plan carries the ladder
@@ -7982,8 +8010,33 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
     wave_ip: sp.waveIp ? 1 : 0,
     ipctl: sp.ipCtl ? 1 : 0, ip_kp: sp.ipKp, ip_ki: sp.ipKi,
     ipctl_ratio0_in: 1, ipctl_integral_in: 0, ipctl_calibrated_in: 0,
-    closure: (sp.closure | 0) === 2 ? 2 : 0
+    closure: (sp.closure | 0) === 2 ? 2 : 0,
+    //: 第十七刀: the ladder's edge as the bar states it (the remap's knot)
+    edge_psin: sp.edgePsin
   };
+  //: ★第十七刀 — the executors go INTO the plan: the beam's and the wave's own
+  //: settings (each with its shell count under its own name, since the two sit
+  //: in one settings map here), the units / antennas as documents, and the psi
+  //: map on the equilibrium — the entry evaluates them once on the state it
+  //: starts from, remaps them onto this ladder and hands the arrays back for
+  //: the next step to bind (`evolve/fylite:beam_*` · `lh_*`).  The record's
+  //: `fields.beam` / `fields.lh` is `code/beam`'s / `code/wave`'s whole answer,
+  //: read by the same `evBeamRead` / `evLhRead` the standalone calls use.
+  var beamPlan = sp.beam ? evBeamPlan(field, geo, st, sp) : null;
+  var lhPlan = sp.lh ? evLhPlan(field, geo, st, sp) : null;
+  var beam = null, lh = null;
+  if (beamPlan) {
+    Object.keys(beamPlan.settings).forEach(function (k) {
+      settings[k === 'n_shells' ? 'beam_shells' : k] = beamPlan.settings[k];
+    });
+    settings.beam = 1;
+  }
+  if (lhPlan) {
+    Object.keys(lhPlan.settings).forEach(function (k) {
+      settings[k === 'n_shells' ? 'lh_shells' : k] = lhPlan.settings[k];
+    });
+    settings.lh = 1;
+  }
   Object.keys(settings).forEach(function (k) {
     if (settings[k] === undefined || settings[k] === null) delete settings[k];
   });
@@ -7992,9 +8045,18 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
                  'fylite:r_minor': arr(geo.rmin), 'fylite:r_major': arr(geo.rmaj),
                  'fylite:r2_average': arr(geo.r2),
                  magnetic_shear: arr(geo.shear), elongation: arr(geo.kappa), triangularity_upper: arr(geo.delta),
-                 'fylite:shift': arr(geo.shift),
+                 'fylite:shift': arr(geo.shift), 'fylite:psi_norm': arr(geo.psin),
                  psi: arr(st.psi) };
   Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
+  //: the equilibrium document: the ladder rows, and — with an executor — the
+  //: psi map, the axis and the limiter the shell tables are traced on
+  var eqBase = (beamPlan || lhPlan) ? (beamPlan || lhPlan).eqDoc : null;
+  var equilibrium = eqBase
+    ? { vacuum_toroidal_field: eqBase.vacuum_toroidal_field,
+        time_slice: { global_quantities: eqBase.time_slice.global_quantities,
+                      profiles_1d: ladder, profiles_2d: eqBase.time_slice.profiles_2d },
+        'fylite:limiter': eqBase['fylite:limiter'] }
+    : { time_slice: { profiles_1d: ladder } };
   var zeros = new Float64Array(n);
   var state = { te: st.te, ti: st.ti, ne: st.ne, psi: st.psi,
                 psiPrev: zeros, sigmaPrev: zeros, exchPrev: zeros,
@@ -8018,18 +8080,28 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
                 psiPrev: prev.psi_prev_out, sigmaPrev: prev.sigma_prev_out, exchPrev: prev.exch_prev_out,
                 ni: prev.ni_main, nz: prev.nz, omega: prev.omega };
     }
+    var carried = { 'fylite:psi_prev': arr(state.psiPrev), 'fylite:sigma_prev': arr(state.sigmaPrev),
+                    'fylite:exch_prev': arr(state.exchPrev) };
+    if (prev && sp.beam) {
+      carried['fylite:beam_e'] = prev.beam_e; carried['fylite:beam_i'] = prev.beam_i;
+      carried['fylite:beam_torque'] = prev.beam_torque; carried['fylite:beam_j'] = prev.beam_j;
+      carried['fylite:beam_p_par'] = prev.beam_p_par; carried['fylite:beam_p_perp'] = prev.beam_p_perp;
+    }
+    if (prev && sp.lh) { carried['fylite:lh_e'] = prev.lh_e; carried['fylite:lh_j'] = prev.lh_j; }
     var plan = { settings: settings, inputs: {
-      equilibrium: { time_slice: { profiles_1d: ladder } },
-      core_profiles: { profiles_1d: { grid: { psi: arr(state.psi) },
+      equilibrium: equilibrium,
+      core_profiles: { profiles_1d: { grid: { psi: arr(state.psi), 'fylite:psi_norm': arr(geo.psin) },
                                       electrons: { temperature: arr(state.te), density: arr(state.ne) },
                                       t_i_average: arr(state.ti),
                                       'fylite:ion_density': arr(state.ni),
                                       'fylite:impurity_density': sp.quasi && state.nz ? arr(state.nz) : undefined,
                                       rotation_frequency_tor_sonic: ctx.momentum && state.omega ? arr(state.omega) : undefined } },
-      evolve: { 'fylite:psi_prev': arr(state.psiPrev), 'fylite:sigma_prev': arr(state.sigmaPrev),
-                'fylite:exch_prev': arr(state.exchPrev) } } };
+      evolve: carried } };
+    if (beamPlan) plan.inputs.nbi = { unit: [beamPlan.unit] };
+    if (lhPlan) plan.inputs.lh_antennas = { antenna: lhPlan.antennas };
     var cp1 = plan.inputs.core_profiles.profiles_1d;
     Object.keys(cp1).forEach(function (k) { if (cp1[k] === undefined || cp1[k] === null) delete cp1[k]; });
+    if (!cp1.grid['fylite:psi_norm']) delete cp1.grid['fylite:psi_norm'];
     var rec = fy.complete('code/evolve', plan);
     var F = function (k) { return fieldFlat(rec, k); };
     var X = function (k) { return rec.facts[k].value; };
@@ -8054,9 +8126,56 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
               wave_k: F('wave_k'), v_loop_used: F('v_loop_used'), ip_psi: F('ip_psi'), ip_want: F('ip_want'),
               ip_err: F('ip_err'), chi_neo: F('chi_neo'),
               ipctl_ratio0: X('ipctl_ratio0_out'), ipctl_integral: X('ipctl_integral_out'),
-              ipctl_calibrated: X('ipctl_calibrated_out') };
+              ipctl_calibrated: X('ipctl_calibrated_out'),
+              //: 第十七刀
+              p_aux: F('p_aux'), p_aux_beam: F('p_aux_beam'), p_aux_lh: F('p_aux_lh'), j_lh: F('j_lh'), ohm: F('ohm'),
+              beam_e: sp.beam ? F('beam_e') : null, beam_i: sp.beam ? F('beam_i') : null,
+              beam_torque: sp.beam ? F('beam_torque') : null, beam_j: sp.beam ? F('beam_j') : null,
+              beam_p_par: sp.beam ? F('beam_p_par') : null, beam_p_perp: sp.beam ? F('beam_p_perp') : null,
+              lh_e: sp.lh ? F('lh_e') : null, lh_j: sp.lh ? F('lh_j') : null };
     steps += 1;
     tNow = o.t_end;
+    //: the executors' records, off the first step's answer — the same reading
+    //: as the standalone calls, on the record the march carries
+    var sub = function (node) {
+      return { F: function (k) { return fieldFlat({ fields: node }, k); },
+               X: function (k) { return fieldFlat({ fields: node }, k)[0]; },
+               dim: function (k) { return fieldFlat({ fields: node.dims }, k)[0] | 0; } };
+    };
+    var outside = function (r, obj) {
+      var po = r.F('p_outside_ladder')[0], pe = r.F('ladder_edge_psin')[0];
+      obj.pOutsideLadder = isFinite(po) ? po : null;
+      obj.ladderEdgePsin = isFinite(pe) ? pe : null;
+      obj.cadence = 0;
+    };
+    if (sp.beam && !beam && rec.fields.beam) {
+      var rb = sub(rec.fields.beam);
+      beam = evBeamRead(rec.fields.beam, rb.F, rb.X, rb.dim('n_components'), beamPlan, field, geo, sp);
+      outside(rb, beam);
+    }
+    if (sp.lh && !lh && rec.fields.lh) {
+      var rl = sub(rec.fields.lh);
+      lh = evLhRead(rec.fields.lh, rl.F, rl.X, rl.dim('n_launchers'), lhPlan, geo, sp);
+      outside(rl, lh);
+    }
+    //: what the page's `rebuildSources` left in `ctx` for the readings and the
+    //: record: the fast-ion branches, the torque and the on-ladder arrays at
+    //: this step's waveform factor
+    var kpNow = sp.wavePower ? o.wave_k[0] : 1;
+    var scaled = function (a) {
+      var out = new Float64Array(a.length);
+      for (var q1 = 0; q1 < a.length; q1++) out[q1] = a[q1] * kpNow;
+      return out;
+    };
+    if (beam) {
+      ctx.pFastPar = scaled(o.beam_p_par); ctx.pFastPerp = scaled(o.beam_p_perp);
+      ctx.torque = scaled(o.beam_torque);
+      ctx.torqueBeam = beam.torqueTotal * kpNow;
+      beam.onLadder = new Float64Array(n);
+      //: the page's order: each channel scaled, then summed
+      for (var q2 = 0; q2 < n; q2++) beam.onLadder[q2] = o.beam_e[q2] * kpNow + o.beam_i[q2] * kpNow;
+    }
+    if (lh) lh.onLadder = scaled(o.lh_e);
     st.te = o.te; st.ti = o.ti; st.ne = o.ne_out; st.ni = o.ni_main;
     if (sp.quasi) st.nz = o.nz;
     if (ctx.momentum) { st.omega = o.omega; ctx.omega = o.omega; }
@@ -8074,6 +8193,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
     }
     if (ctx.channels.current) { st.psi = o.psi; st.q = o.q; }
     ctx.lastBs = ctx.channels.current ? o.j_bs : null;
+    ctx.lastOhm = o.ohm;
     ctx.lastChi = { e: o.chi_e, i: o.chi_i };
     var nuMax = 0;
     for (var q = 0; q < n; q++) {
@@ -8081,7 +8201,10 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
       if (isFinite(nu) && nu > nuMax) nuMax = nu;
     }
     ctx.tauExch = nuMax > 0 ? 1 / nuMax : null;
-    ctx.lastCd = (sp.iCd && ctx.channels.current) ? o.j_cd : null;
+    //: the driven currents the page's `evClosure` keeps apart: the beam's (or
+    //: the prescribed Gaussian when neither executor is on), and the wave's
+    ctx.lastCd = ctx.channels.current && (sp.beam || (sp.iCd && !sp.lh)) ? o.j_cd : null;
+    ctx.lastLh = ctx.channels.current && sp.lh ? o.j_lh : null;
     ctx.dtCapped = o.dt_capped | 0;
     var r1 = o.saw_r1[0], mixed = o.saw_mixed[0];
     if (r1 > 0) {
@@ -8089,8 +8212,8 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
                      refused: o.saw_refused[0]
                        ? FyI18n.t('e.err.sawmix') : undefined });
     }
-    ctx.lastDiag = { pAux: (sp.pE + sp.pI) * 1e6, pAuxBeam: 0, pAuxLh: 0,
-                     torqueBeam: null, pAlpha: o.p_alpha[0],
+    ctx.lastDiag = { pAux: o.p_aux[0], pAuxBeam: o.p_aux_beam[0], pAuxLh: o.p_aux_lh[0],
+                     torqueBeam: beam ? beam.torqueTotal * kpNow : null, pAlpha: o.p_alpha[0],
                      pRad: o.p_rad[0], pLine: o.p_line[0],
                      pOhm: o.p_ohm[0] };
     var rd = evReadings(ctx, st, ctx.lastDiag, tNow);
@@ -8116,7 +8239,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart) {
     prev = o;
     if (o.settled) break;
   }
-  return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled) };
+  return { steps: steps, tNow: tNow, settled: !!(prev && prev.settled), beam: beam, lh: lh };
 }
 
 //: set by `evolveRun` before the scope test; a module-level flag rather than
@@ -8578,7 +8701,11 @@ function evolveRun(msg) {
       lh.ladderOp = evShellLadderOp(field, geo, lh.edges);
     } else { lh = null; }
   };
-  rebuildBeam();
+  //: ★第十七刀: on the entry path the executors are the ENTRY's (evaluated
+  //: inside `code/evolve` on the same equilibrium); the loop path builds
+  //: them here.  The scope test is the same one `viaEntry` runs below.
+  var entryAhead = sp.closure !== 4 && evScopeMiss(sp).length === 0;
+  if (!entryAhead) rebuildBeam();
   var rebuildSources = function (t) {
     var k = wfAt(t === undefined ? 0 : t);
     var kp = sp.wavePower ? k : 1;
@@ -8945,9 +9072,11 @@ function evolveRun(msg) {
   var entryMiss = evScopeMiss(sp);
   var viaEntry = blocks > 0 && entryMiss.length === 0;
   if (viaEntry) {
-    var em = evEntryMarch(ctx, st, geo, sp, trace, crashes, tNow);
+    var em = evEntryMarch(ctx, st, geo, sp, trace, crashes, tNow, field);
     steps = em.steps;
     tNow = em.tNow;
+    if (em.beam) beam = em.beam;
+    if (em.lh) lh = em.lh;
     settledEarly = em.settled;
     blocks = 0;
   }

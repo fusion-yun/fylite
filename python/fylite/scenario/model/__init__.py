@@ -380,8 +380,28 @@ def evolve(*, a: float, r0: float, b0: float,
            momentum: bool = False, prandtl: float = 1.0,
            torque: float = 0.0, closure: str = "constant",
            wave: dict | None = None, ipctl: bool = False,
-           ip_kp: float = 0.0, ip_ki: float = 0.0) -> dict:
+           ip_kp: float = 0.0, ip_ki: float = 0.0,
+           nbi: dict | None = None, lh_antennas: dict | None = None,
+           executors: dict | None = None) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
+
+    ★2026-09-05 第十七刀: the two executors run INSIDE the march.  ``nbi`` is
+    the DD's ``nbi`` document (``{"unit": [...]}``, the shape ``model.nbi.deposit``
+    takes) and ``lh_antennas`` the ``{"antenna": [...]}`` document; the kernel
+    evaluates ``code/beam`` / ``code/wave`` ONCE on the initial state at the
+    ladder's own psi_N, remaps the shell deposition onto the ladder
+    conservatively (the page's T-M14 rule), and marches on it: with a beam the
+    aux powers, the torque and the driven current are the beam's (``p_e`` ·
+    ``p_i`` · ``torque`` · ``i_cd`` are inert), the fast-ion trace third rides on
+    beta_N; the wave's electron deposition and current ride on top.  Both need
+    the psi map, so the Miller tier refuses them by name — pass ``equilibrium``.
+    ``executors`` are the two cases' own settings in one map (``beam_shells`` ·
+    ``stopping_model`` · ``n_samples`` · ``n_width_r`` · ``n_width_z`` ·
+    ``orbit_losses`` · ``impurity_form``; ``eta_cd`` · ``xi`` · ``upshift_min`` ·
+    ``upshift_max`` · ``lh_shells`` · ``width_floor`` · ``cd_model``).  The answer
+    carries ``p_aux`` / ``p_aux_beam`` / ``p_aux_lh`` per step, ``j_lh``, and the
+    executors' whole records under ``beam`` / ``lh`` (``code/beam``'s and
+    ``code/wave``'s own fields, ``p_outside_ladder`` beside them).
 
     ★2026-09-05 第十五刀: ``density=True`` marches the main-ion density beside
     the heat (a PRESCRIBED particle closure — ``D = d_over_chi * chi_e`` and a
@@ -519,7 +539,10 @@ def evolve(*, a: float, r0: float, b0: float,
         "closure": "2" if closure == "neoclassical" else "0",
         "wave": float(bool(wave)), "ipctl": float(bool(ipctl)),
         "ip_kp": float(ip_kp), "ip_ki": float(ip_ki),
+        "beam": float(nbi is not None), "lh": float(lh_antennas is not None),
     }
+    for k, v in (executors or {}).items():
+        settings[k] = v if isinstance(v, str) else float(v)
     if wave:
         settings.update({"wave_ramp": float(wave["ramp"]), "wave_flat": float(wave["flat"]),
                          "wave_end": float(wave["end"]), "wave_start": float(wave.get("start", 0.0)),
@@ -552,6 +575,10 @@ def evolve(*, a: float, r0: float, b0: float,
         if "ti" in reference:
             cp["t_i_average"] = np.asarray(reference["ti"], float)
         inputs["core_profiles"] = {"profiles_1d": cp}
+    if nbi is not None:
+        inputs["nbi"] = nbi
+    if lh_antennas is not None:
+        inputs["lh_antennas"] = lh_antennas
     if chi_e_profile is not None:
         inputs["core_transport"] = {"model": [{"profiles_1d": {
             "electrons": {"energy": {"d": np.asarray(chi_e_profile, float)}},
@@ -605,6 +632,11 @@ def evolve(*, a: float, r0: float, b0: float,
         "saw_r1": arr("saw_r1"), "saw_mixed": arr("saw_mixed"),
         "saw_refused": arr("saw_refused"), "saw_count": int(fact("saw_count")),
         "j_cd": arr("j_cd"),
+        #: 第十七刀 — the auxiliary power the march put in, by executor; the
+        #: wave's current; the executors' whole records where they ran
+        "p_aux": arr("p_aux"), "p_aux_beam": arr("p_aux_beam"),
+        "p_aux_lh": arr("p_aux_lh"), "j_lh": arr("j_lh"),
+        "beam": F.get("beam"), "lh": F.get("lh"),
         "notes": list(rec.get("notes", [])),
         "provenance": provenance("evolve", closure="constant",
                                  channels=("heat", "current") if current
@@ -614,6 +646,8 @@ def evolve(*, a: float, r0: float, b0: float,
                                  reference_channels=ref_used,
                                  driven_current=(float(i_cd) if i_cd
                                                  else None),
+                                 executors=tuple(k for k, v in (("nbi", nbi), ("lh", lh_antennas))
+                                                 if v is not None) or None,
                                  pedestal="eped1nn" if pedestal else None,
                                  loop="kernel (evolve_heat)"),
     }
