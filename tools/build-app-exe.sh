@@ -88,6 +88,20 @@ else
   rm -f "$STAGE"/assets/fylite_runtime.wasm*
   echo "[exe] 内嵌树里去掉 fylite_runtime.wasm（页面改走本进程的 /api/facts）"
 
+  #: ★★**内核那两份 wasm 也不带**（2026-09-05 用户裁定：「webui 中 fylite_rs /
+  #: fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm」；同日续裁
+  #: 「fy 封装 fylite_kernel 静态库，.so 是留给 python 层，wasm 留给静态网页发布」）。
+  #: 算力是这个可执行文件自己的一部分——内核静态库链在里面，页面把调用交给
+  #: `/api/kernel`（`app/assets/kernelapi.js` 先探 `/api/health` 的 `kernel` 格，
+  #: 探不到才实例化 wasm——静态站点走的正是后者）。
+  #: ★这是同一天第二次消掉同一种重复：先是装置信息（两份字节、两条通路），
+  #: 现在是**算力**（同一批物理编两遍，一遍原生一遍 wasm，谁也不保证两者一致）。
+  #: 差别只在这一次两条路的等价性是**有闸子看着的**：`app/tests/validate-kernel-api.mjs`
+  #: 让同一批调用两边各走一遍并逐位比对。
+  #: 实测省下 1.46 MB（fylite_rs.wasm 0.99 + fylite_kernel_ext.wasm 0.47）。
+  rm -f "$STAGE"/assets/fylite_rs.wasm* "$STAGE"/assets/fylite_kernel_ext.wasm*
+  echo "[exe] 内嵌树里去掉内核 wasm（算力在本进程里：静态库 + /api/kernel）"
+
   # 资源表先与那棵树对齐——漏这一步的后果是运行时 404，只有别人才会发现
   #: ★它写的是 `rust/fylite_runtime/src/bin/app/assets.rs` —— 同一棵树里。
   #: ★`--from` 指**装好的那一棵**：表描述的必须就是编译期真在的那一棵，否则

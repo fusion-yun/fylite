@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-15
 title: "发布形态与统一命令行 (Release Forms and the Unified Command Line)"
 shortname: fylite-release-cli
-version: "1.1"
-date: 2026-09-04
+version: "1.2"
+date: 2026-09-05
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,10 +12,16 @@ ai_assistance:
   - Claude Code
 created: 2026-09-02T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v1.1 命令词由三条改为四条（`FYL-DESIGN-17` E-10 / E-23 / E-24 落地，2026-09-04）：
+    v1.2 R-1 / R-3 与构建表按 2026-09-05 两条用户裁定改写（落文在 `FYL-DESIGN-16` H-6 / K-9）：
+    内核制品从两种形变成**三种**（静态库进 `fy`、`.so` 进 Python 层、wasm 只进静态站点），
+    可执行文件的内嵌树里**一份 wasm 也没有**——装置信息走本进程的 `/api/facts`，算力走
+    `/api/kernel` 与链进去的静态库。R-3 原文说「把原生内核接到请求面归 `-16` 的 P2，本篇
+    不做」，那句话已被裁定超过：做了，只是走的是逐调用门而不是文档门，理由与代价记在
+    H-6。三种形态的差别表因此从「谁伺服」扩到「装置信息与算力各在哪里」。
+    · v1.1 命令词由三条改为四条（`FYL-DESIGN-17` E-10 / E-23 / E-24 落地，2026-09-04）：
     `case` 收进 `run`、发现面收进 `list`，于是 `fy` 是 `app` / `data` / `run` / `list`，
     一个词一个动词。R-2 / R-4 / C-5 的枚举随之改写；C-1 补一句**规格与模板的分工**
     （静态语法在 `_cli.json`，场景的参数表在模板——`open_parameters` 是那道缝的声明）；
@@ -43,8 +49,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-15` |
 | 文档名称 (Title) | 发布形态与统一命令行 (Release Forms and the Unified Command Line) |
 | 短名 / Slug | `fylite-release-cli` |
-| 版本 (Version) | v1.1 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v1.2 |
+| 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -122,10 +128,16 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 
 ## 裁定 R-1..R-6 (Rulings on release forms)
 
-**R-1 三形态一份源。** 三种形态装的是同一份 `app/`、同一版内核制品（`.so` 与 `.wasm`
-出自同一个 `c_api.rs`，`FYL-SDD-01` DE-LOG-01）、同一份 `_cli.json`。一个形态**禁止
+**R-1 三形态一份源。** 三种形态装的是同一份 `app/`、同一版内核制品（`.a` / `.so` /
+`.wasm` 出自同一个 `c_api.rs`，`FYL-SDD-01` DE-LOG-01）、同一份 `_cli.json`。一个形态**禁止
 (MUST NOT)** 带另一个形态没有的页面或参数名；不同之处只能是**运行时**判别的
 （`host.js` 的 `data-fy-host`），不能是构建时分叉的页面。
+
+★★**「同一版内核制品」自 2026-09-05 起是三种形，不是两种**（用户裁定，`FYL-DESIGN-16` K-9）：
+静态库进 `fy`、`.so` 进 Python 层、wasm 只进静态站点。三者出自同一次构建，所以这条裁定
+不受影响——变的是**每种形态带哪一份**，以及随之而来的一件更要紧的事：一次发行里同一批
+物理**只有一个实现路径**在跑（此前可执行文件里有两个：内嵌页面的 wasm 与进程自己的原生
+内核）。哪几个字节进哪个形态，见 K-9 的表。
 
 **R-2 只有一个可执行文件，它是 Rust 宿主的全部命令行。** `fylite` 不带子命令即
 `app`（起服务、开浏览器——双击仍可用）；`fy data …` 搬数据、`fy run …` 算一个算例、
@@ -138,8 +150,20 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 **R-3 静态即无服务端组件；动态即同一份字节被一个进程伺服。** 静态站点的构建只做三件事：
 取 `app/` 的发布子集（去 `tests/`）、核对装置描述在、核对三个 wasm 在。动态网页由 `fy`（`fy app`）伺服，并答 `/api/*`；
 请求面**只绑回环**、只读、无表达式端点（`FYL-REPORT-05` §3b.5 与 `api.rs` 抬头）。
-把原生内核接到请求面（页面改走 HTTP 而不是 wasm）是 `FYL-DESIGN-16` K-4 / H-2 的
-远端后端 `/api/case`，归那一篇的分期 P2，本篇不做。
+
+★★**这一条 2026-09-05 由两条用户裁定改写了一半**（`FYL-DESIGN-16` H-6 / K-9）：把原生内核
+接到请求面这件事**已经做了**，只是走的不是当初设想的 `/api/case`（文档门），而是
+`/api/kernel`（逐调用门）——因为页面今天真有的是 140 处细粒度调用点，等它们改写成计划
+等于让裁定等一个季度。于是三种形态的差别不再只是「谁伺服」，还包括**算力在哪里**：
+
+| 形态 | 装置信息 | 算力 | 请求面 |
+| :--- | :--- | :--- | :--- |
+| 静态网页 | 中间层 wasm 里的 `facts.rs` | **页内内核 wasm**（唯一还需要 wasm 的宿主） | 无 |
+| 单一可执行文件 / 动态网页 | 本进程的 `/api/facts` | **本进程**（内核静态库链在里面），页面经 `/api/kernel` | `/api/*`，只绑回环 |
+| Python 包 | `.so` 里的同一张表 | `dlopen` 的 `.so` | 无 |
+
+「只绑回环、只读」没有松：`/api/kernel` 是这台机器上唯一的 POST，读完请求体当参数用，
+一个字节也不落盘；服务器依旧没有写入面、没有目录列表。
 
 **R-4 命令行只有一条，它是那个可执行文件。** `fy` 承载规格里的每一条命令
 （`app` / `data` / `run` / `list`）；无命令词时跑 `app`，所以双击可用。Python 包**不是**
@@ -168,8 +192,8 @@ netcdf）。它落地后静态网页装的是四个 wasm，`geqdsk.js` / `fyo.js
 
 | 形态 | 命令 | 产物 | 门禁 |
 | :--- | :--- | :--- | :--- |
-| 单一可执行文件 | `bash tools/build-app-exe.sh [linux\|windows\|windows-msvc\|both]`（先跑 `node tools/make-app-embed.mjs`） | `rust/fylite_runtime/target/release/fy`、`…/x86_64-pc-windows-{gnu,msvc}/release/fy.exe` | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
-| 静态网页 | `bash tools/build-site.sh [输出目录]` | `dist/site/`：`app/` 发布子集 + 三个 wasm + 装置描述 | 脚本自检：三个 wasm 在、无 `tests/`、无悬空符号链接 |
+| 单一可执行文件 | `bash tools/build-app-exe.sh --mode cli\|web\|full [linux\|windows\|both]` | `rust/fylite_runtime/target/release/fy`、`…/x86_64-pc-windows-{gnu,msvc}/release/fy.exe`。**内嵌树里一份 wasm 也没有**（2026-09-05）：装置信息与算力都是本进程的 | `app/tests/validate-embed.mjs`（资源表与 `app/` 同步）；`validate-kernel-api.mjs`（两条算力路逐位比对）；二进制自带测试（首页、wasm MIME、穿越、活目录穿越、启动 URL） |
+| 静态网页 | `bash tools/build-site.sh [--internal\|--public] [输出目录]` | `dist/site/`：`app/` 发布子集 + 三个 wasm（装置描述与算力都在 wasm 里，不另发文件） | 脚本自检：三个 wasm 在、无 `tests/`、无悬空符号链接；`validate-site.mjs` |
 | 动态网页 | `fy [--port N] [--mdsip HOST:PORT] …`（= `fy app …`） | 运行中的进程 | `app/tests/validate-app-mdsip.mjs --exe <fy>` |
 | Python 包 | `bash rust/build.sh --exe`（中间层 `.so`；`fy` 留在 `target/release/`，**不进轮**；`--cli` 已撤，给它会被按名拒绝并指向 `--exe`）→ 内核仓 `rust/build.sh`（内核 `.so`、生成物）→ `bash tools/build-wheel.sh` | `python/dist/fylite-<ver>-py3-none-manylinux_x_y_x86_64.whl` | `test_bundled_artifacts.py`（ABI 一致、制品不入库）；`test_cli_spec.py` |
 :::

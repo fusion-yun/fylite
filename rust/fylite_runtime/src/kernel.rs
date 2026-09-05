@@ -107,9 +107,57 @@ pub fn candidates(explicit: Option<&Path>) -> Vec<PathBuf> {
     out
 }
 
+//: ★★**链进来的那一份内核**（2026-09-05 用户裁定：「fy 封装 fylite_kernel 静态库，
+//: .so 是留给 python 层，wasm 留给静态网页发布」）。声明三个符号就够了：结构门、
+//: 它的释放函数、ABI 号——`run_case` 要的正是这三个。其余 250 个由生成的
+//: `kernel_abi.rs` 声明，那是**调用门**（页面走 `/api/kernel`）。
+//: ★`cfg(kernel_static)` 由 `build.rs` 在看见那份 `.a` 时打开。没有归档的检出编译
+//: 照旧，只是这一段不存在，`load()` 退回 dlopen。
+#[cfg(kernel_static)]
+extern "C" {
+    fn fylite_rs_fyo(
+        code: *const u8, code_n: u64,
+        n_num: u64, num_k: *const *const u8, num_kl: *const u64, num_v: *const f64,
+        n_txt: u64, txt_k: *const *const u8, txt_kl: *const u64,
+        txt_v: *const *const u8, txt_vl: *const u64,
+        n_in: u64, in_k: *const *const u8, in_kl: *const u64, in_len: *const u64,
+        in_data: *const f64,
+        man: *mut *mut u8, man_n: *mut u64, data: *mut *mut f64, data_n: *mut u64,
+    ) -> i32;
+    fn fylite_rs_free(p: *mut u8, n: u64);
+    fn fylite_rs_abi_version() -> u32;
+}
+
 impl Kernel {
+    /// 链进本二进制的那一份内核，如果这一次构建带着它。
+    ///
+    /// ★★这条路**不碰文件系统**：算力是可执行文件自己的一部分，所以 `fy run` 在
+    /// 一台没有装任何 `.so` 的机器上照样完整。`path` 记成 `<linked>` 而不是一条假
+    /// 路径——问「内核从哪里来」的人应当得到真话。
+    #[cfg(kernel_static)]
+    pub fn linked() -> Kernel {
+        Kernel {
+            path: PathBuf::from("<linked>"),
+            abi_version: Some(unsafe { fylite_rs_abi_version() }),
+            fyo: fylite_rs_fyo,
+            free: fylite_rs_free,
+        }
+    }
+
+    /// 这一次构建是不是自带算力。
+    pub fn is_linked_in() -> bool {
+        cfg!(kernel_static)
+    }
+
     /// Load the first candidate that exists and carries the door.
     pub fn load(explicit: Option<&Path>) -> Result<Kernel, KernelError> {
+        //: ★★没人指定就用链进来的那一份。**显式给的路径仍然赢**（`--kernel` 或
+        //: `$FYLITE_KERNEL_LIB`）：那是「就用这一个」的意思，通常是有人在拿一份
+        //: 现编的内核对照本二进制里的这一份——把那条退路封掉，就没法比了。
+        #[cfg(kernel_static)]
+        if explicit.is_none() && std::env::var_os("FYLITE_KERNEL_LIB").is_none() {
+            return Ok(Kernel::linked());
+        }
         let cands = candidates(explicit);
         let mut tried = Vec::new();
         for c in &cands {

@@ -390,23 +390,50 @@ fn serve(mut stream: TcpStream, cfg: &api::Cfg, source: &Source) -> std::io::Res
     let method = parts.next().unwrap_or("");
     let target = parts.next().unwrap_or("/");
 
-    //: 请求头读完丢掉——本程序不看任何一个头（没有条件请求、没有范围请求、
-    //: 没有内容协商）。不读完则会话缓冲里留着字节，keep-alive 下一次请求就错位。
+    //: 请求头读完丢掉——**只留 `Content-Length` 一个**。本程序不看条件请求、
+    //: 不看范围请求、不做内容协商；而算力那条端点（下面的 `/api/kernel`）要读
+    //: 请求体，读多少只有这个头说得出。不读完头则会话缓冲里留着字节，
+    //: keep-alive 下一次请求就错位。
     let mut header = String::new();
+    let mut length: usize = 0;
     loop {
         header.clear();
         let n = (&mut reader).take(MAX_REQUEST_LINE as u64).read_line(&mut header)?;
         if n == 0 || header == "\r\n" || header == "\n" {
             break;
         }
-    }
-
-    if method != "GET" && method != "HEAD" {
-        return respond(&mut stream, 405, "text/plain; charset=utf-8", b"only GET and HEAD", true);
+        if let Some((k, v)) = header.split_once(':') {
+            if k.trim().eq_ignore_ascii_case("content-length") {
+                length = v.trim().parse().unwrap_or(0);
+            }
+        }
     }
 
     //: 查询串与片段不参与查找：`?v=123` 这类缓存破除参数是页面自己加的
     let path = target.split(['?', '#']).next().unwrap_or("/");
+
+    //: ★★**唯一的 POST**：页面把一次内核调用交给本进程（2026-09-05 用户裁定
+    //: 「webui 中 fylite_rs / fylite_kernel_ext wasm 功能由 api 端提供」）。为什么是
+    //: POST 而不是像别的端点那样把参数写进查询串：一次调用要带整段数组，几万个数
+    //: ——那是请求体的事，不是 URL 的事（URL 有长度上限，且会进日志与历史记录）。
+    //: ★这仍然不是「上传」：请求体读完就当参数用，一个字节也不落盘。本服务器
+    //: 依旧没有写入面、没有目录列表。
+    if method == "POST" && path == "/api/kernel" {
+        if length > api::MAX_BODY {
+            return respond(&mut stream, 413, "application/json; charset=utf-8",
+                           b"{\"error\":\"request body too large\"}", true);
+        }
+        let mut body = vec![0u8; length];
+        reader.read_exact(&mut body)?;
+        let (status, answer) = api::kernel(&String::from_utf8_lossy(&body));
+        return respond(&mut stream, status, "application/json; charset=utf-8",
+                       answer.as_bytes(), true);
+    }
+
+    if method != "GET" && method != "HEAD" {
+        return respond(&mut stream, 405, "text/plain; charset=utf-8",
+                       b"only GET, HEAD, and POST /api/kernel", true);
+    }
 
     //: ★请求面在静态查找之前：`/api/...` 不是站点里的文件，而资源表是精确
     //: 匹配的，落到 `lookup` 只会变成一个 404——那正是接上 mdsip 之前

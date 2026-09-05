@@ -110,6 +110,90 @@ fn facts(q: &Query) -> Result<String, Fail> {
     }
 }
 
+// --------------------------------------------------------------------------
+// 算力 —— 页面在这个宿主里调内核的那条路
+// --------------------------------------------------------------------------
+
+/// 一次调用的请求体上限。
+///
+/// ★与 [`fylite_runtime::kernel_call::MAX_FRAME`] 同量级但**更大**：那是解出来的
+/// 二进制帧，这里是它的 JSON 文本形（一个 f64 写成十来个字符）。两处各自成立，
+/// 因为它们量的是两样东西。
+pub const MAX_BODY: usize = 256 << 20;
+
+/// `POST /api/kernel` —— 一个内核符号、一批参数，算完把出参送回去。
+///
+/// ★★2026-09-05 用户裁定：「webui 中 fylite_rs / fylite_kernel_ext wasm 功能由 api
+/// 端提供，只静态网页走 wasm」。桌面宿主里的页面因此不再实例化内核 wasm；它把
+/// **本来要交给 wasm 的那次调用**原样交到这里，由链进本进程的静态库算。
+///
+/// ★这里没有任何一处知道某个函数是干什么的——参数怎么读、出参多长，全由内核仓
+/// 生成的那张表说了算（`kernel_abi::KINDS`，页面手上是同一次生成的
+/// `app/assets/kernel-abi.js`）。所以这条端点不是第二个计算接口，是同一个接口的
+/// 另一种到达方式。
+///
+/// ★没链内核的构建（公开仓单独检出）**照答**，答的是一句说得清的话而不是 404：
+/// 页面据此退回 wasm 或者把面板画成禁用，与 `/api/health` 同一条纪律。
+pub fn kernel(body: &str) -> (u16, String) {
+    #[cfg(kernel_static)]
+    {
+        use fylite_runtime::kernel_abi;
+        use fylite_runtime::kernel_call as kc;
+        let kinds_of = |n: &str| -> Option<&'static [&'static str]> {
+            kernel_abi::KINDS.iter().find(|(k, _)| *k == n).map(|(_, v)| *v)
+        };
+        let (name, mut frame) = match kc::parse_request(body, kinds_of) {
+            Ok(v) => v,
+            Err(e) => return (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+        };
+        let ret = match kernel_abi::call(&name, &mut frame) {
+            Ok(r) => r,
+            Err(e) => return (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+        };
+        let kinds = kinds_of(&name).unwrap_or(&[]);
+        (200, kc::render_answer(ret, &frame, kinds))
+    }
+    #[cfg(not(kernel_static))]
+    {
+        let _ = body;
+        (
+            501,
+            format!(
+                "{{\"error\":{}}}",
+                jstr(&fylite_runtime::kernel_call::CallError::NoKernel.to_string())
+            ),
+        )
+    }
+}
+
+/// `/api/health` 里那一格：算力在不在本进程里，以及它是哪一版 ABI。
+fn kernel_face() -> String {
+    #[cfg(kernel_static)]
+    {
+        use fylite_runtime::kernel_abi;
+        let mut f = fylite_runtime::kernel_call::Frame::default();
+        let abi = kernel_abi::call("fylite_rs_abi_version", &mut f)
+            .map(|r| r.as_f64())
+            .unwrap_or(0.0);
+        //: ★★身份也报：页面的续算闸按内核散列判「这份状态是不是当前这个内核写的」，
+        //: 而走这条路时没有一份 `.wasm` 可散列。这里给的是**链进来的那份归档**的
+        //: 散列（构建期 baked，见 `build.rs`）——正是跑起来的那些字节。
+        let sha = env!("FYLITE_KERNEL_SHA256");
+        let ver = env!("FYLITE_KERNEL_VERSION");
+        format!(
+            "{{\"linked\":true,\"abi\":{},\"symbols\":{},\"sha256\":{},\"version\":{}}}",
+            abi as u64,
+            kernel_abi::BRIDGED.len(),
+            if sha.is_empty() { String::from("null") } else { jstr(sha) },
+            if ver.is_empty() { String::from("null") } else { jstr(ver) }
+        )
+    }
+    #[cfg(not(kernel_static))]
+    {
+        String::from("{\"linked\":false,\"abi\":null,\"symbols\":0,\"sha256\":null,\"version\":null}")
+    }
+}
+
 enum Fail {
     Bad(String),
     Mds(MdsipError),
@@ -272,7 +356,7 @@ fn health(cfg: &Cfg) -> String {
     format!(
         "{{\"ok\":true,\"mdsip\":{},\"user\":{},\"sessions\":0,\"maxPoints\":{},\
          \"trees\":[\"efit_east\",\"east\",\"pcs_east\",\"analysis\",\"efitrt_east\"],\
-         \"servers\":{},\"locked\":false{}}}",
+         \"servers\":{},\"locked\":false,\"kernel\":{}{}}}",
         match &cfg.server {
             Some(s) => jstr(s),
             None => String::from("null"),
@@ -280,6 +364,14 @@ fn health(cfg: &Cfg) -> String {
         jstr(&cfg.user),
         MAX_POINTS,
         servers,
+        //: ★★**算力在不在本进程里**（2026-09-05 用户裁定）。页面读这一格决定走哪条
+        //: 路：`linked` 为真就把内核调用交给 `/api/kernel`，为假（或整个 `/api/health`
+        //: 不在，比如静态站点）就实例化 wasm 自己算。探的是**这条路答不答**，
+        //: 不是主机名——与 `factsdb.js` 探 `/api/facts` 同一条纪律。
+        //: ★ABI 号一并报出：页面手上的那份契约（`assets/version.js` 的 `FyVersion.abi`）
+        //: 与算力这一侧必须同源，不等就该当场说，而不是让第一个改过签名的函数
+        //: 去表现成一个奇怪的数。
+        kernel_face(),
         //: 没给 `--mdsip` 时照样答，并说清这一格要自己填——一个消失的控件什么
         //: 也没教给读者，而「往哪里填」正是读者要知道的。
         if cfg.server.is_none() {

@@ -24,6 +24,12 @@ importScripts('i18n.js', 'lang-zh.js', 'lang-en.js',
               //: keeping a second opinion about it (S-2b)
               //: ★interface BEFORE `fyo.js`, which captures `FyNames` at load
               'fyo-interface.js', 'fyo.js',
+              //: ★★算力那条路的两份（2026-09-05 用户裁定「webui 中 fylite_rs /
+              //: fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm」）：
+              //: `kernel-abi.js` 是内核仓生成的参数种类表，`kernelapi.js` 是走
+              //: `/api/kernel` 的那份导出面。两者都在 `fylite.js` 之前，因为
+              //: `FyLite.attach()` 要用它们决定这个宿主该走哪条路。
+              'kernel-abi.js', 'kernelapi.js',
               'device.js', 'fylite.js');
 
 // The machine arrives in the `init` message rather than as a global.  A
@@ -107,7 +113,7 @@ function init(machine) {
   if (!M) return post({ type: 'error', where: 'init',
                         message: FyI18n.t('worker.no_machine') });
   var t0 = Date.now();
-  return self.FyLite.load('fylite_rs.wasm').then(function (inst) {
+  return self.FyLite.attach('fylite_rs.wasm').then(function (inst) {
     fy = inst;
     //: the helper modules borrow the kernel rather than each loading
     //: one: one instance, one linear memory, one ABI check

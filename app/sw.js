@@ -38,6 +38,8 @@ const PRECACHE = [
   "assets/handoff.js",
   "assets/host.js",
   "assets/i18n.js",
+  "assets/kernel-abi.js",
+  "assets/kernelapi.js",
   "assets/lang-breakdown-en.js",
   "assets/lang-breakdown-zh.js",
   "assets/lang-credits-en.js",

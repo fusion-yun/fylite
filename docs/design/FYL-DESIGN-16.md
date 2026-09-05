@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "2.1"
-date: 2026-09-04
+version: "2.2"
+date: 2026-09-05
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,9 +12,21 @@ ai_assistance:
   - Claude Code
 created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
-  change: 'v2.1 改口落文本：五条既有裁定的改口已随全书重排进入 CONOPS / SRS / SDD v1.0
+  change: 'v2.2 收进 2026-09-05 两条用户裁定，算力面因此从「两个实现路径」收到一个：
+    **（一）webui 的内核功能由 api 端提供，只静态网页走 wasm** —— 落成 H-6：`POST /api/kernel`
+    是一次内核调用的逐参数转述，参数种类表由内核仓自 `c_api.rs` 生成给两侧（251 个导出桥接
+    248 个；结构门与分配器一对按名拒绝）；页面一处调用点都没改（`FyLite.attach()` 探
+    `/api/health`，探到就把 `Fy` 建在一份形状与 wasm `exports` 相同的导出面上）。等价性由
+    `validate-kernel-api.mjs` 逐位比对，实测纯算术逐位相同、含超越函数的差在末位（最大
+    1.4e-15，判读为两份 libm 的末位取舍）。**（二）fy 封装 fylite_kernel 静态库，.so 留给
+    python 层，wasm 留给静态网页发布** —— 落成 K-9 / K-10：内核仓新增 `fylite_static` 包出
+    一份 `libfylite_kernel_static.a`（核心 + 扩展），`fy` 链进去，`fy run` 与页面因此在没有
+    任何 `.so` 的机器上都完整可用。实测：静态库让 web 档的可执行文件 +3.10 MB，去掉的两份
+    内核 wasm 省 1.46 MB。G-7 的原生那半随之关闭，另记 G-9（NOTICE 不随可执行文件与站点走）
+    与 G-10（迭代型入口的往返延迟未量）。
+    v2.1 改口落文本：五条既有裁定的改口已随全书重排进入 CONOPS / SRS / SDD v1.0
     （KERNEL 域、DE-LOG-11 / -12），改口表改为〔已确立〕对照，分期 P0 的第一项标已落。
     v2.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）。v0.1..v1.4 是十四次
     同日增量，每次把上一版的改口、作废与换理由叠在正文上；本版按裁定的**现行状态**重排，
@@ -42,8 +54,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v2.1 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v2.2 |
+| 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -187,7 +199,7 @@ flowchart TB
 (fylite-kernel-contract-rulings)=
 # 裁定 (Rulings)
 
-## 内核契约 K-1..K-8 (The kernel contract)
+## 内核契约 K-1..K-10 (The kernel contract)
 
 **K-1 文档门是唯一的内核接口。** 宿主（Python、浏览器、`fylite`）**只**经「一份计划进、
 一份记录出」调用内核。`c_api.rs` 的 442 个导出降为**本地后端的实现细节**：`fylite.kernel`
@@ -238,6 +250,36 @@ wasm / 远端地址）、哪个版本、什么指纹，`whence` 追得回去。�
 
 ★内核「不认识装置」是过强的说法，正确的是「不认识数据源头」。★「整份文档」在 ABI 上的
 形就是下一节的扁平树；进是树，出也是树，**两头同一种东西**。门仍只有一扇（K-1 不受影响）。
+
+**K-9 内核有三种形，各有唯一的读者。**〔已确立〕用户裁定（2026-09-05）：*fy 封装
+fylite_kernel 静态库，.so 是留给 python 层，wasm 留给静态网页发布*。同日在前的一条裁定
+（*webui 中 fylite_rs / fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm*）说的是
+**谁在哪里算**，这一条说的是**制品长什么样**，两条合起来把「一次发行里同一批物理有几个
+实现路径」这件事收到 1。
+
+| 形 | 谁读它 | 怎么到达 | 实测 |
+| :--- | :--- | :--- | :--- |
+| `libfylite_kernel_static.a` | `fy`（单一可执行文件） | **链进去**；`Kernel::linked()` 直接调结构门，页面经 `/api/kernel` 逐调用到达（H-6） | 归档 27.7 MB；链进 web 档的可执行文件 **+3.10 MB**（11.61 → 14.71 MB，同一份资源树、同一组 feature） |
+| `libfylite_kernel.so` + `_ext.so` | Python 层 | 运行期 `dlopen`（`fylite.kernel`；`FYLITE_KERNEL_LIB` / `--kernel` 仍然优先） | 2.03 + 1.09 MB，随轮发（轮 3.05 MB 压缩后） |
+| `fylite_rs.wasm` + `fylite_kernel_ext.wasm` | **静态站点** | 页面实例化，`FyLite.attach()` 探不到 `/api/*` 时的那条路 | 0.99 + 0.47 MB；可执行文件自 2026-09-05 起**不带**它们 |
+
+★三种形出自同一次构建、同一份 `c_api.rs`（`FYL-SDD-01` DE-LOG-01 不变）。静态库是内核仓
+新加的第三个包 `fylite_static`，它没有自己的代码：`extern crate` 两行把核心与扩展的
+`#[no_mangle]` 收进一份归档。**必须是一个包**——两份 `.a` 各自打包一份 `fylite` 的 rlib，
+链到同一个二进制里就是同一批符号出现两遍，而链接器对此的答复要么是拒绝、要么是「取第一
+份」，后者不报错。
+
+★两处构建期的坑，都写在实现旁：①工作区发布档的 `strip = "symbols"` 对静态库是致命的
+（被剥掉的正是链接方要按名找的符号，而失败发生在**下游那个仓**的链接期）；②归档必须以
+**链接参数**而不是 `-l static=` 交给 rustc，否则它会被收进 rustc 自己的 LTO 那一步，而
+`staticlib` 的产物不带位码，整条构建以 `failed to get bitcode from object file for LTO`
+停住——本仓发布档正是 `lto = true`。
+
+**K-10 `fy run` 的算力也是链进来的那一份。** 结构门（`fylite_rs_fyo`）今天由静态库提供，
+`fy list kernel` 报的是 `kernel: <linked>`。于是 `fy run` 在一台没有装任何 `.so` 的机器上
+完整可用——这是把「单一可执行文件」这句话补齐的最后一块。★显式指定仍然赢：`--kernel <路径>`
+与 `$FYLITE_KERNEL_LIB` 照旧走 `dlopen`，那是「拿一份现编的内核对照本二进制里的这一份」
+的唯一办法，封掉它就没法比了。
 
 (fylite-kernel-contract-tree)=
 ## 交互接口：扁平树 F-1..F-4 (The interface: a flat tree)
@@ -480,7 +522,7 @@ data …` 不改（它说的是七个数据动词，不是层名）；`fylite.io
 **D-4 中间层不算物理，也不写 MDSplus。** 与 `FYL-DESIGN-14` L-8 同。K-3「装配搬进内核」不是
 「搬进中间层」：度规与剖面是物理，归内核；合成与绑定是文档操作，归中间层。
 
-## 多宿主 H-1..H-5 (Hosts)
+## 多宿主 H-1..H-6 (Hosts)
 
 **H-1 宿主只写计划、只读记录。** 页面控件的每一次改动产生的是计划里的一个字段，「计算」键
 送出一份计划；1.5-D 栏读 g-file、0-D 工况跨页交接（`FYL-DESIGN-09` / `-10`）都成为计划里的
@@ -521,6 +563,57 @@ wasm 那档以 `--no-default-features` 关掉 `mdsip`（浏览器打不开裸 TC
 需要看懂。这与 F-1 合拍：树本来就是为跨边界传递设计的扁平布局，从一次 C ABI 调用换成两个
 wasm 实例的内存之间，性质不变。〔开放猜想〕链成一个 wasm 制品省掉接线，但要在构建期把
 私有内核与公开中间层链在一起，发布面与许可面都要重判（G-7）。
+
+(fylite-kernel-contract-api-kernel)=
+**H-6 桌面宿主的算力是本进程的；只有静态站点走 wasm。**〔已确立〕用户裁定（2026-09-05）：
+*webui 中 fylite_rs / fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm*。
+
+在此之前，`fy app` 这一个可执行文件里同一批物理装了两遍：内嵌页面取的两份 `.wasm`
+（1.46 MB），以及同一个进程里那份原生内核。两条算力路、两份字节，**没有任何东西保证它们
+算的是同一件事**——与同日早些时候在装置信息上收敛掉的重复是同一种。今天：
+
+* **到达方式**：`POST /api/kernel`，载荷是**一次调用的逐参数转述**
+  （`{"fn": 符号名, "args": [标量 | {"in": [...]} | {"out": n}]}`），答复是
+  `{"rc": 返回码, "out": [[...], ...]}`。服务端不知道任何一个函数是干什么的：每一格是
+  标量、入缓冲还是出缓冲，由**内核仓生成的表**说了算（`kernel_abi.rs` 与页面的
+  `kernel-abi.js` 出自 `c_api.rs` 的同一次生成，251 个导出里 **248 个桥接**）。
+* **页面一处调用点都没改**：`FyLite.attach()` 探 `/api/health` 的 `kernel` 格，探到就把
+  `Fy` 建在一份**形状与 wasm `exports` 相同**的导出面上（`kernelapi.js`：自己的
+  `WebAssembly.Memory` + 块分配器，调用时按表搬字节），探不到就实例化 wasm。
+  `fylite.js` 那 140 处调用点、`worker.js` 五千行编排一个字都不动。
+* **同步**：被替换的东西是同步的（wasm 导出是同步函数），所以桥用同步 XHR。Worker 里完全
+  支持；请求走的是回环地址上的本进程，没有网络、没有 DNS、没有 TLS。实测这套 ABI 是**粗
+  粒度**的——一次 q 剖面计算只有 1 次真正的物理调用（其余 8 次是 alloc/free，而分配在本地
+  做）。迭代型入口（`*_next`）按迭代次数发请求，是这条路最贵的一种。
+* **三个不桥**：`fylite_rs_fyo`（结构门，参数里有二级指针，那扇门是 `fy run` 的）与
+  `fylite_rs_alloc` / `_free`（内存归属在调用方那一侧）。★`free` 尤其要紧：它的第一格按
+  类型看是个「出缓冲」，桥若照办就是让内核释放一块桥自己的内存——一个 HTTP 请求触发的
+  未定义行为。类型看不出「这个指针会被释放」，所以这条按名写死。
+
+**与 H-2 的关系**：H-2 说浏览器的远端后端是 `/api/case`（文档门，一份计划进、一份记录出），
+那是 K-3 落地之后的目标形。`/api/kernel` 是**逐调用门**，服务的是页面今天真有的那 140 处
+细粒度调用点。两扇门并存不是两套架构：K-3 每搬一块装配进内核，页面就少一批逐调用，
+`/api/kernel` 的面随之收缩；`/api/case` 不受影响。★把顺序倒过来（先要求页面改写成计划）
+等于让这条裁定等一个季度。
+
+**信任边界（照实说）**：出缓冲的长度是**调用方报的**，与 wasm 那条路一字不差——那边页面
+`alloc` 多少就传多少。差别在后果：wasm 上报错一个长度，坏的是页面自己那块线性内存（沙箱
+之内）；这里坏的是**桌面进程的内存**。所以这条端点只在回环地址上答（服务器本来就只绑
+回环）、每格与整帧都有上限、只受理生成表里桥得过的符号。这不是把风险说没了，是把它说清楚。
+
+**等价性是有闸子看着的**：`app/tests/validate-kernel-api.mjs` 让同一批调用两边各走一遍。
+实测（2026-09-05 首次）：纯算术与查表的入口**逐位相同**（`ellipke` · `trappedFractionEps` ·
+`interp` · `quadrature` · `adasSpecies` · `adasId`+`adasCooling`）；路径上有超越函数的差在
+末位——`spitzerEta` 1/3 个点 2.2e-16、`millerBoundary` 2/66 个点 1.9e-16、`dtReactivity`
+1/3 个点 1.4e-15（Bosch–Hale 式里的 exp 把末位差放大了几个 ULP）。〔判读〕差异来自原生
+（glibc libm）与 wasm32（Rust 自带 libm）两份实现对同一个超越函数的末位取舍不同，不是桥
+搬错了参数——判据是「不含超越函数的入口逐位相同」；搬错参数的表现是量级级别的错。闸子
+因此按 1 e-14 相对差判，并把每一处末位差数出来。
+
+★**算力身份跟着路走**：wasm 那条报的是那份 `.wasm` 的 sha256，这条报的是链进桌面进程的
+那份归档的 sha256（构建期 baked 进二进制，`/api/health` 的 `kernel` 格报出）。两者本来就
+该不同——**它们是两个内核**，而续算闸（`checkpoint.js`，S-6）判的正是「写这份状态的内核
+是不是当前这个」。
 
 (fylite-kernel-contract-deltas)=
 # 要改口的既有裁定 (Deltas to Standing Rulings)
@@ -574,8 +667,10 @@ KERNEL 域 FR-KERNEL-001..004 承载 K-1 / K-2 / K-4 / K-8 / F-1..F-4 / S-1..S-4
 | G-4 | 两个后端给出不同的数时，登记册记录的纳入类别（V / B / C）怎么定——今天三类都以「外部答案」为对照，后端间对照是第四种 | 开；P2 |
 | G-5 | ~~wasm 后端的 code 表怎么自报~~ | **随 W-1 即关**（H-4）：中间层的 wasm 像本机那样问内核要，不再靠生成的 `fyo-interface.js` 冒充运行期查询 |
 | G-6 | 中间层与 SpData 重叠语义的对齐代价未量：`$link` 分解、`merge_key`、时间开窗三处各自定义，可能与 SpData 的 `$op` / 标识符语法冲突 | 开；P3 前先量 |
-| G-7 | wasm 上两个模块由 JS 接线 vs 链成一个制品——后者省接线但要重判发布面与许可面 | 开；W-1 前定 |
+| G-7 | ~~wasm 上两个模块由 JS 接线 vs 链成一个制品~~ | **原生那侧已关**（K-9，2026-09-05 用户裁定）：`fy` 链一份静态库，核心与扩展在同一个制品里，接线没有了；发布面与许可面与轮相同（源码不公开、二进制随发行走）。**wasm 那侧仍开**：静态站点上内核与中间层还是两个模块由 JS 接线 |
 | G-8 | `fylite:state` 的形：一块还是逐 code 一块；跨 code 的状态（`coupled` 里平衡与输运各有）怎么并 | 开；P1 与 S-2 一同定 |
+| G-9 | **NOTICE 不随 `fy` 与站点走**：轮有（`build-wheel.sh` 两份逐字节比对，Apache-2.0 §4(d)），而可执行文件与静态站点只带 `credits.html` 里的 GACODE 署名段。今天的裁定把**原生的**内核代码放进了可执行文件，这条因此更显眼——但它不是今天才有的：可执行文件此前内嵌的两份内核 wasm 同样是派生物 | 开；发行前定（把 NOTICE 落进站点与内嵌树，还是判定 `credits.html` 已满足） |
+| G-10 | 逐调用桥在**迭代型入口**（`*_init` / `*_next` / `*_result`）上按迭代次数发请求，延迟未量。与 G-1 是同一个问题的两侧：那条量的是「装配搬进内核后一次门调用多一次编码」，这条量的是「一次迭代多一次回环往返」 | 开；P1 与 G-1 一同量 |
 
 (fylite-kernel-contract-trace)=
 # 追溯 (Traceability)

@@ -139,3 +139,12 @@ python/fylite/_bin/
 #: ★发行版自带的那一份是**打包时生成**的（`build-wheel.sh` 调 `facts-publish.py`），
 #: 与 `_lib/` `_bin/` 同规矩：制品不入库，打包时装入。
 /python/fylite/_facts/
+
+#: ★★内核的**静态库**形（2026-09-05 用户裁定「fy 封装 fylite_kernel 静态库」）。
+#: 它是**链接输入**，由内核仓的 `rust/build.sh` 装进来（另附 `kernel-static.json`
+#: 记版本 · ABI · sha256，公开仓把那串散列编进二进制当算力身份）。与 `_lib/` 的两份
+#: `.so` 同规矩：制品不入库。
+#: ★上面那两条 `*.so` / `*.wasm` 的 glob 匹配不到 `.a`——扩展名不同，而漏了这一行的
+#: 后果不是构建失败，是 `git status` 把一份 27 MB 的归档列成未跟踪，然后总有一天
+#: 有人 `git add -A`。
+/rust/kernel-lib/

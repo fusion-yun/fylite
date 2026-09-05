@@ -4077,6 +4077,42 @@
     });
   }
 
+  /**
+   * 内核，**这个宿主该走的那条路**。
+   *
+   * ★★2026-09-05 用户裁定：「webui 中 fylite_rs / fylite_kernel_ext wasm 功能由 api
+   * 端提供，只静态网页走 wasm」。于是「取内核」有两种到达方式，而调用点一处都不改：
+   *
+   *   · 桌面查看器（`fy app`）—— 本进程自带算力（内核静态库链在里面），页面把调用
+   *     交给 `/api/kernel`；那份 `.wasm` 因此不必内嵌，也不必下载。
+   *   · 静态站点 —— 没有 `/api/*`，实例化 `fylite_rs.wasm` 自己算。那是它唯一的算法。
+   *
+   * 探的是**请求面答不答**，不是主机名（`FyKernelApi.probe` 抬头写着为什么）。
+   * `FyKernelApi` 不在（比如只加载了 `fylite.js` 的宿主）就直接走 wasm——少一个
+   * 可选文件不该让内核取不到。
+   *
+   * ★身份跟着路走：wasm 那条报的是那份 `.wasm` 的 sha256，这条报的是链进桌面进程的
+   * 那份归档的 sha256。两者本来就该不同——**它们是两个内核**，而续算闸
+   * （`checkpoint.js`）判的正是「写这份状态的内核是不是当前这个」。
+   */
+  function attach(url, opts) {
+    var api = root.FyKernelApi;
+    if (!api || !api.probe) return load(url, opts);
+    return api.probe().then(function (info) {
+      if (!info) return load(url, opts);
+      var fy = new Fy({ exports: api.exportsFor(info) },
+                      (opts && opts.required) || REQUIRED);
+      fy.sha256 = info.sha256 || null;
+      fy.bytes = 0;              //: 没有「那份文件」——这条路上它就是 0，不编一个数
+      fy.via = 'api';            //: 页面要说清算力从哪来时读它
+      fy.kernelVersion = info.version || null;
+      return fy;
+    }).catch(function () {
+      //: ★探测本身出错也退回 wasm：一个坏掉的请求面不该让页面完全算不了。
+      return load(url, opts);
+    });
+  }
+
   /** SHA-256 of an ArrayBuffer as lowercase hex; null where unavailable. */
   function digest(buf) {
     var c = (typeof crypto !== 'undefined') && crypto.subtle;
@@ -4110,7 +4146,12 @@
    * the split: the other pages never pay for it.
    */
   function loadExt(url) {
-    return load(url || 'assets/fylite_kernel_ext.wasm', { required: REQUIRED_EXT });
+    //: ★★扩展（TGLF + DKE）与核心**同一条路**：桌面宿主里那 16 个导出也在链进去的
+    //: 那份静态库里（内核仓一份 `.a` 装两个包），所以这里也先探请求面。页面因此在
+    //: 桌面版上开湍流档时**一个字节也不下载**——而静态站点照旧惰性取那份 wasm。
+    //: ★`required` 仍然按扩展那一组查：那组名字是「这份制品带不带 TGLF」的判据，
+    //: 走 API 时它问的是同一件事（服务端那张表里有没有这些符号）。
+    return attach(url || 'assets/fylite_kernel_ext.wasm', { required: REQUIRED_EXT });
   }
 
   //: ★旧名留着，指向同一个函数（2026-09-05 合并）。撤名与合并是两件事：一份缓存
@@ -4149,6 +4190,11 @@
   var ADAS_Z = root.FyDeck.ADAS_Z, ADAS_A = root.FyDeck.ADAS_A;
 
   root.FyLite = { load: load, fromBytes: fromBytes, ABI_EXPECT: ABI_EXPECT,
+                  //: ★★取内核的**入口**（2026-09-05 用户裁定）：桌面宿主走
+                  //: `/api/kernel`，静态站点走 wasm。调用方问的是「给我内核」，
+                  //: 不是「取这份 wasm」——所以新的调用点用它，`load` 留着给
+                  //: 明确就是要那份文件的读者（判据、离线预缓存表）。
+                  attach: attach,
                   loadExt: loadExt, loadTglf: loadTglf, REQUIRED_EXT: REQUIRED_EXT,
                   //: ★逻辑名 -> 这一版的真文件名。导出它是给**不经 `load()` 的
                   //: 读者**用的：service worker 的预缓存表要按同一条规则算出
