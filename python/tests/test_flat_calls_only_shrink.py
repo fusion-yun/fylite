@@ -41,7 +41,7 @@ BASELINE = {
     'scenario/control/vertical.py': 1,
     'scenario/design/__init__.py': 3,
     'scenario/design/shape.py': 1,
-    'scenario/model/__init__.py': 15,
+    'scenario/model/__init__.py': 9,
     'scenario/model/assembly.py': 13,
     'scenario/model/closure.py': 49,
     'scenario/model/edge.py': 2,

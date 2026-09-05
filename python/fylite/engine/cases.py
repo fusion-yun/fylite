@@ -626,7 +626,7 @@ def _evolve_args(cfg: dict, acct: Accounting) -> dict:
     closure = str(cfg.get("closure", "0"))
     if closure != "0":
         missing.append(f"closure {closure} — {_EVOLVE_UNSUNK['closure']}")
-    #: ★★S-2c 批四 — the traced tiers are sunk (`model._evolve_on_a_ladder`),
+    #: ★★S-2c 批四 — the traced tiers are sunk (`case.rs::evolve`, the equilibrium document traced in the kernel),
     #: but a case cannot CARRY the equilibrium: device and experimental decks
     #: stay out of this repository by rule, so the corpus holds controls and
     #: not data.  What is refused here is therefore not the capability but

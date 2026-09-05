@@ -408,182 +408,8 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
                                      steady=not np.isfinite(dt))}
 
 
-def _start_from_reference(reference, rho, te, ti, ne):
-    """The reference's own profiles where it states them, the controls'
-    shapes where it does not — the page's ``useRef`` rule, per channel.
-
-    ★★Per CHANNEL, and that is the whole of it: a reference with no ion
-    temperature leaves T_i where the controls put it rather than silently
-    making it the electron one.  A table carrying Te and nothing else would
-    otherwise hand back a plasma with T_i = T_e that nobody measured.
-
-    ★A value is taken only when it is finite AND positive: a blank cell
-    parses to NaN, and a zero temperature is not a temperature.
-
-    Returns ``(te, ti, ne, used)``.  ``used`` names the channels the
-    reference actually supplied, because 「从参考剖面起步」 is a claim about
-    WHICH profiles — a run that took one of three must not read the same as
-    one that took three.
-    """
-    from ...io import reference as _ref
-
-    out, used = {}, []
-    for key, fallback in (("te", te), ("ti", ti), ("ne", ne)):
-        v = _ref.at(reference, key, rho)
-        good = np.isfinite(v) & (v > 0.0)
-        if not np.any(good):
-            out[key] = fallback
-            continue
-        out[key] = np.where(good, v, fallback)
-        used.append(key)
-    if not used:
-        raise ValueError(
-            f"the reference {reference.get('name', '?')!r} states none of "
-            "te / ti / ne on this grid — starting 'from the reference' "
-            "would be starting from the controls under another name")
-    return out["te"], out["ti"], out["ne"], tuple(used)
-
-
-def _evolve_on_a_ladder(equilibrium, *, n_surfaces, edge_psin, b0, n_rho,
-                        peaking_t, peaking_n, te_axis, ti_axis, ne_axis,
-                        edge_te, edge_ti, edge_ne, reference=None, **entry):
-    """:func:`evolve` on a TRACED equilibrium — the device / g-file tier.
-
-    ★★What changes and what does not.  The LOOP is the same kernel entry,
-    step for step; what changes is where the metric comes from.  On the
-    prescribed tier :func:`evolve` builds one from four scalars through
-    ``geo_surface``; here every column is measured off a real flux map by
-    one kernel call (``surfaces::equilibrium_ladder``, through
-    :class:`fylite.fyo.Ladder`), and the caller's shape controls are not
-    read at all — the equilibrium describes the plasma, so a ``kappa``
-    beside it would be a second, contradictory description.
-
-    ★★★And that is why this tier can sawtooth and the other cannot.  The
-    prescribed tier's q is ``1 + (q95 - 1) x^2``, so ``q(0) = 1`` exactly
-    and the core can never fall through it — in BOTH hosts (``worker.js``:
-    ``var q0 = 1.0``).  A traced ladder states whatever q the equilibrium
-    has, hollow cores included.
-
-    ★The gauge is NOT converted: ``Ladder.psi`` is Wb/rad, which is the
-    gauge ``transport::solve_psi`` is written in (T-C22).  The browser's
-    own psi is TOTAL flux and it divides by ``2 pi`` where the formula
-    needs the other one; repeating that conversion here would be a factor
-    of ``2 pi`` in the current channel, and 「差了 2π」 is invisible in a
-    profile shape.
-
-    ★The axis node is PREPENDED, not traced: the surface degenerates at
-    ``rho = 0`` and the kernel refuses to trace it.  ``rho`` and ``vprime``
-    get an exact zero there (both vanish on axis); every flux-surface
-    average repeats the innermost TRACED value, which is the rule the
-    browser's own ladder head follows.
-    """
-    from ... import fyo as _fyo
-
-    lad = _fyo.Ladder(equilibrium, n_surfaces=n_surfaces, edge=edge_psin)
-    m = lad.rho.size
-    if m < 3:
-        raise ValueError(
-            f"the ladder kept only {m} surface(s) of this equilibrium — a "
-            "march needs a metric, and three points are not one.  Widen "
-            "`edge_psin` or raise `n_surfaces`, or the flux map is not "
-            "traceable at these levels")
-    n = m + 1
-
-    def head(src, axis=None):
-        out = np.empty(n)
-        out[0] = src[0] if axis is None else axis
-        out[1:] = src
-        return out
-
-    rho = head(lad.rho, 0.0)
-    vprime = head(lad.vprime, 0.0)
-    gm3 = head(lad.gm3)
-    gm2 = head(lad.gm2)
-    #: ★★|F|, not the signed F the deck carries.  The entry's psi channel is
-    #: already solved in a positive-B0 orientation — `solve_psi` takes
-    #: `b0.abs()` and the Redl closure is handed `b0.abs()` too — so a
-    #: signed `F = R B_tor` from a reversed-field deck would put TWO field
-    #: orientations inside one closure.  The prescribed tier has always
-    #: supplied `r0 * abs(b0)`; this makes the traced tier state the same
-    #: orientation rather than a different one.
-    #: ★It showed up as the bootstrap alone driving q to the solver's clamp
-    #: (100) and the march to NaN — the ITER deck in fydata has B0 < 0, and
-    #: no tier had ever handed this entry a negative F before.
-    fpol = head(np.abs(lad.fpol))
-    q_init = head(np.abs(lad.q))
-    #: ★★★THE GAUGE, and it is a factor of 2 pi that is invisible in a
-    #: profile shape.  `Ladder.psi` is **Wb/rad**; the entry's psi channel
-    #: is **COCOS 17**, i.e. full-turn Wb — which this repo states for this
-    #: very channel (`model/assembly.py`, `model/stationary.py`) and which
-    #: both halves of `transport::solve_psi` agree on:
-    #:
-    #:   q = 2 pi B0 rho / (dpsi/drho)   and   I = V' gm2 (dpsi/drho)/(4 pi^2 mu0)
-    #:
-    #: Measured on the ITER 15 MA equilibrium, which states its own q AND
-    #: its own current: with the 2 pi below, the first reproduces the
-    #: ladder's traced q to four digits (1.0246 vs 1.0247) and the second
-    #: lands at 0.926 of the file's Ip — the ladder's own truncation at
-    #: psi_N = 0.95, not an error in the relation.  WITHOUT it, q comes out
-    #: 2 pi high, and a sawtoothing core at q(0) = 0.9 would read 5.65 and
-    #: never crash.
-    #:
-    #: ★The prescribed tier needs no conversion because it BUILDS psi from
-    #: the same relation (`dpsi/drho = 2 pi B0 rho / q`) and is therefore
-    #: already full-turn.  This tier does not build psi, it is handed one,
-    #: and it is handed one in the other gauge.
-    #: ★★★AND the axis node is the equilibrium's OWN psi_axis, not a repeat
-    #: of the innermost traced surface.  Every other column repeats there
-    #: (a flux-surface average has no value on a degenerate surface), but
-    #: psi does: the axis flux is a number the equilibrium states.  Repeating
-    #: instead makes `psi[0] == psi[1]`, and the Redl closure differentiates
-    #: WITH RESPECT TO psi — `gradient(p_th, psi)` then divides by zero and
-    #: the whole march comes back NaN on the FIRST step.  The browser
-    #: prepends `psin = 0` and evaluates psi from it, which is this same
-    #: number by another route.
-    psi_axis = float(_fyo.psi_range_of(lad.eq)[0])
-    psi_init = head(lad.psi, psi_axis) * (2.0 * np.pi)
-    #: ★the Miller rows come back NORMALISED by a_minor (`r/a`, `rmaj/a` —
-    #: the kernel says so at `miller_from_polys`) and the entry's current
-    #: channel takes METRES.  Multiplied here, once, the way the browser
-    #: multiplies at the same place.
-    a_min = lad.a_minor
-    rmin = head(np.array([row["r"] for row in lad.miller]) * a_min, 0.0)
-    rmaj = head(np.array([row["rmaj"] for row in lad.miller]) * a_min)
-
-    #: the initial profiles, on the ladder's own label.  Same shapes the
-    #: prescribed tier uses — this batch sinks the GEOMETRY, not the
-    #: reference-profile start (`useref`), which is its own row in the
-    #: ledger and stays refused until it has one.
-    x = rho / rho[-1] if rho[-1] > 0 else rho
-    #: ★the shape comes from the kernel (`zerod_profile`), not from a second
-    #: spelling here — see `_shape`.  The peaking and the two end values are
-    #: the scenario's; the family is not.
-    te = _shape(x, centre=te_axis, edge=edge_te, peaking=peaking_t)
-    ti = _shape(x, centre=ti_axis, edge=edge_ti, peaking=peaking_t)
-    ne = _shape(x, centre=ne_axis, edge=edge_ne, peaking=peaking_n)
-    ref_used = ()
-    if reference is not None:
-        te, ti, ne, ref_used = _start_from_reference(reference, rho, te, ti,
-                                                     ne)
-
-    return _evolve_entry(
-        reference_channels=ref_used,
-        n=n, rho=rho, vprime=vprime, gm3=gm3, gm2=gm2, fpol=fpol,
-        q_init=q_init, psi_init=psi_init, rmin=rmin, rmaj=rmaj,
-        te=te, ti=ti, ne=ne, a=a_min,
-        r0=float(_fyo.field_of(lad.eq)[0]),
-        #: ★B0 is the EQUILIBRIUM's, not the caller's: on this tier the flux
-        #: map states the field, and taking a caller's b0 beside a traced
-        #: metric would put two fields in one march.
-        b0=lad.b0,
-        kappa=float(lad.miller[-1]["kappa"]),
-        delta=float(lad.miller[-1]["delta"]),
-        edge_te=edge_te, edge_ti=edge_ti,
-        geometry="ladder", **entry)
-
-
 # --------------------------------------------------------------------------- #
-# 1.5-D, time-marching (the browser's 含时演化 bar)
+# 1.5-D, time-marching (the browser's 含时演化 bar) — BY THE KERNEL
 # --------------------------------------------------------------------------- #
 def evolve(*, a: float, r0: float, b0: float,
            te_axis: float, ti_axis: float, ne_axis: float,
@@ -610,197 +436,42 @@ def evolve(*, a: float, r0: float, b0: float,
            edge_psin: float = 0.95, reference=None,
            i_cd: float = 0.0, cd_centre: float = 0.4,
            cd_width: float = 0.2) -> dict:
-    """March the heat channel in time on a prescribed Miller geometry.
+    """March the heat channel in time — BY THE KERNEL (``code/evolve``).
 
-    ★★**The loop is the KERNEL's** (`evolve_heat`, `rust/.../scenario.rs`),
-    not this function's, and that is the point of the 2026-08-26 ruling: the
-    browser's 含时演化 bar owned an outer time loop that Python had no
-    counterpart to, and copying it here would have made ONE capability two
-    orchestrations — the arrangement D-4 exists to prevent, and the shape
-    this repo has already unwound three times (the transport Picard loop, the
-    0-D time loop, the acceptance criteria).  What lives here is ASSEMBLY:
-    the Miller metric and the initial profile shapes, which is exactly what
-    the browser keeps on its own side too.
+    ★★2026-09-05 (FYL-DESIGN-16 K-3, the ninth tool to sink).  This function
+    used to be the ASSEMBLY around the one declared entry ``evolve_heat``: the
+    Miller metric from four scalars through ``geo_surface``, or a traced ladder
+    off an equilibrium document (``fyo.Ladder`` — |F|, |q|, the 2π gauge, the
+    Miller rows in metres); the profile shapes; the reference start per channel
+    (``useRef``); the given-chi pair; then ``K.scenario``.  Every one of those
+    is ``case.rs::evolve`` now, spelled in SI beside the page's own units, and
+    the kernel repository's ``test_evolve_code.py`` holds the door to the old
+    recipe bit for bit.  What stays here is the PLAN and the argument contract.
 
     Scope is the entry's and is stated rather than implied — heat channel,
     constant closure, aux deposit, ADAS radiation (bulk + one prescribed
     impurity), D-T alpha in the prescribed tier, and (``pedestal=True``) the
-    EPED1-NN pedestal driving the Dirichlet edge.  A discharge that wants
-    the density or current channel, sawteeth, a beam, a wave or an evolving
-    equilibrium is NOT this tool: those stay in the browser loop until their
-    own batch sinks them, and `fylite cases --plan` names, per case, which
-    one is missing.
+    EPED1-NN pedestal driving the Dirichlet edge; ``current=True`` adds the
+    poloidal-flux channel with its ohmic / bootstrap / driven-current drives
+    and the sawtooth.  A discharge that wants the density channel, a beam, a
+    wave or an evolving equilibrium is NOT this tool: those stay in the
+    browser loop until their own batch sinks them, and `fylite cases --plan`
+    names, per case, which one is missing.
 
-    ★``ip`` is PRESCRIBED and is read only by the pedestal (beta_N's
-    denominator) — this tier does not solve current diffusion, so a current
-    here is a statement about the discharge, not a result of it.
+    ``equilibrium`` (a document, a g-file path or dict) selects the TRACED
+    tier: the metric is read off the flux map, ``a`` / ``r0`` / ``b0`` /
+    ``kappa`` / ``delta`` / ``q95`` are not read at all, and the march can
+    sawtooth because q is whatever the equilibrium has.  ``ip`` is PRESCRIBED
+    and is read only by the pedestal (beta_N's denominator).
 
     ``te_axis`` / ``edge_te`` in eV, ``ne_axis`` in m^-3, ``p_e`` in W —
     SI in, SI out; the page's own keV / 1e19 / MW sliders are converted by
     whoever reads the page (`engine.cases`).
     """
-    #: ★★S-2c 批四 — THE TRACED GEOMETRY TIER.  With `equilibrium` given,
-    #: the metric is not built from four scalars: it is the ladder of a real
-    #: flux map, traced once by the kernel (`fylite.fyo.Ladder`), and this
-    #: function's shape controls (`a`, `kappa`, `delta`, `q95`) describe
-    #: nothing — the equilibrium does.  Everything below that reads them is
-    #: routed through the values the LADDER measured, so the two tiers差的是
-    #: 度规的来源, not the loop.
-    #:
-    #: ★The gauge is already right and is not converted here: `Ladder.psi`
-    #: is Wb/rad, which is the gauge `transport::solve_psi` writes in
-    #: (T-C22).  The browser's own psi is TOTAL flux and it divides by 2 pi
-    #: where it needs the other one — a conversion this host must NOT repeat.
-    if equilibrium is not None:
-        return _evolve_on_a_ladder(
-            equilibrium, n_surfaces=n_surfaces, edge_psin=edge_psin,
-            b0=b0, n_rho=n_rho, peaking_t=peaking_t, peaking_n=peaking_n,
-            te_axis=te_axis, ti_axis=ti_axis, ne_axis=ne_axis,
-            edge_te=edge_te, edge_ti=edge_ti, edge_ne=edge_ne,
-            chi0=chi0, chi_ratio=chi_ratio, d_pc=d_pc, p_e=p_e, p_i=p_i,
-            dep_centre=dep_centre, dep_width=dep_width, dt=dt,
-            n_steps=n_steps, dt_target=dt_target, brem=brem, bulk=bulk,
-            impurity=impurity, imp_conc=imp_conc, imp_z=imp_z, alpha=alpha,
-            dt_fraction=dt_fraction, zeff=zeff, pedestal=pedestal, ip=ip,
-            current=current, ohmic=ohmic, bootstrap=bootstrap,
-            v_loop=v_loop, sawtooth=sawtooth, saw_mix=saw_mix,
-            saw_period=saw_period,
-            chi_e_profile=chi_e_profile, chi_i_profile=chi_i_profile,
-            reference=reference, i_cd=i_cd, cd_centre=cd_centre,
-            cd_width=cd_width)
+    from ...io import fydoc
+    from ... import fyo as _fyo
 
-    n = max(5, int(n_rho))
-    rho = np.linspace(0.0, a, n)
-    x = rho / a if a > 0 else rho
-
-    #: the Miller metric, surface by surface — the page's `evMillerMetric`,
-    #: through the kernel's own `geo_surface` (metres in, dV/dr in m^2 out).
-    #: ★q is PRESCRIBED parabolic here: this tier does not solve current
-    #: diffusion for it, and says so — `q` is a RESULT only on the current
-    #: channel, which this entry does not carry.
-    vprime = np.zeros(n)
-    gm3 = np.ones(n)
-    for i in range(1, n):
-        q = 1.0 + (q95 - 1.0) * x[i] ** 2
-        shear = x[i] * (2.0 * (q95 - 1.0) * x[i]) / q if q else 0.0
-        g = K.geo_surface(rmin_over_a=rho[i], rmaj_over_a=r0, q=q,
-                          shear=shear, kappa=kappa, s_kappa=0.0,
-                          delta=delta, s_delta=0.0, ntheta=201)
-        vprime[i] = g["volume_prime"]
-        gm3[i] = g["fsa_grad_r2"]
-    #: the axis is SET, not asked: the surface degenerates there
-    vprime[0] = 0.0
-    gm3[0] = gm3[1] if n > 1 else 1.0
-
-    #: ★★S-2c 批二 — what the CURRENT CHANNEL needs, assembled here because
-    #: the metric is the host's half of the split.  Zeros when the channel is
-    #: off: the entry does not read them, and building a metric nobody uses
-    #: would be paying for an answer nobody asked for.
-    if current:
-        gm2 = np.zeros(n)
-        rmin = rho.copy()
-        rmaj_prof = np.full(n, r0)
-        q_prof = np.array([1.0 + (q95 - 1.0) * xx ** 2 for xx in x])
-        for i in range(1, n):
-            q = q_prof[i]
-            shear = x[i] * (2.0 * (q95 - 1.0) * x[i]) / q if q else 0.0
-            g = K.geo_surface(rmin_over_a=rho[i], rmaj_over_a=r0, q=q,
-                              shear=shear, kappa=kappa, s_kappa=0.0,
-                              delta=delta, s_delta=0.0, ntheta=201)
-            #: <|grad rho|^2 / R^2>, the current channel's own metric
-            gm2[i] = g["fsa_grad_r2_over_r2"]
-        gm2[0] = gm2[1] if n > 1 else 1.0
-        #: ★F = R B_tor is CONSTANT on this prescribed tier and says so: the
-        #: vacuum field is what the caller gave, and this entry does not solve
-        #: for the diamagnetic correction that would move it.
-        fpol = np.full(n, r0 * abs(b0))
-        #: ★★psi from the prescribed q, by inverting THE ENTRY'S OWN
-        #: relation and no other: `transport::solve_psi` reports
-        #: ``q = 2 pi B0 rho / (dpsi/drho)``, so the initial flux that is
-        #: CONSISTENT with the q this metric was built at is
-        #: ``dpsi/drho = 2 pi B0 rho / q``, integrated outward from zero on
-        #: axis.  The gauge is per radian (T-C22), which is the gauge that
-        #: relation is written in.
-        #:
-        #: ★It is deliberately NOT ``V' gm2 F / (4 pi^2 q)``.  That
-        #: expression is the current-diffusion METRIC
-        #: (``M = V' gm2 / (4 pi^2 F)``, the coefficient of the psi
-        #: equation and the thing `gm2` is FOR) — it is not the definition
-        #: of q, and using it here would have seeded the march with a flux
-        #: whose q is not the q the surfaces were solved at, i.e. an
-        #: initial state that contradicts itself in a way no output shows.
-        #: The check that this is the right relation is that the entry's own
-        #: ``q`` output comes back as ``q_prof`` at ``n_steps = 0``.
-        dpsi = np.zeros(n)
-        for i in range(1, n):
-            if q_prof[i] > 0:
-                dpsi[i] = 2.0 * np.pi * abs(b0) * rho[i] / q_prof[i]
-        psi_init = np.zeros(n)
-        for i in range(1, n):
-            psi_init[i] = psi_init[i - 1] \
-                + 0.5 * (dpsi[i] + dpsi[i - 1]) * (rho[i] - rho[i - 1])
-    else:
-        gm2 = np.zeros(n)
-        fpol = np.zeros(n)
-        psi_init = np.zeros(n)
-        rmin = np.zeros(n)
-        rmaj_prof = np.zeros(n)
-        q_prof = np.zeros(n)
-
-    shape_t = np.maximum(1.0 - x ** 2, 0.0) ** peaking_t
-    shape_n = np.maximum(1.0 - x ** 2, 0.0) ** peaking_n
-    te = edge_te + (te_axis - edge_te) * shape_t
-    ti = edge_ti + (ti_axis - edge_ti) * shape_t
-    ne = edge_ne + (ne_axis - edge_ne) * shape_n
-    ref_used = ()
-    if reference is not None:
-        te, ti, ne, ref_used = _start_from_reference(reference, rho, te, ti,
-                                                     ne)
-
-    return _evolve_entry(
-        reference_channels=ref_used,
-        i_cd=i_cd, cd_centre=cd_centre, cd_width=cd_width,
-        n=n, rho=rho, vprime=vprime, gm3=gm3, gm2=gm2, fpol=fpol,
-        q_init=q_prof, psi_init=psi_init, rmin=rmin, rmaj=rmaj_prof,
-        te=te, ti=ti, ne=ne, a=a, r0=r0, b0=b0, kappa=kappa, delta=delta,
-        edge_te=edge_te, edge_ti=edge_ti, geometry="miller",
-        chi0=chi0, chi_ratio=chi_ratio, d_pc=d_pc, p_e=p_e, p_i=p_i,
-        dep_centre=dep_centre, dep_width=dep_width, dt=dt, n_steps=n_steps,
-        dt_target=dt_target, brem=brem, bulk=bulk, impurity=impurity,
-        imp_conc=imp_conc, imp_z=imp_z, alpha=alpha,
-        dt_fraction=dt_fraction, zeff=zeff, pedestal=pedestal, ip=ip,
-        current=current, ohmic=ohmic, bootstrap=bootstrap, v_loop=v_loop,
-        sawtooth=sawtooth, saw_mix=saw_mix, saw_period=saw_period,
-        chi_e_profile=chi_e_profile, chi_i_profile=chi_i_profile)
-
-
-def _evolve_entry(*, n, rho, vprime, gm3, gm2, fpol, q_init, psi_init,
-                  rmin, rmaj, te, ti, ne, a, r0, b0, kappa, delta,
-                  edge_te, edge_ti, geometry,
-                  chi0, chi_ratio, d_pc, p_e, p_i, dep_centre, dep_width,
-                  dt, n_steps, dt_target, brem, bulk, impurity, imp_conc,
-                  imp_z, alpha, dt_fraction, zeff, pedestal, ip,
-                  current, ohmic, bootstrap, v_loop, sawtooth, saw_mix,
-                  saw_period=0.0, chi_e_profile=None, chi_i_profile=None,
-                  reference_channels=(), i_cd=0.0, cd_centre=0.4,
-                  cd_width=0.2) -> dict:
-    """The ONE call into ``evolve_heat``, and the refusals in front of it.
-
-    ★★Both geometry tiers come through here.  They differ in where the
-    metric came from and in nothing else — same params, same input block,
-    same loop — so a refusal, a unit or a returned key cannot be right on
-    one tier and wrong on the other.  It is the same reason
-    ``cases.args_for`` exists: two callers, one mapper.
-    """
-    #: ★★S-2c 批二 — refused HERE and by name, not merely by the entry.  The
-    #: kernel refuses the same pair (it must: another host could ask), but a
-    #: scenario entry has ONE refusal code across the ABI, so what reaches a
-    #: caller from there is 「the entry refused the request」 with no subject.
-    #: A drive with no channel to carry it would otherwise be computed,
-    #: reported and dropped.
-    #: ★S-2c 批三 — same rule, same reason: the trigger is `q(0) < 1` and `q`
-    #: is only a RESULT on the current channel.  With q prescribed a crash
-    #: would be fired by a profile nothing in the march can move.
+    #: the argument contract — the sentences a caller acts on, before the plan
     if sawtooth and not current:
         raise ValueError(
             "the sawtooth needs the current channel: its trigger is q(0) < 1 "
@@ -816,8 +487,6 @@ def _evolve_entry(*, n, rho, vprime, gm3, gm2, fpol, q_init, psi_init,
             f"saw_mix must be positive (got {saw_mix!r}): the mixing radius "
             "is `saw_mix * r_1`, and there is no default for the same reason "
             "TGLF's `width` has none — it is the reader's model choice")
-    #: ★S-2c 批五 — same rule again: a prescribed driven current with no
-    #: channel to drive would be computed, reported and dropped.
     if i_cd and not current:
         raise ValueError(
             f"a driven current of {i_cd:g} A needs the current channel: it "
@@ -841,116 +510,102 @@ def _evolve_entry(*, n, rho, vprime, gm3, gm2, fpol, q_init, psi_init,
             f"impurity {impurity!r} needs its charge (imp_z): the "
             "bremsstrahlung term goes as Z^2, so a concentration without a "
             "charge radiates a plasma nobody asked for")
-    imp_id = K.adas_id(impurity) if impurity else -1
-    if impurity and imp_id < 0:
-        raise ValueError(f"unknown impurity {impurity!r} — the ADAS table "
-                         "answers -1 for a name it does not carry, and "
-                         "downstream that is indistinguishable from 'none'")
-    bulk_id = K.adas_id(bulk)
-    if brem and bulk_id < 0:
-        raise ValueError(f"unknown bulk ion {bulk!r}")
 
-    out = K.scenario(
-        "evolve_heat",
-        params={"b0": abs(b0), "chi0": chi0, "chi_ratio": chi_ratio,
-                "edge_te": edge_te, "edge_ti": edge_ti,
-                "dt": dt, "dt_target": dt_target,
-                #: the page's controller bounds, verbatim: a floor 500x below
-                #: the asked-for step is what gives the retry room to work
-                "dt_min": dt / 500.0, "dt_max": dt * 50.0,
-                "d_pc": d_pc, "p_e": p_e, "p_i": p_i,
-                "dep_centre": dep_centre, "dep_width": dep_width,
-                "brem": float(bool(brem)), "bulk_id": bulk_id,
-                "imp_id": imp_id, "imp_conc": imp_conc, "imp_z": imp_z,
-                "alpha": float(bool(alpha)), "dt_fraction": dt_fraction,
-                "zeff": zeff,
-                "pedestal": float(bool(pedestal)), "ip": abs(ip),
-                "a": a, "r0": r0, "kappa": kappa, "delta": delta,
-                #: ★S-2c 批二 — the current channel
-                "ch_current": float(bool(current)),
-                "ohmic": float(bool(ohmic)),
-                "bootstrap": float(bool(bootstrap)), "v_loop": v_loop,
-                #: ★S-2c 批三 — the sawtooth
-                "sawtooth": float(bool(sawtooth)),
-                "saw_mix": float(saw_mix) if sawtooth else 0.0,
-                #: ★T-C28 — 0 keeps the pre-period behaviour and says so
-                "saw_period": float(saw_period) if sawtooth else 0.0,
-                #: ★the given-profile closure tier: on only when BOTH
-                #: profiles are handed in — one without the other is a
-                #: question with half an answer and is refused below
-                "chi_source": 1.0 if chi_e_profile is not None else 0.0,
-                #: ★S-2c 批五 — the prescribed driven current
-                "i_cd": float(i_cd), "cd_centre": float(cd_centre),
-                "cd_width": float(cd_width)},
-        inputs={"rho": rho, "vprime": vprime, "gm3": gm3,
-                "te_init": te, "ti_init": ti, "ne": ne,
-                #: ★assembly, like the metric above: the entry marches the
-                #: flux, this host says on what geometry.  With the channel
-                #: off these are zeros and the entry does not read them.
-                "gm2": gm2, "fpol": fpol, "psi_init": psi_init,
-                "rmin": rmin, "rmaj": rmaj, "q_init": q_init,
-                #: chi_source = 1 only; zeros otherwise (unread by contract)
-                "chi_e_in": (np.zeros(n) if chi_e_profile is None
-                             else np.asarray(chi_e_profile, float)),
-                "chi_i_in": (np.zeros(n) if chi_i_profile is None
-                             else np.asarray(chi_i_profile, float))},
-        n=n, nt=max(1, int(n_steps)))
+    settings = {
+        "geometry": "miller" if equilibrium is None else "gfile",
+        "te_axis": float(te_axis), "ti_axis": float(ti_axis),
+        "ne_axis": float(ne_axis), "edge_te": float(edge_te),
+        "edge_ti": float(edge_ti), "edge_ne": float(edge_ne),
+        "peaking_t": float(peaking_t), "peaking_n": float(peaking_n),
+        "chi0": float(chi0), "chi_ratio": float(chi_ratio),
+        "d_pc": float(d_pc), "p_e": float(p_e), "p_i": float(p_i),
+        "dep_centre": float(dep_centre), "dep_width": float(dep_width),
+        "dt": float(dt), "n_steps": float(max(1, int(n_steps))),
+        "dt_target": float(dt_target), "brem": float(bool(brem)),
+        "bulk": str(bulk), "impurity": str(impurity or ""),
+        "imp_conc": float(imp_conc), "imp_z": float(imp_z),
+        "alpha": float(bool(alpha)), "dt_fraction": float(dt_fraction),
+        "zeff": float(zeff), "pedestal": float(bool(pedestal)),
+        "ip_a": float(ip), "current": float(bool(current)),
+        "ohmic": float(bool(ohmic)), "bootstrap": float(bool(bootstrap)),
+        "v_loop": float(v_loop), "sawtooth": float(bool(sawtooth)),
+        "saw_mix": float(saw_mix), "saw_period": float(saw_period),
+        "i_cd_a": float(i_cd), "cd_centre": float(cd_centre),
+        "cd_width": float(cd_width),
+    }
+    inputs: dict = {}
+    if equilibrium is None:
+        settings.update({"a": float(a), "r0": float(r0), "b0": float(b0),
+                         "kappa": float(kappa), "delta": float(delta),
+                         "q95": float(q95), "n": float(max(5, int(n_rho)))})
+    else:
+        settings["edge_psin"] = float(edge_psin)
+        if n_surfaces is not None:
+            settings["n_surfaces"] = float(n_surfaces)
+        inputs["equilibrium"] = _fyo.as_equilibrium(equilibrium)
+    if reference is not None:
+        #: the table as the kernel reads it: its own radii, the channels it
+        #: states (a blank cell is NaN and stays NaN — the kernel's rule fills
+        #: that one point from the shape and names the channels it took)
+        settings["reference"] = 1.0
+        cp: dict = {"grid": {"rho_tor": np.asarray(reference["rho"], float)},
+                    "electrons": {}}
+        if "te" in reference:
+            cp["electrons"]["temperature"] = np.asarray(reference["te"], float)
+        if "ne" in reference:
+            cp["electrons"]["density"] = np.asarray(reference["ne"], float)
+        if "ti" in reference:
+            cp["t_i_average"] = np.asarray(reference["ti"], float)
+        inputs["core_profiles"] = {"profiles_1d": cp}
+    if chi_e_profile is not None:
+        inputs["core_transport"] = {"model": [{"profiles_1d": {
+            "electrons": {"energy": {"d": np.asarray(chi_e_profile, float)}},
+            "total_ion_energy": {"d": np.asarray(chi_i_profile, float)}}}]}
+    rec = fydoc.complete("code/evolve", {"settings": settings, "inputs": inputs})
 
-    steps = int(out["steps"])
+    F = rec["fields"]
+    arr = lambda k: np.asarray(F[k]["data"], float)  # noqa: E731
+    fact = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
+    cp = F["core_profiles"]["profiles_1d"]
+    lad = F["equilibrium"]["time_slice"]["profiles_1d"]
+    sm = F["summary"]
+    gq = sm["global_quantities"]
+    steps = int(fact("steps"))
+    geometry = "miller" if equilibrium is None else "ladder"
+    ref_used = tuple(k for k in ("te", "ti", "ne") if fact("ref_" + k) == 1.0)
     return {
-        "rho": rho, "vprime": vprime, "gm3": gm3, "geometry": geometry,
-        "te": out["te"], "ti": out["ti"], "ne": ne,
-        "te_init": te, "ti_init": ti,
-        #: the traces are one row per step TAKEN — a march that settled early
-        #: leaves the tail at zero, and handing that back would report a
-        #: discharge that cooled to nothing
-        "t": out["t"][:steps], "te_axis": out["te_axis"][:steps],
-        "ti_axis": out["ti_axis"][:steps], "dt_used": out["dt_used"][:steps],
-        "p_rad": out["p_rad"][:steps], "p_alpha": out["p_alpha"][:steps],
-        "beta_n": out["beta_n"][:steps], "t_ped": out["t_ped"][:steps],
-        #: T-C23 — the conservation account, per step and worst-over-march.
-        #: ★It is an INTERNAL-CONSISTENCY number (the scheme conserves by
-        #: construction, so this is machine noise when the books close), not
-        #: a physics claim about the discharge.
-        "balance": out["balance"][:steps],
-        "balance_worst": float(out["balance_worst"]),
-        #: ★named as the manifest's criterion names it: acceptance is keyed
-        #: by RESULT KEY, so a criterion whose name does not appear in the
-        #: result scores `unevaluated` forever — a threshold nobody notices
-        #: is not being applied
-        "ped_extrapolation": float(out["ped_extrap"]),
-        "steps": steps, "settled": bool(out["settled"]),
-        "dt_capped": int(out["dt_capped"]),
-        #: ★S-2c 批二 — the current channel's answers; zeros when it is off
-        "psi": out["psi"], "j_bs": out["j_bs"],
-        "p_ohm": out["p_ohm"][:steps],
-        #: ★the entry's OWN q off the flux it reached, not the prescribed
-        #: `q_prof` that shaped the metric.  Zeros when the channel is off,
-        #: which is the entry declining to state one — handing back the
-        #: prescribed profile there would dress an input as a result.
-        "q": out["q"],
-        #: ★S-2c 批三 — what the sawtooth did, per step.  Three readings and
-        #: not one silence: `saw_r1 == 0` is「这一步没有 q = 1 面」(the answer
-        #: for a discharge that is not sawtoothing), `saw_mixed > 0` is a
-        #: crash, and `saw_refused == 1` is「触发了，但这个混合半径模型给不
-        #: 出」—— the state was left where the march put it.
-        "saw_r1": out["saw_r1"][:steps],
-        "saw_mixed": out["saw_mixed"][:steps],
-        "saw_refused": out["saw_refused"][:steps],
-        "saw_count": int(out["saw_count"]),
-        #: ★S-2c 批五 — the driven current, apart from the bootstrap: which
-        #: term put this current here is the question the channel is for
-        "j_cd": out["j_cd"],
+        "rho": np.asarray(cp["grid"]["rho_tor"]["data"], float),
+        "vprime": np.asarray(lad["dvolume_drho_tor"]["data"], float),
+        "gm3": np.asarray(lad["gm3"]["data"], float), "geometry": geometry,
+        "te": np.asarray(cp["electrons"]["temperature"]["data"], float),
+        "ti": np.asarray(cp["t_i_average"]["data"], float),
+        "ne": np.asarray(cp["electrons"]["density"]["data"], float),
+        "te_init": arr("te_init"), "ti_init": arr("ti_init"),
+        "t": np.asarray(sm["time"]["data"], float),
+        "te_axis": np.asarray(sm["local"]["magnetic_axis"]["t_e"]["value"]["data"], float),
+        "ti_axis": np.asarray(sm["local"]["magnetic_axis"]["t_i_average"]["value"]["data"], float),
+        "dt_used": arr("dt_used"),
+        "p_rad": np.asarray(gq["power_radiated"]["value"]["data"], float),
+        "p_alpha": np.asarray(sm["fusion"]["power"]["value"]["data"], float),
+        "beta_n": np.asarray(gq["beta_tor_norm"]["value"]["data"], float),
+        "t_ped": arr("t_ped"), "balance": arr("balance"),
+        "balance_worst": fact("balance_worst"),
+        "ped_extrapolation": fact("ped_extrap"),
+        "steps": steps, "settled": bool(fact("settled")),
+        "dt_capped": int(fact("dt_capped")),
+        "psi": arr("psi"), "j_bs": arr("j_bs"),
+        "p_ohm": np.asarray(gq["power_ohm"]["value"]["data"], float),
+        "q": arr("q"),
+        "saw_r1": arr("saw_r1"), "saw_mixed": arr("saw_mixed"),
+        "saw_refused": arr("saw_refused"), "saw_count": int(fact("saw_count")),
+        "j_cd": arr("j_cd"),
+        "notes": list(rec.get("notes", [])),
         "provenance": provenance("evolve", closure="constant",
                                  channels=("heat", "current") if current
                                           else ("heat",),
                                  sawtooth="mixing" if sawtooth else None,
                                  geometry=geometry,
-                                 #: ★which profiles the run actually STARTED
-                                 #: on: 「从参考剖面起步」 is a claim about
-                                 #: channels, and one of three must not read
-                                 #: the same as three of three
-                                 reference_channels=tuple(reference_channels),
+                                 reference_channels=ref_used,
                                  driven_current=(float(i_cd) if i_cd
                                                  else None),
                                  pedestal="eped1nn" if pedestal else None,

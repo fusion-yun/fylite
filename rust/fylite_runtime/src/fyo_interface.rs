@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "1d7730f2adf26c66";
+pub const DIGEST: &str = "1a4dfce05f99bdc4";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -227,7 +227,7 @@ pub const TABLES: &[Table] = &[
 /// packed block layouts: the position of a row IS its offset
 pub const BLOCKS: &[Block] = &[
     Block { name: "CASE_CODES", rows: &[
-        Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar: Miller metric + parabolic profiles from the page's controls, marched by evolve_heat" },
+        Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
         Row { key: "vstab", shape: "vstab", units: "assembled", gloss: "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab" },
