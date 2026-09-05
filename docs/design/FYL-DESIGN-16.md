@@ -2,7 +2,7 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "2.4"
+version: "2.5"
 date: 2026-09-05
 language: bilingual
 contributors:
@@ -14,7 +14,13 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
-  change: 'v2.4 增 H-7 / H-8（2026-09-05 两条用户裁定）：**hdf5 走 fy app 的文件端点、
+  change: 'v2.5 **H-4 第一块落地**（用户「落地 H-4」，2026-09-05）：`geqdsk.js` 里那份
+    第三份 g-file 解析撤除，页面问中间层——站点经 `fylite_web.wasm`（0.51 MB，同一份源码
+    多一个 `abi_gfile`）的 `fylite_runtime_gfile_json`，桌面经 `POST /api/read?shape=gfile`，
+    中间是同一个 `GFile::to_node`。实测两条路与旧 JS 读法 26 个键逐值相同、与 python 读法
+    逐字段 0.0e+0。载入器拆成一处 `runtimeweb.js`（装置门与 g-file 门共用）。`fyo.js` /
+    `session.js` 未动，理由与判读写在 H-4 的落地进度里。
+    v2.4 增 H-7 / H-8（2026-09-05 两条用户裁定）：**hdf5 走 fy app 的文件端点、
     静态站点保留 h5wasm** —— `POST /api/read` 字节进、fyo 文档出，读法是中间层自己的
     （`io::read`，与 `fy data`、与 python 对拍同一份）；两条读法各自对仓里那份原生参照
     负责（`validate-h5.mjs` / `validate-file-api.mjs`），实测逐叶子相同，可执行文件因此
@@ -63,7 +69,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v2.4 |
+| 版本 (Version) | v2.5 |
 | 发布日期 (Date of Issue) | 2026-09-05 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -575,7 +581,41 @@ data …` 不改（它说的是七个数据动词，不是层名）；`fylite.io
 
 (fylite-kernel-contract-runtime-wasm)=
 **H-4 中间层也进浏览器：`fylite_runtime` 编成 wasm，由 JS 调用。**〔已确立〕用户裁定
-（2026-09-04）。`Cargo.toml` 抬头早写着这条打算（`fylite_runtime.wasm ... ★不含 mdsip`），
+（2026-09-04）；**第一块已落地**（2026-09-05 用户「落地 H-4」）。
+
+:::{admonition} 落地进度（2026-09-05）
+:class: note
+
+| 那三份 JS 实现 | 状态 | 实测 |
+| :--- | :--- | :--- |
+| `geqdsk.js` 的 g-file 解析（45 行） | **已撤**：页面问中间层 | 站点走 `fylite_web.wasm` 的 `fylite_runtime_gfile_json`，桌面走 `POST /api/read?shape=gfile`；两条路与旧 JS 读法 26 个键逐值相同，与 python 读法逐字段 0.0e+0 |
+| `fyo.js` 221 行 | 未动 | 见下面那段「为什么不是一次搬完」 |
+| `session.js` 241 行 | 未动 | 同上 |
+
+**产物**：中间层的浏览器面从 `fylite_facts.wasm`（0.43 MB）变成 **`fylite_web.wasm`
+（0.51 MB）**——同一份源码多一个 `abi_gfile` feature，多 80 KB 就把第三份 g-file 实现
+换掉了。全套那一份仍是 2.14 MB 且仍无读者（H-8 的清单里记着）。
+
+**载入器只有一处**：`app/assets/runtimeweb.js`（`FyRuntimeWeb`）——装置那扇门
+（`factsdb.js`）与 g-file 那扇门（`geqdsk.js`）都经它到达，不各自拼 URL、不各自摆
+缓冲。这是从 `factsdb.js` 里拆出来的：一段被两处用的代码留在其中一处的文件里，
+下一个读者要靠记忆知道去哪儿找。
+
+**为什么 `parse` 仍是同步的**：它的调用点在 `appio.js` 的「逐个候选格式试着读，读不动
+就抛」那个循环里，而那段控制流有成文的事故史（几种文本格式互相抢同一个文件）。改成
+异步要动那段；所以桌面走同步 XHR（回环、本进程），站点走**已经实例化好的**那份 wasm
+（装置面板启动时已载入它；不列装置的页面由 `geqdsk.js` 自己预热，且**只在探不到请求面
+时**预热——桌面宿主上取那 0.51 MB 是白花的）。
+
+**为什么不是一次搬完**：`geqdsk.js` 那一份是**同一个算法的第三份实现**——搬走它，行为
+的锚是现成的（python 读法、旧 JS 读法、两条新路，四者对同一份 g-file 逐值比过）。
+`fyo.js` 与 `session.js` 不是那种东西：它们是页面在**生成的契约表**（`fyo-interface.js`）
+之上的胶水——把它们搬进中间层，等于让中间层长出「拼一份会话信封」这类职责，那是新的
+设计而不是一次移植，而且要 2.14 MB 那一份的文档树门（今天页面一处不调）。〔判读〕
+这一块该与 K-3（装配搬进内核）一起裁，因为两者都在动「谁拼计划」这条线。
+:::
+
+`Cargo.toml` 抬头早写着这条打算（`fylite_runtime.wasm ... ★不含 mdsip`），
 只是没有脚本构建它。后果三条：
 
 - **四层图在三种宿主上是同一张**（{ref}`fylite-kernel-contract-target`）。

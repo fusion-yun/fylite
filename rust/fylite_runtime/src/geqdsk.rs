@@ -281,6 +281,43 @@ impl GFile {
         })
     }
 
+    /// 整份 g-file 的**原样**文档树：字段名与结构体逐字相同。
+    ///
+    /// ★★2026-09-05 落地 `FYL-DESIGN-16` H-4 的第一块：页面从此不自己解 g-file。
+    /// 此前 `app/assets/geqdsk.js` 里有本仓的**第三份**实现（原生一份、wasm 一份、
+    /// JS 一份），三份读同一种文件——而 g-file 的坑（`D`/`E` 指数、可选的边界与限制器
+    /// 尾巴、短文件）每一份都要各踩一次。
+    ///
+    /// ★这不是 fyo 文档（那是 `eqdsk_fyo::gfile_to_document` 的事，键名按 DD 走）：
+    /// 这里给的是 g-file **自己的**字段，因为页面要的就是它们（`g.pres` / `g.psirz` /
+    /// `g.rbbbs`…）。两种形各有用处，别把一种冒充另一种。
+    pub fn to_node(&self) -> crate::document::Node {
+        use crate::document::{Array, ArrayData, Map, Node};
+        let arr = |v: &Vec<f64>| Node::Array(Array {
+            shape: vec![v.len()],
+            data: ArrayData::F64(v.clone()),
+        });
+        let mut m = Map::new();
+        m.insert("header", Node::Str(self.header.clone()));
+        for (k, v) in [("nw", self.nw), ("nh", self.nh),
+                       ("nbbbs", self.nbbbs), ("limitr", self.limitr)] {
+            m.insert(k, Node::Int(v as i64));
+        }
+        for (k, v) in [("rdim", self.rdim), ("zdim", self.zdim), ("rcentr", self.rcentr),
+                       ("rleft", self.rleft), ("zmid", self.zmid), ("rmaxis", self.rmaxis),
+                       ("zmaxis", self.zmaxis), ("simag", self.simag), ("sibry", self.sibry),
+                       ("bcentr", self.bcentr), ("current", self.current)] {
+            m.insert(k, Node::Float(v));
+        }
+        for (k, v) in [("fpol", &self.fpol), ("pres", &self.pres), ("ffprim", &self.ffprim),
+                       ("pprime", &self.pprime), ("psirz", &self.psirz), ("qpsi", &self.qpsi),
+                       ("rbbbs", &self.rbbbs), ("zbbbs", &self.zbbbs),
+                       ("rlim", &self.rlim), ("zlim", &self.zlim)] {
+            m.insert(k, arr(v));
+        }
+        Node::Map(m)
+    }
+
     /// 十三个标量，按 `SCALARS` 的次序。
     pub fn scalars(&self) -> [f64; 13] {
         [self.rdim, self.zdim, self.rcentr, self.rleft, self.zmid,

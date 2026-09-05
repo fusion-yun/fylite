@@ -15,7 +15,15 @@ modified:
   date: 2026-09-05T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v5.29 `FYL-DESIGN-16` 升 v2.4（2026-09-05 两条用户裁定）：**（一）hdf5 走 fy app 的
+    v5.30 `FYL-DESIGN-16` 升 v2.5（用户「落地 H-4」）：**中间层进浏览器的第一块落地**——
+    `app/assets/geqdsk.js` 里那份**第三份** g-file 解析撤除（原生一份、wasm 一份、JS 一份，
+    读同一种文件），页面改问中间层：站点经 `fylite_web.wasm` 的 `fylite_runtime_gfile_json`，
+    桌面经 `POST /api/read?shape=gfile`，两条路中间是同一个 `GFile::to_node`。实测与旧 JS
+    读法 26 个键逐值相同、与 python 读法逐字段 0.0e+0；产物 0.43 -> 0.51 MB（多一个
+    `abi_gfile` feature）。载入器拆成一处 `runtimeweb.js`。`fyo.js` / `session.js` 那两块
+    未动——它们不是同一算法的第三份实现，而是页面在生成契约表之上的胶水，判读为应与
+    K-3 一同裁。
+    · v5.29 `FYL-DESIGN-16` 升 v2.4（2026-09-05 两条用户裁定）：**（一）hdf5 走 fy app 的
     文件端点，静态站点保留 h5wasm** —— H-7：`POST /api/read` 字节进、fyo 文档出，读法是
     中间层自己的；两条读法各自对仓里那份原生参照负责而不是互相对照，实测逐叶子相同；
     可执行文件不再内嵌那 4.1 MB，14.72 -> 10.72 MB。**（二）清理规划 wasm 打包的内容** ——

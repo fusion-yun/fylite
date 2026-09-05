@@ -3,7 +3,7 @@
 // round-trip through the writer and require the numbers to survive.
 //
 //   node tests/app/validate-geqdsk.mjs
-import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -13,10 +13,24 @@ const HERE = new URL('.', import.meta.url).pathname;
 globalThis.self = globalThis;
 // geqdsk.js raises its errors through the catalogue, so the runtime and at
 // least one language have to be present even in a headless oracle run.
+//: ★★2026-09-05：`geqdsk.js` 里**没有解析器了**（`FYL-DESIGN-16` H-4 第一块落地）。
+//: 页面问中间层，所以这条闸子也得把中间层装上——它比的从此是「**发出去的那份 wasm**
+//: 与 python 读法一致」，比从前那句「JS 那份与 python 一致」更贴近读者拿到的东西。
+//: `runtimeweb.js` 在 `geqdsk.js` 之前：后者在加载时就要问前者。
 for (const f of ['i18n.js', 'lang-zh.js', 'lang-en.js',
-                 'geqdsk.js'])
+                 'runtimeweb.js', 'geqdsk.js'])
   vm.runInThisContext(readFileSync(HERE + '../assets/' + f, 'utf8'), { filename: f });
 const G = globalThis.FyGeqdsk;
+
+//: 这份检出里的那一份 wasm，从磁盘装进去（node 没有站点根可 fetch）。
+const RVER = (/FyRuntimeVersion\s*=\s*'([^']*)'/.exec(
+  readFileSync(HERE + '../assets/runtime-version.js', 'utf8')) || [])[1];
+const WASM = HERE + `../assets/fylite_web.wasm.${RVER}`;
+if (!RVER || !existsSync(WASM)) {
+  console.log(`跳过：没有 ${WASM} —— 先跑 bash rust/build.sh`);
+  process.exit(0);
+}
+await globalThis.FyRuntimeWeb.useBytes(readFileSync(WASM));
 
 // ★The kernel is attached even in this headless run, and that is the point.
 // `geqdsk.js` derives the imported boundary's shape metrics, which are the

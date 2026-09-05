@@ -324,7 +324,36 @@ mod gfile_abi {
 ///
 /// # Safety
 /// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
-#[cfg(feature = "abi_full")]
+/// 整份 g-file 一次读成 JSON —— 页面走的就是这一条。
+///
+/// ★★2026-09-05 落地 `FYL-DESIGN-16` H-4 的第一块：`app/assets/geqdsk.js` 里那份
+/// **第三份** g-file 实现撤掉，页面改问这里。给它文本，答一份 JSON，键名与
+/// `GFile` 逐字相同（`to_node` 抬头说了为什么不是 fyo 文档）。
+///
+/// ★为什么不让页面走下面那套句柄门（parse / dims / scalars / array / free）：那套要
+/// 页面记住十三个标量的**次序**，而次序在 Rust 这边（`SCALARS`）——那就是一处新的、
+/// 靠两边记忆维持的契约。一次一份 JSON 没有这个问题，代价是多一次序列化
+/// （65×65 的 g-file 约 90 KB 文本，实测在噪声里）。
+///
+/// 返回要写的字节数（两段式：先 `cap = 0` 问长度）；`-2` = 读不动，正文是那句话。
+///
+/// # Safety
+/// `text`: `text_n` 个字节；`out`: `cap` 个字节，或 `cap = 0` 时可空。
+#[cfg(feature = "abi_gfile")]
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_gfile_json(
+    text: *const u8, text_n: u64, out: *mut u8, cap: u64) -> i64 {
+    let Some(s) = abi::s(text, text_n) else { return -1 };
+    match crate::geqdsk::parse(s) {
+        Ok(g) => abi::put(&crate::json::to_string(&g.to_node(), false), out, cap),
+        Err(e) => {
+            abi::put(&e.to_string(), out, cap);
+            -2
+        }
+    }
+}
+
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_parse(
     text: *const u8, text_n: u64, out_handle: *mut *mut std::ffi::c_void,
@@ -350,7 +379,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_parse(
 ///
 /// # Safety
 /// `handle` 来自 `fylite_runtime_gfile_parse`；`nw`/`nh` 各一个 u64。
-#[cfg(feature = "abi_full")]
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_dims(
     handle: *mut std::ffi::c_void, nw: *mut u64, nh: *mut u64) -> i32 {
@@ -367,7 +396,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_dims(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 个 f64。
-#[cfg(feature = "abi_full")]
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
     handle: *mut std::ffi::c_void, out: *mut f64, cap: u64) -> i32 {
@@ -388,7 +417,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_scalars(
 ///
 /// # Safety
 /// `handle` 来自 parse；`name`: `name_n` 字节；`out`: `cap` 个 f64。
-#[cfg(feature = "abi_full")]
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_array(
     handle: *mut std::ffi::c_void, name: *const u8, name_n: u64,
@@ -409,7 +438,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_array(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 字节。
-#[cfg(feature = "abi_full")]
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_header(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
@@ -424,7 +453,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_header(
 ///
 /// # Safety
 /// `handle` 来自 parse；`out`: `cap` 字节。
-#[cfg(feature = "abi_full")]
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_format(
     handle: *mut std::ffi::c_void, out: *mut u8, cap: u64) -> i64 {
@@ -439,7 +468,7 @@ pub unsafe extern "C" fn fylite_runtime_gfile_format(
 ///
 /// # Safety
 /// `handle` 来自 parse，且未被释放过。
-#[cfg(feature = "abi_full")]
+#[cfg(feature = "abi_gfile")]
 #[no_mangle]
 pub unsafe extern "C" fn fylite_runtime_gfile_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {

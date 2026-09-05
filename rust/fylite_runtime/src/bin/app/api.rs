@@ -187,7 +187,7 @@ pub fn kernel(body: &str) -> (u16, String) {
 ///
 /// ★不落盘超过一次：字节写进临时文件（中间层的读者按路径工作），读完就删。
 #[cfg(not(target_arch = "wasm32"))]
-pub fn read_file(name: &str, body: &[u8]) -> (u16, String) {
+pub fn read_file(name: &str, shape: &str, body: &[u8]) -> (u16, String) {
     use std::io::Write;
     //: ★原名只用来取扩展名与写进文档的 `source`，**不当路径用**：分隔符与上跳一律
     //: 拒绝，临时文件名由本进程拼。
@@ -213,6 +213,21 @@ pub fn read_file(name: &str, body: &[u8]) -> (u16, String) {
     let write = std::fs::File::create(&path).and_then(|mut f| f.write_all(body));
     if let Err(e) = write {
         return (500, format!("{{\"error\":{}}}", jstr(&format!("temp file: {e}"))));
+    }
+    //: ★★`shape=gfile` 要的是 g-file **自己的**字段（`g.pres` / `g.psirz` / `g.rbbbs`…），
+    //: 不是按 DD 键名铸的 fyo 文档——页面那一侧要的就是前者（H-4 落地之后它不再自己解）。
+    //: 同一个产出者两条到达方式：wasm 上是 `fylite_runtime_gfile_json`，这里是这一支，
+    //: 中间是同一个 `GFile::to_node`。
+    if shape == "gfile" {
+        let text = std::fs::read_to_string(&path);
+        let _ = std::fs::remove_file(&path);
+        return match text {
+            Ok(t) => match fylite_runtime::geqdsk::parse(&t) {
+                Ok(g) => (200, fylite_runtime::json::to_string(&g.to_node(), false)),
+                Err(e) => (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+            },
+            Err(e) => (400, format!("{{\"error\":{}}}", jstr(&e.to_string()))),
+        };
     }
     let out = fylite_runtime::io::read(&path);
     let _ = std::fs::remove_file(&path);
