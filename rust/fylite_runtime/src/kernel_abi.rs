@@ -520,6 +520,7 @@ pub const UNBRIDGED: &[&str] = &[
     "fylite_rs_alloc",  // 分配与释放属于调用方那一侧
     "fylite_rs_free",  // 分配与释放属于调用方那一侧
     "fylite_rs_fyo",  // 结构门：参数里有二级指针
+    "fylite_rs_fyo_tree",  // 结构门：参数里有二级指针
 ];
 
 /// 每个符号的参数种类，与页面那份表逐格相同。

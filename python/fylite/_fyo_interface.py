@@ -7,6 +7,12 @@ Generated rather than kept in step by hand, for the reason
 ``_abi.py`` is: two copies of a contract are not a contract.
 """
 
+#: the revision of this interface, and the digest of everything it declares
+REVISION = 1
+DIGEST = '5d851c7c6453b421'
+#: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
+TREE_FORMAT = 1
+
 #: table -> {"type": <fyo doc type>, "slots": {key: {path, units, rank}}}
 TABLES = {
     'CORE_PROFILES': {
@@ -85,6 +91,24 @@ TABLES = {
             'r0': {"path": 'tf/r0', "units": 'm', "rank": '0d'},
             'b0': {"path": 'tf/b0', "units": 'T', "rank": '0d'},
             'grid': {"path": 'fylite:grid', "units": '1', "rank": '0d'},
+            'pf_eta': {"path": 'pf_active_circuits/resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
+            'vessel_eta_all': {"path": 'fylite:vessel_resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
+            'passive_eta': {"path": 'pf_passive/fylite:group/resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
+            'passive_elem': {"path": 'pf_passive/fylite:group/element', "units": '1', "rank": '2d'},
+            'ic_name': {"path": 'ic_coil/coils/name', "units": '1', "rank": '0d'},
+            'ic_r': {"path": 'ic_coil/coils/r', "units": 'm', "rank": '0d'},
+            'ic_z': {"path": 'ic_coil/coils/z', "units": 'm', "rank": '0d'},
+            'ic_dr': {"path": 'ic_coil/coils/dr', "units": 'm', "rank": '0d'},
+            'ic_dz': {"path": 'ic_coil/coils/dz', "units": 'm', "rank": '0d'},
+            'ic_turns': {"path": 'ic_coil/coils/turns', "units": '1', "rank": '0d'},
+            'chan_element': {"path": 'pf_channel_elements/fylite:row/element', "units": '1', "rank": '0d'},
+            'chan_weight': {"path": 'pf_channel_elements/fylite:row/weight', "units": '1', "rank": '0d'},
+        },
+    },
+    'DISCHARGE': {
+        "type": 'fyo:discharge',
+        "slots": {
+            'channel_aturns': {"path": 'fylite:channel_aturns', "units": 'A', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -180,6 +204,7 @@ BLOCKS = {
         {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar: Miller metric + parabolic profiles from the page's controls, marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
+        {'key': 'vstab', 'shape': 'vstab', 'units': 'assembled', 'gloss': "vertical stability from whole documents: the device's conductors and the equilibrium's filaments assembled into the plant, evaluated by vstab"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
@@ -424,7 +449,7 @@ ENTRY_BLOCKS = {
 
 #: path segments that are ARRAYS of structure -- a walker steps into
 #: index 0 at each of these
-AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
+AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
 TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'channel_basis', 'coil_current_units', 'config', 'created', 'deposited', 'dvolume', 'equilibrium', 'eta_cd', 'fast_energy', 'length', 'max_power', 'n_parallel', 'name', 'orbit_loss_fraction', 'page', 'pitch', 'power_injected', 'psi_convention', 'psi_norm', 'q', 'q_psi_norm', 'reconstructed', 'result', 'shinethrough', 'trapped_fraction', 'truth', 'weight']
