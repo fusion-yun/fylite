@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "150c44c453157c67";
+pub const DIGEST: &str = "05328591f9cb7a71";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -154,6 +154,9 @@ pub const TABLES: &[Table] = &[
         Slot { key: "selfcal_ratio", path: "fylite:selfcal_ratio", units: "1", rank: "2d" },
         Slot { key: "vessel_current", path: "fylite:vessel_current", units: "A", rank: "1d" },
         Slot { key: "control_row", path: "fylite:control_row", units: "1", rank: "2d" },
+        Slot { key: "fit_x", path: "fylite:fit_x", units: "1", rank: "1d" },
+        Slot { key: "fit_y", path: "fylite:fit_y", units: "1", rank: "1d" },
+        Slot { key: "fit_sigma", path: "fylite:fit_sigma", units: "1", rank: "1d" },
     ] },
     Table { name: "EQUILIBRIUM", doc_type: "fyo:equilibrium", slots: &[
         Slot { key: "ip", path: "time_slice/global_quantities/ip", units: "A", rank: "0d" },
@@ -298,6 +301,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "forward", shape: "", units: "assembled", gloss: "one forward free-boundary equilibrium on the device from the channel currents and the analytic p'/FF' family: the coil flux (or a given external flux, a warm start), one free solve, the analytic truth's profiles and cell current, the loop model and the probe readings that field implies" },
         Row { key: "chords", shape: "", units: "assembled", gloss: "the point diagnostics on a psi map (the analysis page's interferometer / polarimeter block): the chords sampled through the box and the plasma, the line density and the Faraday integral each chord reads, the coils' share, the Faraday rows for a fit, the density fitted back to the chord readings" },
         Row { key: "bootstrap", shape: "", units: "assembled", gloss: "the bootstrap closure on a fit (the analysis page's 自举 block): 96 traced surfaces of the psi map with their shape, the Redl bootstrap on the density and pressure the reader declared, the Sauter 1999 / Redl 2021 vintages through the NEO input mapping, the total / bootstrap / ohmic decomposition on the flux-surface averages with the neoclassical conductivity and loop voltage, and the bootstrap as a prescribed cell current for the next fit" },
+        Row { key: "profile_fit", shape: "", units: "assembled", gloss: "the profile bar's fit: the GCV sweep over polynomial orders, the best order's coefficients, its curve on uniform points and its values at the data — the kernel's fitting entry, planned" },
         Row { key: "summary", shape: "", units: "assembled", gloss: "the page's summary of a solved field: the boundary at the page's inset and its shape, the flux segments the plot draws, li(3), strike points, X-points, the wall clearance, what each control row achieved, the traced surfaces' shapes, and with a profile family or table the profiles and q on them — every step the kernel's already, in the page's order and spelling" },
         Row { key: "coilshare", shape: "", units: "assembled", gloss: "the coils' share of a reading that arrives whole: the channel ampere-turns folded onto the elements, their flux at every loop (Wb/rad) and their projected field at every probe (T), at the reader's quadrature — subtracted once, from the same element response the vacuum field is built from, so a plasma-only model is never asked to explain the coils" },
         Row { key: "vessel", shape: "", units: "assembled", gloss: "the vessel as an unknown: the deck's vessel units grouped by fylite:group under a uniform loop voltage per group, every group's response at the loops, on the grid and at the probes, and — with the reconstruction's rows bound — the joint least squares by Frisch-Waugh-Lovell (both sides residualised on the plasma basis' own signatures, truncated SVD) with how much of the vessel survives the projection" },

@@ -2402,30 +2402,37 @@ function reconSeriesRun(msg) {
 // returns which order GCV chose and the whole sweep it chose from, so a
 // reader can see whether the choice was sharp or a coin toss.
 
+/**
+ * The profile bar's fit — `code/profile_fit` (第四十四刀): the GCV sweep
+ * over polynomial orders, the best order's coefficients, its curve on 101
+ * points and its values at the data, laid out as the bar reads them.
+ */
 function profileFitRun(msg) {
   var n = (msg.x || []).length;
   if (!n) { post({ type: 'error', where: 'profile',
                    message: FyI18n.t('prof.no_points') }); return; }
   var t0 = Date.now();
-  var r;
+  var rec;
   try {
-    r = fy.profileFitSweep(Float64Array.from(msg.x), Float64Array.from(msg.y),
-                           Float64Array.from(msg.sigma),
-                           Math.max(1, Math.min(8, msg.maxOrder | 0)));
+    rec = fy.complete('code/profile_fit', {
+      settings: { max_order: Math.max(1, Math.min(8, msg.maxOrder | 0)), n_curve: 101 },
+      inputs: { discharge: { 'fylite:fit_x': Float64Array.from(msg.x), 'fylite:fit_y': Float64Array.from(msg.y),
+                             'fylite:fit_sigma': Float64Array.from(msg.sigma) } } });
   } catch (e) {
     post({ type: 'error', where: 'profile', message: e.message });
     return;
   }
-  var nx = 101, curve = fy.profileCurve(r.best.coef, nx);
-  var x = new Float64Array(nx);
-  for (var i = 0; i < nx; i++) x[i] = i / (nx - 1);
-  //: the fitted value AT THE POINTS as well, because a residual is what says
-  //: whether the order was right and it cannot be read off a curve
-  var at = fy.profileSample(r.best.coef, Float64Array.from(msg.x));
-  post({ type: 'profile', quantity: msg.quantity, order: r.best.order,
-         coef: Float64Array.from(r.best.coef), sweep: r.sweep,
-         chi2PerDof: r.best.chi2PerDof, rss: r.best.rss, n: r.best.N,
-         x: x, curve: curve, at: at, ms: Date.now() - t0 });
+  var X = function (k) { return rec.facts[k].value; };
+  var gcv = fieldFlat(rec, 'gcv_sweep'), sweep = [];
+  for (var k = 0; k < gcv.length; k++) {
+    if (!isFinite(gcv[k])) break;
+    sweep.push({ order: k, gcv: gcv[k] });
+  }
+  post({ type: 'profile', quantity: msg.quantity, order: X('order'),
+         coef: fieldFlat(rec, 'coef'), sweep: sweep,
+         chi2PerDof: X('chi2_per_dof'), rss: X('rss'), n: n,
+         x: fieldFlat(rec, 'curve_x'), curve: fieldFlat(rec, 'curve'), at: fieldFlat(rec, 'at'),
+         ms: Date.now() - t0 });
 }
 
 // --- the posterior ---------------------------------------------------------
