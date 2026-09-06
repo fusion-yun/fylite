@@ -20,10 +20,11 @@
 // equations in every configuration).  The deck is read the way the kernel's
 // own tests read it (`FYLITE_DEVICE_DIR`) when the staged copy is absent.
 //
-// Six configurations: the loops with the deck's kinetic rows (the page's
+// Eight configurations: the loops with the deck's kinetic rows (the page's
 // stock question), the magnetics alone, the deck's probes on the raw basis,
-// the coil currents fitted as observations (T-A5), and the twin twice (第三十二刀:
-// its truth off `code/forward`), once with a vessel current injected.
+// the coil currents fitted as observations (T-A5), the twin twice (第三十二刀:
+// its truth off `code/forward`), once with a vessel current injected, and the
+// POINT chords twice (第三十四刀: `code/chords`), on the twin and on the deck.
 //
 // Run: node app/tests/validate-worker-recon.mjs [--record]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -134,6 +135,14 @@ const CONFIGS = {
   //: an injected current the loops see and the fit is not told about
   twin: { source: 'twin' },
   twin_inject: { source: 'twin', vessel: { on: false, rcond: 0.05, outer: 2, minSurvive: 0.10, twinInject: 5e3 } },
+  //: ★第三十四刀: the POINT chords — the twin synthesises its own interferometer
+  //: and polarimeter readings, the density is fitted back to the chords and the
+  //: Faraday rows constrain the fit; then the deck's own chord readings
+  twin_point: { source: 'twin',
+                density: { on: true, ne0: 3.5e19, peaking: 0.5, zeff: 1.5, profile: null, temperature: null, fitChords: true },
+                faraday: { on: true, weight: 1, outer: 2 } },
+  deck_point: { density: { on: true, ne0: 3.5e19, peaking: 0.5, zeff: 1.5, profile: null, temperature: null, fitChords: true },
+                faraday: { on: true, weight: 1, outer: 2 } },
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
@@ -169,6 +178,16 @@ function pick(m) {
     truthJphi: m.truthJphi ? { x: arr(m.truthJphi.x), j: arr(m.truthJphi.j) } : null,
     clean: arr(m.clean),
     vessel: m.vessel ? { truth: arr(m.vessel.truth), error: m.vessel.error } : null,
+    point: m.point ? { nel: arr(m.point.nel), bpolar: arr(m.point.bpolar), angleDeg: arr(m.point.angleDeg),
+                       chordLength: arr(m.point.chordLength), z: m.point.z, spec: m.point.spec, source: m.point.source,
+                       needsDensity: m.point.needsDensity } : null,
+    pointMeas: m.pointMeas ? { nel: arr(m.pointMeas.nel), faraday: arr(m.pointMeas.faraday), bpolar: arr(m.pointMeas.bpolar),
+                               synthetic: m.pointMeas.synthetic } : null,
+    densityFit: m.densityFit ? { ne0: m.densityFit.ne0, peaking: m.densityFit.peaking, chi2: m.densityFit.chi2, used: m.densityFit.used,
+                                 model: arr(m.densityFit.model), step: m.densityFit.step, atEdge: m.densityFit.atEdge } : null,
+    faraday: m.faraday ? { target: arr(m.faraday.target), coil: arr(m.faraday.coil), model: arr(m.faraday.model),
+                           viaRows: arr(m.faraday.viaRows), rowsVsFieldRel: m.faraday.rowsVsFieldRel,
+                           measDeg: arr(m.faraday.measDeg), modelDeg: arr(m.faraday.modelDeg), weight: arr(m.faraday.weight) } : null,
   };
 }
 
@@ -190,6 +209,8 @@ const ref = JSON.parse(readFileSync(FIX, 'utf8'));
 assert.equal(ref.device, id, 'the fixture was recorded on ' + ref.device);
 //: ★BIT FOR BIT — see the header.  A failure prints the path and the two values.
 const TRIG = /\.probes\.(b\[|rowsVsFieldRel$)/;
+const POINT = /^(twin_point|deck_point)\./, POINT_TOL = +(process.env.POINT_TOL || 1e-8);
+let pointWorst = 0, pointWorstAt = '';
 let worst = 0, worstAt = '';
 function walk(a, b, at) {
   if (Array.isArray(b)) {
@@ -199,6 +220,19 @@ function walk(a, b, at) {
     for (const k of Object.keys(b)) walk(a === null || a === undefined ? undefined : a[k], b[k], `${at}.${k}`);
   } else if (typeof b === 'number') {
     const d = Math.abs(a - b) / Math.max(Math.abs(b), 1e-300);
+    //: ★第三十四刀: the chord configurations — the density shape `(1 - x^2)^alpha`
+    //: is `Math.pow` on the page and libm's `powf` in the kernel, an ulp apart
+    //: for some x; the Faraday rows carry it into the fit and the Picard
+    //: iteration spreads it over every number of those two fits (measured:
+    //: 3.7e-10, on FF' near the edge).  Held to 1e-8.
+    if (POINT.test(at)) {
+      //: the residual is the last Picard step's own size and the feedback
+      //: amplitude a difference of two large fluxes — numbers made of last
+      //: bits (the kernel's own recon gate holds them to 1e-2 / 1e-6)
+      const tol = /\.residual$/.test(at) ? 1e-2 : /\.fbAmp$/.test(at) ? 1e-6 : POINT_TOL;
+      if (tol === POINT_TOL && !(d <= pointWorst)) { pointWorst = d; pointWorstAt = at; }
+      assert.ok(d <= tol, `${at}: ${a} vs ${b} (rel ${d.toExponential(2)} > ${tol})`); return;
+    }
     if (!(d <= worst)) { worst = d; worstAt = at; }
     //: ★第三十三刀: the probe projection `br cos(a) + bz sin(a)` — the browser's
     //: `Math.cos` / `Math.sin` (fdlibm) and the kernel's libm differ in the last
@@ -213,6 +247,6 @@ function walk(a, b, at) {
 }
 for (const name of Object.keys(ref.configs)) walk(got[name], ref.configs[name], name);
 const k = got.kinetic;
-console.log(`validate-worker-recon: ${Object.keys(ref.configs).length} fits on ${id} bit for bit but the probe projection's last bit (worst rel ${worst.toExponential(2)} at ${worstAt || '—'}); ` +
+console.log(`validate-worker-recon: ${Object.keys(ref.configs).length} fits on ${id} bit for bit but the probe projection's last bit (worst rel ${worst.toExponential(2)} at ${worstAt || '—'}) and the two chord fits to ${POINT_TOL} (worst rel ${pointWorst.toExponential(2)} at ${pointWorstAt || '—'}); ` +
             `kinetic: ${k.result.iterations} it, chi2/ndof ${(k.chi2 / k.ndof).toExponential(3)}, Ip ${(k.ipFitted / 1e6).toFixed(4)} MA, ` +
             `q0 ${k.q.q0.toFixed(3)}, q95 ${k.q.q95.toFixed(3)}, li3 ${k.li3.toFixed(4)}; probes_raw: ${got.probes_raw.fitRows.probes} probe rows, ${got.probes_raw.result.iterations} it; coils: pull ${got.coils.coilFit.pull.toFixed(3)}`);

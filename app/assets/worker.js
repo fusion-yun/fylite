@@ -1088,7 +1088,7 @@ function reconInputs(msg) {
     //: what the synthetic reading carries is the field and nothing else.
     if (msg.density && msg.density.on && M.point &&
         M.point.interferometer && M.point.interferometer.length) {
-      var tp = pointPredictions(t, msg.density);
+      var tp = chordsOf(t, msg.density).point;
       if (tp && !tp.error && tp.angleDeg) {
         var gp = rng((msg.seed || 12345) + 991), rel = msg.pointNoise || 0;
         inp.pointTwin = {
@@ -1478,13 +1478,13 @@ function reconMember(msg, inp, kin, jPre) {
  * Returns a shadowed `inp` — the loops and probes it already carried, then
  * the chords — or null when the machine, the data or the density is missing.
  */
-function withFaradayRows(inp, fr, pmN, geom, dens, chan) {
+function withFaradayRows(inp, fr, pmN, ch) {
   //: ★the readings are an ARGUMENT, not a field of the request: they come
   //: from a file on a real shot and from the truth on a twin, and threading
   //: them through the request block is how the first wiring of this quietly
   //: built no rows at all (`no-rows`, with everything else switched on).
-  if (!geom || !geom.length || !fr || !pmN || !pmN.n) return null;
-  var n = Math.min(geom.length, pmN.n), NGc = grid.nr * grid.nz;
+  if (!ch || !ch.n || !fr || !pmN || !pmN.n) return null;
+  var n = Math.min(ch.n, pmN.n), NGc = grid.nr * grid.nz;
   var target = new Float64Array(n), any = false, i;
   for (i = 0; i < n; i++) {
     target[i] = pmN.weightPol[i] ? pmN.target[i] : NaN;
@@ -1493,9 +1493,9 @@ function withFaradayRows(inp, fr, pmN, geom, dens, chan) {
   if (!any) return null;
   //: the rows are the PLASMA's; the coils' share of each reading is computed
   //: and subtracted, exactly as the probe block does with its own field
-  var coil = chordCoilField(geom, dens, chan);
+  var coil = ch.coil;
   for (i = 0; i < n; i++) if (isFinite(target[i])) target[i] -= coil[i];
-  var rows = faradayRows(geom, dens);
+  var rows = ch.rows.length === n * NGc ? ch.rows : ch.rows.slice(0, n * NGc);
   var base = inp.matrix || loopsM, nBase = inp.meas.length;
   var mat = new Float64Array(base.length + n * NGc);
   mat.set(base, 0); mat.set(rows, base.length);
@@ -1524,7 +1524,7 @@ function withFaradayRows(inp, fr, pmN, geom, dens, chan) {
   var out = Object.create(inp);
   out.matrix = mat; out.meas = meas; out.wts = wts;
   out.nFaraday = n; out.faradayWeight = wF; out.faradayTarget = target;
-  out.faradayCoil = coil; out.faradayRows = rows; out.faradayGeom = geom;
+  out.faradayCoil = coil; out.faradayRows = rows;
   return out;
 }
 
@@ -1760,8 +1760,7 @@ function reconRun(msg0) {
               weightNel: M.reference.point.weight_nel,
               weightPol: M.reference.point.weight_pol } : null)));
   if (dens && dens.on && dens.fitChords && pmN) {
-    geom = chordGeometry(mem.raw);
-    dfit = fitDensityToChords(geom, pmN.nel, pmN.weightNel);
+    dfit = chordsOf(mem.raw, dens, { nel: pmN.nel, nelWeight: pmN.weightNel }).fit;
     if (dfit) dens = Object.assign({}, dens, { ne0: dfit.ne0,
                                                peaking: dfit.peaking,
                                                profile: null });
@@ -1771,9 +1770,8 @@ function reconRun(msg0) {
     for (var it = 0; it < nOuter; it++) {
       //: the surfaces the rows are built on are the PREVIOUS iterate's —
       //: which samples lie inside the plasma is part of the answer
-      var g2 = chordGeometry(mem.raw);
-      var inp2 = withFaradayRows(inpBase, msg.faraday, pmN, g2, dens,
-                                 inp.chanDrawn || Float64Array.from(msg.chan));
+      var ch2 = chordsOf(mem.raw, dens, { rows: true, psiExt: psiExtOf(inp.chanDrawn || Float64Array.from(msg.chan)) });
+      var inp2 = withFaradayRows(inpBase, msg.faraday, pmN, ch2);
       if (!inp2) { farError = 'no-rows'; break; }
       var m2;
       try { m2 = reconMember(msg, inp2, kin); }
@@ -1782,8 +1780,7 @@ function reconRun(msg0) {
       //: the density is re-fitted on the new surfaces too, or the second
       //: pass would weight the rows by a density from the first geometry
       if (dfit) {
-        var g3 = chordGeometry(mem.raw),
-            d3 = fitDensityToChords(g3, pmN.nel, pmN.weightNel);
+        var d3 = chordsOf(mem.raw, dens, { nel: pmN.nel, nelWeight: pmN.weightNel }).fit;
         if (d3) { dfit = d3; dens = Object.assign({}, dens,
           { ne0: d3.ne0, peaking: d3.peaking, profile: null }); }
       }
@@ -1922,43 +1919,18 @@ function reconRun(msg0) {
   out.probes = mem.probes || null;
   //: the predictions are drawn on the SOLVED surfaces of the fit that was
   //: kept, through the density that fit was made with
-  out.point = pointPredictions(mem.raw, msgD.density);
+  //: ★第三十四刀: the chords are `code/chords`' — the readings on the FINAL
+  //: surfaces, and with Faraday rows in the fit the same reading by the rows
+  //: route (the rows on the fitted current plus the coils' share)
+  var chFin = (msgD.density && msgD.density.on)
+    ? chordsOf(mem.raw, msgD.density, fitUsed.nFaraday
+        ? { rows: true, psiExt: psiExtOf(inp.chanDrawn || Float64Array.from(msg.chan)), current: mem.fitCur }
+        : {})
+    : null;
+  out.point = chFin ? chFin.point : (M.point && M.point.interferometer && M.point.interferometer.length
+                                     ? { needsDensity: true } : null);
   if (fitUsed.nFaraday && out.point) {
-    //: ★★THE SAME NUMBER BY TWO ROUTES, as the probes do it.  One route is
-    //: the solved psi map, sampled and integrated (`point.bpolar`); the
-    //: other is the row block the fit was GIVEN, contracted with the fitted
-    //: current, plus the coils' own share.  They are independent — one goes
-    //: through the solver's field, the other through the Green's rows — so
-    //: agreeing is the evidence that the rows are the rows for THESE chords,
-    //: with this quadrature, in these units.  A missing 2 pi, a density
-    //: evaluated on the wrong label or a coil term left out shows up here
-    //: and nowhere else: the fit would simply move somewhere plausible.
-    var viaRows = null, worst = NaN;
-    try {
-      //: ★THE CHECK IS ON THE FINAL SURFACES, not on the ones the last fit
-      //: was given.  The rows the solver used were built on the previous
-      //: iterate — that is what makes the constraint usable at all — so
-      //: comparing them against the final field mixes two different
-      //: questions: "are these the right rows" and "has the outer loop
-      //: converged".  Measured with the two mixed: 22 %.  Separated: the
-      //: number below, which is the discretisation difference alone.
-      var gFin = chordGeometry(mem.raw);
-      var rowsFin = faradayRows(gFin, dens);
-      var coilFin = chordCoilField(gFin, dens,
-                                   inp.chanDrawn || Float64Array.from(msg.chan));
-      var pl = P.loopModel(rowsFin, mem.fitCur, grid, MEAS_SCALE);
-      viaRows = new Float64Array(fitUsed.nFaraday);
-      var amp = 0, i2;
-      for (i2 = 0; i2 < fitUsed.nFaraday; i2++) {
-        viaRows[i2] = pl[i2] + coilFin[i2];
-        amp = Math.max(amp, Math.abs(out.point.bpolar[i2] * 1e19));
-      }
-      worst = 0;
-      for (i2 = 0; i2 < fitUsed.nFaraday; i2++)
-        worst = Math.max(worst, Math.abs(viaRows[i2] -
-                                         out.point.bpolar[i2] * 1e19));
-      worst = amp > 0 ? worst / amp : NaN;
-    } catch (e3) { viaRows = null; }
+    var viaRows = chFin.viaRows, worst = chFin.rowsVsFieldRel;
     out.faraday = { target: fitUsed.faradayTarget,
                     coil: fitUsed.faradayCoil,
                     model: Float64Array.from(out.point.bpolar,
@@ -2103,302 +2075,65 @@ function combinedRows() {
 }
 // --- POINT: line-integrated density, and the Faraday rotation --------------
 //
-// ★Both are predictions of the SAME two things the probes were: the solved
-// psi map, and the density channel.  `n_e-line` is the density profile
-// integrated along the sight line; the Faraday angle is the density weighted
-// by the field ALONG THE BEAM, which for these horizontal chords is B_R.
-// Neither needs a response matrix, and neither is a fit residual — the fit
-// never sees them.
-//
-// ★★The quadrature is the KERNEL's (`fylite_rs_quadrature`, Simpson) and the
-// samples are the kernel's (`fylite_rs_chord_samples`, which takes a 3-D
-// origin and direction so a tangential chord is not silently flattened into
-// its poloidal projection).  What is assembled here is only the integrand,
-// which is physics that can be written down: `n_e(psi_N(s))` and
-// `n_e(psi_N(s)) * B_R(s)`.
-//
-// ★The reported `bpolar` is `integral n_e B dl / 1e19`, the quantity EFIT is
-// given rather than the angle itself, because that is the form the native
-// path converts a measured angle INTO (`io.est2`, POINT block).  The angle in
-// degrees is reported beside it, through the deck's own two constants, so a
-// reader can check either against an instrument.
+// ★第三十四刀: the chords are `code/chords`' — sampled through the box and the
+// plasma, the line density and the Faraday integral on the kernel's Simpson
+// rule over the full-length line, the coils' share off the external flux, the
+// Faraday rows for the fit on the kernel's own quadrature weights, and the
+// density fitted back to measured line densities.  What stays here is the
+// deck's three reading shapes in one (`normalisePointMeas`) and the reading a
+// measured angle stands for.
 
 var POINT_SAMPLES = 401;
 
 /**
- * Where each sight line is, and what the solved field is there.
+ * One call to `code/chords` for a psi map and a density spec.
  *
- * ★ONE GEOMETRY FOR THREE QUESTIONS.  The chord predictions, the density
- * channel fitted to the interferometer and the Faraday rows the fit can be
- * given all need the same three things — which samples are inside the
- * plasma, what `psi_N` is there, and what `B_R` is there — and each of them
- * had every reason to sample the line its own way.  Three samplings of one
- * chord is three answers to "where does the plasma start", and the
- * disagreement would show up as a physics discrepancy rather than as a
- * geometry one.
- *
- * The kept samples are the ones inside the grid AND inside the boundary;
- * the arrays are FULL LENGTH with zeros elsewhere, because the quadrature
- * is Simpson over the whole line and its abscissae must not move.
+ * `opts.psiExt` (the external flux, for the coils' share and the rows route),
+ * `opts.rows` (the Faraday rows), `opts.current` (the fitted cells: the
+ * reading by the rows route), `opts.nel` / `opts.nelWeight` (measured line
+ * densities: the density fitted back).  Returns `{point, fit, rows, coil,
+ * viaRows, rowsVsFieldRel, n}`; `point` is `null` when the machine has no
+ * chords, `{needsDensity: true}` when the spec is off.
  */
-function chordGeometry(res) {
+function chordsOf(res, spec, opts) {
+  opts = opts || {};
   var pt = M.point;
-  if (!pt || !pt.interferometer || !pt.interferometer.length) return null;
-  var chords = pt.interferometer, n = chords.length, out = [];
-  var span = res.psiBnd - res.psiAxis;
-  for (var k = 0; k < n; k++) {
-    var c = chords[k], fp = c.first_point || {};
-    var th = c['fylite:theta'] || 0;
-    //: theta is the tilt of the sight line in the poloidal plane; the beam
-    //: enters from the outboard side, so it travels along -R
-    var dir = [-Math.cos(th), 0, Math.sin(th)];
-    var sm = fy.chordSamples({ origin3: [fp.r, 0, fp.z], dir3: dir,
-                               length: 2.2, n: POINT_SAMPLES });
-    //: ★TWO passes, because the field is now one crossing for the whole
-    //: chord rather than one per sample.  The first pass decides which
-    //: samples are in the plasma at all — the guards are unchanged — and
-    //: only those are handed over.
-    var boxI = [], boxR = [], boxZ = [], i;
-    for (i = 0; i < POINT_SAMPLES; i++) {
-      var rr = sm.r[i], zz = sm.z[i];
-      if (!(rr > grid.r[0] && rr < grid.r[grid.nr - 1] &&
-            zz > grid.z[0] && zz < grid.z[grid.nz - 1])) continue;
-      boxI.push(i); boxR.push(rr); boxZ.push(zz);
-    }
-    var keep = [], keepR = [], keepZ = [], keepX = [];
-    if (boxI.length) {
-      var psAll = P.sample(grid, res.psi, Float64Array.from(boxR),
-                           Float64Array.from(boxZ));
-      for (var b = 0; b < boxI.length; b++) {
-        var x = span !== 0 ? (psAll[b] - res.psiAxis) / span : 2;
-        //: outside the boundary there is no plasma density to integrate; the
-        //: scrape-off layer is not modelled and is not quietly given a value
-        if (!(x >= 0 && x <= 1)) continue;
-        keep.push(boxI[b]); keepR.push(boxR[b]); keepZ.push(boxZ[b]);
-        keepX.push(x);
-      }
-    }
-    var br = null;
-    if (keep.length) {
-      var bf = P.bField(grid, res.psi, Float64Array.from(keepR),
-                        Float64Array.from(keepZ));
-      br = bf.br;
-    }
-    out.push({ name: c.name, z: fp.z, ds: sm.ds, keep: keep, x: keepX,
-               r: keepR, z2: keepZ, br: br, inside: keep.length });
+  if (!pt || !pt.interferometer || !pt.interferometer.length)
+    return { point: null, fit: null, rows: null, coil: null, viaRows: null, rowsVsFieldRel: NaN, n: 0 };
+  if (!spec || !spec.on)
+    return { point: { needsDensity: true }, fit: null, rows: null, coil: null, viaRows: null, rowsVsFieldRel: NaN, n: 0 };
+  var settings = { n_samples: POINT_SAMPLES, length: 2.2, rows: opts.rows ? 1 : 0 };
+  var disc = {};
+  if (spec.profile && spec.profile.length) disc['fylite:ne_profile'] = Float64Array.from(spec.profile);
+  else { settings.ne0 = spec.ne0; settings.peaking = spec.peaking; }
+  if (opts.psiExt) disc['fylite:psi_ext'] = Float64Array.from(opts.psiExt);
+  if (opts.current) disc['fylite:current_cells'] = Float64Array.from(opts.current);
+  if (opts.nel) {
+    disc['fylite:chord_nel'] = Float64Array.from(opts.nel);
+    if (opts.nelWeight) disc['fylite:chord_nel_weight'] = Float64Array.from(opts.nelWeight);
   }
-  return out;
-}
-
-/** A full-length integrand with `vals` dropped on the kept samples. */
-function chordFill(g, vals) {
-  var a = new Float64Array(POINT_SAMPLES);
-  for (var i = 0; i < g.keep.length; i++) a[g.keep[i]] = vals[i];
-  return a;
-}
-
-/** `integral f ds` along one chord, the kernel's Simpson rule. */
-function chordIntegral(g, vals) {
-  return fy.quadrature(chordFill(g, vals), g.ds, 0);
-}
-
-// --- the interferometer, read BACKWARDS ------------------------------------
-//
-// ★★A SYNTHETIC DIAGNOSTIC THAT CANNOT BE FITTED IS HALF A DIAGNOSTIC.  The
-// page has predicted `n_e L` on eleven chords for as long as it has had a
-// density, and the density it predicted them from was two sliders.  The
-// forward operator is the same one either way, so the backward question —
-// which density reproduces the chords that were MEASURED — costs no new
-// physics: `n_e = n_e0 (1 - x^2)^alpha` is LINEAR in `n_e0`, so `alpha` is
-// scanned and `n_e0` comes out in closed form on each one.
-//
-// ★What this does NOT do is invert the profile SHAPE.  Eleven line integrals
-// through a two-parameter family determine two numbers; a page that returned
-// a free radial profile from them would be returning its own regularisation.
-
-var ALPHA_MIN = 0, ALPHA_MAX = 3, ALPHA_STEP = 0.02;
-
-/**
- * The `(n_e0, alpha)` that best explains the measured chord densities.
- *
- * `meas` is one `n_e L` per chord [m^-2]; a non-finite entry is a chord the
- * reader has no reading for and is skipped rather than fitted to zero.
- */
-function fitDensityToChords(geom, meas, weight) {
-  if (!geom || !meas || !meas.length) return null;
-  var n = Math.min(geom.length, meas.length);
-  var best = null;
-  for (var a = ALPHA_MIN; a <= ALPHA_MAX + 1e-9; a += ALPHA_STEP) {
-    var num = 0, den = 0, shape = [], k, i;
-    for (k = 0; k < n; k++) {
-      var gk = geom[k];
-      //: ★a chord the reduction gated out (a lost fringe) is NOT a chord
-      //: that read zero.  Fitting to it would drag the whole density down by
-      //: however many chords the interferometer happened to lose.
-      if (!isFinite(meas[k]) || !gk.keep.length ||
-          (weight && !weight[k])) { shape.push(NaN); continue; }
-      var v = [];
-      for (i = 0; i < gk.keep.length; i++)
-        v.push(Math.pow(Math.max(1 - gk.x[i] * gk.x[i], 0), a));
-      var I = chordIntegral(gk, v);
-      shape.push(I);
-      num += I * meas[k]; den += I * I;
-    }
-    if (!(den > 0)) continue;
-    var ne0 = num / den, chi2 = 0, used = 0, model = [];
-    for (k = 0; k < n; k++) {
-      if (!isFinite(shape[k]) || !isFinite(meas[k])) { model.push(NaN); continue; }
-      var m = ne0 * shape[k];
-      model.push(m);
-      var d = (m - meas[k]) / Math.max(Math.abs(meas[k]), 1e-30);
-      chi2 += d * d; used += 1;
-    }
-    if (!used) continue;
-    if (!best || chi2 < best.chi2)
-      best = { ne0: ne0, peaking: a, chi2: chi2, used: used, model: model,
-               //: the scan step IS the resolution of `alpha`, and it travels
-               //: with the answer: a round trip through this fit returns the
-               //: parameters it started from to within one step, which is
-               //: exactly the check that says the operator is invertible
-               step: ALPHA_STEP };
-  }
-  //: ★an alpha ON the edge of the scan is reported as such: the family did
-  //: not contain the answer, and a boundary optimum that reads like an
-  //: interior one is how a two-parameter fit hides being the wrong family
-  if (best) best.atEdge = best.peaking <= ALPHA_MIN + 1e-9 ||
-                          best.peaking >= ALPHA_MAX - 1e-9;
-  return best;
-}
-
-// --- the polarimeter as a CONSTRAINT ---------------------------------------
-//
-// ★★THE ONLY INTERNAL CURRENT INFORMATION THIS MACHINE HAS.  A fit driven by
-// flux loops and a pressure profile cannot resolve `q(0)`: the magnetics see
-// the current distribution only through its moments outside the plasma, and
-// the pressure constrains `p'`, not `FF'`.  MSE is what a tokamak normally
-// answers this with and EAST's deck carries none — but it carries eleven
-// polarimeter chords, and the Faraday rotation on a chord is
-// `integral n_e B_R dl`, which IS an internal current measurement.
-//
-// The row is linear in the plasma current, exactly as a flux-loop row is:
-// `B_R` at a point is a Green's function contracted with the cell currents
-// (the kernel's `probe_response` at angle zero), and the chord integral of
-// it is that same contraction under the quadrature weights.  So the rows go
-// into the SAME least-squares block as the loops and the probes.
-//
-// ★TWO THINGS MAKE IT NOT A PLAIN LINEAR ROW, and both are stated rather
-// than hidden:
-//   1. WHICH SAMPLES ARE INSIDE the plasma depends on the solution.  The
-//      rows are therefore built on the PREVIOUS iterate's surfaces and the
-//      fit is repeated — the same device EFIT uses for MSE.  One repetition
-//      is the default; the reader can ask for more.
-//   2. `n_e` MULTIPLIES the row.  A Faraday constraint is only as good as
-//      the density it is read through, which is why this page will not let
-//      it be switched on without a density channel.
-
-var QUAD_W = null;
-
-/**
- * The kernel's own quadrature weights, recovered rather than re-derived.
- *
- * ★`fylite_rs_quadrature` owns the rule (Simpson over uniform samples), and
- * a row block needs the rule applied to a MATRIX — one column per grid cell
- * — which the entry cannot do.  Writing the weights out here would put
- * Simpson in a second host; asking the kernel what it does to each unit
- * vector does not.  `ds` factors out, so this is computed once at `ds = 1`
- * and scaled.
- */
-function quadWeights(n) {
-  if (QUAD_W && QUAD_W.length === n) return QUAD_W;
-  var w = new Float64Array(n), e = new Float64Array(n);
-  for (var i = 0; i < n; i++) {
-    e[i] = 1;
-    w[i] = fy.quadrature(e, 1, 0);
-    e[i] = 0;
-  }
-  QUAD_W = w;
-  return w;
-}
-
-/**
- * One row per chord: `d(integral n_e B_R ds) / d j(cell)`, pre-scaled by
- * `2 pi` the way the probe rows are, because the solver divides every row
- * block by its `meas_scale`.
- */
-function faradayRows(geom, spec) {
-  var n = geom.length, NGc = grid.nr * grid.nz;
-  var rows = new Float64Array(n * NGc);
-  var w = quadWeights(POINT_SAMPLES);
-  //: ★★THE ROW IS BUILT THE WAY THE FIELD IS READ.  `B_R` is not asked of
-  //: the Green's rows directly: the kernel computes it from a psi map as
-  //: `-(dpsi/dz)/(2 pi r)`, central-differenced at HALF the smaller cell —
-  //: and inside the current-carrying region a filament-per-cell field and a
-  //: differenced psi are not the same number.  Measured with the row block
-  //: taken from `probe_response` at angle zero: the two routes agreed to
-  //: 2 % on the outer chords and disagreed by 32 % and 46 % on the two
-  //: chords either side of the axis, where `B_R` is a small difference of
-  //: large cancelling parts.  A constraint whose model is wrong by half on
-  //: two of eleven rows does not measure what its label says.
-  //:
-  //: So the row is the SAME finite difference, taken on the psi response:
-  //: `d(psi)/dz` from the kernel's own point response at `z +- h`, divided
-  //: by `2 pi r`.  The solver's `meas_scale` then multiplies the block by
-  //: `2 pi`, which cancels the `2 pi` here — written out rather than
-  //: cancelled on paper, because the two factors have different reasons.
-  var h = 0.5 * Math.min(grid.dr, grid.dz), TWO_PI = 2 * Math.PI;
-  for (var k = 0; k < n; k++) {
-    var gk = geom[k], m = gk.keep.length;
-    if (!m) continue;
-    //: one chord at a time: the response for every kept sample of every
-    //: chord at once is 2600 x 4225 doubles on this deck, and it is thrown
-    //: away as soon as it is folded into eleven rows
-    var pts = new Array(2 * m);
-    for (var i = 0; i < m; i++) {
-      pts[2 * i] = [gk.r[i], gk.z2[i] + h];
-      pts[2 * i + 1] = [gk.r[i], gk.z2[i] - h];
-    }
-    var resp = P.loopResponse(fy, grid, pts);
-    for (i = 0; i < m; i++) {
-      var f = TWO_PI * w[gk.keep[i]] * gk.ds * densityAt(spec, gk.x[i]) *
-              (-1 / (2 * h * TWO_PI * gk.r[i]));
-      if (!f) continue;
-      var up = 2 * i * NGc, dn = (2 * i + 1) * NGc, dst = k * NGc;
-      for (var c = 0; c < NGc; c++)
-        rows[dst + c] += f * (resp[up + c] - resp[dn + c]);
-    }
-  }
-  return rows;
-}
-
-/**
- * `integral n_e B_R,coil ds` per chord — what the COILS put into a Faraday
- * reading.
- *
- * ★★THE HALF THAT IS NOT THE PLASMA, and leaving it out is the same mistake
- * the probe rows record: the response rows answer "what does a unit of
- * PLASMA current do here", while a polarimeter reads the whole field.
- * Handing the full reading to a plasma-only row block asks the plasma to
- * account for the coils as well, and the fit obliges — with a current
- * distribution that is simply not the one that was there.
- *
- * ★Read off the external psi map with the kernel's own `b_field`, which is
- * the same difference the plasma rows are built from — the coils' share has
- * to be subtracted in the units and with the discretisation the rows model,
- * not in a second one.
- */
-function chordCoilField(geom, dens, chan) {
-  var pe = psiExtOf(chan), out = new Float64Array(geom.length);
-  for (var k = 0; k < geom.length; k++) {
-    var gk = geom[k], m = gk.keep.length;
-    if (!m) continue;
-    var bf = P.bField(grid, pe, Float64Array.from(gk.r),
-                      Float64Array.from(gk.z2));
-    var vals = [];
-    for (var i = 0; i < m; i++)
-      vals.push(bf.br[i] * densityAt(dens, gk.x[i]));
-    out[k] = chordIntegral(gk, vals);
-  }
-  return out;
+  var inputs = { device: deviceDoc(), discharge: disc,
+                 equilibrium: { time_slice: { global_quantities: { psi_axis: res.psiAxis, psi_boundary: res.psiBnd },
+                                              profiles_2d: { psi: Float64Array.from(res.psi) } } } };
+  var rec = fy.complete('code/chords', { settings: settings, inputs: inputs });
+  var X = function (k) { return rec.facts[k] ? rec.facts[k].value : undefined; };
+  var F = function (k) { return rec.fields[k] ? fieldFlat(rec, k) : null; };
+  var chords = pt.interferometer, n = chords.length;
+  var spec2 = { ne0: spec.ne0, peaking: spec.peaking, zeff: spec.zeff,
+                profile: (spec.profile && spec.profile.length)
+                  ? Array.prototype.slice.call(spec.profile) : null };
+  var point = { name: chords.map(function (c) { return c.name; }),
+                spec: spec2,
+                z: chords.map(function (c) { return (c.first_point || {}).z; }),
+                nel: F('chord_nel'), nel19: F('chord_nel19'),
+                bpolar: F('chord_bpolar'), angleDeg: F('chord_angle_deg'), chordLength: F('chord_length'),
+                source: spec.profile && spec.profile.length ? 'imported' : 'parametrised' };
+  var fit = null;
+  if (rec.facts.fit_ne0)
+    fit = { ne0: X('fit_ne0'), peaking: X('fit_peaking'), chi2: X('fit_chi2'), used: X('fit_used'),
+            model: F('fit_model'), step: X('fit_step'), atEdge: X('fit_at_edge') === 1 };
+  return { point: point, fit: fit, rows: F('faraday_rows'), coil: F('chord_coil'),
+           viaRows: F('faraday_via_rows'), rowsVsFieldRel: X('faraday_rows_vs_field'), n: n };
 }
 
 /**
@@ -2449,69 +2184,6 @@ function faradayTarget(angleDeg) {
   if (!cFar) return NaN;
   return angleDeg * Math.PI / 180 / (2 * cFar);
 }
-
-function pointPredictions(res, spec, geom) {
-  var pt = M.point;
-  if (!pt || !pt.interferometer || !pt.interferometer.length) return null;
-  if (!spec || !spec.on) return { needsDensity: true };
-  var chords = pt.interferometer, n = chords.length;
-  var nel = new Float64Array(n), bpol = new Float64Array(n),
-      ang = new Float64Array(n), lenIn = new Float64Array(n);
-  var cFar = (pt['fylite:faraday_constant'] || 0) *
-             Math.pow(pt['fylite:laser_wavelength'] || 0, 2);
-  var g = geom || chordGeometry(res);
-  if (!g) return null;
-
-  for (var k = 0; k < n; k++) {
-    var gk = g[k], ne = [], nb = [];
-    for (var i = 0; i < gk.keep.length; i++) {
-      var d = densityAt(spec, gk.x[i]);
-      ne.push(d); nb.push(d * gk.br[i]);
-    }
-    try {
-      nel[k] = chordIntegral(gk, ne);
-      bpol[k] = chordIntegral(gk, nb) / 1e19;
-    } catch (e2) { return { error: e2.message }; }
-    ang[k] = cFar ? bpol[k] * 1e19 * cFar * 2 * 180 / Math.PI : NaN;
-    lenIn[k] = gk.inside * gk.ds;
-  }
-  //: ★the SPEC, not just the sampled profile: the integral evaluates n_e at
-  //: arbitrary psi_N along each chord, so a ladder of 24 values is not enough
-  //: to reproduce it — anyone checking this number has to be able to build
-  //: the same density the page built
-  var spec2 = { ne0: spec.ne0, peaking: spec.peaking, zeff: spec.zeff,
-                profile: (spec.profile && spec.profile.length)
-                  ? Array.prototype.slice.call(spec.profile) : null };
-  return { name: chords.map(function (c) { return c.name; }),
-           spec: spec2,
-           z: chords.map(function (c) { return (c.first_point || {}).z; }),
-           nel: nel, nel19: Float64Array.from(nel, function (v) { return v / 1e19; }),
-           bpolar: bpol, angleDeg: ang, chordLength: lenIn,
-           source: spec.profile && spec.profile.length ? 'imported' : 'parametrised' };
-}
-
-// --- the bootstrap current, and the two analytic models side by side -------
-//
-// ★A reconstruction fits p' and FF'; it does not know how the current is
-// SHARED between the ohmic and bootstrap channels, and nothing in the
-// magnetics tells it.  What decides that share is n_e and T_e SEPARATELY —
-// the bootstrap drive is a pressure gradient carried by trapped particles at
-// a collisionality, and collisionality needs a density and a temperature,
-// not their product.  So this block runs only when a density profile is
-// supplied, and it says which one it used.
-//
-// ★★T_e is DERIVED, not measured: with `ni = ne` and `Ti = Te`, the fitted
-// pressure gives `Te[eV] = p / (2 * ne * e)`.  That is an assumption about
-// the ion channel, and it travels with every number below rather than being
-// buried — a page that showed a bootstrap profile without saying which
-// temperature produced it would be showing a curve nobody can check.
-//
-// ★The two currents are in DIFFERENT UNITS on purpose.  `redlBootstrap`
-// returns |<j.B>|/B0 in A/m^2, which is a current; `neoSauter` returns NEO's
-// own normalised `jpar`, which is not.  They are drawn on two panels and
-// never subtracted from one another, and the fit's own <j_phi> is a third
-// measure again — the difference between <j_phi> and j_bs is NOT J_ohm, and
-// this file does not pretend otherwise.
 
 var EV_J = 1.602176634e-19;
 

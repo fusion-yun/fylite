@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'eb33fa972ba4d789'
+DIGEST = 'cc3a658ab29a77d4'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -147,6 +147,10 @@ TABLES = {
             'row_extra': {"path": 'fylite:row_extra', "units": '1', "rank": '2d'},
             'meas_extra': {"path": 'fylite:meas_extra', "units": '1', "rank": '1d'},
             'weight_extra': {"path": 'fylite:weight_extra', "units": '1', "rank": '1d'},
+            'ne_profile': {"path": 'fylite:ne_profile', "units": 'm^-3', "rank": '1d'},
+            'chord_nel': {"path": 'fylite:chord_nel', "units": 'm^-2', "rank": '1d'},
+            'chord_nel_weight': {"path": 'fylite:chord_nel_weight', "units": '1', "rank": '1d'},
+            'current_cells': {"path": 'fylite:current_cells', "units": 'A', "rank": '2d'},
         },
     },
     'EQUILIBRIUM': {
@@ -323,6 +327,7 @@ BLOCKS = {
         {'key': 'steady_current', 'shape': '', 'units': 'assembled', 'gloss': "one stationary round's current half (the page's evStationaryCurrent, 第二十一刀): the steady poloidal flux at the matched profiles by the current channel alone (transport::core_march at the resistive time), the loop voltage found by secant on the enclosed current, the frozen-closure re-solve reported beside it, the sawtooth the new q may have made possible"},
         {'key': 'wave', 'shape': '', 'units': 'assembled', 'gloss': "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics"},
         {'key': 'forward', 'shape': '', 'units': 'assembled', 'gloss': "one forward free-boundary equilibrium on the device from the channel currents and the analytic p'/FF' family: the coil flux (or a given external flux, a warm start), one free solve, the analytic truth's profiles and cell current, the loop model and the probe readings that field implies"},
+        {'key': 'chords', 'shape': '', 'units': 'assembled', 'gloss': "the point diagnostics on a psi map (the analysis page's interferometer / polarimeter block): the chords sampled through the box and the plasma, the line density and the Faraday integral each chord reads, the coils' share, the Faraday rows for a fit, the density fitted back to the chord readings"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
@@ -647,4 +652,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'y_init']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'y_init']

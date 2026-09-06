@@ -350,6 +350,22 @@
   "pressure_x": {
    "gated": false,
    "gloss": "The normalised-flux abscissae of the kinetic rows, one per row (`code/reconstruction`); with `pressure_weight` bound the rows are taken as given at these points, else `pressure` is interpolated onto them. Not gated: the page's `xp`, a bare local."
+  },
+  "ne_profile": {
+   "gated": false,
+   "gloss": "An electron density profile [m^-3] on uniform normalised flux, read linearly — the density a chord integral is taken through when a profile rather than the parametrised shape is meant (`code/chords`, 第三十四刀). Not gated: the page's `spec.profile`, a bare local."
+  },
+  "chord_nel": {
+   "gated": false,
+   "gloss": "Measured line densities [m^-2], one per interferometer chord; bound, `code/chords` fits `(n_e0, alpha)` back to them by the page's grid scan. Not gated: the page's `nel`, a bare local in both hosts."
+  },
+  "chord_nel_weight": {
+   "gated": false,
+   "gloss": "The weight of each chord's line-density reading in the density fit; zero switches a chord off (`code/chords`). Not gated: bound beside its readings, never bare."
+  },
+  "current_cells": {
+   "gated": false,
+   "gloss": "A fitted toroidal current over the interior cells [A], `(nr-2)*(nz-2)`, handed back to `code/chords` so the Faraday rows can be contracted with it — the reading by the rows route, beside the sampled field's. Not gated: the page's `fitCur`, a bare local."
   }
  }
 }
