@@ -27,7 +27,9 @@
 // POINT chords twice (第三十四刀: `code/chords`), on the twin and on the deck,
 // and the bootstrap closure twice (第三十五刀: `code/bootstrap`), on the deck fit
 // and through the twin's self-consistent outer loop; then a three-slice time
-// series with its self-calibration over the slices (第三十六刀: `code/selfcal`).
+// series with its self-calibration over the slices (第三十六刀: `code/selfcal`);
+// and the vessel as an unknown twice (第三十七刀: `code/vessel`), on the twin
+// with an injected current and on the deck with the probes in.
 //
 // Run: node app/tests/validate-worker-recon.mjs [--record]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -153,6 +155,16 @@ const CONFIGS = {
   twin_closure: { source: 'twin',
                   density: { on: true, ne0: 3.5e19, peaking: 0.5, zeff: 1.5, profile: null, temperature: null, fitChords: false },
                   closure: { on: true, iters: 2, tol: 0.01 } },
+  //: ★第三十七刀: the VESSEL as an unknown (`code/vessel`) — the twin with a
+  //: current injected into its shells and the loops asked to recover it
+  //: (loops alone: the page must say whether the groups are identifiable),
+  //: and the deck on the raw basis with the probes in, two outer passes
+  twin_inject_fit: { source: 'twin', vessel: { on: true, rcond: 0.05, outer: 2, minSurvive: 0.10, twinInject: 5e3 } },
+  deck_vessel_probes: { loopMeasTotal: Array.from(R.loopMeasTotal), ipOverride: R.ipMeasured, probeFit: PF,
+                        vessel: { on: true, rcond: 0.05, outer: 2, minSurvive: 0.10, twinInject: 0 } },
+  //: the twin with its probes in the fit: the block a shell current is seen by
+  twin_inject_fit_probes: { source: 'twin', probeFit: PF,
+                            vessel: { on: true, rcond: 0.05, outer: 2, minSurvive: 0.10, twinInject: 5e3 } },
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
@@ -187,7 +199,9 @@ function pick(m) {
     truthQ: m.truthQ ? { x: arr(m.truthQ.x), q: arr(m.truthQ.q), f: arr(m.truthQ.f), q0: m.truthQ.q0, q95: m.truthQ.q95 } : null,
     truthJphi: m.truthJphi ? { x: arr(m.truthJphi.x), j: arr(m.truthJphi.j) } : null,
     clean: arr(m.clean),
-    vessel: m.vessel ? { truth: arr(m.vessel.truth), error: m.vessel.error } : null,
+    vessel: m.vessel ? { truth: arr(m.vessel.truth), error: m.vessel.error, names: m.vessel.names, current: arr(m.vessel.current),
+                         kept: m.vessel.kept, condition: m.vessel.condition, survive: m.vessel.survive, rows: m.vessel.rows,
+                         singular: m.vessel.singular, singularRaw: m.vessel.singularRaw, rcond: m.vessel.rcond } : null,
     point: m.point ? { nel: arr(m.point.nel), bpolar: arr(m.point.bpolar), angleDeg: arr(m.point.angleDeg),
                        chordLength: arr(m.point.chordLength), z: m.point.z, spec: m.point.spec, source: m.point.source,
                        needsDensity: m.point.needsDensity } : null,

@@ -394,6 +394,10 @@
   "selfcal_ratio": {
    "gated": false,
    "gloss": "A time series' model/measured ratio matrix, one row per slice and one column per channel, NaN where a channel was not read — `code/selfcal` takes each channel's factor over the slices, its scatter and the slice count from it. Not gated: the series' `ratio`, a bare local."
+  },
+  "vessel_current": {
+   "gated": false,
+   "gloss": "The current of every vessel group [A], in the device deck's `fylite:group` first-appearance order — `code/vessel` adds the flux those currents make on the grid (`vessel_psi`). Not gated: a group total under a uniform loop voltage, the page's own vessel model."
   }
  }
 }

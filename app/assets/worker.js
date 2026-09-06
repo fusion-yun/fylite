@@ -2328,130 +2328,59 @@ function selfcalOf(meas, model, wts, tol) {
 
 var vesselCache = null;
 
-/** The vessel groups the deck declares, with their per-element weights. */
+/**
+ * The vessel groups the deck declares — NAMES ONLY, in the door's order
+ * (first appearance over the units that carry elements; a unit without a
+ * `fylite:group` is `vessel`).  ★第三十七刀: the weights, the responses and
+ * the fit are `code/vessel`'s; what stays here is the deck's own spelling
+ * of the group names, which a record of numbers does not carry.
+ */
 function vesselGroups() {
   if (vesselCache) return vesselCache;
   var v = M.vessel || [];
-  if (!v.length) return (vesselCache = { names: [], weight: null });
+  if (!v.length) return (vesselCache = { names: [], n: 0 });
   var names = [], idx = {};
   v.forEach(function (e) {
     var g = e.group || 'vessel';
     if (idx[g] === undefined) { idx[g] = names.length; names.push(g); }
   });
-  //: conductance per element, normalised inside its own group: a group's
-  //: fitted current is a TOTAL, and how it sits inside the group is the
-  //: model above rather than another unknown
-  var w = new Float64Array(names.length * v.length), sum = new Float64Array(names.length);
-  v.forEach(function (e, i) {
-    var g = idx[e.group || 'vessel'];
-    var eta = e.eta || M.vessel_resistivity_uohm_m || 1;
-    var c = Math.abs(e.w * e.h) / eta;
-    w[g * v.length + i] = c;
-    sum[g] += c;
-  });
-  for (var g = 0; g < names.length; g++)
-    for (var i = 0; i < v.length; i++)
-      if (sum[g] > 0) w[g * v.length + i] /= sum[g];
-  vesselCache = { names: names, weight: w, n: v.length };
+  vesselCache = { names: names, n: v.length };
   return vesselCache;
 }
 
-/** Per-group flux at the loops [Wb/rad per A] and on the grid [Wb per A]. */
+/** One `code/vessel` call on the device, with the rows (if any) bound. */
+function vesselDoor(disc, eq, settings) {
+  var inputs = { device: deviceDoc() };
+  if (disc) inputs.discharge = disc;
+  if (eq) inputs.equilibrium = eq;
+  return fy.complete('code/vessel', { settings: settings || {}, inputs: inputs });
+}
+
+/**
+ * Per-group flux at the loops [Wb/rad per A], on the grid [Wb per A] and at
+ * the probes [T per A] — `code/vessel`'s response block, read once.
+ */
 function vesselResponse() {
   var vg = vesselGroups();
   if (!vg.names.length) return null;
   if (vg.loops) return vg;
-  var v = M.vessel, ng = vg.names.length, nl = M.loops.length;
-  var els = v.map(function (e) {
-    return { r: e.r, z: e.z, w: e.w, h: e.h, a1: e.a1 || 0, a2: e.a2 || 0 };
-  });
-  var lr = Float64Array.from(M.loops, function (p) { return p[0]; });
-  var lz = Float64Array.from(M.loops, function (p) { return p[1]; });
-  var atLoops = P.coilPointResponse(fy, els, lr, lz, 3, 3);
-  var atGrid = P.coilGridResponse(fy, els, grid, 3, 3);
-  var loopsG = new Float64Array(ng * nl), gridG = new Float64Array(ng * NG);
-  for (var g = 0; g < ng; g++)
-    for (var e = 0; e < v.length; e++) {
-      var wgt = vg.weight[g * v.length + e];
-      if (!wgt) continue;
-      for (var i = 0; i < nl; i++)
-        //: ★Wb/rad at the loops, because that is the unit the measurements
-        //: and the loop model are in; the grid stays FULL flux, because that
-        //: is what `psiExt` is
-        loopsG[g * nl + i] += wgt * atLoops.psi[e * nl + i] * MEAS_SCALE;
-      for (var c = 0; c < NG; c++)
-        gridG[g * NG + c] += wgt * atGrid.psi[e * NG + c];
-    }
-  vg.loops = loopsG; vg.grid = gridG;
-  //: ★AND AT THE PROBES, when the deck has them.  A probe sits centimetres
-  //: from the vessel and a flux loop sees it from outside everything, so
-  //: whether the vessel is identifiable at all is mostly a question about
-  //: this block.  Units are tesla per amp — what the probe rows carry —
-  //: with no 2 pi: that factor belongs to the solver's flux scale.
-  if (M.probes && M.probes.length) {
-    var np = M.probes.length;
-    var pr = Float64Array.from(M.probes, function (p) { return p.r; });
-    var pz = Float64Array.from(M.probes, function (p) { return p.z; });
-    var ang = Float64Array.from(M.probes,
-                                function (p) { return p.angle * Math.PI / 180; });
-    var atP = fy.elementProbeResponse(els, pr, pz, ang, 3, 3);
-    var probesG = new Float64Array(ng * np);
-    for (var g2 = 0; g2 < ng; g2++)
-      for (var e2 = 0; e2 < v.length; e2++) {
-        var wg2 = vg.weight[g2 * v.length + e2];
-        if (!wg2) continue;
-        for (var p2 = 0; p2 < np; p2++)
-          probesG[g2 * np + p2] += wg2 * atP[p2 * v.length + e2];
-      }
-    vg.probes = probesG;
-  }
+  var rec = vesselDoor();
+  vg.loops = fieldFlat(rec, 'vessel_loops');
+  vg.grid = fieldFlat(rec, 'vessel_grid');
+  if (M.probes && M.probes.length) vg.probes = fieldFlat(rec, 'vessel_probes');
   return vg;
 }
 
-/** The external flux those group currents add, on the grid. */
+/** The external flux those group currents add, on the grid (`code/vessel`). */
 function vesselPsi(cur) {
-  var vg = vesselResponse();
-  if (!vg) return null;
-  return P.combine(vg.grid, cur, NG);
-}
-
-/**
- * The loop signature of each plasma basis coefficient, at the current
- * surfaces.
- *
- * ★`fitted_current` is LINEAR in the coefficients — that is the whole
- * content of the fit — so one unit vector per coefficient gives the design
- * block the loops see.  It is rebuilt per pass because the mask and the
- * surfaces are not fixed: within a pass they are.
- */
-function plasmaLoopColumns(res, npp, nff, withProbes) {
-  var nc = npp + nff, nl = M.loops.length;
-  var pm = withProbes ? probeRows() : null;
-  var np = pm ? M.probes.length : 0, nrow = nl + np;
-  var mask = P.plasmaMask(grid, res.psi, res.psiAxis, res.psiBnd,
-                          M.limiter.r, M.limiter.z, 1);
-  var cols = new Float64Array(nc * nrow);
-  for (var k = 0; k < nc; k++) {
-    var e = new Float64Array(nc);
-    e[k] = 1;
-    var cur = P.fittedCurrent(grid, res.psi, res.psiAxis, res.psiBnd, e,
-                              npp, nff, mask);
-    var m = P.loopModel(loopsM, cur, grid, MEAS_SCALE);
-    for (var i = 0; i < nl; i++) cols[k * nrow + i] = m[i];
-    if (pm) {
-      //: the probe rows carry the solver's 2 pi pre-scale, and `loopModel`
-      //: applies `meas_scale` on top — so this comes back in tesla, which is
-      //: the unit the probe measurements are in
-      var mp = P.loopModel(pm, cur, grid, MEAS_SCALE);
-      for (i = 0; i < np; i++) cols[k * nrow + nl + i] = mp[i];
-    }
-  }
-  return { cols: cols, nc: nc, nrow: nrow, nLoops: nl, nProbes: np };
+  var vg = vesselGroups();
+  if (!vg.names.length) return null;
+  return fieldFlat(vesselDoor({ 'fylite:vessel_current': Float64Array.from(cur) }), 'vessel_psi');
 }
 
 /**
  * The group currents that best explain what the loops see and the PLASMA
- * CANNOT.
+ * CANNOT — `code/vessel`'s fit.
  *
  * ★★THE FIRST VERSION OF THIS DIVERGED, and the reason is worth keeping.
  * It fitted the vessel to the residual left by the plasma fit, added the
@@ -2467,92 +2396,53 @@ function plasmaLoopColumns(res, npp, nff, withProbes) {
  * unknowns to the kernel's solver — Frisch-Waugh-Lovell: the joint estimate
  * of the vessel block equals the regression of the residualised
  * measurements on the residualised vessel response, where "residualised"
- * means projected orthogonal to the plasma block's own columns.  So both
- * sides are regressed on `plasmaLoopColumns` first, and the vessel is left
- * with exactly what no plasma in this family could have produced.
+ * means projected orthogonal to the plasma block's own columns.  The door
+ * regresses both sides on the plasma basis' own loop (and probe) signatures
+ * first, and the vessel is left with exactly what no plasma in this family
+ * could have produced.
  *
- * ★The projection is done with the kernel's own solves (D-4): a normal
- * equation written out here would be a second linear algebra.
+ * ★EVERY MAGNETIC ROW THE FIT WAS GIVEN, not only the loops.  Whether the
+ * vessel can be seen at all is mostly a question about the PROBES: a loop
+ * outside everything sees a shell current as one more contribution to the
+ * same enclosed flux the plasma makes, while a probe sitting centimetres
+ * from that shell sees its own field.  Measured on the twin: with loops
+ * alone 5.6 % of the vessel signature survives being projected out of the
+ * plasma's reach, which is less than the fit's own model error.
  */
 function fitVessel(inp, mem, msg, rcond) {
   var vg = vesselResponse();
   if (!vg) return null;
-  //: ★EVERY MAGNETIC ROW THE FIT WAS GIVEN, not only the loops.  Whether the
-  //: vessel can be seen at all is mostly a question about the PROBES: a loop
-  //: outside everything sees a shell current as one more contribution to the
-  //: same enclosed flux the plasma makes, while a probe sitting centimetres
-  //: from that shell sees its own field.  Measured on the twin: with loops
-  //: alone 5.6 % of the vessel signature survives being projected out of the
-  //: plasma's reach, which is less than the fit's own model error.
-  var ng = vg.names.length, nl = inp.nLoops, i, g;
+  var nl = inp.nLoops;
   var useProbes = !!(inp.nProbes && vg.probes);
-  var np = useProbes ? inp.nProbes : 0, nrow = nl + np;
-  var pc = plasmaLoopColumns(mem.raw, msg.npp, msg.nff, useProbes), nc = pc.nc;
-  var w = new Float64Array(nrow);
-  for (i = 0; i < nrow; i++) w[i] = inp.wts[i] || 0;
-  var A = new Float64Array(nrow * nc);
-  for (i = 0; i < nrow; i++)
-    for (var k = 0; k < nc; k++) A[i * nc + k] = pc.cols[k * pc.nrow + i];
-
-  /** `y` with everything the plasma block could have explained taken out. */
-  function residualise(y) {
-    var c = P.ridgeLstsq(A, y, w, nrow, nc, new Float64Array(nc));
-    if (!c) return null;
-    var out = new Float64Array(nrow);
-    for (var r = 0; r < nrow; r++) {
-      var v = y[r];
-      for (var k2 = 0; k2 < nc; k2++) v -= A[r * nc + k2] * c[k2];
-      out[r] = v;
-    }
-    return out;
-  }
-
-  var b = new Float64Array(nrow), modelP = null;
-  for (i = 0; i < nl; i++) b[i] = inp.meas[i] - mem.model[i];
+  var np = useProbes ? inp.nProbes : 0;
+  var disc = {
+    'fylite:loop_plasma': Float64Array.from(inp.meas.slice(0, nl)),
+    'fylite:loop_weight': Float64Array.from(inp.wts.slice(0, nl)),
+    'fylite:current_cells': Float64Array.from(mem.fitCur),
+  };
   if (useProbes) {
-    //: the probe block's model is the same rows the solver was given,
-    //: contracted with the fitted current — plasma-only, like its
-    //: measurements
-    modelP = P.loopModel(probeRows(), mem.fitCur, grid, MEAS_SCALE);
-    for (i = 0; i < np; i++) b[nl + i] = inp.meas[nl + i] - modelP[i];
+    disc['fylite:probe_plasma'] = Float64Array.from(inp.meas.slice(nl, nl + np));
+    disc['fylite:probe_weight'] = Float64Array.from(inp.wts.slice(nl, nl + np));
   }
-  var bt = residualise(b);
-  if (!bt) return { error: 'plasma-projection-singular' };
-  var At = new Float64Array(nrow * ng);
-  for (g = 0; g < ng; g++) {
-    var col = new Float64Array(nrow);
-    for (i = 0; i < nl; i++) col[i] = vg.loops[g * nl + i];
-    for (i = 0; i < np; i++) col[nl + i] = vg.probes[g * M.probes.length + i];
-    var ct = residualise(col);
-    if (!ct) return { error: 'plasma-projection-singular' };
-    for (i = 0; i < nrow; i++) At[i * ng + g] = w[i] * ct[i];
-  }
-  var bw = new Float64Array(nrow);
-  for (i = 0; i < nrow; i++) bw[i] = w[i] * bt[i];
-  //: ★HOW MUCH OF THE VESSEL SURVIVES THE PROJECTION is the answer to "can
-  //: these channels see the vessel at all".  The raw block's own singular
-  //: values are computed too, and the ratio is reported: a vessel whose
-  //: response is 99 % inside what the plasma basis can imitate is not
-  //: badly conditioned, it is UNMEASURED — and the two must not read alike.
-  var Aw = new Float64Array(nrow * ng);
-  for (i = 0; i < nrow; i++)
-    for (g = 0; g < ng; g++)
-      Aw[i * ng + g] = w[i] * (i < nl ? vg.loops[g * nl + i]
-                                      : vg.probes[g * M.probes.length + i - nl]);
-  var r2, raw;
+  var res = mem.raw;
+  var eq = { time_slice: { global_quantities: { psi_axis: res.psiAxis, psi_boundary: res.psiBnd },
+                           profiles_2d: { psi: Float64Array.from(res.psi) } } };
+  var rec;
   try {
-    r2 = fy.svdSolve(At, bw, nrow, ng, rcond === undefined ? 0.05 : rcond, 0);
-    raw = fy.svdSolve(Aw, bw, nrow, ng, 1e-12, 0);
+    rec = vesselDoor(disc, eq, { npp: msg.npp, nff: msg.nff,
+                                 rcond: rcond === undefined ? 0.05 : rcond });
   } catch (e) {
+    //: the door's two refusals, in the names the page has always shown
+    if (/plasma-projection-singular/.test(e.message))
+      return { error: 'plasma-projection-singular' };
     return { error: 'svd-failed: ' + e.message };
   }
-  var survive = raw && raw.singular[0] > 0
-    ? r2.singular[0] / raw.singular[0] : NaN;
-  return { names: vg.names, current: r2.x, kept: r2.kept,
-           condition: r2.condition, survive: survive,
+  var X = function (k) { return rec.facts[k].value; };
+  return { names: vg.names, current: fieldFlat(rec, 'vessel_current'), kept: X('kept'),
+           condition: X('condition'), survive: X('survive'),
            rows: { loops: nl, probes: np },
-           singular: Array.prototype.slice.call(r2.singular),
-           singularRaw: Array.prototype.slice.call(raw ? raw.singular : []) };
+           singular: Array.from(fieldFlat(rec, 'singular')),
+           singularRaw: Array.from(fieldFlat(rec, 'singular_raw')) };
 }
 
 // --- a discharge, not a moment ---------------------------------------------
