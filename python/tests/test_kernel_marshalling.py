@@ -336,47 +336,8 @@ def test_an_adaptive_steady_solve_is_refused_at_the_boundary():
 # refusals.
 
 
-def test_the_deltastar_operator_returns_the_solovev_source():
-    """★The Δ* OPERATOR (ABI v114), against the analytic oracle its solver
-    is already held to.
-
-    Solov'ev: ``Δ*(f/8 R^4 + g/2 Z^2 + c R^2) = f R^2 + g``, exactly — the
-    conservative stencil reproduces that class to rounding, which is why the
-    solver's own gate uses it (``tests/test_rust_kernels.py``).  Applying the
-    operator to the closed form must return the closed-form source.
-
-    ★It is on the ABI for T-C22: the repo declares COCOS 17 in four places
-    and nothing tested the declaration.  The check that needs neither the
-    COCOS table nor anyone's memory is the kernel's own written equation —
-    ``Δ*ψ = −μ0 R² p' − F F'`` — on a real equilibrium, and getting the
-    left-hand side without this entry meant re-writing the stencil in the
-    host, i.e. a second spelling of the operator under test.
-    """
-    import numpy as np
-    from fylite import kernel as K
-
-    n = 65
-    r = np.linspace(1.2, 2.4, n)
-    z = np.linspace(-0.7, 0.7, n)
-    f_, g_, c2 = -1.2, -0.8, 0.35
-    rr, zz = r[:, None], z[None, :]
-    psi = f_ / 8.0 * rr ** 4 + g_ / 2.0 * zz ** 2 + c2 * rr ** 2
-    want = np.broadcast_to(f_ * rr ** 2 + g_, (n, n))
-
-    got = K.deltastar_apply(r, z, psi)
-    assert got.shape == (n, n)
-    #: the stencil is not defined on the border and says so by leaving it
-    assert np.array_equal(got[0, :], np.zeros(n))
-    assert np.array_equal(got[:, -1], np.zeros(n))
-    err = float(np.max(np.abs(got[1:-1, 1:-1] - want[1:-1, 1:-1])))
-    assert err < 1e-9, f"the operator is not the Solov'ev source: {err:.3e}"
+#: ★the Δ* operator's two gates left with the wrapper for the kernel repository's
+#: `tests/test_oracle_marshalling.py` (T-4 第二十九刀, 2026-09-06): `code/cocos`
+#: measures the convention now.
 
 
-def test_the_deltastar_operator_refuses_a_mismatched_grid():
-    import numpy as np
-    import pytest as _pytest
-    from fylite import kernel as K
-
-    with _pytest.raises(K.KernelError, match="the grid is"):
-        K.deltastar_apply(np.linspace(1, 2, 5), np.linspace(-1, 1, 5),
-                          np.zeros((5, 4)))

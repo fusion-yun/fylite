@@ -22,7 +22,6 @@ extern "C" {
     fn fylite_rs_core_march_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: u64, _10: u64, _11: *mut f64, _12: *mut f64, _13: *mut f64, _14: *mut f64, _15: *mut f64) -> i32;
     fn fylite_rs_core_march_result(_0: *const f64, _1: u64, _2: u64, _3: u64, _4: *mut f64, _5: *mut f64, _6: *mut f64, _7: *mut f64, _8: *mut f64, _9: *mut f64, _10: *mut f64, _11: *mut f64) -> i32;
     fn fylite_rs_core_march_state_len(_0: u64, _1: u64) -> u64;
-    fn fylite_rs_deltastar_apply(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: *const f64, _5: *mut f64) -> i32;
     fn fylite_rs_direct_integrals(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: *const f64, _8: u64, _9: *const f64, _10: *const f64, _11: u64, _12: *const f64, _13: u64, _14: *mut f64, _15: *mut f64) -> i32;
     fn fylite_rs_dispersion_root(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: f64, _8: *mut f64) -> i32;
     fn fylite_rs_dke_assemble(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: u64, _8: *const f64, _9: u64, _10: u64, _11: u64, _12: f64, _13: f64, _14: i32, _15: *mut f64, _16: u64) -> i32;
@@ -93,7 +92,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_core_march_next",
     "fylite_rs_core_march_result",
     "fylite_rs_core_march_state_len",
-    "fylite_rs_deltastar_apply",
     "fylite_rs_direct_integrals",
     "fylite_rs_dispersion_root",
     "fylite_rs_dke_assemble",
@@ -173,7 +171,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_core_march_next", &["out_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_core_march_result", &["in_f64", "u64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_core_march_state_len", &["u64", "u64"]),
-    ("fylite_rs_deltastar_apply", &["in_f64", "u64", "in_f64", "u64", "in_f64", "out_f64"]),
     ("fylite_rs_direct_integrals", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_dispersion_root", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_dke_assemble", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "f64", "f64", "i32", "out_f64", "u64"]),
@@ -276,10 +273,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_core_march_state_len" => {
             f.want(&["u64", "u64"], name)?;
             Ret::U64(unsafe { fylite_rs_core_march_state_len(f.u64(0)?, f.u64(1)?) })
-        }
-        "fylite_rs_deltastar_apply" => {
-            f.want(&["in_f64", "u64", "in_f64", "u64", "in_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_deltastar_apply(p[0] as *const f64, f.u64(1)?, p[2] as *const f64, f.u64(3)?, p[4] as *const f64, p[5] as *mut f64) })
         }
         "fylite_rs_direct_integrals" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "u64", "out_f64", "out_f64"], name)?;

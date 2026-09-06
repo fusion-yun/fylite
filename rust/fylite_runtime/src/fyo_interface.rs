@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "5955203bc524dc27";
+pub const DIGEST: &str = "aad4a2adc928a7ab";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -327,6 +327,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "ladder", shape: "", units: "assembled", gloss: "one equilibrium document traced once (Python's fyo.Ladder): the requested psi_N levels (fylite:ladder_levels, or n_surfaces from psin_min to edge) on the document's own psi map, axis, limiter, q and F tables and boundary — surfaces::equilibrium_ladder, the transport metrics and the local Miller shape of the SAME surfaces answered on the ladder rows" },
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
         Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
+        Row { key: "cocos", shape: "", units: "assembled", gloss: "what a psi map's own numbers say about the flux convention it is in (Python's geqdsk.measure_cocos): Δ*ψ by the kernel's stencil against −μ0 R² p' − FF' on the file's own tables, the four candidate gauges (per radian / total flux, dψ / dψ̄) scored by their max residual on the interior (inside the boundary outline when one is given), the winner, the runner-up and the margin" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

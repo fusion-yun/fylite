@@ -27,7 +27,6 @@ self.FyKernelAbi = {
   'fylite_rs_core_march_next': { a: ['out_f64', 'u64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'u64', 'u64', 'out_f64', 'out_f64', 'out_f64', 'out_f64', 'out_f64'], r: 'i32' },
   'fylite_rs_core_march_result': { a: ['in_f64', 'u64', 'u64', 'u64', 'out_f64', 'out_f64', 'out_f64', 'out_f64', 'out_f64', 'out_f64', 'out_f64', 'out_f64'], r: 'i32' },
   'fylite_rs_core_march_state_len': { a: ['u64', 'u64'], r: 'u64' },
-  'fylite_rs_deltastar_apply': { a: ['in_f64', 'u64', 'in_f64', 'u64', 'in_f64', 'out_f64'], r: 'i32' },
   'fylite_rs_direct_integrals': { a: ['f64', 'f64', 'f64', 'f64', 'u64', 'u64', 'in_f64', 'in_f64', 'u64', 'in_f64', 'in_f64', 'u64', 'in_f64', 'u64', 'out_f64', 'out_f64'], r: 'i32' },
   'fylite_rs_dispersion_root': { a: ['in_f64', 'in_f64', 'in_f64', 'u64', 'f64', 'f64', 'f64', 'f64', 'out_f64'], r: 'i32' },
   'fylite_rs_dke_assemble': { a: ['in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'u64', 'in_f64', 'u64', 'u64', 'u64', 'f64', 'f64', 'i32', 'out_f64', 'u64'], r: 'i32' },

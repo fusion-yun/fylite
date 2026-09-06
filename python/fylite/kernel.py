@@ -74,7 +74,7 @@ __all__ = [
     "INVERSE_COIL_KEYS", "INVERSE_KEYS", "INVERSE_FSA_KEYS",
         "with_axis_node",
     "two_temperature_march",
-    "deltastar_apply", "core_march", "label_drift",     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
+    "core_march", "label_drift",     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
                     "tglf_flux_searched", "shell_area",
             "resample_uniform", "to_uniform_extrap", "interp", "lh_deposit", "shell_table", "beam_deposit",
     "fast_ion_pressure", "selfcal_slices",
@@ -2077,53 +2077,6 @@ def core_march(rho, *, te, ti, ni, z=(1.0,), edge_ni=None, psi=0.0,
             "retries": int(info[5])}
 
 
-_sig("fylite_rs_deltastar_apply", [_ARR, _U64, _ARR, _U64, _ARR, _ARR], _I32)
-def deltastar_apply(grid_r, grid_z, psi):
-    """Δ*ψ on the kernel's own stencil — the OPERATOR, not the solve.
-
-    ``Δ* = R ∂/∂R (1/R ∂/∂R) + ∂²/∂Z²``, applied at interior points; the
-    border comes back as zeros (the stencil is not defined there).
-
-    ★It is here for T-C22.  The repo declares COCOS 17, and the check that
-    needs neither the COCOS table nor anyone's memory is the kernel's own
-    written equation on a real equilibrium:
-    ``Δ*ψ = −μ0 R² p'(ψ) − F F'(ψ)``.  Re-writing the stencil in this host
-    to get the left-hand side would have been a second spelling of the very
-    operator under test.
-    """
-    rg = _f(np.asarray(grid_r, float).ravel())
-    zg = _f(np.asarray(grid_z, float).ravel())
-    p = _f(np.ascontiguousarray(np.asarray(psi, float)))
-    if p.size != rg.size * zg.size:
-        raise KernelError(
-            f"psi is {p.size} long; the grid is {rg.size}x{zg.size}")
-    out = np.zeros(p.size)
-    rc = require().fylite_rs_deltastar_apply(rg, rg.size, zg, zg.size,
-                                             p.ravel(), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_deltastar_apply returned {rc}")
-    return out.reshape(rg.size, zg.size)
-
-
-#: What the INVERSE entry's `out12` carries — its own tuple, for the reason
-#: `INVERSE_COIL_KEYS` has one: the free solve packs an X-point into slots
-#: 7-8 and the inverse packs the feedback amplitude into 7.
-#:
-#: ★★This tuple is a FIX, not just an addition.  `gs_inverse_solve` used to
-#: name its buffer with `FREE_SOLVE_KEYS`, so `res["xpt_r"]` carried the
-#: feedback amplitude and `res["fb_amp"]` carried a hard 0.0 — a delivered
-#: reconstruction reported `fb_amp: 0.0` on every shot, and the number was
-#: never anything else.  The mislabel was known and written down beside
-#: `INVERSE_COIL_KEYS` (「is how res["xpt_r"] came to mean fb_amp on this
-#: entry's older sibling」) and left standing; it survived because a SHARED
-#: tuple cannot be checked against two different write orders — the row-order
-#: checker was verifying it against `gs_free_solve`, where it is correct.
-#: ★slots 10-11 carry the RADIAL feedback's amplitude and the CONDIN
-#: truncation's kept-mode count, on all three inverse entries.  `fb_amp_r`
-#: went unreported for the whole life of these entries — three comments in
-#: this tree named that as a defect before it was fixed — and `trunc_keep`
-#: is what makes a higher-order basis's failure legible: it dies upstream of
-#: the boundary rule, in how many directions the fit was allowed to move.
 INVERSE_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                 "residual", "bnd_kind", "fb_amp", "_", "_",
                 "fb_amp_r", "trunc_keep")

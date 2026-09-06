@@ -401,8 +401,6 @@ def measure_cocos(g: dict) -> dict:
     """
     import numpy as np
 
-    from .. import kernel as _K
-
     rec = {
         "psi_axis": ("minimum" if g["sibry"] > g["simag"] else "maximum"),
         "sign_ip": 1 if g.get("current", 0.0) >= 0 else -1,
@@ -434,97 +432,51 @@ def measure_cocos(g: dict) -> dict:
         rec["note"] = "simag equals sibry: there is no flux span to test on"
         return rec
     #: the profiles are tabulated against NORMALISED flux, which is what the
-    #: header's two levels define
+    #: header's two levels define — the door normalises by the same span
     span_solve = _candidate_span(g)
-    psibar = (psi - sim) / span_solve
-    look = np.clip(psibar, 0.0, 1.0)
-    xtab = np.linspace(0.0, 1.0, pp_tab.size)
-    pp = np.interp(look, xtab, pp_tab)
-    ffp = np.interp(look, xtab, ffp_tab)
 
-    mu0 = 4e-7 * np.pi
-    R = np.asarray(r, float)[:, None] * np.ones((1, len(z)))
-    bracket = -(mu0 * R ** 2 * pp + ffp)
+    #: ★T-4 第二十九刀 (2026-09-06): the measurement is `code/cocos` — the
+    #: kernel's own stencil against its own equation on the file's tables, the
+    #: interior mask, the four residuals in the candidate order named here, the
+    #: winner, the runner-up and the margin; bit for bit with the numpy this
+    #: function used to run around the flat `deltastar_apply`.  What stays
+    #: here is the record's wording.
+    rb = np.asarray(_seq(g.get("rbbbs")), float)
+    zb = np.asarray(_seq(g.get("zbbbs")), float)
+    slice_ = {"global_quantities": {"psi_axis": sim, "psi_boundary": sib},
+              "profiles_1d": {"dpressure_dpsi": pp_tab, "f_df_dpsi": ffp_tab},
+              "profiles_2d": {"grid": {"dim1": np.asarray(r, float), "dim2": np.asarray(z, float)},
+                              "psi": psi}}
+    if rb.size >= 5 and rb.size == zb.size:
+        slice_["boundary"] = {"outline": {"r": rb, "z": zb}}
     try:
-        lhs = _K.deltastar_apply(r, z, psi)
+        from . import fydoc
+        got = fydoc.complete("code/cocos", {"settings": {}, "inputs": {"equilibrium": {"time_slice": slice_}}})
     except Exception as e:                       # noqa: BLE001
         rec["note"] = f"the Δ* operator is unavailable: {e}"
         return rec
-
-    inner = np.zeros(psi.shape, bool)
-    inner[2:-2, 2:-2] = True
-    #: ★★INSIDE THE PLASMA BOUNDARY, not merely inside a psi_N band.  A band
-    #: is what an analytic fixture needs and it is WRONG on a real diverted
-    #: reconstruction: psi_N re-enters the same range in the private-flux
-    #: region and the near SOL, where the current is zero while the profile
-    #: lookup still hands back a p'/FF' — so a minority of points sit far off
-    #: the equation and a max-norm is decided by them.  ★Measured on three
-    #: EAST reconstructions (2026-08-26): the band gives 0.43 / 0.66 / 0.76
-    #: while the MEDIAN over the same points is 0.006 / 0.008 / 0.23 — the
-    #: bulk was closing all along and the mask was reporting the leak.
-    #: Inside the file's own boundary polygon: 0.019 / 0.049 / 0.464.
-    rb = np.asarray(_seq(g.get("rbbbs")), float)
-    zb = np.asarray(_seq(g.get("zbbbs")), float)
-    mask_kind = "psi_N band"
-    if rb.size >= 5 and rb.size == zb.size:
-        rg, zg = np.meshgrid(np.asarray(r, float), np.asarray(z, float),
-                             indexing="ij")
-        try:
-            ins = np.asarray(_K.inside_polygon(rg.ravel(), zg.ravel(), rb, zb)
-                             ).reshape(psi.shape).astype(bool)
-            inner = inner & ins
-            mask_kind = "inside the file's boundary polygon"
-        except Exception:                        # noqa: BLE001
-            pass
+    fact = lambda k: float(got["facts"][k]["value"])  # noqa: E731
+    #: ★★INSIDE THE PLASMA BOUNDARY, not merely inside a psi_N band (see the
+    #: door): the mask the door used is reported by kind
+    mask_kind = ("inside the file's boundary polygon" if fact("mask_kind") == 1.0
+                 else "psi_N band")
     rec["mask"] = mask_kind
-    sel = inner & (psibar > 0.05) & (psibar < 0.95)
-    if sel.sum() < 50:
+    if fact("reason") == 1.0:
         rec["note"] = ("too few interior points to test the equation on "
                        f"({mask_kind})")
         return rec
-
-    scored = {}
-    denom = float(np.max(np.abs(bracket[sel])))
-    for name, factor in _candidates(span_solve).items():
-        got = float(np.max(np.abs(lhs[sel] - factor * bracket[sel]))
-                    / max(abs(factor) * denom, 1e-300))
-        scored[name] = got
-    order = sorted(scored, key=scored.get)
-    best, second = order[0], (order[1] if len(order) > 1 else None)
-    margin = (scored[second] / scored[best]) if second and scored[best] > 0 \
-        else float("inf")
+    names = list(_candidates(span_solve))
+    residuals = np.asarray(got["fields"]["residuals"]["data"], float)
+    scored = {name: float(v) for name, v in zip(names, residuals)}
+    best, second = names[int(fact("winner"))], names[int(fact("runner_up"))]
+    margin = fact("margin")
     rec["margin"] = margin
     #: ★★THE DECISION IS THE MARGIN, and the residual is REPORTED rather
-    #: than thresholded.  They answer different questions, and an earlier
-    #: version of this rule conflated them:
-    #:
-    #:   margin    "which convention is this file in?"  — scale-free, which
-    #:             is what makes this a measurement.  The wrong candidates
-    #:             are off by 2*pi or by the span, so they land near 1
-    #:             WHATEVER the file's own quality is.
-    #:   residual  "how good is this file?"  — a question this function is
-    #:             not asked and cannot answer without knowing the file's
-    #:             grid and provenance.
-    #:
-    #: ★What forced the separation: this repo's OWN forward solve, on a 65x65
-    #: grid, writes g-files at residual 0.15-0.17 — an order worse than a
-    #: 129x129 EFIT reconstruction (0.019 / 0.073) because the grid is
-    #: coarser, and yet their convention is perfectly well determined
-    #: (margin 5.8).  A ceiling tuned to reconstructions refused them for
-    #: being coarse, which is not what「约定量不出来」means.
-    #:
-    #: ★Where 3.0 comes from, said plainly because a threshold moved after
-    #: seeing data has to be: the measured margins are 1.97 for the one file
-    #: that must be refused (EAST #63982, whose best candidate beats the next
-    #: by a factor of two — a coin toss, not a measurement) and
-    #: {5.8, 11.5, 44.7, 10143} for the four that must be accepted.  The cut
-    #: can sit anywhere in (1.97, 5.8); 3.0 is near the geometric middle
-    #: (sqrt(1.97*5.8) = 3.4), so neither side is grazing it.
-    #:
-    #: ★1.0 is NOT fitted to anything: it is where the residual equals the
-    #: term it is a residual of, and past that nothing has closed in any
-    #: sense worth the word.
-    if scored[best] < 1.0 and margin >= 3.0:
+    #: than thresholded (the door applies the rule; the reasons it was set
+    #: this way — 3.0 near the geometric middle of the measured margins,
+    #: 1.0 where the residual equals the term it is a residual of — are
+    #: recorded at the door and in this file's history).
+    if fact("decided") == 1.0:
         rec["profile_gauge"] = best
         rec["residual"] = scored[best]
         rec["runner_up"] = (second, scored[second]) if second else None
