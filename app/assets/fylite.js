@@ -69,14 +69,13 @@
     'fylite_rs_zerod_evaluate', 'fylite_rs_zerod_predict',
     'fylite_rs_vertical_stiffness', 'fylite_rs_coupling_gradient',
     'fylite_rs_ideal_stiffness', 'fylite_rs_dispersion_root',
-    'fylite_rs_mutual_matrix_self',
-    'fylite_rs_ellipke', 'fylite_rs_mutual_filaments',
+    'fylite_rs_ellipke',
     //: ★the electromagnetic entries this page used to write out in JS
     //: instead of calling: the channel fold (`Wx` and the folded field)
     //: and the resistance formula.  They were exported all along.
     'fylite_rs_mutual_outer', 'fylite_rs_channel_weights',
     'fylite_rs_channel_fold', 'fylite_rs_channel_field',
-    'fylite_rs_resistances', 'fylite_rs_element_probe_response',
+    'fylite_rs_element_probe_response',
     'fylite_rs_element_response', 'fylite_rs_gs_free_solve',
     //: T-D6′ — the free solve on a tabulated (delivered) p'/FF' shape
     'fylite_rs_gs_free_solve_tab',
@@ -84,7 +83,7 @@
     //: required rather than probed for: a build without it would leave the
     //: reconstruction bar silently back on「coils exactly known」, which is
     //: the failure this entry exists to remove.
-    'fylite_rs_evolve_circuits', 'fylite_rs_geo_surface',
+    'fylite_rs_geo_surface',
     'fylite_rs_bounded_lstsq',
     //: the NEO chain's two halves.  `neo_inputs` is the map that makes
     //: `neo_sauter` usable at all — without it a caller would have to
@@ -105,7 +104,7 @@
     'fylite_rs_adas_species_count', 'fylite_rs_adas_species_name',
     'fylite_rs_ridge_lstsq', 'fylite_rs_profile_fit', 'fylite_rs_li3',
     'fylite_rs_redl_bootstrap',
-    'fylite_rs_chord_samples', 'fylite_rs_quadrature',
+    'fylite_rs_quadrature',
     'fylite_rs_probe_response',
     //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
@@ -121,10 +120,7 @@
     'fylite_rs_zerod_averages',
     'fylite_rs_strike_points', 'fylite_rs_start_currents',
     'fylite_rs_fill_filaments', 'fylite_rs_x_points',
-    'fylite_rs_plasma_filaments', 'fylite_rs_channel_matrices',
-    'fylite_rs_filament_flux',
-    'fylite_rs_evolve_circuits',
-    //: ★the neutral-beam chain (ABI v105, already in every shipped
+    'fylite_rs_plasma_filaments',             //: ★the neutral-beam chain (ABI v105, already in every shipped
     //: artifact and reachable from Python alone).  Listed so a build
     //: without them fails at LOAD rather than at the first beam: a
     //: page that discovered a missing entry mid-march would already
@@ -363,19 +359,6 @@
   // --- L1 kernels -------------------------------------------------------
 
 
-  /** Elementwise filament-pair mutual inductance [H]; arrays are equal length. */
-  Fy.prototype.mutualFilaments = function (r1, z1, r2, z2) {
-    var self = this, n = r1.length;
-    return this.scope(function (s) {
-      var a = s.put(r1), b = s.put(z1), c = s.put(r2), d = s.put(z2),
-          o = s.zeros(n);
-      var rc = self.e.fylite_rs_mutual_filaments(a.ptr, b.ptr, c.ptr, d.ptr,
-                                                 BigInt(n), o.ptr);
-      if (rc !== 0) throw new Error('fylite_rs_mutual_filaments rc=' + rc);
-      return s.get(o);
-    });
-  };
-
   /**
    * Per-element (psi, Br, Bz) response at scattered points, per unit
    * TOTAL element current [A].  `coils` is an array of
@@ -595,24 +578,6 @@
         qr.ptr, qz.ptr, an.ptr, BigInt(npts),
         BigInt(nu || 3), BigInt(nv || 3), out.ptr);
       if (rc !== 0) throw new SolveError('fylite_rs_element_probe_response', rc);
-      return s.get(out);
-    });
-  };
-
-  /**
-   * Element resistances [Ohm]: `eta * 2 pi r / area`, x N^2 when wound.
-   *
-   * `eta` is per element in Ohm.m — a device deck quotes micro-Ohm.m, and
-   * that conversion belongs where the deck is read.
-   */
-  Fy.prototype.resistances = function (r, area, eta, turns) {
-    var self = this, n = r.length;
-    return this.scope(function (s) {
-      var rr = s.put(r), ar = s.put(area), et = s.put(eta),
-          tn = turns ? s.put(turns) : null, out = s.zeros(n);
-      var rc = self.e.fylite_rs_resistances(
-        rr.ptr, ar.ptr, et.ptr, tn ? tn.ptr : 0, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_resistances', rc);
       return s.get(out);
     });
   };

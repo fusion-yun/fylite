@@ -83,7 +83,7 @@ title: 输入模式 (Input Modes)
   （`recon_rs.coil_loop_rows` = `device.channel_response(...)/2π`），线圈→探针本来就是算的
   （`device.probe_element_response`）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
   文档**；`device.coil_response_tables` / `vessel_response_tables` 只剩"拿别人的表和几何对一遍"
-  这一个用途（`device.vessel_table_check`），活路上没有调用者（闸子
+  这一个用途（`device.vessel_table_check`，自 2026-09-06 归内核仓测试树 `tests/oracles/em_kernel.py`），活路上没有调用者（闸子
   `python/tests/test_one_machine_source.py`）。
 
 :::{warning}

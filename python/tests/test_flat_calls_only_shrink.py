@@ -30,7 +30,7 @@ DOORS = {"scenario", "grid_of", "require_data", "load", "abi_version"}
 #: 2026-09-05 measured baseline, after `code/vstab` (vertical_system 15 -> 5, vertical_mode 7 -> 6, breakdown 14 -> 13).
 #: Only ever lower these.
 BASELINE = {
-    'device.py': 7,
+    'device.py': 4,
     'fyo.py': 5,
     'scenario/analysis/__init__.py': 2,
     'scenario/analysis/loop.py': 4,

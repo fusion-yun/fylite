@@ -63,16 +63,12 @@ __all__ = [
     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
-    "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
-    "chord_mask", "line_integral", "chord_reduce", "pinhole_angles",
-    "current_centroid",
+    "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "psin_along", "quadrature",
+    "line_integral",     "current_centroid",
     "ideal_stiffness", "dispersion_root", "vertical_plant", "vertical_loop",
     "inside_polygon", "f_from_coefficients", "probe_response",
-    "step_circuits", "resistances", "evolve_circuits",
-    "element_flux", "filament_flux", "channel_matrices",
-    "table_ratio_check",
-    "ellipke", "mutual_filaments", "mutual_outer", "element_filaments",
-    "mutual_matrix", "grid_response", "element_response",
+            "table_ratio_check",
+    "ellipke", "mutual_outer",     "element_response",
     "element_probe_response",
     "coupling_gradient", "vertical_stiffness",
     "plasma_filaments",
@@ -1167,22 +1163,6 @@ def svd_solve(a, b, *, rcond: float = 1e-3, n_singular=None) -> dict:
 QUADRATURE_RULES = {"simpson": 0, "trapezoid": 1, "midpoint": 2}
 
 
-_sig("fylite_rs_chord_samples", [_ARR, _ARR, _F64, _U64, _ARR, _ARR, _ARR], _I32)
-def chord_samples(origin, direction, length: float, n: int = 601) -> dict:
-    """Sample a straight 3-D sight line; returns cylindrical ``(r, z)`` + ``ds``.
-
-    ``direction`` is normalised internally, so ``ds`` is a true path step and
-    an integral built on it is per metre of sight line.
-    """
-    lib = require()
-    o3, d3 = _f(np.reshape(origin, 3)), _f(np.reshape(direction, 3))
-    r, z, ds = np.empty(n), np.empty(n), np.empty(1)
-    rc = lib.fylite_rs_chord_samples(o3, d3, float(length), int(n), r, z, ds)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_chord_samples returned {rc}")
-    return {"r": r, "z": z, "ds": float(ds[0])}
-
-
 _sig("fylite_rs_psin_along", ([_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _ARR, _U64, _ARR]), _I32)
 def psin_along(grid: Grid, psin2d, r, z):
     """ψ_N at scattered points, ``+inf`` outside the grid.
@@ -1226,35 +1206,6 @@ def quadrature(values, ds: float, *, rule: str = "simpson") -> float:
     return float(out[0])
 
 
-_sig("fylite_rs_chord_mask", [_ARR, _ARR, _ARR, _U64, _F64, _ARR, _ARR, _U64, _ARR], _I32)
-def chord_mask(psin, r, z, *, psin_max: float = 1.0, boundary=None):
-    """Which samples of a chord count as plasma — a boolean array.
-
-    On the grid (``ψ_N`` finite), within ``psin_max``, and inside the
-    boundary polygon when one is given.
-
-    ★★``ψ_N ≤ 1`` is not a containment test: ψ over the full grid box is not
-    monotonic outside the plasma — the field coils put structure there — so
-    a chord far above the plasma still finds samples below 1.  Without a
-    ``boundary`` this filters on ψ_N alone, which is a CAVEAT the caller
-    accepts, not a default that is fine.
-    """
-    lib = require()
-    p, r_a, z_a = _f(psin), _f(r), _f(z)
-    if boundary is None:
-        br = bz = np.zeros(0)
-    else:
-        br, bz = _f(boundary[0]), _f(boundary[1])
-    out = np.empty(p.size)
-    rc = lib.fylite_rs_chord_mask(p, r_a, z_a, p.size,
-                                  float("inf") if psin_max is None
-                                  else float(psin_max),
-                                  br, bz, br.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_chord_mask returned {rc}")
-    return out != 0.0
-
-
 _sig("fylite_rs_line_integral", ([_ARR] * 3 + [_U64, _F64, _ARR, _U64, _F64, _ARR, _ARR, _U64, _F64, _I32, _ARR, _ARR]), _I32)
 def line_integral(psin, r, z, ds: float, *, f_val, f_max_psin: float = 1.0,
                   boundary=None, psin_max: float = 1.0,
@@ -1284,68 +1235,6 @@ def line_integral(psin, r, z, ds: float, *, f_val, f_max_psin: float = 1.0,
     return {"value": float(out[0]), "path_length": float(info[0]),
             "n_inside": int(info[1]), "psin_min": float(info[2])}
 
-
-_sig("fylite_rs_chord_reduce", ([_ARR] * 4 + [_U64, _F64, _ARR, _ARR, _U64, _F64, _I32, _ARR, _ARR]), _I32)
-def chord_reduce(values, psin, r, z, ds: float, *, boundary=None,
-                 psin_max: float = 1.0, rule: str = "simpson") -> dict:
-    """``∫ f ds`` along a chord whose ``f`` the CALLER evaluated.
-
-    The twin of :func:`line_integral` for a host whose ``f`` is a callback
-    and therefore cannot cross the ABI.  Everything else — which samples
-    count, the quadrature, and the three numbers that say whether the
-    answer can be trusted — is decided kernel-side, so the two entries
-    cannot disagree about where the plasma was.
-
-    ★``values`` is read only where the mask says plasma; what a caller left
-    outside does not reach the integral.
-    """
-    lib = require()
-    if rule not in QUADRATURE_RULES:
-        raise KernelError(f"unknown quadrature rule {rule!r}; have "
-                          f"{sorted(QUADRATURE_RULES)}")
-    v, p = _f(values), _f(psin)
-    r_a, z_a = _f(r), _f(z)
-    if not (v.size == p.size == r_a.size == z_a.size):
-        raise KernelError(
-            f"values {v.size}, psin {p.size}, r {r_a.size}, z {z_a.size} "
-            "must all be the same length")
-    if boundary is None:
-        br = bz = np.zeros(0)
-    else:
-        br, bz = _f(boundary[0]), _f(boundary[1])
-    out, info = np.empty(1), np.empty(3)
-    rc = lib.fylite_rs_chord_reduce(
-        v, p, r_a, z_a, p.size, float(ds), br, bz, br.size,
-        float("inf") if psin_max is None else float(psin_max),
-        QUADRATURE_RULES[rule], out, info)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_chord_reduce returned {rc}")
-    return {"value": float(out[0]), "path_length": float(info[0]),
-            "n_inside": int(info[1]), "psin_min": float(info[2])}
-
-
-_sig("fylite_rs_pinhole_angles", [_F64, _F64, _F64, _U64, _ARR], _I32)
-def pinhole_angles(view_angle: float, *, focal_length: float, pitch: float,
-                   n_channels: int):
-    """A pinhole camera's fan of sight-line angles [rad], detector order.
-
-    ``θᵢ = atan((n/2 − i + 0.5)·pitch/focal_length) + view_angle + π``.
-
-    ★The ``+π`` is the whole content of the formula and it is not a
-    convention to leave to the caller: it turns "where the detector sits
-    behind the aperture" into "where the ray goes into the machine".  Drop
-    it and every chord integral comes back zero — which reads as a camera
-    that sees no plasma, not as a sign error.
-    """
-    lib = require()
-    n = int(n_channels)
-    out = np.empty(max(n, 1))
-    rc = lib.fylite_rs_pinhole_angles(float(view_angle),
-                                      float(focal_length), float(pitch), n,
-                                      out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_pinhole_angles returned {rc}")
-    return out[:n]
 
 _sig("fylite_rs_current_centroid", ([_ARR] * 5 + [_U64] + [_F64] * 3 + [_ARR]), _I32)
 def current_centroid(probe_r, probe_z, angle_rad, b_plasma, weight, *,
@@ -1543,66 +1432,6 @@ def probe_response(grid_r, grid_z, probe_r, probe_z, angle_rad):
     return out.reshape(pr.size, gr.size, gz.size)
 
 
-_sig("fylite_rs_step_circuits", ([_ARR] * 4 + [_U64, _F64, ctypes.c_void_p, _ARR]), _I32)
-def step_circuits(inductance, resistance, currents_prev, voltages, dt,
-                  dpsi_plasma=None):
-    """One implicit-Euler circuit step.
-
-    ``(M/dt + diag(R)) I⁺ = M/dt I + V − dψ_plasma/dt``.  Cholesky with one
-    step of iterative refinement — the vessel-coupled system is conditioned
-    around 1e8 and a plain solve sits outside the design's band.
-    """
-    lib = require()
-    m = _f(inductance)
-    r, i0, v = _f(resistance), _f(currents_prev), _f(voltages)
-    n = i0.size
-    if m.shape != (n, n):
-        raise KernelError(f"inductance must be ({n},{n}), got {m.shape}")
-    dp = None if dpsi_plasma is None else _f(
-        np.broadcast_to(np.asarray(dpsi_plasma, float), (n,)))
-    out = np.empty(n)
-    rc = lib.fylite_rs_step_circuits(m.ravel(), r, i0, v, n, float(dt),
-                                     None if dp is None else dp.ctypes.data,
-                                     out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_step_circuits returned {rc}")
-    return out
-
-
-_sig("fylite_rs_resistances", ([_ARR] * 3 + [ctypes.c_void_p, _U64, _ARR]), _I32)
-def resistances(r, area, eta, turns=None):
-    """Element resistances [Ω]: ``η 2πr/area``, ×N² when wound.
-
-    ``eta`` in Ω·m (a device deck quotes μΩ·m — convert where the deck is
-    read).  With ``turns`` the resistance is referred to AMPERE-TURNS, the
-    state variable this package uses throughout.
-    """
-    lib = require()
-    r_a, a_a = _f(r), _f(area)
-    e_a = _f(np.broadcast_to(np.asarray(eta, float), r_a.shape))
-    t_a = None if turns is None else _f(
-        np.broadcast_to(np.asarray(turns, float), r_a.shape))
-    out = np.empty(r_a.size)
-    rc = lib.fylite_rs_resistances(r_a, a_a, e_a,
-                                   None if t_a is None else t_a.ctypes.data,
-                                   r_a.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_resistances returned {rc}")
-    return out
-
-
-# --------------------------------------------------------------------------- #
-# Conductor electromagnetics (the L1 group).
-#
-# ★These entries existed before this module did, and their callers reached
-# past it — the old `circuits.py`, `stability.py` and `breakdown.py` each held their
-# own ctypes call plus a numpy twin behind an "if the library is here"
-# branch.  That arrangement predates D-4′: it was written when the Rust core
-# was optional, and the twins are exactly the second implementations the
-# rule forbids.  The twins now live in `tests/oracles/em.py`, where
-# they are what they always really were — an independent reference the
-# gates measure this face against.
-# --------------------------------------------------------------------------- #
 _sig("fylite_rs_ellipke", [_ARR, _U64, _ARR, _ARR], _I32)
 def ellipke(m):
     """Complete elliptic integrals ``K(m)``, ``E(m)`` by the AGM."""
@@ -1624,24 +1453,6 @@ def ellipke(m):
     return k.reshape(shape), e.reshape(shape)
 
 
-_sig("fylite_rs_mutual_filaments", [_ARR, _ARR, _ARR, _ARR, _U64, _ARR], _I32)
-def mutual_filaments(r1, z1, r2, z2):
-    """Mutual inductance [H] between coaxial circular filaments, elementwise.
-
-    The four inputs broadcast against each other, as the numpy this replaces
-    did; the kernel sees the broadcast result.
-    """
-    lib = require()
-    a, b, c, d = np.broadcast_arrays(*(np.asarray(x, float)
-                                       for x in (r1, z1, r2, z2)))
-    flat = [_f(x.ravel()) for x in (a, b, c, d)]
-    out = np.empty(a.size)
-    rc = lib.fylite_rs_mutual_filaments(*flat, a.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_mutual_filaments returned {rc}")
-    return out.reshape(a.shape)
-
-
 _sig("fylite_rs_mutual_outer", [_ARR, _ARR, _U64, _ARR, _ARR, _U64, _ARR], _I32)
 def mutual_outer(a_r, a_z, b_r, b_z):
     """``M[i, j]`` between two filament sets — the outer-product shape,
@@ -1656,72 +1467,7 @@ def mutual_outer(a_r, a_z, b_r, b_z):
     return out
 
 
-_sig("fylite_rs_element_filaments", [_F64, _F64, _F64, _F64, _F64, _F64, _U64, _U64, _ARR, _ARR], _I32)
-def element_filaments(r, z, w, h, a=0.0, a2=90.0, *, nu: int = 4,
-                      nv: int = 4):
-    """Subdivide one conductor element into ``nu × nv`` filaments."""
-    lib = require()
-    n = int(nu) * int(nv)
-    rf, zf = np.empty(n), np.empty(n)
-    rc = lib.fylite_rs_element_filaments(float(r), float(z), float(w),
-                                         float(h), float(a), float(a2),
-                                         int(nu), int(nv), rf, zf)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_element_filaments returned {rc}")
-    return rf, zf
-
-
-_sig("fylite_rs_mutual_matrix_self", [*_SIX, _U64, _U64, _U64, _ARR], _I32)
-_sig("fylite_rs_mutual_matrix_cross", [*_SIX, _U64, *_SIX, _U64, _U64, _U64, _ARR], _I32)
 _sig("fylite_rs_scale_by_turns", (_ARR, _U64, _U64, ctypes.c_void_p, ctypes.c_void_p), _I32)
-def mutual_matrix(elems, other=None, *, nu: int = 4, nv: int = 4,
-                  turns_a=None, turns_b=None):
-    """Mutual-inductance matrix [H] between element sets.
-
-    ``elems``/``other`` are six parallel arrays ``(r, z, w, h, a, a2)`` — the
-    C-ABI layout, so this face does not need to know the caller's element
-    type.  With ``other`` omitted the symmetric self-set matrix is returned,
-    its diagonal the filament-averaged self inductance.
-
-    ``turns_a``/``turns_b`` scale the result into TURN space; with ``other``
-    omitted, ``turns_a`` alone applies to both sides (so the diagonal comes
-    out with its ``N²``).
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    na = ea[0].size
-    if other is None:
-        out = np.empty((na, na))
-        rc = lib.fylite_rs_mutual_matrix_self(*ea, na, int(nu), int(nv), out)
-        nb = na
-    else:
-        eb = [_f(np.atleast_1d(x)) for x in other]
-        nb = eb[0].size
-        out = np.empty((na, nb))
-        rc = lib.fylite_rs_mutual_matrix_cross(*ea, na, *eb, nb,
-                                               int(nu), int(nv), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_mutual_matrix returned {rc}")
-    if turns_a is not None or turns_b is not None:
-        #: ★★A turn count enters an inductance ONCE PER SIDE, which is why a
-        #: self-set matrix comes out squared on its diagonal and no caller
-        #: writes that square by hand.  Getting it wrong yields a plausible
-        #: L/R time that is wrong by exactly the winding.
-        ta = None if turns_a is None else _f(np.broadcast_to(
-            np.atleast_1d(np.asarray(turns_a, float)), (na,)))
-        tb = turns_b if turns_b is not None else (
-            turns_a if other is None else None)
-        tb = None if tb is None else _f(np.broadcast_to(
-            np.atleast_1d(np.asarray(tb, float)), (nb,)))
-        rc = lib.fylite_rs_scale_by_turns(
-            out.ravel(), na, nb,
-            #: NULL on a side means "already per turn there"; the entry is
-            #: declared `c_void_p`, so a pointer or None is what it takes
-            None if ta is None else ta.ctypes.data,
-            None if tb is None else tb.ctypes.data)
-        if rc != 0:
-            raise KernelError(f"fylite_rs_scale_by_turns returned {rc}")
-    return out
 
 
 _sig("fylite_rs_channel_weights", (_ARR, _ARR, _ARR, _U64, _U64, _U64, _ARR), _I32)
@@ -1768,20 +1514,6 @@ def channel_fold(weights, channel_aturns):
     rc = lib.fylite_rs_channel_fold(w.ravel(), x, n_ch, n_el, out)
     if rc != 0:
         raise KernelError(f"fylite_rs_channel_fold returned {rc}")
-    return out
-
-
-_sig("fylite_rs_grid_response", [*_SIX, _U64, _ARR, _U64, _ARR, _U64, _U64, _U64, _ARR], _I32)
-def grid_response(elems, grid_r, grid_z, *, nu: int = 4, nv: int = 4):
-    """ψ response [Wb/A] of each element on grid nodes → ``(n_elem, nr, nz)``."""
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    gr, gz = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    out = np.empty((ea[0].size, gr.size, gz.size))
-    rc = lib.fylite_rs_grid_response(*ea, ea[0].size, gr, gr.size, gz,
-                                     gz.size, int(nu), int(nv), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_grid_response returned {rc}")
     return out
 
 
@@ -1877,161 +1609,6 @@ def vertical_stiffness(plasma, loops, currents, *, step: float = 1.0e-3):
     if rc != 0:
         raise KernelError(f"fylite_rs_vertical_stiffness returned {rc}")
     return float(out[0])
-
-
-# `psi_plasma` is declared `c_void_p` so `None` is a legal argument:
-# the trajectory without a plasma back-reaction is the same entry with
-# the term switched off, not a second one
-_sig("fylite_rs_evolve_circuits", [_ARR, _ARR, _U64, _ARR, _U64, _ARR, _ARR, ctypes.c_void_p, _ARR], _I32)
-def evolve_circuits(inductance, resistance, currents0, time, voltages,
-                    psi_plasma=None):
-    """Voltage-driven circuit trajectory → ``(n_time, n_loops)``.
-
-    The implicit step over ``[t_k, t_k+1]`` consumes the interval-END sample
-    ``voltages[k+1]``; ``time`` may be non-uniform but must increase.
-    ``psi_plasma`` — ``(n_time, n_loops)`` when given — enters as its
-    per-step INCREMENT, on the same interval-end convention.
-
-    ★★The plasma back-reaction is a switch on this entry, not a second
-    trajectory.  It used to be the one case the kernel would not take, so a
-    caller that had ψ_plasma looped over ``step_circuits`` in Python
-    instead — the same advance assembled a second way, with nothing
-    comparing the two.
-
-    ★This entry re-forms and re-factorises ``M/dt + diag(R)`` at every
-    step, as it must on a non-uniform time grid; it does not reuse one
-    factorisation across a uniform one.  Said here because the comment this
-    replaced claimed the opposite, and a reader choosing between this and
-    :func:`step_circuits` on cost would have been choosing on a fiction.
-    """
-    lib = require()
-    m = _f(np.asarray(inductance, float))
-    r = _f(np.asarray(resistance, float))
-    i0 = _f(np.atleast_1d(currents0))
-    t = _f(np.atleast_1d(time))
-    v = _f(np.asarray(voltages, float))
-    psi = None if psi_plasma is None else _f(np.asarray(psi_plasma, float))
-    #: ★★Every buffer the ABI will READ is sized here, because this is the
-    #: only layer that knows how much it will read.  `fylite_rs_evolve_
-    #: circuits` takes `nt` and `n` and then takes `nt*n` doubles from
-    #: `volts` on trust: a short array is not a refused call, it is a heap
-    #: OVERREAD — silent, and surfacing later somewhere unrelated (this repo
-    #: has had one, 104 bytes, which aborted two test files away).  The
-    #: `voltages` half of this used to be checked in one Python caller
-    #: instead, so every other host reached the entry unchecked.
-    if t.ndim != 1 or t.size < 2:
-        raise KernelError(f"time must be 1-D with >= 2 samples, got {t.shape}")
-    if m.shape != (i0.size, i0.size):
-        raise KernelError(f"inductance must be ({i0.size},{i0.size}), "
-                          f"got {m.shape}")
-    if r.size != i0.size:
-        raise KernelError(f"{r.size} resistances for {i0.size} loops")
-    if v.shape != (t.size, i0.size):
-        raise KernelError(f"voltages has shape {v.shape}, expected "
-                          f"{(t.size, i0.size)}")
-    if psi is not None and psi.shape != (t.size, i0.size):
-        raise KernelError(f"psi_plasma has shape {psi.shape}, expected "
-                          f"{(t.size, i0.size)}")
-    out = np.empty((t.size, i0.size))
-    rc = lib.fylite_rs_evolve_circuits(
-        m, r, i0.size, t, t.size, v, i0,
-        None if psi is None else psi.ctypes.data, out)
-    if rc == -2:
-        raise KernelError(
-            "the time grid must be strictly increasing.  A non-increasing "
-            "one does not fail on its own: M/dt + diag(R) with dt < 0 stays "
-            "positive definite whenever R dominates, so the solve succeeds "
-            "and the trajectory it returns runs backwards")
-    if rc != 0:
-        raise KernelError(f"fylite_rs_evolve_circuits returned {rc}")
-    return out
-
-
-_sig("fylite_rs_element_flux", [*_SIX, _U64, _ARR, _ARR, _U64, _ARR, _U64, _U64, _U64, _ARR], _I32)
-def element_flux(elems, amps, grid_r, grid_z, *, nu: int = 4, nv: int = 4):
-    """Total ψ [Wb] on the grid from ``amps`` ampere-turns per element.
-
-    ``elems`` is the six parallel arrays ``(r, z, w, h, a, a2)``.  Returns
-    ``(nr, nz)``.
-
-    ★Not :func:`grid_response` followed by a contraction: that materialises
-    an ``(nelem, nr, nz)`` tensor to produce one ``(nr, nz)`` field, and it
-    leaves the fold — where a sign or a per-radian convention gets applied
-    twice — at the call site.
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    a = _f(np.atleast_1d(amps))
-    gr, gz = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    if a.size != ea[0].size:
-        raise KernelError(f"amps has {a.size} entries, expected "
-                          f"{ea[0].size} (one per element)")
-    out = np.empty((gr.size, gz.size))
-    rc = lib.fylite_rs_element_flux(*ea, ea[0].size, a, gr, gr.size, gz,
-                                    gz.size, int(nu), int(nv), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_element_flux returned {rc}")
-    return out
-
-
-_sig("fylite_rs_filament_flux", [_ARR, _ARR, _ARR, _U64, _ARR, _U64, _ARR, _U64, _ARR], _I32)
-def filament_flux(fil_r, fil_z, amps, grid_r, grid_z):
-    """Total ψ [Wb] on the grid from a cloud of current FILAMENTS.
-
-    The element-free twin of :func:`element_flux`, for a current
-    distribution that is already a point cloud (a plasma discretised into
-    filaments).  Returns ``(nr, nz)``.
-    """
-    lib = require()
-    fr, fz = _f(np.atleast_1d(fil_r)), _f(np.atleast_1d(fil_z))
-    a = _f(np.atleast_1d(amps))
-    gr, gz = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    if fz.size != fr.size or a.size != fr.size:
-        raise KernelError(
-            f"filament arrays disagree: r {fr.size}, z {fz.size}, "
-            f"amps {a.size}")
-    out = np.empty((gr.size, gz.size))
-    rc = lib.fylite_rs_filament_flux(fr, fz, a, fr.size, gr, gr.size, gz,
-                                     gz.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_filament_flux returned {rc}")
-    return out
-
-
-_sig("fylite_rs_channel_matrices", [*_SIX, _U64, *_SIX, _U64, _ARR, _U64, _ARR, _ARR, _U64, _U64, _ARR, _ARR], _I32)
-def channel_matrices(coils, vessel, weights, *, eta_coil, eta_vessel,
-                     nu: int = 4, nv: int = 4):
-    """``(M, R)`` in AMPERE-TURN channel space — channels then vessel.
-
-    ``coils``/``vessel`` are the six parallel arrays; ``weights`` is the
-    ``(n_channel, n_element)`` map of how a channel's ampere-turns split
-    across the elements it drives; ``eta_*`` are per element in **Ω·m** (a
-    device deck quotes μΩ·m — convert where the deck is read).
-
-    ★The weight enters the inductance once and the resistance SQUARED:
-    in ampere-turn space the loop equation carries only per-turn geometric
-    quantities, so ``M_ch = W M₁ Wᵀ`` while ``R_ch = Σ_j w_j² R₁_j``.
-    Dropping the square gives a plausible L/R time that is wrong by the
-    split.
-    """
-    lib = require()
-    ca = [_f(np.atleast_1d(x)) for x in coils]
-    va = [_f(np.atleast_1d(x)) for x in vessel]
-    n_el, n_vs = ca[0].size, va[0].size
-    w = _f(np.atleast_2d(weights))
-    if w.shape[1] != n_el:
-        raise KernelError(f"weights has {w.shape[1]} columns, expected "
-                          f"{n_el} (one per coil element)")
-    n_ch = w.shape[0]
-    ec = _f(np.broadcast_to(np.asarray(eta_coil, float), (n_el,)))
-    ev = _f(np.broadcast_to(np.asarray(eta_vessel, float), (n_vs,)))
-    n = n_ch + n_vs
-    m, r = np.empty((n, n)), np.empty(n)
-    rc = lib.fylite_rs_channel_matrices(*ca, n_el, *va, n_vs, w.ravel(),
-                                        n_ch, ec, ev, int(nu), int(nv), m, r)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_channel_matrices returned {rc}")
-    return m, r
 
 
 _sig("fylite_rs_table_ratio_check", ([_ARR] * 2 + [_ARR, _U64, _ARR, _U64] + [_ARR] * 4 + [_U64, _ARR, _ARR]), _I32)
@@ -4743,7 +4320,7 @@ def channel_field(elems, weights, pr, pz, *, nu: int = 3, nv: int = 3):
 
     ★★The map is ``(n_channel, n_element)`` HERE, as it is at every other
     host-side entry that takes it (:func:`channel_weights` produces that
-    shape, :func:`channel_fold` and :func:`channel_matrices` consume it).
+    shape, :func:`channel_fold` and the oracle-only ``channel_matrices`` consume it).
     The wire format for THIS entry is the transpose, and that transpose
     happens on the marshalling line below — where a wire format belongs.  It
     used to be the caller's, which is how one package came to hold both

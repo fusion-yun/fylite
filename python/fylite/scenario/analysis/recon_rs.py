@@ -15,7 +15,7 @@ arrays):
   drift away from it;
 * ``psi_ext`` is the coil field on that grid, folded from the measured
   channel amp-turns through the device document's own conductor geometry
-  (:func:`device.psi_from_channels`);
+  (the device layer's ``psi_from_channels``, an oracle-tree function since T-4 第十刀);
 * the **response matrix** is the full-flux mutual of every flux loop to
   every grid node — the linear map from a grid current distribution to what
   the loops would read;

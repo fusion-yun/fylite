@@ -136,40 +136,13 @@ const er = fy.elementResponse(els, pr, pz, 3, 3);
   }
 }
 
-// --- 3. the resistance formula --------------------------------------------
-{
-  const etaU = 0.74, scale = 1.3;
-  const got = fy.resistances(
-    Float64Array.from(els, e => e.r),
-    Float64Array.from(els, e => e.w * e.h),
-    Float64Array.from(els, () => etaU * 1e-6 * scale), null);
-  let mrel = 0;
-  for (let i = 0; i < NEL; i++) {
-    const old = etaU * 1e-6 * 2 * Math.PI * els[i].r / (els[i].w * els[i].h) * scale;
-    mrel = Math.max(mrel, Math.abs(got[i] - old) / Math.abs(old));
-  }
-  //: ★NOT bit-identical, and the reason is stated rather than tolerated: the
-  //: kernel associates `eta * (2 pi r) / area` where the inline formula wrote
-  //: `eta * 2 * PI * r / area * scale`, so the two differ in the last place.
-  report('resistances = 内联公式', mrel <= 4e-16,
-         `最大相对差 ${mrel.toExponential(2)}（结合序，1 ulp）`);
-}
-
-// --- 4. the loop -> grid mutual block --------------------------------------
-{
-  const gr = Float64Array.from({ length: 40 }, (_, i) => 1.2 + 0.03 * i);
-  const gz = Float64Array.from({ length: 40 }, (_, i) => -0.6 + 0.03 * i);
-  const lr = Float64Array.from([1.9, 2.2, 1.4]), lz = Float64Array.from([0.5, -0.3, 0.0]);
-  const got = fy.mutualOuter(lr, lz, gr, gz);
-  let bit = true;
-  for (let d = 0; d < lr.length; d++) {
-    const old = fy.mutualFilaments(new Float64Array(gr.length).fill(lr[d]),
-                                   new Float64Array(gr.length).fill(lz[d]), gr, gz);
-    for (let i = 0; i < gr.length; i++)
-      if (got[d * gr.length + i] !== old[i]) bit = false;
-  }
-  report('mutualOuter = loopResponse 循环', bit, '逐位');
-}
+// --- 3 · 4. the resistance formula and the loop -> grid mutual block ------
+// ★Both wrappers (`resistances` · `mutualFilaments`) left with their exports in
+// T-4 第十刀 (2026-09-06): no page called them, so they are oracle-only and not
+// in this wasm.  The host-count claim for them is held where the exports now
+// live — the kernel repository's `tests/test_rust_kernels.py` against the
+// numpy references in `tests/oracles/em.py` — and section 6 below still greps
+// this tree for the transcriptions they replaced.
 
 // --- 5. the probe angle projection ----------------------------------------
 {

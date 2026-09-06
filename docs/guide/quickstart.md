@@ -67,7 +67,7 @@ v["regime"], v["growth_rate"], v["margin"]    # resistive-wall  12.6393  0.68557
 
 ★**报 γ 必须同时报所用的被动导体集**：只用内壳会把 γ 高估 270 倍（见
 [稳定性与控制](stability-and-control.md)）。导体几何、电阻率与线圈匝数全部取自
-`east_device.yaml`，互感与电阻由 `device.mutual_matrix` / `device.resistance_vector`
+`east_device.yaml`，互感与电阻由内核门 `code/pulse` · `code/vstab` 在文档上算（Python 的 `device.mutual_matrix` / `device.resistance_vector` 自 2026-09-06 归内核仓测试树）
 按几何**现算**——没有 Green 表参与。
 
 ## 一次反演

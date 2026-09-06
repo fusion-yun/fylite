@@ -28,60 +28,14 @@ GR = np.linspace(1.3, 2.4, 7)
 GZ = np.linspace(-0.5, 0.5, 5)
 
 
-# --------------------------------------------------------------------------- #
-# the conductor folds
-# --------------------------------------------------------------------------- #
-def test_element_flux_returns_the_grid_shape():
-    psi = K.element_flux(ELEMS, [1.0e4, -2.0e4], GR, GZ)
-    assert psi.shape == (GR.size, GZ.size)
-    assert np.all(np.isfinite(psi))
 
 
-def test_element_flux_refuses_one_amp_per_element_mismatch():
-    """★The mistake this entry made possible: it takes ampere-turns where
-    the call it replaced took a response tensor, so a caller passing the
-    wrong count would have been broadcast against silently."""
-    with pytest.raises(K.KernelError, match="one per element"):
-        K.element_flux(ELEMS, [1.0e4], GR, GZ)
 
 
-def test_filament_flux_refuses_ragged_filaments():
-    with pytest.raises(K.KernelError, match="disagree"):
-        K.filament_flux([1.6, 1.9], [0.1], [1.0, 2.0], GR, GZ)
 
 
-def test_channel_matrices_are_square_over_channels_and_vessel():
-    w = np.array([[1.0, 0.0], [0.0, 1.0]])
-    vessel = (np.array([2.3]), np.array([0.0]), np.array([0.02]),
-              np.array([0.02]), np.zeros(1), np.full(1, 90.0))
-    m, r = K.channel_matrices(ELEMS, vessel, w, eta_coil=1.7e-8,
-                              eta_vessel=0.74e-6)
-    assert m.shape == (3, 3) and r.shape == (3,)
-    assert np.allclose(m, m.T) and np.all(r > 0.0)
 
 
-def test_channel_matrices_refuse_a_weight_map_of_the_wrong_width():
-    """The weights are ``(n_channel, n_element)``; a transposed map is the
-    one error that would otherwise produce a plausible smaller matrix."""
-    vessel = tuple(np.zeros(0) for _ in range(6))
-    with pytest.raises(K.KernelError, match="columns"):
-        K.channel_matrices(ELEMS, vessel, np.ones((2, 3)), eta_coil=1.7e-8,
-                           eta_vessel=[])
-
-
-# --------------------------------------------------------------------------- #
-# the channel map has ONE host-side orientation
-# --------------------------------------------------------------------------- #
-#: ★★The ABI carries this map BOTH ways round: `channel_weights`,
-#: `channel_fold` and `channel_matrices` take `(n_channel, n_element)`, while
-#: `channel_field` (and `breakdown_design`, oracle-only since T-4 第八刀 —
-#: its row lives in the kernel repository now) take its transpose on the wire.
-#: That is the wire format's business.  What must not be the caller's business
-#: is which of the two a given entry wants — a transposed weight matrix does
-#: not raise, it is a different machine, and this package once held THREE
-#: inline copies of the map with one of them transposed relative to the rest.
-#: So every entry here takes the `(n_channel, n_element)` map and the entries
-#: whose wire format is the other way transpose it themselves.
 
 
 def _split_pair_map():
@@ -111,39 +65,8 @@ def test_channel_field_refuses_a_transposed_map():
         K.channel_field(ELEMS, w.T, [1.9], [0.05])           # 2 x 3, refused
 
 
-def _rl():
-    m = np.array([[1.0, 0.1], [0.1, 1.0]])
-    r = np.array([1.0, 1.0])
-    t = np.linspace(0.0, 0.2, 3)
-    return m, r, t
 
 
-def test_the_trajectory_without_a_plasma_flux_is_the_same_entry():
-    m, r, t = _rl()
-    v = np.zeros((t.size, 2))
-    v[:, 0] = 1.0
-    a = K.evolve_circuits(m, r, np.zeros(2), t, v)
-    b = K.evolve_circuits(m, r, np.zeros(2), t, v, psi_plasma=None)
-    assert np.array_equal(a, b)
-    assert a.shape == (t.size, 2)
-
-
-def test_the_plasma_flux_term_changes_the_trajectory():
-    m, r, t = _rl()
-    v = np.zeros((t.size, 2))
-    psi = np.zeros((t.size, 2))
-    psi[:, 0] = [0.0, 0.3, 0.7]
-    quiet = K.evolve_circuits(m, r, np.zeros(2), t, v)
-    driven = K.evolve_circuits(m, r, np.zeros(2), t, v, psi_plasma=psi)
-    assert np.array_equal(quiet, np.zeros_like(quiet))
-    assert abs(driven[1, 0]) > 0.0
-
-
-def test_a_mis_shaped_plasma_flux_is_refused():
-    m, r, t = _rl()
-    v = np.zeros((t.size, 2))
-    with pytest.raises(K.KernelError, match="psi_plasma has shape"):
-        K.evolve_circuits(m, r, np.zeros(2), t, v, psi_plasma=np.zeros((2, 2)))
 
 
 
@@ -176,50 +99,16 @@ def test_redl_surface_inputs_take_a_scalar_zeff_as_a_profile():
         assert np.array_equal(flat[k], array[k])
 
 
-# --------------------------------------------------------------------------- #
-# the chord reduction and the camera fan
-# --------------------------------------------------------------------------- #
-def _chord():
-    psin = np.where((np.arange(41) < 6) | (np.arange(41) > 34), np.inf,
-                    ((np.arange(41) - 20.0) / 20.0) ** 2)
-    return psin, np.full(41, 1.8), np.zeros(41)
 
 
-def test_chord_reduce_reports_the_same_four_keys_as_line_integral():
-    psin, r, z = _chord()
-    got = K.chord_reduce(np.ones_like(psin), psin, r, z, 0.01)
-    ref = K.line_integral(psin, r, z, 0.01, f_val=np.ones(2))
-    assert set(got) == set(ref)
-    assert got == ref
 
 
-def test_chord_reduce_refuses_values_of_a_different_length():
-    """★The one way the callback host can go wrong at this boundary: hand
-    back a values array that no longer lines up with its own samples."""
-    psin, r, z = _chord()
-    with pytest.raises(K.KernelError, match="same length"):
-        K.chord_reduce(np.ones(7), psin, r, z, 0.01)
 
 
-def test_chord_reduce_rejects_an_unknown_rule():
-    psin, r, z = _chord()
-    with pytest.raises(K.KernelError, match="unknown quadrature rule"):
-        K.chord_reduce(np.ones_like(psin), psin, r, z, 0.01, rule="romberg")
 
 
-def test_pinhole_angles_return_one_per_channel():
-    th = K.pinhole_angles(0.4, focal_length=0.05, pitch=0.002, n_channels=6)
-    assert th.shape == (6,)
 
 
-def test_pinhole_angles_refuse_a_camera_with_no_baseline():
-    with pytest.raises(K.KernelError):
-        K.pinhole_angles(0.0, focal_length=0.0, pitch=0.002, n_channels=4)
-
-
-# --------------------------------------------------------------------------- #
-# the one interpolation                                                        #
-# --------------------------------------------------------------------------- #
 def test_interp_is_the_numpy_it_replaced_bit_for_bit():
     """★48 call sites moved onto this entry; the claim is that not one number
     changed.  numpy is the REFERENCE here, not a second implementation — the

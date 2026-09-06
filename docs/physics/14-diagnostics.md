@@ -182,7 +182,7 @@ $\text{keep}_i\iff\abs{f_i/\tilde f-1}\le\text{tol}$（缺省 0.15；"中位数�
 | 加权最小二乘剖面拟合与定阶 | `fyo:core_profiles`：由测点拟合出的剖面 | `S.analysis.profit` |
 | 单调三次插值 | —（重采样，随各章的量走） | `fylite.kernel.pchip` |
 | 解析族提取 | `fyo:core_profiles`：解析形状参数 | —（内部） |
-| 弦几何、采样、求积与线积分 | `fyo:magnetics` 式的合成弦测量（干涉 / 偏振） | `device.Chord`、`device.line_integral` |
+| 弦几何、采样、求积与线积分 | `fyo:magnetics` 式的合成弦测量（干涉 / 偏振） | `code/chords`（分析页的干涉 / 偏振块）；Python 的 `device.Chord` / `device.line_integral` 自 2026-09-06 归内核仓测试树（`tests/oracles/chords.py`） |
 | 层析反演 | —（已退役，见 git 历史） | — |
 | 电流质心 | `fyo:equilibrium`：由磁测量给出的位置矩 | `S.analysis.moments` |
 | 通道自校准 | `fyo:magnetics`：逐道标度因子 | —（已退役，见 git 历史） |
