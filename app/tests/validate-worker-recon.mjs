@@ -168,13 +168,16 @@ const CONFIGS = {
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
+//: 第三十九刀: the summary block — the boundary, li(3), strike points, X-points, the wall gap
+const crit = (c) => c ? { q95: c.q95, q0: c.q0, li3: c.li3, fbRatio: c.fbRatio, strike: c.strike, xpts: c.xpts, gap: c.gap } : null;
 function pick(m) {
   const r = m.result;
   return {
     result: { psiAxis: r.psiAxis, psiBnd: r.psiBnd, axisR: r.axisR, axisZ: r.axisZ, ip: r.ip,
               iterations: r.iterations, residual: r.residual, bndKind: r.bndKind, fbAmp: r.fbAmp,
               coefs: arr(r.coefs), shape: r.shape, q95: r.criteria && r.criteria.q95,
-              psi: arr(r.psi) },
+              psi: arr(r.psi), lcfs: arr(r.lcfs), criteria: crit(r.criteria),
+              fluxSegs: r.fluxSegs ? { inner: r.fluxSegs.inner.map(arr), outer: r.fluxSegs.outer.map(arr) } : null },
     ipConstraint: m.ipConstraint, sigma: m.sigma,
     meas: arr(m.meas), wts: arr(m.wts), model: arr(m.model),
     chi2: m.chi2, nfit: m.nfit, ndof: m.ndof, ipFitted: m.ipFitted,
@@ -193,7 +196,8 @@ function pick(m) {
     truth: m.truth ? { psiAxis: m.truth.psiAxis, psiBnd: m.truth.psiBnd, axisR: m.truth.axisR, axisZ: m.truth.axisZ,
                        ip: m.truth.ip, iterations: m.truth.iterations, residual: m.truth.residual, converged: m.truth.converged,
                        bndKind: m.truth.bndKind, xptR: m.truth.xptR, xptZ: m.truth.xptZ, fbAmp: m.truth.fbAmp,
-                       shape: m.truth.shape, q95: m.truth.criteria && m.truth.criteria.q95, psi: arr(m.truth.psi) } : null,
+                       shape: m.truth.shape, q95: m.truth.criteria && m.truth.criteria.q95, psi: arr(m.truth.psi),
+                       lcfs: arr(m.truth.lcfs), criteria: crit(m.truth.criteria) } : null,
     truthProfiles: m.truthProfiles ? { x: arr(m.truthProfiles.x), pprime: arr(m.truthProfiles.pprime),
                                        ffprime: arr(m.truthProfiles.ffprime), p: arr(m.truthProfiles.p) } : null,
     truthQ: m.truthQ ? { x: arr(m.truthQ.x), q: arr(m.truthQ.q), f: arr(m.truthQ.f), q0: m.truthQ.q0, q95: m.truthQ.q95 } : null,

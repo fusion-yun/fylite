@@ -229,64 +229,6 @@ function freeReport(res) {
 }
 
 /**
- * Everything the plots need from a solved field.  With `prof` given, the
- * analytic p'/FF' the solve actually ran on are recovered too: the solver
- * normalizes j_phi = j_c * S(R, x) to Ip, so j_c follows from the converged
- * field, and the two terms of S separate exactly into the pressure and the
- * poloidal-current channel.
- */
-/**
- * Marching-squares segments for the levels a poloidal plot draws: `n` inside
- * the boundary and four dashed ones outside it.  One kernel call per level.
- */
-function fluxSegments(psiAxis, psiBnd, psi, n) {
-  var inner = [], outer = [];
-  var lev = function (l) {
-    return fy.contour({ r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-                        nr: grid.nr, nz: grid.nz, f: psi, level: l });
-  };
-  for (var k = 1; k <= n; k++)
-    inner.push(lev(psiAxis + (psiBnd - psiAxis) * k / (n + 1)));
-  for (var q = 1; q <= 4; q++)
-    outer.push(lev(psiBnd - (psiAxis - psiBnd) * q * 0.25));
-  return { inner: inner, outer: outer, n: n };
-}
-
-/**
- * The shape of `n` interior surfaces of a solved field.
- *
- * ★Traced, not prescribed.  The boundary's elongation is not the elongation
- * of the surface halfway in, and a local-stability deck built from the
- * boundary's kappa would be describing a surface the equilibrium never
- * found.  This is the same reason the local-stability page refuses to seed
- * its shape from the device descriptor.
- */
-function surfaceShapes(res, count) {
-  var out = [];
-  for (var i = 1; i <= count; i++) {
-    var x = i / (count + 1);
-    var lev = res.psiAxis + (res.psiBnd - res.psiAxis) * x;
-    try {
-      var tr = fy.traceSurface({
-        r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-        nr: grid.nr, nz: grid.nz, psi: res.psi, level: lev,
-        axisR: res.axisR, axisZ: res.axisZ,
-        limR: M.limiter.r, limZ: M.limiter.z, nTheta: 121 });
-      if (tr.poly.length <= 8) continue;
-      var sh = fy.shapeMetrics(tr.poly);
-      //: ★the OUTLINE travels with the shape (T-A9).  The flux-surface
-      //: averages the current conversion needs are integrals over this
-      //: same contour, and tracing a second time to get them would let
-      //: the metric and the shape describe two different surfaces.
-      if (sh && sh.a > 0) out.push({ x: x, r0: sh.r0, a: sh.a,
-                                     kappa: sh.kappa, delta: sh.delta,
-                                     poly: tr.poly });
-    } catch (e) { /* a surface that will not close is left out, not faked */ }
-  }
-  return out;
-}
-
-/**
  * What says whether a configuration is one the machine can run.
  *
  * ★The design bar could report kappa and delta to three decimals and had
@@ -412,175 +354,125 @@ function controlUsable(cp) {
   return cp.filter(function (c) { return c.ok; });
 }
 
-/**
- * What each shape-control row ACHIEVED, on the boundary that came back.
- *
- * ★A gap is measured on the SAME ray the target was named on, by the same
- * kernel function, so the two halves of a 「目标 vs 实现」 row cannot be two
- * pieces of geometry that nearly agree.  A strike row is judged by the
- * distance from the wall point it asked for to the nearest landing the solve
- * actually made — which is zero when the leg went where it was sent.
- */
-function controlAchieved(poly, strike) {
-  var wr = M.limiter.r, wz = M.limiter.z;
-  var br = [], bz = [];
-  (poly || []).forEach(function (p) { br.push(p[0]); bz.push(p[1]); });
-  return controlPoints(shapeCtl).map(function (c) {
-    var out = { kind: c.kind, ok: c.ok, want: null, got: null,
-                at: c.ok ? [c.r, c.z] : null, seg: c.seg === undefined
-                  ? null : c.seg, why: c.why || null, label: c.row.label };
-    if (!c.ok) return out;
-    if (c.kind === 'strike') {
-      out.want = 0;
-      out.at = [c.r, c.z];
-      var best = null;
-      (strike || []).forEach(function (p) {
-        var d = Math.hypot(p[0] - c.r, p[1] - c.z);
-        if (best === null || d < best) best = d;
-      });
-      out.got = best;
-      return out;
-    }
-    out.want = c.want;
-    try {
-      var g = fy.gapRow({ bndR: br, bndZ: bz, wallR: wr, wallZ: wz,
-                          r0: c.row.r0, z0: c.row.z0, dr: c.row.dr,
-                          dz: c.row.dz, gap: c.want });
-      out.got = isFinite(g.achieved) ? g.achieved : null;
-      out.at = [g.wallR, g.wallZ];
-    } catch (e) { out.got = null; }
-    return out;
-  });
-}
-
-/** The field nulls a message asks for, as a set (T-D18). */
 function nullSet(src) {
   if (src && src.xpoints && src.xpoints.length) return src.xpoints;
   return src && src.xpoint ? [src.xpoint] : [];
 }
 
-function criteria(res, poly, q2) {
-  var g = { r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-            nr: grid.nr, nz: grid.nz };
-  var out = { q95: q2 && isFinite(q2.q95) ? q2.q95 : null,
-              q0: q2 && isFinite(q2.q0) ? q2.q0 : null,
-              li3: null, strike: [], xpts: [], gap: null,
-              //: ★the ratio, not the ampere: |I_fb| means nothing without
-              //: the current it is holding up.  A virtual feedback current
-              //: comparable to Ip says the equilibrium is standing on a
-              //: control loop, not on the coils that were designed.
-              fbRatio: res.ip ? Math.abs(res.fbAmp / res.ip) : null };
-  try {
-    out.li3 = P.li3(grid, res, res.ip, self.FyDevice.tf(M).r0);
-  } catch (e) { out.li3 = null; }
-  var wr = M.limiter.r, wz = M.limiter.z;
-  try {
-    out.strike = fy.strikePoints({ grid: g, psi: res.psi,
-                                   psiBnd: res.psiBnd, wallR: wr,
-                                   wallZ: wz, maxN: 16 });
-  } catch (e) { out.strike = []; }
-  try {
-    out.xpts = fy.xPoints({ grid: g, psi: res.psi, psiAxis: res.psiAxis,
-                            psiBnd: res.psiBnd, axisR: res.axisR,
-                            axisZ: res.axisZ, maxN: 8 });
-  } catch (e) { out.xpts = []; }
-  try {
-    var br = [], bz = [];
-    poly.forEach(function (p) { br.push(p[0]); bz.push(p[1]); });
-    var wc = fy.wallClearance({ bndR: br, bndZ: bz, wallR: wr, wallZ: wz });
-    out.gap = isFinite(wc.gap) ? wc : null;
-  } catch (e) { out.gap = null; }
-  //: ★T-D7: the gap and strike rows this design was ASKED for, each with
-  //: what it got.  An empty list is a design that asked for none.
-  try {
-    out.control = controlAchieved(poly, out.strike);
-  } catch (e) { out.control = []; }
+/** The control rows as the door's table: kind (1 strike · 0 gap) r z r0 z0 dr dz want. */
+function controlTable(rows) {
+  var out = new Float64Array((rows || []).length * 8);
+  (rows || []).forEach(function (row, i) {
+    var o = 8 * i, strike = row.kind === 'strike';
+    out[o] = strike ? 1 : 0;
+    out[o + 1] = strike ? +row.r : NaN; out[o + 2] = strike ? +row.z : NaN;
+    out[o + 3] = strike ? NaN : +row.r0; out[o + 4] = strike ? NaN : +row.z0;
+    out[o + 5] = strike ? NaN : +row.dr; out[o + 6] = strike ? NaN : +row.dz;
+    out[o + 7] = strike ? 0 : +row.value;
+  });
   return out;
 }
 
+/**
+ * The summary of a solved field — `code/summary` (第三十九刀).
+ *
+ * ★What used to be spelled here: the 181-point boundary at the page's inset
+ * and its shape metrics, the flux segments the plot draws, the criteria
+ * (li(3), strike points, X-points, the wall gap, what each control row
+ * achieved), the traced surfaces' shapes and, with a profile family or
+ * table, the profiles and q on them — nine flat calls in a fixed order.
+ * The door runs the same kernel steps in the same order; this function
+ * lays the record out the way every page reads it.  `fbRatio` stays here:
+ * two numbers the page already holds.
+ */
 function summarize(res, prof, opts) {
-  var poly = P.boundarySurface(grid, res.psi, res.psiAxis, res.psiBnd,
-                               res.axisR, res.axisZ, M.limiter.r,
-                               M.limiter.z, 181);
-  //: ★the kernel's, not physics.js's.  The worker HAS a kernel, so it has no
-  //: excuse for the JS copy — `fylite_rs_shape_metrics` has been bound since
-  //: v34 and kappa is the one quantity in this repo with a documented history
-  //: of being got wrong (1.79 against EFIT's 1.389).  What still calls the JS
-  //: one is the page thread, which has no kernel; that is a different problem
-  //: and it is named where it lives.
-  var sm = fy.shapeMetrics(poly);
-  var flat = new Float64Array(poly.length * 2);
-  poly.forEach(function (p, i) { flat[2 * i] = p[0]; flat[2 * i + 1] = p[1]; });
-  var prof2 = null, q2 = null;
+  var eq = { time_slice: { global_quantities: { psi_axis: res.psiAxis, psi_boundary: res.psiBnd, ip: res.ip,
+                                                 magnetic_axis: { r: res.axisR, z: res.axisZ } },
+                           profiles_2d: { psi: Float64Array.from(res.psi) } } };
+  var settings = { n_boundary: 181, n_segments: 14, n_surfaces: (opts && opts.surfaces) | 0,
+                   n_q: 20, n_theta: 121, x_lo: 0.06, x_hi: 1 - P.BOUNDARY_INSET, inset: P.BOUNDARY_INSET,
+                   f_edge: F_EDGE, r_centre: self.FyDevice.tf(M).r0, max_strike: 16, max_xpts: 8 };
   if (prof && prof.tab) {
-    //: ★the table tier's truth needs no recovery pass: the solve reports
-    //: its own final normalisation `jc`, so the actual profiles are the
-    //: table's times jc — and the pressure is the integral of that p'
-    //: with the per-radian span, exactly the quadrature analyticTruth's
-    //: kernel side applies to the family.
-    var tb = prof.tab, nT = tb.x.length;
-    var spanPr = (res.psiAxis - res.psiBnd) / (2 * Math.PI);
-    var pp2 = new Float64Array(nT), ff2 = new Float64Array(nT),
-        pInt = new Float64Array(nT);
-    for (var ti = 0; ti < nT; ti++) {
-      pp2[ti] = res.jc * tb.pprime[ti];
-      ff2[ti] = res.jc * tb.ffprime[ti];
-    }
-    for (ti = nT - 2; ti >= 0; ti--)
-      pInt[ti] = pInt[ti + 1] + 0.5 * (pp2[ti] + pp2[ti + 1])
-        * (tb.x[ti + 1] - tb.x[ti]);
-    for (ti = 0; ti < nT; ti++) pInt[ti] *= spanPr;
-    prof2 = { x: Float64Array.from(tb.x), pprime: pp2, ffprime: ff2,
-              p: pInt, jc: res.jc };
-    try {
-      q2 = P.qProfile(grid, res, prof2, M.limiter.r, M.limiter.z, F_EDGE,
-                      { nq: 20, ntheta: 121 });
-    } catch (e) { q2 = null; }
+    eq.time_slice.profiles_1d = { 'fylite:psi_norm': Float64Array.from(prof.tab.x),
+                                  dpressure_dpsi: Float64Array.from(prof.tab.pprime),
+                                  f_df_dpsi: Float64Array.from(prof.tab.ffprime) };
+    settings.jc = res.jc;
   } else if (prof) {
-    var t = P.analyticTruth(grid, res, prof, M.limiter.r, M.limiter.z, 201);
-    prof2 = { x: t.x, pprime: t.pprime, ffprime: t.ffprime, p: t.p, jc: t.jc };
-    // q and F(psi) as well: without them a g-file export would be a
-    // g-file with two empty columns
-    try {
-      q2 = P.qProfile(grid, res, prof2, M.limiter.r, M.limiter.z, F_EDGE,
-                      { nq: 20, ntheta: 121 });
-    } catch (e) { q2 = null; }
+    settings.beta0 = prof.beta0; settings.emp = prof.emp; settings.enp = prof.enp; settings.r0 = prof.r0;
+    settings.n_profile = 201;
   }
-  //: ★the flux contours travel WITH the solve (FYL-DESIGN-07 D-4).
-  //: They used to be marching-squared on the page thread, which is the one
-  //: place with no kernel — so the page carried its own copy of an algorithm
-  //: the kernel already has.  The levels are a pure function of psi_axis /
-  //: psi_bnd / the count, so nothing about them needs draw-time knowledge;
-  //: computing them here is what lets that copy go.
-  var segs = fluxSegments(res.psiAxis, res.psiBnd, res.psi, 14);
-
+  var rec = fy.complete('code/summary', {
+    settings: settings,
+    inputs: { device: deviceDoc(), equilibrium: eq,
+              discharge: { 'fylite:control_row': controlTable(shapeCtl) } } });
+  var X = function (k) { return rec.facts[k].value; };
+  //: a field with nothing in it (no strike leg, no control row, no surface
+  //: that closed) does not travel through the record: read it as empty
+  var F = function (k) { return rec.fields[k] ? fieldFlat(rec, k) : new Float64Array(0); };
+  var fin = function (v) { return isFinite(v) ? v : null; };
+  var sh = F('shape');
+  var sm = { r0: sh[0], a: sh[1], kappa: sh[2], deltaU: sh[3], deltaL: sh[4], z0: sh[5],
+             delta: 0.5 * (sh[3] + sh[4]) };
+  var split = function (flat, counts, width) {
+    var out = [], off = 0;
+    for (var k = 0; k < counts.length; k++) {
+      var n = counts[k] * width;
+      out.push(flat.slice(off, off + n)); off += n;
+    }
+    return out;
+  };
+  var segs = { inner: split(F('flux_inner'), F('flux_inner_count'), 4),
+               outer: split(F('flux_outer'), F('flux_outer_count'), 4), n: 14 };
+  var st = F('strike'), strike = [], i;
+  for (i = 0; i + 1 < st.length; i += 2) strike.push([st[i], st[i + 1]]);
+  var xv = F('xpts'), xpts = [];
+  for (i = 0; i + 3 < xv.length; i += 4)
+    xpts.push({ r: xv[i], z: xv[i + 1], psin: xv[i + 2], grad: xv[i + 3] });
+  var gv = F('gap');
+  var ca = F('control_achieved');
+  var control = (shapeCtl || []).map(function (row, k) {
+    var o = 6 * k, ok = ca[o] === 1;
+    var out = { kind: row.kind, ok: ok, want: null, got: null, at: null, seg: null,
+                why: ok ? null : 'unusable', label: row.label };
+    if (!ok) return out;
+    out.want = ca[o + 1]; out.got = fin(ca[o + 2]); out.at = [ca[o + 3], ca[o + 4]];
+    out.seg = row.kind === 'strike' ? ca[o + 5] : null;
+    return out;
+  });
+  var crit = { q95: X('has_q') ? fin(X('q95')) : null, q0: X('has_q') ? fin(X('q0')) : null,
+               li3: fin(X('li3')), strike: strike, xpts: xpts,
+               gap: isFinite(gv[0]) ? { gap: gv[0], r: gv[1], z: gv[2] } : null,
+               fbRatio: res.ip ? Math.abs(res.fbAmp / res.ip) : null, control: control };
+  var surfaces = null;
+  if (opts && opts.surfaces) {
+    var sx = F('surface_x'), sr = F('surface_r0'), sa = F('surface_a'), sk = F('surface_kappa'),
+        sd = F('surface_delta'), polys = split(F('surface_poly'), F('surface_count'), 2);
+    surfaces = [];
+    for (i = 0; i < sx.length; i++) {
+      var poly = [], pv = polys[i];
+      for (var q = 0; q + 1 < pv.length; q += 2) poly.push([pv[q], pv[q + 1]]);
+      surfaces.push({ x: sx[i], r0: sr[i], a: sa[i], kappa: sk[i], delta: sd[i], poly: poly });
+    }
+  }
+  var prof2 = null, q2 = null;
+  if (X('has_profiles')) {
+    prof2 = { x: F('psin_1d'), pprime: F('pprime'), ffprime: F('ffprim'), p: F('pres'), jc: X('jc') };
+    if (X('has_q')) q2 = { x: F('q_x'), q: F('q'), f: F('fpol'), q0: X('q0'), q95: X('q95') };
+  }
   return {
     fluxSegs: segs,
-    criteria: criteria(res, poly, q2),
-    surfaces: opts && opts.surfaces ? surfaceShapes(res, opts.surfaces) : null,
+    criteria: crit,
+    surfaces: surfaces,
     profiles: prof2, q: q2,
     psi: res.psi, psiAxis: res.psiAxis, psiBnd: res.psiBnd,
     axisR: res.axisR, axisZ: res.axisZ, ip: res.ip, residual: res.residual,
-    //: the solve's own verdict travels with its numbers — a summary that
-    //: carried the residual but not whether it met the tolerance leaves
-    //: every reader to guess what tolerance was asked for
     iterations: res.iterations, converged: !!res.converged,
     settled: !!res.settled, maskDelta: res.maskDelta,
     tol: res.tol, maxIter: res.maxIter, bndKind: res.bndKind,
     xptR: res.xptR, xptZ: res.xptZ, fbAmp: res.fbAmp,
-    lcfs: flat, shape: sm,
+    lcfs: F('lcfs'), shape: sm,
   };
 }
-
-// --- discharge design ------------------------------------------------------
-//
-// Iso-flux least squares on the PF channels, annealed: each pass fits the
-// coil-current CHANGE that would flatten psi over the target boundary
-// (and null the field at the requested X point), applies it under-relaxed,
-// and re-solves.  The regularization is annealed from stiff to loose so
-// the first passes stay near the starting scenario and the later ones can
-// reach the target; the plasma's own response to the current change is
-// what the re-solve supplies.
 
 /**
  * The machine as the fyo DEVICE DOCUMENT the kernel's document door reads.
@@ -658,6 +550,7 @@ function designPlan(msg, o) {
 
 /** A record's `fields/<name>/data` flattened to a Float64Array (row-major). */
 function fieldFlat(rec, name) {
+  if (!rec.fields[name]) throw new Error('the record carries no field `' + name + '`');
   var d = rec.fields[name].data, out = [];
   (function walk(v) {
     if (Array.isArray(v)) v.forEach(walk); else out.push(v);
