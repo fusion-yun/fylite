@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '5197d275aa22d15b'
+DIGEST = 'f42d2b90a010f044'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -165,6 +165,8 @@ TABLES = {
             'fit_sigma': {"path": 'fylite:fit_sigma', "units": '1', "rank": '1d'},
             'fit_eval_x': {"path": 'fylite:fit_eval_x', "units": '1', "rank": '1d'},
             'outline_levels': {"path": 'fylite:outline_levels', "units": '1', "rank": '1d'},
+            'wave_phases': {"path": 'fylite:wave_phases', "units": 's', "rank": '1d'},
+            'wave_t': {"path": 'fylite:wave_t', "units": 's', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -352,6 +354,7 @@ BLOCKS = {
         {'key': 'vessel', 'shape': '', 'units': 'assembled', 'gloss': "the vessel as an unknown: the deck's vessel units grouped by fylite:group under a uniform loop voltage per group, every group's response at the loops, on the grid and at the probes, and — with the reconstruction's rows bound — the joint least squares by Frisch-Waugh-Lovell (both sides residualised on the plasma basis' own signatures, truncated SVD) with how much of the vessel survives the projection"},
         {'key': 'selfcal', 'shape': '', 'units': 'assembled', 'gloss': 'the instrument layer: per-channel calibration factors computed/measured against their own median for one fit, or over the slices of a time series, with the dispersion — a channel-relative statement, never an absolute ratio'},
         {'key': 'shape', 'shape': '', 'units': 'assembled', 'gloss': "the shape of a closed (R, Z) outline and the volume it encloses (the pulse-design page's main-thread shapeMetrics / surfaceVolume on a solved boundary, the analysis page's g-file boundary import, Python's fyo.a_minor): R0 · Z0 · a · kappa · delta_upper · delta_lower by surfaces::shape_metrics and the volume by surfaces::enclosed_volume, as facts"},
+        {'key': 'waveform', 'shape': '', 'units': 'assembled', 'gloss': "the discharge's shape in time on the four phase times (the pulse-design page's wave(), Python's waveform.from_phases): the trapezoid, the three centre waveforms, the actuator or the phase label at the requested times — zerod::trapezoid / centre_waveform / actuator / phase_label, as the value field"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
@@ -676,4 +679,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'outline_levels', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'te_profile', 'time', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'x_ref', 'y_init']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'outline_levels', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'te_profile', 'time', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'wave_phases', 'wave_t', 'weight', 'weight_extra', 'x_ref', 'y_init']

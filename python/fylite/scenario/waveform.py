@@ -3,7 +3,7 @@
 A ``core_march`` driver has to say how a power, a boundary value or a
 density target moves through a discharge.  The 0-D line already has a
 shape for that — the kernel's four-phase trapezoid
-(:func:`fylite.kernel.zerod_waveform`) — but it is a SHAPE, parameterised
+(``code/waveform`` since T-4 第二十二刀; the flat ``zerod_waveform`` is oracle-only) — but it is a SHAPE, parameterised
 by four phase times, and the 1.5-D line needs the other thing: an
 arbitrary series a caller states point by point, one per quantity, each on
 its own time axis.
@@ -146,8 +146,20 @@ def from_phases(phases, *, which: str, flat: float = 0.0,
     #: the corners, plus a uniform fill — the corners must be ON the axis
     #: or a linear reading of the samples rounds them off
     grid = np.unique(np.concatenate([ph, np.linspace(ph[0], ph[-1], int(n))]))
-    val = kernel.zerod_waveform(ph, grid, which, flat=flat, start=start,
-                               end=end)
+    #: ★T-4 第二十二刀 (2026-09-06): through `code/waveform` — the same
+    #: `zerod::…` shapes, chosen by the index `which` names in
+    #: :data:`fylite.kernel.WAVEFORMS`; the flat entry is oracle-only now
+    try:
+        code = kernel.WAVEFORMS.index(which)
+    except ValueError:
+        raise kernel.KernelError(f"unknown waveform {which!r}; "
+                                 f"have {list(kernel.WAVEFORMS)}") from None
+    from ..io import fydoc
+    rec = fydoc.complete("code/waveform", {
+        "settings": {"which": float(code), "flat": float(flat),
+                     "start": float(start), "end": float(end)},
+        "inputs": {"discharge": {"fylite:wave_phases": ph, "fylite:wave_t": grid}}})
+    val = np.asarray(rec["fields"]["value"]["data"], float)
     return Waveform(grid, np.asarray(val, float), mode="linear",
                     name=name or which)
 

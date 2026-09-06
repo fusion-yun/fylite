@@ -89,8 +89,7 @@
     //: radiation a total rather than a bremsstrahlung estimate.  Listed so
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
-    'fylite_rs_zerod_waveform',
-                    'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
+                        'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
         'fylite_rs_quadrature',
         //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
@@ -675,30 +674,6 @@
   // every source term that makes the march an ENERGY BALANCE rather than a
   // temperature-shaped diffusion.  The page could therefore only ever show a
   // demo tier, and said so.  Nothing below is new physics: it is the wire.
-
-
-
-  /**
-   * The discharge's shape in time — one trapezoid over the four phase
-   * times `[t_breakdown, t_rampup_end, t_flattop_end, t_end]`.
-   *
-   * `o` = `{phases, t, flat, start, end, which}`; `which` defaults to 0
-   * (the raw trapezoid).  ★It is the KERNEL's trapezoid rather than four
-   * lines of JavaScript, and the entry's own comment says why: both hosts
-   * had their own copy of this shape and of the phase test.
-   */
-  Fy.prototype.zerodWaveform = function (o) {
-    var self = this, n = o.t.length;
-    return this.scope(function (s) {
-      var ph = s.fixed('waveform.phases', o.phases, 4),
-          t = s.put(o.t), out = s.zeros(n);
-      var rc = self.e.fylite_rs_zerod_waveform(
-        ph.ptr, t.ptr, BigInt(n), (o.which || 0) >>> 0,
-        num(o.flat, 1), num(o.start, 0), num(o.end, 0), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_zerod_waveform', rc);
-      return s.get(out);
-    });
-  };
 
 
 
@@ -1425,10 +1400,31 @@
   // this file is loaded on pages that never build one.
 
 
+  /**
+   * The discharge's shape in time — `code/waveform` (T-4 第二十二刀, 2026-09-06).
+   * `ph` the four phase times, `t` the times to evaluate at, `o.which`
+   * 0 trapezoid (o.flat / o.start / o.end) · 1..3 the centre waveforms
+   * (o.flat) · 4 actuator · 5 the phase label — the same choice the flat
+   * export made.  `validate-fyphys-waveform.mjs` holds it to the recorded
+   * flat answer, bit for bit.
+   */
+  function waveform(ph, t, o) {
+    if (!KERNEL)
+      throw new Error('FyPhys.waveform: no kernel — call FyPhys.useKernel()');
+    o = o || {};
+    var rec = KERNEL.complete('code/waveform', {
+      settings: { which: (o.which || 0) >>> 0, flat: +(o.flat || 0),
+                  start: +(o.start || 0), end: +(o.end || 0) },
+      inputs: { discharge: { 'fylite:wave_phases': Float64Array.from(ph),
+                             'fylite:wave_t': Float64Array.from(t) } } });
+    return Float64Array.from(rec.fields.value.data);
+  }
+
   root.FyPhys = {
     MU0: MU0,
     useKernel: useKernel,
     kernel: kernel,
+    waveform: waveform,
     makeGrid: makeGrid,
     sample: sample,
     coilPointResponse: coilPointResponse,

@@ -51,7 +51,7 @@ __all__ = [
     "KernelError", "KernelBackendError", "ABI_VERSION",
     "load", "available", "require", "Grid", "grid_of",
         "nn_ensemble", "nn_weight_count",
-        "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
+        "WAVEFORMS", "PHASE_NAMES",
     "zerod_stored_energy",
         "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
     "contour",     "direct_integrals", "gradient",
@@ -457,49 +457,6 @@ WAVEFORMS = _WAVEFORM_NAMES
 #: The phase names `zerod_waveform("phase", ...)` indexes into — the
 #: kernel's own `zerod::PHASE_NAMES`, which it has always declared.
 PHASE_NAMES = _PHASE_NAMES
-
-
-_sig("fylite_rs_zerod_waveform", [_ARR, _ARR, _U64, ctypes.c_uint32, _F64, _F64, _F64, _ARR], _I32)
-def zerod_waveform(phases, t, which: str, *, flat: float = 0.0,
-                   start: float = 0.0, end: float = 0.0):
-    """The discharge's shape in time — the kernel's.
-
-    ``phases`` is ``(t_breakdown, t_rampup_end, t_flattop_end, t_end)``.
-    ``which``: ``"trapezoid"`` (uses ``flat``/``start``/``end``),
-    ``"ip"``/``"ne"``/``"te"`` (the centre waveform, only ``flat``),
-    ``"actuator"`` (``flat`` = power, ``start``/``end`` = on/off times), or
-    ``"phase"`` (the phase INDEX of each sample — see :data:`PHASE_NAMES`).
-
-    ★★These decide what the run IS: the phase boundaries appear in the ramp
-    rates, in the flux budget and in the label a slice is reported under.
-    They read like plotting helpers and they are not — a second spelling of
-    them is a second discharge wearing the same name, and both the Python
-    layer and the browser page had one.
-    """
-    lib = require()
-    try:
-        code = WAVEFORMS.index(which)
-    except ValueError:
-        raise KernelError(f"unknown waveform {which!r}; "
-                          f"have {list(WAVEFORMS)}") from None
-    ph = _f(np.asarray(phases, float).ravel())
-    if ph.size != 4:
-        raise KernelError("phases must be 4: t_breakdown, t_rampup_end, "
-                          "t_flattop_end, t_end")
-    t_a = _f(np.atleast_1d(t))
-    out = np.empty(t_a.size)
-    rc = lib.fylite_rs_zerod_waveform(ph, t_a, t_a.size, code, float(flat),
-                                      float(start), float(end), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_waveform returned {rc}")
-    return out
-
-
-def zerod_phase_labels(phases, t) -> list:
-    """The phase NAME of each sample — :func:`zerod_waveform` with the
-    spelling applied."""
-    idx = zerod_waveform(phases, t, "phase").astype(int)
-    return [PHASE_NAMES[i] for i in idx]
 
 
 _sig("fylite_rs_fill_filaments", [_ARR, _ARR, _U64, _F64, _U64, _F64, _ARR],

@@ -399,6 +399,14 @@
    "gated": false,
    "gloss": "The previous ladder's dV/drho [m^2] remapped by psi_N onto the new one (第十九刀, 2026-09-05): code/refit hands it back after an alternation and the next block's FIRST step binds it under inputs/evolve (`vprime_moved`) so the moving-volume term sees the volume the equilibrium actually moved. Not gated: the door's raw output field and the readback key are bare by construction; the document slot under inputs/evolve is the prefixed one."
   },
+  "wave_phases": {
+   "gated": false,
+   "gloss": "The four phase times (t_breakdown, t_rampup_end, t_flattop_end, t_end) `code/waveform` shapes a discharge on — the pulse-design page's main thread and `waveform.from_phases` write it since T-4 第二十二刀. Not gated: four seconds, both hosts spell them on the wire only."
+  },
+  "wave_t": {
+   "gated": false,
+   "gloss": "The times `code/waveform` evaluates the shape at — written beside `wave_phases` by both hosts. Not gated: a plain time list."
+  },
   "weight": {
    "gated": false,
    "gloss": "A channel's weight on a coil element, inside fylite:channel_map. Not gated: `weight` is an ordinary local name."

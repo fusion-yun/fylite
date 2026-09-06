@@ -4564,9 +4564,10 @@ FyScenario.whenDevices(function () {
   function wave(ph, t, flat, start, end, which) {
     var K = P.kernel();
     if (!K) return null;
-    return K.zerodWaveform({ phases: ph, t: t, flat: flat,
-                             start: start || 0, end: end || 0,
-                             which: which || 0 });
+    //: ★T-4 第二十二刀 (2026-09-06): through the tree door (`code/waveform`,
+    //: `FyPhys.waveform`) — the same shapes, the flat export left the interface
+    return FyPhys.waveform(ph, t, { flat: flat, start: start || 0, end: end || 0,
+                                    which: which || 0 });
   }
 
   // --- the boundary trajectory ---------------------------------------------
