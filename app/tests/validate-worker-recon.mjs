@@ -26,7 +26,8 @@
 // its truth off `code/forward`), once with a vessel current injected, and the
 // POINT chords twice (第三十四刀: `code/chords`), on the twin and on the deck,
 // and the bootstrap closure twice (第三十五刀: `code/bootstrap`), on the deck fit
-// and through the twin's self-consistent outer loop.
+// and through the twin's self-consistent outer loop; then a three-slice time
+// series with its self-calibration over the slices (第三十六刀: `code/selfcal`).
 //
 // Run: node app/tests/validate-worker-recon.mjs [--record]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -211,6 +212,10 @@ function pick(m) {
     closureLoop: m.closureLoop ? { history: arr(m.closureLoop.history), ip: arr(m.closureLoop.ip), q0: arr(m.closureLoop.q0),
                                    rounds: m.closureLoop.rounds, stop: m.closureLoop.stop, error: m.closureLoop.error,
                                    spread: m.closureLoop.spread, fBs: m.closureLoop.fBs } : null,
+    selfcal: m.selfcal ? { loops: m.selfcal.loops && !m.selfcal.loops.error ? { factors: arr(m.selfcal.loops.factors), keep: arr(m.selfcal.loops.keep),
+                                                                                 median: m.selfcal.loops.median, dispersion: m.selfcal.loops.dispersion, tol: m.selfcal.loops.tol } : (m.selfcal.loops || null),
+                           probes: m.selfcal.probes && !m.selfcal.probes.error ? { factors: arr(m.selfcal.probes.factors), keep: arr(m.selfcal.probes.keep),
+                                                                                   median: m.selfcal.probes.median, dispersion: m.selfcal.probes.dispersion } : (m.selfcal.probes || null) } : null,
     faraday: m.faraday ? { target: arr(m.faraday.target), coil: arr(m.faraday.coil), model: arr(m.faraday.model),
                            viaRows: arr(m.faraday.viaRows), rowsVsFieldRel: m.faraday.rowsVsFieldRel,
                            measDeg: arr(m.faraday.measDeg), modelDeg: arr(m.faraday.modelDeg), weight: arr(m.faraday.weight) } : null,
@@ -223,6 +228,24 @@ for (const [name, over] of Object.entries(CONFIGS)) {
   const m = take('recon');
   inbox.splice(0, inbox.length);
   got[name] = JSON.parse(JSON.stringify(pick(m)));
+}
+//: ★第三十六刀: the TIME SERIES — three of the deck's slices, mapped the way the
+//: page's `deckSlices` maps them (the deck's own currents, the raw total flux,
+//: the Rogowski current, the probes, the chords; the reference pressure only
+//: at the reference instant), with the self-calibration over the slices
+{
+  const sl = M.slices.slice(0, 3).map((s2) => ({
+    time: s2.time_s, loopMeasTotal: s2.loopMeasTotal, loopWeights: s2.loopWeights, chan: s2.aturns,
+    ipOverride: s2.ip, probeMeas: s2.probeMeas, probeWeights: s2.probeWeights, point: s2.point,
+    pressure: Math.abs(s2.time_s - R.time_s) < 1e-6 ? R.pres : null }));
+  send(message({ cmd: 'recon_series', slices: sl }));
+  const m = take('recon_series');
+  inbox.splice(0, inbox.length);
+  const o = { time: arr(m.time), failed: m.failed, ms: undefined };
+  for (const k of ['ip', 'q0', 'q95', 'li3', 'axisR', 'axisZ', 'span', 'chi2', 'p0', 'kappa', 'a', 'r0', 'ipFitted', 'coilPull']) o[k] = arr(m[k]);
+  o.selfcal = m.selfcal ? { factors: arr(m.selfcal.factors), scatter: arr(m.selfcal.scatter), slices: arr(m.selfcal.slices) } : null;
+  o.selfcalError = m.selfcalError || null;
+  got.series = JSON.parse(JSON.stringify(o));
 }
 
 if (RECORD) {

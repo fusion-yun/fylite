@@ -2291,12 +2291,17 @@ function selfcalOf(meas, model, wts, tol) {
   var n = Math.min(meas.length, model.length);
   var alive = new Float64Array(n);
   for (var i = 0; i < n; i++) alive[i] = (wts && wts[i]) ? 1 : 0;
+  //: ★第三十六刀: the instrument layer is `code/selfcal`'s — one fit's rows in,
+  //: the factors, the verdict, the median and the dispersion out
   try {
-    var r = fy.selfcalSingle(meas.slice(0, n), model.slice(0, n), alive,
-                             tol === undefined ? 0.2 : tol);
-    r.dispersion = fy.factorDispersion(r.factors);
-    r.tol = tol === undefined ? 0.2 : tol;
-    return r;
+    var rec = fy.complete('code/selfcal', {
+      settings: { tol: tol === undefined ? 0.2 : tol },
+      inputs: { discharge: { 'fylite:selfcal_measured': Float64Array.from(meas.slice(0, n)),
+                             'fylite:selfcal_computed': Float64Array.from(model.slice(0, n)),
+                             'fylite:selfcal_alive': alive } } });
+    return { factors: fieldFlat(rec, 'factors'), keep: fieldFlat(rec, 'keep'),
+             median: rec.facts.median.value, dispersion: rec.facts.dispersion.value,
+             tol: rec.facts.tol.value };
   } catch (e) {
     return { error: e.message };
   }
@@ -2773,9 +2778,11 @@ function reconSeriesRun(msg) {
   //: two apart is the whole reason a shot has more than one slice.
   var alive = new Float64Array(nl).fill(1);
   try {
-    var sc = fy.selfcalSlices(ratio, slices.length, nl, alive);
-    out.selfcal = { factors: sc.factors, scatter: sc.scatter,
-                    slices: sc.slices };
+    //: ★第三十六刀: the factors over the slices are `code/selfcal`'s
+    var sc = fy.complete('code/selfcal', {
+      settings: {}, inputs: { discharge: { 'fylite:selfcal_ratio': ratio, 'fylite:selfcal_alive': alive } } });
+    out.selfcal = { factors: fieldFlat(sc, 'factors'), scatter: fieldFlat(sc, 'scatter'),
+                    slices: fieldFlat(sc, 'slices') };
   } catch (e) { out.selfcalError = e.message; }
   out.ms = Date.now() - t0;
   post(out);

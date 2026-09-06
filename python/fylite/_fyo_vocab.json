@@ -378,6 +378,22 @@
   "p_rot_profile": {
    "gated": false,
    "gloss": "A rotation pressure profile [Pa] on uniform normalised flux — the other non-thermal share, only ever an imported profile (`code/bootstrap`). Not gated: the page's `pd.rot`, a bare local."
+  },
+  "selfcal_measured": {
+   "gated": false,
+   "gloss": "One fit's measured readings, one per channel, in the instrument's own unit — with `selfcal_computed` the rows `code/selfcal` takes the per-channel calibration factors from (第三十六刀). Not gated: the page's `meas`, a bare local."
+  },
+  "selfcal_computed": {
+   "gated": false,
+   "gloss": "The model's reading of the same channels (`code/selfcal`); the factor is computed/measured against the median of the alive channels. Not gated: the page's `model`, a bare local."
+  },
+  "selfcal_alive": {
+   "gated": false,
+   "gloss": "Which channels count in the self-calibration, 1 or 0 per channel (`code/selfcal`); absent on one fit, every channel counts. Not gated: bound beside its rows, never bare."
+  },
+  "selfcal_ratio": {
+   "gated": false,
+   "gloss": "A time series' model/measured ratio matrix, one row per slice and one column per channel, NaN where a channel was not read — `code/selfcal` takes each channel's factor over the slices, its scatter and the slice count from it. Not gated: the series' `ratio`, a bare local."
   }
  }
 }
