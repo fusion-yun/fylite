@@ -78,8 +78,12 @@ const send = (msg) => globalThis.self.onmessage({ data: msg });
 
 // --- 1. init ------------------------------------------------------------------
 await send({ cmd: 'init', machine: M });
+//: 第四十六刀: the species menu comes through the tree door (`code/adas_species`)
+const ready = inbox.find((m) => m.type === 'ready');
+assert.ok(ready && Array.isArray(ready.species) && ready.species.length > 20, 'the ready message carries the ADAS species list');
+assert.ok(ready.species.includes('W') && ready.species.includes('He'), 'the species list names tungsten and helium');
+ok(`init on ${M.name}: ${M.coils.length} coils, ${M.channels.length} channels, ${ready.species.length} ADAS species`);
 inbox.splice(0, inbox.length);
-ok(`init on ${M.name}: ${M.coils.length} coils, ${M.channels.length} channels`);
 
 // --- 2. start -----------------------------------------------------------------
 //: the target sized from the machine's own box and field: 60 % of the half

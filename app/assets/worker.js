@@ -76,9 +76,9 @@ function init(machine) {
   var t0 = Date.now();
   return self.FyLite.attach('fylite_rs.wasm').then(function (inst) {
     fy = inst;
-    //: the helper modules borrow the kernel rather than each loading
-    //: one: one instance, one linear memory, one ABI check
-    P.useKernel(fy);
+    //: ★第四十六刀: the physics layer is no longer bound to the kernel here —
+    //: the worker calls no kernel-backed physics-layer function any more;
+    //: what it still takes from `FyPhys` is the grid object and one constant
     grid = P.makeGrid(M.grid);
     NG = grid.nr * grid.nz;
     NEL = M.coils.length;
@@ -106,7 +106,7 @@ function init(machine) {
            //: page: an unknown name radiates zero rather than complaining,
            //: so a hard-coded menu that drifted from the kernel's table
            //: would offer species whose line radiation is always zero
-           species: fy.adasSpecies(),
+           species: fy.complete('code/adas_species', { settings: {}, inputs: {} }).notes.slice(),
            timing: { load: tG - t0, coils: tL - tG, loops: Date.now() - tL },
            // dr/dz travel too: FyPhys.sample() divides by them, and without
            // them every page-side field lookup silently returns NaN
