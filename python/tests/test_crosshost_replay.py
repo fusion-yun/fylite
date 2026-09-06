@@ -25,6 +25,15 @@ import pytest
 from fylite import kernel as K
 from fylite.engine import crosshost as X
 
+
+def _adas_id(name: str) -> float:
+    """The ADAS table index of a species, read off the `code/adas_species`
+    door — the flat `adas_id` is oracle-only since T-4 第十九刀 (2026-09-06)."""
+    from fylite.io import fydoc
+    return float(fydoc.complete("code/adas_species",
+                                {"settings": {}, "inputs": {}})["notes"].index(name))
+
+
 pytestmark = pytest.mark.skipif(
     shutil.which("node") is None or not X.WASM.exists(),
     reason="A-7 needs node and app/assets/fylite_rs.wasm")
@@ -99,7 +108,7 @@ def _evolve_heat():
                 "edge_ti": 300, "dt": 0.002, "dt_target": 0.02,
                 "dt_min": 1e-5, "dt_max": 0.02, "d_pc": 0, "p_e": 4e6,
                 "p_i": 4e6, "dep_centre": 0, "dep_width": 0.3, "brem": 1,
-                "bulk_id": K.adas_id("D"), "imp_id": K.adas_id("C"),
+                "bulk_id": _adas_id("D"), "imp_id": _adas_id("C"),
                 "imp_conc": 0.01, "imp_z": D.ADAS_Z["C"], "alpha": 1,
                 "dt_fraction": 0.5, "zeff": 1.5, "pedestal": 1, "ip": 15e6,
                 "a": 2.0, "r0": 6.2, "kappa": 1.86, "delta": 0.48},

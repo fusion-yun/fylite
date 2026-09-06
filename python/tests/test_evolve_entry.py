@@ -24,6 +24,15 @@ import pytest
 
 from fylite import kernel as K
 
+
+def _adas_id(name: str) -> float:
+    """The ADAS table index of a species, read off the `code/adas_species`
+    door — the flat `adas_id` is oracle-only since T-4 第十九刀 (2026-09-06)."""
+    from fylite.io import fydoc
+    return float(fydoc.complete("code/adas_species",
+                                {"settings": {}, "inputs": {}})["notes"].index(name))
+
+
 ROOT = Path(__file__).resolve().parents[2]
 
 #: deuteron mass [g] — the same constant the worker passes (EV_MD_G)
@@ -51,7 +60,7 @@ def _params(**over):
          "dt": 0.002, "dt_target": 0.02, "dt_min": 1e-5, "dt_max": 0.02,
          "d_pc": 0.0, "p_e": 4.0e6, "p_i": 4.0e6,
          "dep_centre": 0.0, "dep_width": 0.3,
-         "brem": 1.0, "bulk_id": K.adas_id("D"),
+         "brem": 1.0, "bulk_id": _adas_id("D"),
          "imp_id": -1.0, "imp_conc": 0.0, "imp_z": 0.0,
          "alpha": 0.0, "dt_fraction": 0.5, "zeff": 1.5,
          "pedestal": 0.0, "ip": 15.0e6, "a": 2.0, "r0": 6.2,
@@ -539,7 +548,7 @@ def _hollow_q_call(n=41, nt=10, q0=0.80, q_a=4.0, saw_mix=1.2, sawtooth=True,
               "edge_ti": 100.0, "dt": 2e-3, "dt_target": 0.02,
               "dt_min": 1e-5, "dt_max": 0.02, "d_pc": 0.0,
               "p_e": 2e6, "p_i": 2e6, "dep_centre": 0.0, "dep_width": 0.3,
-              "brem": 1.0, "bulk_id": K.adas_id("D"), "imp_id": -1.0,
+              "brem": 1.0, "bulk_id": _adas_id("D"), "imp_id": -1.0,
               "imp_conc": 0.0, "imp_z": 0.0, "alpha": 0.0,
               "dt_fraction": 0.5, "zeff": 1.5, "pedestal": 0.0, "ip": 1e6,
               "a": a, "r0": r0, "kappa": 1.7, "delta": 0.4,

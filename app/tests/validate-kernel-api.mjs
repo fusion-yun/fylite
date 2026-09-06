@@ -156,18 +156,15 @@ if (viaApi.via !== 'api') {
 const CASES = [
   ['ellipke  完全椭圆积分（入数组、两个出数组）',
    (fy) => fy.ellipke([0, 0.25, 0.5, 0.75, 0.9])],
-  ['spitzerEta  三个入数组',
-   (fy) => fy.spitzerEta([100, 1000, 5000], [1, 2, 3], [15, 16, 17])],
   ['interp  两组长度不同的入数组',
    (fy) => fy.interp([0.1, 0.5, 0.9], [0, 0.25, 0.5, 0.75, 1], [0, 1, 4, 9, 16])],
   ['quadrature  规则由整数选，出一个数',
    (fy) => fy.quadrature([0, 1, 4, 9, 16, 25, 36], 0.5, 0)],
   //: ★`dtReactivity` · `trappedFractionEps` · `adasSpecies` · `adasCooling` left
-  //: the interface in T-4 第十二刀 (2026-09-06): no page calls them, so they are
-  //: oracle-only and neither path serves them.  `adasId` stays (the pages' species
-  //: vocabulary) and keeps the byte-in row.
-  ['adasId  字节入参',
-   (fy) => [fy.adasId('W'), fy.adasId('D')]],
+  //: the interface in T-4 第十二刀 (2026-09-06), `spitzerEta` · `adasId` in 第十九刀
+  //: (2026-09-06): no page calls them (the species vocabulary is `code/adas_species`
+  //: through the tree door; the ids the evolve door takes are the probe's), so they
+  //: are oracle-only and neither path serves them.  The byte-in shape has no row left.
   ['millerBoundary  形状参数进、两条轮廓出',
    (fy) => fy.millerBoundary({ r0: 1.85, z0: 0.02, a: 0.45, kappa: 1.8,
                                deltaU: 0.4, deltaL: 0.55 }, 33)],

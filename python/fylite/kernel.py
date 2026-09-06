@@ -63,9 +63,8 @@ __all__ = [
     "line_integral",         "dispersion_root", "vertical_plant",     "inside_polygon",             "table_ratio_check",
     "ellipke",     "element_response",
     "element_probe_response",
-    "coupling_gradient", "spitzer_eta",
-    "reintegrate", "flux_match", "FluxMatchError",
-    "adas_id",     "volume_int",
+    "coupling_gradient",     "reintegrate", "flux_match", "FluxMatchError",
+        "volume_int",
     "SURFACE_KEYS", "surface_block",     "TGLF_SPECIES_ROWS",
     "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
@@ -1042,30 +1041,6 @@ def table_ratio_check(table, mine, grid_r, grid_z, elems) -> dict:
             "ratio_min": float(out3[1]), "ratio_max": float(out3[2])}
 
 
-_sig("fylite_rs_spitzer_eta", [_ARR] * 3 + [_U64, _ARR], _I32)
-def spitzer_eta(te_ev, zeff=1.0, lnlam=17.0):
-    """Parallel Spitzer resistivity [Ω·m] — the NRL formula tier,
-    ``η_∥ = 0.51 η_⊥`` (Spitzer & Härm, ``γ(Z=1) = 0.51``).
-
-    ★Corrected at ABI v111 (T-A18): through v110 this returned the NRL
-    PERPENDICULAR coefficient under the parallel name, and the ohmic power
-    computed through it was high by ``1/0.51``.  The perpendicular value is
-    the oracle-only ``spitzer_eta_perp``; ``spitzer_eta / spitzer_eta_perp == 0.51``
-    per point, pinned by tests on both hosts.
-
-    The trapped-particle correction is a separate model, not folded in.
-    """
-    lib = require()
-    te = _f(np.atleast_1d(te_ev))
-    z = _f(np.broadcast_to(np.asarray(zeff, float), te.shape))
-    l = _f(np.broadcast_to(np.asarray(lnlam, float), te.shape))
-    out = np.empty(te.size)
-    rc = lib.fylite_rs_spitzer_eta(te, z, l, te.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_spitzer_eta returned {rc}")
-    return out
-
-
 _sig("fylite_rs_reintegrate", [_ARR, _ARR, _U64, _F64, _I32, _ARR], _I32)
 def reintegrate(gradient, r, anchor: float, *, log: bool = True):
     """A profile from its gradient, integrated INWARD from the edge.
@@ -1180,23 +1155,6 @@ _FLUX_MATCH_ERRORS = {
          "insensitive to at least one gradient here, which is a statement "
          "about the physics rather than a numerical nuisance"),
 }
-
-
-# --------------------------------------------------------------------------- #
-# source terms and their integrals (sources.rs)
-# --------------------------------------------------------------------------- #
-_sig("fylite_rs_adas_id", [ctypes.c_char_p, _U64], _I32)
-def adas_id(name: str) -> int:
-    """The kernel's index for an ADAS species, or −1 for an unknown one.
-
-    ★−1 is worth checking rather than ignoring: an unknown species radiates
-    ZERO line power downstream (upstream's behaviour), so a typo in a
-    species name yields a plasma with no impurity radiation rather than a
-    complaint.
-    """
-    lib = require()
-    b = str(name).encode()
-    return int(lib.fylite_rs_adas_id(b, len(b)))
 
 
 _sig("fylite_rs_volume_int", [_ARR, _ARR, _ARR, _U64, _I32, _ARR], _I32)

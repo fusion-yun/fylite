@@ -90,7 +90,7 @@
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
     'fylite_rs_zerod_waveform',
-            'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
+                    'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
         'fylite_rs_quadrature',
         //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
@@ -748,26 +748,6 @@
 
 
   /**
-   * Parallel Spitzer resistivity [Ohm m]; `te` in eV, arrays throughout.
-   * ★Corrected at v111 (T-A18): now the parallel branch `0.51 eta_perp` —
-   * through v110 the entry carried the NRL PERPENDICULAR coefficient and
-   * the ohmic power was high by 1/0.51.
-   */
-  Fy.prototype.spitzerEta = function (te, zeff, lnlam) {
-    var self = this, n = te.length;
-    return this.scope(function (s) {
-      var a = s.put(te), b = s.fixed('eta.zeff', zeff, n),
-          c = s.fixed('eta.lnlam', lnlam, n), out = s.zeros(n);
-      var rc = self.e.fylite_rs_spitzer_eta(
-        a.ptr, b.ptr, c.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_spitzer_eta', rc);
-      return s.get(out);
-    });
-  };
-
-
-
-  /**
    * The discharge's shape in time — one trapezoid over the four phase
    * times `[t_breakdown, t_rampup_end, t_flattop_end, t_end]`.
    *
@@ -786,25 +766,6 @@
         num(o.flat, 1), num(o.start, 0), num(o.end, 0), out.ptr);
       if (rc !== 0) throw new SolveError('fylite_rs_zerod_waveform', rc);
       return s.get(out);
-    });
-  };
-
-
-  /**
-   * The kernel's index for a species name, or -1 for one it does not carry.
-   *
-   * ★-1 is an ANSWER and callers must check it: downstream an unknown id
-   * means no line radiation at all, so a typo would come back as a clean
-   * plasma rather than as an error.
-   */
-  Fy.prototype.adasId = function (name) {
-    var self = this, str = String(name || '');
-    return this.scope(function (s) {
-      var len = str.length;
-      var buf = s.zeros(Math.max(1, Math.ceil(len / 8)));
-      var b = new Uint8Array(self.e.memory.buffer, buf.ptr, Math.max(1, len));
-      for (var k = 0; k < len; k++) b[k] = str.charCodeAt(k) & 0x7f;
-      return self.e.fylite_rs_adas_id(buf.ptr, BigInt(len));
     });
   };
 
