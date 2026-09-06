@@ -337,7 +337,7 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 | 快离子压强与力矩 | `fyo:core_profiles` 的快离子压强；`fyo:core_sources` 的动量源 | `nbi.deposit` |
 | 聚变 $\alpha$ 加热 | `fyo:core_sources`：$\alpha$ 能量源 | `assembly.alpha_si` |
 | 低杂波（可达性、共振、效率、沉积） | `fyo:core_sources`：LH 电流与功率 | `scenario.model.lh` |
-| 离子回旋少数离子加热与快波驱流 | `fyo:core_sources`：ICRH 功率与 FWCD 电流 | `scenario.model.ic` |
+| 离子回旋少数离子加热与快波驱流 | `fyo:core_sources`：ICRH 功率与 FWCD 电流 | 内核 `heating.rs` 有算子而**无门**、无宿主调用；Python 装配 `scenario.model.ic` 自 2026-09-06 归内核仓测试树（`tests/oracles/ic.py`） |
 | 电子回旋（模型在，未接出） | —（未接到 fyo 面） | — |
 :::
 

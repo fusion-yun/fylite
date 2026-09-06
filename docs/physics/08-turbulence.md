@@ -739,7 +739,7 @@ tglf09 $1.4\times10^{-1}$ 在回归测试中**作为开放项断言**；(vi) `NM
 | 装配与色散求解 | `fyo:mhd_linear` 式的线性增长率与实频（本模型自带） | `scenario.model.gyrofluid`（线性） |
 | $k_y$ 谱与饱和通量 | `fyo:core_transport`：能量 / 粒子 / 动量通量 | `scenario.model.gyrofluid` |
 | 归一与 gyro-Bohm 单位 | —（通量的单位约定） | {ref}`phys04-mapping-tglf` |
-| 神经网络代理评估 | `fyo:core_transport`（同一组通量，代理路径） | `fylite.nn.Surrogate`；`scenario.model.qlknn` |
+| 神经网络代理评估 | `fyo:core_transport`（同一组通量，代理路径） | `fylite.nn.Surrogate`；QLKNN 装配 `scenario.model.qlknn` / `qlknn_closure` 自 2026-09-06 归内核仓测试树（`tests/oracles/`） |
 | 台基代理（EPED1-NN） | `fyo:core_profiles`：台基顶的 $p$、宽度 | {ref}`phys11-pedestal` |
 | Bohm / gyro-Bohm 标度闭包 | `fyo:core_transport`：$\chi$（标度律档） | —（对拍用） |
 :::

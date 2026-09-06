@@ -36,7 +36,6 @@ BASELINE = {
     'scenario/analysis/loop.py': 4,
     'scenario/analysis/moments.py': 2,
     'scenario/analysis/recon_rs.py': 3,
-    'scenario/control/evolution.py': 1,
     'scenario/control/stability.py': 6,
     'scenario/control/vertical.py': 1,
     'scenario/design/__init__.py': 3,
@@ -44,14 +43,11 @@ BASELINE = {
     'scenario/model/__init__.py': 0,
     'scenario/model/assembly.py': 13,
     'scenario/model/closure.py': 49,
-    'scenario/model/edge.py': 2,
     'scenario/model/gyrofluid.py': 8,
-    'scenario/model/ic.py': 2,
     'scenario/model/lh.py': 1,
     'scenario/model/mapping.py': 3,
     'scenario/model/nbi.py': 4,
     'scenario/model/neoclassical.py': 11,
-    'scenario/model/qlknn_closure.py': 21,
     'scenario/waveform.py': 2,
 }
 

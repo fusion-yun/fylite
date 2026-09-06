@@ -180,7 +180,7 @@ KBM 交叉检验 $G=\Delta/\sqrt{\beta_{p,\rm ped}}$：ITER 0.0748、DIII-D 0.07
 NF 51 §3.1 给 $G=0.084\pm0.010$，EPED1 "因历史原因"保留 0.076。训练集无 EAST、无 C-Mod。
 
 〔接入芯部〕〔实现〕场景层 `evolve_heat(pedestal = 1)`：$I_p\le0$ 拒绝；$\beta_N$ 由态计算（$\ge0.05$）；$T_{\rm ped}$ 作**下一步**
-的 Dirichlet 边界（一步滞后）。Python `stationary.py` 按 FUSE `ActorStationaryPlasma` 次序（源 → 台基 → 输运 → 电流 → 锯齿 → 平衡）
+的 Dirichlet 边界（一步滞后）。稳态外环是宿主围着 `code/steady_current` 与通量匹配各阶段的节奏（worker），按 FUSE `ActorStationaryPlasma` 次序（源 → 台基 → 输运 → 电流 → 锯齿 → 平衡；Python 的 `stationary.py` 自 2026-09-06 退役）
 {cite}`meneghini2024fuse`。
 
 (phys11-python)=
@@ -236,7 +236,7 @@ $T_{e,\rm sep}$、$T_{i,\rm sep}$、边界浓度；"什么都没装——调用�
 | 内容 | 结果落在 fyo 的哪里 | Python 入口 |
 | :--- | :--- | :--- |
 | Mavrin 非日冕原子数据 | —（辐射率，供下列各行与 {ref}`phys10-intro`） | `fylite.kernel.edge_noncoronal` |
-| 扩展 Lengyel 闭式 | `fyo:core_profiles` 的分界面边界值 | `scenario.model.edge.boundary_conditions` |
+| 扩展 Lengyel 闭式 | `fyo:core_profiles` 的分界面边界值 | 内核 `lengyel` 算子（`lengyel_inverse`，自 2026-09-06 仅神谕构建可见）；Python 装配 `scenario.model.edge` 归内核仓测试树（`tests/oracles/edge.py`） |
 | 两点模型态 | 同上，另出靶板温度与平行热流 | 同上 |
 | Lengyel 反解 / 正解 | 同上（给定靶温反求杂质浓度，或反之） | 同上 |
 | 中性粒子蒙特卡洛 | `fyo:core_sources`：中性带来的粒子与能量源 | `fylite.kernel.neutrals_mc` |

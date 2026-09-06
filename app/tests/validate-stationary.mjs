@@ -284,89 +284,25 @@ if (so) {
       '★没有一轮的电压被量程夹住（夹住了要报出来，不是悄悄用）');
 }
 
-console.log('\n〔己〕跨宿主：稳态电流那一步，两个宿主同一个解');
-//: ★★T-C14〔五〕。会话文件里 `fylite:steady_current` 带着
-//: `solve_core(dt = inf, channels = {current})` 的**全部入参**（12 位有效），
-//: 这里把它们原样喂给 `fylite.scenario.model.stationary.steady_current`，
-//: 两边必须落在同一条 ψ 上。★沿用 `validate-ip-reading`〔乙〕那条既有规矩：
-//: 容差 1e-6，因为文件是**有意**按 12 位截断写的。
-//: ★这道判据判的是「同一个解」，不是「同一条闭包」——σ 与 j_ni 是浏览器那一
-//: 轮闭包的原值，交给 Python 的是**解**这一件事。两句话分开，是因为它们会
-//: 分别出错。
+console.log('\n〔己〕跨宿主：稳态电流那一步');
+//: ★★T-C14〔五〕used to re-do this step in Python (`scenario.model.stationary.
+//: steady_current`) from the arrays the session file recorded and hold the two
+//: hosts to one ψ.  Since T-4 第九刀 (2026-09-06) there is no second host:
+//: `stationary.py` is retired, the step is `code/steady_current` (the worker's
+//: `evStationaryCurrent` calls it), and the kernel repository's
+//: `test_transport_core.py` / `test_evolve_fluxmatch_code.py` hold the door.
+//: What stays here is the RECORD: the file must still carry the step's inputs
+//: and answer, or〔五〕could not be re-asked by anyone.
 const sc = so ? so['fylite:steady_current'] : null;
 say(!!sc, '★多轮时写出稳态电流那一步的入参与出参（只有答案的文件判不了〔五〕）');
 if (sc) {
-  const scFile = join(OUT, 'steady.json');
-  writeFileSync(scFile, JSON.stringify(sc));
-  const PY = `
-import json, sys
-sys.path.insert(0, ${JSON.stringify(ROOT + '/python')})
-import numpy as np
-from fylite.scenario.model import stationary
-d = json.load(open(${JSON.stringify(scFile)}))
-out = stationary.steady_current(
-    d['fylite:rho_tor'], vprime=d['fylite:vprime'], gm3=d['fylite:gm3'],
-    gm2=d['fylite:gm2'], fpol=d['fylite:f_pol'], b0=d['fylite:b0'],
-    te=d['fylite:t_e'], ti=d['fylite:t_i'],
-    # ★与浏览器那一侧同一件事：这一支马其实用不到密度（热道与密度道都关着），
-    # 所以喂什么都一样 —— 喂第一种离子那一块，免得读者以为它进了方程。
-    ne=np.asarray(d['fylite:n_i'], float)[:len(d['fylite:rho_tor'])],
-    psi=d['fylite:psi_in'], sigma_par=d['fylite:sigma_par'],
-    j_ni=d['fylite:j_ni'], edge_psi=d['fylite:edge_psi'],
-    # ★★步长与边界速率一起喂——这一支马不是 dt = inf：inf 会把欧姆项整个
-    # 去掉，只剩非感应电流。平顶是 dpsi/dt = V_loop 均匀的稳态。
-    dt=d['fylite:dt'], edge_psi_rate=d['fylite:edge_psi_rate'],
-    tol_steady=d['fylite:tol_steady'], n_coupling=d['fylite:n_coupling'])
-ref = np.asarray(d['fylite:psi_out'], float)
-psi = np.asarray(out['psi'], float)
-den = float(np.max(np.abs(ref))) or 1.0
-# ★浏览器那一侧的 I_p：从**文件里的那条 ψ** 上读，用同一支式子（fyo 那份按
-# Wb/rad 写，而这条 ψ 是总磁通，所以除 2π——换算写在这里，不在任一侧的脑子里）
-from fylite import fyo
-ip_ref = fyo.enclosed_plasma_current(d['fylite:rho_tor'], d['fylite:vprime'],
-                                     d['fylite:gm2'], ref / (2.0 * np.pi))
-print(json.dumps({'worst': float(np.max(np.abs(psi - ref))) / den,
-                  'i_p': out['i_p'], 'ip_ref': float(ip_ref[-1]),
-                  'psi0': float(psi[0]), 'ref0': float(ref[0])}))
-`;
-  let py = null;
-  try {
-    py = JSON.parse(execFileSync('python3', ['-c', PY],
-                                 { encoding: 'utf8' }).trim());
-  } catch (e) {
-    say(false, 'Python 侧跑得起来', String(e.message || e).slice(0, 300));
-  }
-  if (py) {
-    say(py.worst < 1e-6,
-        '★★两个宿主把稳态 ψ 解到同一条曲线上（装配层同口径）',
-        `最大相对差 ${py.worst.toExponential(2)}（浏览器 ψ(0) `
-        + `${py.ref0.toExponential(6)} · Python ${py.psi0.toExponential(6)}）`);
-    //: ★★★闸子第一次跑时这里是 1.28e-2，而那**不是缺陷**：推进档每一趟耦合都
-    //: 重跑闭包，文件里记的 σ/j_ni 是它最后一趟的值，另一宿主拿它们去解会落在
-    //: 一个皮卡步之外。★把容差放宽到能咽下 1.3 % 就等于让这道判据不再抓得住
-    //: 它存在的那类错（一个 2π 是 6 倍，一处度规是几十 %——但一处符号或一个
-    //: 因子 1.02 就正好躲在那条宽带子里）。所以改的是**记的东西**：文件给的是
-    //: 另一宿主真正被问到的那个问题的答案（冻结系数的伴随解），运行自己用的
-    //: 那一条并排放着。这一条判那个距离**被记下来了**，而不是判它多小。
-    say(sc['fylite:psi_out_frozen'] === true,
-        '★文件里给的是冻结系数的伴随解（另一宿主被问到的正是这个问题）');
-    const gap = sc['fylite:psi_out_frozen_gap'];
-    say(gap != null && isFinite(gap),
-        '★★而运行自己那一条与它差多远，也写在文件里——那个距离就是'
-        + '「内层的耦合收敛了没有」，是读数不是判据',
-        gap == null ? '（没写）' : `${(100 * gap).toFixed(2)} %`);
-    //: ★★而且**同一个 I_p**：〔六〕报的那个数，另一个宿主从同一条 ψ 上读得
-    //: 出来——两处都用 `fyo.enclosed_plasma_current`，单位换算写在两侧各自
-    //: 的代码里而不是任一侧的脑子里。
-    //: ★I_p 也从**同一条**（伴随的）ψ 上读，两侧各自用自己那份
-    //: `enclosed_plasma_current`——单位换算写在两侧各自的代码里，不在任一侧
-    //: 的脑子里。
-    const rel = Math.abs(py.i_p / py.ip_ref - 1);
-    say(isFinite(rel) && rel < 1e-6,
-        '★★从那条 ψ 上读出的 I_p 也是同一个数',
-        `浏览器 ${(py.ip_ref / 1e3).toFixed(6)} kA · Python `
-        + `${(py.i_p / 1e3).toFixed(6)} kA · 相对差 ${rel.toExponential(2)}`);
-  }
+  say(sc['fylite:psi_out_frozen'] === true,
+      '★文件里给的是冻结系数的伴随解（另一宿主被问到的正是这个问题）');
+  const gap = sc['fylite:psi_out_frozen_gap'];
+  say(gap != null && isFinite(gap),
+      '★★而运行自己那一条与它差多远，也写在文件里——那个距离就是'
+      + '「内层的耦合收敛了没有」，是读数不是判据',
+      gap == null ? '（没写）' : `${(100 * gap).toFixed(2)} %`);
 }
 
 console.log('\n〔庚〕g-file 几何：步 6 跳过，而且写明理由');

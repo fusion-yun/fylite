@@ -72,7 +72,7 @@ $$ (eq-p12-euler)
 （"真空室耦合系统条件数 $\sim10^8$，裸 Cholesky 离 LAPACK LU 答案 $2\times10^{-9}$——在设计的 $10^{-10}$ L5 带之外"）；
 每步重组、重分解；非 SPD → `Err(k)`。〔已确立〕耦合回路方程 $M\dot I+RI=V$ 及其隐式离散 {cite}`jardin2010computational`；
 向后 Euler 对 $L/R$ 时标谱无条件稳定 {cite}`leveque2007fdm`。等离子体 ↔ 电路的 GS 交替不在本模块（由场景层驱动：
-`S.control.evolution.evolve_free_boundary`——每匝电压 → 隐式 Euler（12 通道 + 40 壳段）→ 逐步正解，涡流场进 GS）。
+`evolve_free_boundary`——每匝电压 → 隐式 Euler（12 通道 + 40 壳段）→ 逐步正解，涡流场进 GS；自 2026-09-06 归内核仓测试树 `tests/oracles/evolution.py`，公开包里无人调用）。
 锚：单 RL 回路 $L=1$ H、$R=2$ Ω、$V=4$ V → $I=2$ A（$10^{-6}$）；稠态是不动点；用户指南实测"关掉被动结构位形演化须显著改变"。
 
 (phys12-vstab)=
@@ -206,7 +206,7 @@ $B_{\rm act}$ 指向 IC 对（缺省方向 $(1,-1)$，反对称）；磁通环�
 | :--- | :--- | :--- |
 | 互感矩阵、匝数与通道折叠 | `fyo:pf_active`：线圈与通道的定义 | `fylite.device.conductor_set`、`channel_matrices` |
 | 网格 / 磁通环 / 探针响应 | `fyo:magnetics`：各道的响应（供反演与合成诊断） | `fylite.device`；`recon_rs.coil_loop_rows` |
-| 电压驱动的电路演化 | `fyo:pf_active`：随时间的线圈电流 | `S.control.evolution.evolve_free_boundary` |
+| 电压驱动的电路演化 | `fyo:pf_active`：随时间的线圈电流 | `code/pulse`（前馈电压与电路）；旧的 `control.evolution.evolve_free_boundary` 自 2026-09-06 归内核仓测试树 |
 | 垂直稳定性（刚性位移） | `fyo:mhd_linear` 式的增长率与理想判据 | `S.control.vstab`；`stability.vertical_mode` |
 | 对象模型与闭环 | `fyo:pulse_schedule`：控制器给出的电压 | `vertical.vertical_system`、`close_vertical_loop` |
 :::

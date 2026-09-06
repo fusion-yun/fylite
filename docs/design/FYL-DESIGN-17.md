@@ -534,7 +534,7 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 | design | `feasible` | 二维参数扫描的可行域 | S-L5；`TOOLS['feasible']` | `design.feasible`，无栏、无语料 | `device` | 待设（P2-c）：扫描轴写成参数 `axis1.*` · `axis2.*`〔待定〕 | — |
 | control | `vstab` | 刚体 n=0 垂直稳定：k · k_ideal · γ | S-L3；指南「n=0 垂直不稳定性」 | `control.vstab`；entry `vstab` 已在 | `equilibrium` · `device`(线圈 A·匝) | ✗ 有内核 entry，无 case code 与词表——P2-c（as-built A-1） | — |
 | control | `vertical` | 垂直反馈回路闭环 | 指南「垂直反馈回路」 | `control.vertical.close_vertical_loop` | `equilibrium` · `device` | 待设：无栏无语料；参数词表要先立 | — |
-| control | `evolution` | 电压驱动的自由边界位形演化 | S-L3；指南「电压驱动的位形演化」 | `control.evolution.evolve_free_boundary` | `measurements` · `device` | 待设 | — |
+| control | `evolution` | 电压驱动的自由边界位形演化 | S-L3；指南「电压驱动的位形演化」 | 退役（2026-09-06）：`control.evolution` 归内核仓测试树；前馈电压与电路走 `code/pulse` | `measurements` · `device` | 待设 | — |
 | — | `benchmark` | 跨码对标 | 指南「跨码对标」；`-12` V&V 登记册 | `engine.benchmark` | — | ✗ 登记册不是场景 | — |
 :::
 

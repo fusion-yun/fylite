@@ -136,24 +136,16 @@ UNCHECKED = {
     "REDL_INPUT_ROWS": "written through a helper that fills rows by loop "
                        "index rather than by name",
     "GEO_SHAPE_KEYS": "used as a SET for validation, never positionally",
-    #: ★TX-4's three key tuples are INPUT blocks, exactly `SURFACE_KEYS`'
-    #: case: Python packs `geometry`/`params`/`state` and the kernel reads
-    #: them back by index, so checking them needs the READER and not a write
-    #: buffer.  Named here rather than left off the list, because the
-    #: completeness test below is what stops that from happening silently.
-    "LENGYEL_GEOMETRY_KEYS": "an INPUT block — same case as SURFACE_KEYS",
-    "LENGYEL_SOL_KEYS": "an INPUT block — same case as SURFACE_KEYS",
-    "LENGYEL_STATE_KEYS": "an INPUT block — same case as SURFACE_KEYS",
+    #: ★TX-4's three Lengyel key tuples were listed here as INPUT blocks;
+    #: they left with `lengyel_forward` / `lengyel_inverse` (oracle-only since
+    #: T-4 第九刀, 2026-09-06) to the kernel repository's `tests/_oracle.py`.
 }
 
-#: tuple -> (pattern over c_api.rs, what the match arms are).  These three
-#: ARE positional — the index is the wire format — and the kernel decodes
-#: them with a numbered `match`, which is readable, so they get checked
-#: rather than waived.
-CODED = {
-    "ICRH_MINORITY": r"(\d+) => Minority::(\w+)",
-    "ICRH_GAS": r"(\d+) => MainGas::(\w+)",
-}
+#: ★The ICRH `minority` / `gas` codes (`ICRH_MINORITY` · `ICRH_GAS`) were
+#: checked here against the kernel's numbered `match`; the wrappers and the
+#: vocabularies are the kernel repository's since T-4 第九刀 (2026-09-06)
+#: (`tests/test_oracle_marshalling.py` holds the same check).
+CODED: dict[str, str] = {}
 
 #: ★The index-is-wire-format vocabularies are absent from both lists on
 #: purpose: they are no longer written as literals here at all — they are
@@ -167,41 +159,6 @@ CODED = {
 #: by hand, agreeing by luck.  It is derived now, so the waiver goes with the
 #: literal.  The second is new, and exists because three call sites were
 #: spelling NEO's six species fields out instead of reading one table.
-
-
-@pytest.mark.parametrize("name", sorted(CODED))
-def test_the_coded_vocabularies_decode_to_the_same_names(name: str):
-    """★These tuples' INDEX is the wire format: Python sends
-    ``ICRH_MINORITY.index("He3")`` and the kernel decodes ``3`` with a
-    numbered match.  Insert a name in the middle of either side and every
-    later species is silently the wrong one — a run with He4 physics
-    labelled He3 finishes and looks fine.
-
-    Compared case-insensitively because the two sides spell the same thing
-    in their own conventions (``He3`` against ``He3``, ``DT`` against
-    ``DT``); what is checked is the ORDER.
-    """
-    arms = re.findall(CODED[name], SRC)
-    assert arms, f"{name}: no numbered match arms found in c_api.rs"
-    rust = [v for _, v in sorted(arms, key=lambda kv: int(kv[0]))]
-    assert [int(k) for k, _ in sorted(arms, key=lambda kv: int(kv[0]))] \
-        == list(range(len(arms))), f"{name}: the kernel's codes are not 0..N"
-    py = [n.lower() for n in getattr(K, name)]
-    assert py == [n.lower() for n in rust], (
-        f"{name} is out of step with the kernel's decoder:\n"
-        f"  Python: {list(getattr(K, name))}\n  kernel: {rust}")
-
-
-def test_the_lengyel_outcome_codes_decode_to_the_same_names():
-    """★Same shape, different spelling: the kernel writes an outcome as a
-    float code and Python names it by index.  The two sides use different
-    case conventions, so the comparison strips underscores and case."""
-    arms = re.findall(r"PhysicsOutcome::(\w+) => (\d+)\.0", SRC)
-    assert arms, "no PhysicsOutcome arms found in c_api.rs"
-    rust = [n for n, _ in sorted(arms, key=lambda kv: int(kv[1]))]
-    flat = lambda s: s.replace("_", "").lower()  # noqa: E731
-    assert [flat(n) for n in K.LENGYEL_OUTCOMES] == [flat(n) for n in rust], (
-        f"Python: {list(K.LENGYEL_OUTCOMES)}\n  kernel: {rust}")
 
 
 @pytest.mark.parametrize("name", sorted(COVERED))
@@ -355,7 +312,7 @@ def test_every_tuple_is_either_checked_or_explained():
     """
     declared = set(re.findall(r"^([A-Z][A-Z_0-9]{3,}) = \(", 
                               (Path(K.__file__)).read_text(), re.M))
-    accounted = set(COVERED) | set(CODED) | set(UNCHECKED) | {"LENGYEL_OUTCOMES"}
+    accounted = set(COVERED) | set(CODED) | set(UNCHECKED)
     missing = sorted(declared - accounted)
     assert not missing, (
         "kernel.py declares name tuples this file neither checks nor "
