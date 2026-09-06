@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "6f5c10514d9f694f";
+pub const DIGEST: &str = "5955203bc524dc27";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -326,6 +326,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "metric", shape: "", units: "assembled", gloss: "the flux-surface moments of a Miller / MXH surface row (the model page's Miller ladder, engine/cases.py's, gyrofluid's ky_factor, the gates' references): one geometry::solve per node on the ladder rows r_minor · r_major · q · magnetic_shear · elongation · triangularity · shift and the MXH rows, answered as the DD-named ladder moments (volume · dV/drho · gm3 · gm7 · gm2 · <R^2>) with GEO's normalised scalars beside them" },
         Row { key: "ladder", shape: "", units: "assembled", gloss: "one equilibrium document traced once (Python's fyo.Ladder): the requested psi_N levels (fylite:ladder_levels, or n_surfaces from psin_min to edge) on the document's own psi map, axis, limiter, q and F tables and boundary — surfaces::equilibrium_ladder, the transport metrics and the local Miller shape of the SAME surfaces answered on the ladder rows" },
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
+        Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

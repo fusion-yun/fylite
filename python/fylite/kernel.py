@@ -824,32 +824,6 @@ def ellipke(m):
 _sig("fylite_rs_scale_by_turns", (_ARR, _U64, _U64, ctypes.c_void_p, ctypes.c_void_p), _I32)
 
 
-_sig("fylite_rs_channel_weights", (_ARR, _ARR, _ARR, _U64, _U64, _U64, _ARR), _I32)
-def channel_weights(channels, n_elements: int):
-    """The ``(n_channel, n_element)`` map from ``[(element, weight), ...]``
-    per channel.
-
-    ★The index order is the whole content: this map was once rebuilt inline
-    at three call sites — a grid fold, a point response, a circuit assembly —
-    and ONE of the three was transposed relative to the others.  A transposed
-    weight matrix is not a crash; it is a different machine.
-    """
-    lib = require()
-    ch, el, wt = [], [], []
-    for c, combo in enumerate(channels):
-        for j, weight in combo:
-            ch.append(float(c))
-            el.append(float(j))
-            wt.append(float(weight))
-    n_ch = len(channels)
-    out = np.empty(n_ch * int(n_elements))
-    rc = lib.fylite_rs_channel_weights(_f(ch), _f(el), _f(wt), len(ch),
-                                       n_ch, int(n_elements), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_channel_weights returned {rc}")
-    return out.reshape(n_ch, int(n_elements))
-
-
 _sig("fylite_rs_table_ratio_check", ([_ARR] * 2 + [_ARR, _U64, _ARR, _U64] + [_ARR] * 4 + [_U64, _ARR, _ARR]), _I32)
 def table_ratio_check(table, mine, grid_r, grid_z, elems) -> dict:
     """The two-path acceptance: how a recomputed psi response compares with

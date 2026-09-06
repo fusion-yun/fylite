@@ -1316,7 +1316,7 @@ def conductor_set(*, document=None) -> dict:
 
     ★It also ends the possibility of half a machine: ``weights`` is built
     against the coil count of THIS geometry.  Resolving the two separately —
-    which is what a caller holding a path and calling ``channel_weights()``
+    which is what a caller holding a path and calling the flat map builder
     with none was doing — could take the element count from the document and
     the elements from the deck.
     """
@@ -1324,12 +1324,24 @@ def conductor_set(*, document=None) -> dict:
     chans = pf_channel_map()
     #: ★the dense form is the KERNEL's: the index direction is the entire
     #: content of this map (a transposed one is a different machine), so it
-    #: has one host.  Imported lazily — reading a deck must not require a
-    #: library to be loadable.
-    from . import kernel
+    #: has one host.  ★T-4 第二十八刀 (2026-09-06): through `code/channels` —
+    #: the same `electromagnetics::channel_weights` on the deck's own rows
+    #: (the frozen `pf_channel_elements`, the one `pf_channel_map` reads),
+    #: answered as the `weights` field.  Imported lazily — reading a deck must
+    #: not require a library to be loadable.
+    from .io import fydoc
+    rec = fydoc.complete("code/channels", {"settings": {},
+                                           "inputs": {"device": _ensure()["EAST_DEVICE"]}})
+    n_ch = int(rec["facts"]["n_channels"]["value"])
+    n_el = int(rec["facts"]["n_elements"]["value"])
+    if n_el != len(geo["coils"]) or n_ch != len(chans):
+        raise MachineDataMissing(
+            f"half a machine: the deck's channel map spans {n_ch} channels over {n_el} "
+            f"elements, this geometry has {len(geo['coils'])} elements and "
+            f"{len(chans)} channels — the map and the coils must come from one document")
+    weights = np.asarray(rec["fields"]["weights"]["data"], float).reshape(n_ch, n_el)
     return {"coils": geo["coils"], "vessel": geo["vessel"],
-            "weights": kernel.channel_weights(chans, len(geo["coils"])),
-            "channels": chans}
+            "weights": weights, "channels": chans}
 
 
 #: Which passive groups exist, and where each one's geometry comes from.
