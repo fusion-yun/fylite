@@ -89,8 +89,7 @@
     //: radiation a total rather than a bremsstrahlung estimate.  Listed so
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
-                        'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
-        'fylite_rs_quadrature',
+                        'fylite_rs_ridge_lstsq',         'fylite_rs_quadrature',
         //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
     //: slices, and the dispersion that says whether the set hangs together.
@@ -608,32 +607,6 @@
   //: These used to live in physics.js.  They are physics bookkeeping, not
   //: marshalling, so they belong to the one host; what remains here is the
   //: buffer shuffling their C signatures need.
-
-
-
-  /**
-   * Internal inductance li(3) from the psi map.
-   *
-   *   li3 = 2 integral(Bp^2 dV) / (mu0^2 Ip^2 R0),  Bp = |grad psi| / (2 pi R)
-   *
-   * ★The definition, the gauge (psi is FULL flux) and the "where is the
-   * plasma" rule (the cells with 0 <= psi_N <= 1, no contouring) are all the
-   * kernel's, stated at `surfaces::li3`.  It is quoted here and nowhere
-   * re-derived: li(3) is one of the numbers a reconstruction is judged on,
-   * and two callers' li(3) are only comparable while they mean the same
-   * integral.
-   */
-  Fy.prototype.li3 = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), out = s.zeros(1);
-      var rc = self.e.fylite_rs_li3(
-        o.r0g, o.z0g, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), psi.ptr,
-        o.psiAxis, o.psiBnd, o.ip, o.r0, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_li3', rc);
-      return s.get(out)[0];
-    });
-  };
 
 
 
@@ -1312,10 +1285,17 @@
   function li3(grid, res, ip, r0) {
     if (!KERNEL)
       throw new Error('FyPhys.li3: no kernel — call useKernel()');
-    return KERNEL.li3({
-      r0g: grid.r[0], z0g: grid.z[0], dr: grid.dr, dz: grid.dz,
-      nr: grid.nr, nz: grid.nz, psi: res.psi,
-      psiAxis: res.psiAxis, psiBnd: res.psiBnd, ip: ip, r0: r0 });
+    //: ★T-4 第二十三刀 (2026-09-06): through the tree door — `code/li3` is the
+    //: same `surfaces::li3` on the map as fyo carries it (the grid's own axes,
+    //: psi, psi_axis, psi_boundary, ip, R0), answered as the `li3` fact; the
+    //: flat export left the interface.  `validate-fyphys-li3.mjs` holds it to
+    //: the recorded flat answer, bit for bit.
+    var rec = KERNEL.complete('code/li3', { settings: { dr: +grid.dr, dz: +grid.dz }, inputs: { equilibrium: {
+      time_slice: { global_quantities: { psi_axis: +res.psiAxis, psi_boundary: +res.psiBnd, ip: +ip },
+                    profiles_2d: { grid: { dim1: Float64Array.from(grid.r), dim2: Float64Array.from(grid.z) },
+                                   psi: Float64Array.from(res.psi) } },
+      vacuum_toroidal_field: { r0: +r0 } } } });
+    return rec.facts.li3.value;
   }
 
 

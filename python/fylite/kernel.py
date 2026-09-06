@@ -55,7 +55,7 @@ __all__ = [
     "zerod_stored_energy",
         "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
     "contour",     "direct_integrals", "gradient",
-    "shell_sum", "li3", "profile_shape_fit", "sample",
+    "shell_sum", "profile_shape_fit", "sample",
         "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_shielding",
@@ -1516,28 +1516,6 @@ def dke_solve(species, geo13, *, n_energy: int, n_xi: int, n_theta: int,
     per = {k: list(out[2 + i * ns:2 + (i + 1) * ns])
            for i, k in enumerate(("pflux", "eflux", "vpol_th0", "vtor_th0"))}
     return {"jpar_dke": float(out[0]), "jtor_dke": float(out[1]), **per}
-
-
-_sig("fylite_rs_li3", ([_F64] * 4 + [_U64] * 2 + [_ARR] + [_F64] * 4 + [_ARR]), _I32)
-def li3(grid: Grid, psi, *, psi_axis: float, psi_bnd: float, ip: float,
-        r0: float) -> float:
-    """Internal inductance ``li(3)`` from the ψ map (FULL flux [Wb]).
-
-    No contouring: the plasma is the cells with 0 ≤ ψ_N ≤ 1.  That is the
-    point of having it beside the traced ladder — the two answers to "where
-    is the plasma" fail differently.
-    """
-    lib = require()
-    psi = _f(psi)
-    if psi.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi has shape {psi.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    out = np.empty(1)
-    rc = lib.fylite_rs_li3(*grid.args, psi.ravel(), float(psi_axis),
-                           float(psi_bnd), float(ip), float(r0), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_li3 returned {rc}")
-    return float(out[0])
 
 
 _sig("fylite_rs_sample", ([_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _ARR, _U64, _I32, _ARR]), _I32)

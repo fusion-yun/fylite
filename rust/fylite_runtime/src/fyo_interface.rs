@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "f42d2b90a010f044";
+pub const DIGEST: &str = "7c05654d9432aef7";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -314,6 +314,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "selfcal", shape: "", units: "assembled", gloss: "the instrument layer: per-channel calibration factors computed/measured against their own median for one fit, or over the slices of a time series, with the dispersion — a channel-relative statement, never an absolute ratio" },
         Row { key: "shape", shape: "", units: "assembled", gloss: "the shape of a closed (R, Z) outline and the volume it encloses (the pulse-design page's main-thread shapeMetrics / surfaceVolume on a solved boundary, the analysis page's g-file boundary import, Python's fyo.a_minor): R0 · Z0 · a · kappa · delta_upper · delta_lower by surfaces::shape_metrics and the volume by surfaces::enclosed_volume, as facts" },
         Row { key: "waveform", shape: "", units: "assembled", gloss: "the discharge's shape in time on the four phase times (the pulse-design page's wave(), Python's waveform.from_phases): the trapezoid, the three centre waveforms, the actuator or the phase label at the requested times — zerod::trapezoid / centre_waveform / actuator / phase_label, as the value field" },
+        Row { key: "li3", shape: "", units: "assembled", gloss: "the normalised internal inductance li(3) of a psi map (the analysis page's reference row for a g-file): the map on its own uniform grid with psi_axis, psi_boundary, ip and the reference R0 — surfaces::li3, as the li3 fact" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },
