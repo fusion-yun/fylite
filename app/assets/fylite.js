@@ -91,8 +91,7 @@
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
     'fylite_rs_zerod_waveform',
-        'fylite_rs_field_ion_sum',
-    'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
+            'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
         'fylite_rs_quadrature',
         //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
@@ -112,9 +111,7 @@
     //: have drawn a deposition profile.
     'fylite_rs_shell_table', 'fylite_rs_shell_area',
     'fylite_rs_shell_sum',     'fylite_rs_interp',
-    'fylite_rs_beam_slowing',
-    'fylite_rs_beam_energy_partition',
-    //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
+            //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
     //: above).  `lh_deposit` is the whole per-launcher chain in ONE entry;
     //: the other four are the pieces a page reports BESIDE it —
     //: accessibility, the resonant layer, the CD weight and the damping
@@ -124,8 +121,7 @@
     //: and the CD weight are INSIDE `lh_deposit` / `code/wave`, and a page that
     //: called them a second time to print the answer beside it would give one
     //: number two hosts.
-    'fylite_rs_lh_accessibility',
-    //: ★`gs_fixed_box` (T-M7 / T-M17, the boxed Picard) is a retired export
+        //: ★`gs_fixed_box` (T-M7 / T-M17, the boxed Picard) is a retired export
     //: since T-4 第八刀 (2026-09-06): the refinement runs inside `code/evolve`.
     'fylite_rs_geo_surface_gm2', //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
     //: nulls, and the two pieces of wall geometry that turn 「间隙 = 某值」

@@ -141,23 +141,6 @@ def east_launchers(injected_w, *, reflected_w=0.0, systems=None):
     return out
 
 
-# --------------------------------------------------------------------------- #
-# Wave physics
-# --------------------------------------------------------------------------- #
-def resonant_te_ev(n_parallel, xi: float = 3.0) -> np.ndarray:
-    """Electron temperature at which Landau damping resonates for ``n_∥``.
-
-    ``c/n_∥ = ξ v_th,e`` with ``v_th,e = sqrt(2T_e/m_e)`` gives
-    ``T_res = m_e c² / (2 ξ² n_∥²)``.  Larger ``n_∥`` (or a stronger
-    up-shift) resonates at *lower* temperature, i.e. further out.  The
-    kernel's."""
-    n = np.atleast_1d(np.asarray(n_parallel, float))
-    out = np.array([kernel.lh_accessibility([1e19], [2.0], n_parallel=float(v),
-                                            xi=xi)["t_resonant"] for v in n])
-    return out.reshape(np.shape(n_parallel)) if np.shape(n_parallel) \
-        else float(out[0])
-
-
 def _effective_band(band, upshift) -> tuple[float, float]:
     """Launched ``n_∥`` band scaled by the up-shift (scalar or ``(min, max)``).
 
@@ -194,7 +177,7 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
 
     ``upshift`` scales the launched ``n_∥`` band to the value that actually damps.
     It matters more than any other input: EAST's launchers emit ``n_∥ ≈ 1.8–2.4``,
-    which by :func:`resonant_te_ev` resonates at **4.8–8.8 keV** — above the
+    which by ``resonant_te_ev`` (``oracles/wave.py`` since T-4 第十七刀) resonates at **4.8–8.8 keV** — above the
     plasma — so a strict single-pass model (``upshift=1.0``, the default) finds no
     resonant surface and deposits nothing.  Real LHCD damps after multi-pass
     propagation up-shifts ``n_∥``; passing a factor (or a ``(min, max)`` range,

@@ -56,9 +56,9 @@ __all__ = [
         "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
     "contour", "shape_metrics",     "direct_integrals", "gradient",
     "shell_sum", "li3", "profile_shape_fit", "sample",
-        "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
-    "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
-    "beam_slowing", "beam_energy_partition", "beam_shielding",
+        "LH_EFFICIENCY_MODELS", "first_orbit_loss",
+    "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
+    "beam_shielding",
     "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "psin_along", "quadrature",
     "line_integral",         "dispersion_root", "vertical_plant",     "inside_polygon",             "table_ratio_check",
     "ellipke",     "element_response",
@@ -685,99 +685,7 @@ def _imp5(n_he=0.0, n_imp=0.0, z_imp=6.0, n_imp2=0.0, z_imp2=18.0):
     return _f([n_he, n_imp, z_imp, n_imp2, z_imp2])
 
 
-_sig("fylite_rs_lh_accessibility", [_ARR, _ARR, _U64, _F64, _F64, _ARR], _I32)
-def lh_accessibility(ne, b_tot, *, n_parallel: float = 2.0,
-                     xi: float = 3.0) -> dict:
-    """The slow-wave accessibility limit and the Landau-resonant temperature.
-
-    ``n_par_accessible`` is ``ω_pe/ω_ce + √(1+(ω_pe/ω_ce)²)``: a launcher
-    below it at a surface cannot deliver power there, which is why high
-    density and low field push LH deposition outward.  ``t_resonant`` is
-    where that ``n_parallel`` meets the electron tail.
-    """
-    lib = require()
-    ne_a = _f(np.atleast_1d(ne))
-    b_a = _f(np.broadcast_to(np.atleast_1d(b_tot), ne_a.shape))
-    out = np.empty(2 * ne_a.size)
-    rc = lib.fylite_rs_lh_accessibility(ne_a, b_a, ne_a.size,
-                                        float(n_parallel), float(xi), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lh_accessibility returned {rc}")
-    rows = out.reshape(-1, 2)
-    return {"n_par_accessible": rows[:, 0].copy(),
-            "t_resonant": float(rows[0, 1])}
-
-
 LH_EFFICIENCY_MODELS = _LH_EFFICIENCY_MODEL_NAMES
-
-
-_sig("fylite_rs_field_ion_sum", [_ARR, _U64] + [_F64] * 4 + [_ARR], _I32)
-def field_ion_sum(zeff, *, main_mass: float = 2.0, main_charge: float = 1.0,
-                  imp_charge: float = 6.0, imp_mass: float = 12.0):
-    """``Σ_j n_j Z_j²/(n_e A_j)`` — the field-ion sum :func:`beam_slowing`
-    takes as ``zsum``.
-
-    Quasineutrality and the Z_eff definition fix the two densities.  ★This
-    is a closure, not bookkeeping: ``E_c ∝ zsum^(2/3)``, so assembling
-    ``zsum`` another way is choosing a different critical energy without
-    saying so.
-    """
-    lib = require()
-    z = _f(np.atleast_1d(zeff))
-    out = np.empty(z.size)
-    rc = lib.fylite_rs_field_ion_sum(z, z.size, float(main_mass),
-                                     float(main_charge), float(imp_charge),
-                                     float(imp_mass), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_field_ion_sum returned {rc}")
-    return out
-
-
-_sig("fylite_rs_beam_slowing", ([_ARR] * 4 + [_U64, _F64, _F64, _ARR]), _I32)
-def beam_slowing(te, ne, *, mass: float = 2.0, zeff=1.0, zsum,
-                 e_beam: float) -> dict:
-    """Stix slowing-down parameters, plus the ion power fraction and τ_eff.
-
-    ``zsum`` is ``Σ_j n_j Z_j²/(n_e A_j)`` — the field-ion sum that sets the
-    critical energy.
-    """
-    lib = require()
-    te_a = _f(np.atleast_1d(te))
-    ne_a = _f(np.broadcast_to(np.atleast_1d(ne), te_a.shape))
-    z_a = _f(np.broadcast_to(np.atleast_1d(zeff), te_a.shape))
-    zs_a = _f(np.broadcast_to(np.atleast_1d(zsum), te_a.shape))
-    out = np.empty(6 * te_a.size)
-    rc = lib.fylite_rs_beam_slowing(te_a, ne_a, z_a, zs_a, te_a.size,
-                                    float(mass), float(e_beam), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_slowing returned {rc}")
-    rows = out.reshape(-1, 6)
-    keys = ("e_crit", "e_gamma", "tau_s", "ln_lambda", "ion_fraction",
-            "tau_eff")
-    return {k: rows[:, i].copy() for i, k in enumerate(keys)}
-
-
-_sig("fylite_rs_beam_energy_partition", [_ARR, _ARR, _ARR, _U64, _ARR], _I32)
-def beam_energy_partition(e_crit, tau_s, *, e_beam) -> dict:
-    """The ion power fraction and ``τ_eff`` from a critical energy and a
-    slowing time.
-
-    ★Separate from :func:`beam_slowing` because a caller often has these two
-    in hand — from a measurement, a scan or another model — and making it
-    invent a plasma state that reproduces them would be an inversion nobody
-    asked for.
-    """
-    lib = require()
-    ec, ts, eb = (_f(a) for a in np.broadcast_arrays(
-        np.atleast_1d(np.asarray(e_crit, float)),
-        np.atleast_1d(np.asarray(tau_s, float)),
-        np.atleast_1d(np.asarray(e_beam, float))))
-    out = np.empty(2 * ec.size)
-    rc = lib.fylite_rs_beam_energy_partition(ec, ts, eb, ec.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_energy_partition returned {rc}")
-    rows = out.reshape(-1, 2)
-    return {"ion_fraction": rows[:, 0].copy(), "tau_eff": rows[:, 1].copy()}
 
 
 _sig("fylite_rs_pchip", [_ARR, _ARR, _U64, _ARR, _U64, _ARR], _I32)

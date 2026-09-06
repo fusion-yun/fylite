@@ -20,7 +20,7 @@ RABBIT {cite}`weiland2018rabbit` 在实现中被命名为**保真档**而非来�
 
 〔共同形态〕〔已确立〕本章各源都可分解为吸收功率 × 归一沉积形状 × 电子/离子分配 ⇒ 驱动效率
 （`GK-TMT-06` §共同形态，跨仓）；其中 Stix 慢化与临界能量是 NBI、ICRH 少数离子与 $\alpha$ 三类
-**共用**的底层，本内核也确实**共享同一份代码**（`slowing_down`、`ion_power_fraction`）。
+**共用**的底层，本内核也确实**共享同一份代码**（`slowing_down`、`ion_power_fraction`；Python 侧的这两个包装自 T-4 第十七刀起在内核仓神谕树 `tests/oracles/beam.py`）。
 
 〔常数〕〔实现〕$e=1.602176634\times10^{-19}$ C；$m_p=1.67262192\times10^{-27}$ kg（"不是更多 CODATA 位——
 $2.2\times10^{-9}$ 的质量差在驱动电流上是 $1.1\times10^{-9}$"）；`AMU` $=1.66053873\times10^{-27}$ kg（METIS 的
@@ -65,7 +65,7 @@ $\tau_{\rm eff}=\tau_s\big[1+\frac{\ln((x_0+1)^2/(x_0^2-x_0+1))}{3x_0^2}-\frac{2
 $x_0=\sqrt{E_b/E_c}$；决定快离子储能 $W_{\rm fast}=p_{\rm dep}\tau_{\rm eff}/2$。〔未核验〕闭式与 Moreau 原文的对应
 未查证。
 
-〔场离子和〕〔实现〕`field_ion_sum`：主离子 + 一种杂质在给定 $Z_{\rm eff}$ 下由准中性闭合出 $n_i/n_e$、$n_z/n_e$，
+〔场离子和〕〔实现〕`field_ion_sum`（内核入口；Python 包装同上）：主离子 + 一种杂质在给定 $Z_{\rm eff}$ 下由准中性闭合出 $n_i/n_e$、$n_z/n_e$，
 再算 $zsum$；缺省（D + C）给"教科书 $E_c\approx18.6T_e$"（测试 $18.6\pm0.1$）。
 
 (phys09-nbi)=

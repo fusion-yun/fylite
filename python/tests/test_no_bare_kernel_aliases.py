@@ -131,7 +131,11 @@ def test_the_shaping_wrappers_are_not_mistaken_for_aliases():
     flagged = {name for name, _, _ in _bare_aliases(nbi)}
     #: ``shielding_factor`` was the other example until its last caller sank
     #: (``code/beam``, 2026-09-05) and the dead-wrapper half retired it
-    for keeper in ("field_ion_sum",):
+    #: ★T-4 第十七刀 (2026-09-06): `field_ion_sum` and the other shaping wrappers
+    #: left with the slowing-down helpers for the kernel repository's oracle
+    #: tree (`tests/oracles/beam.py`); the keeper list is empty until a real
+    #: shaping wrapper lives here again — an example has to be a real one
+    for keeper in ():
         assert keeper not in flagged, (
             f"nbi.{keeper} restores the caller's shape via _shaped(); "
             "flagging it means this rule is now catching real work")

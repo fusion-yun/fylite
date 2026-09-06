@@ -62,7 +62,6 @@ import numpy as np
 from ... import kernel
 
 
-
 class BeamError(ValueError):
     """A beam configuration that cannot be evaluated (bad geometry/energetics)."""
 
@@ -202,20 +201,11 @@ def east_beams(power_w, energy_ev, tangency_radius, *, z_height=0.0,
 #: coefficients live with it, once.
 
 
-def _shaped(out, *inputs):
-    """Give the caller back the SHAPE it asked with.
-
-    The kernel is vectorised and always answers with a 1-D array; a scalar
-    in must give a scalar out, or every ``float(...)`` at a call site becomes
-    a deprecation warning and then an error.
-    """
-    shape = np.shape(np.broadcast_arrays(*inputs)[0]) if len(inputs) > 1 \
-        else np.shape(inputs[0])
-    return out.reshape(shape) if shape else float(out[0])
-
-
 # --------------------------------------------------------------------------- #
-# Slowing-down physics (Stix)
+# Slowing-down physics (Stix) — ★moved to the kernel repository's oracle tree
+# (``tests/oracles/beam.py``) in T-4 第十七刀 (2026-09-06): `field_ion_sum`,
+# `slowing_down`, `ion_power_fraction`, `effective_slowing_time` and the
+# `_shaped` helper had no caller past the door (`deposit` is `code/beam`'s).
 # --------------------------------------------------------------------------- #
 #: ★``coulomb_log`` was here — ``_shaped(kernel.beam_slowing(...)
 #: ["ln_lambda"], ne, te)`` — and it had NO caller, in this package or in
@@ -231,67 +221,6 @@ def _shaped(out, *inputs):
 #: was a mention in ``test_no_bare_kernel_aliases``'s keeper list, where it
 #: was an EXAMPLE of a wrapper that earns its keep — which is how a dead
 #: name came to be pinned by a passing test.
-
-def field_ion_sum(zeff, *, main_mass=2.0, main_charge=1.0,
-                  imp_charge=6.0, imp_mass=12.0) -> np.ndarray:
-    """``Σ_j n_j Z_j² / (n_e A_j)`` for a main ion + one impurity at given Z_eff.
-
-    Quasineutrality and the Z_eff definition fix the two densities:
-    ``n_i/n_e = (Z_imp − Z_eff)/(Z_imp − Z_i)`` and
-    ``n_z/n_e = (Z_eff − Z_i)/(Z_imp(Z_imp − Z_i))`` (per unit main charge).
-    Defaults are a deuterium plasma with carbon as the impurity, which for a
-    pure D plasma gives the textbook ``E_c ≈ 18.6 T_e``.  The kernel's — it
-    is a closure, not bookkeeping: ``E_c ∝ zsum^(2/3)``, so assembling this
-    another way chooses a different critical energy without saying so.
-    """
-    return _shaped(kernel.field_ion_sum(zeff, main_mass=main_mass,
-                                       main_charge=main_charge,
-                                       imp_charge=imp_charge,
-                                       imp_mass=imp_mass), zeff)
-
-
-def slowing_down(te, ne, *, mass=2.0, zeff=1.0, zsum=None) -> dict:
-    """Stix slowing-down parameters of a beam ion in a thermal plasma.
-
-    ``te`` (eV), ``ne`` (m⁻³), ``mass`` the beam-ion mass number, ``zeff``
-    the effective charge.  ``zsum`` is ``Σ_j n_j Z_j²/(n_e A_j)`` — the
-    field-ion sum that sets the critical energy; when omitted it is built by
-    :func:`field_ion_sum` from ``zeff`` for a main ion of mass ``mass`` plus
-    carbon.
-
-    Returns ``{e_crit, e_gamma, tau_s, ln_lambda}`` — the kernel's
-    (METIS ``zicd0.m``; ``e_crit`` floored at 30 eV as there).
-    """
-    shape = np.shape(np.broadcast_arrays(te, ne)[0])
-    if zsum is None:
-        zsum = field_ion_sum(np.broadcast_to(np.asarray(zeff, float), shape)
-                             if shape else zeff, main_mass=float(mass))
-    out = kernel.beam_slowing(te, ne, mass=mass, zeff=zeff, zsum=zsum,
-                              e_beam=1.0)
-    return {k: (out[k].reshape(shape) if shape else float(out[k][0]))
-            for k in ("e_crit", "e_gamma", "tau_s", "ln_lambda")}
-
-
-def ion_power_fraction(e_crit, e_beam) -> np.ndarray:
-    """Fraction of the beam power that ends up on the **ions** (Wesson,
-    *Tokamaks* 2nd ed. p. 227; METIS ``zfract0.m``) — the kernel's."""
-    ec, eb = np.broadcast_arrays(np.asarray(e_crit, float),
-                                 np.asarray(e_beam, float))
-    out = kernel.beam_energy_partition(ec, np.ones_like(ec),
-                                       e_beam=eb)["ion_fraction"]
-    return _shaped(out, ec)
-
-
-def effective_slowing_time(tau_s, e_beam, e_crit, *, mass=2.0) -> np.ndarray:
-    """Energy-weighted slowing time ``τ_eff`` (s) — the one that sets the
-    fast-ion stored energy, ``W_fast = P_dep·τ_eff/2`` (METIS ``zsupra0.m``,
-    D. Moreau's all-energies form).  The kernel's."""
-    del mass                     # τ_eff depends on the velocity ratio only
-    ts, ec, eb = np.broadcast_arrays(np.asarray(tau_s, float),
-                                     np.asarray(e_crit, float),
-                                     np.asarray(e_beam, float))
-    out = kernel.beam_energy_partition(ec, ts, e_beam=eb)["tau_eff"]
-    return _shaped(out, ts)
 
 
 #: ★``electron_shielding`` and ``shielding_factor`` were here — the ``"g"``
@@ -315,7 +244,7 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
     (m⁻³) and ``te`` (eV) profiles on ``psin_prof`` (default a uniform ψ_N grid
     of their length); ``beams`` one :class:`Beam` or a list.  ``zsum`` is the
     field-ion sum ``Σ n_j Z_j²/(n_e A_j)`` if the plasma composition is known
-    (see :func:`slowing_down`).
+    (see ``slowing_down`` (``oracles/beam.py`` since T-4 第十七刀)).
 
     ★★2026-09-05 (FYL-DESIGN-16 K-3, the eleventh tool to sink).  The whole
     assembly — the shell table on the psi map, the profiles at the shell
