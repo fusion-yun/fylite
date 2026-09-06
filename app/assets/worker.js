@@ -3061,6 +3061,24 @@ function transportTurb(msg) {
 // "responses" that differ in the third digit and nothing pointing at why.
 
 /** Disc sampling: centre plus concentric rings (`breakdown::null_disc`). */
+/**
+ * The |B| contours the breakdown page draws — kept as the page's own until
+ * `code/breakdown` carries the grid map (第四十二刀): `n` levels inside
+ * `[lo, hi]` and four beyond it, each an unordered segment soup.
+ */
+function fluxSegments(lo, hi, f, n) {
+  var inner = [], outer = [];
+  var lev = function (l) {
+    return fy.contour({ r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
+                        nr: grid.nr, nz: grid.nz, f: f, level: l });
+  };
+  for (var k = 1; k <= n; k++)
+    inner.push(lev(lo + (hi - lo) * k / (n + 1)));
+  for (var q = 1; q <= 4; q++)
+    outer.push(lev(hi - (lo - hi) * q * 0.25));
+  return { inner: inner, outer: outer, n: n };
+}
+
 function nullDisc(r0, z0, radius, nRing, nTheta) {
   var r = [r0], z = [z0];
   for (var k = 1; k <= nRing; k++) {
