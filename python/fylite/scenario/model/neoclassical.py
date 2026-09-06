@@ -8,7 +8,7 @@ every form this package can compute them.  The solvers are all the kernel's
 * the drift-kinetic solve (:func:`fylite.kernel.dke_solve`) — first principles;
 * Sauter-1999 and the Redl-2021 update NEO evaluates alongside it
   (:func:`fylite.kernel.neo_sauter`), free with the same solve;
-* the standalone Redl-2021 transcription (:func:`fylite.kernel.redl_bootstrap`),
+* the standalone Redl-2021 transcription (``redl_bootstrap`` (oracle-only since T-4 第十六刀)),
   which needs no drift-kinetic branch at all.
 
 What this module holds is the shaping around them: the species table and the
@@ -149,7 +149,7 @@ def bootstrap(species: list, *, rmin_over_a: float, rmaj_over_a: float,
     NEO returns is exactly LINEAR in it, so the default (1e-3, NEO's own
     nominal) gives a SHAPE and not a magnitude.  A caller that wants amps
     must pass the physical value — with
-    :func:`fylite.kernel.neo_current_unit` it is the difference between a
+    ``neo_current_unit`` (oracle-only since T-4 第十六刀) it is the difference between a
     bootstrap current and one wrong by ``rho_star_physical / 1e-3``.
 
     ``analytic_only`` drops the drift-kinetic branch — the two analytic

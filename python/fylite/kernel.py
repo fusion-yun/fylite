@@ -56,7 +56,7 @@ __all__ = [
         "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
     "contour", "shape_metrics",     "direct_integrals", "gradient",
     "shell_sum", "li3", "profile_shape_fit", "sample",
-    "redl_bootstrap",     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
+        "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
     "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "psin_along", "quadrature",
@@ -65,37 +65,28 @@ __all__ = [
     "element_probe_response",
     "coupling_gradient", "spitzer_eta",
     "reintegrate", "flux_match", "FluxMatchError",
-    "adas_id", "rad_ion", "rad_sync",
-    "exchange_power", "volume_int",
-    "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
-    "tglf_local", "neo_local", "TGLF_SPECIES_ROWS",
+    "adas_id",     "volume_int",
+    "SURFACE_KEYS", "surface_block",     "TGLF_SPECIES_ROWS",
     "neo_geo14", "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
     "miller_boundary",     "sample_grid",
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
-    "neo_sauter", "dke_solve", "neo_gyrobohm",
-    "SAUTER_1999", "REDL_2021",
+    "neo_sauter", "dke_solve",     "SAUTER_1999", "REDL_2021",
     "ridge_lstsq", "bounded_lstsq", "channel_field", "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
     #: T-A5 — the same solve with the coil currents FITTED
     "INVERSE_COIL_KEYS", "INVERSE_KEYS", "INVERSE_FSA_KEYS",
-    "ohmic_power", "quasi_neutral_ne", "b_unit_from_rho",
-    "ion_dilution", "with_axis_node",
+        "with_axis_node",
     "two_temperature_march",
-    "deltastar_apply", "core_march", "label_drift", "solve_momentum",
-    "scenario", "scenario_layout", "SCENARIO_ENTRIES",
-    "d_from_flux", "gyrobohm_gamma", "alpha_heating",
-            "solve_density",
-    "tglf_flux_searched", "chi_from_flux", "gyrobohm_q", "shell_area",
-    "neo_current_unit",
-    "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
+    "deltastar_apply", "core_march", "label_drift",     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
+                    "tglf_flux_searched", "shell_area",
+        "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
     "resample_uniform", "to_uniform_extrap", "interp", "x_points", "enclosed_volume", "lh_deposit", "shell_table", "beam_deposit",
     "fast_ion_pressure", "selfcal_slices",
     "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
-    "redl_drive", "redl_surface_inputs", "REDL_INPUT_ROWS",
-    "solve_psi",
-    "bound_deriv",
+    "REDL_INPUT_ROWS",
+        "bound_deriv",
 ]
 
 
@@ -1300,73 +1291,6 @@ def adas_id(name: str) -> int:
     return int(lib.fylite_rs_adas_id(b, len(b)))
 
 
-_sig("fylite_rs_rad_ion", ([_ARR, _ARR, _U64, _ARR, _ARR, np.ctypeslib.ndpointer( dtype=np.int32, flags="C_CONTIGUOUS"), _U64] + [_ARR] * 3), _I32)
-def rad_ion(te_ev, ne_cgs, ni_cgs, z, names) -> dict:
-    """Bremsstrahlung + ADAS line radiation [erg/cm³/s].
-
-    Returns ``{"brem", "line", "total"}``.
-
-    ★The split is not physical — ``brem`` is the approximate NRL formula and
-    ``line`` is what remains of the ADAS total; only the sum is the ADAS
-    value.  Upstream is explicit about this, and it matters the moment one
-    channel is quoted on its own.
-    """
-    lib = require()
-    te, ne = _f(np.atleast_1d(te_ev)), _f(np.atleast_1d(ne_cgs))
-    n = te.size
-    z_a = _f(np.atleast_1d(z))
-    nion = z_a.size
-    ni = _f(np.broadcast_to(np.asarray(ni_cgs, float).reshape(nion, -1),
-                            (nion, n)))
-    ids = np.ascontiguousarray([adas_id(nm) for nm in names], dtype=np.int32)
-    brem, line, total = (np.empty(n) for _ in range(3))
-    rc = lib.fylite_rs_rad_ion(te, ne, n, ni.ravel(), z_a, ids, nion,
-                               brem, line, total)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_rad_ion returned {rc}")
-    return {"brem": brem, "line": line, "total": total}
-
-
-_sig("fylite_rs_rad_sync", [_ARR, _ARR, _ARR, _U64, _F64, _F64, _F64, _ARR], _I32)
-def rad_sync(te_ev, ne_cgs, b_ref_g, *, aspect_ratio: float, a_cm: float,
-             reflection: float = 0.8):
-    """Synchrotron radiation [erg/cm³/s] (Trubnikov).
-
-    ``b_ref_g`` is the TOROIDAL field at the surface, not ``B_unit`` — the
-    term goes as ``B⁴``.  (Upstream feeds it ``expro_bt0``.)
-    """
-    lib = require()
-    te, ne = _f(np.atleast_1d(te_ev)), _f(np.atleast_1d(ne_cgs))
-    b = _f(np.broadcast_to(np.atleast_1d(b_ref_g), te.shape))
-    out = np.empty(te.size)
-    rc = lib.fylite_rs_rad_sync(te, ne, b, te.size, float(aspect_ratio),
-                                float(a_cm), float(reflection), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_rad_sync returned {rc}")
-    return out
-
-
-_sig("fylite_rs_exchange_power", [_ARR] * 4 + [_U64, _ARR], _I32)
-def exchange_power(nu_exch, ne_cgs, te_ev, ti_ev):
-    """Classical e-i exchange [erg/cm³/s], positive INTO THE IONS.
-
-    ``1.5 n_e k (T_e - T_i) nu_exch``; the coefficient comes from
-    :func:`collision_rates`.
-
-    ★In a Te/Ti two-channel solve this is the DOMINANT coupling — it is what
-    stops the two channels being independent one-dimensional problems.
-    """
-    lib = require()
-    args = [_f(np.atleast_1d(a)) for a in (nu_exch, ne_cgs, te_ev, ti_ev)]
-    n = max(a.size for a in args)
-    args = [_f(np.broadcast_to(a, (n,))) for a in args]
-    out = np.empty(n)
-    rc = lib.fylite_rs_exchange_power(*args, n, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_exchange_power returned {rc}")
-    return out
-
-
 _sig("fylite_rs_volume_int", [_ARR, _ARR, _ARR, _U64, _I32, _ARR], _I32)
 def volume_int(s, weight, x, *, mode: str = "sparse"):
     """A volume integral of a source density.
@@ -1417,77 +1341,6 @@ def _ion_columns(ions):
     return cols
 
 
-_sig("fylite_rs_collision_rates", ([_ARR, _ARR, _U64] + [_ARR] * 5 + [_U64] + [_ARR] * 4), _I32)
-def collision_rates(ne, te, ni, ti, mass, z, therm=None) -> dict:
-    """Collision frequencies over a PROFILE, plus the exchange rate.
-
-    CGS with eV temperatures.  ``ni``/``ti`` are per ion, each as long as
-    ``ne``; ``therm`` (per ion, default all True) gates the EXCHANGE sum
-    only — a fast-ion population is not in equilibrium with the electrons.
-
-    Returns ``{"nue", "nui", "nu_exch", "loglam"}``, with ``nui`` shaped
-    ``(n_ion, n)`` and the rest ``(n,)``; scalars in, scalars out.
-    """
-    lib = require()
-    scalar = np.ndim(ne) == 0
-    ne_a, te_a = _f(np.atleast_1d(ne)), _f(np.atleast_1d(te))
-    n = ne_a.size
-    z_a, m_a = _f(np.atleast_1d(z)), _f(np.atleast_1d(mass))
-    nion = z_a.size
-    ni_a = _f(np.broadcast_to(np.asarray(ni, float).reshape(nion, -1), (nion, n)))
-    ti_a = _f(np.broadcast_to(np.asarray(ti, float).reshape(nion, -1), (nion, n)))
-    th = (_f(np.ones(nion)) if therm is None
-          else _f([1.0 if t else 0.0 for t in np.atleast_1d(therm)]))
-    nue, exch, loglam = (np.empty(n) for _ in range(3))
-    nui = np.empty(nion * n)
-    rc = lib.fylite_rs_collision_rates(ne_a, te_a, n, ni_a.ravel(),
-                                       ti_a.ravel(), m_a, z_a, th, nion,
-                                       nue, nui, exch, loglam)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_collision_rates returned {rc}")
-    nui = nui.reshape(nion, n)
-    if scalar:
-        return {"nue": float(nue[0]), "nui": nui[:, 0].copy(),
-                "nu_exch": float(exch[0]), "loglam": float(loglam[0])}
-    return {"nue": nue, "nui": nui, "nu_exch": exch, "loglam": loglam}
-
-
-_sig("fylite_rs_surface_derived", ([_ARR] + [_F64] * 2 + [_ARR] * 7 + [_U64] + [_F64] * 2 + [_ARR, _ARR]), _I32)
-def surface_derived(st: dict, *, pext: float = 0.0,
-                    dpext: float = 0.0) -> dict:
-    """One surface's derived state, **in SI** — sound speed, rates, pressure,
-    betas.
-
-    ``c_s``/``rho_s`` [m/s], [m]; ``pr`` [Pa]; ``dlnpdr`` [1/m]; ``nue``,
-    ``nui``, ``nu_exch`` [1/s]; the betas dimensionless.
-
-    Assembled in the kernel so every downstream map is a lookup: these
-    quantities cross normalisation boundaries (``beta`` is referenced to
-    ``B_unit``, the pressure is the TOTAL one), and a second assembly is a
-    second chance to cross one wrongly with nothing raising.
-    """
-    lib = require()
-    cols = _ion_columns(st["ions"])
-    nion = cols["z"].size
-    out, nui = np.empty(8), np.empty(nion)
-    rc = lib.fylite_rs_surface_derived(
-        surface_block(st), float(st["signb"]), float(st["signq"]),
-        cols["z"], cols["mass"], cols["ni"], cols["ti"], cols["dlnnidr"],
-        cols["dlntidr"], cols["therm"], nion, float(pext), float(dpext),
-        out, nui)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_surface_derived returned {rc}")
-    keys = ("c_s", "rho_s", "nue", "nu_exch", "pr", "beta_unit",
-            "betae_unit", "dlnpdr")
-    d = {k: float(out[i]) for i, k in enumerate(keys)}
-    d["nui"] = nui
-    return d
-
-
-#: What `tglf_local` returns per species, electrons first — the same six
-#: fields, in the same order, as `neo_local`'s block.  ★They are NOT the
-#: same numbers: TGLF's temperature norm is the electrons', NEO's is the
-#: first ion's, and NEO forces quasineutrality where TGLF does not.
 TGLF_SPECIES_ROWS = tuple(n.lower() for n in _deck_names.TGLF_DECK_SPECIES)
 
 #: What `neo_local` / `neo_inputs` return per species, electrons first.
@@ -1495,51 +1348,6 @@ TGLF_SPECIES_ROWS = tuple(n.lower() for n in _deck_names.TGLF_DECK_SPECIES)
 #: species row order" was spelling the six names out — `closure.py` did, and
 #: so did `neo_inputs` twenty lines from the table it could have read.
 NEO_SPECIES_ROWS = tuple(n.lower() for n in _deck_names.NEO_DECK_SPECIES)
-
-
-_sig("fylite_rs_tglf_local", ([_ARR] + [_F64] * 4 + [_ARR] * 6 + [_U64] + [_F64] * 2 + [_I32, _ARR, _ARR]), _I32)
-def tglf_local(st: dict, *, betae_scale: float = 1.0, nu_scale: float = 1.0,
-               rotation: bool = False) -> dict:
-    """The derived half of ``input.tglf`` — everything that is not a rename.
-
-    The names are a lookup table and stay with the caller; these numbers
-    cross normalisation boundaries (``BETAE`` against ``B_unit``, ``XNUE``
-    in units of ``a/c_s``, ``Q_PRIME``/``P_PRIME`` with the total-pressure
-    beta) and do not.
-
-    The species table comes back too, under :data:`TGLF_SPECIES_ROWS`, as
-    ``(n_ion + 1)``-long arrays with the electrons first.  ★It is here
-    rather than with the name table because it is the half of the classic
-    trap that used to be assembled by hand: TGLF references temperature to
-    the ELECTRONS and NEO to the FIRST ION, the two tables are otherwise
-    the same six fields over the same species, and neither map raises when
-    it is handed the other one's norms.
-    """
-    lib = require()
-    cols = _ion_columns(st["ions"])
-    ns = cols["z"].size + 1
-    out, sp = np.empty(27), np.empty(6 * ns)
-    rc = lib.fylite_rs_tglf_local(
-        surface_block(st), float(st["signb"]), float(st["signq"]),
-        float(st.get("w0", 0.0)), float(st.get("w0p", 0.0)),
-        cols["z"], cols["mass"], cols["ni"], cols["ti"], cols["dlnnidr"],
-        cols["dlntidr"], cols["z"].size, float(betae_scale), float(nu_scale),
-        1 if rotation else 0, out, sp)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_tglf_local returned {rc}")
-    keys = ("sign_bt", "sign_it", "debye", "betae", "xnue", "q_abs",
-            "q_prime", "p_prime", "alpha_sa", "vexb_shear", "vpar_shear",
-            "vpar")
-    d = {k: float(out[i]) for i, k in enumerate(keys)}
-    #: ★the geometry block, already in TGLF's units (lengths over `a`,
-    #: `Q_SA` unsigned).  It comes back NAMED because `/a` is a
-    #: normalisation, and a host that reproduces an upstream
-    #: normalisation is the host that gets one of them wrong.
-    d["geometry"] = dict(zip(TGLF_DECK_GEOMETRY,
-                             (float(v) for v in out[12:27])))
-    d.update({k: sp[i * ns:(i + 1) * ns].copy()
-              for i, k in enumerate(TGLF_SPECIES_ROWS)})
-    return d
 
 
 _sig("fylite_rs_miller_boundary", [_F64] * 6 + [_U64, _ARR, _ARR], _I32)
@@ -1881,57 +1689,6 @@ def tglf_flux_searched(miller18, scal32, geom4, species, ky, *, ns: int,
             "frequency": list(out[5 * ns + 1::2])}
 
 
-_sig("fylite_rs_neo_gyrobohm", [_F64] * 3 + [_ARR], _I32)
-def neo_gyrobohm(dens_1, temp_1, rho_star) -> dict:
-    """NEO's OWN gyro-Bohm normalisers — ``{pflux, eflux, mflux}``.
-
-    ★Not the kernel's ``gyrobohm`` (an oracle-only export since T-4,
-    2026-09-05), which is the electron-referenced set a flux
-    MATCH happens in.  These are the reference set NEO returns its fluxes
-    in, so dividing by them is the step that makes a NEO number and a TGLF
-    number comparable at all — and the three exponents are the whole
-    content, which is why they are not written down twice.
-    """
-    lib = require()
-    out = np.empty(3)
-    rc = lib.fylite_rs_neo_gyrobohm(float(dens_1), float(temp_1),
-                                    float(rho_star), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_neo_gyrobohm returned {rc}")
-    return {"pflux": float(out[0]), "eflux": float(out[1]),
-            "mflux": float(out[2])}
-
-
-def neo_current_unit(*, ne: float, ti1: float, b_unit: float) -> float:
-    """NEO's normaliser for the CURRENT it returns [A·T/m²].
-
-    ``<j·B> = jpar_neo * neo_current_unit(...)``, and the DD's
-    ``core_sources`` ``j_parallel`` is that over ``B0``.
-
-    SI in: ``ne`` [m⁻³] is NEO's density norm (the ELECTRONS'), ``ti1`` [eV]
-    its temperature norm (the FIRST ION's — the two norms are different and
-    swapping them rescales the answer with nothing raising), ``b_unit`` [T].
-
-    ★★The flux normalisers (:func:`neo_gyrobohm`) were exported and this one
-    was not, so a host holding NEO's ``jpar`` had nothing to multiply by —
-    and ``oracles.fyo_sources.neoclassical_source`` put the NORMALISED number
-    into an IMAS field whose unit is A/m², beside a second backend that put
-    A/m² there.  Eight orders apart, chosen by a keyword.
-
-    ★``jpar`` is exactly LINEAR in ``rho_star``, so a caller using this unit
-    must hand the solve the physical ``rho_s/a``.  :func:`neo_local`'s
-    default of 1e-3 is for callers that only want a shape; with this unit it
-    is a current wrong by the ratio, which on a typical surface is a factor
-    of three and looks entirely ordinary.
-    """
-    lib = require()
-    fn = lib.fylite_rs_neo_current_unit
-    fn.restype = ctypes.c_double
-    fn.argtypes = [_F64, _F64, _F64]
-    return float(fn(float(ne), float(ti1), float(b_unit)))
-
-
-#: The `neo_sauter` coefficient vintages.
 SAUTER_1999, REDL_2021 = 0, 1
 
 #: `neo_sauter`'s vintage for the Hirshman-Sigmar analytic fluxes.  It
@@ -1952,7 +1709,7 @@ def neo_geo14(geometry: dict, *, n_theta: int = 17):
     disagreement rather than a transposition: every value finite, ordered and
     plausible.
 
-    ``geometry`` is what :func:`neo_local` returns under that key (deck
+    ``geometry`` is what ``neo_local`` (oracle-only since T-4 第十六刀) returns under that key (deck
     names); missing slots are zero, and ``N_THETA`` comes from the argument
     because it is a resolution knob rather than geometry.
     """
@@ -2012,78 +1769,6 @@ def dke_solve(species, geo13, *, n_energy: int, n_xi: int, n_theta: int,
     per = {k: list(out[2 + i * ns:2 + (i + 1) * ns])
            for i, k in enumerate(("pflux", "eflux", "vpol_th0", "vtor_th0"))}
     return {"jpar_dke": float(out[0]), "jtor_dke": float(out[1]), **per}
-
-
-_sig("fylite_rs_neo_inputs", ([_ARR] + [_F64] * 4 + [_ARR] * 6 + [_U64, _ARR]), _I32)
-def neo_local(st: dict, *, rho_star: float = 0.001) -> dict:
-    """One surface's NEO species block, ``nu_1``, the two orientations and
-    the rotation pair.
-
-    ★NEO normalises temperature to the FIRST ION's, density to the
-    electrons', mass to deuterium.  Getting any of the three wrong rescales
-    every NEO output and nothing raises — which is why the normalisation is
-    the kernel's and this returns numbers rather than a recipe.
-    """
-    lib = require()
-    cols = _ion_columns(st["ions"])
-    nion = cols["z"].size
-    ns = nion + 1
-    out = np.empty(6 * ns + 18)
-    rc = lib.fylite_rs_neo_inputs(
-        surface_block(st), float(st["signb"]), float(st["signq"]),
-        float(st.get("w0", 0.0)), float(st.get("w0p", 0.0)),
-        cols["z"], cols["mass"], cols["ni"], cols["ti"], cols["dlnnidr"],
-        cols["dlntidr"], nion, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_neo_inputs returned {rc}")
-    #: ★from the generated table, lowercased — not spelled again.  The
-    #: block is unpacked BY POSITION out of one flat buffer below, so
-    #: this tuple is a positional contract and a copy of it is a place
-    #: for two names to swap with nothing able to notice.
-    names = NEO_SPECIES_ROWS
-    d = {k: out[i * ns:(i + 1) * ns].copy() for i, k in enumerate(names)}
-    d.update(nu_1=float(out[6 * ns]), ipccw=float(out[6 * ns + 1]),
-             btccw=float(out[6 * ns + 2]),
-             omega_rot=float(out[6 * ns + 3]),
-             omega_rot_deriv=float(out[6 * ns + 4]))
-    #: ★the geometry block, already in NEO's units (lengths over `a`, `q`
-    #: unsigned).  It comes back from the kernel rather than being rebuilt
-    #: here because `/a` and `abs(q)` are normalisations, and the host that
-    #: reproduces a normalisation is the host that gets one of them wrong —
-    #: `NU_1` was 58x to 80x out for exactly that reason.
-    d["geometry"] = dict(zip(NEO_DECK_GEOMETRY,
-                             (float(v) for v in out[6 * ns + 5:6 * ns + 18])))
-    return d
-
-
-_sig("fylite_rs_redl_bootstrap", ([_U64] + [_ARR] * 10 + [_F64] * 3 + [_I32, _ARR]), _I32)
-def redl_bootstrap(*, eps, q_abs, ne, te, ti, ni, zeff, p_th, i_psi, psi_bar,
-                   r_maj: float, b0: float, z_ion: float = 1.0,
-                   collisionless: bool = False) -> dict:
-    """The Redl-2021 analytic bootstrap profile on a caller-chosen ladder.
-
-    Every profile is per surface; ``psi_bar`` is ψ PER RADIAN [Wb/rad], the
-    normalisation the coefficients are written in.  Returns ``j_bs``
-    (``|⟨j·B⟩|/B0`` [A/m²]) plus the coefficients, ``ft`` and the
-    collisionalities it used — so a caller can see what drove the answer
-    rather than only the answer.
-    """
-    lib = require()
-    args = [_f(a) for a in (eps, q_abs, ne, te, ti, ni, zeff, p_th, i_psi,
-                            psi_bar)]
-    n = args[0].size
-    if any(a.size != n for a in args):
-        raise KernelError("every profile must be the same length")
-    out = np.empty(8 * n)
-    rc = lib.fylite_rs_redl_bootstrap(n, *args, float(r_maj), float(b0),
-                                      float(z_ion), 1 if collisionless else 0,
-                                      out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_redl_bootstrap returned {rc}")
-    rows = out.reshape(n, 8)
-    keys = ("j_bs", "L31", "L32", "L34", "alpha", "ft", "nu_e_star",
-            "nu_i_star")
-    return {k: rows[:, i].copy() for i, k in enumerate(keys)}
 
 
 _sig("fylite_rs_li3", ([_F64] * 4 + [_U64] * 2 + [_ARR] + [_F64] * 4 + [_ARR]), _I32)
@@ -2254,93 +1939,8 @@ def bounded_lstsq(a, b, lo=None, hi=None, *, n_iter: int = 4000,
 M_ELECTRON_OVER_MD = 2.724437e-4
 
 
-_sig("fylite_rs_redl_drive", [_ARR] * 5 + [_U64, _F64, _F64, _ARR], _I32)
-def redl_drive(ne, te, ni, ti, psin, *, psi_axis: float, psi_bnd: float):
-    """What drives the Redl bootstrap: ``(p_thermal [Pa], psi_bar)``.
-
-    ★★``p = (n_e T_e + n_i T_i) e`` keeps the pressure GRADIENT, the
-    collisionality and the L-coefficients on ONE profile set.  A
-    reconstruction's own ``pres`` is the other choice and is not equivalent:
-    a magnetics-only fit routinely returns a non-physical outer pressure,
-    and flooring it would zero ``dP/dψ`` over the whole outer half —
-    deleting the dominant ``L31·∇p`` term and moving the ``j_bs`` peak
-    inward.  That case is raised by the caller, never floored, which is why
-    only the kinetic form is built here.
-
-    ★``psi_bar`` is flux PER RADIAN, which is what the coefficients are
-    written in; the per-turn value scales every gradient term by 2π.
-    """
-    lib = require()
-    a = [_f(np.atleast_1d(x)) for x in (ne, te, ni, ti, psin)]
-    n = a[0].size
-    out = np.empty(2 * n)
-    rc = lib.fylite_rs_redl_drive(*a, n, float(psi_axis), float(psi_bnd), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_redl_drive returned {rc}")
-    return out[:n].copy(), out[n:].copy()
-
-
-#: What `redl_surface_inputs` writes, one row of `n_surface` each.
 REDL_INPUT_ROWS = ("eps", "q_abs", "ne", "te", "ti", "ni", "zeff",
                    "i_psi", "p_gfile")
-
-
-# the mapping half of the analytic bootstrap: profiles + surfaces ->
-# the eight per-surface rows, floors and clips included.  `ti`/`ni` are
-# `c_void_p` so "not given" is a null rather than a conjured array
-_sig("fylite_rs_redl_surface_inputs", ( [_ARR] * 4 + [_U64] + [_ARR] * 3 + [ctypes.c_void_p] * 2 + [_ARR, _U64, _ARR, _U64, ctypes.c_void_p, _U64, _ARR]), _I32)
-def redl_surface_inputs(psin_surface, r_minor, r_maj, q, *, psin_prof, ne,
-                        te, ti=None, ni=None, zeff, f_table,
-                        p_table=None) -> dict:
-    """The analytic bootstrap's per-surface inputs — the mapping layer.
-
-    Profiles given on their own ψ_N grid are put onto the surface ladder and
-    the model's floors and clips are applied.  Returns the eight arrays of
-    :data:`REDL_INPUT_ROWS`.
-
-    ★★Every floor here is a physics statement, and they are in the kernel
-    because this is the layer whose errors do not raise — a mis-floored
-    temperature comes back as a bootstrap current, not as an exception:
-    ``Tₑ``/``Tᵢ`` are floored at 10 eV BEFORE the interpolation (flooring
-    after would let a blend dip below it again, and the collisionality
-    divides by ``T²``); ``ε`` is clipped to ``[1e-4, 0.99]``, where the
-    trapped fraction is singular at the top end and meaningless at the
-    bottom; ``|q|`` is floored at 1e-3 because a reconstruction's on-axis q
-    can pass through zero; ``Z_eff`` is clipped to ``[1, 10]``, the range
-    the 2021 fits were made over.  ``ni=None`` is quasineutral at
-    ``nₑ/max(Z_eff, 1)``.
-
-    ``f_table`` is ``|F| = |R B_t|`` on a uniform ψ_N grid over ``[0, 1]``,
-    the way a g-file carries it.  ``p_table`` is the reconstruction's own
-    pressure on the same grid; it rides the SAME resampling as every other
-    profile here (that was the last place two of these rows could disagree
-    about a surface) and comes back as ``p_gfile``, **unvalidated** — a
-    non-physical pressure is the caller's to REFUSE, since flooring it
-    would zero ``dP/dψ`` over the outer half and delete the dominant L31
-    term.  Omitted, the row is zeros.
-    """
-    lib = require()
-    ps, rm = _f(np.atleast_1d(psin_surface)), _f(np.atleast_1d(r_minor))
-    rj, qq = _f(np.atleast_1d(r_maj)), _f(np.atleast_1d(q))
-    pp = _f(np.atleast_1d(psin_prof))
-    ne_a, te_a = _f(np.atleast_1d(ne)), _f(np.atleast_1d(te))
-    ze = _f(np.broadcast_to(np.asarray(zeff, float), pp.shape))
-    ft = _f(np.atleast_1d(f_table))
-    ti_a = None if ti is None else _f(np.atleast_1d(ti))
-    ni_a = None if ni is None else _f(np.atleast_1d(ni))
-    pt = None if p_table is None else _f(np.atleast_1d(p_table))
-    ns = ps.size
-    out = np.empty(9 * ns)
-    rc = lib.fylite_rs_redl_surface_inputs(
-        ps, rm, rj, qq, ns, pp, ne_a, te_a,
-        None if ti_a is None else ti_a.ctypes.data,
-        None if ni_a is None else ni_a.ctypes.data,
-        ze, pp.size, ft, ft.size,
-        None if pt is None else pt.ctypes.data,
-        0 if pt is None else pt.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_redl_surface_inputs returned {rc}")
-    return dict(zip(REDL_INPUT_ROWS, out.reshape(9, ns)))
 
 
 MILLER_ROW = ("psin", "r", "rmaj", "zmag", "q", "shear", "shift", "kappa",
@@ -2474,105 +2074,6 @@ def fast_ion_pressure(p_dep, tau_eff, rmaj=None):
     return w, p
 
 
-_sig("fylite_rs_chi_from_flux", ([_ARR] * 4 + [_U64] + [_F64] * 6 + [_ARR]), _I32)
-def chi_from_flux(flux, dens, grad_t, gm3, *, floor: float = 1e-30):
-    """A model flux → the effective diffusivity the PDE closure takes.
-
-    ``flux`` is per unit V′-area [W/m²] — the currency the flux-match line
-    works in (TGYRO's ``eflux·Q_GB`` equals ``P/V'``).  The PDE's conduction
-    law carries ``P/V' = ⟨|∇ρ|²⟩ n χ e |∂T/∂ρ|``, so
-    ``χ = flux / (⟨|∇ρ|²⟩ n e |∂T/∂ρ|)`` — the same algebra as the
-    interpretive inversion, but from a MODEL flux at the current iterate
-    rather than the power-balance flux of measured profiles.  ★The DENOMINATOR is floored, not the result: a flat iterate
-    has no resolvable χ, and saying so as a very large number is honest
-    where clamping would quietly invent a closure.  Clipping χ is the
-    closure's own business (it owns the stiffness guard) — two decisions
-    that look alike and belong to different layers.
-    """
-    lib = require()
-    shape = np.shape(np.broadcast_arrays(*(np.asarray(x, float) for x in
-                                           (flux, dens, grad_t, gm3)))[0])
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape).ravel())
-         for x in (flux, dens, grad_t, gm3)]
-    n = a[0].size
-    out = np.empty(n + 1)
-    rc = lib.fylite_rs_chi_from_flux(*a, n, float(floor), 0.0, 0.0, 0.0,
-                                     0.0, 0.0, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_chi_from_flux returned {rc}")
-    res = out[:n].reshape(shape)
-    return res if shape else float(res)
-
-
-_sig("fylite_rs_d_from_flux", ([_ARR] * 3 + [_U64, _F64, _ARR]), _I32)
-def d_from_flux(flux, grad_n, gm3, *, floor: float = 1e-30):
-    """A model PARTICLE flux → the effective diffusivity the density channel
-    takes.
-
-    ``flux`` is per unit V′-area [1/(m²·s)] — the same currency
-    :func:`chi_from_flux` takes its energy flux in.  The density channel's
-    law carries ``Γ/V' = ⟨|∇ρ|²⟩ D |∂n/∂ρ|``, so
-    ``D = flux / (⟨|∇ρ|²⟩ |∂n/∂ρ|)``.
-
-    ★The difference from :func:`chi_from_flux` is the whole of it: **no
-    density and no elementary charge** in the denominator, because this flux
-    counts particles and not their energy.  Confusing the two is a factor of
-    ``n·e`` ≈ 1e19 — which is at least loud.
-
-    ★★It is an EFFECTIVE diffusivity: one flux cannot be split into a
-    diffusion and a pinch, and this does not pretend to.
-    """
-    lib = require()
-    shape = np.shape(np.broadcast_arrays(*(np.asarray(x, float) for x in
-                                           (flux, grad_n, gm3)))[0])
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape).ravel())
-         for x in (flux, grad_n, gm3)]
-    n = a[0].size
-    out = np.empty(n)
-    rc = lib.fylite_rs_d_from_flux(*a, n, float(floor), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_d_from_flux returned {rc}")
-    res = out.reshape(shape)
-    return res if shape else float(res)
-
-
-def gyrobohm_q(*, ne: float, te: float, c_s: float, rho_s: float,
-               a: float) -> float:
-    """The gyro-Bohm energy-flux unit of one surface [W/m²].
-
-    SI in: ``ne`` [m^-3], ``te`` [eV], ``c_s`` [m/s], ``rho_s``/``a`` [m].
-
-    ★The bridge between what the turbulence models return (dimensionless)
-    and what a transport equation takes: getting the ``ρ_s/a`` power wrong
-    is a plausible flux that is wrong by a gyroradius squared.  ★★And it
-    took ``ne_cgs``/``c_s`` in CGS while the answer came out in W/m², so a
-    caller reading the return type had no way to guess the arguments were a
-    different unit system — the surface state it would naturally reach for
-    is the one this now takes.
-    """
-    lib = require()
-    one = _f(np.ones(1))
-    out = np.empty(2)
-    rc = lib.fylite_rs_chi_from_flux(one, one, one, one, 1, 1e-30,
-                                     float(ne), float(te), float(c_s),
-                                     float(rho_s), float(a), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_chi_from_flux returned {rc}")
-    return float(out[1])
-
-
-# --------------------------------------------------------------------------- #
-# The SCENARIO face: named quantities, one symbol
-#
-# ★★The flat entries above stay — they are the kernel's own vocabulary, one
-# function per numerical claim, and nothing here replaces them.  What this
-# adds beside them is the altitude a scenario is asked at: `scenario("zerod",
-# params={...}, inputs={...})`, where every argument is a NAME and its
-# position in the packed block comes from the kernel's own declaration
-# (`rust/fylite/src/fyo.rs`, generated into `_fyo_interface.py`).
-#
-# ★One symbol serves every entry, so appending an entry moves no signature.
-# --------------------------------------------------------------------------- #
 _ARRU = np.ctypeslib.ndpointer(np.uint64, flags="C_CONTIGUOUS")
 
 #: Entry name -> its wire index.  The INDEX crosses the ABI, so the
@@ -2729,72 +2230,6 @@ def scenario(entry: str, *, params: dict | None = None,
     return got
 
 
-_sig("fylite_rs_alpha_heating", [_ARR] * 3 + [_U64] + [_F64] * 3 + [_ARR],
-     _I32)
-def alpha_heating(*, ne, te, ti_kev, dt_fraction: float = 0.5,
-                  zeff: float = 1.0, zsum: float = 0.5) -> dict:
-    """Alpha heating on a profile — power density and its e/i split.
-
-    ``{p_total, p_e, p_i, e_crit}`` in W/m³ (``e_crit`` in eV).  ``ne``
-    [m⁻³], ``te`` [eV], ``ti_kev`` [keV]; ``dt_fraction`` follows the 0-D
-    tier (``n_D = n_T = dt_fraction·n_e``); ``zsum`` is the field-ion sum
-    ``Σ n_j Z_j²/(n_e A_j)`` that sets the critical energy, as for the beam.
-
-    ★★It is an ASSEMBLY of two things the kernel already pins — the
-    Bosch-Hale reactivity and the Stix slowing-down partition — rather than
-    a transcription of an upstream routine, because upstream's regression
-    set carries no D-T.  Two gates: the cross-tier identity (the volume
-    integral of ``p_total`` is the kernel's ``zerod_fusion_power`` alpha share on
-    the same profiles) and, since 2026-08-22, an EXTERNAL one — ASTRA's
-    ITER 15 MA burn case in ``tests/data/reference/``, which the kernel matches
-    to 3 % point-by-point and 0.3 % in the integral.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(ne, float))
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape))
-         for x in (ne, te, ti_kev)]
-    n = a[0].size
-    out = np.empty(4 * n)
-    rc = lib.fylite_rs_alpha_heating(*a, n, float(dt_fraction), float(zeff),
-                                     float(zsum), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_alpha_heating returned {rc}")
-    return {"p_total": out[:n].copy(), "p_e": out[n:2 * n].copy(),
-            "p_i": out[2 * n:3 * n].copy(), "e_crit": out[3 * n:].copy()}
-
-
-_sig("fylite_rs_gyrobohm_gamma", [_F64] * 4, _F64)
-def gyrobohm_gamma(*, ne: float, c_s: float, rho_s: float, a: float) -> float:
-    """The gyro-Bohm PARTICLE-flux unit of one surface [1/(m²·s)].
-
-    ``Γ_GB = n_e c_s (ρ_s/a)²`` — :func:`gyrobohm_q` with the energy
-    ``e·T_e`` taken out, which is exactly what separates a particle flux
-    from an energy one.  SI in: ``ne`` [m⁻³], ``c_s`` [m/s],
-    ``rho_s``/``a`` [m].
-    """
-    lib = require()
-    return float(lib.fylite_rs_gyrobohm_gamma(float(ne), float(c_s),
-                                              float(rho_s), float(a)))
-
-
-def gyrobohm_pi(*, ne: float, te: float, c_s: float, rho_s: float,
-                a: float) -> float:
-    """The gyro-Bohm TOROIDAL-STRESS unit of one surface [N/m].
-
-    ``Π_GB = n_e T_e a (ρ_s/a)²`` — the normalisation upstream's
-    ``out.tglf.gbflux`` momentum column carries, spelled the same way in
-    ``tgyro_flux.f90`` and ``tgyro_profile_functions.f90``.
-
-    ★Written as ``Q_GB · a / c_s`` rather than re-derived: the two differ
-    by exactly that, and stating it as a relation means the ``ρ_s/a``
-    power — the thing :func:`gyrobohm_q` warns about — is claimed in ONE
-    place and cannot drift between the energy and momentum channels.
-
-    SI in: ``ne`` [m⁻³], ``te`` [eV], ``c_s`` [m/s], ``rho_s``/``a`` [m].
-    """
-    return gyrobohm_q(ne=ne, te=te, c_s=c_s, rho_s=rho_s, a=a) * a / c_s
-
-
 _sig("fylite_rs_factor_dispersion", [_ARR, _U64, _ARR], _I32)
 def factor_dispersion(factors) -> float:
     """``max |f/median(f) − 1|`` over the finite entries.
@@ -2817,118 +2252,6 @@ def factor_dispersion(factors) -> float:
     if rc != 0:
         raise KernelError(f"fylite_rs_factor_dispersion returned {rc}")
     return float(out[0])
-
-
-_sig("fylite_rs_solve_density", ([_ARR] * 7 + [_U64, _F64, _F64, _U64] + [_F64] * 3 + [_U64, _ARR]), _I32)
-def solve_density(rho, n_init, *, vprime, gm3, d, v=0.0, source=0.0,
-                  dt: float, edge: float, max_outer: int = 500,
-                  tol_steady: float = 1e-9, d_pc: float = 0.0,
-                  tol: float = 1e-10, max_inner: int = 60) -> dict:
-    """The particle channel, marched to steady — the kernel's.
-
-    Capacity ``V'``, flux metric ``V'⟨|∇ρ|²⟩``, and the solver's source IS
-    the volumetric one.  ★Density stays a PER-ION quantity: the electron
-    density is the quasi-neutrality closure, not a solvable channel.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(rho, float))
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape))
-         for x in (rho, n_init, vprime, gm3, d, v, source)]
-    n = a[0].size
-    out = np.empty(n + 3)
-    rc = lib.fylite_rs_solve_density(*a, n, float(dt), float(edge),
-                                     int(max_outer), float(tol_steady),
-                                     float(d_pc), float(tol),
-                                     int(max_inner), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_solve_density returned {rc}")
-    return {"n": out[:n].copy(), "outer_steps": int(out[n]),
-            "steady": bool(out[n + 1]), "delta": float(out[n + 2])}
-
-
-_sig("fylite_rs_solve_psi", ([_ARR] * 7 + [_U64] + [_F64] * 2 + [_U64] + [_F64] * 3 + [_U64, _ARR]), _I32)
-def solve_psi(rho, psi_init, *, vprime, gm2, fpol, b0: float, sigma_par,
-              j_ni=0.0, dt: float, n_steps: int = 1, edge_psi: float,
-              edge_rate: float = 0.0, tol: float = 1e-10,
-              max_inner: int = 60) -> dict:
-    """The current-diffusion channel — the kernel's.
-
-    ★★Upstream's regularisations came with it, because each is there
-    because something rings without it: ``rho_safe`` in the capacity, the
-    near-axis ``V'``/``gm2`` rebuild (the FSA ladder's own axis
-    extrapolation otherwise rings ψ by O(10 %)), the σ floor, and the
-    monotone repair whose SIZE is reported rather than silently applied.
-
-    ★``j_ni`` is the NON-INDUCTIVE current only.  The Ohmic ``j = σE`` is
-    the unknown of this equation; folding it in pins the lagged ``σE``
-    pattern into ψ and hollows the current profile within tens of steps.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(rho, float))
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape))
-         for x in (rho, psi_init, vprime, gm2, fpol, sigma_par, j_ni)]
-    n = a[0].size
-    out = np.empty(2 * n + 1)
-    rc = lib.fylite_rs_solve_psi(*a, n, float(b0), float(dt), int(n_steps),
-                                 float(edge_psi), float(edge_rate),
-                                 float(tol), int(max_inner), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_solve_psi returned {rc}")
-    return {"psi": out[:n].copy(), "q": out[n:2 * n].copy(),
-            "repaired": float(out[2 * n]), "steps": int(n_steps)}
-
-
-_sig("fylite_rs_b_unit_from_rho", [_F64, _ARR, _ARR, _U64, _ARR], _I32)
-def b_unit_from_rho(b0: float, rho, r):
-    """``B_unit`` [T] along a ladder: ``|dΦ/dr|/(2πr)`` with ``Φ = πB₀ρ²``.
-
-    ``rho`` is the toroidal-flux radius [m] and ``r`` the Miller minor
-    radius [m] — different labels, and the derivative is against ``r``
-    because that is the label TGLF and NEO are handed.
-
-    ★★The single most consequential number the mapping layer produces, and
-    nothing raises when it is wrong: ``BETAE`` is referenced to it rather
-    than to the vacuum field, ``ρ_s`` scales with it, and the gyro-Bohm flux
-    unit carries it squared.  Reaching for the vacuum ``B₀`` instead — they
-    differ by a shaping factor of order one — gets fluxes wrong by a factor
-    nothing else in the chain would flag.
-
-    ★It is exact only in the INTERIOR: the derivative is one-sided at the
-    ends, so the first and last nodes read an extrapolation.
-    """
-    lib = require()
-    rho_a, r_a = _f(np.atleast_1d(rho)), _f(np.atleast_1d(r))
-    if r_a.size != rho_a.size:
-        raise KernelError(f"rho has {rho_a.size} points, r has {r_a.size}")
-    out = np.empty(rho_a.size)
-    rc = lib.fylite_rs_b_unit_from_rho(float(b0), rho_a, r_a, rho_a.size,
-                                       out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_b_unit_from_rho returned {rc}")
-    return out
-
-
-_sig("fylite_rs_ion_dilution", [_ARR, _U64, _F64, _F64, _ARR], _I32)
-def ion_dilution(ne, *, zeff: float, z_imp: float = 6.0):
-    """Main-ion density from ``Z_eff`` — ``n_D = nₑ(Z_imp−Z_eff)/(Z_imp−1)``.
-
-    Upstream's ``LOC_N_ION = 1`` posture: the impurity never becomes a
-    kinetic species, it only removes electrons from the main ion.
-
-    ★★A ``Z_eff`` the chosen impurity cannot represent is REFUSED, not
-    floored — a floored main-ion density is a plasma with the wrong number
-    of deuterons, and nothing downstream would say so.
-    """
-    lib = require()
-    ne_a = _f(np.atleast_1d(ne))
-    out = np.empty(ne_a.size)
-    rc = lib.fylite_rs_ion_dilution(ne_a, ne_a.size, float(zeff),
-                                    float(z_imp), out)
-    if rc != 0:
-        raise KernelError(
-            f"zeff={zeff} is not representable with Z_imp={z_imp}"
-            if rc == -2 else f"fylite_rs_ion_dilution returned {rc}")
-    return out.reshape(np.shape(ne)) if np.shape(ne) else float(out[0])
 
 
 _sig("fylite_rs_with_axis_node",
@@ -2972,53 +2295,6 @@ def with_axis_node(*, zero, repeat=()):
         raise KernelError(f"fylite_rs_with_axis_node returned {rc}")
     return (tuple(zo.reshape(len(z), n + 1)),
             tuple(ro.reshape(len(r), n + 1)) if r else ())
-
-
-_sig("fylite_rs_ohmic_power", [_ARR, _ARR, _U64, _ARR], _I32)
-def ohmic_power(eta, j_par):
-    """Ohmic heating ``η j_∥²`` [W/m³], to the electrons.
-
-    ★The other half of the ohmic channel, beside :func:`spitzer_eta`: the
-    pair is one statement — THIS resistivity times THIS current — and a
-    channel whose halves live in different hosts is one whose neoclassical
-    refinement can be applied to one half only.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(eta, float) * np.asarray(j_par, float))
-    e = _f(np.broadcast_to(np.asarray(eta, float), shape))
-    j = _f(np.broadcast_to(np.asarray(j_par, float), shape))
-    out = np.empty(e.size)
-    rc = lib.fylite_rs_ohmic_power(e, j, e.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_ohmic_power returned {rc}")
-    return out.reshape(shape) if shape else float(out[0])
-
-
-_sig("fylite_rs_quasi_neutral_ne", [_ARR, _ARR, _U64, _U64, _ARR], _I32)
-def quasi_neutral_ne(z, ni):
-    """Electron density from quasi-neutrality, ``n_e = Σ_s z_s n_s``.
-
-    ``z`` is one charge number per species; ``ni`` is ``(n_species,
-    n_points)``.
-
-    ★★A STRUCTURAL closure, not a solvable channel: the electron density is
-    never evolved by the transport solver, it is whatever the ions require.
-    Summing the densities without the charge weight is the mistake this
-    exists to have one place for — it understates the electrons by exactly
-    the impurity charge.
-    """
-    lib = require()
-    z_a = _f(np.atleast_1d(z))
-    ni_a = _f(np.atleast_2d(ni))
-    if ni_a.shape[0] != z_a.size:
-        raise KernelError(f"{z_a.size} charge numbers against "
-                          f"{ni_a.shape[0]} density rows")
-    out = np.empty(ni_a.shape[1])
-    rc = lib.fylite_rs_quasi_neutral_ne(z_a, ni_a.ravel(), z_a.size,
-                                        out.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_quasi_neutral_ne returned {rc}")
-    return out
 
 
 _sig("fylite_rs_two_temperature_state_len", [_U64], _U64)
@@ -3123,37 +2399,6 @@ def label_drift(rho, *, b0: float, b0_dot: float):
     return out
 
 
-_sig("fylite_rs_solve_momentum",
-     [_ARR] * 8 + [_U64] + [_F64] * 3 + [_U64] + [_F64] * 3 + [_U64, _ARR],
-     _I32)
-def solve_momentum(rho, omega_init, *, vprime, gm3, r2, dens, mass: float,
-                   chi_phi, torque=0.0, dt: float, edge: float,
-                   max_outer: int = 500, tol_steady: float = 1e-9,
-                   d_pc: float = 0.0, tol: float = 1e-10,
-                   max_inner: int = 60) -> dict:
-    """The toroidal-momentum channel, marched to steady — the kernel's.
-
-    The same shape as :func:`solve_density`, with the momentum weights:
-    a prescribed ``chi_phi`` (a momentum diffusivity is a TGLF output, not
-    something this layer produces), backward Euler, the shared steady rule.
-    """
-    lib = require()
-    shape = np.shape(np.asarray(rho, float))
-    a = [_f(np.broadcast_to(np.asarray(x, float), shape))
-         for x in (rho, omega_init, vprime, gm3, r2, dens, chi_phi, torque)]
-    n = a[0].size
-    out = np.empty(n + 3)
-    rc = lib.fylite_rs_solve_momentum(*a, n, float(mass), float(dt),
-                                      float(edge), int(max_outer),
-                                      float(tol_steady), float(d_pc),
-                                      float(tol), int(max_inner), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_solve_momentum returned {rc}")
-    return {"omega": out[:n].copy(), "outer_steps": int(out[n]),
-            "steady": bool(out[n + 1]), "delta": float(out[n + 2])}
-
-
-#: What the core march refuses, and why.
 _CORE_MARCH_ERRORS = {
     -2: ("core_march: every profile must be the same length as rho, rho "
          "needs at least three points, and at least one channel must be on"),

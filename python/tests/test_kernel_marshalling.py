@@ -55,32 +55,6 @@ def test_channel_field_refuses_a_transposed_map():
         K.channel_field(ELEMS, w.T, [1.9], [0.05])           # 2 x 3, refused
 
 
-def test_redl_surface_inputs_come_back_named_and_per_surface():
-    ps = np.array([0.2, 0.5, 0.9])
-    prof = np.linspace(0.0, 1.0, 11)
-    out = K.redl_surface_inputs(
-        ps, [0.1, 0.25, 0.4], np.full(3, 1.85), [1.0, 2.0, 4.0],
-        psin_prof=prof, ne=np.full(11, 3.0e19), te=np.linspace(3000.0, 0.0, 11),
-        zeff=1.7, f_table=np.full(5, -3.4))
-    assert set(out) == set(K.REDL_INPUT_ROWS)
-    assert all(v.shape == ps.shape for v in out.values())
-
-
-def test_redl_surface_inputs_take_a_scalar_zeff_as_a_profile():
-    """``zeff`` is per-point in the kernel; a scalar is the common case and
-    is broadcast HERE, so the entry never has to guess which it got."""
-    ps = np.array([0.3, 0.8])
-    prof = np.linspace(0.0, 1.0, 5)
-    kw = dict(psin_prof=prof, ne=np.full(5, 2.0e19), te=np.full(5, 1500.0),
-              f_table=np.full(3, 3.4))
-    flat = K.redl_surface_inputs(ps, [0.1, 0.3], np.full(2, 1.85), [1.0, 3.0],
-                                 zeff=2.5, **kw)
-    array = K.redl_surface_inputs(ps, [0.1, 0.3], np.full(2, 1.85), [1.0, 3.0],
-                                  zeff=np.full(5, 2.5), **kw)
-    for k in K.REDL_INPUT_ROWS:
-        assert np.array_equal(flat[k], array[k])
-
-
 def test_interp_is_the_numpy_it_replaced_bit_for_bit():
     """★48 call sites moved onto this entry; the claim is that not one number
     changed.  numpy is the REFERENCE here, not a second implementation — the
@@ -128,64 +102,6 @@ def _st(**over):
                          dlnnidr=0.0118, dlntidr=0.0335)])
     st.update(over)
     return st
-
-
-def test_the_tglf_species_table_comes_back_one_row_per_species():
-    st = _st()
-    loc = K.tglf_local(st)
-    for row in K.TGLF_SPECIES_ROWS:
-        assert loc[row].shape == (2,), row
-    st2 = _st(ions=[*_st()["ions"],
-                    dict(z=6.0, mass=6.0 * 3.34358e-24, ni=1.0e12, ti=1700.0,
-                         dlnnidr=0.02, dlntidr=0.03)])
-    assert K.tglf_local(st2)["zs"].shape == (3,)
-    #: electrons first, always — the row a caller indexes as species 1
-    assert K.tglf_local(st2)["zs"][0] == -1.0
-    assert K.tglf_local(st2)["zs"][2] == 6.0
-
-
-def test_tglf_and_neo_species_tables_share_a_layout_and_not_a_norm():
-    """★★The classic trap, as one assertion pair.
-
-    The two blocks are the same six fields over the same species in the same
-    order, which is exactly why handing one map the other's table raises
-    nothing and rescales every flux.  They are built by ONE host now, so the
-    difference is visible here rather than inferable from two call sites.
-    """
-    st = _st()
-    t, n = K.tglf_local(st), K.neo_local(st)
-    assert t["zs"].shape == n["z"].shape
-    assert np.array_equal(t["zs"], n["z"])
-    assert np.array_equal(t["mass"], n["mass"])
-
-    #: TGLF references temperature to the ELECTRONS...
-    assert t["taus"][0] == 1.0
-    assert t["taus"][1] == st["ions"][0]["ti"] / st["te"]
-    #: ...NEO to the FIRST ION, and this case can tell them apart
-    assert n["temp"][1] == pytest.approx(1.0, abs=1e-14)
-    assert abs(t["taus"][1] - n["temp"][1]) > 1e-3
-
-    #: the density norm IS shared — except that NEO forces quasineutrality
-    #: on a single ion and TGLF keeps the pair it was handed
-    assert t["as"][1] == st["ions"][0]["ni"] / st["ne"]
-    assert n["dens"][1] == pytest.approx(1.0, abs=1e-14)
-
-
-def test_the_tglf_electron_row_is_the_reference_not_a_ratio():
-    """``AS_1``/``TAUS_1`` are exactly 1 because they ARE the reference — a
-    computed ratio would let a caller's rounding move the reference itself.
-    """
-    loc = K.tglf_local(_st(te=1873.3174921, ne=3.141592653e13))
-    assert loc["as"][0] == 1.0 and loc["taus"][0] == 1.0
-    #: the gradients are not references: they carry `a`
-    st = _st()
-    assert K.tglf_local(st)["rlns"][0] == st["a"] * st["dlnnedr"]
-
-
-def test_tglf_local_refuses_a_state_with_no_reference():
-    for bad in (dict(te=0.0), dict(ne=0.0), dict(a=0.0)):
-        with pytest.raises(K.KernelError):
-            K.tglf_local(_st(**bad))
 
 
 # --------------------------------------------------------------------------- #
@@ -411,21 +327,6 @@ def test_label_drift_is_zero_unless_the_field_moves():
     assert np.allclose(got, -0.5 * rho * 0.4 / 2.0)
 
 
-def test_solve_momentum_reports_its_march():
-    n = 21
-    rho = np.linspace(0.0, 1.0, n)
-    one = np.ones(n)
-    r = K.solve_momentum(rho, np.full(n, 1.0e4), vprime=one, gm3=one, r2=one,
-                         dens=one, mass=1.0, chi_phi=np.full(n, 2.0),
-                         torque=np.full(n, 4.0), dt=float("inf"), edge=1.0e4,
-                         max_outer=300, tol_steady=1e-12)
-    assert r["omega"].shape == (n,)
-    assert r["steady"] and r["outer_steps"] >= 1
-    #: the closed form the kernel's own gate states, checked once at the
-    #: boundary so a marshalling slip cannot hide behind it
-    assert r["omega"][0] == pytest.approx(1.0e4 + 4.0 / (2.0 * 2.0), rel=1e-9)
-
-
 def test_the_previous_metric_is_off_by_default_and_carries_the_volume_change():
     """★The `dV'/dt` a caller meets when it re-traces the metric between
     rounds: with no conduction and no heating, `(3/2) V' n T` is a constant
@@ -457,48 +358,6 @@ def test_a_field_that_is_not_ramping_is_a_dead_path():
     #: through the fixed grid and the axis cools
     assert K.core_march(rho, b0_dot=2.0, **kw)["te"][0] < still["te"][0]
     assert K.core_march(rho, b0_dot=-2.0, **kw)["te"][0] > still["te"][0]
-
-
-def test_the_particle_conversion_is_its_own_entry_not_the_energy_one():
-    """★They differ by ``n·e`` ≈ 1e19, so a caller that reaches for the
-    wrong one is wrong by twenty orders of magnitude.  Checked on the SAME
-    flux, which is the only way to state that as a claim at this face."""
-    d = K.d_from_flux([3.0, 3.0], [2.0, 2.0], [1.5, 1.5])
-    assert d == pytest.approx([1.0, 1.0])
-    chi = K.chi_from_flux([3.0], [1e19], [2.0], [1.5])
-    assert chi == pytest.approx(d[:1] / (1e19 * 1.602176634e-19), rel=1e-12)
-    #: shape comes back, scalars stay scalars
-    assert isinstance(K.d_from_flux(3.0, 2.0, 1.5), float)
-
-
-def test_the_two_gyro_bohm_units_differ_by_the_energy_they_carry():
-    kw = dict(ne=4e19, c_s=3.1e5, rho_s=1.7e-3, a=0.6)
-    g = K.gyrobohm_gamma(**kw)
-    q = K.gyrobohm_q(te=1800.0, **kw)
-    assert q == pytest.approx(g * 1.6022e-19 * 1800.0, rel=1e-12)
-
-
-def test_alpha_heating_comes_back_split_and_summing_to_its_total():
-    n = 21
-    rho = np.linspace(0.0, 1.0, n)
-    ne = 1.1e20 * (1 - 0.7 * rho ** 2)
-    ti_kev = 22.0 * (1 - 0.9 * rho ** 2) + 0.5
-    a = K.alpha_heating(ne=ne, te=ti_kev * 1e3, ti_kev=ti_kev,
-                        dt_fraction=0.5, zeff=1.6, zsum=0.5)
-    for k in ("p_total", "p_e", "p_i", "e_crit"):
-        assert a[k].shape == (n,)
-    assert a["p_e"] + a["p_i"] == pytest.approx(a["p_total"])
-    #: ★a reactor core, not a number that only looks like one because both
-    #: sides are zero: hundreds of kW per cubic metre on axis
-    assert a["p_total"][0] > 1e5
-    #: ★★and the critical energy is a real one — 30 eV is the FLOOR
-    #: `slowing_down` clamps to, and reaching it means the mass was handed
-    #: over in kg instead of amu (this cost one debugging pass)
-    assert a["e_crit"][0] > 1e5
-    #: no tritium, no alphas
-    zero = K.alpha_heating(ne=ne, te=ti_kev * 1e3, ti_kev=ti_kev,
-                           dt_fraction=0.0)
-    assert np.all(zero["p_total"] == 0.0)
 
 
 def test_the_ion_channels_are_ion_major_and_the_electrons_follow_them():

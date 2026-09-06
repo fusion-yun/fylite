@@ -85,18 +85,16 @@
     //: rebuild the CGS normalisation itself, which is the one layer whose
     //: errors do not raise.  Listed together so a build carrying only one
     //: of them fails at load rather than at the first surface.
-    'fylite_rs_neo_inputs', 'fylite_rs_neo_sauter',
-        //: ★the interpretive direction, and the ADAS table that makes the
+    'fylite_rs_neo_sauter',
+    //: ★the interpretive direction, and the ADAS table that makes the
     //: radiation a total rather than a bremsstrahlung estimate.  Listed so
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
     'fylite_rs_zerod_waveform',
-    'fylite_rs_ion_dilution', 'fylite_rs_quasi_neutral_ne',
-    'fylite_rs_field_ion_sum',
+        'fylite_rs_field_ion_sum',
     'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
-    'fylite_rs_redl_bootstrap',
-    'fylite_rs_quadrature',
-    //: ★the diagnostic layer the analysis scenario reads its channels
+        'fylite_rs_quadrature',
+        //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
     //: slices, and the dispersion that says whether the set hangs together.
     //: They were in every shipped artifact and reachable from Python alone.

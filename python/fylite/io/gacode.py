@@ -140,7 +140,7 @@ def read_input_gacode(path) -> dict:
 #: package reads — that is what an ``io`` module is for.
 
 #: ★``gyrobohm_factors`` used to sit here as a one-line forward to
-#: :func:`fylite.kernel.neo_gyrobohm`.  Its own docstring gave the reason it
+#: ``neo_gyrobohm`` (oracle-only since T-4 第十六刀: the kernel repository's ``tests/_oracle.py``).  Its own docstring gave the reason it
 #: had to go: the three exponents (1.5, 2.5, 2.0) "may not be written down
 #: twice" — and a second NAME for the entry that holds them is the way a
 #: second writing-down begins.  Callers use the kernel directly.
