@@ -134,8 +134,6 @@
     //: modelling page could only ever march a PRESCRIBED chi.  Listed as
     //: required for the reason every name above is — a build without them
     //: must fail at LOAD, not at the first match.
-    'fylite_rs_flux_match_state_len', 'fylite_rs_flux_match_init',
-    'fylite_rs_flux_match_next', 'fylite_rs_flux_match_result',
     'fylite_rs_reintegrate',
     'memory',
   ];
@@ -489,96 +487,6 @@
   // convergence test are all on the other side.  What this side owns is the
   // FLUX MODEL, which is a callback and therefore cannot cross the ABI —
   // hence a resumable machine rather than a function taking a closure.
-
-
-  /**
-   * The Newton flux match in gradient space.
-   *
-   * `o` = `{x0, nEvolve, dx, dxMax, relaxFactor, iterations, method, tol}`;
-   * `evaluate(x)` returns `{flux, target}` at that gradient vector, and
-   * `onIteration(result)` fires at each iteration boundary.
-   *
-   * ★`x0` is CHANNEL-FASTEST — `[ch0@r1, ch1@r1, …, ch0@r2, …]`, upstream's
-   * `evolve_indx` order — so a channel is `x[ip::nEvolve]`.  The Jacobian
-   * moves every radius of one channel together, which is what makes a Newton
-   * match affordable at all and is EXACT for a radius-decoupled model.
-   *
-   * ★Both models are evaluated at the SAME point on every request: one
-   * request per point is what a real driver wants, since it holds one
-   * surface state and would otherwise build it twice.
-   *
-   * ★`tol` (on the max residual) is optional; without it the loop runs the
-   * full `iterations` and reports `converged` false, because nobody asked.
-   */
-  Fy.prototype.fluxMatch = function (o, evaluate, onIteration) {
-    var self = this, p = o.x0.length, ne = Math.max(1, o.nEvolve | 0);
-    var iters = o.iterations || 8;
-    var nstate = Number(self.e.fylite_rs_flux_match_state_len(
-      BigInt(p), BigInt(ne)));
-    return this.scope(function (s) {
-      var x0 = s.put(o.x0), state = s.zeros(nstate);
-      var rc = self.e.fylite_rs_flux_match_init(
-        x0.ptr, BigInt(p), BigInt(ne), num(o.dx, 0.05), num(o.dxMax, 1.0),
-        num(o.relaxFactor, 2.0), BigInt(iters), num(o.method, 3),
-        (o.tol === undefined || o.tol === null) ? NaN : o.tol,
-        state.ptr, BigInt(nstate));
-      if (rc !== 0) throw new SolveError('fylite_rs_flux_match_init', rc);
-
-      var fb = s.zeros(p), gb = s.zeros(p), xo = s.zeros(p),
-          rx = s.zeros(p), rf = s.zeros(p), rg = s.zeros(p), rr = s.zeros(p),
-          r3 = s.zeros(3);
-      var result = function () {
-        var rc2 = self.e.fylite_rs_flux_match_result(
-          state.ptr, BigInt(nstate), BigInt(p), rx.ptr, rf.ptr, rg.ptr,
-          rr.ptr, r3.ptr);
-        if (rc2 !== 0)
-          throw new SolveError('fylite_rs_flux_match_result', rc2);
-        var v = s.get(r3);
-        return { x: s.get(rx), flux: s.get(rf), target: s.get(rg),
-                 residual: s.get(rr), iterations: v[0] | 0,
-                 converged: v[1] === 1, worst: v[2] };
-      };
-      //: ★the buffers are re-viewed on every write: the flux model allocates
-      //: inside this same linear memory (the neoclassical block, the ladder),
-      //: and a growth there DETACHES any view held across the call.
-      var setter = function (buf, arr, what) {
-        if (!arr || arr.length !== p)
-          throw new Error('FyLite: the flux model returned ' +
-                          (arr ? arr.length : 'no ') + ' ' + what +
-                          ' values where ' + p + ' were asked for');
-        self.f64().set(arr, buf.ptr / 8);
-      };
-      var feed = function (v) {
-        setter(fb, v && v.flux, 'flux');
-        setter(gb, v && v.target, 'target');
-      };
-      //: the machine hands back the point to evaluate; the very first one is
-      //: `x0` itself, which `init` has already written into the state
-      feed(evaluate(Float64Array.from(o.x0)));
-      for (var guard = 0; ; guard++) {
-        var req = self.e.fylite_rs_flux_match_next(
-          state.ptr, BigInt(nstate), fb.ptr, gb.ptr, BigInt(p), xo.ptr);
-        if (req < 0) throw new SolveError('fylite_rs_flux_match_next', req);
-        if (req === 0) return result();
-        if (req === 2) {
-          //: ★an iteration boundary: there is nothing to evaluate, and the
-          //: machine's OWN f and g go back in unchanged.  Handing it a fresh
-          //: evaluation here would be a point nobody asked for.
-          var it = result();
-          if (onIteration) onIteration(it);
-          feed(it);
-        } else {
-          feed(evaluate(s.get(xo)));
-        }
-        //: the match is bounded by `(nEvolve + 4)` calls per iteration; a
-        //: machine that never says Done is a kernel bug, and looping forever
-        //: in a worker is how it would present itself
-        if (guard > (ne + 4) * iters + 64)
-          throw new Error('FyLite: the flux match did not finish');
-      }
-    });
-  };
-
   // --- L7 neutral-beam deposition ------------------------------------------
   //
   // ★★THE WHOLE CHAIN IS THE KERNEL'S, and that is the point of binding it

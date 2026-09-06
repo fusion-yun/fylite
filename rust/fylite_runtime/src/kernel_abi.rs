@@ -18,10 +18,6 @@ extern "C" {
     fn fylite_rs_bound_deriv(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64) -> i32;
     fn fylite_rs_bounded_lstsq(_0: *const f64, _1: *const f64, _2: u64, _3: u64, _4: *const f64, _5: *const f64, _6: u64, _7: f64, _8: *mut f64) -> i32;
     fn fylite_rs_contour(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: f64, _8: u64, _9: *mut f64) -> i32;
-    fn fylite_rs_core_march_init(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: *const f64, _10: *const f64, _11: *const f64, _12: *const f64, _13: *const f64, _14: *const f64, _15: u64, _16: u64, _17: f64, _18: f64, _19: f64, _20: f64, _21: f64, _22: f64, _23: u64, _24: f64, _25: u64, _26: f64, _27: f64, _28: f64, _29: f64, _30: f64, _31: f64, _32: u64, _33: i32, _34: i32, _35: i32, _36: *mut f64, _37: u64) -> i32;
-    fn fylite_rs_core_march_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: u64, _10: u64, _11: *mut f64, _12: *mut f64, _13: *mut f64, _14: *mut f64, _15: *mut f64) -> i32;
-    fn fylite_rs_core_march_result(_0: *const f64, _1: u64, _2: u64, _3: u64, _4: *mut f64, _5: *mut f64, _6: *mut f64, _7: *mut f64, _8: *mut f64, _9: *mut f64, _10: *mut f64, _11: *mut f64) -> i32;
-    fn fylite_rs_core_march_state_len(_0: u64, _1: u64) -> u64;
     fn fylite_rs_direct_integrals(_0: f64, _1: f64, _2: f64, _3: f64, _4: u64, _5: u64, _6: *const f64, _7: *const f64, _8: u64, _9: *const f64, _10: *const f64, _11: u64, _12: *const f64, _13: u64, _14: *mut f64, _15: *mut f64) -> i32;
     fn fylite_rs_dispersion_root(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: f64, _7: f64, _8: *mut f64) -> i32;
     fn fylite_rs_dke_assemble(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: u64, _8: *const f64, _9: u64, _10: u64, _11: u64, _12: f64, _13: f64, _14: i32, _15: *mut f64, _16: u64) -> i32;
@@ -35,10 +31,6 @@ extern "C" {
     fn fylite_rs_ellipke(_0: *const f64, _1: u64, _2: *mut f64, _3: *mut f64) -> i32;
     fn fylite_rs_factor_dispersion(_0: *const f64, _1: u64, _2: *mut f64) -> i32;
     fn fylite_rs_fill_filaments(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: u64, _5: f64, _6: *mut f64) -> i32;
-    fn fylite_rs_flux_match_init(_0: *const f64, _1: u64, _2: u64, _3: f64, _4: f64, _5: f64, _6: u64, _7: i32, _8: f64, _9: *mut f64, _10: u64) -> i32;
-    fn fylite_rs_flux_match_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: u64, _5: *mut f64) -> i32;
-    fn fylite_rs_flux_match_result(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64, _6: *mut f64, _7: *mut f64) -> i32;
-    fn fylite_rs_flux_match_state_len(_0: u64, _1: u64);
     fn fylite_rs_gradient(_0: *const f64, _1: *const f64, _2: u64, _3: i32, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_inside_polygon(_0: *const f64, _1: *const f64, _2: u64, _3: *const f64, _4: *const f64, _5: u64, _6: *mut f64) -> i32;
     fn fylite_rs_interp(_0: *const f64, _1: u64, _2: *const f64, _3: *const f64, _4: u64, _5: *mut f64) -> i32;
@@ -73,10 +65,6 @@ extern "C" {
     fn fylite_rs_tglf_presets(_0: i32, _1: i32, _2: i32, _3: *mut f64) -> i32;
     fn fylite_rs_tglf_units(_0: *const f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_to_uniform_extrap(_0: *const f64, _1: *const f64, _2: u64, _3: *mut f64, _4: u64) -> i32;
-    fn fylite_rs_two_temperature_init(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: *const f64, _9: u64, _10: f64, _11: u64, _12: f64, _13: u64, _14: f64, _15: f64, _16: f64, _17: f64, _18: u64, _19: *mut f64, _20: u64) -> i32;
-    fn fylite_rs_two_temperature_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: *const f64, _5: u64, _6: *mut f64, _7: *mut f64);
-    fn fylite_rs_two_temperature_result(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64, _6: *mut f64) -> i32;
-    fn fylite_rs_two_temperature_state_len(_0: u64) -> u64;
     fn fylite_rs_volume_int(_0: *const f64, _1: *const f64, _2: *const f64, _3: u64, _4: i32, _5: *mut f64) -> i32;
     fn fylite_rs_with_axis_node(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: u64, _5: *mut f64, _6: *mut f64) -> i32;
 }
@@ -88,10 +76,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_bound_deriv",
     "fylite_rs_bounded_lstsq",
     "fylite_rs_contour",
-    "fylite_rs_core_march_init",
-    "fylite_rs_core_march_next",
-    "fylite_rs_core_march_result",
-    "fylite_rs_core_march_state_len",
     "fylite_rs_direct_integrals",
     "fylite_rs_dispersion_root",
     "fylite_rs_dke_assemble",
@@ -105,10 +89,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_ellipke",
     "fylite_rs_factor_dispersion",
     "fylite_rs_fill_filaments",
-    "fylite_rs_flux_match_init",
-    "fylite_rs_flux_match_next",
-    "fylite_rs_flux_match_result",
-    "fylite_rs_flux_match_state_len",
     "fylite_rs_gradient",
     "fylite_rs_inside_polygon",
     "fylite_rs_interp",
@@ -143,10 +123,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_tglf_presets",
     "fylite_rs_tglf_units",
     "fylite_rs_to_uniform_extrap",
-    "fylite_rs_two_temperature_init",
-    "fylite_rs_two_temperature_next",
-    "fylite_rs_two_temperature_result",
-    "fylite_rs_two_temperature_state_len",
     "fylite_rs_volume_int",
     "fylite_rs_with_axis_node",
 ];
@@ -167,10 +143,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_bound_deriv", &["in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_bounded_lstsq", &["in_f64", "in_f64", "u64", "u64", "in_f64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_contour", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "u64", "out_f64"]),
-    ("fylite_rs_core_march_init", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "f64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "i32", "i32", "i32", "out_f64", "u64"]),
-    ("fylite_rs_core_march_next", &["out_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_core_march_result", &["in_f64", "u64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_core_march_state_len", &["u64", "u64"]),
     ("fylite_rs_direct_integrals", &["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_dispersion_root", &["in_f64", "in_f64", "in_f64", "u64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_dke_assemble", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "f64", "f64", "i32", "out_f64", "u64"]),
@@ -184,10 +156,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_ellipke", &["in_f64", "u64", "out_f64", "out_f64"]),
     ("fylite_rs_factor_dispersion", &["in_f64", "u64", "out_f64"]),
     ("fylite_rs_fill_filaments", &["in_f64", "in_f64", "u64", "f64", "u64", "f64", "out_f64"]),
-    ("fylite_rs_flux_match_init", &["in_f64", "u64", "u64", "f64", "f64", "f64", "u64", "i32", "f64", "out_f64", "u64"]),
-    ("fylite_rs_flux_match_next", &["out_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"]),
-    ("fylite_rs_flux_match_result", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_flux_match_state_len", &["u64", "u64"]),
     ("fylite_rs_gradient", &["in_f64", "in_f64", "u64", "i32", "f64", "out_f64"]),
     ("fylite_rs_inside_polygon", &["in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_interp", &["in_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"]),
@@ -222,10 +190,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_tglf_presets", &["i32", "i32", "i32", "out_f64"]),
     ("fylite_rs_tglf_units", &["in_f64", "f64", "f64", "f64", "f64", "out_f64"]),
     ("fylite_rs_to_uniform_extrap", &["in_f64", "in_f64", "u64", "out_f64", "u64"]),
-    ("fylite_rs_two_temperature_init", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "u64", "f64", "u64", "f64", "f64", "f64", "f64", "u64", "out_f64", "u64"]),
-    ("fylite_rs_two_temperature_next", &["out_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "out_f64", "out_f64"]),
-    ("fylite_rs_two_temperature_result", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64"]),
-    ("fylite_rs_two_temperature_state_len", &["u64"]),
     ("fylite_rs_volume_int", &["in_f64", "in_f64", "in_f64", "u64", "i32", "out_f64"]),
     ("fylite_rs_with_axis_node", &["in_f64", "u64", "in_f64", "u64", "u64", "out_f64", "out_f64"]),
 ];
@@ -257,22 +221,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_contour" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "f64", "u64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_contour(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.u64(4)?, f.u64(5)?, p[6] as *const f64, f.f64(7)?, f.u64(8)?, p[9] as *mut f64) })
-        }
-        "fylite_rs_core_march_init" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "f64", "u64", "f64", "f64", "f64", "f64", "f64", "f64", "u64", "i32", "i32", "i32", "out_f64", "u64"], name)?;
-            Ret::I32(unsafe { fylite_rs_core_march_init(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, p[7] as *const f64, p[8] as *const f64, p[9] as *const f64, p[10] as *const f64, p[11] as *const f64, p[12] as *const f64, p[13] as *const f64, p[14] as *const f64, f.u64(15)?, f.u64(16)?, f.f64(17)?, f.f64(18)?, f.f64(19)?, f.f64(20)?, f.f64(21)?, f.f64(22)?, f.u64(23)?, f.f64(24)?, f.u64(25)?, f.f64(26)?, f.f64(27)?, f.f64(28)?, f.f64(29)?, f.f64(30)?, f.f64(31)?, f.u64(32)?, f.i32(33)?, f.i32(34)?, f.i32(35)?, p[36] as *mut f64, f.u64(37)?) })
-        }
-        "fylite_rs_core_march_next" => {
-            f.want(&["out_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_core_march_next(p[0] as *mut f64, f.u64(1)?, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, p[7] as *const f64, p[8] as *const f64, f.u64(9)?, f.u64(10)?, p[11] as *mut f64, p[12] as *mut f64, p[13] as *mut f64, p[14] as *mut f64, p[15] as *mut f64) })
-        }
-        "fylite_rs_core_march_result" => {
-            f.want(&["in_f64", "u64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_core_march_result(p[0] as *const f64, f.u64(1)?, f.u64(2)?, f.u64(3)?, p[4] as *mut f64, p[5] as *mut f64, p[6] as *mut f64, p[7] as *mut f64, p[8] as *mut f64, p[9] as *mut f64, p[10] as *mut f64, p[11] as *mut f64) })
-        }
-        "fylite_rs_core_march_state_len" => {
-            f.want(&["u64", "u64"], name)?;
-            Ret::U64(unsafe { fylite_rs_core_march_state_len(f.u64(0)?, f.u64(1)?) })
         }
         "fylite_rs_direct_integrals" => {
             f.want(&["f64", "f64", "f64", "f64", "u64", "u64", "in_f64", "in_f64", "u64", "in_f64", "in_f64", "u64", "in_f64", "u64", "out_f64", "out_f64"], name)?;
@@ -325,23 +273,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_fill_filaments" => {
             f.want(&["in_f64", "in_f64", "u64", "f64", "u64", "f64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_fill_filaments(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, f.f64(3)?, f.u64(4)?, f.f64(5)?, p[6] as *mut f64) })
-        }
-        "fylite_rs_flux_match_init" => {
-            f.want(&["in_f64", "u64", "u64", "f64", "f64", "f64", "u64", "i32", "f64", "out_f64", "u64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_match_init(p[0] as *const f64, f.u64(1)?, f.u64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, f.u64(6)?, f.i32(7)?, f.f64(8)?, p[9] as *mut f64, f.u64(10)?) })
-        }
-        "fylite_rs_flux_match_next" => {
-            f.want(&["out_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_match_next(p[0] as *mut f64, f.u64(1)?, p[2] as *const f64, p[3] as *const f64, f.u64(4)?, p[5] as *mut f64) })
-        }
-        "fylite_rs_flux_match_result" => {
-            f.want(&["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_flux_match_result(p[0] as *const f64, f.u64(1)?, f.u64(2)?, p[3] as *mut f64, p[4] as *mut f64, p[5] as *mut f64, p[6] as *mut f64, p[7] as *mut f64) })
-        }
-        "fylite_rs_flux_match_state_len" => {
-            f.want(&["u64", "u64"], name)?;
-            unsafe { fylite_rs_flux_match_state_len(f.u64(0)?, f.u64(1)?) };
-            Ret::Unit
         }
         "fylite_rs_gradient" => {
             f.want(&["in_f64", "in_f64", "u64", "i32", "f64", "out_f64"], name)?;
@@ -478,23 +409,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_to_uniform_extrap" => {
             f.want(&["in_f64", "in_f64", "u64", "out_f64", "u64"], name)?;
             Ret::I32(unsafe { fylite_rs_to_uniform_extrap(p[0] as *const f64, p[1] as *const f64, f.u64(2)?, p[3] as *mut f64, f.u64(4)?) })
-        }
-        "fylite_rs_two_temperature_init" => {
-            f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "u64", "f64", "u64", "f64", "f64", "f64", "f64", "u64", "out_f64", "u64"], name)?;
-            Ret::I32(unsafe { fylite_rs_two_temperature_init(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, p[6] as *const f64, p[7] as *const f64, p[8] as *const f64, f.u64(9)?, f.f64(10)?, f.u64(11)?, f.f64(12)?, f.u64(13)?, f.f64(14)?, f.f64(15)?, f.f64(16)?, f.f64(17)?, f.u64(18)?, p[19] as *mut f64, f.u64(20)?) })
-        }
-        "fylite_rs_two_temperature_next" => {
-            f.want(&["out_f64", "u64", "in_f64", "in_f64", "in_f64", "u64", "out_f64", "out_f64"], name)?;
-            unsafe { fylite_rs_two_temperature_next(p[0] as *mut f64, f.u64(1)?, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, f.u64(5)?, p[6] as *mut f64, p[7] as *mut f64) };
-            Ret::Unit
-        }
-        "fylite_rs_two_temperature_result" => {
-            f.want(&["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_two_temperature_result(p[0] as *const f64, f.u64(1)?, f.u64(2)?, p[3] as *mut f64, p[4] as *mut f64, p[5] as *mut f64, p[6] as *mut f64) })
-        }
-        "fylite_rs_two_temperature_state_len" => {
-            f.want(&["u64"], name)?;
-            Ret::U64(unsafe { fylite_rs_two_temperature_state_len(f.u64(0)?) })
         }
         "fylite_rs_volume_int" => {
             f.want(&["in_f64", "in_f64", "in_f64", "u64", "i32", "out_f64"], name)?;

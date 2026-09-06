@@ -27,6 +27,11 @@ pytestmark = pytest.mark.skipif(not KERNEL_LIB.exists(),
 #: repository's `tests/test_oracle_marshalling.py` (T-4 第二十五刀, 2026-09-06).
 
 
+#: ★the core march's marshalling gates left with the state machine for the kernel
+#: repository's `tests/test_oracle_marshalling.py` (T-4 第三十刀, 2026-09-06): no host
+#: on either side calls `core_march_*` any more.
+
+
 def test_interp_is_the_numpy_it_replaced_bit_for_bit():
     """★48 call sites moved onto this entry; the claim is that not one number
     changed.  numpy is the REFERENCE here, not a second implementation — the
@@ -143,201 +148,10 @@ def _core_grid(n=13):
     return rho, 2.0 * rho + 1e-3, np.ones(n)
 
 
-def test_core_march_returns_every_channel_on_the_grid():
-    n = 13
-    rho, vp, gm3 = _core_grid(n)
-    r = K.core_march(rho, te=np.full(n, 300.0), ti=np.full(n, 280.0),
-                     ni=np.full(n, 1e19), vprime=vp, gm3=gm3,
-                     closure=lambda st: {"chi_e": np.ones(n),
-                                         "chi_i": np.ones(n)},
-                     dt=1e-3, edge_te=100.0, edge_ti=100.0, max_outer=2)
-    for k in ("te", "ti", "ne", "psi", "q", "s_exchange"):
-        assert r[k].shape == (n,), k
-        assert np.all(np.isfinite(r[k])), k
-    assert isinstance(r["steady"], bool)
-    assert isinstance(r["outer_steps"], int)
-    assert r["psi_repaired"] == 0.0          # the channel was not switched on
-
-
-def test_core_march_carries_the_step_cap_and_the_picard_count_across():
-    """★The case that catches a mis-declared argument ORDER.
-
-    A C call reads its arguments by position, and on this ABI integers and
-    floats travel in different register files — so a declaration with the
-    right types in the wrong order can still return a plausible profile.
-    What it cannot do is get the two COUNTS right: the closure is called
-    exactly ``max_outer * n_coupling`` times when nothing settles first.
-    """
-    n = 9
-    rho, vp, gm3 = _core_grid(n)
-    calls = []
-
-    def closure(state):
-        calls.append(state["te"].copy())
-        return {"chi_e": np.ones(n), "chi_i": np.ones(n)}
-
-    r = K.core_march(rho, te=np.full(n, 900.0), ti=np.full(n, 900.0),
-                     ni=np.full(n, 1e19), vprime=vp, gm3=gm3,
-                     q_e=np.full(n, 3e4), q_i=np.full(n, 3e4),
-                     closure=closure, dt=1e-3, edge_te=100.0, edge_ti=100.0,
-                     max_outer=3, n_coupling=2, tol_steady=1e-15)
-    assert len(calls) == 3 * 2
-    assert r["outer_steps"] == 3
-    assert not r["steady"]                   # it ran out of steps, and says so
-
-
-def test_core_march_defaults_the_closure_fields_it_is_not_given():
-    """A closure that answers only what its channels need is complete: the
-    fields for a channel that is off are zero, not missing."""
-    n = 7
-    rho, vp, gm3 = _core_grid(n)
-    r = K.core_march(rho, te=np.full(n, 200.0), ti=np.full(n, 200.0),
-                     ni=np.full(n, 1e19), vprime=vp, gm3=gm3,
-                     closure=lambda st: {}, dt=1e-3, edge_te=200.0,
-                     edge_ti=200.0, max_outer=2)
-    assert np.allclose(r["te"], 200.0)
-    assert np.all(r["s_exchange"] == 0.0)
-
-
-def test_core_march_refuses_a_march_with_no_channel_switched_on():
-    n = 7
-    rho, vp, gm3 = _core_grid(n)
-    with pytest.raises(K.KernelError, match="at least one channel"):
-        K.core_march(rho, te=np.full(n, 200.0), ti=np.full(n, 200.0),
-                     ni=np.full(n, 1e19), vprime=vp, gm3=gm3,
-                     closure=lambda st: {}, dt=1e-3, edge_te=1.0,
-                     edge_ti=1.0, heat=False)
-
-
-def test_core_march_switches_the_density_channel_on_by_its_coefficients():
-    """The density channel moves only when the closure supplies its D — and
-    when it does, the heat pair sees the new n WITHIN the step."""
-    n = 11
-    rho, vp, gm3 = _core_grid(n)
-    dt, s_n, n0 = 1e-3, 1e21, 1e19
-    r = K.core_march(rho, te=np.full(n, 600.0), ti=np.full(n, 600.0),
-                     ni=np.full(n, n0), vprime=vp, gm3=gm3, s_n=np.full(n, s_n),
-                     closure=lambda st: {}, dt=dt, edge_te=600.0,
-                     edge_ti=600.0, edge_ni=[n0 + dt * s_n], density=True,
-                     max_outer=1, n_coupling=1)
-    assert np.allclose(r["ne"][:-1], n0 + dt * s_n, rtol=1e-9)
-    #: no conduction and no heating, so (3/2)V'nT is a constant of the step
-    assert np.allclose(r["te"][:-1], 600.0 * n0 / (n0 + dt * s_n), rtol=1e-9)
-
-
 def test_label_drift_is_zero_unless_the_field_moves():
     rho = np.linspace(0.0, 1.0, 5)
     assert np.all(K.label_drift(rho, b0=2.5, b0_dot=0.0) == 0.0)
     got = K.label_drift(rho, b0=2.0, b0_dot=0.4)
     assert np.allclose(got, -0.5 * rho * 0.4 / 2.0)
-
-
-def test_the_previous_metric_is_off_by_default_and_carries_the_volume_change():
-    """★The `dV'/dt` a caller meets when it re-traces the metric between
-    rounds: with no conduction and no heating, `(3/2) V' n T` is a constant
-    of the step, so a 4 % larger volume must cool the plasma by 4 %."""
-    n = 11
-    rho, vp, gm3 = _core_grid(n)
-    kw = dict(te=np.full(n, 500.0), ti=np.full(n, 500.0), ni=np.full(n, 1e19),
-              vprime=vp, gm3=gm3, closure=lambda st: {}, dt=1e-3,
-              edge_te=500.0, edge_ti=500.0, max_outer=1)
-    off = K.core_march(rho, **kw)
-    same = K.core_march(rho, vprime_old=vp, **kw)
-    assert np.array_equal(off["te"], same["te"])
-    moved = K.core_march(rho, vprime_old=vp / 1.04, **kw)
-    assert moved["te"][:-1] == pytest.approx(500.0 / 1.04, rel=1e-9)
-
-
-def test_a_field_that_is_not_ramping_is_a_dead_path():
-    n = 11
-    rho, vp, gm3 = _core_grid(n)
-    kw = dict(te=900.0 - 700.0 * rho ** 2, ti=np.full(n, 500.0),
-              ni=np.full(n, 1e19), vprime=vp, gm3=gm3, b0=2.5,
-              closure=lambda st: {"chi_e": np.full(n, 0.5),
-                                  "chi_i": np.full(n, 0.5)},
-              dt=1e-3, edge_te=200.0, edge_ti=200.0, max_outer=2)
-    still = K.core_march(rho, **kw)
-    named = K.core_march(rho, b0_dot=0.0, **kw)
-    assert np.array_equal(still["te"], named["te"])
-    #: a rising field contracts the labels, so the plasma drifts outward
-    #: through the fixed grid and the axis cools
-    assert K.core_march(rho, b0_dot=2.0, **kw)["te"][0] < still["te"][0]
-    assert K.core_march(rho, b0_dot=-2.0, **kw)["te"][0] > still["te"][0]
-
-
-def test_the_ion_channels_are_ion_major_and_the_electrons_follow_them():
-    """★The layout is the one every multi-species block in this ABI uses —
-    ion-major — and the electron density is not among the inputs at all."""
-    n = 11
-    rho, vp, gm3 = _core_grid(n)
-    n_d, n_c, dt = 3e19, 2e18, 1e-3
-    ni = np.concatenate([np.full(n, n_d), np.full(n, n_c)])
-    s_n = np.concatenate([np.zeros(n), np.full(n, n_c / dt)])   # fuel carbon
-    r = K.core_march(rho, te=np.full(n, 300.0), ti=np.full(n, 300.0),
-                     ni=ni, z=[1.0, 6.0], edge_ni=[n_d, 2 * n_c],
-                     vprime=vp, gm3=gm3, s_n=s_n,
-                     closure=lambda st: {"d_n": np.zeros(2 * n)},
-                     dt=dt, edge_te=300.0, edge_ti=300.0, heat=False,
-                     density=True, max_outer=1, n_coupling=1)
-    assert r["ni"].shape == (2, n)
-    assert r["ni"][0][:-1] == pytest.approx(n_d, rel=1e-9)
-    assert r["ni"][1][:-1] == pytest.approx(2 * n_c, rel=1e-6)
-    #: six electrons per carbon, and the deuterium unchanged
-    assert r["ne"][:-1] == pytest.approx(n_d + 6.0 * 2 * n_c, rel=1e-6)
-    #: the closure's coefficients follow the same layout, and a block of the
-    #: wrong length is refused rather than broadcast
-    with pytest.raises(K.KernelError):
-        K.core_march(rho, te=np.full(n, 300.0), ti=np.full(n, 300.0), ni=ni,
-                     z=[1.0, 6.0], vprime=vp, gm3=gm3,
-                     closure=lambda st: {"d_n": np.zeros(n + 1)},
-                     dt=dt, edge_te=300.0, edge_ti=300.0, density=True,
-                     max_outer=1)
-
-
-def test_the_step_controller_is_off_by_default_and_reports_what_it_did():
-    n = 13
-    rho, vp, gm3 = _core_grid(n)
-    kw = dict(te=900.0 - 700.0 * rho ** 2, ti=np.full(n, 500.0),
-              ni=np.full(n, 1e19), vprime=vp, gm3=gm3,
-              q_e=np.full(n, 2e4), q_i=np.full(n, 2e4),
-              closure=lambda st: {"chi_e": np.full(n, 1e-4),
-                                  "chi_i": np.full(n, 1e-4)},
-              edge_te=200.0, edge_ti=200.0, max_outer=8, tol_steady=1e-14)
-    off = K.core_march(rho, dt=1e-4, **kw)
-    assert off["dt"] == 1e-4 and off["retries"] == 0
-    #: ★a nearly frozen channel: the steps barely move, so the controller
-    #: asks for a bigger one
-    on = K.core_march(rho, dt=1e-4, dt_target=1e-3, dt_min=1e-8, dt_max=1.0,
-                      **kw)
-    assert on["dt"] > off["dt"]
-    #: and it stays inside the cap it was given
-    capped = K.core_march(rho, dt=1e-4, dt_target=1e9, dt_min=1e-8,
-                          dt_max=2e-4, **kw)
-    assert capped["dt"] <= 2e-4 + 1e-18
-
-
-def test_an_adaptive_steady_solve_is_refused_at_the_boundary():
-    n = 9
-    rho, vp, gm3 = _core_grid(n)
-    with pytest.raises(K.KernelError):
-        K.core_march(rho, te=np.full(n, 300.0), ti=np.full(n, 300.0),
-                     ni=np.full(n, 1e19), vprime=vp, gm3=gm3,
-                     closure=lambda st: {}, dt=float("inf"), dt_target=1e-3,
-                     dt_min=1e-9, dt_max=1.0, edge_te=300.0, edge_ti=300.0)
-
-
-# --- the operating domain, the flux account, and the start ------------------
-#
-# ★These entries carry the design scenario's own CRITERIA, and they have no
-# second implementation anywhere — so what is asserted here is either an
-# identity the entry claims for itself or a published number from outside
-# this repository.  The physics claims sit in the kernel's `mod tests`; what
-# this module owns is the boundary: shapes, optional arguments, and the
-# refusals.
-
-
-#: ★the Δ* operator's two gates left with the wrapper for the kernel repository's
-#: `tests/test_oracle_marshalling.py` (T-4 第二十九刀, 2026-09-06): `code/cocos`
-#: measures the convention now.
 
 
