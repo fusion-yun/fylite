@@ -151,7 +151,8 @@ function pick(m) {
     q: m.q ? { x: arr(m.q.x), q: arr(m.q.q), f: arr(m.q.f), q0: m.q.q0, q95: m.q.q95 } : null,
     jphi: m.jphi ? { x: arr(m.jphi.x), j: arr(m.jphi.j) } : null,
     li3: m.li3,
-    probes: m.probes ? { b: arr(m.probes.b) } : null,
+    probes: m.probes ? { b: arr(m.probes.b), br: arr(m.probes.br), bz: arr(m.probes.bz),
+                         viaRows: arr(m.probes.viaRows), rowsVsFieldRel: m.probes.rowsVsFieldRel } : null,
     probeRows: m.probeRows ? { meas: arr(m.probeRows.meas), wts: arr(m.probeRows.wts) } : null,
     fitRows: m.fitRows,
     kinetic: m.kineticX ? { x: arr(m.kineticX), p: arr(m.kineticP), weight: m.kineticWeight } : null,
@@ -188,6 +189,7 @@ if (RECORD) {
 const ref = JSON.parse(readFileSync(FIX, 'utf8'));
 assert.equal(ref.device, id, 'the fixture was recorded on ' + ref.device);
 //: ★BIT FOR BIT — see the header.  A failure prints the path and the two values.
+const TRIG = /\.probes\.(b\[|rowsVsFieldRel$)/;
 let worst = 0, worstAt = '';
 function walk(a, b, at) {
   if (Array.isArray(b)) {
@@ -198,6 +200,12 @@ function walk(a, b, at) {
   } else if (typeof b === 'number') {
     const d = Math.abs(a - b) / Math.max(Math.abs(b), 1e-300);
     if (!(d <= worst)) { worst = d; worstAt = at; }
+    //: ★第三十三刀: the probe projection `br cos(a) + bz sin(a)` — the browser's
+    //: `Math.cos` / `Math.sin` (fdlibm) and the kernel's libm differ in the last
+    //: bit for some angles (measured: 1.2e-16 on one of 79), so the projected
+    //: reading and the figure derived from it are held to 1e-14; br / bz and
+    //: the rows route carry no transcendental and stay bit for bit
+    if (TRIG.test(at)) { assert.ok(d <= 1e-14, `${at}: ${a} vs ${b} (rel ${d.toExponential(2)} > 1e-14)`); return; }
     assert.ok(Object.is(a, b) || a === b, `${at}: ${a} vs ${b} (rel ${d.toExponential(2)})`);
   } else {
     assert.deepEqual(a, b, at);
@@ -205,6 +213,6 @@ function walk(a, b, at) {
 }
 for (const name of Object.keys(ref.configs)) walk(got[name], ref.configs[name], name);
 const k = got.kinetic;
-console.log(`validate-worker-recon: ${Object.keys(ref.configs).length} fits on ${id} bit for bit (worst rel ${worst.toExponential(2)} at ${worstAt || '—'}); ` +
+console.log(`validate-worker-recon: ${Object.keys(ref.configs).length} fits on ${id} bit for bit but the probe projection's last bit (worst rel ${worst.toExponential(2)} at ${worstAt || '—'}); ` +
             `kinetic: ${k.result.iterations} it, chi2/ndof ${(k.chi2 / k.ndof).toExponential(3)}, Ip ${(k.ipFitted / 1e6).toFixed(4)} MA, ` +
             `q0 ${k.q.q0.toFixed(3)}, q95 ${k.q.q95.toFixed(3)}, li3 ${k.li3.toFixed(4)}; probes_raw: ${got.probes_raw.fitRows.probes} probe rows, ${got.probes_raw.result.iterations} it; coils: pull ${got.coils.coilFit.pull.toFixed(3)}`);

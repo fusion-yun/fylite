@@ -1461,6 +1461,13 @@ function reconMember(msg, inp, kin, jPre) {
     out.coilBefore = chan;
     out.measSigma = Math.max(cf.loopSigma * ampL, 1e-300);
   }
+  //: ★第三十三刀: what the fit says every probe should read, by the door's
+  //: two routes (the sampled field; the Green's rows on the fitted current
+  //: plus the coils' field) — `probePredictions` used to sample and contract
+  //: here on three flat exports
+  if (rec.fields.probe_model)
+    out.probes = { b: F('probe_model'), br: F('probe_br'), bz: F('probe_bz'),
+                   viaRows: F('probe_via_rows'), rowsVsFieldRel: X('probe_rows_vs_field') };
   out.raw = res;
   return out;
 }
@@ -1912,7 +1919,7 @@ function reconRun(msg0) {
                                    out.probeRows.wts, msg.selfcalTol);
   out.bootstrap = reconBootstrap(msgD, mem);
   if (closureLoopRep) out.closureLoop = closureLoopRep;
-  out.probes = probePredictions(mem.raw, mem.fitCur, Float64Array.from(msg.chan));
+  out.probes = mem.probes || null;
   //: the predictions are drawn on the SOLVED surfaces of the fit that was
   //: kept, through the density that fit was made with
   out.point = pointPredictions(mem.raw, msgD.density);
@@ -2094,66 +2101,6 @@ function combinedRows() {
   allM.set(pm, loopsM.length);
   return allM;
 }
-
-// --- what the reconstruction says each magnetic probe should read ----------
-//
-// ★This needs NO response matrix.  A probe reading is the poloidal field at a
-// point, projected on the direction the probe measures along, and the solved
-// psi map already carries that field — plasma and coils together, which is
-// exactly what a probe sees.  A response matrix is what putting probes INTO
-// the fit would need (rows relating each reading to the current distribution),
-// and that is a different job from saying what the fitted equilibrium
-// predicts at 79 places around the machine.
-//
-// ★The projection is the whole content: `AMP2` is the angle the probe
-// measures ALONG, so the reading is `Br cos(a) + Bz sin(a)`.  Drop the angle
-// and every channel returns Br — a smooth, plausible, wrong set of numbers.
-
-function probePredictions(res, fitCur, chan) {
-  if (!M.probes || !M.probes.length) return null;
-  var n = M.probes.length;
-  var b = new Float64Array(n);
-  //: one crossing for the whole probe list, not one per probe
-  var pr = new Float64Array(n), pz = new Float64Array(n);
-  for (var i = 0; i < n; i++) { pr[i] = M.probes[i].r; pz[i] = M.probes[i].z; }
-  var f = P.bField(grid, res.psi, pr, pz), br = f.br, bz = f.bz;
-  for (i = 0; i < n; i++) {
-    var a = M.probes[i].angle * Math.PI / 180;
-    b[i] = br[i] * Math.cos(a) + bz[i] * Math.sin(a);
-  }
-  var out = { b: b, br: br, bz: bz };
-
-  //: ★THE SAME NUMBER BY TWO ROUTES.  Above: the solved psi map, sampled and
-  //: projected.  Below: the kernel's Green's rows applied to the fitted
-  //: current, plus the coils' own field.  They are independent — one goes
-  //: through the solver's field, the other through the response matrix that
-  //: the fit is built on — so agreeing is evidence that the rows are the
-  //: rows for THESE probes, at these angles, in these units.  A wrong angle
-  //: convention or a missing 2pi shows up here and nowhere else.
-  if (fitCur && chan) {
-    try {
-      var rows = probeRows();
-      if (rows) {
-        //: the rows were pre-scaled by 2pi for the solver's own meas_scale;
-        //: applying that scale here undoes it, which is what makes this
-        //: comparable to the sampled field
-        var plasma = P.loopModel(rows, fitCur, grid, MEAS_SCALE);
-        var coil = probeCoilField(chan);
-        var viaRows = new Float64Array(n), amp = 0, worst = 0;
-        for (var k = 0; k < n; k++) {
-          viaRows[k] = plasma[k] + coil[k];
-          amp = Math.max(amp, Math.abs(b[k]));
-        }
-        for (k = 0; k < n; k++)
-          worst = Math.max(worst, Math.abs(viaRows[k] - b[k]));
-        out.viaRows = viaRows;
-        out.rowsVsFieldRel = amp > 0 ? worst / amp : NaN;
-      }
-    } catch (e) { out.rowsError = e.message; }
-  }
-  return out;
-}
-
 // --- POINT: line-integrated density, and the Faraday rotation --------------
 //
 // ★Both are predictions of the SAME two things the probes were: the solved
