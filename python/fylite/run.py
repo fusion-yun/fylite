@@ -20,8 +20,8 @@ instead of through two layers of machinery that could not reach an answer.
 
 ★Routing it to a different solver would be worse than raising: it would hand
 back numbers from something else under EFIT's name.  Production forward
-solves belong to :func:`fylite.kernel.gs_free_solve` — the kernel owns
-physics and numerics.
+solves belong to the kernel's `code/forward` door (`fylite.io.fydoc.complete`)
+— the kernel owns physics and numerics.
 """
 from __future__ import annotations
 
@@ -41,8 +41,8 @@ def forward_equilibrium(measurements, *, betap0=None, emp=None, enp=None,
     forward-reference path fail at the call with a reason, rather than at an
     attribute lookup with a ``NameError``.
 
-    For a forward free-boundary solve, use :func:`fylite.kernel.gs_free_solve`.
-    That is a different solver and says so — it is not a stand-in that would
+    For a forward free-boundary solve, use the `code/forward` door
+    (``fydoc.complete("code/forward", …)``).  That is a different solver and says so — it is not a stand-in that would
     return its own numbers under EFIT's name.
 
     ★The measured account of what drove the reference solve (which inputs moved
@@ -54,7 +54,7 @@ def forward_equilibrium(measurements, *, betap0=None, emp=None, enp=None,
         "efit.forward_equilibrium is not available in this distribution: the "
         "EFIT-lineage solver was removed under LICENSE 3.1, and its recorded "
         "answers are outputs of that solver and do not ship either. "
-        "Use fylite.kernel.gs_free_solve for a forward free-boundary solve.")
+        "Use the code/forward door for a forward free-boundary solve.")
 
 
 #: ★★``_diagnostic_signals`` and ``_infer_kind`` were RE-EXPORTED here,

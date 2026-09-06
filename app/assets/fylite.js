@@ -74,9 +74,7 @@
     'fylite_rs_channel_weights',
     'fylite_rs_channel_field',
     'fylite_rs_element_probe_response',
-    'fylite_rs_element_response', 'fylite_rs_gs_free_solve',
-    //: T-D6′ — the free solve on a tabulated (delivered) p'/FF' shape
-    'fylite_rs_gs_free_solve_tab',
+    'fylite_rs_element_response',
     //: T-A5 — the inverse solve with the COIL CURRENTS FITTED.  Listed as
     //: required rather than probed for: a build without it would leave the
     //: reconstruction bar silently back on「coils exactly known」, which is
@@ -94,7 +92,6 @@
     //: entry at the first inversion would already have drawn a figure.
     'fylite_rs_zerod_waveform',
     'fylite_rs_ion_dilution', 'fylite_rs_quasi_neutral_ne',
-    'fylite_rs_gs_fixed_solve',
     'fylite_rs_field_ion_sum',
     'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
     'fylite_rs_redl_bootstrap',
@@ -132,7 +129,6 @@
     'fylite_rs_lh_accessibility',
     //: ★`gs_fixed_box` (T-M7 / T-M17, the boxed Picard) is a retired export
     //: since T-4 第八刀 (2026-09-06): the refinement runs inside `code/evolve`.
-        'fylite_rs_eped1nn',
     'fylite_rs_geo_surface_gm2', //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
     //: nulls, and the two pieces of wall geometry that turn 「间隙 = 某值」
     //: and 「打击点落在这段壁上」 into the isoflux rows it takes.  Listed
@@ -773,28 +769,6 @@
         a.ptr, b.ptr, c.ptr, BigInt(n), out.ptr);
       if (rc !== 0) throw new SolveError('fylite_rs_spitzer_eta', rc);
       return s.get(out);
-    });
-  };
-
-  /**
-   * The EPED1-NN pedestal surrogate (T-M4): height [Pa] and width [psi_N]
-   * of the H-mode pedestal from ten scalars.  Index 0 of each is the
-   * STANDARD EPED1 prediction (dmagGH/sol0); `extrapolation` is how far
-   * the worst input sat outside the training box (0 = inside), with
-   * `worstInput` naming it.  Units are EPED's own: a/r [m], betan global,
-   * bt [T], delta effective, ip [MA], mass [amu], neped [1e19 m^-3].
-   */
-  Fy.prototype.eped1nn = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var out = s.zeros(20);
-      var rc = self.e.fylite_rs_eped1nn(
-        +o.a, +o.betan, +o.bt, +o.delta, +o.ip, +o.kappa,
-        +o.mass, +o.neped, +o.r, +o.zeffped, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_eped1nn', rc);
-      var v = s.get(out);
-      return { pPed: v.slice(0, 9), width: v.slice(9, 18),
-               extrapolation: v[18], worstInput: v[19] | 0 };
     });
   };
 

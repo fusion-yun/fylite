@@ -185,7 +185,7 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 为什么：求解器不在本分发里，它的录得答案也不在。签名保留，是为了调用方在**调用处**
 拿到一个有理由的失败，而不是在属性查找处拿一个 `NameError`。
 
-★要做一次**新的**自由边界正解，走 `fylite.kernel.gs_free_solve`——那是本仓自己的 GS，
+★要做一次**新的**自由边界正解，走 `code/forward` 门（`fydoc.complete`）——那是本仓自己的 GS，
 且它**说自己是谁**：把 EFIT 的名字安到另一个求解器的数上，比抛错更糟。
 
 ★公开 V&V 登记册里指向参考文件的那些指针，写的是 `$FYDOC_ORACLE/…`（私有 `fydoc` 仓的

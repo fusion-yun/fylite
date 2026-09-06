@@ -445,9 +445,9 @@ Solov'ev 解族的原始出处为 {cite}`soloviev1968theory`（实现只写"Solo
 | 内容 | 结果落在 fyo 的哪里 | Python 入口 |
 | :--- | :--- | :--- |
 | 离散 $\Delta^{\ast}$ 与直接解（{ref}`phys02-discrete`） | —（三种正解共同的算子，其解即下列各行） | `fylite.kernel.deltastar_apply` |
-| 定形边界 Picard（{ref}`phys02-fixed`） | `fyo:equilibrium`：$\psi(R,Z)$、磁轴、$I_p$ | `fylite.kernel.gs_fixed_solve` |
+| 定形边界 Picard（{ref}`phys02-fixed`） | `fyo:equilibrium`：$\psi(R,Z)$、磁轴、$I_p$ | `code/forward`（定形边界细化在门内；扁平 `gs_fixed_solve` 自 T-4 第十四刀起只在内核仓神谕树） |
 | 箱内定形解（{ref}`phys02-box`） | `fyo:equilibrium`：同上，另出 $FF'$ 位移与原始 $I_p$ | 输运精化外环（{ref}`phys05-intro`） |
-| 自由边界（{ref}`phys02-free`） | `fyo:equilibrium`（含边界与 X 点）＋ `fyo:pf_active` 的线圈电流 | `fylite.kernel.gs_free_solve`；`S.model.coupled`；`S.control.evolution` |
+| 自由边界（{ref}`phys02-free`） | `fyo:equilibrium`（含边界与 X 点）＋ `fyo:pf_active` 的线圈电流 | `code/forward`；`S.model.coupled`；`S.control.evolution` |
 | 边界判定（{ref}`phys02-free-boundary`） | `fyo:equilibrium`：边界类型（限制器 / 偏滤器）与边界磁通 | —（随上一行的解一起给出） |
 :::
 

@@ -72,7 +72,7 @@ title: 输入模式 (Input Modes)
 
 现在：
 
-- **内核不限分辨率。** `kernel.gs_free_solve` 收的是两条**任意长度**的网格坐标数组
+- **内核不限分辨率。** `code/forward` 收的是两条**任意长度**的网格坐标数组
   （`grid_r` / `grid_z`），`kernel.Grid` 也只是 `(r0, z0, dr, dz, nr, nz)`；
 - `$FYLITE_DEVICE_DIR/east_device.yaml` 的 `solver_dims`（`nw=nh=65`）现在是**装置文档的声明**，
   由 `device.verify_solver_dims` 对装置目录里独立的 efund deck（`east_geom.txt`）核验——

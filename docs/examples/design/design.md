@@ -116,7 +116,7 @@ d["pass"], d["shape_error"]                     # 7, 0.1617371112287015
 
 - 目标边界要 `delta_upper` / `delta_lower` **两个**三角度，没有合起来的 `delta`；
 - `discharge` 的装置来自 `$FYLITE_DEVICE_DIR`，**不收 `device=`**——多给一个会被
-  `**solve_kw` 一路传到 `gs_free_solve` 那里报 `unexpected keyword argument`；
+  `**solve_kw` 一路传到自由边界正解那里报 `unexpected keyword argument`；
   `breakdown` 则**收** `device=`。两者不一样，不是笔误。
 - 逐通道电流上限缺省从装置牌的 `power_supply` 组读；**拖回来的 ITER 牌没有这一组**
   （见[安装与环境](../../guide/install.md)里那条「拖回来不是等价替换」），所以上面显式给了

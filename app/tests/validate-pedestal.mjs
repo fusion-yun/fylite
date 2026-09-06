@@ -12,7 +12,7 @@
 //
 // ★THE ORACLE IS THE KERNEL FROM THE OTHER HOST: the file carries the ten
 // EPED inputs and all eighteen outputs at 12 significant digits, and
-// Python re-calls `kernel.eped1nn` (the native .so — a different build of
+// Python re-calls the kernel oracle's `eped1nn` (the native .so — a different build of
 // the same Rust) at exactly those inputs.  Beside that, claims no re-call
 // can fake:
 //
@@ -145,7 +145,14 @@ const PY = `
 import json, sys
 import numpy as np
 sys.path.insert(0, ${JSON.stringify(ROOT + '/python')})
-from fylite import kernel as K
+#: ★T-4 第十四刀 (2026-09-06): \`eped1nn\` is oracle-only — no host calls it —
+#: so the re-call binds the kernel repository's oracle build (FYLITE_KERNEL_REPO).
+import os
+kr = os.environ.get("FYLITE_KERNEL_REPO")
+if not kr:
+    sys.exit("FYLITE_KERNEL_REPO is not set: the eped1nn oracle lives in the kernel repository's tests/_oracle.py")
+sys.path.insert(0, os.path.join(kr, "tests"))
+import _oracle as K
 
 doc = json.load(open(sys.argv[1]))
 ped = doc["fylite:pedestal"]

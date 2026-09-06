@@ -63,8 +63,8 @@ __all__ = [
     "line_integral",         "dispersion_root", "vertical_plant",     "inside_polygon",             "table_ratio_check",
     "ellipke",     "element_response",
     "element_probe_response",
-    "coupling_gradient",         "spitzer_eta", "eped1nn",
-                                "reintegrate", "flux_match", "FluxMatchError",
+    "coupling_gradient", "spitzer_eta",
+    "reintegrate", "flux_match", "FluxMatchError",
     "adas_id", "rad_ion", "rad_sync",
     "exchange_power", "volume_int",
     "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
@@ -76,12 +76,9 @@ __all__ = [
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "neo_sauter", "dke_solve", "neo_gyrobohm",
     "SAUTER_1999", "REDL_2021",
-    "ridge_lstsq", "bounded_lstsq",     "channel_field",     "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS", "gs_free_solve",
-    #: T-D6′ — the same solve on a tabulated (delivered) p'/FF' shape
-    "gs_free_solve_tab", "FREE_SOLVE_TAB_KEYS",
-    #: T-A5 — the same solve with the coil currents FITTED "INVERSE_COIL_KEYS",
-    "INVERSE_KEYS", "INVERSE_FSA_KEYS",
-    "FREE_SOLVE_KEYS",
+    "ridge_lstsq", "bounded_lstsq", "channel_field", "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
+    #: T-A5 — the same solve with the coil currents FITTED
+    "INVERSE_COIL_KEYS", "INVERSE_KEYS", "INVERSE_FSA_KEYS",
     "ohmic_power", "quasi_neutral_ne", "b_unit_from_rho",
     "ion_dilution", "with_axis_node",
     "two_temperature_march",
@@ -327,9 +324,9 @@ class Grid:
     """The kernel's rectangular grid: origin, spacing, counts.
 
     ★The array convention is ``psi[i, j]`` with ``i`` over R and ``j`` over
-    Z — i.e. shape ``(nr, nz)``, R-major — the same layout
-    :func:`~fylite.kernel.gs_free_solve` returns, so a solved field goes
-    straight back in without a transpose.  (A transposed field does not
+    Z — i.e. shape ``(nr, nz)``, R-major — the same layout the kernel's
+    free solve (`code/forward`) returns, so a solved field goes straight
+    back in without a transpose.  (A transposed field does not
     raise; it traces a plausible surface of the wrong plasma.)
 
     ★★The FLUX convention is the app's: **full flux [Wb], axis a MAXIMUM**.
@@ -1168,38 +1165,6 @@ def spitzer_eta(te_ev, zeff=1.0, lnlam=17.0):
     if rc != 0:
         raise KernelError(f"fylite_rs_spitzer_eta returned {rc}")
     return out
-
-
-_sig("fylite_rs_eped1nn", [_F64] * 10 + [_ARR], _I32)
-def eped1nn(*, a, betan, bt, delta, ip, kappa, mass, neped, r, zeffped):
-    """The EPED1-NN pedestal surrogate (T-M4): H-mode pedestal height and
-    width from ten scalars.
-
-    Units are EPED's own: ``a``/``r`` [m], ``betan`` the GLOBAL normalized
-    beta, ``bt`` [T], ``delta`` the (effective) triangularity, ``ip`` [MA],
-    ``kappa``, ``mass`` [amu], ``neped`` [1e19 m⁻³], ``zeffped``.
-
-    Returns a dict: ``p_ped`` (9, Pa) and ``width`` (9, ψ_N) in the order
-    (dmagGH, dmagG, dmagH) × (sol0..2) — **index 0 is the standard EPED1
-    prediction** — plus ``extrapolation`` (worst normalized distance
-    outside the training box, 0 = inside) and ``worst_input`` (its index).
-    Out-of-box inputs are answered with the distance reported, as the
-    upstream model warns rather than refuses.
-
-    Sources: Snyder et al. Phys. Plasmas 16 056118 (2009) / NF 51 103016
-    (2011); Meneghini et al. NF 57 086034 (2017); weights from EPEDNN.jl
-    (Apache-2.0), sha256-pinned in the kernel.
-    """
-    lib = require()
-    out = np.empty(20)
-    rc = lib.fylite_rs_eped1nn(
-        float(a), float(betan), float(bt), float(delta), float(ip),
-        float(kappa), float(mass), float(neped), float(r), float(zeffped),
-        out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_eped1nn returned {rc}")
-    return {"p_ped": out[:9].copy(), "width": out[9:18].copy(),
-            "extrapolation": float(out[18]), "worst_input": int(out[19])}
 
 
 _sig("fylite_rs_reintegrate", [_ARR, _ARR, _U64, _F64, _I32, _ARR], _I32)
@@ -3396,10 +3361,6 @@ def deltastar_apply(grid_r, grid_z, psi):
     return out.reshape(rg.size, zg.size)
 
 
-FREE_SOLVE_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
-                   "residual", "bnd_kind", "xpt_r", "xpt_z", "fb_amp",
-                   "zc", "verdict")
-
 #: What the INVERSE entry's `out12` carries — its own tuple, for the reason
 #: `INVERSE_COIL_KEYS` has one: the free solve packs an X-point into slots
 #: 7-8 and the inverse packs the feedback amplitude into 7.
@@ -3431,116 +3392,7 @@ INVERSE_FSA_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                     "residual", "bnd_kind", "fb_amp", "fsa_rows_used",
                     "_", "fb_amp_r", "trunc_keep")
 
-#: What `gs_free_solve_tab` writes: the free solve's slots plus the mask
-#: cells that changed on the last round (NaN when only one round ran) and
-#: the final Ip normalisation `j_c` (actual p' = j_c · p'_table).
-FREE_SOLVE_TAB_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
-                       "residual", "bnd_kind", "xpt_r", "xpt_z", "fb_amp",
-                       "zc", "verdict", "mask_delta", "jc")
 
-
-_sig("fylite_rs_gs_free_solve", [_ARR, _U64, _ARR, _U64, _ARR, _F64, _F64, _F64, _F64, _F64, _ARR, _ARR, _U64, _F64, _F64, _U64, _F64, _F64, _F64, _F64, _VOID, _ARR, _ARR], _I32)
-def gs_free_solve(grid_r, grid_z, psi_ext, *, ip: float, limiter_r,
-                  limiter_z, beta0: float = 0.55, emp: float = 1.0,
-                  enp: float = 1.0, r0: float = 1.75, relax: float = 0.3,
-                  max_iter: int = 600, tol: float = 1e-9,
-                  fb_gain: float = 8.0, zc_anchor=None,
-                  rc_anchor=None, psi_init=None) -> dict:
-    """One free-boundary Grad-Shafranov solve.
-
-    ``zc_anchor`` is a measured current-centroid Z [m] (EFIT's ``zcurrt``):
-    given, the vertical feedback holds the centroid THERE rather than
-    self-anchoring, and ``fb_amp`` reports what that cost.
-
-    ``psi_init`` warm-starts the iterate.  It matters for one caller and
-    matters a great deal there: a boundary DESIGN's coil field has to
-    cancel the plasma's own flux variation over the requested boundary, so
-    it has a minimum where the plasma belongs — and the axis search on
-    iteration zero, which sees only the coils, then locks onto a maximum
-    out by the coils and every later pass is self-consistently wrong.
-    Passing the field the design was made with (coils plus its filament
-    cloud) puts the axis where the design put it.
-
-    Raises rather than returning a non-converged field — ★a GS solve that
-    ran out of iterations is not a weaker answer, it is a different object.
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    lr, lz = _f(np.atleast_1d(limiter_r)), _f(np.atleast_1d(limiter_z))
-    psi = np.empty((rg.size, zg.size))
-    init_a = None if psi_init is None else _f(np.ascontiguousarray(psi_init))
-    out = np.empty(12)
-    it = lib.fylite_rs_gs_free_solve(
-        rg, rg.size, zg, zg.size, _f(psi_ext), float(beta0), float(emp),
-        float(enp), float(r0), float(ip), lr, lz, lr.size, 1.0,
-        float(relax), int(max_iter), float(tol), float(fb_gain),
-        float("nan") if zc_anchor is None else float(zc_anchor),
-        float("nan") if rc_anchor is None else float(rc_anchor),
-        #: optional pointer, the same way every other optional array on this
-        #: boundary is passed: a null, not an empty array
-        None if init_a is None else init_a.ctypes.data, psi, out)
-    if it <= 0:
-        raise KernelError(f"fylite_rs_gs_free_solve returned {it}")
-    res = dict(zip(FREE_SOLVE_KEYS, out))
-    res.update(psi=psi, iterations=int(it),
-               #: the kernel's own verdict (T-M16) — `residual <= tol`
-               #: computed here would miss the mask half of the state
-               converged=res["verdict"] == 1.0,
-               settled=res["verdict"] == 2.0)
-    return res
-
-
-_sig("fylite_rs_gs_free_solve_tab",
-     [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _ARR,
-      _ARR, _U64, _F64, _F64, _U64, _F64, _F64, _F64, _F64, _VOID, _ARR,
-      _ARR], _I32)
-def gs_free_solve_tab(grid_r, grid_z, psi_ext, *, x, pprime, ffprime,
-                      ip: float, limiter_r, limiter_z, relax: float = 0.3,
-                      max_iter: int = 600, tol: float = 1e-9,
-                      fb_gain: float = 8.0, zc_anchor=None,
-                      rc_anchor=None, psi_init=None) -> dict:
-    """The free-boundary solve on a TABULATED p'/FF' pair used as a shape
-    (T-D6′).
-
-    ``x`` (ascending in [0, 1]), ``pprime``, ``ffprime`` sample the
-    delivered profiles; the table is normalised to ``ip`` every round, so
-    its GAUGE — per-radian vs full flux, overall sign, any constant
-    factor — divides out and only the relative radial structure survives,
-    including a sign reversal (the delivered EAST #137985 profiles cross
-    zero at psi_N ≈ 0.82, which no analytic-family member can represent).
-
-    Everything else exactly as :func:`gs_free_solve`; the returned dict
-    additionally carries ``mask_delta`` — mask cells changed on the last
-    round (NaN when only one round ran).
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    lr, lz = _f(np.atleast_1d(limiter_r)), _f(np.atleast_1d(limiter_z))
-    xa = _f(np.atleast_1d(x))
-    pa, fa = _f(np.atleast_1d(pprime)), _f(np.atleast_1d(ffprime))
-    if not (xa.size == pa.size == fa.size):
-        raise KernelError("x, pprime, ffprime must be the same length")
-    psi = np.empty((rg.size, zg.size))
-    init_a = None if psi_init is None else _f(np.ascontiguousarray(psi_init))
-    out = np.empty(14)
-    it = lib.fylite_rs_gs_free_solve_tab(
-        rg, rg.size, zg, zg.size, _f(psi_ext), xa, pa, fa, xa.size,
-        float(ip), lr, lz, lr.size, 1.0, float(relax), int(max_iter),
-        float(tol), float(fb_gain),
-        float("nan") if zc_anchor is None else float(zc_anchor),
-        float("nan") if rc_anchor is None else float(rc_anchor),
-        None if init_a is None else init_a.ctypes.data, psi, out)
-    if it <= 0:
-        raise KernelError(f"fylite_rs_gs_free_solve_tab returned {it}")
-    res = dict(zip(FREE_SOLVE_TAB_KEYS, out))
-    res.update(psi=psi, iterations=int(it),
-               converged=res["verdict"] == 1.0,
-               settled=res["verdict"] == 2.0)
-    return res
-
-
-#: ★T-M17: the same solve under an I_p constraint — one extra f64 (the
-#: target) before the out buffer, out8 instead of out6
 _sig("fylite_rs_geo_surface_gm2", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 def geo_surface(*, rmin_over_a, rmaj_over_a, q, shear, drmaj=0.0,
                 zmag=0.0, dzmag=0.0, kappa=1.0, s_kappa=0.0,
@@ -3653,7 +3505,6 @@ def channel_field(elems, weights, pr, pz, *, nu: int = 3, nv: int = 3):
             bz.reshape(npts, nch))
 
 
-_sig("fylite_rs_gs_fixed_solve", [_ARR, _U64, _ARR, _U64, _ARR, _F64, _ARR, _U64, _ARR, _U64, _F64, _U64, _F64, _ARR], _I32)
 _sig("fylite_rs_eigen", [_ARR, _ARR, _U64, _I32, _ARR, _ARR, _ARR, _ARR], _I32)
 # the closure's own chi profile, so a caller can draw what it solved
 # with instead of rebuilding the chain

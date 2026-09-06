@@ -93,10 +93,10 @@ COVERED = {
     #: ★`BUNDLE_ROWS` / `GYROBOHM_ROWS` left with `bundle_derive` (oracle-only
     #: since T-4, 2026-09-05): the kernel repository's
     #: `tests/test_oracle_marshalling.py` holds them to the same write order.
+    #: ★`FREE_SOLVE_KEYS` / `FREE_SOLVE_TAB_KEYS` left with the free solves (oracle-only
+    #: since T-4 第十四刀, 2026-09-06): the kernel repository's `tests/test_oracle_marshalling.py`
+    #: holds them to the same write order.
     "GEO_SCALARS":     ("geo_surface",        lambda b: _from_indexed(b, "o")),
-    "FREE_SOLVE_KEYS": ("gs_free_solve",      lambda b: _from_indexed(b, "o")),
-    "FREE_SOLVE_TAB_KEYS": ("gs_free_solve_tab",
-                            lambda b: _from_indexed(b, "o")),
     "METRIC_ROW":      ("equilibrium_ladder", lambda b: _from_row(b, "om")),
     "MILLER_ROW":      ("equilibrium_ladder", lambda b: _from_row(b, "ok")),
     #: T-A5 — the inverse solve's coil-fitting entry.  Same `o[N] = ...`

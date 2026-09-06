@@ -28,16 +28,6 @@ GR = np.linspace(1.3, 2.4, 7)
 GZ = np.linspace(-0.5, 0.5, 5)
 
 
-
-
-
-
-
-
-
-
-
-
 def _split_pair_map():
     """A 2-channel map over 2 elements where channel 0 drives BOTH at an
     uneven split — the case that makes the fold a matrix, and the only case
@@ -65,14 +55,6 @@ def test_channel_field_refuses_a_transposed_map():
         K.channel_field(ELEMS, w.T, [1.9], [0.05])           # 2 x 3, refused
 
 
-
-
-
-
-
-
-
-
 def test_redl_surface_inputs_come_back_named_and_per_surface():
     ps = np.array([0.2, 0.5, 0.9])
     prof = np.linspace(0.0, 1.0, 11)
@@ -97,16 +79,6 @@ def test_redl_surface_inputs_take_a_scalar_zeff_as_a_profile():
                                   zeff=np.full(5, 2.5), **kw)
     for k in K.REDL_INPUT_ROWS:
         assert np.array_equal(flat[k], array[k])
-
-
-
-
-
-
-
-
-
-
 
 
 def test_interp_is_the_numpy_it_replaced_bit_for_bit():
@@ -139,8 +111,6 @@ def test_the_uniform_resamplers_keep_the_ends():
     #: extrapolated, not clamped — the ends carry the end segments' slope
     q = K.to_uniform_extrap([0.2, 0.5, 0.8], [2.0, 5.0, 8.0], 11)
     assert abs(q[0]) < 1e-12 and abs(q[-1] - 10.0) < 1e-12
-
-
 
 
 def _st(**over):
@@ -283,12 +253,6 @@ def test_miller_boundary_z_is_bit_identical_and_r_is_within_an_ulp_or_two():
     #: "it was never exact anyway".
     assert ndiff / ntot < 0.01, f"{100 * ndiff / ntot:.2f}% of R entries differ"
     assert worst_ulp <= 16.0, f"max {worst_ulp} ulp"
-
-
-
-
-
-
 
 
 def test_sample_grid_is_nan_off_the_grid_and_exact_on_a_node():
@@ -440,15 +404,11 @@ def test_core_march_switches_the_density_channel_on_by_its_coefficients():
     assert np.allclose(r["te"][:-1], 600.0 * n0 / (n0 + dt * s_n), rtol=1e-9)
 
 
-
-
 def test_label_drift_is_zero_unless_the_field_moves():
     rho = np.linspace(0.0, 1.0, 5)
     assert np.all(K.label_drift(rho, b0=2.5, b0_dot=0.0) == 0.0)
     got = K.label_drift(rho, b0=2.0, b0_dot=0.4)
     assert np.allclose(got, -0.5 * rho * 0.4 / 2.0)
-
-
 
 
 def test_solve_momentum_reports_its_march():
@@ -610,37 +570,6 @@ def test_an_adaptive_steady_solve_is_refused_at_the_boundary():
 # this repository.  The physics claims sit in the kernel's `mod tests`; what
 # this module owns is the boundary: shapes, optional arguments, and the
 # refusals.
-
-
-
-
-
-
-
-
-
-
-
-def test_eped1nn_answers_the_published_iter_prediction():
-    """★T-M4's certification at this boundary: the EPED1-NN surrogate's
-    ITER baseline lands on the PUBLISHED EPED1 prediction (p_ped ~80 kPa,
-    width ~0.033 ψ_N, T_ped ~3.5 keV at n_e,ped = 7e19 — Snyder NF 49
-    085035), the width satisfies EPED's own KBM closure
-    Δ = 0.076·√β_p,ped, and refusals refuse."""
-    r = K.eped1nn(a=2.0, betan=1.8, bt=5.3, delta=0.485, ip=15.0,
-                  kappa=1.85, mass=2.5, neped=7.0, r=6.2, zeffped=1.8)
-    p, w = r["p_ped"][0], r["width"][0]
-    assert 60e3 < p < 110e3 and 0.025 < w < 0.045
-    assert r["extrapolation"] == 0.0
-    #: the KBM identity — a unit slip in either output breaks it
-    mu0 = 4e-7 * np.pi
-    perim = 2 * np.pi * 2.0 * np.sqrt((1 + 1.85 ** 2) / 2)
-    bp = mu0 * 15e6 / perim
-    g = w / np.sqrt(2 * mu0 * p / bp ** 2)
-    assert abs(g - 0.076) < 0.05 * 0.076
-    with pytest.raises(K.KernelError):
-        K.eped1nn(a=2.0, betan=1.8, bt=5.3, delta=0.485, ip=15.0,
-                  kappa=1.85, mass=2.5, neped=-1.0, r=6.2, zeffped=1.8)
 
 
 def test_the_deltastar_operator_returns_the_solovev_source():
