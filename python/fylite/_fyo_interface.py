@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'cc3a658ab29a77d4'
+DIGEST = '0c880e5e7c41f1d6'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -151,6 +151,9 @@ TABLES = {
             'chord_nel': {"path": 'fylite:chord_nel', "units": 'm^-2', "rank": '1d'},
             'chord_nel_weight': {"path": 'fylite:chord_nel_weight', "units": '1', "rank": '1d'},
             'current_cells': {"path": 'fylite:current_cells', "units": 'A', "rank": '2d'},
+            'te_profile': {"path": 'fylite:te_profile', "units": 'eV', "rank": '1d'},
+            'p_fast_profile': {"path": 'fylite:p_fast_profile', "units": 'Pa', "rank": '1d'},
+            'p_rot_profile': {"path": 'fylite:p_rot_profile', "units": 'Pa', "rank": '1d'},
         },
     },
     'EQUILIBRIUM': {
@@ -171,6 +174,7 @@ TABLES = {
             'dpressure_dpsi': {"path": 'time_slice/profiles_1d/dpressure_dpsi', "units": 'Pa/Wb', "rank": '1d'},
             'psi_norm_1d': {"path": 'time_slice/profiles_1d/fylite:psi_norm', "units": '1', "rank": '1d'},
             'q_1d': {"path": 'time_slice/profiles_1d/q', "units": '1', "rank": '1d'},
+            'q_psi_norm_1d': {"path": 'time_slice/profiles_1d/fylite:q_psi_norm', "units": '1', "rank": '1d'},
             'grid_r': {"path": 'time_slice/profiles_2d/grid/dim1', "units": 'm', "rank": '1d'},
             'grid_z': {"path": 'time_slice/profiles_2d/grid/dim2', "units": 'm', "rank": '1d'},
             'psi_2d': {"path": 'time_slice/profiles_2d/psi', "units": 'Wb', "rank": '2d'},
@@ -328,6 +332,7 @@ BLOCKS = {
         {'key': 'wave', 'shape': '', 'units': 'assembled', 'gloss': "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics"},
         {'key': 'forward', 'shape': '', 'units': 'assembled', 'gloss': "one forward free-boundary equilibrium on the device from the channel currents and the analytic p'/FF' family: the coil flux (or a given external flux, a warm start), one free solve, the analytic truth's profiles and cell current, the loop model and the probe readings that field implies"},
         {'key': 'chords', 'shape': '', 'units': 'assembled', 'gloss': "the point diagnostics on a psi map (the analysis page's interferometer / polarimeter block): the chords sampled through the box and the plasma, the line density and the Faraday integral each chord reads, the coils' share, the Faraday rows for a fit, the density fitted back to the chord readings"},
+        {'key': 'bootstrap', 'shape': '', 'units': 'assembled', 'gloss': "the bootstrap closure on a fit (the analysis page's 自举 block): 96 traced surfaces of the psi map with their shape, the Redl bootstrap on the density and pressure the reader declared, the Sauter 1999 / Redl 2021 vintages through the NEO input mapping, the total / bootstrap / ohmic decomposition on the flux-surface averages with the neoclassical conductivity and loop voltage, and the bootstrap as a prescribed cell current for the next fit"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},
@@ -652,4 +657,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_third', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'y_init']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'te_profile', 'time', 'trapped_fraction', 'truth', 'verify', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'y_init']

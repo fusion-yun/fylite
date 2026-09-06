@@ -1562,32 +1562,86 @@ function atSlice(msg) {
   return msg && msg.slice ? seriesSlice(msg, msg.slice) : msg;
 }
 
+
 /**
- * The bootstrap current as a PRESCRIBED per-cell toroidal current [A].
+ * The bootstrap closure on a fit — `code/bootstrap` (第三十五刀).
  *
- * `j_phi = k F / R` with `k = <j.B>_bs / <B^2>`: the local distribution a
- * pure parallel current actually has.  ★Writing the flux-surface AVERAGE
- * into every cell of the surface instead would be smooth, plausible, and
- * would move current from the high-field side to the low-field one.
+ * ★What `reconBootstrap` + `currentClosure` + `prescribedBootstrap` did on
+ * seven flat exports: 96 traced surfaces of the fitted psi map, the fit's
+ * profiles and q on them, the density and pressure decomposition the reader
+ * declared, the Redl bootstrap, the Sauter 1999 / Redl 2021 vintages, the
+ * total / bootstrap / ohmic decomposition on each surface's own averages with
+ * the neoclassical conductivity and the loop voltage, and the bootstrap as a
+ * PRESCRIBED cell current (`j_phi = k F / R`) for the next fit.  One
+ * `complete`, read back into the shapes the page has always drawn.
  */
-function prescribedBootstrap(mem, cl) {
-  var res = mem.raw, nz = grid.nz, mi = grid.nr - 2, mj = nz - 2;
-  var da = grid.dr * grid.dz, span = res.psiBnd - res.psiAxis;
-  if (!span) return null;
-  var mask = P.plasmaMask(grid, res.psi, res.psiAxis, res.psiBnd,
-                          M.limiter.r, M.limiter.z, 1);
-  var out = new Float64Array(mi * mj);
-  for (var i = 0; i < mi; i++) {
-    var r = grid.r[i + 1];
-    for (var j = 0; j < mj; j++) {
-      if (!mask[i * mj + j]) continue;
-      var x = (res.psi[(i + 1) * nz + (j + 1)] - res.psiAxis) / span;
-      x = x < 0 ? 0 : (x > 1 ? 1 : x);
-      out[i * mj + j] =
-        interp1(cl.x, cl.kBs, x) * interp1(cl.x, cl.fPsi, x) / r * da;
-    }
+function reconBootstrap(msg, mem) {
+  var spec = msg.density;
+  if (!spec || !(spec.on)) return null;
+  var pd = msg.pressure || null;
+  var res = mem.raw, prof = mem.profiles, qp = mem.q;
+  var settings = { n_surfaces: 96, n_theta: 121, neo_n_theta: 17, zeff: spec.zeff,
+                   tite: (pd && pd.tite > 0) ? pd.tite : 1,
+                   fast_fraction: (pd && pd.fastFraction > 0) ? pd.fastFraction : 0,
+                   fast_peaking: (pd && pd.fastPeaking) ? pd.fastPeaking : 1,
+                   sigma_vintage: (msg.sigmaVintage === 0 || msg.sigmaVintage === 1) ? msg.sigmaVintage : 1 };
+  var disc = {};
+  if (spec.profile && spec.profile.length) disc['fylite:ne_profile'] = Float64Array.from(spec.profile);
+  else { settings.ne0 = spec.ne0; settings.peaking = spec.peaking; }
+  if (spec.temperature && spec.temperature.length) disc['fylite:te_profile'] = Float64Array.from(spec.temperature);
+  if (pd && pd.fast && pd.fast.length) disc['fylite:p_fast_profile'] = Float64Array.from(pd.fast);
+  if (pd && pd.rot && pd.rot.length) disc['fylite:p_rot_profile'] = Float64Array.from(pd.rot);
+  var inputs = { device: deviceDoc(), discharge: disc,
+                 equilibrium: { time_slice: {
+                   global_quantities: { psi_axis: res.psiAxis, psi_boundary: res.psiBnd,
+                                        magnetic_axis: { r: res.axisR, z: res.axisZ } },
+                   profiles_1d: { 'fylite:psi_norm': Float64Array.from(prof.x), pressure: Float64Array.from(prof.p),
+                                  dpressure_dpsi: Float64Array.from(prof.pprime), f_df_dpsi: Float64Array.from(prof.ffprime),
+                                  f: Float64Array.from(qp.f), q: Float64Array.from(qp.q),
+                                  'fylite:q_psi_norm': Float64Array.from(qp.x) },
+                   profiles_2d: { psi: Float64Array.from(res.psi) } } } };
+  var rec;
+  try { rec = fy.complete('code/bootstrap', { settings: settings, inputs: inputs }); }
+  catch (e) { return { error: e.message }; }
+  var X = function (k) { return rec.facts[k] ? rec.facts[k].value : undefined; };
+  var F = function (k) { return rec.fields[k] ? fieldFlat(rec, k) : null; };
+  if (X('n_surfaces_traced') < 4) return null;
+  var closure;
+  if (X('closure_ok') !== 1) closure = { error: rec.notes.join('; ') || 'closure-failed' };
+  else {
+    closure = {
+      x: F('x'), jTot: F('j_tot'), jBs: F('j_bs_signed'), jOhm: F('j_ohm'), kBs: F('k_bs'),
+      jTotTor: F('j_tot_tor'), jBsTor: F('j_bs_tor'), jOhmTor: F('j_ohm_tor'),
+      ratio: F('ratio'), b2: F('b2'), bTor2: F('b_tor2'), rInv: F('r_inv'), rInv2: F('r_inv2'),
+      fPsi: F('f_psi'), dvdpsi: F('dv_dpsi'), dpdpsi: F('dp_dpsi'), ffprime: F('ffprime'), psiPr: F('psi_pr'),
+      sigmaNeo: F('sigma_neo'), sigmaSpitzer: F('sigma_spitzer'), f33: F('f33'),
+      vLoop: F('v_loop'), vintage: X('sigma_vintage'),
+      iBs: X('i_bs'), iOhm: X('i_ohm'), iDia: X('i_dia'), iTot: X('i_tot'),
+      iTotCoarse: X('i_tot_coarse'), fBs: X('f_bs'),
+      ipFitted: mem.ipFitted, identity: X('identity'),
+      unit: 'A/m^2 (<j.B>/B0)', b0: X('b0'),
+      //: the bootstrap as the next fit's prescribed cell current
+      prescribed: F('current_source'),
+    };
   }
-  return out;
+  return {
+    x: F('x'), jBs: F('j_bs'), ft: F('ft'), nuEStar: F('nu_e_star'),
+    closure: closure,
+    ne: F('ne'), te: F('te'), q: F('q'), eps: F('eps'),
+    vintages: X('vintages_ok') === 1 ? { sauter1999: F('j_bs_sauter1999'), redl2021: F('j_bs_redl2021') } : null,
+    source: (spec.profile && spec.profile.length) ? 'imported' : 'parametrised',
+    teSource: (spec.temperature && spec.temperature.length) ? 'imported' : 'from-pressure',
+    zeff: spec.zeff,
+    tiOverTe: (pd && pd.tite > 0) ? pd.tite : 1,
+    pThermal: F('p_thermal'),
+    inputs: { eps: F('eps'), q: F('q'), ni: F('ni'), ti: F('ti'), zeff: F('zeff'), pTh: F('p_thermal'),
+              iPsi: F('i_psi'), psiBar: F('psi_bar'), rMaj: X('r_maj'), b0: X('b0') },
+  };
+}
+
+/** The bootstrap as a PRESCRIBED per-cell toroidal current [A] — the door's. */
+function prescribedBootstrap(mem, cl) {
+  return cl && cl.prescribed ? cl.prescribed : null;
 }
 
 /**
@@ -2185,7 +2239,6 @@ function faradayTarget(angleDeg) {
   return angleDeg * Math.PI / 180 / (2 * cFar);
 }
 
-var EV_J = 1.602176634e-19;
 
 /** Linear read of a uniform-x profile at `x`. */
 function profileAt(pr, x) {
@@ -2194,18 +2247,6 @@ function profileAt(pr, x) {
   return pr[k] + (t - k) * (pr[k + 1] - pr[k]);
 }
 
-/** n_e on the ladder: an imported profile, or the parametrised shape. */
-function densityAt(spec, x) {
-  var pr = spec.profile;
-  if (pr && pr.length) {
-    var m = pr.length, t = x * (m - 1);
-    var k = Math.min(m - 2, Math.max(0, t | 0));
-    return pr[k] + (t - k) * (pr[k + 1] - pr[k]);
-  }
-  //: n_e = n_e0 (1 - x^2)^alpha — a SHAPE the user set, not a measurement,
-  //: which is why the page labels every number that follows from it
-  return spec.ne0 * Math.pow(Math.max(1 - x * x, 0), spec.peaking);
-}
 
 // --- T-A9: <j.B> <-> <j_phi>, sigma_neo, and the three curves that add ----
 //
@@ -2236,371 +2277,8 @@ function densityAt(spec, x) {
 // is not a tolerance chosen here; it is an algebraic identity, and the gate
 // asserts it at 1e-10.
 
-/**
- * The ladder integral of a toroidal current density -> amperes.
- *
- * `dI/dpsi = <j_phi/R> dV/dpsi / 2pi`, and `jTor` is `<j_phi/R>/<1/R>` —
- * so the `<1/R>` goes back in here.
- *
- * ★`dV/dpsi` from the kernel is a MAGNITUDE (it is `2pi contour R dl /
- * |grad psi|`), so the label step is taken as a magnitude too: whether
- * psi rises or falls outward is a gauge, and a current that changed sign
- * with it would be a gauge bug wearing a physics face.
- *
- * ★The ladder does not reach the axis or the boundary — `surfaceShapes`
- * traces the interior — so the two END SEGMENTS are closed by LINEAR
- * EXTRAPOLATION from the nearest two interior nodes (T-A19).  The old
- * stubs — density pinned to ZERO at the axis and held CONSTANT to the
- * edge — were both wrong in the same direction: `dV/dpsi` is FINITE at
- * the axis (the contour length and |grad psi| vanish together), and the
- * edge density is still growing where the constant stub freezes it.
- * Together they undercounted the fit's own I_p by 3.88 % (377.24 kA
- * against 392.48 kA, measured on the delivered slice) — a deficit that
- * belonged entirely to the ladder's ends, since the conversion identity
- * holds to 1.7e-16.  Extrapolated ends are order-consistent with the
- * trapezoid between the nodes (both are the piecewise-linear model), so
- * the remaining gap shrinks as the ladder is refined — which the gate
- * asserts by comparing this quadrature against itself on every other
- * surface.
- */
-function ladderCurrent(jTor, rInv, dvdpsi, xLad, dPsi) {
-  var n = jTor.length, dens = new Float64Array(n + 2), xs = new Float64Array(n + 2), k;
-  for (k = 0; k < n; k++) {
-    dens[k + 1] = jTor[k] * rInv[k] * dvdpsi[k] / (2 * Math.PI);
-    xs[k + 1] = xLad[k];
-  }
-  xs[0] = 0;
-  xs[n + 1] = 1;
-  //: the linear model of the two nearest nodes, carried to each end —
-  //: not a new rule at the ends but the SAME piecewise-linear model the
-  //: trapezoid already applies between the nodes
-  dens[0] = n > 1
-    ? dens[1] + (dens[2] - dens[1]) * (0 - xs[1]) / (xs[2] - xs[1])
-    : dens[1];
-  dens[n + 1] = n > 1
-    ? dens[n] + (dens[n] - dens[n - 1]) * (1 - xs[n]) / (xs[n] - xs[n - 1])
-    : dens[n];
-  var sum = 0;
-  for (k = 1; k < n + 2; k++)
-    sum += 0.5 * (dens[k] + dens[k - 1]) * (xs[k] - xs[k - 1]);
-  return sum * Math.abs(dPsi);
-}
 
-/**
- * The bootstrap / ohmic / total decomposition on the fit's own surfaces.
- *
- * `arr` carries the ladder `reconBootstrap` already built — the same
- * `eps`, `q`, `n_e`, `T_e`, `T_i`, `n_i`, `Z_eff` the bootstrap was
- * evaluated at, so `sigma_neo` and `j_bs` describe one plasma.
- */
-function currentClosure(mem, shapes, arr) {
-  var res = mem.result, prof = mem.profiles, n = shapes.length;
-  if (!prof || !prof.pprime || !mem.q || !mem.q.f) return null;
-  //: psi PER RADIAN — the gauge `p'` and `FF'` are written in, and the
-  //: gauge `B_pol = |grad psi|/R` needs.  `res.psi` is the FULL flux.
-  var scale = 1 / (2 * Math.PI);
-  var psiA = res.psiAxis * scale, psiB = res.psiBnd * scale;
-  var k;
-  var b2 = new Float64Array(n), bt2 = new Float64Array(n),
-      fps = new Float64Array(n), rInv = new Float64Array(n),
-      rInv2 = new Float64Array(n), dvdpsi = new Float64Array(n),
-      dpdpsi = new Float64Array(n), zero = new Float64Array(n),
-      psiPr = new Float64Array(n), ffp = new Float64Array(n),
-      jTotPar = new Float64Array(n), jPhiDirect = new Float64Array(n);
-  for (k = 0; k < n; k++) {
-    var xk = shapes[k].x;
-    var f = interp1(prof.x, mem.q.f, xk);
-    var pp = interp1(prof.x, prof.pprime, xk);
-    var ffpk = interp1(prof.x, prof.ffprime, xk);
-    ffp[k] = ffpk;
-    var fs = fy.surfaceFsa({
-      r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-      nr: grid.nr, nz: grid.nz, psi: res.psi, poly: shapes[k].poly,
-      psiScale: scale, fPsi: f });
-    b2[k] = fs.b2; bt2[k] = fs.bTor2; fps[k] = f;
-    rInv[k] = fs.rInv; rInv2[k] = fs.rInv2; dvdpsi[k] = fs.dvdpsi;
-    dpdpsi[k] = pp;
-    psiPr[k] = psiA + xk * (psiB - psiA);
-    //: the two routes, from the same two coefficients
-    jTotPar[k] = (ffpk / (EV_MU0 * f)) * fs.b2 + pp * f;
-    jPhiDirect[k] = (pp + (ffpk / EV_MU0) * fs.rInv2) / fs.rInv;
-  }
 
-  //: ★the identity check, in the page's own numbers.  Nothing downstream
-  //: needs it — it is here because a conversion that silently disagreed
-  //: with the fit it converts would produce three plausible curves.
-  var conv = fy.jparbJphi({ b2: b2, bTor2: bt2, fPsi: fps, rInv: rInv,
-                            dpdpsi: dpdpsi, jIn: jTotPar,
-                            toToroidal: true });
-  var identity = 0, amp = 0;
-  for (k = 0; k < n; k++) {
-    amp = Math.max(amp, Math.abs(jPhiDirect[k]));
-    identity = Math.max(identity, Math.abs(conv.j[k] - jPhiDirect[k]));
-  }
-  identity = amp > 0 ? identity / amp : NaN;
-
-  //: ★★THE SIGN IS THE FIT'S.  `redlBootstrap` returns a MAGNITUDE
-  //: (`|<j.B>|/B0`), so it has to be oriented along the current the
-  //: equilibrium actually carries before anything is subtracted — a
-  //: bootstrap current pointing the wrong way turns「自举 + 欧姆」into
-  //: 「欧姆 − 自举」and both curves still look like currents.
-  var mid = jTotPar[(n / 2) | 0], sgn = mid < 0 ? -1 : 1;
-  var jTot = new Float64Array(n), jBs = new Float64Array(n),
-      jOhm = new Float64Array(n), bsPar = new Float64Array(n),
-      ohmPar = new Float64Array(n);
-  for (k = 0; k < n; k++) {
-    jTot[k] = jTotPar[k] / arr.b0;
-    jBs[k] = sgn * Math.abs(arr.jBsPar[k]);
-    jOhm[k] = jTot[k] - jBs[k];
-    bsPar[k] = jBs[k] * arr.b0;
-    ohmPar[k] = jOhm[k] * arr.b0;
-  }
-
-  //: the three currents, each converted to the toroidal measure with NO
-  //: pressure term (that term is the total's), plus the total WITH it
-  var cBs = fy.jparbJphi({ b2: b2, bTor2: bt2, fPsi: fps, rInv: rInv,
-                           dpdpsi: zero, jIn: bsPar, toToroidal: true });
-  var cOhm = fy.jparbJphi({ b2: b2, bTor2: bt2, fPsi: fps, rInv: rInv,
-                            dpdpsi: zero, jIn: ohmPar, toToroidal: true });
-  var xLad = new Float64Array(n);
-  for (k = 0; k < n; k++) xLad[k] = shapes[k].x;
-  var dPsi = psiB - psiA;
-  var iBs = ladderCurrent(cBs.j, rInv, dvdpsi, xLad, dPsi);
-  var iOhm = ladderCurrent(cOhm.j, rInv, dvdpsi, xLad, dPsi);
-  var iTot = ladderCurrent(conv.j, rInv, dvdpsi, xLad, dPsi);
-  //: ★T-A19's refinement witness: the SAME quadrature on every other
-  //: surface.  The end treatment is order-consistent with the interior,
-  //: so halving the ladder must widen the gap to the fit's I_p — and the
-  //: gate asserts that direction rather than assuming it.
-  var xC = [], jC = [], rC = [], dC = [];
-  for (k = 0; k < n; k += 2) {
-    xC.push(xLad[k]); jC.push(conv.j[k]);
-    rC.push(rInv[k]); dC.push(dvdpsi[k]);
-  }
-  var iTotCoarse = ladderCurrent(jC, rC, dC, xC, dPsi);
-  //: the diamagnetic remainder, by subtraction of the two parallel parts
-  //: from the total — which is the statement that the decomposition is
-  //: complete rather than an assumption that it is
-  var iDia = iTot - iBs - iOhm;
-
-  //: ★sigma_neo on the SAME ladder, through the same collisionality
-  var sig = fy.sigmaNeo({ eps: arr.eps, q: arr.q, ne: arr.ne, te: arr.te,
-                          ti: arr.ti, ni: arr.ni, zeff: arr.zeff,
-                          rMaj: arr.rMaj, zIon: 1, vintage: arr.vintage,
-                          collisionless: false });
-  //: <E.B> = (V_loop/2pi) F <1/R^2>, so a stationary slice implies one
-  //: loop voltage per surface — and how far those agree is the closure's
-  //: own report card, not a number the page asserts
-  var vLoop = new Float64Array(n);
-  for (k = 0; k < n; k++)
-    vLoop[k] = 2 * Math.PI * ohmPar[k]
-      / (sig.sigmaNeo[k] * fps[k] * rInv2[k]);
-
-  //: `<j.B>_bs / <B^2>` — the coefficient a PURE PARALLEL current has in
-  //: `j_phi = k F / R`.  It is what the prescribed-current channel needs:
-  //: a flux-surface average cannot be written into a cell, and spreading
-  //: the average uniformly around the surface would put bootstrap current
-  //: on the low-field side that belongs on the high-field side.
-  var kBs = new Float64Array(n);
-  for (k = 0; k < n; k++) kBs[k] = bsPar[k] / b2[k];
-
-  return {
-    x: arr.x, jTot: jTot, jBs: jBs, jOhm: jOhm, kBs: kBs,
-    jTotTor: conv.j, jBsTor: cBs.j, jOhmTor: cOhm.j,
-    ratio: conv.ratio, b2: b2, bTor2: bt2, rInv: rInv, rInv2: rInv2,
-    fPsi: fps, dvdpsi: dvdpsi, dpdpsi: dpdpsi, ffprime: ffp, psiPr: psiPr,
-    sigmaNeo: sig.sigmaNeo, sigmaSpitzer: sig.sigmaSpitzer, f33: sig.f33,
-    vLoop: vLoop, vintage: arr.vintage,
-    iBs: iBs, iOhm: iOhm, iDia: iDia, iTot: iTot,
-    iTotCoarse: iTotCoarse,
-    fBs: iTot !== 0 ? iBs / iTot : NaN,
-    //: the fit's own current beside the ladder's quadrature of it: the
-    //: ladder stops short of the axis and short of the boundary, and this
-    //: is how much that costs
-    ipFitted: mem.ipFitted,
-    identity: identity,
-    //: what the curves are IN, spelled out, because three arrays with no
-    //: unit are three decorations
-    unit: 'A/m^2 (<j.B>/B0)', b0: arr.b0,
-  };
-}
-
-function reconBootstrap(msg, mem) {
-  var spec = msg.density;
-  if (!spec || !(spec.on)) return null;
-  //: ★T-A19: 96 surfaces, not 24.  The ladder integral's remaining gap to
-  //: the fit's own I_p is the discrete-ladder-as-continuum error, and it
-  //: is the SURFACE COUNT that controls it — measured on the EAST
-  //: reference forward field (where sum(cells) = Ip holds exactly by
-  //: construction): 24 faces +1.53 %, 48 faces +1.26 %, 96 faces +0.43 %,
-  //: while tracing resolution (nTheta 121 vs 241) moves the fourth digit.
-  //: The end treatment is a separate, smaller story (see ladderCurrent).
-  var nS = 96;
-  var shapes = surfaceShapes(mem.raw, nS);
-  if (shapes.length < 4) return null;
-
-  var tf = self.FyDevice.tf(M), b0 = Math.abs(tf.b0), rMaj = tf.r0;
-  var n = shapes.length;
-  var x = new Float64Array(n), eps = new Float64Array(n), q = new Float64Array(n),
-      ne = new Float64Array(n), te = new Float64Array(n), ti = new Float64Array(n),
-      ni = new Float64Array(n), zeff = new Float64Array(n),
-      pTh = new Float64Array(n), iPsi = new Float64Array(n),
-      psiBar = new Float64Array(n), kappa = new Float64Array(n),
-      delta = new Float64Array(n), rmin = new Float64Array(n),
-      r0s = new Float64Array(n);
-  var prof = mem.profiles, qp = mem.q;
-  //: psi PER RADIAN, which is the gauge the Redl coefficients are written in
-  var psiA = mem.result.psiAxis / (2 * Math.PI),
-      psiB = mem.result.psiBnd / (2 * Math.PI);
-
-  for (var k = 0; k < n; k++) {
-    var sh = shapes[k];
-    x[k] = sh.x;
-    rmin[k] = sh.a; r0s[k] = sh.r0; kappa[k] = sh.kappa; delta[k] = sh.delta;
-    eps[k] = sh.r0 > 0 ? sh.a / sh.r0 : 0;
-    q[k] = Math.abs(interp1(qp.x, qp.q, sh.x));
-    var p = Math.max(interp1(prof.x, prof.p, sh.x), 1e-3);
-    //: ★★THE BOOTSTRAP IS DRIVEN BY THE THERMAL GRADIENT.  `prof.p` is the
-    //: FITTED pressure, which is the total the equilibrium carries — so the
-    //: declared non-thermal part comes back off here.  Feeding a fast-ion
-    //: pressure into a thermal drive is a bootstrap current that is simply
-    //: too large, smoothly and without any warning.
-    var pd2 = msg.pressure || null;
-    var pThX = Math.max(p - extraPressure(pd2, sh.x, p), 1e-3);
-    var d = Math.max(densityAt(spec, sh.x), 1e16);
-    ne[k] = d; ni[k] = d; zeff[k] = spec.zeff;
-    //: a MEASURED T_e wins over the derived one: deriving it from p and n_e
-    //: is what you do when the temperature was never measured, not a
-    //: correction to apply to one that was
-    //: ★and the split is the reader's: `p_th = n_e e (T_e + T_i)` with
-    //: `T_i = r T_e`, so a deck run at `T_i/T_e = 0.7` no longer gets a
-    //: temperature 15 % too high in every collisionality it feeds
-    var rTi = (pd2 && pd2.tite > 0) ? pd2.tite : 1;
-    te[k] = (spec.temperature && spec.temperature.length)
-      ? Math.max(profileAt(spec.temperature, sh.x), 1)
-      : pThX / ((1 + rTi) * d * EV_J);    // eV — the stated assumption
-    ti[k] = rTi * te[k];
-    pTh[k] = pThX;
-    iPsi[k] = interp1(prof.x, mem.q.f, sh.x);
-    psiBar[k] = psiA + sh.x * (psiB - psiA);
-  }
-
-  var redl;
-  try {
-    redl = fy.redlBootstrap({ eps: eps, q: q, ne: ne, te: te, ti: ti, ni: ni,
-                              zeff: zeff, pTh: pTh, iPsi: iPsi, psiBar: psiBar,
-                              rMaj: rMaj, b0: b0, zIon: 1 });
-  } catch (e) {
-    return { error: e.message };
-  }
-
-  // --- the same surfaces through NEO's two analytic vintages --------------
-  //
-  // Sauter 1999 (vintage 0) and Redl 2021 (vintage 1) are what the delivered
-  // figure puts beside its drift-kinetic solve.  Both come back in NEO's
-  // normalised units, so they are compared with each other and with nothing
-  // else.
-  var jS = new Float64Array(n), jR = new Float64Array(n), vintOk = true;
-  //: deuterium mass, kg — the surface block is SI
-  var MD = 3.3435837724e-27;
-  //: s = (r/q) dq/dr with r a LENGTH — forming it on the flux label instead
-  //: is a dimensional error that still yields a smooth number
-  var shear = new Float64Array(n);
-  for (var si = 0; si < n; si++) {
-    var i0 = Math.min(Math.max(si, 1), n - 2);
-    var dR = rmin[i0 + 1] - rmin[i0 - 1], dQ = q[i0 + 1] - q[i0 - 1];
-    shear[si] = (dR !== 0 && q[si] !== 0) ? rmin[si] / q[si] * (dQ / dR) : 0;
-  }
-  for (k = 0; k < n && vintOk; k++) {
-    var aMin = rmin[n - 1];
-    var surf = new Float64Array(20);
-    var dlnnedr = 0, dlntedr = 0;
-    //: gradients on the ladder in SI (per metre), one-sided at the ends
-    var k0 = Math.min(Math.max(k, 1), n - 2);
-    var dr = rmin[k0 + 1] - rmin[k0 - 1];
-    if (dr !== 0) {
-      dlnnedr = -(Math.log(ne[k0 + 1]) - Math.log(ne[k0 - 1])) / dr;
-      dlntedr = -(Math.log(te[k0 + 1]) - Math.log(te[k0 - 1])) / dr;
-    }
-    surf[0] = aMin; surf[1] = Math.max(rmin[k], 1e-6);
-    surf[2] = r0s[k];
-    surf[3] = 0; surf[4] = 0; surf[5] = 0;
-    surf[6] = Math.max(q[k], 1e-3);
-    //: ★the shear slot, which used to be handed over as zero while the
-    //: block below carried the real value — harmless only for as long as
-    //: nobody read the geometry the kernel derives from THIS surface
-    surf[7] = shear[k];
-    surf[8] = kappa[k]; surf[9] = 0;
-    surf[10] = delta[k]; surf[11] = 0;
-    surf[12] = 0; surf[13] = 0;
-    surf[14] = b0; surf[15] = te[k]; surf[16] = ne[k];
-    surf[17] = dlnnedr; surf[18] = dlntedr; surf[19] = 0;
-    try {
-      var inp = fy.neoInputs({
-        surf20: surf, signb: -1, signq: 1,
-        ions: [{ z: 1, mass: MD, ni: ne[k], ti: ti[k],
-                 dlnnidr: dlnnedr, dlntidr: dlntedr }] });
-      //: ★★THE BLOCK IS THE KERNEL'S NOW.  `neoSauter` reads the fourteen
-      //: slots in `NEO_SAUTER_SLOTS` order, `neoInputs` returns the same
-      //: thirteen quantities in `NEO_DECK_GEOMETRY` order, and the two
-      //: sequences are NOT the same — building one from the other by
-      //: position is the transposition the kernel records as having
-      //: produced fluxes 200x out, every number finite and plausible.  This
-      //: file used to assemble the block by hand from the surface ladder;
-      //: the permutation now lives once, in `fylite.js`, keyed by name.
-      var geo14 = fy.neoGeo14(inp.geometry, 17);
-      for (var vi = 0; vi < 2; vi++) {
-        var r = fy.neoSauter({ z: inp.z, mass: inp.mass, dens: inp.dens,
-                               temp: inp.temp, dlnndr: inp.dlnndr,
-                               dlntdr: inp.dlntdr, geo14: geo14, nu1: inp.nu1,
-                               ipccw: inp.ipccw, btccw: inp.btccw,
-                               vintage: vi });
-        if (vi === 0) jS[k] = r.jpar; else jR[k] = r.jpar;
-      }
-    } catch (e) {
-      //: the vintages are a COMPARISON, not the answer: if NEO refuses this
-      //: surface the physical bootstrap above still stands, and the panel
-      //: says the comparison is missing rather than dropping a point into a
-      //: line as though it were zero
-      vintOk = false;
-    }
-  }
-
-  //: ★T-A9 — the closure.  Everything above produced a bootstrap current
-  //: in a measure the fitted current is not in; this is the block that puts
-  //: the two on one axis and names the remainder.
-  var closure = null;
-  try {
-    closure = currentClosure(mem, shapes, {
-      x: x, eps: eps, q: q, ne: ne, te: te, ti: ti, ni: ni, zeff: zeff,
-      rMaj: rMaj, b0: b0, jBsPar: redl.jBs,
-      vintage: (msg.sigmaVintage === 0 || msg.sigmaVintage === 1)
-        ? msg.sigmaVintage : 1 });
-  } catch (e) {
-    closure = { error: e.message };
-  }
-
-  return {
-    x: x, jBs: redl.jBs, ft: redl.ft, nuEStar: redl.nuEStar,
-    closure: closure,
-    ne: ne, te: te, q: q, eps: eps,
-    vintages: vintOk ? { sauter1999: jS, redl2021: jR } : null,
-    source: (spec.profile && spec.profile.length) ? 'imported' : 'parametrised',
-    teSource: (spec.temperature && spec.temperature.length)
-      ? 'imported' : 'from-pressure',
-    zeff: spec.zeff,
-    //: what the drive was actually built on, so a reader can see whether the
-    //: decomposition did anything
-    tiOverTe: (msg.pressure && msg.pressure.tite > 0) ? msg.pressure.tite : 1,
-    pThermal: pTh,
-    //: the inputs travel with the answer: j_bs is ten profiles and a
-    //: normalisation away from anything a reader can see, so a file that
-    //: carried only the curve could not be checked against the same kernel
-    //: entry from anywhere else
-    inputs: { eps: eps, q: q, ni: ni, ti: ti, zeff: zeff, pTh: pTh,
-              iPsi: iPsi, psiBar: psiBar, rMaj: rMaj, b0: b0 },
-  };
-}
 
 /**
  * One channel block through the kernel's self-calibration.

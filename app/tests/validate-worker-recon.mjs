@@ -20,11 +20,13 @@
 // equations in every configuration).  The deck is read the way the kernel's
 // own tests read it (`FYLITE_DEVICE_DIR`) when the staged copy is absent.
 //
-// Eight configurations: the loops with the deck's kinetic rows (the page's
+// Ten configurations: the loops with the deck's kinetic rows (the page's
 // stock question), the magnetics alone, the deck's probes on the raw basis,
 // the coil currents fitted as observations (T-A5), the twin twice (第三十二刀:
 // its truth off `code/forward`), once with a vessel current injected, and the
-// POINT chords twice (第三十四刀: `code/chords`), on the twin and on the deck.
+// POINT chords twice (第三十四刀: `code/chords`), on the twin and on the deck,
+// and the bootstrap closure twice (第三十五刀: `code/bootstrap`), on the deck fit
+// and through the twin's self-consistent outer loop.
 //
 // Run: node app/tests/validate-worker-recon.mjs [--record]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -143,6 +145,13 @@ const CONFIGS = {
                 faraday: { on: true, weight: 1, outer: 2 } },
   deck_point: { density: { on: true, ne0: 3.5e19, peaking: 0.5, zeff: 1.5, profile: null, temperature: null, fitChords: true },
                 faraday: { on: true, weight: 1, outer: 2 } },
+  //: ★第三十五刀: the BOOTSTRAP closure on the fit (`code/bootstrap`) — the
+  //: deck fit with a density declared, and the twin with the self-consistent
+  //: outer loop (T-A9) prescribing the bootstrap for the next fit
+  deck_bootstrap: { density: { on: true, ne0: 3.5e19, peaking: 0.5, zeff: 1.5, profile: null, temperature: null, fitChords: false } },
+  twin_closure: { source: 'twin',
+                  density: { on: true, ne0: 3.5e19, peaking: 0.5, zeff: 1.5, profile: null, temperature: null, fitChords: false },
+                  closure: { on: true, iters: 2, tol: 0.01 } },
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
@@ -185,6 +194,23 @@ function pick(m) {
                                synthetic: m.pointMeas.synthetic } : null,
     densityFit: m.densityFit ? { ne0: m.densityFit.ne0, peaking: m.densityFit.peaking, chi2: m.densityFit.chi2, used: m.densityFit.used,
                                  model: arr(m.densityFit.model), step: m.densityFit.step, atEdge: m.densityFit.atEdge } : null,
+    bootstrap: m.bootstrap ? (m.bootstrap.error ? { error: m.bootstrap.error } : {
+      x: arr(m.bootstrap.x), jBs: arr(m.bootstrap.jBs), ft: arr(m.bootstrap.ft), nuEStar: arr(m.bootstrap.nuEStar),
+      ne: arr(m.bootstrap.ne), te: arr(m.bootstrap.te), q: arr(m.bootstrap.q), eps: arr(m.bootstrap.eps),
+      vintages: m.bootstrap.vintages ? { sauter1999: arr(m.bootstrap.vintages.sauter1999), redl2021: arr(m.bootstrap.vintages.redl2021) } : null,
+      source: m.bootstrap.source, teSource: m.bootstrap.teSource, zeff: m.bootstrap.zeff, tiOverTe: m.bootstrap.tiOverTe,
+      pThermal: arr(m.bootstrap.pThermal),
+      inputs: m.bootstrap.inputs ? { iPsi: arr(m.bootstrap.inputs.iPsi), psiBar: arr(m.bootstrap.inputs.psiBar), rMaj: m.bootstrap.inputs.rMaj, b0: m.bootstrap.inputs.b0 } : null,
+      closure: m.bootstrap.closure ? (m.bootstrap.closure.error ? { error: m.bootstrap.closure.error } : (function (c) {
+        const o = {};
+        for (const k of ['x', 'jTot', 'jBs', 'jOhm', 'kBs', 'jTotTor', 'jBsTor', 'jOhmTor', 'ratio', 'b2', 'bTor2', 'rInv', 'rInv2',
+                         'fPsi', 'dvdpsi', 'dpdpsi', 'ffprime', 'psiPr', 'sigmaNeo', 'sigmaSpitzer', 'f33', 'vLoop']) o[k] = arr(c[k]);
+        for (const k of ['vintage', 'iBs', 'iOhm', 'iDia', 'iTot', 'iTotCoarse', 'fBs', 'ipFitted', 'identity', 'unit', 'b0']) o[k] = c[k];
+        return o;
+      })(m.bootstrap.closure)) : null }) : null,
+    closureLoop: m.closureLoop ? { history: arr(m.closureLoop.history), ip: arr(m.closureLoop.ip), q0: arr(m.closureLoop.q0),
+                                   rounds: m.closureLoop.rounds, stop: m.closureLoop.stop, error: m.closureLoop.error,
+                                   spread: m.closureLoop.spread, fBs: m.closureLoop.fBs } : null,
     faraday: m.faraday ? { target: arr(m.faraday.target), coil: arr(m.faraday.coil), model: arr(m.faraday.model),
                            viaRows: arr(m.faraday.viaRows), rowsVsFieldRel: m.faraday.rowsVsFieldRel,
                            measDeg: arr(m.faraday.measDeg), modelDeg: arr(m.faraday.modelDeg), weight: arr(m.faraday.weight) } : null,
@@ -209,7 +235,10 @@ const ref = JSON.parse(readFileSync(FIX, 'utf8'));
 assert.equal(ref.device, id, 'the fixture was recorded on ' + ref.device);
 //: ★BIT FOR BIT — see the header.  A failure prints the path and the two values.
 const TRIG = /\.probes\.(b\[|rowsVsFieldRel$)/;
-const POINT = /^(twin_point|deck_point)\./, POINT_TOL = +(process.env.POINT_TOL || 1e-8);
+//: ★第三十五刀: the two bootstrap configurations likewise — the NEO input mapping
+//: takes logarithms of the ladder's density and temperature (`Math.log` vs libm),
+//: and the closure loop feeds the prescribed cells into the next fit
+const POINT = /^(twin_point|deck_point|deck_bootstrap|twin_closure)\./, POINT_TOL = +(process.env.POINT_TOL || 1e-10);
 let pointWorst = 0, pointWorstAt = '';
 let worst = 0, worstAt = '';
 function walk(a, b, at) {
@@ -224,7 +253,10 @@ function walk(a, b, at) {
     //: is `Math.pow` on the page and libm's `powf` in the kernel, an ulp apart
     //: for some x; the Faraday rows carry it into the fit and the Picard
     //: iteration spreads it over every number of those two fits (measured:
-    //: 3.7e-10, on FF' near the edge).  Held to 1e-8.
+    //: 3.7e-10, on FF' near the edge, when the chords had just moved; once the
+    //: fixture was re-recorded with the chords on the door the chord fits are
+    //: bit for bit again and what remains is the bootstrap ladder's `Math.log`
+    //: vs libm, 4.3e-14).  Held to 1e-10.
     if (POINT.test(at)) {
       //: the residual is the last Picard step's own size and the feedback
       //: amplitude a difference of two large fluxes — numbers made of last
@@ -247,6 +279,6 @@ function walk(a, b, at) {
 }
 for (const name of Object.keys(ref.configs)) walk(got[name], ref.configs[name], name);
 const k = got.kinetic;
-console.log(`validate-worker-recon: ${Object.keys(ref.configs).length} fits on ${id} bit for bit but the probe projection's last bit (worst rel ${worst.toExponential(2)} at ${worstAt || '—'}) and the two chord fits to ${POINT_TOL} (worst rel ${pointWorst.toExponential(2)} at ${pointWorstAt || '—'}); ` +
+console.log(`validate-worker-recon: ${Object.keys(ref.configs).length} fits on ${id} bit for bit but the probe projection's last bit (worst rel ${worst.toExponential(2)} at ${worstAt || '—'}) and the chord / bootstrap fits to ${POINT_TOL} (worst rel ${pointWorst.toExponential(2)} at ${pointWorstAt || '—'}); ` +
             `kinetic: ${k.result.iterations} it, chi2/ndof ${(k.chi2 / k.ndof).toExponential(3)}, Ip ${(k.ipFitted / 1e6).toFixed(4)} MA, ` +
             `q0 ${k.q.q0.toFixed(3)}, q95 ${k.q.q95.toFixed(3)}, li3 ${k.li3.toFixed(4)}; probes_raw: ${got.probes_raw.fitRows.probes} probe rows, ${got.probes_raw.result.iterations} it; coils: pull ${got.coils.coilFit.pull.toFixed(3)}`);

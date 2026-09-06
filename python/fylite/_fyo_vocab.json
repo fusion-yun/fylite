@@ -366,6 +366,18 @@
   "current_cells": {
    "gated": false,
    "gloss": "A fitted toroidal current over the interior cells [A], `(nr-2)*(nz-2)`, handed back to `code/chords` so the Faraday rows can be contracted with it — the reading by the rows route, beside the sampled field's. Not gated: the page's `fitCur`, a bare local."
+  },
+  "te_profile": {
+   "gated": false,
+   "gloss": "An electron temperature profile [eV] on uniform normalised flux, read linearly — the T_e a bootstrap ladder is built on when a reader imported one rather than reading it off the thermal pressure (`code/bootstrap`, 第三十五刀). Not gated: the page's `spec.temperature`, a bare local."
+  },
+  "p_fast_profile": {
+   "gated": false,
+   "gloss": "A fast-ion pressure profile [Pa] on uniform normalised flux — the non-thermal share a reader declared, subtracted from the fit's total before the thermal ladder is built (`code/bootstrap`). Not gated: the page's `pd.fast`, a bare local."
+  },
+  "p_rot_profile": {
+   "gated": false,
+   "gloss": "A rotation pressure profile [Pa] on uniform normalised flux — the other non-thermal share, only ever an imported profile (`code/bootstrap`). Not gated: the page's `pd.rot`, a bare local."
   }
  }
 }
