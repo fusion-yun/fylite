@@ -65,7 +65,6 @@ __all__ = [
     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
-    "beam_current",
     "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "chord_samples", "psin_along", "quadrature",
     "chord_mask", "line_integral", "chord_reduce", "pinhole_angles",
     "current_centroid",
@@ -102,14 +101,10 @@ __all__ = [
     "SAUTER_1999", "REDL_2021",
     "ridge_lstsq", "bounded_lstsq", "profile_fit", "profile_sample",
     "channel_field", "breakdown_design",
-    "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
-    "gs_fixed_box",
-    "boundary_flux", "gs_free_solve",
+    "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS", "gs_free_solve",
     #: T-D6′ — the same solve on a tabulated (delivered) p'/FF' shape
     "gs_free_solve_tab", "FREE_SOLVE_TAB_KEYS",
-    "gs_inverse_solve",
-    #: T-A5 — the same solve with the coil currents FITTED
-    "gs_inverse_solve_coils", "INVERSE_COIL_KEYS",
+    #: T-A5 — the same solve with the coil currents FITTED "INVERSE_COIL_KEYS",
     "INVERSE_KEYS", "INVERSE_FSA_KEYS",
     "FREE_SOLVE_KEYS",
     "ohmic_power", "quasi_neutral_ne", "b_unit_from_rho",
@@ -123,14 +118,12 @@ __all__ = [
     "neo_current_unit",
     "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
     "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "shell_table", "beam_deposit",
-    "fast_ion_pressure",
-    "selfcal_single", "selfcal_slices",
+    "fast_ion_pressure", "selfcal_slices",
     "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
     "redl_drive", "redl_surface_inputs", "REDL_INPUT_ROWS",
     "solve_psi",
     "bound_deriv",
-    "design_null",
 ]
 
 
@@ -633,19 +626,6 @@ def zerod_flux_budget(t, v_loop, ip, phases, *, r0: float, a: float,
     return res
 
 
-_sig("fylite_rs_zerod_stored_energy", [_ARR] * 4 + [_U64, _F64], _F64)
-def zerod_stored_energy(rho, ne, te_kev, ti_kev, volume: float) -> float:
-    """Thermal stored energy [J] of prescribed profiles."""
-    lib = require()
-    r, n, te, ti = _f(rho), _f(ne), _f(te_kev), _f(ti_kev)
-    if not (r.size == n.size == te.size == ti.size):
-        raise KernelError("rho, ne, te and ti must be the same length")
-    w = lib.fylite_rs_zerod_stored_energy(r, n, te, ti, r.size, float(volume))
-    if not np.isfinite(w):
-        raise KernelError("fylite_rs_zerod_stored_energy refused the call")
-    return float(w)
-
-
 _sig("fylite_rs_zerod_averages", [_ARR, _ARR, _U64, _ARR], _I32)
 def zerod_averages(rho, f) -> dict:
     """``{line, volume}`` — the two averages this layer distinguishes.
@@ -978,38 +958,6 @@ def transport_step(x, y_old, *, vprime, source, velocity=None,
             "converged": bool(info[1]), "residual": float(info[2])}
 
 
-_sig("fylite_rs_interpretive_channel", ( [_ARR] * 7 + [_U64, _F64] + [_ARR] * 4), _I32)
-def interpretive_channel(rho, *, vprime, gm7, gm3, density, temperature,
-                         source_density, grad_floor: float = 1e-3) -> dict:
-    """Analysis-mode inversion of one channel's power balance.
-
-    The other direction of :func:`transport_step`: measured profiles and
-    source densities in, the experimental heat flux ``q_pb`` [W/m²], the
-    cumulative power [W], and the effective diffusivity [m²/s] out.
-
-    ★``gm7`` (⟨|∇ρ|⟩) carries the flux and ``gm3`` (⟨|∇ρ|²⟩) the conduction
-    law — upstream's convention, so a profile produced by a χ₀ conduction
-    solve inverts to ``χ₀/gm7``.  Points whose gradient is below
-    ``grad_floor`` times the profile's characteristic gradient come back
-    ``NaN`` with ``valid = False``.
-    """
-    lib = require()
-    rho = _f(rho)
-    n = rho.size
-    args = [_f(a) for a in (vprime, gm7, gm3, density, temperature,
-                            source_density)]
-    for a in args:
-        if a.size != n:
-            raise KernelError("every profile must be as long as rho")
-    q_pb, power, chi, valid = (np.empty(n) for _ in range(4))
-    rc = lib.fylite_rs_interpretive_channel(rho, *args, n, float(grad_floor),
-                                            q_pb, power, chi, valid)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_interpretive_channel returned {rc}")
-    return {"q_pb": q_pb, "power_cum": power, "chi_eff": chi,
-            "valid": valid.astype(bool)}
-
-
 # --------------------------------------------------------------------------- #
 # flux-surface geometry (surfaces.rs)
 # --------------------------------------------------------------------------- #
@@ -1069,47 +1017,6 @@ def gradient(y, x, *, log: bool = False, floor: float | None = None):
     return out
 
 
-_sig("fylite_rs_beam_deposit", ( [_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 5 + [_U64, _U64, _U64, _F64] + [_ARR] * 3 + [_U64, _ARR, _U64] + [_F64] * 2 + [ctypes.c_uint32] * 2 + [_F64] * 5 + [_ARR, _ARR]), _I32)
-def beam_deposit(grid: Grid, psin2d, *, tangency_radius: float,
-                 z_height: float, width_r: float, width_z: float,
-                 direction: float, n_width_r: int, n_width_z: int,
-                 n_samples: int, r_start: float, psin_prof, ne, te,
-                 psin_edges, mass: float, energy: float,
-                 model: str = "janev", impurity_form: str = "exp",
-                 **imp) -> dict:
-    """One energy component of one beam over its finite cross-section.
-
-    ★★The footprint's rays, their geometry, the profile evaluation at the
-    ray's OWN samples, the attenuation and the binning — one call.  Each of
-    those was a decision (``pitch(R) = R_tan/R`` exactly rather than by
-    finite difference; which nodes and weights sample the width; where the
-    profile is read), and each lived in a different host.
-
-    Returns ``{absorbed, pitch_weighted, shinethrough}`` per ψ_N shell.
-    """
-    lib = require()
-    f = _f(psin2d)
-    if f.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psin2d has shape {f.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    pp, ne_a = _f(psin_prof), _f(ne)
-    te_a, ed = _f(te), _f(psin_edges)
-    n_shell = ed.size - 1
-    out, shine = np.empty(2 * n_shell), np.empty(1)
-    ii = _imp5(**imp)
-    rc = lib.fylite_rs_beam_deposit(
-        *grid.args, f.ravel(), float(tangency_radius), float(z_height),
-        float(width_r), float(width_z), float(direction), int(n_width_r),
-        int(n_width_z), int(n_samples), float(r_start), pp, ne_a, te_a,
-        pp.size, ed, n_shell, float(mass), float(energy),
-        BEAM_STOPPING_MODELS[model], IMPURITY_FORMS[impurity_form],
-        *(float(v) for v in ii), out, shine)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_deposit returned {rc}")
-    return {"absorbed": out[:n_shell], "pitch_weighted": out[n_shell:],
-            "shinethrough": float(shine[0])}
-
-
 _sig("fylite_rs_shell_table", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 2 + [_ARR, _ARR, _U64, _ARR, _U64, _U64, _ARR]), _I32)
 def shell_table(grid: Grid, psin2d, *, axis, limiter, levels,
                 n_theta: int = 181) -> dict:
@@ -1141,55 +1048,6 @@ def shell_table(grid: Grid, psin2d, *, axis, limiter, levels,
     return {"volume": vol, "dvolume": np.diff(vol),
             "rminor": out[n:2 * n].copy(), "rmajor": out[2 * n:3 * n].copy(),
             "kappa": out[3 * n:].copy()}
-
-
-_sig("fylite_rs_lh_deposit", ([_ARR] * 6 + [_U64] + [_ARR] * 3 + [_U64] + [_F64] * 4 + [ctypes.c_uint32] + [_ARR] * 3), _I32)
-def lh_deposit(psin_c, *, dvol, rmaj, ne, te, f_pol, bands, powers,
-               eta_cd: float, r0: float, xi: float = 3.0,
-               width_floor: float = 0.05, cd_model: str = "fisch") -> dict:
-    """The whole lower-hybrid deposition chain on a shell grid.
-
-    ``bands`` is one ``(n_par_lo, n_par_hi)`` per launcher — the EFFECTIVE
-    band, up-shift already applied — and ``powers`` the absorbed power [W].
-
-    ★★One entry rather than six calls in a loop: which surfaces the wave can
-    reach, where each band end resonates, and what the spread between those
-    ends means for ``sigma_j`` are decisions that only make sense together.
-    Assembled in the caller they were six chances for a host to differ.
-
-    Returns ``{psin, j_lh, sigma_j, p_dep, n_acc, i_lau, res_lo, res_hi,
-    i_lh, ne_bar}``; ``res_*`` carry NaN where a band end resonates nowhere,
-    which is a result and not an error.
-    """
-    lib = require()
-    ps = _f(psin_c)
-    n = ps.size
-    dv, rm, ne_a, te_a, fp = (_f(np.broadcast_to(np.atleast_1d(x), (n,)))
-                              for x in (dvol, rmaj, ne, te, f_pol))
-    b = np.atleast_2d(np.asarray(bands, float))
-    lo, hi = _f(b[:, 0]), _f(b[:, 1])
-    pw = _f(np.broadcast_to(np.atleast_1d(np.asarray(powers, float)),
-                            lo.shape))
-    try:
-        code = LH_EFFICIENCY_MODELS.index(cd_model)
-    except ValueError:
-        raise KernelError(f"unknown LH efficiency model {cd_model!r}; "
-                          f"have {list(LH_EFFICIENCY_MODELS)}") from None
-    fields = np.empty(4 * n)
-    per = np.empty(3 * lo.size)
-    scal = np.empty(2)
-    rc = lib.fylite_rs_lh_deposit(ps, dv, rm, ne_a, te_a, fp, n, lo, hi, pw,
-                                  lo.size, float(eta_cd), float(r0),
-                                  float(xi), float(width_floor), code,
-                                  fields, per, scal)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_lh_deposit returned {rc}")
-    nl = lo.size
-    return {"psin": ps, "j_lh": fields[:n], "sigma_j": fields[n:2 * n],
-            "p_dep": fields[2 * n:3 * n], "n_acc": fields[3 * n:],
-            "i_lau": per[:nl], "res_lo": per[nl:2 * nl],
-            "res_hi": per[2 * nl:], "i_lh": float(scal[0]),
-            "ne_bar": float(scal[1])}
 
 
 _sig("fylite_rs_x_points", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 6 + [_ARR, _U64]), _I32)
@@ -1377,30 +1235,6 @@ def field_ion_sum(zeff, *, main_mass: float = 2.0, main_charge: float = 1.0,
     return out
 
 
-_sig("fylite_rs_first_orbit_loss", ([_ARR] * 3 + [_U64] + [_F64] * 6 + [_I32, _ARR]), _I32)
-def first_orbit_loss(rmin, rmaj, q, *, a_edge: float, b0: float, r0: float,
-                     mass: float, charge: float, energy: float,
-                     counter: bool):
-    """The first-orbit-loss mask of a newly born fast ion.
-
-    ★Counter-injection only: a co-injected ion drifts INWARD, so the same
-    arithmetic would invent a loss that does not happen.  ``counter=False``
-    returns an all-False mask.
-    """
-    lib = require()
-    rm = _f(np.atleast_1d(rmin))
-    rj = _f(np.broadcast_to(np.atleast_1d(rmaj), rm.shape))
-    q_a = _f(np.broadcast_to(np.atleast_1d(q), rm.shape))
-    out = np.empty(rm.size)
-    rc = lib.fylite_rs_first_orbit_loss(rm, rj, q_a, rm.size, float(a_edge),
-                                        float(b0), float(r0), float(mass),
-                                        float(charge), float(energy),
-                                        1 if counter else 0, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_first_orbit_loss returned {rc}")
-    return out != 0.0
-
-
 _sig("fylite_rs_beam_slowing", ([_ARR] * 4 + [_U64, _F64, _F64, _ARR]), _I32)
 def beam_slowing(te, ne, *, mass: float = 2.0, zeff=1.0, zsum,
                  e_beam: float) -> dict:
@@ -1446,47 +1280,6 @@ def beam_energy_partition(e_crit, tau_s, *, e_beam) -> dict:
         raise KernelError(f"fylite_rs_beam_energy_partition returned {rc}")
     rows = out.reshape(-1, 2)
     return {"ion_fraction": rows[:, 0].copy(), "tau_eff": rows[:, 1].copy()}
-
-
-_sig("fylite_rs_beam_shielding", [_ARR, _ARR, _U64, _ARR], _I32)
-def beam_shielding(ft, zeff) -> dict:
-    """The back-EMF shielding function ``G`` and the surviving current
-    fraction ``1 − (1−G)/Z_eff``."""
-    lib = require()
-    ft_a = _f(np.atleast_1d(ft))
-    z_a = _f(np.broadcast_to(np.atleast_1d(zeff), ft_a.shape))
-    out = np.empty(2 * ft_a.size)
-    rc = lib.fylite_rs_beam_shielding(ft_a, z_a, ft_a.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_shielding returned {rc}")
-    rows = out.reshape(-1, 2)
-    return {"g": rows[:, 0].copy(), "factor": rows[:, 1].copy()}
-
-
-_sig("fylite_rs_beam_current", ([_ARR] * 8 + [_U64] + [_F64] * 3 + [_U64, _ARR]), _I32)
-def beam_current(p_dep, pitch, *, e_crit, e_gamma, tau_s, rmin, rmaj,
-                 shield, energy: float, mass: float,
-                 multiplier: float = 1.0, n_step: int = 101):
-    """The beam-driven current density [A/m²] of one energy component.
-
-    ★``shield`` (the bulk's electron return current) and the beam ions' own
-    trapping are DIFFERENT suppressions, and this applies both — so a caller
-    cannot apply one and believe it applied the other.  The trapping step is
-    smoothed in pitch because a hard threshold makes ``j_NBI`` jump between
-    adjacent shells, which reads as structure no experiment has.
-    """
-    lib = require()
-    args = [_f(a) for a in (p_dep, pitch, e_crit, e_gamma, tau_s, rmin, rmaj,
-                            shield)]
-    n = args[0].size
-    if any(a.size != n for a in args):
-        raise KernelError("every per-shell array must be the same length")
-    out = np.empty(n)
-    rc = lib.fylite_rs_beam_current(*args, n, float(energy), float(mass),
-                                    float(multiplier), int(n_step), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_current returned {rc}")
-    return out
 
 
 _sig("fylite_rs_pchip", [_ARR, _ARR, _U64, _ARR, _U64, _ARR], _I32)
@@ -1772,7 +1565,7 @@ def ideal_stiffness(inductance, coupling_gradient, *, ip: float) -> float:
     """The ideal-wall vertical stiffness ``Ip² Gᵀ M⁻¹ G`` [N/m].
 
     ★The REGIME BOUNDARY: below it the mode is resistive-wall and
-    :func:`vertical_plant` applies; at or above it the plant is
+    the vertical plant (now ``code/vstab``'s) applies; at or above it the plant is
     ideal-unstable and that function refuses.  Askable on its own so a
     caller does not have to trigger the refusal to find out where it is.
     """
@@ -1813,42 +1606,6 @@ def dispersion_root(coupling_gradient, inductance, resistance, *, ip: float,
     if rc != 0:
         raise KernelError(f"fylite_rs_dispersion_root returned {rc}")
     return float(out[0])
-
-
-_sig("fylite_rs_vertical_plant", ([_ARR] * 3 + [_U64, _F64, _F64] + [_ARR] * 4), _I32)
-def vertical_plant(inductance, resistance, coupling_gradient, *, ip: float,
-                   stiffness: float) -> dict:
-    """The linearised vertical plant: the rank-one plasma elimination.
-
-    The plasma is massless on this timescale, so ``k ξ + Ip Gᵀ δI = 0`` is
-    algebraic and folds into ``M* = M − (Ip²/k) G Gᵀ`` with
-    ``ξ = −(Ip/k) Gᵀ δI``.  Returns ``M*``, ``C_xi``, the open-loop growth
-    rate (largest eigenvalue of ``−M*⁻¹R``), the ideal stiffness, and the
-    unstable ``mode`` normalised so ``C_xi · mode = 1``.
-
-    ★The growth rate here MUST agree with
-    :func:`fylite.scenario.control.stability.vertical_growth_rate`'s dispersion root: the two
-    are related by Sherman-Morrison, so agreement checks the wiring rather
-    than restating one formula.
-    """
-    lib = require()
-    r_a, g_a = _f(resistance), _f(coupling_gradient)
-    n = r_a.size
-    m = _f(np.reshape(inductance, (n, n)))
-    ms, cx, md = (np.empty(n * n), np.empty(n), np.empty(n))
-    info = np.empty(2)
-    rc = lib.fylite_rs_vertical_plant(m.ravel(), r_a, g_a, n, float(ip),
-                                      float(stiffness), ms, cx, md, info)
-    if rc != 0:
-        raise KernelError(
-            "fylite_rs_vertical_plant: the massless elimination does not "
-            "apply — either the solve failed or k >= k_ideal, which is the "
-            "IDEAL-unstable regime where this formulation would report a "
-            "comfortable negative growth rate for the worst case there is; "
-            "read stability.vertical_growth_rate's verdict instead"
-            if rc == -6 else f"fylite_rs_vertical_plant returned {rc}")
-    return {"m_star": ms.reshape(n, n), "c_xi": cx, "mode": md,
-            "gamma_openloop": float(info[0]), "k_ideal": float(info[1])}
 
 
 _sig("fylite_rs_vertical_loop", ( [_ARR] * 4 + [_U64] + [_F64] * 5 + [_ARR, _ARR, _U64, _I32] + [ctypes.c_void_p] * 2 + [_U64, ctypes.c_void_p] + [_F64] * 2 + [_ARR] * 4), _I32)
@@ -3654,26 +3411,6 @@ def li3(grid: Grid, psi, *, psi_axis: float, psi_bnd: float, ip: float,
     return float(out[0])
 
 
-_sig("fylite_rs_profile_shape_fit", [_ARR, _ARR, _U64, _ARR], _I32)
-def profile_shape_fit(x, y) -> dict:
-    """Fit the analytic family ``(1 − x^a)^b`` to a normalised profile.
-
-    Returns ``{"a", "b", "residual"}``.  Raises when the iteration does not
-    settle: a shape outside the family must not come back as the nearest
-    member of it.
-    """
-    lib = require()
-    x, y = _f(x), _f(y)
-    if x.size != y.size:
-        raise KernelError("x and y must be the same length")
-    out = np.empty(3)
-    rc = lib.fylite_rs_profile_shape_fit(x, y, x.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_profile_shape_fit returned {rc}"
-                          + (" — the fit did not settle" if rc == -2 else ""))
-    return {"a": float(out[0]), "b": float(out[1]), "residual": float(out[2])}
-
-
 _sig("fylite_rs_sample", ([_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _ARR, _U64, _I32, _ARR]), _I32)
 def sample(grid: Grid, f, r, z, *, gradient_magnitude: bool = False):
     """Bilinear samples of a grid field (NaN outside the box).
@@ -4024,7 +3761,7 @@ def shell_sum(values, weights) -> float:
 
     ★A dot product, and deliberately an ABI entry anyway: P_abs, I_NBI and
     W_fast are closed by the same rule as P_LH and I_LH inside
-    :func:`lh_deposit`, and DE-COMP-02 wants that rule in one place rather
+    the LH deposition (now ``code/wave``'s), and DE-COMP-02 wants that rule in one place rather
     than one ``np.sum`` per total on this side.
     """
     lib = require()
@@ -4093,53 +3830,6 @@ def fast_ion_pressure(p_dep, tau_eff, rmaj=None):
     _, w, p = shell_area(ones, ones if rmaj is None else rmaj,
                          p_dep=pd, tau_eff=te)
     return w, p
-
-
-_sig("fylite_rs_fast_ion_pressure_split", [_ARR, _ARR, _ARR, _U64, _ARR], _I32)
-def fast_ion_pressure_split(p_dep, tau_eff, pitch):
-    """Fast-ion pressure split into the parallel/perpendicular branches by
-    the birth pitch (T-M12): ``W = P·τ_eff/2``, ``p_par = 2Wξ²``,
-    ``p_perp = W(1−ξ²)``.
-
-    ★The PITCH-PRESERVING drag closure: Coulomb drag above the critical
-    energy changes the speed, not the pitch.  Two identities close it —
-    ``p_par/2 + p_perp == W`` exactly, and the trace third
-    ``(p_par + 2p_perp)/3`` equals :func:`fast_ion_pressure`'s isotropic
-    scalar, so the split moves nothing in the scalar channel.  Returns
-    ``(W, p_par, p_perp)``.
-    """
-    lib = require()
-    pd = _f(np.atleast_1d(p_dep))
-    te = _f(np.broadcast_to(np.atleast_1d(tau_eff), pd.shape))
-    xi = _f(np.broadcast_to(np.atleast_1d(pitch), pd.shape))
-    out = np.empty(3 * pd.size)
-    rc = lib.fylite_rs_fast_ion_pressure_split(pd, te, xi, pd.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_fast_ion_pressure_split returned {rc}")
-    n = pd.size
-    return out[:n].copy(), out[n:2 * n].copy(), out[2 * n:].copy()
-
-
-_sig("fylite_rs_beam_torque", [_ARR, _ARR, _ARR, _U64, _F64, _F64, _ARR], _I32)
-def beam_torque(p_dep, pitch, rmaj, *, energy, mass):
-    """Toroidal torque density of the beam's PROMPT momentum input (T-M12):
-    ``τ_φ = p_dep·(2/v_b)·ξ·R`` with ``v_b = √(2eE/m)`` the birth speed of
-    THIS energy component.
-
-    ★Per component, because ``v_b`` differs per energy fraction — call once
-    per component with that component's own ``p_dep`` and ``pitch`` and sum.
-    ``energy`` in eV, ``mass`` in amu; the sign is the pitch's.
-    """
-    lib = require()
-    pd = _f(np.atleast_1d(p_dep))
-    xi = _f(np.broadcast_to(np.atleast_1d(pitch), pd.shape))
-    rj = _f(np.broadcast_to(np.atleast_1d(rmaj), pd.shape))
-    out = np.empty(pd.size)
-    rc = lib.fylite_rs_beam_torque(pd, xi, rj, pd.size,
-                                   float(energy), float(mass), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_beam_torque returned {rc}")
-    return out
 
 
 _sig("fylite_rs_chi_from_flux", ([_ARR] * 4 + [_U64] + [_F64] * 6 + [_ARR]), _I32)
@@ -4465,51 +4155,6 @@ def gyrobohm_pi(*, ne: float, te: float, c_s: float, rho_s: float,
     SI in: ``ne`` [m⁻³], ``te`` [eV], ``c_s`` [m/s], ``rho_s``/``a`` [m].
     """
     return gyrobohm_q(ne=ne, te=te, c_s=c_s, rho_s=rho_s, a=a) * a / c_s
-
-
-_sig("fylite_rs_selfcal_single", [_ARR, _ARR, _ARR, _U64, _F64, _ARR], _I32)
-def selfcal_single(measured, computed, alive, *, tol: float = 0.15):
-    """Per-channel factors from ONE slice: ``computed/measured`` against
-    their median.  Returns ``(factors, keep, median)``.
-
-    ★The median absorbs any global scale or unit offset, so only
-    channel-RELATIVE inconsistency can reject a channel — a calibration
-    that rejected on the absolute ratio would reject everything the moment
-    someone changed a unit.
-    """
-    lib = require()
-    m, c = _f(np.atleast_1d(measured)), _f(np.atleast_1d(computed))
-    a = _f(np.asarray(alive, float).astype(float).ravel())
-    n = m.size
-    out = np.empty(2 * n + 1)
-    rc = lib.fylite_rs_selfcal_single(m, c, a, n, float(tol), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_selfcal_single returned {rc}")
-    return out[:n].copy(), out[n:2 * n] != 0.0, float(out[2 * n])
-
-
-_sig("fylite_rs_selfcal_slices", [_ARR, _U64, _U64, _ARR, _ARR], _I32)
-def selfcal_slices(ratio, alive):
-    """Per-channel factor and its slice-to-slice scatter, from a
-    ``(n_slice, n_channel)`` ratio array.
-
-    Returns ``(factors, scatter, n_used)``.  ★``scatter`` is ``MAD/|median|``
-    — the ROBUST spread of one channel's factor over slices, which is what
-    says whether the factor behaves like an instrument property or like
-    noise.  The per-channel factor is a median for the same reason; the
-    statistic that decides whether any channel STANDS OUT is not
-    (:func:`factor_dispersion`).
-    """
-    lib = require()
-    r = _f(np.atleast_2d(np.asarray(ratio, float)))
-    ns, nc = r.shape
-    a = _f(np.asarray(alive, float).astype(float).ravel())
-    out = np.empty(3 * nc)
-    rc = lib.fylite_rs_selfcal_slices(r.ravel(), ns, nc, a, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_selfcal_slices returned {rc}")
-    return (out[:nc].copy(), out[nc:2 * nc].copy(),
-            out[2 * nc:].astype(int))
 
 
 _sig("fylite_rs_factor_dispersion", [_ARR, _U64, _ARR], _I32)
@@ -5085,27 +4730,6 @@ GEO_SCALARS = ("f", "ffprime", "fsa_bp2", "fsa_bt2", "fsa_grad_r",
                "bt0", "bp0")
 
 
-_sig("fylite_rs_boundary_flux", [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _F64, _ARR], _I32)
-def boundary_flux(grid_r, grid_z, psi, *, limiter_r, limiter_z,
-                  sign_axis: float = 1.0) -> float:
-    """The PHYSICAL boundary flux of a converged field [Wb].
-
-    One rule for limited and diverted plasmas: the bottleneck-connectivity
-    boundary.  ★On a diverted field it reads the X-point boundary that an
-    in-loop max-flux rule misjudges as a too-tight limiter contact — the
-    q95 root cause this repo chased once.
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    lr, lz = _f(np.atleast_1d(limiter_r)), _f(np.atleast_1d(limiter_z))
-    out = np.empty(1)
-    rc = lib.fylite_rs_boundary_flux(rg, rg.size, zg, zg.size, _f(psi),
-                                     lr, lz, lr.size, float(sign_axis), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_boundary_flux returned {rc}")
-    return float(out[0])
-
-
 _sig("fylite_rs_deltastar_apply", [_ARR, _U64, _ARR, _U64, _ARR, _ARR], _I32)
 def deltastar_apply(grid_r, grid_z, psi):
     """Δ*ψ on the kernel's own stencil — the OPERATOR, not the solve.
@@ -5136,125 +4760,6 @@ def deltastar_apply(grid_r, grid_z, psi):
 
 
 
-_sig("fylite_rs_gs_inverse_solve_fsa", [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _U64, _U64, _F64, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _F64, _U64, _F64, _F64, _F64, _F64, _U64, _ARR, _ARR, _ARR], _I32)
-_sig("fylite_rs_gs_inverse_solve", [ _ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _U64, _U64, _F64, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR, _U64, _F64, _U64, _F64, _F64, _F64, _F64, _U64, _ARR, _ARR, _ARR], _I32)
-def gs_inverse_solve(grid_r, grid_z, psi_ext, *, loops_m, meas, weights,
-                     meas_scale: float, npp: int, nff: int, ip: float,
-                     limiter_r, limiter_z, pressure_x=None,
-                     pressure_meas=None, pressure_weights=None,
-                     j_prescribed=None, current_x=None,
-                     current_shape=None, current_weights=None,
-                     relax: float = 0.3,
-                     max_iter: int = 600, tol: float = 1e-9,
-                     fb_gain: float = 8.0, zc_anchor=None, rc_anchor=None,
-                     warmup: int = 0) -> dict:
-    """One inverse Grad-Shafranov solve: fit ``npp + nff`` polynomial
-    ``p′``/``FF′`` coefficients to flux-loop measurements under the ``Ip``
-    constraint.
-
-    Returns :data:`INVERSE_KEYS` plus ``psi``, ``coefficients`` and
-    ``iterations`` — :data:`INVERSE_FSA_KEYS` (one more slot named) when a
-    current constraint was given.  ``pressure_*`` add the kinetic constraint
-    rows, ``j_prescribed`` the per-interior-cell neoclassical current, and
-    ``current_*`` the flux-surface-averaged current SHAPE; each is optional
-    and omitted means "that constraint is off", not "that constraint is
-    zero".
-
-    ``current_x`` / ``current_shape`` / ``current_weights`` are one row
-    each: a normalised flux label, the value ``⟨j_φ/R⟩/⟨1/R⟩`` is asked to
-    take there RELATIVE to its own mean over the same surfaces, and the
-    row's weight.  ★The constraint is homogeneous on purpose — it states a
-    shape and nothing about magnitude, which stays entirely with the ``Ip``
-    equality.  ``fsa_rows_used`` reports how many of those rows reached the
-    fit; a surface that could not be traced (the magnetic axis, where the
-    contour degenerates to a point) carries none.
-
-    ★This was the last entry a module outside this one still called
-    directly, with its own buffers and its own return-code check.  The
-    inverse solve is the most argument-heavy entry in the ABI, which is
-    precisely why its marshalling should exist once.
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    lr, lz = _f(np.atleast_1d(limiter_r)), _f(np.atleast_1d(limiter_z))
-    b, w = _f(np.atleast_1d(meas)), _f(np.atleast_1d(weights))
-    if w.size != b.size:
-        raise KernelError(f"{b.size} measurements against {w.size} weights")
-    have_p = pressure_x is not None
-    xp = _f(np.atleast_1d(pressure_x)) if have_p else np.zeros(1)
-    pm = _f(np.atleast_1d(pressure_meas)) if have_p else np.zeros(1)
-    pw = _f(np.atleast_1d(pressure_weights)) if have_p else np.zeros(1)
-    if have_p and not (xp.size == pm.size == pw.size):
-        raise KernelError(
-            f"pressure rows disagree: x {xp.size}, meas {pm.size}, "
-            f"weights {pw.size}")
-    ncell = (rg.size - 2) * (zg.size - 2)
-    if j_prescribed is None:
-        jp = np.zeros(1)
-    else:
-        jp = _f(np.atleast_1d(j_prescribed))
-        if jp.size != ncell:
-            raise KernelError(
-                f"j_prescribed has {jp.size} cells, expected {ncell} = "
-                "(nr-2)*(nz-2) — it is per INTERIOR cell, matching the "
-                "solver's own mask")
-    #: ★the FSA-current block, same optional-triple convention as the
-    #: pressure one: all three or none, and the lengths must agree — a
-    #: shape without the surfaces it is a shape ON is not a constraint.
-    have_j = current_x is not None
-    if have_j != (current_shape is not None):
-        raise KernelError("current_x and current_shape go together: a shape "
-                          "without the surfaces it is a shape ON constrains "
-                          "nothing")
-    if have_j:
-        xj = _f(np.atleast_1d(current_x))
-        vz = _f(np.atleast_1d(current_shape))
-        wj = (np.ones_like(xj) if current_weights is None
-              else _f(np.atleast_1d(current_weights)))
-        if not (xj.size == vz.size == wj.size):
-            raise KernelError(
-                f"current_x/current_shape/current_weights have sizes "
-                f"{xj.size}/{vz.size}/{wj.size} — they are one row each")
-    else:
-        xj = vz = wj = _f(np.zeros(1))
-
-    psi = np.empty((rg.size, zg.size))
-    coefs, out = np.empty(int(npp) + int(nff)), np.empty(12)
-    common = (rg, rg.size, zg, zg.size, _f(psi_ext), _f(loops_m), b, w,
-              b.size, float(meas_scale), int(npp), int(nff), float(ip),
-              lr, lz, lr.size, xp, pm, pw, xp.size if have_p else 0,
-              jp, jp.size if j_prescribed is not None else 0)
-    tail = (float(relax), int(max_iter), float(tol), float(fb_gain),
-            float("nan") if zc_anchor is None else float(zc_anchor),
-            float("nan") if rc_anchor is None else float(rc_anchor),
-            int(warmup), psi, coefs, out)
-    if have_j:
-        name = "fylite_rs_gs_inverse_solve_fsa"
-        it = lib.fylite_rs_gs_inverse_solve_fsa(
-            *common, xj, vz, wj, xj.size, *tail)
-    else:
-        name = "fylite_rs_gs_inverse_solve"
-        it = lib.fylite_rs_gs_inverse_solve(*common, *tail)
-    if it <= 0:
-        raise KernelError(f"{name} returned {it}")
-    res = dict(zip(INVERSE_FSA_KEYS if have_j else INVERSE_KEYS, out))
-    res.pop("_", None)
-    res.update(psi=psi, coefficients=coefs, iterations=int(it))
-    if have_j:
-        #: ★how many rows REACHED the fit, not how many were asked for: a
-        #: surface that could not be traced carries none, and a caller
-        #: reading the fit as if all of them held would be reading a
-        #: constraint that was never imposed.
-        res["fsa_rows_used"] = int(res["fsa_rows_used"])
-    return res
-
-
-#: What `gs_free_solve` writes, in the order the ABI packs them.
-#: ★v108 (T-M16): slot 11 — reserved padding since the entry existed — now
-#: carries the solver's own verdict: 1 = converged (residual within `tol`
-#: AND the plasma mask unchanged for consecutive rounds), 2 = settled (the
-#: answer stopped moving but mask quantisation jitter floors the residual
-#: above `tol` — a steady-state reading, not a met tolerance), 0 = neither.
 FREE_SOLVE_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                    "residual", "bnd_kind", "xpt_r", "xpt_z", "fb_amp",
                    "zc", "verdict")
@@ -5409,96 +4914,6 @@ _sig("fylite_rs_gs_fixed_box",
          _F64, _F64, _U64, _F64, _U64, _F64, _ARR]), _I32)
 #: ★T-M17: the same solve under an I_p constraint — one extra f64 (the
 #: target) before the out buffer, out8 instead of out6
-_sig("fylite_rs_gs_fixed_box_ip",
-     ([_ARR, _U64, _ARR, _U64] + [_F64] * 2 + [_ARR] + [_F64] * 4
-      + [_VOID, _VOID, _U64, _VOID, _U64, _ARR, _U64, _F64, _ARR, _U64,
-         _F64, _F64, _U64, _F64, _U64, _F64, _F64, _ARR]), _I32)
-def gs_fixed_box(grid_r, grid_z, psi, *, psi_boundary: float,
-                 sign_axis: float, seed_r: float, seed_z: float,
-                 pprime, ffprime, x=None, pprime_scale: float = 1.0,
-                 ffprime_scale: float = 1.0,
-                 limiter_r=None, limiter_z=None, dr=None, dz=None,
-                 gauge: float = 1.0, dilate: int = 2, relax: float = 0.5,
-                 max_iter: int = 300, tol: float = 1e-9,
-                 ip_target: float | None = None) -> dict:
-    """Fixed-boundary Picard on a SUB-BOX (`equilibrium::solve_fixed_box`).
-
-    ``psi`` carries the Dirichlet border in; the solved field comes back in
-    the returned dict rather than in place.
-
-    ★Two rules that are not ``fylite_rs_gs_fixed_solve``'s.  The axis is the
-    extremum of ``sign_axis * psi`` inside a dilation of the PREVIOUS
-    iterate's plasma, seeded at ``(seed_r, seed_z)`` — "the axis is a
-    continuous object; it does not teleport" — and the plasma is what is
-    CONNECTED to it above ``psi_boundary``, not the threshold set.  On a box
-    cut tightly around one plasma the whole-rectangle rule takes a corner
-    (measured on EAST: the axis sits 0.774 Wb above ``psi_b`` while the
-    box's own outboard corner sits 0.916 Wb below it) and the threshold set
-    becomes an annulus outside the separatrix.
-
-    ★The profiles are ``dp/dpsibar`` [Pa] and ``d(F^2/2)/dpsibar``
-    [T^2 m^2] — per NORMALISED flux — as monomial coefficients, or as values
-    on ``x`` when that is given.  ``gauge`` is how many radians of psi one
-    unit of ``psi`` holds: ``2*pi`` for total flux [Wb], ``1`` per radian.
-
-    ``dr``/``dz`` default to the box's own node spacing; pass the PARENT
-    grid's when the box is a window on a larger one and the two must agree
-    to the last bit.
-
-    Raises :class:`KernelError` on a refusal, naming which one: the seed is
-    not an interior node, the plasma reached the box border, the dilation
-    held no interior node, or the flux span collapsed.
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    p = _f(np.asarray(psi, float)).copy()
-    if p.size != rg.size * zg.size:
-        raise KernelError(f"psi holds {p.size} values, expected "
-                          f"{rg.size} x {zg.size}")
-    pp, ffp = _f(np.atleast_1d(pprime)), _f(np.atleast_1d(ffprime))
-    xs = None if x is None else _f(np.atleast_1d(x))
-    lr = None if limiter_r is None else _f(np.atleast_1d(limiter_r))
-    lz = None if limiter_z is None else _f(np.atleast_1d(limiter_z))
-    nlim = 0 if lr is None else lr.size
-    out = np.empty(8)
-    head = [rg, rg.size, zg, zg.size,
-            float(rg[1] - rg[0]) if dr is None else float(dr),
-            float(zg[1] - zg[0]) if dz is None else float(dz),
-            p, float(psi_boundary), float(sign_axis), float(seed_r),
-            float(seed_z),
-            None if lr is None else lr.ctypes.data,
-            None if lz is None else lz.ctypes.data, nlim,
-            None if xs is None else xs.ctypes.data,
-            0 if xs is None else xs.size,
-            pp, pp.size, float(pprime_scale), ffp, ffp.size,
-            float(ffprime_scale),
-            float(gauge), int(dilate), float(relax), int(max_iter),
-            float(tol)]
-    #: ★T-M17: a finite target routes through the CONSTRAINED entry — the
-    #: FF' constant is solved each iterate so I_p lands on the target (the
-    #: current the Dirichlet border was computed for); see the c_api note.
-    if ip_target is None:
-        it = lib.fylite_rs_gs_fixed_box(*head, out)
-    else:
-        it = lib.fylite_rs_gs_fixed_box_ip(*head, float(ip_target), out)
-    if it < 0:
-        why = {-3: "the seed is not an interior node of the box",
-               -4: "the plasma reached the box border",
-               -5: "the axis search found no interior node",
-               -6: "the flux span collapsed"}.get(
-                   it, f"code {it}")
-        raise KernelError(f"fylite_rs_gs_fixed_box refused: {why}")
-    return {"psi": p.reshape(rg.size, zg.size), "psi_axis": float(out[0]),
-            "axis_r": float(out[1]), "axis_z": float(out[2]),
-            "ip": float(out[3]), "residual": float(out[4]),
-            "span": float(out[5]), "iterations": int(it),
-            #: what the constraint did (zeros when no target was given):
-            #: the FF' constant it solved and the unshifted current
-            "ff_shift": float(out[6]) if ip_target is not None else 0.0,
-            "ip_raw": float(out[7]) if ip_target is not None
-                      else float(out[3])}
-
-
 _sig("fylite_rs_geo_surface", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 _sig("fylite_rs_geo_surface_gm2", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 def geo_surface(*, rmin_over_a, rmaj_over_a, q, shear, drmaj=0.0,
@@ -5681,54 +5096,6 @@ def breakdown_design(elems, weights, *, r0: float, z0: float = 0.0,
     return res
 
 
-_sig("fylite_rs_design_null", ([_ARR] * 3 + [_U64, _U64] + [_F64] * 5 + [_VOID, _VOID, _ARR, _ARR]), _I32)
-def design_null(br, bz, psi, *, b_tol: float, flux_target=None,
-                weight_null: float = 1.0, weight_flux: float = 1.0,
-                lam: float = 1e-12, x_ref=None, i_max=None) -> dict:
-    """Least-squares coil currents for a field null, with an optional
-    required flux and an optional per-channel current box.
-
-    ``br`` / ``bz`` are ``(nch, npts)`` per-ampere-turn responses over the
-    null disc, ``psi`` the ``(nch,)`` response at the null centre.
-
-    ★The row scaling is the whole design and it lives in the kernel: the
-    null rows carry teslas (~1e-3) and the flux row webers (~1e-1), so left
-    raw the flux term swamps the null and the "design" comes back as a
-    uniform field.  ``flags`` reports which channels sit on their bound (1)
-    or over it (2) — an infeasible design must say WHICH limit stopped it.
-    """
-    lib = require()
-    br, bz, psi = _f(br), _f(bz), _f(psi)
-    nch, npts = br.shape
-    x_ref_a = None if x_ref is None else _f(x_ref)
-    i_max_a = None if i_max is None else _f(i_max)
-    out = np.empty(nch)
-    flags = np.empty(nch)
-    rc = lib.fylite_rs_design_null(
-        br.ravel(), bz.ravel(), psi, nch, npts, float(b_tol),
-        float("nan") if flux_target is None else float(flux_target),
-        float(weight_null), float(weight_flux), float(lam),
-        None if x_ref_a is None else x_ref_a.ctypes.data,
-        None if i_max_a is None else i_max_a.ctypes.data,
-        out, flags)
-    if rc == -3:
-        #: ★the last iterate IS in `out`, and it is not a minimum — a
-        #: caller comparing two such points (two hosts, two rounding paths)
-        #: is comparing two arbitrary places on the same descent.  Measured
-        #: on the EAST deck: at the old 4000-step cap a binding design sat
-        #: 4.3x above its converged objective, silently.
-        raise KernelError(
-            "design_null ran out of iterations: the box-constrained solve "
-            "did not converge, so the currents it produced are the last "
-            "step of a descent rather than a design.  Loosen the box, raise "
-            "lambda, or ask for a weaker null.")
-    if rc < 0:
-        raise KernelError(f"fylite_rs_design_null returned {rc}")
-    return {"aturns": out, "flags": flags.astype(int), "iterations": int(rc),
-            "at_bound": np.flatnonzero(flags == 1).tolist(),
-            "over": np.flatnonzero(flags == 2).tolist()}
-
-
 # --------------------------------------------------------------------------- #
 # Raw entries reached only by tests (no wrapper here): declared so that
 # `load()` / `require()` hand back a library whose signatures are complete,
@@ -5752,13 +5119,6 @@ _sig("fylite_rs_dke_coll", ([_U64] * 3 + [_I32] + [_ARR] * 5 + [_U64, _ARR, _U64
 
 
 # --------------------------------------------------------------------------- #
-# T-A5 · the inverse solve with the coil currents as OBSERVATIONS
-#
-# ★One contiguous block, appended, so three branches editing this file at
-# once do not collide in the middle of it.  Nothing above is changed:
-# `gs_inverse_solve` still reaches `fylite_rs_gs_inverse_solve` and still
-# returns exactly the numbers it returned.
-# --------------------------------------------------------------------------- #
 
 #: What the coil entry's `out12` carries.  ★Its own tuple rather than
 #: `FREE_SOLVE_KEYS`: the free solve packs an X-point into slots 7-8 and the
@@ -5773,145 +5133,6 @@ INVERSE_COIL_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                      #: ★slots 10-11 are now filled, with the same two
                      #: names the other two inverse entries use.
                      "coil_fitted", "fb_amp_r", "trunc_keep")
-
-_sig("fylite_rs_gs_inverse_solve_coils", [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _U64, _U64, _F64, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _F64, _U64, _F64, _F64, _F64, _F64, _U64, _ARR, _ARR, _ARR, _ARR], _I32)
-def gs_inverse_solve_coils(grid_r, grid_z, psi_ext, *, loops_m, meas,
-                           weights, meas_scale: float, npp: int, nff: int,
-                           ip: float, limiter_r, limiter_z,
-                           coil_psi, coil_rows, coil_currents, coil_sigma,
-                           meas_sigma: float = 1.0, pressure_x=None, pressure_meas=None,
-                           pressure_weights=None, j_prescribed=None,
-                           relax: float = 0.3, max_iter: int = 600,
-                           tol: float = 1e-9, fb_gain: float = 8.0,
-                           zc_anchor=None, rc_anchor=None,
-                           warmup: int = 0) -> dict:
-    """:func:`gs_inverse_solve`, with the coil currents FITTED rather than
-    taken as exactly known.
-
-    ``coil_psi`` is ``(nch, nr*nz)`` full flux [Wb] per unit channel
-    current, ``coil_rows`` is ``(n_rows, nch)`` in each measurement row's
-    OWN units (no ``meas_scale`` is applied to them), ``coil_currents`` the
-    supplied channel values and ``coil_sigma`` the prior width on each.
-    A channel whose sigma is ``<= 0`` or non-finite is held exactly, so a
-    partly-metered coil set needs no second code path.
-
-    ``meas_sigma`` is what a measurement weight of ``1.0`` stands for, in
-    the measurement rows' own units.  It is REQUIRED to be right, not
-    optional: every deck here ships flux-loop weights that are a 0/1 mask,
-    which asserts ``sigma_loop = 1 Wb/rad``, and against that assertion the
-    fit leaves the coils where it found them.  Pass ``1.0`` only when the
-    weights really are ``1/sigma``.
-
-    ``psi_ext`` and ``meas`` are what they always were — the field and the
-    channel readings AT ``coil_currents``.  The fit solves for the
-    correction on top of them, which is why this entry can be handed the
-    same inputs the plain one takes.
-
-    Returns :data:`INVERSE_COIL_KEYS` plus ``psi``, ``coefficients``,
-    ``iterations`` and ``coil_fit`` (the fitted absolute currents).
-    """
-    lib = require()
-    rg, zg = _f(np.atleast_1d(grid_r)), _f(np.atleast_1d(grid_z))
-    lr, lz = _f(np.atleast_1d(limiter_r)), _f(np.atleast_1d(limiter_z))
-    b, w = _f(np.atleast_1d(meas)), _f(np.atleast_1d(weights))
-    if w.size != b.size:
-        raise KernelError(f"{b.size} measurements against {w.size} weights")
-    have_p = pressure_x is not None
-    xp = _f(np.atleast_1d(pressure_x)) if have_p else np.zeros(1)
-    pm = _f(np.atleast_1d(pressure_meas)) if have_p else np.zeros(1)
-    pw = _f(np.atleast_1d(pressure_weights)) if have_p else np.zeros(1)
-    if have_p and not (xp.size == pm.size == pw.size):
-        raise KernelError(
-            f"pressure rows disagree: x {xp.size}, meas {pm.size}, "
-            f"weights {pw.size}")
-    ncell = (rg.size - 2) * (zg.size - 2)
-    if j_prescribed is None:
-        jp = np.zeros(1)
-    else:
-        jp = _f(np.atleast_1d(j_prescribed))
-        if jp.size != ncell:
-            raise KernelError(
-                f"j_prescribed has {jp.size} cells, expected {ncell}")
-    i0 = _f(np.atleast_1d(coil_currents))
-    sig = _f(np.atleast_1d(coil_sigma))
-    nch = i0.size
-    if sig.size != nch:
-        raise KernelError(f"{nch} coil currents against {sig.size} sigmas")
-    cpsi = _f(np.ascontiguousarray(coil_psi).reshape(-1))
-    crow = _f(np.ascontiguousarray(coil_rows).reshape(-1))
-    #: ★checked HERE as well as in Rust: a caller that transposed the row
-    #: block gets a size error rather than a plausible fit on the wrong
-    #: channel assignment whenever `n_rows` happens to equal `nch`.
-    if cpsi.size != nch * rg.size * zg.size:
-        raise KernelError(
-            f"coil_psi has {cpsi.size} entries, expected "
-            f"{nch} x {rg.size * zg.size} = (nch, nr*nz)")
-    if crow.size != nch * b.size:
-        raise KernelError(
-            f"coil_rows has {crow.size} entries, expected "
-            f"{b.size} x {nch} = (n_rows, nch)")
-    psi = np.empty((rg.size, zg.size))
-    coefs, out = np.empty(int(npp) + int(nff)), np.empty(12)
-    cout = np.empty(max(nch, 1))
-    it = lib.fylite_rs_gs_inverse_solve_coils(
-        rg, rg.size, zg, zg.size, _f(psi_ext), _f(loops_m), b, w, b.size,
-        float(meas_scale), int(npp), int(nff), float(ip), lr, lz, lr.size,
-        xp, pm, pw, xp.size if have_p else 0,
-        jp, jp.size if j_prescribed is not None else 0,
-        cpsi, crow, i0, sig, nch, float(meas_sigma),
-        float(relax), int(max_iter), float(tol), float(fb_gain),
-        float("nan") if zc_anchor is None else float(zc_anchor),
-        float("nan") if rc_anchor is None else float(rc_anchor),
-        int(warmup), psi, coefs, cout, out)
-    if it <= 0:
-        raise KernelError(f"fylite_rs_gs_inverse_solve_coils returned {it}")
-    res = dict(zip(INVERSE_COIL_KEYS, out))
-    res.update(psi=psi, coefficients=coefs, iterations=int(it),
-               coil_fit=cout[:nch])
-    return res
-
-
-# ===== T-A9: the bootstrap / ohmic / fitted-current closure ================
-#
-# ★★The two quantities a kinetic reconstruction has to add and could not.
-# The analytic bootstrap family returns ``⟨j·B⟩``; an equilibrium
-# reconstruction returns ``⟨j_φ⟩``.  Those are different quantities on the
-# same surface, so "bootstrap + ohmic = fitted current" was not an
-# approximation anyone declined to make — it was arithmetic nobody had.
-
-_sig("fylite_rs_surface_fsa",
-     ([_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _U64] + [_F64] * 2 + [_ARR]), _I32)
-def surface_fsa(grid: Grid, psi, poly, *, psi_scale: float,
-                f_psi: float) -> dict:
-    """Flux-surface averages of one ALREADY-TRACED surface.
-
-    ``poly`` is the outline :func:`trace_surface` returned, ``(n, 2)`` or
-    interleaved.  ``psi_scale`` multiplies ``psi`` to get **Wb per radian**
-    (1.0 when it already is, ``1/(2π)`` for a full-flux map) — an argument
-    rather than a convention, because ``B_pol = |∇ψ|/R`` holds only in the
-    per-radian gauge and the wrong one gives a smooth, plausible ``⟨B²⟩``
-    that is 39 times too large.
-
-    Returns ``r_inv``, ``r_inv2``, ``b_pol2``, ``b_tor2``, ``b2`` and
-    ``dv_dpsi``.
-    """
-    lib = require()
-    psi = _f(psi)
-    if psi.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi must be {grid.nr} x {grid.nz}")
-    pv = _f(np.asarray(poly, dtype=float).reshape(-1))
-    if pv.size % 2:
-        raise KernelError("poly must be pairs of (r, z)")
-    out = np.empty(6)
-    rc = lib.fylite_rs_surface_fsa(
-        grid.r0, grid.z0, grid.dr, grid.dz, grid.nr, grid.nz,
-        psi.reshape(-1), pv, pv.size // 2, float(psi_scale), float(f_psi),
-        out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_surface_fsa returned {rc}")
-    keys = ("r_inv", "r_inv2", "b_pol2", "b_tor2", "b2", "dv_dpsi")
-    return dict(zip(keys, (float(v) for v in out)))
-
 
 _sig("fylite_rs_jparb_jphi", ([_U64] + [_ARR] * 6 + [_I32, _ARR]), _I32)
 def jparb_jphi(*, b2_avg, btor2_avg, f_psi, rinv_avg, dpdpsi, j_in,
@@ -5939,43 +5160,6 @@ def jparb_jphi(*, b2_avg, btor2_avg, f_psi, rinv_avg, dpdpsi, j_in,
     rows = out.reshape(n, 2)
     return {"j": rows[:, 0].copy(), "ratio": rows[:, 1].copy(),
             "converted": int(rc)}
-
-
-_sig("fylite_rs_sigma_neo",
-     ([_U64] + [_ARR] * 7 + [_F64] * 2 + [_I32] * 2 + [_ARR]), _I32)
-def sigma_neo(*, eps, q_abs, ne, te, ti, ni, zeff, r_maj: float,
-              z_ion: float = 1.0, vintage: int = 1,
-              collisionless: bool = False) -> dict:
-    """Neoclassical parallel conductivity on a ladder, SI [S/m].
-
-    The half of the ohmic channel :func:`spitzer_eta` names as "another
-    model" and did not have: ``σ_neo = σ_Sp F33``, with ``F33`` the trapping
-    factor both Sauter vintages apply inside their own solve.
-
-    ``vintage``: 0 = Sauter 1999, 1 = Redl 2021 — an unknown one is refused,
-    never defaulted.  Measured against the drift-kinetic branch at
-    ``f_t = 0.57``: 2021 within 0.3 %, 1999 low by 2.2–6.7 %.
-
-    ★``σ_Sp`` here is Sauter's, which is NOT ``1/spitzer_eta``: that entry
-    carries the NRL PERPENDICULAR coefficient and the two differ by 1/0.51.
-
-    Returns ``sigma_neo``, ``sigma_spitzer``, ``f33``, ``ft`` and
-    ``nu_e_star``.
-    """
-    lib = require()
-    args = [_f(a) for a in (eps, q_abs, ne, te, ti, ni, zeff)]
-    n = args[0].size
-    if any(a.size != n for a in args):
-        raise KernelError("every profile must be the same length")
-    out = np.empty(5 * n)
-    rc = lib.fylite_rs_sigma_neo(n, *args, float(r_maj), float(z_ion),
-                                 int(vintage), 1 if collisionless else 0,
-                                 out)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_sigma_neo returned {rc}")
-    rows = out.reshape(n, 5)
-    keys = ("sigma_neo", "sigma_spitzer", "f33", "ft", "nu_e_star")
-    return {k: rows[:, i].copy() for i, k in enumerate(keys)}
 
 
 # --------------------------------------------------------------------------- #

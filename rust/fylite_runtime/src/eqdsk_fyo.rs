@@ -17,7 +17,7 @@ use crate::fyodoc;
 use crate::geqdsk::GFile;
 
 /// `[key, path]` —— 内核表的前两列；单位与秩在那边。
-pub const EQUILIBRIUM_SLOTS: [(&str, &str); 22] = [
+pub const EQUILIBRIUM_SLOTS: [(&str, &str); 23] = [
     //: ★`time` joined the kernel table on 2026-09-02 (the IDS time base the IMAS layout
     //: needs); a g-file carries no time, so neither conversion reads or writes this slot —
     //: it is here because this array is DECLARED to be the kernel table's first two columns
@@ -41,6 +41,7 @@ pub const EQUILIBRIUM_SLOTS: [(&str, &str); 22] = [
     //: conversion neither reads nor writes it
     ("psi_norm_1d", "time_slice/profiles_1d/fylite:psi_norm"),
     ("q_1d",           "time_slice/profiles_1d/q"),
+    ("q_psi_norm_1d",  "time_slice/profiles_1d/fylite:q_psi_norm"),
     ("grid_r",         "time_slice/profiles_2d/grid/dim1"),
     ("grid_z",         "time_slice/profiles_2d/grid/dim2"),
     ("psi_2d",         "time_slice/profiles_2d/psi"),

@@ -80,12 +80,10 @@
     'fylite_rs_element_response', 'fylite_rs_gs_free_solve',
     //: T-D6′ — the free solve on a tabulated (delivered) p'/FF' shape
     'fylite_rs_gs_free_solve_tab',
-    'fylite_rs_gs_inverse_solve', 'fylite_rs_boundary_flux',
     //: T-A5 — the inverse solve with the COIL CURRENTS FITTED.  Listed as
     //: required rather than probed for: a build without it would leave the
     //: reconstruction bar silently back on「coils exactly known」, which is
     //: the failure this entry exists to remove.
-    'fylite_rs_gs_inverse_solve_coils',
     'fylite_rs_evolve_circuits', 'fylite_rs_geo_surface',
     'fylite_rs_bounded_lstsq', 'fylite_rs_transport_step',
     //: the NEO chain's two halves.  `neo_inputs` is the map that makes
@@ -99,7 +97,7 @@
     //: radiation a total rather than a bremsstrahlung estimate.  Listed so
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
-    'fylite_rs_interpretive_channel', 'fylite_rs_zerod_waveform',
+    'fylite_rs_zerod_waveform',
     'fylite_rs_ion_dilution', 'fylite_rs_quasi_neutral_ne',
     'fylite_rs_gs_fixed_solve',
     'fylite_rs_field_ion_sum',
@@ -113,21 +111,17 @@
     //: through: per-channel self-calibration from one slice and across
     //: slices, and the dispersion that says whether the set hangs together.
     //: They were in every shipped artifact and reachable from Python alone.
-    'fylite_rs_selfcal_single', 'fylite_rs_selfcal_slices',
-    'fylite_rs_factor_dispersion', 'fylite_rs_profile_shape_fit',
-    //: ★the truncated-SVD solve, for the blocks whose geometry is
+    'fylite_rs_factor_dispersion', //: ★the truncated-SVD solve, for the blocks whose geometry is
     //: degenerate on purpose (the vessel groups): the truncation IS the
     //: regularisation, and it reports what it kept
     'fylite_rs_svd_solve',
-    'fylite_rs_trace_surface', 'fylite_rs_design_null',
-    //: the operating domain, the flux account and the START —
+    'fylite_rs_trace_surface', //: the operating domain, the flux account and the START —
     //: the design scenario's own criteria (ABI v103)
     'fylite_rs_zerod_limits', 'fylite_rs_zerod_flux_budget',
-    'fylite_rs_zerod_stored_energy', 'fylite_rs_zerod_averages',
+    'fylite_rs_zerod_averages',
     'fylite_rs_strike_points', 'fylite_rs_start_currents',
     'fylite_rs_fill_filaments', 'fylite_rs_x_points',
-    'fylite_rs_plasma_filaments', 'fylite_rs_vertical_plant',
-    'fylite_rs_channel_matrices', 'fylite_rs_breakdown_design',
+    'fylite_rs_plasma_filaments', 'fylite_rs_channel_matrices', 'fylite_rs_breakdown_design',
     'fylite_rs_wall_clearance', 'fylite_rs_feedforward_voltages',
     'fylite_rs_filament_flux',
     'fylite_rs_evolve_circuits',
@@ -139,10 +133,8 @@
     'fylite_rs_shell_table', 'fylite_rs_shell_area',
     'fylite_rs_shell_sum', 'fylite_rs_trapped_fraction_eps',
     'fylite_rs_interp',
-    'fylite_rs_beam_deposit', 'fylite_rs_beam_slowing',
-    'fylite_rs_beam_energy_partition', 'fylite_rs_beam_shielding',
-    'fylite_rs_beam_current', 'fylite_rs_first_orbit_loss',
-    //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
+    'fylite_rs_beam_slowing',
+    'fylite_rs_beam_energy_partition', //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
     //: above).  `lh_deposit` is the whole per-launcher chain in ONE entry;
     //: the other four are the pieces a page reports BESIDE it —
     //: accessibility, the resonant layer, the CD weight and the damping
@@ -152,7 +144,7 @@
     //: and the CD weight are INSIDE `lh_deposit` / `code/wave`, and a page that
     //: called them a second time to print the answer beside it would give one
     //: number two hosts.
-    'fylite_rs_lh_deposit', 'fylite_rs_lh_accessibility',
+    'fylite_rs_lh_accessibility',
     //: ★ADDED 2026-08-23 — the boxed fixed-boundary solve (T-M7) and the
     //: two metric entries that carry `<R^2>` (T-M8).  Listed so a build
     //: without them fails at LOAD: the refinement and the momentum channel
@@ -161,18 +153,13 @@
     'fylite_rs_gs_fixed_box',
     //: ★T-M17 — the same solve under an I_p constraint; the refinement
     //: dies at LOAD rather than at the first coupled block without it
-    'fylite_rs_gs_fixed_box_ip',
-    'fylite_rs_fast_ion_pressure_split', 'fylite_rs_beam_torque',
     'fylite_rs_spitzer_eta_perp',
     'fylite_rs_eped1nn',
-    'fylite_rs_geo_surface_gm2', 'fylite_rs_equilibrium_ladder_r2',
-    //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
+    'fylite_rs_geo_surface_gm2', //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
     //: nulls, and the two pieces of wall geometry that turn 「间隙 = 某值」
     //: and 「打击点落在这段壁上」 into the isoflux rows it takes.  Listed
     //: here for the reason every name above is: a build without them must
-    //: fail at LOAD, not at the first double-null design. 'fylite_rs_shape_gap_row',
-    'fylite_rs_wall_snap',
-    //: ★T-A9 (自举—欧姆—拟合电流的自洽闭环) — the three the closure needs:
+    //: fail at LOAD, not at the first double-null design. //: ★T-A9 (自举—欧姆—拟合电流的自洽闭环) — the three the closure needs:
     //: the flux-surface averages `<1/R>` / `<1/R^2>` / `<B^2>` that the
     //: metric ladder never carried, the exact `<j.B>` <-> `<j_phi>`
     //: conversion, and the neoclassical conductivity.  Required rather
@@ -180,8 +167,7 @@
     //: reconstruction bar drawing a bootstrap current beside a fitted
     //: current in a DIFFERENT MEASURE, which is the failure the three
     //: exist to remove and which looks like a plot either way.
-    'fylite_rs_surface_fsa', 'fylite_rs_jparb_jphi',
-    'fylite_rs_sigma_neo',
+    'fylite_rs_jparb_jphi',
     //: ★T-C13 — the Newton flux match and the reintegration that turns
     //: its answer back into a profile.  They were in every shipped artifact
     //: and reachable from Python alone: the kernel carried a TGYRO-validated
@@ -217,6 +203,18 @@
    * (FYL-DESIGN-16 W-1).  On wasm it is `fylite_rs_fyo_tree`; on the desktop
    * host's bridge it is `/api/case`.  A refusal throws (`.code`, `.refusal`).
    */
+  /** Complete elliptic integrals K(m), E(m) over an array of m. */
+  Fy.prototype.ellipke = function (m) {
+    var self = this;
+    return this.scope(function (s) {
+      var pm = s.put(m), pk = s.zeros(m.length), pe = s.zeros(m.length);
+      var rc = self.e.fylite_rs_ellipke(pm.ptr, BigInt(m.length), pk.ptr,
+                                        pe.ptr);
+      if (rc !== 0) throw new Error('fylite_rs_ellipke rc=' + rc);
+      return { k: s.get(pk), e: s.get(pe) };
+    });
+  };
+
   Fy.prototype.complete = function (code, plan) {
     if (!root.FyKernelApi || !root.FyKernelApi.completeSync) {
       throw new Error('the document door needs assets/kernelapi.js loaded first');
@@ -371,19 +369,6 @@
 
   // --- L1 kernels -------------------------------------------------------
 
-  Fy.prototype.ping = function (x) { return this.e.fylite_rs_ping(x); };
-
-  /** Complete elliptic integrals K(m), E(m) over an array of m. */
-  Fy.prototype.ellipke = function (m) {
-    var self = this;
-    return this.scope(function (s) {
-      var pm = s.put(m), pk = s.zeros(m.length), pe = s.zeros(m.length);
-      var rc = self.e.fylite_rs_ellipke(pm.ptr, BigInt(m.length), pk.ptr,
-                                        pe.ptr);
-      if (rc !== 0) throw new Error('fylite_rs_ellipke rc=' + rc);
-      return { k: s.get(pk), e: s.get(pe) };
-    });
-  };
 
   /** Elementwise filament-pair mutual inductance [H]; arrays are equal length. */
   Fy.prototype.mutualFilaments = function (r1, z1, r2, z2) {
@@ -435,14 +420,6 @@
     return this.e.fylite_rs_dt_reactivity(tiKev);
   };
 
-  /**
-   * Ellipsoidal plasma volume [m^3].  Exposed on its own because it is a
-   * GEOMETRY CONVENTION, not a result — FYL-DESIGN-05 O-4 wants it shown
-   * beside the volume a solved boundary actually encloses.
-   */
-  Fy.prototype.zerodVolume = function (r0, a, kappa) {
-    return this.e.fylite_rs_zerod_volume(r0, a, kappa);
-  };
 
   /**
    * One pass over a prescribed discharge (FYL-DESIGN-05 L0).
@@ -504,64 +481,9 @@
   // entries because the three REGIMES are read off them, not off gamma:
   // stable (k <= 0), resistive-wall (0 < k < k_ideal), ideal-unstable.
 
-  /** k = Ip d2(psi_ext)/dZ2 [N/m]; k > 0 destabilising. */
-  Fy.prototype.verticalStiffness = function (o) {
-    var self = this, np_ = o.pr.length, nl = o.lr.length;
-    return this.scope(function (s) {
-      var pr = s.put(o.pr), pz = s.put(o.pz), pa = s.put(o.pa),
-          lr = s.put(o.lr), lz = s.put(o.lz), lt = s.put(o.lt),
-          cur = s.put(o.cur), out = s.zeros(1);
-      var rc = self.e.fylite_rs_vertical_stiffness(
-        pr.ptr, pz.ptr, pa.ptr, BigInt(np_), lr.ptr, lz.ptr, lt.ptr,
-        cur.ptr, BigInt(nl), num(o.step, 1e-3), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_vertical_stiffness', rc);
-      return s.get(out)[0];
-    });
-  };
 
-  /** G_k = dM_pk/dZ_p — how the passive structure sees the plasma move. */
-  Fy.prototype.couplingGradient = function (o) {
-    var self = this, np_ = o.pr.length, nl = o.lr.length;
-    return this.scope(function (s) {
-      var pr = s.put(o.pr), pz = s.put(o.pz), pa = s.put(o.pa),
-          lr = s.put(o.lr), lz = s.put(o.lz), lt = s.put(o.lt),
-          out = s.zeros(nl);
-      var rc = self.e.fylite_rs_coupling_gradient(
-        pr.ptr, pz.ptr, pa.ptr, BigInt(np_), lr.ptr, lz.ptr, lt.ptr,
-        BigInt(nl), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_coupling_gradient', rc);
-      return s.get(out);
-    });
-  };
 
-  /** k_ideal = Ip^2 G^T M^-1 G — the stiffness a perfect wall would give. */
-  Fy.prototype.idealStiffness = function (g, m, ip) {
-    var self = this, n = g.length;
-    return this.scope(function (s) {
-      var gg = s.put(g), mm = s.put(m), out = s.zeros(1);
-      var rc = self.e.fylite_rs_ideal_stiffness(gg.ptr, mm.ptr, BigInt(n),
-                                                ip, out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_ideal_stiffness', rc);
-      return s.get(out)[0];
-    });
-  };
 
-  /**
-   * Growth rate from the dispersion relation.  Returns `{gamma, rc}`:
-   * rc 1 means "no root below gamma_max", which IS the answer — the mode
-   * is ideal-unstable and gamma is not finite.
-   */
-  Fy.prototype.dispersionRoot = function (o) {
-    var self = this, n = o.g.length;
-    return this.scope(function (s) {
-      var g = s.put(o.g), m = s.put(o.m), r = s.put(o.r), out = s.zeros(1);
-      var rc = self.e.fylite_rs_dispersion_root(
-        g.ptr, m.ptr, r.ptr, BigInt(n), o.ip, o.k, num(o.mass, 0),
-        num(o.gammaMax, 1e6), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_dispersion_root', rc);
-      return { gamma: s.get(out)[0], rc: rc };
-    });
-  };
 
   /**
    * `M[i, j]` between two filament SETS — the outer-product block, served
@@ -704,134 +626,10 @@
     });
   };
 
-  /** Self-inductance matrix of a set of rectangular elements. */
-  Fy.prototype.mutualMatrixSelf = function (els, nu, nv) {
-    var self = this, n = els.length;
-    return this.scope(function (s) {
-      var r = s.put(els.map(function (e) { return e.r; })),
-          z = s.put(els.map(function (e) { return e.z; })),
-          w = s.put(els.map(function (e) { return e.w; })),
-          h = s.put(els.map(function (e) { return e.h; })),
-          a = s.put(els.map(function (e) { return e.a1 || 0; })),
-          a2 = s.put(els.map(function (e) { return e.a2 === undefined ? 90 : e.a2; })),
-          out = s.zeros(n * n);
-      var rc = self.e.fylite_rs_mutual_matrix_self(
-        r.ptr, z.ptr, w.ptr, h.ptr, a.ptr, a2.ptr, BigInt(n),
-        BigInt(nu || 3), BigInt(nv || 3), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_mutual_matrix_self', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * One linear TGLF solve.  Lives in the SEPARATE module — call it on an
-   * instance from `FyLite.loadExt()`, not on the core one.
-   *
-   * The port covers the electrostatic, collisionless configuration with
-   * `vpar_model = 2` and `nbasis > 1`; every other branch returns an error
-   * rather than a quietly reduced answer, so a negative code here means
-   * "not this physics", not "the solve failed".
-   */
-  Fy.prototype.tglfLinear = function (o) {
-    var self = this, ns = o.zs.length, nmodes = o.nmodes || 2;
-    var zero = new Float64Array(ns);
-    return this.scope(function (s) {
-      var m18 = s.fixed('miller18', o.miller18, 18),
-          s24 = s.fixed('scal25', o.scal25, 25),
-          zs = s.put(o.zs), ma = s.put(o.mass), aa = s.put(o.as),
-          ta = s.put(o.taus), ln = s.put(o.rlns), lt = s.put(o.rlts),
-          //: parallel flow and its shear are SPECIES arrays like the rest.
-          //: They arrived with the Linsker gradient family (ABI v30); a
-          //: caller that omits them is choosing "no parallel flow", which
-          //: the page must say out loud rather than leave to a default.
-          vp = s.put(o.vpar || zero), vs = s.put(o.vparShear || zero),
-          out = s.zeros(2 * nmodes);
-      var rc = self.e.fylite_rs_tglf_linear(
-        m18.ptr, s24.ptr, zs.ptr, ma.ptr, aa.ptr, ta.ptr, ln.ptr, lt.ptr,
-        vp.ptr, vs.ptr,
-        BigInt(ns), BigInt(o.nbasis || 4), BigInt(o.nxgrid || 16),
-        BigInt(nmodes), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_tglf_linear', rc);
-      var v = s.get(out), g = [], w = [];
-      for (var k = 0; k < rc; k++) { g.push(v[2 * k]); w.push(v[2 * k + 1]); }
-      return { gamma: g, freq: w, nmodes: rc };
-    });
-  };
 
-  /**
-   * The neoclassical diffusivity profile the closure runs on, at a given
-   * temperature.
-   *
-   * ★A page draws the closure it solved with by ASKING for it, not by
-   * rebuilding the chain on the drawing side.  This entry and `model = 2`
-   * share one implementation, so the curve and the solve cannot disagree.
-   */
-  Fy.prototype.neoChi = function (x, y, neo, floor) {
-    var self = this, n = x.length;
-    return this.scope(function (s) {
-      var xx = s.put(x), yy = s.put(y),
-          sf = s.fixed('neo.surf', neo.surf, 20 * n),
-          io = s.fixed('neo.ion', neo.ion, 6 * neo.nion * n),
-          sc = s.fixed('neo.scal5',
-                       [neo.signb, neo.signq, num(neo.rhoStar, 0.001),
-                        num(neo.nTheta, 17), num(neo.tToEv, 1)], 5),
-          gb = neo.chigb ? s.fixed('neo.chigb', neo.chigb, n) : null,
-          out = s.zeros(n);
-      var rc = self.e.fylite_rs_neo_chi(
-        xx.ptr, yy.ptr, BigInt(n), sf.ptr, io.ptr, BigInt(neo.nion),
-        sc.ptr, gb ? gb.ptr : 0, num(floor, 0), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_neo_chi', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * Probe Green's rows: `B_R cos(a) + B_Z sin(a)` [T per amp of toroidal
-   * current in each cell], one row per probe, same cell ordering as
-   * `loopResponse`.
-   *
-   * ★This is what turns a probe from something the page PREDICTS into
-   * something the fit is CONSTRAINED by.  The projection onto each probe's
-   * own angle is the whole difference from a flux-loop row, and a wrong
-   * angle convention does not raise — the fit converges on a plasma tilted
-   * to match.
-   */
-  Fy.prototype.probeResponse = function (o) {
-    var self = this, nr = o.gridR.length, nz = o.gridZ.length,
-        np_ = o.probeR.length;
-    return this.scope(function (s) {
-      var gr = s.put(o.gridR), gz = s.put(o.gridZ),
-          pr = s.put(o.probeR), pz = s.put(o.probeZ), an = s.put(o.angleRad),
-          out = s.zeros(np_ * nr * nz);
-      var rc = self.e.fylite_rs_probe_response(
-        gr.ptr, BigInt(nr), gz.ptr, BigInt(nz),
-        pr.ptr, pz.ptr, an.ptr, BigInt(np_), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_probe_response', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * Sample a straight sight line: the cylindrical (R, Z) of each point and
-   * the true path step.
-   *
-   * ★`origin3` / `dir3` are 3-D CARTESIAN, which is what keeps a tangential
-   * chord different from its poloidal projection.  A horizontal POINT chord
-   * is `[R0, 0, Z]` with direction `[-1, 0, 0]`; giving (R, Z) directly would
-   * quietly make every chord poloidal.
-   */
-  Fy.prototype.chordSamples = function (o) {
-    var self = this, n = o.n | 0;
-    return this.scope(function (s) {
-      var org = s.fixed('chord.o', o.origin3, 3),
-          dir = s.fixed('chord.d', o.dir3, 3),
-          rr = s.zeros(n), zz = s.zeros(n), ds = s.zeros(1);
-      var rc = self.e.fylite_rs_chord_samples(
-        org.ptr, dir.ptr, o.length, BigInt(n), rr.ptr, zz.ptr, ds.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_chord_samples', rc);
-      return { r: s.get(rr), z: s.get(zz), ds: s.get(ds)[0] };
-    });
-  };
 
   /** `integral f ds` over uniform samples; rule 0 = Simpson, 1 = trapezoid. */
   Fy.prototype.quadrature = function (values, ds, rule) {
@@ -845,44 +643,6 @@
     });
   };
 
-  /**
-   * Redl-2021 bootstrap current on a ladder of surfaces, in AMPERES per m^2.
-   *
-   * ★This is the entry to reach for when the answer has to be a current and
-   * not a ratio: `neoSauter` returns NEO's own normalised `jpar`, and the
-   * factor between the two is the one layer whose errors do not raise.  Here
-   * the kernel owns the normalisation — `j_bs` comes back as
-   * `|<j.B>|/B0` [A/m^2] — and the caller owns only physical inputs.
-   *
-   * Every profile is per surface and the same length; `psiBar` is psi PER
-   * RADIAN [Wb/rad], which is the gauge the coefficients are written in.
-   */
-  Fy.prototype.redlBootstrap = function (o) {
-    var self = this, n = o.eps.length;
-    return this.scope(function (s) {
-      var cols = ['eps', 'q', 'ne', 'te', 'ti', 'ni', 'zeff', 'pTh',
-                  'iPsi', 'psiBar'];
-      var ptr = cols.map(function (k) {
-        if (o[k].length !== n)
-          throw new Error('FyLite.redlBootstrap: ' + k + ' has ' +
-                          o[k].length + ' points, expected ' + n);
-        return s.put(o[k]).ptr;
-      });
-      var out = s.zeros(8 * n);
-      var rc = self.e.fylite_rs_redl_bootstrap(
-        BigInt(n), ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6],
-        ptr[7], ptr[8], ptr[9], o.rMaj, o.b0, num(o.zIon, 1),
-        o.collisionless ? 1 : 0, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_redl_bootstrap', rc);
-      var v = s.get(out), col = function (j) {
-        var a = new Float64Array(n);
-        for (var k = 0; k < n; k++) a[k] = v[8 * k + j];
-        return a;
-      };
-      return { jBs: col(0), l31: col(1), l32: col(2), l34: col(3),
-               alpha: col(4), ft: col(5), nuEStar: col(6), nuIStar: col(7) };
-    });
-  };
 
   // --- T-A9: the parallel/toroidal current closure ------------------------
   //
@@ -894,256 +654,14 @@
   // entry rather than a formula written here: a conversion with two hosts is
   // a conversion that can disagree with itself.
 
-  /**
-   * The flux-surface averages the conversion reads, on one traced surface.
-   *
-   * opts: {r0, z0, dr, dz, nr, nz, psi, poly, psiScale, fPsi}
-   *
-   * `poly` is the interleaved (r, z) outline `traceSurface` returned — the
-   * SAME outline, handed back rather than re-traced, so the averages and
-   * the shape cannot describe two surfaces.  `psiScale` multiplies `psi` to
-   * get Wb per radian (`1/(2*Math.PI)` for a full-flux map).
-   */
-  Fy.prototype.surfaceFsa = function (o) {
-    var self = this, src = o.poly, flat;
-    //: `traceSurface` hands back an array of [r, z] PAIRS; a caller with a
-    //: flat interleaved buffer is accepted too, because the kernel's own
-    //: entry takes the flat form and both spellings are already in use on
-    //: this page.
-    if (src.length && src[0] && src[0].length === 2) {
-      flat = new Float64Array(src.length * 2);
-      for (var i = 0; i < src.length; i++) {
-        flat[2 * i] = src[i][0]; flat[2 * i + 1] = src[i][1];
-      }
-    } else {
-      flat = src;
-    }
-    var np_ = (flat.length / 2) | 0;
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), poly = s.put(flat), out = s.zeros(6);
-      var rc = self.e.fylite_rs_surface_fsa(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz),
-        psi.ptr, poly.ptr, BigInt(np_), o.psiScale, o.fPsi, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_surface_fsa', rc);
-      var v = s.get(out);
-      return { rInv: v[0], rInv2: v[1], bPol2: v[2], bTor2: v[3],
-               b2: v[4], dvdpsi: v[5] };
-    });
-  };
 
-  /**
-   * `<j.B>` <-> `<j_phi/R>/<1/R>` on a ladder (`fylite_rs_jparb_jphi`).
-   *
-   * opts: {b2, bTor2, fPsi, rInv, dpdpsi, jIn, toToroidal}
-   *
-   * ★`dpdpsi` is the DIAMAGNETIC term and it belongs to the TOTAL, not to
-   * either channel: pass zeros when converting the bootstrap or the ohmic
-   * part on its own, or the same pressure gradient is counted once per
-   * curve and the parts stop summing to the whole.
-   */
-  Fy.prototype.jparbJphi = function (o) {
-    var self = this, n = o.jIn.length;
-    return this.scope(function (s) {
-      var cols = ['b2', 'bTor2', 'fPsi', 'rInv', 'dpdpsi', 'jIn'];
-      var ptr = cols.map(function (k) {
-        if (o[k].length !== n)
-          throw new Error('FyLite.jparbJphi: ' + k + ' has ' + o[k].length +
-                          ' points, expected ' + n);
-        return s.put(o[k]).ptr;
-      });
-      var out = s.zeros(2 * n);
-      var rc = self.e.fylite_rs_jparb_jphi(
-        BigInt(n), ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5],
-        o.toToroidal ? 1 : 0, out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_jparb_jphi', rc);
-      var v = s.get(out), j = new Float64Array(n), rt = new Float64Array(n);
-      for (var k = 0; k < n; k++) { j[k] = v[2 * k]; rt[k] = v[2 * k + 1]; }
-      return { j: j, ratio: rt, converted: rc };
-    });
-  };
 
-  /**
-   * Neoclassical parallel conductivity on a ladder, SI [S/m].
-   *
-   * opts: {eps, q, ne, te, ti, ni, zeff, rMaj, zIon, vintage,
-   *        collisionless} — the same per-surface block `redlBootstrap`
-   * takes, so `j_bs` and `sigma_neo` are evaluated at ONE collisionality.
-   * `vintage`: 0 = Sauter 1999, 1 = Redl 2021.
-   */
-  Fy.prototype.sigmaNeo = function (o) {
-    var self = this, n = o.eps.length;
-    return this.scope(function (s) {
-      var cols = ['eps', 'q', 'ne', 'te', 'ti', 'ni', 'zeff'];
-      var ptr = cols.map(function (k) {
-        if (o[k].length !== n)
-          throw new Error('FyLite.sigmaNeo: ' + k + ' has ' + o[k].length +
-                          ' points, expected ' + n);
-        return s.put(o[k]).ptr;
-      });
-      var out = s.zeros(5 * n);
-      var rc = self.e.fylite_rs_sigma_neo(
-        BigInt(n), ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6],
-        o.rMaj, num(o.zIon, 1), o.vintage | 0, o.collisionless ? 1 : 0,
-        out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_sigma_neo', rc);
-      var v = s.get(out), col = function (j) {
-        var a = new Float64Array(n);
-        for (var k = 0; k < n; k++) a[k] = v[5 * k + j];
-        return a;
-      };
-      return { sigmaNeo: col(0), sigmaSpitzer: col(1), f33: col(2),
-               ft: col(3), nuEStar: col(4), answered: rc };
-    });
-  };
 
-  /**
-   * Least squares by TRUNCATED SVD (`linalg::svd_solve`).
-   *
-   * ★The truncation IS the regularisation, and `kept` / `condition` come
-   * back with the answer because an under-determined geometry has to be
-   * visible: a solve that quietly inverted a singular value of 1e-14 would
-   * return a beautiful reconstruction of the noise.  `rcond` keeps the
-   * singular values above `rcond * s[0]`; `nSingular > 0` keeps exactly that
-   * many instead.
-   */
-  Fy.prototype.svdSolve = function (a, b, m, n, rcond, nSingular) {
-    var self = this;
-    return this.scope(function (s) {
-      var pa = s.fixed('svd.a', a, m * n), pb = s.fixed('svd.b', b, m),
-          x = s.zeros(n), sv = s.zeros(n), info = s.zeros(2);
-      var rc = self.e.fylite_rs_svd_solve(
-        pa.ptr, pb.ptr, BigInt(m), BigInt(n), num(rcond, 1e-8),
-        BigInt(nSingular || 0), x.ptr, sv.ptr, info.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_svd_solve', rc);
-      var v = s.get(info);
-      return { x: s.get(x), singular: s.get(sv), kept: v[0], condition: v[1] };
-    });
-  };
 
-  /**
-   * Per-channel calibration factors from ONE slice (`diagnostics::
-   * factors_single`): `computed / measured`, against their own median.
-   *
-   * ★THE MEDIAN IS THE POINT.  It absorbs any global scale or unit offset,
-   * so only channel-RELATIVE inconsistency can reject a channel — a rule
-   * that rejected on the absolute ratio would reject the whole set the
-   * moment someone changed a unit.
-   *
-   * `alive` is 1/0 per channel.  Returns the factors, the keep mask and the
-   * median; a factor is NaN where the channel is dead, the measurement is
-   * zero, or the computed value is not finite.
-   */
-  Fy.prototype.selfcalSingle = function (measured, computed, alive, tol) {
-    var self = this, n = measured.length;
-    return this.scope(function (s) {
-      var m = s.put(measured), c = s.fixed('selfcal.computed', computed, n),
-          a = s.fixed('selfcal.alive', alive, n), out = s.zeros(2 * n + 1);
-      var rc = self.e.fylite_rs_selfcal_single(
-        m.ptr, c.ptr, a.ptr, BigInt(n), num(tol, 0.2), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_selfcal_single', rc);
-      var v = s.get(out);
-      return { factors: v.slice(0, n), keep: v.slice(n, 2 * n),
-               median: v[2 * n] };
-    });
-  };
 
-  /**
-   * Per-channel factor and slice-to-slice scatter over many slices
-   * (`diagnostics::factors_over_slices`).  `ratio` is `(nSlice, nCh)`
-   * row-major.
-   */
-  Fy.prototype.selfcalSlices = function (ratio, nSlice, nCh, alive) {
-    var self = this;
-    return this.scope(function (s) {
-      var r = s.fixed('selfcal.ratio', ratio, nSlice * nCh),
-          a = s.fixed('selfcal.alive', alive, nCh), out = s.zeros(3 * nCh);
-      var rc = self.e.fylite_rs_selfcal_slices(
-        r.ptr, BigInt(nSlice), BigInt(nCh), a.ptr, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_selfcal_slices', rc);
-      var v = s.get(out);
-      return { factors: v.slice(0, nCh), scatter: v.slice(nCh, 2 * nCh),
-               slices: v.slice(2 * nCh, 3 * nCh) };
-    });
-  };
 
-  /** `max |f/median(f) - 1|` over the finite factors. */
-  Fy.prototype.factorDispersion = function (factors) {
-    var self = this, n = factors.length;
-    return this.scope(function (s) {
-      var f = s.put(factors), out = s.zeros(1);
-      var rc = self.e.fylite_rs_factor_dispersion(f.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_factor_dispersion', rc);
-      return s.get(out)[0];
-    });
-  };
 
-  /**
-   * Fit `(1 - x^a)^b` to a normalised profile (`fitting::shape_fit`).
-   *
-   * ★Returns -2 rather than the nearest member when the iteration does not
-   * settle: a shape outside the family must not come back as though it were
-   * in it.
-   */
-  Fy.prototype.profileShapeFit = function (x, y) {
-    var self = this, n = x.length;
-    return this.scope(function (s) {
-      var px = s.put(x), py = s.fixed('shapefit.y', y, n), out = s.zeros(3);
-      var rc = self.e.fylite_rs_profile_shape_fit(
-        px.ptr, py.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_profile_shape_fit', rc);
-      var v = s.get(out);
-      return { a: v[0], b: v[1], maxResidual: v[2] };
-    });
-  };
 
-  /**
-   * Physical profiles + geometry → NEO's normalised inputs.
-   *
-   * ★★The normalisation is the whole risk and it is NOT this file's to
-   * make: `T_norm` is the FIRST ION's temperature, `n_norm` the electrons'
-   * density, the mass norm deuterium.  Get one wrong and every NEO output
-   * is rescaled with nothing raised.  So the page hands over PHYSICAL
-   * quantities — CGS, eV — and the kernel does the crossing.
-   *
-   * Returns the exact block `neoSauter` takes, plus the deck geometry the
-   * kernel derived on the way (`geometry`, keyed by name — see
-   * `neoGeo14` for why it is not handed back as a bare array).
-   *
-   * ★★THE OUTPUT BUFFER IS `6*ns + 18`, NOT `6*ns + 5`.  The kernel appends
-   * the thirteen-slot geometry block after the five scalars, and it writes
-   * it whether or not the caller wants it: `slice_out` builds its slice from
-   * the pointer and the length the ENTRY declares, so a short buffer here is
-   * not a truncated answer but thirteen doubles written past the end of a
-   * wasm allocation.  Measured on this deck: the density channel took the
-   * renderer down — worker gone, tab gone, no exception anywhere — because
-   * the corrupted block was the allocator's own bookkeeping.  ★A binding
-   * that under-allocates cannot be caught by comparing numbers; it is caught
-   * by reading the entry's `# Safety` line, which is why the size is quoted
-   * here beside the call.
-   */
-  Fy.prototype.neoInputs = function (o) {
-    var self = this, nion = o.ions.length, ns = nion + 1;
-    var col = function (key) {
-      return Float64Array.from(o.ions, function (i) { return i[key]; });
-    };
-    return this.scope(function (s) {
-      var g = s.fixed('surf20', o.surf20, 20),
-          z = s.put(col('z')), m = s.put(col('mass')), n = s.put(col('ni')),
-          t = s.put(col('ti')), dn = s.put(col('dlnnidr')),
-          dt = s.put(col('dlntidr')), out = s.zeros(6 * ns + 18);
-      var rc = self.e.fylite_rs_neo_inputs(
-        g.ptr, o.signb, o.signq, num(o.w0, 0), num(o.w0p, 0),
-        z.ptr, m.ptr, n.ptr, t.ptr, dn.ptr,
-        dt.ptr, BigInt(nion), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_neo_inputs', rc);
-      var v = s.get(out), pick = function (j) { return v.slice(j * ns, (j + 1) * ns); };
-      return { z: pick(0), mass: pick(1), dens: pick(2), temp: pick(3),
-               dlnndr: pick(4), dlntdr: pick(5),
-               nu1: v[6 * ns], ipccw: v[6 * ns + 1], btccw: v[6 * ns + 2],
-               omegaRot: v[6 * ns + 3], omegaRotDeriv: v[6 * ns + 4],
-               geometry: deckGeometry(v, 6 * ns + 5) };
-    });
-  };
 
   //: ★★TWO ORDERS, ONE VOCABULARY.  `NEO_DECK_GEOMETRY` (what the entry
   //: returns) and `NEO_SAUTER_SLOTS` (what `neoSauter` reads) name the same
@@ -1157,173 +675,11 @@
     'rminOverA', 'rmajOverA', 'zmagOverA', 'sZmag', 'q', 'shear',
     'shift', 'kappa', 'sKappa', 'delta', 'sDelta', 'zeta', 'sZeta'];
 
-  function deckGeometry(v, at) {
-    var g = {};
-    for (var i = 0; i < NEO_DECK_GEOMETRY.length; i++)
-      g[NEO_DECK_GEOMETRY[i]] = v[at + i];
-    return g;
-  }
 
-  /**
-   * The 14-slot block `neoSauter` reads, from the geometry `neoInputs`
-   * returned.  `nTheta` is a resolution knob rather than geometry and is
-   * the caller's (upstream's own default is 17).
-   */
-  Fy.prototype.neoGeo14 = function (g, nTheta) {
-    return Float64Array.of(
-      g.rminOverA, g.rmajOverA, g.q, g.shear, g.shift,
-      g.zmagOverA, g.sZmag, g.kappa, g.sKappa,
-      g.delta, g.sDelta, g.zeta, g.sZeta, num(nTheta, 17));
-  };
 
-  /**
-   * NEO's analytic models on one surface, selected by `vintage`:
-   * 0 = Sauter 1999, 1 = Redl 2021 (both bootstrap currents),
-   * 2 = Hinton-Hazeltine + Chang-Hinton, 4 = Hirshman-Sigmar per species,
-   * 5 = Taguchi + Hinton-Rosenbluth.
-   *
-   * ★Vintage 2's fifth slot is `efluxi_ch` — the Chang-Hinton ion energy
-   * flux, which is the neoclassical HEAT channel and therefore the one a
-   * transport closure wants.  The Sauter vintages give a CURRENT, not a
-   * diffusivity; reading one for the other is a category error the six
-   * unlabelled slots would not stop.
-   */
-  Fy.prototype.neoSauter = function (o) {
-    var self = this, ns = o.z.length;
-    var nOut = o.vintage === 4 ? 2 * ns : 6;
-    return this.scope(function (s) {
-      var z = s.put(o.z), m = s.put(o.mass), d = s.put(o.dens),
-          t = s.put(o.temp), dn = s.put(o.dlnndr), dt = s.put(o.dlntdr),
-          g = s.fixed('geo14', o.geo14, 14), out = s.zeros(nOut);
-      var rc = self.e.fylite_rs_neo_sauter(
-        z.ptr, m.ptr, d.ptr, t.ptr, dn.ptr, dt.ptr, BigInt(ns), g.ptr,
-        o.nu1, num(o.rhoStar, 0.001), num(o.epar0, 0), num(o.dphi0dr, 0),
-        o.ipccw | 0, o.btccw | 0, o.vintage | 0, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_neo_sauter', rc);
-      var v = s.get(out);
-      if (o.vintage === 2)
-        return { pflux: v[0], efluxiHH: v[1], efluxe: v[2], jpar: v[3],
-                 efluxiCH: v[4], vpolIon: v[5] };
-      if (o.vintage === 4)
-        return { pflux: v.slice(0, ns), eflux: v.slice(ns, 2 * ns) };
-      return { jpar: v[0], jtor: v[1], kpar: v[2], uparB: v[3],
-               ftrap: v[4], iDivPsip: v[5] };
-    });
-  };
 
-  /**
-   * The source's own ky spectrum for a `KYGRID_MODEL`, and the gyroradii it
-   * is scaled by.  `rhoIon` is the reason this is bound: the flux chain
-   * needs it and it is a property of the species set, not something a page
-   * may invent.
-   *
-   * ★`useAveIonGrid` defaults to false, as the library's own
-   * `USE_AVE_ION_GRID` does: the grid is built on the FIRST ion unless
-   * asked otherwise.  It also decides `rhoIon`, which feeds the
-   * saturation as well as the grid.
-   */
-  Fy.prototype.tglfKygrid = function (o) {
-    var self = this, ns = o.zs.length, maxN = o.maxN || 512;
-    return this.scope(function (s) {
-      var zs = s.put(o.zs), ma = s.put(o.mass), aa = s.put(o.as),
-          ta = s.put(o.taus), out = s.zeros(2 * maxN + 2);
-      var rc = self.e.fylite_rs_tglf_kygrid(
-        zs.ptr, ma.ptr, aa.ptr, ta.ptr, BigInt(ns),
-        num(o.model, 1), BigInt(o.nky || 12), num(o.kyIn, 0.3),
-        num(o.kyFactor, 1),
-        //: ★USE_AVE_ION_GRID — the library default is FALSE, i.e. the ky
-        //: grid is built on the FIRST ion, not the charge-weighted
-        //: average over ions above the 10 % charge cut.  The two coincide
-        //: whenever there is one ion or every impurity is below the cut,
-        //: which is why the port carried only the average until upstream's
-        //: kinetic-carbon case put rho_ion at 0.6449 against 1.0.
-        o.useAveIonGrid ? 1 : 0,
-        BigInt(maxN), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_tglf_kygrid', rc);
-      var v = s.get(out), ky = [], dky = [];
-      for (var i = 0; i < rc; i++) { ky.push(v[i]); dky.push(v[maxN + i]); }
-      return { ky: ky, dky: dky, rhoIon: v[2 * maxN], rhoE: v[2 * maxN + 1] };
-    });
-  };
 
-  /**
-   * A ky spectrum through to TRANSPORT FLUXES — the whole ported chain:
-   * a linear solve at each ky, the zonal-flow saturation, then
-   * flux = intensity * quasilinear weight, integrated over the spectrum.
-   *
-   * ★This is what turns a growth rate into a transport coefficient, and it
-   * has been sitting in the shipped `fylite_tglf.wasm` unbound.  The page
-   * and `FYL-DESIGN-04` both still said "from gamma to chi needs a
-   * quasi-saturation rule, and that step is not in the browser" — it is:
-   * `SAT_RULE` 1 is ported, and `python/fylite/tglf.fluxes_rust` has been
-   * calling this same entry all along.  That sentence is now corrected
-   * where it appears.
-   *
-   * ★The saturation rule is a REQUIRED argument, not a default.  Rules 1,
-   * 2 and 3 are different physics with different amplitudes; serving one
-   * of them under another's name is the failure this port has already been
-   * bitten by once (`WD_ZERO`).
-   *
-   * `out` is `3*ns + 2*nky`: particle, energy and exchange flux per
-   * species, then gamma and omega per ky.
-   */
-  Fy.prototype.tglfFlux = function (o) {
-    var self = this, ns = o.zs.length, nky = o.ky.length;
-    var zero = new Float64Array(ns);
-    if (!(o.satRule >= 1 && o.satRule <= 3))
-      throw new Error('FyLite.tglfFlux: satRule must be 1, 2 or 3');
-    return this.scope(function (s) {
-      //: ★the kernel reads 32 scalars (T-C30 appended the Debye pair, 2026-08-29)
-      //: and this wrapper kept handing it 30 — the last two were read off the
-      //: next allocation (caught 2026-09-05, 第十八刀, by the turbulence door's
-      //: transcription).  A 30-long block is padded with the pair the page
-      //: meant: no Debye term, the upstream factor 1.
-      var s32 = o.scal30.length === 30 ? Array.prototype.slice.call(o.scal30).concat([0, 1]) : o.scal30;
-      var m18 = s.fixed('miller18', o.miller18, 18),
-          s30 = s.fixed('scal32', s32, 32),
-          g4 = s.fixed('geom4', o.geom4, 4),
-          zs = s.put(o.zs), ma = s.put(o.mass), aa = s.put(o.as),
-          ta = s.put(o.taus), ln = s.put(o.rlns), lt = s.put(o.rlts),
-          vp = s.put(o.vpar || zero), vs = s.put(o.vparShear || zero),
-          ky = s.put(o.ky), out = s.zeros(3 * ns + 2 * nky);
-      var rc = self.e.fylite_rs_tglf_flux(
-        m18.ptr, s30.ptr, g4.ptr, zs.ptr, ma.ptr, aa.ptr, ta.ptr,
-        ln.ptr, lt.ptr, vp.ptr, vs.ptr, BigInt(ns),
-        ky.ptr, BigInt(nky), BigInt(o.nbasis || 4),
-        BigInt(o.nxgrid || 16), o.satRule, out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_tglf_flux', rc);
-      var v = s.get(out), i;
-      var particle = [], energy = [], exchange = [], gamma = [], freq = [];
-      for (i = 0; i < ns; i++) {
-        particle.push(v[i]);
-        energy.push(v[ns + i]);
-        exchange.push(v[2 * ns + i]);
-      }
-      for (i = 0; i < nky; i++) {
-        gamma.push(v[3 * ns + 2 * i]);
-        freq.push(v[3 * ns + 2 * i + 1]);
-      }
-      return { particle: particle, energy: energy, exchange: exchange,
-               gamma: gamma, freq: freq, satRule: o.satRule };
-    });
-  };
 
-  /**
-   * The unit normalisations a deck implies: r_unit, q_unit, b_unit, ft.
-   * Derived rather than asked for, because they are not free — a page that
-   * let you type them could be given a set no flux surface has.
-   */
-  Fy.prototype.tglfUnits = function (miller14, pPrime, qPrime, width, thTrap) {
-    var self = this;
-    return this.scope(function (s) {
-      var m = s.put(miller14), out = s.zeros(4);
-      var rc = self.e.fylite_rs_tglf_units(m.ptr, pPrime, qPrime, width,
-                                           thTrap, out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_tglf_units', rc);
-      var v = s.get(out);
-      return { rUnit: v[0], qUnit: v[1], bUnit: v[2], ft: v[3] };
-    });
-  };
 
   /**
    * Flux-surface averages of one local Miller/MXH surface — the GACODE
@@ -1376,318 +732,13 @@
     });
   };
 
-  /**
-   * Box-constrained least squares, in the kernel.
-   *
-   * ★Bound rather than kept in JavaScript.  The transcription that used to
-   * live in `worker.js` was missing the non-monotone safeguard, and isolated
-   * points of the feasibility scan came back three orders of magnitude off
-   * without anything erroring.  One host, one safeguard.
-   */
-  Fy.prototype.boundedLstsq = function (o) {
-    var self = this, nrow = o.nrow, ncol = o.ncol;
-    return this.scope(function (s) {
-      var a = s.put(o.a), b = s.put(o.b), out = s.zeros(ncol);
-      var lo = o.lo ? s.put(o.lo) : null, hi = o.hi ? s.put(o.hi) : null;
-      var used = self.e.fylite_rs_bounded_lstsq(
-        a.ptr, b.ptr, BigInt(nrow), BigInt(ncol),
-        lo ? lo.ptr : 0, hi ? hi.ptr : 0,
-        BigInt(o.nIter || 4000), num(o.tol, 1e-12), out.ptr);
-      if (used < 0) throw new SolveError('fylite_rs_bounded_lstsq', used);
-      return { x: s.get(out), iterations: used };
-    });
-  };
 
-  /**
-   * One 1.5D transport step (FYL-DESIGN-07 D-4).
-   *
-   * The closure is selected by `model` rather than passed as a function:
-   * a callback cannot cross the ABI, and splitting the Picard loop across it
-   * would put the stiff iteration back on this side.  `model` 0 = constant,
-   * 1 = stiff, **2 = neoclassical (Chang-Hinton)**; anything else is refused
-   * by the kernel.
-   *
-   * ★Model 2's contract, which nothing on this side can check: `yOld` is the
-   * FIRST ION's temperature **in eV**, and `x` is **r/a**.  It takes `neo`:
-   * `{surf, ion, nion, signb, signq, rhoStar, nTheta, chigb}` — the physical
-   * surface at each point and the ions on it, in CGS with eV temperatures.
-   * `chigb` is the ONE unit this side supplies (the gyro-Bohm diffusivity
-   * per point); every NEO-side normalisation happens in the kernel, which is
-   * the only place that knows those conventions.
-   */
-  Fy.prototype.transportStep = function (o) {
-    var self = this, n = o.x.length;
-    return this.scope(function (s) {
-      var x = s.put(o.x), y = s.put(o.yOld), vp = s.put(o.vprime),
-          v = s.put(o.velocity), src = s.put(o.source),
-          cap = o.capacity ? s.put(o.capacity) : null,
-          met = o.metric ? s.put(o.metric) : null,
-          out = s.zeros(n), info = s.zeros(3);
-      var ne = o.neo || null;
-      var nsurf = ne ? s.fixed('neo.surf', ne.surf, 20 * n) : null,
-          nion = ne ? s.fixed('neo.ion', ne.ion, 6 * ne.nion * n) : null,
-          nsc = ne ? s.fixed('neo.scal5',
-                             [ne.signb, ne.signq, num(ne.rhoStar, 0.001),
-                              num(ne.nTheta, 17), num(ne.tToEv, 1)], 5) : null,
-          ngb = ne && ne.chigb ? s.fixed('neo.chigb', ne.chigb, n) : null,
-          //: model 3's given diffusivity — frozen through the loop because a
-          //: turbulent closure costs too much to re-evaluate inside it
-          cg = o.chiGiven ? s.fixed('chiGiven', o.chiGiven, n) : null;
-      //: ★the MOVING capacity, `(3/2)V'_old n_old` — the weight the state
-      //: arrived on when the caller re-traced its metric between steps.  The
-      //: entry has taken it since the moving-metric pair landed and this
-      //: wrapper did not pass it: every argument after it was therefore one
-      //: slot out, which surfaces as "cannot convert a BigInt" from the
-      //: marshalling rather than as a wrong number.  Null keeps the
-      //: arithmetic every caller written before it had.
-      var capOld = o.capacityOld ? s.put(o.capacityOld) : null;
-      var rc = self.e.fylite_rs_transport_step(
-        x.ptr, y.ptr, BigInt(n), vp.ptr, v.ptr, src.ptr,
-        cap ? cap.ptr : 0, met ? met.ptr : 0, capOld ? capOld.ptr : 0,
-        o.model | 0, o.p0, num(o.p1, 0), num(o.p2, 0),
-        num(o.dt, Infinity), num(o.theta, 1),
-        o.edgeValue === undefined || o.edgeValue === null ? NaN : o.edgeValue,
-        num(o.relax, 1), num(o.relaxCoeff, 1), num(o.dPc, 0),
-        num(o.tol, 1e-10), BigInt(o.maxInner || 200),
-        nsurf ? nsurf.ptr : 0, nion ? nion.ptr : 0,
-        BigInt(ne ? ne.nion : 0), nsc ? nsc.ptr : 0, ngb ? ngb.ptr : 0,
-        cg ? cg.ptr : 0, out.ptr, info.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_transport_step', rc);
-      var inf = s.get(info);
-      return { y: s.get(out), innerIterations: inf[0] | 0,
-               converged: inf[1] === 1, residual: inf[2] };
-    });
-  };
 
-  /** Weighted ridge least squares — the kernel's (FYL-DESIGN-07 D-4). */
-  Fy.prototype.ridgeLstsq = function (a, b, w, nrow, ncol, lambda) {
-    var self = this;
-    return this.scope(function (s) {
-      var pa = s.put(a), pb = s.put(b), pw = s.put(w), pl = s.put(lambda),
-          out = s.zeros(ncol);
-      var rc = self.e.fylite_rs_ridge_lstsq(pa.ptr, pb.ptr, pw.ptr,
-        BigInt(nrow), BigInt(ncol), pl.ptr, out.ptr);
-      //: -2 is "not positive definite", which the caller must see as a
-      //: refusal rather than as a solve that returned something
-      if (rc !== 0) return null;
-      return s.get(out);
-    });
-  };
 
-  /** Profile fit with GCV order selection — the kernel's. */
-  Fy.prototype.profileFit = function (x, y, sigma, maxOrder) {
-    var self = this, n = x.length, m = maxOrder + 1;
-    return this.scope(function (s) {
-      var px = s.put(x), py = s.put(y), ps = s.put(sigma),
-          co = s.zeros(m), sw = s.zeros(m), inf = s.zeros(3);
-      var rc = self.e.fylite_rs_profile_fit(px.ptr, py.ptr, ps.ptr,
-        BigInt(n), BigInt(maxOrder), co.ptr, sw.ptr, inf.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_profile_fit', rc);
-      var i = s.get(inf), order = i[0] | 0;
-      return { coef: s.get(co).slice(0, order + 1), order: order,
-               gcvSweep: s.get(sw), rss: i[1], chi2PerDof: i[2] };
-    });
-  };
 
-  /**
-   * A MONOMIAL polynomial least-squares fit, `y(x) = sum_k c_k x^k`.
-   *
-   * ★Not `profileFit`: that one fits shifted Legendre with a GCV order
-   * choice, which is the right basis for a measurement and the wrong one
-   * for a caller that must hand monomial coefficients to
-   * `gs_fixed_solve`.  The solve is the kernel's `ridge_lstsq`; what is
-   * built here is the Vandermonde and nothing else.
-   *
-   * `lambda` is a per-coefficient ridge, tiny by default — the design
-   * matrix of a degree-6 monomial fit on [0, 1] is ill-conditioned and a
-   * fit that silently returned nonsense would be a pressure profile nobody
-   * checked.  The RESIDUAL comes back so a caller can say so instead.
-   */
-  Fy.prototype.polyFit = function (x, y, degree, lambda) {
-    var n = x.length, m = (degree | 0) + 1, i, k;
-    var a = new Float64Array(n * m), w = new Float64Array(n);
-    for (i = 0; i < n; i++) {
-      var v = 1;
-      for (k = 0; k < m; k++) { a[i * m + k] = v; v *= x[i]; }
-      w[i] = 1;
-    }
-    var lam = new Float64Array(m);
-    for (k = 0; k < m; k++) lam[k] = lambda === undefined ? 1e-10 : lambda;
-    var coef = this.ridgeLstsq(a, y, w, n, m, lam);
-    //: the residual of the fit that was actually made, at the points it was
-    //: made on — reported rather than assumed small
-    var rss = 0, tot = 0, mean = 0;
-    for (i = 0; i < n; i++) mean += y[i];
-    mean /= Math.max(1, n);
-    for (i = 0; i < n; i++) {
-      var f = 0, p = 1;
-      for (k = 0; k < m; k++) { f += coef[k] * p; p *= x[i]; }
-      rss += (y[i] - f) * (y[i] - f);
-      tot += (y[i] - mean) * (y[i] - mean);
-    }
-    return { coef: Array.prototype.slice.call(coef), rss: rss,
-             rms: Math.sqrt(rss / Math.max(1, n)),
-             relative: tot > 0 ? Math.sqrt(rss / tot) : 0 };
-  };
 
-  /**
-   * Even-odd point-in-polygon, the kernel's — the SAME rule the plasma mask
-   * and the surface tracer use, so a caller deciding "is this node in the
-   * vessel" gets the kernel's answer, boundary cases included.
-   *
-   * `o` = `{r, z, polyR, polyZ}` with `r`/`z` the query points.
-   */
-  Fy.prototype.insidePolygon = function (o) {
-    var self = this, n = o.r.length;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.fixed('insidePolygon.z', o.z, n),
-          pr = s.put(o.polyR),
-          pz = s.fixed('insidePolygon.polyZ', o.polyZ, o.polyR.length),
-          out = s.zeros(n);
-      var rc = self.e.fylite_rs_inside_polygon(
-        r.ptr, z.ptr, BigInt(n), pr.ptr, pz.ptr,
-        BigInt(o.polyR.length), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_inside_polygon', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * A FIXED-boundary Grad-Shafranov solve with polynomial p' and FF'.
-   *
-   * `o` = `{r, z, psi, psiBoundary, pprime, ffprime, relax, maxIter, tol}`;
-   * `psi` carries the Dirichlet border in and comes back solved.
-   *
-   * ★★What this is FOR here: the free-boundary solver takes a
-   * two-parameter current family, so a coupled march could only hand its
-   * pressure back through `(emp, enp)` — a shape outside that family simply
-   * could not be represented, and the page had to report the residual and
-   * live with it.  This entry takes p' and FF' as polynomials, so the
-   * transport's own pressure gradient goes in to whatever degree the reader
-   * asks for.
-   *
-   * ★★NOT what `pages/model`'s refinement calls, and the reason is a
-   * property of this entry rather than a preference: its Picard finds the
-   * axis as the interior extremum FARTHEST FROM `psiBoundary` over the
-   * whole rectangle, and its plasma is the threshold set `0 <= psibar < 1`.
-   * Both rules are right on a machine-sized grid and wrong on a sub-grid
-   * cut tightly around one plasma — the box's own outboard corner is
-   * farther from psi_b than the axis is (measured on EAST: axis +0.774 Wb,
-   * corner -0.916 Wb), so the search takes the corner and the "plasma" is
-   * an annulus outside the separatrix.  A box wants `gsFixedBox` below,
-   * which takes the axis and mask rules the FREE solver already uses.
-   * This entry stays bound for the whole-grid case it is right for.
-   *
-   * ★And its gauge: it solves `Delta* psi = -mu0 R j_phi`, which is psi
-   * PER RADIAN, while `gsFreeSolve` on this site produces total flux (Wb)
-   * and solves `Delta* psi = -2 pi mu0 R j_phi`.  A caller handing this
-   * entry a Wb field with derivatives taken against Wb is out by 4 pi^2,
-   * not by 2 pi.
-   */
-  Fy.prototype.gsFixedSolve = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z),
-          psi = s.fixed('gsfix.psi', o.psi, nr * nz),
-          pp = s.put(o.pprime), ffp = s.put(o.ffprime),
-          out = s.zeros(5);
-      var it = self.e.fylite_rs_gs_fixed_solve(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), psi.ptr,
-        num(o.psiBoundary, 0), pp.ptr, BigInt(o.pprime.length),
-        ffp.ptr, BigInt(o.ffprime.length), num(o.relax, 0.5),
-        BigInt(o.maxIter || 200), num(o.tol, 1e-8), out.ptr);
-      if (it < 0) throw new SolveError('fylite_rs_gs_fixed_solve', it);
-      var v = s.get(out);
-      return { psi: s.get(psi), psiAxis: v[0], axisR: v[1], axisZ: v[2],
-               ip: v[3], residual: v[4], iterations: it };
-    });
-  };
 
-  /**
-   * The FIXED-boundary Picard on a SUB-BOX — the axis searched only where
-   * the plasma already is, the plasma taken by CONNECTIVITY (T-M7).
-   *
-   * ★★What it replaces, and it is not a preference.  `gsFixedSolve` above
-   * finds the axis as the interior extremum FARTHEST from `psiBoundary`
-   * over the whole rectangle and calls the plasma the threshold set
-   * `0 <= psibar < 1`.  Both rules are right on a machine-sized grid; on a
-   * box cut tightly around one plasma the box's own outboard corner is
-   * farther from psi_b than the axis is (measured on EAST: axis +0.774 Wb,
-   * corner -0.916 Wb), so the search takes the corner and the source region
-   * becomes an annulus OUTSIDE the separatrix — a solve that converges to a
-   * different object.  The threshold also admits a diverted plasma's
-   * private flux region.  This entry takes the free solver's own two rules
-   * instead: an axis inside a dilation of the previous plasma ("the axis is
-   * a continuous object; it does not teleport") and a flood fill from it.
-   *
-   * ★★ONE GAUGE, named by the caller.  `gauge` is how many radians of psi
-   * one unit of the array holds — `2 * Math.PI` for this site's total flux
-   * [Wb], `1` for psi per radian — and the equation solved is
-   * `Delta* psi = -gauge mu0 R j_phi`.  The profiles are `dp/dpsibar` [Pa]
-   * and `d(F^2/2)/dpsibar` [T^2 m^2], per NORMALISED flux: the kernel
-   * divides by the span the ITERATE has, which is what keeps a refinement
-   * from carrying a pressure computed against a span it did not reach and
-   * what makes the current self-limiting.
-   *
-   * `o.source` is `{pprime, ffprime}` as monomial coefficients in psibar,
-   * or `{x, pprime, ffprime}` for a table on `x`, either with optional
-   * `ppScale` / `ffScale` applied to the EVALUATED value.
-   *
-   * `o` = `{r, z, dr, dz, psi, psiBoundary, signAxis, seedR, seedZ,
-   *         limR, limZ, source, gauge, dilate, relax, maxIter, tol}`.
-   * Returns `null` with `why` set on a refusal, because a plasma that left
-   * the box is an ANSWER the caller has to report and not an exception.
-   */
-  Fy.prototype.gsFixedBox = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, n = nr * nz;
-    var src = o.source, tab = src.x && src.x.length ? src.x : null;
-    var nlim = o.limR ? o.limR.length : 0;
-    //: ★T-M17: `ipTarget` (finite) routes through the CONSTRAINED entry —
-    //: the FF' constant absorbs the difference between what the profiles
-    //: want and the current the Dirichlet border was computed for.  The
-    //: shift and the raw current come back so the caller can re-state the
-    //: source it actually solved (add `ffShift` to FF''s constant term).
-    var withIp = o.ipTarget !== undefined && o.ipTarget !== null
-                 && isFinite(o.ipTarget);
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z),
-          psi = s.fixed('gsbox.psi', o.psi, n),
-          lr = nlim ? s.put(o.limR) : null,
-          lz = nlim ? s.fixed('gsbox.limZ', o.limZ, nlim) : null,
-          px = tab ? s.put(tab) : null,
-          pp = s.put(src.pprime), ffp = s.put(src.ffprime),
-          out = s.zeros(8);
-      var head = [
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), o.dr, o.dz, psi.ptr,
-        num(o.psiBoundary, 0), num(o.signAxis, 1), o.seedR, o.seedZ,
-        lr ? lr.ptr : 0, lz ? lz.ptr : 0, BigInt(nlim),
-        px ? px.ptr : 0, BigInt(tab ? tab.length : 0),
-        pp.ptr, BigInt(src.pprime.length), num(src.ppScale, 1),
-        ffp.ptr, BigInt(src.ffprime.length), num(src.ffScale, 1),
-        num(o.gauge, 1), BigInt(o.dilate === undefined ? 2 : o.dilate),
-        num(o.relax, 0.5), BigInt(o.maxIter || 300), num(o.tol, 1e-9)];
-      var it = withIp
-        ? self.e.fylite_rs_gs_fixed_box_ip.apply(
-            null, head.concat([o.ipTarget, out.ptr]))
-        : self.e.fylite_rs_gs_fixed_box.apply(
-            null, head.concat([out.ptr]));
-      //: ★the four refusals travel as NAMES, not as a code: each one sends
-      //: the reader somewhere different (the seed is the caller's, "grew"
-      //: is the equilibrium's, an empty axis search is the source's), and a
-      //: page that printed "-4" would be asking them to read this file.
-      if (it < 0) {
-        var why = { '-3': 'seed', '-4': 'grew', '-5': 'axis',
-                    '-6': 'span' }[String(it)];
-        if (!why) throw new SolveError('fylite_rs_gs_fixed_box', it);
-        return { why: why };
-      }
-      var v = s.get(out);
-      return { psi: s.get(psi), psiAxis: v[0], axisR: v[1], axisZ: v[2],
-               ip: v[3], residual: v[4], span: v[5], iterations: it,
-               ffShift: withIp ? v[6] : 0, ipRaw: withIp ? v[7] : v[3],
-               why: null };
-    });
-  };
 
   /** Trace one flux surface from a psi map and integrate over it. */
   Fy.prototype.traceSurface = function (o) {
@@ -1707,37 +758,6 @@
     });
   };
 
-  /** Field-null design, rows and all — the kernel's. */
-  Fy.prototype.designNull = function (o) {
-    var self = this, nch = o.nch;
-    return this.scope(function (s) {
-      var br = s.put(o.br), bz = s.put(o.bz), psi = s.put(o.psi),
-          xr = o.xRef ? s.put(o.xRef) : null,
-          im = o.iMax ? s.put(o.iMax) : null,
-          out = s.zeros(nch), fl = s.zeros(nch);
-      var used = self.e.fylite_rs_design_null(
-        br.ptr, bz.ptr, psi.ptr, BigInt(nch), BigInt(o.npts), o.bTol,
-        o.fluxTarget === null || o.fluxTarget === undefined ? NaN : o.fluxTarget,
-        o.weightNull, o.weightFlux, num(o.lambda, 1e-12),
-        xr ? xr.ptr : 0, im ? im.ptr : 0, out.ptr, fl.ptr);
-      //: ★-3 is NOT an error to raise here, and not a result to pass off as
-      //: one either: the bounded solve ran out of iterations, and the last
-      //: iterate IS in `out` — a point on a descent, not a minimum.  The
-      //: caller gets it together with `converged: false` and has to say so;
-      //: what it must not do is draw it as a design.  (At the old 4000-step
-      //: cap a binding EAST design sat 4.3x above its converged objective,
-      //: silently, on both hosts.)
-      if (used < 0 && used !== -3)
-        throw new SolveError('fylite_rs_design_null', used);
-      var f = s.get(fl), bind = [], over = [];
-      for (var c = 0; c < nch; c++) {
-        if (f[c] === 1) bind.push(c);
-        else if (f[c] === 2) over.push(c);
-      }
-      return { x: s.get(out), iterations: used < 0 ? null : used,
-               converged: used >= 0, bind: bind, over: over };
-    });
-  };
 
   // --- L4/L7: the operating domain, the flux account, and the START -------
   //
@@ -1748,54 +768,8 @@
   // with no reference shot — no state to start its anneal from.  Every one
   // of them is in the kernel; none of them had a wire.
 
-  /** Smallest boundary-to-wall distance: `{ gap, r, z }`. */
-  Fy.prototype.wallClearance = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var br = s.put(o.bndR), bz = s.put(o.bndZ), wr = s.put(o.wallR),
-          wz = s.put(o.wallZ), out = s.zeros(3);
-      var rc = self.e.fylite_rs_wall_clearance(
-        br.ptr, bz.ptr, BigInt(o.bndR.length), wr.ptr, wz.ptr,
-        BigInt(o.wallR.length), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_wall_clearance', rc);
-      var v = s.get(out);
-      return { gap: v[0], r: v[1], z: v[2] };
-    });
-  };
 
-  /**
-   * The channel voltages that make a prescribed current trajectory happen,
-   * and the passive currents it induces.
-   *
-   * The exact inverse of `evolveCircuits` — same implicit Euler, same
-   * interval-end sample — so a design made here and checked there agrees
-   * to solver precision rather than to a tolerance.
-   */
-  Fy.prototype.feedforwardVoltages = function (o) {
-    var self = this, n = o.r.length, nch = o.nch, nt = o.t.length;
-    return this.scope(function (s) {
-      var m = s.put(o.m), r = s.put(o.r), t = s.put(o.t), x = s.put(o.x),
-          ov = s.zeros(nt * nch), oy = s.zeros(nt * (n - nch));
-      var rc = self.e.fylite_rs_feedforward_voltages(
-        m.ptr, r.ptr, BigInt(n), BigInt(nch), t.ptr, BigInt(nt), x.ptr,
-        ov.ptr, oy.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_feedforward_voltages', rc);
-      return { v: s.get(ov), y: s.get(oy), nch: nch, nv: n - nch };
-    });
-  };
 
-  /** Thermal stored energy [J] of prescribed profiles. */
-  Fy.prototype.zerodStoredEnergy = function (o) {
-    var self = this, n = o.rho.length;
-    return this.scope(function (s) {
-      var r = s.put(o.rho), ne = s.put(o.ne), te = s.put(o.te),
-          ti = s.put(o.ti);
-      var w = self.e.fylite_rs_zerod_stored_energy(
-        r.ptr, ne.ptr, te.ptr, ti.ptr, BigInt(n), o.volume);
-      if (!isFinite(w)) throw new SolveError('fylite_rs_zerod_stored_energy', -1);
-      return w;
-    });
-  };
 
   /**
    * The two profile averages this layer distinguishes: `{ line, volume }`.
@@ -1908,123 +882,11 @@
   // same ray — one function for the target and its achievement, so a
   // 「目标 vs 实现」 row cannot end up comparing two pieces of geometry.
 
-  /**
-   * One gap row: `{ tWall, wallR, wallZ, ctlR, ctlZ, achieved }`.
-   *
-   * Pass `bndR`/`bndZ` to ask what a solved boundary achieves on this ray;
-   * omit them (design time) and `achieved` comes back NaN rather than a
-   * zero that would read like a hit.
-   */
-  Fy.prototype.gapRow = function (o) {
-    var self = this, nb = o.bndR ? o.bndR.length : 0;
-    return this.scope(function (s) {
-      var br = s.put(nb ? o.bndR : [0]), bz = s.put(nb ? o.bndZ : [0]),
-          wr = s.put(o.wallR), wz = s.put(o.wallZ), out = s.zeros(6);
-      var rc = self.e.fylite_rs_shape_gap_row(
-        br.ptr, bz.ptr, BigInt(nb), wr.ptr, wz.ptr, BigInt(o.wallR.length),
-        o.r0, o.z0, o.dr, o.dz, num(o.gap, 0), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_shape_gap_row', rc);
-      var v = s.get(out);
-      return { tWall: v[0], wallR: v[1], wallZ: v[2], ctlR: v[3],
-               ctlZ: v[4], achieved: v[5] };
-    });
-  };
 
-  /** A requested strike point snapped to the wall: `{r, z, seg, dist}`. */
-  Fy.prototype.wallSnap = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var wr = s.put(o.wallR), wz = s.put(o.wallZ), out = s.zeros(4);
-      var rc = self.e.fylite_rs_wall_snap(
-        wr.ptr, wz.ptr, BigInt(o.wallR.length), o.r, o.z, out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_wall_snap', rc);
-      var v = s.get(out);
-      return { r: v[0], z: v[1], seg: v[2] | 0, dist: v[3] };
-    });
-  };
 
-  /** The psi map's saddle points: `[{r, z, psin, grad}, ...]`. */
-  Fy.prototype.xPoints = function (o) {
-    var self = this, g = o.grid, maxN = num(o.maxN, 8);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), out = s.zeros(4 * maxN);
-      var n = self.e.fylite_rs_x_points(
-        g.r0, g.z0, g.dr, g.dz, BigInt(g.nr), BigInt(g.nz), psi.ptr,
-        o.psiAxis, o.psiBnd, o.axisR, o.axisZ, num(o.psinWindow, 0.2),
-        num(o.minAxisDist, 0.1), out.ptr, BigInt(maxN));
-      if (n < 0) throw new SolveError('fylite_rs_x_points', n);
-      var v = s.get(out), pts = [];
-      for (var i = 0; i < n; i++)
-        pts.push({ r: v[4 * i], z: v[4 * i + 1], psin: v[4 * i + 2],
-                   grad: v[4 * i + 3] });
-      return pts;
-    });
-  };
 
-  /** The rigid plasma filament set of a solved equilibrium. */
-  Fy.prototype.plasmaFilaments = function (o) {
-    var self = this, g = o.grid, coarsen = num(o.coarsen, 2);
-    var cap = Math.ceil(g.nr / coarsen) * Math.ceil(g.nz / coarsen);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), pp = s.put(o.pprime), ff = s.put(o.ffprim),
-          br = s.put(o.bndR), bz = s.put(o.bndZ),
-          orr = s.zeros(cap), oz = s.zeros(cap), oa = s.zeros(cap);
-      var n = self.e.fylite_rs_plasma_filaments(
-        g.r0, g.z0, g.dr, g.dz, BigInt(g.nr), BigInt(g.nz), psi.ptr,
-        o.psiAxis, o.psiBnd, pp.ptr, BigInt(o.pprime.length), ff.ptr,
-        BigInt(o.ffprim.length), br.ptr, bz.ptr, BigInt(o.bndR.length),
-        o.ip, BigInt(coarsen), BigInt(cap), orr.ptr, oz.ptr, oa.ptr);
-      if (n < 0) throw new SolveError('fylite_rs_plasma_filaments', n);
-      return { r: s.get(orr).slice(0, n), z: s.get(oz).slice(0, n),
-               a: s.get(oa).slice(0, n) };
-    });
-  };
 
-  /**
-   * The linearised vertical plant: the open-loop growth rate and the
-   * regime boundary it is judged against.
-   *
-   * `gamma > 0` with `k < kIdeal` is the resistive-wall regime the passive
-   * structure holds long enough to be controlled; `k >= kIdeal` is the
-   * ideal instability no feedback reaches.
-   */
-  Fy.prototype.verticalPlant = function (o) {
-    var self = this, n = o.r.length;
-    return this.scope(function (s) {
-      var m = s.put(o.m), r = s.put(o.r), g = s.put(o.g),
-          ms = s.zeros(n * n), cxi = s.zeros(n), mode = s.zeros(n),
-          info = s.zeros(2);
-      var rc = self.e.fylite_rs_vertical_plant(
-        m.ptr, r.ptr, g.ptr, BigInt(n), o.ip, o.k, ms.ptr, cxi.ptr,
-        mode.ptr, info.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_vertical_plant', rc);
-      var v = s.get(info);
-      return { gamma: v[0], kIdeal: v[1], cXi: s.get(cxi),
-               mode: s.get(mode) };
-    });
-  };
 
-  /** Circuit matrices in ampere-turn channel space: M (n*n) and R (n). */
-  Fy.prototype.channelMatrices = function (o) {
-    var self = this, ne = o.coils.r.length, nv = o.vessel.r.length,
-        nch = o.nch, n = nch + nv;
-    return this.scope(function (s) {
-      var c = o.coils, w = o.vessel;
-      var cr = s.put(c.r), cz = s.put(c.z), cw = s.put(c.w), ch = s.put(c.h),
-          ca = s.put(c.a), ca2 = s.put(c.a2),
-          vr = s.put(w.r), vz = s.put(w.z), vw = s.put(w.w), vh = s.put(w.h),
-          va = s.put(w.a), va2 = s.put(w.a2),
-          wt = s.put(o.weights), ec = s.put(o.etaCoil),
-          ev = s.put(o.etaVessel), mo = s.zeros(n * n), ro = s.zeros(n);
-      var rc = self.e.fylite_rs_channel_matrices(
-        cr.ptr, cz.ptr, cw.ptr, ch.ptr, ca.ptr, ca2.ptr, BigInt(ne),
-        vr.ptr, vz.ptr, vw.ptr, vh.ptr, va.ptr, va2.ptr, BigInt(nv),
-        wt.ptr, BigInt(nch), ec.ptr, ev.ptr, BigInt(num(o.nu, 3)),
-        BigInt(num(o.nv, 3)), mo.ptr, ro.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_channel_matrices', rc);
-      return { m: s.get(mo), r: s.get(ro), n: n };
-    });
-  };
 
   /**
    * R0 / a / kappa / delta of a closed outline — the kernel's.
@@ -2051,112 +913,17 @@
     });
   };
 
-  /**
-   * Marching-squares contour, for DRAWING only — unordered segments
-   * [r0, z0, r1, z1, ...].  Anything needing an ordered outline uses
-   * `traceSurface`: a segment soup cannot be walked through a saddle.
-   */
-  Fy.prototype.contour = function (o) {
-    var self = this, cap = o.maxSeg || 4 * o.nr * o.nz;
-    return this.scope(function (s) {
-      var f = s.put(o.f), out = s.zeros(4 * cap);
-      var n = self.e.fylite_rs_contour(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz),
-        f.ptr, o.level, BigInt(cap), out.ptr);
-      if (n < 0) throw new SolveError('fylite_rs_contour', n);
-      return s.get(out).subarray(0, 4 * n);
-    });
-  };
 
   //: --- the "what a solved field implies" family (FYL-DESIGN-07 D-4) ------
   //: These used to live in physics.js.  They are physics bookkeeping, not
   //: marshalling, so they belong to the one host; what remains here is the
   //: buffer shuffling their C signatures need.
 
-  /** The plasma mask over interior cells, as a Uint8-like Float64Array. */
-  Fy.prototype.plasmaMask = function (o) {
-    var self = this, n = o.nr * o.nz, ncell = (o.nr - 2) * (o.nz - 2);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), iv = s.put(o.inVessel), out = s.zeros(ncell);
-      var rc = self.e.fylite_rs_plasma_mask(psi.ptr, BigInt(o.nr), BigInt(o.nz),
-        iv.ptr, o.psiBnd, num(o.sign, 1), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_plasma_mask', rc);
-      return s.get(out);
-    });
-  };
 
-  /** p' / FF' / p implied by a converged solve, plus the recovered j_c. */
-  Fy.prototype.analyticTruth = function (o) {
-    var self = this, nx = o.nx || 201, ncell = (o.nr - 2) * (o.nz - 2);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), r = s.put(o.rOf), mk = s.put(o.mask),
-          out = s.zeros(4 * nx), inf = s.zeros(2);
-      var rc = self.e.fylite_rs_analytic_truth(
-        psi.ptr, BigInt(o.nr), BigInt(o.nz), r.ptr, o.dr, o.dz, mk.ptr,
-        o.psiAxis, o.psiBnd, o.ip, o.beta0, o.emp, o.enp, o.r0, BigInt(nx),
-        out.ptr, inf.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_analytic_truth', rc);
-      var v = s.get(out), i2 = s.get(inf);
-      return { pprime: v.slice(0, nx), ffprime: v.slice(nx, 2 * nx),
-               p: v.slice(2 * nx, 3 * nx), x: v.slice(3 * nx, 4 * nx),
-               jc: i2[0], spanPr: i2[1] };
-    });
-  };
 
-  /** The same three profiles, from a reconstruction's fitted coefficients. */
-  Fy.prototype.fittedProfiles = function (o) {
-    var self = this, nx = o.nx || 201;
-    return this.scope(function (s) {
-      var c = s.put(o.coefs), out = s.zeros(4 * nx), inf = s.zeros(1);
-      var rc = self.e.fylite_rs_fitted_profiles(
-        c.ptr, BigInt(o.npp), BigInt(o.nff), o.psiAxis, o.psiBnd,
-        BigInt(nx), out.ptr, inf.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_fitted_profiles', rc);
-      var v = s.get(out);
-      return { pprime: v.slice(0, nx), ffprime: v.slice(nx, 2 * nx),
-               p: v.slice(2 * nx, 3 * nx), x: v.slice(3 * nx, 4 * nx),
-               spanPr: s.get(inf)[0] };
-    });
-  };
 
-  /** Cell currents implied by fitted coefficients. */
-  Fy.prototype.fittedCurrent = function (o) {
-    var self = this, ncell = (o.nr - 2) * (o.nz - 2);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), r = s.put(o.rOf), c = s.put(o.coefs),
-          mk = s.put(o.mask), out = s.zeros(ncell);
-      var rc = self.e.fylite_rs_fitted_current(
-        psi.ptr, BigInt(o.nr), BigInt(o.nz), r.ptr, o.dr, o.dz,
-        o.psiAxis, o.psiBnd, c.ptr, BigInt(o.npp), BigInt(o.nff),
-        mk.ptr, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_fitted_current', rc);
-      return s.get(out);
-    });
-  };
 
-  /** Synthetic flux-loop readings from a cell-current vector. */
-  Fy.prototype.loopModel = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var lm = s.put(o.loopsM), c = s.put(o.cur), out = s.zeros(o.nLoop);
-      var rc = self.e.fylite_rs_loop_model(lm.ptr, BigInt(o.nLoop), c.ptr,
-        BigInt(o.nr), BigInt(o.nz), num(o.measScale, 1), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_loop_model', rc);
-      return s.get(out);
-    });
-  };
 
-  /** F(psi) = R*B_phi from FF', integrated inward from the edge value. */
-  Fy.prototype.fProfile = function (x, ffprime, spanPr, fEdge) {
-    var self = this, n = x.length;
-    return this.scope(function (s) {
-      var xv = s.put(x), ff = s.put(ffprime), out = s.zeros(n);
-      var rc = self.e.fylite_rs_f_profile(xv.ptr, ff.ptr, BigInt(n),
-                                          spanPr, fEdge, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_f_profile', rc);
-      return s.get(out);
-    });
-  };
 
   /**
    * Volume enclosed by a closed (R, Z) outline [m^3].
@@ -2201,33 +968,6 @@
     });
   };
 
-  /**
-   * q(x) on traced surfaces, with the q0 / q95 conventions the kernel states
-   * (linear extrapolation to the axis; interpolation at x = 0.95).
-   *
-   * `f` is a PROFILE, not a callback — the ABI cannot carry one, and every
-   * caller has a profile anyway.  q0 / q95 come back NaN when fewer than two
-   * surfaces traced, which is a different thing from a q of zero.
-   */
-  Fy.prototype.qProfile = function (o) {
-    var self = this, nq = o.nq || 20;
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), lr = s.put(o.limR), lz = s.put(o.limZ),
-          fx = s.put(o.fx), fv = s.put(o.fv),
-          out = s.zeros(2 * nq), inf = s.zeros(3);
-      var n = self.e.fylite_rs_q_profile(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), psi.ptr,
-        o.psiAxis, o.psiBnd, o.axisR, o.axisZ,
-        lr.ptr, lz.ptr, BigInt(o.limR.length),
-        fx.ptr, fv.ptr, BigInt(o.fx.length),
-        BigInt(nq), BigInt(o.nTheta || 121), num(o.xLo, 0.06),
-        num(o.xHi, 0.95), out.ptr, inf.ptr);
-      if (n < 0) throw new SolveError('fylite_rs_q_profile', n);
-      var v = s.get(out), i3 = s.get(inf);
-      return { x: v.slice(0, n), q: v.slice(nq, nq + n),
-               q0: i3[1], q95: i3[2] };
-    });
-  };
 
   /** Evaluate a fitted profile at given points — the kernel owns the basis. */
   Fy.prototype.profileSample = function (coef, x) {
@@ -2241,20 +981,6 @@
     });
   };
 
-  /** The plasma mask, built by the kernel from the limiter itself. */
-  Fy.prototype.plasmaMaskLim = function (o) {
-    var self = this, ncell = (o.nr - 2) * (o.nz - 2);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), lr = s.put(o.limR), lz = s.put(o.limZ),
-          out = s.zeros(ncell);
-      var rc = self.e.fylite_rs_plasma_mask_lim(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), psi.ptr,
-        lr.ptr, lz.ptr, BigInt(o.limR.length), o.psiBnd, num(o.sign, 1),
-        out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_plasma_mask_lim', rc);
-      return s.get(out);
-    });
-  };
 
   /**
    * The Miller-like parametric boundary, as an array of `[r, z]` pairs.
@@ -2327,279 +1053,23 @@
     });
   };
 
-  /**
-   * Fit every order up to `maxOrder`, let GCV choose, and hand back the WHOLE
-   * sweep — the chosen order is a result, not a setting, and a criterion the
-   * reader cannot see is a smoothing knob with better manners.
-   *
-   * ★This lived in `profit.js` until the file had nothing else in it.  It is
-   * a shape for drawing, not arithmetic: the fit, the basis and the GCV are
-   * all the kernel's (`profile_fit`, `profile_sample`).
-   */
-  Fy.prototype.profileFitSweep = function (x, y, sigma, maxOrder) {
-    var r = this.profileFit(x, y, sigma, maxOrder), sweep = [];
-    for (var n = 0; n <= maxOrder; n++) {
-      if (!isFinite(r.gcvSweep[n])) break;
-      sweep.push({ order: n, gcv: r.gcvSweep[n] });
-    }
-    return { best: { coef: r.coef, order: r.order, gcv: r.gcvSweep[r.order],
-                     rss: r.rss, chi2PerDof: r.chi2PerDof, N: x.length },
-             sweep: sweep };
-  };
 
   /** One point of a fitted profile. */
   Fy.prototype.profileAt = function (coef, x) {
     return this.profileSample(coef, Float64Array.of(x))[0];
   };
 
-  /** A fitted profile on `npts` evenly spaced points of [0, 1]. */
-  Fy.prototype.profileCurve = function (coef, npts) {
-    var x = new Float64Array(npts);
-    for (var i = 0; i < npts; i++) x[i] = i / (npts - 1);
-    return this.profileSample(coef, x);
-  };
 
-  /** Total psi on the grid from a cloud of current filaments. */
-  Fy.prototype.filamentFlux = function (o) {
-    var self = this, nf = o.r.length, nr = o.gridR.length,
-        nz = o.gridZ.length;
-    return this.scope(function (s) {
-      var fr = s.put(o.r), fz = s.put(o.z), am = s.put(o.a),
-          gr = s.put(o.gridR), gz = s.put(o.gridZ),
-          out = s.zeros(nr * nz);
-      var rc = self.e.fylite_rs_filament_flux(
-        fr.ptr, fz.ptr, am.ptr, BigInt(nf), gr.ptr, BigInt(nr), gz.ptr,
-        BigInt(nz), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_filament_flux', rc);
-      return s.get(out);
-    });
-  };
 
-  Fy.prototype.gsFreeSolve = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, nlim = o.limR.length;
-    var total = nr * nz;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z), pe = s.put(o.psiExt),
-          lr = s.put(o.limR), lz = s.put(o.limZ),
-          //: ★the warm start, and why a design needs one: a boundary
-          //: design's coil field cancels the plasma's own flux variation
-          //: over the requested boundary, so it has a MINIMUM where the
-          //: plasma belongs — and iteration zero, which sees only the
-          //: coils, then puts the axis out by the coils instead.
-          pi = o.psiInit ? s.put(o.psiInit) : null,
-          psi = s.zeros(total), out = s.zeros(12);
-      var it = self.e.fylite_rs_gs_free_solve(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), pe.ptr,
-        o.beta0, o.emp, o.enp, o.r0, o.ip, lr.ptr, lz.ptr, BigInt(nlim),
-        num(o.signAxis, 1), num(o.relax, 0.3), BigInt(o.maxIter || 400),
-        num(o.tol, 1e-8), num(o.fbGain, 0),
-        o.zcAnchor === undefined ? NaN : o.zcAnchor,
-        o.rcAnchor === undefined ? NaN : o.rcAnchor,
-        pi ? pi.ptr : 0, psi.ptr, out.ptr);
-      if (it < 0) throw new SolveError('fylite_rs_gs_free_solve', it);
-      var v = s.get(out);
-      //: ★v108 (T-M16): slot 11 is the KERNEL's verdict — 1 converged
-      //: (residual within tol AND mask still), 2 settled (answer frozen,
-      //: mask quantisation jitter floors the residual), 0 neither.
-      return { psi: s.get(psi), iterations: it, psiAxis: v[0], psiBnd: v[1],
-               axisR: v[2], axisZ: v[3], ip: v[4], residual: v[5],
-               bndKind: v[6], xptR: v[7], xptZ: v[8], fbAmp: v[9],
-               zc: v[10], converged: v[11] === 1, settled: v[11] === 2 };
-    });
-  };
 
-  /**
-   * The free solve on a TABULATED p'/FF' pair used as a shape (T-D6′).
-   * The table is normalised to Ip every round, so its gauge — per-radian
-   * vs full flux, overall sign, any constant factor — divides out; what
-   * survives is the relative radial structure, including a sign reversal
-   * (the delivered EAST #137985 profiles cross zero at psi_N ≈ 0.82,
-   * which no analytic-family member can represent).
-   * opts as gsFreeSolve, minus beta0/emp/enp/r0, plus {tabX, tabPp, tabFfp}.
-   */
-  Fy.prototype.gsFreeSolveTab = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, nlim = o.limR.length;
-    var total = nr * nz, ntab = o.tabX.length;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z), pe = s.put(o.psiExt),
-          xt = s.put(o.tabX), pt = s.put(o.tabPp), ft = s.put(o.tabFfp),
-          lr = s.put(o.limR), lz = s.put(o.limZ),
-          pi = o.psiInit ? s.put(o.psiInit) : null,
-          psi = s.zeros(total), out = s.zeros(14);
-      var it = self.e.fylite_rs_gs_free_solve_tab(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), pe.ptr,
-        xt.ptr, pt.ptr, ft.ptr, BigInt(ntab),
-        o.ip, lr.ptr, lz.ptr, BigInt(nlim),
-        num(o.signAxis, 1), num(o.relax, 0.3), BigInt(o.maxIter || 400),
-        num(o.tol, 1e-8), num(o.fbGain, 0),
-        o.zcAnchor === undefined ? NaN : o.zcAnchor,
-        o.rcAnchor === undefined ? NaN : o.rcAnchor,
-        pi ? pi.ptr : 0, psi.ptr, out.ptr);
-      if (it < 0) throw new SolveError('fylite_rs_gs_free_solve_tab', it);
-      var v = s.get(out);
-      return { psi: s.get(psi), iterations: it, psiAxis: v[0], psiBnd: v[1],
-               axisR: v[2], axisZ: v[3], ip: v[4], residual: v[5],
-               bndKind: v[6], xptR: v[7], xptZ: v[8], fbAmp: v[9],
-               zc: v[10], converged: v[11] === 1, settled: v[11] === 2,
-               maskDelta: v[12], jc: v[13] };
-    });
-  };
 
-  /**
-   * Post-hoc physical boundary flux (bottleneck-connectivity rule).
-   * opts: {r, z, psi, limR, limZ, signAxis=1}
-   */
-  Fy.prototype.boundaryFlux = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, nlim = o.limR.length;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z), p = s.put(o.psi),
-          lr = s.put(o.limR), lz = s.put(o.limZ), out = s.zeros(1);
-      var rc = self.e.fylite_rs_boundary_flux(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), p.ptr, lr.ptr, lz.ptr,
-        BigInt(nlim), num(o.signAxis, 1), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_boundary_flux', rc);
-      return s.get(out)[0];
-    });
-  };
 
   // --- L4 reconstruction -------------------------------------------------
 
-  /**
-   * Equilibrium reconstruction: fit npp + nff polynomial p'/FF'
-   * coefficients to flux-loop measurements (and optional pressure rows)
-   * under the Ip equality constraint.
-   *
-   * opts: {r, z, psiExt, loopsM, meas, wts, measScale=1, npp, nff, ip,
-   *        limR, limZ, xp=[], pmeas=[], wp=[], relax=0.3, maxIter=400,
-   *        tol=1e-8, fbGain=0, zcAnchor=NaN, rcAnchor=NaN, warmup=60}
-   *
-   * `loopsM` is row-major (nloops, nr*nz): the full-flux response [Wb/A]
-   * of each loop to a unit toroidal current at each grid node.
-   */
-  Fy.prototype.gsInverseSolve = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, nlim = o.limR.length;
-    var total = nr * nz, nl = o.meas.length, np_ = (o.xp || []).length;
-    var nc = o.npp + o.nff;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z), pe = s.put(o.psiExt),
-          lm = s.put(o.loopsM), me = s.put(o.meas), wt = s.put(o.wts),
-          lr = s.put(o.limR), lz = s.put(o.limZ),
-          xp = s.put(np_ ? o.xp : [0]), pm = s.put(np_ ? o.pmeas : [0]),
-          wp = s.put(np_ ? o.wp : [0]),
-          //: ABI v17 added a PRESCRIBED per-cell current channel; T-A9 is
-          //: the first caller on this page to use it — the bootstrap
-          //: current is KNOWN physics and the magnetics should not have to
-          //: re-fit it.  With no `jPre` the kernel still reads one element,
-          //: so it gets a real buffer and a zero length — not a null.
-          njp = (o.jPre && o.jPre.length) ? o.jPre.length : 0,
-          jpre = s.put(njp ? o.jPre : [0]),
-          psi = s.zeros(total), cf = s.zeros(nc), out = s.zeros(12);
-      var it = self.e.fylite_rs_gs_inverse_solve(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), pe.ptr,
-        lm.ptr, me.ptr, wt.ptr, BigInt(nl), num(o.measScale, 1),
-        BigInt(o.npp), BigInt(o.nff), o.ip,
-        lr.ptr, lz.ptr, BigInt(nlim),
-        xp.ptr, pm.ptr, wp.ptr, BigInt(np_),
-        jpre.ptr, BigInt(njp),
-        num(o.relax, 0.3), BigInt(o.maxIter || 400), num(o.tol, 1e-8),
-        num(o.fbGain, 0),
-        o.zcAnchor === undefined ? NaN : o.zcAnchor,
-        o.rcAnchor === undefined ? NaN : o.rcAnchor,
-        BigInt(o.warmup === undefined ? 60 : o.warmup),
-        psi.ptr, cf.ptr, out.ptr);
-      if (it < 0) throw new SolveError('fylite_rs_gs_inverse_solve', it);
-      var v = s.get(out);
-      return { psi: s.get(psi), coefs: s.get(cf), iterations: it,
-               psiAxis: v[0], psiBnd: v[1], axisR: v[2], axisZ: v[3],
-               ip: v[4], residual: v[5], bndKind: v[6], fbAmp: v[7] };
-    });
-  };
 
-  // --- T-A5: the same solve with the coil currents FITTED ----------------
-  //
-  // ★★WHY THIS IS A SECOND METHOD AND NOT A FLAG ON THE ONE ABOVE.  The two
-  // reach two different ABI entries — `fylite_rs_gs_inverse_solve` is
-  // untouched and still returns exactly the numbers it always did — and the
-  // difference between them is not a setting, it is which quantities are
-  // unknown.  A caller that does not think about the coil sigma should get
-  // the old solve, by name.
-  //
-  // opts: the whole of `gsInverseSolve`'s, plus
-  //   coilPsi   (nch, nr*nz) full flux [Wb] per unit channel current
-  //   coilRows  (nrows, nch) what each measurement row reads per unit
-  //             channel current, IN THAT ROW'S OWN UNITS (no measScale)
-  //   coilI0    (nch) the channel currents the caller believes
-  //   coilSigma (nch) prior widths; <= 0 holds that channel exactly
-  //   measSigma what a measurement weight of 1.0 stands for, in the rows'
-  //             own units.  Decks here ship 0/1 loop MASKS, so passing 1.0
-  //             asserts sigma_loop = 1 Wb/rad and the coils will not move.
-  Fy.prototype.gsInverseSolveCoils = function (o) {
-    var self = this, nr = o.r.length, nz = o.z.length, nlim = o.limR.length;
-    var total = nr * nz, nl = o.meas.length, np_ = (o.xp || []).length;
-    var nc = o.npp + o.nff, nch = (o.coilI0 || []).length;
-    return this.scope(function (s) {
-      var r = s.put(o.r), z = s.put(o.z), pe = s.put(o.psiExt),
-          lm = s.put(o.loopsM), me = s.put(o.meas), wt = s.put(o.wts),
-          lr = s.put(o.limR), lz = s.put(o.limZ),
-          xp = s.put(np_ ? o.xp : [0]), pm = s.put(np_ ? o.pmeas : [0]),
-          wp = s.put(np_ ? o.wp : [0]),
-          //: T-A9: the same prescribed-current channel as above
-          njp = (o.jPre && o.jPre.length) ? o.jPre.length : 0,
-          jpre = s.put(njp ? o.jPre : [0]),
-          //: ★a real buffer and a zero count, never a null — the same
-          //: calling convention the pressure block uses on this entry
-          cps = s.put(nch ? o.coilPsi : [0]),
-          crw = s.put(nch ? o.coilRows : [0]),
-          ci0 = s.put(nch ? o.coilI0 : [0]),
-          csg = s.put(nch ? o.coilSigma : [0]),
-          cot = s.zeros(nch || 1),
-          psi = s.zeros(total), cf = s.zeros(nc), out = s.zeros(12);
-      var it = self.e.fylite_rs_gs_inverse_solve_coils(
-        r.ptr, BigInt(nr), z.ptr, BigInt(nz), pe.ptr,
-        lm.ptr, me.ptr, wt.ptr, BigInt(nl), num(o.measScale, 1),
-        BigInt(o.npp), BigInt(o.nff), o.ip,
-        lr.ptr, lz.ptr, BigInt(nlim),
-        xp.ptr, pm.ptr, wp.ptr, BigInt(np_),
-        jpre.ptr, BigInt(njp),
-        cps.ptr, crw.ptr, ci0.ptr, csg.ptr, BigInt(nch),
-        num(o.measSigma, 1),
-        num(o.relax, 0.3), BigInt(o.maxIter || 400), num(o.tol, 1e-8),
-        num(o.fbGain, 0),
-        o.zcAnchor === undefined ? NaN : o.zcAnchor,
-        o.rcAnchor === undefined ? NaN : o.rcAnchor,
-        BigInt(o.warmup === undefined ? 60 : o.warmup),
-        psi.ptr, cf.ptr, cot.ptr, out.ptr);
-      if (it < 0)
-        throw new SolveError('fylite_rs_gs_inverse_solve_coils', it);
-      var v = s.get(out), fit = s.get(cot);
-      return { psi: s.get(psi), coefs: s.get(cf), iterations: it,
-               psiAxis: v[0], psiBnd: v[1], axisR: v[2], axisZ: v[3],
-               ip: v[4], residual: v[5], bndKind: v[6], fbAmp: v[7],
-               coilPull: v[8], coilFitted: v[9],
-               coilFit: nch ? fit.slice(0, nch) : new Float64Array(0) };
-    });
-  };
 
   // --- L5 circuits --------------------------------------------------------
 
-  /**
-   * Implicit-Euler circuit trajectory.  `m` is n*n row-major [H], `res`
-   * the n resistances [Ohm], `t` the nt time points, `volts` (nt, n)
-   * row-major [V], `i0` the n initial currents [A].  Returns the whole
-   * (nt, n) trajectory.
-   */
-  Fy.prototype.evolveCircuits = function (m, res, t, volts, i0) {
-    var self = this, n = res.length, nt = t.length;
-    return this.scope(function (s) {
-      var pm = s.put(m), pr = s.put(res), pt = s.put(t), pv = s.put(volts),
-          pi = s.put(i0), po = s.zeros(nt * n);
-      var rc = self.e.fylite_rs_evolve_circuits(
-        pm.ptr, pr.ptr, BigInt(n), pt.ptr, BigInt(nt), pv.ptr, pi.ptr,
-        po.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_evolve_circuits', rc);
-      return s.get(po);
-    });
-  };
 
   // --- L5/L6: the core march and the closure it asks for -------------------
   //
@@ -2612,111 +1082,8 @@
   // temperature-shaped diffusion.  The page could therefore only ever show a
   // demo tier, and said so.  Nothing below is new physics: it is the wire.
 
-  /**
-   * One equilibrium's whole ladder — the transport metric AND the local
-   * Miller shape, from ONE traced surface set.
-   *
-   * ★This is what makes「1.5D」 true rather than nominal: rho_tor [m], V'
-   * [m^2], <|grad rho|^2>, gm2, q and F come from the field that was solved,
-   * not from four scalars fitted to its boundary.  The two used to be
-   * separate traces at different default levels; the kernel merged them, and
-   * this wrapper hands both back off the one call.
-   */
-  Fy.prototype.equilibriumLadder = function (o) {
-    var self = this, nlev = o.levels.length, nlim = o.limR.length;
-    return this.scope(function (s) {
-      var psin = s.put(o.psin), lr = s.put(o.limR), lz = s.put(o.limZ),
-          lv = s.put(o.levels),
-          qt = s.put(o.qTable || [0]), ft = s.put(o.fTable || [0]),
-          om = s.zeros(10 * nlev), ok = s.zeros(14 * nlev),
-          o2 = s.zeros(nlev);
-      //: ★`_r2`: the same one traced surface set, with `<R^2>` [m^2] in its
-      //: own buffer (T-M8).  It has to come off THIS call rather than a
-      //: second pass — the ladder's whole point is that the metric and the
-      //: shape describe the same surfaces, and a separate trace would bring
-      //: its own acceptance test and its own idea of which levels exist.
-      var kept = self.e.fylite_rs_equilibrium_ladder_r2(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), psin.ptr,
-        o.axisR, o.axisZ, lr.ptr, lz.ptr, BigInt(nlim), lv.ptr, BigInt(nlev),
-        qt.ptr, BigInt((o.qTable || [0]).length),
-        ft.ptr, BigInt((o.fTable || [0]).length),
-        o.dpsi, o.b0, o.aMinor, BigInt(o.nTheta || 121), om.ptr, ok.ptr,
-        o2.ptr);
-      if (kept < 0)
-        throw new SolveError('fylite_rs_equilibrium_ladder_r2', kept);
-      var m = s.get(om), k = s.get(ok), r2 = s.get(o2);
-      var col = function (src, w, j) {
-        var out = new Float64Array(kept);
-        for (var i = 0; i < kept; i++) out[i] = src[w * i + j];
-        return out;
-      };
-      return {
-        kept: kept,
-        psin: col(m, 10, 0), rho: col(m, 10, 1), volume: col(m, 10, 2),
-        vprime: col(m, 10, 3), gm3: col(m, 10, 4), gm7: col(m, 10, 5),
-        gm2: col(m, 10, 6), q: col(m, 10, 7), fpol: col(m, 10, 8),
-        dvDpsin: col(m, 10, 9),
-        //: `<R^2>` [m^2], one per kept level — the momentum capacity's
-        //: weight, and the one column here that carries no `drho` factor
-        fsaR2: r2.slice(0, kept),
-        //: the Miller row, the same surfaces, in the order the neoclassical
-        //: surface block wants them
-        miller: {
-          psin: col(k, 14, 0), rmin: col(k, 14, 1), rmaj: col(k, 14, 2),
-          zmag: col(k, 14, 3), q: col(k, 14, 4), shear: col(k, 14, 5),
-          shift: col(k, 14, 6), kappa: col(k, 14, 7), sKappa: col(k, 14, 8),
-          delta: col(k, 14, 9), sDelta: col(k, 14, 10), zeta: col(k, 14, 11),
-          sZeta: col(k, 14, 12), sZmag: col(k, 14, 13),
-        },
-      };
-    });
-  };
 
-  /**
-   * Collision rates over a profile: `nu_e`, `nu_i` per ion, the classical
-   * exchange rate and the Coulomb logarithm they are built on.
-   *
-   * CGS with eV temperatures — `ne`/`ni` in cm^-3 — because that is what the
-   * entry means, and converting on this side once beats every caller
-   * carrying its own factor.  `ni`/`ti` are ion-major (`nion * n`).
-   */
-  Fy.prototype.collisionRates = function (o) {
-    var self = this, n = o.te.length, ni_ = o.z.length;
-    return this.scope(function (s) {
-      var ne = s.put(o.neCgs), te = s.put(o.te),
-          ni = s.fixed('coll.ni', o.niCgs, ni_ * n),
-          ti = s.fixed('coll.ti', o.ti, ni_ * n),
-          ms = s.fixed('coll.mass', o.mass, ni_),
-          z = s.fixed('coll.z', o.z, ni_),
-          th = s.fixed('coll.therm', o.therm ||
-                       (function () { var a = []; for (var i = 0; i < ni_; i++) a.push(1); return a; })(), ni_),
-          onue = s.zeros(n), onui = s.zeros(ni_ * n),
-          oex = s.zeros(n), olog = s.zeros(n);
-      var rc = self.e.fylite_rs_collision_rates(
-        ne.ptr, te.ptr, BigInt(n), ni.ptr, ti.ptr, ms.ptr, z.ptr, th.ptr,
-        BigInt(ni_), onue.ptr, onui.ptr, oex.ptr, olog.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_collision_rates', rc);
-      return { nue: s.get(onue), nui: s.get(onui),
-               exch: s.get(oex), loglam: s.get(olog) };
-    });
-  };
 
-  /**
-   * Classical electron-ion exchange power [erg/cm^3/s], positive INTO THE
-   * IONS.  CGS in, CGS out: the SI conversion is one factor and it belongs
-   * with the assembly that also converts the density going in.
-   */
-  Fy.prototype.exchangePower = function (nuExch, neCgs, te, ti) {
-    var self = this, n = neCgs.length;
-    return this.scope(function (s) {
-      var a = s.put(nuExch), b = s.put(neCgs), c = s.put(te), d = s.put(ti),
-          out = s.zeros(n);
-      var rc = self.e.fylite_rs_exchange_power(
-        a.ptr, b.ptr, c.ptr, d.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_exchange_power', rc);
-      return s.get(out);
-    });
-  };
 
   /**
    * Parallel Spitzer resistivity [Ohm m]; `te` in eV, arrays throughout.
@@ -2758,117 +1125,11 @@
     });
   };
 
-  /**
-   * PERPENDICULAR Spitzer resistivity — the NRL coefficient as printed,
-   * the value `spitzerEta` returned through v110 (T-A18).  Exported so the
-   * correction is a checkable relation (ratio == 0.51), not a renumbering.
-   */
-  Fy.prototype.spitzerEtaPerp = function (te, zeff, lnlam) {
-    var self = this, n = te.length;
-    return this.scope(function (s) {
-      var a = s.put(te), b = s.fixed('eta.zeff', zeff, n),
-          c = s.fixed('eta.lnlam', lnlam, n), out = s.zeros(n);
-      var rc = self.e.fylite_rs_spitzer_eta_perp(
-        a.ptr, b.ptr, c.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_spitzer_eta_perp', rc);
-      return s.get(out);
-    });
-  };
 
-  /** Ohmic heating `eta j^2` [W/m^3]; `jPar` [A/m^2], `eta` [Ohm m]. */
-  Fy.prototype.ohmicPower = function (eta, jPar) {
-    var self = this, n = eta.length;
-    return this.scope(function (s) {
-      var a = s.put(eta), b = s.put(jPar), out = s.zeros(n);
-      var rc = self.e.fylite_rs_ohmic_power(a.ptr, b.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_ohmic_power', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * D-T alpha heating and its electron / ion split [W/m^3].
-   *
-   * `ne` in m^-3 and `te` in eV — SI, as the entry takes them — while `ti`
-   * crosses in keV, which is the entry's own spelling and not this
-   * wrapper's choice.
-   */
-  Fy.prototype.alphaHeating = function (o) {
-    var self = this, n = o.ne.length;
-    return this.scope(function (s) {
-      var ne = s.put(o.ne), te = s.put(o.teEv), ti = s.put(o.tiKev),
-          out = s.zeros(4 * n);
-      var rc = self.e.fylite_rs_alpha_heating(
-        ne.ptr, te.ptr, ti.ptr, BigInt(n), num(o.dtFraction, 0.5),
-        num(o.zeff, 1), num(o.zsum, 0.5), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_alpha_heating', rc);
-      var v = s.get(out);
-      return { total: v.slice(0, n), e: v.slice(n, 2 * n),
-               i: v.slice(2 * n, 3 * n), eCrit: v.slice(3 * n, 4 * n) };
-    });
-  };
 
-  /**
-   * The main-ion density a given `Z_eff` implies, with one impurity —
-   * `n_i = (Z_imp - Z_eff)/(Z_imp - 1) * n_e`.
-   *
-   * ★★It REFUSES rather than floors: a `Z_eff` that this impurity cannot
-   * produce (above `Z_imp`, or below 1) has no main-ion density, and the
-   * kernel answers -2 rather than clamping to something that would read as
-   * a composition.  `null` comes back here for the same reason.
-   */
-  Fy.prototype.ionDilution = function (ne, zeff, zImp) {
-    var self = this, n = ne.length;
-    return this.scope(function (s) {
-      var a = s.put(ne), out = s.zeros(n);
-      var rc = self.e.fylite_rs_ion_dilution(
-        a.ptr, BigInt(n), num(zeff, 1), num(zImp, 6), out.ptr);
-      if (rc === -2) return null;
-      if (rc !== 0) throw new SolveError('fylite_rs_ion_dilution', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * The electron density quasi-neutrality gives: `n_e = sum_s Z_s n_s`.
-   *
-   * `ions` is `[{n, z}]`.  ★This is the closure the core march applies to
-   * its own ion list, exposed so a caller can CHECK the composition it is
-   * about to hand over rather than assume it.
-   */
-  Fy.prototype.quasiNeutralNe = function (ions) {
-    var self = this, ns = ions.length, n = ions[0].n.length;
-    var flat = new Float64Array(ns * n), zs = new Float64Array(ns);
-    for (var j = 0; j < ns; j++) { flat.set(ions[j].n, j * n); zs[j] = +ions[j].z; }
-    return this.scope(function (s) {
-      var z = s.fixed('quasi.z', zs, ns),
-          ni = s.fixed('quasi.ni', flat, ns * n), out = s.zeros(n);
-      var rc = self.e.fylite_rs_quasi_neutral_ne(
-        z.ptr, ni.ptr, BigInt(ns), BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_quasi_neutral_ne', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * The field-ion sum `sum n_j Z_j^2/(n_e A_j)` at a given `Z_eff` — the
-   * `zsum` that sets an alpha's critical energy.
-   *
-   * ★The page used to write this out for a 50:50 D-T mix, which is right
-   * only for a plasma with nothing else in it.  With an impurity in the
-   * quasi-neutrality it is not, and the kernel already knew how to say so.
-   */
-  Fy.prototype.fieldIonSum = function (o) {
-    var self = this, n = o.zeff.length;
-    return this.scope(function (s) {
-      var z = s.put(o.zeff), out = s.zeros(n);
-      var rc = self.e.fylite_rs_field_ion_sum(
-        z.ptr, BigInt(n), num(o.mainMass, 2), num(o.mainCharge, 1),
-        num(o.impCharge, 6), num(o.impMass, 12), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_field_ion_sum', rc);
-      return s.get(out);
-    });
-  };
 
   /**
    * The discharge's shape in time — one trapezoid over the four phase
@@ -2892,42 +1153,6 @@
     });
   };
 
-  /**
-   * INTERPRETIVE inversion of one channel's power balance: measured
-   * profiles and source densities in, experimental heat flux and effective
-   * diffusivity out.
-   *
-   * `o` = `{rho, vprime, gm7, gm3, density, temperature, source, gradFloor}`.
-   *
-   * ★★This is the OTHER DIRECTION from every other transport entry in this
-   * file, and it is the one a predictive study needs FIRST: a constant chi
-   * is not a number anybody knows, and the way it is found is by asking
-   * measured profiles what diffusivity their own power balance implies.
-   *
-   * ★`valid` is an ANSWER, not a status: below a gradient floor the
-   * inversion is dividing by noise, and the kernel returns NaN there rather
-   * than the large number that would read as a transport measurement.  A
-   * caller that filled those in would be reporting the flattest part of the
-   * profile as its most anomalous.
-   */
-  Fy.prototype.interpretiveChannel = function (o) {
-    var self = this, n = o.rho.length;
-    return this.scope(function (s) {
-      var r = s.put(o.rho), vp = s.fixed('interp.vprime', o.vprime, n),
-          g7 = s.fixed('interp.gm7', o.gm7, n),
-          g3 = s.fixed('interp.gm3', o.gm3, n),
-          d = s.fixed('interp.density', o.density, n),
-          t = s.fixed('interp.temperature', o.temperature, n),
-          q = s.fixed('interp.source', o.source, n),
-          oq = s.zeros(n), op = s.zeros(n), oc = s.zeros(n), ov = s.zeros(n);
-      var rc = self.e.fylite_rs_interpretive_channel(
-        r.ptr, vp.ptr, g7.ptr, g3.ptr, d.ptr, t.ptr, q.ptr, BigInt(n),
-        num(o.gradFloor, 1e-3), oq.ptr, op.ptr, oc.ptr, ov.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_interpretive_channel', rc);
-      return { qPb: s.get(oq), power: s.get(op), chi: s.get(oc),
-               valid: s.get(ov) };
-    });
-  };
 
   /**
    * The ADAS species the shipped table carries, in the kernel's own order.
@@ -2990,272 +1215,10 @@
     });
   };
 
-  /**
-   * Bremsstrahlung, line radiation and their sum [erg/cm^3/s].
-   *
-   * `o` = `{te (eV), ne (cm^-3), ions: [{n: cm^-3 per point, z, id}]}` where
-   * `id` is an `adasId()` result: negative means the ion contributes to the
-   * bremsstrahlung and nothing to the line radiation.
-   *
-   * ★★The brem/line SPLIT is not physical — only the sum is the ADAS
-   * value — and the kernel says so at its own entry.  Both columns come
-   * back because a page that shows them separately is showing a
-   * DECOMPOSITION of one number, which is what the caveat has to say.
-   */
-  Fy.prototype.radIon = function (o) {
-    var self = this, n = o.te.length, ions = o.ions || [], ni_ = ions.length;
-    if (!ni_) throw new Error('FyLite.radIon: no ion species given');
-    var flat = new Float64Array(ni_ * n), zs = new Float64Array(ni_);
-    for (var j = 0; j < ni_; j++) {
-      var d = ions[j].n;
-      if (!d || d.length !== n)
-        throw new Error('FyLite.radIon: ion ' + j + ' must hold ' + n +
-                        ' densities, got ' + (d ? d.length : 'none'));
-      flat.set(d, j * n);
-      zs[j] = +ions[j].z;
-    }
-    return this.scope(function (s) {
-      var a = s.put(o.te), b = s.put(o.ne),
-          c = s.fixed('rad.ni', flat, ni_ * n),
-          d2 = s.fixed('rad.z', zs, ni_),
-          //: the ids are i32; one f64 slot holds two of them, and the view
-          //: is taken after the last allocation so it cannot be detached
-          ids = s.zeros(ni_),
-          ob = s.zeros(n), ol = s.zeros(n), ot = s.zeros(n);
-      var iv = new Int32Array(self.e.memory.buffer, ids.ptr, ni_);
-      for (var k = 0; k < ni_; k++) {
-        var id = ions[k].id;
-        iv[k] = (id === undefined || id === null) ? -1 : (id | 0);
-      }
-      var rc = self.e.fylite_rs_rad_ion(
-        a.ptr, b.ptr, BigInt(n), c.ptr, d2.ptr, ids.ptr, BigInt(ni_),
-        ob.ptr, ol.ptr, ot.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_rad_ion', rc);
-      return { brem: s.get(ob), line: s.get(ol), total: s.get(ot) };
-    });
-  };
 
-  /**
-   * Bremsstrahlung [erg/cm^3/s] — `radIon` with no ADAS species named.
-   *
-   * ★What comes back is the BREMSSTRAHLUNG column, not the total:
-   * `total` is the ADAS cooling curve's answer and it is ZERO when no
-   * species is named, which is exactly this call.  Naming a species is
-   * `radIon`'s job, and the page that does it says which one.
-   */
-  Fy.prototype.bremPower = function (te, neCgs, niCgs, z) {
-    var n = te.length, ions = [];
-    for (var j = 0; j < z.length; j++)
-      ions.push({ n: niCgs.subarray ? niCgs.subarray(j * n, (j + 1) * n)
-                                    : niCgs.slice(j * n, (j + 1) * n),
-                  z: z[j], id: -1 });
-    return this.radIon({ te: te, ne: neCgs, ions: ions }).brem;
-  };
 
-  /**
-   * The core march: every switched-on channel advanced together, as the
-   * resumable machine the kernel exposes.
-   *
-   * `evaluate(state)` is called at each state the march reports and must
-   * hand back the closure there — `{chiE, chiI, sExchange, dN, vN,
-   * sigmaPar, jNi}`.  ★That protocol is the kernel's and not a convenience:
-   * a closure cannot cross the ABI, so the march STOPS and asks rather than
-   * calling back into the host.
-   *
-   * Units, all the kernel's: `rho` [m] (or any monotone label whose `vprime`
-   * = dV/drho [m^2] and `gm3` = <|grad rho|^2> are metrics of the SAME
-   * label), T in eV, densities m^-3, `qE`/`qI` [W/m^3], `sN` [m^-3 s^-1],
-   * psi [Wb/rad].
-   */
-  /**
-   * The derived half of `input.tglf` for one surface — the kernel's
-   * `mapping::tglf_local`.
-   *
-   * ★★Bound for ONE number, and the reason is that the number is a
-   * normalisation rather than a formula: `VEXB_SHEAR` is
-   * `-sign_It * (-R w0') * r/(|q| R) * a/c_s`, four conventions deep (which
-   * sign, which radius the derivative is against, which length it is
-   * normalised by, and which sound speed).  A host that spells that out
-   * again is a host that gets one of the four wrong; the kernel already has
-   * it, together with the `c_s` its own `derived` block defines, so this
-   * asks it.
-   *
-   * `o` = `{surf20, signb, signq, w0, w0p, iz, imass, ini, iti, idlnn,
-   * idlnt, betaeScale, nuScale, rotation}`.  `w0` is [rad/s] and `w0p`
-   * [rad/(s m)] against the surface's minor radius in metres.
-   */
-  Fy.prototype.tglfLocal = function (o) {
-    var self = this, nion = o.iz.length, ns = nion + 1;
-    return this.scope(function (s) {
-      var g = s.fixed('tglfLocal.surf20', o.surf20, 20),
-          iz = s.put(o.iz), im = s.fixed('tglfLocal.imass', o.imass, nion),
-          ini = s.fixed('tglfLocal.ini', o.ini, nion),
-          iti = s.fixed('tglfLocal.iti', o.iti, nion),
-          idn = s.fixed('tglfLocal.idlnn', o.idlnn, nion),
-          idt = s.fixed('tglfLocal.idlnt', o.idlnt, nion),
-          out = s.zeros(27), osp = s.zeros(6 * ns);
-      var rc = self.e.fylite_rs_tglf_local(
-        g.ptr, o.signb, o.signq, num(o.w0, 0), num(o.w0p, 0),
-        iz.ptr, im.ptr, ini.ptr, iti.ptr, idn.ptr, idt.ptr, BigInt(nion),
-        num(o.betaeScale, 1), num(o.nuScale, 1), o.rotation ? 1 : 0,
-        out.ptr, osp.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_tglf_local', rc);
-      var v = s.get(out);
-      return { signBt: v[0], signIt: v[1], debye: v[2], betae: v[3],
-               xnue: v[4], qAbs: v[5], qPrime: v[6], pPrime: v[7],
-               alphaSa: v[8], vexbShear: v[9], vparShear: v[10],
-               vpar: v[11], geometry: v.slice(12, 27) };
-    });
-  };
 
-  /**
-   * The TOROIDAL MOMENTUM channel, one march — the kernel's
-   * `transport::solve_momentum`.
-   *
-   * `o` = `{rho, omega, vprime, gm3, r2, dens, mass, chiPhi, torque, dt,
-   * edge, maxOuter, tolSteady, dPc, tol, maxInner}`.  Everything is SI:
-   * omega is [rad/s] and `torque` a torque DENSITY [J/m^3], which is the
-   * one place this differs from the heat channels beyond the 3/2.
-   *
-   * ★It is a separate entry rather than a fourth channel of `coreMarch`
-   * because that is how the kernel has it: `core_march` carries heat,
-   * density and current, and the momentum channel stands beside them.  A
-   * caller marching all four therefore operator-SPLITS, and must say so.
-   *
-   * ★★`chiPhi` is PRESCRIBED, and no closure in this package can produce
-   * one: a momentum diffusivity is a TGLF output and the port does not
-   * carry upstream's toroidal-stress weights (`assembly.solve_momentum`
-   * says so, and `closure.momentum_chi_phi` refuses rather than returning
-   * a zero).  The caller's own number — measured, scaled off chi_i, or from
-   * another code — is the supported path.
-   */
-  Fy.prototype.solveMomentum = function (o) {
-    var self = this, n = o.rho.length;
-    return this.scope(function (s) {
-      var rho = s.put(o.rho), w0 = s.fixed('momentum.omega', o.omega, n),
-          vp = s.fixed('momentum.vprime', o.vprime, n),
-          g3 = s.fixed('momentum.gm3', o.gm3, n),
-          r2 = s.fixed('momentum.r2', o.r2, n),
-          dn = s.fixed('momentum.dens', o.dens, n),
-          cp = s.fixed('momentum.chiPhi', o.chiPhi, n),
-          tq = s.fixed('momentum.torque', o.torque, n),
-          out = s.zeros(n + 3);
-      var rc = self.e.fylite_rs_solve_momentum(
-        rho.ptr, w0.ptr, vp.ptr, g3.ptr, r2.ptr, dn.ptr, cp.ptr, tq.ptr,
-        BigInt(n), o.mass, o.dt, o.edge, BigInt(o.maxOuter || 1),
-        num(o.tolSteady, 1e-9), num(o.dPc, 0), num(o.tol, 1e-10),
-        BigInt(o.maxInner || 60), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_solve_momentum', rc);
-      var v = s.get(out);
-      return { omega: v.slice(0, n), outerSteps: v[n] | 0,
-               steady: v[n + 1] === 1, delta: v[n + 2] };
-    });
-  };
 
-  Fy.prototype.coreMarch = function (o, evaluate, onStep) {
-    var self = this, n = o.rho.length, ni_ = o.z.length;
-    var nstate = Number(self.e.fylite_rs_core_march_state_len(
-      BigInt(n), BigInt(ni_)));
-    return this.scope(function (s) {
-      var rho = s.put(o.rho), te = s.put(o.te), ti = s.put(o.ti),
-          ni = s.fixed('march.ni', o.ni, ni_ * n),
-          z = s.fixed('march.z', o.z, ni_),
-          eni = s.fixed('march.edgeNi', o.edgeNi, ni_),
-          psi = s.put(o.psi), vp = s.put(o.vprime), gm3 = s.put(o.gm3),
-          gm2 = s.put(o.gm2), fpol = s.put(o.fpol),
-          qe = s.put(o.qE), qi = s.put(o.qI),
-          sn = s.fixed('march.sN', o.sN, ni_ * n),
-          vpo = o.vprimeOld ? s.put(o.vprimeOld) : null,
-          state = s.zeros(nstate);
-      var rc = self.e.fylite_rs_core_march_init(
-        rho.ptr, te.ptr, ti.ptr, ni.ptr, z.ptr, eni.ptr, psi.ptr,
-        vp.ptr, gm3.ptr, gm2.ptr, fpol.ptr, qe.ptr, qi.ptr, sn.ptr,
-        vpo ? vpo.ptr : 0, BigInt(n), BigInt(ni_),
-        o.b0, num(o.b0Dot, 0), o.dt, num(o.dtTarget, 0), num(o.dtMin, 0),
-        num(o.dtMax, 0), BigInt(o.maxOuter || 1), num(o.tolSteady, 1e-9),
-        BigInt(o.nCoupling || 2), o.edgeTe, o.edgeTi, o.edgePsi,
-        num(o.edgePsiRate, 0), num(o.dPc, 0), num(o.tol, 1e-10),
-        BigInt(o.maxInner || 60),
-        o.channels.heat ? 1 : 0, o.channels.density ? 1 : 0,
-        o.channels.current ? 1 : 0, state.ptr, BigInt(nstate));
-      if (rc !== 0) throw new SolveError('fylite_rs_core_march_init', rc);
-
-      var ce = s.zeros(n), ci = s.zeros(n), sx = s.zeros(n),
-          dn = s.zeros(ni_ * n), vn = s.zeros(ni_ * n),
-          sg = s.zeros(n), jn = s.zeros(n),
-          oTe = s.zeros(n), oTi = s.zeros(n), oNi = s.zeros(ni_ * n),
-          oNe = s.zeros(n), oPsi = s.zeros(n),
-          rTe = s.zeros(n), rTi = s.zeros(n), rNi = s.zeros(ni_ * n),
-          rNe = s.zeros(n), rPsi = s.zeros(n), rQ = s.zeros(n),
-          rSx = s.zeros(n), r6 = s.zeros(6);
-
-      var setter = function (buf, arr, len) {
-        if (!arr) return;
-        if (arr.length !== len)
-          throw new Error('FyLite: the closure returned ' + arr.length +
-                          ' values where ' + len + ' were asked for');
-        self.f64().set(arr, buf.ptr / 8);
-      };
-      //: the state the march reports, read back for the closure to be
-      //: evaluated at — never the state the host last sent in
-      var state0 = { rho: o.rho, te: s.get(oTe), ti: s.get(oTi),
-                     ni: s.get(oNi), ne: s.get(oNe), psi: s.get(oPsi) };
-      state0.te.set(o.te); state0.ti.set(o.ti);
-      state0.ni.set(o.ni);
-      state0.psi.set(o.psi);
-      //: n_e is the quasi-neutrality closure, so the FIRST evaluation gets it
-      //: from the ion mix rather than from an input that does not exist
-      for (var k = 0; k < n; k++) {
-        var acc = 0;
-        for (var j = 0; j < ni_; j++) acc += o.z[j] * o.ni[j * n + k];
-        state0.ne[k] = acc;
-      }
-
-      var result = function () {
-        var rc2 = self.e.fylite_rs_core_march_result(
-          state.ptr, BigInt(nstate), BigInt(n), BigInt(ni_), rTe.ptr,
-          rTi.ptr, rNi.ptr, rNe.ptr, rPsi.ptr, rQ.ptr, rSx.ptr, r6.ptr);
-        if (rc2 !== 0)
-          throw new SolveError('fylite_rs_core_march_result', rc2);
-        var v = s.get(r6);
-        return { te: s.get(rTe), ti: s.get(rTi), ni: s.get(rNi),
-                 ne: s.get(rNe), psi: s.get(rPsi), q: s.get(rQ),
-                 sExchange: s.get(rSx), outerSteps: v[0] | 0,
-                 steady: v[1] === 1, delta: v[2], psiRepaired: v[3],
-                 dt: v[4], retries: v[5] | 0 };
-      };
-
-      var st = state0, seen = 0, guard = 0;
-      for (;;) {
-        var c = evaluate(st) || {};
-        setter(ce, c.chiE, n); setter(ci, c.chiI, n);
-        setter(sx, c.sExchange, n);
-        setter(dn, c.dN, ni_ * n); setter(vn, c.vN, ni_ * n);
-        setter(sg, c.sigmaPar, n); setter(jn, c.jNi, n);
-        var req = self.e.fylite_rs_core_march_next(
-          state.ptr, BigInt(nstate), ce.ptr, ci.ptr, sx.ptr, dn.ptr, vn.ptr,
-          sg.ptr, jn.ptr, BigInt(n), BigInt(ni_),
-          oTe.ptr, oTi.ptr, oNi.ptr, oNe.ptr, oPsi.ptr);
-        if (req < 0) throw new SolveError('fylite_rs_core_march_next', req);
-        st = { rho: o.rho, te: s.get(oTe), ti: s.get(oTi), ni: s.get(oNi),
-               ne: s.get(oNe), psi: s.get(oPsi) };
-        //: ★a step is REPORTED when the machine says it finished one, which
-        //: is what the outer counter is for.  Counting the host's own calls
-        //: would count coupling passes as time steps.
-        if (onStep) {
-          var r = result();
-          if (r.outerSteps > seen) { seen = r.outerSteps; onStep(r); }
-        }
-        if (req === 0) break;
-        //: the march is bounded by `maxOuter * nCoupling` calls; a machine
-        //: that never says Done is a kernel bug, and looping forever in a
-        //: worker is how it would present itself
-        if (++guard > 64 * (o.maxOuter || 1) + 64)
-          throw new Error('FyLite: the core march did not finish');
-      }
-      return result();
-    });
-  };
 
 
   // --- L1 the STEADY state: the Newton flux match ---------------------------
@@ -3276,24 +1239,6 @@
   // FLUX MODEL, which is a callback and therefore cannot cross the ABI —
   // hence a resumable machine rather than a function taking a closure.
 
-  /**
-   * A profile from its gradient, integrated INWARD from the outermost point.
-   *
-   * That direction is a flux match's boundary condition: the pedestal top is
-   * pinned and everything inside follows from the gradients being solved
-   * for.  `log` (default true) takes the `-d ln f/dr` convention.
-   */
-  Fy.prototype.reintegrate = function (gradient, r, anchor, log) {
-    var self = this, n = r.length;
-    return this.scope(function (s) {
-      var g = s.fixed('reintegrate.gradient', gradient, n),
-          x = s.put(r), out = s.zeros(n);
-      var rc = self.e.fylite_rs_reintegrate(
-        g.ptr, x.ptr, BigInt(n), anchor, log === false ? 0 : 1, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_reintegrate', rc);
-      return s.get(out);
-    });
-  };
 
   /**
    * The Newton flux match in gradient space.
@@ -3400,126 +1345,10 @@
   // is R-major (`psin2d[i * nz + j]`, i over R), the same order
   // `gs_free_solve` writes psi in and the same order `shell_table` reads.
 
-  /**
-   * Shell volumes and mid-surface geometry on a psi_N EDGE grid — what a
-   * deposition model bins into.  `o` = `{r0, z0, dr, dz, nr, nz, psin2d,
-   * axisR, axisZ, limR, limZ, levels, nTheta}`.
-   *
-   * ★The tracing, the gap repair and the `V(0) = 0` convention are the
-   * kernel's: a level that fails to trace leaves a gap, and which
-   * quantities may be repaired across it is a statement about the
-   * quantity, not a detail of a loop.
-   */
-  Fy.prototype.shellTable = function (o) {
-    var self = this, nlev = o.levels.length, nlim = o.limR.length;
-    return this.scope(function (s) {
-      var p = s.fixed('shellTable.psin2d', o.psin2d, o.nr * o.nz),
-          lr = s.put(o.limR), lz = s.put(o.limZ), lv = s.put(o.levels),
-          out = s.zeros(4 * nlev);
-      var rc = self.e.fylite_rs_shell_table(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), p.ptr,
-        o.axisR, o.axisZ, lr.ptr, lz.ptr, BigInt(nlim), lv.ptr,
-        BigInt(nlev), BigInt(o.nTheta || 181), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_shell_table', rc);
-      var v = s.get(out);
-      var vol = v.subarray(0, nlev), dvol = new Float64Array(nlev - 1);
-      for (var k = 1; k < nlev; k++) dvol[k - 1] = vol[k] - vol[k - 1];
-      return { volume: vol.slice(), dvolume: dvol,
-               rminor: v.slice(nlev, 2 * nlev),
-               rmajor: v.slice(2 * nlev, 3 * nlev),
-               kappa: v.slice(3 * nlev) };
-    });
-  };
 
-  /**
-   * `dS = dV/(2 pi R)`, and — with `pDep`/`tauEff` — the fast-ion energy
-   * density and pressure that share this ABI entry.
-   *
-   * ★★A surface of revolution has `dV = 2 pi R dS`, so a current density
-   * integrates to a CURRENT with this weight and no other.  It looks like
-   * bookkeeping and it is the difference between an ampere and an ampere
-   * per metre.
-   */
-  Fy.prototype.shellArea = function (o) {
-    var self = this, n = o.dvol.length;
-    var both = !!(o.pDep && o.tauEff);
-    return this.scope(function (s) {
-      var dv = s.put(o.dvol), rj = s.fixed('shellArea.rmaj', o.rmaj, n),
-          pd = both ? s.fixed('shellArea.pDep', o.pDep, n) : null,
-          te = both ? s.fixed('shellArea.tauEff', o.tauEff, n) : null,
-          out = s.zeros(both ? 3 * n : n);
-      var rc = self.e.fylite_rs_shell_area(
-        dv.ptr, rj.ptr, BigInt(n), pd ? pd.ptr : 0, te ? te.ptr : 0,
-        out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_shell_area', rc);
-      var v = s.get(out);
-      if (!both) return { area: v };
-      return { area: v.slice(0, n), wFast: v.slice(n, 2 * n),
-               pFast: v.slice(2 * n) };
-    });
-  };
 
-  /**
-   * `sum v_i w_i` — a density over shell volumes, or a current density
-   * over shell areas.  ★An ABI entry rather than a loop on this side
-   * because P_abs, I_NBI and W_fast are closed by the SAME rule, and one
-   * rule written three times is three rules.
-   */
-  Fy.prototype.shellSum = function (values, weights) {
-    var self = this, n = values.length;
-    return this.scope(function (s) {
-      var v = s.put(values), w = s.fixed('shellSum.weights', weights, n),
-          out = s.zeros(1);
-      var rc = self.e.fylite_rs_shell_sum(v.ptr, w.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_shell_sum', rc);
-      return s.get(out)[0];
-    });
-  };
 
-  /**
-   * Fast-ion pressure SPLIT by the birth pitch (T-M12): the
-   * pitch-preserving drag closure `p_par = 2 W xi^2`,
-   * `p_perp = W (1 - xi^2)` with `W = pDep tauEff / 2`.
-   * `p_par/2 + p_perp == W` and the trace third equals the isotropic
-   * scalar, so the scalar channel is unchanged.
-   */
-  Fy.prototype.fastIonPressureSplit = function (o) {
-    var self = this, n = o.pDep.length;
-    return this.scope(function (s) {
-      var pd = s.put(o.pDep),
-          te = s.fixed('fastIonPressureSplit.tauEff', o.tauEff, n),
-          xi = s.fixed('fastIonPressureSplit.pitch', o.pitch, n),
-          out = s.zeros(3 * n);
-      var rc = self.e.fylite_rs_fast_ion_pressure_split(
-        pd.ptr, te.ptr, xi.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) {
-        throw new SolveError('fylite_rs_fast_ion_pressure_split', rc);
-      }
-      var v = s.get(out);
-      return { wFast: v.slice(0, n), pPar: v.slice(n, 2 * n),
-               pPerp: v.slice(2 * n) };
-    });
-  };
 
-  /**
-   * Toroidal torque density of the beam's PROMPT momentum input (T-M12):
-   * `tau_phi = pDep (2/v_b) xi R`, `v_b = sqrt(2 e E / m)` — per energy
-   * component, the caller sums.  `energy` eV, `mass` amu; the sign is the
-   * pitch's.
-   */
-  Fy.prototype.beamTorque = function (o) {
-    var self = this, n = o.pDep.length;
-    return this.scope(function (s) {
-      var pd = s.put(o.pDep),
-          xi = s.fixed('beamTorque.pitch', o.pitch, n),
-          rj = s.fixed('beamTorque.rmaj', o.rmaj, n),
-          out = s.zeros(n);
-      var rc = self.e.fylite_rs_beam_torque(
-        pd.ptr, xi.ptr, rj.ptr, BigInt(n), +o.energy, +o.mass, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_beam_torque', rc);
-      return s.get(out);
-    });
-  };
 
   /** Lin-Liu & Miller trapped fraction from the inverse aspect ratio. */
   Fy.prototype.trappedFractionEps = function (eps) {
@@ -3551,236 +1380,17 @@
   var BEAM_STOPPING = { janev: 0, metis: 1 };
   var BEAM_IMPURITY_FORM = { exp: 0, metis: 1 };
 
-  /**
-   * ONE energy component of ONE beam over its finite cross-section: the
-   * footprint's rays, their geometry, the profile evaluation at the ray's
-   * own samples, the attenuation and the shell binning — one call.
-   *
-   * `o` = `{r0, z0, dr, dz, nr, nz, psin2d, tangencyRadius, zHeight,
-   *          widthR, widthZ, direction, nWidthR, nWidthZ, nSamples,
-   *          rStart, psinProf, ne, te, psinEdges, mass, energy,
-   *          model, impurityForm, nHe, nImp, zImp, nImp2, zImp2}`
-   *
-   * Returns `{absorbed, pitchWeighted, shinethrough}` per shell.  ★
-   * `sum(absorbed) + shinethrough` is 1 to round-off; that is the only
-   * cheap check this model has, and the gate uses it.
-   */
-  Fy.prototype.beamDeposit = function (o) {
-    var self = this, nprof = o.psinProf.length,
-        nsh = o.psinEdges.length - 1;
-    return this.scope(function (s) {
-      var p = s.fixed('beamDeposit.psin2d', o.psin2d, o.nr * o.nz),
-          pp = s.put(o.psinProf),
-          ne = s.fixed('beamDeposit.ne', o.ne, nprof),
-          te = s.fixed('beamDeposit.te', o.te, nprof),
-          ed = s.put(o.psinEdges),
-          out = s.zeros(2 * nsh), shine = s.zeros(1);
-      var rc = self.e.fylite_rs_beam_deposit(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), p.ptr,
-        o.tangencyRadius, o.zHeight, o.widthR, o.widthZ, o.direction,
-        BigInt(o.nWidthR || 3), BigInt(o.nWidthZ || 3),
-        BigInt(o.nSamples || 601), o.rStart,
-        pp.ptr, ne.ptr, te.ptr, BigInt(nprof), ed.ptr, BigInt(nsh),
-        o.mass, o.energy,
-        BEAM_STOPPING[o.model || 'janev'],
-        BEAM_IMPURITY_FORM[o.impurityForm || 'exp'],
-        num(o.nHe, 0), num(o.nImp, 0), num(o.zImp, 6),
-        num(o.nImp2, 0), num(o.zImp2, 74), out.ptr, shine.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_beam_deposit', rc);
-      var v = s.get(out);
-      return { absorbed: v.slice(0, nsh), pitchWeighted: v.slice(nsh),
-               shinethrough: s.get(shine)[0] };
-    });
-  };
 
-  /**
-   * Stix slowing-down over a profile: `{eCrit, eGamma, tauS, lnLambda,
-   * ionFraction, tauEff}`, the last two evaluated at `eBeam`.
-   */
-  Fy.prototype.beamSlowing = function (o) {
-    var self = this, n = o.te.length;
-    return this.scope(function (s) {
-      var te = s.put(o.te), ne = s.fixed('beamSlowing.ne', o.ne, n),
-          z = s.fixed('beamSlowing.zeff', o.zeff, n),
-          zs = s.fixed('beamSlowing.zsum', o.zsum, n),
-          out = s.zeros(6 * n);
-      var rc = self.e.fylite_rs_beam_slowing(
-        te.ptr, ne.ptr, z.ptr, zs.ptr, BigInt(n), o.mass, o.eBeam, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_beam_slowing', rc);
-      var v = s.get(out), k;
-      var col = function (c) {
-        var a = new Float64Array(n);
-        for (k = 0; k < n; k++) a[k] = v[6 * k + c];
-        return a;
-      };
-      return { eCrit: col(0), eGamma: col(1), tauS: col(2),
-               lnLambda: col(3), ionFraction: col(4), tauEff: col(5) };
-    });
-  };
 
-  /**
-   * The beam's energy partition from a critical energy and a slowing time
-   * already in hand: `{ionFraction, tauEff}`.
-   */
-  Fy.prototype.beamEnergyPartition = function (o) {
-    var self = this, n = o.eCrit.length;
-    return this.scope(function (s) {
-      var ec = s.put(o.eCrit), ts = s.fixed('beamPartition.tauS', o.tauS, n),
-          eb = s.fixed('beamPartition.eBeam', o.eBeam, n),
-          out = s.zeros(2 * n);
-      var rc = self.e.fylite_rs_beam_energy_partition(
-        ec.ptr, ts.ptr, eb.ptr, BigInt(n), out.ptr);
-      if (rc !== 0)
-        throw new SolveError('fylite_rs_beam_energy_partition', rc);
-      var v = s.get(out), a = new Float64Array(n), b = new Float64Array(n);
-      for (var k = 0; k < n; k++) { a[k] = v[2 * k]; b[k] = v[2 * k + 1]; }
-      return { ionFraction: a, tauEff: b };
-    });
-  };
 
-  /**
-   * Electron shielding of the beam-driven current: `{g, factor}`.
-   *
-   * ★TWO numbers, and they are not the same number: `g` is the shielding
-   * function and `factor` is `1 - (Z_b/Z_eff) g` — the surviving fraction.
-   * They are returned separately because a page that multiplied them into
-   * the current and reported one number could not say which of the two it
-   * had applied.
-   */
-  Fy.prototype.beamShielding = function (o) {
-    var self = this, n = o.ft.length;
-    return this.scope(function (s) {
-      var ft = s.put(o.ft), z = s.fixed('beamShielding.zeff', o.zeff, n),
-          out = s.zeros(2 * n);
-      var rc = self.e.fylite_rs_beam_shielding(ft.ptr, z.ptr, BigInt(n),
-                                               out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_beam_shielding', rc);
-      var v = s.get(out), a = new Float64Array(n), b = new Float64Array(n);
-      for (var k = 0; k < n; k++) { a[k] = v[2 * k]; b[k] = v[2 * k + 1]; }
-      return { g: a, factor: b };
-    });
-  };
 
-  /**
-   * The beam-driven current density of one energy component [A/m^2].
-   *
-   * ★The bulk's return current (`shield`) and the beam ions' own trapping
-   * are DIFFERENT suppressions and this entry applies BOTH — which is why
-   * the shielding factor is reported beside the current rather than folded
-   * into it on this side.
-   */
-  Fy.prototype.beamCurrent = function (o) {
-    var self = this, n = o.pDep.length;
-    return this.scope(function (s) {
-      var pd = s.put(o.pDep), pt = s.fixed('beamCurrent.pitch', o.pitch, n),
-          ec = s.fixed('beamCurrent.eCrit', o.eCrit, n),
-          eg = s.fixed('beamCurrent.eGamma', o.eGamma, n),
-          ts = s.fixed('beamCurrent.tauS', o.tauS, n),
-          rm = s.fixed('beamCurrent.rmin', o.rmin, n),
-          rj = s.fixed('beamCurrent.rmaj', o.rmaj, n),
-          sh = s.fixed('beamCurrent.shield', o.shield, n),
-          out = s.zeros(n);
-      var rc = self.e.fylite_rs_beam_current(
-        pd.ptr, pt.ptr, ec.ptr, eg.ptr, ts.ptr, rm.ptr, rj.ptr, sh.ptr,
-        BigInt(n), o.energy, o.mass, num(o.multiplier, 1),
-        BigInt(o.nStep || 101), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_beam_current', rc);
-      return s.get(out);
-    });
-  };
 
-  /**
-   * The first-orbit-loss mask: 1 where a newly born ion is lost.
-   *
-   * ★Counter-injection only — a co-injected ion drifts INWARD, and the
-   * same arithmetic applied to it would invent a loss that does not
-   * happen.  The kernel returns all zeros for `counter = false`, and this
-   * side does not second-guess that.
-   */
-  Fy.prototype.firstOrbitLoss = function (o) {
-    var self = this, n = o.rmin.length;
-    return this.scope(function (s) {
-      var rm = s.put(o.rmin), rj = s.fixed('firstOrbit.rmaj', o.rmaj, n),
-          q = s.fixed('firstOrbit.q', o.q, n), out = s.zeros(n);
-      var rc = self.e.fylite_rs_first_orbit_loss(
-        rm.ptr, rj.ptr, q.ptr, BigInt(n), o.aEdge, o.b0, o.r0, o.mass,
-        o.charge, o.energy, o.counter ? 1 : 0, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_first_orbit_loss', rc);
-      return s.get(out);
-    });
-  };
 
   //: ★the CD-model selector, spelled where the call is.  The index IS the
   //: ABI code (`LH_EFFICIENCY_MODEL_NAMES`), so append, never reorder.
   var LH_CD_MODEL = { fisch: 0 };
 
-  /**
-   * ★★THE WHOLE LOWER-HYBRID CHAIN, one call: where each band end
-   * resonates, the accessibility gate, the damping layer, the CD
-   * weighting, the normalisation and the sigma envelope.
-   *
-   * `o` = `{psin, dvol, rmaj, ne, te, fPol, bands, powers, etaCd, r0, xi,
-   *          widthFloor, cdModel}` — `bands` one EFFECTIVE `[n_lo, n_hi]`
-   * per launcher (the up-shift already applied by the caller, which is
-   * where that assumption is stated) and `powers` the absorbed watts.
-   *
-   * Returns `{jLh, sigmaJ, pDep, nAcc, iLau, resLo, resHi, iLh, neBar}`.
-   * ★`resLo`/`resHi` come back NaN where a band end resonates nowhere in
-   * this plasma: that is a RESULT (too cold for that n_parallel, so a
-   * single-pass model deposits nothing there), not an error, and this side
-   * passes it through rather than turning it into a zero.
-   */
-  Fy.prototype.lhDeposit = function (o) {
-    var self = this, n = o.psin.length, nl = o.bands.length;
-    var lo = new Float64Array(nl), hi = new Float64Array(nl);
-    for (var k = 0; k < nl; k++) { lo[k] = o.bands[k][0]; hi[k] = o.bands[k][1]; }
-    return this.scope(function (s) {
-      var ps = s.put(o.psin),
-          dv = s.fixed('lhDeposit.dvol', o.dvol, n),
-          rm = s.fixed('lhDeposit.rmaj', o.rmaj, n),
-          ne = s.fixed('lhDeposit.ne', o.ne, n),
-          te = s.fixed('lhDeposit.te', o.te, n),
-          fp = s.fixed('lhDeposit.fPol', o.fPol, n),
-          bl = s.put(lo), bh = s.put(hi),
-          pw = s.fixed('lhDeposit.powers', o.powers, nl),
-          fields = s.zeros(4 * n), per = s.zeros(3 * nl), scal = s.zeros(2);
-      var rc = self.e.fylite_rs_lh_deposit(
-        ps.ptr, dv.ptr, rm.ptr, ne.ptr, te.ptr, fp.ptr, BigInt(n),
-        bl.ptr, bh.ptr, pw.ptr, BigInt(nl),
-        o.etaCd, o.r0, num(o.xi, 3), num(o.widthFloor, 0.05),
-        LH_CD_MODEL[o.cdModel || 'fisch'],
-        fields.ptr, per.ptr, scal.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_lh_deposit', rc);
-      var v = s.get(fields), p = s.get(per), c = s.get(scal);
-      return { jLh: v.slice(0, n), sigmaJ: v.slice(n, 2 * n),
-               pDep: v.slice(2 * n, 3 * n), nAcc: v.slice(3 * n),
-               iLau: p.slice(0, nl), resLo: p.slice(nl, 2 * nl),
-               resHi: p.slice(2 * nl), iLh: c[0], neBar: c[1] };
-    });
-  };
 
-  /**
-   * The slow-wave accessibility limit per surface, and the Landau-resonant
-   * temperature of one `n_parallel`: `{nAccessible, tResonant}`.
-   *
-   * ★TWO answers out of one entry and they are not the same question:
-   * `nAccessible` says WHERE the wave can go, `tResonant` says where it
-   * would damp if it got there.  A page multiplying them into one
-   * "coupling" number could not say which of the two failed.
-   */
-  Fy.prototype.lhAccessibility = function (o) {
-    var self = this, n = o.ne.length;
-    return this.scope(function (s) {
-      var ne = s.put(o.ne), b = s.fixed('lhAccessibility.bTot', o.bTot, n),
-          out = s.zeros(2 * n);
-      var rc = self.e.fylite_rs_lh_accessibility(
-        ne.ptr, b.ptr, BigInt(n), o.nParallel, num(o.xi, 3), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_lh_accessibility', rc);
-      var v = s.get(out), a = new Float64Array(n);
-      for (var k = 0; k < n; k++) a[k] = v[2 * k];
-      return { nAccessible: a, tResonant: v[1] };
-    });
-  };
 
   // --- errors -------------------------------------------------------------
 
@@ -3803,7 +1413,6 @@
       '-2': 'err.tr.theta', '-3': 'err.tr.euler', '-4': 'err.tr.pc',
       '-5': 'err.tr.grid', '-6': 'err.tr.singular', '-20': 'err.tr.neo',
     },
-    fylite_rs_design_null: { '-3': 'err.dn.maxiter' },
     //: ★T-C13 — the flux match numbers its own faults, and -6 is the one
     //: worth reading: a singular Newton matrix there means the MODEL FLUX is
     //: insensitive to one of the gradients, which is a statement about the
@@ -4145,45 +1754,13 @@
     return { pr: pr, pz: pz, n: n };
   }
 
-  function coilGridResponse(fy, coils, grid, nu, nv) {
-    var g = gridNodes(grid);
-    return fy.elementResponse(coils, g.pr, g.pz, nu || 6, nv || 6);
-  }
 
-  /**
-   * Per-CHANNEL psi on every grid node, `(nch, n_node)` — the table a page
-   * builds once and contracts against a channel vector per solve.
-   *
-   * ★The response AND the channel fold are one kernel call; only the
-   * transpose into the cache's own layout happens here.  The caller used to
-   * fold in JS, which made the page a second host for a map whose index
-   * direction is its whole content.
-   */
-  function gridChannelResponse(fy, coils, weightsT, nch, grid, nu, nv) {
-    var g = gridNodes(grid);
-    var f = fy.channelField(coils, weightsT, nch, g.pr, g.pz, nu || 4, nv || 4);
-    var out = new Float64Array(nch * g.n);
-    for (var p = 0; p < g.n; p++)
-      for (var c = 0; c < nch; c++) out[c * g.n + p] = f.psi[p * nch + c];
-    return out;
-  }
 
   /** Per-coil response at scattered points. */
   function coilPointResponse(fy, coils, pr, pz, nu, nv) {
     return fy.elementResponse(coils, pr, pz, nu || 6, nv || 6);
   }
 
-  /** psi_ext = sum_k I_k * G_k  (I in total amperes). */
-  function combine(resp, currents, npts) {
-    var out = new Float64Array(npts);
-    for (var k = 0; k < currents.length; k++) {
-      var ik = currents[k];
-      if (ik === 0) continue;
-      var off = k * npts;
-      for (var p = 0; p < npts; p++) out[p] += ik * resp[off + p];
-    }
-    return out;
-  }
 
   /**
    * Flux-loop response matrix, row-major (nloop, nr*nz): the full-flux
@@ -4207,84 +1784,13 @@
 
   // --- plasma mask / analytic profile bookkeeping --------------------------
 
-  /**
-   * Flood-fill plasma mask over the interior cells, replicating the rule
-   * the solvers use: limiter-interior nodes with s*psi above s*psi_bnd,
-   * connected to the axis.  Returns a Uint8Array over (nr-2, nz-2).
-   */
-  function plasmaMask(grid, psi, psiAxis, psiBnd, limR, limZ, sign) {
-    if (!KERNEL)
-      throw new Error('FyPhys.plasmaMask: no kernel — call useKernel()');
-    //: the vessel test used to run HERE, node by node — nr*nz*nlim polygon
-    //: crossings in JavaScript.  The kernel takes the limiter now (v42), so
-    //: what is left is naming the arguments.
-    return KERNEL.plasmaMaskLim({
-      r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-      nr: grid.nr, nz: grid.nz, psi: psi, limR: limR, limZ: limZ,
-      psiBnd: psiBnd, sign: sign || 1 });
-  }
 
 
 
-  /**
-   * Recover the current scale j_c the free-boundary solve applied, then
-   * the p'(x) / FF'(x) / p(x) it implies.  The solver normalizes
-   * j_phi = j_c * S(R, x) to the requested Ip, so j_c follows from the
-   * converged field, and the two terms of S separate exactly into the
-   * pressure and the poloidal-current channel:
-   *
-   *   p'(x)  = j_c * beta0 / R0 * (1 - x^emp)^enp        [Pa / (Wb/rad)]
-   *   FF'(x) = mu0 * j_c * (1 - beta0) * R0 * (...)
-   *   p(x)   = span_pr * integral_x^1 p'(t) dt,  span_pr = (psi_a-psi_b)/2pi
-   */
-  function analyticTruth(grid, res, prof, limR, limZ, nx) {
-    if (!KERNEL)
-      throw new Error('FyPhys.analyticTruth: no kernel — call useKernel()');
-    var mask = plasmaMask(grid, res.psi, res.psiAxis, res.psiBnd, limR, limZ, 1);
-    var t = KERNEL.analyticTruth({
-      psi: res.psi, nr: grid.nr, nz: grid.nz, rOf: grid.r,
-      dr: grid.dr, dz: grid.dz, mask: mask,
-      psiAxis: res.psiAxis, psiBnd: res.psiBnd, ip: res.ip,
-      beta0: prof.beta0, emp: prof.emp, enp: prof.enp, r0: prof.r0,
-      nx: nx || 201 });
-    var m = t.x.length, p = t.p;
-    t.mask = mask;
-    //: the interpolator stays on this side: it is a convenience for the
-    //: page, not part of what the field implies
-    t.pAt = function (xq) {
-      var u = xq * (m - 1), k = Math.min(m - 2, Math.max(0, u | 0));
-      return p[k] + (u - k) * (p[k + 1] - p[k]);
-    };
-    return t;
-  }
 
 
-  /**
-   * Evaluate the fitted polynomial channels of a reconstruction.
-   * `coefs` is [p'_0..p'_{npp-1}, FF'_0..FF'_{nff-1}] in the reduced
-   * (edge-zero) basis x^k - x^n used by the Rust fit.
-   */
-  function fittedProfiles(coefs, npp, nff, psiAxis, psiBnd, nx) {
-    if (!KERNEL)
-      throw new Error('FyPhys.fittedProfiles: no kernel — call useKernel()');
-    return KERNEL.fittedProfiles({ coefs: coefs, npp: npp, nff: nff,
-      psiAxis: psiAxis, psiBnd: psiBnd, nx: nx || 201 });
-  }
 
 
-  /**
-   * The toroidal current the fitted coefficients imply, cell by cell over
-   * the interior (nr-2, nz-2) — the same expression the Rust fit uses to
-   * close its own loop, recomputed here so the page can forward-model the
-   * flux loops and show how well the reconstruction fits its data.
-   */
-  function fittedCurrent(grid, psi, psiAxis, psiBnd, coefs, npp, nff, mask) {
-    if (!KERNEL)
-      throw new Error('FyPhys.fittedCurrent: no kernel — call useKernel()');
-    return KERNEL.fittedCurrent({ psi: psi, nr: grid.nr, nz: grid.nz,
-      rOf: grid.r, dr: grid.dr, dz: grid.dz, psiAxis: psiAxis,
-      psiBnd: psiBnd, coefs: coefs, npp: npp, nff: nff, mask: mask });
-  }
 
 
   /**
@@ -4308,22 +1814,8 @@
       beta0: prof.beta0, emp: prof.emp, enp: prof.enp, r0: prof.r0 });
   }
 
-  /** Forward-model the flux loops from an interior cell-current vector. */
-  function loopModel(loopsM, cur, grid, measScale) {
-    if (!KERNEL)
-      throw new Error('FyPhys.loopModel: no kernel — call useKernel()');
-    var ng = grid.nr * grid.nz;
-    return KERNEL.loopModel({ loopsM: loopsM, nLoop: loopsM.length / ng,
-      cur: cur, nr: grid.nr, nz: grid.nz, measScale: measScale });
-  }
 
 
-  /** Total current of an interior cell-current vector [A]. */
-  function totalCurrent(cur) {
-    var s = 0;
-    for (var i = 0; i < cur.length; i++) s += cur[i];
-    return s;
-  }
 
   // --- contours ------------------------------------------------------------
 
@@ -4402,22 +1894,6 @@
 
 
 
-  /**
-   * F(x) = R*B_tor on each normalized-flux point, from the fitted FF' and
-   * the vacuum value at the edge.
-   *
-   *   FF' = F dF/dpsi_rad,  dpsi_rad/dx = (psi_b - psi_a)/2pi = -span_pr
-   *   => F^2(x) = F_edge^2 + 2 * span_pr * integral_x^1 FF'(t) dt
-   *
-   * F_edge is the machine's vacuum R0*B0: the forward model never sees F
-   * (only FF' enters j_phi), so the toroidal field has to come in from
-   * outside, and the vacuum value at the boundary is the standard choice.
-   */
-  function fProfile(x, ffprime, spanPr, fEdge) {
-    if (!KERNEL)
-      throw new Error('FyPhys.fProfile: no kernel — call useKernel()');
-    return KERNEL.fProfile(x, ffprime, spanPr, fEdge);
-  }
 
 
 
@@ -4486,27 +1962,6 @@
       psiAxis: res.psiAxis, psiBnd: res.psiBnd, ip: ip, r0: r0 });
   }
 
-  function qProfile(grid, res, prof, limR, limZ, fEdge, opts) {
-    if (!KERNEL)
-      throw new Error('FyPhys.qProfile: no kernel — call useKernel()');
-    opts = opts || {};
-    //: F(psi) is built here because it is the CALLER's profile — fProfile
-    //: integrates the caller's own FF' with the caller's own gauge — and then
-    //: handed over as a profile.  The conventions that follow (q0 by
-    //: extrapolation, q95 by interpolation, the R exponent) are the kernel's
-    //: and are stated there, once, so two callers' q0 remain comparable.
-    var spanPr = (res.psiAxis - res.psiBnd) / (2 * Math.PI);
-    var fArr = fProfile(prof.x, prof.ffprime, spanPr, fEdge);
-    var r = KERNEL.qProfile({
-      r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-      nr: grid.nr, nz: grid.nz, psi: res.psi,
-      psiAxis: res.psiAxis, psiBnd: res.psiBnd,
-      axisR: res.axisR, axisZ: res.axisZ, limR: limR, limZ: limZ,
-      fx: prof.x, fv: fArr,
-      nq: opts.nq || 20, nTheta: opts.ntheta || 121,
-      xLo: 0.06, xHi: 1 - BOUNDARY_INSET });
-    return { x: r.x, q: r.q, f: fArr, q0: r.q0, q95: r.q95 };
-  }
 
 
   /**
@@ -4565,26 +2020,23 @@
   // The kernel instance is supplied by the caller rather than held here:
   // this file is loaded on pages that never build one.
 
-  function ridgeLstsq(a, b, w, nrow, ncol, lambda) {
-    if (!KERNEL) throw new Error('FyPhys: no kernel — call FyPhys.useKernel()');
-    return KERNEL.ridgeLstsq(a, b, w, nrow, ncol, lambda);
-  }
 
   root.FyPhys = {
-    MU0: MU0, useKernel: useKernel, kernel: kernel,
-    makeGrid: makeGrid, sample: sample, bField: bField,
-    coilGridResponse: coilGridResponse, coilPointResponse: coilPointResponse,
-    gridChannelResponse: gridChannelResponse,
-    combine: combine, loopResponse: loopResponse,
-    plasmaMask: plasmaMask,
-    fittedCurrent: fittedCurrent, fittedCurrentAnalytic: fittedCurrentAnalytic,
-    loopModel: loopModel,
-    totalCurrent: totalCurrent,
-    analyticTruth: analyticTruth, fittedProfiles: fittedProfiles, boundarySurface: boundarySurface, fProfile: fProfile, surfaceVolume: surfaceVolume,
-    qProfile: qProfile, li3: li3,
-    BOUNDARY_INSET: BOUNDARY_INSET, shapeMetrics: shapeMetrics,
+    MU0: MU0,
+    useKernel: useKernel,
+    kernel: kernel,
+    makeGrid: makeGrid,
+    sample: sample,
+    bField: bField,
+    coilPointResponse: coilPointResponse,
+    loopResponse: loopResponse,
+    fittedCurrentAnalytic: fittedCurrentAnalytic,
+    boundarySurface: boundarySurface,
+    surfaceVolume: surfaceVolume,
+    li3: li3,
+    BOUNDARY_INSET: BOUNDARY_INSET,
+    shapeMetrics: shapeMetrics,
     millerBoundary: millerBoundary,
-    ridgeLstsq: ridgeLstsq,
   };
 
 })(typeof self !== 'undefined' ? self : globalThis);
