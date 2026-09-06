@@ -3762,67 +3762,44 @@ function evPsiOf(geo, i) {
 }
 
 /**
- * The poloidal picture of the geometry this march is actually on.
- *
- * ★★A 1.5-D page that never draws its own cross-section asks the reader to
- * take the metric on trust.  Six outlines and a boundary cost six contour
- * traces — nothing beside a march — and they are what makes「这些剖面住在这
- * 张平衡上」 checkable by eye: an imported ITER equilibrium and a Miller
- * ellipse do not look alike, and the difference is the whole point of the
- * geometry control above them.
- *
- * The tiers differ in WHAT can be drawn, and that difference is the honest
- * one: a traced field has real surfaces and a real wall; the analytic tier
- * has a family of Miller outlines and NO wall, because four scalars do not
- * describe one.
+ * The outlines the model page draws — `code/outlines` (第四十五刀): six flux
+ * surfaces at fixed psi_N levels and the boundary at 0.995, traced on the
+ * solved field with the device limiter, or drawn from the Miller family for
+ * a metric that has no field.  Laid back out as the page reads it.
  */
 function evOutlines(geo, ctxObj) {
-  var levels = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9], out = [], i;
-  var flat = function (poly) {
-    var a = new Float64Array(poly.length * 2);
-    for (var k = 0; k < poly.length; k++) {
-      a[2 * k] = poly[k][0]; a[2 * k + 1] = poly[k][1];
-    }
-    return Array.from(a);
-  };
+  var levels = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9], i;
+  var settings, inputs = { discharge: { 'fylite:outline_levels': Float64Array.from(levels) } };
   if (geo.source === 'miller') {
-    //: the analytic family: one outline per radius, the shape parameters
-    //: constant because that is what this tier prescribes
-    for (i = 0; i < levels.length; i++)
-      out.push(flat(fy.millerBoundary({
-        r0: geo.r0, z0: 0, a: geo.a * levels[i], kappa: geo.kappa[0],
-        deltaU: geo.delta[0], deltaL: geo.delta[0] }, 121)));
-    var bnd = flat(fy.millerBoundary({
-      r0: geo.r0, z0: 0, a: geo.a, kappa: geo.kappa[0],
-      deltaU: geo.delta[0], deltaL: geo.delta[0] }, 181));
+    settings = { n_theta: 121, n_lcfs: 181, miller_r0: geo.r0, miller_z0: 0, miller_a: geo.a,
+                 miller_kappa: geo.kappa[0], miller_delta_u: geo.delta[0], miller_delta_l: geo.delta[0] };
+  } else {
+    var g = ctxObj;
+    settings = { n_theta: 121, n_lcfs: 121, lcfs_psin: 0.995 };
+    inputs.device = deviceDoc();
+    inputs.equilibrium = { time_slice: { global_quantities: { psi_axis: g.psiAxis, psi_boundary: g.psiBnd,
+                                                              magnetic_axis: { r: g.axisR, z: g.axisZ } },
+                                         profiles_2d: { psi: Float64Array.from(g.psi) } } };
+  }
+  var rec = fy.complete('code/outlines', { settings: settings, inputs: inputs });
+  var F = function (k) { return rec.fields[k] ? fieldFlat(rec, k) : new Float64Array(0); };
+  var poly = F('outline_poly'), count = F('outline_count'), out = [], off = 0;
+  for (i = 0; i < count.length; i++) {
+    var n = count[i] * 2;
+    if (n) out.push(Array.from(poly.slice(off, off + n)));
+    off += n;
+  }
+  var lc = F('lcfs');
+  var lcfs = lc.length ? Array.from(lc) : null;
+  if (geo.source === 'miller') {
     var pad = geo.a * 0.25;
-    return { outlines: out, lcfs: bnd, limR: null, limZ: null,
+    return { outlines: out, lcfs: lcfs, limR: null, limZ: null,
              axisR: geo.r0, axisZ: 0, source: geo.source,
              view: { rmin: geo.r0 - geo.a - pad, rmax: geo.r0 + geo.a + pad,
                      zmin: -(geo.a * geo.kappa[0] + pad),
                      zmax: geo.a * geo.kappa[0] + pad } };
   }
-  //: a traced field: the surfaces are contours of the psi that was solved
-  var g = ctxObj;
-  var trace = function (level) {
-    try {
-      var t = fy.traceSurface({
-        r0: g.r0, z0: g.z0, dr: g.dr, dz: g.dz, nr: g.nr, nz: g.nz,
-        psi: g.psi, level: g.psiAxis + (g.psiBnd - g.psiAxis) * level,
-        axisR: g.axisR, axisZ: g.axisZ, limR: g.limR, limZ: g.limZ,
-        nTheta: 121 });
-      return t.poly.length > 8 ? flat(t.poly) : null;
-    } catch (e) { return null; }
-  };
-  for (i = 0; i < levels.length; i++) {
-    var o = trace(levels[i]);
-    if (o) out.push(o);
-  }
-  //: ★the boundary is traced a hair INSIDE psi_bnd, the same inset the rest
-  //: of this app uses: a level set at exactly the boundary flux leaks
-  //: through any neck the tracer can resolve
-  var lc = trace(0.995);
-  return { outlines: out, lcfs: lc, limR: Array.from(g.limR),
+  return { outlines: out, lcfs: lcfs, limR: Array.from(g.limR),
            limZ: Array.from(g.limZ), axisR: g.axisR, axisZ: g.axisZ,
            source: geo.source,
            view: { rmin: g.r0, rmax: g.r0 + g.dr * (g.nr - 1),
