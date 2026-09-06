@@ -398,6 +398,10 @@
   "vessel_current": {
    "gated": false,
    "gloss": "The current of every vessel group [A], in the device deck's `fylite:group` first-appearance order — `code/vessel` adds the flux those currents make on the grid (`vessel_psi`). Not gated: a group total under a uniform loop voltage, the page's own vessel model."
+  },
+  "x_ref": {
+   "gated": false,
+   "gloss": "The channel ampere-turns a null design is anchored to [A] — `code/breakdown` pulls the design towards them (the page's `xRef`: the reference discharge's currents when the reader asks for that anchor). Not gated: a design-time choice, never a measured value."
   }
  }
 }

@@ -106,6 +106,7 @@
     'vprime_old',          // The previous ladder's dV/drho [m^2] remapped by psi_N onto the new one (第十九刀, 2026-09-05): code/refit hands it back after an alternation and the next block's FIRST step binds it under inputs/evolve (`vprime_moved`) so the moving-volume term sees the volume the equilibrium actually moved.
     'weight',              // A channel's weight on a coil element, inside fylite:channel_map.
     'weight_extra',        // The weights of `row_extra`, one per extra row, zero for a chord with no reading (`code/reconstruction`).
+    'x_ref',               // The channel ampere-turns a null design is anchored to [A] — `code/breakdown` pulls the design towards them (the page's `xRef`: the reference discharge's currents when the reader asks for that anchor).
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
   var REVISION = 1;

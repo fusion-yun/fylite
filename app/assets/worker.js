@@ -73,27 +73,6 @@ function buildChannelMap() {
 
 /** Channel ampere-turns onto the elements they drive (`W^T x`). */
 
-/**
- * Per-channel `(psi, br, bz)` at points, each `(nch, npts)`.
- *
- * ★One kernel call for the response AND the fold — `channelField` does
- * both, and doing the fold here made it a second host for a matrix that has
- * one.  The transpose back into `(nch, npts)` is this page's own cache
- * layout, applied once per call rather than being the shape the arithmetic
- * happens in.
- */
-function channelBlocks(els, pr, pz, nu, nv) {
-  var f = fy.channelField(els, chanW, NCH, pr, pz, nu, nv);
-  var npts = pr.length;
-  var flip = function (src) {
-    var out = new Float64Array(NCH * npts);
-    for (var p = 0; p < npts; p++)
-      for (var c = 0; c < NCH; c++) out[c * npts + p] = src[p * NCH + c];
-    return out;
-  };
-  return { psi: flip(f.psi), br: flip(f.br), bz: flip(f.bz) };
-}
-
 function psiExtOf(chan) {
   return P.combine(coilG.psiCh, chan, NG);
 }
@@ -3060,127 +3039,49 @@ function transportTurb(msg) {
 // call the same kernel at 4x4, and mixing the two would leave two
 // "responses" that differ in the third digit and nothing pointing at why.
 
-/** Disc sampling: centre plus concentric rings (`breakdown::null_disc`). */
 /**
- * The |B| contours the breakdown page draws — kept as the page's own until
- * `code/breakdown` carries the grid map (第四十二刀): `n` levels inside
- * `[lo, hi]` and four beyond it, each an unordered segment soup.
- */
-function fluxSegments(lo, hi, f, n) {
-  var inner = [], outer = [];
-  var lev = function (l) {
-    return fy.contour({ r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-                        nr: grid.nr, nz: grid.nz, f: f, level: l });
-  };
-  for (var k = 1; k <= n; k++)
-    inner.push(lev(lo + (hi - lo) * k / (n + 1)));
-  for (var q = 1; q <= 4; q++)
-    outer.push(lev(hi - (lo - hi) * q * 0.25));
-  return { inner: inner, outer: outer, n: n };
-}
-
-function nullDisc(r0, z0, radius, nRing, nTheta) {
-  var r = [r0], z = [z0];
-  for (var k = 1; k <= nRing; k++) {
-    var rad = radius * k / nRing;
-    for (var t = 0; t < nTheta; t++) {
-      var th = 2 * Math.PI * t / nTheta;
-      r.push(r0 + rad * Math.cos(th));
-      z.push(z0 + rad * Math.sin(th));
-    }
-  }
-  return { r: Float64Array.from(r), z: Float64Array.from(z) };
-}
-
-/** |B_pol| of channel currents `x` on the whole grid, for the picture. */
-function gridBpolOf(x) {
-  var n = grid.nr * grid.nz;
-  var rr = new Float64Array(n), zz = new Float64Array(n);
-  for (var i = 0; i < grid.nr; i++)
-    for (var j = 0; j < grid.nz; j++) {
-      rr[i * grid.nz + j] = grid.r[i];
-      zz[i * grid.nz + j] = grid.z[j];
-    }
-  var f = channelBlocks(M.coils, rr, zz, 3, 3);
-  var out = new Float64Array(n), mx = 0;
-  for (var p = 0; p < n; p++) {
-    var br = 0, bz = 0;
-    for (var c = 0; c < NCH; c++) {
-      br += x[c] * f.br[c * n + p];
-      bz += x[c] * f.bz[c * n + p];
-    }
-    out[p] = Math.hypot(br, bz);
-    if (out[p] > mx) mx = out[p];
-  }
-  return { values: out, scale: mx };
-}
-
-/**
- * One field-null design.
+ * The vacuum-field null the breakdown page asks for — `code/breakdown`
+ * (第四十二刀).  The disc, the channel field on it, the bounded design, |B|
+ * on the disc and on the whole box, and the contours the page draws are the
+ * door's; what stays here is the spelling every consumer reads.
  *
- * ★The rows are the KERNEL's, not ours: the tolerance-normalised null rows
- * (teslas, ~1e-3), the flux row scaled by its own target (webers, ~1e-1),
- * the ridge toward the reference currents and the symmetric box all live in
- * `breakdown.rs` — left raw, the flux row would swamp the null and the
- * "design" would come back a uniform field.  This side samples the disc,
- * evaluates the coils on it, and reads the answer back.
+ * ★The design's currents hold bit for bit; |B| is the door's own hypot
+ * (the page's `Math.hypot`, transcribed) on the box, and the kernel's on the
+ * disc — the gate `validate-worker-breakdown.mjs` states the tolerance.
  */
 function nullSolve(sp) {
-  var disc = nullDisc(sp.r0, sp.z0, sp.radius, sp.nRing, sp.nTheta);
-  var np = disc.r.length;
-  var f = channelBlocks(M.coils, disc.r, disc.z, sp.nu, sp.nv);
-  var c0 = channelBlocks(M.coils, Float64Array.of(sp.r0),
-                         Float64Array.of(sp.z0), sp.nu, sp.nv);
+  var settings = { r0: sp.r0, z0: sp.z0, radius: sp.radius, b_tol: sp.bTol,
+                   n_ring: sp.nRing, n_theta: sp.nTheta, nu: sp.nu, nv: sp.nv,
+                   weight_null: sp.weightNull, weight_flux: sp.weightFlux, lam: sp.lam,
+                   limits: sp.iMax ? 1 : 0, grid_map: 1, nu_grid: 3, n_segments: 14 };
+  if (sp.fluxTarget !== null && sp.fluxTarget !== undefined) settings.flux_target = sp.fluxTarget;
+  var disc = {};
   var lim = null;
   if (sp.iMax) {
     lim = new Float64Array(NCH);
     if (typeof sp.iMax === 'number') lim.fill(sp.iMax);
     else for (var cL = 0; cL < NCH; cL++) lim[cL] = sp.iMax[cL];
+    disc['fylite:i_max_aturn'] = Float64Array.from(lim);
   }
-  var sol = fy.designNull({
-    br: f.br, bz: f.bz, psi: c0.psi, nch: NCH, npts: np,
-    bTol: sp.bTol, fluxTarget: sp.fluxTarget,
-    weightNull: sp.weightNull, weightFlux: sp.weightFlux, lambda: sp.lam,
-    xRef: sp.xRef || null, iMax: lim,
-  });
-
-  // achieved field on the disc, and on the grid for the picture
-  var bpol = new Float64Array(np), bMax = 0, sum2 = 0;
-  for (var p2 = 0; p2 < np; p2++) {
-    var br = 0, bz = 0;
-    for (var c5 = 0; c5 < NCH; c5++) {
-      br += sol.x[c5] * f.br[c5 * np + p2];
-      bz += sol.x[c5] * f.bz[c5 * np + p2];
-    }
-    bpol[p2] = Math.hypot(br, bz);
-    bMax = Math.max(bMax, bpol[p2]);
-    sum2 += bpol[p2] * bpol[p2];
-  }
-  var flux = 0;
-  for (var c6 = 0; c6 < NCH; c6++) flux += sol.x[c6] * c0.psi[c6];
-
-  var gb = gridBpolOf(sol.x);
-  //: two different things, and conflating them would hide the useful one.
-  //: `over`  — the bound was VIOLATED.  Under a bounded solve this should
-  //:           stay empty; a non-empty one means the projection failed.
-  //: `bind`  — the solution SITS ON the bound.  That is the answer to
-  //:           "what is stopping this design", and it is a normal, healthy
-  //:           state rather than an error.
-  //: ★This page's contours are of |B_pol|, not of psi — the null IS the
-  //: subject and there is no equilibrium to summarise.  The levels are
-  //: capped near the CRITERION, not at the field's own maximum: |B_pol| by
-  //: the coils is tens of times the null tolerance, and levels spread over
-  //: that range would put the whole null between the first two lines.
-  var caps = Math.min(gb.scale, 10 * sp.bTol);
-  return { aturns: sol.x, iterations: sol.iterations,
-           //: ★a design that ran out of iterations is a point on a descent,
-           //: not a minimum, and it travels marked as such
-           converged: sol.converged,
-           bpol: bpol, discR: disc.r, discZ: disc.z,
-           bMax: bMax, bRms: Math.sqrt(sum2 / np),
-           bCentre: bpol[0], flux: flux, over: sol.over, bind: sol.bind,
-           limits: lim, bpolGrid: gb.values, bpolScale: gb.scale,
-           fluxSegs: fluxSegments(0, caps, gb.values, 14) };
+  if (sp.xRef) disc['fylite:x_ref'] = Float64Array.from(sp.xRef);
+  var rec = fy.complete('code/breakdown', {
+    settings: settings, inputs: { device: deviceDoc(), discharge: disc } });
+  var X = function (k) { return rec.facts[k].value; };
+  var F = function (k) { return rec.fields[k] ? fieldFlat(rec, k) : new Float64Array(0); };
+  var split = function (flat, counts) {
+    var out = [], off = 0;
+    for (var k = 0; k < counts.length; k++) { var n = counts[k] * 4; out.push(flat.slice(off, off + n)); off += n; }
+    return out;
+  };
+  var idx = function (k) { return Array.from(F(k), function (v) { return v | 0; }); };
+  return { aturns: F('aturns'), iterations: X('iterations'),
+           converged: X('converged') === 1,
+           bpol: F('b_pol'), discR: F('disc_r'), discZ: F('disc_z'),
+           bMax: X('b_max'), bRms: X('b_rms'),
+           bCentre: X('b_centre'), flux: X('flux'), over: idx('over'), bind: idx('at_bound'),
+           limits: lim, bpolGrid: F('b_grid'), bpolScale: X('b_grid_max'),
+           fluxSegs: { inner: split(F('flux_inner'), F('flux_inner_count')),
+                       outer: split(F('flux_outer'), F('flux_outer_count')), n: 14 } };
 }
 
 function breakdownRun(msg) {
