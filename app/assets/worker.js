@@ -36,11 +36,10 @@ importScripts('i18n.js', 'lang-zh.js', 'lang-en.js',
 // Worker cannot read localStorage, so a device the visitor imported would be
 // invisible here — and this is the half of the app that does the arithmetic.
 var M = null, P = self.FyPhys;
-var fy = null, grid = null, coilG = null, loopsM = null;
+var fy = null, grid = null, coilG = null;
 //: ★built on FIRST USE, not at init: the probe rows are 79 x nr x nz doubles
 //: (2.7 MB on this deck) and most runs never fit probes.  A page that pays
 //: for them at load pays on every visit for a channel it may not use.
-var probesM = null, allM = null;
 //: the field the last START was designed with — coils plus the filament
 //: cloud it was designed against.  The anneal that follows is entitled to
 //: begin from it.
@@ -73,9 +72,6 @@ function buildChannelMap() {
 }
 
 /** Channel ampere-turns onto the elements they drive (`W^T x`). */
-function elementCurrents(chan) {
-  return fy.channelFold(chanMap, NCH, NEL, chan);
-}
 
 /**
  * Per-channel `(psi, br, bz)` at points, each `(nch, npts)`.
@@ -138,9 +134,6 @@ function init(machine) {
     //: branch today — but an IMPORTED device still can, which is why the
     //: guard stays and why `validate-design.mjs` walks the catalogue rather
     //: than naming those two ids.
-    loopsM = (M.loops && M.loops.length)
-      ? P.loopResponse(fy, grid, M.loops) : null;
-    probesM = null; allM = null;
     post({ type: 'ready', abi: fy.abi, sha256: fy.sha256,
            bytes: fy.bytes,
            //: ★the ADAS species menu is ASKED FOR, not written into the
@@ -898,7 +891,6 @@ function pulseRun(msg) {
        [x.buffer]);
 }
 
-
 // --- reconstruction --------------------------------------------------------
 
 var MEAS_SCALE = 1 / (2 * Math.PI);
@@ -1141,7 +1133,6 @@ function reconInputs(msg) {
   // loop reading (~0.5 Wb/rad) with equal weights is not equal footing.  So
   // the probe weights are put on the mean weighted loop row and then scaled
   // by the caller's own factor.
-  inp.matrix = loopsM;
   inp.nLoops = meas.length;
   var pf = msg.probeFit;
   //: a twin's probe readings are its own, exactly as its chord readings are
@@ -1158,8 +1149,7 @@ function reconInputs(msg) {
     pf = { on: true, weight: pf.weight, mask: pf.mask, meas: inp.probeTwin };
   if (pf && pf.on && pf.meas && pf.meas.length && M.probes &&
       pf.meas.length === M.probes.length) {
-    var mat = combinedRows();
-    if (mat) {
+    if (M.probes.length) {
       var sw = 0, nw = 0, sb = 0, d2;
       for (d2 = 0; d2 < meas.length; d2++) {
         if (!wts[d2]) continue;
@@ -1206,7 +1196,6 @@ function reconInputs(msg) {
         w2[meas.length + d2] = keep ? wP * sc : 0;
       }
       meas = m2; wts = w2;
-      inp.matrix = mat;
       inp.nProbes = pf.meas.length;
       inp.probeWeight = wP;
       inp.probeCoil = coilB;
@@ -1359,7 +1348,7 @@ function reconMember(msg, inp, kin, jPre) {
   //: are what the door is given: the external flux it assembled, the
   //: plasma-only readings and their weights, the extra rows, the pressure
   //: rows as rows.  The door builds the loop and probe Green's rows on the
-  //: same grid (the same kernel rows this page built its `loopsM` from),
+  //: same grid (the same kernel rows this page used to build itself),
   //: solves, and post-processes in this page's spelling.
   var nl = inp.nLoops, np_ = inp.nProbes || 0, nx = inp.nFaraday || 0;
   var chan = inp.chanDrawn || Float64Array.from(msg.chan);
@@ -1376,8 +1365,7 @@ function reconMember(msg, inp, kin, jPre) {
     disc['fylite:probe_weight'] = Float64Array.from(inp.wts.slice(nl, nl + np_));
   }
   if (nx) {
-    var NGm = grid.nr * grid.nz, offX = (nl + np_) * NGm;
-    disc['fylite:row_extra'] = Float64Array.from((inp.matrix || loopsM).slice(offX, offX + nx * NGm));
+    disc['fylite:row_extra'] = Float64Array.from(inp.rowsExtra);
     disc['fylite:meas_extra'] = Float64Array.from(inp.meas.slice(nl + np_, nl + np_ + nx));
     disc['fylite:weight_extra'] = Float64Array.from(inp.wts.slice(nl + np_, nl + np_ + nx));
   }
@@ -1496,9 +1484,7 @@ function withFaradayRows(inp, fr, pmN, ch) {
   var coil = ch.coil;
   for (i = 0; i < n; i++) if (isFinite(target[i])) target[i] -= coil[i];
   var rows = ch.rows.length === n * NGc ? ch.rows : ch.rows.slice(0, n * NGc);
-  var base = inp.matrix || loopsM, nBase = inp.meas.length;
-  var mat = new Float64Array(base.length + n * NGc);
-  mat.set(base, 0); mat.set(rows, base.length);
+  var nBase = inp.meas.length;
   //: ★the same relative-weight rule the probe rows needed, and for the same
   //: reason: a row's pull is `w * |value|`, and a chord integral (~1e19 in
   //: SI) against a loop reading (~0.5 Wb/rad) at equal weights is not equal
@@ -1522,7 +1508,7 @@ function withFaradayRows(inp, fr, pmN, ch) {
                      (!fr.mask || fr.mask[i]) ? wF : 0;
   }
   var out = Object.create(inp);
-  out.matrix = mat; out.meas = meas; out.wts = wts;
+  out.rowsExtra = rows; out.meas = meas; out.wts = wts;
   out.nFaraday = n; out.faradayWeight = wF; out.faradayTarget = target;
   out.faradayCoil = coil; out.faradayRows = rows;
   return out;
@@ -1561,7 +1547,6 @@ function withFaradayRows(inp, fr, pmN, ch) {
 function atSlice(msg) {
   return msg && msg.slice ? seriesSlice(msg, msg.slice) : msg;
 }
-
 
 /**
  * The bootstrap closure on a fit — `code/bootstrap` (第三十五刀).
@@ -2008,134 +1993,50 @@ function reconRun(msg0) {
 
 // --- probes as CONSTRAINTS ------------------------------------------------
 //
-// ★The rows are the kernel's (`fylite_rs_probe_response`), and they are the
-// probe analogue of the flux-loop rows: `B_R cos a + B_Z sin a` per amp of
-// toroidal current in each cell.  Predicting a probe needs none of this — the
-// solved field already answers that — but FITTING one needs a row saying how
-// each cell's current would move that reading.
-//
-// ★★The two families are in DIFFERENT UNITS and the solver applies ONE
-// `meas_scale` to every row it is given.  The loops are handed over as full
-// flux and want `1/2pi` (Wb/rad); the probe rows are already teslas and want
-// 1.  So the probe rows are pre-multiplied by `2pi` here, and the solver's
-// own factor takes them back — the alternative, rescaling the loop half,
-// would change the arithmetic of the path that is already under gate.
-
-function probeRows() {
-  if (probesM) return probesM;
-  if (!M.probes || !M.probes.length) return null;
-  var raw = fy.probeResponse({
-    gridR: grid.r, gridZ: grid.z,
-    probeR: Float64Array.from(M.probes, function (p) { return p.r; }),
-    probeZ: Float64Array.from(M.probes, function (p) { return p.z; }),
-    angleRad: Float64Array.from(M.probes, function (p) {
-      return p.angle * Math.PI / 180; }),
-  });
-  var k = 2 * Math.PI;
-  for (var i = 0; i < raw.length; i++) raw[i] *= k;
-  probesM = raw;
-  return probesM;
-}
+// ★The probe rows are the kernel's, and `code/reconstruction` builds them
+// itself (第三十一刀): the probe analogue of the flux-loop rows, `B_R cos a +
+// B_Z sin a` per amp of toroidal current in each cell, pre-multiplied by
+// `2pi` so the solver's one `meas_scale` takes them back to tesla.  What the
+// page still owns is the READING — which reading is plasma-only and which
+// arrives whole — and that is the block below.
 
 /**
- * The COILS' contribution to each probe reading, in tesla.
- *
- * ★★This is the difference between a probe that constrains the plasma and a
- * probe that constrains nothing.  The deck's loop readings arrive with the
- * coil term already subtracted — they are the plasma flux, which is what the
- * response rows predict — while an imported probe reading is the FULL field
- * at that probe, plasma and coils together.  Fitting the full field against a
- * plasma-only row asks the plasma current to reproduce the coil field as
- * well, and the solver obliges: it converges on a distorted plasma with a
- * worse probe residual than it started with (measured on this shot: 2.32 %
- * before, 2.77 % after, with li(3) 2.67 -> 3.42).
- *
- * ★The PREDICTION on the panel is deliberately not treated this way: it is
- * the full solved field, because that is what a probe reads.
- */
-/**
- * The COILS' flux at each loop [Wb/rad], for a reading that arrives whole.
+ * The COILS' share of a reading that arrives whole — `code/coilshare`
+ * (第三十八刀): the channel ampere-turns folded onto the elements, their flux
+ * at every loop [Wb/rad] and their projected field at every probe [T].
  *
  * ★★TWO CONVENTIONS MEET HERE, and the deck says which is which.  The
  * reference discharge's `loopMeas` is the delivered reconstruction's channel
  * value with the coils' share ALREADY removed — it is compared directly
  * against the plasma-only forward model.  A raw instrument reading
  * (`loopMeasTotal`, and every slice of the time series) is the TOTAL flux:
- * plasma and coils together.  Handing the total to a plasma-only model asks
- * the plasma to account for the coils as well, and the fit obliges — with a
- * current distribution that is simply not the one that was there.  So the
- * subtraction happens here, once, with the same element response the vacuum
- * field itself is built from.
+ * plasma and coils together; and an imported probe reading is always the
+ * FULL field.  Handing a total to a plasma-only model asks the plasma to
+ * account for the coils as well, and the fit obliges — with a current
+ * distribution that is simply not the one that was there (measured on this
+ * shot for the probes: 2.32 % before, 2.77 % after, with li(3) 2.67 -> 3.42).
+ * So the subtraction happens once, with the same element response the
+ * vacuum field itself is built from.
+ *
+ * ★The PREDICTION on the panel is deliberately not treated this way: it is
+ * the full solved field, because that is what a probe reads.
  */
-//: ★★AND THE TWO FOLDED HELPERS ARE LEFT EXACTLY AS THEY WERE — they do
-//: NOT contract the table above, and that is deliberate.  Rewriting them as
-//: `sum_c I_c row_c` is the same arithmetic in a different summation order,
-//: which moves every coil-subtracted channel by ~1e-16 relative.  Measured:
-//: that was enough to flip one of the batch queue's eleven rows from a
-//: kernel refusal to a `shape_metrics` failure — the Picard iteration on a
-//: slice that was already failing is chaotic, and a bitwise-different input
-//: lands it somewhere else.  Nothing about the answer improves, and a
-//: refactor that perturbs a shipped result to remove a five-line
-//: contraction is a bad trade.  The GREEN'S FUNCTION still has one host
-//: (`coilPointResponse` / `elementProbeResponse`); what is written twice is
-//: only which way the two sums are nested.
-function loopCoilFlux(chan) {
-  var el = elementCurrents(chan), nel = M.coils.length, n = M.loops.length;
-  var lr = Float64Array.from(M.loops, function (p) { return p[0]; });
-  var lz = Float64Array.from(M.loops, function (p) { return p[1]; });
-  var resp = P.coilPointResponse(fy, M.coils, lr, lz, 4, 4);
-  var out = new Float64Array(n);
-  for (var i = 0; i < n; i++) {
-    var acc = 0;
-    for (var e = 0; e < nel; e++) acc += el[e] * resp.psi[e * n + i];
-    //: the loop channel is Wb PER RADIAN, as every other loop number on this
-    //: page is; the response is full flux
-    out[i] = acc * MEAS_SCALE;
+var coilShareCache = { key: null, rec: null };
+function coilShare(chan) {
+  var key = Array.prototype.join.call(chan, ',');
+  if (coilShareCache.key !== key) {
+    coilShareCache.rec = fy.complete('code/coilshare', {
+      settings: { nu_loops: 4, nu_probes: 3 },
+      inputs: { device: deviceDoc(),
+                discharge: { 'fylite:channel_aturns': Float64Array.from(chan) } } });
+    coilShareCache.key = key;
   }
-  return out;
+  return coilShareCache.rec;
 }
 
-function probeCoilField(chan) {
-  var el = elementCurrents(chan);
-  var pr = Float64Array.from(M.probes, function (p) { return p.r; });
-  var pz = Float64Array.from(M.probes, function (p) { return p.z; });
-  var ang = Float64Array.from(M.probes,
-                              function (p) { return p.angle * Math.PI / 180; });
-  //: ★the angle projection is the kernel's — see `elementProbeResponse`.
-  //: What is left here is the contraction with the element currents, which
-  //: is this page's question (what do the coils contribute at each probe),
-  //: not a second spelling of what a probe reads.
-  var resp = fy.elementProbeResponse(M.coils, pr, pz, ang, 3, 3);
-  var n = M.probes.length, nel = M.coils.length;
-  var out = new Float64Array(n);
-  for (var i = 0; i < n; i++) {
-    var acc = 0;
-    for (var e = 0; e < nel; e++) acc += el[e] * resp[i * nel + e];
-    out[i] = acc;
-  }
-  return out;
-}
+function loopCoilFlux(chan) { return fieldFlat(coilShare(chan), 'loop_coil'); }
 
-/** [loop rows; probe rows] in one buffer, which is what the solver reads. */
-function combinedRows() {
-  if (allM) return allM;
-  var pm = probeRows();
-  if (!pm) return null;
-  var n = grid.nr * grid.nz;
-  allM = new Float64Array(loopsM.length + pm.length);
-  allM.set(loopsM, 0);
-  allM.set(pm, loopsM.length);
-  return allM;
-}
-// --- POINT: line-integrated density, and the Faraday rotation --------------
-//
-// ★第三十四刀: the chords are `code/chords`' — sampled through the box and the
-// plasma, the line density and the Faraday integral on the kernel's Simpson
-// rule over the full-length line, the coils' share off the external flux, the
-// Faraday rows for the fit on the kernel's own quadrature weights, and the
-// density fitted back to measured line densities.  What stays here is the
-// deck's three reading shapes in one (`normalisePointMeas`) and the reading a
-// measured angle stands for.
+function probeCoilField(chan) { return fieldFlat(coilShare(chan), 'probe_coil'); }
 
 var POINT_SAMPLES = 401;
 
@@ -2239,14 +2140,12 @@ function faradayTarget(angleDeg) {
   return angleDeg * Math.PI / 180 / (2 * cFar);
 }
 
-
 /** Linear read of a uniform-x profile at `x`. */
 function profileAt(pr, x) {
   var m = pr.length, t = x * (m - 1);
   var k = Math.min(m - 2, Math.max(0, t | 0));
   return pr[k] + (t - k) * (pr[k + 1] - pr[k]);
 }
-
 
 // --- T-A9: <j.B> <-> <j_phi>, sigma_neo, and the three curves that add ----
 //
@@ -2276,7 +2175,6 @@ function profileAt(pr, x) {
 // so the kernel's conversion of the first must reproduce the second.  That
 // is not a tolerance chosen here; it is an algebraic identity, and the gate
 // asserts it at 1e-10.
-
 
 
 
@@ -3124,7 +3022,6 @@ function zerodMonteCarlo(msg) {
                     q: Float64Array.from(rec.fields.uq_samples_q.data) } });
 }
 
-
 // --- the turbulence closure (TGLF), loaded on demand ------------------------
 
 //: the SECOND module, and the reason the kernel was split in two: the
@@ -3157,7 +3054,6 @@ var tglf = null;
  * on top — and the sum is formed here, in the open, rather than inside the
  * kernel where a reader could not see which channels were in it.
  */
-
 
 /**
  * The FIXED-BOUNDARY PICARD, on a sub-box, in this app's gauge — one call.
@@ -3222,9 +3118,6 @@ var tglf = null;
  *
  * Returns an object with `why` set when the plasma leaves the box.
  */
-
-
-
 
 
 
@@ -3657,8 +3550,6 @@ function evNonuniformGradient(f, x) {
 
 
 
-
-
 /**
  * The toroidal plasma current enclosed by each ladder surface [A].
  *
@@ -3717,7 +3608,6 @@ function evEnclosedIp(geo, psi) {
     out[i] = geo.vprime[i] * geo.gm2[i] * d[i] / denom;
   return out;
 }
-
 
 /**
  * The equilibrium document an executor reads off the page's field: the psi
@@ -3870,7 +3760,6 @@ function evBeamRead(fields, F, X, nc, plan, field, geo, sp) {
   };
 }
 
-
 /**
  * The beam's record, flattened for the wire and for the file.
  *
@@ -3938,7 +3827,6 @@ function evBeamReport(b, sp) {
     },
   };
 }
-
 
 
 /**
@@ -4048,7 +3936,6 @@ function evLhRead(fields, F, X, nl, plan, geo, sp) {
   };
 }
 
-
 /**
  * The wave's record, flattened for the wire and for the file.
  *
@@ -4077,7 +3964,6 @@ function evLhReport(lh) {
     inputs: lh.inputs,
   };
 }
-
 
 
 
@@ -4187,7 +4073,6 @@ function evOutlines(geo, ctxObj) {
 
 
 
-
 // --- T-C13: the STEADY state, solved rather than marched to ----------------
 //
 // ★★WHY THIS EXISTS AT ALL, and it is not a new model.  The kernel has
@@ -4215,8 +4100,6 @@ function evOutlines(geo, ctxObj) {
 
 
 
-
-
 /**
  * The q profile with a believable AXIS value.
  *
@@ -4236,7 +4119,6 @@ function evQAxis(ctx, q) {
     ? q[1] - (q[2] - q[1]) * ctx.rho[1] / (ctx.rho[2] - ctx.rho[1])
     : q[0]);
 }
-
 
 // --- the readings ----------------------------------------------------------
 
@@ -4339,7 +4221,6 @@ function evReadings(ctx, st, diag, t) {
 }
 
 // --- the equilibrium half --------------------------------------------------
-
 
 
 // --- the run ---------------------------------------------------------------
@@ -5664,7 +5545,6 @@ function evolveRun(msg) {
   //: 第十八刀 the turbulent tier's first TGLF call is the extension door's
   //: (`evEntryMarch`), not this flat-export path's
 
-
   // --- T-C13: the flux-match tier solves, it does not march ----------------
   //
   // ★★A ROOT FIND INSTEAD OF A MARCH, and that is what「稳态」 means here:
@@ -5842,7 +5722,6 @@ function evolveRun(msg) {
     }
     blocks = 0;
   }
-
 
   //: ★★AND THE MARCH SAYS SO.  Every free-boundary solve it stood on, in
   //: order, with the verdict each one reached — so "this answer used an

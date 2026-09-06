@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "6534186c246e338f";
+pub const DIGEST: &str = "6097a38f9e3aecdb";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -297,6 +297,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "forward", shape: "", units: "assembled", gloss: "one forward free-boundary equilibrium on the device from the channel currents and the analytic p'/FF' family: the coil flux (or a given external flux, a warm start), one free solve, the analytic truth's profiles and cell current, the loop model and the probe readings that field implies" },
         Row { key: "chords", shape: "", units: "assembled", gloss: "the point diagnostics on a psi map (the analysis page's interferometer / polarimeter block): the chords sampled through the box and the plasma, the line density and the Faraday integral each chord reads, the coils' share, the Faraday rows for a fit, the density fitted back to the chord readings" },
         Row { key: "bootstrap", shape: "", units: "assembled", gloss: "the bootstrap closure on a fit (the analysis page's 自举 block): 96 traced surfaces of the psi map with their shape, the Redl bootstrap on the density and pressure the reader declared, the Sauter 1999 / Redl 2021 vintages through the NEO input mapping, the total / bootstrap / ohmic decomposition on the flux-surface averages with the neoclassical conductivity and loop voltage, and the bootstrap as a prescribed cell current for the next fit" },
+        Row { key: "coilshare", shape: "", units: "assembled", gloss: "the coils' share of a reading that arrives whole: the channel ampere-turns folded onto the elements, their flux at every loop (Wb/rad) and their projected field at every probe (T), at the reader's quadrature — subtracted once, from the same element response the vacuum field is built from, so a plasma-only model is never asked to explain the coils" },
         Row { key: "vessel", shape: "", units: "assembled", gloss: "the vessel as an unknown: the deck's vessel units grouped by fylite:group under a uniform loop voltage per group, every group's response at the loops, on the grid and at the probes, and — with the reconstruction's rows bound — the joint least squares by Frisch-Waugh-Lovell (both sides residualised on the plasma basis' own signatures, truncated SVD) with how much of the vessel survives the projection" },
         Row { key: "selfcal", shape: "", units: "assembled", gloss: "the instrument layer: per-channel calibration factors computed/measured against their own median for one fit, or over the slices of a time series, with the dispersion — a channel-relative statement, never an absolute ratio" },
     ] },
