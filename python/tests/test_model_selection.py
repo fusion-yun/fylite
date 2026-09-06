@@ -60,7 +60,8 @@ def test_the_two_current_sources_are_two_kernel_functions():
     What is not different is how you get one: you name the class.
     """
     assert neo.NeoSource().name == "neo"
-    assert neo.RedlSource().name == "redl"
+    #: `RedlSource` moved to the kernel repository's oracle tree with the loop
+    #: (T-4 第十五刀); its `test_redl.py` holds the "redl" half of this pair.
 
 
 def test_the_profile_interpolant_is_an_argument_not_a_family():

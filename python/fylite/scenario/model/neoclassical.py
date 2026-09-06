@@ -12,7 +12,7 @@ every form this package can compute them.  The solvers are all the kernel's
   which needs no drift-kinetic branch at all.
 
 What this module holds is the shaping around them: the species table and the
-Miller-geometry vector a call takes (:func:`surface_inputs`, :func:`_geo_kw`),
+Miller-geometry vector a call takes (``surface_inputs`` (``oracles/redl.py`` since T-4 第十五刀), :func:`_geo_kw`),
 the named velocity/angle resolutions, the ``pressure_source`` policy, and the
 two ``current_source`` backends the registry names — ``neo`` and ``redl``.
 
@@ -69,10 +69,7 @@ strength of being the right paper.
 """
 from __future__ import annotations
 
-import numpy as np
-
-from ... import _deck_names, fyo, kernel
-
+from ... import _deck_names
 
 
 class NeoclassicalError(RuntimeError):
@@ -103,7 +100,7 @@ class RedlError(ValueError):
 #:   coarse    3/9/9      18 ms   jpar_dke within 1.84%
 #:
 #: ``accurate`` is the :func:`bootstrap` signature default, so a direct call is
-#: unchanged; ``fast`` is what :func:`fylite.scenario.analysis.loop.self_consistent` uses, where
+#: unchanged; ``fast`` is what ``oracles.loop.self_consistent`` (the kernel repository) uses, where
 #: the same surfaces are re-solved every iteration and 0.22% is far inside the
 #: standing calibration uncertainty (K-9).
 RESOLUTION: dict[str, dict[str, int]] = {
@@ -128,8 +125,6 @@ def resolution_kwargs(resolution) -> dict:
             raise NeoclassicalError(f"unknown NEO resolution {resolution!r}; have "
                            f"{sorted(RESOLUTION)}") from None
     return dict(resolution)
-
-
 
 
 def bootstrap(species: list, *, rmin_over_a: float, rmaj_over_a: float,
@@ -261,7 +256,7 @@ class CurrentSource(Protocol):
     """A neoclassical current-source backend.
 
     ``bootstrap(surfaces)`` takes the per-surface inputs produced by
-    :func:`surface_inputs` (each a dict with ``species``, the local Miller
+    ``surface_inputs`` (``oracles/redl.py`` since T-4 第十五刀) (each a dict with ``species``, the local Miller
     geometry kwargs, and the surface's ``nu_1`` / ``rho_star`` /
     ``current_unit``) and returns ``<j·B>`` per surface **in A·T/m²**.
 
@@ -269,13 +264,13 @@ class CurrentSource(Protocol):
     units — the loop renormalizes to ⟨j⟩=1)", and this is the Protocol — the
     one place the contract is written down rather than implied.  "Arbitrary
     units" was true and was the whole problem: it let
-    :func:`fylite.fyo.neoclassical_source` put the number into an IMAS field
+    ``oracles.fyo_sources.neoclassical_source`` put the number into an IMAS field
     measured in A/m², beside a backend that returned A/m², eight orders
     apart.  A caller that only wants a shape is free to renormalise; a
     contract that declines to name a unit is not free of consequences.
 
     ★And the reference above named ``neo_surface_inputs``, which is this
-    module's OLD name for :func:`surface_inputs` and was also, until T-4
+    module's OLD name for ``surface_inputs`` (``oracles/redl.py`` since T-4 第十五刀) and was also, until T-4
     (2026-09-05), a different function exported by the kernel.  That
     collision has already cost this repository once: a blanket rename of
     the module-level name rewrote the kernel's ABI symbol.  The export is
@@ -283,7 +278,7 @@ class CurrentSource(Protocol):
     ``code/*`` doors.
     ``context`` (optional) carries profile/equilibrium data a backend may need
     beyond the surface dicts (e.g. the g-file + n_e/T_e for the analytic
-    :class:`fylite.scenario.model.neoclassical.RedlSource`); kernel backends ignore it.
+    ``oracles.redl.RedlSource``); kernel backends ignore it.
     """
 
     name: str
@@ -352,7 +347,7 @@ class NeoSource:
     ``bootstrap(...)["jpar_dke"] * current_unit`` per surface: the full
     drift-kinetic ``<j_par·B>``, **in A·T/m²**.  Divide by ``B0`` for the
     IMAS ``j_parallel`` of a ``core_sources`` entry, which is what
-    :func:`fylite.fyo.neoclassical_source` does.
+    ``oracles.fyo_sources.neoclassical_source`` does.
 
     ``resolution`` names a :data:`fylite.scenario.model.neoclassical.RESOLUTION` preset (or gives an
     explicit ``{n_energy, n_xi, n_theta}`` dict) — the knob that decides what a
@@ -438,7 +433,7 @@ class NeoSource:
 #: and the same collisionality, and picking among them is reading a
 #: different key of one answer.
 #:
-#: The give-away was in :func:`fylite.fyo.neoclassical_source`, which
+#: The give-away was in ``oracles.fyo_sources.neoclassical_source``, which
 #: carried BOTH spellings in one signature — ``solver="sauter2021"`` and
 #: ``solver="neo", key="jpar_sauter_2021"`` were the same call, and its own
 #: docstring said ``key`` "selects which of the NEO solve's answers is
@@ -453,91 +448,6 @@ class NeoSource:
 #: ★The analytic names survive as keys, not as backends:
 #:   ``solver="neo", key="jpar_sauter"``       was ``solver="sauter"``
 #:   ``solver="neo", key="jpar_sauter_2021"``  was ``solver="sauter2021"``
-
-def surface_inputs(eq, *, ne, te, psin_prof, ti=None, zeff=1.0,
-                       mass_i=2.0, **geo_kw) -> list[dict]:
-    """Per-surface ``bootstrap`` kwargs from an equilibrium + kinetic profiles.
-
-    ``eq`` an ``fyo:equilibrium`` document (or a g-file at the door);
-    ``ne``/``te`` (and optional ``ti``) are profile values on the
-    ``psin_prof`` grid (ne in m⁻³, T in eV).  One ion, quasineutral at
-    ``n_i = n_e/Z_eff`` (:data:`fylite.scenario.model.closure.ION_MIX`
-    ``"effective"``) — NEO's convention, kept.
-
-    Each entry carries NEO's species table, the Miller geometry
-    :data:`GEO_KEYS`, and the three numbers a MAGNITUDE needs:
-
-    * ``nu_1`` — this surface's normalising collision frequency;
-    * ``rho_star`` — ``rho_s/a``, physical;
-    * ``current_unit`` — ``e n_e v_norm B_unit`` [A·T/m²], so that
-      ``jpar * current_unit`` is ``<j·B>``
-      (:func:`fylite.kernel.neo_current_unit`).
-
-    ★★It used to build the species table from the kernel's
-    ``neo_surface_inputs`` (an export retired with T-4, 2026-09-05; the
-    Rust function stays), which normalises every profile
-    TO THE FIRST SURFACE and leaves ``nu_1`` at NEO's nominal 0.1, and it
-    returned nothing else.  For the loop, which renormalises the current to
-    ``<j> = 1``, that was enough and honest.  For
-    :func:`fylite.fyo.neoclassical_source`, which writes the result into an
-    IMAS field measured in A/m², it was not: a shape computed at somebody
-    else's collisionality, put where a current belongs.
-
-    ★So the surface is assembled ONCE now, by the same builder the transport
-    closure uses (:func:`fylite.scenario.model.closure.surface_states`), and
-    NEO's normalisation is read off the kernel
-    (:func:`fylite.kernel.neo_local`) rather than done a second time here.
-    That was the other cost of two builders: they disagreed about the ion mix
-    AND about the collisionality, and neither disagreement could raise.
-    """
-    from . import closure
-    from ... import kernel as K
-
-    lad = fyo.Ladder(fyo.as_equilibrium(eq),
-                     _levels_for(eq, geo_kw))
-    ps = lad.psin
-    states = closure.surface_states(lad, psin=ps, psin_prof=psin_prof,
-                                    ne=ne, te=te, ti=ti, zeff=zeff,
-                                    ion_mix="effective")
-    out = []
-    for st, row in zip(states, lad.miller):
-        loc = K.neo_local({**st, "shear": st["s"]},
-                          rho_star=st["rho_s"] / st["a"])
-        #: the species table is the kernel's, in ITS row order — electrons
-        #: first.  Spelling the six names again here is how a transposed
-        #: pair becomes a different plasma with nothing to notice.
-        cols = [loc[k] for k in K.NEO_SPECIES_ROWS]
-        species = [{k: float(cols[j][i]) for j, k in
-                    enumerate(K.NEO_SPECIES_ROWS)}
-                   for i in range(len(cols[0]))]
-        for sp in species:
-            #: `bootstrap` reads `dens`/`temp`/`dlnndr`/`dlntdr`; NEO's own
-            #: row names are the same six words, so this is a check rather
-            #: than a rename
-            sp.setdefault("mass", sp.get("mass", mass_i))
-        out.append({
-            "species": species,
-            "rmin_over_a": row["r"], "rmaj_over_a": row["rmaj"],
-            "q": row["q"], "shear": row["shear"], "shift": row["shift"],
-            "kappa": row["kappa"], "s_kappa": row["s_kappa"],
-            "delta": row["delta"], "s_delta": row["s_delta"],
-            "zeta": row["zeta"], "s_zeta": row["s_zeta"],
-            "psin": row["psin"],
-            "nu_1": float(loc["nu_1"]),
-            "rho_star": float(st["rho_s"] / st["a"]),
-            "current_unit": K.neo_current_unit(
-                ne=st["ne"], ti1=st["ions"][0]["ti"], b_unit=st["b_unit"]),
-        })
-    return out
-
-
-def _levels_for(eq, geo_kw) -> "np.ndarray":
-    """The ψ_N ladder ``miller_geometry`` would have used, so that moving to
-    a :class:`fylite.fyo.Ladder` does not silently change WHICH surfaces are
-    reported."""
-    return fyo._levels(geo_kw.get("psin"), fyo.MILLER_LADDER,
-                       int(geo_kw.get("n_surfaces", 24)),
-                       float(geo_kw.get("edge", 0.95)))
 
 
 # --------------------------------------------------------------------------- #
@@ -570,123 +480,6 @@ def _levels_for(eq, geo_kw) -> "np.ndarray":
 #:
 #: Callers use the kernel directly now.
 
-def _total_pressure(source, surf, ne_s, te_s, ni_s, ti_s, ps) -> np.ndarray:
-    """Total thermal pressure (Pa) on the surface grid, per ``pressure_source``.
-
-    ``kinetic`` builds it from the caller's own profiles — ``p = (nₑTₑ + nᵢTᵢ)e``
-    — so the pressure gradient that drives the bootstrap is the *same* profile
-    set the collisionality and L-coefficients see.  ``gfile`` takes the
-    reconstruction's own ``pres`` instead and **validates** it: a
-    magnetics-only reconstruction routinely returns a non-physical (negative)
-    outer pressure, and flooring that to a small positive value would zero
-    ``dP/dψ`` over the whole outer half — silently deleting the dominant
-    ``L31·∇p`` term and moving the ``j_bs`` peak inward.  That failure mode is
-    raised, never floored.
-
-    ★Both branches now read a KERNEL-resampled profile: the g-file pressure
-    rides the same interpolation as ``ne``/``te``/``fpol``
-    (:func:`fylite.kernel.redl_surface_inputs`'s ``p_gfile`` row).  It used
-    to be resampled here with a second interpolator, which was the last
-    place two of one surface's inputs could disagree about that surface.
-    """
-    if source == "kinetic":
-        #: the kernel's: the pressure that drives the bootstrap has to be
-        #: built from the SAME profile set the coefficients see
-        return kernel.redl_drive(ne_s, te_s, ni_s, ti_s, ps,
-                                 psi_axis=0.0, psi_bnd=1.0)[0]
-    if source != "equilibrium":
-        #: ★``'gfile'`` was this value's name and is refused rather than
-        #: aliased: it selects the EQUILIBRIUM's own pressure profile, which
-        #: arrives from a document as readily as from a deck.  A silent alias
-        #: would keep the wrong word alive in every caller that has one.
-        hint = (" — that value is 'equilibrium' now; it never meant the file "
-                "format, only whose pressure to use"
-                if source == "gfile" else "")
-        raise RedlError("pressure_source must be 'kinetic' or 'equilibrium', "
-                        f"not {source!r}{hint}")
-    #: ``p_gfile`` is the KERNEL's row name (`redl_surface_inputs`), left as
-    #: the kernel spells it — this package does not rename the ABI.
-    p_th = surf["p_gfile"]
-    bad = int(np.count_nonzero(p_th <= 0.0))
-    if bad:
-        raise RedlError(
-            f"pressure_source='equilibrium': {bad}/{len(p_th)} surfaces have "
-            f"non-physical total pressure (min {p_th.min():.4g} Pa) — this "
-            "equilibrium's pressure cannot drive a bootstrap evaluation (flooring it "
-            "would zero dP/dpsi and delete the dominant L31 term). Use "
-            "pressure_source='kinetic' to build p from the ne/te you passed.")
-    return p_th
-
-
-def bootstrap_profile(eq, ne, te, *, psin_prof=None, ti=None, zeff=1.0, ni=None,
-                      z_ion=1.0, n_surfaces=32, collisionless=False,
-                      pressure_source: str = "kinetic") -> dict:
-    """Redl-2021 analytic bootstrap ``<j·B>`` from an equilibrium + kinetic profiles.
-
-    ``eq`` is an ``fyo:equilibrium`` document (or a g-file at the door);
-    ``ne`` (m⁻³) and ``te`` (eV) are profiles on
-    ``psin_prof`` (default a uniform ψ_N grid matching their length), optional
-    ``ti``/``ni``/``zeff``/``z_ion``.  Per-surface Miller geometry (ε, q) comes
-    from :func:`fylite.fyo.miller_geometry`; ``collisionless=True`` drops
-    the ν* corrections (the analytic ceiling).
-
-    ``pressure_source`` selects what drives ``dP/dψ`` (see :func:`_total_pressure`):
-    ``"kinetic"`` (default) derives ``p`` from the passed ``ne``/``te``(/``ti``),
-    which keeps every term of the formula on one self-consistent profile set;
-    ``"equilibrium"`` uses the equilibrium's own ``pressure`` profile and **raises**
-    :class:`RedlError` when that profile is non-physical rather than flooring it.
-
-    Returns ``{psin, j_bs, L31, L32, L34, alpha, ft, nu_e_star, nu_i_star, eps,
-    pressure_source}`` — ``j_bs`` is ``|<j·B>|/B0`` (A/m², axis pinned to 0).
-    Magnitude carries the usual analytic-normalization caveat; the *shape* is the
-    cross-check, and it is gated against NEO (``tests/test_bootstrap_gate.py``).
-    """
-    doc = fyo.as_equilibrium(eq)
-    ne = np.asarray(ne, float)
-    if psin_prof is None:
-        psin_prof = np.linspace(0.0, 1.0, len(ne))
-
-    geo = fyo.miller_geometry(doc, n_surfaces=n_surfaces)
-    ps = np.array([row["psin"] for row in geo])
-
-    #: ★the profiles-onto-surfaces map is the KERNEL's, floors and clips
-    #: included (10 eV on T before the interpolation, ε into [1e-4, 0.99],
-    #: |q| ≥ 1e-3, Z_eff into the fitted [1, 10], the quasineutral default
-    #: ion density).  Each of those is a physics statement whose failure
-    #: mode is a wrong bootstrap current rather than an exception, which is
-    #: exactly why they may not be spelled per caller.
-    m = kernel.redl_surface_inputs(
-        ps, [row["r"] for row in geo], [row["rmaj"] for row in geo],
-        [row["q"] for row in geo], psin_prof=psin_prof, ne=ne, te=te,
-        ti=ti, ni=ni, zeff=zeff, f_table=fyo.profile_of(doc, "f"),
-        p_table=fyo.profile_of(doc, "pressure"))
-    eps, q_abs = m["eps"], m["q_abs"]
-    ne_s, te_s, ti_s, ni_s = m["ne"], m["te"], m["ti"], m["ni"]
-    p_th = _total_pressure(pressure_source, m, ne_s, te_s, ni_s, ti_s, ps)
-    r0 = fyo.axis_of(doc)[0] or fyo.field_of(doc)[0] or 1.75
-    b0 = abs(fyo.field_of(doc)[1]) or 1.0
-
-    #: ψ per radian — the normalisation the coefficients are written in, and
-    #: the kernel's: the per-turn value scales every gradient term by 2π,
-    #: which is a plausible-looking bootstrap wrong by exactly that factor
-    _, psi_bar = kernel.redl_drive(ne_s, te_s, ni_s, ti_s, ps,
-                                   psi_axis=fyo.psi_range_of(doc)[0],
-                                   psi_bnd=fyo.psi_range_of(doc)[1])
-    out = kernel.redl_bootstrap(
-        eps=eps, q_abs=q_abs, ne=ne_s, te=te_s, ti=ti_s, ni=ni_s,
-        zeff=m["zeff"], p_th=p_th, i_psi=m["i_psi"], psi_bar=psi_bar,
-        r_maj=r0, b0=b0, z_ion=z_ion, collisionless=collisionless)
-    j_bs = out["j_bs"]
-    if len(j_bs):
-        #: ∇ψ→0 on axis, so j_bs(0) = 0.  The kernel leaves it as computed
-        #: because only this side knows whether the innermost surface IS
-        #: the axis; on this ladder it is.
-        j_bs[0] = 0.0
-    return {"psin": ps, "j_bs": j_bs, "L31": out["L31"], "L32": out["L32"],
-            "L34": out["L34"], "alpha": out["alpha"], "ft": out["ft"],
-            "nu_e_star": out["nu_e_star"], "nu_i_star": out["nu_i_star"],
-            "eps": eps, "pressure_source": pressure_source}
-
 
 # --------------------------------------------------------------------------- #
 # Current-source model (K-18 named it a "current_source" backend, declared
@@ -694,60 +487,3 @@ def bootstrap_profile(eq, ne, te, *, psin_prof=None, ti=None, zeff=1.0, ni=None,
 # FYL-SDD-01 DE-LOG-03) — this module's analytic model behind the same
 # interface as the NEO-backed sources (fylite.scenario.model.neoclassical.CurrentSource).
 # --------------------------------------------------------------------------- #
-
-class RedlSource:
-    """Redl-2021 analytic bootstrap — the standalone transcription, the
-    IMAS.jl lineage, and the adopted spelling of the paper (see the module
-    docstring's adjudication).
-
-    ★★It said "**pure Python** (this module) — NOT a kernel".  Both halves
-    are false and have been since the transcription moved into Rust:
-    :func:`bootstrap_profile` below runs entirely on
-    :func:`fylite.kernel.redl_surface_inputs`,
-    :func:`~fylite.kernel.redl_drive` and
-    :func:`~fylite.kernel.redl_bootstrap`.  The module header says so
-    correctly three paragraphs up, so the file asserted both at once — and
-    "NOT a kernel" is the sentence a reader would act on when deciding
-    where the physics lives.
-
-    What survives the correction is what the word INDEPENDENT was doing.
-    This is a different kernel function from the one NEO's own solve uses:
-    ``redl_coefficients`` evaluates the ``f31`` fit at a second effective
-    trapped fraction to get L34, ``sauter_redl`` (behind ``sauter2021``)
-    sets ``L34 = L31``.  They agree to the bit on the collisionless axis and
-    differ by 4.1 % at ν* = 0.1 and 15.7 % at ν* = 1 — two implementations
-    of one paper, not two names for one function.  The other difference is
-    the ENTRY: this one is profile-level and needs ``context``, and it is
-    reached without a drift-kinetic branch at all.
-
-    Needs the g-file + kinetic profiles via ``context``
-    (``gfile``/``ne``/``te``/``psin_prof``/…), computes ``<j·B>`` over the
-    whole profile, and returns it interpolated onto the surface ψ_N grid.
-    ``collisionless=True`` selects the ν*-free ceiling; ``pressure_source``
-    (default ``"kinetic"``) is passed through — with ``"equilibrium"`` a non-physical
-    reconstruction pressure raises instead of being floored."""
-
-    name = "redl"
-
-    def __init__(self, *, collisionless: bool = False, **redl_kw):
-        self._collisionless = collisionless
-        self._redl_kw = redl_kw
-
-    def bootstrap(self, surfaces: list, *, context: dict | None = None) -> list:
-        if not context or context.get("eq") is None:
-            #: ★``engine.BackendError``, imported here, used to be what this
-            #: raised — a REGISTRY error for a model complaining about its
-            #: own inputs, which put the mechanism in the traceback of a
-            #: physics mistake.  The registry is retired (FYL-SDD-01
-            #: DE-LOG-03) and this is this module's error.
-            raise NeoclassicalError(
-                "the 'redl' current source needs context={'eq', 'ne', 'te', "
-                "'psin_prof', ...} — it is a profile-level analytic model, not "
-                "a per-surface kernel")
-        prof = bootstrap_profile(
-            context["eq"], context["ne"], context["te"],
-            psin_prof=context.get("psin_prof"), ti=context.get("ti"),
-            zeff=context.get("zeff", 1.0), collisionless=self._collisionless,
-            **self._redl_kw)
-        ps = [s["psin"] for s in surfaces]
-        return list(kernel.interp(ps, prof["psin"], prof["j_bs"]))

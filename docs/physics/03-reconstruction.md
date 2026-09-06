@@ -263,7 +263,7 @@ $$ (eq-p03-p)
 | ＋ 线圈作为带 $\sigma$ 的观测量 | 同上，另读写 `fyo:pf_active` 的线圈电流（拟合后回写） | `recon_rs.reconstruct(coil_sigma=…)` |
 | 约束最小二乘、压强行 / 电流行 | —（反演内部的行装配） | `S.analysis.profit` 供压强点 |
 | 后处理 $F$、$p$ | `fyo:equilibrium` 的 `profiles_1d` | `code/reconstruction`（旧 `recon_rs.fit_profiles` 归内核仓测试树） |
-| 自洽外环（自举回灌） | `fyo:equilibrium` ↔ `fyo:core_transport` 往复 | `scenario.analysis.loop`（{ref}`phys07-intro`） |
+| 自洽外环（自举回灌） | `fyo:equilibrium` ↔ `fyo:core_transport` 往复 | 内核仓 `tests/oracles/loop.py`（原 `scenario.analysis.loop`，T-4 第十五刀迁出；{ref}`phys07-intro`） |
 :::
 
 (phys03-sources)=

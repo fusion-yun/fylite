@@ -2,7 +2,7 @@
 pressure and beam-driven current, in pure Python.
 
 Why a fast model and not a Monte-Carlo one: the self-consistent reconstruction
-outer loop (:mod:`fylite.scenario.analysis.loop`) re-evaluates the beam every round, so the
+outer loop (``oracles/loop.py`` (the kernel repository)) re-evaluates the beam every round, so the
 beam module has to cost milliseconds, not minutes.  That is the RABBIT tier
 (Weiland et al., Nucl. Fusion 58 (2018) 082032): a **1-D beam-path attenuation**
 plus an **orbit-averaged Stix slowing-down** plus an **electron-shielding

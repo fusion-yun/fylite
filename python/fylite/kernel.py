@@ -1914,7 +1914,7 @@ def neo_current_unit(*, ne: float, ti1: float, b_unit: float) -> float:
 
     ★★The flux normalisers (:func:`neo_gyrobohm`) were exported and this one
     was not, so a host holding NEO's ``jpar`` had nothing to multiply by —
-    and :func:`fylite.fyo.neoclassical_source` put the NORMALISED number
+    and ``oracles.fyo_sources.neoclassical_source`` put the NORMALISED number
     into an IMAS field whose unit is A/m², beside a second backend that put
     A/m² there.  Eight orders apart, chosen by a keyword.
 

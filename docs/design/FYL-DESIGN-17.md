@@ -518,7 +518,7 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 | analysis | **`profile`** | 一组带误差棒的测点，剖面与阶数是什么（GCV） | `-12` 栏一；指南「压强约束从哪来」 | `profile` / `code/profile`(5) / `analysis.profit`；entry `profit` 已在 | `points` · （`shot` `time` 取 Thomson〔待定〕） | ✅ | ⛔ P2-a |
 | analysis | `posterior` | 不确定度 | `-12` P-9 · 后验按钮；指南「不确定度量化」 | 扁平入口 `recon_mc` | — | ⤵ `reconstruction` 的 `mcn` / `mc-*` | — |
 | analysis | `batch` | 一队反演 | `-12` 栏四 | 浏览器专有（队列） | — | ✗ 队列是宿主机制：命令行上是 `series` 或一个 shell 循环 | — |
-| analysis | `loop` | 反演—输运自洽外环（EFIT↔NEO） | S-L2 批式档；指南「自洽外环」 | `analysis.loop.self_consistent` | `shot` `time` | ✗ 指南自述「在本分发里跑不起来」；库路径复原后再设 | — |
+| analysis | `loop` | 反演—输运自洽外环（EFIT↔NEO）——**已迁出**（T-4 第十五刀，内核仓 `tests/oracles/loop.py`） | S-L2 批式档；指南「自洽外环」 | （本包无入口；清单 `kinetic_reconstruction` 标 `executable: false`） | `shot` `time` | ✗ 迁出内核仓；清单留作工作流模板 | — |
 | analysis | `sxr` | 软 X 射线层析 | S-L2 一句提及 | 无工具、无栏、无语料 | — | ✗ 文档提及、无实现 | — |
 | model | **`transport`** | 固定几何下一次定态解，剖面长什么样 | S-L1；`-10` 栏一 | `transport` / `code/transport`(19) / `model.transport` | （无必需端口；`device` 可选补几何） | ✅ | ✅ |
 | model | **`evolve`** | 含时演化：热通道推进到稳态，功率平衡怎么走；`couple=N` 即平衡交替 | S-L1；`-10` 栏二；指南「正解与演化」 | `evolve` / `code/evolve`(114) / `model.evolve`；entry `evolve_heat`；`ENTRY_SCOPE` 里 `beam` · `lh` · `wave` · `ipctl` · `ch-density` … 为 unsunk，给了按名拒绝 | （同上） | ✅ | ✅ |

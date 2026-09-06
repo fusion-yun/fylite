@@ -37,7 +37,6 @@
     'r_major',             // Major radius [m] of each traced surface's centre on the equilibrium ladder — the Miller `R0(r)` the surface rows read beside `r_minor`.
     'r_minor',             // Minor radius [m] of each traced surface on the equilibrium ladder (profiles_1d), the DD's `r_inboard`/`r_outboard` pair collapsed to the Miller half-width the kernel's surface rows read (the neoclassical and turbulent closures, the beam's shell table).
     'sigma_prev',          // The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both).
-    'trapped_fraction',    // Trapped-particle fraction f_t at each surface.
   ];
   var UNGATED = [
     'a1',                  // Overall rotation angle [deg] of a conductor element.
@@ -86,7 +85,6 @@
     'pressure_x',          // The normalised-flux abscissae of the kinetic rows, one per row (`code/reconstruction`); with `pressure_weight` bound the rows are taken as given at these points, else `pressure` is interpolated onto them.
     'probe_plasma',        // The poloidal-field probe readings with the coil field already removed [T], one per device probe, the rows-given tier's probe measurements; its weights ride on `probe_weight` as the host folded them.
     'psi_ext',             // The external (coil, and any vessel) flux on the solve box [Wb, the host's own gauge], bound under discharge/fylite:psi_ext — binding it puts `code/reconstruction` on its ROWS-GIVEN tier (第三十一刀): the readings are then plasma-only and the door builds only the Green's rows, solves and post-processes.
-    'q',                   // Safety factor carried OUTSIDE profiles_1d (inside it, the DD's own bare `q` is correct).
     'q_prev',              // The previous stationary round's q profile, bound under inputs/evolve for code/steady_current (第二十一刀): the round's new q and psi are under-relaxed toward it (fmORelax), never on the first round.
     'radii',               // The ladder indices the extension's code/turbulence samples TGLF at, bound under inputs/turbulence (第十八刀; the flux-match tier binds its MATCH radii there, 第二十一刀, so the closure is evaluated exactly where the root find reads it).
     'reconstructed',       // The reconstructed counterpart of a truth block.

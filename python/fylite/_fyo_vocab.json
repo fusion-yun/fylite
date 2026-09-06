@@ -291,10 +291,6 @@
    "gated": true,
    "gloss": "The poloidal flux [Wb] the step before a resumed block ended at, bound under inputs/evolve so the entry's Ohmic term can difference it (第十四刀, 2026-09-05). Carried by the page's entry march and by Python's model.evolve alike; the DD has no slot for a solver's lagged state, which is why it is prefixed."
   },
-  "q": {
-   "gated": false,
-   "gloss": "Safety factor carried OUTSIDE profiles_1d (inside it, the DD's own bare `q` is correct). Not gated: `q` is an ordinary local name in both hosts."
-  },
   "q_prev": {
    "gated": false,
    "gloss": "The previous stationary round's q profile, bound under inputs/evolve for code/steady_current (第二十一刀): the round's new q and psi are under-relaxed toward it (fmORelax), never on the first round. Not gated: a bound solver array under inputs/evolve, prefixed there by construction. (The flux match's own carried blob, `fylite:fm_*`, is spelled dynamically by both hosts and is not listed here — the gate lists what it can see written.)"
@@ -378,10 +374,6 @@
   "time": {
    "gated": false,
    "gloss": "The waypoint times [s] of a pulse plan (`code/pulse`), strictly increasing. Not gated: `time` is the ordinary name of that axis in both hosts."
-  },
-  "trapped_fraction": {
-   "gated": true,
-   "gloss": "Trapped-particle fraction f_t at each surface."
   },
   "truth": {
    "gated": false,

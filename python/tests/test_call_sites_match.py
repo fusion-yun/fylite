@@ -288,27 +288,31 @@ def test_every_waiver_was_actually_exercised():
 
 
 def test_a_waived_entry_is_not_advertised_as_a_tool():
-    """★★The two registers have to agree.  ``loop:self_consistent`` is waived
-    here as a DESIGN question — and the manifest that names it was reflected
-    onto the tool face regardless, so a model could select
-    ``fylite_kinetic_reconstruction`` and get the same ``TypeError`` the
-    waiver is about.  A capability may be published while it cannot run; it
-    may not be ADVERTISED as callable.  When the design question is settled
-    and the waiver goes, this test is what tells you to flip the flag back.
+    """★★The two registers have to agree.  ``loop:self_consistent`` was waived
+    here as a DESIGN question while the manifest that names it was reflected
+    onto the tool face regardless.  A capability may be published while it
+    cannot run; it may not be ADVERTISED as callable.
+
+    ★Since T-4 第十五刀 (2026-09-06) the loop itself lives in the kernel
+    repository's oracle tree, so the entry does not resolve in this package
+    at all: the manifest must say so (``fylite:executable: false`` with a
+    note), and there is no waiver left for it to agree with — the register
+    below scans a package the loop is no longer in.
     """
     import json as _json
     manifest = (PKG / "_manifest" / "kinetic_reconstruction.jsonld")
     doc = _json.loads(manifest.read_text())
-    waived = "scenario/analysis/loop.py:_efit_run" in KNOWN_BROKEN
-    executable = doc.get("fylite:executable") is not False
-    assert waived != executable, (
-        "kinetic_reconstruction: the call-site waiver and the manifest's "
-        f"`fylite:executable` disagree (waived={waived}, "
-        f"executable={executable})")
-    if not executable:
-        assert doc.get("fylite:executable_note"), (
-            "a capability declared non-executable must say why, where a "
-            "caller looks")
+    assert "scenario/analysis/loop.py:_efit_run" not in KNOWN_BROKEN, (
+        "the loop left the package; a waiver for it is a waiver for nothing")
+    assert doc.get("fylite:executable") is False, (
+        "kinetic_reconstruction names an entry this package does not carry "
+        "(`scenario.analysis.loop` moved to the kernel repository); it must "
+        "leave the tool face")
+    assert doc.get("fylite:executable_note"), (
+        "a capability declared non-executable must say why, where a "
+        "caller looks")
+    assert not (PKG / "scenario" / "analysis" / "loop.py").exists(), (
+        "loop.py is back in the package — flip the flag and this test back")
 
 
 def test_the_seam_the_last_waiver_covered_is_sound():
@@ -320,11 +324,9 @@ def test_the_seam_the_last_waiver_covered_is_sound():
     this seam broken, settled IN THE KERNEL rather than papered over in the
     call.
     """
-    from fylite.scenario.analysis import loop
-    from fylite.scenario.analysis.recon_rs import reconstruct, reconstruct_shot
-    assert loop._efit_run is reconstruct_shot, (
-        "`_efit_run` is not the shot/time door any more — re-check what this "
-        "loop starts from")
+    from fylite.scenario.analysis.recon_rs import reconstruct
+    #: the loop's own half (`loop._efit_run is reconstruct_shot`) went with the
+    #: loop to the kernel repository's `test_loop_transport.py` (T-4 第十五刀)
     assert "current_fsa" in inspect.signature(reconstruct).parameters, (
         "`reconstruct` lost its FSA-current constraint; the loop's prior has "
         "nowhere to go and this seam is broken again")

@@ -31,18 +31,14 @@ DOORS = {"scenario", "grid_of", "require_data", "load", "abi_version"}
 #: Only ever lower these.
 BASELINE = {
     'device.py': 1,
-    'fyo.py': 5,
-    'scenario/analysis/loop.py': 4,
+    'fyo.py': 3,   # 第十五刀 (2026-09-06)：neoclassical_source · turbulent_transport 迁入内核仓神谕树
     'scenario/control/stability.py': 1,
     'scenario/design/__init__.py': 1,
     'scenario/model/__init__.py': 0,
-    'scenario/model/assembly.py': 13,
-    'scenario/model/closure.py': 49,
     'scenario/model/gyrofluid.py': 8,
     'scenario/model/lh.py': 1,
-    'scenario/model/mapping.py': 3,
     'scenario/model/nbi.py': 4,
-    'scenario/model/neoclassical.py': 11,
+    'scenario/model/neoclassical.py': 4,   # 第十五刀：Redl 半边（surface_inputs · bootstrap_profile · RedlSource）迁入内核仓神谕树
     'scenario/waveform.py': 2,
 }
 

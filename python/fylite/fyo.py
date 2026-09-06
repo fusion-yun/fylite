@@ -49,7 +49,7 @@ __all__ = ["FYO_PREFIX", "FYLITE_PREFIX", "CONTEXT", "vocabulary", "equilibrium"
            "measurements", "as_measurements", "resolve_probe_basis",
            "MeasurementInputError",
            "grid_of", "flux_map_of", "psi_map_of", "core_profiles", "profiles_of",
-           "beam_sources", "wave_sources", "neoclassical_source", "turbulent_transport", "merge_sources"]
+           "beam_sources", "wave_sources", "merge_sources"]
 
 #: fyo ontology IRI prefix (fyo-core prefix declaration) — a vocabulary
 #: reference, never an import.  ★Home is here: it used to be defined in the
@@ -546,7 +546,6 @@ def grid_of(doc: dict) -> kernel.Grid:
     return flux_map_of(doc)[0]
 
 
-
 # --------------------------------------------------------------------------- #
 # The ladder: one equilibrium, traced once                                    #
 # --------------------------------------------------------------------------- #
@@ -864,7 +863,6 @@ def nonuniform_gradient(f, x):
     return d
 
 
-
 def miller_geometry(eq, *, psin=None, n_surfaces: int = 24,
                     edge: float = 0.95) -> list[dict]:
     """Per-surface local Miller geometry from an equilibrium (the standalone bridge).
@@ -984,8 +982,6 @@ def _jsonable(obj):
     if isinstance(obj, np.generic):
         return obj.item()
     return obj
-
-
 
 
 def read(path: str | Path) -> dict:
@@ -1169,175 +1165,6 @@ def merge_sources(*docs: dict) -> dict:
 #: that replaces it and is used to say so, because quietly accepting both
 #: is what gave this signature two spellings of one choice.
 _RETIRED_SOLVERS = {"sauter": "jpar_sauter", "sauter2021": "jpar_sauter_2021"}
-
-
-def neoclassical_source(eq: dict, prof: dict, *, solver: str = "neo",
-                        key: str = "jpar_dke", resolution=None,
-                        n_surfaces: int = 24, **kw) -> dict:
-    """Neoclassical bootstrap current → ``fyo:core_sources``.
-
-    ``solver`` is ``"neo"`` (the drift-kinetic solve) or ``"redl"`` (the
-    standalone Redl-2021 transcription, which needs no drift-kinetic
-    branch) — two different kernel functions, and the string is what goes
-    into the document as ``fylite:solver``.  ``key`` selects
-    which of the NEO solve's answers is reported and is ignored by ``redl``:
-    ``"jpar_sauter"`` and ``"jpar_sauter_2021"`` are the analytic branches
-    that same solve evaluates for free, and asking for one of them skips the
-    drift-kinetic solve.
-
-    ★★``solver`` used to accept ``"sauter"`` and ``"sauter2021"`` as well,
-    and this signature therefore carried TWO SPELLINGS OF ONE CHOICE:
-    ``solver="sauter2021"`` and ``solver="neo", key="jpar_sauter_2021"``
-    were the same call, on the same solve, returning the same numbers — and
-    the sentence above already said ``key`` was what selected the branch.
-    They are separate models no longer — they never were: one NEO call
-    returns all three currents.  The
-    retired names raise below rather than being quietly aliased, since a
-    silent alias is how a signature comes to have two spellings.
-
-    ★★One face, because it is one DD term.  There were two — this and
-    ``bootstrap_source`` — emitting the SAME
-    ``core_sources`` ``bootstrap_current`` (identifier index 13) onto the
-    same surfaces off the same kernel file, differing only in which Fortran
-    code the Python behind them was once written around.  A document reader
-    cannot tell those two apart and should not have to: what actually
-    distinguishes the answers is the solver, so the solver is an argument and
-    it is recorded in the document as ``fylite:solver``.
-    """
-    from .scenario.model import neoclassical as nc
-    #: ★lifted ONCE, here.  This function took `eq` and handed it to the
-    #: model layer, which lifted it — and then read `eq.get("@id")` off the
-    #: RAW argument on the last line.  Every docstring on this door promises
-    #: "an fyo:equilibrium document (or a g-file at the door)", and the
-    #: g-file spelling raised `AttributeError` after the whole solve had run.
-    doc = as_equilibrium(eq)
-    pr = profiles_of(prof)
-    if solver in _RETIRED_SOLVERS:
-        raise ValueError(
-            f"solver={solver!r} was a backend name for a branch of the NEO "
-            f"solve, not a solver: use solver='neo', "
-            f"key={_RETIRED_SOLVERS[solver]!r}")
-    if solver == "redl":
-        #: ★the analytic path is profile-level, not per-surface: it computes
-        #: <j.B> over the whole profile and carries its own extras (trapped
-        #: fraction, collisionalities, the pressure_source policy it chose).
-        out = nc.bootstrap_profile(doc, pr["ne"], pr["te"],
-                                   psin_prof=pr["psin"], ti=pr.get("ti"),
-                                   zeff=pr.get("zeff", 1.0), ni=pr.get("ni"),
-                                   **kw)
-        entry = _source_entry(
-            "bootstrap_current", 13, out["psin"], j_par=out["j_bs"],
-            extras={"fylite:trapped_fraction": out["ft"],
-                    "fylite:inverse_aspect_ratio": out["eps"],
-                    "fylite:nu_e_star": out["nu_e_star"],
-                    "fylite:nu_i_star": out["nu_i_star"]},
-            globals_={"fylite:solver": solver,
-                      "fylite:pressure_source": out["pressure_source"]})
-        tag = "/bootstrap"
-    else:
-        surf = nc.surface_inputs(doc, ne=pr["ne"], te=pr["te"],
-                                 psin_prof=pr["psin"], ti=pr.get("ti"),
-                                 zeff=pr.get("zeff", 1.0),
-                                 n_surfaces=n_surfaces)
-        #: ★★``backend("current_source", solver, ...)`` stood here, and the
-        #: lookup had exactly ONE reachable answer: ``redl`` is handled by
-        #: the branch above, so ``solver`` could only be ``"neo"`` by the
-        #: time control arrived — a name→class map resolving a name with one
-        #: possible value.  The registry is retired (FYL-SDD-01 DE-LOG-03);
-        #: the model is constructed where it is chosen.
-        if solver != "neo":
-            raise ValueError(
-                f"solver must be 'neo' or 'redl', not {solver!r}")
-        src = nc.NeoSource(key=key, resolution=resolution, **kw)
-        #: ★★A/m², like every other backend of this term.  These three return
-        #: NEO's NORMALISED `<j_par B>`, and the number went into `j_parallel`
-        #: as it came — beside `redl`, which returns A/m² — so one DD field
-        #: carried two unit systems eight orders apart, chosen by a keyword.
-        #: A document reader cannot see that and should not have to: the
-        #: identifier says `bootstrap_current`, and the DD says A/m².
-        #:
-        #: `current_unit` is `e n_e v_norm B_unit` from the kernel
-        #: (:func:`fylite.kernel.neo_current_unit`); dividing by B0 is what
-        #: makes `<j·B>` the `<j·B>/B0` the DD field means, and is the same
-        #: step `bootstrap_profile` already took for `redl`.
-        #: the backend returns `<j·B>` [A·T/m²]; the DD field is `<j·B>/B0`
-        b0 = abs(field_of(doc)[1]) or 1.0
-        j = np.asarray(src.bootstrap(surf), float) / b0
-        ps = np.array([s["psin"] for s in surf], float)
-        entry = _source_entry(
-            "bootstrap_current", 13, ps, j_par=j,
-            extras={"fylite:rmin_over_a": [s["rmin_over_a"] for s in surf],
-                    "fylite:q": [s["q"] for s in surf]},
-            globals_={"fylite:solver": solver, "fylite:key": key})
-        tag = "/neoclassical"
-    return _sources_doc(str(doc.get("@id", "fylite:equilibrium")) + tag,
-                        [entry], **{"fylite:derived_from": doc.get("@id"),
-                                    "fylite:profiles_from": prof.get("@id")})
-
-
-def turbulent_transport(eq: dict, prof: dict, *, width: float, psin=None,
-                        n_surfaces: int = 5, sat_rule: int = 2,
-                        chi_floor: float = 0.05, chi_cap: float = 50.0,
-                        tglf_extra: dict | None = None) -> dict:
-    """TGLF (+ NEO Hirshman-Sigmar) heat diffusivities → ``fyo:core_transport``.
-
-    Evaluated on the profile document's own grid, through the SAME closure
-    the transport solve calls (:func:`fylite.scenario.model.closure.kernel_chi`)
-    — ★not a second assembly of the same models, which is the whole reason a
-    document face is a face and not a re-implementation.
-
-    ``width`` — the mode width the turbulence is evaluated at, and the
-    one parameter of this face with no default.
-
-    ★★It reads as an odd thing to demand of a document face, and it is the
-    honest shape of what is behind it.  This channel used to be a REPLAY,
-    keyed by a JSON digest of the deck the closure builds and backed by
-    recordings from a libtglf that has left the tree; an equilibrium whose
-    surfaces were never recorded got
-    a cache miss rather than a flux, which for
-    every equilibrium but one meant this door did not answer.  What kept it
-    a replay was that libtglf BISECTED for the mode width and the port does
-    not — a missing INPUT rather than a missing model.  So the input is
-    asked for, the channel is the kernel, and the door answers.  A default
-    here would be this module choosing an operating point on the caller's
-    behalf, on every surface, silently.
-
-    ``ti`` defaults to ``te`` as everywhere else in this package.
-    """
-    from .scenario.model import closure
-    #: ★lifted at the door, once — see `neoclassical_source`.
-    doc = as_equilibrium(eq)
-    pr = profiles_of(prof)
-    ps = (np.asarray(psin, float) if psin is not None
-          else np.linspace(0.3, 0.9, int(n_surfaces)))
-    #: ★ONE trace: the dense ladder this face maps ρ and gm3 on, and the
-    #: surfaces the closure evaluates at, are the same object — the closure
-    #: used to trace the same g-file again on entry, and three more times
-    #: on every step of the march it was called from
-    lad = Ladder.with_surfaces(doc, ps)
-    rho = kernel.interp(pr["psin"], lad.psin, lad.rho)
-    gm3 = kernel.interp(pr["psin"], lad.psin, lad.gm3)
-    chi = closure.kernel_chi(lad, psin=ps, psin_prof=pr["psin"], ne=pr["ne"],
-                             gm3_at=gm3, width=float(width),
-                             zeff=float(pr.get("zeff", 1.6)),
-                             sat_rule=sat_rule, chi_floor=chi_floor,
-                             chi_cap=chi_cap, tglf_extra=tglf_extra)
-    ti = pr.get("ti", pr["te"])
-    chi_e, chi_i = chi(rho, pr["te"], ti)
-    model_entry = {}
-    put(model_entry, "CORE_TRANSPORT", "psin", pr["psin"])
-    put(model_entry, "CORE_TRANSPORT", "rho", np.asarray(rho, float))
-    put(model_entry, "CORE_TRANSPORT", "chi_e", np.asarray(chi_e, float))
-    put(model_entry, "CORE_TRANSPORT", "chi_i", np.asarray(chi_i, float))
-    p1 = model_entry["profiles_1d"]
-    return _doc("fyo:core_transport",
-                str(doc.get("@id", "fylite:equilibrium")) + "/transport",
-                model=[{"@type": "fyo:core_transport_model",
-                        "identifier": {"name": "anomalous", "index": 6},
-                        "profiles_1d": p1,
-                        "fylite:sat_rule": int(sat_rule)}],
-                **{"fylite:derived_from": doc.get("@id"),
-                   "fylite:profiles_from": prof.get("@id")})
 
 
 # --------------------------------------------------------------------------- #

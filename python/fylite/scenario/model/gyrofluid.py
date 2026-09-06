@@ -177,7 +177,7 @@ def _species(inputs: dict, names, ns: int) -> list:
 
     ``input.tglf`` numbers species in the KEY — ``ZS_1``, ``ZS_2`` — and that
     is what a deck written by
-    :func:`fylite.scenario.model.mapping.tglf_inputs`, or read from a real
+    ``oracles.mapping.tglf_inputs``, or read from a real
     file, carries.  A bare ``ZS: [-1.0, 1.0]`` is the packed form the kernel
     entries take.  Both are accepted here; the suffixed form wins nothing by
     being second-class, because it is the one that actually appears on disk.

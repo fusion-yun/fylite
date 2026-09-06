@@ -20,13 +20,14 @@
   },
   "fylite:generated": "2026-08-01T00:00:00Z",
   "fylite:entry": "fylite.scenario.analysis.loop:self_consistent",
+  "fylite:executable": false,
   "fylite:acceptance": {
     "converged": {
       "require": true
     },
     "@note": "the self-consistent loop's own |Δq0| < tol verdict. ★The reconstruction criteria (`terror`/`chi_pressure`) are NOT repeated here: each round's reconstruction is its own recorded run and carries them."
   },
-  "fylite:executable_note": "Callable again since 2026-08-25. Two things had to change and both did: the FSA-current constraint this loop states went into the kernel (ABI v113 `gs_inverse_solve_fsa`), so `loop.self_consistent` binds to a real reconstruction door instead of the departed EFIT driver's signature; and the loop stopped reading its equilibrium back off a g-file path, which the in-memory reconstruction does not produce — it hands the result straight to `fyo.as_equilibrium`. Measured on this checkout, the tool now fails at the distribution boundary (`ModuleNotFoundError: MDSplus`), which is the honest one: the shot tree is not shipped. It remains a workflow TEMPLATE — a plan an engine runs — and the tool face carries it because its entry is a real, invocable composition of the artifacts it names.",
+  "fylite:executable_note": "Not callable in this distribution since 2026-09-06 (T-4 第十五刀): the loop this plan names (`scenario.analysis.loop.self_consistent`, with the transport closures, the source assembly, the deck mapper and the Redl bootstrap profile it drives) reached the kernel through flat entries no door carries and was called by nothing but tests, so it moved to the kernel repository's oracle tree (`tests/oracles/loop.py`). The plan stays published — it is the workflow template the ledger registers — and leaves the tool face; the entry string is kept as the historical binding. Earlier note (2026-08-25): callable again after the FSA-current constraint went into the kernel (ABI v113 `gs_inverse_solve_fsa`) and the loop stopped reading its equilibrium off a g-file path; measured then, it failed at the distribution boundary (`ModuleNotFoundError: MDSplus`), since the shot tree is not shipped.",
   "fylite:ports": {
     "in": [
       {

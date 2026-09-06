@@ -60,13 +60,18 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 移位 Legendre + GCV 定阶
 
 ★**逐标量 1σ + 分位、剖面误差带与逐诊断的实测-vs-前向**（`errorbars` / `profiles` /
 `diagnostics`）当年由 EFIT 驱动的入口按中心差分扫描给出；今天仍命名它的只有
-`loop.self_consistent(..., final_uncertainty=N)`，而那条外环在本分发里跑不起来（见下节）。
+`loop.self_consistent(..., final_uncertainty=N)`，而那条外环在本分发里跑不起来（见下节），并自
+T-4 第十五刀（2026-09-06）起整体迁到内核仓的神谕树 `tests/oracles/loop.py`。
 `S.analysis.reconstruction` 自己不产生这三项。
 
 ## 自洽外环 EFIT↔NEO
 
+★自 T-4 第十五刀（2026-09-06）起这条外环连同闭合、装配、映射与 Redl 自举剖面**不在本包里**：
+它只被测试调用，经扁平入口够内核，已整体迁到内核仓 `tests/oracles/loop.py`；`_manifest/kinetic_reconstruction.jsonld`
+仍登记这个工作流模板，但标 `fylite:executable: false`。下面的调用式在内核仓的测试树里才成立（`from oracles import loop`）。
+
 ```python
-from fylite.scenario.analysis import loop
+from oracles import loop   # 内核仓 tests/oracles/loop.py
 lr = loop.self_consistent(
         137985, 4.0, point=True, pressure=True, thomson_ne=True,
         neo_resolution="fast",

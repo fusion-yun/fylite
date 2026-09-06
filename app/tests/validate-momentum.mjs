@@ -178,7 +178,14 @@ import numpy as np
 sys.path.insert(0, ${JSON.stringify(ROOT + '/python')})
 from fylite import fyo as FYO
 from fylite import kernel as K
-from fylite.scenario.model import assembly as asm
+#: T-4 第十五刀 (2026-09-06): the source assembly moved to the kernel repository's
+#: oracle tree with the loop; the re-march binds it there (FYLITE_KERNEL_REPO).
+import os
+kr = os.environ.get("FYLITE_KERNEL_REPO")
+if not kr:
+    sys.exit("FYLITE_KERNEL_REPO is not set: assembly.solve_momentum lives in the kernel repository's tests/oracles/assembly.py")
+sys.path.insert(0, os.path.join(kr, "tests"))
+from oracles import assembly as asm
 
 out = []
 for d in json.load(sys.stdin):

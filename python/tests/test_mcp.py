@@ -114,7 +114,12 @@ def test_execution_failure_is_an_iserror_result_not_a_crash():
 
 
 def test_reflected_tool_dispatch_resolves_manifest_entries():
-    for name in engine.load_manifests():
+    for name, doc in engine.load_manifests().items():
+        if doc.get("fylite:executable") is False:
+            #: off the tool face by declaration (`llm_tools` skips it); its
+            #: entry need not resolve in this package — `kinetic_reconstruction`
+            #: names a loop that lives in the kernel repository since T-4 第十五刀
+            continue
         entry = engine.mcp_entry_for_tool(f"fylite_{name}")
         assert callable(engine.resolve_entry(entry))
 

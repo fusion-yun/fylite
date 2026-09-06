@@ -80,7 +80,7 @@ t = S.model.transport(chi_given=chi_from_flux)   # 把它换算出的 χ 喂回�
 ```
 
 ★**这一步的口径最容易咬人**：TGLF 按 GACODE 的归一给答案（`B_unit`、Miller `r/a`），
-而输运方程按 ρ 标签走。`scenario.model.mapping` 是**唯一**做这一层归一的地方——不要在
+而输运方程按 ρ 标签走。内核仓 `tests/oracles/mapping.py`（原 `scenario.model.mapping`，T-4 第十五刀迁出）是**唯一**做这一层归一的地方——不要在
 调用处自己换算，那是移植缺陷最常见的落点（见公开登记册的 V-06 / V-07 记录）。
 
 ## 报告

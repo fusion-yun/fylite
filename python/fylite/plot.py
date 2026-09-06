@@ -287,7 +287,7 @@ def _current_panel(ax, current: dict) -> None:
 def _neo_panel(ax, neo: dict) -> None:
     """NEO's own bootstrap output, next to the analytic models it supersedes.
 
-    ``neo`` is a :func:`fylite.scenario.analysis.loop.self_consistent` result: ``jpar_dke`` is the
+    ``neo`` is a ``oracles.loop.self_consistent`` (the kernel repository) result: ``jpar_dke`` is the
     drift-kinetic solve, and ``bootstrap_baseline`` carries NEO's *internally*
     evaluated Sauter-1999 / Redl-2021 coefficients — same surfaces, same
     geometry, same collisionality, same normalization, so the three curves are
@@ -475,7 +475,7 @@ def plot_current_components(loop_result: dict, out_path: str | Path, *,
     """Plot the self-consistent current decomposition on one figure.
 
     ``loop_result`` is the dict returned by
-    :func:`fylite.scenario.analysis.loop.self_consistent` — its ``["current"]`` carries
+    ``oracles.loop.self_consistent`` (the kernel repository) — its ``["current"]`` carries
     ``psin`` and the ``j_ohm`` / ``j_bootstrap`` / ``j_total`` profiles (in
     ⟨j⟩=1 units), plus ``j_nbi`` when a beam backend was selected (K-20).  Draws
     each component and their sum J_total vs ψ_N.

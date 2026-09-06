@@ -251,6 +251,11 @@ def test_a_scored_criterion_names_a_field_the_entry_can_produce():
                 and "tbd" not in v}
         if not crit:
             continue
+        if doc.get("fylite:executable") is False:
+            #: the entry is not in this package (`kinetic_reconstruction` names a
+            #: loop that lives in the kernel repository since T-4 第十五刀); a
+            #: criterion nothing here can score is the manifest's own statement
+            continue
         mod, fn = doc["fylite:entry"].split(":")
         #: ★The entry's own source AND its module's — an entry is often a
         #: door (`analysis:reconstruction` validates and delegates to

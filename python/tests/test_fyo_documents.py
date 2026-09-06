@@ -180,26 +180,6 @@ def test_a_wave_that_deposits_nothing_is_a_document_with_no_source(doc, prof):
     assert d["@type"] == "fyo:core_sources" and d["source"] == []
 
 
-def test_sources_merge_by_concatenation_not_by_addition(doc, prof):
-    """★Adding here would hide that two sources were computed on different
-    ladders; the caller adds what it means to add, on a grid it chose."""
-    from fylite.scenario.model import lh, nbi
-    a = fyo.beam_sources(doc, prof,
-                         nbi.east_beams([2.0e6, 0, 0, 0], [6.0e4] * 4,
-                                        [1.26] * 4))
-    b = fyo.wave_sources(doc, prof, lh.east_launchers(2.0e6), eta_cd=1e19,
-                         upshift=(1.4, 2.2))
-    #: ★one face for one DD term: `bootstrap_source` and
-    #: `neoclassical_source` both emitted `bootstrap_current`, and the
-    #: solver is an argument now rather than a second function.
-    c = fyo.neoclassical_source(doc, prof, solver="redl")
-    merged = fyo.merge_sources(a, b, c)
-    assert [s["identifier"]["name"] for s in merged["source"]] == \
-        ["nbi", "lh", "bootstrap_current"]
-    with pytest.raises(ValueError):
-        fyo.merge_sources(doc)          # an equilibrium is not a source set
-
-
 def test_a_source_document_survives_the_disk(doc, prof, tmp_path):
     pytest.importorskip("h5py")
     from fylite.scenario.model import nbi
@@ -357,29 +337,6 @@ def test_with_surfaces_returns_a_ladder_it_is_given_and_refuses_a_short_one(trac
     with pytest.raises(ValueError, match="not on the ladder"):
         lad.miller_geometry([0.3, 0.99])
     assert len(traces) == 1
-
-
-def test_the_closure_builds_its_states_without_tracing(traces):
-    """★The reason the object exists: `surface_states` on a held ladder
-    touches the kernel's tracer zero times, where the g-file door used to
-    trace three ladders per call — and was called once per outer step."""
-    from fylite.scenario.model import closure
-    psin_prof = np.linspace(0.0, 1.0, 51)
-    ne = 4e19 * (1 - 0.9 * psin_prof ** 2)
-    te = 2500.0 * (1 - 0.95 * psin_prof ** 2) + 50.0
-    lad = fyo.Ladder.with_surfaces(GFILE, [0.3, 0.5, 0.7])
-    assert len(traces) == 1
-    for _ in range(3):
-        st = closure.surface_states(lad, psin=[0.3, 0.5, 0.7],
-                                    psin_prof=psin_prof, ne=ne, te=te)
-    assert len(traces) == 1
-    assert len(st) == 3 and all(s["b_unit"] > 0 for s in st)
-    # the g-file door is the same builder behind one trace
-    via_g = closure.equilibrium_surface_states(GFILE, psin=[0.3, 0.5, 0.7],
-                                         psin_prof=psin_prof, ne=ne, te=te)
-    assert len(traces) == 2
-    for a, b in zip(st, via_g):
-        assert a == b
 
 
 def test_a_transport_ladder_of_four_surfaces_is_an_error_a_miller_one_is_not():

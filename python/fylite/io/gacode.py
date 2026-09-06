@@ -4,7 +4,7 @@
 carrying the flux-surface shape, the kinetic profiles, and the per-channel
 power deposition on a common radial grid.  It is what ``profiles_gen`` writes
 and what TGYRO/NEO/CGYRO read, so it is also the natural reference for
-fylite's own bundle (:mod:`fylite.scenario.model.mapping`).
+fylite's own bundle (``oracles/mapping.py`` (the kernel repository's test tree, since T-4 第十五刀)).
 
 The format is a sequence of blocks::
 
@@ -17,7 +17,7 @@ The format is a sequence of blocks::
     ...                            fields (ni, ti, vpol, vtor)
 
 Only the parsing lives here — every *derived* quantity (``b_unit``, ``V'``,
-``<|grad r|>``, the gyro-Bohm units) is computed in :mod:`fylite.scenario.model.mapping`,
+``<|grad r|>``, the gyro-Bohm units) is computed in ``oracles/mapping.py`` (the kernel repository's test tree, since T-4 第十五刀),
 mirroring upstream's split between ``expro_read`` and ``expro_compute_derived``.
 
 ★★NEO's ``neo_dump_local`` namelist replay used to be the module's other
@@ -57,7 +57,7 @@ def read_input_gacode(path) -> dict:
 
     Units are upstream's and are **not** converted: lengths in m, ``te``/``ti``
     in keV, densities in 10^19 m^-3, powers in MW/m^3, ``polflux``/``torfluxa``
-    in Wb/radian.  :mod:`fylite.scenario.model.mapping` documents where each is needed in
+    in Wb/radian.  ``oracles/mapping.py`` (the kernel repository's test tree, since T-4 第十五刀) documents where each is needed in
     another unit.
     """
     path = Path(path)
