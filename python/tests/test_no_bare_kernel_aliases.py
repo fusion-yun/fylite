@@ -37,14 +37,9 @@ PKG = Path(fylite.__file__).resolve().parent
 #: Bare aliases that are deliberate, each with what makes it worth a name.
 #: "It reads better" is not a reason — the kernel entry can be renamed.
 ALLOWED: dict[str, str] = {
-    #: ★A PUBLIC scenario entry (`design.__all__`), not an accidental
-    #: alias.  DE-COMP-04 says a scenario entry composes existing
-    #: capabilities; naming the one this scenario means by
-    #: "the target boundary" is that composition, even when it is
-    #: currently one call.  The name is the scenario's vocabulary,
-    #: and its docstring is the longer of the two.
-    "fylite/scenario/design/__init__.py::target_boundary":
-        "public scenario entry — DE-COMP-04 vocabulary",
+    #: `target_boundary` (design) left this list in T-4 第二十刀 (2026-09-06): it
+    #: goes through `code/outlines` now and is no longer a second name for a
+    #: kernel entry
 }
 
 SOURCES = sorted(p for p in PKG.rglob("*.py") if p.name != "kernel.py")

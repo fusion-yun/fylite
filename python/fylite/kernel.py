@@ -68,7 +68,7 @@ __all__ = [
     "SURFACE_KEYS", "surface_block",     "TGLF_SPECIES_ROWS",
     "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
-    "miller_boundary",     "sample_grid",
+        "sample_grid",
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "dke_solve",     "SAUTER_1999", "REDL_2021",
@@ -1214,33 +1214,6 @@ TGLF_SPECIES_ROWS = tuple(n.lower() for n in _deck_names.TGLF_DECK_SPECIES)
 #: species row order" was spelling the six names out — `closure.py` did, and
 #: so did `neo_inputs` twenty lines from the table it could have read.
 NEO_SPECIES_ROWS = tuple(n.lower() for n in _deck_names.NEO_DECK_SPECIES)
-
-
-_sig("fylite_rs_miller_boundary", [_F64] * 6 + [_U64, _ARR, _ARR], _I32)
-def miller_boundary(*, r0: float, a: float, kappa: float = 1.0,
-                    delta_upper: float = 0.0, delta_lower: float = 0.0,
-                    z0: float = 0.0, n: int = 121):
-    """The Miller-like parametric boundary, as an ``(n, 2)`` array of points.
-
-    ★Triangularity is taken PER HALF — ``delta_upper`` on ``0 < theta < pi``,
-    ``delta_lower`` elsewhere.  A single averaged delta draws a boundary a
-    diverted machine does not have.
-
-    ★★This parametrisation had THREE hosts: here, the design layer's
-    ``target_boundary``, and a hand-written ``FyPhys.millerBoundary`` in the
-    browser.  The browser delegates to the kernel for every function that
-    has an export and hand-writes the ones that do not — so the missing
-    export was the cause of the other two, not an unrelated omission.
-    """
-    lib = require()
-    n = int(n)
-    orr, ozz = np.empty(n), np.empty(n)
-    rc = lib.fylite_rs_miller_boundary(
-        float(r0), float(z0), float(a), float(kappa), float(delta_upper),
-        float(delta_lower), n, orr, ozz)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_miller_boundary returned {rc}")
-    return np.column_stack([orr, ozz])
 
 
 def _grid6(g):

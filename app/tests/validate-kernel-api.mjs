@@ -165,9 +165,8 @@ const CASES = [
   //: (2026-09-06): no page calls them (the species vocabulary is `code/adas_species`
   //: through the tree door; the ids the evolve door takes are the probe's), so they
   //: are oracle-only and neither path serves them.  The byte-in shape has no row left.
-  ['millerBoundary  形状参数进、两条轮廓出',
-   (fy) => fy.millerBoundary({ r0: 1.85, z0: 0.02, a: 0.45, kappa: 1.8,
-                               deltaU: 0.4, deltaL: 0.55 }, 33)],
+  //: `millerBoundary` left in T-4 第二十刀 (2026-09-06): the pages draw the family
+  //: through `code/outlines` (`validate-fyphys-miller.mjs` holds that route).
 ];
 
 function flat(v) {

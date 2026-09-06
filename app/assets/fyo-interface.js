@@ -75,6 +75,7 @@
     'name',                // Human-readable name of the block it sits on — a coil, a launcher, a saved case.
     'ne_profile',          // An electron density profile [m^-3] on uniform normalised flux, read linearly — the density a chord integral is taken through when a profile rather than the parametrised shape is meant (`code/chords`, 第三十四刀).
     'orbit_loss_fraction', // Fraction of injected beam power lost on first orbit, at the TOTAL level (the per-component block spells its own `fylite:orbit_loss`).
+    'outline_levels',      // The psi_N levels `code/outlines` traces (empty = the boundary only) — the model page's worker writes it for the six surfaces; since T-4 第二十刀 the pulse-design page's main thread and `design.
     'p_fast_profile',      // A fast-ion pressure profile [Pa] on uniform normalised flux — the non-thermal share a reader declared, subtracted from the fit's total before the thermal ladder is built (`code/bootstrap`).
     'p_fast_third',        // The fast-ion pressure's trace third (p_par + 2 p_perp)/3 [Pa] on the ladder, as the beam left it at the last step (T-M12): bound under inputs/evolve for code/refit so the shape fit and the beta_p target see the same total pressure the march did (第十九刀).
     'p_rot_profile',       // A rotation pressure profile [Pa] on uniform normalised flux — the other non-thermal share, only ever an imported profile (`code/bootstrap`).

@@ -665,27 +665,6 @@
 
 
   /**
-   * The Miller-like parametric boundary, as an array of `[r, z]` pairs.
-   *
-   * ★Triangularity is PER HALF: `deltaU` on `0 < theta < pi`, `deltaL`
-   * elsewhere.  A single averaged delta draws a boundary a diverted machine
-   * does not have.
-   */
-  Fy.prototype.millerBoundary = function (p, n) {
-    var self = this, m = n || 121;
-    return this.scope(function (s) {
-      var orr = s.zeros(m), ozz = s.zeros(m);
-      var rc = self.e.fylite_rs_miller_boundary(
-        p.r0, p.z0, p.a, p.kappa, p.deltaU, p.deltaL, BigInt(m),
-        orr.ptr, ozz.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_miller_boundary', rc);
-      var rr = s.get(orr), zz = s.get(ozz), out = [];
-      for (var q = 0; q < m; q++) out.push([rr[q], zz[q]]);
-      return out;
-    });
-  };
-
-  /**
    * Bilinear read of a grid field at `n` points.  ★Out of the grid is NaN,
    * not a clamped edge value — a clamp reads the boundary node for every
    * point beyond it, which looks like a field that flattens outside the
@@ -1443,7 +1422,24 @@
   function millerBoundary(p, n) {
     if (!KERNEL)
       throw new Error('FyPhys.millerBoundary: no kernel — call FyPhys.useKernel()');
-    return KERNEL.millerBoundary(p, n || 121);
+    //: ★T-4 第二十刀 (2026-09-06): through the tree door — `code/outlines`'
+    //: Miller route is the same `surfaces::miller_boundary`, answered as the
+    //: record's `lcfs` field (n points, [r, z]); the flat export left the
+    //: interface.  `validate-fyphys-miller.mjs` holds it to the recorded
+    //: flat answer, bit for bit.
+    var m = n || 121;
+    var rec = KERNEL.complete('code/outlines', {
+      settings: { n_theta: m, n_lcfs: m, miller_r0: +p.r0, miller_z0: +(p.z0 || 0),
+                  miller_a: +p.a, miller_kappa: +p.kappa,
+                  miller_delta_u: +p.deltaU, miller_delta_l: +p.deltaL },
+      inputs: { discharge: { 'fylite:outline_levels': new Float64Array(0) } } });
+    var d = rec.fields.lcfs.data, out = [];
+    if (d.length && Array.isArray(d[0])) {
+      for (var q = 0; q < d.length; q++) out.push([+d[q][0], +d[q][1]]);
+    } else {
+      for (var k = 0; k + 1 < d.length; k += 2) out.push([+d[k], +d[k + 1]]);
+    }
+    return out;
   }
 
   // --- small dense linear algebra (12 unknowns) ----------------------------

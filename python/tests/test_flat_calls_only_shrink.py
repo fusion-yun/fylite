@@ -33,7 +33,7 @@ BASELINE = {
     'device.py': 1,
     'fyo.py': 3,   # 第十五刀 (2026-09-06)：neoclassical_source · turbulent_transport 迁入内核仓神谕树
     'scenario/control/stability.py': 1,
-    'scenario/design/__init__.py': 1,
+    'scenario/design/__init__.py': 0,   # 第二十刀 (2026-09-06)：target_boundary 走 code/outlines
     'scenario/model/__init__.py': 0,
     'scenario/model/gyrofluid.py': 8,
     'scenario/model/lh.py': 0,   # 第十七刀 (2026-09-06)：慢化/共振包装迁入内核仓神谕树

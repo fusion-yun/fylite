@@ -78,9 +78,16 @@ def target_boundary(*, r0: float, a: float, kappa: float = 1.0,
     shapes, and averaging the two draws a boundary the machine does not
     have.
     """
-    return K.miller_boundary(r0=r0, a=a, kappa=kappa,
-                                 delta_upper=delta_upper,
-                                 delta_lower=delta_lower, z0=z0, n=n)
+    #: ★T-4 第二十刀 (2026-09-06): through `code/outlines`' Miller route — the
+    #: same `surfaces::miller_boundary`, answered as the record's `lcfs` field;
+    #: the flat `miller_boundary` entry is oracle-only now
+    from ...io import fydoc
+    rec = fydoc.complete("code/outlines", {
+        "settings": {"n_theta": float(n), "n_lcfs": float(n), "miller_r0": float(r0),
+                     "miller_z0": float(z0), "miller_a": float(a), "miller_kappa": float(kappa),
+                     "miller_delta_u": float(delta_upper), "miller_delta_l": float(delta_lower)},
+        "inputs": {"discharge": {"fylite:outline_levels": np.zeros(0)}}})
+    return np.asarray(rec["fields"]["lcfs"]["data"], float).reshape(int(n), 2)
 
 
 #: The ridge anneal, stiff -> loose: the first passes stay near the starting
