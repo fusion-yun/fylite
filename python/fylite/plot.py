@@ -28,7 +28,7 @@ _grid = geqdsk.grid
 
 def find_x_points(g: dict, *, psin_window: float = 0.15,
                   min_axis_dist: float = 0.25) -> list[dict]:
-    """Saddle points of PSIRZ — the kernel's (:func:`fylite.kernel.x_points`).
+    """Saddle points of PSIRZ — the kernel's (``code/xpoints``).
 
     Returns at most two ``{r, z, psin, grad}``, nearest ψ_N = 1 first; an
     empty list means a limited configuration as far as the grid resolution
@@ -44,12 +44,22 @@ def find_x_points(g: dict, *, psin_window: float = 0.15,
     r, z, psi = _grid(g)
     if g["sibry"] == g["simag"]:
         return []
-    return kernel.x_points(
-        kernel.grid_of(r, z),
-        np.ascontiguousarray(np.asarray(psi, float).T),
-        psi_axis=float(g["simag"]), psi_bnd=float(g["sibry"]),
-        axis=(float(g["rmaxis"]), float(g["zmaxis"])),
-        psin_window=psin_window, min_axis_dist=min_axis_dist)
+    #: ★T-4 第二十六刀 (2026-09-06): through `code/xpoints` — the same
+    #: `surfaces::x_points` on the map as fyo carries it (the g-file's [z, r]
+    #: transposed once, here), the grid's own spacing passed as the host holds it
+    from .io import fydoc
+    grid = kernel.grid_of(r, z)
+    rec = fydoc.complete("code/xpoints", {
+        "settings": {"psin_window": float(psin_window), "min_axis_dist": float(min_axis_dist),
+                     "max_xpts": 8.0, "dr": grid.dr, "dz": grid.dz},
+        "inputs": {"equilibrium": {"time_slice": {
+            "global_quantities": {"psi_axis": float(g["simag"]), "psi_boundary": float(g["sibry"]),
+                                  "magnetic_axis": {"r": float(g["rmaxis"]), "z": float(g["zmaxis"])}},
+            "profiles_2d": {"grid": {"dim1": np.asarray(r, float), "dim2": np.asarray(z, float)},
+                            "psi": np.ascontiguousarray(np.asarray(psi, float).T)}}}}})
+    rows = np.asarray(rec["fields"]["xpts"]["data"], float).reshape(-1, 4)
+    return [{"r": float(a), "z": float(b), "psin": float(c), "grad": float(d)}
+            for a, b, c, d in rows]
 
 
 def _title_from(path: Path, g: dict) -> str:

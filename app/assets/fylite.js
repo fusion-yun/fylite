@@ -98,7 +98,7 @@
     'fylite_rs_svd_solve',
     //: the operating domain, the flux account and the START —
     //: the design scenario's own criteria (ABI v103)
-                'fylite_rs_fill_filaments', 'fylite_rs_x_points',                 //: ★the neutral-beam chain (ABI v105, already in every shipped
+                'fylite_rs_fill_filaments',                 //: ★the neutral-beam chain (ABI v105, already in every shipped
     //: artifact and reachable from Python alone).  Listed so a build
     //: without them fails at LOAD rather than at the first beam: a
     //: page that discovered a missing entry mid-march would already

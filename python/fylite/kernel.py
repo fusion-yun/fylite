@@ -76,8 +76,7 @@ __all__ = [
     "two_temperature_march",
     "deltastar_apply", "core_march", "label_drift",     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
                     "tglf_flux_searched", "shell_area",
-        "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
-    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "shell_table", "beam_deposit",
+            "resample_uniform", "to_uniform_extrap", "interp", "lh_deposit", "shell_table", "beam_deposit",
     "fast_ion_pressure", "selfcal_slices",
     "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
@@ -538,40 +537,6 @@ def shell_table(grid: Grid, psin2d, *, axis, limiter, levels,
     return {"volume": vol, "dvolume": np.diff(vol),
             "rminor": out[n:2 * n].copy(), "rmajor": out[2 * n:3 * n].copy(),
             "kappa": out[3 * n:].copy()}
-
-
-_sig("fylite_rs_x_points", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 6 + [_ARR, _U64]), _I32)
-def x_points(grid: Grid, psi, *, psi_axis: float, psi_bnd: float, axis,
-             psin_window: float = 0.15, min_axis_dist: float = 0.25,
-             max_out: int = 8) -> list[dict]:
-    """The ψ map's saddle points — the X-points, ranked and de-duplicated.
-
-    ``psi`` is the FULL flux on the grid, R-major.  Returns at most two dicts
-    ``{r, z, psin, grad}``, nearest ψ_N = 1 first; an empty list means the
-    configuration is limited as far as the grid resolution can tell.
-
-    ★All of the policy (Hessian test, the ``|∇ψ|`` local-minimum test, the
-    ψ_N window, the axis distance, the discarded over-long Newton step, the
-    two-cell dedup) is the kernel's.  It used to be numpy inside the
-    PLOTTING module, so "is this discharge diverted" depended on which
-    module you asked.
-    """
-    lib = require()
-    psi = _f(psi)
-    if psi.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi has shape {psi.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    out = np.empty(4 * int(max_out))
-    n = lib.fylite_rs_x_points(grid.r0, grid.z0, grid.dr, grid.dz, grid.nr,
-                               grid.nz, psi.ravel(), float(psi_axis),
-                               float(psi_bnd), float(axis[0]), float(axis[1]),
-                               float(psin_window), float(min_axis_dist),
-                               out, int(max_out))
-    if n < 0:
-        raise KernelError(f"fylite_rs_x_points returned {n}")
-    rows = out[:4 * n].reshape(n, 4)
-    return [{"r": float(a), "z": float(b), "psin": float(c), "grad": float(d)}
-            for a, b, c, d in rows]
 
 
 _sig("fylite_rs_interp", (_ARR, _U64, _ARR, _ARR, _U64, _ARR), _I32)
@@ -1468,7 +1433,7 @@ _sig("fylite_rs_direct_integrals", ( [_F64] * 4 + [_U64] * 2 + [_ARR, _ARR, _U64
 def direct_integrals(grid: Grid, psin2d, *, f_table, boundary=None,
                      levels) -> dict:
     """``V(ψ_N)`` and ``Φ(ψ_N)`` by grid quadrature — the independent second
-    path to what :func:`equilibrium_ladder` integrates along contours.
+    path to what the traced ladder (``code/ladder``) integrates along contours.
 
     ``boundary`` is ``(r, z)`` of the last closed surface; without it the
     containment test is skipped, which is only safe well inside it.
@@ -1565,58 +1530,6 @@ M_ELECTRON_OVER_MD = 2.724437e-4
 
 REDL_INPUT_ROWS = ("eps", "q_abs", "ne", "te", "ti", "ni", "zeff",
                    "i_psi", "p_gfile")
-
-
-MILLER_ROW = ("psin", "r", "rmaj", "zmag", "q", "shear", "shift", "kappa",
-              "s_kappa", "delta", "s_delta", "zeta", "s_zeta", "s_zmag")
-
-#: ...and the metric row layout beside it.
-METRIC_ROW = ("psin", "rho", "volume", "vprime", "gm3", "gm7", "gm2", "q",
-              "fpol", "dv_dpsin")
-
-
-_sig("fylite_rs_equilibrium_ladder", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 2 + [_ARR, _ARR, _U64, _ARR, _U64, _ARR, _U64, _ARR, _U64] + [_F64] * 3 + [_U64, _ARR, _ARR]), _I32)
-def equilibrium_ladder(grid: Grid, psin2d, *, axis, limiter, levels,
-                       q_table, f_table, dpsi: float, b0: float,
-                       a_minor: float, n_theta: int = 181) -> dict:
-    """One equilibrium's whole ladder: the transport metrics AND the local
-    Miller shape, from ONE traced surface set.
-
-    ★★They used to be two calls that traced the same map at the same levels
-    and each kept its own ladder — two chances to describe a different
-    plasma.  They were even reached with different DEFAULT level sets (41
-    surfaces on [0.02, 0.95] against 24 on [0.1, 0.95]), so a caller holding
-    both held a metric and a shape for surfaces that were not the same
-    surfaces.  Here a level is on the ladder only if it yields BOTH an
-    integral and a shape.
-
-    Returns ``{"metrics": {...arrays...}, "miller": [{...}, ...]}``.
-    """
-    lib = require()
-    f = _f(psin2d)
-    if f.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psin2d has shape {f.shape}, expected "
-                          f"{(grid.nr, grid.nz)}")
-    lr, lz = _f(np.atleast_1d(limiter[0])), _f(np.atleast_1d(limiter[1]))
-    lv = _f(np.atleast_1d(levels))
-    q, ft = _f(np.atleast_1d(q_table)), _f(np.atleast_1d(f_table))
-    om = np.empty(10 * lv.size)
-    ok = np.empty(14 * lv.size)
-    n = lib.fylite_rs_equilibrium_ladder(
-        grid.r0, grid.z0, grid.dr, grid.dz, grid.nr, grid.nz, f.ravel(),
-        float(axis[0]), float(axis[1]), lr, lz, lr.size, lv, lv.size,
-        q, q.size, ft, ft.size, float(dpsi), float(b0), float(a_minor),
-        int(n_theta), om, ok)
-    if n <= 0:
-        raise KernelError(f"fylite_rs_equilibrium_ladder returned {n}")
-    mrows = om[:10 * n].reshape(n, 10)
-    krows = ok[:14 * n].reshape(n, 14)
-    return {
-        "metrics": {k: mrows[:, i].copy()
-                    for i, k in enumerate(METRIC_ROW)},
-        "miller": [dict(zip(MILLER_ROW, (float(v) for v in row)))
-                   for row in krows],
-    }
 
 
 _sig("fylite_rs_shell_sum", [_ARR, _ARR, _U64, _ARR], _I32)

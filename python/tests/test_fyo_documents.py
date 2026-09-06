@@ -283,14 +283,17 @@ def test_the_accessors_say_what_the_deck_said(doc):
 def traces(monkeypatch):
     """Count the kernel's ladder calls — the one thing the object exists
     to bound."""
-    from fylite import kernel
+    #: ★T-4 第二十六刀 (2026-09-06): the trace is `code/ladder` through the
+    #: document door; the levels ride under `fylite:ladder_levels`
+    from fylite.io import fydoc
     calls = []
-    real = kernel.equilibrium_ladder
+    real = fydoc.complete
 
-    def counted(*a, **k):
-        calls.append(k.get("levels"))
-        return real(*a, **k)
-    monkeypatch.setattr(kernel, "equilibrium_ladder", counted)
+    def counted(code, plan, *a, **k):
+        if code == "code/ladder":
+            calls.append(fyo.get(plan["inputs"]["equilibrium"], "EQUILIBRIUM", "ladder_levels", None))
+        return real(code, plan, *a, **k)
+    monkeypatch.setattr(fydoc, "complete", counted)
     return calls
 
 

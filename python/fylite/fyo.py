@@ -551,7 +551,7 @@ def grid_of(doc: dict) -> kernel.Grid:
 # --------------------------------------------------------------------------- #
 # ★This used to be ``fylite.metrics``.  The tracing, the line integrals and
 # the ladder are the kernel's (``rust/fylite/src/surfaces.rs``, reached
-# through :func:`fylite.kernel.equilibrium_ladder`); what is here reads the
+# through ``code/ladder`` since T-4 第二十六刀); what is here reads the
 # ``fyo:equilibrium`` document and hands the kernel its arguments — which is
 # exactly this module's remit, so a second module for it was a second name
 # for the same job, stitched to this one by a lazy import to dodge the cycle.
@@ -631,6 +631,20 @@ def a_minor(eq) -> float:
     return float(rec["facts"]["a"]["value"])
 
 
+#: The Miller row of a traced surface, in the order the kernel's ladder wrote
+#: it (`fyo.derive`'s ``fylite:miller`` set keeps this order); and the metric
+#: row beside it.  ★Names, not a wire layout: `code/ladder` answers both on the
+#: LADDER rows by name since T-4 第二十六刀 (2026-09-06).
+MILLER_KEYS = ("psin", "r", "rmaj", "zmag", "q", "shear", "shift", "kappa",
+               "s_kappa", "delta", "s_delta", "zeta", "s_zeta", "s_zmag")
+METRIC_KEYS = ("psin", "rho", "volume", "vprime", "gm3", "gm7", "gm2", "q",
+               "fpol", "dv_dpsin")
+#: Miller key -> the LADDER row it is answered on
+_MILLER_ROWS = {"psin": "psin", "r": "rmin", "rmaj": "rmaj", "zmag": "zmag", "q": "q", "shear": "shear",
+                "shift": "shift", "kappa": "kappa", "s_kappa": "s_kappa", "delta": "delta",
+                "s_delta": "s_delta", "zeta": "zeta", "s_zeta": "s_zeta", "s_zmag": "dzmag"}
+
+
 def equilibrium_ladder(doc, grid, psin2d, dpsi, levels) -> dict:
     """The ONE kernel call the metric ladder and the Miller ladder share.
 
@@ -648,11 +662,25 @@ def equilibrium_ladder(doc, grid, psin2d, dpsi, levels) -> dict:
     (``surfaces::trace``), where it used to be a four-point box this module
     built — and ``nbi.py`` borrowed through a private name.
     """
-    return kernel.equilibrium_ladder(
-        grid, psin2d, axis=axis_of(doc), limiter=limiter_of(doc),
-        levels=np.asarray(levels, float),
-        q_table=profile_of(doc, "q"), f_table=profile_of(doc, "f"),
-        dpsi=dpsi, b0=abs(field_of(doc)[1]), a_minor=a_minor(doc))
+    #: ★T-4 第二十六刀 (2026-09-06): BY THE KERNEL, whole — `code/ladder` is
+    #: `trace_document_ladder` on its own: the document's map, axis, limiter,
+    #: q and F tables and boundary read there, the flux gauge honoured, the
+    #: levels bound under `fylite:ladder_levels`, the metrics and the Miller
+    #: shape answered on the LADDER rows.  `grid` / `psin2d` / `dpsi` are the
+    #: caller's view of the same document and are not sent: the door forms
+    #: them itself, by the same rules (bit for bit — the kernel repository's
+    #: `test_ladder_code.py`).
+    from .io import fydoc
+    #: a shallow copy carries the request beside the document's own sections
+    plan_doc = put(dict(doc), "EQUILIBRIUM", "ladder_levels", np.asarray(levels, float))
+    rec = fydoc.complete("code/ladder", {"settings": {"n_theta": 181.0},
+                                         "inputs": {"equilibrium": plan_doc}})
+    lad = rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+    col = lambda key: np.asarray(lad[PROFILE_NAMES[key]]["data"], float)  # noqa: E731
+    n = int(rec["dims"]["n"])
+    cols = {k: col(v) for k, v in _MILLER_ROWS.items()}
+    return {"metrics": {k: col(k) for k in METRIC_KEYS},
+            "miller": [{k: float(cols[k][i]) for k in MILLER_KEYS} for i in range(n)]}
 
 
 class Ladder:
@@ -668,8 +696,8 @@ class Ladder:
 
     Attributes: ``psin, rho, volume, vprime, gm3, gm7, gm2, q, fpol,
     dv_dpsin`` (arrays, one per surface — the kernel's
-    :data:`fylite.kernel.METRIC_ROW`), ``miller`` (one dict per surface,
-    :data:`fylite.kernel.MILLER_ROW`), ``psi`` [Wb/rad], ``dpsi``, ``b0``
+    :data:`METRIC_KEYS`), ``miller`` (one dict per surface,
+    :data:`MILLER_KEYS`), ``psi`` [Wb/rad], ``dpsi``, ``b0``
     [T], ``a_minor`` [m], ``rho_b`` (ρ at the outermost traced surface —
     NOT the separatrix when the ladder stops short of it), ``b0_signed``
     (as the deck had it) and ``eq`` (the document it came from).
@@ -683,7 +711,7 @@ class Ladder:
                                  self.levels)
         self.metrics = out["metrics"]
         self.miller = out["miller"]
-        for k in kernel.METRIC_ROW:
+        for k in METRIC_KEYS:
             setattr(self, k, self.metrics[k])
         self.psi = psi_range_of(self.eq)[0] + self.psin * self.dpsi
         self.b0_signed = field_of(self.eq)[1]
@@ -1002,7 +1030,7 @@ def derive(doc: dict, *, psin=None, n_surfaces: int = 41,
     p1["psi"] = lad.psi
     miller = {"@type": "fyo:miller_surface_set",
               **{k: np.array([r[k] for r in lad.miller], float)
-                 for k in kernel.MILLER_ROW}}
+                 for k in MILLER_KEYS}}
     out = _doc("fyo:equilibrium", str(doc.get("@id", "fylite:equilibrium"))
                + "/derived")
     #: the field the ladder was traced on travels with it, through the same

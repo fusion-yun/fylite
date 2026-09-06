@@ -17,7 +17,7 @@ use crate::fyodoc;
 use crate::geqdsk::GFile;
 
 /// `[key, path]` —— 内核表的前两列；单位与秩在那边。
-pub const EQUILIBRIUM_SLOTS: [(&str, &str); 23] = [
+pub const EQUILIBRIUM_SLOTS: [(&str, &str); 24] = [
     //: ★`time` joined the kernel table on 2026-09-02 (the IDS time base the IMAS layout
     //: needs); a g-file carries no time, so neither conversion reads or writes this slot —
     //: it is here because this array is DECLARED to be the kernel table's first two columns
@@ -49,6 +49,10 @@ pub const EQUILIBRIUM_SLOTS: [(&str, &str); 23] = [
     ("boundary_z",     "time_slice/boundary/outline/z"),
     ("limiter_r",      "fylite:limiter/r"),
     ("limiter_z",      "fylite:limiter/z"),
+    //: ★`ladder_levels` joined the kernel table on 2026-09-06 (T-4 第二十六刀): the psi_N
+    //: levels `code/ladder` traces — a request a caller binds, which no g-file carries,
+    //: so neither conversion reads or writes it; mirrored here for the same reason as `time`
+    ("ladder_levels",  "fylite:ladder_levels"),
 ];
 
 /// 结构数组段 —— 内核 `AOS` 声明里本转换会走到的那几个。

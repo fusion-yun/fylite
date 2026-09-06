@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "083c9eeac7bdd453";
+pub const DIGEST: &str = "6f5c10514d9f694f";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -186,6 +186,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "boundary_z", path: "time_slice/boundary/outline/z", units: "m", rank: "1d" },
         Slot { key: "limiter_r", path: "fylite:limiter/r", units: "m", rank: "1d" },
         Slot { key: "limiter_z", path: "fylite:limiter/z", units: "m", rank: "1d" },
+        Slot { key: "ladder_levels", path: "fylite:ladder_levels", units: "1", rank: "1d" },
     ] },
     Table { name: "LADDER", doc_type: "fyo:equilibrium", slots: &[
         Slot { key: "psin", path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
@@ -323,6 +324,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "waveform", shape: "", units: "assembled", gloss: "the discharge's shape in time on the four phase times (the pulse-design page's wave(), Python's waveform.from_phases): the trapezoid, the three centre waveforms, the actuator or the phase label at the requested times — zerod::trapezoid / centre_waveform / actuator / phase_label, as the value field" },
         Row { key: "li3", shape: "", units: "assembled", gloss: "the normalised internal inductance li(3) of a psi map (the analysis page's reference row for a g-file): the map on its own uniform grid with psi_axis, psi_boundary, ip and the reference R0 — surfaces::li3, as the li3 fact" },
         Row { key: "metric", shape: "", units: "assembled", gloss: "the flux-surface moments of a Miller / MXH surface row (the model page's Miller ladder, engine/cases.py's, gyrofluid's ky_factor, the gates' references): one geometry::solve per node on the ladder rows r_minor · r_major · q · magnetic_shear · elongation · triangularity · shift and the MXH rows, answered as the DD-named ladder moments (volume · dV/drho · gm3 · gm7 · gm2 · <R^2>) with GEO's normalised scalars beside them" },
+        Row { key: "ladder", shape: "", units: "assembled", gloss: "one equilibrium document traced once (Python's fyo.Ladder): the requested psi_N levels (fylite:ladder_levels, or n_surfaces from psin_min to edge) on the document's own psi map, axis, limiter, q and F tables and boundary — surfaces::equilibrium_ladder, the transport metrics and the local Miller shape of the SAME surfaces answered on the ladder rows" },
+        Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },

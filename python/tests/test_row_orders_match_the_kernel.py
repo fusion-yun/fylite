@@ -98,8 +98,9 @@ COVERED = {
     #: holds them to the same write order.
     #: ★`GEO_SCALARS` left with `geo_surface` (oracle-only since T-4 第二十四刀, 2026-09-06):
     #: the kernel repository's `tests/test_oracle_marshalling.py` holds it to the write order.
-    "METRIC_ROW":      ("equilibrium_ladder", lambda b: _from_row(b, "om")),
-    "MILLER_ROW":      ("equilibrium_ladder", lambda b: _from_row(b, "ok")),
+    #: ★`METRIC_ROW` / `MILLER_ROW` left with `equilibrium_ladder` (oracle-only since
+    #: T-4 第二十六刀, 2026-09-06): the kernel repository's `tests/test_oracle_marshalling.py`
+    #: holds them to the write order; `fyo.METRIC_KEYS` / `MILLER_KEYS` are names on rows.
     #: T-A5 — the inverse solve's coil-fitting entry.  Same `o[N] = ...`
     #: shape as the free solve, and it needs its own tuple rather than
     #: borrowing `FREE_SOLVE_KEYS`: the free solve packs an X-point into
