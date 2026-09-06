@@ -153,71 +153,47 @@ function init(machine) {
 
 // --- forward solve ---------------------------------------------------------
 
+/**
+ * One free-boundary solve — `code/forward` (第四十刀).
+ *
+ * `prof` is the analytic family `{beta0, emp, enp, r0}` or a profile table
+ * `{tab: {x, pprime, ffprime}}`; `opts` the solver's controls (`relax`,
+ * `maxIter`, `tol`, `fbGain`, the anchors, a warm start `psiInit`, an
+ * external flux `psiExt` when the caller has one — else the page's own
+ * channel cache).  Returns the field and its scalars in the spelling every
+ * caller of the old `gsFreeSolve` read.
+ */
 function freeSolve(chan, prof, ip, opts) {
   opts = opts || {};
-  //: ★★AND IT SAYS WHETHER IT GOT THERE.  `gs_free_solve` returns whatever
-  //: it reached: on the way out of a run that never met its tolerance the
-  //: kernel leaves `iterations = max_iter` and `residual` at the last
-  //: value, and both were being read by callers as though they described a
-  //: converged field.  That is not hypothetical on this page — the droop
-  //: trim RESETS its reference and keeps going every time it meets the
-  //: tolerance, so a solve that is trimming exits at `max_iter` carrying
-  //: 2e-4…1.5e-3 as often as it exits converged.
-  //:
-  //: ★The test is the RESIDUAL, not the iteration count.  `iterations ==
-  //: max_iter` is neither necessary nor sufficient: the trim's `it + 20 <
-  //: max_iter` guard lets a genuinely converged solve break on the last
-  //: iteration with the count at the cap, and a solve stopped mid-trim has
-  //: met the tolerance on some earlier iteration without being at the
-  //: fixed point.  So the tolerance the caller asked for travels back with
-  //: the answer and the comparison is made against it, once, here.
   var maxIter = opts.maxIter || 600, tol = opts.tol || 1e-9;
-  var base = {
-    r: grid.r, z: grid.z,
-    //: ★the caller may hand over the external flux itself.  The twin needs
-    //: it to put currents in the VESSEL — a field the fit is not told about
-    //: and must recover — and no other caller passes it, so the default is
-    //: still "the coils, and nothing else".
-    psiExt: opts.psiExt || psiExtOf(chan),
-    //: ★the warm start says WHERE the plasma is meant to be.  Iteration
-    //: zero seeds a current disc, and without a hint it seeds it at the
-    //: vessel centroid — right for currents that came from a discharge that
-    //: ran, wrong for currents that came from a boundary design, whose
-    //: field must have a minimum where the plasma belongs.
-    psiInit: opts.psiInit || undefined,
-    //: ★the anchors hold the current centroid while a design settles.  For
-    //: the FIRST solve of a designed start only: the fixed-current Picard
-    //: map has no radial restoring force of its own, so a vertical field a
-    //: few percent off sends the column outward and it shrinks as it goes
-    //: (measured from a designed EAST start: a = 0.45 m at three
-    //: iterations, 0.03 m at three hundred).  Left on for every pass they
-    //: would hold the shape with virtual currents instead of with the
-    //: coils — the answer looking right for the wrong reason, which is why
-    //: `fbAmp` is reported beside it.
-    zcAnchor: opts.zcAnchor, rcAnchor: opts.rcAnchor,
-    ip: ip, limR: M.limiter.r, limZ: M.limiter.z, signAxis: 1,
-    relax: opts.relax || 0.3, maxIter: maxIter,
-    tol: tol, fbGain: opts.fbGain === undefined ? 8.0 : opts.fbGain,
+  var settings = {
+    ip: ip, sign_axis: 1, relax: opts.relax || 0.3, max_iter: maxIter, tol: tol,
+    fb_gain: opts.fbGain === undefined ? 8.0 : opts.fbGain,
   };
-  //: ★T-D6′ — the profile source is a TIER: the analytic family, or a
-  //: tabulated p'/FF' pair used as a shape (`prof.tab`), normalised to Ip
-  //: every round so the table's gauge divides out.  The delivered EAST
-  //: profiles cross zero at psi_N ≈ 0.82, which no family member can
-  //: represent (best fit 11.5 % relative RMS) — this tier is what lets
-  //: the shape bar solve the machine's own diverted reference discharge.
-  var out = prof.tab
-    ? fy.gsFreeSolveTab(assign(base, { tabX: prof.tab.x,
-                                       tabPp: prof.tab.pprime,
-                                       tabFfp: prof.tab.ffprime }))
-    : fy.gsFreeSolve(assign(base, { beta0: prof.beta0, emp: prof.emp,
-                                    enp: prof.enp, r0: prof.r0 }));
+  if (opts.zcAnchor !== undefined && isFinite(opts.zcAnchor)) settings.zc_anchor = opts.zcAnchor;
+  if (opts.rcAnchor !== undefined && isFinite(opts.rcAnchor)) settings.rc_anchor = opts.rcAnchor;
+  var eq = { time_slice: {} };
+  if (opts.psiInit) eq.time_slice.profiles_2d = { psi: Float64Array.from(opts.psiInit) };
+  if (prof.tab) {
+    eq.time_slice.profiles_1d = { 'fylite:psi_norm': Float64Array.from(prof.tab.x),
+                                  dpressure_dpsi: Float64Array.from(prof.tab.pprime),
+                                  f_df_dpsi: Float64Array.from(prof.tab.ffprime) };
+  } else {
+    settings.beta0 = prof.beta0; settings.emp = prof.emp; settings.enp = prof.enp; settings.r0 = prof.r0;
+  }
+  var rec = fy.complete('code/forward', {
+    settings: settings,
+    inputs: { device: deviceDoc(),
+              discharge: { 'fylite:channel_aturns': Float64Array.from(chan), 'fylite:ip': [ip],
+                           'fylite:psi_ext': Float64Array.from(opts.psiExt || psiExtOf(chan)) },
+              equilibrium: eq } });
+  var X = function (k) { return rec.facts[k].value; };
+  var out = { psi: fieldFlat(rec, 'psi'), iterations: X('iterations'), psiAxis: X('psi_axis'), psiBnd: X('psi_bnd'),
+              axisR: X('axis_r'), axisZ: X('axis_z'), ip: X('ip'), residual: X('residual'),
+              bndKind: X('bnd_kind'), xptR: X('xpt_r'), xptZ: X('xpt_z'), fbAmp: X('fb_amp'),
+              zc: X('zc'), converged: X('converged') === 1, settled: X('settled') === 1,
+              maskDelta: X('mask_delta'), jc: X('jc') };
   out.tol = tol; out.maxIter = maxIter;
-  //: ★T-M16: the verdict is the KERNEL's, not `residual <= tol` computed
-  //: here — the mask is part of the iteration's state, and a mask that
-  //: still swaps cells floors the residual (`settled`: the answer stopped
-  //: moving, the mask keeps quantisation-jittering, the tolerance can
-  //: never be met — a steady-state reading, distinct from both success
-  //: and failure and reported as itself).
   return out;
 }
 
@@ -4321,7 +4297,7 @@ function evScopeMiss(sp) {
  * ★★★第十九刀 (2026-09-05).  Between two blocks of the march the loop below
  * used to run a dozen flat exports in a row: `evFitShape` (the transport
  * pressure's shape fitted to the analytic current family), the two beta_p
- * and the under-relaxed move of `beta0`, `freeSolve` (`fy.gsFreeSolve` on
+ * and the under-relaxed move of `beta0`, `freeSolve` (`code/forward` on
  * the coil flux), `summarize` (the analytic truth, the q profile, the
  * boundary), `evLadderFromSolve` (`fy.equilibriumLadder`), `evRemap` of the
  * state onto the new ladder by psi_N, `evPsiOf` for the flux in the march's
