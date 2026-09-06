@@ -120,11 +120,9 @@
     //: number two hosts.
         //: ★`gs_fixed_box` (T-M7 / T-M17, the boxed Picard) is a retired export
     //: since T-4 第八刀 (2026-09-06): the refinement runs inside `code/evolve`.
-    'fylite_rs_geo_surface_gm2', //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
-    //: nulls, and the two pieces of wall geometry that turn 「间隙 = 某值」
-    //: and 「打击点落在这段壁上」 into the isoflux rows it takes.  Listed
-    //: here for the reason every name above is: a build without them must
-    //: fail at LOAD, not at the first double-null design. //: ★T-A9 (自举—欧姆—拟合电流的自洽闭环) — the three the closure needs:
+    //: ★`geo_surface_gm2` is oracle-only since T-4 第二十四刀 (2026-09-06): the
+    //: flux-surface moments come through `code/metric` on the tree door.
+    //: ★T-A9 (自举—欧姆—拟合电流的自洽闭环) — the three the closure needs:
     //: the flux-surface averages `<1/R>` / `<1/R^2>` / `<B^2>` that the
     //: metric ladder never carried, the exact `<j.B>` <-> `<j_phi>`
     //: conversion, and the neoclassical conductivity.  Required rather
@@ -507,60 +505,6 @@
   var NEO_DECK_GEOMETRY = [
     'rminOverA', 'rmajOverA', 'zmagOverA', 'sZmag', 'q', 'shear',
     'shift', 'kappa', 'sKappa', 'delta', 'sDelta', 'zeta', 'sZeta'];
-
-
-
-  /**
-   * Flux-surface averages of one local Miller/MXH surface — the GACODE
-   * `geo_do` translation in `rust/fylite/src/geometry.rs`.
-   *
-   * ★Bound rather than reimplemented, and that is the whole point.  Every
-   * flux-surface moment a transport layer needs (dV/dr, <|grad r|>,
-   * <|grad r|^2>, <Bp^2>, <Bt^2>, <R^2>, gm2, the surface area, the volume)
-   * comes from ONE definition with ONE weight (G_theta / B).  Hand-rolling a
-   * second set in JavaScript would put two conventions in the repo that
-   * agree until the day they do not.
-   *
-   * Geometry is GACODE's, in units of the minor radius: `rmin` is the surface
-   * label r/a and `rmaj` is R0/a.  `shape` carries the 22 extended (MXH)
-   * harmonics in the source's order and may be omitted for a plain Miller
-   * surface — they are a pure function argument here, not module state, so a
-   * surface without harmonics cannot inherit the previous one's.
-   *
-   * `volume_prime` is dV/dr — the one weight `transport.step_theta` needs to
-   * run; the gradient moments refine it rather than being required by it.
-   */
-  Fy.prototype.geoSurface = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var shape = s.put(o.shape && o.shape.length === 22
-                        ? o.shape : new Float64Array(22));
-      //: ★`_gm2`: the widest of the three geo entries — the same fourteen
-      //: scalars in the same order, plus `<R^2>` (T-M8) and `gm2` (S-2c).
-      //: Why three symbols and why neither extra column can be derived from
-      //: the others is written once, at the entries themselves (`c_api.rs`).
-      var out = s.zeros(16);
-      var rc = self.e.fylite_rs_geo_surface_gm2(
-        num(o.signb, 1), o.rmin, o.rmaj, num(o.drmaj, 0),
-        num(o.zmag, 0), num(o.dzmag, 0), o.q, num(o.shear, 0),
-        num(o.kappa, 1), num(o.sKappa, 0), num(o.delta, 0), num(o.sDelta, 0),
-        num(o.zeta, 0), num(o.sZeta, 0), shape.ptr,
-        BigInt(o.nTheta || 501), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_geo_surface_gm2', rc);
-      var v = s.get(out);
-      return { f: v[0], ffprime: v[1], fsaBp2: v[2], fsaBt2: v[3],
-               fsaGradR: v[4], fsaGradR2: v[5], gradR0: v[6], surf: v[7],
-               volume: v[8], volumePrime: v[9], bt0: v[10], bp0: v[11],
-               thetaScale: v[12], bl: v[13],
-               //: `<R^2>` in the units `rmin`/`rmaj` went in as — m^2 when
-               //: the caller passes metres, which every caller here does
-               fsaR2: v[14],
-               //: IMAS `gm2` [m^-2 for metres in] — the current channel's
-               //: weight, which this tier could not state before S-2c
-               fsaGradR2OverR2: v[15] };
-    });
-  };
-
 
 
   // --- L4/L7: the operating domain, the flux account, and the START -------

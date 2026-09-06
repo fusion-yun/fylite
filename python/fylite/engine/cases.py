@@ -48,7 +48,7 @@ no Python counterpart is refused with the reason, not approximated:
 仍会被这里按名拒绝。
 
 ★页面合成层的单源原则：凡内核已单源的（梯形波形 ``K.zerod_waveform``、Miller 边界
-``target_boundary``、面元度规 ``K.geo_surface``）经内核走；本模块只**复刻页面的
+``target_boundary``、面元度规 ``code/transport`` 的 Miller 档）经内核走；本模块只**复刻页面的
 组装规则**（网格尺寸、源形状、初值形状），并逐条注明出处行为准。
 """
 from __future__ import annotations
@@ -416,7 +416,6 @@ _CLOSURES = {0: "constant", 1: "stiff", 2: "neoclassical"}
 
 def _transport_args(cfg: dict, acct: Accounting) -> dict:
     import numpy as np
-    from .. import kernel as K
 
     cl = int(acct.take("closure", "closure"))
     if cl == 3:
@@ -438,32 +437,23 @@ def _transport_args(cfg: dict, acct: Accounting) -> dict:
     x = np.linspace(0.0, a, n)
     rb = x / x[-1] if x[-1] > 0 else x
 
-    #: `metrics()` verbatim: parabolic q from 1 to q95, Miller surface per
-    #: point through the kernel's own `geo_surface` (scale-covariant: metres
-    #: in, dV/dr in m^2 out), ntheta = 201 as the page passes
+    #: `metrics()` — the parabolic q from 1 to q95 and one Miller surface per
+    #: point, 201 theta — is the DOOR's own Miller tier now (T-4 第二十四刀,
+    #: 2026-09-06): `model.transport` names the shape and `code/transport`
+    #: builds V' and <|∇r|²> itself, the loop this function used to run on
+    #: the flat `geo_surface` (the kernel's `test_transport_code.py` pins the
+    #: two to the bit).  The five scalars are the bar's, as they were.
     qa = float(acct.take("q95", "metric q(r) edge"))
-    rmaj = acct.take("rmaj", "metric R0 (as R0/a)") * a
+    rmaj = float(acct.take("rmaj", "metric R0 (as R0/a)"))
     kappa = float(acct.take("kappa", "metric kappa"))
     delta = float(acct.take("delta", "metric delta"))
-    vp = np.zeros(n)
-    gr = np.ones(n)
-    for i in range(1, n):
-        q = 1.0 + (qa - 1.0) * rb[i] ** 2
-        shear = rb[i] * (2.0 * (qa - 1.0) * rb[i]) / q
-        g = K.geo_surface(rmin_over_a=x[i], rmaj_over_a=rmaj, q=q,
-                          shear=shear, kappa=kappa, s_kappa=0.0,
-                          delta=delta, s_delta=0.0, ntheta=201)
-        vp[i] = g["volume_prime"] if "volume_prime" in g else g["volumePrime"]
-        gr[i] = g["fsa_grad_r2"] if "fsa_grad_r2" in g else g["fsaGradR2"]
-    gr[0] = gr[1] if n > 1 else 1.0
 
     p0 = float(acct.take("power", "source amplitude"))
     w = float(acct.take("width", "source width"))
     edge = float(acct.take("edge", "edge_value"))
     args = {
         "rho": x.tolist(),
-        "vprime": vp.tolist(),
-        "metric": (vp * gr).tolist(),
+        "a": a, "rmaj": rmaj, "kappa": kappa, "delta": delta, "q95": qa,
         "source": (p0 * np.exp(-((rb / w) ** 2))).tolist(),
         "y_init": (edge + 2.0 * (1.0 - rb ** 2)).tolist(),
         "edge_value": edge,

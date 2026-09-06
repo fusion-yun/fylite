@@ -366,9 +366,12 @@ def _units_ky_factor(inputs: dict, sat_rule: int) -> float:
     #: `Q_PRIME_LOC = q^2 s / r^2`, so it is inverted here rather than
     #: asked for
     shear = float(inputs["Q_PRIME_LOC"]) * rmin * rmin / (q * q)
-    g = kernel.geo_surface(
-        rmin_over_a=rmin, rmaj_over_a=float(inputs["RMAJ_LOC"]), q=q,
-        shear=shear, drmaj=float(inputs.get("DRMAJDX_LOC", 0.0)),
+    #: ★T-4 第二十四刀 (2026-09-06): one surface through `code/metric` (the
+    #: same `geometry::solve`, 1001 theta as the flat wrapper defaulted to)
+    from ... import fyo
+    g = fyo.surface_metric(
+        rmin=rmin, rmaj=float(inputs["RMAJ_LOC"]), q=q,
+        shear=shear, shift=float(inputs.get("DRMAJDX_LOC", 0.0)),
         zmag=float(inputs.get("ZMAJ_LOC", 0.0)),
         dzmag=float(inputs.get("DZMAJDX_LOC", 0.0)),
         kappa=float(inputs["KAPPA_LOC"]),
@@ -377,7 +380,7 @@ def _units_ky_factor(inputs: dict, sat_rule: int) -> float:
         s_delta=float(inputs.get("S_DELTA_LOC", 0.0)),
         zeta=float(inputs.get("ZETA_LOC", 0.0)),
         s_zeta=float(inputs.get("S_ZETA_LOC", 0.0)))
-    return float(g["grad_r0"])
+    return float(g["grad_r0"][0])
 
 
 def ky_grid_kernel(inputs: dict) -> dict:

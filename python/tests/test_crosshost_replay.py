@@ -22,6 +22,7 @@ import shutil
 import numpy as np
 import pytest
 
+from fylite import fyo
 from fylite import kernel as K
 from fylite.engine import crosshost as X
 
@@ -137,10 +138,10 @@ def _evolve_heat_current():
     gm2 = np.zeros(n)
     for i in range(1, n):
         shear = x[i] * (2.0 * (3.5 - 1.0) * x[i]) / q_init[i]
-        g = K.geo_surface(rmin_over_a=rho[i], rmaj_over_a=r0, q=q_init[i],
+        g = fyo.surface_metric(rmin=rho[i], rmaj=r0, q=q_init[i],
                           shear=shear, kappa=1.86, s_kappa=0.0, delta=0.48,
-                          s_delta=0.0, ntheta=201)
-        gm2[i] = g["fsa_grad_r2_over_r2"]
+                          s_delta=0.0, n_theta=201)
+        gm2[i] = g["gm2"][0]
     gm2[0] = gm2[1]
     fpol = np.full(n, r0 * abs(b0))
     #: seeded by inverting THE ENTRY's own q relation — see
@@ -201,10 +202,10 @@ def _evolve_heat_sawtooth():
     gm2 = np.zeros(n)
     for i in range(1, n):
         shear = x[i] * (2.0 * (3.5 - 0.80) * x[i]) / q_init[i]
-        g = K.geo_surface(rmin_over_a=rho[i], rmaj_over_a=r0, q=q_init[i],
+        g = fyo.surface_metric(rmin=rho[i], rmaj=r0, q=q_init[i],
                           shear=shear, kappa=1.86, s_kappa=0.0, delta=0.48,
-                          s_delta=0.0, ntheta=201)
-        gm2[i] = g["fsa_grad_r2_over_r2"]
+                          s_delta=0.0, n_theta=201)
+        gm2[i] = g["gm2"][0]
     gm2[0] = gm2[1]
     dpsi = np.zeros(n)
     dpsi[1:] = 2.0 * np.pi * abs(b0) * rho[1:] / q_init[1:]

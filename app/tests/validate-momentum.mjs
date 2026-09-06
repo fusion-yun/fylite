@@ -161,7 +161,7 @@ for (const k of CASES) {
              doc: JSON.parse(readFileSync(f, 'utf8')) });
 }
 //: ★the Miller surfaces the page built, read from the controls that built
-//: them — so the oracle below runs `geo_surface` on the SAME geometry
+//: them — so the oracle below runs `code/metric` on the SAME geometry
 //: rather than on a geometry this file decided on.  `evMillerMetric`'s own
 //: rules travel with it: q0 = 1, the label is the minor radius, 201 theta.
 const geom = await page.evaluate(() => {
@@ -240,7 +240,7 @@ for d in json.load(sys.stdin):
     scale = max(float(np.max(np.abs(omega))), 1e-30)
     rec["omega_rel"] = float(np.max(np.abs(w - omega)) / scale)
 
-    #: ⑤<R^2>, rebuilt HERE from \`kernel.geo_surface\` on the same Miller
+    #: ⑤<R^2>, rebuilt HERE through \`code/metric\` (fyo.surface_metric) on the same Miller
     #: surfaces the page built — a different host, a different binding, the
     #: same kernel entry, and nothing of the page's own arithmetic in
     #: between.  \`evMillerMetric\`'s rules are restated rather than
@@ -254,11 +254,11 @@ for d in json.load(sys.stdin):
     for i in range(1, nlev):
         x = i / (nlev - 1)
         qi = 1.0 + (q95 - 1.0) * x * x
-        want[i] = K.geo_surface(
-            rmin_over_a=a_min * x, rmaj_over_a=r0, q=qi,
+        want[i] = FYO.surface_metric(
+            rmin=a_min * x, rmaj=r0, q=qi,
             shear=(x * (2.0 * (q95 - 1.0) * x) / qi) if qi != 0 else 0.0,
             kappa=float(gm["kappa"]), s_kappa=0.0,
-            delta=float(gm["delta"]), s_delta=0.0, ntheta=201)["fsa_r2"]
+            delta=float(gm["delta"]), s_delta=0.0, n_theta=201)["r2"][0]
     #: the axis node is the innermost traced value repeated — the ladder's
     #: own rule for a surface that degenerates, applied on both sides
     want[0] = want[1]
@@ -373,7 +373,7 @@ console.log('\n五、⟨R²⟩ 用的就是内核那一列');
   const R2TOL = 1e-6;
   [1, 2].forEach((i) => {
     const r = ref[i];
-    say(r.r2_rel < R2TOL, `${r.name}：⟨R²⟩ 与 geo_surface 逐点`,
+    say(r.r2_rel < R2TOL, `${r.name}：⟨R²⟩ 与 code/metric 逐点`,
         `相对 ${r.r2_rel.toExponential(2)}（${r.r2_n} 个格点，容差 `
         + `${R2TOL.toExponential(0)}）`);
     //: ★not a rename of R_maj^2: the column has to DIFFER from the thing it

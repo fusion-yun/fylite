@@ -96,7 +96,8 @@ COVERED = {
     #: ★`FREE_SOLVE_KEYS` / `FREE_SOLVE_TAB_KEYS` left with the free solves (oracle-only
     #: since T-4 第十四刀, 2026-09-06): the kernel repository's `tests/test_oracle_marshalling.py`
     #: holds them to the same write order.
-    "GEO_SCALARS":     ("geo_surface",        lambda b: _from_indexed(b, "o")),
+    #: ★`GEO_SCALARS` left with `geo_surface` (oracle-only since T-4 第二十四刀, 2026-09-06):
+    #: the kernel repository's `tests/test_oracle_marshalling.py` holds it to the write order.
     "METRIC_ROW":      ("equilibrium_ladder", lambda b: _from_row(b, "om")),
     "MILLER_ROW":      ("equilibrium_ladder", lambda b: _from_row(b, "ok")),
     #: T-A5 — the inverse solve's coil-fitting entry.  Same `o[N] = ...`
@@ -135,7 +136,8 @@ UNCHECKED = {
                     "write buffer",
     "REDL_INPUT_ROWS": "written through a helper that fills rows by loop "
                        "index rather than by name",
-    "GEO_SHAPE_KEYS": "used as a SET for validation, never positionally",
+    #: `GEO_SHAPE_KEYS` lives in `fyo.py` now (the `fylite:mxh_harmonics` row's
+    #: column order, T-4 第二十四刀) and is read by `test_fyo_interface.py`'s kin.
     #: ★TX-4's three Lengyel key tuples were listed here as INPUT blocks;
     #: they left with `lengyel_forward` / `lengyel_inverse` (oracle-only since
     #: T-4 第九刀, 2026-09-06) to the kernel repository's `tests/_oracle.py`.

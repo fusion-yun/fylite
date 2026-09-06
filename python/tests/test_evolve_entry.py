@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from fylite import fyo
 from fylite import kernel as K
 
 
@@ -426,10 +427,10 @@ def test_seeding_psi_from_the_current_metric_instead_would_be_caught():
     vp, gm2 = np.zeros(n), np.zeros(n)
     for i in range(1, n):
         shear = x[i] * (2.0 * (q95 - 1.0) * x[i]) / qp[i]
-        g = K.geo_surface(rmin_over_a=rho[i], rmaj_over_a=r0, q=qp[i],
+        g = fyo.surface_metric(rmin=rho[i], rmaj=r0, q=qp[i],
                           shear=shear, kappa=1.7, s_kappa=0.0, delta=0.4,
-                          s_delta=0.0, ntheta=201)
-        vp[i], gm2[i] = g["volume_prime"], g["fsa_grad_r2_over_r2"]
+                          s_delta=0.0, n_theta=201)
+        vp[i], gm2[i] = g["vprime"][0], g["gm2"][0]
     gm2[0] = gm2[1]
     fpol = np.full(n, r0 * abs(b0))
 
@@ -532,11 +533,11 @@ def _hollow_q_call(n=41, nt=10, q0=0.80, q_a=4.0, saw_mix=1.2, sawtooth=True,
     vp, gm3, gm2 = np.zeros(n), np.ones(n), np.zeros(n)
     for i in range(1, n):
         shear = x[i] * (2.0 * (q_a - q0) * x[i]) / q_init[i]
-        g = K.geo_surface(rmin_over_a=rho[i], rmaj_over_a=r0, q=q_init[i],
-                          shear=shear, kappa=1.7, delta=0.4, ntheta=201)
-        vp[i] = g["volume_prime"]
-        gm3[i] = g["fsa_grad_r2"]
-        gm2[i] = g["fsa_grad_r2_over_r2"]
+        g = fyo.surface_metric(rmin=rho[i], rmaj=r0, q=q_init[i],
+                          shear=shear, kappa=1.7, delta=0.4, n_theta=201)
+        vp[i] = g["vprime"][0]
+        gm3[i] = g["gm3"][0]
+        gm2[i] = g["gm2"][0]
     gm3[0], gm2[0] = gm3[1], gm2[1]
     dpsi = np.zeros(n)
     dpsi[1:] = 2.0 * np.pi * abs(b0) * rho[1:] / q_init[1:]

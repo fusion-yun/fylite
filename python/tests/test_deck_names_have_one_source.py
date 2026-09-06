@@ -343,7 +343,7 @@ def test_the_generated_vocabularies_load_before_their_reader():
     #: here — and all four died at load the day `fylite.js` started reading
     #: `version.js`, because "every host" meant the worker and the pages.
     #: A claim about every host has to enumerate them from the tree.
-    #: (nine since T-4 第二十三刀: `validate-fyphys-miller.mjs` · `-shape.mjs` · `-waveform.mjs` · `-li3.mjs` build their own host too)
+    #: (ten since T-4 第二十四刀: `validate-fyphys-miller.mjs` · `-shape.mjs` · `-waveform.mjs` · `-li3.mjs` · `validate-metric.mjs` build their own host too)
     harness = []
     for mjs in sorted((root / "app/tests").glob("*.mjs")):
         src = mjs.read_text(encoding="utf-8")
@@ -366,7 +366,7 @@ def test_the_generated_vocabularies_load_before_their_reader():
     #: 由 api 端提供，只静态网页走 wasm），所以它同样要先加载那两份生成文件。
     #: ★同日稍后是**六**个：`validate-fyo-tree.mjs`（W-1，页面这一侧的树门）也自建宿主，
     #: 它在真 wasm 上敲 `fylite_rs_fyo_tree`，先要 `fylite.js` 的 ABI 检查过。
-    assert len(harness) == 9, harness
+    assert len(harness) == 10, harness
     #: ★6 → 5 on 2026-09-06 (T-4 第十二刀): `validate-limits.mjs` retired — it had driven the
     #: flat design-criteria wrappers, dead since T-4 第一刀; `validate-worker-design.mjs`
     #: and the kernel repository's `test_zerod_code.py` hold what it held

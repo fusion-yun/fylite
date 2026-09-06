@@ -793,6 +793,81 @@ def transport_metrics(eq, *, psin=None, n_surfaces: int = 41,
                   ).transport_metrics()
 
 
+#: The 22 extended (MXH) harmonics of a local surface in GEO's order — the
+#: columns of ``code/metric``'s ``fylite:mxh_harmonics`` row (cos0..cos6 with
+#: their s_, then sin3..sin6 with theirs).  ★An interface fact: the kernel
+#: reads the row by position.
+GEO_SHAPE_KEYS = (
+    "cos0", "s_cos0", "cos1", "s_cos1", "cos2", "s_cos2", "cos3", "s_cos3",
+    "cos4", "s_cos4", "cos5", "s_cos5", "cos6", "s_cos6",
+    "sin3", "s_sin3", "sin4", "s_sin4", "sin5", "s_sin5", "sin6", "s_sin6",
+)
+
+#: ``code/metric``'s answer: the DD-named ladder moments (LADDER keys) and
+#: GEO's own normalised scalars beside them (bare fields).
+METRIC_LADDER = ("volume", "vprime", "gm3", "gm7", "gm2", "r2")
+METRIC_RAW = ("f", "ffprime", "fsa_bp2", "fsa_bt2", "grad_r0", "surf", "bt0", "bp0",
+              "thetascale", "bl")
+
+
+def surface_metric(*, rmin, rmaj, q, shear=0.0, kappa=1.0, delta=0.0, shift=0.0,
+                   s_kappa=0.0, s_delta=0.0, zeta=0.0, s_zeta=0.0, zmag=0.0,
+                   dzmag=0.0, shape=None, signb: float = 1.0,
+                   n_theta: int = 1001) -> dict:
+    """Flux-surface moments of a Miller / MXH surface row — BY THE KERNEL
+    (``code/metric``, GACODE's GEO through ``geometry::solve``).
+
+    ★T-4 第二十四刀 (2026-09-06): the flat ``geo_surface`` export left the
+    interface.  Every host that built a ladder from it packed GEO's fourteen
+    positional scalars itself — the mis-packing that invites was what the
+    old wiring gate existed to catch.  Here the surfaces go in as the
+    LADDER rows fyo already declares (``r_minor`` · ``r_major`` · ``q`` ·
+    ``magnetic_shear`` · ``elongation`` · ``triangularity`` · ``shift``) plus
+    the MXH rows the DD has no slot for, one node per element; a scalar is
+    broadcast to every node.  Scale-covariant exactly as the entry was:
+    metres in, ``vprime`` = dV/dr in m² out, ``gm3`` = <|∇r|²>, ``gm7`` =
+    <|∇r|>, ``gm2`` = <|∇r|²/R²> (m⁻²), ``r2`` = <R²> (m²), ``volume`` (m³),
+    and GEO's normalised ``f, ffprime, fsa_bp2, fsa_bt2, grad_r0, surf, bt0,
+    bp0, thetascale, bl`` beside them — every value an array on the row.
+
+    ``shape`` is a dict of :data:`GEO_SHAPE_KEYS` (one surface's harmonics,
+    broadcast) or an ``(n, 22)`` array; a misspelled harmonic is refused
+    rather than dropped, because a harmonic silently dropped is a different
+    surface with no sign that it is one.
+    """
+    from .io import fydoc
+    r = np.atleast_1d(np.asarray(rmin, float))
+    n = r.size
+    doc: dict = {}
+    put(doc, "LADDER", "rmin", r)
+    for key, val in (("rmaj", rmaj), ("q", q), ("shear", shear), ("kappa", kappa),
+                     ("delta", delta), ("shift", shift), ("s_kappa", s_kappa),
+                     ("s_delta", s_delta), ("zeta", zeta), ("s_zeta", s_zeta),
+                     ("zmag", zmag), ("dzmag", dzmag)):
+        arr = np.asarray(val, float)
+        put(doc, "LADDER", key, np.full(n, float(arr)) if arr.ndim == 0 else arr)
+    if shape is not None:
+        if isinstance(shape, dict):
+            unknown = set(shape) - set(GEO_SHAPE_KEYS)
+            if unknown:
+                raise ValueError(f"unknown shape harmonic(s) {sorted(unknown)}; "
+                                 f"expected a subset of {GEO_SHAPE_KEYS}")
+            row = np.array([float(shape.get(k, 0.0)) for k in GEO_SHAPE_KEYS])
+            coef = np.tile(row, (n, 1))
+        else:
+            coef = np.asarray(shape, float).reshape(n, 22)
+        put(doc, "LADDER", "mxh", coef)
+    rec = fydoc.complete("code/metric", {"settings": {"signb": float(signb),
+                                                      "n_theta": float(n_theta)},
+                                         "inputs": {"equilibrium": doc}})
+    #: the record's `time_slice` is a mapping (one slice), not the document's AoS
+    lad = rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
+    out = {k: np.asarray(lad[PROFILE_NAMES[k]]["data"], float) for k in METRIC_LADDER}
+    for k in METRIC_RAW:
+        out[k] = np.asarray(rec["fields"][k]["data"], float)
+    return out
+
+
 def enclosed_plasma_current(rho, vprime, gm2, psi):
     r"""Toroidal plasma current enclosed by each ladder surface [A].
 

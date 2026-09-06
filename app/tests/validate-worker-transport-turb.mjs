@@ -10,9 +10,9 @@
 // binary, `code/transport` closure 3 on the core) and must land on the same
 // bits.
 //
-// ★The message carries BOTH spellings: the old flat arrays (built here by the
-// page's own transcriptions, read by the loop path when recording) and the
-// bar's scalars (read by the door path).  Neither side reads the other's.
+// ★The message carried BOTH spellings while the fixture was recorded — the
+// old flat arrays and the bar's scalars; since T-4 第二十四刀 (2026-09-06) it
+// is the bar alone (see `message`).
 //
 // Run: node app/tests/validate-worker-transport-turb.mjs [--record]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -63,61 +63,13 @@ await send({ cmd: 'init', machine: M });
 inbox.splice(0, inbox.length);
 const fy = globalThis.fy;
 
-// --- the page's own prescriptions (scenario-model.js), transcribed for the record ---------
-const EV_PER_KEV = 1e3, NE_UNIT = 1e19, MD = 3.3435837724e-27, QE = 1.602176634e-19;
-const rhoGrid = (c) => { const x = new Float64Array(c.n); for (let i = 0; i < c.n; i++) x[i] = c.amin * i / (c.n - 1); return x; };
-const rhoBar = (x, i) => (x[x.length - 1] > 0 ? x[i] / x[x.length - 1] : 0);
-const tStart = (c, x, k) => { const rb = rhoBar(x, k); return c.edge + 2 * (1 - rb * rb); };
-const chiGyroBohm = (teEv, bT, aM) => { const cs = Math.sqrt(teEv * QE / MD); const rhos = MD * cs / (QE * bT); return rhos * rhos * cs / aM; };
-function metrics(c, x) {
-  const q0 = 1.0, qa = c.q95, a = c.amin, rmaj = c.rmaj * a;
-  const vp = new Float64Array(x.length), gr = new Float64Array(x.length), shear = new Float64Array(x.length);
-  for (let i = 1; i < x.length; i++) {
-    const rb = rhoBar(x, i), q = q0 + (qa - q0) * rb * rb, dq = 2 * (qa - q0) * rb;
-    shear[i] = rb * dq / q;
-    const g = fy.geoSurface({ rmin: x[i], rmaj, q, shear: shear[i], kappa: c.kappa, sKappa: 0, delta: c.delta, sDelta: 0, nTheta: 201 });
-    vp[i] = g.volumePrime; gr[i] = g.fsaGradR2;
-  }
-  vp[0] = 0; gr[0] = gr.length > 1 ? gr[1] : 1;
-  return { vprime: vp, gradR2: gr, qEdge: qa };
-}
-function neoBlocks(c, x) {
-  const a = c.amin, b = c.bunit, ne0 = c.ne0, cpk = c.nepeak, n = x.length;
-  const surf = new Float64Array(20 * n), ion = new Float64Array(6 * n), chigb = new Float64Array(n);
-  const rmaj = c.rmaj * a, kap = c.kappa, del = c.delta, q0 = 1.0, qa = c.q95;
-  for (let k = 0; k < n; k++) {
-    const r = Math.max(rhoBar(x, k), 1e-6), q = q0 + (qa - q0) * r * r, shear = r * (2 * (qa - q0) * r) / q;
-    const ne = ne0 * (1 - cpk * r * r) * NE_UNIT;
-    const dlnnedr = (2 * cpk * r / Math.max(1 - cpk * r * r, 1e-6)) / a;
-    const te = tStart(c, x, k) * EV_PER_KEV, o = 20 * k;
-    surf[o] = a; surf[o + 1] = r * a; surf[o + 2] = rmaj; surf[o + 3] = 0; surf[o + 4] = 0; surf[o + 5] = 0;
-    surf[o + 6] = q; surf[o + 7] = shear; surf[o + 8] = kap; surf[o + 9] = 0; surf[o + 10] = del; surf[o + 11] = 0;
-    surf[o + 12] = 0; surf[o + 13] = 0; surf[o + 14] = b; surf[o + 15] = te; surf[o + 16] = ne;
-    surf[o + 17] = dlnnedr; surf[o + 18] = dlnnedr; surf[o + 19] = 0;
-    const i6 = 6 * k;
-    ion[i6] = 1.0; ion[i6 + 1] = MD; ion[i6 + 2] = ne; ion[i6 + 3] = te; ion[i6 + 4] = dlnnedr; ion[i6 + 5] = dlnnedr;
-    chigb[k] = chiGyroBohm(te, b, a);
-  }
-  return { surf, ion, nion: 1, signb: -1, signq: 1, rhoStar: 0.001, nTheta: 17, tToEv: EV_PER_KEV, chigb };
-}
+//: ★T-4 第二十四刀 (2026-09-06): the message is the bar alone.  The old flat
+//: spelling (the page's `metrics` on `geoSurface`, `neoBlocks`) rode beside it
+//: for the recording; the worker has read only the bar since 第二十五刀 and the
+//: flat export is oracle-only now, so the transcriptions went with it.
 function message(c) {
-  const x = rhoGrid(c), m = metrics(c, x);
-  const src = new Float64Array(x.length), y0 = new Float64Array(x.length), metric = new Float64Array(x.length);
-  for (let i = 0; i < x.length; i++) {
-    src[i] = c.power * Math.exp(-Math.pow(rhoBar(x, i) / c.width, 2));
-    y0[i] = tStart(c, x, i);
-    metric[i] = m.vprime[i] * m.gradR2[i];
-  }
-  const vel = new Float64Array(x.length); vel.fill(c.pinch);
-  const radii = [];
-  for (let j = 0; j < c.nrad; j++) radii.push(Math.round(1 + (x.length - 3) * (j / Math.max(1, c.nrad - 1))));
-  const ky = [], lo = 0.05, hi = 0.8;
-  for (let kk = 0; kk < c.nky; kk++) ky.push(+(lo * Math.pow(hi / lo, kk / Math.max(1, c.nky - 1))).toFixed(6));
   return {
-    cmd: 'transport_turb', neo: neoBlocks(c, x),
-    spec: { x, y0, vprime: m.vprime, metric, velocity: vel, source: src, edge: c.edge, chi0: c.chi0, dPc: c.dpc,
-            radii, ky, satRule: 1, width: 1.65, outer: c.outer, relax: 0.5, tol: 1e-4 },
-    //: the door path's spelling: the bar itself
+    cmd: 'transport_turb',
     bar: { n: c.n, amin: c.amin, rmaj: c.rmaj, kappa: c.kappa, delta: c.delta, q95: c.q95, bunit: c.bunit,
            ne0: c.ne0, nepeak: c.nepeak, chi0: c.chi0, power: c.power, width: c.width, edge: c.edge,
            pinch: c.pinch, dpc: c.dpc, nrad: c.nrad, nky: c.nky, outer: c.outer, relax: 0.5, tol: 1e-4 },

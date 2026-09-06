@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '7c05654d9432aef7'
+DIGEST = '083c9eeac7bdd453'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -217,6 +217,13 @@ TABLES = {
             'kappa': {"path": 'time_slice/profiles_1d/elongation', "units": '1', "rank": '1d'},
             'delta': {"path": 'time_slice/profiles_1d/triangularity_upper', "units": '1', "rank": '1d'},
             'shift': {"path": 'time_slice/profiles_1d/fylite:shift', "units": '1', "rank": '1d'},
+            's_kappa': {"path": 'time_slice/profiles_1d/fylite:s_elongation', "units": '1', "rank": '1d'},
+            's_delta': {"path": 'time_slice/profiles_1d/fylite:s_triangularity', "units": '1', "rank": '1d'},
+            'zeta': {"path": 'time_slice/profiles_1d/fylite:squareness', "units": '1', "rank": '1d'},
+            's_zeta': {"path": 'time_slice/profiles_1d/fylite:s_squareness', "units": '1', "rank": '1d'},
+            'zmag': {"path": 'time_slice/profiles_1d/fylite:z_magnetic', "units": 'm', "rank": '1d'},
+            'dzmag': {"path": 'time_slice/profiles_1d/fylite:dz_magnetic', "units": '1', "rank": '1d'},
+            'mxh': {"path": 'time_slice/profiles_1d/fylite:mxh_harmonics', "units": '1', "rank": '2d'},
         },
     },
     'LH_ANTENNAS': {
@@ -356,6 +363,7 @@ BLOCKS = {
         {'key': 'shape', 'shape': '', 'units': 'assembled', 'gloss': "the shape of a closed (R, Z) outline and the volume it encloses (the pulse-design page's main-thread shapeMetrics / surfaceVolume on a solved boundary, the analysis page's g-file boundary import, Python's fyo.a_minor): R0 · Z0 · a · kappa · delta_upper · delta_lower by surfaces::shape_metrics and the volume by surfaces::enclosed_volume, as facts"},
         {'key': 'waveform', 'shape': '', 'units': 'assembled', 'gloss': "the discharge's shape in time on the four phase times (the pulse-design page's wave(), Python's waveform.from_phases): the trapezoid, the three centre waveforms, the actuator or the phase label at the requested times — zerod::trapezoid / centre_waveform / actuator / phase_label, as the value field"},
         {'key': 'li3', 'shape': '', 'units': 'assembled', 'gloss': "the normalised internal inductance li(3) of a psi map (the analysis page's reference row for a g-file): the map on its own uniform grid with psi_axis, psi_boundary, ip and the reference R0 — surfaces::li3, as the li3 fact"},
+        {'key': 'metric', 'shape': '', 'units': 'assembled', 'gloss': "the flux-surface moments of a Miller / MXH surface row (the model page's Miller ladder, engine/cases.py's, gyrofluid's ky_factor, the gates' references): one geometry::solve per node on the ladder rows r_minor · r_major · q · magnetic_shear · elongation · triangularity · shift and the MXH rows, answered as the DD-named ladder moments (volume · dV/drho · gm3 · gm7 · gm2 · <R^2>) with GEO's normalised scalars beside them"},
     ],
     'ENTRY_OUT_KIND': [
         {'key': 'zerod', 'shape': 'volume', 'units': 'real', 'gloss': 'the plasma volume'},

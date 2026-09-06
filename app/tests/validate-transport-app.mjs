@@ -1,6 +1,6 @@
 // Assembly gate for the 1.5D transport page.
 //
-// The two borrowed halves already have their own gates (`validate-geo`,
+// The two borrowed halves already have their own gates (`validate-metric`,
 // `validate-transport`).  What neither covers is the LAYER BETWEEN them,
 // which is where this page can be wrong while both halves are right:
 //
@@ -114,8 +114,16 @@ const PY = `
 import json, sys
 import numpy as np
 sys.path.insert(0, ${JSON.stringify(ROOT + '/python')})
-# ★\`kernel.geo_surface\`, not \`fylite.geo\` (converged at ABI 70).
-from fylite import kernel as K
+#: T-4 第二十四刀 (2026-09-06): the metric through \`code/metric\` (fyo.surface_metric);
+#: \`transport_step\` is oracle-only since 第八刀 and binds in the kernel repository
+#: (FYLITE_KERNEL_REPO), where the flat operator lives on.
+import os
+from fylite import fyo
+kr = os.environ.get("FYLITE_KERNEL_REPO")
+if not kr:
+    sys.exit("FYLITE_KERNEL_REPO is not set: transport_step is an oracle-only export (kernel repository tests/_oracle.py)")
+sys.path.insert(0, os.path.join(kr, "tests"))
+import _oracle as K
 
 out = []
 for d in json.load(sys.stdin):
@@ -137,11 +145,11 @@ for d in json.load(sys.stdin):
         #: metres in, metres out: geo_do is scale-covariant, so a surface
         #: given in metres returns dV/dr in m^2 and a dimensionless
         #: <|grad r|^2>
-        g = K.geo_surface(rmin_over_a=float(rho[i]),
-                             rmaj_over_a=c["rmaj"] * a, q=q,
+        g = fyo.surface_metric(rmin=float(rho[i]),
+                             rmaj=c["rmaj"] * a, q=q,
                              shear=r * dq / q, kappa=c["kappa"], s_kappa=0.0,
-                             delta=c["delta"], s_delta=0.0, ntheta=201)
-        vp[i] = g["volume_prime"]; gr2[i] = g["fsa_grad_r2"]
+                             delta=c["delta"], s_delta=0.0, n_theta=201)
+        vp[i] = g["vprime"][0]; gr2[i] = g["gm3"][0]
     gr2[0] = gr2[1] if n > 1 else 1.0        # axis: set, not asked
     vp_b = np.asarray(p["volume_prime"], float)
     gr_b = np.asarray(p["fsa_grad_r2"], float)

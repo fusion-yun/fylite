@@ -72,8 +72,7 @@ __all__ = [
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "dke_solve",     "SAUTER_1999", "REDL_2021",
-    "ridge_lstsq", "bounded_lstsq", "channel_field", "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
-    #: T-A5 — the same solve with the coil currents FITTED
+    "ridge_lstsq", "bounded_lstsq", "channel_field",     #: T-A5 — the same solve with the coil currents FITTED
     "INVERSE_COIL_KEYS", "INVERSE_KEYS", "INVERSE_FSA_KEYS",
         "with_axis_node",
     "two_temperature_march",
@@ -2267,18 +2266,6 @@ def core_march(rho, *, te, ti, ni, z=(1.0,), edge_ni=None, psi=0.0,
             "retries": int(info[5])}
 
 
-GEO_SHAPE_KEYS = (
-    "cos0", "s_cos0", "cos1", "s_cos1", "cos2", "s_cos2", "cos3", "s_cos3",
-    "cos4", "s_cos4", "cos5", "s_cos5", "cos6", "s_cos6",
-    "sin3", "s_sin3", "sin4", "s_sin4", "sin5", "s_sin5", "sin6", "s_sin6",
-)
-
-#: The scalars `geo_surface` returns, in the order the ABI writes them.
-GEO_SCALARS = ("f", "ffprime", "fsa_bp2", "fsa_bt2", "fsa_grad_r",
-               "fsa_grad_r2", "grad_r0", "surf", "volume", "volume_prime",
-               "bt0", "bp0")
-
-
 _sig("fylite_rs_deltastar_apply", [_ARR, _U64, _ARR, _U64, _ARR, _ARR], _I32)
 def deltastar_apply(grid_r, grid_z, psi):
     """Δ*ψ on the kernel's own stencil — the OPERATOR, not the solve.
@@ -2337,62 +2324,6 @@ INVERSE_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
 INVERSE_FSA_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                     "residual", "bnd_kind", "fb_amp", "fsa_rows_used",
                     "_", "fb_amp_r", "trunc_keep")
-
-
-_sig("fylite_rs_geo_surface_gm2", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
-def geo_surface(*, rmin_over_a, rmaj_over_a, q, shear, drmaj=0.0,
-                zmag=0.0, dzmag=0.0, kappa=1.0, s_kappa=0.0,
-                delta=0.0, s_delta=0.0, zeta=0.0, s_zeta=0.0,
-                shape=None, signb=1.0, ntheta: int = 1001) -> dict:
-    """Flux-surface averages of one local Miller/MXH surface — GACODE's GEO.
-
-    Returns ``{f, ffprime, fsa_bp2, fsa_bt2, fsa_grad_r, fsa_grad_r2,
-    grad_r0, surf, volume, volume_prime, bt0, bp0, fsa_r2,
-    fsa_grad_r2_over_r2}``: ``f = R·B_t``,
-    ``volume_prime = dV/dr``, and ``bt0``/``bp0`` the fields at ``θ = 0``
-    **normalised to B_unit** (multiply by it for tesla).
-
-    ★``bt0`` is what the synchrotron formula wants — ``f/R0`` is not the
-    same thing and is ~20 % away from it.
-
-    ★★This is a PURE FUNCTION, and that is a difference from the library it
-    was translated from: libgeo carried the MXH harmonics in module state,
-    so its binding had to re-set all twenty-two on every call or a surface
-    would inherit the previous one's.  Nothing here can.
-    """
-    lib = require()
-    unknown = set(shape or ()) - set(GEO_SHAPE_KEYS)
-    if unknown:
-        raise KernelError(f"unknown shape harmonic(s) {sorted(unknown)}; "
-                          f"expected a subset of {GEO_SHAPE_KEYS}")
-    coef = _f(np.array([float((shape or {}).get(k, 0.0))
-                        for k in GEO_SHAPE_KEYS]))
-    out = np.empty(16)
-    rc = lib.fylite_rs_geo_surface_gm2(
-        float(signb), float(rmin_over_a), float(rmaj_over_a), float(drmaj),
-        float(zmag), float(dzmag), float(q), float(shear), float(kappa),
-        float(s_kappa), float(delta), float(s_delta), float(zeta),
-        float(s_zeta), coef, int(ntheta), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_geo_surface_gm2 returned {rc}")
-    res = dict(zip(GEO_SCALARS, (float(v) for v in out[:len(GEO_SCALARS)])))
-    #: ★``fsa_r2`` = ``<R^2>`` (T-M8), in the units ``rmin``/``rmaj`` went in
-    #: as; ``fsa_grad_r2_over_r2`` = ``<|grad r|^2/R^2>`` = IMAS ``gm2``, the
-    #: current channel's own weight (S-2c), in their inverse square.  Both
-    #: ride on the widest of the three geo entries rather than on
-    #: ``..._geo_surface``, whose 14-slot out-buffer is part of its frozen
-    #: contract; all three call the same ``geometry::solve``.  They are
-    #: appended to the dict rather than added to ``GEO_SCALARS``, because
-    #: that tuple is the ABI's slot ORDER for the OLDEST entry.
-    #:
-    #: ★★``gm2`` is a column and not a derivation: it is NOT
-    #: ``fsa_grad_r2 / fsa_r2`` (the average of a ratio is not the ratio of
-    #: the averages — 5 % apart on a circle at R0/a = 6), so a host that
-    #: divided one by the other would write a wrong current-diffusion
-    #: coefficient whose only symptom is a wrong q.
-    res["fsa_r2"] = float(out[14])
-    res["fsa_grad_r2_over_r2"] = float(out[15])
-    return res
 
 
 _sig("fylite_rs_bound_deriv", [_ARR, _ARR, _U64, _ARR], _I32)

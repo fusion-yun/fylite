@@ -288,11 +288,21 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
     n = x.size
     if n < 3:
         raise ValueError("the transport grid needs at least three points")
-    vp = np.maximum(x, 1e-6) * 2.0 if vprime is None else np.asarray(vprime, float)
+    #: ★T-4 第二十四刀 (2026-09-06): the bar's Miller tier.  With no metric bound
+    #: and the shape named (`rmaj` as R0/a and `q95`), the door builds V' and
+    #: <|∇r|²> itself — one `geometry::solve` per node on the parabolic q,
+    #: 201 theta, exactly the loop `engine/cases.py` used to run on the flat
+    #: `geo_surface` (the kernel's `test_transport_code.py` pins the two to
+    #: the bit) — and hands V' back on the ladder rows.
+    miller = vprime is None and q95 is not None and rmaj is not None
+    vp = None if miller else (np.maximum(x, 1e-6) * 2.0 if vprime is None
+                              else np.asarray(vprime, float))
     #: the source and the start are the KERNEL's defaults when not given — the
     #: Gaussian `P exp(-(x/w)^2)` and `edge + 2 (1 - x^2)` through its own
     #: profile family — and come back on the record
-    inputs = {"fylite:rho": x, "fylite:vprime": vp}
+    inputs = {"fylite:rho": x}
+    if vp is not None:
+        inputs["fylite:vprime"] = vp
     if source is not None:
         inputs["fylite:source"] = np.asarray(source, float)
     if y_init is not None:
@@ -327,9 +337,11 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
                      ("amin", a), ("rmaj", rmaj), ("q95", q95)):
         if val is not None:
             settings[key] = float(val)
-    if closure == "neoclassical":
+    if closure == "neoclassical" or miller:
         settings.update({"kappa": float(kappa), "delta": float(delta)})
     rec = fydoc.complete("code/transport", {"settings": settings, "inputs": {"transport": inputs}})
+    if vp is None:
+        vp = np.asarray(rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]["dvolume_drho_tor"]["data"], float)
     f = lambda k: float(rec["facts"][k]["value"])  # noqa: E731
     arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
     hist = [{"step": i + 1, "change": float(c), "inner_iterations": int(it), "converged": bool(cv),

@@ -462,7 +462,7 @@ $$ (eq-p04-gb)
 | 输运梯子与 Miller 行 | `fyo:equilibrium`：$V'$、$\langle|\nabla\rho|^2\rangle$ 等度规 | `fylite.fyo.Ladder` |
 | $q$、$F$、体积、$l_i(3)$ | `fyo:equilibrium` 的 `profiles_1d` 与 `global_quantities` | `fylite.fyo` |
 | X 点、打击点、间隙、等磁通面 | `fyo:equilibrium` 的边界描述 | `S.design.shape` |
-| 局域度规（GEO） | —（湍流与新经典的输入，不单独落面） | `fylite.kernel.geo_surface` |
+| 局域度规（GEO） | —（湍流与新经典的输入，不单独落面） | `code/metric`（`fyo.surface_metric`；扁平 `geo_surface` 自 T-4 第二十四刀起只在内核仓的神谕里） |
 | 湍流 / 新经典输入映射 | —（`fyo:core_transport` 的输入侧） | 内核仓 `tests/oracles/mapping.py`（T-4 第十五刀起；本包不再承载） |
 | $B_{\rm unit}$、稀释、碰撞率 | `fyo:core_profiles` 的派生量 | 内核仓 `tests/oracles/closure.py`（T-4 第十五刀起） |
 | 导出剖面与 gyro-Bohm 单位 | —（通量比较的单位，随 `fyo:core_transport` 走） | 内核仓 `tests/oracles/mapping.py`（T-4 第十五刀起） |
