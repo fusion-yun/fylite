@@ -36,7 +36,7 @@ importScripts('i18n.js', 'lang-zh.js', 'lang-en.js',
 // Worker cannot read localStorage, so a device the visitor imported would be
 // invisible here — and this is the half of the app that does the arithmetic.
 var M = null, P = self.FyPhys;
-var fy = null, grid = null, coilG = null;
+var fy = null, grid = null;
 //: ★built on FIRST USE, not at init: the probe rows are 79 x nr x nz doubles
 //: (2.7 MB on this deck) and most runs never fit probes.  A page that pays
 //: for them at load pays on every visit for a channel it may not use.
@@ -57,24 +57,14 @@ function post(msg, transfer) { self.postMessage(msg, transfer || []); }
 
 // --- channel <-> element ---------------------------------------------------
 
-//: ★★The BRSP channel map, dense, built ONCE per machine — `(nch, nel)`,
-//: and `chanW` is its `(nel, nch)` transpose, which is the wire format the
-//: folded-field entry takes.  Both are the kernel's: the index direction is
-//: the entire content of this map, and the two folds below used to be
-//: written out in JS here, each walking `M.channels` its own way.
-var chanMap = null, chanW = null;
-
-function buildChannelMap() {
-  chanMap = fy.channelWeights(M.channels, NEL);
-  chanW = new Float64Array(NEL * NCH);
-  for (var c = 0; c < NCH; c++)
-    for (var j = 0; j < NEL; j++) chanW[j * NCH + c] = chanMap[c * NEL + j];
-}
-
-/** Channel ampere-turns onto the elements they drive (`W^T x`). */
-
+/**
+ * The external flux on the box for a channel vector — `code/coilshare`'s
+ * `psi_ext` (第四十三刀): the per-channel flux at every node (4x4) folded
+ * channel by channel, the spelling the page's own cache used, so every fit
+ * recorded on it holds to the bit.
+ */
 function psiExtOf(chan) {
-  return P.combine(coilG.psiCh, chan, NG);
+  return fieldFlat(coilShare(chan), 'psi_ext');
 }
 
 // --- init ------------------------------------------------------------------
@@ -93,13 +83,10 @@ function init(machine) {
     NG = grid.nr * grid.nz;
     NEL = M.coils.length;
     NCH = M.channels.length;
-    buildChannelMap();
-    var tG = Date.now();
+      var tG = Date.now();
     //: the per-channel grid response, built once and contracted per solve —
     //: a CACHE, which is why it is held here rather than recomputed: at 4x4
     //: filaments it is the most expensive thing on this page's init path
-    coilG = { psiCh: P.gridChannelResponse(fy, M.coils, chanW, NCH, grid,
-                                           4, 4) };
     var tL = Date.now();
     //: ★A MACHINE MAY HAVE NO FLUX LOOPS.  Asking for the response of an
     //: empty loop set allocates zero doubles — which the wasm allocator
@@ -1215,7 +1202,7 @@ function reconMember(msg, inp, kin, jPre) {
   //: page used to (`coilBlock`: sigma_c = rel |I_c|, sigma_loop = rel max|loop
   //: reading|); with chord rows present it stays off, as it always did — the
   //: Faraday integrand is built on B_R and the coils make B_R.
-  var cf = msg.coilFit, blk = !!(cf && cf.on && coilG && coilG.psiCh && !nx);
+  var cf = msg.coilFit, blk = !!(cf && cf.on && !nx);
   if (blk) { settings.coil_fit_sigma = cf.sigma; settings.coil_fit_loop_sigma = cf.loopSigma; }
   var rec = fy.complete('code/reconstruction',
                         { settings: settings, inputs: { device: deviceDoc(), discharge: disc } });
@@ -1852,7 +1839,7 @@ function coilShare(chan) {
   var key = Array.prototype.join.call(chan, ',');
   if (coilShareCache.key !== key) {
     coilShareCache.rec = fy.complete('code/coilshare', {
-      settings: { nu_loops: 4, nu_probes: 3 },
+      settings: { nu_loops: 4, nu_probes: 3, grid_psi: 1, nu_grid: 4 },
       inputs: { device: deviceDoc(),
                 discharge: { 'fylite:channel_aturns': Float64Array.from(chan) } } });
     coilShareCache.key = key;
