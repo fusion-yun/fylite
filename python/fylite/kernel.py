@@ -1747,15 +1747,6 @@ def label_drift(rho, *, b0: float, b0_dot: float):
     return out
 
 
-_CORE_MARCH_ERRORS = {
-    -2: ("core_march: every profile must be the same length as rho, rho "
-         "needs at least three points, and at least one channel must be on"),
-    -8: ("core_march: a channel's FVM step failed — check the metrics "
-         "(V', <|grad rho|^2>, <|grad rho|^2/R^2>, F) and the densities "
-         "for zeros"),
-}
-
-
 INVERSE_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                 "residual", "bnd_kind", "fb_amp", "_", "_",
                 "fb_amp_r", "trunc_keep")
