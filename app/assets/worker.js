@@ -297,56 +297,41 @@ function verticalOf(res, prof2, chan, lcfs) {
 // commands and knows nothing about any of them.
 var shapeCtl = [];
 
-/**
- * The control points a set of shape-control rows names on this machine.
- *
- * A row the wall cannot answer (a ray that misses it) comes back `ok:false`
- * and is not turned into a row — it is REPORTED rather than dropped, the
- * same rule the limits column keeps.
- */
-function controlPoints(rows) {
-  var wr = M.limiter.r, wz = M.limiter.z;
-  return (rows || []).map(function (row) {
-    var w = row.w === undefined ? 1 : row.w;
-    try {
-      if (row.kind === 'strike') {
-        var sn = fy.wallSnap({ wallR: wr, wallZ: wz, r: row.r, z: row.z });
-        return { ok: true, kind: 'strike', r: sn.r, z: sn.z, w: w,
-                 seg: sn.seg, moved: sn.dist, row: row };
-      }
-      var g = fy.gapRow({ wallR: wr, wallZ: wz, r0: row.r0, z0: row.z0,
-                          dr: row.dr, dz: row.dz, gap: row.value });
-      return { ok: true, kind: 'gap', r: g.ctlR, z: g.ctlZ, w: w,
-               want: row.value, wallR: g.wallR, wallZ: g.wallZ,
-               tWall: g.tWall, row: row };
-    } catch (e) {
-      return { ok: false, kind: row.kind, w: w, row: row, why: e.message };
-    }
-  });
-}
-
-/** Only the rows that became a point — what the solve is actually given. */
-function controlUsable(cp) {
-  return cp.filter(function (c) { return c.ok; });
-}
-
 function nullSet(src) {
   if (src && src.xpoints && src.xpoints.length) return src.xpoints;
   return src && src.xpoint ? [src.xpoint] : [];
 }
 
-/** The control rows as the door's table: kind (1 strike · 0 gap) r z r0 z0 dr dz want. */
+/**
+ * The control rows as the door's table: kind (1 strike · 0 gap) r z r0 z0
+ * dr dz want w.  ★第四十一刀: the door resolves them — a strike request
+ * snapped to the wall, a gap ray tested against it — and echoes what it
+ * made of each row (`control_points`); the page only names them.
+ */
 function controlTable(rows) {
-  var out = new Float64Array((rows || []).length * 8);
+  var out = new Float64Array((rows || []).length * 9);
   (rows || []).forEach(function (row, i) {
-    var o = 8 * i, strike = row.kind === 'strike';
+    var o = 9 * i, strike = row.kind === 'strike';
     out[o] = strike ? 1 : 0;
     out[o + 1] = strike ? +row.r : NaN; out[o + 2] = strike ? +row.z : NaN;
     out[o + 3] = strike ? NaN : +row.r0; out[o + 4] = strike ? NaN : +row.z0;
     out[o + 5] = strike ? NaN : +row.dr; out[o + 6] = strike ? NaN : +row.dz;
     out[o + 7] = strike ? 0 : +row.value;
+    out[o + 8] = row.w === undefined ? 1 : +row.w;
   });
   return out;
+}
+
+/** The door's echo of the control rows, in the spelling the pages read. */
+function controlEcho(rec, rows) {
+  var e = rec.fields.control_points ? fieldFlat(rec, 'control_points') : new Float64Array(0);
+  return (rows || []).map(function (row, k) {
+    var o = 7 * k, ok = e[o] === 1, strike = row.kind === 'strike';
+    var out = { ok: ok, kind: row.kind, r: ok ? e[o + 2] : undefined, z: ok ? e[o + 3] : undefined,
+                seg: strike && ok ? e[o + 4] : undefined, want: strike ? undefined : (ok ? e[o + 5] : undefined),
+                label: row.label, why: ok ? null : 'the row does not meet the wall' };
+    return out;
+  });
 }
 
 /**
@@ -490,9 +475,7 @@ function designPlan(msg, o) {
     discharge['fylite:null_z'] = o.nulls.map(function (p) { return p.z; });
   }
   if (o.ctl.length) {
-    discharge['fylite:control_r'] = o.ctl.map(function (c) { return c.r; });
-    discharge['fylite:control_z'] = o.ctl.map(function (c) { return c.z; });
-    discharge['fylite:control_w'] = o.ctl.map(function (c) { return c.w; });
+    discharge['fylite:control_row'] = controlTable(o.ctl);
   }
   if (msg.iMax && msg.iMax.length) discharge['fylite:i_max_aturn'] = Array.from(msg.iMax);
   var inputs = { device: deviceDoc() };
@@ -539,7 +522,7 @@ function designRun(msg) {
   //: ★T-D18 / T-D7: the nulls are a SET and the shape-control rows are
   //: another; both go to the kernel as the plan's bound inputs
   var nulls = msg.xWeight > 0 ? nullSet(msg) : [];
-  var ctl = controlUsable(controlPoints(msg.control));
+  var ctl = msg.control || [];
   var total = (msg.schedule || []).length;
   post({ type: 'progress', phase: 'design', pass: 0, total: total, err: NaN });
   //: ★★the anneal itself is `case.rs::discharge_case` (FYL-DESIGN-16 K-3,
@@ -611,7 +594,7 @@ function designRun(msg) {
  */
 function startRun(msg) {
   var nulls = msg.xWeight > 0 ? nullSet(msg) : [];
-  var cpts = controlPoints(msg.control), ctl = controlUsable(cpts);
+  var ctl = msg.control || [];
   var rec;
   try { rec = fy.complete('code/discharge', designPlan(msg, { stage: 'start', nulls: nulls, ctl: ctl })); }
   catch (e) { post({ type: 'error', where: 'start', message: e.message }); return; }
@@ -630,10 +613,7 @@ function startRun(msg) {
          //: missed the other can say which — before an anneal is paid for
          nulls: nulls.map(function (p, k) { return { r: p.r, z: p.z, b: bxe[k], dpsi: pxe[k] }; }),
          ctlDpsi: Array.from(rec.fields.start_ctl_dpsi.data),
-         ctlRows: cpts.map(function (c) {
-           return { ok: c.ok, kind: c.kind, r: c.r, z: c.z, seg: c.seg,
-                    want: c.want, label: c.row.label, why: c.why || null };
-         }),
+         ctlRows: controlEcho(rec, ctl),
          targetBoundary: fieldFlat(rec, 'target_boundary') });
 }
 
@@ -667,7 +647,7 @@ function pulseRun(msg) {
   //: stays here is the DISPLAY of each check (`summarize` on the field the
   //: kernel returns), exactly as `designRun` keeps its own.
   var nulls = msg.xWeight > 0 ? nullSet(wps[0]) : [];
-  var ctl = controlUsable(controlPoints(msg.control));
+  var ctl = msg.control || [];
   var settings = { n_points: msg.nPoints || 24, nu: 4,
                    x_weight: nulls.length ? (msg.xWeight || 1) : 0,
                    lam: msg.lambda === undefined ? 1e-3 : msg.lambda };
@@ -706,9 +686,7 @@ function pulseRun(msg) {
     discharge['fylite:null_z'] = nulls.map(function (p) { return p.z; });
   }
   if (ctl.length) {
-    discharge['fylite:control_r'] = ctl.map(function (c) { return c.r; });
-    discharge['fylite:control_z'] = ctl.map(function (c) { return c.z; });
-    discharge['fylite:control_w'] = ctl.map(function (c) { return c.w; });
+    discharge['fylite:control_row'] = controlTable(ctl);
   }
   if (msg.iMax && msg.iMax.length) discharge['fylite:i_max_aturn'] = Array.from(msg.iMax);
   if (Object.keys(discharge).length) inputs.discharge = discharge;

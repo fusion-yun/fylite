@@ -92,6 +92,10 @@ const CONFIGS = {
   design: { cmd: 'design', chan, target, ip, warm: true, prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 },
             schedule: [0.1, 0.03], gamma: 0.4, nPoints: 24, xWeight: 0, control: CONTROL,
             solve: { maxIter: 400, relax: 0.3, tol: 1e-8 }, vertical: false },
+  //: 第四十一刀: the START — the control rows resolved on the wall by the door
+  //: (a strike request snapped, a gap ray met) and echoed back with the answer
+  start: { cmd: 'start', target, ip, nPoints: 24, xWeight: 0, control: CONTROL, iMax: null,
+           nRing: 4, peaking: 1, lambda: 1e-3 },
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
@@ -115,7 +119,10 @@ const got = {};
 for (const [name, msg] of Object.entries(CONFIGS)) {
   await send(msg);
   const m = take(msg.cmd);
-  got[name] = pick(m.result);
+  got[name] = msg.cmd === 'start'
+    ? { chan: arr(m.chan), psiRms: m.psiRms, bX: m.bX, psiXOffset: m.psiXOffset, bind: m.bind,
+        ctlDpsi: m.ctlDpsi, ctlRows: m.ctlRows, targetBoundary: arr(m.targetBoundary) }
+    : pick(m.result);
 }
 
 if (RECORD) {
