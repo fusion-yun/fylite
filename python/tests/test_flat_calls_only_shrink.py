@@ -31,7 +31,7 @@ DOORS = {"scenario", "grid_of", "require_data", "load", "abi_version"}
 #: Only ever lower these.
 BASELINE = {
     'device.py': 1,
-    'fyo.py': 3,   # 第十五刀 (2026-09-06)：neoclassical_source · turbulent_transport 迁入内核仓神谕树
+    'fyo.py': 2,   # 第二十一刀 (2026-09-06)：a_minor 走 code/shape
     'scenario/control/stability.py': 1,
     'scenario/design/__init__.py': 0,   # 第二十刀 (2026-09-06)：target_boundary 走 code/outlines
     'scenario/model/__init__.py': 0,

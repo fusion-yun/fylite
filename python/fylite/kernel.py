@@ -54,7 +54,7 @@ __all__ = [
         "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
     "zerod_stored_energy",
         "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
-    "contour", "shape_metrics",     "direct_integrals", "gradient",
+    "contour",     "direct_integrals", "gradient",
     "shell_sum", "li3", "profile_shape_fit", "sample",
         "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
@@ -80,7 +80,7 @@ __all__ = [
     "deltastar_apply", "core_march", "label_drift",     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
                     "tglf_flux_searched", "shell_area",
         "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
-    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "enclosed_volume", "lh_deposit", "shell_table", "beam_deposit",
+    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "shell_table", "beam_deposit",
     "fast_ion_pressure", "selfcal_slices",
     "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
@@ -1655,30 +1655,6 @@ def contour(grid: Grid, f, level, *, max_seg: int = 4096) -> np.ndarray:
     return out[:4 * rc].reshape(rc, 4)
 
 
-_sig("fylite_rs_shape_metrics", [_ARR, _U64, _ARR], _I32)
-def shape_metrics(poly) -> dict:
-    """``R0 / Z0 / a / kappa / delta_upper / delta_lower`` of a boundary.
-
-    ★Triangularity per half.  A single delta cannot describe most diverted
-    shapes and averaging the two draws a boundary the machine does not have.
-
-    ★``z0`` is the boundary's vertical CENTRE, and it is not the magnetic
-    axis height: the two differ by the Shafranov shift, and a design that
-    compared a requested Z0 against an axis position would be reading a
-    drift where there is none (and missing one where there is).
-    """
-    lib = require()
-    p = _f(poly)
-    if p.ndim != 2 or p.shape[1] != 2:
-        raise KernelError("polygon must be (n, 2) of (R, Z)")
-    out = np.empty(6)
-    rc = lib.fylite_rs_shape_metrics(p.ravel(), p.shape[0], out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_shape_metrics returned {rc}")
-    return {"r0": out[0], "a": out[1], "kappa": out[2],
-            "delta_upper": out[3], "delta_lower": out[4], "z0": out[5]}
-
-
 _sig("fylite_rs_ridge_lstsq", [_ARR, _ARR, _ARR, _U64, _U64, _ARR, _ARR], _I32)
 def ridge_lstsq(a, b, w, lam) -> np.ndarray:
     """Weighted ridge least squares; raises if the normal matrix is not PD.
@@ -2561,20 +2537,6 @@ INVERSE_COIL_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                      #: ★slots 10-11 are now filled, with the same two
                      #: names the other two inverse entries use.
                      "coil_fitted", "fb_amp_r", "trunc_keep")
-
-
-#: ★back on the interface (T-4 第十二刀): `FyPhys.surfaceVolume` on the pulse-design
-#: page's MAIN THREAD calls it — 第十一刀's census saw only the worker
-_sig("fylite_rs_enclosed_volume", [_ARR, _U64, _ARR], _I32)
-def enclosed_volume(poly) -> float:
-    """Volume [m³] the boundary polygon encloses (Pappus on the centroid)."""
-    lib = require()
-    p = _f(poly)
-    out = np.empty(1)
-    rc = lib.fylite_rs_enclosed_volume(p.ravel(), p.shape[0], out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_enclosed_volume returned {rc}")
-    return float(out[0])
 
 
 _data_cache: tuple[ctypes.CDLL | None] | None = None

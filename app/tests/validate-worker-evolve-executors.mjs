@@ -29,6 +29,14 @@ import path from 'node:path';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { deviceDoc } from './_device.mjs';
+//: ★T-4 第二十一刀 (2026-09-06): the gate's own shape reading goes through `code/shape` too
+function shapeOf(fy, r, z) {
+  const f = fy.complete('code/shape', { settings: {}, inputs: { equilibrium: {
+    time_slice: { boundary: { outline: { r: Float64Array.from(r), z: Float64Array.from(z) } } } } } }).facts;
+  return { r0: f.r0.value, a: f.a.value, kappa: f.kappa.value, deltaU: f.delta_upper.value,
+           deltaL: f.delta_lower.value, z0: f.z0.value, delta: 0.5 * (f.delta_upper.value + f.delta_lower.value) };
+}
+
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 //: `--site DIR` runs the worker out of another assets directory — a scratch copy
@@ -87,7 +95,7 @@ function gfilePayload(g, fy) {
   const psi = new Float64Array(g.nw * g.nh);
   for (let j = 0; j < g.nh; j++)
     for (let i = 0; i < g.nw; i++) psi[i * g.nh + j] = -2 * Math.PI * g.psirz[j * g.nw + i];
-  const sm = fy.shapeMetrics(g.rbbbs.map((r, i) => [r, g.zbbbs[i]]));
+  const sm = shapeOf(fy, g.rbbbs, g.zbbbs);
   const lr = g.limitr ? g.rlim : g.rbbbs, lz = g.limitr ? g.zlim : g.zbbbs;
   return { psi: Array.from(psi), psiAxis: -2 * Math.PI * g.simag, psiBnd: -2 * Math.PI * g.sibry,
            axisR: g.rmaxis, axisZ: g.zmaxis, r0: g.rleft, z0: g.zmid - g.zdim / 2,
@@ -110,7 +118,7 @@ const send = (msg) => globalThis.self.onmessage({ data: msg });
 await send({ cmd: 'init', machine: M });
 inbox.splice(0, inbox.length);
 const fy = globalThis.fy;
-assert.ok(fy && typeof fy.shapeMetrics === 'function', 'the worker holds a kernel after init');
+assert.ok(fy && typeof fy.complete === 'function', 'the worker holds a kernel after init');
 const gfile = gfilePayload(parseGeqdsk(readFileSync(GFILE, 'utf8')), fy);
 
 const nSteps = 6;

@@ -623,7 +623,12 @@ def a_minor(eq) -> float:
     rb, zb = boundary_of(as_equilibrium(eq))
     if rb.size < 3 or zb.size != rb.size:
         return float("nan")
-    return float(kernel.shape_metrics(np.column_stack([rb, zb]))["a"])
+    #: ★T-4 第二十一刀 (2026-09-06): through `code/shape` — the same
+    #: `surfaces::shape_metrics`, answered as the `a` fact
+    from .io import fydoc
+    rec = fydoc.complete("code/shape", {"settings": {}, "inputs": {"equilibrium": {
+        "time_slice": {"boundary": {"outline": {"r": np.asarray(rb, float), "z": np.asarray(zb, float)}}}}}})
+    return float(rec["facts"]["a"]["value"])
 
 
 def equilibrium_ladder(doc, grid, psin2d, dpsi, levels) -> dict:

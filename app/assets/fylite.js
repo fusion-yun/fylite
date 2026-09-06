@@ -103,7 +103,7 @@
     'fylite_rs_svd_solve',
     //: the operating domain, the flux account and the START —
     //: the design scenario's own criteria (ABI v103)
-                'fylite_rs_fill_filaments', 'fylite_rs_x_points', 'fylite_rs_enclosed_volume',                 //: ★the neutral-beam chain (ABI v105, already in every shipped
+                'fylite_rs_fill_filaments', 'fylite_rs_x_points',                 //: ★the neutral-beam chain (ABI v105, already in every shipped
     //: artifact and reachable from Python alone).  Listed so a build
     //: without them fails at LOAD rather than at the first beam: a
     //: page that discovered a missing entry mid-march would already
@@ -605,32 +605,6 @@
 
 
 
-  /**
-   * R0 / a / kappa / delta of a closed outline — the kernel's.
-   *
-   * ★Elongation has a history here: a boundary taken at the separatrix once
-   * reported 1.79 against EFIT's 1.389.  A quantity with that history should
-   * not have two implementations.
-   */
-  Fy.prototype.shapeMetrics = function (poly) {
-    var self = this, n = poly.length;
-    return this.scope(function (s) {
-      var rz = new Float64Array(2 * n);
-      for (var i = 0; i < n; i++) { rz[2 * i] = poly[i][0]; rz[2 * i + 1] = poly[i][1]; }
-      var p = s.put(rz), out = s.zeros(6);
-      var rc = self.e.fylite_rs_shape_metrics(p.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_shape_metrics', rc);
-      var v = s.get(out);
-      //: ★z0 is the boundary's vertical CENTRE — not the magnetic axis
-      //: height, which sits above it by the Shafranov shift.  A design
-      //: comparing a requested Z0 against the axis reads a drift that is
-      //: not there and misses one that is.
-      return { r0: v[0], a: v[1], kappa: v[2], deltaU: v[3], deltaL: v[4],
-               z0: v[5], delta: 0.5 * (v[3] + v[4]) };
-    });
-  };
-
-
   //: --- the "what a solved field implies" family (FYL-DESIGN-07 D-4) ------
   //: These used to live in physics.js.  They are physics bookkeeping, not
   //: marshalling, so they belong to the one host; what remains here is the
@@ -679,28 +653,6 @@
         r.ptr, z.ptr, BigInt(n), out.ptr);
       if (rc !== 0) throw new SolveError('fylite_rs_sample_grid', rc);
       return s.get(out);
-    });
-  };
-
-
-  //: ★back (T-4 第十二刀): `FyPhys.surfaceVolume` on the pulse-design page's main
-  //: thread calls this — 第十一刀's census saw only the worker
-  /**
-   * Volume enclosed by a closed (R, Z) outline [m^3].
-   *
-   * ★Fewer than three points is an ERROR here, not a zero: "no outline" and
-   * "an outline enclosing nothing" are different questions and only the
-   * second has a volume for an answer.
-   */
-  Fy.prototype.enclosedVolume = function (poly) {
-    var self = this, n = poly.length;
-    return this.scope(function (s) {
-      var rz = new Float64Array(2 * n);
-      for (var i = 0; i < n; i++) { rz[2 * i] = poly[i][0]; rz[2 * i + 1] = poly[i][1]; }
-      var p = s.put(rz), out = s.zeros(1);
-      var rc = self.e.fylite_rs_enclosed_volume(p.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_enclosed_volume', rc);
-      return s.get(out)[0];
     });
   };
 
@@ -1346,7 +1298,17 @@
     if (!poly || poly.length < 3) return 0;
     if (!KERNEL)
       throw new Error('FyPhys.surfaceVolume: no kernel — call useKernel()');
-    return KERNEL.enclosedVolume(poly);
+    //: ★T-4 第二十一刀 (2026-09-06): through the tree door — `code/shape` is the
+    //: same `surfaces::enclosed_volume`, answered as the `volume` fact
+    return shapeRecord(poly).facts.volume.value;
+  }
+
+  /** One `code/shape` completion on an outline (the page's `[[r, z], …]`). */
+  function shapeRecord(poly) {
+    var n = poly.length, r = new Float64Array(n), z = new Float64Array(n);
+    for (var i = 0; i < n; i++) { r[i] = +poly[i][0]; z[i] = +poly[i][1]; }
+    return KERNEL.complete('code/shape', { settings: {}, inputs: { equilibrium: {
+      time_slice: { boundary: { outline: { r: r, z: z } } } } } });
   }
 
 
@@ -1403,7 +1365,14 @@
     if (!poly || !poly.length) return null;
     if (!KERNEL)
       throw new Error('FyPhys.shapeMetrics: no kernel — call useKernel()');
-    return KERNEL.shapeMetrics(poly);
+    //: ★T-4 第二十一刀 (2026-09-06): through the tree door — `code/shape` is the
+    //: same `surfaces::shape_metrics`, answered as facts; the flat export left
+    //: the interface.  `validate-fyphys-shape.mjs` holds it to the recorded
+    //: flat answer, bit for bit.
+    var f = shapeRecord(poly).facts, v = function (k) { return f[k].value; };
+    return { r0: v('r0'), a: v('a'), kappa: v('kappa'), deltaU: v('delta_upper'),
+             deltaL: v('delta_lower'), z0: v('z0'),
+             delta: 0.5 * (v('delta_upper') + v('delta_lower')) };
   }
 
 

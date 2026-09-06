@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "ca272848c797c0e9";
+pub const DIGEST: &str = "5197d275aa22d15b";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -310,6 +310,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "coilshare", shape: "", units: "assembled", gloss: "the coils' share of a reading that arrives whole: the channel ampere-turns folded onto the elements, their flux at every loop (Wb/rad) and their projected field at every probe (T), at the reader's quadrature — subtracted once, from the same element response the vacuum field is built from, so a plasma-only model is never asked to explain the coils" },
         Row { key: "vessel", shape: "", units: "assembled", gloss: "the vessel as an unknown: the deck's vessel units grouped by fylite:group under a uniform loop voltage per group, every group's response at the loops, on the grid and at the probes, and — with the reconstruction's rows bound — the joint least squares by Frisch-Waugh-Lovell (both sides residualised on the plasma basis' own signatures, truncated SVD) with how much of the vessel survives the projection" },
         Row { key: "selfcal", shape: "", units: "assembled", gloss: "the instrument layer: per-channel calibration factors computed/measured against their own median for one fit, or over the slices of a time series, with the dispersion — a channel-relative statement, never an absolute ratio" },
+        Row { key: "shape", shape: "", units: "assembled", gloss: "the shape of a closed (R, Z) outline and the volume it encloses (the pulse-design page's main-thread shapeMetrics / surfaceVolume on a solved boundary, the analysis page's g-file boundary import, Python's fyo.a_minor): R0 · Z0 · a · kappa · delta_upper · delta_lower by surfaces::shape_metrics and the volume by surfaces::enclosed_volume, as facts" },
     ] },
     Block { name: "ENTRY_OUT_KIND", rows: &[
         Row { key: "zerod", shape: "volume", units: "real", gloss: "the plasma volume" },
