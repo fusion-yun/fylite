@@ -98,7 +98,6 @@ extern "C" {
     fn fylite_rs_gfile_profile(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: *mut f64) -> i32;
     fn fylite_rs_gradient(_0: *const f64, _1: *const f64, _2: u64, _3: i32, _4: f64, _5: *mut f64) -> i32;
     fn fylite_rs_grid_response(_0: *const f64, _1: *const f64, _2: *const f64, _3: *const f64, _4: *const f64, _5: *const f64, _6: u64, _7: *const f64, _8: u64, _9: *const f64, _10: u64, _11: u64, _12: u64, _13: *mut f64) -> i32;
-    fn fylite_rs_gs_fixed_box(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: f64, _5: f64, _6: *mut f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: *const f64, _12: *const f64, _13: u64, _14: *const f64, _15: u64, _16: *const f64, _17: u64, _18: f64, _19: *const f64, _20: u64, _21: f64, _22: f64, _23: u64, _24: f64, _25: u64, _26: f64, _27: *mut f64) -> i32;
     fn fylite_rs_gs_fixed_solve(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: *mut f64, _5: f64, _6: *const f64, _7: u64, _8: *const f64, _9: u64, _10: f64, _11: u64, _12: f64, _13: *mut f64) -> i32;
     fn fylite_rs_gs_free_solve(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: *const f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: *const f64, _11: *const f64, _12: u64, _13: f64, _14: f64, _15: u64, _16: f64, _17: f64, _18: f64, _19: f64, _20: *const f64, _21: *mut f64, _22: *mut f64) -> i32;
     fn fylite_rs_gs_free_solve_tab(_0: *const f64, _1: u64, _2: *const f64, _3: u64, _4: *const f64, _5: *const f64, _6: *const f64, _7: *const f64, _8: u64, _9: f64, _10: *const f64, _11: *const f64, _12: u64, _13: f64, _14: f64, _15: u64, _16: f64, _17: f64, _18: f64, _19: f64, _20: *const f64, _21: *mut f64, _22: *mut f64) -> i32;
@@ -321,7 +320,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_gfile_profile",
     "fylite_rs_gradient",
     "fylite_rs_grid_response",
-    "fylite_rs_gs_fixed_box",
     "fylite_rs_gs_fixed_solve",
     "fylite_rs_gs_free_solve",
     "fylite_rs_gs_free_solve_tab",
@@ -553,7 +551,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_gfile_profile", &["in_f64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_gradient", &["in_f64", "in_f64", "u64", "i32", "f64", "out_f64"]),
     ("fylite_rs_grid_response", &["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "out_f64"]),
-    ("fylite_rs_gs_fixed_box", &["in_f64", "u64", "in_f64", "u64", "f64", "f64", "out_f64", "f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "u64", "f64", "in_f64", "u64", "f64", "f64", "u64", "f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_gs_fixed_solve", &["in_f64", "u64", "in_f64", "u64", "out_f64", "f64", "in_f64", "u64", "in_f64", "u64", "f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_gs_free_solve", &["in_f64", "u64", "in_f64", "u64", "in_f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "f64", "f64", "u64", "f64", "f64", "f64", "f64", "in_f64", "out_f64", "out_f64"]),
     ("fylite_rs_gs_free_solve_tab", &["in_f64", "u64", "in_f64", "u64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "f64", "in_f64", "in_f64", "u64", "f64", "f64", "u64", "f64", "f64", "f64", "f64", "in_f64", "out_f64", "out_f64"]),
@@ -1037,10 +1034,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
         "fylite_rs_grid_response" => {
             f.want(&["in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "u64", "u64", "u64", "out_f64"], name)?;
             Ret::I32(unsafe { fylite_rs_grid_response(p[0] as *const f64, p[1] as *const f64, p[2] as *const f64, p[3] as *const f64, p[4] as *const f64, p[5] as *const f64, f.u64(6)?, p[7] as *const f64, f.u64(8)?, p[9] as *const f64, f.u64(10)?, f.u64(11)?, f.u64(12)?, p[13] as *mut f64) })
-        }
-        "fylite_rs_gs_fixed_box" => {
-            f.want(&["in_f64", "u64", "in_f64", "u64", "f64", "f64", "out_f64", "f64", "f64", "f64", "f64", "in_f64", "in_f64", "u64", "in_f64", "u64", "in_f64", "u64", "f64", "in_f64", "u64", "f64", "f64", "u64", "f64", "u64", "f64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_gs_fixed_box(p[0] as *const f64, f.u64(1)?, p[2] as *const f64, f.u64(3)?, f.f64(4)?, f.f64(5)?, p[6] as *mut f64, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, p[11] as *const f64, p[12] as *const f64, f.u64(13)?, p[14] as *const f64, f.u64(15)?, p[16] as *const f64, f.u64(17)?, f.f64(18)?, p[19] as *const f64, f.u64(20)?, f.f64(21)?, f.f64(22)?, f.u64(23)?, f.f64(24)?, f.u64(25)?, f.f64(26)?, p[27] as *mut f64) })
         }
         "fylite_rs_gs_fixed_solve" => {
             f.want(&["in_f64", "u64", "in_f64", "u64", "out_f64", "f64", "in_f64", "u64", "in_f64", "u64", "f64", "u64", "f64", "out_f64"], name)?;

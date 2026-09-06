@@ -74,7 +74,8 @@ def test_channel_matrices_refuse_a_weight_map_of_the_wrong_width():
 # --------------------------------------------------------------------------- #
 #: ★★The ABI carries this map BOTH ways round: `channel_weights`,
 #: `channel_fold` and `channel_matrices` take `(n_channel, n_element)`, while
-#: `channel_field` and `breakdown_design` take its transpose on the wire.
+#: `channel_field` (and `breakdown_design`, oracle-only since T-4 第八刀 —
+#: its row lives in the kernel repository now) take its transpose on the wire.
 #: That is the wire format's business.  What must not be the caller's business
 #: is which of the two a given entry wants — a transposed weight matrix does
 #: not raise, it is a different machine, and this package once held THREE
@@ -110,18 +111,6 @@ def test_channel_field_refuses_a_transposed_map():
         K.channel_field(ELEMS, w.T, [1.9], [0.05])           # 2 x 3, refused
 
 
-def test_breakdown_design_takes_the_same_orientation():
-    w = _split_pair_map()
-    d = K.breakdown_design(ELEMS, w, r0=1.9, z0=0.0, radius=0.1,
-                           n_ring=1, n_theta=8, disc=False)
-    assert d["aturns"].shape == (w.shape[0],)
-    with pytest.raises(K.KernelError, match="n_channel, n_element"):
-        K.breakdown_design(ELEMS, np.ones((3, 2)).T[:, :1], r0=1.9)
-
-
-# --------------------------------------------------------------------------- #
-# the circuit trajectory: the plasma-flux term is a SWITCH, not a second entry
-# --------------------------------------------------------------------------- #
 def _rl():
     m = np.array([[1.0, 0.1], [0.1, 1.0]])
     r = np.array([1.0, 1.0])
@@ -409,48 +398,8 @@ def test_miller_boundary_z_is_bit_identical_and_r_is_within_an_ulp_or_two():
 
 
 
-def test_b_field_is_the_central_difference_at_half_a_cell():
-    """★The step is part of the answer.  On a psi that is linear in R the
-    field is exact and constant, which pins both the formula and the sign.
-    """
-    g = dict(r0=1.0, z0=-1.0, dr=0.05, dz=0.05, nr=41, nz=41)
-    rg = g["r0"] + g["dr"] * np.arange(41)
-    #: psi = C*z  ->  dpsi/dz = C, dpsi/dr = 0  ->  B_r = -C/(2 pi r), B_z = 0
-    zg = g["z0"] + g["dz"] * np.arange(41)
-    psi = np.broadcast_to(3.0 * zg, (41, 41)).copy()
-    r = np.array([1.5, 1.7, 1.9])
-    br, bz = K.b_field(g, psi, r, np.zeros(3))
-    assert np.allclose(br, -3.0 / (2 * np.pi * r), rtol=1e-12)
-    assert np.allclose(bz, 0.0, atol=1e-12)
-    #: off the grid is NaN, not a clamped edge value
-    obr, _ = K.b_field(g, psi, [rg[0] - 1.0], [0.0])
-    assert not np.isfinite(obr[0])
 
 
-def test_analytic_current_clamps_the_normalised_flux_before_the_shape():
-    """★Without the clamp the outer cells raise a negative base to a
-    fractional power and the whole distribution goes NaN at once.
-    """
-    g = dict(r0=1.0, z0=-1.0, dr=0.05, dz=0.05, nr=21, nz=21)
-    rg = g["r0"] + g["dr"] * np.arange(21)
-    #: a psi that runs well past the boundary on both sides
-    psi = np.linspace(-3.0, 3.0, 21 * 21).reshape(21, 21)
-    mask = np.ones((19, 19))
-    cur = K.analytic_current(psi, rg, mask, grid=g, psi_axis=-1.0,
-                             psi_bnd=1.0, jc=1.0e6, beta0=0.5, emp=2.0,
-                             enp=1.5, r0=1.85)
-    assert cur.shape == (19, 19)
-    assert np.all(np.isfinite(cur)), "the clamp is what keeps this finite"
-    #: masked-out cells carry no current at all
-    m2 = np.zeros((19, 19))
-    m2[5:8, 5:8] = 1.0
-    c2 = K.analytic_current(psi, rg, m2, grid=g, psi_axis=-1.0, psi_bnd=1.0,
-                            jc=1.0e6, beta0=0.5, emp=2.0, enp=1.5, r0=1.85)
-    assert c2[0, 0] == 0.0 and np.count_nonzero(c2) <= 9
-    with pytest.raises(K.KernelError):
-        K.analytic_current(psi, rg, np.ones((3, 3)), grid=g, psi_axis=-1.0,
-                           psi_bnd=1.0, jc=1.0, beta0=0.5, emp=2.0, enp=1.5,
-                           r0=1.85)
 
 
 def test_sample_grid_is_nan_off_the_grid_and_exact_on_a_node():
@@ -602,25 +551,6 @@ def test_core_march_switches_the_density_channel_on_by_its_coefficients():
     assert np.allclose(r["te"][:-1], 600.0 * n0 / (n0 + dt * s_n), rtol=1e-9)
 
 
-# --------------------------------------------------------------------------- #
-# the moving metric, and the momentum channel
-# --------------------------------------------------------------------------- #
-def test_the_moving_capacity_is_off_by_default_and_is_a_dead_path_when_given():
-    n = 15
-    x = np.linspace(0.0, 1.0, n)
-    vp = 2.0 * x + 1e-3
-    cap = 1.5 * vp * 1e19
-    y0 = 400.0 - 250.0 * x ** 2
-    kw = dict(vprime=vp, source=np.full(n, 5.0), capacity=cap, metric=vp,
-              model="given", chi_given=np.ones(n), dt=1e-3,
-              edge_value=100.0)
-    off = K.transport_step(x, y0, **kw)
-    same = K.transport_step(x, y0, capacity_old=cap, **kw)
-    assert np.array_equal(off["y"], same["y"])
-    #: and a capacity that DID move changes the answer — the dead path is
-    #: dead because nothing moved, not because the argument is ignored
-    moved = K.transport_step(x, y0, capacity_old=cap * 1.05, **kw)
-    assert not np.allclose(moved["y"], off["y"])
 
 
 def test_label_drift_is_zero_unless_the_field_moves():
@@ -860,11 +790,9 @@ def test_strike_points_and_clearance_read_the_wall_as_a_polyline():
     assert sp[1] == pytest.approx([0.8, want], abs=2e-3)
     #: a surface entirely inside the wall lands nowhere
     assert K.strike_points(g, psi, 0.01, wall_r, wall_z).shape == (0, 2)
-
-    th = np.linspace(0.0, 2 * np.pi, 64, endpoint=False)
-    gap = K.wall_clearance(1.0 + 0.5 * np.cos(th), 0.5 * np.sin(th),
-                           [0.2, 1.8, 1.8, 0.2], [-0.8, -0.8, 0.8, 0.8])
-    assert gap["gap"] == pytest.approx(0.3, abs=1e-3)
+    #: ★the wall-gap row (`wall_clearance`) moved to the kernel repository's
+    #: `tests/test_oracle_marshalling.py` with that export (oracle-only since
+    #: T-4 第八刀, 2026-09-06); `code/summary` carries the gap on the page
 
 
 def test_a_start_is_more_isoflux_than_the_plasma_alone_and_respects_its_box():
@@ -898,27 +826,6 @@ def test_a_start_is_more_isoflux_than_the_plasma_alone_and_respects_its_box():
     assert cap["at_bound"].size > 0
 
 
-def test_the_designed_voltages_reproduce_the_trajectory_they_designed_for():
-    """★The round trip: design the voltages for a current trajectory, hand
-    them to the forward integrator, get the trajectory back.  Exact, because
-    the two are ONE discretisation — an approximate agreement here would
-    mean they are not."""
-    n_ch, n = 2, 5
-    idx = np.arange(n)
-    m = 1e-6 / (1.0 + np.abs(idx[:, None] - idx[None, :])) + 4e-6 * np.eye(n)
-    r = 1e-3 * (1.0 + idx)
-    t = np.linspace(0.0, 2.0, 41)
-    x = np.column_stack([1e4 * t / t[-1], 5e3 * np.sin(2 * t)])
-    ff = K.feedforward_voltages(m, r, n_ch, t, x)
-    volts = np.zeros((t.size, n))
-    volts[:, :n_ch] = ff["v"]
-    i0 = np.zeros(n)
-    i0[:n_ch] = x[0]
-    got = K.evolve_circuits(m, r, i0, t, volts)
-    assert got[:, :n_ch] == pytest.approx(x, abs=1e-6, rel=1e-6)
-    assert got[:, n_ch:] == pytest.approx(ff["y"], abs=1e-6, rel=1e-6)
-    with pytest.raises(K.KernelError):
-        K.feedforward_voltages(m, r, n_ch, [0.0, 0.0], np.zeros((2, n_ch)))
 
 
 def test_spitzer_eta_is_the_parallel_branch_and_the_ratio_is_pinned():

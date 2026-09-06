@@ -85,7 +85,7 @@
     //: reconstruction bar silently back on「coils exactly known」, which is
     //: the failure this entry exists to remove.
     'fylite_rs_evolve_circuits', 'fylite_rs_geo_surface',
-    'fylite_rs_bounded_lstsq', 'fylite_rs_transport_step',
+    'fylite_rs_bounded_lstsq',
     //: the NEO chain's two halves.  `neo_inputs` is the map that makes
     //: `neo_sauter` usable at all — without it a caller would have to
     //: rebuild the CGS normalisation itself, which is the one layer whose
@@ -121,8 +121,7 @@
     'fylite_rs_zerod_averages',
     'fylite_rs_strike_points', 'fylite_rs_start_currents',
     'fylite_rs_fill_filaments', 'fylite_rs_x_points',
-    'fylite_rs_plasma_filaments', 'fylite_rs_channel_matrices', 'fylite_rs_breakdown_design',
-    'fylite_rs_wall_clearance', 'fylite_rs_feedforward_voltages',
+    'fylite_rs_plasma_filaments', 'fylite_rs_channel_matrices',
     'fylite_rs_filament_flux',
     'fylite_rs_evolve_circuits',
     //: ★the neutral-beam chain (ABI v105, already in every shipped
@@ -145,14 +144,8 @@
     //: called them a second time to print the answer beside it would give one
     //: number two hosts.
     'fylite_rs_lh_accessibility',
-    //: ★ADDED 2026-08-23 — the boxed fixed-boundary solve (T-M7) and the
-    //: two metric entries that carry `<R^2>` (T-M8).  Listed so a build
-    //: without them fails at LOAD: the refinement and the momentum channel
-    //: both discover a missing entry mid-march otherwise, by which time the
-    //: page has already drawn something.
-    'fylite_rs_gs_fixed_box',
-    //: ★T-M17 — the same solve under an I_p constraint; the refinement
-    //: dies at LOAD rather than at the first coupled block without it
+    //: ★`gs_fixed_box` (T-M7 / T-M17, the boxed Picard) is a retired export
+    //: since T-4 第八刀 (2026-09-06): the refinement runs inside `code/evolve`.
     'fylite_rs_spitzer_eta_perp',
     'fylite_rs_eped1nn',
     'fylite_rs_geo_surface_gm2', //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
@@ -483,8 +476,6 @@
 
 
 
-
-
   /**
    * `M[i, j]` between two filament SETS — the outer-product block, served
    * without materialising either broadcast.
@@ -628,9 +619,6 @@
 
 
 
-
-
-
   /** `integral f ds` over uniform samples; rule 0 = Simpson, 1 = trapezoid. */
   Fy.prototype.quadrature = function (values, ds, rule) {
     var self = this;
@@ -656,13 +644,6 @@
 
 
 
-
-
-
-
-
-
-
   //: ★★TWO ORDERS, ONE VOCABULARY.  `NEO_DECK_GEOMETRY` (what the entry
   //: returns) and `NEO_SAUTER_SLOTS` (what `neoSauter` reads) name the same
   //: thirteen quantities in DIFFERENT sequences — `Q` and `SHEAR` sit at 4
@@ -674,10 +655,6 @@
   var NEO_DECK_GEOMETRY = [
     'rminOverA', 'rmajOverA', 'zmagOverA', 'sZmag', 'q', 'shear',
     'shift', 'kappa', 'sKappa', 'delta', 'sDelta', 'zeta', 'sZeta'];
-
-
-
-
 
 
 
@@ -734,12 +711,6 @@
 
 
 
-
-
-
-
-
-
   /** Trace one flux surface from a psi map and integrate over it. */
   Fy.prototype.traceSurface = function (o) {
     var self = this, nt = o.nTheta || 181;
@@ -767,7 +738,6 @@
   // run: no density limit, no beta, no q, no flux bill, and — for a machine
   // with no reference shot — no state to start its anneal from.  Every one
   // of them is in the kernel; none of them had a wire.
-
 
 
 
@@ -884,10 +854,6 @@
 
 
 
-
-
-
-
   /**
    * R0 / a / kappa / delta of a closed outline — the kernel's.
    *
@@ -918,10 +884,6 @@
   //: These used to live in physics.js.  They are physics bookkeeping, not
   //: marshalling, so they belong to the one host; what remains here is the
   //: buffer shuffling their C signatures need.
-
-
-
-
 
 
 
@@ -1021,46 +983,11 @@
     });
   };
 
-  /** Poloidal field from a psi map at `n` points -> `{br, bz}` arrays. */
-  Fy.prototype.bField = function (o) {
-    var self = this, n = o.r.length;
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), r = s.put(o.r), z = s.put(o.z),
-          obr = s.zeros(n), obz = s.zeros(n);
-      var rc = self.e.fylite_rs_b_field(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), psi.ptr,
-        r.ptr, z.ptr, BigInt(n), obr.ptr, obz.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_b_field', rc);
-      return { br: s.get(obr), bz: s.get(obz) };
-    });
-  };
-
-  /**
-   * The analytic current over the interior cells.  `mask` is what
-   * `plasmaMaskLim` hands back — non-zero means set, and it stays f64 so
-   * the two entries share one convention.
-   */
-  Fy.prototype.analyticCurrent = function (o) {
-    var self = this, ncell = (o.nr - 2) * (o.nz - 2);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), rof = s.put(o.rOf), m = s.put(o.mask),
-          out = s.zeros(ncell);
-      var rc = self.e.fylite_rs_analytic_current(
-        psi.ptr, BigInt(o.nr), BigInt(o.nz), rof.ptr, o.dr, o.dz, m.ptr,
-        o.psiAxis, o.psiBnd, o.jc, o.beta0, o.emp, o.enp, o.r0, out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_analytic_current', rc);
-      return s.get(out);
-    });
-  };
-
 
   /** One point of a fitted profile. */
   Fy.prototype.profileAt = function (coef, x) {
     return this.profileSample(coef, Float64Array.of(x))[0];
   };
-
-
-
 
 
 
@@ -1081,7 +1008,6 @@
   // every source term that makes the march an ENERGY BALANCE rather than a
   // temperature-shaped diffusion.  The page could therefore only ever show a
   // demo tier, and said so.  Nothing below is new physics: it is the wire.
-
 
 
 
@@ -1124,10 +1050,6 @@
                extrapolation: v[18], worstInput: v[19] | 0 };
     });
   };
-
-
-
-
 
 
 
@@ -1214,10 +1136,6 @@
       return s.get(out);
     });
   };
-
-
-
-
 
 
 
@@ -1347,9 +1265,6 @@
 
 
 
-
-
-
   /** Lin-Liu & Miller trapped fraction from the inverse aspect ratio. */
   Fy.prototype.trappedFractionEps = function (eps) {
     var self = this, n = eps.length;
@@ -1382,10 +1297,6 @@
 
 
 
-
-
-
-
   //: ★the CD-model selector, spelled where the call is.  The index IS the
   //: ABI code (`LH_EFFICIENCY_MODEL_NAMES`), so append, never reorder.
   var LH_CD_MODEL = { fisch: 0 };
@@ -1409,10 +1320,6 @@
   //: space is their own get their own table, and the shared one is the
   //: fallback rather than the assumption.
   var PER_ENTRY = {
-    fylite_rs_transport_step: {
-      '-2': 'err.tr.theta', '-3': 'err.tr.euler', '-4': 'err.tr.pc',
-      '-5': 'err.tr.grid', '-6': 'err.tr.singular', '-20': 'err.tr.neo',
-    },
     //: ★T-C13 — the flux match numbers its own faults, and -6 is the one
     //: worth reading: a singular Newton matrix there means the MODEL FLUX is
     //: insensitive to one of the gradients, which is a statement about the
@@ -1700,7 +1607,7 @@
   /** Bilinear sample of a row-major field; NaN outside the box. */
   /**
    * Bilinear read of a grid field — the KERNEL's (`surfaces::sample`).
-   * Scalar or array, same rule as `bField`.
+   * Scalar or array: a scalar gives back a number, an array an array.
    *
    * ★The out-of-grid answer is NaN, and that convention is why this is one
    * host: a caller that clamped instead would read the boundary node for
@@ -1714,27 +1621,6 @@
       r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
       nr: grid.nr, nz: grid.nz, f: f, r: one ? [r] : r, z: one ? [z] : z });
     return one ? o[0] : o;
-  }
-
-  /** (Br, Bz) from a psi field by central differences [T]. */
-  /**
-   * Poloidal field from a psi map — the KERNEL's (`surfaces::b_field`).
-   *
-   * ★Takes a scalar OR an array.  A scalar gives back numbers, an array
-   * gives back arrays: the two loop call sites sweep a probe or chord list,
-   * and paying an ABI crossing per point to remove a duplicate would be a
-   * poor trade.  The central-difference step (half the smaller cell) is
-   * part of the answer, which is why one host owns it.
-   */
-  function bField(grid, psi, r, z) {
-    if (!KERNEL)
-      throw new Error('FyPhys.bField: no kernel — call FyPhys.useKernel()');
-    var one = typeof r === 'number';
-    var rr = one ? [r] : r, zz = one ? [z] : z;
-    var o = KERNEL.bField({
-      r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-      nr: grid.nr, nz: grid.nz, psi: psi, r: rr, z: zz });
-    return one ? { br: o.br[0], bz: o.bz[0] } : o;
   }
 
   // --- response matrices (wasm kernels) -----------------------------------
@@ -1786,37 +1672,6 @@
 
 
 
-
-
-
-
-
-
-
-  /**
-   * The current distribution a free-boundary solve settled on, rebuilt
-   * from its converged field and the analytic profile it was given (the
-   * ABI returns the field, not the current).  `truth` comes from
-   * analyticTruth() and carries the mask and the normalization j_c.
-   */
-  /**
-   * The analytic current over the interior cells — the KERNEL's
-   * (`surfaces::analytic_current`).  ★This was an `nr*nz` double loop in
-   * JavaScript, the same shape as the vessel test that left in v42.
-   */
-  function fittedCurrentAnalytic(grid, res, prof, truth) {
-    if (!KERNEL)
-      throw new Error('FyPhys.fittedCurrentAnalytic: no kernel — call FyPhys.useKernel()');
-    return KERNEL.analyticCurrent({
-      psi: res.psi, nr: grid.nr, nz: grid.nz, rOf: grid.r,
-      dr: grid.dr, dz: grid.dz, mask: truth.mask,
-      psiAxis: res.psiAxis, psiBnd: res.psiBnd, jc: truth.jc,
-      beta0: prof.beta0, emp: prof.emp, enp: prof.enp, r0: prof.r0 });
-  }
-
-
-
-
   // --- contours ------------------------------------------------------------
 
   /**
@@ -1824,7 +1679,6 @@
    * [r0, z0, r1, z1, ...] pairs; the plots draw segments directly, and
    * the shape metrics only need the point cloud, so no stitching.
    */
-
 
 
 
@@ -1891,10 +1745,6 @@
   //
   // Gauge, once: psi is FULL flux [Wb] with the axis at the maximum, so the
   // per-radian flux is psi/2pi.  x = (psi - psi_a)/(psi_b - psi_a).
-
-
-
-
 
 
 
@@ -1989,7 +1839,6 @@
 
 
 
-
   /**
    * Parametric target boundary (Miller-like) — the KERNEL's
    * (`surfaces::miller_boundary`).
@@ -2027,10 +1876,8 @@
     kernel: kernel,
     makeGrid: makeGrid,
     sample: sample,
-    bField: bField,
     coilPointResponse: coilPointResponse,
     loopResponse: loopResponse,
-    fittedCurrentAnalytic: fittedCurrentAnalytic,
     boundarySurface: boundarySurface,
     surfaceVolume: surfaceVolume,
     li3: li3,

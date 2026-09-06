@@ -55,12 +55,10 @@ __all__ = [
     "zerod_volume", "zerod_evaluate", "zerod_predict",
     "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
     "zerod_limits", "zerod_flux_budget", "zerod_stored_energy",
-    "zerod_averages", "strike_points", "wall_clearance",
-    "start_currents", "fill_filaments", "feedforward_voltages",
-    "TRANSPORT_MODELS", "transport_step", "interpretive_channel",
+    "zerod_averages", "strike_points",     "start_currents", "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
     "trace_surface", "contour", "shape_metrics", "enclosed_volume",
     "direct_integrals", "gradient",
-    "shell_sum", "li3", "q_profile", "profile_shape_fit", "sample",
+    "shell_sum", "li3", "profile_shape_fit", "sample",
     "redl_bootstrap", "trapped_fraction_eps",
     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
@@ -93,15 +91,13 @@ __all__ = [
     "tglf_local", "neo_local", "TGLF_SPECIES_ROWS",
     "neo_geo14", "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
-    "miller_boundary", "b_field", "analytic_current",
-    "sample_grid",
+    "miller_boundary",     "sample_grid",
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "neo_sauter", "dke_solve", "neo_gyrobohm",
     "SAUTER_1999", "REDL_2021",
     "ridge_lstsq", "bounded_lstsq", "profile_fit", "profile_sample",
-    "channel_field", "breakdown_design",
-    "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS", "gs_free_solve",
+    "channel_field",     "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS", "gs_free_solve",
     #: T-D6′ — the same solve on a tabulated (delivered) p'/FF' shape
     "gs_free_solve_tab", "FREE_SOLVE_TAB_KEYS",
     #: T-A5 — the same solve with the coil currents FITTED "INVERSE_COIL_KEYS",
@@ -671,24 +667,6 @@ def strike_points(grid, psi, psi_bnd: float, wall_r, wall_z,
     return out[:2 * n].reshape(-1, 2)
 
 
-_sig("fylite_rs_wall_clearance", [_ARR, _ARR, _U64, _ARR, _ARR, _U64, _ARR],
-     _I32)
-def wall_clearance(bnd_r, bnd_z, wall_r, wall_z) -> dict:
-    """``{gap, r, z}`` — the smallest boundary-to-wall distance [m] and
-    where on the boundary it occurs.  Measured to the wall POLYLINE, not to
-    its vertices: a coarse wall description would otherwise report a gap up
-    to half a segment too large, which is the wrong sign of error for a
-    clearance."""
-    lib = require()
-    br, bz = _f(np.atleast_1d(bnd_r)), _f(np.atleast_1d(bnd_z))
-    wr, wz = _f(np.atleast_1d(wall_r)), _f(np.atleast_1d(wall_z))
-    out = np.empty(3)
-    rc = lib.fylite_rs_wall_clearance(br, bz, br.size, wr, wz, wr.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_wall_clearance returned {rc}")
-    return {"gap": float(out[0]), "r": float(out[1]), "z": float(out[2])}
-
-
 _sig("fylite_rs_fill_filaments", [_ARR, _ARR, _U64, _F64, _U64, _F64, _ARR],
      _I32)
 def fill_filaments(bnd_r, bnd_z, ip: float, *, n_ring: int = 4,
@@ -760,34 +738,6 @@ def start_currents(elements, weights, bnd_r, bnd_z, filaments, *,
             "b_x": None if stats[1] < 0 else float(stats[1]),
             "psi_x_offset": float(stats[2]),
             "at_bound": np.flatnonzero(flags == 1.0)}
-
-
-_sig("fylite_rs_feedforward_voltages",
-     [_ARR, _ARR, _U64, _U64, _ARR, _U64, _ARR, _ARR, _ARR], _I32)
-def feedforward_voltages(m, r, n_ch: int, t, x) -> dict:
-    """The channel voltages a PRESCRIBED current trajectory needs.
-
-    The exact inverse of :func:`evolve_circuits` — same implicit Euler,
-    same interval-end sample — so a design made here and checked there
-    agrees to solver precision rather than to a tolerance.  ``x`` is
-    ``(n_t, n_ch)``; returns ``{v, y}`` with ``v`` the per-channel voltages
-    and ``y`` the passive currents they induce.
-    """
-    lib = require()
-    mm, rr = _f(np.asarray(m)), _f(np.atleast_1d(r))
-    n = rr.size
-    tv = _f(np.atleast_1d(t))
-    xx = _f(np.atleast_2d(x))
-    if xx.shape != (tv.size, int(n_ch)):
-        raise KernelError(f"x is {xx.shape}, expected {(tv.size, int(n_ch))}")
-    v = np.empty(tv.size * int(n_ch))
-    y = np.empty(tv.size * (n - int(n_ch)))
-    rc = lib.fylite_rs_feedforward_voltages(
-        mm.ravel(), rr, n, int(n_ch), tv, tv.size, xx.ravel(), v, y)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_feedforward_voltages returned {rc}")
-    return {"v": v.reshape(tv.size, int(n_ch)),
-            "y": y.reshape(tv.size, n - int(n_ch))}
 
 
 _sig("fylite_rs_zerod_evaluate", ([_ARR] * 5 + [_U64, _ARR, _U64] + [_ARR] * 4), _I32)
@@ -868,99 +818,6 @@ def zerod_predict(t, ip, ne0, p_aux, rho, params: dict, *,
 TRANSPORT_MODELS = {"constant": 0, "stiff": 1, "neoclassical": 2, "given": 3}
 
 
-# the 1.5D transport step.  `model` 2 carries the neoclassical closure,
-# whose five extra blocks are null for models 0 and 1 — declared as
-# `c_void_p` so `None` is a legal argument rather than an ndarray that
-# has to be conjured for a model that ignores it.
-_sig("fylite_rs_transport_step", ( [_ARR, _ARR, _U64, _ARR, _ARR, _ARR, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, _I32] + [_F64] * 3 + [_F64] * 7 + [_U64] + [ctypes.c_void_p] * 2 + [_U64] + [ctypes.c_void_p] * 3 + [_ARR, _ARR]), _I32)
-def transport_step(x, y_old, *, vprime, source, velocity=None,
-                   capacity=None, metric=None, capacity_old=None,
-                   model="constant",
-                   p0: float = 1.0, p1: float = 0.0, p2: float = 0.0,
-                   dt: float = float("inf"), theta: float = 1.0,
-                   edge_value: float | None = None, relax: float = 1.0,
-                   relax_coeff: float = 1.0, d_pc: float = 0.0,
-                   tol: float = 1e-10,
-                   max_inner: int = 200, neo=None, chi_given=None) -> dict:
-    """One theta-implicit finite-volume step of the 1.5-D transport equation.
-
-    ``neo`` (model 2 only) is ``{"surf": (20n,), "ion": (6*nion*n,),
-    "nion": int, "scal5": (5,), "chigb": (n,) or None}``; ``chi_given``
-    (model 3 only) is the per-point diffusivity, held fixed for the whole
-    solve.
-
-    ``capacity_old`` is the capacity at the START of the step — the
-    ``dV'/dt`` term, and the one piece of the standard 1.5-D form this
-    operator could not express.  ``None`` (the default) is "the capacity did
-    not move", and is the same arithmetic bit for bit; the companion half,
-    the label's own motion, is a convection and rides in ``velocity``
-    (:func:`label_drift` builds it).
-
-    ``d_pc`` is the Pereverzev–Corrigan coefficient: it conditions a stiff
-    closure's Picard loop and leaves the converged profile alone (the two
-    artificial terms cancel discretely at the iterate, which the kernel's
-    own gate asserts rather than assumes).
-
-    ``dt = inf`` with ``theta = 1`` is the steady solve.  Returns the new
-    profile plus the inner-iteration count, the converged flag and the
-    residual — a step that stopped at ``max_inner`` says so rather than
-    handing back where it happened to be.
-    """
-    lib = require()
-    x, y_old = _f(x), _f(y_old)
-    n = x.size
-    m = TRANSPORT_MODELS.get(model, model)
-    if m not in TRANSPORT_MODELS.values():
-        raise KernelError(f"unknown closure {model!r}; have "
-                          f"{sorted(TRANSPORT_MODELS)}")
-    vp = _f(vprime)
-    vel = np.zeros(n) if velocity is None else _f(velocity)
-    src = _f(source)
-    cap = None if capacity is None else _f(capacity)
-    met = None if metric is None else _f(metric)
-    cap_old = None if capacity_old is None else _f(capacity_old)
-    if m == 2 and neo is None:
-        raise KernelError("closure 'neoclassical' needs the neo blocks")
-    if m == 3 and chi_given is None:
-        raise KernelError("closure 'given' needs chi_given")
-    surf = ion = scal = chigb = None
-    nion = 0
-    if neo is not None:
-        surf, ion = _f(neo["surf"]), _f(neo["ion"])
-        nion = int(neo.get("nion", 1))
-        scal = _f(neo["scal5"])
-        chigb = None if neo.get("chigb") is None else _f(neo["chigb"])
-    chi = None if chi_given is None else _f(chi_given)
-    out = np.empty(n)
-    info = np.empty(3)
-    rc = lib.fylite_rs_transport_step(
-        x, y_old, n, vp, vel, src,
-        None if cap is None else cap.ctypes.data,
-        None if met is None else met.ctypes.data,
-        None if cap_old is None else cap_old.ctypes.data,
-        int(m), float(p0), float(p1), float(p2), float(dt), float(theta),
-        float("nan") if edge_value is None else float(edge_value),
-        float(relax), float(relax_coeff), float(d_pc),
-        float(tol), int(max_inner),
-        None if surf is None else surf.ctypes.data,
-        None if ion is None else ion.ctypes.data, nion,
-        None if scal is None else scal.ctypes.data,
-        None if chigb is None else chigb.ctypes.data,
-        None if chi is None else chi.ctypes.data,
-        out, info)
-    if rc != 0:
-        raise KernelError(
-            f"fylite_rs_transport_step returned {rc}"
-            + (" — the neoclassical map refused a surface, which during an "
-               "iteration means the temperature there reached zero or below"
-               if rc == -20 else ""))
-    return {"y": out, "inner_iterations": int(info[0]),
-            "converged": bool(info[1]), "residual": float(info[2])}
-
-
-# --------------------------------------------------------------------------- #
-# flux-surface geometry (surfaces.rs)
-# --------------------------------------------------------------------------- #
 _sig("fylite_rs_trace_surface", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 3 + [_ARR, _ARR, _U64, _U64, _ARR, _ARR]), _I32)
 def trace_surface(grid: Grid, psi, level, *, axis, limiter, n_theta: int = 181):
     """Ray-trace one flux surface and integrate over it.
@@ -1140,45 +997,6 @@ def to_uniform_extrap(x, y, n: int):
     return out
 
 
-_sig("fylite_rs_q_profile", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 4 + [_ARR, _ARR, _U64] + [_ARR, _ARR, _U64] + [_U64, _U64] + [_F64, _F64] + [_ARR, _ARR]), _I32)
-def q_profile(grid: Grid, psi, *, psi_axis: float, psi_bnd: float, axis,
-              limiter, f_x, f_val, n_q: int = 12, n_theta: int = 181,
-              x_lo: float = 0.02, x_hi: float = 0.95) -> dict:
-    """Safety factor on a ladder of traced surfaces.
-
-    ``f_x``/``f_val`` give F on the normalised flux label (a profile rather
-    than a callback: a callback cannot cross the ABI, and every caller has a
-    profile anyway).  ``q0`` is a linear extrapolation to the axis from the
-    innermost traced pair and ``q95`` an interpolation at 0.95 — both are
-    CONVENTIONS, stated by the kernel so two callers do not produce two
-    incomparable q0s; they come back NaN when fewer than two surfaces
-    traced.
-    """
-    lib = require()
-    psi = _f(psi)
-    if psi.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi has shape {psi.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    lr, lz = _f(limiter[0]), _f(limiter[1])
-    fx, fv = _f(f_x), _f(f_val)
-    out = np.empty(2 * int(n_q))
-    info = np.empty(3)
-    rc = lib.fylite_rs_q_profile(*grid.args, psi.ravel(), float(psi_axis),
-                                 float(psi_bnd), float(axis[0]),
-                                 float(axis[1]), lr, lz, lr.size,
-                                 fx, fv, fx.size, int(n_q), int(n_theta),
-                                 float(x_lo), float(x_hi), out, info)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_q_profile returned {rc}")
-    n = int(info[0])
-    return {"x": out[:n].copy(), "q": out[int(n_q):int(n_q) + n].copy(),
-            "q0": float(info[1]), "q95": float(info[2])}
-
-
-# --------------------------------------------------------------------------- #
-# the neutral beam (beams.rs)
-# --------------------------------------------------------------------------- #
-#: The two stopping models, and the two readings of the impurity fits.
 BEAM_STOPPING_MODELS = {"janev": 0, "metis": 1}
 IMPURITY_FORMS = {"exp": 0, "metis": 1}
 
@@ -2836,58 +2654,6 @@ def sample_grid(grid, f, r, z):
     return out
 
 
-_sig("fylite_rs_b_field", [_F64] * 4 + [_U64] * 2 + [_ARR] * 3 + [_U64, _ARR, _ARR], _I32)
-def b_field(grid, psi, r, z):
-    """Poloidal field from a psi map: ``(B_r, B_z)`` at each ``(r, z)``.
-
-    ``B_r = -(dpsi/dz)/(2 pi r)``, ``B_z = (dpsi/dr)/(2 pi r)``, central
-    differences taken at HALF the smaller cell size.  ★That step is part of
-    the answer, not an implementation detail — which is why one host owns
-    it rather than each caller choosing its own.
-    """
-    lib = require()
-    r_a, z_a = _f(np.atleast_1d(r)), _f(np.atleast_1d(z))
-    if r_a.size != z_a.size:
-        raise KernelError("b_field: r and z differ in length")
-    psi_a = _f(psi)
-    obr, obz = np.empty(r_a.size), np.empty(r_a.size)
-    rc = lib.fylite_rs_b_field(*_grid6(grid), psi_a.ravel(), r_a, z_a,
-                               r_a.size, obr, obz)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_b_field returned {rc}")
-    return obr, obz
-
-
-_sig("fylite_rs_analytic_current", [_ARR] + [_U64] * 2 + [_ARR] + [_F64] * 2 + [_ARR] + [_F64] * 7 + [_ARR], _I32)
-def analytic_current(psi, r_of, mask, *, grid: dict, psi_axis: float,
-                     psi_bnd: float, jc: float, beta0: float, emp: float,
-                     enp: float, r0: float):
-    """The analytic current over the interior cells, as ``(nr-2, nz-2)``.
-
-    ``mask`` is a plasma mask over the grid — ★the ``plasma_mask_lim``
-    this named is gone; build one from the limiter with
-    :func:`fylite.device.psin_map`.  The
-    normalised flux is CLAMPED to ``[0, 1]`` before the shape is evaluated;
-    without that the outer cells raise a negative base to a fractional power
-    and the whole distribution goes NaN at once.
-    """
-    lib = require()
-    _, _, gdr, gdz, nr, nz = _grid6(grid)
-    ncell = (nr - 2) * (nz - 2)
-    #: non-zero means set — the convention `plasma_mask_lim` hands back
-    m = _f(np.asarray(mask).ravel())
-    if m.size != ncell:
-        raise KernelError(f"analytic_current: mask is {m.size}, want {ncell}")
-    out = np.empty(ncell)
-    rc = lib.fylite_rs_analytic_current(
-        _f(psi).ravel(), nr, nz, _f(r_of), gdr, gdz,
-        m, float(psi_axis), float(psi_bnd), float(jc),
-        float(beta0), float(emp), float(enp), float(r0), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_analytic_current returned {rc}")
-    return out.reshape(nr - 2, nz - 2)
-
-
 def _species_arrays(species, n: int):
     """The six-or-eight parallel species arrays, each truncated to ``n``."""
     return [_f(np.asarray(v, float).ravel()[:n]) for v in species]
@@ -4087,10 +3853,6 @@ def scenario(entry: str, *, params: dict | None = None,
     return got
 
 
-
-
-
-
 _sig("fylite_rs_alpha_heating", [_ARR] * 3 + [_U64] + [_F64] * 3 + [_ARR],
      _I32)
 def alpha_heating(*, ne, te, ti_kev, dt_fraction: float = 0.5,
@@ -4469,7 +4231,7 @@ def label_drift(rho, *, b0: float, b0_dot: float):
     """``rho_dot|_Φ = −(ρ/2)(Ḃ₀/B₀)`` — how fast a FIXED surface's label moves.
 
     The ``B₀``-ramp half of the moving-metric pair.  A caller carries the
-    term by adding ``−rho_dot`` to :func:`transport_step`'s ``velocity``
+    term by adding ``−rho_dot`` to the transport step's ``velocity``
     (the operator already carries convections); the other half, ``dV'/dt``,
     is ``capacity_old``.
 
@@ -4758,8 +4520,6 @@ def deltastar_apply(grid_r, grid_z, psi):
     return out.reshape(rg.size, zg.size)
 
 
-
-
 FREE_SOLVE_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                    "residual", "bnd_kind", "xpt_r", "xpt_z", "fb_amp",
                    "zc", "verdict")
@@ -4903,15 +4663,6 @@ def gs_free_solve_tab(grid_r, grid_z, psi_ext, *, x, pprime, ffprime,
     return res
 
 
-#: ★ADDED 2026-08-23 (T-M7).  The boxed fixed-boundary solve — the axis
-#: searched only where the plasma already is, the plasma taken by
-#: connectivity.  `fylite_rs_gs_fixed_solve` next door searches the whole
-#: rectangle and takes the threshold set `0 <= psibar < 1`, which is right
-#: on a machine grid and wrong on a box cut around one plasma.
-_sig("fylite_rs_gs_fixed_box",
-     ([_ARR, _U64, _ARR, _U64] + [_F64] * 2 + [_ARR] + [_F64] * 4
-      + [_VOID, _VOID, _U64, _VOID, _U64, _ARR, _U64, _F64, _ARR, _U64,
-         _F64, _F64, _U64, _F64, _U64, _F64, _ARR]), _I32)
 #: ★T-M17: the same solve under an I_p constraint — one extra f64 (the
 #: target) before the out buffer, out8 instead of out6
 _sig("fylite_rs_geo_surface", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
@@ -5027,81 +4778,6 @@ def channel_field(elems, weights, pr, pz, *, nu: int = 3, nv: int = 3):
             bz.reshape(npts, nch))
 
 
-_sig("fylite_rs_breakdown_design", ([_ARR] * 6 + [_U64, _ARR, _U64] + [_F64] * 3 + [_U64, _U64] + [_F64] * 5 + [_VOID, _VOID] + [_U64, _U64] + [_ARR] * 3 + [_VOID]), _I32)
-def breakdown_design(elems, weights, *, r0: float, z0: float = 0.0,
-                     radius: float = 0.3, n_ring: int = 4, n_theta: int = 16,
-                     b_tol: float = 2.0e-3, flux_target=None,
-                     weight_null: float = 1.0, weight_flux: float = 1.0,
-                     lam: float = 1e-12, x_ref=None, i_max=None,
-                     nu: int = 3, nv: int = 3, disc: bool = True) -> dict:
-    """A whole field-null design, from the conductor geometry.
-
-    Samples the judging disc, evaluates the coils' response on it, folds it
-    onto channels, assembles the scaled rows, solves under the per-channel
-    box, and reports what the answer ACHIEVES: ``b_max``/``b_rms``/
-    ``b_centre`` over the disc and the flux delivered at its centre.
-
-    ★★The whole chain is one call because it is one statement.  The disc
-    says over what region, the row scaling says what "at tolerance" means in
-    two different units, the box says what the supplies can do, and
-    ``b_max`` is the criterion the answer is judged by.  Split across hosts,
-    each half looks right and the design is wrong in the seam — this repo
-    measured a browser page 3e-2 from the native answer while both of its
-    borrowed halves were exact.
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    ne = ea[0].size
-    #: ★``weights`` is the ``(n_channel, n_element)`` map, as at every other
-    #: host-side entry; the wire format is its transpose (see
-    #: :func:`channel_field`, which this shares a Rust fold with)
-    w_map = np.atleast_2d(np.asarray(weights, float))
-    if w_map.shape[1] != ne:
-        raise KernelError(f"weights has {w_map.shape[1]} columns, expected "
-                          f"{ne} (one per element); the map is "
-                          f"(n_channel, n_element)")
-    nch = w_map.shape[0]
-    wt = _f(w_map.T)
-    x_ref_a = None if x_ref is None else _f(np.atleast_1d(x_ref))
-    i_max_a = None if i_max is None else _f(np.atleast_1d(i_max))
-    out, flags, stats = np.empty(nch), np.empty(nch), np.empty(4)
-    npts = 1 + int(n_ring) * int(n_theta)
-    disc_a = np.empty(3 * npts) if disc else None
-    rc = lib.fylite_rs_breakdown_design(
-        *ea, ne, wt.ravel(), nch, float(r0), float(z0), float(radius),
-        int(n_ring), int(n_theta), float(b_tol),
-        float("nan") if flux_target is None else float(flux_target),
-        float(weight_null), float(weight_flux), float(lam),
-        None if x_ref_a is None else x_ref_a.ctypes.data,
-        None if i_max_a is None else i_max_a.ctypes.data,
-        int(nu), int(nv), out, flags, stats,
-        None if disc_a is None else disc_a.ctypes.data)
-    if rc == -3:
-        raise KernelError(
-            "breakdown design did not converge: the box-constrained solve "
-            "ran out of iterations, so these currents are the last step of "
-            "a descent rather than a design.  Loosen the box, raise lambda, "
-            "or ask for a weaker null.")
-    if rc < 0:
-        raise KernelError(f"fylite_rs_breakdown_design returned {rc}")
-    res = {"aturns": out, "flags": flags.astype(int), "iterations": int(rc),
-           "b_max": float(stats[0]), "b_rms": float(stats[1]),
-           "b_centre": float(stats[2]), "flux_Wb": float(stats[3]),
-           "at_bound": np.flatnonzero(flags == 1).tolist(),
-           "over": np.flatnonzero(flags == 2).tolist()}
-    if disc_a is not None:
-        rows = disc_a.reshape(-1, 3)
-        res["disc"] = (rows[:, 0].copy(), rows[:, 1].copy())
-        res["b_pol"] = rows[:, 2].copy()
-    return res
-
-
-# --------------------------------------------------------------------------- #
-# Raw entries reached only by tests (no wrapper here): declared so that
-# `load()` / `require()` hand back a library whose signatures are complete,
-# and a test calling `lib.fylite_rs_xxx(...)` directly never marshals an
-# undeclared count as a bare 32-bit int.
-# --------------------------------------------------------------------------- #
 _sig("fylite_rs_gs_fixed_solve", [_ARR, _U64, _ARR, _U64, _ARR, _F64, _ARR, _U64, _ARR, _U64, _F64, _U64, _F64, _ARR], _I32)
 _sig("fylite_rs_eigen", [_ARR, _ARR, _U64, _I32, _ARR, _ARR, _ARR, _ARR], _I32)
 # the closure's own chi profile, so a caller can draw what it solved

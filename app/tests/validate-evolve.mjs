@@ -436,57 +436,15 @@ for d in json.load(sys.stdin):
         rec["refine_pp0"] = float(pol(cpp, 0.0))
         rec["refine_ff0"] = float(pol(cff, 0.0))
 
-        # --- the WHOLE Picard, re-run natively (T-M7) --------------------
+        # --- the WHOLE Picard (T-M7) ------------------------------------
         #
-        # ★★The Delta* re-solve above checks the field against the equation;
-        # this checks the LOOP.  The refinement's axis rule and plasma rule
-        # are the kernel's now (\`fylite_rs_gs_fixed_box\`), so a second host
-        # can run the same loop on the same box: the border, the source
-        # coefficients, the gauge the file declares and the axis it reports
-        # as the seed.  The page's field must be that loop's FIXED POINT —
-        # start it there and it comes straight back.
-        #
-        # ★And this is the assertion T-M7 exists for.  The rule it replaced
-        # took the interior extremum FARTHEST from psi_b over the whole
-        # rectangle, which on this box is a corner: an entry still carrying
-        # that rule would come back with an axis on the border ring and a
-        # field orders away, not with the page's.  So the axis is checked
-        # against the corner as well as against the page.
-        try:
-            #: ★T-M17: the re-run holds the same I_p the page's solve held —
-            #: the file declares the target.  Without it the loop is a
-            #: DIFFERENT dynamical system (the unconstrained one), whose
-            #: transients on a separatrix-bounded field run away from the
-            #: very fixed point being checked.
-            tgt = rf.get("fylite:ip_target")
-            bx = K.gs_fixed_box(
-                rr, zz, psi, psi_boundary=pb, sign_axis=sgn,
-                seed_r=float(rf["fylite:axis_r"]),
-                seed_z=float(rf["fylite:axis_z"]),
-                pprime=cpp, ffprime=cff, limiter_r=lr, limiter_z=lz,
-                gauge=2.0 * np.pi, dilate=2, relax=0.5, max_iter=600,
-                tol=1e-9,
-                ip_target=None if tgt is None else float(tgt))
-            rec["box_ok"] = True
-            rec["box_iterations"] = bx["iterations"]
-            rec["box_psi_rel"] = float(
-                np.abs(bx["psi"] - psi).max() / abs(pb - pa))
-            rec["box_ip_rel"] = abs(bx["ip"] - float(rf["fylite:ip"])) \
-                / max(abs(float(rf["fylite:ip"])), 1.0)
-            rec["box_axis_dr"] = abs(bx["axis_r"]
-                                     - float(rf["fylite:axis_r"]))
-            rec["box_axis_dz"] = abs(bx["axis_z"]
-                                     - float(rf["fylite:axis_z"]))
-            #: how far the axis it found sits from the nearest box edge, in
-            #: cells — the whole-rectangle rule would put it at 1
-            dcell = min((bx["axis_r"] - rr[0]) / (rr[1] - rr[0]),
-                        (rr[-1] - bx["axis_r"]) / (rr[1] - rr[0]),
-                        (bx["axis_z"] - zz[0]) / (zz[1] - zz[0]),
-                        (zz[-1] - bx["axis_z"]) / (zz[1] - zz[0]))
-            rec["box_axis_cells_in"] = float(dcell)
-        except Exception as e:                      # noqa: BLE001
-            rec["box_ok"] = False
-            rec["box_why"] = str(e)[:200]
+        # ★Until T-4 第八刀 (2026-09-06) this block handed the same box to
+        # the flat \`fylite_rs_gs_fixed_box\` and asked for the fixed point.
+        # That export is retired: the loop (\`eq::solve_fixed_box\`) runs
+        # inside \`code/evolve\`, and the kernel repository's
+        # \`tests/test_evolve_code.py\` holds the refinement there.  The
+        # Delta* re-solve above still checks the field against the equation.
+        rec["box_ok"] = None
 
     # --- the march itself, RE-RUN through the KERNEL'S OWN LOOP ---------
     #
@@ -807,34 +765,9 @@ console.log('\n定形边界回灌');
           `${c.name}：原生重算的 I_p 就是页面报的那个`,
           `${(r.refine_ip / 1e3).toFixed(2)} kA，相对差 `
           + `${r.refine_ip_rel.toExponential(2)}`);
-      //: ★★T-M7: the LOOP is the kernel's, and this says so from outside.
-      //: `fylite_rs_gs_fixed_box` is handed the same box and asked to run
-      //: the whole Picard; the page's field has to be its fixed point.
-      say(r.box_ok === true, `${c.name}：内核的定形回灌能在这个子框上跑`,
-          r.box_ok ? `${r.box_iterations} 轮` : (r.box_why || ''));
-      if (r.box_ok) {
-        //: ★the closure criterion itself: the axis is found INSIDE the box
-        //: and not on it.  The rule this replaced takes the interior
-        //: extremum farthest from psi_b over the whole rectangle, which on
-        //: a box cut around a plasma is the corner one cell in.
-        say(r.box_axis_cells_in > 4,
-            `${c.name}：找轴落在框里，不在框角上`,
-            `离最近的框边 ${r.box_axis_cells_in.toFixed(1)} 格`);
-        say(r.box_axis_dr < 1e-6 && r.box_axis_dz < 1e-6,
-            `${c.name}：内核找到的轴就是页面报的那个轴`,
-            `Δ ${r.box_axis_dr.toExponential(1)} / `
-            + `${r.box_axis_dz.toExponential(1)} m`);
-        //: ★the tolerance and its source: the loop is started AT the page's
-        //: field, so what it can move by is its own stopping tolerance
-        //: (1e-9 of the span) plus the file's 12 significant digits — and
-        //: the field it re-solves from is a 7-digit-free copy of the page's
-        //: own.  1e-6 is three orders above that.
-        say(r.box_psi_rel < 1e-6,
-            `${c.name}：页面交出来的那张场就是内核这圈 Picard 的不动点`,
-            `逐点 ${r.box_psi_rel.toExponential(2)}（除以磁通跨度）`);
-        say(r.box_ip_rel < 1e-6, `${c.name}：内核这圈算出的 I_p 也是那个`,
-            `相对差 ${r.box_ip_rel.toExponential(2)}`);
-      }
+      //: ★T-M7's outside check of the LOOP (the flat `gs_fixed_box` run on
+      //: the page's box) left with that export in T-4 第八刀 (2026-09-06);
+      //: the loop is `code/evolve`'s and is held in the kernel repository.
     } else {
       //: T-M17 closed: a case with a refined block MUST carry its sub-box,
       //: and the unconditional assertion above already failed if none ran —

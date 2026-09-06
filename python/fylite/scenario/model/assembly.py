@@ -402,7 +402,7 @@ def solve_te_ti(
         q = −V' ⟨|∇ρ|²⟩ n χ ∂T/∂ρ
 
     mapped onto the kernel's two-weight FVM operator
-    (:func:`fylite.kernel.transport_step`) with capacity C = (3/2) V' n,
+    (the kernel's ``transport_step``, oracle-only since T-4 第八刀) with capacity C = (3/2) V' n,
     flux metric M = V' ⟨|∇ρ|²⟩ n, D = χ [m²/s] and
     C·S = V'·Q (T in eV, Q in W/m³).
 

@@ -103,7 +103,6 @@ self.FyKernelAbi = {
   'fylite_rs_gfile_profile': { a: ['in_f64', 'in_f64', 'u64', 'f64', 'out_f64'], r: 'i32' },
   'fylite_rs_gradient': { a: ['in_f64', 'in_f64', 'u64', 'i32', 'f64', 'out_f64'], r: 'i32' },
   'fylite_rs_grid_response': { a: ['in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'u64', 'in_f64', 'u64', 'in_f64', 'u64', 'u64', 'u64', 'out_f64'], r: 'i32' },
-  'fylite_rs_gs_fixed_box': { a: ['in_f64', 'u64', 'in_f64', 'u64', 'f64', 'f64', 'out_f64', 'f64', 'f64', 'f64', 'f64', 'in_f64', 'in_f64', 'u64', 'in_f64', 'u64', 'in_f64', 'u64', 'f64', 'in_f64', 'u64', 'f64', 'f64', 'u64', 'f64', 'u64', 'f64', 'out_f64'], r: 'i32' },
   'fylite_rs_gs_fixed_solve': { a: ['in_f64', 'u64', 'in_f64', 'u64', 'out_f64', 'f64', 'in_f64', 'u64', 'in_f64', 'u64', 'f64', 'u64', 'f64', 'out_f64'], r: 'i32' },
   'fylite_rs_gs_free_solve': { a: ['in_f64', 'u64', 'in_f64', 'u64', 'in_f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'in_f64', 'in_f64', 'u64', 'f64', 'f64', 'u64', 'f64', 'f64', 'f64', 'f64', 'in_f64', 'out_f64', 'out_f64'], r: 'i32' },
   'fylite_rs_gs_free_solve_tab': { a: ['in_f64', 'u64', 'in_f64', 'u64', 'in_f64', 'in_f64', 'in_f64', 'in_f64', 'u64', 'f64', 'in_f64', 'in_f64', 'u64', 'f64', 'f64', 'u64', 'f64', 'f64', 'f64', 'f64', 'in_f64', 'out_f64', 'out_f64'], r: 'i32' },

@@ -2880,7 +2880,8 @@ var tglf = null;
  *
  * ★★THE LOOP IS IN THE KERNEL NOW (T-M7), and what moved is the whole of
  * it: the axis rule, the flood fill, the source assembly and the Picard.
- * `fylite_rs_gs_fixed_box` takes the two rules this page had to keep in
+ * The kernel's `eq::solve_fixed_box` (inside `code/evolve` since T-4 第八刀;
+ * the flat `fylite_rs_gs_fixed_box` is retired) takes the two rules this page had to keep in
  * JavaScript — an axis searched inside a dilation of the previous plasma
  * ("the axis is a continuous object; it does not teleport") and a plasma
  * taken by CONNECTIVITY rather than by the threshold `0 <= psibar < 1` —
