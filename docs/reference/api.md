@@ -71,10 +71,9 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `scenario.control.*` | `stability`（n=0 垂直模）· `vertical`（线性化对象与反馈回路）· `evolution`（电压驱动自由边界演化） |
 | `scenario.design.*` | `shape`（形状观测量与响应矩阵）· `pulse`（前馈轨迹、通道限值、带界最小二乘） |
 
-★`scenario.model.neoclassical` 是**全部**新经典自举流的一处：`neo` 与 `redl` 两个
-`current_source` 后端都在这里，算的是同一个 DD 量（`core_sources` `bootstrap_current`，
-index 13）、同一份内核文件。一次 NEO 调用同时返回三支电流，**选哪一支是 `key=` 不是模型**
-（`solver="neo", key="jpar_sauter_2021"`）。
+★`scenario.model.neoclassical` **已迁出本包**（T-4 第十五刀 · 第十八刀，2026-09-06）：`neo` 与 `redl` 两个
+`current_source` 后端连同外环一起在内核仓的神谕树 `tests/oracles/{neoclassical,redl}.py`，算的仍是同一个 DD 量
+（`core_sources` `bootstrap_current`，index 13）、同一份内核文件；页面与 Python 的自举闭合走 `code/transport` 门。
 ★`scenario.model.gyrofluid` 是 TGLF 那一个——同级 `__init__` 里有名为 `tglf` 的能力函数，
 **同名模块会被它遮住**。
 

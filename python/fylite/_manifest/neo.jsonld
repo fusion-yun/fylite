@@ -20,6 +20,8 @@
   },
   "fylite:generated": "2026-08-01T00:00:00Z",
   "fylite:entry": "fylite.scenario.model.neoclassical:bootstrap",
+  "fylite:executable": false,
+  "fylite:executable_note": "Not callable in this distribution since 2026-09-06 (T-4 第十八刀): the entry is the per-surface, deck-shaped `bootstrap(species, rmin_over_a, …)` — the flat face the fyo ruling retires — and the module that carried it (`scenario.model.neoclassical`) moved to the kernel repository's oracle tree (`tests/oracles/neoclassical.py`) with the self-consistent loop. The same NEO physics is reached through the `transport` capability (`code/transport`, closure \"neoclassical\"), which takes and returns fyo documents. The artifact stays in the catalog as the record of the NEO port; it leaves the tool face; the entry string is kept as the historical binding.",
   "fylite:acceptance": {
     "@note": "★the drift-kinetic solve reports no self-assessment: the backend either returns a bootstrap current or raises. A criterion would have to compare against the Sauter/Redl baselines the result already carries beside it, and「how far apart is too far」is an open physics question in this repo (the standalone branch is a measured ~5.4x in MAGNITUDE — see `test_bootstrap_units.py`), not a number to invent here.",
     "jpar_dke": {

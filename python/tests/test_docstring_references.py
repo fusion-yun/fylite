@@ -160,7 +160,7 @@ def test_the_scan_can_tell_a_live_reference_from_a_dead_one():
     assert _resolves_locally(PKG / "fyo.py", "ValueError")
     assert not _resolves_locally(PKG / "fyo.py", "no_such_local_name")
     assert _resolves("fylite.scenario.analysis.moments")
-    assert _resolves("fylite.kernel.neo_sauter")
+    assert _resolves("fylite.kernel.interp")
     assert not _resolves("fylite.loop")               # moved to scenario.analysis
     assert not _resolves("fylite.fyo.Ladder.no_such_method")
     assert not _resolves("fylite.no_such_module")

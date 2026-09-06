@@ -85,8 +85,7 @@
     //: rebuild the CGS normalisation itself, which is the one layer whose
     //: errors do not raise.  Listed together so a build carrying only one
     //: of them fails at load rather than at the first surface.
-    'fylite_rs_neo_sauter',
-    //: ★the interpretive direction, and the ADAS table that makes the
+        //: ★the interpretive direction, and the ADAS table that makes the
     //: radiation a total rather than a bremsstrahlung estimate.  Listed so
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.

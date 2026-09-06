@@ -284,8 +284,8 @@ $ix=1$（$\sqrt2v_{th}e05\frac{Z_s}{T_s}E_{\parallel0}B/\expval{B^2}$）、$ix=2
 
 | 内容 | 结果落在 fyo 的哪里 | Python 入口 |
 | :--- | :--- | :--- |
-| NEO 解析族（六档） | `fyo:core_profiles`：自举电流密度 | `scenario.model.neoclassical.bootstrap` |
-| Redl 剖面模型（SI） | 同上，另出捕获份额等中间量 | `neoclassical.bootstrap_profile` |
+| NEO 解析族（六档） | `fyo:core_profiles`：自举电流密度 | 内核仓 `tests/oracles/neoclassical.py`（原 `scenario.model.neoclassical.bootstrap`，T-4 第十八刀迁出） |
+| Redl 剖面模型（SI） | 同上，另出捕获份额等中间量 | 内核仓 `tests/oracles/redl.py`（原 `neoclassical.bootstrap_profile`，T-4 第十五刀迁出） |
 | 新经典电导率与并行↔环向换算 | `fyo:core_profiles`：$\sigma_\parallel$、$\langle j\cdot B\rangle$ | 内核仓 `tests/oracles/loop.py`（自举回灌，{ref}`phys03-rows-fsa`；T-4 第十五刀起） |
 | Chang–Hinton 离子热扩散率 | `fyo:core_transport`：新经典 $\chi_i$ | 内核仓 `tests/oracles/closure.py`（T-4 第十五刀起） |
 | 漂移动理方程解（DKE） | `fyo:core_transport`：第一性原理的新经典通量 | `fylite.kernel.dke_solve` |

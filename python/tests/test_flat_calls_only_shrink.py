@@ -38,7 +38,6 @@ BASELINE = {
     'scenario/model/gyrofluid.py': 8,
     'scenario/model/lh.py': 0,   # 第十七刀 (2026-09-06)：慢化/共振包装迁入内核仓神谕树
     'scenario/model/nbi.py': 0,   # 第十七刀 (2026-09-06)：慢化/共振包装迁入内核仓神谕树
-    'scenario/model/neoclassical.py': 4,   # 第十五刀：Redl 半边（surface_inputs · bootstrap_profile · RedlSource）迁入内核仓神谕树
     'scenario/waveform.py': 2,
 }
 

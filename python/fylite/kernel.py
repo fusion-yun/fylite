@@ -67,12 +67,12 @@ __all__ = [
     "reintegrate", "flux_match", "FluxMatchError",
     "adas_id",     "volume_int",
     "SURFACE_KEYS", "surface_block",     "TGLF_SPECIES_ROWS",
-    "neo_geo14", "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
+    "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
     "TGLF_DECK_SPECIES",
     "miller_boundary",     "sample_grid",
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
-    "neo_sauter", "dke_solve",     "SAUTER_1999", "REDL_2021",
+    "dke_solve",     "SAUTER_1999", "REDL_2021",
     "ridge_lstsq", "bounded_lstsq", "channel_field", "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS",
     #: T-A5 — the same solve with the coil currents FITTED
     "INVERSE_COIL_KEYS", "INVERSE_KEYS", "INVERSE_FSA_KEYS",
@@ -1605,55 +1605,6 @@ SAUTER_1999, REDL_2021 = 0, 1
 HIRSHMAN_SIGMAR_VINTAGE = 4
 
 
-# the trailing i32 before `out` is the coefficient vintage
-# (0 = Sauter 1999, 1 = Redl 2021)
-def neo_geo14(geometry: dict, *, n_theta: int = 17):
-    """``geo14`` for :func:`neo_sauter` / :func:`dke_solve`, in the SLOT order.
-
-    ★★Built from :data:`NEO_SAUTER_SLOTS`, never by hand.  That block shares
-    its vocabulary with the NEO deck and differs in sequence — ``Q`` and
-    ``SHEAR`` are slots 2 and 3 here and 4 and 5 in the deck.  Packing a deck
-    in the block's place produced fluxes 200x out, and it read as a physics
-    disagreement rather than a transposition: every value finite, ordered and
-    plausible.
-
-    ``geometry`` is what ``neo_local`` (oracle-only since T-4 第十六刀) returns under that key (deck
-    names); missing slots are zero, and ``N_THETA`` comes from the argument
-    because it is a resolution knob rather than geometry.
-    """
-    g = dict(geometry)
-    g.setdefault("N_THETA", float(n_theta))
-    return _f([float(g.get(name, 0.0)) for name in NEO_SAUTER_SLOTS])
-
-
-_sig("fylite_rs_neo_sauter", ([_ARR] * 6 + [_U64, _ARR] + [_F64] * 4 + [_I32, _I32, _I32, _ARR]), _I32)
-def neo_sauter(species, geo14, *, nu_1: float, rho_star: float = 0.001,
-               dphi0dr: float = 0.0, epar0: float = 0.0, ipccw: int = -1,
-               btccw: int = -1, vintage: int = SAUTER_1999):
-    """NEO's ANALYTIC neoclassical currents on one surface — six values
-    ``[jpar, jtor, kpar, uparB, ftrap, i_div_psip]``.
-
-    ``vintage`` picks the coefficient set: :data:`SAUTER_1999` or
-    :data:`REDL_2021` (NEO's ``compute_Sauter_mod``).  ★The two are
-    separate solves of the same geometry, which is what makes comparing
-    them apples-to-apples.
-    """
-    lib = require()
-    arrs = _species_arrays(species, len(np.asarray(species[0]).ravel()))
-    ns = arrs[0].size
-    g = _f(np.reshape(geo14, 14))
-    out = np.empty(6)
-    rc = lib.fylite_rs_neo_sauter(*arrs, ns, g, float(nu_1),
-                                  float(rho_star), float(dphi0dr),
-                                  float(epar0), int(ipccw), int(btccw),
-                                  int(vintage), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_neo_sauter returned {rc}")
-    return out
-
-
-# the drift-kinetic solve: species arrays, 13 Miller parameters, the
-# three grid sizes, then nu_1 / rho_star / dphi0dr / epar0
 _sig("fylite_rs_dke_solve", ([_ARR] * 6 + [_U64, _ARR] + [_U64] * 3 + [_F64] * 4 + [_ARR, _U64]), _I32)
 def dke_solve(species, geo13, *, n_energy: int, n_xi: int, n_theta: int,
               nu_1: float, rho_star: float = 0.001, dphi0dr: float = 0.0,

@@ -133,7 +133,7 @@ def read_input_gacode(path) -> dict:
 #: given for keeping it in the package — "a namelist run is a recording by
 #: nature" — is the reason it is not package code: a recording is a FIXTURE.
 #: Nothing in ``fylite`` called it; every caller was a test.  The port is
-#: :func:`fylite.scenario.model.neoclassical.bootstrap`, which takes a species
+#: ``oracles.neoclassical.bootstrap`` (the kernel repository, since T-4 第十八刀), which takes a species
 #: list, because a namelist is the shape of the thing that is gone.
 #:
 #: What stays here is the ``input.gacode`` READER, which is a live format this

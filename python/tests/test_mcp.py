@@ -148,11 +148,14 @@ def test_llm_tools_reflect_entry_signatures():
     tools = {t["name"]: t for t in engine.llm_tools()}
     assert set(tools) == {f"fylite_{n}" for n, d in engine.load_manifests().items()
                           if d.get("fylite:executable") is not False}
-    neo = tools["fylite_neo"]["input_schema"]
-    assert "species" in neo["properties"]
-    assert "species" in neo["required"]           # no default in the signature
-    assert "shift" not in neo.get("required", []) # has a default
-    assert "fyo:core_profiles" in tools["fylite_neo"]["description"]
+    #: `fylite_neo` was the example until T-4 第十八刀 (2026-09-06) took its entry
+    #: off the tool face (see the manifest's executable_note); `fylite_vstab`
+    #: has the same shape — two required parameters, the rest defaulted
+    vstab = tools["fylite_vstab"]["input_schema"]
+    assert "eq" in vstab["properties"]
+    assert "eq" in vstab["required"]               # no default in the signature
+    assert "coarsen" not in vstab.get("required", [])  # has a default
+    assert "fyo:equilibrium" in tools["fylite_vstab"]["description"]
 
 
 def test_reflected_schemas_carry_types():
