@@ -32,7 +32,7 @@ DOORS = {"scenario", "grid_of", "require_data", "load", "abi_version"}
 BASELINE = {
     'device.py': 1,
     'fyo.py': 2,   # 第二十一刀 (2026-09-06)：a_minor 走 code/shape
-    'scenario/control/stability.py': 1,
+    #: 'scenario/control/stability.py' — clean since 第二十五刀 (2026-09-06): coupling_gradient moved with code/vstab's loop rows
     'scenario/design/__init__.py': 0,   # 第二十刀 (2026-09-06)：target_boundary 走 code/outlines
     'scenario/model/__init__.py': 0,
     'scenario/model/gyrofluid.py': 8,

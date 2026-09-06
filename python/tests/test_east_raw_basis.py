@@ -54,22 +54,19 @@ pytestmark = pytest.mark.skipif(
 def shot():
     """The reference discharge, and this page's own coil share at its loops."""
     import yaml
-    from fylite import device
+    from fylite.io import fydoc
 
     doc = json.loads(JSON_DOC.read_text(encoding="utf-8"))
     ref = doc["fylite:reference_discharge"]
-    cs = device.conductor_set(
-        document=yaml.safe_load(YAML_DOC.read_text(encoding="utf-8")))
-    #: channel currents (A-turns, the BRSP state) onto the elements
-    elements = np.asarray(cs["weights"], float).T @ np.asarray(ref["aturns"], float)
-    loops = [p["position"][0] for p in doc["magnetics"]["flux_loop"]]
-    psi, _br, _bz = device.point_response(
-        cs["coils"],
-        np.array([p["r"] for p in loops], float),
-        np.array([p["z"] for p in loops], float), nu=4, nv=4)
-    #: ★the loop channel is Wb PER RADIAN — the same convention the page's
-    #: `loopCoilFlux` applies to the kernel's full-flux response
-    share = (np.asarray(psi, float) @ elements) / (2 * np.pi)
+    #: ★T-4 第二十五刀 (2026-09-06): the coil share is `code/coilshare`'s — the channel
+    #: ampere-turns folded onto the deck's elements, the per-element flux at the
+    #: device's own loops (4×4, the page's quadrature) in Wb/rad.  This test used
+    #: to assemble the same three steps on the flat point response.
+    rec = fydoc.complete("code/coilshare", {
+        "settings": {"nu_loops": 4.0},
+        "inputs": {"device": yaml.safe_load(YAML_DOC.read_text(encoding="utf-8")),
+                   "discharge": {"fylite:channel_aturns": np.asarray(ref["aturns"], float)}}})
+    share = np.asarray(rec["fields"]["loop_coil"]["data"], float)
     return {
         "total": np.asarray(ref["loopMeasTotal"], float),
         "delivered": np.asarray(ref["loopMeas"], float),

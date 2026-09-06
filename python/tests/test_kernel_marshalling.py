@@ -22,37 +22,9 @@ pytestmark = pytest.mark.skipif(not KERNEL_LIB.exists(),
                                        "(rust/build.sh)")
 
 #: two rectangular elements, the six-parallel-array C-ABI layout
-ELEMS = (np.array([1.7, 2.1]), np.array([0.0, 0.4]), np.array([0.05, 0.08]),
-         np.array([0.1, 0.12]), np.zeros(2), np.full(2, 90.0))
-GR = np.linspace(1.3, 2.4, 7)
-GZ = np.linspace(-0.5, 0.5, 5)
 
-
-def _split_pair_map():
-    """A 2-channel map over 2 elements where channel 0 drives BOTH at an
-    uneven split — the case that makes the fold a matrix, and the only case
-    an accidental transpose could not survive."""
-    return np.array([[0.175, 0.825], [1.0, 0.0]])
-
-
-def test_channel_field_takes_the_map_not_its_transpose():
-    w = _split_pair_map()
-    psi, br, bz = K.channel_field(ELEMS, w, [1.9], [0.05])
-    #: the same fold, spelled against the per-element response
-    pe, be, ze = K.element_response(ELEMS, [1.9], [0.05])
-    for got, per_el in ((psi, pe), (br, be), (bz, ze)):
-        assert got.shape == (1, 2)
-        assert np.allclose(got, per_el @ w.T, rtol=0, atol=0)
-
-
-def test_channel_field_refuses_a_transposed_map():
-    """★The error a caller can no longer make silently.  With a square map
-    the width check cannot see it, so the map here is deliberately not
-    square: 2 channels over 2 elements would pass any orientation."""
-    w = np.array([[0.175, 0.825], [1.0, 0.0], [0.0, 1.0]])   # 3 x 2, fine
-    K.channel_field(ELEMS, w, [1.9], [0.05])                 # 3 channels
-    with pytest.raises(K.KernelError, match="n_channel, n_element"):
-        K.channel_field(ELEMS, w.T, [1.9], [0.05])           # 2 x 3, refused
+#: ★`channel_field`'s two orientation gates left with the wrapper for the kernel
+#: repository's `tests/test_oracle_marshalling.py` (T-4 第二十五刀, 2026-09-06).
 
 
 def test_interp_is_the_numpy_it_replaced_bit_for_bit():

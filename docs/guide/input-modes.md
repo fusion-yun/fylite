@@ -81,7 +81,7 @@ title: 输入模式 (Input Modes)
   （`kernel.mutual_outer` / `kernel.probe_response`）；线圈→环的那一行（EFIT 的 `rsilfc`，
   过去唯一还要读 `rfcoil.ddd` 的地方）也已改为现算
   （`code/reconstruction` 门内的线圈→回路行，旧 `recon_rs.coil_loop_rows` 自 2026-09-06 归内核仓测试树），线圈→探针本来就是算的
-  （`device.probe_element_response`）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
+  （`code/coilshare` · `code/reconstruction` 门内的探针响应；旧 `device.probe_element_response` 自 T-4 第二十五刀归内核仓测试树）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
   文档**；`device.coil_response_tables` / `vessel_response_tables` 只剩"拿别人的表和几何对一遍"
   这一个用途（`device.vessel_table_check`，自 2026-09-06 归内核仓测试树 `tests/oracles/em_kernel.py`），活路上没有调用者（闸子
   `python/tests/test_one_machine_source.py`）。

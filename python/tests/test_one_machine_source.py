@@ -75,8 +75,8 @@ def test_no_live_caller_reads_a_green_response_table():
                 hits.setdefault(str(path.relative_to(PKG)), []).append((name, line))
     assert not hits, (
         f"a Green response table is read on a live path again: {hits}.  The "
-        "coil→loop rows are recon_rs.coil_loop_rows (channel_response/2π) and "
-        "the coil→probe rows are device.probe_element_response; the readers "
+        "coil→loop and coil→probe rows are the kernel's (code/coilshare · "
+        "code/vstab · code/reconstruction, the oracle tree's recon_rows); the readers "
         "exist for cross-checking a deck that has one, not for computing "
         "with.")
 

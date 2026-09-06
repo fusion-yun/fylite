@@ -155,7 +155,7 @@ $v_{\rm cmd}=-(k_p\hat\xi+k_d\dot{\hat\xi})$，导数取**一步测量延迟**�
 **无积分项、无增益界计算**（`GK-TMT-11` 的增益窗口论证在本内核未实现；增益只出现在测试：$k_p=300$、$k_d=0.3$ 等）。
 〔已确立〕隐式 Euler 每步放大 $1/(1-\gamma\Delta t)$——"不看 $\gamma$ 选的步长每 e 折高估 $\gamma\Delta t/2$"。
 
-〔Python 装配〕`vertical_system`：通道空间 $M$、$R$（{eq}`eq-p12-channel`）+ IC 线圈作为每匝电路成员、$G=[Wg_{el},g_{vs},g_{ic}]$、
+〔Python 装配，自 T-4 第二十五刀起整段在 `code/vstab` 门内，`vertical_system` 只读记录〕`vertical_system`：通道空间 $M$、$R$（{eq}`eq-p12-channel`）+ IC 线圈作为每匝电路成员、$G=[Wg_{el},g_{vs},g_{ic}]$、
 $B_{\rm act}$ 指向 IC 对（缺省方向 $(1,-1)$，反对称）；磁通环行 $C$、$P=I_pG_{\rm loops}$。实现记录 PF 电源单极滞后 $\tau\approx15$ ms
 （TokSys `EAST_PS_params.m`）；早期文档"PF 无法持住模"的断言已被全被动集下 $\gamma\approx9$–12.6 s⁻¹（增长时间 $\sim109$ ms）
 **取代**——"滞后不致命，只改变可用增益"（$k_p=3.16\times10^3$、$k_d=51.8$ 在 15 ms 滞后下镇定）。
@@ -205,7 +205,7 @@ $B_{\rm act}$ 指向 IC 对（缺省方向 $(1,-1)$，反对称）；磁通环�
 | 内容 | 结果落在 fyo 的哪里 | Python 入口 |
 | :--- | :--- | :--- |
 | 互感矩阵、匝数与通道折叠 | `fyo:pf_active`：线圈与通道的定义 | `fylite.device.conductor_set`、`channel_matrices` |
-| 网格 / 磁通环 / 探针响应 | `fyo:magnetics`：各道的响应（供反演与合成诊断） | `fylite.device`；`recon_rs.coil_loop_rows` |
+| 网格 / 磁通环 / 探针响应 | `fyo:magnetics`：各道的响应（供反演与合成诊断） | `code/coilshare` · `code/vstab`（`loops_c`）· `code/reconstruction`；点响应包装自 T-4 第二十五刀归内核仓测试树 |
 | 电压驱动的电路演化 | `fyo:pf_active`：随时间的线圈电流 | `code/pulse`（前馈电压与电路）；旧的 `control.evolution.evolve_free_boundary` 自 2026-09-06 归内核仓测试树 |
 | 垂直稳定性（刚性位移） | `fyo:mhd_linear` 式的增长率与理想判据 | `S.control.vstab`；`stability.vertical_mode` |
 | 对象模型与闭环 | `fyo:pulse_schedule`：控制器给出的电压 | `vertical.vertical_system`（`code/vstab`）；`close_vertical_loop` 自 2026-09-06 归内核仓测试树 |

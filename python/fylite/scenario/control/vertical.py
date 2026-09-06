@@ -41,12 +41,7 @@ import numpy as np
 #: under an alias: a bare `device` name is silently the dict inside every
 #: function that takes one (`AttributeError` far from the cause).
 from ... import device as _device_mod
-from ... import fyo, kernel
-from ...device import (Element, conductor_set, flux_loop_positions,
-                       passive_set)
-from . import stability
-
-TWOPI = 2.0 * np.pi
+from ... import fyo
 
 
 @dataclass
@@ -89,10 +84,12 @@ def vertical_system(eq, *, coil_aturns, eta_coil_uohm_m,
     reads documents, not keyword arguments).  ``eta_vessel_uohm_m`` overrides
     the document's vessel resistivity.
 
-    What is still assembled here: the flux-loop rows ``loops_C`` / ``loops_P``
-    and the actuator map ``B_act`` — the diagnostic side, not the plant.  They
-    are the next thing to sink (a ``magnetics`` reading of the same device
-    document); until then this function keeps four flat calls for them.
+    ★T-4 第二十五刀 (2026-09-06): the flux-loop rows ``loops_C`` / ``loops_P``
+    are the door's as well — the response of every circuit member at the
+    device document's ``magnetics/flux_loop`` (Wb/A, the plant's member order)
+    and the plasma's rigid shift seen there, ``I_p G_loops``.  A device that
+    declares no loops leaves both ``None``.  Only the actuator map ``B_act``
+    (a placement) is formed here; this function makes no flat kernel call.
     """
     from ...io import fydoc
     doc = fyo.as_equilibrium(eq)
@@ -120,30 +117,18 @@ def vertical_system(eq, *, coil_aturns, eta_coil_uohm_m,
     gamma = float(facts["gamma"]["value"])
     n_ic = int(facts["n_fast_coils"]["value"])
 
-    #: ---- the diagnostic side, still this host's (see the docstring) ----------
+    #: ---- the diagnostic side: the loop rows are the door's too (T-4 第二十五刀) ----
+    #: `B_act` is a placement, not a computation: the fast coils are the last
+    #: n_ic members of the plant and each takes its own voltage.
     B_act = np.zeros((n, n_ic))
     for j in range(n_ic):
         B_act[n - n_ic + j, j] = 1.0
-    cond = conductor_set()
-    if device is not None:
-        pas_el, _pas_eta, _ = passive_set(device, passive_groups)
+    if "loops_c" in fields:
+        n_loop = int(rec["dims"]["n_loop"])
+        loops_C = arr("loops_c").reshape(n_loop, n)
+        loops_P = arr("loops_p")
     else:
-        pas_el = cond["vessel"]
-    ic_elems = [Element(c["r"], c["z"], c["dr"], c["dz"]) for c in ic_list]
-    ic_turns = np.array([float(c["turns"]) for c in ic_list])
-    rsi, zsi = flux_loop_positions()
-
-    def _rows(elems, turns=None):
-        psi = _device_mod.point_response(elems, rsi, zsi, nu=3, nv=3)[0]
-        return psi if turns is None else psi * np.asarray(turns, float)
-
-    tabf = _device_mod.channel_response(cond, rsi, zsi, nu=3, nv=3)[0] * TWOPI
-    tabv = _rows(pas_el) * TWOPI
-    ic_rows = (_rows(ic_elems, ic_turns) if n_ic else np.empty((rsi.size, 0)))
-    loops_C = np.hstack([tabf, tabv, ic_rows])
-    plasma = (arr("filament_r"), arr("filament_z"), arr("filament_current"))
-    loops_P = ip * stability.coupling_gradient(
-        plasma, [(r_, z_, 1.0) for r_, z_ in zip(rsi, zsi)])
+        loops_C = loops_P = None
     return VerticalSystem(M_star=M_star, R=R, G=G, C_xi=C_xi, B_act=B_act,
                           ip=ip, k=k, k_ideal=k_ideal,
                           gamma_openloop=gamma, mode=mode,

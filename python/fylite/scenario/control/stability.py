@@ -36,40 +36,12 @@ from dataclasses import dataclass
 
 import numpy as np
 
-#: ★this module has a ``device=`` PARAMETER, so the module is imported
-#: under an alias: a bare `device` name is silently the dict inside every
-#: function that takes one (`AttributeError` far from the cause).
-from ... import device as _device_mod
-from ... import kernel
-from ...device import Element, conductor_set, passive_set
-
 #: ★the rigid-filament recipe (`plasma_filaments` · `vertical_stiffness` ·
 #: `vertical_growth_rate` · `plasma_mass`) had no caller
 #: here or in the app: it is the kernel repository's oracle tree since T-4
-#: 第十一刀 (2026-09-06).  `code/vstab` is the plant; `coupling_gradient` stays
-#: for `vertical_system`'s diagnostic rows.
-__all__ = ["VerticalStability", "coupling_gradient", "vertical_mode"]
-
-
-# --------------------------------------------------------------------------- #
-# the rigid-mode ingredients (fyeq-adapted)                                   #
-# --------------------------------------------------------------------------- #
-def coupling_gradient(plasma, loops) -> np.ndarray:
-    """G_k = dM_pk/dZ_p [Wb/A/m], plasma-current-weighted (rigid shift).
-
-    The kernel's, including the filament-order accumulation and the
-    numpy-pairwise plasma-current sum.
-
-    ★There is no `_dMdz` here any more.  The derivative of the filament
-    mutual by central difference was written twice — once here and once in
-    `breakdown.py` — and both were the numpy half of an "if the library is
-    here" branch.  One host now; the reference implementation the gates
-    measure it against lives in `tests/oracles/em.py`.
-    """
-    from ... import kernel
-    lr, lz, lt = (np.asarray(a, float) for a in zip(*loops))
-    g = kernel.coupling_gradient(plasma, (lr, lz, lt))
-    return g.reshape(lr.shape)
+#: 第十一刀 (2026-09-06), and `coupling_gradient` followed it on 第二十五刀 —
+#: `code/vstab` is the plant AND answers `vertical_system`'s loop rows.
+__all__ = ["VerticalStability", "vertical_mode"]
 
 
 # --------------------------------------------------------------------------- #

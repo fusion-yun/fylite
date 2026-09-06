@@ -61,9 +61,7 @@ __all__ = [
     "beam_shielding",
     "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "psin_along", "quadrature",
     "line_integral",         "dispersion_root", "vertical_plant",     "inside_polygon",             "table_ratio_check",
-    "ellipke",     "element_response",
-    "element_probe_response",
-    "coupling_gradient",     "reintegrate", "flux_match", "FluxMatchError",
+    "ellipke",                 "reintegrate", "flux_match", "FluxMatchError",
         "volume_int",
     "SURFACE_KEYS", "surface_block",     "TGLF_SPECIES_ROWS",
     "NEO_SAUTER_SLOTS", "HIRSHMAN_SIGMAR_VINTAGE",
@@ -72,7 +70,7 @@ __all__ = [
     "tglf_units", "tglf_presets", "tglf_linear", "tglf_matrices",
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "dke_solve",     "SAUTER_1999", "REDL_2021",
-    "ridge_lstsq", "bounded_lstsq", "channel_field",     #: T-A5 — the same solve with the coil currents FITTED
+    "ridge_lstsq", "bounded_lstsq",     #: T-A5 — the same solve with the coil currents FITTED
     "INVERSE_COIL_KEYS", "INVERSE_KEYS", "INVERSE_FSA_KEYS",
         "with_axis_node",
     "two_temperature_march",
@@ -885,80 +883,6 @@ def channel_weights(channels, n_elements: int):
     if rc != 0:
         raise KernelError(f"fylite_rs_channel_weights returned {rc}")
     return out.reshape(n_ch, int(n_elements))
-
-
-_sig("fylite_rs_element_response", [*_SIX, _U64, _ARR, _ARR, _U64, _U64, _U64, _ARR, _ARR, _ARR], _I32)
-def element_response(elems, r, z, *, nu: int = 3, nv: int = 3):
-    """Per-element ``(ψ, B_r, B_z)`` at scattered points.
-
-    Three ``(n_points, n_elements)`` arrays in Wb/A-turn and T/A-turn — the
-    ampere-TURN normalisation this package uses throughout, so no caller
-    carries a turn table.
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    ne = ea[0].size
-    r_a, z_a = _f(np.atleast_1d(r).ravel()), _f(np.atleast_1d(z).ravel())
-    if r_a.size != z_a.size:
-        raise KernelError("R and Z point vectors must be the same length")
-    psi = np.empty((ne, r_a.size))
-    br = np.empty((ne, r_a.size))
-    bz = np.empty((ne, r_a.size))
-    rc = lib.fylite_rs_element_response(*ea, ne, r_a, z_a, r_a.size,
-                                        int(nu), int(nv), psi, br, bz)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_element_response returned {rc}")
-    return psi.T, br.T, bz.T
-
-
-_sig("fylite_rs_element_probe_response", ([_ARR] * 6 + [_U64] + [_ARR] * 3 + [_U64, _U64, _U64, _ARR]), _I32)
-def element_probe_response(elems, probe_r, probe_z, angle_rad, *,
-                           nu: int = 3, nv: int = 3):
-    """What each magnetic probe READS from each conductor element:
-    ``(n_probe, n_element)`` in T per ampere-turn.
-
-    ★The projection ``B_R cos(a) + B_Z sin(a)`` is the kernel's, not the
-    caller's.  A probe's angle convention is physics — which way the sensor
-    points decides the SIGN of what it reads — and a wrong convention does
-    not raise: a fit converges on a plasma tilted to match.  It used to be
-    written out next to each caller, each with its own finite-difference
-    step, which is two conventions waiting to differ.
-
-    Companion to the oracle-only ``probe_response``, which answers the same question for
-    a GRID CELL rather than a conductor.
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    ne = ea[0].size
-    pr, pz = _f(np.atleast_1d(probe_r)), _f(np.atleast_1d(probe_z))
-    ang = _f(np.broadcast_to(np.atleast_1d(angle_rad), pr.shape))
-    if pz.size != pr.size:
-        raise ValueError("probe R and Z must be the same length")
-    out = np.empty((pr.size, ne))
-    rc = lib.fylite_rs_element_probe_response(*ea, ne, pr, pz, ang, pr.size,
-                                              int(nu), int(nv), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_element_probe_response returned {rc}")
-    return out
-
-
-_sig("fylite_rs_coupling_gradient", [_ARR, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR], _I32)
-def coupling_gradient(plasma, loops):
-    """``G_k = dM_pk/dZ_p`` [Wb/A/m], plasma-current-weighted (rigid shift).
-
-    ``plasma`` is ``(r, z, amps)`` and ``loops`` ``(r, z, turns)``.
-    """
-    lib = require()
-    pr, pz, pa = (_f(np.atleast_1d(x)) for x in plasma)
-    lr, lz, lt = (_f(np.atleast_1d(x)) for x in loops)
-    if float(np.sum(pa)) == 0.0:                 # a domain error, see ellipke
-        raise ValueError("total plasma current must be non-zero")
-    out = np.empty(lr.size)
-    rc = lib.fylite_rs_coupling_gradient(pr, pz, pa, pr.size, lr, lz, lt,
-                                         lr.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_coupling_gradient returned {rc}")
-    return out
 
 
 _sig("fylite_rs_table_ratio_check", ([_ARR] * 2 + [_ARR, _U64, _ARR, _U64] + [_ARR] * 4 + [_U64, _ARR, _ARR]), _I32)
@@ -2341,45 +2265,6 @@ def bound_deriv(f, r):
     if rc != 0:
         raise KernelError(f"fylite_rs_bound_deriv returned {rc}")
     return out
-
-
-_sig("fylite_rs_channel_field", ([_ARR] * 6 + [_U64, _ARR, _U64] + [_ARR, _ARR, _U64, _U64, _U64] + [_ARR] * 3), _I32)
-def channel_field(elems, weights, pr, pz, *, nu: int = 3, nv: int = 3):
-    """Per-CHANNEL ``(psi, B_r, B_z)`` at points — ``(npts, nch)`` each.
-
-    ``elems`` is the six-array conductor layout, ``weights`` the
-    ``(n_channel, n_element)`` map.  Two of EAST's twelve channels drive a
-    PAIR of deck elements, which is why folding is a matrix and not a
-    relabelling.
-
-    ★★The map is ``(n_channel, n_element)`` HERE, as it is at every other
-    host-side entry that takes it (:func:`channel_weights` produces that
-    shape, the oracle-only ``channel_fold`` and the oracle-only ``channel_matrices`` consume it).
-    The wire format for THIS entry is the transpose, and that transpose
-    happens on the marshalling line below — where a wire format belongs.  It
-    used to be the caller's, which is how one package came to hold both
-    orientations of one map with nothing naming which was which: a
-    transposed weight matrix does not raise, it is a different machine.
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elems]
-    ne = ea[0].size
-    w_map = np.atleast_2d(np.asarray(weights, float))
-    if w_map.shape[1] != ne:
-        raise KernelError(f"weights has {w_map.shape[1]} columns, expected "
-                          f"{ne} (one per element); the map is "
-                          f"(n_channel, n_element)")
-    nch = w_map.shape[0]
-    wt = _f(w_map.T)
-    r_a, z_a = _f(np.atleast_1d(pr).ravel()), _f(np.atleast_1d(pz).ravel())
-    npts = r_a.size
-    psi, br, bz = (np.empty(npts * nch) for _ in range(3))
-    rc = lib.fylite_rs_channel_field(*ea, ne, wt.ravel(), nch, r_a, z_a,
-                                     npts, int(nu), int(nv), psi, br, bz)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_channel_field returned {rc}")
-    return (psi.reshape(npts, nch), br.reshape(npts, nch),
-            bz.reshape(npts, nch))
 
 
 _sig("fylite_rs_eigen", [_ARR, _ARR, _U64, _I32, _ARR, _ARR, _ARR, _ARR], _I32)

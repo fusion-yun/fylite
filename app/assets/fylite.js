@@ -65,16 +65,13 @@
 
   var REQUIRED = [
     'fylite_rs_alloc', 'fylite_rs_free', 'fylite_rs_ping',
-            'fylite_rs_coupling_gradient',
     'fylite_rs_dispersion_root',
     'fylite_rs_ellipke',
-    //: ★the electromagnetic entries this page used to write out in JS
-    //: instead of calling: the channel fold (`Wx` and the folded field)
-    //: and the resistance formula.  They were exported all along.
-    'fylite_rs_channel_weights',
-    'fylite_rs_channel_field',
-    'fylite_rs_element_probe_response',
-    'fylite_rs_element_response',
+    //: ★the electromagnetic point responses (`channel_weights` · `channel_field` ·
+    //: `element_probe_response` · `element_response`) are not required since T-4
+    //: 第二十五刀 (2026-09-06): the pages read every response off the tree door
+    //: (`code/coilshare` · `code/vstab` · `code/reconstruction`) and the three
+    //: flat entries the page never called are oracle-only.
     //: T-A5 — the inverse solve with the COIL CURRENTS FITTED.  Listed as
     //: required rather than probed for: a build without it would leave the
     //: reconstruction bar silently back on「coils exactly known」, which is
@@ -330,31 +327,6 @@
   };
 
   // --- L1 kernels -------------------------------------------------------
-
-
-  /**
-   * Per-element (psi, Br, Bz) response at scattered points, per unit
-   * TOTAL element current [A].  `coils` is an array of
-   * {r, z, w, h, a1, a2}; outputs are row-major (nelem, npts).
-   */
-  Fy.prototype.elementResponse = function (coils, pr, pz, nu, nv) {
-    var self = this, n = coils.length, npts = pr.length, total = n * npts;
-    var col = function (key) { return coils.map(function (c) { return c[key]; }); };
-    return this.scope(function (s) {
-      var r = s.put(col('r')), z = s.put(col('z')), w = s.put(col('w')),
-          h = s.put(col('h')), a = s.put(col('a1')), a2 = s.put(col('a2')),
-          qr = s.put(pr), qz = s.put(pz),
-          psi = s.zeros(total), br = s.zeros(total), bz = s.zeros(total);
-      var rc = self.e.fylite_rs_element_response(
-        r.ptr, z.ptr, w.ptr, h.ptr, a.ptr, a2.ptr, BigInt(n),
-        qr.ptr, qz.ptr, BigInt(npts), BigInt(nu), BigInt(nv),
-        psi.ptr, br.ptr, bz.ptr);
-      if (rc !== 0) throw new Error('fylite_rs_element_response rc=' + rc);
-      return { psi: s.get(psi), br: s.get(br), bz: s.get(bz), n: n,
-               npts: npts };
-    });
-  };
-
   // --- L3 equilibrium ---------------------------------------------------
 
   /**
@@ -373,100 +345,6 @@
   // `k = gamma Ip^2 G^T (gamma M + R)^-1 G`.  All four pieces are separate
   // entries because the three REGIMES are read off them, not off gamma:
   // stable (k <= 0), resistive-wall (0 < k < k_ideal), ideal-unstable.
-
-
-
-  /**
-   * The `(nch, nel)` channel map, densified from `[[element, weight], ...]`
-   * per channel.
-   *
-   * ★★The INDEX DIRECTION is the entire content of this map, which is why
-   * it has one host and not one per page: a transposed weight matrix does
-   * not throw, it is a different machine.  `M.channels` is the sparse form
-   * the device document carries; this is the dense one every kernel entry
-   * that folds takes.
-   */
-  Fy.prototype.channelWeights = function (channels, nel) {
-    var self = this, ch = [], el = [], wt = [];
-    channels.forEach(function (combo, c) {
-      combo.forEach(function (pair) {
-        ch.push(c); el.push(pair[0]); wt.push(pair[1]);
-      });
-    });
-    var nch = channels.length;
-    return this.scope(function (s) {
-      var c = s.put(ch), e = s.put(el), w = s.put(wt),
-          out = s.zeros(nch * nel);
-      var rc = self.e.fylite_rs_channel_weights(
-        c.ptr, e.ptr, w.ptr, BigInt(ch.length), BigInt(nch), BigInt(nel),
-        out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_channel_weights', rc);
-      return s.get(out);
-    });
-  };
-
-  /**
-   * Per-CHANNEL `(psi, Br, Bz)` at points — `(npts, nch)` each, row-major
-   * over points.
-   *
-   * `weights` is the `(nel, nch)` WIRE format (the transpose of
-   * `channelWeights`' map) — the one entry in the ABI that takes it that
-   * way, so the transpose is done here, at the boundary, and named.
-   */
-  Fy.prototype.channelField = function (els, weights, nch, pr, pz, nu, nv) {
-    var self = this, n = els.length, npts = pr.length, total = npts * nch;
-    var col = function (f, d) {
-      return els.map(function (e) {
-        return e[f] === undefined ? d : e[f];
-      });
-    };
-    return this.scope(function (s) {
-      var r = s.put(col('r')), z = s.put(col('z')), w = s.put(col('w')),
-          h = s.put(col('h')), a = s.put(col('a1', 0)), a2 = s.put(col('a2', 90)),
-          wt = s.put(weights), qr = s.put(pr), qz = s.put(pz),
-          psi = s.zeros(total), br = s.zeros(total), bz = s.zeros(total);
-      var rc = self.e.fylite_rs_channel_field(
-        r.ptr, z.ptr, w.ptr, h.ptr, a.ptr, a2.ptr, BigInt(n),
-        wt.ptr, BigInt(nch), qr.ptr, qz.ptr, BigInt(npts),
-        BigInt(nu || 3), BigInt(nv || 3), psi.ptr, br.ptr, bz.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_channel_field', rc);
-      return { psi: s.get(psi), br: s.get(br), bz: s.get(bz),
-               nch: nch, npts: npts };
-    });
-  };
-
-  /**
-   * What each magnetic probe READS from each element — `(nprobe, nel)` in
-   * T per ampere-turn, row-major over probes, the probe's own orientation
-   * already applied.
-   *
-   * ★★The projection `B_R cos(a) + B_Z sin(a)` is the KERNEL's.  A probe's
-   * angle convention is physics — which way the sensor points decides the
-   * SIGN of what it reads — and getting it wrong does not raise: a fit
-   * converges on a plasma tilted to match.  Python converged its two copies
-   * of this sentence already; this page was the third.
-   */
-  Fy.prototype.elementProbeResponse = function (els, pr, pz, ang, nu, nv) {
-    var self = this, n = els.length, npts = pr.length;
-    var col = function (f, d) {
-      return els.map(function (e) {
-        return e[f] === undefined ? d : e[f];
-      });
-    };
-    return this.scope(function (s) {
-      var r = s.put(col('r')), z = s.put(col('z')), w = s.put(col('w')),
-          h = s.put(col('h')), a = s.put(col('a1', 0)), a2 = s.put(col('a2', 90)),
-          qr = s.put(pr), qz = s.put(pz), an = s.put(ang),
-          out = s.zeros(n * npts);
-      var rc = self.e.fylite_rs_element_probe_response(
-        r.ptr, z.ptr, w.ptr, h.ptr, a.ptr, a2.ptr, BigInt(n),
-        qr.ptr, qz.ptr, an.ptr, BigInt(npts),
-        BigInt(nu || 3), BigInt(nv || 3), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_element_probe_response', rc);
-      return s.get(out);
-    });
-  };
-
 
 
   /** `integral f ds` over uniform samples; rule 0 = Simpson, 1 = trapezoid. */
@@ -1085,12 +963,6 @@
 
 
 
-  /** Per-coil response at scattered points. */
-  function coilPointResponse(fy, coils, pr, pz, nu, nv) {
-    return fy.elementResponse(coils, pr, pz, nu || 6, nv || 6);
-  }
-
-
   /**
    * Flux-loop response matrix, row-major (nloop, nr*nz): the full-flux
    * mutual [Wb/A] between each loop and a unit toroidal current at each
@@ -1351,7 +1223,6 @@
     waveform: waveform,
     makeGrid: makeGrid,
     sample: sample,
-    coilPointResponse: coilPointResponse,
     loopResponse: loopResponse,
     surfaceVolume: surfaceVolume,
     li3: li3,

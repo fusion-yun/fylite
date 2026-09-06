@@ -101,14 +101,13 @@ __all__ = ["MachineDataMissing", "DEVICE_ENV", "configured", "data_dir",
            "vessel_response_tables",
            "coil_response_tables", "flux_loop_positions", "pf_channel_map",
            "passive_set", "PASSIVE_GROUPS",
-           "element_arrays", "conductor_set",
-           # 3. what the conductors do at points — the three responses the
-           #    assembly layer still reads.  ★The rest of the old `fylite.circuits`
-           #    face (filaments · mutuals · resistances · grid flux · circuit
-           #    matrices and their integrator) and the whole `fylite.chords` face
-           #    had no caller in this package or the app: they are the kernel
-           #    repository's oracle tree since T-4 第十刀 (2026-09-06).
-           "point_response", "channel_response", "probe_element_response"]
+           #: ★the three point responses (`point_response` · `channel_response` ·
+           #: `probe_element_response`) left with the rest of the old `fylite.circuits`
+           #: face for the kernel repository's oracle tree (T-4 第十刀 · 第二十五刀,
+           #: 2026-09-06): the loop and probe rows are `code/vstab`'s and
+           #: `code/coilshare`'s now, and nothing in this package or the app
+           #: called them.
+           "element_arrays", "conductor_set"]
 
 
 def _kernel():
@@ -1025,8 +1024,6 @@ class Element:
         return self.w * self.h
 
 
-
-
 def flux_loop_positions(*, document=None):
     """``(R, Z)`` of the flux loops, as arrays.
 
@@ -1178,8 +1175,6 @@ def vessel_response_tables(path=None) -> dict:
     }
 
 
-
-
 def coil_response_tables(path=None) -> dict:
     """Read ``rfcoil.ddd``: rsilfc (nsilop x nfcoil) + rmp2fc (magpri x nfcoil).
 
@@ -1191,9 +1186,10 @@ def coil_response_tables(path=None) -> dict:
     machine's own Green table and its geometry still describe the same
     machine.  Both halves are computed now — the loop rows by
     the oracle tree's ``coil_loop_rows`` (kernel repository, since T-4 第十一刀)
-    (``channel_response``/2π) and the probe rows by
-    :func:`probe_element_response`, which is why ``rmp2fc`` has no reader at
-    all — so a deck that is absent no longer stops a reconstruction.
+    (``channel_response``/2π) and the probe rows by the kernel's probe
+    response (``code/coilshare`` · ``code/reconstruction``), which is why
+    ``rmp2fc`` has no reader at all — so a deck that is absent no longer
+    stops a reconstruction.
 
     ★It mattered because this file was the ONE gate on the whole Python
     reconstruction path: this distribution ships no ``rfcoil.ddd``, the read
@@ -1217,8 +1213,6 @@ def coil_response_tables(path=None) -> dict:
         raise ValueError(f"rfcoil.ddd: unexpected record sizes {[r.size for r in rec]}")
     return {"rsilfc": rec[0].reshape((12, 35)).T,
             "rmp2fc": rec[1].reshape((12, 79)).T}
-
-
 
 
 def pf_channel_map() -> list[list[tuple[int, float]]]:
@@ -1338,8 +1332,6 @@ def conductor_set(*, document=None) -> dict:
             "channels": chans}
 
 
-
-
 #: Which passive groups exist, and where each one's geometry comes from.
 PASSIVE_GROUPS = ("inner_shell", "outer_shell", "passive_plates")
 
@@ -1388,7 +1380,6 @@ def passive_set(device, groups=("inner_shell",)):
     return elems, np.asarray(etas, float), slices
 
 
-
 # =========================================================================== #
 # 3. What the CONDUCTORS do — the electromagnetic face (was `circuits`)       #
 # =========================================================================== #
@@ -1423,58 +1414,4 @@ def passive_set(device, groups=("inner_shell",)):
 #: threshold — two implementations of every quantity here, with an array
 #: length deciding which one a caller got.
 
-def point_response(elems, pr, pz, *, nu: int = 3, nv: int = 3):
-    """Per-element ``(psi, Br, Bz)`` at scattered points — the scattered-point
-    twin of the oracle tree's ``grid_response``.
 
-    Returns three ``(n_points, n_elements)`` arrays in Wb/A-turn, T/A-turn,
-    T/A-turn.  ★The normalisation is ampere-TURNS throughout, as everywhere
-    in this package: the state is the BRSP value, so no caller has to carry a
-    turn table (E-14).
-
-    Kernel-only: the field of a conductor is physics and it has one host
-    (FYL-DESIGN-08 D-4′).
-
-    ★★This used to say that ``breakdown.field_at`` "keeps a numpy branch for
-    the no-kernel configuration, and the two are gated bit-identical".  Both
-    halves are gone and the second one is why: that branch WAS a second
-    implementation of this quantity, reachable from shipping code by nothing
-    more than a missing build, so which arithmetic a field came from depended
-    on how the caller had been imported.  The numpy half now lives in
-    ``tests/oracles/em.py`` — a reference the package cannot reach —
-    and ``test_rust_kernels.py::test_element_response_is_bit_identical``
-    compares this function against it explicitly, which is what the gate was
-    always really doing.
-    """
-    return _kernel().element_response(element_arrays(elems), pr, pz,
-                                      nu=nu, nv=nv)
-
-
-def probe_element_response(elems, pr, pz, angle_rad, *, nu: int = 3,
-                           nv: int = 3):
-    """What each magnetic probe reads from each element — the kernel's.
-
-    ``(n_probe, n_element)`` in T per ampere-turn, the probe's own
-    orientation already applied.  The scattered-point twin of
-    :func:`point_response` for a sensor that measures one component.
-    """
-    return _kernel().element_probe_response(element_arrays(elems),
-                                            pr, pz, angle_rad, nu=nu, nv=nv)
-
-
-def channel_response(conductors, pr, pz, *, nu: int = 3, nv: int = 3):
-    """Per-CHANNEL ``(psi, Br, Bz)`` at scattered points — ``(n_points,
-    n_channels)`` each, in Wb / T per ampere-turn.
-
-    ★★The kernel's, whole (:func:`fylite.kernel.channel_field`).  This entry
-    used to be :func:`point_response` followed by three ``@ W.T`` matmuls,
-    which is the same fold the kernel already performs inside that call —
-    the same quantity assembled a second way, and in the same package: the
-    design line reached one spelling for its boundary rows and the other for
-    its breakdown centre flux.  Two of EAST's twelve channels drive a PAIR of
-    deck elements, which is why folding is a matrix and not a relabelling,
-    and it is that matrix that must have one host.
-    """
-    return _kernel().channel_field(element_arrays(conductors["coils"]),
-                                   conductors["weights"], pr, pz,
-                                   nu=nu, nv=nv)
