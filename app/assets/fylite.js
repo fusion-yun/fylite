@@ -67,14 +67,14 @@
     'fylite_rs_alloc', 'fylite_rs_free', 'fylite_rs_ping',
     'fylite_rs_dt_reactivity', 'fylite_rs_zerod_volume',
     'fylite_rs_zerod_evaluate', 'fylite_rs_zerod_predict',
-    'fylite_rs_vertical_stiffness', 'fylite_rs_coupling_gradient',
-    'fylite_rs_ideal_stiffness', 'fylite_rs_dispersion_root',
+    'fylite_rs_coupling_gradient',
+    'fylite_rs_dispersion_root',
     'fylite_rs_ellipke',
     //: ★the electromagnetic entries this page used to write out in JS
     //: instead of calling: the channel fold (`Wx` and the folded field)
     //: and the resistance formula.  They were exported all along.
-    'fylite_rs_mutual_outer', 'fylite_rs_channel_weights',
-    'fylite_rs_channel_fold', 'fylite_rs_channel_field',
+    'fylite_rs_channel_weights',
+    'fylite_rs_channel_field',
     'fylite_rs_element_probe_response',
     'fylite_rs_element_response', 'fylite_rs_gs_free_solve',
     //: T-D6′ — the free solve on a tabulated (delivered) p'/FF' shape
@@ -105,22 +105,23 @@
     'fylite_rs_ridge_lstsq', 'fylite_rs_profile_fit', 'fylite_rs_li3',
     'fylite_rs_redl_bootstrap',
     'fylite_rs_quadrature',
-    'fylite_rs_probe_response',
     //: ★the diagnostic layer the analysis scenario reads its channels
     //: through: per-channel self-calibration from one slice and across
     //: slices, and the dispersion that says whether the set hangs together.
     //: They were in every shipped artifact and reachable from Python alone.
-    'fylite_rs_factor_dispersion', //: ★the truncated-SVD solve, for the blocks whose geometry is
+    'fylite_rs_factor_dispersion',
+    //: ★the truncated-SVD solve, for the blocks whose geometry is
     //: degenerate on purpose (the vessel groups): the truncation IS the
     //: regularisation, and it reports what it kept
     'fylite_rs_svd_solve',
-    'fylite_rs_trace_surface', //: the operating domain, the flux account and the START —
+    'fylite_rs_trace_surface',
+    //: the operating domain, the flux account and the START —
     //: the design scenario's own criteria (ABI v103)
     'fylite_rs_zerod_limits', 'fylite_rs_zerod_flux_budget',
     'fylite_rs_zerod_averages',
     'fylite_rs_strike_points', 'fylite_rs_start_currents',
     'fylite_rs_fill_filaments', 'fylite_rs_x_points',
-    'fylite_rs_plasma_filaments',             //: ★the neutral-beam chain (ABI v105, already in every shipped
+                //: ★the neutral-beam chain (ABI v105, already in every shipped
     //: artifact and reachable from Python alone).  Listed so a build
     //: without them fails at LOAD rather than at the first beam: a
     //: page that discovered a missing entry mid-march would already
@@ -129,7 +130,8 @@
     'fylite_rs_shell_sum', 'fylite_rs_trapped_fraction_eps',
     'fylite_rs_interp',
     'fylite_rs_beam_slowing',
-    'fylite_rs_beam_energy_partition', //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
+    'fylite_rs_beam_energy_partition',
+    //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
     //: above).  `lh_deposit` is the whole per-launcher chain in ONE entry;
     //: the other four are the pieces a page reports BESIDE it —
     //: accessibility, the resonant layer, the CD weight and the damping
@@ -460,26 +462,6 @@
 
 
   /**
-   * `M[i, j]` between two filament SETS — the outer-product block, served
-   * without materialising either broadcast.
-   *
-   * ★What `loopResponse` used to build by filling a grid-length array with
-   * one loop's position, once per loop, and calling the ELEMENTWISE entry
-   * on it.  Same numbers; 35 materialised copies of a constant fewer.
-   */
-  Fy.prototype.mutualOuter = function (ar, az, br, bz) {
-    var self = this, na = ar.length, nb = br.length;
-    return this.scope(function (s) {
-      var a1 = s.put(ar), a2 = s.put(az), b1 = s.put(br), b2 = s.put(bz),
-          out = s.zeros(na * nb);
-      var rc = self.e.fylite_rs_mutual_outer(
-        a1.ptr, a2.ptr, BigInt(na), b1.ptr, b2.ptr, BigInt(nb), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_mutual_outer', rc);
-      return s.get(out);
-    });
-  };
-
-  /**
    * The `(nch, nel)` channel map, densified from `[[element, weight], ...]`
    * per channel.
    *
@@ -504,18 +486,6 @@
         c.ptr, e.ptr, w.ptr, BigInt(ch.length), BigInt(nch), BigInt(nel),
         out.ptr);
       if (rc !== 0) throw new SolveError('fylite_rs_channel_weights', rc);
-      return s.get(out);
-    });
-  };
-
-  /** Fold channel ampere-turns onto the elements they drive (`W^T x`). */
-  Fy.prototype.channelFold = function (weights, nch, nel, chanAturns) {
-    var self = this;
-    return this.scope(function (s) {
-      var w = s.put(weights), x = s.put(chanAturns), out = s.zeros(nel);
-      var rc = self.e.fylite_rs_channel_fold(
-        w.ptr, x.ptr, BigInt(nch), BigInt(nel), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_channel_fold', rc);
       return s.get(out);
     });
   };
@@ -851,25 +821,6 @@
   //: buffer shuffling their C signatures need.
 
 
-
-  /**
-   * Volume enclosed by a closed (R, Z) outline [m^3].
-   *
-   * ★Fewer than three points is an ERROR here, not a zero: "no outline" and
-   * "an outline enclosing nothing" are different questions and only the
-   * second has a volume for an answer.
-   */
-  Fy.prototype.enclosedVolume = function (poly) {
-    var self = this, n = poly.length;
-    return this.scope(function (s) {
-      var rz = new Float64Array(2 * n);
-      for (var i = 0; i < n; i++) { rz[2 * i] = poly[i][0]; rz[2 * i + 1] = poly[i][1]; }
-      var p = s.put(rz), out = s.zeros(1);
-      var rc = self.e.fylite_rs_enclosed_volume(p.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_enclosed_volume', rc);
-      return s.get(out)[0];
-    });
-  };
 
   /**
    * Internal inductance li(3) from the psi map.

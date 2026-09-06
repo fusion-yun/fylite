@@ -99,15 +99,9 @@ const wMap = fy.channelWeights(channels, NEL);
 
 // --- 2. the two folds ------------------------------------------------------
 const chan = Float64Array.from([3.1e5, -8.4e4, 1.9e6, 5.5e5]);
-{
-  const got = fy.channelFold(wMap, NCH, NEL, chan);
-  const ref = new Float64Array(NEL);
-  channels.forEach((combo, c) => combo.forEach(p => { ref[p[0]] += p[1] * chan[c]; }));
-  report('channelFold = elementCurrents', maxAbs(got, ref, NEL) === 0, '逐位');
-  report('分裂对确被拆开（非退化）',
-         ref[2] !== 0 && ref[3] !== 0 && Math.abs(ref[3] / ref[2] - 0.825 / 0.175) < 1e-12,
-         '44:204');
-}
+//: ★the ampere-turn fold (`channelFold`) left with its export in T-4 第十一刀
+//: (2026-09-06): no page called it — the folded field below is the one the pages
+//: read, and the kernel repository's `test_oracle_marshalling.py` holds the fold.
 
 const wT = new Float64Array(NEL * NCH);
 for (let c = 0; c < NCH; c++)

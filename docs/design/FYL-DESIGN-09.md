@@ -288,7 +288,7 @@ I_PF(t) = argmin ‖ 边界(I_PF; β_p(t), l_i(t)) − LCFS_target ‖ ,   t ∈
 ## D-7 过期的是线性化，不是电流 (what actually goes stale)
 
 〔工作假设〕D-6 的反解与 D-4 的设计都建立在**形状对电流的响应矩阵**上，而那是在某个
-参考平衡上做的有限差分（`scenario.design.shape.shape_response`）。状态漂移够大时，
+参考平衡上做的有限差分（旧 `scenario.design.shape.shape_response`，自 2026-09-06 归内核仓测试树）。状态漂移够大时，
 该失效的是**线性化**，不是电流轨迹本身。
 
 界面据此分两种徽章，措辞不可混：

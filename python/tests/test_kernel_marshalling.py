@@ -684,37 +684,6 @@ def test_strike_points_and_clearance_read_the_wall_as_a_polyline():
     #: T-4 第八刀, 2026-09-06); `code/summary` carries the gap on the page
 
 
-def test_a_start_is_more_isoflux_than_the_plasma_alone_and_respects_its_box():
-    """Eight point coils around a filament cloud: the design has to make the
-    requested boundary far more isoflux than doing nothing does, and a
-    bounded design has to stay inside its bound and say which channels sit
-    on it."""
-    nc = 8
-    th = np.linspace(0.0, 2 * np.pi, nc, endpoint=False)
-    els = (1.85 + 1.2 * np.cos(th), 1.2 * np.sin(th), np.zeros(nc),
-           np.zeros(nc), np.zeros(nc), np.zeros(nc))
-    w = np.eye(nc)
-    tb = np.linspace(0.0, 2 * np.pi, 24, endpoint=False)
-    br, bz = 1.85 + 0.45 * np.cos(tb), 0.74 * np.sin(tb)
-    fil = K.fill_filaments(br, bz, 4e5, n_ring=4, peaking=1.0)
-    assert fil[:, 2].sum() == pytest.approx(4e5, rel=1e-9)
-    d = K.start_currents(els, w, br, bz, fil,
-                         length=2 * np.pi * 1.85 * 0.45, lam=1e-3, nu=1, nv=1)
-    assert d["aturns"].size == nc
-    assert d["b_x"] is None                      # none was asked for
-    #: the plasma alone, on the same points — the baseline this has to beat
-    psi_p = np.array([
-        (fil[:, 2] * K.mutual_outer([r], [z], fil[:, 0], fil[:, 1])[0]).sum()
-        for r, z in zip(br, bz)])
-    bare = float(np.std(psi_p))
-    assert d["psi_rms"] < 0.2 * bare
-
-    cap = K.start_currents(els, w, br, bz, fil, length=1.0, lam=1e-4,
-                           i_max=np.full(nc, 1e4), nu=1, nv=1)
-    assert np.all(np.abs(cap["aturns"]) <= 1e4 + 1e-6)
-    assert cap["at_bound"].size > 0
-
-
 
 
 def test_spitzer_eta_is_the_parallel_branch_and_the_ratio_is_pinned():

@@ -22,7 +22,7 @@ from ... import device as _device_mod
 from .. import provenance
 
 __all__ = ["target_boundary", "start_state", "discharge",
-           "breakdown", "feasible", "loop_voltage"]
+           "breakdown", "feasible"]
 
 #: ★The device description is CONFIGURATION, not package data (see
 #: :mod:`fylite.device`): this distribution ships no machine description.
@@ -284,21 +284,6 @@ def _deck_channels(cond):
     map, ``element_arrays`` the one marshalling shape.
     """
     return _device_mod.element_arrays(cond["coils"]), cond["weights"]
-
-
-def loop_voltage(aturns_series, time, *, r0: float,
-                 z0: float = 0.0) -> np.ndarray:
-    """``V_loop = -dψ/dt`` at the null, from a current trajectory [V].
-
-    The flux per ampere-turn is the kernel's, and so is the derivative —
-    ★for its END RULE: a one-sided first-order end against a second-order
-    interior is a choice, and the loop voltage at t = 0 is exactly where a
-    breakdown design is read.
-    """
-    elems, w = _deck_channels(_conductors())
-    psi_c = K.channel_field(elems, w, [r0], [z0])[0].ravel()
-    x = np.atleast_2d(np.asarray(aturns_series, float))
-    return -K.gradient(x @ psi_c, np.asarray(time, float))
 
 
 def breakdown(*, r0: float, z0: float = 0.0, radius: float = 0.3,

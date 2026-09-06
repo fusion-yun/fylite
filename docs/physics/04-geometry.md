@@ -215,7 +215,7 @@ TGLF；哪一个符合 TGLF 的约定，实现未说。此为本章标出的**�
 $\abs{\nabla\psi}$ 为 $3\times3$ 模板最小、$\abs{\psi_N-1}\le$ `psin_window`、距轴 $\ge$ `min_axis_dist` 为候选；
 牛顿修正 $H\delta=-\nabla\psi$（步长超一格或 $\det H=0$ 则弃）；$2\max(\Delta R,\Delta Z)$ 内合并；按 $\abs{\psi_N-1}$
 排序截到 **2** 个。`strike_points`：`contour(psi_bnd)` 线段与壁折线求交（平行守卫 $\abs{\text{den}}<10^{-30}$）。
-`wall_clearance`：到壁**折线**（非顶点）的最小距离。`shape_observables` / `ray_level`：间隙、等磁通误差
+`wall_clearance`：到壁**折线**（非顶点）的最小距离（`code/summary` 的 `gap`）。`shape_observables`（自 2026-09-06 仅神谕构建可见）/ `ray_level`（已退役）：间隙、等磁通误差
 （以 1 mm 模板转为距离）、角采样边界点——"经 $\psi$ **场**射线求交，不是插值 g 文件的 `rbbbs/zbbbs` 折线……
 对后者求导带 10–25 % 的线性响应误差"（{ref}`phys13-intro`）。
 

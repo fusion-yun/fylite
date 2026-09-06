@@ -31,7 +31,7 @@ Fortran 路同名的那批标量，故两者可直接对照。
 **线圈份额是现算的，不再查表。** 磁通环读数里线圈那一份（EFIT 的 `rsilfc`）曾经必须从
 `rfcoil.ddd` 读，而本仓不带这份表——于是**整条 Python 反演路**在第一次内核调用之前就抛
 `MachineDataMissing`（令 `brsp=0` 也绕不开：数学归零不等于代码跳过）。现在它由装置文档的
-导体几何按 `device.channel_response(...)/2π` 现算（`recon_rs.coil_loop_rows`），与浏览器
+导体几何在门里现算（`code/reconstruction` · `code/coilshare`；旧 `recon_rs.coil_loop_rows` 自 2026-09-06 归内核仓测试树），与浏览器
 反演页、与本函数探针那一半走的是同一条路：**装置信息只有一个出处，即
 `$FYLITE_DEVICE_DIR` 指向的那份装置文档**。
 

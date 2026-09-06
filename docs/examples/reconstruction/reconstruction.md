@@ -114,7 +114,7 @@ rows = recon_rs.run_series(shot=137985, times=[3.0, 3.5, 4.0, 4.5], device=dev)
 
 - 反演解的是 Grad-Shafranov 的**自由边界逆问题**，基函数阶数（`npp` / `nff`）与截断
   （`trunc_keep`）是**输入**：它们决定解能表示什么，报出来是为了让读者知道解的自由度。
-- 磁探针与磁通环的响应由**装置牌的导体几何现算**（`recon_rs.coil_loop_rows`），
+- 磁探针与磁通环的响应由**装置牌的导体几何现算**（`code/reconstruction` · `code/coilshare`），
   不读 Green 表——所以换机器只换牌。
 - `q0` 这类轴上量对基函数阶数敏感；B-06 里有一整段专门讲这个缺口怎么收窄的。
 - 本仓不带 EFIT 求解器（`libefit.so` 随许可离开），反演入口因此**跑不动**；

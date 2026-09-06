@@ -83,7 +83,7 @@ meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld
 :::{note}
 **这一步不需要 Green 表。** `S.analysis.reconstruction(meas)` 扣磁通环上线圈份额用的那张
 表（EFIT 的 `rsilfc`）曾经必须从 `rfcoil.ddd` 读，而本仓不带它；现在它由装置文档的导体
-几何现算（`recon_rs.coil_loop_rows`），与浏览器反演页同一条路。**装置信息统一由
+几何现算（`code/reconstruction` 门内），与浏览器反演页同一条路。**装置信息统一由
 `$FYLITE_DEVICE_DIR` 指向的装置文档出**，指到哪台机器就是哪台。详见
 [平衡反演](reconstruction.md)。
 :::

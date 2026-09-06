@@ -43,50 +43,12 @@ from ... import device as _device_mod
 from ... import kernel
 from ...device import Element, conductor_set, passive_set
 
-__all__ = [
-    "VerticalStability", "plasma_filaments", "coupling_gradient",
-    "vertical_stiffness", "vertical_growth_rate", "vertical_mode",
-    "plasma_mass",
-]
-
-
-# --------------------------------------------------------------------------- #
-# plasma as rigid filaments, from a g-file                                    #
-# --------------------------------------------------------------------------- #
-def plasma_filaments(eq, *, coarsen: int = 2):
-    """Rigid filament set (r, z, amps) from an equilibrium's own profiles.
-
-    ``j_phi = R p'(psin) + FF'(psin)/(MU0 R)`` on grid cells inside the
-    LCFS, scaled so the filament sum reproduces the g-file Ip exactly (the
-    profile discretization would otherwise leave a percent-level gap, and
-    every rigid-mode quantity downstream is quadratic in the current).
-    ``coarsen`` merges cells to keep the filament count tractable.
-
-    ★The kernel's (:func:`fylite.kernel.plasma_filaments`), including the
-    containment rule — so "is this cell in the plasma" has one answer here
-    and in the mask, the tracer and the metrics.
-
-    ★★One measured consequence of that move: the kernel's grid is
-    ``r0 + dr*i`` while this module used to build it with ``linspace``, and
-    on this deck the two land 3e-15 apart at the top row — which is exactly
-    where the boundary polygon's own vertex sits, so 46 of 3838 cells change
-    side.  The filament sum is renormalised to Ip either way; measured on
-    the bundled case the coupling gradient moves 6.5e-5 and the stiffness
-    1.3e-4 at the production ``coarsen=2``, and both are exact at
-    ``coarsen=3`` where no block straddles that row.  A cell whose centre
-    lies ON the boundary is a coin flip in any implementation; what is worth
-    having is ONE coin.
-    """
-    from ... import fyo, kernel
-    doc = fyo.as_equilibrium(eq)
-    grid, psi = fyo.psi_map_of(doc)
-    psi_axis, psi_bnd = fyo.psi_range_of(doc)
-    return kernel.plasma_filaments(
-        grid, psi, psi_axis=psi_axis, psi_bnd=psi_bnd,
-        pprime=fyo.profile_of(doc, "dpressure_dpsi"),
-        ffprim=fyo.profile_of(doc, "f_df_dpsi"),
-        boundary=fyo.boundary_of(doc),
-        ip=fyo.ip_of(doc), coarsen=coarsen)
+#: ★the rigid-filament recipe (`plasma_filaments` · `vertical_stiffness` ·
+#: `vertical_growth_rate` · `plasma_mass`) had no caller
+#: here or in the app: it is the kernel repository's oracle tree since T-4
+#: 第十一刀 (2026-09-06).  `code/vstab` is the plant; `coupling_gradient` stays
+#: for `vertical_system`'s diagnostic rows.
+__all__ = ["VerticalStability", "coupling_gradient", "vertical_mode"]
 
 
 # --------------------------------------------------------------------------- #
@@ -110,18 +72,10 @@ def coupling_gradient(plasma, loops) -> np.ndarray:
     return g.reshape(lr.shape)
 
 
-def vertical_stiffness(plasma, loops, currents, *, step: float = 1.0e-3) -> float:
-    """External-field stiffness k = sum_i a_i d2psi_ext/dZ2 [N/m]; k > 0
-    destabilizing.  Second derivative by central difference of the first
-    (same construction as fyeq) — the kernel's."""
-    from ... import kernel
-    lr, lz, lt = (np.asarray(a, float) for a in zip(*loops))
-    cur = np.atleast_1d(np.asarray(currents, float))
-    if cur.shape != lr.shape:
-        raise ValueError(f"currents length {cur.shape} != loops {lr.shape}")
-    return kernel.vertical_stiffness(plasma, (lr, lz, lt), cur, step=step)
-
-
+# --------------------------------------------------------------------------- #
+# EAST wiring: one call from a g-file + the device description                #
+# --------------------------------------------------------------------------- #
+#: ★the verdict `vertical_mode` returns — the type stays public with it (T-4 第十一刀)
 @dataclass(frozen=True)
 class VerticalStability:
     """n=0 vertical-mode verdict; regime read off the model's own numbers."""
@@ -136,72 +90,6 @@ class VerticalStability:
         return self.regime == "stable"
 
 
-def plasma_mass(eq, *, n_e: float = 3.0e19, a_mass: float = 2.0) -> float:
-    """Plasma mass [kg] = n_i m_i V, with the volume taken from the
-    equilibrium boundary (V = 2*pi * integral R dA by the
-    shoelace-with-centroid rule).
-
-    Density and species are ASSUMPTIONS, not equilibrium content: neither a
-    GEQDSK nor an ``fyo:equilibrium`` carries profiles of either.  Defaults
-    are EAST-typical (3e19 m^-3, deuterium); pass your own to see the
-    sensitivity.
-    """
-    from ... import fyo, kernel
-    poly = np.column_stack(fyo.boundary_of(fyo.as_equilibrium(eq)))
-    #: Pappus by way of Green's theorem — the kernel's, so the volume a mass
-    #: is built on is the same number the metrics report
-    volume = kernel.enclosed_volume(poly)
-    m_i = a_mass * 1.66053906660e-27
-    return float(n_e * m_i * volume)
-
-
-def vertical_growth_rate(plasma, passive_loops, inductance, resistance, *,
-                         stiffness: float, gamma_max: float = 1.0e6,
-                         mass: float = 0.0) -> VerticalStability:
-    """Solve k = gamma Ip^2 G^T (gamma M + R)^-1 G (monotone -> bisection).
-
-    With ``mass`` > 0 the massless force balance is replaced by
-    m gamma^2 + gamma Ip^2 G^T (gamma M + R)^-1 G = k, i.e. plasma
-    inertia is retained.  The default 0 is the quasi-static limit every
-    step-wise-GS code assumes; comparing the two is how this module
-    answers "when does that assumption stop holding" without TSC.
-    """
-    pr, pz, pamp = (np.atleast_1d(np.asarray(a, float)) for a in plasma)
-    ip = float(pamp.sum())
-    g = coupling_gradient(plasma, passive_loops)
-    m = np.asarray(inductance, float)
-    r = np.atleast_1d(np.asarray(resistance, float))
-    n = g.size
-    if m.shape != (n, n):
-        raise ValueError(f"inductance must be ({n},{n}), got {m.shape}")
-    if r.shape != (n,):
-        raise ValueError(f"resistance must have length {n}, got {r.shape}")
-    if np.any(r <= 0.0):
-        raise ValueError("passive-loop resistances must be positive")
-    k = float(stiffness)
-    from ... import kernel
-    #: ★one host for both linear-algebra quantities.  The regime logic
-    #: (which branch, and what "ideal-unstable" means) stays here because it
-    #: is a classification of the answer, not the answer.
-    k_ideal = kernel.ideal_stiffness(m, g, ip=ip)
-    if k <= 0.0:
-        return VerticalStability(0.0, "stable", k, k_ideal, float("inf"))
-    if k >= k_ideal and not mass:
-        return VerticalStability(float("inf"), "ideal-unstable", k,
-                                 k_ideal, k_ideal / k - 1.0)
-    gamma = kernel.dispersion_root(g, m, r, ip=ip, stiffness=k,
-                                   mass=float(mass),
-                                   gamma_max=float(gamma_max))
-    if gamma is None:
-        return VerticalStability(float("inf"), "ideal-unstable", k,
-                                 k_ideal, k_ideal / k - 1.0)
-    return VerticalStability(gamma, "resistive-wall", k, k_ideal,
-                             k_ideal / k - 1.0)
-
-
-# --------------------------------------------------------------------------- #
-# EAST wiring: one call from a g-file + the device description                #
-# --------------------------------------------------------------------------- #
 def vertical_mode(eq, *, coil_aturns,
                   eta_vessel_uohm_m=None, device=None,
                   passive_groups=("inner_shell",), coarsen: int = 2,

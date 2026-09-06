@@ -80,7 +80,7 @@ title: 输入模式 (Input Modes)
 - 磁通环与探针的**响应行**不再查表，由内核按给定网格现算
   （`kernel.mutual_outer` / `kernel.probe_response`）；线圈→环的那一行（EFIT 的 `rsilfc`，
   过去唯一还要读 `rfcoil.ddd` 的地方）也已改为现算
-  （`recon_rs.coil_loop_rows` = `device.channel_response(...)/2π`），线圈→探针本来就是算的
+  （`code/reconstruction` 门内的线圈→回路行，旧 `recon_rs.coil_loop_rows` 自 2026-09-06 归内核仓测试树），线圈→探针本来就是算的
   （`device.probe_element_response`）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
   文档**；`device.coil_response_tables` / `vessel_response_tables` 只剩"拿别人的表和几何对一遍"
   这一个用途（`device.vessel_table_check`，自 2026-09-06 归内核仓测试树 `tests/oracles/em_kernel.py`），活路上没有调用者（闸子

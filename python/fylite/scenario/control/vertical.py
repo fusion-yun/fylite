@@ -156,39 +156,3 @@ def _device_document(device) -> dict:
         return device
     import yaml
     return yaml.safe_load(_device_mod.deck_path("east_device.yaml").read_text(encoding="utf-8"))
-
-
-def close_vertical_loop(sys: VerticalSystem, *, t_end: float, dt: float,
-                        kp: float, kd: float, xi0: float = 1.0e-3,
-                        direction=(1.0, -1.0), use_observer: bool = False,
-                        v_max: float | None = None,
-                        actuator_tau: float | None = None,
-                        noise_rms: float = 0.0, seed: int = 7) -> dict:
-    """Simulate the loop: implicit-Euler plant, PD controller with a
-    one-step measurement delay, optional actuator saturation and one-pole
-    actuator lag (the PF-supply model; ``actuator_tau`` is the caller's).
-
-    ``kp/kd = 0`` is the broken-loop control run of the discriminator.
-    The initial state is the unstable eigenvector scaled to ``xi0``.
-    """
-    nstep = int(round(t_end / dt))
-    observer = use_observer
-    noise = None
-    if observer and noise_rms:
-        #: ★the draws are made HERE and handed to the kernel.  A random
-        #: number generator is not physics, and a run that redraws inside
-        #: the loop cannot be reproduced from the other host — the same
-        #: reason the kernel takes a chi rather than a closure.
-        rng = np.random.default_rng(seed)
-        psi_scale = float(np.abs(sys.loops_P).max() * xi0)
-        noise = rng.normal(scale=noise_rms * psi_scale,
-                           size=(nstep + 1, sys.loops_P.size))
-    out = kernel.vertical_loop(
-        {"m_star": sys.M_star, "c_xi": sys.C_xi, "mode": sys.mode},
-        sys.R, t_end=t_end, dt=dt, kp=kp, kd=kd, xi0=xi0,
-        direction=np.asarray(direction, float), b_act=sys.B_act,
-        loops_c=sys.loops_C if observer else None,
-        loops_p=sys.loops_P if observer else None,
-        noise=noise, v_max=v_max, actuator_tau=actuator_tau)
-    return {"t": out["t"], "xi": out["xi"], "u": out["u"],
-            "state_final": out["state_final"]}

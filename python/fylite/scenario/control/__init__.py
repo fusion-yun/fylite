@@ -37,7 +37,7 @@ def vstab(eq: dict | str, *, coil_aturns: list, device=None,
     reason they are arguments rather than constants is that a stability
     answer that cannot be pushed is an answer nobody can check.
 
-    ★The regime is taken from :class:`fylite.scenario.control.stability.VerticalStability`
+    ★The regime is taken from ``VerticalStability`` (the kernel repository's oracle tree since T-4 第十一刀)
     as it comes — it is read there off the two STIFFNESSES, not off the
     growth rate, because the ideal-unstable regime has no finite gamma to
     read and a classification keyed on gamma would mislabel exactly the case

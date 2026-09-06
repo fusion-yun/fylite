@@ -197,7 +197,7 @@ $1,\cos m\theta,\sin m\theta$（`vessel_modes`）；文档化的**否定结果**
 (phys03-post)=
 # 后处理闭式 (Post-Processing Closed Forms)
 
-〔实现〕由拟合系数得剖面（磁面描迹层、`recon_rs.fit_profiles`）：
+〔实现〕由拟合系数得剖面（磁面描迹层；`code/reconstruction` 的 `f_x` · `pres` · `fpol` 行，旧 `recon_rs.fit_profiles` 自 2026-09-06 归内核仓测试树）：
 
 $$
 A(x)=\sum_kc^F_k\left[\frac{1-x^{k+1}}{k+1}-\frac{1-x^{n_{ff}+1}}{n_{ff}+1}\right],\qquad
@@ -262,7 +262,7 @@ $$ (eq-p03-p)
 | ＋ 磁面平均电流行 | 同上，另受 `fyo:core_profiles` 的电流密度约束 | `recon_rs.reconstruct(fsa=…)` |
 | ＋ 线圈作为带 $\sigma$ 的观测量 | 同上，另读写 `fyo:pf_active` 的线圈电流（拟合后回写） | `recon_rs.reconstruct(coil_sigma=…)` |
 | 约束最小二乘、压强行 / 电流行 | —（反演内部的行装配） | `S.analysis.profit` 供压强点 |
-| 后处理 $F$、$p$ | `fyo:equilibrium` 的 `profiles_1d` | `recon_rs.fit_profiles` |
+| 后处理 $F$、$p$ | `fyo:equilibrium` 的 `profiles_1d` | `code/reconstruction`（旧 `recon_rs.fit_profiles` 归内核仓测试树） |
 | 自洽外环（自举回灌） | `fyo:equilibrium` ↔ `fyo:core_transport` 往复 | `scenario.analysis.loop`（{ref}`phys07-intro`） |
 :::
 

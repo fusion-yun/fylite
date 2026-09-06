@@ -49,10 +49,11 @@ $\sqrt{k/m}=5.5\times10^5$ rad/s 而 $\gamma=12.6$ s⁻¹，**惯性修正仅 $2
 $M^*=M-I_p^2GG^\mathsf{T}/k$——**小信号域里等离子体确实反作用于电路**。
 
 ```python
-sysv = K.vertical_system(g, tables, ic_coils=dev["ic_coil"]["coils"], ...)
-r = K.close_vertical_loop(sysv, t_end=1.0, dt=2e-4, kp=300., kd=0.3,
-                          use_observer=True, noise_rms=0.02, v_max=100.)
+sysv = K.vertical_system(g, tables, ic_coils=dev["ic_coil"]["coils"], ...)   # 对象模型：code/vstab
 ```
+
+闭环本身（`close_vertical_loop`：PD + 观测器 + 执行器饱和与滞后）自 2026-09-06 归内核仓测试树
+（`tests/oracles/vertical.py`，由 `tests/test_control.py` 守）——公开包与页面里都没有调用者。
 
 判据是**断环必须发散、闭环必须归零**：断环 ξ 1 mm → 5.4e7 mm；
 闭环 kp=300/kd=0.3 无过冲回到设定值 <1%，IC 上仅 0.3 V/turn；

@@ -241,7 +241,7 @@ $\Phi_{\rm avail}\le0$ 或 $V_{\rm flattop}\le0$ 时 **$-1$**（"摆幅未声明
 | :--- | :--- | :--- |
 | 反应率与聚变功率 | `fyo:summary`：聚变功率、$Q$ | `S.model.zerod` |
 | 规定剖面、体积平均、线平均 | `fyo:core_profiles`（规定形状）与 `fyo:summary` 的平均量 | 同上 |
-| 环电压与电感 | `fyo:summary`：环电压、$l_i$ | `S.design.loop_voltage` |
+| 环电压与电感 | `fyo:summary`：环电压、$l_i$ | `code/zerod` 的磁通账（`zerod_flux_budget`）；旧 `S.design.loop_voltage` 自 2026-09-06 退役（无调用者） |
 | 波形与相位 | `fyo:pulse_schedule`：随时间的驱动量与相位标签 | `Phases`、`Waveform` |
 | Tier A（规定剖面档） | `fyo:summary`：功率平衡与时间轨迹 | `S.model.zerod()` |
 | Tier B（约束标度律能量平衡档） | 同上，另出 $\tau_E$ 与 L–H 阈值 | `S.model.zerod(predict=True)` |

@@ -56,23 +56,17 @@ __all__ = [
     "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
     "zerod_limits", "zerod_flux_budget", "zerod_stored_energy",
     "zerod_averages", "strike_points",     "start_currents", "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
-    "trace_surface", "contour", "shape_metrics", "enclosed_volume",
-    "direct_integrals", "gradient",
+    "trace_surface", "contour", "shape_metrics",     "direct_integrals", "gradient",
     "shell_sum", "li3", "profile_shape_fit", "sample",
     "redl_bootstrap", "trapped_fraction_eps",
     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
     "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "psin_along", "quadrature",
-    "line_integral",     "current_centroid",
-    "ideal_stiffness", "dispersion_root", "vertical_plant", "vertical_loop",
-    "inside_polygon", "f_from_coefficients", "probe_response",
-            "table_ratio_check",
-    "ellipke", "mutual_outer",     "element_response",
+    "line_integral",         "dispersion_root", "vertical_plant",     "inside_polygon",             "table_ratio_check",
+    "ellipke",     "element_response",
     "element_probe_response",
-    "coupling_gradient", "vertical_stiffness",
-    "plasma_filaments",
-    "spitzer_eta", "spitzer_eta_perp", "eped1nn",
+    "coupling_gradient",         "spitzer_eta", "spitzer_eta_perp", "eped1nn",
                                 "reintegrate", "flux_match", "FluxMatchError",
     "adas_id", "adas_species", "adas_cooling", "rad_ion", "rad_sync",
     "exchange_power", "volume_int",
@@ -94,7 +88,7 @@ __all__ = [
     "FREE_SOLVE_KEYS",
     "ohmic_power", "quasi_neutral_ne", "b_unit_from_rho",
     "ion_dilution", "with_axis_node",
-    "shape_observables", "two_temperature_march",
+    "two_temperature_march",
     "deltastar_apply", "core_march", "label_drift", "solve_momentum",
     "scenario", "scenario_layout", "SCENARIO_ENTRIES",
     "d_from_flux", "gyrobohm_gamma", "alpha_heating",
@@ -1236,50 +1230,6 @@ def line_integral(psin, r, z, ds: float, *, f_val, f_max_psin: float = 1.0,
             "n_inside": int(info[1]), "psin_min": float(info[2])}
 
 
-_sig("fylite_rs_current_centroid", ([_ARR] * 5 + [_U64] + [_F64] * 3 + [_ARR]), _I32)
-def current_centroid(probe_r, probe_z, angle_rad, b_plasma, weight, *,
-                     ip: float, guess) -> dict:
-    """Fit one current filament to the plasma-only probe field.
-
-    ★The anchor a magnetics-only reconstruction cannot find for itself: the
-    loops leave the vertical position nearly free (measured, ~45 mm off in Z
-    while the axis R is already good to 0.6 mm), and reading it from an EFIT
-    a-file would make the answer depend on the code being replaced.
-    """
-    lib = require()
-    args = [_f(a) for a in (probe_r, probe_z, angle_rad, b_plasma, weight)]
-    n = args[0].size
-    out = np.empty(3)
-    rc = lib.fylite_rs_current_centroid(*args, n, float(ip),
-                                        float(guess[0]), float(guess[1]), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_current_centroid returned {rc}")
-    return {"r": float(out[0]), "z": float(out[1]), "residual": float(out[2])}
-
-
-# --------------------------------------------------------------------------- #
-# the electromagnetic tier (electromagnetics.rs / evolution.rs / stability.rs)
-# --------------------------------------------------------------------------- #
-_sig("fylite_rs_ideal_stiffness", [_ARR, _ARR, _U64, _F64, _ARR], _I32)
-def ideal_stiffness(inductance, coupling_gradient, *, ip: float) -> float:
-    """The ideal-wall vertical stiffness ``Ip² Gᵀ M⁻¹ G`` [N/m].
-
-    ★The REGIME BOUNDARY: below it the mode is resistive-wall and
-    the vertical plant (now ``code/vstab``'s) applies; at or above it the plant is
-    ideal-unstable and that function refuses.  Askable on its own so a
-    caller does not have to trigger the refusal to find out where it is.
-    """
-    lib = require()
-    g = _f(coupling_gradient)
-    n = g.size
-    m = _f(np.reshape(inductance, (n, n)))
-    out = np.empty(1)
-    rc = lib.fylite_rs_ideal_stiffness(g, m.ravel(), n, float(ip), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_ideal_stiffness returned {rc}")
-    return float(out[0])
-
-
 _sig("fylite_rs_dispersion_root", [_ARR, _ARR, _ARR, _U64, _F64, _F64, _F64, _F64, _ARR], _I32)
 def dispersion_root(coupling_gradient, inductance, resistance, *, ip: float,
                     stiffness: float, mass: float = 0.0,
@@ -1308,58 +1258,6 @@ def dispersion_root(coupling_gradient, inductance, resistance, *, ip: float,
     return float(out[0])
 
 
-_sig("fylite_rs_vertical_loop", ( [_ARR] * 4 + [_U64] + [_F64] * 5 + [_ARR, _ARR, _U64, _I32] + [ctypes.c_void_p] * 2 + [_U64, ctypes.c_void_p] + [_F64] * 2 + [_ARR] * 4), _I32)
-def vertical_loop(plant: dict, resistance, *, t_end: float, dt: float,
-                  kp: float, kd: float, xi0: float, direction, b_act,
-                  loops_c=None, loops_p=None, noise=None,
-                  v_max: float | None = None,
-                  actuator_tau: float | None = None) -> dict:
-    """One closed-loop run: implicit-Euler plant, PD with a one-step delay.
-
-    ★The measurement delay is not an implementation detail — a PD law on a
-    resistive vertical mode stabilises only if it acts faster than the mode
-    grows, and a controller reading the current step would hide the failure
-    a real digital loop has.
-
-    ``loops_c``/``loops_p`` switch on the flux-loop observer; ``noise`` is
-    the measurement noise the CALLER draws (a random number generator is
-    not physics, and passing the draws in keeps a run reproducible from
-    either host).  ``kp = kd = 0`` is the broken-loop control run.
-    """
-    lib = require()
-    ms = _f(plant["m_star"])
-    cx, md, r_a = _f(plant["c_xi"]), _f(plant["mode"]), _f(resistance)
-    n = cx.size
-    dirv = _f(np.atleast_1d(direction))
-    n_act = dirv.size
-    ba = _f(np.reshape(b_act, (n, n_act)))
-    observer = loops_c is not None and loops_p is not None
-    if observer:
-        lc, lp = _f(loops_c), _f(loops_p)
-        n_loops = lp.size
-    else:
-        lc = lp = None
-        n_loops = 0
-    nstep = int(round(t_end / dt))
-    ns = None if noise is None or not observer else _f(
-        np.reshape(noise, (nstep + 1, n_loops)))
-    t, xi, u = (np.empty(nstep + 1) for _ in range(3))
-    state = np.empty(n)
-    rc = lib.fylite_rs_vertical_loop(
-        ms.ravel(), r_a, cx, md, n, float(t_end), float(dt), float(kp),
-        float(kd), float(xi0), dirv, ba.ravel(), n_act,
-        1 if observer else 0,
-        None if lc is None else lc.ctypes.data,
-        None if lp is None else lp.ctypes.data, n_loops,
-        None if ns is None else ns.ctypes.data,
-        float("nan") if v_max is None else float(v_max),
-        float("nan") if actuator_tau is None else float(actuator_tau),
-        t, xi, u, state)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_vertical_loop returned {rc}")
-    return {"t": t, "xi": xi, "u": u, "state_final": state}
-
-
 _sig("fylite_rs_inside_polygon", [_ARR, _ARR, _U64, _ARR, _ARR, _U64, _ARR], _I32)
 def inside_polygon(r, z, poly_r, poly_z):
     """Even-odd point-in-polygon — the same rule the plasma mask uses.
@@ -1377,59 +1275,6 @@ def inside_polygon(r, z, poly_r, poly_z):
     if rc != 0:
         raise KernelError(f"fylite_rs_inside_polygon returned {rc}")
     return out.reshape(shape) != 0.0
-
-
-_sig("fylite_rs_f_from_coefficients", [_ARR, _U64, _ARR, _U64, _F64, _F64, _ARR], _I32)
-def f_from_coefficients(cff, x, *, span_pr: float, f_edge: float):
-    """``F(x)`` from fitted ``FF'`` coefficients, integrated analytically.
-
-    ★Not the same entry as the sampled ``f_profile``: that one trapezoids a
-    sampled ``FF'`` (what a g-file carries); this is the closed form of the
-    inverse solve's edge-zeroed basis (what a fit produces).  Putting a
-    fit's coefficients through a quadrature adds a discretisation error to
-    a quantity that has none.
-    """
-    lib = require()
-    c, x_a = _f(np.atleast_1d(cff)), _f(np.atleast_1d(x))
-    out = np.empty(x_a.size)
-    rc = lib.fylite_rs_f_from_coefficients(c, c.size, x_a, x_a.size,
-                                           float(span_pr), float(f_edge), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_f_from_coefficients returned {rc}")
-    return out.reshape(np.shape(x)) if np.shape(x) else float(out[0])
-
-
-_sig("fylite_rs_probe_response", [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _ARR, _U64, _ARR], _I32)
-def probe_response(grid_r, grid_z, probe_r, probe_z, angle_rad):
-    """Magnetic-probe Green's rows: ``(n_probe, nr, nz)`` in T per amp.
-
-    Row ``p`` is ``B_R cos(a_p) + B_Z sin(a_p)`` from a unit toroidal
-    current in each cell — the probe analogue of the flux-loop rows, so a
-    reconstruction can take probes as CONSTRAINTS rather than only
-    predicting them afterwards.
-
-    ★The projection onto the probe's own angle is the whole difference from
-    a loop row, and a wrong angle convention does not raise: the fit
-    converges on a plasma tilted to match.
-
-    ★★**These rows are PLASMA-ONLY, and a raw probe reading is not.**  A
-    measured probe sees the plasma and the coils together, while a deck's
-    loop readings usually arrive with the coil term already subtracted.
-    Handing the full field to a plasma-only row asks the plasma current to
-    reproduce the coil field as well, and the fit obliges — measured on
-    EAST: li(3) 2.665 → 3.42, q0 0.495 → 0.345, with a converged solve and
-    a smooth ψ map.  Subtract the coils' field at the probe first.
-    """
-    lib = require()
-    gr, gz = _f(grid_r), _f(grid_z)
-    pr, pz = _f(np.atleast_1d(probe_r)), _f(np.atleast_1d(probe_z))
-    ang = _f(np.broadcast_to(np.atleast_1d(angle_rad), pr.shape))
-    out = np.empty(pr.size * gr.size * gz.size)
-    rc = lib.fylite_rs_probe_response(gr, gr.size, gz, gz.size, pr, pz, ang,
-                                      pr.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_probe_response returned {rc}")
-    return out.reshape(pr.size, gr.size, gz.size)
 
 
 _sig("fylite_rs_ellipke", [_ARR, _U64, _ARR, _ARR], _I32)
@@ -1451,20 +1296,6 @@ def ellipke(m):
     #: no longer does (numpy 2).
     shape = np.shape(m)
     return k.reshape(shape), e.reshape(shape)
-
-
-_sig("fylite_rs_mutual_outer", [_ARR, _ARR, _U64, _ARR, _ARR, _U64, _ARR], _I32)
-def mutual_outer(a_r, a_z, b_r, b_z):
-    """``M[i, j]`` between two filament sets — the outer-product shape,
-    served without materialising the broadcast."""
-    lib = require()
-    ar, az = _f(np.atleast_1d(a_r)), _f(np.atleast_1d(a_z))
-    br, bz = _f(np.atleast_1d(b_r)), _f(np.atleast_1d(b_z))
-    out = np.empty((ar.size, br.size))
-    rc = lib.fylite_rs_mutual_outer(ar, az, ar.size, br, bz, br.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_mutual_outer returned {rc}")
-    return out
 
 
 _sig("fylite_rs_scale_by_turns", (_ARR, _U64, _U64, ctypes.c_void_p, ctypes.c_void_p), _I32)
@@ -1494,27 +1325,6 @@ def channel_weights(channels, n_elements: int):
     if rc != 0:
         raise KernelError(f"fylite_rs_channel_weights returned {rc}")
     return out.reshape(n_ch, int(n_elements))
-
-
-_sig("fylite_rs_channel_fold", (_ARR, _ARR, _U64, _U64, _ARR), _I32)
-def channel_fold(weights, channel_aturns):
-    """Fold channel ampere-turns onto the elements they drive (``Wᵀ x``).
-
-    A RELABELLING — which deck element a supply drives, and in what split —
-    applied in ONE place and in one direction.
-    """
-    lib = require()
-    w = _f(np.ascontiguousarray(weights, dtype=float))
-    x = _f(np.atleast_1d(np.asarray(channel_aturns, float)))
-    n_ch, n_el = w.shape
-    if x.size != n_ch:
-        raise KernelError(f"channel_fold: {x.size} ampere-turns against "
-                          f"{n_ch} channels")
-    out = np.empty(n_el)
-    rc = lib.fylite_rs_channel_fold(w.ravel(), x, n_ch, n_el, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_channel_fold returned {rc}")
-    return out
 
 
 _sig("fylite_rs_element_response", [*_SIX, _U64, _ARR, _ARR, _U64, _U64, _U64, _ARR, _ARR, _ARR], _I32)
@@ -1554,7 +1364,7 @@ def element_probe_response(elems, probe_r, probe_z, angle_rad, *,
     written out next to each caller, each with its own finite-difference
     step, which is two conventions waiting to differ.
 
-    Companion to :func:`probe_response`, which answers the same question for
+    Companion to the oracle-only ``probe_response``, which answers the same question for
     a GRID CELL rather than a conductor.
     """
     lib = require()
@@ -1591,26 +1401,6 @@ def coupling_gradient(plasma, loops):
     return out
 
 
-_sig("fylite_rs_vertical_stiffness", [_ARR, _ARR, _ARR, _U64, _ARR, _ARR, _ARR, _ARR, _U64, _F64, _ARR], _I32)
-def vertical_stiffness(plasma, loops, currents, *, step: float = 1.0e-3):
-    """External-field stiffness ``k = Σ a_i d²ψ_ext/dZ²`` [N/m]; ``k > 0``
-    destabilising."""
-    lib = require()
-    pr, pz, pa = (_f(np.atleast_1d(x)) for x in plasma)
-    lr, lz, lt = (_f(np.atleast_1d(x)) for x in loops)
-    cur = _f(np.atleast_1d(currents))
-    if cur.size != lr.size:                      # domain errors, see ellipke
-        raise ValueError(f"currents length {cur.size} != loops {lr.size}")
-    if not step > 0.0:
-        raise ValueError(f"step must be positive (got {step!r})")
-    out = np.empty(1)
-    rc = lib.fylite_rs_vertical_stiffness(pr, pz, pa, pr.size, lr, lz, lt,
-                                          cur, lr.size, float(step), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_vertical_stiffness returned {rc}")
-    return float(out[0])
-
-
 _sig("fylite_rs_table_ratio_check", ([_ARR] * 2 + [_ARR, _U64, _ARR, _U64] + [_ARR] * 4 + [_U64, _ARR, _ARR]), _I32)
 def table_ratio_check(table, mine, grid_r, grid_z, elems) -> dict:
     """The two-path acceptance: how a recomputed psi response compares with
@@ -1645,35 +1435,6 @@ def table_ratio_check(table, mine, grid_r, grid_z, elems) -> dict:
         raise KernelError(f"fylite_rs_table_ratio_check returned {rc}")
     return {"per_segment": out, "ratio_median": float(out3[0]),
             "ratio_min": float(out3[1]), "ratio_max": float(out3[2])}
-
-
-_sig("fylite_rs_plasma_filaments", ([_F64] * 4 + [_U64] * 2 + [_ARR] + [_F64] * 2 + [_ARR, _U64, _ARR, _U64, _ARR, _ARR, _U64] + [_F64, _U64, _U64] + [_ARR] * 3), _I32)
-def plasma_filaments(grid: Grid, psi, *, psi_axis: float, psi_bnd: float,
-                     pprime, ffprim, boundary, ip: float,
-                     coarsen: int = 2) -> tuple:
-    """A rigid filament set ``(r, z, amps)`` from an equilibrium's profiles.
-
-    ``j_φ = R p′ + FF′/(μ₀R)`` on the cells inside the boundary, rescaled so
-    the sum reproduces ``ip`` exactly — a percent there is two percent on a
-    growth rate, which is quadratic in the current.
-    """
-    lib = require()
-    psi = _f(psi)
-    if psi.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi has shape {psi.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    pp, ff = _f(pprime), _f(ffprim)
-    br, bz = _f(boundary[0]), _f(boundary[1])
-    c = max(int(coarsen), 1)
-    cap = ((grid.nr + c - 1) // c) * ((grid.nz + c - 1) // c)
-    out_r, out_z, out_a = (np.empty(cap) for _ in range(3))
-    rc = lib.fylite_rs_plasma_filaments(
-        *grid.args, psi.ravel(), float(psi_axis), float(psi_bnd),
-        pp, pp.size, ff, ff.size, br, bz, br.size, float(ip), c, cap,
-        out_r, out_z, out_a)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_plasma_filaments returned {rc}")
-    return out_r[:rc].copy(), out_z[:rc].copy(), out_a[:rc].copy()
 
 
 _sig("fylite_rs_spitzer_eta", [_ARR] * 3 + [_U64, _ARR], _I32)
@@ -2843,21 +2604,6 @@ def shape_metrics(poly) -> dict:
             "delta_upper": out[3], "delta_lower": out[4], "z0": out[5]}
 
 
-_sig("fylite_rs_enclosed_volume", [_ARR, _U64, _ARR], _I32)
-def enclosed_volume(poly) -> float:
-    """Volume [m³] the boundary polygon encloses (Pappus on the centroid)."""
-    lib = require()
-    p = _f(poly)
-    out = np.empty(1)
-    rc = lib.fylite_rs_enclosed_volume(p.ravel(), p.shape[0], out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_enclosed_volume returned {rc}")
-    return float(out[0])
-
-
-# --------------------------------------------------------------------------- #
-# least squares (linalg.rs)
-# --------------------------------------------------------------------------- #
 _sig("fylite_rs_ridge_lstsq", [_ARR, _ARR, _ARR, _U64, _U64, _ARR, _ARR], _I32)
 def ridge_lstsq(a, b, w, lam) -> np.ndarray:
     """Weighted ridge least squares; raises if the normal matrix is not PD.
@@ -4015,41 +3761,6 @@ def core_march(rho, *, te, ti, ni, z=(1.0,), edge_ni=None, psi=0.0,
             "retries": int(info[5])}
 
 
-_sig("fylite_rs_shape_observables", ([_F64] * 4 + [_U64, _U64, _ARR, _F64, _ARR, _U64, _ARR, _U64, _ARR, _U64] + [_F64] * 3 + [_ARR]), _I32)
-def shape_observables(grid: Grid, psi, psi_bnd: float, *, gaps=(),
-                      isoflux=(), angles=(), axis, angle_span: float = 1.2):
-    """The observable vector a shape controller measures — the kernel's.
-
-    ``gaps`` are ``(r0, z0, dr, dz)``, ``isoflux`` ``(r, z)``, ``angles``
-    degrees from the magnetic axis.  The vector ends with the axis itself.
-
-    ★★The isoflux conversion is the part worth naming: a flux error is in
-    webers and a controller acts in metres, so it is divided by ``|∇ψ|``
-    measured on a 1 mm stencil at the point.  A different stencil — or none
-    — still gives a number that moves the right way, just scaled by
-    something that varies over the boundary.
-    """
-    lib = require()
-    f = _f(psi)
-    if f.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi has shape {f.shape}, expected "
-                          f"{(grid.nr, grid.nz)}")
-    gp = _f(np.asarray(gaps, float).reshape(-1, 4))
-    iso = _f(np.asarray(isoflux, float).reshape(-1, 2))
-    an = _f(np.atleast_1d(np.asarray(angles, float)).ravel())
-    n = gp.shape[0] + iso.shape[0] + 2 * an.size + 2
-    out = np.empty(n)
-    rc = lib.fylite_rs_shape_observables(
-        grid.r0, grid.z0, grid.dr, grid.dz, grid.nr, grid.nz, f.ravel(),
-        float(psi_bnd), gp.ravel(), gp.shape[0], iso.ravel(), iso.shape[0],
-        an, an.size, float(axis[0]), float(axis[1]), float(angle_span), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_shape_observables returned {rc}")
-    return out
-
-
-#: The MXH shape harmonics `geo_surface` accepts, in the order GEO stores
-#: them: each name is followed by its radial shear `s_<name>`.
 GEO_SHAPE_KEYS = (
     "cos0", "s_cos0", "cos1", "s_cos1", "cos2", "s_cos2", "cos3", "s_cos3",
     "cos4", "s_cos4", "cos5", "s_cos5", "cos6", "s_cos6",
@@ -4320,7 +4031,7 @@ def channel_field(elems, weights, pr, pz, *, nu: int = 3, nv: int = 3):
 
     ★★The map is ``(n_channel, n_element)`` HERE, as it is at every other
     host-side entry that takes it (:func:`channel_weights` produces that
-    shape, :func:`channel_fold` and the oracle-only ``channel_matrices`` consume it).
+    shape, the oracle-only ``channel_fold`` and the oracle-only ``channel_matrices`` consume it).
     The wire format for THIS entry is the transpose, and that transpose
     happens on the marshalling line below — where a wire format belongs.  It
     used to be the caller's, which is how one package came to hold both

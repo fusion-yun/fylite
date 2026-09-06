@@ -81,7 +81,7 @@ $$ (eq-p12-euler)
 (phys12-vstab-model)=
 ## 丝云、耦合梯度与刚度 (Filaments, Coupling Gradient and Stiffness)
 
-〔实现〕`plasma_filaments`：由平衡自身剖面 $j_\phi=Rp'(\psi_N)+FF'(\psi_N)/(\mu_0R)$ 造格电流 $I_{\rm cell}=j_\phi\Delta r\Delta z$；
+〔实现〕`plasma_filaments`（`code/vstab` 内；Python 的同名配方自 2026-09-06 归内核仓测试树）：由平衡自身剖面 $j_\phi=Rp'(\psi_N)+FF'(\psi_N)/(\mu_0R)$ 造格电流 $I_{\rm cell}=j_\phi\Delta r\Delta z$；
 格属等离子体 ⇔ $0\le\psi_N\le1$ **且**在边界多边形内（"两半都需要：私有磁通区 $\psi_N$ 回到 $[0,1]$，多边形排除它；
 多边形单独会收进略不一致边界外的格"）；可 $c\times c$ 粗化到 $\abs{\text{电流}}$ 加权质心；最后**重标定到 $I_p$**
 （"不是装饰：剖面离散留下百分级缺口，下游每个刚性模量都是电流的二次式——$I_p$ 差 1 % 即 $\gamma$ 差 2 %"）。
@@ -208,7 +208,7 @@ $B_{\rm act}$ 指向 IC 对（缺省方向 $(1,-1)$，反对称）；磁通环�
 | 网格 / 磁通环 / 探针响应 | `fyo:magnetics`：各道的响应（供反演与合成诊断） | `fylite.device`；`recon_rs.coil_loop_rows` |
 | 电压驱动的电路演化 | `fyo:pf_active`：随时间的线圈电流 | `code/pulse`（前馈电压与电路）；旧的 `control.evolution.evolve_free_boundary` 自 2026-09-06 归内核仓测试树 |
 | 垂直稳定性（刚性位移） | `fyo:mhd_linear` 式的增长率与理想判据 | `S.control.vstab`；`stability.vertical_mode` |
-| 对象模型与闭环 | `fyo:pulse_schedule`：控制器给出的电压 | `vertical.vertical_system`、`close_vertical_loop` |
+| 对象模型与闭环 | `fyo:pulse_schedule`：控制器给出的电压 | `vertical.vertical_system`（`code/vstab`）；`close_vertical_loop` 自 2026-09-06 归内核仓测试树 |
 :::
 
 (phys12-sources)=

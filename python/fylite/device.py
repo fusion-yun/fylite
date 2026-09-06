@@ -1190,7 +1190,7 @@ def coil_response_tables(path=None) -> dict:
     the oracle tree's ``vessel_table_check`` does for the vessel: asking whether a
     machine's own Green table and its geometry still describe the same
     machine.  Both halves are computed now — the loop rows by
-    :func:`fylite.scenario.analysis.recon_rs.coil_loop_rows`
+    the oracle tree's ``coil_loop_rows`` (kernel repository, since T-4 第十一刀)
     (``channel_response``/2π) and the probe rows by
     :func:`probe_element_response`, which is why ``rmp2fc`` has no reader at
     all — so a deck that is absent no longer stops a reconstruction.
@@ -1314,7 +1314,7 @@ def conductor_set(*, document=None) -> dict:
     the directory the Green RESPONSE TABLES live in (``rfcoil.ddd`` /
     ``rv6565.ddd``), and with the last live read of one gone — the
     reconstruction's coil→loop rows are computed now
-    (:func:`fylite.scenario.analysis.recon_rs.coil_loop_rows`) — a parameter
+    (the oracle tree's ``coil_loop_rows`` (kernel repository, since T-4 第十一刀)) — a parameter
     naming that directory said the machine could come from two places while
     every face here read only one.  What it never was is where the
     machine's GEOMETRY lives, and passing one path for both is how the two

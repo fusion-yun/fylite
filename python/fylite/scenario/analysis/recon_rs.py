@@ -21,7 +21,7 @@ arrays):
   the loops would read;
 * the loops' **plasma-only** signal is the measurement minus the coils'
   own contribution at the loop positions — and that contribution is
-  COMPUTED from the same conductor geometry (:func:`coil_loop_rows`), not
+  COMPUTED from the same conductor geometry (``coil_loop_rows`` (the kernel repository's oracle tree since T-4 第十一刀)), not
   read from a Green table;
 * **pressure rows** enter when the measurement dict carries a pressure
   profile (the kinetic tier), and are re-assembled per iteration inside the
@@ -53,125 +53,12 @@ from ...io import est2
 from ...io import mds
 from ...run import KefitRunError  # noqa: F401
 
+#: ★the hand-assembled rows and the profile fit (`response_matrix` ·
+#: `probe_response` · `coil_loop_rows` · `fit_profiles`) are the kernel
+#: repository's oracle tree since T-4 第十一刀 (2026-09-06): `code/reconstruction`
+#: builds its own rows and profiles, and nothing here called the recipe
 __all__ = ["reconstruct", "reconstruct_shot", "reconstruct_input",
-           "fit_profiles",
-           "response_matrix", "coil_loop_rows", "run_series", "KefitRunError"]
-
-
-def response_matrix(rg, zg) -> np.ndarray:
-    """Full-flux mutual of every flux loop to every grid node.
-
-    Shape ``(n_loops, nr * nz)`` — the linear map from a grid current
-    distribution [A per cell] to the flux [Wb] each loop would read.
-    """
-    rsi, zsi = flux_loop_positions()
-    nr, nz = rg.size, zg.size
-    #: ★the ``(n_loop, n_node)`` block of one mutual is
-    #: :func:`fylite.kernel.mutual_outer`, in one call.  This used to be a
-    #: Python loop over loops, each iteration broadcasting one loop position
-    #: into a full grid-length array to feed an ELEMENTWISE entry — 35 copies
-    #: of a constant, materialised, to compute an outer product the kernel
-    #: answers without materialising either side.
-    return np.ascontiguousarray(
-        kernel.mutual_outer(rsi, zsi, np.repeat(rg, nz), np.tile(zg, nr)))
-
-
-def probe_response(rg, zg) -> tuple:
-    """Poloidal-field response of every probe to every grid node.
-
-    Row *i* maps a grid current distribution [A per cell] to what probe *i*
-    would read [T], along its own orientation:
-    ``B = B_R cos(a) + B_Z sin(a)``.
-
-    ★The rows are the kernel's (:func:`fylite.kernel.probe_response`).  This
-    used to be a second implementation here — same construction (the field
-    from the mutual's own definition, by a centred difference in the PROBE's
-    position) but a different step: a hundredth of a cell, against the
-    kernel's fixed 1e-4 m.  Two spellings of one Green's function, and they
-    did not agree: 17 of 333 775 cells differed by more than 1e-3 relative,
-    up to 2.2e-2, all of them within about a cell of a probe, where the
-    derivative varies fastest and the larger step truncates sooner.
-
-    ★★What that was worth, measured rather than argued: folding both row
-    sets against the reference discharge's OWN current distribution
-    (g137985, filaments from its j_phi) moves the predicted probe signal by
-    3.1e-7 relative at worst, 7.5e-8 rms — because the cells that disagree
-    sit outside the plasma, next to the probes, and carry no current.  The
-    kernel's smaller step is the more accurate of the two, and it is also
-    twelve times faster (0.27 s -> 0.02 s on the 65x65 deck).
-
-    Returns ``(rows, angle_rad)``; ``rows`` has shape ``(n_probes, nr * nz)``.
-    """
-    from ...device import probe_geometry as _load_probe_geometry
-    #: ★the fyo device document, not a ``dprobe.dat`` under a table
-    #: directory.  The geometry is the machine's, not the Green table
-    #: directory's — the deck there was a byte-identical copy of the device
-    #: one, which is what made "which of the two is authoritative"
-    #: answerable only by luck.
-    geo = _load_probe_geometry()
-    pr = np.asarray(geo["r"], float)
-    pz = np.asarray(geo["z"], float)
-    ang = np.deg2rad(np.asarray(geo["angle_deg"], float))
-    rows = kernel.probe_response(rg, zg, pr, pz, ang)
-    return np.ascontiguousarray(rows.reshape(pr.size, rg.size * zg.size)), ang
-
-
-def coil_loop_rows(conductors=None, *, nu: int = 8, nv: int = 8) -> np.ndarray:
-    """What each BRSP channel contributes at each flux loop —
-    ``(n_loops, n_channels)`` in the loops' own EFIT convention
-    [Wb/rad per ampere-turn].
-
-    ★★This is EFIT's ``rsilfc``, and it used to be READ: ``rfcoil.ddd``
-    under the Green-table directory, the last device fact this package took
-    from a binary deck instead of from the device document.  It was also the
-    one file this distribution ships no copy of, so the whole Python
-    reconstruction path raised :class:`~fylite.device.MachineDataMissing`
-    before it reached its first kernel call — and zeroing ``brsp`` did not
-    get past it, because the read happened whether or not the currents were
-    zero.  Machine facts now have ONE source, the device document, for the
-    loop rows as for everything else.
-
-    ★It was already computed twice elsewhere in this repository: by the wasm
-    host (``app/assets/worker.js``, ``coilLoopRows``) and by the PROBE half
-    of this very fit (:func:`fylite.scenario.analysis.moments.plasma_probe_field`,
-    which removes the coils with ``probe_element_response @ el``).  One
-    machine, one Green's function; only the loop half still went to a table.
-
-    ★★Measured, not assumed — against the real deck, by two independent
-    consumers (fywork CASE-09 G-01 first, then re-measured here): the
-    computed table agrees with the frozen EAST ``rfcoil.ddd``
-    to 7.7e-5 relative at ``nu=nv=8``, and the residual falls
-    monotonically with quadrature order (4.88e-4 → 2.37e-4 → 1.51e-4 →
-    9.13e-5 → 7.72e-5) — filamentisation and quadrature, not structure.  Per
-    channel it is uniform (7.0e-6…7.7e-5), the two channels that drive a
-    PAIR of elements included, which is what says the frozen
-    ``pf_channel_elements`` map is the right one.  That is why ``nu=nv=8``
-    is the default: it costs 1.2 ms on the 35-loop EAST deck (0.9 ms at
-    4x4), once per reconstruction, against a fit that runs for seconds.
-
-    ★★And what the SWITCH cost, measured end to end on the reference
-    discharge (#137985 @ 4.0 s, deck rows vs these rows, everything else
-    equal, on the converged kinetic configuration): Ip 1e-6 A, axis R
-    0.14 mm, axis Z 0.05 mm, q95 0.05 %.  ★It is not zero, and it is not
-    supposed to be — two filamentisations of the same conductor do not
-    round the same way.  It is 3e-4 of the fit's own distance from the
-    reference answer.
-
-    ★The 1/2π is EFIT's loop convention — the same ``MEAS_SCALE`` the
-    browser applies.  The kernel answers in full flux [Wb]; every loop
-    number on this path is Wb/rad.  The deck's own table agreed: its median
-    ratio to the computed full flux was 6.283148 against 2π = 6.283185.
-
-    ``conductors`` is a :func:`fylite.device.conductor_set` mapping — pass
-    the one the caller already resolved, so that the rows and the external
-    flux cannot come from two different machines.
-    """
-    cond = device.conductor_set() if conductors is None else conductors
-    rsi, zsi = flux_loop_positions()
-    psi = np.asarray(
-        device.channel_response(cond, rsi, zsi, nu=nu, nv=nv)[0], float)
-    return np.ascontiguousarray(psi / (2.0 * np.pi))
-
+           "run_series", "KefitRunError"]
 
 
 #: ★★2026-09-01 自 `io/kfile.py` 迁入（那个模块已整体移除）。原来的
@@ -204,63 +91,6 @@ def _limiter(name=None):
     lim = _load_limiter(name)
     return (np.ascontiguousarray(np.asarray(lim["xlim"], float)),
             np.ascontiguousarray(np.asarray(lim["ylim"], float)))
-
-
-#: Points in the 1-D profiles a reconstruction carries.  ★65 because that is
-#: what the bundled decks use; the profiles are analytic in the fit's basis,
-#: so this is a sampling choice and not a resolution.
-N_PROFILE = 65
-
-
-def fit_profiles(coefs, *, npp: int, nff: int, span_perrad: float,
-                 f_edge: float, n: int = N_PROFILE) -> dict:
-    """The fit's 1-D profiles on ``n`` uniform ψ_N points.
-
-    ``{psin, dpressure_dpsi, f_df_dpsi, pressure, f}`` — p′ and FF′ per radian
-    of ψ, p in Pa (edge-zeroed), F in T·m.
-
-    ★DD names, not the deck's ``pprime``/``ffprim``/``pres``/``fpol``.  This
-    function is new and lives in ``scenario/``, where
-    ``test_no_scenario_module_reads_a_gfile_key`` holds the line — it caught
-    the first draft of this very function, which is what the gate is for.
-    ``reconstruct`` translates to the result dict's EFIT spellings on the way
-    out, and those are a wire contract, not this layer's vocabulary.
-
-    ★★The bases are the SOLVE's own, read off ``inverse.rs``'s current
-    construction rather than re-derived from the paper: it assembles
-    ``j_phi = R p'(psi) + FF'(psi) / (mu0 R)`` out of ``r * (x^k - x^npp)``
-    and ``(x^k - x^nff) / (mu0 r)``, so those ARE the two edge-zeroed bases
-    and the coefficients need no rescaling.  ``pres`` is the antiderivative
-    ``inverse.rs`` uses for its own kinetic-constraint rows
-    (``pressure_row``), so a pressure-constrained solve and this profile
-    cannot disagree about what the fit meant.
-
-    ★Its own function, and not inline in :func:`reconstruct`, because a full
-    solve needs the Green tables and this arithmetic does not — inline, the
-    one part of the reconstruction that is pure algebra would only ever run
-    on a host that carries a machine.  ``test_recon_profiles.py`` checks it
-    against :func:`fylite.kernel.f_from_coefficients`, an independent path to
-    the same F.
-    """
-    x = np.linspace(0.0, 1.0, int(n))
-    cpp, cff = np.asarray(coefs[:npp], float), np.asarray(coefs[npp:], float)
-
-    def edge_zero(c, top):
-        out = np.zeros_like(x)
-        for k, ck in enumerate(c):
-            out += ck * (x ** k - x ** top)
-        return out
-
-    pres = np.zeros_like(x)
-    for k, ck in enumerate(cpp):
-        pres -= span_perrad * ck * ((1.0 - x ** (k + 1)) / (k + 1)
-                                    - (1.0 - x ** (npp + 1)) / (npp + 1))
-    return {"psin": x,
-            "dpressure_dpsi": edge_zero(cpp, npp),
-            "f_df_dpsi": edge_zero(cff, nff),
-            "pressure": pres,
-            "f": np.asarray(kernel.f_from_coefficients(
-                cff, x, span_pr=span_perrad, f_edge=f_edge), float)}
 
 
 def _fsa_field(spec: dict, key: str):
@@ -339,8 +169,8 @@ def reconstruct(meas: dict, *, npp: int = 1, nff: int = 2,
     for this host and the page.  This function maps the flat measurement
     dict onto the discharge slots the kernel declares, builds the PLAN and
     reads the RECORD back into the dict its callers know.  The row helpers
-    above (:func:`response_matrix`, :func:`probe_response`,
-    :func:`coil_loop_rows`) stay for the gates that measure them.
+    above (``response_matrix`` (oracle tree), ``probe_response`` (oracle tree),
+    ``coil_loop_rows`` (the kernel repository's oracle tree since T-4 第十一刀)) stay for the gates that measure them.
     """
     #: ★loud up front, not at whichever kernel call happens to come first:
     #: this routine is a long chain of them and "no kernel" is one answer,
