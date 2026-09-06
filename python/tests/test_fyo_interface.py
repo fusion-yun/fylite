@@ -264,26 +264,6 @@ def test_the_kernel_and_this_host_size_the_blocks_the_same(entry: str):
     assert [int(v) for v in got] == mine
 
 
-@_needs_kernel
-def test_the_scenario_face_and_the_flat_face_are_the_same_discharge():
-    """★★The claim that makes this an ENTRY beside the flat exports rather
-    than a second implementation: bit for bit, whichever face is asked."""
-    import numpy as np
-    nt, nr = 7, 5
-    t = np.arange(nt) * 0.5
-    par = dict(ti_over_te=0.9, peaking_n=1.1, peaking_t=1.7, edge_frac=0.1,
-               r0=1.85, a=0.45, kappa=1.8, zeff=1.6, li=0.9, dt_fraction=0.5)
-    rho = np.linspace(0.0, 1.0, nr)
-    new = K.scenario("zerod", params=par,
-                     inputs=dict(t=t, ip=1.0e6, ne0=6e19, te0=8e3,
-                                 p_inj=4e6, rho=rho), nt=nt, nr=nr)
-    old = K.zerod_evaluate(t, np.full(nt, 1.0e6), np.full(nt, 6e19),
-                           np.full(nt, 8e3), np.full(nt, 4e6), rho, par)
-    for k in ("v_loop", "p_fus", "p_alpha", "q"):
-        assert np.array_equal(new[k], old[k]), k
-    for k in ("ne", "te", "ti"):
-        assert np.array_equal(new[k], old[k].ravel()), k
-    assert new["volume"] == old["volume"]
 
 
 @_needs_kernel

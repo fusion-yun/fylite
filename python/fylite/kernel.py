@@ -50,25 +50,22 @@ from ._paths import KERNEL_LIB, KERNEL_EXT_LIB
 __all__ = [
     "KernelError", "KernelBackendError", "ABI_VERSION",
     "load", "available", "require", "Grid", "grid_of",
-    "dt_reactivity",
-    "nn_ensemble", "nn_weight_count",
-    "zerod_volume", "zerod_evaluate", "zerod_predict",
-    "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
-    "zerod_limits", "zerod_flux_budget", "zerod_stored_energy",
-    "zerod_averages", "strike_points",     "start_currents", "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
-    "trace_surface", "contour", "shape_metrics",     "direct_integrals", "gradient",
+        "nn_ensemble", "nn_weight_count",
+        "zerod_waveform", "zerod_phase_labels", "WAVEFORMS", "PHASE_NAMES",
+    "zerod_stored_energy",
+        "fill_filaments",     "TRANSPORT_MODELS", "interpretive_channel",
+    "contour", "shape_metrics",     "direct_integrals", "gradient",
     "shell_sum", "li3", "profile_shape_fit", "sample",
-    "redl_bootstrap", "trapped_fraction_eps",
-    "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
+    "redl_bootstrap",     "lh_accessibility", "LH_EFFICIENCY_MODELS", "first_orbit_loss",
     "field_ion_sum", "BEAM_STOPPING_MODELS", "IMPURITY_FORMS",
     "beam_slowing", "beam_energy_partition", "beam_shielding",
     "pchip", "svd", "svd_solve", "QUADRATURE_RULES", "psin_along", "quadrature",
     "line_integral",         "dispersion_root", "vertical_plant",     "inside_polygon",             "table_ratio_check",
     "ellipke",     "element_response",
     "element_probe_response",
-    "coupling_gradient",         "spitzer_eta", "spitzer_eta_perp", "eped1nn",
+    "coupling_gradient",         "spitzer_eta", "eped1nn",
                                 "reintegrate", "flux_match", "FluxMatchError",
-    "adas_id", "adas_species", "adas_cooling", "rad_ion", "rad_sync",
+    "adas_id", "rad_ion", "rad_sync",
     "exchange_power", "volume_int",
     "SURFACE_KEYS", "surface_block", "collision_rates", "surface_derived",
     "tglf_local", "neo_local", "TGLF_SPECIES_ROWS",
@@ -96,7 +93,7 @@ __all__ = [
     "tglf_flux_searched", "chi_from_flux", "gyrobohm_q", "shell_area",
     "neo_current_unit",
     "equilibrium_ladder", "METRIC_ROW", "MILLER_ROW",
-    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "lh_deposit", "shell_table", "beam_deposit",
+    "resample_uniform", "to_uniform_extrap", "interp", "x_points", "enclosed_volume", "lh_deposit", "shell_table", "beam_deposit",
     "fast_ion_pressure", "selfcal_slices",
     "factor_dispersion", "M_ELECTRON_OVER_MD",
     "NEO_SPECIES_ROWS",
@@ -391,18 +388,6 @@ def grid_of(rg, zg) -> Grid:
     return Grid(rg[0], zg[0], spacing(rg), spacing(zg), rg.size, zg.size)
 
 
-# --------------------------------------------------------------------------- #
-# 0-D discharge (zerod.rs)
-# --------------------------------------------------------------------------- #
-_sig("fylite_rs_dt_reactivity", [_F64], _F64)
-def dt_reactivity(ti_kev):
-    """Bosch-Hale <sigma v> for D-T [m³/s]; 0 outside 0.2-100 keV."""
-    lib = require()
-    t = np.atleast_1d(_f(ti_kev))
-    out = np.array([lib.fylite_rs_dt_reactivity(float(x)) for x in t])
-    return out if np.ndim(ti_kev) else float(out[0])
-
-
 _sig("fylite_rs_nn_weight_count", [_U64] * 5, ctypes.c_uint64)
 def nn_weight_count(n_in, n_hidden, n_hidden_layers, n_blocks, n_out) -> int:
     """How many f64 ONE member of this shape occupies (nn.rs).
@@ -463,22 +448,6 @@ def nn_ensemble(surrogate, x):
     return mean, spread
 
 
-_sig("fylite_rs_zerod_volume", [_F64, _F64, _F64], _F64)
-def zerod_volume(r0, a, kappa) -> float:
-    """Ellipsoidal plasma volume ``2 pi² R0 a² kappa`` [m³]."""
-    return float(require().fylite_rs_zerod_volume(float(r0), float(a),
-                                                  float(kappa)))
-
-
-#: Order of the ten scalars ``zerod_evaluate`` / ``zerod_predict`` take.
-#:
-#: ★★From the GENERATED block declaration, and it had to be: this tuple's
-#: ORDER is the wire format, and it was spelled in THREE places — here, and
-#: twice as ``par[0]..par[9]`` in ``c_api.rs``.  Reorder any one of them and
-#: every caller silently asks for a different discharge, because the array
-#: is the right length and full of plausible numbers.  The file said as
-#: much about a different table ten lines below, and this one stayed
-#: hand-kept anyway.
 ZEROD_PARAMS = tuple(row["key"] for row in
                      _fyo_interface.BLOCKS["ZEROD_PARAMS"])
 
@@ -547,109 +516,6 @@ def zerod_phase_labels(phases, t) -> list:
     return [PHASE_NAMES[i] for i in idx]
 
 
-_sig("fylite_rs_zerod_limits", [_F64] * 8 + [_ARR], _I32)
-def zerod_limits(ip: float, r0: float, a: float, kappa: float, bt: float,
-                 *, ne_bar: float, w_th: float, volume: float) -> dict:
-    """The operating point's dimensionless standing.
-
-    ``ne_bar`` is the LINE-averaged density — the average the Greenwald
-    ratio is defined against; a central value here reads a peaked profile
-    as further from the limit than it is (:func:`zerod_averages` returns
-    both).  ``w_th`` is thermal and ``volume`` is the caller's, because
-    which volume convention is meant is a question this layer must not
-    answer silently.
-
-    Returns ``{n_greenwald, f_greenwald, q_cyl, p_avg, b_pol, beta_t,
-    beta_p, beta_n, f_troyon}``.  ``f_troyon`` is beta_N over the published
-    Troyon no-wall coefficient 2.8 — a reference mark, not a limit this
-    layer can compute.
-    """
-    lib = require()
-    out = np.empty(9)
-    rc = lib.fylite_rs_zerod_limits(
-        float(ip), float(r0), float(a), float(kappa), float(bt),
-        float(ne_bar), float(w_th), float(volume), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_limits returned {rc}")
-    keys = ("n_greenwald", "f_greenwald", "q_cyl", "p_avg", "b_pol",
-            "beta_t", "beta_p", "beta_n", "f_troyon")
-    return dict(zip(keys, (float(v) for v in out)))
-
-
-_sig("fylite_rs_zerod_flux_budget",
-     [_ARR] * 3 + [_U64, _ARR] + [_F64] * 5 + [_ARR], _I32)
-def zerod_flux_budget(t, v_loop, ip, phases, *, r0: float, a: float,
-                      li: float = 0.9, c_ejima: float = 0.45,
-                      phi_avail: float = 0.0) -> dict:
-    """The poloidal-flux account of a pulse [Wb].
-
-    ``phases`` is ``[t_breakdown, t_rampup_end, t_flattop_end, t_end]``.
-    ``phi_avail`` is the swing the machine can deliver; 0 leaves
-    ``t_sustain`` at ``None`` — a machine that has not stated its swing
-    must read as unknown rather than as generous.
-    """
-    lib = require()
-    tv, vv, iv = _f(t), _f(v_loop), _f(ip)
-    if not (tv.size == vv.size == iv.size):
-        raise KernelError("t, v_loop and ip must be the same length")
-    out = np.empty(7)
-    rc = lib.fylite_rs_zerod_flux_budget(
-        tv, vv, iv, tv.size, _f(phases), float(r0), float(a), float(li),
-        float(c_ejima), float(phi_avail), out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_flux_budget returned {rc}")
-    keys = ("phi_ind", "phi_res_ramp", "phi_ramp", "phi_consumed",
-            "v_flattop", "l_p")
-    res = dict(zip(keys, (float(v) for v in out[:6])))
-    res["t_sustain"] = None if out[6] < 0 else float(out[6])
-    return res
-
-
-_sig("fylite_rs_zerod_averages", [_ARR, _ARR, _U64, _ARR], _I32)
-def zerod_averages(rho, f) -> dict:
-    """``{line, volume}`` — the two averages this layer distinguishes.
-
-    Both, always: the Greenwald ratio takes the LINE average and the stored
-    energy the volume one, and which is meant is exactly the question that
-    gets answered wrongly.
-    """
-    lib = require()
-    r, v = _f(rho), _f(f)
-    if r.size != v.size:
-        raise KernelError("rho and f must be the same length")
-    out = np.empty(2)
-    rc = lib.fylite_rs_zerod_averages(r, v, r.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_averages returned {rc}")
-    return {"line": float(out[0]), "volume": float(out[1])}
-
-
-_sig("fylite_rs_strike_points",
-     [_F64] * 4 + [_U64, _U64, _ARR, _F64, _ARR, _ARR, _U64, _U64, _ARR], _I32)
-def strike_points(grid, psi, psi_bnd: float, wall_r, wall_z,
-                  max_n: int = 16):
-    """Where the boundary surface meets the wall — ``(n, 2)`` of ``(R, Z)``.
-
-    ★A diverted configuration is a TOPOLOGY, not a shape, and this is the
-    observable that says which one you have: a limiter plasma touches the
-    wall on its own boundary, a diverted one lands its legs somewhere the
-    boundary never goes.  A limiter-bounded field legitimately returns one
-    or two points; the caller distinguishes the cases by the boundary kind
-    the solve already reports, not by counting these.
-    """
-    lib = require()
-    g = grid if isinstance(grid, Grid) else grid_of(*grid)
-    p = _f(np.asarray(psi))
-    wr, wz = _f(np.atleast_1d(wall_r)), _f(np.atleast_1d(wall_z))
-    out = np.empty(2 * int(max_n))
-    n = lib.fylite_rs_strike_points(
-        g.r0, g.z0, g.dr, g.dz, g.nr, g.nz, p.ravel(), float(psi_bnd),
-        wr, wz, wr.size, int(max_n), out)
-    if n < 0:
-        raise KernelError(f"fylite_rs_strike_points returned {n}")
-    return out[:2 * n].reshape(-1, 2)
-
-
 _sig("fylite_rs_fill_filaments", [_ARR, _ARR, _U64, _F64, _U64, _F64, _ARR],
      _I32)
 def fill_filaments(bnd_r, bnd_z, ip: float, *, n_ring: int = 4,
@@ -669,166 +535,10 @@ def fill_filaments(bnd_r, bnd_z, ip: float, *, n_ring: int = 4,
     return out[:3 * n].reshape(-1, 3)
 
 
-_sig("fylite_rs_start_currents",
-     ([_ARR] * 6 + [_U64, _ARR, _U64] + [_ARR] * 2 + [_U64] + [_ARR] * 3
-      + [_U64] + [_F64] * 2 + [ctypes.c_uint32] + [_F64] * 3 + [_VOID]
-      + [_U64] * 2 + [_ARR] * 3), _I32)
-def start_currents(elements, weights, bnd_r, bnd_z, filaments, *,
-                   x_point=None, x_weight: float = 1.0, length: float = 1.0,
-                   lam: float = 1e-3, i_max=None, nu: int = 3,
-                   nv: int = 3) -> dict:
-    """The channel currents that make ``bnd`` an isoflux contour.
-
-    The state a shape anneal is entitled to BEGIN from — :func:`~fylite.
-    scenario.design.discharge` refuses a zero start for exactly this
-    reason.  It is not an equilibrium: force balance is nowhere in it, and
-    what comes back beside the currents (``psi_rms``, ``b_x``) says how
-    well the request could be met at all, before an equilibrium is paid
-    for.
-
-    ``elements`` is the coil element list, ``weights`` the
-    ``(n_channel, n_element)`` map, ``filaments`` an ``(n, 3)`` cloud of
-    ``(R, Z, A)`` (see :func:`fill_filaments`).  With ``x_point`` given the
-    X point gets THREE rows — its own isoflux row plus ``B_r = B_z = 0`` —
-    because a null pinned at a different flux level is not a divertor.
-    """
-    lib = require()
-    ea = [_f(np.atleast_1d(x)) for x in elements]
-    ne = ea[0].size
-    w_map = np.atleast_2d(np.asarray(weights, float))
-    if w_map.shape[1] != ne:
-        raise KernelError(f"weights has {w_map.shape[1]} columns, expected "
-                          f"{ne} (one per element)")
-    nch = w_map.shape[0]
-    wt = _f(w_map.T)
-    br, bz = _f(np.atleast_1d(bnd_r)), _f(np.atleast_1d(bnd_z))
-    fil = np.atleast_2d(np.asarray(filaments, float))
-    if fil.shape[1] != 3:
-        raise KernelError("filaments must be (n, 3) of (R, Z, amps)")
-    fr, fz, fa = _f(fil[:, 0]), _f(fil[:, 1]), _f(fil[:, 2])
-    i_max_a = None if i_max is None else _f(np.atleast_1d(i_max))
-    out, flags, stats = np.empty(nch), np.empty(nch), np.empty(4)
-    rc = lib.fylite_rs_start_currents(
-        *ea, ne, wt.ravel(), nch, br, bz, br.size, fr, fz, fa, fr.size,
-        0.0 if x_point is None else float(x_point[0]),
-        0.0 if x_point is None else float(x_point[1]),
-        0 if x_point is None else 1, float(x_weight), float(length),
-        float(lam), None if i_max_a is None else i_max_a.ctypes.data,
-        int(nu), int(nv), out, flags, stats)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_start_currents returned {rc}")
-    return {"aturns": out, "psi_rms": float(stats[0]),
-            "b_x": None if stats[1] < 0 else float(stats[1]),
-            "psi_x_offset": float(stats[2]),
-            "at_bound": np.flatnonzero(flags == 1.0)}
-
-
-_sig("fylite_rs_zerod_evaluate", ([_ARR] * 5 + [_U64, _ARR, _U64] + [_ARR] * 4), _I32)
-def zerod_evaluate(t, ip, ne0, te0, p_inj, rho, params: dict) -> dict:
-    """One pass over a prescribed discharge (kernel ``zerod::evaluate``).
-
-    Returns the four traces (``v_loop``, ``p_fus``, ``p_alpha``, ``q``), the
-    three prescribed profiles as ``(nt, nr)`` arrays, and the volume used.
-    """
-    lib = require()
-    t, ip, ne0, te0, p_inj, rho = (_f(t), _f(ip), _f(ne0), _f(te0),
-                                   _f(p_inj), _f(rho))
-    nt, nr = t.size, rho.size
-    scal = np.empty(4 * nt)
-    prof = np.empty(3 * nt * nr)
-    vol = np.empty(1)
-    rc = lib.fylite_rs_zerod_evaluate(t, ip, ne0, te0, p_inj, nt, rho, nr,
-                                      _zerod_par(params), scal, prof, vol)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_evaluate returned {rc}")
-    s = scal.reshape(4, nt)
-    p = prof.reshape(3, nt, nr)
-    return {"v_loop": s[0], "p_fus": s[1], "p_alpha": s[2], "q": s[3],
-            "ne": p[0], "te": p[1], "ti": p[2], "volume": float(vol[0])}
-
-
-#: The confinement scalings ``zerod_predict`` accepts, by kernel index.
-#: An unknown name is refused here and an unknown index is refused by the
-#: kernel — neither side defaults to a law the caller did not ask for.
-#: The scaling laws `TauLaw::from_index` decodes, in index order.
 TAU_LAWS = _TAU_LAW_NAMES
 
 
-_sig("fylite_rs_zerod_predict", ([_ARR] * 4 + [_U64, _ARR, _U64] + [_ARR] * 2 + [_ARR, _ARR]), _I32)
-def zerod_predict(t, ip, ne0, p_aux, rho, params: dict, *,
-                  law: str = "ipb98y2", h_factor: float = 1.0,
-                  m_eff: float = 2.5, bt: float = 0.0, w0: float = 0.0) -> dict:
-    """Energy-balance prediction (kernel ``zerod::predict``).
-
-    ★A different KIND of answer from :func:`zerod_evaluate`: there the
-    stored energy is the user's own profile read back, here it is solved
-    from ``dW/dt = P_heat - W/tau_E``.  The two must not be shown side by
-    side unlabelled — nothing in the numbers distinguishes them.
-    """
-    lib = require()
-    try:
-        idx = TAU_LAWS.index(law)
-    except ValueError:
-        raise KernelError(f"unknown confinement scaling {law!r}; have "
-                          f"{list(TAU_LAWS)}") from None
-    t, ip, ne0, p_aux, rho = _f(t), _f(ip), _f(ne0), _f(p_aux), _f(rho)
-    nt = t.size
-    pred = _f([idx, h_factor, m_eff, bt, w0])
-    scal = np.empty(8 * nt)
-    vol = np.empty(1)
-    rc = lib.fylite_rs_zerod_predict(t, ip, ne0, p_aux, nt, rho, rho.size,
-                                     _zerod_par(params), pred, scal, vol)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_zerod_predict returned {rc}")
-    s = scal.reshape(8, nt)
-    #: ``balance`` is the sum-of-terms residual, NOT integrator-vs-budget:
-    #: the kernel's integrator is exact, so that difference is identically
-    #: zero and would test nothing.
-    return {"w_th": s[0], "tau_e": s[1], "te0": s[2], "p_ohm": s[3],
-            "p_alpha": s[4], "p_heat": s[5], "p_lh": s[6], "balance": s[7],
-            "volume": float(vol[0])}
-
-
-# --------------------------------------------------------------------------- #
-# 1.5-D transport step (transport.rs)
-# --------------------------------------------------------------------------- #
-#: The closures ``transport_step`` accepts.  ★They are not four settings of
-#: one model: 0 and 1 are prescribed, 2 evaluates Chang-Hinton INSIDE the
-#: Picard loop (freezing it on the entry temperature converges just as
-#: smoothly onto a different equation's answer), and 3 takes a chi the caller
-#: computed — which is how a turbulent closure is said to belong to the OUTER
-#: loop rather than pretended into the inner one.
 TRANSPORT_MODELS = {"constant": 0, "stiff": 1, "neoclassical": 2, "given": 3}
-
-
-_sig("fylite_rs_trace_surface", ([_F64] * 4 + [_U64, _U64, _ARR] + [_F64] * 3 + [_ARR, _ARR, _U64, _U64, _ARR, _ARR]), _I32)
-def trace_surface(grid: Grid, psi, level, *, axis, limiter, n_theta: int = 181):
-    """Ray-trace one flux surface and integrate over it.
-
-    ``axis`` is ``(R, Z)`` of the magnetic axis, ``limiter`` a pair of
-    arrays.  Returns the polygon plus the surface integrals the transport
-    metrics are built from — ``gq``, ``perimeter``, ``dl_over_grad``,
-    ``dv_dpsi``, ``volume``.  They come from the SAME traced polygon,
-    which is the point: a second contouring library would give a second
-    polygon, and the integrals would then disagree for reasons no test
-    could attribute.
-    """
-    lib = require()
-    psi = _f(psi)
-    if psi.shape != (grid.nr, grid.nz):
-        raise KernelError(f"psi has shape {psi.shape}, expected "
-                          f"{(grid.nr, grid.nz)} (R-major)")
-    lr, lz = _f(limiter[0]), _f(limiter[1])
-    rz = np.empty(2 * int(n_theta))
-    info = np.empty(6)
-    rc = lib.fylite_rs_trace_surface(*grid.args, psi.ravel(), float(level),
-                                     float(axis[0]), float(axis[1]),
-                                     lr, lz, lr.size, int(n_theta), rz, info)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_trace_surface returned {rc}")
-    poly = rz[:2 * rc].reshape(rc, 2)
-    return {"poly": poly, "n": int(rc), "gq": info[1], "perimeter": info[2],
-            "dl_over_grad": info[3], "dv_dpsi": info[4], "volume": info[5]}
 
 
 _sig("fylite_rs_gradient", [_ARR, _ARR, _U64, _I32, _F64, _ARR], _I32)
@@ -1445,7 +1155,7 @@ def spitzer_eta(te_ev, zeff=1.0, lnlam=17.0):
     ★Corrected at ABI v111 (T-A18): through v110 this returned the NRL
     PERPENDICULAR coefficient under the parallel name, and the ohmic power
     computed through it was high by ``1/0.51``.  The perpendicular value is
-    :func:`spitzer_eta_perp`; ``spitzer_eta / spitzer_eta_perp == 0.51``
+    the oracle-only ``spitzer_eta_perp``; ``spitzer_eta / spitzer_eta_perp == 0.51``
     per point, pinned by tests on both hosts.
 
     The trapped-particle correction is a separate model, not folded in.
@@ -1493,29 +1203,6 @@ def eped1nn(*, a, betan, bt, delta, ip, kappa, mass, neped, r, zeffped):
             "extrapolation": float(out[18]), "worst_input": int(out[19])}
 
 
-_sig("fylite_rs_spitzer_eta_perp", [_ARR] * 3 + [_U64, _ARR], _I32)
-def spitzer_eta_perp(te_ev, zeff=1.0, lnlam=17.0):
-    """PERPENDICULAR Spitzer resistivity [Ω·m] — the NRL coefficient as
-    printed, ``1.03e-2 Z lnΛ Te^-1.5`` Ω·cm (T-A18).
-
-    The value :func:`spitzer_eta` returned through ABI v110 under the
-    parallel name — exported so the correction is a checkable relation
-    (ratio ≡ 0.51) rather than a silent renumbering.
-    """
-    lib = require()
-    te = _f(np.atleast_1d(te_ev))
-    z = _f(np.broadcast_to(np.asarray(zeff, float), te.shape))
-    l = _f(np.broadcast_to(np.asarray(lnlam, float), te.shape))
-    out = np.empty(te.size)
-    rc = lib.fylite_rs_spitzer_eta_perp(te, z, l, te.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_spitzer_eta_perp returned {rc}")
-    return out
-
-
-# --------------------------------------------------------------------------- #
-# flux matching (transport.rs)
-# --------------------------------------------------------------------------- #
 _sig("fylite_rs_reintegrate", [_ARR, _ARR, _U64, _F64, _I32, _ARR], _I32)
 def reintegrate(gradient, r, anchor: float, *, log: bool = True):
     """A profile from its gradient, integrated INWARD from the edge.
@@ -1647,39 +1334,6 @@ def adas_id(name: str) -> int:
     lib = require()
     b = str(name).encode()
     return int(lib.fylite_rs_adas_id(b, len(b)))
-
-
-_sig("fylite_rs_adas_species_count", [], _I32)
-_sig("fylite_rs_adas_species_name", [_U64, ctypes.c_char_p, _U64], _I32)
-def adas_species() -> list[str]:
-    """The species the kernel's ADAS table carries, in its own order."""
-    lib = require()
-    n = int(lib.fylite_rs_adas_species_count())
-    out = []
-    for i in range(n):
-        buf = ctypes.create_string_buffer(16)
-        ln = int(lib.fylite_rs_adas_species_name(i, buf, len(buf)))
-        if ln < 0:
-            raise KernelError(f"fylite_rs_adas_species_name({i}) → {ln}")
-        out.append(buf.raw[:ln].decode())
-    return out
-
-
-_sig("fylite_rs_adas_cooling", [_I32, _ARR, _U64, _ARR], _I32)
-def adas_cooling(name, te_kev):
-    """The ADAS cooling rate ``Lz`` [erg cm³/s] of one species.
-
-    Clamped outside the fit domain [0.05, 50] keV rather than
-    extrapolated — upstream's rule, and worth knowing when a pedestal foot
-    is fed in.  An unknown species radiates zero.
-    """
-    lib = require()
-    te = _f(np.atleast_1d(te_kev))
-    out = np.empty(te.size)
-    rc = lib.fylite_rs_adas_cooling(adas_id(name), te, te.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_adas_cooling returned {rc}")
-    return out
 
 
 _sig("fylite_rs_rad_ion", ([_ARR, _ARR, _U64, _ARR, _ARR, np.ctypeslib.ndpointer( dtype=np.int32, flags="C_CONTIGUOUS"), _U64] + [_ARR] * 3), _I32)
@@ -2438,24 +2092,6 @@ def neo_local(st: dict, *, rho_star: float = 0.001) -> dict:
     return d
 
 
-_sig("fylite_rs_trapped_fraction_eps", [_ARR, _U64, _ARR], _I32)
-def trapped_fraction_eps(eps):
-    """Effective trapped fraction from the inverse aspect ratio (Lin-Liu &
-    Miller 1995).
-
-    The circular-geometry closed form, NOT the trapped fraction averaged
-    from a real |B| over a real surface — the solver path computes that one
-    and the two are different quantities.
-    """
-    lib = require()
-    eps = _f(np.atleast_1d(eps))
-    out = np.empty(eps.size)
-    rc = lib.fylite_rs_trapped_fraction_eps(eps, eps.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_trapped_fraction_eps returned {rc}")
-    return out
-
-
 _sig("fylite_rs_redl_bootstrap", ([_U64] + [_ARR] * 10 + [_F64] * 3 + [_I32, _ARR]), _I32)
 def redl_bootstrap(*, eps, q_abs, ne, te, ti, ni, zeff, p_th, i_psi, psi_bar,
                    r_maj: float, b0: float, z_ion: float = 1.0,
@@ -2565,7 +2201,7 @@ def contour(grid: Grid, f, level, *, max_seg: int = 4096) -> np.ndarray:
 
     Returns ``(n, 4)`` — one row per segment, ``[r1, z1, r2, z2]``.  Segment
     soup, not an ordered polygon: ordering is a decision (which branch, which
-    direction) and :func:`trace_surface` is the entry that makes it.
+    direction) and the oracle-only ``trace_surface`` is the entry that makes it.
     """
     lib = require()
     f = _f(f)
@@ -3946,7 +3582,6 @@ def gs_free_solve_tab(grid_r, grid_z, psi_ext, *, x, pprime, ffprime,
 
 #: ★T-M17: the same solve under an I_p constraint — one extra f64 (the
 #: target) before the out buffer, out8 instead of out6
-_sig("fylite_rs_geo_surface", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 _sig("fylite_rs_geo_surface_gm2", [_F64] * 14 + [_ARR, _U64, _ARR], _I32)
 def geo_surface(*, rmin_over_a, rmaj_over_a, q, shear, drmaj=0.0,
                 zmag=0.0, dzmag=0.0, kappa=1.0, s_kappa=0.0,
@@ -4063,15 +3698,6 @@ _sig("fylite_rs_gs_fixed_solve", [_ARR, _U64, _ARR, _U64, _ARR, _F64, _ARR, _U64
 _sig("fylite_rs_eigen", [_ARR, _ARR, _U64, _I32, _ARR, _ARR, _ARR, _ARR], _I32)
 # the closure's own chi profile, so a caller can draw what it solved
 # with instead of rebuilding the chain
-_sig("fylite_rs_neo_chi", [_ARR, _ARR, _U64, _ARR, _ARR, _U64, _ARR, ctypes.c_void_p, _F64, _ARR], _I32)
-#: ★the collision operator, declared HERE rather than in the test that
-#: first needed it.  It used to be declared inside a test helper, so a
-#: second test calling this entry only worked when that helper had run
-#: first — an order dependency invisible while both ran, and it surfaced
-#: the moment the helper stopped executing its body.  Declaring the Rust
-#: ABI is this module's job; this repository already paid once for
-#: leaving a count undeclared (a bare Python int marshalled 32-bit,
-#: giving a 9 PB allocation).
 _sig("fylite_rs_dke_coll", ([_U64] * 3 + [_I32] + [_ARR] * 5 + [_U64, _ARR, _U64]), _I32)
 
 
@@ -4091,32 +3717,19 @@ INVERSE_COIL_KEYS = ("psi_axis", "psi_bnd", "axis_r", "axis_z", "ip",
                      #: names the other two inverse entries use.
                      "coil_fitted", "fb_amp_r", "trunc_keep")
 
-_sig("fylite_rs_jparb_jphi", ([_U64] + [_ARR] * 6 + [_I32, _ARR]), _I32)
-def jparb_jphi(*, b2_avg, btor2_avg, f_psi, rinv_avg, dpdpsi, j_in,
-               to_toroidal: bool = True) -> dict:
-    """``⟨j·B⟩`` ↔ ``⟨j_φ/R⟩/⟨1/R⟩`` per surface — the exact G-S identity.
 
-    ★``dpdpsi`` is the DIAMAGNETIC term and it belongs to the TOTAL, not to
-    either channel: pass zeros when converting the bootstrap or the ohmic
-    part alone, or the same pressure gradient is counted once per curve and
-    the parts stop summing to the whole.
-
-    Returns ``j`` and the ``ratio`` = ``⟨B_tor²⟩/⟨B²⟩`` it used; a surface
-    the conversion cannot support comes back as NaN rather than as a zero.
-    """
+#: ★back on the interface (T-4 第十二刀): `FyPhys.surfaceVolume` on the pulse-design
+#: page's MAIN THREAD calls it — 第十一刀's census saw only the worker
+_sig("fylite_rs_enclosed_volume", [_ARR, _U64, _ARR], _I32)
+def enclosed_volume(poly) -> float:
+    """Volume [m³] the boundary polygon encloses (Pappus on the centroid)."""
     lib = require()
-    args = [_f(a) for a in (b2_avg, btor2_avg, f_psi, rinv_avg, dpdpsi,
-                            j_in)]
-    n = args[0].size
-    if any(a.size != n for a in args):
-        raise KernelError("every profile must be the same length")
-    out = np.empty(2 * n)
-    rc = lib.fylite_rs_jparb_jphi(n, *args, 1 if to_toroidal else 0, out)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_jparb_jphi returned {rc}")
-    rows = out.reshape(n, 2)
-    return {"j": rows[:, 0].copy(), "ratio": rows[:, 1].copy(),
-            "converted": int(rc)}
+    p = _f(poly)
+    out = np.empty(1)
+    rc = lib.fylite_rs_enclosed_volume(p.ravel(), p.shape[0], out)
+    if rc != 0:
+        raise KernelError(f"fylite_rs_enclosed_volume returned {rc}")
+    return float(out[0])
 
 
 _data_cache: tuple[ctypes.CDLL | None] | None = None

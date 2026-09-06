@@ -557,7 +557,7 @@ def _levels_for(eq, geo_kw) -> "np.ndarray":
 # --------------------------------------------------------------------------- #
 
 #: ★``trapped_fraction`` and ``coefficients`` used to sit here, each a
-#: one-line forward to :func:`fylite.kernel.trapped_fraction_eps` and
+#: one-line forward to the kernel's ``trapped_fraction_eps`` (oracle-only since T-4 第十二刀) and
 #: the kernel's ``redl_coefficients`` (an oracle-only export since T-4,
 #: 2026-09-05) with the same arguments and no work of its own.
 #:

@@ -43,7 +43,7 @@ $(1-\rho^2)^p$ 族是 0-D 建模的惯用形状（如 {cite}`uckan1990guidelines
 (phys06-fusion)=
 # 聚变功率：Bosch–Hale 反应率 (Fusion Power — Bosch–Hale Reactivity)
 
-〔实现〕`dt_reactivity(T_i)`（$T$ 以 keV）：
+〔实现〕`dt_reactivity(T_i)`（$T$ 以 keV；`code/zerod` 内，扁平入口自 2026-09-06 仅神谕构建可见）：
 
 $$
 \theta=\frac{T}{1-\dfrac{T(C_2+T(C_4+TC_6))}{1+T(C_3+T(C_5+TC_7))}},\qquad

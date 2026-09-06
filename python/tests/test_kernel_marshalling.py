@@ -611,94 +611,14 @@ def test_an_adaptive_steady_solve_is_refused_at_the_boundary():
 # this module owns is the boundary: shapes, optional arguments, and the
 # refusals.
 
-def test_the_operating_limits_land_where_the_iter_baseline_is_published():
-    """ITER's baseline numbers are quoted as a SET — 15 MA in a = 2 m at
-    5.3 T, a Greenwald density near 1.2e20 m^-3, beta_N near 1.8 — which is
-    what makes them usable as one anchor rather than four."""
-    L = K.zerod_limits(15e6, 6.2, 2.0, 1.7, 5.3, ne_bar=1.0e20,
-                       w_th=320e6, volume=830.0)
-    assert L["n_greenwald"] == pytest.approx(1.19e20, rel=0.01)
-    assert 1.4 < L["beta_n"] < 2.1
-    #: beta_N is beta_t[%] a B / Ip[MA] BY CONSTRUCTION — asserted exactly
-    assert L["beta_n"] == pytest.approx(L["beta_t"] * 100 * 2.0 * 5.3 / 15,
-                                        rel=1e-12)
-    assert L["f_troyon"] == pytest.approx(L["beta_n"] / 2.8, rel=1e-12)
-    assert L["f_greenwald"] == pytest.approx(1.0e20 / L["n_greenwald"],
-                                             rel=1e-12)
-
-
-def test_the_two_profile_averages_are_not_the_same_average():
-    """The Greenwald ratio takes the LINE average and the stored energy the
-    volume one; for (1 - rho^2) they are 2/3 and 1/2, and using one for the
-    other reads a peaked profile as further from the limit than it is."""
-    rho = np.linspace(0.0, 1.0, 201)
-    av = K.zerod_averages(rho, 1.0 - rho ** 2)
-    assert av["line"] == pytest.approx(2.0 / 3.0, abs=1e-4)
-    assert av["volume"] == pytest.approx(0.5, abs=1e-4)
-    with pytest.raises(K.KernelError, match="same length"):
-        K.zerod_averages([0.0, 1.0], [1.0])
-
-
-def test_the_flux_bill_uses_the_inductance_the_loop_voltage_was_computed_with():
-    """Two spellings of L_p would put a discharge's voltage and its flux
-    bill on two different plasmas."""
-    t = np.linspace(0.0, 10.0, 101)
-    b = K.zerod_flux_budget(t, np.ones_like(t), np.full_like(t, 4e5),
-                            [0.0, 1.0, 8.0, 10.0], r0=1.85, a=0.45, li=0.9)
-    #: ★the tie to `zerod_loop_voltage`'s L_p moved to the kernel repository
-    #: (`tests/test_oracle_marshalling.py`) with that export (oracle-only
-    #: since T-4, 2026-09-05); here the bill is held to the published
-    #: external inductance directly
-    lp = 4e-7 * np.pi * 1.85 * (np.log(8 * 1.85 / 0.45) + 0.9 / 2 - 2)
-    assert b["l_p"] == pytest.approx(lp, rel=1e-12)
-    assert b["phi_ind"] == pytest.approx(lp * 4e5, rel=1e-12)
-    #: one volt for ten seconds is ten webers
-    assert b["phi_consumed"] == pytest.approx(10.0, abs=1e-9)
-    #: an undeclared swing is not a duration
-    assert b["t_sustain"] is None
-    with_swing = K.zerod_flux_budget(t, np.ones_like(t), np.full_like(t, 4e5),
-                                     [0.0, 1.0, 8.0, 10.0], r0=1.85, a=0.45,
-                                     li=0.9, phi_avail=20.0)
-    assert with_swing["t_sustain"] == pytest.approx(
-        20.0 - with_swing["phi_ramp"], rel=1e-9)
-
-
-def test_strike_points_and_clearance_read_the_wall_as_a_polyline():
-    """A circle inside a box: both answers are known in closed form, and
-    both must be measured to the wall SEGMENTS rather than its vertices."""
-    n = 401
-    g = K.grid_of(np.linspace(0.0, 2.0, n), np.linspace(-1.0, 1.0, n))
-    r, z = np.meshgrid(np.linspace(0.0, 2.0, n), np.linspace(-1.0, 1.0, n),
-                       indexing="ij")
-    psi = (r - 1.0) ** 2 + z ** 2
-    wall_r, wall_z = [0.8, 1.6, 1.6, 0.8], [-0.6, -0.6, 0.6, 0.6]
-    sp = K.strike_points(g, psi, 0.25, wall_r, wall_z)
-    assert sp.shape == (2, 2)
-    want = np.sqrt(0.25 - 0.04)
-    assert sp[0] == pytest.approx([0.8, -want], abs=2e-3)
-    assert sp[1] == pytest.approx([0.8, want], abs=2e-3)
-    #: a surface entirely inside the wall lands nowhere
-    assert K.strike_points(g, psi, 0.01, wall_r, wall_z).shape == (0, 2)
-    #: ★the wall-gap row (`wall_clearance`) moved to the kernel repository's
-    #: `tests/test_oracle_marshalling.py` with that export (oracle-only since
-    #: T-4 第八刀, 2026-09-06); `code/summary` carries the gap on the page
 
 
 
 
-def test_spitzer_eta_is_the_parallel_branch_and_the_ratio_is_pinned():
-    """★T-A18's closure criterion at this host's boundary: `spitzer_eta`
-    is the PARALLEL branch since ABI v111 (it used to carry the NRL
-    perpendicular coefficient under the parallel name), and the new/old
-    ratio is 0.51 — constant, per point, for any Te / Z_eff / lnΛ."""
-    te = np.array([50.0, 300.0, 2000.0, 15000.0])
-    z = np.array([1.0, 1.5, 2.0, 4.0])
-    ln = np.array([10.0, 14.0, 17.0, 20.0])
-    par = K.spitzer_eta(te, z, ln)
-    perp = K.spitzer_eta_perp(te, z, ln)
-    assert par / perp == pytest.approx(0.51, abs=1e-15)
-    #: and the perpendicular branch is the NRL formula as printed
-    assert perp == pytest.approx(1.03e-4 * z * ln / te ** 1.5, rel=1e-12)
+
+
+
+
 
 
 def test_eped1nn_answers_the_published_iter_prediction():

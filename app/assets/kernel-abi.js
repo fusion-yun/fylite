@@ -98,7 +98,6 @@ self.FyKernelAbi = {
   'fylite_rs_flux_match_next': { a: ['out_f64', 'u64', 'in_f64', 'in_f64', 'u64', 'out_f64'], r: 'i32' },
   'fylite_rs_flux_match_result': { a: ['in_f64', 'u64', 'u64', 'out_f64', 'out_f64', 'out_f64', 'out_f64', 'out_f64'], r: 'i32' },
   'fylite_rs_flux_match_state_len': { a: ['u64', 'u64'], r: '' },
-  'fylite_rs_geo_surface': { a: ['f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'in_f64', 'u64', 'out_f64'], r: 'i32' },
   'fylite_rs_geo_surface_gm2': { a: ['f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'f64', 'in_f64', 'u64', 'out_f64'], r: 'i32' },
   'fylite_rs_gfile_profile': { a: ['in_f64', 'in_f64', 'u64', 'f64', 'out_f64'], r: 'i32' },
   'fylite_rs_gradient': { a: ['in_f64', 'in_f64', 'u64', 'i32', 'f64', 'out_f64'], r: 'i32' },

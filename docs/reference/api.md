@@ -50,7 +50,7 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 
 | 模块 | 用途 |
 | :--- | :--- |
-| `kernel` | C-ABI 面：`gs_free_solve` / `gs_inverse_solve`、`trace_surface` 磁面追踪、GEO / NEO / TGLF 端口、`core_march` 输运核；装载器与 ABI 守卫也在这里 |
+| `kernel` | C-ABI 面：装载器、ABI 守卫、文档门 `scenario` / `fydoc.complete`，与仍在接口上的原语；物理算子（求解器 · 磁面追踪 · GEO / NEO / TGLF 端口 · 输运核）经门到达，扁平入口自 2026-09-05 起逐刀退出接口（`docs/note/kernel-public-seam.md`） |
 | `fyo` | fyo 语义文档层：`equilibrium`（g-file→文档，`as_equilibrium` 是唯一的门）、`reconstruction`、`Ladder` 一次描迹（输运度量 + Miller 形状，同一批面）、`read` / `write`（JSON-LD 在本层；`.h5` 交给中间层 `io.fydoc`，2026-09-04 起） |
 | `device` | **机器**：①牌在哪（`$FYLITE_DEVICE_DIR`，缺则抛 `MachineDataMissing`）②牌说什么（几何 / 通道图 / 被动集，文档优先、deck 兜底）③**导体做什么**（互感 / 电阻矩阵、网格响应与磁通折叠、通道空间电路矩阵、回路推进）④**视线做什么**（弦几何与沿磁通图的线积分） |
 | `io.geqdsk` | g/a-file 读写，以及 g 文件蕴含的 `(R, Z)` 网格与 ψ_N 图 |

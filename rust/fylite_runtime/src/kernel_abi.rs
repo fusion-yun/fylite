@@ -93,7 +93,6 @@ extern "C" {
     fn fylite_rs_flux_match_next(_0: *mut f64, _1: u64, _2: *const f64, _3: *const f64, _4: u64, _5: *mut f64) -> i32;
     fn fylite_rs_flux_match_result(_0: *const f64, _1: u64, _2: u64, _3: *mut f64, _4: *mut f64, _5: *mut f64, _6: *mut f64, _7: *mut f64) -> i32;
     fn fylite_rs_flux_match_state_len(_0: u64, _1: u64);
-    fn fylite_rs_geo_surface(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
     fn fylite_rs_geo_surface_gm2(_0: f64, _1: f64, _2: f64, _3: f64, _4: f64, _5: f64, _6: f64, _7: f64, _8: f64, _9: f64, _10: f64, _11: f64, _12: f64, _13: f64, _14: *const f64, _15: u64, _16: *mut f64) -> i32;
     fn fylite_rs_gfile_profile(_0: *const f64, _1: *const f64, _2: u64, _3: f64, _4: *mut f64) -> i32;
     fn fylite_rs_gradient(_0: *const f64, _1: *const f64, _2: u64, _3: i32, _4: f64, _5: *mut f64) -> i32;
@@ -315,7 +314,6 @@ pub const BRIDGED: &[&str] = &[
     "fylite_rs_flux_match_next",
     "fylite_rs_flux_match_result",
     "fylite_rs_flux_match_state_len",
-    "fylite_rs_geo_surface",
     "fylite_rs_geo_surface_gm2",
     "fylite_rs_gfile_profile",
     "fylite_rs_gradient",
@@ -546,7 +544,6 @@ pub const KINDS: &[(&str, &[&str])] = &[
     ("fylite_rs_flux_match_next", &["out_f64", "u64", "in_f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_flux_match_result", &["in_f64", "u64", "u64", "out_f64", "out_f64", "out_f64", "out_f64", "out_f64"]),
     ("fylite_rs_flux_match_state_len", &["u64", "u64"]),
-    ("fylite_rs_geo_surface", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_geo_surface_gm2", &["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"]),
     ("fylite_rs_gfile_profile", &["in_f64", "in_f64", "u64", "f64", "out_f64"]),
     ("fylite_rs_gradient", &["in_f64", "in_f64", "u64", "i32", "f64", "out_f64"]),
@@ -1014,10 +1011,6 @@ pub fn call(name: &str, f: &mut Frame) -> Result<Ret, CallError> {
             f.want(&["u64", "u64"], name)?;
             unsafe { fylite_rs_flux_match_state_len(f.u64(0)?, f.u64(1)?) };
             Ret::Unit
-        }
-        "fylite_rs_geo_surface" => {
-            f.want(&["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"], name)?;
-            Ret::I32(unsafe { fylite_rs_geo_surface(f.f64(0)?, f.f64(1)?, f.f64(2)?, f.f64(3)?, f.f64(4)?, f.f64(5)?, f.f64(6)?, f.f64(7)?, f.f64(8)?, f.f64(9)?, f.f64(10)?, f.f64(11)?, f.f64(12)?, f.f64(13)?, p[14] as *const f64, f.u64(15)?, p[16] as *mut f64) })
         }
         "fylite_rs_geo_surface_gm2" => {
             f.want(&["f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "f64", "in_f64", "u64", "out_f64"], name)?;

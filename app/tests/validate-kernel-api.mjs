@@ -156,23 +156,18 @@ if (viaApi.via !== 'api') {
 const CASES = [
   ['ellipke  完全椭圆积分（入数组、两个出数组）',
    (fy) => fy.ellipke([0, 0.25, 0.5, 0.75, 0.9])],
-  ['dtReactivity  纯标量进、标量出',
-   (fy) => [fy.dtReactivity(1), fy.dtReactivity(10), fy.dtReactivity(30)]],
-  ['trappedFractionEps  一入一出',
-   (fy) => fy.trappedFractionEps([0.01, 0.1, 0.3, 0.5])],
   ['spitzerEta  三个入数组',
    (fy) => fy.spitzerEta([100, 1000, 5000], [1, 2, 3], [15, 16, 17])],
   ['interp  两组长度不同的入数组',
    (fy) => fy.interp([0.1, 0.5, 0.9], [0, 0.25, 0.5, 0.75, 1], [0, 1, 4, 9, 16])],
   ['quadrature  规则由整数选，出一个数',
    (fy) => fy.quadrature([0, 1, 4, 9, 16, 25, 36], 0.5, 0)],
-  ['adasSpecies  字节出参（名字表）',
-   (fy) => fy.adasSpecies()],
-  ['adasId + adasCooling  字节入参，再走一次数组',
-   (fy) => {
-     const id = fy.adasId('W');
-     return [id].concat(Array.from(fy.adasCooling(id, [0.1, 1, 10])));
-   }],
+  //: ★`dtReactivity` · `trappedFractionEps` · `adasSpecies` · `adasCooling` left
+  //: the interface in T-4 第十二刀 (2026-09-06): no page calls them, so they are
+  //: oracle-only and neither path serves them.  `adasId` stays (the pages' species
+  //: vocabulary) and keeps the byte-in row.
+  ['adasId  字节入参',
+   (fy) => [fy.adasId('W'), fy.adasId('D')]],
   ['millerBoundary  形状参数进、两条轮廓出',
    (fy) => fy.millerBoundary({ r0: 1.85, z0: 0.02, a: 0.45, kappa: 1.8,
                                deltaU: 0.4, deltaL: 0.55 }, 33)],

@@ -65,9 +65,7 @@
 
   var REQUIRED = [
     'fylite_rs_alloc', 'fylite_rs_free', 'fylite_rs_ping',
-    'fylite_rs_dt_reactivity', 'fylite_rs_zerod_volume',
-    'fylite_rs_zerod_evaluate', 'fylite_rs_zerod_predict',
-    'fylite_rs_coupling_gradient',
+            'fylite_rs_coupling_gradient',
     'fylite_rs_dispersion_root',
     'fylite_rs_ellipke',
     //: ★the electromagnetic entries this page used to write out in JS
@@ -83,16 +81,14 @@
     //: required rather than probed for: a build without it would leave the
     //: reconstruction bar silently back on「coils exactly known」, which is
     //: the failure this entry exists to remove.
-    'fylite_rs_geo_surface',
-    'fylite_rs_bounded_lstsq',
-    //: the NEO chain's two halves.  `neo_inputs` is the map that makes
+        'fylite_rs_bounded_lstsq',
+        //: the NEO chain's two halves.  `neo_inputs` is the map that makes
     //: `neo_sauter` usable at all — without it a caller would have to
     //: rebuild the CGS normalisation itself, which is the one layer whose
     //: errors do not raise.  Listed together so a build carrying only one
     //: of them fails at load rather than at the first surface.
     'fylite_rs_neo_inputs', 'fylite_rs_neo_sauter',
-    'fylite_rs_neo_chi',
-    //: ★the interpretive direction, and the ADAS table that makes the
+        //: ★the interpretive direction, and the ADAS table that makes the
     //: radiation a total rather than a bremsstrahlung estimate.  Listed so
     //: a build without them fails at LOAD: a page that discovered a missing
     //: entry at the first inversion would already have drawn a figure.
@@ -100,9 +96,7 @@
     'fylite_rs_ion_dilution', 'fylite_rs_quasi_neutral_ne',
     'fylite_rs_gs_fixed_solve',
     'fylite_rs_field_ion_sum',
-    'fylite_rs_adas_id', 'fylite_rs_adas_cooling',
-    'fylite_rs_adas_species_count', 'fylite_rs_adas_species_name',
-    'fylite_rs_ridge_lstsq', 'fylite_rs_profile_fit', 'fylite_rs_li3',
+    'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_profile_fit', 'fylite_rs_li3',
     'fylite_rs_redl_bootstrap',
     'fylite_rs_quadrature',
     //: ★the diagnostic layer the analysis scenario reads its channels
@@ -114,21 +108,15 @@
     //: degenerate on purpose (the vessel groups): the truncation IS the
     //: regularisation, and it reports what it kept
     'fylite_rs_svd_solve',
-    'fylite_rs_trace_surface',
     //: the operating domain, the flux account and the START —
     //: the design scenario's own criteria (ABI v103)
-    'fylite_rs_zerod_limits', 'fylite_rs_zerod_flux_budget',
-    'fylite_rs_zerod_averages',
-    'fylite_rs_strike_points', 'fylite_rs_start_currents',
-    'fylite_rs_fill_filaments', 'fylite_rs_x_points',
-                //: ★the neutral-beam chain (ABI v105, already in every shipped
+                'fylite_rs_fill_filaments', 'fylite_rs_x_points', 'fylite_rs_enclosed_volume',                 //: ★the neutral-beam chain (ABI v105, already in every shipped
     //: artifact and reachable from Python alone).  Listed so a build
     //: without them fails at LOAD rather than at the first beam: a
     //: page that discovered a missing entry mid-march would already
     //: have drawn a deposition profile.
     'fylite_rs_shell_table', 'fylite_rs_shell_area',
-    'fylite_rs_shell_sum', 'fylite_rs_trapped_fraction_eps',
-    'fylite_rs_interp',
+    'fylite_rs_shell_sum',     'fylite_rs_interp',
     'fylite_rs_beam_slowing',
     'fylite_rs_beam_energy_partition',
     //: ★the lower-hybrid chain (same ABI v105, same reason as the beam
@@ -144,8 +132,7 @@
     'fylite_rs_lh_accessibility',
     //: ★`gs_fixed_box` (T-M7 / T-M17, the boxed Picard) is a retired export
     //: since T-4 第八刀 (2026-09-06): the refinement runs inside `code/evolve`.
-    'fylite_rs_spitzer_eta_perp',
-    'fylite_rs_eped1nn',
+        'fylite_rs_eped1nn',
     'fylite_rs_geo_surface_gm2', //: ★T-D18 / T-D7 (放电设计页) — the start design with a SET of field
     //: nulls, and the two pieces of wall geometry that turn 「间隙 = 某值」
     //: and 「打击点落在这段壁上」 into the isoflux rows it takes.  Listed
@@ -158,8 +145,7 @@
     //: reconstruction bar drawing a bootstrap current beside a fitted
     //: current in a DIFFERENT MEASURE, which is the failure the three
     //: exist to remove and which looks like a plot either way.
-    'fylite_rs_jparb_jphi',
-    //: ★T-C13 — the Newton flux match and the reintegration that turns
+        //: ★T-C13 — the Newton flux match and the reintegration that turns
     //: its answer back into a profile.  They were in every shipped artifact
     //: and reachable from Python alone: the kernel carried a TGYRO-validated
     //: flux matcher and NOT ONE LINE of this front end called it, so the
@@ -393,62 +379,6 @@
    *        signAxis=1, relax=0.3, maxIter=400, tol=1e-8, fbGain=0,
    *        zcAnchor=NaN, rcAnchor=NaN}
    */
-  /** <sigma v> for D-T [m^3/s]; 0 outside the 0.2-100 keV parameterisation. */
-  Fy.prototype.dtReactivity = function (tiKev) {
-    return this.e.fylite_rs_dt_reactivity(tiKev);
-  };
-
-
-  /**
-   * One pass over a prescribed discharge (FYL-DESIGN-05 L0).
-   *
-   * The waveforms arrive already built: deciding their shape is the page's
-   * job, deciding what follows from them physically is the kernel's.
-   */
-  Fy.prototype.zerodEvaluate = function (o) {
-    var self = this, nt = o.t.length, nr = o.rho.length;
-    return this.scope(function (s) {
-      var t = s.put(o.t), ip = s.put(o.ip), ne0 = s.put(o.ne0),
-          te0 = s.put(o.te0), pin = s.put(o.pInj), rho = s.put(o.rho),
-          par = s.put(o.par), os = s.zeros(4 * nt),
-          op = s.zeros(3 * nt * nr), vol = s.zeros(1);
-      var rc = self.e.fylite_rs_zerod_evaluate(
-        t.ptr, ip.ptr, ne0.ptr, te0.ptr, pin.ptr, BigInt(nt),
-        rho.ptr, BigInt(nr), par.ptr, os.ptr, op.ptr, vol.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_zerod_evaluate', rc);
-      var a = s.get(os), b = s.get(op), m = nt * nr;
-      return { vLoop: a.slice(0, nt), pFus: a.slice(nt, 2 * nt),
-               pAlpha: a.slice(2 * nt, 3 * nt), q: a.slice(3 * nt, 4 * nt),
-               ne: b.slice(0, m), te: b.slice(m, 2 * m),
-               ti: b.slice(2 * m, 3 * m), volume: s.get(vol)[0] };
-    });
-  };
-
-  /**
-   * TIER B: march the energy balance with a confinement closure.
-   *
-   * ★A different kind of answer from `zerodEvaluate`: there W_th is the
-   * integral of a profile the caller gave, here it is solved for.  Whatever
-   * consumes this has to say so — see FYL-DESIGN-05 §3.
-   */
-  Fy.prototype.zerodPredict = function (o) {
-    var self = this, nt = o.t.length, nr = o.rho.length;
-    return this.scope(function (s) {
-      var t = s.put(o.t), ip = s.put(o.ip), ne0 = s.put(o.ne0),
-          pa = s.put(o.pAux), rho = s.put(o.rho), par = s.put(o.par),
-          pred = s.put(o.pred), os = s.zeros(8 * nt), vol = s.zeros(1);
-      var rc = self.e.fylite_rs_zerod_predict(
-        t.ptr, ip.ptr, ne0.ptr, pa.ptr, BigInt(nt),
-        rho.ptr, BigInt(nr), par.ptr, pred.ptr, os.ptr, vol.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_zerod_predict', rc);
-      var a = s.get(os), n = nt;
-      return { wTh: a.slice(0, n), tauE: a.slice(n, 2 * n),
-               te0: a.slice(2 * n, 3 * n), pOhm: a.slice(3 * n, 4 * n),
-               pAlpha: a.slice(4 * n, 5 * n), pHeat: a.slice(5 * n, 6 * n),
-               pLH: a.slice(6 * n, 7 * n), balance: a.slice(7 * n, 8 * n),
-               volume: s.get(vol)[0] };
-    });
-  };
 
   // --- L6: rigid n=0 vertical mode --------------------------------------
   //
@@ -646,25 +576,6 @@
 
 
 
-  /** Trace one flux surface from a psi map and integrate over it. */
-  Fy.prototype.traceSurface = function (o) {
-    var self = this, nt = o.nTheta || 181;
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), lr = s.put(o.limR), lz = s.put(o.limZ),
-          rz = s.zeros(2 * nt), inf = s.zeros(6);
-      var rc = self.e.fylite_rs_trace_surface(
-        o.r0, o.z0, o.dr, o.dz, BigInt(o.nr), BigInt(o.nz), psi.ptr,
-        o.level, o.axisR, o.axisZ, lr.ptr, lz.ptr, BigInt(o.limR.length),
-        BigInt(nt), rz.ptr, inf.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_trace_surface', rc);
-      var v = s.get(rz), i = s.get(inf), poly = [];
-      for (var k = 0; k < rc; k++) poly.push([v[2 * k], v[2 * k + 1]]);
-      return { poly: poly, gq: i[1], perimeter: i[2], dlOverGrad: i[3],
-               dVdPsi: i[4], volume: i[5] };
-    });
-  };
-
-
   // --- L4/L7: the operating domain, the flux account, and the START -------
   //
   // ★★What these buy the pages, and why they were missing.  The design
@@ -675,90 +586,6 @@
   // of them is in the kernel; none of them had a wire.
 
 
-
-  /**
-   * The two profile averages this layer distinguishes: `{ line, volume }`.
-   *
-   * Both come back together because which one is meant is exactly what
-   * gets answered wrongly — the Greenwald ratio takes the LINE average.
-   */
-  Fy.prototype.zerodAverages = function (o) {
-    var self = this, n = o.rho.length;
-    return this.scope(function (s) {
-      var r = s.put(o.rho), f = s.put(o.f), out = s.zeros(2);
-      var rc = self.e.fylite_rs_zerod_averages(r.ptr, f.ptr, BigInt(n),
-                                               out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_zerod_averages', rc);
-      var v = s.get(out);
-      return { line: v[0], volume: v[1] };
-    });
-  };
-
-  /**
-   * The operating point's dimensionless standing.
-   *
-   * `neBar` is the LINE-AVERAGED density: the Greenwald ratio is defined
-   * against that one, and a central value handed here would read a peaked
-   * profile as further from the limit than it is.
-   */
-  Fy.prototype.zerodLimits = function (o) {
-    var self = this;
-    return this.scope(function (s) {
-      var out = s.zeros(9);
-      var rc = self.e.fylite_rs_zerod_limits(
-        o.ip, o.r0, o.a, o.kappa, o.bt, o.neBar, o.wTh, o.volume, out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_zerod_limits', rc);
-      var v = s.get(out);
-      return { nGreenwald: v[0], fGreenwald: v[1], qCyl: v[2], pAvg: v[3],
-               bPol: v[4], betaT: v[5], betaP: v[6], betaN: v[7],
-               fTroyon: v[8] };
-    });
-  };
-
-  /**
-   * The poloidal-flux account of a pulse.
-   *
-   * `phiAvail` is the swing the machine can deliver [Wb]; 0 leaves
-   * `tSustain` at -1, which the page must show as "not declared" rather
-   * than as a duration.
-   */
-  Fy.prototype.zerodFluxBudget = function (o) {
-    var self = this, n = o.t.length;
-    return this.scope(function (s) {
-      var t = s.put(o.t), v = s.put(o.vLoop), ip = s.put(o.ip),
-          ph = s.put(o.phases), out = s.zeros(7);
-      var rc = self.e.fylite_rs_zerod_flux_budget(
-        t.ptr, v.ptr, ip.ptr, BigInt(n), ph.ptr, o.r0, o.a, o.li,
-        num(o.cEjima, 0.45), num(o.phiAvail, 0), out.ptr);
-      if (rc < 0) throw new SolveError('fylite_rs_zerod_flux_budget', rc);
-      var x = s.get(out);
-      return { phiInd: x[0], phiResRamp: x[1], phiRamp: x[2],
-               phiConsumed: x[3], vFlattop: x[4], lP: x[5],
-               tSustain: x[6] < 0 ? null : x[6] };
-    });
-  };
-
-  /**
-   * Where the boundary surface meets the wall — `[[r, z], ...]`.
-   *
-   * The observable that says which TOPOLOGY you have: a diverted plasma
-   * lands its legs somewhere the boundary itself never goes.
-   */
-  Fy.prototype.strikePoints = function (o) {
-    var self = this, g = o.grid, maxN = num(o.maxN, 16);
-    return this.scope(function (s) {
-      var psi = s.put(o.psi), wr = s.put(o.wallR), wz = s.put(o.wallZ),
-          out = s.zeros(2 * maxN);
-      var n = self.e.fylite_rs_strike_points(
-        g.r0, g.z0, g.dr, g.dz, BigInt(g.nr), BigInt(g.nz), psi.ptr,
-        o.psiBnd, wr.ptr, wz.ptr, BigInt(o.wallR.length), BigInt(maxN),
-        out.ptr);
-      if (n < 0) throw new SolveError('fylite_rs_strike_points', n);
-      var v = s.get(out), pts = [];
-      for (var i = 0; i < n; i++) pts.push([v[2 * i], v[2 * i + 1]]);
-      return pts;
-    });
-  };
 
   /** Fill a boundary with current filaments — the START's plasma model. */
   Fy.prototype.fillFilaments = function (o) {
@@ -900,6 +727,27 @@
   };
 
 
+  //: ★back (T-4 第十二刀): `FyPhys.surfaceVolume` on the pulse-design page's main
+  //: thread calls this — 第十一刀's census saw only the worker
+  /**
+   * Volume enclosed by a closed (R, Z) outline [m^3].
+   *
+   * ★Fewer than three points is an ERROR here, not a zero: "no outline" and
+   * "an outline enclosing nothing" are different questions and only the
+   * second has a volume for an answer.
+   */
+  Fy.prototype.enclosedVolume = function (poly) {
+    var self = this, n = poly.length;
+    return this.scope(function (s) {
+      var rz = new Float64Array(2 * n);
+      for (var i = 0; i < n; i++) { rz[2 * i] = poly[i][0]; rz[2 * i + 1] = poly[i][1]; }
+      var p = s.put(rz), out = s.zeros(1);
+      var rc = self.e.fylite_rs_enclosed_volume(p.ptr, BigInt(n), out.ptr);
+      if (rc !== 0) throw new SolveError('fylite_rs_enclosed_volume', rc);
+      return s.get(out)[0];
+    });
+  };
+
   /** One point of a fitted profile. */
   Fy.prototype.profileAt = function (coef, x) {
     return this.profileSample(coef, Float64Array.of(x))[0];
@@ -993,35 +841,6 @@
 
 
   /**
-   * The ADAS species the shipped table carries, in the kernel's own order.
-   *
-   * ★A page that offers a species menu must not hard-code the menu: the
-   * table lives in the kernel, an unknown name radiates ZERO rather than
-   * complaining, and a menu that drifted from the table would silently offer
-   * a species whose line radiation is always zero.  So the list is ASKED
-   * for, every load.
-   */
-  Fy.prototype.adasSpecies = function () {
-    var self = this;
-    var n = this.e.fylite_rs_adas_species_count();
-    if (n < 0) throw new SolveError('fylite_rs_adas_species_count', n);
-    return this.scope(function (s) {
-      var cap = 16, buf = s.zeros(2), out = [];
-      for (var i = 0; i < n; i++) {
-        var got = self.e.fylite_rs_adas_species_name(
-          BigInt(i), buf.ptr, BigInt(cap));
-        if (got < 0) throw new SolveError('fylite_rs_adas_species_name', got);
-        //: the view is taken AFTER the allocation, inside the loop: a wasm
-        //: memory that grew would have detached an earlier one
-        var b = new Uint8Array(self.e.memory.buffer, buf.ptr, got), str = '';
-        for (var k = 0; k < got; k++) str += String.fromCharCode(b[k]);
-        out.push(str);
-      }
-      return out;
-    });
-  };
-
-  /**
    * The kernel's index for a species name, or -1 for one it does not carry.
    *
    * ★-1 is an ANSWER and callers must check it: downstream an unknown id
@@ -1036,20 +855,6 @@
       var b = new Uint8Array(self.e.memory.buffer, buf.ptr, Math.max(1, len));
       for (var k = 0; k < len; k++) b[k] = str.charCodeAt(k) & 0x7f;
       return self.e.fylite_rs_adas_id(buf.ptr, BigInt(len));
-    });
-  };
-
-  /**
-   * The ADAS cooling rate `Lz` [erg cm^3/s] of one species over a
-   * temperature profile.  `teKev` in keV, a negative `id` gives zeros.
-   */
-  Fy.prototype.adasCooling = function (id, teKev) {
-    var self = this, n = teKev.length;
-    return this.scope(function (s) {
-      var t = s.put(teKev), out = s.zeros(n);
-      var rc = self.e.fylite_rs_adas_cooling(id | 0, t.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_adas_cooling', rc);
-      return s.get(out);
     });
   };
 
@@ -1180,18 +985,6 @@
   // `gs_free_solve` writes psi in and the same order `shell_table` reads.
 
 
-
-  /** Lin-Liu & Miller trapped fraction from the inverse aspect ratio. */
-  Fy.prototype.trappedFractionEps = function (eps) {
-    var self = this, n = eps.length;
-    return this.scope(function (s) {
-      var e = s.put(eps), out = s.zeros(n);
-      var rc = self.e.fylite_rs_trapped_fraction_eps(e.ptr, BigInt(n),
-                                                     out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_trapped_fraction_eps', rc);
-      return s.get(out);
-    });
-  };
 
   /** Linear interpolation, the kernel's — same rule as every other host. */
   Fy.prototype.interp = function (x, xp, yp) {
@@ -1627,36 +1420,6 @@
    */
   var BOUNDARY_INSET = 0.005;
 
-  /** The boundary surface used for drawing and for the shape metrics. */
-  /**
-   * The plasma boundary, traced by the KERNEL (FYL-DESIGN-07 D-4).
-   *
-   * ★Repointed only after the two were shown to agree.  The JavaScript
-   * tracer carried rules that were paid for twice (the psi-bar inset, the
-   * five-point neck median, two passes) — the ledger has a section on it,
-   * and a swap onto an implementation without them would have put kappa back
-   * to 1.79 against EFIT's 1.389.  Measured on a solved EAST field at the
-   * same level: 181 points both sides, and R0 / a / kappa / delta_u /
-   * delta_l all agreeing to 0.00e+0.  Equivalence first, repoint second.
-   */
-  function boundarySurface(grid, psi, psiAxis, psiBnd, axisR, axisZ,
-                           limR, limZ, ntheta) {
-    var lev = psiAxis + (psiBnd - psiAxis) * (1 - BOUNDARY_INSET);
-    //: ★no silent fallback.  A page that forgot `useKernel()` would other-
-    //: wise run the JS tracer instead — a second implementation, chosen by
-    //: accident, agreeing with the kernel right up until it does not.  That
-    //: is the shape D-4 exists to remove, so the absence of a kernel is an
-    //: error rather than a quieter answer (the same rule the kernel applies
-    //: to Pereverzev-Corrigan and to TGLF's unported branches).
-    if (!KERNEL)
-      throw new Error('FyPhys.boundarySurface: no kernel — call useKernel()');
-    return KERNEL.traceSurface({
-      r0: grid.r[0], z0: grid.z[0], dr: grid.dr, dz: grid.dz,
-      nr: grid.nr, nz: grid.nz, psi: psi, level: lev,
-      axisR: axisR, axisZ: axisZ, limR: limR, limZ: limZ,
-      nTheta: ntheta || 181 }).poly;
-  }
-
   // --- flux-surface geometry ----------------------------------------------
   //
   // Gauge, once: psi is FULL flux [Wb] with the axis at the maximum, so the
@@ -1794,7 +1557,6 @@
     sample: sample,
     coilPointResponse: coilPointResponse,
     loopResponse: loopResponse,
-    boundarySurface: boundarySurface,
     surfaceVolume: surfaceVolume,
     li3: li3,
     BOUNDARY_INSET: BOUNDARY_INSET,

@@ -30,7 +30,7 @@ site:
   deposition depth materially, so the beam is a *sum over components*.
 * **Larmor radius.** the exact ``ρ = √(2 A m_p E e)/(Z e B)`` rather than
   METIS's deuterium-calibrated constant.
-* **Trapped fraction.** :func:`fylite.kernel.trapped_fraction_eps` (Lin-Liu &
+* **Trapped fraction.** the kernel's ``trapped_fraction_eps`` (oracle-only since T-4 第十二刀) (Lin-Liu &
   Miller) rather than METIS's ``0.95√x`` fallback.
 
 Outputs are **absolute** (W/m³, A/m², Pa) — the beam power is measured, unlike
