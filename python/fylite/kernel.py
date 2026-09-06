@@ -76,8 +76,7 @@ __all__ = [
     "tglf_kygrid", "tglf_flux", "tglf_dlnpdr", "TGLF_PRESET_ERRORS",
     "neo_sauter", "dke_solve", "neo_gyrobohm",
     "SAUTER_1999", "REDL_2021",
-    "ridge_lstsq", "bounded_lstsq", "profile_fit", "profile_sample",
-    "channel_field",     "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS", "gs_free_solve",
+    "ridge_lstsq", "bounded_lstsq",     "channel_field",     "geo_surface", "GEO_SHAPE_KEYS", "GEO_SCALARS", "gs_free_solve",
     #: T-D6′ — the same solve on a tabulated (delivered) p'/FF' shape
     "gs_free_solve_tab", "FREE_SOLVE_TAB_KEYS",
     #: T-A5 — the same solve with the coil currents FITTED "INVERSE_COIL_KEYS",
@@ -2287,46 +2286,6 @@ def bounded_lstsq(a, b, lo=None, hi=None, *, n_iter: int = 4000,
     return out, int(rc)
 
 
-# --------------------------------------------------------------------------- #
-# profile fitting (fitting.rs)
-# --------------------------------------------------------------------------- #
-_sig("fylite_rs_profile_fit", [_ARR, _ARR, _ARR, _U64, _U64, _ARR, _ARR, _ARR], _I32)
-def profile_fit(x, y, sigma, *, max_order: int = 6) -> dict:
-    """Shifted-Legendre profile fit with GCV order selection.
-
-    Returns the chosen coefficients and order, the GCV sweep over every
-    order tried, and the fit statistics.  ★The GCV score measures IN-SAMPLE
-    prediction only: it says nothing about the extrapolated edge, which is
-    where a profile fit is most often read and least constrained.
-    """
-    lib = require()
-    x, y, sg = _f(x), _f(y), _f(sigma)
-    mo = int(max_order)
-    coef = np.empty(mo + 1)
-    sweep = np.empty(mo + 1)
-    info = np.empty(3)
-    rc = lib.fylite_rs_profile_fit(x, y, sg, x.size, mo, coef, sweep, info)
-    if rc < 0:
-        raise KernelError(f"fylite_rs_profile_fit returned {rc}")
-    return {"coef": coef[:int(info[0]) + 1], "order": int(info[0]),
-            "gcv_sweep": sweep, "rss": float(info[1]),
-            "chi2_per_dof": float(info[2])}
-
-
-_sig("fylite_rs_profile_sample", [_ARR, _U64, _ARR, _U64, _ARR], _I32)
-def profile_sample(coef, x) -> np.ndarray:
-    """Evaluate a :func:`profile_fit` coefficient vector at ``x``."""
-    lib = require()
-    coef, x = _f(coef), _f(x)
-    out = np.empty(x.size)
-    rc = lib.fylite_rs_profile_sample(coef, coef.size, x, x.size, out)
-    if rc != 0:
-        raise KernelError(f"fylite_rs_profile_sample returned {rc}")
-    return out
-
-
-#: Electron mass in units of the deuteron mass — the ratio NEO's species
-#: list is written in.
 M_ELECTRON_OVER_MD = 2.724437e-4
 
 

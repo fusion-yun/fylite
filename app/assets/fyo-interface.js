@@ -61,6 +61,10 @@
     'equilibrium',         // The equilibrium block a step writes beside its own numbers — the browser's stationary loop writes `fylite:equilibrium` for step 6's re-solve account.
     'eta_cd',              // Current-drive efficiency actually used by a wave source.
     'fast_energy',         // Stored fast-ion energy [J] of a beam deposition.
+    'fit_eval_x',          // Where the reader wants the fitted polynomial evaluated (optional) — `code/profile_fit` answers `eval` on these points; `analysis.
+    'fit_sigma',           // One uncertainty per point of `fit_x` (0 switches the point off) — `code/profile_fit` weights the least squares by it.
+    'fit_x',               // The abscissae of the points a profile fit is asked for — `code/profile_fit` (the profile bar, and `analysis.
+    'fit_y',               // The values at `fit_x` the fit is held to — `code/profile_fit`.
     'flux_loop',           // The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`).
     'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'ip',                  // The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held.
@@ -110,7 +114,7 @@
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
   var REVISION = 1;
-  var DIGEST = "ae5a2dfe9d3c343a";
+  var DIGEST = "ca272848c797c0e9";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -261,6 +265,7 @@
         "fit_x": { path: "fylite:fit_x", units: "1", rank: "1d" },
         "fit_y": { path: "fylite:fit_y", units: "1", rank: "1d" },
         "fit_sigma": { path: "fylite:fit_sigma", units: "1", rank: "1d" },
+        "fit_eval_x": { path: "fylite:fit_eval_x", units: "1", rank: "1d" },
         "outline_levels": { path: "fylite:outline_levels", units: "1", rank: "1d" },
       }
     },

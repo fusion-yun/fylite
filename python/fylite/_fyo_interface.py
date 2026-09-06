@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'ae5a2dfe9d3c343a'
+DIGEST = 'ca272848c797c0e9'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -163,6 +163,7 @@ TABLES = {
             'fit_x': {"path": 'fylite:fit_x', "units": '1', "rank": '1d'},
             'fit_y': {"path": 'fylite:fit_y', "units": '1', "rank": '1d'},
             'fit_sigma': {"path": 'fylite:fit_sigma', "units": '1', "rank": '1d'},
+            'fit_eval_x': {"path": 'fylite:fit_eval_x', "units": '1', "rank": '1d'},
             'outline_levels': {"path": 'fylite:outline_levels', "units": '1', "rank": '1d'},
         },
     },
@@ -674,4 +675,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'te_profile', 'time', 'trapped_fraction', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'x_ref', 'y_init']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'te_profile', 'time', 'trapped_fraction', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'weight', 'weight_extra', 'x_ref', 'y_init']

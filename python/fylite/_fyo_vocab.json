@@ -32,8 +32,8 @@
   "2026-08-26: the seven case-corpus terms (`bar` `case` `case_id` `cases` `device` `document` `initial`) joined when `fylite cases` gave the corpus a second (Python) reader beside scenario.js -- the reverse gate found them, which is what that gate is for.",
   "2026-09-05 (第十八刀): `psi_prev` `sigma_prev` `exch_prev` `chi_turb` `r_minor` `r_major` `shift` joined — the entry march's carried state and the ladder's surface rows, written by the page's worker and by Python's model.evolve; the reverse gate found them, which is what that gate is for."
  ],
- "namespace": "urn:fylite:",
  "fyo_context": "https://fusion-yun.github.io/fyo/latest/",
+ "namespace": "urn:fylite:",
  "terms": {
   "a1": {
    "gated": false,
@@ -55,6 +55,10 @@
    "gated": true,
    "gloss": "The ridge weights of a shape anneal, one per pass, stiff → loose (`code/discharge`); absent, the kernel lays a geometric table from anneal_hi to anneal_lo over `passes`. Gated: it has no bare host-side name — both hosts spell it on the wire only."
   },
+  "b_tor": {
+   "gated": false,
+   "gloss": "The vacuum toroidal field at R_centre [T], a MEASUREMENT of the shot bound under discharge/fylite:b_tor: F at the plasma edge is |R_centre B0| and `code/reconstruction` refuses without it (第三十一刀: the page binds its machine's `tf.b0`, the same number it always used as F_EDGE). Not gated: `btor` / `b_tor` is the ordinary name in both hosts' measurement sets."
+  },
   "channel_aturns": {
    "gated": false,
    "gloss": "Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start. Not gated: `channel_aturns` is also the ordinary parameter name of the kernel binding's channel_fold."
@@ -62,6 +66,22 @@
   "channel_basis": {
    "gated": true,
    "gloss": "Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel). A vector read in the wrong basis is silently rescaled by the turn count, which is why this one is gated."
+  },
+  "chi_prev": {
+   "gated": false,
+   "gloss": "The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors. Not gated, like `chi_turb`: the readback key is bare by construction."
+  },
+  "chi_turb": {
+   "gated": false,
+   "gloss": "The turbulent ion diffusivity [m^2/s] the extension's code/turbulence evaluated between two blocks of the march (第十八刀, 2026-09-05): bound under inputs/evolve for the block that follows (closure 3), and the previous answer it relaxes against; a solver's given profile, not a DD transport model, so prefixed. Not gated: the door's own raw field (`fields/chi_turb`, an entry row name like `psi`) and the readback key are bare by construction; the DOCUMENT slot under inputs/evolve is the prefixed one."
+  },
+  "chord_nel": {
+   "gated": false,
+   "gloss": "Measured line densities [m^-2], one per interferometer chord; bound, `code/chords` fits `(n_e0, alpha)` back to them by the page's grid scan. Not gated: the page's `nel`, a bare local in both hosts."
+  },
+  "chord_nel_weight": {
+   "gated": false,
+   "gloss": "The weight of each chord's line-density reading in the density fit; zero switches a chord off (`code/chords`). Not gated: bound beside its readings, never bare."
   },
   "coil_current_units": {
    "gated": true,
@@ -87,6 +107,14 @@
    "gated": false,
    "gloss": "ISO-8601 timestamp the document was written. Not gated: ordinary local name."
   },
+  "current_cells": {
+   "gated": false,
+   "gloss": "A fitted toroidal current over the interior cells [A], `(nr-2)*(nz-2)`, handed back to `code/chords` so the Faraday rows can be contracted with it — the reading by the rows route, beside the sampled field's. Not gated: the page's `fitCur`, a bare local."
+  },
+  "current_source": {
+   "gated": false,
+   "gloss": "A PRESCRIBED per-cell toroidal current [A] over the interior cells, bound under discharge/fylite:current_source — the bootstrap channel of `code/reconstruction` (T-A9): the free coefficients make up the remainder and the reported current carries it back under the iterate's mask. Not gated: the page's `jPre`, a bare local on both sides."
+  },
   "deposited": {
    "gated": false,
    "gloss": "Whether a wave source actually resonated and put power in — a result, not a failure, and one a persisted document has to be able to state. Not gated: `deposited` is also an ordinary local flag in both hosts."
@@ -94,6 +122,14 @@
   "dvolume": {
    "gated": false,
    "gloss": "dV/dpsi_N on the grid a source profile is given on, so a reader can integrate the deposition without re-deriving the metric. Not gated: it is the physics layer's own key for the same array."
+  },
+  "eq_p": {
+   "gated": false,
+   "gloss": "The previous equilibrium's p(psi_N) table — the pressure [Pa] — bound under inputs/refit beside eq_x (第十九刀). Not gated: a bound solver table, prefixed under inputs/refit by construction."
+  },
+  "eq_x": {
+   "gated": false,
+   "gloss": "The previous equilibrium's p(psi_N) table — its psi_N abscissa — bound under inputs/refit (第十九刀): the beta_p the last FREE solve carried, which the pressure feedback moves beta0 against (the page's evEqPressure(eqFree, geo)). Not gated: a bound solver table, prefixed under inputs/refit by construction."
   },
   "equilibrium": {
    "gated": false,
@@ -103,9 +139,29 @@
    "gated": false,
    "gloss": "Current-drive efficiency actually used by a wave source. Not gated: it is also the keyword the model entries take."
   },
+  "exch_prev": {
+   "gated": true,
+   "gloss": "The electron-ion exchange rates [1/s] the lagged step's closure produced, carried so a resumed block's first exchange ceiling is the loop's."
+  },
   "fast_energy": {
    "gated": false,
    "gloss": "Stored fast-ion energy [J] of a beam deposition. Not gated: the deposition result dict spells it the same way."
+  },
+  "fit_eval_x": {
+   "gated": false,
+   "gloss": "Where the reader wants the fitted polynomial evaluated (optional) — `code/profile_fit` answers `eval` on these points; `analysis.profit(evaluate_at=…)` is the writer. Not gated: a plain x list, absent when the reader wants only the uniform curve."
+  },
+  "fit_sigma": {
+   "gated": false,
+   "gloss": "One uncertainty per point of `fit_x` (0 switches the point off) — `code/profile_fit` weights the least squares by it. Not gated: a plain sigma list."
+  },
+  "fit_x": {
+   "gated": false,
+   "gloss": "The abscissae of the points a profile fit is asked for — `code/profile_fit` (the profile bar, and `analysis.profit` since T-4 第十三刀). Not gated: a plain x list, both hosts spell it on the wire only."
+  },
+  "fit_y": {
+   "gated": false,
+   "gloss": "The values at `fit_x` the fit is held to — `code/profile_fit`. Not gated: the reader's own numbers, carried unchanged."
   },
   "flux_loop": {
    "gated": false,
@@ -131,9 +187,17 @@
    "gated": false,
    "gloss": "Effective length [m] of a magnetic probe, the span its reading averages over. The DD has no spelling for it on `b_field_pol_probe`. Not gated: `length` is an ordinary identifier in both hosts and no spelling check could bind it."
   },
+  "loop_plasma": {
+   "gated": false,
+   "gloss": "The flux-loop readings with the coil share already removed [Wb/rad], one per loop, the rows-given tier's loop measurements (`code/reconstruction`). Not gated: the page's `meas` block, spelled under this slot only where it is bound."
+  },
   "max_power": {
    "gated": false,
    "gloss": "Nameplate maximum power [W] of a heating system's launcher — what the hardware may deliver, as opposed to what a shot injected. The DD's `lh_antennas` has no nameplate field, so it rides namespaced. Not gated: `max_power` is also the ordinary key of the in-memory launcher dict in both hosts."
+  },
+  "meas_extra": {
+   "gated": false,
+   "gloss": "The measurements of `row_extra`, one per extra row (`code/reconstruction`). Not gated: bound beside its rows, never bare."
   },
   "n_parallel": {
    "gated": false,
@@ -151,6 +215,10 @@
    "gated": false,
    "gloss": "Human-readable name of the block it sits on — a coil, a launcher, a saved case. ★Never gatable: `name` is an ordinary key seventy times over in both hosts, which is the exact false-positive class this column exists to record."
   },
+  "ne_profile": {
+   "gated": false,
+   "gloss": "An electron density profile [m^-3] on uniform normalised flux, read linearly — the density a chord integral is taken through when a profile rather than the parametrised shape is meant (`code/chords`, 第三十四刀). Not gated: the page's `spec.profile`, a bare local."
+  },
   "null_r": {
    "gated": true,
    "gloss": "R [m] of the field nulls a shape design asks for, one per null (`code/discharge` · `code/pulse`); with `null_z`. Gated: the hosts hold nulls as point objects, never under this name."
@@ -162,6 +230,18 @@
   "orbit_loss_fraction": {
    "gated": false,
    "gloss": "Fraction of injected beam power lost on first orbit, at the TOTAL level (the per-component block spells its own `fylite:orbit_loss`). Not gated: the deposition result dict uses the same key."
+  },
+  "p_fast_profile": {
+   "gated": false,
+   "gloss": "A fast-ion pressure profile [Pa] on uniform normalised flux — the non-thermal share a reader declared, subtracted from the fit's total before the thermal ladder is built (`code/bootstrap`). Not gated: the page's `pd.fast`, a bare local."
+  },
+  "p_fast_third": {
+   "gated": false,
+   "gloss": "The fast-ion pressure's trace third (p_par + 2 p_perp)/3 [Pa] on the ladder, as the beam left it at the last step (T-M12): bound under inputs/evolve for code/refit so the shape fit and the beta_p target see the same total pressure the march did (第十九刀). Not gated: a bound solver array under inputs/evolve, prefixed there by construction."
+  },
+  "p_rot_profile": {
+   "gated": false,
+   "gloss": "A rotation pressure profile [Pa] on uniform normalised flux — the other non-thermal share, only ever an imported profile (`code/bootstrap`). Not gated: the page's `pd.rot`, a bare local."
   },
   "page": {
    "gated": false,
@@ -179,6 +259,18 @@
    "gated": false,
    "gloss": "A delivered pressure profile [Pa] on uniform normalised flux, the kinetic constraint of a reconstruction (`code/reconstruction`; the rows sit at `pressure_x`). Not gated: `pressure` is the ordinary name of that profile in both hosts' measurement sets."
   },
+  "pressure_weight": {
+   "gated": false,
+   "gloss": "The kinetic rows' weights, one per `pressure_x` — binding it makes `pressure` the row VALUES in the solver's gauge rather than a profile to interpolate (`code/reconstruction`, the rows-given tier). Not gated: the page's `wp`, a bare local."
+  },
+  "pressure_x": {
+   "gated": false,
+   "gloss": "The normalised-flux abscissae of the kinetic rows, one per row (`code/reconstruction`); with `pressure_weight` bound the rows are taken as given at these points, else `pressure` is interpolated onto them. Not gated: the page's `xp`, a bare local."
+  },
+  "probe_plasma": {
+   "gated": false,
+   "gloss": "The poloidal-field probe readings with the coil field already removed [T], one per device probe, the rows-given tier's probe measurements; its weights ride on `probe_weight` as the host folded them. Not gated: the page's `probePlasma`, bare in the reply."
+  },
   "probe_weight": {
    "gated": true,
    "gloss": "The fit weight of each poloidal-field probe reading (EFIT's fwtmp2), one per probe; absent, the device's own `weight` per probe applies (`code/reconstruction`). Gated: the hosts hold it under EFIT's name (fwtmp2), never bare under this one."
@@ -187,17 +279,45 @@
    "gated": true,
    "gloss": "Which flux convention the document's psi is in, e.g. `full_flux_Wb_axis_max`. Per-turn vs per-radian silently rescales every gradient term."
   },
+  "psi_ext": {
+   "gated": false,
+   "gloss": "The external (coil, and any vessel) flux on the solve box [Wb, the host's own gauge], bound under discharge/fylite:psi_ext — binding it puts `code/reconstruction` on its ROWS-GIVEN tier (第三十一刀): the readings are then plasma-only and the door builds only the Green's rows, solves and post-processes. Not gated: `psiExt` / `psi_ext` is the bare local name of the same array in both hosts."
+  },
   "psi_norm": {
    "gated": true,
    "gloss": "Normalised poloidal flux grid a profile is sampled on. The DD has no name for a normalised-flux coordinate, which is exactly why this is prefixed."
+  },
+  "psi_prev": {
+   "gated": true,
+   "gloss": "The poloidal flux [Wb] the step before a resumed block ended at, bound under inputs/evolve so the entry's Ohmic term can difference it (第十四刀, 2026-09-05). Carried by the page's entry march and by Python's model.evolve alike; the DD has no slot for a solver's lagged state, which is why it is prefixed."
   },
   "q": {
    "gated": false,
    "gloss": "Safety factor carried OUTSIDE profiles_1d (inside it, the DD's own bare `q` is correct). Not gated: `q` is an ordinary local name in both hosts."
   },
+  "q_prev": {
+   "gated": false,
+   "gloss": "The previous stationary round's q profile, bound under inputs/evolve for code/steady_current (第二十一刀): the round's new q and psi are under-relaxed toward it (fmORelax), never on the first round. Not gated: a bound solver array under inputs/evolve, prefixed there by construction. (The flux match's own carried blob, `fylite:fm_*`, is spelled dynamically by both hosts and is not listed here — the gate lists what it can see written.)"
+  },
   "q_psi_norm": {
    "gated": true,
    "gloss": "The psi_norm grid the safety factor is on, when it differs from the profile grid beside it."
+  },
+  "r2_average": {
+   "gated": true,
+   "gloss": "<R^2> [m^2] per ladder surface, the toroidal-momentum capacity's weight (第十五刀): the DD has gm1 = <1/R^2> and no <R^2>, so this row of the traced ladder is ours; code/refit states it beside the other ladder rows (第十九刀) and code/evolve's ladder tier binds it."
+  },
+  "r_major": {
+   "gated": true,
+   "gloss": "Major radius [m] of each traced surface's centre on the equilibrium ladder — the Miller `R0(r)` the surface rows read beside `r_minor`."
+  },
+  "r_minor": {
+   "gated": true,
+   "gloss": "Minor radius [m] of each traced surface on the equilibrium ladder (profiles_1d), the DD's `r_inboard`/`r_outboard` pair collapsed to the Miller half-width the kernel's surface rows read (the neoclassical and turbulent closures, the beam's shell table)."
+  },
+  "radii": {
+   "gated": false,
+   "gloss": "The ladder indices the extension's code/turbulence samples TGLF at, bound under inputs/turbulence (第十八刀; the flux-match tier binds its MATCH radii there, 第二十一刀, so the closure is evaluated exactly where the root find reads it). Not gated: a bound solver array, prefixed under inputs/turbulence by construction."
   },
   "reconstructed": {
    "gated": false,
@@ -211,9 +331,37 @@
    "gated": false,
    "gloss": "The transport grid [m] bound under `transport/fylite:rho` (`TRANSPORT_INPUTS`, `code/transport`) — the marched channel's own radial coordinate, which the DD spells as `rho_tor` under a profiles grid and this plan carries flat. Written by `scenario.model.transport` and the model page's transport bar. Not gated: `rho` is the ordinary variable name for a radial grid in every host and in the record's own `core_profiles/profiles_1d/grid/rho_tor`."
   },
+  "row_extra": {
+   "gated": false,
+   "gloss": "Response rows the host built itself — the analysis page's Faraday chord rows — `[n_extra, nr*nz]` in the rows' own units, appended after the loop and probe rows (`code/reconstruction`, the rows-given tier), with `meas_extra` and `weight_extra`. Not gated: a bound solver array, prefixed under inputs/discharge by construction."
+  },
+  "selfcal_alive": {
+   "gated": false,
+   "gloss": "Which channels count in the self-calibration, 1 or 0 per channel (`code/selfcal`); absent on one fit, every channel counts. Not gated: bound beside its rows, never bare."
+  },
+  "selfcal_computed": {
+   "gated": false,
+   "gloss": "The model's reading of the same channels (`code/selfcal`); the factor is computed/measured against the median of the alive channels. Not gated: the page's `model`, a bare local."
+  },
+  "selfcal_measured": {
+   "gated": false,
+   "gloss": "One fit's measured readings, one per channel, in the instrument's own unit — with `selfcal_computed` the rows `code/selfcal` takes the per-channel calibration factors from (第三十六刀). Not gated: the page's `meas`, a bare local."
+  },
+  "selfcal_ratio": {
+   "gated": false,
+   "gloss": "A time series' model/measured ratio matrix, one row per slice and one column per channel, NaN where a channel was not read — `code/selfcal` takes each channel's factor over the slices, its scatter and the slice count from it. Not gated: the series' `ratio`, a bare local."
+  },
+  "shift": {
+   "gated": false,
+   "gloss": "Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures. Not gated: `shift` is an ordinary local name in both hosts' geometry code."
+  },
   "shinethrough": {
    "gated": false,
    "gloss": "Fraction of beam power that passed straight through unabsorbed. ★The browser's beam-total block wrote `shinethrough_fraction` for this until 2026-08-25 while its own per-component block and `fyo.py` wrote `shinethrough`; one quantity, two names. Not gated: it is also the deposition result's own key."
+  },
+  "sigma_prev": {
+   "gated": true,
+   "gloss": "The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both)."
   },
   "source": {
    "gated": false,
@@ -222,6 +370,10 @@
   "target": {
    "gated": false,
    "gloss": "The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`). Not gated: `target` is the ordinary name of the requested shape in both hosts' design bars."
+  },
+  "te_profile": {
+   "gated": false,
+   "gloss": "An electron temperature profile [eV] on uniform normalised flux, read linearly — the T_e a bootstrap ladder is built on when a reader imported one rather than reading it off the thermal pressure (`code/bootstrap`, 第三十五刀). Not gated: the page's `spec.temperature`, a bare local."
   },
   "time": {
    "gated": false,
@@ -239,169 +391,33 @@
    "gated": false,
    "gloss": "Waypoint indices of a pulse plan at which the kernel re-solves the free boundary and reports the shape obtained (`code/pulse`). Not gated: `verify` is also the ordinary field name of the page's pulse message."
   },
+  "vessel_current": {
+   "gated": false,
+   "gloss": "The current of every vessel group [A], in the device deck's `fylite:group` first-appearance order — `code/vessel` adds the flux those currents make on the grid (`vessel_psi`). Not gated: a group total under a uniform loop voltage, the page's own vessel model."
+  },
   "vprime": {
    "gated": false,
    "gloss": "dV/dρ [m²] on the transport grid — the flux-surface volume derivative the 1.5-D operator weighs its fluxes with (`code/transport`, bound under transport). Not gated: `vprime` is the ordinary name of that geometry array in both hosts."
-  },
-  "weight": {
-   "gated": false,
-   "gloss": "A channel's weight on a coil element, inside fylite:channel_map. Not gated: `weight` is an ordinary local name."
-  },
-  "psi_prev": {
-   "gated": true,
-   "gloss": "The poloidal flux [Wb] the step before a resumed block ended at, bound under inputs/evolve so the entry's Ohmic term can difference it (第十四刀, 2026-09-05). Carried by the page's entry march and by Python's model.evolve alike; the DD has no slot for a solver's lagged state, which is why it is prefixed."
-  },
-  "sigma_prev": {
-   "gated": true,
-   "gloss": "The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both)."
-  },
-  "exch_prev": {
-   "gated": true,
-   "gloss": "The electron-ion exchange rates [1/s] the lagged step's closure produced, carried so a resumed block's first exchange ceiling is the loop's."
-  },
-  "chi_turb": {
-   "gated": false,
-   "gloss": "The turbulent ion diffusivity [m^2/s] the extension's code/turbulence evaluated between two blocks of the march (第十八刀, 2026-09-05): bound under inputs/evolve for the block that follows (closure 3), and the previous answer it relaxes against; a solver's given profile, not a DD transport model, so prefixed. Not gated: the door's own raw field (`fields/chi_turb`, an entry row name like `psi`) and the readback key are bare by construction; the DOCUMENT slot under inputs/evolve is the prefixed one."
-  },
-  "r_minor": {
-   "gated": true,
-   "gloss": "Minor radius [m] of each traced surface on the equilibrium ladder (profiles_1d), the DD's `r_inboard`/`r_outboard` pair collapsed to the Miller half-width the kernel's surface rows read (the neoclassical and turbulent closures, the beam's shell table)."
-  },
-  "r_major": {
-   "gated": true,
-   "gloss": "Major radius [m] of each traced surface's centre on the equilibrium ladder — the Miller `R0(r)` the surface rows read beside `r_minor`."
-  },
-  "shift": {
-   "gated": false,
-   "gloss": "Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures. Not gated: `shift` is an ordinary local name in both hosts' geometry code."
-  },
-  "r2_average": {
-   "gated": true,
-   "gloss": "<R^2> [m^2] per ladder surface, the toroidal-momentum capacity's weight (第十五刀): the DD has gm1 = <1/R^2> and no <R^2>, so this row of the traced ladder is ours; code/refit states it beside the other ladder rows (第十九刀) and code/evolve's ladder tier binds it."
   },
   "vprime_old": {
    "gated": false,
    "gloss": "The previous ladder's dV/drho [m^2] remapped by psi_N onto the new one (第十九刀, 2026-09-05): code/refit hands it back after an alternation and the next block's FIRST step binds it under inputs/evolve (`vprime_moved`) so the moving-volume term sees the volume the equilibrium actually moved. Not gated: the door's raw output field and the readback key are bare by construction; the document slot under inputs/evolve is the prefixed one."
   },
-  "p_fast_third": {
+  "weight": {
    "gated": false,
-   "gloss": "The fast-ion pressure's trace third (p_par + 2 p_perp)/3 [Pa] on the ladder, as the beam left it at the last step (T-M12): bound under inputs/evolve for code/refit so the shape fit and the beta_p target see the same total pressure the march did (第十九刀). Not gated: a bound solver array under inputs/evolve, prefixed there by construction."
-  },
-  "eq_x": {
-   "gated": false,
-   "gloss": "The previous equilibrium's p(psi_N) table — its psi_N abscissa — bound under inputs/refit (第十九刀): the beta_p the last FREE solve carried, which the pressure feedback moves beta0 against (the page's evEqPressure(eqFree, geo)). Not gated: a bound solver table, prefixed under inputs/refit by construction."
-  },
-  "eq_p": {
-   "gated": false,
-   "gloss": "The previous equilibrium's p(psi_N) table — the pressure [Pa] — bound under inputs/refit beside eq_x (第十九刀). Not gated: a bound solver table, prefixed under inputs/refit by construction."
-  },
-  "radii": {
-   "gated": false,
-   "gloss": "The ladder indices the extension's code/turbulence samples TGLF at, bound under inputs/turbulence (第十八刀; the flux-match tier binds its MATCH radii there, 第二十一刀, so the closure is evaluated exactly where the root find reads it). Not gated: a bound solver array, prefixed under inputs/turbulence by construction."
-  },
-  "q_prev": {
-   "gated": false,
-   "gloss": "The previous stationary round's q profile, bound under inputs/evolve for code/steady_current (第二十一刀): the round's new q and psi are under-relaxed toward it (fmORelax), never on the first round. Not gated: a bound solver array under inputs/evolve, prefixed there by construction. (The flux match's own carried blob, `fylite:fm_*`, is spelled dynamically by both hosts and is not listed here — the gate lists what it can see written.)"
-  },
-  "y_init": {
-   "gated": false,
-   "gloss": "The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀). Not gated: `y_init` is also the bare local name of the same array in both hosts."
-  },
-  "chi_prev": {
-   "gated": false,
-   "gloss": "The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors. Not gated, like `chi_turb`: the readback key is bare by construction."
-  },
-  "psi_ext": {
-   "gated": false,
-   "gloss": "The external (coil, and any vessel) flux on the solve box [Wb, the host's own gauge], bound under discharge/fylite:psi_ext — binding it puts `code/reconstruction` on its ROWS-GIVEN tier (第三十一刀): the readings are then plasma-only and the door builds only the Green's rows, solves and post-processes. Not gated: `psiExt` / `psi_ext` is the bare local name of the same array in both hosts."
-  },
-  "loop_plasma": {
-   "gated": false,
-   "gloss": "The flux-loop readings with the coil share already removed [Wb/rad], one per loop, the rows-given tier's loop measurements (`code/reconstruction`). Not gated: the page's `meas` block, spelled under this slot only where it is bound."
-  },
-  "probe_plasma": {
-   "gated": false,
-   "gloss": "The poloidal-field probe readings with the coil field already removed [T], one per device probe, the rows-given tier's probe measurements; its weights ride on `probe_weight` as the host folded them. Not gated: the page's `probePlasma`, bare in the reply."
-  },
-  "pressure_weight": {
-   "gated": false,
-   "gloss": "The kinetic rows' weights, one per `pressure_x` — binding it makes `pressure` the row VALUES in the solver's gauge rather than a profile to interpolate (`code/reconstruction`, the rows-given tier). Not gated: the page's `wp`, a bare local."
-  },
-  "row_extra": {
-   "gated": false,
-   "gloss": "Response rows the host built itself — the analysis page's Faraday chord rows — `[n_extra, nr*nz]` in the rows' own units, appended after the loop and probe rows (`code/reconstruction`, the rows-given tier), with `meas_extra` and `weight_extra`. Not gated: a bound solver array, prefixed under inputs/discharge by construction."
-  },
-  "meas_extra": {
-   "gated": false,
-   "gloss": "The measurements of `row_extra`, one per extra row (`code/reconstruction`). Not gated: bound beside its rows, never bare."
+   "gloss": "A channel's weight on a coil element, inside fylite:channel_map. Not gated: `weight` is an ordinary local name."
   },
   "weight_extra": {
    "gated": false,
    "gloss": "The weights of `row_extra`, one per extra row, zero for a chord with no reading (`code/reconstruction`). Not gated: bound beside its rows, never bare."
   },
-  "b_tor": {
-   "gated": false,
-   "gloss": "The vacuum toroidal field at R_centre [T], a MEASUREMENT of the shot bound under discharge/fylite:b_tor: F at the plasma edge is |R_centre B0| and `code/reconstruction` refuses without it (第三十一刀: the page binds its machine's `tf.b0`, the same number it always used as F_EDGE). Not gated: `btor` / `b_tor` is the ordinary name in both hosts' measurement sets."
-  },
-  "current_source": {
-   "gated": false,
-   "gloss": "A PRESCRIBED per-cell toroidal current [A] over the interior cells, bound under discharge/fylite:current_source — the bootstrap channel of `code/reconstruction` (T-A9): the free coefficients make up the remainder and the reported current carries it back under the iterate's mask. Not gated: the page's `jPre`, a bare local on both sides."
-  },
-  "pressure_x": {
-   "gated": false,
-   "gloss": "The normalised-flux abscissae of the kinetic rows, one per row (`code/reconstruction`); with `pressure_weight` bound the rows are taken as given at these points, else `pressure` is interpolated onto them. Not gated: the page's `xp`, a bare local."
-  },
-  "ne_profile": {
-   "gated": false,
-   "gloss": "An electron density profile [m^-3] on uniform normalised flux, read linearly — the density a chord integral is taken through when a profile rather than the parametrised shape is meant (`code/chords`, 第三十四刀). Not gated: the page's `spec.profile`, a bare local."
-  },
-  "chord_nel": {
-   "gated": false,
-   "gloss": "Measured line densities [m^-2], one per interferometer chord; bound, `code/chords` fits `(n_e0, alpha)` back to them by the page's grid scan. Not gated: the page's `nel`, a bare local in both hosts."
-  },
-  "chord_nel_weight": {
-   "gated": false,
-   "gloss": "The weight of each chord's line-density reading in the density fit; zero switches a chord off (`code/chords`). Not gated: bound beside its readings, never bare."
-  },
-  "current_cells": {
-   "gated": false,
-   "gloss": "A fitted toroidal current over the interior cells [A], `(nr-2)*(nz-2)`, handed back to `code/chords` so the Faraday rows can be contracted with it — the reading by the rows route, beside the sampled field's. Not gated: the page's `fitCur`, a bare local."
-  },
-  "te_profile": {
-   "gated": false,
-   "gloss": "An electron temperature profile [eV] on uniform normalised flux, read linearly — the T_e a bootstrap ladder is built on when a reader imported one rather than reading it off the thermal pressure (`code/bootstrap`, 第三十五刀). Not gated: the page's `spec.temperature`, a bare local."
-  },
-  "p_fast_profile": {
-   "gated": false,
-   "gloss": "A fast-ion pressure profile [Pa] on uniform normalised flux — the non-thermal share a reader declared, subtracted from the fit's total before the thermal ladder is built (`code/bootstrap`). Not gated: the page's `pd.fast`, a bare local."
-  },
-  "p_rot_profile": {
-   "gated": false,
-   "gloss": "A rotation pressure profile [Pa] on uniform normalised flux — the other non-thermal share, only ever an imported profile (`code/bootstrap`). Not gated: the page's `pd.rot`, a bare local."
-  },
-  "selfcal_measured": {
-   "gated": false,
-   "gloss": "One fit's measured readings, one per channel, in the instrument's own unit — with `selfcal_computed` the rows `code/selfcal` takes the per-channel calibration factors from (第三十六刀). Not gated: the page's `meas`, a bare local."
-  },
-  "selfcal_computed": {
-   "gated": false,
-   "gloss": "The model's reading of the same channels (`code/selfcal`); the factor is computed/measured against the median of the alive channels. Not gated: the page's `model`, a bare local."
-  },
-  "selfcal_alive": {
-   "gated": false,
-   "gloss": "Which channels count in the self-calibration, 1 or 0 per channel (`code/selfcal`); absent on one fit, every channel counts. Not gated: bound beside its rows, never bare."
-  },
-  "selfcal_ratio": {
-   "gated": false,
-   "gloss": "A time series' model/measured ratio matrix, one row per slice and one column per channel, NaN where a channel was not read — `code/selfcal` takes each channel's factor over the slices, its scatter and the slice count from it. Not gated: the series' `ratio`, a bare local."
-  },
-  "vessel_current": {
-   "gated": false,
-   "gloss": "The current of every vessel group [A], in the device deck's `fylite:group` first-appearance order — `code/vessel` adds the flux those currents make on the grid (`vessel_psi`). Not gated: a group total under a uniform loop voltage, the page's own vessel model."
-  },
   "x_ref": {
    "gated": false,
    "gloss": "The channel ampere-turns a null design is anchored to [A] — `code/breakdown` pulls the design towards them (the page's `xRef`: the reference discharge's currents when the reader asks for that anchor). Not gated: a design-time choice, never a measured value."
+  },
+  "y_init": {
+   "gated": false,
+   "gloss": "The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀). Not gated: `y_init` is also the bare local name of the same array in both hosts."
   }
  }
 }

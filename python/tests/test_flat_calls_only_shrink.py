@@ -32,7 +32,6 @@ DOORS = {"scenario", "grid_of", "require_data", "load", "abi_version"}
 BASELINE = {
     'device.py': 1,
     'fyo.py': 5,
-    'scenario/analysis/__init__.py': 2,
     'scenario/analysis/loop.py': 4,
     'scenario/control/stability.py': 1,
     'scenario/design/__init__.py': 1,

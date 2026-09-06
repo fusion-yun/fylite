@@ -96,7 +96,7 @@
     'fylite_rs_ion_dilution', 'fylite_rs_quasi_neutral_ne',
     'fylite_rs_gs_fixed_solve',
     'fylite_rs_field_ion_sum',
-    'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_profile_fit', 'fylite_rs_li3',
+    'fylite_rs_adas_id',         'fylite_rs_ridge_lstsq', 'fylite_rs_li3',
     'fylite_rs_redl_bootstrap',
     'fylite_rs_quadrature',
     //: ★the diagnostic layer the analysis scenario reads its channels
@@ -674,18 +674,6 @@
   };
 
 
-  /** Evaluate a fitted profile at given points — the kernel owns the basis. */
-  Fy.prototype.profileSample = function (coef, x) {
-    var self = this, n = x.length;
-    return this.scope(function (s) {
-      var c = s.put(coef), xv = s.put(x), out = s.zeros(n);
-      var rc = self.e.fylite_rs_profile_sample(
-        c.ptr, BigInt(coef.length), xv.ptr, BigInt(n), out.ptr);
-      if (rc !== 0) throw new SolveError('fylite_rs_profile_sample', rc);
-      return s.get(out);
-    });
-  };
-
 
   /**
    * The Miller-like parametric boundary, as an array of `[r, z]` pairs.
@@ -746,11 +734,6 @@
       if (rc !== 0) throw new SolveError('fylite_rs_enclosed_volume', rc);
       return s.get(out)[0];
     });
-  };
-
-  /** One point of a fitted profile. */
-  Fy.prototype.profileAt = function (coef, x) {
-    return this.profileSample(coef, Float64Array.of(x))[0];
   };
 
 

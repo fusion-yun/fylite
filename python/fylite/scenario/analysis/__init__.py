@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import numpy as np
 
-from ... import kernel as K
 from . import recon_rs
 from .. import provenance
 
@@ -122,15 +121,26 @@ def profit(x, y, *, sigma=None, sigma_frac: float = 0.05,
                          float(sigma_frac) * max(np.max(np.abs(y)), 1e-30) * 1e-3)
     else:
         sig = np.asarray(sigma, float)
-    fit = K.profile_fit(x, y, sig, max_order=max_order)
     xe = np.asarray(evaluate_at, float) if evaluate_at is not None else x
+    #: ★T-4 第十三刀 (2026-09-06): the fit is `code/profile_fit`'s — the same
+    #: GCV sweep and the same polynomial the profile bar's page gets; the
+    #: reader's own points go in as `fylite:fit_eval_x` and come back as `eval`.
+    #: The flat `profile_fit` / `profile_sample` entries are oracle-only now.
+    from ...io import fydoc
+    rec = fydoc.complete("code/profile_fit", {
+        "settings": {"max_order": float(max_order), "n_curve": 2.0},
+        "inputs": {"discharge": {"fylite:fit_x": x, "fylite:fit_y": y,
+                                 "fylite:fit_sigma": sig, "fylite:fit_eval_x": xe}}})
+    arr = lambda k: np.asarray(rec["fields"][k]["data"], float)  # noqa: E731
+    fact = lambda k: rec["facts"][k]["value"]  # noqa: E731
+    order = int(fact("order"))
     out = {"x": x, "y": y, "sigma": sig,
-           "coef": fit["coef"], "order": fit["order"],
-           "gcv_sweep": fit["gcv_sweep"], "rss": fit["rss"],
-           "chi2_per_dof": fit["chi2_per_dof"],
-           "x_eval": xe, "fit": K.profile_sample(fit["coef"], xe),
+           "coef": arr("coef"), "order": order,
+           "gcv_sweep": arr("gcv_sweep"), "rss": float(fact("rss")),
+           "chi2_per_dof": float(fact("chi2_per_dof")),
+           "x_eval": xe, "fit": arr("eval"),
            "extrapolated": bool(np.any(xe > x.max()) or np.any(xe < x.min())),
-           "provenance": _profit_provenance(order=fit["order"])}
+           "provenance": _profit_provenance(order=order)}
     return out
 
 
