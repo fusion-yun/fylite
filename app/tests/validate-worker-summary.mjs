@@ -134,7 +134,30 @@ if (!existsSync(FIX)) { console.log('跳过：没有夹具（先 --record）'); 
 const want = JSON.parse(readFileSync(FIX, 'utf8'));
 assert.equal(want.device, id);
 const bad = [];
+
+//: ★★这两支**不由问题定下来**，所以按容差比，其余一律逐位。
+//:
+//: 起始设计是一次线性等磁通反解，而它在 EAST 上是欠正则的：实测 2026-09-07，
+//: 把**一个线圈的半径**乘上 1+1e-13，`chan` 动 11 %、`ctlDpsi` 动 30 %，而目标
+//: 边界逐位相同、拟合残差 `psiRms` 只在 0.0016–0.0018 之间动。也就是说，两组差着
+//: 一成的电流把同一条边界拟合得一样好 —— 目标函数在那个方向上几乎是平的，
+//: 答案由舍入决定。把它逐位钉进夹具，钉住的是平谷里的一个任意点：
+//: 输入最后一位一改就红，而红的不是「答案错了」。
+//:
+//: ★**只有这两支放宽，其余（含 psiRms · targetBoundary · ctlRows）照旧逐位**：
+//: 场是定的，定的那部分就该逐位守住。
+//: ★度量与代价钉在 `python/tests/test_start_design_conditioning.py`：
+//: 岭参数提到 0.3 分配就稳到 1e-8，代价是边界残差差约 7 倍。换不换缺省是一个
+//: 有代价的工程判断，不在这道闸子里定。
+const SOFT = { 'start.chan': 0.5, 'start.ctlDpsi': 0.5 };
+
 function walk(a, b, p) {
+  const tol = SOFT[p.replace(/\[\d+\]|\.\d+$/g, '')];
+  if (tol !== undefined && typeof a === 'number' && typeof b === 'number') {
+    const d = Math.abs(a - b) / Math.max(Math.abs(a), 1e-300);
+    if (!(d <= tol)) bad.push(`${p}: ${a} vs ${b} (rel ${d.toExponential(2)} > ${tol})`);
+    return;
+  }
   if (a === null || a === undefined || typeof a !== 'object') {
     const same = (a === b) || (typeof a === 'number' && typeof b === 'number' && Number.isNaN(a) && Number.isNaN(b))
       || (a === null && b === undefined) || (a === undefined && b === null);
@@ -148,6 +171,6 @@ function walk(a, b, p) {
 for (const name of Object.keys(want.configs)) walk(want.configs[name], JSON.parse(JSON.stringify(got[name])), name);
 assert.equal(bad.length, 0, 'the summary moved:\n  ' + bad.slice(0, 20).join('\n  ') + (bad.length > 20 ? `\n  … ${bad.length} in all` : ''));
 const a = got.analytic;
-console.log(`validate-worker-summary: ${Object.keys(want.configs).length} summaries on ${id} bit for bit; analytic: q95 ${a.q ? a.q.q95.toFixed(3) : '—'}, `
+console.log(`validate-worker-summary: ${Object.keys(want.configs).length} summaries on ${id} bit for bit (start.chan / start.ctlDpsi to ${SOFT['start.chan']} rel — see the note above); analytic: q95 ${a.q ? a.q.q95.toFixed(3) : '—'}, `
             + `${a.criteria.strike.length} strike legs, ${a.criteria.xpts.length} X-points, gap ${a.criteria.gap ? a.criteria.gap.gap.toFixed(3) : '—'}, `
             + `${a.surfaces.length} surfaces, boundary ${a.lcfs.length / 2} points`);
