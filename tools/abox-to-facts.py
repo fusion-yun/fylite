@@ -253,8 +253,11 @@ def _resolve(dev_dir: pathlib.Path, manifest: dict) -> dict:
 
 
 def _absent(ids: str, why: str) -> dict:
-    return {"@type": f"fyo:{ids}", "count": 0,
-            "fylite:absent": why}
+    #: ★没有 `count: 0`。一个计数放在它数的那个数组旁边，是同一个事实的第二个
+    #: 出处；而这里连数组都没有，`count: 0` 数的是空气。它还是**裸**的——DD 里
+    #: 没有这个名字，所以写进 IMAS 数据入口时逐条被丢掉（2026-09-07 实测：六台
+    #: 机器每一台都丢它）。用户裁定 2026-09-07：不写。
+    return {"@type": f"fyo:{ids}", "fylite:absent": why}
 
 
 # --------------------------------------------------------------------------- #
@@ -321,8 +324,8 @@ def pf_active(doc: dict, source: str) -> dict:
         if c.get("description"):
             entry["fylite:description"] = str(c["description"])
         coils.append(entry)
-    out = {"@type": "fyo:pf_active", "count": len(coils),
-           "fylite:source": source, "coil": coils}
+    #: ★没有 `count`：`len(coil)` 已经是这个数，见 `_absent` 那一段。
+    out = {"@type": "fyo:pf_active", "fylite:source": source, "coil": coils}
     if doc.get("provenance"):
         out["fylite:upstream"] = doc["provenance"]
     return out
@@ -399,8 +402,9 @@ def wall(doc: dict, source: str) -> dict:
         r, z = _points(u.get("outline") or {})
         if not r:
             continue
+        #: ★没有 `count`：`len(outline/r)` 已经是这个数，见 `_absent` 那一段。
         units.append({"name": str(u.get("name") or "limiter"),
-                      "count": len(r), "outline": {"r": r, "z": z}})
+                      "outline": {"r": r, "z": z}})
     inner = {"limiter": {"unit": units}}
     vessel = d2.get("vessel")
     if vessel:

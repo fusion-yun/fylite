@@ -57,54 +57,37 @@ pytestmark = pytest.mark.skipif(
            "闸子要查的东西不在，所以整体跳过，而不是绿着什么也没查")
 
 
-#: 每台机器**没进数据入口**的裸路径。逐条注了成因；四类，没有一类是转换缺陷。
+#: 每台机器**没进数据入口**的裸路径。逐条注了成因；三类，没有一类是转换缺陷。
 #:
-#: ① `count` —— A-Box 在每个结构数组旁边写一个计数。它等于列表长度，DD 里没有这个
-#:    名字，于是丢掉。**源头在 `tools/abox-to-facts.py`**：这一行本该带 `fylite:`
-#:    前缀（或者干脆不写，因为它是冗余的）。这里记着，是为了它被修掉时这道闸会说
-#:    「从表里删掉」。
-#: ② `tf/b0` · `tf/b_field_phi_vacuum_r/unit` —— DD 的 `tf` 没有 `b0`；单位在 DD 里
+#: ① `tf/b0` · `tf/b_field_phi_vacuum_r/unit` —— DD 的 `tf` 没有 `b0`；单位在 DD 里
 #:    是**模式**里的信息，不是数据里的一个叶子。`b0` 已被换算消费
 #:    （`b_field_phi_vacuum_r/data = r0 * b0`），源槽本身仍无归宿。
-#: ③ `tf/coils_n` · `tf/b_field_phi_vacuum_r`（ITER）—— **源文档里就是 `null`**。
+#: ② `tf/coils_n` · `tf/b_field_phi_vacuum_r`（ITER）—— **源文档里就是 `null`**。
 #:    DD 里有 `coils_n` 这个名字，丢的不是名字对不上，是那一格本来就空。
-#: ④ `wall/…/closed` —— fylite 自己的闭合标志，DD 的轮廓没有这一位。
+#: ③ `wall/…/closed` —— fylite 自己的闭合标志，DD 的轮廓没有这一位。
 #:
-#: ★★这张表**第一版是错的**，错得很有教训：WEST 那一行只有三条。中间层把写出报告
-#: 装进调用方给的缓冲，而 Python 宿主给的是 4 KiB，WEST 的报告 5 211 字节——**尾巴
-#: 被悄悄砍掉**，据它记下来的基线因此少了四条。同日两处一起修：中间层装不下时把
-#: 尾巴换成 `…[truncated: N of M bytes]`（截断看得见），宿主的缓冲给到 64 KiB
+#: ★★**第四类修掉了**（用户裁定 2026-09-07）：`count`。A-Box 在每个结构数组旁边
+#: 写一个计数，它等于列表长度，DD 里没有这个名字，六台机器每一台都丢它（WEST 一台
+#: 93 条）。源头是 `tools/abox-to-facts.py` 的三处；那里现在不写了，语料重新生成，
+#: 逐叶对过：**只少了 `count`，其余一个不动**。JT-60SA 由此一条裸路径都不丢。
+#:
+#: ★★这张表**第一版是错的**，错得很有教训：WEST 那一行漏了四条。中间层把写出报告
+#: 装进调用方给的缓冲，而 Python 宿主给的是 4 KiB，WEST 的报告过了 5 KiB——**尾巴
+#: 被悄悄砍掉**，据它记下来的基线因此不全。同日两处一起修：中间层装不下时把尾巴
+#: 换成 `…[truncated: N of M bytes]`（截断看得见），宿主的缓冲给到 64 KiB
 #: （平时根本不发生）。下面那条「报告没有被截断」的断言，就是防它再回来。
 BASELINE: dict[str, set[str]] = {
-    "best": {
-        "interferometer: count", "magnetics: count", "pf_active: count",
-        "polarimeter: count", "wall: description_2d/limiter/unit/count",
-        "tf: b0", "tf: b_field_phi_vacuum_r/unit",
-    },
-    "cfedr": {
-        "interferometer: count", "magnetics: count", "pf_active: count",
-        "polarimeter: count", "wall: count",
-        "tf: b0", "tf: b_field_phi_vacuum_r/unit", "tf: coils_n",
-    },
+    "best": {"tf: b0", "tf: b_field_phi_vacuum_r/unit"},
+    "cfedr": {"tf: b0", "tf: b_field_phi_vacuum_r/unit", "tf: coils_n"},
     "cfetr": {
-        "interferometer: count", "magnetics: count", "pf_active: count",
-        "polarimeter: count", "wall: description_2d/limiter/unit/count",
         "tf: b0", "tf: b_field_phi_vacuum_r/unit",
         "wall: description_2d/vessel/unit/annular/outline_inner/closed",
         "wall: description_2d/vessel/unit/annular/outline_outer/closed",
     },
-    "iter": {
-        "interferometer: count", "magnetics: count", "pf_active: count",
-        "polarimeter: count", "wall: description_2d/limiter/unit/count",
-        "tf: coils_n", "tf: b_field_phi_vacuum_r",
-    },
-    "jt60sa": {
-        "interferometer: count", "magnetics: count", "pf_active: count",
-        "polarimeter: count", "wall: description_2d/limiter/unit/count",
-    },
+    "iter": {"tf: coils_n", "tf: b_field_phi_vacuum_r"},
+    #: ★一条也不丢。这不是「没查」——`CHECKED_AT_LEAST` 说它逐值核对过 6 个叶子。
+    "jt60sa": set(),
     "west": {
-        "interferometer: count", "magnetics: count", "pf_active: count",
-        "polarimeter: count", "wall: description_2d/limiter/unit/count",
         "wall: description_2d/vessel/unit/annular/outline_inner/closed",
         "wall: description_2d/vessel/unit/annular/outline_outer/closed",
     },
