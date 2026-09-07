@@ -85,7 +85,7 @@ fy run  docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
 | [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset reconstruction-default` | ⛔ 树门专属 + 本仓无装置清单 |
 | [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset series-default` | ⛔ `code/series` 内核不认（登记在案） |
 | [装置信息](device/device.md) | `fy run channels.jsonld --bind device=…` | ✅ 3 个文件（EAST 通道图 14 × 14） |
-| [装置信息](device/device.md) | `fy data convert <装置文档> imas/ --layout imas --to hdf5` | ✅ 6 个文件（5 个 IDS + master，127 KB） |
+| [装置信息](device/device.md) | `fy data convert <装置文档> imas/ --layout imas --to hdf5` | ✅ 6 个文件（5 个 IDS + master，161 KB） |
 
 ★后两行 2026-09-07 起才成立：前者要树门（同日修好），后者要写入方肯把一个 fylite
 容器拆成它装着的 IDS（同日修好）。

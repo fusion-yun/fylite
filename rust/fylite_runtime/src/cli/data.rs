@@ -200,6 +200,7 @@ fn report(rep: &io::WriteReport, out: &Path) {
         let dropped: Vec<&String> = r.dropped.iter().filter(|p| !p.starts_with('@')).collect();
         if !dropped.is_empty() || !r.promoted.is_empty() || !r.synthesized.is_empty()
             || !r.relocated.is_empty() || !r.unwrapped.is_empty()
+            || !r.derived.is_empty() || !r.named.is_empty()
         {
             eprintln!(
                 "  {key}: dropped {} non-DD path(s){}; promoted {:?}; synthesized {:?}{}",
@@ -212,6 +213,8 @@ fn report(rep: &io::WriteReport, out: &Path) {
                 format!("{}{}",
                         if r.relocated.is_empty() { String::new() } else { format!("; relocated {:?}", r.relocated) },
                         if r.unwrapped.is_empty() { String::new() } else { format!("; unwrapped {:?}", r.unwrapped) })
+                    + &(if r.derived.is_empty() { String::new() } else { format!("; derived {:?}", r.derived) })
+                    + &(if r.named.is_empty() { String::new() } else { format!("; named {:?}", r.named) })
             );
         }
     }

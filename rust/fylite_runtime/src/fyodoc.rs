@@ -295,6 +295,10 @@ pub struct DdReport {
     /// 从**一元列表**里取出来的结构：DD 说这里是一个结构，文档给了一个只有一个
     /// 元素的列表。见 [`build_dd`] 里 `Kind::Structure` 那一支。
     pub unwrapped: Vec<String>,
+    /// 算出来的 DD 叶子（`目标 = a * b`），见 [`DERIVATIONS`]。
+    pub derived: Vec<String>,
+    /// 由名字换成 DD 索引的叶子，见 [`ENUM_NAMES`]。
+    pub named: Vec<String>,
 }
 
 /// **同一个量在 fyo 与 DD 里挂的地方不同**时，搬家的那张表。
@@ -317,6 +321,218 @@ pub const RELOCATIONS: &[(&str, &str, &str)] = &[
     ("wall", "limiter", "description_2d/limiter"),
     ("wall", "vessel", "description_2d/vessel"),
 ];
+
+/// **DD 用整数索引、fyo 用名字**的那些叶子。
+///
+/// ★★DD 的 `pf_active/coil/element/geometry/geometry_type` 是一个整数；fylite 的装置
+/// 文档写 `"rectangle"`。名字读得懂而 DD 读不懂，于是整支被丢——实测 2026-09-07，
+/// EAST 的 14 个线圈元件全数丢了几何类型。
+///
+/// ★**取值的出处**：IMAS Data Dictionary 源码
+/// （`iterorganization/imas-data-dictionary`，`schemas/utilities/dd_support.xsd` 的
+/// `outline_2d_geometry_static` —— `pf_coils_elements` 用的正是这个类型）。它的
+/// `geometry_type` 上写着，逐字：
+///
+/// > Type used to describe the element shape (1:'outline', 2:'rectangle',
+/// > 3:'oblique', 4:'arcs of circle, 5: 'annulus', 6 : 'thick line')
+///
+/// ★读自该仓默认分支 f5d44e8（2026-09-04）；本仓的 DD 表标 4.1.1，两者的版本关系
+/// 未逐条核过。用得上的那一个（`rectangle = 2`）另有**独立佐证**：本生态自己的
+/// `facts/device/west/abox/static/now/pf_active.jsonld`（`metis2fyo.py` 生成，自述
+/// 「IMAS DD v4 shape」）里每一个元件都是 `geometry_type: 2` 配一个 `rectangle` 块。
+///
+/// ★六个名字全列在这里，**不是**因为都用得上，而是因为半张表比整张表更容易被
+/// 后来的人误读成「其余的没有索引」。
+pub const ENUM_NAMES: &[(&str, &str, &[(&str, i64)])] = &[
+    ("pf_active", "coil/element/geometry/geometry_type", GEOMETRY_TYPE),
+    ("wall", "description_2d/vessel/unit/element/geometry/geometry_type", GEOMETRY_TYPE),
+];
+
+/// `outline_2d_geometry_static` 的形状词表，见 [`ENUM_NAMES`] 的出处说明。
+pub const GEOMETRY_TYPE: &[(&str, i64)] = &[
+    ("outline", 1), ("rectangle", 2), ("oblique", 3),
+    ("arcs of circle", 4), ("arcs_of_circle", 4),
+    ("annulus", 5), ("thick line", 6), ("thick_line", 6),
+];
+
+/// **同一个物理量，fyo 与 DD 用不同的定义**时，换算的那张表。
+///
+/// ★★与 [`RELOCATIONS`] 是两件事：那张表只搬位置，值一字不动；这张表**要算**。
+/// DD 的 `tf` 没有 `b0`，它有 `b_field_phi_vacuum_r` —— 真空环向场乘以它所在的半径，
+/// 即 R0·B0。fylite 的装置牌写 `tf/r0` 与 `tf/b0` 两个数；`b0` 裸着写而 DD 无家，
+/// 于是被丢（实测 2026-09-07）。
+///
+/// ★每条的判据（[`apply_derivations`] 逐条核）：两个源都在、目标在 DD 里有、而源
+/// 路径在 DD 里没有。三条缺一即不算——那说明这份文档已经是 DD 的形，或这条过期了。
+/// 算完**不删源**：`b0` 与 `r0` 仍是 fylite 侧读者要的两个数，只是它们不进数据入口。
+pub const DERIVATIONS: &[(&str, [&str; 2], &str)] = &[
+    //: (IDS, [源 a, 源 b], DD 里的目标叶子) —— 目标 = a * b
+    //:
+    //: ★目标写到 `/data` 上，不是写到 `b_field_phi_vacuum_r` 上：DD 那一支是一个
+    //: **信号结构**（`data` 随 `time` 走），不是一个裸浮点。写在结构上会被整支丢掉
+    //: ——第一版就是这么写的，闸子当场抓住。
+    ("tf", ["r0", "b0"], "b_field_phi_vacuum_r/data"),
+];
+
+/// 按 [`DERIVATIONS`] 算出 DD 要的那个量，逐条记进报告。
+fn apply_derivations(ids: &str, tree: &mut Node, meta: &IdsMeta, report: &mut DdReport) {
+    for (which, from, to) in DERIVATIONS {
+        if *which != ids || meta.has(from[0]) && meta.has(from[1]) || !meta.has(to) {
+            continue;
+        }
+        let (Some(a), Some(b)) = (tree.get(from[0]).and_then(Node::as_f64),
+                                  tree.get(from[1]).and_then(Node::as_f64)) else { continue };
+        if tree.get(to).is_some() {
+            continue;
+        }
+        if tree.set(to, Node::Float(a * b)).is_ok() {
+            report.derived.push(format!("{to} = {} * {}", from[0], from[1]));
+        }
+    }
+}
+
+/// 按 [`ENUM_NAMES`] 把名字换成 DD 的索引，逐条记进报告。
+fn apply_enum_names(ids: &str, tree: &mut Node, report: &mut DdReport) {
+    for (which, path, table) in ENUM_NAMES {
+        if *which != ids {
+            continue;
+        }
+        for (name, index) in *table {
+            for p in paths_matching(tree, path) {
+                if tree.get(&p).and_then(Node::as_str) == Some(*name)
+                    && tree.set(&p, Node::Int(*index)).is_ok()
+                {
+                    report.named.push(format!("{p} = {index} ({name})"));
+                }
+            }
+        }
+    }
+}
+
+/// 树里所有匹配一条**不带下标**的路径的实际路径（结构数组逐元素展开）。
+fn paths_matching(tree: &Node, pattern: &str) -> Vec<String> {
+    fn walk(n: &Node, segs: &[&str], at: String, out: &mut Vec<String>) {
+        let Some((head, rest)) = segs.split_first() else { out.push(at); return };
+        let Some(child) = n.as_map().and_then(|m| m.get(*head)) else { return };
+        let here = if at.is_empty() { head.to_string() } else { format!("{at}/{head}") };
+        match child {
+            Node::List(l) => for (i, item) in l.iter().enumerate() {
+                walk(item, rest, format!("{here}/{i}"), out);
+            },
+            other => walk(other, rest, here, out),
+        }
+    }
+    let segs: Vec<&str> = pattern.split('/').collect();
+    let mut out = Vec::new();
+    walk(tree, &segs, String::new(), &mut out);
+    out
+}
+
+/// 把 `wall` 的元件几何换成 DD 要的 **outline**，原矩形留作参考。
+///
+/// ★★DD 的真空室 / 限制器元件只有一种写法：`element/outline/{r,z}`（「Irregular
+/// outline of the element. Repeat the first point since this is a closed
+/// contour」——DD 原文）。它**没有** `geometry`，也没有 `rectangle`。fylite 的装置牌
+/// 借了 `pf_active` 线圈元件的参数化写法，于是整支被丢：实测 2026-09-07，EAST 的
+/// 90 个真空室元件几何全数丢失，`wall.h5` 只剩 8 个叶子。
+///
+/// ★**角点不是这里算的**：它是内核 `kernels::element_filaments` 的那一个映射，逐字
+/// 照搬 —— 局部 (u, v) 走 `r = r0 + u + v·cos a2`、`z = z0 + v·sin a2`，再绕 (r0, z0)
+/// 转 a1。两处各写一份，就是两份可以分歧的几何。
+///
+/// ★**倾角在 unit 上也在 element 上**，读法与 `device.py` 同：element 先，unit 次，
+/// 都没有才用缺省。`a2` 的缺省是 **90**（一个正常矩形），不是 0 —— efund 的 deck
+/// 用同一条替换，理由相同：a2 = 0 不是退化矩形，是缺值。
+///
+/// ★★**没有做的事：把相邻元件并成内外两层轮廓。** 那要求相邻矩形共边，而 EAST 的
+/// 不共：实测同一层内相邻元件的最近角点距离中位数 **9–10 mm**、最大 **40 mm**
+/// （inner_shell / outer_shell 各 40 段，1e-6 容差下 160 条边里只有 4 条真正共用）。
+/// 跨过一厘米把它们缝起来，就是往产物里写数据里没有的几何。所以这里按 DD 自己的
+/// 单位办：**一个元件一条闭合轮廓**，逐点精确，一个也不丢。层轮廓要不要、按什么
+/// 判据缝，是另一个决定。
+fn wall_outlines(tree: &mut Node, derived: &mut Vec<String>) {
+    let Some(d2) = tree.as_map_mut().and_then(|m| m.get_mut("description_2d")) else { return };
+    let slices: &mut Vec<Node> = match d2 {
+        Node::List(l) => l,
+        one => { rewrite_units(one, derived); return }
+    };
+    for s in slices.iter_mut() {
+        rewrite_units(s, derived);
+    }
+}
+
+fn rewrite_units(slice: &mut Node, derived: &mut Vec<String>) {
+    for section in ["vessel", "limiter"] {
+        let Some(units) = slice.as_map_mut().and_then(|m| m.get_mut(section)) else { continue };
+        let Some(units) = units.as_map_mut().and_then(|m| m.get_mut("unit")) else { continue };
+        let list: Vec<&mut Node> = match units {
+            Node::List(l) => l.iter_mut().collect(),
+            one => vec![one],
+        };
+        for (iu, unit) in list.into_iter().enumerate() {
+            let (ua, ua2) = (num(unit, "fylite:a1"), num(unit, "fylite:a2"));
+            let Some(els) = unit.as_map_mut().and_then(|m| m.get_mut("element")) else { continue };
+            let elist: Vec<&mut Node> = match els {
+                Node::List(l) => l.iter_mut().collect(),
+                one => vec![one],
+            };
+            for (ie, el) in elist.into_iter().enumerate() {
+                if el.get("outline").is_some() {
+                    continue;                      //: already the DD's shape
+                }
+                let (ea, ea2) = (num(el, "fylite:a1").or(ua), num(el, "fylite:a2").or(ua2));
+                let Some(rect) = el.get("geometry/rectangle").cloned() else { continue };
+                let g = |k: &str| rect.get(k).and_then(Node::as_f64);
+                let (Some(r0), Some(z0), Some(w), Some(h)) =
+                    (g("r"), g("z"), g("width"), g("height")) else { continue };
+                let (r, z) = rectangle_outline(r0, z0, w, h, ea.unwrap_or(0.0), ea2.unwrap_or(90.0));
+                let _ = el.set("outline/r", Node::Array(Array::f64(vec![r.len()], r).unwrap()));
+                let _ = el.set("outline/z", Node::Array(Array::f64(vec![z.len()], z).unwrap()));
+                //: ★原矩形留作参考，改挂到本地名下：DD 的 wall 元件没有 `geometry`，
+                //: 裸着留就是声称一个它没有的出处（也照旧会被丢）。
+                if let Some(m) = el.as_map_mut() {
+                    if let Some(geom) = m.remove("geometry") {
+                        m.insert("fylite:geometry", geom);
+                    }
+                }
+                derived.push(format!(
+                    "description_2d/{section}/unit/{iu}/element/{ie}/outline \
+                     (from fylite:geometry/rectangle, 5 points closed)"));
+            }
+        }
+    }
+}
+
+fn num(n: &Node, key: &str) -> Option<f64> {
+    n.get(key).and_then(Node::as_f64)
+}
+
+/// 一个（可倾斜的）矩形的四个角，首点重复一次以闭合。
+///
+/// 逐字照搬内核 `kernels::element_filaments` 的映射（那里是逐格取样，这里取
+/// u = ±w/2、v = ±h/2 四个角），逆时针一圈。
+fn rectangle_outline(r0: f64, z0: f64, w: f64, h: f64, a: f64, a2: f64)
+                     -> (Vec<f64>, Vec<f64>) {
+    let rad = std::f64::consts::PI / 180.0;
+    let (ca2, sa2) = ((a2 * rad).cos(), (a2 * rad).sin());
+    let (ca, sa) = ((a * rad).cos(), (a * rad).sin());
+    let (mut rr, mut zz) = (Vec::with_capacity(5), Vec::with_capacity(5));
+    for (u, v) in [(-w / 2.0, -h / 2.0), (w / 2.0, -h / 2.0),
+                   (w / 2.0, h / 2.0), (-w / 2.0, h / 2.0)] {
+        let (mut r, mut z) = (r0 + u + v * ca2, z0 + v * sa2);
+        if a != 0.0 {
+            let (dr, dz) = (r - r0, z - z0);
+            r = r0 + dr * ca - dz * sa;
+            z = z0 + dr * sa + dz * ca;
+        }
+        rr.push(r);
+        zz.push(z);
+    }
+    //: DD: "Repeat the first point since this is a closed contour"
+    rr.push(rr[0]);
+    zz.push(zz[0]);
+    (rr, zz)
+}
 
 /// 按 [`RELOCATIONS`] 把该搬的支搬到 DD 的位置上，逐条记进报告。
 ///
@@ -362,10 +578,24 @@ fn apply_relocations(ids: &str, tree: &mut Node, meta: &IdsMeta, report: &mut Dd
 /// * 缺 `ids_properties/homogeneous_time` 的补上：有时间片就 1（齐次），否则 2（常量）；
 /// * 齐次时间下缺根 `time` 的，从时间片的 `time` 合成。
 pub fn dd_normalize(ids: &str, doc: &Node, meta: &IdsMeta) -> (Node, DdReport) {
+    //: ★元件几何换成 DD 的 outline 要在 `to_dd` **之前**：倾角 `fylite:a1` / `a2`
+    //: 是本地词，`to_dd` 把本地词一律去掉（记进 dropped）。放在它之后，倾角已经
+    //: 不在树上了，四个角会按 0°/90° 算出来——形状对，位置错，而且不报错。
+    let mut derived = Vec::new();
+    let doc = &if ids == "wall" {
+        let mut src = doc.clone();
+        wall_outlines(&mut src, &mut derived);
+        src
+    } else {
+        doc.clone()
+    };
     let (mut tree, dropped) = to_dd(doc);
-    let mut report = DdReport { dropped, ..Default::default() };
+    let mut report = DdReport { dropped, derived, ..Default::default() };
     //: ★搬家在丢弃**之前**：否则该搬的那几支已经被当作「DD 不认的路径」丢掉了。
+    //: 换算与改名同理 —— 三者都要在 `walk_dd` 之前动手。
     apply_relocations(ids, &mut tree, meta, &mut report);
+    apply_derivations(ids, &mut tree, meta, &mut report);
+    apply_enum_names(ids, &mut tree, &mut report);
     let mut out = Node::map();
     walk_dd(meta, &tree, String::new(), &mut out, &mut report);
 
