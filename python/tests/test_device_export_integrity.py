@@ -62,9 +62,17 @@ pytestmark = pytest.mark.skipif(
 #: ① `tf/b0` · `tf/b_field_phi_vacuum_r/unit` —— DD 的 `tf` 没有 `b0`；单位在 DD 里
 #:    是**模式**里的信息，不是数据里的一个叶子。`b0` 已被换算消费
 #:    （`b_field_phi_vacuum_r/data = r0 * b0`），源槽本身仍无归宿。
-#: ② `tf/coils_n` · `tf/b_field_phi_vacuum_r`（ITER）—— **源文档里就是 `null`**。
-#:    DD 里有 `coils_n` 这个名字，丢的不是名字对不上，是那一格本来就空。
+#: ② `tf/coils_n`（CFEDR）—— **源文档里就是 `null`**。DD 里有 `coils_n` 这个名字，
+#:    丢的不是名字对不上，是那一格本来就空：上游那份 A-Box 自己注了「TF 线圈数
+#:    已公开为 16（104005 §2），而本件未载」。要它有值得先补上游，不能在这里编。
 #: ③ `wall/…/closed` —— fylite 自己的闭合标志，DD 的轮廓没有这一位。
+#:
+#: ★★**ITER 那两条同日修掉了**，而且不是靠编：上游的文献件里 `b0` = 5.3 T（两条
+#: 一手源，并注明 Baseline 2024 下仍成立）与 `coil.dev:count` = 18（带出处）**本来
+#: 就在**，只是 `tools/abox-to-facts.py` 认的是另外两个名字（`b_field_phi_vacuum_r`
+#: 与 `coils_n`），于是两个量都写成了 `null`。实测：ITER 的 `machine` 块因此
+#: **根本没有 `fylite:b0`**。现在两种写法都认，`b0` 原样带进 `tf`，DD 那一支由
+#: 归一化按 `r0 * b0` = 6.2 × 5.3 = 32.86 T·m 算出。
 #:
 #: ★★**第四类修掉了**（用户裁定 2026-09-07）：`count`。A-Box 在每个结构数组旁边
 #: 写一个计数，它等于列表长度，DD 里没有这个名字，六台机器每一台都丢它（WEST 一台
@@ -84,7 +92,32 @@ BASELINE: dict[str, set[str]] = {
         "wall: description_2d/vessel/unit/annular/outline_inner/closed",
         "wall: description_2d/vessel/unit/annular/outline_outer/closed",
     },
-    "iter": {"tf: coils_n", "tf: b_field_phi_vacuum_r"},
+    #: ★★EAST 2026-09-07 进来：它的卡片是**手工维护**的那一张（在内核仓
+    #: `machine_desc/east/`），比上游全，也因此带着自己的一套词。下面这些是那套词里
+    #: DD 不认的部分 —— `count` · `note` 是同一类冗余/说明，`weight` · `bit_error` ·
+    #: `efit_index` · `turns` · `pcs` 是 EFIT 反演那一侧的东西，`pf_passive/*` 是
+    #: 按层分组的被动结构（DD 的 `pf_passive` 没有这些名字）。
+    #: **该给它们加 `fylite:` 前缀**，而那张卡片在另一个仓，是一次要协调的改动。
+    "east": {
+        "ec_launchers: beam/frequency", "ec_launchers: beam/mode",
+        "ec_launchers: count", "ec_launchers: note",
+        "ic_antennas: antenna/level", "ic_antennas: count", "ic_antennas: note",
+        "interferometer: channel/line_of_sight/theta", "interferometer: count",
+        "interferometer: laser_wavelength", "interferometer: note",
+        "lh_antennas: count", "lh_antennas: note",
+        "magnetics: b_field_pol_probe/bit_error", "magnetics: b_field_pol_probe/weight",
+        "magnetics: flux_loop/bit_error", "magnetics: flux_loop/weight",
+        "magnetics: pcs",
+        "pf_active: coil/bit_error", "pf_active: coil/efit_index",
+        "pf_active: coil/turns", "pf_active: count", "pf_active: note",
+        "pf_passive: note", "pf_passive: outer_shell", "pf_passive: passive_plates",
+        "pf_passive: vessel",
+        "polarimeter: baseline", "polarimeter: channel/line_of_sight/theta",
+        "polarimeter: count", "polarimeter: faraday_constant", "polarimeter: note",
+        "tf: b0",
+        "wall: description_2d/limiter/unit/count",
+    },
+    "iter": {"tf: b0"},
     #: ★一条也不丢。这不是「没查」——`CHECKED_AT_LEAST` 说它逐值核对过 6 个叶子。
     "jt60sa": set(),
     "west": {
@@ -105,8 +138,8 @@ SYNTHESIZED = (
 #: 上一条表**放行**的叶子数不能悄悄涨上去。这里记的是每台机器**真正逐值核对过**
 #: 的叶子数（2026-09-07 实测，只准增不准减）：没有这一条，往 :data:`SYNTHESIZED`
 #: 里多加一个宽泛的词就能让整道闸绿着什么也不查。
-CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102,
-                    "iter": 164, "jt60sa": 6, "west": 200}
+CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 590,
+                    "iter": 165, "jt60sa": 6, "west": 200}
 
 #: 语义键与声明的本地词 —— 不进数据入口是设计，不是缺陷。
 _LOCAL = re.compile(r"(^|/)(@|\$|fylite:|_)")
@@ -157,6 +190,59 @@ def _equalish(a, b) -> bool:
     return av.shape == bv.shape and bool(np.array_equal(av, bv))
 
 
+def _split(path: str) -> tuple[tuple[str, ...], tuple[int, ...]]:
+    """一条路径拆成**名字**与**下标**两串。"""
+    segs = path.split("/")
+    return (tuple(s for s in segs if not s.isdigit()),
+            tuple(int(s) for s in segs if s.isdigit()))
+
+
+def _index(src: dict[str, object]) -> dict[tuple[str, ...], list]:
+    """源文档按「去掉 IDS 名之后的名字串」建索引，一格里放它的各个下标。"""
+    out: dict[tuple[str, ...], list] = {}
+    for path, value in src.items():
+        names, idx = _split(path)
+        out.setdefault(names[1:], []).append((idx, path, value))
+    return out
+
+
+def _one_zero_apart(a: tuple[int, ...], b: tuple[int, ...]) -> bool:
+    """两串下标相同，或其中一串删掉一个 `0` 之后相同。
+
+    ★★两种结构变化各贡献一个 `0`，两个都是**记在报告里的**：
+    * `unwrapped` —— DD 说结构而文档给一元列表，解出来少一层
+      （源 `…/position/0/r` → 入口 `…/position/r`）；
+    * `relocated` —— 搬进 `description_2d` 这个结构数组的第 0 个
+      （源 `limiter/…` → 入口 `description_2d/0/limiter/…`）。
+    """
+    if a == b:
+        return True
+    long, short = (a, b) if len(a) > len(b) else (b, a)
+    if len(long) != len(short) + 1:
+        return False
+    return any(long[i] == 0 and long[:i] + long[i + 1:] == short for i in range(len(long)))
+
+
+def _carried(index, tail: str):
+    """源文档里**对得上这条入口路径**的那些叶子。对不上就是空。
+
+    ★★对法从「后缀匹配」改成这个（2026-09-07）。后缀匹配在小文档上够用，在
+    EAST 那样一份文档里**会指错**：入口的 `b_field_pol_probe/0/position/r` 在源里
+    是 `…/position/0/r`，后缀对不上，而别的探针的某条路径反倒对上了 —— 于是闸子
+    报出 142 条「值不符」，条条都是匹配错了，不是数错了。一道会误报的闸子，
+    读到的人下一次就会略过它。
+
+    现在两串分开对：**名字**串要求源是入口的后缀（搬家只会往前加名字），
+    **下标**串要求逐位相同或差一个 `0`（解一元列表与搬进 `[0]` 各贡献一个）。
+    两边都是精确查表，不再有「碰巧结尾一样」。
+    """
+    names, idx = _split(tail)
+    for cut in range(len(names)):
+        for (sidx, path, value) in index.get(names[cut:], ()):
+            if _one_zero_apart(idx, sidx):
+                yield path, value
+
+
 @pytest.mark.parametrize("device", sorted(DEVICES))
 def test_the_entry_holds_one_file_per_ids(device, tmp_path):
     """容器拆成了它装着的那几个 IDS，而不是原样放到一边。"""
@@ -178,15 +264,13 @@ def test_the_entry_holds_one_file_per_ids(device, tmp_path):
 def test_every_number_in_the_entry_is_the_source_number(device, tmp_path):
     """入口里的每一个数，源文档里找得到同一个数（或逐条有据地是算出来的）。
 
-    ★对法是**后缀匹配**：归一化会把一支搬到 DD 的位置上
-    （`limiter` → `description_2d/0/limiter`），所以入口里的路径是源路径的一个
-    **加长**。同名同值即认。这道对法宽在结构、严在数值——正是这里要的：
-    结构本来就允许变，数值不允许。
+    ★对法见 :func:`_carried`：名字串与下标串分开对，两边都是精确查表。
+    宽在结构、严在数值——正是这里要的：结构本来就允许变，数值不允许。
     """
     source = DEVICES[device]
     out, _ = _export(source, tmp_path)
     entry = _leaves(fydoc.read(out).to_dict())
-    src = _leaves(source)
+    index = _index(_leaves(source))
 
     unexplained, checked = [], 0
     for path, value in entry.items():
@@ -196,11 +280,12 @@ def test_every_number_in_the_entry_is_the_source_number(device, tmp_path):
             continue
         checked += 1
         tail = "/".join(path.split("/")[1:])          #: 去掉入口那一层的 IDS 名
-        hits = [v for p, v in src.items() if p.endswith(tail) or tail.endswith(p)]
+        hits = list(_carried(index, tail))
         if not hits:
             unexplained.append(f"{path} = {value!r} —— 源文档里没有这一条")
-        elif not any(_equalish(value, h) for h in hits):
-            unexplained.append(f"{path} = {value!r} —— 源里是 {hits[0]!r}")
+        elif not any(_equalish(value, v) for _, v in hits):
+            unexplained.append(
+                f"{path} = {value!r} —— 源 {hits[0][0]} 是 {hits[0][1]!r}")
     assert not unexplained, (
         f"{device}: 数据入口里有对不上源文档的数：\n  " + "\n  ".join(unexplained[:20])
         + "\n\n归一化允许搬家 · 换算 · 改名 · 展开，**不允许改值**。")
@@ -256,7 +341,14 @@ def test_the_cross_section_survives_the_export(device, tmp_path):
 
 
 def test_the_baseline_names_only_devices_that_exist():
-    """基线里的机器要是这份构建里真有的那几台——否则它挡不住任何回归。"""
-    assert set(BASELINE) == set(DEVICES), (
-        f"BASELINE 与编译进来的装置对不上：多了 {sorted(set(BASELINE) - set(DEVICES))}，"
-        f"少了 {sorted(set(DEVICES) - set(BASELINE))}")
+    """编译进来的每一台都要在基线里 —— 否则它挡不住任何回归。
+
+    ★★反过来**不**要求相等：EAST 只在 `abox-to-facts.py --from-kernel` 拉过卡片的
+    检出里才编得进去（那个开关是 opt-in 的，见那里的注释），所以基线里有而这份
+    构建里没有，是常态，不是错。多出来的那几行会由
+    `test_the_paths_a_device_loses_are_the_recorded_ones` 在有它的检出上守住。
+    """
+    missing = sorted(set(DEVICES) - set(BASELINE))
+    assert not missing, (
+        f"这些装置编译进来了，而基线里没有：{missing}。"
+        "先量一遍它丢什么，再把那几行写进 BASELINE。")

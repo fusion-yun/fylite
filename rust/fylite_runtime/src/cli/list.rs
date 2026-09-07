@@ -103,6 +103,12 @@ fn devices(args: &Args) {
     let want: Vec<&str> = args.all("name");
     let entries = facts::entries("device");
     if entries.is_empty() {
+        //: ★★空也要答**同一种形**。`--json` 下打一句给人看的话，调用方拿到的是
+        //: 一段解析不了的文本而退出码 0 —— 与「点名时忽略 --json」是同一个错。
+        if as_json(args) {
+            print_json(&list(Vec::new()));
+            return;
+        }
         no_corpus("device");
         return;
     }
@@ -142,6 +148,20 @@ fn devices(args: &Args) {
             let hint = if near.is_empty() { String::new() } else { format!("; did you mean {}?", near.join(", ")) };
             die(&format!("no device `{id}` on the facts path{hint}"));
         };
+        if as_json(args) {
+            //: ★★`--json` 是**整个 `fy list` 的**参数（用法里就这么声明的）。
+            //: 点名一台机器时它原先被静默忽略——声明了却不生效，比没有更坏：
+            //: 脚本拿到的是给人看的排版，而退出码是 0。
+            print_json(&map(vec![
+                ("id", e.ident.clone().into()),
+                ("root", e.root.display().to_string().into()),
+                ("card", e.document.as_ref().map(|d| d.display().to_string().into()).unwrap_or(Node::Null)),
+                ("rights", e.rights_path().map(|r| r.display().to_string().into()).unwrap_or(Node::Null)),
+                ("manifest", e.manifest_path().map(|m| m.display().to_string().into()).unwrap_or(Node::Null)),
+                ("described", manifest_json(e.manifest_path().as_deref())),
+            ]));
+            continue;
+        }
         println!("{}   ({})", e.ident, e.root.display());
         if let Some(d) = &e.document {
             println!("  card      {}", d.display());
@@ -161,6 +181,44 @@ fn devices(args: &Args) {
         }
         println!();
     }
+}
+
+/// [`describe_manifest`] 的机器可读一半 —— 同一份读取，两种排版。
+///
+/// ★两处**读同一个清单的同几个键**，所以它们放在一起：分开写的那一刻，
+/// 人看到的与脚本拿到的就开始各说各话。
+fn manifest_json(path: Option<&std::path::Path>) -> Node {
+    let Some(path) = path else { return Node::Null };
+    let Ok(node) = crate::io::read_node(path) else {
+        return map(vec![("error", "the manifest did not parse".into())]);
+    };
+    let Some(m) = node.as_map() else { return Node::Null };
+    let providers: Vec<Node> = m
+        .get("providers")
+        .and_then(Node::as_map)
+        .map(|p| {
+            p.iter()
+                .map(|(ids, v)| {
+                    map(vec![
+                        ("ids", ids.to_string().into()),
+                        ("default", v.as_map().and_then(|x| x.get("default")).cloned().unwrap_or(Node::Null)),
+                        ("available", list(v.as_map()
+                            .and_then(|x| x.get("available"))
+                            .and_then(Node::as_map)
+                            .map(|a| a.keys().map(|k| k.to_string().into()).collect())
+                            .unwrap_or_default())),
+                    ])
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    map(vec![
+        ("device", m.get("device").cloned().unwrap_or(Node::Null)),
+        ("tbox", m.get("tbox").cloned().unwrap_or(Node::Null)),
+        ("epochs", m.get("epochs").and_then(Node::as_list)
+            .map(|e| Node::Int(e.len() as i64)).unwrap_or(Node::Null)),
+        ("providers", list(providers)),
+    ])
 }
 
 /// 清单里读得出来的那几样：装置名、逐 IDS 的提供者与缺省、年代数、绑定。
@@ -201,6 +259,10 @@ fn experiments(args: &Args) {
     let machine = want.first().copied();
     let shots = facts::shots(machine);
     if shots.is_empty() {
+        if as_json(args) {
+            print_json(&list(Vec::new()));
+            return;
+        }
         match machine {
             Some(m) => println!("no shots for `{m}` on the facts path"),
             None => no_corpus("experiment"),
@@ -212,6 +274,22 @@ fn experiments(args: &Args) {
         let Some(one) = shots.iter().find(|x| x.shot == *s) else {
             die(&format!("no shot {s} for {m} on the facts path"));
         };
+        if as_json(args) {
+            let slices: Vec<Node> = one.slices().iter()
+                .map(|(t, p)| map(vec![
+                    ("time", t.clone().into()),
+                    ("file", p.file_name().and_then(|x| x.to_str()).unwrap_or("").into()),
+                ]))
+                .collect();
+            print_json(&map(vec![
+                ("machine", one.machine.clone().into()),
+                ("shot", one.shot.clone().into()),
+                ("root", one.root.display().to_string().into()),
+                ("manifest", one.manifest().map(|m| m.display().to_string().into()).unwrap_or(Node::Null)),
+                ("slices", list(slices)),
+            ]));
+            return;
+        }
         println!("{}/{}   ({})", one.machine, one.shot, one.root.display());
         if let Some(mf) = one.manifest() {
             println!("  manifest  {}", mf.display());
@@ -334,6 +412,10 @@ fn scenarios(args: &Args) {
             }
         };
         let row = cat.scenario(name);
+        if as_json(args) {
+            print_json(&template_json(&t, row, codes.as_deref()));
+            continue;
+        }
         println!("{}  —  {}", t.name, t.title);
         println!("  code      {}", t.code);
         println!("  lines     {}", t.lines.join(", "));
@@ -428,6 +510,54 @@ fn verdict(s: &corpus::ScenarioRow, codes: Option<&[String]>) -> String {
             }
         }
     }
+}
+
+/// 一个场景模板的机器可读面 —— 与它上面那段人读的排版**同一批字段**。
+fn template_json(t: &corpus::Template, row: Option<&corpus::ScenarioRow>,
+                 codes: Option<&[String]>) -> Node {
+    let ports: Vec<Node> = t.ports.iter()
+        .map(|p| map(vec![
+            ("name", p.name.clone().into()),
+            ("primary", Node::Bool(p.primary)),
+            ("optional", Node::Bool(p.optional)),
+            ("requires", p.requires.clone().into()),
+            ("ids", list(p.ids.iter().map(|i| i.clone().into()).collect())),
+            ("note", p.note.clone().into()),
+        ]))
+        .collect();
+    let switches: Vec<Node> = t.switches.iter()
+        .map(|s| map(vec![
+            ("name", s.name.clone().into()),
+            ("sets", map(s.sets.iter().map(|(k, v)| (k.as_str(), v.clone())).collect())),
+        ]))
+        .collect();
+    let parameters: Vec<Node> = t.vocab.iter()
+        .map(|p| map(vec![
+            ("name", p.name.clone().into()),
+            ("key", p.key.clone().into()),
+            ("kind", p.kind.name().into()),   //: 与人读那一栏同一个拼法
+            ("choices", list(p.choices.iter().map(|c| c.clone().into()).collect())),
+            ("min", p.min.map(Node::Float).unwrap_or(Node::Null)),
+            ("max", p.max.map(Node::Float).unwrap_or(Node::Null)),
+            ("from_device", p.from_device.clone().map(Node::from).unwrap_or(Node::Null)),
+            ("note", p.note.clone().into()),
+        ]))
+        .collect();
+    map(vec![
+        ("name", t.name.clone().into()),
+        ("title", t.title.clone().into()),
+        ("code", t.code.clone().into()),
+        ("lines", list(t.lines.iter().map(|l| l.clone().into()).collect())),
+        ("template", t.origin.to_string().into()),
+        ("path", t.path.as_ref().map(|p| p.display().to_string().into()).unwrap_or(Node::Null)),
+        ("common", list(t.common.iter().map(|c| c.clone().into()).collect())),
+        ("time", t.time.clone().into()),
+        ("today", row.map(|r| verdict(r, codes).into()).unwrap_or(Node::Null)),
+        ("reason", row.map(|r| r.reason.clone().into()).unwrap_or(Node::Null)),
+        ("ports", list(ports)),
+        ("switches", list(switches)),
+        ("parameters", list(parameters)),
+    ])
 }
 
 // ───────────────────────────── presets ─────────────────────────────
@@ -541,6 +671,38 @@ fn facts_face(args: &Args) {
     let roots = facts::roots();
     let domain = args.flag("domain").unwrap_or("");
     let built_in = facts::embedded_count();
+    if as_json(args) {
+        if !domain.is_empty() && !args.has("roots") {
+            print_json(&list(facts::entries(domain).iter()
+                .map(|e| map(vec![
+                    ("id", e.ident.clone().into()),
+                    ("root", e.root.display().to_string().into()),
+                    ("rights", Node::Bool(e.rights_path().is_some())),
+                ]))
+                .collect()));
+            return;
+        }
+        let domains: Vec<Node> = facts::domains().iter()
+            .map(|d| map(vec![
+                ("domain", d.clone().into()),
+                ("entries", Node::Int(facts::entries(d).len() as i64)),
+            ]))
+            .collect();
+        print_json(&map(vec![
+            ("facts_roots", list(roots.iter().map(|r| r.display().to_string().into()).collect())),
+            //: ★自带的那一档也是一个根，只是它不在盘上（2026-09-05 裁定）
+            ("bundled", map(vec![
+                ("root", facts::BUNDLED_ROOT.into()),
+                ("entries", Node::Int(built_in as i64)),
+            ])),
+            ("domains", list(domains)),
+            ("case_roots", list(corpus::roots().iter()
+                .map(|r| r.display().to_string().into()).collect())),
+            ("templates", Node::Int(corpus::template_names().len() as i64)),
+            ("presets", Node::Int(corpus::presets().len() as i64)),
+        ]));
+        return;
+    }
     if args.has("roots") || domain.is_empty() {
         if roots.is_empty() && built_in == 0 {
             eprintln!(
@@ -589,6 +751,66 @@ fn facts_face(args: &Args) {
 
 /// 内核完成什么（从前的 `case describe`）。
 fn kernel(args: &Args) {
+    if as_json(args) {
+        let loaded = Kernel::load(args.flag("kernel").map(std::path::Path::new));
+        let codes: Vec<Node> = fi::BLOCKS.iter().find(|b| b.name == "CASE_CODES")
+            .map(|b| b.rows.iter()
+                .map(|r| map(vec![
+                    ("code", format!("code/{}", r.key).into()),
+                    ("entry", r.shape.into()),
+                    ("kind", r.units.into()),
+                    ("gloss", r.gloss.into()),
+                ]))
+                .collect())
+            .unwrap_or_default();
+        let entries: Vec<Node> = fi::ENTRIES.iter()
+            .map(|e| {
+                let block = |name: &str| list(fi::BLOCKS.iter().find(|b| b.name == name)
+                    .map(|b| b.rows.iter()
+                        .map(|r| map(vec![("key", r.key.into()), ("units", r.units.into())]))
+                        .collect())
+                    .unwrap_or_default());
+                map(vec![
+                    ("entry", format!("entry/{}", e.name).into()),
+                    ("dims", list(e.dims.iter().map(|d| (*d).into()).collect())),
+                    ("params", block(e.params)),
+                    ("input", block(e.input)),
+                    ("out", block(e.out)),
+                ])
+            })
+            .collect();
+        let tables: Vec<Node> = fi::TABLES.iter()
+            .filter(|t| !t.slots.is_empty())
+            .map(|t| map(vec![
+                ("table", t.name.into()),
+                ("document", t.doc_type.into()),
+                ("slots", list(t.slots.iter()
+                    .map(|s| map(vec![
+                        ("key", s.key.into()),
+                        ("path", s.path.into()),
+                        ("units", s.units.into()),
+                    ]))
+                    .collect())),
+            ]))
+            .collect();
+        print_json(&map(vec![
+            ("kernel", match &loaded {
+                Ok(k) => map(vec![
+                    ("loaded", Node::Bool(true)),
+                    ("path", k.path.display().to_string().into()),
+                    ("abi", k.abi_version.map(|v| Node::Int(v as i64)).unwrap_or(Node::Null)),
+                ]),
+                Err(e) => map(vec![
+                    ("loaded", Node::Bool(false)),
+                    ("reason", e.message.lines().next().unwrap_or("").into()),
+                ]),
+            }),
+            ("codes", list(codes)),
+            ("entries", list(entries)),
+            ("tables", list(tables)),
+        ]));
+        return;
+    }
     match Kernel::load(args.flag("kernel").map(std::path::Path::new)) {
         Ok(k) => println!(
             "kernel: {}  (abi {})",

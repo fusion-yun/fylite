@@ -483,10 +483,19 @@ def machine_block(name: str, tf: dict | None, limiter_units: list[dict],
         #: an error — a dropped field reads as「上游没有这个量」, which is the
         #: worst failure mode a converter has.
         value = _num(rb)
-        if value is not None:
-            out["fylite:b0"] = float(value) / float(tf["r0"])
+        r0 = _num(tf.get("r0"))
+        if value is not None and r0:
+            out["fylite:b0"] = float(value) / r0
             out["fylite:b0_note"] = (
                 "b_field_phi_vacuum_r / r0, both from the upstream tf")
+        #: ★★上游写 `b0` 而不写 `b_field_phi_vacuum_r` 的那一形（ITER 的文献件就是
+        #: 这一形：`b0` 5.3 T，两条一手源，并注明「Baseline 2024 下仍然成立」）。
+        #: 只认前一个名字的那一版把这个量整个丢掉了 —— 实测 2026-09-07：ITER 的
+        #: `machine` 块**根本没有 `fylite:b0`**，而上游明明有，且有出处。
+        #: 这不是换算，是**读上游已经写下的那个数**。
+        elif _num(tf.get("b0")) is not None:
+            out["fylite:b0"] = _num(tf.get("b0"))
+            out["fylite:b0_note"] = "tf.b0 from the upstream description"
     else:
         out["r_centre"] = None
         out["r_centre_note"] = "[TBD] the upstream description carries no tf.r0"
@@ -573,7 +582,11 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
 
     tf = _load(files["tf"]) if "tf" in files else None
     note, field = None, None
-    if dev == "iter" and tf is not None and "b_field_phi_vacuum_r" not in tf:
+    #: ★参考平衡的头行只在上游**两个名字都没有**时才用得着。ITER 的文献件
+    #: 2026-09-03 起带 `b0`（两条一手源），所以那条退路今天走不到 —— 留着是因为
+    #: 上游换一个提供者就可能又走得到，而它自己会说清那个数是从哪来的。
+    if (dev == "iter" and tf is not None
+            and "b_field_phi_vacuum_r" not in tf and _num(tf.get("b0")) is None):
         field = _iter_gfile_field(fydata)
         if field:
             rcentr, bcentr = field
@@ -624,10 +637,25 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
         doc["wall"]["description_2d"] = [{"limiter": {"unit": []}}]
 
     if tf is not None:
+        #: ★三个量都过 `_num`：上游有两种写法（裸数，或 `{data|value, unit}` 包装），
+        #: 原样抄过来的那一版把包装也抄了进去，下游读到的是一个映射。
+        #: ★`coils_n` 上游也有两种写法：`coils_n`（fydata 的静态件），或
+        #: `coil.dev:count`（文献件 —— ITER 的 18 个 TF 线圈就在那里，带出处）。
+        #: 只认前一个的那一版把它写成 `null`，而「没有这个数」与「有，只是叫别的
+        #: 名字」是两件事。两个都没有才是 `null`，那时它真的没有。
+        coil = tf.get("coil")
+        coils_n = _num(tf.get("coils_n"))
+        if coils_n is None and isinstance(coil, dict):
+            coils_n = _num(coil.get("dev:count"))
         doc["tf"] = {"@type": "fyo:tf", "fylite:source": rel["tf"],
-                     "r0": tf.get("r0"),
-                     "coils_n": tf.get("coils_n"),
+                     "r0": _num(tf.get("r0")),
+                     "coils_n": int(coils_n) if coils_n is not None else None,
                      "b_field_phi_vacuum_r": tf.get("b_field_phi_vacuum_r")}
+        #: ★上游只有 `b0` 的那一形原样带过来：`fylite_runtime` 归一化时按
+        #: `b_field_phi_vacuum_r/data = r0 * b0` 换算成 DD 要的那一支。
+        #: 在这里先乘一遍也算得出同一个数，但那会让**同一条换算**有两个实现。
+        if _num(tf.get("b0")) is not None:
+            doc["tf"]["b0"] = _num(tf.get("b0"))
 
     for ids, why in (
             ("interferometer", "no interferometer in the upstream description"),
@@ -778,7 +806,44 @@ def write(dev: str, doc: dict, out_root: pathlib.Path, src: str = "") -> pathlib
     return p
 
 
-def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
+def kernel_checkout() -> pathlib.Path | None:
+    """内核检出（私有仓 fylite_kernel）在哪 —— 与 `tools/kernel-path.sh` 同一条规则。
+
+    ★解析不到就是 `None`，**不猜**：没有一个调用方该拿一条猜出来的路径去读
+    另一个仓。判据是 `rust/fylite/Cargo.toml` 在不在，与那份 shell 一致。
+    """
+    env = os.environ.get("FYLITE_KERNEL") or os.environ.get("FYLITE_KERNEL_REPO")
+    candidates = [pathlib.Path(env)] if env else []
+    candidates += [ROOT.parent / "fylite_kernel", ROOT.parent / "fylite_dev"]
+    for c in candidates:
+        if (c / "rust" / "fylite" / "Cargo.toml").is_file():
+            return c
+    return None
+
+
+def _card_from_kernel(dev: str) -> pathlib.Path | None:
+    """手工维护的那张卡片在内核检出里的位置。
+
+    ★★这条退路 2026-09-07 补上，补的是一句**过时的警报**。工具从前在卡片缺席时
+    说「它随 machine_desc/ 一起删了（内核仓 b4dce77）… 三仓皆无，没有任何地方能把
+    它再生成一次」——而 `machine_desc/east/east_device.yaml` **早已随 d829b79 收了
+    回去**，一直在内核仓里。据那句话去找的人会得出「这台机器的描述丢了」，而它
+    没丢；两条 node 闸子（`validate-analysis` · `validate-recon-slices`）也因此
+    一直红着，红的理由是一个不成立的前提。
+
+    ★卡片一个字不动：这里只是**搬一份到暂存区**，让派生形照常写得出来。许可仍由
+    `rights.json` 说了算（EAST 上游 declared NOT OPEN → 只进内部版），发布器按它
+    筛，与本函数无关。
+    """
+    kernel = kernel_checkout()
+    if kernel is None:
+        return None
+    card = kernel / "machine_desc" / dev / f"{dev}_device.yaml"
+    return card if card.is_file() else None
+
+
+def write_document(dev: str, out_root: pathlib.Path, *,
+                   from_kernel: bool = False) -> pathlib.Path | None:
     """把卡片**同一份内容**再落一份 `facts/device/<id>.jsonld`。
 
     ★★两种语法，一个来源。卡片（YAML）是人读人改的那一份，文档（JSON）是页面
@@ -796,7 +861,14 @@ def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     """
     card = out_root / dev / f"{dev}_device.yaml"
     if not card.is_file():
-        return None
+        if not from_kernel:
+            return None
+        pulled = _card_from_kernel(dev)
+        if pulled is None:
+            return None
+        card.parent.mkdir(parents=True, exist_ok=True)
+        card.write_text(pulled.read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"  {dev}: 卡片不在暂存区，从内核检出取来一份（{pulled}）")
     doc = yaml.safe_load(card.read_text(encoding="utf-8"))
     if not isinstance(doc, dict):
         return None
@@ -1047,6 +1119,19 @@ def main(argv=None) -> int:
     ap.add_argument("--all", action="store_true",
                     help="every machine with a manifest, EAST excepted")
     ap.add_argument("--list", action="store_true")
+    #: ★★**opt-in，不是缺省**。手工卡片（EAST）在内核检出里有一份，从那里取来
+    #: 暂存区听着只是补一个缺口，实测**不是**：五道浏览器闸子
+    #: （`validate-worker-summary` / `-breakdown` / `-outlines` / `-recon` /
+    #: `-interp-device`）此前跑的是回退源 `$FYLITE_DEVICE_DIR/fylite_device_east.json`
+    #: ——那份把 14 个元件摊成 14 个线圈，而卡片把它们按 **12 个 PCS 通道**分组
+    #: （两者的几何一致，`test_east_descriptions_agree.py` 逐条对过）。分组不同，
+    #: 反馈幅值与 summary 就不同，五道闸子记下的数当场全变。
+    #: 哪一份该是浏览器闸子的基准，是一个要人来定的问题，所以这里不替他定：
+    #: 给了这个开关才取。
+    ap.add_argument("--from-kernel", action="store_true",
+                    help="手工维护的卡片（EAST）不在暂存区时，从内核检出 "
+                         "machine_desc/<id>/<id>_device.yaml 取一份来。"
+                         "★会改变浏览器闸子跑的是哪一份 EAST 描述——见源码注释")
     ap.add_argument("--publishable", action="store_true",
                     help="只列出进得了这一种构建的机器（许可闸；不写文件）")
     #: ★缺省是 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）：fylite 以内部
@@ -1098,20 +1183,26 @@ def main(argv=None) -> int:
             #: ★卡片一个字不动（它比上游全），但**派生形照写**：页面与内嵌资源表
             #: 读的是 `<id>.jsonld`，而「不重生成」说的是不要覆盖那份手写的内容，
             #: 不是「这台机器不参与打包」。卡片不在盘上时什么也不写。
-            if write_document(dev, a.out) is not None:
+            if write_document(dev, a.out, from_kernel=a.from_kernel) is not None:
                 print(f"  {dev}: 手工卡片保持原样，派生 {dev}.jsonld")
             else:
                 #: ★★**`--all` 也要说**（2026-09-05 改）。从前这一支写着
                 #: `elif not a.all`，于是 `--all` 在卡片不在时**一声不吭**地少带一台，
                 #: 目录从 7 台变成 6 台而构建全绿——正是本工具一直在防的那类失灵。
                 #: 实测撞上：清 `dist/` 之后跑 `--all`，目录里就没有 EAST 了。
+                where = _card_from_kernel(dev)
                 print(f"{dev}: hand-maintained here and strictly richer than "
                       f"the upstream tree — refusing to overwrite the card "
                       f"(rights.json written). ★★而盘上没有那张卡片，"
-                      f"于是这一版**少一台机器**：它随 machine_desc/ 一起删了"
-                      f"（内核仓 b4dce77），而这一台恰恰是不从上游拖的那一台。"
-                      f"★三仓皆无（FYL-DESIGN-19 G-1）——**没有任何地方能把它再生成一次**，"
-                      f"所以它只可能来自某个人手上的一份拷贝。",
+                      f"于是这一版**少一台机器**。"
+                      + (f"★内核检出里有一份（{where}）——`--from-kernel` 取它。"
+                         f"★但那会改变浏览器闸子跑的是哪一份 EAST 描述"
+                         f"（卡片按 12 个 PCS 通道分组，回退源摊成 14 个线圈），"
+                         f"所以要显式要。"
+                         if where is not None else
+                         f"★内核检出里也没有（machine_desc/{dev}/{dev}_device.yaml）；"
+                         f"解析不到内核检出时先设 $FYLITE_KERNEL 再跑。"
+                         f"那里也真的没有，才是「只可能来自某个人手上的一份拷贝」。"),
                       file=sys.stderr)
                 rc = 1
             continue

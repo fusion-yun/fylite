@@ -216,6 +216,16 @@ fy data fetch   --device east --ids magnetics \
 它能读哪些源、两种布局分别是什么、`--time` 怎么写、为什么 MDSplus 是只读的——
 参考篇的[数据层](../reference/data-layer.md)一页讲完。
 
+★★**`convert` 的产物是文件，它打印的那几行是诊断，走 stderr。**「写了什么、
+哪些量没进去、哪几支是算出来或改名来的」都在那里；`fy data convert … > out.txt`
+里因此**什么也没有**，要留报告就重定向 stderr（`2> report.txt`）。
+`info` · `dump` · `tables` 答的是问题本身，走 stdout，管道接得上。
+
+★★**`list` 的每一种形都认 `--json`**——清单形与点名形都认
+（`fy list devices --json` 与 `fy list devices east --json` 都答 JSON）。
+2026-09-07 之前点名形静默忽略它：声明了却不生效，调用方拿到的是给人看的排版
+而退出码 0。现在由 `python/tests/test_list_json.py` 逐形守着。
+
 ★`fy run` 在给了 `shot=` 而语料里没有那一片时会**自己**去取（取回的文档先落进记录
 目录，于是同一次分析可以离线重放）。要它永不联网，给 `--offline` 或设
 `$FYLITE_OFFLINE=1`。
