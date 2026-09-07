@@ -199,7 +199,7 @@ fn report(rep: &io::WriteReport, out: &Path) {
     for (key, r) in &rep.dd {
         let dropped: Vec<&String> = r.dropped.iter().filter(|p| !p.starts_with('@')).collect();
         if !dropped.is_empty() || !r.promoted.is_empty() || !r.synthesized.is_empty()
-            || !r.relocated.is_empty()
+            || !r.relocated.is_empty() || !r.unwrapped.is_empty()
         {
             eprintln!(
                 "  {key}: dropped {} non-DD path(s){}; promoted {:?}; synthesized {:?}{}",
@@ -208,7 +208,10 @@ fn report(rep: &io::WriteReport, out: &Path) {
                 r.promoted,
                 r.synthesized,
                 //: ★搬家要说出来：一支数据换了挂点，读者从产物上看不出它原来在哪。
-                if r.relocated.is_empty() { String::new() } else { format!("; relocated {:?}", r.relocated) }
+                //: 解一元列表同理 —— 形状被改过，说出来才查得回去。
+                format!("{}{}",
+                        if r.relocated.is_empty() { String::new() } else { format!("; relocated {:?}", r.relocated) },
+                        if r.unwrapped.is_empty() { String::new() } else { format!("; unwrapped {:?}", r.unwrapped) })
             );
         }
     }

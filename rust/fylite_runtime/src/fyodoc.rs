@@ -292,6 +292,9 @@ pub struct DdReport {
     pub synthesized: Vec<String>,
     /// 搬了家的路径（`from -> to`），见 [`RELOCATIONS`]。
     pub relocated: Vec<String>,
+    /// 从**一元列表**里取出来的结构：DD 说这里是一个结构，文档给了一个只有一个
+    /// 元素的列表。见 [`build_dd`] 里 `Kind::Structure` 那一支。
+    pub unwrapped: Vec<String>,
 }
 
 /// **同一个量在 fyo 与 DD 里挂的地方不同**时，搬家的那张表。
@@ -422,10 +425,32 @@ fn build_dd(meta: &IdsMeta, n: &Node, path: &str, report: &mut DdReport) -> Opti
             None => { report.dropped.push(p); continue; }
         };
         match entry.kind {
-            Kind::Structure => match build_dd(meta, v, &p, report) {
-                Some(sub) => { out.insert(k, sub); }
-                None => report.dropped.push(p),
-            },
+            Kind::Structure => {
+                //: ★★DD 说一个结构，文档给了**一元列表**。这是 `Kind::StructArray`
+                //: 那一支的镜像（那里接受「DD 说数组而文档给映射」，记 promoted），
+                //: 而这一支从前直接丢掉整支。
+                //:
+                //: ★实测（2026-09-07）：DD 把 `flux_loop/position` 写成**结构数组**
+                //: （一条环可以穿过好几个点），把 `b_field_pol_probe/position` 写成
+                //: **一个结构**（一个探针在一个点上）；fylite 的装置文档两者都写成
+                //: `[{r,z}]`。于是环对了、探针错了 —— EAST 的 79 个探针位置全数
+                //: 静默丢失。
+                //:
+                //: ★**只解一元的**。两个以上元素而 DD 只要一个，是真的装不下：
+                //: 取第一个就是悄悄丢掉其余，那比丢掉整支更坏。那一种仍旧丢弃并报告。
+                let one = match v {
+                    Node::List(l) if l.len() == 1 => {
+                        report.unwrapped.push(p.clone());
+                        Some(&l[0])
+                    }
+                    Node::List(_) => None,
+                    other => Some(other),
+                };
+                match one.and_then(|n| build_dd(meta, n, &p, report)) {
+                    Some(sub) => { out.insert(k, sub); }
+                    None => report.dropped.push(p),
+                }
+            }
             Kind::StructArray => match v {
                 Node::List(l) => {
                     let items: Vec<Node> = l.iter().map(|item|

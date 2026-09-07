@@ -1,0 +1,106 @@
+{
+  "@context": {
+    "fyo": "https://fusion-yun.github.io/fyo/latest/",
+    "fylite": "urn:fylite:"
+  },
+  "@type": "fylite:DeviceDescription/1",
+  "fylite:device_id": "synthetic",
+  "name": "synthetic tokamak",
+  "tf": {
+    "r0": 1.75,
+    "b0": 1.8
+  },
+  "pf_active": {
+    "coil": [
+      {
+        "name": "PF1",
+        "element": [
+          {
+            "geometry": {
+              "geometry_type": "rectangle",
+              "rectangle": {
+                "r": 0.6,
+                "z": 0.25,
+                "width": 0.15,
+                "height": 0.44
+              }
+            },
+            "turns_with_sign": 140.0
+          }
+        ]
+      }
+    ]
+  },
+  "wall": {
+    "description_2d": [
+      {
+        "limiter": {
+          "unit": [
+            {
+              "outline": {
+                "r": [
+                  1.2,
+                  2.3,
+                  2.3,
+                  1.2,
+                  1.2
+                ],
+                "z": [
+                  -1.0,
+                  -1.0,
+                  1.0,
+                  1.0,
+                  -1.0
+                ]
+              }
+            }
+          ]
+        },
+        "vessel": {
+          "unit": [
+            {
+              "element": [
+                {
+                  "geometry": {
+                    "geometry_type": "rectangle",
+                    "rectangle": {
+                      "r": 2.7,
+                      "z": 0.08,
+                      "width": 0.008,
+                      "height": 0.17
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "magnetics": {
+    "flux_loop": [
+      {
+        "name": "FL1",
+        "position": [
+          {
+            "r": 1.27,
+            "z": 0.0
+          }
+        ]
+      }
+    ],
+    "b_field_pol_probe": [
+      {
+        "name": "MP1",
+        "position": [
+          {
+            "r": 1.289,
+            "z": 0.0005
+          }
+        ],
+        "poloidal_angle": 0.0
+      }
+    ]
+  }
+}

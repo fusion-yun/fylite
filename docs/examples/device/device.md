@@ -115,7 +115,28 @@ $ fy data dump rec/imas --path pf_active/coil/0/element/0/geometry/rectangle/r -
 ```console
   pf_active: dropped 42 non-DD path(s) ["coil/0/element/0/fylite:a1", …]
   tf: dropped 1 non-DD path(s) ["b0"]
+  magnetics: … unwrapped ["b_field_pol_probe/position"]
 ```
+
+### 还有三支进不去，各有各的理由
+
+实测（2026-09-07，EAST）除声明局部外还有 **105 条裸路径**丢在门外，三类：
+
+| 条数 | 路径 | 性质 |
+| ---: | :--- | :--- |
+| 90 | `wall/…/vessel/unit/element/geometry` | **词汇**：DD 的真空室元件由 `outline` 描述，没有 `geometry`；fylite 借了线圈元件的参数化写法 |
+| 14 | `pf_active/coil/element/geometry/geometry_type` | **类型**：DD 是整数索引，文档写字符串 `"rectangle"`（该用哪个整数本仓查不到，`[TBD]`） |
+| 1 | `tf/b0` | **名字**：DD 的 `tf` 有 `b_field_phi_vacuum_r`，没有 `b0` |
+
+三条都不是改个名就能了的，各要一个决定，所以都**记在闸子里**而不是悄悄留着：
+`rust/fylite_runtime/tests/device_to_imas.rs` 的 `EXPECTED` 只准变小。
+
+★**探针位置那一条同日修好了**，因为它不需要决定。DD 把 `flux_loop/position` 写成
+**结构数组**（一条环可以穿过好几个点），把 `b_field_pol_probe/position` 写成**一个结构**
+（一个探针在一个点上）；fylite 的文档两者同写成 `[{r,z}]`，于是环对了、探针错了——
+EAST 的 **79 个探针位置全数静默丢失**。归一化现在解一元列表（并记进 `unwrapped`），
+`magnetics` 从 268 个叶子回到 **426** 个，逐值与源文档相同。两个以上元素仍旧丢弃：
+取第一个是悄悄丢掉其余，比丢整支更坏。
 
 ★所以**这份数据入口不能代替装置文档**：它是同一台机器给 IMAS 工具链看的那一面，
 少了 fylite 自己那几行。要完整的一份，留着 fyo（`--layout fyo`）。这是 fyo 与 DD 之间
