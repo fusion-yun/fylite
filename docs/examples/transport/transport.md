@@ -34,6 +34,29 @@ transport-iter-15ma  bar=transport -> fylite_transport
 ★**两条判据判的不是一件事**：`converged` 说这一步的非线性迭代收住了，`settled` 说再走
 一步剖面不再变（定态）。一个刚性闭包可以收敛到一个仍在漂的状态——那时前者绿、后者红。
 
+## 命令行
+
+```bash
+fy run model --preset transport-iter-15ma -o rec/
+```
+
+实测（2026-09-07），`run_state: succeeded`，`rec/` 里六个文件：
+
+| 文件 | 端口 | 字节 |
+| :--- | :--- | ---: |
+| `plan.jsonld` | 计划 | 6 464 |
+| `record.jsonld` | 记录 | 11 192 |
+| `core_profiles.fyo.jsonld` | `core_profiles` | 1 267 |
+| `core_transport.fyo.jsonld` | `core_transport` | 744 |
+| `equilibrium.fyo.jsonld` | `equilibrium` | 2 079 |
+| `entry.fyo.jsonld` | `entry` | 1 938 |
+
+也可以直接给计划文件，并在命令行上盖一个参数：
+
+```bash
+fy run docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
+```
+
 ## Python 入口
 
 ```python

@@ -38,7 +38,7 @@
 //! 文件类型**看内容识别**（[`detect`]），[`io`] 统一分派，[`assembly`] 按一份
 //! JSON-LD / YAML 装配多个数据源（或从 fydata 的装置清单 `machine.yaml` 摊出
 //! 「几何 + 绑定」，`fetch`），[`c_api`] 把这些交给 Python（`fylite.io.fydoc`），
-//! [`cli::data`] 是命令行 `fylite data …` 的实现（`src/bin/app` 是唯一的可执行文件，
+//! [`cli::data`] 是命令行 `fy data …` 的实现（`src/bin/app` 是唯一的可执行文件，
 //! 它按命令词分派到这里）。
 //!
 //! ## 制品，一份源

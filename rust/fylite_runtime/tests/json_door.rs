@@ -30,5 +30,18 @@ fn a_corpus_case_goes_through_the_json_door() {
     let refused = format!("[{text}, {{\"type\": \"spo:ComputationPlan\", \"parameters\": [{{\"sets_parameter\": \"code/evolve#beam\", \"literal_value\": true}}]}}]");
     let r = case::run_json(&refused, Some(root.join("cases").as_path()), kernel.as_deref().map(Path::new)).unwrap();
     assert!(r.refused);
-    assert!(r.record_json.contains("\"rejected\"") && r.record_json.contains("NBI"), "{}", r.record_json);
+    //: ★★The refusal has to be READABLE IN THE RECORD, not merely signalled by
+    //: the return value — a caller that keeps only the record must still learn
+    //: why.  So the assertion reads the record's own `comment`, not the whole
+    //: document text: `record_json.contains("beam")` would pass on the plan's
+    //: `beampower` parameter alone and stop testing anything.  (It pinned the
+    //: literal "NBI" until 2026-09-07 and had gone red: the message was
+    //: reworded to name the missing psi map, which is the more useful
+    //: sentence — the subsystem's acronym was never the invariant.)
+    let rec = fylite_runtime::json::parse(&r.record_json).unwrap();
+    let m = rec.as_map().unwrap();
+    assert_eq!(m.get("run_state").and_then(|n| n.as_str()), Some("rejected"));
+    let why = m.get("comment").map(|c| fylite_runtime::json::to_string(c, false)).unwrap_or_default();
+    assert!(why.contains("refused") && why.contains("beam"),
+            "the record does not say why it was refused: {why}");
 }

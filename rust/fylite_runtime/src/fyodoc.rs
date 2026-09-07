@@ -50,6 +50,20 @@ pub fn new_document(ids: &str, id: &str) -> Node {
 }
 
 /// 文档说的是哪个 IDS：`@type: fyo:equilibrium` → `equilibrium`；A-Box 的 `_ids` 也认。
+/// A document's own name, for a message that has to point at it: its `@type`
+/// minus the `fyo:` prefix when it has one, else its `@id`, else `<untyped>`.
+///
+/// ★Used by the IMAS writers to NAME what they skipped.  "a document without a
+/// known `@type`" told the reader that something was wrong and nothing about
+/// which thing.
+pub fn doc_label(doc: &Node) -> String {
+    let get = |k: &str| doc.as_map().and_then(|m| m.get(k)).and_then(Node::as_str);
+    if let Some(t) = get("@type") {
+        return t.strip_prefix("fyo:").unwrap_or(t).to_string();
+    }
+    get("@id").unwrap_or("<untyped>").to_string()
+}
+
 pub fn ids_of(doc: &Node) -> Option<String> {
     let m = doc.as_map()?;
     if let Some(t) = m.get("@type").and_then(Node::as_str).or_else(|| m.get("$type").and_then(Node::as_str)) {

@@ -39,6 +39,27 @@ zerod-iter-15ma  bar=zerod -> fylite_zerod  [device iter]
 - **`law` / `hfac` / `meff` / `w0` 已映射但未启用**——它们是预测档的约束定标参数。
   声明「映射了但这一档不读」，比悄悄丢掉诚实。
 
+## 命令行
+
+同一份计划，命令行走一遍——`fy` 是本仓唯一的命令行（Python 包没有）：
+
+```bash
+fy run model --preset zerod-iter-15ma -o rec/
+```
+
+实测（2026-09-07，本仓检出 · ABI 152），`run_state: succeeded`，`rec/` 里：
+
+| 文件 | 端口 | 字节 |
+| :--- | :--- | ---: |
+| `plan.jsonld` | 合成好的计划（六层的结果） | 9 057 |
+| `record.jsonld` | 记录：状态、用时、内核哈希、每个产出端口的数据集 | 10 790 |
+| `summary.fyo.jsonld` | `summary` | 25 716 |
+| `core_profiles.fyo.jsonld` | `core_profiles` | 581 421 |
+| `entry.fyo.jsonld` | `entry`（内核原始条目块，不寻址 IDS） | 4 995 |
+
+★这一档**不需要装置清单**（0-D 的几何是标量），所以命令行上不必给 `--device`，
+也不受〈命令行〉指南里那条「装置类算例跑不起来」的限制。
+
 ## Python 入口
 
 ```python

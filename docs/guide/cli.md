@@ -33,18 +33,43 @@ fy: `case run` is retired — use `fy run <the same plans>`
 逐条对照的迁移表在参考篇的[命令行](../reference/cli.md)。
 :::
 
-## 跑一次日常分析
+## 跑一次算例
 
 一条线（`analysis` · `model` · `design` · `control`）选出缺省场景，场景的**模板**给出
-参数表，装置与炮号由命令自己解析：
+参数表，`--preset` 从算例语料里取一份具名计划盖上去：
 
 ```bash
-fy run analysis --device east shot=137985 time=4.0 --only-magnetic=true -o rec/
+fy run model --preset zerod-iter-15ma -o rec/
 ```
 
-读作：在实验分析线上跑缺省场景（平衡反演），装置取 facts 语料里的 EAST，测量取
-第 137985 发炮 4.0 s 那一片，`--only-magnetic` 这一个开关把六个拟合开关一起关掉。
-产物落在 `rec/`：合成好的计划、用到的装置与测量文档、记录，以及每份数据集。
+产物落在 `rec/`：合成好的计划、记录，以及每个输出端口一份数据集。实测（2026-09-07，
+本仓检出）：
+
+```console
+$ fy run model --preset zerod-iter-15ma -o rec/ --quiet
+$ ls rec/
+core_profiles.fyo.jsonld  entry.fyo.jsonld  plan.jsonld  record.jsonld  summary.fyo.jsonld
+```
+
+逐条可跑的命令行与它们各自的产物，见[典型算例](../examples/index.md)每一章的
+〈命令行〉一节。
+
+:::{warning}
+**装置类算例今天从命令行跑不起来**，两个原因各自独立，都实测于 2026-09-07：
+
+1. **本仓没有任何装置的清单文档**。`facts/device/<id>/` 里只有 `rights.json`；
+   `abox/device.jsonld` 在 fydoc。所以 `--device east` 会说
+   「has the entry but no abox/device.jsonld … described by a card, not by a manifest」。
+   把带清单的语料根前置（`FY_FACTS_PATH=…/facts`）可以解决这一条。
+2. **拿到清单也还不够**：`code/breakdown` · `code/discharge` · `code/reconstruction`
+   等 **18 个 code 只经树门到达**，而 `fy run` 走的是**扁平门**（`Kernel::run_case`
+   调 `fylite_rs_fyo`，不传文档树），于是内核按名拒绝：
+   `[-33] … takes the whole device document and is reached through the tree door only`。
+   浏览器与 Python 侧经 `fylite_runtime_case_tree_json` 走树门，不受此限。
+
+★`fy list scenarios` 的 `today` 一列量的是**内核门认不认这个 code**，不是
+「`fy run` 跑不跑得完」——两者今天并不等价。
+:::
 
 **参数就写在命令行上**，四种写法同义：
 
@@ -70,16 +95,25 @@ fy run: transport: `transport` takes no parameter "chi_zero=0.4" — `fy list sc
 `--dry-run` 合成计划并把每个值**从哪来**逐行打出来，然后停下：不取数、不装内核、
 不写任何文件。
 
+★它是**唯一不受上面两条限制**的一档：合成与解析都在本层，不进内核，所以装置类算例
+也能先用 `--dry-run` 看清楚。实测（前置一个带清单的语料根）：
+
 ```console
-$ fy run analysis --device east shot=137985 time=4.0 --only-magnetic --dry-run
+$ FY_FACTS_PATH=…/facts fy run analysis --device east shot=137985 time=4.0 \
+      --only-magnetic --dry-run
 analysis · reconstruction  ->  code/reconstruction   (template …, 46 parameters declared)
+  device   east from …/facts  -> (would assemble from …/facts/device/east/abox/device.jsonld)
+  record   records/20260907T060647Z-reconstruction  (not written: --dry-run)
 
   parameter            value                  from
   basis                "delivered"            template:reconstruction
   maxit                800                    template:reconstruction
   kin                  false                  cli:switch only_magnetic
+  neon                 false                  cli:switch only_magnetic
   …
-  input measurements   …/slice_04000ms.fyo.jsonld   resolved:experiment/east/137985@… (t=4 s)
+  input device         (would assemble from …/device.jsonld)   device:east@…/facts
+  input measurements   (not fetched)          would fetch: device=east shot=137985 time=4.0
+                                              ids=[magnetics, pf_active, tf] via the manifest's own server
 ```
 
 来源那一列是六层合成的次序：模板缺省 → 装置 → 预设 → `--plan` → 命令行 → 端口绑定，
@@ -97,6 +131,37 @@ fy run base.jsonld override.jsonld --bind measurements=meas.json -o rec/
 ★跑不成也**回一份记录**（`run_state: rejected`），并写明是哪一步缺的：`compose` ·
 `device` · `measurements` · `kernel`。退出码 0 跑完 / 1 拒绝（有记录）/ 2 语法错（无记录）。
 
+## 记录目录里有什么
+
+一次跑完的目录是**自足**的：计划、记录，加每个输出端口一份数据集。缺省
+`--format jsonld`：
+
+```console
+$ fy run model --preset transport-iter-15ma -o rec/ --quiet
+$ ls rec/
+core_profiles.fyo.jsonld  core_transport.fyo.jsonld  entry.fyo.jsonld
+equilibrium.fyo.jsonld    plan.jsonld                record.jsonld
+```
+
+`--format imas-hdf5` 改写成**一个 IMAS 数据入口**——`imas/master.h5` 加每个 IDS 一个
+文件，`master.h5` 用外部链接指向它们：
+
+```console
+$ fy run model --preset evolve-iter-15ma -o rec/ --quiet     # 这份预设自己就绑 imas-hdf5
+$ find rec -type f | sort
+rec/entry.fyo.jsonld       rec/imas/core_transport.h5  rec/imas/master.h5   rec/record.jsonld
+rec/imas/core_profiles.h5  rec/imas/equilibrium.h5     rec/imas/summary.h5  rec/plan.jsonld
+```
+
+★`entry.fyo.jsonld` **不在** `imas/` 里，两种格式下都留在记录目录顶层：它是内核原始
+条目块（`@type: fyo:entry`），寻址不到任何 IDS，DD 里没有它的位置。写入方按名把它**放到
+一边**，并在记录里以 `ld+json` 登记——数据入口只装 IDS。
+（2026-09-07 之前写入方是**拒绝**它：`--format imas-hdf5` 因此在每个 code 上都中途失败，
+IDS 文件已落盘而 `record.jsonld` 未写，留下一个没有标签的碎片。）
+
+每份数据集在 `record.jsonld` 里都有一条产出端口绑定，带 `storage_uri` 与 `sha256`；
+记录怎么读见[结果怎么读](reading-results.md)。
+
 ## 有什么可用
 
 ```bash
@@ -112,11 +177,30 @@ fy list kernel                    # 内核认哪些 code、哪些 entry
 ```
 
 `list` 是**只读**的：它不合成、不取数、不写记录，也不开套接字，所以在没有内核、
-没有网络的机器上照样答得出来。
+没有网络的机器上照样答得出来。九条逐条实测（2026-09-07）全部返回 0。
+
+:::{note}
+**装置信息编在二进制里。** `fy list facts --roots` 会列出两条根：检出的暂存语料
+`dist/facts/`（自可执行文件位置上溯探得），与 `<bundled>`——编进这份二进制的那一份。
+把二进制拷到检出之外，只剩后者：
+
+```console
+$ ./fy list facts --roots
+1. <bundled>   (6 条，编在这份二进制里)
+$ ./fy list devices | tail -1
+6 devices; `fy list devices <id>` prints one in full
+```
+
+★**内部版也只带六台**（best · cfedr · cfetr · iter · jt60sa · west），实测。判据在
+`tools/facts-publish.py`：**没有页面文档就不发**——本仓 `facts/device/<id>/` 里只有
+`rights.json`，清单文档在 fydoc，所以那七台（含 EAST）在任何版别里都发不出去。
+「内部版含 EAST」这条裁定要落地，缺的是把清单文档带进发布物，不是版别开关。
+:::
 
 ## 换一份数据的格式，或取一发炮
 
-数据层是一条命令词底下的七条子命令（另有组级 `--facts PATH`）：
+数据层是一条命令词底下的七条子命令（`info` · `dump` · `convert` · `merge` ·
+`assemble` · `fetch` · `tables`，另有组级 `--facts PATH`）：
 
 ```bash
 fy data info    shot.h5                        # 这是什么文件

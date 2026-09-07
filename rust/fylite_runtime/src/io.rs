@@ -222,6 +222,9 @@ pub struct WriteReport {
     pub dd: Vec<(String, DdReport)>,
     /// 合成出来的文档（例如从限制器合成的 `wall`）。
     pub synthesized_docs: Vec<String>,
+    /// IMAS 布局下**跳过**的文档：DD 不认识它，所以数据入口里没有它的位置。
+    /// 名字在这里，安置它是调用方的事——只有调用方知道该把它放在入口旁边的哪里。
+    pub skipped_docs: Vec<String>,
 }
 
 /// 写一束文档。`format` 缺省按扩展名；IMAS 布局的 HDF5 是一个目录。
@@ -247,8 +250,15 @@ pub fn write(path: &Path, bundle: &Bundle, format: Option<Format>, layout: Layou
                 Layout::Imas => {
                     let mut m = crate::document::Map::new();
                     for doc in &bundle.docs {
-                        let ids = fyodoc::ids_of(doc).ok_or_else(|| IoError("a document without a known `@type: fyo:<ids>`".into()))?;
-                        let meta = crate::ids_meta::IdsMeta::get(&ids).unwrap();
+                        //: skipped and named, exactly as the two binary writers do
+                        let Some(ids) = fyodoc::ids_of(doc) else {
+                            report.skipped_docs.push(fyodoc::doc_label(doc));
+                            continue;
+                        };
+                        let Some(meta) = crate::ids_meta::IdsMeta::get(&ids) else {
+                            report.skipped_docs.push(ids);
+                            continue;
+                        };
                         let (tree, rep) = fyodoc::dd_normalize(&ids, doc, &meta);
                         let key = fyodoc::ids_key(&ids, fyodoc::occurrence_of(doc));
                         report.dd.push((key.clone(), rep));
@@ -274,7 +284,11 @@ pub fn write(path: &Path, bundle: &Bundle, format: Option<Format>, layout: Layou
         }
         Format::ImasHdf5Dir => {
             #[cfg(feature = "hdf5")]
-            { report.dd = crate::hdf5::write_imas(path, &bundle)?; }
+            {
+                let (dd, skipped) = crate::hdf5::write_imas(path, &bundle)?;
+                report.dd = dd;
+                report.skipped_docs = skipped;
+            }
             #[cfg(not(feature = "hdf5"))]
             { return Err(IoError("built without the `hdf5` feature".into())); }
         }
@@ -283,7 +297,11 @@ pub fn write(path: &Path, bundle: &Bundle, format: Option<Format>, layout: Layou
             {
                 match layout {
                     Layout::Fyo => crate::netcdf::write_fyo(path, &bundle.to_node())?,
-                    Layout::Imas => report.dd = crate::netcdf::write_imas(path, &bundle)?,
+                    Layout::Imas => {
+                        let (dd, skipped) = crate::netcdf::write_imas(path, &bundle)?;
+                        report.dd = dd;
+                        report.skipped_docs = skipped;
+                    }
                 }
             }
             #[cfg(not(feature = "netcdf"))]

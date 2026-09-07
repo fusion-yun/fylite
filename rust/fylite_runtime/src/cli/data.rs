@@ -4,10 +4,9 @@
 //! subcommand TAKES is in `_cli.json` (`data`); this module is only what
 //! they DO.
 //!
-//! Reached as `fylite data …` (the Python console script, which hands the
-//! words on verbatim) or as `fylite data …` (the one executable) —
-//! the same code either way.  ★2026-09-03 the `fylite-data` alias binary was
-//! retired: one executable carries every command word.
+//! Reached as `fy data …`.  ★2026-09-03 the `fylite-data` alias binary was
+//! retired (one executable carries every command word), and 2026-09-04 the
+//! Python console script went with it — this is the only way in.
 //!
 //! `--time` is `4.5` (one point), `4:5` (a window) or `4,4.5,5` (a list of
 //! points); MDSplus sources are windowed on their own time base and the
@@ -34,8 +33,12 @@ use crate::fyodoc::{self, Bundle};
 use crate::io::{self, Layout};
 use std::path::{Path, PathBuf};
 
+//: ★The prefix is the command word the reader typed.  It said `fylite data`
+//: until 2026-09-07 — the name of an executable that has not existed since
+//: 2026-09-04, so a reader searching for the message found nothing and a
+//: reader copying the prefix typed a command that is not there.
 fn die(msg: &str) -> ! {
-    eprintln!("fylite data: {msg}");
+    eprintln!("fy data: {msg}");
     std::process::exit(2);
 }
 

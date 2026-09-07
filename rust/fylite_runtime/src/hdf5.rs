@@ -424,7 +424,7 @@ fn write_shape(g: &Group, name: &str, leaf: &tensor::LeafTensor) -> Result<()> {
 /// 写一束文档到一个 IMAS HDF5 数据目录（缺则建；已有的 IDS 文件被替换）。
 ///
 /// 返回每个 IDS 的归一化报告（丢掉的本地键、提成数组的标量、合成的时间）。
-pub fn write_imas(dir: &Path, bundle: &Bundle) -> Result<Vec<(String, DdReport)>> {
+pub fn write_imas(dir: &Path, bundle: &Bundle) -> Result<(Vec<(String, DdReport)>, Vec<String>)> {
     std::fs::create_dir_all(dir)?;
     let master_path = dir.join(MASTER);
     let dir_text = dir.to_string_lossy().to_string();
@@ -436,9 +436,26 @@ pub fn write_imas(dir: &Path, bundle: &Bundle) -> Result<Vec<(String, DdReport)>
         f
     };
     let mut reports = Vec::new();
+    let mut skipped = Vec::new();
     for doc in &bundle.docs {
-        let ids = fyodoc::ids_of(doc).ok_or_else(|| Error("a document without a known `@type: fyo:<ids>`".into()))?;
-        let meta = IdsMeta::get(&ids).ok_or_else(|| Error(format!("no DD table for IDS {ids:?}")))?;
+        //: ★★A data entry holds IDS, and a bundle may carry a document that is
+        //: not one — the kernel's own `fyo:entry` block, say, whose fields
+        //: address no IDS at all.  Refusing the whole write over it was worse
+        //: than useless: the IDS already written stayed on disk and the caller
+        //: got an error instead of a data entry (measured 2026-09-07 —
+        //: `--format imas-hdf5` aborted on every code, and
+        //: `acceptance_iter15ma` had been red for the same reason).  So a
+        //: document with no DD home is SKIPPED and NAMED; placing it is the
+        //: caller's business, because only the caller knows where beside the
+        //: entry it should go.
+        let Some(ids) = fyodoc::ids_of(doc) else {
+            skipped.push(fyodoc::doc_label(doc));
+            continue;
+        };
+        let Some(meta) = IdsMeta::get(&ids) else {
+            skipped.push(ids);
+            continue;
+        };
         let occ = fyodoc::occurrence_of(doc);
         let key = fyodoc::ids_key(&ids, occ);
         let (tree, report) = fyodoc::dd_normalize(&ids, doc, &meta);
@@ -460,8 +477,9 @@ pub fn write_imas(dir: &Path, bundle: &Bundle) -> Result<Vec<(String, DdReport)>
     }
     master.close()?;
     write_userblock(&master_path, &dir_text)?;
-    Ok(reports)
+    Ok((reports, skipped))
 }
+
 
 /// 数据目录里有哪些 IDS（`master.h5` 的链接名，`ids` 或 `ids_<occ>`）。
 pub fn imas_ids_keys(dir: &Path) -> Result<Vec<String>> {
@@ -604,7 +622,7 @@ mod tests {
     fn imas_layout_round_trips_and_has_the_backend_shape() {
         let dir = tmp("imas");
         let b = sample_bundle();
-        let reports = write_imas(&dir, &b).unwrap();
+        let (reports, _skipped) = write_imas(&dir, &b).unwrap();
         assert_eq!(reports.len(), 2);
         assert!(reports[0].1.dropped.iter().any(|p| p == "fylite:limiter"));
         assert!(dir.join("master.h5").is_file() && dir.join("equilibrium.h5").is_file() && dir.join("wall.h5").is_file());

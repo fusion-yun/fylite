@@ -33,6 +33,32 @@ sorted(meas)      # ['basis', 'brsp', 'btor', 'coils', 'expmp2', 'plasma', 'time
 `basis` 说的是这批测量按哪套基底约化（EAST 的 `est2` 79 探针基底就在这里定名），
 `time_s` 是它选中的时刻。测量来源是 MDSplus 还是离线转储，进到这一层之后**不再区分**。
 
+## 命令行：今天走不通，以及为什么
+
+`code/reconstruction` 与本章其余几个 code 一样**吃整份装置文档**，而 `fy run` 走的是
+扁平门，到不了它们（同[放电设计](../design/design.md)〈命令行〉那一节的第 1 条）。
+装置这一侧还另有一道：本仓 `facts/device/<id>/` 只有 `rights.json`，清单文档在 fydoc，
+所以连 `--device east` 都要先前置一个带清单的语料根。实测（2026-09-07）逐条如下。
+
+```console
+$ fy run analysis --device east shot=137985 time=4.0 --only-magnetic -o rec/
+fy run: [device] --device east: …/dist/facts/device/east has the entry but no
+  abox/device.jsonld — this scenario needs coil geometry and channel tables, and that
+  device is described by a card, not by a manifest
+```
+
+前置带清单的语料根之后，装置解析通过，卡在测量与树门上：
+
+```console
+$ FY_FACTS_PATH=…/facts fy run analysis --preset reconstruction-default --device east -o rec/
+fy run: [measurements] the `measurements` port of `reconstruction` has nothing bound:
+  give --input <document>, or a shot (shot=N) to resolve one
+```
+
+★**`--dry-run` 走得通**，而且是今天在命令行上核对反演配置（46 个参数、六层合成、
+端口绑定）的办法——见[命令行](../../guide/cli.md)〈先看一眼会发生什么〉里的实测输出。
+真要跑，用下面的入口或浏览器的实验分析页。
+
 ## 二 · 反演
 
 ```python

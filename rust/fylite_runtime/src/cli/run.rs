@@ -1196,6 +1196,17 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
                 //: `build` 已经问过这份构建写不写得了（`writable`）；这里只是取同一个答案。
                 let format = effective_format(args, &plan);
                 let docs = case::documents(&o, raw, &record_id);
+                //: ★★An IMAS data entry holds IDS, and not every produced
+                //: document is one: `case::documents` gathers the fields that
+                //: address no IDS into a synthetic `fyo:entry` document — the
+                //: raw entry block, this kernel's own shape, with no DD home.
+                //: The writer SKIPS such a document and names it in the
+                //: report; placing it is this layer's business, and it goes
+                //: beside the data entry as fyo JSON, which is what it is.
+                //: (Until 2026-09-07 the writer refused instead, so
+                //: `--format imas-hdf5` aborted on every code AFTER the IDS
+                //: files were on disk and BEFORE `record.jsonld` was written,
+                //: leaving an unlabelled fragment.)
                 if format == "imas-hdf5" || format == "imas" {
                     let mut bundle = crate::fyodoc::Bundle::new();
                     for (_ids, doc) in &docs {
@@ -1220,7 +1231,8 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
                             dd_notes.push(format!("imas {key}: {d} synthesized"));
                         }
                     }
-                    for (ids, _doc) in &docs {
+                    let side: Vec<String> = rep.skipped_docs.clone();
+                    for (ids, _doc) in docs.iter().filter(|(i, _)| !side.contains(i)) {
                         let file = format!("imas/{ids}.h5");
                         let bytes = std::fs::read(record_dir.join(&file)).unwrap_or_default();
                         let fields: Vec<String> = o
@@ -1253,6 +1265,29 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
                         fields: vec!["the data entry's master file (external links to every IDS)".into()],
                         inline: None,
                     });
+                    //: the documents the writer skipped, beside the entry
+                    for (ids, doc) in docs.iter().filter(|(i, _)| side.contains(i)) {
+                        let file = format!("{ids}.fyo.jsonld");
+                        let text = json::to_string(doc, true) + "\n";
+                        let (sha, bytes) = write_text(&record_dir.join(&file), &text);
+                        let fields: Vec<String> = o
+                            .fields
+                            .iter()
+                            .filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids)
+                            .map(|f| format!("{} [{}] {:?}", f.path, f.units, f.dims))
+                            .collect();
+                        produced.push(Produced {
+                            port: ids.clone(),
+                            doc_id: format!("{record_id}/{ids}"),
+                            doc_type: format!("fyo:{ids}"),
+                            storage_uri: file,
+                            format_iri: case::LD_JSON.to_string(),
+                            sha256: sha,
+                            bytes,
+                            fields,
+                            inline: None,
+                        });
+                    }
                 }
                 for (ids, doc) in docs {
                     if format == "imas-hdf5" || format == "imas" {

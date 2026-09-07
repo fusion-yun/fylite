@@ -27,6 +27,27 @@ evolve-iter-15ma  bar=evolve -> fylite_evolve
 杂质、电流道…）里、基准运行不读的那些。逐条有名有姓，`cases.plan("evolve-iter-15ma")`
 可以全部列出来。
 
+## 命令行
+
+```bash
+fy run model --preset evolve-default    -o rec/     # 自足的一档
+fy run model --preset evolve-iter-15ma  -o rec/     # ITER 15 MA
+```
+
+两档都实测跑完（2026-09-07，`run_state: succeeded`）。**产物形态不同，因为计划自己
+说了要哪一种**：`evolve-default` 用缺省的 `jsonld`，而 `evolve-iter-15ma` 的四个输出
+端口都绑 `fyo:ImasHdf5Format`，于是写成一个 IMAS 数据入口：
+
+```console
+$ find rec -type f | sort
+rec/entry.fyo.jsonld       rec/imas/core_transport.h5  rec/imas/master.h5   rec/record.jsonld
+rec/imas/core_profiles.h5  rec/imas/equilibrium.h5     rec/imas/summary.h5  rec/plan.jsonld
+```
+
+`master.h5` 用外部链接指向四个 IDS 文件。`entry.fyo.jsonld` 留在顶层——它是内核原始
+条目块，DD 里没有它的位置，写入方按名把它放到一边（详见[命令行](../../guide/cli.md)
+〈记录目录里有什么〉）。
+
 ## 它算出了什么
 
 400 步走到 8 s（`t` 0.02 … 8 s）：

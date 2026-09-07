@@ -55,6 +55,37 @@ casereport.render(cases.run("zerod-iter-15ma"), out="out/")   # 跑完渲染成 
 ★**一个没被分类的键会让 `--run` 报错**（`python/tests/test_case_runs.py` 把这条钉死）。
 静默丢弃一个控件，是这一层最该防的失败方式：跑出来的数看着像那个算例，其实不是。
 
+## 命令行入口，与它今天到得了哪里
+
+★★这些是**库调用**，另一条路是**命令行** `fy`——本仓唯一的那一个（Python 包没有命令行）。
+两条路合成同一份计划、写同一种记录，但**到得了的范围今天不同**，因为它们走的不是同一扇
+内核门：`fy run` 调扁平门（`fylite_rs_fyo`），浏览器与 Python 侧走树门
+（`fylite_runtime_case_tree_json`），而内核里有 18 个 code **只经树门到达**。
+
+```bash
+fy list presets                            # 语料里的 25 份具名计划
+fy list presets zerod-iter-15ma            # 一份的全文
+fy run  model --preset zerod-iter-15ma -o rec/
+fy run  docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
+```
+
+2026-09-07 在本仓检出上逐条实测（`fy` 内部版 · 内核 ABI 152），命令行这一侧：
+
+| 章 | 命令行 | 结果 |
+| :--- | :--- | :--- |
+| [0-D 放电](zerod/zerod.md) | `fy run model --preset zerod-iter-15ma` | ✅ 5 个文件 |
+| [输运](transport/transport.md) | `fy run model --preset transport-iter-15ma` | ✅ 6 个文件 |
+| [含时演化](evolve/evolve.md) | `fy run model --preset evolve-default` | ✅ 7 个文件 |
+| [含时演化](evolve/evolve.md) | `fy run model --preset evolve-iter-15ma` | ✅ 8 个文件（一个 IMAS 数据入口） |
+| [放电设计](design/design.md) | `fy run design --preset breakdown-iter` | ⛔ 树门专属（`--dry-run` 可用） |
+| [放电设计](design/design.md) | `fy run design --preset discharge-iter` | ⛔ 同上 |
+| [放电设计](design/design.md) | `fy run design --preset pulse-iter` | ⛔ `code/pfwave` 内核不认（登记在案：P2-c） |
+| [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset reconstruction-default` | ⛔ 树门专属 + 本仓无装置清单 |
+| [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset series-default` | ⛔ `code/series` 内核不认（登记在案） |
+
+每一章的〈命令行〉一节写着自己那一行的完整输出与产物清单；命令行本身的用法与限制
+见[命令行](../guide/cli.md)。
+
 ## 跑一次留下什么
 
 ```python

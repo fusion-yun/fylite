@@ -6,14 +6,14 @@
 //! 拉起系统浏览器，页面照常用 WebAssembly 计算。**没有安装、没有解压、
 //! 没有外部运行时**——分发一个 `.exe` 或一个 ELF 就是分发整个演示。
 //!
-//! ★★2026-09-03（FYL-DESIGN-15）：它是本仓**唯一的可执行文件**——
-//! `fylite data …` 与 `fylite case …` 就是从前的 `fylite-data` /
-//! `fylite-case`。那两个二进制**已经撤掉**：它们各十行，做的就是把 `data` /
-//! `case` 前置到 argv 再调用同一份代码，而那一次前置由调用方给就够了
-//! （Python 宿主委托时前置，人在命令行上直接写 `fylite data …`）。
-//! 命令行的**定义**在 `python/fylite/_cli.json`：Python 的 `fylite` 命令与本程序
-//! 从同一个文件各自建自己的解析器，用法、选项、帮助一字不差；
-//! 只属于一个宿主的少数参数在文件里标了 `hosts`。
+//! ★★2026-09-03（FYL-DESIGN-15）：它是本仓**唯一的可执行文件**——`fy data …`
+//! 与从前的 `fylite-data` / `fylite-case` 是同一份代码。那两个二进制**已经撤掉**：
+//! 它们各十行，做的就是把 `data` / `case` 前置到 argv 再调用同一份代码，而那一次
+//! 前置由调用方给就够了。★2026-09-04 两条后续裁定：Python 侧的命令行**整个撤除**
+//! （那个包现在是库），`case` 收进 `run`。
+//! 命令行的**定义**在 `python/fylite/_cli.json`：本程序与浏览器 app 从同一个文件
+//! 各自建自己的解析器，用法、选项、帮助一字不差；只属于一个宿主的少数参数在
+//! 文件里标了 `hosts`。
 //!
 //! 不带子命令时它就是 `app`（起服务、开浏览器），所以双击仍然可用。
 //!
@@ -45,11 +45,11 @@
 //! 用法由 `_cli.json` 生成，`fylite --help` 打印；这里只留三行示例：
 //!
 //! ```text
-//! fylite                          # 找一个空闲端口，开浏览器
-//! fy --port 8123 --no-open    # 指定端口，只伺服
-//! fylite --page data --device east --lang en --mdsip 127.0.0.1:8000
-//! fylite data info shot.h5        # 数据层（= `fylite data info shot.h5`）
-//! fylite case run plan.jsonld --record rec/
+//! fy                              # 找一个空闲端口，开浏览器
+//! fy --port 8123 --no-open        # 指定端口，只伺服
+//! fy --page data --device east --lang en --mdsip 127.0.0.1:8000
+//! fy data info shot.h5            # 数据层
+//! fy run plan.jsonld --record rec/    # 算例（`case` 已收进 `run`）
 //! ```
 
 #[cfg(feature = "webui")]

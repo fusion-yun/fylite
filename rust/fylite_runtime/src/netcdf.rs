@@ -72,7 +72,7 @@ fn dot(p: &str) -> String {
 }
 
 /// 写一束文档到一个 IMAS netCDF 文件（缺则建，已有的追加；同一 `<ids>/<occ>` 已在则拒）。
-pub fn write_imas(path: &Path, bundle: &Bundle) -> Result<Vec<(String, DdReport)>> {
+pub fn write_imas(path: &Path, bundle: &Bundle) -> Result<(Vec<(String, DdReport)>, Vec<String>)> {
     let dd_version = crate::ids_tables::DD_VERSION;
     let mut file = if path.is_file() {
         let f = netcdf::append(path)?;
@@ -90,9 +90,18 @@ pub fn write_imas(path: &Path, bundle: &Bundle) -> Result<Vec<(String, DdReport)
         f
     };
     let mut reports = Vec::new();
+    let mut skipped = Vec::new();
     for doc in &bundle.docs {
-        let ids = fyodoc::ids_of(doc).ok_or_else(|| Error("a document without a known `@type: fyo:<ids>`".into()))?;
-        let meta = IdsMeta::get(&ids).ok_or_else(|| Error(format!("no DD table for IDS {ids:?}")))?;
+        //: a document with no DD home is skipped and named — see the same
+        //: passage in `hdf5::write_imas`, which this mirrors
+        let Some(ids) = fyodoc::ids_of(doc) else {
+            skipped.push(fyodoc::doc_label(doc));
+            continue;
+        };
+        let Some(meta) = IdsMeta::get(&ids) else {
+            skipped.push(ids);
+            continue;
+        };
         let occ = fyodoc::occurrence_of(doc);
         let (tree, report) = fyodoc::dd_normalize(&ids, doc, &meta);
         if let Some(g) = file.group(&ids)? {
@@ -109,7 +118,7 @@ pub fn write_imas(path: &Path, bundle: &Bundle) -> Result<Vec<(String, DdReport)
         reports.push((fyodoc::ids_key(&ids, occ), report));
     }
     file.close()?;
-    Ok(reports)
+    Ok((reports, skipped))
 }
 
 fn write_ids_group(g: &mut netcdf::GroupMut, meta: &IdsMeta, tree: &Node) -> Result<()> {

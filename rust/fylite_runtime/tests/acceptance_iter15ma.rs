@@ -47,8 +47,22 @@ fn iter_15ma_dt_evolution_lands_as_an_imas_data_entry() {
         bundle.push(doc);
     }
     let rep = io::write(&dir, &bundle, Some(Format::ImasHdf5Dir), Layout::Imas).unwrap();
-    let dropped: Vec<&String> = rep.dd.iter().flat_map(|(_, r)| r.dropped.iter()).filter(|d| !d.starts_with('@')).collect();
+    //: ★What may be dropped on the way into a data entry, and what may not.
+    //: `@`-prefixed keys are JSON-LD framing.  A segment carrying the
+    //: `fylite:` prefix is a DECLARED local — the kernel's slot table marks
+    //: every such name in its own `OURS` list precisely because the DD has no
+    //: home for it (`profiles_1d/fylite:ion_density` is there because the DD
+    //: spells ions as an array of structure, which a flat state row does not
+    //: carry).  Dropping a declared local is the correct answer; dropping a
+    //: BARE name would mean a DD quantity fell out, and that is what this
+    //: assertion is for.
+    let is_local = |d: &str| d.split('/').any(|seg| seg.starts_with("fylite:"));
+    let dropped: Vec<&String> = rep.dd.iter().flat_map(|(_, r)| r.dropped.iter())
+        .filter(|d| !d.starts_with('@') && !is_local(d)).collect();
     assert!(dropped.is_empty(), "paths the DD does not know: {dropped:?}");
+    //: and the entry block, which is not an IDS at all, is skipped by name
+    assert_eq!(rep.skipped_docs, vec!["entry".to_string()],
+               "the non-IDS documents the writer set aside");
     for f in ["master.h5", "core_profiles.h5", "summary.h5", "equilibrium.h5", "core_transport.h5"] {
         assert!(dir.join(f).is_file(), "{f} missing");
     }

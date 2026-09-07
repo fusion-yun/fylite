@@ -94,6 +94,36 @@ discharge-iter  bar=discharge -> fylite_discharge  [device iter]
 ★**`pass: 7` 是退火趟数，不是「通过」。** 它 ≥ 1 才说明搜索确实改进过设计起点；
 `pass: 0` 意味着起点就是终点——那通常是限值把解卡死了。
 
+## 命令行：今天走不通，以及为什么
+
+本章三档都**吃整份装置文档**，而 `fy run` 今天到不了它们。实测（2026-09-07）：
+
+```console
+$ fy run design --preset breakdown-iter -o rec/
+fy run: [kernel] the kernel refused `code/breakdown`: [-33] code/breakdown takes the
+  whole device document and is reached through the tree door only
+  record: rec/record.jsonld  (run_state: rejected)
+```
+
+两条**各自独立**的原因：
+
+1. **`code/breakdown` · `code/discharge` 只经树门到达**（内核里共 18 个 code 如此），
+   而 `fy run` 走**扁平门**：`Kernel::run_case` 调 `fylite_rs_fyo`，不传文档树。浏览器
+   与 Python 侧经 `fylite_runtime_case_tree_json` 走树门，所以同样的算例在那两个宿主
+   里跑得起来——这是**宿主的差别，不是算例的差别**。
+2. **`code/pfwave` 内核根本不认**（`pulse-iter` 那一份用它）：`fy list scenarios --line
+   design` 自己就写着「the kernel door does not carry this code」，是登记在案的缺口
+   （FYL-DESIGN-17 P2-c），不是回归。
+
+★**能走通的只有 `--dry-run`**：合成与解析都在本层，不进内核。它把六层合成的每个值与
+来源逐行打出来，是今天在命令行上检查这三档配置的唯一办法：
+
+```bash
+fy run design --preset breakdown-iter --dry-run
+```
+
+跑它们请用下面的 Python 入口，或浏览器的放电设计页。
+
 ## Python 入口
 
 ```python
