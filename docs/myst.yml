@@ -96,6 +96,7 @@ project:
         - file: examples/evolve/evolve.md
         - file: examples/design/design.md
         - file: examples/reconstruction/reconstruction.md
+        - file: examples/device/device.md
 
     - title: 参考 (Reference) —— 一个数能不能用，凭什么
       children:

@@ -182,6 +182,20 @@ fn report(rep: &io::WriteReport, out: &Path) {
     for d in &rep.synthesized_docs {
         eprintln!("  synthesized {d}");
     }
+    //: ★★What was left out has to be SAID.  An IMAS data entry holds IDS, and
+    //: the writer sets aside a document the DD does not know — but a caller who
+    //: is only told「wrote …」and then finds a `master.h5` with nothing linked
+    //: under it has been handed an unlabelled fragment.  Measured 2026-09-07 on
+    //: a whole device description (`@type: fylite:DeviceDescription/1`, not an
+    //: IDS): the entry came out empty and the command said nothing.
+    if !rep.skipped_docs.is_empty() {
+        eprintln!("  set aside (no IMAS DD home, so not in the data entry): {}",
+                  rep.skipped_docs.join(", "));
+        if rep.dd.is_empty() {
+            eprintln!("  ★nothing was written into the entry — every document was set aside.");
+            eprintln!("   a data entry holds IDS: split the document into its IDS first, or write fyo (`--layout fyo`).");
+        }
+    }
     for (key, r) in &rep.dd {
         let dropped: Vec<&String> = r.dropped.iter().filter(|p| !p.starts_with('@')).collect();
         if !dropped.is_empty() || !r.promoted.is_empty() || !r.synthesized.is_empty()
@@ -200,10 +214,55 @@ fn report(rep: &io::WriteReport, out: &Path) {
     }
 }
 
+/// The IDS inside a document the DD has no home for.
+///
+/// ★★A fylite container — a device description
+/// (`@type: fylite:DeviceDescription/1`) is the one that matters — carries
+/// `tf` · `pf_active` · `wall` · `magnetics` as SUB-TREES under one roof, plus
+/// its own `fylite:` rows that no DD knows.  `Bundle::from_node` splits an
+/// UNTYPED root into its IDS; a root with a `@type` it returns whole, which is
+/// right for a document that IS an IDS and wrong for a container that merely
+/// holds several.  Measured 2026-09-07: converting a complete EAST device
+/// description to an IMAS entry produced a `master.h5` with nothing linked
+/// under it.
+///
+/// ★Only on the way into an IMAS LAYOUT, and only for a root the DD does not
+/// know: writing fyo keeps the container whole, because there the container is
+/// the document.  The container's own `fylite:` rows do not travel — a data
+/// entry holds IDS — and `report` says so.
+fn ids_within(bundle: Bundle) -> Bundle {
+    let mut out = Bundle::new();
+    for doc in bundle.docs {
+        let known = fyodoc::ids_of(&doc).map(|i| crate::ids_meta::IdsMeta::get(&i).is_some());
+        if known == Some(true) {
+            out.push(doc);
+            continue;
+        }
+        let Some(m) = doc.as_map() else { out.push(doc); continue };
+        let mut inner = crate::document::Map::new();
+        for (k, v) in m.iter() {
+            if k != "@type" && k != "$type" && k != "_ids" {
+                inner.insert(k, v.clone());
+            }
+        }
+        let split = Bundle::from_node(Node::Map(inner));
+        if split.docs.is_empty() {
+            out.push(doc);
+        } else {
+            for d in split.docs {
+                out.push(d);
+            }
+        }
+    }
+    out
+}
+
 fn convert(args: &Args) {
     let inp = PathBuf::from(args.flag("input").unwrap_or_else(|| die("convert: input path?")));
     let out = PathBuf::from(args.flag("output").unwrap_or_else(|| die("convert: output path?")));
-    let bundle = select_ids(io::read(&inp).unwrap_or_else(|e| die(&e.to_string())), args);
+    let bundle = io::read(&inp).unwrap_or_else(|e| die(&e.to_string()));
+    let bundle = if layout_of(args) == Layout::Imas { ids_within(bundle) } else { bundle };
+    let bundle = select_ids(bundle, args);
     let rep = io::write(&out, &bundle, format_of(args), layout_of(args)).unwrap_or_else(|e| die(&e.to_string()));
     report(&rep, &out);
 }

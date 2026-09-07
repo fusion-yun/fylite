@@ -476,6 +476,14 @@ pub struct Resolved {
     /// Why nothing reached the kernel from an input that IS bound — an
     /// inline ICE with no declared slot (a transcription, not a dataset).
     pub unresolved: Option<String>,
+    /// The fyo DOCUMENTS this input resolved to, in the order read.
+    ///
+    /// ★★The flat door takes `slots` (leaf paths and their numbers); the TREE
+    /// door takes the documents whole, because a code like `code/breakdown`
+    /// walks the device — coil geometry, the channel map, the supply limits —
+    /// rather than reading a fixed list of leaves.  Both are the same
+    /// resolution, so both are recorded here and the caller picks the door.
+    pub docs: Vec<Node>,
 }
 
 fn numbers_of(n: &Node) -> Option<Vec<f64>> {
@@ -545,13 +553,14 @@ pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs
     let mut resolved = Vec::new();
     for b in &plan.inputs {
         let mut r = Resolved { port: b.port.clone(), storage_uri: None, sha256: None, bytes: None,
-                               slots: Vec::new(), open: false, unresolved: None };
+                               slots: Vec::new(), open: false, unresolved: None, docs: Vec::new() };
         if let Some(inline) = &b.inline {
             if let Some(v) = numbers_of(inline) {
                 r.slots.push(b.port.clone());
                 slots.push((b.port.clone(), v));
             } else if let Some(ids) = ids_of_doc(inline) {
                 r.slots = flatten(&ids, inline, &mut slots);
+                r.docs.push(inline.clone());
             } else if inline.as_map().map(|m| m.len() <= 2 && get(m, &["id", "@id"]).is_some()).unwrap_or(false) {
                 //: a bare reference `{id}`: treat the id as a location
                 r.storage_uri = id_of(inline);
@@ -598,6 +607,7 @@ pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs
                     let got = flatten(&ids, doc, &mut slots);
                     any |= !got.is_empty();
                     r.slots.extend(got);
+                    r.docs.push(doc.clone());
                 }
             }
             if !any {
@@ -606,8 +616,29 @@ pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs
                 if let Some(v) = json::parse(&text).ok().and_then(|n| numbers_of(&n)) {
                     r.slots.push(b.port.clone());
                     slots.push((b.port.clone(), v));
+                } else if let Ok(node) = json::parse(&text) {
+                    //: ★★A document with no leaf the FLAT door names is not an
+                    //: error: the tree door takes documents whole, and the
+                    //: documents it takes whole are exactly the ones with no
+                    //: flat spelling.  A device description
+                    //: (`@type: fylite:DeviceDescription/1`) is the case that
+                    //: made this visible — it carries coils, a channel map and
+                    //: a wall, none of which is an IDS leaf, and this branch
+                    //: refused it before the kernel ever saw it (measured
+                    //: 2026-09-07: `fy run design breakdown --bind device=…`
+                    //: died at compose on a complete, correct device).
+                    //:
+                    //: ★So it is handed on, and the note says what happened.
+                    //: A code that really needed leaves refuses by name, and
+                    //: its sentence is the better one — `no profiles: bind
+                    //: core_profiles/profiles_1d …` beats「holds no slot」.
+                    r.unresolved = Some(format!(
+                        "no leaf the flat door names; handed to the kernel whole ({})",
+                        ids_of_doc(&node).unwrap_or_else(|| "an untyped document".into())));
+                    r.docs.push(node);
                 } else {
-                    return err(format!("input `{}`: {} holds no slot the kernel declares", b.port, p.display()));
+                    return err(format!("input `{}`: {} is neither a fyo document nor a numeric array",
+                                       b.port, p.display()));
                 }
             }
         }
@@ -668,6 +699,141 @@ pub fn parse_outcome(raw: &RawOutcome) -> Result<Outcome, CaseError> {
         }
     }
     Ok(o)
+}
+
+/// The input port names the kernel reads as WHOLE DOCUMENTS (`inputs/<name>`),
+/// as opposed to the flat leaves it reads by fyo path.
+///
+/// ★★Why a list and not a rule.  A code that walks a document — `code/breakdown`
+/// reading the coils, the channel map and the supply limits off the device —
+/// asks for it by ONE name, and that name is the kernel's, not the plan's.  The
+/// plan's port may be called something else (`reference`, `measurements`), and
+/// its document's own IDS name is a third thing again.  So documents go into the
+/// plan tree under their IDS name, which reproduces the flat door's keys exactly,
+/// and a port whose name is on this list is ALSO placed under that name, which is
+/// the only key the walking codes look for.
+pub const DOCUMENT_PORTS: [&str; 8] = ["device", "discharge", "equilibrium", "pulse",
+                                       "evolve", "summary", "nbi", "lh_antennas"];
+
+/// The plan as the TREE door takes it: `settings/<key>` scalars and
+/// `inputs/<name>` documents (`door::run_doc_with`).
+///
+/// The kernel flattens `inputs` itself, so the leaves reach it under exactly the
+/// keys the flat door would have used — the two doors are handed the same
+/// numbers under the same names, and that is what makes them comparable.
+pub fn plan_tree(numbers: &[(String, f64)], texts: &[(String, String)],
+                 resolved: &[Resolved]) -> Node {
+    let mut settings = Map::new();
+    for (k, v) in numbers {
+        settings.insert(k, Node::Float(*v));
+    }
+    for (k, v) in texts {
+        settings.insert(k, Node::Str(v.clone()));
+    }
+    let mut inputs = Map::new();
+    for r in resolved {
+        let mut by_ids = Map::new();
+        for doc in &r.docs {
+            if let Some(ids) = ids_of_doc(doc) {
+                inputs.insert(&ids, doc.clone());
+                by_ids.insert(&ids, doc.clone());
+            }
+        }
+        if DOCUMENT_PORTS.contains(&r.port.as_str()) && !inputs.contains_key(&r.port) {
+            //: one document goes in as itself; several go in as the bundle they
+            //: are (that is what an assembled device document looks like:
+            //: `pf_active` · `wall` · `magnetics` · `tf` under one roof)
+            let whole = if r.docs.len() == 1 { r.docs[0].clone() } else { Node::Map(by_ids) };
+            inputs.insert(&r.port, whole);
+        }
+    }
+    let mut root = Map::new();
+    root.insert("settings", Node::Map(settings));
+    root.insert("inputs", Node::Map(inputs));
+    Node::Map(root)
+}
+
+/// The same [`Outcome`] read off the **tree** door's record instead of the
+/// flat door's manifest — `code` · `entry` · `dims/*` · `facts/<key>/{value,
+/// units}` · `fields/<ids>/<path…>/{data,units}` · `notes` (`door::outcome_val`).
+///
+/// ★★Why this exists rather than a second `Outcome`.  The two doors answer the
+/// SAME outcome in two encodings; everything downstream of here — the produced
+/// documents, the record, the IMAS writer — is written against one shape, and a
+/// second shape would mean a second version of each of them, free to disagree.
+/// So the tree record is read back into the flat pair `(Outcome, RawOutcome)`:
+/// the fields are laid out end to end in one buffer and the offsets recomputed,
+/// which is exactly the layout the flat door hands over.
+pub fn outcome_from_record(rec: &Node) -> Result<(Outcome, RawOutcome), CaseError> {
+    let mut o = Outcome::default();
+    let mut data: Vec<f64> = Vec::new();
+    o.code = rec.get("code").and_then(Node::as_str).unwrap_or_default().to_string();
+    o.entry = rec.get("entry").and_then(Node::as_str).unwrap_or_default().to_string();
+    if let Some(dims) = rec.get("dims").and_then(Node::as_map) {
+        for (k, v) in dims.iter() {
+            o.dims.push((k.to_string(), v.as_i64().unwrap_or(0).max(0) as usize));
+        }
+    }
+    if let Some(facts) = rec.get("facts").and_then(Node::as_map) {
+        for (k, v) in facts.iter() {
+            let units = v.get("units").and_then(Node::as_str).unwrap_or("").to_string();
+            o.facts.push((k.to_string(), units, v.get("value").and_then(Node::as_f64).unwrap_or(f64::NAN)));
+        }
+    }
+    //: `fields/<ids>/<path…>` — the path is everything below the IDS name, and
+    //: a leaf is the map that carries `data`
+    if let Some(fields) = rec.get("fields").and_then(Node::as_map) {
+        for (head, tree) in fields.iter() {
+            //: ★★The kernel writes a field at `fields/<ids>/<path>`, and the raw
+            //: ENTRY block's fields address no IDS at all — their `ids` is empty,
+            //: so their path starts at the map's top (`fields/y`, `fields/source`,
+            //: `fields/history_*`).  Read back naively they look like four
+            //: single-leaf IDS, and the entry document then never gets built:
+            //: measured 2026-09-07, `entry.fyo.jsonld` simply vanished from
+            //: every record while the four IDS documents stayed bit-for-bit
+            //: identical.  So the DD decides: a head the DD knows is an IDS and
+            //: the rest is the path; a head it does not know belongs to the
+            //: entry, whose `ids` is the empty string — exactly what the flat
+            //: door's manifest carries.
+            if crate::ids_meta::IdsMeta::get(head).is_some() {
+                walk_fields(head, "", tree, &mut o.fields, &mut data);
+            } else {
+                walk_fields("", head, tree, &mut o.fields, &mut data);
+            }
+        }
+    }
+    match rec.get("notes") {
+        Some(Node::Array(a)) => {
+            if let crate::document::ArrayData::Str(v) = &a.data {
+                o.notes = v.clone();
+            }
+        }
+        Some(Node::List(l)) => o.notes = l.iter().filter_map(Node::as_str).map(str::to_string).collect(),
+        _ => {}
+    }
+    Ok((o, RawOutcome { manifest: String::new(), data }))
+}
+
+fn walk_fields(ids: &str, path: &str, node: &Node, out: &mut Vec<FieldRef>, data: &mut Vec<f64>) {
+    let Some(m) = node.as_map() else { return };
+    if let Some(Node::Array(a)) = m.get("data") {
+        if let crate::document::ArrayData::F64(v) = &a.data {
+            out.push(FieldRef {
+                ids: ids.to_string(),
+                path: path.to_string(),
+                units: m.get("units").and_then(Node::as_str).unwrap_or("").to_string(),
+                offset: data.len(),
+                len: v.len(),
+                dims: a.shape.clone(),
+            });
+            data.extend_from_slice(v);
+            return;
+        }
+    }
+    for (k, v) in m.iter() {
+        let p = if path.is_empty() { k.to_string() } else { format!("{path}/{k}") };
+        walk_fields(ids, &p, v, out, data);
+    }
 }
 
 /// The produced datasets: one fyo document per IDS the fields address.

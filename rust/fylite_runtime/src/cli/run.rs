@@ -1185,14 +1185,38 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
             return;
         }
     };
-    let result = kernel.run_case(&plan.code, &numbers, &texts, &slots);
+    //: ★★**Which door.** The kernel has two: the flat one takes settings and
+    //: leaf arrays, the tree one takes the plan as a document.  Eighteen codes
+    //: — `code/breakdown` · `code/discharge` · `code/reconstruction` and the
+    //: rest that WALK a document rather than reading a fixed list of leaves —
+    //: are reachable through the tree door only, and refuse the flat one by
+    //: name (`[-33] … is reached through the tree door only`).  This command
+    //: called the flat door until 2026-09-07, so those eighteen could not be
+    //: run from the command line at all while the browser and Python, which go
+    //: through `fylite_runtime_case_tree_json`, ran them fine.  It was a
+    //: difference between HOSTS pretending to be a difference between cases.
+    //:
+    //: ★The flat door stays as the fallback for a kernel too old to have the
+    //: tree door (ABI < 126) — refusing to run at all on such a kernel would
+    //: withdraw something that works today for the sake of something it cannot
+    //: do either way.
+    let result = if kernel.has_tree_door() {
+        let tree = case::plan_tree(&numbers, &texts, &resolved);
+        kernel.run_tree(&plan.code, &tree).and_then(|rec| {
+            case::outcome_from_record(&rec).map_err(|e| crate::kernel::KernelError { code: -6, message: e.0 })
+        })
+    } else {
+        kernel.run_case(&plan.code, &numbers, &texts, &slots)
+            .and_then(|raw| case::parse_outcome(&raw).map(|o| (o, raw))
+                      .map_err(|e| crate::kernel::KernelError { code: -5, message: e.0 }))
+    };
     let (_end_secs, ended_at) = case::now_iso();
 
     let mut produced: Vec<Produced> = Vec::new();
     let mut dd_notes: Vec<String> = Vec::new();
     let outcome = match &result {
-        Ok(raw) => match case::parse_outcome(raw) {
-            Ok(o) => {
+        Ok((o, raw)) => {
+            {
                 //: `build` 已经问过这份构建写不写得了（`writable`）；这里只是取同一个答案。
                 let format = effective_format(args, &plan);
                 let docs = case::documents(&o, raw, &record_id);
@@ -1335,13 +1359,9 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
                         inline: None,
                     });
                 }
-                Some(o)
             }
-            Err(e) => {
-                finish_refused(&plan, record_dir, &record_id, "kernel", &e.0, &started_at, prov);
-                return;
-            }
-        },
+            Some(o.clone())
+        }
         Err(_) => None,
     };
     let mut outcome = outcome;

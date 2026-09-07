@@ -61,14 +61,17 @@ core_profiles.fyo.jsonld  entry.fyo.jsonld  plan.jsonld  record.jsonld  summary.
    `abox/device.jsonld` 在 fydoc。所以 `--device east` 会说
    「has the entry but no abox/device.jsonld … described by a card, not by a manifest」。
    把带清单的语料根前置（`FY_FACTS_PATH=…/facts`）可以解决这一条。
-2. **拿到清单也还不够**：`code/breakdown` · `code/discharge` · `code/reconstruction`
-   等 **18 个 code 只经树门到达**，而 `fy run` 走的是**扁平门**（`Kernel::run_case`
-   调 `fylite_rs_fyo`，不传文档树），于是内核按名拒绝：
-   `[-33] … takes the whole device document and is reached through the tree door only`。
-   浏览器与 Python 侧经 `fylite_runtime_case_tree_json` 走树门，不受此限。
+2. ~~拿到清单也还不够：那一族 code 只经树门到达，而 `fy run` 走扁平门。~~
+   **2026-09-07 已修**：`fy run` 现在走**树门**（`fylite_rs_fyo_tree`），与浏览器和
+   Python 侧同一扇。`code/breakdown` · `code/discharge` · `code/reconstruction` 等
+   十八个吃整份文档的 code 从此在命令行上到得了——见
+   [装置信息](../examples/device/device.md)那一章，EAST 的通道图就是这么补全的。
+   ★三档已走通的算例（0-D · 输运 · 演化）在两扇门下**每一份产出文档逐字节相同**，
+   换门没有换数。
 
-★`fy list scenarios` 的 `today` 一列量的是**内核门认不认这个 code**，不是
-「`fy run` 跑不跑得完」——两者今天并不等价。
+★`fy list scenarios` 的 `today` 一列量的是**内核门认不认这个 code**。它与
+「`fy run` 跑不跑得完」自 2026-09-07 起重新对齐，但仍不是同一件事：一个 code 到得了，
+不等于这一档的输入齐了（装置清单、测量、必需参数各自另说）。
 :::
 
 **参数就写在命令行上**，四种写法同义：

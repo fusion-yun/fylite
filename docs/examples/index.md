@@ -58,9 +58,11 @@ casereport.render(cases.run("zerod-iter-15ma"), out="out/")   # 跑完渲染成 
 ## 命令行入口，与它今天到得了哪里
 
 ★★这些是**库调用**，另一条路是**命令行** `fy`——本仓唯一的那一个（Python 包没有命令行）。
-两条路合成同一份计划、写同一种记录，但**到得了的范围今天不同**，因为它们走的不是同一扇
-内核门：`fy run` 调扁平门（`fylite_rs_fyo`），浏览器与 Python 侧走树门
-（`fylite_runtime_case_tree_json`），而内核里有 18 个 code **只经树门到达**。
+两条路合成同一份计划、写同一种记录，走同一扇内核门——**树门**
+（`fylite_rs_fyo_tree`）。★2026-09-07 之前不是：`fy run` 走扁平门，于是内核里十八个
+吃整份文档的 code 在命令行上一律按名拒绝，同样的算例在浏览器与 Python 里却跑得起来。
+那是**宿主的差别冒充算例的差别**，现在没有了；换门之后三档已走通的算例每一份产出
+文档**逐字节相同**。
 
 ```bash
 fy list presets                            # 语料里的 25 份具名计划
@@ -82,6 +84,11 @@ fy run  docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
 | [放电设计](design/design.md) | `fy run design --preset pulse-iter` | ⛔ `code/pfwave` 内核不认（登记在案：P2-c） |
 | [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset reconstruction-default` | ⛔ 树门专属 + 本仓无装置清单 |
 | [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset series-default` | ⛔ `code/series` 内核不认（登记在案） |
+| [装置信息](device/device.md) | `fy run channels.jsonld --bind device=…` | ✅ 3 个文件（EAST 通道图 14 × 14） |
+| [装置信息](device/device.md) | `fy data convert <装置文档> imas/ --layout imas --to hdf5` | ✅ 6 个文件（5 个 IDS + master，127 KB） |
+
+★后两行 2026-09-07 起才成立：前者要树门（同日修好），后者要写入方肯把一个 fylite
+容器拆成它装着的 IDS（同日修好）。
 
 每一章的〈命令行〉一节写着自己那一行的完整输出与产物清单；命令行本身的用法与限制
 见[命令行](../guide/cli.md)。
