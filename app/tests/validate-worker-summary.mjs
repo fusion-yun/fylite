@@ -135,13 +135,29 @@ const want = JSON.parse(readFileSync(FIX, 'utf8'));
 assert.equal(want.device, id);
 const bad = [];
 
-//: ★★`start.chan` 一度按容差比（2026-09-07 上午）：那时它**不由输入决定** ——
-//: 把任意一个输入动 1e-13，设计出来的电流就差 2–11 %。同日下午查清了原因并修好：
-//: 起始设计在**没有上下界**时是一个无约束的岭最小二乘，有闭式解，而内核那时无论
-//: 有没有界都走投影梯度（一阶方法，停在梯度判据上）。改成直接解之后，同样的
-//: 1e-13 扰动只动 1.4e-10，而且边界残差还小了 43 %（0.0016778 -> 0.00094762）
-//: —— 迭代那一版根本没走到极小点。所以这里**又回到逐位**：定得下来的量就该逐位守住。
+//: ★★`start.chan` 与 `start.ctlDpsi` 按容差比，其余一律逐位 —— 因为这两支
+//: **不由输入决定**。实测 2026-09-07：把任意一个输入动 1e-13（三个不同线圈的
+//: 半径，或 `ip` 本身），设计出来的电流差 2–11 %，而目标边界逐位相同、拟合残差
+//: `psiRms` 只在 0.0016–0.0018 之间动。同一份输入两次跑是逐位相同的 —— 变的不是
+//: 随机数，是**迭代轨迹**：起始设计走投影梯度，迭代数从 499 变成 295 / 169 /
+//: 574 / 230，停在平谷里的另一点。
+//:
+//: ★★**当日试过直接解，又改回去了**（内核 `pulse.rs::start_currents` 那段注释记着
+//: 全过程）：无界时确有闭式解，敏感度降到 1.4e-10 —— 但精确极小点的电流**大了约
+//: 四倍**（‖chan‖ 2.18e6 → 8.24e6 A·turns）。原因在目标函数不在解法：λ=1e-3 的岭
+//: 太轻，而迭代从 0 出发提前停下**等于额外一层正则**，一直在替它兜底。所以决定点
+//: 是 λ，不是解法；在 λ 定下来之前，行为不变，而这两支按容差比。
+//:
+//: ★度量与 L 曲线在 `python/tests/test_start_design_conditioning.py`。
+const SOFT = { 'start.chan': 0.5, 'start.ctlDpsi': 0.5 };
+
 function walk(a, b, p) {
+  const tol = SOFT[p.replace(/\[\d+\]|\.\d+$/g, '')];
+  if (tol !== undefined && typeof a === 'number' && typeof b === 'number') {
+    const d = Math.abs(a - b) / Math.max(Math.abs(a), 1e-300);
+    if (!(d <= tol)) bad.push(`${p}: ${a} vs ${b} (rel ${d.toExponential(2)} > ${tol})`);
+    return;
+  }
   if (a === null || a === undefined || typeof a !== 'object') {
     const same = (a === b) || (typeof a === 'number' && typeof b === 'number' && Number.isNaN(a) && Number.isNaN(b))
       || (a === null && b === undefined) || (a === undefined && b === null);
@@ -155,6 +171,6 @@ function walk(a, b, p) {
 for (const name of Object.keys(want.configs)) walk(want.configs[name], JSON.parse(JSON.stringify(got[name])), name);
 assert.equal(bad.length, 0, 'the summary moved:\n  ' + bad.slice(0, 20).join('\n  ') + (bad.length > 20 ? `\n  … ${bad.length} in all` : ''));
 const a = got.analytic;
-console.log(`validate-worker-summary: ${Object.keys(want.configs).length} summaries on ${id} bit for bit; analytic: q95 ${a.q ? a.q.q95.toFixed(3) : '—'}, `
+console.log(`validate-worker-summary: ${Object.keys(want.configs).length} summaries on ${id} bit for bit (start.chan / start.ctlDpsi to ${SOFT['start.chan']} rel — see the note above); analytic: q95 ${a.q ? a.q.q95.toFixed(3) : '—'}, `
             + `${a.criteria.strike.length} strike legs, ${a.criteria.xpts.length} X-points, gap ${a.criteria.gap ? a.criteria.gap.gap.toFixed(3) : '—'}, `
             + `${a.surfaces.length} surfaces, boundary ${a.lcfs.length / 2} points`);
