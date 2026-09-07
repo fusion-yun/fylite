@@ -20,6 +20,7 @@
     'control_r',           // R [m] of the isoflux control points (gap / strike rows) a shape design pins the boundary through (`code/discharge` · `code/pulse`); with `control_z` and `control_w`.
     'control_w',           // The weight of each isoflux control row relative to the boundary rows; with `control_r`.
     'control_z',           // Z [m] of the isoflux control points; with `control_r`.
+    'device_id',           // The machine's slug (`east`, `iter`) carried on a device description, where the DD has no field for it -- an IDS says what a thing is, not which machine it belongs to.
     'exch_prev',           // The electron-ion exchange rates [1/s] the lagged step's closure produced, carried so a resumed block's first exchange ceiling is the loop's.
     'impurity_density',    // The impurity's density [m^-3] when it is IN the quasi-neutrality (`code/evolve` with quasi = 1): the second ion channel's state, beside `fylite:ion_density`.
     'ion_density',         // Main-ion density [m^-3] as one flat profile on core_profiles/profiles_1d.
@@ -65,6 +66,7 @@
     'fit_x',               // The abscissae of the points a profile fit is asked for — `code/profile_fit` (the profile bar, and `analysis.
     'fit_y',               // The values at `fit_x` the fit is held to — `code/profile_fit`.
     'flux_loop',           // The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`).
+    'geometry',            // A wall element's original parameterised rectangle, kept for reference after the DD normalisation expands it into `outline/{r,z}` -- the DD's wall element has NO `geometry`, only an outline.
     'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'ip',                  // The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held.
     'length',              // Effective length [m] of a magnetic probe, the span its reading averages over.

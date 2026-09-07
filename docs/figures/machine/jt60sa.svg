@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="812" viewBox="1.3771 -2.9659 3.1668 6.1208" role="img" aria-label="JT60SA poloidal cross-section">
+<title>JT60SA</title>
+<g fill="none" stroke-linejoin="round" stroke-linecap="round">
+<g id="limiter" stroke="#1b6ec2" stroke-width="0.0244832">
+<path d="M 1.705 1.757 L 1.842 1.895 L 1.922 2.112 L 1.922 2.48 L 2.06 2.417 L 2.082 2.407 L 2.283 2.457 L 2.45 2.632 L 2.559 2.747 L 2.635 2.827 L 2.635 2.427 L 2.85 2.09 L 3.296 1.979 L 3.316 1.979 L 3.316 1.8 L 3.61233 1.51614 L 4.216 0.45576 L 4.216 -0.45576 L 3.61233 -1.51614 L 3.316 -1.897 L 2.95514 -2.19379 L 2.54519 -2.56952 L 2.33 -2.638 L 2.068 -2.519 L 1.924 -2.24312 L 1.705 -1.762 L 1.705 1.757 Z"/>
+</g>
+<g id="scale"><path d="M 1.56711 3.02823 h 1" stroke="#333" stroke-width="0.015302"/><text x="2.06711" y="2.99762" fill="#333" stroke="none" font-size="0.137718" text-anchor="middle">1 m</text></g>
+</g></svg>

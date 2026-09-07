@@ -740,7 +740,11 @@ pub unsafe extern "C" fn fylite_runtime_write(
                     note.push_str(&format!("{k}: dropped {:?}; ", dropped));
                 }
             }
-            abi::put(&note, err, err_cap);
+            //: ★★截断要**看得见**。这段报告是「哪些量没进数据入口」的唯一出口；
+            //: 悄悄砍掉尾巴，读到的人会以为剩下的就是全部——比不给报告更坏。
+            //: 实测 2026-09-07：WEST 的报告过 4 KiB，Python 宿主读到的是半截，
+            //: 据它记下来的基线因此少了一半条目。
+            abi::put(&fit(note, err_cap), err, err_cap);
             0
         }
         Err(e) => {
@@ -748,6 +752,26 @@ pub unsafe extern "C" fn fylite_runtime_write(
             -2
         }
     }
+}
+
+/// 一段报告装不进调用方给的缓冲时，**留下说明**而不是默默截断。
+///
+/// 尾巴换成 `…[truncated: N of M bytes]`，所以读到的人一眼看得出后面还有，
+/// 以及还有多少。缓冲小到连这句话都放不下时才退回硬截断。
+fn fit(note: String, cap: u64) -> String {
+    let cap = cap as usize;
+    if note.len() <= cap {
+        return note;
+    }
+    let mark = format!("…[truncated: {cap} of {} bytes]", note.len());
+    if mark.len() >= cap {
+        return note;                    //: 由 `put` 硬截断 —— 说明本身也放不下
+    }
+    let mut keep = cap - mark.len();
+    while keep > 0 && !note.is_char_boundary(keep) {
+        keep -= 1;
+    }
+    format!("{}{mark}", &note[..keep])
 }
 
 /// 识别一个路径：写出 `"<format> <layout>"`。返回长度；`-1` 参数不合法；`-2` 认不出
@@ -1017,5 +1041,44 @@ fn report_text(r: &crate::assembly::Assembled) -> String {
 pub unsafe extern "C" fn fylite_runtime_bundle_free(handle: *mut std::ffi::c_void) {
     if !handle.is_null() {
         drop(Box::from_raw(handle as *mut doc_abi::Handle));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    //: ★这一段闸的是 [`fit`]：写出报告装不进调用方的缓冲时，**留下说明**。
+    //: 2026-09-07 实测，Python 宿主的 4 KiB 缓冲把 WEST 的 5 211 字节报告砍掉了
+    //: 一半，而没有任何迹象——据那半截记下来的丢失基线因此少了四条。
+    use super::fit;
+
+    #[test]
+    fn a_report_that_fits_is_left_alone() {
+        assert_eq!(fit("short".into(), 64), "short");
+        assert_eq!(fit("exact".into(), 5), "exact");
+    }
+
+    #[test]
+    fn a_report_that_does_not_fit_says_so_and_says_how_much() {
+        let note = "x".repeat(200);
+        let got = fit(note.clone(), 64);
+        assert!(got.len() <= 64, "装得进给的缓冲");
+        assert!(got.ends_with("…[truncated: 64 of 200 bytes]"), "{got}");
+        assert!(got.starts_with('x'));
+    }
+
+    #[test]
+    fn a_multibyte_report_is_cut_on_a_character_boundary() {
+        //: 从字节中间切开会造出无效的 UTF-8，读的一侧看到的是乱码而不是截断
+        let note = "真空室".repeat(40);          //: 每字 3 字节
+        let got = fit(note, 50);
+        assert!(got.len() <= 50);
+        assert!(got.contains("truncated"));
+        assert_eq!(got, String::from_utf8(got.clone().into_bytes()).unwrap());
+    }
+
+    #[test]
+    fn a_buffer_too_small_even_for_the_note_falls_back_to_a_hard_cut() {
+        let note = "x".repeat(200);
+        assert_eq!(fit(note.clone(), 8), note, "由 `put` 硬截断，这里不动它");
     }
 }

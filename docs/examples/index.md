@@ -86,8 +86,9 @@ fy run  docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
 | [平衡反演](reconstruction/reconstruction.md) | `fy run analysis --preset series-default` | ⛔ `code/series` 内核不认（登记在案） |
 | [装置信息](device/device.md) | `fy run channels.jsonld --bind device=…` | ✅ 3 个文件（EAST 通道图 14 × 14） |
 | [装置信息](device/device.md) | `fy data convert <装置文档> imas/ --layout imas --to hdf5` | ✅ 6 个文件（5 个 IDS + master，161 KB） |
+| [各装置一览](device/machine_survey.ipynb) | 同上，逐台跑六台 | ✅ 6 台 × 7 个文件；读回来画成截面图 |
 
-★后两行 2026-09-07 起才成立：前者要树门（同日修好），后者要写入方肯把一个 fylite
+★倒数第三、第四行 2026-09-07 起才成立：前者要树门（同日修好），后者要写入方肯把一个 fylite
 容器拆成它装着的 IDS（同日修好）。
 
 每一章的〈命令行〉一节写着自己那一行的完整输出与产物清单；命令行本身的用法与限制

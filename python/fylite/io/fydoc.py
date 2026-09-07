@@ -186,7 +186,11 @@ class Bundle:
         pb, pn, _k1 = _b(str(Path(path)))
         fb, fn, _k2 = _b(format or "")
         lb, ln, _k3 = _b(layout)
-        err = _buf(4096)
+        #: ★★64 KiB，不是 4 KiB。这个缓冲装的是**写出报告**（哪些量没进去），
+        #: 一台机器的报告轻易过 4 KiB —— WEST 实测就是。中间层现在把装不下的
+        #: 尾巴换成 `…[truncated: N of M bytes]`，所以截断看得见；缓冲给大一些，
+        #: 是让它平时根本不发生。
+        err = _buf(65536)
         rc = self._lib.fylite_runtime_write(self._h, pb, pn, fb, fn, lb, ln, ctypes.cast(err, _BYTES), len(err))
         if rc != 0:
             raise KernelError(f"write {path}: {_err_text(err)}")

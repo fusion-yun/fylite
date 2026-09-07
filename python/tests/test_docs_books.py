@@ -63,9 +63,15 @@ def book() -> dict:
     return yaml.safe_load(BOOK.read_text(encoding="utf-8"))
 
 
-def markdown_under(*dirs: str) -> set[str]:
-    return {str(p.relative_to(DOCS)) for d in dirs
-            for p in (DOCS / d).rglob("*.md") if "_build" not in p.parts}
+#: 一「页」是 `.md` **或** `.ipynb`。★2026-09-07 加上 `.ipynb`：这本书里有了第一册
+#: 笔记本（`examples/device/machine_survey.ipynb`），而这道闸原先只看 `.md`——
+#: 于是一册不入册的笔记本会静默地成为孤页，正是这道闸要防的那件事。
+PAGE_SUFFIXES = ("*.md", "*.ipynb")
+
+
+def pages_under(*dirs: str) -> set[str]:
+    return {str(p.relative_to(DOCS)) for d in dirs for pat in PAGE_SUFFIXES
+            for p in (DOCS / d).rglob(pat) if "_build" not in p.parts}
 
 
 def test_the_docs_are_one_book(book: dict):
@@ -120,7 +126,7 @@ def test_every_page_in_the_book_sections_is_in_the_toc():
     """★A page in no toc is a page nobody reaches.  The MyST build does not
     fail on an orphan, so this does."""
     listed = toc_files(BOOK)
-    on_disk = markdown_under(*SECTIONS)
+    on_disk = pages_under(*SECTIONS)
     assert on_disk <= listed, {"in a section but in no toc": sorted(on_disk - listed)}
 
 
@@ -128,11 +134,11 @@ def test_the_pages_outside_the_book_are_outside_by_ruling():
     """★★Asserted in BOTH directions, so 「不入册」 stays a ruling rather than an
     observation: nothing out-of-book is in the toc, and nothing else is out."""
     listed = toc_files(BOOK)
-    outside = markdown_under(*NOT_IN_THE_BOOK)
+    outside = pages_under(*NOT_IN_THE_BOOK)
     assert not (listed & outside), {
         "the book lists a page that is out of the book": sorted(listed & outside)}
-    everything = {str(p.relative_to(DOCS)) for p in DOCS.rglob("*.md")
-                  if "_build" not in p.parts}
+    everything = {str(p.relative_to(DOCS)) for pat in PAGE_SUFFIXES
+                  for p in DOCS.rglob(pat) if "_build" not in p.parts}
     assert everything - listed == outside, {
         "in no toc and not accounted for": sorted(everything - listed - outside)}
 
@@ -143,7 +149,7 @@ def test_the_directories_that_hold_no_chapters_hold_none():
     for d in NOT_CONTENT:
         if d == "_build" or not (DOCS / d).is_dir():
             continue
-        stray = sorted(p.name for p in (DOCS / d).glob("*.md"))
+        stray = sorted(p.name for pat in PAGE_SUFFIXES for p in (DOCS / d).glob(pat))
         assert not stray, f"docs/{d}/ grew chapters: {stray}"
 
 

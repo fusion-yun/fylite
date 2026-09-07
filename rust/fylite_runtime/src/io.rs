@@ -242,7 +242,11 @@ pub fn write(path: &Path, bundle: &Bundle, format: Option<Format>, layout: Layou
     };
     let format = if format == Format::Hdf5 && layout == Layout::Imas { Format::ImasHdf5Dir } else { format };
     let mut report = WriteReport { format: Some(format), layout: Some(layout), ..Default::default() };
-    let bundle = if layout == Layout::Imas { with_wall_from_limiter(bundle, &mut report) } else { bundle.clone() };
+    let bundle = if layout == Layout::Imas {
+        with_wall_from_limiter(&ids_within(bundle), &mut report)
+    } else {
+        bundle.clone()
+    };
     match format {
         Format::Json => {
             let root = match layout {
@@ -309,6 +313,50 @@ pub fn write(path: &Path, bundle: &Bundle, format: Option<Format>, layout: Layou
         }
     }
     Ok(report)
+}
+
+/// IMAS 布局：**一个容器拆成它装着的那几个 IDS**。
+///
+/// ★★数据入口装的是 IDS。一份 fylite 装置描述（`@type: fylite:DeviceDescription`）
+/// 是一个**容器**：`tf` · `pf_active` · `wall` · `magnetics` · `lh_antennas` 各是它下面
+/// 的一支。写入方原本按「一份文档 = 一个 IDS」处理，对前者对、对后者错——实测
+/// 2026-09-07：一份完整的 EAST 装置描述写出来是一个**空的** `master.h5`，底下什么也
+/// 没链接，而退出码是 0。
+///
+/// ★★这一步 2026-09-07 当日先落在**命令行**里，于是同一个库的另外两个宿主
+/// （Python 的 `fylite.io.fydoc`、C API）照旧写出那份空件——同一个库，两种行为。
+/// 现在它在库里，命令行不再自带一份。
+///
+/// ★只在进 **IMAS 布局**时，且只对 DD 不认识的根：写 fyo 时容器保持整份，
+/// 因为那里容器就是文档。容器自己的 `fylite:` 行不随行（数据入口只装 IDS），
+/// 报告里点名。
+fn ids_within(bundle: &Bundle) -> Bundle {
+    let mut out = Bundle::new();
+    for doc in &bundle.docs {
+        let known = fyodoc::ids_of(doc).map(|i| crate::ids_meta::IdsMeta::get(&i).is_some());
+        if known == Some(true) {
+            out.push(doc.clone());
+            continue;
+        }
+        let Some(m) = doc.as_map() else { out.push(doc.clone()); continue };
+        let mut inner = crate::document::Map::new();
+        for (k, v) in m.iter() {
+            if k != "@type" && k != "$type" && k != "_ids" {
+                inner.insert(k, v.clone());
+            }
+        }
+        let split = Bundle::from_node(Node::Map(inner));
+        if split.docs.is_empty() {
+            //: 拆不出 IDS 的根原样留下 —— 后面按「没有 DD 归宿」放到一边并点名，
+            //: 那比在这里悄悄丢掉一份文档要好。
+            out.push(doc.clone());
+        } else {
+            for d in split.docs {
+                out.push(d);
+            }
+        }
+    }
+    out
 }
 
 /// IMAS 布局：平衡文档里的限制器要有一个 `wall` 才写得出去。

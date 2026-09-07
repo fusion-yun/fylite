@@ -97,6 +97,10 @@ project:
         - file: examples/design/design.md
         - file: examples/reconstruction/reconstruction.md
         - file: examples/device/device.md
+        #: ★本书第一册**笔记本**。它与上一章同一个目录：那一章讲的是**一台**机器
+        #: （EAST，补全 + 交付），这一册横过来看**六台**——同一条 `fy data convert`
+        #: 逐台跑一遍，读回来画成极向截面。判据不同，所以是两页而不是一页的两节。
+        - file: examples/device/machine_survey.ipynb
 
     - title: 参考 (Reference) —— 一个数能不能用，凭什么
       children:
