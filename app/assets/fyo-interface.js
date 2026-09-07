@@ -67,6 +67,7 @@
     'fit_y',               // The values at `fit_x` the fit is held to — `code/profile_fit`.
     'flux_loop',           // The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`).
     'geometry',            // A wall element's original parameterised rectangle, kept for reference after the DD normalisation expands it into `outline/{r,z}` -- the DD's wall element has NO `geometry`, only an outline.
+    'group',               // Which layer of the passive structure a vessel unit belongs to (EAST: `inner_shell` / `outer_shell` / `passive_plates`).
     'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'ip',                  // The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held.
     'length',              // Effective length [m] of a magnetic probe, the span its reading averages over.

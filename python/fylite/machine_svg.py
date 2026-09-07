@@ -49,6 +49,10 @@ import numpy as np
 #: 画不出来的东西一律不画；这是那条规则的唯一例外表 —— 什么算「一条曲线」。
 _MIN_POINTS = 2
 
+#: 层轮廓合成时，两块板的端点落在这个距离内就当作同一点（米）。
+#: ★用户裁定 2026-09-07：5 mm。见 :func:`layer_outlines`。
+LAYER_TOLERANCE = 0.005
+
 
 # --------------------------------------------------------------------------
 # 几何
@@ -63,6 +67,8 @@ class Curve:
     name: str = ""
     #: 来源路径 —— 一张图上某条线不对时，这是回到文档里那一行的唯一线索
     path: str = ""
+    #: 这条线属于哪一层（真空室的 `fylite:group`），没有分层就是空
+    group: str = ""
 
     @property
     def closed(self) -> bool:
@@ -146,7 +152,7 @@ def _seq(node, key: str) -> list:
     return []
 
 
-def _curve(node, key: str, name: str, path: str) -> Curve | None:
+def _curve(node, key: str, name: str, path: str, group: str = "") -> Curve | None:
     """`node[key]` 若是一对等长的 `r` / `z`，取成一条线；否则 None。"""
     if not isinstance(node, dict):
         return None
@@ -160,7 +166,7 @@ def _curve(node, key: str, name: str, path: str) -> Curve | None:
     z = np.atleast_1d(np.asarray(z, dtype=float))
     if len(r) != len(z) or len(r) < _MIN_POINTS:
         return None
-    return Curve(r, z, name=name, path=f"{path}/{key}")
+    return Curve(r, z, name=name, path=f"{path}/{key}", group=group)
 
 
 def _point(node, key: str, name: str, path: str) -> list[Point]:
@@ -206,20 +212,20 @@ def rectangle_corners(r: float, z: float, width: float, height: float,
 
 
 def _element_curve(el: dict, name: str, path: str,
-                   a1: float | None, a2: float | None) -> Curve | None:
+                   a1: float | None, a2: float | None, group: str = "") -> Curve | None:
     """一个元件的形状：先认 DD 的 `outline`，再认 fylite 的参数化矩形。
 
     ★次序不是随便的。导出成 DD 之后，元件**两样都有**（矩形改挂 `fylite:geometry`
     留作参考）；这时该画的是 DD 那一份，因为它才是数据入口里真正携带的几何。
     """
-    got = _curve(el, "outline", name, path)
+    got = _curve(el, "outline", name, path, group)
     if got is not None:
         return got
     for key in ("geometry", "fylite:geometry"):
         geom = el.get(key)
         if not isinstance(geom, dict):
             continue
-        got = _curve(geom, "outline", name, f"{path}/{key}")
+        got = _curve(geom, "outline", name, f"{path}/{key}", group)
         if got is not None:
             return got
         rect = geom.get("rectangle")
@@ -228,7 +234,7 @@ def _element_curve(el: dict, name: str, path: str,
             ea2 = _num(el, "fylite:a2", a2 if a2 is not None else 90.0)
             r, z = rectangle_corners(float(rect["r"]), float(rect["z"]),
                                      float(rect["width"]), float(rect["height"]), ea1, ea2)
-            return Curve(r, z, name=name, path=f"{path}/{key}/rectangle")
+            return Curve(r, z, name=name, path=f"{path}/{key}/rectangle", group=group)
     return None
 
 
@@ -249,8 +255,14 @@ def _description_2d(wall: dict) -> list[dict]:
     return []
 
 
-def cross_section(source, *, device: str = "") -> CrossSection:
-    """一份装置文档 → 它的极向截面。文档里没有的部分不补。"""
+def cross_section(source, *, device: str = "", layers: bool = False,
+                  tolerance: float = LAYER_TOLERANCE) -> CrossSection:
+    """一份装置文档 → 它的极向截面。文档里没有的部分不补。
+
+    `layers=True` 时，分了层的真空室壳板换成 :func:`layer_outlines` 合成的内外
+    轮廓（**近似**，见那里）；合不成的层原样保留它的板。默认 `False` —— 一张
+    图上默认画的应当是数据本身。
+    """
     doc = _as_dict(source)
     cs = CrossSection(device=device or _device_name(doc))
 
@@ -260,19 +272,20 @@ def cross_section(source, *, device: str = "") -> CrossSection:
             for ui, unit in enumerate(_seq(sl.get(section), "unit")):
                 base = f"wall/description_2d/{si}/{section}/unit/{ui}"
                 name = str(unit.get("name", "") or "")
-                got = _curve(unit, "outline", name, base)
+                grp = str(unit.get("fylite:group", "") or "")
+                got = _curve(unit, "outline", name, base, grp)
                 if got is not None:
                     sink.append(got)
                 annular = unit.get("annular")
                 if isinstance(annular, dict):
                     for key in ("outline_inner", "outline_outer", "centreline"):
-                        got = _curve(annular, key, name, f"{base}/annular")
+                        got = _curve(annular, key, name, f"{base}/annular", grp)
                         if got is not None:
                             sink.append(got)
                 a1, a2 = unit.get("fylite:a1"), unit.get("fylite:a2")
                 for ei, el in enumerate(_seq(unit, "element")):
                     got = _element_curve(el, name, f"{base}/element/{ei}",
-                                         _opt(a1), _opt(a2))
+                                         _opt(a1), _opt(a2), grp)
                     if got is not None:
                         sink.append(got)
 
@@ -283,6 +296,15 @@ def cross_section(source, *, device: str = "") -> CrossSection:
             got = _element_curve(el, name, f"pf_active/coil/{ci}/element/{ei}", None, None)
             if got is not None:
                 cs.coils.append(got)
+
+    if layers:
+        got, _refused = layer_outlines(doc, tolerance=tolerance)
+        merged = {o.group for o in got}
+        if merged:
+            #: ★按**层**换掉，不按名字：EAST 的真空室单元根本没有 `name`，
+            #: 按名字挑会一块板也换不掉，而图上多出两条轮廓叠在板上 —— 实测踩过。
+            keep = [c for c in cs.vessel if c.group not in merged]
+            cs.vessel = keep + [c for o in got for c in (o.inner, o.outer)]
 
     mag = doc.get("magnetics") if isinstance(doc.get("magnetics"), dict) else {}
     for key, sink in (("flux_loop", cs.flux_loops), ("b_field_pol_probe", cs.probes)):
@@ -305,6 +327,193 @@ def _device_name(doc: dict) -> str:
         if isinstance(v, str) and v:
             return v
     return ""
+
+
+# --------------------------------------------------------------------------
+# 层轮廓 —— 一个**明确标注为近似**的派生产物
+# --------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class LayerOutline:
+    """一层壳板合成的内外两条轮廓 —— **近似**，且自带它有多近似的读数。"""
+
+    group: str
+    inner: Curve
+    outer: Curve
+    #: 合一的容差（米）
+    tolerance: float
+    #: 两块板的端点落在容差内、被并成一点的接头数
+    snapped: int
+    #: 其余接头的间距（米，从大到小）—— 这些是**直线跨过去**的，不是数据
+    bridged: tuple[float, ...]
+    #: 板的长边中位长度（米）。上面那些间距要对着它读：接头 1 cm、板 16 cm，
+    #: 是「板与板之间有缝」；接头比板还长，就是「少了一块板」。
+    plate_length: float
+
+    @property
+    def joints(self) -> int:
+        return self.snapped + len(self.bridged)
+
+    def note(self) -> str:
+        """一句话，写进文档或图注。"""
+        worst = max(self.bridged) if self.bridged else 0.0
+        return (f"approximate: {self.joints} joints, {self.snapped} merged at "
+                f"<= {self.tolerance * 1000:g} mm, {len(self.bridged)} bridged "
+                f"(worst {worst * 1000:.1f} mm against a {self.plate_length * 1000:.0f} mm plate)")
+
+
+def layer_outlines(source, *, tolerance: float = LAYER_TOLERANCE,
+                   group_key: str = "fylite:group") -> tuple[list[LayerOutline], list[str]]:
+    """把按 `fylite:group` 分层的矩形壳板合成每层的内外轮廓。
+
+    返回 `(轮廓, 拒绝的层与理由)`。
+
+    ★★**这是这个模块唯一的近似产物，所以它单独一个函数、默认不参与画图。**
+    做法逐条：
+
+    1. 每块板取它的**两条长边**（短边是板端的封头，正是要去掉的「相邻短边」）。
+       长边由 `max(width, height)` 认，不按哪个字段叫什么 —— EAST 的壳板上下段
+       长轴在 `width` 上、内外侧段在 `height` 上，按字段挑会把一半的板挑错。
+    2. 两条长边里，中点离该层形心近的是**内**轮廓的一段，另一条是**外**。
+    3. 板按对形心的极向角排一圈，首尾相接；相邻两段端点距离 <= `tolerance`
+       的**并成一点**，其余**直线跨过去**并逐条记下距离。
+    4. 一层里若有一个接头比板的长边还长，说明那里**少了一块板**，轮廓该绕过去
+       还是直穿过去无从判断 —— **拒绝这一层**，不猜。
+
+    ★★**它不冒充 DD。**产物挂在 `fylite:layer_outline` 下（:func:`apply_layer_outlines`），
+    不写进 `annular/outline_inner`：DD 的那两支说的是「这层壳实际的内外面」，
+    而这里是把离散的板连起来画的一条线，跨过的每一段都不是数据。
+    实测 EAST（2026-09-07，容差 5 mm）：内外两层各 40 块板、40 个接头，
+    16 个合一、24 个跨过（最大 103 / 107 mm，板长 161 / 172 mm），
+    首尾闭合到 0.1 mm 以内；`passive_plates` 被拒（最大接头 1 582 mm，板长 55 mm）。
+    """
+    doc = _as_dict(source)
+    wall = doc.get("wall") if isinstance(doc.get("wall"), dict) else {}
+    groups: dict[str, list[dict]] = {}
+    for sl in _description_2d(wall or {}):
+        for unit in _seq(sl.get("vessel"), "unit"):
+            g = unit.get(group_key)
+            if not isinstance(g, str):
+                continue
+            for el in _seq(unit, "element"):
+                plate = _plate(unit, el)
+                if plate is not None:
+                    groups.setdefault(g, []).append(plate)
+
+    out, refused = [], []
+    for g, plates in groups.items():
+        if len(plates) < 3:
+            refused.append(f"{g}: {len(plates)} 块板，连不成一圈")
+            continue
+        got = _chain(g, plates, tolerance)
+        (out if isinstance(got, LayerOutline) else refused).append(got)
+    return out, refused
+
+
+def _plate(unit: dict, el: dict) -> dict | None:
+    """一块矩形板的两条长边与中心。倾角在元件上找不到就上溯到单元。"""
+    geom = el.get("geometry") or el.get("fylite:geometry")
+    rect = geom.get("rectangle") if isinstance(geom, dict) else None
+    if not isinstance(rect, dict) or not {"r", "z", "width", "height"} <= set(rect):
+        return None
+    w, h = float(rect["width"]), float(rect["height"])
+    a1 = _num(el, "fylite:a1", _num(unit, "fylite:a1", 0.0))
+    a2 = _num(el, "fylite:a2", _num(unit, "fylite:a2", 90.0))
+    r, z = rectangle_corners(float(rect["r"]), float(rect["z"]), w, h, a1, a2)
+    p = np.stack([r[:4], z[:4]], axis=1)          #: 四角，首点未重复
+    #: 长边：h >= w 时是 u = ±w/2 的两条，否则是 v = ±h/2 的两条
+    faces = ([p[[3, 0]], p[[1, 2]]] if h >= w else [p[[0, 1]], p[[3, 2]]])
+    return {"faces": faces, "centre": p.mean(axis=0), "long": max(w, h)}
+
+
+def _chain(group: str, plates: list[dict], tol: float) -> LayerOutline | str:
+    centre = np.mean([p["centre"] for p in plates], axis=0)
+    for p in plates:
+        near = int(np.argmin([np.linalg.norm(f.mean(axis=0) - centre) for f in p["faces"]]))
+        p["inner"], p["outer"] = p["faces"][near], p["faces"][1 - near]
+    order = sorted(range(len(plates)),
+                   key=lambda i: math.atan2(plates[i]["centre"][1] - centre[1],
+                                            plates[i]["centre"][0] - centre[0]))
+    plate_length = float(np.median([p["long"] for p in plates]))
+
+    sides = {}
+    for side in ("inner", "outer"):
+        #: ★第一块板的朝向要**对着第二块**定。不定的话首尾差一整块板的长度，
+        #: 而那个数看着就像一个真实的缺口 —— 实测就踩过。
+        first = plates[order[0]][side]
+        second = plates[order[1]][side]
+        if (min(np.linalg.norm(first[0] - q) for q in second)
+                < min(np.linalg.norm(first[1] - q) for q in second)):
+            first = first[::-1]
+        pts, gaps = [first[0], first[1]], []
+        for i in order[1:]:
+            f = plates[i][side]
+            da, db = np.linalg.norm(f[0] - pts[-1]), np.linalg.norm(f[1] - pts[-1])
+            if db < da:
+                f = f[::-1]
+            gap = float(min(da, db))
+            gaps.append(gap)
+            if gap <= tol:
+                pts[-1] = (pts[-1] + f[0]) / 2.0      #: 并成一点
+                pts.append(f[1])
+            else:
+                pts.extend([f[0], f[1]])
+        close = float(np.linalg.norm(pts[0] - pts[-1]))
+        gaps.append(close)
+        if close <= tol:
+            pts[0] = pts[-1] = (pts[0] + pts[-1]) / 2.0
+        else:
+            pts.append(pts[0])                        #: 直线闭合，记在 bridged 里
+        sides[side] = (np.asarray(pts, dtype=float), gaps)
+
+    worst = max(max(g for g in gaps) for _, gaps in sides.values())
+    if worst > plate_length:
+        return (f"{group}: 最大接头 {worst * 1000:.0f} mm 比板还长 "
+                f"（{plate_length * 1000:.0f} mm）—— 那里少了一块板，"
+                f"轮廓该绕过去还是直穿过去无从判断")
+
+    gaps = sides["inner"][1] + sides["outer"][1]
+    snapped = sum(1 for g in gaps if g <= tol)
+    bridged = tuple(sorted((g for g in gaps if g > tol), reverse=True))
+    curves = {}
+    for side, (pts, _) in sides.items():
+        curves[side] = Curve(pts[:, 0], pts[:, 1], name=f"{group} ({side})", group=group,
+                             path=f"wall/description_2d/vessel/fylite:layer_outline/{group}")
+    return LayerOutline(group=group, inner=curves["inner"], outer=curves["outer"],
+                        tolerance=tol, snapped=snapped, bridged=bridged,
+                        plate_length=plate_length)
+
+
+def apply_layer_outlines(doc: dict, *, tolerance: float = LAYER_TOLERANCE) -> dict:
+    """把层轮廓写进文档的 `wall/description_2d/*/vessel/fylite:layer_outline`。
+
+    ★**本地名，不是 DD 名**：它是一条近似曲线，写进 `annular/outline_inner` 就是
+    冒充实测几何。每条都带自己的 `fylite:approximation` 读数，被拒的层记在
+    `fylite:layer_outline_refused` 里 —— 拒绝也是结论，不能不说。
+    """
+    outlines, refused = layer_outlines(doc, tolerance=tolerance)
+    if not outlines and not refused:
+        return doc
+    slices = _description_2d((doc.get("wall") or {}))
+    if not slices:
+        return doc
+    vessel = slices[0].get("vessel")
+    if not isinstance(vessel, dict):
+        return doc
+    vessel["fylite:layer_outline"] = [
+        {"fylite:group": o.group,
+         "outline_inner": {"r": o.inner.r.tolist(), "z": o.inner.z.tolist()},
+         "outline_outer": {"r": o.outer.r.tolist(), "z": o.outer.z.tolist()},
+         "fylite:approximation": {
+             "method": "plate long faces chained by poloidal angle; "
+                       "end caps dropped; joints merged within the tolerance, "
+                       "the rest bridged by a straight segment",
+             "tolerance_m": o.tolerance, "joints": o.joints, "snapped": o.snapped,
+             "bridged": list(o.bridged), "plate_length_m": o.plate_length}}
+        for o in outlines]
+    if refused:
+        vessel["fylite:layer_outline_refused"] = list(refused)
+    return doc
 
 
 # --------------------------------------------------------------------------

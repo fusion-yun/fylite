@@ -31,7 +31,8 @@
   "2026-08-25 (merge): `equilibrium` joined when the browser's stationary loop started writing it as a block key -- the reverse gate found it, which is what that gate is for.",
   "2026-08-26: the seven case-corpus terms (`bar` `case` `case_id` `cases` `device` `document` `initial`) joined when `fylite cases` gave the corpus a second (Python) reader beside scenario.js -- the reverse gate found them, which is what that gate is for.",
   "2026-09-05 (第十八刀): `psi_prev` `sigma_prev` `exch_prev` `chi_turb` `r_minor` `r_major` `shift` joined — the entry march's carried state and the ladder's surface rows, written by the page's worker and by Python's model.evolve; the reverse gate found them, which is what that gate is for.",
-  "2026-09-07: `device_id` and `geometry` joined when python/fylite/machine_svg.py (the generic poloidal cross-section reader) began reading the same two fields devices.js / fyodev.js already write -- the reverse gate found them, which is what that gate is for."
+  "2026-09-07: `device_id` and `geometry` joined when python/fylite/machine_svg.py (the generic poloidal cross-section reader) began reading the same two fields devices.js / fyodev.js already write -- the reverse gate found them, which is what that gate is for.",
+  "2026-09-07 (layer outlines): `group` joined when machine_svg's vessel-layer merge began reading the same field fyodev.js writes on each vessel unit -- the reverse gate found it, which is what that gate is for."
  ],
  "fyo_context": "https://fusion-yun.github.io/fyo/latest/",
  "namespace": "urn:fylite:",
@@ -175,6 +176,10 @@
   "geometry": {
    "gated": false,
    "gloss": "A wall element's original parameterised rectangle, kept for reference after the DD normalisation expands it into `outline/{r,z}` -- the DD's wall element has NO `geometry`, only an outline. Not gated: `geometry` IS a DD name one level over (`pf_active/coil/element/geometry`), so the bare spelling is correct there; the same word has two homes and a spelling check cannot tell them apart."
+  },
+  "group": {
+   "gated": false,
+   "gloss": "Which layer of the passive structure a vessel unit belongs to (EAST: `inner_shell` / `outer_shell` / `passive_plates`). The DD's wall has no such grouping -- it describes units, not the shells they make up -- and the vessel-as-an-unknown row and the layer-outline merge both key on it. Not gated: `group` is also the ordinary field name of the in-memory unit descriptor in both hosts (fyodev.js reads `fylite:group` INTO a bare `group`), same as a1 / a2."
   },
   "i_max_aturn": {
    "gated": false,

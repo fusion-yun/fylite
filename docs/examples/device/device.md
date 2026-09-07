@@ -170,11 +170,8 @@ $ fy data dump rec/imas --path wall/description_2d/0/vessel/unit/0/element/0/out
 [2.730037925399138,2.738037925399138,2.7271620746008622,2.7191620746008622,2.730037925399138]
 ```
 
-★**没有做「合并成内外两层轮廓」那一步**，因为 EAST 的矩形**并不相邻**：实测相邻角点
-中位距 9–10 mm、最大 40 mm；按 1e-6 判等，每层 160 条边里只有 4 条是共享的
-（`inner_shell` 40 · `outer_shell` 40 · `passive_plates` 10 个单元，各一个矩形）。
-把它们并成一条层轮廓要**捏合约 1 cm 数据里没有的几何**——那是一个近似产品，
-应当另立本地名并标明是近似，而不是冒充 DD 的 `outline`。
+★**层轮廓另算，另放**：见下一节。数据入口里的 `outline` 是**逐元件**的，
+逐位等于源矩形；层轮廓是一条近似曲线，它不进数据入口。
 
 ### 名字 —— `tf/b0`
 
@@ -217,3 +214,58 @@ ITER，由 `fy data convert … --layout imas --to hdf5` 的产物读回来画�
 ★画图的是 `fylite.machine_svg`——**读文档，不认机器**：源文档、数据入口、两者的
 任意子集都吃，输出 SVG 文本。它不引入绘图依赖（本包运行期只依赖 numpy），
 也不做物理：文档里有什么画什么，画不出来的留白，不补一条像样的曲线。
+
+## 六 · 层轮廓：一个明确标注为近似的派生产物
+
+〔用户裁定 2026-09-07，容差 **5 mm**〕真空室的 90 块壳板按 `fylite:group` 分三层。
+把一层的板连成内外两条轮廓，做法只有四步：
+
+1. 每块板取它的**两条长边**——短边是板端的封头，正是要去掉的「相邻短边」。
+   长边按 `max(width, height)` 认，**不按字段名**：EAST 上下段的板长轴在 `width` 上、
+   内外侧段在 `height` 上，按名字挑会挑错一半。
+2. 两条长边里，中点离该层形心近的是**内**轮廓的一段，另一条是**外**。
+3. 板按对形心的极向角排一圈；相邻两段端点距离 **≤ 5 mm 的并成一点**，其余
+   **直线跨过去**，每一段跨距逐条记下。
+4. 一层里若有一个接头**比板的长边还长**，说明那里少了一块板——轮廓该绕过去还是
+   直穿过去无从判断，**拒绝这一层**，不猜。
+
+实测 EAST（2026-09-07，容差 5 mm）：
+
+| 层 | 板 | 接头 | 并成一点 | 跨过去 | 最大跨距 | 板长 | 结果 |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| `inner_shell` | 40 | 80 | 34 | 46 | 45.5 mm | 161 mm | 内外两条**闭合**轮廓（63 / 65 点） |
+| `outer_shell` | 40 | 80 | 36 | 44 | 53.4 mm | 172 mm | 内外两条**闭合**轮廓（65 / 61 点） |
+| `passive_plates` | 10 | — | — | — | 1 582 mm | 55 mm | **拒绝**：接头比板长 |
+
+★★读这张表的方法：**并成一点的那 34/36 个接头是数据；跨过去的 44/46 个不是**。
+板与板之间本来就有约 1–2 cm 的缝（这是 EAST 壳板的实际排布，不是转换误差），
+5 mm 的容差并不掉它们，于是轮廓在那里是一条直线段——这正是「近似」二字的全部内容，
+所以每一段跨距都记在产物里，而不是抹平。
+
+产物挂在**本地名**下，不冒充 DD：
+
+```python
+from fylite import machine_svg
+doc = machine_svg.apply_layer_outlines(doc)          # 默认容差 5 mm
+doc["wall"]["description_2d"][0]["vessel"]["fylite:layer_outline"]
+#   [{fylite:group, outline_inner, outline_outer, fylite:approximation}, ...]
+#   fylite:approximation = {method, tolerance_m, joints, snapped, bridged[], plate_length_m}
+doc["wall"]["description_2d"][0]["vessel"]["fylite:layer_outline_refused"]
+#   ["passive_plates: 最大接头 1582 mm 比板还长 …"]
+```
+
+★**为什么不写进 `annular/outline_inner`**（DD 有这个位置，别的机器也用它——见
+[各装置一览](machine_survey.ipynb) 里 ITER · WEST · CFETR 的真空室）：DD 那两支说的是
+「这层壳实际的内外面」。把一条跨过 46 段空隙的曲线放进去，下游读到的是实测几何，
+而它不是。挂在 `fylite:layer_outline` 下，它就**不进数据入口**——那是对的：
+数据入口只装 IDS，而这条曲线在 DD 里没有家，也不该有。
+
+画图默认画**数据本身**（90 块板）；要看层轮廓，明说：
+
+```python
+machine_svg.cross_section(doc, layers=True)   # 该层的板换成两条轮廓，被拒的层原样
+```
+
+★本仓**不带 EAST 的截面图**：这一层的几何来自 EAST 的装置卷宗（上游声明 NOT OPEN），
+上表是对它的**测量结果**，不是它本身。`docs/figures/machine/` 里的六张是编译进
+二进制的那六台。

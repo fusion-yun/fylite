@@ -160,3 +160,140 @@ def test_the_module_takes_no_plotting_dependency():
             imported.add(node.module.split(".")[0])
     assert imported <= {"__future__", "math", "dataclasses", "pathlib", "numpy"}, (
         f"machine_svg 引入了新的依赖：{sorted(imported)}")
+
+
+# --------------------------------------------------------------------------
+# 层轮廓 —— 唯一的近似产物，所以查得比别处细
+# --------------------------------------------------------------------------
+
+def _ring(n: int, *, r0: float = 2.0, a: float = 0.5, gap: float = 0.0,
+          group: str = "shell", thickness: float = 0.01) -> dict:
+    """一圈 `n` 块壳板：每块沿环切向长 `L`，径向厚 `thickness`，块间留 `gap`。
+
+    ★合成的，不是哪台机器 —— 但它复现真装置的那个要害：**板的长轴一半在
+    `height` 上、一半在 `width` 上**（顶底与内外侧的板朝向不同）。按字段名挑
+    长边的实现在这条 fixture 上会挑错一半。
+    """
+    import math as _m
+    units = []
+    step = 2 * _m.pi / n
+    length = 2 * _m.pi * a / n - gap
+    for i in range(n):
+        th = i * step
+        r, z = r0 + a * _m.cos(th), a * _m.sin(th)
+        #: 板的长轴与半径垂直：切向角 = th + 90°
+        tangent = _m.degrees(th) + 90.0
+        upright = abs(_m.sin(th)) < 0.5          #: 内外侧的板：长轴偏竖直
+        if upright:
+            rect = {"r": r, "z": z, "width": thickness, "height": length}
+            a2 = tangent
+        else:                                     #: 顶底的板：长轴在 width 上
+            rect = {"r": r, "z": z, "width": length, "height": thickness}
+            a2 = 90.0
+        units.append({"fylite:group": group, "fylite:a1": 0.0, "fylite:a2": a2,
+                      "element": [{"geometry": {"geometry_type": "rectangle",
+                                                "rectangle": rect}}]})
+    return {"wall": {"description_2d": [{"vessel": {"unit": units}}]}}
+
+
+def test_a_ring_of_plates_becomes_two_closed_contours():
+    outs, refused = machine_svg.layer_outlines(_ring(24))
+    assert not refused and len(outs) == 1
+    o = outs[0]
+    assert o.group == "shell"
+    assert o.inner.closed and o.outer.closed
+    assert o.joints == 2 * 24, "内外各 24 个接头（含首尾那个）"
+    #: 内轮廓整条比外轮廓离环心近
+    import numpy as _np
+    centre = _np.array([2.0, 0.0])
+    ri = _np.linalg.norm(_np.stack([o.inner.r, o.inner.z], 1) - centre, axis=1)
+    ro = _np.linalg.norm(_np.stack([o.outer.r, o.outer.z], 1) - centre, axis=1)
+    assert ri.mean() < ro.mean(), "内外两条轮廓弄反了"
+
+
+def _frame(side: float = 1.0, t: float = 0.1, r0: float = 2.0) -> dict:
+    """四块板围成的方框，**外侧四角逐位重合**。
+
+    ★上面那个圆环是「差不多挨着」的一般情形；这一个是「正好挨着」的精确情形，
+    两者查的是容差的两侧。方框的**内**侧四角差一个斜接口（0.1414 m），所以同一份
+    fixture 上「并成一点」与「跨过去」各出现四次。
+    """
+    h = side / 2
+    units = [
+        {"fylite:group": "frame", "fylite:a2": 90.0,      #: 上
+         "element": [{"geometry": {"rectangle": {"r": r0, "z": h - t / 2,
+                                                 "width": side, "height": t}}}]},
+        {"fylite:group": "frame", "fylite:a2": 90.0,      #: 下
+         "element": [{"geometry": {"rectangle": {"r": r0, "z": -(h - t / 2),
+                                                 "width": side, "height": t}}}]},
+        {"fylite:group": "frame", "fylite:a2": 90.0,      #: 左
+         "element": [{"geometry": {"rectangle": {"r": r0 - h + t / 2, "z": 0.0,
+                                                 "width": t, "height": side}}}]},
+        {"fylite:group": "frame", "fylite:a2": 90.0,      #: 右
+         "element": [{"geometry": {"rectangle": {"r": r0 + h - t / 2, "z": 0.0,
+                                                 "width": t, "height": side}}}]},
+    ]
+    return {"wall": {"description_2d": [{"vessel": {"unit": units}}]}}
+
+
+def test_ends_that_coincide_are_merged_and_the_rest_are_bridged():
+    """★容差做的正是这一件事。方框外圈四角逐位重合，内圈四角差一个斜接口。"""
+    o = machine_svg.layer_outlines(_frame())[0][0]
+    assert o.joints == 8
+    assert o.snapped == 4, "外圈四角重合，该并成一点"
+    assert len(o.bridged) == 4
+    for g in o.bridged:
+        assert g == pytest.approx(math.hypot(0.1, 0.1), abs=1e-12), "内圈的斜接口"
+    assert o.outer.closed and o.inner.closed
+
+
+def test_the_tolerance_is_the_only_knob_and_it_bites():
+    """容差不是装饰：放宽它，并掉的接头变多、轮廓的点数变少。"""
+    doc = _ring(24)
+    tight = machine_svg.layer_outlines(doc, tolerance=0.001)[0][0]
+    loose = machine_svg.layer_outlines(doc, tolerance=0.05)[0][0]
+    assert loose.snapped > tight.snapped
+    assert len(loose.inner.r) < len(tight.inner.r)
+    #: ★默认就是用户裁定的那个数，不是随手一个
+    assert machine_svg.LAYER_TOLERANCE == 0.005
+    assert machine_svg.layer_outlines(doc)[0][0].snapped == tight.snapped
+
+
+def test_a_layer_with_plates_missing_is_refused_rather_than_guessed():
+    """★一个比板还长的接头 = 那里少了板。轮廓该绕过去还是直穿过去无从判断。"""
+    doc = _ring(12)
+    units = doc["wall"]["description_2d"][0]["vessel"]["unit"]
+    del units[3:5]
+    outs, refused = machine_svg.layer_outlines(doc)
+    assert not outs and len(refused) == 1
+    assert "shell" in refused[0]
+
+
+def test_the_default_picture_draws_the_data_not_the_approximation():
+    doc = _ring(24)
+    assert machine_svg.cross_section(doc).counts()["vessel"] == 24
+    assert machine_svg.cross_section(doc, layers=True).counts()["vessel"] == 2
+
+
+def test_the_outline_goes_under_a_local_name_with_its_own_reading():
+    """★★近似产物**不许**写进 `annular/outline_inner` —— 那是实测几何的位置。"""
+    doc = machine_svg.apply_layer_outlines(_ring(24, gap=0.02))
+    vessel = doc["wall"]["description_2d"][0]["vessel"]
+    assert "fylite:layer_outline" in vessel
+    assert "annular" not in vessel
+    entry = vessel["fylite:layer_outline"][0]
+    assert set(entry) == {"fylite:group", "outline_inner", "outline_outer",
+                          "fylite:approximation"}
+    approx = entry["fylite:approximation"]
+    assert approx["tolerance_m"] == machine_svg.LAYER_TOLERANCE == 0.005
+    assert approx["snapped"] + len(approx["bridged"]) == approx["joints"]
+    assert approx["method"]
+
+
+def test_a_refused_layer_is_recorded_rather_than_left_out_silently():
+    doc = _ring(12)
+    del doc["wall"]["description_2d"][0]["vessel"]["unit"][3:5]
+    out = machine_svg.apply_layer_outlines(doc)
+    vessel = out["wall"]["description_2d"][0]["vessel"]
+    assert vessel.get("fylite:layer_outline_refused")
+    assert "fylite:layer_outline" not in vessel or not vessel["fylite:layer_outline"]
