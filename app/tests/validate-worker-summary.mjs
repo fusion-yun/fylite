@@ -94,8 +94,12 @@ const CONFIGS = {
             solve: { maxIter: 400, relax: 0.3, tol: 1e-8 }, vertical: false },
   //: 第四十一刀: the START — the control rows resolved on the wall by the door
   //: (a strike request snapped, a gap ray met) and echoed back with the answer
+  //: ★★不再显式传 `lambda` —— 走**出厂缺省**（2026-09-07 用户裁定 3e-1，`worker.js`
+  //: 与内核 `case.rs` 两侧同一个数）。此前这里写死 1e-3，于是闸子守着一个不出厂的
+  //: 配置：缺省改了它也不红，而它自己那一档的病态（1e-13 的输入扰动动 2–11 % 的
+  //: 电流）反倒要靠夹具容差兜。缺省改动时这道闸该红，红了就重录并写下为什么。
   start: { cmd: 'start', target, ip, nPoints: 24, xWeight: 0, control: CONTROL, iMax: null,
-           nRing: 4, peaking: 1, lambda: 1e-3 },
+           nRing: 4, peaking: 1 },
 };
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
@@ -135,29 +139,24 @@ const want = JSON.parse(readFileSync(FIX, 'utf8'));
 assert.equal(want.device, id);
 const bad = [];
 
-//: ★★`start.chan` 与 `start.ctlDpsi` 按容差比，其余一律逐位 —— 因为这两支
-//: **不由输入决定**。实测 2026-09-07：把任意一个输入动 1e-13（三个不同线圈的
-//: 半径，或 `ip` 本身），设计出来的电流差 2–11 %，而目标边界逐位相同、拟合残差
-//: `psiRms` 只在 0.0016–0.0018 之间动。同一份输入两次跑是逐位相同的 —— 变的不是
-//: 随机数，是**迭代轨迹**：起始设计走投影梯度，迭代数从 499 变成 295 / 169 /
-//: 574 / 230，停在平谷里的另一点。
+//: ★★`start.chan` 与 `start.ctlDpsi` 一度按容差比（2026-09-07 上午）：那时它们
+//: **不由输入决定** —— 把任意一个输入动 1e-13，设计出来的电流就差 2–11 %，而目标
+//: 边界逐位相同、拟合残差 `psiRms` 只在 0.0016–0.0018 之间动。同日查清并修好：
+//: 起始设计在**无界**时是一个有闭式解的岭最小二乘，而内核当时无论有没有界都走投影
+//: 梯度（一阶法，停在梯度判据上，在平谷里梯度小不蕴含位置定）。
 //:
-//: ★★**当日试过直接解，又改回去了**（内核 `pulse.rs::start_currents` 那段注释记着
-//: 全过程）：无界时确有闭式解，敏感度降到 1.4e-10 —— 但精确极小点的电流**大了约
-//: 四倍**（‖chan‖ 2.18e6 → 8.24e6 A·turns）。原因在目标函数不在解法：λ=1e-3 的岭
-//: 太轻，而迭代从 0 出发提前停下**等于额外一层正则**，一直在替它兜底。所以决定点
-//: 是 λ，不是解法；在 λ 定下来之前，行为不变，而这两支按容差比。
+//: ★★修法是**两处**，顺序不能反：先把起始设计的岭缺省从 λ=1e-3 提到 **3e-1**
+//: （用户裁定），再换直接解。只换解法不够 —— λ=1e-3 上的精确极小点要 8.24e6
+//: A·turns，是迭代解的近四倍；迭代从 0 出发提前停下一直在当一层隐式正则
+//: （early stopping），替那个太轻的岭兜底。
 //:
-//: ★度量与 L 曲线在 `python/tests/test_start_design_conditioning.py`。
-const SOFT = { 'start.chan': 0.5, 'start.ctlDpsi': 0.5 };
-
+//: 现在同样的 1e-13 扰动只动 8.9e-14（位移与扰动同量级，良态线性响应），代价是
+//: 边界残差涨了约七倍（0.00168 → 0.01187），换来的另一件是电流小了 42 %。
+//: ★这三个数量自那道 Python 闸的配置（EAST · 24 个边界点 · 无控制行）；本闸的
+//: `start` 带控制行，绝对值不同，方向一致。
+//: **所以这里回到逐位**：定得下来的量就该逐位守住。L 曲线与三头的代价实测在
+//: `python/tests/test_start_design_conditioning.py`。
 function walk(a, b, p) {
-  const tol = SOFT[p.replace(/\[\d+\]|\.\d+$/g, '')];
-  if (tol !== undefined && typeof a === 'number' && typeof b === 'number') {
-    const d = Math.abs(a - b) / Math.max(Math.abs(a), 1e-300);
-    if (!(d <= tol)) bad.push(`${p}: ${a} vs ${b} (rel ${d.toExponential(2)} > ${tol})`);
-    return;
-  }
   if (a === null || a === undefined || typeof a !== 'object') {
     const same = (a === b) || (typeof a === 'number' && typeof b === 'number' && Number.isNaN(a) && Number.isNaN(b))
       || (a === null && b === undefined) || (a === undefined && b === null);
@@ -171,6 +170,6 @@ function walk(a, b, p) {
 for (const name of Object.keys(want.configs)) walk(want.configs[name], JSON.parse(JSON.stringify(got[name])), name);
 assert.equal(bad.length, 0, 'the summary moved:\n  ' + bad.slice(0, 20).join('\n  ') + (bad.length > 20 ? `\n  … ${bad.length} in all` : ''));
 const a = got.analytic;
-console.log(`validate-worker-summary: ${Object.keys(want.configs).length} summaries on ${id} bit for bit (start.chan / start.ctlDpsi to ${SOFT['start.chan']} rel — see the note above); analytic: q95 ${a.q ? a.q.q95.toFixed(3) : '—'}, `
+console.log(`validate-worker-summary: ${Object.keys(want.configs).length} summaries on ${id} bit for bit; analytic: q95 ${a.q ? a.q.q95.toFixed(3) : '—'}, `
             + `${a.criteria.strike.length} strike legs, ${a.criteria.xpts.length} X-points, gap ${a.criteria.gap ? a.criteria.gap.gap.toFixed(3) : '—'}, `
             + `${a.surfaces.length} surfaces, boundary ${a.lcfs.length / 2} points`);

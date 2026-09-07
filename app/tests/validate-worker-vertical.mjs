@@ -88,8 +88,12 @@ const target = { r0: rgeo, z0: 0.5 * (bb.zmin + bb.zmax), a: 0.6 * amax, kappa: 
 const b0 = Math.abs(tf.b0 * tf.r0 / rgeo);
 const ip = 2 * Math.PI * target.a * target.a * b0 * (1 + target.kappa * target.kappa)
            / (2 * 4e-7 * Math.PI * rgeo * 3.5);
+//: ★★不再显式传 `lambda` —— 走**出厂缺省**（2026-09-07 用户裁定 3e-1，`worker.js`
+//: 与内核 `case.rs` 两侧同一个数）。此前这里写死 1e-3，于是闸子守着一个不出厂的
+//: 配置：缺省改了它也不红，而它自己那一档的病态（1e-13 的输入扰动动 2–11 % 的
+//: 电流）反倒要靠夹具容差兜。缺省改动时这道闸该红，红了就重录并写下为什么。
 send({ cmd: 'start', target, ip, nPoints: 24, xWeight: 0, control: [], iMax: null,
-       nRing: 4, peaking: 1, lambda: 1e-3 });
+       nRing: 4, peaking: 1 });
 const st = take('start');
 inbox.splice(0, inbox.length);
 //: ★the designed START is a linear isoflux answer, not an equilibrium: on the

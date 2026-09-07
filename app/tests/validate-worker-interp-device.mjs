@@ -73,17 +73,34 @@ const target = { r0: rgeo, z0: 0.5 * (bb.zmin + bb.zmax), a: 0.6 * amax, kappa: 
 const b0 = Math.abs(tf.b0 * tf.r0 / rgeo);
 const ip = 2 * Math.PI * target.a * target.a * b0 * (1 + target.kappa * target.kappa)
            / (2 * 4e-7 * Math.PI * rgeo * 3.5);
+//: ★★不再显式传 `lambda` —— 走**出厂缺省**（2026-09-07 用户裁定 3e-1，`worker.js`
+//: 与内核 `case.rs` 两侧同一个数）。此前这里写死 1e-3，于是闸子守着一个不出厂的
+//: 配置：缺省改了它也不红，而它自己那一档的病态（1e-13 的输入扰动动 2–11 % 的
+//: 电流）反倒要靠夹具容差兜。缺省改动时这道闸该红，红了就重录并写下为什么。
 send({ cmd: 'start', target, ip, nPoints: 24, xWeight: 0, control: [], iMax: null,
-       nRing: 4, peaking: 1, lambda: 1e-3 });
+       nRing: 4, peaking: 1 });
 const st = take('start');
 inbox.splice(0, inbox.length);
-//: ★the designed START is a linear isoflux answer, not an equilibrium: on the
-//: first published machine the free solve on those currents shrank the plasma
-//: to a tenth of the target (measured: a = 0.12 m for 0.6 * a_max asked), and a
-//: plasma that small has no sub-grid to refine on.  Two passes of the anneal
-//: (the design page's own `design` command, `code/discharge`) put the boundary
-//: where it was asked, and the alternation — refinement included — runs on
-//: currents a design would actually hand over.
+//: ★the designed START is a linear isoflux answer, not an equilibrium, so two
+//: passes of the anneal (the design page's own `design` command,
+//: `code/discharge`) run before anything is interpreted: the alternation —
+//: refinement included — must stand on currents a design would actually hand
+//: over.
+//:
+//: ★★2026-09-07，缺省 λ 1e-3 → 3e-1 且换直接解之后，这一段的**数量级变了**，
+//: 而且是变好的一侧。旧夹具（λ=1e-3 + 投影梯度）记的是一个**塌掉的**位形：
+//: a_minor 0.0195 m —— 要的是 0.6·a_max ≈ 0.357 m，差了十八倍 —— `chiE` / `chiI`
+//: 二十一级**全是 NaN**（那一档的解释性输运根本没算出东西），tau_E 0.51 ms，
+//: W_th 1.5 kJ。新的这一份：a_minor 0.3572 m（就是要的那个数）、chi 有限
+//: （4.1–98 m²/s）、gm3 / gm7 回到 O(1)、tau_E 60 ms、W_th 255 kJ。
+//:
+//: ★★**但自由边界解不收敛了，而且这一条不是本次改动能收的。** 旧的
+//: `free.residual` 是 4.9e-8（`converged: false`，跑满 400 步），新的是 5.8e-2。
+//: 实测把预算加到 1200 / 4000 步，残差是 4.2e-2 / 5.0e-2 —— **不随预算下降，
+//: 停在 5e-2 上下**，所以那不是「步数不够」。旧的那个近零残差属于那个 2 cm 的
+//: 塌解：几乎没有东西要收敛。**这是一个未决问题**（是自由边界解本身的缺陷，还是
+//: 两趟退火尚未把边界送到位、relax=0.3 上的欠松弛），本闸只把两侧的数记下来，
+//: 不替它下结论；`free.converged` 两侧同为 false，所以那一条断言仍然成立。
 send({ cmd: 'design', chan: Array.from(st.chan), target, ip, warm: true,
        prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 },
        schedule: [0.1, 0.03], gamma: 0.4, nPoints: 24, xWeight: 0, control: [],

@@ -2897,7 +2897,10 @@ FyScenario.whenDevices(function () {
       //: to keep doing what it did.
       xpoint: { r: +$('xr').value, z: +$('xz').value },
       xpoints: xNulls(), control: ctlMessage(),
-      iMax: currentCap(), nRing: 4, peaking: 1, lambda: 1e-3,
+      //: ★★不传 `lambda` —— 起始设计的岭走 `worker.js` 的出厂缺省（2026-09-07
+      //: 用户裁定 3e-1，与内核 `case.rs` 同一个数）。页面写死一个数，等于让
+      //: 页面与内核各有一个缺省，改一处就漂。
+      iMax: currentCap(), nRing: 4, peaking: 1,
     });
   }
 
@@ -5318,9 +5321,9 @@ FyScenario.whenDevices(function () {
       //: state the discharge is in now.  With the switch off the first
       //: design stands and the solve below shows where the boundary drifts
       //: to — which is the check the design is worth having.
+      //: ★同上：岭走出厂缺省，不在页面里写第二个数。
       S.send({ cmd: 'start', target: readTarget(), ip: ipNow(), nPoints: 24,
-               xWeight: 0, control: [], iMax: null, nRing: 4, peaking: 1,
-               lambda: 1e-3 });
+               xWeight: 0, control: [], iMax: null, nRing: 4, peaking: 1 });
     } else {
       sendSolve();
     }

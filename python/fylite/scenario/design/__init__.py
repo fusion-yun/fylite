@@ -151,7 +151,7 @@ def _start_of(rec: dict) -> dict:
 
 def start_state(*, target: dict, ip: float,
                 n_points: int = 24, n_ring: int = 4, peaking: float = 1.0,
-                xpoint=None, x_weight: float = 1.0, lam: float = 1e-3,
+                xpoint=None, x_weight: float = 1.0, lam: float = 3e-1,
                 i_max=None, device=None) -> dict:
     """The machine state a shape anneal is entitled to BEGIN from — BY THE KERNEL.
 
@@ -175,6 +175,17 @@ def start_state(*, target: dict, ip: float,
     the PLAN and reads the RECORD back into the dict its callers know.
     ``psi_seed`` is the field the design was made with, on the solver's
     grid.
+
+    ★★``lam`` —— 岭的强度，按响应自己的列范数定尺度（内核
+    ``pulse.rs::start_currents`` 里 ``lam = sp.lambda * g_scale``），所以这个数
+    在每台机器上说的是同一件事。缺省 **3e-1**（2026-09-07 用户裁定），与内核
+    ``case.rs`` 两处 ``s.get("lam", …)`` 是同一个数；这里写着只是为了让签名说得
+    出来，改要两处一起改。
+
+    调小它把边界拟合得更紧、电流更大、分配更敏感；调大反之。实测（EAST，24 个
+    边界点，无控制行）：λ=1e-3 时 ``psi_rms`` 0.00095 而 ‖chan‖ 8.24e6 A·turns，
+    λ=3e-1 时 0.01187 / 1.26e6。整条 L 曲线与它为什么定在这里，见
+    ``python/tests/test_start_design_conditioning.py``。
     """
     settings = _start_settings(target, ip, n_points=n_points, xpoint=xpoint, x_weight=x_weight)
     settings.update(stage="start", n_ring=float(n_ring), peaking=float(peaking), lam=float(lam))
