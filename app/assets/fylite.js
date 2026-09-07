@@ -98,7 +98,10 @@
     'fylite_rs_svd_solve',
     //: the operating domain, the flux account and the START —
     //: the design scenario's own criteria (ABI v103)
-                'fylite_rs_fill_filaments',                 //: ★the neutral-beam chain (ABI v105, already in every shipped
+                //: ★`fill_filaments` left the binding with `FyPhys`'s last unused prototype
+                //: (T-4 第三十一刀, 2026-09-06): no page ever called it.  The entry stays a
+                //: `primitive` — the kernel repository's oracle tests pair it with `code/discharge`
+                //: and `code/pulse` — it is simply not something this front end asks for.
     //: artifact and reachable from Python alone).  Listed so a build
     //: without them fails at LOAD rather than at the first beam: a
     //: page that discovered a missing entry mid-march would already
@@ -391,27 +394,6 @@
   // run: no density limit, no beta, no q, no flux bill, and — for a machine
   // with no reference shot — no state to start its anneal from.  Every one
   // of them is in the kernel; none of them had a wire.
-
-
-
-  /** Fill a boundary with current filaments — the START's plasma model. */
-  Fy.prototype.fillFilaments = function (o) {
-    var self = this, nb = o.bndR.length, nring = num(o.nRing, 4);
-    return this.scope(function (s) {
-      var br = s.put(o.bndR), bz = s.put(o.bndZ),
-          out = s.zeros(3 * nb * nring);
-      var n = self.e.fylite_rs_fill_filaments(
-        br.ptr, bz.ptr, BigInt(nb), o.ip, BigInt(nring),
-        num(o.peaking, 1), out.ptr);
-      if (n < 0) throw new SolveError('fylite_rs_fill_filaments', n);
-      var v = s.get(out), r = [], z = [], a = [];
-      for (var i = 0; i < n; i++) {
-        r.push(v[3 * i]); z.push(v[3 * i + 1]); a.push(v[3 * i + 2]);
-      }
-      return { r: r, z: z, a: a };
-    });
-  };
-
   // --- T-D7: the wall geometry a shape-control row is made of -------------
   //
   // ★What real shape control targets is ROG / RIG, the upper and lower gaps,
