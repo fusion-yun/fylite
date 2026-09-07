@@ -1,48 +1,38 @@
-"""起始设计的**电流分配不由输入决定** —— 一次实测，钉在这里。
+"""起始设计**由它的输入决定** —— 一次实测，钉在这里。
 
 ★★由来。2026-09-07 换 EAST 的装置文档（同一台机器，两份文档，数只差最后几位）时，
 `validate-worker-summary` 的 `start.chan` 动了 **2.8 倍**，而它要满足的目标边界
-**逐位相同**、拟合残差 `psiRms` 还略好了一点（0.016759 → 0.015696）。那不是
-「换了一台机器」，是**这道反解的答案在它自己的输入上不连续**。
+**逐位相同**、拟合残差 `psiRms` 还略好了一点。那不是「换了一台机器」。
 
-★★实测（EAST，`lam=1e-3`，把**一个线圈的半径**乘上 1+ε）：
+★★查清的原因（同日，第三次假设才对）：
 
-======  =====================  =========
-ε        `Δchan/chan`           `psi_rms`
-======  =====================  =========
-1e-13    **11 %**               0.00162
-1e-11    11 %                   0.00162
-1e-9     7.7 %                  0.00179
-1e-7     8.1 %                  0.00181
-======  =====================  =========
+* **不是**病态到没法解 —— 岭是按响应自己的列范数定尺度的（`pulse.rs::start_currents`
+  里 `lam = sp.lambda * g_scale`），augment 之后的问题正定；
+* **不是**迭代跑满预算 —— 求解器报的迭代数是 499 / 4000，按它自己的判据收敛了；
+* **是**：没有上下界时，这个问题是一个**无约束的岭最小二乘，有闭式解**，而内核
+  当时无论有没有界都走 `bounded_lstsq`（投影 Barzilai-Borwein 梯度 + 非单调线搜）。
+  一阶方法停在「投影梯度 ≤ 1e-12·pg0」上，而在一条平谷里，**梯度小不蕴含位置定**。
+  实测：同一份输入两次跑逐位相同，但把任意一个输入动 1e-13（三个不同线圈的半径，
+  或 `ip` 本身），迭代次数从 499 变成 295 / 169 / 574 / 230 —— **整条轨迹换了**，
+  停在谷里的另一点。
 
-响应**不随 ε 缩小**：从 1e-13 到 1e-7 都是 10% 上下。那不是放大，是解在一条平谷里
-乱跳 —— 目标函数在那个方向上几乎是平的，答案由舍入决定。而 `psi_rms` 一直在
-0.0016–0.0018：**场是定的，分配不是**。
+★★修法与代价（`pulse.rs::start_currents`）：无界时直接解正规方程
+（`aa` 已经把 λ 作为附加行带上，所以 `AᵀA` 里已含 λ²），一次 Cholesky 给出唯一极小点；
+有界那一支照旧迭代（带箱约束的最小二乘没有闭式解）。实测**两头都变好**：
 
-★★把岭参数扫一遍，可复现性在哪里回来（同一个 ε = 1e-13）：
+=========================  ==============  ==============
+量                          迭代那一版       直接解
+=========================  ==============  ==============
+`Δchan/chan` @ ε=1e-13      1.1e-1          **1.4e-10**
+`psi_rms`                   0.0016778       **0.00094762**
+=========================  ==============  ==============
 
-=======  ==========  ==========  ======================
-`lam`    `‖chan‖`    `psi_rms`   `Δchan/chan`
-=======  ==========  ==========  ======================
-1e-3     2.18e6      0.00168     1.1e-1   ← 今天的缺省
-3e-2     1.59e6      0.00287     7.9e-3
-1e-1     1.43e6      0.00429     5.9e-4
-3e-1     1.26e6      0.01187     **1.0e-8**
-1.0      6.59e5      0.05712     4.8e-9
-=======  ==========  ==========  ======================
+残差小了 **43 %** —— 也就是说，迭代那一版不只是「停在谷里的另一点」，它**根本没走到
+极小点**。所以这不是调容差，是修了一个求解器缺陷。
 
-一条教科书式的 L 曲线：缺省的 1e-3 落在**欠正则**那一段——边界拟合得好，
-而电流分配是那条平谷里的任意一点。要它可复现，代价是边界残差差 7 倍。
-
-★★**这道闸不主张该取哪个值。** 换缺省是一次有真实代价的工程判断（0.0017 → 0.0119），
-该由人来定。这里只钉住**测量本身**，好让它不腐烂：机理见内核
-`case.rs::discharge_case`（岭按响应自己的列范数定尺度 `alpha * g_scale`）与
-`linalg::ridge_lstsq`（组**正规方程** `AᵀA + λ²I` 再 Cholesky —— 条件数因此平方，
-λ 在 `AᵀA` 上的相对阻尼是 `alpha²` = 1e-6，不是 1e-3）。
-
-★这道闸**变红是好消息的一种**：若某天 `lam=1e-3` 下的分配也稳了，说明正则或解法
-改了。那时删掉这一行，并把改了什么写下来 —— 不要把界放宽了事。
+★这道闸**变红是坏消息**：它说起始设计又对自己的输入不连续了。那时先看
+`start_iterations` / `start_converged` 两个事实（同日补上，此前求解器的收敛旗在
+`let (x, _) = …` 里被丢掉了），再看是不是又走回了迭代那一支。
 """
 from __future__ import annotations
 
@@ -56,8 +46,6 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 DOC = REPO / "dist" / "facts" / "device" / "east.jsonld"
 
-#: 一次 `start_state` 是一次真的线性反解，四次要几秒 —— 值这个钱，
-#: 它查的是别处查不到的东西。
 pytestmark = pytest.mark.skipif(
     not DOC.is_file(),
     reason=f"没有 {DOC.relative_to(REPO)} —— 先跑 python3 tools/abox-to-facts.py east")
@@ -73,18 +61,35 @@ def _target(doc: dict) -> dict:
             "kappa": 1.6, "deltaU": 0.4, "deltaL": 0.5}
 
 
-def _run(doc: dict, lam: float) -> dict:
-    from fylite.scenario.design import start_state
-    return start_state(target=_target(doc), ip=393459.5, n_points=24, n_ring=4,
-                       peaking=1.0, x_weight=0.0, lam=lam, device=doc)
+def _run(doc: dict, lam: float = 1e-3, ip: float = 393459.5) -> dict:
+    """起始设计一次，连同内核报回来的求解器事实。"""
+    import fylite.scenario.design as design
+    settings = design._start_settings(_target(doc), ip, n_points=24,
+                                      xpoint=None, x_weight=0.0)
+    settings.update(stage="start", n_ring=4.0, peaking=1.0, lam=float(lam))
+    rec = design._complete(settings, {}, device=doc)
+    facts = rec["facts"]
+    if isinstance(facts, dict):
+        facts = {k: (v["value"] if isinstance(v, dict) else v) for k, v in facts.items()}
+    else:
+        facts = {f["key"]: f["value"] for f in facts}
+    out = design._start_of(rec)
+    out["facts"] = facts
+    return out
 
 
-def _nudged(doc: dict, eps: float) -> dict:
+def _nudged(doc: dict, eps: float, coil: int = 0) -> dict:
     """把**一个线圈的半径**乘上 1+ε —— 输入能做的最小改动。"""
     out = copy.deepcopy(doc)
-    rect = out["pf_active"]["coil"][0]["element"][0]["geometry"]["rectangle"]
+    rect = out["pf_active"]["coil"][coil]["element"][0]["geometry"]["rectangle"]
     rect["r"] = rect["r"] * (1.0 + eps)
     return out
+
+
+def _moved(a: dict, b: dict) -> float:
+    ca = np.asarray(a["aturns"], float)
+    cb = np.asarray(b["aturns"], float)
+    return float(np.linalg.norm(cb - ca) / np.linalg.norm(ca))
 
 
 @pytest.fixture(scope="module")
@@ -92,55 +97,62 @@ def doc() -> dict:
     return json.loads(DOC.read_text(encoding="utf-8"))
 
 
-def _split_moved(a: dict, b: dict) -> float:
-    ca = np.asarray(a["aturns"], float)
-    cb = np.asarray(b["aturns"], float)
-    return float(np.linalg.norm(cb - ca) / np.linalg.norm(ca))
+@pytest.fixture(scope="module")
+def base(doc) -> dict:
+    return _run(doc)
 
 
-def test_a_perturbation_at_the_last_bit_moves_the_current_split(doc):
-    """ε = 1e-13 的输入改动，把电流分配挪动百分之几 —— 实测 11%。
+def test_the_same_input_gives_the_same_answer(doc, base):
+    """★先钉最起码的一条：确定性。它一旦不成立，下面几条都不必读。"""
+    assert _moved(base, _run(doc)) == 0.0
 
-    ★下界取 1%：实测是 11%，留一个数量级的余地，好让这条闸子问的是
-    「分配是不是不由输入决定」，而不是「今天恰好是 11.4% 还是 11.5%」。
+
+@pytest.mark.parametrize("coil", [0, 5, 11])
+def test_a_perturbation_at_the_last_bit_stays_at_the_last_bit(doc, base, coil):
+    """ε = 1e-13 进去，出来还是 1e-10 量级 —— 迭代那一版这里是 2–11 %。
+
+    ★界取 1e-6：实测 1.4e-10 ~ 5.1e-10，留四个数量级的余地，好让这条闸问的是
+    「答案由输入决定吗」，而不是「今天恰好是 1.4e-10 还是 1.5e-10」。
     """
-    base = _run(doc, 1e-3)
-    near = _run(_nudged(doc, 1e-13), 1e-3)
-    moved = _split_moved(base, near)
-    assert moved > 1e-2, (
-        f"ε=1e-13 下电流分配只动了 {moved:.3e} —— 比实测（11%）稳得多。"
-        "正则或解法大概是改了：删掉这道闸，并把改了什么写下来。")
-
-
-def test_the_field_it_makes_is_determined_even_when_the_split_is_not(doc):
-    """★这一条才是要点：**场是定的**。
-
-    同一个 ε 下拟合残差只在 0.0016–0.0018 之间动 —— 也就是说，两组差着 11% 的
-    电流把目标边界拟合得一样好。所以「分配变了」不等于「答案错了」，而
-    **把分配逐位钉进夹具**等于钉住一个没有被问题定下来的量。
-    """
-    base = _run(doc, 1e-3)
-    near = _run(_nudged(doc, 1e-13), 1e-3)
-    rel = abs(near["psi_rms"] - base["psi_rms"]) / base["psi_rms"]
-    assert rel < 0.2, (
-        f"拟合残差动了 {rel:.1%}（{base['psi_rms']:.6g} -> {near['psi_rms']:.6g}）"
-        "—— 那就不只是分配在动了，是这一解本身变了，要查。")
-
-
-def test_a_heavier_ridge_makes_the_split_reproducible_and_says_what_it_costs(doc):
-    """λ = 0.3 上分配稳到 1e-8，代价是边界残差差约 7 倍。
-
-    ★两头都断言：**稳住了**，以及**代价是多少**。只断言前者，会让「把 lam 调大」
-    看起来是免费的。
-    """
-    base = _run(doc, 3e-1)
-    near = _run(_nudged(doc, 1e-13), 3e-1)
-    moved = _split_moved(base, near)
+    moved = _moved(base, _run(_nudged(doc, 1e-13, coil)))
     assert moved < 1e-6, (
-        f"λ=0.3 上分配仍动了 {moved:.3e} —— 实测是 1e-8。"
-        "平谷比记下来的更宽，或者解法变了。")
-    loose = _run(doc, 1e-3)
-    cost = base["psi_rms"] / loose["psi_rms"]
+        f"线圈 {coil} 的半径动 1e-13，设计出来的电流动了 {moved:.3e} —— "
+        "起始设计又对自己的输入不连续了。先看 start_iterations / start_converged，"
+        "再看是不是走回了投影梯度那一支（无界时该直接解）。")
+
+
+def test_the_answer_scales_with_the_perturbation_instead_of_jumping(doc, base):
+    """★★这一条查的是「不跳」：迭代那一版从 1e-13 到 1e-7 一律 10 % 上下——
+    响应**不随扰动缩小**，那正是「解在谷里乱跳」的指纹。现在它是线性的。
+    """
+    seen = {eps: _moved(base, _run(_nudged(doc, eps))) for eps in (1e-9, 1e-6)}
+    gain = {eps: d / eps for eps, d in seen.items()}
+    assert max(gain.values()) < 10.0, f"放大倍数 {gain} —— 实测约 0.3"
+    assert seen[1e-6] > seen[1e-9], (
+        f"扰动大了一千倍而位移没跟着涨（{seen}）—— 又是「跳」而不是「随」。")
+
+
+def test_the_solver_says_whether_it_converged(doc, base):
+    """★求解器的收敛旗**说得出来**。它一度在 `let (x, _) = …` 里被丢掉，于是
+    「跑满预算停下」与「收敛了停下」在记录上一模一样。
+    """
+    facts = base["facts"]
+    assert facts.get("start_converged") == 1.0, (
+        f"起始设计报告未收敛：{facts.get('start_iterations')} 次迭代")
+    #: 直接解没有轨迹，迭代数报 0 —— 那正是「这一支不迭代」的记号
+    assert facts.get("start_iterations") == 0.0, (
+        f"无界的起始设计走了 {facts.get('start_iterations')} 次迭代 —— "
+        "它应当直接解（`aa` 已含 λ 行，正规方程正定）。")
+
+
+def test_a_heavier_ridge_costs_boundary_accuracy(doc, base):
+    """★岭调大仍然要付代价 —— 记在这里，好让「把 lam 调大」不显得免费。
+
+    ★这一条与上面几条无关：解法修好之后 `lam` 该取多少仍是一个工程判断，
+    这道闸不替它做主，只把代价量出来。
+    """
+    heavy = _run(doc, lam=3e-1)
+    cost = heavy["psi_rms"] / base["psi_rms"]
     assert cost > 3.0, (
-        f"λ 从 1e-3 提到 0.3，边界残差只差了 {cost:.1f} 倍 —— 实测约 7 倍。"
-        "代价变小了是好事，但要先弄清为什么，再改这个数。")
+        f"λ 从 1e-3 提到 0.3，边界残差只差了 {cost:.1f} 倍 —— 实测约 12 倍。"
+        "代价变小是好事，但要先弄清为什么。")
