@@ -17,7 +17,7 @@ in the browser, in a notebook and in the CLI.
 
     design    放电设计     discharge · breakdown · feasible
     control   控制仿真     vstab
-    model     物理建模     zerod · transport · coupled · tglf
+    model     物理建模     zerod · transport · coupled · evolve
     analysis  实验分析     reconstruction
 
 **What converges is the entrance, not the physics.**  No method module is
@@ -80,8 +80,10 @@ __all__ = ["LINES", "TOOLS", "BROWSER_ONLY_BARS", "line_of", "tools_of", "proven
 #: ``scenario-design.js``'s own header ("a scan OVER the breakdown problem,
 #: and the question it answers has no caller on this page yet"); ``vstab``
 #: survives as a generated fyo ENTRY (``fyo-interface.js``) with no bar to
-#: press; ``tglf`` is not a bar but a MODE inside two of them (the worker's
-#: ``transport_turb``).
+#: press.  (``tglf`` was a third such case until 2026-09-07, when the
+#: gyrofluid PORT FACE was retired from this layer — the transport bar's
+#: "turbulent" closure still reaches the same kernel code, but through
+#: ``code/transport``, not through a deck this package fills in.)
 _TOOLS: dict[str, dict] = {
     "discharge": {
         "bar": "discharge", "owner": "design", "entry": "design.discharge",
@@ -161,13 +163,12 @@ _TOOLS: dict[str, dict] = {
                   "逐条由 `fylite cases --plan` 按算例点名；几何是处方的 Miller，"
                   "q 是处方抛物线而非电流扩散的结果",
     },
-    "tglf": {
-        "bar": None, "owner": "model", "entry": "model.tglf",
-        "fr": ("S7-FR-TR-5",),
-        "scope": "局域线性稳定性与准线性通量（TGLF 移植面）",
-        "caveat": "γ 是线性增长率不是输运通量；WIDTH 必须由调用方给出——"
-                  "libtglf 会二分搜索模宽，移植面不会，也不替调用方猜一个",
-    },
+    #: ★没有 `tglf` 这一格了：2026-09-07 回旋朗道流体的**移植面**退役。
+    #: 移植本身没有消失——它在内核里，`code/transport` 把闭包切到「湍流」时
+    #: 走的就是它；消失的是本层那一张按 TGLF 输入卡（deck）逐格填写的
+    #: **平面**（`model.tglf` 与 `model/gyrofluid.py`），以及它撑起的 MCP 工具
+    #: `fylite_tglf`。移植面的逐项参考实现移入内核仓的神谕树
+    #: （`tests/oracles/gyrofluid.py`），端口对拍照跑。
     "reconstruction": {
         "bar": "reconstruction", "owner": "analysis", "entry": "analysis.reconstruction",
         "fr": ("S8-FR-RECON-1", "S8-FR-OP-2"),
@@ -261,7 +262,7 @@ _LINES: dict[str, dict] = {
     "model": {
         "title": "物理建模", "srs": "FYTOK-SRS-07 v0.4",
         "tools": ("discharge", "reconstruction", "zerod", "transport",
-                  "coupled", "evolve", "tglf"),
+                  "coupled", "evolve"),
         "frs": (
             ("S7-FR-EQ-1/2/3", "●", "discharge", None),
             ("S7-FR-PULSE-1/2", "●", "zerod", None),

@@ -15,67 +15,9 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: 'v1.5 合并进 `develop` 时随 `FYL-DESIGN-17` v1.1 的 E-23 改口：`fy case run` → **`fy run`**
-    （`case` 已弃用，三处引用改正）。内容无其他变动。· v1.4 **导入 h5wasm**（用户裁定）：新裁定 **U-25**——浏览器读 HDF5 不靠再写一份实现，而是让
-    h5wasm 把 `.h5` 解成 fyo 文档，**再进源栈当普通一层**；C 库留在它自己的 Emscripten 模块里，本仓的
-    wasm 保持零 import。约 4.2 MB **按需 `import()`、不进预缓存**（比本仓三份内核 wasm 加起来还大）。
-    NIST 许可的三项义务逐条落实（原样保留声明 · 明确承认来源 · 未改动并留 sha256）。HDF5 闸
-    `validate-h5.mjs` 十一项通过，与原生读法**逐叶子相同**（14 片）。· v1.3 中间层的 wasm 门**修好一半**（用户「评估修 runtime」）：实测发现拦路的不是 mdsip——29 个
-    C 导出**全部**带 `not(target_arch = "wasm32")` 的一刀切排除，而真碰文件系统的只有 4 个、碰套接字的 7 个。
-    把通用指针助手 `s` / `put` 从 mdsip 杂货铺里提出来、`doc_abi` 与 `gfile_abi` 去掉连坐门、17 个既不读盘也不
-    开套接字的导出解禁，`fylite_runtime.wasm` 遂有 **17 个导出、零 import**（文档模型含 `bundle_merge` ·
-    `read_text` · `doc_*` · g-file 七件）。本机侧零回归（crate 自测 102 项全过、Python 套件与改前同）。
-    **仍缺 `assemble`**：它读盘（19 处 `std::fs`），浏览器要的是「文档按别名递进来」的变体——那是中间层的
-    API 改动，未做。· v1.2 按用户裁定「Python 不接入前端」改口：源栈闸不再借 Python 执行合并——它是**另一个宿主**，
-    不在前端的路径上；前端通往中间层的门是 wasm。实测记为 **G-15**：`fylite_runtime` 能编成 wasm 但
-    **零导出**（`c_api` 与 `assembly` 整模块在 `mdsip` 特性门后，而 wasm 层正是 `--no-default-features`），
-    故 H-4 / W-1 **今天不成立**，源栈写出的装配文档**浏览器还没有东西能执行它**。闸改为断言文档合
-    `assembly.rs` 头注写下的契约，并把「合并真按这个次序发生」明确留给 W-1。
-    · v1.1 §五 源栈落地（U-5 · U-6 · U-7）：`app/assets/sources.js` 写 `fylite:Assembly/1`，页面只排
-    次序与开关。★真跑中间层发现两件事：**`merge` 是后者覆盖前者，而栈是上者优先**——同序写会静默
-    反转优先级，故 `assembly()` 倒序写并由闸用真装配器验证；**中间层不记逐量出处**（只记 `merged`），
-    故 U-6 的表今天由页面推出并标 `derived`，新缺口 G-14。源栈闸 `validate-sources.mjs` 三节十六项通过。
-    · v1.0 §八 的试改落地（U-15 · U-23）：`app/assets/edit.js`——方把手写 `sets_parameter`、圆路点写
-    绑到 boundary 端口的文档（带 `fylite:edited_from`）、剖面节点走单调三次插值、通道权重写手填层且
-    卷宗禁用者打不开；每次试改是一个版本，撤销与「回到 #k」都是换回一版计划；轮廓自交 / 出限制器
-    **按名拒绝且不改数**。试改闸 `validate-edit.mjs` 十七项通过。★**内核已在本环境构建**（wasm 三份 +
-    两个 `.so` + 数据层），于是：**G-13 关**——两端规格比对首次真跑，两端各 9 张图 0 拒绝逐字段一致；
-    带生成表单的 model 页在真内核下三档闭包与原生一致到 1e-7。· v0.9 G-13 修正：`validate-report.mjs` 由已撤除的命令行改为库调用 `casereport.run_and_render`，
-    失败形态从「命令不存在（抛异常）」变为「内核未构建（跳过）」——本环境无内核，故只验到这一步，
-    两端逐字段比对仍待有内核处运行。· v0.8 离线（U-20）落地：`tools/make-sw.mjs` 生成 `app/sw.js` 与 `app/manifest.webmanifest`
-    （预缓存清单由走树得出，96 项），`host.js` 只在**站点面**注册（桌面版的字节在可执行文件里，缓存
-    只会端出昨天的构建）；离线闸 `validate-offline.mjs` **真的断网重开**并断言从未访问过的页面也能打开。
-    **G-5 关。** · v0.7 文档集与往返闸（U-18 / U-19，本属 U1，其页面半边不依赖中间层故提前落地）：
-    `app/assets/bundle.js` 写出并读回一份存储法 zip（计划 · 输入 · 记录 · 规格 · environment · 报告），
-    分类按 `@type` 不按文件名，不认识的成员列出不丢；`validate-bundle.mjs` 断言设计点名的判据并把字节
-    交给 **Python 的 zipfile 与 unzip -t** 两个外部读者。**至此设计点名的四道闸全部存在且通过。**
-    · v0.6 U0 第四步落地：`app/assets/workbench.js`（瓦片布局写回 `fylite:layout`、`has_view` 按
-    先行后列重排、缩放与光标按坐标族共享、钉住把瞬态写进规格、图层开关即时入规格），`plot.js` 补
-    正向映射 `toPixel` 与 `box`；工作台闸 `validate-workbench.mjs` 十三项通过并逮到一处真缺陷
-    （程序化 `move()` 未把宽度夹在 12 列内）。**U0 四条至此在本环境内全部落地**，余下的接线要内核。
-    · v0.5 U0 第三步落地：`app/assets/run.js`（步预算分片 · 进度按步实测 · 取消切预算）与
-    `app/assets/checkpoint.js`（断点即记录，IndexedDB；内核身份不符按名拒绝，漂移写进 environment）；
-    断点闸 `validate-checkpoint.mjs` 十四项通过，并逮到两处真缺陷——恢复后步号从头开始（等价性判据
-    当场不成立）、分片可跨过断点间隔使 `checkpointEvery` 形同虚设（实测一次也没落）。
-    · v0.4 U0 第二步落地：`app/assets/fig.js` 由呈现规格画图（复用 `casereport.js` 的唯一解析器），
-    `plot.js` 增 `stems` 记号，规格词表补 `layout` / `visible` / `domain`（G-3 关），规格闸
-    `app/tests/validate-fig.mjs` 十项通过并当场逮到一处自造缺陷。新缺口 G-13：两端规格比对的闸
-    `validate-report.mjs` 调的是已撤除的 Python 命令行，今天根本没跑——U-12 的判据是纸面的。
-    · v0.3 U0 第一步落地（model 页）：141 个手写控件誊录为 `app/assets/vocab-model.js`，页面只剩
-    `data-form` 挂点，`app/assets/form.js` 按词表画控件；表单闸 `app/tests/validate-form.mjs` 双向成立；
-    首屏输出仍在 790 px；一处潜在缺陷（`width` 默认值不在格上）由闸子暴露并改正。§十三 U0 行记
-    已落与未落。· v0.2 按分析工作适用性评估修改：补三种视图（U-21 茎与表 · U-22 对照记录）、通道权重在图上编辑
-    （U-23）、视图状态由三种收成两种（U-17 改写：瞬态 / 入规格，瓦片带标记）、解释性文字的去向（U-24：
-    词表只给一句 gloss，长注留在场景 `note` 与页面）；新增〈十五 · 评估〉记三种角色的学习曲线；缺口
-    G-10..G-12。· v0.1 初稿：回答「fylite app 前端怎么详细设计」——输入页由 scenario fyo 文档**生成**
-    （一条声明一个控件，控件由词表类型决定），一个输入端口可**组合多个数据源**（源栈，
-    中间层合并，逐量出处）；执行是一串门调用，**进度按步实测、断点是一份记录、恢复是再入**；
-    输出记录经**场景自带的呈现规格**渲染为报告，工作台改的是同一份规格。交互图形四件：
-    LCFS / 剖面形状的试改（把手与节点，档位 A/B/C，改写计划可撤销）、二维整合视图（图层
-    即规格里的 layer 词）、剖面查看器（任选两个共格点的量作轴、多信道叠加、框选缩放、
-    时序按坐标族共域共光标）、工作台（瓦片布局写回规格）。导入 / 导出 / 移步离线只有一种
-    交换单元：文档集。实测家底九条；裁定 U-1..U-20；提案 FR-UI-003..008 · NR-QUAL-007 ·
-    DE-LOG-13..15；分期 U0 / U1 / U2 与四道闸；缺口 G-1..G-15；八张 16:9 预览图
-    （`tools/make-frontend-design-figures.py`，与 `-11` 共用一条外壳）。'
+    （`case` 已弃用，三处引用改正）。内容无其他变动。
+    逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
+    （2026-09-07 收束，用户「移除历史修改痕迹」）。'
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)

@@ -1,4 +1,4 @@
-"""线三 · 物理建模 / 预测 (S-7) — zerod · transport · coupled · tglf.
+"""线三 · 物理建模 / 预测 (S-7) — zerod · transport · coupled.
 
 Four tools that answer four different questions, and the boundaries between
 them are the point:
@@ -11,7 +11,7 @@ them are the point:
   on the pressure's AMPLITUDE, not its shape: the free-boundary solver takes
   a parameterised source (beta0, emp, enp) and has no entry for an arbitrary
   ``p(psi)``.  A loop that fed the shape back would be a stronger claim.
-* :func:`tglf` — local linear stability and quasilinear fluxes.  ``gamma``
+* 湍流闭合走扩展包的门 `code/turbulence`（剖面进、chi 出）。★``gamma``
   is a growth rate, not a flux.
 
 Every number comes from the kernel.  This module chooses the surfaces, the
@@ -23,11 +23,10 @@ import numpy as np
 
 from dataclasses import dataclass, field
 
-from . import gyrofluid as _tglf
 from ... import kernel as K
 from .. import provenance
 
-__all__ = ["zerod", "transport", "coupled", "tglf",
+__all__ = ["zerod", "transport", "coupled",
            "Phases", "Waveform", "Scenario", "evaluate"]
 
 
@@ -1435,28 +1434,10 @@ def coupled(*, aturns: list, ip: float, beta0: float = 0.55, emp: float = 1.0,
 # --------------------------------------------------------------------------- #
 # local linear stability / quasilinear fluxes
 # --------------------------------------------------------------------------- #
-def tglf(inputs: dict, *, fluxes: bool = False, ky=None,
-         sat_rule: int = 1, nmodes: int = 2) -> dict:
-    """Local linear stability (default) or the quasilinear flux chain.
+#: ★`tglf` — the `input.tglf` DECK face — left the package on 2026-09-06 with
+#: `gyrofluid.py` (kernel repository, `tests/oracles/gyrofluid.py`).  It had no
+#: caller here, in the tests or in the app.  The shipping turbulence path is the
+#: extension's door: `fydoc.complete("code/turbulence", …)`, a transport profile
+#: in and chi out — see `_flux_match_answer` and the evolve stages above.
 
-    ``inputs`` is the ``input.tglf`` name/value mapping.  With
-    ``fluxes=False`` the answer is the eigenvalues at one ``ky``: ★gamma is
-    a linear GROWTH RATE, not a transport flux — they are read at different
-    places in an argument and a page that puts them in one column invites
-    the wrong one.
 
-    With ``fluxes=True`` the whole chain runs over a ky spectrum under
-    ``sat_rule``.  ★The operating point is the CALLER's to state: this path
-    does not bisect for the mode width, so ``WIDTH`` and the unit
-    normalisations are required rather than invented — guessing them would
-    be answering a question the caller did not ask.
-    """
-    if fluxes:
-        out = _tglf.fluxes_kernel(inputs, ky=ky, sat_rule=sat_rule)
-        kind = "quasilinear_flux"
-    else:
-        out = _tglf.linear_kernel(inputs, nmodes=nmodes)
-        kind = "linear_eigenvalue"
-    res = dict(out) if isinstance(out, dict) else {"result": out}
-    res["provenance"] = provenance("tglf", kind=kind, sat_rule=sat_rule)
-    return res

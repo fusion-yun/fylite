@@ -72,16 +72,21 @@ c = S.model.transport(closure="neoclassical")
 
 ## 与湍流闭包接线
 
-χ 也可以来自回旋朗道流体端口（TGLF）而不是一条解析闭包：
+χ 也可以来自回旋朗道流体（TGLF）移植而不是一条解析闭包。**这一档不在
+`S.model.transport` 上**：湍流闭包是含时演化的一个档，两次推进之间在内核里评一次，
+所以它写在演化那一栏：
 
 ```python
-d = S.model.tglf(...)                      # 局域 TGLF：给定面上的通量与增长率谱
-t = S.model.transport(chi_given=chi_from_flux)   # 把它换算出的 χ 喂回来
+e = S.model.evolve(closure="turbulent", …)   # 面块 → 移植 → χ，都在内核里
+t = S.model.transport(chi_given=chi)         # 或者：自己算好的 χ 直接喂回来
 ```
 
-★**这一步的口径最容易咬人**：TGLF 按 GACODE 的归一给答案（`B_unit`、Miller `r/a`），
-而输运方程按 ρ 标签走。内核仓 `tests/oracles/mapping.py`（原 `scenario.model.mapping`，T-4 第十五刀迁出）是**唯一**做这一层归一的地方——不要在
-调用处自己换算，那是移植缺陷最常见的落点（见公开登记册的 V-06 / V-07 记录）。
+★**没有 `S.model.tglf` 这一格了**（2026-09-07）。移植本身没有消失，消失的是本层那张
+按 TGLF 输入卡逐格填写的**平面**：调用方原先要自己把剖面与平衡换算成 `input.tglf` 的
+归一（`B_unit`、Miller `r/a`），而输运方程按 ρ 标签走——这一层换算是移植缺陷最常见的
+落点（见公开登记册的 V-06 / V-07 记录）。现在换算只有一处，在内核里，`closure="turbulent"`
+自己走完；调用方给的是剖面与几何，不是一张卡。逐项参考实现在内核仓
+`tests/oracles/gyrofluid.py` 与 `tests/oracles/mapping.py`，端口对拍照跑。
 
 ## 报告
 

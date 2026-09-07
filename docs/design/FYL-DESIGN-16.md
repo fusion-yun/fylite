@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-16
 title: "可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split)"
 shortname: fylite-kernel-contract
-version: "2.5"
-date: 2026-09-05
+version: "3.0"
+date: 2026-09-06
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,53 +12,14 @@ ai_assistance:
   - Claude Code
 created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-05T00:00:00Z
+  date: 2026-09-06T00:00:00Z
   by: FyLite Maintainers
-  change: 'v2.5 **H-4 第一块落地**（用户「落地 H-4」，2026-09-05）：`geqdsk.js` 里那份
-    第三份 g-file 解析撤除，页面问中间层——站点经 `fylite_web.wasm`（0.51 MB，同一份源码
-    多一个 `abi_gfile`）的 `fylite_runtime_gfile_json`，桌面经 `POST /api/read?shape=gfile`，
-    中间是同一个 `GFile::to_node`。实测两条路与旧 JS 读法 26 个键逐值相同、与 python 读法
-    逐字段 0.0e+0。载入器拆成一处 `runtimeweb.js`（装置门与 g-file 门共用）。`fyo.js` /
-    `session.js` 未动，理由与判读写在 H-4 的落地进度里。
-    v2.4 增 H-7 / H-8（2026-09-05 两条用户裁定）：**hdf5 走 fy app 的文件端点、
-    静态站点保留 h5wasm** —— `POST /api/read` 字节进、fyo 文档出，读法是中间层自己的
-    （`io::read`，与 `fy data`、与 python 对拍同一份）；两条读法各自对仓里那份原生参照
-    负责（`validate-h5.mjs` / `validate-file-api.mjs`），实测逐叶子相同，可执行文件因此
-    14.72 -> 10.72 MB。**wasm 打包清单** —— 每一份产物都要说得出谁读它，清单与构建脚本
-    由 `validate-wasm-plan.mjs` 对照；中间层全套那一份缺省不再产出（`--full-wasm` 才出）。
-    v2.3 增 K-11（中间层出两份 wasm：0.43 MB 的 `fylite_facts.wasm` 只带装置那扇门
-    并进预缓存，2.14 MB 的全套暂不发）——答用户「wasm 线需要有 device 数据，如何解决？」，
-    实测断网后逃逸请求由 1 个降为 0 个、站点由 12 MB 降为 10 MB，G-11 随之关闭。
-    v2.2 收进 2026-09-05 两条用户裁定，算力面因此从「两个实现路径」收到一个：
-    **（一）webui 的内核功能由 api 端提供，只静态网页走 wasm** —— 落成 H-6：`POST /api/kernel`
-    是一次内核调用的逐参数转述，参数种类表由内核仓自 `c_api.rs` 生成给两侧（251 个导出桥接
-    248 个；结构门与分配器一对按名拒绝）；页面一处调用点都没改（`FyLite.attach()` 探
-    `/api/health`，探到就把 `Fy` 建在一份形状与 wasm `exports` 相同的导出面上）。等价性由
-    `validate-kernel-api.mjs` 逐位比对，实测纯算术逐位相同、含超越函数的差在末位（最大
-    1.4e-15，判读为两份 libm 的末位取舍）。**（二）fy 封装 fylite_kernel 静态库，.so 留给
-    python 层，wasm 留给静态网页发布** —— 落成 K-9 / K-10：内核仓新增 `fylite_static` 包出
-    一份 `libfylite_kernel_static.a`（核心 + 扩展），`fy` 链进去，`fy run` 与页面因此在没有
-    任何 `.so` 的机器上都完整可用。实测：静态库让 web 档的可执行文件 +3.10 MB，去掉的两份
-    内核 wasm 省 1.46 MB。G-7 的原生那半随之关闭，另记 G-9（NOTICE 不随可执行文件与站点走）
-    与 G-10（迭代型入口的往返延迟未量）。
-    v2.1 改口落文本：五条既有裁定的改口已随全书重排进入 CONOPS / SRS / SDD v1.0
-    （KERNEL 域、DE-LOG-11 / -12），改口表改为〔已确立〕对照，分期 P0 的第一项标已落。
-    v2.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）。v0.1..v1.4 是十四次
-    同日增量，每次把上一版的改口、作废与换理由叠在正文上；本版按裁定的**现行状态**重排，
-    历史只留在本条与追溯表。实质变化四处：①编号去重——「补数据」改 B-1..B-4（原与「状态」
-    同用 S-），「状态持有」三选项不再占 P- 号（与分期 P0..P3、SPM-ADR-111 的 P-1..P-6 三重
-    撞号），扁平树的四条裁定立为 F-1..F-4（原散在 M-2 段落里），中间层进 wasm 的两条立为
-    H-4 / H-5（原无编号）；②K-8b「按表定型的结构体」删除——它已被扁平树取代，不再作为
-    工作假设并列；③N-2 并入 N-1，那条被证伪的改名理由缩成一段记录（不抹掉）；④回调式
-    撤回的三条理由收成两条（浏览器那条已被 H-4 作废，v1.3 已如实标注），现按作废后的
-    状态写。所有实测数字沿用 2026-09-04 的量法与结果，未重量。
-    历史：v0.1 初稿（可替换内核、fyo 文档门唯一接口、K-1..K-7 / D-1..D-4 / H-1..H-3、
-    分期 P0..P3、缺口 G-1..G-6）· v0.2 多宿主非双宿主；中间层改名评估 · v0.3 / v0.4 改名两次
-    执行（fylite_data → fylite_engine → fylite_runtime；第一次理由经核查为假）· v0.6 K-8 装置
-    自 A-Box 经中间层以整份文档进内核，G-3 关 · v0.7 K-8a 实测路径形静默撞名 · v0.8 内核收树
-    四条路，推荐扁平树 · v0.9 / v1.0 扁平树定为交互接口且双向；回调式整条撤回；补数据四条路
-    · v1.1 内核无状态，状态是文档里声明过的子树 · v1.2 状态管理五件事分归三层 · v1.3 中间层
-    也进 wasm，两条旧理由如实作废 / 换理由 · v1.4 两组期号合成一条总线，H-2 改口，G-7 / G-8。'
+  change: |-
+    v3.0 全文按 as-built 重写。P0 · T-1 · T-2 · W-1 · T-3 · P1 · T-4 全部落地：文档门是
+    内核唯一的接口（33 个 code），两个方向都是扁平树，扁平物理导出在两个宿主上归零。
+    「现状」一节自此描述收敛后的系统而不是收敛前的；旧门做文本活并静默撞名的那段实测
+    改写为**门为什么收树不收路径**的设计理由（同一个锚）。分期表标注各期实际落成什么，
+    缺口表逐条重判。历次沿革叙述不再随文档累积。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -69,8 +30,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-16` |
 | 文档名称 (Title) | 可替换内核与四层分工 (The Replaceable Kernel and the Four-Layer Split) |
 | 短名 / Slug | `fylite-kernel-contract` |
-| 版本 (Version) | v2.5 |
-| 发布日期 (Date of Issue) | 2026-09-05 |
+| 版本 (Version) | v3.0 |
+| 发布日期 (Date of Issue) | 2026-09-06 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -111,69 +72,58 @@ wasm、另一台机器上的进程，或另一种实现；每个宿主对它们�
 (fylite-kernel-contract-asis)=
 # 现状 (As-Is)
 
-〔已确立〕以下为 2026-09-04 在 `fylite` 公开仓与 `fylite_kernel` 私有仓实测。
+〔已确立〕以下为 2026-09-06 在 `fylite` 公开仓与 `fylite_kernel` 私有仓实测。本节描述的是
+**收敛完成后**的系统；本文件裁定的目标态（K / F / B / S / N / D / H 各族）除 S-2 与 P2 · P3
+两期外都已落地，逐条状态见{numref}`tbl-fylite-kernel-phases`与缺口表。
 
 ## 谁走哪扇门 (Which door each host uses)
 
-:::{table} 各宿主走哪扇门。「扁平」＝直接调 `fylite_rs_*` 导出；「文档门」＝结构进结构出。
+:::{table} 各宿主走哪扇门。「扁平」＝直接调 `fylite_rs_*` 导出；「文档门」＝树进树出。
 :name: tbl-fylite-kernel-asis-calls
 
 | 宿主 | 走扁平 C 导出 | 走文档门 |
 | :--- | ---: | :--- |
-| Python（`scenario/` `fyo.py` `device.py` `engine/` `io/`） | **125** 个不同函数（`kernel.py` 声明 442 个签名） | `K.scenario` 5 个声明入口（`evolve_heat` `profit` `transport` `vstab` `zerod`）；十个能力工具里**只有 `evolve`** 声明了 `kernel_entry` |
-| 浏览器（`app/assets/*.js`） | **146** 个不同导出（`fylite.js` 内 344 处调用点） | `.scenario()` 仅 2 处 |
-| `fylite case`（经 `fylite_runtime`，`dlopen`） | 0 | `fylite_rs_fyo` 一扇门，**3 个 code**（`evolve` `zerod` `transport`） |
+| Python（`scenario/` `fyo.py` `device.py` `engine/` `io/`） | **物理算子 0 个**。留下的是两侧按同一算术共用的**数值原语**（`interp` · `pchip` · `gradient` · `resample_uniform` · `to_uniform_extrap` · `direct_integrals`）与运输 / I-O（`require_data` · `grid_of` · `read_gfile`）。★2026-09-07 起**无例外**：此前那 7 个 `tglf_*`（`gyrofluid.py` 的 deck 面）已随移植面撤下 | `fydoc.complete(...)` **33 处**（AST 计数，`python/fylite/**/*.py`） |
+| 浏览器（`app/assets/*.js`） | **物理算子 0 个**。`fylite.js` 上剩 12 个原型，全是原语与装载机制 | `KERNEL.complete('code/…')` **39 处** |
+| `fylite case`（经 `fylite_runtime`，`dlopen`） | 0 | 同一扇门，**33 个 code** |
 :::
 
-:::{table} 内核今天怎么钉、怎么换。
+:::{table} 内核怎么钉、怎么换。
 :name: tbl-fylite-kernel-asis-pin
 
 | 事项 | 实测 |
 | :--- | :--- |
-| 版本 | `ABI_VERSION = 125`，由内核仓构建生成进 `_abi.py`；装载器见到不符**硬拒** |
+| 接口面 | `c_api.rs` 有 205 个 `extern "C"` 条目，**进制品的只有 42 个**：文档门自己、32 个数值原语、10 个运输机制（分配 / 释放 / 版本 / 握手）。其余 **163 个物理算子**挂 `#[cfg(feature = "oracle")]`，wasm · 静态归档 · 公开包的 `.so` 都不带 |
+| 版本 | `ABI_VERSION = 152`，由内核仓构建生成进 `_abi.py` 与 `version.js`；装载器见到不符**硬拒**。另有 `INTERFACE_DIGEST` 只守 fyo 表的内容，`INTERFACE_REVISION` 只在旧读者会读错时才动 |
+| 不再长回来 | `seam.rs` 给每个导出分类（`abi` · `primitive` · `oracle`），`SINK_BASELINE = 0` **只准降**；`rust/build.sh` 数导出个数；公开仓 `test_flat_calls_only_shrink.py` 逐文件钉调用点基线 |
 | 换内核 | `$FY_KERNEL_LIB`（Python）/ `FYLITE_KERNEL_LIB`（中间层）——都只是**文件路径**；两边各自 `dlopen` 同一个 `.so` |
-| 第二种实现 | 无落点：没有后端表，没有「哪个后端完成哪些能力」的声明 |
-| 远端 | 没有远端**内核**。存在的两样都是远端 **fylite**：`engine.serve.serve_stdio()` / `mcp_stdio()` 暴露整个 fylite；`fy` 的 `/api/*` 五个端点（`health` `shot` `tree` `node` `signal` `measurements`）全是 mdsip 取数 |
-| 跨宿主一致性 | `engine.crosshost`：比的是**同一内核的两个构建**（原生 vs wasm），只对声明了 `kernel_entry` 的工具运行——今天一个 |
-| 内核的全局态 | **零**：`static mut` · `thread_local` · `lazy_static` · `OnceLock` · `Mutex` 在 36 个源文件里一处都没有 |
+| 第二种实现 | 仍无落点：没有后端表，没有「哪个后端完成哪些能力」的运行期声明（P2） |
+| 远端 | 没有远端**内核**。存在的两样都是远端 **fylite**：`engine.serve` / `mcp` 暴露整个 fylite；`fy` 的 `/api/*` 取数，另有 `/api/kernel` 是**桌面宿主**把一次内核调用逐参数转述给静态库（68 个符号桥，神谕导出不桥） |
+| 跨宿主一致性 | `engine.crosshost` 比同一内核的两个构建；页面侧另有 15 道 node 闸子逐位比对门的答案 |
+| 内核的全局态 | **零**：`static mut` · `thread_local` · `lazy_static` · `OnceLock` · `Mutex` 一处都没有 |
 | 内核的依赖 | `Cargo.toml` 依赖表只有 `rayon`（可选）；`cdylib` + `rlib`，同一份 `c_api.rs` 也编 `wasm32-unknown-unknown`；**没有文档模型，没有 JSON 解析器** |
-| 中间层已有 | `document.rs`（710 行）· `json.rs`（488）· `yaml.rs`（793）· `fyodoc.rs`（460）——树、解析、语义都在这边；树类型是 `Node`（`Null` · `Bool` · `Int` · `Float` · `Str` · `Array{shape, F64\|I64\|Str}` · `List` · `Map`） |
+| 内核仓的神谕树 | `tests/oracles/` 34 个模块 8 387 行：搬出公开包的旧配方与 numpy 参照，门的答案逐位钉在它们上面。它**不进任何制品** |
 :::
 
-`fylite_rs_fyo` 已经是可替换内核该有的形：code + 按名的设置 + 输入进，结果的声明 + 平铺
-数据出，缓冲区由内核持有、调用方经 `fylite_rs_free` 释放，装成文档是中间层 `case.rs` 的事。
-它只是尚未成为**唯一**的门，而且入参与出参的形状都还是文本（下）。
-
 (fylite-kernel-contract-path-defect)=
-## 今天的门在做文本活，并且会静默取错数 (The door does text work, and silently mis-binds)
+## 门为什么收树，不收路径 (Why the door takes a tree, not paths)
 
-〔已确立〕直接经 `fylite_rs_fyo` 实测。**两个方向都是文本**：入参是一组 `(路径, 维数, 数值)`
-三元组，由调用方逐条摊平；出参是内核格式化的一段 **TSV 清单**
-（`field<TAB>ids<TAB>path<TAB>units<TAB>offset<TAB>len<TAB>dims`）外加一条平铺 f64，中间层
-解析那段 TSV（`cells[4].parse()`），再按其中的路径字符串把树建出来（`documents()`）。
+〔已确立〕这是 K-8 与 F-1..F-4 的理由，记在这里因为它是**用实测买来的**，不是偏好。
 
-入参那一侧不只是笨。内核收下路径之后**当场把路径丢掉**——`case.rs`：
+旧门两个方向都是文本：入参是一组 `(路径, 维数, 数值)` 三元组由调用方逐条摊平，出参是内核
+格式化的一段 TSV 清单由中间层解析回树。文本入参有一处**沉默的错**：内核收下路径之后当场
+把它丢掉，只留最后一段叶子名，而打包对重名**后写者胜**——不报错、不留注记。声明里 `rho`
+被三个入口 declared、`vprime` 被两个，所以「两份不同文档里同名收尾的路径并成一条」不是
+假想。当时以 `entry/transport` 实测：只绑 `equilibrium/…/rho` 得一组数，只绑
+`core_profiles/…/rho` 得另一组，**两条都绑时后者胜、`rc=0`、无一句话**。
 
-```rust
-for (k, v) in req.inputs {
-    let key = k.rsplit('/').next().unwrap_or(k);   // 只留最后一段
-    if iblock.iter().any(|r| r[0] == key) { iv.push((key, v)); }
-```
-
-而 `pack` 对重复的 key **后写者胜**，不报错、不留注记。两份**不同文档**里同名收尾的路径
-因此并成一条。拿 `entry/transport` 量：
-
-| 绑了什么 | 答案 `y[-3:]` |
-| :--- | :--- |
-| 只绑 `equilibrium/profiles_1d/grid/rho` | 2548.98 · 1426.53 · 100 |
-| 只绑 `core_profiles/profiles_1d/grid/rho` | 9895.92 · 5406.12 · 100 |
-| **两条都绑** | **9895.92 · 5406.12 · 100**（后者胜，`rc=0`，无一句话） |
-
-声明里 `rho` 被三个入口 declared、`vprime` 被两个——同名收尾不是假想。门**看起来**按路径，
-**实际上**按叶子名，两者不一致时没有任何一侧会说话。这是 K-8 与 F-1..F-4 要关掉的那一类。
+门**看起来**按路径、**实际上**按叶子名，两者不一致时没有任何一侧会说话。一个接口只要允许
+调用方把结构摊平成字符串，这一类错就永远是可能的——收敛后的门因此收**整棵树**：结构由内核
+自己走，取不到按名拒绝并一次列全。今天的 33 个 code 全部如此，`validate-fyo-tree.mjs` 与
+内核仓的往返闸守着这一点。
 
 (fylite-kernel-contract-target)=
-# 目标架构：四层 (Target: Four Layers)
+# 架构：四层 (The Four Layers)
 
 ```{mermaid}
 flowchart TB
@@ -765,42 +715,46 @@ KERNEL 域 FR-KERNEL-001..004 承载 K-1 / K-2 / K-4 / K-8 / F-1..F-4 / S-1..S-4
 (fylite-kernel-contract-plan)=
 # 分期：一条总线 (One Ordered Plan)
 
-〔工作假设〕两件事交错着做：`P` 是「内核变成可替换的一层」，`T` 是「门换成双向的树」，
-`W` 是「中间层进浏览器」。**两条硬约束**：T-1 必须在 P1 之前（否则七个工具照着一扇要换掉
-的门写一遍）；T-1 的读与写必须同期（否则往返闸只验得了一半）。其余可并行。现在这扇门是
-能用的，所以新形与旧形并行落地，不是换心脏。
+〔已确立〕三条线交错着做完：`P` 是「内核变成可替换的一层」，`T` 是「门换成双向的树」，
+`W` 是「中间层进浏览器」。两条硬约束都守住了——T-1 在 P1 之前落地（否则七个工具会照着
+一扇要换掉的门再写一遍），T-1 的读与写同期落地（否则往返闸只验得了一半）。新形与旧形
+并行了一段时间，不是换心脏。
 
-| # | 期 | 做什么 | 判据 |
+:::{table} 各期实际落成什么。
+:name: tbl-fylite-kernel-phases
+
+| # | 期 | 落成 | 判据的实测 |
 | ---: | :--- | :--- | :--- |
-| 1 | **P0 契约** | code 表 + 输出声明定为唯一接口（K-1 / K-2）写进 SRS / SDD **已落**（FR-KERNEL-001..004 · DE-LOG-11 / -12，2026-09-04）；后端表的形（K-4）定下；与 `SP-REPORT-15` T-0.4 对齐远端 envelope（K-5）；改名（N-1）**已落** | 改口落文本 ✓；`fylite case describe` 的输出即契约的可读形 |
-| 2 | **T-1 树的四份实现** | 定扁平树格式（F-1 / F-3）；中间层编码 + 解码、内核阅读器 + 构建器同期落；旧门一字不动 | 往返闸：编码 → 内核走 → 内核建树交回 → 解码 → 与源文档逐叶子比 |
-| 3 | **T-2 一个 code 走新门** | 门加一条收树的路，先只接 `transport`（最小） | 同一算例两条门逐位相同 |
-| 4 | **W-1 中间层进 wasm** | `fylite_runtime` 的 wasm 目标 + JS 接线（H-4 / H-5）；`geqdsk.js` / `fyo.js` / `session.js` 的职责移交 | 浏览器与本机读同一份 g-file 得同一批数；JS 不再自带 g-file 实现 |
-| 5 | **T-3 其余 code 搬门** | 逐个搬；撞名按构造不可能 | 每搬一个，两门对拍一次 |
-| 6 | **P1 补 code**〔关键路径〕 | 其余七个装配型工具补成内核 code（`vstab` 先），Python 与页面改走文档门；状态按 S-2 收成 `fylite:state` | `scenario/` 与页面 JS 里 `fylite_rs_*` 归零；十个工具全部声明 `kernel_entry`；crosshost 对十个运行 |
-| 7 | **T-4 删旧形** | 删路径形、按 `/` 切尾、内核的 TSV 格式化、中间层的 TSV 解析 | 门只剩一种形状，两个方向都是树 |
-| 8 | **P2 后端表** | 三种后端登记；`--kernel` 按名或地址选；`/api/case` 端点 | 同一份计划在三种后端各出一份记录，`environment` 各不相同、`whence` 各追得回 |
-| 9 | **P3 中间层 profile** | 跑 SpData conformance 向量；「profile 不含」清单写进 `FYL-DESIGN-14` | 向量全过或逐条说明不含；`FR-CONF-002` 不违 |
+| 1 | **P0 契约** | ✓ | code 表与输出声明写进 `FYL-SRS-01` FR-KERNEL-001..004 与 `FYL-SDD-01` DE-LOG-11 / -12；改名（N-1）落文本 |
+| 2 | **T-1 树的四份实现** | ✓ | 中间层编码 / 解码、内核阅读器 / 构建器同期落；往返闸逐叶子比 |
+| 3 | **T-2 一个 code 走新门** | ✓ | `transport` 先走，同一算例两条门逐位相同 |
+| 4 | **W-1 中间层进 wasm** | ✓ | 页面得到树门（`validate-fyo-tree.mjs`）；`geqdsk.js` 的第三份 g-file 解析撤除，改问中间层的 `fylite_web.wasm` |
+| 5 | **T-3 其余 code 搬门** | ✓ | 逐个搬，每搬一个两门对拍一次 |
+| 6 | **P1 补 code**〔关键路径〕 | ✓ | 装配型工具补成内核 code；`scenario/` 与页面 JS 里的物理导出归零 |
+| 7 | **T-4 删旧形** | ✓ | 门只剩树这一种形状。33 个 code；`seam.rs` 的 `sink` 与 `march` 两类**归零**，163 个物理算子改归 `oracle` 不进制品；wasm 核心导出 42 个 |
+| 8 | **P2 后端表** | 未开始 | 三种后端登记；`--kernel` 按名或地址选；`/api/case` 端点 |
+| 9 | **P3 中间层 profile** | 未开始 | 跑 SpData conformance 向量；「profile 不含」清单写进 `FYL-DESIGN-14` |
+:::
 
-★P1 是关键路径：唯一动物理代码的一期，也是量最大的一期（271 个调用点）。P0 · P3 是文本
-与门禁，T 系与 W-1 是机械工程，P2 在 P1 之后是加法。
+★P1 曾是关键路径——唯一动物理代码的一期，也是量最大的一期。它与 T-4 一起完成之后，
+**余下的两期都是加法**：P2 给已经单一的门加第二种后端，P3 是中间层对外的一致性声明。
 
 (fylite-kernel-contract-gaps)=
 # 缺口与开放项 (Gaps and Open Items)
 
 | 编号 | 缺口 | 状态 |
 | :--- | :--- | :--- |
-| G-1 | 装配搬进内核后，页面交互（拖滑块重算一栏）的延迟预算是否仍满足 `FYL-CONOPS-00` 的响应包络——一次门调用比一次扁平调用多一次编码 | 开；P1 实测 |
+| G-1 | 装配搬进内核后，页面交互（拖滑块重算一栏）的延迟预算是否仍满足 `FYL-CONOPS-00` 的响应包络——一次门调用比一次扁平调用多一次编码 | **开**。P1 / T-4 已完成而这一项**始终没有量**：十五道 worker 闸子守的是答案逐位相同，不是时延。要一次真浏览器的包络实测 |
 | G-2 | 远端后端的 envelope：复用 `engine.serve` 的 JSON-RPC 与 `DriverRequest`，还是另立 `compute.` 方法族 | 开；随 `SP-REPORT-15` T-0.4 裁定 |
 | G-3 | ~~内核不认识装置，而导体几何现算归谁~~ | **已关**（K-8）：装置以整份文档进内核，来路归中间层 |
 | G-4 | 两个后端给出不同的数时，登记册记录的纳入类别（V / B / C）怎么定——今天三类都以「外部答案」为对照，后端间对照是第四种 | 开；P2 |
-| G-5 | ~~wasm 后端的 code 表怎么自报~~ | **随 W-1 即关**（H-4）：中间层的 wasm 像本机那样问内核要，不再靠生成的 `fyo-interface.js` 冒充运行期查询 |
+| G-5 | wasm 后端的 code 表怎么自报 | **仍开**（W-1 未关掉它）：页面今天读的仍是生成物 `fyo-interface.js`，不是运行期向内核查询。归 P2 的 K-2 一并做 |
 | G-6 | 中间层与 SpData 重叠语义的对齐代价未量：`$link` 分解、`merge_key`、时间开窗三处各自定义，可能与 SpData 的 `$op` / 标识符语法冲突 | 开；P3 前先量 |
 | G-7 | ~~wasm 上两个模块由 JS 接线 vs 链成一个制品~~ | **原生那侧已关**（K-9，2026-09-05 用户裁定）：`fy` 链一份静态库，核心与扩展在同一个制品里，接线没有了；发布面与许可面与轮相同（源码不公开、二进制随发行走）。**wasm 那侧仍开**：静态站点上内核与中间层还是两个模块由 JS 接线 |
-| G-8 | `fylite:state` 的形：一块还是逐 code 一块；跨 code 的状态（`coupled` 里平衡与输运各有）怎么并 | 开；P1 与 S-2 一同定 |
+| G-8 | `fylite:state` 的形：一块还是逐 code 一块；跨 code 的状态（`coupled` 里平衡与输运各有）怎么并 | **开**。P1 完成而 S-2 没有跟着落：今天的跨调用状态是**逐个具名的槽**（`fylite:vprime_old`、门与门之间交接的梯子行），不是一棵声明过的 `fylite:state` 子树。续跑因此还不能对任意 code 一致地做 |
 | G-9 | **NOTICE 不随 `fy` 与站点走**：轮有（`build-wheel.sh` 两份逐字节比对，Apache-2.0 §4(d)），而可执行文件与静态站点只带 `credits.html` 里的 GACODE 署名段。今天的裁定把**原生的**内核代码放进了可执行文件，这条因此更显眼——但它不是今天才有的：可执行文件此前内嵌的两份内核 wasm 同样是派生物 | 开；发行前定（把 NOTICE 落进站点与内嵌树，还是判定 `credits.html` 已满足） |
 | G-11 | ~~静态站点离线时没有装置数据~~ | **已关**（K-11，2026-09-05）：中间层出一份 0.43 MB 的 `fylite_facts.wasm` 并进预缓存；实测断网后 0 个请求逃逸，装置三台俱在 |
-| G-10 | 逐调用桥在**迭代型入口**（`*_init` / `*_next` / `*_result`）上按迭代次数发请求，延迟未量。与 G-1 是同一个问题的两侧：那条量的是「装配搬进内核后一次门调用多一次编码」，这条量的是「一次迭代多一次回环往返」 | 开；P1 与 G-1 一同量 |
+| G-10 | 逐调用桥在**迭代型入口**（`*_init` / `*_next` / `*_result`）上按迭代次数发请求，延迟未量。★T-4 第三十刀之后这三台状态机已不在桥上（改归 `oracle`，桌面桥只剩 68 个符号），这一项**因此缩小到**：门本身在外环里被反复调用时的往返代价。与 G-1 是同一个问题的两侧：那条量的是「装配搬进内核后一次门调用多一次编码」，这条量的是「一次迭代多一次回环往返」 | 开；P1 与 G-1 一同量 |
 
 (fylite-kernel-contract-trace)=
 # 追溯 (Traceability)

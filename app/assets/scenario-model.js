@@ -26,8 +26,13 @@
 // WITHDRAWN with its markup, its catalogue and its gate.  It answered a
 // different question on a different magnetic surface, and it was never a stage
 // of this scenario: nothing here fed it and it fed nothing.  The kernel entry
-// is untouched (`fylite.scenario.model.tglf`, and the turbulence closure this
-// page's 1.5-D bar can switch on still runs through the same module).
+// is untouched — the TGLF port runs in the extension binary and the turbulence
+// closure this page's 1.5-D bar can switch on still reaches it.  ★What went
+// with the demo, on 2026-09-07, is the DECK FACE on the Python side
+// (`fylite.scenario.model.tglf`): a deck is an external serialisation format,
+// the kernel does not parse one, so that face could not sink into a door and
+// was retired rather than kept as a second way in.  The door is
+// `code/turbulence`.
 
 
 // ==========================================================================

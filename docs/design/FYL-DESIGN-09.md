@@ -30,18 +30,8 @@ modified:
     `page_*` v2 外壳页（生成物，尚未提为正本）；⑧追溯矩阵补 D-23..D-25 三行（v1.3 记为已加，
     实际缺失）。编号 D-1..D-25、G-1..G-23、分期 P0..P6、门禁九条一个不动；已闭合的缺口仍
     划掉留行。
-    历史：· v1.5 视觉设计部分整理重写——「交互界面」与「视觉设计（在共享外壳之下）」并为
-    一节，D-23 / D-24 / D-25 回到设计裁定节；三套面板编号并成两套；页级结构图
-    `pulse-design-page.svg` 撤下；示意图改明亮配色、页眉换成共享外壳（此前画的是一条不存在的
-    「脉冲设计工作台」标题栏带预设下拉）· v1.4 D-24 落地（`page_pulse_design.html` 首处输出
-    297 px，G-21 闭合）；G-22 按实测更正：开关本来就在页体里 · v1.3 新增视觉设计一节与
-    D-23 / D-24 / D-25、四张 16:9 预览图（`tools/make-desktop-preview.py` 生成、
-    `test_desktop_previews.py` 守）、缺口 G-21..G-23、门禁第 9 条 · v1.2 分期 P5 落地（三条入口
-    收成一页 `pulse_design`），as-built 按实测重写，修四处内部不一致；实测发现并修掉
-    `validate-site.mjs` 第三处字母表失明 · v1.1 增 D-22 保真度是一个开关（用户裁定 2026-08-31），
-    建模页含时演化栏收敛进本页成 1.5-D 档；随之 S 档拆 S0 / S1.5、G-19 / G-20、P6、
-    FR-PULSE-012 · v1.0 改写为直接描述放电设计页（三模式、共用脚本、三块视图、分档响应、
-    脉冲脚本对象），移除 v0.1–v0.4 的沿革叙述；D-1..D-21 编号保持不变。
+    逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
+    （2026-09-07 收束，用户「移除历史修改痕迹」）。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -972,14 +962,13 @@ graph TD
 (fylite-pulse-design-kernel-contract)=
 ## 与内核契约的关系 (Relation to the Kernel Contract)
 
-〔已确立·2026-09-04 实测〕这一页今天**直接**碰内核的地方：上面列的六个 worker 命令
-（`zerod` · `zerodb` · `zerodflux` · `start` · `solve` · `pulse`）与
-`FyPhys.kernel().zerodWaveform`；它们底下是 `app/assets/fylite.js` 里对 `fylite_rs_*`
-扁平导出的调用（整个 `fylite.js` 共 **344** 处调用点，实测 2026-09-04；
-`FYL-DESIGN-16` {numref}`tbl-fylite-kernel-asis-calls`）。这一页因此和 Python 侧一样，
-是绑在**这一个实现的导出面**上的。
+〔已确立·2026-09-06 实测〕这一页碰内核的地方全部是**文档门**：上面列的六个 worker 命令
+底下是 `code/zerod` · `code/discharge` · `code/forward` · `code/pulse` · `code/summary`，
+主线程上的波形与形状读数走 `code/waveform` · `code/shape` · `code/outlines`。页面因此
+**不再绑在某一个实现的导出面上**——它写计划、读记录（`FYL-DESIGN-16`
+{numref}`tbl-fylite-kernel-asis-calls`）。
 
-〔工作假设·目标态〕按 `FYL-DESIGN-16` K-1 / K-3 / H-1，这一页退成**计划构造器**：
+按 `FYL-DESIGN-16` K-1 / K-3 / H-1，这一页是**计划构造器**：
 
 - **K-1 文档门唯一.** 页面**只**经「一份 fyo 计划进、一份 fyo 记录出」调用内核；
   控件的每一次改动产生的是计划里的一个字段，「计算」键送出一份计划，面板呈现一份

@@ -147,13 +147,18 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 
 ## WebAssembly 制品
 
-浏览器端跑的是内核的 wasm 版本，按 cargo feature 拆成**三份**，都在 `app/assets/`：
+浏览器端跑的是内核的 wasm 版本，都在 `app/assets/`。★2026-09-05 用户裁定
+**DKE 与 TGLF 合为一份扩展**，`.so` 与 `.wasm` 同一条规矩，于是内核侧的 wasm 从三份
+收为**两份**，与两个 `.so` 一一对应；本仓自己的 runtime 另出一份：
 
-| 文件 | 内容 | 何时取 |
-| :--- | :--- | :--- |
-| `fylite_rs.wasm` | core——平衡 / 重构 / 电路 / 0-D | 页面启动即取 |
-| `fylite_tglf.wasm` | 回旋朗道流体（TGLF） | 按需 |
-| `fylite_dke.wasm` | NEO 漂移动理学 | 按需 |
+| 文件 | 出自 | 内容 | 何时取 |
+| :--- | :--- | :--- | :--- |
+| `fylite_rs.wasm` | 内核仓（`libfylite_kernel.so` 的对应件） | core——平衡 / 重构 / 电路 / 0-D | 页面启动即取 |
+| `fylite_kernel_ext.wasm` | 内核仓（`libfylite_kernel_ext.so` 的对应件） | 扩展——TGLF 回旋朗道流体 + NEO 漂移动理学 | 按需 |
+| `fylite_web.wasm` | 本仓 `rust/fylite_runtime` | 页面真读的那两扇门：装置事实与 g-file | 页面启动即取 |
+
+★**没有 `fylite_tglf.wasm` / `fylite_dke.wasm` 这两个名字了**（2026-09-05 合并之前有）。
+`app/assets/fylite.js` 只有一个扩展载入口，取的是 `fylite_kernel_ext.wasm`。
 
 ★上表写的是**逻辑名**。磁盘上（以及站点上）真正的文件带版本后缀——
 `fylite_rs.wasm.0.0.1`，加 `.wasm.0` 与 `.wasm` 两级符号链接，与 `_lib/` 里的三个

@@ -92,7 +92,6 @@ def test_the_generated_tables_are_actually_reaching_their_consumers():
     """★The positive half.  Every check above is satisfied by a host that
     stopped using the names at all, so pin the live consumers by name.
     """
-    from fylite.scenario.model import gyrofluid
     from fylite import kernel
 
     #: ★★It pinned ``gacode._VECTOR_KEYS``, and that name was DEAD — nothing
@@ -105,25 +104,17 @@ def test_the_generated_tables_are_actually_reaching_their_consumers():
     #: which every NEO call unpacks BY POSITION on the other side of the ABI.
     assert kernel.NEO_SPECIES_ROWS == tuple(
         n.lower() for n in _deck_names.NEO_DECK_SPECIES)
-    #: ★★And it happened AGAIN, one module over: this line pinned
-    #: ``gyrofluid._VECTOR_KEYS``, which existed only to feed
-    #: ``gyrofluid._split_index`` — a splitter with no caller in the package,
-    #: the identical dead trio already removed from ``io.gacode``.  So the
-    #: case was once more agreeing with a host that had stopped using the
-    #: names, under a docstring recording that it had been fixed for exactly
-    #: that.  A name a test pins is not a use; pin the CALL.
+    #: ★★And it happened AGAIN, one module over: this case used to pin
+    #: ``gyrofluid._species``, the deck reader of the gyrofluid PORT FACE.
+    #: That face was retired from this repository on 2026-09-07 — the deck a
+    #: caller used to fill in slot by slot is now filled inside the kernel,
+    #: and the reference reader lives in the kernel repo's oracle tree.  A
+    #: consumer that no longer exists cannot be pinned, and pinning the
+    #: TABLE instead is the mistake the docstring above warns about.
     #:
-    #: The live consumer of the rotating species order is ``_species``,
-    #: which reads it POSITIONALLY into the arrays both ported entries send
-    #: across the ABI.  Asked for a deck with every rotating row present, it
-    #: must return one row per name, in that order.
-    ns = 2
-    deck = {f"{name}_{i + 1}": float(j)
-            for j, name in enumerate(_deck_names.TGLF_DECK_SPECIES_ROTATING)
-            for i in range(ns)}
-    rows = gyrofluid._species(deck, _deck_names.TGLF_DECK_SPECIES_ROTATING, ns)
-    assert [r[0] for r in rows] == [
-        float(j) for j in range(len(_deck_names.TGLF_DECK_SPECIES_ROTATING))]
+    #: So what is left on THIS side is the re-export in ``kernel``, which is
+    #: what a host reads when it needs the order.  It is pinned as an
+    #: identity with the generated table, not as a second spelling.
     assert tuple(kernel.TGLF_DECK_SPECIES) == tuple(
         _deck_names.TGLF_DECK_SPECIES)
 
@@ -169,21 +160,14 @@ def test_the_index_vocabularies_still_decode_the_way_the_kernel_reads_them():
         _deck_names.LH_EFFICIENCY_MODEL_NAMES)
 
 
-def test_the_miller_slots_carry_a_default_for_every_slot():
-    """★The Miller block is a 14-slot positional read; the kernel owns the
-    ORDER and the host owns the DEFAULTS, so the one way they can fall out of
-    step is a slot with no default.  ``_MILLER_DEFAULTS[k]`` would raise —
-    but only on the deck that omits that key, which may be nobody's for
-    months.
-    """
-    from fylite.scenario.model import gyrofluid
-
-    slots = tuple(_deck_names.TGLF_MILLER_SLOTS)
-    assert tuple(k for k, _ in gyrofluid._MILLER_KEYS) == slots
-    missing = [k for k in slots if k not in gyrofluid._MILLER_DEFAULTS]
-    assert not missing, f"slots with no default: {missing}"
-    extra = [k for k in gyrofluid._MILLER_DEFAULTS if k not in slots]
-    assert not extra, f"defaults for slots the kernel does not read: {extra}"
+#: ★``test_the_miller_slots_carry_a_default_for_every_slot`` stood here until
+#: 2026-09-07.  It checked that the host's ``_MILLER_DEFAULTS`` covered every
+#: slot of the kernel's ``TGLF_MILLER_SLOTS`` — a real invariant for as long
+#: as a HOST owned the defaults.  With the gyrofluid port face retired from
+#: this repository, the defaults left with it: the case moved to the kernel
+#: repo's ``test_deck_mappers_are_lookups`` and reads the same generated
+#: table from there.  Restating it here would pin nothing this side can get
+#: wrong.
 
 
 def test_the_two_tglf_geometry_orders_are_kept_apart():

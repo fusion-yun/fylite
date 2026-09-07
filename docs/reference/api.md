@@ -32,7 +32,7 @@ from fylite import fyo, io, device   # 文档层 / 别人的格式 / 机器
 | :--- | :--- | :--- |
 | `design` 放电设计 | `discharge` · `breakdown` · `feasible` · `zerod` | `S.design.*` |
 | `control` 控制仿真 | `vstab` · `coupled` | `S.control.*` |
-| `model` 物理建模 | `zerod` · `transport` · `coupled` · `tglf` · `discharge` · `reconstruction` | `S.model.*` |
+| `model` 物理建模 | `zerod` · `transport` · `coupled` · `evolve` · `discharge` · `reconstruction` | `S.model.*` |
 | `analysis` 实验分析 | `reconstruction` · `zerod` | `S.analysis.*` |
 
 一个工具**只实现一次**，服务几条线就在几条线上列名。另有两个不在注册表里的函数：
@@ -50,7 +50,7 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 
 | 模块 | 用途 |
 | :--- | :--- |
-| `kernel` | C-ABI 面：装载器、ABI 守卫、文档门 `scenario` / `fydoc.complete`，与仍在接口上的原语；物理算子（求解器 · 磁面追踪 · GEO / NEO / TGLF 端口 · 输运核）经门到达，扁平入口自 2026-09-05 起逐刀退出接口（`docs/note/kernel-public-seam.md`） |
+| `kernel` | C-ABI 面：装载器、ABI 守卫、文档门 `scenario` / `fydoc.complete`，与仍在接口上的原语；物理算子（求解器 · 磁面追踪 · GEO / NEO / TGLF 端口 · 输运核）经门到达，扁平入口自 2026-09-05 起逐刀退出接口——2026-09-07 已全部退出（内核仓 `docs/note/kernel-public-seam.md`） |
 | `fyo` | fyo 语义文档层：`equilibrium`（g-file→文档，`as_equilibrium` 是唯一的门）、`reconstruction`、`Ladder` 一次描迹（输运度量 + Miller 形状，同一批面）、`read` / `write`（JSON-LD 在本层；`.h5` 交给中间层 `io.fydoc`，2026-09-04 起） |
 | `device` | **机器**：①牌在哪（`$FYLITE_DEVICE_DIR`，缺则抛 `MachineDataMissing`）②牌说什么（几何 / 通道图 / 被动集，文档优先、deck 兜底）③**导体做什么**（互感 / 电阻矩阵、网格响应与磁通折叠、通道空间电路矩阵、回路推进）④**视线做什么**（弦几何与沿磁通图的线积分） |
 | `io.geqdsk` | g/a-file 读写，以及 g 文件蕴含的 `(R, Z)` 网格与 ψ_N 图 |
@@ -66,16 +66,21 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `engine.casereport` | **算例报告**：计划 + 记录 → 呈现规格 → MyST + 手写 SVG（不需要 matplotlib）；见[算例报告](case-report.md) |
 | `engine.cases` | 算例语料：`catalogue` / `load` / `settings` / `plan` / `run`，以及按名拒绝的 `REFUSALS` |
 | `engine.benchmark` | 公开 V&V 登记册：`records` / `load` / `problems` / `gate_plan` / `run` |
-| `scenario.model.*` | `assembly`（含时芯部推进 `solve_core`）· `closure` · `neoclassical` · `gyrofluid`（TGLF）· `nbi` · `lh` · `sources` · `mapping`（剖面→NEO/TGLF 输入的 GACODE 归一） |
-| `scenario.analysis.*` | `recon_rs`（重构行）· `loop`（自洽外环）· `tomography` · `selfcal` · `moments` |
-| `scenario.control.*` | `stability`（n=0 垂直模）· `vertical`（线性化对象与反馈回路）· `evolution`（电压驱动自由边界演化） |
-| `scenario.design.*` | `shape`（形状观测量与响应矩阵）· `pulse`（前馈轨迹、通道限值、带界最小二乘） |
+| `scenario.model.*` | `nbi`（束流几何与沉积装配）· `lh`（天线谱装配） |
+| `scenario.analysis.*` | `recon_rs`（重构行）· `moments`（矩） |
+| `scenario.control.*` | `stability`（n=0 垂直模判据）· `vertical`（线性化对象与反馈回路） |
+| `scenario.design.*` | `pulse`（前馈轨迹、通道限值、带界最小二乘） |
 
-★`scenario.model.neoclassical` **已迁出本包**（T-4 第十五刀 · 第十八刀，2026-09-06）：`neo` 与 `redl` 两个
-`current_source` 后端连同外环一起在内核仓的神谕树 `tests/oracles/{neoclassical,redl}.py`，算的仍是同一个 DD 量
-（`core_sources` `bootstrap_current`，index 13）、同一份内核文件；页面与 Python 的自举闭合走 `code/transport` 门。
-★`scenario.model.gyrofluid` 是 TGLF 那一个——同级 `__init__` 里有名为 `tglf` 的能力函数，
-**同名模块会被它遮住**。
+★这张表**比从前短**，而且会继续短下去：T-4（2026-09-05 起）把每一条「本层自己算」的
+配方逐刀沉进内核的**文档门**，本包留下的只是装配。迁出的模块——`assembly` · `closure` ·
+`neoclassical` · `mapping` · `gyrofluid` · `sources` · `tomography` · `selfcal` · `loop` ·
+`evolution` · `shape`——**没有消失**：它们算的是同一份内核文件，逐项参考实现在内核仓的
+神谕树 `tests/oracles/`，端口对拍照跑。本层的调用方走门：自举闭合与新经典 χ 走
+`code/transport` / `code/bootstrap`，湍流闭包走 `code/turbulence`，形状与前馈走
+`code/outlines` / `code/shape` / `code/pulse`。
+★**没有 `scenario.model.gyrofluid`、也没有 `S.model.tglf` 了**（2026-09-07）：那是按
+`input.tglf` 输入卡逐格填写的**移植面**，deck 是外部序列化格式、内核不解析它，所以这张面
+沉不进门，整面退役（见 `_manifest/tglf.jsonld` 的 `executable_note`）。
 
 ★**这些入口背后是哪条方程**：`scenario` 与 `kernel` 只是装配与 C 边界，物理在 Rust 内核里，
 逐模块写在[物理与数值](../physics/00-overview.md)十五章——方程、假设、参数域、数值格式、

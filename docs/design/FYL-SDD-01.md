@@ -2,8 +2,8 @@
 document_id: FYL-SDD-01
 title: FyLite 软件设计描述 (FyLite Software Design Description)
 shortname: fylite-sdd
-version: "1.3"
-date: 2026-09-04
+version: "2.0"
+date: 2026-09-06
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,39 +12,16 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-06T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v1.3 更正一处实测（同日）：DE-COMP-07「今天」原记 `fetch` 失败仍「退出 0」——那个 0 取自
-    管道末端的 `head`，不是 `fylite`；实测退出码是 1。路径方言那半不变，另记「失败仍写出 `{}`」。
-    v1.2 facts 搜索路径入册（用户裁定 2026-09-04）：多源语料按优先级，`--facts` 组级选项 +
-    `$FY_FACTS_PATH` + 检出的 `facts/` + 发行版自带的 `_facts/`；**前置而非替换**，**决胜单位是
-    条目**（禁止跨根拼一份文档），每条记得住是哪个根供的。正本在中间层 `fylite_runtime::facts`，
-    Python 侧第二份由闸子比对。DE-COMP-07 的接口与不变式相应改写。
-    v1.1 装置语料入册：DE-COMP-07 改写——装置信息收成仓根 `devices/`（gitignored，`app/facts/device`
-    是指向它的符号链接），带逐台许可账；构建分公开版 / 内部版，发布规则一处实现
-    （`tools/facts-publish.py`）；新增不变式「没有许可账即不发布」。同批记下一处实测：
-    中间层读不了 A-Box 的 machine.jsonld（路径方言不同），且 `fetch` 失败仍退出 0。
-    v1.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）。组合视图按 `FYL-DESIGN-16`
-    v2.0 的**四层**重排（多宿主 → 中间层 → 内核，语义层横跨），布局表按 2026-09-04 的仓树
-    重写——v0.13 那张表里 `docs/cases/` `docs/note/` `docs/archive/` `mapping/` `machine_desc/`
-    与「四本书集」都已不存在：语料在仓根 `cases/`，实测笔记与归档随内核进了私有仓，
-    `docs/` 是**一本书五篇**外加不入册的 `benchmark/`。九个组件保号：DE-COMP-01 改为
-    「内核（可替换）」并注明源码在私有仓、C ABI 降为本地后端内部；DE-COMP-09 改为
-    「中间层」（数据层是它的一半）；DE-COMP-04 场景层注明退役中（四个校验模块已迁入
-    `engine/`，装配随 K-3 进内核）。逻辑视图：DE-LOG-01 由「单核双宿主」改为「一份内核
-    契约、多宿主」；新增 **DE-LOG-11 文档门与扁平树**、**DE-LOG-12 内核无状态**（编号
-    自 11 起，08..10 留给页面文档的提案，登记见 `FYL-SRS-01` 附录）。接口视图重列为
-    宿主 ↔ 中间层 ↔ 内核三段并分「今天 / 目标」两列。追溯矩阵补 FR-KERNEL-*。历次
-    版本里的沿革叙述（导入环、`_backends.json`、`cp -L`、书集改一本）各压成一句。
-    · v0.13 三种发布形态与统一命令行入册（新增 DE-COMP-09；`_cli.json` 成为三宿主共同定义）。
-    · v0.12 `docs/` 定为书集、`note/` 不入册（★2026-09-02 已改回一本书，见 v1.0）。
-    · v0.11 语料与 V&V 登记册合并；页面不再取算例。
-    · v0.10 装置牌一份真源；`mapping/` 入布局表（★后已退役）。
-    · v0.9 报告面 `engine.report`。· v0.8 `cases/` 提升；CLI 为主要调试环境。
-    · v0.7 DE-COMP-08 语义层、DE-LOG-07 语义单源、DE-COMP-05.2 LLM 位置纪律。
-    · v0.6 DE-COMP-05.1 BYOK LLM 前端。· v0.5 装置牌宿主 `device.py`。
-    · v0.4 及以前：五视图初稿，DE-LOG-03 后端注册表（2026-08-21 退役）。
+    v2.0 全文按 2026-09-06 的 as-built 重写。内核接口收敛完成：文档门是内核唯一的
+    接口（33 个 code），扁平物理导出在两个宿主上归零，C ABI 的 205 个条目里只有 42 个
+    进制品，其余 163 个只在内核仓的神谕构建里存在。DE-LOG-11「文档门与扁平树」自
+    目标态转为 as-built；DE-LOG-12「内核无状态」只兑现了一半（全局态实测为零，
+    但声明过的 `fylite:state` 子树尚不存在），仍记为目标态。分层不变式 5 自此成立，
+    唯一的例外（扩展包的 TGLF 在 Python 侧仍有扁平面）逐条写明。历次沿革叙述不再
+    随文档累积——设计文件描述系统现在是什么样，怎么变成这样由仓库历史承担。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -55,8 +32,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-SDD-01` |
 | 文档名称 (Title) | FyLite 软件设计描述 (FyLite Software Design Description) |
 | 短名 / Slug | `fylite-sdd` |
-| 版本 (Version) | v1.3 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v2.0 |
+| 发布日期 (Date of Issue) | 2026-09-06 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 1016-2009 |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -68,7 +45,7 @@ modified:
 | 受众 (Audience) | maintainers / solver authors / LLM-tool integrators / 要接第二个内核实现的人 |
 | 分发范围 (Distribution) | public |
 | 安全分级 (Security Classification) | public |
-| 上游输入 (Upstream Inputs) | FYL-SRS-01 v1.0（软件需求）· FYL-CONOPS-00 v1.0（运行概念）· FYL-DESIGN-16 v2.0（可替换内核与四层分工）· FYL-DESIGN-14（中间层的数据半边）· FYL-DESIGN-15（发布形态与命令行） |
+| 上游输入 (Upstream Inputs) | FYL-SRS-01 v1.1（软件需求）· FYL-CONOPS-00 v1.0（运行概念）· FYL-DESIGN-16 v3.0（可替换内核与四层分工）· FYL-DESIGN-14（中间层的数据半边）· FYL-DESIGN-15（发布形态与命令行） |
 | 批准 (Approval) | — |
 | 取代关系 (Supersedes / Superseded by) | — |
 :::
@@ -79,8 +56,9 @@ modified:
 本文件按 IEEE Std 1016-2009 描述 FyLite 的软件设计：背景 / 组合 / 逻辑 / 接口 / 行为
 五个视图。设计元素（`DE-*`）逐一回接 {ref}`FYL-SRS-01 <fylite-srs-abstract>` 的需求；
 组合视图是仓内包分层的**规范源**，其变更**必须 (MUST)** 与 `.context/PROJECT.md`
-源布局节同批同步。本版描述 2026-09-04 的 as-built 设计，并把 `FYL-DESIGN-16` 裁定的
-**目标态**（可替换内核、文档门、无状态内核）作为设计元素登记，逐条标明今天落到哪。
+源布局节同批同步。本版描述 2026-09-06 的 as-built 设计。`FYL-DESIGN-16` 裁定的三件里，**可替换内核**与
+**文档门**已经落地并按 as-built 描述；**无状态内核**只兑现了一半，仍作目标态登记，
+缺的那一半写在 DE-LOG-12。
 
 (fylite-sdd-conventions)=
 # 约定与术语 (Conventions and Terminology)
@@ -177,8 +155,11 @@ flowchart TB
 
 四层：宿主写计划、读记录；中间层合成计划、编成扁平树、选后端、装成记录；内核从树到
 树。语义层（DE-COMP-08）横跨——声明源在内核，生成制品被中间层与宿主消费。
-★今天的依赖边**多出两条**未画：Python `kernel.py` 与 `app/assets/fylite.js` 仍直接调用
-内核的扁平导出（125 / 146 个不同函数，`FYL-DESIGN-16` 实测），它们随分期 P1 消失。
+图上的边就是今天的全部依赖边：两个宿主都只经文档门到达内核，**没有例外**。此前唯一的
+例外是扩展包（TGLF / DKE）在 Python 侧的扁平面——`scenario/model/gyrofluid.py` 的 7 个
+`tglf_*` 调用，即按 `input.tglf` 输入卡逐格填写的移植面。deck 是外部序列化格式、内核不
+解析它，所以这张面沉不进门；2026-09-07 整面撤下（移入内核仓 `tests/oracles/gyrofluid.py`
+作端口对拍的参考实现），两侧同一物理都走 `code/turbulence`。
 :::
 
 (de-comp-01)=
@@ -189,8 +170,8 @@ flowchart TB
 | Description | 平衡 / 演化 / 电磁 / 输运与动理学的唯一数值实现，单 crate 同源编译为本机 cdylib 与 wasm 模块；源码在私有仓。对上只经文档门（DE-LOG-11）：一个 code 从树到树。 |
 | Traces to | FR-MODEL-001..005, FR-KERNEL-001..004, NR-ENV-003, NR-ENV-004 |
 | Invariant | crate 在 `wasm32-unknown-unknown` 目标上**必须 (MUST)** 始终可构建；线程并行仅经特性开关在本机构建启用。**同一物理量只有一个实现在此**；宿主不得转写。内核**禁止 (MUST NOT)** 读文件、开网络、认识数据源头或任何序列化格式，**禁止 (MUST NOT)** 持有全局态（实测 2026-09-04 为零，DE-LOG-12）。 |
-| Interface | 文档门 `fylite_rs_fyo`（目标：扁平树双向）；C ABI（`c_api.rs`，442 个导出）与 wasm 导出面是**本地后端的实现细节**，`ABI_VERSION` 只守 C 签名（DE-LOG-02）。 |
-| 今天 | 文档门承载 3 个 code（`evolve` `zerod` `transport`），入参按路径、出参 TSV 清单；Python 与页面各绑 125 / 146 个扁平导出。 |
+| Interface | 文档门 `fylite_rs_fyo_tree`：一棵扁平树进、一棵扁平树出，承载 **33 个 code**。C ABI 与 wasm 导出面是**本地后端的实现细节**，`ABI_VERSION` 只守 C 签名（DE-LOG-02）。 |
+| 实测 (2026-09-06) | `c_api.rs` 有 205 个 `extern "C"` 条目，进制品的只有 **42** 个，分三类：文档门自己、两个宿主按同一算术共用的**数值原语**（32 个：`interp` · `ellipke` · `pchip` · 求积 · 等高线 …）、以及运输机制（10 个：分配 / 释放 / 版本 / 握手）。其余 **163 个物理算子**挂 `#[cfg(feature = "oracle")]`，wasm · 静态归档 · 装进公开包的 `.so` 都不带，只有内核仓的神谕测试经另编的一份 `.so` 叫它们。守门在 `seam.rs`（`EXPORT_CLASS` 分类 + `SINK_BASELINE = 0`）与 `rust/build.sh`（导出计数）。 |
 
 (de-comp-02)=
 **DE-COMP-02: Python 装配层**（Python assembly layer）
@@ -329,9 +310,14 @@ L3=DE-COMP-03 的记录半边，L4=DE-COMP-05 与 DE-COMP-03 的 CLI / MCP 面�
 3. 每个 Python 源模块在 `python/tests/test_<module>.py` 有镜像测试模块；页面台账由
    `app/tests/` 门禁核对。
 4. 本视图与 `.context/PROJECT.md` 源布局节**必须 (MUST)** 同批变更。
-5. 〔目标态，`FYL-DESIGN-16` K-1〕宿主代码（`scenario/`、页面 JS）**禁止 (MUST NOT)**
-   出现 `fylite_rs_*` 符号名；判据是 `test_no_bare_kernel_aliases.py` 的思路推广一层。
-   今天不成立（125 / 146 个调用点），随分期 P1 生效。
+5. 宿主代码（`scenario/`、页面 JS）**禁止 (MUST NOT)** 调用内核的扁平物理导出。
+   2026-09-06 起成立并有守门：`seam.rs` 的 `SINK_BASELINE = 0`（只准降）、
+   `test_flat_calls_only_shrink.py`（公开包逐文件的调用点基线，只准降）、
+   `test_no_bare_kernel_aliases.py`。**留在宿主侧的扁平调用只有三类**，逐类都有理由：
+   数值原语（`interp` · `pchip` · `gradient` · `resample_uniform` · `to_uniform_extrap` ·
+   `direct_integrals`——两侧按同一算术用的小函数，在 fyo 里没有名字也不该有）、
+   运输与 I/O（`require_data` · `grid_of` · `read_gfile` · `KernelError`），以及
+   **扩展包的 7 个 `tglf_*`**（`gyrofluid.py`；这一条是**尚未收敛**的，不是豁免）。
 
 (fylite-sdd-logical)=
 # 逻辑视图 (Logical View)
@@ -406,15 +392,15 @@ L3=DE-COMP-03 的记录半边，L4=DE-COMP-05 与 DE-COMP-03 的 CLI / MCP 面�
 | Interface | `@fyo-table` / `@fyo-block` / `@fyo-entry` 注记 + `_fyo_vocab.json` → 构建 → `_fyo_interface.py` / `fyo-interface.js` / `fyo-interface.json`。 |
 
 (de-log-11)=
-**DE-LOG-11: 文档门与扁平树**（the document door, a flat tree both ways）〔目标态〕
+**DE-LOG-11: 文档门与扁平树**（the document door, a flat tree both ways）
 
 | Field | Value |
 |:---|:---|
 | Description | 内核唯一的接口是一扇门：code + 按名设置 + 一棵扁平树进，一棵扁平树出。树是四段缓冲（先序节点表 · 名字块 · 8 字节对齐的 f64 载荷 · 整数 / 字符串载荷），索引相连、不解析；中间层编码 / 解码各一份，内核阅读器 / 构建器各一份；进门校验一次。装置文档、剖面、状态都是树上的枝。正本 `FYL-DESIGN-16` K-1 / K-2 / K-8 / F-1..F-4。 |
 | Traces to | FR-KERNEL-001, FR-KERNEL-002, NR-ENV-004 |
 | Invariant | 内核**禁止 (MUST NOT)** 收路径字符串、**禁止 (MUST NOT)** 自带序列化格式的解析器；对缺失的槽按名拒绝并一次列全；未声明的键**看得见但不取数**。中间层**禁止 (MUST NOT)** 为文档门另立第二种入参形状。 |
-| Interface | 内核 `fylite_rs_fyo`（新形）；中间层 `case.rs`；wasm 上两个模块由 JS 搬不透明字节（H-5）。 |
-| 今天 | 入参 `(路径, 维数, 数值)` 三元组、出参 TSV 清单；实测两份文档同名收尾的路径会静默并成一条（`rc=0`）。分期 T-1..T-4（`FYL-DESIGN-16` §分期），T-1 必须在 P1 之前。 |
+| Interface | 内核 `fylite_rs_fyo_tree`；内核侧 `case.rs` 按 code 分派；中间层 `fyodoc.rs`；浏览器侧 `kernelapi.js` 的编解码器，两个 wasm 模块之间由 JS 搬不透明字节。 |
+| 实测 (2026-09-06) | 33 个 code 在门后：`evolve` · `zerod` · `transport` · `interpretive` · `coupled` · `refit` · `steady_current` · `turbulence`（扩展包）· `forward` · `discharge` · `pulse` · `breakdown` · `reconstruction` · `vessel` · `selfcal` · `chords` · `coilshare` · `channels` · `vstab` · `beam` · `wave` · `summary` · `outlines` · `profile_fit` · `shape` · `waveform` · `li3` · `metric` · `ladder` · `xpoints` · `cocos` · `bootstrap` · `adas_species`。计划与记录都是树；16 张声明表、232 个具名槽；接口摘要 `INTERFACE_DIGEST` 随表变、修订号只在旧读者会读错时才动。 |
 
 (de-log-12)=
 **DE-LOG-12: 内核无状态，状态在文档里**（stateless kernel, state travels）〔目标态〕
@@ -425,21 +411,21 @@ L3=DE-COMP-03 的记录半边，L4=DE-COMP-05 与 DE-COMP-03 的 CLI / MCP 面�
 | Traces to | FR-KERNEL-004, FR-HOST-002, FR-DATA-003 |
 | Invariant | 内核**禁止 (MUST NOT)** 留住状态（可分配、可交出）；**必须 (MUST)** 在每个步界能停并交出完整状态；中间层**只搬不改**；内核对认不出的状态按名拒绝，除非显式允许漂移（先例 `engine/replay.py` 的 `allow_version_drift`）。门上**没有回调**。 |
 | Interface | `fylite:state` 子树；门的「只问不算」相（B-1，`case describe` / `plan` 已有半条）。 |
-| 今天 | 内核全局态实测为零；跨调用状态只在 `evolve_heat`，以二十个成对的 `*_in` / `*_out` 槽传（状态 2.5–7.9 KiB）；持久化已分散在 Python `engine`（holder / `restart` / `handles` / `versioning` / `ledger`）与浏览器（四处 `localStorage`）。 |
+| 今天 (2026-09-06) | 兑现了一半：内核全局态实测仍为零，跨调用的状态**已经在文档里**（如 `code/evolve` 与 `code/refit` 之间交接的 `fylite:vprime_old`，以及门与门之间传递的梯子行），中间层与页面只搬不改。**没有兑现**的是「一棵声明过的 `fylite:state` 子树」——今天的状态是**逐个具名的槽**，不是一个整体；`fylite:state` 在 fyo 表里尚不存在，续跑因此还不能对任意 code 一致地做。持久化仍分散在 Python `engine`（holder / `restart` / `handles` / `versioning` / `ledger`）与浏览器的 `localStorage`。 |
 
 (fylite-sdd-interface)=
 # 接口视图 (Interface View)
 
-外部接口以 `FYL-SRS-01` §外部接口为准。内部接口按四层分三段，「今天」与「目标」
-分列——目标态的出处都在 `FYL-DESIGN-16`：
+外部接口以 `FYL-SRS-01` §外部接口为准。内部接口按四层分三段。**「今天」一列是 as-built**；
+「目标」一列只在还没到的地方非空，出处都在 `FYL-DESIGN-16`：
 
-| 内部接口 | 今天（2026-09-04） | 目标 | 稳定性 / 闸子 |
+| 内部接口 | 今天（2026-09-06，as-built） | 目标 | 稳定性 / 闸子 |
 | :--- | :--- | :--- | :--- |
 | 宿主 ↔ 执行体 ↔ 中间层（Python） | `fylite.io.fydoc` 经 ctypes 取 `libfylite_runtime.so`（31 个 `fylite_runtime_*`） | 不变；执行体另经中间层选后端（D-2） | C 导出随中间层演进；`test_fyo_interface.py` 对拍 g-file ↔ `fyo:equilibrium` |
-| 宿主 ↔ 中间层（浏览器） | **没有**：JS 直接调内核 wasm 的扁平导出（`fylite.js` 344 处）；`geqdsk.js` / `fyo.js` / `session.js` 各自实现 | JS 取 `fylite_runtime.wasm`，中间层建好扁平树，JS 把字节递给内核 wasm（H-4 / H-5） | 随 W-1 |
-| 中间层 ↔ 内核（本地） | dlopen `libfylite_kernel.so`；`fylite_rs_fyo` 三元组入、TSV 出；Python `kernel.py` 另绑 125 个扁平导出（442 个签名） | 一扇门、两个方向都是扁平树（DE-LOG-11）；扁平导出降为内部 | ABI 号只守 C 签名（DE-LOG-02）；往返闸（T-1） |
+| 宿主 ↔ 中间层（浏览器） | 站点发三份 wasm：内核核心 `fylite_rs.wasm`（文档门）· 扩展 `fylite_kernel_ext.wasm`（TGLF / DKE）· 中间层 `fylite_web.wasm`（**数据半边**：装置事实 `fylite_runtime_facts_doc` / `_facts_ids`、g-file `fylite_runtime_gfile_json`）。计划的编解码在页面侧 `kernelapi.js`，字节由 JS 在模块之间搬 | 中间层承担更多数据侧读法（H-4 余项） | `validate-fyo-tree.mjs` 守门的往返；`validate-wasm-plan.mjs` 守五份产物各自的读者 |
+| 中间层 ↔ 内核（本地） | dlopen `libfylite_kernel.so`；**一扇门、两个方向都是扁平树**（`fylite_rs_fyo_tree`，33 个 code）。`kernel.py` 不再绑物理导出：留下的是原语与 I/O（见分层不变式 5） | — | `ABI_VERSION` 只守 C 签名（DE-LOG-02）；`SINK_BASELINE = 0` 与 `rust/build.sh` 的导出计数守着「不再长回来」 |
 | 中间层 ↔ 内核（远端） | 无远端内核（`serve` / `mcp` 与 `/api/*` 暴露的是远端 **fylite**，非内核） | 共形 `SPM-ADR-111` 六相的 JSON-RPC 端点 `/api/case`，登记在后端表（K-4 / K-5） | 随 P2；envelope 与 `SP-REPORT-15` T-0.4 一并定 |
-| 后端 ↔ 能力目录 | native 17 件已入目录；wasm 侧靠生成的 `fyo-interface.js` | 每个后端自报 code 表（K-2）；中间层在 wasm 上像本机一样问内核要（G-5 随 W-1 关） | 随 P2 |
+| 后端 ↔ 能力目录 | 33 个 code 的表由内核自 `fyo.rs` 生成给两侧（`_fyo_interface.py` / `fyo-interface.js`）；native 侧另有 17 件能力清单 | 每个后端**自报** code 表而不是读生成物（K-2）；远端后端登记（K-4 / K-5） | 随 P2 |
 | 三宿主 ↔ 命令行规格 | 一份 `_cli.json`：Python 建 argparse、Rust 编译期 `include_str!`、浏览器读 `hosts.app.params`；宿主特有项以 `hosts` 标出 | 不变 | `test_cli_spec.py` 与 `cargo test cli::` |
 | 浏览器 ↔ LLM 服务（可选） | 读者自带端点与密钥；请求由页面发起，**不经本仓任何服务端** | 不变 | 本仓不承诺 |
 
@@ -451,10 +437,9 @@ L3=DE-COMP-03 的记录半边，L4=DE-COMP-05 与 DE-COMP-03 的 CLI / MCP 面�
 
 - **交互求解循环**：宿主入口（页面控件 / CLI / 场景入口）→ 计划（宿主写）→ 合成与绑定
   （中间层）→ 门 → 内核从树到树 → 记录（中间层装）→ 宿主呈现。受 NR-ENV-002 与
-  NR-ENV-005 约束，实测以预算为判。★今天 Python 与页面绕过中间层直接调扁平导出，
-  循环的形状一样，只是门还不是唯一的。
-- **门的相**（目标，DE-LOG-11 / -12）：**只问不算**（给定 code 与设置，内核答它将要
-  什么）→ 绑定 → 算 → 交回记录与状态；要的东西不在场时**按名拒绝并一次列全**，补齐后
+  NR-ENV-005 约束，实测以预算为判。**门是唯一的**：两个宿主都不再绕过它去调物理导出。
+- **门的相**（DE-LOG-11 已落地，「只问不算」相仍属 DE-LOG-12 的目标）：**只问不算**
+  （给定 code 与设置，内核答它将要什么）→ 绑定 → 算 → 交回记录与状态；要的东西不在场时**按名拒绝并一次列全**，补齐后
   带着已建好的树再入。一次调用的输入集在开始时就定死——没有惰性取数、没有回调。
 - **批式外环**：外环以步为单位推进；步间可中断、状态可续（状态就是记录里那棵子树）；
   取消＝把步数预算切小，在两次调用之间决定；进度对用户可见（DE-LOG-04）。

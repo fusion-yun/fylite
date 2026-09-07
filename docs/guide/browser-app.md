@@ -50,8 +50,10 @@ title: 浏览器演示 (Browser App)
 ★★**站点上的演示从九个收敛为少数几条功能栏**：击穿场零、场零可行域、局域线性稳定性三个演示，
 以及整个**控制仿真场景**（它只有一条静态判据——刚性 n=0 垂直稳定性——闭环、时延与电源都
 没建，页面自己就这么写着），都已从站点撤下。撤下的只是**页面**：内核入口一字未动，
-`fylite.scenario.design.breakdown` / `.feasible`、`fylite.scenario.model.tglf`、
-`fylite.scenario.control` 照跑；1.5D 输运栏把闭包切到「湍流」时，用的仍是同一份 TGLF 制品。
+`fylite.scenario.design.breakdown` / `.feasible`、`fylite.scenario.control` 照跑；1.5D 输运栏
+把闭包切到「湍流」时，用的仍是同一份 TGLF 制品。★局域线性稳定性那一档另当别论：撤下的
+不只是页面——2026-09-07 连 Python 侧的**移植面** `fylite.scenario.model.tglf` 一并退役（deck
+是外部序列化格式，内核不解析它，这张面沉不进门）。物理没有消失，走门 `code/turbulence`。
 
 ★**站点自报为 alpha**：入口页正文第一段之后有一行状态说明，每页页脚的版权行也带
 「alpha 版 / alpha release」——功能与数值口径仍在变动，结果格式可能在没有迁移路径的情况下

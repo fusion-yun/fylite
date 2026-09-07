@@ -77,7 +77,8 @@ at the caller's (default GYRO)"）；宿主拒绝与预设不合的 `UNITS`。
 〔实现·默认卡〕Python `_MILLER_DEFAULTS` 与标量默认列于 {numref}`tbl-p08-deck`；`NMODES` 默认 **1**
 （"Upstream's own default is two"），`SAT_RULE` 为参数且须与卡一致。
 
-:::{table} 输入卡默认值（`scenario/model/gyrofluid.py`，2026-09-02 快照）。
+:::{table} 输入卡默认值（内核仓 `tests/oracles/gyrofluid.py`，2026-09-02 快照；
+该文件 2026-09-07 随移植面自公开仓迁入内核仓，内容未动）。
 :name: tbl-p08-deck
 :align: left
 
@@ -736,8 +737,8 @@ tglf09 $1.4\times10^{-1}$ 在回归测试中**作为开放项断言**；(vi) `NM
 | :--- | :--- | :--- |
 | 局域几何与场线 | —（模型输入，随 {ref}`phys04-mapping-tglf` 走） | —（内部） |
 | 基函数与有限拉莫尔半径修正 | —（模型内部） | —（内部） |
-| 装配与色散求解 | `fyo:mhd_linear` 式的线性增长率与实频（本模型自带） | `scenario.model.gyrofluid`（线性） |
-| $k_y$ 谱与饱和通量 | `fyo:core_transport`：能量 / 粒子 / 动量通量 | `scenario.model.gyrofluid` |
+| 装配与色散求解 | `fyo:mhd_linear` 式的线性增长率与实频（本模型自带） | 门 `code/turbulence`；逐项参考实现在内核仓 `tests/oracles/gyrofluid.py`（线性） |
+| $k_y$ 谱与饱和通量 | `fyo:core_transport`：能量 / 粒子 / 动量通量 | 门 `code/turbulence`；参考实现同上 |
 | 归一与 gyro-Bohm 单位 | —（通量的单位约定） | {ref}`phys04-mapping-tglf` |
 | 神经网络代理评估 | `fyo:core_transport`（同一组通量，代理路径） | `fylite.nn.Surrogate`；QLKNN 装配 `scenario.model.qlknn` / `qlknn_closure` 自 2026-09-06 归内核仓测试树（`tests/oracles/`） |
 | 台基代理（EPED1-NN） | `fyo:core_profiles`：台基顶的 $p$、宽度 | {ref}`phys11-pedestal` |

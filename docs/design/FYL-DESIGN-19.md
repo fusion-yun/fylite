@@ -31,48 +31,8 @@ modified:
     （超导 PF 没有导体电阻率）· `time_constant`（不折成 DD 那对次序不可核的多项式系数）·
     `element_weight`（DD 的 `connections` 是整数矩阵，圆整 0.175/0.825 会静默改变分流）。
     新增 A-16 / A-17 记这两条裁定。
-    · v0.4 记 A-15 的**落地与剩余**（2026-09-05 同日）：`pf_passive` **已迁**——fydata 新增
-    `abox/device/tokamak/east/fyo/latest/static/now/pf_passive.yaml`（90 个 loop：真空室内外壳
-    各 40 段加室内铜被动板 10 块），在 `machine.yaml` 的 `epochs[now].ids` 登记，两道门禁
-    0 error，再由 `abox2jsonld.py` 誊录进 fydoc 并在 `provenance.yaml` 记 `unverified`。
-    另有三处逐项复核出来的事实，改写了 A-15 的剩余范围：**电源那一批有一半已经在**——
-    逐 deck 元件匝数（140×6 · 44 · 44 · 204 · 204 · 60 · 60 · 32 · 32）就是 fydata
-    `providers/pf_active/base.yaml` 里的 `turns_with_sign`，IC1 / IC2 也已是它的 coil；
-    真正缺的是 `power_supply`（τ · 限流 · 14 路限压）· `pf_active_circuits.resistivity` ·
-    `pf_channel_elements`（12 通道权重图）。它们**卡在一处结构缺口**：fydata 的解析面是
-    「一个 IDS 一份文档、按 provider 选一份」，而这几件与几何**同 IDS 不同来路**，今天没有
-    合成轴可写（G-10）。`operational` 仍卡在 G-9。另记 G-11：fydoc 的
-    `dataset_fair.jsonld` 带着一个 fydata 侧没有的 `dev:redistribution` 块（2026-09-04 的
-    再分发裁定），重跑誊录器会把它**静默删掉**——本次实测撞上，已还原该文件、未收重跑结果。
-    · v0.3 收进两条用户裁定（2026-09-05）：**（一）缺省即全功能版，含 EAST，fylite 以
-    内部工具发布**——落成 A-14 并**已实施**：六处缺省从 `public` 翻成 `internal`
-    （`abox-to-facts.py` · `facts-publish.py` · `build-site.sh` · `build-wheel.sh` ·
-    `make-app-embed.mjs` · `build-app-exe.sh`），公开面自此必须**明写** `--flavour
-    public` / `--public`；许可判据一个字未动，仍逐条在 `rights.json`。翻向同时把内嵌
-    资源表那道闸子换了方向（从「表里别混进内部机器」换成「表要与缺省版一致」），并
-    修好它一处**从未生效**的断言——它匹配的是 2026-09-04 已改名的旧路径
-    `devices/<id>.jsonld`，因此恒真。**（二）EAST 的 79 探针基 / 拟合控制块 / 被动结构 /
-    电源参数进 fydoc 的 A-Box**——落成 A-15，并纠正 A-10 一处事实：**79 探针基已经在
-    fydoc**（`providers/magnetics/efit_w_pf.jsonld` 记 79 探针 + 35 磁通环，与卡片逐数
-    相同），真正缺的是另外三块；且 fydoc 的 `abox/` 是**生成物、不得手改**，所以路线是
-    fydata A-Box → `abox2jsonld.py` → fydoc，不是直接写 fydoc。另记两条缺口：G-8（内嵌表
-    在没有版本化 wasm 的检出上重生成会**静默降级**成无版本名——同版已修，生成器改为按名
-    拒绝）与 G-9（`operational` 无 IDS 归属，A-Box 里落在哪没有现成约定，是 A-15 的前置）。
-    · v0.2 收进用户裁定（2026-09-05）：**`wall_ggd` 不入仓；只带必要的 IDS——`wall` /
-    `pf_active` / `tf` / `magnetics`——加必要诊断**。据此把 A-4 的「并什么」从体量判据
-    改写为**逐 IDS 的白名单**（新增 A-13），并补实测：白名单的文本面 731 KB / 38 个文件，
-    而 `wall_ggd` 一项 10.1 MB——占装置书全部字节的 88%，且**没有消费者**（代码读的是
-    `wall.description_2d[].limiter.unit[]` 那条轮廓，不是 GGD 网格）。「必要诊断」按
-    **谁真的读它**定：`interferometer`（EAST 绑定表 24 条，动理学约束的 POINT 弦）·
-    `thomson_scattering`（`recon_rs.py` 25 处，但**无绑定**——`FYL-DESIGN-17` G-8）·
-    `ece`（1 处）；`bolometer` / `soft_x_rays` / 三个 spectrometer 无消费者，不带。
-    · v0.1 初稿：评估用户提案「从 fydoc 收集 device A-Box，合并成两份文件——`facts.jsonld`
-    进 app、`facts.rs` 进 rust；fylite 顶层不再保留单独的 `facts/`」。方向判为**对**，
-    且与本仓既有的四处生成物同一条规矩（A-1）；提案按字面有两处带不动的东西——**清单
-    不是卡片**（取数要的那一份，实测 13 台里只有 EAST 有，A-4）与**域有三个不是一个**
-    （`device` · `amns` 5.8 MB · `experiment`，A-5）；并给出一处改写：两份生成物是搜索
-    路径的**自带那一档**，不是它的替代（A-2）——保住 `--facts` 指自己机器的能力，而
-    「顶层不留 `facts/`」照样成立。裁定 A-1..A-12，尺寸取舍表，三档分期，缺口 G-1..G-6。
+    逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
+    （2026-09-07 收束，用户「移除历史修改痕迹」）。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)

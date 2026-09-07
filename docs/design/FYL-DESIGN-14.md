@@ -19,30 +19,8 @@ modified:
     装置名，`--machine` 读起来像在要一个文件。旧名不再受理，但**报错会说出新名字**
     （`unknown option "--machine" — renamed to --device`）——「你打错了」与「它改名了」
     指向的处置不同，一句 `unknown option` 把两者说成一样。
-    v1.4 `--machine`（当时的名字）收**装置名**：`fy data fetch --machine east` 解析走与其它条目同一条
-    facts 搜索路径（`--facts` > `$FY_FACTS_PATH` > 检出的 `facts/` > 自带的 `_facts/`），落到
-    `facts/device/<名>/machine.yaml`。写死路径做不到「一处换语料」——漏改的那条命令行**照常
-    成功**，用旧那份跑完不报错。清单路径仍先看且照收；带分隔符或带后缀的**不**退回按名字找，
-    故打错的路径报「没有这个文件」，不报成「语料里没有这台机器」。闸子 `cli::data::tests`（6 条）。
-    v1.3 记一处可观察的后果（实测）：imas-python 读回本层写的 IMAS netCDF 会对每个变量印
-    「documentation differs from the DD」——我们不带 `documentation` 属性，而 DD 有正文；
-    `nc_validate` 仍 PASS。抄 DD 的文字能消警告，而 L-4 的许可规则正禁止那样做。
-    v1.2 新增裁定 **L-13（搬家表）** 并据此**关闭 G-10**：`limiter` / `vessel` 自 IDS 顶层落进
-    `description_2d[0]`，三条判据（源在 · 目标有 · 源在 DD 里没有）保证幂等；搬家记进
-    `DdReport.relocated` 并由命令行转述。实测同一份 EAST 源：`wall.h5` 3 548 → 71 344 字节。
-    v1.1 新增缺口 G-10（实测 2026-09-04）：`wall` 转 IMAS 布局出空 IDS——源把 `limiter` / `vessel`
-    放在顶层而 DD 的家在 `description_2d[]` 之下，归一化据实丢弃（有报告，不静默），但产物是空件。
-    同一次导出 pf_active / tf / magnetics 内容齐全。
-    v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。标题改为「中间层的数据
-    半边」：这个 crate 2026-09-04 已定名 `fylite_runtime` 并定位为**中间层**（`FYL-DESIGN-16`
-    N-1），本篇写的是它六项职责里的前两项——格式读写与多源装配；另外四项（计划与门、
-    后端选择、命令行、伺服）在 `-16` 与 `-15`。改名的沿革收成一句；裁定 L-1..L-12 按号
-    重排（原文 L-9 落在 L-12 之后）；「面」表按 2026-09-04 as-built 重写（Python 侧 `.h5`
-    与 mdsip 在线路径已经由本层承载，两个零调用者的读者已删）；示例命令里的外部 A-Box
-    路径中性化。缺口 G-5（wasm 目标）改为「随 `-16` W-1 落地」——它已从缺口变成裁定。
-    · v0.2 按炮号与时间取 MDSplus 切片（L-10）；零依赖 YAML 子集读者直读 A-Box（L-11）；
-    `machine.yaml` 摊成装配；结构数组按 `name` 对齐合并（L-12）；缺口 G-7 / G-8。
-    · v0.1 初稿：从「mdsip 编解码 + g-file」长成完整的数据层；裁定 L-1..L-9。
+    逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
+    （2026-09-07 收束，用户「移除历史修改痕迹」）。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)

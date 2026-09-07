@@ -112,7 +112,7 @@ def test_reconstruction_figure_takes_geometry_and_neo(tmp_path):
 
 
 def test_neo_panel_says_so_when_there_is_no_bootstrap_output():
-    import matplotlib
+    matplotlib = pytest.importorskip("matplotlib")
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from fylite.plot import _neo_panel
@@ -125,7 +125,7 @@ def test_neo_panel_says_so_when_there_is_no_bootstrap_output():
 def test_unweighted_channels_keep_their_forward_prediction():
     """FWTMP2=0 removes the probes from the fit, not from the figure: the
     loops-only benchmark's evidence IS the unweighted measured-vs-predicted."""
-    import matplotlib
+    matplotlib = pytest.importorskip("matplotlib")
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from fylite.plot import _diag

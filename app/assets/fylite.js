@@ -363,27 +363,21 @@
 
   // --- T-A9: the parallel/toroidal current closure ------------------------
   //
-  // ★★THE PAGE HELD TWO CURRENTS IT COULD NOT ADD.  `redlBootstrap` returns
+  // ★★THE PAGE HELD TWO CURRENTS IT COULD NOT ADD.  `redlBootstrap` returned
   // `|<j.B>|/B0`; the fit returns `<j_phi>`.  Those are different quantities
   // on the same surface, so「自举 + 欧姆 = 拟合电流」was not an
   // approximation the page declined to make — it was arithmetic nobody had.
-  // The three below are that arithmetic, and every one of them is a kernel
-  // entry rather than a formula written here: a conversion with two hosts is
-  // a conversion that can disagree with itself.
-
-
-
-  //: ★★TWO ORDERS, ONE VOCABULARY.  `NEO_DECK_GEOMETRY` (what the entry
-  //: returns) and `NEO_SAUTER_SLOTS` (what `neoSauter` reads) name the same
-  //: thirteen quantities in DIFFERENT sequences — `Q` and `SHEAR` sit at 4
-  //: and 5 in one and at 2 and 3 in the other, `ZMAG_OVER_A` moves from 2 to
-  //: 5.  The kernel says so in `mapping.rs`, and says there that building
-  //: one from the other by position produced fluxes 200x out with every
-  //: number finite and plausible.  So the block crosses this boundary
-  //: KEYED BY NAME and the permutation is written once, here.
-  var NEO_DECK_GEOMETRY = [
-    'rminOverA', 'rmajOverA', 'zmagOverA', 'sZmag', 'q', 'shear',
-    'shift', 'kappa', 'sKappa', 'delta', 'sDelta', 'zeta', 'sZeta'];
+  //
+  // ★That arithmetic is no longer here.  T-4 sank the whole bootstrap chain
+  // into `code/bootstrap` / `code/transport`, so this host asks for the
+  // closure and receives one quantity; the conversion, and the NEO deck's
+  // two different name orders it had to keep apart (`NEO_DECK_GEOMETRY` vs
+  // `NEO_SAUTER_SLOTS` — `Q` and `SHEAR` at 4/5 in one and 2/3 in the other,
+  // a permutation that produced fluxes 200x out when it was once done by
+  // position), are the kernel's, written once in `mapping.rs`.  The
+  // hand-written copy of that vocabulary stood here with no reader until
+  // 2026-09-07 and is gone; `deck-names.js` carries the generated tables if
+  // a page ever needs the names again.
 
 
   // --- L4/L7: the operating domain, the flux account, and the START -------

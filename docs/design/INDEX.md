@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-00
 title: 设计书目录 (Design Book Index)
 shortname: fylite-design-index
-version: "5.26"
-date: 2026-09-05
+version: "5.31"
+date: 2026-09-07
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,120 +12,17 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-05T00:00:00Z
+  date: 2026-09-07T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v5.30 `FYL-DESIGN-16` 升 v2.5（用户「落地 H-4」）：**中间层进浏览器的第一块落地**——
-    `app/assets/geqdsk.js` 里那份**第三份** g-file 解析撤除（原生一份、wasm 一份、JS 一份，
-    读同一种文件），页面改问中间层：站点经 `fylite_web.wasm` 的 `fylite_runtime_gfile_json`，
-    桌面经 `POST /api/read?shape=gfile`，两条路中间是同一个 `GFile::to_node`。实测与旧 JS
-    读法 26 个键逐值相同、与 python 读法逐字段 0.0e+0；产物 0.43 -> 0.51 MB（多一个
-    `abi_gfile` feature）。载入器拆成一处 `runtimeweb.js`。`fyo.js` / `session.js` 那两块
-    未动——它们不是同一算法的第三份实现，而是页面在生成契约表之上的胶水，判读为应与
-    K-3 一同裁。
-    · v5.29 `FYL-DESIGN-16` 升 v2.4（2026-09-05 两条用户裁定）：**（一）hdf5 走 fy app 的
-    文件端点，静态站点保留 h5wasm** —— H-7：`POST /api/read` 字节进、fyo 文档出，读法是
-    中间层自己的；两条读法各自对仓里那份原生参照负责而不是互相对照，实测逐叶子相同；
-    可执行文件不再内嵌那 4.1 MB，14.72 -> 10.72 MB。**（二）清理规划 wasm 打包的内容** ——
-    H-8：五份产物一张清单，每一份都要说得出谁读它、谁发它、进不进预缓存，由新闸子
-    `validate-wasm-plan.mjs` 与构建脚本对照；中间层全套那一份（2.14 MB，无读者）缺省
-    不再产出。
-    · v5.28 `FYL-DESIGN-16` 升 v2.3（新增 K-11，答用户「wasm 线需要有 device 数据，如何解决？」）：
-    中间层从此出**两份 wasm，同一份源码、差别只在导出面**——`fylite_facts.wasm` 0.43 MB
-    只带装置那扇门并**进 service worker 预缓存**，`fylite_runtime.wasm` 2.14 MB 带全套 C 导出
-    但站点暂不发（页面没有读者，H-4 的其余消费者未落地）。缺口的成因是 wasm 上每个
-    `#[no_mangle]` 都是链接的根：导出面决定产物大小，而 2.14 MB 大到进不了预缓存，于是
-    断网时站点一台机器也列不出来。实测（真浏览器断网重载）：装置三台俱在、断网后逃逸
-    请求 0 个（此前 1 个）、站点 12 MB -> 10 MB。G-11 关闭。
-    · v5.27 `FYL-DESIGN-16` 升 v2.2 · `FYL-DESIGN-15` 升 v1.2（2026-09-05 两条用户裁定，
-    算力面从「一次发行两个实现路径」收到一个）：**（一）webui 中 fylite_rs /
-    fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm** —— H-6：`POST /api/kernel`
-    是一次内核调用的逐参数转述，参数种类表由内核仓自 `c_api.rs` 生成给服务端与页面两侧
-    （251 个导出桥 248 个；结构门与分配器一对按名拒绝，后者若照桥就是让内核释放桥自己的
-    内存）；页面 140 处调用点一处未改。**（二）fy 封装 fylite_kernel 静态库，.so 留给
-    python 层，wasm 留给静态网页发布** —— K-9 / K-10：内核有三种形，各有唯一读者；`fy run`
-    与内嵌页面因此在没有任何 `.so` 的机器上都完整可用。实测：静态库 +3.10 MB、去掉的两份
-    内核 wasm −1.46 MB；两条算力路逐位比对，纯算术相同、含超越函数的差在末位（最大
-    1.4e-15，判读为两份 libm 的末位取舍）。G-7 原生那半关闭，新记 G-9（NOTICE 不随可执行
-    文件与站点走）与 G-10（迭代型入口的往返延迟未量）。
-    · v5.26 `FYL-DESIGN-19` 升 v0.5（A-15 收口：两条用户裁定关掉 G-10 与 G-9——**接受混合来源**
-    〔A-16：不设合成轴，电气一侧与线圈几何合住一份 `pf_active`，来路逐段写明，校核判定随之
-    `consistent` → `partial`〕与 **operational 作为自定入 fyo**〔A-17：新模块
-    `fyo/schema/src/process/operational.linkml.yaml`，根类走 `fyo_path`；namelist 逐组承载
-    不逐键入本体〕。fyo 另开三个自有槽：`circuit_model_resistivity` · `time_constant` ·
-    `element_weight`，三个都是为了不让一句假话写得合法。EAST 四块全部到位）。
-    v5.25 `FYL-DESIGN-19` 升 v0.4（A-15 落地一块、剩两块：EAST 被动结构 90 个 loop 已进 fydata 与
-    fydoc，双门禁 0 error；电源那批**一半本来就在**——匝数与 IC1/IC2 早在 `providers/pf_active/base.yaml`，
-    剩下的卡在新记的 G-10「一个 IDS 一份文档，没有合成轴」；`operational` 仍卡 G-9。另记 G-11：
-    fydoc 的 `dataset_fair.jsonld` 带着 fydata 侧没有的再分发裁定块，重跑誊录器会静默删掉）。
-    v5.24 `FYL-DESIGN-19` 升 v0.3（两条用户裁定：缺省即全功能版含 EAST，作为内部工具发布——A-14
-    并已实施，六处缺省翻成 `internal`，公开面自此必须明写 `--public`，内嵌资源表闸随之换向并修好
-    一条恒真断言；EAST 四块进 fydoc 的 A-Box——A-15，并更正 A-10：79 探针基**已在** fydoc，缺的是
-    另外三块，且路线须走 fydata → `abox2jsonld.py` → fydoc。新增 G-8 / G-9）。另修 `_environment.json`
-    与 `test_environment_table.py`：扫描前缀漏了 `FYDOC_`，令两向闸子**两向都红**，并补声明
-    `FYDATA_ORACLE`（代码仍认的旧名）。
-    v5.23 `FYL-DESIGN-19` 升 v0.2（用户裁定：`wall_ggd` 不入仓，只带 `wall` / `pf_active` / `tf` /
-    `magnetics` 加必要诊断——A-13 的逐 IDS 白名单，实测白名单文本面 731 KB 而 `wall_ggd` 一项 10.1 MB）。
-    v5.22 新增 `FYL-DESIGN-19`（facts 的发行形态：评估「从 fydoc 收装置 A-Box，合成 `facts.jsonld`
-    与 `facts.rs` 两份生成物，顶层不留 `facts/`」——方向判对，改写为搜索路径的**自带那一档**；
-    裁定 A-1..A-12）。
-    v5.21 `FYL-DESIGN-18` 升 v1.5（合并后随 `-17` v1.1 的 E-23 改口：`fy case run` → `fy run`）。
-    v5.20 **两条线合并**（`develop` ← `claude/fylite-frontend-design-78szkh`）。★两边都在改这本
-    登记册，且**各自用过 v5.6..v5.9 指不同的事**——命令行那条线在写 `FYL-DESIGN-17`，前端那条线
-    在写 `FYL-DESIGN-18`。号已经发出去了，改号会让两边的提交信息都对不上，所以**两段历史各自
-    保留、按来源标明**，本条取一个高于双方的号。合并本身没有内容取舍：`E-` 与 `U-` 两个编号域
-    互不相干，目录表两行各归各位。
-    〔命令行线，原 v5.6..v5.9〕
-    v5.9 `FYL-DESIGN-17` 升 v1.3（补上门禁 ① 与 ⑤ 的可执行形；`--dry-run` 下未解析的端口改为一行输出）。
-    v5.8 **P1 落地**（用户「完整实现 cli 设计」）：`FYL-DESIGN-17` 升 v1.2（as-built 一节 + 三处与设计
-    不同的落法）、`FYL-DESIGN-15` 升 v1.1（四条命令词；C-1 补规格与模板的分工）。
-    v5.7 `FYL-DESIGN-17` 升 v1.1（两条用户裁定：`case` 收进 `run`、`case` 弃用；新增 `list` 命令——
-    `fy` = `app` / `data` / `run` / `list`；E-23 / E-24，E-2 / E-4 / E-5 / E-6 / E-10 / E-21 修订）。
-    v5.6 `FYL-DESIGN-17` 升 v1.0（由评估升为详细设计：第四条命令词 `run <线> [<场景>]`，两段解析、
-    参数记法、合成次序、装置两条路、测量三级、环境变量全表、场景目录；E-10..E-22，E-4 / E-5 / E-6 修订）。
-    〔前端线，原 v5.6..v5.19〕
-    v5.19 `FYL-DESIGN-18` 升 v1.4（裁定 U-25：导入 h5wasm，浏览器读 HDF5 走「第三方读者 → fyo 文档
-    → 源栈一层」，按需加载不进预缓存；HDF5 闸与原生读法逐叶子一致）。
-    v5.18 `FYL-DESIGN-18` 升 v1.3（中间层 wasm 门开一半：17 个导出；拦路的不是 mdsip 而是一刀切的
-    wasm 排除；`assemble` 仍留本机）。
-    v5.17 `FYL-DESIGN-18` 升 v1.2（用户裁定「Python 不接入前端」：源栈闸不再借 Python 执行合并；
-    新缺口 G-15——中间层的 wasm 层零导出，H-4 / W-1 今天不成立）。
-    v5.16 `FYL-DESIGN-18` 升 v1.1（§五 源栈落地，装配文档由真中间层验证；新缺口 G-14）。
-    v5.15 `FYL-DESIGN-18` 升 v1.0（§八 试改落地；内核在本环境构建，两端规格比对首次跑通，G-13 关）。
-    v5.14 `FYL-DESIGN-18` 升 v0.9（G-13 的调用已修：报告闸改为库调用，由抛异常变为按内核缺席跳过）。
-    v5.13 `FYL-DESIGN-18` 升 v0.8（离线预缓存落地，断网实测通过，G-5 关）。
-    v5.12 `FYL-DESIGN-18` 升 v0.7（文档集与往返闸；设计点名的四道闸全部存在且通过）。
-    v5.11 `FYL-DESIGN-18` 升 v0.6（U0 第四步：工作台与 `fylite:layout`，工作台闸成立；U0 四条落齐）。
-    v5.10 `FYL-DESIGN-18` 升 v0.5（U0 第三步：执行分片、进度、取消与断点仓，断点闸成立）。
-    v5.9 `FYL-DESIGN-18` 升 v0.4（U0 第二步：图形改由呈现规格驱动，规格闸成立；新缺口 G-13）。
-    v5.8 `FYL-DESIGN-18` 升 v0.3（U0 第一步落地：model 页表单由词表生成，表单闸成立）。
-    v5.7 `FYL-DESIGN-18` 升 v0.2（按分析工作评估：茎 / 表 / 对照三种视图、图上改权重、视图状态
-    收成两种、解释性文字去向；U-21..U-24；〈评估〉一节）。
-    v5.6 新增 `FYL-DESIGN-18` v0.1（应用前端详细设计：场景驱动的输入页 · 多源组合 · 执行与断点 ·
-    呈现规格与报告 · 交互图形四件 · 文档集交换；裁定前缀 `U-` 入编号登记；八张 `fe-*.svg`
-    预览图与 `-11` 共用一条外壳）。
-    v5.5 `FYL-DESIGN-14` 升 v1.3（imas-python 的 documentation 警告＝L-4「一个字不抄」的影子）。
-    v5.4 `FYL-DESIGN-14` 升 v1.2（L-13 搬家表；G-10 关闭）。
-    v5.3 `FYL-DESIGN-14` 升 v1.1（G-10：wall 转 IMAS 出空件）；`FYL-SDD-01` 升 v1.3
-    （更正实测：失败的 fetch 退出码是 1；原记的 0 取自管道末端的 head）。
-    v5.2 `FYL-SDD-01` 升 v1.2（facts 搜索路径：多源、优先级、逐条决胜）。
-    v5.1 `FYL-SDD-01` 升 v1.1（装置语料 `devices/` 与公开版 / 内部版构建入册）。
-    v5.0 全书重排（用户「优化重写整个设计文档整体架构和详细章节」，2026-09-04）。
-    十一篇文档同日各出一个大版本：规格链 `FYL-CONOPS-00` v1.0 · `FYL-SRS-01` v1.0 ·
-    `FYL-SDD-01` v1.0，设计书 `-09` v2.0 · `-10` v2.0 · `-11` v1.0 · `-12` v1.0 · `-13` v1.0 ·
-    `-14` v1.0 · `-15` v1.0 · `-16` v2.1。共同的整理：沿革叙述收进各篇的版本行，正文只写
-    现行状态；「双宿主」退役为「多宿主 / 两个运行时」；失效路径按 2026-09-04 仓树改正
-    （`docs/note` `docs/cases` `docs/archive` `mapping/` `app/server/` 已不在本仓）；提案编号
-    在 SRS 附录集中登记。本书的**架构**随之定型：规格链在前，设计书按层分两组——
-    内核与中间层（`-16` `-14` `-15`）、浏览器前端（`-11` 外壳 + 四页），`myst.yml` 的 toc
-    同批改序。本目录的目录行按 STANDARD 收成一行一篇，编号登记表新立，归档表改指内核仓。
-    · v4.6 `-16` 升 v2.0（全文重写）。· v4.5..v3.6 `-16` v0.1..v1.3 十四次同日增量
-    （可替换内核 · 多宿主 · 改名 fylite_runtime · K-8 装置 · 扁平树 · 回调撤回 · 无状态 ·
-    状态管理 · 中间层进 wasm）。· v3.5 `-15` 的规范条款上提 SDD v0.13 / SRS v0.5。
-    · v3.4 收编 `-15`。· v3.3 共享外壳落地。· v3.2 四页视觉细化，P-25..P-30。
-    · v3.1 `-11` 重构为桌面版外壳。· v3.0 四页各一份文档（`-10` 拆出 `-12` / `-13`），
-    新增 `-11`。· v2.9 含时演化栏收敛进放电设计页。· v2.8..v2.3 收编 `-10` / `-09` 各版。
-    · v2.2 CONOPS 建设原则。· v2.1 收编 SDD，规范链 ConOps → SRS → SDD 齐。
+    v5.31 收束沿革（用户「移除历史修改痕迹」，2026-09-07）：本字段此前累积了 v2.1 起
+    每一次改动的逐条叙述，其中 v5.27..v5.30 四条还写在一份仍标 v5.26 的文档上——沿革
+    自己与文档版本对不上。现按 STANDARD 的做法只留**现行状态**：逐次沿革由 git 承载，
+    本字段写这一版做了什么。
+    同版另记两件正在收口的事：其一，T-4「237 处扁平导出收敛为 fyo 接口」于 2026-09-07
+    完成——`SINK_BASELINE 0` · `march 0` · 扁平面 0，两个宿主到内核只有文档门一条路
+    （细节在内核仓 `docs/note/kernel-public-seam.md`）；其二，`FYL-SDD-01` 与
+    `FYL-DESIGN-16` 随之各出一个大版本，按收敛后的实测重写，不再逐刀叙述。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -136,8 +33,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-00` |
 | 文档名称 (Title) | 设计书目录 (Design Book Index) |
 | 短名 / Slug | `fylite-design-index` |
-| 版本 (Version) | v5.26 |
-| 发布日期 (Date of Issue) | 2026-09-05 |
+| 版本 (Version) | v5.31 |
+| 发布日期 (Date of Issue) | 2026-09-07 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | concept (ISO/IEC/IEEE 15288) |

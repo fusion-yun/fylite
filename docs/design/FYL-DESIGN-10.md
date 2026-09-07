@@ -27,14 +27,8 @@ modified:
     跨运行时一致（NR-ENV-004）。⑥路径按 2026-09-04 仓树改正：实测笔记随内核走到私有
     内核仓、算例在仓根 `cases/`、页面级 QR 已不在仓、Node 网关已退役。落地状态改标
     2026-09-04。所有实测数字沿用原出处，未重量。
-    历史：· v1.2（2026-09-01，自 v1.0 一次升至 v1.2，无单独的 v1.1 记录）P-25 / P-26 /
-    P-27 三条四页共用的外壳与视觉纪律、P-28 同符号两方向、G-14..G-17、编号表补齐续至
-    P-30 · v1.0 拆分——本文件此后只写物理
-    建模页，分析页 / 数据页各自成篇（`FYL-DESIGN-12` / `-13`），编号不重排、条搬家
-    不改号，四页共同的纪律留在本篇；新增 P-20 / P-21；`validate-cases.mjs` /
-    `validate-initial-case.mjs` 随算例菜单撤下 · v0.2 增 P-19 建模页不含时（含时演化栏
-    收敛进放电设计页，`FYL-DESIGN-09` D-22）· v0.1 初稿，与 `FYL-DESIGN-09` 配套，把
-    浏览器前端另外三页的构造、裁定、界面与缺口写在一处。
+    逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
+    （2026-09-07 收束，用户「移除历史修改痕迹」）。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -692,14 +686,16 @@ P-14（报不出的量写明为什么报不出）。
 ## 与内核契约的关系 (This page and the kernel contract)
 
 〔已确立·as-built〕这一页今天经页面的 worker 与 `app/assets/fylite.js` **直接**调内核的
-扁平导出：worker 命令 `transport_turb`（湍流档，本栏自己的 worker）· `evolve` 系
-（`evolve_step` / `_couple` / `_match` / `_round`，流式）· `interp`，拟设的边界栏走既有
-的 `solve`；0–2 档定态解在页面线程上直接调 `transport_step` / `geo_surface` / `neo_chi`
-（{numref}`tbl-fylite-model-asbuilt`）。`app/assets/fylite.js` 里共有 **344 处**
-`fylite_rs_*` 调用点（实测 2026-09-04，`FYL-DESIGN-16` {numref}`tbl-fylite-kernel-asis-calls`）
-，本页是其中的用户之一。
+worker 命令 `transport_turb`（湍流档，本栏自己的 worker）· `evolve` 系（流式）· `interp`，
+拟设的边界栏走既有的 `solve`（{numref}`tbl-fylite-model-asbuilt`）。**这些今天全部走文档门**：
+`code/transport` · `code/evolve` · `code/turbulence` · `code/interpretive`，页面线程上不再有
+物理算子的扁平调用（`FYL-DESIGN-16` {numref}`tbl-fylite-kernel-asis-calls`）。
 
-〔工作假设·目标态，未落地〕按 `FYL-DESIGN-16`：
+〔历史陈述〕收敛之前，本页的 0–2 档定态解在页面线程上直接调 `transport_step` /
+`geo_surface` / `neo_chi`；`fylite.js` 当时有 344 处 `fylite_rs_*` 调用点，本页是其中的
+用户之一。今天那一层是 12 个原型，全是原语与装载机制。
+
+按 `FYL-DESIGN-16`：
 
 - **K-1** 文档门是唯一的内核接口——页面**只**经「一份 fyo 计划进、一份 fyo 记录出」
   调内核；页面 JS 里不再出现 `fylite_rs_*` 符号名。

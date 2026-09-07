@@ -162,16 +162,20 @@ def test_reflected_schemas_carry_types():
     """★★They did not: every property was a bare description reading
     ``parameter 'inputs' of …``, so a model calling the tool had to guess
     whether a parameter was a number, a name or a whole deck."""
+    #: ★``fylite_tglf`` was the example until 2026-09-07 retired the gyrofluid
+    #: port face; ``fylite_efit`` carries the same four shapes — an integer, a
+    #: boolean, a bulk parameter with the handle alternative, and one
+    #: parameter the source does not annotate.
     tools = {t["name"]: t for t in engine.llm_tools()}
-    tglf = tools["fylite_tglf"]["input_schema"]["properties"]
-    assert tglf["sat_rule"]["type"] == "integer"
-    assert tglf["fluxes"]["type"] == "boolean"
+    efit = tools["fylite_efit"]["input_schema"]["properties"]
+    assert efit["npp"]["type"] == "integer"
+    assert efit["probes"]["type"] == "boolean"
     #: bulk data advertises the handle form beside its own type
-    assert [b.get("type") for b in tglf["inputs"]["anyOf"]] == ["object",
-                                                               "object"]
-    assert tglf["inputs"]["anyOf"][1]["required"] == ["$ref"]
+    assert [b.get("type") for b in efit["meas"]["anyOf"]] == ["object",
+                                                              "object"]
+    assert efit["meas"]["anyOf"][1]["required"] == ["$ref"]
     #: an unannotated parameter says so rather than looking like a blank
-    assert "[TBD]" in tglf["ky"]["description"]
+    assert "[TBD]" in efit["pressure"]["description"]
 
 
 def test_no_required_parameter_is_untyped():
@@ -199,11 +203,11 @@ def test_every_reflected_schema_is_valid_json_schema():
 def test_a_typed_schema_admits_a_handle_where_it_says_it_does():
     jsonschema = pytest.importorskip("jsonschema")
     schema = {t["name"]: t for t in
-              engine.llm_tools()}["fylite_tglf"]["input_schema"]
+              engine.llm_tools()}["fylite_efit"]["input_schema"]
     jsonschema.Draft202012Validator(schema).validate(
-        {"inputs": {"$ref": "fylite://r-1/deck"}, "sat_rule": 2})
+        {"meas": {"$ref": "fylite://r-1/meas"}, "npp": 2})
     with pytest.raises(jsonschema.ValidationError):
-        jsonschema.Draft202012Validator(schema).validate({"inputs": 3.0})
+        jsonschema.Draft202012Validator(schema).validate({"meas": 3.0})
 
 
 def test_anthropic_and_openai_adapters():
@@ -220,15 +224,20 @@ def test_anthropic_and_openai_adapters():
 # --------------------------------------------------------------------------- #
 
 def test_an_execution_error_is_not_reported_as_an_unknown_tool():
-    """★★``fylite_tglf`` with an incomplete deck raises ``KeyError('NS')``.
-    That used to escape the execution guard as the protocol's "unknown tool"
-    error — word for word what a caller is told about a tool that does not
-    exist — so a model would conclude the capability was absent and stop
-    asking for it."""
-    result = engine.call_mcp_tool("fylite_tglf", {"inputs": {}})
+    """★★``fylite_discharge`` with an incomplete target raises
+    ``KeyError('r0')``.  That used to escape the execution guard as the
+    protocol's "unknown tool" error — word for word what a caller is told
+    about a tool that does not exist — so a model would conclude the
+    capability was absent and stop asking for it.
+
+    ★The example was ``fylite_tglf`` with an incomplete deck until
+    2026-09-07, when the gyrofluid port face was retired; the guard is the
+    same one, exercised through a tool that is still on the face."""
+    result = engine.call_mcp_tool("fylite_discharge",
+                                  {"target": {}, "ip": 1.0e6})
     assert result["isError"] is True
     err = json.loads(result["content"][0]["text"])
-    assert err["error"] == "KeyError" and "NS" in err["message"]
+    assert err["error"] == "KeyError" and "r0" in err["message"]
     with pytest.raises(KeyError):                 # a name that really is not there
         engine.call_mcp_tool("fylite_nosuch", {})
 
@@ -245,7 +254,12 @@ def test_a_published_but_uncallable_capability_says_which_it_is(monkeypatch):
     """
     from fylite.engine import serve
     docs = dict(engine.load_manifests())
-    name, doc = "tglf", dict(docs["tglf"])
+    #: ★``tglf`` until 2026-09-07 — but that manifest now really IS marked
+    #: not-executable, which would make this case pass for the reason its own
+    #: docstring rejects.  ``efit`` is executable, so the marking here is the
+    #: test's own and the mechanism is what is measured.
+    name = "efit"
+    doc = dict(docs[name])
     doc["fylite:executable"] = False
     doc["fylite:executable_note"] = "held for a reason a caller can read"
     docs[name] = doc

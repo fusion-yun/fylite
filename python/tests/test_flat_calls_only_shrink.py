@@ -35,7 +35,6 @@ BASELINE = {
     #: 'scenario/control/stability.py' — clean since 第二十五刀 (2026-09-06): coupling_gradient moved with code/vstab's loop rows
     'scenario/design/__init__.py': 0,   # 第二十刀 (2026-09-06)：target_boundary 走 code/outlines
     'scenario/model/__init__.py': 0,
-    'scenario/model/gyrofluid.py': 8,
     'scenario/model/lh.py': 0,   # 第十七刀 (2026-09-06)：慢化/共振包装迁入内核仓神谕树
     'scenario/model/nbi.py': 0,   # 第十七刀 (2026-09-06)：慢化/共振包装迁入内核仓神谕树
     'scenario/waveform.py': 2,   # 第二十二刀 (2026-09-06)：from_phases 走 code/waveform

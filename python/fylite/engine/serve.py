@@ -715,11 +715,11 @@ def call_mcp_tool(name: str, args: dict) -> dict:
     ★★Whether the tool EXISTS is decided here, before anything runs, and the
     ``KeyError`` that says so is raised outside the execution guard.  It used
     to be raised inside it, under a bare ``except KeyError: raise`` — so a
-    ``KeyError`` from the physics (``fylite_tglf`` with an incomplete deck
-    raises ``KeyError('NS')``; ``fylite_efit`` raises ``KeyError('brsp')``)
-    escaped as the SAME protocol error, and the caller was told
-    ``unknown tool 'fylite_tglf'`` — word for word what it is told about a
-    tool that does not exist.  A model reading that concludes the capability
+    ``KeyError`` from the physics (``fylite_discharge`` with an incomplete
+    target raises ``KeyError('r0')``; ``fylite_efit`` raises
+    ``KeyError('brsp')``) escaped as the SAME protocol error, and the caller
+    was told ``unknown tool 'fylite_discharge'`` — word for word what it is
+    told about a tool that does not exist.  A model reading that concludes the capability
     is not there and stops asking for it, which is the most expensive wrong
     answer this face can give.
     """

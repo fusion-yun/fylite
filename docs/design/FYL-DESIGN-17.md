@@ -19,40 +19,8 @@ modified:
     ①两种位置参数形产出同一份计划（实测相等），⑤`--offline` 解析不到时按名拒绝而不是
     连出去。同批把 `--dry-run` 下解析不到的输入端口由「拒绝」改为「一行输出」（A-3 后半，
     理由写在那一行里）。
-    · v1.2 **P1 落地**（用户「完整实现 cli 设计」，2026-09-04）：`_cli.json` 加 `run`
-    （`open_parameters`）与 `list`（七条子命令）、去 `case` 与 `data facts`、加 `retired`；
-    解析器收开放记号并按名拒绝退役词；新增 `src/corpus.rs`（语料四级 + 模板）、
-    `cli/run.rs`（两段解析 · 开关 · 装置两条路 · 测量三级 · 来源账 · 记录）、`cli/list.rs`
-    （七条只读子命令），`cli/case.rs` 撤除；`facts.rs` 补 experiment 域；九份场景模板与
-    场景目录由 `tools/make-scenario-templates.py` 从语料生成（279 个参数名逐条取自
-    `code/<x>#<名>` IRI）；闸子 `test_scenario_templates.py` 新增，`test_cli_spec.py` /
-    `test_cli_docs_match_the_artifact.py` 随之改；指南与参考的命令行两页重写。
-    **三处 as-built 与设计不同，逐条记在 {ref}`fylite-preset-asbuilt`**：模板发九份
-    （语料的九个 code）而不是十份（`pulse` / `vstab` 没有 code IRI，改 P2-c）；
-    `fy list` 不带子命令时按名拒绝并列出七条，没有单独的总览；`--dry-run` 一个字节都不写。
-    · v1.1 两条用户裁定（2026-09-04）：**`case` 收进 `run`，`case` 命令弃用**；**新增 `list` 命令**，
-    列出 facts 装置、实验条目、场景模板、预设、语料根与内核 code 表（E-24）。`fy` 从此是 `app` /
-    `data` / `run` / `list` 四条命令词：`run` 的位置参数既收线与场景，也收计划文件（E-2 的名字 / 路径规则）；原
-    `case describe` / `plan` / `run` / `json` 分别成为 `list kernel` / `run … --dry-run` /
-    `run …` / `run … --json`，`data facts` 成为 `list facts`（迁移表 tbl-e17-migration）；发现面
-    **只在 `list` 上**（E-4），`run` 不再有 `--list` / `--show`；`--set` 整个撤除，`--code` 保留为固定
-    选项；`fy case …` 按名拒绝并指向对应写法，映射表在 `_cli.json` 的 `retired` 键里（E-23）。
-    Rust 库模块 `crate::case`（合成器）保留，撤的是命令词与 `cli/case.rs`。E-2 / E-4 / E-5 /
-    E-6 / E-10 / E-21 相应修订，E-23 / E-24 新增；J-1 / J-7 改写；门禁 ① 改为 `run` 两种形之间的等价式。
-    · v1.0 由「评估」升为「详细设计」（用户：*详细设计命令行完成日常建模分析，如
-    `fy run analysis --device east shot=123456 time=4.4 --only-magnetic=true`*，2026-09-04）。
-    新增第四条命令词 `run <线> [<场景>]`（E-10），场景是位置参数不是命令词；两段解析
-    （静态语法在 `_cli.json`，参数表在场景模板，E-11）；参数记法 `key=value` ≡ `--key=value`、
-    `--flag` ≡ `flag=true`（E-12）；合成次序模板 → 装置 → 预设 → `--plan` → 命令行 → 端口，
-    逐值记来源（E-13）；装置信息两条路进计划（E-14）；测量文档三级解析且取数落进记录目录
-    （E-15，**修订 E-6**：`case` 仍不开套接字，`run` 的取数是一个有界的前置阶段）；环境变量
-    只供资源不供物理参数，全表（E-16）；每线一条缺省场景（E-17）；模板声明的开关
-    （E-18，`only_magnetic` 是第一个）；记录目录自足与 `--dry-run`（E-19）；退出码与拒绝阶段
-    （E-20）；`run` 不是第二个合成器（E-21）；模板随 `fy` 内嵌、预设走语料路径（E-22，
-    关闭 v0.1 的开放项）。E-4 / E-5 修订（发现面上 `run`，v1.1 改为 `list`；`--set` 留在 `case`，v1.1 撤除）。场景目录
-    逐条覆盖文档明确涉及的全部场景（CONOPS S-L1..S-L5 · 三页十三条栏 · 语料 9 个 code ·
-    工具表 10 件 · 指南五章），含不设模板者的理由。`_cli.json` 增量与解析器改动写成落地清单。
-    · v0.1 初稿：预设是数据不是动词（E-1..E-9），三张清单不一样长，六条常用预设，两档分期。
+    逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
+    （2026-09-07 收束，用户「移除历史修改痕迹」）。
 ---
 
 :::{dropdown} 文档控制信息 (Document Control Information)
@@ -523,7 +491,7 @@ fy run analysis --device east --input rec/measurements.fyo.jsonld --only-magneti
 | model | **`transport`** | 固定几何下一次定态解，剖面长什么样 | S-L1；`-10` 栏一 | `transport` / `code/transport`(19) / `model.transport` | （无必需端口；`device` 可选补几何） | ✅ | ✅ |
 | model | **`evolve`** | 含时演化：热通道推进到稳态，功率平衡怎么走；`couple=N` 即平衡交替 | S-L1；`-10` 栏二；指南「正解与演化」 | `evolve` / `code/evolve`(114) / `model.evolve`；entry `evolve_heat`；`ENTRY_SCOPE` 里 `beam` · `lh` · `wave` · `ipctl` · `ch-density` … 为 unsunk，给了按名拒绝 | （同上） | ✅ | ✅ |
 | model | `coupled` | 平衡—输运静态交替 | `-10`（2026-08-26 栏让给 `evolve`） | `model.coupled`，无栏 | — | ⤵ `evolve` 的 `couple` | — |
-| model | `tglf` | 局域线性稳定性与准线性通量 | S-L1 湍流闭包；`TOOLS['tglf']` | `model.tglf`；两条栏里的 `closure=turbulent` 模式 | `inputs` | ⤵ `transport` / `evolve` 的 `closure` · `turb-*`；独立模板 P2-c 候选 | — |
+| model | `tglf` | 局域线性稳定性与准线性通量——**移植面已撤下**（2026-09-07，内核仓 `tests/oracles/gyrofluid.py`） | S-L1 湍流闭包 | （本层无入口；清单 `tglf` 标 `executable: false`。物理走门 `code/turbulence`，即 `evolve` 的 `closure=turbulent`） | — | ⤵ `evolve` 的 `closure=turbulent`；deck 形态的提问不再提供 | — |
 | model | `interp` | 剖面插到内核网格；功率平衡反演 χ | `-10` 栏 `interp` | `code/interpretive`（worker 的 `interpRun` 经文档门；2026-09-05 K-3 第八刀） | — | ✗ 工具不是场景：门上的 code，不出 `fy` 场景模板 | — |
 | model / design | **`zerod`** | 0-D 放电：这套相位表与波形落在运行域哪里；`uqon` 即不确定度 | S-L4；`-09` 栏一 | `zerod` / `code/zerod`(33) / `model.zerod` | （`device` 可选） | ✅ | ✅ |
 | design | **`discharge`** | 静态线圈反解 / 自由边界正解：目标形状 → 线圈电流 | S-L1 平衡正演 · S-L5 静态反解；`-09` 栏二；指南「前向自由边界正解」 | `discharge` / `code/discharge`(23) / `design.discharge` | `device`(要线圈几何) | ✅ | ⛔ P2-c |

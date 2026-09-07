@@ -5,8 +5,9 @@
 // the session file, the starting profiles are the controls' own prescribed
 // shape on that ladder, every source is a kernel entry, and the closure is
 // the constant tier.  So Python re-runs the SAME march through
-// `fylite.scenario.model.assembly.solve_core` and the two must land on the
-// same profiles.  That is a stronger statement than any per-entry gate: it
+// `fylite.scenario.model.evolve` — whose loop is the kernel's, since T-4 sank
+// the old `assembly.solve_core` step into `code/evolve` — and the two must
+// land on the same profiles.  That is a stronger statement than any per-entry gate: it
 // checks the ASSEMBLY — which weight goes where, which unit crosses which
 // boundary, which source lands in which channel — and the assembly is where
 // a page can be wrong while every kernel entry is right.
