@@ -95,7 +95,7 @@ BASELINE: dict[str, set[str]] = {
     #: ★★EAST 2026-09-07 进来：它的卡片是**手工维护**的那一张（在内核仓
     #: `machine_desc/east/`），比上游全，也因此带着自己的一套词。下面这些是那套词里
     #: DD 不认的部分 —— `count` · `note` 是同一类冗余/说明，`weight` · `bit_error` ·
-    #: `efit_index` · `turns` · `pcs` 是 EFIT 反演那一侧的东西，`pf_passive/*` 是
+    #: `pcs` 是 EFIT 反演那一侧的东西，`pf_passive/*` 是
     #: 按层分组的被动结构（DD 的 `pf_passive` 没有这些名字）。
     #: **该给它们加 `fylite:` 前缀**，而那张卡片在另一个仓，是一次要协调的改动。
     "east": {
@@ -108,8 +108,7 @@ BASELINE: dict[str, set[str]] = {
         "magnetics: b_field_pol_probe/bit_error", "magnetics: b_field_pol_probe/weight",
         "magnetics: flux_loop/bit_error", "magnetics: flux_loop/weight",
         "magnetics: pcs",
-        "pf_active: coil/bit_error", "pf_active: coil/efit_index",
-        "pf_active: coil/turns", "pf_active: count", "pf_active: note",
+        "pf_active: count", "pf_active: note",
         "pf_passive: note", "pf_passive: outer_shell", "pf_passive: passive_plates",
         "pf_passive: vessel",
         "polarimeter: baseline", "polarimeter: channel/line_of_sight/theta",
@@ -138,7 +137,7 @@ SYNTHESIZED = (
 #: 上一条表**放行**的叶子数不能悄悄涨上去。这里记的是每台机器**真正逐值核对过**
 #: 的叶子数（2026-09-07 实测，只准增不准减）：没有这一条，往 :data:`SYNTHESIZED`
 #: 里多加一个宽泛的词就能让整道闸绿着什么也不查。
-CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 590,
+CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 591,
                     "iter": 165, "jt60sa": 6, "west": 200}
 
 #: 语义键与声明的本地词 —— 不进数据入口是设计，不是缺陷。

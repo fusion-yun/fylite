@@ -876,6 +876,9 @@ def write_document(dev: str, out_root: pathlib.Path, *,
     identity(dev, doc)
     grid(dev, doc)
     vacuum_field(dev, doc)
+    one_limiter(dev, doc)
+    pf_flatten(dev, doc)
+    channel_map(dev, doc)
     p = out_root / f"{dev}.jsonld"
     #: ★`allow_nan=False`：Python 的缺省会写出裸 `NaN` / `Infinity`，**那不是 JSON**。
     #: 上面的 `finite()` 已经把唯一一种无歧义的情形（成对轮廓末尾的补位）摘掉了；
@@ -883,6 +886,96 @@ def write_document(dev: str, out_root: pathlib.Path, *,
     p.write_text(json.dumps(doc, ensure_ascii=False, indent=1, allow_nan=False) + "\n",
                  encoding="utf-8")
     return p
+
+
+def one_limiter(dev: str, doc: dict) -> None:
+    """几条**各自闭合**的限制器轮廓 → 只留第一条，其余记下来。
+
+    ★★页面把 `limiter.unit[]` 当作**一条轮廓切成的几段**，按端点首尾相接缝起来
+    （`app/assets/fyodev.js` 的 `stitchOutline`，那里的注释写着为什么）。EAST 的卡片
+    里那两个单元不是两段，是**两条各自闭合的整轮廓**（`efit_w_pf` 60 点、`m-file`
+    48 点）；缝起来是一个没有意义的多边形，而限制器多边形正是自由边界解的接触判据。
+    实测 2026-09-07：两条一起交出去，同一组参考电流解出来的轴位置差 0.75 m，
+    自由边界迭代跑满 600 次上限。
+
+    ★判据是**每一条都闭合**：那时它们只能是互为备选（两堵墙不可能都是这堵墙）。
+    WEST 的卡片有 89 个单元、其中 8 条闭合、其余是开口的段 —— 那是真正的分段形，
+    这条规则不碰它。留第一条，被留下的记进 `fylite:limiter_alternatives`：
+    换一条是一次要人来定的改动，而不是这里挑一个。
+    """
+    d2 = (doc.get("wall") or {}).get("description_2d")
+    d2 = d2[0] if isinstance(d2, list) and d2 else d2
+    units = ((d2 or {}).get("limiter") or {}).get("unit")
+    if not isinstance(units, list) or len(units) < 2:
+        return
+
+    def closed(u):
+        o = u.get("outline") or {}
+        r, z = o.get("r") or [], o.get("z") or []
+        return len(r) > 2 and r[0] == r[-1] and z[0] == z[-1]
+
+    if not all(closed(u) for u in units):
+        return                                  #: 分段形，交给页面去缝
+    kept, rest = units[0], units[1:]
+    d2["limiter"]["unit"] = [kept]
+    d2["limiter"]["fylite:limiter_alternatives"] = [
+        {"name": u.get("name"), "points": len(((u.get("outline") or {}).get("r")) or [])}
+        for u in rest]
+
+
+def pf_flatten(dev: str, doc: dict) -> None:
+    """把**按 PCS 通道分组**的线圈摊成一元件一线圈 —— 页面文档的那一形。
+
+    ★★两种形，同一台机器。手工卡片（EAST）按**通道**记：12 个通道，其中两个各驱动
+    一对串联元件，共 14 个元件；页面读的 `<id>.jsonld` 按**线圈**记：14 个线圈，
+    各一个元件。`app/assets/fyodev.js` 的 `fromFyo` 只认后一形，而通道图的下标数的
+    正是那 14 个元件 —— 把分组形原样交出去，页面会说
+    「channel 10 points at a coil that does not exist (there are 12)」。
+
+    ★★这一步 2026-09-07 补上。此前派生这一份**不摊**，于是从卡片转出来的 EAST 在
+    五道 worker 闸子上要么算出另一台机器，要么反解当场拒绝（`kernel code -104700`）。
+    摊开之后逐位核对过：矩形 · 名字 · 匝数与内核仓 `fylite_device_east.json`
+    **完全相同**（那一份正是同一张卡片的摊开形）。
+
+    ★名字取元件自己的 `fylite:name`：通道名是 `PF1P`（一对串联共用一个名字），
+    线圈名是 `PF1` / `PF2`。用通道名会让两个线圈重名，而重名的线圈在任何按名字
+    找回来的地方都是一个坑。
+    """
+    coils = (doc.get("pf_active") or {}).get("coil")
+    if not isinstance(coils, list):
+        return
+    if all(len(c.get("element") or []) <= 1 for c in coils) \
+            and not any(e.get("fylite:name") for c in coils for e in c.get("element") or []):
+        return                                  #: 已经是一元件一线圈
+    flat = []
+    for ch in coils:
+        for el in ch.get("element") or []:
+            el = dict(el)
+            name = el.pop("fylite:name", None) or ch.get("name")
+            flat.append({"name": name, "element": [el]})
+    doc["pf_active"]["coil"] = flat
+
+
+def channel_map(dev: str, doc: dict) -> None:
+    """`pf_channel_elements`（卡片的拼法）→ `fylite:channel_map`（文档的拼法）。
+
+    ★★同一个量、两种拼法，`test_east_descriptions_agree.py::test_the_channel_map_is_the_same_map`
+    早写着这条对应。**派生这一步从前不翻译它**，于是从卡片转出来的 `east.jsonld`
+    根本没有通道图 —— 而页面读的正是 `fylite:channel_map`
+    （`app/assets/fyodev.js`）。后果不是少一行：没有通道基，反解**当场拒绝**
+    （实测 2026-09-07：`validate-worker-recon` 报 `the inverse solve refused
+    the request; kernel code -104700` —— 第 47 次拟合失败）。
+
+    ★只在文档还没有那个键时写：卡片自己带 `fylite:channel_map` 的那天，
+    以它为准，这里不覆盖。
+    """
+    if "fylite:channel_map" in doc:
+        return
+    rows = doc.pop("pf_channel_elements", None)
+    if not isinstance(rows, list):
+        return
+    doc["fylite:channel_map"] = [
+        [[int(t["element"]), float(t["weight"])] for t in ch] for ch in rows]
 
 
 #: ★分辨率的缺省：EFIT 的老约定，也是本仓随包 `libefit.so` 的编译期维度。
@@ -1119,19 +1212,16 @@ def main(argv=None) -> int:
     ap.add_argument("--all", action="store_true",
                     help="every machine with a manifest, EAST excepted")
     ap.add_argument("--list", action="store_true")
-    #: ★★**opt-in，不是缺省**。手工卡片（EAST）在内核检出里有一份，从那里取来
-    #: 暂存区听着只是补一个缺口，实测**不是**：五道浏览器闸子
-    #: （`validate-worker-summary` / `-breakdown` / `-outlines` / `-recon` /
-    #: `-interp-device`）此前跑的是回退源 `$FYLITE_DEVICE_DIR/fylite_device_east.json`
-    #: ——那份把 14 个元件摊成 14 个线圈，而卡片把它们按 **12 个 PCS 通道**分组
-    #: （两者的几何一致，`test_east_descriptions_agree.py` 逐条对过）。分组不同，
-    #: 反馈幅值与 summary 就不同，五道闸子记下的数当场全变。
-    #: 哪一份该是浏览器闸子的基准，是一个要人来定的问题，所以这里不替他定：
-    #: 给了这个开关才取。
-    ap.add_argument("--from-kernel", action="store_true",
-                    help="手工维护的卡片（EAST）不在暂存区时，从内核检出 "
-                         "machine_desc/<id>/<id>_device.yaml 取一份来。"
-                         "★会改变浏览器闸子跑的是哪一份 EAST 描述——见源码注释")
+    #: ★★**缺省就取**（用户裁定 2026-09-07）。手工卡片（EAST）不在暂存区时，从内核
+    #: 检出取一份。★这一步改变浏览器闸子跑的是**哪一份 EAST 描述**：卡片把 14 个
+    #: 导体按 **12 个 PCS 通道**分组，回退源 `$FYLITE_DEVICE_DIR/fylite_device_east.json`
+    #: 把它们摊成 **14 个线圈**（几何一致，`test_east_descriptions_agree.py` 逐条对过）。
+    #: 五道 worker 闸子的夹具已按卡片重录（同日裁定）。
+    #: `--no-from-kernel` 留给要在**只有本仓**的检出上复现那一版的人。
+    ap.add_argument("--no-from-kernel", dest="from_kernel", action="store_false",
+                    help="手工维护的卡片不在暂存区时**不**去内核检出取——"
+                         "只有本仓的检出上本来就取不到，这个开关让两边行为一致")
+    ap.set_defaults(from_kernel=True)
     ap.add_argument("--publishable", action="store_true",
                     help="只列出进得了这一种构建的机器（许可闸；不写文件）")
     #: ★缺省是 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）：fylite 以内部
