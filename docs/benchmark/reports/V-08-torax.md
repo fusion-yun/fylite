@@ -10,7 +10,7 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 | **参考** | TORAX · git:b4d4063349dcab9241da6a7658a1a2083cf9b59d (TORAX_VERSION 1.4.3) · Apache-2.0 |
 | **对象** | fylite: scenario.model.qlknn + nn.rs（QLKNN-10D）· kernel.dt_reactivity（zerod.rs）· kernel.redl_coefficients（neoclassical.rs:1060） |
 | **算例** | —（无场景：局部或解析） |
-| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（1 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_torax_benchmark.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -31,7 +31,7 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在fydata 数据集的 README（`$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在该组算例书随件的 README（`$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/README.origin.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - ★★2026-08-30：本条原有的第三项（QLKNN-10D 逐网 + 组合 + 钳制盒，320 点，最劣 2.4e-15）已**退场**——两码都换了模型（TORAX 默认 qlknn_7_11_v1，fylite 退役二十网改用同一份 QLKNN_7_11 档案），比较对象不再是「两码之间」而是「两码各自对同一上游」，故并入 V-03，不在此重复记账。余下 Bosch–Hale 与 Redl 两项不变。
 - （判据）一份权重的两个前向实现：TORAX 是 float64 JAX 的 flax MLP，本仓是 Rust 内核读 float32 .npz
@@ -69,13 +69,13 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/ | sha256-manifest:51a006d3d69706892ad5dfc50c1f5be0d467dd1a75315f9c7bdd24926c8ee4a3 | restricted | 22 files, 2821591 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/ | sha256-manifest:51a006d3d69706892ad5dfc50c1f5be0d467dd1a75315f9c7bdd24926c8ee4a3 | public-derived | 22 files, 2821591 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_benchmark.py

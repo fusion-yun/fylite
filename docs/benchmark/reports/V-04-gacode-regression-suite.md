@@ -10,7 +10,7 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 | **参考** | GACODE · rev 6357db306 · Apache-2.0 |
 | **对象** | fylite: gyrofluid.rs (TGLF) / neoclassical.rs + dke.rs (NEO) |
 | **算例** | `scenario/gacode-regression`（GACODE 自带回归算例（局部通量面）） |
-| **数据** | 见 §5 表（2 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（2 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_gacode_regression.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——42 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -67,14 +67,14 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | restricted | 93406 B |
-| $FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | restricted | 35720 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-05-gacode/corpus/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | public-derived | 93406 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-05-gacode/corpus/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | public-derived | 35720 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_gacode_regression.py

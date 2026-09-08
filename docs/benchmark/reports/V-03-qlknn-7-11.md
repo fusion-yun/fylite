@@ -10,7 +10,7 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 | **参考** | fusion_surrogates（qlknn_model.QLKNNModel.predict_targets —— 上游自己的推理路径，25 点测试向量的产出者） · git:d678186 · Apache-2.0（软件）/ CC-BY-4.0（权重与元数据）；QLKNN_7_11（权重，archive 版本标记 11D） · git:d678186 · CC-BY-4.0 |
 | **对象** | fylite: fylite.nn + scenario.model.qlknn（内核未改） |
 | **算例** | `scenario/qlknn-box`（QLKNN_7_11 训练盒内的点：上游自带的 25 点测试向量） |
-| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、public-derived、restricted） |
+| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、public、public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_nn_qlknn.py`；`$FYLITE_KERNEL/tests/test_nn_surrogate.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——27 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -65,14 +65,14 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
 | $FYLITE_PUBLIC/models/qlknn_7_11.npz | sha256:63a2181c4ebe84a3c08a93a5cbfeeedc955c7ac6d768cf969ecf76f248a4acfe | public-derived | 301078 B |
-| $FYDATA_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | restricted | 10144 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | public | 10144 B |
 | $FYLITE_KERNEL/rust/tools/export_qlknn_7_11.py | sha256:0a2b3fb35b8778db1fc1df66386cb61b1db0b822164b1b282e5508649d211f08 | private-artefact | 11543 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_nn_qlknn.py tests/test_nn_surrogate.py

@@ -10,7 +10,7 @@ title: V-06 · TGYRO 映射层：整份 out.tglf.localdump 全键对照（treg01
 | **参考** | GACODE / TGYRO · rev 6357db306 · Apache-2.0 |
 | **对象** | fylite: scenario.model.mapping.tglf_inputs（tgyro_tglf_map.f90 的移植） |
 | **算例** | `scenario/gacode-regression`（GACODE 自带回归算例（局部通量面）） |
-| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（1 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_mapping.py`；`$FYLITE_KERNEL/tests/test_flux_chain.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——35 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -26,7 +26,7 @@ title: V-06 · TGYRO 映射层：整份 out.tglf.localdump 全键对照（treg01
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在fydata 数据集的 README（`$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在该组算例书随件的 README（`$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - （判据）out.tglf.localdump 打六位有效数字，这就是容差的来源
 - （判据）★一个不发出的键不是中立的，它是一句「缺省相同」的无声断言
@@ -54,13 +54,13 @@ title: V-06 · TGYRO 映射层：整份 out.tglf.localdump 全键对照（treg01
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | restricted | 24 files, 81461 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public-derived | 24 files, 81461 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_mapping.py tests/test_flux_chain.py

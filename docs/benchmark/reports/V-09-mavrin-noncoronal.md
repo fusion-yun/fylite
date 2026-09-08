@@ -10,7 +10,7 @@ title: V-09 · Mavrin-2017 非日冕电荷态与冷却率，以及 L_INT 求积
 | **参考** | TORAX（collisional_radiative_models + physics/radiation，非日冕档） · git:b4d40633（TORAX 1.4.3） · Apache-2.0 |
 | **对象** | fylite: rust/fylite/src/edge.rs + edge_tables.rs + fylite.kernel.edge_* |
 | **算例** | `scenario/mavrin-noncoronal-grid`（Mavrin-2017 非日冕拟合的自变量网格） |
-| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、restricted） |
+| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_edge_noncoronal.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——8 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -61,15 +61,15 @@ title: V-09 · Mavrin-2017 非日冕电荷态与冷却率，以及 L_INT 求积
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json | sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba | restricted | 85471 B |
-| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py | sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1 | restricted | 7978 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json | sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba | public-derived | 85471 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py | sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1 | public-derived | 7978 B |
 | $FYLITE_KERNEL/rust/tools/gen_mavrin_tables.py | sha256:c914a7bc2aa104745939ef006f75737e56486bf9dc43753aca2f8c5f788af2a9 | private-artefact | 8580 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_edge_noncoronal.py

@@ -10,7 +10,7 @@ title: V-10 · extended Lengyel 的闭式：分界面几何、alpha_t、q_parall
 | **参考** | TORAX（divertor_sol_1d + extended_lengyel_formulas） · git:b4d40633（TORAX 1.4.3） · Apache-2.0 |
 | **对象** | fylite: rust/fylite/src/edge.rs（闭式半）+ fylite.kernel.lengyel_closed |
 | **算例** | `scenario/lengyel-closed-form-grid`（extended Lengyel 闭式的自变量网格） |
-| **数据** | 见 §5 表（2 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（2 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_lengyel_closed.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——7 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -60,14 +60,14 @@ title: V-10 · extended Lengyel 的闭式：分界面几何、alpha_t、q_parall
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json | sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8 | restricted | 119008 B |
-| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py | sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4 | restricted | 20611 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json | sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8 | public-derived | 119008 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py | sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4 | public-derived | 20611 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_lengyel_closed.py

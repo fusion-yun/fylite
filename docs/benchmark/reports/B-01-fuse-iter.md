@@ -10,7 +10,7 @@ title: B-01 · FUSE 的 ITER 算例，四层
 | **参考** | FUSE · 0.7.0 · Apache-2.0 |
 | **对象** | fylite: 台基代理 / 0-D 聚变通道 / 算例文档 / TGLF deck 装配 |
 | **算例** | `scenario/iter-15ma-flattop`（ITER 15 MA 感应燃烧，平顶段） |
-| **数据** | 见 §5 表（3 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（3 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_fuse_benchmark.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——9 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -56,15 +56,15 @@ title: B-01 · FUSE 的 ITER 算例，四层
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_eped.json | sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1 | restricted | 1491 B |
-| $FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | restricted | 25616 B |
-| $FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | restricted | 55840 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_eped.json | sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1 | public-derived | 1491 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public-derived | 25616 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public-derived | 55840 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_fuse_benchmark.py

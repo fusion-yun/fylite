@@ -10,7 +10,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 | **参考** | TORAX · git:b4d4063349dcab9241da6a7658a1a2083cf9b59d (TORAX_VERSION 1.4.3) · Apache-2.0 |
 | **对象** | fylite: scenario.model.qlknn.flux_from_targets / fluxes + nn.rs |
 | **算例** | `scenario/torax-iterhybrid-evolution`（ITER 混合运行情景，五秒演化（TORAX `test_iterhybrid_predictor_corrector`）） |
-| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（1 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level1_composition_on_torax_own_inputs`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level1_would_have_caught_the_unclipped_leading_flux` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -26,7 +26,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在fydata 数据集的 README（`$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在该组算例书随件的 README（`$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/README.origin.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - （判据）同一个网络、同一组输入列：这是一个函数的两个实现，容差只能是机器精度，物理带只会盖住缺陷
 - （判据）用逐通道峰值归一而非逐点相对：五个通道是比值且大量恰零，逐点比在 1e-14 量级的项上报出无意义的大数
@@ -61,13 +61,13 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | restricted | 1157345 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public-derived | 1157345 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_evolution.py::test_level1_composition_on_torax_own_inputs tests/test_torax_evolution.py::test_level1_would_have_caught_the_unclipped_leading_flux

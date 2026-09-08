@@ -10,7 +10,7 @@ title: C-05 · 环向动量输运对 GYRO 非线性回旋动理学（Waltz 2007 
 | **参考** | GYRO · Waltz et al., Phys. Plasmas 14, 122507 (2007) · published |
 | **对象** | fylite: gyrofluid.rs 的环向应力准线性权重与饱和层 |
 | **算例** | `scenario/ga-standard-rotating`（GA 标准算例，Miller 几何，带平行速度剪切） |
-| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（1 项，纳入类别 public） |
 | **门** | `$FYLITE_KERNEL/tests/test_tglf_momentum.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——13 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -53,13 +53,13 @@ title: C-05 · 环向动量输运对 GYRO 非线性回旋动理学（Waltz 2007 
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | restricted | 3504 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_tglf_momentum.py

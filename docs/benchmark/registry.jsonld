@@ -2,7 +2,7 @@
  "@context": "context.jsonld",
  "id": "registry",
  "title": "fylite 公开 V&V 登记册",
- "abstract": "fylite 对着外部答案量过的记录，逐条可复算——内核仓登记册（docs/cases/registry.jsonld）的公开渲染：判据与量到的数照录，指针改为仓外地址（$FYLITE_KERNEL · $FYDATA_ORACLE），每项参考数据标纳入类别与 sha256，末条 finding 是发布当日的复测。★2026-09-02 起：受限 / 实验类参考以「仅指针」收录（README），不再排除。词汇归 fyo / spo（FYO-ADR-08 · spo RegistryRecord）。",
+ "abstract": "fylite 对着外部答案量过的记录，逐条可复算——内核仓登记册（docs/cases/registry.jsonld）的公开渲染：判据与量到的数照录，指针改为仓外地址（$FYLITE_KERNEL），每项参考数据标纳入类别与 sha256，末条 finding 是发布当日的复测。★2026-09-02 起：受限 / 实验类参考以「仅指针」收录（README），不再排除。词汇归 fyo / spo（FYO-ADR-08 · spo RegistryRecord）。",
  "recorded": "2026-09-08",
  "@graph": [
   {
@@ -204,33 +204,33 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-std/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-std/",
       "checksum": "sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca",
       "comment": "5 files, 3782 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：libtglf（GACODE，Apache-2.0）在 Python API 边界上的录音；上游可重跑"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/",
       "checksum": "sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6",
       "comment": "24 files, 81461 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-03-frozen-libs/corpus/",
       "checksum": "sha256-manifest:55a5a2bc4c40aa5bde29f762fec824fed6b2cb1bbc613188e3f6d16e698a1bd8",
       "comment": "862 files, 13941886 B",
       "provenance_class": "registered",
@@ -244,42 +244,42 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json",
       "checksum": "sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46",
       "comment": "4238 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "restricted-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 restricted-derived：受限派生：表值由受限运行的产物派生（答案侧可复取，输入侧不可）",
+       "出处：JINTRAC 102530 通量面上的 TGLF 答案（答案侧可复取，输入侧不可）",
        "取代 tests/data/tglf_momentum_jintrac.json 的 mflux 列——那一列是上游从不赋值的输出，勿再用作参照"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
       "checksum": "sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b",
       "comment": "4655 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：libtglf（GACODE，Apache-2.0）在 Python API 边界上的录音；上游可重跑"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
       "checksum": "sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557",
       "comment": "3504 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：Waltz et al., Phys. Plasmas 14, 122507 (2007) Table I，逐字"
       ]
      }
     ],
@@ -299,7 +299,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public、public-derived、restricted、restricted-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -412,15 +412,15 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglfnn.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglfnn.json",
       "checksum": "sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662",
       "comment": "1477 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：FUSE（Apache-2.0）本机运行；1.1.5 那份的配方随件（`corpus/1.1.5/README.origin.md`），读者可用同版本自跑"
       ]
      }
     ],
@@ -442,7 +442,7 @@
    "caveat": [
     "★这条只说「我们和它算得一样」，不说「该信它」：该 TGLF-NN 模型（DIII-D 训练）在 ITER 的 rho>=0.75 两面出训练域",
     "单成员不能替 ensemble：同面 Qe 的 20 个成员散布 1.93-8.09，标准差是均值的 34 %",
-    "纳入类别（参考数据）：public-derived、restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -571,15 +571,15 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json",
       "checksum": "sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1",
       "comment": "10144 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：fusion_surrogates d678186（软件 Apache-2.0 · 权重 CC-BY-4.0）自带测试向量"
       ]
      },
      {
@@ -621,7 +621,7 @@
     "★输入钳制默认**关**（与上游、与 TORAX 一致）：钳制把外插变成一个看起来合理的数，本仓的报告路径是 outside_training_box。",
     "★单位是 QuaLiKiz 自己的回旋玻姆归一，与 TGLF 的**不可互换**，本仓不做换算。",
     "缺的通道（exchange / 逐 ky 谱 / 离子粒子流 / 动量应力 / D-V 分解）是**拒绝**而不是给零（QlknnChannelUnavailable）。",
-    "纳入类别（参考数据）：private-artefact、public-derived、restricted"
+    "纳入类别（参考数据）：private-artefact、public、public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -731,28 +731,28 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json",
       "checksum": "sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba",
       "comment": "85471 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py",
       "checksum": "sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1",
       "comment": "7978 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      },
      {
@@ -792,7 +792,7 @@
     "★氦的冷却率表比其余七个**少一个边界**，补齐用 `+inf`（检索永不选中）与 `NaN`（读错就毒化答案而不是悄悄换个数）。",
     "★`L_INT` 的 `resolution` 是**答案的一部分**不是质量旋钮：对数网格上的梯形，上游调用方用 100 点；悄悄用更多点就不是在复现它声称复现的那个模型。",
     "★这条只说「我们和它算得一样」，不说「该信它」：Mavrin 拟合本身没有在本条里对任何实验或第三方原子数据做确认。",
-    "纳入类别（参考数据）：private-artefact、restricted"
+    "纳入类别（参考数据）：private-artefact、public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -898,28 +898,28 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py",
       "checksum": "sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4",
       "comment": "20611 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      }
     ],
@@ -944,7 +944,7 @@
     "★★**三个常数必须对齐，第三个才是要点。** 上游用 `mu_0 = 4π×1e-7`（2019 年前的定义）与落后一版的 `m_e`/`epsilon_0`，对齐后几何从 5.4e-10 到 1e-16。第三个是 `CONSTANTS.eps = 1e-7`——**名字像机器 epsilon，实为正则化项**，只出现在 `alpha_t` 电荷修正的 `(Z_eff - 1 + eps)` 里。在 `Z_eff = 1` 处该项**就是** eps，用机器 epsilon 会把 `alpha_t` 移动 **1.78e-7**：小到像舍入、却比本模块其余部分高六个数量级，且在实测之前已由 `(1-0.569)·(eps/3.25)^0.85` 精确预言。",
     "★网格**刻意包含 Z_eff = 1**（正则化项唯一显形处；不含它则带着机器 epsilon 也能通过）以及 T_e 与 Z_eff **独立**变化的点对（否则记录无法见证「更宽的通量管携带更少平行通量」这一符号——Body 式 49 抄错就会翻转它）。",
     "★这条只说「我们和它算得一样」，不说「该信它」：Body 2025 的模型本身没有在本条里对任何实验或 SOLPS 类模拟做确认。",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1043,15 +1043,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      }
     ],
@@ -1076,7 +1076,7 @@
     "★★一条写错的判据被算例推翻并留档：初版断言温度从**靶板**起沿磁力线单调上升。不对——靶板到对流/传导界面那一步不是传导而是经验拟合，`T_cc/T_target = 2·density_ratio/(1-momentum_loss)` 在 **20 eV 附近穿过 1**（1 eV 处约 5.9、10 eV 处 1.07、更热则稳定在 0.9961）。所以脱靶的冷靶远低于界面，贴附的热靶略高于界面。现按真实行为立judged。",
     "★求根层仍**未移植**：本条查的是「给定态，派生量对不对」，不是「态找得对不对」。同一份夹具里的正向/逆向收敛过程留给它。",
     "★这条只说「我们和它算得一样」，不说「该信它」。",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1205,15 +1205,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      }
     ],
@@ -1240,7 +1240,7 @@
     "★★`C_Z_PREFACTOR_NEGATIVE` 是**结果不是错误**：等离子体在**完全不加种子**时已经低于靶温，达到它需要「负杂质」。浓度被截到零，所以只读数字的调用方会看到「不需要加种子」而错过「这个靶温够不着」——那个事实住在结局标签里，判据逐例比对标签。",
     "★**正向模式未移植**：同一份夹具里的十个正向算例（含四个完全脱靶）留给它。",
     "★这条只说「我们和它算得一样」，不说「该信它」。",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1342,15 +1342,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录"
       ]
      }
     ],
@@ -1375,7 +1375,7 @@
     "★**多起点与 `multiple_roots_found` 未移植**：同一组输入可能有多解，本移植找的是初值引向的那一个，调用方在这里**得不到**「是否还有别的根」这个信息。",
     "★★`Q_CC_SQUARED_NEGATIVE` 是**结果不是错误**（完全脱靶）；靶温被截到一个小正数以免把 NaN 传下去，而「脱靶」这个事实住在标签里。四个脱靶算例的靶温判据**断言它不为零**——那正是与截零方案的分界。",
     "★这条只说「我们和它算得一样」，不说「该信它」。",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1505,41 +1505,41 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_eped.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_eped.json",
       "checksum": "sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1",
       "comment": "1491 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：FUSE（Apache-2.0）本机运行；1.1.5 那份的配方随件（`corpus/1.1.5/README.origin.md`），读者可用同版本自跑"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json",
       "checksum": "sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc",
       "comment": "25616 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：FUSE（Apache-2.0）本机运行；1.1.5 那份的配方随件（`corpus/1.1.5/README.origin.md`），读者可用同版本自跑"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json",
       "checksum": "sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66",
       "comment": "55840 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：FUSE（Apache-2.0）本机运行；1.1.5 那份的配方随件（`corpus/1.1.5/README.origin.md`），读者可用同版本自跑"
       ]
      }
     ],
@@ -1561,7 +1561,7 @@
    "caveat": [
     "★chi 仍是规定的：本仓 chi0 标定自 ASTRA，从没为 FUSE 的任何机器重标过——所以「本仓输运复现 FUSE 剖面」这一问没有问，第 2 层刻意只比通道",
     "FUSE 侧 lump_ions=true：DT+Ne+He 并成 NS=3、等效 Z=8.67，逐种通道不可比",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1753,7 +1753,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/",
       "checksum": "sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220",
       "comment": "7 files, 10531309 B",
       "provenance_class": "registered",
@@ -1929,7 +1929,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/",
       "checksum": "sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47",
       "comment": "124 files, 26113662 B, 106 broken symlinks not hashed",
       "provenance_class": "registered",
@@ -2015,14 +2015,14 @@
       "type": "spo:Code",
       "name": "app/tests/validate-iter-benchmark.mjs",
       "caveat": [
-       "本仓的门：`node app/tests/…`（需 playwright 与 `$FYDATA_ORACLE` 挂在 tests/data）"
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
       ]
      }
     ],
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
       "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
       "comment": "20703 B",
       "provenance_class": "registered",
@@ -2156,7 +2156,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
       "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
       "comment": "20703 B",
       "provenance_class": "registered",
@@ -2339,15 +2339,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
       "checksum": "sha256:344a7584194c5541da74c7b5089b9ba9db8b17ca5d178f177c95a41c9a20690a",
       "comment": "46105 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：METIS（CeCILL-C）认证存档 → 本仓 `tools/metis-cert-to-*.py` 转换"
       ]
      }
     ],
@@ -2367,7 +2367,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -2635,15 +2635,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
       "checksum": "sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8",
       "comment": "99956 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：METIS（CeCILL-C）认证存档 → 本仓 `tools/metis-cert-to-*.py` 转换",
        "派生表；28 份存档的 sha256 逐份记在表头，重跑逐字节相同"
       ]
      },
@@ -2681,7 +2681,7 @@
     "★聚变功率这次没有对：METIS 的 pfus_th 与它自己剖面上的热核 DT 积分差 −4.7 %（ITER）到 −31 %（TFTR），含轨道展宽 / 快 α 慢化 / TAE 损失；相减量到的是快粒子物理，不是体元约定。关闭判据见报告 §5.2",
     "★判 B 不判 C：两侧都是模型输出，METIS 不为 vp 自报精度，容差只能实测后定；判 C 会读成「几何经权威确认」，是夸大。见报告 §4.1",
     "★与 C-04 相反，时间片无稳态要求：这里每个量都是该片自身几何与剖面的瞬时泛函，无历史项",
-    "纳入类别（参考数据）：public、restricted"
+    "纳入类别（参考数据）：public、public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -2764,15 +2764,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
       "checksum": "sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557",
       "comment": "3504 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：Waltz et al., Phys. Plasmas 14, 122507 (2007) Table I，逐字"
       ]
      }
     ],
@@ -2792,7 +2792,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -2863,15 +2863,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
       "checksum": "sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b",
       "comment": "4655 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：libtglf（GACODE，Apache-2.0）在 Python API 边界上的录音；上游可重跑"
       ]
      }
     ],
@@ -2891,7 +2891,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -3132,30 +3132,30 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-05-gacode/corpus/tglf.json",
       "checksum": "sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789",
       "comment": "93406 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：GACODE rev 6357db306（Apache-2.0）本机运行的录音",
        "★上游自己发的 input.tglf.gen 是过期的（缺 UNITS / WDIA_TRAPPED）；冻结的是启动器重新生成的那份",
        "★不搬上游源码：overrides 用名值对复述算例自己的设置"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-05-gacode/corpus/neo.json",
       "checksum": "sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e",
       "comment": "35720 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：GACODE rev 6357db306（Apache-2.0）本机运行的录音",
        "NEO 只发校验和不发通量输出，故这批必须跑出来才成为参照",
        "★跑 NEO 要 PYTHONPATH=$GACODE_ROOT/tglf/bin（gacodeinput.py 在那里），否则 .gen 不生成而 Fortran 报「找不到文件」，读起来像求解器崩了"
       ]
@@ -3177,7 +3177,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3291,15 +3291,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/",
       "checksum": "sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6",
       "comment": "24 files, 81461 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件",
        "★本机 TGYRO 可跑（tgyro -e . -n 4，走 mpirun 4 进程）；转储要在 input.tgyro 追加 TGYRO_TGLF_DUMP_FLAG=1 与 TGYRO_RELAX_ITERATIONS=1",
        "★五个 treg 共用同一份 input.gacode，只有求解器设置变；iter01 是另一副剖面"
       ]
@@ -3309,7 +3309,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/README.md",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3321,7 +3321,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3468,71 +3468,71 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg02/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg02/",
       "checksum": "sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10",
       "comment": "31 files, 42295 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件",
        "★★采集必须用 TGYRO_RELAX_ITERATIONS=0，不是 1：迭代方法 1 在 =1 时 dump 被后一次通量评估覆盖（treg02 在 r/a=0.2 记下 RLTS_1=2.495 而非 1.495，正好差 LOC_DX_MAX=1.0）。treg01 用方法 4，=1 恰好留住初始 dump，那是方法 4 的性质不是规矩",
        "★treg 五例共用 tgyro_treg01/input.gacode（sha256 467b5e9d…），四个新目录不各存一份；test_the_treg_cases_all_read_one_bundle 守着"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg03/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg03/",
       "checksum": "sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40",
       "comment": "31 files, 42712 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件",
        "★★复现这副 deck 要复刻 tgyro_quasigrad 的三趟调用，中间那次重新积分把 per-cm 梯度积在无量纲半径上（上游到 tgyro_init_profiles.f90:526 才把 r 换成 cm）——看着像笔误，但去掉就对不上"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg04/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg04/",
       "checksum": "sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127",
       "comment": "31 files, 41917 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg05/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg05/",
       "checksum": "sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48",
       "comment": "31 files, 42149 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件",
        "★冻结的 input.tgyro/.gen 里 TGYRO_ITERATION_METHOD 是 1 不是出厂的 2（采集偏差，见 README 顶部）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/iter01/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/iter01/",
       "checksum": "sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3",
       "comment": "43 files, 137151 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件",
        "★自带 input.gacode（ITER 20102，sha256 7edb6888…）——不是 treg 那副剖面；九种离子，LOC_N_ION=3 取前三（T/D/He）",
        "★★出厂 input.tgyro 带已废弃的 TGYRO_DT_METHOD=1，6357db306 直接拒绝（ERROR: (gacodeinput) Deprecated parameter TGYRO_DT_METHOD）——该算例按出厂配置跑不起来；冻结件里该行已注释",
        "★内三个半径 Q_PRIME_LOC 为负（−9.06/−14.51/−5.77），是 treg 五例都到不了的反剪切角落"
@@ -3555,7 +3555,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3797,15 +3797,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/",
       "checksum": "sha256-manifest:51a006d3d69706892ad5dfc50c1f5be0d467dd1a75315f9c7bdd24926c8ee4a3",
       "comment": "22 files, 2821591 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录",
        "★不 vendor 上游源码与数据：存的是 TORAX 代码产出的数值 + 出处（逐入口 file:line）+ 录制脚本",
        "★TORAX 需自己的环境（JAX ≥ 0.11.1, Python ≥ 3.12），不要装进共享 ~/workspace/.venv；上游检出走 PYTHONPATH 而非 pip install -e，录制不在上游树留构建产物",
        "★TORAX 自带的 55 份 .nc 整码回归参照（torax/tests/test_data/，配 62 份 .py 配置）一份也没用作参照：它们绑着 TORAX 自己的求解器设置、源项组合与网格，拿来量本仓量到的是两码全部差异之和，没有一笔可归因",
@@ -3817,7 +3817,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/README.origin.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3830,7 +3830,7 @@
    },
    "caveat": [
     "★★2026-08-30：本条原有的第三项（QLKNN-10D 逐网 + 组合 + 钳制盒，320 点，最劣 2.4e-15）已**退场**——两码都换了模型（TORAX 默认 qlknn_7_11_v1，fylite 退役二十网改用同一份 QLKNN_7_11 档案），比较对象不再是「两码之间」而是「两码各自对同一上游」，故并入 V-03，不在此重复记账。余下 Bosch–Hale 与 Redl 两项不变。",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3954,15 +3954,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
       "checksum": "sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae",
       "comment": "1157345 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录",
        "不 vendor 上游源码与数据：存的是 TORAX 代码产出的数值 + 逐入口 file:line + 录制脚本",
        "★★剖面与网络输入**捕在同一次调用里**。第一版只录输入、拿 .nc 的 29 个时刻去比 85 次调用，那是两张不同时刻表，报出的每一条差异都是时间错位"
       ]
@@ -3972,7 +3972,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/README.origin.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3984,7 +3984,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -4193,29 +4193,29 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
       "checksum": "sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae",
       "comment": "1157345 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录",
        "★捕的是 psi 的**面梯度**而不是 psi 本身：从胞值重建面梯度是把一个边界条件实现第二遍，而那不是这里在考的东西"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn.json",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/evolution_qlknn.json",
       "checksum": "sha256:9f1168276a17457aa32a0b694f5ba221844c26008430fc213fdb4a0a0cf466e7",
       "comment": "417755 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：未分类的存储项（按最严格类计）",
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TORAX b4d40633（1.4.3，Apache-2.0）本机运行；录制脚本与答案同目录",
        "29 个输出时刻的剖面与 TORAX 自报的 χ_turb；与调用表按状态**逐位配对**，不按序号"
       ]
      }
@@ -4224,7 +4224,7 @@
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/README.origin.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -4238,7 +4238,7 @@
    "caveat": [
     "★★**不能读作『两码都对不对得上真实托卡马克』**：两侧共享网络与算例，其余各自实现，所以带是关于两个实现链的事实，不是关于物理的证据。",
     "★不复现的部分：TORAX 的有效 D/V 分解、输运求解器本身、台基模型、源项组合。本条比的是闭包与输运装配，不是仿真。",
-    "纳入类别（参考数据）：restricted"
+    "纳入类别（参考数据）：public-derived"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -4850,8 +4850,6 @@
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL@bf4fd07:machine_desc/east/case_east137985_4000ms.fyo.jsonld",
-      "checksum": "sha256:125cb33aff206b9e82e9a70354949dd1d2e512689552e0fc0904e8c74bd171f2",
-      "comment": "5832 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
@@ -4864,8 +4862,6 @@
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL@bf4fd07:machine_desc/east/fylite_pressure_east.json",
-      "checksum": "sha256:72f7f6fe341d4c4e97410a4255cb20cf89b0411d63e554369e3bd7cbcf9e83ea",
-      "comment": "1225 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
@@ -4878,8 +4874,6 @@
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL@bf4fd07:machine_desc/east/oracle_east137985_4000ms.fyo.jsonld",
-      "checksum": "sha256:29145961f63fa6fa7d997894daad587db66dd4c13a0e0ae0357590e4cf5b41e4",
-      "comment": "104523 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
@@ -4916,6 +4910,1475 @@
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
+  },
+  {
+   "id": "record/V-15",
+   "type": "fyo:ComparisonRecord",
+   "title": "g-file 读写往返与 COCOS 口径：本仓的读入端对本仓的写出端",
+   "comparison_kind": "verification",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: io/geqdsk.py 的 read_geqdsk / write_geqdsk 与 measure_cocos"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "fylite",
+     "comment": "★参考是它自己：读—写—再读的不动点是一条恒等式，不是另一个码的答案。这正是它能取机器精度的原因"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/V-15/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "往返后逐字段（26 个数值字段，两份语料）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1e-09
+     },
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "读—写—再读的不动点是恒等式，不是物理，故取机器精度"
+     ]
+    },
+    {
+     "id": "record/V-15/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "头一行（EFIT 头，`(a48,3i4)`）",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "★分开判，不并进「逐字段」那一条：数值一直是对的，只有这一行不是。并成一条会让「26 个字段全对」把唯一的缺陷盖住"
+     ]
+    },
+    {
+     "id": "record/V-15/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "COCOS 标签与符号往返不变",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "标签是离散值，判等不判带"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "26 个数值字段，两份语料",
+     "deviation_literal": "0.0（逐位相同）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★头一行：一条自己声明的不变量被自己的写入端改掉",
+     "deviation_literal": "EAST `g070754.05000` 的 `… 5000ms           3 129 129` 往返后成 `… 0 129 129`",
+     "verdict": "fail",
+     "caveat": [
+      "★★写入端把 EFIT 头的 `idum` 写死为 0，而本仓 `io/geqdsk.py` 自己的字段表把 `header` 记作 **invariant**「the file's own first line」——**改掉了，且没有任何一处报错**。已修：整行原样带回，`nw`/`nh` 仍按数组实际长度写（那两个不是注记，是后面每一块的形状）",
+      "★★**判据能不能抓住，是实测过的**：把写入端改回旧写法，这一条当场判负（1 failed / 5 passed），改回来即全绿"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "COCOS 口径",
+     "deviation_literal": "往返不变（标签与符号逐项相同）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_gfile_roundtrip.py::test_every_number_survives_the_round_trip",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_gfile_roundtrip.py::test_the_first_line_is_an_invariant",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_gfile_roundtrip.py::test_the_cocos_measurement_does_not_move",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk",
+      "checksum": "sha256:36abf675b548df8316e6073debf9631180a8651348deb6cf544df0c2894ad3c9",
+      "comment": "80133 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：本仓 `tools/make_synthetic_case.py` 生成的合成平衡（无装置，可复算）",
+       "仓内合成件：永远在场、构造已知，由 `tools/make_synthetic_case.py` 生成，凭据是可复算"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC/todelete/east/g070754.05000",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "caveat": [
+       "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "★真炮件（EAST #70754 @ 5000 ms）：列宽、负号吃空格、老写法都在里面，合成件没有这些",
+       "★★**它现在住在一个名叫 `todelete` 的目录里**（fydoc 检出）。门在够不到时 skip 并点名，不拿合成件顶替——但这条指针是脆的，语料该迁到 oracle 树下"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-12-synthetic/FYDOC-CASE-12-synthetic.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/V-15-gfile-roundtrip.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★这是 V 类：两端是同一个实现的两个方向，量的是恒等式还成不成立，不是两个码谁更接近真实",
+    "纳入类别（参考数据）：experiment、public"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/C-06",
+   "type": "fyo:ComparisonRecord",
+   "title": "ITER 参考平衡集（TEQ / CORSICA 写出）上的 Grad–Shafranov 判据",
+   "comparison_kind": "validation",
+   "scenario": "scenario/iter-reference-equilibria",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: GS 残差判据（Δ*ψ − RHS，边界内内点）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "TEQ / CORSICA",
+     "version": "ITER 参考平衡，g-file 首行 `TEQ g 04/07/2010 #900003`",
+     "license": "restricted（ITER IDM Internal Use）"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/C-06/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "Grad–Shafranov 残差 ‖Δ*ψ − RHS‖/‖·‖（边界内内点，**中分辨率 129×257**）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.02
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★带必须点名分辨率：同一份平衡在 65×129 上是 3.665e-2，过不了这条带"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "三份参考平衡，中分辨率 129×257",
+     "deviation_literal": "`2V2XYR` 15 MA 燃烧 1.487e-02（11 845 内点） · `2V3FDF` 9 MA 稳态 1.357e-02 · `34S6TV` 15 MA SOF 2.297e-04",
+     "verdict": "pass",
+     "caveat": [
+      "★SOF 比两个燃烧点好六十倍，与「陡边缘主导残差」一致"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★★残差随网格只掉一阶",
+     "deviation_literal": "LR 65×129 3.665e-02 → MR 129×257 1.487e-02（比 0.406）→ HR 257×513 7.948e-03（比 0.534）；二阶差分作用在光滑解上应给 0.250",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "**所以残差里有一部分不是算子的截断误差**——候选是 p′/ff′ 为表格值、或解在边缘不够光滑。本条**不判定是哪一个**，只把标度记下并立一条断言守住这个读法",
+      "★★**后来 `B-10` 回答了它**：用一份可以拧旋钮的开源平衡证明了那一部分是「文件本身的分辨率」，不是算子"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★判决与分辨率绑定",
+     "deviation_literal": "0.02 的带在 MR / HR 上通过、在 LR 上不通过",
+     "verdict": "pass",
+     "caveat": [
+      "同一份物理平衡换个网格换个判决，所以带点名分辨率，门里也有一条断言把这件事钉住——免得日后有人塞进 LR 件、看到红色去怀疑平衡"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "符号约定",
+     "deviation_literal": "另一支（`+μ₀R²p′ + ff′`）在每一份上都给 ~2.0",
+     "verdict": "pass",
+     "caveat": [
+      "不需要任何 COCOS 翻转；这本身是一次口径确认，门里单列一条"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_teq_equilibria.py::test_the_reference_equilibrium_satisfies_our_grad_shafranov",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_teq_equilibria.py::test_the_sign_convention_needs_no_flip",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_teq_equilibria.py::test_the_residual_falls_only_first_order_with_the_grid",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_teq_equilibria.py::test_the_verdict_depends_on_the_resolution_and_that_is_recorded",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$ITER_SCENARIO_ROOT/（TEQ 四份 ITER IDM 文档）",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "restricted",
+      "caveat": [
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "★语料是 ITER IDM 件（Internal Use），在本机 `data/ITER Scenario/` 之下、**不在任何仓里**：只记指针与读法，不复制字节",
+       "★代码归属是**读出来的**：g-file 首行 `TEQ g 04/07/2010 #900003`——IDM 标题一个字没提代码",
+       "门在够不到时 skip 并点名"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-13-teq/FYDOC-CASE-13-teq.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/C-06-teq-iter-equilibria.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★C 类：量的是「本仓的定律判据在别人写出的平衡上读出什么」，不是两个平衡求解器谁更准",
+    "纳入类别（参考数据）：restricted"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/C-07",
+   "type": "fyo:ComparisonRecord",
+   "title": "ITER 平衡运行空间（TOSCA，2009 批，li 扫描 61 份）",
+   "comparison_kind": "validation",
+   "scenario": "scenario/iter-equilibrium-run-space",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: EQDSK 读入端 + GS 残差判据"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "TOSCA",
+     "version": "2009 批（45 份首行 `TOSCA_VT` · 16 份 `From TOSCA`）",
+     "license": "restricted（ITER IDM Internal Use）"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/C-07/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "Grad–Shafranov 残差（61 份运行空间，65×129）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.06
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "全扫描上限（实测 max 4.51e-2）。★**它只是上限**：高 li 那两档另判 5e-4，否则这条带对它们松两个数量级"
+     ]
+    },
+    {
+     "id": "record/C-07/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "低 li 与高 li 之间的**对比度**（判结构，不判幅值）",
+     "norm": "relative",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★门里判的是对比度：本条的产出是那个台阶，不是某一份的残差"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "61 份 EQDSK 全部评上",
+     "deviation_literal": "min 1.62e-04 · 中位 1.22e-02 · max 4.51e-02；**0 份符号告警**",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★残差随 li 变，而且是台阶不是趋势",
+     "deviation_literal": "0.57→4.32e-02 · 0.70→1.92e-02 · 0.85→1.38e-02 · 1.00→1.81e-04 · 1.20→1.69e-04（Pearson −0.852）；低 li(≤0.75) 中位 1.95e-02 对高 li(≥1.00) 1.70e-04，**差 114 倍**",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "0.85 与 1.00 之间一步掉 75 倍；高 li 两档已达**本底**（仓内合成件 1.47e-04、TEQ 的 SOF 2.30e-04 同量级）",
+      "〔推测，未判定〕平滑的物理效应不会这样跳，更像**两个子批次**（求解设置或收敛判据不同）——要判定得看随附报告或问上游。本条只钉住这个结构"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★★先修了一个读入端的缺陷，这批才读得进来",
+     "deviation_literal": "61 份 → 0 份可读（修前）；61 份可读（修后）",
+     "verdict": "fail",
+     "caveat": [
+      "TOSCA 在头一行三个整数**之后**还写产码名（`… 3  65 129 TOSCA_VT`），而本仓解析取「最后两个 token」、注记还写着「只有尾部是可靠的」——**61 份一份也读不进来**，报的却是「GEQDSK header has no `nw nh`」，听着像文件坏了",
+      "三份件（TOSCA · EAST 真炮 · 仓内合成）的列位**逐列相同**（48/52/56），因为 `(a48,3i4)` 本就规定了它。解析改为**按位先行、尾部兜底**（尾部那支也从「最后两个 token」改成「最后两个能解析成整数的 token」）"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "代码归属",
+     "deviation_literal": "61 份首行都写着产码",
+     "verdict": "pass",
+     "caveat": [
+      "登记册此前「归属是推断得来的」那条**已不成立**，本轮撤除"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "5 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_tosca_equilibria.py::test_every_equilibrium_in_the_scan_is_readable",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_tosca_equilibria.py::test_the_whole_scan_satisfies_grad_shafranov",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_tosca_equilibria.py::test_the_sign_convention_holds_across_the_whole_scan",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_tosca_equilibria.py::test_the_high_li_end_reaches_the_operator_floor",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_tosca_equilibria.py::test_the_residual_is_much_worse_at_low_li_and_that_structure_is_the_finding",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$ITER_SCENARIO_ROOT/（TOSCA 两份 ITER IDM 文档，61 份 EQDSK）",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "restricted",
+      "caveat": [
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "★语料是 ITER IDM 件（Internal Use），不在任何仓里；门在够不到时 skip 并点名"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-07-tosca/FYDOC-CASE-07-tosca.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/C-07-tosca-run-space.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "纳入类别（参考数据）：restricted"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-10",
+   "type": "fyo:ComparisonRecord",
+   "title": "CHEASE 定边界平衡：同一边界与剖面下的 GS 解",
+   "comparison_kind": "benchmark",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: GS 残差判据与 COCOS 口径测量（measure_cocos）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "CHEASE",
+     "version": "本机构建，`ntcase=2` 解析算例（本轮自行重跑，不读冻结产物）",
+     "license": "public"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-10/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "Grad–Shafranov 残差（CHEASE `ntcase=2`，**输出盒 201×129 · 默认内部网格**）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.08
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★带必须同时点名**两个**分辨率：输出盒与内部网格，两者各自都改变这个数"
+     ]
+    },
+    {
+     "id": "record/B-10/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "口径：从数里读出的 COCOS 对文件名声称的",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "★这是嵌在对拍记录里的一句 **verification** 断言：判的是一条恒等式或一个离散标签（两侧搬运同一个约定），不存在可以被物理带覆盖的建模差异，故取机器精度是正当的",
+      "★不信文件名：件名写着 `COCOS_02`，本仓自己从数里读出「每弧度 · psi_axis 取极小」，余量约 70 倍"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "`ntcase=2` 解析算例，盒 201×129 · 默认内部网格",
+     "deviation_literal": "GS 残差 5.257e-02（带 8e-2）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★★一份 g-file 上的 GS 残差量的是那份文件，不是算子的截断误差",
+     "deviation_literal": "①固定内部网格、加密输出盒：101×65 5.023e-02 → 201×129 5.257e-02 → 401×257 6.394e-02（**不降反升**）；②固定输出盒、加密内部网格：ns=20 8.722e-02 → 默认 5.257e-02 → ns=60 4.134e-02（降 2.1 倍）",
+     "verdict": "pass",
+     "caveat": [
+      "**加密盒子不是收敛检验**：盒子加密时差分算子变锐，而 ψ 与右端的 p′/ff′ 仍只有内部解那么细——残差因此变大",
+      "★★**这条读法回过头修正了 `C-06` 的注记**：那边测到残差随盒子只掉一阶而非二阶，当时只记下「有一部分不是算子的截断误差」。本条给出了那一部分是什么，且用**可拧的旋钮**证明了它",
+      "★**这正是本条相对 C-06 / C-07 的价值**：那两条的语料是 ITER IDM 的冻结产物（读者复算不了，旋钮也拧不动）；CHEASE 开源、本机可构建、算例自带。立项理由不是「参考取不到」，是**受限载荷进不了公开渲染件**"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "4 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_chease_equilibrium.py::test_chease_equilibrium_satisfies_our_grad_shafranov",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_chease_equilibrium.py::test_the_convention_is_read_not_assumed",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_chease_equilibrium.py::test_refining_the_internal_grid_lowers_the_residual",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_chease_equilibrium.py::test_refining_the_output_box_does_not_lower_it_and_that_is_the_finding",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$THIRD_PARTY/chease（本机构建；`ntcase=2` 随码自带算例）",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "★参考侧不需要任何受限数据：给定边界与 p′/ff′，答案由码自己产生，故可复算",
+       "门在没有本机构建的 CHEASE 时 skip 并点名"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$THIRD_PARTY/chease/（上游随码文档与算例说明）",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-10-chease-fixed-boundary.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★**本条的主要产出不是那个残差数，是一个读法**：g-file 上的 GS 残差是文件的属性",
+    "纳入类别（参考数据）：public"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/C-09",
+   "type": "fyo:ComparisonRecord",
+   "title": "ITPA TC-33 ITER 15 MA 参考算例（IMAS IDS）上的 0-D 聚变功率",
+   "comparison_kind": "validation",
+   "scenario": "scenario/itpa-tc33-iter-15ma",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: 0-D 栏（zerod_fusion_power，剖面 `(1-ρ²)^p`，峰化由 brentq 解出）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "ITPA TC-33 参考解",
+     "version": "Zenodo doi:10.5281/zenodo.21391776（IMAS IDS，415 s / 450 s）",
+     "license": "CC BY 4.0"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/C-09/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "P_fus（415 s，摆平体平均与外加热之后）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.13
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 +10.6 % + 一档余量。★这个带写的是「给定剖面的 0-D 距集成模拟 H 模解有多远」，不是精度目标"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "P_fus，摆平几何 · I_p · Z_eff · 外加热 · 体平均 n_e 与 T_e 之后",
+     "deviation_literal": "159.42 MW 对参考 144.15 MW，**+10.6 %**（带 13 %）",
+     "verdict": "pass",
+     "caveat": [
+      "体平均由 brentq 解峰化，⟨n_e⟩ / ⟨T_e⟩ 逐位对上——摆平是判据的一部分，不是预处理"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★燃料稀释的缺省是一个假设，不是中性值",
+     "deviation_literal": "`dtf=0.5` 给 192.88 MW（+33.8 %）；参考件自己的组分 0.4546 给 +10.6 %——**稀释一项吃掉 69 % 的差**",
+     "verdict": "pass",
+     "caveat": [
+      "参考件分离面 n_D = n_T = 2.6e19 而 n_e = 5.72e19。P_fus ∝ n_D n_T，9 % 的燃料密度差在功率上是 19 %。门里有一条专门钉这件事"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "余下的 +10.6 % 是形状",
+     "deviation_literal": "本仓 `(1-ρ²)^p` 无台基；参考件 T_e,ped 4.84 keV · n_e,ped 7.69e19",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "体平均相同而形状不同，而 ⟨σv⟩ 对 T 超线性。**不靠调峰化去抹平它**——抹平了这就成了曲线拟合而不是比较"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★`v_loop` 不判",
+     "deviation_literal": "参考件 −0.0546 V，含 4.21 MA 自举 + 1.07 MA NBI + 0.21 MA EC 驱动",
+     "verdict": "inconclusive",
+     "caveat": [
+      "本仓 0-D 的环电压是纯欧姆、不含非感应电流。拿一个不含自举的模型去对一个自举占 28 % 的解，判出来的数没有意义"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_itpa_tc33.py::test_the_volume_averages_really_are_matched",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_itpa_tc33.py::test_the_fusion_power_lands_within_the_band_on_the_reference_composition",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_itpa_tc33.py::test_assuming_half_the_electrons_are_fuel_costs_a_third",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-08-itpa-tc33/corpus/",
+      "checksum": "sha256-manifest:b92f9d6fe14b5d72fadab865bf7074e309daa876a837919c723f8eb558d6611d",
+      "comment": "4 files, 3090111 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：ITPA TC-33 参考解（Zenodo doi:10.5281/zenodo.21391776，CC BY 4.0）",
+       "两个时刻（415 s / 450 s）的 IMAS IDS",
+       "★**参考件公开可复取**（Zenodo，CC BY 4.0），这正是本条在图里最强的原因：C-01 / C-02 的参考是受限件，读者复算不了；这一条可以"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-08-itpa-tc33/FYDOC-CASE-08-itpa-tc33.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/C-09-itpa-tc33.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "纳入类别（参考数据）：public"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-09",
+   "type": "fyo:ComparisonRecord",
+   "title": "DINA 的 ITER 含时场景：爬升段的电阻环电压",
+   "comparison_kind": "benchmark",
+   "scenario": "scenario/iter-dina-pulse",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: 0-D 的 Spitzer + 新经典电阻（`loop_voltage_ohmic`，本仓自己的实现，测试里不重抄公式）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "DINA",
+     "version": "ITER 含时参考场景 XA8GXS_v1_1",
+     "license": "restricted（ITER IDM Internal Use）"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-09/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "爬升段的电阻环电压（对 DINA 的电导率体积分）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.4
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 0.66..1.00 即最劣 −34 %，加一档余量。带说的是 0-D 的 Spitzer + 新经典电阻距 DINA 的电导率体积分有多远"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "爬升段四个时刻",
+     "deviation_literal": "比值 1.00 / 0.73 / 0.66 / 0.78（t = 18 / 33 / 48 / 60 s），最劣偏低 34 %（带 40 %）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★同名不同量，先摆平再比",
+     "deviation_literal": "首轮按字面比 `Vloop` 得 6–8 倍",
+     "verdict": "fail",
+     "caveat": [
+      "DINA 随件的参数说明写明其 `Vloop` 是**电导率的体积分**（电阻项），感应那一半另记（`D(PSI)res` · `Cejima`），而本仓 `loop_voltage_ohmic` 给的是 `Ip·Rp + Lp·dIp/dt`——在 0.2151 MA/s 上 `Lp dIp/dt` 约 2.6 V，正是那 6–8 倍的大头",
+      "**照字面比会把一次口径不符写成一次模型缺陷**"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★温度时序被排除了，且方向相反",
+     "deviation_literal": "本仓爬升段 ⟨Te⟩ 2.15 keV 对 DINA 1.01 keV",
+     "verdict": "pass",
+     "caveat": [
+      "η ∝ Te^{-1.5}，更高的 Te 本该让电阻项**更小**。所以那 6–8 倍不可能由剖面时序解释——这一步是把「像是原因的东西」排掉，才轮到感应项"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★平顶段不判",
+     "deviation_literal": "实测比值 3.8",
+     "verdict": "inconclusive",
+     "caveat": [
+      "DINA 平顶电流大半非感应（自举约 4 MA 加 NBI/EC 驱动），本仓 0-D 把整个 I_p 当欧姆电流。门里有一条断言钉住「它就该很大」——免得哪天判据悄悄放宽把平顶收进来"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_dina_ramp.py::test_the_reference_really_covers_the_ramp",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_dina_ramp.py::test_the_resistive_loop_voltage_agrees_through_the_ramp",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_dina_ramp.py::test_the_flat_top_is_excluded_and_this_is_why",
+      "caveat": [
+       "★门在公开检出（fylite）的 `python/tests/`，不在本仓：2026-09-01 分仓后，读入端与 0-D 栏的门随发布面走",
+       "本仓的门：`node app/tests/…`（需 playwright；语料随内核仓检出）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$ITER_SCENARIO_ROOT/DINA…XA8GXS_v1_1",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "restricted",
+      "caveat": [
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "★语料是 ITER IDM 件（Internal Use），在本机 `data/ITER Scenario/`（2.4 GB，31 件）之下、**不在任何仓里**；门在够不到时 skip 并点名"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-02-dina/FYDOC-CASE-02-dina.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-09-dina-ramp.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "纳入类别（参考数据）：restricted"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-07",
+   "type": "fyo:ComparisonRecord",
+   "title": "定态解本身：匹配出的梯度剖面对 TGYRO 的收敛答案",
+   "comparison_kind": "benchmark",
+   "scenario": "scenario/gacode-regression",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: TGLF 端口 + 通量匹配（在 TGYRO 的背景态上定梯度）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "TGYRO (GACODE)",
+     "version": "6357db306，FUYUN_WSL · 4 进程 · TGYRO_RELAX_ITERATIONS=4（残差 2.273 → 0.1793）",
+     "license": "public"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-07/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "收敛梯度剖面（逐半径，通量差经**实测刚度**折算为梯度当量偏移）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.08
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测最劣 5.7 % + 一档余量",
+      "★零假设（不匹配、直接取初始剖面）133.7 %，带必须比它紧一个数量级，门里有一条断言守着这件事"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "梯度当量偏移，逐半径",
+     "deviation_literal": "最劣 +5.7 %（离子，r/a=0.35），其余 −1.4 %…+4.5 %（带 8 %）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★比通量会把结论说反",
+     "deviation_literal": "r/a=0.2 上通量差 28 % / 40 %，而梯度只差 1.7 % / 2.3 %；调和两者的是**刚度** dlnQ/dln(a/L_T) ≈ 15（本门**现测**，不引文献）",
+     "verdict": "pass",
+     "caveat": [
+      "第二条断言把这个读法钉住：刚度若掉到个位数，这套读法本身不再成立，门会说出来"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "零假设",
+     "deviation_literal": "133.7 %（本条比它紧十六倍以上）",
+     "verdict": "pass",
+     "caveat": [
+      "★★**零假设不是处处站不住**：r/a=0.5 上解几乎不动（0.3 % / 1.6 %），只在那一点取样的比较会把自己衬得很好看。设带时这一点必须单列，否则一条只测了一个不动点的判据会长期报绿"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★参考侧的名字是「迭代到底（as declared）」不是「收敛」",
+     "deviation_literal": "4 次是算例自己声明的次数，残差仍在 0.18",
+     "verdict": "inconclusive",
+     "caveat": [
+      "用它做参考时这一点要一并带上——把它叫收敛，是一句后来的读者无从察觉的小夸张"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_tgyro_converged.py::test_the_matched_gradients_land_where_tgyro_puts_them",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_tgyro_converged.py::test_the_inner_radius_is_stiff_and_that_is_why_the_flux_gap_is_not_the_answer",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_tgyro_converged.py::test_the_comparison_beats_doing_nothing",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg02-converged/",
+      "checksum": "sha256-manifest:41ce4f55ce006a120be9ed4ce5d5a48abd831634e512c3aa79584f7f9c123062",
+      "comment": "30 files, 79088 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public-derived",
+      "caveat": [
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：TGYRO（GACODE 6357db306，Apache-2.0）本机运行；`treg02-converged` 的配方随件",
+       "2026-09-08 现跑产出（此前捕获的那一批是 `RELAX_ITERATIONS=0` 的**映射** oracle，没有收敛答案可比）",
+       "★★跑法上的坑（已记进语料的 README）：驱动要**上游随件**那份 `treg02`，不能用隔壁捕获——捕获里的 `TGLF1..4/` 装的是 `out.*.localdump`（输出），而驱动要逐半径的 `input.tglf`（输入）"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/FYDOC-CASE-15-tgyro.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-07-tgyro-converged.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★两条限制随数走，不留在注释里：偏移是**经实测刚度线性化**的，不是真求根（每半径一次二维求根，r/a=0.5 上一次通量求值 290 s——这是取舍不是疏忽）；背景态（密度 · 几何 · betae）固定在 TGYRO 第 0 次迭代，而 TGYRO 每迭代都重积分剖面",
+    "所以量的是「**在 TGYRO 的背景上**本仓 TGLF 把梯度定在哪」，不是本仓独立解出的定态",
+    "纳入类别（参考数据）：public-derived"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/C-11",
+   "type": "fyo:ComparisonRecord",
+   "title": "QuaLiKiz 本体：神经代理相对于它所近似的物理，误差有多大",
+   "comparison_kind": "validation",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: QLKNN_7_11 组合层（神经代理）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "QuaLiKiz",
+     "version": "本机构建 `bin/QuaLiKiz-gcc-release-default-mpi.exe`（2026-08-02）；参考侧只用**上游自带**算例的答案",
+     "license": "public"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/C-11/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "逐通道通量（电子热 · 离子热 · 粒子）",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★带在实测后定，而且**这条记录的产出就是那条带**——「代理误差有多大」正是它要回答的问题，事前给带等于事前给答案"
+     ]
+    },
+    {
+     "id": "record/C-11/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "临界梯度附近的行为",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★代理最可能失真的地方；只报全域平均误差会把它平掉"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "离子热通量",
+     "deviation_literal": "系统性偏低约一半：−42…−53 %（八点几乎同一因子，散布 < 20 %）",
+     "verdict": "pass",
+     "caveat": [
+      "★是**系统偏置**不是散布，可被一个常数因子改正——这对下游与「一堆随机的差」是两回事，门里分开判"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★电子热通量最差的一点恰在阈值上",
+     "deviation_literal": "+131 %（A_ti=8）：QuaLiKiz 的 efe 由 20.1 掉到 6.4（ITG 接过 TEM/ETG），网络平滑穿过（22.6 → 14.7）",
+     "verdict": "pass",
+     "caveat": [
+      "**最差点落在阈值上，不在两端**；只报全域平均会把这件事平掉，所以门里既判带、也判最差点的位置"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "粒子通量",
+     "deviation_literal": "换号两侧都复现",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★成分折叠的代价随数走",
+     "deviation_literal": "Be 那一支在低梯度端的热通量比氢两支合计还大，而网络只模一个有效主离子",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "算例是「红/蓝氢」示踪设置（两支同位素氢 + Be + C）。所以离子那一栏的差里**含着成分折叠**，不全是代理误差。拆开它要换一个单主离子的参考算例"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "5 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_qlknn_vs_qualikiz.py::test_every_point_is_inside_the_training_box",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_qlknn_vs_qualikiz.py::test_the_ion_heat_flux_is_low_by_about_half_and_systematically_so",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_qlknn_vs_qualikiz.py::test_the_electron_flux_is_worst_exactly_at_the_threshold",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_qlknn_vs_qualikiz.py::test_the_particle_flux_changes_sign_in_both",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_qlknn_vs_qualikiz.py::test_the_impurity_channel_has_no_counterpart_in_the_surrogate",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$THIRD_PARTY/QuaLiKiz/QuaLiKiz-pythontools/testdata/example_red_blue_hydrogen/",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "上游自带的完整 rundir，**自带参考输出**：本门一行本地装配也不用",
+       "★★**遵守了另一处已立的规矩**：fywork 的 QuaLiKiz 桥自述「尚未取得对拍资格…在此之前不得把本桥的输出当作 oracle」，本门不用它",
+       "八点全在训练箱内（门里第一条就判这个）"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-11-qlknn/FYDOC-CASE-11-qlknn.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/C-11-qualikiz-ground-truth.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★这一条问的不是「fylite 对不对」，是「**代理相对于它所近似的物理**差多少」——差多少本身就是要记录的量",
+    "纳入类别（参考数据）：public"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-08",
+   "type": "fyo:ComparisonRecord",
+   "title": "FUSE 自带含时 ITER 回归算例：61 个时刻上逐通道对本仓算子",
+   "comparison_kind": "benchmark",
+   "scenario": "scenario/iter-time-dependent-pulse",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: dt_reactivity（Bosch–Hale）· zerod_stored_energy · edge_noncoronal（Mavrin）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "FUSE",
+     "version": "1.1.5（git 22fff68bd），`FUSE.test_case(Val(:ITER_time), dd)`，2026-09-08 本机跑出 61 个时刻",
+     "license": "Apache-2.0"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-08/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "P_fus，逐时刻（61 个）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.01
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 1.0005…1.0012（最劣 0.12 %）+ 一档余量",
+      "★零假设（按住第 0 个时刻不动）**37 %**：轨迹上 P_fus 走 102.8 → 163.2 MW，所以「合到 0.12 %」不是信号没动出来的假象。门里单列一条"
+     ]
+    },
+    {
+     "id": "record/B-08/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "热储能的**定义**（用 FUSE 自己的成分与几何）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.003
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 1.00009（最劣 0.04 %）。这一条判的是「两码是不是在说同一个量」，不是模型——所以带取得紧"
+     ]
+    },
+    {
+     "id": "record/B-08/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "0-D 热储能的两项假设，**各自**（不是只判合计）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.005
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★★合计 +2.4 % 是 **+7.46 %（n_i = n_e）× 0.95215（体元）** 的乘积。三个数各自断言，改好一项就会让门变红，而不是悄悄挪动合计"
+     ]
+    },
+    {
+     "id": "record/B-08/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "氖辐射：**只记不判**",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★不设带：口径未定完（见 finding）。同 B-09 的平顶段——口径没摆平的比较，报出来，不判它"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "P_fus，61 个时刻逐一（Bosch–Hale 两个独立实现）",
+     "deviation_literal": "1.0005 … 1.0012（最劣 **0.12 %**）；零假设 37 %",
+     "verdict": "pass",
+     "caveat": [
+      "B-01 在**一个**静止时刻上量到 1.0009；本条说的是那份一致性是**拟合本身的性质**，不是那一点的巧合",
+      "★唯一不是 FUSE 的输入是拆分：FUSE 把 D 与 T 记作一支 `DT`，故 n_D = n_T = n_DT/2 是本比较写明的假设"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "α 份额是一个**取整口径**，不是模型差",
+     "deviation_literal": "FUSE 在 61 个时刻上都取**恰好 1/5**（3.52/17.6）；本仓取 3.5/17.6 = 0.198864，差 0.57 %",
+     "verdict": "pass",
+     "caveat": [
+      "整个 P_alpha 上的 0.52 % 偏置就是这一个常数。断言成口径（对 FUSE 那侧判到 1e-9），不并进物理带——并进去它会长得像模型差"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "热储能的**定义**：3/2 ∫(n_e T_e + Σ n_i T_i) dV 对 FUSE 的 `energy_thermal`",
+     "deviation_literal": "1.00009（最劣 **0.04 %**）",
+     "verdict": "pass",
+     "caveat": [
+      "两码对「热储能」是同一个意思——这一条立住之后，下一条的 2.4 % 才能被读作**建模假设**而不是量的分歧"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★★本条真正的产出：0-D 热储能的 2.4 % 是**两项假设相消**",
+     "deviation_literal": "合计 **+2.43 %** = n_i = n_e **+7.46 %** × 体元 **−4.78 %**（1.0746 × 0.95215 = 1.0232）；本发 n_i/n_e = **0.854**",
+     "verdict": "pass",
+     "caveat": [
+      "★★一个「距参考 2.4 %」的 0-D 量，看起来是「两个百分点的精度」，实则是两个五到七个百分点的假设指着相反方向。**单个时刻的比较看不见这件事**——要两项一起才解释得了那 2.4 %，而从合计里两项都看不出来",
+      "★体元那一项是**量出来的**：把算子的 T_i 置零，只留电子那一半，与精确 ∫dV 相比得 0.95215——不是从源码读出来的猜测",
+      "★★门里三个数各自断言、并断言它们的乘积：单修一项会让门变红。这正是「相消」这类缺陷需要的守法"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "氖辐射：2.73× 里大部分是记账口径",
+     "deviation_literal": "照字面 **2.73×**（本仓 Mavrin 对 FUSE `line Ne`）；把 FUSE 单列的轫致辐射中氖那一份（氖占 Σn_z Z² 的 **50 %**）加回来后 **1.29×**",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "Mavrin 的冷却率是**总量**（线辐射 + 轫致 + 复合），而 FUSE 把轫致记成一条独立的全成分源。照字面比会把一次记账差写成「辐射模型差三倍」",
+      "★**剩下的 +29 % 不判**：上面那个份额是用**本仓自己的**平均电荷态算的，不是 FUSE 的。口径没摆平的比较，报出来，不设判据"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★第一个时刻与其余不同（记录的性质，不是舍入）",
+     "deviation_literal": "t = 50 s 上合计条目与成员之和差 **7.5e-4**（22.2 MW 中的 16.7 kW）；其余 60 个时刻 ~1e-16",
+     "verdict": "pass",
+     "caveat": [
+      "原因可读：`∂/∂t` 通道在第 0 个时刻还不存在（要有前一步才差得出来），从第 1 个时刻起才出现。在 t = 50 s 上自己求和的读者会与 FUSE 的合计对不上"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "8 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_record_is_the_upstream_case_at_the_pinned_version",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_aggregate_source_is_not_a_channel",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_our_reactivity_tracks_fuses_fusion_power_along_the_whole_trajectory",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_fusion_layer_beats_holding_the_first_slice",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_alpha_share_is_a_rounding_convention_not_a_model_difference",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_thermal_energy_definition_agrees_on_fuses_own_composition",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_zerod_stored_energy_is_two_assumptions_cancelling",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_fuse_iter_time.py::test_the_neon_radiation_gap_is_mostly_a_bookkeeping_split",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/1.1.5/iter_time_115.json",
+      "checksum": "sha256:b1777eb99d851ea4b87fe39f7e449a25e8ebd7b32c1be3465f768765108134bd",
+      "comment": "8474362 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public-derived",
+      "caveat": [
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：FUSE（Apache-2.0）本机运行；1.1.5 那份的配方随件（`corpus/1.1.5/README.origin.md`），读者可用同版本自跑",
+       "2026-09-08 本机跑出：FUSE 1.1.5 · `test_case(Val(:ITER_time), dd)` · 437.7 s · 61 个时刻 · `evolve_error: null`",
+       "★★由 `tools/fuse/capture-iter-time.jl` 归约，与 `retired-0.7.0/iter_time_dep.json` **出自同一个读取器**：两份记录之间的差别是码的，不是提取方式的",
+       "★**禁用** `retired-0.7.0/` 顶替（2026-09-04 裁定遗弃 0.7.0；本条的门第一条就判版本）"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/1.1.5/README.origin.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-08-fuse-iter-time.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★★**演化本身没有被对拍，也不该被**：本条只在 FUSE 每个时刻**自己的态**上问本仓的算子同一个量。把两码的推进摆在一起，比的是两套闭包，缝会被读成物理——这正是 0.7.0 那份记录当初**不进登记册**的理由，那条理由至今成立。",
+    "★本条把 B-01 的四层做法沿轨迹铺开：同样是「拿参考自己的态问我们的算子」，区别是 61 次而不是 1 次——这才使**相消**那一类缺陷显形。",
+    "纳入类别（参考数据）：public-derived"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
   }
  ]
 }

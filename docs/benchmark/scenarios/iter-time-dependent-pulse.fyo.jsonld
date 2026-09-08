@@ -1,0 +1,52 @@
+{
+ "@context": [
+  "../context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "scenario/iter-time-dependent-pulse",
+ "type": "fyo:ScenarioSpecification",
+ "title": "ITER 含时脉冲，300 秒自洽演化（FUSE 自带回归条目 `ITER_time`）",
+ "abstract": "FUSE **自己回归测试**的含时 ITER 条目：硬件自 ODS 装入，日程以含时标量给出，先用 `ActorStationaryPlasma` 解出自洽初态，再由 `ActorDynamicPlasma` 把电流、平衡、输运、台基与加热**一起**推 300 秒（t = 50 → 350 s，61 个时刻）。轨迹上 I_p 13.0 → 15.0 MA、P_fus 102.8 → 163.2 MW。★★输运由 **TGLFNN `sat1_em_iter` + Hirshman-Sigmar** 通量匹配给出——**不是规定 χ**，这一点是本场景可用于对拍的前提。",
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": "ITER"
+  }
+ },
+ "over_time_axis": {
+  "type": "spo:TimeAxis",
+  "samples": [
+   50.0,
+   350.0
+  ],
+  "comment": "window bounds [t0, t1] in seconds; the run wrote 61 slices in between"
+ },
+ "state": [
+  {
+   "type": "spo:PortBinding",
+   "bound_to": {
+    "type": "fyo:Equilibrium",
+    "ip_A": 15000000.0,
+    "b0_T": -5.3,
+    "r0_m": 6.1921,
+    "a_m": 2.0037,
+    "kappa": 1.8493,
+    "species": [
+     "DT",
+     "He4",
+     "Ne20"
+    ]
+   }
+  }
+ ],
+ "caveat": [
+  "★★★**演化本身不可对拍，逐时刻的通道可以**。把本仓的推进放到这条轨迹旁边，比的是「通量匹配的 TGLF+EPED」对「另一套闭包」，缝会被读成物理。所以在这个场景上立的判据只取**同一个态上的算子**：拿 FUSE 每个时刻自己的剖面与几何，问本仓的算子同一个量。评的是模块，不是仿真。",
+  "★★**成分是稀释的**：n_i/n_e = 0.854（DT + He4 + Ne20）。任何把 n_i 当作 n_e 的 0-D 量在这条轨迹上都会系统性偏高——本场景实测这一项值 **+7.5 %**。",
+  "★★**第一个时刻与其余不同**：t = 50 s 上 `∂/∂t` 源还不存在（要有前一步才差得出来），那里合计条目与其成员之和差 7.5e-4；其余 60 个时刻是机器精度。",
+  "★**COCOS 符号**：B₀ = −5.3 T，故 `q95` 与整条 `q` 为负、`radiation_losses` 为负。记录保留符号。",
+  "★上游未随码发布本算例的输出：参考侧的答案必须自跑（2026-09-08 已跑，收在 fydoc `FYDOC-CASE-04-fuse/corpus/1.1.5/`）。**禁用**已遗弃的 0.7.0 旧记录顶替。"
+ ]
+}

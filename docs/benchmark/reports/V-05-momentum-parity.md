@@ -10,7 +10,7 @@ title: V-05 · 环向动量流的宇称对称性定理（Peeters 2011 §2）
 | **参考** | gyrokinetic parity symmetry (Peeters et al., Nucl. Fusion 51, 094027 (2011) §2; Peeters, Angioni & Strintzi, PRL 98, 265003 (2007)) · analytic · published |
 | **对象** | fylite: gyrofluid.rs 的环向应力准线性权重 |
 | **算例** | `scenario/ga-standard-rotating`（GA 标准算例，Miller 几何，带平行速度剪切） |
-| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（1 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_tglf_momentum.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——13 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -51,13 +51,13 @@ title: V-05 · 环向动量流的宇称对称性定理（Peeters 2011 §2）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | restricted | 4655 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | public-derived | 4655 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_tglf_momentum.py

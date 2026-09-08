@@ -159,11 +159,19 @@ project:
             - file: benchmark/reports/B-04-metis-zerod-geometry.md
             - file: benchmark/reports/B-05-torax-evolution.md
             - file: benchmark/reports/B-06-east-reconstruction.md
+            - file: benchmark/reports/B-07-tgyro-converged.md
+            - file: benchmark/reports/B-08-fuse-iter-time.md
+            - file: benchmark/reports/B-09-dina-ramp.md
+            - file: benchmark/reports/B-10-chease-fixed-boundary.md
             - file: benchmark/reports/C-01-iter-15ma-astra.md
             - file: benchmark/reports/C-02-alpha-heating-astra.md
             - file: benchmark/reports/C-03-toksys-rzrig.md
             - file: benchmark/reports/C-04-metis-hcd.md
             - file: benchmark/reports/C-05-gyro-momentum-waltz2007.md
+            - file: benchmark/reports/C-06-teq-iter-equilibria.md
+            - file: benchmark/reports/C-07-tosca-run-space.md
+            - file: benchmark/reports/C-09-itpa-tc33.md
+            - file: benchmark/reports/C-11-qualikiz-ground-truth.md
             - file: benchmark/reports/V-01-gacode-ports.md
             - file: benchmark/reports/V-02-nn-surrogates.md
             - file: benchmark/reports/V-03-qlknn-7-11.md
@@ -178,6 +186,7 @@ project:
             - file: benchmark/reports/V-12-lengyel-inverse.md
             - file: benchmark/reports/V-13-lengyel-forward.md
             - file: benchmark/reports/V-14-torax-evolution-composition.md
+            - file: benchmark/reports/V-15-gfile-roundtrip.md
         - title: 物理校验 (Physics checks)
           children:
             - file: benchmark/physics/README.md

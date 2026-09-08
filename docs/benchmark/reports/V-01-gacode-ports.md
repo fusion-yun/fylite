@@ -10,7 +10,7 @@ title: V-01 · GACODE 三个白盒端口对它们翻译自的 Fortran
 | **参考** | GACODE · rev 6357db306 · Apache-2.0 |
 | **对象** | fylite: gyrofluid.rs (TGLF) / neoclassical.rs + dke.rs (NEO) / geometry.rs (GEO) |
 | **算例** | `scenario/gacode-regression`（GACODE 自带回归算例（局部通量面）） |
-| **数据** | 见 §5 表（6 项，纳入类别 restricted） |
+| **数据** | 见 §5 表（6 项，纳入类别 public、public-derived、restricted、restricted-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_tglf_vs_fortran.py`；`$FYLITE_KERNEL/tests/test_neo.py`；`$FYLITE_KERNEL/tests/test_neo_analytic_rust.py`；`$FYLITE_KERNEL/tests/test_rust_kernels.py`；`$FYLITE_KERNEL/tests/test_tglf_momentum.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
 | **复测** | 2026-09-08：成立——95 passed, 0 failed, 0 error, 0 skipped, 0 stale |
@@ -63,18 +63,18 @@ title: V-01 · GACODE 三个白盒端口对它们翻译自的 Fortran
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-std/ | sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca | restricted | 5 files, 3782 B |
-| $FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | restricted | 24 files, 81461 B |
-| $FYDATA_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/ | sha256-manifest:55a5a2bc4c40aa5bde29f762fec824fed6b2cb1bbc613188e3f6d16e698a1bd8 | restricted | 862 files, 13941886 B |
-| $FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json | sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46 | restricted | 4238 B |
-| $FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | restricted | 4655 B |
-| $FYDATA_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | restricted | 3504 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-std/ | sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca | public-derived | 5 files, 3782 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public-derived | 24 files, 81461 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-03-frozen-libs/corpus/ | sha256-manifest:55a5a2bc4c40aa5bde29f762fec824fed6b2cb1bbc613188e3f6d16e698a1bd8 | restricted | 862 files, 13941886 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json | sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46 | restricted-derived | 4238 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | public-derived | 4655 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_tglf_vs_fortran.py tests/test_neo.py tests/test_neo_analytic_rust.py tests/test_rust_kernels.py tests/test_tglf_momentum.py
