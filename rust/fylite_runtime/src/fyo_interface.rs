@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "aad4a2adc928a7ab";
+pub const DIGEST: &str = "f8448ab3d4b0c541";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -122,6 +122,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "control_r", path: "fylite:control_r", units: "m", rank: "1d" },
         Slot { key: "control_z", path: "fylite:control_z", units: "m", rank: "1d" },
         Slot { key: "control_w", path: "fylite:control_w", units: "1", rank: "1d" },
+        Slot { key: "target_r", path: "fylite:target_r", units: "m", rank: "1d" },
+        Slot { key: "target_z", path: "fylite:target_z", units: "m", rank: "1d" },
         Slot { key: "ip", path: "fylite:ip", units: "A", rank: "1d" },
         Slot { key: "flux_loop", path: "fylite:flux_loop", units: "Wb/rad", rank: "1d" },
         Slot { key: "loop_weight", path: "fylite:loop_weight", units: "1", rank: "1d" },

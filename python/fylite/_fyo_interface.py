@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'aad4a2adc928a7ab'
+DIGEST = 'f8448ab3d4b0c541'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -128,6 +128,8 @@ TABLES = {
             'control_r': {"path": 'fylite:control_r', "units": 'm', "rank": '1d'},
             'control_z': {"path": 'fylite:control_z', "units": 'm', "rank": '1d'},
             'control_w': {"path": 'fylite:control_w', "units": '1', "rank": '1d'},
+            'target_r': {"path": 'fylite:target_r', "units": 'm', "rank": '1d'},
+            'target_z': {"path": 'fylite:target_z', "units": 'm', "rank": '1d'},
             'ip': {"path": 'fylite:ip', "units": 'A', "rank": '1d'},
             'flux_loop': {"path": 'fylite:flux_loop', "units": 'Wb/rad', "rank": '1d'},
             'loop_weight': {"path": 'fylite:loop_weight', "units": '1', "rank": '1d'},

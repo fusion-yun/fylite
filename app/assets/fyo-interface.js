@@ -118,7 +118,7 @@
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
   var REVISION = 1;
-  var DIGEST = "aad4a2adc928a7ab";
+  var DIGEST = "f8448ab3d4b0c541";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -234,6 +234,8 @@
         "control_r": { path: "fylite:control_r", units: "m", rank: "1d" },
         "control_z": { path: "fylite:control_z", units: "m", rank: "1d" },
         "control_w": { path: "fylite:control_w", units: "1", rank: "1d" },
+        "target_r": { path: "fylite:target_r", units: "m", rank: "1d" },
+        "target_z": { path: "fylite:target_z", units: "m", rank: "1d" },
         "ip": { path: "fylite:ip", units: "A", rank: "1d" },
         "flux_loop": { path: "fylite:flux_loop", units: "Wb/rad", rank: "1d" },
         "loop_weight": { path: "fylite:loop_weight", units: "1", rank: "1d" },
