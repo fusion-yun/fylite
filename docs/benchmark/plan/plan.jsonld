@@ -259,20 +259,30 @@
      ],
      "record": "C-07",
      "record_state": "proposed",
-     "gate": [],
+     "gate": [
+      "python -m pytest python/tests/test_tosca_equilibria.py  （6 条；需本机 ITER IDM 语料）"
+     ],
      "criteria": [
       {
        "type": "fyo:AcceptanceCriterion",
-       "quantity_label": "li 扫描下的形状与 q 剖面",
-       "tolerance_basis": "reference_stated",
-       "tolerance_note": "同上；本组的价值在**扫描**，单点吻合不足以支持结论"
+       "quantity_label": "Grad–Shafranov 残差（61 份运行空间，65×129）",
+       "norm": "relative",
+       "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.06
+       },
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "全扫描上限（实测 max 4.51e-2）。★**它只是上限**：高 li 那两档另判 5e-4，否则这条带对它们松两个数量级"
       }
      ],
-     "status": "planned",
+     "status": "pass",
      "caveat": [
-      "同 C-06：本体未取回。★另有一处认识论风险：本组一份文档的代码归属是推断得来的，若结论依赖「参考是 TOSCA」，须先落实归属。"
+      "★★★**先修了一个读入端的缺陷，这批才读得进来**：TOSCA 在头一行三个整数**之后**还写产码名（`… 3  65 129 TOSCA_VT`），而本仓解析取「最后两个 token」、注记写着「只有尾部是可靠的」——**61 份一份也读不进来**，报的却是「GEQDSK header has no `nw nh`」，听着像文件坏了。三份件（TOSCA · EAST 真炮 · 仓内合成）的列位**逐列相同**（48/52/56），因为 `(a48,3i4)` 本就规定了它。解析改为**按位先行、尾部兜底**（尾部那支也从「最后两个 token」改成「最后两个能解析成整数的 token」）。",
+      "★★**残差随 li 变，而且是台阶不是趋势**（Pearson −0.852）：0.57→4.32e-02 · 0.70→1.92e-02 · 0.85→1.38e-02 · **1.00→1.81e-04** · **1.20→1.69e-04**；0.85 与 1.00 之间一步掉 75 倍。高 li 两档已达**本底**（仓内合成件 1.47e-04、TEQ 的 SOF 2.30e-04 同量级）。〔推测，未判定〕平滑的物理效应不会这样跳，更像**两个子批次**（求解设置或收敛判据不同）——要判定得看随附报告或问上游。本条只钉住这个结构，门里判的是**对比度**不是幅值。",
+      "★**代码归属读自载荷**：61 份首行都写着产码（45 份 `TOSCA_VT` · 16 份 `From TOSCA`），不必依赖报告正文。登记册此前「归属是推断得来的」那条**已不成立**，本轮撤除。",
+      "★语料是 ITER IDM 件（Internal Use），不在任何仓里；门在够不到时 skip 并点名。"
      ],
-     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `Plasma_equilibrium_operational_space_dur_2ENZF5_v2_0`。同上；★该组的代码归属仍是推断，取用前须落实。先前记「本体未取回」的理由已不成立"
+     "status_note": "2026-09-08 **量到了**：61 份 EQDSK（li 0.57→1.20 × 四种 PF6/偏滤器变体，65×129）全部评上、**0 份符号告警**；残差 min 1.62e-04 · 中位 1.22e-02 · max 4.51e-02。★★残差**随 li 变**：低 li(≤0.75) 中位 1.95e-02 vs 高 li(≥1.00) 1.70e-04，**差 114 倍**"
     },
     {
      "id": "plan/S1/fuse-iter-layers",
