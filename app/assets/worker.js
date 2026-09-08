@@ -550,7 +550,10 @@ function designRun(msg) {
   //: 「边界离所要的那条线有多远」，而且对任何拓扑都成立。
   var gap = { rms: F2('boundary_gap_rms'), max: F2('boundary_gap_max'),
               norm: F2('boundary_gap_rms_norm') };
+  //: ★逐点距离：一个 RMS 说不出「整体偏一点」与「某一段翘起来」的差别，而两者的对策
+  //: 完全不同。[r, z, d] × n，页面据此可以给边界上色。
   post({ type: 'design', chan: chan, result: sum, pass: F('pass'), gap: gap,
+         gapPoints: rec.fields.boundary_gap_point ? fieldFlat(rec, 'boundary_gap_point') : null,
          history: history, targetBoundary: fieldFlat(rec, 'target_boundary') },
        [sum.psi.buffer, sum.lcfs.buffer]);
 }
