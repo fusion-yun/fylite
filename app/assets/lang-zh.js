@@ -780,7 +780,7 @@ self.FyI18n.register('zh', {
   'design.mark.diverted': '偏滤器位形',
   'design.mark.limited': '限制器位形',
   'design.mark.none': '—',
-  'design.done_far': '★反解结束但<strong>没有达到目标</strong>：取第 {pass} 趟（位形误差 {err}，容差 {tol}）。图与线圈电流是这一趟的解，不是所要求的位形——先看「目标 vs 实现」逐项偏差，再放宽目标或换起始状态。{tail}',
+  'design.done_far': '★反解结束但<strong>没有达到目标</strong>：取第 {pass} 趟（位形误差 {err}，容差 {tol}）。图与线圈电流是这一趟的解，不是所要求的位形。★★<strong>这个误差与下面那张「目标 vs 实现」表量的不是同一个面</strong>（2026-09-08 实测）：误差量在<strong>分离面</strong>上（内核退火的目标函数），而表里的形状量为躲开 X 点假象量在<strong>内缩面 ψ̄ = 0.995</strong> 上。对偏滤器位形两者差得不小——实测（各为同一次运行内取数）：缺省装置报 0.1039 而按表复算 0.0671（表<strong>低</strong>了 1.55 倍），ITER 报 0.1706 而按表复算 0.2055（表<strong>高</strong>了）——<strong>两个方向都偏</strong>，所以这不是一个可以换算的常数因子。那张表能告诉你偏在哪个方向，<strong>但复算不出这个数</strong>；也因此，六行全绿而结论说未达标是可能发生的。',
   'design.starting': '正在按目标位形做场设计起始…',
   'design.started': '场设计起始完成：边界磁通均方散布 {rms} Wb{x}，{n} 路通道触限。接着按「反解」退火。',
   'design.started_x': '，X 点 |B| = {b} T',

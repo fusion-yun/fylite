@@ -2664,6 +2664,19 @@ FyScenario.whenDevices(function () {
    * marked good and whose status line says it failed would be telling the
    * reader two things at once.  Each of the five terms is at its own
    * tolerance, so the RMS of the normalised terms is that value.
+   *
+   * ★★**而那个意图今天并不成立，原因不在这个式子里**（2026-09-08 实测）。这条容差
+   * 判的是内核退火报出的 `history_err`，它把形状量在**分离面**上量（`discharge_case`
+   * 的 `measure`：`trace(..., res.psi_bnd, ...)`）；而下面那张表的「实现」列量在
+   * **内缩面 ψ̄ = 0.995** 上（`summarize` 传 `inset: BOUNDARY_INSET`，内核 criteria
+   * 那一路 `lev_b = psi_axis + span*(1 - inset)`）。内缩面的存在正是为了躲开 X 点处的
+   * 假象，所以对偏滤器位形两者差得不小。实测（各为同一次运行内取数）：缺省装置报
+   * 0.1039 而按表复算 0.0671（表低 1.55 倍），ITER 报 0.1706 而按表复算 0.2055（表高）
+   * ——**两个方向都偏**，所以这不是一个可换算的常数因子。于是「六行全绿、结论说未
+   * 达标」恰恰是可能的：这个式子想防的那件事，被两个面的差别绕了过去。
+   * ★真正的修法在内核那一侧：让退火的目标函数与判据量在**同一个面**上（把
+   * `measure` 也放到 ψ̄ = 1 − inset），那会改变所有设计出来的电流，要连基准一起过。
+   * 在那之前，这里只把话说清楚，不把两个数硬凑成一个。
    */
   function shapeErrorTol() {
     var kap = Math.max(+$('kappa').value, 1e-6);
