@@ -172,6 +172,7 @@ self.FyI18n.register('zh', {
   'design.leg.lcfs': '等离子体边界',
   'design.leg.target': '目标边界',
   'design.leg.ref': '参考放电',
+  'design.leg.gap': '离目标 > {tol} cm 的段',
   'design.leg.axis': '磁轴（实际）',
   'design.leg.opoint': 'O 点（拖动改 R₀/Z₀）',
   'design.leg.xpoint': 'X 点（可拖动）',

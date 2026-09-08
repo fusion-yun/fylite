@@ -1766,8 +1766,13 @@ FyScenario.whenDevices(function () {
     }
     lastHandles = handles;
     S.cross(state, {
-      //: this page can switch to the whole-device frame, so the view is its
-      //: own choice rather than the component's cached one
+      //: ★★**缺省框住的是平衡计算区域**（2026-09-08 用户裁定）：网格盒 + 器壁 + 芯部
+      //: 等离子体，不含 PF 线圈。含线圈的那一框（`deviceView`）对 ITER 是 11 × 16 m，
+      //: 而等离子体只占中间 4.5 × 9.4 m 的一块——图上大半是空白与线圈框，要看的东西
+      //: 反而最小。线圈仍然一个不少，只是要**主动**勾「视野含全部 PF 线圈」，或者直接
+      //: 在图上滚轮缩小（缩放是 2026-09-08 加的）。
+      //: ★`null` 落到 `FyPlot.poloidal` 的缺省，就是 `M.grid` 本身——所以此时不会再
+      //: 画那圈点线网格盒（它与图框重合，画了只是加一条没有信息的线）。
       view: $('wide').checked ? FyPlot.deviceView(M) : null,
       coilLabel: coilLabel, coilFill: coilFill, handles: handles,
       target: flat,
@@ -2361,6 +2366,13 @@ FyScenario.whenDevices(function () {
     if ($('showref').checked && referenceLcfs)
       items.push({ label: T('design.leg.ref'), color: col.alt, kind: 'line',
                    dash: [5, 3] });
+    //: ★★**画上去的信号必须在图例里有名字**（2026-09-08）。超差段是加粗的实现边界，
+    //: 与它本身同色——不给条目，读者看到的就是「这根线有几段特别粗」，而那正好是
+    //: 一个会被读成「渲染毛病」的样子。条目里带上容差，因为「超差」离开那个数就没有
+    //: 意义。
+    if (lastGapPts && FyPlot.gapSegments(lastGapPts, gapTol()).length)
+      items.push({ label: T('design.leg.gap', { tol: (gapTol() * 100).toFixed(1) }),
+                   color: col.lcfs, kind: 'line', width: FyPlot.GAP_WIDTH });
     items.push(
 
       { label: T('design.leg.axis'), color: col.fg, kind: 'plus' },
@@ -4938,8 +4950,7 @@ FyScenario.whenDevices(function () {
     var target = shapeAt(ph, t);
     var solved = checkAt(t);
     var eq = null;
-    var o = { canvas: 'cross', fitDevice: true,
-              target: boundaryFlat(target) };
+    var o = { canvas: 'cross', target: boundaryFlat(target) };
     if (solved && solved.shape) {
       //: ★the ACHIEVED boundary, rebuilt from the metrics the solve reported
       //: — the worker sends the shape of the verified equilibrium, not its
@@ -5630,7 +5641,7 @@ FyScenario.whenDevices(function () {
   }
 
   function drawCross() {
-    var o = { canvas: 'cross', fitDevice: true, target: targetFlat() };
+    var o = { canvas: 'cross', target: targetFlat() };
     S.cross(eq, o);
     var col = FyPlot.palette($('cross'));
     $('cross-legend').innerHTML = FyPlot.legendHTML([

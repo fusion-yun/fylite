@@ -175,6 +175,7 @@ self.FyI18n.register('en', {
   'design.leg.lcfs': 'Plasma boundary',
   'design.leg.target': 'Target boundary',
   'design.leg.ref': 'Reference discharge',
+  'design.leg.gap': 'more than {tol} cm from target',
   'design.leg.axis': 'Magnetic axis (achieved)',
   'design.leg.opoint': 'O-point (drag to set R₀/Z₀)',
   'design.leg.xpoint': 'X-point (draggable)',

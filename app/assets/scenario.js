@@ -475,17 +475,16 @@
 
     // --- the shared poloidal cross-section ------------------------------------
     //
-    // ★The VIEW BOX is computed once and kept: `FyPlot.deviceView` walks every
-    // coil to find the frame, and the machine does not change between frames.
-    // It changes when the DEVICE does, and a device change reloads the page.
-    var crossView = null;
-
+    //: ★★**缺省视野＝平衡计算区域**（2026-09-08 用户裁定）。这里原先有个 `fitDevice`
+    //: 开关，把视野撑到装那台机器所有 PF 线圈的那一框；结果是等离子体在图上只占中间
+    //: 一小块（ITER：4.5 × 9.4 m 的东西装进 11 × 16 m 的框）。不传视野时
+    //: `FyPlot.poloidal` 落到 `M.grid`——平衡在哪算的就框哪，器壁与芯部等离子体都在
+    //: 里面。要看整台机器的页面自己传 `view: FyPlot.deviceView(M)`，那是一次明确的
+    //: 选择，不是缺省。
     function cross($, eq, opts) {
       var e = $((opts && opts.canvas) || 'cross');
       if (!e) return null;
       opts = opts || {};
-      if (!crossView && opts.fitDevice && root.FYLITE_MACHINE)
-        crossView = root.FyPlot.deviceView(root.FYLITE_MACHINE, opts.margin);
       var o = {
         machine: root.FYLITE_MACHINE,
         grid: kernel ? kernel.grid : null,
@@ -497,10 +496,8 @@
         axis: eq && [eq.axisR, eq.axisZ],
         nLevels: eq ? (opts.nLevels === undefined ? 12 : opts.nLevels) : 0,
       };
-      if (crossView) o.view = crossView;
       Object.keys(opts).forEach(function (k) {
-        if (k === 'canvas' || k === 'legend' || k === 'fitDevice' ||
-            k === 'margin') return;
+        if (k === 'canvas' || k === 'legend') return;
         o[k] = opts[k];
       });
       root.FyPlot.poloidal(e, o);
