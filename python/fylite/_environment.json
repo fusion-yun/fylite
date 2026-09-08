@@ -113,6 +113,22 @@
    "example": "../fydoc/oracle",
    "affects_result": false,
    "affects_result_why": "same address, older spelling"
+  },
+  "FY_NO_BANNER": {
+   "governs": "the startup banner: set to anything but empty or 0 and the wordmark, the licence line and the version line are not printed",
+   "needed_for": "nothing - it only quietens the banner fylite.notice prints to stderr when the package is imported (and that `fy` prints on startup), and only in the case where one is printed at all: neither host prints anything when stderr is not a terminal",
+   "default": "unset - the whole banner is printed, once per process, to stderr, IF stderr is a terminal (2026-09-08 ruling: show it when interacting); into a pipe or a log nothing is printed",
+   "example": "1",
+   "affects_result": false,
+   "affects_result_why": "it changes what is printed to stderr and nothing else. \u2605It does NOT silence the NOTICES themselves (`alpha`, and on an internal build `internal testing only`): those are a condition of use rather than decoration, and a switch that turns off a restriction is not a quiet switch"
+  },
+  "FY_LANG": {
+   "governs": "the language of the startup banner and its notices: `zh` or `en`",
+   "needed_for": "nothing - unset, the host reads $LC_ALL / $LC_MESSAGES / $LANG and takes zh only if one of them starts with zh, else en",
+   "default": "unset - decided from the locale as above",
+   "example": "zh",
+   "affects_result": false,
+   "affects_result_why": "it picks which language a printed sentence is in. The two languages are two spellings of the same notice (python/fylite/_notice.json), and no number depends on it"
   }
  },
  "$note": "The KEFIT_ prefix is the EFIT lineage's; the code that carried that name left with LICENSE 3.1 but these variables keep it because they are what an existing deployment sets.  ★★2026-09-01 移除四项：FY_ORACLE / FY_ORACLE_STORE / FY_ORACLE_PORT / KEFIT_REFERENCE_BUNDLE。它们的读者随 `fylite._oracle`、`fylite._port` 与 `_paths.reference_bundle()` 一起移除——冻结参考库是被移除求解器的输出，驱动私有检出的钩子不该从公开模块伸出去，而那个 ASIPP 参考包不可再分发。★这张表由 `tests/test_environment_table.py` 逐项核对「声明了就必须真的有人读」，所以删代码不删声明会红——本条就是那道闸抓出来的。★★2026-09-04 移除 KEFIT_MDS_ROOT：它选的是「本地树文件而不是服务器」，读者是站点的 MDSplus python 包（`MDSplus.Tree`）。在线路径改走中间层的 mdsip 客户端之后，本包不再 import 那个包——引擎说的是线上协议，不是树文件格式；而那个模式唯一指向过的本地树在已废弃的 `machine_desc/` 下。"

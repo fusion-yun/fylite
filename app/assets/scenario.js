@@ -325,6 +325,8 @@
     // --- compute backend ------------------------------------------------------
 
     var worker = null, kernel = null, initMsg = null, aborted = false;
+    //: 模块先行用的两格状态，见 `send` / `shipWasm`。
+    var wasmShipped = false, outbox = [];
     var aborters = [], waiting = [];
 
     function dispatch(m) {
@@ -349,6 +351,9 @@
       //: the url is site-root-relative (`assets/worker.js`); a scenario page
       //: sits one directory below that, so it is resolved through FySite
       worker = new Worker(root.FySite.url('assets/worker.js'));
+      //: ★每次重建 worker 都要重来一遍：被 kill 掉的那个带走了它的模块。
+      wasmShipped = false; outbox = [];
+      shipWasm();
       worker.onmessage = function (ev) {
         var m = ev.data;
         // the kernel handshake is the same on every page, so it is answered
@@ -400,8 +405,32 @@
       //: ★the init message is REMEMBERED, because stopping a run means killing
       //: the worker, and a killed worker has to be told the machine again
       if (msg.cmd === 'init') initMsg = msg;
+      //: ★★**模块先行**（2026-09-08）：页面已经在编译同一份 wasm，worker 收下它就
+      //: 不必自己再取一遍（实测建模页首屏因此少 3.4 MB）。而 `init` 一旦到达 worker
+      //: 就会 `attach`，所以在模块发出去之前，其余命令**在这里排队**——顺序不变，
+      //: 只是整体推后到那条消息之后。取不到模块就直接放行：多一次下载，不是错。
+      if (!wasmShipped) { outbox.push(msg); return true; }
       worker.postMessage(msg);
       return true;
+    }
+
+    /** 把页面编译好的核心模块交给这个 worker，然后放行排队的命令。 */
+    function shipWasm() {
+      var flush = function () {
+        wasmShipped = true;
+        var q = outbox; outbox = [];
+        q.forEach(function (m) { if (worker) worker.postMessage(m); });
+      };
+      var L = root.FyLite;
+      if (!L || !L.moduleFor) return flush();
+      //: ★页面在 `pages/` 下，所以要走 `FySite.url` 拿站点根相对的那一份——
+      //: 写成裸名会解析成 `pages/fylite_rs.wasm…`（404），而 worker 的基址是
+      //: `assets/`，它那边裸名恰好是对的。两边解析到同一个绝对地址才算同一份。
+      L.moduleFor(root.FySite.url('assets/fylite_rs.wasm')).then(function (rec) {
+        if (worker) worker.postMessage({ cmd: 'wasm', url: 'fylite_rs.wasm',
+                                         module: rec.module, sha256: rec.sha256,
+                                         bytes: rec.bytes });
+      })['catch'](function () { /* worker 自己取 */ }).then(flush, flush);
     }
 
     /**

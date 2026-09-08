@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-19
 title: "facts 的发行形态——从 fydoc 的装置书到两份生成物 (Distributing the Facts: from fydoc's Device Book to Two Generated Artifacts)"
 shortname: fylite-facts-distribution
-version: "0.5"
-date: 2026-09-05
+version: "0.9"
+date: 2026-09-08
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,25 +12,20 @@ ai_assistance:
   - Claude Code
 created: 2026-09-05T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-05T00:00:00Z
+  date: 2026-09-08T00:00:00Z
   by: FyLite Maintainers
   change: |-
-    v0.5 **A-15 收口**（2026-09-05 第三、四条用户裁定：*接受混合来源* · *operational 作为
-    自定入 fyo*）。G-10 与 G-9 双双关闭，四块全部到位：
-    · **G-10**（一个 IDS 一份文档、没有合成轴）——裁定为**不要合成轴，接受混合来源**：
-    电气一侧（14 路电源 · 12 路 BRSP 通道权重图 · 电路模型电阻率）并进
-    `providers/pf_active/base.yaml`，来路逐段写明，而不再假装同源。fydoc 的校核判定随之
-    由 `consistent` 降为 `partial`——不是 `coil[]` 出了问题，是文档里多了一半无文献可核的
-    内容，整篇再说「逐位相符」就是以一半的校核度冒充全篇。
-    · **G-9**（`operational` 无归属）——裁定为**在 fyo 自定**：新模块
-    `fyo/schema/src/process/operational.linkml.yaml`，根类 `Operational` 走 `fyo_path`
-    而不是 `dd_path`（后者的意思是「它在 DD 里的路径」，而它不在 DD 里），两个读者各加一行
-    认第二个键。范围自我约束一条：**不把 EFIT 的 namelist 逐键铸成本体槽**——键名的权威是
-    EFIT 的源码与版本，且在手的那份读自一个 GUI，是界面暴露的子集而非定义域。
-    另在 fyo 开三个自有槽，都是为了不让一句假话写得合法：`circuit_model_resistivity`
-    （超导 PF 没有导体电阻率）· `time_constant`（不折成 DD 那对次序不可核的多项式系数）·
-    `element_weight`（DD 的 `connections` 是整数矩阵，圆整 0.175/0.825 会静默改变分流）。
-    新增 A-16 / A-17 记这两条裁定。
+    v0.9 **新增 A-20：版别还管算例；每一件发行品自带许可与署名**（2026-09-08 评估公开
+    发布可行性时定的两条）。A-14 的装置判据施用到第二类载荷上——`app/cases/` 的实例会话
+    按各自的 `fylite:device` 过滤，撤完再扫一遍并在有残留时判红；这批算例同时退出预缓存
+    清单，因为公开版会少一份而 `cache.addAll` 是全有或全无（一个 404 即整站没有离线）。
+    发行构建改为自己装 `LICENSE` 与 `NOTICE`（后者自内核检出借入，借不到即失败）：站点
+    发的是 GACODE 白盒移植的编译产物，那个目录就是一次分发，§4(d) 附着在它上面。发布
+    通道落成本机脚本 `tools/publish-site.sh`（拒 `--internal`，停在 add 之前），理由是
+    wasm 不在本仓，托管 runner 要构建站点就得先拿到私有源码。
+    （同日前三版：v0.6 A-18 把头条警示带拆成两句并交给版别开关；v0.7 A-19 把那两句提到
+    三个界面之上，真源 `python/fylite/_notice.json`，并给命令行与 Python 层加了启动
+    banner；v0.8 给 A-19 补上「只在交互时印」那条打印规则。正文在 A-18 / A-19 / A-20。）
     逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
     （2026-09-07 收束，用户「移除历史修改痕迹」）。
 ---
@@ -43,8 +38,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-19` |
 | 文档名称 (Title) | facts 的发行形态——从 fydoc 的装置书到两份生成物 |
 | 短名 / Slug | `fylite-facts-distribution` |
-| 版本 (Version) | v0.5 |
-| 发布日期 (Date of Issue) | 2026-09-05 |
+| 版本 (Version) | v0.9 |
+| 发布日期 (Date of Issue) | 2026-09-08 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -56,7 +51,7 @@ modified:
 | 受众 (Audience) | fylite maintainers / 发行制品的人 / 加一台装置的人 / fydoc 装置书的维护者 |
 | 分发范围 (Distribution) | public |
 | 安全分级 (Security Classification) | public |
-| 上游输入 (Upstream Inputs) | 2026-09-05 用户裁定（**默认为 full version 包含 EAST，作为内部工具发布** → A-14；**EAST 79 探针基 / 拟合控制块 / 被动结构 / 电源参数进 fydoc abox** → A-15）· 2026-09-04 用户裁定（装置信息在 fydoc 的装置书 `facts/device/`；公开版不含 EAST）· 2026-09-05 用户裁定（制品版本化命名，`tools/soname.sh`：一条规则、两个仓、一份实现）· `FYL-DESIGN-15`（三种发行形态；C-1 一份规格）· `FYL-DESIGN-16` K-8（装置以整份 fyo 文档进内核）· `FYL-DESIGN-17` E-3 / E-22（语料四级；模板内嵌而预设走路径）· `FYL-DESIGN-14` L-11（A-Box 方言的 YAML 读者）· `rust/fylite_runtime/src/facts.rs`（595 行）· `python/fylite/facts.py`（305 行）· `tools/abox-to-facts.py` · `tools/facts-publish.py` · fydoc `facts/device/`（13 台） |
+| 上游输入 (Upstream Inputs) | 2026-09-08 公开发布可行性评估（**算例按装置权利过滤 · 发行件自带 LICENSE/NOTICE · 发布通道落本机** → A-20）· 2026-09-08 用户裁定（**三个界面统一提示词 + CLI/Python 启动 banner** → A-19）· 2026-09-08 用户裁定（**头条警示带：alpha 一句每一版都有，仅限内部测试只有内部版有** → A-18）· 2026-09-05 用户裁定（**默认为 full version 包含 EAST，作为内部工具发布** → A-14；**EAST 79 探针基 / 拟合控制块 / 被动结构 / 电源参数进 fydoc abox** → A-15）· 2026-09-04 用户裁定（装置信息在 fydoc 的装置书 `facts/device/`；公开版不含 EAST）· 2026-09-05 用户裁定（制品版本化命名，`tools/soname.sh`：一条规则、两个仓、一份实现）· `FYL-DESIGN-15`（三种发行形态；C-1 一份规格）· `FYL-DESIGN-16` K-8（装置以整份 fyo 文档进内核）· `FYL-DESIGN-17` E-3 / E-22（语料四级；模板内嵌而预设走路径）· `FYL-DESIGN-14` L-11（A-Box 方言的 YAML 读者）· `rust/fylite_runtime/src/facts.rs`（595 行）· `python/fylite/facts.py`（305 行）· `tools/abox-to-facts.py` · `tools/facts-publish.py` · fydoc `facts/device/`（13 台） |
 | 批准 (Approval) | — |
 | 取代关系 (Supersedes / Superseded by) | 不取代任何文档；`A-` 为本篇新开的裁定前缀 |
 :::
@@ -225,7 +220,7 @@ jt60sa · west + 目录）。翻向的理由与随之换向的门禁见 A-14；�
 不必重建二进制。
 
 (fylite-facts-rulings)=
-# 六 · 裁定 A-1..A-17 (Rulings)
+# 六 · 裁定 A-1..A-20 (Rulings)
 
 **A-1 装置描述是生成物，且源只有一个：fydoc 的装置书。** 本仓**禁止 (MUST NOT)** 手工
 维护任何一台装置的描述；`tools/abox-to-facts.py` 是那条唯一的转换。〔已确立〕上游裁定
@@ -408,6 +403,91 @@ fydata `base.yaml`（Guo 2012）记 IC1 在 `r = 2.400` · `z = 0.600`、`turns 
   并写明是谁的拼法（每组必填 `code`，键名逐字保留，单位不注）。
 - **一处照原样保留的重复**：`gui_v5_fig` 与 `point_density_fit` 有六个键同义而拼法不同、
   值一致。两组都留、**不合并**——合并要先断定哪一份拼法是权威的，而那是 EFIT 的事。
+
+**A-18 版别还管头条上的警示带：`alpha` 那一句每一版都有，`仅限内部测试` 只有内部版有。**
+〔已确立〕用户裁定（2026-09-08）：*header 的警示词增加版本信息「alpha 版，用于概念验证」；
+公开版本没有「内部使用的提示词」，完全版 / 内部版保留*。
+
+- **为什么记在本篇**：本篇此前只管**装置数据**的版别（A-14 及其判据链）。这一条落在同一个
+  开关上——`--public` / `--internal`——却与 facts 无关，是**页面**的内容。两件事共用一个
+  版别名，所以判据也共用一处记法：读者按 `--public` 找「这一版少了什么」时，两条都要在同
+  一个地方找得到。
+- **带子上是两句，不是一句**：`chrome.alpha`「alpha 版，用于概念验证」说的是**成熟度**，
+  每一版都成立，公开版也成立；`chrome.internal_only`「仅限内部测试，请勿公开传播！」说的是
+  **可及范围**，只有内部版成立。故它们是两个 `<span>`（`.warn-alpha` / `.warn-io`），不是
+  一句更长的话——公开版要能只去掉后者，而**删掉一个元素**是发布者做得准的事，**删掉半句话**
+  不是。
+- **「没有」是照字面的**：公开版把那个 `<span>` 与**两份语料里的那一条词条**一并删除，不是
+  `display:none`、不是注释掉。留着词条等于把这句话仍然发出去，只是没有元素显示它，而打开
+  `assets/lang-zh.js` 的人读到的是同一句话。
+- **一处实现，两个制品**：规则在 `tools/app-flavour.mjs`，由 `tools/build-site.sh` 调用；
+  单可执行文件内嵌的那棵树**就是站点脚本装出来的那一棵**（`tools/build-app-exe.sh` 调它），
+  所以两个制品按构造同规则——与许可判据只在 `facts-publish.py` 一处施用同一分工。
+- **门禁两头都有**：`--strip` 一条都没删到即**失败**（认的是一个形状；形状变了而工具没跟上，
+  静默的后果正是一个带着「仅限内部测试」的公开站点），`--check public` 断言元素、键、两种
+  语言的原句一处不剩，`--check internal` 反着断言它们**在**——一个把提示悄悄漏掉的内部版
+  看起来只是干净。`app/tests/validate-site.mjs` 另在源树上逐页断言带子的两半都在。
+
+**A-19 提示词是**一份文本**，三个界面各自渲染；命令行与 Python 层同时得到启动 banner。**
+〔已确立〕用户裁定（2026-09-08）：*python/cli 层添加启动 banner，参考 fytok 中 ASCII 排版
+的 banner，包含版 header 提示词；提示词默认包含版本提醒（alpha 开发版，内部版本等）；
+web ui / cli / python 三个界面统一提示词*。
+
+- **真源**：`python/fylite/_notice.json`——招牌（ASCII 字标）· 许可行 · 两条提示词
+  （逐条带 `flavours` / `i18n_key` / `span_class` 与中英两种拼法）· 安静与语言两个环境变量名。
+  ★与 `_cli.json` 同一姿态：**一份数据，多处建出，一道闸子比对**。
+- **三个渲染者**：浏览器读 `app/assets/lang-{zh,en}.js` 的两个词条（页眉警示带，A-18）；
+  `fy` 在**编译期** `include_str!` 同一个文件（`rust/fylite_runtime/src/banner.rs`）；
+  Python 包在导入时读它（`fylite.notice`，`fylite/__init__.py` 末尾印一次）。
+- **为什么要押在一起**：三处**各自都还在说话**，所以走样了不像坏了——而**见过其中一面的
+  人会以为自己已经被告知**。故本条**要求 (SHALL)**：改这两句话只改真源，且
+  `app/tests/validate-site.mjs` 与 `python/tests/test_notice_is_one_text.py` 各查一头
+  （前者逐字比对语料与真源，后者比对本层渲染、并核对 Rust 那句 `include_str!` 指向同一个
+  文件）；`cargo test` 的 `banner::tests` 三条在 Rust 那一侧跑同一组判据。
+- **版别怎么传到两个非浏览器界面**：`tools/facts-publish.py` 把 `pub static FLAVOUR` 写进
+  它生成的 `facts.rs`（与装置表同源、同一次调用），`fy` 读 `facts::flavour()`；
+  `rust/build.sh` 同时写 `python/fylite/_flavour.py`（与 `app/assets/runtime-version.js`
+  的 `FyFactsFlavour` 是同一次构建的同一个值），Python 读它。**读不出就按 `internal`**——
+  对一条限制而言，多说一句的代价是一份公开构建上多一行字，少说一句的代价是一份内部构建
+  看起来可以外发。
+- **印到 stderr，且只在交互时印**〔2026-09-08 第三条用户裁定：*fy cli 交互时显示 banner*〕：
+  `stderr` 是终端才印，是管道或日志就**一个字也不印**——banner 的读者是人，而
+  `fy list --json | jq` 与 `python x.py > out` 那两条流上没有人，只有噪声。两个会打印的
+  宿主同一条规则，判定抽成一个纯函数（`banner::decide` / `notice.decide`）好让它可测；
+  `print_banner(force=True)` 是显式调用方的出口。★**代价记在这里**：一份被重定向进日志的
+  内部版构建，日志里不会留下「仅限内部测试」那一句；提示词仍在页面头条、README 与制品的
+  NOTICE 上，而页面那一面不受这条管——它是一条带子，不是一次打印。
+- **安静关不掉提示词**：`FY_NO_BANNER=1` 关掉招牌、许可行与版本行，**两条提示词照印**
+  ——它们是使用条件，不是装饰。语言由 `FY_LANG` 或区域设置决定（两个变量都进了
+  `_environment.json`，那道两向闸子看着）。
+- **版本行三家各说各的**（`fy 0.0.1 · 算力自带 · internal 版` / `python 0.0.1-alpha ·
+  内核接口 152 · internal 版` / 页脚的 kernel · interface · app 三个数）：它们是三个不同的
+  制品，**提示词一字不差，版本行装作同一个才是说谎**。
+
+**A-20 版别还管算例；而每一件发行品自带许可与署名。**〔已确立〕2026-09-08 评估公开发布
+可行性时定的两条，都属同一句话的两半：**发出去的那一份要自己站得住**。
+
+- **算例按 `fylite:device` 过滤**：`app/cases/` 是给页面「导入」按钮的实例会话文档（真源
+  自站点仓收回本仓，2026-09-08），其中一份点着 EAST。判据仍是 A-14 那一条、仍在
+  `rights.json`——这里只是把它**施用到第二类载荷**上：`tools/build-site.sh` 拿这一版
+  `facts-publish.py --list` 的机器集比对每份算例自报的装置，不在集里的连同它在
+  `catalogue.jsonld` 的条目一并撤下，撤完**再扫一遍**并在还有残留时判红。装置为空的算例
+  （解析几何）不受影响。★否则一台被装置语料判出去的机器，可以由一份算例从旁门带回来。
+- **算例不进预缓存**：`tools/make-sw.mjs` 的 `SKIP` 收下 `cases`。两条理由各自都够——
+  没有任何一页取它（菜单 2026-09-01 已退役，导入是读者本地选文件，不发请求）；而公开版
+  会**少一份**，`cache.addAll` 是全有或全无，清单里一个 404 会让整次 worker 安装失败，
+  于是**站点从此没有离线**，且只在公开版上发作。
+- **`LICENSE` 与 `NOTICE` 由发行构建装入**：站点发出去的是 GACODE 白盒移植的编译产物，
+  所以那个目录**是一次分发**，Apache-2.0 §4(d) 附着在它上面。`tools/build-site.sh` 因此
+  与 `tools/build-wheel.sh` 做同一件事、用同一条路径解析（`tools/kernel-path.sh`）：
+  `LICENSE` 取本仓的，`NOTICE` 自内核检出借入（`095374f` 裁定它随源码留在那边），
+  **借不到就红着退出**。本条**要求 (SHALL)**：任何发行构建缺这两份之一即失败——一份不带
+  署名的分发不是「少一个文件」的产品，是一次许可违约，而它没有任何一步会自己喊。
+- **发布通道在本机，不在托管 CI**：`tools/publish-site.sh` 构建公开版、跑三道不需浏览器
+  的闸子、换掉站点仓的 `fylite/`，然后**停在 add 之前**。★理由是本仓不含 wasm
+  （`.gitignore`），它们来自私有内核仓：一台只检出本仓的 runner 构建不出站点，而要让它能，
+  就得把私有源码交给它——为发一个公开页面扩大私有源码的暴露面，方向反了。★脚本**拒绝**
+  `--internal`：A-14 那条「不说话装内部版」的缺省是给本机的，通向公网的这条路上它必须反过来。
 
 (fylite-facts-sizes)=
 # 七 · 并什么、不并什么 (What Goes In)

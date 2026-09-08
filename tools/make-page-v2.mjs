@@ -66,7 +66,7 @@ const shell = (id, titles) => `<header class="shell" role="banner">
   <div class="shell-r1">
     <a class="brand" href="../index.html"><img src="../assets/fy_mark.svg" alt="" width="28" height="28"></a>
     ${titles}
-    <p class="warn-internal" role="note"><span data-i18n="chrome.internal_only">仅限内部测试，请勿公开传播！</span></p>
+    <p class="warn-band" role="note"><span class="warn-alpha" data-i18n="chrome.alpha">alpha 版，用于概念验证</span><span class="warn-io" data-i18n="chrome.internal_only">仅限内部测试，请勿公开传播！</span></p>
     <!-- the four page icons are injected here by site.js installNav() -->
     <nav>
       <button id="theme-toggle" class="iconbtn" type="button"></button>

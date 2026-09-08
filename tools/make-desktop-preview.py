@@ -292,10 +292,18 @@ def strip(page_id: str | None, work: bool = True, progress: float | None = None,
     else:
         text(PAD + 40, 25, "fylite", "title", 15, weight="700")
 
-    # the internal-testing pill: keeps its prominence, gives back its slack
-    pw = 200
-    rect(W / 2 - pw / 2, 8, pw, 24, "pill", rx=12)
-    text(W / 2, 24, "仅限内部测试", "pillt", 11.5, "middle", "700")
+    # the warning band: keeps its prominence, gives back its slack.
+    #: ★★TWO pills since 2026-09-05 (用户裁定), and they are drawn as two boxes
+    #: rather than one wider box with two labels because that is exactly what
+    #: the strip does — the second is DELETED in a public build
+    #: (`tools/app-flavour.mjs`), and a figure showing one box would then show
+    #: a layout the public build never has.
+    pw1, pw2, gap = 190, 140, 8
+    x0 = W / 2 - (pw1 + gap + pw2) / 2
+    rect(x0, 8, pw1, 24, "pill", rx=12)
+    text(x0 + pw1 / 2, 24, "alpha 版，用于概念验证", "pillt", 11.5, "middle", "700")
+    rect(x0 + pw1 + gap, 8, pw2, 24, "pill", rx=12)
+    text(x0 + pw1 + gap + pw2 / 2, 24, "仅限内部测试", "pillt", 11.5, "middle", "700")
 
     x = W - PAD - 28
     navicon(x, 6, "theme")
@@ -550,7 +558,8 @@ def draw_shell(d: Path) -> None:
 
     legend = [
         ("1", "身份", "标记 · 页名 · 副标题 —— 逐页不同，但由那一张页面表给出"),
-        ("2", "警示", "仅限内部测试。保住显著性，交回它占着的 500 px 空白"),
+        ("2", "警示", "alpha 版（每一版都有）· 仅限内部测试（只有内部版有）。"
+                       "保住显著性，交回它占着的 500 px 空白"),
         ("3", "去处", "四页图标 · 主题三态 —— 顺序即两张表的顺序，不重排"),
         ("4", "★输入", "装置（数据页是 mdsip 数据源）· 导入 / 导出"),
         ("5", "★运行态", "哪一条栏在跑 · 第几步 · 还要多久 —— 只报告，不操作"),

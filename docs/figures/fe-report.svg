@@ -162,8 +162,10 @@ polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
 <text x="32.0" y="25.0" class="markt" font-size="13" text-anchor="middle" font-weight="700">Fy</text>
 <text x="58.0" y="25.0" class="title" font-size="15" text-anchor="start" font-weight="700">算例报告</text>
 <text x="132.0" y="25.0" class="mut" font-size="11.5" text-anchor="start">记录的投影 · 不内联数组 · 不重新评判</text>
-<rect x="700.0" y="8.0" width="200.0" height="24.0" rx="12" class="pill"/>
-<text x="800.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
+<rect x="631.0" y="8.0" width="190.0" height="24.0" rx="12" class="pill"/>
+<text x="726.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">alpha 版，用于概念验证</text>
+<rect x="829.0" y="8.0" width="140.0" height="24.0" rx="12" class="pill"/>
+<text x="899.0" y="24.0" class="pillt" font-size="11.5" text-anchor="middle" font-weight="700">仅限内部测试</text>
 <rect x="1554.0" y="6.0" width="28.0" height="28.0" rx="6" class="navic"/>
 <circle cx="1568.0" cy="20.0" r="7" class="navg"/>
 <path d="M1568.0 13.0a7 7 0 0 1 0 14z" class="navgf"/>

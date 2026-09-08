@@ -19,7 +19,7 @@ self.FyI18n.register('zh', {
 
 
   'cr.parent.h2': '上级项目：FyTok',
-  'cr.parent.p': 'fylite 是 <a href="https://github.com/fusion-yun/fytok">FyTok</a> 的<strong>轻量版</strong>——FyTok 是<strong>上级项目</strong>（同为 <strong>Apache-2.0</strong>，中国科学院等离子体物理研究所）：一套完整的托卡马克集成建模框架，插件机制、工作流调度、异构执行与可追溯，面向超算 / 云计算。两者同为 <strong>fyo 语义契约</strong>的实现，fylite 取轻型一端：关键求解器另行重写，可在浏览器内免安装运行，并<strong>充当 FyTok 的最小功能验证</strong>——两级实现独立编码、答对同一份契约，因此实现间对拍是<strong>交叉检验</strong>而不是自证。芯部输运的通道声明语法直接取自 FyTok 的 <code>fytrans</code>（见下表），逐位对拍也以它为基准。',
+  'cr.parent.p': 'fylite 是 <a href="https://fusion-yun.github.io/">FyTok</a> 的<strong>轻量版</strong>——FyTok 是<strong>上级项目</strong>（同为 <strong>Apache-2.0</strong>，中国科学院等离子体物理研究所）：一套完整的托卡马克集成建模框架，插件机制、工作流调度、异构执行与可追溯，面向超算 / 云计算。两者同为 <strong>fyo 语义契约</strong>的实现，fylite 取轻型一端：关键求解器另行重写，可在浏览器内免安装运行，并<strong>充当 FyTok 的最小功能验证</strong>——两级实现独立编码、答对同一份契约，因此实现间对拍是<strong>交叉检验</strong>而不是自证。芯部输运的通道声明语法直接取自 FyTok 的 <code>fytrans</code>（见下表），逐位对拍也以它为基准。',
 
   'cr.port.h2': '移植与出处',
   'cr.port.lead': '下列模块系上游代码的<strong>白盒移植</strong>，而非依文献所作的独立实现。此项区分属许可义务，故在此正文陈述，而不置于脚注。',
@@ -97,7 +97,7 @@ self.FyI18n.register('zh', {
   'cr.full.h2': '完整文本',
   'cr.full.p': '本页为摘要。具约束力的、逐文件的声明见仓库：',
   'cr.full.license': 'Apache License 2.0 全文',
-  'cr.full.notice': '逐文件的移植出处、修改说明，以及「不含什么」',
+  'cr.full.notice': '逐文件的移植出处、修改说明，以及「不含什么」——它随发行件同行，这一份就在本站根目录',
   'cr.full.ack': '可读的致谢全表：上游代码、转写的公式、数据与夹具、刻意未取的东西',
   'cr.full.contrib': '维护者与版权归属',
   'cr.full.issue': '仓库：<a href="https://github.com/fusion-yun/fylite">github.com/fusion-yun/fylite</a>',

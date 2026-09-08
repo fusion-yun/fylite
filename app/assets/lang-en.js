@@ -5,6 +5,13 @@
 
 self.FyI18n.register('en', {
   // --- shared chrome --------------------------------------------------
+  //: ★★the strip's warning band is TWO sentences, because they say two
+  //: things whose scope differs: this one is how MATURE the build is (true of
+  //: every flavour, the public one included), the next is who may SEE this
+  //: copy (true of the internal one only).  As one sentence there would be no
+  //: way to publish half of it, and half is exactly what the public build
+  //: keeps (`tools/app-flavour.mjs`).
+  'chrome.alpha': 'ALPHA — PROOF OF CONCEPT',
   //: ★the internal-testing notice on the header strip.  It is a
   //: RESTRICTION, so it is translated rather than left in Chinese: a
   //: reader who cannot read the notice is a reader who has not been told.

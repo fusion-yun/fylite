@@ -50,9 +50,15 @@ globalThis.self = globalThis;
 vm.runInThisContext(readFileSync(SITE + 'i18n.js', 'utf8'), { filename: 'i18n.js' });
 
 const CAT = { zh: new Set(), en: new Set() };
+//: ★the VALUES too, kept beside the key sets rather than fished back out of
+//: `FyI18n.t` — `t` falls back to zh, so it cannot answer 「what does en say」
+//: (the very reason the register calls are intercepted at all).  Read by the
+//: `_notice.json` check further down, which compares text and not just keys.
+const CATV = { zh: new Map(), en: new Map() };
 const realRegister = globalThis.FyI18n.register;
 globalThis.FyI18n.register = (code, table) => {
   Object.keys(table).forEach((k) => CAT[code] && CAT[code].add(k));
+  if (CATV[code]) for (const [k, v] of Object.entries(table)) CATV[code].set(k, v);
   return realRegister(code, table);
 };
 // Every catalogue, not only the line ones: the static `data-i18n` sweep below
@@ -630,6 +636,65 @@ for (const f of htmls) {
   }
 }
 if (!bad) ok('part panels are prefixed and every id in every page is unique');
+
+// --- 4b. every destination has an icon, and the band says which build -----
+//
+// ★★A MISSING ICON IS NOT A BLANK (measured 2026-09-05).  `ICONS` had no entry
+// for the `report` page, and the two emitters failed differently: `site.js`
+// writes `ICONS[S.id] || ''`, so the dynamic pages showed an empty link — a
+// 17 px hole nobody reads as a fault — while `make-app-pages.mjs` interpolates
+// the value straight in, so six generated files carried the literal text
+// `undefined` in their navigation strip and on an entrance card.  Both are the
+// same omission; neither is an error anything raised.  So: the table is asked
+// for every destination it serves, and no page may contain that word.
+for (const S of [...SCENARIOS, ...TOOLS]) {
+  const svg = globalThis.FySite.ICONS[S.id];
+  if (!svg) fail(`no icon for the ${S.id} page — the strip and its card go blank or say "undefined"`);
+  else if (!/^<svg [^>]*viewBox="0 0 16 16"/.test(svg))
+    fail(`the ${S.id} icon is not a 16x16 <svg>`);
+  else if (!svg.includes('currentColor'))
+    fail(`the ${S.id} icon does not draw in currentColor — it will not follow the theme`);
+  else if (!svg.includes('aria-hidden="true"'))
+    fail(`the ${S.id} icon is not aria-hidden — the link already carries the name`);
+}
+for (const f of htmls)
+  if (/>undefined</.test(readFileSync(APP + f, 'utf8')))
+    fail(`${f} carries the literal text "undefined" — something was interpolated that does not exist`);
+
+//: ★★THE WARNING BAND — and it is the SAME TEXT the other two faces show
+//: (2026-09-08, 用户裁定 「web ui / cli / python 三个界面统一提示词」).  The
+//: notices are declared once, in `python/fylite/_notice.json`; the `fy`
+//: executable includes that file at compile time and the Python package reads
+//: it at import.  This gate is the browser's end of that: the two catalogue
+//: entries must be that file's sentences, character for character, in both
+//: languages, and every page must carry an element for each notice.
+//:
+//: ★Without this the three faces drift silently and in the worst direction:
+//: each one keeps saying something, so nothing looks broken, while a reader
+//: who saw one of them believes they have been told what the others say.
+const NOTICE = JSON.parse(readFileSync(APP + '../python/fylite/_notice.json', 'utf8'));
+for (const n of NOTICE.notices) {
+  for (const lang of ['zh', 'en']) {
+    const got = CATV[lang].get(n.i18n_key);
+    if (got === undefined) fail(`\`${n.i18n_key}\` is missing from ${lang} — _notice.json declares it`);
+    else if (got !== n[lang])
+      fail(`\`${n.i18n_key}\` (${lang}) is "${got}" in the catalogue but "${n[lang]}" in `
+           + '_notice.json — the browser would say something the CLI and Python do not');
+  }
+}
+//: ★the SOURCE tree is the internal flavour by default (A-14), so every page
+//: carries every notice; the public build deletes the internal-only ones from
+//: the PUBLISHED copy (`tools/app-flavour.mjs`), never from here.
+for (const f of htmls) {
+  const src = readFileSync(APP + f, 'utf8');
+  const band = src.match(/<p class="warn-band"[^>]*>([\s\S]*?)<\/p>/);
+  if (!band) { fail(`${f}: no warning band on the header strip`); continue; }
+  for (const n of NOTICE.notices)
+    if (!band[1].includes(`class="${n.span_class}"`))
+      fail(`${f}: the warning band has no .${n.span_class} (the ${n.id} notice)`);
+}
+if (!bad) ok(`every destination has a 16x16 icon, and every page carries the ${NOTICE.notices.length} notices `
+             + 'of _notice.json — the same text `fy` and `fylite` print');
 
 // --- 5. message keys, in BOTH languages -----------------------------------
 //

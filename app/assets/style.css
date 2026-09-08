@@ -106,7 +106,15 @@ header.top h1 {
 }
 header.top .sub { color: var(--muted); font-size: 12.5px; line-height: 1.3; }
 
-/* the internal-testing notice, in the middle of the header strip ------------
+/* the warning band, in the middle of the header strip ----------------------
+ *
+ * ★★TWO PILLS, NOT ONE SENTENCE (2026-09-05, 用户裁定).  `.warn-alpha` says how
+ * mature this build is and holds for every flavour; `.warn-io` says who may
+ * see this copy and holds for the internal one only, so the public build
+ * DELETES that element (`tools/app-flavour.mjs`).  Two elements rather than
+ * one longer sentence is what makes that deletion a deletion instead of a
+ * string edit — and it is why the class on the <p> is no longer `warn-internal`:
+ * the band outlives the notice it used to be named after.
  *
  * ★It takes the space BETWEEN the titles and the nav (`flex: 1`) and centres
  * itself in it, rather than being pinned to the header's geometric centre:
@@ -116,23 +124,28 @@ header.top .sub { color: var(--muted); font-size: 12.5px; line-height: 1.3; }
  *
  * ★`min-width: 0` so a long notice shrinks and wraps rather than pushing the
  * nav off the strip — this text must never be the reason a control is
- * unreachable.
+ * unreachable.  With two pills the wrap happens BETWEEN them (`flex-wrap`),
+ * so neither sentence is ever broken across lines while the other keeps a
+ * whole one to itself.
  *
  * Colour is `--warn` and not `--err`: the notice is a standing condition of
  * this build, not a failure the reader has just caused.  ★`--warn` is also the
  * one of the two whose contrast is tuned per theme in this file (see its
  * comment at `:root`), and a warning nobody can read is not a warning.
+ * ★Both pills take that same colour: ranking them by tint would say one of
+ * the two conditions is the softer one, and neither is.
  */
-header.top .warn-internal {
+header.top .warn-band {
   margin: 0;                    /* it is a <p>: the UA's 1em would break the strip */
-  flex: 1 1 auto; min-width: 0; text-align: center;
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
 }
 /* ★★THE TINT IS ON THE TEXT, NOT ON THE GAP.  The <p> takes the whole space
    between the titles and the nav so that the notice lands in the middle of the
    strip; painting THAT box gives a wide filled rectangle sitting in a row of
    controls, which reads as a disabled text input — measured on the 1440 header,
    which is why the box is on the inner <span> and hugs the sentence. */
-header.top .warn-internal span {
+header.top .warn-band span {
   display: inline-block;
   font-size: 12.5px; font-weight: 700; line-height: 1.35;
   padding: 4px 12px; border-radius: 6px;
@@ -142,7 +155,7 @@ header.top .warn-internal span {
 }
 @media (max-width: 620px) {
   /* on a wrapped strip it is a full-width band of its own, under the title */
-  header.top .warn-internal { flex-basis: 100%; }
+  header.top .warn-band { flex-basis: 100%; }
 }
 :is(header.top, header.shell) nav {
   margin-left: auto; display: flex; gap: 4px; font-size: 13.5px;

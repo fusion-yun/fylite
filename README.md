@@ -77,6 +77,20 @@ listed rather than filled with functions that return zeros. The release
 version lives in one place, [`VERSION`](VERSION); the kernel version and the
 ABI number are two separate quantities, each reported by the build itself.
 
+**And it says so, on every face.** The three interfaces — the browser page,
+the `fy` command line and the Python package — open with the same two
+sentences: *this is an alpha, for proof of concept*, and, on an internal
+build, *internal testing only*. They are one text, declared once in
+[`python/fylite/_notice.json`](python/fylite/_notice.json): the page shows it
+as the band across its header, and `fy` and `import fylite` print it as a
+banner on **stderr** — **when someone is watching**. If stderr is not a
+terminal (a pipe, a log) neither prints anything at all, so `fy list --json |
+jq` and `python x.py > out` carry only your data. `FY_NO_BANNER=1` drops the
+wordmark and the version line and **keeps the notices** — they are a condition
+of use, not decoration — and `FY_LANG` picks the language.
+The second sentence is deleted, element and catalogue entry alike, from a
+`--public` build; three gates hold the three faces to that one file.
+
 **Distribution, during alpha.** The Python package ships a **pre-compiled**
 kernel rather than building one at install time, so the wheel is
 platform-tagged and the published surface is **Linux x86-64 only** — other
@@ -140,7 +154,12 @@ fylite` gives you a LIBRARY — no `fylite` console script, no `python -m fylite
 The one command line there is is the Rust executable `fy` (`bash rust/build.sh
 --exe`), which carries `app` / `data` / `case`; everything the Python verbs used
 to do is a library call, listed side by side in
-[the CLI guide](docs/guide/cli.md).
+[the CLI guide](docs/guide/cli.md).  ★It is built to
+`rust/fylite_runtime/target/release/fy` and **nothing here puts it on your
+`$PATH`** — so check that a bare `fy` is the one you mean (`command -v fy`):
+`fy` is a short name, and on a machine with sibling projects installed it may
+well resolve to somebody else's console script, which is a wrong program that
+starts successfully.
 
 ```python
 from fylite.engine import cases, manifest_catalog
@@ -176,7 +195,9 @@ Every result carries a `provenance` entry naming what it is a reduced tier of
 and **where it is not equivalent**. Capabilities that are not built stay
 listed as gaps (`○` in `fylite.scenario.TOOLS`), and a request outside a
 model's range returns an error rather than a number that looks like an
-answer. What the physics can and cannot do today is [`FEATURE.md`](FEATURE.md).
+answer. What the physics can and cannot do today is
+[`docs/reference/fidelity.md`](docs/reference/fidelity.md) — the measured limits —
+and [`TODO.md`](TODO.md) for what is not built yet.
 
 ## What ships, and what does not
 
@@ -185,7 +206,7 @@ answer. What the physics can and cannot do today is [`FEATURE.md`](FEATURE.md).
   the kernel's own or white-box translations declared in the kernel's `NOTICE`
   (see Attribution below — it ships inside the wheel, not as a file here).
 - **No experimental data is committed.** No shot files, no reconstructions of
-  real discharges — machine-checked, not merely stated. [`cases/`](cases/)
+  real discharges — machine-checked, not merely stated. [`docs/examples/`](docs/examples/)
   publishes the *specification* of each case (a plan document, no numbers) and
   resolves its data through `$FYLITE_DEVICE_DIR`; the synthetic equilibrium the
   test suite runs on is produced by the kernel itself, regenerable
@@ -270,7 +291,7 @@ JSON-LD description. Files are recognised by **content**, never by name.
 ## Running a case
 
 A case is **one structure in, one structure out**: a `fyo:ScenarioSpecification`
-(the documents under `cases/`, an `spo:ComputationPlan`) goes in, an
+(the documents under `docs/examples/`, an `spo:ComputationPlan`) goes in, an
 `spo:ComputationRecord` with its produced datasets comes out. The kernel
 completes the case from its structure — settings by name, bound inputs by fyo
 path — and the data layer owns both ends: the `fy run` command reads and
@@ -304,7 +325,7 @@ A plan can state its own delivery: an output port binding whose
 `bound_concretization.format_iri` is `fyo:ImasHdf5Format` makes `run` write the
 produced datasets as one IMAS data entry (`imas/master.h5` + `imas/<ids>.h5`,
 the imas-core HDF5 backend layout, gzip, `_SHAPE` / `AOS_SHAPE` tables), which
-`--format imas-hdf5` also selects. `cases/evolve-iter-15ma.jsonld` is the
+`--format imas-hdf5` also selects. `docs/examples/evolve/` carries the
 acceptance case for exactly that: fyo / JSON-LD in, IMAS DD HDF5 out, read
 back here with h5py and with the data layer's own reader (the layout is the one
 `verify/imas_roundtrip.py` checks against imas-python). A from-source HDF5 needs zlib for it
@@ -325,7 +346,7 @@ question: is what it produced **self-consistent**? A run that converged quickly
 can still carry a negative temperature, and a profile that agrees with another
 code to 1 % can still violate Grad–Shafranov — two errors cancelling.
 
-`benchmark/physics/` is the register that asks it. Each preset case is judged
+`docs/benchmark/physics/` is the register that asks it. Each preset case is judged
 against **physical law** (finiteness, positivity, the Grad–Shafranov equation),
 against the **documents' own definitions** (ψ endpoints, V′ > 0, the τ_E, β_N and
 Greenwald formulae) and against the **window the case declares** (bounds,
@@ -334,7 +355,7 @@ that is absent is `unevaluated` **by name** — never silently passed.
 
 ```bash
 python tools/benchmark-run.py            # run the batch, print the statistics
-python tools/benchmark-run.py --write    # write benchmark/physics/ + BENCHMARK.md
+python tools/benchmark-run.py --write    # write docs/benchmark/physics/ + BENCHMARK.md
 ```
 
 ```python
@@ -344,7 +365,7 @@ suite.run_entry(suite.entry("equilibrium-gfile"))
 ```
 
 The summary table is [`BENCHMARK.md`](BENCHMARK.md); the register, its per-case
-records and reports are in [`benchmark/physics/`](benchmark/physics/), and the
+records and reports are in [`docs/benchmark/physics/`](docs/benchmark/physics/), and the
 check register itself — what each check reads, its formula, its assumptions — is
 `docs/reference/benchmark.md`.
 
@@ -396,9 +417,10 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 | `app/` | the static browser site and its gates |
 | ~~`machine_desc/`~~ | abolished 2026-09-02 — decks come from the A-Box, found through `$FYLITE_DEVICE_DIR` |
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
-| ~~`examples/`~~ | removed 2026-09-02 — the runnable specifications are `cases/`, read through `fylite.engine.cases` |
-| `benchmark/` `cases/` | the V&V registry and the worked cases |
-| `benchmark/physics/` + [`BENCHMARK.md`](BENCHMARK.md) | the **physics-check register**: preset cases judged against physical law, the documents' own definitions and each case's declared window (`tools/benchmark-run.py`) |
+| `docs/examples/` | the runnable specifications, one directory per example, read through `fylite.engine.cases` (it was `examples/`, then the repo root `cases/`; it landed here 2026-09-04) |
+| `docs/benchmark/` | the V&V registry (it was `benchmark/`; the register moved into the book 2026-09-04) |
+| `app/cases/` | worked **session** documents for the pages' 导入 button — a different thing from the scenario corpus above, and published with the site |
+| [`docs/benchmark/physics/`](docs/benchmark/physics/) + [`BENCHMARK.md`](BENCHMARK.md) | the **physics-check register**: preset cases judged against physical law, the documents' own definitions and each case's declared window (`tools/benchmark-run.py`) |
 | `docs/` | the MyST book: user guide, reference, cases |
 | `tools/` | deck converters, page generators, oracle store maintenance |
 
@@ -440,7 +462,7 @@ read through the same verb as the scenario corpus:
 from fylite.engine import cases, casereport
 from fylite.engine import benchmark as bm
 
-cases.catalogue()                 # the scenario corpus (cases/)
+cases.catalogue()                 # the scenario corpus (docs/examples/)
 bm.records()                      # the V&V register: kind, verdict, re-run, admissibility
 bm.load("V-01")                   # one record, JSON-LD
 [bm.problems(r, bm.registry_dir()) for r in bm.graph()]   # structure (the test tier's own function)
@@ -466,11 +488,12 @@ FYLITE_PUBLIC=/path/to/fylite bash rust/build.sh --wasm-check
 FYLITE_KERNEL=/path/to/fylite_kernel bash tools/build-app-exe.sh linux
 ```
 
-Three files at the root answer three different questions:
-[`FEATURE.md`](FEATURE.md) — what physics is computable and what judges it;
-[`TODO.md`](TODO.md) — what is still missing, each item with the criterion
-that would close it; `changelog.md` — what changed; it records the kernel's development and
-lives with it in the kernel repository.
+Three documents answer three different questions:
+[`docs/reference/fidelity.md`](docs/reference/fidelity.md) — what each capability may
+be used for **quantitatively**, measured rather than claimed; [`TODO.md`](TODO.md) —
+what is still missing, each item with the criterion that would close it;
+`changelog.md` — what changed; it records the kernel's development and lives with it
+in the kernel repository.
 
 ## Attribution
 
@@ -481,12 +504,15 @@ translations deliberately differ — it describes the Rust source and so lives
 beside it, in the kernel repository.
 
 ★**It still has to travel with what is distributed from here.** Apache-2.0
-section 4(d) attaches the obligation to the DISTRIBUTION, not to the source
-tree: the wheel declares `license-files = [… "NOTICE" …]` through
-`python/NOTICE`, and that symlink is currently dangling. Until a copy is
-restored here, a built wheel ships without it.
+section 4(d) attaches the obligation to the DISTRIBUTION, not to the source tree,
+so each distribution's build installs it: `tools/build-wheel.sh` borrows the kernel's
+`NOTICE` into the project directory (where `license-files` is resolved) and
+`tools/build-site.sh` copies it to the root of the published site, beside the wasm it
+describes. **Both refuse to build without it** — an unattributed distribution is not
+a smaller product, it is a licence breach, and it is the kind that never announces
+itself.
 
-[`ACKNOWLEDGEMENTS.en.md`](ACKNOWLEDGEMENTS.en.md) is the full human-readable list
+[`docs/ACKNOWLEDGEMENTS.md`](docs/ACKNOWLEDGEMENTS.md) is the full human-readable list
 of every upstream code, published formula, reference dataset and cross-code
 oracle this project stands on — and how the code was built (AI-assisted,
 gold-fixture verified).

@@ -379,7 +379,13 @@ fn devices(args: &Args) {
                 ("licence", raw.clone().map(Node::from).unwrap_or(Node::Null)),
                 ("licence_kind", licence_kind(raw.as_deref()).into()),
                 ("ids", list(ids_of(e).into_iter().map(Node::from).collect())),
-                ("card", e.document.as_ref().map(|d| d.display().to_string().into()).unwrap_or(Node::Null)),
+                //: ★★点名形与清单形说的必须是**同一件事**：清单形的 `card` 答「这一条有没有
+                //: 文档」（`has_document`，自带那一档的文档在二进制里，没有路径），而点名形
+                //: 从前答的是**路径**——于是一条编进二进制的条目，清单形说 `card: true`、
+                //: 点名形说 `card: null`。实测（2026-09-08，在没有盘上语料的检出里）：
+                //: `test_naming_one_device_answers_json_too` 当场红。路径另开一个键。
+                ("card", Node::Bool(e.has_document())),
+                ("card_path", e.document.as_ref().map(|d| d.display().to_string().into()).unwrap_or(Node::Null)),
                 ("rights", e.rights_path().map(|r| r.display().to_string().into()).unwrap_or(Node::Null)),
                 ("manifest", e.manifest_path().map(|m| m.display().to_string().into()).unwrap_or(Node::Null)),
                 ("described", manifest_json(e.manifest_path().as_deref())),
