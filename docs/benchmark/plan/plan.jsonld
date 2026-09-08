@@ -988,19 +988,30 @@
      ],
      "record": "C-09",
      "record_state": "proposed",
-     "gate": [],
+     "gate": [
+      "python -m pytest python/tests/test_itpa_tc33.py  （3 条，0.5 s）"
+     ],
      "criteria": [
       {
        "type": "fyo:AcceptanceCriterion",
-       "quantity_label": "0-D 全局量（415 s / 450 s）",
-       "tolerance_basis": "reference_stated",
-       "tolerance_note": "★参考不是某一个程序的输出，而是**机构共识的参考算例**——它的权威来自共识过程，不来自某次运行的精度；容差取发布件自报的口径"
+       "quantity_label": "P_fus（415 s，摆平体平均与外加热之后）",
+       "norm": "relative",
+       "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.13
+       },
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "实测 +10.6 % + 一档余量。★这个带写的是「给定剖面的 0-D 距集成模拟 H 模解有多远」，不是精度目标"
       }
      ],
-     "status": "planned",
+     "status": "pass",
      "caveat": [
-      "★缺口：公开可复取（CC BY 4.0）、已在 fydoc 收录、fylite 侧无记录。它是本图里**最强的一条 C 路径**：ITER 场景的机构参考算例，且不受限——C-01 / C-02 的参考是受限件，读者复算不了。"
-     ]
+      "★★**燃料稀释的缺省是一个假设，不是中性值**：`dtf=0.5`（n_D = n_T = 0.5 n_e）给 +33.8 %；参考件自己的组分（分离面 n_D = n_T = 2.6e19 而 n_e = 5.72e19，即 0.4546）给 +10.6 %。P_fus ∝ n_D n_T，9 % 的燃料密度差在功率上是 19 %。门里有一条专门钉这件事。",
+      "★余下的 +10.6 % 是**形状**：本仓 `(1-ρ²)^p` 无台基，参考件有（T_e,ped 4.84 keV · n_e,ped 7.69e19）；体平均相同而形状不同，而 ⟨σv⟩ 对 T 超线性。**不靠调峰化去抹平它**——抹平了这就成了曲线拟合而不是比较。",
+      "★★`v_loop` **不判**：参考件 −0.0546 V 含 4.21 MA 自举 + 1.07 MA NBI + 0.21 MA EC 驱动，而本仓 0-D 的环电压是纯欧姆、不含非感应电流。拿一个不含自举的模型去对一个自举占 28 % 的解，判出来的数没有意义。",
+      "★参考件公开可复取（Zenodo `10.5281/zenodo.21391776`，CC BY 4.0），这正是本条在图里最强的原因：C-01 / C-02 的参考是受限件，读者复算不了；这一条可以。"
+     ],
+     "status_note": "2026-09-08 **量到了**：几何 · I_p · Z_eff · 外加热 · **体平均 n_e 与 T_e** 全部摆平到参考件（峰化由 brentq 解出，⟨n_e⟩ / ⟨T_e⟩ 逐位对上）之后，P_fus **159.42 MW vs 参考 144.15 MW，+10.6 %**（带 13 %）。★★**用缺省稀释 `dtf=0.5` 则是 192.88 MW，+33.8 %**——稀释一项吃掉 69 % 的差"
     },
     {
      "id": "plan/S7/zerod-self-consistency",
