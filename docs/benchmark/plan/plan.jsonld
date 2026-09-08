@@ -661,10 +661,15 @@
        "tolerance_note": "带在实测后定；★上游同时发布了 filtered 与 unfiltered 两版，比之前须先声明用哪一版"
       }
      ],
-     "status": "planned",
+     "status": "blocked-known",
      "caveat": [
-      "★这是本册子发现的一处缺口：该组算例已在 fydoc 收录且**公开可复取**，fylite 侧尚无任何记录引用它。它是 S4 目前唯一一条对回旋动理学一手答案的确认路径（C-05 的参考是文献表，覆盖面窄）。"
-     ]
+      "★★**上游自己写明缺了什么**（Citrin et al. 2023, Phys. Plasmas, doi:10.1063/5.0136752，本机全文库有）：「The list is partial, and for brevity **does not include collisionality and flux surface shaping parameters**, although these parameters are included in the calculations themselves.」碰撞率由该文 Fig. 1 的参考温度密度算出，Miller 形状来自其 JINTRAC 积分模拟的 Grad–Shafranov 平衡——两者都**不在发布件里**。",
+      "★已从该文 Table I 取回可用的那一半（逐 ρ_N 的标称态）：ρ_N=0.2 (R/L_Ti 4.54 · R/L_Te 2.22 · R/L_ne 0.12 · ŝ 0.16 · q 0.95 · α_MHD 0.28 · Z_eff 1.87 · T_i/T_e 0.82) … ρ_N=0.9 (9.56 · 8.97 · 7.32 · 3.70 · 2.83 · 1.95 · 1.63 · 1.01)；另：**全部为静电**（β=0）、α_MHD 按标称 β' 给、κ₉₅≈1.7 · δ₉₅≈0.4、杂质并成一种有效杂质。",
+      "★★**为什么不硬做**：缺的两项（ν* 与逐半径 Miller 形状）恰恰是 TEM 与临界梯度最敏感的两项。假设它们跑出来的差，**无法在「模型不同」与「我假设的 ν*/形状不同」之间归因**——而一条归不了因的记录，正是本册子 §1 说的「只能当传说」。",
+      "★**解锁只差一步且是可及的**：向作者索取该批次的 GENE 输入（或那次 JINTRAC 模拟的逐半径 ν* 与 Miller 参数）。本条因此记 `blocked-known`——挡路的是**两个具名的量**，不是「参考侧取不到」（后者是 C-06 / C-07 / C-10 / B-08 / B-09 那五条）。",
+      "★另一条可走的路（未做）：先测 TGLF 的 γ 对 ν* 与形状的敏感度。若在合理范围内的散布远小于本仓与 GENE 的差，这条比较仍然说得出话；若相当，则它本质上不可判。**这一步本身就是一个可立的记录**。"
+     ],
+     "status_note": "2026-09-08 勘定：**载荷公开而定态不全**。数据 60 492 行给出**变的**那几个（ρ_N 8 档 · k_y 10 档 · R/L_Ti · R/L_Te · R/L_ne · ŝ · q）与 GENE 的答案（γ · ω · k⊥² · 三个通量）；**不变的**那几个只公布了一半"
     }
    ]
   },
