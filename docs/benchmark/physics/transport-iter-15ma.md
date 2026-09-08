@@ -2,9 +2,9 @@
 
 - 算例 (case)：`docs/examples/transport/transport-iter-15ma`
 - 判决 (verdict)：**通过**（pass）
-- 产出 (datasets)：`core_profiles`, `core_transport`, `equilibrium`
-- 记录 (record)：`run/20260904T130427Z-transport`
-- 日期：2026-09-04
+- 产出 (datasets)：`core_profiles`, `core_transport`, `entry`, `equilibrium`
+- 记录 (record)：`run/20260908T081338Z-transport`
+- 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
 
@@ -31,7 +31,7 @@
 ### `finite` — 产出的每个数都是有限的
 
 - 判据：`∀x ∈ datasets: isfinite(x)`
-- 结论：通过——287 个数值全部有限
+- 结论：通过——374 个数值全部有限
 - 假设：NaN / Inf 不是一个物理态，也不是「还没算」——后者应当缺席而不是写成 NaN
 
 ### `positive-temperature` — 绝对温度为正

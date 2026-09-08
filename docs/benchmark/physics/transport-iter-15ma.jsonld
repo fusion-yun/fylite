@@ -9,7 +9,7 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "ITER 15 MA 定态剖面：固定几何、单通道",
-  "recorded": "2026-09-04",
+  "recorded": "2026-09-08",
   "scenario": "docs/examples/transport/transport-iter-15ma",
   "compared_subject": {
     "type": "spo:Code",
@@ -154,7 +154,7 @@
       "title": "产出的每个数都是有限的",
       "deviation_literal": "0",
       "verdict": "pass",
-      "comment": "287 个数值全部有限"
+      "comment": "374 个数值全部有限"
     },
     {
       "type": "fyo:ComparisonFinding",
@@ -275,10 +275,10 @@
   "overall_verdict": "pass",
   "run": {
     "type": "spo:ComputationRecord",
-    "id": "run/20260904T130427Z-transport",
+    "id": "run/20260908T081338Z-transport",
     "comment": [
       "本批现跑了这个算例（数据层 JSON 门 + 内核）",
-      "datasets: core_profiles, core_transport, equilibrium"
+      "datasets: core_profiles, core_transport, entry, equilibrium"
     ]
   },
   "account": "docs/reference/FYL-REF-BENCHMARK.md",

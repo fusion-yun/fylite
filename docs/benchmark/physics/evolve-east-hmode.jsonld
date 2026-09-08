@@ -9,7 +9,7 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "EAST 长脉冲（装置牌）：带电流道与锯齿的演化",
-  "recorded": "2026-09-04",
+  "recorded": "2026-09-08",
   "scenario": "docs/examples/evolve/evolve-east-hmode",
   "compared_subject": {
     "type": "spo:Code",
@@ -286,6 +286,6 @@
   },
   "caveat": [
     "装置牌不在本仓（machine_desc/east）时这一条没有产出可判",
-    "本条没有产出可判：the kernel rejected the case: refused: [-33] this case is outside the sunk scope of `evolve_heat`; it needs the `device` tier's equilibrium — bind the traced ladder as input `equilibrium/time_slice/profiles_1d/rho_tor` (with `equilibrium/time_slice/profiles_1d/dvolume_drho_tor` and `equilibrium/time_slice/profiles_1d/gm3`)"
+    "本条没有产出可判：the kernel rejected the case: refused: [-33] this case is outside the sunk scope of `evolve_heat`; it needs the `device` tier's equilibrium — bind the traced ladder as input `equilibrium/time_slice/profiles_1d/rho_tor` (with `equilibrium/time_slice/profiles_1d/dvolume_drho_tor` and `equilibrium/time_slice/profiles_1d/gm3`), or the equilibrium document under inputs/equilibrium"
   ]
 }

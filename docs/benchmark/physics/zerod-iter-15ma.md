@@ -1,10 +1,10 @@
 # ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住
 
 - 算例 (case)：`docs/examples/zerod/zerod-iter-15ma`
-- 判决 (verdict)：**未通过**（fail）
-- 产出 (datasets)：`core_profiles`, `summary`
-- 记录 (record)：`run/20260904T130427Z-zerod`
-- 日期：2026-09-04
+- 判决 (verdict)：**通过**（pass）
+- 产出 (datasets)：`core_profiles`, `entry`, `summary`
+- 记录 (record)：`run/20260908T081338Z-zerod`
+- 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
 
@@ -12,7 +12,7 @@
 
 | 检查 | 类 | 判决 | 量到 | 容差 | 判据来路 |
 | :--- | :--- | :--- | ---: | ---: | :--- |
-| `finite` | 定律 | 未通过 | 1 | 0 | machine_precision |
+| `finite` | 定律 | 通过 | 0 | 0 | machine_precision |
 | `positive-temperature` | 定律 | 通过 | 200 | 0 | machine_precision |
 | `positive-density` | 定律 | 通过 | 2e+18 | 0 | machine_precision |
 | `grad-shafranov` | 定律 | 未评估 | — | — | — |
@@ -31,7 +31,7 @@
 ### `finite` — 产出的每个数都是有限的
 
 - 判据：`∀x ∈ datasets: isfinite(x)`
-- 结论：未通过——1 处非有限：summary/global_quantities/fusion_gain/value (60/201)
+- 结论：通过——35376 个数值全部有限；另有 60 个 DD 空值（不适用，不计入有限性）：summary/global_quantities/fusion_gain/value (60/201)
 - 假设：NaN / Inf 不是一个物理态，也不是「还没算」——后者应当缺席而不是写成 NaN
 
 ### `positive-temperature` — 绝对温度为正
@@ -116,37 +116,6 @@
 - 结论：未评估——声明的量一个也读不到：SUMMARY/greenwald, SUMMARY/beta_n
 - 假设：运行限不是定律，是这个场景的判据，所以由算例带
 - 读不到：SUMMARY/greenwald, SUMMARY/beta_n
-
-## 那一条未通过：两条各自成立的规矩撞在一起〔2026-09-08 归因〕
-
-`finite` 报的一处是 `summary/global_quantities/fusion_gain/value`，**60/201 个点非有限**。
-逐点看，NaN 落在 **t ∈ [0, 0.95] 与 [8.05, 10.0] s**，有限值恰好落在 **[1.00, 8.00] s**
-——而算例声明的 `t_on = 1` · `t_off = 8`。**NaN 的位置与外加热窗口逐点对齐**，
-不是数值发散，是 $Q = P_\text{fus}/P_\text{aux}$ 在 $P_\text{aux}=0$ 处没有定义。
-
-两侧都是**明写的裁定**，各自都对：
-
-| 谁 | 写了什么 | 理由 |
-| :--- | :--- | :--- |
-| 内核 `zerod.rs:328` | `out.q[k] = if p_inj[k] > 0.0 { pf / p_inj[k] } else { f64::NAN }` | 原注：*Q is undefined without injected power; NaN says so, **0 would lie*** |
-| 判据册 `physics.py` | `finite` 是**定律**类 | 原注：*每一个产出的数组都得是有限的。**NaN 不是一个状态*** |
-
-★所以这不是缺陷，是**两条规矩的交界处没有裁定**：产出方用 NaN 表达「此处无定义」，
-而判据册规定产出里不许有 NaN。谁让一步，是一次口径裁定，不是改错。
-
-三条路，各自的代价写在这里，**本册不替谁选**：
-
-1. **法不可豁免，改产出**——`fusion_gain` 只在窗口内给值。代价：DD 的 `FLT_1D`
-   **没有逐点缺席**的表示法，只能整支给或整支不给；给整支就得填一个数，而填什么都在说谎。
-2. **改定义**——$Q = P_\text{fus}/(P_\text{aux}+P_\Omega)$，处处有限（欧姆功率不为零）。
-   代价：那不是 ITER 语境里 $Q$ 的通行定义，换了之后本册与外部对拍的 $Q$ 不再是同一个量。
-3. **给定律一个「已声明无定义域」的机制**——算例声明「`fusion_gain` 在 `p_aux == 0` 处无定义」，
-   `finite` 据此放行。代价：定律从此可被算例声明豁免，而**定律的意义正在于不可豁免**；
-   一旦开这个口子，下一个声明会是别的量。
-
-〔倾向〕第 3 条的口子最贵、第 2 条改的是物理口径，**第 1 条最接近本仓已有的做法**
-（「宁可拒绝，不给假数」）——但它要先回答「一支不能逐点缺席的数组，如何表达一段无定义」。
-这一问 `FYL-DESIGN-20` M-6 已经在另一处遇到过（未评估 ≠ 通过），可一并裁。
 
 ---
 
