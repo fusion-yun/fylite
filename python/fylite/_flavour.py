@@ -9,4 +9,4 @@
 同一个值**，两个宿主各留一份：页面读那一份，Python 读这一份。
 ★提交进仓的这一份是**缺省构建**的那一版（`internal`，A-14）。
 """
-FLAVOUR = "public"
+FLAVOUR = "internal"
