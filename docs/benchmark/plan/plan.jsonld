@@ -234,10 +234,11 @@
        "tolerance_note": "取参考自报精度；参考未自报时本项记未评估，不自拟带"
       }
      ],
-     "status": "blocked-unknown",
+     "status": "planned",
      "caveat": [
       "本体在 $ITER_SCENARIO_ROOT（1.7 GB，ITER IDM Internal Use），未取回；取回前本条不可执行。"
-     ]
+     ],
+     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `Plasma_equilibrium_operational_space_dur_2ENZF5_v2_0 等`。平衡运行空间（15 MA）16 MB。先前记「本体未取回」的理由已不成立"
     },
     {
      "id": "plan/S1/tosca-iter-equilibria",
@@ -263,10 +264,11 @@
        "tolerance_note": "同上；本组的价值在**扫描**，单点吻合不足以支持结论"
       }
      ],
-     "status": "blocked-unknown",
+     "status": "planned",
      "caveat": [
       "同 C-06：本体未取回。★另有一处认识论风险：本组一份文档的代码归属是推断得来的，若结论依赖「参考是 TOSCA」，须先落实归属。"
-     ]
+     ],
+     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `Plasma_equilibrium_operational_space_dur_2ENZF5_v2_0`。同上；★该组的代码归属仍是推断，取用前须落实。先前记「本体未取回」的理由已不成立"
     },
     {
      "id": "plan/S1/fuse-iter-layers",
@@ -297,6 +299,54 @@
       "★2026-09-04 fydoc 侧遗弃了 FUSE 0.7.0 的旧答案并改钉 1.1.5，新答案尚未产生。B-01 现有结论建立在旧参考上——**再判之前先把参考侧对齐到 1.1.5**，否则这条记录的参考版本与算例书自陈的不一致。"
      ],
      "status_note": "9 条全部通过（2026-09-08 第三轮实测）：门已按 `corpus/retired-0.7.0/` 读到那批冻结答案，第 9 条是本轮修好的算例书路径（F-18）。★**参考侧该不该改在 FUSE 1.1.5 上重跑仍未裁定（F-6）**——本条量的是「对着当初那一批 0.7.0 的答案还一样吗」，不是「对着今天的 FUSE 一样吗」"
+    },
+    {
+     "id": "plan/S1/chease-fixed-boundary",
+     "title": "CHEASE 定边界平衡：同一边界与剖面下的 GS 解",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/S0-conventions"
+     ],
+     "depends_on_note": "★不挂在受限参考之下：本条的输入是**自己给的**边界与两个剖面，不消费任何 IDM 载荷——这正是它能在 C-06 / C-07 阻塞时仍然立得住的原因。",
+     "oracle": [
+      {
+       "oracle_case": "[TBD]",
+       "storage_uri": "$THIRD_PARTY/chease",
+       "license": "public",
+       "payload": "in",
+       "comment": "CHEASE 源在本机 `third_party/chease`（**未构建**）。参考侧不需要任何受限数据：给定边界与 p′/ff′，答案由码自己产生，故可复算。"
+      }
+     ],
+     "record": "B-10",
+     "record_state": "proposed",
+     "gate": [],
+     "criteria": [
+      {
+       "type": "fyo:AcceptanceCriterion",
+       "quantity_label": "q 剖面（逐 ψ_N）",
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "带在第一次实测后定；事前写下的带只会被凑上"
+      },
+      {
+       "type": "fyo:AcceptanceCriterion",
+       "quantity_label": "磁轴位置与 ψ_axis",
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "★两码的网格与边界表示不同，差里必然含离散化的一份——判据要能把它与物理差分开，否则这条记录说不出话"
+      },
+      {
+       "type": "fyo:AcceptanceCriterion",
+       "quantity_label": "体积 · 环向电流 · β_p · li",
+       "tolerance_basis": "measured_band"
+      }
+     ],
+     "status": "planned",
+     "caveat": [
+      "★**为什么现在立**：S1 是干路上唯一 1/3 的一节，而它的两条参考（`C-06` TEQ · `C-07` TOSCA）都锁在 ITER IDM 里、本机没有。CHEASE 是同一问题的**独立求解器**，且不需要任何受限数据——参考侧的可复算性由「码在本机 + 输入自给」两条同时保证。",
+      "★**与 `B-01` 不重**：`B-01` 比的是 FUSE 的**整档**（一次完整的自洽装置解），本条比的是 **GS 解本身**。★注意 FUSE 的依赖里就有 `CHEASE.jl`——若日后 `B-01` 的某一步实际调了 CHEASE，两条会共用同一个第二答案，那时须在两处都写明，否则读者会把一次独立当成两次。",
+      "★**前置**：CHEASE 未构建（本机只有 `input/*.xml`，无制品）。构建成本未估——**这是本条从 `planned` 走向执行前必须先答的一问**，不是执行中顺带发现的事。",
+      "★候选替身：若 CHEASE 构建不成，`nice` / `toq4.0` / `meq` 同在盘上；`freegs` 已在 fywork CASE-09 跨仓跑通，但它是**自由边界**，与本条的定边界问法不是一件事。"
+     ],
+     "status_note": "2026-09-08 立项（第三方源码盘点，见 SURVEY-2026-09-08-third-party.md）。**尚未执行**，前置是构建 CHEASE。"
     }
    ]
   },
@@ -670,6 +720,49 @@
       "★另一条可走的路（未做）：先测 TGLF 的 γ 对 ν* 与形状的敏感度。若在合理范围内的散布远小于本仓与 GENE 的差，这条比较仍然说得出话；若相当，则它本质上不可判。**这一步本身就是一个可立的记录**。"
      ],
      "status_note": "2026-09-08 勘定：**载荷公开而定态不全**。数据 60 492 行给出**变的**那几个（ρ_N 8 档 · k_y 10 档 · R/L_Ti · R/L_Te · R/L_ne · ŝ · q）与 GENE 的答案（γ · ω · k⊥² · 三个通量）；**不变的**那几个只公布了一半"
+    },
+    {
+     "id": "plan/S4/qualikiz-ground-truth",
+     "title": "QuaLiKiz 本体：神经代理相对于它所近似的物理，误差有多大",
+     "comparison_kind": "confirmation",
+     "depends_on": [
+      "plan/S0-conventions"
+     ],
+     "depends_on_note": "★同 `C-08`：以局域态为输入的组件级比较，不消费 S1 的平衡产物。",
+     "oracle": [
+      {
+       "oracle_case": "[TBD]",
+       "storage_uri": "$THIRD_PARTY/QuaLiKiz",
+       "license": "public",
+       "payload": "in",
+       "comment": "★**制品已在本机构建可跑**：`bin/QuaLiKiz-gcc-release-default-mpi.exe`（2026-08-02）。构建配方另有记录（不可并行构建）。"
+      }
+     ],
+     "record": "C-11",
+     "record_state": "proposed",
+     "gate": [],
+     "criteria": [
+      {
+       "type": "fyo:AcceptanceCriterion",
+       "quantity_label": "逐通道通量（电子热 · 离子热 · 粒子）",
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "★带在实测后定，而且这条记录的**产出就是那条带**——「代理误差有多大」正是它要回答的问题，事前给带等于事前给答案"
+      },
+      {
+       "type": "fyo:AcceptanceCriterion",
+       "quantity_label": "临界梯度附近的行为",
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "★代理最可能失真的地方；只报全域平均误差会把它平掉"
+      }
+     ],
+     "status": "planned",
+     "caveat": [
+      "★★**它回答的问题今天没有任何记录回答**。`V-03` 比的是「本仓能不能复现那张网」——参考是上游**自己的推理路径**，判到 1.6e-13，那是一次 V。**那张网相对于它所近似的物理差多少，本册子一个字都没有**，而消费者读到的是「湍流输运」，不是「一个网络的复现」。",
+      "★**类别是 C 不是 V**：网络与第一性计算不是同一个函数的两个实现。跨类不可比——这条的带无论多宽，都不能拿去松 `V-03` 的带，反之亦然。",
+      "★**前置两件**：①对齐输入口径（QLKNN_7_11 的十维入参与 QuaLiKiz 的算例设置之间的映射须逐项落实并留痕，映错会把口径差报成代理误差）②QuaLiKiz 跑一批点的机时未估（它是第一性计算，不是网络）。",
+      "★**已知的坑**：上游网络有 filtered / unfiltered 之分（`C-08` 的判据里也点过同一件事），比之前须先声明用哪一版。"
+     ],
+     "status_note": "2026-09-08 立项（第三方源码盘点，见 SURVEY-2026-09-08-third-party.md）。**尚未执行**，前置是输入口径对齐。"
     }
    ]
   },
@@ -1157,10 +1250,12 @@
        "tolerance_basis": "measured_band"
       }
      ],
-     "status": "blocked-unknown",
+     "status": "blocked-known",
      "caveat": [
-      "★参考侧缺答案：fydoc 该组自陈「目前只有问题、没有答案」——上游未随码发布输出，本机未在 1.1.5 上跑过。执行前须先在参考侧跑出答案并按算例书体例登记，**不得**用已遗弃的 0.7.0 旧记录顶替。"
-     ]
+      "★参考侧缺答案：fydoc 该组自陈「目前只有问题、没有答案」——上游未随码发布输出，本机未在 1.1.5 上跑过。执行前须先在参考侧跑出答案并按算例书体例登记，**不得**用已遗弃的 0.7.0 旧记录顶替。",
+      "★★2026-09-08 盘点改判 `blocked-unknown` → `blocked-known`：**参考侧的码就在本机，而且正是本条点名的版本**——`third_party/FUSE` 的 `FUSE.jl/Project.toml` 写着 `version = \"1.1.5\"`，`ITER_time` 算例在 `FUSE.jl/src/test_cases.jl:135` 逐行写着，且**自足**（`init_from=:ods` 装硬件 → `:scalars, time_dependent=true` 给日程 → `ActorStationaryPlasma` 收敛到自洽初态 → `ActorDynamicPlasma` 走 `Nt=60 · Δt=300`），不需要任何外部数据。挡路的因此是一件**具名的活**：本机两套 Julia 环境（v1.10 / v1.11）装的都是 **0.7.0**（`Manifest.toml:800`），而本条明禁用它顶替。要做的是把盘上这份 `dev` 进一个环境、跑出答案、按算例书体例登记。"
+     ],
+     "status_note": "2026-09-08 盘点：**参考侧的码在本机且版本正确（1.1.5）**，挡路的是本机没有 1.1.5 的 Julia 环境（装的是 0.7.0）。见 SURVEY-2026-09-08-third-party.md。"
     },
     {
      "id": "plan/S8/dina-iter-scenarios",
@@ -1169,9 +1264,10 @@
      "oracle": [
       {
        "oracle_case": "FYDOC-CASE-02",
-       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-02-dina/",
+       "storage_uri": "本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） / DINA…XA8GXS_v1_1",
        "license": "restricted",
-       "payload": "ptr"
+       "payload": "in",
+       "comment": "ITER IDM Internal Use；本层只记指针与读法，不复制字节"
       }
      ],
      "record": "B-09",
@@ -1184,10 +1280,14 @@
        "tolerance_basis": "measured_band"
       }
      ],
-     "status": "blocked-unknown",
+     "status": "planned",
      "caveat": [
-      "本体在 $ITER_SCENARIO_ROOT（ITER IDM，Internal Use），未取回。★它是唯一覆盖**电流爬升与下降**的参考——现有 S8 三条全在平顶或准稳态窗口。"
-     ]
+      "★★**首轮比较（2026-09-08）：Ip 波形对上，Vloop 差 6–8 倍**。按 DINA 自己的时序与平顶态驱动本仓 0-D：Ip 在爬升段逐点对到 4 % 以内（4.87/4.55 · 8.10/8.34 · 11.29/11.37 · 13.84/14.41 MA），而 |Vloop| 本仓 3.41–3.61 V 对 DINA 0.44–0.57 V。",
+      "★★**温度时序不是原因，且方向相反**：本仓爬升段 ⟨Te⟩ **高于** DINA（2.15 vs 1.01 keV 等），而 η ∝ Te^{-1.5}，这本该让本仓的电阻项**更小**（比 0.29–0.33）。扣掉这一层，电阻侧的差反而更大。**所以拦路的不是剖面时序**。",
+      "★〔待核，不据此下结论〕最可能的一项是**感应项与 Vloop 的定义**：本仓用 `Lp = μ0 R0 (ln(8R0/a) + li/2 - 2)` 乘 dIp/dt，在 0.2151 MA/s 上约 2.6 V——正是本仓那 3.5 V 的大头。而**表面**环电压对应的是外部磁通的变化率，等离子体环的**外**自感磁通由 PF 系统供给。两者是不是同一个量，须先读 DINA 随件的 `Parameters in files Data2_v11.doc` 落实其 Vloop 定义，**再**谈谁对——否则这条记录会把一次定义不符写成一次模型缺陷。",
+      "★这是全图里唯一覆盖**电流爬升与下降**的参考；现有 S8 三条全在平顶或准稳态窗口。"
+     ],
+     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `DINA_simulation_of_15MA_DT_scenario__15M_XA8GXS_v1_1`，**机读**（制表符文本 72 139 行 × 45 列，90 MB）。实测覆盖：爬升 3.0→63.1 s（0.2151 MA/s）· 平顶 63.1→383.1 s（320 s）· 下降 383.1→543.8 s，Ip 峰 15.23 MA。**首轮比较已跑**，见 caveat"
     },
     {
      "id": "plan/S8/evolve-self-consistency",
@@ -1452,10 +1552,11 @@
        "tolerance_note": "参考侧未取回且为报告体，判据待其可比量确定后再写；此处不预填"
       }
      ],
-     "status": "blocked-unknown",
+     "status": "planned",
      "caveat": [
       "本体在 $ITER_SCENARIO_ROOT，未取回。★即使取回，它与其余算例来源有一处性质差别：报告里的图与结论不是机读答案，逐条摘出这一步本身要留痕，否则「参考是什么」不可复算。"
-     ]
+     ],
+     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `Study_of_plasma_initiation_using_TRANSMA_3TPCKG_v1_0`。3.0 MB，2010 年合同报告；★答案是报告里的图与结论，不是机读件——逐条摘出这一步要留痕。先前记「本体未取回」的理由已不成立"
     }
    ]
   }
