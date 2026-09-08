@@ -444,6 +444,13 @@ function designPlan(msg, o) {
     discharge['fylite:control_row'] = controlTable(o.ctl);
   }
   if (msg.iMax && msg.iMax.length) discharge['fylite:i_max_aturn'] = Array.from(msg.iMax);
+  //: ★★**目标曲线本身**（2026-09-08）：给了它，内核就不再由六个数经 `miller_boundary`
+  //: 生成目标——那条解析曲线画不出 X 点，而评分的六个量也改由这条曲线自己量出，于是
+  //: 拟合的目标与评分的目标是同一个东西。没给就照旧。
+  if (msg.targetCurve && msg.targetCurve.r && msg.targetCurve.r.length >= 8) {
+    discharge['fylite:target_r'] = Array.from(msg.targetCurve.r);
+    discharge['fylite:target_z'] = Array.from(msg.targetCurve.z);
+  }
   var inputs = { device: deviceDoc() };
   if (o.stage === 'start') {
     settings.stage = 'start';

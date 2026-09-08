@@ -266,7 +266,23 @@
     return !!(r && r.loopMeas && r.loopMeas.length === (m.loops || []).length);
   }
 
+  /**
+   * 这台机器**记录形状**给出的那六个缺省（没有记录边界就是 `null`）。
+   *
+   * ★给设计页判一件事用：读者现在要的，是不是仍然是「这台机器自己记着的那条边界」。
+   * 是，就把**曲线本身**交给内核（`fylite:target_r/z`）；动过任何一个滑块，就回到六个
+   * 数经 Miller 生成——那是读者的要求，不该被一条记录的曲线盖掉。
+   */
+  function recordedShape(m) {
+    var rb = m && m.referenceBoundary;
+    if (!rb || !rb.r || rb.r.length < 16) return null;
+    var rg = ranges(m);
+    return { r0: rg.r0.value, z0: rg.z0.value, a: rg.a.value, kappa: rg.kappa.value,
+             du: rg.du.value, dl: rg.dl.value, r: rb.r, z: rb.z,
+             source: rb['fylite:source'] || null };
+  }
+
   root.FyDevice = { bbox: bbox, tf: tf, limits: limits,
                     applyRanges: applyRanges, hasReference: hasReference,
-                    hasMeasurements: hasMeasurements };
+                    hasMeasurements: hasMeasurements, recordedShape: recordedShape };
 })(typeof self !== 'undefined' ? self : globalThis);

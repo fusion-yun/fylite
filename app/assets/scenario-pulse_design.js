@@ -1608,6 +1608,30 @@ FyScenario.whenDevices(function () {
     return { r0: +$('r0').value, a: +$('a').value, kappa: +$('kappa').value,
              deltaU: +$('du').value, deltaL: +$('dl').value, z0: +$('z0').value };
   }
+
+  /**
+   * 这一次要不要把**记录的那条边界**当目标交出去。
+   *
+   * ★★六个滑块生成的是一条 Miller 曲线——**处处光滑，画不出 X 点**。一台记着自己
+   * 分离面的机器（ITER 的 248 点，最尖处 91°）把边界压成六个数再重新生成，扔掉的正是
+   * 最要紧的那个特征；实测把目标设成机器自己刚实现的形状，误差仍有 0.0606（容差
+   * 0.0284），残差几乎全是这条往返自带的下限。
+   * ★★**但滑块不能因此失效**。判据是：六个控件是否仍停在「这台机器记录形状」给出的
+   * 那组缺省上。是——读者要的就是那条边界，交曲线；动过任何一个——读者要的是别的形状，
+   * 交六个数。两种情形页面都说得出用了哪一种（`design.target.curve` / `.miller`）。
+   */
+  function targetCurve() {
+    var rec = FyDevice.recordedShape(M);
+    if (!rec) return null;
+    var t = readTarget();
+    var same = ['r0', 'z0', 'a', 'kappa'].every(function (k) {
+      var el = $(k === 'kappa' ? 'kappa' : k);
+      var step = el && +el.step ? +el.step : 1e-3;
+      return Math.abs((k === 'kappa' ? t.kappa : t[k]) - rec[k]) <= 0.5 * step + 1e-9;
+    }) && Math.abs(t.deltaU - rec.du) <= 0.005 + 1e-9
+      && Math.abs(t.deltaL - rec.dl) <= 0.005 + 1e-9;
+    return same ? { r: rec.r, z: rec.z, source: rec.source } : null;
+  }
   //: ★T-D6′ — the delivered tier exists only where the machine brought a
   //: reference reconstruction with its profiles; everywhere else the
   //: select is pinned to the analytic family.
@@ -2941,7 +2965,7 @@ FyScenario.whenDevices(function () {
     $('progress').style.width = '0';
     S.send({
       cmd: 'design', chan: Array.from(beforeCurrents),
-      target: readTarget(), prof: readProf(), ip: readIp(),
+      target: readTarget(), targetCurve: targetCurve(), prof: readProf(), ip: readIp(),
       schedule: annealSchedule, gamma: +$('gamma').value, nPoints: 24,
       //: ★says this anneal begins at a DESIGNED state, which is what
       //: entitles its first solve to the design's own field and to the
