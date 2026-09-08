@@ -861,9 +861,10 @@
      "oracle": [
       {
        "oracle_case": "FYDOC-CASE-15",
-       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg02-converged/",
        "license": "public",
-       "payload": "in"
+       "payload": "in",
+       "comment": "2026-09-08 现跑产出：GACODE 6357db306 · FUYUN_WSL · 4 进程 · TGYRO_RELAX_ITERATIONS=4，残差 2.273 → 0.1793"
       }
      ],
      "record": "B-07",
@@ -879,8 +880,11 @@
      ],
      "status": "planned",
      "caveat": [
-      "★缺口：现有两条（V-06 / V-07）只钉住**映射层**——喂给 TGLF 的那份局域态逐键对得上。定态解本身尚无记录。需要先在参考侧跑出 TGYRO 的收敛答案（本组 outputs 为空），或改取上游随件的收敛记录。"
-     ]
+      "★参考侧的名字是「**迭代到底（as declared）**」不是「收敛」：4 次是算例自己声明的次数，残差仍在 0.18。用它做参考时这一点要一并带上——把它叫收敛，是一句后来的读者无从察觉的小夸张。",
+      "★★**零假设不是处处站不住**：r/a=0.5 上解几乎不动（0.3 % / 1.6 %），只在那一点取样的比较会把自己衬得很好看。设带时这一点必须单列，否则一条只测了一个不动点的判据会长期报绿。",
+      "★★跑法上的坑（已记进语料的 README）：驱动要**上游随件**那份 `treg02`，不能用隔壁捕获——捕获里的 `TGLF1..4/` 装的是 `out.*.localdump`（输出），而驱动要逐半径的 `input.tglf`（输入）；给错了它一路报 `No code found in TGLF1`、**不写 `gyrotest_flag`**，可执行文件随后死于「打不开该文件」，错误信息与真正的原因隔着两层。"
+     ],
+     "status_note": "2026-09-08：**参考侧已备齐**（本条自己的缺口所指的那一步已做）——隔壁 `treg02/` 是 `RELAX_ITERATIONS=0` 的映射捕获，答不了本条；新捕获 `treg02-converged/` 是同一算例迭代到底的那一份。**零假设已量**：不做通量匹配、直接取初始剖面，`a/Lte` 在 r/a=0.2 差 **+133.7 %**、`a/Lti1` 差 +74.0 %，而 r/a=0.5 只差 0.3 % / 1.6 %。**待做**：本仓通量匹配跑同一算例并设带"
     },
     {
      "id": "plan/S6/transport-self-consistency",
