@@ -49,7 +49,19 @@ def _block(arr) -> str:
 def format_geqdsk(g: dict) -> str:
     """A g-file dict (:func:`read_geqdsk`'s shape) → GEQDSK text."""
     nw, nh = g["nw"], g["nh"]
-    s = f"{str(g.get('header', 'fylite'))[:48]:<48}   0{nw:4d}{nh:4d}\n"
+    #: ★★整行原样带回来（2026-09-08，V-15 往返判据抓到）：从前这里写死
+    #: `   0{nw}{nh}`，于是读进来的第一行经一次往返就变了——EAST `g070754.05000`
+    #: 的 `… 5000ms           3 129 129` 写出来成了 `… 0 129 129`。那个整数是 EFIT
+    #: 头的 `idum`，本仓自己的字段表（本文件末尾）把 `header` 记作 **invariant**
+    #: 「the file's own first line」，而写出来的那一行不是它了。
+    #: ★`nw` / `nh` 仍按**数组的实际长度**写，不照抄：它们不是注记，是后面每一块
+    #: 数据的形状；照抄一个与数组不符的数，读者会按错的形状切数而不报错。
+    head = str(g.get("header", "fylite"))
+    idum = 0
+    tail = head[48:].split()
+    if len(tail) == 3 and all(t.lstrip("-").isdigit() for t in tail):
+        idum = int(tail[0])
+    s = f"{head[:48]:<48}{idum:4d}{nw:4d}{nh:4d}\n"
     s += _block([g["rdim"], g["zdim"], g["rcentr"], g["rleft"], g["zmid"]])
     s += _block([g["rmaxis"], g["zmaxis"], g["simag"], g["sibry"], g["bcentr"]])
     s += _block([g["current"], g["simag"], 0.0, g["rmaxis"], 0.0])
