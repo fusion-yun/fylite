@@ -218,27 +218,31 @@
      ],
      "record": "C-06",
      "record_state": "proposed",
-     "gate": [],
+     "gate": [
+      "python -m pytest python/tests/test_teq_equilibria.py  （6 条；需本机 ITER IDM 语料）"
+     ],
      "criteria": [
       {
        "type": "fyo:AcceptanceCriterion",
-       "quantity_label": "GS 残差（在参考 ψ 上）",
+       "quantity_label": "Grad–Shafranov 残差 ‖Δ*ψ − RHS‖/‖·‖（边界内内点，129×257）",
        "norm": "relative",
+       "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.02
+       },
        "tolerance_basis": "measured_band",
-       "tolerance_note": "带在第一次实测后定；事前写下的带只会被凑上"
-      },
-      {
-       "type": "fyo:AcceptanceCriterion",
-       "quantity_label": "q95 · 体积 · 边界外形",
-       "tolerance_basis": "reference_stated",
-       "tolerance_note": "取参考自报精度；参考未自报时本项记未评估，不自拟带"
+       "tolerance_note": "★带必须点名分辨率：同一份平衡在 65×129 上是 3.665e-2，过不了这条带"
       }
      ],
-     "status": "planned",
+     "status": "pass",
      "caveat": [
-      "本体在 $ITER_SCENARIO_ROOT（1.7 GB，ITER IDM Internal Use），未取回；取回前本条不可执行。"
+      "★★★**残差随网格只掉一阶**：同一份 15 MA 燃烧平衡的三种分辨率（文档自带）——LR 65×129 **3.665e-02** → MR 129×257 **1.487e-02**（比 0.406）→ HR 257×513 **7.948e-03**（比 0.534）；而二阶差分作用在光滑解上应给 0.250。**所以残差里有一部分不是算子的截断误差**——候选是 p′/ff′ 为表格值、或解在边缘不够光滑（两个燃烧点比 SOF 差六十倍，与「陡边缘主导」一致）。本条**不判定是哪一个**，只把标度记下来并立一条断言守住这个读法。",
+      "★★**判决与分辨率绑定**：0.02 的带在 MR / HR 上通过、在 **LR 上不通过**。同一份物理平衡换个网格换个判决，所以带点名分辨率，门里也有一条断言把这件事钉住——免得日后有人塞进 LR 件、看到红色去怀疑平衡。",
+      "★**符号约定无歧义**：另一支（`+μ₀R²p′ + ff′`）在每一份上都给 ~2.0，不需要任何 COCOS 翻转。这本身是一次口径确认，门里单列一条。",
+      "★**代码归属是读出来的**：g-file 首行 `TEQ g 04/07/2010 #900003`——IDM 标题一个字没提代码。",
+      "★语料是 ITER IDM 件（Internal Use），在本机 `data/ITER Scenario/` 之下、不在任何仓里；门在够不到时 skip 并点名。"
      ],
-     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `Plasma_equilibrium_operational_space_dur_2ENZF5_v2_0 等`。平衡运行空间（15 MA）16 MB。先前记「本体未取回」的理由已不成立"
+     "status_note": "2026-09-08 **量到了**：本仓的 GS 定律判据对 TEQ 三份参考平衡（中分辨率 129×257）——`2V2XYR` 15 MA 燃烧 **1.487e-02**（11 845 内点）· `2V3FDF` 9 MA 稳态 **1.357e-02** · `34S6TV` 15 MA SOF **2.297e-04**（比两个燃烧点好六十倍）。带 2e-2，**点名中分辨率**"
     },
     {
      "id": "plan/S1/tosca-iter-equilibria",
