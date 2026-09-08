@@ -18,6 +18,7 @@ g-file 的物理对不对」，而是「本仓的读与写互为逆」。恒等�
 """
 from __future__ import annotations
 
+import os
 import pathlib
 import tempfile
 
@@ -26,7 +27,12 @@ import pytest
 REPO = pathlib.Path(__file__).resolve().parents[2]
 SYNTHETIC = REPO / "rust" / "fylite_runtime" / "testdata" / "g_synthetic.geqdsk"
 #: 真炮件在 fydoc 检出里（本仓不带真炮 g-file）。
-REAL = pathlib.Path("/home/salmon/workspace/fydoc/todelete/east/g070754.05000")
+#: ★2026-09-08 迁址：这份真炮件此前住在 fydoc 的 `todelete/` 下——一批**不可重取**
+#: 的 ASIPP 件被一个名叫「待删」的目录持有着。现按「原件与其登记同址」收进算例书
+#: `FYDOC-CASE-19-east-efit/corpus/`（`case.yaml` 逐件记 sha256）。
+#: 环境变量优先，好让别处的检出也能指过来；够不到时本门 skip 并点名，不拿合成件顶替。
+REAL = pathlib.Path(os.environ.get("FYDOC_DIR", str(pathlib.Path.home() / "workspace/fydoc"))) \
+    / "cases/FYDOC-CASE-19-east-efit/corpus/g070754.05000"
 
 #: 恒等式的容差：机器精度。物理带会掩盖「写入端换了一个数」这类偏差。
 TOL = 1e-9

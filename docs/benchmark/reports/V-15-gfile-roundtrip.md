@@ -57,7 +57,7 @@ title: V-15 · g-file 读写往返与 COCOS 口径：本仓的读入端对本仓
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk | sha256:36abf675b548df8316e6073debf9631180a8651348deb6cf544df0c2894ad3c9 | public | 80133 B |
-| $FYDOC/todelete/east/g070754.05000 | — | experiment |  |
+| $FYDOC/cases/FYDOC-CASE-19-east-efit/corpus/g070754.05000 | — | experiment |  |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——

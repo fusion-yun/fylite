@@ -5039,15 +5039,15 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC/todelete/east/g070754.05000",
+      "storage_uri": "$FYDOC/cases/FYDOC-CASE-19-east-efit/corpus/g070754.05000",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
-       "出处：树外指针：本册只记路径，本体不随册分发",
+       "出处：ASIPP EAST 的 EFIT 重构件；不可重取，`release: internal`，review 待具名",
        "★真炮件（EAST #70754 @ 5000 ms）：列宽、负号吃空格、老写法都在里面，合成件没有这些",
-       "★★**它现在住在一个名叫 `todelete` 的目录里**（fydoc 检出）。门在够不到时 skip 并点名，不拿合成件顶替——但这条指针是脆的，语料该迁到 oracle 树下"
+       "★★**2026-09-08 迁址**：此前住在 fydoc 的 `todelete/` 下——2026-09-04 的裁定删掉 `corpus/experiment/` 时这批**不可重取**的 ASIPP 件只剩 git 历史与那个目录，随后又被一次文档提交顺带跟踪。现按「原件与其登记同址」收进算例书 `FYDOC-CASE-19-east-efit`（`case.yaml` 逐件记 sha256，`release: internal`，review 待具名）"
       ]
      }
     ],

@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1932 346" role="img" aria-label="fylite V&amp;V 登记册一览：逐条记录的判定与复测">
+<title>fylite V&amp;V 登记册 — 一览</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="1932" height="346"/>
+<text x="28.0" y="40.0" font-size="20" text-anchor="start" font-weight="700">fylite V&amp;V 登记册</text>
+<text x="28.0" y="62.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">35 条记录 · 判定见填色 · 下方细条为发布当日复测通过的门数</text>
+<text x="28.0" y="114.0" font-size="13" text-anchor="start" font-weight="600">验证 (verification)</text>
+<rect class="panel" x="168" y="96" width="108" height="46" rx="5"/><rect x="168" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="182.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-01</text>
+<text x="268.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="182" y="124" width="56.0" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="266.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">95</text>
+<rect class="panel" x="284" y="96" width="108" height="46" rx="5"/><rect x="284" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="298.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-02</text>
+<text x="384.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="298" y="124" width="17.7" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="382.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">14</text>
+<rect class="panel" x="400" y="96" width="108" height="46" rx="5"/><rect x="400" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="414.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-03</text>
+<text x="500.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="414" y="124" width="31.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="498.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">27</text>
+<rect class="panel" x="516" y="96" width="108" height="46" rx="5"/><rect x="516" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="530.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-04</text>
+<text x="616.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="530" y="124" width="47.1" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="614.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">42</text>
+<rect class="panel" x="632" y="96" width="108" height="46" rx="5"/><rect x="632" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="646.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-05</text>
+<text x="732.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="646" y="124" width="16.6" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="730.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">13</text>
+<rect class="panel" x="748" y="96" width="108" height="46" rx="5"/><rect x="748" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="762.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-06</text>
+<text x="848.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="762" y="124" width="39.8" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="846.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">35</text>
+<rect class="panel" x="864" y="96" width="108" height="46" rx="5"/><rect x="864" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="878.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-07</text>
+<text x="964.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="878" y="124" width="56.0" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="962.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">88</text>
+<rect class="panel" x="980" y="96" width="108" height="46" rx="5"/><rect x="980" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="994.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-08</text>
+<text x="1080.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="994" y="124" width="7.2" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="1078.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">4</text>
+<rect class="panel" x="1096" y="96" width="108" height="46" rx="5"/><rect x="1096" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1110.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-09</text>
+<text x="1196.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1110" y="124" width="11.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1194.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">8</text>
+<rect class="panel" x="1212" y="96" width="108" height="46" rx="5"/><rect x="1212" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1226.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-10</text>
+<text x="1312.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1226" y="124" width="10.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1310.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">7</text>
+<rect class="panel" x="1328" y="96" width="108" height="46" rx="5"/><rect x="1328" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1342.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-11</text>
+<text x="1428.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1342" y="124" width="11.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1426.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">8</text>
+<rect class="panel" x="1444" y="96" width="108" height="46" rx="5"/><rect x="1444" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1458.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-12</text>
+<text x="1544.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1458" y="124" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1542.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<rect class="panel" x="1560" y="96" width="108" height="46" rx="5"/><rect x="1560" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1574.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-13</text>
+<text x="1660.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1574" y="124" width="10.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1658.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">7</text>
+<rect class="panel" x="1676" y="96" width="108" height="46" rx="5"/><rect x="1676" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1690.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-14</text>
+<text x="1776.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1690" y="124" width="5.1" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1774.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">2</text>
+<rect class="panel" x="1792" y="96" width="108" height="46" rx="5"/><rect x="1792" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1806.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-15</text>
+<text x="1892.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1806" y="124" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1890.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<text x="28.0" y="186.0" font-size="13" text-anchor="start" font-weight="600">对拍 (benchmark)</text>
+<rect class="panel" x="168" y="168" width="108" height="46" rx="5"/><rect x="168" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="182.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-01</text>
+<text x="268.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="182" y="196" width="12.5" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="266.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">9</text>
+<rect class="panel" x="284" y="168" width="108" height="46" rx="5"/><rect x="284" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="298.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-02</text>
+<text x="384.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="298" y="196" width="21.9" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="382.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">18</text>
+<rect class="panel" x="400" y="168" width="108" height="46" rx="5"/><rect x="400" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="414.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-03</text>
+<text x="500.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="414" y="196" width="7.2" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="498.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">4</text>
+<rect class="panel" x="516" y="168" width="108" height="46" rx="5"/><rect x="516" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="530.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-04</text>
+<text x="616.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="530" y="196" width="15.6" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="614.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12</text>
+<rect class="panel" x="632" y="168" width="108" height="46" rx="5"/><rect x="632" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="646.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-05</text>
+<text x="732.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="646" y="196" width="9.3" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="730.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<rect class="panel" x="748" y="168" width="108" height="46" rx="5"/><rect x="748" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="762.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-06</text>
+<text x="848.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
+<rect x="762" y="196" width="21.9" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="846.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">18</text>
+<rect class="panel" x="864" y="168" width="108" height="46" rx="5"/><rect x="864" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="878.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-07</text>
+<text x="964.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="878" y="196" width="6.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="962.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">3</text>
+<rect class="panel" x="980" y="168" width="108" height="46" rx="5"/><rect x="980" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="994.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-08</text>
+<text x="1080.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="994" y="196" width="11.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1078.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">8</text>
+<rect class="panel" x="1096" y="168" width="108" height="46" rx="5"/><rect x="1096" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="1110.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-09</text>
+<text x="1196.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1110" y="196" width="6.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1194.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">3</text>
+<rect class="panel" x="1212" y="168" width="108" height="46" rx="5"/><rect x="1212" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="1226.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-10</text>
+<text x="1312.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1226" y="196" width="7.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1310.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">4</text>
+<text x="28.0" y="258.0" font-size="13" text-anchor="start" font-weight="600">确认 (validation)</text>
+<rect class="panel" x="168" y="240" width="108" height="46" rx="5"/><rect x="168" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="182.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-01</text>
+<text x="268.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="182" y="268" width="4.0" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="266.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">1</text>
+<rect class="panel" x="284" y="240" width="108" height="46" rx="5"/><rect x="284" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="298.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-02</text>
+<text x="384.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="298" y="268" width="5.1" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="382.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">2</text>
+<rect class="panel" x="400" y="240" width="108" height="46" rx="5"/><rect x="400" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="414.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-03</text>
+<text x="500.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="414" y="268" width="5.1" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="498.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">2</text>
+<rect class="panel" x="516" y="240" width="108" height="46" rx="5"/><rect x="516" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="530.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-04</text>
+<text x="616.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="530" y="268" width="56.0" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="614.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">57</text>
+<rect class="panel" x="632" y="240" width="108" height="46" rx="5"/><rect x="632" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="646.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-05</text>
+<text x="732.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="646" y="268" width="16.6" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="730.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">13</text>
+<rect class="panel" x="748" y="240" width="108" height="46" rx="5"/><rect x="748" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="762.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-06</text>
+<text x="848.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="762" y="268" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="846.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<rect class="panel" x="864" y="240" width="108" height="46" rx="5"/><rect x="864" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="878.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-07</text>
+<text x="964.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="878" y="268" width="8.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="962.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">5</text>
+<rect class="panel" x="980" y="240" width="108" height="46" rx="5"/><rect x="980" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="994.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-09</text>
+<text x="1080.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="994" y="268" width="6.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1078.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">3</text>
+<rect class="panel" x="1096" y="240" width="108" height="46" rx="5"/><rect x="1096" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="1110.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-10</text>
+<text x="1196.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1110" y="268" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1194.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<rect class="panel" x="1212" y="240" width="108" height="46" rx="5"/><rect x="1212" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="1226.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-11</text>
+<text x="1312.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
+<rect x="1226" y="268" width="8.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1310.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">5</text>
+<text x="28.0" y="332.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">填色：登记册的结论（成立 / 部分 / 未通过）·  细条：发布当日把门跑一遍的通过条数</text>
+</svg>

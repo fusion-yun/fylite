@@ -7,6 +7,13 @@ title: 公开 V&V 登记册 · 索引
 35 条记录，17 个场景；由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
 复测结论：成立 35。★跨类不可比：V/B/C 问的不是同一个问题（README）。
 
+:::{figure} ../figures/overview.svg
+:alt: 逐条记录的判定与发布当日的复测门数
+:width: 100%
+
+**填色**是登记册当初的结论，**细条**是发布当日把门跑一遍的通过条数——两件事分开画：合成一个颜色，「量过了」与「今天还成立」就再也分不开。图由 `tools/benchmark-figures.py` 自登记册重画。
+:::
+
 纳入类别（README「什么能进这个公开登记册」的落地）：`public` 公开可复取 · `public-derived` 公开派生表 · `restricted` 受限仅指针 · `restricted-derived` 受限派生 · `experiment` 实验数据仅指针 · `private-artefact` 私仓制品。受限与实验类只存路径与 sha256，本体不在任何公开仓。
 
 | # | 类 | 参考 | 纳入类别 | 登记册 | 复测 2026-09-08 | 报告 |

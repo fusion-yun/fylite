@@ -71,10 +71,11 @@
 | **F-8** | 可发信 | **`C-08` 向作者索取 GENE 那批次的 ν* 与逐半径 Miller 参数**（或那次 JINTRAC 模拟的对应量）。这是六条阻塞里**唯一一条只差一封信**的 | plan.jsonld `C-08` |
 | **F-9** | fylite · fydoc | **`code/breakdown` 仍跑不出结果，但挡路的换了一件事**。G-14 修掉后 ITER 与 EAST 过了几何这一关，卡在下一句：「the device gives no supply current limit (`power_supply/current_limit_kA`) and the plan binds no `i_max_aturn`」。两条路：装置描述补上供电限值（是**数据缺口**，ITER 的 A-Box 里没有；EAST 的手工牌里有 `current_limit_kA: 14.5`），或算例侧绑一个 `i_max_aturn`。**先定这一条走哪边**，再谈把 breakdown 接进定序册 | 2026-09-08 实测（`fy run design breakdown --device iter --facts <fydoc>/facts`）|
 | **F-10** | fydoc | **生成的装置清单指向不存在的路径**。`abox2jsonld.py` 把每份件搬位（剥 `tree_root`）并改名（`.yaml`→`.jsonld`），却把清单里的 `providers[].path` **原样抄过来**——于是 `best` / `cfetr` / `cfedr` 的清单指着 `fyo/latest/providers/pf_active/base.yaml`，书里没有这个文件，解析不到线圈；`west` 更是**一个 provider 都没声明**。四台因此在 `code/breakdown` 上报「the document carries no `pf_active/coil`」。★ITER 之所以能过，是因为**它那份清单是为书手写的**（`path: providers/pf_active/base.jsonld`）——不是生成器做对了 | 2026-09-08 实测（四台逐台跑）|
-| **F-11** | fydoc | **`V-15` 的真炮语料住在一个名叫 `todelete` 的目录里**：`fydoc/todelete/east/g070754.05000`。门够不到时会 skip 并点名（不拿合成件顶替），所以不会静默变绿——但这条指针是脆的，语料该迁到 oracle 树下 | 登记册 `V-15` 的 `has_input` |
+| ~~**F-11**~~ | fydoc | **已关闭 2026-09-08**（fydoc `9eb7657`）：三份 EAST g-file 收进算例书 `FYDOC-CASE-19-east-efit`（`corpus/` 与 `case.yaml` 同址、`checksums` 逐件在册、`payload: in`），本仓的门与登记册指针随之改指。★★查证时发现比「指针脆」更要紧的一层：2026-09-04 的裁定删 `corpus/experiment/` 时写明这批件**不可重取**、「只剩 git 历史与未跟踪的 `todelete/`」，而同日一次**讲文档规则**的提交把 `todelete/` 顺带跟踪了进来、提交信息一字未提——于是一批不可重取的件被一个名叫「待删」的目录持有着。★迁入**不等于放行**：`release: internal` 不变，review 待具名 | 登记册 `V-15` 的 `has_input` |
+| **F-13** | fydoc | **`todelete/` 余下的部分未判**：`east/mdsip-137985.json`（一次 mdsip 会话的逐帧录音，fylite 的浏览器门经 `FYLITE_MDS_FIXTURE` 读它）是**测量**不是重建产物，按分工归实验层 / `fydata` 的 A-Box；另有 `todelete/device/{east,iter}` 与 `todelete/facts/`。★F-11 只搬了它该搬的那一份，**没有顺手替其余的决定归属** | 2026-09-08 迁址时并记 |
 | **F-12** | fylite | **`B-01` 的参考侧要不要改在 FUSE 1.1.5 上重跑**（该条现有结论建立在已遗弃的 0.7.0 冻结答案上，其 `status_note` 自陈这一问「仍未裁定」）。★2026-09-08 起**成本变了**：跑 1.1.5 所需的 Julia 环境已经在本机建好（F-4 的副产物），此前挡它的正是这一件 | 登记册 `B-01` status_note · SURVEY-2026-09-08 §一 |
 
-★**本仓能自己做完**的现在是 F-1 / F-2 / F-12（F-4 · F-5 · F-6 已关）；F-9 要先定走哪边；F-3 是排期问题；F-8 要对外联系；F-10 / F-11 归 fydoc，登记在此只为让本仓知道自己在等什么。
+★**本仓能自己做完**的现在是 F-1 / F-2 / F-12（F-4 · F-5 · F-6 已关）；F-9 要先定走哪边；F-3 是排期问题；F-8 要对外联系；F-10 / F-13 归 fydoc（F-11 已关），登记在此只为让本仓知道自己在等什么。
 
 ★★那四条 `planned`（`C-06` TEQ · `C-07` TOSCA · `B-09` DINA · `C-10` TRANSMAK）**当日全部执行完毕**，
 均判 pass；它们本就不在上表里——**执行是定序册的活，不是本表的活**。本表只收「不做就没人做」的事；
