@@ -508,6 +508,9 @@ function designRun(msg) {
   try { rec = fy.complete('code/discharge', designPlan(msg, { stage: 'anneal', nulls: nulls, ctl: ctl })); }
   catch (e) { post({ type: 'error', where: 'design', message: e.message }); return; }
   var F = function (k) { return rec.facts[k].value; };
+  //: ★缺项给 null，不给 0：一个还没有这项事实的内核，与一个「距离为零」的设计，
+  //: 在页面上必须长得不一样。
+  var F2 = function (k) { return rec.facts[k] ? rec.facts[k].value : null; };
   var chan = Float64Array.from(rec.fields.aturns.data);
   var res = {
     psi: fieldFlat(rec, 'psi'), psiAxis: F('psi_axis'), psiBnd: F('psi_bnd'),
@@ -542,7 +545,12 @@ function designRun(msg) {
     history.push(entry);
     post({ type: 'progress', phase: 'design', pass: pass, total: total, err: he[i] });
   }
-  post({ type: 'design', chan: chan, result: sum, pass: F('pass'),
+  //: ★★第二个判据（2026-09-08，先只报不判）：实现的**分离面**与目标曲线之间的距离。
+  //: `shape_error` 是六个形状量的归一化 RMS——形状族里的坐标差；这个是米，答的是
+  //: 「边界离所要的那条线有多远」，而且对任何拓扑都成立。
+  var gap = { rms: F2('boundary_gap_rms'), max: F2('boundary_gap_max'),
+              norm: F2('boundary_gap_rms_norm') };
+  post({ type: 'design', chan: chan, result: sum, pass: F('pass'), gap: gap,
          history: history, targetBoundary: fieldFlat(rec, 'target_boundary') },
        [sum.psi.buffer, sum.lcfs.buffer]);
 }

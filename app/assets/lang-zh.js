@@ -780,7 +780,7 @@ self.FyI18n.register('zh', {
   'design.mark.diverted': '偏滤器位形',
   'design.mark.limited': '限制器位形',
   'design.mark.none': '—',
-  'design.done_far': '★反解结束但<strong>没有达到目标</strong>：取第 {pass} 趟（位形误差 {err}，容差 {tol}）。图与线圈电流是这一趟的解，不是所要求的位形。★★<strong>这个误差与下面那张「目标 vs 实现」表量的不是同一个面</strong>（2026-09-08 实测）：误差量在<strong>分离面</strong>上（内核退火的目标函数），而表里的形状量为躲开 X 点假象量在<strong>内缩面 ψ̄ = 0.995</strong> 上。对偏滤器位形两者差得不小——实测（各为同一次运行内取数）：缺省装置报 0.1039 而按表复算 0.0671（表<strong>低</strong>了 1.55 倍），ITER 报 0.1706 而按表复算 0.2055（表<strong>高</strong>了）——<strong>两个方向都偏</strong>，所以这不是一个可以换算的常数因子。那张表能告诉你偏在哪个方向，<strong>但复算不出这个数</strong>；也因此，六行全绿而结论说未达标是可能发生的。',
+  'design.done_far': '★反解结束但<strong>没有达到目标</strong>：取第 {pass} 趟（位形误差 {err}，容差 {tol}）。图与线圈电流是这一趟的解，不是所要求的位形。★★<strong>这个误差与下面那张「目标 vs 实现」表量的不是同一个面</strong>（2026-09-08 实测）：误差量在<strong>分离面</strong>上（内核退火的目标函数），而表里的形状量为躲开 X 点假象量在<strong>内缩面 ψ̄ = 0.995</strong> 上。对偏滤器位形两者差得不小——实测（各为同一次运行内取数）：缺省装置报 0.1039 而按表复算 0.0671（表<strong>低</strong>了 1.55 倍），ITER 报 0.1706 而按表复算 0.2055（表<strong>高</strong>了）——<strong>两个方向都偏</strong>，所以这不是一个可以换算的常数因子。那张表能告诉你偏在哪个方向，<strong>但复算不出这个数</strong>；也因此，六行全绿而结论说未达标是可能发生的。{tail}',
   'design.starting': '正在按目标位形做场设计起始…',
   'design.started': '场设计起始完成：边界磁通均方散布 {rms} Wb{x}，{n} 路通道触限。接着按「反解」退火。',
   'design.started_x': '，X 点 |B| = {b} T',
@@ -898,6 +898,7 @@ self.FyI18n.register('zh', {
   'design.legs.ok': '要求「{cls}」：需要 {want} 条腿落在壁上，找到 {got}。',
   'design.legs.miss': '★要求「{cls}」：需要 {want} 条腿落在壁上，找到 {got}；解出来的边界是「{got_cls}」。<strong>这一趟没有做出所要求的位形</strong>——不裁剪，也不改口径。',
   'design.class_tail': '；★但边界类别不是所要求的「{cls}」',
+  'design.gap_tail': '；实现的<strong>分离面</strong>与目标曲线的距离：RMS {rms} cm，最大 {max} cm（★这一项只报不判——它是米，答的是「边界离所要的那条线有多远」，对任何拓扑都成立；而上面那个位形误差是六个形状量的归一化 RMS，答的是「胖了瘦了高了矮了」）',
   'design.nulls_tail': '；★是偏滤器位形，但 X 点**不在所要求的一侧**——要的是「{cls}」，而解出来的零点落在另一边（形状量因此上下对调，位形误差里那一大项正是这么来的）',
   'design.state_class': '未达目标（类别）',
   // ======================================================================

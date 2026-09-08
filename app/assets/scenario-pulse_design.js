@@ -2493,6 +2493,7 @@ FyScenario.whenDevices(function () {
   // --- worker plumbing ------------------------------------------------------
 
   var beforeCurrents = null;
+  var lastGap = null;
 
   function onReady(m) {
     //: ★the kernel being ready is not a request to compute.  This page used
@@ -2564,6 +2565,7 @@ FyScenario.whenDevices(function () {
 
   function onDesign(m) {
     state = m.result;
+    lastGap = m.gap || null;
     setCurrents(m.chan);
     draw();
     lastHistory = m.history;
@@ -2590,6 +2592,11 @@ FyScenario.whenDevices(function () {
       cls: T('design.class.' + boundaryClass()) });
     else if (nmiss) tail += T('design.nulls_tail', {
       cls: T('design.class.' + boundaryClass()) });
+    //: ★第二个判据接在结论行后面：米，读者能直接判断「3 cm 算不算够」——而
+    //: `shape_error` 那个无量纲数不行。它**不参与**「达到目标」，见内核那条 Fact。
+    if (lastGap && isFinite(lastGap.rms))
+      tail += T('design.gap_tail', { rms: (lastGap.rms * 100).toFixed(1),
+                                     max: (lastGap.max * 100).toFixed(1) });
     outcome = { from: 'design', err: err, tol: shapeErrorTol(),
                 classMet: classMet(),
                 reached: m.pass !== 0 && err <= shapeErrorTol() && !cmiss };
