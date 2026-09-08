@@ -1,3 +1,7 @@
+---
+title: "EAST 长脉冲（装置牌）：带电流道与锯齿的演化"
+---
+
 # EAST 长脉冲（装置牌）：带电流道与锯齿的演化
 
 - 算例 (case)：`docs/examples/evolve/evolve-east-hmode`

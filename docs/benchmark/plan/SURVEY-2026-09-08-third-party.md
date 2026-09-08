@@ -1,3 +1,7 @@
+---
+title: "第三方源码盘点 (Third-party Source Survey)"
+---
+
 # 第三方源码盘点：哪几条阻塞其实有第二条路
 
 **2026-09-08 晚，对 `~/workspace/third_party/`（89 个检出）逐条比对定序册的六条阻塞。**

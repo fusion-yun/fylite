@@ -275,7 +275,7 @@
   "overall_verdict": "pass",
   "run": {
     "type": "spo:ComputationRecord",
-    "id": "run/20260908T081338Z-transport",
+    "id": "run/20260908T115836Z-transport",
     "comment": [
       "本批现跑了这个算例（数据层 JSON 门 + 内核）",
       "datasets: core_profiles, core_transport, entry, equilibrium"

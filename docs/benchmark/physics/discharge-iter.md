@@ -1,3 +1,7 @@
+---
+title: "ITER 平顶位形（自由边界反解）：Grad–Shafranov 与几何定义"
+---
+
 # ITER 平顶位形（自由边界反解）：Grad–Shafranov 与几何定义
 
 - 算例 (case)：`docs/examples/design/discharge-iter`

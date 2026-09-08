@@ -42,9 +42,13 @@ BOOK = DOCS / "myst.yml"
 #: ★★2026-09-03 `examples/` 同理从 `guide/` 提上来：五族可跑算例加一页语料目录，答的是
 #: 「照抄一条完整路径」而不是「怎么用」。两次判据相同——**答另一个问题、篇幅又与母篇
 #: 其余部分相当**，那就是一篇，不是母篇目录下的第三级。
-SECTIONS = ("guide", "examples", "reference", "physics", "design")
+#: ★★2026-09-08 `benchmark/` **入册**成为第六篇（用户裁定）。它此前在
+#: `NOT_IN_THE_BOOK` 里，理由是「按路径引用的记录不需要 URL」——那条只覆盖了机器
+#: 那一半（`registry.jsonld` 与逐案 `.jsonld` 确实按路径被门禁引用，**它们仍不入 toc**），
+#: 而散文那一半是给人读的，人要的正是 URL 与目录。两半并存，文件一个也没有移位。
+SECTIONS = ("guide", "examples", "reference", "physics", "design", "benchmark")
 #: 在树里、**有意**不入册的目录，各自的理由写在 `docs/myst.yml` 抬头与 `INDEX.md`
-NOT_IN_THE_BOOK = ("benchmark",)
+NOT_IN_THE_BOOK = ()
 #: 不是章节、也不含章节的目录
 NOT_CONTENT = ("figures", "_build")
 

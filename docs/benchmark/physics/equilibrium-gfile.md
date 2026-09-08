@@ -1,3 +1,7 @@
+---
+title: "一份盘上的平衡产出（合成 g-file）：Grad–Shafranov 与几何定义"
+---
+
 # 一份盘上的平衡产出（合成 g-file）：Grad–Shafranov 与几何定义
 
 - 算例 (case)：`—`

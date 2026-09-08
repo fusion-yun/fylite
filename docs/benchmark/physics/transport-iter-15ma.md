@@ -1,9 +1,13 @@
+---
+title: "ITER 15 MA 定态剖面：固定几何、单通道"
+---
+
 # ITER 15 MA 定态剖面：固定几何、单通道
 
 - 算例 (case)：`docs/examples/transport/transport-iter-15ma`
 - 判决 (verdict)：**通过**（pass）
 - 产出 (datasets)：`core_profiles`, `core_transport`, `entry`, `equilibrium`
-- 记录 (record)：`run/20260908T081338Z-transport`
+- 记录 (record)：`run/20260908T115836Z-transport`
 - 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）

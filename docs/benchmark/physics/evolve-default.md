@@ -1,9 +1,13 @@
+---
+title: "缺省演化：一次 1.5-D 输运推进的自洽性"
+---
+
 # 缺省演化：一次 1.5-D 输运推进的自洽性
 
 - 算例 (case)：`docs/examples/evolve/evolve-default`
 - 判决 (verdict)：**通过**（pass）
 - 产出 (datasets)：`core_profiles`, `core_transport`, `entry`, `equilibrium`, `summary`
-- 记录 (record)：`run/20260908T081338Z-evolve`
+- 记录 (record)：`run/20260908T115836Z-evolve`
 - 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）

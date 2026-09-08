@@ -1,9 +1,13 @@
+---
+title: "ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住"
+---
+
 # ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住
 
 - 算例 (case)：`docs/examples/zerod/zerod-iter-15ma`
 - 判决 (verdict)：**通过**（pass）
 - 产出 (datasets)：`core_profiles`, `entry`, `summary`
-- 记录 (record)：`run/20260908T081338Z-zerod`
+- 记录 (record)：`run/20260908T115836Z-zerod`
 - 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
