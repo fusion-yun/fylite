@@ -49,7 +49,7 @@
 | **E-2** | 需数据访问 | 加热 / 驱动 / 杂质 / 输运的本炮数据只在 MDSplus（`202.127.204.12`）。oracle 自述其档次"NOT the delivered EFIT↔NEO kinetic loop, whose POINT / Thomson-n_e channels and bootstrap feedback **exist only on MDSplus**" | 条目 §一.2 |
 | **E-3** | fydoc · 待 fyo | Thomson 的不确定度只能标 `fylite:` 前缀（60 处）——被 B 组 O-2 卡住 | 条目 §五 |
 | **E-4** | 须语料裁定 | 自洽五面态是**计算产物**不是测量；`dev:result` 现有七个取值没有一个是为它准备的。**这是本条目自己走不过去的那一步** | 条目 §五 |
-| **E-5** | fydoc | 电流平顶 ≠ 稳态：PF 通流在平顶期内漂移逾一半（第 1 道 2.5 s 436 → 7.0 s 214 kA·turns）。按"位形不变"读，本炮**任何一片都不是稳态**。可自走一步：逐道算九片的漂移速率，给"哪一段最接近稳态"一个量化答案——不需要新数据也不需要裁定 | 条目 §二 |
+| ~~**E-5**~~ | fydoc | **已关闭 2026-09-08**（那一步已走）：逐片 12 道 PF 通流实测（fydoc `facts/tools/pf_drift.py`，纯标准库、只读）——最静段 **4.0–5.0 s**（总 3.17 %/s · 方向 1.17 deg/s），**4000 ms 落在其起点**，故重建选片不必改；全平顶方向仅转 7.91°，而逐道看 c1 降 50.9 %——两种读法量的不是同一件事，条目已并记。**「任一片都不是严格稳态」不变** | 条目 §二 |
 | **E-6** | fydoc | `check_cases.py` 报 24 处 / 18 组不满足（其中 12 组 reviewer 联系方式待补）。**既存项**，2026-09-06 经 `git stash` 复核确认改动前完全相同 | fydoc `tools/check_cases.py` |
 
 ## E. 本仓（`fylite`）
