@@ -2592,14 +2592,16 @@ FyScenario.whenDevices(function () {
       cls: T('design.class.' + boundaryClass()) });
     else if (nmiss) tail += T('design.nulls_tail', {
       cls: T('design.class.' + boundaryClass()) });
-    //: ★第二个判据接在结论行后面：米，读者能直接判断「3 cm 算不算够」——而
-    //: `shape_error` 那个无量纲数不行。它**不参与**「达到目标」，见内核那条 Fact。
-    if (lastGap && isFinite(lastGap.rms))
-      tail += T('design.gap_tail', { rms: (lastGap.rms * 100).toFixed(1),
-                                     max: (lastGap.max * 100).toFixed(1) });
+    //: ★距离**不再挂在尾巴上**：它已经是主句里被判的那个量（2026-09-08 同日两改——
+    //: 先只报不判时它是尾注，改判之后尾注就成了同一句话说两遍）。最大值仍值得说，
+    //: 但它属于「判据面板」而不是结论行。
+    //: ★判定改在距离上；拿不到距离（旧内核）就回落到六项 RMS——一个还没有这项事实的
+    //: 内核不该让页面判不出结果，但它也不该被当成「距离为零」。
+    var gapOk = (lastGap && isFinite(lastGap.rms)) ? lastGap.rms <= gapTol() : null;
     outcome = { from: 'design', err: err, tol: shapeErrorTol(),
-                classMet: classMet(),
-                reached: m.pass !== 0 && err <= shapeErrorTol() && !cmiss };
+                gap: lastGap, gapTol: gapTol(), classMet: classMet(),
+                reached: m.pass !== 0 && !cmiss
+                         && (gapOk === null ? err <= shapeErrorTol() : gapOk) };
     if (m.pass === 0) {
       // saying only "pass 0" reads like success; the figure is then
       // the STARTING configuration and looks like it never redrew
@@ -2610,7 +2612,7 @@ FyScenario.whenDevices(function () {
       setBusy(false, T('design.state_none', { err: err.toFixed(4) }), 'warn');
       $('status').innerHTML = T('design.done_none', {
         n: m.history.length - 1, err: err.toFixed(4), tail: tail });
-    } else if (err > shapeErrorTol()) {
+    } else if (gapOk === null ? err > shapeErrorTol() : !gapOk) {
       //: ★"finished" is not "reached".  This bar used to report a design
       //: that missed its target by half a metre in the same words it uses
       //: for one that landed on it — measured across the bundled devices,
@@ -2619,18 +2621,27 @@ FyScenario.whenDevices(function () {
       //: the anneal minimises, against the same per-dimension tolerance
       //: the deviation table marks with.
       setBusy(false, T('design.state_far', { err: err.toFixed(4) }), 'warn');
+      //: ★★结论行**先说被判的那个量**（2026-09-08 起是距离）。`{gap}` / `{gaptol}` 是
+      //: 厘米；六项 RMS 仍然报，但它现在是旁证，不是判据。拿不到距离（旧内核）时两个
+      //: 位置都填「—」，句子照样读得通——而不是印一个看着像零的数。
       $('status').innerHTML = T('design.done_far', {
         pass: m.pass, err: err.toFixed(4),
+        gap: (lastGap && isFinite(lastGap.rms)) ? (lastGap.rms * 100).toFixed(1) : '—',
+        gaptol: (gapTol() * 100).toFixed(1),
         tol: shapeErrorTol().toFixed(4), tail: tail });
     } else if (cmiss) {
       //: the shape landed and the topology did not — a distinct outcome from
       //: both 「达到」 and 「差得远」, and it gets its own marker
       setBusy(false, T('design.state_class'), 'warn', 'miss');
       $('status').innerHTML = T('design.done', { pass: m.pass, tail: tail,
-              err: err.toFixed(4) });
+              err: err.toFixed(4),
+              gap: (lastGap && isFinite(lastGap.rms)) ? (lastGap.rms * 100).toFixed(1) : '—',
+              gaptol: (gapTol() * 100).toFixed(1) });
     } else {
       setBusy(false, T('design.done', { pass: m.pass, tail: tail,
-              err: err.toFixed(4) }));
+              err: err.toFixed(4),
+              gap: (lastGap && isFinite(lastGap.rms)) ? (lastGap.rms * 100).toFixed(1) : '—',
+              gaptol: (gapTol() * 100).toFixed(1) }));
     }
     handed();
   }
@@ -2709,6 +2720,20 @@ FyScenario.whenDevices(function () {
    * `measure` 也放到 ψ̄ = 1 − inset），那会改变所有设计出来的电流，要连基准一起过。
    * 在那之前，这里只把话说清楚，不把两个数硬凑成一个。
    */
+  /**
+   * 「达到目标」现在判在**边界到目标曲线的距离**上：RMS ≤ 3 % 的小半径。
+   *
+   * ★★**没有新造一个数**：现行逐维容差对长度就是 `SHAPE_TOL_REL = 0.03`（按小半径），
+   * 这里是同一把尺换了个被量的东西——从「六个形状量的坐标差」换成「边界离所要的那条
+   * 线有多远」。后者是米，读者能直接判断，且对任何拓扑都成立（X 点不再是表示不了的
+   * 东西）；前者答的是「胖了瘦了高了矮了」。
+   * ★★**这不是把标准放松到能通过**：换判据那天三台机器的 RMS/a 是 0.0675（缺省装置）·
+   * 0.0505（ITER）· 0.0966（EAST），一台也不过。换的是量什么，不是量到多少算过。
+   * ★内核那侧的**选趟**同批改判距离——判据与被优化的量必须是同一个东西，那正是同日
+   * 在「分离面 vs 内缩面」上修掉的毛病，不该在这里再造一次。
+   */
+  function gapTol() { return SHAPE_TOL_REL * (+$('a').value || 1); }
+
   function shapeErrorTol() {
     var kap = Math.max(+$('kappa').value, 1e-6);
     var k = SHAPE_TOL_ABS / kap;      // the kappa term is normalised by kappa
