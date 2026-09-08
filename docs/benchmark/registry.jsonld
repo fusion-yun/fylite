@@ -2,8 +2,8 @@
  "@context": "context.jsonld",
  "id": "registry",
  "title": "fylite 公开 V&V 登记册",
- "abstract": "fylite 对着外部答案量过的记录，逐条可复算——内核仓登记册（docs/cases/registry.jsonld）的公开渲染：判据与量到的数照录，指针改为仓外地址（$FYLITE_KERNEL · $FYDOC_ORACLE），每项参考数据标纳入类别与 sha256，末条 finding 是发布当日的复测。★2026-09-02 起：受限 / 实验类参考以「仅指针」收录（README），不再排除。词汇归 fyo / spo（FYO-ADR-08 · spo RegistryRecord）。",
- "recorded": "2026-09-02",
+ "abstract": "fylite 对着外部答案量过的记录，逐条可复算——内核仓登记册（docs/cases/registry.jsonld）的公开渲染：判据与量到的数照录，指针改为仓外地址（$FYLITE_KERNEL · $FYDATA_ORACLE），每项参考数据标纳入类别与 sha256，末条 finding 是发布当日的复测。★2026-09-02 起：受限 / 实验类参考以「仅指针」收录（README），不再排除。词汇归 fyo / spo（FYO-ADR-08 · spo RegistryRecord）。",
+ "recorded": "2026-09-08",
  "@graph": [
   {
    "id": "record/V-01",
@@ -155,18 +155,15 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: assertion failed",
-     "deviation_literal": "92 passed, 2 failed, 0 error, 0 skipped, 2 stale",
-     "verdict": "fail",
-     "caveat": [
-      "tests/test_rust_kernels.py: AssertionError: 410k-pair mutual took 27.5 ms (gate: 10 ms) | AssertionError: 90-segment mutual_matrix took 66.8 ms"
-     ]
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "95 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -207,86 +204,86 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-std/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-std/",
       "checksum": "sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca",
       "comment": "5 files, 3782 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）`tglf/tools/input/tglf01`"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/",
       "checksum": "sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6",
       "comment": "24 files, 81461 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 treg01"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/",
-      "checksum": "sha256-manifest:1e75b0c9e861cdff925e832bf0586d5acf6a00f54773795ba9894a62b46048ce",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/",
+      "checksum": "sha256-manifest:55a5a2bc4c40aa5bde29f762fec824fed6b2cb1bbc613188e3f6d16e698a1bd8",
       "comment": "862 files, 13941886 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public-derived",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
-       "出处：libtglf / libneo / libgeo（GACODE）在 Python API 边界上的录音；上游可重跑",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "库随 LICENSE 3.2 离开，这些回答不可重录——只能引用，不能更新"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json",
       "checksum": "sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46",
       "comment": "4238 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "restricted-derived",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 restricted-derived：受限派生：表值由受限运行的产物派生（答案侧可复取，输入侧不可）",
-       "出处：JINTRAC 通量面的 out.tglf.gbflux",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "取代 tests/data/tglf_momentum_jintrac.json 的 mflux 列——那一列是上游从不赋值的输出，勿再用作参照"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
       "checksum": "sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b",
       "comment": "4655 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public-derived",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
-       "出处：GA 标准算例＋VPAR_SHEAR，libtglf（GACODE）录音；上游可重跑"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
       "checksum": "sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557",
       "comment": "3504 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：Waltz et al., Phys. Plasmas 14, 122507 (2007) Table I，逐字"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -302,7 +299,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public、public-derived、restricted-derived"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -366,7 +363,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "14 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -374,7 +371,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -387,47 +384,51 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYLITE_KERNEL/nn_tables/sat2_em_d3d_azf-1.npz",
+      "storage_uri": "$FYLITE_PUBLIC/models/sat2_em_d3d_azf-1.npz",
+      "checksum": "sha256:55704043fcfa26c72470c62bab45d720ad53696efd3efaf7f2f8cad909912680",
+      "comment": "3569331 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "private-artefact",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 private-artefact：私有仓制品：在内核检出中，公开侧以 $FYLITE_KERNEL 指针引用",
-       "出处：神经权重导出件（上游 Apache-2.0 / CC-BY-4.0，导出脚本在本仓）",
-       "★发布时该制品不在内核检出中（未跟踪的构建件，见其 README 的 source_sha256），未能计算 sha256"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：公开仓 `fusion-yun/fylite` 的 `models/`（上游 Apache-2.0 / CC-BY-4.0，导出脚本在本仓，每份导出记上游包名 · 版本 · 源文件与 source_sha256）",
+       "★2026-09-08：权重不在本仓。2026-09-01 仓一分为二时它们随发布面迁到公开仓 `fusion-yun/fylite` 的 `models/`（原名 `nn_tables/`），本条指针到今天为止仍写着旧位置——`test_benchmark_registry.py` 因此判负，而公开渲染件把它渲成一条 `$FYLITE_KERNEL/nn_tables/…`，指向一个哪个仓里都不存在的路径。取法：`$FYLITE_NN_DIR` 指向该目录，或直接读公开检出的 `models/`"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYLITE_KERNEL/nn_tables/epednn.npz",
+      "storage_uri": "$FYLITE_PUBLIC/models/epednn.npz",
+      "checksum": "sha256:4b637f73b6943cfd888d6f6abc2134a3123f580d131bb071c3def5b0c660d796",
+      "comment": "33111 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "private-artefact",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 private-artefact：私有仓制品：在内核检出中，公开侧以 $FYLITE_KERNEL 指针引用",
-       "出处：神经权重导出件（上游 Apache-2.0 / CC-BY-4.0，导出脚本在本仓）",
-       "★发布时该制品不在内核检出中（未跟踪的构建件，见其 README 的 source_sha256），未能计算 sha256"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：公开仓 `fusion-yun/fylite` 的 `models/`（上游 Apache-2.0 / CC-BY-4.0，导出脚本在本仓，每份导出记上游包名 · 版本 · 源文件与 source_sha256）",
+       "★2026-09-08：权重不在本仓。2026-09-01 仓一分为二时它们随发布面迁到公开仓 `fusion-yun/fylite` 的 `models/`（原名 `nn_tables/`），本条指针到今天为止仍写着旧位置——`test_benchmark_registry.py` 因此判负，而公开渲染件把它渲成一条 `$FYLITE_KERNEL/nn_tables/…`，指向一个哪个仓里都不存在的路径。取法：`$FYLITE_NN_DIR` 指向该目录，或直接读公开检出的 `models/`"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_tglfnn.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglfnn.json",
       "checksum": "sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662",
       "comment": "1477 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：FUSE 0.7.0（Apache-2.0）ITER 算例"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYLITE_KERNEL/nn_tables/README.md",
+    "storage_uri": "$FYLITE_PUBLIC/models/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -441,7 +442,7 @@
    "caveat": [
     "★这条只说「我们和它算得一样」，不说「该信它」：该 TGLF-NN 模型（DIII-D 训练）在 ITER 的 rho>=0.75 两面出训练域",
     "单成员不能替 ensemble：同面 Qe 的 20 个成员散布 1.93-8.09，标准差是均值的 34 %",
-    "纳入类别（参考数据）：private-artefact、public"
+    "纳入类别（参考数据）：public-derived、restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -528,7 +529,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "27 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -536,7 +537,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -556,27 +557,29 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYLITE_KERNEL/nn_tables/qlknn_7_11.npz",
+      "storage_uri": "$FYLITE_PUBLIC/models/qlknn_7_11.npz",
+      "checksum": "sha256:63a2181c4ebe84a3c08a93a5cbfeeedc955c7ac6d768cf969ecf76f248a4acfe",
+      "comment": "301078 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "private-artefact",
+      "license": "public-derived",
       "caveat": [
-       "纳入类别 private-artefact：私有仓制品：在内核检出中，公开侧以 $FYLITE_KERNEL 指针引用",
-       "出处：神经权重导出件（上游 Apache-2.0 / CC-BY-4.0，导出脚本在本仓）",
-       "★发布时该制品不在内核检出中（未跟踪的构建件，见其 README 的 source_sha256），未能计算 sha256"
+       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
+       "出处：公开仓 `fusion-yun/fylite` 的 `models/`（上游 Apache-2.0 / CC-BY-4.0，导出脚本在本仓，每份导出记上游包名 · 版本 · 源文件与 source_sha256）",
+       "★2026-09-08：权重不在本仓。2026-09-01 仓一分为二时它们随发布面迁到公开仓 `fusion-yun/fylite` 的 `models/`（原名 `nn_tables/`），本条指针到今天为止仍写着旧位置——`test_benchmark_registry.py` 因此判负，而公开渲染件把它渲成一条 `$FYLITE_KERNEL/nn_tables/…`，指向一个哪个仓里都不存在的路径。取法：`$FYLITE_NN_DIR` 指向该目录，或直接读公开检出的 `models/`"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json",
       "checksum": "sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1",
       "comment": "10144 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：fusion_surrogates d678186（软件 Apache-2.0 · 权重 CC-BY-4.0）"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
@@ -593,11 +596,11 @@
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYLITE_KERNEL/nn_tables/README.md",
+    "storage_uri": "$FYLITE_PUBLIC/models/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -618,7 +621,7 @@
     "★输入钳制默认**关**（与上游、与 TORAX 一致）：钳制把外插变成一个看起来合理的数，本仓的报告路径是 outside_training_box。",
     "★单位是 QuaLiKiz 自己的回旋玻姆归一，与 TGLF 的**不可互换**，本仓不做换算。",
     "缺的通道（exchange / 逐 ky 谱 / 离子粒子流 / 动量应力 / D-V 分解）是**拒绝**而不是给零（QlknnChannelUnavailable）。",
-    "纳入类别（参考数据）：private-artefact、public"
+    "纳入类别（参考数据）：private-artefact、public-derived、restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -707,7 +710,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "8 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -715,7 +718,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -728,35 +731,35 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/mavrin_noncoronal.json",
       "checksum": "sha256:a0109ea8f28fe11d55e0759f3816f5b032de6b9cfbc1766dd63941c35a9a54ba",
       "comment": "85471 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py",
       "checksum": "sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1",
       "comment": "7978 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/rust/tools/gen_mavrin_tables.py",
-      "checksum": "sha256:b404e1732b190cd66894ab23d3851757c59b291f53c412e289699bb029eaabb2",
-      "comment": "8496 B",
+      "checksum": "sha256:c914a7bc2aa104745939ef006f75737e56486bf9dc43753aca2f8c5f788af2a9",
+      "comment": "8580 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "private-artefact",
@@ -766,7 +769,7 @@
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -789,7 +792,7 @@
     "★氦的冷却率表比其余七个**少一个边界**，补齐用 `+inf`（检索永不选中）与 `NaN`（读错就毒化答案而不是悄悄换个数）。",
     "★`L_INT` 的 `resolution` 是**答案的一部分**不是质量旋钮：对数网格上的梯形，上游调用方用 100 点；悄悄用更多点就不是在复现它声称复现的那个模型。",
     "★这条只说「我们和它算得一样」，不说「该信它」：Mavrin 拟合本身没有在本条里对任何实验或第三方原子数据做确认。",
-    "纳入类别（参考数据）：private-artefact、public"
+    "纳入类别（参考数据）：private-artefact、restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -874,7 +877,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "7 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -882,7 +885,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -895,32 +898,32 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py",
       "checksum": "sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4",
       "comment": "20611 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -941,7 +944,7 @@
     "★★**三个常数必须对齐，第三个才是要点。** 上游用 `mu_0 = 4π×1e-7`（2019 年前的定义）与落后一版的 `m_e`/`epsilon_0`，对齐后几何从 5.4e-10 到 1e-16。第三个是 `CONSTANTS.eps = 1e-7`——**名字像机器 epsilon，实为正则化项**，只出现在 `alpha_t` 电荷修正的 `(Z_eff - 1 + eps)` 里。在 `Z_eff = 1` 处该项**就是** eps，用机器 epsilon 会把 `alpha_t` 移动 **1.78e-7**：小到像舍入、却比本模块其余部分高六个数量级，且在实测之前已由 `(1-0.569)·(eps/3.25)^0.85` 精确预言。",
     "★网格**刻意包含 Z_eff = 1**（正则化项唯一显形处；不含它则带着机器 epsilon 也能通过）以及 T_e 与 Z_eff **独立**变化的点对（否则记录无法见证「更宽的通量管携带更少平行通量」这一符号——Body 式 49 抄错就会翻转它）。",
     "★这条只说「我们和它算得一样」，不说「该信它」：Body 2025 的模型本身没有在本条里对任何实验或 SOLPS 类模拟做确认。",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1019,7 +1022,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "8 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -1027,7 +1030,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -1040,19 +1043,19 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -1073,7 +1076,7 @@
     "★★一条写错的判据被算例推翻并留档：初版断言温度从**靶板**起沿磁力线单调上升。不对——靶板到对流/传导界面那一步不是传导而是经验拟合，`T_cc/T_target = 2·density_ratio/(1-momentum_loss)` 在 **20 eV 附近穿过 1**（1 eV 处约 5.9、10 eV 处 1.07、更热则稳定在 0.9961）。所以脱靶的冷靶远低于界面，贴附的热靶略高于界面。现按真实行为立judged。",
     "★求根层仍**未移植**：本条查的是「给定态，派生量对不对」，不是「态找得对不对」。同一份夹具里的正向/逆向收敛过程留给它。",
     "★这条只说「我们和它算得一样」，不说「该信它」。",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1181,7 +1184,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -1189,7 +1192,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -1202,19 +1205,19 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -1237,7 +1240,7 @@
     "★★`C_Z_PREFACTOR_NEGATIVE` 是**结果不是错误**：等离子体在**完全不加种子**时已经低于靶温，达到它需要「负杂质」。浓度被截到零，所以只读数字的调用方会看到「不需要加种子」而错过「这个靶温够不着」——那个事实住在结局标签里，判据逐例比对标签。",
     "★**正向模式未移植**：同一份夹具里的十个正向算例（含四个完全脱靶）留给它。",
     "★这条只说「我们和它算得一样」，不说「该信它」。",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1318,7 +1321,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "7 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -1326,7 +1329,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -1339,19 +1342,19 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json",
       "checksum": "sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8",
       "comment": "119008 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -1372,7 +1375,7 @@
     "★**多起点与 `multiple_roots_found` 未移植**：同一组输入可能有多解，本移植找的是初值引向的那一个，调用方在这里**得不到**「是否还有别的根」这个信息。",
     "★★`Q_CC_SQUARED_NEGATIVE` 是**结果不是错误**（完全脱靶）；靶温被截到一个小正数以免把 NaN 传下去，而「脱靶」这个事实住在标签里。四个脱靶算例的靶温判据**断言它不为零**——那正是与截零方案的分界。",
     "★这条只说「我们和它算得一样」，不说「该信它」。",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1481,7 +1484,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "9 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -1489,7 +1492,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -1502,45 +1505,45 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_eped.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_eped.json",
       "checksum": "sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1",
       "comment": "1491 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：FUSE 0.7.0（Apache-2.0）ITER 算例"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_init.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json",
       "checksum": "sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc",
       "comment": "25616 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：FUSE 0.7.0（Apache-2.0）ITER 算例"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_tglf_decks.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json",
       "checksum": "sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66",
       "comment": "55840 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：FUSE 0.7.0（Apache-2.0）ITER 算例"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -1558,7 +1561,7 @@
    "caveat": [
     "★chi 仍是规定的：本仓 chi0 标定自 ASTRA，从没为 FUSE 的任何机器重标过——所以「本仓输运复现 FUSE 剖面」这一问没有问，第 2 层刻意只比通道",
     "FUSE 侧 lump_ions=true：DT+Ne+He 并成 NS=3、等效 Z=8.67，逐种通道不可比",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -1708,7 +1711,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "18 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -1716,7 +1719,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -1750,7 +1753,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/",
       "checksum": "sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220",
       "comment": "7 files, 10531309 B",
       "provenance_class": "registered",
@@ -1758,12 +1761,12 @@
       "license": "restricted",
       "caveat": [
        "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：UKAEA JINTRAC 37.1.0-patched6 运行产物（EURATOM-ITER 34664）",
+       "出处：未分类的存储项（按最严格类计）",
        "第三方运行产物（UKAEA JINTRAC，受限），本体在 fydata `oracle/jintrac/`；2026-09-02 自 fydoc `data/` 迁入，本仓以 `tests/data` 符号链接挂载该树，门在链接缺席（或 $FYDOC_DIR 未指向旧布局）时跳过"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -1905,7 +1908,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "4 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -1913,7 +1916,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -1926,7 +1929,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/",
       "checksum": "sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47",
       "comment": "124 files, 26113662 B, 106 broken symlinks not hashed",
       "provenance_class": "registered",
@@ -1934,12 +1937,12 @@
       "license": "restricted",
       "caveat": [
        "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：UKAEA JINTRAC 37.1.0-patched6 运行产物（EURATOM-ITER 34664）",
+       "出处：未分类的存储项（按最严格类计）",
        "第三方运行产物（UKAEA JINTRAC，受限），本体在 fydata `oracle/jintrac/`；2026-09-02 自 fydoc `data/` 迁入，本仓以 `tests/data` 符号链接挂载该树，门在链接缺席（或 $FYDOC_DIR 未指向旧布局）时跳过"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -1998,31 +2001,28 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
-     "finding_kind": "re-run: gate stale (names an entry the assembly layer no longer has)",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 1 stale",
-     "verdict": "unevaluated",
-     "caveat": [
-      "$FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs: page.evaluate: TypeError: Cannot set properties of null (setting 'value')"
-     ]
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
     }
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
       "name": "app/tests/validate-iter-benchmark.mjs",
       "caveat": [
-       "本仓的门：`node app/tests/…`（需 playwright 与 `$FYDOC_ORACLE` 挂在 tests/data）"
+       "本仓的门：`node app/tests/…`（需 playwright 与 `$FYDATA_ORACLE` 挂在 tests/data）"
       ]
      }
     ],
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
       "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
       "comment": "20703 B",
       "provenance_class": "registered",
@@ -2030,11 +2030,11 @@
       "license": "restricted",
       "caveat": [
        "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：ITER Organization 参考算例（CORSICA / ASTRA 15 MA，2010-04-07 批次），无公开许可声明"
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2128,7 +2128,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -2136,7 +2136,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -2156,7 +2156,7 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
       "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
       "comment": "20703 B",
       "provenance_class": "registered",
@@ -2164,11 +2164,11 @@
       "license": "restricted",
       "caveat": [
        "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
-       "出处：ITER Organization 参考算例（CORSICA / ASTRA 15 MA，2010-04-07 批次），无公开许可声明"
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2244,7 +2244,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -2252,7 +2252,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -2263,7 +2263,7 @@
      }
     ],
     "has_input": [],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2318,7 +2318,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "57 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -2326,7 +2326,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -2339,19 +2339,19 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_hcd.csv",
       "checksum": "sha256:344a7584194c5541da74c7b5089b9ba9db8b17ca5d178f177c95a41c9a20690a",
       "comment": "46105 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public-derived",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
-       "出处：METIS（CeCILL-C）认证存档 → `tools/metis-cert-to-oracle.py`"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2367,7 +2367,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public-derived"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -2614,7 +2614,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "12 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -2622,7 +2622,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -2635,15 +2635,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
       "checksum": "sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8",
       "comment": "99956 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public-derived",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
-       "出处：METIS（CeCILL-C）认证存档 → `tools/metis-cert-to-zerod.py`",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "派生表；28 份存档的 sha256 逐份记在表头，重跑逐字节相同"
       ]
      },
@@ -2661,7 +2661,7 @@
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2681,7 +2681,7 @@
     "★聚变功率这次没有对：METIS 的 pfus_th 与它自己剖面上的热核 DT 积分差 −4.7 %（ITER）到 −31 %（TFTR），含轨道展宽 / 快 α 慢化 / TAE 损失；相减量到的是快粒子物理，不是体元约定。关闭判据见报告 §5.2",
     "★判 B 不判 C：两侧都是模型输出，METIS 不为 vp 自报精度，容差只能实测后定；判 C 会读成「几何经权威确认」，是夸大。见报告 §4.1",
     "★与 C-04 相反，时间片无稳态要求：这里每个量都是该片自身几何与剖面的瞬时泛函，无历史项",
-    "纳入类别（参考数据）：public、public-derived"
+    "纳入类别（参考数据）：public、restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -2743,7 +2743,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "13 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -2751,7 +2751,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -2764,19 +2764,19 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json",
       "checksum": "sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557",
       "comment": "3504 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：Waltz et al., Phys. Plasmas 14, 122507 (2007) Table I，逐字"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2792,7 +2792,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -2842,7 +2842,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "13 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -2850,7 +2850,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -2863,19 +2863,19 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json",
       "checksum": "sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b",
       "comment": "4655 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public-derived",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public-derived：公开可复取（派生表）：由公开上游产物经本仓工具转换而得，转换脚本已点名",
-       "出处：GA 标准算例＋VPAR_SHEAR，libtglf（GACODE）录音；上游可重跑"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -2891,7 +2891,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public-derived"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -3111,7 +3111,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "42 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -3119,7 +3119,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -3132,36 +3132,36 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json",
       "checksum": "sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789",
       "comment": "93406 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）自带回归套件（TGLF 九例 / NEO 21 例）",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★上游自己发的 input.tglf.gen 是过期的（缺 UNITS / WDIA_TRAPPED）；冻结的是启动器重新生成的那份",
        "★不搬上游源码：overrides 用名值对复述算例自己的设置"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json",
       "checksum": "sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e",
       "comment": "35720 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）自带回归套件（TGLF 九例 / NEO 21 例）",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "NEO 只发校验和不发通量输出，故这批必须跑出来才成为参照",
        "★跑 NEO 要 PYTHONPATH=$GACODE_ROOT/tglf/bin（gacodeinput.py 在那里），否则 .gen 不生成而 Fortran 报「找不到文件」，读起来像求解器崩了"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -3177,7 +3177,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3263,7 +3263,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "35 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -3271,7 +3271,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -3291,25 +3291,25 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/",
       "checksum": "sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6",
       "comment": "24 files, 81461 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 treg01",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★本机 TGYRO 可跑（tgyro -e . -n 4，走 mpirun 4 进程）；转储要在 input.tgyro 追加 TGYRO_TGLF_DUMP_FLAG=1 与 TGYRO_RELAX_ITERATIONS=1",
        "★五个 treg 共用同一份 input.gacode，只有求解器设置变；iter01 是另一副剖面"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/README.md",
+    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/README.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3321,7 +3321,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3447,7 +3447,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "88 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -3455,7 +3455,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -3468,78 +3468,78 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg02/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg02/",
       "checksum": "sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10",
       "comment": "31 files, 42295 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 treg02",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★★采集必须用 TGYRO_RELAX_ITERATIONS=0，不是 1：迭代方法 1 在 =1 时 dump 被后一次通量评估覆盖（treg02 在 r/a=0.2 记下 RLTS_1=2.495 而非 1.495，正好差 LOC_DX_MAX=1.0）。treg01 用方法 4，=1 恰好留住初始 dump，那是方法 4 的性质不是规矩",
-       "★treg 五例共用 tgyro/treg01/input.gacode（sha256 467b5e9d…），四个新目录不各存一份；test_the_treg_cases_all_read_one_bundle 守着"
+       "★treg 五例共用 tgyro_treg01/input.gacode（sha256 467b5e9d…），四个新目录不各存一份；test_the_treg_cases_all_read_one_bundle 守着"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg03/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg03/",
       "checksum": "sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40",
       "comment": "31 files, 42712 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 treg03",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★★复现这副 deck 要复刻 tgyro_quasigrad 的三趟调用，中间那次重新积分把 per-cm 梯度积在无量纲半径上（上游到 tgyro_init_profiles.f90:526 才把 r 换成 cm）——看着像笔误，但去掉就对不上"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg04/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg04/",
       "checksum": "sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127",
       "comment": "31 files, 41917 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 treg04"
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg05/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg05/",
       "checksum": "sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48",
       "comment": "31 files, 42149 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 treg05",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★冻结的 input.tgyro/.gen 里 TGYRO_ITERATION_METHOD 是 1 不是出厂的 2（采集偏差，见 README 顶部）"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/iter01/",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-15-tgyro/corpus/iter01/",
       "checksum": "sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3",
       "comment": "43 files, 137151 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：GACODE rev 6357db306（Apache-2.0）TGYRO 回归算例 iter01",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★自带 input.gacode（ITER 20102，sha256 7edb6888…）——不是 treg 那副剖面；九种离子，LOC_N_ION=3 取前三（T/D/He）",
        "★★出厂 input.tgyro 带已废弃的 TGYRO_DT_METHOD=1，6357db306 直接拒绝（ERROR: (gacodeinput) Deprecated parameter TGYRO_DT_METHOD）——该算例按出厂配置跑不起来；冻结件里该行已注释",
        "★内三个半径 Q_PRIME_LOC 为负（−9.06/−14.51/−5.77），是 treg 五例都到不了的反剪切角落"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
@@ -3555,7 +3555,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3776,7 +3776,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "4 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -3784,7 +3784,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -3797,15 +3797,15 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/",
-      "checksum": "sha256-manifest:37c13ef663e4f940274b2aa7647f982de32e1edcf5337f990650bb8ce40f3b4d",
-      "comment": "13 files, 1948111 B",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/",
+      "checksum": "sha256-manifest:51a006d3d69706892ad5dfc50c1f5be0d467dd1a75315f9c7bdd24926c8ee4a3",
+      "comment": "22 files, 2821591 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★不 vendor 上游源码与数据：存的是 TORAX 代码产出的数值 + 出处（逐入口 file:line）+ 录制脚本",
        "★TORAX 需自己的环境（JAX ≥ 0.11.1, Python ≥ 3.12），不要装进共享 ~/workspace/.venv；上游检出走 PYTHONPATH 而非 pip install -e，录制不在上游树留构建产物",
        "★TORAX 自带的 55 份 .nc 整码回归参照（torax/tests/test_data/，配 62 份 .py 配置）一份也没用作参照：它们绑着 TORAX 自己的求解器设置、源项组合与网格，拿来量本仓量到的是两码全部差异之和，没有一笔可归因",
@@ -3813,11 +3813,11 @@
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/README.md",
+    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3830,7 +3830,7 @@
    },
    "caveat": [
     "★★2026-08-30：本条原有的第三项（QLKNN-10D 逐网 + 组合 + 钳制盒，320 点，最劣 2.4e-15）已**退场**——两码都换了模型（TORAX 默认 qlknn_7_11_v1，fylite 退役二十网改用同一份 QLKNN_7_11 档案），比较对象不再是「两码之间」而是「两码各自对同一上游」，故并入 V-03，不在此重复记账。余下 Bosch–Hale 与 Redl 两项不变。",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -3926,7 +3926,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -3934,7 +3934,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -3954,25 +3954,25 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
       "checksum": "sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae",
       "comment": "1157345 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "不 vendor 上游源码与数据：存的是 TORAX 代码产出的数值 + 逐入口 file:line + 录制脚本",
        "★★剖面与网络输入**捕在同一次调用里**。第一版只录输入、拿 .nc 的 29 个时刻去比 85 次调用，那是两张不同时刻表，报出的每一条差异都是时间错位"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/README.md",
+    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -3984,7 +3984,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
@@ -4137,7 +4137,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -4145,7 +4145,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -4193,38 +4193,38 @@
     "has_input": [
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json",
       "checksum": "sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae",
       "comment": "1157345 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "★捕的是 psi 的**面梯度**而不是 psi 本身：从胞值重建面梯度是把一个边界条件实现第二遍，而那不是这里在考的东西"
       ]
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn.json",
+      "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn.json",
       "checksum": "sha256:9f1168276a17457aa32a0b694f5ba221844c26008430fc213fdb4a0a0cf466e7",
       "comment": "417755 B",
       "provenance_class": "registered",
       "quality_state": "valid",
-      "license": "public",
+      "license": "restricted",
       "caveat": [
-       "纳入类别 public：公开可复取：上游发布的算例与答案（记包名、版本、sha256，存指针不存本体）",
-       "出处：TORAX b4d40633（1.4.3，Apache-2.0）录制脚本与答案同目录",
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：未分类的存储项（按最严格类计）",
        "29 个输出时刻的剖面与 TORAX 自报的 χ_turb；与调用表按状态**逐位配对**，不按序号"
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",
-    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/README.md",
+    "storage_uri": "$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md",
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
     "caveat": [
      "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
@@ -4238,7 +4238,7 @@
    "caveat": [
     "★★**不能读作『两码都对不对得上真实托卡马克』**：两侧共享网络与算例，其余各自实现，所以带是关于两个实现链的事实，不是关于物理的证据。",
     "★不复现的部分：TORAX 的有效 D/V 分解、输运求解器本身、台基模型、源项组合。本条比的是闭包与输运装配，不是仿真。",
-    "纳入类别（参考数据）：public"
+    "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
    "overall_verdict": "inconclusive"
@@ -4709,7 +4709,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-02（本册发布时跑一遍门）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
      "deviation_literal": "18 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
@@ -4717,7 +4717,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-02",
+    "recorded": "2026-09-08",
     "realizes": [
      {
       "type": "spo:Code",
@@ -4891,7 +4891,7 @@
       ]
      }
     ],
-    "comment": "门在私仓检出中运行；store 为 fydoc `cases/`（挂在 tests/data；2026-09-04 前在 fydata）；复测结论见 findings 末条"
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
    },
    "account": {
     "type": "spo:Concretization",

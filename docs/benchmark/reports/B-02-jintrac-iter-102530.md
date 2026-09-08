@@ -13,7 +13,7 @@ title: B-02 · JINTRAC 作业 102530（ITER 15 MA 平顶段）
 | **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_jintrac_flattop.py`；`$FYLITE_KERNEL/tests/test_tglf_fluxmatch.py`；`$FYLITE_KERNEL/tests/test_tglf_wrapper_convention.py`；`$FYLITE_KERNEL/tests/test_tglf_selfconsistent.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——18 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——18 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -41,7 +41,7 @@ title: B-02 · JINTRAC 作业 102530（ITER 15 MA 平顶段）
 | 冻结 TGLF 匹配剖面 | 0.0542 | worse-than-null | 不成立 |  |
 | 自洽 TGLF 重估 | 0.052 | ties-null | 部分 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -56,13 +56,13 @@ title: B-02 · JINTRAC 作业 102530（ITER 15 MA 平顶段）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/ | sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220 | restricted | 7 files, 10531309 B |
+| $FYDATA_ORACLE/FYDOC-CASE-09-jintrac/corpus/run15MA_TBM_13_imas2_0821_repeat_102530/imasdb/ | sha256-manifest:93f6c05131f554dae4165bb6e106882bf38976fd08f0b354dd65ad404564e220 | restricted | 7 files, 10531309 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_jintrac_flattop.py tests/test_tglf_fluxmatch.py tests/test_tglf_wrapper_convention.py tests/test_tglf_selfconsistent.py
@@ -70,4 +70,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

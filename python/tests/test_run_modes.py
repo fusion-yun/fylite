@@ -13,11 +13,23 @@ That detector now walks scopes, so the *signature* half is gated there.  This
 file gates the half a signature cannot see: which door each mode goes through,
 which options reach it, and that what comes back can be delivered as a deck.
 
-★No solve runs here.  A magnetic reconstruction needs the Green RESPONSE
-tables (``rfcoil.ddd`` / ``rv6565.ddd``), which this distribution does not
-ship — so the seam is stubbed and the routing is what is asserted.  The
-delivery test is not stubbed: it writes a real g-file from the synthetic
-equilibrium and reads it back.
+★No solve runs here, and the reason is NOT what this paragraph used to
+give.  It said a magnetic reconstruction needs the Green RESPONSE tables
+(``rfcoil.ddd`` / ``rv6565.ddd``), which this distribution does not ship.
+**That has not been true since T-C37**: the kernel repository's
+``test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle``
+asserts that ``rfcoil.ddd`` is genuinely absent AND that the fit still runs,
+still converges, and still agrees with the code that had the table — the
+passive geometry is computed live from the device document.  Nothing in the
+delivered package reads ``rv6565.ddd`` either (2026-09-08 census: no call
+site outside the acceptance test that compares against it).
+
+The real reason is narrower and worth stating as itself: **this file gates
+routing**, not physics — which door each mode goes through, which options
+reach it, and that what comes back can be delivered as a deck.  A solve here
+would buy nothing this file is responsible for, and it is gated where the
+answers are (B-06, kernel repository).  The delivery test is not stubbed: it
+writes a real g-file from the synthetic equilibrium and reads it back.
 """
 from __future__ import annotations
 

@@ -1,4 +1,9 @@
-# `nn_tables/` — neural surrogates as DATA
+# `models/` — neural surrogates as DATA
+
+★2026-09-08: this file said `nn_tables/` in its own title. That was the
+directory's name until the 2026-09-01 split moved the publishing face here;
+the register's pointers still said `nn_tables/` too, and rendered publicly as
+`$FYLITE_KERNEL/nn_tables/…` — a path in neither repository.
 
 Every surrogate this repository can evaluate lives here as one `.npz`, and
 **none of them is compiled into `libfylite.so` or the wasm**: the kernel
@@ -52,9 +57,18 @@ export FYLITE_NN_DIR=~/nn
 ```
 
 `rust/tools/export_tglfnn_ukaea.py` **refuses to write anywhere inside this
-tree**, and `tests/test_nn_tglfnn_ukaea.py` asserts both that refusal and
-that no `tglfnn-ukaea-*` file has appeared in `nn_tables/` — the rule is a
-gate, not a note. In a fresh checkout
+tree**, and the kernel repository's `tests/test_tglfnn_ukaea_stays_out.py`
+asserts both that refusal and that no `tglfnn-ukaea-*` file has appeared in
+any tree we ship — the rule is a gate, not a note.
+
+★2026-09-08: that sentence named `tests/test_nn_tglfnn_ukaea.py`, and for a
+week it named a gate that **was not running** — that module imports
+`fylite.scenario.model.tglfnn_ukaea`, which this package no longer carries,
+so it failed at collection. It also globbed `nn_tables/`, a directory the
+kernel checkout does not have, so the licence half of it was vacuously true
+even before that. Both halves were rescued into the module named above when
+the rest of it was retired; it now looks at this directory, at
+`$FYLITE_NN_DIR`, and fails when it can see neither. In a fresh checkout
 `fylite.scenario.model.tglfnn_ukaea` is inert: `available()` is False and
 every entry point raises `TglfnnUkaeaUnavailable` naming the licence
 reason and the recipe above. That is the intended state.

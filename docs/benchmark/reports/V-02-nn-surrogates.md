@@ -10,10 +10,10 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 | **参考** | TGLFNN.jl · 1.7.1 · Apache-2.0；EPEDNN.jl · delta_ne_sqrt_power · Apache-2.0 |
 | **对象** | fylite: nn.rs + fylite.nn |
 | **算例** | `scenario/iter-15ma-flattop`（ITER 15 MA 感应燃烧，平顶段） |
-| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、public） |
+| **数据** | 见 §5 表（3 项，纳入类别 public-derived、restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_nn_surrogate.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——14 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——14 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -25,7 +25,7 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYLITE_KERNEL/nn_tables/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在公开检出的账本（`$FYLITE_PUBLIC/models/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - ★这条只说「我们和它算得一样」，不说「该信它」：该 TGLF-NN 模型（DIII-D 训练）在 ITER 的 rho>=0.75 两面出训练域
 - 单成员不能替 ensemble：同面 Qe 的 20 个成员散布 1.93-8.09，标准差是均值的 34 %
@@ -39,7 +39,7 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 | TGLF-NN 4 通道 x 7 面 | 4.9e-14 |  | 成立 |  |
 | EPED-NN 统一路径 vs 编译路径 (18 个数) | 0.0 |  | 成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -51,15 +51,15 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYLITE_KERNEL/nn_tables/sat2_em_d3d_azf-1.npz | — | private-artefact |  |
-| $FYLITE_KERNEL/nn_tables/epednn.npz | — | private-artefact |  |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | public | 1477 B |
+| $FYLITE_PUBLIC/models/sat2_em_d3d_azf-1.npz | sha256:55704043fcfa26c72470c62bab45d720ad53696efd3efaf7f2f8cad909912680 | public-derived | 3569331 B |
+| $FYLITE_PUBLIC/models/epednn.npz | sha256:4b637f73b6943cfd888d6f6abc2134a3123f580d131bb071c3def5b0c660d796 | public-derived | 33111 B |
+| $FYDATA_ORACLE/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | restricted | 1477 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_nn_surrogate.py
@@ -67,4 +67,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。

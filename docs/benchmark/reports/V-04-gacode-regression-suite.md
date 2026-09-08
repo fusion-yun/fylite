@@ -10,10 +10,10 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 | **参考** | GACODE · rev 6357db306 · Apache-2.0 |
 | **对象** | fylite: gyrofluid.rs (TGLF) / neoclassical.rs + dke.rs (NEO) |
 | **算例** | `scenario/gacode-regression`（GACODE 自带回归算例（局部通量面）） |
-| **数据** | 见 §5 表（2 项，纳入类别 public） |
+| **数据** | 见 §5 表（2 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_gacode_regression.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——42 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——42 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -55,7 +55,7 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 | 规则 2 在两种粒子上精确、在三种上差几个百分点（**线索，未定性**） | tglf01 规则 2 = 1.0e-05；tglf07 规则 2 = 5.3e-02（同一 deck 规则 1 = 2.1e-05） |  | 部分 | ★模是同一批（增长率 6.2e-11），dlnpdr 两侧同为 12.0 到十位；偏差**按种且符号混杂**（电子粒子 −5.3 %、主离子 +2.3 %、碳 −0.5 %），那是逐 ky 强度误差积分后的样子，不是公共饱和因子的样子；★★可能与 V-01 里 JINTRAC（也是三种）长期挂着的规则 2 带（0.1–5 %）**是同一件事**。若是，那条带就有了成因而不只是容差。已钉成对照闸子，供下一个人从正确的形状起步 |
 | ★★SAT_RULE 2 的余量：**次主模取根**（根因已定位） | 主模逐 ky 精确（2.4e-12 / 4.1e-12 / 2.7e-14）；次主模 tglf07 4.0e-2、tglf09 1.0；tglf09 mode-2 增长率 ky[0] 上游 0.72876 对本仓 0.04359 |  | 部分 | ★★★2026-08-30 定位到底：**不在强度公式、不在几何、不在 QL 权重**。逐 ky 对 out.tglf.field_spectrum 时主模处处精确而次主模不精确，再对 out.tglf.eigenvalue_spectrum 显示**我们把一个根滤掉了**；★根因=**FILTER 门限**：本仓在 ky=0.1 处 max_freq = 2.0×0.1×1.0 = 0.2，恰好卡在 mode-1 的 \|freq\|=0.166 与 mode-2 的 0.273 之间；上游需 ≥1.364。滤波机理两侧相同（tglf_eigensolver.f90:2918），差的是累加值——本仓停在种子 2\|wdh\|/R_unit，逐种项没超过它而上游超过了；★tglf05（旋转）已于同日经谱移阻尼收口，不再属于这条；★诊断钩 FY_DUMP_FILTER 已留在 gyrofluid.rs 里（逐 ky 打出门限） |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -67,14 +67,14 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | public | 93406 B |
-| $FYDOC_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | public | 35720 B |
+| $FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | restricted | 93406 B |
+| $FYDATA_ORACLE/FYDOC-CASE-05-gacode/corpus/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | restricted | 35720 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_gacode_regression.py
@@ -82,4 +82,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。

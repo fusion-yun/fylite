@@ -10,10 +10,10 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 | **参考** | TORAX · git:b4d4063349dcab9241da6a7658a1a2083cf9b59d (TORAX_VERSION 1.4.3) · Apache-2.0 |
 | **对象** | fylite: scenario.model.qlknn + nn.rs（QLKNN-10D）· kernel.dt_reactivity（zerod.rs）· kernel.redl_coefficients（neoclassical.rs:1060） |
 | **算例** | —（无场景：局部或解析） |
-| **数据** | 见 §5 表（1 项，纳入类别 public） |
+| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_torax_benchmark.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -31,7 +31,7 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在fydata 数据集的 README（`$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - ★★2026-08-30：本条原有的第三项（QLKNN-10D 逐网 + 组合 + 钳制盒，320 点，最劣 2.4e-15）已**退场**——两码都换了模型（TORAX 默认 qlknn_7_11_v1，fylite 退役二十网改用同一份 QLKNN_7_11 档案），比较对象不再是「两码之间」而是「两码各自对同一上游」，故并入 V-03，不在此重复记账。余下 Bosch–Hale 与 Redl 两项不变。
 - （判据）一份权重的两个前向实现：TORAX 是 float64 JAX 的 flax MLP，本仓是 Rust 内核读 float32 .npz
@@ -57,7 +57,7 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 | Redl 在 Z_eff = 1：L31 / L32 / alpha 的偏置 | 1.8e-4 / 8.6e-5 / 2.7e-7；ν*=0 时 1.1e-16 / 2.7e-8 / 2.7e-7 |  | 不成立 | ★根因一行：rust/fylite/src/neoclassical.rs:1067 `let zm1 = (zeff - 1.0).max(1e-6);`——为保 sqrt(Z_eff−1) 的导数有限，代价是本仓永不求值 Z_eff=1 这个极限，纯氢被当成带痕量杂质；★两条进入路径：L31 只经带 ν* 因子的项，故无碰撞时精确；L32 的 zm1^1.1 与 alpha0 的线性 zm1 不带 ν*，所以『无碰撞纯氢』这个最干净的验证题本仓已经答的不是论文那道；偏置单向（总偏向更强的碰撞压低）。TORAX 取精确极限，自动微分的 NaN 另用自定义 JVP 处理（上游 3639e479） |
 | Redl L34 与论文值（=L31）之比，Z_eff ≥ 1.5 最劣 | ν*=0: 1.000 · 0.1: 1.043 · 1: 1.204 · 3: 1.436 · 10: 1.889（最劣绝对差 0.195，系数量程 0.83） |  | 不成立 | ★★本仓的 Redl L34 不是 Redl 的 L34：论文式 (19) 就是一行 `L34 = L31`，而本仓（neoclassical.rs:1101）用式 (18) 的 f34t 过 f31 拟合——式 (18) 论文自己定义为 f_t,33^eff，即式 (17) 新经典电导率的有效陷落因子；★★代换来自 IMAS.jl，其源码在同一行自注 `# eq(18) from from A.Redl, et al. ; which is actually f33teff`；★★后果比『系数差 20%』更重：论文的 alpha 是在 L34=L31 前提下拟合的，目标是让乘积 L34·alpha 复现 NEO；而乘积正是 redl_bootstrap_point（neoclassical.rs:1121）乘在离子温度梯度上的因子。误差整个落在自举电流的离子温度梯度驱动项，随碰撞率单调增长——边缘最大；★本条推翻 2026-08-21 的裁定（neoclassical.py 模块头『本包指 IMAS.jl 支』）：sauter_redl 分支就是论文，此前记作『两个实现之差』的 4.1% / 15.7% 一直是缺陷本身。当时没看出来的原因文件自己写了——两支在无碰撞轴上逐位相同，而每条已发表极限检查都在那条轴上；处置留待裁定：改 L34=L31 会移动每一条已录自举答案，参照要重测。门已钉住量级 |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -69,13 +69,13 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/ | sha256-manifest:37c13ef663e4f940274b2aa7647f982de32e1edcf5337f990650bb8ce40f3b4d | public | 13 files, 1948111 B |
+| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/ | sha256-manifest:51a006d3d69706892ad5dfc50c1f5be0d467dd1a75315f9c7bdd24926c8ee4a3 | restricted | 22 files, 2821591 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_benchmark.py
@@ -83,4 +83,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。

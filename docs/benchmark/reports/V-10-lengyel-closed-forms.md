@@ -10,10 +10,10 @@ title: V-10 · extended Lengyel 的闭式：分界面几何、alpha_t、q_parall
 | **参考** | TORAX（divertor_sol_1d + extended_lengyel_formulas） · git:b4d40633（TORAX 1.4.3） · Apache-2.0 |
 | **对象** | fylite: rust/fylite/src/edge.rs（闭式半）+ fylite.kernel.lengyel_closed |
 | **算例** | `scenario/lengyel-closed-form-grid`（extended Lengyel 闭式的自变量网格） |
-| **数据** | 见 §5 表（2 项，纳入类别 public） |
+| **数据** | 见 §5 表（2 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_lengyel_closed.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——7 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——7 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -48,7 +48,7 @@ title: V-10 · extended Lengyel 的闭式：分界面几何、alpha_t、q_parall
 | alpha_t 最劣相对 | 7.061e-16 |  | 成立 |  |
 | q_parallel 最劣相对 | 1.494e-15 |  | 成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -60,14 +60,14 @@ title: V-10 · extended Lengyel 的闭式：分界面几何、alpha_t、q_parall
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json | sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8 | public | 119008 B |
-| $FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py | sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4 | public | 20611 B |
+| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/extended_lengyel.json | sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8 | restricted | 119008 B |
+| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py | sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4 | restricted | 20611 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_lengyel_closed.py
@@ -75,4 +75,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。

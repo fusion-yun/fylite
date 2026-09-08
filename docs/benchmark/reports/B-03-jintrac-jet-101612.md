@@ -13,7 +13,7 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 | **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_jintrac_case04_replay.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -42,7 +42,7 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 | 常数 chi = 1.84 | 0.236 |  | 不成立 |  |
 | 本仓 TGLF 自洽 | 0.345 | fail-model-face | 不成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -54,13 +54,13 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/ | sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47 | restricted | 124 files, 26113662 B, 106 broken symlinks not hashed |
+| $FYDATA_ORACLE/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/ | sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47 | restricted | 124 files, 26113662 B, 106 broken symlinks not hashed |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_jintrac_case04_replay.py
@@ -68,4 +68,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

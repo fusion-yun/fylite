@@ -13,7 +13,7 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 | **数据** | 见 §5 表（3 项，纳入类别 experiment） |
 | **门** | `$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——18 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——18 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -101,7 +101,7 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 | ★矩展开这条路作废（没通过自己的检查） | `F_z/I_p = f(R_c,Z_c) + ½f_RR⟨δR²⟩ + f_RZ⟨δRδZ⟩ + ½f_ZZ⟨δZ²⟩`（`f = 2πR·B_r`）对本仓差 1.1 kN、**对参考差 3.8 kN**（+16.05 对实测 +12.29）——参考的电流铺得太开，二阶截断不收敛 | metric-rejected | 未评估 | ★而且那里的二阶矩是**带号电流加权**的，参考的外层电流反号 ⇒ ⟨δR²⟩ 可以是负数（本仓 (3,3)/(3,4) 是 −12.1 / −38.5 cm²）——**它根本不是展布度量**，不能当「铺得多开」读 |
 | ★★★「对能跑的阶惰性」没有活过第二个调用者 | 边界通量速率限制与掩膜下限当天上午缺省开，理由是在**带锚点、线圈精确、交付基**那条路上量到的惰性。浏览器那条路（**不给锚点、拟合线圈、原始基**）上二分：两处都在 **5 红** · 关速率限制 **2 红** · 再关掩膜下限 **0 红**。代价具体是：本来收敛的原始基拟合变成**第 212 轮法方程奇异**、卷宗九片 **8/9 → 6/9**、孪生退化的判词被掩膜消息顶掉 | correction | 部分 | ★三种改写对两条路都不成立：放宽到 0.80（九片仍 6/9）· 只限收缩方向（(3,3) 第 126 轮死，它的恢复要走一次增长）· 按塌缩签名触发（九片回来、原始基又死）；⇒ 改成缺省关的实验开关 `FY_SPAN_STEP` / `FY_MASK_FLOOR`，两边的数都记下；需要它的判据自己要。开着值 q₀ −47.1 % → −20.0 %；★★方法学：**「惰性」是相对于一组调用者说的**，而当时只有一组 |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -134,11 +134,11 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 | $FYLITE_KERNEL@bf4fd07:machine_desc/east/fylite_pressure_east.json | sha256:72f7f6fe341d4c4e97410a4255cb20cf89b0411d63e554369e3bd7cbcf9e83ea | experiment | 1225 B |
 | $FYLITE_KERNEL@bf4fd07:machine_desc/east/oracle_east137985_4000ms.fyo.jsonld | sha256:29145961f63fa6fa7d997894daad587db66dd4c13a0e0ae0357590e4cf5b41e4 | experiment | 104523 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported
@@ -146,4 +146,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

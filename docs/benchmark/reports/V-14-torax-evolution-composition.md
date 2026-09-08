@@ -10,10 +10,10 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 | **参考** | TORAX · git:b4d4063349dcab9241da6a7658a1a2083cf9b59d (TORAX_VERSION 1.4.3) · Apache-2.0 |
 | **对象** | fylite: scenario.model.qlknn.flux_from_targets / fluxes + nn.rs |
 | **算例** | `scenario/torax-iterhybrid-evolution`（ITER 混合运行情景，五秒演化（TORAX `test_iterhybrid_predictor_corrector`）） |
-| **数据** | 见 §5 表（1 项，纳入类别 public） |
+| **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level1_composition_on_torax_own_inputs`；`$FYLITE_KERNEL/tests/test_torax_evolution.py::test_level1_would_have_caught_the_unclipped_leading_flux` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -26,7 +26,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在fydata 数据集的 README（`$FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/README.origin.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - （判据）同一个网络、同一组输入列：这是一个函数的两个实现，容差只能是机器精度，物理带只会盖住缺陷
 - （判据）用逐通道峰值归一而非逐点相对：五个通道是比值且大量恰零，逐点比在 1e-14 量级的项上报出无意义的大数
@@ -48,7 +48,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 | 阈值以下的点数 | 1338（占 2210 的 61 %） |  | 成立 |  |
 | ★★本条查出的缺陷：主通量未截零 | 已修（scenario/model/qlknn.py:flux_from_targets） |  | 成立 | 上游在**两个分支**都截零：比值通量是 target × max(leading, 0)，主通量是 max(target, 0)。本仓只截了分母，主通量原样返回；★★两条规则在上游自带的 25 个测试向量上**逐位相同**——那 25 个点的主通量全为正。分开它们要一条真实放电走到 ITG 阈值以下，那里原始目标为负，未截零的主通量就是**负热流**，即输运顺梯度向上跑；★本仓测试里手写的判据复现了作者对源码的同一处误读。手写判据就是干这个的，也正是它抓不到的东西 |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -61,13 +61,13 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public | 1157345 B |
+| $FYDATA_ORACLE/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | restricted | 1157345 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDATA_ORACLE` 是 fydata 仓的 `oracle/` 树，本仓与内核仓都以 `tests/data -> …/fydata/oracle` 挂载）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL && ln -s ../../fydata/oracle tests/data
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_torax_evolution.py::test_level1_composition_on_torax_own_inputs tests/test_torax_evolution.py::test_level1_would_have_caught_the_unclipped_leading_flux
@@ -75,4 +75,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。
