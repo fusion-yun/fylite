@@ -40,6 +40,17 @@ use std::path::{Path, PathBuf};
 //: 发布同一批字节。源码检出里这张表是空的，发行构建给 `$FY_FACTS_DIR` 时才有内容。
 include!(concat!(env!("OUT_DIR"), "/facts_table.rs"));
 
+/// 这一份二进制是哪一版：`"internal"`（全功能，含只进内部版的装置）或 `"public"`。
+///
+/// ★★**版别在编译期定死**（`FYL-DESIGN-19` A-14），所以这里没有开关可拨：它与
+/// 编进来的那张装置表是同一个工具、同一次调用写下的（`tools/facts-publish.py`），
+/// 于是「这份构建带哪些机器」与「它自称哪一版」不可能是两个答案。
+/// ★读者今天只有一个：启动 banner（[`crate::banner`]）据此决定说不说「仅限内部
+/// 测试」那一句。没给 `$FY_FACTS_RS` 的构建记 `internal`——见 `build.rs` 那段。
+pub fn flavour() -> &'static str {
+    FLAVOUR
+}
+
 /// 搜索路径的环境变量。与 `$PATH` 用同一个分隔符——同一个概念，平台已经有写法了。
 pub const FACTS_ENV: &str = "FY_FACTS_PATH";
 

@@ -27,7 +27,7 @@ self.FyI18n.register('en', {
   'home.run.h2': 'Execution and data',
   'home.run.p': 'All computation is executed in the visitor own browser. No data is submitted to any server: the parameters set and the results obtained never leave the machine, and are discarded when the page is closed. A single compute kernel is downloaded on the first visit; every solve thereafter is local.',
   'home.two.h2': 'fylite and FyTok: one contract, two implementations',
-  'home.two.p1': 'fylite is not a standalone program but the <strong>light implementation</strong> of the <strong>fyo semantic contract</strong>. The same contract has a heavy implementation — <a href="https://github.com/fusion-yun/fytok">FyTok</a>, a full integrated-modelling framework. The contract sits on the semantics of the IMAS Data Dictionary (DD v4) and addresses physical quantities by semantic path, so the two speak the same language.',
+  'home.two.p1': 'fylite is not a standalone program but the <strong>light implementation</strong> of the <strong>fyo semantic contract</strong>. The same contract has a heavy implementation — <a href="https://fusion-yun.github.io/">FyTok</a>, a full integrated-modelling framework. The contract sits on the semantics of the IMAS Data Dictionary (DD v4) and addresses physical quantities by semantic path, so the two speak the same language.',
   'home.two.col.lite': 'fylite (the light end — this site)',
   'home.two.col.tok': 'FyTok (the heavy end)',
   'home.two.row.what': 'What it is',

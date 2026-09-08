@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Python 用法 (Using the Python Package) · fylite 用户指南</title>
 <link rel="icon" href="../assets/fy_mark.svg">
-<meta name="description" content="硬依赖只有 numpy。其余是可选项，且缺失时抛错并给出安装行，不静默降级：">
+<meta name="description" content="★alpha 期这个包不在 PyPI 上（实测 pip install fylite 会失败）。分发面是
+自仓库打出来的轮：">
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="guide.css">
@@ -38,10 +39,13 @@
 <main class="doc guide-body">
 
 <h2>安装</h2>
-<pre><code class="language-bash">pip install fylite
+<p>★<strong>alpha 期这个包不在 PyPI 上</strong>（实测 <code>pip install fylite</code> 会失败）。分发面是
+<strong>自仓库打出来的轮</strong>：</p>
+<pre><code class="language-bash">bash tools/build-wheel.sh          # 出轮到 dist/
+pip install dist/fylite-*.whl
 </code></pre>
 <p>硬依赖只有 <code>numpy</code>。其余是可选项，且<strong>缺失时抛错并给出安装行</strong>，不静默降级：</p>
-<pre><code class="language-bash">pip install 'fylite[plot,yaml]'
+<pre><code class="language-bash">pip install 'dist/fylite-*.whl[plot,yaml]'
 </code></pre>
 <aside class="admonition important"><p class="admonition-title">Important</p><p class="admonition-title">alpha 期的分发面：Linux x86-64</p><p>包里带的是<strong>预编译</strong>的内核，pip 不在安装时编译它。所以轮带<strong>平台标签</strong>，
 alpha 期公开的是 Linux x86-64 一个面——别的平台在<strong>安装时</strong>就被拒绝，
@@ -56,31 +60,19 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 测量剖面拟合，GCV 定平
 </code></pre>
 <p>不需要装置描述、不需要炮号、不需要网络。确实需要装置的那些入口<strong>显式</strong>要一份——
 经环境变量或直接把路径交给入口，不会偷偷去找。</p>
-<h2>命令行</h2>
-<p>装上包就有 <code>fylite</code>（<code>python -m fylite</code> 是同一个入口）。命令分两类：</p>
-<pre><code class="language-bash">fylite --help                       # 全部命令
-# —— 这个宿主自己实现的 ——
-fylite run --east --shot 70754 --time 3.5   # 一次平衡反演
-fylite plot g137985.04000 -o flux.png       # 画一份 g-file 的磁面图
-fylite describe                             # 能力目录，JSON-LD 形式
-fylite cases --check                        # 算例语料；--report 出一份算例报告
-fylite report &#x3C;run>  ·  whence &#x3C;文件>  ·  alias &#x3C;run> &#x3C;名字>   # 记录：渲染 / 溯源 / 起名
-fylite manifest  ·  serve  ·  mcp           # 清单校验 / JSON-RPC / MCP（后两者走 stdio）
-# —— 由本机可执行文件承载、这里逐字转交的（三条，同一个可执行文件）——
-fylite app --page model --lang en           # 起本机服务并开浏览器
-fylite data info shot.h5  ·  fylite data convert a.json b.nc   # 数据层
-fylite case run plan.jsonld -o rec/         # 一份计划进、一份记录出
+<h2>命令行在别处</h2>
+<p>★★2026-09-04 起<strong>本包没有命令行</strong>：没有 <code>fylite</code> 控制台脚本，没有 <code>python -m fylite</code>。
+装上它得到的是一个<strong>库</strong>——本章前面那些调用就是全部的用法。</p>
+<p>机器上那一条命令行是 Rust 的 <strong><code>fy</code></strong>（<code>bash rust/build.sh --exe</code>），它承载 <code>app</code> /
+<code>data</code> / <code>case</code> 三条；从前由 Python 承载的十一条动词都是库调用，逐条对照在
+<a href="cli.html">命令行</a>那一章的末节。两个常用的：</p>
+<pre><code class="language-python">from fylite.engine import manifest_catalog
+manifest_catalog()          # 能力目录（JSON-LD）：有哪些入口、各要什么、各给什么
+
+from fylite.engine.serve import mcp_stdio       # MCP stdio 服务器
+raise SystemExit(mcp_stdio())                   # 宿主配置里写成一行 `python -c`
 </code></pre>
-<p>逐条参数与它们各自的动词见参考篇的<a href="../reference/cli.md">命令行</a>；按任务走一遍见
-<a href="cli.html">命令行</a>那一章。</p>
-<p><code>describe</code> 出的是<strong>机器可读的能力目录</strong>：有哪些入口、各要什么、各给什么。
-它也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。</p>
-<aside class="admonition note"><p class="admonition-title">Note</p><p class="admonition-title">后三条为什么是「转交」</p><p><code>app</code> / <code>data</code> / <code>case</code> 的实现在<strong>一个</strong> Rust 可执行文件里（<code>fylite</code>，本仓只有这一个），
-Python 侧<strong>不重写第二份</strong>：它找到随包带的那个可执行文件（或 <code>--bin-dir</code>、<code>$PATH</code>），
-把命令词放回最前面，其余的字原样交过去。没找到时它<strong>按名说明要构建什么</strong>并以退出码 2
-结束，而不是退化成一个能力更少的实现。
-<code>fylite data --help</code> 与 <code>fylite data --help</code> 读到的是同一份用法——两边由同一个定义
-文件建出。</p></aside>
+<p>能力目录也是把 fylite 接进别的工具（含 AI 工具链）时读的那一份。</p>
 <h2>与浏览器互通</h2>
 <p>浏览器页面导出的会话文件可以在 Python 里加载并继续；反过来，Python 算出的结果
 也能交给页面呈现。两边跑的是同一个内核，所以这不是「对得上」，是同一个数。</p>
@@ -92,7 +84,7 @@ Python 侧<strong>不重写第二份</strong>：它找到随包带的那个可�
   <a href="../index.html">fylite 首页</a>
   <a href="index.html">指南目录</a>
   <span class="copy">© 2026 中国科学院等离子体物理研究所（ASIPP）与 fylite 贡献者 · Apache-2.0 · alpha 版</span>
-  <span class="ver" title="kernel 0.0.1 · interface 125 · app 0.0.1-alpha">内核 0.0.1 · 接口 125 · 前端 0.0.1-alpha</span>
+  <span class="ver" title="kernel 0.0.1 · interface 152 · app 0.0.1-alpha">内核 0.0.1 · 接口 152 · 前端 0.0.1-alpha</span>
 </footer>
 
 </body>

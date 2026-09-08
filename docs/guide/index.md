@@ -21,7 +21,7 @@ title: 怎么开始 (Getting Started)
   - 一个文件，双击即用；不装任何运行时
   - 离线、没有 Python 的机器（尤其 Windows）、要从 MDSplus 取数
 * - [Python 包](python.md)
-  - `pip install fylite`（alpha 期仅 Linux x86-64）
+  - 自仓库打轮再装（alpha 期**尚未上 PyPI**，仅 Linux x86-64）
   - 脚本化、批量、把结果接进自己的分析流程
 :::
 

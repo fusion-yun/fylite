@@ -31,13 +31,13 @@
   <h1>版权与致谢</h1>
   <span class="sub">许可 · 出处 · 致谢 · 参考文献</span>
   </div>
-  <p class="warn-internal" role="note"><span>仅限内部测试，请勿公开传播！</span></p>
+  <p class="warn-band" role="note"><span class="warn-alpha">alpha 版，用于概念验证</span><span class="warn-io">仅限内部测试，请勿公开传播！</span></p>
   <nav>
     <a href="pages/pulse_design.html" class="navic" title="放电设计" aria-label="放电设计"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5h2.5L6 3.5h4l2.5 9H15"/></svg></a>
     <a href="pages/model.html" class="navic" title="物理建模" aria-label="物理建模"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 1.8v11.7H15"/><path d="M3.2 4.4c3.6 0 4.6 2.7 5.1 5.2.4 2 1.3 3 3.2 3.6"/></svg></a>
     <a href="pages/analysis.html" class="navic" title="实验分析" aria-label="实验分析"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.6" d="M4.2 2.4C9.2 2.4 13.2 4.8 13.2 8C13.2 11.2 9.2 13.6 4.2 13.6Z"/><path stroke-width="1.1" d="M1.3 5.2h13.4M1.3 8h13.4M1.3 10.8h13.4"/></svg></a>
     <a href="pages/data.html" class="navic" title="装置数据" aria-label="装置数据"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="3.7" rx="5.2" ry="2.1"/><path d="M2.8 3.7v8.6c0 1.16 2.33 2.1 5.2 2.1s5.2-.94 5.2-2.1V3.7"/><path d="M2.8 8c0 1.16 2.33 2.1 5.2 2.1s5.2-.94 5.2-2.1"/></svg></a>
-    <a href="pages/report.html" class="navic" title="算例报告" aria-label="算例报告">undefined</a>
+    <a href="pages/report.html" class="navic" title="算例报告" aria-label="算例报告"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.5" d="M9.2 1.8H4.3c-.55 0-1 .45-1 1v10.4c0 .55.45 1 1 1h7.4c.55 0 1-.45 1-1V5.3z"/><path stroke-width="1.5" d="M9.2 1.8v3.5h3.5"/><path stroke-width="1.1" d="M5.7 8.7h4.6M5.7 11.2h4.6"/></svg></a>
     <button id="theme-toggle" class="iconbtn" type="button"></button>
   </nav>
 </header>
@@ -54,7 +54,7 @@
 
 <h2>上级项目：FyTok</h2>
 
-<p>fylite 是 <a href="https://github.com/fusion-yun/fytok">FyTok</a> 的<strong>轻量版</strong>——FyTok 是<strong>上级项目</strong>（同为 <strong>Apache-2.0</strong>，中国科学院等离子体物理研究所）：一套完整的托卡马克集成建模框架，插件机制、工作流调度、异构执行与可追溯，面向超算 / 云计算。两者同为 <strong>fyo 语义契约</strong>的实现，fylite 取轻型一端：关键求解器另行重写，可在浏览器内免安装运行，并<strong>充当 FyTok 的最小功能验证</strong>——两级实现独立编码、答对同一份契约，因此实现间对拍是<strong>交叉检验</strong>而不是自证。芯部输运的通道声明语法直接取自 FyTok 的 <code>fytrans</code>（见下表），逐位对拍也以它为基准。</p>
+<p>fylite 是 <a href="https://fusion-yun.github.io/">FyTok</a> 的<strong>轻量版</strong>——FyTok 是<strong>上级项目</strong>（同为 <strong>Apache-2.0</strong>，中国科学院等离子体物理研究所）：一套完整的托卡马克集成建模框架，插件机制、工作流调度、异构执行与可追溯，面向超算 / 云计算。两者同为 <strong>fyo 语义契约</strong>的实现，fylite 取轻型一端：关键求解器另行重写，可在浏览器内免安装运行，并<strong>充当 FyTok 的最小功能验证</strong>——两级实现独立编码、答对同一份契约，因此实现间对拍是<strong>交叉检验</strong>而不是自证。芯部输运的通道声明语法直接取自 FyTok 的 <code>fytrans</code>（见下表），逐位对拍也以它为基准。</p>
 
 <h2>移植与出处</h2>
 
@@ -212,9 +212,15 @@
 <ul>
   <li><a href="https://github.com/fusion-yun/fylite/blob/develop/LICENSE">LICENSE</a>
       — <span>Apache License 2.0 全文</span></li>
-  <li><a href="https://github.com/fusion-yun/fylite/blob/develop/NOTICE">NOTICE</a>
-      — <span>逐文件的移植出处、修改说明，以及「不含什么」</span></li>
-  <li><a href="https://github.com/fusion-yun/fylite/blob/develop/ACKNOWLEDGEMENTS.md">ACKNOWLEDGEMENTS.md</a>
+  <!-- ★★NOTICE 是**站点自己带的一份**，不是仓库里的一份（2026-09-08）。仓根没有
+       NOTICE：`095374f` 裁定它描述内核源码、随源码留在 fylite_kernel，而 Apache-2.0
+       §4(d) 的义务附着在**分发件**上，由分发的构建当场装入——轮子由
+       `tools/build-wheel.sh` 装，站点由 `tools/build-site.sh` 装。所以这条链接指向
+       本站根目录，而不是一个 404 的仓库路径。★在**未经构建的 `app/` 源树**里
+       预览时它取不到——那棵树不是分发件，别把这条改回仓库链接。 -->
+  <li><a href="NOTICE">NOTICE</a>
+      — <span>逐文件的移植出处、修改说明，以及「不含什么」——它随发行件同行，这一份就在本站根目录</span></li>
+  <li><a href="https://github.com/fusion-yun/fylite/blob/develop/docs/ACKNOWLEDGEMENTS.md">docs/ACKNOWLEDGEMENTS.md</a>
       — <span>可读的致谢全表：上游代码、转写的公式、数据与夹具、刻意未取的东西</span></li>
   <li><a href="https://github.com/fusion-yun/fylite/blob/develop/CONTRIBUTORS.md">CONTRIBUTORS.md</a>
       — <span>维护者与版权归属</span></li>

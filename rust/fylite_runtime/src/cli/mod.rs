@@ -243,6 +243,12 @@ pub struct Spec {
     /// Retired command words and where each went (`retired` in the spec),
     /// longest key first so `case run` is found before `case`.
     pub retired: Vec<(String, String)>,
+    /// Options accepted **anywhere** on the line, before or after the command
+    /// words (`globals` in the spec).  ★They are declared in the same file as
+    /// every other option so a reader finds them in one place; they are handled
+    /// before parsing because what they change (the startup banner) happens
+    /// before parsing.
+    pub globals: Vec<ArgDef>,
 }
 
 /// The parsed command line.
@@ -299,7 +305,9 @@ fn s(n: Option<&Node>) -> String {
 /// homogeneous list of strings into `Node::Array` (a string tensor) and
 /// keeps a mixed or nested one as `Node::List`; a spec reader has to take
 /// both spellings, so this is the one place that does.
-fn str_items(n: &Node) -> Vec<String> {
+//: ★`pub(crate)` 因为 `banner.rs` 读的是同一种 JSON（`_notice.json`），
+//: 而「一个字符串数组有两种拼法」这条规则只该有一处实现。
+pub(crate) fn str_items(n: &Node) -> Vec<String> {
     match n {
         Node::List(l) => l.iter().filter_map(Node::as_str).map(str::to_string).collect(),
         Node::Array(a) => a.as_str().map(|s| s.to_vec()).unwrap_or_default(),
@@ -413,6 +421,8 @@ pub fn parse_spec(text: &str) -> Result<Spec, String> {
         commands: m.get("commands").and_then(Node::as_list).map(|l| l.iter().map(command_def).collect()).unwrap_or_default(),
         default_command: rust.and_then(|r| r.get("default_command")).and_then(Node::as_str).map(str::to_string),
         app_params,
+        globals: m.get("globals").and_then(Node::as_list)
+            .map(|l| l.iter().map(arg_def).collect()).unwrap_or_default(),
         retired: {
             let mut v: Vec<(String, String)> = m
                 .get("retired")
@@ -609,6 +619,10 @@ pub fn usage(spec: &Spec, host: &str, prog: &str, path: &[&str]) -> String {
         ));
     }
     out.push_str("\n  -h, --help  show this usage\n");
+    //: ★全局选项印在每一屏用法的同一处：它们在哪条命令上都收，所以在哪一屏都得说。
+    for g in &spec.globals {
+        out.push_str(&format!("  {}  {}\n", g.flags.join(", "), g.help));
+    }
     out
 }
 
@@ -659,6 +673,15 @@ fn check_value(a: &ArgDef, v: &str) -> Result<(), String> {
 /// Parse `argv` (without the program name) for `host`.  `prog` is only
 /// used in messages and usage.
 pub fn parse(spec: &Spec, host: &str, prog: &str, argv: &[String]) -> Parsed {
+    //: ★★全局选项在这里就摘掉，而不是让每条命令各自声明一遍：它们的作用发生在
+    //: 解析之前（banner 印在第一行），而**留在 argv 里**的后果是每条命令都要认得
+    //: 它们，漏一条就报「unknown option」——那正是用户敲 `--nobanner` 时会撞上的。
+    let argv: Vec<String> = argv
+        .iter()
+        .filter(|a| !spec.globals.iter().any(|g| g.flags.iter().any(|f| f == *a)))
+        .cloned()
+        .collect();
+    let argv = &argv[..];
     let mut i = 0;
     let mut chain: Vec<&CommandDef> = Vec::new();
     let mut path: Vec<String> = Vec::new();

@@ -167,6 +167,11 @@ def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
         "//\n"
         "// 由 `build.rs` 抄进 `$OUT_DIR` 再 `include!` 进 `src/facts.rs`——**不入库**：\n"
         "// 装置文档是受许可约束的数据，写成 `.rs` 提交进公开仓就是换一种语法发布同一批字节。\n"
+        #: ★★版别也编进去（2026-09-08，`FYL-DESIGN-19` A-18）。此前它只在上面那句
+        #: 注释里，于是**二进制自己说不出自己是哪一版**——而启动 banner 要据此决定
+        #: 说不说「仅限内部测试」。写成一个常量，它就与装置表同源、同一次构建、
+        #: 不可能各说各的。
+        f'pub static FLAVOUR: &str = "{flavour}";\n'
         "pub static EMBEDDED: &[(&str, &str, &str)] = &[\n"
         + "\n".join(rows)
         + ("\n" if rows else "")

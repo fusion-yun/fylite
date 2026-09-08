@@ -9,4 +9,4 @@ self.FyRuntimeVersion = '0.0.1';
 
 // 这一份 wasm 里编着哪一版的装置信息。★下游（build-site.sh /
 // build-app-exe.sh）据此核对：版别在**编译期**定死，发布时挑不了。
-self.FyFactsFlavour = 'internal';
+self.FyFactsFlavour = 'public';

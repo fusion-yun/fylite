@@ -3095,6 +3095,16 @@ self.onmessage = function (ev) {
     // A worker has no localStorage, so it cannot see the page's choice —
     // the page tells it, and error text comes back in the right language.
     if (msg.lang) FyI18n.use(msg.lang);
+    //: ★★页面编译好的那一份（2026-09-08）。收下就不再自己取——一份 1.68 MB 的
+    //: 模块此前每个领域各取一遍。**必须排在 `init` 之前**：`init` 一旦开始就会
+    //: `attach`，那时再给已经晚了。发送方（`scenario.js` / `scenario-model.js`）
+    //: 因此把这条排在队首，其余命令等它发完再发。
+    //: ★收不到也照常能跑：`attach` 会自己取，只是多一次下载。
+    if (msg.cmd === 'wasm') {
+      self.FyLite.adoptModule(msg.url, { module: msg.module, sha256: msg.sha256,
+                                         bytes: msg.bytes });
+      return;
+    }
     if (msg.cmd === 'init') return init(msg.machine);
     //: ★needs BOTH modules: the core solves, tglf closes.  They never call
     //: each other — chi crosses between them as plain numbers on this side —

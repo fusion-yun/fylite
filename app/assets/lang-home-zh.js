@@ -31,7 +31,7 @@ self.FyI18n.register('zh', {
   'home.run.h2': '运行方式与数据',
   'home.run.p': '全部计算在访问者本机的浏览器内执行。页面不向任何服务器提交数据：所设参数与所得结果均不离开本机，关闭页面即消失。首次访问需下载一份计算内核，其后每次求解均为本地执行。',
   'home.two.h2': 'fylite 与 FyTok：一份契约的两级实现',
-  'home.two.p1': 'fylite 不是一个独立的程序，而是 <strong>fyo 语义契约</strong>的<strong>轻型实现</strong>。同一份契约还有一个重型实现——<a href="https://github.com/fusion-yun/fytok">FyTok</a>，一套完整的集成建模框架。契约以 IMAS 数据字典（DD v4）语义为底，物理量按语义路径寻址，因此两边说的是同一套话。',
+  'home.two.p1': 'fylite 不是一个独立的程序，而是 <strong>fyo 语义契约</strong>的<strong>轻型实现</strong>。同一份契约还有一个重型实现——<a href="https://fusion-yun.github.io/">FyTok</a>，一套完整的集成建模框架。契约以 IMAS 数据字典（DD v4）语义为底，物理量按语义路径寻址，因此两边说的是同一套话。',
   'home.two.col.lite': 'fylite（轻型端，就是这里）',
   'home.two.col.tok': 'FyTok（重型端）',
   'home.two.row.what': '是什么',

@@ -20,7 +20,7 @@ self.FyI18n.register('en', {
 
 
   'cr.parent.h2': 'The parent project: FyTok',
-  'cr.parent.p': 'fylite is the <strong>lightweight edition</strong> of <a href="https://github.com/fusion-yun/fytok">FyTok</a>, its <strong>parent project</strong> (also <strong>Apache-2.0</strong>, Institute of Plasma Physics, Chinese Academy of Sciences): a full tokamak integrated-modelling framework, with plugins, workflow scheduling, heterogeneous execution and provenance, aimed at HPC and the cloud. Both implement the <strong>fyo semantic contract</strong>; fylite takes the light end — the key solvers written afresh so they run in the browser with nothing to install — and <strong>doubles as FyTok\'s minimal functional verification</strong>: the two are coded independently against the same contract, so comparing them is a <strong>cross-check</strong> rather than a code confirming itself. The core-transport channel grammar is taken from FyTok\'s <code>fytrans</code> (see the table below), which is also the bit-for-bit anchor of the transport step.',
+  'cr.parent.p': 'fylite is the <strong>lightweight edition</strong> of <a href="https://fusion-yun.github.io/">FyTok</a>, its <strong>parent project</strong> (also <strong>Apache-2.0</strong>, Institute of Plasma Physics, Chinese Academy of Sciences): a full tokamak integrated-modelling framework, with plugins, workflow scheduling, heterogeneous execution and provenance, aimed at HPC and the cloud. Both implement the <strong>fyo semantic contract</strong>; fylite takes the light end — the key solvers written afresh so they run in the browser with nothing to install — and <strong>doubles as FyTok\'s minimal functional verification</strong>: the two are coded independently against the same contract, so comparing them is a <strong>cross-check</strong> rather than a code confirming itself. The core-transport channel grammar is taken from FyTok\'s <code>fytrans</code> (see the table below), which is also the bit-for-bit anchor of the transport step.',
 
   'cr.port.h2': 'Ports and provenance',
   'cr.port.lead': 'The modules below are <strong>white-box translations</strong> of upstream code, not independent reimplementations from the literature. The distinction is a licence obligation and is therefore stated in the body of this page rather than in a footnote.',
@@ -98,7 +98,7 @@ self.FyI18n.register('en', {
   'cr.full.h2': 'The full texts',
   'cr.full.p': 'This page is a summary. The binding, per-file statements are in the repository:',
   'cr.full.license': 'the full Apache License 2.0',
-  'cr.full.notice': 'per-file provenance, the statement of changes, and what is not included',
+  'cr.full.notice': 'per-file provenance, the statement of changes, and what is not included — it travels with the distribution, and this copy sits at the root of this site',
   'cr.full.ack': 'the readable acknowledgement list: upstream code, transcribed formulae, data and fixtures, and what was deliberately not taken',
   'cr.full.contrib': 'maintainers and copyright',
   'cr.full.issue': 'Repository: <a href="https://github.com/fusion-yun/fylite">github.com/fusion-yun/fylite</a>',
