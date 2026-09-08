@@ -869,23 +869,31 @@
      ],
      "record": "B-07",
      "record_state": "proposed",
-     "gate": [],
+     "gate": [
+      "PYTHONPATH=<公开检出>/python:tests python -m pytest tests/test_tgyro_converged.py -m physics  （内核仓，3 条，88 s）"
+     ],
      "criteria": [
       {
        "type": "fyo:AcceptanceCriterion",
-       "quantity_label": "收敛梯度剖面（逐半径）",
+       "quantity_label": "收敛梯度剖面（逐半径，通量差经实测刚度折算为梯度当量偏移）",
+       "norm": "relative",
+       "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.08
+       },
        "tolerance_basis": "measured_band",
-       "tolerance_note": "带在实测后定；★零假设要写明：不做通量匹配、直接取初始剖面能得到多少"
+       "tolerance_note": "实测最劣 5.7 % + 一档余量；零假设（不匹配、直接取初始剖面）133.7 %，带必须比它紧一个数量级，门里有一条断言守着这件事"
       }
      ],
-     "status": "planned",
+     "status": "pass",
      "caveat": [
       "★参考侧的名字是「**迭代到底（as declared）**」不是「收敛」：4 次是算例自己声明的次数，残差仍在 0.18。用它做参考时这一点要一并带上——把它叫收敛，是一句后来的读者无从察觉的小夸张。",
       "★★**零假设不是处处站不住**：r/a=0.5 上解几乎不动（0.3 % / 1.6 %），只在那一点取样的比较会把自己衬得很好看。设带时这一点必须单列，否则一条只测了一个不动点的判据会长期报绿。",
       "★★跑法上的坑（已记进语料的 README）：驱动要**上游随件**那份 `treg02`，不能用隔壁捕获——捕获里的 `TGLF1..4/` 装的是 `out.*.localdump`（输出），而驱动要逐半径的 `input.tglf`（输入）；给错了它一路报 `No code found in TGLF1`、**不写 `gyrotest_flag`**，可执行文件随后死于「打不开该文件」，错误信息与真正的原因隔着两层。",
-      "★★**本仓这一侧要建什么**（2026-09-08 勘定，供下一次接手）：不是跑一遍现成的算例——本仓的通量匹配（`scenario/model/_flux_match_once`）走 `code/evolve` 的分块行进，吃的是本仓的场景输入；而参考侧是**定几何、四个半径、逐通道对目标通量求根**。要对得上，需要五件事都摆对：① 由 `input.gacode` 造出定几何的阶梯（半径 · 度规 · q · 剪切）；② 逐半径用**已验证的映射**造局域态（内核仓 `tests/oracles/mapping.py` 的 `surface_state` / `tglf_inputs`，V-06 / V-07 钉的就是它）；③ 本仓 TGLF 按同一档设置评通量（TGLF revision 3 / SAT2 / 两种离子 / 旋转开）；④ 对 `a/L_T` 逐半径逐通道求根，目标取参考侧 `out.tgyro.flux_*` 的 target 列，单位在**回旋玻姆**里对齐；⑤ 带按实测定，且**必须避开 r/a=0.5 的退化**（见上一条）。★这五件里前四件各有已知的坑（跨饱和规则比较 · `sign_It` · E×B 谱移 · GB 归一），本轮不硬做：一个赶出来的数在登记册里与一个量出来的数长得一模一样，而这本册子的全部价值就在于两者不同。"
+      "★★**比通量会把结论说反**：r/a=0.2 上通量差近四成，听起来像端口坏了，而梯度只差两个百分点——调和这两句的是**刚度**（`dlnQ/dln(a/L_T)` ≈ 15），门里**现测**它，不引文献。第二条断言把这个读法钉住：刚度若掉到个位数，这套读法本身不再成立，门会说出来。",
+      "★★两条限制随数走，不留在注释里：偏移是**经实测刚度线性化**的，不是真求根（每半径一次二维求根，r/a=0.5 上一次通量求值 290 s——这是取舍不是疏忽）；背景态（密度 · 几何 · betae）固定在 TGYRO 第 0 次迭代，而 TGYRO 每迭代都重积分剖面。所以量的是「**在 TGYRO 的背景上**本仓 TGLF 把梯度定在哪」，不是本仓独立解出的定态。"
      ],
-     "status_note": "2026-09-08：**参考侧已备齐**（本条自己的缺口所指的那一步已做）——隔壁 `treg02/` 是 `RELAX_ITERATIONS=0` 的映射捕获，答不了本条；新捕获 `treg02-converged/` 是同一算例迭代到底的那一份。**零假设已量**：不做通量匹配、直接取初始剖面，`a/Lte` 在 r/a=0.2 差 **+133.7 %**、`a/Lti1` 差 +74.0 %，而 r/a=0.5 只差 0.3 % / 1.6 %。**待做**：本仓通量匹配跑同一算例并设带"
+     "status_note": "2026-09-08 **量到了**：梯度当量偏移最劣 **+5.7 %**（离子，r/a=0.35），其余 −1.4 %…+4.5 %；带取 **8 %**（实测后定）。★通量差不是结论：r/a=0.2 上通量差 28 % / 40 % 而梯度只差 1.7 % / 2.3 %，因为那一点**刚度约 15**（本门现测，非引文）。零假设 133.7 %，本条比它紧十六倍以上"
     },
     {
      "id": "plan/S6/transport-self-consistency",
@@ -1271,8 +1279,8 @@
        "tolerance_basis": "reference_stated"
       }
      ],
-     "status": "unevaluated",
-     "status_note": "本轮**驱动了**这道浏览器门（2026-09-08 第三轮实测）：参考表接上之后它跑起来，在第一段就 `TypeError: Cannot set properties of null`——它在 `#model-evolve-case` 上套算例，而案例菜单 2026-09-01 已随各栏的出厂设置撤掉（F-23）。**闸子陈了，不是没跑**；另按阻塞规则它还消费 S7（fail）与 S8 的产物 ｜ **2026-09-08 复核：拦路的东西变了**——ASTRA 参考表**够得到**（`$FYLITE_KERNEL/tests/data/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv`，闸子第一行就把它打出来了），闸子因此不再「响亮地跳过」；它现在走进浏览器后失败于`page.evaluate: Cannot set properties of null (setting 'value')`（`march()`）——页面的元素 id 与闸子对不上。",
+     "status": "pass",
+     "status_note": "26 条断言全部通过、页面零报错（2026-09-08 第三轮，闸子修好之后现驱动）。★闸子此前**陈了一周**：它在 `#model-evolve-case` 上套算例，而案例菜单 2026-09-01 已随「每一栏开在出厂设置上」撤掉，于是第一段就 `TypeError`（F-23）。改法是**这一档改从算例文档来**——直接读 `docs/examples/evolve/evolve-iter-15ma.jsonld` 的 114 条 `parameters[]` 落到控件上，判据一个字没动，喂进去的仍是那一档声明的那些数。★缺任何一个控件即判负并把缺的列全，因为那意味着这一档在页面上已经表达不出来了",
      "caveat": [
       "★C-01 的发布日复测记为「未评估（1 stale）」——按本册子的规则，这不是通过；它是本级现状的一部分。",
       "★★这一条的「未评估」**成因已变**：不再是「参考侧不在手边」（F-22 修好之后照实记的那个理由），而是**闸子对着改过的页面陈了**。同批实测另有四条同样死法（`validate-handoff` · `validate-ip-reading` · `validate-stationary` · `validate-zerod-app`，全是 `Cannot set properties of null`），所以这是**一批**闸子与前端改动之间的账，不是本条自己的物理问题。★前端改动正在另一处进行中，本轮不动它——在别人改着的页面上改闸子，改的是一个明天不存在的形。"
