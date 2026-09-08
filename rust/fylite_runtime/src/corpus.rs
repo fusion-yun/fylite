@@ -80,7 +80,7 @@ fn named() -> Vec<PathBuf> {
 
 /// 检出自己的 `docs/examples/`：自可执行文件位置上溯，找一个**同时**有
 /// `docs/examples/` 与 `python/` 的目录（判据要两样，理由同 `facts::repo_facts`）。
-fn repo_cases() -> Option<PathBuf> {
+pub fn repo_cases() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;
     let mut here: &Path = exe.parent()?;
     loop {

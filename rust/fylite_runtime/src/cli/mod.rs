@@ -45,6 +45,58 @@ pub mod data;
 pub mod list;
 pub mod run;
 
+// ─────────────────────── 路径怎么写给人看（一处实现） ───────────────────────
+
+/// 内置那一档在输出里的写法。★指向 `facts::BUNDLED_ROOT`，不另写一个字面量：
+/// 两处各写一个，改一处就够它们从此各说各话。
+pub(crate) const BUILTIN: &str = crate::facts::BUNDLED_ROOT;
+
+/// `$HOME` 收成 `~`。★只用在**给人看**的排版上：`--json` 那一面照旧给完整路径
+/// ——机器要的是能直接打开的那一个，而 `~` 要 shell 才展得开。
+pub(crate) fn tilde(p: &std::path::Path) -> String {
+    let s = p.display().to_string();
+    match std::env::var("HOME") {
+        Ok(h) if !h.is_empty() && h != "/" && s.starts_with(&h) => format!("~{}", &s[h.len()..]),
+        _ => s,
+    }
+}
+
+/// 「内置」的那几个根：编进二进制的那一档，加上**检出自己的暂存区**
+/// （`dist/facts` 与 `dist/cases`——构建正是从它们出 `facts.rs` 与模板的）。
+fn builtin_roots() -> Vec<std::path::PathBuf> {
+    let mut v = Vec::new();
+    if let Some(r) = crate::facts::repo_facts() {
+        v.push(r);
+    }
+    if let Some(r) = crate::corpus::repo_cases() {
+        v.push(r);
+    }
+    v
+}
+
+/// 一条路径写给人看。
+///
+/// ★★★**内置那一档的构建期路径不出现在输出里**（用户裁定 2026-09-08）：它说的是
+/// 构建这份二进制的那台机器的目录布局，而读者拿它既打不开（发行版上根本没有那个
+/// 目录）也不该看见。落在内置根里的文件因此写成 `<buildin>/device/east.jsonld`
+/// ——**哪一份**仍然说得出，只是不再连着谁的家目录一起说。
+/// ★其余路径照打（收掉 `$HOME`）：那是调用方自己用 `--facts` / `$FY_FACTS_PATH`
+/// 给进来的，回显它是在回答「我给的那个根生效了吗」。
+pub(crate) fn shown(p: &std::path::Path) -> String {
+    if p.as_os_str() == BUILTIN {
+        return BUILTIN.to_string();
+    }
+    for r in builtin_roots() {
+        if p == r {
+            return BUILTIN.to_string();
+        }
+        if let Ok(rel) = p.strip_prefix(&r) {
+            return format!("{BUILTIN}/{}", rel.display());
+        }
+    }
+    tilde(p)
+}
+
 /// The spec, verbatim, from the one place it lives.
 /// 改过名的选项：报「不认识」之前先看看它是不是搬了家。
 ///
@@ -551,7 +603,7 @@ pub fn usage(spec: &Spec, host: &str, prog: &str, path: &[&str]) -> String {
             "\n{kind} parameters:\n  \
              Anything else written `key=value` — equivalently `--key=value`, `--key` (true) or\n  \
              `--no-key` (false) — is a parameter of the {kind} itself.  The names, types and\n  \
-             defaults are the {kind} template's, not this file's: `{prog} list scenarios <name>`\n  \
+             defaults are the {kind} template's, not this usage text's: `{prog} list scenarios <name>`\n  \
              prints the table.  `-` and `_` are the same character in a name; `--key value`\n  \
              (a space instead of `=`) is not a parameter.\n"
         ));

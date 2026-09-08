@@ -45,7 +45,7 @@ pub const FACTS_ENV: &str = "FY_FACTS_PATH";
 
 /// 自带那一档的伪根名。它不是一条路径，所以不能是空串或一个真目录名——
 /// 打印出来的「是谁供的」要一眼看得出这一份**不在盘上**。
-pub const BUNDLED_ROOT: &str = "<bundled>";
+pub const BUNDLED_ROOT: &str = "<buildin>";
 
 /// 自带的那一档里，某个域的全部标识。
 fn embedded_idents(domain: &str) -> Vec<String> {
@@ -246,7 +246,7 @@ fn named() -> Vec<PathBuf> {
 /// `dist/facts/`（构建暂存区，`dist/` 本来就不入库）。仓顶那个目录只靠一行
 /// `.gitignore` 撑着，还有一条 `app/facts` 符号链接指着它——于是「哪些字节属于这个
 /// 仓」要靠记忆回答；搬进 `dist/` 之后由目录名自己回答。
-fn repo_facts() -> Option<PathBuf> {
+pub fn repo_facts() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;
     let mut here: &Path = exe.parent()?;
     loop {

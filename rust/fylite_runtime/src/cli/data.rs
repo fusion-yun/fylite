@@ -120,7 +120,7 @@ fn info(args: &Args) {
         print!("{}", crate::json::to_string(&out, true));
         return;
     }
-    println!("{}: {} ({} layout)", path.display(), d.format.name(), d.layout.name());
+    println!("{}: {} ({} layout)", super::shown(&path), d.format.name(), d.layout.name());
     for doc in &bundle.docs {
         let ids = fyodoc::ids_of(doc).unwrap_or_else(|| "?".into());
         let leaves = doc.leaves();
@@ -143,7 +143,7 @@ fn dump(args: &Args) {
         let node = match args.flag("path") {
             Some(p) => node
                 .walk(p, false)
-                .unwrap_or_else(|| die(&format!("no {p} in {}", path.display())))
+                .unwrap_or_else(|| die(&format!("no {p} in {}", super::shown(&path))))
                 .clone(),
             None => node,
         };
@@ -164,7 +164,7 @@ fn dump(args: &Args) {
             let root = bundle.to_node();
             match by_ids.cloned().or_else(|| root.walk(p, true).cloned()) {
                 Some(n) => n,
-                None => die(&format!("no {p} in {}", path.display())),
+                None => die(&format!("no {p} in {}", super::shown(&path))),
             }
         }
         None => bundle.to_node(),
@@ -175,7 +175,7 @@ fn dump(args: &Args) {
 fn report(rep: &io::WriteReport, out: &Path) {
     eprintln!(
         "wrote {} as {} ({} layout)",
-        out.display(),
+        super::shown(&out),
         rep.format.map(|f| f.name()).unwrap_or("?"),
         rep.layout.map(|l| l.name()).unwrap_or("?")
     );
@@ -346,7 +346,7 @@ fn resolve_device(spec: &str) -> Result<PathBuf, String> {
         return Err(format!("fetch: --device {spec}: no such file"));
     }
 
-    let roots: Vec<String> = facts::roots().iter().map(|r| r.display().to_string()).collect();
+    let roots: Vec<String> = facts::roots().iter().map(|r| super::shown(r)).collect();
     let Some(entry) = facts::find("device", spec) else {
         let known: Vec<String> = facts::entries("device").into_iter().map(|e| e.ident).collect();
         let where_ = if roots.is_empty() {
@@ -365,7 +365,7 @@ fn resolve_device(spec: &str) -> Result<PathBuf, String> {
         format!(
             "fetch: --device {spec}: {} has the entry but no {} — that device is described \
              by a card, not by a manifest this can fetch against",
-            entry.root.join("device").join(spec).display(),
+            super::shown(&entry.root.join("device").join(spec)),
             facts::MANIFEST.join("/")
         )
     })
@@ -394,7 +394,25 @@ fn fetch(args: &Args) {
         println!("device: {}", a.device.as_deref().unwrap_or("?"));
         println!("shot: {}  time: {:?}  max_points: {:?}", a.params.shot, a.params.time, a.params.max_points);
         for alias in &a.merge {
-            println!("  {alias}: {:?}", a.sources.get(alias));
+            //: ★★源逐条写成人读的一行，路径走 `shown`：从前这里打的是 Rust 的
+            //: `{:?}`（`Some(File("/home/…"))`），既把构建者的目录布局摊开，又把
+            //: 「这一支从哪儿来」埋在一层调试格式里。
+            let what = match a.sources.get(alias) {
+                None => "—".to_string(),
+                Some(crate::assembly::SourceSpec::File(p)) => super::shown(p),
+                Some(crate::assembly::SourceSpec::MdsBind { path, host, port }) => {
+                    let where_ = match (host, port) {
+                        (Some(h), Some(p)) => format!("  ({h}:{p})"),
+                        (Some(h), None) => format!("  ({h})"),
+                        _ => String::new(),
+                    };
+                    format!("{}{where_}", super::shown(path))
+                }
+                Some(crate::assembly::SourceSpec::Mdsplus { host, port, tree }) => {
+                    format!("mdsplus://{host}:{port}/{tree}")
+                }
+            };
+            println!("  {alias}: {what}");
         }
         println!("select: {:?}", a.select);
         for n in &notes {

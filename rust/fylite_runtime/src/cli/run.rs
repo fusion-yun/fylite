@@ -394,7 +394,7 @@ fn load_device(args: &Args, t: Option<&Template>, spec: &str, out_dir: &Path, dr
 
     let Some(entry) = facts::find("device", spec) else {
         let known: Vec<String> = facts::entries("device").into_iter().map(|e| e.ident).collect();
-        let roots: Vec<String> = facts::roots().iter().map(|r| r.display().to_string()).collect();
+        let roots: Vec<String> = facts::roots().iter().map(|r| super::shown(r)).collect();
         let where_ = if roots.is_empty() {
             format!(" — the facts path is empty; set ${} or pass --facts", facts::FACTS_ENV)
         } else {
@@ -415,7 +415,7 @@ fn load_device(args: &Args, t: Option<&Template>, spec: &str, out_dir: &Path, dr
             format!(
                 "--device {spec}: {} has the entry but no {} — this scenario needs coil geometry \
                  and channel tables, and that device is described by a card, not by a manifest",
-                entry.root.join("device").join(spec).display(),
+                super::shown(&entry.root.join("device").join(spec)),
                 facts::MANIFEST.join("/")
             ),
         ));
@@ -577,7 +577,7 @@ fn resolve_measurements(
             Some(s) => {
                 let slices = s.slices();
                 if slices.is_empty() {
-                    tried.push(format!("{} has no slice documents", s.dir.display()));
+                    tried.push(format!("{} has no slice documents", super::shown(&s.dir)));
                 } else if let Some(t_s) = time {
                     match crate::mdsbind::TimeSel::parse(t_s) {
                         Ok(_) => {}
@@ -593,14 +593,14 @@ fn resolve_measurements(
                         }
                         None => tried.push(format!(
                             "{} carries {} slices, none within the tolerance of t={t_s}",
-                            s.dir.display(),
+                            super::shown(&s.dir),
                             slices.len()
                         )),
                     }
                 } else {
                     tried.push(format!(
                         "{} carries {} slices but no `time=` said which",
-                        s.dir.display(),
+                        super::shown(&s.dir),
                         slices.len()
                     ));
                 }
@@ -1086,7 +1086,7 @@ fn print_dry(args: &Args, target: &Target, plan: &Plan, prov: &Prov, device: Opt
         ),
         Target::Plans { paths, template } => println!(
             "{}  ->  {}   ({})",
-            paths.iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(" + "),
+            paths.iter().map(|p| super::shown(p)).collect::<Vec<_>>().join(" + "),
             plan.code,
             template
                 .as_ref()

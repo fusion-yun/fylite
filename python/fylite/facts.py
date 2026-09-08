@@ -329,7 +329,7 @@ def bundled_count() -> int:
 
 #: 自带那一档的伪根名——它不是一条路径，所以不能写成一个真目录名：打印出来的
 #: 「是谁供的」要一眼看得出这一份**不在盘上**。
-BUNDLED_ROOT = Path("<bundled>")
+BUNDLED_ROOT = Path("<buildin>")
 
 
 def find(domain: str, ident: str) -> Entry | None:

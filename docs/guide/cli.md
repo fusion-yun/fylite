@@ -184,15 +184,22 @@ fy list kernel                    # 内核认哪些 code、哪些 entry
 
 :::{note}
 **装置信息编在二进制里。** `fy list facts --roots` 会列出两条根：检出的暂存语料
-`dist/facts/`（自可执行文件位置上溯探得），与 `<bundled>`——编进这份二进制的那一份。
-把二进制拷到检出之外，只剩后者：
+（自可执行文件位置上溯探得的 `dist/facts/`）与编进这份二进制的那一份——**两条都打
+`<buildin>`**，后面各带一句是哪一种。★2026-09-08 用户裁定：**构建期的路径不出现在
+输出里**——它说的是构建这份二进制的那台机器的目录布局，读者既打不开也不该看见。
+落在内置根里的文件因此写成 `<buildin>/device/east.jsonld`：**哪一份**仍然说得出。
+`--facts` / `$FY_FACTS_PATH` 给进来的根照打（`$HOME` 收成 `~`）——回显它，是在回答
+「我给的那个根生效了吗」。`--json` 那一面不受这条影响：机器要的是能直接打开的路径。
 
 ```console
 $ ./fy list facts --roots
-1. <bundled>   (6 条，编在这份二进制里)
+1. <buildin>   (检出暂存区，盘上的那一份)
+2. <buildin>   (7 条，编在这份二进制里)
 $ ./fy list devices | tail -1
-6 devices; `fy list devices <id>` prints one in full
+facts: <buildin>
 ```
+
+把二进制拷到检出之外，第一条就没有了。
 
 ★**内部版也只带六台**（best · cfedr · cfetr · iter · jt60sa · west），实测。判据在
 `tools/facts-publish.py`：**没有页面文档就不发**——本仓 `facts/device/<id>/` 里只有

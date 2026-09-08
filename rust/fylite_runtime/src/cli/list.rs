@@ -77,6 +77,206 @@ fn pad(s: &str, n: usize) -> String {
     format!("{s}{}", " ".repeat(n.saturating_sub(w)))
 }
 
+use super::{shown, tilde, BUILTIN};
+
+/// `from` 那一格：这一条是哪个根供的。
+///
+/// ★★写**路径**，不写编号（用户裁定 2026-09-08）。编号要读者再去查一张图例，
+/// 而「哪一个根」正是这一列存在的理由——查得到不等于说得出。
+fn from_cell(root: &std::path::Path) -> String {
+    shown(root)
+}
+
+/// 生效的搜索路径，写成 `$PATH` 的样子：冒号分隔，内置的那一档排在最前
+/// （用户裁定 2026-09-08），其后是 `--facts` / `$FY_FACTS_PATH` 解析出来的那些根。
+fn search_path(roots: &[std::path::PathBuf], built_in: bool) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    if built_in || roots.iter().any(|r| shown(r) == BUILTIN) {
+        parts.push(BUILTIN.to_string());
+    }
+    //: ★后面只列**命令行或环境变量解析出来的**那些根：检出的暂存语料已经由
+    //: `<buildin>` 说了，再打一次它的路径就是同一个根说两遍。
+    parts.extend(roots.iter().filter(|r| shown(r) != BUILTIN).map(|r| shown(r)));
+    parts.join(":")
+}
+
+/// 这一条可以据以介绍自己的那份文档：先卡片，没有卡片就用清单。
+///
+/// ★★不写成「只读卡片」：fydoc 那侧的条目**只有清单**（`abox/device.jsonld`），
+/// 于是那一版的介绍列对着挂了 fydoc 的检出整列打 `—`——有话可说而没说。
+fn entry_doc(e: &facts::Entry) -> Option<Node> {
+    if let Some(t) = e.read() {
+        if let Ok(n) = crate::json::parse(&t).or_else(|_| crate::yaml::parse(&t)) {
+            return Some(n);
+        }
+    }
+    crate::io::read_node(&e.manifest_path()?).ok()
+}
+
+/// 一个数写成人读的短形（`1.75`，不是 `1.7500000000000002`）。
+fn num(x: f64) -> String {
+    let s = format!("{x:.4}");
+    let s = s.trim_end_matches('0').trim_end_matches('.');
+    if s.is_empty() { "0".to_string() } else { s.to_string() }
+}
+
+/// 这一条的**简短介绍**。
+///
+/// ★★取值只出自**文档自己**：先找全称一类的标注（`rdfs:label` / `dcterms:title` /
+/// `fylite:full_name`），没有就用这台机器自己的几何与场。**不从散文里取**——
+/// `abox/` 外是散文、内是数据（用户裁定 2026-09-04），而这条命令读的是数据；
+/// 也不在这里写一张「east = Experimental Advanced Superconducting Tokamak」的
+/// 名字表：那是把数据搬进代码，改一个名字要重编一次二进制，且这份表与 fydoc
+/// 那侧的说法从此可以各说各话而不报错。
+///
+/// ★实测（2026-09-08）：十三台**一台也没有全称**，所以今天打出来的都是后一种。
+/// 要全称，得先进 fydoc 的可编辑真源（`facts/device/<id>/provenance.yaml`）
+/// 再生成 A-Box——那一步在数据那侧，不在这里。
+fn describe(doc: &Node) -> String {
+    let Some(m) = doc.as_map() else { return "—".to_string() };
+    for k in ["rdfs:label", "dcterms:title", "fylite:full_name", "fyo:full_name"] {
+        if let Some(v) = m.get(k).and_then(Node::as_str) {
+            if !v.trim().is_empty() {
+                return v.trim().to_string();
+            }
+        }
+    }
+    //: 装置清单（fydoc 形）：`device` 是那台机器的名字。
+    let machine = m.get("machine").and_then(Node::as_map);
+    let mut bits: Vec<String> = Vec::new();
+    if let Some(r) = machine.and_then(|x| x.get("r_centre")).and_then(Node::as_f64) {
+        bits.push(format!("R {} m", num(r)));
+    }
+    if let Some(b) = machine.and_then(|x| x.get("fylite:b0")).and_then(Node::as_f64) {
+        bits.push(format!("B0 {} T", num(b)));
+    }
+    if !bits.is_empty() {
+        return bits.join(" · ");
+    }
+    for k in ["device", "name", "_machine"] {
+        if let Some(v) = m.get(k).and_then(Node::as_str) {
+            if !v.trim().is_empty() {
+                return v.trim().to_string();
+            }
+        }
+    }
+    "—".to_string()
+}
+
+/// 上游声明的许可，原样。★两种账的键不同名：本仓生成的 `rights.json` 记
+/// `declared`，fydoc 那侧的 FAIR 件记 `license`——同一件事的两个写法，都读。
+fn licence_raw(path: Option<&std::path::Path>) -> Option<String> {
+    let node = crate::io::read_node(path?).ok()?;
+    let m = node.as_map()?;
+    for k in ["declared", "license", "licence", "dcterms:license"] {
+        if let Some(v) = m.get(k).and_then(Node::as_str) {
+            if !v.trim().is_empty() {
+                return Some(v.trim().to_string());
+            }
+        }
+    }
+    None
+}
+
+/// 许可**类型**，给表用的短形。
+///
+/// ★★列里从前写 `yes` / `—`，答的是「有没有账」——而读者要问的是「我拿它能做
+/// 什么」。这两问不同：一台 `NOT OPEN` 与一台按文献重述的机器都「有账」，
+/// 而它们能做的事相反。
+///
+/// ★短形只是**排版**：它由下面这张小词表从声明原文压出来，原文一字不改地留在
+/// `fy list devices <id>` 与 `--json` 里。压不出来的照原样截断——不猜。
+fn licence_kind(raw: Option<&str>) -> String {
+    let Some(raw) = raw else { return "—".to_string() };
+    let low = raw.to_lowercase();
+    if low.contains("not open") {
+        "NOT OPEN".to_string()
+    } else if low.contains("literature") {
+        "literature".to_string()
+    } else if low.contains("mixed") {
+        "mixed".to_string()
+    } else {
+        let head = raw.split('—').next().unwrap_or(raw).trim();
+        if columns(head) > 14 {
+            format!("{}…", head.chars().take(13).collect::<String>())
+        } else {
+            head.to_string()
+        }
+    }
+}
+
+/// 这一条描述了哪些 IDS。
+///
+/// ★判据是**内置的 DD 表**，不是一张手写的「哪些键算 IDS」白名单：文档顶层还有
+/// `provenance` / `machine` / `solver_dims` 一类的自有键，而 DD 的 82 个 IDS 名
+/// 这份二进制自己就带着（`ids_tables::TABLES`）。手写白名单会在 DD 加一个 IDS
+/// 的那天悄悄少列一项。
+fn ids_of(e: &facts::Entry) -> Vec<String> {
+    //: 装置清单（fydoc 形）：`providers` 的键就是 IDS 名，一条一台数据源。
+    if let Some(m) = e.manifest_path() {
+        if let Ok(node) = crate::io::read_node(&m) {
+            if let Some(p) = node.as_map().and_then(|x| x.get("providers")).and_then(Node::as_map) {
+                let mut v: Vec<String> = p.iter().map(|(k, _)| k.to_string()).collect();
+                sort_ids(&mut v);
+                return v;
+            }
+        }
+    }
+    let Some(text) = e.read() else { return Vec::new() };
+    let Ok(node) = crate::json::parse(&text).or_else(|_| crate::yaml::parse(&text)) else {
+        return Vec::new();
+    };
+    let Some(m) = node.as_map() else { return Vec::new() };
+    let mut v: Vec<String> = m
+        .iter()
+        .map(|(k, _)| k.to_string())
+        .filter(|k| crate::ids_tables::TABLES.iter().any(|(n, _)| n == k))
+        .collect();
+    sort_ids(&mut v);
+    v
+}
+
+/// 常用的排前面，其余按名。
+///
+/// ★★表里只放得下前几个，所以**顺序就是选谁**。按字母排的那一版让 EAST 的头两个
+/// 成了 `ec_launchers, ic_antennas`——两条加热天线——而把这台机器拿来做什么全看
+/// 线圈、壁与磁测。这张次序表说的是「问『这台机器带什么』时先想知道哪几个」，
+/// 不是重要性排序：其余的一个不少，都在 `fy list devices <id>` 与 `--json` 里。
+const PRIMARY_IDS: [&str; 6] =
+    ["pf_active", "wall", "magnetics", "tf", "interferometer", "polarimeter"];
+
+fn sort_ids(v: &mut [String]) {
+    v.sort_by_key(|k| {
+        (PRIMARY_IDS.iter().position(|p| p == k).unwrap_or(PRIMARY_IDS.len()), k.clone())
+    });
+}
+
+/// 装得下的前几个 + 省略号。
+///
+/// ★省略号后面带上**还有几个**：一个光秃秃的 `…` 只说「不止这些」，而「还有 3 个」
+/// 与「还有 30 个」是两件事。
+///
+/// ★★按**列宽**裁，不按个数裁：按个数裁的那一版实测把 `from` 那一列挤出了对齐
+/// （EAST 十个 IDS，名字又长），而一张对不齐的表正是这条命令的产物本身。
+fn ids_cell(ids: &[String], width: usize) -> String {
+    if ids.is_empty() {
+        return "—".to_string();
+    }
+    for k in (1..=ids.len()).rev() {
+        let cell = if k == ids.len() {
+            ids.join(", ")
+        } else {
+            format!("{} …+{}", ids[..k].join(", "), ids.len() - k)
+        };
+        if columns(&cell) <= width {
+            return cell;
+        }
+    }
+    //: 一个都放不下：截第一个，仍把剩下几个说出来。
+    let head: String = ids[0].chars().take(width.saturating_sub(6)).collect();
+    format!("{head}… +{}", ids.len() - 1)
+}
+
 fn as_json(args: &Args) -> bool {
     args.has("json")
 }
@@ -118,27 +318,45 @@ fn devices(args: &Args) {
                 entries
                     .iter()
                     .map(|e| {
-                        map(vec![
-                            ("id", e.ident.clone().into()),
-                            ("root", e.root.display().to_string().into()),
-                            ("manifest", Node::Bool(e.manifest_path().is_some())),
-                            ("card", Node::Bool(e.has_document())),
-                            ("rights", Node::Bool(e.rights_path().is_some())),
-                        ])
+                        {
+                            //: ★★人看的与机器读的**同一次读取、同一批字段**：分开写的
+                            //: 那一刻，表里的省略号与 JSON 里的全表就开始各说各话。
+                            //: JSON 不省略——它的读者不看宽度。
+                            let raw = licence_raw(e.rights_path().as_deref());
+                            let doc = entry_doc(e);
+                            map(vec![
+                                ("id", e.ident.clone().into()),
+                                ("root", e.root.display().to_string().into()),
+                                ("description", doc.as_ref().map(describe)
+                                    .map(Node::from).unwrap_or(Node::Null)),
+                                ("licence", raw.clone().map(Node::from).unwrap_or(Node::Null)),
+                                ("licence_kind", licence_kind(raw.as_deref()).into()),
+                                ("ids", list(ids_of(e).into_iter().map(Node::from).collect())),
+                                ("manifest", Node::Bool(e.manifest_path().is_some())),
+                                ("card", Node::Bool(e.has_document())),
+                                ("rights", Node::Bool(e.rights_path().is_some())),
+                            ])
+                        }
                     })
                     .collect(),
             ));
             return;
         }
-        println!("{} {} {} {}", pad("device", 16), pad("described", 10), pad("licence", 8), "from");
+        //: ★`kind`（card / manifest）那一列已撤（用户裁定 2026-09-08）。这件事仍然
+        //: 说得出——`fy list devices <id>` 的 `manifest` 一行与 `--json` 的 `manifest`
+        //: 字段都在，撤掉的只是表上那一列。
+        println!("{} {} {} {} {}",
+                 pad("device id", 10), pad("description", 22), pad("licence", 11),
+                 pad("ids", 38), "from");
         for e in &entries {
-            //: ★卡片与清单不是同一件事，而差别是**能不能抓一发炮**：清单是抓取
-            //: 跑得起来的那一份（`facts.rs` MANIFEST），卡片只是描述。
-            let described = if e.manifest_path().is_some() { "manifest" } else { "card" };
-            let rights = if e.rights_path().is_some() { "yes" } else { "—" };
-            println!("{} {} {} {}", pad(&e.ident, 16), pad(described, 10), pad(rights, 8), e.root.display());
+            let desc = entry_doc(e).as_ref().map(describe).unwrap_or_else(|| "—".to_string());
+            let lic = licence_kind(licence_raw(e.rights_path().as_deref()).as_deref());
+            println!("{} {} {} {} {}",
+                     pad(&e.ident, 10), pad(&desc, 22), pad(&lic, 11),
+                     pad(&ids_cell(&ids_of(e), 38), 38), from_cell(&e.root));
         }
         println!("\n{} devices; `fy list devices <id>` prints one in full", entries.len());
+        println!("facts: {}", search_path(&facts::roots(), facts::embedded_count() > 0));
         return;
     }
     for id in want {
@@ -152,9 +370,15 @@ fn devices(args: &Args) {
             //: ★★`--json` 是**整个 `fy list` 的**参数（用法里就这么声明的）。
             //: 点名一台机器时它原先被静默忽略——声明了却不生效，比没有更坏：
             //: 脚本拿到的是给人看的排版，而退出码是 0。
+            let raw = licence_raw(e.rights_path().as_deref());
+            let doc = entry_doc(e);
             print_json(&map(vec![
                 ("id", e.ident.clone().into()),
                 ("root", e.root.display().to_string().into()),
+                ("description", doc.as_ref().map(describe).map(Node::from).unwrap_or(Node::Null)),
+                ("licence", raw.clone().map(Node::from).unwrap_or(Node::Null)),
+                ("licence_kind", licence_kind(raw.as_deref()).into()),
+                ("ids", list(ids_of(e).into_iter().map(Node::from).collect())),
                 ("card", e.document.as_ref().map(|d| d.display().to_string().into()).unwrap_or(Node::Null)),
                 ("rights", e.rights_path().map(|r| r.display().to_string().into()).unwrap_or(Node::Null)),
                 ("manifest", e.manifest_path().map(|m| m.display().to_string().into()).unwrap_or(Node::Null)),
@@ -162,12 +386,30 @@ fn devices(args: &Args) {
             ]));
             continue;
         }
-        println!("{}   ({})", e.ident, e.root.display());
+        //: ★这里路径**该**出现，而且是完整的：点名一台机器问的就是「去哪儿看」，
+        //: 而它只印一次，不是十三行重复同一段目录。`~` 只是收掉家目录那一截。
+        println!("{}   ({})", e.ident, shown(&e.root));
+        //: ★点名一台机器时，许可打的是**声明原文**，不是表里那个压出来的短形：
+        //: 表要窄，这里不必；而裁定读的是原文。
+        let doc = entry_doc(e);
+        if let Some(d) = doc.as_ref().map(describe) {
+            if d != "—" {
+                println!("  about     {d}");
+            }
+        }
+        let ids = ids_of(e);
+        if !ids.is_empty() {
+            println!("  ids       {} ({})", ids.join(", "), ids.len());
+        }
         if let Some(d) = &e.document {
-            println!("  card      {}", d.display());
+            println!("  card      {}", shown(d));
         }
         if let Some(r) = e.rights_path() {
-            println!("  licence   {}", r.display());
+            match licence_raw(Some(&r)) {
+                Some(raw) => println!("  licence   {raw}"),
+                None => println!("  licence   — (the ledger declares none)"),
+            }
+            println!("  ledger    {}", shown(&r));
         }
         match e.manifest_path() {
             None => println!(
@@ -175,7 +417,7 @@ fn devices(args: &Args) {
                  \x20           channel tables will refuse this device)"
             ),
             Some(m) => {
-                println!("  manifest  {}", m.display());
+                println!("  manifest  {}", shown(&m));
                 describe_manifest(&m);
             }
         }
@@ -290,9 +532,9 @@ fn experiments(args: &Args) {
             ]));
             return;
         }
-        println!("{}/{}   ({})", one.machine, one.shot, one.root.display());
+        println!("{}/{}   ({})", one.machine, one.shot, shown(&one.root));
         if let Some(mf) = one.manifest() {
-            println!("  manifest  {}", mf.display());
+            println!("  manifest  {}", shown(&mf));
         }
         let slices = one.slices();
         println!("  slices    {}", slices.len());
@@ -324,10 +566,11 @@ fn experiments(args: &Args) {
             pad(&s.machine, 10),
             pad(&s.shot, 12),
             pad(&s.slices().len().to_string(), 8),
-            s.root.display()
+            from_cell(&s.root)
         );
     }
     println!("\n{} shots; `fy list experiments <machine> <shot>` prints the slice table", shots.len());
+    println!("facts: {}", search_path(&facts::roots(), facts::embedded_count() > 0));
 }
 
 // ───────────────────────────── scenarios ─────────────────────────────
@@ -571,7 +814,7 @@ fn presets(args: &Args) {
     if all.is_empty() {
         println!(
             "no presets on the case path — roots: {}",
-            corpus::roots().iter().map(|r| r.display().to_string()).collect::<Vec<_>>().join(", ")
+            corpus::roots().iter().map(|r| shown(r)).collect::<Vec<_>>().join(", ")
         );
         return;
     }
@@ -635,17 +878,24 @@ fn presets(args: &Args) {
         ));
         return;
     }
+    //: ★与装置表同一条：`from` 写路径。案例语料走的是**另一条**搜索路径
+    //: （`corpus::roots()`），所以底下那一行说的是它，不是 facts 那条。
     println!("{} {} {} {}", pad("preset", 36), pad("code", 22), pad("device", 8), "from");
     for (d, code, dev) in &rows {
+        let from = match &d.origin {
+            Origin::Root(p) => shown(p),
+            Origin::Embedded => BUILTIN.to_string(),
+        };
         println!(
             "{} {} {} {}",
             pad(&d.name, 36),
             pad(if code.is_empty() { "—" } else { code }, 22),
             pad(if dev.is_empty() { "—" } else { dev }, 8),
-            d.origin
+            from
         );
     }
     println!("\n{} presets; `fy list presets <name>` prints one, `fy run <name>.jsonld` runs it", rows.len());
+    println!("cases: {}", search_path(&corpus::roots(), true));
 }
 
 // ───────────────────────────── facts / kernel / lines ─────────────────────────────
@@ -661,7 +911,7 @@ fn no_corpus(domain: &str) {
     } else {
         eprintln!(
             "fy list: no `{domain}` entries in {}",
-            roots.iter().map(|r| r.display().to_string()).collect::<Vec<_>>().join(", ")
+            roots.iter().map(|r| shown(r)).collect::<Vec<_>>().join(", ")
         );
     }
 }
@@ -712,7 +962,11 @@ fn facts_face(args: &Args) {
             );
         }
         for (i, r) in roots.iter().enumerate() {
-            println!("{}. {}", i + 1, r.display());
+            //: ★检出的暂存区与编进二进制的那一份**都写 `<buildin>`**（构建期路径不
+            //: 出现在输出里，用户裁定 2026-09-08），所以这里要另说一句是哪一种——
+            //: 否则两行一模一样，而它们是两份可以互不相同的字节。
+            let note = if shown(r) == BUILTIN { "   (检出暂存区，盘上的那一份)" } else { "" };
+            println!("{}. {}{note}", i + 1, shown(r));
         }
         //: ★★自带的那一档也是一个「根」，只是它不在盘上：装置信息编在这份二进制里
         //: （2026-09-05 用户裁定）。**要打印出来**——不然一个发行版的读者看到一张空
@@ -733,7 +987,7 @@ fn facts_face(args: &Args) {
             println!("   (none on the path; the templates built into this executable are still there)");
         }
         for (i, r) in cr.iter().enumerate() {
-            println!("{}. {}", i + 1, r.display());
+            println!("{}. {}", i + 1, shown(r));
         }
         println!("   templates: {}, presets: {}", corpus::template_names().len(), corpus::presets().len());
         return;
@@ -745,7 +999,7 @@ fn facts_face(args: &Args) {
     }
     for e in items {
         let rights = if e.rights_path().is_some() { "" } else { "  (无许可账)" };
-        println!("{:<16} {}{}", e.ident, e.root.display(), rights);
+        println!("{:<16} {}{}", e.ident, shown(&e.root), rights);
     }
 }
 
@@ -814,7 +1068,7 @@ fn kernel(args: &Args) {
     match Kernel::load(args.flag("kernel").map(std::path::Path::new)) {
         Ok(k) => println!(
             "kernel: {}  (abi {})",
-            k.path.display(),
+            shown(&k.path),
             k.abi_version.map(|v| v.to_string()).unwrap_or_else(|| "?".into())
         ),
         Err(e) => println!("kernel: not loaded — {}", e.message.lines().next().unwrap_or("")),

@@ -38,6 +38,7 @@ fy list devices|experiments|scenarios|presets|facts|kernel|lines … [--facts PA
 
 一个词一个动词：起页面 · 搬数据 · 算 · 看。不带命令词时它跑 `app`，所以双击仍然可用。
 
+
 :::{note}
 **为什么只有一个可执行文件。** 2026-09-03 之前还有 `fylite-data` 与 `fylite-case` 两个
 二进制，各十行，做的就是把命令词前置到自己的命令行再调用同一份代码——那一次前置由
@@ -96,7 +97,10 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 （`app/assets/runtime-version.js` 的 `FyFactsFlavour`），不一致就红着退出。
 
 `--facts` / `$FY_FACTS_PATH` 是**前置**：把自己的根排在自带的那一份之前，从不替换它。
-`fy list facts --roots` 会把自带的那一档打成一行 `<bundled>`，并说它带了几条。
+`fy list facts --roots` 会把自带的那一档打成一行 `<buildin>`，并说它带了几条。
+★检出的暂存语料（`dist/facts/`）**也打 `<buildin>`**（2026-09-08 用户裁定：构建期
+路径不出现在输出里），两行靠各自后面那句话区分；内置根里的文件写成
+`<buildin>/device/<id>.jsonld`。`--json` 照旧给完整路径。
 
 ★同日另一条：**仓顶不再有 `facts/` 目录**。在检出里拖回来的语料落在 `dist/facts/`
 （构建暂存区），`app/facts` 那条符号链接一并撤除。
@@ -169,11 +173,11 @@ rec/
 
 | 子命令 | 打什么 |
 | :--- | :--- |
-| `devices [<id>...]` | facts 的装置：由哪个根供（`<bundled>` = 编在这份二进制里）、卡片还是清单、许可账在不在；给名字打年代、逐 IDS 的提供者与缺省 |
+| `devices [<id>...]` | facts 的装置：装置标识 · 简短介绍（数据里的全称，没有就用几何与场）· 许可类型 · 带哪些 IDS（常用的在前，余下计数）· 由哪个根供（`<buildin>` = 内置的那一份）；给名字打年代、逐 IDS 的提供者与缺省 |
 | `experiments [<machine> [<shot>]]` | 语料里的炮与片数；给到炮号打逐片的时刻表 |
 | `scenarios [<name>...] [--line L]` | 场景：线、code、今天门认不认、参数个数；给名字打参数表全表、开关与端口 |
 | `presets [<name>...] [--line L] [--scenario S]` | 语料里的具名计划；给名字打那份计划文档 |
-| `facts [<domain>] [--roots]` | 两条搜索路径：facts 与算例语料，逐条说是谁供的；自带的那一档打成 `<bundled>` 并报条数 |
+| `facts [<domain>] [--roots]` | 两条搜索路径：facts 与算例语料，逐条说是谁供的；自带的那一档打成 `<buildin>` 并报条数 |
 | `kernel` | 内核认哪些 code、哪些 entry、各自的声明块 |
 | `lines` | 四条线与各自的缺省场景 |
 

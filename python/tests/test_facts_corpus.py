@@ -368,14 +368,15 @@ def test_the_two_resolvers_agree(tmp_path):
 
     #: ★★2026-09-04：这一问搬去了 `list`（`FYL-DESIGN-17` E-24：发现面只有一处）。
     #: 本闸子比的是**两个解析器**，不是命令词——搬家不改它问的东西，只改怎么问。
-    r = subprocess.run([str(exe), "list", "facts", "--facts", str(hi), "device"],
+    #: ★★问 `--json`，不解析给人看的那张表（2026-09-08）：表上的根现在按显示规矩
+    #: 写——内置的那一档打 `<buildin>`，`$HOME` 收成 `~`——那是**排版**，不是路径。
+    #: 两个解析器要比的是「哪个根供的」这个**答案**，而答案的机器可读面在 `--json`，
+    #: 那一面照旧给完整路径。解析排版的那一版实测在显示规矩一改就红，
+    #: 而红的原因与它要查的事无关。
+    r = subprocess.run([str(exe), "list", "facts", "--facts", str(hi), "device", "--json"],
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
-    rust = {}
-    for line in r.stdout.splitlines():
-        parts = line.split()
-        if len(parts) >= 2:
-            rust[parts[0]] = pathlib.Path(parts[1]).resolve()
+    rust = {e["id"]: pathlib.Path(e["root"]).resolve() for e in json.loads(r.stdout)}
 
     try:
         facts.use([hi])
