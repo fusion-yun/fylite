@@ -45,7 +45,7 @@ from pathlib import Path
 
 from ._paths import PKG
 
-__all__ = ["FACTS_ENV", "ABOX", "RIGHTS", "FAIR", "MANIFEST", "Entry", "roots", "use",
+__all__ = ["FACTS_ENV", "ABOX", "RIGHTS", "FAIR", "MANIFEST", "MANIFEST_ALT", "Entry", "roots", "use",
            "find", "entries", "domains", "rights", "problems", "FactsMissing"]
 
 #: The search path.  ``os.pathsep``-separated, like ``$PATH`` — the same
@@ -70,6 +70,14 @@ FAIR = (ABOX, "static", "now", "dataset_fair.jsonld")
 #: 装置清单：★2026-09-04 由条目根的 `machine.yaml` 收进 A-Box（用户裁定）——
 #: 清单也是关于这台装置的断言，它属于 `abox/`。
 MANIFEST = (ABOX, "device.jsonld")
+
+#: 同一份清单的**第二个名字**。★★★实测 2026-09-08：fydoc 的生成器
+#: （`facts/tools/abox2jsonld.py`）为十三台机器都写 `abox/machine.jsonld`，而
+#: `device.jsonld` 只有 EAST 一台有；两者在 EAST 上内容同构（同一批 providers /
+#: epochs / bindings）。只认前一个名字，十二台机器在发现面上显示成「卡片」，
+#: 需要线圈几何的场景对它们一律拒绝——**而数据一直在盘上**。
+#: 次序是声明：目标名在先，生成器写的名兜底。不改 fydoc 那侧的文件名（会被重生成抹掉）。
+MANIFEST_ALT = (ABOX, "machine.jsonld")
 
 #: Where a wheel keeps the corpus it was built with.  Populated at packaging
 #: time by ``tools/facts-publish.py``; absent in a source checkout, which is
@@ -151,6 +159,7 @@ def _is_entry_dir(d: Path, ident: str) -> bool:
     """
     return ((d / ABOX).is_dir()
             or d.joinpath(*MANIFEST).is_file()
+            or d.joinpath(*MANIFEST_ALT).is_file()
             or (d / f"{ident}_device.yaml").is_file()
             or (d / RIGHTS).is_file())
 

@@ -170,6 +170,18 @@ pub const FAIR: [&str; 4] = [ABOX, "static", "now", "dataset_fair.jsonld"];
 /// 才是一个**自足的**条目：数据、许可、清单同在 `abox/` 下，打包只取这一棵。
 pub const MANIFEST: [&str; 2] = [ABOX, "device.jsonld"];
 
+//: ★★★同一份清单的**第二个名字**（2026-09-08 实测）。fydoc 的生成器
+//: （`facts/tools/abox2jsonld.py`）为每台机器写 `abox/machine.jsonld`，十三台全有；
+//: 而 `device.jsonld` 今天只有 EAST 一台——那是本会话把它的 `machine.yaml` 收进
+//: A-Box 时另立的名字。两个文件在 EAST 上**内容同构**（同一批 providers / epochs /
+//: bindings）。只认前一个名字的后果不是报错，是**十二台机器在 `fy list devices` 上
+//: 显示为「卡片」**，于是需要线圈几何的场景（击穿 · 放电 · 脉冲）对它们一律拒绝——
+//: 而数据一直在盘上。
+//:
+//: ★次序是**声明**：`device.jsonld` 在先（用户裁定的目标名），`machine.jsonld` 兜底
+//: （生成器今天写的名）。不改 fydoc 那侧的文件名——那会被下一次重生成抹掉。
+pub const MANIFEST_ALT: [&str; 2] = [ABOX, "machine.jsonld"];
+
 /// `MANIFEST` 拼在某个条目目录下的完整路径（也用于错误话术）。
 pub fn manifest_under(dir: &Path) -> PathBuf {
     MANIFEST.iter().fold(dir.to_path_buf(), |a, s| a.join(s))
@@ -204,8 +216,14 @@ impl Entry {
     /// 返回 `Option` 而不是拼出路径就走——「有这台机器」与「这台机器抓得动」
     /// 是两件事，把它们混成一句，用户看到的会是一条 YAML 解析错误。
     pub fn manifest_path(&self) -> Option<PathBuf> {
-        let p = manifest_under(self.dir.as_ref()?);
-        p.is_file().then_some(p)
+        let dir = self.dir.as_ref()?;
+        let p = manifest_under(dir);
+        if p.is_file() {
+            return Some(p);
+        }
+        //: ★第二个名字（见 `MANIFEST_ALT`）：同一份清单，生成器写的那个名。
+        let alt = MANIFEST_ALT.iter().fold(dir.clone(), |a, s| a.join(s));
+        alt.is_file().then_some(alt)
     }
 }
 

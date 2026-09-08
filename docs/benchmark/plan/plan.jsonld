@@ -1578,11 +1578,13 @@
        "tolerance_note": "参考侧未取回且为报告体，判据待其可比量确定后再写；此处不预填"
       }
      ],
-     "status": "planned",
+     "status": "blocked-known",
      "caveat": [
-      "本体在 $ITER_SCENARIO_ROOT，未取回。★即使取回，它与其余算例来源有一处性质差别：报告里的图与结论不是机读答案，逐条摘出这一步本身要留痕，否则「参考是什么」不可复算。"
+      "★★★**真正的挡路点已定位，且不在参考侧**：`fy run design breakdown --device iter`（east 同）被内核拒绝，「the document carries no `geometry/rectangle` (pf_active/coil/0/element/0)」。DD 记 `coil/element` 为 `A` / `1...N`，T-Box 亦记 `multivalued: True`，而 A-Box 写的是单结构。已在 fydata 立 **S10** 判据并记 **G-14**（实测 147 处，`coil.element` 占 110）。**这一条因此不是 TRANSMAK 的问题，是本生态的形状债。**",
+      "★★**顺带解锁的一件更大的事**：本轮发现 fydoc 十三台机器**都有** `abox/machine.jsonld`（内容即清单：providers · epochs · bindings），而 `device.jsonld` 只有 EAST 一台有——发现面因此把十二台显示成「卡片」，需要线圈几何的场景对它们一律拒绝。两个解析器（Rust / Python）已改为**认第二个名字**（目标名在先、生成器写的名兜底）。改后 `fy list devices` 十三台**全部**给出清单、真实装置名（BEST · Alcator C-Mod · DIII-D · HL-2M · SPARC · ST-E1 …）与逐台 IDS——★此前登记的「数据里没有全称」那条也随之作废。",
+      "★参考侧的载荷清单（供下一步）：`First Plasma` · `60Wb inboard/outboard` · `118Wb inboard/outboard` 五个工况，每个含 `I and U` / `Psi` / `Plasma` 三张表。**可比量最直接的是**：给定 `I and U` 的线圈电流，本仓算出的场零位置与低场区，对 TRANSMAK 的同一时刻——这一步在 G-14 修好之后就能跑。"
      ],
-     "status_note": "2026-09-08 **参考侧已在本机**（用户确认 ITER IDM 件可用）：本机 `~/workspace/data/ITER Scenario/`（2.4 GB，31 件） 的 `Study_of_plasma_initiation_using_TRANSMA_3TPCKG_v1_0`。3.0 MB，2010 年合同报告；★答案是报告里的图与结论，不是机读件——逐条摘出这一步要留痕。先前记「本体未取回」的理由已不成立"
+     "status_note": "2026-09-08 勘定：**登记册此前记错了两件事**。①参考侧**是机读的**——五份 Excel 里有逐时刻的极向磁通（`Psi`）、击穿功率平衡（`Plasma`：Te · Ti · Q_ecrh · Q_oh · Q_rad · Q_ion）与**全套 PF/CS 线圈电流**（`I and U`：PF1-6 · CS3U/2U/1/2L/3L，逐时刻），不是「报告里的图」。②挡路的在**本仓这一侧**：`code/breakdown` 需要装置清单里的线圈几何，而所有装置的 A-Box 都把 `pf_active/coil/element` 写成单个结构、门按 DD 读 `element/0`——**十三台一台也跑不动击穿**"
     }
    ]
   }
