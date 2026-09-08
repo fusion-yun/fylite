@@ -206,7 +206,7 @@ def discharge(*, target: dict, ip: float,
               aturns0=None, beta0: float = 0.55, emp: float = 1.0,
               enp: float = 1.0, n_points: int = 24, passes: int = ANNEAL_PASSES,
               schedule=None, gamma: float = ANNEAL_GAMMA,
-              xpoint=None, x_weight: float = 0.0, limiter=None,
+              xpoint=None, x_weight: float = 0.0, limiter=None, target_curve=None,
               i_max=None, device=None, **solve_kw) -> dict:
     """Static coil inverse: drive the boundary toward ``target`` — BY THE KERNEL.
 
@@ -254,6 +254,17 @@ def discharge(*, target: dict, ip: float,
         discharge_in["fylite:anneal_schedule"] = np.asarray(tuple(schedule), float)
     if i_max is not None:
         discharge_in["fylite:i_max_aturn"] = np.atleast_1d(np.asarray(i_max, float))
+    #: ★★**目标可以是一条曲线**（2026-09-08，与页面同批）：给了它，内核就不再由六个数
+    #: 经 `miller_boundary` 生成目标——那条解析曲线处处光滑，画不出 X 点，而一台记着自己
+    #: 分离面的机器（ITER 的 248 点，最尖处 91°）压成六个数再生成，扔掉的正是那个特征。
+    #: 六个评分量随之由同一条曲线量出。★两个宿主要能做同样的事：页面 2026-09-08 起会交
+    #: 这条曲线，这一层不能只会传六个数。
+    if target_curve is not None:
+        tc = np.asarray(target_curve, float)
+        if tc.ndim != 2 or tc.shape[1] != 2 or len(tc) < 8:
+            raise ValueError("target_curve wants at least 8 points shaped (n, 2)")
+        discharge_in["fylite:target_r"] = np.ascontiguousarray(tc[:, 0])
+        discharge_in["fylite:target_z"] = np.ascontiguousarray(tc[:, 1])
     rec = _complete(settings, discharge_in, device=device)
 
     shape_keys = ("r0", "z0", "a", "kappa", "delta_upper", "delta_lower")
@@ -284,6 +295,17 @@ def discharge(*, target: dict, ip: float,
             "shape": {k: _fact(rec, "shape_" + k) for k in shape_keys},
             "start": _start_of(rec) if _fact(rec, "designed_start") else None,
             "shape_error": _fact(rec, "shape_error"), "pass": int(_fact(rec, "pass")),
+            #: ★★两个宿主看见同样的事实（2026-09-08）。页面从这一天起判的是**边界到
+            #: 目标曲线的距离**（米），而这一层还只透出六个形状量的 RMS——同一次运行，
+            #: 两个宿主给出不同的判断依据，那正是本仓在别处一再修掉的形状。
+            #: `boundary_gap` 逐点是 [r, z, d] × n：一个 RMS 说不出「整体偏一点」与
+            #: 「某一段翘起来」的差别，而两者的对策完全不同。
+            "boundary_gap": {
+                "rms": _fact(rec, "boundary_gap_rms"),
+                "max": _fact(rec, "boundary_gap_max"),
+                "rms_norm": _fact(rec, "boundary_gap_rms_norm"),
+                "point": _arr(rec, "boundary_gap_point"),
+            },
             "target_boundary": _arr(rec, "target_boundary"),
             "boundary": _arr(rec, "boundary"),
             "equilibrium": equilibrium, "history": history,
