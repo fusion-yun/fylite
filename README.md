@@ -33,8 +33,37 @@ Four constraints position the package:
 
 ## Try it · 在线演示
 
-<https://fusion-yun.github.io/fylite/> — the whole kernel compiled to
-WebAssembly and running in the browser. Nothing to install, nothing uploaded.
+**It is live.** <https://fusion-yun.github.io/fylite/> — the whole kernel
+compiled to WebAssembly and running in the browser. Nothing to install, nothing
+uploaded. The three scenario pages are under `pages/`
+([model](https://fusion-yun.github.io/fylite/pages/model.html) ·
+[pulse_design](https://fusion-yun.github.io/fylite/pages/pulse_design.html) ·
+[analysis](https://fusion-yun.github.io/fylite/pages/analysis.html)), beside the
+two tool pages (data browser, case report).
+
+★What is online is the **public** build: no EAST device data, no *internal
+testing only* line, and the EAST session document under `app/cases/` is not
+published with it. The device corpus is compiled into the wasm, so the flavour
+is fixed when that wasm is built — the publish step verifies it, it cannot pick.
+
+★**Publishing is a local step, not a GitHub Action**: `bash
+tools/publish-site.sh [site-repo]` (default `../fusion-yun.github.io`). No
+`.wasm` is committed here — `.gitignore` refuses `*.wasm*`, and they are
+installed by the **private** kernel repository's build — so a hosted runner with
+only this checkout cannot build the site at all, and giving it one would mean
+widening the exposure of private source in order to publish a public page. The
+script builds the public flavour, runs the three gates that need no browser
+(`tools/make-app-pages.mjs --check`, `app/tests/validate-site.mjs`,
+`tools/make-sw.mjs --check`), replaces `fylite/` in the site repository's
+worktree — and **stops there**: no `add`, no `commit`, no `push`, because when
+to expose something is a person's decision. `--internal` is refused by name on
+that path.
+
+```bash
+bash tools/build-site.sh --internal dist/site   # local preview build
+#  -> dist/site: 133 files, 11 MB   (measured in this checkout, 2026-09-08)
+python3 -m http.server -d dist/site 8000        # static: no /api/*
+```
 
 ## Reporting a problem · 报障
 
@@ -106,9 +135,11 @@ artifact, the Python and JS layers, and the evidence that judges them.
 
 **Licence: Apache-2.0** (see [`LICENSE`](LICENSE)). ★`NOTICE` — the
 per-component provenance Apache-2.0 §4(d) requires — is not a file in this
-repository: it describes the kernel source and lives with it, and it is copied
-into the wheel at build time by `tools/build-wheel.sh`. The obligation attaches
-to the distribution, and that is where it is discharged.
+repository: it describes the kernel source and lives with it, and each
+distribution's build borrows it from a kernel checkout — `tools/build-wheel.sh`
+into the wheel, `tools/build-site.sh` (with `LICENSE`) into the published site.
+Both refuse to build without it. The obligation attaches to the distribution,
+and that is where it is discharged.
 
 ---
 
@@ -129,9 +160,13 @@ uv run --no-project --with pytest --with numpy --with matplotlib \
 pip install -e python   # optional — numpy only；工程在 `python/`，不在仓根
 ```
 
-The kernel binaries (`python/fylite/_lib/libfylite.so`, `app/assets/*.wasm`)
-are committed pre-built, so none of the above needs a Rust toolchain.
-Rebuilding them is a different repository's job — see below.
+★The binaries are **not committed** (2026-09-02 ruling; `.gitignore` refuses
+`*.so*` and `*.wasm*`, and `python/tests/test_bundled_artifacts.py` holds that
+direction shut). `python/fylite/_lib/libfylite_kernel.so` and the kernel
+`app/assets/*.wasm` are installed into a checkout by the **private** kernel
+repository's build; `libfylite_runtime.so` and `app/assets/fylite_web.wasm` come
+from this repository's own `bash rust/build.sh`. A checkout without them still
+collects: what needs a kernel is skipped **by name**, not failed — see below.
 
 Nothing above needs a machine description, a shot, or a network. Everything
 that does need a device deck takes one explicitly — `$FYLITE_DEVICE_DIR`, or
@@ -152,7 +187,8 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # profile fit, GCV smoothing
 ★★2026-09-04 (user ruling): **this package has no command line.** `pip install
 fylite` gives you a LIBRARY — no `fylite` console script, no `python -m fylite`.
 The one command line there is is the Rust executable `fy` (`bash rust/build.sh
---exe`), which carries `app` / `data` / `case`; everything the Python verbs used
+--exe`), whose four command words are `app` / `data` / `run` / `list` (a bare
+`fy` runs `app`); everything the Python verbs used
 to do is a library call, listed side by side in
 [the CLI guide](docs/guide/cli.md).  ★It is built to
 `rust/fylite_runtime/target/release/fy` and **nothing here puts it on your
@@ -218,9 +254,14 @@ and [`TODO.md`](TODO.md) for what is not built yet.
   Decks are materialised on demand from the A-Box in the private data repository
   and found through `$FYLITE_DEVICE_DIR`. What a source does not carry is
   declared, with a reason, rather than defaulted.
-- **`app/` ships four device presets**, because a page that can be handed any
-  machine still needs one to open with — a redistribution decision recorded
-  with its provenance in `app/facts/device/catalogue.jsonld`.
+- **The pages open on device presets** — a page that can be handed any machine
+  still needs one to open with. ★They stopped being files under `app/` on
+  2026-09-05: the corpus is `facts/` at the repository root (`facts/device/`),
+  and the descriptions travel **compiled into** `fylite_web.wasm`, read through
+  `app/assets/factsdb.js`. One copy, one path. Which machine goes into which
+  build is a redistribution decision made per entry in its own `rights.json`
+  and answered by `tools/facts-publish.py` — six devices in the public build,
+  EAST internal-only — with the provenance in `facts/device/catalogue.jsonld`.
 
 ## Where the physics lives
 
@@ -419,7 +460,7 @@ default; `rust/build.sh --static` compiles them in for machines without them.
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
 | `docs/examples/` | the runnable specifications, one directory per example, read through `fylite.engine.cases` (it was `examples/`, then the repo root `cases/`; it landed here 2026-09-04) |
 | `docs/benchmark/` | the V&V registry (it was `benchmark/`; the register moved into the book 2026-09-04) |
-| `app/cases/` | worked **session** documents for the pages' 导入 button — a different thing from the scenario corpus above, and published with the site |
+| `app/cases/` | worked **session** documents for the pages' 导入 button (ten today) — a different thing from the scenario corpus in `docs/examples/`; published with the site, but each one filtered on the `fylite:device` it declares itself, against the machines the flavour carries (so the EAST session is not on the public site) |
 | [`docs/benchmark/physics/`](docs/benchmark/physics/) + [`BENCHMARK.md`](BENCHMARK.md) | the **physics-check register**: preset cases judged against physical law, the documents' own definitions and each case's declared window (`tools/benchmark-run.py`) |
 | `docs/` | the MyST book: user guide, reference, cases |
 | `tools/` | deck converters, page generators, oracle store maintenance |
@@ -435,23 +476,27 @@ wired both ways and each direction is explicit:
 
 | | |
 | :--- | :--- |
-| kernel → here | `rust/build.sh` builds `libfylite.so` and the three `.wasm`, and **installs them plus every generated file** (`_abi.py`, `_fyo_interface.py`, `_cgs.py`, `_deck_names.py`, `app/assets/version.js`, `fyo-interface.js`, `deck-names.js`, `abi.json`) into a checkout of this repository. Point it with `FYLITE_PUBLIC=`; it probes for a sibling and **refuses to guess** if it cannot find one. |
+| kernel → here | `rust/build.sh` builds the kernel `.so` (`libfylite_kernel.so`, `libfylite_kernel_ext.so`) and the kernel `.wasm`, and **installs them plus every generated file** (`_abi.py`, `_fyo_interface.py`, `_cgs.py`, `_deck_names.py`, `app/assets/version.js`, `fyo-interface.js`, `deck-names.js`, `abi.json`) into a checkout of this repository. Point it with `FYLITE_PUBLIC=`; it probes for a sibling and **refuses to guess** if it cannot find one. |
 | here → kernel | `tools/build-app-exe.sh` builds the single-file desktop viewer: the viewer's *content* (the whole `app/`) is here, its *code* (`src/bin/app/`) is there. It generates the asset table into the kernel tree and compiles with `FYLITE_APP_DIR` pointing back here. Point it with `FYLITE_KERNEL=`; same refuse-to-guess rule (`tools/kernel-path.sh`). |
 
-★★**What this repository cannot do on its own: rebuild what it ships.**
-`python/fylite/_lib/libfylite.so`, the three `app/assets/*.wasm`, and eight
-generated files (`_abi.py`, `_fyo_interface.py`, `_deck_names.py`, `_cgs.py`,
-`app/assets/{version,fyo-interface,deck-names}.js`, `abi.json`) are committed
-here but **produced there**. A reader with a complete checkout of this
-repository has every line of the application layer and cannot reproduce the
-twelve artifacts it runs on. That is a property of the split, stated here so
-nobody concludes they are missing a step: the kernel source is not published,
-and the binaries are what stands in for it. What CAN be checked from here is
-that the committed artifacts are the ones that were built —
-`python/tests/test_bundled_artifacts.py` asks git exactly that — and what they
-answer, which is what `benchmark/` is for.
+★★**What this repository cannot do on its own: build what it runs on.**
+`python/fylite/_lib/libfylite_kernel.so` and the kernel `app/assets/*.wasm` are
+**produced there** — and, since the 2026-09-02 ruling, they are not carried
+here either: binaries do not travel with the repository, they are installed into
+a checkout by the build over there and packed into a distribution by
+`tools/build-wheel.sh` / `build-site.sh` / `build-app-exe.sh`. What *is*
+committed is the eight generated files (`_abi.py`, `_fyo_interface.py`,
+`_deck_names.py`, `_cgs.py`, `app/assets/{version,fyo-interface,deck-names}.js`,
+`abi.json`) — text, and the one thing the two halves must agree on. A reader
+with a complete checkout of this repository has every line of the application
+layer and cannot reproduce the kernel it calls. That is a property of the split,
+stated here so nobody concludes they are missing a step: the kernel source is
+not published, and the binaries are what stands in for it. What CAN be checked
+from here is that the library on disk speaks the ABI this package expects, and
+that no binary has crept back into git — `python/tests/test_bundled_artifacts.py`
+asks both — and what the kernel answers, which is what `docs/benchmark/` is for.
 
-★What it answers is the public V&V register, `benchmark/` — a RENDERING of the
+★What it answers is the public V&V register, [`docs/benchmark/`](docs/benchmark/) — a RENDERING of the
 kernel repository's register (its `tools/benchmark-publish.py` writes this
 directory): one `fyo:ComparisonRecord` per comparison, every reference dataset
 with its admissibility class and sha256, every gate with the checkout it runs
@@ -507,10 +552,13 @@ beside it, in the kernel repository.
 section 4(d) attaches the obligation to the DISTRIBUTION, not to the source tree,
 so each distribution's build installs it: `tools/build-wheel.sh` borrows the kernel's
 `NOTICE` into the project directory (where `license-files` is resolved) and
-`tools/build-site.sh` copies it to the root of the published site, beside the wasm it
-describes. **Both refuse to build without it** — an unattributed distribution is not
-a smaller product, it is a licence breach, and it is the kind that never announces
-itself.
+`tools/build-site.sh` copies it, and `LICENSE` with it, to the root of the published
+site — the site ships the wasm that `NOTICE` describes, so the site is a distribution.
+**Both refuse to build without it** (they resolve a kernel checkout through
+`tools/kernel-path.sh` and exit red if they cannot) — an unattributed distribution is
+not a smaller product, it is a licence breach, and it is the kind that never announces
+itself: the site would go up looking finished, one file short. The published copy
+carries both, at `/fylite/LICENSE` and `/fylite/NOTICE`.
 
 [`docs/ACKNOWLEDGEMENTS.md`](docs/ACKNOWLEDGEMENTS.md) is the full human-readable list
 of every upstream code, published formula, reference dataset and cross-code

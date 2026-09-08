@@ -20,7 +20,7 @@
 # 是这条路上唯一不可挽回的错误（撤下来的字节已经被人取走了）。
 #
 # 做完什么、没做什么：
-#   做   构建公开版站点、跑三道不需要浏览器的闸子、把 `fylite/` 整个换掉、报告增删
+#   做   构建公开版站点、跑四道不需要浏览器的闸子（含出处台账）、把 `fylite/` 整个换掉、报告增删
 #   不做 `git add` / `git commit` / `git push` —— 曝光时机是人的决定，不是脚本的
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -50,6 +50,14 @@ echo "== 一、闸子（不需要浏览器的那几道）"
 node "$DIR/tools/make-app-pages.mjs" --check
 node "$DIR/app/tests/validate-site.mjs"
 node "$DIR/tools/make-sw.mjs" --check
+#: ★★**出处台账要在发布前核**（2026-09-08 实测）。旧的 `publish-app.yml` 发布前会读
+#: 内核仓的 `docs/note/app-provenance.md`，核对将发出去的二进制 sha256 与台账所记的
+#: 是不是同一份；那条工作流随分仓消失之后，这道核对只剩 pytest 里的一条——而发布这
+#: 条路上没人跑 pytest。实测当天就撞上了：内核 wasm 在工作树里被重建（同样大小、
+#: 不同字节），而台账仍记着上一份。发出去一份**台账描述不了的二进制**，比发错版本
+#: 更难查：字节在，出处不在。
+#: ★它连带核「二进制不进仓」那一条，同一个文件里。
+python3 -m pytest "$DIR/python/tests/test_bundled_artifacts.py" -q
 echo "   ★浏览器闸子（validate-offline / validate-published）不在这里跑：它们要"
 echo "     playwright 与一个 chromium，是操作者的东西，不是本仓的依赖。"
 

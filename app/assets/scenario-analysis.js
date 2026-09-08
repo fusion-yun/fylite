@@ -2635,6 +2635,81 @@ FyScenario.whenDevices(function () {
   }
 
   var FORMATS = {
+      //: ★★**公开版的反演从这里入门**〔2026-09-08 用户裁定：*公开版本反演通过手动
+      //: 「导入」数据实现*〕。装置语料里带参考放电的只有 EAST，而公开版按权利判据
+      //: 不带 EAST——于是公开的三台机器上这一栏此前是一颗**按不动的键**，页面给的
+      //: 自救办法（去放电设计场景设计一组）也没有通路可走。
+      //: ★缺的那一格其实很小：**通道电流**。合成孪生自己按那组电流造出测量来，
+      //: 不需要任何实测读数；参考放电在这条路上唯一提供的就是 `aturns`。放电设计
+      //: 场景导出的会话正好带着它（`fylite:pf_channel_current`），所以这里收下那份
+      //: 文档——`docPage` 让它被**按内容认出来**，读者不必先知道自己导的是哪一种。
+      //: ★★**只解锁合成孪生**。真实测量那一档要的是这台机器某一炮的读数，而一组
+      //: 电流不会凭空生出测量：那一档仍然禁用，并且页面说得出为什么。把它一并放开
+      //: 会让「真实测量」这四个字指着一组合成数——那是最坏的一种可用。
+      coils: {
+        docPage: 'discharge',
+        label: T('io.label.coils'),
+        filename: function () { return fileStem() + '_pf_channel_current.json'; },
+        accept: '.json,application/json',
+        exportHint: T('recon.c.export_hint'),
+        importHint: T('recon.c.import_hint'),
+        //: 写出去的是**这一栏正在用的那组电流**，仍是一份放电会话的形状：拿回设计
+        //: 场景就能接着改。一份只进不出的格式会让读者以为自己手里那组是不可复现的。
+        build: function () {
+          return JSON.stringify(FySession.envelope('discharge',
+            { 'fylite:pf_channel_current': FySession.sig(COILS) },
+            S.kernel()), null, 1);
+        },
+        apply: function (text, name) {
+          var doc = FySession.parse(text);
+          var cfg = doc['fylite:config'] || {};
+          var pf = cfg['fylite:pf_channel_current'];
+          //: ★通道数不合就**拒绝**，不截断也不补零：两台机器的通道表不是同一张表，
+          //: 按位置硬套出来的「电流」是一组没有物理意义的数，而它照样能算出一张图。
+          //: ★「没带」与「带错了」是两件事，说法也该是两句话。仓里自带的那几份
+          //: 放电算例只记目标位形（`app/cases/discharge-iter.jsonld` 实测就没有这
+          //: 一格），而电流是**算出来**的：设计页按过一次计算之后导出的那一份才带。
+          //: 拿「有 0 路通道电流」去回答「这份文件没有电流」，读者会去数通道。
+          if (pf === undefined || pf === null)
+            throw new Error(T('recon.c.absent'));
+          //: ★★**通道数相同不等于同一张通道表**：ITER 与 EAST 都是 12 路。所以先问
+          //: 文档自己是为哪台机器写的（`fylite:machine`，2026-09-08 起每份会话都记）。
+          //: 不是这一台就拒绝；旧文件没有这一格，那就照实说「认不出」并放行——
+          //: 把「不知道」办成「不匹配」会挡掉读者手里唯一的那份文件。
+          var forDev = doc['fylite:machine'];
+          if (forDev && M.id && forDev !== M.id)
+            throw new Error(T('recon.c.other_machine', { was: forDev, now: M.id }));
+          if (!Array.isArray(pf) || pf.length !== M.channels.length)
+            throw new Error(T('recon.c.wrong_len',
+              { n: (pf && pf.length) || 0, want: M.channels.length }));
+          COILS = Array.from(pf, Number);
+          if (COILS.some(function (v) { return !isFinite(v); }))
+            throw new Error(T('recon.c.not_numbers'));
+          //: 没有测量就没有真实档——导入电流不改变这一点
+          $('tab-real').disabled = true;
+          $('tab-real').title = T('recon.tab.real.title');
+          setSource('twin');
+          //: ★★**电流只是两半里的一半**（2026-09-08 实测）。合成孪生按这组电流造
+          //: 出真空场与一个真解，然后**在诊断上取读数**——而公开发行版的三台机器
+          //: （best · cfetr · iter）**一根磁通环、一个探针都没有**，只有线圈通道。
+          //: 那时内核会以 `-34: the device declares no flux loops` 拒绝，而读者看到
+          //: 的是一句内核错误码：他刚照着提示导入了文件，得到的却是「失败」。
+          //: 所以这里**先问诊断在不在**：不在就仍然拦着，并说出缺的是哪一半、
+          //: 从哪里来（带磁通环的装置描述，同一个「导入」按钮收）。
+          drawAll();
+          //: ★★**说的那句话由返回值承载，不要自己写状态行**（2026-09-08 实测）：
+          //: `apply` 返回之后，导入层会把返回的那句报到同一行上——自己先写一遍，
+          //: 只会被它盖掉，而被盖掉的恰恰是「缺的是哪一半」这句最要紧的话。
+          if (!(M.loops && M.loops.length)) {
+            S.blockRun('recon.c.noloops');
+            return T('recon.c.taken_noloops', { n: pf.length });
+          }
+          S.allowRun();
+          //: ★不自动开算——导入说的是「拿什么算」，不是「现在就算」（与 g 文件同规矩）
+          return T('recon.c.ready', { name: name, n: pf.length })
+            + (forDev ? '' : ' ' + T('recon.c.unstamped'));
+        },
+      },
       gfile: {
         text: true,
         label: T('io.label.gfile'),
