@@ -75,6 +75,67 @@
       xr: { value: r3(rgeo - 0.55 * amax) },
       xz: { value: r3(b.zmin + 0.12 * (b.zmax - b.zmin)) },
     };
+    //: ★★**这台机器自己记着形状时，默认目标就是那个形状**（2026-09-08 用户裁定
+    //: 「调 ITER 的默认目标位形」）。上面那几行是**推**出来的起点——`a = 0.66·amax`、
+    //: `κ = 1.65`、`δ` 两个定值——对没有记录形状的机器它合理，对记着的机器它是拿一个
+    //: 几何猜测盖住一份真数据。实测后果：ITER 的设计环恒定停在位形误差 0.0707
+    //: （容差 0.0284），连按四次一模一样——不是没收敛，是那个目标它够不着。
+    //: ★只改**缺省值**，不改上下界的来路（界仍由包围盒定），但若记录的形状落在界外，
+    //: 就把界让开：一台机器自己的设计点必须是它的控件够得到的。
+    var rb = m.referenceBoundary;
+    if (rb && rb.r && rb.r.length > 15) {
+      var rr = rb.r, zz = rb.z;
+      var rlo = Math.min.apply(null, rr), rhi = Math.max.apply(null, rr);
+      var zlo = Math.min.apply(null, zz), zhi = Math.max.apply(null, zz);
+      var aRef = 0.5 * (rhi - rlo), rRef = 0.5 * (rhi + rlo);
+      if (aRef > 0) {
+        var iHi = zz.indexOf(zhi), iLo = zz.indexOf(zlo);
+        var set = function (k, v, lo, hi) {
+          out[k].value = r3(v);
+          if (lo !== undefined && out[k].min !== undefined)
+            out[k].min = Math.min(+out[k].min, r3(v) - 1e-9);
+          if (hi !== undefined && out[k].max !== undefined)
+            out[k].max = Math.max(+out[k].max, r3(v) + 1e-9);
+        };
+        set('r0', rRef, 1, 1);
+        set('z0', 0.5 * (zhi + zlo), 1, 1);
+        set('a', aRef, 1, 1);
+        set('kappa', 0.5 * (zhi - zlo) / aRef, 1, 1);
+        set('du', (rRef - rr[iHi]) / aRef, 1, 1);
+        set('dl', (rRef - rr[iLo]) / aRef, 1, 1);
+        //: ★★**形状定了，拓扑也得跟上**（2026-09-08 实测）。只把 r0/a/κ/δ 换成记录
+        //: 的形状而把位形类别留在「限制器」，是要求解器去限制器地拟合一条**带 X 点**
+        //: 的边界——实测 ITER 上位形误差不降反升（0.0707 → 0.1108）。
+        //: ★判据从曲线自己读，不写死：逐点量拐角（前后各第 4 个邻点的夹角），
+        //: 最尖的那个若明显是个角就当 X 点。ITER 的记录分离面上实测：最尖 91.1°
+        //: （r 5.144 · z −3.299），而顶部 150.6°、外侧中平面 172.6°——单零无疑。
+        //: 门限取 135°：椭圆形边界上处处接近 180°，这个门离两边都远。
+        var sharp = -1, sharpA = 180;
+        for (var i = 0; i < rr.length; i++) {
+          var pa = (i - 4 + rr.length) % rr.length, pb = (i + 4) % rr.length;
+          var ax = rr[pa] - rr[i], ay = zz[pa] - zz[i];
+          var bx = rr[pb] - rr[i], by = zz[pb] - zz[i];
+          var na = Math.sqrt(ax * ax + ay * ay), nb = Math.sqrt(bx * bx + by * by);
+          if (!na || !nb) continue;
+          var cs = Math.max(-1, Math.min(1, (ax * bx + ay * by) / (na * nb)));
+          var deg = Math.acos(cs) * 180 / Math.PI;
+          if (deg < sharpA) { sharpA = deg; sharp = i; }
+        }
+        if (sharp >= 0 && sharpA < 135) {
+          out.xr = Object.assign({}, out.xr, { value: r3(rr[sharp]) });
+          out.xz = Object.assign({}, out.xz, { value: r3(zz[sharp]) });
+          //: `class` 不是一条量程，但它与这几个控件是同一件事的两半：一份记着
+          //: X 点的边界，其类别不该由页面的出厂值来答。
+          out['class'] = Object.assign({}, out['class'],
+            { value: zz[sharp] < 0.5 * (zhi + zlo) ? 'lsn' : 'usn' });
+        }
+        //: 电流的缺省跟着形状走（同一条 q95 = 5 的式子），否则一个按包围盒算出的
+        //: Ip 配上一个记录形状，是两处各自合理、合起来不自洽的起点。
+        out.ip.value = sig2(ipAt(5, aRef, 0.5 * (zhi - zlo) / aRef) / 1e3);
+        out.ip.max = Math.max(+out.ip.max, out.ip.value);
+      }
+    }
+
     // an explicit descriptor entry always wins
     Object.keys(m.ui || {}).forEach(function (k) {
       out[k] = Object.assign({}, out[k], m.ui[k]);

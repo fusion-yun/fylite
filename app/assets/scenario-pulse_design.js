@@ -2508,7 +2508,15 @@ FyScenario.whenDevices(function () {
     //: not reached what it was asked for, whatever the shape rows say.  This
     //: can only fire when a null WAS asked for — 限制器 leaves every line
     //: below exactly as it was.
-    var cmiss = classMet() === false;
+    //: ★★**「是偏滤器」不等于「是所要求的那种偏滤器」**（2026-09-08 实测）。
+    //: `classMet()` 只问 `bndKind === 1`——在哪一侧它不问。于是 ITER 上要**下**单零、
+    //: 解出来是**上**单零（磁轴 z = +1.613 m、δ 上 0.53 而 δ 下 0.26，与目标上下对调）
+    //: 时，结论行照样只报一个偏大的位形误差，读起来像「精度不够」，而实际是**上下颠倒**。
+    //: ★侧别判据本来就有（`nullsAsAsked()`，双零那条注释写得很清楚：两个零点被拖到
+    //: 同一侧就不是双零），但它只用在判据面板上打勾/叉——两条判据不一致时，宽的那条
+    //: 在决定结论。这里把窄的那条并进来。
+    var nmiss = nullsAsAsked() === false;
+    var cmiss = classMet() === false || nmiss;
     outcome = { from: 'solve', reached: shapeRowsWithin() && !cmiss,
                 err: null, tol: null, classMet: classMet() };
     //: ★T-M16 — the verdict word is the KERNEL's three-way answer, not a
@@ -2545,8 +2553,18 @@ FyScenario.whenDevices(function () {
     //: ★T-D6, as in `onSolve`: the class that was asked for is part of what
     //:「达到目标」 means.  `classMet()` is `null` under 限制器, so this term
     //: cannot change a single limiter design.
-    var cmiss = classMet() === false;
-    if (cmiss) tail += T('design.class_tail', {
+    //: ★★**「是偏滤器」不等于「是所要求的那种偏滤器」**（2026-09-08 实测）。
+    //: `classMet()` 只问 `bndKind === 1`——在哪一侧它不问。于是 ITER 上要**下**单零、
+    //: 解出来是**上**单零（磁轴 z = +1.613 m、δ 上 0.53 而 δ 下 0.26，与目标上下对调）
+    //: 时，结论行照样只报一个偏大的位形误差，读起来像「精度不够」，而实际是**上下颠倒**。
+    //: ★侧别判据本来就有（`nullsAsAsked()`，双零那条注释写得很清楚：两个零点被拖到
+    //: 同一侧就不是双零），但它只用在判据面板上打勾/叉——两条判据不一致时，宽的那条
+    //: 在决定结论。这里把窄的那条并进来。
+    var nmiss = nullsAsAsked() === false;
+    var cmiss = classMet() === false || nmiss;
+    if (classMet() === false) tail += T('design.class_tail', {
+      cls: T('design.class.' + boundaryClass()) });
+    else if (nmiss) tail += T('design.nulls_tail', {
       cls: T('design.class.' + boundaryClass()) });
     outcome = { from: 'design', err: err, tol: shapeErrorTol(),
                 classMet: classMet(),

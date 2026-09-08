@@ -125,19 +125,37 @@ def test_east_is_internal_only():
 
 
 def test_third_party_blocks_are_carried_through():
-    """上游逐 IDS 明写 `redistributable: false` 的，公开版不带。
+    """逐 IDS 的排除表是**读出来的**，不是写死在这里的。
 
-    ★这一条与本仓的裁定**无关**：ITER 的 `tf` / `pf_active` 权属方是 ITER
-    Organization，本仓再怎么裁定也给不了那个授权。所以它不写在 `INTERNAL_ONLY`
-    那张表里，而是从 A-Box 自己的声明读出来——**上游说的话，本仓不改写**。
+    ★这一条与本仓的裁定分开：A-Box 的 `license_by_ids` 逐 IDS 说 redistributable
+    与否，许可账把说 `false` 的那些收成 `public_excluded_ids`。**上游说的话，本仓
+    不改写**——本条判的是「账与声明一致」，不是「哪几个 id 该被排除」。
+
+    ★★2026-09-08 用户裁定：**ITER 的 `pf_active` 与 `tf` 可以公开**，fydoc 的
+    `license_by_ids` 随之改为 `redistributable: true`（那条 note 记着这是本项目对
+    **再分发**的决定，不是对上游许可的认定——上游 license 仍是 `[TBD]`），于是这台
+    机器的排除表现在是空的。本条因此**不再钉住那两个 id**：钉住它们，等于把一次裁定
+    冻进闸子里，下一次裁定就只能连闸子一起改。
+    ★两个方向都判：账里多一个（凭空排除）与少一个（漏拦上游的 false）都会红。
     """
     p = DEVICES / "iter" / "rights.json"
     if not p.is_file():
         pytest.skip("ITER 未拖回")
     r = json.loads(p.read_text(encoding="utf-8"))
-    assert set(r["public_excluded_ids"]) >= {"tf", "pf_active"}, (
-        "ITER 的 tf / pf_active 上游写着 redistributable=false，"
-        f"而公开版的排除表是 {r['public_excluded_ids']}")
+    fair = None
+    for c in (ROOT.parent / "fydoc" / "facts" / "device" / "iter" / "abox"
+              / "static" / "now" / "dataset_fair.jsonld",):
+        if c.is_file():
+            fair = json.loads(c.read_text(encoding="utf-8"))
+    if fair is None:
+        pytest.skip("没有 fydoc 检出，无从比对声明")
+    by = fair.get("license_by_ids") or {}
+    want = {k for k, v in by.items()
+            if isinstance(v, dict) and v.get("redistributable") is False}
+    assert set(r["public_excluded_ids"]) == want, (
+        "许可账的排除表与 A-Box 的逐 IDS 声明对不上：\n"
+        f"  账里 {sorted(r['public_excluded_ids'])}\n"
+        f"  声明 {sorted(want)}")
 
 
 def _ask(flavour: str) -> list[str]:
