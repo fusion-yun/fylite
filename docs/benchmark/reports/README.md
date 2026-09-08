@@ -4,8 +4,8 @@ title: 公开 V&V 登记册 · 索引
 
 # 公开 V&V 登记册 · 索引
 
-34 条记录，16 个场景；由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
-复测结论：成立 34。★跨类不可比：V/B/C 问的不是同一个问题（README）。
+35 条记录，17 个场景；由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
+复测结论：成立 35。★跨类不可比：V/B/C 问的不是同一个问题（README）。
 
 纳入类别（README「什么能进这个公开登记册」的落地）：`public` 公开可复取 · `public-derived` 公开派生表 · `restricted` 受限仅指针 · `restricted-derived` 受限派生 · `experiment` 实验数据仅指针 · `private-artefact` 私仓制品。受限与实验类只存路径与 sha256，本体不在任何公开仓。
 
@@ -45,3 +45,4 @@ title: 公开 V&V 登记册 · 索引
 | B-07 | B | TGYRO | public-derived | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-07](B-07-tgyro-converged.md) |
 | C-11 | C | QuaLiKiz | public | 成立 | 成立（5 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-11](C-11-qualikiz-ground-truth.md) |
 | B-08 | B | FUSE | public-derived | 成立 | 成立（8 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-08](B-08-fuse-iter-time.md) |
+| C-10 | C | TRANSMAK | restricted | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-10](C-10-transmak-initiation.md) |

@@ -1613,23 +1613,39 @@
       }
      ],
      "record": "C-10",
-     "record_state": "proposed",
-     "gate": [],
+     "record_state": "existing",
+     "gate": [
+      "PYTHONPATH=<公开检出>/python:tests python -m pytest tests/test_transmak_initiation.py  （内核仓，6 条；需本机 ITER IDM 语料）"
+     ],
      "criteria": [
       {
        "type": "fyo:AcceptanceCriterion",
-       "quantity_label": "[TBD]",
-       "tolerance_basis": "reference_stated",
-       "tolerance_note": "参考侧未取回且为报告体，判据待其可比量确定后再写；此处不预填"
+       "quantity_label": "起始时刻的极向磁通（用参考自己的线圈电流），5 场景 × 5 个取值半径 R = 4…8 m",
+       "norm": "relative",
+       "tolerance": {
+        "type": "spo:QuantityValue",
+        "numeric_value": 0.06
+       },
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "实测 25 点全落在 −1.05 % … −4.95 %；★判据在**每个**半径上都成立，否则就是拟合出来的答案"
+      },
+      {
+       "type": "fyo:AcceptanceCriterion",
+       "quantity_label": "偏差的符号（系统偏置 vs 散布）",
+       "tolerance_basis": "measured_band",
+       "tolerance_note": "25 点同号；系统偏置可追因，散布不能"
       }
      ],
-     "status": "blocked-known",
+     "status": "pass",
      "caveat": [
-      "★★★**真正的挡路点已定位，且不在参考侧**：`fy run design breakdown --device iter`（east 同）被内核拒绝，「the document carries no `geometry/rectangle` (pf_active/coil/0/element/0)」。DD 记 `coil/element` 为 `A` / `1...N`，T-Box 亦记 `multivalued: True`，而 A-Box 写的是单结构。已在 fydata 立 **S10** 判据并记 **G-14**（实测 147 处，`coil.element` 占 110）。**这一条因此不是 TRANSMAK 的问题，是本生态的形状债。**",
-      "★★**顺带解锁的一件更大的事**：本轮发现 fydoc 十三台机器**都有** `abox/machine.jsonld`（内容即清单：providers · epochs · bindings），而 `device.jsonld` 只有 EAST 一台有——发现面因此把十二台显示成「卡片」，需要线圈几何的场景对它们一律拒绝。两个解析器（Rust / Python）已改为**认第二个名字**（目标名在先、生成器写的名兜底）。改后 `fy list devices` 十三台**全部**给出清单、真实装置名（BEST · Alcator C-Mod · DIII-D · HL-2M · SPARC · ST-E1 …）与逐台 IDS——★此前登记的「数据里没有全称」那条也随之作废。",
-      "★参考侧的载荷清单（供下一步）：`First Plasma` · `60Wb inboard/outboard` · `118Wb inboard/outboard` 五个工况，每个含 `I and U` / `Psi` / `Plasma` 三张表。**可比量最直接的是**：给定 `I and U` 的线圈电流，本仓算出的场零位置与低场区，对 TRANSMAK 的同一时刻——这一步在 G-14 修好之后就能跑。"
+      "★★**比的不是研究的物理**（击穿 · 雪崩 · 燃穿一概没比），而是「**本仓对 ITER 线圈组的描述，能不能复现该研究由自己的电流算出的磁通**」——两侧唯一共享的是电流。",
+      "★★★**轨迹不判**：件里从没说磁通在哪一点取。起始时刻可判是因为它对 R 很平（R = 4…8 m 只动 0.5…2.1 Wb）；随时间那条曲线**等离子体区没有任何一点复现**，最合的半径跑到 CS 膛内（R → 2 m）。故它是研究自己的某种螺线管链磁通口径——**报出来，不判它**（同 B-09 平顶段）。能了结的是随件报告正文对该量的定义。",
+      "★★**两个显然的嫌疑已排除**：细分 2×2 → 16×16 只动 0.25 % 且收敛；CS 匝数 553 vs 554 只动 0.13 个百分点。所以那 1.1 % 的缺口在两侧的**装置描述**之间（参考取自 `[33NHXN]`，本仓这份取自 `2ACJT3 v3.1`）。",
+      "★★**读这批件的三个坑，都不会报错**：①`CS1` 是一路两只线圈（串联），按名对名会丢掉半个螺线管——磁通掉 18 %；②`I and U` 表右侧第 15-22 列是**供电电压**且列名与电流表逐字相同，取错量级差 200 倍；③五份件版式不一，一份的 `(t, psi)` 在第 0-1 列。三条都已立断言。",
+      "★★**本条此前挡在 fydata `G-14`**（A-Box 把 `pf_active/coil/element` 写成单结构而 DD 记 AoS，十三台装置一台也跑不动 `code/breakdown`）。2026-09-08 修掉（fydata `0e114a1` · fydoc `2d38059`），本条才做得成。",
+      "★语料是 ITER IDM 件（Internal Use），不在任何仓里；门够不到时 skip 并点名。"
      ],
-     "status_note": "2026-09-08 勘定：**登记册此前记错了两件事**。①参考侧**是机读的**——五份 Excel 里有逐时刻的极向磁通（`Psi`）、击穿功率平衡（`Plasma`：Te · Ti · Q_ecrh · Q_oh · Q_rad · Q_ion）与**全套 PF/CS 线圈电流**（`I and U`：PF1-6 · CS3U/2U/1/2L/3L，逐时刻），不是「报告里的图」。②挡路的在**本仓这一侧**：`code/breakdown` 需要装置清单里的线圈几何，而所有装置的 A-Box 都把 `pf_active/coil/element` 写成单个结构、门按 DD 读 `element/0`——**十三台一台也跑不动击穿**"
+     "status_note": "2026-09-08 **量到了**（G-14 当日修掉后才做得成）：拿 TRANSMAK 自己的十一路线圈电流，过本仓的 ITER 线圈几何与匝数、再用内核互感核求和——起始磁通对该研究自陈的值 **−1.05 % … −4.95 %**（5 场景 × 5 个取值半径，**25 点同号**），带 6 %。★★轨迹**不判**：件里没说磁通在哪取，等离子体区无一点复现"
     }
    ]
   }

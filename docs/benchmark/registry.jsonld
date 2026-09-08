@@ -6379,6 +6379,192 @@
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
+  },
+  {
+   "id": "record/C-10",
+   "type": "fyo:ComparisonRecord",
+   "title": "ITER 起始的线圈磁通：拿 TRANSMAK 自己的电流过本仓的装置描述",
+   "comparison_kind": "validation",
+   "scenario": "scenario/iter-plasma-initiation",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: 装置描述（fydoc 装置书的 ITER pf_active A-Box：几何 · 匝数）+ 内核互感核 `mutual_filaments` / `element_filaments`"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "TRANSMAK",
+     "version": "A. Kavin · K. Lobanov · A. Mineev，Final Report on Contract ITER/CT/09/4300000030（2010-09），ITER_D_3TPCKG；五个场景各自随件的线圈电流与磁通",
+     "license": "restricted（ITER IDM Internal Use）"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/C-10/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "起始时刻的极向磁通（用参考自己的线圈电流），5 场景 × 5 个取值半径 R = 4…8 m",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.06
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 25 点全部落在 **−1.05 % … −4.95 %**，加一档余量",
+      "★★**判据在每个半径上都成立**——件里没说磁通在哪一点取，若只在一个半径上成立，那就是拟合出来的答案而不是比较"
+     ]
+    },
+    {
+     "id": "record/C-10/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "偏差的**符号**（是系统偏置还是散布）",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★25 点同号（全部偏低）。系统偏置可以追到原因，散布不能——两者是不同的发现，故分开判"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "起始磁通，5 场景 × 5 半径",
+     "deviation_literal": "−1.05 % … −4.95 %（118Wb 内侧 −1.14 % · 118Wb 外侧 −1.77 % · 60Wb 内侧 −2.48 % · 60Wb 外侧 −2.44 % · First Plasma −1.05 %，均在 R = 6 m）",
+     "verdict": "pass",
+     "caveat": [
+      "把参考自己的十一路电流过本仓的 ITER 线圈几何与匝数、再用内核的互感核求和；两侧唯一共享的是**电流**"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★偏差是**系统的**，25 点同号",
+     "deviation_literal": "25/25 偏低",
+     "verdict": "pass",
+     "caveat": [
+      "系统偏置可追因，散布不可；门里分开判，免得哪天变成散布还继续报绿"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★把两个显然的嫌疑排掉了",
+     "deviation_literal": "细分 2×2 → 16×16 只动 **0.25 %** 且收敛（116.21 → 116.51 Wb）；CS 匝数取 553 而非 554 只动 **0.13 个百分点**",
+     "verdict": "pass",
+     "caveat": [
+      "所以那 1.1 % 既不是本测试把导体切得不够细，也不是登记在案的 554/553 之差——缺口在两侧的装置描述之间（参考取自 `[33NHXN]`，本仓这份取自 `2ACJT3 v3.1`）"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★★磁通随时间的轨迹**不判**",
+     "deviation_literal": "最合的取值半径跑到 CS 膛内（R → 2 m）",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "件里没说磁通在哪一点取。等离子体区没有任何一点复现它的曲线，故那条 `psi(t)` 是研究自己某种螺线管链磁通口径。**报出来，不判它**——同 B-09 的平顶段",
+      "★能了结这一条的是研究自己的报告正文（`Contract 4300000030-Subtask1-Final2010.pdf`）对该量的定义"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★★读这批件的三个坑（都已立断言）",
+     "deviation_literal": "通道≠线圈（`CS1` 一路两只，按名对名丢半个螺线管 → 磁通掉 **18 %**）· 同名列两套（右侧第 15-22 列是电压，取错量级差 200 倍）· 五份件版式不一（一份的 `(t, psi)` 在第 0-1 列）",
+     "verdict": "pass",
+     "caveat": [
+      "三个坑的共同点：**都不会报错**，只会给出一条看着正常的曲线"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "6 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-08",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_transmak_initiation.py::test_the_corpus_is_the_five_transmak_scenarios",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_transmak_initiation.py::test_we_read_the_currents_not_the_voltages",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_transmak_initiation.py::test_our_flux_from_their_currents_matches_their_stated_initial_flux",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_transmak_initiation.py::test_the_verdict_does_not_depend_on_where_the_flux_is_evaluated",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_transmak_initiation.py::test_the_deficit_is_not_the_filament_discretisation",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_transmak_initiation.py::test_the_trajectory_is_not_judged_and_this_is_why",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`，store 挂在 tests/data，`PYTHONPATH` 指向本仓 python/"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$ITER_SCENARIO_ROOT/Study_of_plasma_initiation_using_TRANSMA_3TPCKG_v1_0/",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "restricted",
+      "caveat": [
+       "纳入类别 restricted：受限——仅指针：参考本体不可再分发，本册只记路径与 sha256，读者须自备同一份",
+       "出处：树外指针：本册只记路径，本体不随册分发",
+       "五份 .xls（118Wb 内/外 · 60Wb 内/外 · First Plasma）与随件报告；ITER IDM Internal Use，不在任何仓里，门够不到时 skip 并点名",
+       "★被测的装置描述在 fydoc 装置书：`facts/device/iter/abox/providers/pf_active/base.jsonld`（出自 `2ACJT3 v3.1`）"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-17-transmak/FYDOC-CASE-17-transmak.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/C-10-transmak-initiation.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★**这一条不评研究的物理**：击穿、雪崩、燃穿一概没比。它只问一件事——**本仓对 ITER 线圈组的描述，能不能复现该研究由自己的电流算出的磁通**。",
+    "★★2026-09-08 之前本条记 `blocked-known`，挡路的是 fydata `G-14`（A-Box 把 `pf_active/coil/element` 写成单结构而 DD 记 AoS，十三台装置一台也跑不动 `code/breakdown`）。G-14 当日修掉（fydata `0e114a1`），本条才做得成。",
+    "纳入类别（参考数据）：restricted"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
   }
  ]
 }

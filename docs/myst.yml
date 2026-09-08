@@ -171,6 +171,7 @@ project:
             - file: benchmark/reports/C-06-teq-iter-equilibria.md
             - file: benchmark/reports/C-07-tosca-run-space.md
             - file: benchmark/reports/C-09-itpa-tc33.md
+            - file: benchmark/reports/C-10-transmak-initiation.md
             - file: benchmark/reports/C-11-qualikiz-ground-truth.md
             - file: benchmark/reports/V-01-gacode-ports.md
             - file: benchmark/reports/V-02-nn-surrogates.md
