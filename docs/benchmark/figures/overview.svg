@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1932 346" role="img" aria-label="fylite V&amp;V 登记册一览：逐条记录的判定与复测">
-<title>fylite V&amp;V 登记册 — 一览</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 875" role="img" aria-label="每一条量到的数，对它被判的那条判据">
+<title>fylite V&amp;V 登记册 — 结果对标准</title>
 <style>
 /* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
    librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
@@ -14,116 +14,118 @@ text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
 .band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
   stroke-width:2; stroke-dasharray:3 3; }
 </style>
-<rect class="bg" x="0" y="0" width="1932" height="346"/>
-<text x="28.0" y="40.0" font-size="20" text-anchor="start" font-weight="700">fylite V&amp;V 登记册</text>
-<text x="28.0" y="62.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">35 条记录 · 判定见填色 · 下方细条为发布当日复测通过的门数</text>
-<text x="28.0" y="114.0" font-size="13" text-anchor="start" font-weight="600">验证 (verification)</text>
-<rect class="panel" x="168" y="96" width="108" height="46" rx="5"/><rect x="168" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="182.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-01</text>
-<text x="268.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="182" y="124" width="56.0" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="266.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">95</text>
-<rect class="panel" x="284" y="96" width="108" height="46" rx="5"/><rect x="284" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="298.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-02</text>
-<text x="384.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="298" y="124" width="17.7" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="382.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">14</text>
-<rect class="panel" x="400" y="96" width="108" height="46" rx="5"/><rect x="400" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="414.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-03</text>
-<text x="500.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="414" y="124" width="31.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="498.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">27</text>
-<rect class="panel" x="516" y="96" width="108" height="46" rx="5"/><rect x="516" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="530.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-04</text>
-<text x="616.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="530" y="124" width="47.1" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="614.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">42</text>
-<rect class="panel" x="632" y="96" width="108" height="46" rx="5"/><rect x="632" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="646.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-05</text>
-<text x="732.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="646" y="124" width="16.6" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="730.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">13</text>
-<rect class="panel" x="748" y="96" width="108" height="46" rx="5"/><rect x="748" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="762.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-06</text>
-<text x="848.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="762" y="124" width="39.8" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="846.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">35</text>
-<rect class="panel" x="864" y="96" width="108" height="46" rx="5"/><rect x="864" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="878.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-07</text>
-<text x="964.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="878" y="124" width="56.0" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="962.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">88</text>
-<rect class="panel" x="980" y="96" width="108" height="46" rx="5"/><rect x="980" y="96" width="6" height="46" rx="3" fill="#a75909"/><text x="994.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-08</text>
-<text x="1080.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="994" y="124" width="7.2" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="1078.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">4</text>
-<rect class="panel" x="1096" y="96" width="108" height="46" rx="5"/><rect x="1096" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1110.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-09</text>
-<text x="1196.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1110" y="124" width="11.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1194.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">8</text>
-<rect class="panel" x="1212" y="96" width="108" height="46" rx="5"/><rect x="1212" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1226.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-10</text>
-<text x="1312.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1226" y="124" width="10.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1310.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">7</text>
-<rect class="panel" x="1328" y="96" width="108" height="46" rx="5"/><rect x="1328" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1342.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-11</text>
-<text x="1428.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1342" y="124" width="11.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1426.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">8</text>
-<rect class="panel" x="1444" y="96" width="108" height="46" rx="5"/><rect x="1444" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1458.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-12</text>
-<text x="1544.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1458" y="124" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1542.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
-<rect class="panel" x="1560" y="96" width="108" height="46" rx="5"/><rect x="1560" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1574.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-13</text>
-<text x="1660.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1574" y="124" width="10.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1658.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">7</text>
-<rect class="panel" x="1676" y="96" width="108" height="46" rx="5"/><rect x="1676" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1690.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-14</text>
-<text x="1776.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1690" y="124" width="5.1" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1774.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">2</text>
-<rect class="panel" x="1792" y="96" width="108" height="46" rx="5"/><rect x="1792" y="96" width="6" height="46" rx="3" fill="#10897a"/><text x="1806.0" y="115.0" font-size="13" text-anchor="start" font-weight="700">V-15</text>
-<text x="1892.0" y="115.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1806" y="124" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1890.0" y="131.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
-<text x="28.0" y="186.0" font-size="13" text-anchor="start" font-weight="600">对拍 (benchmark)</text>
-<rect class="panel" x="168" y="168" width="108" height="46" rx="5"/><rect x="168" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="182.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-01</text>
-<text x="268.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="182" y="196" width="12.5" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="266.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">9</text>
-<rect class="panel" x="284" y="168" width="108" height="46" rx="5"/><rect x="284" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="298.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-02</text>
-<text x="384.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="298" y="196" width="21.9" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="382.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">18</text>
-<rect class="panel" x="400" y="168" width="108" height="46" rx="5"/><rect x="400" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="414.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-03</text>
-<text x="500.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="414" y="196" width="7.2" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="498.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">4</text>
-<rect class="panel" x="516" y="168" width="108" height="46" rx="5"/><rect x="516" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="530.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-04</text>
-<text x="616.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="530" y="196" width="15.6" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="614.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12</text>
-<rect class="panel" x="632" y="168" width="108" height="46" rx="5"/><rect x="632" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="646.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-05</text>
-<text x="732.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="646" y="196" width="9.3" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="730.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
-<rect class="panel" x="748" y="168" width="108" height="46" rx="5"/><rect x="748" y="168" width="6" height="46" rx="3" fill="#a75909"/><text x="762.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-06</text>
-<text x="848.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">部分</text>
-<rect x="762" y="196" width="21.9" height="7" rx="3.5" fill="#a75909" opacity=".45"/><text x="846.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">18</text>
-<rect class="panel" x="864" y="168" width="108" height="46" rx="5"/><rect x="864" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="878.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-07</text>
-<text x="964.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="878" y="196" width="6.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="962.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">3</text>
-<rect class="panel" x="980" y="168" width="108" height="46" rx="5"/><rect x="980" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="994.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-08</text>
-<text x="1080.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="994" y="196" width="11.4" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1078.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">8</text>
-<rect class="panel" x="1096" y="168" width="108" height="46" rx="5"/><rect x="1096" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="1110.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-09</text>
-<text x="1196.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1110" y="196" width="6.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1194.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">3</text>
-<rect class="panel" x="1212" y="168" width="108" height="46" rx="5"/><rect x="1212" y="168" width="6" height="46" rx="3" fill="#10897a"/><text x="1226.0" y="187.0" font-size="13" text-anchor="start" font-weight="700">B-10</text>
-<text x="1312.0" y="187.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1226" y="196" width="7.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1310.0" y="203.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">4</text>
-<text x="28.0" y="258.0" font-size="13" text-anchor="start" font-weight="600">确认 (validation)</text>
-<rect class="panel" x="168" y="240" width="108" height="46" rx="5"/><rect x="168" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="182.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-01</text>
-<text x="268.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="182" y="268" width="4.0" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="266.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">1</text>
-<rect class="panel" x="284" y="240" width="108" height="46" rx="5"/><rect x="284" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="298.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-02</text>
-<text x="384.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="298" y="268" width="5.1" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="382.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">2</text>
-<rect class="panel" x="400" y="240" width="108" height="46" rx="5"/><rect x="400" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="414.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-03</text>
-<text x="500.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="414" y="268" width="5.1" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="498.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">2</text>
-<rect class="panel" x="516" y="240" width="108" height="46" rx="5"/><rect x="516" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="530.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-04</text>
-<text x="616.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="530" y="268" width="56.0" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="614.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">57</text>
-<rect class="panel" x="632" y="240" width="108" height="46" rx="5"/><rect x="632" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="646.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-05</text>
-<text x="732.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="646" y="268" width="16.6" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="730.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">13</text>
-<rect class="panel" x="748" y="240" width="108" height="46" rx="5"/><rect x="748" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="762.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-06</text>
-<text x="848.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="762" y="268" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="846.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
-<rect class="panel" x="864" y="240" width="108" height="46" rx="5"/><rect x="864" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="878.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-07</text>
-<text x="964.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="878" y="268" width="8.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="962.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">5</text>
-<rect class="panel" x="980" y="240" width="108" height="46" rx="5"/><rect x="980" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="994.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-09</text>
-<text x="1080.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="994" y="268" width="6.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1078.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">3</text>
-<rect class="panel" x="1096" y="240" width="108" height="46" rx="5"/><rect x="1096" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="1110.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-10</text>
-<text x="1196.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1110" y="268" width="9.3" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1194.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
-<rect class="panel" x="1212" y="240" width="108" height="46" rx="5"/><rect x="1212" y="240" width="6" height="46" rx="3" fill="#10897a"/><text x="1226.0" y="259.0" font-size="13" text-anchor="start" font-weight="700">C-11</text>
-<text x="1312.0" y="259.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">成立</text>
-<rect x="1226" y="268" width="8.2" height="7" rx="3.5" fill="#10897a" opacity=".45"/><text x="1310.0" y="275.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">5</text>
-<text x="28.0" y="332.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">填色：登记册的结论（成立 / 部分 / 未通过）·  细条：发布当日把门跑一遍的通过条数</text>
+<rect class="bg" x="0" y="0" width="1180" height="875"/>
+<text x="28.0" y="40.0" font-size="20" text-anchor="start" font-weight="700">fylite V&amp;V 登记册 —— 结果对标准</text>
+<text x="28.0" y="62.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">41 条「量到的数 ÷ 它被判的那条带」；竖线是判据本身，越靠左余量越大。另有 3 条判逐位相同（带 = 0，无比值可取，见下方）</text>
+<line class="grid" x1="150.0" y1="112" x2="150.0" y2="743"/><text x="150.0" y="106.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-8</text>
+<line class="grid" x1="331.4" y1="112" x2="331.4" y2="743"/><text x="331.4" y="106.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-6</text>
+<line class="grid" x1="512.8" y1="112" x2="512.8" y2="743"/><text x="512.8" y="106.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-4</text>
+<line class="grid" x1="694.2" y1="112" x2="694.2" y2="743"/><text x="694.2" y="106.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-2</text>
+<line class="grid" x1="875.6" y1="112" x2="875.6" y2="743"/><text x="875.6" y="106.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<line x1="875.6" y1="112" x2="875.6" y2="743" stroke="#d0342c" stroke-width="1.8"/><text x="881.6" y="106.0" font-size="11" text-anchor="start" font-weight="600">判据</text>
+<text x="138.0" y="139.0" font-size="11" text-anchor="end" font-weight="700">B-01</text>
+<line x1="150.0" y1="135.0" x2="299.1" y2="135.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="299.1" cy="135.0" r="3.4" fill="#10897a"/><text x="940.0" y="139.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">4.4e-07×</text>
+<text x="992.0" y="139.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">台基（压强/宽度）</text>
+<text x="138.0" y="154.0" font-size="11" text-anchor="end" font-weight="700">B-03</text>
+<line x1="150.0" y1="150.0" x2="863.8" y2="150.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="863.8" cy="150.0" r="3.4" fill="#10897a"/><text x="940.0" y="154.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.74×</text>
+<text x="992.0" y="154.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">记录 chi_e 回放（jsp XE）</text>
+<line x1="150.0" y1="165.0" x2="871.6" y2="165.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="871.6" cy="165.0" r="3.4" fill="#10897a"/><text x="940.0" y="169.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.90×</text>
+<text x="992.0" y="169.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">解释性 chi(t)（功率平衡含 dW/dt）</text>
+<line x1="150.0" y1="180.0" x2="913.6" y2="180.0" stroke="#d0342c" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="913.6" cy="180.0" r="3.4" fill="#d0342c"/><text x="940.0" y="184.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">2.62×</text>
+<text x="992.0" y="184.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">常数 chi = 1.84</text>
+<line x1="150.0" y1="195.0" x2="928.5" y2="195.0" stroke="#d0342c" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="928.5" cy="195.0" r="3.4" fill="#d0342c"/><text x="940.0" y="199.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">3.83×</text>
+<text x="992.0" y="199.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">本仓 TGLF 自洽</text>
+<text x="138.0" y="214.0" font-size="11" text-anchor="end" font-weight="700">B-04</text>
+<line x1="150.0" y1="210.0" x2="854.1" y2="210.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="854.1" cy="210.0" r="3.4" fill="#10897a"/><text x="940.0" y="214.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.58×</text>
+<text x="992.0" y="214.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">M-1 椭球体积 / vp，圆截面 23 片，最坏</text>
+<line x1="150.0" y1="225.0" x2="585.9" y2="225.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="585.9" cy="225.0" r="3.4" fill="#10897a"/><text x="940.0" y="229.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">6.4e-04×</text>
+<text x="992.0" y="229.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">M-5 dt_reactivity 对 zformsv，最坏</text>
+<text x="138.0" y="244.0" font-size="11" text-anchor="end" font-weight="700">B-07</text>
+<line x1="150.0" y1="240.0" x2="862.2" y2="240.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="862.2" cy="240.0" r="3.4" fill="#10897a"/><text x="940.0" y="244.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.71×</text>
+<text x="992.0" y="244.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">梯度当量偏移，逐半径</text>
+<text x="138.0" y="259.0" font-size="11" text-anchor="end" font-weight="700">B-08</text>
+<line x1="150.0" y1="255.0" x2="792.1" y2="255.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="792.1" cy="255.0" r="3.4" fill="#10897a"/><text x="940.0" y="259.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.12×</text>
+<text x="992.0" y="259.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">P_fus，61 个时刻逐一（Bosch–Hale 两个独立实现）</text>
+<line x1="150.0" y1="270.0" x2="796.2" y2="270.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="796.2" cy="270.0" r="3.4" fill="#10897a"/><text x="940.0" y="274.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.13×</text>
+<text x="992.0" y="274.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">热储能的定义：3/2 ∫(n_e T_e + Σ n_i T_i)…</text>
+<line x1="150.0" y1="285.0" x2="815.9" y2="285.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="815.9" cy="285.0" r="3.4" fill="#10897a"/><text x="940.0" y="289.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.22×</text>
+<text x="992.0" y="289.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">本条真正的产出：0-D 热储能的 2.4 % 是两项假设相消</text>
+<text x="138.0" y="304.0" font-size="11" text-anchor="end" font-weight="700">B-09</text>
+<line x1="150.0" y1="300.0" x2="869.2" y2="300.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="869.2" cy="300.0" r="3.4" fill="#10897a"/><text x="940.0" y="304.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.85×</text>
+<text x="992.0" y="304.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">爬升段四个时刻</text>
+<text x="138.0" y="319.0" font-size="11" text-anchor="end" font-weight="700">B-10</text>
+<line x1="150.0" y1="315.0" x2="859.0" y2="315.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="859.0" cy="315.0" r="3.4" fill="#10897a"/><text x="940.0" y="319.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.66×</text>
+<text x="992.0" y="319.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">ntcase=2 解析算例，盒 201×129 · 默认内部网格</text>
+<text x="138.0" y="334.0" font-size="11" text-anchor="end" font-weight="700">C-02</text>
+<line x1="150.0" y1="330.0" x2="875.6" y2="330.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="875.6" cy="330.0" r="3.4" fill="#10897a"/><text x="940.0" y="334.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.00×</text>
+<text x="992.0" y="334.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">功率密度逐点</text>
+<line x1="150.0" y1="345.0" x2="875.6" y2="345.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="875.6" cy="345.0" r="3.4" fill="#10897a"/><text x="940.0" y="349.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.00×</text>
+<text x="992.0" y="349.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">体积分</text>
+<text x="138.0" y="364.0" font-size="11" text-anchor="end" font-weight="700">C-06</text>
+<line x1="150.0" y1="360.0" x2="863.9" y2="360.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="863.9" cy="360.0" r="3.4" fill="#10897a"/><text x="940.0" y="364.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.74×</text>
+<text x="992.0" y="364.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">三份参考平衡，中分辨率 129×257</text>
+<text x="138.0" y="379.0" font-size="11" text-anchor="end" font-weight="700">C-07</text>
+<line x1="150.0" y1="375.0" x2="864.3" y2="375.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="864.3" cy="375.0" r="3.4" fill="#10897a"/><text x="940.0" y="379.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.75×</text>
+<text x="992.0" y="379.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">61 份 EQDSK 全部评上</text>
+<text x="138.0" y="394.0" font-size="11" text-anchor="end" font-weight="700">C-09</text>
+<line x1="150.0" y1="390.0" x2="867.5" y2="390.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="867.5" cy="390.0" r="3.4" fill="#10897a"/><text x="940.0" y="394.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.82×</text>
+<text x="992.0" y="394.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">P_fus，摆平几何 · I_p · Z_eff · 外加热 · …</text>
+<text x="138.0" y="409.0" font-size="11" text-anchor="end" font-weight="700">C-10</text>
+<line x1="150.0" y1="405.0" x2="868.0" y2="405.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="868.0" cy="405.0" r="3.4" fill="#10897a"/><text x="940.0" y="409.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.83×</text>
+<text x="992.0" y="409.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">起始磁通，5 场景 × 5 半径</text>
+<text x="138.0" y="424.0" font-size="11" text-anchor="end" font-weight="700">V-02</text>
+<line x1="150.0" y1="420.0" x2="484.7" y2="420.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="484.7" cy="420.0" r="3.4" fill="#10897a"/><text x="940.0" y="424.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">4.9e-05×</text>
+<text x="992.0" y="424.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">TGLF-NN 4 通道 x 7 面</text>
+<line x1="150.0" y1="435.0" x2="150.0" y2="435.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="150.0" cy="435.0" r="3.4" fill="#10897a"/><text x="940.0" y="439.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.0e+00×</text>
+<text x="992.0" y="439.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">EPED-NN 统一路径 vs 编译路径 (18 个数)</text>
+<text x="138.0" y="454.0" font-size="11" text-anchor="end" font-weight="700">V-03</text>
+<line x1="150.0" y1="450.0" x2="532.1" y2="450.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="532.1" cy="450.0" r="3.4" fill="#10897a"/><text x="940.0" y="454.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.6e-04×</text>
+<text x="992.0" y="454.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">八目标 vs 上游测试向量（25 点，最劣绝对）</text>
+<line x1="150.0" y1="465.0" x2="404.3" y2="465.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="404.3" cy="465.0" r="3.4" fill="#10897a"/><text x="940.0" y="469.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">6.4e-06×</text>
+<text x="992.0" y="469.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">同上，最劣相对</text>
+<text x="138.0" y="484.0" font-size="11" text-anchor="end" font-weight="700">V-09</text>
+<line x1="150.0" y1="480.0" x2="453.3" y2="480.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="453.3" cy="480.0" r="3.4" fill="#10897a"/><text x="940.0" y="484.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">2.2e-05×</text>
+<text x="992.0" y="484.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">平均电荷态，最劣相对</text>
+<line x1="150.0" y1="495.0" x2="496.2" y2="495.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="496.2" cy="495.0" r="3.4" fill="#10897a"/><text x="940.0" y="499.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">6.6e-05×</text>
+<text x="992.0" y="499.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">冷却率，最劣相对</text>
+<line x1="150.0" y1="510.0" x2="406.6" y2="510.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="406.6" cy="510.0" r="3.4" fill="#10897a"/><text x="940.0" y="514.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">6.7e-06×</text>
+<text x="992.0" y="514.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">L_INT，最劣相对</text>
+<text x="138.0" y="529.0" font-size="11" text-anchor="end" font-weight="700">V-10</text>
+<line x1="150.0" y1="525.0" x2="247.9" y2="525.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="247.9" cy="525.0" r="3.4" fill="#10897a"/><text x="940.0" y="529.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.2e-07×</text>
+<text x="992.0" y="529.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">shaping_factor 最劣相对</text>
+<line x1="150.0" y1="540.0" x2="292.6" y2="540.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="292.6" cy="540.0" r="3.4" fill="#10897a"/><text x="940.0" y="544.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">3.7e-07×</text>
+<text x="992.0" y="544.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">b_pol_avg / q_cyl / pitch 最劣相对</text>
+<line x1="150.0" y1="555.0" x2="150.0" y2="555.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="150.0" cy="555.0" r="3.4" fill="#10897a"/><text x="940.0" y="559.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.0e+00×</text>
+<text x="992.0" y="559.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">kappa_e 最劣相对</text>
+<line x1="150.0" y1="570.0" x2="317.7" y2="570.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="317.7" cy="570.0" r="3.4" fill="#10897a"/><text x="940.0" y="574.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">7.1e-07×</text>
+<text x="992.0" y="574.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">alpha_t 最劣相对</text>
+<line x1="150.0" y1="585.0" x2="347.2" y2="585.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="347.2" cy="585.0" r="3.4" fill="#10897a"/><text x="940.0" y="589.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.5e-06×</text>
+<text x="992.0" y="589.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">q_parallel 最劣相对</text>
+<text x="138.0" y="604.0" font-size="11" text-anchor="end" font-weight="700">V-11</text>
+<line x1="150.0" y1="600.0" x2="282.4" y2="600.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="282.4" cy="600.0" r="3.4" fill="#10897a"/><text x="940.0" y="604.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">2.9e-07×</text>
+<text x="992.0" y="604.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">七个派生量最劣相对（其中六个逐位相等）</text>
+<line x1="150.0" y1="615.0" x2="422.2" y2="615.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="422.2" cy="615.0" r="3.4" fill="#10897a"/><text x="940.0" y="619.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.0e-05×</text>
+<text x="992.0" y="619.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">Z_eff_separatrix 最劣相对</text>
+<line x1="150.0" y1="630.0" x2="382.7" y2="630.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="382.7" cy="630.0" r="3.4" fill="#10897a"/><text x="940.0" y="634.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">3.7e-06×</text>
+<text x="992.0" y="634.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">divertor_Z_eff 最劣相对</text>
+<text x="138.0" y="649.0" font-size="11" text-anchor="end" font-weight="700">V-12</text>
+<line x1="150.0" y1="645.0" x2="469.3" y2="645.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="469.3" cy="645.0" r="3.4" fill="#10897a"/><text x="940.0" y="649.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">3.3e-05×</text>
+<text x="992.0" y="649.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">c_z_prefactor 最劣相对</text>
+<line x1="150.0" y1="660.0" x2="460.7" y2="660.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="460.7" cy="660.0" r="3.4" fill="#10897a"/><text x="940.0" y="664.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">2.7e-05×</text>
+<text x="992.0" y="664.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">alpha_t 最劣相对</text>
+<line x1="150.0" y1="675.0" x2="448.3" y2="675.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="448.3" cy="675.0" r="3.4" fill="#10897a"/><text x="940.0" y="679.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.9e-05×</text>
+<text x="992.0" y="679.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">q_parallel 最劣相对</text>
+<line x1="150.0" y1="690.0" x2="405.5" y2="690.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="405.5" cy="690.0" r="3.4" fill="#10897a"/><text x="940.0" y="694.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">6.6e-06×</text>
+<text x="992.0" y="694.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">T_e_separatrix 最劣相对</text>
+<line x1="150.0" y1="705.0" x2="450.0" y2="705.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="450.0" cy="705.0" r="3.4" fill="#10897a"/><text x="940.0" y="709.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">2.0e-05×</text>
+<text x="992.0" y="709.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">Z_eff（两处）最劣相对</text>
+<text x="138.0" y="724.0" font-size="11" text-anchor="end" font-weight="700">V-13</text>
+<line x1="150.0" y1="720.0" x2="522.1" y2="720.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="522.1" cy="720.0" r="3.4" fill="#10897a"/><text x="940.0" y="724.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">1.3e-04×</text>
+<text x="992.0" y="724.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">靶温最劣相对（十例）</text>
+<text x="138.0" y="739.0" font-size="11" text-anchor="end" font-weight="700">V-15</text>
+<line x1="150.0" y1="735.0" x2="150.0" y2="735.0" stroke="#10897a" stroke-width="4" opacity=".30" stroke-linecap="round"/><circle cx="150.0" cy="735.0" r="3.4" fill="#10897a"/><text x="940.0" y="739.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">0.0e+00×</text>
+<text x="992.0" y="739.0" font-size="10" text-anchor="start" font-weight="normal" class="mut">26 个数值字段，两份语料</text>
+<text x="28.0" y="773.0" font-size="12" text-anchor="start" font-weight="normal">逐位相同（带 = 0）：V-03、V-12、V-13</text>
+<text x="28.0" y="795.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">★这张图画的是「余量」，不是判定：一条刚好压线通过的记录和一条比判据紧八个数量级的记录，在判定栏里都是「成立」</text>
+<text x="28.0" y="815.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">★只画自陈了「量到多少」并指明被判在哪条判据上的那些；其余记录的数在各自的报告页里，图上不猜</text>
 </svg>

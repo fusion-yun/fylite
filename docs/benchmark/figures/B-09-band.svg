@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 234" role="img" aria-label="B-09：量到的数对它被判的判据">
+<title>B-09 — 结果对标准</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="900" height="234"/>
+<text x="28.0" y="36.0" font-size="18" text-anchor="start" font-weight="700">B-09 · 结果对标准</text>
+<text x="28.0" y="58.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">每一条量到的数，画在它被判的那条带上；竖线是判据本身，条越短余量越大</text>
+<line class="grid" x1="60.0" y1="94" x2="60.0" y2="142"/><text x="60.0" y="88.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-8</text>
+<line class="grid" x1="185.6" y1="94" x2="185.6" y2="142"/><text x="185.6" y="88.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-6</text>
+<line class="grid" x1="311.2" y1="94" x2="311.2" y2="142"/><text x="311.2" y="88.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-4</text>
+<line class="grid" x1="436.7" y1="94" x2="436.7" y2="142"/><text x="436.7" y="88.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1e-2</text>
+<line class="grid" x1="562.3" y1="94" x2="562.3" y2="142"/><text x="562.3" y="88.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<line x1="562.3" y1="94" x2="562.3" y2="142" stroke="#d0342c" stroke-width="1.8"/><text x="568.3" y="88.0" font-size="11" text-anchor="start" font-weight="600">判据</text>
+<line x1="60.0" y1="128.0" x2="557.9" y2="128.0" stroke="#10897a" stroke-width="6" opacity=".28" stroke-linecap="round"/><circle cx="557.9" cy="128.0" r="4" fill="#10897a"/><text x="60.0" y="146.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">爬升段四个时刻</text>
+<text x="614.0" y="132.0" font-size="11" text-anchor="start" font-weight="normal">量到 0.34　带 0.4　= 0.85×</text>
+<text x="28.0" y="192.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">绿：在带以内　·　红：超出带（记录自陈未通过或不判，不是这张图的判定）</text>
+<text x="28.0" y="212.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">只画自陈了量到多少、并指明被判在哪条判据上的那些；带 = 0（判逐位相同）的没有比值，不画</text>
+</svg>

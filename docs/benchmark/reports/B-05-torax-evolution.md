@@ -46,6 +46,15 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 - （场景）★不复现的部分：TORAX 的有效 D/V 分解、输运求解器本身、台基模型、源项组合。本场景比的是闭包与输运装配，不是仿真。
 - （场景）上游可重取（TORAX `b4d40633`，`TORAX_VERSION` 1.4.3，Apache-2.0）；权重 QLKNN_7_11 来自 `fusion_surrogates`（软件 Apache-2.0，**权重 CC-BY-4.0**），两侧读的是同一份档案，其 sha256 记在本仓 `nn_tables/qlknn_7_11.npz` 的 `source_sha256` 里。
 
+## 3. 量到的（图）
+
+:::{figure} ../figures/B-05.svg
+:alt: B-05 的对拍结果
+:width: 100%
+
+由 `tools/benchmark-figures.py` **自语料重画**（不是把记录里的数抄成图）；语料与判据见下两节。
+:::
+
 ## 3. 结果（登记册所记）
 
 | 项 | 偏差 | 种类 | 判 | 备注 |

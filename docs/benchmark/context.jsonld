@@ -38,6 +38,7 @@
     "null_hypothesis":  {"@id": "fyo:null_hypothesis"},
     "about_criterion":  {"@id": "fyo:about_criterion", "@type": "@id"},
     "measured_deviation": {"@id": "fyo:measured_deviation"},
+    "criterion":        {"@id": "fyo:criterion", "@type": "@id"},
     "deviation_literal":  {"@id": "fyo:deviation_literal"},
     "verdict":          {"@id": "fyo:verdict"},
     "finding_kind":     {"@id": "fyo:finding_kind"},

@@ -350,7 +350,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 4.9e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-02/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -359,7 +360,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-02/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -507,7 +509,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 1.634e-13
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-03/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -516,7 +519,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 6.373e-15
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-03/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -525,7 +529,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-03/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -688,7 +693,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 2.206e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-09/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -697,7 +703,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 6.556e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-09/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -706,7 +713,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 6.742e-15
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-09/criterion/3"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -837,7 +845,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 1.2e-16
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -846,7 +855,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 3.738e-16
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -855,7 +865,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -864,7 +875,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 7.061e-16
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -873,7 +885,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 1.494e-15
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1000,7 +1013,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 2.88e-16
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-11/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1009,7 +1023,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 1.002e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-11/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1018,7 +1033,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 3.678e-15
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-11/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1135,7 +1151,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 3.317e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-12/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1144,7 +1161,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 2.665e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-12/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1153,7 +1171,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 1.944e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-12/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1162,7 +1181,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 6.567e-15
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-12/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1171,7 +1191,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 2.03e-14
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-12/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1180,7 +1201,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-12/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1299,7 +1321,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 1.265e-13
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-13/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1308,7 +1331,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/V-13/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1452,7 +1476,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 4.4e-16
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/B-01/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1876,7 +1901,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0667
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/B-03/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1885,7 +1911,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.0813
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/B-03/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1894,7 +1921,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.236
      },
-     "verdict": "fail"
+     "verdict": "fail",
+     "criterion": "record/B-03/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -1904,7 +1932,8 @@
       "numeric_value": 0.345
      },
      "verdict": "fail",
-     "finding_kind": "fail-model-face"
+     "finding_kind": "fail-model-face",
+     "criterion": "record/B-03/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -2105,7 +2134,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.03
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/C-02/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -2114,7 +2144,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.003
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/C-02/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -2570,7 +2601,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 0.00116
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/B-04/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -2603,7 +2635,8 @@
       "type": "spo:QuantityValue",
       "numeric_value": 6.4e-16
      },
-     "verdict": "pass"
+     "verdict": "pass",
+     "criterion": "record/B-04/criterion/6"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -4967,7 +5000,12 @@
      "type": "fyo:ComparisonFinding",
      "title": "26 个数值字段，两份语料",
      "deviation_literal": "0.0（逐位相同）",
-     "verdict": "pass"
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0
+     },
+     "criterion": "record/V-15/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -5116,7 +5154,12 @@
      "verdict": "pass",
      "caveat": [
       "★SOF 比两个燃烧点好六十倍，与「陡边缘主导残差」一致"
-     ]
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.01487
+     },
+     "criterion": "record/C-06/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -5280,7 +5323,12 @@
      "type": "fyo:ComparisonFinding",
      "title": "61 份 EQDSK 全部评上",
      "deviation_literal": "min 1.62e-04 · 中位 1.22e-02 · max 4.51e-02；**0 份符号告警**",
-     "verdict": "pass"
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0451
+     },
+     "criterion": "record/C-07/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -5449,7 +5497,12 @@
      "type": "fyo:ComparisonFinding",
      "title": "`ntcase=2` 解析算例，盒 201×129 · 默认内部网格",
      "deviation_literal": "GS 残差 5.257e-02（带 8e-2）",
-     "verdict": "pass"
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.05257
+     },
+     "criterion": "record/B-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -5587,7 +5640,12 @@
      "verdict": "pass",
      "caveat": [
       "体平均由 brentq 解峰化，⟨n_e⟩ / ⟨T_e⟩ 逐位对上——摆平是判据的一部分，不是预处理"
-     ]
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.106
+     },
+     "criterion": "record/C-09/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -5732,7 +5790,12 @@
      "type": "fyo:ComparisonFinding",
      "title": "爬升段四个时刻",
      "deviation_literal": "比值 1.00 / 0.73 / 0.66 / 0.78（t = 18 / 33 / 48 / 60 s），最劣偏低 34 %（带 40 %）",
-     "verdict": "pass"
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.34
+     },
+     "criterion": "record/B-09/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -5875,7 +5938,12 @@
      "type": "fyo:ComparisonFinding",
      "title": "梯度当量偏移，逐半径",
      "deviation_literal": "最劣 +5.7 %（离子，r/a=0.35），其余 −1.4 %…+4.5 %（带 8 %）",
-     "verdict": "pass"
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.057
+     },
+     "criterion": "record/B-07/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -6219,7 +6287,12 @@
      "caveat": [
       "B-01 在**一个**静止时刻上量到 1.0009；本条说的是那份一致性是**拟合本身的性质**，不是那一点的巧合",
       "★唯一不是 FUSE 的输入是拆分：FUSE 把 D 与 T 记作一支 `DT`，故 n_D = n_T = n_DT/2 是本比较写明的假设"
-     ]
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0012
+     },
+     "criterion": "record/B-08/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -6237,7 +6310,12 @@
      "verdict": "pass",
      "caveat": [
       "两码对「热储能」是同一个意思——这一条立住之后，下一条的 2.4 % 才能被读作**建模假设**而不是量的分歧"
-     ]
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0004
+     },
+     "criterion": "record/B-08/criterion/2"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -6248,7 +6326,12 @@
       "★★一个「距参考 2.4 %」的 0-D 量，看起来是「两个百分点的精度」，实则是两个五到七个百分点的假设指着相反方向。**单个时刻的比较看不见这件事**——要两项一起才解释得了那 2.4 %，而从合计里两项都看不出来",
       "★体元那一项是**量出来的**：把算子的 T_i 置零，只留电子那一半，与精确 ∫dV 相比得 0.95215——不是从源码读出来的猜测",
       "★★门里三个数各自断言、并断言它们的乘积：单修一项会让门变红。这正是「相消」这类缺陷需要的守法"
-     ]
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0011
+     },
+     "criterion": "record/B-08/criterion/3"
     },
     {
      "type": "fyo:ComparisonFinding",
@@ -6433,7 +6516,12 @@
      "verdict": "pass",
      "caveat": [
       "把参考自己的十一路电流过本仓的 ITER 线圈几何与匝数、再用内核的互感核求和；两侧唯一共享的是**电流**"
-     ]
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0495
+     },
+     "criterion": "record/C-10/criterion/1"
     },
     {
      "type": "fyo:ComparisonFinding",
