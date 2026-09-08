@@ -1773,6 +1773,8 @@ FyScenario.whenDevices(function () {
       target: flat,
       reference: $('showref').checked ? referenceLcfs : null,
       xpoint: state && state.bndKind === 1 ? [state.xptR, state.xptZ] : null,
+      //: ★判据落在图上：超出容差的那几段边界（容差与结论行判的是同一个数）
+      gapMarks: lastGapPts ? { pts: lastGapPts, tol: gapTol() } : null,
     });
     // the key lives outside the figure: in the wide device view there is no
     // spot inside the frame that does not cover a coil-current label
@@ -2493,7 +2495,7 @@ FyScenario.whenDevices(function () {
   // --- worker plumbing ------------------------------------------------------
 
   var beforeCurrents = null;
-  var lastGap = null;
+  var lastGap = null, lastGapPts = null;
 
   function onReady(m) {
     //: ★the kernel being ready is not a request to compute.  This page used
@@ -2566,6 +2568,8 @@ FyScenario.whenDevices(function () {
   function onDesign(m) {
     state = m.result;
     lastGap = m.gap || null;
+    //: ★逐点距离：给图上标「哪几段超差」用（`S.cross` 的 `gapMarks`）。
+    lastGapPts = m.gapPoints || null;
     setCurrents(m.chan);
     draw();
     lastHistory = m.history;

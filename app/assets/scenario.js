@@ -1334,6 +1334,15 @@
       });
 
       var api = Object.create(part);
+      //: ★★**栏要有自己的 `cross`**（2026-09-08 实测）。`cross` 从部件那一层继承下来时，
+      //: 闭包里是**部件的**解析器：栏调 `S.cross()` 找的是 `<部件>-cross`，而栏的画布叫
+      //: `<页>-<栏>-cross`——找不着，`cross()` 于是 `return null`，**一声不响地什么也不画**。
+      //: 后果是整张二维截面空白：放电设计、脉冲、仿真三条栏的截面图长期没有内容，而
+      //: 运行本身是成功的（状态行照报位形误差与线圈电流），所以看起来像「图还没画好」。
+      //: ★没有任何闸子会喊：那条路上唯一的失败表达是一个 `null` 返回值，而调用点不看它。
+      //: ★这里给栏一份绑在**栏自己**解析器上的 `cross`；部件那一份原样留着（部件级的
+      //: 截面仍走它）。
+      api.cross = function (eq, opts) { return cross($, eq, opts); };
       api.$ = $;
       api.id = function (id) { var e = $(id); return e ? e.id : bpre + id; };
       api.scope = { getElementById: $ };
