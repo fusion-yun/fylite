@@ -36,8 +36,8 @@
 
 | 编号 | 归属 | 事项 | 依据 |
 | :--- | :--- | :--- | :--- |
-| **D-1** | fydata | G-1 只**半闭**：`check_abox_shape.py` 的 S7 已覆盖 `abox/experiment/`，但 `abox/amns/` 仍不受任何核对 | fydata README G-1 |
-| **D-2** | fydata | S7 只核**键名**：一个 T-Box 值域是 `{data, time, unit}` 的槽写成裸标量能过关（如 `tf.b_field_phi_vacuum_r: 3.15`）。该值经核是对的，但那是人验的不是门验的 | fydata G-11 |
+| ~~**D-1**~~ | fydata | **已关闭 2026-09-08**：`check_abox_shape.py` 新增 **S8** 收 `abox/amns/`（记法同装置树，`_ids` 认根类）。开核当次报 **1 处**——`charge_state` 挂在 `amns_data` 顶层，而 DD 放在 `process[]/charge_state[]` 之下；**未改数**，转为 fydata G-12（重铸属转换器的活） | fydata README G-1 |
+| ~~**D-2**~~ | fydata | **已关闭 2026-09-08**：新增 **S9**。★按字面实现的第一版**是错的**——「值域是类⇒必须写结构」报 173 处，而标量简写是通行记法。改判两条：简写的**类型**要配得上值域类；**同一棵树内**不得两种写法混用（跨树不算）。各抓到一件真事：EAST `ec_launchers` 的 `frequency: 140E9` 被 PyYAML 读成**字符串**（YAML 1.1 浮点正则要小数点+带号指数），四束皆是，已改 `1.4e+11`；`Wall2dLimiter.type` 装置树内混用整数与字符串，未改数（口径裁定，fydata G-13） | fydata G-11 |
 
 ## D. EAST 标准算例（`fydoc` `facts/experiment/east/137985/`）
 
