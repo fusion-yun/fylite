@@ -45,6 +45,13 @@ title: B-08 · FUSE 自带含时 ITER 回归算例：61 个时刻上逐通道对
 
 ## 3. 量到的（图）
 
+:::{figure} ../figures/B-08-profile.svg
+:alt: B-08 本仓结果与对标结果画在一张图上
+:width: 100%
+
+**本仓与对标画在一张图上**：上图两条曲线同轴，中间的阴影就是差；下图是逐点的相对差异，绿区是判据带，最差点标了值与位置。由 `tools/benchmark-figures.py` 自语料重画。
+:::
+
 :::{figure} ../figures/B-08-band.svg
 :alt: B-08 量到的数对它被判的判据
 :width: 100%

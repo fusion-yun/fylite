@@ -48,6 +48,13 @@ title: B-05 · TORAX 五秒 ITER 混合演化：输入装配与输运装配的�
 
 ## 3. 量到的（图）
 
+:::{figure} ../figures/B-05-profile.svg
+:alt: B-05 本仓结果与对标结果画在一张图上
+:width: 100%
+
+**本仓与对标画在一张图上**：上图两条曲线同轴，中间的阴影就是差；下图是逐点的相对差异，绿区是判据带，最差点标了值与位置。由 `tools/benchmark-figures.py` 自语料重画。
+:::
+
 :::{figure} ../figures/B-05.svg
 :alt: B-05 的对拍结果
 :width: 100%

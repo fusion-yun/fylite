@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 596" role="img" aria-label="V-09：Mavrin 非日冕冷却率 L_z(T_e) —— 碳，n_e·τ = 1e17">
+<title>V-09 — Mavrin 非日冕冷却率 L_z(T_e) —— 碳，n_e·τ = 1e17</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="940" height="596"/>
+<text x="28.0" y="36.0" font-size="18" text-anchor="start" font-weight="700">V-09 · Mavrin 非日冕冷却率 L_z(T_e) —— 碳，n_e·τ = 1e17</text>
+<text x="28.0" y="58.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">同一份已发表拟合的两个实现：本仓的 edge_noncoronal 对 TORAX 记录的答案；16 个温度点，0.5 eV – 30 keV</text>
+<rect class="panel" x="96" y="104" width="798" height="268" rx="6"/><line class="grid" x1="96" y1="326.8" x2="894" y2="326.8"/><text x="88.0" y="330.8" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-34</text>
+<line class="grid" x1="96" y1="250.4" x2="894" y2="250.4"/><text x="88.0" y="254.4" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-33</text>
+<line class="grid" x1="96" y1="174.0" x2="894" y2="174.0"/><text x="88.0" y="178.0" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-32</text>
+<polygon points="96.0,357.6 146.3,357.6 196.6,236.2 263.0,139.9 313.3,118.4 363.6,177.6 430.0,227.9 480.3,216.6 530.6,210.9 597.0,219.5 647.3,227.4 697.6,233.2 764.0,238.4 814.3,241.4 843.7,243.2 894.0,243.2 894.0,243.2 843.7,243.2 814.3,241.4 764.0,238.4 697.6,233.2 647.3,227.4 597.0,219.5 530.6,210.9 480.3,216.6 430.0,227.9 363.6,177.6 313.3,118.4 263.0,139.9 196.6,236.2 146.3,357.6 96.0,357.6" fill="#d0342c" opacity=".16"/><polyline points="96.0,357.6 146.3,357.6 196.6,236.2 263.0,139.9 313.3,118.4 363.6,177.6 430.0,227.9 480.3,216.6 530.6,210.9 597.0,219.5 647.3,227.4 697.6,233.2 764.0,238.4 814.3,241.4 843.7,243.2 894.0,243.2" fill="none" stroke="#9aa6b8" stroke-width="7" stroke-linecap="round" opacity=".55"/><polyline class="ours" points="96.0,357.6 146.3,357.6 196.6,236.2 263.0,139.9 313.3,118.4 363.6,177.6 430.0,227.9 480.3,216.6 530.6,210.9 597.0,219.5 647.3,227.4 697.6,233.2 764.0,238.4 814.3,241.4 843.7,243.2 894.0,243.2"/><rect x="106" y="312" width="270" height="46" rx="5" fill="#ffffff" opacity=".82"/><line x1="114" y1="326" x2="146" y2="326" stroke="#9aa6b8" stroke-width="7" stroke-linecap="round" opacity=".55"/><text x="154.0" y="330.0" font-size="12" text-anchor="start" font-weight="normal">TORAX b4d40633（参考）</text>
+<line x1="114" y1="348" x2="146" y2="348" stroke="#1668c8" stroke-width="2.4"/><text x="154.0" y="352.0" font-size="12" text-anchor="start" font-weight="normal">fylite</text>
+<text x="32" y="238.0" font-size="12" text-anchor="middle" class="mut" transform="rotate(-90 32 238.0)">L_z / W·m³</text><rect class="panel" x="96" y="416" width="798" height="104" rx="6"/><rect class="band" x="96" y="438.0" width="798" height="60.0"/><text x="888.0" y="434.0" font-size="10" text-anchor="end" font-weight="normal">判据 ±1e-07 %</text>
+<line class="grid" x1="96" y1="468.0" x2="894" y2="468.0"/><polyline points="96.0,468.0 146.3,468.0 196.6,468.0 263.0,468.0 313.3,468.0 363.6,468.0 430.0,468.0 480.3,468.0 530.6,468.0 597.0,468.0 647.3,468.0 697.6,468.0 764.0,468.0 814.3,468.0 843.7,468.0 894.0,468.0" fill="none" stroke="#a75909" stroke-width="2"/><circle cx="530.6" cy="468.0" r="4" fill="#a75909"/><text x="540.6" y="472.0" font-size="11" text-anchor="start" font-weight="normal">最差 -0.00 %　@ T_e = 0.2</text>
+<text x="32" y="468.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 32 468.0)">差异 %</text><text x="96.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.0005</text>
+<text x="313.3" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.01</text>
+<text x="530.6" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.2</text>
+<text x="764.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="894.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">30</text>
+<text x="495.0" y="558.0" font-size="12" text-anchor="middle" font-weight="normal" class="mut">T_e / keV</text>
+<text x="28.0" y="584.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">V 类：一个函数的两个实现，故判据取机器精度而不是物理带。整批 8 核素 × 16 温度 × 7 个 n_e·τ 的最劣值见判据表</text>
+</svg>

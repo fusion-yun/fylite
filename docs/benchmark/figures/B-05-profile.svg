@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 596" role="img" aria-label="B-05：χ_i 沿半径 —— 本仓的输运装配对 TORAX 自报的 χ">
+<title>B-05 — χ_i 沿半径 —— 本仓的输运装配对 TORAX 自报的 χ</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="940" height="596"/>
+<text x="28.0" y="36.0" font-size="18" text-anchor="start" font-weight="700">B-05 · χ_i 沿半径 —— 本仓的输运装配对 TORAX 自报的 χ</text>
+<text x="28.0" y="58.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">演化的中段一个时刻（共 29 个）；输入用 TORAX 自己的十列，过本算例的整套装配（内 patch · 截断 · 高斯卷积都在内）</text>
+<rect class="panel" x="96" y="104" width="798" height="268" rx="6"/><line class="grid" x1="96" y1="311.3" x2="894" y2="311.3"/><text x="88.0" y="315.3" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-1</text>
+<line class="grid" x1="96" y1="157.3" x2="894" y2="157.3"/><text x="88.0" y="161.3" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e0</text>
+<polygon points="96.0,162.2 127.9,164.7 159.8,169.4 191.8,171.4 223.7,170.6 255.6,165.5 287.5,154.1 319.4,144.3 351.4,135.2 383.3,127.4 415.2,122.6 447.1,123.2 479.0,130.5 511.0,139.8 542.9,144.5 574.8,139.0 606.7,130.8 638.6,126.4 670.6,126.7 702.5,130.6 734.4,132.1 766.3,127.6 798.2,118.4 830.2,357.6 862.1,357.6 894.0,357.6 894.0,357.6 862.1,357.6 830.2,357.6 798.2,118.9 766.3,128.3 734.4,132.9 702.5,131.5 670.6,127.7 638.6,127.5 606.7,132.0 574.8,140.3 542.9,146.0 511.0,141.4 479.0,132.3 447.1,125.0 415.2,124.4 383.3,129.3 351.4,137.1 319.4,146.1 287.5,155.8 255.6,166.9 223.7,171.6 191.8,172.0 159.8,169.6 127.9,164.8 96.0,162.2" fill="#d0342c" opacity=".16"/><polyline points="96.0,162.2 127.9,164.8 159.8,169.6 191.8,172.0 223.7,171.6 255.6,166.9 287.5,155.8 319.4,146.1 351.4,137.1 383.3,129.3 415.2,124.4 447.1,125.0 479.0,132.3 511.0,141.4 542.9,146.0 574.8,140.3 606.7,132.0 638.6,127.5 670.6,127.7 702.5,131.5 734.4,132.9 766.3,128.3 798.2,118.9 830.2,357.6 862.1,357.6 894.0,357.6" fill="none" stroke="#9aa6b8" stroke-width="7" stroke-linecap="round" opacity=".55"/><polyline class="ours" points="96.0,162.2 127.9,164.7 159.8,169.4 191.8,171.4 223.7,170.6 255.6,165.5 287.5,154.1 319.4,144.3 351.4,135.2 383.3,127.4 415.2,122.6 447.1,123.2 479.0,130.5 511.0,139.8 542.9,144.5 574.8,139.0 606.7,130.8 638.6,126.4 670.6,126.7 702.5,130.6 734.4,132.1 766.3,127.6 798.2,118.4 830.2,357.6 862.1,357.6 894.0,357.6"/><rect x="106" y="312" width="270" height="46" rx="5" fill="#ffffff" opacity=".82"/><line x1="114" y1="326" x2="146" y2="326" stroke="#9aa6b8" stroke-width="7" stroke-linecap="round" opacity=".55"/><text x="154.0" y="330.0" font-size="12" text-anchor="start" font-weight="normal">TORAX 1.4.3（参考）</text>
+<line x1="114" y1="348" x2="146" y2="348" stroke="#1668c8" stroke-width="2.4"/><text x="154.0" y="352.0" font-size="12" text-anchor="start" font-weight="normal">fylite（同一装配）</text>
+<text x="32" y="238.0" font-size="12" text-anchor="middle" class="mut" transform="rotate(-90 32 238.0)">χ_i / m²·s⁻¹</text><rect class="panel" x="96" y="416" width="798" height="104" rx="6"/><rect class="band" x="96" y="438.0" width="798" height="60.0"/><text x="888.0" y="434.0" font-size="10" text-anchor="end" font-weight="normal">判据 ±5 %</text>
+<line class="grid" x1="96" y1="468.0" x2="894" y2="468.0"/><polyline points="96.0,468.0 127.9,467.2 159.8,466.0 191.8,463.1 223.7,459.0 255.6,455.0 287.5,452.2 319.4,451.0 351.4,450.9 383.3,451.1 415.2,451.5 447.1,451.8 479.0,452.4 511.0,453.4 542.9,455.1 574.8,456.4 606.7,457.3 638.6,458.1 670.6,458.7 702.5,459.7 734.4,461.1 766.3,462.4 798.2,463.2 830.2,468.0 862.1,468.0 894.0,468.0" fill="none" stroke="#a75909" stroke-width="2"/><circle cx="351.4" cy="450.9" r="4" fill="#a75909"/><text x="361.4" y="454.9" font-size="11" text-anchor="start" font-weight="normal">最差 +2.86 %　@ ρ（面） = 0.32</text>
+<text x="32" y="468.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 32 468.0)">差异 %</text><text x="96.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0</text>
+<text x="287.5" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.24</text>
+<text x="511.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.52</text>
+<text x="702.5" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.76</text>
+<text x="894.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="495.0" y="558.0" font-size="12" text-anchor="middle" font-weight="normal" class="mut">ρ（面）</text>
+<text x="28.0" y="584.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">判据判的是 29 个时刻 × 26 个面全取的最劣值；这一张只画其中一个时刻</text>
+</svg>

@@ -43,6 +43,13 @@ title: V-09 · Mavrin-2017 非日冕电荷态与冷却率，以及 L_INT 求积
 
 ## 3. 量到的（图）
 
+:::{figure} ../figures/V-09-profile.svg
+:alt: V-09 本仓结果与对标结果画在一张图上
+:width: 100%
+
+**本仓与对标画在一张图上**：上图两条曲线同轴，中间的阴影就是差；下图是逐点的相对差异，绿区是判据带，最差点标了值与位置。由 `tools/benchmark-figures.py` 自语料重画。
+:::
+
 :::{figure} ../figures/V-09-band.svg
 :alt: V-09 量到的数对它被判的判据
 :width: 100%
