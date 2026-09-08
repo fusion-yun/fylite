@@ -1267,9 +1267,10 @@
       }
      ],
      "status": "unevaluated",
-     "status_note": "本轮**驱动了**这道浏览器门（2026-09-08 第三轮实测）：参考表接上之后它跑起来，在第一段就 `TypeError: Cannot set properties of null`——它在 `#model-evolve-case` 上套算例，而案例菜单 2026-09-01 已随各栏的出厂设置撤掉（F-23）。**闸子陈了，不是没跑**；另按阻塞规则它还消费 S7（fail）与 S8 的产物",
+     "status_note": "本轮**驱动了**这道浏览器门（2026-09-08 第三轮实测）：参考表接上之后它跑起来，在第一段就 `TypeError: Cannot set properties of null`——它在 `#model-evolve-case` 上套算例，而案例菜单 2026-09-01 已随各栏的出厂设置撤掉（F-23）。**闸子陈了，不是没跑**；另按阻塞规则它还消费 S7（fail）与 S8 的产物 ｜ **2026-09-08 复核：拦路的东西变了**——ASTRA 参考表**够得到**（`$FYLITE_KERNEL/tests/data/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv`，闸子第一行就把它打出来了），闸子因此不再「响亮地跳过」；它现在走进浏览器后失败于`page.evaluate: Cannot set properties of null (setting 'value')`（`march()`）——页面的元素 id 与闸子对不上。",
      "caveat": [
-      "★C-01 的发布日复测记为「未评估（1 stale）」——按本册子的规则，这不是通过；它是本级现状的一部分。"
+      "★C-01 的发布日复测记为「未评估（1 stale）」——按本册子的规则，这不是通过；它是本级现状的一部分。",
+      "★★这一条的「未评估」**成因已变**：不再是「参考侧不在手边」（F-22 修好之后照实记的那个理由），而是**闸子对着改过的页面陈了**。同批实测另有四条同样死法（`validate-handoff` · `validate-ip-reading` · `validate-stationary` · `validate-zerod-app`，全是 `Cannot set properties of null`），所以这是**一批**闸子与前端改动之间的账，不是本条自己的物理问题。★前端改动正在另一处进行中，本轮不动它——在别人改着的页面上改闸子，改的是一个明天不存在的形。"
      ]
     }
    ]
