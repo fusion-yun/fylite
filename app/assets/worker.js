@@ -433,7 +433,7 @@ function designPlan(msg, o) {
     ip: msg.ip, n_points: msg.nPoints || 24, nu: 4,
     x_weight: o.nulls.length ? (msg.xWeight || 1) : 0,
     n_ring: msg.nRing || 4, peaking: msg.peaking === undefined ? 1 : msg.peaking,
-    lam: msg.lambda === undefined ? 3e-1 : msg.lambda,
+    lam: msg.lambda === undefined ? 1e-1 : msg.lambda,
   };
   var discharge = {};
   if (o.nulls.length) {
@@ -616,7 +616,7 @@ function pulseRun(msg) {
   var ctl = msg.control || [];
   var settings = { n_points: msg.nPoints || 24, nu: 4,
                    x_weight: nulls.length ? (msg.xWeight || 1) : 0,
-                   lam: msg.lambda === undefined ? 3e-1 : msg.lambda };
+                   lam: msg.lambda === undefined ? 1e-1 : msg.lambda };
   if (msg.etaCoil !== undefined) settings.eta_coil_uohm_m = msg.etaCoil * 1e6;
   if (msg.etaVessel !== undefined) settings.eta_vessel_uohm_m = msg.etaVessel * 1e6;
   var sv = msg.solve || {};

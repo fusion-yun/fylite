@@ -151,7 +151,7 @@ def _start_of(rec: dict) -> dict:
 
 def start_state(*, target: dict, ip: float,
                 n_points: int = 24, n_ring: int = 4, peaking: float = 1.0,
-                xpoint=None, x_weight: float = 1.0, lam: float = 3e-1,
+                xpoint=None, x_weight: float = 1.0, lam: float = 1e-1,
                 i_max=None, device=None) -> dict:
     """The machine state a shape anneal is entitled to BEGIN from — BY THE KERNEL.
 
@@ -178,13 +178,15 @@ def start_state(*, target: dict, ip: float,
 
     ★★``lam`` —— 岭的强度，按响应自己的列范数定尺度（内核
     ``pulse.rs::start_currents`` 里 ``lam = sp.lambda * g_scale``），所以这个数
-    在每台机器上说的是同一件事。缺省 **3e-1**（2026-09-07 用户裁定），与内核
-    ``case.rs`` 两处 ``s.get("lam", …)`` 是同一个数；这里写着只是为了让签名说得
-    出来，改要两处一起改。
+    在每台机器上说的是同一件事。缺省 **1e-1**，与内核 ``case.rs`` 两处
+    ``s.get("lam", …)`` 是同一个数；这里写着只是为了让签名说得出来，改要两处
+    一起改。
 
-    调小它把边界拟合得更紧、电流更大、分配更敏感；调大反之。实测（EAST，24 个
-    边界点，无控制行）：λ=1e-3 时 ``psi_rms`` 0.00095 而 ‖chan‖ 8.24e6 A·turns，
-    λ=3e-1 时 0.01187 / 1.26e6。整条 L 曲线与它为什么定在这里，见
+    调小它把边界拟合得更紧、电流更大、分配更敏感；调大反之。两头都有实测的
+    界：λ=1e-3 要的最大通道电流是 EAST 实测最大值的 2.04 倍（交不出来），
+    λ≥2e-1 则退火一趟都不接受（交出来的磁轴离实测轴 102 mm）。1e-1 两头都在
+    界内。真机比对见 ``fylite_kernel`` 仓
+    ``tests/test_start_against_the_machine.py``；纯数值那一面的 L 曲线见
     ``python/tests/test_start_design_conditioning.py``。
     """
     settings = _start_settings(target, ip, n_points=n_points, xpoint=xpoint, x_weight=x_weight)
