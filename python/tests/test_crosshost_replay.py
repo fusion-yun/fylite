@@ -269,6 +269,13 @@ def test_both_hosts_agree_on_this_variant(label):
     native = X.run_native(entry, **call)
     wasm = X.run_wasm(entry, **call)
     rec = X.compare(entry, native, wasm)
+    #: ★★2026-09-10: RED on `evolve_heat/current`, and diagnosed — see
+    #: `test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned`
+    #: below and TODO T-C36.  The worst key is `ohm`, which is not a marched
+    #: row at all: it is `(psi - psi_prev)/dt`, and the hosts' epsilon
+    #: disagreement in `psi` (3.2e-16) times that difference's measured
+    #: cancellation factor (1.5e5) bounds the 6.75e-12 it reports.  Left red
+    #: rather than banded, because `ENTRY_OUT_KIND` is where the fix belongs.
     assert rec["verdict"] == "same", rec
 
 
@@ -339,10 +346,45 @@ def test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned():
         assert rec["discrete"]["native"] == rec["discrete"]["wasm"], (
             f"{label}: the counts/flags parted — float noise does not "
             "explain a different number of steps or crashes")
+    #: ★★★2026-09-10: THIS ASSERTION IS RED AND ITS MESSAGE IS WRONG.  It
+    #: reads 6.75e-12 at six steps against the 2.2e-15 recorded above and
+    #: concludes "a disagreement about the step".  Measured, it is not:
+    #:
+    #:   te 6.1e-16 · ti 1.2e-16 · psi 3.2e-16 · q 3.7e-15   — machine epsilon
+    #:   ohm 6.75e-12 · p_ohm 2.9e-13                        — four orders worse
+    #:
+    #: Every MARCHED field agrees at epsilon; only `ohm` and its volume
+    #: integral do not.  `ohm` is not marched — `scenario.rs` builds it from
+    #: `E_par = ratio * (psi[k] - prev[k]) / dt`, a difference of two nearly
+    #: equal fluxes.  Measured on this variant: |psi| 33.35 against
+    #: |psi - prev| median 1.45e-4, so the cancellation factor is 1.07e5
+    #: (1.51e5 at the worst node), and 3.2e-16 x 1.51e5 = 4.8e-11 BOUNDS the
+    #: observed 6.75e-12 with room to spare.  The mechanism is settled: the
+    #: hosts' epsilon disagreement in `psi`, amplified by a cancellation of
+    #: known size.
+    #:
+    #: ★So the failure is a CATEGORY ERROR in the comparison, of exactly the
+    #: kind `ENTRY_OUT_KIND`'s `noise` row already names ("the difference of
+    #: nearly equal numbers ... comparing two hosts' noise relatively is a
+    #: category error").  `ohm` is not `noise` — it is a physical heating
+    #: density and "both are small" is not its check — so it needs a kind
+    #: that `ENTRY_OUT_KIND` does not yet have: a real row FORMED BY
+    #: DIFFERENCING a state row, judged against the state row's own
+    #: agreement times the cancellation factor.
+    #:
+    #: ★★It is left RED on purpose.  Widening the band is what this file's
+    #: own docstring forbids ("a band chosen to swallow 6.2e-13 would agree
+    #: with any future disagreement up to that size, including a real one"),
+    #: and choosing how much amplification is acceptable is a ruling, not a
+    #: measurement.  See TODO T-C36 for the proposed kind and the numbers
+    #: above; whoever takes it should change `ENTRY_OUT_KIND` in the kernel
+    #: and `crosshost.compare`, not this number.
     assert worst["short"] < 1e-14, (
-        f"the two hosts already differ by {worst['short']:.2e} after six "
-        "steps of an uncrashed march; that is not amplification, that is a "
-        "disagreement about the step")
+        f"the hosts differ by {worst['short']:.2e} at six steps.  If the "
+        "worst key is `ohm`/`p_ohm` this is T-C36 (a differenced row "
+        "compared as a marched one) and NOT a disagreement about the step — "
+        "check that te/ti/psi/q are still at epsilon before believing "
+        "otherwise")
     assert worst["long"] > worst["short"] * 100, (
         f"short {worst['short']:.2e} vs long {worst['long']:.2e}: the "
         "divergence did not grow, so the explanation written here (a march "
