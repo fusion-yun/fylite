@@ -10,10 +10,10 @@ title: V-07 · TGYRO 映射层：整份 localdump 全键对照扩到六个算例
 | **参考** | GACODE / TGYRO · rev 6357db306 · Apache-2.0 |
 | **对象** | fylite: scenario.model.mapping.tglf_inputs（tgyro_tglf_map.f90）+ oracles.gacode_derived.neo_inputs（tgyro_neo_map.f90） |
 | **算例** | `scenario/gacode-regression`（GACODE 自带回归算例（局部通量面）） |
-| **数据** | 见 §5 表（5 项，纳入类别 public） |
+| **数据** | 见 §5 表（5 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_tgyro_cases.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——88 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——88 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -46,7 +46,7 @@ title: V-07 · TGYRO 映射层：整份 localdump 全键对照扩到六个算例
 | treg05 在映射层上的增量 | 0 —— 与 treg02 的 localdump 四个半径逐字节相同 |  | 部分 | ★迭代方法/LOC_DX/LOC_RELAX 都是求解器循环设置，碰不到初始剖面状态；以门的形式记着（可证伪）而不是写成一句话；★采集偏差：方法 2 拒绝 RELAX_ITERATIONS=0，其 =1 的 dump 落在已更新剖面上，故冻结的 deck 把方法强制为 1 |
 | treg04 的 DKE 分支在 deck 里的足迹 | 一个键：SIM_MODEL 0 → 2 |  | 部分 | ★treg03/treg04 的 out.neo.localdump 其余部分逐字节相同，out.tglf.localdump 整份相同——本条只证明映射选对了分支，分支算得对不对是 V-04 的判据；读成「经 TGYRO 验证了 DKE 求解器」是夸大 |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -58,17 +58,17 @@ title: V-07 · TGYRO 映射层：整份 localdump 全键对照扩到六个算例
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg02/ | sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10 | public | 31 files, 42295 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg03/ | sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40 | public | 31 files, 42712 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg04/ | sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127 | public | 31 files, 41917 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg05/ | sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48 | public | 31 files, 42149 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/iter01/ | sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3 | public | 43 files, 137151 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg02/ | sha256-manifest:2f34a5c22646a3b870880dda57ac04e926289acc17fabd860939184bc2b91a10 | public-derived | 31 files, 42295 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg03/ | sha256-manifest:ed9132169d911c92ffdc53b344112ff15f6f93f4613d6443688724f0f5b44d40 | public-derived | 31 files, 42712 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg04/ | sha256-manifest:f5b672749dc0c1dc289d96abc9f3ba333a9243d48a691faf18a66e14a0a95127 | public-derived | 31 files, 41917 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg05/ | sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48 | public-derived | 31 files, 42149 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/iter01/ | sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3 | public-derived | 43 files, 137151 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_tgyro_cases.py
@@ -76,4 +76,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。

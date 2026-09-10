@@ -1,0 +1,35 @@
+{
+ "@context": [
+  "../context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "scenario/iter-equilibrium-run-space",
+ "type": "fyo:ScenarioSpecification",
+ "title": "ITER 平衡运行空间（TOSCA 2009 批：li 扫描 × PF6/偏滤器变体，61 份）",
+ "abstract": "不是一个平衡，是**一片运行空间**：内感 li 从 0.57 扫到 1.20，与四种 PF6 / 偏滤器位形变体交叉，共 61 份 EQDSK（65×129），由 TOSCA 写出（45 份首行 `TOSCA_VT` · 16 份 `From TOSCA`）。★一份平衡上的判据只能说「这一份如何」；一片扫描能说的是**判据本身随参数怎么走**，这正是选它的理由。",
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": "ITER"
+  }
+ },
+ "state": [
+  {
+   "type": "spo:PortBinding",
+   "bound_to": {
+    "type": "fyo:Equilibrium",
+    "b0_T": 5.3,
+    "r0_m": 6.2,
+    "a_m": 2.0
+   }
+  }
+ ],
+ "caveat": [
+  "★★**残差随 li 变，而且是台阶不是趋势**：0.57→4.32e-02 · 0.70→1.92e-02 · 0.85→1.38e-02 · 1.00→1.81e-04 · 1.20→1.69e-04——0.85 与 1.00 之间一步掉 75 倍，高 li 两档已落到本底（仓内合成件 1.47e-04 同量级）。〔推测，未判定〕平滑的物理效应不会这样跳，更像两个子批次（求解设置或收敛判据不同）。本场景钉住这个**结构**，不解释它。",
+  "★★★**读得进来本身曾是缺口**：TOSCA 在头一行三个整数之后还写产码名（`… 3  65 129 TOSCA_VT`），而 `(a48,3i4)` 是按列定的。按「最后两个 token」解析的读入端在这 61 份上一份也读不进来，报的却是「header has no nw nh」——听着像文件坏了。",
+  "★语料是 ITER IDM 件（Internal Use），不在任何仓里。"
+ ]
+}

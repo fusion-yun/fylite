@@ -6,14 +6,18 @@ title: Python 用法 (Using the Python Package)
 
 ## 安装
 
+★**alpha 期这个包不在 PyPI 上**（实测 `pip install fylite` 会失败）。分发面是
+**自仓库打出来的轮**：
+
 ```bash
-pip install fylite
+bash tools/build-wheel.sh          # 出轮到 dist/
+pip install dist/fylite-*.whl
 ```
 
 硬依赖只有 `numpy`。其余是可选项，且**缺失时抛错并给出安装行**，不静默降级：
 
 ```bash
-pip install 'fylite[plot,yaml]'
+pip install 'dist/fylite-*.whl[plot,yaml]'
 ```
 
 :::{important} alpha 期的分发面：Linux x86-64

@@ -18,8 +18,13 @@
 //! 会说自带的那一档是空的——这与「构建失败」是两回事，也与「静默少带一台」是两回事。
 use std::path::{Path, PathBuf};
 
+//: ★★没给 `$FY_FACTS_RS` 时版别记 **internal**，不是「未知」也不是 public
+//: （`FYL-DESIGN-19` A-18）。这一格只有一个读者——启动 banner 据它决定说不说
+//: 「仅限内部测试」——而对一条**限制**来说，猜错的两个方向不等价：多说一句的
+//: 代价是一份公开构建上多一行字，少说一句的代价是一份内部构建看起来可以外发。
 const EMPTY: &str = "\
 // 自带的那一档：这一次构建没有给 $FY_FACTS_RS，所以它是空的。\n\
+pub static FLAVOUR: &str = \"internal\";\n\
 pub static EMBEDDED: &[(&str, &str, &str)] = &[];\n";
 
 fn main() {
@@ -34,8 +39,9 @@ fn main() {
             //: ★按名核对它确实是那个工具的产物：一个指错了的路径会编出一个**能编过
             //: 而没有装置**的库，而那是静默的。
             assert!(
-                src.contains("pub static EMBEDDED: &[(&str, &str, &str)]"),
-                "FY_FACTS_RS={p} 不像 tools/facts-publish.py 的产物（没有 EMBEDDED 表）"
+                src.contains("pub static EMBEDDED: &[(&str, &str, &str)]")
+                    && src.contains("pub static FLAVOUR: &str"),
+                "FY_FACTS_RS={p} 不像 tools/facts-publish.py 今天的产物（要有 EMBEDDED 表与 FLAVOUR 常量）——重跑 tools/facts-publish.py"
             );
             let n = src.matches("\n    (\"").count();
             std::fs::write(&out, src).expect("write facts_table.rs");

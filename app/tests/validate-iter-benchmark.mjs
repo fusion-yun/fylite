@@ -56,15 +56,32 @@ const band = (got, lo, hi, what, unit = '') =>
 
 // --- ASTRA 参考表 ----------------------------------------------------------
 
-const REF = ROOT + '/tests/data/reference/iter15ma_astra_burn.csv';
+//: ★★2026-09-08：**一个名字，三处可能的落点**。这张表 2026-09-04 起不在本仓：
+//: 公开检出连 `tests/` 这一级都没有了，表随算例书进了内核检出
+//: （`$FYLITE_KERNEL/tests/data/FYDOC-CASE-01-astra/corpus/`，另有一份随 crate
+//: 走的 `rust/fylite/testdata/reference/`）。此前这里只认第一处，于是在**每一个**
+//: 公开检出上这道闸子都走「跳过」那一支——而它跳过时退出码是 0，发布工具
+//: （`benchmark-publish.py` 的 `read_mjs`）把 0 读成「复测成立」。缺件因此会被
+//: 渲成通过。两头各修一处：这里认得全三处，那里认得「跳过」这个词。
+const REFS = [
+  ROOT + '/tests/data/reference/iter15ma_astra_burn.csv',
+  ...(process.env.FYLITE_KERNEL ? [
+    process.env.FYLITE_KERNEL + '/tests/data/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv',
+    process.env.FYLITE_KERNEL + '/rust/fylite/testdata/reference/iter15ma_astra_burn.csv',
+  ] : []),
+];
+const REF = REFS.find((r) => existsSync(r)) || REFS[0];
 //: ★★2026-09-04：参考表是**私有**语料（`tests/data` → fydoc 的算例书，一条符号
 //: 链接），公开检出里没有它。缺输入的结局只能是**跳过并点名**——此前这里直接
 //: `readFileSync`，于是缺一份可选输入时整道闸子以 ENOENT 崩掉，读日志的人看到的
 //: 是一段 Node 栈，而不是「这条要私有语料」。
 if (!existsSync(REF)) {
-  console.log(`跳过：没有 ASTRA 参考表 ${REF}\n  它随 fydoc（私有）走：ln -s <fydoc>/cases tests/data`);
+  console.log('跳过 (skipped)：没有 ASTRA 参考表，本次没有比较发生');
+  REFS.forEach((r) => console.log(`  looked at ${r}`));
+  console.log('  它随算例书走：设 $FYLITE_KERNEL 指向内核检出（表在 tests/data/FYDOC-CASE-01-astra/corpus/）');
   process.exit(0);
 }
+console.log(`ASTRA 参考表：${REF}`);
 const lines = readFileSync(REF, 'utf8').split('\n').filter((l) => l && !l.startsWith('#'));
 const head = lines[0].split(',');
 const ref = lines.slice(1).map((l) => {
@@ -116,24 +133,61 @@ await page.goto(BASE + 'pages/model.html?device=iter', { waitUntil: 'networkidle
 await page.waitForFunction(() => !!self.FYLITE_KERNEL, null, { timeout: 180000 });
 
 const RUN = '#model-evolve-run';
-/** 从菜单套用 ITER 那一档，覆盖 `over` 里的控件，跑一遍，取读数与会话文件。 */
-async function march(tag, over) {
-  await page.evaluate(() => {
-    const s = document.getElementById('model-evolve-case');
-    s.value = 'evolve-iter-15ma';
-    s.dispatchEvent(new Event('change'));
-  });
-  await page.waitForTimeout(400);
-  await page.evaluate((v) => {
+
+//: ★★2026-09-08（F-23）：**这一档从算例文档来，不再从菜单来**。
+//:
+//: 本闸子此前的第一步是 `document.getElementById('model-evolve-case').value =
+//: 'evolve-iter-15ma'` ——从栏上的算例菜单套一档。那个菜单 2026-09-01 随「每一栏
+//: 都开在自己的出厂设置上」一起撤掉了（`_browser.mjs` 的注释记着那次撤除），于是
+//: 这一行拿到 `null`，闸子在第一段就 `TypeError: Cannot set properties of null`。
+//: 它因此**陈了一周**：公开册把 `C-01` 记成「未评估（1 stale）」，而读者看不出
+//: 「陈的是闸子」还是「这一档跑不出来」。
+//:
+//: 接哪儿：**同一份算例文档**。菜单当年套的就是它，只是套法在页面里；现在直接读
+//: `docs/examples/evolve/evolve-iter-15ma.jsonld` 的 114 条 `parameters[]`，按
+//: `code/evolve#<name>` → `#model-evolve-<name>` 逐个落到控件上。★这不是「换一套
+//: 设定顶上」——判据侧一个字没动，喂进去的仍是那一档声明的那 114 个数；变的只是
+//: 它从**声明**来，而不是从一个已经不在的菜单来。
+//:
+//: ★一个控件都不许缺：缺一个就是**这一档在页面上已经表达不出来了**，那时该红，
+//: 不该跑一个少了几个旋钮的东西再把结果当这一档。下面把缺的全列出来再判负，
+//: 而不是撞见第一个就抛——一次跑完要知道缺的是哪几个。
+const CASE = ROOT + '/docs/examples/evolve/evolve-iter-15ma.jsonld';
+function caseSettings() {
+  const doc = JSON.parse(readFileSync(CASE, 'utf8'));
+  const out = {};
+  for (const p of doc.parameters || [])
+    out[p.sets_parameter.split('#').pop()] = p.literal_value;
+  if (!Object.keys(out).length)
+    throw new Error(`${CASE}: no parameters[] — is this the evolve case?`);
+  return out;
+}
+const CASE_SETTINGS = caseSettings();
+console.log(`算例：${CASE.replace(ROOT + '/', '')}，${Object.keys(CASE_SETTINGS).length} 条设定`);
+
+/** 把一组 `{控件名: 值}` 落到页面上；缺哪个控件就把哪个报出来。 */
+async function apply(page, values) {
+  const missing = await page.evaluate((v) => {
+    const miss = [];
     Object.keys(v).forEach((id) => {
       const el = document.getElementById('model-evolve-' + id)
                  || document.getElementById('model-' + id);
-      if (!el) throw new Error('no control ' + id);
+      if (!el) { miss.push(id); return; }
       if (el.type === 'checkbox') { el.checked = !!v[id]; el.dispatchEvent(new Event('change')); }
       else { el.value = v[id];
              el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input')); }
     });
-  }, over);
+    return miss;
+  }, values);
+  if (missing.length)
+    throw new Error(`页面上没有这几个控件，这一档已经表达不出来了：${missing.join(' ')}`);
+}
+
+/** 套用算例声明的那一档，覆盖 `over` 里的控件，跑一遍，取读数与会话文件。 */
+async function march(tag, over) {
+  await apply(page, CASE_SETTINGS);
+  await page.waitForTimeout(400);
+  await apply(page, over);
   await page.waitForFunction((k) => !document.querySelector(k).classList.contains('stop'),
                              RUN, { timeout: 300000 });
   await page.click(RUN);

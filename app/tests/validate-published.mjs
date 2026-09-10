@@ -33,7 +33,7 @@
 // ——这三种都不是「发布错了」，而一道在这些情况下判红的闸子，很快就会被人默认
 // 忽略。退出码 3 是「没能判」，与 1（判红了）分开。
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { browser, flag } from './_browser.mjs';
 
@@ -86,13 +86,35 @@ if (!resp || !resp.ok()) {
 
 // 〔一〕资产逐字节 ----------------------------------------------------------
 
-console.log('\n〔一〕assets/ 下每一个 css/js 的 sha256');
-const names = readdirSync(APP + 'assets')
+//: ★★**比对的参照物是「构建出来的那一份站点」，不是检出的 `app/`**（2026-09-08）。
+//: 发布出去的是**公开版**（`tools/build-site.sh --public`），而检出通常是缺省的
+//: 内部版（`FYL-DESIGN-19` A-14），两者按构造就有三份不同：`runtime-version.js`
+//: 里的版别标记，以及 `--strip` 从两份语料里删掉的内部提示词条。拿 `app/` 去比，
+//: 一次**正确的**公开发布必然判红三条——一道永远不可能绿的闸子，很快就会被人当成
+//: 噪声忽略，而那正是它存在的反面。
+//: ★参照物：`--against <目录>`，缺省用 `dist/site-publish`（`tools/publish-site.sh`
+//: 留下的那一份）。它不在就**不判**（退出码 3），并说清怎么造一份出来——比错了对象
+//: 的绿和比错了对象的红一样没有意义。
+const REF = (() => {
+  const given = flag('against', 'FYLITE_SITE_REF');
+  const dir = (given || (HERE + '../../dist/site-publish')).replace(/\/*$/, '/');
+  if (!existsSync(dir + 'assets')) {
+    console.log(`  —   没有可比对的参照站点：${dir}`);
+    console.log('      发出去的是公开版，而检出是缺省的内部版——拿 app/ 比会红三条，');
+    console.log('      那是版别差，不是发布错。先造一份再判：');
+    console.log('        bash tools/build-site.sh --public dist/site-publish');
+    console.log('      退出码 3 = 没能判。');
+    process.exit(3);
+  }
+  return dir;
+})();
+console.log(`\n〔一〕assets/ 下每一个 css/js 的 sha256（对照 ${REF}）`);
+const names = readdirSync(REF + 'assets')
   .filter((f) => /\.(css|js)$/.test(f)).sort();
 let same = 0;
 const drift = [];
 for (const f of names) {
-  const local = sha(readFileSync(APP + 'assets/' + f));
+  const local = sha(readFileSync(REF + 'assets/' + f));
   let remote = null;
   try {
     const r = await page.request.get(SITE + 'assets/' + f);
@@ -100,13 +122,13 @@ for (const f of names) {
   } catch (e) { /* 下面按 remote === null 报 */ }
   if (remote === null) { drift.push(`${f}: 取不到`); continue; }
   if (remote === local) same += 1;
-  else drift.push(`${f}: 线上 ${remote.slice(0, 12)} ≠ 仓里 ${local.slice(0, 12)}`);
+  else drift.push(`${f}: 线上 ${remote.slice(0, 12)} ≠ 参照 ${local.slice(0, 12)}`);
 }
 say(drift.length === 0, `${names.length} 个资产逐字节相同`,
     drift.length ? `\n        ` + drift.join('\n        ') : `${same} 个`);
 //: ★这一条红了，读的人要知道**下一步是什么**：不是改源，是**重新发布**
 if (drift.length)
-  console.log('        ↑ 差在发布，不在源：跑 publish-app.yml（workflow_dispatch）。');
+  console.log('        ↑ 差在发布，不在源：重跑 bash tools/publish-site.sh 再推。');
 
 // 〔二〕算出来的样式 --------------------------------------------------------
 

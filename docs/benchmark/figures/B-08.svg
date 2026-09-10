@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 470" role="img" aria-label="B-08：61 个时刻上本仓与 FUSE 的聚变功率之比">
+<title>B-08 — FUSE ITER_time，逐时刻对拍</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="1180" height="470"/>
+<text x="28.0" y="34.0" font-size="18" text-anchor="start" font-weight="700">B-08 · FUSE 自带含时 ITER 回归算例（1.1.5，61 个时刻）</text>
+<text x="28.0" y="56.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">左：本仓的 Bosch–Hale 在 FUSE 每个时刻自己的态上，对 FUSE 报出的聚变功率　·　右：0-D 热储能的 2.4 % 是两项假设相消</text>
+<rect class="panel" x="78" y="74" width="562" height="304" rx="6"/><rect class="band" x="78" y="356.3" width="562" height="14.5"/><line class="grid" x1="78" y1="363.5" x2="640" y2="363.5"/><text x="70.0" y="367.5" font-size="11" text-anchor="end" font-weight="normal" class="mut">0 %</text>
+<line class="grid" x1="78" y1="291.1" x2="640" y2="291.1"/><text x="70.0" y="295.1" font-size="11" text-anchor="end" font-weight="normal" class="mut">10 %</text>
+<line class="grid" x1="78" y1="218.8" x2="640" y2="218.8"/><text x="70.0" y="222.8" font-size="11" text-anchor="end" font-weight="normal" class="mut">20 %</text>
+<line class="grid" x1="78" y1="146.4" x2="640" y2="146.4"/><text x="70.0" y="150.4" font-size="11" text-anchor="end" font-weight="normal" class="mut">30 %</text>
+<line class="grid" x1="78" y1="74.0" x2="640" y2="74.0"/><text x="70.0" y="78.0" font-size="11" text-anchor="end" font-weight="normal" class="mut">40 %</text>
+<polyline class="zero" points="78.0,363.5 87.4,342.5 96.7,352.0 106.1,354.4 115.5,353.5 124.8,354.1 134.2,353.4 143.6,352.8 152.9,352.3 162.3,351.9 171.7,351.5 181.0,338.7 190.4,323.4 199.8,310.7 209.1,296.1 218.5,284.3 227.9,271.9 237.2,259.8 246.6,248.2 256.0,233.9 265.3,217.4 274.7,202.8 284.1,190.7 293.4,179.3 302.8,168.4 312.2,158.2 321.5,149.6 330.9,140.4 340.3,131.4 349.6,122.3 359.0,113.6 368.4,109.7 377.7,108.0 387.1,107.5 396.5,105.8 405.8,104.2 415.2,103.3 424.6,101.7 433.9,100.3 443.3,100.3 452.7,99.8 462.0,99.2 471.4,98.7 480.8,98.2 490.1,98.7 499.5,97.3 508.9,98.0 518.2,97.6 527.6,97.3 537.0,97.1 546.3,97.0 555.7,96.8 565.1,96.7 574.4,96.5 583.8,96.4 593.2,96.1 602.5,96.0 611.9,96.9 621.3,95.7 630.6,95.7 640.0,95.8"/>
+<polyline class="ours" points="78.0,362.7 87.4,363.1 96.7,363.2 106.1,363.2 115.5,363.2 124.8,363.2 134.2,363.2 143.6,363.2 152.9,363.2 162.3,363.2 171.7,363.2 181.0,363.2 190.4,363.2 199.8,363.2 209.1,363.2 218.5,363.2 227.9,363.2 237.2,363.2 246.6,363.2 256.0,363.1 265.3,363.1 274.7,363.1 284.1,363.1 293.4,363.1 302.8,363.1 312.2,363.1 321.5,363.1 330.9,363.1 340.3,363.1 349.6,363.1 359.0,363.1 368.4,363.1 377.7,363.1 387.1,363.1 396.5,363.1 405.8,363.1 415.2,363.1 424.6,363.1 433.9,363.1 443.3,363.1 452.7,363.1 462.0,363.1 471.4,363.1 480.8,363.1 490.1,363.1 499.5,363.1 508.9,363.1 518.2,363.1 527.6,363.1 537.0,363.1 546.3,363.1 555.7,363.1 565.1,363.1 574.4,363.1 583.8,363.1 593.2,363.1 602.5,363.1 611.9,363.1 621.3,363.1 630.6,363.1 640.0,363.1"/>
+<text x="90.0" y="107.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">零假设：按住第 0 个时刻不动（最劣 37 %）</text>
+<text x="90.0" y="335.0" font-size="11" text-anchor="start" font-weight="normal">本仓对 FUSE：最劣 0.12 %（带 1 %，绿区）</text>
+<text x="359.0" y="418.0" font-size="12" text-anchor="middle" font-weight="normal" class="mut">时间 t / s</text>
+<text x="26" y="226.0" font-size="12" text-anchor="middle" class="mut" transform="rotate(-90 26 226.0)">| 1 − 本仓 / FUSE |</text>
+<text x="78.0" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">50</text>
+<text x="171.7" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">100</text>
+<text x="265.3" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">150</text>
+<text x="359.0" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">200</text>
+<text x="452.7" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">250</text>
+<text x="546.3" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">300</text>
+<text x="640.0" y="400.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">350</text>
+<line class="ax" x1="78" y1="378" x2="640" y2="378"/><rect class="panel" x="700" y="74" width="440" height="304" rx="6"/><line class="grid" x1="910" y1="86" x2="910" y2="344"/><text x="910.0" y="356.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0 %</text>
+<rect x="910.0" y="104" width="134.0" height="22" rx="4" fill="#d0342c" opacity=".75"/><text x="712.0" y="120.0" font-size="12" text-anchor="start" font-weight="normal">n_i = n_e 的假设</text>
+<text x="1052.0" y="120.0" font-size="12" text-anchor="start" font-weight="600">+7.46 %</text>
+<rect x="824.1" y="144" width="85.9" height="22" rx="4" fill="#1668c8" opacity=".75"/><text x="712.0" y="160.0" font-size="12" text-anchor="start" font-weight="normal">ρ 加权体元</text>
+<text x="816.1" y="160.0" font-size="12" text-anchor="end" font-weight="600">-4.78 %</text>
+<rect x="910.0" y="184" width="41.7" height="22" rx="4" fill="#9aa6b8" opacity=".75"/><text x="712.0" y="200.0" font-size="12" text-anchor="start" font-weight="normal">两者相乘</text>
+<text x="959.7" y="200.0" font-size="12" text-anchor="start" font-weight="600">+2.32 %</text>
+<rect x="910.0" y="224" width="43.7" height="22" rx="4" fill="#a75909" opacity=".75"/><text x="712.0" y="240.0" font-size="12" text-anchor="start" font-weight="normal">算子实测（合计）</text>
+<text x="961.7" y="240.0" font-size="12" text-anchor="start" font-weight="600">+2.43 %</text>
+<text x="712.0" y="372.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">两项五到七个百分点的假设指着相反方向，合计只剩 2.4 %</text>
+</svg>

@@ -1,10 +1,14 @@
+---
+title: "ITER 15 MA 感应燃烧：定律、定义，加上这一炮该落在哪"
+---
+
 # ITER 15 MA 感应燃烧：定律、定义，加上这一炮该落在哪
 
 - 算例 (case)：`docs/examples/evolve/evolve-iter-15ma`
 - 判决 (verdict)：**通过**（pass）
-- 产出 (datasets)：`core_profiles`, `core_transport`, `equilibrium`, `summary`
-- 记录 (record)：`run/20260904T130427Z-evolve`
-- 日期：2026-09-04
+- 产出 (datasets)：`core_profiles`, `core_transport`, `entry`, `equilibrium`, `summary`
+- 记录 (record)：`run/20260908T115836Z-evolve`
+- 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
 
@@ -31,7 +35,7 @@
 ### `finite` — 产出的每个数都是有限的
 
 - 判据：`∀x ∈ datasets: isfinite(x)`
-- 结论：通过——3757 个数值全部有限
+- 结论：通过——10191 个数值全部有限
 - 假设：NaN / Inf 不是一个物理态，也不是「还没算」——后者应当缺席而不是写成 NaN
 
 ### `positive-temperature` — 绝对温度为正
@@ -42,7 +46,7 @@
 ### `positive-density` — 粒子数密度为正
 
 - 判据：`min(n_e, n_i) > 0`
-- 结论：通过——最小值 7e+19（CORE_PROFILES/ne）；读了 CORE_PROFILES/ne
+- 结论：通过——最小值 7e+19（CORE_PROFILES/ne）；读了 CORE_PROFILES/ne, CORE_PROFILES/ni
 
 ### `grad-shafranov` — 二维平衡满足 Grad–Shafranov 方程
 

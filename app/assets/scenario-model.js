@@ -151,6 +151,8 @@ FyScenario.whenDevices(function () {
   //: tiers must not pay a second wasm instantiation for a tier they never
   //: use.
   var turbWorker = null;
+  //: 模块先行那条消息的 promise，见 `turbWorker` 创建处。
+  var turbWasm = null;
 
   //: ★the turbulence pass runs in a SECOND worker (the page's own), so the
   //: page's `settle` — which listens to the scenario worker — cannot see it
@@ -179,6 +181,16 @@ FyScenario.whenDevices(function () {
     var t0 = (self.performance || Date).now();
     if (!turbWorker) {
       turbWorker = new Worker(self.FySite.url('assets/worker.js'));
+      //: ★★这一页有**第二个** worker，于是同一份 `fylite_rs.wasm` 曾被取第三遍
+      //: （实测首屏 7.43 MB，5.0 MB 是同一个模块的三份）。把页面已经编译好的那一份
+      //: 交给它——`transport_turb` 在它到达之后才发（下面那句排在 `then` 里）。
+      turbWasm = (self.FyLite && self.FyLite.moduleFor)
+        ? self.FyLite.moduleFor(self.FySite.url('assets/fylite_rs.wasm')).then(function (rec) {
+            if (turbWorker) turbWorker.postMessage({ cmd: 'wasm', url: 'fylite_rs.wasm',
+                                                     module: rec.module, sha256: rec.sha256,
+                                                     bytes: rec.bytes });
+          })['catch'](function () { /* 它自己取，只是多一次下载 */ })
+        : Promise.resolve();
       //: the stop button kills the scenario's worker; this one is the page's
       //: own and would otherwise keep running with nobody listening
       S.onAbort(function () {
@@ -227,7 +239,10 @@ FyScenario.whenDevices(function () {
     }
     setBusy(true, T('x.turb.running', { n: nRad * nKy }));
     S.progress(0.2);
-    turbWorker.postMessage({ cmd: 'transport_turb', bar: bar });
+    //: ★等模块那条消息发完再发命令：命令一到，worker 就 attach 了。
+    (turbWasm || Promise.resolve()).then(function () {
+      if (turbWorker) turbWorker.postMessage({ cmd: 'transport_turb', bar: bar });
+    });
     return turbSettle();
   }
 

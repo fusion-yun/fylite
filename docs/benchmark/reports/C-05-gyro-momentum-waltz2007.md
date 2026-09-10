@@ -13,7 +13,7 @@ title: C-05 · 环向动量输运对 GYRO 非线性回旋动理学（Waltz 2007 
 | **数据** | 见 §5 表（1 项，纳入类别 public） |
 | **门** | `$FYLITE_KERNEL/tests/test_tglf_momentum.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——13 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——13 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -41,7 +41,7 @@ title: C-05 · 环向动量输运对 GYRO 非线性回旋动理学（Waltz 2007 
 | Pr，γ_P=0.2（GYRO 0.74） | 0.682（规则 1）/ 0.759（规则 2） |  | 成立 |  |
 | γ_E=0.2 的两行（GYRO 报 −0.31 / −0.74，符号反转） | 未通过 |  | 部分 | ★不可归因于模型类差异：对**上游自己**同规则也差 6–12×，见 V-01 的 T-C33。该缺口修好之前，这两行判不了 GYRO |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -53,13 +53,13 @@ title: C-05 · 环向动量输运对 GYRO 非线性回旋动理学（Waltz 2007 
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_tglf_momentum.py
@@ -67,4 +67,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（C 确认）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（C 确认）的问题，不外推。

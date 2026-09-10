@@ -9,7 +9,7 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "缺省演化：一次 1.5-D 输运推进的自洽性",
-  "recorded": "2026-09-04",
+  "recorded": "2026-09-08",
   "scenario": "docs/examples/evolve/evolve-default",
   "compared_subject": {
     "type": "spo:Code",
@@ -157,7 +157,7 @@
       "title": "产出的每个数都是有限的",
       "deviation_literal": "0",
       "verdict": "pass",
-      "comment": "1037 个数值全部有限"
+      "comment": "2371 个数值全部有限"
     },
     {
       "type": "fyo:ComparisonFinding",
@@ -171,7 +171,7 @@
       "title": "粒子数密度为正",
       "deviation_literal": "5e+18",
       "verdict": "pass",
-      "comment": "最小值 5e+18（CORE_PROFILES/ne）；读了 CORE_PROFILES/ne"
+      "comment": "最小值 5e+18（CORE_PROFILES/ne）；读了 CORE_PROFILES/ne, CORE_PROFILES/ni"
     },
     {
       "type": "fyo:ComparisonFinding",
@@ -259,10 +259,10 @@
   "overall_verdict": "pass",
   "run": {
     "type": "spo:ComputationRecord",
-    "id": "run/20260904T130427Z-evolve",
+    "id": "run/20260908T115836Z-evolve",
     "comment": [
       "本批现跑了这个算例（数据层 JSON 门 + 内核）",
-      "datasets: core_profiles, core_transport, equilibrium, summary"
+      "datasets: core_profiles, core_transport, entry, equilibrium, summary"
     ]
   },
   "account": "docs/reference/FYL-REF-BENCHMARK.md",

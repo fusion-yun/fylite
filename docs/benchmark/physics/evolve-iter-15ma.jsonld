@@ -9,7 +9,7 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "ITER 15 MA 感应燃烧：定律、定义，加上这一炮该落在哪",
-  "recorded": "2026-09-04",
+  "recorded": "2026-09-08",
   "scenario": "docs/examples/evolve/evolve-iter-15ma",
   "compared_subject": {
     "type": "spo:Code",
@@ -170,7 +170,7 @@
       "title": "产出的每个数都是有限的",
       "deviation_literal": "0",
       "verdict": "pass",
-      "comment": "3757 个数值全部有限"
+      "comment": "10191 个数值全部有限"
     },
     {
       "type": "fyo:ComparisonFinding",
@@ -184,7 +184,7 @@
       "title": "粒子数密度为正",
       "deviation_literal": "7e+19",
       "verdict": "pass",
-      "comment": "最小值 7e+19（CORE_PROFILES/ne）；读了 CORE_PROFILES/ne"
+      "comment": "最小值 7e+19（CORE_PROFILES/ne）；读了 CORE_PROFILES/ne, CORE_PROFILES/ni"
     },
     {
       "type": "fyo:ComparisonFinding",
@@ -283,10 +283,10 @@
   "overall_verdict": "pass",
   "run": {
     "type": "spo:ComputationRecord",
-    "id": "run/20260904T130427Z-evolve",
+    "id": "run/20260908T115836Z-evolve",
     "comment": [
       "本批现跑了这个算例（数据层 JSON 门 + 内核）",
-      "datasets: core_profiles, core_transport, equilibrium, summary"
+      "datasets: core_profiles, core_transport, entry, equilibrium, summary"
     ]
   },
   "account": "docs/reference/FYL-REF-BENCHMARK.md",

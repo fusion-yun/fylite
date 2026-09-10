@@ -13,7 +13,7 @@ title: C-01 · ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例
 | **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `app/tests/validate-iter-benchmark.mjs` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：未评估——0 passed, 0 failed, 0 error, 0 skipped, 1 stale |
+| **复测** | 2026-09-08：成立——1 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -36,27 +36,25 @@ title: C-01 · ITER 15 MA 感应燃烧，对 ITER Organization 的参考算例
 | :--- | ---: | :--- | :--- | :--- |
 | 闸子 28 项 | 全绿 |  | 成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
-| app/tests/validate-iter-benchmark.mjs | 0 过 / 0 败 / 0 错 / 0 跳 / 1 陈旧 | page.evaluate: TypeError: Cannot set properties of null (setting 'value') |
+| app/tests/validate-iter-benchmark.mjs | 1 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 
-结论：**未评估**（`re-run: gate stale (names an entry the assembly layer no longer has)`）。
-
-- $FYLITE_PUBLIC/app/tests/validate-iter-benchmark.mjs: page.evaluate: TypeError: Cannot set properties of null (setting 'value')
+结论：**成立**（`re-run`）。
 
 ## 5. 数据与怎么重跑
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv | sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e | restricted | 20703 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv | sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e | restricted | 20703 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest app/tests/validate-iter-benchmark.mjs
@@ -64,4 +62,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：未评估。只回答本条自己那一类（C 确认）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（C 确认）的问题，不外推。

@@ -894,6 +894,15 @@
    ]
   }
  ],
+ "globals": [
+  {
+   "flags": [
+    "--nobanner"
+   ],
+   "action": "store_true",
+   "help": "do not print the startup banner (the notices it carries are still shown; $FY_NO_BANNER=1 does the same). Accepted before or after any command word."
+  }
+ ],
  "retired": {
   "case describe": "list kernel",
   "case plan": "run <the same plans> --dry-run",

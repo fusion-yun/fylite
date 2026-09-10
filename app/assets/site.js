@@ -238,6 +238,21 @@
       + ' stroke-linejoin="round"><ellipse cx="8" cy="3.7" rx="5.2" ry="2.1"/>'
       + '<path d="M2.8 3.7v8.6c0 1.16 2.33 2.1 5.2 2.1s5.2-.94 5.2-2.1V3.7"/>'
       + '<path d="M2.8 8c0 1.16 2.33 2.1 5.2 2.1s5.2-.94 5.2-2.1"/></svg>',
+    //: ★★算例报告：一页纸，右上角折角，里面两行字。它与另外四个刻意**不画物理**
+    //: ——那四页各画自己算的东西（脉冲、曲线、位形、库），而这一页什么都不算：
+    //: 它把别处算完的计划与记录**读**成一份报告，所以画的是那份报告本身。
+    //: ★纸上那两行用细笔画（与 analysis 同一条规矩）：纸是答案，行是纸上的
+    //: 东西，17 px 下谁重谁先被读到。
+    //: ★★漏了它的后果不是一个空位：生成的静态页把 `undefined` 当作图标
+    //: 写进了导航条（实测，六个文件八处），而动态页的那一个只是空白——
+    //: 同一个漏掉，两种长相。`tests/validate-site.mjs` 现在把它当错报。
+    report:
+      '<svg viewBox="0 0 16 16" aria-hidden="true" fill="none"'
+      + ' stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path stroke-width="1.5" d="M9.2 1.8H4.3c-.55 0-1 .45-1 1v10.4'
+      + 'c0 .55.45 1 1 1h7.4c.55 0 1-.45 1-1V5.3z"/>'
+      + '<path stroke-width="1.5" d="M9.2 1.8v3.5h3.5"/>'
+      + '<path stroke-width="1.1" d="M5.7 8.7h4.6M5.7 11.2h4.6"/></svg>',
   };
 
   function a(href, key, cls) {

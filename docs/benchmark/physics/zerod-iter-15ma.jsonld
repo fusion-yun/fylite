@@ -9,7 +9,7 @@
   "type": "fyo:ComparisonRecord",
   "comparison_kind": "verification",
   "title": "ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住",
-  "recorded": "2026-09-04",
+  "recorded": "2026-09-08",
   "scenario": "docs/examples/zerod/zerod-iter-15ma",
   "compared_subject": {
     "type": "spo:Code",
@@ -156,9 +156,9 @@
     {
       "type": "fyo:ComparisonFinding",
       "title": "产出的每个数都是有限的",
-      "deviation_literal": "1",
-      "verdict": "fail",
-      "comment": "1 处非有限：summary/global_quantities/fusion_gain/value (60/201)"
+      "deviation_literal": "0",
+      "verdict": "pass",
+      "comment": "35376 个数值全部有限；另有 60 个 DD 空值（不适用，不计入有限性）：summary/global_quantities/fusion_gain/value (60/201)"
     },
     {
       "type": "fyo:ComparisonFinding",
@@ -273,13 +273,13 @@
     }
   ],
   "assertion_state": "under_test",
-  "overall_verdict": "fail",
+  "overall_verdict": "pass",
   "run": {
     "type": "spo:ComputationRecord",
-    "id": "run/20260904T130427Z-zerod",
+    "id": "run/20260908T115836Z-zerod",
     "comment": [
       "本批现跑了这个算例（数据层 JSON 门 + 内核）",
-      "datasets: core_profiles, summary"
+      "datasets: core_profiles, entry, summary"
     ]
   },
   "account": "docs/reference/FYL-REF-BENCHMARK.md",

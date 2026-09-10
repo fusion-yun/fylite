@@ -385,6 +385,14 @@
    "gated": false,
    "gloss": "The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`). Not gated: `target` is the ordinary name of the requested shape in both hosts' design bars."
   },
+  "target_r": {
+   "gated": true,
+   "gloss": "The r of the design's TARGET SHAPE, as a curve. Given (with `target_z`), `code/discharge` takes those points as the target and stops generating one from the six shape scalars — `miller_boundary` is a smooth analytic family and cannot carry an X point, so a machine that records its own separatrix (ITER's 248 points, sharpest corner 91 deg) loses exactly that feature when it is reduced to six numbers and regenerated. The six scoring measures are then read off the SAME curve. Gated: it is a plan input the kernel reads by declared slot, not a field either host keeps in memory under this name."
+  },
+  "target_z": {
+   "gated": true,
+   "gloss": "The z of the design's target shape — see `target_r`; the two travel together and a lone one is refused."
+  },
   "te_profile": {
    "gated": false,
    "gloss": "An electron temperature profile [eV] on uniform normalised flux, read linearly — the T_e a bootstrap ladder is built on when a reader imported one rather than reading it off the thermal pressure (`code/bootstrap`, 第三十五刀). Not gated: the page's `spec.temperature`, a bare local."

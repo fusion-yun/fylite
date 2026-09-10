@@ -77,11 +77,193 @@
    *        coilLabel, coilFill,
    *        handles, legend, legendAnchor, nLevels, caption, view}
    */
+  /**
+   * 截面图的**平移与缩放**（2026-09-08 用户裁定：可交互缩放）。缺省取景由调用方给，
+   * 见 `contentView`（同日裁定：初始框住平衡计算区域，不含线圈）。
+   *
+   * ★★视图状态挂在**画布自己**身上（`__fyZoom`），不挂在调用方：每一次重画都由调用方
+   * 重新给一份 `opts`，若视图存在调用方那边，读者一动控件视图就被打回原样——那正是
+   * 「缩放没有用」的样子。★`null` 表示「跟着调用方给的默认走」，双击即回到它，所以
+   * 「我把图缩乱了」永远有一步可退。
+   * ★重画用的是**上一次的 `opts`**（`__fyOpts`）：图里那些数组（ψ、边界、线圈）都在
+   * 里面，交互不需要知道它们是什么，也不该去问调用方要。
+   * ★不抢拖拽：页面在这张画布上已经有可拖的 O 点与 X 点，它们用的是指针捕获——捕获期间
+   * 这里一律不平移。滚轮缩放没有这个问题，因为它不与拖拽共用手势。
+   */
+  function sameBox(a, b) {
+    return !!a && !!b && a.rmin === b.rmin && a.rmax === b.rmax &&
+           a.zmin === b.zmin && a.zmax === b.zmax;
+  }
+
+  //: ★★**缩放的两头都拿核心计算区域当尺**（2026-09-08 用户裁定：网格盒的 1/2 ~ 2 倍）。
+  //: 此前夹的是「当前缺省视野」的倍数，于是同一个滚轮在不同取景下走得不一样远——勾了
+  //: 「视野含全部 PF 线圈」，那一档的两倍已是 ITER 的 22 m。改用网格盒之后，能看到的
+  //: 最小与最大是装置自己的尺度，与读者此刻取的景无关。
+  //: ★起点已在带外时（例如含线圈那一框对小机器可能超过 4 倍），只拦「往外走」的那一半：
+  //: 一律拒绝会把读者锁死在带外，连往回走都不许。
+  var ZOOM_MIN = 0.5, ZOOM_MAX = 2;
+  function zoomFactor(canvas, v, k) {
+    var o = canvas.__fyOpts, g = o && o.machine && o.machine.grid;
+    if (!g) return k;
+    var ref = Math.max(g.rmax - g.rmin, g.zmax - g.zmin);
+    var now = Math.max(v.rmax - v.rmin, v.zmax - v.zmin);
+    var out = k > 1;                 //: 这一步是想「看得更宽」还是「看得更近」
+    var next = now * k;
+    //: ★越界的那一步**削到正好落在界上**，不是整步作废：作废会在带边留下最多一步
+    //: （0.835 倍）够不着的余量，读者滚到那里只觉得「卡住了」，而界在哪里也说不清。
+    if (next > ZOOM_MAX * ref) k = ZOOM_MAX * ref / now;
+    else if (next < ZOOM_MIN * ref) k = ZOOM_MIN * ref / now;
+    //: 削完之后方向若反了（说明已经贴着界，甚至在界外），这一步就不动——不能借着
+    //: 「夹住」把读者往回推，那是另一件事。
+    return (out ? k > 1 : k < 1) ? k : 0;
+  }
+
+  function attachPanZoom(canvas) {
+    if (canvas.__fyPanZoom) return;
+    canvas.__fyPanZoom = true;
+    var drag = null;
+    var redraw = function () {
+      if (canvas.__fyOpts) poloidal(canvas, canvas.__fyOpts);
+    };
+    canvas.addEventListener('wheel', function (ev) {
+      var v = canvas.__fyZoom || canvas.__fyBaseView;
+      if (!v) return;
+      ev.preventDefault();
+      var rect = canvas.getBoundingClientRect();
+      var fx = (ev.clientX - rect.left) / Math.max(1, rect.width);
+      var fy = (ev.clientY - rect.top) / Math.max(1, rect.height);
+      //: 以指针所在处为不动点缩放——否则读者要一边滚一边追着目标平移
+      //: ★方向：滚轮向上（`deltaY < 0`）**放大**，即视野变窄。写反了会让「放大」把
+      //: 图缩小，实测第一版就是反的。
+      var k = Math.exp((ev.deltaY > 0 ? 1 : -1) * 0.18);
+      k = zoomFactor(canvas, v, k);
+      if (!k) return;
+      var rw = (v.rmax - v.rmin) * k, zw = (v.zmax - v.zmin) * k;
+      var rAt = v.rmin + (v.rmax - v.rmin) * fx;
+      var zAt = v.zmax - (v.zmax - v.zmin) * fy;
+      canvas.__fyZoom = { rmin: rAt - rw * fx, rmax: rAt + rw * (1 - fx),
+                          zmin: zAt - zw * (1 - fy), zmax: zAt + zw * fy };
+      redraw();
+    }, { passive: false });
+    canvas.addEventListener('pointerdown', function (ev) {
+      if (canvas.hasPointerCapture && canvas.hasPointerCapture(ev.pointerId)) return;
+      var v = canvas.__fyZoom || canvas.__fyBaseView;
+      if (!v) return;
+      drag = { x: ev.clientX, y: ev.clientY, v: v, id: ev.pointerId, moved: false };
+    });
+    canvas.addEventListener('pointermove', function (ev) {
+      if (!drag || ev.pointerId !== drag.id) return;
+      if (canvas.hasPointerCapture && canvas.hasPointerCapture(ev.pointerId)) { drag = null; return; }
+      var rect = canvas.getBoundingClientRect();
+      var dr = (ev.clientX - drag.x) / Math.max(1, rect.width) * (drag.v.rmax - drag.v.rmin);
+      var dz = (ev.clientY - drag.y) / Math.max(1, rect.height) * (drag.v.zmax - drag.v.zmin);
+      if (!drag.moved && Math.abs(ev.clientX - drag.x) + Math.abs(ev.clientY - drag.y) < 3) return;
+      drag.moved = true;
+      canvas.__fyZoom = { rmin: drag.v.rmin - dr, rmax: drag.v.rmax - dr,
+                          zmin: drag.v.zmin + dz, zmax: drag.v.zmax + dz };
+      redraw();
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+      canvas.addEventListener(t, function () { drag = null; });
+    });
+    //: ★回到默认：一步，且不必知道默认是什么
+    canvas.addEventListener('dblclick', function () {
+      canvas.__fyZoom = null; redraw();
+    });
+  }
+
+  /**
+   * 画布还没有布局盒时**不画**，等它有了再画。
+   *
+   * ★★折叠或未选中的功能栏，其画布的盒是 0×0——`prepare()` 会把背衬钉成 1×1，然后
+   * 整幅图（等值线追踪、线圈、边界）朝一个 1 像素的缓冲画一遍：白做，而且一旦面板被
+   * 显示出来而没人重画，读者看到的是一张按 1×1 拉伸的糊图。
+   * ★用 `ResizeObserver` 而不是「显示时记得重画」：后者要求每一个显示面板的地方都记得
+   * 调一次，而那种「记得」正是本仓一再修掉的东西。它同时把**窗口缩放**也一并管了——
+   * 此前改窗口大小，图要等下一次重画才跟上。
+   */
+  function redrawWhenSized(canvas) {
+    if (canvas.__fyRO || typeof ResizeObserver !== 'function') return;
+    canvas.__fyRO = new ResizeObserver(function (entries) {
+      var r = entries[0] && entries[0].contentRect;
+      if (!r || r.width < 2 || r.height < 2) return;
+      if (canvas.__fyOpts) poloidal(canvas, canvas.__fyOpts);
+    });
+    try { canvas.__fyRO.observe(canvas); } catch (e) { /* 观察不了就照旧 */ }
+  }
+
+  //: ★★**画什么、图例写什么，只能有一份规则**（2026-09-08）。超差段的判据是
+  //: 「两端都超」，于是「max > tol」并不等于「图上真有红段」（孤点超差画不出东西）。
+  //: 页面要决定要不要给图例条目，就得问同一个函数，而不是在那边再写一遍这条规则——
+  //: 两处各写一遍，就会有一天图上没红段而图例说有（反之亦然），而那种不一致没人会报。
+  var GAP_WIDTH = 4.5;
+  function gapSegments(pts, tol) {
+    var out = [], n = pts.length / 3;
+    if (!(n > 1) || !isFinite(tol)) return out;
+    for (var i = 0; i < n; i++) {
+      var j = (i + 1) % n;
+      if (pts[3 * i + 2] > tol && pts[3 * j + 2] > tol) out.push([i, j]);
+    }
+    return out;
+  }
+
+  //: ★★**夹取管住了画法，视野就得管住内容**（2026-09-08 实测）。同一天加的两条：
+  //: 「框外不画」和「缺省框＝平衡计算网格盒」。两条各自都对，合起来却会**静默吞掉
+  //: 被点名要画的东西**——ITER 的磁通环有 110 个，其中 **71 个在网格盒外**（环装在
+  //: 器壁与线圈之间，网格盒只框到器壁），于是反演页画了、也被夹掉了，图上一个不见，
+  //: 而没有任何一句提示说少了什么。那页要看的正是「哪个环残差大」。
+  //: ★所以缺省视野从网格盒起，再**长到装得下调用方点名要画的诊断**（磁通环、视线）。
+  //: 不含线圈：线圈是背景，没被点名，撑大视野只会把等离子体压小——那正是这次要改掉
+  //: 的毛病。
+  //: ★调用方显式给了 `view` 就照它的办：那是一次明确的选择（例如「视野含全部 PF 线圈」）。
+  function contentView(o, M) {
+    var b = { rmin: M.grid.rmin, rmax: M.grid.rmax,
+              zmin: M.grid.zmin, zmax: M.grid.zmax }, grew = false;
+    function eat(r, z) {
+      if (!isFinite(r) || !isFinite(z)) return;
+      if (r < b.rmin) { b.rmin = r; grew = true; }
+      if (r > b.rmax) { b.rmax = r; grew = true; }
+      if (z < b.zmin) { b.zmin = z; grew = true; }
+      if (z > b.zmax) { b.zmax = z; grew = true; }
+    }
+    //: 只认**这里真的画出来的**那几样。磁探针不在其列（本图不画它们），为不画的东西
+    //: 撑大视野，等于把等离子体压小去迁就一个看不见的点。
+    if (o.loops) o.loops.forEach(function (l) { eat(l[0], l[1]); });
+    if (o.chords) o.chords.forEach(function (c) { eat(c.r0, c.z0); eat(c.r1, c.z1); });
+    if (!grew) return M.grid;   //: 恰好等于网格盒时交回它本身，那圈点线框就不会重复画
+    var m = 0.04 * Math.max(b.rmax - b.rmin, b.zmax - b.zmin);
+    return { rmin: Math.max(0.02, b.rmin - m), rmax: b.rmax + m,
+             zmin: b.zmin - m, zmax: b.zmax + m };
+  }
+
   function poloidal(canvas, o) {
+    var box = canvas.getBoundingClientRect();
+    if (box.width < 2 || box.height < 2) {
+      //: 记下要画什么，等有了盒子再画（见上）
+      canvas.__fyOpts = o;
+      redrawWhenSized(canvas);
+      return null;
+    }
+    redrawWhenSized(canvas);
     var p = prepare(canvas), ctx = p.ctx, col = palette(canvas);
     var M = o.machine;
     var pad = { l: 42, r: 12, t: 10, b: 30 };
-    var view = o.view || M.grid;
+    //: ★交互后的视图优先；`__fyBaseView` 记下调用方的默认，供「回到默认」与缩放起点用
+    canvas.__fyOpts = o;
+    //: ★★**缩放状态与坐标变换是两样东西**（2026-09-08 实测）。这里原先把交互后的视野
+    //: 也叫 `__fyView`——而那个名字**早就有主**：每次画完，本函数会把这张图的坐标变换
+    //: （`X/Y/rOf/zOf` + 边界）写在 `canvas.__fyView` 上，页面靠它把指针位置换回 (R, Z)。
+    //: 于是第一次画完之后「读者缩放过」就永远为真，调用方再换视野也被压住：实测勾上
+    //: 「视野含全部 PF 线圈」后 `__fyBaseView` 已经变成 1.23–12.44 m，画出来的仍是
+    //: 3.89–8.44 m 的那一张，两张截图逐字节相同。缩放本身看不出毛病，因为变换对象恰好
+    //: 也带着同名的 rmin..zmax，自己喂自己刚好自洽。
+    var base = o.view || contentView(o, M);
+    //: ★调用方换了缺省视野（换了取景方式），先前的缩放就作废——那是对旧取景的操作，
+    //: 留着它等于把新选择吞掉。
+    if (!sameBox(base, canvas.__fyBaseView)) canvas.__fyZoom = null;
+    canvas.__fyBaseView = base;
+    attachPanZoom(canvas);
+    var view = canvas.__fyZoom || base;
     var rmin = view.rmin, rmax = view.rmax,
         zmin = view.zmin, zmax = view.zmax;
     var aw = p.w - pad.l - pad.r, ah = p.h - pad.t - pad.b;
@@ -129,6 +311,18 @@
     }
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillText('R [m]', (X(rmin) + X(rmax)) / 2, p.h - 14);
+
+    //: ★★**框外不画**（2026-09-08 实测）。视野由 `deviceView`（网格 + PF 线圈）定，而
+    //: 画的东西不止这些：真空室 / 被动结构可以远在视野之外——ITER 的低温恒温器顶底盖
+    //: 在轴对称描述里一直伸到 **R = 0**，最长一段 19 m，于是它们被画在坐标框外面，
+    //: 图上多出一堆没有坐标可依的灰条。
+    //: ★修在**这里**而不是在每一处画法里：视野与画什么本来就该分开，一处夹取管住
+    //: 所有元件——今天的、以及以后加进来的。框、刻度与标签在夹取之外画（它们本来就
+    //: 该压在边上）。
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(X(rmin), Y(zmax), s * (rmax - rmin), s * (zmax - zmin));
+    ctx.clip();
 
     // Vessel: some decks give it as discrete rectangular elements (EAST),
     // others as closed polylines (ITER's annular inner/outer walls).  Both
@@ -234,6 +428,26 @@
       polyline(ctx, o.target, X, Y, true);
       ctx.setLineDash([]);
     }
+    //: ★★**判据落在图上**（2026-09-08）：把**超出容差的那几段**边界标出来。
+    //: 数据是内核逐点报的距离（`boundary_gap_point`，[r, z, d] × n，量在分离面上），
+    //: 容差是页面判「达到目标」用的同一个数（3 % 小半径）——所以图上被标红的，正是
+    //: 结论行说未达标的那部分，两者不会各说各话。
+    //: ★**二态，不做彩色渐变**：渐变会造出一种并不存在的精度（读者会去比较两段的颜色
+    //: 深浅），而这里真正要回答的是「哪几段没达到」。超差多少由结论行的 RMS / 最大值
+    //: 说，那是数字该干的活。
+    if (o.gapMarks && o.gapMarks.pts && o.gapMarks.pts.length) {
+      var gp = o.gapMarks.pts, segs = gapSegments(gp, o.gapMarks.tol);
+      ctx.strokeStyle = col.lcfs; ctx.lineWidth = GAP_WIDTH;
+      ctx.lineCap = 'round';
+      for (var gi = 0; gi < segs.length; gi++) {
+        var i0 = 3 * segs[gi][0], i1 = 3 * segs[gi][1];
+        ctx.beginPath();
+        ctx.moveTo(X(gp[i0]), Y(gp[i0 + 1]));
+        ctx.lineTo(X(gp[i1]), Y(gp[i1 + 1]));
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1; ctx.lineCap = 'butt';
+    }
     // last closed flux surface
     if (o.lcfs && o.lcfs.length) {
       ctx.strokeStyle = col.lcfs; ctx.lineWidth = 2;
@@ -271,6 +485,7 @@
         else { ctx.strokeStyle = c; ctx.strokeRect(cx - s2, cy - s2, 2 * s2, 2 * s2); }
       });
     }
+    ctx.restore();   //: 夹取到此为止——磁轴标记、X 点、图例与说明画在框上，见上面那段
     // axis + X point
     // a circle in machine coordinates — the region a criterion is stated
     // over, drawn where the criterion applies rather than described in prose
@@ -754,6 +969,7 @@
   }
 
   root.FyPlot = { poloidal: poloidal, xy: xy, palette: palette,
+                  gapSegments: gapSegments, GAP_WIDTH: GAP_WIDTH,
                   seriesColor: seriesColor,
                   deviceView: deviceView,
                   legendHTML: legendHTML, currentScale: currentScale };

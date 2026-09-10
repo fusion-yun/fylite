@@ -125,6 +125,13 @@ pub mod case;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod cli;
 
+//: ★★启动 banner（2026-09-08 用户裁定）：招牌 · 许可 · 版本 · **提示词**。文本与
+//: 浏览器头条上的警示带是同一份（`python/fylite/_notice.json`，编译期读进来），
+//: 三个界面一字不差。与 `cli` 同一个门：它读 `cli::str_items`，而 wasm 上没有
+//: 命令行，也没有 stderr 可印。
+#[cfg(not(target_arch = "wasm32"))]
+pub mod banner;
+
 //: MDSplus 绑定表与多源装配：都要走 mdsip 客户端，所以与它同一个特性门。
 #[cfg(feature = "mdsip")]
 pub mod mdsbind;

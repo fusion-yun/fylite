@@ -137,4 +137,17 @@ def _release_version() -> str:
 
 
 __version__ = _release_version()
-__all__ = ["run", "device_geometry", "scenario"]
+
+#: ★★**启动 banner**（2026-09-08 用户裁定：*python/cli 层添加启动 banner …
+#: web ui / cli / python 三个界面统一提示词*）。导入这个包就是这一层的「启动」，
+#: 所以招牌与提示词在这里印一次——印到 **stderr**，因为调用方的 stdout 是它自己的
+#: （`test_engine_imports_only_stdlib.py` 那几个子进程正是拿 stdout 判定的）。
+#:
+#: ★文本不在这里：三个界面同一份 `_notice.json`，见 `fylite.notice`。这里只决定
+#: 「什么时候印」。★`notice` 是纯标准库（json / os / sys / pathlib），所以这一行
+#: 不违反本文件通篇的惰性——它不拉起任何子模块，也不碰 numpy。
+from . import notice as _notice  # noqa: E402  (must follow __version__)
+
+_notice._emit_once()
+
+__all__ = ["notice", "run", "device_geometry", "scenario"]

@@ -483,10 +483,25 @@ def record_document(row: Mapping, *, report_uri: str | None = None,
     return doc
 
 
+def _frontmatter(title: str) -> list[str]:
+    """MyST 的页首元数据 —— **只有 `title`**。
+
+    ★★2026-09-08 用户裁定：校验册**成书入 MyST 站点**。页名即由此而来。
+    ★★只写 `title`：这一族是**记录页**，不是 15289 的规格文档。先写了 `shortname`
+    （规格书那边的做法），mystmd 当场报 `extra key ignored`——而册子里既有的
+    二十五篇对拍报告本来就只写 `title`。**跟着册子里已有的体例走，不是跟着另一本书。**
+    ★写在**生成器**里而不是补进文件：这几页是生成物，补进文件的下一次 `--write` 就会
+    被抹掉（本会话已经踩过一次：归因文字写进 `zerod-iter-15ma.md`，重跑当场没了）。
+    """
+    return ["---", f'title: "{title}"', "---", ""]
+
+
 def render_report(row: Mapping, *, recorded: str | None = None) -> str:
     """一条算例的散文报告（Markdown）—— 逐条：量到什么、按什么判、假设了什么。"""
     st = row.get("state", ph.UNEVALUATED)
-    w = [f"# {row.get('title') or row['entry']}", "",
+    _title = str(row.get("title") or row["entry"]).replace('"', "'")
+    w = [*_frontmatter(_title),
+         f"# {_title}", "",
          f"- 算例 (case)：`{row.get('case') or '—'}`",
          f"- 判决 (verdict)：**{STATE_ZH.get(st, st)}**（{st}）",
          f"- 产出 (datasets)：{', '.join(f'`{d}`' for d in row.get('datasets') or []) or '—'}",
@@ -540,7 +555,10 @@ def render_summary(batch: Mapping, *, title: str = "物理校验批", top: bool 
     st = batch["statistics"]
     rows = batch["entries"]
     rec = batch.get("recorded", "")
-    w = [f"# {title}", ""]
+    #: ★仓根那一份（`top`）不进站点——它是仓的门面页，不是书里的一章；
+    #: 书里的那份（`physics/SUMMARY.md`）才带页首元数据。
+    w = ([] if top else _frontmatter(title.replace('"', "'")))
+    w += [f"# {title}", ""]
     if top:
         w += ["〔一句话〕**预设算例跑一遍，逐条量它满不满足物理定律、文档自己的定义，"
               "和算例声明的期望**——统计表在这里，逐条报告在 "

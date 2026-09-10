@@ -40,6 +40,17 @@ use std::path::{Path, PathBuf};
 //: 发布同一批字节。源码检出里这张表是空的，发行构建给 `$FY_FACTS_DIR` 时才有内容。
 include!(concat!(env!("OUT_DIR"), "/facts_table.rs"));
 
+/// 这一份二进制是哪一版：`"internal"`（全功能，含只进内部版的装置）或 `"public"`。
+///
+/// ★★**版别在编译期定死**（`FYL-DESIGN-19` A-14），所以这里没有开关可拨：它与
+/// 编进来的那张装置表是同一个工具、同一次调用写下的（`tools/facts-publish.py`），
+/// 于是「这份构建带哪些机器」与「它自称哪一版」不可能是两个答案。
+/// ★读者今天只有一个：启动 banner（[`crate::banner`]）据此决定说不说「仅限内部
+/// 测试」那一句。没给 `$FY_FACTS_RS` 的构建记 `internal`——见 `build.rs` 那段。
+pub fn flavour() -> &'static str {
+    FLAVOUR
+}
+
 /// 搜索路径的环境变量。与 `$PATH` 用同一个分隔符——同一个概念，平台已经有写法了。
 pub const FACTS_ENV: &str = "FY_FACTS_PATH";
 
@@ -159,6 +170,18 @@ pub const FAIR: [&str; 4] = [ABOX, "static", "now", "dataset_fair.jsonld"];
 /// 才是一个**自足的**条目：数据、许可、清单同在 `abox/` 下，打包只取这一棵。
 pub const MANIFEST: [&str; 2] = [ABOX, "device.jsonld"];
 
+//: ★★★同一份清单的**第二个名字**（2026-09-08 实测）。fydoc 的生成器
+//: （`facts/tools/abox2jsonld.py`）为每台机器写 `abox/machine.jsonld`，十三台全有；
+//: 而 `device.jsonld` 今天只有 EAST 一台——那是本会话把它的 `machine.yaml` 收进
+//: A-Box 时另立的名字。两个文件在 EAST 上**内容同构**（同一批 providers / epochs /
+//: bindings）。只认前一个名字的后果不是报错，是**十二台机器在 `fy list devices` 上
+//: 显示为「卡片」**，于是需要线圈几何的场景（击穿 · 放电 · 脉冲）对它们一律拒绝——
+//: 而数据一直在盘上。
+//:
+//: ★次序是**声明**：`device.jsonld` 在先（用户裁定的目标名），`machine.jsonld` 兜底
+//: （生成器今天写的名）。不改 fydoc 那侧的文件名——那会被下一次重生成抹掉。
+pub const MANIFEST_ALT: [&str; 2] = [ABOX, "machine.jsonld"];
+
 /// `MANIFEST` 拼在某个条目目录下的完整路径（也用于错误话术）。
 pub fn manifest_under(dir: &Path) -> PathBuf {
     MANIFEST.iter().fold(dir.to_path_buf(), |a, s| a.join(s))
@@ -193,8 +216,14 @@ impl Entry {
     /// 返回 `Option` 而不是拼出路径就走——「有这台机器」与「这台机器抓得动」
     /// 是两件事，把它们混成一句，用户看到的会是一条 YAML 解析错误。
     pub fn manifest_path(&self) -> Option<PathBuf> {
-        let p = manifest_under(self.dir.as_ref()?);
-        p.is_file().then_some(p)
+        let dir = self.dir.as_ref()?;
+        let p = manifest_under(dir);
+        if p.is_file() {
+            return Some(p);
+        }
+        //: ★第二个名字（见 `MANIFEST_ALT`）：同一份清单，生成器写的那个名。
+        let alt = MANIFEST_ALT.iter().fold(dir.clone(), |a, s| a.join(s));
+        alt.is_file().then_some(alt)
     }
 }
 

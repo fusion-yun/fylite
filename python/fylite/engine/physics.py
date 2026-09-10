@@ -204,11 +204,32 @@ def _finite_mask(a):
 # --------------------------------------------------------------------------- #
 # 定律：产出得是一个物理态
 # --------------------------------------------------------------------------- #
+#: DD 的「空值」——一支浮点数组里说「此处不适用」的写法，与内核、`hdf5.FILL_F64`、
+#: 张量装箱用的是同一个数。★本判据把它当作**缺席**而不是一个数：它既不该被算进
+#: 「都是有限的」当证据，也不该被下游求和或作图。
+EMPTY_F64 = -9.0e40
+
+
 def _c_finite(r: Reader, opt: dict) -> Result:
-    """每一个产出的数组都得是有限的。NaN 不是一个状态。"""
+    """每一个产出的数组都得是有限的。NaN 不是一个状态。
+
+    ★★2026-09-08 补一条：**DD 空值单独数，不并进「有限」**。起因是一处实测——
+    `zerod` 的 `fusion_gain` 在外加热为零的两段写 NaN，本判据据此判红；而那两段的
+    真相不是「未定义」而是「这个量不适用」（同一时刻 `p_fus` 有 55 MW 而 `p_aux`
+    为零，见 `docs/benchmark/physics/zerod-iter-15ma.md`）。内核改写成 DD 空值之后，
+    若本判据只问 `isfinite`，空值会**当作一个正常的数通过**——那样这道法就成了
+    一句可以用哨兵绕过去的话。所以空值在这里既不算违法，也不算证据：单列并报数。
+    """
     import numpy as np
     bad: list[str] = []
+    empty: list[str] = []
+    n_empty = 0
     total = 0
+
+    def nonlocal_empty(where: str, n: int) -> None:
+        nonlocal n_empty
+        empty.append(where)
+        n_empty += n
 
     def walk(node, path):
         nonlocal total
@@ -221,6 +242,9 @@ def _c_finite(r: Reader, opt: dict) -> Result:
             if node and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in node):
                 a = np.asarray(node, float)
                 total += a.size
+                ne_ = int((a == EMPTY_F64).sum())
+                if ne_:
+                    nonlocal_empty(f"{path} ({ne_}/{a.size})", ne_)
                 n = int((~np.isfinite(a)).sum())
                 if n:
                     bad.append(f"{path} ({n}/{a.size})")
@@ -238,10 +262,14 @@ def _c_finite(r: Reader, opt: dict) -> Result:
         return Result("finite", "law", UNEVALUATED, missing=("no numeric leaf in any dataset",),
                       detail="产出里没有数值叶子")
     n_bad = len(bad)
+    #: ★空值报在 detail 里而不是判红：它是**声明出来的缺席**，不是坏数。
+    #: 报出来是为了让「这一批有多少处不适用」看得见——不写出来，哨兵就成了隐身衣。
+    note = ("" if not n_empty else
+            f"；另有 {n_empty} 个 DD 空值（不适用，不计入有限性）：" + "；".join(empty[:3]))
     return Result("finite", "law", PASS if n_bad == 0 else FAIL, measured=float(n_bad),
                   unit="count", tolerance=0.0, basis="machine_precision",
-                  detail=(f"{total} 个数值全部有限" if not n_bad else
-                          f"{n_bad} 处非有限：" + "；".join(bad[:5])))
+                  detail=(f"{total} 个数值全部有限{note}" if not n_bad else
+                          f"{n_bad} 处非有限：" + "；".join(bad[:5]) + note))
 
 
 def _positive(r: Reader, opt: dict, cid: str, pairs: Sequence[tuple[str, str]], what: str) -> Result:

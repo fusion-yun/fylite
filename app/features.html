@@ -31,13 +31,13 @@
   <h1>物理功能与边界</h1>
   <span class="sub">能算什么 · 算不了什么 · 凭什么信</span>
   </div>
-  <p class="warn-internal" role="note"><span>仅限内部测试，请勿公开传播！</span></p>
+  <p class="warn-band" role="note"><span class="warn-alpha">alpha 版，用于概念验证</span><span class="warn-io">仅限内部测试，请勿公开传播！</span></p>
   <nav>
     <a href="pages/pulse_design.html" class="navic" title="放电设计" aria-label="放电设计"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12.5h2.5L6 3.5h4l2.5 9H15"/></svg></a>
     <a href="pages/model.html" class="navic" title="物理建模" aria-label="物理建模"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 1.8v11.7H15"/><path d="M3.2 4.4c3.6 0 4.6 2.7 5.1 5.2.4 2 1.3 3 3.2 3.6"/></svg></a>
     <a href="pages/analysis.html" class="navic" title="实验分析" aria-label="实验分析"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.6" d="M4.2 2.4C9.2 2.4 13.2 4.8 13.2 8C13.2 11.2 9.2 13.6 4.2 13.6Z"/><path stroke-width="1.1" d="M1.3 5.2h13.4M1.3 8h13.4M1.3 10.8h13.4"/></svg></a>
     <a href="pages/data.html" class="navic" title="装置数据" aria-label="装置数据"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="3.7" rx="5.2" ry="2.1"/><path d="M2.8 3.7v8.6c0 1.16 2.33 2.1 5.2 2.1s5.2-.94 5.2-2.1V3.7"/><path d="M2.8 8c0 1.16 2.33 2.1 5.2 2.1s5.2-.94 5.2-2.1"/></svg></a>
-    <a href="pages/report.html" class="navic" title="算例报告" aria-label="算例报告">undefined</a>
+    <a href="pages/report.html" class="navic" title="算例报告" aria-label="算例报告"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path stroke-width="1.5" d="M9.2 1.8H4.3c-.55 0-1 .45-1 1v10.4c0 .55.45 1 1 1h7.4c.55 0 1-.45 1-1V5.3z"/><path stroke-width="1.5" d="M9.2 1.8v3.5h3.5"/><path stroke-width="1.1" d="M5.7 8.7h4.6M5.7 11.2h4.6"/></svg></a>
     <button id="theme-toggle" class="iconbtn" type="button"></button>
   </nav>
 </header>
@@ -209,8 +209,10 @@
 <p>本页是摘要，逐条的口径与定量边界在仓库里：</p>
 
 <ul>
-  <li><a href="https://github.com/fusion-yun/fylite/blob/develop/FEATURE.md">FEATURE.md</a>
-      — <span>功能与缺口的权威口径（本页由它摘出）</span></li>
+  <!-- ★`FEATURE.md` 曾列在这里，`095374f` 把它移出了公开仓（2026-09-08 起不再
+       链接）。它答的那个问题现在由下面两份分着答：定量边界看 fidelity，未落地的
+       缺口看 TODO.md。链一个已经不在的文件，读者拿到的是 404 —— 而 GitHub 的 404
+       是一张 200 之外的页面，构建与闸子都看不见，只有点下去的人看得见。 -->
   <li><a href="https://github.com/fusion-yun/fylite/blob/develop/docs/reference/fidelity.md">docs/reference/fidelity.md</a>
       — <span>逐条实测的<strong>定量</strong>适用边界——一项功能「能不能定量使用」以它为准</span></li>
   <li><a href="https://github.com/fusion-yun/fylite/blob/develop/docs/reference/api.md">docs/reference/api.md</a>

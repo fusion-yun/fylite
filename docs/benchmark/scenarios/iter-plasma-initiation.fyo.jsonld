@@ -1,0 +1,37 @@
+{
+ "@context": [
+  "../context.jsonld",
+  {
+   "@base": "../"
+  }
+ ],
+ "id": "scenario/iter-plasma-initiation",
+ "type": "fyo:ScenarioSpecification",
+ "title": "ITER 等离子体起始：五个装料/起始位置组合（TRANSMAK 2010 研究）",
+ "abstract": "ITER 起始阶段的五个场景：CS 满装（118 Wb）与半装（60 Wb）各配中心-内侧 / 中心-外侧起始，另加 First Plasma。每个场景给出**逐时刻的十一路线圈电流**（PF1-6 · CS3U/2U/1/2L/3L，kA）、供电电压与电阻、极向磁通随时间，以及一段 0-D 击穿功率平衡（Te · Ti · Q_ecrh · Q_oh · Q_rad · Q_ion · ne）。起始参数 a = 1.6 m · E = 0.3 V/m · T_bd 0.85…1.2 s。★选它的理由是**它同时给出输入与输出**：拿它自己的线圈电流过一遍本仓的几何与互感，就能问「我们对这台机器的描述，能不能复现它算出的磁通」——这一问不需要两码在物理上一致。",
+ "about_discharge": {
+  "type": "fyo:Discharge",
+  "performed_on": {
+   "type": "fyo:Tokamak",
+   "title": "ITER"
+  }
+ },
+ "state": [
+  {
+   "type": "spo:PortBinding",
+   "bound_to": {
+    "type": "fyo:Equilibrium",
+    "b0_T": 5.3,
+    "r0_m": 6.2,
+    "a_m": 1.6
+   }
+  }
+ ],
+ "caveat": [
+  "★★★**磁通在哪一点取，件里没说**。表头只写「poloidal flux, Wb」。所以在这个场景上立判据必须先证明结论**不依赖那个点**——起始时刻的磁通对 R 很平（R = 4…8 m 上只动 0.5…2.1 Wb），故初始磁通可判；**随时间的轨迹不可判**（实测最合的半径跑到 CS 膛内 R → 2 m，那不是读等离子体区磁通的地方）。",
+  "★★**通道不是线圈**：研究记 `CS1` 一路，而 DD 记 `CS1U` 与 `CS1L` 两只（串联）。按名字对名字会**丢掉半个螺线管**——实测那会让磁通掉 18 %，而不是报错。",
+  "★★**同一张表里有两套同名列**：`I and U` 表右侧（第 15-22 列）是**供电电压**，列名与电流表逐字相同、上方还有一行电阻。按名字取列会取到后一套——40 kA 读成 8500，量级差 200 倍而曲线形状照样像模像样。",
+  "★**五份件的版式不一致**：四份把 `(t, psi)` 放在第 1-2 列，`60Wb inboard` 放在第 0-1 列。写死列号会把其中一个场景读成空的。",
+  "★语料是 ITER IDM 件（Internal Use），在本机 `data/ITER Scenario/` 之下、不在任何仓里。"
+ ]
+}

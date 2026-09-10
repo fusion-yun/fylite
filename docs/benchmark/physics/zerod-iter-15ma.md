@@ -1,10 +1,14 @@
+---
+title: "ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住"
+---
+
 # ITER 15 MA 的 0-D 功率平衡：τ_E 的定义式站不站得住
 
 - 算例 (case)：`docs/examples/zerod/zerod-iter-15ma`
-- 判决 (verdict)：**未通过**（fail）
-- 产出 (datasets)：`core_profiles`, `summary`
-- 记录 (record)：`run/20260904T130427Z-zerod`
-- 日期：2026-09-04
+- 判决 (verdict)：**通过**（pass）
+- 产出 (datasets)：`core_profiles`, `entry`, `summary`
+- 记录 (record)：`run/20260908T115836Z-zerod`
+- 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
 
@@ -12,7 +16,7 @@
 
 | 检查 | 类 | 判决 | 量到 | 容差 | 判据来路 |
 | :--- | :--- | :--- | ---: | ---: | :--- |
-| `finite` | 定律 | 未通过 | 1 | 0 | machine_precision |
+| `finite` | 定律 | 通过 | 0 | 0 | machine_precision |
 | `positive-temperature` | 定律 | 通过 | 200 | 0 | machine_precision |
 | `positive-density` | 定律 | 通过 | 2e+18 | 0 | machine_precision |
 | `grad-shafranov` | 定律 | 未评估 | — | — | — |
@@ -31,7 +35,7 @@
 ### `finite` — 产出的每个数都是有限的
 
 - 判据：`∀x ∈ datasets: isfinite(x)`
-- 结论：未通过——1 处非有限：summary/global_quantities/fusion_gain/value (60/201)
+- 结论：通过——35376 个数值全部有限；另有 60 个 DD 空值（不适用，不计入有限性）：summary/global_quantities/fusion_gain/value (60/201)
 - 假设：NaN / Inf 不是一个物理态，也不是「还没算」——后者应当缺席而不是写成 NaN
 
 ### `positive-temperature` — 绝对温度为正

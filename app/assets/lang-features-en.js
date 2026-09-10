@@ -1,7 +1,8 @@
 // English catalogue for the capability page only — what the physics can do,
 // what it deliberately cannot, and what each claim rests on.
 //
-// ★The authority is the repository's own `FEATURE.md` (as of 2026-08-22); this
+// ★The authority is `docs/reference/fidelity.md` (quantitative limits) plus
+// `TODO.md` (the gaps) — `FEATURE.md` left the repo in `095374f`; this
 // page is its reader-facing summary and links back to it. A claim here that
 // FEATURE.md does not make is a bug, not a wording choice — and a number
 // quoted here must be the number recorded there.
@@ -158,7 +159,6 @@ self.FyI18n.register('en', {
 
   'ft.src.h2': 'Sources and finer detail',
   'ft.src.lead': 'This page is a summary; the authoritative wording and the quantitative limits are in the repository:',
-  'ft.src.feature': 'the authoritative statement of capability and gaps (this page is drawn from it)',
   'ft.src.fidelity': 'the measured, <strong>quantitative</strong> limits — whether a capability may be used quantitatively is decided there',
   'ft.src.api': 'interfaces and call signatures',
   'ft.src.credits': 'upstream provenance, licences and acknowledgements',

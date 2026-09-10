@@ -1,10 +1,14 @@
+---
+title: "物理校验批：统计"
+---
+
 # 物理校验批：统计
 
-- 日期 (recorded)：2026-09-04
+- 日期 (recorded)：2026-09-08
 - 算例 (cases)：7，其中没有产出可判的 2
-- 检查 (checks)：88 条，评了 24 条，未通过 1 条
+- 检查 (checks)：88 条，评了 24 条，未通过 0 条
 
-- 逐算例判决：通过 4 · 有条件 0 · 未通过 1 · 未评估 2
+- 逐算例判决：通过 5 · 有条件 0 · 未通过 0 · 未评估 2
 
 ## 逐算例
 
@@ -14,15 +18,15 @@
 | `evolve-iter-15ma` | 通过 | 7 | 0 | 0 | 6 | 本批现跑了这个算例（数据层 JSON 门 + 内核） |
 | `evolve-east-hmode` | 未评估 | 0 | 0 | 0 | 13 | the kernel rejected the case: refused: [-33] this case is outside the sunk scope of `evolve_heat`; it needs th |
 | `transport-iter-15ma` | 通过 | 3 | 0 | 0 | 10 | 本批现跑了这个算例（数据层 JSON 门 + 内核） |
-| `zerod-iter-15ma` | 未通过 | 3 | 0 | 1 | 9 | 本批现跑了这个算例（数据层 JSON 门 + 内核） |
-| `discharge-iter` | 未评估 | 0 | 0 | 0 | 12 | the kernel rejected the case: refused: [-30] no code `code/discharge`: the kernel completes `code/evolve` / `c |
+| `zerod-iter-15ma` | 通过 | 4 | 0 | 0 | 9 | 本批现跑了这个算例（数据层 JSON 门 + 内核） |
+| `discharge-iter` | 未评估 | 0 | 0 | 0 | 12 | the kernel rejected the case: refused: [-33] code/discharge takes the whole device document and is reached thr |
 | `equilibrium-gfile` | 通过 | 4 | 0 | 0 | 8 | 判的是盘上的产出文件（g_synthetic.geqdsk），不是本批跑出来的 |
 
 ## 逐检查
 
 | 检查 | 类 | 通过 | 有条件 | 未通过 | 未评估 |
 | :--- | :--- | ---: | ---: | ---: | ---: |
-| `finite` | 定律 | 4 | 0 | 1 | 2 |
+| `finite` | 定律 | 5 | 0 | 0 | 2 |
 | `positive-temperature` | 定律 | 4 | 0 | 0 | 3 |
 | `positive-density` | 定律 | 3 | 0 | 0 | 4 |
 | `grad-shafranov` | 定律 | 1 | 0 | 0 | 6 |

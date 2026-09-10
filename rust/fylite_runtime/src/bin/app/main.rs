@@ -85,6 +85,13 @@ enum Source {
 
 fn main() {
     let argv: Vec<String> = std::env::args().skip(1).collect();
+    //: ★★启动 banner（2026-09-08 用户裁定）——招牌、许可、版本行，以及与浏览器
+    //: 头条上**一字不差**的提示词（`fylite_runtime::banner`，文本源
+    //: `python/fylite/_notice.json`）。
+    //: ★印在 **stderr**，且在解析之前：`fy list --json | jq` 照常干净，而
+    //: 「这一份是 alpha、是内部版」在任何一次调用上都说得到——包括那次 argv
+    //: 写错、只走到 `--help` 或一句用法错误就退出的调用。
+    fylite_runtime::banner::emit_argv(&argv);
     let spec = cli::spec();
     //: ★2026-09-04 用法里的程序名取自规格（`hosts.rust.exe`，今天是 `fy`），
     //: 不再写死在这里——写死过一次，改名之后 `fy --help` 仍自称 `fylite`。

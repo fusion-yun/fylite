@@ -10,10 +10,10 @@ title: V-01 · GACODE 三个白盒端口对它们翻译自的 Fortran
 | **参考** | GACODE · rev 6357db306 · Apache-2.0 |
 | **对象** | fylite: gyrofluid.rs (TGLF) / neoclassical.rs + dke.rs (NEO) / geometry.rs (GEO) |
 | **算例** | `scenario/gacode-regression`（GACODE 自带回归算例（局部通量面）） |
-| **数据** | 见 §5 表（6 项，纳入类别 public、public-derived、restricted-derived） |
+| **数据** | 见 §5 表（6 项，纳入类别 public、public-derived、restricted、restricted-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_tglf_vs_fortran.py`；`$FYLITE_KERNEL/tests/test_neo.py`；`$FYLITE_KERNEL/tests/test_neo_analytic_rust.py`；`$FYLITE_KERNEL/tests/test_rust_kernels.py`；`$FYLITE_KERNEL/tests/test_tglf_momentum.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：不成立——92 passed, 2 failed, 0 error, 0 skipped, 2 stale |
+| **复测** | 2026-09-08：成立——95 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -47,36 +47,34 @@ title: V-01 · GACODE 三个白盒端口对它们翻译自的 Fortran
 | tglf06（GA 标准算例＋平行速度剪切），规则 1 与 2，粒子/能量/环向应力 × 两个种 | 1.0000 |  | 成立 | ★公开命名算例（GA standard case），非本仓持有的某炮；算例自身 SAT_RULE=0 未移植，故规则在两边都显式写出——正是上一条改判说的那个坑 |
 | 带 E×B 剪切的环向应力（VEXB_SHEAR=0.2，对上游、规则对齐） | 12.4x / 6.0x（规则 1 / 2）；再加 VPAR=0.4 时 0.081x / 0.109x |  | 不成立 | ★第六处移植缺陷 T-C33：上游谱移 E×B 模型是双趟（tglf_TM.f90:65-76），本征模自带 kx0 位移；本仓 spectral_shift() 在线性解之后才算、只喂饱和强度，kx0 从不回到 solve_ky_modes。同一批运行里能流只差 ~6 %——E×B 残余应力就是模结构里的对称破缺；★缺口已钉成实测闸子而非放宽的容差 |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/test_tglf_vs_fortran.py | 5 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 | $FYLITE_KERNEL/tests/test_neo.py | 4 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 | $FYLITE_KERNEL/tests/test_neo_analytic_rust.py | 40 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
-| $FYLITE_KERNEL/tests/test_rust_kernels.py | 30 过 / 2 败 / 0 错 / 0 跳 / 2 陈旧 | AssertionError: 410k-pair mutual took 27.5 ms (gate: 10 ms) \| AssertionError: 90-segment mutual_matrix took 66.8 ms |
+| $FYLITE_KERNEL/tests/test_rust_kernels.py | 33 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 | $FYLITE_KERNEL/tests/test_tglf_momentum.py | 13 过 / 0 败 / 0 错 / 0 跳 / 0 陈旧 |  |
 
-结论：**不成立**（`re-run: assertion failed`）。
-
-- tests/test_rust_kernels.py: AssertionError: 410k-pair mutual took 27.5 ms (gate: 10 ms) | AssertionError: 90-segment mutual_matrix took 66.8 ms
+结论：**成立**（`re-run`）。
 
 ## 5. 数据与怎么重跑
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-std/ | sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca | public | 5 files, 3782 B |
-| $FYDOC_ORACLE/FYDOC-CASE-15-tgyro/corpus/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public | 24 files, 81461 B |
-| $FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/ | sha256-manifest:1e75b0c9e861cdff925e832bf0586d5acf6a00f54773795ba9894a62b46048ce | public-derived | 862 files, 13941886 B |
-| $FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json | sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46 | restricted-derived | 4238 B |
-| $FYDOC_ORACLE/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | public-derived | 4655 B |
-| $FYDOC_ORACLE/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-std/ | sha256-manifest:90b57c908535c8d6a3dae673dbcad67c5b7512868247b0591d236f786be251ca | public-derived | 5 files, 3782 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg01/ | sha256-manifest:17375200f98368c7c3197b53bc4ace7f5db6f94df23eaad670366281d84ddbe6 | public-derived | 24 files, 81461 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-03-frozen-libs/corpus/ | sha256-manifest:55a5a2bc4c40aa5bde29f762fec824fed6b2cb1bbc613188e3f6d16e698a1bd8 | restricted | 862 files, 13941886 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/jintrac-102530/gbflux_jintrac.json | sha256:741a370a215b5dc2c6eff0f1e8e10e98add1d6a301279c3eddf1b2201ac56e46 | restricted-derived | 4238 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-14-tglf/corpus/ga-standard-rotating.json | sha256:565c8d7395b18d028cb84632874ddbfdf6d971c9556c282c836b06d93d8f265b | public-derived | 4655 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-18-waltz2007-momentum/corpus/table_I_and_tglf.json | sha256:b335eff4beda0b5e2d3d8cc602d73e60c1b7d73ca02f1c002757b792d2a12557 | public | 3504 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_tglf_vs_fortran.py tests/test_neo.py tests/test_neo_analytic_rust.py tests/test_rust_kernels.py tests/test_tglf_momentum.py
@@ -84,4 +82,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：不成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。

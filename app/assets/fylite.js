@@ -590,22 +590,67 @@
    * version pins SIGNATURES, and two builds of the same version can carry
    * different subsets of the entries.
    */
-  function load(url, opts) {
-    var required = (opts && opts.required) || REQUIRED;
-    url = versioned(url);
-    return fetch(url).then(function (r) {
-      if (!r.ok) throw new Error('fetch ' + url + ': HTTP ' + r.status);
+  //: ★★**一份字节，取一次**（2026-09-08）。此前每个**领域**各取一遍同一份
+  //: `fylite_rs.wasm`：页面一次、场景 worker 一次、建模页的湍流 worker 再一次——
+  //: 实测建模页首屏 7.43 MB，其中 5.0 MB 是同一个 1.68 MB 模块的三份。**浏览器的
+  //: HTTP 缓存救不了它**：三次请求是并发的，谁也没等到谁进缓存（加 `cache-control`
+  //: 复测过，还是三次）。所以去重不能靠缓存，只能靠**把编译好的模块传过去**：
+  //: `WebAssembly.Module` 是可结构化克隆的，postMessage 给专用 worker 即可，
+  //: 那边 `instantiate(module)` 不再碰网络。
+  //: ★身份跟着模块走：`sha256` 与 `bytes` 与模块一起传，否则采纳方报不出「是哪一份
+  //: 二进制算的」——而续算闸（`checkpoint.js`）判的正是这个数。
+  var MODULES = {};
+
+  /**
+   * 编译一次，缓存起来：`{module, sha256, bytes}`。同一个领域内重复调用不重复取。
+   */
+  //: ★★**键是解析后的地址，不是调用方写的那串字**（2026-09-08 实测）。同一份文件
+  //: 今天有三种写法同时在用：`assets/…`（站点根相对）· `../assets/…`（页面相对）·
+  //: 绝对 URL。按字面做键，三个调用方各建一个缓存项，于是「取一次」一次也没生效
+  //: ——实测仍是三次下载，而且其中一次的相对名在 `pages/` 下解析出去是 404。
+  function absolute(u) {
+    try { return new URL(u, self.location.href).href; } catch (e) { return u; }
+  }
+
+  function moduleFor(url) {
+    var u = absolute(versioned(url));
+    if (MODULES[u]) return MODULES[u];
+    MODULES[u] = fetch(u).then(function (r) {
+      if (!r.ok) throw new Error('fetch ' + u + ': HTTP ' + r.status);
       return r.arrayBuffer();
     }).then(function (buf) {
       // hash the bytes we are about to run.  "Which build produced this
       // result" is then answerable from an exported document alone, with no
       // identity service and no trust in the page's own version string.
       return digest(buf).then(function (sha) {
-        return fromBytes(buf, required).then(function (fy) {
-          fy.sha256 = sha;
-          fy.bytes = buf.byteLength;
-          return fy;
+        return WebAssembly.compile(buf).then(function (mod) {
+          return { module: mod, sha256: sha, bytes: buf.byteLength };
         });
+      });
+    });
+    //: 取失败不留下一个永远失败的缓存项——下一个调用者该能自己再试一次。
+    MODULES[u]['catch'](function () { delete MODULES[u]; });
+    return MODULES[u];
+  }
+
+  /**
+   * 采纳别的领域编译好的那一份（页面 → worker）。`rec` 是 `moduleFor` 给的那个形。
+   * ★接在**自己的键**上：两边各自 `versioned()` 一次，所以调用方传的是不带版本的名字。
+   */
+  function adoptModule(url, rec) {
+    if (!rec || !rec.module) return false;
+    MODULES[absolute(versioned(url))] = Promise.resolve(rec);
+    return true;
+  }
+
+  function load(url, opts) {
+    var required = (opts && opts.required) || REQUIRED;
+    return moduleFor(url).then(function (rec) {
+      return WebAssembly.instantiate(rec.module, {}).then(function (inst) {
+        var fy = new Fy(inst, required);
+        fy.sha256 = rec.sha256;
+        fy.bytes = rec.bytes;
+        return fy;
       });
     });
   }
@@ -725,6 +770,7 @@
   var ADAS_Z = root.FyDeck.ADAS_Z, ADAS_A = root.FyDeck.ADAS_A;
 
   root.FyLite = { load: load, fromBytes: fromBytes, ABI_EXPECT: ABI_EXPECT,
+                  moduleFor: moduleFor, adoptModule: adoptModule,
                   //: ★★取内核的**入口**（2026-09-05 用户裁定）：桌面宿主走
                   //: `/api/kernel`，静态站点走 wasm。调用方问的是「给我内核」，
                   //: 不是「取这份 wasm」——所以新的调用点用它，`load` 留着给

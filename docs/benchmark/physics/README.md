@@ -1,3 +1,7 @@
+---
+title: "物理校验册 (Physics Checks)"
+---
+
 # `benchmark/physics/` — 物理校验册
 
 这里回答一个问题：**fylite 的产出，自洽吗。**
@@ -33,7 +37,7 @@ formulae), and the operating window each case declares.
 | `<算例>.jsonld` | 一条算例的判决，一份 `fyo:ComparisonRecord`（生成件） | 程序 |
 | `<算例>.md` | 同一条的散文报告：逐条量到什么、按什么判、假设了什么（生成件） | 人 |
 | [`summary.jsonld`](summary.jsonld) · [`SUMMARY.md`](SUMMARY.md) | 一批的统计（生成件） | 程序 / 人 |
-| 仓根 [`../../BENCHMARK.md`](../../BENCHMARK.md) | 同一份统计，加一段「这是什么」（生成件） | 人 |
+| 仓根 `BENCHMARK.md`（不在本书里） | 同一份统计，加一段「这是什么」（生成件）。★★它是**仓的门面页**不是书里的一章，故只报名字不给链接——本书成书入站后（2026-09-08），书里的链接要指向书里的页，同一份统计在册内的那一份是 [`SUMMARY.md`](SUMMARY.md) | 人 |
 | [`context.jsonld`](context.jsonld) | JSON-LD `@context`：承公开登记册那一份，只补本册子多出来的几个词 | 程序 |
 
 ★**生成件不手改**：判据册在 `python/fylite/engine/physics.py`，取产出与落文档在
@@ -81,5 +85,5 @@ JSON 门**现跑**（要 `libfylite_kernel.so`）。内核不在场时第三条�
 ```
 
 判据册里现有的检查、它们各读哪些量、各假设了什么，见
-[`docs/reference/benchmark.md`](../../docs/reference/benchmark.md)（文档书里的一页），
+[`docs/reference/benchmark.md`](../../reference/benchmark.md)（文档书里的一页），
 或 `python -c "from fylite.engine import physics; print(physics.CHECKS.keys())"`。

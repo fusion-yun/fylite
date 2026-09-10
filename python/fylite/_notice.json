@@ -1,0 +1,45 @@
+{
+ "spec_version": 1,
+ "$comment": "THE STARTUP BANNER AND THE NOTICES ON IT — one file, three faces (2026-09-08 用户裁定：*web ui / cli / python 三个界面统一提示词*). The browser reads these two sentences off `app/assets/lang-{zh,en}.js` (the header's warning band), the `fy` executable includes THIS file at compile time (`rust/fylite_runtime/src/banner.rs`), and the Python package reads it at import (`fylite.notice`). Three renderings, one text: a notice that says something different on one of the three faces is worse than no notice, because a reader who saw one of them believes they have been told. ★The catalogues are held against this file by `app/tests/validate-site.mjs`; the flavour rule below is applied by `tools/app-flavour.mjs` (the published site) and by each host at run time.",
+ "wordmark": [
+  "    ______        __    _   __",
+  "   / ____/__  __ / /   (_) / /_ ___",
+  "  / /_   / / / // /    / // __// _ \\",
+  " / __/  / /_/ // /___ / // /_ /  __/",
+  "/_/     \\__, //_____//_/ \\__/ \\___/",
+  "        /____/"
+ ],
+ "wordmark_note": "figlet `slant`, hand-set: the shape of the fytok banner this one is modelled on. ASCII only — a banner is the first thing printed, sometimes into a console that has no font for anything else.",
+ "rule": "#",
+ "rule_width": 78,
+ "spdx": "SPDX-License-Identifier: Apache-2.0",
+ "copyright": "Copyright 2026 ASIPP",
+ "copyright_note": "The full holder is spelled in LICENSE's appendix (Institute of Plasma Physics, Chinese Academy of Sciences); the banner uses the abbreviation CONTRIBUTORS.md uses, so the line fits inside the rule.",
+ "notices": [
+  {
+   "id": "alpha",
+   "i18n_key": "chrome.alpha",
+   "span_class": "warn-alpha",
+   "flavours": ["public", "internal"],
+   "zh": "alpha 版，用于概念验证",
+   "en": "ALPHA — PROOF OF CONCEPT"
+  },
+  {
+   "id": "internal_only",
+   "i18n_key": "chrome.internal_only",
+   "span_class": "warn-io",
+   "flavours": ["internal"],
+   "zh": "仅限内部测试，请勿公开传播！",
+   "en": "INTERNAL TESTING ONLY — DO NOT DISTRIBUTE!"
+  }
+ ],
+ "notices_note": "`flavours` is the whole of the public/internal rule for TEXT: a notice whose list omits `public` is deleted from the published site (element and catalogue entry alike, `tools/app-flavour.mjs`) and is not printed by a `public` build of either host. ★The order is the order they are shown in, on all three faces: maturity first, then who may hold this copy.",
+ "default_flavour": "internal",
+ "default_flavour_why": "Matches FYL-DESIGN-19 A-14 (the default build is the full one), and it is the safe direction for a RESTRICTION: an artifact whose flavour cannot be determined prints the internal notice, so the failure mode is a public build that says one sentence too many rather than an internal one that quietly looks distributable.",
+ "show_when": "interactive",
+ "show_when_rule": "★★2026-09-08 用户裁定：*fy cli 交互时显示 banner*。两个会打印的宿主（`fy` 与本包）因此**只在有人看着的时候**印：stderr 是终端就印，是管道或日志就一个字也不印。理由是 banner 的读者是**人**——`fy list --json | jq` 与 `python x.py > out` 那两条流上没有读者，只有噪声。★代价说在明处：一份重定向进日志的内部版构建**不会**在日志里留下「仅限内部测试」那一句；提示词仍在页面头条、README 与制品的 NOTICE 上。★浏览器那一面不受这条管——它的提示词是页面上的一条带子，不是一次打印，一直在那儿。",
+ "quiet_env": "FY_NO_BANNER",
+ "quiet_rule": "Set to 1 to drop the wordmark, the licence line and the version line. ★The NOTICES still print: they are a condition of use, not decoration, and a switch that turns off a restriction is not a quiet switch.",
+ "lang_env": "FY_LANG",
+ "lang_rule": "`zh` or `en`; unset, the host reads $LC_ALL / $LC_MESSAGES / $LANG and takes `zh` only if one of them starts with `zh`, else `en`."
+}

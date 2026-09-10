@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "aad4a2adc928a7ab";
+pub const DIGEST: &str = "f8448ab3d4b0c541";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -122,6 +122,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "control_r", path: "fylite:control_r", units: "m", rank: "1d" },
         Slot { key: "control_z", path: "fylite:control_z", units: "m", rank: "1d" },
         Slot { key: "control_w", path: "fylite:control_w", units: "1", rank: "1d" },
+        Slot { key: "target_r", path: "fylite:target_r", units: "m", rank: "1d" },
+        Slot { key: "target_z", path: "fylite:target_z", units: "m", rank: "1d" },
         Slot { key: "ip", path: "fylite:ip", units: "A", rank: "1d" },
         Slot { key: "flux_loop", path: "fylite:flux_loop", units: "Wb/rad", rank: "1d" },
         Slot { key: "loop_weight", path: "fylite:loop_weight", units: "1", rank: "1d" },
@@ -647,4 +649,4 @@ pub const ENTRIES: &[Entry] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "b_tor", "channel_aturns", "channel_basis", "chi_prev", "chi_turb", "chord_nel", "chord_nel_weight", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "current_cells", "current_source", "deposited", "device_id", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "fit_eval_x", "fit_sigma", "fit_x", "fit_y", "flux_loop", "geometry", "group", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "loop_plasma", "max_power", "meas_extra", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "ne_profile", "null_r", "null_z", "orbit_loss_fraction", "outline_levels", "p_fast_profile", "p_fast_third", "p_rot_profile", "page", "pitch", "power_injected", "pressure", "pressure_weight", "pressure_x", "probe_plasma", "probe_weight", "psi_convention", "psi_ext", "psi_norm", "psi_prev", "q_prev", "q_psi_norm", "r2_average", "r_major", "r_minor", "radii", "reconstructed", "result", "rho", "row_extra", "selfcal_alive", "selfcal_computed", "selfcal_measured", "selfcal_ratio", "shift", "shinethrough", "sigma_prev", "source", "target", "te_profile", "time", "truth", "verify", "vessel_current", "vprime", "vprime_old", "wave_phases", "wave_t", "weight", "weight_extra", "x_ref", "y_init"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "b_tor", "channel_aturns", "channel_basis", "chi_prev", "chi_turb", "chord_nel", "chord_nel_weight", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "current_cells", "current_source", "deposited", "device_id", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "fit_eval_x", "fit_sigma", "fit_x", "fit_y", "flux_loop", "geometry", "group", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "loop_plasma", "max_power", "meas_extra", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "ne_profile", "null_r", "null_z", "orbit_loss_fraction", "outline_levels", "p_fast_profile", "p_fast_third", "p_rot_profile", "page", "pitch", "power_injected", "pressure", "pressure_weight", "pressure_x", "probe_plasma", "probe_weight", "psi_convention", "psi_ext", "psi_norm", "psi_prev", "q_prev", "q_psi_norm", "r2_average", "r_major", "r_minor", "radii", "reconstructed", "result", "rho", "row_extra", "selfcal_alive", "selfcal_computed", "selfcal_measured", "selfcal_ratio", "shift", "shinethrough", "sigma_prev", "source", "target", "target_r", "target_z", "te_profile", "time", "truth", "verify", "vessel_current", "vprime", "vprime_old", "wave_phases", "wave_t", "weight", "weight_extra", "x_ref", "y_init"];

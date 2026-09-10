@@ -292,6 +292,38 @@
       //: the shell is the region between them, and dropping one turns a
       //: double wall into a line.
       if (u.annular) {
+        //: ★★**DD 的第四种拼法，也是 ITER 实际在用的那一种**（2026-09-08 实测）：
+        //: `annular.centreline` + `thickness`，而不是内外两条 outline。上面那两个
+        //: 名字都取不到时，这个分支从前**一声不响地 return**——ITER 的 14 个单元
+        //: （真空室内外壳 · 偏滤器导轨 · 低温恒温器肋 · 三个端口 · CTS，324 段，
+        //: 逐点厚度、逐件电阻率）于是整批消失，页面报「本装置描述不带真空室元件」。
+        //: 后果不止是画不出来：垂直稳定靠的就是这些导体，没有它们，强拉长位形的
+        //: 柱子在设计里托不住——实测 ITER 的设计解 Z₀ 比目标高 0.674 m，位形误差
+        //: 由这一项主导，而无论怎么改目标都改不掉。
+        //: ★**离散成导体丝，按内核写在案的矩形约定**（`kernels.rs::element_filaments`：
+        //: `w` 沿 r，`h` 沿与水平成 `a2` 的方向，`a` 是整体旋转）：一段中心线 → 一根
+        //: 丝，中点为心，`w` = 厚度、`h` = 段长、`a2` = 90、`a` = θ − 90（θ 为该段与
+        //: 水平的夹角）。水平段 θ=0 → a=−90，于是 `h` 转到水平、厚度转到竖直——两头
+        //: 都对得上。这是**投影**，不是新造数据：几何、厚度、电阻率三样都是声明的。
+        var cl = u.annular.centreline;
+        if (cl && cl.r && cl.z && cl.r.length > 1) {
+          var th = u.annular.thickness;
+          var rho = u.annular.resistivity;   //: Ω·m（声明单位）→ 页面用 µΩ·m
+          for (var k = 0; k + 1 < cl.r.length; k++) {
+            var r1 = +cl.r[k], z1 = +cl.z[k], r2 = +cl.r[k + 1], z2 = +cl.z[k + 1];
+            var dr = r2 - r1, dz = z2 - z1;
+            var len = Math.sqrt(dr * dr + dz * dz);
+            if (!(len > 0)) continue;
+            var t = Array.isArray(th) ? +(th[k] === undefined ? th[0] : th[k]) : +th;
+            if (!(t > 0)) continue;
+            var el2 = { r: 0.5 * (r1 + r2), z: 0.5 * (z1 + z2), w: t, h: len,
+                        a1: Math.atan2(dz, dr) * 180 / Math.PI - 90, a2: 90 };
+            if (rho !== undefined && isFinite(+rho)) el2.eta = +rho * 1e6;
+            if (u.name) el2.group = String(u.name);
+            vessel.push(el2);
+          }
+          return;
+        }
         ['outline_inner', 'outline_outer'].forEach(function (side) {
           var o = u.annular[side];
           if (!o) return;
@@ -380,6 +412,11 @@
         num(doc['fylite:vessel_resistivity_uohm_m'], 'vessel resistivity');
     if (doc['fylite:reference_discharge'])
       m.reference = doc['fylite:reference_discharge'];
+    //: ★这台机器**自己记着的目标位形**（2026-09-08）：一条参考分离面，由 A-Box 指名
+    //: （`fylite:reference_boundary`）。它不是测量、也不是机器结构，所以与参考放电
+    //: 一样走 `fylite:` 本地词，而不是往 DD 里塞一个位置。页面拿它当默认目标位形。
+    if (doc['fylite:reference_boundary'])
+      m.referenceBoundary = doc['fylite:reference_boundary'];
     //: ★TIME SLICES ARE THE MACHINE'S DOCUMENT TOO, and they arrive whole:
     //: a slice carries its own coil currents, its own Ip and its own channel
     //: readings, because a "time series" that reused one slice's coils would

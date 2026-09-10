@@ -1,205 +1,115 @@
 # TODO — 仓级开放任务台账
 
-口径日期 **2026-09-08**。本册 2026-09-03 由 `126ce54` 一次性清空（旧文
-`git show 126ce54^:TODO.md`，689 行 / 29 条，`T-`/`A-`/`G-`/`R2-`/`S-` 五序）；
-**本次重开只登记 2026-09-07..08 起始设计一役里量出来、且当时没有收掉的账**，
-不追认旧序的号位 —— 旧号位已按 `126ce54` 的说明退役，新开一个 `V-` 序
-（V = verification，验证与闸子）。
+登记 2026-09-06，**E 组 2026-09-08 重写；同日晚二次清理**（收官批：`B-08` · `B-10` · `C-11` · `C-10` 落地，`G-14` 修掉）；
+**同日 D 组续做**（EAST 标准算例：E-7 · E-8 立项，E-2 清单短一截，新 `F-14`）；
+**2026-09-10 E 组增 `F-15`..`F-23`**（起始设计岭缺省一役量到的九条：两条未决的求解器行为、三处闸子长期红或根本没在跑、两处数据缺口、一处构建不可复现、一处路径残留）。本表收**本仓及其上下游**当前未完成的事项——之所以合在一处，是因为它们
+多数是同一条链上的：内核声明面 → fyo 本体 → fydata A-Box → fydoc 事实层 → 本仓消费。
+分散在五个仓的开放项各自成立，但**谁被谁卡住**只有并排看才看得见。
 
-★沿用旧册两条规矩：
-1. 每条写明**缺的是模型、判据、数据还是机制**；
-2. 每条给出**关闭判据** —— 没有关闭判据的待办，与一句抱怨在使用上没有区别。
-
-★落地的东西不写在这里：能力进 `FEATURE.md`，关闭时量到多少进 `changelog.md`，
-仍然管着后来人的规矩进各闸子自己的 docstring（本役的两道是
-`python/tests/test_start_design_conditioning.py` 与 `fylite_kernel` 仓
-`tests/test_start_against_the_machine.py`）。
+**归属列是硬约束**：标 `fyo` / `fydata` / `fydoc` 的条目**须按各该仓的治理落地**，不在本仓
+改；登记在此只为让本仓知道自己在等什么。标 `kernel` 的是 `fylite_kernel`，标 `fylite` 的
+才是本仓自己的活。
 
 ---
 
-## 1. 汇总
+## A. 内核声明面（`fylite_kernel`）
 
-**未关 9 条**，都是 2026-09-07..08 起始设计的岭缺省一役（1e-3 → 3e-1 → 1e-1）
-及其真机验证**期间量到**的 —— 但只有 V-1 · V-2 · V-5 · V-6 是这一役**引出**的；
-V-3 · V-4 · V-7 · V-8 · V-9 在这之前就在，本役只是撞上并把它们记了下来
-（V-3 与 V-9 都用「撤掉本役改动、重编、重跑」核过是既有的）。
+证据：`fyo` 仓 `FYO-REPORT-05` v0.5（2026-09-06，对内核检出 `08d0c0b` 实测）。三条都**不会
+让任何脚本非零退出**——这正是它们至今还在的原因。
 
-★**红着**（V-4 五道 node 闸 · V-9 九条 pytest）与**根本没在跑**（V-3 五个模块
-连收集都不过）是两件事，后者更坏：红的有人看得见，收集不了的没有 —— 本役之前
-每一次「全量通过」的读数都不含那五个模块。
+| 编号 | 归属 | 事项 | 依据 |
+| :--- | :--- | :--- | :--- |
+| **K-1** | kernel | 6 条裸路径的叶在 DD 中不存在：`core_transport/…/profiles_1d/grid/rho_tor`（该层只有 `grid_d`/`grid_v`/`grid_flux`）· 4 条 `wall/…/vessel/unit/element/geometry/rectangle/*`（`vessel_2d_element` 只有 `outline`）· `tf/b0`（`tf` 只有 `r0` 与 `b_field_phi_vacuum_r`）。另 1 条秩与 DD 坐标不符：`equilibrium/vacuum_toroidal_field/b0` 声明 `0d`，而 DD 记 `coordinate1: /time` | FYO-REPORT-05 O-1 · O-8 |
+| **K-2** | kernel | 16 条裸路径的首段不是任何 IDS（`machine` · `solver_dims` · `pf_active_circuits` · `ic_coil` · `power_supply`）——DD 检出的 84 个 IDS 目录里一个都没有。同批的 `pf_passive/fylite:group/…` 规矩带了前缀，故**很可能是 `fylite:` 前缀漏写**〔推测〕 | FYO-REPORT-05 O-2 |
+| **K-3** | kernel | `fyo.rs` 与 A-Box 对同一批量用了两个节名：A-Box 的 `transport/fylite:rho` · `transport/fylite:y` 对应 `fyo.rs` 的 `transport_inputs` 表。A-Box 用到的 118 条文档路径中 116 条两侧一致，只此 2 条不一致 | FYO-REPORT-05 O-9 |
+| **K-4** | kernel · fyo | 单位书写法两侧未约定：12 处不同（9 处斜杠 vs 点-幂语法，3 处符号/角度约定 `amu`↔`u`、`1`↔`e`、`rad/s`↔`s^-1`），**量纲不符 0 处**。量表路径起点有两种约定（IDS 根 / 数组元素）且只写在散文里，机器可读的表不携带 | FYO-REPORT-05 O-5 · O-7 |
 
-| # | 事项 | 缺的是 | 挡在哪 |
-|:---|:---|:---|:---|
-| **V-1** | 退火在 λ≥2e-1 上一趟不接受 | **判据**（读接受逻辑） | 未定：是步长下限的机制缺陷，还是目标函数的性质 |
-| **V-2** | 自由边界解不收敛，且不随预算单调 | 模型或机制 | 未定：解本身，还是 relax=0.3 欠松弛 |
-| **V-3** | 内核仓 5 个测试模块自迁移起就收集不了 | 机制（改 import） | 无 —— 可以直接做 |
-| **V-4** | node 闸子 5 道长期红着 | 判据（逐道定性） | 无 —— 需要逐道看 |
-| **V-5** | 装置文档不声明线圈工程限值 | **数据** | 要人核对换算与来源 |
-| **V-6** | 真机参照只有 EAST 一台 | **数据**（另一炮） | 等第二台机器的实测放电 |
-| **V-7** | wasm 构建跨环境不可复现 | 判据（找出差异输入） | 无 —— 但要两台机器对照 |
-| **V-8** | EAST 手工卡片仍写着构建机的绝对路径 | 机制（一处改） | 无 —— 但那是设备数据，归属要确认 |
-| **V-9** | 内核仓 pytest 长期红 9 条 | 判据（逐条定性） | 无 —— 需要逐条看 |
+★ K-1 / K-2 / K-4 的"应改成什么"含〔推测〕成分，**不应据报告直接改写**——报告只出证据。
 
----
+## B. 本体侧（`fyo`）
 
-## 2. 正文
+| 编号 | 归属 | 事项 | 依据 |
+| :--- | :--- | :--- | :--- |
+| **O-1** | fyo | 四张内核自有表（`discharge` 48 · `transport_inputs` 10 · `uq` 5 · `pulse` 4，共 67 行、全部规矩带 `fylite:` 前缀）与五条**承重**缺名（23 条程序间交接路径中占 5 条，尤以跨四 IDS 复发的 `fylite:psi_norm`）是对 `fyo:` 命名空间的提案，待裁定接纳与否 | FYO-REPORT-05 O-3 · O-4 · 须 `FYO-ADR-*` |
+| **O-2** | fyo | 测量不确定度无本体承载：spo 有 `UncertaintyStatement`（`standard_uncertainty` + `uncertainty_origin`，正为此而设），但 **fyo 无任何槽指向它**。直接后果见 D 组 E-3 | fydata G-10 · 须 `FYO-ADR-*` |
+| **O-3** | fyo | `wall` 单套二维描述（**用户裁定 2026-08-31**，非缺陷）的代价已量化：670 个带嵌套 `dd_path` 的类中恰 6 个不能沿属性树走到自己的路径，全在此一 IDS；`maxOccurs="3"` 压成一套。已由 `check_omega` 规则 (e) 设门（`UNREACHABLE_BY_RULING`，第 7 个出现即失败）。**仅在认为该代价过高时重开裁定** | FYO-REPORT-05 O-6 |
 
-### V-1 退火在重岭一侧一趟都不接受 —— 是缺陷还是性质，未定
+## C. A-Box 侧（`fydata`）
 
-**实测**（EAST #137985 实测边界，`code/discharge` `stage=anneal`）：λ≥2e-1 时
-`pass` 事实为 **0**，即八趟里没有一趟比没动过的起始设计更好，退火**一步没走**。
-换 8 / 16 / 24 趟、`anneal_hi` 0.10 / 0.03 / 0.01 共六种排程，`shape_error`
-**逐位相同**（0.14660）—— 所以不是排程敏感。λ≤1.5e-1 时它正常下降（最优趟 6–8，
-`shape_error` 0.035–0.053）。
+| 编号 | 归属 | 事项 | 依据 |
+| :--- | :--- | :--- | :--- |
+| ~~**D-1**~~ | fydata | **已关闭 2026-09-08**：`check_abox_shape.py` 新增 **S8** 收 `abox/amns/`（记法同装置树，`_ids` 认根类）。开核当次报 **1 处**——`charge_state` 挂在 `amns_data` 顶层，而 DD 放在 `process[]/charge_state[]` 之下；**未改数**，转为 fydata G-12（重铸属转换器的活） | fydata README G-1 |
+| ~~**D-3**~~ | fydata | **已关闭 2026-09-08**（`fydata 0e114a1`）：**S10 的 147 处「该是数组的槽写成单个结构」**——`coil.element` 110（七份 pf_active）· `flux_loop.position` 35 · `time_slice.profiles_2d` 1 · `coil.conductor.cross_section` 1。T-Box 记 multivalued、DD 记 `1...N`，而 A-Box 写的是一个结构，于是**十三台装置一台也跑不动 `code/breakdown`**（内核按 DD 读 `pf_active/coil/0/element/0`）。★逐行改不走 load/dump（件是手工维护、头注释里有「盲目重跑会把 deg→rad 打回去」的警告）：每处只改块的第一个子键那一行，其后逐字节不变；判据是改前改后 `yaml.safe_load` **语义相同**。S10 147 → 0 | fydata `check_abox_shape.py` S10 · 本仓 `C-10` |
+| ~~**D-2**~~ | fydata | **已关闭 2026-09-08**：新增 **S9**。★按字面实现的第一版**是错的**——「值域是类⇒必须写结构」报 173 处，而标量简写是通行记法。改判两条：简写的**类型**要配得上值域类；**同一棵树内**不得两种写法混用（跨树不算）。各抓到一件真事：EAST `ec_launchers` 的 `frequency: 140E9` 被 PyYAML 读成**字符串**（YAML 1.1 浮点正则要小数点+带号指数），四束皆是，已改 `1.4e+11`；`Wall2dLimiter.type` 装置树内混用整数与字符串，未改数（口径裁定，fydata G-13） | fydata G-11 |
 
-**缺的是判据。** 两种解释都还站得住：
+## D. EAST 标准算例（`fydoc` `facts/experiment/east/137985/`）
 
-* **机制缺陷** —— 接受规则是「比历史最优更好才收」，而步长由排程给定、降不到
-  排程下限以下；起始电流托不住要的等离子体时，一阶步一律越过去。指向这一侧的
-  证据：24 趟与 `anneal_hi=0.01` 都不动。
-* **目标函数的性质** —— 那个电流水平附近确实没有更好的点。
+现状：电流平顶已核（2.5 s 起 400.36 kA ± 0.27 %，4000 ms 在其内，E-1 已关闭）；磁测面成立，
+**动理学面有了实测的量而仍不可用**。★★2026-09-08 该条目自己往前走了一步：fydoc 仓里那份
+「待删」的 mdsip 录音（F-13）**含本炮交付 EFIT 的标量**，据此量出**本炮有两个互不相容的
+平衡**——交付 EFIT 的储能 187.1 kJ 对 g-file 转换件的 46.7 kJ，**差 4.00 倍**（详见该条目 §五）。
 
-**关闭判据**：读 `case.rs` 退火段的接受与步长逻辑，二选一并写下来。若是前者，
-让步长能在一趟内继续收缩（或接受一次「更差但更近」的中间态），并给出改后
-λ=3e-1 上的 `shape_error`；若是后者，把结论写进
-`tests/test_start_against_the_machine.py`，并说明那道闸的上界为什么就该在那里。
+| 编号 | 归属 | 事项 | 依据 |
+| :--- | :--- | :--- | :--- |
+| **E-2** | 需数据访问 | 加热 / 驱动 / 杂质 / 输运的本炮数据只在 MDSplus（`202.127.204.12`）。★**2026-09-08 清单短了一截**：本炮的 `\WMHD` · `\BETAP` · `\LI` · `\PCRL01` · `\VP1` · `\DFSDEV` 与 EFIT `MEASUREMENTS` 已在 fydoc 的录音里（`\PCRL01` / `\VP1` / `\DFSDEV` 只有抽稀后的 253–463 点）。**加热 / 驱动 / 杂质 / 输运一支未录**，故不关闭 | 条目 §五.1 · §七 |
+| **E-3** | fydoc · 待 fyo | Thomson 的不确定度只能标 `fylite:` 前缀（60 处）——被 B 组 O-2 卡住 | 条目 §八 |
+| **E-7** | 需数据访问 | **本炮两个平衡互不相容**：交付 EFIT（录音）与 deck 储能差 **4.00 倍**、$\beta_p$ 差 4.45 倍，而 deck 自己 GS 闭合到 0.59 %。挡路的是**那份 g-file 不在任何仓里**（只有 sha256），其 `RUN_TYPE` 与名字里的 `loop` 读不到；`FYDOC-CASE-19` 收的三份 EAST g-file 没有本炮的。★★**对本仓的意义要说准**：受影响的是 **`B-06`**（`plan/R/east-137985`）而**不是** `V-15`（后者是 g-file 读写往返的恒等式，与压强内容无关）。`B-06` 的参照侧是 `oracle_east137985_4000ms`，而该 oracle 自陈其约束是「磁测 + `kprfit=1` 直接压强 65 点」——那 65 点正是 deck 的压强列。**故 `B-06` 作为「本仓能否复现这次重建」仍然成立**（它比的是同一个答案），**不**支持「本仓重建出了这一炮真实的平衡」这句更强的话 | 条目 §五.5 |
+| **E-4** | 须语料裁定 | 自洽五面态是**计算产物**不是测量；`dev:result` 现有七个取值没有一个是为它准备的。**这是本条目自己走不过去的那一步** | 条目 §五 |
+| ~~**E-5**~~ | fydoc | **已关闭 2026-09-08**（那一步已走）：逐片 12 道 PF 通流实测（fydoc `facts/tools/pf_drift.py`，纯标准库、只读）——最静段 **4.0–5.0 s**（总 3.17 %/s · 方向 1.17 deg/s），**4000 ms 落在其起点**，故重建选片不必改；全平顶方向仅转 7.91°，而逐道看 c1 降 50.9 %——两种读法量的不是同一件事，条目已并记。**「任一片都不是严格稳态」不变** | 条目 §二 |
+| **E-6** | fydoc | `check_cases.py` 报 **28 处 / 19 组**不满足（其中 **14 组** reviewer 联系方式待补）。**既存项**，2026-09-08 再经 `git stash -u` 复核确认改动前完全相同。★当日走过 24/12 → 26/13 → **28/14** 三档：先是 `FYDOC-CASE-04`（FUSE）跑出答案、按该组**自己写的**规矩 `review.status` 由 `not-required` 改判 `pending`；再是 `FYDOC-CASE-19-east-efit` 立组（F-11），其 `reviewer` / `contact` 按同一条规矩记 `[TBD]`。**两次都不是新缺陷，是同一条规矩对新落账的东西生效** | fydoc `tools/check_cases.py` |
 
-★这条是**本役唯一一条影响缺省选择的未决项**：λ 的上界是它定的。
+## E. 本仓（`fylite`）与内核（`fylite_kernel`）
 
-### V-2 装置档自由边界解不收敛，且不随预算单调
+★2026-09-08 更新。**此前这一节写着「本轮未在本仓留下未完成项」**——那句话在 09-06 成立，
+当日的验证定序册第三轮与第三方源码盘点之后不再成立。下表是本仓／内核自己的活，
+**不依赖上下游任何一条**。
 
-**实测**（`app/tests/validate-worker-interp-device.mjs`，EAST，缺省 λ=1e-1）：
-`free.residual` 400 步 **5.6e-3**、1200 步 6.8e-3（`settled: true`，423 步停）、
-4000 步 **6.1e-2**。**不随预算单调下降**，所以不是「步数不够」。
-λ=3e-1 上同一条是 5.8e-2；最早 λ=1e-3 时的 4.9e-8 不可比 —— 那属于一个塌成
-2 cm 的位形，几乎没有东西要收敛。
+| 编号 | 归属 | 事项 | 依据 |
+| :--- | :--- | :--- | :--- |
+| **F-1** | fylite | **`discharge-iter` 的门**。物理校验册 88 条现只评了 24，做了它可评条数才会动。要两件事一起做：`run_json` 走树门，**且**算例把装置文档绑成输入 | RUN-2026-09-08 §四 · §六.3 |
+| **F-2** | fylite | **生成件里的手写段没有活路**。手写归因活不过下一次 `--write`，**而且不会有任何东西报错**——这是它比「写错了」更坏的地方。三个候选落点（判据册算例声明的 `caveat` · 本册子的 RUN 页 · 渲染器认一个锚点）**要先定**，才好写第二段 | RUN-2026-09-08 F-24 |
+| ~~**F-3**~~ | kernel | **已关闭 2026-09-08**（用户裁定：**Rust 侧重写**）：26 条里 **11 条已重写**——层析 6 + 自标定方法学 3 落 `diagnostics.rs`，装配层编排 3 落 `transport.rs`；`cargo test --lib` 459 → **470 passed**，并做过变异检验（把基的 `clamp(0.0,1.0)` 改 `0.9`，边界那条当场判负）。★**剩下 15 条不是「没写」而是「本 crate 没有那个主体」**：UKAEA 网络 8（模块不在任何树里，许可那两条早已捞回）· 层析的重建质量 5（要反演求解器，本 crate 只导出基与行）· `source_set` 台账报表 1。逐条落位见 `tests/PHYSICS-MIGRATION.md` 该节 | `tests/PHYSICS-MIGRATION.md` 退役表 |
+| ~~**F-4**~~ | fylite | **已关闭 2026-09-08**：专用 `Pkg.develop` 环境跑通 `FUSE.test_case(Val(:ITER_time), dd)`（FUSE 1.1.5 / IMAS 7.3.0，437.7 s，**61 个时刻**，`evolve_error: null`），答案收进 fydoc `FYDOC-CASE-04-fuse/corpus/1.1.5/`。`B-08` 随之判 pass。★捕获脚本加 `FUSE_TEST_CASE` 门——与 0.7.0 那份**出自同一个读取器**；★走不通的一条路已记在语料 README：把写盘的 `dd` 读回来归约，`json2imas` 在留空的二维字段上抛 `MethodError` | plan.jsonld `B-08` · 内核 `180dd93` |
+| ~~**F-5**~~ | fylite | **已关闭 2026-09-08**：CHEASE 本机构建成功并自行重跑 `ntcase=2`（不读冻结产物），`B-10` 判 pass（GS 残差 5.257e-02，带 8e-2）。★该条的主要产出不是那个数，是一个读法——**加密盒子不是收敛检验**（101×65 → 401×257 残差不降反升；改内部网格才降 2.1 倍） | plan.jsonld `B-10` |
+| ~~**F-6**~~ | fylite | **已关闭 2026-09-08**：映射逐项落实，`C-11` 判 pass——离子热通量系统偏低 **−42…−53 %**、电子热通量最差 **+131 % 恰在阈值**、八点全在训练箱内（门里第一条就判这个）。★留痕的那一项：算例是「红/蓝氢」示踪设置（两支同位素氢 + Be + C）而网络只模一个有效主离子，**Be 那一支在低梯度端比氢两支合计还大**——所以离子那一栏的差里含着**成分折叠**，不全是代理误差 | plan.jsonld `C-11` |
+| ~~**F-7**~~ | — | ~~`B-09`：要不要自跑 DINA 当参考~~ **作废（登记当日）**：DINA 的参考答案就在 `~/workspace/data/ITER Scenario/`，不需要自跑，那次许可/清净室裁定也就不必做了。★留着这一行是因为它示范了一件事——**这条待办从提出到作废不到一小时，而它提出的依据是台账里一句写着「未取回」的旧备注**。备注记的是写它那天的状态 | SURVEY-2026-09-08 §一 · §四 |
+| **F-8** | 可发信 | **`C-08` 向作者索取 GENE 那批次的 ν* 与逐半径 Miller 参数**（或那次 JINTRAC 模拟的对应量）。这是六条阻塞里**唯一一条只差一封信**的 | plan.jsonld `C-08` |
+| **F-9** | fylite · fydoc | **`code/breakdown` 仍跑不出结果，但挡路的换了一件事**。G-14 修掉后 ITER 与 EAST 过了几何这一关，卡在下一句：「the device gives no supply current limit (`power_supply/current_limit_kA`) and the plan binds no `i_max_aturn`」。两条路：装置描述补上供电限值（是**数据缺口**，ITER 的 A-Box 里没有；EAST 的手工牌里有 `current_limit_kA: 14.5`），或算例侧绑一个 `i_max_aturn`。**先定这一条走哪边**，再谈把 breakdown 接进定序册 | 2026-09-08 实测（`fy run design breakdown --device iter --facts <fydoc>/facts`）|
+| **F-10** | fydoc | **生成的装置清单指向不存在的路径**。`abox2jsonld.py` 把每份件搬位（剥 `tree_root`）并改名（`.yaml`→`.jsonld`），却把清单里的 `providers[].path` **原样抄过来**——于是 `best` / `cfetr` / `cfedr` 的清单指着 `fyo/latest/providers/pf_active/base.yaml`，书里没有这个文件，解析不到线圈；`west` 更是**一个 provider 都没声明**。四台因此在 `code/breakdown` 上报「the document carries no `pf_active/coil`」。★ITER 之所以能过，是因为**它那份清单是为书手写的**（`path: providers/pf_active/base.jsonld`）——不是生成器做对了 | 2026-09-08 实测（四台逐台跑）|
+| ~~**F-11**~~ | fydoc | **已关闭 2026-09-08**（fydoc `9eb7657`）：三份 EAST g-file 收进算例书 `FYDOC-CASE-19-east-efit`（`corpus/` 与 `case.yaml` 同址、`checksums` 逐件在册、`payload: in`），本仓的门与登记册指针随之改指。★★查证时发现比「指针脆」更要紧的一层：2026-09-04 的裁定删 `corpus/experiment/` 时写明这批件**不可重取**、「只剩 git 历史与未跟踪的 `todelete/`」，而同日一次**讲文档规则**的提交把 `todelete/` 顺带跟踪了进来、提交信息一字未提——于是一批不可重取的件被一个名叫「待删」的目录持有着。★迁入**不等于放行**：`release: internal` 不变，review 待具名 | 登记册 `V-15` 的 `has_input` |
+| **F-13** | fydoc | **`todelete/` 余下的部分未判**：`east/mdsip-137985.json`（一次 mdsip 会话的逐帧录音，fylite 的浏览器门经 `FYLITE_MDS_FIXTURE` 读它）是**测量**不是重建产物，按分工归实验层 / `fydata` 的 A-Box；另有 `todelete/device/{east,iter}` 与 `todelete/facts/`。★F-11 只搬了它该搬的那一份，**没有顺手替其余的决定归属**。★★**2026-09-08 这一条的分量变了**：那份录音不是只给浏览器门当夹具的——它是本炮**交付 EFIT 标量在整个生态里的唯一一份**（E-7 全靠它），且**含五炮**（137984 · 137985 · 137986 · 165704 · 165705）而文件名只写了一炮。一份这样的件住在名叫「待删」的目录里 | 2026-09-08 迁址时并记 · 同日实测 |
+| **F-14** | fylite | **POINT 的条纹清洗判据只设下界**。`python/fylite/io/est2.py` 的 `good = (a_ne is not None) and (abs(a_ne) > floor)`（`floor = gate * median`），注释自陈的理由是「丢了条纹的弦会塌到中位数的一小部分」——**这对塌下去成立，对跳上去不成立**，而条纹跳是整数倍相位跳，两个方向都会发生。EAST #137985 实测：**c4 在 9 片中的 6 片上超同片存活中位数 3 倍以上**（最高 **166 倍**），每一片都带着 `weight_nel = 1.0` **交给重建**；c11 另在 1.0–2.0 s 三片上超 7–20 倍。★★同一支工具的第二条口径：弦中位数与干涉仪自己的线平均道 `\DFSDEV` 的比值在九片上走了 **45 倍**（0.03 → 1.34）——弦长不变，故不是几何；1.0–2.0 s 那三片的 POINT 归约实际在读噪声。★**重建选的 4000 ms 落在比值正常的那一段**（0.87–1.34），故本仓现有结论不受影响——但判据的形状是错的 | fydoc `facts/tools/point_chords.py`（2026-09-08 实测）|
+| **F-12** | fylite | **`B-01` 的参考侧要不要改在 FUSE 1.1.5 上重跑**（该条现有结论建立在已遗弃的 0.7.0 冻结答案上，其 `status_note` 自陈这一问「仍未裁定」）。★2026-09-08 起**成本变了**：跑 1.1.5 所需的 Julia 环境已经在本机建好（F-4 的副产物），此前挡它的正是这一件 | 登记册 `B-01` status_note · SURVEY-2026-09-08 §一 |
 
-**缺的是模型或机制**，未分辨：自由边界解本身，还是两趟退火尚未把边界送到位、
-`relax=0.3` 上的欠松弛。
+| **F-15** | kernel | **起始设计的岭调过 2e-1 之后，退火一趟都不接受**。`code/discharge` `stage=anneal` 的 `pass` 事实报 **0** —— 八趟里没有一趟比没动过的起始设计更好，即退火一步没走；交出来的 κ=1.146（要的 1.389）、磁轴离实测轴 **102 mm**（EAST 小半径 0.44 m）。换 8 / 16 / 24 趟、`anneal_hi` 0.10 / 0.03 / 0.01 六种排程，`shape_error` **逐位相同**（0.14660），故不是排程敏感。λ≤1.5e-1 时正常下降（最优趟 6–8，`shape_error` 0.035–0.053）。★两解未分辨：接受规则只收「比历史最优更好」而步长降不到排程下限以下〔推测〕，或该电流水平附近确无更好的点。**这条定着岭缺省的上界** | `fylite_kernel` `tests/test_start_against_the_machine.py`（2026-09-08 实测） |
+| **F-16** | fylite | **装置档自由边界解不收敛，且不随预算单调**。`validate-worker-interp-device`，EAST，缺省 λ=1e-1：`free.residual` 400 步 5.6e-3、1200 步 6.8e-3（`settled: true`，423 步停）、4000 步 **6.1e-2**。**不随预算单调下降**，故不是步数不够。λ=3e-1 上同一条是 5.8e-2。★最早 λ=1e-3 时的 4.9e-8 **不可比**——那份属于一个塌成 2 cm 的位形（a_minor 0.0195 m 对要的 0.357 m），几乎没有东西要收敛 | `app/tests/validate-worker-interp-device.mjs`（2026-09-08 实测） |
+| **F-17** | kernel | **五个测试模块自 T-4 迁移起就收集不了**，因此一直没在跑：`test_assembly`（取 `fylite.scenario.model.sources`）· `test_nn_tglfnn_ukaea`（`…model.tglfnn_ukaea`）· `test_point`（`fylite.io.kfile`）· `test_selfcal`（`fylite.scenario.analysis.selfcal`）· `test_tomography`（`…analysis.tomography`）——都是那一串刀把公共仓模块收进 `tests/oracles/` 之后没有回指的残留。★**红着的闸子有人看得见，收集不了的没有**：此前每一次「全量通过」的读数都不含这五个模块 | 2026-09-08 `--collect-only` 实测 |
+| **F-18** | fylite | **node 闸子五道长期红**：`validate-flux-match` · `validate-guide` · `validate-q` · `validate-worker-vertical` · `validate-zerod`。逐道未定性（缺数据 / 夹具过期 / 真错，三者未分）。已知一处细节：`validate-worker-vertical` 的失败是 `design` 答案里 `vertical: null`——闸子要一个垂直位移判据，门没给 | 2026-09-08 全量扫描 |
+| **F-19** | fydoc | **装置文档不声明线圈工程限值**。七台自带装置的 `pf_active.coil` 无一带电流上限。后果：起始设计的真机闸只能拿 EAST #137985 **那一炮自己用到的**最大通道电流当界——那是**演示过的值**不是铭牌值，机器可能能交更多，也可能那一炮本就贴着限值。★与 **F-9** 是同一条数据缺口的两处露头（F-9 缺的是 `power_supply/current_limit_kA`，本条缺的是逐线圈的匝安上限）。★没有出处应留 `[TBD]`，不填估值 | `fylite_kernel` `tests/test_start_against_the_machine.py` 的判据取法（2026-09-08） |
+| **F-20** | fylite · fydoc | **真机参照只有 EAST 一台**。起始设计岭缺省的物理判据全落在 #137985 一炮上——它是两仓里唯一带实测放电的机器（实测 LCFS · Ip · BRSP · 交付平衡）。其余六台只能拿合成目标（限制器包围盒 ×0.6，κ=1.6）扫，证据强度低一档：同一组 λ 扫下来 **ITER 在 3e-1 上反而最好，WEST 全平，CFETR 每个 λ 都不稳**——即 **F-15 那道坎在别的机器上没出现** | 2026-09-08 逐台实测 |
+| **F-21** | kernel | **wasm 构建跨环境不可复现**。同一份源码，开发容器构建得 core 1 810 792 字节 / `55d8876d…`，另一台得 1 765 754 / `dca90b0c…`；**`kernel_ext` 也变**（615 886 → 615 110）而其源码那一役一字未动——差异因此锁在**构建环境**不在源码。两侧 rustc 均 1.94.1；容器内部可复现（同源多次构建逐位相同）。后果：`docs/note/app-provenance.md` 二进制表在两台机器之间来回改，`test_bundled_artifacts` 谁重建谁红（**2026-09-10 合并 develop 时又冲突一次**） | 2026-09-08/10 两侧实测 |
+| **F-22** | kernel | **EAST 手工卡片仍写着构建机的绝对路径**。`9091776` 把 `/home/salmon/workspace/fydata/abox/experiment/east/137985` 从 `machine_desc/east/east_device.yaml` 改成了 `fydata:abox/…`，**同一字符串仍在 `machine_desc/east/fylite_device_east.json` 里**；而 EAST 的 facts 卡是从后者派生的（`tools/abox-to-facts.py` 自陈 EAST「手工卡片保持原样」），故它照旧出现在 `dist/facts/device/east.jsonld` | 2026-09-08 `grep` 实测 |
+| **F-23** | kernel | **内核仓 pytest 长期红 9 条**（排除 F-17 那五个收集不了的模块）：`test_nn_surrogate` 4 · `test_benchmark_registry` 1 · `test_circuits` 1 · `test_jintrac_flattop` 1 · `test_loop` 1 · `test_tglf_selfconsistent` 1。全量读数 **9 failed / 1199 passed / 46 skipped / 9 xfailed**。★用「撤掉当役改动、重编、重跑」核过**是既有的**。★逐条未定性；〔推测〕`test_nn_surrogate` 那四条与权重不随仓发行是同一条线 | 2026-09-08 全量扫描 · 同日 stash 对照 |
 
-**关闭判据**：残差随预算单调，且在某个预算上 `converged: true`；或者写明为什么
-这一配置下它不该收敛，并把 `validate-worker-interp-device` 的注释改成那个说法。
+★**本仓能自己做完**的现在是 F-1 / F-2 / F-12 / **F-14** / **F-16** / **F-18**（F-4 · F-5 · F-6 已关）；内核侧自己能做完的是 **F-15** / **F-17** / **F-21** / **F-22** / **F-23**（F-17 只差改 import）；F-9 要先定走哪边；F-8 要对外联系；F-10 / F-13 / **F-19** 归 fydoc（F-3 · F-11 已关），**F-20** 要第二台机器的实测放电，登记在此只为让本仓知道自己在等什么。
 
-### V-3 内核仓 5 个测试模块自 T-4 迁移起就收集不了
+★★那四条 `planned`（`C-06` TEQ · `C-07` TOSCA · `B-09` DINA · `C-10` TRANSMAK）**当日全部执行完毕**，
+均判 pass；它们本就不在上表里——**执行是定序册的活，不是本表的活**。本表只收「不做就没人做」的事；
+判决与排期的唯一生成源仍是 `docs/benchmark/plan/plan.jsonld`（2026-09-08 晚：**通过 34 · 阻塞 1**，
+登记册 35 条 · 17 场景，当日复测 34/34 全过）。
 
-`fylite_kernel/tests/` 下五个模块 **ImportError，连收集都不过**，因此**一直没在跑**：
+〔仍然成立〕本仓在 A–D 那条链上的位置是**消费方**：E-2 到位则 EAST 标准算例可用于本仓的
+对拍与回归；E-4 裁定后计算态才有身份可入库。
 
-| 模块 | 取不到的名字 |
-|:---|:---|
-| `test_assembly.py` | `fylite.scenario.model.sources` |
-| `test_nn_tglfnn_ukaea.py` | `fylite.scenario.model.tglfnn_ukaea` |
-| `test_point.py` | `fylite.io.kfile` |
-| `test_selfcal.py` | `fylite.scenario.analysis.selfcal` |
-| `test_tomography.py` | `fylite.scenario.analysis.tomography` |
-
-都是 T-4 那一串刀把公共仓的模块收进 `tests/oracles/` 之后没有回指的残留。
-**缺的是机制**（改 import 指向 oracle 树），不缺判据也不缺数据。
-
-★**这条比它看着要紧**：红着的闸子有人看得见，**收集不了的闸子没有**。上面每次
-「全量通过」的读数都不含这五个模块。
-
-**关闭判据**：五个模块都能收集并跑；跑出来红的，各自开条目（不要就地放宽）。
-顺带把整仓扫一遍还有没有同类。
-
-### V-4 node 闸子 5 道长期红着
-
-`validate-flux-match` · `validate-guide` · `validate-q` · `validate-worker-vertical` ·
-`validate-zerod`。本役全程未动它们，也不是本役引入的 —— 每次扫描都是这五道。
-已知一条细节：`validate-worker-vertical` 的失败是 `design` 答案里
-`vertical: null`（闸子要一个垂直位移判据，门没给）。
-
-**缺的是判据**：五道各自是「门少答了一样东西」「夹具过期」还是「真错」，没有逐道定性。
-
-**关闭判据**：逐道给出结论 —— 修好、或写明为什么长期红着并让它 skip 而不是 fail
-（**红着不是长期状态**：一道永远红的闸子等于没有闸子）。
-
-### V-9 内核仓 pytest 长期红 9 条
-
-全量扫描（`tests/`，排除 V-3 那五个收集不了的模块）：**9 failed / 1199 passed /
-46 skipped / 9 xfailed**。这九条**不是本役引入的** —— 2026-09-08 用
-`git stash` 把本役的内核改动撤掉、重编、重跑，同样这九条红，逐条对上。
-
-| 模块 | 条数 | 看着像什么（未核） |
-|:---|---:|:---|
-| `test_nn_surrogate.py` | 4 | 权重不随仓发行 |
-| `test_benchmark_registry.py` | 1 | 登记册指向的产物/账户不在仓里 |
-| `test_circuits.py` | 1 | 重算的涡流响应与随仓的表对不上 |
-| `test_jintrac_flattop.py` | 1 | 跨码对拍，要外部数据 |
-| `test_loop.py` | 1 | `ModuleNotFoundError`（与 V-3 同源？未核） |
-| `test_tglf_selfconsistent.py` | 1 | 松弛块重估的稳定性 |
-
-★右栏是**猜的**，逐条都没核过 —— 写在这里是为了让下一个人知道从哪儿下手，
-不是结论。
-
-**缺的是判据**（逐条：缺数据 / 夹具过期 / 真错，三选一）。
-
-**关闭判据**：逐条定性。缺数据的改成 skip 并写明缺什么（`test_nn_surrogate`
-多半属此类，与 `fylite.nn` 权重不发行是同一条线）；真错的开条目修。
-★与 V-4 同一条理由：**一道永远红的闸子等于没有闸子**，而九条红会把第十条盖住。
-
-### V-5 装置文档不声明线圈工程限值
-
-七台自带装置的 `pf_active.coil` **没有一台**带电流上限 / 电流密度 / 匝数-截面
-之外的工程限值。本役要检查「设计出来的电流交不交得出来」时，**只能拿 EAST 那一炮
-自己用到的最大通道电流当界**（`tests/test_start_against_the_machine.py`）——
-那是一个**演示过的值**，不是**铭牌值**，两者不同：机器可能能交更多，也可能那一炮
-本来就贴着限值。
-
-**缺的是数据**（外加换算：安匝 ↔ 安培 ↔ 电流密度要匝数与截面）。
-
-**关闭判据**：至少 EAST 与 ITER 的 PF 线圈带上有出处的限值（`fylite:i_max_aturn`
-或等价槽位），且真机闸改为对铭牌值断言。★没有出处就**留空**，不要填一个估的：
-`[TBD]` 比一个编出来的界安全。
-
-### V-6 真机参照只有 EAST 一台
-
-本役的物理判据全部落在 EAST #137985 一炮上 —— 它是**两仓里唯一一台带实测放电的
-机器**（实测 LCFS · 实测 Ip · 实测 BRSP · 交付平衡）。其余六台只能拿**合成目标**
-（限制器包围盒 ×0.6，κ=1.6）扫，证据强度低一档：同一组 λ 扫下来，ITER 在 3e-1 上
-反而最好，WEST 全平，CFETR 每个 λ 都不稳 —— 也就是说 **V-1 那道坎在别的机器上
-没出现**，本役据以定缺省的那条上界只在 EAST 上量到过。
-
-**缺的是数据**（第二台机器的一炮）。
-
-**关闭判据**：第二台机器的实测放电入库，并在它上面复量 λ 的两条界；若两台不一致，
-缺省要按更紧的那台定，或者按机器分档。
-
-### V-7 wasm 构建跨环境不可复现
-
-同一份源码，本容器构建得 core 1 810 792 字节 / `55d8876d…`，维护者机器上是
-1 761 494 字节 / `b5b950e4…`（`fylite_kernel` 仓 `08d0c0b`）。**`kernel_ext` 也变了**
-（615 886 → 615 110），而它的源码本役一字未动 —— 这一条把差异**锁在构建环境**，
-不在源码。两侧 rustc 都是 1.94.1。容器内部是可复现的（同源多次构建逐位相同）。
-
-后果：`docs/note/app-provenance.md` 的二进制表在两台机器之间来回改，
-`test_bundled_artifacts` 谁重建谁红。
-
-**缺的是判据**（哪一个输入不同：wasm-opt 版本 · target features · 链接器 · 依赖锁）。
-
-**关闭判据**：定位到那个输入并固定；或者账本连**工具链指纹**一起记，闸子按
-「本机重建能对上」而不是「与账本里那一行对上」判定。
-
-### V-8 EAST 手工卡片仍写着构建机的绝对路径
-
-`fylite_kernel` 仓 `08d0c0b^`（`9091776`）把
-`/home/salmon/workspace/fydata/abox/experiment/east/137985` 从
-`machine_desc/east/east_device.yaml` 改成了 `fydata:abox/experiment/east/137985`。
-**同一个字符串仍在 `machine_desc/east/fylite_device_east.json` 里**，而 EAST 的
-facts 卡是从后者派生的（`tools/abox-to-facts.py` 自己的注释写着 EAST
-「手工卡片保持原样」），所以它照旧出现在 `dist/facts/device/east.jsonld`。
-
-**缺的是机制**（一处改，形式照 `9091776` 已经选好的那个）。
-
-**关闭判据**：`grep -r "salmon/workspace" fylite_kernel/machine_desc dist/facts` 为空。
-★这是**设备数据**，且是别人那一刀的题目 —— 动之前确认归属。
+★★**2026-09-08 加一句**：E-7 提醒的是**同一个消费方位置上一件更细的事**——本仓从上游取来的
+「参照答案」可以既是**忠实转录**又**不是这一炮**。`B-06` 的参照侧就是这样：oracle 忠实地复现了
+那份 g-file，而那份 g-file 与本炮交付 EFIT 差 4 倍。**「转录对了」与「转录的是对的东西」是两问**，
+本仓的登记册此前只问了前一问。
 
 ---
 
-## 3. 本役已关的（只留去处，不留正文）
+## 记法
 
-| 事项 | 去处 |
-|:---|:---|
-| 起始设计的分配不由输入决定（1e-13 扰动动 2–11 %） | 直接解 + λ 缺省；`python/tests/test_start_design_conditioning.py` |
-| λ 缺省定在哪（1e-3 → 3e-1 → **1e-1**） | `fylite_kernel` 仓 `tests/test_start_against_the_machine.py`（真机两侧夹） |
-| 求解器收敛旗被 `let (x, _) = …` 丢掉 | `StartDesign.iterations` / `.converged` → 事实 `start_iterations` / `start_converged` |
-| 缺省散在四处（内核两处 · `worker.js` 两处 · `start_state` · 设计页两处） | 页面与闸子一律不传 `lam`，走出厂缺省 |
+- 条目**只登记事实与依据**，不写结论；带〔推测〕的判断保留标记。
+- 归属为他仓者，本表**不得**作为在本仓改动的依据。
+- 关闭一条时写明**关闭日期与依据**（如 E-1：2026-09-06，逐片 `magnetics/ip` 实测）。

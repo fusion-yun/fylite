@@ -18,10 +18,11 @@
 # （两者一旦合成一条规则，往 guide/ 加一篇仓内章节就会静默地把它发布出去）。
 #
 # ★三处**不入册**的目录，逐条说明为什么不入：
-#   benchmark/  V&V 登记册与对拍报告。它们是**按路径引用的记录**——门禁、CI 的底账
-#               校验、算例语料的 `account` 字段都写着 `docs/benchmark/…`；机器读的是
-#               `registry.jsonld`。一份被路径引用的记录不需要 URL，也不该因为书的
-#               编排变动而换位置。
+#   （benchmark/ 已于 2026-09-08 **入册**，见下。它此前不入册的理由是「按路径引用的
+#     记录不需要 URL」——★★那条理由没有错，**但它只覆盖了机器那一半**：`registry.jsonld`
+#     与逐案 `.jsonld` 确实按路径被门禁与语料引用，而**散文那一半是给人读的**，
+#     人要的恰恰是 URL 与目录。两半并存：路径照旧有效（没有任何文件移位），
+#     同时这些页现在有站点位置。用户裁定 2026-09-08。）
 #   figures/    图，由章节引用，不是章节。
 #   _build/     产物。
 #
@@ -140,6 +141,73 @@ project:
         - file: physics/13-pulse-breakdown.md
         - file: physics/14-diagnostics.md
 
+    - title: 校验册 (V&V) —— 量过什么，量到多少
+      #: ★★2026-09-08 用户裁定入册。三本子册各答一问：**登记册**对外部答案，
+      #: **物理校验册**对定律与文档自身的定义，**定序册**说先后与阻塞。
+      #: ★逐案 `.jsonld` 与 `registry.jsonld` **不入 toc**：它们是机器读的记录，
+      #: 按路径被门禁引用；入册的是给人读的那一半。
+      children:
+        - file: benchmark/README.md
+        - title: 对拍报告 (Comparison reports)
+          children:
+            - file: benchmark/reports/README.md
+            #: ★模板也入册：它是写下一条记录的人要照抄的那一页。
+            - file: benchmark/reports/TEMPLATE.md
+            - file: benchmark/reports/B-01-fuse-iter.md
+            - file: benchmark/reports/B-02-jintrac-iter-102530.md
+            - file: benchmark/reports/B-03-jintrac-jet-101612.md
+            - file: benchmark/reports/B-04-metis-zerod-geometry.md
+            - file: benchmark/reports/B-05-torax-evolution.md
+            - file: benchmark/reports/B-06-east-reconstruction.md
+            - file: benchmark/reports/B-07-tgyro-converged.md
+            - file: benchmark/reports/B-08-fuse-iter-time.md
+            - file: benchmark/reports/B-09-dina-ramp.md
+            - file: benchmark/reports/B-10-chease-fixed-boundary.md
+            - file: benchmark/reports/C-01-iter-15ma-astra.md
+            - file: benchmark/reports/C-02-alpha-heating-astra.md
+            - file: benchmark/reports/C-03-toksys-rzrig.md
+            - file: benchmark/reports/C-04-metis-hcd.md
+            - file: benchmark/reports/C-05-gyro-momentum-waltz2007.md
+            - file: benchmark/reports/C-06-teq-iter-equilibria.md
+            - file: benchmark/reports/C-07-tosca-run-space.md
+            - file: benchmark/reports/C-09-itpa-tc33.md
+            - file: benchmark/reports/C-10-transmak-initiation.md
+            - file: benchmark/reports/C-11-qualikiz-ground-truth.md
+            - file: benchmark/reports/V-01-gacode-ports.md
+            - file: benchmark/reports/V-02-nn-surrogates.md
+            - file: benchmark/reports/V-03-qlknn-7-11.md
+            - file: benchmark/reports/V-04-gacode-regression-suite.md
+            - file: benchmark/reports/V-05-momentum-parity.md
+            - file: benchmark/reports/V-06-tgyro-mapping-treg01.md
+            - file: benchmark/reports/V-07-tgyro-cases.md
+            - file: benchmark/reports/V-08-torax.md
+            - file: benchmark/reports/V-09-mavrin-noncoronal.md
+            - file: benchmark/reports/V-10-lengyel-closed-forms.md
+            - file: benchmark/reports/V-11-lengyel-two-point.md
+            - file: benchmark/reports/V-12-lengyel-inverse.md
+            - file: benchmark/reports/V-13-lengyel-forward.md
+            - file: benchmark/reports/V-14-torax-evolution-composition.md
+            - file: benchmark/reports/V-15-gfile-roundtrip.md
+        - title: 物理校验 (Physics checks)
+          children:
+            - file: benchmark/physics/README.md
+            - file: benchmark/physics/SUMMARY.md
+            - file: benchmark/physics/discharge-iter.md
+            - file: benchmark/physics/equilibrium-gfile.md
+            - file: benchmark/physics/evolve-default.md
+            - file: benchmark/physics/evolve-east-hmode.md
+            - file: benchmark/physics/evolve-iter-15ma.md
+            - file: benchmark/physics/transport-iter-15ma.md
+            - file: benchmark/physics/zerod-iter-15ma.md
+        - title: 验证定序 (The validation order)
+          children:
+            - file: benchmark/plan/README.md
+            - file: benchmark/plan/RUN-2026-09-04.md
+            - file: benchmark/plan/RUN-2026-09-05.md
+            - file: benchmark/plan/RUN-2026-09-08.md
+            - file: benchmark/plan/SUMMARY.md
+            - file: benchmark/plan/SURVEY-2026-09-08-third-party.md
+
     - title: 设计集 (Design) —— 它为什么长这样
       #: ★路径权威是 `design/INDEX.md`（文档以 `document_id` 指认，经那张表解析路径）；
       #: 文档集增删或改版时，本 toc 与那张表在同一变更中更新。
@@ -158,6 +226,7 @@ project:
             - file: design/FYL-DESIGN-14.md
             - file: design/FYL-DESIGN-15.md
             - file: design/FYL-DESIGN-17.md
+            - file: design/FYL-DESIGN-20.md
         - title: 浏览器前端 (Browser Front End)
           #: 外壳在前（四页共用的那一层），四页各一篇；`-10` 兼持四页共同纪律与 `P-` 总表。
           children:

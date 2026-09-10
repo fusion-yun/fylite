@@ -325,6 +325,8 @@
     // --- compute backend ------------------------------------------------------
 
     var worker = null, kernel = null, initMsg = null, aborted = false;
+    //: 模块先行用的两格状态，见 `send` / `shipWasm`。
+    var wasmShipped = false, outbox = [];
     var aborters = [], waiting = [];
 
     function dispatch(m) {
@@ -349,6 +351,9 @@
       //: the url is site-root-relative (`assets/worker.js`); a scenario page
       //: sits one directory below that, so it is resolved through FySite
       worker = new Worker(root.FySite.url('assets/worker.js'));
+      //: ★每次重建 worker 都要重来一遍：被 kill 掉的那个带走了它的模块。
+      wasmShipped = false; outbox = [];
+      shipWasm();
       worker.onmessage = function (ev) {
         var m = ev.data;
         // the kernel handshake is the same on every page, so it is answered
@@ -400,8 +405,32 @@
       //: ★the init message is REMEMBERED, because stopping a run means killing
       //: the worker, and a killed worker has to be told the machine again
       if (msg.cmd === 'init') initMsg = msg;
+      //: ★★**模块先行**（2026-09-08）：页面已经在编译同一份 wasm，worker 收下它就
+      //: 不必自己再取一遍（实测建模页首屏因此少 3.4 MB）。而 `init` 一旦到达 worker
+      //: 就会 `attach`，所以在模块发出去之前，其余命令**在这里排队**——顺序不变，
+      //: 只是整体推后到那条消息之后。取不到模块就直接放行：多一次下载，不是错。
+      if (!wasmShipped) { outbox.push(msg); return true; }
       worker.postMessage(msg);
       return true;
+    }
+
+    /** 把页面编译好的核心模块交给这个 worker，然后放行排队的命令。 */
+    function shipWasm() {
+      var flush = function () {
+        wasmShipped = true;
+        var q = outbox; outbox = [];
+        q.forEach(function (m) { if (worker) worker.postMessage(m); });
+      };
+      var L = root.FyLite;
+      if (!L || !L.moduleFor) return flush();
+      //: ★页面在 `pages/` 下，所以要走 `FySite.url` 拿站点根相对的那一份——
+      //: 写成裸名会解析成 `pages/fylite_rs.wasm…`（404），而 worker 的基址是
+      //: `assets/`，它那边裸名恰好是对的。两边解析到同一个绝对地址才算同一份。
+      L.moduleFor(root.FySite.url('assets/fylite_rs.wasm')).then(function (rec) {
+        if (worker) worker.postMessage({ cmd: 'wasm', url: 'fylite_rs.wasm',
+                                         module: rec.module, sha256: rec.sha256,
+                                         bytes: rec.bytes });
+      })['catch'](function () { /* worker 自己取 */ }).then(flush, flush);
     }
 
     /**
@@ -446,17 +475,16 @@
 
     // --- the shared poloidal cross-section ------------------------------------
     //
-    // ★The VIEW BOX is computed once and kept: `FyPlot.deviceView` walks every
-    // coil to find the frame, and the machine does not change between frames.
-    // It changes when the DEVICE does, and a device change reloads the page.
-    var crossView = null;
-
+    //: ★★**缺省视野＝平衡计算区域**（2026-09-08 用户裁定）。这里原先有个 `fitDevice`
+    //: 开关，把视野撑到装那台机器所有 PF 线圈的那一框；结果是等离子体在图上只占中间
+    //: 一小块（ITER：4.5 × 9.4 m 的东西装进 11 × 16 m 的框）。不传视野时
+    //: `FyPlot.poloidal` 落到 `M.grid`——平衡在哪算的就框哪，器壁与芯部等离子体都在
+    //: 里面。要看整台机器的页面自己传 `view: FyPlot.deviceView(M)`，那是一次明确的
+    //: 选择，不是缺省。
     function cross($, eq, opts) {
       var e = $((opts && opts.canvas) || 'cross');
       if (!e) return null;
       opts = opts || {};
-      if (!crossView && opts.fitDevice && root.FYLITE_MACHINE)
-        crossView = root.FyPlot.deviceView(root.FYLITE_MACHINE, opts.margin);
       var o = {
         machine: root.FYLITE_MACHINE,
         grid: kernel ? kernel.grid : null,
@@ -468,10 +496,8 @@
         axis: eq && [eq.axisR, eq.axisZ],
         nLevels: eq ? (opts.nLevels === undefined ? 12 : opts.nLevels) : 0,
       };
-      if (crossView) o.view = crossView;
       Object.keys(opts).forEach(function (k) {
-        if (k === 'canvas' || k === 'legend' || k === 'fitDevice' ||
-            k === 'margin') return;
+        if (k === 'canvas' || k === 'legend') return;
         o[k] = opts[k];
       });
       root.FyPlot.poloidal(e, o);
@@ -1305,6 +1331,15 @@
       });
 
       var api = Object.create(part);
+      //: ★★**栏要有自己的 `cross`**（2026-09-08 实测）。`cross` 从部件那一层继承下来时，
+      //: 闭包里是**部件的**解析器：栏调 `S.cross()` 找的是 `<部件>-cross`，而栏的画布叫
+      //: `<页>-<栏>-cross`——找不着，`cross()` 于是 `return null`，**一声不响地什么也不画**。
+      //: 后果是整张二维截面空白：放电设计、脉冲、仿真三条栏的截面图长期没有内容，而
+      //: 运行本身是成功的（状态行照报位形误差与线圈电流），所以看起来像「图还没画好」。
+      //: ★没有任何闸子会喊：那条路上唯一的失败表达是一个 `null` 返回值，而调用点不看它。
+      //: ★这里给栏一份绑在**栏自己**解析器上的 `cross`；部件那一份原样留着（部件级的
+      //: 截面仍走它）。
+      api.cross = function (eq, opts) { return cross($, eq, opts); };
       api.$ = $;
       api.id = function (id) { var e = $(id); return e ? e.id : bpre + id; };
       api.scope = { getElementById: $ };

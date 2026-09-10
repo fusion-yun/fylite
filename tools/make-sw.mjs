@@ -34,7 +34,15 @@ const check = process.argv.includes('--check');
 
 //: directories that are not part of the published site (`build-site.sh` drops
 //: the same three) plus the ones a precache must not pull in
-const SKIP = new Set(['tests', 'server', 'facts', 'guide']);
+//: ★★`cases/` 不进预缓存，两条理由各自都够（2026-09-08）：
+//:   〔一〕**没有任何一页取它**。菜单 2026-09-01 退役之后，那些会话文档只由读者
+//:         自己挑了「导入」才进来，而那是一次**本地选文件**，根本不发请求——
+//:         预缓存一批谁也不取的字节，只是让第一次打开更慢。
+//:   〔二〕**公开版会少一份**（`build-site.sh` 按 `fylite:device` 撤下 EAST 那
+//:         一份）。而 `cache.addAll` 是**全有或全无**：清单里有一个 404，整次
+//:         安装就失败，站点从此没有离线——一条比「少一个算例」严重得多的后果，
+//:         且它只在公开版上发作。
+const SKIP = new Set(['tests', 'server', 'facts', 'guide', 'cases']);
 const SKIP_FILE = /^(sw\.js|manifest\.webmanifest)$/;
 
 function walk(dir, base = '') {

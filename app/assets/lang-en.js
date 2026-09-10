@@ -5,6 +5,13 @@
 
 self.FyI18n.register('en', {
   // --- shared chrome --------------------------------------------------
+  //: ★★the strip's warning band is TWO sentences, because they say two
+  //: things whose scope differs: this one is how MATURE the build is (true of
+  //: every flavour, the public one included), the next is who may SEE this
+  //: copy (true of the internal one only).  As one sentence there would be no
+  //: way to publish half of it, and half is exactly what the public build
+  //: keeps (`tools/app-flavour.mjs`).
+  'chrome.alpha': 'ALPHA — PROOF OF CONCEPT',
   //: ★the internal-testing notice on the header strip.  It is a
   //: RESTRICTION, so it is translated rather than left in Chinese: a
   //: reader who cannot read the notice is a reader who has not been told.
@@ -75,6 +82,7 @@ self.FyI18n.register('en', {
   'design.row.du': 'δ upper',
   'design.row.dl': 'δ lower',
   'io.label.gfile': 'g-file',
+  'io.label.coils': 'coil currents (discharge session)',
   'io.label.json': 'JSON session',
   'dev.label': 'Device',
   'dev.imported': 'Loaded device <strong>{name}</strong> ({coils} coils, {loops} flux loops); re-initialising with it…',
@@ -161,12 +169,13 @@ self.FyI18n.register('en', {
   'design.col.value': 'Value',
   'design.pprime_cap': 'p′(ψ̄): the analytic profile shape set in “Profile exponents”, with its absolute scale fixed by normalising to I<sub>p</sub>.',
   'design.ffprime_cap': 'FF′(ψ̄): the poloidal-current channel of the same analytic profile. β<sub>0</sub> sets the mix between the two.',
-  'design.hist_cap': 'Shape error over the annealing passes (normalised RMS across the shape measures).',
+  'design.hist_cap': 'Shape error over the annealing passes (normalised RMS across the shape measures). ★<strong>This curve does not move with I<sub>p</sub></strong>: with the profile shape fixed and no channel declaring a current limit, the iso-flux design is <strong>homogeneous of degree one</strong> in the currents — I<sub>p</sub> sets the scale, not the shape. Measured (ITER, 7.5 → 15 MA): the shape error stays at 0.1706 to the last digit while the virtual vertical feedback current doubles exactly, −10 233.8 → −20 467.6 kA, and β<sub>N</sub> halves exactly, 0.139 → 0.069; EAST likewise (400 → 800 kA, error 0.1039 unchanged). ★The homogeneity breaks the moment a channel declares a limit and binds against it — none of the devices in this distribution declares one.',
   'design.curr_cap': 'PF channel currents before (grey) and after (blue) the inverse solve.',
   // dynamic
   'design.leg.lcfs': 'Plasma boundary',
   'design.leg.target': 'Target boundary',
   'design.leg.ref': 'Reference discharge',
+  'design.leg.gap': 'more than {tol} cm from target',
   'design.leg.axis': 'Magnetic axis (achieved)',
   'design.leg.opoint': 'O-point (drag to set R₀/Z₀)',
   'design.leg.xpoint': 'X-point (draggable)',
@@ -671,7 +680,17 @@ self.FyI18n.register('en', {
   'recon.solving': 'Reconstructing (this may take a second or two)…',
   'recon.done': 'Reconstruction converged: {iter} outer iterations, residual {res}, weighted χ² = {chi2}',
   'recon.fail': 'Reconstruction failed ({where}): {why}',
-  'recon.noref': 'This device descriptor carries no reference discharge. Reconstruction needs a set of PF coil currents to build the vacuum field first — design one in the shape-and-coil-currents bar of the Discharge design scenario, or add a reference discharge to the device.',
+  'recon.c.import_hint': 'Import a <strong>discharge-design session</strong>; this bar takes only the <strong>channel currents</strong> from it — the synthetic twin builds its vacuum field and its measurements from them. On a device with no reference discharge, this is the step that makes this bar computable.',
+  'recon.c.export_hint': 'Write the channel currents this bar is using as a discharge session — take it back to the design scenario and keep working on it.',
+  'recon.c.noloops': 'The channel currents are in, but <strong>this device descriptor carries no flux loops and no magnetic probes</strong> — the synthetic twin takes readings on diagnostics, and with none there is nothing to measure. That other half arrives the same way: import a <strong>device description that carries flux loops</strong>. The three devices bundled with this distribution have coil channels only.',
+  'recon.c.taken_noloops': 'Took the {n} channel currents. But <strong>this device descriptor carries no flux loops</strong>, so this bar still cannot run — the kernel requires at least one (measured: probes alone are not enough; it refuses with «the device declares no flux loops»). ★ITER\'s machine description carries 931 poloidal probes and 261 <strong>partial (saddle) flux loops</strong>, and the latter are a different observable: this project models a flux loop as a point sensor at (r,z), so taking a saddle loop as a point would enter the fit under the wrong model without erroring — the card therefore records «261 not taken». That other half arrives the same way: import a <strong>device description carrying point flux loops</strong>.',
+  'recon.c.other_machine': 'That file was written for <strong>{was}</strong>; the current device is <strong>{now}</strong>. An equal channel count is not the same channel table — currents matched by position carry no physical meaning.',
+  'recon.c.unstamped': '★That file does not record which machine it was written for (exported before 2026-09-08), so this page <strong>cannot tell</strong> — satisfy yourself that it is this one.',
+  'recon.c.ready': 'The vacuum field is built from <strong>{name}</strong>\'s {n} channel currents — the <strong>synthetic twin</strong> can now be run. ★The real-measurement tab stays unavailable: a set of currents does not produce this machine\'s readings for a shot.',
+  'recon.c.absent': 'This discharge session carries no channel currents — it records the target shape only. The currents are <strong>computed</strong>: press the compute key in the discharge-design scenario, then export that one.',
+  'recon.c.wrong_len': 'That file carries {n} channel currents; this device has {want}. Two machines do not share a channel table, and currents matched by position carry no physical meaning. Use a file exported for this device.',
+  'recon.c.not_numbers': 'The channel currents contain a value that is not a number.',
+  'recon.noref': 'This device descriptor carries no reference discharge — reconstruction needs a set of PF coil currents to build the vacuum field. ★<strong>Hand those currents over with «import»</strong> (ruling of 2026-09-08): design a configuration in the discharge-design scenario, export its session, and import it here; the <strong>synthetic twin</strong> can then be run. The real-measurement tab asks for this machine\'s own readings from a shot, which this distribution does not carry.',
   'recon.g.export_hint': 'Write the reconstruction as an EFIT g-file',
   'recon.g.import_hint': 'Take the pressure profile and I_p from a g-file as the kinetic constraint',
   'recon.g.none': 'No result to export yet — run “Reconstruct” first.',
@@ -765,7 +784,7 @@ self.FyI18n.register('en', {
   'design.mark.diverted': 'diverted',
   'design.mark.limited': 'limiter',
   'design.mark.none': '—',
-  'design.done_far': '★The anneal finished but <strong>did not reach the target</strong>: pass {pass} taken (shape error {err}, tolerance {tol}). The figure and the coil currents are that pass\'s solution, not the configuration asked for — read the term-by-term deviations in “target vs achieved” first, then relax the target or change the start. {tail}',
+  'design.done_far': '★The anneal finished but <strong>did not reach the target</strong>: pass {pass} taken. <strong>Distance between the boundary and the target curve: RMS {gap} cm, tolerance {gaptol} cm</strong> (3 % of the minor radius — the same yardstick as the per-dimension length tolerance). The figure and the coil currents are that pass\'s solution, not the requested shape. ★There is also a shape error of {err} (tolerance {tol}): that is the normalised RMS of six shape measures and answers «fatter, thinner, taller, shorter»; the verdict reads the distance above, which is in metres and holds for any topology. ★★The two are not measured on the same surface — the distance is taken on the <strong>separatrix</strong>, while the «target vs achieved» table below is taken on the <strong>inset surface ψ̄ = 0.995</strong> (which exists to avoid the X-point artefact), so that table reproduces neither number; what it tells you is which way each measure is off.{tail}',
   'design.starting': 'Designing the start for this target configuration…',
   'design.started': 'Start designed: boundary flux spread {rms} Wb{x}, {n} channels on their bound. Press “inverse solve” to anneal from here.',
   'design.started_x': ', |B| at the X point = {b} T',
@@ -884,6 +903,7 @@ self.FyI18n.register('en', {
   'design.legs.ok': 'Asked for “{cls}”: {want} legs must land on the wall, {got} found.',
   'design.legs.miss': '★Asked for “{cls}”: {want} legs must land on the wall, {got} found; the boundary solved is “{got_cls}”. <strong>This run did not make the configuration it was asked for</strong> — nothing is clipped and nothing is redefined.',
   'design.class_tail': '; ★but the boundary class is not the “{cls}” that was asked for',
+  'design.nulls_tail': '; ★it is diverted, but the X point is **not on the side that was asked for** — «{cls}» was requested and the null came out on the other side (which is why the shape measures are swapped top for bottom, and where the large term in the shape error comes from)',
   'design.state_class': 'class not reached',
   // ======================================================================
   // T-D18 · the double null: the start design takes a SET of field nulls

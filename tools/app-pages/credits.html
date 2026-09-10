@@ -206,7 +206,13 @@
 <ul>
   <li><a href="{{@repo}}/LICENSE">LICENSE</a>
       — <span>{{cr.full.license}}</span></li>
-  <li><a href="{{@repo}}/NOTICE">NOTICE</a>
+  <!-- ★★NOTICE 是**站点自己带的一份**，不是仓库里的一份（2026-09-08）。仓根没有
+       NOTICE：`095374f` 裁定它描述内核源码、随源码留在 fylite_kernel，而 Apache-2.0
+       §4(d) 的义务附着在**分发件**上，由分发的构建当场装入——轮子由
+       `tools/build-wheel.sh` 装，站点由 `tools/build-site.sh` 装。所以这条链接指向
+       本站根目录，而不是一个 404 的仓库路径。★在**未经构建的 `app/` 源树**里
+       预览时它取不到——那棵树不是分发件，别把这条改回仓库链接。 -->
+  <li><a href="NOTICE">NOTICE</a>
       — <span>{{cr.full.notice}}</span></li>
   <li><a href="{{@repo}}/{{@ackfile}}">{{@ackfile}}</a>
       — <span>{{cr.full.ack}}</span></li>

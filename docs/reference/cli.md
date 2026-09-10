@@ -38,6 +38,14 @@ fy list devices|experiments|scenarios|presets|facts|kernel|lines … [--facts PA
 
 一个词一个动词：起页面 · 搬数据 · 算 · 看。不带命令词时它跑 `app`，所以双击仍然可用。
 
+**全局选项**（命令词之前之后都收，每一屏用法上都印得到）：
+
+| 选项 | 作用 |
+| :--- | :--- |
+| `--nobanner` | 不印启动 banner。★关得掉的是招牌、许可行与版本行；**提示词关不掉**——那是使用条件，不是装饰。`$FY_NO_BANNER=1` 同效。 |
+
+banner 本来就只在 **stderr 是终端**时才印，所以 `fy list … --json \| jq` 那条流上不必给这个
+选项；它是给「终端里也不想看」的那一次用的。
 
 :::{note}
 **为什么只有一个可执行文件。** 2026-09-03 之前还有 `fylite-data` 与 `fylite-case` 两个

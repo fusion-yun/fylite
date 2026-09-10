@@ -1608,6 +1608,30 @@ FyScenario.whenDevices(function () {
     return { r0: +$('r0').value, a: +$('a').value, kappa: +$('kappa').value,
              deltaU: +$('du').value, deltaL: +$('dl').value, z0: +$('z0').value };
   }
+
+  /**
+   * 这一次要不要把**记录的那条边界**当目标交出去。
+   *
+   * ★★六个滑块生成的是一条 Miller 曲线——**处处光滑，画不出 X 点**。一台记着自己
+   * 分离面的机器（ITER 的 248 点，最尖处 91°）把边界压成六个数再重新生成，扔掉的正是
+   * 最要紧的那个特征；实测把目标设成机器自己刚实现的形状，误差仍有 0.0606（容差
+   * 0.0284），残差几乎全是这条往返自带的下限。
+   * ★★**但滑块不能因此失效**。判据是：六个控件是否仍停在「这台机器记录形状」给出的
+   * 那组缺省上。是——读者要的就是那条边界，交曲线；动过任何一个——读者要的是别的形状，
+   * 交六个数。两种情形页面都说得出用了哪一种（`design.target.curve` / `.miller`）。
+   */
+  function targetCurve() {
+    var rec = FyDevice.recordedShape(M);
+    if (!rec) return null;
+    var t = readTarget();
+    var same = ['r0', 'z0', 'a', 'kappa'].every(function (k) {
+      var el = $(k === 'kappa' ? 'kappa' : k);
+      var step = el && +el.step ? +el.step : 1e-3;
+      return Math.abs((k === 'kappa' ? t.kappa : t[k]) - rec[k]) <= 0.5 * step + 1e-9;
+    }) && Math.abs(t.deltaU - rec.du) <= 0.005 + 1e-9
+      && Math.abs(t.deltaL - rec.dl) <= 0.005 + 1e-9;
+    return same ? { r: rec.r, z: rec.z, source: rec.source } : null;
+  }
   //: ★T-D6′ — the delivered tier exists only where the machine brought a
   //: reference reconstruction with its profiles; everywhere else the
   //: select is pinned to the analytic family.
@@ -1742,13 +1766,20 @@ FyScenario.whenDevices(function () {
     }
     lastHandles = handles;
     S.cross(state, {
-      //: this page can switch to the whole-device frame, so the view is its
-      //: own choice rather than the component's cached one
+      //: ★★**缺省框住的是平衡计算区域**（2026-09-08 用户裁定）：网格盒 + 器壁 + 芯部
+      //: 等离子体，不含 PF 线圈。含线圈的那一框（`deviceView`）对 ITER 是 11 × 16 m，
+      //: 而等离子体只占中间 4.5 × 9.4 m 的一块——图上大半是空白与线圈框，要看的东西
+      //: 反而最小。线圈仍然一个不少，只是要**主动**勾「视野含全部 PF 线圈」，或者直接
+      //: 在图上滚轮缩小（缩放是 2026-09-08 加的）。
+      //: ★`null` 落到 `FyPlot.poloidal` 的缺省，就是 `M.grid` 本身——所以此时不会再
+      //: 画那圈点线网格盒（它与图框重合，画了只是加一条没有信息的线）。
       view: $('wide').checked ? FyPlot.deviceView(M) : null,
       coilLabel: coilLabel, coilFill: coilFill, handles: handles,
       target: flat,
       reference: $('showref').checked ? referenceLcfs : null,
       xpoint: state && state.bndKind === 1 ? [state.xptR, state.xptZ] : null,
+      //: ★判据落在图上：超出容差的那几段边界（容差与结论行判的是同一个数）
+      gapMarks: lastGapPts ? { pts: lastGapPts, tol: gapTol() } : null,
     });
     // the key lives outside the figure: in the wide device view there is no
     // spot inside the frame that does not cover a coil-current label
@@ -2335,6 +2366,13 @@ FyScenario.whenDevices(function () {
     if ($('showref').checked && referenceLcfs)
       items.push({ label: T('design.leg.ref'), color: col.alt, kind: 'line',
                    dash: [5, 3] });
+    //: ★★**画上去的信号必须在图例里有名字**（2026-09-08）。超差段是加粗的实现边界，
+    //: 与它本身同色——不给条目，读者看到的就是「这根线有几段特别粗」，而那正好是
+    //: 一个会被读成「渲染毛病」的样子。条目里带上容差，因为「超差」离开那个数就没有
+    //: 意义。
+    if (lastGapPts && FyPlot.gapSegments(lastGapPts, gapTol()).length)
+      items.push({ label: T('design.leg.gap', { tol: (gapTol() * 100).toFixed(1) }),
+                   color: col.lcfs, kind: 'line', width: FyPlot.GAP_WIDTH });
     items.push(
 
       { label: T('design.leg.axis'), color: col.fg, kind: 'plus' },
@@ -2469,6 +2507,7 @@ FyScenario.whenDevices(function () {
   // --- worker plumbing ------------------------------------------------------
 
   var beforeCurrents = null;
+  var lastGap = null, lastGapPts = null;
 
   function onReady(m) {
     //: ★the kernel being ready is not a request to compute.  This page used
@@ -2508,7 +2547,15 @@ FyScenario.whenDevices(function () {
     //: not reached what it was asked for, whatever the shape rows say.  This
     //: can only fire when a null WAS asked for — 限制器 leaves every line
     //: below exactly as it was.
-    var cmiss = classMet() === false;
+    //: ★★**「是偏滤器」不等于「是所要求的那种偏滤器」**（2026-09-08 实测）。
+    //: `classMet()` 只问 `bndKind === 1`——在哪一侧它不问。于是 ITER 上要**下**单零、
+    //: 解出来是**上**单零（磁轴 z = +1.613 m、δ 上 0.53 而 δ 下 0.26，与目标上下对调）
+    //: 时，结论行照样只报一个偏大的位形误差，读起来像「精度不够」，而实际是**上下颠倒**。
+    //: ★侧别判据本来就有（`nullsAsAsked()`，双零那条注释写得很清楚：两个零点被拖到
+    //: 同一侧就不是双零），但它只用在判据面板上打勾/叉——两条判据不一致时，宽的那条
+    //: 在决定结论。这里把窄的那条并进来。
+    var nmiss = nullsAsAsked() === false;
+    var cmiss = classMet() === false || nmiss;
     outcome = { from: 'solve', reached: shapeRowsWithin() && !cmiss,
                 err: null, tol: null, classMet: classMet() };
     //: ★T-M16 — the verdict word is the KERNEL's three-way answer, not a
@@ -2532,6 +2579,9 @@ FyScenario.whenDevices(function () {
 
   function onDesign(m) {
     state = m.result;
+    lastGap = m.gap || null;
+    //: ★逐点距离：给图上标「哪几段超差」用（`S.cross` 的 `gapMarks`）。
+    lastGapPts = m.gapPoints || null;
     setCurrents(m.chan);
     draw();
     lastHistory = m.history;
@@ -2545,12 +2595,29 @@ FyScenario.whenDevices(function () {
     //: ★T-D6, as in `onSolve`: the class that was asked for is part of what
     //:「达到目标」 means.  `classMet()` is `null` under 限制器, so this term
     //: cannot change a single limiter design.
-    var cmiss = classMet() === false;
-    if (cmiss) tail += T('design.class_tail', {
+    //: ★★**「是偏滤器」不等于「是所要求的那种偏滤器」**（2026-09-08 实测）。
+    //: `classMet()` 只问 `bndKind === 1`——在哪一侧它不问。于是 ITER 上要**下**单零、
+    //: 解出来是**上**单零（磁轴 z = +1.613 m、δ 上 0.53 而 δ 下 0.26，与目标上下对调）
+    //: 时，结论行照样只报一个偏大的位形误差，读起来像「精度不够」，而实际是**上下颠倒**。
+    //: ★侧别判据本来就有（`nullsAsAsked()`，双零那条注释写得很清楚：两个零点被拖到
+    //: 同一侧就不是双零），但它只用在判据面板上打勾/叉——两条判据不一致时，宽的那条
+    //: 在决定结论。这里把窄的那条并进来。
+    var nmiss = nullsAsAsked() === false;
+    var cmiss = classMet() === false || nmiss;
+    if (classMet() === false) tail += T('design.class_tail', {
       cls: T('design.class.' + boundaryClass()) });
+    else if (nmiss) tail += T('design.nulls_tail', {
+      cls: T('design.class.' + boundaryClass()) });
+    //: ★距离**不再挂在尾巴上**：它已经是主句里被判的那个量（2026-09-08 同日两改——
+    //: 先只报不判时它是尾注，改判之后尾注就成了同一句话说两遍）。最大值仍值得说，
+    //: 但它属于「判据面板」而不是结论行。
+    //: ★判定改在距离上；拿不到距离（旧内核）就回落到六项 RMS——一个还没有这项事实的
+    //: 内核不该让页面判不出结果，但它也不该被当成「距离为零」。
+    var gapOk = (lastGap && isFinite(lastGap.rms)) ? lastGap.rms <= gapTol() : null;
     outcome = { from: 'design', err: err, tol: shapeErrorTol(),
-                classMet: classMet(),
-                reached: m.pass !== 0 && err <= shapeErrorTol() && !cmiss };
+                gap: lastGap, gapTol: gapTol(), classMet: classMet(),
+                reached: m.pass !== 0 && !cmiss
+                         && (gapOk === null ? err <= shapeErrorTol() : gapOk) };
     if (m.pass === 0) {
       // saying only "pass 0" reads like success; the figure is then
       // the STARTING configuration and looks like it never redrew
@@ -2561,7 +2628,7 @@ FyScenario.whenDevices(function () {
       setBusy(false, T('design.state_none', { err: err.toFixed(4) }), 'warn');
       $('status').innerHTML = T('design.done_none', {
         n: m.history.length - 1, err: err.toFixed(4), tail: tail });
-    } else if (err > shapeErrorTol()) {
+    } else if (gapOk === null ? err > shapeErrorTol() : !gapOk) {
       //: ★"finished" is not "reached".  This bar used to report a design
       //: that missed its target by half a metre in the same words it uses
       //: for one that landed on it — measured across the bundled devices,
@@ -2570,18 +2637,27 @@ FyScenario.whenDevices(function () {
       //: the anneal minimises, against the same per-dimension tolerance
       //: the deviation table marks with.
       setBusy(false, T('design.state_far', { err: err.toFixed(4) }), 'warn');
+      //: ★★结论行**先说被判的那个量**（2026-09-08 起是距离）。`{gap}` / `{gaptol}` 是
+      //: 厘米；六项 RMS 仍然报，但它现在是旁证，不是判据。拿不到距离（旧内核）时两个
+      //: 位置都填「—」，句子照样读得通——而不是印一个看着像零的数。
       $('status').innerHTML = T('design.done_far', {
         pass: m.pass, err: err.toFixed(4),
+        gap: (lastGap && isFinite(lastGap.rms)) ? (lastGap.rms * 100).toFixed(1) : '—',
+        gaptol: (gapTol() * 100).toFixed(1),
         tol: shapeErrorTol().toFixed(4), tail: tail });
     } else if (cmiss) {
       //: the shape landed and the topology did not — a distinct outcome from
       //: both 「达到」 and 「差得远」, and it gets its own marker
       setBusy(false, T('design.state_class'), 'warn', 'miss');
       $('status').innerHTML = T('design.done', { pass: m.pass, tail: tail,
-              err: err.toFixed(4) });
+              err: err.toFixed(4),
+              gap: (lastGap && isFinite(lastGap.rms)) ? (lastGap.rms * 100).toFixed(1) : '—',
+              gaptol: (gapTol() * 100).toFixed(1) });
     } else {
       setBusy(false, T('design.done', { pass: m.pass, tail: tail,
-              err: err.toFixed(4) }));
+              err: err.toFixed(4),
+              gap: (lastGap && isFinite(lastGap.rms)) ? (lastGap.rms * 100).toFixed(1) : '—',
+              gaptol: (gapTol() * 100).toFixed(1) }));
     }
     handed();
   }
@@ -2646,7 +2722,34 @@ FyScenario.whenDevices(function () {
    * marked good and whose status line says it failed would be telling the
    * reader two things at once.  Each of the five terms is at its own
    * tolerance, so the RMS of the normalised terms is that value.
+   *
+   * ★★**而那个意图今天并不成立，原因不在这个式子里**（2026-09-08 实测）。这条容差
+   * 判的是内核退火报出的 `history_err`，它把形状量在**分离面**上量（`discharge_case`
+   * 的 `measure`：`trace(..., res.psi_bnd, ...)`）；而下面那张表的「实现」列量在
+   * **内缩面 ψ̄ = 0.995** 上（`summarize` 传 `inset: BOUNDARY_INSET`，内核 criteria
+   * 那一路 `lev_b = psi_axis + span*(1 - inset)`）。内缩面的存在正是为了躲开 X 点处的
+   * 假象，所以对偏滤器位形两者差得不小。实测（各为同一次运行内取数）：缺省装置报
+   * 0.1039 而按表复算 0.0671（表低 1.55 倍），ITER 报 0.1706 而按表复算 0.2055（表高）
+   * ——**两个方向都偏**，所以这不是一个可换算的常数因子。于是「六行全绿、结论说未
+   * 达标」恰恰是可能的：这个式子想防的那件事，被两个面的差别绕了过去。
+   * ★真正的修法在内核那一侧：让退火的目标函数与判据量在**同一个面**上（把
+   * `measure` 也放到 ψ̄ = 1 − inset），那会改变所有设计出来的电流，要连基准一起过。
+   * 在那之前，这里只把话说清楚，不把两个数硬凑成一个。
    */
+  /**
+   * 「达到目标」现在判在**边界到目标曲线的距离**上：RMS ≤ 3 % 的小半径。
+   *
+   * ★★**没有新造一个数**：现行逐维容差对长度就是 `SHAPE_TOL_REL = 0.03`（按小半径），
+   * 这里是同一把尺换了个被量的东西——从「六个形状量的坐标差」换成「边界离所要的那条
+   * 线有多远」。后者是米，读者能直接判断，且对任何拓扑都成立（X 点不再是表示不了的
+   * 东西）；前者答的是「胖了瘦了高了矮了」。
+   * ★★**这不是把标准放松到能通过**：换判据那天三台机器的 RMS/a 是 0.0675（缺省装置）·
+   * 0.0505（ITER）· 0.0966（EAST），一台也不过。换的是量什么，不是量到多少算过。
+   * ★内核那侧的**选趟**同批改判距离——判据与被优化的量必须是同一个东西，那正是同日
+   * 在「分离面 vs 内缩面」上修掉的毛病，不该在这里再造一次。
+   */
+  function gapTol() { return SHAPE_TOL_REL * (+$('a').value || 1); }
+
   function shapeErrorTol() {
     var kap = Math.max(+$('kappa').value, 1e-6);
     var k = SHAPE_TOL_ABS / kap;      // the kappa term is normalised by kappa
@@ -2910,7 +3013,7 @@ FyScenario.whenDevices(function () {
     $('progress').style.width = '0';
     S.send({
       cmd: 'design', chan: Array.from(beforeCurrents),
-      target: readTarget(), prof: readProf(), ip: readIp(),
+      target: readTarget(), targetCurve: targetCurve(), prof: readProf(), ip: readIp(),
       schedule: annealSchedule, gamma: +$('gamma').value, nPoints: 24,
       //: ★says this anneal begins at a DESIGNED state, which is what
       //: entitles its first solve to the design's own field and to the
@@ -4847,8 +4950,7 @@ FyScenario.whenDevices(function () {
     var target = shapeAt(ph, t);
     var solved = checkAt(t);
     var eq = null;
-    var o = { canvas: 'cross', fitDevice: true,
-              target: boundaryFlat(target) };
+    var o = { canvas: 'cross', target: boundaryFlat(target) };
     if (solved && solved.shape) {
       //: ★the ACHIEVED boundary, rebuilt from the metrics the solve reported
       //: — the worker sends the shape of the verified equilibrium, not its
@@ -5539,7 +5641,7 @@ FyScenario.whenDevices(function () {
   }
 
   function drawCross() {
-    var o = { canvas: 'cross', fitDevice: true, target: targetFlat() };
+    var o = { canvas: 'cross', target: targetFlat() };
     S.cross(eq, o);
     var col = FyPlot.palette($('cross'));
     $('cross-legend').innerHTML = FyPlot.legendHTML([

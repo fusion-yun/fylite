@@ -444,6 +444,13 @@ function designPlan(msg, o) {
     discharge['fylite:control_row'] = controlTable(o.ctl);
   }
   if (msg.iMax && msg.iMax.length) discharge['fylite:i_max_aturn'] = Array.from(msg.iMax);
+  //: ★★**目标曲线本身**（2026-09-08）：给了它，内核就不再由六个数经 `miller_boundary`
+  //: 生成目标——那条解析曲线画不出 X 点，而评分的六个量也改由这条曲线自己量出，于是
+  //: 拟合的目标与评分的目标是同一个东西。没给就照旧。
+  if (msg.targetCurve && msg.targetCurve.r && msg.targetCurve.r.length >= 8) {
+    discharge['fylite:target_r'] = Array.from(msg.targetCurve.r);
+    discharge['fylite:target_z'] = Array.from(msg.targetCurve.z);
+  }
   var inputs = { device: deviceDoc() };
   if (o.stage === 'start') {
     settings.stage = 'start';
@@ -501,6 +508,9 @@ function designRun(msg) {
   try { rec = fy.complete('code/discharge', designPlan(msg, { stage: 'anneal', nulls: nulls, ctl: ctl })); }
   catch (e) { post({ type: 'error', where: 'design', message: e.message }); return; }
   var F = function (k) { return rec.facts[k].value; };
+  //: ★缺项给 null，不给 0：一个还没有这项事实的内核，与一个「距离为零」的设计，
+  //: 在页面上必须长得不一样。
+  var F2 = function (k) { return rec.facts[k] ? rec.facts[k].value : null; };
   var chan = Float64Array.from(rec.fields.aturns.data);
   var res = {
     psi: fieldFlat(rec, 'psi'), psiAxis: F('psi_axis'), psiBnd: F('psi_bnd'),
@@ -535,7 +545,15 @@ function designRun(msg) {
     history.push(entry);
     post({ type: 'progress', phase: 'design', pass: pass, total: total, err: he[i] });
   }
-  post({ type: 'design', chan: chan, result: sum, pass: F('pass'),
+  //: ★★第二个判据（2026-09-08，先只报不判）：实现的**分离面**与目标曲线之间的距离。
+  //: `shape_error` 是六个形状量的归一化 RMS——形状族里的坐标差；这个是米，答的是
+  //: 「边界离所要的那条线有多远」，而且对任何拓扑都成立。
+  var gap = { rms: F2('boundary_gap_rms'), max: F2('boundary_gap_max'),
+              norm: F2('boundary_gap_rms_norm') };
+  //: ★逐点距离：一个 RMS 说不出「整体偏一点」与「某一段翘起来」的差别，而两者的对策
+  //: 完全不同。[r, z, d] × n，页面据此可以给边界上色。
+  post({ type: 'design', chan: chan, result: sum, pass: F('pass'), gap: gap,
+         gapPoints: rec.fields.boundary_gap_point ? fieldFlat(rec, 'boundary_gap_point') : null,
          history: history, targetBoundary: fieldFlat(rec, 'target_boundary') },
        [sum.psi.buffer, sum.lcfs.buffer]);
 }
@@ -3095,6 +3113,16 @@ self.onmessage = function (ev) {
     // A worker has no localStorage, so it cannot see the page's choice —
     // the page tells it, and error text comes back in the right language.
     if (msg.lang) FyI18n.use(msg.lang);
+    //: ★★页面编译好的那一份（2026-09-08）。收下就不再自己取——一份 1.68 MB 的
+    //: 模块此前每个领域各取一遍。**必须排在 `init` 之前**：`init` 一旦开始就会
+    //: `attach`，那时再给已经晚了。发送方（`scenario.js` / `scenario-model.js`）
+    //: 因此把这条排在队首，其余命令等它发完再发。
+    //: ★收不到也照常能跑：`attach` 会自己取，只是多一次下载。
+    if (msg.cmd === 'wasm') {
+      self.FyLite.adoptModule(msg.url, { module: msg.module, sha256: msg.sha256,
+                                         bytes: msg.bytes });
+      return;
+    }
     if (msg.cmd === 'init') return init(msg.machine);
     //: ★needs BOTH modules: the core solves, tglf closes.  They never call
     //: each other — chi crosses between them as plain numbers on this side —

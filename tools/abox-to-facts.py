@@ -351,6 +351,166 @@ def _channels(entries, kind: str) -> list[dict]:
     return out
 
 
+def reference_boundary(dev_dir: pathlib.Path, manifest: dict) -> dict | None:
+    """这台机器**自己记着的目标位形**——参考分离面，一条，由 A-Box 指名。
+
+    ★★为什么卡片要带它（2026-09-08）。页面的「默认目标位形」此前是从限制器包围盒
+    **推**出来的（`a = 0.66·amax` · `κ = 1.65` · `δ` 定值，见 `app/assets/device.js`
+    的 `ranges()`）——对没有记录形状的机器那是个合理的起点，但对**记着自己形状**的
+    机器，它是拿一个几何猜测去覆盖一份真数据。实测后果：ITER 的设计环恒定停在位形
+    误差 0.0707（容差 0.0284），四次一模一样——不是没收敛，是那个目标它够不着。
+
+    ★**不猜哪一条**：A-Box 的 `reference.separatrix` 列了四条，缺省由 `default` 指名
+    （fydoc 2026-09-08 定为 `digitized_2`，理由记在那里：四条里唯一判 `partial`、
+    主段与 ITER 官方目标分离面吻合的一条）。没有 `default` 就返回 None——挑哪一条是
+    数据的事，不是转换器的事。
+
+    ★NaN 按原样存在源里（断口），这里丢掉：一条要当目标用的曲线不能带断点。
+    """
+    ref = (manifest.get("reference") or {}).get("separatrix") or {}
+    which = ref.get("default")
+    if not which or which not in ref:
+        return None
+    rel = str(ref[which])
+    #: A-Box 记的是 fydata 那侧的相对路径（`fyo/latest/reference/<x>.yaml`）；
+    #: fydoc 这侧同名文件在 `abox/reference/` 下，扩展名是 `.jsonld`。
+    cand = [_abox(dev_dir) / "reference" / (pathlib.Path(rel).stem + ".jsonld"),
+            _abox(dev_dir) / rel]
+    src = next((c for c in cand if c.is_file()), None)
+    if src is None:
+        return None
+    doc = _load(src)
+    ts = doc.get("time_slice")
+    slice0 = ts[0] if isinstance(ts, list) and ts else ts
+    found: dict = {}
+
+    def dig(o, depth=0):
+        if depth > 6 or found.get("r") is not None:
+            return
+        if isinstance(o, dict):
+            if isinstance(o.get("r"), list) and isinstance(o.get("z"), list):
+                found["r"], found["z"] = o["r"], o["z"]
+                return
+            for v in o.values():
+                dig(v, depth + 1)
+        elif isinstance(o, list) and o:
+            for v in o[:4]:
+                dig(v, depth + 1)
+
+    dig(slice0)
+    r, z = found.get("r"), found.get("z")
+    if not r or not z:
+        return None
+    pts = [(float(a), float(b)) for a, b in zip(r, z)
+           if a is not None and b is not None
+           and math.isfinite(float(a)) and math.isfinite(float(b))]
+    if len(pts) < 16:
+        return None
+    return {"@type": "fyo:reference_boundary",
+            "fylite:source": _cite(src),
+            "fylite:which": which,
+            "r": [p[0] for p in pts], "z": [p[1] for p in pts],
+            "fylite:dropped_non_finite": len(r) - len(pts)}
+
+
+def payload(doc: dict, path: pathlib.Path) -> dict:
+    """壳 + 同目录 payload：把 `.h5` 里的数值读回文档里。
+
+    ★★**为什么会有「壳」这种东西**。ITER 的 magnetics 提供者
+    `providers/magnetics/imas_md.jsonld` 只放标识 / 类型 / 出处 / 许可，数值存在同目录的
+    `imas_md.h5`（485 KB）——那是 fydoc 那侧的裁定，理由写在它自己的 `dev:payloadNote`
+    里：摊成 JSON-LD 约 1 399 951 字节，改一个标量要整文件重写，读回要先解析全文。
+
+    ★★而本转换器此前**只读 JSON / YAML**，于是这一组安静地空了出来，卡片上写着
+    `flux_loop: []`——空组读作「ITER 没有磁测量」，那是假的（实测：261 环 · 931 极向
+    探针 · 45 环向 · 341 Rogowski）。这个函数就是把那句「读不了」变成「读得了」。
+
+    ★**md5 要核**：壳自己记着 payload 的 md5 与字节数。核对不上就当场停——一份与壳
+    对不上的 payload，比没有 payload 更坏：它会以壳的名义（出处、许可）被发出去。
+    """
+    pay = doc.get("dev:payload")
+    if not isinstance(pay, dict) or pay.get("dev:format") != "hdf5":
+        return doc
+    name = str(pay.get("dev:filename") or "")
+    h5path = path.parent / name
+    if not h5path.is_file():
+        raise SystemExit(f"{path}: 壳指着 payload {name}，而它不在同目录")
+    raw = h5path.read_bytes()
+    want_md5, want_len = pay.get("dev:md5"), pay.get("dev:bytes")
+    if want_len is not None and len(raw) != int(want_len):
+        raise SystemExit(f"{h5path}: {len(raw)} 字节，壳记的是 {want_len}")
+    if want_md5:
+        import hashlib
+        got = hashlib.md5(raw).hexdigest()
+        if got != want_md5:
+            raise SystemExit(f"{h5path}: md5 {got} != 壳记的 {want_md5}")
+    try:
+        import h5py
+    except ImportError:
+        raise SystemExit(
+            f"{path}: 这份提供者的数值在 {name} 里，读它要 h5py（pip install h5py）")
+    import numpy as np
+
+    def txt(a):
+        return [x.decode() if isinstance(x, bytes) else str(x) for x in a]
+
+    out = dict(doc)
+    with h5py.File(h5path, "r") as f:
+        g = f.get("magnetics")
+        if g is None:
+            return out
+        #: ★★**分段环不是点环，两者不可混**（实测 2026-09-08）。IMAS 的
+        #: `flux_loop.position` 是一串点：EAST 的 35 环每环 **1** 个点（整周环，测的是
+        #: 该处的极向磁通 ψ），ITER 这 261 环每环 **5** 个点（`Partial Flux Loops`，
+        #: 鞍形，测的是所围面积上的磁通）。本仓的反演把磁通环当作 (r,z) 上的点传感器
+        #: ——把五点鞍形环取第一个顶点塞进去，得到的不是「精度差一点的环」，而是
+        #: **另一个物理量按错误的模型参与拟合**，而它照样能算出一张图。所以这里只收
+        #: 单点环，多点的逐条记下并说明为什么没收。
+        if "flux_loop" in g:
+            fl = g["flux_loop"]
+            pos = fl["position"]
+            off = pos["__offsets"][:] if "__offsets" in pos else None
+            r, z = pos["r"][:], pos["z"][:]
+            names = txt(fl["name"][:]) if "name" in fl else []
+            desc = txt(fl["description"][:]) if "description" in fl else []
+            loops, skipped = [], []
+            n = len(names) if names else (len(off) - 1 if off is not None else len(r))
+            for i in range(n):
+                lo, hi = (int(off[i]), int(off[i + 1])) if off is not None else (i, i + 1)
+                nm = names[i] if i < len(names) else f"FL{i}"
+                if hi - lo != 1:
+                    skipped.append({"name": nm, "points": hi - lo,
+                                    "description": desc[i] if i < len(desc) else ""})
+                    continue
+                loops.append({"name": nm,
+                              "position": [{"r": float(r[lo]), "z": float(z[lo])}]})
+            out["flux_loop"] = loops
+            if skipped:
+                out["fylite:flux_loop_not_taken"] = {
+                    "count": len(skipped),
+                    "why": ("多点（分段 / 鞍形）磁通环：本仓的反演模型把磁通环当作 "
+                            "(r,z) 上的点传感器，测的是该处的极向磁通；分段环测的是"
+                            "所围面积上的磁通，是另一个观测量。按点收进来会以错误的"
+                            "模型参与拟合，且不会报错。"),
+                    "names": [s["name"] for s in skipped[:8]],
+                }
+        #: 极向探针两侧同型：点 + 极向角，直接可用。
+        if "b_field_pol_probe" in g:
+            bp = g["b_field_pol_probe"]
+            r, z = bp["position"]["r"][:], bp["position"]["z"][:]
+            names = txt(bp["name"][:]) if "name" in bp else []
+            ang = bp["poloidal_angle"][:] if "poloidal_angle" in bp else None
+            probes = []
+            for i in range(len(r)):
+                item = {"name": names[i] if i < len(names) else f"BP{i}",
+                        "position": [{"r": float(r[i]), "z": float(z[i])}]}
+                if ang is not None and np.isfinite(ang[i]):
+                    item["poloidal_angle"] = float(ang[i])
+                probes.append(item)
+            out["b_field_pol_probe"] = probes
+    return out
+
+
 def magnetics(doc: dict, source: str) -> dict:
     """★The DD's own ARRAYS — the canonical spelling (`@fyo-table DEVICE`).
 
@@ -366,6 +526,12 @@ def magnetics(doc: dict, source: str) -> dict:
     if not probes:
         out["fylite:b_field_pol_probe_absent"] = (
             "the upstream magnetics description carries flux loops only")
+    #: ★★**没收进来的，要在卡片上留痕**（2026-09-08）。`payload()` 会拒收多点（分段 /
+    #: 鞍形）磁通环——那是另一个观测量，按点收会以错误的模型参与拟合而不报错。但只在
+    #: 转换器里拒收是不够的：卡片上只剩 `flux_loop: []`，下一个人读作「这台机器没有
+    #: 磁通环」，然后去「修」它。把拒收的条数与理由一并写在卡片上，那句「没有」才有出处。
+    if doc.get("fylite:flux_loop_not_taken"):
+        out["fylite:flux_loop_not_taken"] = doc["fylite:flux_loop_not_taken"]
     if doc.get("provenance"):
         out["fylite:upstream"] = doc["provenance"]
     return out
@@ -603,8 +769,16 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
             "pf_active", "the upstream tree carries no pf_active IDS")
         doc["pf_active"]["coil"] = []
 
+    #: ★这台机器自己记着的目标位形，见 `reference_boundary()` 的抬头。没有就没有
+    #: ——页面那边照旧从包围盒推一个起点。
+    rb = reference_boundary(dev_dir, manifest)
+    if rb:
+        doc["fylite:reference_boundary"] = rb
+
     if "magnetics" in files:
-        doc["magnetics"] = magnetics(_load(files["magnetics"]), rel["magnetics"])
+        doc["magnetics"] = magnetics(
+            payload(_load(files["magnetics"]), files["magnetics"]),
+            rel["magnetics"])
         #: ★★**解析得到一个文件、而那个文件不带内容**，与「上游没有这个 IDS」是
         #: 两件事，必须分开说。实测 2026-09-04：ITER 的默认 magnetics 提供者
         #: `providers/magnetics/imas_md.jsonld` 是一份**元数据旁挂**（出处 + 许可，

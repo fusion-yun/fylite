@@ -1,16 +1,20 @@
+---
+title: "ITER 平顶位形（自由边界反解）：Grad–Shafranov 与几何定义"
+---
+
 # ITER 平顶位形（自由边界反解）：Grad–Shafranov 与几何定义
 
 - 算例 (case)：`docs/examples/design/discharge-iter`
 - 判决 (verdict)：**未评估**（unevaluated）
 - 产出 (datasets)：—
 - 记录 (record)：`—`
-- 日期：2026-09-04
+- 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
 
 ## 没有产出
 
-本条**没有可判的产出**：the kernel rejected the case: refused: [-30] no code `code/discharge`: the kernel completes `code/evolve` / `code/zerod` / `code/transport` and the raw entries `entry/zerod` / `entry/transport` / `entry/profit` / `entry/vstab` / `entry/evolve_heat`
+本条**没有可判的产出**：the kernel rejected the case: refused: [-33] code/discharge takes the whole device document and is reached through the tree door only
 
 ★这不是「通过」也不是「未通过」——判决是 `unevaluated`，统计表把它单列。
 

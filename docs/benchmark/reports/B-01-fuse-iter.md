@@ -10,10 +10,10 @@ title: B-01 · FUSE 的 ITER 算例，四层
 | **参考** | FUSE · 0.7.0 · Apache-2.0 |
 | **对象** | fylite: 台基代理 / 0-D 聚变通道 / 算例文档 / TGLF deck 装配 |
 | **算例** | `scenario/iter-15ma-flattop`（ITER 15 MA 感应燃烧，平顶段） |
-| **数据** | 见 §5 表（3 项，纳入类别 public） |
+| **数据** | 见 §5 表（3 项，纳入类别 public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_fuse_benchmark.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——9 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——9 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -35,6 +35,16 @@ title: B-01 · FUSE 的 ITER 算例，四层
 - （场景）★这是一个准稳态窗口：参考自己的 T_e(0) 在 16 s 内只走 −5.2 %，「什么都不做」的全剖面 RMS 就是 4.07 %。任何模型跑完若不比这条线好，它什么也没说。
 - （场景）参考侧只解电流与电子温度两条方程；T_i 与 n_e 是给定的（见各 record 的 prescribes）。
 
+## 3. 量到的（图）
+
+:::{figure} ../figures/B-01-band.svg
+:alt: B-01 量到的数对它被判的判据
+:width: 100%
+
+**结果对标准**：每一条量到的数画在它被判的那条带上，竖线是判据本身，条越短余量越大。判定栏只说「成立」，这张图说**差多少**。
+:::
+
+
 ## 3. 结果（登记册所记）
 
 | 项 | 偏差 | 种类 | 判 | 备注 |
@@ -44,7 +54,7 @@ title: B-01 · FUSE 的 ITER 算例，四层
 | 算例文档 vs 实跑位形 | kappa +0.32 % / delta +3.7 % / Ip +1.5 % |  | 成立 | Ip 那 1.5 % 不是错：ini 请求 15 MA，平衡解出 14.78 MA |
 | TGLF deck 装配（七面） | 几何 0.5 % / 密度梯度 0.4 % / 成分逐位 |  | 成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -56,15 +66,15 @@ title: B-01 · FUSE 的 ITER 算例，四层
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_eped.json | sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1 | public | 1491 B |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public | 25616 B |
-| $FYDOC_ORACLE/FYDOC-CASE-04-fuse/corpus/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public | 55840 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_eped.json | sha256:8d5ac6223a78883d6b1a9aadadd047d1c426beb474b7c22e440806f16b2cd2d1 | public-derived | 1491 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public-derived | 25616 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public-derived | 55840 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_fuse_benchmark.py
@@ -72,4 +82,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

@@ -7,7 +7,12 @@
 
 self.FyI18n.register('zh', {
   // --- shared chrome --------------------------------------------------
-  //: ★头条上的内部测试警示。放在 chrome 里而不是逐页写死：四页共一句话，
+  //: ★★头条上的警示带是**两句**，因为它们说的是两件事，而且两件事的
+  //: 有效范围不同：这一句讲**这份东西成熟到什么程度**（每一版都成立，公开版
+  //: 也成立），下一句讲**这一份能给谁看**（只有内部版成立）。写成一句话就没法
+  //: 只发出去半句——公开版要去掉的正是后者（`tools/app-flavour.mjs`）。
+  'chrome.alpha': 'alpha 版，用于概念验证',
+  //: ★内部测试警示。放在 chrome 里而不是逐页写死：四页共一句话，
   //: 逐页抄一遍就是四处可以各自过期的副本。
   'chrome.internal_only': '仅限内部测试，请勿公开传播！',
   'bar.fold': '收起这一栏',
@@ -74,6 +79,7 @@ self.FyI18n.register('zh', {
   'design.row.du': 'δ 上',
   'design.row.dl': 'δ 下',
   'io.label.gfile': 'g 文件',
+  'io.label.coils': '线圈电流（放电会话）',
   'io.label.json': 'JSON 会话',
   'dev.label': '装置',
   'dev.imported': '已载入装置 <strong>{name}</strong>（{coils} 个线圈、{loops} 道磁通环），正在按它重新初始化…',
@@ -160,12 +166,13 @@ self.FyI18n.register('zh', {
   'design.col.value': '值',
   'design.pprime_cap': 'p′(ψ̄)：由「剖面指数」一栏设定的解析剖面形状，按 I<sub>p</sub> 归一后定出绝对幅值。',
   'design.ffprime_cap': 'FF′(ψ̄)：同一解析剖面的极向电流通道。β<sub>0</sub> 决定两者的配比。',
-  'design.hist_cap': '退火迭代的位形误差（各形状量的归一化 RMS）。',
+  'design.hist_cap': '退火迭代的位形误差（各形状量的归一化 RMS）。★<strong>这条曲线不随 I<sub>p</sub> 动</strong>：剖面形状固定、又没有任何通道声明电流限值时，等磁通反解对电流是<strong>一次齐次</strong>的——I<sub>p</sub> 只定标度，不定形状。实测（ITER，7.5 → 15 MA）：位形误差 0.1706 一字不差，而虚拟垂直反馈电流 −10 233.8 → −20 467.6 kA 精确翻倍、β<sub>N</sub> 0.139 → 0.069 精确减半；EAST 同样（400 → 800 kA，误差 0.1039 不变）。★一旦某条通道声明了限值并被顶住，齐次性就断了，这条曲线也就会跟着 I<sub>p</sub> 动——本发行版的装置都没有声明限值。',
   'design.curr_cap': '各 PF 通道电流：反解前（灰）与反解后（蓝）。',
   // dynamic
   'design.leg.lcfs': '等离子体边界',
   'design.leg.target': '目标边界',
   'design.leg.ref': '参考放电',
+  'design.leg.gap': '离目标 > {tol} cm 的段',
   'design.leg.axis': '磁轴（实际）',
   'design.leg.opoint': 'O 点（拖动改 R₀/Z₀）',
   'design.leg.xpoint': 'X 点（可拖动）',
@@ -670,7 +677,17 @@ self.FyI18n.register('zh', {
   'recon.solving': '重构求解中（可能需要一两秒）…',
   'recon.done': '重构完成：{iter} 次外迭代，残差 {res}，加权 χ² = {chi2}',
   'recon.fail': '重构失败（{where}）：{why}',
-  'recon.noref': '本装置的描述里没有参考放电。重构要先有一组 PF 线圈电流来构造真空场——请到「放电设计」场景的「位形与线圈电流」一栏设计一组，或为该装置补上参考放电。',
+  'recon.c.import_hint': '导入一份<strong>放电设计会话</strong>，本栏只从中取<strong>通道电流</strong>：合成孪生按这组电流造真空场与测量。装置未带参考放电时，这是让本栏能算的那一步。',
+  'recon.c.export_hint': '把本栏正在用的那组通道电流写成一份放电会话——拿回「放电设计」场景就能接着改。',
+  'recon.c.noloops': '通道电流已收下，但<strong>这台装置的描述里没有磁通环，也没有磁探针</strong>——合成孪生要在诊断上取读数，没有诊断就没有可测的量。缺的这一半同样由「导入」补：一份<strong>带磁通环的装置描述</strong>。本发行版自带的三台机器只有线圈通道。',
+  'recon.c.taken_noloops': '已取 {n} 路通道电流。但<strong>这台装置的描述里没有磁通环</strong>，所以这一栏仍然算不了——内核要求至少一个磁通环（实测：只有磁探针不够，它会以「the device declares no flux loops」拒绝）。★ITER 的机器描述带着 931 个极向探针与 261 个<strong>分段（鞍形）磁通环</strong>，而后者是另一个观测量：本仓的反演把磁通环当作 (r,z) 上的点传感器，把分段环按点收进来会以错误的模型参与拟合、且不会报错，所以卡片上如实记着「未收 261 条」。缺的这一半由「导入」补：一份<strong>带点式磁通环的装置描述</strong>。',
+  'recon.c.other_machine': '这份文件是为 <strong>{was}</strong> 写的，而当前装置是 <strong>{now}</strong>。通道数相同也不等于同一张通道表——按位置套过来的电流没有物理意义。',
+  'recon.c.unstamped': '★这份文件没记它是为哪台机器写的（2026-09-08 之前导出的），所以本页<strong>认不出</strong>它属于哪一台——请自行确认它就是当前这台。',
+  'recon.c.ready': '已按 <strong>{name}</strong> 的 {n} 路通道电流建起真空场——<strong>合成孪生</strong>可以算了。★真实测量那一档仍不可用：一组电流不会生出这台机器某一炮的读数。',
+  'recon.c.absent': '这份放电会话里没有通道电流——它只记了目标位形。电流是<strong>算出来</strong>的：到「放电设计」场景按一次计算键，再导出那一份。',
+  'recon.c.wrong_len': '这份文件有 {n} 路通道电流，而本装置有 {want} 路——两台机器的通道表不是同一张，按位置硬套出来的电流没有物理意义。请用同一台装置导出的那一份。',
+  'recon.c.not_numbers': '通道电流里有不是数的值。',
+  'recon.noref': '本装置的描述里没有参考放电——重构要先有一组 PF 线圈电流来构造真空场。★<strong>用「导入」把那组电流交进来</strong>（2026-09-08 裁定）：到「放电设计」场景设计一组位形、导出会话，再在这一栏导入它，<strong>合成孪生</strong>随即可以算。真实测量那一档要的是这台机器某一炮的实测读数，不在本发行版里。',
   'recon.g.export_hint': '把重构结果写成 EFIT g 文件',
   'recon.g.import_hint': '从 g 文件读取压强剖面与 I_p 作为动理学约束',
   'recon.g.none': '还没有可导出的结果，请先「重构」。',
@@ -764,7 +781,7 @@ self.FyI18n.register('zh', {
   'design.mark.diverted': '偏滤器位形',
   'design.mark.limited': '限制器位形',
   'design.mark.none': '—',
-  'design.done_far': '★反解结束但<strong>没有达到目标</strong>：取第 {pass} 趟（位形误差 {err}，容差 {tol}）。图与线圈电流是这一趟的解，不是所要求的位形——先看「目标 vs 实现」逐项偏差，再放宽目标或换起始状态。{tail}',
+  'design.done_far': '★反解结束但<strong>没有达到目标</strong>：取第 {pass} 趟。<strong>边界与目标曲线的距离 RMS {gap} cm，容差 {gaptol} cm</strong>（＝小半径的 3 %，与逐维长度容差同一把尺）。图与线圈电流是这一趟的解，不是所要求的位形。★另有一个位形误差 {err}（容差 {tol}）：那是六个形状量的归一化 RMS，答「胖瘦高矮」；判定看的是上面那个距离，它是米，且对任何拓扑都成立。★★两者量的不是同一个面——距离量在<strong>分离面</strong>上，而下面那张「目标 vs 实现」表量在<strong>内缩面 ψ̄ = 0.995</strong> 上（内缩面为躲开 X 点假象而存在），所以那张表复算不出这里任何一个数，它告诉你的是偏在哪个方向。{tail}',
   'design.starting': '正在按目标位形做场设计起始…',
   'design.started': '场设计起始完成：边界磁通均方散布 {rms} Wb{x}，{n} 路通道触限。接着按「反解」退火。',
   'design.started_x': '，X 点 |B| = {b} T',
@@ -882,6 +899,7 @@ self.FyI18n.register('zh', {
   'design.legs.ok': '要求「{cls}」：需要 {want} 条腿落在壁上，找到 {got}。',
   'design.legs.miss': '★要求「{cls}」：需要 {want} 条腿落在壁上，找到 {got}；解出来的边界是「{got_cls}」。<strong>这一趟没有做出所要求的位形</strong>——不裁剪，也不改口径。',
   'design.class_tail': '；★但边界类别不是所要求的「{cls}」',
+  'design.nulls_tail': '；★是偏滤器位形，但 X 点**不在所要求的一侧**——要的是「{cls}」，而解出来的零点落在另一边（形状量因此上下对调，位形误差里那一大项正是这么来的）',
   'design.state_class': '未达目标（类别）',
   // ======================================================================
   // T-D18 · 双零：起始设计收一组场零点

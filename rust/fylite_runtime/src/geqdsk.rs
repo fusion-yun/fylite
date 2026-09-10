@@ -137,15 +137,44 @@ pub fn parse(text: &str) -> Result<GFile, Error> {
         Some(i) => (&text[..i], &text[i + 1..]),
         None => (text, ""),
     };
-    //: ★`nw`/`nh` 是头一行**最后两个整数**，与 Python 侧 `toks[-2], toks[-1]`
-    //: 同一条规则：头里的自由文本长度各家不同，只有尾部是可靠的。
-    let toks: Vec<&str> = header.split_whitespace().collect();
-    let ints: Vec<i64> = toks.iter().rev().take(2).rev()
-        .filter_map(|t| t.parse::<i64>().ok()).collect();
-    if ints.len() != 2 || ints[0] <= 0 || ints[1] <= 0 {
-        return Err(Error::Header(header.to_string()));
-    }
-    let (nw, nh) = (ints[0] as usize, ints[1] as usize);
+    //: ★★头一行按 GEQDSK 自己的格式 **`(a48, 3i4)`** 定位读：48 字的自由文本，
+    //: 其后三个宽度 4 的整数（`idum` · `nw` · `nh`）。
+    //:
+    //: ★★★从前这里读的是「最后两个 **token**」，注记写着「只有尾部是可靠的」。
+    //: 2026-09-08 实测推翻了那句话：ITER IDM 的 TOSCA 平衡集（61 份）在三个整数
+    //: **之后**还写着产码名——
+    //:   `EQ_name : S2_2001_li065_a  02/26/2009   3  65 129 TOSCA_VT`
+    //: 于是最后一个 token 是 `TOSCA_VT`，过滤掉之后只剩一个整数，**整批 61 份一份
+    //: 也读不进来**。而它们的列位与 EAST 的真炮件、本仓自带的合成件**逐列相同**
+    //: （48/52/56），因为那本来就是格式规定的位置。
+    //:
+    //: ★按位读先行、token 扫描兜底：列位对得上就用它（格式说了算），对不上再退回
+    //: 尾部扫描（有些写出方不守 3i4 的列宽）。★兜底也改成「最后两个**能解析成整数
+    //: 的** token」而不是「最后两个 token」——同一批文件教的。
+    let by_columns = |h: &str| -> Option<(usize, usize)> {
+        let b = h.as_bytes();
+        if b.len() < 60 { return None; }
+        let f = |a: usize, z: usize| h[a..z].trim().parse::<i64>().ok();
+        match (f(48, 52), f(52, 56), f(56, 60)) {
+            (Some(_idum), Some(w), Some(hh)) if w > 0 && hh > 0 => Some((w as usize, hh as usize)),
+            _ => None,
+        }
+    };
+    let by_tail = |h: &str| -> Option<(usize, usize)> {
+        let ints: Vec<i64> = h.split_whitespace()
+            .filter_map(|t| t.parse::<i64>().ok()).collect();
+        match ints.len() {
+            0 | 1 => None,
+            n => {
+                let (w, hh) = (ints[n - 2], ints[n - 1]);
+                (w > 0 && hh > 0).then_some((w as usize, hh as usize))
+            }
+        }
+    };
+    let (nw, nh) = match by_columns(header).or_else(|| by_tail(header)) {
+        Some(v) => v,
+        None => return Err(Error::Header(header.to_string())),
+    };
 
     let v = scan(body);
     let mut k = 0usize;

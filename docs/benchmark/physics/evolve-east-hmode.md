@@ -1,16 +1,20 @@
+---
+title: "EAST 长脉冲（装置牌）：带电流道与锯齿的演化"
+---
+
 # EAST 长脉冲（装置牌）：带电流道与锯齿的演化
 
 - 算例 (case)：`docs/examples/evolve/evolve-east-hmode`
 - 判决 (verdict)：**未评估**（unevaluated）
 - 产出 (datasets)：—
 - 记录 (record)：`—`
-- 日期：2026-09-04
+- 日期：2026-09-08
 
 > 本批现跑了这个算例（数据层 JSON 门 + 内核）
 
 ## 没有产出
 
-本条**没有可判的产出**：the kernel rejected the case: refused: [-33] this case is outside the sunk scope of `evolve_heat`; it needs the `device` tier's equilibrium — bind the traced ladder as input `equilibrium/time_slice/profiles_1d/rho_tor` (with `equilibrium/time_slice/profiles_1d/dvolume_drho_tor` and `equilibrium/time_slice/profiles_1d/gm3`)
+本条**没有可判的产出**：the kernel rejected the case: refused: [-33] this case is outside the sunk scope of `evolve_heat`; it needs the `device` tier's equilibrium — bind the traced ladder as input `equilibrium/time_slice/profiles_1d/rho_tor` (with `equilibrium/time_slice/profiles_1d/dvolume_drho_tor` and `equilibrium/time_slice/profiles_1d/gm3`), or the equilibrium document under inputs/equilibrium
 
 ★这不是「通过」也不是「未通过」——判决是 `unevaluated`，统计表把它单列。
 

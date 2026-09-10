@@ -108,6 +108,12 @@
       'fylite:kernel_version': (root.FyVersion || {}).kernel || null,
       'fylite:app_version': (root.FyVersion || {}).app || null,
       'fylite:kernel': kernel || null,
+      //: ★★**哪一台机器**（2026-09-08）。此前会话文档不记装置，于是一份文档里的
+      //: 每一个按通道排的数组（线圈电流是头一个）都只能靠**长度**认领——而长度会
+      //: 撞：ITER 与 EAST 都是 12 路。一份为 ITER 写的电流被读进 EAST，两边都不会
+      //: 喊，算出来的是一张有模有样、却没有物理意义的图。名字在这里记一次，读者
+      //: 就有得可比；旧文件没有这一格，读的一方据此说「认不出」，而不是假装认得。
+      'fylite:machine': (root.FYLITE_MACHINE || {}).id || null,
       'fylite:config': config,
     };
   }

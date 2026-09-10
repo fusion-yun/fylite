@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 596" role="img" aria-label="V-08：Bosch–Hale D-T 反应率 ⟨σv⟩(T_i)">
+<title>V-08 — Bosch–Hale D-T 反应率 ⟨σv⟩(T_i)</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="940" height="596"/>
+<text x="28.0" y="36.0" font-size="18" text-anchor="start" font-weight="700">V-08 · Bosch–Hale D-T 反应率 ⟨σv⟩(T_i)</text>
+<text x="28.0" y="58.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">19 个温度点，0.2–50 keV；同一份已发表拟合的两个实现</text>
+<rect class="panel" x="96" y="104" width="798" height="268" rx="6"/><line class="grid" x1="96" y1="359.8" x2="894" y2="359.8"/><text x="88.0" y="363.8" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-32</text>
+<line class="grid" x1="96" y1="315.7" x2="894" y2="315.7"/><text x="88.0" y="319.7" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-30</text>
+<line class="grid" x1="96" y1="271.5" x2="894" y2="271.5"/><text x="88.0" y="275.5" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-28</text>
+<line class="grid" x1="96" y1="227.4" x2="894" y2="227.4"/><text x="88.0" y="231.4" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-26</text>
+<line class="grid" x1="96" y1="183.2" x2="894" y2="183.2"/><text x="88.0" y="187.2" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-24</text>
+<line class="grid" x1="96" y1="139.0" x2="894" y2="139.0"/><text x="88.0" y="143.0" font-size="11" text-anchor="end" font-weight="normal" class="mut">1e-22</text>
+<polygon points="96.0,357.6 154.6,318.7 228.4,276.9 296.4,244.6 328.6,231.0 387.2,208.8 428.8,194.8 487.4,177.2 529.0,166.1 561.2,158.1 609.8,147.4 661.4,137.8 699.3,132.1 720.0,129.4 761.6,125.0 793.8,122.4 820.2,120.8 861.7,119.1 894.0,118.4 894.0,118.4 861.7,119.1 820.2,120.8 793.8,122.4 761.6,125.0 720.0,129.4 699.3,132.1 661.4,137.8 609.8,147.4 561.2,158.1 529.0,166.1 487.4,177.2 428.8,194.8 387.2,208.8 328.6,231.0 296.4,244.6 228.4,276.9 154.6,318.7 96.0,357.6" fill="#d0342c" opacity=".16"/><polyline points="96.0,357.6 154.6,318.7 228.4,276.9 296.4,244.6 328.6,231.0 387.2,208.8 428.8,194.8 487.4,177.2 529.0,166.1 561.2,158.1 609.8,147.4 661.4,137.8 699.3,132.1 720.0,129.4 761.6,125.0 793.8,122.4 820.2,120.8 861.7,119.1 894.0,118.4" fill="none" stroke="#9aa6b8" stroke-width="7" stroke-linecap="round" opacity=".55"/><polyline class="ours" points="96.0,357.6 154.6,318.7 228.4,276.9 296.4,244.6 328.6,231.0 387.2,208.8 428.8,194.8 487.4,177.2 529.0,166.1 561.2,158.1 609.8,147.4 661.4,137.8 699.3,132.1 720.0,129.4 761.6,125.0 793.8,122.4 820.2,120.8 861.7,119.1 894.0,118.4"/><rect x="106" y="120" width="270" height="46" rx="5" fill="#ffffff" opacity=".82"/><line x1="114" y1="134" x2="146" y2="134" stroke="#9aa6b8" stroke-width="7" stroke-linecap="round" opacity=".55"/><text x="154.0" y="138.0" font-size="12" text-anchor="start" font-weight="normal">TORAX b4d40633（参考）</text>
+<line x1="114" y1="156" x2="146" y2="156" stroke="#1668c8" stroke-width="2.4"/><text x="154.0" y="160.0" font-size="12" text-anchor="start" font-weight="normal">fylite（dt_reactivity）</text>
+<text x="32" y="238.0" font-size="12" text-anchor="middle" class="mut" transform="rotate(-90 32 238.0)">⟨σv⟩ / m³·s⁻¹</text><rect class="panel" x="96" y="416" width="798" height="104" rx="6"/><rect class="band" x="96" y="438.0" width="798" height="60.0"/><text x="888.0" y="434.0" font-size="10" text-anchor="end" font-weight="normal">判据 ±1e-07 %</text>
+<line class="grid" x1="96" y1="468.0" x2="894" y2="468.0"/><polyline points="96.0,468.0 154.6,468.0 228.4,468.0 296.4,468.0 328.6,468.0 387.2,468.0 428.8,468.0 487.4,468.0 529.0,468.0 561.2,468.0 609.8,468.0 661.4,468.0 699.3,468.0 720.0,468.0 761.6,468.0 793.8,468.0 820.2,468.0 861.7,468.0 894.0,468.0" fill="none" stroke="#a75909" stroke-width="2"/><circle cx="387.2" cy="468.0" r="4" fill="#a75909"/><text x="397.2" y="472.0" font-size="11" text-anchor="start" font-weight="normal">最差 -0.00 %　@ T_i = 1.5</text>
+<text x="32" y="468.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 32 468.0)">差异 %</text><text x="96.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">0.2</text>
+<text x="328.6" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="561.2" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="761.6" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">20</text>
+<text x="894.0" y="538.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">50</text>
+<text x="495.0" y="558.0" font-size="12" text-anchor="middle" font-weight="normal" class="mut">T_i / keV</text>
+<text x="28.0" y="584.0" font-size="11" text-anchor="start" font-weight="normal" class="mut">V 类：判据取机器精度。这条曲线跨十个数量级，所以「看着重合」什么也不说明——下栏的逐点相对差才说明</text>
+</svg>

@@ -13,7 +13,7 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 | **数据** | 见 §5 表（1 项，纳入类别 restricted） |
 | **门** | `$FYLITE_KERNEL/tests/test_jintrac_case04_replay.py` |
 | **登记册结论** | 部分（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -32,6 +32,16 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 - （场景）★这窗口是动的：0.2 s 内 T_e(0) +31 %、规定的 T_i(0) −20 %，零假设 41.5 %。在这里赢零假设是有意义的。
 - （场景）参考侧带 EIRENE 中性粒子回路：电子能道的中性项只占 0.5 %，但离子道 CX 占 24 %、粒子道电离源超 NBI 35 倍——所以 T_e 可比，n_e / T_i 的预测离开中性模型免谈。
 
+## 3. 量到的（图）
+
+:::{figure} ../figures/B-03-band.svg
+:alt: B-03 量到的数对它被判的判据
+:width: 100%
+
+**结果对标准**：每一条量到的数画在它被判的那条带上，竖线是判据本身，条越短余量越大。判定栏只说「成立」，这张图说**差多少**。
+:::
+
+
 ## 3. 结果（登记册所记）
 
 | 项 | 偏差 | 种类 | 判 | 备注 |
@@ -42,7 +52,7 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 | 常数 chi = 1.84 | 0.236 |  | 不成立 |  |
 | 本仓 TGLF 自洽 | 0.345 | fail-model-face | 不成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -54,13 +64,13 @@ title: B-03 · JINTRAC 作业 101612（JET #58894，JETTO+EIRENE）
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/ | sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47 | restricted | 124 files, 26113662 B, 106 broken symlinks not hashed |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-09-jintrac/corpus/runJINTRAC_101612/ | sha256-manifest:9f6aff9952c96cc31f4f35f747a2bb8f35eb72bc1268a3da135b18afc33f0f47 | restricted | 124 files, 26113662 B, 106 broken symlinks not hashed |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_jintrac_case04_replay.py
@@ -68,4 +78,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：部分。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：部分。复测 2026-09-08：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

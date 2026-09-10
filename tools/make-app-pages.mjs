@@ -134,16 +134,24 @@ function grid(lang, table) {
 //: is this」, which is still two answers (`site.js` argues it at length); this
 //: grid answers 「where can I go」, which is one.
 
-// ★★The internal-testing notice.  It is expanded HERE rather than left as a
-// `data-i18n` hook because a generated page runs no i18n — `validate-site.mjs`
-// fails any of them that still carries one — so the sentence has to be in the
-// markup, in that page's language.  The four dynamic pages carry the same
-// notice with `data-i18n="chrome.internal_only"`; one key, two ways of
-// arriving at it, which is the standing arrangement for every string on these
-// six pages.
+// ★★The warning band.  It is expanded HERE rather than left as a `data-i18n`
+// hook because a generated page runs no i18n — `validate-site.mjs` fails any
+// of them that still carries one — so the sentences have to be in the markup,
+// in that page's language.  The five dynamic pages carry the same two notices
+// with `data-i18n`; one key, two ways of arriving at it, which is the standing
+// arrangement for every string on these six pages.
+//
+// ★★TWO SPANS, TWO SCOPES (2026-09-05, 用户裁定).  `chrome.alpha` says what
+// state this build is in and is true of every flavour; `chrome.internal_only`
+// says who may hold this copy and is true of the internal one only.  They are
+// two ELEMENTS rather than one longer sentence because the public build has to
+// be able to drop the second and keep the first, and dropping an element is a
+// thing a publisher can do exactly (`tools/app-flavour.mjs`); dropping half a
+// sentence is a thing it can only approximate.
 function warnBand(lang) {
-  return '  <p class="warn-internal" role="note"><span>'
-       + t(lang, 'chrome.internal_only') + '</span></p>';
+  return '  <p class="warn-band" role="note">'
+       + `<span class="warn-alpha">${t(lang, 'chrome.alpha')}</span>`
+       + `<span class="warn-io">${t(lang, 'chrome.internal_only')}</span></p>`;
 }
 
 function alternates(id) {
@@ -214,6 +222,9 @@ const stamp = (lang) =>
 
 // --- expansion -------------------------------------------------------------
 
+//: 模块级，因为**两处都要用它**：渲染时填进链接，`checkRepoLinks()` 时落到磁盘上。
+const ACKFILE = 'docs/ACKNOWLEDGEMENTS.md';
+
 function build(id, lang) {
   const src = readFileSync(TPL + id + '.html', 'utf8');
   const slots = {
@@ -234,12 +245,13 @@ function build(id, lang) {
     //: ★The branch is a slot rather than seven literals so that the next time
     //: the line moves, it moves once.
     '@repo': 'https://github.com/fusion-yun/fylite/blob/develop',
-    //: ★★`ACKNOWLEDGEMENTS.md` IS THE CHINESE ONE since the file was split
-    //: (2026-09-01); the English list is `ACKNOWLEDGEMENTS.en.md`.  The link
-    //: therefore has to follow the page's language like the prose pages do,
-    //: or the English credits page sends an English reader to a Chinese file
-    //: — a dead end that still returns 200, which is the kind that survives.
-    '@ackfile': lang === 'zh' ? 'ACKNOWLEDGEMENTS.md' : 'ACKNOWLEDGEMENTS.en.md',
+    //: ★★IT MOVED, AND THERE IS ONLY ONE (2026-09-08).  `7e3969f` folded the
+    //: acknowledgements into the documentation book as `docs/ACKNOWLEDGEMENTS.md`
+    //: and the split-off `ACKNOWLEDGEMENTS.en.md` did not survive the move — so
+    //: the language-dependent slot this used to be pointed the ENGLISH credits
+    //: page at a file that exists in no branch.  One file, both languages, and
+    //: the check below now refuses any `{{@repo}}` path that is not on disk.
+    '@ackfile': ACKFILE,
   };
   return src.replace(/\{\{([^}]+)\}\}/g, (m, spec) => {
     if (slots[spec] !== undefined) return slots[spec];
@@ -250,8 +262,50 @@ function build(id, lang) {
   });
 }
 
+//: ★★**每一条指向仓库的链接，仓库里都得真有那个文件**（2026-09-08）。
+//: 这一类缺陷这里犯过两次：先是分支名从来不存在，后是 `NOTICE` / `FEATURE.md` /
+//: `ACKNOWLEDGEMENTS.en.md` 三份被移出公开仓、而链接留在页上。两次都活得很久，
+//: 因为**它们不是坏响应**：GitHub 用一张 200 的页面回答 404，构建、闸子、连
+//: 链接检查器都看不出来，只有点下去的读者看得出来。
+//: ★所以判据落在**磁盘上**而不是网络上：模板里每一个 `{{@repo}}/…` 的路径，
+//: 按仓根解析必须存在。离线、无网络、和渲染同一次跑完。
+//: ★只管本仓的路径。外部链接（上级项目、上游代码）这里判不了——它们要么由人核，
+//: 要么由一道会联网的闸子核，那是另一件事。
+function checkRepoLinks() {
+  const REPO = HERE + '../';
+  let n = 0, dead = [];
+  for (const id of ['index', 'features', 'credits']) {
+    const src = readFileSync(TPL + id + '.html', 'utf8');
+    for (const m of src.matchAll(/\{\{@repo\}\}\/([^"'\s<>]+)/g)) {
+      //: 路径本身可能还含一个槽位（`{{@ackfile}}`），先展开再落到磁盘上
+      const rel = m[1].replace(/\{\{@ackfile\}\}/g, ACKFILE);
+      if (/\{\{/.test(rel)) {
+        //: 路径里还有别的槽位——这道闸子只认得 `@ackfile` 那一个。与其悄悄跳过，
+        //: 不如判红：一条查不了的链接和一条断了的链接，后果是一样的。
+        dead.push(`${id}.html -> ${rel}（含本闸不认识的槽位）`);
+        continue;
+      }
+      n++;
+      try { readFileSync(REPO + rel); } catch (e) { dead.push(`${id}.html -> ${rel}`); }
+    }
+  }
+  if (dead.length) {
+    console.log('  FAIL 指向仓库的链接，文件不在仓里：');
+    for (const d of dead) console.log('       ' + d);
+    console.log('       ★这类链接不会返回坏响应——GitHub 用一张页面回答 404。');
+    return dead.length;
+  }
+  console.log(`  ok   ${n} 条指向仓库的链接，逐条在仓里找到了文件`);
+  return 0;
+}
+
 const check = process.argv.includes('--check');
 let bad = 0;
+bad += checkRepoLinks();
+//: ★★**先判后写**。这道闸子原来跑在写入之后：一条断链照样被写进页面，然后才退非零
+//: ——而下一趟 `--check` 会说「页面与生成器一致」，因为两边一样地错。判据要能拦住
+//: 的是**写入**，不是事后报告。
+if (!check && bad) { console.log('\n一页也没写。'); process.exit(1); }
 for (const id of ['index', 'features', 'credits'])
   for (const lang of LANGS) {
     const out = build(id, lang);
@@ -273,3 +327,6 @@ if (check) {
   console.log(bad ? `\nFAILED (${bad}) — run \`node tools/make-app-pages.mjs\`` : '\nPASS');
   process.exit(bad ? 1 : 0);
 }
+//: ★写入那一趟也要判红：链接断了不是「下次 --check 再说」的事——重跑生成器**正是**
+//: 那条断链会被写进页面的时刻。
+if (bad) process.exit(1);

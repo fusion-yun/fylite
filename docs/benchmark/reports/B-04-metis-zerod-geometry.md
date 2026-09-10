@@ -13,7 +13,7 @@ title: B-04 · 0-D 体元约定，对 METIS 认证套件的平衡
 | **数据** | 见 §5 表（2 项，纳入类别 public、public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_metis_zerod.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——12 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——12 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -46,6 +46,16 @@ title: B-04 · 0-D 体元约定，对 METIS 认证套件的平衡
 - （场景）每个被比的量都是该时间片自身几何与剖面的瞬时泛函，无历史项，故时间片不需稳态筛选。
 - （场景）主离子按例为 H / D / DT；杂质按 Z 给定（Z_imp ∈ {3,4,5,6,8}，Z_max ∈ {4,6,8,18,28}），元素名未在存档中声明，故此处不列。四条算例（含两条纯参数测试）不对应具名装置。
 
+## 3. 量到的（图）
+
+:::{figure} ../figures/B-04-band.svg
+:alt: B-04 量到的数对它被判的判据
+:width: 100%
+
+**结果对标准**：每一条量到的数画在它被判的那条带上，竖线是判据本身，条越短余量越大。判定栏只说「成立」，这张图说**差多少**。
+:::
+
+
 ## 3. 结果（登记册所记）
 
 | 项 | 偏差 | 种类 | 判 | 备注 |
@@ -58,7 +68,7 @@ title: B-04 · 0-D 体元约定，对 METIS 认证套件的平衡
 | M-5 dt_reactivity 对 zformsv，最坏 | 6.4e-16 |  | 成立 |  |
 | 零假设：丢掉 κ / 无径向权重 / 平权重能量（p95） | 0.4243 / 0.5021 / 1.1667 | baseline | 未评估 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -70,14 +80,14 @@ title: B-04 · 0-D 体元约定，对 METIS 认证套件的平衡
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYDOC_ORACLE/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv | sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8 | public-derived | 99956 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv | sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8 | public-derived | 99956 B |
 | $METIS/certification/metis/ | — | public |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_metis_zerod.py
@@ -85,4 +95,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（B 对拍）的问题，不外推。

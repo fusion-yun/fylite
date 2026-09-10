@@ -10,10 +10,10 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 | **参考** | fusion_surrogates（qlknn_model.QLKNNModel.predict_targets —— 上游自己的推理路径，25 点测试向量的产出者） · git:d678186 · Apache-2.0（软件）/ CC-BY-4.0（权重与元数据）；QLKNN_7_11（权重，archive 版本标记 11D） · git:d678186 · CC-BY-4.0 |
 | **对象** | fylite: fylite.nn + scenario.model.qlknn（内核未改） |
 | **算例** | `scenario/qlknn-box`（QLKNN_7_11 训练盒内的点：上游自带的 25 点测试向量） |
-| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、public） |
+| **数据** | 见 §5 表（3 项，纳入类别 private-artefact、public、public-derived） |
 | **门** | `$FYLITE_KERNEL/tests/test_nn_qlknn.py`；`$FYLITE_KERNEL/tests/test_nn_surrogate.py` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-02：成立——27 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 2026-09-08：成立——27 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -26,7 +26,7 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 
 ## 2. 口径对齐与不可比的部分
 
-四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYLITE_KERNEL/nn_tables/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
+四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在公开检出的账本（`$FYLITE_PUBLIC/models/README.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
 - ★★2026-08-30 换模型：本条原记 QLKNN-10D 的二十网与它对 QLKNN-fortran 回归算例的组合对拍（最劣 1.900e-07，那档容差整个来自 JINTRAC 包里未取回的 Git-LFS 权重件）。QLKNN_7_11 是一个网、八目标，上游**自带 25 点测试向量并以十位小数自测**，所以两档判据都回到机器精度，不再需要实测带。
 - ★这条只说「我们和它算得一样」，不说「该信它」：QLKNN 训练在 QuaLiKiz 上，本条没有对任何实验或第三方模型做确认。
@@ -43,6 +43,22 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 - （场景）★盒内取点也**只**说盒内。7_11 的训练集含 QLKNN7D-edge，比 qlknn-hyper 的纯芯部盒宽，但「更宽」不等于「够用」。
 - （场景）上游可重取（github.com/google-deepmind/fusion_surrogates；软件 Apache-2.0，权重与元数据 CC-BY-4.0），所以权重存的是导出件加 sha256，不是原始档案。
 
+## 3. 量到的（图）
+
+:::{figure} ../figures/V-03-band.svg
+:alt: V-03 量到的数对它被判的判据
+:width: 100%
+
+**结果对标准**：每一条量到的数画在它被判的那条带上，竖线是判据本身，条越短余量越大。判定栏只说「成立」，这张图说**差多少**。
+:::
+
+:::{figure} ../figures/V-03.svg
+:alt: V-03 的对拍结果
+:width: 100%
+
+由 `tools/benchmark-figures.py` **自语料重画**（不是把记录里的数抄成图）；语料与判据见下两节。
+:::
+
 ## 3. 结果（登记册所记）
 
 | 项 | 偏差 | 种类 | 判 | 备注 |
@@ -51,7 +67,7 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 | 同上，最劣相对 | 6.373e-15 |  | 成立 |  |
 | 组合层 vs flux_map 手工重导（8 通道 x 25 点，最劣绝对） | 0.0 |  | 成立 |  |
 
-## 4. 复测（2026-09-02）
+## 4. 复测（2026-09-08）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -64,15 +80,15 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYLITE_KERNEL/nn_tables/qlknn_7_11.npz | — | private-artefact |  |
-| $FYDOC_ORACLE/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | public | 10144 B |
+| $FYLITE_PUBLIC/models/qlknn_7_11.npz | sha256:63a2181c4ebe84a3c08a93a5cbfeeedc955c7ac6d768cf969ecf76f248a4acfe | public-derived | 301078 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | public | 10144 B |
 | $FYLITE_KERNEL/rust/tools/export_qlknn_7_11.py | sha256:0a2b3fb35b8778db1fc1df66386cb61b1db0b822164b1b282e5508649d211f08 | private-artefact | 11543 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备；`$FYDOC_ORACLE` 是 fydoc 仓的 `cases/` 树（2026-09-04 前在 fydata），本仓与内核仓都以 `tests/data -> …/fydoc/cases` 挂载）。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
-cd $FYLITE_KERNEL && ln -s ../../fydoc/cases tests/data
+cd $FYLITE_KERNEL   # 语料已在检出里，无需挂载
 PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/libfylite_kernel.so \
   uv run --no-project --with pytest --with numpy --with scipy --with h5py \
   python -m pytest tests/test_nn_qlknn.py tests/test_nn_surrogate.py
@@ -80,4 +96,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-02：成立。只回答本条自己那一类（V 验证）的问题，不外推。
+登记册：成立。复测 2026-09-08：成立。只回答本条自己那一类（V 验证）的问题，不外推。
