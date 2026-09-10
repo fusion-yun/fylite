@@ -86,7 +86,10 @@ pytestmark = pytest.mark.skipif(
 #: （平时根本不发生）。下面那条「报告没有被截断」的断言，就是防它再回来。
 BASELINE: dict[str, set[str]] = {
     "best": {"tf: b0", "tf: b_field_phi_vacuum_r/unit"},
-    "cfedr": {"tf: b0", "tf: b_field_phi_vacuum_r/unit", "tf: coils_n"},
+    #: ★2026-09-10：`tf: coils_n` 从这一行删掉 —— develop 的 CFEDR 装置件（`5e4ea7a`
+    #: 一批）补上了线圈匝数，它不再丢了。**这道闸红成这样是好消息**：记的是「哪些
+    #: 路径丢了」，上游补齐一条它就该红一次，然后从表里删掉那一条。
+    "cfedr": {"tf: b0", "tf: b_field_phi_vacuum_r/unit"},
     "cfetr": {
         "tf: b0", "tf: b_field_phi_vacuum_r/unit",
         "wall: description_2d/vessel/unit/annular/outline_inner/closed",
