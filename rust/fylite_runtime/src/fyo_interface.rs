@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 1;
-pub const DIGEST: &str = "698b82daae58461b";
+pub const DIGEST: &str = "8b563f4a1ccfd8b3";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -347,6 +347,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "evolve_heat", shape: "balance_worst", units: "noise", gloss: "the worst of those" },
         Row { key: "evolve_heat", shape: "ped_extrap", units: "real", gloss: "an extrapolation DISTANCE, not a count" },
         Row { key: "evolve_heat", shape: "t_ped", units: "real", gloss: "eV, zero when the model is off" },
+        Row { key: "evolve_heat", shape: "ohm", units: "differenced:psi,psi_prev_out", gloss: "T-C36: (psi - psi_prev)/dt, a cancellation of ~1e5" },
+        Row { key: "evolve_heat", shape: "p_ohm", units: "differenced:psi,psi_prev_out", gloss: "T-C36: the volume integral of the same, so the same bound" },
     ] },
     Block { name: "ENTRY_SCOPE", rows: &[
         Row { key: "ch-heat", shape: "chHeat", units: "sunk", gloss: "the heat channel — a switch of the entry since 第二十三刀 (a density- or current-only march runs too)" },

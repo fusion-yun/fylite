@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = '698b82daae58461b'
+DIGEST = '8b563f4a1ccfd8b3'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -388,6 +388,8 @@ BLOCKS = {
         {'key': 'evolve_heat', 'shape': 'balance_worst', 'units': 'noise', 'gloss': 'the worst of those'},
         {'key': 'evolve_heat', 'shape': 'ped_extrap', 'units': 'real', 'gloss': 'an extrapolation DISTANCE, not a count'},
         {'key': 'evolve_heat', 'shape': 't_ped', 'units': 'real', 'gloss': 'eV, zero when the model is off'},
+        {'key': 'evolve_heat', 'shape': 'ohm', 'units': 'differenced:psi,psi_prev_out', 'gloss': 'T-C36: (psi - psi_prev)/dt, a cancellation of ~1e5'},
+        {'key': 'evolve_heat', 'shape': 'p_ohm', 'units': 'differenced:psi,psi_prev_out', 'gloss': 'T-C36: the volume integral of the same, so the same bound'},
     ],
     'ENTRY_SCOPE': [
         {'key': 'ch-heat', 'shape': 'chHeat', 'units': 'sunk', 'gloss': 'the heat channel — a switch of the entry since 第二十三刀 (a density- or current-only march runs too)'},

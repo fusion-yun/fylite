@@ -224,6 +224,60 @@ def _wasm_fingerprint() -> dict:
     return out
 
 
+#: ★How many times the worst-case propagation bound a differenced row may use.
+#: `C = 1` is the bound itself; 4 is the ruling's value and exists because the
+#: factor is taken at the WORST node rather than per node, so a row whose own
+#: worst node is elsewhere is not judged against a factor it never saw.
+DIFFERENCED_C = 4.0
+
+
+def _differenced(native: dict, wasm: dict, src: str, prev: str, rel: float) -> dict:
+    """The propagation bound for one differenced row — T-C36, option C.
+
+    ``bound = C * relative-difference(src) * max_k(|src_k| / |src_k - prev_k|)``
+
+    ★★The cancellation factor is computed on BOTH hosts and the LARGER is
+    used, and the two are required to agree.  That closes the one blind spot
+    the bound has: if the hosts disagreed about the STEP itself — a real
+    defect — the factor would differ between them, and taking one host's
+    factor on faith would hide exactly the case worth catching.
+    """
+    import numpy as np
+
+    def factor(rec):
+        x = np.atleast_1d(np.asarray(rec[src], float))
+        p = np.atleast_1d(np.asarray(rec[prev], float))
+        if x.shape != p.shape:
+            return float("nan")
+        d = np.abs(x - p)
+        good = d > 0.0
+        if not good.any():
+            return float("nan")
+        return float(np.max(np.abs(x[good]) / d[good]))
+
+    fn, fw = factor(native), factor(wasm)
+    out = {"rel": rel, "source": src, "factor_native": fn, "factor_wasm": fw}
+    if not (np.isfinite(fn) and np.isfinite(fw)):
+        #: no step to difference — say so rather than passing on a NaN bound
+        out.update(bound=float("nan"), within=False,
+                   why=f"no usable step in {src} - {prev}")
+        return out
+    #: the factors must agree; a step the hosts disagree about is the defect
+    #: this bound would otherwise launder
+    agree = abs(fn - fw) <= 0.1 * max(fn, fw)
+    a = np.atleast_1d(np.asarray(native[src], float))
+    b = np.atleast_1d(np.asarray(wasm[src], float))
+    rel_src = float(np.max(np.abs(a - b)) / max(float(np.max(np.abs(a))), 1e-300))
+    bound = DIFFERENCED_C * rel_src * max(fn, fw)
+    out.update(rel_source=rel_src, bound=bound,
+               factors_agree=agree, within=bool(agree and rel <= bound))
+    if not agree:
+        out["why"] = ("the hosts disagree about the cancellation factor "
+                      f"({fn:.3e} vs {fw:.3e}) — that is a disagreement about "
+                      "the step, which this bound must not absorb")
+    return out
+
+
 def compare(entry: str, native: dict, wasm: dict, *, band: float = 1e-12,
             noise_max: float = 1e-10) -> dict:
     """What the two hosts agreed and disagreed on, row by row.
@@ -243,7 +297,8 @@ def compare(entry: str, native: dict, wasm: dict, *, band: float = 1e-12,
            "only_native": only_n, "only_wasm": only_w,
            "discrete": {"native": discrete_digest(entry, native),
                         "wasm": discrete_digest(entry, wasm)},
-           "worst": 0.0, "worst_key": None, "noise": {}, "verdict": "differs",
+           "worst": 0.0, "worst_key": None, "noise": {}, "differenced": {},
+           "verdict": "differs",
            #: ★A-7's own words: a difference must be EXPLAINED by the record.
            #: The fingerprint names the host, so a report says which build
            #: produced which figure instead of leaving it to be assumed.
@@ -268,13 +323,29 @@ def compare(entry: str, native: dict, wasm: dict, *, band: float = 1e-12,
             continue                              # the digest carries these
         scale = max(float(np.max(np.abs(a))), 1e-300)
         rel = float(np.max(np.abs(a - b)) / scale)
+        if kind.startswith("differenced:"):
+            #: ★★T-C36 (user ruling 2026-09-10, option C): a physical row built
+            #: by differencing a state row is held to the ERROR-PROPAGATION
+            #: BOUND of the operation that produced it, not to a chosen band.
+            #: A band is a number that would accept any future disagreement
+            #: below it, a real one included; this bound tightens by itself
+            #: when the step is larger (less cancellation) and loosens only
+            #: when the cancellation genuinely is worse.
+            src, prev = kind.split(":", 1)[1].split(",")
+            rec["differenced"][key] = _differenced(native, wasm, src, prev, rel)
+            continue
         if rel > rec["worst"]:
             rec["worst"], rec["worst_key"] = rel, key
     same_hash = rec["discrete"]["native"] == rec["discrete"]["wasm"]
     noisy = [k for k, v in rec["noise"].items()
              if max(v["native"], v["wasm"]) > noise_max]
+    over = [f"{k} {v['rel']:.2e} over its bound {v['bound']:.2e}"
+            for k, v in rec["differenced"].items() if not v["within"]]
     if not same_hash:
         rec["verdict"] = "the hosts took different discrete paths"
+    elif over:
+        rec["verdict"] = ("a differenced row is beyond its propagation bound: "
+                          + "; ".join(over))
     elif noisy:
         rec["verdict"] = f"noise rows are not machine noise: {noisy}"
     elif rec["worst"] > band:
