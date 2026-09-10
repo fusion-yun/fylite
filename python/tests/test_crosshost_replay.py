@@ -17,7 +17,9 @@ Run: needs `node` and the built wasm; skips by name without either.
 """
 from __future__ import annotations
 
+import os
 import shutil
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -243,10 +245,54 @@ def test_every_declared_entry_has_a_call_here():
         "called here, not declared": sorted(set(CALLS) - set(FI.ENTRIES))}
 
 
+def _one_build_or_skip():
+    """Refuse to read a cross-host number when the two artefacts are not one
+    build — BEFORE any float is compared.
+
+    ★★★2026-09-10 (T-C36, first half).  This gate compares the native `.so`
+    against the wasm, and until today NOTHING checked they came from one
+    build: `compare()`'s record carried a sha256 for the native libraries and
+    only a PATH for the wasm.  A stale artefact therefore reads exactly like a
+    physics disagreement — and it is a false positive that confirms itself,
+    because the gate reports that the hosts disagree and they genuinely do,
+    for the wrong reason.  It happened here: the kernel `.so` was rebuilt for
+    the bootstrap-guard fix and the wasm was not (17:51 against 14:06), and
+    the only thing that caught it was comparing the two digests BY HAND.
+    ★The same-build record is the provenance ledger, which since the same day
+    carries both halves; `test_bundled_artifacts` holds the artefacts to it.
+    Here we only refuse to draw a conclusion when it does not hold, so a
+    reader never sees `ohm differs` and takes it for physics.
+    """
+    import hashlib
+    from fylite import _paths
+    led = None
+    for c in (os.environ.get("FYLITE_KERNEL"), os.environ.get("FYLITE_KERNEL_REPO"),
+              Path(__file__).resolve().parents[3] / "fylite_kernel"):
+        if c and (Path(c) / "docs/note/app-provenance.md").exists():
+            led = (Path(c) / "docs/note/app-provenance.md").read_text(encoding="utf-8")
+            break
+    if led is None:
+        return                      # no ledger to check against; say nothing
+    stale = []
+    for path in (X.WASM, _paths.KERNEL_LIB):
+        if not Path(path).exists():
+            continue
+        d = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        if d not in led:
+            stale.append(f"{path} sha256 {d[:16]}")
+    if stale:
+        pytest.skip(
+            "the two hosts' artefacts are NOT one build (not in the provenance "
+            "ledger): " + "; ".join(stale)
+            + " — rebuild both (kernel `rust/build.sh --wasm-check`) and refresh "
+              "the ledger before believing any cross-host number")
+
+
 @pytest.mark.parametrize("entry", sorted(CALLS))
 def test_both_hosts_agree_on_this_entry(entry):
     """★The whole of A-7 for one entry: same declared call, both builds,
     and the counts and flags must HASH the same."""
+    _one_build_or_skip()
     call = CALLS[entry]()
     native = X.run_native(entry, **call)
     wasm = X.run_wasm(entry, **call)
@@ -264,11 +310,19 @@ def test_both_hosts_agree_on_this_variant(label):
     not reach.  `evolve_heat/current` is the whole of S-2c 批二 crossing the
     ABI twice: two builds, one declaration, and psi / j_bs / p_ohm / q must
     agree to the same band as the heat channel's own outputs."""
+    _one_build_or_skip()
     entry, build = VARIANTS[label]
     call = build()
     native = X.run_native(entry, **call)
     wasm = X.run_wasm(entry, **call)
     rec = X.compare(entry, native, wasm)
+    #: ★★2026-09-10: RED on `evolve_heat/current`, and diagnosed — see
+    #: `test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned`
+    #: below and TODO T-C36.  The worst key is `ohm`, which is not a marched
+    #: row at all: it is `(psi - psi_prev)/dt`, and the hosts' epsilon
+    #: disagreement in `psi` (3.2e-16) times that difference's measured
+    #: cancellation factor (1.5e5) bounds the 6.75e-12 it reports.  Left red
+    #: rather than banded, because `ENTRY_OUT_KIND` is where the fix belongs.
     assert rec["verdict"] == "same", rec
 
 
@@ -324,6 +378,7 @@ def test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned():
     count or a crash count differing is a disagreement no float noise can
     excuse.
     """
+    _one_build_or_skip()
     import numpy as np
 
     short = _evolve_heat_current()                      # nt = 6
@@ -339,10 +394,45 @@ def test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned():
         assert rec["discrete"]["native"] == rec["discrete"]["wasm"], (
             f"{label}: the counts/flags parted — float noise does not "
             "explain a different number of steps or crashes")
+    #: ★★★2026-09-10: THIS ASSERTION IS RED AND ITS MESSAGE IS WRONG.  It
+    #: reads 6.75e-12 at six steps against the 2.2e-15 recorded above and
+    #: concludes "a disagreement about the step".  Measured, it is not:
+    #:
+    #:   te 6.1e-16 · ti 1.2e-16 · psi 3.2e-16 · q 3.7e-15   — machine epsilon
+    #:   ohm 6.75e-12 · p_ohm 2.9e-13                        — four orders worse
+    #:
+    #: Every MARCHED field agrees at epsilon; only `ohm` and its volume
+    #: integral do not.  `ohm` is not marched — `scenario.rs` builds it from
+    #: `E_par = ratio * (psi[k] - prev[k]) / dt`, a difference of two nearly
+    #: equal fluxes.  Measured on this variant: |psi| 33.35 against
+    #: |psi - prev| median 1.45e-4, so the cancellation factor is 1.07e5
+    #: (1.51e5 at the worst node), and 3.2e-16 x 1.51e5 = 4.8e-11 BOUNDS the
+    #: observed 6.75e-12 with room to spare.  The mechanism is settled: the
+    #: hosts' epsilon disagreement in `psi`, amplified by a cancellation of
+    #: known size.
+    #:
+    #: ★So the failure is a CATEGORY ERROR in the comparison, of exactly the
+    #: kind `ENTRY_OUT_KIND`'s `noise` row already names ("the difference of
+    #: nearly equal numbers ... comparing two hosts' noise relatively is a
+    #: category error").  `ohm` is not `noise` — it is a physical heating
+    #: density and "both are small" is not its check — so it needs a kind
+    #: that `ENTRY_OUT_KIND` does not yet have: a real row FORMED BY
+    #: DIFFERENCING a state row, judged against the state row's own
+    #: agreement times the cancellation factor.
+    #:
+    #: ★★It is left RED on purpose.  Widening the band is what this file's
+    #: own docstring forbids ("a band chosen to swallow 6.2e-13 would agree
+    #: with any future disagreement up to that size, including a real one"),
+    #: and choosing how much amplification is acceptable is a ruling, not a
+    #: measurement.  See TODO T-C36 for the proposed kind and the numbers
+    #: above; whoever takes it should change `ENTRY_OUT_KIND` in the kernel
+    #: and `crosshost.compare`, not this number.
     assert worst["short"] < 1e-14, (
-        f"the two hosts already differ by {worst['short']:.2e} after six "
-        "steps of an uncrashed march; that is not amplification, that is a "
-        "disagreement about the step")
+        f"the hosts differ by {worst['short']:.2e} at six steps.  If the "
+        "worst key is `ohm`/`p_ohm` this is T-C36 (a differenced row "
+        "compared as a marched one) and NOT a disagreement about the step — "
+        "check that te/ti/psi/q are still at epsilon before believing "
+        "otherwise")
     assert worst["long"] > worst["short"] * 100, (
         f"short {worst['short']:.2e} vs long {worst['long']:.2e}: the "
         "divergence did not grow, so the explanation written here (a march "

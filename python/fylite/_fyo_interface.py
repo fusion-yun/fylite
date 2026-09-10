@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 1
-DIGEST = 'f8448ab3d4b0c541'
+DIGEST = '8b563f4a1ccfd8b3'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -352,6 +352,7 @@ BLOCKS = {
         {'key': 'refit', 'shape': '', 'units': 'assembled', 'gloss': "the equilibrium alternation between two blocks of the march (the page's coupled block): the pressure-shape fit and the beta_p feedback on the transport state, one free-boundary solve on the device's coils, the analytic p'/FF' the field implies, its q profile, the ladder traced off the solved field, the state remapped onto it; or (fit = 0) the solve and the ladder alone, for the device tier's start"},
         {'key': 'turbulence', 'shape': '', 'units': 'extension', 'gloss': "the turbulent closure between two blocks of the march (the page's turbulentChi): the surface blocks from the ladder and the state, one TGLF flux evaluation per sampled radius (units, ky grid, the quasilinear flux), chi = Q_i / (a/L_T) in gyro-Bohm units interpolated onto the ladder, relaxed against the previous block's"},
         {'key': 'steady_current', 'shape': '', 'units': 'assembled', 'gloss': "one stationary round's current half (the page's evStationaryCurrent, 第二十一刀): the steady poloidal flux at the matched profiles by the current channel alone (transport::core_march at the resistive time), the loop voltage found by secant on the enclosed current, the frozen-closure re-solve reported beside it, the sawtooth the new q may have made possible"},
+        {'key': 'steady_equilibrium', 'shape': '', 'units': 'assembled', 'gloss': "one stationary round's equilibrium half (C20-K7): the equilibrium document's psi map re-solved in a box (outer::resolve on equilibrium::solve_fixed_box) on the state's pressure, the fast alphas' with the resolved species, and FF' inverted from the enclosed current the round's flux carries through its faces, the current held at ip_a; or (source = recovered) on the map's own source recovered on the box operator, the zero test; the ladder traced again with its axis node and the state remapped onto it, psi the new map's full-turn flux: the next code/steady_current round's input"},
         {'key': 'wave', 'shape': '', 'units': 'assembled', 'gloss': "lower-hybrid deposition and driven current (Python's model.lh.deposit, the page's evLhDeposit): the shell table on the equilibrium document's psi map, the profiles and |F| at the shell centres, the launched n_parallel bands scaled by the up-shift, one lh_deposit, the per-launcher resonance diagnostics"},
         {'key': 'forward', 'shape': '', 'units': 'assembled', 'gloss': "one forward free-boundary equilibrium on the device from the channel currents and the analytic p'/FF' family: the coil flux (or a given external flux, a warm start), one free solve, the analytic truth's profiles and cell current, the loop model and the probe readings that field implies"},
         {'key': 'chords', 'shape': '', 'units': 'assembled', 'gloss': "the point diagnostics on a psi map (the analysis page's interferometer / polarimeter block): the chords sampled through the box and the plasma, the line density and the Faraday integral each chord reads, the coils' share, the Faraday rows for a fit, the density fitted back to the chord readings"},
@@ -387,6 +388,8 @@ BLOCKS = {
         {'key': 'evolve_heat', 'shape': 'balance_worst', 'units': 'noise', 'gloss': 'the worst of those'},
         {'key': 'evolve_heat', 'shape': 'ped_extrap', 'units': 'real', 'gloss': 'an extrapolation DISTANCE, not a count'},
         {'key': 'evolve_heat', 'shape': 't_ped', 'units': 'real', 'gloss': 'eV, zero when the model is off'},
+        {'key': 'evolve_heat', 'shape': 'ohm', 'units': 'differenced:psi,psi_prev_out', 'gloss': 'T-C36: (psi - psi_prev)/dt, a cancellation of ~1e5'},
+        {'key': 'evolve_heat', 'shape': 'p_ohm', 'units': 'differenced:psi,psi_prev_out', 'gloss': 'T-C36: the volume integral of the same, so the same bound'},
     ],
     'ENTRY_SCOPE': [
         {'key': 'ch-heat', 'shape': 'chHeat', 'units': 'sunk', 'gloss': 'the heat channel — a switch of the entry since 第二十三刀 (a density- or current-only march runs too)'},

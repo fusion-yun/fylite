@@ -868,7 +868,25 @@ def test_a_first_block_ignores_every_carried_row():
     for key in ("te", "ti", "psi", "q"):
         assert np.array_equal(np.asarray(clean[key]), np.asarray(late[key])), (
             f"{key} moved with the clock's origin; `t_start` may move the time base only")
-    assert late["t_end"] == clean["t_end"] + 42.0
+    #: ★★NOT `==`, and the reason is arithmetic rather than tolerance.  The
+    #: kernel forms `t_end` as `t_start + sum(dt)`, so at `t_start = 42` it
+    #: sums 42 first and every `dt` after it — a different ORDER from
+    #: `sum(dt)` then `+ 42`, which is what this line computes.  The two
+    #: differ in the last bits of 42 (measured: 42.002039153828896 against
+    #: 42.002039153828903, one ulp), and demanding they match asks the kernel
+    #: to sum in the test's order.
+    #:
+    #: ★What is checkable is the CLAIM — `t_start` shifts the time base and
+    #: does nothing else — so the shift is required to be 42 to within the
+    #: representation of the result: a few ulps of `late["t_end"]`, not a
+    #: chosen tolerance.  A `t_start` that leaked into the march would move
+    #: `t_end` by far more than that, and the four profile rows above are
+    #: already exact.
+    shift = late["t_end"] - clean["t_end"]
+    ulp = np.spacing(abs(late["t_end"]))
+    assert abs(shift - 42.0) <= 4.0 * ulp, (
+        f"`t_start` moved the time base by {shift!r}, not by 42.0 "
+        f"(allowed slack {4.0 * ulp:.3e}, one ulp {ulp:.3e})")
 
 
 #: Each carried row, with the configuration in which it is LOAD-BEARING.
