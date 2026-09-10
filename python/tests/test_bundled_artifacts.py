@@ -197,14 +197,29 @@ def test_the_provenance_ledger_records_the_wasm_that_is_here():
                     "设 $FYLITE_KERNEL 指向一份检出即可核对")
     text = LEDGER.read_text(encoding="utf-8")
     missing = []
-    for name in WASM:
-        path = ROOT / "app/assets" / f"{name}.wasm"
+    #: ★★★2026-09-10: the two `.so` joined the two `.wasm` here, and the reason
+    #: is a hole this gate had rather than a wish for completeness.  With only
+    #: the wasm recorded, NOTHING checked that the two artefacts came from ONE
+    #: build: rebuild the kernel `.so` without re-running `--wasm-check` and the
+    #: ledger still matched the on-disk wasm, so this gate stayed GREEN -- while
+    #: `test_crosshost_replay` compares exactly that `.so`/`.wasm` pair and
+    #: would report the version skew as a physics disagreement in `ohm`.  That
+    #: is not hypothetical; it happened here (native 17:51, wasm 14:06).  With
+    #: both halves recorded, rebuilding one goes red at once.
+    for name, rel in ([(n, f"app/assets/{n}.wasm") for n in WASM]
+                      + [("libfylite_kernel", "python/fylite/_lib/libfylite_kernel.so"),
+                         ("libfylite_kernel_ext", "python/fylite/_lib/libfylite_kernel_ext.so")]):
+        path = ROOT / rel
         if not path.exists():
-            missing.append(f"{name}.wasm is not in app/assets")
+            #: a `.so` may legitimately be absent (a checkout with no kernel
+            #: installed runs the wasm side only); an absent `.wasm` is not
+            if rel.endswith(".so"):
+                continue
+            missing.append(f"{rel} is not here")
             continue
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if digest not in text:
-            missing.append(f"{name}.wasm sha256 {digest} is not in the ledger")
+            missing.append(f"{rel} sha256 {digest} is not in the ledger")
     assert not missing, (
         "the provenance ledger does not describe the artifacts in this tree:\n  "
         + "\n  ".join(missing)

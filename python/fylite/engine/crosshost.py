@@ -199,6 +199,31 @@ def discrete_digest(entry: str, out: dict) -> str:
     return "sha256:" + h.hexdigest()
 
 
+def _wasm_fingerprint() -> dict:
+    """The wasm side of the record — with its ``sha256``.
+
+    ★★2026-09-10: this used to be ``{"host", "artifact"}``, a PATH and nothing
+    else, while the native side recorded a ``sha256`` per library.  So the
+    record could not say whether the two hosts were the same BUILD, and a
+    stale artefact read exactly like a physics disagreement — a false positive
+    that confirms itself, because the gate says the hosts disagree and they
+    genuinely do, only for the wrong reason.  Measured here: after the kernel
+    `.so` was rebuilt and the wasm was not, the pair was 17:51 against 14:06
+    and nothing in this function noticed.  The same-build ENFORCEMENT lives in
+    the gate (against the provenance ledger, which records both halves since
+    the same day); what belongs here is the datum it needs.
+    """
+    out = {"host": "wasm", "artifact": str(WASM)}
+    try:
+        out["sha256"] = hashlib.sha256(WASM.read_bytes()).hexdigest()
+        out["bytes"] = WASM.stat().st_size
+    except OSError as exc:
+        #: said, not swallowed: a record that omits the digest without saying
+        #: why is a record a reader would take for "same build unverified"
+        out["sha256"] = f"unreadable: {exc}"
+    return out
+
+
 def compare(entry: str, native: dict, wasm: dict, *, band: float = 1e-12,
             noise_max: float = 1e-10) -> dict:
     """What the two hosts agreed and disagreed on, row by row.
@@ -223,7 +248,7 @@ def compare(entry: str, native: dict, wasm: dict, *, band: float = 1e-12,
            #: The fingerprint names the host, so a report says which build
            #: produced which figure instead of leaving it to be assumed.
            "environment": {"native": env_fingerprint(),
-                           "wasm": {"host": "wasm", "artifact": str(WASM)}}}
+                           "wasm": _wasm_fingerprint()}}
     if not rec["same_keys"]:
         rec["verdict"] = "key sets differ"
         return rec

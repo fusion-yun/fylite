@@ -17,7 +17,9 @@ Run: needs `node` and the built wasm; skips by name without either.
 """
 from __future__ import annotations
 
+import os
 import shutil
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -243,10 +245,54 @@ def test_every_declared_entry_has_a_call_here():
         "called here, not declared": sorted(set(CALLS) - set(FI.ENTRIES))}
 
 
+def _one_build_or_skip():
+    """Refuse to read a cross-host number when the two artefacts are not one
+    build — BEFORE any float is compared.
+
+    ★★★2026-09-10 (T-C36, first half).  This gate compares the native `.so`
+    against the wasm, and until today NOTHING checked they came from one
+    build: `compare()`'s record carried a sha256 for the native libraries and
+    only a PATH for the wasm.  A stale artefact therefore reads exactly like a
+    physics disagreement — and it is a false positive that confirms itself,
+    because the gate reports that the hosts disagree and they genuinely do,
+    for the wrong reason.  It happened here: the kernel `.so` was rebuilt for
+    the bootstrap-guard fix and the wasm was not (17:51 against 14:06), and
+    the only thing that caught it was comparing the two digests BY HAND.
+    ★The same-build record is the provenance ledger, which since the same day
+    carries both halves; `test_bundled_artifacts` holds the artefacts to it.
+    Here we only refuse to draw a conclusion when it does not hold, so a
+    reader never sees `ohm differs` and takes it for physics.
+    """
+    import hashlib
+    from fylite import _paths
+    led = None
+    for c in (os.environ.get("FYLITE_KERNEL"), os.environ.get("FYLITE_KERNEL_REPO"),
+              Path(__file__).resolve().parents[3] / "fylite_kernel"):
+        if c and (Path(c) / "docs/note/app-provenance.md").exists():
+            led = (Path(c) / "docs/note/app-provenance.md").read_text(encoding="utf-8")
+            break
+    if led is None:
+        return                      # no ledger to check against; say nothing
+    stale = []
+    for path in (X.WASM, _paths.KERNEL_LIB):
+        if not Path(path).exists():
+            continue
+        d = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+        if d not in led:
+            stale.append(f"{path} sha256 {d[:16]}")
+    if stale:
+        pytest.skip(
+            "the two hosts' artefacts are NOT one build (not in the provenance "
+            "ledger): " + "; ".join(stale)
+            + " — rebuild both (kernel `rust/build.sh --wasm-check`) and refresh "
+              "the ledger before believing any cross-host number")
+
+
 @pytest.mark.parametrize("entry", sorted(CALLS))
 def test_both_hosts_agree_on_this_entry(entry):
     """★The whole of A-7 for one entry: same declared call, both builds,
     and the counts and flags must HASH the same."""
+    _one_build_or_skip()
     call = CALLS[entry]()
     native = X.run_native(entry, **call)
     wasm = X.run_wasm(entry, **call)
@@ -264,6 +310,7 @@ def test_both_hosts_agree_on_this_variant(label):
     not reach.  `evolve_heat/current` is the whole of S-2c 批二 crossing the
     ABI twice: two builds, one declaration, and psi / j_bs / p_ohm / q must
     agree to the same band as the heat channel's own outputs."""
+    _one_build_or_skip()
     entry, build = VARIANTS[label]
     call = build()
     native = X.run_native(entry, **call)
@@ -331,6 +378,7 @@ def test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned():
     count or a crash count differing is a disagreement no float noise can
     excuse.
     """
+    _one_build_or_skip()
     import numpy as np
 
     short = _evolve_heat_current()                      # nt = 6
