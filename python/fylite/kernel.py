@@ -926,8 +926,30 @@ def surface_block(st: dict) -> np.ndarray:
     [1/m].  The kernel converts to the TGYRO port's CGS behind the ABI
     (``c_api.rs::surface_from_block``), once for all three entries that take
     this block, rather than each caller doing it on the way in.
+
+    ★★Slot 19 was a reserved pad until ABI 153 and now carries ``torflux``,
+    the SIGNED toroidal flux at the boundary [Wb].  Only its sign is read.
+    Together with the SIGNED ``q`` in slot 6 it is what the kernel derives
+    the orientation pair from, so the state must declare the equilibrium
+    rather than the flags.
     """
-    return _f([float(st[k]) for k in SURFACE_KEYS] + [0.0])
+    try:
+        torflux = float(st["torflux"])
+    except KeyError:
+        raise KeyError(
+            "surface_block needs `torflux`: the SIGNED toroidal flux at the "
+            "boundary [Wb], in this repo's declared convention (COCOS 17).  "
+            "It fills slot 19 — the reserved pad until ABI 153 — and the "
+            "kernel derives the orientation pair from it and the signed `q`.  "
+            "The `signb` / `signq` arguments it replaces are gone: an "
+            "orientation a host can state independently of the equilibrium "
+            "is one that can disagree with it.") from None
+    if torflux == 0.0:
+        raise ValueError(
+            "torflux is 0: the kernel refuses it (-7).  A zero cannot be told "
+            "apart from a caller who left the old reserved pad alone, so it is "
+            "not read as `+1`.")
+    return _f([float(st[k]) for k in SURFACE_KEYS] + [torflux])
 
 
 def _ion_columns(ions):
