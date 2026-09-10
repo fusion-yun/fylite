@@ -110,8 +110,33 @@ class Surrogate:
     spans 1.93 to 8.09 about a mean of 5.38.
     """
 
+    #: The declarations this format opens with.  ★They are checked as a SET
+    #: before any of them is read, so a foreign archive is named as foreign
+    #: rather than reported as one missing key.
+    _REQUIRED = ("n_in", "n_hidden", "n_blocks", "n_out", "n_members",
+                 "activation", "xnames", "ynames")
+
     def __init__(self, path: Path):
         z = np.load(path, allow_pickle=False)
+        #: ★★2026-09-10: a `.npz` of neural weights is not necessarily one of
+        #: OURS, and until today the mismatch surfaced as
+        #: `KeyError: 'n_in is not a file in the archive'` from inside numpy —
+        #: which reads as a corrupt file rather than as the wrong format.
+        #: Measured on `fydata`'s `corpus/model/nn/tglfnn/sat1_em_iter.npz`:
+        #: a fytok/fytrans ensemble archive (`meta_json` plus per-member
+        #: numbered weights `m4_W7`, `m15_b4`, …) for that project's
+        #: `core_transport/tglf_nn` plugin.  It is a perfectly good weight
+        #: file; it is not this format, and saying so is the whole job here.
+        missing = [k for k in self._REQUIRED if k not in z.files]
+        if missing:
+            hint = ""
+            if any(k.startswith("m") and "_W" in k for k in z.files):
+                hint = ("  This looks like a fytok/fytrans ensemble archive "
+                        "(numbered per-member weights); those are read by that "
+                        "project's plugin, not by this loader.")
+            raise NNDataMissing(
+                f"{path} is not a surrogate in this format: it declares none of "
+                f"{', '.join(missing)}." + hint)
         self.path = path
         self.name = str(path.stem)
         self.n_in = int(z["n_in"])
