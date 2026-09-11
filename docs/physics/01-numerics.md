@@ -149,6 +149,10 @@ $$ (eq-p01-gradient)
 目的是 L2 块均值的位同一。〔已确立〕成对求和的误差界 $O(\varepsilon\log n)$ 见 Higham
 {cite}`higham1993accuracy`〔凭记忆〕。
 
+〔射线追踪层的插值〕〔实现〕射线追踪层不用上表的线性原语读场：它的射线方程以中心差分求 $\partial D/\partial\vb x$，要求介质场
+连续可微，故自带张量积自然三次样条（ψ 图，C²）与 pchip 剖面插值（C¹），并给出 C¹ 的刮削层延拓。三者与四阶 Runge–Kutta
+步长加倍积分器一起在 {ref}`phys09-ray-medium` 与 {ref}`phys09-ray-numerics`。
+
 (phys01-linalg)=
 # 稠密线性代数 (Dense Linear Algebra)
 

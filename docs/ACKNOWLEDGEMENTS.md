@@ -69,7 +69,10 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 | Y. R. Lin-Liu & F. L. Hinton, *Phys. Plasmas* 4 (1997) 4179 | NBCD 电子屏蔽 | `rust/fylite/src/heating.rs` |
 | T. H. Stix, *Nucl. Fusion* 15 (1975) 737 | 少数离子 ICRH 分布及其 H 函数 | `rust/fylite/src/heating.rs` |
 | ITER Physics Basis, *Nucl. Fusion* 39 (1999) 2495, 第 6 章 §3.5（p. 2512）——实测快波驱流效率（JFT-2M、DIII-D、Tore-Supra）、其线性 `T_e0` 依赖与 ITER 外推；数据点本身取 METIS `fitetafwcd.m` 中的列表 | FWCD 效率及其闸门 | `rust/fylite/src/heating.rs` |
-| M. Bornatici, R. Cano, O. De Barbieri, F. Engelmann, *Nucl. Fusion* 23 (1983) 1153, Table 12——经 A. Sabri et al., *Int. J. Emerging Technology and Advanced Engineering* 2 (8) (2012) 253, Table I 的逐字重印读到（原文此处未能取得；转写的是重印本，两条出处都写进源码） | `1/R` 平板的 EC 光学厚度（O 模 `n>=1`、X 模 `n>=2`）与冷等离子体垂直折射率 | `rust/fylite/src/heating.rs` |
+| M. Bornatici, R. Cano, O. De Barbieri, F. Engelmann, *Nucl. Fusion* 23 (1983) 1153, Table IV 与式 (3.1.37)——2026-09-11 起按原文。此前按 N. G. Sabri, T. Benouaz, *Int. J. Emerging Technology and Advanced Engineering* 2 (8) (2012) 253, Table I 的重印转写；该重印把 `lambda_0 = 2 pi c/omega_ce` 写成波长、并漏掉 `A_n` 的平方（`n>=2` 深 `n` 倍），已按原文更正 | `1/R` 平板的 EC 光学厚度（O 模 `n>=1`、X 模 `n>=2`）与冷等离子体垂直折射率 | `rust/fylite/src/heating.rs` |
+| F. Albajar, N. Bertelli, M. Bornatici, F. Engelmann, *Plasma Phys. Control. Fusion* 49 (2007) 15；N. B. Marushchenko, Y. Turkin, H. Maassberg, *Comput. Phys. Commun.* 185 (2014) 165（TRAVIS） | 沿射线的全相对论 EC 吸收系数（Maxwell–Jüttner）与 Poynting 通量归一 | `rust/fylite/src/rfray.rs` |
+| T. H. Stix, *Waves in Plasmas*（AIP, 1992） | 冷等离子体介电张量、Appleton–Hartree 与多组分冷色散 | `rust/fylite/src/rfray.rs` |
+| H.-s. Xie, D. Banerjee, Y.-k. Bai, H.-y. Zhao, J.-c. Li, *Comput. Phys. Commun.* 276 (2022) 108363（BORAY）；Y. Wang, H. Xie, arXiv:2608.05667（BORAY-3D，预印本）。BORAY 源码为 BSD-3-Clause（© 2014–2021 Hua-sheng Xie），**只读作核对、未翻译** | 射线方程、多组分冷色散的回旋极点消去与沿射线的频率自检的写法 | `rust/fylite/src/rfray.rs` |
 | G. Giruzzi, *Nucl. Fusion* 27 (1987) 2069（按 METIS `zicd0.m` 的拟合）；Y. R. Lin-Liu, GA-A24257（`Z_eff` 依赖） | EC 驱流效率 | `rust/fylite/src/heating.rs` |
 | ITER / IMAS 的 EC 发射角约定，按 **FUSE** 的实现（`IMAS.jl` `pol_tor_angles_2_vector`，Apache-2.0） | 装置描述所存的两个指向角，及其所指方向 | `rust/fylite/src/heating.rs` |
 | R. K. Janev, C. D. Boley, D. E. Post (1989) | 中性束停止 / 电荷交换截面 | `rust/fylite/src/heating.rs` |
@@ -87,6 +90,7 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 
 - **EFIT 一脉**：任何形式的 EFIT 族源码、格林表生成器或录得输出都不在仓内。
 - **GRAY**：EC 射线追踪的移植已停止；其许可不容直接翻译，fylite 未读过任何 GRAY 物理源码。
+  EC 与 LH 的射线追踪改为依公开文献的清净室实现（`rust/fylite/src/rfray.rs`）；**GENRAY、TORAY、LSC** 的源码同样未读。
 - **UMFPACK**：未移植——本仓的稀疏 LU 从零写起（见「移植的上游代码」）。
 
 
@@ -107,6 +111,7 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 | **FUSE 装置算例——仅输入标量**（ITER、KSTAR、DTT、SPARC、ARC、FPP、K-DEMO、MANTA、EXCITE 的 `case_parameters(:X)`） | ProjectTorreyPines（FUSE.jl `494d565`，两条分辨率规则用 IMAS.jl 与 MillerExtendedHarmonic.jl v2.1.2） | Apache-2.0；**FUSE 的源码与数据文件都没有进仓**——进来的是从一次检出里读出的标量表，每份生成文档都写明提交号与源文件 | 含时演化栏提供的现成算例（`docs/cases/evolve-fuse-*.jsonld`，由 `tools/fuse-case-to-fylite.py` 生成；清单与评判见 `docs/note/fuse-cases.md`）。★这些只携带 FUSE 的**输入**——chi_0 与其余闭包是本仓的，因此不是对 FUSE 答案的复现 |
 | **FUSE——一次 ITER 运行的输入与答案**（`FUSE.init(:ITER, init_from=:scalars)`，FUSE 0.7.0 / EPEDNN 1.0.7，录于 2026-08-29） | ProjectTorreyPines | Apache-2.0；**FUSE 的源码与数据文件都没有进仓**——记录里是 FUSE 选定的十个 EPED 输入与它给出的九个答案，外加它解出的平衡、0-D 账目与剖面 | T-C1′ 对拍：`tests/data/FYDOC-CASE-04-fuse/corpus/iter_eped.json`、`iter_init.json`，由 `tests/test_fuse_benchmark.py` 把闸，`tools/fuse/capture-iter.jl` 可重录。★台基这一层不是「两个模型一致」：FUSE 的 `ActorPedestal` 与本内核加载**同一份** EPEDNN BSON 权重，所以它量的是移植后还是不是同一个函数（4.4e-16） |
 | **TGLF-NN——只取架构与一次运行的答案；不取权重** | ProjectTorreyPines（TGLFNN.jl 1.7.1） | Apache-2.0；★★**没有任何模型文件被再分发，也没有编译进来**——`rust/fylite/src/nn.rs` 实现所发布模型所用的 dense+residual 族，`tools/nn-export.jl` 在装有该包的宿主上转换一份，`$FYLITE_NN_DIR` 是用户自己存放的位置 | 代理路径，由 `tests/test_nn_surrogate.py` 对 TGLF-NN 自己在 FUSE ITER 算例上的答案把闸（`tests/data/FYDOC-CASE-04-fuse/corpus/iter_tglfnn.json`，4.9e-14）。每次导出都记录上游包名、版本、文件与 sha256，因此引用的数字可追溯到一件本仓并不持有的制品 |
+| **GENRAY 在 EAST 71230 炮 4.8 s 上的射线输出**（100 GHz O / X 与 2.45 GHz LH 四射线，及其 g 文件） | 随 BORAY 仓分发（`github.com/hsxie/boray`，提交 `54bcda7`）；GENRAY 源码未读 | 依 BORAY 仓；**冻结件只在私有内核仓**，不随本书或演示发布 | 射线追踪层的 B 类参照：介质、EC / LH 轨迹与 EC 剩余功率 |
 | ITER 装置描述（PF/CS 线圈、壁、110 个磁通环；ITER EDA，2010-04-26） | ITER 组织，经 `fydata` 包 | 依 fydata 所记 | 浏览器预置装置（`app/facts/device/iter.jsonld`）；演示内置的 ITER 位形即出自此 |
 
 ## 库与工具链

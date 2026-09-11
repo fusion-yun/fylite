@@ -1,6 +1,6 @@
 ---
 title: 加热与电流驱动 (Auxiliary Heating and Current Drive)
-subtitle: 中性束（阻止、Stix 慢化、屏蔽、束驱动电流）、聚变 α、低杂波链、ICRH 少数离子链、快波与电子回旋链
+subtitle: 中性束（阻止、Stix 慢化、屏蔽、束驱动电流）、聚变 α、低杂波链、ICRH 少数离子链、快波与电子回旋链、EC 与 LH 共用的射线追踪（冷射线核、托卡马克介质、全相对论 EC 吸收与沉积）
 ---
 
 (phys09-intro)=
@@ -9,7 +9,8 @@ subtitle: 中性束（阻止、Stix 慢化、屏蔽、束驱动电流）、聚�
 〔范围〕本章详述**辅助加热与电流驱动的约化模型**：中性束注入
 （NBI）、聚变 $\alpha$ 加热与快 $\alpha$、低杂波电流驱动（LHCD）、离子回旋少数离子加热（ICRH）、
 快波电流驱动（FWCD）与电子回旋加热 / 电流驱动（ECRH / ECCD）。辐射、电子—离子交换与体积分
-在 {ref}`phys10-intro`。
+在 {ref}`phys10-intro`。本章另述电子回旋与低杂波共用的射线追踪（{ref}`phys09-ray`）：冷等离子体射线轨迹、
+托卡马克介质、全相对论 EC 吸收与 $\bar\psi$ 壳沉积。
 
 〔出处姿态〕〔实现〕模块头部："物理转录自 METIS（CEA，CeCILL-C）及其所引的公开文献；拟合
 保留自身单位（截面 cm²、温度 eV），在出口处一次换算。"仓根 `NOTICE` 把 加热与电流驱动层列为 METIS
@@ -17,6 +18,12 @@ subtitle: 中性束（阻止、Stix 慢化、屏蔽、束驱动电流）、聚�
 RABBIT {cite}`weiland2018rabbit` 在实现中被命名为**保真档**而非来源（"RABBIT 的实现是 MPCDF 许可、
 不可获得，此处无一物源自它"）。因此本章的一手文献分三类：实现逐字引的论文、实现只给姓名 /
 上游文件名而由编者补出处的公式（标核验状态）、以及**实现未注且编者亦无法归属**者（明列）。
+
+〔射线追踪层的出处姿态〕〔实现〕射线追踪层（{ref}`phys09-ray`）**不是 METIS 的派生作品**，是依公开文献的清净室实现：
+冷色散出自 Stix {cite}`stix1992waves`，全相对论吸收出自 Albajar 等 {cite}`albajar2007ec` 与 TRAVIS
+{cite}`marushchenko2014travis`，射线方程与多组分冷色散的写法同 BORAY {cite}`xie2022boray,wang2026boray3d`。BORAY 的
+源码（BSD-3-Clause）只用于核对，射线核不是它的逐行移植（坐标、导数方式、发射规则均不同）；GRAY、GENRAY、TORAY、LSC
+的源码未读。GENRAY 的输出（随 BORAY 仓分发）作 B 类参照数据。
 
 〔共同形态〕〔已确立〕本章各源都可分解为吸收功率 × 归一沉积形状 × 电子/离子分配 ⇒ 驱动效率
 （`GK-TMT-06` §共同形态，跨仓）；其中 Stix 慢化与临界能量是 NBI、ICRH 少数离子与 $\alpha$ 三类
@@ -193,6 +200,10 @@ $\eta_{CD}$ **必须由调用方给出**（lh.py：EAST 量级 $10^{19}$ A/W/m²
 〔已知限度〕〔实现〕EAST 发射 $n_\parallel\approx1.8$–2.4，单程共振在 4.8–8.8 keV——高于等离子体，
 `upshift = 1.0` 下找不到共振面；无离子阻尼、无电子捕获修正、无快电子压强。
 
+〔与射线追踪层的分工〕〔实现〕上面这条单程链不变。低杂波的轨迹另由射线追踪层给出（{ref}`phys09-ray`：Stix 多组分冷色散、
+格栅发射按群速度定法向分量的符号、声明的边缘反射），它补上单程链没有的几何上移——轴对称使 $RN_\phi$ 守恒，而 $N_\parallel$
+随 $R$ 与极向场沿射线变化。射线追踪层对低杂波**只给轨迹**：吸收与准线性电流未实现，也未经门接出。
+
 (phys09-icrh)=
 # 离子回旋少数离子加热 (ICRH Minority Heating)
 
@@ -252,6 +263,9 @@ $$ (eq-p09-fwcd)
 缺省**不建模**（可借用的束追踪码许可受限、移植停止），`eccd_current` 取**已吸收**功率。"与 METIS 的差别：
 METIS 的 EC 沉积半径是**输入**（`cons.xece`），此处由发射几何与场**算出**。
 
+〔两档〕〔实现〕本节是**闭式档**。沿射线的吸收与沉积是另一档（{ref}`phys09-ray-ecabs`）；两档经 {eq}`eq-p09-tau` 的
+低温极限互为判据。
+
 〔冷共振与几何〕〔实现〕$B_{\rm res}=2\pi fm_e/(ne)$（"教科书 $f_{ce}[\text{GHz}]=27.99B[\text{T}]$"；"**冷**且非相对论——
 两效应都是 $O(T_e/m_ec^2)$"）；$R_{\rm res}=\abs{B_0}R_0/B_{\rm res}$（真空 $1/R$ 场，"有意"）；发射角约定按 ITER / IMAS
 （FUSE 的 `pol_tor_angles_2_vector` {cite}`meneghini2024fuse`），直线传播与圆柱 $r=R_{\rm res}$ 求交（"折射 $\sim\omega_{pe}^2/\omega^2$，
@@ -259,14 +273,31 @@ METIS 的 EC 沉积半径是**输入**（`cons.xece`），此处由发射几何�
 
 〔折射率与光深〕〔实现〕$N_O^2=1-\omega_{pe}^2/\omega^2$、$N_X^2=1-\frac{\omega_{pe}^2}{\omega^2}\frac{\omega^2-\omega_{pe}^2}{\omega^2-\omega_{pe}^2-\omega_{ce}^2}$（$N^2\le0$ 即截止，
 `BelowCutoff`）〔已确立：冷等离子体 Appleton–Hartree 的垂直传播极限 {cite}`stix1992waves`〕；光深按 Bornatici 等
-{cite}`bornatici1983ec`（实现逐字引 NF 23 (1983) 1153 表 12）、以 Sabri 等 {cite}`sabri2012ec` 表 I 的形式转录：
+{cite}`bornatici1983ec` 表 IV 与式 (3.1.37)（垂直传播；表 XII 是其斜射版）：
 
 $$
-\tau_O=\frac{\pi^2n^{2(n-1)}}{2^{n-1}(n-1)!}N_O^{2n-1}\frac{\omega_{pe}^2}{\omega_{ce}^2}\Big(\frac{T_e}{m_ec^2}\Big)^n\frac{R}{\lambda},\qquad
-\tau_X=\frac{\pi^2n^{2(n-1)}}{2^{n-1}(n-1)!}A_n\frac{\omega_{pe}^2}{\omega_{ce}^2}\Big(\frac{T_e}{m_ec^2}\Big)^{n-1}\frac{R}{\lambda}
+\tau_O=\frac{\pi^2n^{2(n-1)}}{2^{n-1}(n-1)!}N_O^{2n-1}\frac{\omega_{pe}^2}{\omega_{ce}^2}\Big(\frac{T_e}{m_ec^2}\Big)^n\frac{L_B}{\lambda_0},\qquad
+\tau_X=\frac{\pi^2n^{2(n-1)}}{2^{n-1}(n-1)!}A_n\frac{\omega_{pe}^2}{\omega_{ce}^2}\Big(\frac{T_e}{m_ec^2}\Big)^{n-1}\frac{L_B}{\lambda_0}
 $$ (eq-p09-tau)
 
-吸收份额 $1-e^{-\tau}$（同源 Eq. (10)；"$\tau>3$ 即光学厚"）。斜入射基波 X 模未移植（`ObliqueFundamentalXNotPorted`）。
+$$
+A_n=N_X^{2n-3}\Big(1+\frac{\omega_{pe}^2/\omega_{ce}^2}{n\,(n^2-1-\omega_{pe}^2/\omega_{ce}^2)}\Big)^2,\qquad
+\lambda_0=\frac{2\pi c}{\omega_{ce}},\qquad L_B=R\quad(B\propto1/R)
+$$ (eq-p09-tau-an)
+
+〔实现〕原文的线形平均 $\langle D_n\rangle$、$\langle A_n\rangle$ 在 $n>2$ 时等于 1 与 $A_n$，在 $n\le2$ 时于稀薄极限趋于它们；实现取这一
+极限。$\lambda_0$ 是**回旋频率** 上的真空波长，在第 $n$ 次谐波上是波自身波长的 $n$ 倍。
+
+:::{important}
+〔更正 2026-09-11〕〔实现〕本式最初按 Sabri 等 {cite}`sabri2012ec` 表 I 的重印转录。该重印把 $\lambda_0$ 写成波长 $\lambda$，
+并漏掉 $A_n$ 的平方，于是 $n\ge2$ 的光深**深 $n$ 倍**（O1 不受影响）。发现者是射线追踪层的全相对论吸收
+（{ref}`phys09-ray-ecabs`）：沿 $1/R$ 板积分后与重印式之比在低温低密处恰为 $1/n$。按原文改正后，O1、O2、X2、X3
+四支比值的 $T_e\to0$ 外推都在 1 的 $1.1\times10^{-4}$ 之内（{numref}`tbl-p09-verify`）。以 $B=2.25$ T、
+$n_e=3\times10^{19}$ m⁻³、$R=0.88$ m、$T_e=3$ keV 为例，$\tau_{X2}$ 由 26.1 改为 14.7，$\tau_{X3}$ 由 1.06 改为 0.36，
+$\tau_{O1}=4.1$ 不变。原判据中"X2、X3 与重印的图对得上"的比对随之撤销：那张图与重印同出一源。
+:::
+
+吸收份额 $1-e^{-\tau}$（重印本 Eq. (10)；"$\tau>3$ 即光学厚"）。斜入射基波 X 模未移植（`ObliqueFundamentalXNotPorted`）。
 共振宽度 $\dd R/R=\sqrt{(\abs{N_\parallel}u)^2+(u^2/2)^2}$，$u^2=2T_e/m_ec^2$（Doppler 与相对论两项；无文献）。
 
 〔ECCD 效率〕〔实现〕`eccd_efficiency`（"METIS 携带的 Giruzzi 拟合（私人通讯；G. Giruzzi, NF 27 (1987) 2069）
@@ -280,7 +311,171 @@ $$ (eq-p09-eccd)
 
 $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$、指数 $(5+Z)/(1+Z)$、$\sqrt2$、$6/(\cdots)$）
 只归于"私人通讯"的拟合，编者无法与 Giruzzi 1987 逐项对应。METIS oracle：$I/I^{\rm METIS}$ 0.944–1.192，中位 1.020
-（$\ge25$ 行）。**EC 链未在公开入口上导出**（截至 2026-09-02）。
+（$\ge25$ 行）。**闭式档的 EC 链未在公开入口上导出**（截至 2026-09-11）；射线追踪档经门 `code/rf_ray` 接出
+（{ref}`phys09-ray-door`）。
+
+(phys09-ray)=
+# 射线追踪：EC 与 LH 共用的冷射线核 (Ray Tracing — the Shared Cold Ray Core)
+
+〔范围〕〔实现〕射线追踪层回答"波往哪里走、在哪里被吸收"：冷等离子体里一条笔形射线的轨迹（折射、截止、反射、低杂波的
+汇合），以及沿射线的电子回旋吸收与按 $\bar\psi$ 壳的功率沉积。电子回旋与低杂波**共用同一个积分器**，只换色散函数。
+本层不含：束宽随传播的演化、衍射与聚焦（高斯束 / 量子光束追踪）；伴随法 ECCD；低杂波的吸收与准线性电流。
+
+(phys09-ray-core)=
+## 射线方程与两种色散 (Ray Equations and the Two Dispersion Functions)
+
+〔实现〕射线沿色散面 $D(\vb x,\vb N)=0$ 以实空间弧长 $s$ 为参数积分：
+
+$$
+\dv{\vb x}{s}=\sigma\,\frac{\partial D/\partial\vb N}{\abs{\partial D/\partial\vb N}},\qquad
+\dv{\vb N}{s}=-\sigma\,\frac{\partial D/\partial\vb x}{\abs{\partial D/\partial\vb N}},\qquad
+\sigma=-\operatorname{sgn}\left.\pdv{D}{\omega}\right|_{\vb k}
+$$ (eq-p09-ray)
+
+〔已确立〕这是几何光学的哈密顿射线方程 {cite}`stix1992waves`。$\sigma$ 使 $s$ 沿时间正向增长（沿射线
+$\dd t\propto-\partial D/\partial\omega$），因此射线方向与 $D$ 的符号和整体尺度无关。BORAY 以实时间积分同一组方程
+{cite}`xie2022boray`，二者等价。
+
+〔射线自检〕〔实现〕每个接受点报出 $\delta\omega/\omega=-D/(\omega\,\partial D/\partial\omega)$，精确射线上为零；
+超过 `dw_tol`（缺省 $10^{-5}$）即以"频率漂移"停止。
+
+〔两种色散函数〕〔实现〕
+
+1. **Appleton–Hartree**（仅电子，按名取 O / X 支；电子回旋从真空起步）：$D=\vb N\cdot\vb N-N^2_{\rm mode}$，
+
+   $$
+   N^2=1-\frac{2X(1-X)}{2(1-X)-Y^2\sin^2\theta\pm\sqrt{Y^4\sin^4\theta+4(1-X)^2Y^2\cos^2\theta}}
+   $$ (eq-p09-ah)
+
+   `+` 为 O 支、`−` 为 X 支，$X=\omega_{pe}^2/\omega^2$，$Y=\omega_{ce}/\omega$，$\theta$ 为 $\vb N$ 与 $\vb B$ 的夹角；
+   真空中 $D=N^2-1$，射线核在真空里正则。
+2. **Stix 多组分**（电子加至多 4 种离子，支由发射根决定；低杂波用它）：
+
+   $$
+   D=F\Big[S\,u^2-\big(RL+PS-N_\parallel^2(S+P)\big)u+P\,(R-N_\parallel^2)(L-N_\parallel^2)\Big],\qquad
+   u=N_\perp^2,\qquad F=\prod_s\Big(1-\frac{\Omega_s^2}{\omega^2}\Big)
+   $$ (eq-p09-stixd)
+
+   其中 $R,L=1-\sum_s\omega_{ps}^2/[\omega(\omega\pm\Omega_s)]$，$P=1-\sum_s\omega_{ps}^2/\omega^2$，$S=(R+L)/2$，
+   $\Omega_s=q_sB/m_s$ 带号。方括号内与 BORAY 式 (15) 逐项相同 {cite}`xie2022boray`；$F$ 消去各组分的一阶回旋极点。
+   〔实现〕BORAY 只乘最靠近共振的那一个组分的因子，本层乘全部在场组分的因子——零点集相同，尺度之差被 $\sigma$ 与
+   $\abs{\partial D/\partial\vb N}$ 的归一吸收。
+
+〔已确立〕两种形式在纯电子等离子体中是同一张色散面：Appleton–Hartree 支上的点使 Stix 的 $D$ 归零
+（{numref}`tbl-p09-verify`）。
+
+〔发射〕〔实现〕电子回旋沿给定方向发射，取该支在发射点的 $\abs{\vb N}$，两个指向角的约定同 {ref}`phys09-ec` 的直线估计。
+低杂波在等离子体内发射：切向折射率由格栅给定，法向分量取指定根，其符号按**群速度** 指入等离子体来取。原因是慢波低杂波
+在垂直 $\vb B$ 方向为反向波：静电极限下 $D\approx SN_\perp^2+PN_\parallel^2$，且 $S>0>P$。实现另记两条限制："真空中
+两根重合、$\partial D/\partial\vb N=0$，Stix 射线必须在等离子体里起步"；"Stix 射线不能走进 $n_e\to0$"。
+
+(phys09-ray-numerics)=
+## 积分、导数与停止 (Integration, Derivatives and Stops)
+
+〔实现〕
+
+- 在笛卡儿坐标 $(x,y,z)$ 中积分，轴对称介质按 $R=\sqrt{x^2+y^2}$ 求值，以避开柱坐标奇点；轴对称下
+  $xN_y-yN_x$（即 $RN_\phi$）的守恒由判据检查。
+- $\partial D/\partial\vb x$、$\partial D/\partial\vb N$、$\partial D/\partial\omega$ 一律中心差分，步长依次为 $10^{-5}$ m、
+  $10^{-7}\max(1,\abs{\vb N})$、$10^{-6}$（相对）。因此介质必须给出 C¹ 以上的场（{ref}`phys09-ray-medium`）。
+- 四阶 Runge–Kutta，步长加倍估误差：一整步与两个半步之差的最大分量除以 15 记为 $e$。接受时取两个半步的结果并加
+  Richardson 修正 $(\vb y_{1/2}-\vb y_{1})/15$，下一步长乘 $\min(0.9(\mathrm{tol}/e)^{1/5},5)$；拒绝时步长乘
+  $\max(0.9(\mathrm{tol}/e)^{1/5},0.2)$。步长钳在 $[10^{-7},10^{-2}]$ m，缺省容差 $10^{-10}$。实现未注出处。
+- 停止原因逐条报出而不作错误：路程上限、出域、出等离子体、共振、群速度为零、步长塌缩（步长到下限而误差仍超容差
+  $10^3$ 倍）、频率漂移、反射次数到顶。发射时拒绝：出介质、无方向、进截止、在共振上、两根为复（汇合点之外）、
+  离子多于 4 种、发射折射率不在色散面上。
+
+(phys09-ray-medium)=
+## 托卡马克介质 (The Tokamak Medium)
+
+〔实现〕
+
+- **ψ 图**：张量积自然三次样条。节点存 $\psi$、$\psi_{RR}$、$\psi_{ZZ}$、$\psi_{RRZZ}$，格内求值同时给出值与两个一阶导，
+  整体 C²。实现注："双线性插值会让射线在格线上折角"。
+- **磁场**：$B_R=-\partial_Z\psi/(gR)$，$B_Z=\partial_R\psi/(gR)$，$B_\phi=F(\bar\psi)/R$。$g$ 为 ψ 的每单位弧度数：
+  每弧度图 $g=1$，整圈图 $g=2\pi$，由平衡文档的 `fylite:psi_convention` 声明。射线与吸收只依赖 $\abs{\vb B}$ 与
+  $\cos^2\theta$，极向场的符号只影响电流驱动的方向。
+- **剖面**：$F$、$n_e$、$T_e$、$n_i$、$T_i$ 在 $\bar\psi$ 上以 pchip（保形分段三次 Hermite）插值，与剖面拟合所用的 pchip
+  逐位相同。
+- **边界以外**：按边界值**与斜率** 延拓（C¹）。以 $d=\abs{\bar\psi-1}$、声明的衰减宽度 $w$（`sol_width`，$\bar\psi$ 单位）：
+
+  $$
+  v(d)=v_1\exp\!\Big(a\,d-\frac{d^2}{2w^2}\Big),\quad a=\frac{v_1'}{v_1};\qquad
+  F(d)=F_1+F_1'\,w\,\big(1-e^{-d/w}\big)
+  $$ (eq-p09-sol)
+
+  私有通量区——$\bar\psi<1$ 而位于边界轮廓竖直范围之外——按同一规则处理。两条规则都由判据量出：只接值不接斜率时，
+  "剖面斜率的跳变就是射线方程右端的跳变，没有步长能在它两侧满足容差"；按点在多边形内判私有区时，边界多边形的弦落在
+  凸的最外闭合面之内，边缘约 1 mm 被误判，$n_e$ 与 $\vb B$ 同时跳变。
+- **声明的边缘反射**（低杂波用）：射线在声明面 $\bar\psi_{\rm refl}$ 上向外穿越时，于步内二分定位到 $10^{-12}$ m，按
+  $\nabla\bar\psi$ 的差商**再投影到垂直 $\vb B$** 后镜像；于是反射保持 $N_\parallel$、$\abs{\vb N}$ 与 $D$。反射次数上限缺省 64。
+  〔本仓选择〕边缘反射是一个**模型** ，不是射线算出的物理：射线光学不能处理边缘反射，声明面的位置与次数上限都是假设。
+
+(phys09-ray-ecabs)=
+## 全相对论 EC 吸收与沉积 (Fully Relativistic EC Absorption and Deposition)
+
+〔实现〕Maxwell–Jüttner 电子上的吸收系数按 Albajar 等 {cite}`albajar2007ec` 式 (2a)(4)(5)(10)，与 TRAVIS
+{cite}`marushchenko2014travis` 及 BORAY-3D {cite}`wang2026boray3d` 式 (20) 同形：
+
+$$
+\alpha=\frac{\omega_{pe}^2}{c\,\omega}\,\frac{\pi}{2}\,\frac{\mu^2}{e^{\mu}K_2(\mu)}\sum_{n}\frac{q_n}{\sqrt{1-N_\parallel^2}}
+\int_{-1}^{1}\!\dd t\;e^{-\mu(\gamma-1)}\,\abs{\hat{\vb e}\cdot\vb V_n^*}^2,\qquad \mu=\frac{m_ec^2}{T_e}
+$$ (eq-p09-alpha)
+
+$$
+n_0=\bar\omega\sqrt{1-N_\parallel^2},\quad q_n=\sqrt{(n/n_0)^2-1},\quad
+u_\parallel=\frac{(n/n_0)N_\parallel+q_n t}{\sqrt{1-N_\parallel^2}},\quad
+\gamma=\frac{n}{\bar\omega}+N_\parallel u_\parallel,\quad
+\vb V_n=\Big(\frac{nJ_n(b)}{b}u_\perp,\ iJ_n'(b)\,u_\perp,\ J_n(b)\,u_\parallel\Big),\quad b=\bar\omega N_\perp u_\perp
+$$ (eq-p09-alphav)
+
+其中 $\bar\omega=\omega/\omega_{ce}$。求和从第一个满足 $n>n_0$ 的谐波起。〔已确立〕共振椭圆只在 $nY\ge\sqrt{1-N_\parallel^2}$
+处存在 {cite}`albajar2007ec`，故斜射波在冷层的低场侧被吸收，且吸收边沿随 $\abs{N_\parallel}$ 增大而移向低场；
+$N_\parallel^2\ge1$ 时共振曲线不闭合，实现把该点报为"系数不适用"。
+
+〔极化〕〔实现〕$\hat{\vb e}$ 取**冷电子介电张量的零向量**（$S=1-X/(1-Y^2)$，$D=-XY/(1-Y^2)$，$P=1-X$；$e^{-i\omega t}$ 约定，
+R 波 $e_y=ie_x$），并按 Albajar 式 (14) 归一到单位 Poynting 通量 $\abs{\mathrm{Re}\big(\hat{\vb e}^*\times(\vb N\times\hat{\vb e})\big)}=1$。
+〔本仓选择〕弱相对论极化（Krivenski–Orefice 张量）未取；BORAY-3D 注明两种均可 {cite}`wang2026boray3d`。
+
+〔求积〕〔实现〕$t$ 上 48 点 Gauss–Legendre；从第一个共振谐波起至多求 6 个谐波，某谐波最低共振能量处
+$e^{-\mu(\gamma-1)}<10^{-30}$ 即截止；$e^{\mu}K_2(\mu)$ 由 4 段 × 32 点 Gauss–Legendre 积到
+$\operatorname{arccosh}(1+60/\mu)$；$J_n$、$J_n'$ 取合成诊断层的 Bessel 函数。沿射线 $\dd\tau/\dd s=\alpha$；相邻两个接受点之间，
+以线性插值的 $\vb x$、$\vb N$ 作复合 Simpson 积分，片长不超过 `h_max`。实现注："共振层比射线步窄（$\dd R/R\sim T_e/m_ec^2$，
+keV 下数毫米），在射线自己的点上求积会跨过它"。
+
+〔沉积〕〔实现〕每个 Simpson 样点 $j$ 取走射线余功率的 $1-e^{-\dd\tau_j}$，并按该点的 $\bar\psi$ 装入壳层：
+
+$$
+\Delta P_j=P_{j-1}\big(1-e^{-\dd\tau_j}\big),\qquad P_j=P_{j-1}-\Delta P_j,\qquad
+\sum_{\rm shells}\Delta P+P_{\rm outside}+P_{\rm left}=P_0
+$$ (eq-p09-deposit)
+
+〔已确立〕守恒由构造逐项相消而得；$P_{\rm left}=P_0\,e^{-\tau}$ 与报出的 $\tau$ 出自同一次积分。〔本仓选择〕落在壳层范围之外
+（或介质无 $\bar\psi$ 处）的吸收单列为 $P_{\rm outside}$，不并入最外壳——这与 {ref}`phys09-nbi-deposit` 的"越界装进最外壳"
+不同。壳体积由磁面描迹在**同一张 ψ 图** 上求得，与中性束沉积用同一套面；功率密度 $p_e=\Delta P/\Delta V$。
+
+(phys09-ray-door)=
+## 门与输出 (The Door and Its Outputs)
+
+〔实现〕门 `code/rf_ray` 读平衡文档（ψ 图、F 表、边界、ψ 规范、磁轴）、剖面（$\bar\psi$ 网格上的 $n_e$、$T_e$）与电子回旋
+发射表（位置、两个指向角、频率、模式 ±1、功率），逐束发射并追踪。{numref}`tbl-p09-rfray-door` 列出其设置与输出。
+
+:::{table} `code/rf_ray` 的设置、字段与事实（2026-09-11；括号内为缺省值）。
+:name: tbl-p09-rfray-door
+:align: left
+
+| 类别 | 名称 | 内容 |
+| :--- | :--- | :--- |
+| 设置 | `s_max`、`ds_max`、`tol`、`sol_width` | 路程上限（20 m）、最大步长（$10^{-2}$ m）、容差（$10^{-10}$）、刮削层衰减宽度（0.02） |
+| 设置 | `deposit`、`rf_shells`、`h_max`、`n_theta` | 打开吸收与沉积（关）、壳数（50）、Simpson 片长（$10^{-4}$ m）、壳面描迹的角点数（181） |
+| 字段 | `rays`、`beams` | 每个接受点（束号, $s$, $R$, $Z$, $\phi$, $N_\parallel$, $\abs{\vb N}$, $\bar\psi$）；每束（束号, 最深 $\bar\psi$, 终点 $s$, 最大 $\abs{\delta\omega/\omega}$, 点数, 停止码） |
+| 字段（`deposit` 打开时） | `shell_edges`、`shell_volume`、`power_shell`、`p_e`、`absorption` | 壳边；壳体积；每束每壳功率（W）；各束合计的功率密度（W m⁻³）；每束（束号, $\tau$, 吸收份额, 壳外功率） |
+| 事实（`deposit` 打开时） | `power_launched`、`power_absorbed`、`power_left`、`power_not_traced` | 前者等于后三者之和 |
+:::
+
+〔拒绝〕〔实现〕`current_drive` 与 `eccd` 按名拒绝，实现注："零电流会读成'这束不驱动电流'，那是一句物理断言"。
+只给低杂波天线表的计划按名拒绝：低杂波发射以强加的折射率而非两个指向角参数化，其声明路径未定。模式不是 ±1 时拒绝
+（"模式是色散的一个支，不作取整"）。某一束的发射被拒绝时，记为该束的说明，其余各束照常追踪。
 
 (phys09-limits)=
 # 适用域与失效条件 (Applicability & Failure Modes)
@@ -291,10 +486,15 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
    FWCD 线性拟合——均为 METIS 的标定，不可脱离其模型组合外推。
 3. **NBI**：$n_i=n_e$ 于阻止；首轨损失仅反向；无束—束阻止；足迹 $3\times3$ 均匀。
 4. **α**：出生处慢化，无快 $\alpha$ 输运；$P_\alpha$ 分配比 ASTRA 低 11–14 %（已量化）。
-5. **LH**：单程共振，无上移模型；$\eta_{CD}$ 必须外给；EAST 参数下常**无共振面**。
+5. **LH**：单程共振，无上移模型；$\eta_{CD}$ 必须外给；EAST 参数下常**无共振面**。射线追踪层给出 LH 轨迹（含几何上移），
+   但无吸收、未接门。
 6. **ICRH**：仅稳态；波纹机器拒绝；电子/离子份额径向均匀；层外拒绝。
-7. **EC**：冷共振（$O(T_e/m_ec^2)$ 位移未计）、直线传播、真空 $1/R$ 场；单程吸收缺省不建模；斜入射 X1 未移植。
+7. **EC（闭式档）**：冷共振（$O(T_e/m_ec^2)$ 位移未计）、直线传播、真空 $1/R$ 场；光深式 {eq}`eq-p09-tau` 只到
+   $T_e/m_ec^2$ 最低阶——1 keV 下全相对论板积分比它低 2.4 %（O1）、3.5 %（X2）、6.5 %（X3）；斜入射 X1 未移植。
 8. **FWCD** 打开会改变 ICRH 功率账（METIS 约定）。
+9. **射线追踪**：轨迹用冷色散，热修正未计；EC 吸收用冷极化；无束宽、衍射与聚焦；无伴随 ECCD；LH 无吸收；边缘反射是
+   声明的模型；离子至多 4 种；中心差分导数要求介质 C¹；壳量尚未映到输运梯子（`fyo:core_sources`）。GENRAY 在 EAST 上的
+   X2 射线比本层早 12 mm 到达半吸收点（冷极化是最可能的差源，〔推测〕未证实）。
 
 (phys09-verify)=
 # 验证锚点 (Verification Anchors)
@@ -315,10 +515,25 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 | ICRH $p_{el}$、$W_{\rm fast}$ | METIS 稠态行 | $[0.85,1.15)$ |
 | ICRH 剖面峰位 / 宽度 | METIS `picrh_x_peak/width` | 0.05 / 5 % |
 | ECCD 驱动电流 | METIS `ieccd`（$\ge25$ 行） | $[0.85,1.25)$，中位 1.020 |
-| EC 光深排序与量级 | Bornatici / Sabri 图 | $\tau_{X2}>\tau_{O1}>\tau_{X3}$；X2 $\in(15,40)$ |
+| EC 光深排序与量级 | Bornatici 表 IV（3 keV、2.25 T、$3\times10^{19}$ m⁻³） | $\tau_{X2}>\tau_{O1}>\tau_{X3}$；X2 $\in(10,20)$、O1 $\in(2,9)$、X3 $\in(0.2,0.6)$ |
+| EC 光深闭式 ↔ 全相对论板积分 | 两者之比在 125 / 250 eV 的 Richardson $T_e\to0$ 极限（O1、O2、X2、X3） | $\abs{\text{极限}-1}<10^{-3}$（实测 $\le1.1\times10^{-4}$），斜率为负 |
+| 闭式的密度因子 | 同上，$\omega_{pe}^2/\omega^2$ 由 0.005 到 0.1 | 比值漂移 $<3\times10^{-3}$ |
 | O 模截止密度（70 GHz） | 闭式 | $6.08\times10^{19}\pm10^{18}$ |
 | FWCD 效率 | 20 个实测点 | 比 $\in[0.70,1.30)$，中位 5 % 内 |
 | LH 驱动电流 | $\eta P/(\bar n_eR_0)$ | $10^{-9}$ |
+| 射线：两种色散同一张面 | Appleton–Hartree 支上的点代入 Stix $D$（斜射 5°–85°，$X$、$Y$ 在 1 两侧） | 相对残差 $<10^{-12}$ |
+| 射线：真空与线性密度板 | 直线传播；O 支 Snell 转折 $x_t=L\cos^2\theta_0$ 与返回点；X 支转折的解析根 | 真空偏移 $10^{-9}$ m；转折 $10^{-6}L$、返回 $10^{-5}L$、Snell 不变量 $10^{-9}$ |
+| 射线：轴对称守恒 | 环向角动量 $xN_y-yN_x$（EC）、$RN_\phi$（LH） | 漂移 $10^{-7}$（相对）；$\abs{\delta\omega/\omega}<10^{-7}$ |
+| 射线：LH 汇合与快波截止 | 由色散系数单独求出的判别式零点与较小根零点，逐个转折点 | $10^{-6}$ m，转折后所在的根一致 |
+| 射线：样条介质 | Solov'ev 解析梯度；规范（每弧度 / 整圈）；刮削层延拓规则 | 最细网格 $<10^{-4}$、每级 $\ge4$ 倍；介质 $10^{-12}$；规则 $10^{-9}$ |
+| 射线：声明的边缘反射 | 每次镜像的 $N_\parallel$、$\abs{\vb N}$、$\delta\omega/\omega$ | $10^{-10}$ |
+| EC 吸收：沿射线积分 | 同一板上的直接积分（X2，1 keV） | $10^{-3}$ |
+| EC 吸收：运动学边沿 | 边沿下 $\alpha=0$、边沿上 $\alpha>0$（$N_\parallel$ 0 / 0.2 / 0.4，两支）；$\alpha(N_\parallel)=\alpha(-N_\parallel)$ | 恰为零；对称 $10^{-12}$ |
+| EC 沉积 | 壳 + 壳外 + 余量 = 入射（Solov'ev X2，$\tau$ 149）；片长四倍加密 | $10^{-12}$；二阶收敛（比 $>8$、细对 $<10^{-3}$） |
+| `code/rf_ray` 沉积 | 1 MW X2 于解析圆位形：功率账；壳体积和对 $2\pi^2R_0a^2$；解出的冷层之外的壳功率 | $10^{-9}$；$5\times10^{-3}$；$<10^{-6}P_0$ |
+| B 类：GENRAY 在 EAST 上的介质 | GENRAY 射线点上记下的 $\vb B$、$n_e$、$\bar\psi$ | $3\times10^{-5}$ / $10^{-4}$ / $10^{-5}$ |
+| B 类：GENRAY 在 EAST 上的轨迹 | EC O / X 与 LH 四射线，按极向距离对比 $(R,Z)$、$R\,\delta\phi$、$N_\parallel$ | EC $10^{-3}$ m / $10^{-3}$ m / $10^{-3}$；LH $10^{-3}$ m / $2\times10^{-3}$ m / $5\times10^{-3}$ |
+| B 类：GENRAY 在 EAST 上的 EC 剩余功率 | O：$\tau$、半吸收点、$\abs{\Delta P}$；X：剩余、$\tau$、半吸收点（实测 O 0.86993 对 0.86989；X 半吸收点晚 12 mm） | O $1\%$ / 1 cm / 0.02；X $<10^{-3}$ / $15\%$ / 2 cm |
 :::
 
 (phys09-asbuilt)=
@@ -338,7 +553,9 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 | 聚变 $\alpha$ 加热 | `fyo:core_sources`：$\alpha$ 能量源 | `assembly.alpha_si` |
 | 低杂波（可达性、共振、效率、沉积） | `fyo:core_sources`：LH 电流与功率 | `scenario.model.lh` |
 | 离子回旋少数离子加热与快波驱流 | `fyo:core_sources`：ICRH 功率与 FWCD 电流 | 内核 `heating.rs` 有算子而**无门**、无宿主调用；Python 装配 `scenario.model.ic` 自 2026-09-06 归内核仓测试树（`tests/oracles/ic.py`） |
-| 电子回旋（模型在，未接出） | —（未接到 fyo 面） | — |
+| 电子回旋闭式档（共振、光深、效率） | —（未接到 fyo 面） | — |
+| 射线追踪：EC 轨迹、沿射线吸收与 $\bar\psi$ 壳沉积 | —（门返回壳量 `power_shell`、`p_e`；映到 `fyo:core_sources` 的梯子未做） | `fylite.io.fydoc.complete("code/rf_ray", …)` |
+| 射线追踪：低杂波轨迹 | —（未接门） | — |
 :::
 
 (phys09-sources)=
@@ -346,8 +563,11 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 
 〔一手文献（实现逐字引）〕RABBIT 保真档 {cite}`weiland2018rabbit`；METIS {cite}`artaud2018metis`；Stix 少数离子分布
 {cite}`stix1975fast`；Lin-Liu–Hinton 屏蔽 {cite}`linliu1997shielding`；Giruzzi ECCD {cite}`giruzzi1987eccd`；Lin-Liu
-$Z_{\rm eff}$ 依赖 {cite}`linliu2003eccd`；EC 光深 {cite}`bornatici1983ec,sabri2012ec`；FWCD 量级 {cite}`iterphysicsbasis1999ch6`；
-Bosch–Hale {cite}`boschhale1992fusion`；Wesson 分配 {cite}`wesson2004tokamaks`。
+$Z_{\rm eff}$ 依赖 {cite}`linliu2003eccd`；EC 光深原表 {cite}`bornatici1983ec`（表 IV，2026-09-11 起按原文）与其重印
+{cite}`sabri2012ec`（首次转录所据，两处与原文不符，见 {ref}`phys09-ec`）；FWCD 量级 {cite}`iterphysicsbasis1999ch6`；
+Bosch–Hale {cite}`boschhale1992fusion`；Wesson 分配 {cite}`wesson2004tokamaks`；全相对论 EC 吸收
+{cite}`albajar2007ec,marushchenko2014travis`；射线方程与多组分冷色散的写法 {cite}`xie2022boray,wang2026boray3d`；
+冷等离子体色散 {cite}`stix1992waves`。
 
 〔一手文献（编者对应，实现只给姓名 / 上游文件）〕Stix 慢化 {cite}`stix1972heating`；Janev–Boley–Post 截面
 {cite}`janev1989penetration`；Riviere {cite}`riviere1971penetration`；Start–Cordey 束电流 {cite}`start1980beam`；
@@ -358,10 +578,13 @@ Lin-Liu–Miller 捕获份额 {cite}`linliu1995trapped`；LH 可及性与冷等�
 （未移植）；ECCD 拟合的内部结构（"私人通讯"）。这些在本章标 〔未核验〕。
 
 〔转引（转录）〕METIS `z0nbipath.m`、`z0nbistop.m`、`z0signbi.m`、`zicd0.m`、`zfract0.m`、`zsupra0.m`、`z0icrh.m`、`z0qp.m`、
-`zboot0diff.m`、`fitetafwcd.m`（CEA/IRFM，CeCILL-C）；ASTRA / CORSICA ITER 15 MA 参考例；ITER / IMAS / FUSE 发射角约定。
+`zboot0diff.m`、`fitetafwcd.m`（CEA/IRFM，CeCILL-C）；ASTRA / CORSICA ITER 15 MA 参考例；ITER / IMAS / FUSE 发射角约定；
+GENRAY 在 EAST 71230 炮 4.8 s 上的 EC（100 GHz O / X）与 LH（2.45 GHz 四射线）输出及其 g 文件，随 BORAY 仓（提交 `54bcda7`）
+分发，作射线追踪层的 B 类参照，不随本书发布。
 
 〔本仓选择〕杂质多项式的 `Exp` 读法；能量分量求和；精确拉莫半径；Lin-Liu–Miller 捕获份额；波纹与层外拒绝；
-$R_{\rm tan}\ge r_{\rm start}$ 拒绝；越界沉积装最外壳。证据为 {numref}`tbl-p09-verify`。
+$R_{\rm tan}\ge r_{\rm start}$ 拒绝；越界沉积装最外壳。射线追踪层：冷极化；C¹ 刮削层延拓与按竖直范围判私有区；声明的边缘
+反射；逐项相消的沉积与壳外单列；`current_drive` 按名拒绝。证据为 {numref}`tbl-p09-verify`。
 
 # 参考来源 (References)
 
