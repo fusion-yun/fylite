@@ -8,8 +8,8 @@ Generated rather than kept in step by hand, for the reason
 """
 
 #: the revision of this interface, and the digest of everything it declares
-REVISION = 1
-DIGEST = 'e6200ec7d039f3f0'
+REVISION = 2
+DIGEST = '33b5c04bdcf8192c'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -48,7 +48,7 @@ TABLES = {
         "slots": {
             'psin': {"path": 'profiles_1d/grid/fylite:psi_norm', "units": '1', "rank": '1d'},
             'time': {"path": 'time', "units": 's', "rank": '1d'},
-            'rho': {"path": 'profiles_1d/grid/rho_tor', "units": 'm', "rank": '1d'},
+            'rho': {"path": 'profiles_1d/fylite:grid/rho_tor', "units": 'm', "rank": '1d'},
             'rho_d': {"path": 'profiles_1d/grid_d/rho_tor', "units": 'm', "rank": '1d'},
             'chi_e': {"path": 'profiles_1d/electrons/energy/d', "units": 'm^2/s', "rank": '1d'},
             'chi_i': {"path": 'profiles_1d/total_ion_energy/d', "units": 'm^2/s', "rank": '1d'},
@@ -71,10 +71,10 @@ TABLES = {
             'limiter_name': {"path": 'wall/description_2d/limiter/unit/name', "units": '1', "rank": '0d'},
             'limiter_r': {"path": 'wall/description_2d/limiter/unit/outline/r', "units": 'm', "rank": '1d'},
             'limiter_z': {"path": 'wall/description_2d/limiter/unit/outline/z', "units": 'm', "rank": '1d'},
-            'vessel_r': {"path": 'wall/description_2d/vessel/unit/element/geometry/rectangle/r', "units": 'm', "rank": '0d'},
-            'vessel_z': {"path": 'wall/description_2d/vessel/unit/element/geometry/rectangle/z', "units": 'm', "rank": '0d'},
-            'vessel_width': {"path": 'wall/description_2d/vessel/unit/element/geometry/rectangle/width', "units": 'm', "rank": '0d'},
-            'vessel_height': {"path": 'wall/description_2d/vessel/unit/element/geometry/rectangle/height', "units": 'm', "rank": '0d'},
+            'vessel_r': {"path": 'wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/r', "units": 'm', "rank": '0d'},
+            'vessel_z': {"path": 'wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/z', "units": 'm', "rank": '0d'},
+            'vessel_width': {"path": 'wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/width', "units": 'm', "rank": '0d'},
+            'vessel_height': {"path": 'wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/height', "units": 'm', "rank": '0d'},
             'vessel_a1': {"path": 'wall/description_2d/vessel/unit/fylite:a1', "units": 'deg', "rank": '0d'},
             'vessel_a2': {"path": 'wall/description_2d/vessel/unit/fylite:a2', "units": 'deg', "rank": '0d'},
             'vessel_eta': {"path": 'wall/description_2d/vessel/unit/fylite:resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
@@ -91,7 +91,7 @@ TABLES = {
             'lh_max_power': {"path": 'lh_antennas/antenna/fylite:max_power', "units": 'W', "rank": '0d'},
             'lh_n_parallel': {"path": 'lh_antennas/antenna/fylite:n_parallel', "units": '1', "rank": '1d'},
             'r0': {"path": 'tf/r0', "units": 'm', "rank": '0d'},
-            'b0': {"path": 'tf/b0', "units": 'T', "rank": '0d'},
+            'b0': {"path": 'tf/fylite:b0', "units": 'T', "rank": '0d'},
             'grid': {"path": 'fylite:grid', "units": '1', "rank": '0d'},
             'grid_r_min': {"path": 'machine/default_grid/r_min', "units": 'm', "rank": '0d'},
             'grid_r_max': {"path": 'machine/default_grid/r_max', "units": 'm', "rank": '0d'},
@@ -712,4 +712,4 @@ ENTRY_BLOCKS = {
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
 
 #: the `fylite:` terms more than one host writes
-TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'device_id', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'geometry', 'group', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'outline_levels', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'target_r', 'target_z', 'te_profile', 'time', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'wave_phases', 'wave_t', 'weight', 'weight_extra', 'x_ref', 'y_init']
+TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b0', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'device_id', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'geometry', 'grid', 'group', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'length', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'outline_levels', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_norm', 'psi_prev', 'q_prev', 'q_psi_norm', 'r2_average', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shift', 'shinethrough', 'sigma_prev', 'source', 'target', 'target_r', 'target_z', 'te_profile', 'time', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'wave_phases', 'wave_t', 'weight', 'weight_extra', 'x_ref', 'y_init']

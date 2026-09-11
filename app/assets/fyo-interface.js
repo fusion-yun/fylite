@@ -46,6 +46,7 @@
     'a2',                  // Angle [deg] of the element side of length `height` with the horizontal; 90 is a plain rectangle.
     'a_minor',             // Minor radius [m] carried on an equilibrium's global quantities, where the DD has no slot for it.
     'angle_deg',           // Poloidal angle [deg] of a magnetic probe.
+    'b0',                  // `tf`'s vacuum toroidal field at R0 [T].
     'b_tor',               // The vacuum toroidal field at R_centre [T], a MEASUREMENT of the shot bound under discharge/fylite:b_tor: F at the plasma edge is |R_centre B0| and `code/reconstruction` refuses without it (第三十一刀: the page binds its machine's `tf.
     'channel_aturns',      // Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start.
     'chi_prev',            // The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors.
@@ -69,6 +70,7 @@
     'fit_y',               // The values at `fit_x` the fit is held to — `code/profile_fit`.
     'flux_loop',           // The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`).
     'geometry',            // A wall element's original parameterised rectangle, kept for reference after the DD normalisation expands it into `outline/{r,z}` -- the DD's wall element has NO `geometry`, only an outline.
+    'grid',                // `core_transport`'s COMMON rho grid.
     'group',               // Which layer of the passive structure a vessel unit belongs to (EAST: `inner_shell` / `outer_shell` / `passive_plates`).
     'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'ip',                  // The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held.
@@ -119,8 +121,8 @@
     'x_ref',               // The channel ampere-turns a null design is anchored to [A] — `code/breakdown` pulls the design towards them (the page's `xRef`: the reference discharge's currents when the reader asks for that anchor).
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
-  var REVISION = 1;
-  var DIGEST = "e6200ec7d039f3f0";
+  var REVISION = 2;
+  var DIGEST = "33b5c04bdcf8192c";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -156,7 +158,7 @@
       slots: {
         "psin": { path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
         "time": { path: "time", units: "s", rank: "1d" },
-        "rho": { path: "profiles_1d/grid/rho_tor", units: "m", rank: "1d" },
+        "rho": { path: "profiles_1d/fylite:grid/rho_tor", units: "m", rank: "1d" },
         "rho_d": { path: "profiles_1d/grid_d/rho_tor", units: "m", rank: "1d" },
         "chi_e": { path: "profiles_1d/electrons/energy/d", units: "m^2/s", rank: "1d" },
         "chi_i": { path: "profiles_1d/total_ion_energy/d", units: "m^2/s", rank: "1d" },
@@ -179,10 +181,10 @@
         "limiter_name": { path: "wall/description_2d/limiter/unit/name", units: "1", rank: "0d" },
         "limiter_r": { path: "wall/description_2d/limiter/unit/outline/r", units: "m", rank: "1d" },
         "limiter_z": { path: "wall/description_2d/limiter/unit/outline/z", units: "m", rank: "1d" },
-        "vessel_r": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/r", units: "m", rank: "0d" },
-        "vessel_z": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/z", units: "m", rank: "0d" },
-        "vessel_width": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/width", units: "m", rank: "0d" },
-        "vessel_height": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/height", units: "m", rank: "0d" },
+        "vessel_r": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/r", units: "m", rank: "0d" },
+        "vessel_z": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/z", units: "m", rank: "0d" },
+        "vessel_width": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/width", units: "m", rank: "0d" },
+        "vessel_height": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/height", units: "m", rank: "0d" },
         "vessel_a1": { path: "wall/description_2d/vessel/unit/fylite:a1", units: "deg", rank: "0d" },
         "vessel_a2": { path: "wall/description_2d/vessel/unit/fylite:a2", units: "deg", rank: "0d" },
         "vessel_eta": { path: "wall/description_2d/vessel/unit/fylite:resistivity_uohm_m", units: "uohm.m", rank: "0d" },
@@ -199,7 +201,7 @@
         "lh_max_power": { path: "lh_antennas/antenna/fylite:max_power", units: "W", rank: "0d" },
         "lh_n_parallel": { path: "lh_antennas/antenna/fylite:n_parallel", units: "1", rank: "1d" },
         "r0": { path: "tf/r0", units: "m", rank: "0d" },
-        "b0": { path: "tf/b0", units: "T", rank: "0d" },
+        "b0": { path: "tf/fylite:b0", units: "T", rank: "0d" },
         "grid": { path: "fylite:grid", units: "1", rank: "0d" },
         "grid_r_min": { path: "machine/default_grid/r_min", units: "m", rank: "0d" },
         "grid_r_max": { path: "machine/default_grid/r_max", units: "m", rank: "0d" },

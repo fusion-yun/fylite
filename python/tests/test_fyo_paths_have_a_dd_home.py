@@ -60,31 +60,27 @@ BASELINE: dict[str, str] = {
     "DEVICE/ic_turns": "ic_coil/coils/turns",
     "DEVICE/ps_max_voltage": "power_supply/max_voltage_V",
     "DEVICE/ps_current_kA": "power_supply/current_limit_kA",
-    #: ② 节在 DD 里，这一支不在：DD 的真空室元件由 **outline** 描述
-    #: （`outline/r` · `outline/z` · `midplane_thickness`），没有 `geometry`。
-    #: fylite 借了 `pf_active` 线圈元件的参数化写法。
-    #: ★★这四条**留在基线里**，因为查的是**声明表**：内核的扁平槽给的就是矩形
-    #: （r · z · width · height），那是这台机器真有的那份数据，它在 DD 里确实没有家。
-    #: 文档层 2026-09-07 已经通了：`fylite_runtime` 归一化时按内核
-    #: `kernels::element_filaments` 的同一个映射把矩形展成 `outline` 的四个角
-    #: （首点重复以闭合，倾角 `fylite:a1` / `a2` 一并算上），原矩形改挂
-    #: `fylite:geometry` 留作参考。EAST 实测：`wall.h5` 8 → 188 个叶子，真空室
-    #: 90 条不再丢。**这一层修好不等于那一层修好** —— 两道闸各查各的。
-    "DEVICE/vessel_r": "wall/description_2d/vessel/unit/element/geometry/rectangle/r",
-    "DEVICE/vessel_z": "wall/description_2d/vessel/unit/element/geometry/rectangle/z",
-    "DEVICE/vessel_width": "wall/description_2d/vessel/unit/element/geometry/rectangle/width",
-    "DEVICE/vessel_height": "wall/description_2d/vessel/unit/element/geometry/rectangle/height",
-    #: ③ 一个量，DD 里有它的**同义写法**而不是这个写法。`tf` 有
-    #: `b_field_phi_vacuum_r`（= R0·B0），没有 `b0`；`equilibrium` 那边
-    #: `vacuum_toroidal_field/b0` 是合法的 —— 同一个名字在一个 IDS 里有家、在
-    #: 另一个里没有。★文档层 2026-09-07 已定：换算成 `b_field_phi_vacuum_r/data`
-    #: （乘 r0；DD 那一支是信号结构，不是裸浮点）。**源**槽 `b0` 本身仍旧没有
-    #: DD 归宿，所以这一条留在基线里。
-    "DEVICE/b0": "tf/b0",
-    #: ④ `core_transport` 的 DD 只有 `grid_d` / `grid_v` / `grid_flux`，**没有**
-    #: 光秃的 `grid`。同表的 `rho_d` 已经走 `grid_d`。要定的是：`rho` 与 `rho_d`
-    #: 是不是同一条网格 —— 是，就该合并；不是，就要说清它是哪一条。
-    "CORE_TRANSPORT/rho": "profiles_1d/grid/rho_tor",
+    #: ★★★**② ③ ④ 三类六条 2026-09-11 修好，按本表的规矩从基线删除。**
+    #:
+    #: **② 真空室矩形四条**（`.../vessel/unit/element/geometry/rectangle/{r,z,width,height}`
+    #: → `fylite:geometry/...`）。此前这四条**特意留在基线里**，理由写作「查的是声明表，
+    #: 内核的扁平槽给的就是矩形，它在 DD 里确实没有家」。★**那条理由本轮判为把两件事
+    #: 混在了一起**：「这个量在 DD 里没有家」是本闸子记录的事实，而「所以它的路径必须带
+    #: `fylite:`」是内核模块自己的规则（裸写非 DD 名 = 声称一个它没有的出处）。两者不冲突，
+    #: 后者才是修法。佐证是同一段注释自己写着的：`fylite_runtime` 归一化时**原矩形就是
+    #: 挂在 `fylite:geometry` 下**的 —— 也就是说声明表里那个裸 `geometry` 指的路径，
+    #: 真文档里一处都没有。
+    #:
+    #: **③ `tf/b0` → `tf/fylite:b0`**。DD 的 `tf` 有 `r0` 与 `b_field_phi_vacuum_r`
+    #: （= R0·B0，是信号结构不是裸浮点），没有 `b0`；同名在 `equilibrium/vacuum_toroidal_field`
+    #: 下合法，所以词表里这一条 `gated: false` 并写明两个家。
+    #:
+    #: **④ `core_transport` 的 `profiles_1d/grid/rho_tor` → `profiles_1d/fylite:grid/rho_tor`**。
+    #: DD 的 transport model 只有 `grid_d` / `grid_v` / `grid_flux`。★**注意这一条只修好了
+    #: 名字，没有回答基线原先提的那个问题**：`rho` 与 `rho_d` 是不是同一条网格（是就该合并）。
+    #: 那个问题仍然开着，已记进公开仓 TODO。
+    #:
+    #: 三类都在内核 `rust/fylite/src/fyo.rs` 改，接口修订 **1 → 2**（改 path 必须升号）。
 }
 
 #: 逐条的性质，给读到失败的人看（不参与判定）

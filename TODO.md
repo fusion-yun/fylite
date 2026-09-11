@@ -49,6 +49,57 @@ BORAY 本地 oracle · `core_sources` 守恒落梯子）之后，开放条目跨
 | 缺席件 | — | `inone`（ONETWO 不能重跑，自举模型开关无从切）· `input.tgyro`（TGYRO 实际求解半径与选项 `[TBD]`）· 2.3 % 聚变功率差 `[TBD]` | 内核页 §1.7 |
 | 迭代提速（工具，非结论）| 内核 `1dffef4`：`FY_S4_*` 保真度旋钮（便宜档）· 热启动 `FY_S4_DUMP` / `FY_S4_START_FILE`（每轮落盘）· 半径调度改动态取号 | ★**2026-09-11 标定已跑**（`s4_control_the_cheap_fidelity_against_the_full_deck`）：全档 92.5 s / eval · 便宜档 29.8 s（3.1×，Q_e 偏置 −4.7…−22.9 %）· 精简档 4.5 s（20.5×，+0.5…+10.9 %）；精简档 120 次 eval / 297 s 的落点与全档差 **0.7 % · 1.2 % · 1.1 %**（W_th · P_fus · Q）。**「用精简档找解、用全档定值」已量过**；逐点偏置仍须随数引用 | 内核页 §5.1 · `cfedr_s4.rs` 抬头 |
 
+### 0.4 台基：向 EPED 收窄（2026-09-11 立，用户指示 A/B 进计划、C 待评）
+
+★**现状**：本仓有的是 **EPED1-NN 代理**（`rust/fylite/src/pedestal.rs` 511 行 + 生成的权重表，
+九组解，九道判据），不是 EPED。EPED 是**两条约束在一族自洽重建的平衡上求交**：
+非局域剥离-气球稳定性（ELITE）与 KBM 起始 $\Delta\psi_N = 0.076\sqrt{\beta_{p,\mathrm{ped}}}$。
+
+★**已量的差**（内核 `docs/note/pedestal-literature.md` §4）：压强比 0.850 / 0.910 / 0.859，
+宽度比 0.945 / 0.965 / 0.826，$\beta_{N,\mathrm{ped}}$ 0.833 —— **系统性偏低，但落在论文自陈的
+±20 % 之内**。所以「现有实现不够用」**不能由这个偏差论证**。
+
+| 档 | 内容 | 状态 | 靶 |
+| :--- | :--- | :--- | :--- |
+| **A** | KBM 宽度约束 + **无限 n 气球**（沿场线一维 ODE 本征问题） | **计划中** | 解析极限（s–α）可自验 |
+| **B** | A + **EPED 外环**：扫（高度, 宽度）族 → 每点重建含 $J_{bs}$ 的 GS 平衡 → 两约束求交 | **计划中** | 端到端对已发表的 8 个数 |
+| **C** | 真 P-B（中 $n$ 全局本征值 + $\omega_*$ 抗磁稳定化，ELITE 做的事） | **评估结论见下：先找参照件，不先写求解器** | ✗ 容器内无中间量可对 |
+| **B′** | 把外环里**冻结的三样**放进去（$n_{e,\mathrm{ped}}$ · 形状 $\delta,\kappa,a,R$ · $Z_{\mathrm{eff}}$；现在只有 $\beta_N$ 在迭代，且是显式一步滞后） | **计划中**（A/B 的前置，代价最小） | 与现档同靶，只看落点移动 |
+| — | **T-C8 口径差**：本仓送 $\delta_{95}/\kappa_{95}$ 与体 $Z_{\mathrm{eff}}$，上游不一定同源 | 开（跨仓） | 口径未对齐前，第二层那 9–17 % 的归因不可判 |
+
+★★★**C 的进一步评估（2026-09-11）—— 结论是「先找参照件，不先写求解器」。**
+
+**(1) C 到底要算什么。** 边缘对**中 n**（约 5–30）理想 MHD 剥离-气球模的线性稳定性，
+判据是增长率对抗磁频率：$\gamma > \omega_*/2$。ELITE 用 $1/n$ 渐近展开（保到 $O(1/n^2)$）
+在场线对齐坐标上把它化成一族按极向谐波耦合的径向常微分方程，解广义本征值问题。
+**关键**：EPED 的全部要点正是那条**耦合**边界与「纯气球」或「纯剥离」都不同 ——
+所以把 A（无限 n 气球）当成 C 的便宜替身**在物理上不成立**，A 只能作自检不能作替代。
+
+**(2) 缺的不止求解器。** 还要 (a) 台基处**远高于输运梯子**的边缘网格与精确度规
+（$|\nabla\psi|$ · 局域剪切 · 曲率）；(b) 台基分辨的边缘自举电流（本仓有 Redl 点模型，
+但台基内的精度是另一回事）；(c) $\omega_{*i}$（现成）。
+
+**(3) 真正的瓶颈是判据，不是代码。** 容器内可用的靶只有 **8 个端到端数**
+（$p_{\mathrm{ped}}$ · $\Delta$），而且论文自陈 ±20 %。一个 P-B 求解器的内部自由度
+（n 谱的取法 · 分辨率 · $\omega_*$ 系数 · 边缘电流的处理）**远多于 8 个带 ±20 % 的数所能约束的**。
+业界验它用的是**稳定性图**（$\gamma/\omega_*$ 对 $n$；$j_{\mathrm{ped}}$–$\alpha$ 图），
+本仓没有可复算的数字版 —— 这是 `[TBD]`，也是本条的真阻塞。
+
+**(4) 本仓自己的经验说得更直白。** 射频线的 F-33（$\sigma_{B_p}$ 符号缺陷）**是因为有
+TORAY oracle 才被当场量出来的**；没有 oracle 之前，同一份代码带着那个缺陷过了所有自洽判据。
+一个没有参照件的 P-B 求解器**是不可证伪的**，写出来也不能用来判任何事。
+
+**(5) 因此排序**（我的评估，非裁定）：
+1. 先做 **B′ → A → B**（都有靶，且 A 可作 C 的**自检**：若代理给的台基离本仓自算的
+   无限 n 气球边界很远，那本身就是一条可检出的不一致）；
+2. 与此并行，**调查有没有授权相容、可作 oracle 的公开 P-B 码**（照 BORAY / TORAY 的先例），
+   结果记进本行；
+3. **只有在 (2) 有结果之后**，C 才谈得上立项，且须先立 ADR。
+
+★**本仓已有而 EPED 需要的**：平衡重建（`equilibrium.rs` 2902 行 + 固定/自由边界 GS 求解器）·
+流面几何与度规（`surfaces.rs` 2927 行）· 边缘自举电流（`neoclassical::redl_bootstrap_point`）·
+KBM 闭合（一行，且已有判据证明代理满足它）。**缺的只有稳定性求解器**。
+
 ### 0.3 其他（按被谁卡住分）
 
 | 组 | 条目 | 一句话 |
@@ -69,9 +120,9 @@ BORAY 本地 oracle · `core_sources` 守恒落梯子）之后，开放条目跨
 
 | 编号 | 归属 | 事项 | 依据 |
 | :--- | :--- | :--- | :--- |
-| **K-1** | kernel | 6 条裸路径的叶在 DD 中不存在：`core_transport/…/profiles_1d/grid/rho_tor`（该层只有 `grid_d`/`grid_v`/`grid_flux`）· 4 条 `wall/…/vessel/unit/element/geometry/rectangle/*`（`vessel_2d_element` 只有 `outline`）· `tf/b0`（`tf` 只有 `r0` 与 `b_field_phi_vacuum_r`）。另 1 条秩与 DD 坐标不符：`equilibrium/vacuum_toroidal_field/b0` 声明 `0d`，而 DD 记 `coordinate1: /time` | FYO-REPORT-05 O-1 · O-8 |
-| **K-2** | kernel | 16 条裸路径的首段不是任何 IDS（`machine` · `solver_dims` · `pf_active_circuits` · `ic_coil` · `power_supply`）——DD 检出的 84 个 IDS 目录里一个都没有。同批的 `pf_passive/fylite:group/…` 规矩带了前缀，故**很可能是 `fylite:` 前缀漏写**〔推测〕 | FYO-REPORT-05 O-2 |
-| **K-3** | kernel | `fyo.rs` 与 A-Box 对同一批量用了两个节名：A-Box 的 `transport/fylite:rho` · `transport/fylite:y` 对应 `fyo.rs` 的 `transport_inputs` 表。A-Box 用到的 118 条文档路径中 116 条两侧一致，只此 2 条不一致 | FYO-REPORT-05 O-9 |
+| ~~**K-1**~~ | kernel | ★★**2026-09-11 关闭。** 六条裸路径的叶在 DD 中不存在，已在内核 `fyo.rs` 逐条加 `fylite:`，接口修订 **1 → 2**（改 path 必须升号）、摘要随之更新，公开仓 `test_fyo_paths_have_a_dd_home.py` 的基线按它自己的规矩删掉这六行。★**顺带推翻了一条记录在案的选择**：真空室那四条此前特意留在基线里，理由是「查的是声明表，这个量在 DD 里确实没有家」—— 那把两件事混了：「没有 DD 归宿」是事实，「所以路径必须带 `fylite:`」是内核自己的规则，两者不冲突而后者才是修法；佐证是 `fylite_runtime` 归一化时**原矩形本来就挂在 `fylite:geometry` 下**，即那个裸 `geometry` 指的路径真文档里一处都没有。★**余一条未答**：`core_transport` 的 `rho` 与 `rho_d` 是不是同一条网格（是就该合并）—— 本轮只修好了名字，这个问题仍开。★另：「`vacuum_toroidal_field/b0` 声明 0d 而 DD 记 1 维」**判为非缺陷**——本表的 rank 指一个时间片内的秩，同形的还有九个槽 | 内核 `fyo.rs` 抬头 @fyo-revision |
+| **K-2** | kernel | ★★**2026-09-11 判明「加 `fylite:` 前缀」不是它的修法，故未改，条目仍开。** 首段确实不是 84 个 IDS 中的任何一个，但**真装置文档里这十六条的键一个都不存在**：`machine_desc/east/fylite_device_east.json` 的顶层是 `tf` · `pf_active` · `wall` · `magnetics` · `lh_antennas` 与 `fylite:grid` · `fylite:channel_map` · `fylite:vessel_resistivity_uohm_m` 一类，**早已整体搬到 `fylite:` 之下而本表没跟上**。所以 K-2 不是「裸写了非 DD 名」，是 **DEVICE 段相对真文档过期**：`machine/default_grid/r_min` 真正对应的是 `fylite:grid` 底下的某个键。加前缀只会让它看上去对而仍然指不到任何文档。**真修法 = 逐条对着真装置文档重映射**，已在 `test_fyo_paths_have_a_dd_home.py` 里以带理由的开列表登记，红着等那次重映射 | 本轮实测 |
+| **K-3** | kernel · fydata | 条目不变（`fyo.rs` 的 `transport_inputs` 对 A-Box 的 `transport/fylite:rho` · `transport/fylite:y`）。★**本轮未动**：判定要 A-Box 那一侧的实际文档，而本会话虽已取到 `fydata`，核对与改名是跨仓的一件独立活，不并进本轮 | FYO-REPORT-05 O-9 |
 | **K-4** | kernel · fyo | 单位书写法两侧未约定：12 处不同（9 处斜杠 vs 点-幂语法，3 处符号/角度约定 `amu`↔`u`、`1`↔`e`、`rad/s`↔`s^-1`），**量纲不符 0 处**。量表路径起点有两种约定（IDS 根 / 数组元素）且只写在散文里，机器可读的表不携带 | FYO-REPORT-05 O-5 · O-7 |
 
 ★ K-1 / K-2 / K-4 的"应改成什么"含〔推测〕成分，**不应据报告直接改写**——报告只出证据。
