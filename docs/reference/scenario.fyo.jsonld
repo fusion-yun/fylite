@@ -1,0 +1,855 @@
+{
+ "@context": {
+  "fyo": "https://fusion-yun.github.io/fyo/latest/",
+  "fylite": "urn:fylite:",
+  "dcterms": "http://purl.org/dc/terms/"
+ },
+ "@id": "fylite:scenario",
+ "@type": "fylite:ScenarioShape",
+ "dcterms:description": "The documents a complete scenario comprises, with every declared path, unit and rank, which of them carry a fylite: term rather than a DD name, and what a CFEDR-class run needs that has no slot at all.",
+ "dcterms:source": "python/fylite/_fyo_interface.py (generated from the kernel's tables)",
+ "fylite:interface_revision": 1,
+ "fylite:interface_digest": "e6200ec7d039f3f0",
+ "fylite:documents": [
+  {
+   "@id": "fylite:scenario/document/equilibrium",
+   "@type": "fyo:equilibrium",
+   "fylite:table": "EQUILIBRIUM",
+   "fylite:slot_count": 24,
+   "fylite:namespaced_count": 5,
+   "fylite:slots": [
+    {
+     "fylite:key": "ip",
+     "fylite:path": "time_slice/global_quantities/ip",
+     "fylite:units": "A",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "axis_r",
+     "fylite:path": "time_slice/global_quantities/magnetic_axis/r",
+     "fylite:units": "m",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "axis_z",
+     "fylite:path": "time_slice/global_quantities/magnetic_axis/z",
+     "fylite:units": "m",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "psi_axis",
+     "fylite:path": "time_slice/global_quantities/psi_axis",
+     "fylite:units": "Wb",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "psi_boundary",
+     "fylite:path": "time_slice/global_quantities/psi_boundary",
+     "fylite:units": "Wb",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "r0",
+     "fylite:path": "vacuum_toroidal_field/r0",
+     "fylite:units": "m",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "b0",
+     "fylite:path": "vacuum_toroidal_field/b0",
+     "fylite:units": "T",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "psi_1d",
+     "fylite:path": "time_slice/profiles_1d/psi",
+     "fylite:units": "Wb",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "time",
+     "fylite:path": "time",
+     "fylite:units": "s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "f",
+     "fylite:path": "time_slice/profiles_1d/f",
+     "fylite:units": "T.m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "pressure",
+     "fylite:path": "time_slice/profiles_1d/pressure",
+     "fylite:units": "Pa",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "f_df_dpsi",
+     "fylite:path": "time_slice/profiles_1d/f_df_dpsi",
+     "fylite:units": "T^2.m^2/Wb",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "dpressure_dpsi",
+     "fylite:path": "time_slice/profiles_1d/dpressure_dpsi",
+     "fylite:units": "Pa/Wb",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "psi_norm_1d",
+     "fylite:path": "time_slice/profiles_1d/fylite:psi_norm",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "q_1d",
+     "fylite:path": "time_slice/profiles_1d/q",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "q_psi_norm_1d",
+     "fylite:path": "time_slice/profiles_1d/fylite:q_psi_norm",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "grid_r",
+     "fylite:path": "time_slice/profiles_2d/grid/dim1",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "grid_z",
+     "fylite:path": "time_slice/profiles_2d/grid/dim2",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "psi_2d",
+     "fylite:path": "time_slice/profiles_2d/psi",
+     "fylite:units": "Wb",
+     "fylite:rank": "2d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "boundary_r",
+     "fylite:path": "time_slice/boundary/outline/r",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "boundary_z",
+     "fylite:path": "time_slice/boundary/outline/z",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "limiter_r",
+     "fylite:path": "fylite:limiter/r",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "limiter_z",
+     "fylite:path": "fylite:limiter/z",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "ladder_levels",
+     "fylite:path": "fylite:ladder_levels",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    }
+   ]
+  },
+  {
+   "@id": "fylite:scenario/document/ladder",
+   "@type": "fyo:equilibrium",
+   "fylite:table": "LADDER",
+   "fylite:slot_count": 24,
+   "fylite:namespaced_count": 13,
+   "fylite:slots": [
+    {
+     "fylite:key": "psin",
+     "fylite:path": "time_slice/profiles_1d/fylite:psi_norm",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "rho",
+     "fylite:path": "time_slice/profiles_1d/rho_tor",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "volume",
+     "fylite:path": "time_slice/profiles_1d/volume",
+     "fylite:units": "m^3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "vprime",
+     "fylite:path": "time_slice/profiles_1d/dvolume_drho_tor",
+     "fylite:units": "m^2",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "dv_dpsin",
+     "fylite:path": "time_slice/profiles_1d/fylite:dvolume_dpsi_norm",
+     "fylite:units": "m^3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "gm3",
+     "fylite:path": "time_slice/profiles_1d/gm3",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "gm7",
+     "fylite:path": "time_slice/profiles_1d/gm7",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "gm2",
+     "fylite:path": "time_slice/profiles_1d/gm2",
+     "fylite:units": "m^-2",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "q",
+     "fylite:path": "time_slice/profiles_1d/q",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "fpol",
+     "fylite:path": "time_slice/profiles_1d/f",
+     "fylite:units": "T.m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "rmin",
+     "fylite:path": "time_slice/profiles_1d/fylite:r_minor",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "rmaj",
+     "fylite:path": "time_slice/profiles_1d/fylite:r_major",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "r2",
+     "fylite:path": "time_slice/profiles_1d/fylite:r2_average",
+     "fylite:units": "m^2",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "shear",
+     "fylite:path": "time_slice/profiles_1d/magnetic_shear",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "kappa",
+     "fylite:path": "time_slice/profiles_1d/elongation",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "delta",
+     "fylite:path": "time_slice/profiles_1d/triangularity_upper",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "shift",
+     "fylite:path": "time_slice/profiles_1d/fylite:shift",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "s_kappa",
+     "fylite:path": "time_slice/profiles_1d/fylite:s_elongation",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "s_delta",
+     "fylite:path": "time_slice/profiles_1d/fylite:s_triangularity",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "zeta",
+     "fylite:path": "time_slice/profiles_1d/fylite:squareness",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "s_zeta",
+     "fylite:path": "time_slice/profiles_1d/fylite:s_squareness",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "zmag",
+     "fylite:path": "time_slice/profiles_1d/fylite:z_magnetic",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "dzmag",
+     "fylite:path": "time_slice/profiles_1d/fylite:dz_magnetic",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "mxh",
+     "fylite:path": "time_slice/profiles_1d/fylite:mxh_harmonics",
+     "fylite:units": "1",
+     "fylite:rank": "2d",
+     "fylite:namespaced": true
+    }
+   ]
+  },
+  {
+   "@id": "fylite:scenario/document/core_profiles",
+   "@type": "fyo:core_profiles",
+   "fylite:table": "CORE_PROFILES",
+   "fylite:slot_count": 13,
+   "fylite:namespaced_count": 3,
+   "fylite:slots": [
+    {
+     "fylite:key": "psin",
+     "fylite:path": "profiles_1d/grid/fylite:psi_norm",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "time",
+     "fylite:path": "time",
+     "fylite:units": "s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "rho",
+     "fylite:path": "profiles_1d/grid/rho_tor",
+     "fylite:units": "m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "rho_norm",
+     "fylite:path": "profiles_1d/grid/rho_tor_norm",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "q",
+     "fylite:path": "profiles_1d/q",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "psi",
+     "fylite:path": "profiles_1d/grid/psi",
+     "fylite:units": "Wb",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "ne",
+     "fylite:path": "profiles_1d/electrons/density",
+     "fylite:units": "m^-3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "te",
+     "fylite:path": "profiles_1d/electrons/temperature",
+     "fylite:units": "eV",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "ti",
+     "fylite:path": "profiles_1d/t_i_average",
+     "fylite:units": "eV",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "zeff",
+     "fylite:path": "profiles_1d/zeff",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "ni",
+     "fylite:path": "profiles_1d/fylite:ion_density",
+     "fylite:units": "m^-3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "omega",
+     "fylite:path": "profiles_1d/rotation_frequency_tor_sonic",
+     "fylite:units": "rad/s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "nz",
+     "fylite:path": "profiles_1d/fylite:impurity_density",
+     "fylite:units": "m^-3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    }
+   ]
+  },
+  {
+   "@id": "fylite:scenario/document/core_sources",
+   "@type": "fyo:core_sources",
+   "fylite:table": "CORE_SOURCES",
+   "fylite:slot_count": 5,
+   "fylite:namespaced_count": 1,
+   "fylite:slots": [
+    {
+     "fylite:key": "psin",
+     "fylite:path": "profiles_1d/grid/fylite:psi_norm",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "time",
+     "fylite:path": "time",
+     "fylite:units": "s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "j_par",
+     "fylite:path": "profiles_1d/j_parallel",
+     "fylite:units": "A/m^2",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_e",
+     "fylite:path": "profiles_1d/electrons/energy",
+     "fylite:units": "W/m^3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_i",
+     "fylite:path": "profiles_1d/total_ion_energy",
+     "fylite:units": "W/m^3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    }
+   ]
+  },
+  {
+   "@id": "fylite:scenario/document/ec_launchers",
+   "@type": "fyo:ec_launchers",
+   "fylite:table": "EC_LAUNCHERS",
+   "fylite:slot_count": 8,
+   "fylite:namespaced_count": 3,
+   "fylite:slots": [
+    {
+     "fylite:key": "name",
+     "fylite:path": "beam/name",
+     "fylite:units": "",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "frequency",
+     "fylite:path": "beam/frequency/data",
+     "fylite:units": "Hz",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "power_launched",
+     "fylite:path": "beam/power_launched/data",
+     "fylite:units": "W",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "r",
+     "fylite:path": "beam/launching_position/r",
+     "fylite:units": "m",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "z",
+     "fylite:path": "beam/launching_position/z",
+     "fylite:units": "m",
+     "fylite:rank": "0d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "angle_pol",
+     "fylite:path": "beam/fylite:angle_pol",
+     "fylite:units": "rad",
+     "fylite:rank": "0d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "angle_tor",
+     "fylite:path": "beam/fylite:angle_tor",
+     "fylite:units": "rad",
+     "fylite:rank": "0d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "mode",
+     "fylite:path": "beam/fylite:mode",
+     "fylite:units": "1",
+     "fylite:rank": "0d",
+     "fylite:namespaced": true
+    }
+   ]
+  },
+  {
+   "@id": "fylite:scenario/document/summary",
+   "@type": "fyo:summary",
+   "fylite:table": "SUMMARY",
+   "fylite:slot_count": 23,
+   "fylite:namespaced_count": 1,
+   "fylite:slots": [
+    {
+     "fylite:key": "time",
+     "fylite:path": "time",
+     "fylite:units": "s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "ip",
+     "fylite:path": "global_quantities/ip/value",
+     "fylite:units": "A",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "v_loop",
+     "fylite:path": "global_quantities/v_loop/value",
+     "fylite:units": "V",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_neutron",
+     "fylite:path": "fusion/neutron_power_total/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "t_ped",
+     "fylite:path": "local/pedestal/t_e/value",
+     "fylite:units": "eV",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "te_axis",
+     "fylite:path": "local/magnetic_axis/t_e/value",
+     "fylite:units": "eV",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "ti_axis",
+     "fylite:path": "local/magnetic_axis/t_i_average/value",
+     "fylite:units": "eV",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "ne_axis",
+     "fylite:path": "local/magnetic_axis/n_e/value",
+     "fylite:units": "m^-3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "q_axis",
+     "fylite:path": "local/magnetic_axis/q/value",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "q95",
+     "fylite:path": "global_quantities/q_95/value",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "w_th",
+     "fylite:path": "global_quantities/energy_thermal/value",
+     "fylite:units": "J",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "dw_dt",
+     "fylite:path": "global_quantities/denergy_thermal_dt/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "tau_e",
+     "fylite:path": "global_quantities/tau_energy/value",
+     "fylite:units": "s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "beta_n",
+     "fylite:path": "global_quantities/beta_tor_norm/value",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "beta_p",
+     "fylite:path": "global_quantities/beta_pol/value",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "greenwald",
+     "fylite:path": "global_quantities/greenwald_fraction/value",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_aux",
+     "fylite:path": "heating_current_drive/power_additional/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_alpha",
+     "fylite:path": "fusion/power/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_rad",
+     "fylite:path": "global_quantities/power_radiated/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_line",
+     "fylite:path": "global_quantities/power_line/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "p_ohm",
+     "fylite:path": "global_quantities/power_ohm/value",
+     "fylite:units": "W",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "q_fusion",
+     "fylite:path": "global_quantities/fusion_gain/value",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "steady_change",
+     "fylite:path": "fylite:steady_change",
+     "fylite:units": "1",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    }
+   ]
+  }
+ ],
+ "fylite:unmapped": [
+  {
+   "fylite:path": "species/n_D",
+   "dcterms:description": "the deuterium density",
+   "dcterms:source": "kernel rust/fylite_ext/src/cfedr_s4.rs (the six-species deck)"
+  },
+  {
+   "fylite:path": "species/n_T",
+   "dcterms:description": "the tritium density",
+   "dcterms:source": "same"
+  },
+  {
+   "fylite:path": "species/n_He",
+   "dcterms:description": "the thermal helium (ash) density",
+   "dcterms:source": "same"
+  },
+  {
+   "fylite:path": "species/n_Ar",
+   "dcterms:description": "the argon density",
+   "dcterms:source": "same"
+  },
+  {
+   "fylite:path": "species/n_He_fast",
+   "dcterms:description": "the fast-alpha density",
+   "dcterms:source": "same"
+  },
+  {
+   "fylite:path": "species/z_Ar",
+   "dcterms:description": "argon's mean charge state Z(T_e)",
+   "dcterms:source": "same — a PROFILE, not a constant"
+  },
+  {
+   "fylite:path": "species/w_fast_alpha",
+   "dcterms:description": "the fast alphas' stored energy density [J/m^3]",
+   "dcterms:source": "same — the fast population has no temperature, so an equivalent Maxwellian is built from it"
+  },
+  {
+   "fylite:path": "pedestal",
+   "dcterms:description": "the EPED pedestal solution (top position, width, height)",
+   "dcterms:source": "carried as settings on the transport door, not as a document"
+  }
+ ],
+ "fylite:binding": {
+  "@id": "fylite:scenario/FYDOC-CASE-20",
+  "dcterms:description": "CFEDR conventional H-mode 15 MA, integrated modelling V1 (ONETWO V5.8.2, t = 12 s). Restricted: the values live in fydoc under its release gate and are reached by path and sha256, never copied here.",
+  "fylite:case": "FYDOC-CASE-20",
+  "fylite:sources": [
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/statefile_1.200000E+01.nc",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/statefile_1.200000E+01.nc",
+    "fylite:sha256": "9b21cf4de68921930c12e195f2ecb8bef8c4e555d682b915226404aee9f154a2",
+    "fylite:feeds": [
+     "fyo:equilibrium",
+     "fyo:core_profiles",
+     "fyo:core_sources",
+     "fyo:summary"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/HCD_profiles_from_statefile.nml",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/HCD_profiles_from_statefile.nml",
+    "fylite:sha256": "a76b129a94509f8a1399163b019abd8b5ff0fadfb0d15f464bf84d5d1e0719c4",
+    "fylite:feeds": [
+     "fyo:core_sources"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/toray_inputs/echin",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/toray_inputs/echin",
+    "fylite:sha256": "6f649d50951a76f663e1f6da7618f52036b7d42fe1f766f7284c96dfca7bca88",
+    "fylite:feeds": [
+     "fyo:ec_launchers"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/toray_inputs/psiin",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/toray_inputs/psiin",
+    "fylite:sha256": "8a810a2fdf9a936bfd8555ef56b8cd92a63b3db641e87e5be6063b9f99d27c55",
+    "fylite:feeds": [
+     "fyo:equilibrium"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/gfile_efit",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/gfile_efit",
+    "fylite:sha256": "5d665395c664fcf0ecfed62acd17912a47fcb5bf452ab91d72c9022dc81f139b",
+    "fylite:feeds": [
+     "fyo:equilibrium"
+    ],
+    "fylite:registered": true
+   },
+   {
+    "@id": "fylite:corpus/FYDOC-CASE-20/H model 15MA 20240522/EPED/peddata",
+    "fylite:path": "cases/FYDOC-CASE-20-cfedr-hmode-15ma/corpus/H model 15MA 20240522/EPED/peddata",
+    "fylite:sha256": "8469320f3a7129ac01e60b510308c618faa9af37a0e4dbe5be64d8e25e677385",
+    "fylite:feeds": [
+     "fylite:pedestal"
+    ],
+    "fylite:registered": true
+   }
+  ],
+  "fylite:sources_read": true
+ }
+}

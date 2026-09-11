@@ -113,6 +113,7 @@ project:
         #: 里单开一页——七条子命令、两种布局、四类数据源，一节装不下。
         - file: reference/cli.md
         - file: reference/data-layer.md
+        - file: reference/scenario.md
         - title: 判据与报告 (Criteria & Reports)
           children:
             - file: reference/benchmark.md
