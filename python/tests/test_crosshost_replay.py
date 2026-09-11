@@ -344,101 +344,91 @@ def test_the_current_variant_actually_takes_the_other_branch():
 
 
 def test_the_two_hosts_diverge_by_amplification_and_the_rate_is_pinned():
-    """★★The divergence is an amplified ulp, and it is gated where it is
-    actually visible.
+    """★★The divergence is an amplified ulp — ACROSS ROWS, not along the march.
 
-    The two builds are not bit-identical — different float codegen, fma
-    contraction and libm — so every quantity starts off differing by an ulp,
-    and a nonlinear march AMPLIFIES that.  Measured on the CURRENT-channel
-    variant (re-measured 2026-08-30), `worst`:
+    The two builds are not bit-identical (different float codegen, fma
+    contraction, libm), so every quantity starts off differing by an ulp.
+    What this gate pins is where that ulp is visible and where it is not.
 
-    ``2.2e-15`` at 6 steps, ``1.745e-12`` at 12 and again at 24 (in
-    `p_ohm`) — it grows by ~800× and then SATURATES, because the march
-    reaches a steady state and stops feeding the difference.
+    ★★★**2026-09-11: the explanation this gate used to carry was wrong, and
+    the measurement that refuted it is below.**  It read `rec["worst"]` at
+    two march lengths and asserted the figure grows by 100x, on the strength
+    of `2.2e-15` at 6 steps against `1.745e-12` at 12 and 24.  Those two
+    numbers are not the same quantity: at 6 steps `worst` was a STATE row,
+    and at 12 it was `p_ohm` — a row DIFFERENCED out of `psi`, which carries
+    the cancellation of that subtraction.  The "growth" was a category
+    switch inside one maximum, not a march amplifying anything.
 
-    ★The 2026-08-28 figures were ``5.7e-16`` at 6 and 12 and ``6.2e-13`` at
-    24.  The Redl `L34 = L31` fix moved the crossing one doubling earlier;
-    see `_evolve_heat_current`, where the evidence that this is
-    amplification and not a new host-dependent operation is written down.
+    Re-measured on this build pair, with the two categories separated (T-C36
+    moved differenced rows out of `worst` and onto their own propagation
+    bound):
 
-    ★★It is gated on that variant and no longer on the sawtooth one, and
-    the reason is a defect this repository has written down rather than a
-    convenience: the sawtooth has **no crash period** (TODO T-C28), so on a
-    core with a q = 1 surface it crashes on EVERY step, and a crash
-    re-flattens the state.  There is then nothing left between crashes for
-    the march to amplify — measured: the sawtooth variant sits at a FLAT
-    3.15e-13 at 6, 12 and 24 steps.  Gating "it grows" there would be gating
-    a growth that this model cannot produce.
+    ```text
+      nt   state rows (worst)        ohm        p_ohm      bound
+       6   3.72e-15  (q)             6.75e-12   2.90e-13   2.95e-10
+      12   3.13e-15  (exch_prev_out) 4.06e-12   1.47e-12   2.61e-10
+      24   6.76e-15  (j_bs)          2.04e-12   1.47e-12   8.00e-10
+    ```
 
-    ★★The point of writing it down as a GATE rather than as a widened band:
-    a band chosen to swallow 6.2e-13 would agree with any future
-    disagreement up to that size, including a real one.  What is actually
-    checkable is the SHAPE of the divergence — it starts at machine epsilon
-    and grows — and that the DISCRETE outputs never part, because a step
-    count or a crash count differing is a disagreement no float noise can
-    excuse.
+    Two things are true of that table and the old claim was neither:
+
+    * the STATE rows sit at machine epsilon at every length and do NOT grow
+      with the march — 3.72e-15, 3.13e-15, 6.76e-15 is not a trend;
+    * the DIFFERENCED rows sit ~1000x above them, which is the amplification
+      — `ohm`'s relative difference over `psi`'s is the same order as the
+      measured cancellation factor (2.3e5) — and `ohm` actually FALLS with
+      march length rather than growing.
+
+    ★So what is checkable is the SEPARATION between the two categories and
+    each differenced row staying inside its own derived bound, not a growth
+    rate.  A band chosen to swallow 6.75e-12 would agree with any future
+    disagreement up to that size, including a real one; a bound that tracks
+    the cancellation tightens by itself when the step is larger.
+
+    ★★And the DISCRETE outputs must never part, at any length: a step count
+    or a crash count differing is a disagreement no float noise can excuse.
     """
     _one_build_or_skip()
-    import numpy as np
 
-    short = _evolve_heat_current()                      # nt = 6
-    long_ = _evolve_heat_current()
-    long_["dims"] = dict(long_["dims"], nt=24)
-    worst = {}
-    for label, call in (("short", short), ("long", long_)):
+    seen = {}
+    for nt in (6, 12, 24):
+        call = _evolve_heat_current()
+        call["dims"] = dict(call["dims"], nt=nt)
         native = X.run_native("evolve_heat", **call)
         wasm = X.run_wasm("evolve_heat", **call)
         rec = X.compare("evolve_heat", native, wasm)
-        worst[label] = rec["worst"]
         #: the discrete digest is the part that may NOT drift, at any length
         assert rec["discrete"]["native"] == rec["discrete"]["wasm"], (
-            f"{label}: the counts/flags parted — float noise does not "
+            f"nt={nt}: the counts/flags parted — float noise does not "
             "explain a different number of steps or crashes")
-    #: ★★★2026-09-10: THIS ASSERTION IS RED AND ITS MESSAGE IS WRONG.  It
-    #: reads 6.75e-12 at six steps against the 2.2e-15 recorded above and
-    #: concludes "a disagreement about the step".  Measured, it is not:
-    #:
-    #:   te 6.1e-16 · ti 1.2e-16 · psi 3.2e-16 · q 3.7e-15   — machine epsilon
-    #:   ohm 6.75e-12 · p_ohm 2.9e-13                        — four orders worse
-    #:
-    #: Every MARCHED field agrees at epsilon; only `ohm` and its volume
-    #: integral do not.  `ohm` is not marched — `scenario.rs` builds it from
-    #: `E_par = ratio * (psi[k] - prev[k]) / dt`, a difference of two nearly
-    #: equal fluxes.  Measured on this variant: |psi| 33.35 against
-    #: |psi - prev| median 1.45e-4, so the cancellation factor is 1.07e5
-    #: (1.51e5 at the worst node), and 3.2e-16 x 1.51e5 = 4.8e-11 BOUNDS the
-    #: observed 6.75e-12 with room to spare.  The mechanism is settled: the
-    #: hosts' epsilon disagreement in `psi`, amplified by a cancellation of
-    #: known size.
-    #:
-    #: ★So the failure is a CATEGORY ERROR in the comparison, of exactly the
-    #: kind `ENTRY_OUT_KIND`'s `noise` row already names ("the difference of
-    #: nearly equal numbers ... comparing two hosts' noise relatively is a
-    #: category error").  `ohm` is not `noise` — it is a physical heating
-    #: density and "both are small" is not its check — so it needs a kind
-    #: that `ENTRY_OUT_KIND` does not yet have: a real row FORMED BY
-    #: DIFFERENCING a state row, judged against the state row's own
-    #: agreement times the cancellation factor.
-    #:
-    #: ★★It is left RED on purpose.  Widening the band is what this file's
-    #: own docstring forbids ("a band chosen to swallow 6.2e-13 would agree
-    #: with any future disagreement up to that size, including a real one"),
-    #: and choosing how much amplification is acceptable is a ruling, not a
-    #: measurement.  See TODO T-C36 for the proposed kind and the numbers
-    #: above; whoever takes it should change `ENTRY_OUT_KIND` in the kernel
-    #: and `crosshost.compare`, not this number.
-    assert worst["short"] < 1e-14, (
-        f"the hosts differ by {worst['short']:.2e} at six steps.  If the "
-        "worst key is `ohm`/`p_ohm` this is T-C36 (a differenced row "
-        "compared as a marched one) and NOT a disagreement about the step — "
-        "check that te/ti/psi/q are still at epsilon before believing "
-        "otherwise")
-    assert worst["long"] > worst["short"] * 100, (
-        f"short {worst['short']:.2e} vs long {worst['long']:.2e}: the "
-        "divergence did not grow, so the explanation written here (a march "
-        "amplifying an ulp) is not what is happening — re-diagnose before "
-        "trusting either gate")
+        #: ★the state rows stay at machine epsilon.  1e-14 is three times the
+        #: largest ever measured here (6.76e-15), not a band chosen to pass
+        assert rec["worst"] < 1e-14, (
+            f"nt={nt}: the worst STATE row is {rec['worst']:.3e} ({rec['worst_key']}) — "
+            "above machine epsilon, so this is no longer an ulp and the "
+            "separation argument below does not hold")
+        diff = rec["differenced"]
+        assert set(diff) == {"ohm", "p_ohm"}, (
+            f"nt={nt}: the differenced rows changed to {sorted(diff)} — "
+            "re-measure the table in this docstring before trusting the gate")
+        for key, v in diff.items():
+            assert v["within"], f"nt={nt}: {key} is outside its propagation bound: {v}"
+        seen[nt] = (rec["worst"], diff["ohm"]["rel"], diff["ohm"].get("factor_native"))
+        #: ★★the separation IS the amplification, measured at every length:
+        #: the differenced row differs by far more than any state row, and
+        #: by roughly the cancellation factor times as much
+        assert diff["ohm"]["rel"] > 100.0 * rec["worst"], (
+            f"nt={nt}: ohm {diff['ohm']['rel']:.3e} is not separated from the worst state row "
+            f"{rec['worst']:.3e}.  Either the cancellation stopped happening or the rows are "
+            "no longer being differenced — re-diagnose, do not relax this")
 
+    #: ★the factor is what explains the separation, so it is pinned to its
+    #: measured ORDER (1e5) rather than to a value: it is a property of the
+    #: step size at each march length, and those differ by design
+    for nt, (_worst, _rel, factor) in seen.items():
+        assert 1e4 < factor < 1e7, (
+            f"nt={nt}: the cancellation factor {factor:.3e} left the measured "
+            "order (2.0e5 to 6.3e5) — the amplification story needs re-measuring")
 
 def test_the_sawtooth_variant_agrees_and_does_not_amplify():
     """★★The sawtooth path's own cross-host claim, stated as what it IS.

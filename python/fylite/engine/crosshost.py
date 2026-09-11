@@ -255,12 +255,27 @@ def _differenced(native: dict, wasm: dict, src: str, prev: str, rel: float) -> d
             return float("nan")
         return float(np.max(np.abs(x[good]) / d[good]))
 
+    #: ★★★A ZERO DISAGREEMENT IS NEVER A VIOLATION, whatever the bound.
+    #: This was a real defect in the first cut (found 2026-09-11, when a
+    #: rebuild made the two hosts agree on `ohm` BIT FOR BIT): `rel = 0`
+    #: with no step to difference gave `bound = nan`, `nan` compares false,
+    #: and the verdict read "ohm 0.00e+00 over its bound nan" — the
+    #: comparator calling perfect agreement a breach.  A bound is a CEILING
+    #: ON A DISAGREEMENT; with no disagreement there is nothing to ceiling,
+    #: and the bound is not even needed to say so.
+    if rel == 0.0:
+        return {"rel": 0.0, "source": src, "bound": float("inf"), "within": True,
+                "why": "the hosts agree bit for bit on this row: no difference to bound"}
     fn, fw = factor(native), factor(wasm)
     out = {"rel": rel, "source": src, "factor_native": fn, "factor_wasm": fw}
     if not (np.isfinite(fn) and np.isfinite(fw)):
-        #: no step to difference — say so rather than passing on a NaN bound
+        #: ★no step to difference, yet the hosts DO differ on the row that
+        #: was differenced from it — that cannot be explained by
+        #: cancellation, so it is reported as unexplained rather than
+        #: dressed in a NaN bound
         out.update(bound=float("nan"), within=False,
-                   why=f"no usable step in {src} - {prev}")
+                   why=f"no usable step in {src} - {prev}, so the {rel:.2e} "
+                       "difference on this row has no cancellation to explain it")
         return out
     #: the factors must agree; a step the hosts disagree about is the defect
     #: this bound would otherwise launder
