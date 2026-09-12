@@ -112,7 +112,7 @@ modified:
 | [`FYL-DESIGN-09`](FYL-DESIGN-09.md) | **放电设计页**（`pulse_design`）——一份脉冲脚本、三个模式（配置 / 设计 / 仿真）、同一套视图；平顶 PF 电流是 LCFS 锁定下的反馈轨迹；仿真两档保真度（D-1..D-25） | v2.0 · WD |
 | [`FYL-SDD-01`](FYL-SDD-01.md) | 软件设计描述——五视图；四层组合（九组件保号，DE-COMP-01 内核可替换、DE-COMP-09 中间层、DE-COMP-04 退役中）；逻辑视图新增 DE-LOG-11 文档门 · DE-LOG-12 内核无状态。★v1.1：装置语料与公开版 / 内部版构建入册 · ★v1.2：facts **搜索路径**（多源、前置、逐条决胜）· ★v1.3：更正一处实测（失败的 fetch 退出码是 1，不是 0） | v1.3 · WD |
 | [`FYL-SRS-01`](FYL-SRS-01.md) | 软件需求规格——五任务域 + 横切域（HOST · **KERNEL** · DATA · TOOL）FR、包络 / 依赖 / 质量 NR、外部接口、提案登记附录、追溯矩阵 | v1.0 · WD |
-| [`FYL-CONOPS-00`](FYL-CONOPS-00.md) | FyLite 运行概念——轻量验证 / 展示 FYTOK-CONOPS-00 五类应用任务；包络四条；建设原则六条；宿主与运行时；内核可替换为演进方向 | v1.0 · WD |
+| [`FYL-CONOPS-00`](FYL-CONOPS-00.md) | FyLite 运行概念——轻量验证 / 展示 FYTOK-CONOPS-00 五类应用任务；包络四条；建设原则六条；宿主与运行时；内核可替换为演进方向 | v1.1 · WD |
 
 (fylite-design-index-archive)=
 # 归档文档 (Archived Documents)

@@ -998,6 +998,17 @@ def _device_env(device: str | None):
 def run(case_id: str, d=None, *, predict: bool = False) -> dict:
     """Map and RUN one case through the tool face.
 
+    ★★**没有 ``resume=``，而这是量出来的**（`FYL-REPORT-07` C-28）。续跑的交接单
+    （``fylite:state``）用的是**内核声明的**参数名（`t_start` · `edge_te_in` …），
+    而本层这些入口收的是**它们自己的**一套——实测 `evolve` 的 39 个参数与交接单的
+    10 个标量**一个都不重合**，摆进去只会得到 ``evolve() got an unexpected keyword
+    argument 'capped_in'``。这是同一条缺口的第三次现形：装配层、原始入口、Python
+    入口是**三套**参数命名，而 code 那一层没有任何一处声明它自己收什么。
+
+    ★所以续跑今天走**命令行**（`fy run --resume-from <记录>`，那条路经文档门，名字
+    是内核的）；Python 这一侧只**读**那份交接单：:func:`fylite.engine.resume.carried`。
+    补上这一半要先落 `-16` K-2 的 code 表自报。
+
     Through ``serve.call_mcp_tool`` deliberately: the run then leaves the
     same manifest / acceptance / ledger every other recorded call leaves,
     and ``fylite report`` can present it.  Bulk arrays travel inline here

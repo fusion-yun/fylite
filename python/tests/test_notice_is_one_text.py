@@ -213,11 +213,31 @@ def test_the_terminal_sees_the_banner(lang: str):
 
 @pytest.mark.skipif(_EXE is None, reason="没有构建好的 fy")
 def test_a_pipe_sees_nothing_from_that_same_binary():
-    """★反面同样端到端：同一个二进制，stderr 是管道时一个字也不印。"""
+    """★反面同样端到端：同一个二进制，stderr 是管道时**招牌一个字也不印**。
+
+    ★★两句断言，分开的理由是一次实测（`FYL-REPORT-07` R-6）：本条从前问的是
+    「stderr 一个字节也没有」，而 `fy list devices` 在**没有内嵌语料**的构建上会
+    正当地往 stderr 上报一句「facts path is empty」——那是命令自己的错误话术，
+    不是招牌。于是一个合法的构建把这条闸子判红，而它要守的东西（管道上不印招牌）
+    根本没有被违反。现在：招牌与告示**永远**不许上管道；命令**成功**时才另外要求
+    stderr 干净——那是原来那句话仍然成立的范围。
+    """
     import subprocess
 
     r = subprocess.run([str(_EXE), "list", "devices"], capture_output=True, timeout=30)
-    assert r.stderr == b"", f"管道上印了东西：{r.stderr[:200]!r}"
+    err = r.stderr.decode("utf-8", "replace")
+    assert SPEC["wordmark"][0].strip() not in err, f"管道上印了招牌：{err[:200]!r}"
+    for n in SPEC["notices"]:
+        for lang in ("zh", "en"):
+            if lang in n:
+                assert n[lang] not in err, f"管道上印了告示：{err[:200]!r}"
+    #: ★★**命令答出东西来时**才要求管道干净。没有内嵌语料的构建上 `list devices`
+    #: 无可列，它把「语料路径是空的」印在 stderr 上并**退出 0**——那一句是命令
+    #: 自己的话术（它答不出东西时的说明），不是招牌；上面两句已经把招牌钉死了。
+    #: ★那个「有错话而退出 0」本身是一处可议之处，已记在 `FYL-REPORT-07` C-28；
+    #: 本闸子不代它裁定，只把自己的判据说准。
+    if r.stdout.strip():
+        assert r.stderr == b"", f"命令答出了东西而管道上印了东西：{r.stderr[:200]!r}"
 
 
 def test_an_undetermined_flavour_says_the_restriction_rather_than_hiding_it():

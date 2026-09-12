@@ -3,8 +3,8 @@
 ★★What this renders and what it refuses.  The inputs are two fyo / spo
 documents: the PLAN (``fyo:ScenarioSpecification`` — what was asked) and
 the RECORD (``spo:ComputationRecord`` — what came back, its datasets inline
-on the output ports as ``fylite case json`` / :func:`fylite.io.fydoc.case_json`
-hand them over, or beside it as files when ``fylite case run`` wrote them).
+on the output ports as :func:`fylite.io.fydoc.case_json` hands them over, or
+beside it as files when ``fy run … -o <dir>`` wrote them).
 Between them sits a PRESENTATION SPECIFICATION (``spo:PresentationSpecification``,
 FYL-REPORT-06 §13 / FYO-ADR-09): panels of views, each view a list of series
 bound to quantities of the record.  The spec is either supplied (a case may
@@ -707,8 +707,13 @@ def render_myst(plan: dict | None, record: dict, spec: dict, out_dir: Path, *, l
             w(f"| 产出 `{(b.get('binds_port') or {}).get('port_name', '')}` | `{_md_cell(conc.get('storage_uri', ''))}` | `{_md_cell(conc['checksum'])}` |")
     w(":::")
     w("")
-    w("重跑：`fylite cases --report <case id>`（经数据层的 JSON 门 `fylite_runtime_case_json`）或 "
-      "`fylite case run <plan.jsonld>` 后 `fylite cases --report --from <记录目录>`；呈现规格见旁边的 `presentation.jsonld`。")
+    #: ★重跑那一行是**给读者照着敲的**，所以它必须是产物真有的命令（FYL-REPORT-07 C-3）。
+    #: 从前这里写 `fylite cases --report` / `fylite case run`——两条都随 2026-09-04 的
+    #: 宿主收敛撤掉了，而一份报告是**发出去**的东西：错的命令跟着每一份走。
+    _plan_id = (plan or {}).get("id") or (record.get("realizes") or {}).get("id") or "<plan.jsonld>"
+    w("重跑：`fy run " + _md_cell(str(_plan_id)) + " -o <记录目录>`，"
+      "再在 Python 里 `fylite.engine.casereport.render(\"<记录目录>\")`；"
+      "呈现规格见旁边的 `presentation.jsonld`。")
     w("")
     return "\n".join(L)
 

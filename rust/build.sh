@@ -190,6 +190,25 @@ if [ "$KCHECK" = 1 ]; then check_kernel; fi
 : "${CARGO_HOME:=$HOME/.cargo}"
 : "${RUSTUP_HOME:=$HOME/.rustup}"
 export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$CARGO_HOME=/cargo --remap-path-prefix=$RUSTUP_HOME=/rustup"
+#: ★★**同一条规矩也得管 C 编译器**（2026-09-12，`FYL-REPORT-07` R-6）。上面那行只
+#: 管 rustc；`--static` 会把 hdf5-metno-src / netcdf-src 的 C 源码用 `cc` 编进来，
+#: 而 `cc` 不看 RUSTFLAGS——于是 `__FILE__` 一类把 `$CARGO_HOME/...` 的**绝对路径**
+#: 原样留在制品里。实测：一次 `--static` 构建 284 条，全部是 vendored HDF5 的 `.c`
+#: 文件名；下面那道加固闸因此把一次**完全正常的**构建判红，而脚本没有给出任何出路。
+#: `-ffile-prefix-map` 是 `-remap-path-prefix` 的 C 对应物（gcc ≥ 8 / clang ≥ 10），
+#: 认不得它的旧编译器会把它当未知选项而失败，所以先探一次再加。
+_fpm() {
+    printf 'int main(void){return 0;}\n' > "$1/probe.c" 2>/dev/null || return 1
+    ${CC:-cc} -ffile-prefix-map=/a=/b -c "$1/probe.c" -o "$1/probe.o" >/dev/null 2>&1
+}
+_PROBE="$(mktemp -d)"
+if _fpm "$_PROBE"; then
+    _MAP="-ffile-prefix-map=$CARGO_HOME=/cargo -ffile-prefix-map=$RUSTUP_HOME=/rustup -ffile-prefix-map=$ROOT=/fylite"
+    export CFLAGS="${CFLAGS:-} $_MAP" CXXFLAGS="${CXXFLAGS:-} $_MAP"
+else
+    echo "[runtime] ${CC:-cc} 不认 -ffile-prefix-map：--static 的 C 源码路径remap 跳过" >&2
+fi
+rm -rf "$_PROBE"
 
 # --------------------------------------------------------------------------- #
 # facts —— 先出那**一个**制品，再把它编进来                                     #
@@ -237,14 +256,45 @@ printf '%s\n' \
   "FLAVOUR = \"$FACTS_FLAVOUR\"" \
   > "$ROOT/python/fylite/_flavour.py"
 echo "[runtime] -> python/fylite/_flavour.py ($FACTS_FLAVOUR)"
+#: ★★这是一个**提交进仓的生成物**，所以写它会弄脏工作树（`FYL-REPORT-07` C-12）。
+#: 干净容器里最常见的那条路——没有语料 → `none`——因此会在**别人的仓**里留下一处
+#: 未提交的改动，而构建日志里只有上面那一行，读者不会把它读成「你的 git 变脏了」。
+#: 不改成「不写」：不写它就会在一次没有装置信息的构建上**自称 internal**，而 banner
+#: 据此决定说不说「仅限内部测试」——那个方向的错更坏。所以照写，但**说出来**。
+if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
+    if ! git -C "$ROOT" diff --quiet -- python/fylite/_flavour.py 2>/dev/null; then
+        echo "[runtime] ★ python/fylite/_flavour.py 与仓里那份不同了（这次构建是 $FACTS_FLAVOUR 版）。" >&2
+        echo "[runtime]   它是提交进仓的生成物，缺省构建是 internal 版。要么把语料放到搜索路径上" >&2
+        echo "[runtime]   重建（python3 tools/abox-to-facts.py --all），要么" >&2
+        echo "[runtime]   git checkout python/fylite/_flavour.py —— 后者会让这一层的说法与你装的 .so 不符。" >&2
+    fi
+fi
 
 echo "[runtime] cargo build --release $FEATURES ..."
 cargo build --release $FEATURES --manifest-path "$CRATE/Cargo.toml"
 SO="$CRATE/target/release/libfylite_runtime.so"
 [ -f "$SO" ] || { echo "[runtime] 没有产出 $SO" >&2; exit 1; }
 
-homes=$(strings -n 6 "$SO" | grep -c "$HOME" || true)
-[ "$homes" = 0 ] || { echo "::error:: $SO 里有 $homes 条开发机路径" >&2; exit 1; }
+#: ★★数**真的路径**，不数那条 remap 自己的记录。HDF5 把它被给的 C flags 原样刻进
+#: 制品（`C Flags:` / `C++ Flags:` 两行），而上面那条 `-ffile-prefix-map=$CARGO_HOME=…`
+#: 的**参数里**就写着 $CARGO_HOME——于是「把路径映掉」这个动作本身留下两条含 $HOME
+#: 的字符串。实测：加 remap 前 284 条，加之后 2 条，就是这两行。把它们排除掉不是
+#: 放松判据：源码路径（`…/hdf5-metno-src-0.10.4/ext/hdf5/src/H5Z.c` 那种）一条都不许
+#: 剩，而它们正是这条闸子要拦的东西——构建者的目录布局连用户名。
+homes=$(strings -n 6 "$SO" | grep "$HOME" | grep -vc -e '-ffile-prefix-map=' || true)
+if [ "$homes" != 0 ]; then
+    echo "::error:: $SO 里有 $homes 条开发机路径" >&2
+    strings -n 6 "$SO" | grep "$HOME" | grep -v -e '-ffile-prefix-map=' | head -3 \
+        | cut -c1-160 | sed 's/^/::error::   /' >&2
+    #: ★话术要给出路（`FYL-REPORT-07` R-6）：从前这里只说「有 N 条」就退出，而
+    #: 读者无从知道那 N 条是**自己的**源码还是 vendored C 库的 `__FILE__`——
+    #: 两者的处置完全不同。上面已经给 cc 加了 `-ffile-prefix-map`；还剩的话，
+    #: 多半是编译器不认它，或 $HOME 短得能在别的字符串里撞上。
+    echo "::error:: 上面几条是样本。若它们来自 vendored C 库（hdf5-metno-src / netcdf-src），" >&2
+    echo "::error::   说明 ${CC:-cc} 没吃下 -ffile-prefix-map——换一个新些的 cc，或不用 --static" >&2
+    echo "::error::   （缺省动态链接系统 libhdf5 / libnetcdf，不编 C 源码，也就没有这一条）。" >&2
+    exit 1
+fi
 exp=$(nm -D --defined-only "$SO" | grep -c 'fylite_runtime_' || true)
 [ "$exp" -gt 0 ] || { echo "::error:: C ABI 导出没了（strip 过头）" >&2; exit 1; }
 echo "[runtime] harden-ok  $(basename "$SO")  ($exp exports)"

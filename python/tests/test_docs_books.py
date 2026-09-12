@@ -46,7 +46,7 @@ BOOK = DOCS / "myst.yml"
 #: `NOT_IN_THE_BOOK` 里，理由是「按路径引用的记录不需要 URL」——那条只覆盖了机器
 #: 那一半（`registry.jsonld` 与逐案 `.jsonld` 确实按路径被门禁引用，**它们仍不入 toc**），
 #: 而散文那一半是给人读的，人要的正是 URL 与目录。两半并存，文件一个也没有移位。
-SECTIONS = ("guide", "examples", "reference", "physics", "design", "benchmark")
+SECTIONS = ("guide", "examples", "reference", "physics", "design", "benchmark", "report")
 #: 在树里、**有意**不入册的目录，各自的理由写在 `docs/myst.yml` 抬头与 `INDEX.md`
 NOT_IN_THE_BOOK = ()
 #: 不是章节、也不含章节的目录

@@ -201,8 +201,16 @@ pub fn compose(docs: Vec<(Source, Node)>) -> Result<Plan, CaseError> {
             return err(format!("{}: not a fyo:ScenarioSpecification / spo:ComputationPlan (type {:?})",
                                src.path.display(), ty));
         }
-        if k == 0 {
-            plan.id = src.id.clone().unwrap_or_else(|| "plan".into());
+        //: ★★**身份跟着最后一层走**（`FYL-REPORT-07` C-27）。从前这里是 `k == 0`：
+        //: 身份取**第一**层（线的缺省模板），而 `code` / `title` / `task_kind` 都取
+        //: **最后**一层。于是 `fy run model --preset zerod-iter-15ma` 写出的计划
+        //: 自称 `scenario/transport` 而 `prescribes_code` 是 `code/zerod`——记录的
+        //: `realizes.id` 因此指着一份**不是它**的场景，而这是下游按身份找计划的那个键。
+        //: 一份文档自己声明了 `id` / `@id` 就以它为准；都没声明时留第一层那个。
+        if let Some(id) = src.id.clone() {
+            plan.id = id;
+        } else if k == 0 {
+            plan.id = "plan".into();
         }
         if let Some(c) = get(m, &["prescribes_code", "spo:prescribes_code"]).and_then(id_of) {
             plan.code = c;
@@ -926,12 +934,66 @@ pub struct Produced {
     pub inline: Option<Node>,
 }
 
+/// 一次运行的终态——`spo` 的 `RunState`（`FYL-REPORT-06` §9.3）。
+///
+/// ★★**一份枚举，一处定义**（`FYL-REPORT-07` C-5 / R-3）。从前这七个值散在三处：
+/// 记录的产地只会写两个（`succeeded` / `rejected`），`casereport` 按七个渲染，设计
+/// 按七个描述状态机——于是五个值没有任何产者，而「没有产者的值」与「拼错的值」在
+/// 读者那里长得一样。这里是那一处定义；产者逐个补上（`cancelled` 已由 `--resume`
+/// 那条路上的中断写出）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RunState {
+    Submitted,
+    Validating,
+    Running,
+    Succeeded,
+    Failed,
+    Rejected,
+    Cancelled,
+}
+
+impl RunState {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            RunState::Submitted => "submitted",
+            RunState::Validating => "validating",
+            RunState::Running => "running",
+            RunState::Succeeded => "succeeded",
+            RunState::Failed => "failed",
+            RunState::Rejected => "rejected",
+            RunState::Cancelled => "cancelled",
+        }
+    }
+
+    /// 反向：读一份记录时把字符串认回来。认不出的按名交回 `None`——**不猜**。
+    pub fn from_str(s: &str) -> Option<RunState> {
+        Some(match s {
+            "submitted" => RunState::Submitted,
+            "validating" => RunState::Validating,
+            "running" => RunState::Running,
+            "succeeded" => RunState::Succeeded,
+            "failed" => RunState::Failed,
+            "rejected" => RunState::Rejected,
+            "cancelled" => RunState::Cancelled,
+            _ => return None,
+        })
+    }
+
+    /// 这七个值的全表——闸子拿它与别的宿主的表对读。
+    pub const ALL: [RunState; 7] = [
+        RunState::Submitted, RunState::Validating, RunState::Running,
+        RunState::Succeeded, RunState::Failed, RunState::Rejected, RunState::Cancelled,
+    ];
+}
+
 pub struct RecordInputs<'a> {
     pub plan: &'a Plan,
     pub plan_file: Option<&'a str>,
     pub resolved: &'a [Resolved],
     pub kernel: Option<&'a Kernel>,
     pub kernel_sha256: Option<String>,
+    /// 这次运行的终态。`None` = 由 `outcome` 的有无兜底（`succeeded` / `rejected`）。
+    pub run_state: Option<RunState>,
     pub outcome: Option<&'a Outcome>,
     pub refusal: Option<&'a KernelError>,
     pub produced: &'a [Produced],
@@ -1013,7 +1075,34 @@ pub fn record(r: &RecordInputs) -> Node {
         code.insert("comment", format!("kernel entry `{}`", o.entry).into());
     }
     m.insert("executed_code", Node::Map(code));
-    m.insert("run_state", (if r.outcome.is_some() { "succeeded" } else { "rejected" }).into());
+    //: ★★**执行环境**（`FYL-REPORT-07` C-6 / R-2）。这一块从前**不在**记录里，而
+    //: 浏览器的断点仓恰恰读它——`checkpoint.js` 的 `identity()` 取
+    //: `record.environment.{kernel_sha256, abi, app_version}`，取不到就判「这份记录
+    //: 没有记下写它的内核身份，不能判断能不能续」。于是 `fy run` 写下的记录在页面上
+    //: **一律不可续**：两边说的是同一件事（K-7 的内核身份），用的是两个键。
+    //: 现在一处产、两处读：`executed_code.concretized_as[].checksum` 是本体侧的说法，
+    //: `environment` 是宿主侧的同一份事实，两者由同一个 `kernel_sha256` 填。
+    let mut env = Map::new();
+    env.insert("type", "spo:ExecutionEnvironment".into());
+    if let Some(sha) = &r.kernel_sha256 {
+        env.insert("kernel_sha256", sha.clone().into());
+    }
+    if let Some(k) = r.kernel {
+        if let Some(v) = k.abi_version {
+            env.insert("abi", Node::Int(v as i64));
+        }
+        env.insert("kernel_uri", k.path.to_string_lossy().to_string().into());
+    }
+    env.insert("app_version", env!("CARGO_PKG_VERSION").into());
+    env.insert("platform", std::env::consts::OS.into());
+    m.insert("environment", Node::Map(env));
+    //: ★★`run_state` 由**调用方**给（`FYL-REPORT-07` C-5 / R-3）。从前这里是
+    //: 「有 outcome 就 succeeded，否则 rejected」——两个值写死在记录的产地，而
+    //: `spo` 的 `RunState` 有七个、`casereport` 也照七个渲染，于是 `cancelled` /
+    //: `failed` 永远没有产者。判据仍在这里兜底，只是不再是唯一的答案。
+    let state = r.run_state.unwrap_or(
+        if r.outcome.is_some() { RunState::Succeeded } else { RunState::Rejected });
+    m.insert("run_state", state.as_str().into());
     m.insert("started_at", r.started_at.clone().into());
     m.insert("ended_at", r.ended_at.clone().into());
     // the settings as run
@@ -1105,6 +1194,21 @@ pub fn record(r: &RecordInputs) -> Node {
     }
     if !r.plan.caveats.is_empty() {
         m.insert("caveat", Node::List(r.plan.caveats.iter().map(|c| c.clone().into()).collect()));
+    }
+    //: ★★**状态进记录**（`-16` S-4；`FYL-REPORT-07` C-7 / R-1）。到这里为止，续跑
+    //: 要的每一个值**都已经在记录里**了——散在输出端口上，叫 `t_end` / `dt_next` /
+    //: `edge_te_out` 一类。缺的只是一个把它们指成一件事的名字，而没有那个名字，
+    //: 浏览器的断点仓看一份 `fy run` 的记录只会说「这份记录没有 fylite:state」，
+    //: 桌面也无从知道该把哪几个值摆回哪几个入口。
+    //: ★这里**不算任何东西**：配对规则是内核自己的声明（`resume.rs` 抬头）。
+    //: ★形按 `-16` G-8 未决处理：一份平的交接单，逐条可查；G-8 落定时换写法不换语义。
+    {
+        let mut carried = crate::resume::Carried::default();
+        crate::resume::from_ports(&m, &mut carried);
+        if !carried.is_empty() {
+            let entry = r.outcome.map(|o| o.entry.as_str()).unwrap_or("");
+            m.insert("fylite:state", carried.to_node(&r.plan.code, entry));
+        }
     }
     Node::Map(m)
 }
@@ -1270,7 +1374,7 @@ pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: 
         let rec = record(&RecordInputs {
             plan: &plan, plan_file: None, resolved: &resolved, kernel: Some(&kernel), kernel_sha256: kernel_sha.clone(),
             outcome: outcome.as_ref(), refusal: result.as_ref().err(), produced: &produced,
-            started_at: step_started, ended_at: step_ended, record_id: step_record_id,
+            started_at: step_started, ended_at: step_ended, record_id: step_record_id, run_state: None,
         });
         let this_refused = result.is_err();
         runs.push(StepRun { id: step_id, code: plan.code.clone(), record: rec, refused: this_refused });
@@ -1452,7 +1556,7 @@ pub fn run_json(plan_text: &str, base: Option<&Path>, kernel_path: Option<&Path>
     let rec = record(&RecordInputs {
         plan: &plan, plan_file: None, resolved: &resolved, kernel: Some(&kernel), kernel_sha256: kernel_sha,
         outcome: outcome.as_ref(), refusal: result.as_ref().err(), produced: &produced,
-        started_at, ended_at, record_id,
+        started_at, ended_at, record_id, run_state: None,
     });
     Ok(JsonRun { record_json: json::to_string(&rec, true) + "\n", refused: result.is_err() })
 }

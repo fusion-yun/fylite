@@ -98,7 +98,7 @@ sorted(e)[:8]
 这条算例的计划**自己声明**了产出格式：四个输出端口都要 `fyo:ImasHdf5Format`。所以
 
 ```bash
-fy case run cases/evolve-iter-15ma.jsonld --record out/iter15ma
+fy run docs/examples/evolve/evolve-iter-15ma.jsonld -o out/iter15ma
 ```
 
 写出的不是逐 IDS 的 JSON-LD，而是**一个 IMAS 数据入口**——`out/iter15ma/imas/master.h5`

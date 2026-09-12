@@ -389,6 +389,10 @@
       "gated": false,
       "gloss": "The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport). Not gated: `source` is the ordinary name of the array in both hosts and a DD word besides (core_sources/source)."
     },
+    "state": {
+      "gated": false,
+      "gloss": "The carried state of a multi-step run: what a next run needs to continue this one (`fylite:state` on an spo:ComputationRecord, FYL-DESIGN-16 S-4). `settings` are the kernel's own handover parameters under the kernel's own pairing (`X_out` -> `X_in`, plus t_end -> t_start and three more); `documents` name the ports they bind to; `entry_block` points at the raw entry document, which is NOT bound but is read to tell whether the lagged arrays are live. Three readers, one subtree: `fy run --resume-from`, `fylite.engine.resume` and `app/assets/checkpoint.js`. Not gated: the SHAPE is FYL-DESIGN-16 G-8's to settle (one block or one per code), and gating an interim spelling would freeze it as if it were the ruling."
+    },
     "target": {
       "gated": false,
       "gloss": "The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`). Not gated: `target` is the ordinary name of the requested shape in both hosts' design bars."

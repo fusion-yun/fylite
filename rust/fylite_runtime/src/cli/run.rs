@@ -938,6 +938,82 @@ fn build(args: &Args, target: &Target, out_dir: &Path, dry: bool) -> Result<(Pla
         device = Some(d);
     }
 
+    //: ★★**续跑：一层，落在装置之后、命令行之前**（`FYL-DESIGN-18` U-19 / G-4；
+    //: `FYL-REPORT-07` R-1）。它是一层合成，不是一种模式——所以它守 E-13 的次序：
+    //: 上一次交出的状态可以被命令行上显式写的同名参数盖掉（想从同一个断点换一个
+    //: dt 重跑，就该能直接写 `dt_start=…`），而它自己盖得过预设与装置缺省。
+    //: ★内核身份在这里判（S-6）：不是同一份字节就**按名拒绝**，除非显式放行，
+    //: 而放行要写进新记录（下面那一句 `prov.set`，它随 `fylite:from` 落进 plan.jsonld）。
+    if let Some(spec) = args.flag("resume-from") {
+        let (carried, base) = crate::resume::read(Path::new(spec))
+            .map_err(|m| refuse("compose", m))?;
+        //: 内核还没装上（装内核在解析之后），所以这里比的是**记录里写的**与
+        //: 本次将要用的那一份的指纹：后者由 `--kernel` 或链接进来的那一份决定。
+        //: 取不到就说取不到——不猜、也不放行。
+        let now = Kernel::linked_fingerprint().and_then(|j| {
+            json::parse(j).ok().and_then(|n| {
+                n.as_map().and_then(|m| m.get("sha256")).and_then(Node::as_str).map(str::to_string)
+            })
+        });
+        let file = if Path::new(spec).is_dir() { Path::new(spec).join("record.jsonld") }
+                   else { PathBuf::from(spec) };
+        let rec_node = std::fs::read_to_string(&file).ok()
+            .and_then(|t| json::parse(&t).ok())
+            .unwrap_or(Node::Null);
+        match crate::resume::same_kernel(&rec_node, now.as_deref()) {
+            Ok(()) => {}
+            Err(why) if args.has("allow-kernel-drift") => {
+                prov.set("__resume_kernel_drift", format!("allowed: {why}"));
+                eprintln!("fy run: --allow-kernel-drift: {why}");
+            }
+            Err(why) => return Err(refuse("compose", format!("--resume-from {spec}: {why}"))),
+        }
+        //: ★★**判据是内核的声明面，不是模板的词表**——第二次量到同一件事。模板的
+        //: `fylite:vocabulary` 是**语料用过的名字**（`tools/make-scenario-templates.py`
+        //: 从语料的 `code/<x>#<名>` IRI 逐条取），而没有一条语料设过 `t_start`：于是
+        //: 按模板筛的那一版把交接的标量全丢了，内核照样跑，只是「resumed at t = 0 s」
+        //: ——**一个不报错的错**，正是这一族缺陷里最贵的那种。
+        //: 名字的合法性已经在 `resume::carried_as` 里判过了（它只交出内核声明过的
+        //: 参数名），这里再按模板筛一次只会筛掉真的。
+        //: ★★滞后量交不过去时**按名拒绝**（`resume::lag_carried` 抬头有那个数）。
+        //: 显式放行就把内核自己的那个词打开：`lag_reset = 1`（「the resumed block has
+        //: no lagged flux / conductivity: the state was remapped」），并写进记录——
+        //: 一个一半按旧态、一半从零起的数，是关于这次运行的事实。
+        //: ★★滞后量交不过去时，**把这件事告诉内核**，而不是让它以为自己拿到了
+        //: 一份完整的态。`lag_reset` 是内核**自己**为这个情形准备的词（「the resumed
+        //: block has no lagged flux / conductivity: the state was remapped」），所以
+        //: 这里不是近似，是**如实**：首步不加欧姆项，而不是拿三条零数组当上一块的
+        //: 结果用。判据与代价见 `resume::lag_carried` 抬头。
+        //: ★第一版在这里**拒绝**，而那是错的：实测常数闭合那一档 `exch_prev_out`
+        //: 也非零，却逐位相同——非零不等于起作用，于是那一版把一次完全正确的续跑
+        //: 判红了。判据要么是内核的（它才知道用不用得上），要么就别装作是判据。
+        if let Err(why) = crate::resume::lag_carried(&carried, &base) {
+            set(&mut plan, &mut prov, "lag_reset", Node::Int(1), "resume:lag-reset");
+            prov.set("__resume_lag_reset", why.clone());
+            if !args.has("quiet") {
+                eprintln!("fy run: --resume-from: {why}");
+            }
+        }
+        for (name, value) in &carried.settings {
+            set(&mut plan, &mut prov, name, Node::Float(*value), "resume");
+        }
+        //: ★★**不按模板的端口表筛**，这一条是量出来的：`fylite:ports` 记的是**用户**
+        //: 要给的那几个口（evolve 模板只有一个 `device`），而交接单里的文档是**内核
+        //: 自己交出来、自己读回去**的（`core_profiles` / `equilibrium`）——它们从来
+        //: 不在那张表上。按那张表筛的第一版因此一份都没绑，而内核随后按名拒绝：
+        //: 「`resume` 是开的，但要续的电子温度没有绑在 core_profiles/profiles_1d 下」。
+        //: ★这也是 `-17` G-7 那条缺口的一个侧面：模板的 `fylite:ports` 不是代码的
+        //: 端口声明（`spo:Code.declares_port` 才是），两者今天不是一件事。
+        for (port, uri) in &carried.documents {
+            let path = if Path::new(uri).is_absolute() { PathBuf::from(uri) } else { base.join(uri) };
+            plan.bind_override(&format!("{port}={}", path.display()))
+                .map_err(|e| refuse("compose", e.0))?;
+            prov.set(&format!("__port_{port}"), format!("resume:{spec}"));
+        }
+        set(&mut plan, &mut prov, "resume", Node::Int(1), "resume");
+        prov.set("__resume", spec.to_string());
+    }
+
     //: 命令行：开关先展开，显式参数后落（E-18）
     apply_open(&mut plan, &mut prov, target.template(), &args.open)?;
 
@@ -1246,7 +1322,24 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
             return;
         }
     };
-    let kernel_sha = std::fs::read(&kernel.path).ok().map(|b| crate::checksum::sha256_hex(&b));
+    //: ★★**静态链接时也要有指纹**（`FYL-REPORT-07` C-26）。从前这一行只会去读
+    //: `kernel.path` 那个文件——而内核编进 `fy` 时 `path` 是 `<linked>`，不是一个
+    //: 文件，于是 `executed_code.concretized_as[0]` 交出去时**没有 checksum**：
+    //: 一份记录说不出是哪一份字节算的，而 `-16` K-7 / `-20` M-5 要的正是这个。
+    //: 链接进来的那一份自带指纹（构建时编进去的 `kernel-static.json`），用它。
+    let kernel_sha = std::fs::read(&kernel.path)
+        .ok()
+        .map(|b| crate::checksum::sha256_hex(&b))
+        .or_else(|| {
+            Kernel::linked_fingerprint().and_then(|j| {
+                crate::json::parse(j).ok().and_then(|n| {
+                    n.as_map()
+                        .and_then(|m| m.get("sha256"))
+                        .and_then(|v| v.as_str())
+                        .map(str::to_string)
+                })
+            })
+        });
 
     //: 绑定的解析**逐条**在两个基目录里找：计划自己的目录（预设自带的输入相对它），
     //: 与记录目录（`--device` 与取回的测量落在那里）。
@@ -1461,6 +1554,7 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
         started_at,
         ended_at,
         record_id: record_id.clone(),
+        run_state: None,
     });
     if result.is_err() {
         stage_of(&mut rec, "kernel");
@@ -1536,6 +1630,7 @@ fn finish_refused(
         started_at: started_at.to_string(),
         ended_at,
         record_id: record_id.to_string(),
+        run_state: None,
     });
     stage_of(&mut rec, stage);
     let text = json::to_string(&rec, true) + "\n";

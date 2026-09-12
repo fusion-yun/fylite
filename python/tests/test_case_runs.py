@@ -414,6 +414,13 @@ def test_every_runnable_evolve_case_closes_its_energy_books(run_root):
         from fylite import kernel as _k
         if _k.load() is None:
             pytest.skip("the kernel is absent in this checkout: no evolve case could run")
+        #: ★同一条理由的**第二份库**（FYL-REPORT-07 C-10）：算例经中间层的 JSON 门
+        #: 到内核，所以「有内核、没数据层」时也是一条都跑不动——而那是干净容器里的
+        #: 常态（中间层要系统的 libhdf5 / libnetcdf）。缺输入要点名，不要算成缺陷。
+        from conftest import data_lib_present as _data_present
+        if not _data_present():
+            pytest.skip("the data library is absent in this checkout: "
+                        "no evolve case could reach the kernel door")
     assert ran >= 11, f"only {ran} evolve cases ran"
     assert worst < 1e-10, (
         f"a corpus case does not close its energy books: {where} at "

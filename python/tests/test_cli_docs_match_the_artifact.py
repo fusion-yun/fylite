@@ -132,3 +132,67 @@ def test_the_subcommand_count_the_prose_claims_is_the_real_one(surface):
                     line = text[:m.start()].count("\n") + 1
                     pytest.fail(f"{page}:{line}: 说「{m.group(1)}条子命令」，"
                                 f"而 `fy {group}` 有 {len(subs)} 条：{subs}")
+
+
+#: 读者照着敲的那几处（`PAGES` 之外还有 examples 各章与 README）。★设计集与报告集
+#: **不在内**：它们写的是裁定与沿革，「从前那条命令长什么样」正是它们要记的东西。
+_READER_TREES = ("docs/guide", "docs/examples", "docs/reference")
+
+#: 一条退役写法**旁边必须有去处**。这些是「去处在场」的形：迁移词、或同一行上就有
+#: 一条现行命令（迁移表每行都是这个样子）、或整块里带着那句拒绝话术。
+_MIGRATION = re.compile(r"原 |从前|retired|弃用|已撤|不再|迁入|收进|→")
+_CURRENT = re.compile(r"\bfy (?:app|data|run|list)\b")
+
+
+def _reader_pages():
+    out = [REPO / "README.md"]
+    for t in _READER_TREES:
+        out += sorted((REPO / t).rglob("*.md"))
+    return [p for p in out if "_build" not in p.parts]
+
+
+def _retired_spellings():
+    #: 最长优先，免得 `case` 抢在 `case run` 前面匹配
+    keys = sorted(RETIRED, key=len, reverse=True)
+    body = "|".join(r"\s+".join(map(re.escape, k.split())) for k in keys)
+    return re.compile(r"(?:\bfy|\bfylite)\s+(?:" + body + r")\b")
+
+
+def test_no_reader_page_hands_out_a_retired_command():
+    """★退役的写法可以出现，但**必须带着去处**。
+
+    这条闸子补的是一个真实缺口（`FYL-REPORT-07` C-3 / R-5）：原来的闸子只查
+    「文档写出来的命令 `fy --help` 认不认」，而 `fy case run` 早已**不是**一条命令，
+    于是它在 surface 里查不到、也就不被查——三处文档因此把 `fy case run` /
+    `fy case plan` / `fylite case run` 当**现行用法**发给读者，一处还在算例章的
+    可复制代码块里。散文没有编译器，退役词是它最容易留住的东西。
+
+    判法：读者面的每一处退役写法，同一行要么带迁移词、要么带一条现行命令（迁移表
+    每行天然如此），要么它所在的围栏块里有那句拒绝话术（`fy case run x` 紧跟
+    「is retired」是**演示拒绝**，不是发用法）。
+    """
+    pat = _retired_spellings()
+    bad = []
+    for page in _reader_pages():
+        lines = page.read_text(encoding="utf-8").splitlines()
+        fence, block = False, []
+        blocks = {}
+        for i, line in enumerate(lines):
+            if line.lstrip().startswith("```"):
+                if fence:
+                    for j in block:
+                        blocks[j] = "\n".join(lines[k] for k in block)
+                    block = []
+                fence = not fence
+            elif fence:
+                block.append(i)
+        for i, line in enumerate(lines):
+            if not pat.search(line):
+                continue
+            near = blocks.get(i, line)
+            if _MIGRATION.search(line) or _CURRENT.search(line) or "is retired" in near:
+                continue
+            bad.append(f"{page.relative_to(REPO)}:{i + 1}: {line.strip()[:90]}")
+    assert not bad, (
+        "退役的命令写法出现在读者面上、而旁边没有去处——读者会照着敲：\n  "
+        + "\n  ".join(bad))
