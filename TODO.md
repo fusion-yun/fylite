@@ -63,6 +63,12 @@ BORAY 本地 oracle · `core_sources` 守恒落梯子）之后，开放条目跨
 | 缺席件 | — | `inone`（ONETWO 不能重跑，自举模型开关无从切）· `input.tgyro`（TGYRO 实际求解半径与选项 `[TBD]`）· 2.3 % 聚变功率差 `[TBD]` | 内核页 §1.7 |
 | 迭代提速（工具，非结论）| 内核 `1dffef4`：`FY_S4_*` 保真度旋钮（便宜档）· 热启动 `FY_S4_DUMP` / `FY_S4_START_FILE`（每轮落盘）· 半径调度改动态取号 | ★**2026-09-11 标定已跑**（`s4_control_the_cheap_fidelity_against_the_full_deck`）：全档 92.5 s / eval · 便宜档 29.8 s（3.1×，Q_e 偏置 −4.7…−22.9 %）· 精简档 4.5 s（20.5×，+0.5…+10.9 %）；精简档 120 次 eval / 297 s 的落点与全档差 **0.7 % · 1.2 % · 1.1 %**（W_th · P_fus · Q）。**「用精简档找解、用全档定值」已量过**；逐点偏置仍须随数引用 | 内核页 §5.1 · `cfedr_s4.rs` 抬头 |
 
+### 0.3b 杂质与 Z_eff：向导出量收窄（2026-09-12 立，用户选定范围 A）
+
+★**现状（评估 2026-09-12）**：给定 $Z_{eff}$ 剖面的多组分闭合与辐射（日冕 ⟨Z⟩ 覆盖 He/Li/Be/C/N/O/Ne/Ar，ADAS 冷却 22 种，未知种辐射为零不报错）满足复现需求；**预测 $Z_{eff}$** 缺源与输运。
+★**范围 A 已落**（内核 `impurity_transport`，`docs/note/cfedr-15ma-reproduction.md` §5.6）：一种注入杂质的定态输运剖面（$D$、$v$、边缘、源为设定），电荷日冕，$Z_{eff}$ 导出；三条判据（极限/守恒 · 夹具回归 · CFEDR 轮：平氩钉在 ONETWO 边缘值给 $Z_{eff}$ 中位 2.85、含量 2.11 倍——ONETWO 的氩是空心的）。**无 oracle**（ONETWO 给定 $Z_{eff}$ 反解氩）。
+**余**：范围 B（He 灰通道）· W 的电荷矩 · $D_z/v_z$ 由闭合给出 · 未知种改按名拒绝 · 台基 $Z_{eff}$ 取台基值（B′ 已做）。
+
 ### 0.4 台基：向 EPED 收窄（2026-09-11 立，用户指示 A/B 进计划、C 待评）
 
 ★★**2026-09-12 oracle 找到了**：`FYDOC-CASE-20` 交付包的 `EPED/eped_state.nc` 是 EPED 自己的运行（十输入 · 答案 · KB/PB 扫描表），冻结为内核 `testdata/reference/cfedr_eped_15ma.txt`，门 `pedestal::tests::eped1nn_against_epeds_own_run_on_cfedr_15ma`。实测：EPED1-NN p_ped 93.0 kPa 对 EPED 110.7（ptotped）/ 115.8（p_E1）kPa，即 **−16 % / −20 %**；宽度 0.0448 对 0.0231（ptotwid）/ 0.0508（wid_E1）；外推距离 0.313 落在 a = 2.5 m（**CFEDR 在代理训练盒之外**）。计划 A 的逐高度 `gamma_KB` / `istable_PB` 表随之可用（内核 `docs/note/cfedr-15ma-reproduction.md` §5.5）。
