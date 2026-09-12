@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 2;
-pub const DIGEST: &str = "44ce45e6ca1e33c7";
+pub const DIGEST: &str = "d10a8fc02a5e6e5c";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -37,6 +37,11 @@ pub const TABLES: &[Table] = &[
         Slot { key: "ni", path: "profiles_1d/fylite:ion_density", units: "m^-3", rank: "1d" },
         Slot { key: "omega", path: "profiles_1d/rotation_frequency_tor_sonic", units: "rad/s", rank: "1d" },
         Slot { key: "nz", path: "profiles_1d/fylite:impurity_density", units: "m^-3", rank: "1d" },
+        Slot { key: "psi_prev", path: "profiles_1d/fylite:psi_prev", units: "Wb", rank: "1d" },
+        Slot { key: "sigma_prev", path: "profiles_1d/fylite:sigma_prev", units: "S/m", rank: "1d" },
+        Slot { key: "exch_prev", path: "profiles_1d/fylite:exch_prev", units: "1/s", rank: "1d" },
+        Slot { key: "dn_prev", path: "profiles_1d/fylite:dn_prev", units: "m^2/s", rank: "1d" },
+        Slot { key: "vn_prev", path: "profiles_1d/fylite:vn_prev", units: "m/s", rank: "1d" },
     ] },
     Table { name: "CORE_SOURCES", doc_type: "fyo:core_sources", slots: &[
         Slot { key: "psin", path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
@@ -397,6 +402,9 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "psi_prev", shape: "n", units: "Wb", gloss: "the flux the step before this block ended at" },
         Row { key: "sigma_prev", shape: "n", units: "S/m", gloss: "the parallel conductivity that step used" },
         Row { key: "exch_prev", shape: "n", units: "1/s", gloss: "the exchange rates that step's closure produced" },
+        Row { key: "zeff_prev", shape: "n", units: "1", gloss: "the Z_eff that step's closure produced (zeros = none)" },
+        Row { key: "dn_prev", shape: "n", units: "m^2/s", gloss: "the particle diffusivity that step's closure produced" },
+        Row { key: "vn_prev", shape: "n", units: "m/s", gloss: "the particle pinch that step's closure produced" },
         Row { key: "chi_e_in", shape: "n", units: "m^2/s", gloss: "electron heat diffusivity profile (chi_source = 1)" },
         Row { key: "chi_i_in", shape: "n", units: "m^2/s", gloss: "ion heat diffusivity profile (chi_source = 1)" },
         Row { key: "r2", shape: "n", units: "m^2", gloss: "<R^2> on the ladder — the momentum capacity's weight (ch_momentum = 1)" },
@@ -451,6 +459,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "psi_prev_out", shape: "n", units: "Wb", gloss: "the flux to hand the next block" },
         Row { key: "sigma_prev_out", shape: "n", units: "S/m", gloss: "the conductivity to hand it" },
         Row { key: "exch_prev_out", shape: "n", units: "1/s", gloss: "the exchange rates to hand it" },
+        Row { key: "dn_prev_out", shape: "n", units: "m^2/s", gloss: "the particle diffusivity the last step's closure produced" },
+        Row { key: "vn_prev_out", shape: "n", units: "m/s", gloss: "the particle pinch the last step's closure produced" },
         Row { key: "t_end", shape: "1", units: "s", gloss: "the time this block ended at" },
         Row { key: "dt_next", shape: "1", units: "s", gloss: "the dt the controller hands the next step" },
         Row { key: "edge_te_out", shape: "1", units: "eV", gloss: "the Dirichlet edge to hand the next block" },

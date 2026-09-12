@@ -260,6 +260,31 @@ pub fn read(path: &Path) -> Result<(Carried, PathBuf), String> {
 /// 返回 `Ok(())` = 交得过去（本来就是零）；`Err(话)` = 交不过去，话是给人看的那一句。
 pub fn lag_carried(carried: &Carried, base: &Path) -> Result<(), String> {
     const LAG: [&str; 3] = ["psi_prev_out", "sigma_prev_out", "exch_prev_out"];
+    //: ★★**2026-09-12: the declared route, when the record has it.** The three
+    //: arrays are now DECLARED slots of `core_profiles`
+    //: (`profiles_1d/fylite:psi_prev` · `sigma_prev` · `exch_prev`), which is
+    //: the state document a resume already binds — so they cross with no new
+    //: plumbing and nothing is reset.  ★They are NOT on a table of their own:
+    //: the door's old spelling `evolve/fylite:*` names the document after the
+    //: CODE, and the middle layer builds a document per IDS the DD knows, so
+    //: that one could never be built (measured: no `evolve.fyo.jsonld` in any
+    //: record).  A record written before this declaration has no such slots,
+    //: and then the raw-block check below still applies: the honest answer for
+    //: an old record is the old answer.
+    if let Some((_, uri)) = carried.documents.iter().find(|(n, _)| n == "core_profiles") {
+        let path = if Path::new(uri).is_absolute() { PathBuf::from(uri) } else { base.join(uri) };
+        if let Ok(text) = std::fs::read_to_string(&path) {
+            if let Ok(doc) = json::parse(&text) {
+                let has = ["profiles_1d/fylite:psi_prev", "profiles_1d/fylite:sigma_prev",
+                           "profiles_1d/fylite:exch_prev"]
+                    .iter()
+                    .all(|k| doc.get(k).is_some());
+                if has {
+                    return Ok(());
+                }
+            }
+        }
+    }
     let Some(uri) = &carried.entry_uri else { return Ok(()) };
     let path = if Path::new(uri).is_absolute() { PathBuf::from(uri) } else { base.join(uri) };
     let Ok(text) = std::fs::read_to_string(&path) else { return Ok(()) };

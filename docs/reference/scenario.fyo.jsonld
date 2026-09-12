@@ -9,7 +9,7 @@
  "dcterms:description": "The documents a complete scenario comprises, with every declared path, unit and rank, which of them carry a fylite: term rather than a DD name, and what a CFEDR-class run needs that has no slot at all.",
  "dcterms:source": "python/fylite/_fyo_interface.py (generated from the kernel's tables)",
  "fylite:interface_revision": 2,
- "fylite:interface_digest": "44ce45e6ca1e33c7",
+ "fylite:interface_digest": "d10a8fc02a5e6e5c",
  "fylite:documents": [
   {
    "@id": "fylite:scenario/document/equilibrium",
@@ -369,8 +369,8 @@
    "@id": "fylite:scenario/document/core_profiles",
    "@type": "fyo:core_profiles",
    "fylite:table": "CORE_PROFILES",
-   "fylite:slot_count": 13,
-   "fylite:namespaced_count": 3,
+   "fylite:slot_count": 18,
+   "fylite:namespaced_count": 8,
    "fylite:slots": [
     {
      "fylite:key": "psin",
@@ -460,6 +460,41 @@
      "fylite:key": "nz",
      "fylite:path": "profiles_1d/fylite:impurity_density",
      "fylite:units": "m^-3",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "psi_prev",
+     "fylite:path": "profiles_1d/fylite:psi_prev",
+     "fylite:units": "Wb",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "sigma_prev",
+     "fylite:path": "profiles_1d/fylite:sigma_prev",
+     "fylite:units": "S/m",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "exch_prev",
+     "fylite:path": "profiles_1d/fylite:exch_prev",
+     "fylite:units": "1/s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "dn_prev",
+     "fylite:path": "profiles_1d/fylite:dn_prev",
+     "fylite:units": "m^2/s",
+     "fylite:rank": "1d",
+     "fylite:namespaced": true
+    },
+    {
+     "fylite:key": "vn_prev",
+     "fylite:path": "profiles_1d/fylite:vn_prev",
+     "fylite:units": "m/s",
      "fylite:rank": "1d",
      "fylite:namespaced": true
     }
