@@ -1186,6 +1186,21 @@ pub fn record(r: &RecordInputs) -> Node {
     if !r.plan.caveats.is_empty() {
         m.insert("caveat", Node::List(r.plan.caveats.iter().map(|c| c.clone().into()).collect()));
     }
+    //: ★★**状态进记录**（`-16` S-4；`FYL-REPORT-07` C-7 / R-1）。到这里为止，续跑
+    //: 要的每一个值**都已经在记录里**了——散在输出端口上，叫 `t_end` / `dt_next` /
+    //: `edge_te_out` 一类。缺的只是一个把它们指成一件事的名字，而没有那个名字，
+    //: 浏览器的断点仓看一份 `fy run` 的记录只会说「这份记录没有 fylite:state」，
+    //: 桌面也无从知道该把哪几个值摆回哪几个入口。
+    //: ★这里**不算任何东西**：配对规则是内核自己的声明（`resume.rs` 抬头）。
+    //: ★形按 `-16` G-8 未决处理：一份平的交接单，逐条可查；G-8 落定时换写法不换语义。
+    {
+        let mut carried = crate::resume::Carried::default();
+        crate::resume::from_ports(&m, &mut carried);
+        if !carried.is_empty() {
+            let entry = r.outcome.map(|o| o.entry.as_str()).unwrap_or("");
+            m.insert("fylite:state", carried.to_node(&r.plan.code, entry));
+        }
+    }
     Node::Map(m)
 }
 

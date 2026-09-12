@@ -118,6 +118,9 @@ pub mod kernel_abi;
 pub mod case_api;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod case;
+//: 续跑：一次运行交出的状态 → 下一次运行的输入（`FYL-DESIGN-16` S-3..S-6 的
+//: 「携带」那一格；`FYL-DESIGN-18` U-19 的桌面一端）。
+pub mod resume;
 
 /// The command line of the Rust host, built from the shared `_cli.json`
 /// (FYL-DESIGN-15): the spec-driven parser plus the `data` and `case`

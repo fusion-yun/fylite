@@ -104,6 +104,7 @@
     'shift',               // Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures.
     'shinethrough',        // Fraction of beam power that passed straight through unabsorbed.
     'source',              // The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport).
+    'state',               // The carried state of a multi-step run: what a next run needs to continue this one (`fylite:state` on an spo:ComputationRecord, FYL-DESIGN-16 S-4).
     'target',              // The Miller target per waypoint of a pulse plan, [nt, 6] as r0 z0 a kappa delta_upper delta_lower (`code/pulse`).
     'te_profile',          // An electron temperature profile [eV] on uniform normalised flux, read linearly — the T_e a bootstrap ladder is built on when a reader imported one rather than reading it off the thermal pressure (`code/bootstrap`, 第三十五刀).
     'time',                // The waypoint times [s] of a pulse plan (`code/pulse`), strictly increasing.

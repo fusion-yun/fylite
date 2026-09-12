@@ -995,8 +995,16 @@ def _device_env(device: str | None):
         yield
 
 
-def run(case_id: str, d=None, *, predict: bool = False) -> dict:
+def run(case_id: str, d=None, *, predict: bool = False, resume=None) -> dict:
     """Map and RUN one case through the tool face.
+
+    ``resume`` continues a previous run: a ``record.jsonld``, the directory
+    holding one (what ``fy run … -o <dir>`` writes), or a previous return value
+    of this function.  Its carried state (``fylite:state``) goes back on as
+    arguments — the SAME subtree the command line and the browser read, which
+    is what makes 「同一份文档集在别处继续」(`FYL-DESIGN-18` U-19) true rather
+    than three implementations that agree by luck.  A record with no mid-march
+    state is refused by name (:class:`fylite.engine.resume.ResumeError`).
 
     Through ``serve.call_mcp_tool`` deliberately: the run then leaves the
     same manifest / acceptance / ledger every other recorded call leaves,
@@ -1005,6 +1013,17 @@ def run(case_id: str, d=None, *, predict: bool = False) -> dict:
     a node is honest about not being replayable.
     """
     p = plan(case_id, d, predict=predict)
+    if resume is not None:
+        from . import resume as _resume
+        st = _resume.carried(resume)
+        #: ★摆**参数**，不摆文档：这一面走的是工具面的 `arguments`，端口绑定归
+        #: `fy run --resume`（两者读同一份 `fylite:state`，见 resume.py 抬头）。
+        for name, value in st.settings.items():
+            p["arguments"].setdefault(name, value)
+        p["arguments"].setdefault("resume", 1)
+        p["resumed_from"] = st.get("record")
+        if st.lag_reset:
+            p["arguments"].setdefault("lag_reset", 1)
     from ..engine import serve
     with _device_env(p["device"]):
         out = serve.call_mcp_tool(f"fylite_{p['tool']}", p["arguments"])

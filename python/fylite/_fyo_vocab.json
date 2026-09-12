@@ -377,6 +377,10 @@
    "gated": true,
    "gloss": "The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both)."
   },
+  "state": {
+   "gated": false,
+   "gloss": "The carried state of a multi-step run: what a next run needs to continue this one (`fylite:state` on an spo:ComputationRecord, FYL-DESIGN-16 S-4). `settings` are the kernel's own handover parameters under the kernel's own pairing (`X_out` -> `X_in`, plus t_end -> t_start and three more); `documents` name the ports they bind to; `entry_block` points at the raw entry document, which is NOT bound but is read to tell whether the lagged arrays are live. Three readers, one subtree: `fy run --resume-from`, `fylite.engine.resume` and `app/assets/checkpoint.js`. Not gated: the SHAPE is FYL-DESIGN-16 G-8's to settle (one block or one per code), and gating an interim spelling would freeze it as if it were the ruling."
+  },
   "source": {
    "gated": false,
    "gloss": "The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport). Not gated: `source` is the ordinary name of the array in both hosts and a DD word besides (core_sources/source)."

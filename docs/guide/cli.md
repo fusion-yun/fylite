@@ -165,6 +165,37 @@ IDS 文件已落盘而 `record.jsonld` 未写，留下一个没有标签的碎�
 每份数据集在 `record.jsonld` 里都有一条产出端口绑定，带 `storage_uri` 与 `sha256`；
 记录怎么读见[结果怎么读](reading-results.md)。
 
+## 接着上一次跑
+
+一次多步运行的记录带着**它收尾时的状态**（`fylite:state`：内核声明的交接标量，加
+产出文档的指针）。把那个记录目录交给 `--resume-from`，下一次就从那里接着走：
+
+```console
+$ fy run docs/examples/evolve/evolve-default.jsonld nsteps=20 -o rec/a
+$ fy run docs/examples/evolve/evolve-default.jsonld nsteps=20 --resume-from rec/a -o rec/b
+```
+
+★**判据**：`nsteps=40` 一次跑完，与 `20` 加续 `20`，在这条算例上**逐位相同**
+（闸子 `python/tests/test_resume.py`）。
+
+★**范围要说清**：`code/evolve` 的三条滞后量（`psi_prev` / `sigma_prev` /
+`exch_prev`）今天**交不过去**——内核从 `evolve/fylite:*` 读它们，却写在自己的原始
+条目块里，而中间层只把声明过的表里的槽压进扁平树（`FYL-DESIGN-16` F-2 / G-8）。
+所以续跑时 `lag_reset` 会被打开（内核自己的词：「状态被重映射，首步不加欧姆项」），
+命令行上说一句，计划里留痕。常数闭合下它们是死的（故逐位）；开了新经典闭合，
+同一个比法 Te 差 **61 %**——那不是这条命令的缺陷，是 G-8 的大小，在册。
+
+★写它的内核与手边这一份不是同一份字节时**按名拒绝**（K-7 / S-6）；
+`--allow-kernel-drift` 显式放行，并把这件事写进新记录。
+
+Python 那一端读**同一个**子树：
+
+```python
+from fylite.engine import cases, resume
+st = resume.carried("rec/a")        # settings · documents · step · t · lag_reset
+cases.run("evolve-default", resume="rec/a")
+```
+
 ## 有什么可用
 
 ```bash
