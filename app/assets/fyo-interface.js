@@ -122,7 +122,7 @@
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
   var REVISION = 2;
-  var DIGEST = "33b5c04bdcf8192c";
+  var DIGEST = "f6d06d0d99c1353f";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
@@ -361,6 +361,11 @@
         "power_reflected": { path: "antenna/power_reflected/data", units: "W", rank: "0d" },
         "n_parallel_min": { path: "antenna/fylite:n_parallel_min", units: "1", rank: "0d" },
         "n_parallel_max": { path: "antenna/fylite:n_parallel_max", units: "1", rank: "0d" },
+        "position_r": { path: "antenna/row/position/r", units: "m", rank: "0d" },
+        "position_z": { path: "antenna/row/position/z", units: "m", rank: "0d" },
+        "position_phi": { path: "antenna/row/position/phi", units: "rad", rank: "0d" },
+        "n_phi": { path: "antenna/row/n_phi", units: "1", rank: "1d" },
+        "spectrum": { path: "antenna/row/power_density_spectrum_1d", units: "1", rank: "1d" },
       }
     },
     MAGNETICS: {

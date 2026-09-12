@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 2
-DIGEST = '33b5c04bdcf8192c'
+DIGEST = 'f6d06d0d99c1353f'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -251,6 +251,11 @@ TABLES = {
             'power_reflected': {"path": 'antenna/power_reflected/data', "units": 'W', "rank": '0d'},
             'n_parallel_min': {"path": 'antenna/fylite:n_parallel_min', "units": '1', "rank": '0d'},
             'n_parallel_max': {"path": 'antenna/fylite:n_parallel_max', "units": '1', "rank": '0d'},
+            'position_r': {"path": 'antenna/row/position/r', "units": 'm', "rank": '0d'},
+            'position_z': {"path": 'antenna/row/position/z', "units": 'm', "rank": '0d'},
+            'position_phi': {"path": 'antenna/row/position/phi', "units": 'rad', "rank": '0d'},
+            'n_phi': {"path": 'antenna/row/n_phi', "units": '1', "rank": '1d'},
+            'spectrum': {"path": 'antenna/row/power_density_spectrum_1d', "units": '1', "rank": '1d'},
         },
     },
     'MAGNETICS': {
