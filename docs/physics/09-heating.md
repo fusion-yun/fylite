@@ -204,7 +204,7 @@ $\eta_{CD}$ **必须由调用方给出**（lh.py：EAST 量级 $10^{19}$ A/W/m²
 格栅发射按群速度定法向分量的符号、声明的边缘反射），它补上单程链没有的几何上移——轴对称使 $RN_\phi$ 守恒，而 $N_\parallel$
 随 $R$ 与极向场沿射线变化。〔2026-09-12 修订〕射线追踪层对低杂波现在给出**轨迹、沿射线的电子 Landau 吸收与一维准线性
 Fokker–Planck 的自洽沉积**（{ref}`phys09-lh-ray`），并经 `code/rf_ray` 的 LH 行接出（天线谱读 DD 的 `lh_antennas/antenna/row/n_phi`
-与 `row/power_density_spectrum_1d`）；**尚未**把一维模型的归一化驱动效率换算成安培，故 `core_sources` 只落电子加热。
+与 `row/power_density_spectrum_1d`）；驱动电流按每壳定态分布的 $-e n_e v_{te}\int u f\,du$ 给出（一维、局地，取作壳平均），`core_sources` 落电子加热与 `j_parallel`。
 
 (phys09-icrh)=
 # 离子回旋少数离子加热 (ICRH Minority Heating)
@@ -323,7 +323,7 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 汇合），以及沿射线的电子回旋吸收与按 $\bar\psi$ 壳的功率沉积。电子回旋与低杂波**共用同一个积分器**，只换色散函数。
 本层不含（2026-09-12 起）：~~束宽随传播的演化、衍射与聚焦~~（已实现：锥形射线族与束追踪，见本章
 "束宽"一节）；~~伴随法 ECCD~~（已实现，见"伴随法 ECCD"一节）；~~低杂波的吸收与准线性电流~~（已实现：电子 Landau 吸收、
-一维准线性 Fokker–Planck 与自洽回路，见 {ref}`phys09-lh-ray`）；**余：低杂波驱动电流的安培换算、二维谱 `power_density_spectrum_2d`、反射模型参数**。
+一维准线性 Fokker–Planck 与自洽回路，见 {ref}`phys09-lh-ray`）；**余：二维谱 `power_density_spectrum_2d`、反射模型参数、一维准线性模型之外的 $(5+Z_{\rm eff})$ 与陷俘修正**。
 
 (phys09-ray-core)=
 ## 射线方程与两种色散 (Ray Equations and the Two Dispersion Functions)
@@ -560,7 +560,9 @@ $$ (eq-p09-lh-fp)
 $\hat t=\hat\phi\times\hat e_\psi$ 为发射点处 $\bar\psi$ 梯度定义的极向切向——本仓的声明，与 DD 的一致性 `[TBD]`；法向沿 $-\hat e_\psi$、能量沿法向），发射点 `row/position/{r,z,phi}`，频率 `antenna/frequency`；介质带一种离子（`lh_ion_a` 2.5 · `lh_ion_z` 1，
 密度取 `core_profiles/profiles_1d/fylite:ion_density`，未绑则 $n_e/Z$ 并在说明里写明）。`deposit` 打开时逐射线走自洽回路，
 `core_sources/source/0/profiles_1d/electrons/energy` 落在沉积壳上（带 $\bar\psi$ 网格，宿主按 `sources = table` 重采样）；
-**不写 `j_parallel`**——归一化效率按壳报出（`lh_drive`、`lh_u_res`），安培换算是余下的一步。
+`j_parallel` 取每壳收敛态分布的 $-e n_e v_{te}\int u f\,du$（$v_{te}=\sqrt{2T_e/m_e}$，回路自己的速度单位；矩落在舍入下限内时报 0），
+取作壳平均、按 $F$ 的符号写成环向，事实 `i_driven`；归一化效率按壳报出（`lh_drive`、`lh_u_res`）。实测（解析算例 3 keV、1 MW）：
+吸收 0.904 MW 驱动 0.083 A/W——一维模型的数。
 〔B 类〕GENRAY 的四条 EAST 2.45 GHz 射线以 `lh_antennas` 文档重发（每射线一 row，实测 GENRAY 切向指标的极向分量 ≤ 0.02，
 故单 `n_phi` 足以陈述发射；`ip` 推出 $\sigma_{Bp}=-1$）：整个首程 $(R,Z)$ 差 $\le1.1\times10^{-4}$ m、$N_\parallel$ 差 $\le1.1\times10^{-3}$。
 
@@ -591,8 +593,8 @@ $\hat t=\hat\phi\times\hat e_\psi$ 为发射点处 $\bar\psi$ 梯度定义的极
 | 设置（LH 行） | `lh_ion_a`、`lh_ion_z` | 介质的一种离子的质量数（2.5）与电荷（1） |
 | 设置（LH 行，`deposit` 打开时） | `lh_band`、`lh_u_max`、`lh_nodes`、`lh_iters`、`lh_tol`、`lh_relax` | 共振带在 $u$ 里的半宽（0.4，输入）、FP 网格半宽（12）与点数（2001）、自洽回路的最多步数（20）、相对容差（$10^{-4}$）、欠松弛（1） |
 | 字段（LH 行） | `rays`、`lh_bins` | 同上（第一列为 bin 号）；每 bin（bin, $N_\parallel$, 发射 W, 吸收 W, 剩余 W, 收敛） |
-| 字段（LH 行，`deposit` 打开时） | `power_shell`、`lh_drive`、`lh_u_res`、`core_sources/…/electrons/energy` | 每壳吸收功率（W）；壳上功率加权的 $D_{ql}/D_c$；共振 $u$；电子加热（带 $\bar\psi$ 网格） |
-| 事实（LH 行） | `n_bins`、`n_traced`、`p_launched`、`p_absorbed`、`p_outside`、`p_left`、`lh_converged`、`n_saturated`、`lh_band` | 发射 = 吸收 + 壳外 + 剩余（含未发射的 bin）；回路是否逐射线收敛；饱和壳数 |
+| 字段（LH 行，`deposit` 打开时） | `power_shell`、`j_shell`、`lh_drive`、`lh_u_res`、`core_sources/…/{electrons/energy, j_parallel}` | 每壳吸收功率（W）与沿 $B$ 的驱动电流密度（A m⁻²）；壳上功率加权的 $D_{ql}/D_c$；共振 $u$；电子加热与环向 `j_parallel`（带 $\bar\psi$ 网格） |
+| 事实（LH 行） | `n_bins`、`n_traced`、`p_launched`、`p_absorbed`、`p_outside`、`p_left`、`lh_converged`、`n_saturated`、`lh_band`、`i_driven` | 发射 = 吸收 + 壳外 + 剩余（含未发射的 bin）；回路是否逐射线收敛；饱和壳数；总驱动电流（A，环向） |
 :::
 
 〔拒绝〕〔实现〕`current_drive`（或 `eccd`）现已实现（见上节），但**不给 $Z_{\rm eff}$ 时按名拒绝**，
@@ -611,7 +613,7 @@ EC 与 LH 文档同绑时拒绝（一次一种波）；LH 行缺 `row/n_phi`、�
 3. **NBI**：$n_i=n_e$ 于阻止；首轨损失仅反向；无束—束阻止；足迹 $3\times3$ 均匀。
 4. **α**：出生处慢化，无快 $\alpha$ 输运；$P_\alpha$ 分配比 ASTRA 低 11–14 %（已量化）。
 5. **LH（闭式档）**：单程共振，无上移模型；$\eta_{CD}$ 必须外给；EAST 参数下常**无共振面**。射线追踪层给出 LH 轨迹（含几何上移）、
-   电子 Landau 吸收与一维准线性沉积（{ref}`phys09-lh-ray`），但驱动电流未换算成安培。
+   电子 Landau 吸收、一维准线性沉积与其驱动电流（{ref}`phys09-lh-ray`；一维局地量）。
 6. **ICRH**：仅稳态；波纹机器拒绝；电子/离子份额径向均匀；层外拒绝。
 7. **EC（闭式档）**：冷共振（$O(T_e/m_ec^2)$ 位移未计）、直线传播、真空 $1/R$ 场；光深式 {eq}`eq-p09-tau` 只到
    $T_e/m_ec^2$ 最低阶——1 keV 下全相对论板积分比它低 2.4 %（O1）、3.5 %（X2）、6.5 %（X3）；斜入射 X1 未移植。
@@ -619,7 +621,7 @@ EC 与 LH 文档同绑时拒绝（一次一种波）；LH 行缺 `row/n_phi`、�
 9. **射线追踪**（2026-09-11 修订）：轨迹用冷色散，热修正未计；EC 吸收用**冷极化**（弱相对论极化未取）；
    束宽有两档但**只到无像差阶**（窄束的 $N_\parallel$ 谱展宽与截面上吸收不均不在内，截止附近停于 `ParaxialLimit`）；
    伴随 ECCD **只到香蕉区**（区外的碰撞与动量守恒修正不在本层）；**LH 的吸收只取电子 Landau、准线性模型是一维的**
-   （无陷俘、无 $E_\parallel$ 协同、无径向扩散；驱动电流只有归一化效率，无安培；共振带宽 `lh_band` 是输入；MW 级饱和如实报出）；
+   （无陷俘、无 $E_\parallel$ 协同、无径向扩散；驱动电流是局地定态分布的矩，取作壳平均；共振带宽 `lh_band` 是输入；MW 级饱和如实报出）；
    边缘反射是声明的模型；离子至多 4 种（更多时按名拒绝，归并规则未定）；中心差分导数要求介质 C¹。
    ★**极向场的指向由文档的 `ip` 推出**，文档不声明时取 $+1$ 并在说明里写明是假设（{eq}`eq-p09-sigmabp`）。
    ★GENRAY 在 EAST 上的 X2 射线比本层早 12 mm 到达半吸收点（冷极化是最可能的差源，〔推测〕未证实）。
