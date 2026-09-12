@@ -2,7 +2,7 @@
 document_id: FYL-REPORT-07
 title: fy 体系对计算场景通用功能的完备性 · 自洽性 · 易用性评估 (Assessing the fy Ecosystem's Generic Compute-Scenario Functions — Completeness, Self-Consistency, Usability)
 shortname: fylite-report-compute-scenario-generics
-version: "0.2"
+version: "0.3"
 date: 2026-09-12
 language: bilingual
 contributors:
@@ -14,14 +14,19 @@ created: 2026-09-12T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.2：新增 §8「补充讨论：fylite 与 fytok 的功能界限」（用户裁定 2026-09-12：同一 fyo
+  change: 'v0.3：新增 §9「落地记录」——用户「落地 R1～9」（2026-09-12）。九条逐条给出
+    落成什么、量到什么、没落成的那一条为什么。R-5 · R-6 · R-7 · R-8（其可落地的部分）·
+    R-2 与 R-1 的大半已落地并带闸；R-3 半落；R-4 **不落**并改判（前提是错的，见 C-28）；
+    R-9 不落。自洽性登记增 C-28（code 层参数面无声明）· C-29（`fy list` 有错话而退出 0）；
+    C-1..C-4 · C-6 · C-10 · C-11 · C-12 · C-15 · C-16 · C-21 · C-23 · C-26 · C-27 判关。
+    v0.2：新增 §8「补充讨论：fylite 与 fytok 的功能界限」（用户裁定 2026-09-12：同一 fyo
     描述协议；fytok 含完整功能——插件 · 工作流 · 开放集成外部物理代码；fylite 是完成核心目标的
     最小工具集，自包含、不依赖外部物理模块、保持轻量）——把界限落成八项功能的归属表、协议
     须携带的三条不变式、两侧的负面清单，并据此把 R-1..R-9 分为「协议承重」与「fylite 内部」两档。
     v0.1（全新文档）：以 fyo 对计算场景的描述为参照，逐项评估 fy 体系
     （fylite · fylite_kernel · fyo · fydata · fydoc）在编辑 / 可视化 / 执行 / 状态追踪 /
     导入 / 导出 / 断点恢复 / 溯源八项通用功能上的完备性、自洽性与易用性。证据为六个检出的
-    源码与文档、本环境一次内核与中间层构建、两次 pytest 全量实测。登记自洽性缺口 C-1..C-27、
+    源码与文档、本环境一次内核与中间层构建、两次 pytest 全量实测。登记自洽性缺口 C-1..C-29（v0.3 关 14 条）、
     易用性观察 U-1..U-9，给出九条建议 R-1..R-9（各带关闭判据）。'
 ---
 
@@ -33,7 +38,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-REPORT-07` |
 | 文档名称 (Title) | fy 体系对计算场景通用功能的完备性 · 自洽性 · 易用性评估 |
 | 短名 / Slug | `fylite-report-compute-scenario-generics` |
-| 版本 (Version) | v0.2 |
+| 版本 (Version) | v0.3 |
 | 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | `Report`（ISO/IEC/IEEE 15289 Annex A；评估 study） |
 | 适用标准 (Standard Reference) | — |
@@ -481,6 +486,8 @@ U-19「同一份文档集在别处继续」；`FYL-REPORT-06` §7（`spo:Checkpo
 | :--- | :--- | :--- | :--- | :--- |
 | C-10 | README「缺内核的检出照常收集，需要内核的按名跳过、不失败」；实测**有内核、缺数据库**（`libfylite_runtime.so`）时 73 失败 / 10 错误，全部 `KernelError: the data library is not built` | {ref}`fylite-report-07-appendix-measured` | fylite | 数据库缺席 → `pytest.skip` 按名；或 README 改口「需要两份库」 |
 | C-12 | 内核 `rust/build.sh` 把公开仓已提交的生成物 `python/fylite/_flavour.py` 从 `internal` 改写为 `none`（本环境无 facts 语料）；一次构建在别人的仓里留下未提交的差异 | `git diff python/fylite/_flavour.py` | kernel | 构建在 flavour 无法判定时**拒绝**或不写，而不是写一个提交进仓的文件 |
+| **C-28** | `FR-KERNEL-002` 要每个 code 自报「要哪些输入、什么单位」；**code 层的参数面无任何声明**——模板的 `fylite:vocabulary` 是语料用过的名字（装配层），内核的 `*_PARAMS` 是原始入口的参数，`code/transport` 两者**交集为零**；六个 code 连 `*_PARAMS` 块都没有 | {ref}`fylite-report-07-landing-r4` 实测 | kernel · fylite | `-16` K-2 落地：`fy list kernel --json` 对每个 `code/<x>` 交出它自己的参数表；`test_scenario_templates.py` 据此对账 |
+| **C-29** | `fy list devices` 在无内嵌语料的构建上把错话印在 stderr 上而**退出 0**；本仓的退出码纪律里 0 是「跑完」 | 2026-09-12 实测 | fylite | 答不出东西时的退出码有一条成文的规矩，闸子照它断言 |
 | C-26 | `-16` K-7 / `-20` M-5「每份记录带内核身份」；`fy`（静态链接内核）写出的记录 `executed_code.concretized_as[0]` **无 `checksum`**——`run.rs:1168` 以读 `kernel.path` 文件取 sha256，静态链接时无此文件；而同一次构建的 `kernel-static.json` 明明带 `sha256` | {ref}`fylite-report-07-appendix-measured` A.6 | fylite | 静态链接时把 `kernel-static.json` 的 `sha256` 编进 `fy` 并写进记录；闸：`fy run` 的记录 `checksum` 非空 |
 | C-27 | 文档示例 `fy run model --preset zerod-iter-15ma`（`cli.md` §跑一次算例）跑出的计划 `id: scenario/transport`（线的缺省模板）而 `prescribes_code: code/zerod`；记录 id 尾缀 `-transport`；`realizes.id` 因此指错场景 | A.6 | fylite | 预设自带场景时以预设的场景为计划 `id`，或文档示例改写 `fy run model zerod --preset …`；闸：`realizes.id` 与 `prescribes_code` 属同一模板 |
 :::
@@ -673,6 +680,135 @@ U-19「同一份文档集在别处继续」；`FYL-REPORT-06` §7（`spo:Checkpo
 - **B-4 参照对基线。** `FYL-CONOPS-00`〔开放猜想〕的「轻量档 × 全功能档」参照对，在同一协议下可机械构造：
   同一份计划，`prescribes_code` 分别指 fylite 与 fytok 的 `Code`，两份记录逐端口比，进登记册作第四类记录
   （`-16` G-4 「后端间对照」）。载体与判据待 fyo `ComparisonRecord` 能否表达「同一计划两个代码」——未核。
+
+(fylite-report-07-landing)=
+# 9. 落地记录 (What was landed, 2026-09-12)
+
+〔已确立〕用户「落地 R1～9」。本节逐条记**落成什么 · 量到什么 · 没落成的为什么**。
+规矩同 `FYL-REPORT-00`：没有关闭判据的条目与一句抱怨等价，所以未落的也要带判据。
+
+:::{table} 九条的落地状态。「闸」列写钉住它的那道断言。
+:name: tbl-r07-landed
+:align: left
+
+| # | 状态 | 落成什么 | 闸 |
+| :--- | :--- | :--- | :--- |
+| **R-1** | **大半落地** | `fylite:state` 进记录；`fy run --resume-from`；`fylite.engine.resume` + `cases.run(resume=)`。三处读**同一个**子树 | `test_resume.py` 六条（真制品） |
+| **R-2** | **落地** | 记录增 `environment`（内核指纹 · ABI · 版本）；静态链接的内核指纹不再为空；计划身份改末层优先 | `test_resume.py::…kernel_wrote_it`；浏览器 `identity()` 实测 |
+| **R-3** | **半落** | `RunState` 收成一份枚举（七值 + 反解 + 全表）；`record()` 由调用方给终态 | `cargo test`；`cancelled` **仍无产者** |
+| **R-4** | **不落（前提有误）** | 见 {ref}`fylite-report-07-landing-r4` | — |
+| **R-5** | **落地** | C-1 · C-2 · C-3 · C-11 · C-27 改口；三处算例章把退役写法发给读者的代码块修正 | 新闸 `test_no_reader_page_hands_out_a_retired_command`（对原缺陷验证过会红） |
+| **R-6** | **落地** | 数据层缺席按名跳过；`--static` 的开发机路径归零；卫生闸话术给出路；`_flavour.py` 被改写时出声 | 干净检出实测 0 失败 |
+| **R-7** | **落地**（fydoc） | `RELEASE.yaml` 前缀改真名并对空匹配报错；`[TBD]` 子串判据；`review.status` 增终态并校验；`payload` 缺失即拒 | `check_cases.py` 28 → **51 处**（全部是应当红的新发现） |
+| **R-8** | **部分落地**（fyo） | 缺 spo 检出时按名跳过（并修掉 **7 条空洞通过**）；`FYO-ADR-14` / `-15` 两份 Proposed | `check_competency.py` 由 exit 1 变 exit 0（17 过 / 0 败 / 45 点名跳过） |
+| **R-9** | **不落** | 见 {ref}`fylite-report-07-landing-rest` | — |
+:::
+
+(fylite-report-07-landing-measured)=
+## 9.1 量到的三个数 (Three measurements)
+
+**① 续跑的等价性**——`FYL-REPORT-06` B-5 / `-18` §十三 的那条判据，第一次在**真内核**上量
+（浏览器那道闸用的是确定性假件）：
+
+| 档位 | `nsteps=40` 一次 vs `20` + 续 `20` | 时钟 |
+| :--- | ---: | :--- |
+| 常数闭合（算例缺省） | Te **0.000e+00** · n_e **0.000e+00** | 逐位相同 |
+| 新经典闭合 + 密度 + 动量通道 | Te **6.08e-01** · n_e **6.99e-01** | 0.41806 vs 0.41096 s |
+
+第二行**不是本次落地的缺陷，是 `-16` G-8 的大小**：内核从 `evolve/fylite:*` 读回三条
+滞后量（`psi_prev` / `sigma_prev` / `exch_prev`），却把它们写进自己的**原始条目块**，
+而中间层只把**声明过的表**里的槽压进扁平树（F-2）——那个块没有表，所以它们过不去。
+今天的处置是**如实**而不是近似：续跑时打开内核自己的 `lag_reset`（「状态被重映射，
+首步不加欧姆项」），命令行说一句，计划里留痕。★★这一条的第一版是**拒绝**，而那是错的：
+常数闭合那一档 `exch_prev_out` 也非零却逐位相同——**非零不等于起作用**，那一版把一次
+完全正确的续跑判红了。判据要么是内核的（只有它知道用不用得上），要么就别装作是判据。
+
+**② 干净检出的失败数**——README 那条路（不建内核、不建数据层）：
+
+| | 失败 | 错误 | 通过 | 跳过 |
+| :--- | ---: | ---: | ---: | ---: |
+| 落地前 | **73** | 10 | 1960 | 411 |
+| 落地后 | **0** | 0 | 1972 | 491 |
+
+73 条里 44 条是**同一句话**（数据层没建）。README 承诺「缺内核的按名跳过」，而缺的
+常常是**第二份库**——那一条承诺没有覆盖到它。
+
+**③ `--static` 的开发机路径**：**284 → 0**。原因不是洁癖失灵，是 `RUSTFLAGS` 的
+`--remap-path-prefix` **管不到 `cc`**，而 `--static` 要用 `cc` 编 vendored 的 HDF5 C 源码。
+加 `-ffile-prefix-map`（先探编译器认不认）之后清零。★剩下两条含 `$HOME` 的字符串是
+HDF5 把**它被给的 C flags** 原样刻了进去——也就是那条 remap 自己的记录；判据因此改成
+「数真的路径」，源码路径一条不许剩。
+
+(fylite-report-07-landing-r4)=
+## 9.2 R-4 不落，且它的前提要改判 (R-4 is withdrawn, and why)
+
+〔已确立·实测〕R-4 写的是「控制词表入 K-2 code 表，三宿主读同一份」，判据是
+「`validate-form.mjs` 与 `test_scenario_templates.py` 读同一生成物」。**这条建议假定
+存在两份互相漂移的清单**，而实测不是这样：
+
+| code | 模板 `fylite:vocabulary` | 内核 `*_PARAMS` | 交集 |
+| :--- | ---: | ---: | ---: |
+| `code/transport` | 19（`amin` · `chi0` · `q95` · `kappa` …） | 12（`d_pc` · `theta` · `tol` · `relax` …） | **0** |
+| `code/evolve` | 114 | 83 | 26 |
+| `code/zerod` | 33 | 10 | 4 |
+| `breakdown` · `discharge` · `reconstruction` · `pfwave` · `profile` · `series` | 17 / 23 / 46 / 14 / 5 / 8 | **无 `*_PARAMS` 块** | — |
+
+两列**不是同一层的东西**：模板名的是**装配层**的参数（`code/<x>` 门收的），内核的
+`*_PARAMS` 名的是**原始入口**的参数（`evolve_heat` 一类收的）。`code/transport` 交集
+为零正是因为它们各说各的层；`code/evolve` 有 26 条交集，只因为那扇门把一批入口参数
+原样透传。
+
+〔判读〕所以**code 层的参数面今天没有任何一处声明**（新登记 **C-28**）——`FR-KERNEL-002`
+（「每个内核后端必须自报 code 表：每个 code 要哪些输入、产哪些路径、什么单位」）在
+**code 这一层**未兑现；`-16` K-2 的增列正是它。模板那份是 `tools/make-scenario-templates.py`
+从**语料用过的名字**生成的，页面那份是一次性誊录的，两份都不是声明。
+
+〔已确立〕这不是纸上推演：本次落地被它绊了**两次**，两次都是**不报错的错**——
+按模板的 `fylite:ports` 筛，交接文档一份都没绑（内核随后按名拒绝，还算好的）；
+按模板的 `fylite:vocabulary` 筛，交接标量全被丢掉，**续跑从 t = 0 起而退出 0**。
+两处筛子都已删除，判据改回内核的声明面。
+
+〔判据〕R-4 改写为：**先落 `-16` K-2 的 code 表自报**（`spo:Code.declares_parameter` /
+`declares_port`，含 `range` / `default` / `enum` / `tier` / `group`），再谈三宿主读同一份。
+关闭判据：`fy list kernel --json` 对每个 `code/<x>` 交出它自己的参数表，且
+`test_scenario_templates.py` 能据此对账——今天它无从对账，因为对面是空的。
+这同时是 §8 的 **I-1**：fytok 要把一份 fylite 计划当一步吃下去，靠的就是这张表。
+
+(fylite-report-07-landing-rest)=
+## 9.3 其余未落的，与它们卡在哪 (What is still open)
+
+- **R-3 的 `cancelled` 没有产者。** `fy run` 一次门调用跑完整个 march，**宿主没有介入点**
+  ——要产 `cancelled`，得先把 `-18` U-8 的「一串门调用」搬进 `run.rs`（步预算 + 分片）。
+  枚举已经收成一份（本次），产者归那件事。判据不变：取消一次 200 步演化 → 记录
+  `cancelled` + 断点，从它续跑与一次跑完逐位相同。
+- **R-1 的浏览器一端未接线。** `run.js` / `checkpoint.js` 仍然没有任何页面 `<script>` 引用
+  （`-18` 分期 U0 未完），断点闸仍用假步进器。本次把**真内核上的等价**补上了（Python 侧），
+  但「页面上按恢复」这一步没有走通。判据：`app/pages/` 至少一页加载它们，
+  `validate-checkpoint.mjs` 的步进器换成真门。
+- **R-8 的 schema 改动落不了地。** fyo `PROJECT.md` §5 要求 `../spo/scripts/check_conformance.py`
+  退 0 才准提交 `schema/`，而那份检出不在——`UncertaintyStatement` 的槽名与基数
+  也无从核对。两份 ADR（`FYO-ADR-14` / `-15`）是 Proposed，**没有**凭空铸类。
+- **R-9 三张表未生成。** `surface/` 可从 `fy list kernel` 派生；`coverage/` 的 `covers`
+  边**要人逐条判断**（`-20` G-1 自陈「机器猜不出一条记录验证的是哪个 code」）；
+  `availability/` 的 286 格要装置卡片在场，而公开检出不含它们（`-20` G-5）。
+  三者里只有第一张今天算得出，单出一张表会让「一处产、两处渲染」（M-2）变成
+  「一处产一张、两处渲染半张」，故不单出。
+- **C-29（新）**：`fy list devices` 在没有内嵌语料的构建上把「语料路径是空的」印在
+  stderr 上而**退出 0**。按本仓自己的退出码纪律（0 = 跑完），答不出东西时退 0 是可议的；
+  本次只把闸子的判据说准（答出东西时管道才必须干净），**不代它裁定**。
+
+(fylite-report-07-landing-closed)=
+## 9.4 判关的条目 (Closed)
+
+C-1 · C-2 · C-3（文档改口）· C-4（`--resume-from` 落地，注释与产物一致）· C-6（记录带
+`environment`，浏览器 `identity()` 实测读得到）· C-10（数据层按名跳过）· C-11（`report`
+入 `--page` 并加「盘上每一页都叫得出名字」的闸）· C-12（改写生成物时出声）·
+C-15 · C-16 · C-21 · C-23（fydoc 四条）· C-26（静态链接的内核指纹）· C-27（计划身份末层优先）。
+
+**仍开**：C-5（`cancelled` 无产者）· C-7（`fylite:state` 有了名字，但**形**仍归 `-16` G-8）·
+C-8（两种「续跑」仍是一个词）· C-9（Python `RunManifest` 未退役）· C-13（spo 不在场，已改为
+按名跳过，但 schema 仍验不了）· C-14 · C-17..C-20 · C-22 · C-24 · C-25 · **C-28**（新）· **C-29**（新）。
+
 
 (fylite-report-07-appendix-measured)=
 # 附录 A · 实测记录 (Measured record)
