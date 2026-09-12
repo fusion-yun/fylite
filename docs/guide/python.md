@@ -73,10 +73,13 @@ raise SystemExit(mcp_stdio())                   # 宿主配置里写成一行 `p
 就少哪一条投影，不报错。
 
 ```python
-from fylite.engine import cases, casereport
+from fylite.engine import cases, casereport, resume
 rec = cases.run("evolve-default")        # 或 casereport.render("records/<run id>")
-cases.run("evolve-default", resume=rec)  # 从记录里的 fylite:state 接着跑
+resume.carried("rec/a")                  # 读一份记录交出的状态（fylite:state）
 ```
+
+★续跑本身今天走命令行 `fy run --resume-from <记录>`——原因写在[命令行](cli.md)那一章
+的「接着上一次跑」一节：本层入口的参数名与内核声明的交接名是两套。
 
 ★★**旧的单份会话文件 `fylite:AppSession/1`（`fylite.appsession`）已退役**（U-18：它的
 `fylite:config` 就是计划的 `parameters[]`，`fylite:result` 就是记录——两种文档合成一种）。

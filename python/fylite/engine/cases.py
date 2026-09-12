@@ -995,16 +995,19 @@ def _device_env(device: str | None):
         yield
 
 
-def run(case_id: str, d=None, *, predict: bool = False, resume=None) -> dict:
+def run(case_id: str, d=None, *, predict: bool = False) -> dict:
     """Map and RUN one case through the tool face.
 
-    ``resume`` continues a previous run: a ``record.jsonld``, the directory
-    holding one (what ``fy run … -o <dir>`` writes), or a previous return value
-    of this function.  Its carried state (``fylite:state``) goes back on as
-    arguments — the SAME subtree the command line and the browser read, which
-    is what makes 「同一份文档集在别处继续」(`FYL-DESIGN-18` U-19) true rather
-    than three implementations that agree by luck.  A record with no mid-march
-    state is refused by name (:class:`fylite.engine.resume.ResumeError`).
+    ★★**没有 ``resume=``，而这是量出来的**（`FYL-REPORT-07` C-28）。续跑的交接单
+    （``fylite:state``）用的是**内核声明的**参数名（`t_start` · `edge_te_in` …），
+    而本层这些入口收的是**它们自己的**一套——实测 `evolve` 的 39 个参数与交接单的
+    10 个标量**一个都不重合**，摆进去只会得到 ``evolve() got an unexpected keyword
+    argument 'capped_in'``。这是同一条缺口的第三次现形：装配层、原始入口、Python
+    入口是**三套**参数命名，而 code 那一层没有任何一处声明它自己收什么。
+
+    ★所以续跑今天走**命令行**（`fy run --resume-from <记录>`，那条路经文档门，名字
+    是内核的）；Python 这一侧只**读**那份交接单：:func:`fylite.engine.resume.carried`。
+    补上这一半要先落 `-16` K-2 的 code 表自报。
 
     Through ``serve.call_mcp_tool`` deliberately: the run then leaves the
     same manifest / acceptance / ledger every other recorded call leaves,
@@ -1013,17 +1016,6 @@ def run(case_id: str, d=None, *, predict: bool = False, resume=None) -> dict:
     a node is honest about not being replayable.
     """
     p = plan(case_id, d, predict=predict)
-    if resume is not None:
-        from . import resume as _resume
-        st = _resume.carried(resume)
-        #: ★摆**参数**，不摆文档：这一面走的是工具面的 `arguments`，端口绑定归
-        #: `fy run --resume`（两者读同一份 `fylite:state`，见 resume.py 抬头）。
-        for name, value in st.settings.items():
-            p["arguments"].setdefault(name, value)
-        p["arguments"].setdefault("resume", 1)
-        p["resumed_from"] = st.get("record")
-        if st.lag_reset:
-            p["arguments"].setdefault("lag_reset", 1)
     from ..engine import serve
     with _device_env(p["device"]):
         out = serve.call_mcp_tool(f"fylite_{p['tool']}", p["arguments"])

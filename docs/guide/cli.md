@@ -188,13 +188,19 @@ $ fy run docs/examples/evolve/evolve-default.jsonld nsteps=20 --resume-from rec/
 ★写它的内核与手边这一份不是同一份字节时**按名拒绝**（K-7 / S-6）；
 `--allow-kernel-drift` 显式放行，并把这件事写进新记录。
 
-Python 那一端读**同一个**子树：
+Python 那一端**读**同一个子树：
 
 ```python
-from fylite.engine import cases, resume
+from fylite.engine import resume
 st = resume.carried("rec/a")        # settings · documents · step · t · lag_reset
-cases.run("evolve-default", resume="rec/a")
+resume.kernel_of("rec/a")           # 写它的内核指纹（K-7）
 ```
+
+★★**只读**：`cases.run` 没有 `resume=`。交接单里的名字是**内核声明的**参数，而
+`fylite.scenario` 那些入口收的是**它们自己的**一套——实测 `evolve` 的 39 个参数与
+交接单的 10 个标量一个都不重合。装配层、原始入口、Python 入口是**三套**命名，而
+code 那一层没有一处声明它收什么（`FYL-REPORT-07` C-28）。所以续跑走上面那条命令行，
+它经文档门，名字是内核的。
 
 ## 有什么可用
 

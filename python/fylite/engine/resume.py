@@ -2,9 +2,16 @@
 
 ★★**为什么 Python 这一侧也要有它。** `FYL-DESIGN-18` U-19 说的是「同一份文档集在
 别处继续」——桌面、Python、另一台浏览器认**同一份**记录。那句话在 2026-09-12 之前
-只有浏览器一端成立（`-18` G-4）：`fy run` 没有 `--resume-from`，本包没有 ``resume=``。
-CLI 那一半已经落地（`rust/fylite_runtime/src/resume.rs`），这一份是 Python 的那一半，
-**读的是同一个 ``fylite:state`` 子树**，所以两边不会各自长出一套续跑语义。
+只有浏览器一端成立（`-18` G-4）：`fy run` 没有 `--resume-from`，本包连读都读不出来。
+CLI 那一半已经落地（`rust/fylite_runtime/src/resume.rs`），这一份是 Python 的**读**的
+那一半：**同一个 ``fylite:state`` 子树**，所以两边不会各自长出一套续跑语义。
+
+★★**只读，不摆**，而这是量出来的（`FYL-REPORT-07` C-28）：交接单里的名字是**内核
+声明的**参数（`t_start` · `edge_te_in` …），而 `fylite.scenario` 那些入口收的是它们
+**自己的**一套——实测 `evolve` 的 39 个参数与交接单的 10 个标量**一个都不重合**。
+所以 :func:`fylite.engine.cases.run` **没有** ``resume=``：摆进去只会撞出一个
+``unexpected keyword argument``。续跑今天走 `fy run --resume-from`（那条路经文档门，
+名字是内核的）；补上 Python 这一半要先落 `-16` K-2 的 code 表自报。
 
 ★**本模块不算任何东西**，也不认识任何一个物理量：它把记录里写好的交接单取出来，
 交给调用方去摆。配对（`X_out` → `X_in`、`t_end` → `t_start` …）是**写记录的那一侧**

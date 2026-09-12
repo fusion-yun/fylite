@@ -693,7 +693,7 @@ U-19「同一份文档集在别处继续」；`FYL-REPORT-06` §7（`spo:Checkpo
 
 | # | 状态 | 落成什么 | 闸 |
 | :--- | :--- | :--- | :--- |
-| **R-1** | **大半落地** | `fylite:state` 进记录；`fy run --resume-from`；`fylite.engine.resume` + `cases.run(resume=)`。三处读**同一个**子树 | `test_resume.py` 六条（真制品） |
+| **R-1** | **大半落地** | `fylite:state` 进记录；`fy run --resume-from`；`fylite.engine.resume`（**读**的那一半）。三处读**同一个**子树 | `test_resume.py` 六条（真制品） |
 | **R-2** | **落地** | 记录增 `environment`（内核指纹 · ABI · 版本）；静态链接的内核指纹不再为空；计划身份改末层优先 | `test_resume.py::…kernel_wrote_it`；浏览器 `identity()` 实测 |
 | **R-3** | **半落** | `RunState` 收成一份枚举（七值 + 反解 + 全表）；`record()` 由调用方给终态 | `cargo test`；`cancelled` **仍无产者** |
 | **R-4** | **不落（前提有误）** | 见 {ref}`fylite-report-07-landing-r4` | — |
@@ -749,6 +749,7 @@ HDF5 把**它被给的 C flags** 原样刻了进去——也就是那条 remap �
 | code | 模板 `fylite:vocabulary` | 内核 `*_PARAMS` | 交集 |
 | :--- | ---: | ---: | ---: |
 | `code/transport` | 19（`amin` · `chi0` · `q95` · `kappa` …） | 12（`d_pc` · `theta` · `tol` · `relax` …） | **0** |
+| `fylite.scenario` 的 `evolve` 入口 | 39 个 Python 参数 | 交接单 10 个标量 | **0** |
 | `code/evolve` | 114 | 83 | 26 |
 | `code/zerod` | 33 | 10 | 4 |
 | `breakdown` · `discharge` · `reconstruction` · `pfwave` · `profile` · `series` | 17 / 23 / 46 / 14 / 5 / 8 | **无 `*_PARAMS` 块** | — |
@@ -763,10 +764,17 @@ HDF5 把**它被给的 C flags** 原样刻了进去——也就是那条 remap �
 **code 这一层**未兑现；`-16` K-2 的增列正是它。模板那份是 `tools/make-scenario-templates.py`
 从**语料用过的名字**生成的，页面那份是一次性誊录的，两份都不是声明。
 
-〔已确立〕这不是纸上推演：本次落地被它绊了**两次**，两次都是**不报错的错**——
+〔已确立〕这不是纸上推演：本次落地被它绊了**三次**，前两次是**不报错的错**——
 按模板的 `fylite:ports` 筛，交接文档一份都没绑（内核随后按名拒绝，还算好的）；
 按模板的 `fylite:vocabulary` 筛，交接标量全被丢掉，**续跑从 t = 0 起而退出 0**。
 两处筛子都已删除，判据改回内核的声明面。
+
+★★**第三次**：`cases.run(resume=)` 曾作为 Python 那一半写好、并写进了指南——实测
+它**跑不通**：`evolve` 这个 Python 入口的 39 个参数与交接单的 10 个标量**一个都不
+重合**（`evolve() got an unexpected keyword argument 'capped_in'`）。于是**装配层 ·
+原始入口 · Python 入口是三套命名**，而 code 那一层一处也没声明。那个参数与那段
+指南已**撤回**——发一个永远抛异常的调用，比没有它坏。Python 侧今天只**读**交接单
+（`fylite.engine.resume.carried`，有闸），摆归命令行。
 
 〔判据〕R-4 改写为：**先落 `-16` K-2 的 code 表自报**（`spo:Code.declares_parameter` /
 `declares_port`，含 `range` / `default` / `enum` / `tier` / `group`），再谈三宿主读同一份。
