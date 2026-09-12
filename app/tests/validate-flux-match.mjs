@@ -33,7 +33,7 @@
 //
 //   node app/tests/validate-flux-match.mjs [--playwright DIR] [--url BASE]
 
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { browser, flag } from './_browser.mjs';
@@ -59,6 +59,17 @@ const band = (got, lo, hi, what, unit = '') =>
 // 逐字收录在仓里。这里只读轴上的 T_e，用来把〔乙〕那句「闭包的差不是求解器的
 // 差」变成三个可比的数。
 const REF = ROOT + '/tests/data/reference/iter15ma_astra_burn.csv';
+//: ★**缺件按名跳过，而不是崩在 ENOENT 上**（2026-09-12，F-18）。这张表住在私有
+//: oracle 树里（`tests/data` 在干净检出里是一条指不到的软链），此前闸子直接抛
+//: `ENOENT` 并退 1——读者看到的是一次失败，而事实是**没有参照件**。表本身另有两
+//: 处：内核仓 `rust/fylite/testdata/reference/` 与 fydoc `cases/FYDOC-CASE-01-astra/corpus/`。
+if (!existsSync(REF)) {
+  console.log('validate-flux-match: 跳过 —— 没有 ASTRA 参照表 '
+              + `(${REF.replace(ROOT + '/', '')})。\n`
+              + '  它在私有 oracle 树里；把 tests/data 指过去，或从内核仓 '
+              + 'rust/fylite/testdata/reference/iter15ma_astra_burn.csv 取一份。');
+  process.exit(0);
+}
 const lines = readFileSync(REF, 'utf8').split('\n')
   .filter((l) => l && !l.startsWith('#'));
 const head = lines[0].split(',');
@@ -100,12 +111,57 @@ let seq = 0;
  * ★★闸子照 `scenario.js` 的链解析控件 id（栏 → 部件 → 页），这是 §10.1 留下的
  * 三条规矩之一：用与页面不同的方式解析 id 的闸子，测的是没有人访问的那一页。
  */
+/**
+ * 一档算例文档里的参数表：`code/evolve#<名>` → 值。
+ *
+ * ★★**2026-09-12：不再经算例菜单。** 这个闸子原先把 `#model-evolve-case`
+ * 这个 `<select>` 拨到某一档，而那个控件随几个 demo 一起撤掉了（`scenario-model.js`
+ * 抬头记着哪些撤了），于是闸子死在 `Cannot set properties of null`——测的是一个
+ * 没有人访问的页面（F-18）。现在直接读**菜单当年读的同一份真源**：
+ * `docs/examples/evolve/<档>.jsonld` 的 `parameters`，逐条摆到同名控件上。
+ * 页面没有对应控件的名字**不是错**（算例可以声明页面不驱动的参数），逐次报出来。
+ *
+ * ★★**2026-09-12 实测的结果，与它的两种解释**。参照表接上、算例参数照此摆好之后，
+ * 〔甲〕这一档**不收敛**：30 轮后最差相对通量差 **22260.58 %**（判据 2.00 %），最差点
+ * 在电子道 ρ̂ = 0.667；栏的状态行是「失败」，所以导出无件可下，闸子停在那里。两种
+ * 解释未判：(a) 算例文档没带够当年那个**预设套用器**供的东西 —— 页面现在**根本没有
+ * 「套用算例」这个入口**（`FyScenario` 只暴露 part / boot / pages / whenDevices / redraw），
+ * 所以除了逐个摆控件别无他法；(b) 这一档在页面上真的不收敛。定它要一条口径裁定：
+ * 页面要不要重新有算例 / 预设入口。登记在 `TODO.md` F-18 ④。
+ */
+function caseParams(caseId) {
+  const f = join(ROOT, 'docs', 'examples', 'evolve', `${caseId}.jsonld`);
+  const doc = JSON.parse(readFileSync(f, 'utf8'));
+  const out = {};
+  for (const p of doc.parameters || []) {
+    const name = String(p.sets_parameter || '').split('#').pop();
+    if (name) out[name] = p.literal_value;
+  }
+  return out;
+}
+
 async function run(tag, caseId, over) {
-  await page.evaluate((c) => {
-    const s = document.getElementById('model-evolve-case');
-    s.value = c;
-    s.dispatchEvent(new Event('change'));
-  }, caseId);
+  const missing = await page.evaluate((v) => {
+    const gone = [];
+    Object.keys(v).forEach((id) => {
+      const el = document.getElementById('model-evolve-' + id)
+                 || document.getElementById('model-' + id);
+      if (!el) { gone.push(id); return; }
+      if (el.type === 'checkbox') {
+        el.checked = !!v[id];
+        el.dispatchEvent(new Event('change'));
+      } else {
+        el.value = v[id];
+        el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input'));
+        el.dispatchEvent(new Event('change'));
+      }
+    });
+    return gone;
+  }, caseParams(caseId));
+  if (missing.length) {
+    console.log(`  ·     ${caseId}: 页面不驱动的参数 ${missing.length} 个 `
+                + `(${missing.slice(0, 8).join(' ')}${missing.length > 8 ? ' …' : ''})`);
+  }
   await page.waitForTimeout(500);
   await page.evaluate((v) => {
     Object.keys(v).forEach((id) => {
@@ -140,9 +196,13 @@ async function run(tag, caseId, over) {
   const rows = await page.evaluate(
     () => [...document.querySelectorAll('#model-evolve-scalars tr')]
             .map((tr) => [...tr.children].map((td) => td.textContent.trim())));
+  //: ★**2026-09-12（F-18）**：导出是**菜单**，不是选择框 —— 点 `#model-ioexport`
+  //: 开菜单，再点这一栏自己的那一项。此前这里点的是 `#model-iofmt`（菜单本身），
+  //: 于是下载事件永远等不到，30 s 后超时；`validate-beam.mjs` 一直按的就是
+  //: `#model-iofmt-evolve-json`，两个闸子对同一个菜单有两种按法。
   await page.click('#model-ioexport');
   const [dl] = await Promise.all([page.waitForEvent('download'),
-                                  page.click('#model-iofmt')]);
+                                  page.click('#model-iofmt-evolve-json')]);
   const f = join(OUT, `${seq++}-${tag}.json`);
   await dl.saveAs(f);
   return { state, verdict, rows,
