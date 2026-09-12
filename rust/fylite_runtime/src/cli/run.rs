@@ -1165,7 +1165,24 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
             return;
         }
     };
-    let kernel_sha = std::fs::read(&kernel.path).ok().map(|b| crate::checksum::sha256_hex(&b));
+    //: ★★**静态链接时也要有指纹**（`FYL-REPORT-07` C-26）。从前这一行只会去读
+    //: `kernel.path` 那个文件——而内核编进 `fy` 时 `path` 是 `<linked>`，不是一个
+    //: 文件，于是 `executed_code.concretized_as[0]` 交出去时**没有 checksum**：
+    //: 一份记录说不出是哪一份字节算的，而 `-16` K-7 / `-20` M-5 要的正是这个。
+    //: 链接进来的那一份自带指纹（构建时编进去的 `kernel-static.json`），用它。
+    let kernel_sha = std::fs::read(&kernel.path)
+        .ok()
+        .map(|b| crate::checksum::sha256_hex(&b))
+        .or_else(|| {
+            Kernel::linked_fingerprint().and_then(|j| {
+                crate::json::parse(j).ok().and_then(|n| {
+                    n.as_map()
+                        .and_then(|m| m.get("sha256"))
+                        .and_then(|v| v.as_str())
+                        .map(str::to_string)
+                })
+            })
+        });
 
     //: 绑定的解析**逐条**在两个基目录里找：计划自己的目录（预设自带的输入相对它），
     //: 与记录目录（`--device` 与取回的测量落在那里）。
@@ -1380,6 +1397,7 @@ fn execute(args: &Args, target: &Target, plan: Plan, plan_node: Node, prov: &Pro
         started_at,
         ended_at,
         record_id: record_id.clone(),
+        run_state: None,
     });
     if result.is_err() {
         stage_of(&mut rec, "kernel");
@@ -1455,6 +1473,7 @@ fn finish_refused(
         started_at: started_at.to_string(),
         ended_at,
         record_id: record_id.to_string(),
+        run_state: None,
     });
     stage_of(&mut rec, stage);
     let text = json::to_string(&rec, true) + "\n";

@@ -2,8 +2,8 @@
 document_id: FYL-CONOPS-00
 title: FyLite 运行概念描述 (FyLite Operational Concept Description)
 shortname: fylite-conops
-version: "1.0"
-date: 2026-09-04
+version: "1.1"
+date: 2026-09-12
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,9 +12,14 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.1 宿主一节改口（`FYL-REPORT-07` C-1）：本文件此前把命令行写成「`fylite` 控制台脚本
+    与 `fylite` 可执行文件，承载 `app` / `data` / `case` 三条命令词」——那是 2026-09-04
+    当天之前的形。今天只有**一个**可执行文件 `fy`，四条命令词 `app` / `data` / `run` /
+    `list`，Python 侧的命令行整层已撤（`FYL-DESIGN-17` E-10 / E-23）。★宿主**数目**不变
+    （仍是四个），所以本文件其余断言一条未动——这正是「数目不承重」那句话的用处。
     v1.0 全文整理（用户「优化重写整个设计文档」，2026-09-04）。一条术语改口贯穿全篇：
     「双宿主」退役——**宿主**此后指前端（命令行 · Python 库 · 浏览器页面 · AI 工具面，四个，
     数目不承重），**运行时**指内核运行的载体（本机 / 浏览器，远端进程为演进方向）；
@@ -35,8 +40,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-CONOPS-00` |
 | 文档名称 (Title) | FyLite 运行概念描述 (FyLite Operational Concept Description) |
 | 短名 / Slug | `fylite-conops` |
-| 版本 (Version) | v1.0 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v1.1 |
+| 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 1362 |
 | 生命周期阶段 (Lifecycle Phase) | concept (ISO/IEC/IEEE 15288) |
@@ -103,8 +108,8 @@ modified:
 :   与 Sp 生态零代码依赖、仅经声明清单与语言中立进程间接口互操作的独立软件包。
 
 **宿主（host）**
-:   用户触达系统的前端。今天四个：**命令行**（`fylite` 控制台脚本与 `fylite` 可执行
-    文件）、**Python 库**、**浏览器页面**、**AI 平台工具面**（MCP / JSON-RPC 工具协议）。
+:   用户触达系统的前端。今天四个：**命令行**（`fy`——**唯一**的可执行文件）、
+    **Python 库**、**浏览器页面**、**AI 平台工具面**（MCP / JSON-RPC 工具协议）。
     它们共享同一能力集，差别只在谁写计划、谁读记录；**数目不承重**——再来一个宿主
     不改变本文件的任何断言。★2026-09-04 前本文件写「双宿主」，指的是下一条的两个
     **运行时**；两个概念此后分开命名。
@@ -195,8 +200,10 @@ V&V 登记册 `docs/benchmark/reports/B-02-jintrac-iter-102530.md`）。
 电脑**（主流消费级，无独立加速器要求）——响应量级与各功能预算等包络断言均在该
 基准上验证。用户经**四个宿主**触达系统，共享同一能力集：
 
-1. **命令行**：`fylite`（Python 控制台脚本，承载全部命令）与 `fylite`（唯一的
-   可执行文件，承载 `app` / `data` / `case` 三条命令词），本机运行时。
+1. **命令行**：`fy`——**唯一**的可执行文件，承载 `app` / `data` / `run` / `list`
+   四条命令词（无子命令时跑 `app`），本机运行时。★Python 侧的控制台脚本与
+   `python -m fylite` 于 2026-09-04 整层撤除：`pip install` 装到的是一个**库**
+   （`FYL-DESIGN-17` E-10 / E-23；`case` 同日收进 `run`，发现面收进 `list`）。
 2. **Python 库**：脚本、REPL、notebook，本机运行时。
 3. **浏览器页面**：WebAssembly 场景页面，浏览器运行时，零安装、离线可用。
 4. **AI 平台工具面**：Claude / Claude Code / DeepSeek 等 AI 平台的 harness 经工具协议

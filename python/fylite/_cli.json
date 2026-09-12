@@ -49,9 +49,10 @@
       "pulse_design",
       "model",
       "analysis",
-      "data"
+      "data",
+      "report"
      ],
-     "help": "which page to open: home is index.html, the others are pages/<page>.html"
+     "help": "which page to open: home is index.html, the others are pages/<page>.html. The set covers every page on disk — a page the launcher cannot name is one reached only by typing its URL (FYL-REPORT-07 C-11)."
     }
    ]
   }
@@ -103,7 +104,8 @@
       "pulse_design",
       "model",
       "analysis",
-      "data"
+      "data",
+      "report"
      ],
      "help": "page to open (default home)"
     },

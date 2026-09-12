@@ -400,6 +400,30 @@ _KERNEL_ABSENT_SAYS = (
     "'NoneType' object has no attribute 'fylite_rs_",
 )
 
+#: ★★**第二份库**（`FYL-REPORT-07` C-10 / R-6）。README 说「缺内核的检出照常收集，
+#: 需要内核的按名跳过」——而实测里缺的常常不是内核，是**中间层**
+#: （`libfylite_runtime.so`：格式 · 装配 · 计划→内核→记录）。它由本仓的
+#: `rust/build.sh` 建，与内核那份由内核仓建，两条来路、一个目录；干净容器里内核建得
+#: 起来而中间层要系统的 libhdf5 / libnetcdf，于是「有内核、没数据层」是一个**常态**，
+#: 不是一种意外。那次实测：73 失败 / 10 错误，44 处是同一句话。
+#: 政策与上面那条逐字相同：**库不在盘上**时才转换，在场时什么都不做。
+_DATA_ABSENT_SAYS = ("the data library is not built",)
+
+
+def data_lib_present() -> bool:
+    """中间层库在不在盘上（不加载它，同 :func:`kernel_present` 的理由）。"""
+    try:
+        from fylite._paths import DATA_LIB
+        return Path(DATA_LIB).exists()
+    except Exception:                                              # noqa: BLE001
+        return False
+
+
+requires_data_lib = pytest.mark.skipif(
+    not data_lib_present(),
+    reason="no data library: run `bash rust/build.sh` (needs libhdf5 / libnetcdf, "
+           "or `--static`)")
+
 #: 判据语料（`tests/data` → fydoc 的 `cases/`，一条符号链接）。它是**私有**的，
 #: README 已经写明公开检出里没有它。政策与内核那条同一条：不在场 = 缺输入。
 STORE = Path(__file__).resolve().parents[1] / "tests" / "data"
@@ -428,8 +452,9 @@ requires_store = pytest.mark.skipif(
 def pytest_runtest_makereport(item, call):
     """**输入不在场**导致的失败 → skip（点名），其余原样。
 
-    两条，各自条件成立时才转换：内核库不在盘上、判据语料不在盘上。所以内核或
-    语料在场时，这个钩子什么都不做——它盖不住一个真的缺陷。
+    四条，各自条件成立时才转换：内核库不在盘上、**中间层库不在盘上**、判据语料
+    不在盘上、装置牌不在盘上。所以它们在场时，这个钩子什么都不做——它盖不住一个
+    真的缺陷。
     """
     outcome = yield
     report = outcome.get_result()
@@ -440,6 +465,10 @@ def pytest_runtest_makereport(item, call):
     if not kernel_present() and any(s in text for s in _KERNEL_ABSENT_SAYS):
         why = ("the kernel is absent in this checkout "
                "(it is built from the private kernel repository)")
+    elif not data_lib_present() and any(s in text for s in _DATA_ABSENT_SAYS):
+        why = ("the data library is absent in this checkout "
+               "(`bash rust/build.sh` builds it; it needs libhdf5 / libnetcdf, "
+               "or pass --static)")
     elif not store_present() and ("tests/data" in text or str(STORE) in text):
         why = (f"the reference store is absent in this checkout ({STORE} is a "
                "symlink to fydata's private oracle/ tree)")

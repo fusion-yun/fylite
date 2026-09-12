@@ -135,11 +135,14 @@ casereport.render(cases.run("evolve-iter-15ma"), out="out/")
 计划文档也能直接交给数据层的可执行件，走内核的单入口 `fylite_rs_fyo`：
 
 ```bash
-fy case plan cases/evolve-iter-15ma.jsonld          # 只解析与合成，不跑
-fy case run  cases/evolve-iter-15ma.jsonld --record out/
-fy case run  cases/evolve-iter-15ma.jsonld --record out/ --format imas-hdf5
-fy case json cases/evolve-default.jsonld            # 一份计划进，一份记录出（stdout）
+fy run docs/examples/evolve/evolve-iter-15ma.jsonld --dry-run   # 只解析与合成，不跑
+fy run docs/examples/evolve/evolve-iter-15ma.jsonld -o out/
+fy run docs/examples/evolve/evolve-iter-15ma.jsonld -o out/ --format imas-hdf5
+fy run docs/examples/evolve/evolve-default.jsonld --json        # 一份计划进，一份记录出（stdout）
 ```
+
+★四条命令词是 `app` / `data` / `run` / `list`；`case` 于 2026-09-04 收进 `run`
+（`FYL-DESIGN-17` E-23），旧写法按名拒绝并指路，对照表在[命令行](../reference/cli.md)那一章。
 
 ★`fy` 是本仓**唯一的可执行文件**（`bash rust/build.sh --exe`），它读的规格与本页
 描述的那些 Python 入口出自同一份 `_cli.json`（`FYL-DESIGN-15`）。

@@ -167,3 +167,28 @@ def test_the_discovery_face_is_one_command_with_one_subcommand_per_corpus():
     #: and `run` grew no --list / --show of its own
     assert "--list" not in _flags(_command("run"))
     assert "--show" not in _flags(_command("run"))
+
+
+def test_the_launcher_can_name_every_page_on_disk():
+    """★A page the launcher cannot name is reachable only by typing its URL.
+
+    ``fy app --page <name>`` is the one way a user who did not read the source
+    tree opens a page.  The `report` page sat on disk for ten days outside the
+    choice set (`FYL-REPORT-07` C-11) while the reference chapter told readers
+    to open it — the spec's own note claimed a gate asserted the page names,
+    and it did: it asserted the two halves of the SPEC agreed with each other,
+    which two copies of the same omission satisfy.
+
+    So this asserts against the DISK.  `page_*.html` are the generated v2
+    shells of the same pages (`tools/make-page-v2.mjs`), not pages of their
+    own; `home` is `index.html` at the site root.
+    """
+    declared = {p["name"]: p for p in SPEC["hosts"]["app"]["params"]}
+    choices = set(declared["page"]["choices"])
+    pages = {p.stem for p in (REPO / "app" / "pages").glob("*.html")
+             if not p.name.startswith("page_")}
+    assert "home" in choices and (REPO / "app" / "index.html").is_file()
+    assert pages <= choices, {
+        "on disk but the launcher cannot name it": sorted(pages - choices)}
+    assert (choices - {"home"}) <= pages, {
+        "named by the launcher but not on disk": sorted(choices - {"home"} - pages)}
