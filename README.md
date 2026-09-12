@@ -145,6 +145,8 @@ returns an error rather than a number that looks like an answer. What the
 physics can and cannot do today is
 [`docs/reference/fidelity.md`](docs/reference/fidelity.md) — the measured
 limits — and [`TODO.md`](TODO.md) for what is not built yet.
+[`PLAN.md`](PLAN.md) is narrower: the ordered plan, with its criteria, for landing
+the kinetic-reconstruction scenario and its flow-graph page (`FYL-DESIGN-21`).
 
 ## How fylite is built
 
