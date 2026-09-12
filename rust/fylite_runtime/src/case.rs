@@ -856,7 +856,16 @@ pub fn documents(out: &Outcome, raw: &RawOutcome, record_id: &str) -> Vec<(Strin
         let mut doc = Node::Map(m);
         for f in out.fields.iter().filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids) {
             let data = raw.data[f.offset..f.offset + f.len].to_vec();
-            if f.dims.len() == 2 && f.dims[0] > 0 {
+            //: ★a slot the interface declares 2-D (`profiles_2d/psi`, the map) is ONE
+            //: dataset, nested [dim1][dim2] at its path — not a time-indexed array
+            //: of structure.  Without this a re-solved map came back as 129 time
+            //: slices and the next step found no map (CASE-21's chain, 2026-09-12).
+            let declared_2d = fi::TABLES.iter().flat_map(|t| t.slots.iter()).any(|s| s.path == f.path && s.rank == "2d");
+            if f.dims.len() == 2 && f.dims[0] > 0 && declared_2d {
+                let (n0, n1) = (f.dims[0], f.dims[1]);
+                let _ = doc.set(&explicit_path(&f.path),
+                                Node::Array(Array { shape: vec![n0, n1], data: crate::document::ArrayData::F64(data) }));
+            } else if f.dims.len() == 2 && f.dims[0] > 0 {
                 //: the leading dimension indexes the first path segment — one
                 //: element per time slice of a time-indexed array of structure
                 let (nt, nr) = (f.dims[0], f.dims[1]);
@@ -1125,6 +1134,271 @@ pub struct JsonError {
 /// One plan text (a `fyo:ScenarioSpecification`, or a JSON array of them
 /// composed in order) → one record text.  File endpoints in the plan
 /// resolve against `base` (the working directory when `None`).
+/// The ordered STEPS a scenario carries, when it does — `has_occurrent_part`
+/// (the fyo term: a `PhysicsModelingTask`'s parts are its solver invocations)
+/// or the plain `fylite:steps`.  Each element is itself a complete
+/// `fyo:ScenarioSpecification` (its own `prescribes_code`, `parameters`,
+/// `inputs`); the root prescribes no code of its own.
+///
+/// ★★**Why steps exist.**  A reproduction is a SEQUENCE of doors — the ladder,
+/// then rounds of `code/steady_current` ↔ `code/steady_equilibrium`, then the
+/// ray tracer — and until 2026-09-11 that sequence lived only in a kernel test
+/// (`outer_loop`) and in hand-written host code, never in a document.  A single
+/// document that carries the inputs AND the order is what "run this again" means.
+pub fn steps_of(node: &Node) -> Option<Vec<Node>> {
+    let m = node.as_map()?;
+    match get(m, &["has_occurrent_part", "spo:has_occurrent_part", "fyo:has_occurrent_part", "fylite:steps"]) {
+        Some(Node::List(l)) if !l.is_empty() => Some(l.clone()),
+        _ => None,
+    }
+}
+
+/// One executed step of a stepped scenario.
+pub struct StepRun {
+    pub id: String,
+    pub code: String,
+    pub record: Node,
+    pub refused: bool,
+}
+
+/// The whole stepped run: the top-level record (every step's datasets inline
+/// under `<step>/<ids>` output ports, the per-step records under
+/// `fylite:steps`) and whether any step was refused.
+pub struct StepsRun {
+    pub record: Node,
+    pub steps: Vec<StepRun>,
+    pub refused: bool,
+}
+
+/// Run a stepped scenario: each step composed on its own, its inputs resolved
+/// with the two chaining rules below, run through the kernel's TREE door, its
+/// datasets kept inline and handed on.
+///
+/// **Chaining, two rules and no third**:
+///
+/// 1. an input binding whose `bound_to` is a bare reference `{id: "<step>/<ids>"}`
+///    (a leading `#` allowed) names that IDS's document **as it stood after that
+///    step** — every field any step up to it wrote, the later winning — and is
+///    replaced by that document before the step resolves its inputs;
+/// 2. a step carrying `fylite:carry_forward: true` receives EVERY IDS document
+///    the chain has produced so far, on the port named by the IDS; where the step
+///    binds that port itself the produced fields are merged in, produced values
+///    winning — the kernel test's own rule ("every field that door writes copied
+///    back under `inputs/<ids>/<path>`", on ONE root that accumulates).
+///
+/// ★A step that is refused ends the chain: the steps after it are not run, and
+/// the run is `rejected`.  Running on past a refusal would hand the next door
+/// the inputs of a step that did not happen.
+pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: Option<&Path>)
+    -> Result<StepsRun, JsonError> {
+    let fail = |code: i32, m: String| JsonError { code, message: m };
+    let kernel = Kernel::load(kernel_path).map_err(|e| fail(-4, e.message))?;
+    if !kernel.has_tree_door() {
+        return Err(fail(-5, format!("stepped scenarios need the kernel's tree door (ABI 126+); {} has none",
+                                    kernel.path.display())));
+    }
+    let kernel_sha = std::fs::read(&kernel.path).ok().map(|b| sha256_hex(&b));
+    let base_dir = base.map(Path::to_path_buf).unwrap_or_else(|| PathBuf::from("."));
+    let root_id = root.as_map().and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str)
+        .map(str::to_string).unwrap_or_else(|| "scenario".into());
+    let (_s0, started_at) = now_iso();
+    let record_id = format!("run/{}-steps", started_at.replace([':', '-'], ""));
+    let mut runs: Vec<StepRun> = Vec::new();
+    let mut produced_all: Vec<Produced> = Vec::new();
+    let mut prev_docs: Vec<(String, Node)> = Vec::new();
+    let mut by_ref: Vec<(String, Node)> = Vec::new();
+    let mut refused = false;
+    for (k, step) in steps.iter().enumerate() {
+        let step_id = step.as_map().and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str)
+            .map(str::to_string).unwrap_or_else(|| format!("step-{}", k + 1));
+        let text = json::to_string(step, false);
+        let src = Source { path: PathBuf::from(format!("(scenario)[{k}]")), id: Some(step_id.clone()),
+                           sha256: sha256_hex(text.as_bytes()), bytes: text.len() };
+        let mut plan = compose(vec![(src, step.clone())]).map_err(|e| fail(-2, format!("step `{step_id}`: {}", e.0)))?;
+        chain_inputs(&mut plan, step, &by_ref, &prev_docs);
+        //: ★the documents a step BINDS join the running state too (the kernel
+        //: test's root holds its inputs and what the doors wrote, on one tree):
+        //: the map the ladder step brought in is still the map three steps on
+        for b in &plan.inputs {
+            let Some(doc) = &b.inline else { continue };
+            if doc.as_map().is_none() { continue }
+            match prev_docs.iter_mut().find(|(k, _)| *k == b.port) {
+                Some((_, state)) => merge_into(state, doc),
+                None => prev_docs.push((b.port.clone(), doc.clone())),
+            }
+        }
+        let (_slots, resolved) = resolve_inputs_any(&plan, &[&base_dir]).map_err(|e| fail(-3, format!("step `{step_id}`: {}", e.0)))?;
+        let (numbers, texts) = plan.kernel_settings().map_err(|e| fail(-5, format!("step `{step_id}`: {}", e.0)))?;
+        let tree = plan_tree(&numbers, &texts, &resolved);
+        let step_record_id = format!("{record_id}/{step_id}");
+        let (_s1, step_started) = now_iso();
+        let result = kernel.run_tree(&plan.code, &tree)
+            .and_then(|rec| outcome_from_record(&rec).map_err(|e| KernelError { code: -6, message: e.0 }));
+        let (_s2, step_ended) = now_iso();
+        let mut produced: Vec<Produced> = Vec::new();
+        let outcome = match &result {
+            Ok((o, raw)) => {
+                let docs = documents(o, raw, &step_record_id);
+                for (ids, doc) in docs {
+                    let fields: Vec<String> = o.fields.iter()
+                        .filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids)
+                        .map(|f| format!("{} [{}] {:?}", f.path, f.units, f.dims)).collect();
+                    produced.push(Produced { port: ids.clone(), doc_id: format!("{step_record_id}/{ids}"),
+                                             doc_type: format!("fyo:{ids}"), storage_uri: String::new(),
+                                             format_iri: String::new(), sha256: String::new(), bytes: 0,
+                                             fields: fields.clone(), inline: Some(doc.clone()) });
+                    produced_all.push(Produced { port: format!("{step_id}/{ids}"), doc_id: format!("{step_record_id}/{ids}"),
+                                                 doc_type: format!("fyo:{ids}"), storage_uri: String::new(),
+                                                 format_iri: String::new(), sha256: String::new(), bytes: 0,
+                                                 fields, inline: Some(doc.clone()) });
+                    //: ★the running STATE of the IDS — what the kernel test's one root holds
+                    //: after this step: every field any earlier step wrote, this step's values
+                    //: winning.  A bare reference `<step>/<ids>` and a carry both name THAT,
+                    //: not the step's bare fields: a re-solved map is only an equilibrium
+                    //: together with the limiter and F it inherited.
+                    match prev_docs.iter_mut().find(|(k, _)| *k == ids) {
+                        Some((_, state)) => merge_into(state, &doc),
+                        None => prev_docs.push((ids.clone(), doc.clone())),
+                    }
+                    let state = prev_docs.iter().find(|(k, _)| *k == ids).map(|(_, d)| d.clone()).unwrap_or(doc);
+                    by_ref.push((format!("{step_id}/{ids}"), state));
+                }
+                Some(o.clone())
+            }
+            Err(_) => None,
+        };
+        let rec = record(&RecordInputs {
+            plan: &plan, plan_file: None, resolved: &resolved, kernel: Some(&kernel), kernel_sha256: kernel_sha.clone(),
+            outcome: outcome.as_ref(), refusal: result.as_ref().err(), produced: &produced,
+            started_at: step_started, ended_at: step_ended, record_id: step_record_id,
+        });
+        let this_refused = result.is_err();
+        runs.push(StepRun { id: step_id, code: plan.code.clone(), record: rec, refused: this_refused });
+        if this_refused {
+            refused = true;
+            break;
+        }
+    }
+    let (_e, ended_at) = now_iso();
+    let rec = steps_record(&root_id, &record_id, &started_at, &ended_at, &runs, &produced_all, refused, steps.len());
+    Ok(StepsRun { record: rec, steps: runs, refused })
+}
+
+/// The two chaining rules of [`run_steps`], as a pure function so they can be
+/// judged without a kernel: rule 1 replaces a bare `{id}` reference to an
+/// earlier step's document (`by_ref`, keyed `<step>/<ids>`) with that document;
+/// rule 2, when the step says `fylite:carry_forward: true`, binds every document
+/// of the previous step (`prev`) on the port named by its IDS unless the step
+/// binds that port itself.
+pub fn chain_inputs(plan: &mut Plan, step: &Node, by_ref: &[(String, Node)], prev: &[(String, Node)]) {
+    for b in plan.inputs.iter_mut() {
+        let Some(Node::Map(m)) = &b.inline else { continue };
+        if m.len() > 2 { continue; }
+        let Some(id) = get(m, &["id", "@id"]).and_then(Node::as_str) else { continue };
+        let want = id.trim_start_matches('#');
+        if let Some((_, doc)) = by_ref.iter().find(|(key, _)| key == want) {
+            b.inline = Some(doc.clone());
+        }
+    }
+    let carry = step.as_map().and_then(|m| get(m, &["fylite:carry_forward", "carry_forward"]))
+        .map(|v| matches!(v, Node::Bool(true)) || v.as_str() == Some("true")).unwrap_or(false);
+    if carry {
+        for (ids, doc) in prev {
+            match plan.inputs.iter_mut().find(|b| &b.port == ids) {
+                None => plan.inputs.push(Binding { port: ids.clone(), endpoint: None, inline: Some(doc.clone()),
+                                                   note: Some("carried forward from the previous step".into()), from: None }),
+                //: ★the step binds the same IDS itself (the equilibrium MAP, say, while the
+                //: previous step produced the LADDER rows of the same IDS): the produced
+                //: fields are merged INTO the step's document, produced values winning —
+                //: exactly "every field that door writes copied back under
+                //: `inputs/<ids>/<path>`", the kernel test's rule.  Only an inline
+                //: document can take a merge; a file endpoint is left alone and said so.
+                Some(b) => match &mut b.inline {
+                    Some(dst) if dst.as_map().is_some() => merge_into(dst, doc),
+                    _ => {
+                        let n = b.note.take().unwrap_or_default();
+                        b.note = Some(format!("{n} [carry_forward: `{ids}` not merged — the port is bound to an endpoint, not a document]").trim().to_string());
+                    }
+                },
+            }
+        }
+    }
+}
+
+/// Deep-merge `src` into `dst`: maps recurse, everything else (arrays, scalars,
+/// lists) is REPLACED by `src`'s value.  `src` wins — it is the newer state.
+pub fn merge_into(dst: &mut Node, src: &Node) {
+    //: ★a one-element list of a structure IS that structure under another
+    //: spelling: a document writes `time_slice: {…}`, the kernel's record
+    //: writes `time_slice: [{…}]` (`explicit_path`, index 0 of the AOS).  Merged
+    //: as structures, in the form the destination already has — otherwise the
+    //: produced ladder would REPLACE the map it was traced on
+    let single = |n: &Node| -> Option<Node> {
+        match n { Node::List(l) if l.len() == 1 && l[0].as_map().is_some() => Some(l[0].clone()), _ => None }
+    };
+    match (dst, src) {
+        (Node::Map(d), Node::Map(s)) => {
+            for (k, v) in s.iter() {
+                match d.get_mut(k) {
+                    Some(existing) if (existing.as_map().is_some() || single(existing).is_some())
+                        && (v.as_map().is_some() || single(v).is_some()) => merge_into(existing, v),
+                    _ => { d.insert(k, v.clone()); }
+                }
+            }
+        }
+        (dst @ Node::Map(_), s) if single(s).is_some() => merge_into(dst, &single(s).unwrap()),
+        (Node::List(d), s) if d.len() == 1 && d[0].as_map().is_some() && (s.as_map().is_some() || single(s).is_some()) => {
+            merge_into(&mut d[0], s)
+        }
+        (d, s) => *d = s.clone(),
+    }
+}
+
+/// The top-level record of a stepped run — the same `spo:ComputationRecord`
+/// shape as [`record`], with the per-step records under `fylite:steps` and
+/// every produced dataset inline on an output port named `<step>/<ids>`.
+fn steps_record(root_id: &str, record_id: &str, started_at: &str, ended_at: &str,
+                runs: &[StepRun], produced: &[Produced], refused: bool, planned: usize) -> Node {
+    let mut m = Map::new();
+    m.insert("@context", plan_context());
+    m.insert("id", record_id.into());
+    m.insert("type", "spo:ComputationRecord".into());
+    let mut plan = Map::new();
+    plan.insert("id", root_id.into());
+    plan.insert("type", "fyo:ScenarioSpecification".into());
+    m.insert("realizes", Node::Map(plan));
+    m.insert("run_state", (if refused { "rejected" } else { "succeeded" }).into());
+    m.insert("started_at", started_at.into());
+    m.insert("ended_at", ended_at.into());
+    m.insert("fylite:steps_planned", Node::Int(planned as i64));
+    m.insert("fylite:steps_run", Node::Int(runs.len() as i64));
+    m.insert("fylite:steps", Node::List(runs.iter().map(|r| r.record.clone()).collect()));
+    let mut bindings: Vec<Node> = Vec::new();
+    for p in produced {
+        let mut b = Map::new();
+        b.insert("type", "spo:PortBinding".into());
+        b.insert("binds_port", port(&p.port, "output"));
+        if let Some(doc) = &p.inline {
+            let mut d = doc.clone();
+            if let Some(dm) = d.as_map_mut() {
+                dm.remove("@context");
+                if let Some(id) = dm.remove("@id") { dm.insert("id", id); }
+                if let Some(t) = dm.remove("@type") { dm.insert("type", t); }
+                dm.insert("comment", Node::List(p.fields.iter().map(|f| f.clone().into()).collect()));
+            }
+            b.insert("bound_to", d);
+        }
+        bindings.push(Node::Map(b));
+    }
+    m.insert("inputs", Node::List(bindings));
+    let comments: Vec<Node> = runs.iter().filter(|r| r.refused)
+        .map(|r| format!("step `{}` ({}) was refused; the steps after it were not run", r.id, r.code).into()).collect();
+    if !comments.is_empty() {
+        m.insert("comment", Node::List(comments));
+    }
+    Node::Map(m)
+}
+
 pub fn run_json(plan_text: &str, base: Option<&Path>, kernel_path: Option<&Path>) -> Result<JsonRun, JsonError> {
     let fail = |code: i32, m: String| JsonError { code, message: m };
     let node = json::parse(plan_text).map_err(|e| fail(-2, format!("the plan does not parse: {e:?}")))?;
@@ -1132,6 +1406,14 @@ pub fn run_json(plan_text: &str, base: Option<&Path>, kernel_path: Option<&Path>
         Node::List(l) => l,
         other => vec![other],
     };
+    //: ★a stepped scenario is one document carrying its steps; it goes through
+    //: `run_steps`, whose record has the same shape plus `fylite:steps`
+    if docs.len() == 1 {
+        if let Some(steps) = steps_of(&docs[0]) {
+            let r = run_steps(&docs[0], &steps, base, kernel_path)?;
+            return Ok(JsonRun { record_json: json::to_string(&r.record, true) + "\n", refused: r.refused });
+        }
+    }
     let mut sources = Vec::new();
     for (i, d) in docs.into_iter().enumerate() {
         let text = json::to_string(&d, false);
@@ -1236,5 +1518,55 @@ mod tests {
         let (numbers, texts) = plan.kernel_settings().unwrap();
         assert!(numbers.iter().any(|(k, v)| k == "nsteps" && *v == 12.0));
         assert!(texts.iter().any(|(k, v)| k == "species" && v == "Ne"));
+    }
+
+    /// ★The two chaining rules, judged without a kernel: a bare `{id}` reference
+    /// becomes the earlier step's document; `carry_forward` binds the previous
+    /// step's documents on their IDS ports, but never over a port the step
+    /// binds itself; and a reference to nothing stays a bare reference (so that
+    /// `resolve_inputs` reports it, rather than this function inventing one).
+    #[test]
+    fn steps_chain_by_reference_and_by_carry_forward() {
+        let root = json::parse(r##"{"id": "s", "type": "fyo:ScenarioSpecification",
+            "has_occurrent_part": [
+              {"id": "one", "type": "fyo:ScenarioSpecification", "prescribes_code": {"id": "code/ladder"}},
+              {"id": "two", "type": "fyo:ScenarioSpecification", "prescribes_code": {"id": "code/steady_current"},
+               "fylite:carry_forward": true,
+               "inputs": [
+                 {"binds_port": {"port_name": "core_profiles"}, "bound_to": {"id": "#one/core_profiles"}},
+                 {"binds_port": {"port_name": "equilibrium"},
+                  "bound_to": {"@type": "fyo:equilibrium", "vacuum_toroidal_field": {"b0": [6.0]}, "time": [0.0]}},
+                 {"binds_port": {"port_name": "ec_launchers"}, "bound_to": {"@type": "fyo:ec_launchers", "beam": {"mode": 1}}},
+                 {"binds_port": {"port_name": "nbi"}, "bound_to": {"id": "nowhere/nbi"}}
+               ]}]}"##).unwrap();
+        let steps = steps_of(&root).expect("two steps");
+        assert_eq!(steps.len(), 2);
+        let src = |n: &str| Source { path: PathBuf::from(n), id: None, sha256: String::new(), bytes: 0 };
+        let mut plan = compose(vec![(src("two"), steps[1].clone())]).unwrap();
+        let eq_doc = json::parse(r#"{"@type": "fyo:equilibrium", "time": [1.0], "time_slice": {"profiles_1d": {"q": [1.5]}}}"#).unwrap();
+        let cp_doc = json::parse(r#"{"@type": "fyo:core_profiles", "profiles_1d": {"q": [1.0, 2.0]}}"#).unwrap();
+        let by_ref = vec![("one/core_profiles".to_string(), cp_doc.clone())];
+        let prev = vec![("equilibrium".to_string(), eq_doc.clone()), ("core_profiles".to_string(), cp_doc.clone())];
+        chain_inputs(&mut plan, &steps[1], &by_ref, &prev);
+        let port = |p: &str| plan.inputs.iter().find(|b| b.port == p).expect(p).inline.clone().unwrap();
+        //: rule 1: the `#one/core_profiles` reference became the document
+        assert!(port("core_profiles").get("profiles_1d").is_some());
+        //: a reference to no earlier step stays a bare reference — NOT silently carried over
+        assert_eq!(port("nbi").as_map().map(|m| m.len()), Some(1));
+        //: rule 3: the step's own equilibrium (the map) received the previous step's fields
+        //: (the ladder rows), the produced value winning where both carry one (`time`)
+        let eq = port("equilibrium");
+        assert!(eq.get("vacuum_toroidal_field").is_some(), "the step's own field was lost in the merge");
+        assert!(eq.get("time_slice").is_some(), "the produced ladder rows were not merged in");
+        assert_eq!(eq.get("time"), Some(&Node::Array(Array::vec_f64(vec![1.0]))), "the produced value must win");
+        //: rule 2 never touches a port the previous step did not produce
+        assert!(port("ec_launchers").get("beam").is_some());
+        //: and every port is bound exactly once
+        let mut ports: Vec<&str> = plan.inputs.iter().map(|b| b.port.as_str()).collect();
+        ports.sort();
+        ports.dedup();
+        assert_eq!(ports.len(), plan.inputs.len(), "a port was bound twice: {:?}", plan.inputs.iter().map(|b| &b.port).collect::<Vec<_>>());
+        //: a root without steps says so
+        assert!(steps_of(&steps[0]).is_none());
     }
 }

@@ -1016,6 +1016,16 @@ pub fn run(args: &Args) {
     super::data::apply_facts(args);
     apply_cases(args);
 
+    //: ★a STEPPED scenario — one document whose `has_occurrent_part` (or
+    //: `fylite:steps`) lists the steps, each with its own code, parameters and
+    //: inline documents (`tools/export-case-scenario.py` writes one): the chain
+    //: runs whole through `case::run_steps`, the record and every step's record
+    //: beside it.  Nothing to resolve, nothing to fetch: the file is the run.
+    if let Some((path, node, steps)) = stepped_target(args) {
+        run_stepped(args, &path, &node, &steps);
+        return;
+    }
+
     let mut target = resolve_target(args);
     //: 计划文件形：模板由合成后计划的 code 末段反查——查得到就校验，查不到就透传。
     if let Target::Plans { paths, template } = &mut target {
@@ -1054,6 +1064,77 @@ pub fn run(args: &Args) {
         return;
     }
     execute(args, &target, plan, node, &prov, &base, &record_dir);
+}
+
+/// The one positional path whose document carries steps, or nothing.
+fn stepped_target(args: &Args) -> Option<(PathBuf, Node, Vec<Node>)> {
+    let targets = args.all("target");
+    if targets.len() != 1 || !looks_like_path(targets[0]) {
+        return None;
+    }
+    let path = PathBuf::from(targets[0]);
+    let (_src, node) = case::read_source(&path).ok()?;
+    let steps = case::steps_of(&node)?;
+    Some((path, node, steps))
+}
+
+fn step_ids(step: &Node) -> (String, String) {
+    let m = step.as_map();
+    let id = m.and_then(|m| m.get("id").or_else(|| m.get("@id"))).and_then(Node::as_str).unwrap_or("?").to_string();
+    let code = m.and_then(|m| m.get("prescribes_code")).and_then(Node::as_map)
+        .and_then(|c| c.get("id").or_else(|| c.get("@id"))).and_then(Node::as_str).unwrap_or("?").to_string();
+    (id, code)
+}
+
+fn run_stepped(args: &Args, path: &Path, node: &Node, steps: &[Node]) {
+    let record_dir = match args.flag("record") {
+        Some(d) => PathBuf::from(d),
+        None => {
+            let (_secs, stamp) = case::now_iso();
+            let parent = std::env::var("FYLITE_RUN_DIR").unwrap_or_else(|_| "records".into());
+            PathBuf::from(parent).join(format!("{}-steps", stamp.replace([':', '-'], "")))
+        }
+    };
+    if args.has("dry-run") {
+        println!("stepped scenario {}: {} step(s)", path.display(), steps.len());
+        for (k, s) in steps.iter().enumerate() {
+            let (id, code) = step_ids(s);
+            println!("  {:>2}. {id}  {code}", k + 1);
+        }
+        println!("  record: {}", record_dir.display());
+        return;
+    }
+    let base = path.parent().map(Path::to_path_buf).unwrap_or_else(|| PathBuf::from("."));
+    let run = match case::run_steps(node, steps, Some(&base), args.flag("kernel").map(Path::new)) {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("fy run: [{}] {}", e.code, e.message);
+            std::process::exit(1);
+        }
+    };
+    if let Err(e) = std::fs::create_dir_all(record_dir.join("steps")) {
+        eprintln!("fy run: {}: {e}", record_dir.display());
+        std::process::exit(2);
+    }
+    let quiet = args.has("quiet");
+    for s in &run.steps {
+        let file = record_dir.join("steps").join(format!("{}.jsonld", s.id.replace('/', "_")));
+        write_text(&file, &(json::to_string(&s.record, true) + "\n"));
+        if !quiet {
+            println!("  {}  {}  {}", s.id, s.code, if s.refused { "rejected" } else { "succeeded" });
+        }
+    }
+    let text = json::to_string(&run.record, true) + "\n";
+    write_text(&record_dir.join("record.jsonld"), &text);
+    if args.has("json") {
+        println!("{text}");
+    } else {
+        println!("  record: {}  ({} of {} steps ran, run_state: {})", record_dir.join("record.jsonld").display(),
+                 run.steps.len(), steps.len(), if run.refused { "rejected" } else { "succeeded" });
+    }
+    if run.refused {
+        std::process::exit(1);
+    }
 }
 
 fn apply_cases(args: &Args) {
