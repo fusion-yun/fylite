@@ -83,7 +83,7 @@ polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
 <rect x="590" y="266" width="52" height="16" rx="8" class="badge-run"/><text x="598" y="278" class="acc-t" style="font-size:10px">running</text>
 <text x="650" y="278" class="s">模型边 ┄</text>
 
-<rect x="390" y="340" width="150" height="70" rx="6" class="node-stale"/>
+<rect x="390" y="340" width="185" height="70" rx="6" class="node-stale"/>
 <text x="400" y="360">s3 动理学反演</text><text x="400" y="376" class="k">reconstruction · kinetic</text>
 <rect x="400" y="386" width="86" height="16" rx="8" class="badge-stale"/><text x="408" y="398" class="warn-t" style="font-size:10px">已算 · 过期</text>
 <text x="494" y="398" class="s">χ² 11.8</text>
@@ -100,7 +100,7 @@ polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
 <path d="M160,404 C260,404 300,262 390,262" class="edge"/>
 <path d="M540,255 L580,255" class="edge"/>
 <path d="M655,290 C655,320 470,310 465,340" class="edge-model"/>
-<path d="M540,375 L620,375" class="edge"/>
+<path d="M575,375 L620,375" class="edge"/>
 <path d="M690,340 C690,300 560,300 470,300 C430,300 420,292 420,292" class="back"/>
 <text x="480" y="318" class="s" style="fill:#d0342c">回边：新平衡 → 重映射</text>
 <path d="M690,410 L690,450" class="edge"/>
