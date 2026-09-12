@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 900" width="1240" height="900" role="img" aria-label="动理学平衡重构页面效果图：流程图 · 节点卡 · 控制条 · 外环面板">
+<title>动理学平衡重构 — 页面效果图（概念图，数值仅示意）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --ok:#10897a; --bad:#c0392b; --wall:#5a6270; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:15px; font-weight:600; } .s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; }
+.head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.node { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-done { fill:var(--panel); stroke:var(--ok); stroke-width:1.6; }
+.node-now { fill:var(--sel); stroke:var(--accent); stroke-width:2; }
+.node-stale { fill:var(--panel); stroke:var(--warn); stroke-width:1.4; stroke-dasharray:5 3; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:4 4; }
+.node-sel { fill:var(--sel); stroke:var(--accent); stroke-width:2.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.5; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.5; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:1.8; marker-end:url(#ab); }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .bad-t { fill:var(--bad); } .acc-t { fill:var(--accent); }
+.prog-bg { fill:var(--line); } .prog { fill:var(--accent); }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.q0 { stroke:var(--accent); stroke-width:2; } .q95 { stroke:var(--alt); stroke-width:2; }
+.zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+.pt { fill:var(--accent); } .pt-last { fill:var(--lcfs); }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.warnbox { fill:#fff7ed; stroke:var(--warn); }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+</defs>
+<rect width="1240" height="900" fill="#f4f5f7"/>
+
+<!-- toolbar strip (shell V-1..) -->
+<rect x="16" y="16" width="1208" height="44" rx="4" class="head"/>
+<text x="28" y="43" class="h">实验分析 · 动理学平衡重构</text>
+<text x="300" y="43" class="s">east · #137985 · t = 4.000 s</text>
+<rect x="560" y="26" width="72" height="24" rx="4" class="btn"/><text x="572" y="43">导入</text>
+<rect x="640" y="26" width="72" height="24" rx="4" class="btn"/><text x="652" y="43">导出</text>
+<rect x="720" y="26" width="96" height="24" rx="4" class="btn"/><text x="730" y="43">交给建模</text>
+<circle cx="1120" cy="38" r="5" class="prog"/><text x="1132" y="43" class="s">外环第 2 轮 · 运行中</text>
+
+<!-- control bar -->
+<rect x="16" y="72" width="1208" height="40" rx="4" class="panel"/>
+<rect x="28" y="80" width="96" height="24" rx="4" class="btn-on"/><text x="44" y="97" class="btn-on-t">运行到此</text>
+<rect x="132" y="80" width="64" height="24" rx="4" class="btn"/><text x="146" y="97">单步</text>
+<rect x="204" y="80" width="96" height="24" rx="4" class="btn"/><text x="216" y="97">从此重跑</text>
+<rect x="308" y="80" width="64" height="24" rx="4" class="btn"/><text x="322" y="97">断点</text>
+<rect x="380" y="80" width="64" height="24" rx="4" class="btn"/><text x="394" y="97">取消</text>
+<text x="470" y="97" class="s">没有「跳过」：可选步的开关在计划里（fylite:switches）</text>
+<rect x="880" y="86" width="300" height="10" rx="5" class="prog-bg"/><rect x="880" y="86" width="190" height="10" rx="5" class="prog"/>
+<text x="880" y="80" class="s">步 3 / 5 · 已量 41 ms/步 · 余 2 步</text>
+
+<!-- flow graph panel -->
+<rect x="16" y="124" width="800" height="400" rx="4" class="panel"/>
+<rect x="16" y="124" width="800" height="26" rx="4" class="head"/>
+<text x="28" y="142" class="h" style="font-size:13px">流程图 · 节点 = 计划的步 · 边 = 端口绑定 · 状态从记录读</text>
+<text x="560" y="142" class="k">scenario/kinetic.jsonld · 5 步 + 1 环</text>
+
+<rect x="40" y="200" width="120" height="48" rx="6" class="node-off"/>
+<text x="50" y="220" class="s">装置文档</text><text x="50" y="238" class="k">device</text>
+<rect x="40" y="270" width="120" height="48" rx="6" class="node-off"/>
+<text x="50" y="290" class="s">磁测量</text><text x="50" y="308" class="k">measurements</text>
+<rect x="40" y="380" width="120" height="48" rx="6" class="node-off"/>
+<text x="50" y="400" class="s">剖面诊断</text><text x="50" y="418" class="k">thomson</text>
+
+<rect x="200" y="220" width="150" height="70" rx="6" class="node-done"/>
+<text x="210" y="240">s0 基准平衡</text><text x="210" y="256" class="k">reconstruction</text>
+<rect x="210" y="266" width="62" height="16" rx="8" class="badge-ok"/><text x="218" y="278" class="ok-t" style="font-size:10px">succeeded</text>
+<text x="280" y="278" class="s">GS 3.1e-5</text>
+
+<rect x="390" y="220" width="150" height="70" rx="6" class="node-done"/>
+<text x="400" y="240">s1 剖面构造</text><text x="400" y="256" class="k">ladder → profile_fit</text>
+<rect x="400" y="266" width="62" height="16" rx="8" class="badge-ok"/><text x="408" y="278" class="ok-t" style="font-size:10px">succeeded</text>
+<text x="470" y="278" class="s">GCV 阶 4</text>
+
+<rect x="580" y="220" width="150" height="70" rx="6" class="node-sel"/>
+<text x="590" y="240">s2 约束构造</text><text x="590" y="256" class="k">bootstrap</text>
+<rect x="590" y="266" width="52" height="16" rx="8" class="badge-run"/><text x="598" y="278" class="acc-t" style="font-size:10px">running</text>
+<text x="650" y="278" class="s">模型边 ┄</text>
+
+<rect x="390" y="340" width="150" height="70" rx="6" class="node-stale"/>
+<text x="400" y="360">s3 动理学反演</text><text x="400" y="376" class="k">reconstruction · kinetic</text>
+<rect x="400" y="386" width="86" height="16" rx="8" class="badge-stale"/><text x="408" y="398" class="warn-t" style="font-size:10px">已算 · 过期</text>
+<text x="494" y="398" class="s">χ² 11.8</text>
+
+<path d="M690,340 L760,375 L690,410 L620,375 Z" class="node"/>
+<text x="652" y="370">s4 外环</text><text x="640" y="388" class="k">Δq₀ &lt; 1 %</text>
+<text x="646" y="404" class="s">轮 2 / 上限 6</text>
+
+<rect x="580" y="450" width="200" height="56" rx="6" class="node-off"/>
+<text x="590" y="470" class="s">后验：二维验收 + 一致性检验</text><text x="590" y="488" class="k">ComparisonRecord · unevaluated</text>
+
+<path d="M160,224 L200,240" class="edge"/><path d="M160,294 L200,262" class="edge"/>
+<path d="M350,255 L390,255" class="edge"/>
+<path d="M160,404 C260,404 300,262 390,262" class="edge"/>
+<path d="M540,255 L580,255" class="edge"/>
+<path d="M655,290 C655,320 470,310 465,340" class="edge-model"/>
+<path d="M540,375 L620,375" class="edge"/>
+<path d="M690,340 C690,300 560,300 470,300 C430,300 420,292 420,292" class="back"/>
+<text x="480" y="318" class="s" style="fill:#d0342c">回边：新平衡 → 重映射</text>
+<path d="M690,410 L690,450" class="edge"/>
+<path d="M275,290 C275,470 560,478 580,478" class="edge-model"/>
+<text x="300" y="486" class="s">对照：s0 vs s3 的 q₀ · l_i 偏离</text>
+
+<!-- node card -->
+<rect x="832" y="124" width="392" height="400" rx="4" class="panel"/>
+<rect x="832" y="124" width="392" height="26" rx="4" class="head"/>
+<text x="844" y="142" class="h" style="font-size:13px">节点卡 · s2 约束构造</text>
+<text x="844" y="172" class="s">状态</text><rect x="900" y="160" width="52" height="16" rx="8" class="badge-run"/><text x="908" y="172" class="acc-t" style="font-size:10px">running</text>
+<text x="970" y="172" class="s">记录 x+run://r-0912-07/…</text>
+<text x="844" y="200" class="s">出处</text><text x="900" y="200" class="k">code/bootstrap · Redl-2021 · 内核 sha 5e55…</text>
+<text x="844" y="228" class="s">判据读数</text><text x="920" y="228">j_bs 峰值 0.31 MA/m² · 无判据（模型边）</text>
+<text x="844" y="262" style="font-weight:600">L2 · 模型档位</text>
+<text x="844" y="288" class="s">p_fast 形状</text><line x1="960" y1="284" x2="1200" y2="284" class="slider"/><circle cx="1040" cy="284" r="6" class="knob"/><text x="1160" y="278" class="k">pfast 0.12</text>
+<text x="844" y="316" class="s">p_fast 峰化</text><line x1="960" y1="312" x2="1200" y2="312" class="slider"/><circle cx="1110" cy="312" r="6" class="knob"/><text x="1160" y="306" class="k">pfastpk 2.0</text>
+<text x="844" y="344" class="s">Tᵢ / Tₑ</text><line x1="960" y1="340" x2="1200" y2="340" class="slider"/><circle cx="1080" cy="340" r="6" class="knob"/><text x="1160" y="334" class="k">tite 0.9</text>
+<text x="844" y="372" class="s">Z_eff</text><line x1="960" y1="368" x2="1200" y2="368" class="slider"/><circle cx="1020" cy="368" r="6" class="knob"/><text x="1160" y="362" class="k">zeff 1.8</text>
+<text x="844" y="400" class="s">自举公式</text>
+<rect x="960" y="388" width="72" height="18" rx="9" class="btn-on"/><text x="972" y="401" class="btn-on-t" style="font-size:10.5px">Redl-2021</text>
+<rect x="1040" y="388" width="60" height="18" rx="9" class="btn"/><text x="1050" y="401" style="font-size:10.5px">Sauter</text>
+<text x="844" y="432" style="font-weight:600">L3 · 换节点</text>
+<rect x="844" y="442" width="360" height="26" rx="4" class="btn"/><text x="854" y="459" class="s">绑外部产物到 current 端口：NEO jpar_dke（文件 / x+run://…）</text>
+<rect x="844" y="476" width="368" height="38" rx="4" class="warnbox"/>
+<text x="852" y="492" class="warn-t" style="font-size:11px">告警（来自记录 caveat）：EAST 无 CER，Z_eff 为参数而非推导；</text>
+<text x="852" y="506" class="warn-t" style="font-size:11px">阶段 2 的电流约束在本装置上是模型约束，收敛不蕴含正确。</text>
+
+<!-- outer loop panel -->
+<rect x="16" y="540" width="600" height="340" rx="4" class="panel"/>
+<rect x="16" y="540" width="600" height="26" rx="4" class="head"/>
+<text x="28" y="558" class="h" style="font-size:13px">外环面板 · 逐轮 q₀ / q₉₅ · 收敛由计划的 converges_by 判</text>
+<rect x="60" y="590" width="520" height="220" class="axes"/>
+<line x1="60" y1="700" x2="580" y2="700" class="grid"/><line x1="60" y1="645" x2="580" y2="645" class="grid"/><line x1="60" y1="755" x2="580" y2="755" class="grid"/>
+<text x="24" y="595" class="s">q₀</text><text x="24" y="760" class="s">0.70</text><text x="24" y="650" class="s">0.80</text>
+<text x="585" y="595" class="s">q₉₅</text><text x="585" y="760" class="s">3.00</text><text x="585" y="650" class="s">3.10</text>
+<polyline class="q0" points="120,760 250,690 380,672 510,668"/>
+<polyline class="q95" points="120,700 250,660 380,652 510,650"/>
+<circle cx="120" cy="760" r="4" class="pt"/><circle cx="250" cy="690" r="4" class="pt"/><circle cx="380" cy="672" r="4" class="pt"/><circle cx="510" cy="668" r="5" class="pt-last"/>
+<text x="112" y="830" class="s">轮 0（磁-only）</text><text x="236" y="830" class="s">轮 1</text><text x="368" y="830" class="s">轮 2</text><text x="486" y="830" class="s">轮 3（当前）</text>
+<text x="70" y="612" class="k">Δq₀ 轮2→3：0.6 %  · Δq₉₅：0.06 %  · converged: false（阈值 1 %，两轮内）</text>
+<text x="70" y="862" class="s">自举约束抬 q₀ ≈ +11 %、压 l_i ≈ −7 %（#137985，当年实测 2 轮收敛）</text>
+
+<!-- acceptance plane -->
+<rect x="632" y="540" width="592" height="340" rx="4" class="panel"/>
+<rect x="632" y="540" width="592" height="26" rx="4" class="head"/>
+<text x="644" y="558" class="h" style="font-size:13px">二维验收 · 横轴 GS 残差 · 纵轴磁 χ² · 每轮一点 · 验收区一块</text>
+<rect x="690" y="590" width="500" height="230" class="axes"/>
+<rect x="690" y="700" width="200" height="120" class="zone"/>
+<text x="700" y="812" class="s" style="fill:#10897a">验收区（映射轮放宽 GS，规则写在记录 norm_note）</text>
+<text x="690" y="840" class="s">1e-5</text><text x="1150" y="840" class="s">1e-2</text><text x="640" y="600" class="s">χ² 40</text><text x="640" y="816" class="s">χ² 8</text>
+<circle cx="1120" cy="620" r="5" class="pt"/><text x="1130" y="616" class="s">轮 0</text>
+<circle cx="960" cy="690" r="5" class="pt"/><text x="970" y="686" class="s">轮 1</text>
+<circle cx="860" cy="740" r="5" class="pt"/><text x="870" y="736" class="s">轮 2</text>
+<circle cx="820" cy="756" r="6" class="pt-last"/><text x="830" y="752" class="s">轮 3</text>
+<text x="700" y="870" class="s">★阈值本仓未定：本仓反演解自己的 GS 残差尚未量（PLAN H-14a）；图上验收区仅示意。</text>
+</svg>
