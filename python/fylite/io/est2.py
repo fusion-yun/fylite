@@ -23,7 +23,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-__all__ = ["reduce_est2", "measurements_from_est2_hdf5", "read_east_mds", "fringe_gate"]
+__all__ = ["reduce_est2", "measurements_from_est2_hdf5", "read_east_mds", "fringe_gate",
+           "elm_onsets", "elm_phase", "elm_phase_mask"]
 
 
 def fringe_gate(mags, gate: float) -> list[bool]:
@@ -46,6 +47,112 @@ def fringe_gate(mags, gate: float) -> list[bool]:
     med = float(np.median(mag[mag > 0])) if (mag > 0).any() else 0.0
     lo, hi = gate * med, (med / gate if gate > 0 else float("inf"))
     return [bool(m > 0 and lo < m < hi) for m in mag]
+
+
+def elm_onsets(t, y, *, threshold: float = 0.3, refractory_ms: float = 2.0,
+               noise_guard: float = 5.0) -> list[float]:
+    """ELM 起始时刻：Dα 迹上的**上升沿**，带一个死区。
+
+    ★★这一步为什么要有（H-15 / `FYL-DESIGN-21` 表 1.2）。H 模的测量要按 ELM 相位
+    **条件平均**，否则一个 5 ms 窗里既有崩塌前恢复好的台基、也有崩塌后被削平的台基，
+    平均出来的剖面**哪一种都不是**。此前本层只有窗口均值（`reduce_est2`），相位这一
+    维根本没有。
+
+    ★判据（触发电平）是相对的，不是一个绝对值：基线取中位数，标度取**峰值**与基线
+    之差，电平 = 基线 + `threshold` × 标度。理由是 Dα 的绝对值随视线、镜面镀膜与
+    放大倍数变，而「一次 ELM 比静默期亮多少」不变。缺省 0.3 取在标度的下三分之一处：
+    比它低会把噪声算成 ELM，比它高会漏掉小 ELM。
+    ★★**标度不取百分位**，这是实测改过来的（2026-09-12）：ELM 的占空比只有百分之
+    几，于是 95（甚至 98）百分位**落在静默段里**，电平因此落进噪声带 —— 合成迹上
+    10 次 ELM 被数成 **80** 次。峰值没有这个问题，代价是它对单个野点敏感，所以下面
+    还有一道噪声闸。
+    ★★噪声闸：电平同时不低于 基线 + `noise_guard` × σ̂，σ̂ = 1.4826 × MAD（中位数
+    绝对偏差，对少数亮点稳健）。缺省 5σ̂ —— 一条**只有噪声**的迹因此交出空表而不是
+    一串假起始，这是这道闸要的行为：宁可说「这里没有 ELM」。
+
+    ★★死区（`refractory_ms`）不是一个平滑器：一次 ELM 的 Dα 峰常有**两三个**子峰
+    （多丝、多次崩塌），逐个当成起始就会把一个周期切成三段，相位因此全错。缺省
+    2 ms 是 EAST / DIII-D 上 I 型 ELM 的典型上升与衰减时间量级；把它设成 0 就是
+    「每个上升沿都算一次」。
+
+    交出的是**时刻**（秒），按时间升序；一条没有任何上升沿的迹交出空表 —— 那是
+    「这一段里没有 ELM」，由调用方决定它是 L 模、是无 ELM 模式，还是接错了通道。
+    ★纯函数：不碰装置牌，也不碰 MDSplus，所以钉得住。
+    """
+    import numpy as np
+    t = np.asarray(t, float)
+    y = np.asarray(y, float)
+    n = min(t.size, y.size)
+    t, y = t[:n], y[:n]
+    ok = np.isfinite(t) & np.isfinite(y)
+    t, y = t[ok], y[ok]
+    if t.size < 3:
+        return []
+    base = float(np.median(y))
+    scale = float(y.max() - base)
+    if not (scale > 0.0):
+        return []
+    mad = float(np.median(np.abs(y - base)))
+    floor = base + float(noise_guard) * 1.4826 * mad
+    level = max(base + float(threshold) * scale, floor)
+    if not (level < y.max()):
+        #: 噪声闸把电平推到峰值之上 —— 这条迹上没有比噪声更亮的东西
+        return []
+    dead = float(refractory_ms) / 1000.0
+    above = y > level
+    out: list[float] = []
+    for k in range(1, t.size):
+        if above[k] and not above[k - 1]:
+            #: 线性插值到穿越点，而不是取穿越后的那个采样：相位是按时间算的，
+            #: 一个采样间隔在 ELM 周期里可以是百分之几
+            dy = y[k] - y[k - 1]
+            frac = (level - y[k - 1]) / dy if dy != 0.0 else 0.0
+            tc = float(t[k - 1] + frac * (t[k] - t[k - 1]))
+            if out and tc - out[-1] < dead:
+                continue
+            out.append(tc)
+    return out
+
+
+def elm_phase(times, onsets):
+    """每个时刻的 ELM 相位 ∈ [0, 1)：0 = 刚崩塌，趋近 1 = 下一次崩塌前。
+
+    两次起始之间线性归一化 —— 周期本身是变的（ELM 频率随功率与密度漂），所以按
+    **周期分数**而不是按「崩塌后多少毫秒」定相位，这样不同周期才可比。
+
+    ★第一次起始**之前**与最后一次起始**之后**是 `nan`，不是 0 也不是 1：那两段的
+    相位**没有定义**（不知道它前面或后面的周期有多长），写成一个数就是编数。
+    """
+    import numpy as np
+    times = np.asarray(times, float)
+    o = np.asarray(sorted(float(v) for v in onsets), float)
+    out = np.full(times.shape, np.nan)
+    if o.size < 2:
+        return out
+    idx = np.searchsorted(o, times, side="right") - 1
+    inside = (idx >= 0) & (idx < o.size - 1)
+    i = idx[inside]
+    span = o[i + 1] - o[i]
+    good = span > 0
+    ph = np.full(i.shape, np.nan)
+    ph[good] = (times[inside][good] - o[i][good]) / span[good]
+    out[inside] = ph
+    return out
+
+
+def elm_phase_mask(times, onsets, phase: tuple = (0.6, 0.9)):
+    """相位落在 [lo, hi) 里的那些采样。
+
+    ★缺省 0.6–0.9 是**晚 inter-ELM 窗**：台基已经恢复而下一次崩塌还没到。反演要的
+    正是这一段 —— 台基梯度在这里是它的「满值」。要另一段（例如崩塌瞬间的 0.0–0.1）
+    把 `phase` 交进来即可；这个函数不替人选。
+    ★相位是 `nan` 的采样一律**不**入选（见 :func:`elm_phase`）。
+    """
+    import numpy as np
+    lo, hi = float(phase[0]), float(phase[1])
+    ph = elm_phase(times, onsets)
+    with np.errstate(invalid="ignore"):
+        return np.asarray(np.isfinite(ph) & (ph >= lo) & (ph < hi))
 
 
 def _dev():
@@ -74,11 +181,28 @@ def reduce_est2(get, shot: int, time_s: float, *,
                 window_ms: float = 5.0, btor: float | None = None,
                 drift_window: tuple | None = (-6.9, -6.1),
                 read_point: bool = False, point_window_ms: float | None = None,
-                point_fringe_gate: float = 0.15,
+                point_fringe_gate: float = 0.15, elm: dict | None = None,
                 source: str | None = None, error=RuntimeError) -> dict:
     """Reduce raw est2 series → the flat measurement dict (core: 35 flux loops,
     79 b-probes, 12 PF coils, Ip, Btor; ``read_point`` adds the 11-chord POINT
     polarimeter/interferometer block).
+
+    ★★``elm`` turns the windowed mean into an **ELM-phase conditional** mean
+    (H-15 / ``FYL-DESIGN-21`` 1.2).  It is opt-in and OFF by default: absent,
+    every number this function returns is bit-for-bit what it returned before
+    the option existed.  Given, it is
+    ``{"time": [...], "dalpha": [...], "phase": (lo, hi), ...}`` — the D-alpha
+    series the caller fetched, plus the phase band to keep (see
+    :func:`elm_phase_mask`); ``threshold`` / ``refractory_ms`` /
+    ``noise_guard`` pass through to :func:`elm_onsets`.  The samples averaged
+    are then those inside the time window AND inside the phase band.
+    ★**The series is handed in, not looked up**: no D-alpha node is named
+    anywhere in this distribution (EAST's binding table has no filterscope
+    channel, same gap as Thomson / CER / ECE / MSE), so naming one here would
+    be inventing it.  ★An empty intersection is an ERROR, not a quiet fallback
+    to the plain window: "no inter-ELM sample in this window" is a fact about
+    the discharge, and averaging across the crash instead would return a
+    profile that is neither pre- nor post-crash.
 
     ``get(leaf, tree) -> (data, time) | None`` supplies each raw node's FULL
     series (``tree`` ∈ {"east", "pcs_east"}; None == node-not-found). The
@@ -94,6 +218,24 @@ def reduce_est2(get, shot: int, time_s: float, *,
     tw = float(time_s)
     w = window_ms / 1000.0
     b0, b1 = drift_window or (None, None)
+
+    #: ELM 相位条件平均（可选，缺省关）。起始只算一次，供下面每个通道共用 ——
+    #: 同一次放电上不同通道用不同的相位划分会让它们互相不可比
+    elm_onset: list[float] = []
+    elm_band = (0.6, 0.9)
+    if elm is not None:
+        et, ey = elm.get("time"), elm.get("dalpha")
+        if et is None or ey is None:
+            raise error("est2 reduce: `elm` needs both `time` and `dalpha` "
+                        "(the series is handed in — this distribution names no D-alpha node)")
+        elm_band = tuple(elm.get("phase", elm_band))
+        elm_onset = elm_onsets(et, ey, threshold=float(elm.get("threshold", 0.3)),
+                               refractory_ms=float(elm.get("refractory_ms", 2.0)),
+                               noise_guard=float(elm.get("noise_guard", 5.0)))
+        if len(elm_onset) < 2:
+            raise error(f"est2 reduce: the D-alpha series carries {len(elm_onset)} ELM onset(s) — "
+                        "a phase needs two (it is a fraction of a period); this may be an L-mode or "
+                        "ELM-free stretch, or the wrong channel")
 
     def avg(leaf, tree, scale=1.0, required=True, drift=True):
         r = get(leaf, tree)
@@ -114,6 +256,17 @@ def reduce_est2(get, shot: int, time_s: float, *,
         if not sel.any():
             sel = np.zeros(n, bool)
             sel[int(np.abs(tb - tw).argmin())] = True
+        if elm_onset:
+            #: 窗内**且**相位带内。空交集按名报错（见抬头）——不悄悄退回普通窗口
+            band = np.asarray(elm_phase_mask(tb, elm_onset, elm_band))
+            both = sel & band[:n]
+            if not both.any():
+                raise error(
+                    f"est2 reduce: no sample of {leaf} lies in both the +/-{window_ms} ms window at "
+                    f"{tw} s and the ELM phase band {elm_band} ({int(sel.sum())} in the window, "
+                    f"{int(band[:n].sum())} in the band over the whole series) — widen the window, "
+                    "widen the band, or pick a slice with an inter-ELM stretch in it")
+            sel = both
         return float(np.mean(s[sel])) * scale
 
     coils = [avg(nd, "east", 1.0 / (2.0 * np.pi)) for nd in _dev().FLUX_LOOP_NODES]
