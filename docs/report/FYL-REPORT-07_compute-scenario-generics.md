@@ -721,7 +721,21 @@ U-19「同一份文档集在别处继续」；`FYL-REPORT-06` §7（`spo:Checkpo
 今天的处置是**如实**而不是近似：续跑时打开内核自己的 `lag_reset`（「状态被重映射，
 首步不加欧姆项」），命令行说一句，计划里留痕。
 
-:::{admonition} 2026-09-12：本段的归因经实测**改判两次**
+:::{admonition} 2026-09-12（第二次修订）：这一条**关掉了** —— 缝是「写出的梯子少一行 q」
+:class: tip
+**上表第二行现在是 0.000e+00**（Te 与 n_e 同），`t_end` 逐位相同。缝不在交接单上：
+`code/evolve` 的新经典闭合读 q，而它**写出的**梯子只有九行、**独缺 q**。一次续跑绑回那份
+文档时，门因为「梯子上有 rho」判定走**绑定梯子**那一档，`q_prof = get("q").unwrap_or(zeros)`
+给出零，闭合内部把 q 夹到 `max(1e-3)`，chi 塌成 ~0 —— **不报错**，只是几乎无输运地升温。
+逐步实测：整跑第 2 步 chi_neo **0.19–1.6**，续跑那一步 **2e-6**，其余闭合入参
+（rmin · kappa · shear · te · ti · ne · ni）逐位相同；**常数闭合那一档一直是 0**，正是它把
+范围圈到闭合那一路上的。**两处都补**：写出侧把 q 写进梯子；绑定侧对「closure ≥ 2 而梯子的
+q 全零」**按名拒绝**（此前只有 kappa 有这条守卫）。判据：内核
+`a_neoclassical_march_writes_the_q_its_closure_reads` · 公开
+`test_resuming_is_the_same_march_under_the_neoclassical_closure`（40 步 ≡ 20 + 续 20，逐位）。
+:::
+
+:::{admonition} 2026-09-12（第一次修订）：本段的归因经实测改判两次
 :class: warning
 ① **不是 `lag_reset` 干的**。强制 `lag_reset=1` 与不开，续跑读数**逐位相同**
 （t_end 0.01075795809849784、dt_next 0.006917393144882313）——那个旋钮没有动过上表的数，

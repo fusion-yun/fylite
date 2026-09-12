@@ -105,6 +105,38 @@ def test_a_single_step_record_says_it_has_nothing_to_continue(tmp_path):
         resume.carried(g)
 
 
+def test_resuming_is_the_same_march_under_the_neoclassical_closure(tmp_path):
+    """★★**40 步 ≡ 20 步 + 续 20 步，新经典闭合 + 密度 + 动量通道，逐位。**
+
+    ★这一档此前差 **61 %**（Te）与 **70 %**（n_e），`FYL-REPORT-07` §9.1 ① 把它记作
+    「`-16` G-8 的大小」。2026-09-12 查明**不是交接单的形**，是一条缝：`code/evolve`
+    的新经典闭合读 q，而它写出的梯子只有九行、**独缺 q**；续跑绑回那份文档时门改走
+    「绑定梯子」那一档，q 读成零，闭合内部把 q 夹到 1e-3，chi 塌成 ~0（整跑第 2 步
+    0.19–1.6，续跑那一步 2e-6），于是续跑几乎无输运地升温。**两处都补了**：写出侧加
+    q，绑定侧对「closure ≥ 2 而 q 全零」按名拒绝。补后逐位相同 —— 本判据钉的就是这个。
+    """
+    arg = ["closure=2", "ch-density=true", "ch-momentum=true"]
+    forty = _run(tmp_path / "n40", "nsteps=40", *arg)
+    twenty = _run(tmp_path / "n20", "nsteps=20", *arg)
+    cont = tmp_path / "n20c"
+    r = subprocess.run(
+        [str(FY), "run", str(CASE), "nsteps=20", *arg, "--resume-from", str(twenty),
+         "-o", str(cont), "--quiet"],
+        capture_output=True, text=True, timeout=1800,
+        env={"FY_NO_BANNER": "1", "PATH": "/usr/bin:/bin"})
+    assert (cont / "record.jsonld").is_file(), f"resume wrote no record: {r.stderr[-800:]}"
+
+    def prof(d: Path, leaf: str):
+        o = json.loads((d / "core_profiles.fyo.jsonld").read_text(encoding="utf-8"))["profiles_1d"]
+        return o["electrons"]["temperature"] if leaf == "te" else o["electrons"]["density"]
+
+    for leaf in ("te", "ne"):
+        a, b = prof(forty, leaf), prof(cont, leaf)
+        assert len(a) == len(b) and a, leaf
+        worst = max(abs(x / y - 1) if y else abs(x - y) for x, y in zip(b, a))
+        assert worst == 0.0, f"{leaf}: 40 steps vs 20 + 20 differ by {worst:.3e} (was 6.08e-01 before the q row)"
+
+
 def test_resuming_is_the_same_march_where_the_lag_does_not_bite(tmp_path, twenty):
     """★★判据：**40 步 ≡ 20 步 + 续 20 步**，逐位。
 
