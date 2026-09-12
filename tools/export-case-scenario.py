@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Export one admitted fydoc case as ONE fyo/JSON-LD scenario `fy` can re-run.
 
+Knows the two CFEDR cases (`CASES`): FYDOC-CASE-21 (20 MA, with TORAY's own
+namelist) and FYDOC-CASE-20 (15 MA, EC power from the summary's `ech` line).
+
 ★What this is.  A `fyo:ScenarioSpecification` whose inputs are INLINE documents
 (equilibrium · core_profiles · core_sources · ec_launchers, built from the case's
 own files) and whose process is an ordered list of steps (`has_occurrent_part`):
@@ -48,12 +51,25 @@ import sys
 import numpy as np
 
 CASE_DEFAULT = "FYDOC-CASE-21-cfedr-hmode-20ma"
-RUN = "CFEDR_260114/ONETWO/FILES"
-FILES = {
-    "state": f"{RUN}/statefile_3.000000E+01.nc",
-    "echin": f"{RUN}/toray_inputs/echin",
-    "nml": f"{RUN}/auxFILES/toray.in",
-    "summary": f"{RUN}/summary",
+#: the admitted CFEDR cases this exporter knows: the files under each case's
+#: `corpus/` it reads (every one sha256-checked against `case.yaml`).  CASE-20
+#: delivers no `toray.in`: its EC power is the summary's `ech` line.
+CASES = {
+    "FYDOC-CASE-21-cfedr-hmode-20ma": {
+        "state": "CFEDR_260114/ONETWO/FILES/statefile_3.000000E+01.nc",
+        "echin": "CFEDR_260114/ONETWO/FILES/toray_inputs/echin",
+        "nml": "CFEDR_260114/ONETWO/FILES/auxFILES/toray.in",
+        "summary": "CFEDR_260114/ONETWO/FILES/summary",
+        "mode_note": "the branch fylite_kernel tests/test_cfedr_toray_oracle.py identified from TORAY's own |N| on this case (2026-09-11)",
+    },
+    "FYDOC-CASE-20-cfedr-hmode-15ma": {
+        "state": "H model 15MA 20240522/statefile_1.200000E+01.nc",
+        "echin": "H model 15MA 20240522/toray_inputs/echin",
+        "nml": None,
+        "summary": "H model 15MA 20240522/summary",
+        "mode_note": "the branch fylite_kernel tests/test_cfedr_ec_against_the_delivery.py inferred from echin's slot 7, "
+                     "the X branch not absorbing at all on this equilibrium (2026-09-11)",
+    },
 }
 FYO = "https://fusion-yun.github.io/fyo/latest/"
 SPO = "https://w3id.org/spo/"
@@ -68,16 +84,24 @@ def sha_of(path: pathlib.Path) -> str:
 
 
 def registered_shas(case_dir: pathlib.Path) -> dict[str, str]:
-    """`case.yaml` keys its checksums by the path under `corpus/` (quoted keys)."""
+    """`case.yaml` keys its checksums by the path under `corpus/` — quoted
+    (CASE-21) or bare (CASE-20, whose paths carry spaces but no colon)."""
     text = (case_dir / "case.yaml").read_text(encoding="utf-8")
-    return {m.group(1): m.group(2)
-            for m in re.finditer(r'^\s*"([^"]+)":\s*([0-9a-f]{64})\s*$', text, re.M)}
+    out = {m.group(1): m.group(2) for m in re.finditer(r'^\s*"([^"]+)":\s*([0-9a-f]{64})\s*$', text, re.M)}
+    out.update({m.group(1).strip(): m.group(2)
+                for m in re.finditer(r'^\s{4}([^"#\n][^:\n]*):\s*([0-9a-f]{64})\s*$', text, re.M)})
+    return out
 
 
 def checked_sources(case_dir: pathlib.Path) -> dict[str, tuple[pathlib.Path, str]]:
+    files = CASES.get(case_dir.name)
+    if files is None:
+        sys.exit(f"{case_dir.name}: not one of the cases this exporter knows ({', '.join(CASES)})")
     reg = registered_shas(case_dir)
     out = {}
-    for key, rel in FILES.items():
+    for key, rel in files.items():
+        if key == "mode_note" or rel is None:
+            continue
         path = case_dir / "corpus" / rel
         if not path.is_file():
             sys.exit(f"missing: {path}")
@@ -110,7 +134,7 @@ def summary_ech(text: str) -> tuple[float, float] | None:
     rows = [l.split() for l in text.splitlines() if l.strip().startswith("ech ")]
     if not rows:
         return None
-    r = rows[-1]
+    r = max(rows, key=lambda r: float(r[2]))
     return float(r[1]), float(r[2])
 
 
@@ -223,13 +247,18 @@ def launchers(head: list[float], nml: dict[str, float], mode: float, mode_source
     """`echin`'s header slots, decoded by the oracle gate (0-based): 5 frequency
     [Hz], 7 R [cm], 8 Z [cm], 9 angrid1 [deg], 10 angrid2 [deg]."""
     pol, tor = kernel_angles(head[9], head[10])
-    powinc = nml.get("powinc")
-    if powinc is None:
-        sys.exit("toray.in carries no POWINC")
+    powinc = nml.get("powinc") if nml is not None else None
+    if powinc is not None:
+        power, power_source = 1.0e-7 * powinc, "toray.in POWINC x 1e-7 (erg/s -> W)"   # see the header on the factor 10
+    elif ech_total is not None:
+        power, power_source = ech_total[1], "the summary's `ech` line (no toray.in in this delivery)"
+    else:
+        sys.exit("no launched EC power: neither toray.in nor a summary `ech` line")
     beam = {
         "name": "EC",
         "frequency": {"data": head[5]},
-        "power_launched": {"data": 1.0e-7 * powinc},          # erg/s -> W
+        "power_launched": {"data": power},
+        "fylite:power_source": power_source,
         "launching_position": {"r": 0.01 * head[7], "z": 0.01 * head[8]},
         "fylite:angle_pol": pol, "fylite:angle_tor": tor,
         "fylite:mode": mode,
@@ -241,8 +270,8 @@ def launchers(head: list[float], nml: dict[str, float], mode: float, mode_source
     if ech_total is not None:
         doc["fylite:summary_ech"] = {
             "current_a": ech_total[0], "power_w": ech_total[1],
-            "comment": "ONETWO summary's `ech` total for the run; the beam above carries TORAY's "
-                       "namelist POWINC for one launcher. Their ratio is not resolved here.",
+            "comment": "ONETWO summary's `ech` total for the run (the largest `ech` row); the beam's "
+                       "power_launched says where its own number came from (fylite:power_source).",
         }
     return doc
 
@@ -293,11 +322,10 @@ def build(case_dir: pathlib.Path, *, rounds: int, mode: str, n_theta: int,
     ash = float(n_he[0] / ne[0])
 
     head = toks(src["echin"][0].read_text())[:16]
-    nml = namelist(src["nml"][0].read_text())
+    nml = namelist(src["nml"][0].read_text()) if "nml" in src else None
     ech = summary_ech(src["summary"][0].read_text(errors="replace"))
     mode_value = {"O": 1.0, "X": -1.0}[mode]
-    mode_source = ("--mode " + mode + ": " + ("the branch fylite_kernel tests/test_cfedr_toray_oracle.py identified "
-                   "from TORAY's own |N| on this case (2026-09-11)" if mode == "O" else "stated by the caller"))
+    mode_source = "--mode " + mode + ": " + (CASES[case_dir.name]["mode_note"] if mode == "O" else "stated by the caller")
 
     eq_doc = equilibrium(d, levels)
     state_doc = state(d, idx, psin)
@@ -353,7 +381,7 @@ def build(case_dir: pathlib.Path, *, rounds: int, mode: str, n_theta: int,
         "id": f"scenario/{case_dir.name}",
         "type": "fyo:ScenarioSpecification",
         "title": f"{case_dir.name}: ONETWO's design point re-run as ladder -> {rounds} stationary round(s) -> EC ray",
-        "dcterms:source": [{"fylite:path": f"cases/{case_dir.name}/corpus/{FILES[k]}", "fylite:sha256": sha}
+        "dcterms:source": [{"fylite:path": f"cases/{case_dir.name}/corpus/{CASES[case_dir.name][k]}", "fylite:sha256": sha}
                            for k, (_, sha) in src.items()],
         "dcterms:rights": "release: internal — the values are the case's; keep this file under the same gate",
         "fylite:generator": "fylite tools/export-case-scenario.py",
