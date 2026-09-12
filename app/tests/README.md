@@ -272,6 +272,8 @@ await page.waitForFunction((re) => new RegExp(re).test(
 `app/` 即可。词表由 `tools/transcribe-form-vocab.mjs` **一次性**誊录而来，此后词表是源，
 不再改页面。
 
+〔`validate-setting-is-the-document.mjs`〕**改一个档位 = 改文档的一个字段**（H-10 的会话文档这一半，2026-09-12）：设计判据是「改一个档位后导出的**计划**与手改该字段的计划逐字节相同」，而计划文档今天**还没有落点**（H-1 待裁），所以断言的是同一条判据在**会话文档**（`assets/session.js` 的 `collect` → `envelope`）上的那一半 —— 页面今天真正导出的就是这一份。控件集合取自**词表** `vocab-model.js`（U-1/U-2 之后词表是源），元素按词表逐条造出来，不需要浏览器、wasm 或 `fy`。六条断言：⓪每个档位自己声明缺省 · ①141 个档位各是文档的一个字段（一条不多一条不少）· ②改一个档位只有那一个字段动（三种控件各一个代表）· ③与手改该字段**逐字节相同** · ④手改的那份导入再导出是同一份 · ⑤越界的手改按控件自己的界被夹逼 · ⑥整份文档除 `@id` 与 `fylite:created` 两个时间戳外没有别的不定项，改一个档位之后两份文档之差**恰好**是 `fylite:config` 里那一个键。★ⓠ⓪写这道闸时撞上一个真错：六条 LH 档位（`evolve-lhpower1` 等）此前**没有声明缺省**，`input[type=range]` 缺 value 时按 HTML 规范取 min/max 的中点 —— 跑的是一个词表说不出的数；已按「词表说浏览器读回的值」补登（同 `width` 0.36 那一条）。★与 `validate-edit.mjs` 是同一条判据的两半：那一半管几何手把，这一半管 141 个档位。
+
 〔`validate-fig.mjs`〕**规格闸的页面半边**（`FYL-DESIGN-18` U-12 · U-16 · U-17 · U-21 · U-22）：
 `assets/fig.js` 把一份 `spo:PresentationSpecification` 画到功能页的画布上，解析（哪条序列绑哪个量、
 一维量对哪个坐标）一律走 `casereport.js` 导出的 `index` / `resolve` / `coordinateOf`——**页面与报告

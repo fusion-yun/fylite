@@ -14,6 +14,15 @@
 // that is not what runs is not a default.
 // ★`kind` is the CONTROL, `type` is the parameter: U-2 maps one to the other
 // and this file records both so the gate can check the mapping held.
+// ★★**六条 LH 档位此前没有缺省**（2026-09-12，`validate-setting-is-the-document.mjs`
+// 一写就撞上）：`evolve-lhpower1` · `lhnpar1lo` · `lhnpar1hi` 与第二路的三条只有
+// `min` / `max` / `step`。`form.js` 只在词表声明了 `value` 时才写 value 属性，而
+// `input[type=range]` 缺 value 时按 HTML 规范取 min 与 max 的**中点**（再按 step 对齐）
+// —— 于是真正在跑的缺省由浏览器定，词表说不出它是什么，会话文档里记下的也是浏览器
+// 选的那个数。补上的六个数**就是今天在跑的那六个**（3 / 2.5 / 2.5 / 3 / 2.5 / 2.5，
+// 即各自的中点），与 `width` 0.36 那一条同一个办法：词表说浏览器读回的值，不说一个
+// 更好看的值。★「3 MW 是不是**想要**的 LH 缺省」是另一个问题（LH 通道缺省是关着的，
+// 所以这个数今天不影响任何一次运行），要改缺省得单独裁定，不能借这次补登混进去。
 (function () {
   'use strict';
   window.FyVocab = window.FyVocab || {};
@@ -1028,6 +1037,7 @@
       "min": 0,
       "max": 6,
       "step": 0.1,
+      "value": 3,
       "label_id": "model-evolve-lh-p1-lab",
       "readout": "model-evolve-v-lhpower1",
       "units": "[TBD]",
@@ -1042,6 +1052,7 @@
       "min": 1,
       "max": 4,
       "step": 0.01,
+      "value": 2.5,
       "label_id": "model-evolve-lh-n1lo-lab",
       "readout": "model-evolve-v-lhnpar1lo",
       "units": "[TBD]",
@@ -1056,6 +1067,7 @@
       "min": 1,
       "max": 4,
       "step": 0.01,
+      "value": 2.5,
       "label_id": "model-evolve-lh-n1hi-lab",
       "readout": "model-evolve-v-lhnpar1hi",
       "units": "[TBD]",
@@ -1070,6 +1082,7 @@
       "min": 0,
       "max": 6,
       "step": 0.1,
+      "value": 3,
       "label_id": "model-evolve-lh-p2-lab",
       "readout": "model-evolve-v-lhpower2",
       "units": "[TBD]",
@@ -1084,6 +1097,7 @@
       "min": 1,
       "max": 4,
       "step": 0.01,
+      "value": 2.5,
       "label_id": "model-evolve-lh-n2lo-lab",
       "readout": "model-evolve-v-lhnpar2lo",
       "units": "[TBD]",
@@ -1098,6 +1112,7 @@
       "min": 1,
       "max": 4,
       "step": 0.01,
+      "value": 2.5,
       "label_id": "model-evolve-lh-n2hi-lab",
       "readout": "model-evolve-v-lhnpar2hi",
       "units": "[TBD]",
