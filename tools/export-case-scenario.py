@@ -27,9 +27,12 @@ Numbers that are not in the files are not invented:
     and the default `O` is the branch the kernel's oracle gate identified from
     TORAY's own output on this case (fylite_kernel
     `tests/test_cfedr_toray_oracle.py`, 2026-09-11) — recorded as such;
-  * the launched power is TORAY's namelist `POWINC` (one launcher, as TORAY
-    ran); the summary's `ech` total is recorded beside it, and their ratio is
-    NOT resolved here (the number of identical launchers is not in the files).
+  * the launched power is TORAY's namelist `POWINC` (6e13, and TORAY's own
+    `delpwr` starts at that sum over its 30 rays); read as erg/s it is 6 MW,
+    a tenth of ONETWO's `inone` `rfpow(4)` = 60 MW that the summary's `ech`
+    line delivers (59.94 MW).  The factor sits between two machine-written
+    files and is NOT resolved here; the summary total is recorded beside the
+    beam.
 """
 from __future__ import annotations
 
