@@ -55,6 +55,18 @@ title: 物理校验 (Physics checks — what a product is judged against)
 | `q-order` | expectation | |q95| > |q_axis|（单调 q 的常规位形） | `|q95| > |q_axis| 逐时刻` | 算例声明 | reference_stated |
 | `steady-state` | expectation | 准稳态窗口：steady_change 在声明的界内 | `max|steady_change| ≤ 算例声明的 tolerance` | 算例声明 | reference_stated |
 | `declared-bounds` | expectation | 算例声明的运行界（β_N、f_G、q95…） | `min/max(quantity) 落在算例声明的 [min, max] 内` | 算例声明 | reference_stated |
+| `source-oscillation` | expectation | 拟合出来的源函数不过分振荡 | `max(TV/量程 − 1) over {p′, ff′} ≤ tol（单调剖面为 0）` | 算例声明 | measured_band |
+| `neutron-yield` | expectation | 中子产额对得上剖面与反应率 | `|Y_measured − ∫ n_i² ⟨σv⟩ dV| / Y ≤ tol` —— **今天没有产它的 code，也没有收它的槽，故恒为 `unevaluated`** | 算例声明 | measured_band |
+
+★**两条后验检验**（2026-09-12 增，`FYL-DESIGN-21` G-5）。它们的价值在于**独立于拟合
+所用的约束**：`source-oscillation` 看的是反演把 p′ / FF′ 展在基上之后有没有开始来回振荡
+（一条单调剖面的 `TV/量程` 恰好是 1，所以减一就是「多出来的来回」，无量纲、与振幅无关）。
+实测落点：**解析家族 0.0000**（`code/forward` 的 truth，构造上单调）· 同一条反演
+`nff = 2` 给 **0.0246** · `nff = 3` 给 **0.0882** —— 基一富，振荡跟着长。
+`neutron-yield` 则**明写 `unevaluated`**：缺两件（没有一个 `code/*` 产中子率；`SUMMARY`
+没有收它的槽），补法是先定它由哪个 code 产、进哪个槽。**它留在册子里**是因为 `plan()`
+据这张表回答「能评哪几条、缺哪个量」——一条没登记的检查在那张表上看不见，而看不见与
+「评过了」在读者眼里长得一样。
 
 ★**每条检查都写明它假设了什么**，因为结论只在假设成立时有意义。两个例子：
 

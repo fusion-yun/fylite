@@ -558,6 +558,83 @@ def _c_boundary_closed(r: Reader, opt: dict) -> Result:
                   extra={"gap_m": gap_m, "step_m": step, "minor_radius_m": a})
 
 
+def _c_source_oscillation(r: Reader, opt: dict) -> Result:
+    """拟合出来的源函数**有多振荡**：总变差对量程之比减一。
+
+    ★★**为什么是这条形状**（`FYL-DESIGN-21` G-5，本仓台账 H-18）。反演把 p′ / FF′
+    展在一组基上，基一富就开始振荡 —— 而振荡的 FF′ 给出的 j_∥ 也振荡，那是**拟合的
+    产物**而不是等离子体的性质。一条单调剖面的 ``TV/range`` 恰好是 **1**，所以
+    ``TV/range − 1`` 直接就是「多出来的来回」，无量纲、与振幅无关。
+
+    实测（2026-09-12，EAST 动理学拟合 · 收敛）：**解析家族**（`code/forward` 的
+    truth）在 p′ · FF′ · q · F · p 上**全部恰好 1.0000** —— 构造上单调，这是底；
+    同一条反演 ``nff = 2`` 给 FF′ **1.0246**（F 1.0171），``nff = 3`` 给 **1.0882**，
+    p′ / q / p 仍是 1.0000。**基一富，振荡跟着长**，这正是这条要看住的东西。
+
+    ★判的是两条源函数里**更振荡的那一条**，因为坏的是它；缺省带 0.15 取自上面的
+    落点（nff = 3 的 0.088 之上留一倍余量），`expectation` 类，算例可以自己声明。
+    ★**它不是定律**：一份真有内部结构的平衡（比如带台基的 FF′）会合法地振荡，
+    所以这条给的是「值得看一眼」，不是「错了」。
+    """
+    import numpy as np
+    got: dict[str, float] = {}
+    for table, slot, label in (("EQUILIBRIUM", "f_df_dpsi", "ff'"),
+                               ("EQUILIBRIUM", "dpressure_dpsi", "p'")):
+        v = r.arr(table, slot)
+        if v is None or np.asarray(v).ndim != 1 or np.asarray(v).size < 4:
+            continue
+        v = np.asarray(v, float)
+        v = v[np.isfinite(v)]
+        rng = float(v.max() - v.min())
+        if v.size < 4 or rng <= 0.0:
+            continue
+        got[label] = float(np.abs(np.diff(v)).sum()) / rng - 1.0
+    if not got:
+        return Result("source-oscillation", "expectation", UNEVALUATED,
+                      missing=tuple(r.missing[-2:]) or ("f_df_dpsi", "dpressure_dpsi"),
+                      detail="没有一维 p′ / FF′（或它们是常数），这条评不了")
+    worst = max(got, key=lambda k: got[k])
+    measured = got[worst]
+    #: ★期望类**不带缺省容差**（本仓规矩：`expectation` 的带由算例声明），所以
+    #: 没声明时判决是 `unevaluated` —— 而**量到的数照样报**，读者拿到的是读数加一句
+    #: 「这条要你自己给带」，不是一个空格。落点见抬头：解析家族 0.0000 · nff=2
+    #: 0.0246 · nff=3 0.0882。
+    tol = opt.get("tolerance")
+    tol = None if tol is None else float(tol)
+    return Result("source-oscillation", "expectation", _verdict(measured, tol),
+                  measured=measured, tolerance=tol, basis="measured_band",
+                  detail=("TV/量程 − 1：" + " · ".join(f"{k} {v:.4f}" for k, v in got.items())
+                          + f"；判在更振荡的 {worst} 上"
+                          + "（解析家族的同一个量实测恰好 0.0000）"),
+                  caveat=("单调剖面给 0；一份真有内部结构的平衡会合法地振荡，所以这条是"
+                          "「值得看一眼」而不是「错了」",),
+                  extra={k: v for k, v in got.items()})
+
+
+def _c_neutron_yield(r: Reader, opt: dict) -> Result:
+    """中子产额对得上剖面与反应率 —— **今天评不了，而缺的是什么写在这里**。
+
+    ★★**这条是「明写 unevaluated」而不是不写**（`FYL-DESIGN-21` G-5，本仓 H-18）。
+    后验检验的价值在于它**独立于**拟合所用的约束：中子产额是聚变反应率对体积的积分，
+    与磁测量无关，所以它能判反演给出的 n_i · T_i 是不是真的。缺的有两件，实测
+    2026-09-12：**(一) 没有 code 产它** —— 全仓没有一个 `code/*` 交出中子率或产额
+    （`fy list kernel` 的 35 扇门里没有）；**(二) 没有端口收它** —— `SUMMARY` 表里
+    没有中子的槽，所以即便某天算了也无处可放。
+    ★**留在册子里的理由**：`plan()` 据 `reads` 回答「这份产出能评哪几条、不能评哪几条、
+    缺哪个量」——一条没写进来的检查，在那张表上是**看不见**的，而看不见与「评过了」
+    在读者眼里长得一样。
+    """
+    return Result("neutron-yield", "expectation", UNEVALUATED,
+                  #: ★缺的槽**不能**写进 `reads`（那张表只收已声明的槽，
+                  #: `test_physics_checks.py` 逐条核），所以它在这里点名
+                  missing=("SUMMARY/neutron_rate（尚未声明的槽）",),
+                  detail=("中子产额今天评不了：没有一个 `code/*` 产出中子率（35 扇门实测），"
+                          "`SUMMARY` 也没有收它的槽。这条留在册子里是为了让 `plan()` "
+                          "点名说出这件事，而不是让它从表上消失"),
+                  caveat=("补法是先定它由哪个 code 产、进 `SUMMARY` 的哪个槽；"
+                          "本仓台账 H-18",))
+
+
 def _c_pressure_consistency(r: Reader, opt: dict) -> Result:
     """平衡的压强对得上剖面的 ``p = e(n_e T_e + n_i T_i)``。
 
@@ -898,6 +975,22 @@ CHECKS: dict[str, Check] = {c.id: c for c in [
           0.05, "measured_band",
           ("P_heat 取哪几项是约定：缺省 p_ohm + p_aux + p_alpha − p_rad，可由算例声明",),
           _c_energy_balance),
+    Check("source-oscillation", "expectation", "拟合出来的源函数不过分振荡",
+          "max(TV/量程 − 1) over {p′, ff′} ≤ tol（单调剖面为 0）",
+          (("EQUILIBRIUM", "dpressure_dpsi"), ("EQUILIBRIUM", "f_df_dpsi")),
+          None, "measured_band",
+          ("这是**期望**不是定律：一份真有内部结构的平衡会合法地振荡；带由算例声明",
+           "实测落点：解析家族 0.0000 · 反演 nff=2 为 0.0246 · nff=3 为 0.0882"),
+          _c_source_oscillation),
+    Check("neutron-yield", "expectation", "中子产额对得上剖面与反应率",
+          "|Y_measured − ∫ n_i² ⟨σv⟩ dV| / Y ≤ tol —— **今天没有产它的 code，也没有收它的槽**",
+          #: 积分要的那几个量**已声明**（所以列在这里）；缺的是**测到的产额**那个槽，
+          #: 它还不存在，故不写进 `reads`，而由检查自己点名（见 `_c_neutron_yield`）
+          (("CORE_PROFILES", "ni"), ("CORE_PROFILES", "ti"), ("LADDER", "volume")),
+          None, "measured_band",
+          ("明写 `unevaluated`：缺 (一) 产它的 code（35 扇门里没有）· (二) `SUMMARY` 的槽",
+           "留在册子里，`plan()` 才会点名说出缺什么；不写进来它在那张表上看不见"),
+          _c_neutron_yield),
     Check("greenwald-definition", "definition", "记下的 Greenwald 分数对得上定义",
           "f_G = n̄_e / n_G，n_G[m⁻³] = 10²⁰·I_p[MA]/(π a²[m²])",
           (("SUMMARY", "greenwald"), ("SUMMARY", "ip"), ("CORE_PROFILES", "ne"),
