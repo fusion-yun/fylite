@@ -114,7 +114,7 @@ FyLite 以一个公开仓（本仓）加一个私有内核仓交付，对外呈�
 | `cases/` | 场景语料（数据） | fyo / JSON-LD 会话文档 + `catalogue.jsonld` + `context.jsonld`；读者是 `fylite.engine.cases` 与书，**浏览器不读**；不随 wheel 分发 |
 | `docs/` | 文档：**一本书，五篇** | `guide/` `examples/` `reference/` `physics/` `design/` 一份 `myst.yml`；**不入册**：`benchmark/`（公开 V&V 登记册：`registry.jsonld` + `reports/` + `scenarios/` + `physics/`——按路径被引用的记录）、`figures/`、`_build/`。实测笔记与归档设计笔记随内核进了私有仓 |
 | `tools/` | 辅助 + 发布路径 | 三种发布形态各一条构建路径（`build-app-exe.sh` · `build-site.sh` · `build-wheel.sh`）、页面 / 图 / 预览生成器、A-Box 投影（`abox-mds-bind.py` `abox-to-machine-desc.py`）、语料与基准工具 |
-| `TODO.md` `VERSION` | 台账 · 发行版本 | 仓级开放任务台账；`VERSION` 是发行版本的唯一来源 |
+| `TODO.md` `PLAN.md` `VERSION` | 台账 · 规划 · 发行版本 | `TODO.md` 是**当前任务列表**（短期记忆，只列开着的，做完即删行）；`PLAN.md` 是**规划与开发状态**（长期记忆，每条的由来 · 依据 · 落地读数 · 状态，**行只改状态不删除**）；两者的分工是项目设定（2026-09-12 用户裁定）。`VERSION` 是发行版本的唯一来源 |
 :::
 
 :::{figure}

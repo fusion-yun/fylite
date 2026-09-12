@@ -144,7 +144,8 @@ as gaps (`○` in `fylite.scenario.TOOLS`), and a request outside a model's rang
 returns an error rather than a number that looks like an answer. What the
 physics can and cannot do today is
 [`docs/reference/fidelity.md`](docs/reference/fidelity.md) — the measured
-limits — and [`TODO.md`](TODO.md) for what is not built yet.
+limits, [`TODO.md`](TODO.md) for what is not built yet, and [`PLAN.md`](PLAN.md) for the
+record behind each item (why it was judged that way, what was measured, and its status).
 
 ## How fylite is built
 
