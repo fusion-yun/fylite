@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 780" width="1240" height="780" role="img" aria-label="整脉冲前馈设计：页面效果图">
+<title>整脉冲前馈设计 — 页面效果图（概念图，数值示意）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="780" fill="#f4f5f7"/>
+<rect x="16" y="16" width="1208" height="44" rx="4" class="head"/>
+<text x="28" y="43" class="h">放电设计 · 设计 · 整条脉冲</text>
+<text x="520" y="43" class="s">ITER · pulse-iter · 上升 60 s · 平顶 400 s · 下降 90 s</text>
+<rect x="900" y="26" width="72" height="24" rx="4" class="btn"/><text x="914" y="43">导入</text>
+<rect x="984" y="26" width="72" height="24" rx="4" class="btn"/><text x="998" y="43">导出</text>
+<rect x="1068" y="26" width="72" height="24" rx="4" class="btn"/><text x="1082" y="43">报告</text>
+<rect x="16" y="72" width="1208" height="40" rx="4" class="panel"/>
+<rect x="28" y="80" width="62" height="24" rx="4" class="btn-on"/>
+<text x="42" y="97" class="btn-on-t">设计</text>
+<rect x="98" y="80" width="76" height="24" rx="4" class="btn"/>
+<text x="112" y="97" class="">解此片</text>
+<rect x="182" y="80" width="90" height="24" rx="4" class="btn"/>
+<text x="196" y="97" class="">全部重解</text>
+<rect x="280" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="294" y="97" class="">断点</text>
+<rect x="350" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="364" y="97" class="">取消</text>
+<text x="440" y="97" class="s">播放头选片；解过的片实心，插值片空心（D-8）</text>
+<rect x="16" y="124" width="400" height="616" rx="4" class="panel"/>
+<rect x="16" y="124" width="400" height="26" rx="4" class="head"/>
+<text x="28" y="142" class="t">脉冲脚本（D-1：一份脚本，多个视图）</text>
+<text x="28" y="174" class="mono">路点   t [s]   Ip [MA]  κ     δ     解</text>
+<text x="28" y="190" class="mono">1      0       0.5      1.3   0.1   ✓</text>
+<text x="28" y="206" class="mono">2      30      7.5      1.6   0.3   ✓</text>
+<text x="28" y="222" class="mono">3      60      15.0     1.85  0.45  ✓</text>
+<text x="28" y="238" class="mono">4      460     15.0     1.85  0.45  ✓</text>
+<text x="28" y="254" class="mono">5      550     0.5      1.3   0.1   ○</text>
+<text x="28" y="276" class="s">PF 驱动</text>
+<rect x="166" y="263" width="52" height="18" rx="9" class="btn"/>
+<text x="176" y="276" class="" style="font-size:10.5px">形状反馈</text>
+<rect x="226" y="263" width="52" height="18" rx="9" class="btn-on"/>
+<text x="236" y="276" class="btn-on-t" style="font-size:10.5px">前馈电压</text>
+<text x="28" y="302" class="s">V 上限 [kV]</text>
+<line x1="166" y1="298" x2="326" y2="298" class="slider"/>
+<circle cx="246.0" cy="298" r="6" class="knob"/>
+<text x="336" y="302" class="k">1.5</text>
+<text x="28" y="328" class="s">L2：改路点与相位；L3：导出脚本 / 绑外部轨迹</text>
+<rect x="432" y="124" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="124" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="142" class="t">走廊 · Ip · 位形轨迹 · 播放头</text>
+<rect x="472" y="174" width="732" height="190" class="axes"/>
+<line x1="472" y1="221.5" x2="1204" y2="221.5" class="grid"/>
+<line x1="472" y1="269.0" x2="1204" y2="269.0" class="grid"/>
+<line x1="472" y1="316.5" x2="1204" y2="316.5" class="grid"/>
+<polyline class="c1" points="472.0,354.5 559.84,212.0 1072.24,212.0 1182.04,354.5"/>
+<polyline class="c2" points="472.0,326.0 559.84,231.0 1072.24,231.0 1182.04,326.0"/>
+<polyline class="c3" points="472.0,364.0 559.84,307.0 1072.24,202.5 1182.04,193.0"/>
+<text x="472" y="380" class="s">t [s]  ·  蓝 I_p · 绿 κ · 红虚 磁通消耗</text>
+<rect x="432" y="440" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="440" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="458" class="t">逐通道电流与电压 · 上限带（-09 D-4）</text>
+<rect x="472" y="490" width="732" height="150" class="axes"/>
+<line x1="472" y1="527.5" x2="1204" y2="527.5" class="grid"/>
+<line x1="472" y1="565.0" x2="1204" y2="565.0" class="grid"/>
+<line x1="472" y1="602.5" x2="1204" y2="602.5" class="grid"/>
+<polyline class="c1" points="472.0,505.0 559.84,565.0 1072.24,625.0 1182.04,595.0"/>
+<polyline class="c2" points="472.0,565.0 559.84,610.0 618.4,565.0 1072.24,565.0 1130.8000000000002,520.0 1182.04,565.0"/>
+<polyline class="c3" points="472.0,497.5 1182.04,497.5"/>
+<text x="472" y="656" class="s">t [s]  ·  蓝 I_CS1 · 绿 V_CS1 · 红虚 上限</text>
+<text x="444" y="674" class="s">电压超限的片标红并说明是哪一路（P-5 · P-6 拒绝优于外推）</text>
+<text x="24" y="766" class="s">★概念图。设计模式今天在页面上可用（浏览器专有栏 pulse），命令行无模板（-17 P2-c）。</text>
+</svg>

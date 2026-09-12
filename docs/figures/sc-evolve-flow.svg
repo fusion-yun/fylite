@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 640" width="1240" height="640" role="img" aria-label="含时演化与仿真推进（一条时间轴，两档保真度）：物理算法流程图">
+<title>含时演化与仿真推进（一条时间轴，两档保真度） — 物理算法流程</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="640" fill="#f4f5f7"/>
+<text x="24" y="34" class="h">含时演化与仿真推进（一条时间轴，两档保真度） · 物理算法流程</text>
+<text x="24" y="54" class="s">实线边 = 数据 · 虚线边 = 模型 · 红边 = 回边 · 橙边 = 对照 / 判定 · 虚框 = 今天无 code 的步 · 橙底行 = 该步的判据</text>
+<rect x="24" y="110" width="170" height="88" rx="6" class="doc"/>
+<text x="36" y="130" class="">起点</text>
+<text x="36" y="148" class="k">equilibrium</text>
+<text x="36" y="166" class="k">+ core_profiles</text>
+<text x="36" y="184" class="s">或 Miller · 抛物剖面</text>
+<rect x="24" y="220" width="170" height="70" rx="6" class="doc"/>
+<text x="36" y="240" class="">执行器波形</text>
+<text x="36" y="258" class="k">Ip · P_aux · nₑ · 燃料</text>
+<text x="36" y="276" class="s">对 t，或滑块（改未来）</text>
+<rect x="250" y="120" width="230" height="114" rx="6" class="node-code"/>
+<text x="262" y="140" class="t">0-D 档</text>
+<text x="262" y="158" class="k">code/zerod</text>
+<text x="262" y="176" class="s">集总能量 · 粒子 · 磁通账</text>
+<text x="262" y="194" class="s">V_loop · P_fus · Q 对 t</text>
+<rect x="251" y="204" width="228" height="29" class="crit"/>
+<text x="262" y="223" class="tag">磁通预算：能维持多久（D-17）</text>
+<rect x="250" y="300" width="230" height="114" rx="6" class="node-code"/>
+<text x="262" y="320" class="t">1.5-D 档</text>
+<text x="262" y="338" class="k">code/evolve（entry evolve_heat）</text>
+<text x="262" y="356" class="s">热 · 密度 · 动量 · 电流通道</text>
+<text x="262" y="374" class="s">锯齿 · 台基 · 闭包档</text>
+<rect x="251" y="384" width="228" height="29" class="crit"/>
+<text x="262" y="403" class="tag">每步：能量账 1e-13 · dt 上限</text>
+<path d="M660.0,200 L790,268.0 L660.0,336 L530,268.0 Z" class="loop"/>
+<text x="660.0" y="240.0" text-anchor="middle" class="t">步</text>
+<text x="660.0" y="258.0" text-anchor="middle" class="k">步预算（U-8）</text>
+<text x="660.0" y="274.0" text-anchor="middle" class="s">断点 = 记录（fylite:state）</text>
+<text x="660.0" y="290.0" text-anchor="middle" class="s">取消落在步界 · 每步一片</text>
+<rect x="810" y="120" width="230" height="114" rx="6" class="node-code"/>
+<text x="822" y="140" class="t">平衡交替（couple）</text>
+<text x="822" y="158" class="k">code/refit · code/steady_current</text>
+<text x="822" y="176" class="s">每 k 步解一次平衡</text>
+<text x="822" y="194" class="s">新度规回到推进</text>
+<rect x="811" y="204" width="228" height="29" class="crit"/>
+<text x="822" y="223" class="tag">Δψ · Δq 相对变化</text>
+<rect x="1060" y="120" width="176" height="88" rx="6" class="crit"/>
+<text x="1072" y="140" class="t">记录</text>
+<text x="1072" y="158" class="k">spo:ComputationRecord</text>
+<text x="1072" y="176" class="k">fylite:state</text>
+<text x="1072" y="194" class="s">40 ≡ 20 + 续 20 逐位</text>
+<rect x="810" y="340" width="230" height="70" rx="6" class="node-off"/>
+<text x="822" y="360" class="off-t">仿真档（交互 cadence）</text>
+<text x="822" y="378" class="off-t">页面滑块改未来 · 过去不重算（D-12）</text>
+<text x="822" y="396" class="off-t">同一推进，不是第二条路径（D-15）</text>
+<path d="M194,154.0 C222.0,154.0 222.0,177.0 250,177.0" class="edge"/>
+<path d="M194,154 C230,154 240,357 250,357" class="edge"/>
+<path d="M194,255 C220,255 230,177 250,177" class="edge"/>
+<path d="M194,255 C230,255 240,357 250,357" class="edge"/>
+<path d="M480,177 C505,177 505,268 530,268" class="edge"/>
+<path d="M480,357 C505,357 505,268 530,268" class="edge"/>
+<path d="M660,200 C660,160 780,160 810,177" class="edge-model"/>
+<path d="M925,120 C925,88 505,88 505,120 L505,345 C505,357 495,357 480,357" class="back"/>
+<text x="250" y="292" class="tag" style="fill:#d0342c">新度规回到推进（回边）</text>
+<path d="M1040,177.0 C1050.0,177.0 1050.0,164.0 1060,164.0" class="edge"/>
+<path d="M660,336 C660,378 700,378 810,378" class="edge-model"/>
+<path d="M925,340 C925,300 820,290 792,272" class="back"/>
+<text x="830" y="310" class="tag" style="fill:#d0342c">滑块 → 下一步的输入</text>
+<rect x="24" y="568" width="1192" height="52" rx="6" class="node"/>
+<text x="36" y="588" class="s">一个应用只有一条时间轴（-10 P-19）：建模页的含时演化栏收敛进放电设计页的仿真模式，保真度是一个开关（-09 D-22）——0-D 与 1.5-D 是同一条时间轴上的两档。</text>
+<text x="36" y="606" class="s">sim 不设模板：交互推进是浏览器的档位不是批式动作；批式是 evolve（114 参数 · 19 份预设）。断点即记录：40 步 ≡ 20 + 续 20（FYL-REPORT-07 §9.1）。</text>
+</svg>

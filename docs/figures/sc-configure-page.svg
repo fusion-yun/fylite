@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 780" width="1240" height="780" role="img" aria-label="位形与线圈电流：页面效果图">
+<title>位形与线圈电流 — 页面效果图（概念图，数值示意）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="780" fill="#f4f5f7"/>
+<rect x="16" y="16" width="1208" height="44" rx="4" class="head"/>
+<text x="28" y="43" class="h">放电设计 · 配置 · 位形与线圈电流</text>
+<text x="520" y="43" class="s">ITER · discharge-iter · t = 平顶</text>
+<rect x="900" y="26" width="72" height="24" rx="4" class="btn"/><text x="914" y="43">导入</text>
+<rect x="984" y="26" width="72" height="24" rx="4" class="btn"/><text x="998" y="43">导出</text>
+<rect x="1068" y="26" width="72" height="24" rx="4" class="btn"/><text x="1082" y="43">报告</text>
+<rect x="16" y="72" width="1208" height="40" rx="4" class="panel"/>
+<rect x="28" y="80" width="62" height="24" rx="4" class="btn-on"/>
+<text x="42" y="97" class="btn-on-t">求解</text>
+<rect x="98" y="80" width="90" height="24" rx="4" class="btn"/>
+<text x="112" y="97" class="">击穿场零</text>
+<rect x="196" y="80" width="90" height="24" rx="4" class="btn"/>
+<text x="210" y="97" class="">电源尺寸</text>
+<rect x="294" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="308" y="97" class="">断点</text>
+<rect x="364" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="378" y="97" class="">取消</text>
+<text x="454" y="97" class="s">配置模式：一个时刻一个解（-09 D-18）</text>
+<rect x="16" y="124" width="400" height="616" rx="4" class="panel"/>
+<rect x="16" y="124" width="400" height="26" rx="4" class="head"/>
+<text x="28" y="142" class="t">目标位形与工况</text>
+<text x="28" y="174" class="s">R₀ [m]</text>
+<line x1="166" y1="170" x2="326" y2="170" class="slider"/>
+<circle cx="246.0" cy="170" r="6" class="knob"/>
+<text x="336" y="174" class="k">6.2</text>
+<text x="28" y="200" class="s">a [m]</text>
+<line x1="166" y1="196" x2="326" y2="196" class="slider"/>
+<circle cx="246.0" cy="196" r="6" class="knob"/>
+<text x="336" y="200" class="k">2.0</text>
+<text x="28" y="226" class="s">κ</text>
+<line x1="166" y1="222" x2="326" y2="222" class="slider"/>
+<circle cx="262.0" cy="222" r="6" class="knob"/>
+<text x="336" y="226" class="k">1.85</text>
+<text x="28" y="252" class="s">δ</text>
+<line x1="166" y1="248" x2="326" y2="248" class="slider"/>
+<circle cx="246.0" cy="248" r="6" class="knob"/>
+<text x="336" y="252" class="k">0.45</text>
+<text x="28" y="278" class="s">X 点</text>
+<rect x="166" y="265" width="44" height="18" rx="9" class="btn-on"/>
+<text x="176" y="278" class="btn-on-t" style="font-size:10.5px">下单零</text>
+<rect x="218" y="265" width="36" height="18" rx="9" class="btn"/>
+<text x="228" y="278" class="" style="font-size:10.5px">双零</text>
+<text x="28" y="304" class="s">I_p [MA]</text>
+<line x1="166" y1="300" x2="326" y2="300" class="slider"/>
+<circle cx="286.0" cy="300" r="6" class="knob"/>
+<text x="336" y="304" class="k">15</text>
+<text x="28" y="330" class="s">β_p</text>
+<line x1="166" y1="326" x2="326" y2="326" class="slider"/>
+<circle cx="230.0" cy="326" r="6" class="knob"/>
+<text x="336" y="330" class="k">0.65</text>
+<text x="28" y="356" class="s">装置</text>
+<rect x="166" y="344" width="185" height="16" rx="8" class="badge-ok"/>
+<text x="173" y="356" class="ok-t" style="font-size:10px">iter · 12 PF · 6 CS</text>
+<text x="28" y="380" class="s">L2：把手改 LCFS（-18 U-12 试改，可撤销）；L3：绑外部位形</text>
+<rect x="432" y="124" width="480" height="616" rx="4" class="panel"/>
+<rect x="432" y="124" width="480" height="26" rx="4" class="head"/>
+<text x="444" y="142" class="t">极向截面 · 目标 vs 解出的 LCFS · 线圈电流色标 · 场零</text>
+<rect x="472" y="174" width="420" height="440" class="axes"/>
+<line x1="472" y1="284.0" x2="892" y2="284.0" class="grid"/>
+<line x1="472" y1="394.0" x2="892" y2="394.0" class="grid"/>
+<line x1="472" y1="504.0" x2="892" y2="504.0" class="grid"/>
+<polyline class="c1" points="598.0,394.0 631.6,240.0 724.0,218.0 799.6,394.0 732.4,561.2 648.4,570.0 598.0,394.0"/>
+<polyline class="c2" points="602.2,394.0 635.8,244.40000000000003 724.0,222.39999999999998 795.4000000000001,394.0 732.4,556.8 648.4,565.6 602.2,394.0"/>
+<polyline class="c3" points="682.0,416.0 703.0,372.0 682.0,341.2 661.0,372.0 682.0,416.0"/>
+<text x="472" y="630" class="s">R × Z（示意）· 蓝 解 · 绿 目标 · 红虚 击穿场零区</text>
+<rect x="928" y="124" width="296" height="616" rx="4" class="panel"/>
+<rect x="928" y="124" width="296" height="26" rx="4" class="head"/>
+<text x="940" y="142" class="t">判定块（P-5）· 逐通道</text>
+<text x="940" y="174" class="mono">线圈    I [kA]   上限   状态</text>
+<text x="940" y="190" class="mono">CS1U    -12.3    45     ✓</text>
+<text x="940" y="206" class="mono">CS2U    -38.9    45     ✓</text>
+<text x="940" y="222" class="mono">PF1      41.2    48     ✓</text>
+<text x="940" y="238" class="mono">PF3      -6.1    48     ✓</text>
+<text x="940" y="254" class="mono">PF6      44.9    48     ★ 93 %</text>
+<text x="940" y="276" class="s">形状误差</text>
+<rect x="1078" y="264" width="104" height="16" rx="8" class="badge-ok"/>
+<text x="1085" y="276" class="ok-t" style="font-size:10px">2.1 mm rms</text>
+<text x="940" y="300" class="s">场零</text>
+<rect x="1078" y="288" width="131" height="16" rx="8" class="badge-ok"/>
+<text x="1085" y="300" class="ok-t" style="font-size:10px">B_null 1.8 mT</text>
+<text x="940" y="324" class="s">垂直裕度</text>
+<rect x="1078" y="312" width="41" height="16" rx="8" class="badge-run"/>
+<text x="1085" y="324" class="acc-t" style="font-size:10px">计算中</text>
+<text x="940" y="348" class="s">「卡在哪一路」来自记录，页面照录</text>
+<text x="24" y="766" class="s">★概念图。电源尺寸与线圈铭牌上限（F-19）今天缺件，判定列相应标「未评估」。</text>
+</svg>
