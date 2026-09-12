@@ -323,7 +323,7 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 汇合），以及沿射线的电子回旋吸收与按 $\bar\psi$ 壳的功率沉积。电子回旋与低杂波**共用同一个积分器**，只换色散函数。
 本层不含（2026-09-12 起）：~~束宽随传播的演化、衍射与聚焦~~（已实现：锥形射线族与束追踪，见本章
 "束宽"一节）；~~伴随法 ECCD~~（已实现，见"伴随法 ECCD"一节）；~~低杂波的吸收与准线性电流~~（已实现：电子 Landau 吸收、
-一维准线性 Fokker–Planck 与自洽回路，见 {ref}`phys09-lh-ray`）；**余：低杂波驱动电流的安培换算、极向谱 `row/n_pol`、反射模型参数**。
+一维准线性 Fokker–Planck 与自洽回路，见 {ref}`phys09-lh-ray`）；**余：低杂波驱动电流的安培换算、二维谱 `power_density_spectrum_2d`、反射模型参数**。
 
 (phys09-ray-core)=
 ## 射线方程与两种色散 (Ray Equations and the Two Dispersion Functions)
@@ -556,8 +556,8 @@ $$ (eq-p09-lh-fp)
 
 〔实现〕**门（`code/rf_ray` 的 LH 行，2026-09-12）**：只绑 `lh_antennas` 的文档按 DD 的
 `antenna/row/n_phi`（$N_\parallel$ 分 bin）与 `row/power_density_spectrum_1d`（相对权重，按 `n_phi` 梯形宽归一到
-`antenna/power_launched/data`，各 row 均分）**每 bin 发一条慢波射线**（`rfray::Launch::stix`，大根，切向指标沿 $\hat\phi$、
-法向向内、能量沿法向），发射点 `row/position/{r,z,phi}`，频率 `antenna/frequency`；介质带一种离子（`lh_ion_a` 2.5 · `lh_ion_z` 1，
+`antenna/power_launched/data`，各 row 均分）**每 bin 发一条慢波射线**（`rfray::Launch::stix`，大根，切向指标 $N_\phi\hat\phi+N_{pol}\hat t$，
+$\hat t=\hat\phi\times\hat e_\psi$ 为发射点处 $\bar\psi$ 梯度定义的极向切向——本仓的声明，与 DD 的一致性 `[TBD]`；法向沿 $-\hat e_\psi$、能量沿法向），发射点 `row/position/{r,z,phi}`，频率 `antenna/frequency`；介质带一种离子（`lh_ion_a` 2.5 · `lh_ion_z` 1，
 密度取 `core_profiles/profiles_1d/fylite:ion_density`，未绑则 $n_e/Z$ 并在说明里写明）。`deposit` 打开时逐射线走自洽回路，
 `core_sources/source/0/profiles_1d/electrons/energy` 落在沉积壳上（带 $\bar\psi$ 网格，宿主按 `sources = table` 重采样）；
 **不写 `j_parallel`**——归一化效率按壳报出（`lh_drive`、`lh_u_res`），安培换算是余下的一步。
