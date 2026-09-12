@@ -2,7 +2,7 @@
 document_id: FYL-SRS-01
 title: FyLite 软件需求规格 (FyLite Software Requirements Specification)
 shortname: fylite-srs
-version: "1.2"
+version: "1.3"
 date: 2026-09-12
 language: bilingual
 contributors:
@@ -12,9 +12,11 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.3 附录〈提案登记〉增列 `FYL-DESIGN-21` 的编号：FR-ANALYSIS-009..011 · DE-LOG-16；
+    正文条款不变。
     v1.2 新立横切域 **LEVEL**（用户级别，来自 `FYL-CONOPS-00` v1.2 用户裁定 2026-09-12）：
     FR-LEVEL-001..004——初级只选即得结果并可做简单转换、中级在同一场景内改模型与精细
     参数且每个可改量须有声明与级别、高级以计划文档定义场景 / 接入外部 / 被外部调用而
@@ -33,8 +35,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-SRS-01` |
 | 文档名称 (Title) | FyLite 软件需求规格 (FyLite Software Requirements Specification) |
 | 短名 / Slug | `fylite-srs` |
-| 版本 (Version) | v1.2 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v1.3 |
+| 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | Specification (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 29148 |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -325,6 +327,8 @@ NR-QUAL-006），页面提案与内核契约的设计元素又都想用 `DE-LOG-
 | NR-QUAL-007 | `FYL-DESIGN-18` | 表单 ↔ 词表、两端规格、断点等价、文档集往返四道门禁（NR-QUAL-006 仍空置） |
 | DE-LOG-13 / -14 / -15 | `FYL-DESIGN-18` | 表单生成 · 断点即记录 · 呈现规格双向 |
 | DE-LOG-11 / -12 | `FYL-SDD-01` v1.0 **已取用** | 文档门与扁平树 · 内核无状态（内核契约，来自 `FYL-DESIGN-16`） |
+| FR-ANALYSIS-009..011 | `FYL-DESIGN-21` | 动理学反演是一份多步计划（`has_step[]` + `ScenarioLoop`，步间以记录交接，每步一次门调用）· 四层收敛判据各为 fyo 判据实例、二维验收为 `ComparisonRecord`、不合成单一标量 · 反演页以流程图呈现（节点 = 步 · 边 = 绑定 · 状态 = 记录 · 五个控制动作 · 缺失诊断可见 · 数据边与模型边可辨） |
+| DE-LOG-16 | `FYL-DESIGN-21` | 流程图投影：计划 → 图；记录 → 状态与读数；控制 → 门调用 |
 | FR-LEVEL-001..004 | `FYL-CONOPS-00` v1.2 → 本文件 v1.2 **已取用** | 三级用户：初级只选 · 中级改模型与精细参数 · 高级定义场景 / 接入外部 · 级别是标签（落法 `-17` E-25 · `-18` U-26） |
 
 (fylite-srs-trace)=
