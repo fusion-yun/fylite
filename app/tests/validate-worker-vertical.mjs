@@ -117,7 +117,23 @@ inbox.splice(0, inbox.length);
 const v = dsg.result && dsg.result.criteria && dsg.result.criteria.vertical;
 assert.ok(v, 'no vertical criterion in the design answer: ' + JSON.stringify(dsg.result && dsg.result.criteria));
 const sol = dsg;
-const got = JSON.parse(JSON.stringify({ gamma: v.gamma, k: v.k, kIdeal: v.kIdeal, ratio: v.ratio, nFilaments: v.nFilaments,
+//: ★★**2026-09-12：夹具重录，并把机器与目标一起钉进去**（F-18 ②）。
+//: 旧夹具录于 2026-09-05，此后设计答案移动了：a 0.5715 → 0.8547 m（问的是 0.74）、
+//: q95 3.372 → 4.868、细丝 68 → 285，而 I_p 逐位不动（本闸自己算的那个数）。
+//: **不是「两种可能都行」——旧的那份是退化位形**，两个独立口径都指这一边：
+//:   ① **离所问更远**：旧 a 差 −22.8 %，今 a 差 +15.5 %（同一个 0.74 m 目标）。
+//:   ② **判据本身说不通**：旧夹具的 k 是**负数**（−6.6e6），而 k 是去稳力系数、
+//:      γ 随之为负（「稳」）——一个 κ = 1.6 的等离子体在无反馈下竖直稳定，是这条
+//:      判据不该给出的答案；今天 k/k_ideal = 0.347 < 1、γ = +58.6 1/s 才是阻性
+//:      不稳定区该有的形。
+//: ★**不是缺省岭的事**：本闸有意走出厂缺省，而把它按录夹具那天的 3e-1 显式传回去
+//: （`09d11a5` 之前的值）**并不还原夹具**（实测 a 0.8717 · q95 6.904 · γ 64.21），
+//: 所以那条候选解释排除了。
+//: ★**机器与目标进夹具**：本闸按 CANDIDATES 顺序取第一台读得懂的装置（今天是
+//: `best`，a_target = 0.74 m）。装置清单一变，闸子会**静默**地设计另一台机器——
+//: 所以这两项也钉住，变了就按名报出来，而不是让读数悄悄换一台机器。
+const got = JSON.parse(JSON.stringify({ machine: id, aTarget: target.a,
+                                        gamma: v.gamma, k: v.k, kIdeal: v.kIdeal, ratio: v.ratio, nFilaments: v.nFilaments,
                                          ip: sol.result.ip, q0: sol.result.q && sol.result.q.q0, q95: sol.result.criteria.q95, a: sol.result.shape && sol.result.shape.a }));
 if (RECORD) {
   writeFileSync(OUT, JSON.stringify(got));
@@ -126,6 +142,13 @@ if (RECORD) {
 }
 const TOL = 1e-7;
 const ref = JSON.parse(readFileSync(FIX, 'utf8'));
+if (ref.machine !== undefined) {
+  assert.equal(got.machine, ref.machine,
+               `这一遍设计的是 ${got.machine}，夹具录的是 ${ref.machine} —— 装置清单动了，`
+               + '读数不可比（重录前先想清楚要钉哪一台）');
+  assert.ok(Math.abs(got.aTarget - ref.aTarget) < 1e-9,
+            `目标小半径 ${got.aTarget} 对夹具的 ${ref.aTarget}`);
+}
 let worst = 0;
 for (const key of ['gamma', 'k', 'kIdeal', 'ratio', 'ip', 'q95', 'a']) {
   const a = got[key], b = ref[key];
