@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-17
 title: "场景运行命令 `fy run` 的详细设计 (The `fy run` Command: Detailed Design)"
 shortname: fylite-preset-scenarios
-version: "1.3"
-date: 2026-09-04
+version: "1.4"
+date: 2026-09-12
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -15,6 +15,11 @@ modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.4 增 E-25「六层合成即三级用户的分界」（`FYL-CONOPS-00` v1.2 用户裁定 2026-09-12）：
+    §五 的六层表加一列「级」——层 1..3 与 `--device` / `shot` / `time` 是初级，层 4..5 与
+    `--bind` / `--input` 是中级，计划文件形与 `--code` / `--cases` / `--resume-from` 是高级；
+    `--dry-run` 因此顺带答出「这次运行是哪一级」。同批记一处 as-built 差距：`list scenarios
+    <名>` 打得出参数表却打不出级别列（`FYL-REPORT-07` C-28，随 `-16` K-2 到来）。
     v1.3 补上七条门禁里只有对着产物才答得出的两条（`python/tests/test_run_behaviour.py`）：
     ①两种位置参数形产出同一份计划（实测相等），⑤`--offline` 解析不到时按名拒绝而不是
     连出去。同批把 `--dry-run` 下解析不到的输入端口由「拒绝」改为「一行输出」（A-3 后半，
@@ -31,7 +36,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-17` |
 | 文档名称 (Title) | 场景运行命令 `fy run` 的详细设计 (The `fy run` Command: Detailed Design) |
 | 短名 / Slug | `fylite-preset-scenarios` |
-| 版本 (Version) | v1.3 |
+| 版本 (Version) | v1.4 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -300,6 +305,26 @@ value     ::= JSON 字面量 | 裸字符串 | 时间选择（`4.4` · `4:5` · `
 | 4 | **显式计划** | `plan:<path>#<n>` | `--plan`，按序 |
 | 5 | **命令行** | `cli` / `cli:switch <名>` | 参数与开关展开；开关展开的值低于显式参数（E-18） |
 | 6 | **端口绑定** | `cli:input` / `cli:bind` / `resolved:<source>` | 端口不是参数，单列；`resolved:` 记测量文档从哪来（E-15） |
+
+〔已确立·用户裁定 2026-09-12〕**这张表同时是三级用户的分界**（`FYL-CONOPS-00` §用户级别；
+E-25）。级别按「这次运行改了哪一层」判，所以 `--dry-run` 逐列打印的那张表**顺带答出**
+这次是哪一级——不需要第二个机制：
+
+:::{table} 六层 × 三级。「动作」列是那一级在命令行上会写的东西；一次运行的级 = 它碰到的最高层。
+:name: tbl-e17-levels
+:align: left
+
+| 级 | 碰哪几层 | 动作 | 不碰什么 |
+| :--- | :--- | :--- | :--- |
+| **L1 初级** | 1 · 2 · 3（只选） | `<线> [<场景>]` · `--device` · `shot=` / `time=` · `--preset` | 任何 `key=value` 物理参数、任何 `--plan` / `--bind` |
+| **L2 中级** | 4 · 5 · 6（改值、绑口） | `key=value` · 开关 · `--plan`（叠在同一模板上）· `--bind` / `--input` | 模板与 code（`prescribes_code` 不变）、端口的**种类** |
+| **L3 高级** | 计划文件形（层 1 由自己的文档充当） | `fy run <plan.jsonld>…` · `--code` · `--cases <自己的模板目录>` · `--resume-from` · 工具面 | FyLite 的代码；内核契约 |
+:::
+
+★**L1 的 `shot=` / `time=` 不是「参数」**——它们是固定选项承载的选择项（E-12 ④：`shot=1`
+走 `--shot`），所以「只给炮号和时刻」在本表里仍是层 1..3 的事，这与用户裁定的定义逐字一致。
+★**L2 的 `--plan` 与 L3 的计划文件形是同一种文档、两种用法**：叠在模板上（层 4）是改值，
+当作位置参数（层 1）是换场景——区别在它有没有自己的 `prescribes_code`。
 
 〔已确立·设计〕**环境变量不在这张表里。** 它们供资源（路径、内核、连接、记录目录），
 **不供任何物理参数**（E-16）。一个 `FY_DEFAULT_SHOT` 会让同一条命令在两台机器上算两发炮，
@@ -636,7 +661,7 @@ records/20260904T1530Z-reconstruction/
 撤的是命令词，不是合成器。这正是 J-7 / E-21 的实现形。
 
 (fylite-preset-rulings)=
-# 十三 · 裁定 E-1..E-22 (Rulings)
+# 十三 · 裁定 E-1..E-25 (Rulings)
 
 〔已确立〕v0.1 的九条保留编号；修订者标「v1.0 修订」并写明改了什么。
 
@@ -753,6 +778,16 @@ device, measurements, kernel}`）；2 语法（不落记录）。沿用原 `case
 **禁止 (MUST NOT)** 在 `list` 里合成计划、取数或写记录；**禁止 (MUST NOT)** 在 `run` / `data` /
 `app` 上再长出 `--list` 一类的旗标——新的一类语料进 `list`，作为一条子命令。〔已确立〕用户
 裁定（2026-09-04）。
+
+**E-25 六层合成即三级用户的分界（v1.4 新增）。** 初级 = 层 1..3 + `--device` / `shot` / `time`
+（只选）；中级 = 层 4..6（改值、绑口，模板与 code 不变）；高级 = 计划文件形 + `--code` /
+`--cases` / `--resume-from` / 工具面（换场景、接外部、被外部调）。一次运行的级 = 它碰到的
+最高层，由 `plan.jsonld` 里 `fylite:from` 的取值集合判定，`--dry-run` 顺带打印。**禁止
+(MUST NOT)** 为任何一级另立命令词或旗标——三级共用一份合成器（E-21）；**禁止 (MUST NOT)**
+按级别拒绝：一个只选的用户写了一个 `key=value`，得到的是那个参数的名字、级别与所在表
+（E-11 / E-12 的按名拒绝话术加一句「级」）。★**as-built 差距**：`list scenarios <名>` 今天
+打得出参数表而打不出级别列，因为 code 这一层的可改量与其级别尚无声明
+（`FYL-REPORT-07` C-28 / §9.2；随 `-16` K-2 到来）。〔已确立·用户裁定 2026-09-12〕。
 
 **E-22 模板随 `fy` 内嵌，预设走语料路径。** 模板与内核 code 表是一对，错版由门禁 ②抓；
 语料路径上的同名模板覆盖内嵌份（排障）。这条关闭 v0.1 的开放项「语料装到哪里」的**模板**

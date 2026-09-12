@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-12
 title: 实验分析页 (The Analysis Page)
 shortname: fylite-analysis-page
-version: "1.0"
-date: 2026-09-04
+version: "1.1"
+date: 2026-09-12
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,9 +12,12 @@ ai_assistance:
   - Claude Code
 created: 2026-09-01T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）：按现行状态重排，
+  change: 'v1.1 指针（2026-09-12）：平衡反演部件的**布局**自 `FYL-DESIGN-21` 起重规划为一张
+    流程图（节点 = 计划的步、状态从记录读、外环是回边）；本篇四栏的裁定 P-9 / P-16 / P-22 /
+    P-23 / P-29 不变，正文不动，只在控制信息与落地状态里指向。
+    v1.0 全文重写（用户「优化重写整个设计文档」，2026-09-04）：按现行状态重排，
     沿革收进本条。裁定 P-9 / P-16 / P-22 / P-23 / P-29、缺口 G-2..G-17、门禁、提案与
     追溯一条不丢。实质改动：①路径按 2026-09-04 仓树核实——部件标识是
     `data-part="reconstruction"`（原误记为 `analysis`），主 worker 是 `scenario.js`
@@ -39,8 +42,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-12` |
 | 文档名称 (Title) | 实验分析页 (The Analysis Page) |
 | 短名 / Slug | `fylite-analysis-page` |
-| 版本 (Version) | v1.0 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v1.1 |
+| 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -54,7 +57,7 @@ modified:
 | 安全分级 (Security Classification) | public |
 | 上游输入 (Upstream Inputs) | `FYL-CONOPS-00` v0.4（S-L2、建设原则）; `FYL-SRS-01` v0.5（FR-ANALYSIS-*、FR-DATA-*、FR-HOST-*、NR-ENV-004 / 005）; `FYL-SDD-01` v0.13（DE-COMP-05 / 07、DE-LOG-04 / 07）; `FYL-DESIGN-10` v1.2（四页共同的纪律）; `FYL-DESIGN-11` v0.4（外壳、首屏判据、视觉系统）; `FYL-DESIGN-16` v2.0（内核契约：K-1 / K-3 / H-1 / H-3） |
 | 批准 (Approval) | — |
-| 取代关系 (Supersedes / Superseded by) | 承接 `FYL-DESIGN-10` v0.2 中属于分析页的部分 |
+| 取代关系 (Supersedes / Superseded by) | 承接 `FYL-DESIGN-10` v0.2 中属于分析页的部分；平衡反演部件的布局自 v1.1 起由 `FYL-DESIGN-21` 重规划（本篇裁定不变） |
 :::
 
 (fylite-analysis-abstract)=
@@ -330,6 +333,10 @@ P-8（批处理逐炮列出失败原因，不是一个进度条）。
 
 (fylite-analysis-asbuilt)=
 # 落地状态 (As-built, 2026-09-04)
+
+:::{note}
+★2026-09-12：平衡反演部件的**布局**由 `FYL-DESIGN-21` 重规划为一张流程图——节点是动理学反演计划的步，边由端口绑定推出，状态从记录读，外环是一条回边。四栏今天照旧可用，图是它们的另一种看法（`-21` 分期 Q0）；本篇的裁定与缺口不因此改号。
+:::
 
 :::{table} 分析页的功能栏与它们各自调用的内核入口（择要）。
 :name: tbl-fylite-analysis-asbuilt
