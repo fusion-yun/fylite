@@ -75,8 +75,15 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
   const errs = [];
   pg.on('pageerror', (e) => errs.push(String(e)));
   await pg.goto(`${url}pages/page_model.html`, { waitUntil: 'domcontentloaded' });
-  await pg.addScriptTag({ url: '../assets/run.js' });
-  await pg.addScriptTag({ url: '../assets/checkpoint.js' });
+  //: ★2026-09-12: the page CARRIES these two now (TODO G-4), so they are no
+  //: longer injected here.  Injecting them was the reason nobody noticed that
+  //: no page loaded them: the gate passed on modules the product did not ship.
+  const carried = await pg.evaluate(() => !!(window.FyRun && window.FyCheckpoint));
+  if (!carried) {
+    await br.close(); srv.close();
+    throw new Error('page_model.html 没有加载 run.js / checkpoint.js —— 闸子不再注入'
+                    + '它们，页面自己要带（TODO G-4）');
+  }
 
   const r = await pg.evaluate(async () => {
     const out = { steps: [] };

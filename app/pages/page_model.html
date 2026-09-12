@@ -843,6 +843,17 @@ self.FyLite.attach('../assets/fylite_rs.wasm')
      than only of the report page. -->
 <script src="../assets/casereport.js"></script>
 <script src="../assets/fig.js"></script>
+<!-- ★the resumable march and the checkpoint store (`FYL-DESIGN-18` U0).
+     ★2026-09-12: these two shipped with a gate and NO page loading them, so
+     `validate-checkpoint.mjs` had to inject them with `addScriptTag` — a
+     module that no page carries is a module that cannot be used.  They are
+     loaded here, on the page whose bar runs the march.  What is still
+     missing is upstream of them and is now the honest statement of the gap:
+     this page produces no `spo:ComputationRecord`, and a checkpoint IS a
+     record (there is deliberately no checkpoint format), so the store has
+     nothing to be handed yet.  See TODO G-4. -->
+<script src="../assets/run.js"></script>
+<script src="../assets/checkpoint.js"></script>
 <!-- the scenario's own controller: one file, one section per part,
      in the order the page runs them -->
 <script src="../assets/scenario-model.js"></script>
