@@ -469,6 +469,32 @@ pub fn assemble_file(path: &Path, connect: Option<Connector<'_>>, overrides: &Ov
 /// * `bindings.mdsplus.ids.<ids>`（相对 `bindings.mdsplus.root`）：缺省的绑定文档。
 ///
 /// 没有几何或没有绑定都不是错——有什么装什么，缺的记在 `notes` 里。
+/// A manifest-relative path resolved against the book's own layout.
+///
+/// In order: as written; without the `tree_root` prefix; with the suffix swapped
+/// to `.jsonld` (both spellings).  The first that exists wins; when none does the
+/// path as written is returned, so the downstream error names what the manifest
+/// said.
+fn book_path(dir: &Path, tree_root: &str, rel: PathBuf) -> PathBuf {
+    let as_written = dir.join(&rel);
+    if as_written.exists() {
+        return as_written;
+    }
+    let mut candidates = Vec::new();
+    let root = tree_root.trim_matches('/');
+    let stripped = if !root.is_empty() { rel.strip_prefix(root).ok().map(Path::to_path_buf) } else { None };
+    if let Some(s) = &stripped {
+        candidates.push(dir.join(s));
+    }
+    if rel.extension().map_or(false, |e| e == "yaml" || e == "yml") {
+        candidates.push(dir.join(rel.with_extension("jsonld")));
+        if let Some(s) = &stripped {
+            candidates.push(dir.join(s.with_extension("jsonld")));
+        }
+    }
+    candidates.into_iter().find(|c| c.exists()).unwrap_or(as_written)
+}
+
 pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host: Option<&str>, port: Option<u16>,
                      overrides: &Overrides) -> Result<(Assembly, Vec<String>), IoError> {
     let doc = io::read_node(manifest)?;
@@ -478,6 +504,13 @@ pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host
     let mut notes = Vec::new();
     overrides.apply(&mut a);
     a.device = m.get("device").and_then(Node::as_str).map(str::to_string);
+    //: ★fydoc's self-held A-Box (F-10, 2026-09-12): the manifest keeps the upstream
+    //: spelling `<tree_root>/<rel>.yaml` — it doubles as the page's provenance key —
+    //: and the book's README states the consumer's rule: drop `tree_root`, swap the
+    //: suffix for `.jsonld`, and the page is beside the manifest.  Paths that exist
+    //: as written win (the runtime's own layouts, and ITER's hand-written manifest).
+    let tree_root = m.get("tree_root").and_then(Node::as_str).filter(|t| !t.starts_with('[')).unwrap_or("").to_string();
+    let book = |rel: PathBuf| -> PathBuf { book_path(&dir, &tree_root, rel) };
     let shot = a.params.shot;
     //: the epoch that holds the shot
     let epoch = m.get("epochs").and_then(Node::as_list).and_then(|eps| eps.iter().find(|e| {
@@ -498,7 +531,7 @@ pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host
             let v = available?.get(name)?;
             let backend = v.get("backend").and_then(Node::as_str).unwrap_or("static").to_string();
             let path = v.get("path").and_then(Node::as_str)?;
-            Some((backend, dir.join(path)))
+            Some((backend, book(PathBuf::from(path))))
         };
         //: geometry: the epoch's file, or the provider's static file
         match epoch.and_then(|e| e.get(&format!("ids/{one}"))).and_then(Node::as_str) {
@@ -524,7 +557,7 @@ pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host
             }
             Some(file) => {
                 let root = epoch.and_then(|e| e.get("static")).and_then(Node::as_str).unwrap_or("");
-                geometry = Some(dir.join(root).join(file));
+                geometry = Some(book(Path::new(root).join(file)));
             }
         }
         if bind.is_none() {
@@ -533,7 +566,7 @@ pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host
             let mds = doc.get("bindings/mdsplus");
             if let Some(file) = mds.and_then(|b| b.get(&format!("ids/{one}"))).and_then(Node::as_str) {
                 let root = mds.and_then(|b| b.get("root")).and_then(Node::as_str).unwrap_or("");
-                bind = Some(dir.join(root).join(file));
+                bind = Some(book(Path::new(root).join(file)));
             }
         }
         if let Some(g) = geometry {
@@ -687,6 +720,42 @@ mod tests {
         let (a2, _) = from_manifest(&dir.join("machine.yaml"), &["magnetics"], Some("efit"), None, None, &o).unwrap();
         assert!(matches!(a2.sources.get("bind:magnetics"), Some(SourceSpec::MdsBind { path, .. }) if path.ends_with("bind/efit.yaml")));
         assert!(a2.sources.contains_key("geometry:magnetics"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// ★F-10 (2026-09-12): fydoc's generated manifests spell every page as
+    /// `<tree_root>/<rel>.yaml` while the pages beside them are `<rel>.jsonld`.
+    /// Three devices (best · cfetr · cfedr) reported "no `pf_active/coil`" to
+    /// `code/breakdown` for that reason alone.  This is the book's layout in
+    /// miniature; a path that exists as written must still win.
+    #[test]
+    fn a_book_manifest_resolves_tree_root_and_the_jsonld_suffix() {
+        let dir = tmp("book");
+        std::fs::create_dir_all(dir.join("static/now")).unwrap();
+        std::fs::create_dir_all(dir.join("providers/pf_active")).unwrap();
+        //: the book's pages declare CamelCase fyo types, not `_ids`
+        std::fs::write(dir.join("static/now/wall.jsonld"), "{\"@type\": \"fyo:Wall\", \"description_2d\": [{\"type\": {\"name\": \"limiter\"}}]}").unwrap();
+        std::fs::write(dir.join("providers/pf_active/base.jsonld"), "{\"@type\": \"fyo:PfActive\", \"coil\": [{\"name\": \"PF1\"}]}").unwrap();
+        std::fs::write(dir.join("providers/pf_active/hand.jsonld"), "{\"@type\": \"fyo:PfActive\", \"coil\": [{\"name\": \"HAND\"}]}").unwrap();
+        std::fs::write(dir.join("machine.jsonld"), r#"{"device": "CFEDR", "tree_root": "fyo/latest",
+            "epochs": [{"id": "now", "valid_shots": [0, null], "static": "fyo/latest/static/now",
+                        "ids": {"wall": "wall.yaml", "pf_active": "@provider"}}],
+            "providers": {"pf_active": {"default": "base", "available": {
+                "base": {"backend": "static", "path": "fyo/latest/providers/pf_active/base.yaml"},
+                "hand": {"backend": "static", "path": "providers/pf_active/hand.jsonld"}}}}}"#).unwrap();
+        let o = Overrides { shot: Some(1), ..Default::default() };
+        let (a, notes) = from_manifest(&dir.join("machine.jsonld"), &["pf_active", "wall"], None, None, None, &o).unwrap();
+        assert!(matches!(a.sources.get("geometry:pf_active"), Some(SourceSpec::File(p)) if p.ends_with("providers/pf_active/base.jsonld")), "{:?}", a.sources);
+        assert!(matches!(a.sources.get("geometry:wall"), Some(SourceSpec::File(p)) if p.ends_with("static/now/wall.jsonld")), "{:?}", a.sources);
+        assert!(!notes.iter().any(|n| n.contains("no static geometry")), "{notes:?}");
+        let r = assemble(&a, None);
+        assert_eq!(r.bundle.get("pf_active").and_then(|p| p.get("coil/0/name")).and_then(Node::as_str), Some("PF1"));
+        assert!(r.bundle.get("wall").is_some());
+        //: the hand-written spelling (ITER's) is taken as written
+        let (a2, _) = from_manifest(&dir.join("machine.jsonld"), &["pf_active"], Some("hand"), None, None, &o).unwrap();
+        assert!(matches!(a2.sources.get("geometry:pf_active"), Some(SourceSpec::File(p)) if p.ends_with("providers/pf_active/hand.jsonld")));
+        //: a path that resolves nowhere is handed on as written, so the error names it
+        assert!(book_path(&dir, "fyo/latest", PathBuf::from("fyo/latest/providers/tf/none.yaml")).ends_with("fyo/latest/providers/tf/none.yaml"));
         let _ = std::fs::remove_dir_all(&dir);
     }
 }
