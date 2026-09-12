@@ -65,6 +65,8 @@ BORAY 本地 oracle · `core_sources` 守恒落梯子）之后，开放条目跨
 
 ### 0.4 台基：向 EPED 收窄（2026-09-11 立，用户指示 A/B 进计划、C 待评）
 
+★★**2026-09-12 oracle 找到了**：`FYDOC-CASE-20` 交付包的 `EPED/eped_state.nc` 是 EPED 自己的运行（十输入 · 答案 · KB/PB 扫描表），冻结为内核 `testdata/reference/cfedr_eped_15ma.txt`，门 `pedestal::tests::eped1nn_against_epeds_own_run_on_cfedr_15ma`。实测：EPED1-NN p_ped 93.0 kPa 对 EPED 110.7（ptotped）/ 115.8（p_E1）kPa，即 **−16 % / −20 %**；宽度 0.0448 对 0.0231（ptotwid）/ 0.0508（wid_E1）；外推距离 0.313 落在 a = 2.5 m（**CFEDR 在代理训练盒之外**）。计划 A 的逐高度 `gamma_KB` / `istable_PB` 表随之可用（内核 `docs/note/cfedr-15ma-reproduction.md` §5.5）。
+
 ★**现状**：本仓有的是 **EPED1-NN 代理**（`rust/fylite/src/pedestal.rs` 511 行 + 生成的权重表，
 九组解，九道判据），不是 EPED。EPED 是**两条约束在一族自洽重建的平衡上求交**：
 非局域剥离-气球稳定性（ELITE）与 KBM 起始 $\Delta\psi_N = 0.076\sqrt{\beta_{p,\mathrm{ped}}}$。
