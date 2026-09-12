@@ -23,7 +23,29 @@ from __future__ import annotations
 
 from pathlib import Path
 
-__all__ = ["reduce_est2", "measurements_from_est2_hdf5", "read_east_mds"]
+__all__ = ["reduce_est2", "measurements_from_est2_hdf5", "read_east_mds", "fringe_gate"]
+
+
+def fringe_gate(mags, gate: float) -> list[bool]:
+    """Which POINT chords keep their weight: ``gate·median ≤ |n_e,line| ≤ median/gate``.
+
+    A fringe jump is an integer number of 2π in the interferometer phase, so
+    a chord that has lost fringes can land BELOW the run of its neighbours or
+    ABOVE it — the sign of the jump is not fixed.  The band is therefore
+    symmetric in log magnitude about the median of the non-zero chords;
+    ``gate ≤ 0`` disables it (every non-zero chord is good).  A chord with no
+    reading (``None``/0) is never good.  ★F-14 (2026-09-12): the criterion
+    used to be the floor alone — EAST #137985 c4 sat 3–166× above the
+    same-slice median on 6 of 9 slices and reached the reconstruction with
+    ``weight_nel = 1.0``.  Pure so it can be pinned without a device deck.
+    """
+    import numpy as np
+    mag = np.array([abs(v) if v is not None else 0.0 for v in mags], float)
+    if gate <= 0:
+        return [bool(m > 0) for m in mag]
+    med = float(np.median(mag[mag > 0])) if (mag > 0).any() else 0.0
+    lo, hi = gate * med, (med / gate if gate > 0 else float("inf"))
+    return [bool(m > 0 and lo < m < hi) for m in mag]
 
 
 def _dev():
@@ -150,15 +172,13 @@ def reduce_est2(get, shot: int, time_s: float, *,
         fr_l = [point_chord(nd) for nd in _dev().POINT_FR_NODES]
         kpol = -1.0 if (fr_l[0] is not None and fr_l[0] < 0) else 1.0
         c_far = _dev().POINT_FARADAY_C * _dev().POINT_LASER_LAMBDA ** 2
-        # fringe-jump hygiene: an interferometer chord whose |n_e,line| collapses
-        # to a small fraction of the median has lost fringes -> drop it (and its
-        # paired Faraday chord, which shares the density). gate<=0 disables.
-        mag = np.array([abs(v) if v is not None else 0.0 for v in ne_l])
-        med = float(np.median(mag[mag > 0])) if (mag > 0).any() else 0.0
-        floor = point_fringe_gate * med if point_fringe_gate > 0 else -1.0
+        # fringe-jump hygiene: an interferometer chord whose |n_e,line| falls
+        # outside the symmetric band gate·median … median/gate has jumped
+        # fringes (either way) -> drop it (and its paired Faraday chord, which
+        # shares the density). gate<=0 disables.  (:func:`fringe_gate`)
+        good_l = fringe_gate(ne_l, point_fringe_gate)
         bnel, bpolar, fwtnel, fwtpol, dropped = [], [], [], [], []
-        for i, (a_ne, b_fr) in enumerate(zip(ne_l, fr_l)):
-            good = (a_ne is not None) and (abs(a_ne) > floor)
+        for i, (a_ne, b_fr, good) in enumerate(zip(ne_l, fr_l, good_l)):
             if a_ne is not None and not good:
                 dropped.append(i + 1)
             # interferometer target: |line-integrated n_e| (GUI: nnel/1e19==|a_p|)
