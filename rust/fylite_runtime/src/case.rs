@@ -1534,12 +1534,33 @@ pub fn run_json(plan_text: &str, base: Option<&Path>, kernel_path: Option<&Path>
     let kernel_sha = std::fs::read(&kernel.path).ok().map(|b| sha256_hex(&b));
     let (slots, resolved) = resolve_inputs(&plan, &base_dir).map_err(|e| fail(-3, e.0))?;
     let (numbers, texts) = plan.kernel_settings().map_err(|e| fail(-5, e.0))?;
-    let result = kernel.run_case(&plan.code, &numbers, &texts, &slots);
+    //: ★★**the tree door when the kernel has one** (F-1, 2026-09-12).  This
+    //: path used to call the flat door unconditionally, and the flat door
+    //: carries only f64 slots — so a code that takes a whole DOCUMENT (the
+    //: eight `DOCUMENT_PORTS`, `inputs/device` among them) refused by name
+    //: here while the very same plan ran through `fy run`: measured on the
+    //: physics register's `discharge-iter`, `[-33] code/discharge takes the
+    //: whole device document and is reached through the tree door only`.
+    //: The stepped path above has been on the tree door since it was written;
+    //: this is the one-document path catching up.  An older kernel (ABI < 126)
+    //: has no tree door, so the flat door stays as the fallback rather than
+    //: this becoming a hard version requirement.
+    let result: Result<(Outcome, RawOutcome), KernelError> = if kernel.has_tree_door() {
+        let tree = plan_tree(&numbers, &texts, &resolved);
+        kernel.run_tree(&plan.code, &tree)
+            .and_then(|rec| outcome_from_record(&rec).map_err(|e| KernelError { code: -6, message: e.0 }))
+    } else {
+        kernel.run_case(&plan.code, &numbers, &texts, &slots)
+            .and_then(|raw| match parse_outcome(&raw) {
+                Ok(o) => Ok((o, raw)),
+                Err(e) => Err(KernelError { code: -5, message: e.0 }),
+            })
+    };
     let (_e, ended_at) = now_iso();
     let mut produced = Vec::new();
     let outcome = match &result {
-        Ok(raw) => {
-            let o = parse_outcome(raw).map_err(|e| fail(-5, e.0))?;
+        Ok((o, raw)) => {
+            let o = o.clone();
             for (ids, doc) in documents(&o, raw, &record_id) {
                 let fields: Vec<String> = o.fields.iter()
                     .filter(|f| (if f.ids.is_empty() { "entry" } else { f.ids.as_str() }) == ids)

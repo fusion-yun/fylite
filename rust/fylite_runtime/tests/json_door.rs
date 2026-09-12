@@ -45,3 +45,49 @@ fn a_corpus_case_goes_through_the_json_door() {
     assert!(why.contains("refused") && why.contains("beam"),
             "the record does not say why it was refused: {why}");
 }
+
+/// ★★**一份文档的那条路也走树门**（F-1，2026-09-12）。
+///
+/// 这条路从前无条件调**扁平门**，而扁平门只递 f64 槽 —— 一个要**整份文档**的 code
+/// （`case.rs::DOCUMENT_PORTS` 八个端口，`inputs/device` 是其中一个）于是在这里按名
+/// 拒绝，而同一份计划经 `fy run` 就跑得动。物理校验册上实测的那句拒绝是
+/// `[-33] code/discharge takes the whole device document and is reached through the
+/// tree door only`：可评条数因此一直是 0。
+///
+/// 判据取**能跑通**这一件：`discharge-iter` 绑了装置文档（`docs/examples/design/`），
+/// 经这条路跑出一份 `run_state: succeeded` 的记录，且记录里带着设计的落点
+/// （`shape_error` 一条事实）。★装置文档是构建暂存区的拖回物（`dist/facts/device/`，
+/// 仓顶不再有 `facts/`），所以不在场时**响亮跳过**而不是失败 —— 与上面缺内核那一条
+/// 同一个办法。
+#[test]
+fn a_case_that_binds_a_device_document_goes_through_the_tree_door() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let plan = root.join("docs/examples/design/discharge-iter.jsonld");
+    let text = std::fs::read_to_string(&plan).expect("the corpus is in the checkout");
+    let kernel = std::env::var("FYLITE_KERNEL_LIB").ok();
+    if kernel.is_none() && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file() {
+        eprintln!("SKIP: no kernel library (set FYLITE_KERNEL_LIB)");
+        return;
+    }
+    if !root.join("dist/facts/device/iter.jsonld").is_file() {
+        eprintln!("SKIP: no dist/facts/device/iter.jsonld (run tools/abox-to-facts.py iter)");
+        return;
+    }
+    let base = root.join("docs/examples/design");
+    let r = case::run_json(&text, Some(base.as_path()), kernel.as_deref().map(Path::new)).unwrap();
+    assert!(!r.refused, "{}", r.record_json);
+    let rec = fylite_runtime::json::parse(&r.record_json).unwrap();
+    let m = rec.as_map().unwrap();
+    assert_eq!(m.get("run_state").and_then(|n| n.as_str()), Some("succeeded"));
+    //: 落点在记录里说得出来 —— 一个跑通而什么都没报的记录不算通过
+    let text = fylite_runtime::json::to_string(m.get("inputs").unwrap(), false);
+    assert!(text.contains("shape_error"), "记录里没有 `shape_error`：{text:.400}");
+    //: ★而**没有**绑定的那一份仍按名拒绝（去掉 `inputs` 段重跑）：这条闸问的是
+    //: 「绑了就跑得动」，不是「门变宽松了」
+    let mut bare = fylite_runtime::json::parse(&std::fs::read_to_string(&plan).unwrap()).unwrap();
+    bare.as_map_mut().unwrap().remove("inputs");
+    let r2 = case::run_json(&fylite_runtime::json::to_string(&bare, false),
+                            Some(base.as_path()), kernel.as_deref().map(Path::new)).unwrap();
+    assert!(r2.refused, "没有装置文档也跑通了：{}", r2.record_json);
+    assert!(r2.record_json.contains("device"), "拒绝没有指名装置文档：{}", r2.record_json);
+}

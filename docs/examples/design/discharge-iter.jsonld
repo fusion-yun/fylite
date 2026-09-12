@@ -35,6 +35,25 @@
    }
   }
  },
+ "inputs": [
+  {
+   "type": "spo:PortBinding",
+   "binds_port": {
+    "type": "spo:PortDefinition",
+    "port_name": "device",
+    "port_direction": "input"
+   },
+   "bound_concretization": {
+    "type": "spo:Concretization",
+    "storage_uri": "../../../dist/facts/device/iter.jsonld",
+    "format_iri": "https://www.iana.org/assignments/media-types/application/ld+json"
+   },
+   "note": {
+    "zh": "★★`code/discharge` 取的是**整份装置文档**（`pf_active` · `wall` · `magnetics` · `tf` 同处一顶），不是几个 f64 槽 —— 所以这一条必须绑成输入：上面 `about_discharge` 里的 `machine_desc/iter` 只说「跑在哪台机器上」，不是一个输入绑定，物理校验册据此现跑时内核按名拒绝。路径指向构建暂存区 `dist/facts/device/`（仓顶不再有 `facts/`，2026-09-05 裁定）：先跑 `python3 tools/abox-to-facts.py iter` 把 fydoc 的 A-Box 拖成页面与门都读得懂的那一份；不在场时门报「不是一个文件」并说出它找过哪里，而不是假装跑了。",
+    "en": "code/discharge takes the WHOLE device document (pf_active, wall, magnetics, tf under one roof), not a handful of f64 slots, so it has to be bound as an input: the machine_desc/iter reference under about_discharge says which machine this runs on, not what is bound. The path points into the build staging area dist/facts/device/ (the repository root carries no facts/ since 2026-09-05): run python3 tools/abox-to-facts.py iter first. When it is absent the door says the file is not there and where it looked, rather than pretending to have run."
+   }
+  }
+ ],
  "parameters": [
   {
    "type": "spo:ParameterSetting",

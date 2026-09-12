@@ -16,7 +16,7 @@
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
-| **F-1** | fylite | `discharge-iter` 的门：`run_json` 改走树门，**同时**让算例把装置文档绑成输入 —— 两件一起做，物理校验册那 88 条的可评条数才会动（现只评了 24）|
+| **F-1** | fylite | 门已通、可评条数 0 → 2（`finite` · `boundary-closed`）。**下一步**：把 `discharge-iter` 做成两步算例（设计 → `code/ladder` 吃它交出的 `equilibrium`），让 `LADDER/*` 两条评得上；`grad-shafranov` 等 **H-19** 裁定规范，`psi-endpoints` 与其余六条在形状设计上**不适用**（缺一维网格 / 动理学剖面，现编即假数）|
 | **H-15** | fylite | 三个关着的节点各给一个 code 并进得了计划的一步：ELM 相位条件平均 · T_e,sep 分离面对齐 · MSE 的 E_r 修正（今天无 code）|
 
 ## 二、待裁（14 行 · 15 个号，等用户一句口径）
