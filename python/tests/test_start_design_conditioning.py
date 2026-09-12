@@ -211,3 +211,77 @@ def test_the_ridge_that_was_dropped_says_what_it_would_cost(doc, base):
     near = _run(_nudged(doc, 1e-13), lam=LAM_OLD)
     assert _moved(light, near) > 10.0 * _moved(base, _run(_nudged(doc, 1e-13))), (
         "λ 调小而分配没有变得更敏感 —— 那说明这条 L 曲线塌了，要重新量")
+
+
+#: ★★F-16（2026-09-12）：上面几条**实测**落点稳不稳；这三条把那件事的**来由**
+#: 报出来 —— 内核新增的事实 `start_cond`，即闭式解那条正规方程
+#: `AᵀA + λ²I` 的 κ₂（`pulse.rs::start_currents`，λ 的增广行已在 `aa` 里，
+#: 所以 `AᵀA` **就是**那条方程的矩阵）。它是一个**先验界**：输入的相对扰动最多被
+#: 放大 √κ 倍（最小二乘的解算子的条件数是 κ₂(A)=√κ₂(AᵀA)），于是
+#: 「换一份只差最后几位的装置文档，设计电流动 2.8 倍」不必每次事后实测复现。
+#: 缺省 λ=1e-1 上的实测（EAST 公共卡，24 个边界点，无控制行）：
+#:
+#: =======  ============  ===========  ==========
+#: `lam`    `start_cond`  `√cond`      `cond·λ²`
+#: =======  ============  ===========  ==========
+#: 1e-3     2.5562e8      1.599e4      2.556e2
+#: 1e-2     2.7410e6      1.656e3      2.741e2
+#: 1e-1     2.7431e4      1.656e2      2.743e2  ← 缺省
+#: 1.0      2.7530e2      1.659e1      2.753e2
+#: =======  ============  ===========  ==========
+#:
+#: `cond·λ²` 三个量级上是**同一个数**（275.3 / 255.6 = 1.077）—— 这说的是
+#: λ² ≫ σ_min²：小头是**岭**定的，不是数据定的，所以这个响应矩阵在 1e-2…1e-1
+#: 的尺度上已经实质降秩。**推论**（可测、已测）：κ ∝ λ⁻²，每降一个量级 κ 涨 100 倍。
+COND_LAM2 = 274.3
+
+
+def test_the_start_reports_how_reproducible_its_landing_is(doc, base):
+    """★★落点的可复现度**说得出来**：`start_cond` 是有限正数，且在实测带内。
+
+    这条钉的是**事实在**、且它的量级是量过的那个。带取 ±15 %：三台机器上
+    实测 2.41e4（ITER）· 2.74e4（EAST）· 3.99e4（best），机器之间差不到两倍，
+    而 λ 动一个量级就差 100 倍 —— 所以这条带分得开「换了机器」与「岭漂了」。
+    """
+    cond = base["facts"].get("start_cond")
+    assert cond is not None, "内核没报 `start_cond` —— 事实丢了，见 case.rs::start_facts"
+    assert np.isfinite(cond) and cond > 0.0, f"`start_cond` 不是有限正数：{cond}"
+    assert abs(cond / (COND_LAM2 / LAM_DEFAULT**2) - 1.0) < 0.15, (
+        f"EAST 缺省 λ 上的 κ₂ 是 {cond:.4e}，实测 {COND_LAM2 / LAM_DEFAULT**2:.4e} —— "
+        "要么装置文档换了，要么响应矩阵的标度动了。先看 `psi_rms` 有没有跟着动。")
+
+
+def test_the_conditioning_is_set_by_the_ridge_not_by_the_data(doc):
+    """★★κ₂·λ² 在三个量级上是同一个数 —— **岭定小头**，即 λ² ≫ σ_min²。
+
+    这不是拟合出来的，是 κ₂ = (σ_max²+λ²)/(σ_min²+λ²) 在 σ_min ≪ λ 下的极限。
+    实测 255.6…275.3（比值 1.077）。这条一旦变红，说的是响应矩阵**不再**在这个
+    尺度上降秩 —— 那时 λ 的裁定要重算，因为「λ 越大越可复现」不再按 λ⁻² 走。
+    """
+    seen = {lam: _run(doc, lam=lam)["facts"]["start_cond"] for lam in (1e-2, 1e-1, 1.0)}
+    scaled = {lam: c * lam * lam for lam, c in seen.items()}
+    spread = max(scaled.values()) / min(scaled.values())
+    assert spread < 1.15, (
+        f"κ₂·λ² 不再是常数（{ {k: round(v, 1) for k, v in scaled.items()} }，"
+        f"比值 {spread:.3f}）—— 小头不再由岭定，λ 的那笔账要重算")
+    assert abs(max(scaled.values()) / COND_LAM2 - 1.0) < 0.15, (
+        f"σ_max² 实测 {max(scaled.values()):.1f}，此前 {COND_LAM2} —— 标度动了")
+
+
+@pytest.mark.parametrize("lam", [1e-1, 1e-2])
+def test_the_measured_displacement_stays_under_the_prior_bound(doc, lam):
+    """★★实测放大倍数 ≤ √κ₂ —— 报出来的那个数**真的是个界**。
+
+    这条把「报了一个数」与「报了一个有用的数」分开。实测（ε=1e-9）：
+    λ=1e-1 放大 0.372，界 165.6；λ=1e-2 放大 0.681，界 1656。界松了两到三个
+    量级（最小二乘的界按最坏方向给，扰动落在最坏方向上才取到），但**方向对**：
+    λ 小一个量级，实测放大与界**同时**变大。★变红有两种读法 —— 实测越界（那是
+    界算错了，查 `normal_cond` 的装配）或单调性反了（那是响应矩阵换了性质）。
+    """
+    r = _run(doc, lam=lam)
+    moved = _moved(r, _run(_nudged(doc, 1e-9), lam=lam)) / 1e-9
+    bound = float(np.sqrt(r["facts"]["start_cond"]))
+    assert moved <= bound, (
+        f"λ={lam:g}：实测放大 {moved:.4g} 超过 √κ₂ = {bound:.4g} —— "
+        "那不是界，查 `pulse.rs` 里 `normal_cond` 是不是用了同一个 `aa`")
+    assert moved > 0.0, f"λ={lam:g}：ε=1e-9 进去，电流逐位不动 —— 扰动没进到求解器"
