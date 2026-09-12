@@ -25,6 +25,7 @@ plainly which tuples it cannot verify.
 """
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -32,11 +33,35 @@ import pytest
 
 from fylite import kernel as K
 
-C_API = (Path(__file__).resolve().parents[2]
-         / "rust" / "fylite" / "src" / "c_api.rs")
+ROOT = Path(__file__).resolve().parents[2]
 
-pytestmark = pytest.mark.skipif(not C_API.exists(), reason="kernel source absent")
-SRC = C_API.read_text() if C_API.exists() else ""
+
+def _kernel_root() -> Path | None:
+    """The kernel checkout: `$FYLITE_KERNEL`, else a sibling of this repo.
+
+    ★Since the kernel split (2026-09-01) `rust/fylite/src/c_api.rs` is never
+    inside this repository, so the old in-tree path made this file skip on
+    every checkout — a checker that never runs guards nothing.  Same probe
+    as `test_bundled_artifacts.py`.
+    """
+    cands = ([Path(os.environ["FYLITE_KERNEL"])] if os.environ.get("FYLITE_KERNEL")
+             else [ROOT.parent / "fylite_kernel", ROOT.parent / "fylite_dev"])
+    for c in cands:
+        if (c / "rust" / "fylite" / "src" / "c_api.rs").exists():
+            return c
+    return None
+
+
+KERNEL = _kernel_root()
+C_API = (KERNEL / "rust" / "fylite" / "src" / "c_api.rs") if KERNEL else None
+#: TGLF / gyrofluid moved to the `fylite_ext` crate (`--features tglf,dke`).
+EXT_SRC = (KERNEL / "rust" / "fylite_ext" / "src") if KERNEL else None
+
+pytestmark = pytest.mark.skipif(
+    KERNEL is None,
+    reason="kernel source absent: set $FYLITE_KERNEL to a fylite_kernel checkout")
+SRC = C_API.read_text() if C_API else ""
+EXT_C_API = (EXT_SRC / "c_api.rs").read_text() if EXT_SRC and (EXT_SRC / "c_api.rs").exists() else ""
 
 
 def _fn_body(export: str) -> str | None:
@@ -45,11 +70,12 @@ def _fn_body(export: str) -> str | None:
     ★Not a fixed span.  A window that overruns picks up the next function's
     writes, which is what produced a phantom 14-slot ``FREE_SOLVE_KEYS``.
     """
-    m = re.search(rf'pub unsafe extern "C" fn fylite_rs_{export}\b', SRC)
-    if not m:
-        return None
-    end = re.compile(r"^\}", re.M).search(SRC, m.end())
-    return SRC[m.start():end.end()] if end else None
+    for src in (SRC, EXT_C_API):
+        m = re.search(rf'pub unsafe extern "C" fn fylite_rs_{export}\b', src)
+        if m:
+            end = re.compile(r"^\}", re.M).search(src, m.end())
+            return src[m.start():end.end()] if end else None
+    return None
 
 
 def _from_loop(body: str, nth: int):
@@ -137,6 +163,13 @@ UNCHECKED = {
                     "write buffer",
     "REDL_INPUT_ROWS": "written through a helper that fills rows by loop "
                        "index rather than by name",
+    #: The g-file scalar / array names are not a wire order at all — they name
+    #: the dict `read_gfile` returns; `test_gfile_equivalence.py` holds them to
+    #: the Python reader's values one by one.
+    "GFILE_SCALARS": "dict keys of `read_gfile`, held to the Python reader by "
+                     "`test_gfile_equivalence.py`, not a kernel write order",
+    "GFILE_ARRAYS": "dict keys of `read_gfile`, held to the Python reader by "
+                    "`test_gfile_equivalence.py`, not a kernel write order",
     #: `GEO_SHAPE_KEYS` lives in `fyo.py` now (the `fylite:mxh_harmonics` row's
     #: column order, T-4 第二十四刀) and is read by `test_fyo_interface.py`'s kin.
     #: ★TX-4's three Lengyel key tuples were listed here as INPUT blocks;
@@ -282,7 +315,7 @@ def test_the_flux_inputs_struct_is_assembled_in_exactly_one_place():
     The production assembly lives in ``flux_inputs_from_blocks``.  Test
     helpers inside ``#[cfg(test)]`` are not production and are not counted.
     """
-    gf = C_API.parent / "gyrofluid.rs"
+    gf = EXT_SRC / "gyrofluid.rs"
     assert gf.exists(), "gyrofluid.rs missing"
 
     #: `c_api.rs` has no `#[cfg(test)]` module, so every hit there is
@@ -291,10 +324,13 @@ def test_the_flux_inputs_struct_is_assembled_in_exactly_one_place():
     #: ★`-> gf::FluxInputs {` is a RETURN TYPE, not an assembly.  Counting
     #: it made the builder itself look like a second filling — the check
     #: failing on the very refactor that satisfies it.
-    api_hits = [ln for ln in SRC.splitlines()
+    #: ★The builder and the struct live in the `fylite_ext` crate since the
+    #: TGLF split; the core `c_api.rs` must not assemble it at all.
+    assert "FluxInputs {" not in SRC, "the core c_api.rs assembles FluxInputs"
+    api_hits = [ln for ln in EXT_C_API.splitlines()
                 if "gf::FluxInputs {" in ln and "->" not in ln]
     assert len(api_hits) == 1, (
-        f"{len(api_hits)} assemblies of FluxInputs in c_api.rs — there must "
+        f"{len(api_hits)} assemblies of FluxInputs in fylite_ext c_api.rs — there must "
         "be one.  A new entry reaches the struct through "
         "flux_inputs_from_blocks, not by filling it again:\n  "
         + "\n  ".join(h.strip() for h in api_hits))
