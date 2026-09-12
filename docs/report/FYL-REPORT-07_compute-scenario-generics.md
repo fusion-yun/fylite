@@ -2,7 +2,7 @@
 document_id: FYL-REPORT-07
 title: fy 体系对计算场景通用功能的完备性 · 自洽性 · 易用性评估 (Assessing the fy Ecosystem's Generic Compute-Scenario Functions — Completeness, Self-Consistency, Usability)
 shortname: fylite-report-compute-scenario-generics
-version: "0.1"
+version: "0.2"
 date: 2026-09-12
 language: bilingual
 contributors:
@@ -14,7 +14,11 @@ created: 2026-09-12T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
-  change: 'v0.1（全新文档）：以 fyo 对计算场景的描述为参照，逐项评估 fy 体系
+  change: 'v0.2：新增 §8「补充讨论：fylite 与 fytok 的功能界限」（用户裁定 2026-09-12：同一 fyo
+    描述协议；fytok 含完整功能——插件 · 工作流 · 开放集成外部物理代码；fylite 是完成核心目标的
+    最小工具集，自包含、不依赖外部物理模块、保持轻量）——把界限落成八项功能的归属表、协议
+    须携带的三条不变式、两侧的负面清单，并据此把 R-1..R-9 分为「协议承重」与「fylite 内部」两档。
+    v0.1（全新文档）：以 fyo 对计算场景的描述为参照，逐项评估 fy 体系
     （fylite · fylite_kernel · fyo · fydata · fydoc）在编辑 / 可视化 / 执行 / 状态追踪 /
     导入 / 导出 / 断点恢复 / 溯源八项通用功能上的完备性、自洽性与易用性。证据为六个检出的
     源码与文档、本环境一次内核与中间层构建、两次 pytest 全量实测。登记自洽性缺口 C-1..C-27、
@@ -29,7 +33,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-REPORT-07` |
 | 文档名称 (Title) | fy 体系对计算场景通用功能的完备性 · 自洽性 · 易用性评估 |
 | 短名 / Slug | `fylite-report-compute-scenario-generics` |
-| 版本 (Version) | v0.1 |
+| 版本 (Version) | v0.2 |
 | 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | `Report`（ISO/IEC/IEEE 15289 Annex A；评估 study） |
 | 适用标准 (Standard Reference) | — |
@@ -40,7 +44,7 @@ modified:
 | 受众 (Audience) | 维护者 / FyTok developers / fyo · fydata · fydoc 维护者 / LLM-tool integrators |
 | 分发范围 (Distribution) | public |
 | 安全分级 (Security Classification) | public |
-| 上游输入 (Upstream Inputs) | 内核仓 `FYL-REPORT-06` v0.8（算例模型与排期 B-1..B-10）· `FYL-DESIGN-16` v2（内核契约 S-1..S-6 · H-1..H-8）· `FYL-DESIGN-17`（`fy run`）· `FYL-DESIGN-18`（前端 U-1..U-25）· `FYL-DESIGN-20`（状态报告 M-1..M-13）· fyo 仓 `FYO-ADR-07` · `FYO-REPORT-05` v0.5 · fydata `README.md` G-* · fydoc `cases/README.md` · 本仓 `TODO.md` |
+| 上游输入 (Upstream Inputs) | 用户裁定 2026-09-12（fylite / fytok 界限）· `FYL-CONOPS-00` v1.0 §范围外 · 内核仓 `FYL-REPORT-06` v0.8（算例模型与排期 B-1..B-10）· `FYL-DESIGN-16` v2（内核契约 S-1..S-6 · H-1..H-8）· `FYL-DESIGN-17`（`fy run`）· `FYL-DESIGN-18`（前端 U-1..U-25）· `FYL-DESIGN-20`（状态报告 M-1..M-13）· fyo 仓 `FYO-ADR-07` · `FYO-REPORT-05` v0.5 · fydata `README.md` G-* · fydoc `cases/README.md` · 本仓 `TODO.md` |
 | 批准 (Approval) | — |
 :::
 
@@ -547,6 +551,128 @@ U-19「同一份文档集在别处继续」；`FYL-REPORT-06` §7（`spo:Checkpo
 〔开放猜想〕R-3 的 `cancelled` 在 CLI 上需要内核在步界交出状态——`-16` S-3 已裁定内核必须能，
 但今天 `fy run` 一次调用跑完整案，宿主没有介入点；是把 U-8 的「一串门调用」搬到 `run.rs`，
 还是给门一个步预算参数，本报告不裁。
+
+(fylite-report-07-boundary)=
+# 8. 补充讨论：fylite 与 fytok 的功能界限 (Supplementary: the fylite / fytok boundary)
+
+〔已确立·用户裁定 2026-09-12〕四句话定界：
+
+1. **同一 fyo 描述协议。** 两者对计算场景说同一种话：`fyo:ScenarioSpecification` 进、`spo:ComputationRecord` 出。
+2. **fytok 含完整功能**——插件（FyModule）、工作流、开放集成外部物理代码、复杂工作流。
+3. **fylite 提供完成核心目标的最小工具集**：自包含、不依赖外部物理模块、保持轻量。
+4. 因此 fytok 是**开放的集成者**，fylite 是**封闭的参照实现**；两者不互为子系统。
+
+本节把这四句话落成可判的形：既有裁定里已经写着的（§8.1）、协议必须携带的（§8.2）、
+八项功能的归属（§8.3）、两侧的负面清单（§8.4）、对本报告建议的重排（§8.5）、未定项（§8.6）。
+★fytok 仓**不在本环境的检出里**；本节对 fytok 一侧的陈述来自 `FYL-CONOPS-00` 的引用、fyo 场景层的
+注记与本次裁定，标〔工作假设〕；fytok 侧 as-built 待其自己的文档核对。
+
+(fylite-report-07-boundary-standing)=
+## 8.1 既有裁定里已经写着什么 (What is already ruled)
+
+| 已有裁定 | 出处 | 与本次裁定的关系 |
+| :--- | :--- | :--- |
+| 「FyLite 内核反插件；装置 / 求解器集成的插件机制归 FyTok（FyModule）」 | `FYL-CONOPS-00` 建设原则 3 | 同一句话 |
+| 「HPC 尺度码消费其产物、不吞并其本体」 | `FYL-CONOPS-00` 建设原则 6 | fylite 的「不依赖外部物理模块」在原则 6 里已有形：外部码的**产物**可进（作为数据），外部码的**本体**不进 |
+| 范围外表：高保真物理归 FyTok 求解器生态；跨节点编排 · 批量作业归 Sp 平台；治理归平台 | `FYL-CONOPS-00` §范围外 | 「复杂工作流」在原表里归 Sp 平台编排层，本次裁定把它归给 fytok——两者不冲突：fytok 是平台上的集成者（〔工作假设〕），fylite 两边都不做 |
+| fylite 在分布式工作流里是**一个 worker**：收一份步计划、发一份步记录；DAG 编排、调度、跨节点搬运归平台；「fylite 不知道 DAG 的存在」 | `FYL-REPORT-06` §9.1 / §9.4 | 本次裁定的协议半边，已成文 |
+| 异构 = 各步各有 `Code`：Rust 内核入口、est2 归约器、外部工程码的端口运行 `EngineeringPortRun`〔live / stub / archive〕、平台侧代理模型；「异构在本体里只是不同的 `Code` 具体化，没有第二种机制」 | `FYL-REPORT-06` §9.2；fyo `EngineeringPortRun` · `PortExecutionMode`（`fyo-scenario.linkml.yaml:445, 109`，`FYTOK-ADR-126` 契约） | fytok 集成外部物理代码的本体形已经在 fyo 里；fylite 不实现 `EngineeringPortRun`，只可能**消费**它的产物 |
+| 「零代码依赖：FyLite 与 FyTok 互不导入；FyLite 以协议成员方式互操作」；`NR-DEP-002` 包内禁 import `sp` / `fy*` | `FYL-CONOPS-00` 摘要；`FYL-SRS-01` | 「自包含」的机器可判形，已有静态检查守门 |
+| 「对照基线：与 FyTok 就同一任务、同一输入建立参照对」 | `FYL-CONOPS-00` §系统演进〔开放猜想〕 | 同一协议使参照对可机械构造（同一份计划、两个 `Code`、两份记录逐端口比） |
+
+〔判读〕本次裁定**没有新增**一条与既有文本冲突的规矩；它做的是把散在四份文档里的分工收成一句话，
+并把「同一协议」从「事实上如此」升为「界限的定义」。
+
+(fylite-report-07-boundary-protocol)=
+## 8.2 同一协议要携带什么 (What the shared protocol must carry)
+
+「同一 fyo 描述协议」只有在下面三条成立时才是界限而不是口号：
+
+- **I-1 计划可互认。** fytok 的工作流计划是 `ComputationPlan.has_step[]`；其中一步 `prescribes_code` 一个 fylite 的
+  `code/<x>`，该步的子计划就是一份 fylite 能直接吃的 `fyo:ScenarioSpecification`——**不经翻译**。这要求 fylite
+  的 code 表（`FR-KERNEL-002`：完成哪些 code、要哪些输入、产哪些路径、什么单位）以 `spo:Code.declares_port /
+  declares_parameter` 自述（`FYL-REPORT-06` B-2），而不是以 `fylite:vocabulary` / `fylite:ports` 这类本体里没有
+  对应类的私有键（`-17` G-7）。今天的模板正是后者（§4.1）。
+- **I-2 记录可编排。** fytok 从记录推出边（`FYL-REPORT-06` §8.3：节点 = 记录，边 = 输入具体化等于另一记录的输出
+  具体化）、判状态、决定重试与续跑。这要求记录携带：`run_state`（七值中至少产 `succeeded` / `failed` / `rejected` /
+  `cancelled`）、每个端口的 `bound_concretization.checksum`、`executed_code` 的具体化校验和（内核身份）、
+  `produced_checkpoint`。今天四项里只有校验和齐（§4.8），且静态链接时内核校验和为空（C-26）。
+- **I-3 断点可搬动。** fytok 把检查点跨节点搬、在另一台机器上续（`FYL-REPORT-06` §9.4「fylite 写、平台搬」）。
+  这要求 `spo:Checkpoint` 的 `opaque_state` 是记录里一棵**声明过**的子树（`-16` S-2），带 `resumable_by`（S-6），
+  且 fylite 的每个宿主都能从它续（`-18` U-19）。今天只有浏览器一侧、且未接线（§4.7）。
+
+〔判〕三条不变式今天**没有一条完整成立**。这把本报告 §4 的三处最大缺口（编辑词表 · 状态追踪 · 断点恢复）
+从「fylite 的易用性问题」改判为「**界限本身尚未落地**的问题」：在 I-1..I-3 成立之前，fytok 集成 fylite 的
+方式只能是调 `fy run` 拿目录，而不是把 fylite 当一个 `Code` 编进工作流。
+
+(fylite-report-07-boundary-table)=
+## 8.3 八项功能的归属 (Ownership per function)
+
+:::{table} 界限表。「协议携带」列是两侧都必须遵守的那一份；「fylite」列是最小工具集的上界；「fytok」列标〔工作假设〕。
+:name: tbl-r07-boundary
+:align: left
+
+| 功能 | fylite（最小工具集，自包含） | fytok（完整功能，开放集成）〔工作假设〕 | 协议携带 |
+| :--- | :--- | :--- | :--- |
+| 编辑 | 一份计划的六层合成（模板 → 装置 → 预设 → `--plan` → 命令行 → 端口绑定）；参数按 code 表校验；页面控件由词表投影 | 工作流编辑（DAG · 视觉编程 `workflow-ir/2.0`——fylite 只把它当**投影**写账本，不当编辑器）；插件参数面；多代码的计划拼装 | `ParameterDefinition` / `PortDefinition` 自述（I-1）；`has_parameter_setting` / `has_port_binding` |
+| 可视化 | 记录 → 呈现规格的**推出规则**（P1..P4）与两个渲染器（MyST + SVG · 页面）；五种视图 + 极向截面 | 跨步、跨代码、跨运行的综合视图与仪表板；自定义视图种类 | `spo:PresentationSpecification` 词表；fylite 的推出规则可作参考实现，不作规范 |
+| 执行 | **一步 / 一案**：单机、本进程、一次门调用；批式档 = 同一进程内可分步可中断（`FR-HOST-002`） | DAG 调度、重试、并行、跨节点；外部物理代码经 `EngineeringPortRun`（live / stub / archive）接入；HPC 码的产物作为数据进入 | fylite = 一个 `Code`；fytok 只经文档门调用（`FR-KERNEL-001`），永不调扁平导出 |
+| 状态追踪 | **一份记录**的 `run_state` + `refusal.stage`；进度由调用方数（`-16` 撤回回调） | 工作流级状态（排队 · 依赖等待 · 重试次数）、多记录账本、审计 | 记录的 `run_state` 七值（I-2）；fylite 不产工作流级状态 |
+| 导入 | 文件端点（七种格式）· mdsip 只读 · A-Box 语料 · 文件源的装配 | 平台端点（`shm://` · `s3://` · 数据契约 SpData）、外部码专有格式、多源治理 | `DataSourceEndpoint` / `Concretization.format_iri`；`x+run://` 句柄 |
+| 导出 | 记录目录自足（`plan` · `record` · `<ids>` 文件）；四种数据集格式；浏览器文档集 zip | 发布、版本、许可与治理信封、跨仓分发 | `Concretization{storage_uri, checksum, byte_size}` |
+| 断点恢复 | 每个步界**交出**完整状态并能从它**续**（S-3 / S-4）；四宿主同一份记录可续（U-19） | 检查点的存放、搬运、重启策略、跨节点续 | `spo:Checkpoint{opaque_state, state_content, resumable_by}`（I-3） |
+| 溯源 | 一次运行的完整记录：计划 · 代码 · 参数来源 · 端口 · 校验和 · 内核身份 · 环境指纹 | 跨运行谱系、施动者 / DID / 签名、治理信封、审计链；推动上游补施动者类（`FYO-ADR-07` OI-3） | `spo:ComputationRecord`；fylite **不载**身份与签名（`FYL-REPORT-06` §9.4「本体不载身份」） |
+:::
+
+(fylite-report-07-boundary-negative)=
+## 8.4 两侧的负面清单 (What each side must not do)
+
+**fylite 禁止（MUST NOT）**——多数已有条款，此处只是并排：
+
+- 插件机制（建设原则 3）；工作流引擎 / DAG 调度（`FYL-REPORT-06` §9.1）；分布式运行时或必需的服务端组件（`NR-ENV-001`）。
+- 导入 `sp` / `fy*` 任何包（`NR-DEP-002`）；运行时依赖任何外部物理模块——**vendored 参考实现只在内核仓的
+  神谕树 `tests/oracles/` 里作对拍裁判**（建设原则 1），不进发行制品；`EngineeringPortRun` 不在 fylite 实现。
+- 超出四条包络（单机 · 毫秒至秒交互档 · 有限多线程 · 跨平台）的功能深化（`FYL-CONOPS-00` §系统演进「包络不变式」）。
+- 载身份、签名、治理信封（归平台数据契约层）。
+- 「轻量」的可判形：Python 必需依赖仅 numpy（`NR-DEP-001`）；一个可执行文件（`-15` R-2）；浏览器零安装离线可用；
+  内核一个可选依赖（`rayon`）。
+
+**fytok 禁止（MUST NOT）〔工作假设〕**——从「同一协议」推出，待 fytok 侧文档确认：
+
+- 以 fylite 的扁平导出或 Python 内部 API 集成 fylite（只经文档门，`FR-KERNEL-001` 的镜像条款）。
+- 要求 fylite 为集成而增加宿主专属接口（`FR-HOST-003`：新增宿主不得要求内核契约改变——fytok 是「再来一个宿主」）。
+- 把 fylite 当作必需依赖：fytok 的工作流对 fylite 的引用是 `prescribes_code` 一个 IRI，fylite 缺席时按名拒（`FR-KERNEL-003` 同款）。
+
+(fylite-report-07-boundary-consequences)=
+## 8.5 对本报告建议的重排 (Consequences for R-1..R-9)
+
+界限把九条建议分成两档。**协议承重**的一档是界限成立的前提，其关闭判据应改为「fytok 能把 fylite 当一个
+`Code` 编进工作流」；**fylite 内部**的一档只影响 fylite 自己的易用性，不阻塞集成。
+
+| 档 | 条目 | 为什么 |
+| :--- | :--- | :--- |
+| 协议承重 | **R-2**（一种记录形）· **R-1**（断点成子树、四宿主可续）· **R-3**（状态词表与产者）· **R-8** 中的「`fylite:vocabulary` / `switches` / `ports` 的对应类」与施动者类 | 分别对应 I-2 · I-3 · I-2 · I-1；缺任一条，fytok 只能调 `fy run` 拿目录 |
+| fylite 内部 | R-4（控制词表入 code 表）· R-5（文档时效）· R-6（构建路径）· R-7（数据仓的闸）· R-9（`-20` 三张表） | 不改变协议；R-4 与 I-1 相邻但方向相反——它是 fylite 三个宿主读同一份，I-1 是 fytok 也读同一份；做 R-4 时按 `spo:Code.declares_*` 的形做，两者合一 |
+
+〔判读〕R-3 在 §7 留了一条开放猜想（CLI 上的 `cancelled` 要不要把「一串门调用」搬进 `run.rs`）。
+界限给了答案的一半：**分步与中断是 fylite 的义务**（`FR-HOST-002`、S-3），**调度是 fytok 的**。
+所以 `fy run` 需要一个步预算参数与一个 SIGINT 落点（停在步界、记录写出 `cancelled` + 断点），
+但**不需要**队列、不需要 `submit` / `status` 的服务端——B-8 的四方法在 fylite 里只是 `serve` 的可选面，
+真正的异步面归 fytok。R-3 的落点因此收窄为「CLI 与 Python 产 `cancelled` 与断点」；`stream` 与队列从 fylite 的排期里去掉。
+
+(fylite-report-07-boundary-open)=
+## 8.6 未定项 (Open items)
+
+- **B-1 fytok 侧的对应文档。** 本节 fytok 列全部〔工作假设〕；应由 fytok 的 CONOPS / SDD 出一份镜像表，
+  两表逐行对读——判据：两表对同一功能的「协议携带」列**逐字相同**。
+- **B-2 `FYL-CONOPS-00` 范围外表要改一行。** 「跨节点 / 分布式编排、批量作业管理 → Sp 平台编排层」与本次裁定
+  「复杂工作流 → fytok」的关系（fytok 是平台上的集成者？还是平台之外另一层？）待裁；本报告不代改 CONOPS。
+- **B-3 `EngineeringPortRun` 的产物进 fylite 的形。** 建设原则 6 允许 HPC 码的**产物**进入；产物以哪种
+  `Concretization` 形进 fylite 的输入端口、由谁保证其 `format_iri` 是 fylite 认的七种之一——归 fytok 的
+  导出面还是 fylite 的导入面，未裁。
+- **B-4 参照对基线。** `FYL-CONOPS-00`〔开放猜想〕的「轻量档 × 全功能档」参照对，在同一协议下可机械构造：
+  同一份计划，`prescribes_code` 分别指 fylite 与 fytok 的 `Code`，两份记录逐端口比，进登记册作第四类记录
+  （`-16` G-4 「后端间对照」）。载体与判据待 fyo `ComparisonRecord` 能否表达「同一计划两个代码」——未核。
 
 (fylite-report-07-appendix-measured)=
 # 附录 A · 实测记录 (Measured record)
