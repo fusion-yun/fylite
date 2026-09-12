@@ -245,14 +245,25 @@ project:
             - title: 实验分析 analysis (S-L2)
               children:
                 - file: design/FYL-DESIGN-24.md
+                - file: design/FYL-DESIGN-25.md
+                - file: design/FYL-DESIGN-26.md
                 - file: design/FYL-DESIGN-12.md
                 - file: design/FYL-DESIGN-21.md
             - title: 物理建模 model (S-L1)
               children:
+                - file: design/FYL-DESIGN-27.md
+                - file: design/FYL-DESIGN-28.md
+                - file: design/FYL-DESIGN-29.md
                 - file: design/FYL-DESIGN-10.md
-            - title: 放电运行设计与控制仿真 design · control (S-L4 · S-L3)
+            - title: 放电运行设计 design (S-L4 · S-L5)
               children:
+                - file: design/FYL-DESIGN-30.md
+                - file: design/FYL-DESIGN-31.md
+                - file: design/FYL-DESIGN-32.md
                 - file: design/FYL-DESIGN-09.md
+            - title: 控制仿真 control (S-L3)
+              children:
+                - file: design/FYL-DESIGN-33.md
 
     - title: 报告 (Reports) —— 本仓的评估研究
       #: ★2026-09-12 起：落在本仓的 `FYL-REPORT-NN`（07 起）。`01`..`06` 与 `FYL-REPORT-00`

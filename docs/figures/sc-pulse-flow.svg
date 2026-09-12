@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 600" width="1240" height="600" role="img" aria-label="整脉冲前馈设计（路点序列 → 逐通道电流与电压）：物理算法流程图">
+<title>整脉冲前馈设计（路点序列 → 逐通道电流与电压） — 物理算法流程</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="600" fill="#f4f5f7"/>
+<text x="24" y="34" class="h">整脉冲前馈设计（路点序列 → 逐通道电流与电压） · 物理算法流程</text>
+<text x="24" y="54" class="s">实线边 = 数据 · 虚线边 = 模型 · 红边 = 回边 · 橙边 = 对照 / 判定 · 虚框 = 今天无 code 的步 · 橙底行 = 该步的判据</text>
+<rect x="24" y="110" width="170" height="70" rx="6" class="doc"/>
+<text x="36" y="130" class="">脉冲脚本</text>
+<text x="36" y="148" class="s">相位 · Ip(t) · 位形轨迹</text>
+<text x="36" y="166" class="s">路点表（一个时刻一个 D2）</text>
+<rect x="24" y="200" width="170" height="70" rx="6" class="doc"/>
+<text x="36" y="220" class="">装置文档</text>
+<text x="36" y="238" class="k">pf_active 电路 · 电阻 · 互感</text>
+<text x="36" y="256" class="s">电压上限</text>
+<path d="M365.0,130 L480,198.0 L365.0,266 L250,198.0 Z" class="loop"/>
+<text x="365.0" y="170.0" text-anchor="middle" class="t">逐路点</text>
+<text x="365.0" y="188.0" text-anchor="middle" class="k">每路点一次 D2</text>
+<text x="365.0" y="204.0" text-anchor="middle" class="s">解过的片 vs 插值片（D-8）</text>
+<text x="365.0" y="220.0" text-anchor="middle" class="s">分得清</text>
+<rect x="530" y="120" width="230" height="114" rx="6" class="node-code"/>
+<text x="542" y="140" class="t">前馈电压</text>
+<text x="542" y="158" class="k">code/waveform · code/pulse</text>
+<text x="542" y="176" class="s">电路方程 L dI/dt + RI = V</text>
+<text x="542" y="194" class="s">上升沿 / 下降沿各自（D-4 · D-5）</text>
+<rect x="531" y="204" width="228" height="29" class="crit"/>
+<text x="542" y="223" class="tag">电压上限逐通道 · 磁通预算</text>
+<rect x="530" y="300" width="230" height="114" rx="6" class="node-code"/>
+<text x="542" y="320" class="t">平顶：LCFS 锁定</text>
+<text x="542" y="338" class="k">code/steady_current</text>
+<text x="542" y="356" class="s">PF 电流随等离子体状态（D-6）</text>
+<text x="542" y="374" class="s">形状反馈的稳态解</text>
+<rect x="531" y="384" width="228" height="29" class="crit"/>
+<text x="542" y="403" class="tag">过期的是线性化，不是电流（D-7）</text>
+<rect x="810" y="120" width="176" height="88" rx="6" class="crit"/>
+<text x="822" y="140" class="t">逐通道波形</text>
+<text x="822" y="158" class="k">pulse 文档：I(t) · V(t) 每线圈</text>
+<text x="822" y="176" class="s">0-D 标量走廊</text>
+<text x="822" y="194" class="s">→ M3 的执行器波形</text>
+<rect x="1060" y="120" width="176" height="88" rx="6" class="crit"/>
+<text x="1072" y="140" class="t">校验</text>
+<text x="1072" y="158" class="s">对 GSPulse 型参考</text>
+<text x="1072" y="176" class="k">ComparisonRecord</text>
+<text x="1072" y="194" class="s">供电 / 电压 / 磁通三账</text>
+<path d="M194,145.0 C222.0,145.0 222.0,198.0 250,198.0" class="edge"/>
+<path d="M194,229 C300,229 420,185 530,185" class="edge"/>
+<path d="M480,198.0 C505.0,198.0 505.0,177.0 530,177.0" class="edge"/>
+<path d="M350,230 C350,340 450,340 530,340" class="edge-model"/>
+<path d="M645,300 C645,270 645,270 645,236" class="back"/>
+<text x="655" y="272" class="tag" style="fill:#d0342c">平顶电流作前馈的边界</text>
+<path d="M760,177.0 C785.0,177.0 785.0,164.0 810,164.0" class="edge"/>
+<path d="M986,164.0 L1060,164.0" class="gate"/>
+<rect x="24" y="528" width="1192" height="52" rx="6" class="node"/>
+<text x="36" y="548" class="s">pulse 不设模板：整脉冲前馈设计今天没有 code IRI（语料 pulse-iter 用 code/pfwave）——内核声明面里有 code/pulse 与 code/waveform，模板要一个真实的 code（-17 P2-c）。</text>
+<text x="36" y="566" class="s">本章是 D2 的序列（BROWSER_ONLY_BARS：pulse 重复 discharge 答的问题，按路点排开）；下降沿是一等公民，不是上升沿取负（-09 D-5）。</text>
+</svg>

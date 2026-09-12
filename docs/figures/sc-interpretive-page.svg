@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 780" width="1240" height="780" role="img" aria-label="解释性分析：页面效果图">
+<title>解释性分析 — 页面效果图（概念图，数值示意）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="780" fill="#f4f5f7"/>
+<rect x="16" y="16" width="1208" height="44" rx="4" class="head"/>
+<text x="28" y="43" class="h">实验分析 · 解释性分析</text>
+<text x="520" y="43" class="s">east · #137985 · 4.0 s · 剖面来自 A1 记录</text>
+<rect x="900" y="26" width="72" height="24" rx="4" class="btn"/><text x="914" y="43">导入</text>
+<rect x="984" y="26" width="72" height="24" rx="4" class="btn"/><text x="998" y="43">导出</text>
+<rect x="1068" y="26" width="72" height="24" rx="4" class="btn"/><text x="1082" y="43">报告</text>
+<rect x="16" y="72" width="1208" height="40" rx="4" class="panel"/>
+<rect x="28" y="80" width="90" height="24" rx="4" class="btn-on"/>
+<text x="42" y="97" class="btn-on-t">运行到此</text>
+<rect x="126" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="140" y="97" class="">单步</text>
+<rect x="196" y="80" width="90" height="24" rx="4" class="btn"/>
+<text x="210" y="97" class="">从此重跑</text>
+<rect x="294" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="308" y="97" class="">断点</text>
+<rect x="364" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="378" y="97" class="">取消</text>
+<text x="454" y="97" class="s">没有「跳过」：可选步的开关在计划里</text>
+<rect x="16" y="124" width="400" height="616" rx="4" class="panel"/>
+<rect x="16" y="124" width="400" height="26" rx="4" class="head"/>
+<text x="28" y="142" class="t">输入与档位</text>
+<text x="28" y="174" class="s">剖面文档</text>
+<rect x="166" y="162" width="185" height="16" rx="8" class="badge-ok"/>
+<text x="173" y="174" class="ok-t" style="font-size:10px">x+run://A1/pressure</text>
+<text x="28" y="198" class="s">平衡文档</text>
+<rect x="166" y="186" width="131" height="16" rx="8" class="badge-ok"/>
+<text x="173" y="198" class="ok-t" style="font-size:10px">x+run://A1/s3</text>
+<text x="28" y="222" class="s">源项</text>
+<rect x="166" y="209" width="52" height="18" rx="9" class="btn-on"/>
+<text x="176" y="222" class="btn-on-t" style="font-size:10.5px">beam</text>
+<rect x="226" y="209" width="68" height="18" rx="9" class="btn"/>
+<text x="236" y="222" class="" style="font-size:10.5px">rf_ray</text>
+<rect x="302" y="209" width="52" height="18" rx="9" class="btn"/>
+<text x="312" y="222" class="" style="font-size:10.5px">ADAS</text>
+<rect x="362" y="209" width="28" height="18" rx="9" class="btn"/>
+<text x="372" y="222" class="" style="font-size:10.5px">α</text>
+<text x="28" y="248" class="s">反演量</text>
+<rect x="166" y="235" width="44" height="18" rx="9" class="btn-on"/>
+<text x="176" y="248" class="btn-on-t" style="font-size:10.5px">χ_e</text>
+<rect x="218" y="235" width="44" height="18" rx="9" class="btn"/>
+<text x="228" y="248" class="" style="font-size:10.5px">χ_i</text>
+<rect x="270" y="235" width="28" height="18" rx="9" class="btn"/>
+<text x="280" y="248" class="" style="font-size:10.5px">D</text>
+<text x="28" y="274" class="s">边界 ρ</text>
+<line x1="166" y1="270" x2="326" y2="270" class="slider"/>
+<circle cx="302.0" cy="270" r="6" class="knob"/>
+<text x="336" y="274" class="k">ρ_b 0.9</text>
+<text x="28" y="300" class="s">平滑</text>
+<line x1="166" y1="296" x2="326" y2="296" class="slider"/>
+<circle cx="214.0" cy="296" r="6" class="knob"/>
+<text x="336" y="300" class="k">λ 0.3</text>
+<text x="28" y="326" class="s">L2 改档位 = 改计划；L3 绑自己的剖面文档</text>
+<rect x="24" y="330" width="384" height="36" rx="4" class="warnbox"/>
+<text x="32" y="346" class="warn-t" style="font-size:11px">告警（记录 caveat）：Tᵢ 取声明的形状，n_i = n_e，无快离子；</text>
+<text x="32" y="360" class="warn-t" style="font-size:11px">内部剖面不可定量使用（reference/fidelity）</text>
+<rect x="432" y="124" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="124" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="142" class="t">χ 剖面 · 反演解对新经典档（对照来自记录）</text>
+<rect x="472" y="174" width="732" height="190" class="axes"/>
+<line x1="472" y1="221.5" x2="1204" y2="221.5" class="grid"/>
+<line x1="472" y1="269.0" x2="1204" y2="269.0" class="grid"/>
+<line x1="472" y1="316.5" x2="1204" y2="316.5" class="grid"/>
+<polyline class="c1" points="508.6,288.0 691.6,278.5 911.2,250.0 1130.8000000000002,193.0"/>
+<polyline class="c2" points="508.6,345.0 838.0,341.2 1130.8000000000002,326.0"/>
+<polyline class="c3" points="508.6,307.0 838.0,269.0 1130.8000000000002,202.5"/>
+<text x="472" y="380" class="s">ρ  ·  蓝 χ_e 反演 · 绿 χ_neo · 红虚 χ_TGLF（M2 档）</text>
+<rect x="432" y="440" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="440" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="458" class="t">功率账 · 逐项（守恒行来自记录 summary）</text>
+<text x="444" y="490" class="mono">项            [MW]    出处</text>
+<text x="444" y="506" class="mono">P_ohm         0.42    code/interpretive</text>
+<text x="444" y="522" class="mono">P_beam        1.10    code/beam</text>
+<text x="444" y="538" class="mono">P_rad        -0.35    ADAS</text>
+<text x="444" y="554" class="mono">dW/dt         0.05    core_profiles</text>
+<text x="444" y="570" class="mono">P_cond        1.22    余项 = 反演出的 χ 所载</text>
+<text x="444" y="586" class="mono">守恒残差      2e-3    summary/balance</text>
+<text x="444" y="608" class="s">判定块是一等产物（P-5）：残差与阈值的比较在记录里，页面照录</text>
+<text x="24" y="766" class="s">★概念图。code/interpretive 在内核声明面（35 code）里，本页面的栏今天在建模页（反演栏）——本章把它归到 analysis 线。</text>
+</svg>
