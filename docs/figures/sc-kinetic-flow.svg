@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 810" width="1240" height="810" role="img" aria-label="动理学平衡重构：物理算法流程图">
+<title>动理学平衡重构 — 物理算法流程（阶段 0..4，四层判据，一条回边）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --wall:#5a6270; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:13px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; }
+.t { font-size:14px; font-weight:600; }
+.s { font-size:11.5px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; fill:var(--accent); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.tag { font-size:10.5px; fill:var(--warn); }
+.off-t { font-size:12px; fill:var(--muted); }
+.sep { stroke:var(--grid); stroke-width:1; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="810" fill="#f4f5f7"/>
+<text x="24" y="34" class="h">动理学平衡重构 · 物理算法流程</text>
+<text x="24" y="54" class="s">实线边 = 数据约束（来自测量文档）· 虚线边 = 模型约束（来自公式或给定形状）· 红边 = 外环回边 · 橙边 = 对照 · 虚框 = 今天无 code 的步（关着的节点）· 橙底行 = 该步的判据</text>
+
+<!-- inputs -->
+<rect x="24" y="110" width="170" height="58" rx="6" class="doc"/>
+<text x="36" y="132">装置文档</text><text x="36" y="150" class="k">fyo:DeviceDescription</text>
+<rect x="24" y="190" width="170" height="58" rx="6" class="doc"/>
+<text x="36" y="212">磁测量文档</text><text x="36" y="230" class="k">magnetics · pf_active · tf</text>
+<rect x="24" y="300" width="170" height="74" rx="6" class="doc"/>
+<text x="36" y="322">剖面诊断</text><text x="36" y="340" class="k">thomson_scattering</text><text x="36" y="358" class="s">(cer · ece · mse：缺卷宗)</text>
+
+<!-- stage 0 -->
+<rect x="250" y="120" width="230" height="130" rx="6" class="node-code"/>
+<text x="262" y="142" class="t">阶段 0 · 基准平衡</text>
+<text x="262" y="162" class="k">code/reconstruction</text>
+<text x="262" y="180" class="k">switches: only_magnetic</text>
+<text x="262" y="199" class="s">产 ψ(R,Z) · 边界 · q · l_i(3)</text>
+<rect x="251" y="212" width="228" height="37" rx="0" class="crit"/>
+<text x="262" y="234" class="tag">内层判据：GS 残差 &lt; ε（Picard 迭代）</text>
+
+<!-- stage 1 -->
+<rect x="530" y="120" width="230" height="150" rx="6" class="node-code"/>
+<text x="542" y="142" class="t">阶段 1 · 剖面构造</text>
+<text x="542" y="162" class="k">code/ladder → 映射到 ψ_N</text>
+<text x="542" y="180" class="k">code/profile_fit（GCV 定阶）</text>
+<text x="542" y="199" class="s">时间窗均值（est2）</text>
+<text x="542" y="217" class="s">产 pressure 文档（带出处）</text>
+<rect x="531" y="232" width="228" height="37" class="crit"/>
+<text x="542" y="254" class="tag">无判据（这一步是构造，不是求解）</text>
+<rect x="530" y="290" width="110" height="44" rx="6" class="node-off"/>
+<text x="540" y="308" class="off-t">ELM 相位</text><text x="540" y="325" class="off-t">条件平均</text>
+<rect x="650" y="290" width="110" height="44" rx="6" class="node-off"/>
+<text x="660" y="308" class="off-t">Tₑ,sep 对齐</text><text x="660" y="325" class="off-t">（双点模型）</text>
+
+<!-- stage 2 -->
+<rect x="810" y="120" width="230" height="150" rx="6" class="node-code"/>
+<text x="822" y="142" class="t">阶段 2 · 约束构造</text>
+<text x="822" y="162" class="s">p = nₑTₑ + Σnᵢ Tᵢ + p_fast</text>
+<text x="822" y="180" class="k">pfast · pfastpk · tite · zeff</text>
+<text x="822" y="199" class="s">j∥ = j_bs（Redl-2021）+ …</text>
+<text x="822" y="217" class="k">code/bootstrap</text>
+<rect x="811" y="232" width="228" height="37" class="crit"/>
+<text x="822" y="254" class="tag">无判据；在随包装置上这是模型约束</text>
+<rect x="810" y="290" width="230" height="44" rx="6" class="node-off"/>
+<text x="820" y="308" class="off-t">MSE 的 Er 修正（无 MSE 行）</text>
+<text x="820" y="325" class="off-t">j_NBI · j_ECCD 作约束行（今天是产物）</text>
+
+<!-- stage 3 -->
+<rect x="530" y="420" width="230" height="150" rx="6" class="node-code"/>
+<text x="542" y="442" class="t">阶段 3 · 动理学反演</text>
+<text x="542" y="462" class="k">code/reconstruction</text>
+<text x="542" y="480" class="k">switches: kinetic</text>
+<text x="542" y="497" class="k">（kin · neon · pointfit）</text>
+<text x="542" y="515" class="s">P′ 固定 · FF′ 自由（列均衡 + 截断谱）</text>
+<rect x="531" y="527" width="228" height="42" class="crit"/>
+<text x="542" y="544" class="tag">反演层判据：χ² 饱和（总 · 分诊断）</text>
+<text x="542" y="561" class="tag">内层判据：GS 残差 &lt; ε</text>
+
+<!-- stage 4 -->
+<path d="M905,435 L1005,495 L905,555 L805,495 Z" class="node-code"/>
+<text x="852" y="487" class="t">阶段 4 · 外环</text>
+<text x="838" y="507" class="k">fyo:ScenarioLoop</text>
+<text x="826" y="525" class="s">Δq₀ · Δq₉₅ &lt; 阈值 ?</text>
+
+<!-- posterior -->
+<rect x="1060" y="415" width="160" height="160" rx="6" class="crit"/>
+<text x="1072" y="437" class="t">后验验收</text>
+<text x="1072" y="457" class="s">二维：GS 残差 ×</text>
+<text x="1072" y="473" class="s">磁 χ²（验收区一块）</text>
+<text x="1072" y="495" class="s">一致性检验：</text>
+<text x="1072" y="511" class="s">q=1 vs 锯齿反转半径</text>
+<text x="1072" y="527" class="s">β_N · l_i 偏离可解释</text>
+<text x="1072" y="543" class="s">FF′ · j∥ 无非物理振荡</text>
+<text x="1072" y="563" class="k">fyo:ComparisonRecord</text>
+
+<!-- edges -->
+<path d="M194,139 L250,150" class="edge"/>
+<path d="M194,219 L250,200" class="edge"/>
+<path d="M480,185 L530,185" class="edge"/>
+<path d="M194,337 C380,337 450,262 530,245" class="edge"/>
+<path d="M760,185 L810,185" class="edge"/>
+<path d="M770,250 C795,330 700,360 650,420" class="edge"/>
+<text x="700" y="372" class="s">pressure</text>
+<path d="M1040,200 C1140,200 1140,400 780,400 C740,400 710,405 700,420" class="edge-model"/>
+<text x="1010" y="392" class="s">current（自举，模型边）</text>
+<path d="M760,495 L805,495" class="edge"/>
+<path d="M905,435 C905,395 500,420 500,270 C500,220 515,205 530,205" class="back"/>
+<text x="250" y="402" class="tag" style="fill:#d0342c">外环回边（红）：未收敛 → 新平衡 → 重映射 → 重算自举 → 回到阶段 1</text>
+<path d="M1005,495 L1060,495" class="edge"/>
+<text x="1012" y="487" class="s">收敛</text>
+<path d="M365,250 L365,600 C365,700 480,700 640,700 L1000,700 C1100,700 1140,650 1140,575" class="gate"/>
+<text x="640" y="688" class="tag">对照边：阶段 0（磁测量-only）vs 阶段 3 的 β_N · l_i · q₀ 偏离，一份 ComparisonRecord</text>
+
+<!-- legend -->
+<rect x="24" y="724" width="1192" height="74" rx="6" class="node"/>
+<text x="36" y="744"><tspan style="font-weight:600">三级用户在图上的层。</tspan><tspan class="s">L1 初级：选装置 · 炮号 · 时刻，按「运行」；L2 中级：点开节点改档位（pfast · tite · zeff · FF′ 基阶 · 权重 · kin/pointfit/neon · 阈值）；</tspan></text>
+<text x="36" y="764" class="s">L3 高级：换节点（绑 NEO 的 jpar_dke / NUBEAM 的 p_fast 到端口）、改回边（哪几步进环）、导出整份计划到 FyTok。</text>
+<text x="36" y="786" class="s">阈值只写量过的；DIII-D 的典型量级（GS 10⁻⁴ · 外环 2–3 轮后 1–2 %）作参照、不作本仓阈值（FYL-DESIGN-21 §八 偏置提示）。</text>
+</svg>

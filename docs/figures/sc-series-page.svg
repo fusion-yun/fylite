@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 780" width="1240" height="780" role="img" aria-label="逐片重构：页面效果图">
+<title>逐片重构 — 页面效果图（概念图，数值示意）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="780" fill="#f4f5f7"/>
+<rect x="16" y="16" width="1208" height="44" rx="4" class="head"/>
+<text x="28" y="43" class="h">实验分析 · 逐片重构（时间序列）</text>
+<text x="520" y="43" class="s">east · #137985 · 3.5–4.5 s · 11 片</text>
+<rect x="900" y="26" width="72" height="24" rx="4" class="btn"/><text x="914" y="43">导入</text>
+<rect x="984" y="26" width="72" height="24" rx="4" class="btn"/><text x="998" y="43">导出</text>
+<rect x="1068" y="26" width="72" height="24" rx="4" class="btn"/><text x="1082" y="43">报告</text>
+<rect x="16" y="72" width="1208" height="40" rx="4" class="panel"/>
+<rect x="28" y="80" width="90" height="24" rx="4" class="btn-on"/>
+<text x="42" y="97" class="btn-on-t">运行全部</text>
+<rect x="126" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="140" y="97" class="">单片</text>
+<rect x="196" y="80" width="104" height="24" rx="4" class="btn"/>
+<text x="210" y="97" class="">从此片重跑</text>
+<rect x="308" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="322" y="97" class="">断点</text>
+<rect x="378" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="392" y="97" class="">取消</text>
+<text x="468" y="97" class="s">取消落在片界；已算的片完整可用</text>
+<rect x="16" y="124" width="400" height="300" rx="4" class="panel"/>
+<rect x="16" y="124" width="400" height="26" rx="4" class="head"/>
+<text x="28" y="142" class="t">片表 · 状态从逐片记录读</text>
+<text x="28" y="174" class="mono">t [s]     状态         χ²      q₀     q₉₅</text>
+<text x="28" y="190" class="mono">3.500    succeeded   11.2   0.78   3.08</text>
+<text x="28" y="206" class="mono">3.600    succeeded   11.9   0.79   3.07</text>
+<text x="28" y="222" class="mono">3.700    succeeded   12.4   0.79   3.06</text>
+<text x="28" y="238" class="mono">3.800    running      —      —      —</text>
+<text x="28" y="254" class="mono">3.900    —            —      —      —</text>
+<text x="28" y="270" class="mono">…        —            —      —      —</text>
+<text x="28" y="292" class="s">当前片</text>
+<rect x="166" y="280" width="77" height="16" rx="8" class="badge-run"/>
+<text x="173" y="292" class="acc-t" style="font-size:10px">running</text>
+<text x="28" y="316" class="s">同一份设定 · 逐片换测量 · 片间不插值</text>
+<rect x="432" y="124" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="124" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="142" class="t">时序 · 逐片标量对 t（已算片实心，未算片空）</text>
+<rect x="472" y="174" width="732" height="190" class="axes"/>
+<line x1="472" y1="221.5" x2="1204" y2="221.5" class="grid"/>
+<line x1="472" y1="269.0" x2="1204" y2="269.0" class="grid"/>
+<line x1="472" y1="316.5" x2="1204" y2="316.5" class="grid"/>
+<polyline class="c1" points="508.6,307.0 618.4,297.5 728.2,295.6 838.0,291.8"/>
+<polyline class="c2" points="508.6,231.0 618.4,234.79999999999998 728.2,238.6 838.0,238.6"/>
+<polyline class="c3" points="508.6,303.2 838.0,288.0 1167.4,284.20000000000005"/>
+<text x="472" y="380" class="s">t [s]  ·  蓝 q₀ · 绿 q₉₅ · 红虚 交付 EFIT</text>
+<rect x="16" y="440" width="600" height="300" rx="4" class="panel"/>
+<rect x="16" y="440" width="600" height="26" rx="4" class="head"/>
+<text x="28" y="458" class="t">所选片 · 逐道残差（-12 逐道残差表）</text>
+<text x="28" y="490" class="mono">通道        实测      前向      σ       r/σ</text>
+<text x="28" y="506" class="mono">flux_loop_01  0.412   0.409   0.004   0.7</text>
+<text x="28" y="522" class="mono">flux_loop_02  0.398   0.391   0.004   1.8</text>
+<text x="28" y="538" class="mono">probe_07     -0.121  -0.126   0.003   1.6</text>
+<text x="28" y="554" class="mono">point_ne      2.1e19  2.0e19  1e18    1.0</text>
+<text x="28" y="576" class="s">点一片 → 这一片的残差表与截面；页面不判，判据来自那一片的记录</text>
+<rect x="632" y="440" width="592" height="300" rx="4" class="panel"/>
+<rect x="632" y="440" width="592" height="26" rx="4" class="head"/>
+<text x="644" y="458" class="t">片的截面（所选片）</text>
+<text x="644" y="490" class="s">极向截面：ψ 等值线 · LCFS · 限制器 · 磁轴（记录里的 profiles_2d/psi）</text>
+<rect x="672" y="508" width="532" height="170" class="axes"/>
+<line x1="672" y1="550.5" x2="1204" y2="550.5" class="grid"/>
+<line x1="672" y1="593.0" x2="1204" y2="593.0" class="grid"/>
+<line x1="672" y1="635.5" x2="1204" y2="635.5" class="grid"/>
+<polyline class="c1" points="831.6,593.0 884.8,542.0 991.2,533.5 1071.0,593.0 991.2,652.5 884.8,644.0 831.6,593.0"/>
+<text x="672" y="694" class="s">R [m] × Z [m]（示意）</text>
+<text x="24" y="766" class="s">★概念图：数值示意；片表的状态列 = 各片记录的 run_state，页面无私有状态。</text>
+</svg>

@@ -29,4 +29,5 @@ title: 报告 (Reports) —— 本仓的评估研究
 ## 在内核仓的报告（指针）
 
 `FYL-REPORT-01`（内核接入 LLM 环境）· `-02`（浏览器 LLM 路线）· `-03`（面向 LLM 的架构）· `-04`（项目目标评估）·
-`-05`（发布通道）· `-06`（以 fyo/spo 描述计算与数据）——登记册 fylite_kernel `docs/report/INDEX.md`。
+`-05`（发布通道）· `-06`（以 fyo/spo 描述计算与数据）· `-08`（对外接口与外部调用：六个面的普查 · 四档调用开销 ·
+算子面的三条恢复道 · 闭包四候选与挂起-恢复）——登记册 fylite_kernel `docs/report/INDEX.md`。

@@ -212,36 +212,58 @@ project:
     - title: 设计集 (Design) —— 它为什么长这样
       #: ★路径权威是 `design/INDEX.md`（文档以 `document_id` 指认，经那张表解析路径）；
       #: 文档集增删或改版时，本 toc 与那张表在同一变更中更新。
+      #: ★2026-09-12 重组为两部（`FYL-DESIGN-22` T-1）：第一部说所有场景共有的，第二部按场景划分。
       children:
         - file: design/INDEX.md
-        - title: 规格链 (Specifications)
+        - title: 第一部 · 总体 (Part I — Principles and Common Functions)
           children:
-            - file: design/FYL-CONOPS-00.md
-            - file: design/FYL-SRS-01.md
-            - file: design/FYL-SDD-01.md
-        - title: 内核与中间层 (Kernel and Middle Layer)
-          #: ★2026-09-04 按四层架构分组（`FYL-DESIGN-16` 是架构正本，先读它）：
-          #: 内核契约 → 中间层的数据半边 → 发布形态与命令行。
+            - file: design/FYL-DESIGN-22.md
+            - title: 规格链 (Specifications)
+              children:
+                - file: design/FYL-CONOPS-00.md
+                - file: design/FYL-SRS-01.md
+                - file: design/FYL-SDD-01.md
+            - title: 内核与中间层 (Kernel and Middle Layer)
+              #: 按四层架构分组（`FYL-DESIGN-16` 是架构正本，先读它）：内核契约 → 数据半边 → 发布形态与命令行 → 状态报告。
+              children:
+                - file: design/FYL-DESIGN-16.md
+                - file: design/FYL-DESIGN-14.md
+                - file: design/FYL-DESIGN-15.md
+                - file: design/FYL-DESIGN-17.md
+                - file: design/FYL-DESIGN-20.md
+            - title: 宿主共用的机制 (Shared Host Mechanisms)
+              #: 四页共用的外壳（-11）、输入生成 · 图形交互 · 文档交换（-18）、facts 的发行形态（-19）、装置数据页（-13，什么也不算的工具页）。
+              children:
+                - file: design/FYL-DESIGN-11.md
+                - file: design/FYL-DESIGN-18.md
+                - file: design/FYL-DESIGN-19.md
+                - file: design/FYL-DESIGN-13.md
+        - title: 第二部 · 场景线 (Part II — Scenario Lines)
+          #: 一章一场景（`FYL-DESIGN-23` W-1）；页面正本（-09 / -10 / -12 / -21）按线归入，场景章是它们的投影。
           children:
-            - file: design/FYL-DESIGN-16.md
-            - file: design/FYL-DESIGN-14.md
-            - file: design/FYL-DESIGN-15.md
-            - file: design/FYL-DESIGN-17.md
-            - file: design/FYL-DESIGN-20.md
-        - title: 浏览器前端 (Browser Front End)
-          #: 外壳在前（四页共用的那一层），四页各一篇；`-10` 兼持四页共同纪律与 `P-` 总表。
-          children:
-            - file: design/FYL-DESIGN-11.md
-            - file: design/FYL-DESIGN-09.md
-            - file: design/FYL-DESIGN-10.md
-            - file: design/FYL-DESIGN-12.md
-            #: `-21` 重规划 `-12` 的反演部件（流程图），紧随其后。
-            - file: design/FYL-DESIGN-21.md
-            - file: design/FYL-DESIGN-13.md
-          #: ★2026-09-04 `-18` 是四页**共用**的那一层（输入生成 · 图形交互 · 文档交换），
-          #: 排在四页之后：先读外壳，再读四页各自的物理，最后读它们共用的机制。
-            - file: design/FYL-DESIGN-18.md
-            - file: design/FYL-DESIGN-19.md
+            - file: design/FYL-DESIGN-23.md
+            - title: 实验分析 analysis (S-L2)
+              children:
+                - file: design/FYL-DESIGN-24.md
+                - file: design/FYL-DESIGN-25.md
+                - file: design/FYL-DESIGN-26.md
+                - file: design/FYL-DESIGN-12.md
+                - file: design/FYL-DESIGN-21.md
+            - title: 物理建模 model (S-L1)
+              children:
+                - file: design/FYL-DESIGN-27.md
+                - file: design/FYL-DESIGN-28.md
+                - file: design/FYL-DESIGN-29.md
+                - file: design/FYL-DESIGN-10.md
+            - title: 放电运行设计 design (S-L4 · S-L5)
+              children:
+                - file: design/FYL-DESIGN-30.md
+                - file: design/FYL-DESIGN-31.md
+                - file: design/FYL-DESIGN-32.md
+                - file: design/FYL-DESIGN-09.md
+            - title: 控制仿真 control (S-L3)
+              children:
+                - file: design/FYL-DESIGN-33.md
 
     - title: 报告 (Reports) —— 本仓的评估研究
       #: ★2026-09-12 起：落在本仓的 `FYL-REPORT-NN`（07 起）。`01`..`06` 与 `FYL-REPORT-00`

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 780" width="1240" height="780" role="img" aria-label="定态输运与闭包：页面效果图">
+<title>定态输运与闭包 — 页面效果图（概念图，数值示意）</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="780" fill="#f4f5f7"/>
+<rect x="16" y="16" width="1208" height="44" rx="4" class="head"/>
+<text x="28" y="43" class="h">物理建模 · 定态输运</text>
+<text x="520" y="43" class="s">ITER 15 MA · transport-iter-15ma · 闭包 stiff</text>
+<rect x="900" y="26" width="72" height="24" rx="4" class="btn"/><text x="914" y="43">导入</text>
+<rect x="984" y="26" width="72" height="24" rx="4" class="btn"/><text x="998" y="43">导出</text>
+<rect x="1068" y="26" width="72" height="24" rx="4" class="btn"/><text x="1082" y="43">报告</text>
+<rect x="16" y="72" width="1208" height="40" rx="4" class="panel"/>
+<rect x="28" y="80" width="90" height="24" rx="4" class="btn-on"/>
+<text x="42" y="97" class="btn-on-t">运行到此</text>
+<rect x="126" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="140" y="97" class="">单步</text>
+<rect x="196" y="80" width="90" height="24" rx="4" class="btn"/>
+<text x="210" y="97" class="">从此重跑</text>
+<rect x="294" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="308" y="97" class="">断点</text>
+<rect x="364" y="80" width="62" height="24" rx="4" class="btn"/>
+<text x="378" y="97" class="">取消</text>
+<text x="454" y="97" class="s">没有「跳过」：可选步的开关在计划里</text>
+<rect x="16" y="124" width="400" height="616" rx="4" class="panel"/>
+<rect x="16" y="124" width="400" height="26" rx="4" class="head"/>
+<text x="28" y="142" class="t">闭包与边界 · 141 个控件由词表生成（-18 U-1）</text>
+<text x="28" y="174" class="s">闭包</text>
+<rect x="166" y="161" width="84" height="18" rx="9" class="btn"/>
+<text x="176" y="174" class="" style="font-size:10.5px">constant</text>
+<rect x="258" y="161" width="60" height="18" rx="9" class="btn-on"/>
+<text x="268" y="174" class="btn-on-t" style="font-size:10.5px">stiff</text>
+<rect x="326" y="161" width="44" height="18" rx="9" class="btn"/>
+<text x="336" y="174" class="" style="font-size:10.5px">neo</text>
+<rect x="378" y="161" width="52" height="18" rx="9" class="btn"/>
+<text x="388" y="174" class="" style="font-size:10.5px">TGLF</text>
+<text x="28" y="200" class="s">源</text>
+<rect x="166" y="187" width="28" height="18" rx="9" class="btn-on"/>
+<text x="176" y="200" class="btn-on-t" style="font-size:10.5px">表</text>
+<rect x="202" y="187" width="52" height="18" rx="9" class="btn"/>
+<text x="212" y="200" class="" style="font-size:10.5px">beam</text>
+<rect x="262" y="187" width="68" height="18" rx="9" class="btn"/>
+<text x="272" y="200" class="" style="font-size:10.5px">rf_ray</text>
+<text x="28" y="226" class="s">χ₀ [m²/s]</text>
+<line x1="166" y1="222" x2="326" y2="222" class="slider"/>
+<circle cx="230.0" cy="222" r="6" class="knob"/>
+<text x="336" y="226" class="k">0.55</text>
+<text x="28" y="252" class="s">临界梯度</text>
+<line x1="166" y1="248" x2="326" y2="248" class="slider"/>
+<circle cx="246.0" cy="248" r="6" class="knob"/>
+<text x="336" y="252" class="k">R/L_T 6</text>
+<text x="28" y="278" class="s">ρ_b</text>
+<line x1="166" y1="274" x2="326" y2="274" class="slider"/>
+<circle cx="302.0" cy="274" r="6" class="knob"/>
+<text x="336" y="278" class="k">0.9</text>
+<text x="28" y="304" class="s">Tₑ,b [keV]</text>
+<line x1="166" y1="300" x2="326" y2="300" class="slider"/>
+<circle cx="214.0" cy="300" r="6" class="knob"/>
+<text x="336" y="304" class="k">3.0</text>
+<text x="28" y="330" class="s">度规</text>
+<rect x="166" y="318" width="212" height="16" rx="8" class="badge-ok"/>
+<text x="173" y="330" class="ok-t" style="font-size:10px">x+run://M1/equilibrium</text>
+<text x="28" y="354" class="s">外环：通量匹配 on/off · 平衡交替 couple on/off</text>
+<rect x="24" y="358" width="384" height="36" rx="4" class="warnbox"/>
+<text x="32" y="374" class="warn-t" style="font-size:11px">换成 TGLF 档：一次求值 ~10² ms，内环 28 次 → 交互档超预算，</text>
+<text x="32" y="388" class="warn-t" style="font-size:11px">页面按 P-15 转 worker，进度按步实测</text>
+<rect x="432" y="124" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="124" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="142" class="t">剖面 · Tₑ / Tᵢ 对 ρ（蓝 解 · 绿 参照列 JINTRAC · 灰 起点）</text>
+<rect x="472" y="174" width="732" height="190" class="axes"/>
+<line x1="472" y1="221.5" x2="1204" y2="221.5" class="grid"/>
+<line x1="472" y1="269.0" x2="1204" y2="269.0" class="grid"/>
+<line x1="472" y1="316.5" x2="1204" y2="316.5" class="grid"/>
+<polyline class="c1" points="486.64,183.5 691.6,202.5 911.2,250.0 1130.8000000000002,316.5 1189.3600000000001,341.2"/>
+<polyline class="c2" points="486.64,193.0 691.6,206.3 911.2,246.2 1130.8000000000002,312.7 1189.3600000000001,341.2"/>
+<polyline class="c3" points="486.64,231.0 838.0,269.0 1189.3600000000001,341.2"/>
+<text x="472" y="380" class="s">ρ_tor_norm</text>
+<rect x="432" y="440" width="792" height="300" rx="4" class="panel"/>
+<rect x="432" y="440" width="792" height="26" rx="4" class="head"/>
+<text x="444" y="458" class="t">收敛与通量匹配 · 逐轮（读数来自记录）</text>
+<rect x="472" y="490" width="732" height="150" class="axes"/>
+<line x1="472" y1="527.5" x2="1204" y2="527.5" class="grid"/>
+<line x1="472" y1="565.0" x2="1204" y2="565.0" class="grid"/>
+<line x1="472" y1="602.5" x2="1204" y2="602.5" class="grid"/>
+<polyline class="c1" points="508.6,497.5 691.6,550.0 874.6,595.0 1057.6,625.0"/>
+<polyline class="c2" points="508.6,520.0 691.6,565.0 874.6,598.0 1057.6,622.0"/>
+<text x="472" y="656" class="s">轮  ·  蓝 残差(log) · 绿 |通量失配|</text>
+<text x="444" y="674" class="s">Picard 6 轮 · 最差残差 8.1e-3 · converged: true（判定在记录）</text>
+<text x="24" y="766" class="s">★概念图。数值示意；控件名取自 transport 模板词表（19 参数）与 evolve 的闭包档。</text>
+</svg>

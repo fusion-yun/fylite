@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 600" width="1240" height="600" role="img" aria-label="定态输运与闭包（给 χ 求 T）：物理算法流程图">
+<title>定态输运与闭包（给 χ 求 T） — 物理算法流程</title>
+<style>
+:root { --bg:#f4f5f7; --panel:#ffffff; --fg:#1c2128; --muted:#666f7a; --grid:#d8dce2; --line:#e3e6ea;
+  --accent:#1668c8; --lcfs:#d0342c; --alt:#10897a; --warn:#a75909; --sel:#e7f0fb; --head:#eceff3; --wall:#5a6270; --ok:#10897a; }
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif; font-size:12.5px; fill:var(--fg); }
+.h { font-size:16px; font-weight:600; } .t { font-size:13.5px; font-weight:600; }
+.s { font-size:11px; fill:var(--muted); }
+.k { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--accent); }
+.tag { font-size:10.5px; fill:var(--warn); } .off-t { font-size:11.5px; fill:var(--muted); }
+.mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11px; fill:var(--muted); }
+.node { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; }
+.node-code { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.node-off { fill:var(--panel); stroke:var(--grid); stroke-width:1.2; stroke-dasharray:5 4; }
+.doc { fill:var(--sel); stroke:var(--accent); stroke-width:1; }
+.crit { fill:#fff7ed; stroke:var(--warn); stroke-width:1; }
+.loop { fill:var(--panel); stroke:var(--accent); stroke-width:1.4; }
+.edge { fill:none; stroke:var(--wall); stroke-width:1.6; marker-end:url(#a); }
+.edge-model { fill:none; stroke:var(--wall); stroke-width:1.6; stroke-dasharray:6 4; marker-end:url(#a); }
+.back { fill:none; stroke:var(--lcfs); stroke-width:2; marker-end:url(#ab); }
+.gate { fill:none; stroke:var(--warn); stroke-width:1.4; marker-end:url(#aw); }
+.panel { fill:var(--panel); stroke:var(--grid); stroke-width:1; } .head { fill:var(--head); stroke:var(--grid); stroke-width:1; }
+.btn { fill:none; stroke:var(--grid); stroke-width:1; } .btn-on { fill:var(--accent); } .btn-on-t { fill:#fff; font-weight:600; }
+.slider { stroke:var(--grid); stroke-width:3; stroke-linecap:round; } .knob { fill:var(--panel); stroke:var(--accent); stroke-width:1.6; }
+.axes { fill:none; stroke:var(--grid); } .grid { stroke:var(--grid); stroke-width:.8; }
+polyline { fill:none; stroke-linejoin:round; stroke-linecap:round; }
+.c1 { stroke:var(--accent); stroke-width:2; } .c2 { stroke:var(--alt); stroke-width:2; } .c3 { stroke:var(--lcfs); stroke-width:1.6; stroke-dasharray:5 3; }
+.badge-ok { fill:none; stroke:var(--ok); } .badge-run { fill:none; stroke:var(--accent); } .badge-stale { fill:none; stroke:var(--warn); }
+.ok-t { fill:var(--ok); } .warn-t { fill:var(--warn); } .acc-t { fill:var(--accent); }
+.warnbox { fill:#fff7ed; stroke:var(--warn); } .zone { fill:var(--alt); opacity:.10; stroke:var(--alt); stroke-dasharray:3 3; }
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6270"/></marker>
+  <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d0342c"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a75909"/></marker>
+</defs>
+<rect width="1240" height="600" fill="#f4f5f7"/>
+<text x="24" y="34" class="h">定态输运与闭包（给 χ 求 T） · 物理算法流程</text>
+<text x="24" y="54" class="s">实线边 = 数据 · 虚线边 = 模型 · 红边 = 回边 · 橙边 = 对照 / 判定 · 虚框 = 今天无 code 的步 · 橙底行 = 该步的判据</text>
+<rect x="24" y="110" width="170" height="70" rx="6" class="doc"/>
+<text x="36" y="130" class="">平衡 / 度规</text>
+<text x="36" y="148" class="k">equilibrium（M1 的工件）</text>
+<text x="36" y="166" class="s">或 Miller 标量装配</text>
+<rect x="24" y="200" width="170" height="70" rx="6" class="doc"/>
+<text x="36" y="220" class="">源项</text>
+<text x="36" y="238" class="k">core_sources</text>
+<text x="36" y="256" class="s">beam · rf · ADAS · α（表或 code）</text>
+<rect x="24" y="290" width="170" height="70" rx="6" class="doc"/>
+<text x="36" y="310" class="">边界条件</text>
+<text x="36" y="328" class="s">ρ_b 处 Tₑ · Tᵢ · nₑ</text>
+<text x="36" y="346" class="s">台基档（EPED 代理）可选</text>
+<rect x="250" y="120" width="230" height="114" rx="6" class="node-code"/>
+<text x="262" y="140" class="t">闭包（档位）</text>
+<text x="262" y="158" class="k">constant · stiff · neoclassical</text>
+<text x="262" y="176" class="k">turbulence（TGLF，扩展面）</text>
+<text x="262" y="194" class="k">code/bootstrap · code/transport</text>
+<rect x="251" y="204" width="228" height="29" class="crit"/>
+<text x="262" y="223" class="tag">档位是参数，不是插件（原则 2）</text>
+<rect x="530" y="120" width="230" height="114" rx="6" class="node-code"/>
+<text x="542" y="140" class="t">定态解</text>
+<text x="542" y="158" class="k">code/transport</text>
+<text x="542" y="176" class="s">θ-隐式有限体积 · Picard</text>
+<text x="542" y="194" class="s">刚性闭包内迭代 2–28 次</text>
+<rect x="531" y="204" width="228" height="29" class="crit"/>
+<text x="542" y="223" class="tag">内层：残差 &lt; ε · 迭代上限</text>
+<path d="M925.0,130 L1040,198.0 L925.0,266 L810,198.0 Z" class="loop"/>
+<text x="925.0" y="170.0" text-anchor="middle" class="t">通量匹配</text>
+<text x="925.0" y="188.0" text-anchor="middle" class="k">flux match（外环）</text>
+<text x="925.0" y="204.0" text-anchor="middle" class="s">χ 冻结 · 目标通量</text>
+<text x="925.0" y="220.0" text-anchor="middle" class="s">TGYRO 型</text>
+<path d="M925.0,300 L1040,368.0 L925.0,436 L810,368.0 Z" class="loop"/>
+<text x="925.0" y="340.0" text-anchor="middle" class="t">平衡交替</text>
+<text x="925.0" y="358.0" text-anchor="middle" class="k">couple（可选）</text>
+<text x="925.0" y="374.0" text-anchor="middle" class="s">每轮解一次平衡</text>
+<text x="925.0" y="390.0" text-anchor="middle" class="s">在新度规上弛豫</text>
+<rect x="1060" y="120" width="176" height="88" rx="6" class="crit"/>
+<text x="1072" y="140" class="t">产物与对照</text>
+<text x="1072" y="158" class="k">core_profiles</text>
+<text x="1072" y="176" class="k">core_transport</text>
+<text x="1072" y="194" class="s">对 JINTRAC / TGYRO 列</text>
+<path d="M194,145.0 C222.0,145.0 222.0,177.0 250,177.0" class="edge"/>
+<path d="M194,235.0 C222.0,235.0 222.0,177.0 250,177.0" class="edge"/>
+<path d="M194,319 C330,319 440,200 530,200" class="edge"/>
+<path d="M480,177.0 L530,177.0" class="edge"/>
+<path d="M760,177.0 C785.0,177.0 785.0,198.0 810,198.0" class="edge"/>
+<path d="M910,230 C910,280 645,280 645,236" class="back"/>
+<text x="660" y="292" class="tag" style="fill:#d0342c">未匹配：更新 χ 冻结值</text>
+<path d="M645,236 C645,350 700,350 810,350" class="edge-model"/>
+<path d="M910,300 C910,260 365,300 365,236" class="back"/>
+<text x="560" y="330" class="tag" style="fill:#d0342c">新度规 → 重装配</text>
+<path d="M1040,198.0 C1050.0,198.0 1050.0,164.0 1060,164.0" class="gate"/>
+<rect x="24" y="528" width="1192" height="52" rx="6" class="node"/>
+<text x="36" y="548" class="s">coupled 与 tglf 不设独立模板：前者是 evolve / transport 的 couple 参数，后者是闭包的一档（FYL-DESIGN-17 E-8）。本章把两者放回它们所属的环。</text>
+<text x="36" y="566" class="s">与 A3（解释性分析）是同一条能量方程的两个方向（-10 P-28）；与 M3 的差别只在有没有时间轴（-10 P-19）。</text>
+</svg>
