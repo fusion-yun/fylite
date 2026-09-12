@@ -1020,6 +1020,10 @@ fn kernel(args: &Args) {
                     ("entry", r.shape.into()),
                     ("kind", r.units.into()),
                     ("gloss", r.gloss.into()),
+                    //: ★C-28: what this code's door actually READS.  The row's
+                    //: gloss and the corpus's vocabulary are two other namings;
+                    //: this is the layer a caller of `code/<x>` hands settings to.
+                    ("parameters", code_params_json(r.key)),
                 ]))
                 .collect())
             .unwrap_or_default();
@@ -1083,6 +1087,20 @@ fn kernel(args: &Args) {
     if let Some(b) = fi::BLOCKS.iter().find(|b| b.name == "CASE_CODES") {
         for r in b.rows {
             println!("  code/{:<12} -> {:<12} [{}]  {}", r.key, r.shape, r.units, r.gloss);
+            //: ★C-28 (2026-09-12): the code layer's parameter face, declared at
+            //: last.  One line per door, the settings in name order, `key=default`
+            //: when it has one and `key!` when it is required; `--json` carries the
+            //: type and the reading function beside each.
+            if let Some(c) = fi::CODES.iter().find(|c| c.name == r.key) {
+                if !c.params.is_empty() {
+                    let shown: Vec<String> = c.params.iter().map(|p| {
+                        if p.required { format!("{}!", p.key) }
+                        else if p.default.is_empty() { p.key.to_string() }
+                        else { format!("{}={}", p.key, p.default) }
+                    }).collect();
+                    println!("    reads ({}): {}", shown.len(), shown.join(" "));
+                }
+            }
         }
     }
     println!("\nraw entries (entry/<name> · the declared blocks, nothing converted):");
@@ -1105,6 +1123,22 @@ fn kernel(args: &Args) {
             println!("    {:<12} {} [{}]", s.key, s.path, s.units);
         }
     }
+}
+
+/// One code's declared parameter face as JSON rows (C-28).
+///
+/// ★Empty for a code whose door reads no settings at all (`code/cocos`,
+/// `code/channels`, `code/shape`): an empty surface is a fact about that
+/// door, not a gap in the declaration.
+fn code_params_json(code: &str) -> Node {
+    let Some(c) = fi::CODES.iter().find(|c| c.name == code) else { return list(Vec::new()) };
+    list(c.params.iter().map(|p| map(vec![
+        ("key", p.key.into()),
+        ("type", p.value_type.into()),
+        ("default", if p.default.is_empty() { Node::Null } else { p.default.into() }),
+        ("required", Node::Bool(p.required)),
+        ("read_by", p.via.into()),
+    ])).collect())
 }
 
 fn lines(args: &Args) {

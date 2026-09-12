@@ -157,3 +157,81 @@ def test_a_templated_scenario_is_either_runnable_or_says_why_not():
             f"says {runs} — re-run tools/make-scenario-templates.py")
         if not runs:
             assert row.get("reason"), f"{row['name']} is not runnable and gives no reason"
+
+
+# --- C-28: the template's names against the code layer's declared face ------
+#
+# ★★**Three namings, and until 2026-09-12 only two of them were written down.**
+# A template's `fylite:vocabulary` is the names the CORPUS uses (the page's
+# controls: `btol` · `wflux` · `usefluxTarget`).  A raw entry's `*_PARAMS` is
+# the names that entry's packed block uses.  The layer in between — what a
+# `code/<x>` DOOR reads — declared nothing, which is `FYL-REPORT-07`'s C-28 and
+# `-16` K-2.  It now does: `rust/build.sh` derives it from the door bodies and
+# every local helper they reach, and generates it into all four hosts
+# (`_fyo_interface.CODE_PARAMS` here).
+#
+# ★What this section does NOT do is demand the two lists agree.  They are
+# different layers and the corpus name legitimately differs from the setting
+# (`btol` → `b_tol`, `wflux` → `weight_flux`).  Two hosts once FILTERED one
+# list by the other, and both times values were dropped in silence.  So the
+# pins here are: the declaration exists and is non-empty where the door reads
+# anything, every template's code is one the kernel carries or is recorded as
+# one it does not, and the measured overlap does not go DOWN — that last one
+# turns a naming drift into a red test instead of a silent rename.
+from fylite import _fyo_interface as _FI  # noqa: E402
+
+
+#: measured 2026-09-12, `code/<x>` door surface ∩ template vocabulary.  A
+#: template whose code the kernel does not carry has no row here at all.
+OVERLAP = {"breakdown": 2, "discharge": 10, "evolve": 37, "reconstruction": 2,
+           "transport": 16, "zerod": 20}
+#: templates whose `prescribes_code` is in NO kernel door (`fy list scenarios`
+#: says so per code: "the kernel door does not carry this code").  Recorded
+#: rather than skipped: a template for a code nothing completes is a fact a
+#: reader needs, and if one of these gains a door the pin turns red and this
+#: table is where the answer goes.
+NO_DOOR = {"pfwave", "profile", "series"}
+
+
+def test_the_code_layer_declares_a_parameter_face_at_all():
+    """C-28's remedy: every code the kernel carries declares its settings."""
+    assert _FI.CODE_PARAMS, "the kernel declares no code parameter face"
+    #: a door that reads nothing is allowed and named; anything else must read
+    #: something, or the derivation lost that door
+    empty = sorted(c for c, v in _FI.CODE_PARAMS.items() if not v["parameters"])
+    assert empty == ["adas_species", "channels", "cocos", "shape"], empty
+    for code, v in _FI.CODE_PARAMS.items():
+        assert v["door"], code
+        for key, row in v["parameters"].items():
+            assert row["type"] in ("float", "boolean", "string"), (code, key, row)
+            assert row["via"], (code, key)
+
+
+@pytest.mark.parametrize("name", TEMPLATES)
+def test_every_template_names_a_code_the_kernel_carries_or_is_recorded(name):
+    code = _load(name)["prescribes_code"]["id"].split("/")[-1]
+    if name in NO_DOOR:
+        assert code not in _FI.CODE_PARAMS, (
+            f"{name} gained a kernel door — take it out of NO_DOOR and give it "
+            f"an OVERLAP row")
+        return
+    assert code in _FI.CODE_PARAMS, (
+        f"{name} prescribes code/{code}, which no kernel door completes; if that "
+        f"is intended, list it in NO_DOOR")
+
+
+@pytest.mark.parametrize("name", sorted(OVERLAP))
+def test_the_template_and_the_door_still_share_the_names_they_shared(name):
+    """The overlap may grow, never shrink.
+
+    ★A rename on either side (`chi0` → `chi_0` in the door, say) is exactly
+    the silent drift this catches: nothing else in either repo compares the
+    two namings, and a `fy run` would simply stop passing that value.
+    """
+    vocab = set(_load(name)["fylite:vocabulary"])
+    door = set(_FI.CODE_PARAMS[name]["parameters"])
+    shared = vocab & door
+    assert len(shared) >= OVERLAP[name], (
+        f"code/{name}: the template and the door now share {len(shared)} names, "
+        f"down from {OVERLAP[name]}; lost {sorted((vocab & door) ^ shared)} "
+        f"— a rename on one side is silent, so this is the place it shows")
