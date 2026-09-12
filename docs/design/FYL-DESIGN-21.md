@@ -94,7 +94,7 @@ modified:
 | **1.1 取数** | TS（nₑ, Tₑ）· CER（Tᵢ, n_C, v_tor）· ECE · CO₂ 干涉仪 · MSE | 测量三级解析（`-17` E-15：`--input` → 语料切片 → mdsip 取回）；`io.mds.fetch_thomson` / `fetch_diamagnetic`；`io.est2` 归约（窗口均值 · 漂移 · POINT）。★EAST 绑定表**无 Thomson**（`-17` G-8），动理学一档第 3 级取不全，只能 `--input`；**无 CER · 无 ECE · 无 MSE** | ◐ |
 | **1.2 时间窗平均；H 模按 ELM 相位条件平均** | filterscope Dα 触发 | 窗口均值有（`est2`）；**ELM 同步无**——没有 Dα 触发的输入端口，也没有相位选择的 code | ✗ |
 | **1.3 映射到 ψ_N / ρ，样条或 GP 拟合，出 p-file** | — | 映射：`code/ladder`（在平衡文档上描迹一次）；拟合：分析页剖面拟合栏（移位勒让德基 + GCV，`S.analysis.profit`）；内核的 `code/profile_fit` 自述「planned」。产物是 `pressure` 端口要的那份剖面文档（不是 p-file：fyo 文档进、fyo 文档出） | ◐ |
-| **1.4 分离面对齐** | 双点模型给 Tₑ,sep（~60–100 eV），对 TS 施加径向位移；对台基梯度与自举电流影响最大 | 双点模型的闭式在（登记册 V-10..V-13 Lengyel）；**「按 Tₑ,sep 移 TS」这一步没有 code**。★这是用户描述里标为影响最大的一步 | ✗ |
+| **1.4 分离面对齐** | 双点模型给 Tₑ,sep（~60–100 eV），对 TS 施加径向位移；对台基梯度与自举电流影响最大 | ★**2026-09-12 有 code 了**：`code/separatrix_align`（内核仓，H-15）—— 剖面挂在 ψ_N 上进，解出使 Tₑ(ψ_N = 1) = Tₑ,sep 的**刚性标签平移**出，连同分离面梯度平移前后各一个（合成台基实测：Tₑ,sep = 80 eV ⇒ Δ = −0.003529 ψ_N，梯度 −3540 → −2847 eV/ψ_N，**变 20 %**）。**它不产生 Tₑ,sep**：双点模型的闭式在（登记册 V-10..V-13 Lengyel）但只有 C 接口那条路、没有 `code/` 门，所以缺 `te_sep` 时**按名拒绝**而不给缺省 —— 余下的一半是给双点模型开一道门 | ◐ |
 | **1.5 Z_eff** | 由 nₑ 与 n_C 推出 | `zeff` 是**参数**（词表有），不是推导——EAST 无 CER 的 n_C | ◐ |
 | **2.1 压强约束** | p = nₑTₑ + ΣnᵢTᵢ + p_fast；快离子由 NUBEAM / ONETWO 或简化慢化模型 | `pressure` 端口（`-12` P-22：**带 `derived-from-reconstruction` 出处的剖面按名拒绝**——不许拟合自己的假设）；快离子：参数化形状 `pfast` / `pfastpk`（**不是**慢化模型，是给定形状）；`tite` 给 Tᵢ/Tₑ | ◐ |
 | **2.2 电流约束** | j_∥ = j_ohm（新经典电阻率）+ j_bs（Sauter / Redl）+ j_NBI + j_ECCD | `code/bootstrap`（Redl-2021，与 NEO `jpar_dke` 同归一化）· 欧姆经 `code/transport` 的电导率 · `code/beam` 沉积 · `code/rf_ray`（ECCD 部分）。★**作为反演的约束行**进入设计矩阵的今天只有自举（外环那条路），其余是产物不是行 | ◐ |

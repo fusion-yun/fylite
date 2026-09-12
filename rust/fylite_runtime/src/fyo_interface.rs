@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 2;
-pub const DIGEST: &str = "d10a8fc02a5e6e5c";
+pub const DIGEST: &str = "862b526a362b2495";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -350,6 +350,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "li3", shape: "", units: "assembled", gloss: "the normalised internal inductance li(3) of a psi map (the analysis page's reference row for a g-file): the map on its own uniform grid with psi_axis, psi_boundary, ip and the reference R0 — surfaces::li3, as the li3 fact" },
         Row { key: "metric", shape: "", units: "assembled", gloss: "the flux-surface moments of a Miller / MXH surface row (the model page's Miller ladder, engine/cases.py's, gyrofluid's ky_factor, the gates' references): one geometry::solve per node on the ladder rows r_minor · r_major · q · magnetic_shear · elongation · triangularity · shift and the MXH rows, answered as the DD-named ladder moments (volume · dV/drho · gm3 · gm7 · gm2 · <R^2>) with GEO's normalised scalars beside them" },
         Row { key: "ladder", shape: "", units: "assembled", gloss: "one equilibrium document traced once (Python's fyo.Ladder): the requested psi_N levels (fylite:ladder_levels, or n_surfaces from psin_min to edge) on the document's own psi map, axis, limiter, q and F tables and boundary — surfaces::equilibrium_ladder, the transport metrics and the local Miller shape of the SAME surfaces answered on the ladder rows" },
+        Row { key: "separatrix_align", shape: "", units: "assembled", gloss: "the separatrix alignment of the kinetic chain: a profile on the psi_N label and a separatrix electron temperature in, the rigid label shift that puts T_e(psi_N = 1) at that temperature out, with the pedestal gradient before and after; it does not compute T_e,sep (the two-point model has no door yet) and refuses by name without one" },
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
         Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
         Row { key: "rf_ray", shape: "", units: "assembled", gloss: "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — GEOMETRY ONLY: the trajectory, how deep in psi_N it reached, and why it stopped. Absorption and adjoint ECCD are stages (2) and (3) of docs/note/ec-raytracing.md and are NOT implemented, so this door answers no deposition and no driven current; asking for them is a refusal, not a zero" },
@@ -1130,6 +1131,10 @@ pub const CODES: &[Code] = &[
     ] },
     Code { name: "selfcal", door: "selfcal_case", krate: "fylite_kernel", params: &[
         Param { key: "tol", value_type: "float", default: "0.2", required: false, via: "selfcal_case" },
+    ] },
+    Code { name: "separatrix_align", door: "separatrix_align_case", krate: "fylite_kernel", params: &[
+        Param { key: "shift_max", value_type: "float", default: "0.05", required: false, via: "separatrix_align_case" },
+        Param { key: "te_sep", value_type: "float", default: "", required: false, via: "separatrix_align_case" },
     ] },
     Code { name: "shape", door: "shape_case", krate: "fylite_kernel", params: &[
     ] },
