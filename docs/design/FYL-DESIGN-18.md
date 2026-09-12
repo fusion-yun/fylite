@@ -2,8 +2,8 @@
 document_id: FYL-DESIGN-18
 title: "应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench)"
 shortname: fylite-app-frontend
-version: "1.5"
-date: 2026-09-04
+version: "1.6"
+date: 2026-09-12
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -14,7 +14,12 @@ created: 2026-09-04T00:00:00Z by FyLite Maintainers
 modified:
   date: 2026-09-04T00:00:00Z
   by: FyLite Maintainers
-  change: 'v1.5 合并进 `develop` 时随 `FYL-DESIGN-17` v1.1 的 E-23 改口：`fy case run` → **`fy run`**
+  change: 'v1.6 增 U-26「词表的 `tier` 是用户级；页面按级折叠，不按级拒绝」（`FYL-CONOPS-00`
+    v1.2 用户裁定 2026-09-12）：`tier ∈ {L1, L2, L3}`——L1 在首屏，L2 折在「高级组」里，
+    L3 没有控件（它是计划文档、源栈与导入本身）。★与 §八 的 A / B / C **代价档**是两个轴，
+    改口为「用户级」与「代价档」以免同一个「档」字指两件事。G-1 的 `tier` 从此有了定义，
+    落点仍待 K-2 增列。
+    v1.5 合并进 `develop` 时随 `FYL-DESIGN-17` v1.1 的 E-23 改口：`fy case run` → **`fy run`**
     （`case` 已弃用，三处引用改正）。内容无其他变动。
     逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
     （2026-09-07 收束，用户「移除历史修改痕迹」）。'
@@ -28,7 +33,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-DESIGN-18` |
 | 文档名称 (Title) | 应用前端详细设计——场景驱动的输入页、交互图形与工作台 (App Front End — Scenario-Driven Input Pages, Interactive Figures and the Workbench) |
 | 短名 / Slug | `fylite-app-frontend` |
-| 版本 (Version) | v1.5 |
+| 版本 (Version) | v1.6 |
 | 发布日期 (Date of Issue) | 2026-09-04 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | — |
@@ -232,6 +237,19 @@ JS 对象，传的是**文档里的路径**——这是把 `-16` F-4「看得见
 「输入端口」）与组内序号；页面按组生成面板，折叠状态是页面的（`localStorage`，今天的
 `fylite:fold:*` 不变）。★这条把 `-12` 的「一个高级组属于它上面那个开关」做成词表字段
 `advanced_of: <boolean 参数名>`，而不是页面里的一份固定清单。
+
+**U-26 词表的 `tier` 是用户级；页面按级折叠，不按级拒绝（v1.6 新增）。** 词表每条带
+`tier ∈ {L1, L2, L3}`（`FYL-CONOPS-00` §用户级别）：**L1** 的控件在首屏——选装置、选
+预设、炮号 / 时间片，以及那条场景「只给少数几个」的参数；**L2** 的控件折在 U-3 的
+「高级组」里（`advanced_of` 不变，它说的是**开关驱动**的折叠，`tier` 说的是**级别驱动**的
+折叠，两者可叠加）；**L3 没有控件**——它是计划文档（导入）、源栈（§五）与工具面本身，
+页面上表现为「导入一份计划」与「把这份记录当源」，不是一个滑杆。**禁止 (MUST NOT)**
+按级别灰掉或拒收：级别只决定折叠的初始态，展开后 L2 与 L1 同权（FR-LEVEL-004）。
+★**两个轴，两个名字**：§八 与 `edit.js` 的 A / B / C 是**代价档**（一次交互动多少算术），
+`tier` 是**用户级**（谁会来改它）；一个 L1 的把手可以是 A 档，一个 L2 的节点编辑器也可以。
+此后本篇写「档」只指代价，写「级」只指用户。★**今天的落点**：`vocab-model.js` 的 `tier`
+全为 `[TBD]`（G-1），因为 code 这一层的可改量本身尚无声明（`FYL-REPORT-07` C-28）——
+U-26 定的是字段的**含义与页面的读法**，值随 K-2 增列一并到来。〔已确立·用户裁定 2026-09-12〕。
 
 **U-4 值域三层：词表 → 装置卷宗 → 用户改。** 滑杆的**有效量程**是三层的交：词表给
 物理上有意义的范围；选定装置后，卷宗给这台机器的范围（`-09` 已有先例：选 ITER 后
@@ -552,9 +570,9 @@ C 档。
 里（§一 之 7 的理由不变）。`handoff.js` 的单槽退役为「记录作为源」（U-5）。
 
 (fylite-app-frontend-rulings)=
-# 十 · 裁定汇总 U-1..U-25 (Rulings)
+# 十 · 裁定汇总 U-1..U-26 (Rulings)
 
-:::{table} 本篇二十五条裁定，一行一条；「删掉」列是 J-10 的账。
+:::{table} 本篇二十六条裁定，一行一条；「删掉」列是 J-10 的账。
 :name: tbl-u18-rulings
 :align: left
 
@@ -585,6 +603,7 @@ C 档。
 | U-23 | 通道权重在图上编辑，写手填层；卷宗禁用的不能打开 | `-12` G-9 | 逐通道权重滑杆表 |
 | U-24 | 解释性文字：词表一句 · 场景一段 · 页面一段 | L-4 · 语料 `note` | — |
 | U-25 | 浏览器读 HDF5 = 第三方读者解成 fyo 文档，再进源栈；按需加载、不进预缓存 | L-9 · U-5 · H-5 | 「再写一份 HDF5 实现」这条路 |
+| U-26 | 词表 `tier` 是用户级 L1 / L2 / L3；页面按级折叠，不按级拒绝；「档」指代价、「级」指用户 | `FYL-CONOPS-00` §用户级别 · FR-LEVEL-004 · U-3 | 各页手定的「哪些控件先露出来」 |
 :::
 
 (fylite-app-frontend-proposals)=
@@ -605,6 +624,7 @@ C 档。
 | FR-UI-006 | 断点与恢复以记录为单位；跨宿主可恢复；内核身份不符时拒绝 | U-10 · U-11 · U-19 |
 | FR-UI-007 | 页面图形与报告由同一份呈现规格驱动；图层、布局、视图写回规格；视图含茎、表与对照 | U-12 · U-14 · U-16 · U-17 · U-21 · U-22 |
 | FR-UI-008 | 几何、剖面与通道权重的交互试改改写计划，可撤销，无页面私有几何 | U-15 · U-23 |
+| FR-LEVEL-004（`FYL-SRS-01` v1.2 已取用） | 级别是声明上的标签；宿主按级折叠，不按级拒绝 | U-26 |
 | NR-QUAL-007 | 表单 ↔ 词表一致性、两端规格一致性、断点等价性、文档集往返各有门禁 | §十二 四道闸 |
 | DE-LOG-13 | 表单生成（词表 → 控件；`form.js`） | U-1..U-4 |
 | DE-LOG-14 | 断点即记录（`run.js` ↔ IndexedDB ↔ 文档集） | U-8..U-11 · U-18 |
@@ -676,7 +696,7 @@ C 档。
 
 | | 缺口 | 证据 | P |
 | :--- | :--- | :--- | :--- |
-| **G-1** | **控制词表今天不存在**：`code/<cap>#<name>` 只是名字；`BLOCKS` 有单位无值域；U-2 的映射表没有输入 | `fyo-interface.js:215-217` · §一 之 1 | P0 |
+| **G-1** | **控制词表今天不存在**：`code/<cap>#<name>` 只是名字；`BLOCKS` 有单位无值域；U-2 的映射表没有输入。★v1.6：`tier` 的**含义**已定（U-26），**值**仍全为 `[TBD]`——根因是 code 层的可改量无声明（`FYL-REPORT-07` C-28），与 `range` / `default` 同一个落点 | `fyo-interface.js:215-217` · §一 之 1 | P0 |
 | **G-2** | **A 档在文档门上未实测**：拖把手每帧一次门调用（编码 + 一列重算）能否 ≤ 50 ms，`-16` G-1 同问；U-8 的「每次调用 ≤ 200 ms」是工作假设 | `-16` G-1 · U-8 | P0 |
 | **G-3** | **规格词表缺三个词**：`fylite:layout` · `fylite:visible` · `fylite:domain` 尚未进 `context.jsonld`，U-14 / U-16 / U-17 无处落 | `docs/examples/context.jsonld` | P1 |
 | **G-4** | **`--resume` 不在 `_cli.json`**，Python `cases.run` 无 `resume=`；U-19 的移步今天只有浏览器一端 | `python/fylite/_cli.json` · `-17` E-5 | P1 |

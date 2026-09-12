@@ -2,7 +2,7 @@
 document_id: FYL-CONOPS-00
 title: FyLite 运行概念描述 (FyLite Operational Concept Description)
 shortname: fylite-conops
-version: "1.1"
+version: "1.2"
 date: 2026-09-12
 language: bilingual
 contributors:
@@ -15,6 +15,12 @@ modified:
   date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.2 新增「用户级别」一节（用户裁定 2026-09-12）：三级用户按**改动什么**划分——
+    初级只选（线 · 装置 · 炮号 / 时间片 · 预设）并做简单数据转换；中级在同一场景里
+    选物理模型、改精细参数（插值方法 · 权重 …）；高级定义场景（计划文档）、引入外部
+    调用、或把 FyLite 集成进第三方工作流。级别是**声明上的标签**，不是权限、不是模式；
+    高级一档正是 FyLite 与 FyTok 的分界线（`FYL-REPORT-07` §8）。需求化归 `FYL-SRS-01`
+    LEVEL 域，落法归 `FYL-DESIGN-17` E-25 / `FYL-DESIGN-18` U-26。
     v1.1 宿主一节改口（`FYL-REPORT-07` C-1）：本文件此前把命令行写成「`fylite` 控制台脚本
     与 `fylite` 可执行文件，承载 `app` / `data` / `case` 三条命令词」——那是 2026-09-04
     当天之前的形。今天只有**一个**可执行文件 `fy`，四条命令词 `app` / `data` / `run` /
@@ -40,7 +46,7 @@ modified:
 | 文档标识 (Document ID) | `FYL-CONOPS-00` |
 | 文档名称 (Title) | FyLite 运行概念描述 (FyLite Operational Concept Description) |
 | 短名 / Slug | `fylite-conops` |
-| 版本 (Version) | v1.1 |
+| 版本 (Version) | v1.2 |
 | 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | Description (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 1362 |
@@ -253,6 +259,44 @@ FyLite 不随功能深化而突破包络。
 〔已确立〕上述角色是 `FYTOK-CONOPS-00` 利益相关者集合在轻量验证 / 展示语境下的投影
 子集（新增 LLM 工具集成者一角，对应 FyLite 的工具面交付形态）；角色定义如进入后续
 FyLite SRS，沿用本表命名。
+
+(conops-fylite-levels)=
+## 用户级别 (User Levels)
+
+〔已确立·用户裁定 2026-09-12〕角色说的是**谁**在用；级别说的是**改动什么**。同一个
+物理研究者在一天里可以三级都走一遍，所以级别不挂在人上，挂在**一次运行改了计划的
+哪一层**上——这使它可判：看 `plan.jsonld` 每个值的 `fylite:from`，就知道这次运行是
+哪一级（`FYL-DESIGN-17` E-13 / E-25）。
+
+:::{table} 三级用户。「改什么」是定义，「不改什么」是边界，其余两列是它在今天的产物上的形。
+:name: tbl-conops-fylite-levels
+:align: left
+
+| 级 | 改什么 | 不改什么 | 典型动作 | 宿主上的形 |
+| :--- | :--- | :--- | :--- | :--- |
+| **L1 初级** | 只**选**：场景线 · 装置 · 炮号 / 时间片 · 预设；少量参数 | 计划文档、参数词表、物理模型 | 「给我这一炮这一刻的重构」；「跑那条预设」；把一份 g-file 转成 IMAS HDF5 | `fy run analysis --device east shot=N time=T`；`fy run model --preset <名>`；`fy data convert`；页面选装置按「计算」；AI 面按名调一条预设 |
+| **L2 中级** | 在**同一场景**里选物理模型、改精细参数（闭合档位 · 插值方法 · 通道权重 · 网格与步数 · 剖面节点） | 场景（模板与 code）· 输入端口的种类 | 「换新经典闭合再跑」；「把这个探针权重调低」；「边界用我这份剖面」 | 命令行 `key=value` 与 `--plan` / `--bind`；页面的滑杆、枚举与「高级组」；图上试改（把手 · 节点 · 权重） |
+| **L3 高级** | **场景本身**：写自己的 `fyo:ScenarioSpecification`、绑自己的端口与外部数据源、把一次运行的记录接成下一次的输入、或从外面把 FyLite 当一个 `Code` 调用 | FyLite 的代码（不需要）；内核契约（不许） | 「定义一个两步场景」；「把 FyLite 这一步编进我的工作流」；「用我的模板目录」 | `fy run <plan.jsonld>…`、`--code` / `--cases` / `--resume-from`；Python 库；JSON-RPC / MCP 工具面；FyTok 经文档门调用 |
+:::
+
+〔已确立〕**三条不变式**：
+
+1. **级别是声明上的标签，不是权限，也不是模式。** 每个可改的量在 code 的声明面上带一个
+   级别（`FYL-DESIGN-18` U-26 的 `tier`）；宿主按级别**折叠**，从不按级别**拒绝**——
+   一个初级用户在命令行上写了一个中级参数，得到的是按名的回答（那个参数是什么级、
+   在哪张表），不是「无权」。
+2. **低一级的动作是高一级的子集**：L1 的每条命令都是一份 L2 也能写出的计划，L2 的每份
+   计划都是一份 L3 也能手写的文档。三级共用一份合成器与一扇文档门（`FYL-DESIGN-17` E-21、
+   `FYL-DESIGN-16` K-1），没有「初级模式」这种第二条路。
+3. **L3 就是 FyLite 的边界。** 定义场景、绑外部源、被外部调用——这些在 FyLite 里的形都是
+   **一份文档**（计划进、记录出）；要 DAG 调度、插件、外部物理码的本体接入，就已经走到
+   FyTok 那一侧（{ref}`conops-fylite-scope-out`；`FYL-REPORT-07` §8「同一 fyo 协议」）。
+   所以 L3 不是「FyLite 的高级功能」，而是「用 FyLite 的文档协议去做 FyLite 不做的事」。
+
+〔工作假设〕**今天的差距**（实测见 `FYL-REPORT-07` §9.2）：L2 所需的「可改的量与其级别」
+在 code 这一层**尚无声明**——模板词表是语料用过的名字，内核声明的是原始入口的参数，
+两者不是一张表。级别标签因此还没有落点；它随 `FYL-DESIGN-16` K-2 的 code 表自报一并到来。
+在那之前，三级的边界只在文档与命令行的形上成立，页面的控件还不能按级折叠。
 
 (conops-fylite-scenarios)=
 # 运行场景 (Operational Scenarios)

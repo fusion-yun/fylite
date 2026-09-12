@@ -2,8 +2,8 @@
 document_id: FYL-SRS-01
 title: FyLite 软件需求规格 (FyLite Software Requirements Specification)
 shortname: fylite-srs
-version: "1.1"
-date: 2026-09-04
+version: "1.3"
+date: 2026-09-12
 language: bilingual
 contributors:
   - name: FyLite Maintainers
@@ -12,9 +12,15 @@ ai_assistance:
   - Claude Fable 5
 created: 2026-08-18T00:00:00Z by FyLite Maintainers
 modified:
-  date: 2026-09-04T00:00:00Z
+  date: 2026-09-12T00:00:00Z
   by: FyLite Maintainers
   change: |-
+    v1.3 附录〈提案登记〉增列 `FYL-DESIGN-21` 的编号：FR-ANALYSIS-009..011 · DE-LOG-16；
+    正文条款不变。
+    v1.2 新立横切域 **LEVEL**（用户级别，来自 `FYL-CONOPS-00` v1.2 用户裁定 2026-09-12）：
+    FR-LEVEL-001..004——初级只选即得结果并可做简单转换、中级在同一场景内改模型与精细
+    参数且每个可改量须有声明与级别、高级以计划文档定义场景 / 接入外部 / 被外部调用而
+    无需改代码、级别是标签而非权限。追溯矩阵增行；附录登记 `-17` E-25 与 `-18` U-26。
     v1.1 附录〈提案登记〉增列 `FYL-DESIGN-18` 的编号：FR-UI-003..008 · NR-QUAL-007（NR-QUAL-006
     仍空置）· DE-LOG-13..15；正文条款不变。
     逐次沿革（本版之前的每一版做了什么）由 git 承载，不再叠在本字段里
@@ -29,8 +35,8 @@ modified:
 | 文档标识 (Document ID) | `FYL-SRS-01` |
 | 文档名称 (Title) | FyLite 软件需求规格 (FyLite Software Requirements Specification) |
 | 短名 / Slug | `fylite-srs` |
-| 版本 (Version) | v1.1 |
-| 发布日期 (Date of Issue) | 2026-09-04 |
+| 版本 (Version) | v1.3 |
+| 发布日期 (Date of Issue) | 2026-09-12 |
 | 信息分类 (Information Class) | Specification (ISO/IEC/IEEE 15289 Annex A) |
 | 适用标准 (Standard Reference) | IEEE Std 29148 |
 | 生命周期阶段 (Lifecycle Phase) | development (ISO/IEC/IEEE 15288) |
@@ -62,7 +68,7 @@ modified:
 - 需求条款使用 RFC 2119 关键字（**必须 (MUST)** / **禁止 (MUST NOT)** /
   **应当 (SHOULD)** / **可以 (MAY)**），每条恰一个关键字，不携认识论标签。
 - 需求 ID 形如 `FR-<DOMAIN>-NNN` / `NR-<DOMAIN>-NNN`；`<DOMAIN>` 权威清单在
-  `.context/PROJECT.md` §4（本版新增 `KERNEL` 与 `UI` 两域）。
+  `.context/PROJECT.md` §4（v1.0 新增 `KERNEL` 与 `UI` 两域；v1.2 新增 `LEVEL` 域）。
 - 术语沿 `FYL-CONOPS-00` §约定与术语（轻量功能集、**宿主** / **运行时**、交互档 /
   批式档、协议成员、资源包络），本文件不重定义。
 - **场景线（scenario line）**：四条面向任务的入口组织——物理建模、实验分析、放电设计、
@@ -149,6 +155,33 @@ modified:
   AI 平台工具面（Claude / Claude Code / DeepSeek 等 harness，经 MCP / LLM 工具 schema）；
   各宿主**必须 (MUST)** 反射同一能力集（工具面经 FR-TOOL-002 / FR-TOOL-003 的能力目录
   接入）。新增一个宿主**禁止 (MUST NOT)** 要求内核契约（FR-KERNEL-*）改变。
+
+(fylite-srs-fr-level)=
+## 用户级别域 LEVEL（横切，2026-09-12 新立）
+
+〔来源〕`FYL-CONOPS-00` v1.2 §用户级别（用户裁定 2026-09-12）：三级按**改动计划的哪一层**
+划分，不按人。落法见 `FYL-DESIGN-17` E-25（命令行的六层即三级的分界）与 `FYL-DESIGN-18`
+U-26（词表的 `tier` 字段与按级折叠）。
+
+- **FR-LEVEL-001（初级）** 对每条场景线，系统**必须 (MUST)** 让用户只给**选择项**——线、
+  装置、炮号 / 时间片、或一条预设的名字——即得到一份完整的记录，不要求任何物理参数；
+  并**必须 (MUST)** 提供不涉及任何物理的数据转换（识别 · 转换 · 合并：`fy data`）。
+  初级动作产出的 `plan.jsonld` 里每个参数的 `fylite:from` **必须 (MUST)** 只出自模板、
+  装置或预设三层。
+- **FR-LEVEL-002（中级）** 在**不改变场景**（同一模板、同一 code、同一组输入端口）的前提下，
+  系统**必须 (MUST)** 让用户选择物理模型档位并改精细参数（闭合 · 插值 · 权重 · 网格 ·
+  步数 · 剖面节点等），命令行、页面与工具面三处**必须 (MUST)** 读同一份可改量的声明
+  （FR-KERNEL-002 的 code 表）；每个可改量**必须 (MUST)** 带级别标签。声明之外的名字
+  **必须 (MUST)** 按名拒绝并指向那张表。
+- **FR-LEVEL-003（高级）** 系统**必须 (MUST)** 让用户以一份 `fyo:ScenarioSpecification`
+  文档定义场景（自选 code、自绑端口与外部数据源、以记录续接记录），并**必须 (MUST)** 让
+  外部程序经文档门或工具面把 FyLite 当作一个 `Code` 调用；以上**禁止 (MUST NOT)** 要求
+  修改 FyLite 的代码或内核契约。跨步的 DAG 编排、插件与外部物理码的本体接入**不在**本条
+  范围（`FYL-CONOPS-00` §范围外；FyTok）。
+- **FR-LEVEL-004（级别是标签）** 级别**必须 (MUST)** 作为声明上的属性存在，**禁止 (MUST NOT)**
+  实现为权限或运行模式：宿主**可以 (MAY)** 按级别折叠或隐藏控件，**禁止 (MUST NOT)** 按
+  级别拒绝一次合法的合成；低一级的每个动作**必须 (MUST)** 可被高一级以文档形式复述
+  （L1 命令 ≡ L2 计划 ≡ L3 文档，`FYL-DESIGN-17` J-7 的等价式）。
 
 (fylite-srs-fr-kernel)=
 ## 内核契约域 KERNEL（横切，2026-09-04 新立）
@@ -294,6 +327,9 @@ NR-QUAL-006），页面提案与内核契约的设计元素又都想用 `DE-LOG-
 | NR-QUAL-007 | `FYL-DESIGN-18` | 表单 ↔ 词表、两端规格、断点等价、文档集往返四道门禁（NR-QUAL-006 仍空置） |
 | DE-LOG-13 / -14 / -15 | `FYL-DESIGN-18` | 表单生成 · 断点即记录 · 呈现规格双向 |
 | DE-LOG-11 / -12 | `FYL-SDD-01` v1.0 **已取用** | 文档门与扁平树 · 内核无状态（内核契约，来自 `FYL-DESIGN-16`） |
+| FR-ANALYSIS-009..011 | `FYL-DESIGN-21` | 动理学反演是一份多步计划（`has_step[]` + `ScenarioLoop`，步间以记录交接，每步一次门调用）· 四层收敛判据各为 fyo 判据实例、二维验收为 `ComparisonRecord`、不合成单一标量 · 反演页以流程图呈现（节点 = 步 · 边 = 绑定 · 状态 = 记录 · 五个控制动作 · 缺失诊断可见 · 数据边与模型边可辨） |
+| DE-LOG-16 | `FYL-DESIGN-21` | 流程图投影：计划 → 图；记录 → 状态与读数；控制 → 门调用 |
+| FR-LEVEL-001..004 | `FYL-CONOPS-00` v1.2 → 本文件 v1.2 **已取用** | 三级用户：初级只选 · 中级改模型与精细参数 · 高级定义场景 / 接入外部 · 级别是标签（落法 `-17` E-25 · `-18` U-26） |
 
 (fylite-srs-trace)=
 # 需求追溯矩阵 (Traceability Matrix)
@@ -311,6 +347,7 @@ NR-QUAL-006），页面提案与内核契约的设计元素又都想用 `DE-LOG-
 | FR-OPTIM-001..003 | S-L5 装置参数优化；覆盖表行 5 |
 | FR-HOST-001..002 | 运行时与交互 / 批式档约定（{ref}`conops-fylite-conventions`、{ref}`conops-fylite-scenarios`） |
 | FR-HOST-003 | 基准口径与运行环境：四个宿主（{ref}`conops-fylite-envelope`） |
+| FR-LEVEL-001..004 | 用户级别（{ref}`conops-fylite-levels`）；范围外之 FyTok 分界（{ref}`conops-fylite-scope-out`） |
 | FR-KERNEL-001..004 | 系统演进「内核可替换」（{ref}`conops-fylite-evolution`）；建设原则 5（{ref}`conops-fylite-principles`）；设计正本 `FYL-DESIGN-16` |
 | FR-DATA-001 | 范围外之数据边界与利益相关者「维护者」关切（{ref}`conops-fylite-scope-out`） |
 | FR-DATA-002..003 | S-L1 / S-L2 产物交换与「验证面可断言」要求（{ref}`conops-fylite-scenarios`、{ref}`conops-fylite-evolution` 覆盖深化） |
