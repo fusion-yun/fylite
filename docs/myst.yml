@@ -240,6 +240,14 @@ project:
             - file: design/FYL-DESIGN-18.md
             - file: design/FYL-DESIGN-19.md
 
+    - title: 报告 (Reports) —— 本仓的评估研究
+      #: ★2026-09-12 起：落在本仓的 `FYL-REPORT-NN`（07 起）。`01`..`06` 与 `FYL-REPORT-00`
+      #: 随内核源码留在内核仓 `docs/report/`；两处登记册共用一条编号序，号位不复用。
+      #: 路径权威是 `report/INDEX.md`。
+      children:
+        - file: report/INDEX.md
+        - file: report/FYL-REPORT-07_compute-scenario-generics.md
+
     - file: ACKNOWLEDGEMENTS.md
 site:
   title: fylite Documentation
