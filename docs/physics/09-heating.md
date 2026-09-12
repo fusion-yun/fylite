@@ -323,7 +323,7 @@ $I=P_{\rm abs}\eta_{EC}/(n_eR_0)$。〔未核验〕内部结构（$1/(1+100/T)$�
 汇合），以及沿射线的电子回旋吸收与按 $\bar\psi$ 壳的功率沉积。电子回旋与低杂波**共用同一个积分器**，只换色散函数。
 本层不含（2026-09-12 起）：~~束宽随传播的演化、衍射与聚焦~~（已实现：锥形射线族与束追踪，见本章
 "束宽"一节）；~~伴随法 ECCD~~（已实现，见"伴随法 ECCD"一节）；~~低杂波的吸收与准线性电流~~（已实现：电子 Landau 吸收、
-一维准线性 Fokker–Planck 与自洽回路，见 {ref}`phys09-lh-ray`）；**余：二维谱 `power_density_spectrum_2d`、反射模型参数、一维准线性模型之外的 $(5+Z_{\rm eff})$ 与陷俘修正**。
+一维准线性 Fokker–Planck 与自洽回路，见 {ref}`phys09-lh-ray`）；**余：反射模型参数、一维准线性模型之外的 $(5+Z_{\rm eff})$ 与陷俘修正**。
 
 (phys09-ray-core)=
 ## 射线方程与两种色散 (Ray Equations and the Two Dispersion Functions)

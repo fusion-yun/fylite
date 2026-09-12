@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 2
-DIGEST = 'b21b8b207aa0863e'
+DIGEST = '44ce45e6ca1e33c7'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -257,6 +257,7 @@ TABLES = {
             'n_phi': {"path": 'antenna/row/n_phi', "units": '1', "rank": '1d'},
             'n_pol': {"path": 'antenna/row/n_pol', "units": '1', "rank": '1d'},
             'spectrum': {"path": 'antenna/row/power_density_spectrum_1d', "units": '1', "rank": '1d'},
+            'spectrum_2d': {"path": 'antenna/row/power_density_spectrum_2d', "units": '1', "rank": '2d'},
         },
     },
     'MAGNETICS': {

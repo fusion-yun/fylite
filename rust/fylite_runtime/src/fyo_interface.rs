@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 2;
-pub const DIGEST: &str = "b21b8b207aa0863e";
+pub const DIGEST: &str = "44ce45e6ca1e33c7";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -239,6 +239,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "n_phi", path: "antenna/row/n_phi", units: "1", rank: "1d" },
         Slot { key: "n_pol", path: "antenna/row/n_pol", units: "1", rank: "1d" },
         Slot { key: "spectrum", path: "antenna/row/power_density_spectrum_1d", units: "1", rank: "1d" },
+        Slot { key: "spectrum_2d", path: "antenna/row/power_density_spectrum_2d", units: "1", rank: "2d" },
     ] },
     Table { name: "MAGNETICS", doc_type: "fyo:magnetics", slots: &[
     ] },
