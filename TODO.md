@@ -12,11 +12,10 @@
 
 ---
 
-## 一、可做（2，不等人不等件）
+## 一、可做（1，不等人不等件）
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
-| **F-1** | fylite | 门已通、可评条数 0 → 2（`finite` · `boundary-closed`）。**下一步**：把 `discharge-iter` 做成两步算例（设计 → `code/ladder` 吃它交出的 `equilibrium`），让 `LADDER/*` 两条评得上；`grad-shafranov` 等 **H-19** 裁定规范，`psi-endpoints` 与其余六条在形状设计上**不适用**（缺一维网格 / 动理学剖面，现编即假数）|
 | **H-15** | fylite | 三个关着的节点各给一个 code 并进得了计划的一步：ELM 相位条件平均 · T_e,sep 分离面对齐 · MSE 的 E_r 修正（今天无 code）|
 
 ## 二、待裁（14 行 · 15 个号，等用户一句口径）
@@ -38,10 +37,11 @@
 | **G-3** · **G-4** | fylite | **记录由谁产**：把运行时的 `record()` 在页面上镜像一份，还是判定记录只由宿主产、页面只存宿主交来的那一份 —— 同时决定 `run_state` 的 `cancelled` 谁产、断点仓存什么 |
 | **H-1** | fylite | 动理学反演那份多步计划文档**放哪**：`docs/examples/scenario/` 是逐 code 生成物（撞生成器与目录闸）· `app/cases/` 是会话文档 · `_manifest/` 那份是 workflow-IR 投影且标 `executable: false`；推荐新目录 `docs/examples/plan/` （代价：要给它写一条自己的对账）。**这一条定下来才画得了图**（`PLAN.md` H-1） |
 
-## 三、阻塞（17 行 · 18 个号，缺件或等他仓）
+## 三、阻塞（18 行 · 19 个号，缺件或等他仓）
 
 | 号 | 归属 | 缺什么 |
 | :--- | :--- | :--- |
+| **F-1** | fylite | 门已通、可评条数 0 → 2；余下 10 条全在 **H-19**（p′/FF′ 的规范）下游 —— 两步算例实测第二步按名拒绝「没有 `profiles_1d/q`」，q 要 F，F 要把 FF′ 积起来 |
 | **H-10** | fylite | **会话文档那一半已完成**（闸 `validate-setting-is-the-document.mjs`，141 个档位）；余下「写回**计划**文档」等 **H-1** 裁定计划文档的落点 |
 | 台基 **B** · **C** | kernel | EPED 自己的判据原文（B 的外环、C 的真 P-B 都要它）|
 | **K-3** | kernel · fydata | 要 A-Box 的 `transport/*` 逐槽读数才判得动 |
