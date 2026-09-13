@@ -3002,7 +3002,7 @@ FyScenario.whenDevices(function () {
           doc['fylite:probe_b'] = last.probes
             ? FySession.sig(last.probes.b) : [];
           doc['fylite:flux_loop'] = FySession.sig(last.model);
-          doc['fylite:units'] = { probe_b: 'T', flux_loop: 'Wb/rad',
+          doc['fylite:units'] = { probe_b: 'T', flux_loop: 'Wb.rad^-1',
                                   point_nel: 'm^-2', point_bpolar: '1e19 m^-2 T',
                                   point_faraday: 'deg' };
           //: the chord channels ride with the point channels: they are the
@@ -3808,7 +3808,7 @@ FyScenario.whenDevices(function () {
           return e;
         });
         doc['fylite:slice_units'] = {
-          time: 's', ip: 'A', flux_loop: 'Wb/rad', flux_loop_total: 'Wb/rad',
+          time: 's', ip: 'A', flux_loop: 'Wb.rad^-1', flux_loop_total: 'Wb.rad^-1',
           coil_current: 'A-turn', probe_b: 'T', pressure: 'Pa',
         };
         return JSON.stringify(doc, null, 1);

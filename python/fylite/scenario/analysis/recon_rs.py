@@ -628,7 +628,7 @@ def _diagnostic_signals(meas: dict, afile: dict, result: dict,
                       else [True] * n),
             "unit": unit}
 
-    _pair("flux_loops", meas.get("coils"), afile.get("csilop"), "Wb/rad",
+    _pair("flux_loops", meas.get("coils"), afile.get("csilop"), "Wb.rad^-1",
           alive=_fwt("FWTSI"))
     _pair("mag_probes", meas.get("expmp2"), afile.get("cmpr2"), "T",
           alive=_and([w > 0 for w in meas.get("fwtmp2", [])], _fwt("FWTMP2")))

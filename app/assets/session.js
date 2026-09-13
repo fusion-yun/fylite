@@ -209,7 +209,7 @@
   function magnetics(machine, meas, model, wts) {
     return {
       '@type': self.FyFyo.type('MAGNETICS'),
-      'fylite:flux_units': 'Wb/rad',
+      'fylite:flux_units': 'Wb.rad^-1',
       flux_loop: machine.loops.map(function (l, i) {
         return {
           position: [{ r: l[0], z: l[1] }],

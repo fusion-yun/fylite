@@ -8,8 +8,8 @@
  "@type": "fylite:ScenarioShape",
  "dcterms:description": "The documents a complete scenario comprises, with every declared path, unit and rank, which of them carry a fylite: term rather than a DD name, and what a CFEDR-class run needs that has no slot at all.",
  "dcterms:source": "python/fylite/_fyo_interface.py (generated from the kernel's tables)",
- "fylite:interface_revision": 3,
- "fylite:interface_digest": "229c7d3c295fbd3d",
+ "fylite:interface_revision": 4,
+ "fylite:interface_digest": "a45d01dbc21e99e1",
  "fylite:documents": [
   {
    "@id": "fylite:scenario/document/equilibrium",
@@ -98,14 +98,14 @@
     {
      "fylite:key": "f_df_dpsi",
      "fylite:path": "time_slice/profiles_1d/f_df_dpsi",
-     "fylite:units": "T^2.m^2/Wb",
+     "fylite:units": "T^2.m^2.Wb^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     },
     {
      "fylite:key": "dpressure_dpsi",
      "fylite:path": "time_slice/profiles_1d/dpressure_dpsi",
-     "fylite:units": "Pa/Wb",
+     "fylite:units": "Pa.Wb^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     },
@@ -452,7 +452,7 @@
     {
      "fylite:key": "omega",
      "fylite:path": "profiles_1d/rotation_frequency_tor_sonic",
-     "fylite:units": "rad/s",
+     "fylite:units": "s^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     },
@@ -473,28 +473,28 @@
     {
      "fylite:key": "sigma_prev",
      "fylite:path": "profiles_1d/fylite:sigma_prev",
-     "fylite:units": "S/m",
+     "fylite:units": "ohm^-1.m^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": true
     },
     {
      "fylite:key": "exch_prev",
      "fylite:path": "profiles_1d/fylite:exch_prev",
-     "fylite:units": "1/s",
+     "fylite:units": "s^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": true
     },
     {
      "fylite:key": "dn_prev",
      "fylite:path": "profiles_1d/fylite:dn_prev",
-     "fylite:units": "m^2/s",
+     "fylite:units": "m^2.s^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": true
     },
     {
      "fylite:key": "vn_prev",
      "fylite:path": "profiles_1d/fylite:vn_prev",
-     "fylite:units": "m/s",
+     "fylite:units": "m.s^-1",
      "fylite:rank": "1d",
      "fylite:namespaced": true
     }
@@ -524,21 +524,21 @@
     {
      "fylite:key": "j_par",
      "fylite:path": "profiles_1d/j_parallel",
-     "fylite:units": "A/m^2",
+     "fylite:units": "A.m^-2",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     },
     {
      "fylite:key": "p_e",
      "fylite:path": "profiles_1d/electrons/energy",
-     "fylite:units": "W/m^3",
+     "fylite:units": "W.m^-3",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     },
     {
      "fylite:key": "p_i",
      "fylite:path": "profiles_1d/total_ion_energy",
-     "fylite:units": "W/m^3",
+     "fylite:units": "W.m^-3",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     }
