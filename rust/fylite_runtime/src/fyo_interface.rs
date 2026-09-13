@@ -10,8 +10,8 @@
 #![allow(dead_code)]
 
 /// the revision of this interface, and the digest of everything it declares
-pub const REVISION: u32 = 2;
-pub const DIGEST: &str = "862b526a362b2495";
+pub const REVISION: u32 = 3;
+pub const DIGEST: &str = "229c7d3c295fbd3d";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -24,7 +24,7 @@ pub struct Entry { pub name: &'static str, pub dims: &'static [&'static str], pu
 /// table -> the fyo document type and its slots (key, path, units, rank)
 pub const TABLES: &[Table] = &[
     Table { name: "CORE_PROFILES", doc_type: "fyo:core_profiles", slots: &[
-        Slot { key: "psin", path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
+        Slot { key: "psin", path: "profiles_1d/grid/psi_norm", units: "1", rank: "1d" },
         Slot { key: "time", path: "time", units: "s", rank: "1d" },
         Slot { key: "rho", path: "profiles_1d/grid/rho_tor", units: "m", rank: "1d" },
         Slot { key: "rho_norm", path: "profiles_1d/grid/rho_tor_norm", units: "1", rank: "1d" },
@@ -44,14 +44,14 @@ pub const TABLES: &[Table] = &[
         Slot { key: "vn_prev", path: "profiles_1d/fylite:vn_prev", units: "m/s", rank: "1d" },
     ] },
     Table { name: "CORE_SOURCES", doc_type: "fyo:core_sources", slots: &[
-        Slot { key: "psin", path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
+        Slot { key: "psin", path: "profiles_1d/grid/psi_norm", units: "1", rank: "1d" },
         Slot { key: "time", path: "time", units: "s", rank: "1d" },
         Slot { key: "j_par", path: "profiles_1d/j_parallel", units: "A/m^2", rank: "1d" },
         Slot { key: "p_e", path: "profiles_1d/electrons/energy", units: "W/m^3", rank: "1d" },
         Slot { key: "p_i", path: "profiles_1d/total_ion_energy", units: "W/m^3", rank: "1d" },
     ] },
     Table { name: "CORE_TRANSPORT", doc_type: "fyo:core_transport", slots: &[
-        Slot { key: "psin", path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
+        Slot { key: "psin", path: "profiles_1d/grid/psi_norm", units: "1", rank: "1d" },
         Slot { key: "time", path: "time", units: "s", rank: "1d" },
         Slot { key: "rho", path: "profiles_1d/fylite:grid/rho_tor", units: "m", rank: "1d" },
         Slot { key: "rho_d", path: "profiles_1d/grid_d/rho_tor", units: "m", rank: "1d" },
@@ -73,10 +73,10 @@ pub const TABLES: &[Table] = &[
         Slot { key: "limiter_name", path: "wall/description_2d/limiter/unit/name", units: "1", rank: "0d" },
         Slot { key: "limiter_r", path: "wall/description_2d/limiter/unit/outline/r", units: "m", rank: "1d" },
         Slot { key: "limiter_z", path: "wall/description_2d/limiter/unit/outline/z", units: "m", rank: "1d" },
-        Slot { key: "vessel_r", path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/r", units: "m", rank: "0d" },
-        Slot { key: "vessel_z", path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/z", units: "m", rank: "0d" },
-        Slot { key: "vessel_width", path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/width", units: "m", rank: "0d" },
-        Slot { key: "vessel_height", path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/height", units: "m", rank: "0d" },
+        Slot { key: "vessel_r", path: "wall/description_2d/vessel/unit/element/geometry/rectangle/r", units: "m", rank: "0d" },
+        Slot { key: "vessel_z", path: "wall/description_2d/vessel/unit/element/geometry/rectangle/z", units: "m", rank: "0d" },
+        Slot { key: "vessel_width", path: "wall/description_2d/vessel/unit/element/geometry/rectangle/width", units: "m", rank: "0d" },
+        Slot { key: "vessel_height", path: "wall/description_2d/vessel/unit/element/geometry/rectangle/height", units: "m", rank: "0d" },
         Slot { key: "vessel_a1", path: "wall/description_2d/vessel/unit/fylite:a1", units: "deg", rank: "0d" },
         Slot { key: "vessel_a2", path: "wall/description_2d/vessel/unit/fylite:a2", units: "deg", rank: "0d" },
         Slot { key: "vessel_eta", path: "wall/description_2d/vessel/unit/fylite:resistivity_uohm_m", units: "uohm.m", rank: "0d" },
@@ -87,7 +87,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "probe_r", path: "magnetics/b_field_pol_probe/position/r", units: "m", rank: "0d" },
         Slot { key: "probe_z", path: "magnetics/b_field_pol_probe/position/z", units: "m", rank: "0d" },
         Slot { key: "probe_angle", path: "magnetics/b_field_pol_probe/poloidal_angle", units: "rad", rank: "0d" },
-        Slot { key: "probe_length", path: "magnetics/b_field_pol_probe/fylite:length", units: "m", rank: "0d" },
+        Slot { key: "probe_length", path: "magnetics/b_field_pol_probe/length", units: "m", rank: "0d" },
         Slot { key: "lh_name", path: "lh_antennas/antenna/name", units: "1", rank: "0d" },
         Slot { key: "lh_frequency", path: "lh_antennas/antenna/frequency", units: "Hz", rank: "0d" },
         Slot { key: "lh_max_power", path: "lh_antennas/antenna/fylite:max_power", units: "W", rank: "0d" },
@@ -177,7 +177,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "z", path: "beam/launching_position/z", units: "m", rank: "0d" },
         Slot { key: "angle_pol", path: "beam/fylite:angle_pol", units: "rad", rank: "0d" },
         Slot { key: "angle_tor", path: "beam/fylite:angle_tor", units: "rad", rank: "0d" },
-        Slot { key: "mode", path: "beam/fylite:mode", units: "1", rank: "0d" },
+        Slot { key: "mode", path: "beam/mode", units: "1", rank: "0d" },
     ] },
     Table { name: "EQUILIBRIUM", doc_type: "fyo:equilibrium", slots: &[
         Slot { key: "ip", path: "time_slice/global_quantities/ip", units: "A", rank: "0d" },
@@ -193,7 +193,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "pressure", path: "time_slice/profiles_1d/pressure", units: "Pa", rank: "1d" },
         Slot { key: "f_df_dpsi", path: "time_slice/profiles_1d/f_df_dpsi", units: "T^2.m^2/Wb", rank: "1d" },
         Slot { key: "dpressure_dpsi", path: "time_slice/profiles_1d/dpressure_dpsi", units: "Pa/Wb", rank: "1d" },
-        Slot { key: "psi_norm_1d", path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
+        Slot { key: "psi_norm_1d", path: "time_slice/profiles_1d/psi_norm", units: "1", rank: "1d" },
         Slot { key: "q_1d", path: "time_slice/profiles_1d/q", units: "1", rank: "1d" },
         Slot { key: "q_psi_norm_1d", path: "time_slice/profiles_1d/fylite:q_psi_norm", units: "1", rank: "1d" },
         Slot { key: "grid_r", path: "time_slice/profiles_2d/grid/dim1", units: "m", rank: "1d" },
@@ -206,7 +206,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "ladder_levels", path: "fylite:ladder_levels", units: "1", rank: "1d" },
     ] },
     Table { name: "LADDER", doc_type: "fyo:equilibrium", slots: &[
-        Slot { key: "psin", path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
+        Slot { key: "psin", path: "time_slice/profiles_1d/psi_norm", units: "1", rank: "1d" },
         Slot { key: "rho", path: "time_slice/profiles_1d/rho_tor", units: "m", rank: "1d" },
         Slot { key: "volume", path: "time_slice/profiles_1d/volume", units: "m^3", rank: "1d" },
         Slot { key: "vprime", path: "time_slice/profiles_1d/dvolume_drho_tor", units: "m^2", rank: "1d" },
@@ -218,18 +218,18 @@ pub const TABLES: &[Table] = &[
         Slot { key: "fpol", path: "time_slice/profiles_1d/f", units: "T.m", rank: "1d" },
         Slot { key: "rmin", path: "time_slice/profiles_1d/fylite:r_minor", units: "m", rank: "1d" },
         Slot { key: "rmaj", path: "time_slice/profiles_1d/fylite:r_major", units: "m", rank: "1d" },
-        Slot { key: "r2", path: "time_slice/profiles_1d/fylite:r2_average", units: "m^2", rank: "1d" },
+        Slot { key: "r2", path: "time_slice/profiles_1d/r2_average", units: "m^2", rank: "1d" },
         Slot { key: "shear", path: "time_slice/profiles_1d/magnetic_shear", units: "1", rank: "1d" },
         Slot { key: "kappa", path: "time_slice/profiles_1d/elongation", units: "1", rank: "1d" },
         Slot { key: "delta", path: "time_slice/profiles_1d/triangularity_upper", units: "1", rank: "1d" },
-        Slot { key: "shift", path: "time_slice/profiles_1d/fylite:shift", units: "1", rank: "1d" },
-        Slot { key: "s_kappa", path: "time_slice/profiles_1d/fylite:s_elongation", units: "1", rank: "1d" },
-        Slot { key: "s_delta", path: "time_slice/profiles_1d/fylite:s_triangularity", units: "1", rank: "1d" },
-        Slot { key: "zeta", path: "time_slice/profiles_1d/fylite:squareness", units: "1", rank: "1d" },
-        Slot { key: "s_zeta", path: "time_slice/profiles_1d/fylite:s_squareness", units: "1", rank: "1d" },
+        Slot { key: "shift", path: "time_slice/profiles_1d/geometric_axis_shift", units: "1", rank: "1d" },
+        Slot { key: "s_kappa", path: "time_slice/profiles_1d/elongation_shear", units: "1", rank: "1d" },
+        Slot { key: "s_delta", path: "time_slice/profiles_1d/triangularity_shear", units: "1", rank: "1d" },
+        Slot { key: "zeta", path: "time_slice/profiles_1d/squareness_mxh", units: "1", rank: "1d" },
+        Slot { key: "s_zeta", path: "time_slice/profiles_1d/squareness_mxh_shear", units: "1", rank: "1d" },
         Slot { key: "zmag", path: "time_slice/profiles_1d/fylite:z_magnetic", units: "m", rank: "1d" },
-        Slot { key: "dzmag", path: "time_slice/profiles_1d/fylite:dz_magnetic", units: "1", rank: "1d" },
-        Slot { key: "mxh", path: "time_slice/profiles_1d/fylite:mxh_harmonics", units: "1", rank: "2d" },
+        Slot { key: "dzmag", path: "time_slice/profiles_1d/geometric_axis_z_shift", units: "1", rank: "1d" },
+        Slot { key: "mxh", path: "time_slice/profiles_1d/mxh_harmonics", units: "1", rank: "2d" },
     ] },
     Table { name: "LH_ANTENNAS", doc_type: "fyo:lh_antennas", slots: &[
         Slot { key: "name", path: "antenna/name", units: "", rank: "0d" },
@@ -1386,4 +1386,4 @@ pub const CODES: &[Code] = &[
 pub const AOS: &[&str] = &["time_slice", "profiles_2d", "source", "model", "coils", "description_2d", "coil", "element", "unit", "channel", "flux_loop", "b_field_pol_probe", "position", "antenna"];
 
 /// the `fylite:` terms more than one host writes
-pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "b0", "b_tor", "channel_aturns", "channel_basis", "chi_prev", "chi_turb", "chord_nel", "chord_nel_weight", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "current_cells", "current_source", "deposited", "device_id", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "fit_eval_x", "fit_sigma", "fit_x", "fit_y", "flux_loop", "geometry", "grid", "group", "i_max_aturn", "impurity_density", "ion_density", "ip", "length", "loop_plasma", "max_power", "meas_extra", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "ne_profile", "null_r", "null_z", "orbit_loss_fraction", "outline_levels", "p_fast_profile", "p_fast_third", "p_rot_profile", "page", "pitch", "power_injected", "pressure", "pressure_weight", "pressure_x", "probe_plasma", "probe_weight", "psi_convention", "psi_ext", "psi_norm", "psi_prev", "q_prev", "q_psi_norm", "r2_average", "r_major", "r_minor", "radii", "reconstructed", "result", "rho", "row_extra", "selfcal_alive", "selfcal_computed", "selfcal_measured", "selfcal_ratio", "shift", "shinethrough", "sigma_prev", "source", "state", "target", "target_r", "target_z", "te_profile", "time", "truth", "verify", "vessel_current", "vprime", "vprime_old", "wave_phases", "wave_t", "weight", "weight_extra", "x_ref", "y_init"];
+pub const TERMS: &[&str] = &["a1", "a2", "a_minor", "angle_deg", "anneal_schedule", "b0", "b_tor", "channel_aturns", "channel_basis", "chi_prev", "chi_turb", "chord_nel", "chord_nel_weight", "coil_current_units", "config", "control_r", "control_w", "control_z", "created", "current_cells", "current_source", "deposited", "device_id", "dvolume", "eq_p", "eq_x", "equilibrium", "eta_cd", "exch_prev", "fast_energy", "fit_eval_x", "fit_sigma", "fit_x", "fit_y", "flux_loop", "grid", "group", "i_max_aturn", "impurity_density", "ion_density", "ip", "loop_plasma", "max_power", "meas_extra", "n_parallel", "n_parallel_max", "n_parallel_min", "name", "ne_profile", "null_r", "null_z", "orbit_loss_fraction", "outline_levels", "p_fast_profile", "p_fast_third", "p_rot_profile", "page", "pitch", "power_injected", "pressure", "pressure_weight", "pressure_x", "probe_plasma", "probe_weight", "psi_convention", "psi_ext", "psi_prev", "q_prev", "q_psi_norm", "r_major", "r_minor", "radii", "reconstructed", "result", "rho", "row_extra", "selfcal_alive", "selfcal_computed", "selfcal_measured", "selfcal_ratio", "shinethrough", "sigma_prev", "source", "state", "target", "target_r", "target_z", "te_profile", "time", "truth", "verify", "vessel_current", "vprime", "vprime_old", "wave_phases", "wave_t", "weight", "weight_extra", "x_ref", "y_init"];

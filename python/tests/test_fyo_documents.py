@@ -97,7 +97,7 @@ def test_the_metric_and_the_shape_are_on_the_same_surfaces(doc):
     d = fyo.derive(doc, n_surfaces=17, edge=0.9)
     p1 = d["time_slice"][0]["profiles_1d"]
     mil = d["fylite:miller"]
-    assert np.array_equal(p1["fylite:psi_norm"], mil["psin"])
+    assert np.array_equal(p1["psi_norm"], mil["psin"])
     assert np.array_equal(p1["q"], mil["q"])
 
 

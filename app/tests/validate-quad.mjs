@@ -225,7 +225,7 @@ def run(path):
     ts = doc["fylite:result"]["equilibrium"]["time_slice"][0]["profiles_1d"]
     rho = np.asarray(ts["rho_tor"], float)
     vprime = np.asarray(ts["dvolume_drho_tor"], float)
-    lad_psin = np.asarray(ts["fylite:psi_norm"], float)
+    lad_psin = np.asarray(ts["psi_norm"], float)
     psin = np.asarray(b["fylite:psin"], float)
     #: ★p_e + p_i, because that is what the march summed — not p_dep, which
     #: is the same array by a different route.  Checking the route the march

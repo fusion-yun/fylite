@@ -333,7 +333,7 @@ for d in json.load(sys.stdin):
         #: the alpha power must MOVE with the temperature, not sit at the
         #: value the first state had
         "alpha_span": float(p_alpha_tr.max() - p_alpha_tr.min()),
-        "geometry": eq["fylite:geometry_source"],
+        "geometry": eq["geometry_source"],
         "coupling": len(d["doc"].get("fylite:coupling") or []),
         "chi_lo": float(np.min(arr(ct, "CORE_TRANSPORT", "chi_i"))),
         "chi_hi": float(np.max(arr(ct, "CORE_TRANSPORT", "chi_i"))),

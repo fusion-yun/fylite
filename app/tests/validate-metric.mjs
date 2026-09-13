@@ -41,11 +41,11 @@ const fixture = JSON.parse(readFileSync(path.join(HERE, 'fixtures', 'metric.json
 
 //: the flat wrapper's spelling -> (the door's row, its field on the record)
 const ROWS = { rmin: 'fylite:r_minor', rmaj: 'fylite:r_major', q: 'q', shear: 'magnetic_shear', kappa: 'elongation',
-               delta: 'triangularity_upper', drmaj: 'fylite:shift', sKappa: 'fylite:s_elongation',
-               sDelta: 'fylite:s_triangularity', zeta: 'fylite:squareness', sZeta: 'fylite:s_squareness',
-               zmag: 'fylite:z_magnetic', dzmag: 'fylite:dz_magnetic' };
+               delta: 'triangularity_upper', drmaj: 'geometric_axis_shift', sKappa: 'elongation_shear',
+               sDelta: 'triangularity_shear', zeta: 'squareness_mxh', sZeta: 'squareness_mxh_shear',
+               zmag: 'fylite:z_magnetic', dzmag: 'geometric_axis_z_shift' };
 const LADDER = { volume: 'volume', volumePrime: 'dvolume_drho_tor', fsaGradR2: 'gm3', fsaGradR: 'gm7',
-                 fsaGradR2OverR2: 'gm2', fsaR2: 'fylite:r2_average' };
+                 fsaGradR2OverR2: 'gm2', fsaR2: 'r2_average' };
 const RAW = { f: 'f', ffprime: 'ffprime', fsaBp2: 'fsa_bp2', fsaBt2: 'fsa_bt2', gradR0: 'grad_r0', surf: 'surf',
               bt0: 'bt0', bp0: 'bp0', thetaScale: 'thetascale', bl: 'bl' };
 const flat = (node) => { const out = []; (function walk(v) { if (Array.isArray(v)) v.forEach(walk); else out.push(v); })(node.data); return out; };
@@ -61,7 +61,7 @@ function door(cases, nTheta) {
   if (cases.some((c) => c.shape)) {
     const mxh = new Float64Array(22 * n);
     cases.forEach((c, i) => { if (c.shape) mxh.set(c.shape, 22 * i); });
-    rows['fylite:mxh_harmonics'] = mxh;
+    rows['mxh_harmonics'] = mxh;
   }
   const rec = fy.complete('code/metric', { settings: { n_theta: nTheta },
                                            inputs: { equilibrium: { time_slice: { profiles_1d: rows } } } });

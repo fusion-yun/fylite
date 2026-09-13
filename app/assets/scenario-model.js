@@ -279,7 +279,7 @@ FyScenario.whenDevices(function () {
   }
 
   function applyOperatingPoint(op) {
-    var g = op['fylite:geometry'] || {};
+    var g = op['geometry'] || {};
     var a = +g['fylite:a'];
     if (!(a > 0)) throw new Error(T('x.op.no_geometry'));
     var set = {
@@ -439,7 +439,7 @@ FyScenario.whenDevices(function () {
         var op = doc['fylite:operating_point'];
         if (!op) throw new Error(T('x.op.not_op'));
         var r = applyOperatingPoint(op);
-        var g = op['fylite:geometry'] || {};
+        var g = op['geometry'] || {};
         run();
         return T('x.op.imported', {
           name: name, t: (+op['fylite:time']).toFixed(2),
@@ -2412,7 +2412,7 @@ FyScenario.whenDevices(function () {
         F.put(eq, 'EQUILIBRIUM', 'r0', last.rMajor);
         F.put(eq, 'EQUILIBRIUM', 'psi_1d', sig(last.psi));
         eq['fylite:a_minor'] = last.aMinor;
-        eq['fylite:geometry_source'] = 'fylite:' + last.geoSource;
+        eq['geometry_source'] = 'fylite:' + last.geoSource;
 
         var cp = { '@type': F.type('CORE_PROFILES') };
         F.put(cp, 'CORE_PROFILES', 'psin', sig(last.psin));
@@ -2654,7 +2654,7 @@ FyScenario.whenDevices(function () {
         if (last.pedestal) {
           var pd = last.pedestal;
           doc['fylite:pedestal'] = {
-            'fylite:model': 'eped1nn',
+            'model': 'eped1nn',
             'fylite:source':
               'Snyder PoP 16 056118 (2009); Meneghini NF 57 086034 (2017);'
               + ' EPEDNN.jl (Apache-2.0)',
@@ -2685,7 +2685,7 @@ FyScenario.whenDevices(function () {
         if (last.beam) {
           var bm = last.beam, bin = bm.inputs;
           doc['fylite:beam'] = {
-            'fylite:model': 'nbi',
+            'model': 'nbi',
             'fylite:source': 'fylite.kernel.beam_deposit',
             'fylite:psin': sig(bm.psin, 12),
             'fylite:psin_edges': sig(bm.edges, 12),
@@ -2789,7 +2789,7 @@ FyScenario.whenDevices(function () {
         if (last.lh) {
           var lw = last.lh;
           doc['fylite:lh'] = {
-            'fylite:model': 'lh',
+            'model': 'lh',
             'fylite:source': 'fylite.kernel.lh_deposit',
             'fylite:psin': sig(lw.psin, 12),
             'fylite:psin_edges': sig(lw.edges, 12),
@@ -3039,7 +3039,7 @@ FyScenario.whenDevices(function () {
             'fylite:radii': (fmr.rhoN || []).map(function (x, i) {
               return { 'fylite:rho_tor_norm': x,
                        'fylite:rho_tor': fmr.radii[i],
-                       'fylite:psi_norm': fmr.psin[i],
+                       'psi_norm': fmr.psin[i],
                        'fylite:a_over_lt_e': fmr.alte[i],
                        'fylite:a_over_lt_i': fmr.alti[i],
                        'fylite:q_e_model': fmr.fluxE[i],
@@ -3152,9 +3152,9 @@ FyScenario.whenDevices(function () {
     //: reconstruction output — a file that forgot which it was could come
     //: back in as data
     doc['fylite:provenance'] = 'model-evolve-prediction';
-    doc['fylite:psi_norm_solved'] = +solved.toPrecision(7);
+    doc['psi_norm_solved'] = +solved.toPrecision(7);
     doc['fylite:beyond_solved'] = 'held';
-    doc['fylite:geometry_source'] = 'fylite:' + last.geoSource;
+    doc['geometry_source'] = 'fylite:' + last.geoSource;
     return JSON.stringify(doc, null, 1);
   }
 
@@ -3757,7 +3757,7 @@ FyScenario.whenDevices(function () {
         F.put(eq, 'EQUILIBRIUM', 'b0', last.b0);
         F.put(eq, 'EQUILIBRIUM', 'r0', last.rMajor);
         eq['fylite:a_minor'] = last.aMinor;
-        eq['fylite:geometry_source'] = 'fylite:' + last.geoSource;
+        eq['geometry_source'] = 'fylite:' + last.geoSource;
 
         var cp = { '@type': F.type('CORE_PROFILES') };
         F.put(cp, 'CORE_PROFILES', 'psin', sig(last.psin));

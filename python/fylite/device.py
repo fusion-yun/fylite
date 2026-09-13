@@ -834,7 +834,7 @@ def diagnostic_geometry_from_document(doc: dict) -> dict:
     Reads ``magnetics.b_field_pol_probe`` and ``magnetics.flux_loop`` in the
     DD spelling ``app/assets/fyodev.js`` writes: ``position: [{r, z}]`` on
     both, plus ``poloidal_angle`` [rad] and the namespaced ``fylite:angle_deg``
-    / ``fylite:length`` on a probe.  Either the browser's bare
+    / ``length`` on a probe.  Either the browser's bare
     ``b_field_pol_probe: [...]`` list or this package's
     ``b_field_pol_probe: {count, note, channel: [...]}`` wrapper is accepted —
     the same machine described two ways round should not need two readers.
@@ -882,7 +882,7 @@ def diagnostic_geometry_from_document(doc: dict) -> dict:
     return {
         "probes": {"r": [r for r, _ in pr], "z": [z for _, z in pr],
                    "angle_deg": [angle_deg(c) for c in probes],
-                   "length": [float(c.get("fylite:length") or 0.0)
+                   "length": [float(c.get("length") or 0.0)
                               for c in probes],
                    "node": [str(c.get("name", "")) for c in probes]},
         "flux_loops": {"r": [r for r, _ in fl], "z": [z for _, z in fl],

@@ -196,7 +196,7 @@ _PROBE_FIELDS = {
     "XMP2": ("b_field_pol_probe", lambda c: c["position"][0]["r"]),
     "YMP2": ("b_field_pol_probe", lambda c: c["position"][0]["z"]),
     "AMP2": ("b_field_pol_probe", lambda c: c["fylite:angle_deg"]),
-    "SMP2": ("b_field_pol_probe", lambda c: c["fylite:length"]),
+    "SMP2": ("b_field_pol_probe", lambda c: c["length"]),
     "RSI": ("flux_loop", lambda c: c["position"][0]["r"]),
     "ZSI": ("flux_loop", lambda c: c["position"][0]["z"]),
 }

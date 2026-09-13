@@ -449,3 +449,19 @@ def test_tool_calls_fit_the_signature_they_call(src: Path):
     assert not unexpected, (
         "call sites that do not fit the signature they call:\n  "
         + "\n  ".join(unexpected))
+
+
+def test_the_new_door_reaches_the_hosts_with_its_parameter_face():
+    """★★内核的新门 `code/separatrix_align` 的**档位面**到得了本仓（C-28 的机器）。
+
+    ★这一半装在这里是**有理由的**：内核那一侧只准查它自己推导出来的东西（那条缝只准
+    变窄，用户裁定 2026-09-05），而「生成件里真的有这一门」只有拿着生成件的人查得了。
+    两侧合起来才说明「推导对 + 传过来了」。
+    """
+    from fylite import _fyo_interface as fi
+
+    face = fi.CODE_PARAMS["separatrix_align"]
+    assert face["door"] == "separatrix_align_case"
+    keys = face["parameters"]
+    assert set(keys) == {"te_sep", "shift_max"}, sorted(keys)
+    assert keys["shift_max"]["default"] == "0.05", keys["shift_max"]

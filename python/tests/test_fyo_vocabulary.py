@@ -3,7 +3,7 @@
 ★★Why this exists.  ``psi_norm`` was written **bare** by
 ``app/assets/session.js`` and by one block of ``app/assets/scenario-analysis.js``,
 while ``fyo.py`` and the *other* block of ``scenario-analysis.js`` wrote
-``fylite:psi_norm`` — inside documents all typed ``fyo:equilibrium``.
+``psi_norm`` — inside documents all typed ``fyo:equilibrium``.
 
 The failure mode is the quiet one.  ``psi_norm`` is **not** an IMAS-DD name —
 the DD has no normalised-flux coordinate, which is precisely why the term is

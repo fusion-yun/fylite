@@ -310,7 +310,7 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
     settings.update({k: float(v) for k, v in stop_kw.items()})
     if zsum is not None:
         settings["zsum"] = float(zsum)
-    cp = {"grid": {"fylite:psi_norm": psin_prof},
+    cp = {"grid": {"psi_norm": psin_prof},
           "electrons": {"density": ne, "temperature": te}}
     if ti is not None:
         cp["t_i_average"] = np.asarray(ti, float)
@@ -344,7 +344,7 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
                 for b, a, sh, ol, cur in zip(beams, arr("beam_absorbed"), arr("beam_shinethrough"),
                                              arr("beam_orbit_loss"), arr("beam_current"))]
     return {
-        "psin": np.asarray(src["grid"]["fylite:psi_norm"]["data"], float),
+        "psin": np.asarray(src["grid"]["psi_norm"]["data"], float),
         "psin_edges": arr("psin_edges"), "dvolume": arr("dvolume"),
         "p_dep": arr("p_dep"), "p_e": np.asarray(src["electrons"]["energy"]["data"], float),
         "p_i": np.asarray(src["total_ion_energy"]["data"], float),

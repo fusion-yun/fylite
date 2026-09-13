@@ -188,7 +188,7 @@ def state(d, idx: np.ndarray, psin: np.ndarray) -> dict:
         "@type": "fyo:core_profiles",
         "time": [float(v("time"))],
         "profiles_1d": {
-            "grid": {"fylite:psi_norm": f64s(psin[idx]), "psi": f64s(2.0 * math.pi * v("psir_grid")[idx])},
+            "grid": {"psi_norm": f64s(psin[idx]), "psi": f64s(2.0 * math.pi * v("psir_grid")[idx])},
             "electrons": {"density": f64s(v("ene")[idx]), "temperature": f64s(1.0e3 * v("Te")[idx])},
             "t_i_average": f64s(1.0e3 * v("Ti")[idx]),
             "zeff": f64s(v("zeff")[idx]),
@@ -204,7 +204,7 @@ def profiles_full(d, psin: np.ndarray) -> dict:
         "@type": "fyo:core_profiles",
         "time": [float(v("time"))],
         "profiles_1d": {
-            "grid": {"fylite:psi_norm": f64s(psin)},
+            "grid": {"psi_norm": f64s(psin)},
             "electrons": {"density": f64s(v("ene")), "temperature": f64s(1.0e3 * v("Te"))},
             "zeff": f64s(v("zeff")),
         },
@@ -220,7 +220,7 @@ def sources(d, psin: np.ndarray) -> dict:
         "time": [float(v("time"))],
         "source": [{
             "identifier": {"name": "ec"},
-            "profiles_1d": {"grid": {"fylite:psi_norm": f64s(psin)}, "j_parallel": f64s(v("currf"))},
+            "profiles_1d": {"grid": {"psi_norm": f64s(psin)}, "j_parallel": f64s(v("currf"))},
         }],
     }
 
@@ -261,10 +261,10 @@ def launchers(head: list[float], nml: dict[str, float], mode: float, mode_source
         "fylite:power_source": power_source,
         "launching_position": {"r": 0.01 * head[7], "z": 0.01 * head[8]},
         "fylite:angle_pol": pol, "fylite:angle_tor": tor,
-        "fylite:mode": mode,
+        "mode": mode,
         "fylite:angle_source": "echin header slots 10/11 (angrid1, angrid2), converted by the "
                                "convention derived in fylite_kernel tests/test_cfedr_toray_oracle.py",
-        "fylite:mode_source": mode_source,
+        "mode_source": mode_source,
     }
     doc = {"@type": "fyo:ec_launchers", "time": [0.0], "beam": [beam]}
     if ech_total is not None:

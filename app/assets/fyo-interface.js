@@ -31,10 +31,8 @@
     'power_injected',      // Power [W] a beam PUT IN, as against `power` (absorbed) beside it.
     'probe_weight',        // The fit weight of each poloidal-field probe reading (EFIT's fwtmp2), one per probe; absent, the device's own `weight` per probe applies (`code/reconstruction`).
     'psi_convention',      // Which flux convention the document's psi is in, e.
-    'psi_norm',            // Normalised poloidal flux grid a profile is sampled on.
     'psi_prev',            // The poloidal flux [Wb] the step before a resumed block ended at, bound under inputs/evolve so the entry's Ohmic term can difference it (第十四刀, 2026-09-05).
     'q_psi_norm',          // The psi_norm grid the safety factor is on, when it differs from the profile grid beside it.
-    'r2_average',          // <R^2> [m^2] per ladder surface, the toroidal-momentum capacity's weight (第十五刀): the DD has gm1 = <1/R^2> and no <R^2>, so this row of the traced ladder is ours; code/refit states it beside the other ladder rows (第十九刀) and code/evolve's ladder tier binds it.
     'r_major',             // Major radius [m] of each traced surface's centre on the equilibrium ladder — the Miller `R0(r)` the surface rows read beside `r_minor`.
     'r_minor',             // Minor radius [m] of each traced surface on the equilibrium ladder (profiles_1d), the DD's `r_inboard`/`r_outboard` pair collapsed to the Miller half-width the kernel's surface rows read (the neoclassical and turbulent closures, the beam's shell table).
     'sigma_prev',          // The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both).
@@ -69,12 +67,10 @@
     'fit_x',               // The abscissae of the points a profile fit is asked for — `code/profile_fit` (the profile bar, and `analysis.
     'fit_y',               // The values at `fit_x` the fit is held to — `code/profile_fit`.
     'flux_loop',           // The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`).
-    'geometry',            // A wall element's original parameterised rectangle, kept for reference after the DD normalisation expands it into `outline/{r,z}` -- the DD's wall element has NO `geometry`, only an outline.
     'grid',                // `core_transport`'s COMMON rho grid.
     'group',               // Which layer of the passive structure a vessel unit belongs to (EAST: `inner_shell` / `outer_shell` / `passive_plates`).
     'i_max_aturn',         // Per-channel ampere-turn box [A] a design may not leave (`code/breakdown` · `code/discharge` start); absent, the kernel folds it from the device's supply rating and element turns.
     'ip',                  // The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held.
-    'length',              // Effective length [m] of a magnetic probe, the span its reading averages over.
     'loop_plasma',         // The flux-loop readings with the coil share already removed [Wb/rad], one per loop, the rows-given tier's loop measurements (`code/reconstruction`).
     'max_power',           // Nameplate maximum power [W] of a heating system's launcher — what the hardware may deliver, as opposed to what a shot injected.
     'meas_extra',          // The measurements of `row_extra`, one per extra row (`code/reconstruction`).
@@ -103,7 +99,6 @@
     'selfcal_computed',    // The model's reading of the same channels (`code/selfcal`); the factor is computed/measured against the median of the alive channels.
     'selfcal_measured',    // One fit's measured readings, one per channel, in the instrument's own unit — with `selfcal_computed` the rows `code/selfcal` takes the per-channel calibration factors from (第三十六刀).
     'selfcal_ratio',       // A time series' model/measured ratio matrix, one row per slice and one column per channel, NaN where a channel was not read — `code/selfcal` takes each channel's factor over the slices, its scatter and the slice count from it.
-    'shift',               // Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures.
     'shinethrough',        // Fraction of beam power that passed straight through unabsorbed.
     'source',              // The source RATE the transport operator takes, on its grid (`code/transport`, bound under transport).
     'state',               // The carried state of a multi-step run: what a next run needs to continue this one (`fylite:state` on an spo:ComputationRecord, FYL-DESIGN-16 S-4).
@@ -122,14 +117,14 @@
     'x_ref',               // The channel ampere-turns a null design is anchored to [A] — `code/breakdown` pulls the design towards them (the page's `xRef`: the reference discharge's currents when the reader asks for that anchor).
     'y_init',              // The state a transport pass starts from, bound under transport/fylite:y_init in the panel's own unit (keV on the model page): `code/transport` steps from it, and the turbulent panel hands each pass's answer back as the next pass's start (第二十五刀).
   ];
-  var REVISION = 2;
-  var DIGEST = "862b526a362b2495";
+  var REVISION = 3;
+  var DIGEST = "229c7d3c295fbd3d";
   var TREE_FORMAT = 1;
   var TABLES = {
     CORE_PROFILES: {
       type: "fyo:core_profiles",
       slots: {
-        "psin": { path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
+        "psin": { path: "profiles_1d/grid/psi_norm", units: "1", rank: "1d" },
         "time": { path: "time", units: "s", rank: "1d" },
         "rho": { path: "profiles_1d/grid/rho_tor", units: "m", rank: "1d" },
         "rho_norm": { path: "profiles_1d/grid/rho_tor_norm", units: "1", rank: "1d" },
@@ -152,7 +147,7 @@
     CORE_SOURCES: {
       type: "fyo:core_sources",
       slots: {
-        "psin": { path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
+        "psin": { path: "profiles_1d/grid/psi_norm", units: "1", rank: "1d" },
         "time": { path: "time", units: "s", rank: "1d" },
         "j_par": { path: "profiles_1d/j_parallel", units: "A/m^2", rank: "1d" },
         "p_e": { path: "profiles_1d/electrons/energy", units: "W/m^3", rank: "1d" },
@@ -162,7 +157,7 @@
     CORE_TRANSPORT: {
       type: "fyo:core_transport",
       slots: {
-        "psin": { path: "profiles_1d/grid/fylite:psi_norm", units: "1", rank: "1d" },
+        "psin": { path: "profiles_1d/grid/psi_norm", units: "1", rank: "1d" },
         "time": { path: "time", units: "s", rank: "1d" },
         "rho": { path: "profiles_1d/fylite:grid/rho_tor", units: "m", rank: "1d" },
         "rho_d": { path: "profiles_1d/grid_d/rho_tor", units: "m", rank: "1d" },
@@ -187,10 +182,10 @@
         "limiter_name": { path: "wall/description_2d/limiter/unit/name", units: "1", rank: "0d" },
         "limiter_r": { path: "wall/description_2d/limiter/unit/outline/r", units: "m", rank: "1d" },
         "limiter_z": { path: "wall/description_2d/limiter/unit/outline/z", units: "m", rank: "1d" },
-        "vessel_r": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/r", units: "m", rank: "0d" },
-        "vessel_z": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/z", units: "m", rank: "0d" },
-        "vessel_width": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/width", units: "m", rank: "0d" },
-        "vessel_height": { path: "wall/description_2d/vessel/unit/element/fylite:geometry/rectangle/height", units: "m", rank: "0d" },
+        "vessel_r": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/r", units: "m", rank: "0d" },
+        "vessel_z": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/z", units: "m", rank: "0d" },
+        "vessel_width": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/width", units: "m", rank: "0d" },
+        "vessel_height": { path: "wall/description_2d/vessel/unit/element/geometry/rectangle/height", units: "m", rank: "0d" },
         "vessel_a1": { path: "wall/description_2d/vessel/unit/fylite:a1", units: "deg", rank: "0d" },
         "vessel_a2": { path: "wall/description_2d/vessel/unit/fylite:a2", units: "deg", rank: "0d" },
         "vessel_eta": { path: "wall/description_2d/vessel/unit/fylite:resistivity_uohm_m", units: "uohm.m", rank: "0d" },
@@ -201,7 +196,7 @@
         "probe_r": { path: "magnetics/b_field_pol_probe/position/r", units: "m", rank: "0d" },
         "probe_z": { path: "magnetics/b_field_pol_probe/position/z", units: "m", rank: "0d" },
         "probe_angle": { path: "magnetics/b_field_pol_probe/poloidal_angle", units: "rad", rank: "0d" },
-        "probe_length": { path: "magnetics/b_field_pol_probe/fylite:length", units: "m", rank: "0d" },
+        "probe_length": { path: "magnetics/b_field_pol_probe/length", units: "m", rank: "0d" },
         "lh_name": { path: "lh_antennas/antenna/name", units: "1", rank: "0d" },
         "lh_frequency": { path: "lh_antennas/antenna/frequency", units: "Hz", rank: "0d" },
         "lh_max_power": { path: "lh_antennas/antenna/fylite:max_power", units: "W", rank: "0d" },
@@ -297,7 +292,7 @@
         "z": { path: "beam/launching_position/z", units: "m", rank: "0d" },
         "angle_pol": { path: "beam/fylite:angle_pol", units: "rad", rank: "0d" },
         "angle_tor": { path: "beam/fylite:angle_tor", units: "rad", rank: "0d" },
-        "mode": { path: "beam/fylite:mode", units: "1", rank: "0d" },
+        "mode": { path: "beam/mode", units: "1", rank: "0d" },
       }
     },
     EQUILIBRIUM: {
@@ -316,7 +311,7 @@
         "pressure": { path: "time_slice/profiles_1d/pressure", units: "Pa", rank: "1d" },
         "f_df_dpsi": { path: "time_slice/profiles_1d/f_df_dpsi", units: "T^2.m^2/Wb", rank: "1d" },
         "dpressure_dpsi": { path: "time_slice/profiles_1d/dpressure_dpsi", units: "Pa/Wb", rank: "1d" },
-        "psi_norm_1d": { path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
+        "psi_norm_1d": { path: "time_slice/profiles_1d/psi_norm", units: "1", rank: "1d" },
         "q_1d": { path: "time_slice/profiles_1d/q", units: "1", rank: "1d" },
         "q_psi_norm_1d": { path: "time_slice/profiles_1d/fylite:q_psi_norm", units: "1", rank: "1d" },
         "grid_r": { path: "time_slice/profiles_2d/grid/dim1", units: "m", rank: "1d" },
@@ -332,7 +327,7 @@
     LADDER: {
       type: "fyo:equilibrium",
       slots: {
-        "psin": { path: "time_slice/profiles_1d/fylite:psi_norm", units: "1", rank: "1d" },
+        "psin": { path: "time_slice/profiles_1d/psi_norm", units: "1", rank: "1d" },
         "rho": { path: "time_slice/profiles_1d/rho_tor", units: "m", rank: "1d" },
         "volume": { path: "time_slice/profiles_1d/volume", units: "m^3", rank: "1d" },
         "vprime": { path: "time_slice/profiles_1d/dvolume_drho_tor", units: "m^2", rank: "1d" },
@@ -344,18 +339,18 @@
         "fpol": { path: "time_slice/profiles_1d/f", units: "T.m", rank: "1d" },
         "rmin": { path: "time_slice/profiles_1d/fylite:r_minor", units: "m", rank: "1d" },
         "rmaj": { path: "time_slice/profiles_1d/fylite:r_major", units: "m", rank: "1d" },
-        "r2": { path: "time_slice/profiles_1d/fylite:r2_average", units: "m^2", rank: "1d" },
+        "r2": { path: "time_slice/profiles_1d/r2_average", units: "m^2", rank: "1d" },
         "shear": { path: "time_slice/profiles_1d/magnetic_shear", units: "1", rank: "1d" },
         "kappa": { path: "time_slice/profiles_1d/elongation", units: "1", rank: "1d" },
         "delta": { path: "time_slice/profiles_1d/triangularity_upper", units: "1", rank: "1d" },
-        "shift": { path: "time_slice/profiles_1d/fylite:shift", units: "1", rank: "1d" },
-        "s_kappa": { path: "time_slice/profiles_1d/fylite:s_elongation", units: "1", rank: "1d" },
-        "s_delta": { path: "time_slice/profiles_1d/fylite:s_triangularity", units: "1", rank: "1d" },
-        "zeta": { path: "time_slice/profiles_1d/fylite:squareness", units: "1", rank: "1d" },
-        "s_zeta": { path: "time_slice/profiles_1d/fylite:s_squareness", units: "1", rank: "1d" },
+        "shift": { path: "time_slice/profiles_1d/geometric_axis_shift", units: "1", rank: "1d" },
+        "s_kappa": { path: "time_slice/profiles_1d/elongation_shear", units: "1", rank: "1d" },
+        "s_delta": { path: "time_slice/profiles_1d/triangularity_shear", units: "1", rank: "1d" },
+        "zeta": { path: "time_slice/profiles_1d/squareness_mxh", units: "1", rank: "1d" },
+        "s_zeta": { path: "time_slice/profiles_1d/squareness_mxh_shear", units: "1", rank: "1d" },
         "zmag": { path: "time_slice/profiles_1d/fylite:z_magnetic", units: "m", rank: "1d" },
-        "dzmag": { path: "time_slice/profiles_1d/fylite:dz_magnetic", units: "1", rank: "1d" },
-        "mxh": { path: "time_slice/profiles_1d/fylite:mxh_harmonics", units: "1", rank: "2d" },
+        "dzmag": { path: "time_slice/profiles_1d/geometric_axis_z_shift", units: "1", rank: "1d" },
+        "mxh": { path: "time_slice/profiles_1d/mxh_harmonics", units: "1", rank: "2d" },
       }
     },
     LH_ANTENNAS: {

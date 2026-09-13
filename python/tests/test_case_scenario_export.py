@@ -111,7 +111,7 @@ def test_the_ladders_q_is_onetwos_on_its_own_rows(record):
     lad = out["ladder/equilibrium"]["time_slice"]
     lad = lad[0] if isinstance(lad, list) else lad
     q = np.asarray(lad["profiles_1d"]["q"], float)
-    psin = np.asarray(lad["profiles_1d"]["fylite:psi_norm"], float)
+    psin = np.asarray(lad["profiles_1d"]["psi_norm"], float)
     d = netCDF4.Dataset(str(_case_dir(case) / CASES[case]["state"]))
     pa, pb = float(d.variables["psiaxis"][:]), float(d.variables["psibdry"][:])
     x = (np.asarray(d.variables["psir_grid"][:], float) - pa) / (pb - pa)

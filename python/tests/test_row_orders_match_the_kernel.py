@@ -170,7 +170,7 @@ UNCHECKED = {
                      "`test_gfile_equivalence.py`, not a kernel write order",
     "GFILE_ARRAYS": "dict keys of `read_gfile`, held to the Python reader by "
                     "`test_gfile_equivalence.py`, not a kernel write order",
-    #: `GEO_SHAPE_KEYS` lives in `fyo.py` now (the `fylite:mxh_harmonics` row's
+    #: `GEO_SHAPE_KEYS` lives in `fyo.py` now (the `mxh_harmonics` row's
     #: column order, T-4 第二十四刀) and is read by `test_fyo_interface.py`'s kin.
     #: ★TX-4's three Lengyel key tuples were listed here as INPUT blocks;
     #: they left with `lengyel_forward` / `lengyel_inverse` (oracle-only since

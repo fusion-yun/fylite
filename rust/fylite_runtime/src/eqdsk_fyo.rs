@@ -39,7 +39,7 @@ pub const EQUILIBRIUM_SLOTS: [(&str, &str); 24] = [
     //: ★2026-09-05 the delivered profile table's axis (`code/discharge`); a g-file
     //: carries its p'/FF' on the uniform normalised-flux grid implicitly, so the
     //: conversion neither reads nor writes it
-    ("psi_norm_1d", "time_slice/profiles_1d/fylite:psi_norm"),
+    ("psi_norm_1d", "time_slice/profiles_1d/psi_norm"),
     ("q_1d",           "time_slice/profiles_1d/q"),
     ("q_psi_norm_1d",  "time_slice/profiles_1d/fylite:q_psi_norm"),
     ("grid_r",         "time_slice/profiles_2d/grid/dim1"),
@@ -346,7 +346,7 @@ mod tests {
         let meta = crate::ids_meta::IdsMeta::get("equilibrium").unwrap();
         for (_, p) in EQUILIBRIUM_SLOTS {
             //: a namespaced segment ANYWHERE makes the path ours, not the DD's
-            //: (`time_slice/profiles_1d/fylite:psi_norm` hangs a fylite leaf
+            //: (`time_slice/profiles_1d/psi_norm` hangs a fylite leaf
             //: under a DD node)
             if !p.split('/').any(|seg| seg.starts_with("fylite:")) {
                 assert!(meta.has(p), "{p}");

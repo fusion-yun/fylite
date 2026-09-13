@@ -153,7 +153,7 @@ let bad = errs.length;
 if (errs.length) console.log('页面报错：', errs.slice(0, 3).join(' | '));
 
 const op = deck['fylite:operating_point'];
-const g = op ? op['fylite:geometry'] : null;
+const g = op ? op['geometry'] : null;
 if (!op || !g) {
   console.log('★导出的文件里没有 fylite:operating_point —— 这条边根本没通');
   process.exit(1);

@@ -805,7 +805,7 @@ def _turbulent_march(settings: dict, inputs: dict, turb: dict, *, momentum: bool
     probe = fydoc.complete("code/evolve", {"settings": {**settings, "probe": 1.0}, "inputs": inputs})
     lad = probe["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
     ladder = {k: np.asarray(lad[k]["data"], float) for k in
-              ("rho_tor", "fylite:r_minor", "fylite:r_major", "fylite:shift", "q", "magnetic_shear",
+              ("rho_tor", "fylite:r_minor", "fylite:r_major", "geometric_axis_shift", "q", "magnetic_shear",
                "elongation", "triangularity_upper")}
     a, b0 = float(probe["facts"]["a"]["value"]), float(probe["facts"]["b0"]["value"])
 
@@ -906,8 +906,8 @@ _COUPLE_DEFAULTS = {"every": 1, "beta0": 0.55, "emp": 1.0, "enp": 1.0, "relax": 
 
 #: the ladder rows `code/refit` states and `code/evolve`'s ladder tier binds
 _LADDER_ROWS = ("rho_tor", "dvolume_drho_tor", "gm3", "gm7", "gm2", "f", "q", "fylite:r_minor", "fylite:r_major",
-                "fylite:r2_average", "magnetic_shear", "elongation", "triangularity_upper", "fylite:shift",
-                "fylite:psi_norm", "psi")
+                "r2_average", "magnetic_shear", "elongation", "triangularity_upper", "geometric_axis_shift",
+                "psi_norm", "psi")
 
 
 def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool, quasi: bool,
@@ -959,7 +959,7 @@ def _coupled_march(settings: dict, inputs: dict, couple: dict, *, momentum: bool
             st["a"] = float(ladder["a"])
             inp["equilibrium"] = {"time_slice": {"profiles_1d": {
                 "rho_tor": ladder["rho_tor"], "dvolume_drho_tor": ladder["dvolume_drho_tor"],
-                "fylite:psi_norm": ladder["fylite:psi_norm"]}}}
+                "psi_norm": ladder["psi_norm"]}}}
             prof = {"electrons": {"temperature": state["te"], "density": state["ne"]},
                     "t_i_average": state["ti"], "fylite:ion_density": state["ni"]}
             if "omega" in state:
@@ -1127,7 +1127,7 @@ def _flux_match_once(settings: dict, inputs: dict, f: dict, state: dict | None, 
     rec = fydoc.complete("code/evolve", {"settings": dict(base, stage="start"), "inputs": inp})
     lad = rec["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
     ladder = {k: np.asarray(lad[k]["data"], float) for k in
-              ("rho_tor", "fylite:r_minor", "fylite:r_major", "fylite:shift", "q", "magnetic_shear",
+              ("rho_tor", "fylite:r_minor", "fylite:r_major", "geometric_axis_shift", "q", "magnetic_shear",
                "elongation", "triangularity_upper")}
     a, b0 = fact(rec, "a"), fact(rec, "b0")
     radii = arr(rec, "fm_index")
@@ -1269,11 +1269,11 @@ def _flux_match_answer(settings: dict, inputs: dict, fm: dict, *, couple: dict |
             eq = fydoc.complete("code/refit", {"settings": fixed_r, "inputs": {
                 "device": dev, "discharge": {"fylite:channel_aturns": aturns},
                 "equilibrium": {"time_slice": {"profiles_1d": {"rho_tor": rho, "dvolume_drho_tor": ladder_rows["dvolume_drho_tor"],
-                                                               "fylite:psi_norm": ladder_rows["fylite:psi_norm"]}}},
+                                                               "psi_norm": ladder_rows["psi_norm"]}}},
                 "core_profiles": {"profiles_1d": {"electrons": {"temperature": state["te"], "density": state["ne"]},
                                                   "t_i_average": state["ti"], "fylite:ion_density": state["ni"]}},
                 "refit": {"fylite:eq_x": arr(eq_prev, "free_profile_x"), "fylite:eq_p": arr(eq_prev, "free_pres")}}})
-            psin_old = ladder_rows["fylite:psi_norm"]
+            psin_old = ladder_rows["psi_norm"]
             lad2 = eq["fields"]["equilibrium"]["time_slice"]["profiles_1d"]
             ladder_hint = {k: np.asarray(lad2[k]["data"], float) for k in _LADDER_ROWS}
             cp2 = eq["fields"]["core_profiles"]["profiles_1d"]
@@ -1283,7 +1283,7 @@ def _flux_match_answer(settings: dict, inputs: dict, fm: dict, *, couple: dict |
                      "ni": np.asarray(cp2["fylite:ion_density"]["data"], float),
                      "psi": np.asarray(cp2["grid"]["psi"]["data"], float)}
             settings.update({"a": fact(eq, "a"), "r0": fact(eq, "r0"), "b0": fact(eq, "b0")})
-            remap = lambda v: np.interp(ladder_hint["fylite:psi_norm"], psin_old, v)  # noqa: E731
+            remap = lambda v: np.interp(ladder_hint["psi_norm"], psin_old, v)  # noqa: E731
             if p_prev is not None:
                 p_prev = remap(p_prev)
             q_now = remap(q_now)

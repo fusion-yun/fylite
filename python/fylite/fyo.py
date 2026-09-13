@@ -94,7 +94,7 @@ def vocabulary() -> dict:
     ``psi_norm`` went out bare from two browser writers and prefixed from
     every Python one, inside documents all typed ``fyo:equilibrium``.  Bare,
     it claims IMAS-DD provenance the term does not have, so a reader looking
-    for ``fylite:psi_norm`` found nothing and nothing raised.
+    for ``psi_norm`` found nothing and nothing raised.
 
     The browser reads the same table through the generated
     ``app/assets/fyo-names.js`` (``rust/build.sh``), for the same reason
@@ -822,7 +822,7 @@ def transport_metrics(eq, *, psin=None, n_surfaces: int = 41,
 
 
 #: The 22 extended (MXH) harmonics of a local surface in GEO's order — the
-#: columns of ``code/metric``'s ``fylite:mxh_harmonics`` row (cos0..cos6 with
+#: columns of ``code/metric``'s ``mxh_harmonics`` row (cos0..cos6 with
 #: their s_, then sin3..sin6 with theirs).  ★An interface fact: the kernel
 #: reads the row by position.
 GEO_SHAPE_KEYS = (

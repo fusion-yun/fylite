@@ -1296,7 +1296,7 @@ FyScenario.whenDevices(function () {
       'fylite:slice_index': k,
       'fylite:plasma_current': +last.in.ip[k].toPrecision(7),
       //: from the equilibrium, and said so
-      'fylite:geometry': {
+      'geometry': {
         'fylite:r0': +sh.r0.toPrecision(7), 'fylite:a': +sh.a.toPrecision(7),
         'fylite:kappa': +sh.kappa.toPrecision(7),
         'fylite:delta': +sh.delta.toPrecision(7),

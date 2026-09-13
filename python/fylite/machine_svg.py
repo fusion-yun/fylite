@@ -215,13 +215,13 @@ def _element_curve(el: dict, name: str, path: str,
                    a1: float | None, a2: float | None, group: str = "") -> Curve | None:
     """一个元件的形状：先认 DD 的 `outline`，再认 fylite 的参数化矩形。
 
-    ★次序不是随便的。导出成 DD 之后，元件**两样都有**（矩形改挂 `fylite:geometry`
+    ★次序不是随便的。导出成 DD 之后，元件**两样都有**（矩形改挂 `geometry`
     留作参考）；这时该画的是 DD 那一份，因为它才是数据入口里真正携带的几何。
     """
     got = _curve(el, "outline", name, path, group)
     if got is not None:
         return got
-    for key in ("geometry", "fylite:geometry"):
+    for key in ("geometry", "geometry"):
         geom = el.get(key)
         if not isinstance(geom, dict):
             continue
@@ -412,7 +412,7 @@ def layer_outlines(source, *, tolerance: float = LAYER_TOLERANCE,
 
 def _plate(unit: dict, el: dict) -> dict | None:
     """一块矩形板的两条长边与中心。倾角在元件上找不到就上溯到单元。"""
-    geom = el.get("geometry") or el.get("fylite:geometry")
+    geom = el.get("geometry") or el.get("geometry")
     rect = geom.get("rectangle") if isinstance(geom, dict) else None
     if not isinstance(rect, dict) or not {"r", "z", "width", "height"} <= set(rect):
         return None

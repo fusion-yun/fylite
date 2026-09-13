@@ -133,7 +133,7 @@ say(p[0] > p[p.length - 1], '压强从轴向外下降',
 
 //: ★★THE GAP.  Everything at or beyond the solved edge must be the last
 //: solved value, exactly — a held value, not an extrapolated one.
-const solved = doc['fylite:psi_norm_solved'];
+const solved = doc['psi_norm_solved'];
 say(typeof solved === 'number' && solved > 0 && solved < 1,
     '文件说出了它解到哪里', String(solved));
 say(doc['fylite:beyond_solved'] === 'held', '也说出了那以外是平推的',

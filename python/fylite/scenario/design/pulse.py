@@ -156,7 +156,7 @@ def feedforward(waypoints, *, verify=(), n_points: int = 24, x_weight: float = 0
     prof = dict(profile or {})
     if "psin" in prof:
         inputs["equilibrium"] = {"time_slice": [{"profiles_1d": {
-            "fylite:psi_norm": np.asarray(prof["psin"], float),
+            "psi_norm": np.asarray(prof["psin"], float),
             "dpressure_dpsi": np.asarray(prof["dpressure_dpsi"], float),
             "f_df_dpsi": np.asarray(prof["f_df_dpsi"], float)}}]}
     else:

@@ -346,7 +346,7 @@ def _channels(entries, kind: str) -> list[dict]:
         if c.get("poloidal_angle") is not None:
             item["poloidal_angle"] = float(c["poloidal_angle"])
         if c.get("length") is not None:
-            item["fylite:length"] = float(c["length"])
+            item["length"] = float(c["length"])
         out.append(item)
     return out
 

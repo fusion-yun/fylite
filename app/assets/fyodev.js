@@ -126,7 +126,7 @@
           position: [{ r: p.r, z: p.z }],
           poloidal_angle: p.angle * Math.PI / 180,
           'fylite:angle_deg': p.angle,
-          'fylite:length': p.length,
+          'length': p.length,
           'fylite:weight': p.weight,
           'fylite:bit_error': p.bitError,
         };
@@ -361,7 +361,7 @@
       return { name: String(p.name || ('MP' + (i + 1))),
                r: num(pos.r, 'probe ' + i), z: num(pos.z, 'probe ' + i),
                angle: +deg,
-               length: +(p['fylite:length'] || 0),
+               length: +(p['length'] || 0),
                weight: +(p['fylite:weight'] || 0),
                bitError: +(p['fylite:bit_error'] || 0) };
     });

@@ -141,7 +141,7 @@ function freeSolve(chan, prof, ip, opts) {
   var eq = { time_slice: {} };
   if (opts.psiInit) eq.time_slice.profiles_2d = { psi: Float64Array.from(opts.psiInit) };
   if (prof.tab) {
-    eq.time_slice.profiles_1d = { 'fylite:psi_norm': Float64Array.from(prof.tab.x),
+    eq.time_slice.profiles_1d = { 'psi_norm': Float64Array.from(prof.tab.x),
                                   dpressure_dpsi: Float64Array.from(prof.tab.pprime),
                                   f_df_dpsi: Float64Array.from(prof.tab.ffprime) };
   } else {
@@ -320,7 +320,7 @@ function summarize(res, prof, opts) {
                    n_q: 20, n_theta: 121, x_lo: 0.06, x_hi: 1 - P.BOUNDARY_INSET, inset: P.BOUNDARY_INSET,
                    f_edge: F_EDGE, r_centre: self.FyDevice.tf(M).r0, max_strike: 16, max_xpts: 8 };
   if (prof && prof.tab) {
-    eq.time_slice.profiles_1d = { 'fylite:psi_norm': Float64Array.from(prof.tab.x),
+    eq.time_slice.profiles_1d = { 'psi_norm': Float64Array.from(prof.tab.x),
                                   dpressure_dpsi: Float64Array.from(prof.tab.pprime),
                                   f_df_dpsi: Float64Array.from(prof.tab.ffprime) };
     settings.jc = res.jc;
@@ -467,7 +467,7 @@ function designPlan(msg, o) {
     if (prof.tab) {
       //: the delivered p'/FF' table rides in on the equilibrium's declared rows
       inputs.equilibrium = { time_slice: [{ profiles_1d: {
-        'fylite:psi_norm': Array.from(prof.tab.x),
+        'psi_norm': Array.from(prof.tab.x),
         dpressure_dpsi: Array.from(prof.tab.pprime),
         f_df_dpsi: Array.from(prof.tab.ffprime) } }] };
     } else {
@@ -646,7 +646,7 @@ function pulseRun(msg) {
   var prof = msg.prof || {};
   if (prof.tab) {
     inputs.equilibrium = { time_slice: [{ profiles_1d: {
-      'fylite:psi_norm': Array.from(prof.tab.x),
+      'psi_norm': Array.from(prof.tab.x),
       dpressure_dpsi: Array.from(prof.tab.pprime),
       f_df_dpsi: Array.from(prof.tab.ffprime) } }] };
   } else {
@@ -1411,7 +1411,7 @@ function reconBootstrap(msg, mem) {
                  equilibrium: { time_slice: {
                    global_quantities: { psi_axis: res.psiAxis, psi_boundary: res.psiBnd,
                                         magnetic_axis: { r: res.axisR, z: res.axisZ } },
-                   profiles_1d: { 'fylite:psi_norm': Float64Array.from(prof.x), pressure: Float64Array.from(prof.p),
+                   profiles_1d: { 'psi_norm': Float64Array.from(prof.x), pressure: Float64Array.from(prof.p),
                                   dpressure_dpsi: Float64Array.from(prof.pprime), f_df_dpsi: Float64Array.from(prof.ffprime),
                                   f: Float64Array.from(qp.f), q: Float64Array.from(qp.q),
                                   'fylite:q_psi_norm': Float64Array.from(qp.x) },
@@ -3408,7 +3408,7 @@ function evFieldDoc(field, geo, prof1d) {
   var i, rg = new Array(field.nr), zg = new Array(field.nz);
   for (i = 0; i < field.nr; i++) rg[i] = field.r0 + field.dr * i;
   for (i = 0; i < field.nz; i++) zg[i] = field.z0 + field.dz * i;
-  prof1d['fylite:psi_norm'] = Array.from(geo.psin);
+  prof1d['psi_norm'] = Array.from(geo.psin);
   return {
     'fylite:psi_convention': 'full_flux_Wb_axis_max',
     vacuum_toroidal_field: { r0: Math.abs(geo.r0) || 1, b0: Math.abs(geo.b0) || 1 },
@@ -3469,7 +3469,7 @@ function evBeamPlan(field, geo, st, sp) {
   var np0 = geo.psin.length, qAbs = new Array(np0);
   for (i = 0; i < np0; i++) qAbs[i] = Math.abs(geo.q ? geo.q[i] : 1);
   var eqDoc = evFieldDoc(field, geo, { q: qAbs });
-  var cp = { profiles_1d: { grid: { 'fylite:psi_norm': Array.from(geo.psin) },
+  var cp = { profiles_1d: { grid: { 'psi_norm': Array.from(geo.psin) },
                             electrons: { density: Array.from(st.ne),
                                          temperature: Array.from(st.te) } } };
   var unit = { name: 'nbi', energy: { data: sp.beamEnergy },
@@ -3522,7 +3522,7 @@ function evBeamRead(fields, F, X, nc, plan, field, geo, sp) {
   }
   var edges = F('psin_edges'), rminC = F('rminor');
   return {
-    psin: flat(src.grid['fylite:psi_norm']), edges: edges, dvolume: F('dvolume'), area: F('area'),
+    psin: flat(src.grid['psi_norm']), edges: edges, dvolume: F('dvolume'), area: F('area'),
     rminor: rminC, rmajor: F('rmajor'), eps: F('eps'), ft: F('ft'),
     shielding: F('shielding'), shieldingG: F('shielding_g'), zeff: F('zeff'), zsum: F('zsum'),
     pDep: F('p_dep'), pE: flat(src.electrons.energy), pI: flat(src.total_ion_energy),
@@ -3682,7 +3682,7 @@ function evLhPlan(field, geo, st, sp) {
     teP[i] = Math.max(st.te[i], 1);
   }
   var eqDoc = evFieldDoc(field, geo, { f: fAbs });
-  var cp = { profiles_1d: { grid: { 'fylite:psi_norm': Array.from(geo.psin) },
+  var cp = { profiles_1d: { grid: { 'psi_norm': Array.from(geo.psin) },
                             electrons: { density: neP, temperature: teP } } };
   var settings = { eta_cd: sp.lhEtaCd, xi: sp.lhXi, upshift_min: sp.lhUpLo, upshift_max: sp.lhUpHi,
                    n_shells: nsh, width_floor: sp.lhWidthFloor, cd_model: 'fisch', n_theta: 181 };
@@ -3710,7 +3710,7 @@ function evLhRead(fields, F, X, nl, plan, geo, sp) {
   }
   var bands = per.map(function (r) { return r.bandEffective; });
   return {
-    psin: flat(src.grid['fylite:psi_norm']), edges: F('psin_edges'), dvolume: F('dvolume'),
+    psin: flat(src.grid['psi_norm']), edges: F('psin_edges'), dvolume: F('dvolume'),
     area: F('area'), rmajor: F('rmajor'),
     ne: F('ne'), te: F('te'), fPol: F('f_pol'), nAcc: F('n_acc'), cdWeight: F('cd_weight'),
     pDep: flat(src.electrons.energy), jLh: flat(src.j_parallel), sigmaJ: F('sigma_j'),
@@ -4064,7 +4064,7 @@ function interpRun(msg) {
     inputs.equilibrium = { time_slice: { profiles_1d: {
       rho_tor: Array.from(lad.rho), dvolume_drho_tor: Array.from(lad.vprime),
       gm3: Array.from(lad.gm3), gm7: Array.from(lad.gm7),
-      'fylite:psi_norm': Array.from(lad.psin) } } };
+      'psi_norm': Array.from(lad.psin) } } };
   } else if (sp.geometry === 'gfile') {
     var g = msg.gfile;
     if (!g)
@@ -4085,7 +4085,7 @@ function interpRun(msg) {
   var on = function (k, flag) { return X(flag) ? F(k) : null; };
   var src = sp.geometry === 'device' ? 'device' : settings.geometry;
   post({ type: 'interp',
-         rho: flat(ladr.rho_tor), psin: flat(ladr['fylite:psi_norm']),
+         rho: flat(ladr.rho_tor), psin: flat(ladr['psi_norm']),
          vprime: flat(ladr.dvolume_drho_tor),
          gm3: flat(ladr.gm3), gm7: flat(ladr.gm7),
          te: flat(cpr.electrons.temperature), ti: flat(cpr.t_i_average),
@@ -4233,7 +4233,7 @@ function evRefit(sp, chan, o) {
     var geo = o.geo, st = o.st;
     settings.a = geo.a;
     inputs.equilibrium = { time_slice: { profiles_1d: {
-      rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), 'fylite:psi_norm': arr(geo.psin) } } };
+      rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), 'psi_norm': arr(geo.psin) } } };
     var cp = { electrons: { temperature: arr(st.te), density: arr(st.ne) },
                t_i_average: arr(st.ti), 'fylite:ion_density': arr(st.ni) };
     if (st.omega) cp.rotation_frequency_tor_sonic = arr(st.omega);
@@ -4269,10 +4269,10 @@ function evRefit(sp, chan, o) {
   };
   var geoNew = {
     rho: flat(lad.rho_tor), vprime: flat(lad.dvolume_drho_tor), gm3: flat(lad.gm3), gm7: flat(lad.gm7),
-    gm2: flat(lad.gm2), r2: flat(lad['fylite:r2_average']), fpol: flat(lad.f), q: flat(lad.q),
-    psin: flat(lad['fylite:psi_norm']), shear: flat(lad.magnetic_shear), kappa: flat(lad.elongation),
+    gm2: flat(lad.gm2), r2: flat(lad['r2_average']), fpol: flat(lad.f), q: flat(lad.q),
+    psin: flat(lad['psi_norm']), shear: flat(lad.magnetic_shear), kappa: flat(lad.elongation),
     delta: flat(lad.triangularity_upper), rmaj: flat(lad['fylite:r_major']), rmin: flat(lad['fylite:r_minor']),
-    shift: flat(lad['fylite:shift']),
+    shift: flat(lad['geometric_axis_shift']),
     a: X('a'), r0: X('r0'), b0: X('b0'), source: 'device',
     psiAxis: eq.psiAxis, psiBnd: eq.psiBnd, dpsi: (eq.psiBnd - eq.psiAxis) / (2 * Math.PI),
   };
@@ -4439,9 +4439,9 @@ function evEntryPlan(ctx, st, geo, sp, field) {
   var ladder = { rho_tor: arr(geo.rho), dvolume_drho_tor: arr(geo.vprime), gm3: arr(geo.gm3),
                  gm2: arr(geo.gm2), f: arr(geo.fpol), q: arr(geo.q),
                  'fylite:r_minor': arr(geo.rmin), 'fylite:r_major': arr(geo.rmaj),
-                 'fylite:r2_average': arr(geo.r2),
+                 'r2_average': arr(geo.r2),
                  magnetic_shear: arr(geo.shear), elongation: arr(geo.kappa), triangularity_upper: arr(geo.delta),
-                 'fylite:shift': arr(geo.shift), 'fylite:psi_norm': arr(geo.psin),
+                 'geometric_axis_shift': arr(geo.shift), 'psi_norm': arr(geo.psin),
                  psi: arr(st.psi) };
   Object.keys(ladder).forEach(function (k) { if (!ladder[k]) delete ladder[k]; });
   var eqBase = (beamPlan || lhPlan) ? (beamPlan || lhPlan).eqDoc : null;
@@ -4556,7 +4556,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
     }
     var plan = { settings: settings, inputs: {
       equilibrium: equilibrium,
-      core_profiles: { profiles_1d: { grid: { psi: arr(state.psi), 'fylite:psi_norm': arr(geo.psin) },
+      core_profiles: { profiles_1d: { grid: { psi: arr(state.psi), 'psi_norm': arr(geo.psin) },
                                       electrons: { temperature: arr(state.te), density: arr(state.ne) },
                                       t_i_average: arr(state.ti),
                                       'fylite:ion_density': arr(state.ni),
@@ -4567,7 +4567,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
     if (lhPlan) plan.inputs.lh_antennas = { antenna: lhPlan.antennas };
     var cp1 = plan.inputs.core_profiles.profiles_1d;
     Object.keys(cp1).forEach(function (k) { if (cp1[k] === undefined || cp1[k] === null) delete cp1[k]; });
-    if (!cp1.grid['fylite:psi_norm']) delete cp1.grid['fylite:psi_norm'];
+    if (!cp1.grid['psi_norm']) delete cp1.grid['psi_norm'];
     var rec = fy.complete('code/evolve', plan);
     var F = function (k) { return fieldFlat(rec, k); };
     var X = function (k) { return rec.facts[k].value; };
@@ -4741,12 +4741,12 @@ function evFluxMatchEntry(ctx, st, geo, sp, field, chan, prof, beta0, eqFree, ed
                  'fm_hist_worst', 'fm_hist_conv', 'fm_hist_tped'];
   var n = geo.rho.length;
   var stateDoc = function (stx) {
-    var cp = { grid: { psi: arr(stx.psi), 'fylite:psi_norm': arr(geo.psin) },
+    var cp = { grid: { psi: arr(stx.psi), 'psi_norm': arr(geo.psin) },
                electrons: { temperature: arr(stx.te), density: arr(stx.ne) },
                t_i_average: arr(stx.ti), 'fylite:ion_density': arr(stx.ni),
                'fylite:impurity_density': sp.quasi && stx.nz ? arr(stx.nz) : undefined };
     Object.keys(cp).forEach(function (k) { if (cp[k] === undefined || cp[k] === null) delete cp[k]; });
-    if (!cp.grid['fylite:psi_norm']) delete cp.grid['fylite:psi_norm'];
+    if (!cp.grid['psi_norm']) delete cp.grid['psi_norm'];
     if (!cp.grid.psi) delete cp.grid.psi;
     return { profiles_1d: cp };
   };
@@ -4756,7 +4756,7 @@ function evFluxMatchEntry(ctx, st, geo, sp, field, chan, prof, beta0, eqFree, ed
     var lad = rec.fields.equilibrium.time_slice.profiles_1d;
     var cpr = rec.fields.core_profiles.profiles_1d;
     var rows = {};
-    ['rho_tor', 'fylite:r_minor', 'fylite:r_major', 'fylite:shift', 'q', 'magnetic_shear', 'elongation', 'triangularity_upper']
+    ['rho_tor', 'fylite:r_minor', 'fylite:r_major', 'geometric_axis_shift', 'q', 'magnetic_shear', 'elongation', 'triangularity_upper']
       .forEach(function (k) { rows[k] = Array.from(flat(lad[k])); });
     var plan = { settings: { a: rec.facts.a.value, b0: rec.facts.b0.value, n_rad: sp.turbNrad, n_ky: sp.turbNky,
                              sat_rule: 1, width: 1.65, relax: 1 },
@@ -5144,9 +5144,9 @@ function evolveRun(msg) {
     var row = function (k) { return plad[k] ? PN(plad[k]) : null; };
     var wasGfile = geo.source === 'gfile', gAxis = geo.psiAxis, gBnd = geo.psiBnd;
     geo = { rho: row('rho_tor'), vprime: row('dvolume_drho_tor'), gm3: row('gm3'), gm2: row('gm2'),
-            r2: row('fylite:r2_average'), fpol: row('f'), q: row('q'), shear: row('magnetic_shear'),
+            r2: row('r2_average'), fpol: row('f'), q: row('q'), shear: row('magnetic_shear'),
             kappa: row('elongation'), delta: row('triangularity_upper'), rmaj: row('fylite:r_major'),
-            rmin: row('fylite:r_minor'), shift: row('fylite:shift'), psin: row('fylite:psi_norm'),
+            rmin: row('fylite:r_minor'), shift: row('geometric_axis_shift'), psin: row('psi_norm'),
             a: wasGfile ? PX('a') : sp.a, r0: wasGfile ? PX('r0_geo') : sp.r0,
             b0: wasGfile ? PX('b0') : Math.abs(sp.b0), source: wasGfile ? 'gfile' : 'miller' };
     if (wasGfile) { geo.psiAxis = gAxis; geo.psiBnd = gBnd; }

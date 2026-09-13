@@ -32,7 +32,9 @@
     "2026-08-26: the seven case-corpus terms (`bar` `case` `case_id` `cases` `device` `document` `initial`) joined when `fylite cases` gave the corpus a second (Python) reader beside scenario.js -- the reverse gate found them, which is what that gate is for.",
     "2026-09-05 (第十八刀): `psi_prev` `sigma_prev` `exch_prev` `chi_turb` `r_minor` `r_major` `shift` joined — the entry march's carried state and the ladder's surface rows, written by the page's worker and by Python's model.evolve; the reverse gate found them, which is what that gate is for.",
     "2026-09-07: `device_id` and `geometry` joined when python/fylite/machine_svg.py (the generic poloidal cross-section reader) began reading the same two fields devices.js / fyodev.js already write -- the reverse gate found them, which is what that gate is for.",
-    "2026-09-07 (layer outlines): `group` joined when machine_svg's vessel-layer merge began reading the same field fyodev.js writes on each vessel unit -- the reverse gate found it, which is what that gate is for."
+    "2026-09-07 (layer outlines): `group` joined when machine_svg's vessel-layer merge began reading the same field fyodev.js writes on each vessel unit -- the reverse gate found it, which is what that gate is for.",
+    "",
+    "★★2026-09-13：`psi_norm` · `r2_average` · `shift` · `geometry` · `length` 五个词**离开本表**——用户裁定 2026-09-12「fylite 不作为本体前缀，本体增加，入 fyo」，它们已按 `fyo` 仓 `FYO-ADR-11` 第一批迁走：`psi_norm` / `length` 本来就是 fyo 既有槽（前缀是多余的），`r2_average` 与 `shift`（改名 `geometric_axis_shift`）以及器壁元件的`geometry`（`Vessel2dElement.geometry`）是 fyo 本批新铸的槽。本表**只登记带 `fylite:` 前缀且多于一个宿主会写的词**，所以一个词入了 fyo 就该从这里消失，否则两处会各说一套。"
   ],
   "fyo_context": "https://fusion-yun.github.io/fyo/latest/",
   "namespace": "urn:fylite:",
@@ -177,10 +179,6 @@
       "gated": false,
       "gloss": "The flux-loop readings [Wb/rad, EFIT sign] of a discharge, one per loop in the device's order, on the discharge section a reconstruction plan binds (`code/reconstruction`). Not gated: `flux_loop` is also the DD's own name for the loop array under magnetics, which both hosts spell bare there."
     },
-    "geometry": {
-      "gated": false,
-      "gloss": "A wall element's original parameterised rectangle, kept for reference after the DD normalisation expands it into `outline/{r,z}` -- the DD's wall element has NO `geometry`, only an outline. Not gated: `geometry` IS a DD name one level over (`pf_active/coil/element/geometry`), so the bare spelling is correct there; the same word has two homes and a spelling check cannot tell them apart."
-    },
     "grid": {
       "gated": false,
       "gloss": "`core_transport`'s COMMON rho grid.  The DD's transport model has no bare `grid` -- it has `grid_d`, `grid_v` and `grid_flux`, one per coefficient, while this repo carries one grid for all three (K-1, 2026-09-11).  Not gated: `grid` IS a DD name elsewhere (`core_profiles/profiles_1d/grid`, `core_sources/source/profiles_1d/grid`), so the same word has two homes and a spelling check cannot tell them apart -- the case `geometry` already records."
@@ -204,10 +202,6 @@
     "ip": {
       "gated": false,
       "gloss": "The plasma current [A] per waypoint of a pulse plan (`code/pulse`); <= 0 means no plasma at that waypoint and the currents are held. Not gated: `ip` is the ordinary name of the plasma current everywhere."
-    },
-    "length": {
-      "gated": false,
-      "gloss": "Effective length [m] of a magnetic probe, the span its reading averages over. The DD has no spelling for it on `b_field_pol_probe`. Not gated: `length` is an ordinary identifier in both hosts and no spelling check could bind it."
     },
     "loop_plasma": {
       "gated": false,
@@ -309,10 +303,6 @@
       "gated": false,
       "gloss": "The external (coil, and any vessel) flux on the solve box [Wb, the host's own gauge], bound under discharge/fylite:psi_ext — binding it puts `code/reconstruction` on its ROWS-GIVEN tier (第三十一刀): the readings are then plasma-only and the door builds only the Green's rows, solves and post-processes. Not gated: `psiExt` / `psi_ext` is the bare local name of the same array in both hosts."
     },
-    "psi_norm": {
-      "gated": true,
-      "gloss": "Normalised poloidal flux grid a profile is sampled on. The DD has no name for a normalised-flux coordinate, which is exactly why this is prefixed."
-    },
     "psi_prev": {
       "gated": true,
       "gloss": "The poloidal flux [Wb] the step before a resumed block ended at, bound under inputs/evolve so the entry's Ohmic term can difference it (第十四刀, 2026-09-05). Carried by the page's entry march and by Python's model.evolve alike; the DD has no slot for a solver's lagged state, which is why it is prefixed."
@@ -324,10 +314,6 @@
     "q_psi_norm": {
       "gated": true,
       "gloss": "The psi_norm grid the safety factor is on, when it differs from the profile grid beside it."
-    },
-    "r2_average": {
-      "gated": true,
-      "gloss": "<R^2> [m^2] per ladder surface, the toroidal-momentum capacity's weight (第十五刀): the DD has gm1 = <1/R^2> and no <R^2>, so this row of the traced ladder is ours; code/refit states it beside the other ladder rows (第十九刀) and code/evolve's ladder tier binds it."
     },
     "r_major": {
       "gated": true,
@@ -372,10 +358,6 @@
     "selfcal_ratio": {
       "gated": false,
       "gloss": "A time series' model/measured ratio matrix, one row per slice and one column per channel, NaN where a channel was not read — `code/selfcal` takes each channel's factor over the slices, its scatter and the slice count from it. Not gated: the series' `ratio`, a bare local."
-    },
-    "shift": {
-      "gated": false,
-      "gloss": "Shafranov shift gradient dR0/dr per surface on the equilibrium ladder (the Miller row's `drmaj`), read by the neoclassical and turbulent closures. Not gated: `shift` is an ordinary local name in both hosts' geometry code."
     },
     "shinethrough": {
       "gated": false,

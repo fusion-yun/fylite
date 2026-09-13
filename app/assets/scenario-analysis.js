@@ -380,7 +380,7 @@ FyScenario.whenDevices(function () {
         if (!points) return { error: T('prof.nopoints') };
         var doc = FySession.envelope('profile_points', {}, S.kernel());
         doc['fylite:points'] = {
-          'fylite:psi_norm': FySession.sig(points.x, 7),
+          'psi_norm': FySession.sig(points.x, 7),
           'fylite:value': FySession.sig(points.y, 7),
           'fylite:sigma': FySession.sig(points.sigma, 7),
           'fylite:quantity': points.quantity || $('quantity').value,
@@ -393,7 +393,7 @@ FyScenario.whenDevices(function () {
         var p = doc['fylite:points'];
         if (!p || !p['fylite:value'] || !p['fylite:value'].length)
           throw new Error(T('prof.no_points'));
-        var x = p['fylite:psi_norm'], y = p['fylite:value'];
+        var x = p['psi_norm'], y = p['fylite:value'];
         var sg = p['fylite:sigma'];
         if (!x || x.length !== y.length) throw new Error(T('prof.bad_points'));
         imported = { x: x.slice(), y: y.slice(),
@@ -2579,9 +2579,9 @@ FyScenario.whenDevices(function () {
         };
       if (last.kineticX && last.kineticX.length)
         doc['fylite:result']['fylite:kinetic_points'] = {
-          //: ★prefixed -- the same term is written `fylite:psi_norm` at the
+          //: ★prefixed -- the same term is written `psi_norm` at the
           //: bootstrap block below and by every Python writer
-          'fylite:psi_norm': FySession.sig(last.kineticX, 7),
+          'psi_norm': FySession.sig(last.kineticX, 7),
           pressure: FySession.sig(last.kineticP, 7),
         };
       //: the posterior travels with the fit it belongs to, members and all:
@@ -2853,7 +2853,7 @@ FyScenario.whenDevices(function () {
             return { error: T('recon.ne.nofit') };
           var bs = last.bootstrap;
           var doc = FySession.envelope('kinetic', {}, S.kernel());
-          doc['fylite:psi_norm'] = FySession.sig(bs.x);
+          doc['psi_norm'] = FySession.sig(bs.x);
           doc['fylite:density'] = FySession.sig(bs.ne);
           doc['fylite:temperature'] = FySession.sig(bs.te);
           doc['fylite:z_eff'] = bs.zeff;
@@ -2883,7 +2883,7 @@ FyScenario.whenDevices(function () {
           doc['fylite:bootstrap'] = {
             'fylite:j_bs': FySession.sig(bs.jBs),
             'fylite:units': 'A/m^2 (|<j.B>|/B0)',
-            'fylite:model': 'redl-2021',
+            'model': 'redl-2021',
             'fylite:trapped_fraction': FySession.sig(bs.ft),
             //: ★the inputs are here to be RE-RUN, and the answer they feed
             //: is a ratio of logarithmic derivatives — seven digits in them
@@ -3023,7 +3023,7 @@ FyScenario.whenDevices(function () {
               'fylite:row_weight': last.fitRows.faradayWeight,
               'fylite:target': FySession.sig(last.faraday.target, 7),
               'fylite:coil_share': FySession.sig(last.faraday.coil, 7),
-              'fylite:model_via_rows': last.faraday.viaRows
+              'model_via_rows': last.faraday.viaRows
                 ? FySession.sig(last.faraday.viaRows, 7) : null,
               'fylite:rows_vs_field_relative': last.faraday.rowsVsFieldRel,
               'fylite:units': 'integral n_e B_R ds [T m^-2]',
@@ -3736,7 +3736,7 @@ FyScenario.whenDevices(function () {
             'fylite:scatter': FySession.sig(last.selfcal.scatter, 7),
             'fylite:slices_used': Array.from(last.selfcal.slices),
             'fylite:names': M.loopNames || null,
-            'fylite:model': 'median of computed/measured across slices',
+            'model': 'median of computed/measured across slices',
           };
         //: ★the slices that did NOT solve, named rather than left as a
         //: shorter answer: a trace with holes in it is a different statement

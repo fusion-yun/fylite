@@ -492,12 +492,12 @@ fn rewrite_units(slice: &mut Node, derived: &mut Vec<String>) {
                 //: 裸着留就是声称一个它没有的出处（也照旧会被丢）。
                 if let Some(m) = el.as_map_mut() {
                     if let Some(geom) = m.remove("geometry") {
-                        m.insert("fylite:geometry", geom);
+                        m.insert("geometry", geom);
                     }
                 }
                 derived.push(format!(
                     "description_2d/{section}/unit/{iu}/element/{ie}/outline \
-                     (from fylite:geometry/rectangle, 5 points closed)"));
+                     (from geometry/rectangle, 5 points closed)"));
             }
         }
     }

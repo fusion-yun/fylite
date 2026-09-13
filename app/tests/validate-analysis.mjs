@@ -580,7 +580,7 @@ for (let i = 0; i < 21; i++) {
 }
 const pts = { '@context': { fylite: 'urn:fylite:' },
               '@type': 'fylite:AppSession/1', 'fylite:page': 'profile_points',
-              'fylite:points': { 'fylite:psi_norm': X, 'fylite:value': Y,
+              'fylite:points': { 'psi_norm': X, 'fylite:value': Y,
                                  'fylite:sigma': SG,
                                  'fylite:quantity': 'pressure' },
               'fylite:provenance': 'gate-synthetic-quadratic' };

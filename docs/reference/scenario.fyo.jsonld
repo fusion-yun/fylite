@@ -8,15 +8,15 @@
  "@type": "fylite:ScenarioShape",
  "dcterms:description": "The documents a complete scenario comprises, with every declared path, unit and rank, which of them carry a fylite: term rather than a DD name, and what a CFEDR-class run needs that has no slot at all.",
  "dcterms:source": "python/fylite/_fyo_interface.py (generated from the kernel's tables)",
- "fylite:interface_revision": 2,
- "fylite:interface_digest": "862b526a362b2495",
+ "fylite:interface_revision": 3,
+ "fylite:interface_digest": "229c7d3c295fbd3d",
  "fylite:documents": [
   {
    "@id": "fylite:scenario/document/equilibrium",
    "@type": "fyo:equilibrium",
    "fylite:table": "EQUILIBRIUM",
    "fylite:slot_count": 24,
-   "fylite:namespaced_count": 5,
+   "fylite:namespaced_count": 4,
    "fylite:slots": [
     {
      "fylite:key": "ip",
@@ -111,10 +111,10 @@
     },
     {
      "fylite:key": "psi_norm_1d",
-     "fylite:path": "time_slice/profiles_1d/fylite:psi_norm",
+     "fylite:path": "time_slice/profiles_1d/psi_norm",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "q_1d",
@@ -193,14 +193,14 @@
    "@type": "fyo:equilibrium",
    "fylite:table": "LADDER",
    "fylite:slot_count": 24,
-   "fylite:namespaced_count": 13,
+   "fylite:namespaced_count": 4,
    "fylite:slots": [
     {
      "fylite:key": "psin",
-     "fylite:path": "time_slice/profiles_1d/fylite:psi_norm",
+     "fylite:path": "time_slice/profiles_1d/psi_norm",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "rho",
@@ -281,10 +281,10 @@
     },
     {
      "fylite:key": "r2",
-     "fylite:path": "time_slice/profiles_1d/fylite:r2_average",
+     "fylite:path": "time_slice/profiles_1d/r2_average",
      "fylite:units": "m^2",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "shear",
@@ -309,38 +309,38 @@
     },
     {
      "fylite:key": "shift",
-     "fylite:path": "time_slice/profiles_1d/fylite:shift",
+     "fylite:path": "time_slice/profiles_1d/geometric_axis_shift",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "s_kappa",
-     "fylite:path": "time_slice/profiles_1d/fylite:s_elongation",
+     "fylite:path": "time_slice/profiles_1d/elongation_shear",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "s_delta",
-     "fylite:path": "time_slice/profiles_1d/fylite:s_triangularity",
+     "fylite:path": "time_slice/profiles_1d/triangularity_shear",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "zeta",
-     "fylite:path": "time_slice/profiles_1d/fylite:squareness",
+     "fylite:path": "time_slice/profiles_1d/squareness_mxh",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "s_zeta",
-     "fylite:path": "time_slice/profiles_1d/fylite:s_squareness",
+     "fylite:path": "time_slice/profiles_1d/squareness_mxh_shear",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "zmag",
@@ -351,17 +351,17 @@
     },
     {
      "fylite:key": "dzmag",
-     "fylite:path": "time_slice/profiles_1d/fylite:dz_magnetic",
+     "fylite:path": "time_slice/profiles_1d/geometric_axis_z_shift",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "mxh",
-     "fylite:path": "time_slice/profiles_1d/fylite:mxh_harmonics",
+     "fylite:path": "time_slice/profiles_1d/mxh_harmonics",
      "fylite:units": "1",
      "fylite:rank": "2d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     }
    ]
   },
@@ -370,14 +370,14 @@
    "@type": "fyo:core_profiles",
    "fylite:table": "CORE_PROFILES",
    "fylite:slot_count": 18,
-   "fylite:namespaced_count": 8,
+   "fylite:namespaced_count": 7,
    "fylite:slots": [
     {
      "fylite:key": "psin",
-     "fylite:path": "profiles_1d/grid/fylite:psi_norm",
+     "fylite:path": "profiles_1d/grid/psi_norm",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "time",
@@ -505,14 +505,14 @@
    "@type": "fyo:core_sources",
    "fylite:table": "CORE_SOURCES",
    "fylite:slot_count": 5,
-   "fylite:namespaced_count": 1,
+   "fylite:namespaced_count": 0,
    "fylite:slots": [
     {
      "fylite:key": "psin",
-     "fylite:path": "profiles_1d/grid/fylite:psi_norm",
+     "fylite:path": "profiles_1d/grid/psi_norm",
      "fylite:units": "1",
      "fylite:rank": "1d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     },
     {
      "fylite:key": "time",
@@ -549,7 +549,7 @@
    "@type": "fyo:ec_launchers",
    "fylite:table": "EC_LAUNCHERS",
    "fylite:slot_count": 8,
-   "fylite:namespaced_count": 3,
+   "fylite:namespaced_count": 2,
    "fylite:slots": [
     {
      "fylite:key": "name",
@@ -602,10 +602,10 @@
     },
     {
      "fylite:key": "mode",
-     "fylite:path": "beam/fylite:mode",
+     "fylite:path": "beam/mode",
      "fylite:units": "1",
      "fylite:rank": "0d",
-     "fylite:namespaced": true
+     "fylite:namespaced": false
     }
    ]
   },

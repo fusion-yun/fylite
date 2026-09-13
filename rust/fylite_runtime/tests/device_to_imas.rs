@@ -19,7 +19,7 @@
 //! * `wall/…/element/geometry` —— DD 的真空室元件由 `outline` 描述，**没有** `geometry`。
 //!   **词汇**问题：fylite 借了 `pf_active` 线圈元件的参数化写法。已修：矩形按内核
 //!   `kernels::element_filaments` 的同一个映射展成四角（首点重复以闭合），原矩形改挂
-//!   本地名 `fylite:geometry` 留作参考，记进 `derived`。
+//!   本地名 `geometry` 留作参考，记进 `derived`。
 //! * `tf/b0` —— DD 的 `tf` 没有 `b0`（有 `b_field_phi_vacuum_r`，一个信号结构）。
 //!   **名字**问题。`b_field_phi_vacuum_r/data = r0 * b0` 已由换算写出（记进 `derived`），
 //!   `b0` 这个**源**本身仍旧没有家，照旧丢弃并点名 —— 这一条留在表里。
@@ -39,8 +39,15 @@ const FIXTURE: &str = "testdata/device_synthetic.json";
 ///
 /// ★四条里三条 2026-09-07 当日修好（形状 · 类型 · 词汇，见抬头）。剩下的 `tf/b0`
 /// 是一个**被消费掉的源**：DD 要的量已经由它算出来了，它自己在 DD 里仍旧没有家。
-const EXPECTED: [&str; 1] = [
+/// ★★2026-09-13 进来第二条，**是改动的后果不是回归**：器壁元件的参数化矩形此前被
+/// 归一化成 `fylite:geometry`（带前缀，被下面那道 filter 排除），用户裁定 2026-09-12
+/// 「fylite 不作为本体前缀，本体增加，入 fyo」之后它按 `fyo` 仓 `FYO-ADR-11` D-3 铸成
+/// `Vessel2dElement.geometry` 并裸写。它**在 fyo 文档里在**，只是导出成 IMAS 时丢 ——
+/// DD 的 `vessel_2d_element` 只有 `outline`。几何本身不丢：矩形照常展成四角的 `outline`；
+/// 丢的是「它本来是个矩形」这句话。
+const EXPECTED: [&str; 2] = [
     "tf: b0",
+    "wall: description_2d/vessel/unit/element/geometry",
 ];
 
 fn bare_drops() -> BTreeSet<String> {
@@ -74,7 +81,10 @@ fn bare_drops() -> BTreeSet<String> {
     rep.dd.iter()
         .flat_map(|(ids, r)| r.dropped.iter().map(move |d| (ids.clone(), d.clone())))
         //: `@` 是 JSON-LD 的框架键；`fylite:` 是**声明的本地**（内核的 `OURS` 表逐条
-        //: 登记过），两者在 DD 里没有家是设计，不是缺陷
+        //: 登记过），两者在 DD 里没有家是设计，不是缺陷。
+        //: ★2026-09-13：`OURS` 在缩小（`FYO-ADR-11` 的去前缀批），所以这条 filter 排除的
+        //: 东西越来越少，而**该被排除的那些改由 `EXPECTED` 逐条认领** —— fyo 自己铸的槽
+        //: 裸写是对的，它在 DD 里没有家也是对的，两件事都要说出来
         .filter(|(_, d)| !d.starts_with('@')
                 && !d.split('/').any(|s| s.starts_with("fylite:")))
         .map(|(ids, d)| format!("{ids}: {d}"))

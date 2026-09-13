@@ -237,7 +237,7 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
                  "power_launched": {"data": float(l.power_w)}, "power_reflected": {"data": 0.0},
                  "fylite:n_parallel_min": float(l.n_parallel[0]),
                  "fylite:n_parallel_max": float(l.n_parallel[1])} for l in launchers]
-    cp = {"profiles_1d": {"grid": {"fylite:psi_norm": psin_prof},
+    cp = {"profiles_1d": {"grid": {"psi_norm": psin_prof},
                           "electrons": {"density": ne, "temperature": te}}}
     try:
         rec = fydoc.complete("code/wave", {"settings": settings,
@@ -262,7 +262,7 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
             "reach_fraction": float(arr("launcher_reach_fraction")[k])})
     return {
         "deposited": bool(fact("deposited")),
-        "psin": np.asarray(src["grid"]["fylite:psi_norm"]["data"], float),
+        "psin": np.asarray(src["grid"]["psi_norm"]["data"], float),
         "psin_edges": arr("psin_edges"), "dvolume": arr("dvolume"),
         "j_lh": np.asarray(src["j_parallel"]["data"], float), "sigma_j": arr("sigma_j"),
         "p_dep": np.asarray(src["electrons"]["energy"]["data"], float),

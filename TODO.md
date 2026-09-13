@@ -16,7 +16,7 @@
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
-| **O-5** | kernel · fylite | **去前缀迁移批**（用户裁定 2026-09-12「fylite 不作为本体前缀，本体增加，入 fyo」，已落成 `fyo` 仓 `FYO-ADR-11` + 九个新槽）：124 处带 `fylite:` 的 Dataset 路径按 A（去前缀 8）→ C（用新槽 11）→ B（改用既有槽 18，含 deg→rad 与 μΩ·m→Ω·m 两处单位归正）→ D（退出 Dataset 18 + 四个「文档类型」69）四类逐模块改，接口修订号 **2 → 3**，**不设读侧别名**（实测已发布文档仅 36 处声明槽名且全在生成件，fydoc 算例语料 0 处）|
+| **O-5** | kernel · fylite | **第一批（A+C，19 条）已迁**（2026-09-13，接口修订 2 → 3）。**下一步 = B 类 18 条**：`r_minor`/`r_major` ← `r_inboard`/`r_outboard`（产出要写两列）· `z_magnetic` ← `geometric_axis/z` · `dvolume_dpsi_norm` ← `dvolume_dpsi` · 限制器 ← `wall` 的 limiter outline · `ion_density`/`impurity_density` ← `ion[]/density` + `label` · 线圈与器壁 `a1`/`a2` ← `oblique/alpha`·`beta`（**deg → rad**）· `resistivity_uohm_m` ← `resistivity`（**μΩ·m → Ω·m**）· `tf b0` ← `b_field_tor_vacuum_r ÷ r0` · EC 两角 ← `steering_angle_*` · LH `max_power` ← 工程限值集。★单位换算是**会错**的那一类改动，每处要自带判据 |
 
 〔2026-09-12〕**本组曾空过**（当日 F-16 · F-34 · H-10 会话半 · F-1 门 · H-15 两项做完后），随后用户裁定「fylite 不作为本体前缀」，开出上面这一条 O-5。原记：F-16 · F-34 · H-10（会话文档那一半）· F-1（门）· H-15（1.4 与 1.2 的算法）当日做完并推送，各自的落地读数在 `PLAN.md` 同号行。余下的每一条都在**等一句裁定**或**缺仓外材料** —— 见下两组。★**裁定的杠杆最大的是 `H-19`**（p′/FF′ 的规范）：它一句话解开 F-1 余下的十条判据、`code/discharge` 的一维剖面、以及两步算例那条链。
 

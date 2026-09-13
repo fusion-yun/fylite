@@ -463,7 +463,7 @@ console.log('\n=== 四、自举电流对原生内核 ===');
 const kin = A.__kinetic;
 const kbs = kin && kin['fylite:bootstrap'];
 check('导出的动理学文件带 j_bs 与它的全部输入', !!(kbs && kbs['fylite:inputs']),
-      kbs ? `${kbs['fylite:j_bs'].length} 面，模型 ${kbs['fylite:model']}` : '缺');
+      kbs ? `${kbs['fylite:j_bs'].length} 面，模型 ${kbs['model']}` : '缺');
 check('页面的 j_bs 与原生 redl_bootstrap 一致（1e-6）',
       cmp.jbs_rel !== null && cmp.jbs_rel < 1e-6,
       cmp.jbs_rel === null ? '未算' :
