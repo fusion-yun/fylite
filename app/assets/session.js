@@ -13,7 +13,10 @@
 // shipped; the reader converts once, in Python, where it is tested.
 //
 //   psi        FULL poloidal flux [Wb], axis at the MAXIMUM
-//   p', FF'    derivatives with respect to psi/2pi (per radian)
+//   p', FF'    derivatives per FULL-TURN Wb — the same psi (COCOS 17, the fyo /
+//              IMAS DD 4 gauge; H-19, 2026-09-13).  A file stamped
+//              `fylite:source_gauge: per_full_turn_Wb` is in it; a file without
+//              that stamp is older and carries them per radian.
 //   currents   TOTAL element/channel current [A.turns]
 
 (function (root) {
@@ -97,6 +100,9 @@
       'fylite:page': page,
       'fylite:created': new Date().toISOString(),
       'fylite:psi_convention': 'full_flux_Wb_axis_max',
+      //: ★H-19 (2026-09-13): p′ / FF′ per full-turn Wb, the map's gauge — the stamp
+      //: is what tells a reader this file from an older, per-radian one
+      'fylite:source_gauge': 'per_full_turn_Wb',
       'fylite:coil_current_units': 'A.turns',
       //: ★WHICH build wrote this file.  `fylite:kernel` is the handshake —
       //: the ABI, and the wasm's own sha256, i.e. the exact binary that

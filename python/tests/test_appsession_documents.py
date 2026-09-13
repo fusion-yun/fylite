@@ -66,6 +66,21 @@ def test_the_gauge_flips_once_and_the_map_arrives_transposed(session):
                           (-psi / TWO_PI).T)
 
 
+def test_the_source_functions_follow_the_stamp(session):
+    """★H-19 (2026-09-13): a page that stamps ``fylite:source_gauge`` writes p′ / FF′
+    per full-turn Wb, the map's gauge; the deck wants them per radian and flipped
+    (d/dψ_deck = −2π d/dψ_full).  An unstamped file is older — per radian
+    already — so it only flips.  The two must differ by exactly the 2π."""
+    doc, _ = session
+    old = appsession.to_geqdsk(doc)
+    new = appsession.to_geqdsk(dict(doc, **{"fylite:source_gauge": "per_full_turn_Wb"}))
+    for key in ("pprime", "ffprim"):
+        o, n = np.asarray(old[key], float), np.asarray(new[key], float)
+        assert np.allclose(n, TWO_PI * o, rtol=1e-14, atol=0.0), key
+    #: the flip itself: the page's p′ is negative, the deck's positive
+    assert np.asarray(old["pprime"], float)[0] > 0.0
+
+
 def test_q_is_extrapolated_to_the_axis_and_the_boundary(session):
     doc, _ = session
     g = appsession.to_geqdsk(doc)

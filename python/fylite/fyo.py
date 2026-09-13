@@ -392,6 +392,10 @@ def reconstruction(res: dict, *, source: str | None = None) -> dict:
             ("limiter_r", arr("rlim")),
             ("limiter_z", arr("zlim"))):
         put(doc, "EQUILIBRIUM", key, value)
+    #: ★H-19 (2026-09-13): the kernel's record carries psi AND its 1-D derivatives
+    #: per full-turn Wb (COCOS 17, the fyo gauge).  Say so — undeclared, every reader
+    #: takes the default, per radian, and is 2π off on both.
+    doc["fylite:psi_convention"] = "full_flux_Wb (COCOS 17: psi and p', FF' per full-turn Wb)"
     p2 = _slice(doc)["profiles_2d"][0]
     p2["@type"] = "fyo:equilibrium_profiles_2d"
     p2["grid_type"] = {"index": 1, "name": "rectangular"}

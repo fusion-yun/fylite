@@ -122,8 +122,12 @@ def to_geqdsk(doc: dict, *, rcentr: float = 1.75, bcentr: float = 1.8,
 
     p1 = sl.get("profiles_1d") or {}
     pres = list(p1.get("pressure", []))
-    ppr = [-v for v in p1.get("dpressure_dpsi", [])]
-    ffp = [-v for v in p1.get("f_df_dpsi", [])]
+    #: ★H-19 (2026-09-13): a page that stamps ``fylite:source_gauge`` writes p′ / FF′
+    #: per full-turn Wb, the psi map's own gauge; the deck's are per radian, and
+    #: d/dψ_deck = −2π d/dψ_full.  A file without the stamp is older: per radian already.
+    g = TWO_PI if doc.get("fylite:source_gauge") == "per_full_turn_Wb" else 1.0
+    ppr = [-g * v for v in p1.get("dpressure_dpsi", [])]
+    ffp = [-g * v for v in p1.get("f_df_dpsi", [])]
     fpol = list(p1.get("f", []))
     qpsi = _q_on_uniform(p1.get("fylite:q_psi_norm"), p1.get("q"), nw)
 

@@ -2582,7 +2582,7 @@ FyScenario.whenDevices(function () {
         //: ★★THE LAST REFINEMENT'S SOLVED BOX, when there was one.  Every
         //: other number about the refinement in this file is a summary of
         //: it; this is the object itself — the Dirichlet border it was
-        //: given, the interior it produced, and the p'/FF' (per radian)
+        //: given, the interior it produced, and the p'/FF' (per radian: this box is the solver's own, not a record)
         //: that produced it.  With those four a reader re-solves Delta* in
         //: whatever host they like and finds out whether the claim holds,
         //: which no residual printed beside an answer can tell them.

@@ -318,9 +318,11 @@ def _c_grad_shafranov(r: Reader, opt: dict) -> Result:
     ``Δ* = ∂_RR − (1/R)∂_R + ∂_ZZ`` 用二阶中心差分，只在**边界内**且离网格边
     一格以上的点上取（边界外 ψ 不由这对源函数决定）。
 
-    ★★符号约定：本仓的 ψ 是**每弧度**的（`fyo.equilibrium` 的 `convention`）。
-    两种符号都算一遍，取残差小的那一支并**写明是哪一支**——一份用另一套 COCOS
-    写出来的文档，得到的是一条注记，而不是一个假的「不满足定律」。
+    ★★规范按文档的 `fylite:psi_convention` 读（H-19，2026-09-13 用户裁定「以 fyo 为准」）：
+    整圈 Wb（COCOS 17，内核记录与页面会话的规范）时 ψ 与 p′/ff′ 同为整圈，定律带 (2π)²；
+    未声明或每弧度（g-file 转换件）时照原式。符号两支都算一遍，取残差小的那一支并**写明
+    是哪一支**——一份用另一套 COCOS 写出来的文档，得到的是一条注记，而不是一个假的
+    「不满足定律」。
     """
     import numpy as np
     psi2d = r.arr("EQUILIBRIUM", "psi_2d")
@@ -355,7 +357,13 @@ def _c_grad_shafranov(r: Reader, opt: dict) -> Result:
     xp = psi1d[order]
     pp = np.interp(inner, xp, pprime[order])
     ffp = np.interp(inner, xp, ffprime[order])
-    rhs = -MU0 * (R ** 2) * pp - ffp
+    #: ★H-19 (2026-09-13)：规范按文档声明读。整圈 Wb（COCOS 17，fyo / IMAS DD 4）时
+    #: ψ 与 p′/ff′ 同为整圈，定律带 (2π)²：Δ*ψ = −(2π)²(μ₀R²p′ + ff′)；每弧度或未声明即 1
+    conv = (r.doc("EQUILIBRIUM") or {}).get("fylite:psi_convention")
+    spelled = str(conv.get("measured", "") if isinstance(conv, dict) else (conv or "")).lower()
+    full_turn = "full_flux" in spelled or "total flux" in spelled
+    g2 = (2.0 * np.pi) ** 2 if full_turn else 1.0
+    rhs = (-MU0 * (R ** 2) * pp - ffp) * g2
 
     #: 只在边界内取点；没有边界就取 ψ 在 [ψ_axis, ψ_bnd] 之间的点
     mask = np.ones_like(inner, dtype=bool)
@@ -384,8 +392,9 @@ def _c_grad_shafranov(r: Reader, opt: dict) -> Result:
     tol = float(opt.get("tolerance", 0.02))
     caveat = ()
     if flipped:
-        caveat = ("残差在 `Δ*ψ = +μ₀R²p′ + ff′` 一支上更小：这份文档的 ψ 或源函数"
-                  "符号与本仓约定（每弧度、`Δ*ψ = −μ₀R²p′ − ff′`）相反，先核对 COCOS",)
+        caveat = ("残差在 `Δ*ψ = +g²(μ₀R²p′ + ff′)` 一支上更小：这份文档的 ψ 或源函数"
+                  "符号与所声明的约定（`Δ*ψ = −g²(μ₀R²p′ + ff′)`，整圈 g = 2π、每弧度 g = 1）"
+                  "相反，先核对 COCOS",)
     return Result("grad-shafranov", "law", _verdict(measured, tol), measured=measured,
                   tolerance=tol, basis="measured_band",
                   detail=(f"{n} 个内点（{how}）上 ‖Δ*ψ − RHS‖/‖·‖ = {measured:.3e}"
@@ -933,7 +942,8 @@ CHECKS: dict[str, Check] = {c.id: c for c in [
           0.02, "measured_band",
           ("二阶中心差分，残差按 ‖Δ*ψ‖ 与 ‖RHS‖ 的均方根归一——网格越粗，截断误差越大",
            "只在边界内、离网格边一格以上的点上取",
-           "ψ 每弧度、`Δ*ψ = −μ₀R²p′ − ff′`；相反符号支更小时给注记而不是判负"),
+           "规范按文档声明：整圈 Wb（COCOS 17）时 `Δ*ψ = −(2π)²(μ₀R²p′ + ff′)`，每弧度时 "
+           "`Δ*ψ = −μ₀R²p′ − ff′`；相反符号支更小时给注记而不是判负"),
           _c_grad_shafranov),
     Check("grid-monotone", "definition", "网格与时间轴单调，归一化网格在 [0, 1]",
           "diff(x) > 0；0 ≤ ρ_norm, ψ_norm ≤ 1",

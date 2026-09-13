@@ -107,7 +107,8 @@ const txt = G.format({
   axisR: ours.rmaxis, axisZ: ours.zmaxis, ip: ours.current,
   rcentr: ours.rcentr, bcentr: ours.bcentr,
   fpol: ours.fpol, pres: ours.pres,
-  pprime: ours.pprime.map(v => -v), ffprime: ours.ffprim.map(v => -v),
+  //: ★H-19: the app's p′ / FF′ are per full-turn Wb — the deck's per radian, flipped
+  pprime: ours.pprime.map(v => -v / (2 * Math.PI)), ffprime: ours.ffprim.map(v => -v / (2 * Math.PI)),
   qpsi: ours.qpsi,
   boundary: ours.rbbbs.map((r, i) => [r, ours.zbbbs[i]]),
   limiter: { r: ours.rlim, z: ours.zlim },

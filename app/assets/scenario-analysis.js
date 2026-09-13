@@ -869,14 +869,22 @@ FyScenario.whenDevices(function () {
     panel('jphi', j && j.x, j && j.j, tj && tj.x, tj && tj.j, T('recon.axis.j'),
           null, null, null, null,
           pin && pin.jphi && pin.jphi.x, pin && pin.jphi && pin.jphi.j);
+    //: ★H-19 (2026-09-13): the fit, the truth and a pinned run carry p′ / FF′ per
+    //: full-turn Wb (the kernel's records); both reference sources — the deck's
+    //: delivered block and an imported g-file — are a g-file's, per radian.  One
+    //: axis, so the reference is restated here, where it is drawn.
+    var perTurn = function (a) {
+      return a && a.length ? Array.prototype.map.call(a, function (v) {
+        return v / (2 * Math.PI); }) : a;
+    };
     panel('pp', fit && fit.x, fit && fit.pprime, tru && tru.x,
           tru && tru.pprime, T('recon.axis.pp'), null, null,
-          ref && ref.psi_norm, ref && ref.dpressure_dpsi,
+          ref && ref.psi_norm, ref && perTurn(ref.dpressure_dpsi),
           pin && pin.profiles && pin.profiles.x,
           pin && pin.profiles && pin.profiles.pprime);
     panel('ffp', fit && fit.x, fit && fit.ffprime, tru && tru.x,
           tru && tru.ffprime, T('recon.axis.ffp'), null, null,
-          ref && ref.psi_norm, ref && ref.f_df_dpsi,
+          ref && ref.psi_norm, ref && perTurn(ref.f_df_dpsi),
           pin && pin.profiles && pin.profiles.x,
           pin && pin.profiles && pin.profiles.ffprime);
 

@@ -36,6 +36,7 @@
     'r_major',             // Major radius [m] of each traced surface's centre on the equilibrium ladder — the Miller `R0(r)` the surface rows read beside `r_minor`.
     'r_minor',             // Minor radius [m] of each traced surface on the equilibrium ladder (profiles_1d), the DD's `r_inboard`/`r_outboard` pair collapsed to the Miller half-width the kernel's surface rows read (the neoclassical and turbulent closures, the beam's shell table).
     'sigma_prev',          // The parallel conductivity [S/m] the lagged step used, carried beside `psi_prev` (the Ohmic term of the next step reads both).
+    'source_gauge',        // Which flux a session document's 1-D source functions (p′, FF′) are per: `per_full_turn_Wb` since H-19 (2026-09-13, COCOS 17, the psi map's own gauge).
     'target_r',            // The r of the design's TARGET SHAPE, as a curve.
     'target_z',            // The z of the design's target shape — see `target_r`; the two travel together and a lone one is refused.
   ];

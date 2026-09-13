@@ -437,7 +437,7 @@ self.FyI18n.register('en', {
   'recon.q_cap': 'Safety factor q(ψ̄). F=R·B<sub>φ</sub> is integrated from the fitted FF′ along normalised flux, then contour-integrated surface by surface. The pale band is the posterior ±1σ (present once a posterior has been run), taken pointwise across the members\' own q curves. ★★<strong>How far q95 can be trusted (measured on the twin, where the truth is known)</strong>: with the loop noise turned <strong>to zero</strong>, the polynomial p′/FF′ basis still <strong>does not contain</strong> the analytic-family truth: the boundary comes out at a = 0.425 against a truth of 0.376 m (+13%), κ 1.60 against 1.34, <strong>q95 = 4.23 against 2.40 (+77%)</strong>, while q(0) on the axis is 1.00 against 1.07. ★So the discrepancy is <strong>not noise</strong> but the expressiveness of the basis — noise only covers it up (at σ=0.5% the per-channel residual is 2.6σ; at σ=0 the residual RMS is still 2.0e-3 Wb/rad, about 1.3% of the largest reading). So <strong>q(0) and q95 on this figure carry very different confidence</strong>; they are not two readings off one curve.',
   'recon.p_cap': 'Pressure p(ψ̄), integrated from the fitted p′ along normalised flux; the dots are the pressure rows handed to the fit (in physical units, not the kernel row\'s sign convention). The pale band is the posterior ±1σ.',
   'recon.j_cap': 'Flux-surface average of the toroidal current density, ⟨j<sub>φ</sub>⟩(ψ̄).',
-  'recon.pp_cap': 'p′(ψ̄), in Pa/(Wb/rad).',
+  'recon.pp_cap': 'p′(ψ̄), in Pa/Wb (full-turn flux, COCOS 17).',
   'recon.ffp_cap': 'FF′(ψ̄).',
   'recon.loops_cap': '{n} flux loops: measured against forward-modelled values.',
   // dynamic

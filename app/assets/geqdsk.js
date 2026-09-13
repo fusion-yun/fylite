@@ -11,9 +11,10 @@
 //     psirz  = -psi_full / (2 pi)          simag = -psi_axis / (2 pi)
 //     sibry  = -psi_bnd  / (2 pi)
 //
-// and because d/dpsi_gfile = -d/dpsi_rad, the derivative profiles flip too:
+// and because d/dpsi_gfile = -2 pi d/dpsi_full, the derivative profiles flip
+// AND scale — the app's p', FF' are per full-turn Wb since H-19 (2026-09-13):
 //
-//     pprime_gfile = -p'_app            ffprim_gfile = -FF'_app
+//     pprime_gfile = -2 pi p'_app       ffprim_gfile = -2 pi FF'_app
 //
 // Every one of these was verified against a real g-file rather than assumed
 // (see tests/app/validate-geqdsk.mjs).
@@ -174,8 +175,9 @@
 
     var rs = function (src) { return resample(src, nw); };
     var fpol = rs(o.fpol), pres = rs(o.pres);
-    var ffp = rs(o.ffprime).map(function (v) { return -v; });
-    var ppr = rs(o.pprime).map(function (v) { return -v; });
+    //: ★H-19: per full-turn Wb in, per radian (and flipped) out — see the header
+    var ffp = rs(o.ffprime).map(function (v) { return -TWO_PI * v; });
+    var ppr = rs(o.pprime).map(function (v) { return -TWO_PI * v; });
     var q = rs(o.qpsi);
 
     var psirz = new Float64Array(nw * nh);

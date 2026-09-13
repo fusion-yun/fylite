@@ -12,15 +12,16 @@
 
 ---
 
-## 一、可做（1，不等人不等件）
+## 一、可做（2，不等人不等件）
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
+| **F-1** | fylite · kernel | H-19 已关（2026-09-13，整圈 Wb · ABI 154）：`code/discharge` 把一维 p′/FF′（及 q 所需的 F）按整圈 Wb 写进声明的槽，再重跑两步算例看第二步是否过 `profiles_1d/q`；余下 10 条判据随之可评 |
 | **O-5** | kernel · fylite | **第一批（A+C，19 条）已迁**（2026-09-13，接口修订 2 → 3）。**下一步 = B 类 18 条**：`r_minor`/`r_major` ← `r_inboard`/`r_outboard`（产出要写两列）· `z_magnetic` ← `geometric_axis/z` · `dvolume_dpsi_norm` ← `dvolume_dpsi` · 限制器 ← `wall` 的 limiter outline · `ion_density`/`impurity_density` ← `ion[]/density` + `label` · 线圈与器壁 `a1`/`a2` ← `oblique/alpha`·`beta`（**deg → rad**）· `resistivity_uohm_m` ← `resistivity`（**μΩ·m → Ω·m**）· `tf b0` ← `b_field_tor_vacuum_r ÷ r0` · EC 两角 ← `steering_angle_*` · LH `max_power` ← 工程限值集。★单位换算是**会错**的那一类改动，每处要自带判据 |
 
 〔2026-09-12〕**本组曾空过**（当日 F-16 · F-34 · H-10 会话半 · F-1 门 · H-15 两项做完后），随后用户裁定「fylite 不作为本体前缀」，开出上面这一条 O-5。原记：F-16 · F-34 · H-10（会话文档那一半）· F-1（门）· H-15（1.4 与 1.2 的算法）当日做完并推送，各自的落地读数在 `PLAN.md` 同号行。余下的每一条都在**等一句裁定**或**缺仓外材料** —— 见下两组。★**裁定的杠杆最大的是 `H-19`**（p′/FF′ 的规范）：它一句话解开 F-1 余下的十条判据、`code/discharge` 的一维剖面、以及两步算例那条链。
 
-## 二、待裁（9 行 · 10 个号，等用户一句口径）
+## 二、待裁（8 行 · 9 个号，等用户一句口径）
 
 | 号 | 归属 | 要裁的是什么 |
 | :--- | :--- | :--- |
@@ -30,16 +31,14 @@
 | **F-2** | fylite | 生成件里手写段活不过下一次 `--write`：三个候选落点（算例声明的 `caveat` · 本册子 RUN 页 · 渲染器认锚点）先定一个 |
 | **F-9** | fylite · fydoc | `code/breakdown` 缺供电电流上限：补在装置描述侧（ITER 的 A-Box 没有），还是算例侧绑 `i_max_aturn` |
 | **F-12** | fylite | `B-01` 的参考侧要不要改在 FUSE 1.1.5 上重跑（现有结论建立在已遗弃的 0.7.0 冻结答案上）|
-| **H-19** | kernel · fylite | **记录里二维 ψ 与一维 p′/FF′ 差 2π**（量 H-14a 时发现，逐半径都是 2π 到 1 % 以内）：改一维导数的规范（合本仓约定，但会挪动已发布的 p′/FF′ 与对旧实现逐位相同的那几条判据），还是在记录里把两处规范各自声明出来 |
 | **G-3** · **G-4** | fylite | **记录由谁产**：把运行时的 `record()` 在页面上镜像一份，还是判定记录只由宿主产、页面只存宿主交来的那一份 —— 同时决定 `run_state` 的 `cancelled` 谁产、断点仓存什么 |
 | **H-1** | fylite | 动理学反演那份多步计划文档**放哪**：`docs/examples/scenario/` 是逐 code 生成物（撞生成器与目录闸）· `app/cases/` 是会话文档 · `_manifest/` 那份是 workflow-IR 投影且标 `executable: false`；推荐新目录 `docs/examples/plan/` （代价：要给它写一条自己的对账）。**这一条定下来才画得了图**（`PLAN.md` H-1） |
 
-## 三、阻塞（19 行 · 20 个号，缺件或等他仓）
+## 三、阻塞（18 行 · 19 个号，缺件或等他仓）
 
 | 号 | 归属 | 缺什么 |
 | :--- | :--- | :--- |
 | **H-15**（2.3） | fylite · fydoc | MSE 的 Er 修正：装置卷宗里**没有 MSE 几何**（`-12` G-4），也没有绑定表，所以既做不出行也量不了 —— 与 H-16 同一个缺口 |
-| **F-1** | fylite | 门已通、可评条数 0 → 2；余下 10 条全在 **H-19**（p′/FF′ 的规范）下游 —— 两步算例实测第二步按名拒绝「没有 `profiles_1d/q`」，q 要 F，F 要把 FF′ 积起来 |
 | **H-10** | fylite | **会话文档那一半已完成**（闸 `validate-setting-is-the-document.mjs`，141 个档位）；余下「写回**计划**文档」等 **H-1** 裁定计划文档的落点 |
 | 台基 **B** · **C** | kernel | EPED 自己的判据原文（B 的外环、C 的真 P-B 都要它）|
 | **K-3** | kernel · fydata | 要 A-Box 的 `transport/*` 逐槽读数才判得动 |

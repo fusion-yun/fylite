@@ -1802,7 +1802,7 @@ FyScenario.whenDevices(function () {
       FyPlot.xy($(id), { series: s, xlabel: 'ψ̄', ylabel: ylabel,
                          zeroLine: true, xmin: 0, xmax: 1 });
     }
-    panel('pprime', 'pprime', "p′ [Pa/(Wb/rad)]");
+    panel('pprime', 'pprime', "p′ [Pa/Wb]");
     panel('ffprime', 'ffprime', "FF′");
   }
 
