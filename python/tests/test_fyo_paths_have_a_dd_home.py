@@ -16,7 +16,7 @@ IDS，比一个错误更坏。
 （`python/fylite/_fyo_interface.py`）。
 
 ★★**2026-09-13 改了判据的前提**（用户裁定 2026-09-12「fylite 不作为本体前缀，本体增加，
-入 fyo」，落成 `fyo` 仓 `FYO-ADR-11`）。此前这道闸把 **DD 当作唯一权威**：裸路径要么在 DD 里，
+入 fyo」，fyo 侧落点 `FYO-ADR-16`，2026-09-13——09-12 此处曾记作 `FYO-ADR-11`，fyo 并无此件）。此前这道闸把 **DD 当作唯一权威**：裸路径要么在 DD 里，
 要么在基线里认罪。那个前提**从来就不对** —— fyo 的规矩写在它自己的 manifest 上：
 「fyo **不**硬绑 IMAS DD，它独立演化；DD 是导入基线」。于是一个 **fyo 自己铸的槽**裸写是
 **对的**，而这道闸会把它判红。
@@ -92,27 +92,27 @@ BASELINE: dict[str, str] = {
 #: ★加一条**必须**同时改 fyo 仓的 schema 并在那边的 ADR 里写下理由 —— 这张表登记的是
 #: 「上游已经说过的话」，不是本仓可以自行扩充的清单。
 FYO_OWNED: dict[str, str] = {
-    #: `FYO-ADR-11` D-3：共享径向网格补 `psi_norm`（`CoreRadialGrid`）。fyo 的
+    #: `FYO-ADR-16` D-1：共享径向网格补 `psi_norm`（`CoreRadialGrid`）。fyo 的
     #: `equilibrium/time_slice/profiles_1d` 早有同名槽，核心径向网格却只有它的平方根
     #: `rho_pol_norm` —— 消费者要自己开平方并自己选一支根。补的是这个不对称。
-    "CORE_PROFILES/psin": "FYO-ADR-11 D-3 (CoreRadialGrid.psi_norm)",
-    "CORE_SOURCES/psin": "FYO-ADR-11 D-3 (CoreRadialGrid.psi_norm)",
-    "CORE_TRANSPORT/psin": "FYO-ADR-11 D-3 (CoreRadialGrid.psi_norm)",
-    #: `FYO-ADR-11` D-3：局部平衡（Miller / MXH）那一族，DD 一个没有。
-    "LADDER/r2": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.r2_average)",
-    "LADDER/shift": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.geometric_axis_shift)",
-    "LADDER/dzmag": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.geometric_axis_z_shift)",
-    "LADDER/s_kappa": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.elongation_shear)",
-    "LADDER/s_delta": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.triangularity_shear)",
-    "LADDER/zeta": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.squareness_mxh)",
-    "LADDER/s_zeta": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.squareness_mxh_shear)",
-    "LADDER/mxh": "FYO-ADR-11 D-3 (EquilibriumProfiles1d.mxh_harmonics)",
-    #: `FYO-ADR-11` D-3：器壁元件的**参数化**截面。DD 只给它 `outline`；有 `geometry`
+    "CORE_PROFILES/psin": "FYO-ADR-16 D-1 (CoreRadialGrid.psi_norm)",
+    "CORE_SOURCES/psin": "FYO-ADR-16 D-1 (CoreRadialGrid.psi_norm)",
+    "CORE_TRANSPORT/psin": "FYO-ADR-16 D-1 (CoreRadialGrid.psi_norm)",
+    #: `FYO-ADR-16` D-1：局部平衡（Miller / MXH）那一族，DD 一个没有。
+    "LADDER/r2": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.r2_average)",
+    "LADDER/shift": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.geometric_axis_shift)",
+    "LADDER/dzmag": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.geometric_axis_z_shift)",
+    "LADDER/s_kappa": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.elongation_shear)",
+    "LADDER/s_delta": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.triangularity_shear)",
+    "LADDER/zeta": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.squareness_mxh)",
+    "LADDER/s_zeta": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.squareness_mxh_shear)",
+    "LADDER/mxh": "FYO-ADR-16 D-1 (EquilibriumProfiles1d.mxh_harmonics)",
+    #: `FYO-ADR-16` D-1：器壁元件的**参数化**截面。DD 只给它 `outline`；有 `geometry`
     #: 的是线圈元件。落地时才判明（ADR D-2 末记着这次订正）。
-    "DEVICE/vessel_r": "FYO-ADR-11 D-3 (Vessel2dElement.geometry)",
-    "DEVICE/vessel_z": "FYO-ADR-11 D-3 (Vessel2dElement.geometry)",
-    "DEVICE/vessel_width": "FYO-ADR-11 D-3 (Vessel2dElement.geometry)",
-    "DEVICE/vessel_height": "FYO-ADR-11 D-3 (Vessel2dElement.geometry)",
+    "DEVICE/vessel_r": "FYO-ADR-16 D-1 (Vessel2dElement.geometry)",
+    "DEVICE/vessel_z": "FYO-ADR-16 D-1 (Vessel2dElement.geometry)",
+    "DEVICE/vessel_width": "FYO-ADR-16 D-1 (Vessel2dElement.geometry)",
+    "DEVICE/vessel_height": "FYO-ADR-16 D-1 (Vessel2dElement.geometry)",
     #: `FYO-ADR-10` D-2：O/X **支**由 fyo 自有的 `mode` 治理（1 = O、−1 = X），
     #: DD v4 那个 `polarization/o_mode_fraction` 是**份额**、不是支。
     "EC_LAUNCHERS/mode": "FYO-ADR-10 D-2 (ec_launchers beam/mode, fyo_owned)",

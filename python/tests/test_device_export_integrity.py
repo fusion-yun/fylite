@@ -119,7 +119,7 @@ BASELINE: dict[str, set[str]] = {
         "tf: b0",
         #: ★★2026-09-13 进来的一条，**是好消息不是回归**：器壁元件的参数化矩形此前写作
         #: `fylite:geometry`（带前缀，不入本表），用户裁定 2026-09-12「fylite 不作为本体
-        #: 前缀」之后它按 `fyo` 仓 `FYO-ADR-11` D-3 铸成了 `Vessel2dElement.geometry` 并裸写。
+        #: 前缀」之后它按 `fyo` 仓 `FYO-ADR-16` D-1 铸成了 `Vessel2dElement.geometry` 并裸写。
         #: 它在 **fyo 文档里在**，只是**导出成 IMAS 时丢** —— DD 的 `vessel_2d_element`
         #: 只有 `outline`，而矩形是 fyo 自有的槽。四角展开的 `outline` 照常导出
         #: （见 `SYNTHESIZED` 的 `/outline/r` · `/outline/z`），所以丢的是「它本来是个

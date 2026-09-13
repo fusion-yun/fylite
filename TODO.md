@@ -12,22 +12,22 @@
 
 ---
 
-## 一、可做（5，不等人不等件）
+## 一、可做（4，不等人不等件）
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
-| **K-2** | kernel · fydoc | **第一批已落**（2026-09-13，接口修订 4 → 5：电阻率 → `coil/resistance` · IC → `pf_active/coil` + `function` · 供电 → `pf_active/supply`；内核 / 公开仓待提交）。**下一步 = 第二批**：解算盒四边与网格数六条 → 计划设置，随 O-5 B 批做（Guo IC 上滞后判据不成立的原因 2026-09-13 已查明：判据钉的是那组增益在 TokSys 线圈上，见 `PLAN.md`） |
+| **K-2** | kernel · fydoc | **第一批已落**（2026-09-13，接口修订 4 → 5：电阻率 → `coil/resistance` · IC → `pf_active/coil` + `function` · 供电 → `pf_active/supply`；内核 71c7cef · 公开 415c4ac）。**下一步 = 第二批**：解算盒四边与网格数六条 → 计划设置，随 O-5 B 批做（Guo IC 上滞后判据不成立的原因 2026-09-13 已查明：判据钉的是那组增益在 TokSys 线圈上，见 `PLAN.md`） |
 | **F-30** | kernel | 全文已齐（2026-09-13 Karney–Fisch 1979 · Fisch 1987 · Ignat 1994 期刊版均入库）：**LH-②** 电子 Landau 吸收按内核 `lh-raytracing.md` §4.3 已定的设计动手，判据用摘录里的局地点表 |
 | **F-31** | kernel | 余下只有**弱相对论极化**一项，Krivenski–Orefice 1983 与 Shkarofsky 1966 期刊版在库：按原文动手 |
 | **F-1** | fylite · kernel | H-19 已关（2026-09-13，整圈 Wb · ABI 154）：`code/discharge` 把一维 p′/FF′（及 q 所需的 F）按整圈 Wb 写进声明的槽，再重跑两步算例看第二步是否过 `profiles_1d/q`；余下 10 条判据随之可评 |
-| **O-5** | kernel · fylite | **第一批（A+C，19 条）已迁**（2026-09-13，接口修订 2 → 3）。**下一步 = B 类 18 条**：`r_minor`/`r_major` ← `r_inboard`/`r_outboard`（产出要写两列）· `z_magnetic` ← `geometric_axis/z` · `dvolume_dpsi_norm` ← `dvolume_dpsi` · 限制器 ← `wall` 的 limiter outline · `ion_density`/`impurity_density` ← `ion[]/density` + `label` · 线圈与器壁 `a1`/`a2` ← `oblique/alpha`·`beta`（**deg → rad**）· `resistivity_uohm_m` ← `resistivity`（**μΩ·m → Ω·m**）· `tf b0` ← `b_field_tor_vacuum_r ÷ r0` · EC 两角 ← `steering_angle_*` · LH `max_power` ← 工程限值集。★单位换算是**会错**的那一类改动，每处要自带判据 |
 
 〔2026-09-12〕**本组曾空过**（当日 F-16 · F-34 · H-10 会话半 · F-1 门 · H-15 两项做完后），随后用户裁定「fylite 不作为本体前缀」，开出上面这一条 O-5。原记：F-16 · F-34 · H-10（会话文档那一半）· F-1（门）· H-15（1.4 与 1.2 的算法）当日做完并推送，各自的落地读数在 `PLAN.md` 同号行。余下的每一条都在**等一句裁定**或**缺仓外材料** —— 见下两组。★**裁定的杠杆最大的是 `H-19`**（p′/FF′ 的规范）：它一句话解开 F-1 余下的十条判据、`code/discharge` 的一维剖面、以及两步算例那条链。
 
-## 二、待裁（4 行 · 5 个号，等用户一句口径）
+## 二、待裁（5 行 · 6 个号，等用户一句口径）
 
 | 号 | 归属 | 要裁的是什么 |
 | :--- | :--- | :--- |
+| **O-5** | fyo · kernel · fylite | **批不批 `FYO-ADR-16`**（fyo，Proposed）：09-12 裁定的 fyo 侧 2026-09-13 才真正落地（D-1 十槽已落 schema，两门俱绿）；D-2 把 B 表改判六处（斜角是几何换算 · `tf` 用 `b_field_phi_vacuum_r` · 离子 `name` · 限制器改端口 · LH 最大功率无承载 · 两处待核），D-3 取代 `FYO-ADR-14` D-2 两项。批准后按判定迁 B 类（K-2 第二批随之） |
 | **F-2** | fylite | 生成件里手写段活不过下一次 `--write`：三个候选落点（算例声明的 `caveat` · 本册子 RUN 页 · 渲染器认锚点）先定一个 |
 | **F-9** | fylite · fydoc | `code/breakdown` 缺供电电流上限：EAST 已由 K-2 带 DD `pf_active/supply`；ITER 等其余装置补在装置描述侧（A-Box 没有），还是算例侧绑 `i_max_aturn` |
 | **F-12** | fylite | `B-01` 的参考侧要不要改在 FUSE 1.1.5 上重跑（现有结论建立在已遗弃的 0.7.0 冻结答案上）|

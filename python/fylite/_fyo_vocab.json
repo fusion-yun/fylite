@@ -34,7 +34,7 @@
     "2026-09-07: `device_id` and `geometry` joined when python/fylite/machine_svg.py (the generic poloidal cross-section reader) began reading the same two fields devices.js / fyodev.js already write -- the reverse gate found them, which is what that gate is for.",
     "2026-09-07 (layer outlines): `group` joined when machine_svg's vessel-layer merge began reading the same field fyodev.js writes on each vessel unit -- the reverse gate found it, which is what that gate is for.",
     "",
-    "★★2026-09-13：`psi_norm` · `r2_average` · `shift` · `geometry` · `length` 五个词**离开本表**——用户裁定 2026-09-12「fylite 不作为本体前缀，本体增加，入 fyo」，它们已按 `fyo` 仓 `FYO-ADR-11` 第一批迁走：`psi_norm` / `length` 本来就是 fyo 既有槽（前缀是多余的），`r2_average` 与 `shift`（改名 `geometric_axis_shift`）以及器壁元件的`geometry`（`Vessel2dElement.geometry`）是 fyo 本批新铸的槽。本表**只登记带 `fylite:` 前缀且多于一个宿主会写的词**，所以一个词入了 fyo 就该从这里消失，否则两处会各说一套。"
+    "★★2026-09-13：`psi_norm` · `r2_average` · `shift` · `geometry` · `length` 五个词**离开本表**——用户裁定 2026-09-12「fylite 不作为本体前缀，本体增加，入 fyo」，它们已按 O-5 第一批迁走（fyo 侧落点 `FYO-ADR-16`；09-12 此处记作 `FYO-ADR-11`，fyo 并无此件）：`psi_norm` / `length` 本来就是 fyo 既有槽（前缀是多余的），`r2_average` 与 `shift`（改名 `geometric_axis_shift`）以及器壁元件的`geometry`（`Vessel2dElement.geometry`）是 fyo 本批新铸的槽。本表**只登记带 `fylite:` 前缀且多于一个宿主会写的词**，所以一个词入了 fyo 就该从这里消失，否则两处会各说一套。"
   ],
   "fyo_context": "https://fusion-yun.github.io/fyo/latest/",
   "namespace": "urn:fylite:",

@@ -41,7 +41,7 @@ const FIXTURE: &str = "testdata/device_synthetic.json";
 /// 是一个**被消费掉的源**：DD 要的量已经由它算出来了，它自己在 DD 里仍旧没有家。
 /// ★★2026-09-13 进来第二条，**是改动的后果不是回归**：器壁元件的参数化矩形此前被
 /// 归一化成 `fylite:geometry`（带前缀，被下面那道 filter 排除），用户裁定 2026-09-12
-/// 「fylite 不作为本体前缀，本体增加，入 fyo」之后它按 `fyo` 仓 `FYO-ADR-11` D-3 铸成
+/// 「fylite 不作为本体前缀，本体增加，入 fyo」之后它按 `fyo` 仓 `FYO-ADR-16` D-1 铸成
 /// `Vessel2dElement.geometry` 并裸写。它**在 fyo 文档里在**，只是导出成 IMAS 时丢 ——
 /// DD 的 `vessel_2d_element` 只有 `outline`。几何本身不丢：矩形照常展成四角的 `outline`；
 /// 丢的是「它本来是个矩形」这句话。
@@ -82,7 +82,7 @@ fn bare_drops() -> BTreeSet<String> {
         .flat_map(|(ids, r)| r.dropped.iter().map(move |d| (ids.clone(), d.clone())))
         //: `@` 是 JSON-LD 的框架键；`fylite:` 是**声明的本地**（内核的 `OURS` 表逐条
         //: 登记过），两者在 DD 里没有家是设计，不是缺陷。
-        //: ★2026-09-13：`OURS` 在缩小（`FYO-ADR-11` 的去前缀批），所以这条 filter 排除的
+        //: ★2026-09-13：`OURS` 在缩小（O-5 的去前缀批；fyo 侧 `FYO-ADR-16`），所以这条 filter 排除的
         //: 东西越来越少，而**该被排除的那些改由 `EXPECTED` 逐条认领** —— fyo 自己铸的槽
         //: 裸写是对的，它在 DD 里没有家也是对的，两件事都要说出来
         .filter(|(_, d)| !d.starts_with('@')
