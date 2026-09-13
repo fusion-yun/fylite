@@ -83,7 +83,7 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 沉不进门，整面退役（见 `_manifest/tglf.jsonld` 的 `executable_note`）。
 
 ★**这些入口背后是哪条方程**：`scenario` 与 `kernel` 只是装配与 C 边界，物理在 Rust 内核里，
-逐模块写在[物理与数值](../physics/00-overview.md)十五章——方程、假设、参数域、数值格式、
+逐模块写在物理与数值（fydoc `physics/00-overview.md`）十五章——方程、假设、参数域、数值格式、
 一手出处与验证锚点，模块到章节的映射见[内核](kernels.md)的模块地图。
 
 ## 命令行
