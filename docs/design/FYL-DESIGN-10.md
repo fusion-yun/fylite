@@ -795,7 +795,7 @@ SOL/靶板」列为「还没有的」，而其中四样已经接上，逐条对�
 | `validate-flux-match.mjs` | 牛顿匹配收敛，且**每个**匹配半径与**每条**通道都在容差内，不只是最大值 |
 | `validate-stationary.mjs` | 外环真的改变了结果并收敛——「一个什么都没改变的外环等于没有这一层」 |
 | `validate-freeconv.mjs` | 自由边界的收敛自报：上限对容差 |
-| `validate-geo.mjs` / `validate-q.mjs` | 逐面度规与 q 剖面（P-20 那条栏将要站在其上的东西） |
+| `validate-geo.mjs` | 逐面度规（P-20 那条栏将要站在其上的东西）；★q 剖面那一道 `validate-q.mjs` 2026-09-13 退役，同题在内核仓 |
 | `validate-beam.mjs` / `validate-lh.mjs` | 画出来的沉积剖面**就是**内核那几个入口算的 |
 | `validate-pedestal.mjs` | 边界温度是 EPED1-NN 在那十个输入上的台基顶 |
 | `validate-momentum.mjs` / `validate-composition.mjs` / `validate-quad.mjs` | 动量道与 E×B 剪切；稀释与成分闭合；一份吸收功率的两种求积 |
