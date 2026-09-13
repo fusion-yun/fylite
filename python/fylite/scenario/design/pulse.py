@@ -43,28 +43,48 @@ def channel_limits(device) -> dict:
     The design variable is a PER-TURN voltage on a BRSP channel, and the
     state is BRSP ampere-turns; the machine data is a TERMINAL voltage
     and a TERMINAL current per supply.  The bridge is the per-element
-    turn count (``pf_active_circuits.element_turns``, cross-validated to
-    0.07 % by the mlc benchmark) together with the E-14 channel weights:
+    turn count (the element's own ``turns_with_sign``) together with the
+    E-14 channel weights:
 
         v_max_per_turn[c] = min_j ( V_supply[j] / N_j )
-        i_max_aturn[c]    = min_j ( I_supply * N_j / w_cj )
+        i_max_aturn[c]    = min_j ( I_supply[j] * N_j / w_cj )
+
+    ★K-2 (2026-09-13, 用户裁定「进文档」): the supply limits are the DD's
+    ``pf_active/supply[].voltage_limit_max`` / ``current_limit_max`` [V, A] —
+    one entry per PF element IN ELEMENT ORDER, or one entry for all — and
+    ``j`` indexes the PF element set (fast coils, ``function`` = b_field_fb,
+    excluded).  ★★The card-own ``power_supply`` / ``pf_active_circuits`` this
+    used to read listed the voltages and turns in PCS PF1..PF14 order while
+    ``j`` is the DECK element index, so on EAST every channel past the third
+    paired the wrong coil's turns and supply voltage.
 
     Taking the min over a channel's elements is the conservative reading
-    for the two series pairs, whose two entries in the supply table
-    disagree (PF7 560 V against PF9 280 V) -- the pair shares one supply
-    and the table does not say which entry governs.  Marked [TBD]; a
-    caller who knows better can override both vectors.
+    for the two series pairs, whose two supply entries disagree (PF7 560 V
+    against PF9 280 V) -- the pair shares one supply and the table does not
+    say which entry governs.  Marked [TBD]; a caller who knows better can
+    override both vectors.
     """
-    ps = device["power_supply"]
-    turns = np.asarray(device["pf_active_circuits"]["element_turns"], float)
-    vsup = np.asarray(ps["max_voltage_V"], float)
-    isup = float(ps["current_limit_kA"]) * 1.0e3
+    from ...device import is_fast_coil
+    pf = device["pf_active"]
+    coil = pf["coil"] if isinstance(pf["coil"], list) else [pf["coil"]]
+    elems = [e for c in coil if not is_fast_coil(c) for e in (c.get("element") or [])]
+    turns = np.asarray([abs(float(e["turns_with_sign"])) for e in elems], float)
+    sup = pf.get("supply") or []
+    sup = sup if isinstance(sup, list) else [sup]
+    if len(sup) == 1:
+        sup = sup * len(elems)
+    if len(sup) != len(elems):
+        raise ValueError(
+            f"pf_active/supply has {len(sup)} entries and the PF element set has "
+            f"{len(elems)}: one supply per element (in element order) or one for all")
+    vsup = np.asarray([float(s["voltage_limit_max"]) for s in sup], float)
+    isup = np.asarray([float(s["current_limit_max"]) for s in sup], float)
     chans = pf_channel_map()
     v_max = np.empty(len(chans))
     i_max = np.empty(len(chans))
     for c, combo in enumerate(chans):
         v_max[c] = min(vsup[j] / turns[j] for j, _ in combo)
-        i_max[c] = min(isup * turns[j] / w for j, w in combo)
+        i_max[c] = min(isup[j] * turns[j] / w for j, w in combo)
     return {"v_max_per_turn": v_max, "i_max_aturn": i_max,
             "channels": chans, "note": "series-pair supply rating is [TBD]"}
 

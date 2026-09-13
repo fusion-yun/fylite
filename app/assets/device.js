@@ -227,7 +227,7 @@
    *
    * ★None of the four bundled machines fills it yet.  EAST's own description
    * carries real supply data (`machine_desc/east/east_device.yaml`,
-   * `power_supply`: 14.5 kA terminal current, per-coil 160–800 V, from TokSys
+   * `pf_active/supply`: 14.5 kA terminal current, per-coil 160–800 V, from TokSys
    * `pwrsys/EAST_PS_params.m`), but those are TERMINAL amperes and volts on
    * 14 conductor elements while this page speaks in kA-turns and volts per
    * turn on 12 CHANNELS, two of which are series pairs — the conversion is

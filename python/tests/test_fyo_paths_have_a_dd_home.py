@@ -46,6 +46,7 @@ IDS_DIR = pathlib.Path(__file__).resolve().parents[2] / "rust" / "fylite_runtime
 AOS = frozenset({
     "time_slice", "profiles_2d", "profiles_1d", "source", "model", "coils",
     "coil", "channel", "antenna", "beam", "unit", "element", "description_2d",
+    "supply", "function",
 })
 
 #: 2026-09-07 实测的基线：**只准变小**。逐条的性质见下面 `_WHY`。
@@ -61,16 +62,9 @@ BASELINE: dict[str, str] = {
     "DEVICE/grid_z_max": "machine/default_grid/z_max",
     "DEVICE/grid_nw": "solver_dims/nw",
     "DEVICE/grid_nh": "solver_dims/nh",
-    "DEVICE/pf_eta": "pf_active_circuits/resistivity_uohm_m",
-    "DEVICE/element_turns": "pf_active_circuits/element_turns",
-    "DEVICE/ic_name": "ic_coil/coils/name",
-    "DEVICE/ic_r": "ic_coil/coils/r",
-    "DEVICE/ic_z": "ic_coil/coils/z",
-    "DEVICE/ic_dr": "ic_coil/coils/dr",
-    "DEVICE/ic_dz": "ic_coil/coils/dz",
-    "DEVICE/ic_turns": "ic_coil/coils/turns",
-    "DEVICE/ps_max_voltage": "power_supply/max_voltage_V",
-    "DEVICE/ps_current_kA": "power_supply/current_limit_kA",
+    #: ★K-2 第一批（2026-09-13，用户裁定「进文档」）从基线删去十条：`pf_eta` · `element_turns` ·
+    #: `ic_*` 六条 · `ps_max_voltage` · `ps_current_kA` 改走 DD 的 `pf_active/coil/resistance` ·
+    #: `coil/function` · `element/turns_with_sign` · `pf_active/supply/*`。上面六条解算盒随第二批。
     #: ★★★**② ③ ④ 三类六条 2026-09-11 修好，按本表的规矩从基线删除。**
     #:
     #: **② 真空室矩形四条**（`.../vessel/unit/element/geometry/rectangle/{r,z,width,height}`

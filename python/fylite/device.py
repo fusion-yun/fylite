@@ -429,7 +429,8 @@ def _derive(dev: dict) -> dict:
     # --- diagnostic dimensions (est2 basis) -----------------------------------
     # NMAGPRI = 79 here is the est2 magpri count; the efit_east path uses a
     # DIFFERENT 76-probe basis (_paths.NPROBE) — distinct names on purpose.
-    NFCOIL = _n(_pf, "coil")             # F-coils fitted by EFIT
+    #: ★K-2: the fast coils (`function` = b_field_fb) sit in `pf_active/coil` but are not fitted
+    NFCOIL = sum(1 for c in _aos(_pf, "coil") if not is_fast_coil(c))             # F-coils fitted by EFIT
     if _probe is not None and _loop is not None:
         NMAGPRI = _n(_probe)             # b_field_pol_probe (magpri), est2 basis
         NSILOP = _n(_loop)               # flux loops
@@ -444,7 +445,11 @@ def _derive(dev: dict) -> dict:
         MDS_BT = _mds["btor_node"]       # toroidal-field FoCS
         PCS_TREE = _mds["pcs_tree"]
 
-    PF_NODES = tuple(c["name"] for c in _aos(_pf, "coil"))
+    #: ★K-2 (2026-09-13): the PF coil set excludes the fast vertical-control coils
+    #: (DD `function` = b_field_fb, EAST IC1/IC2), which share `pf_active/coil`
+    #: with the PF coils but are not in the 12-channel BRSP basis.
+    _pf_coils = [c for c in _aos(_pf, "coil") if not is_fast_coil(c)]
+    PF_NODES = tuple(c["name"] for c in _pf_coils)
 
     # --- coil model -----------------------------------------------------------
     #: ★EAST-deck flattenings, not DD canon: `turns` / `efit_index` /
@@ -453,14 +458,13 @@ def _derive(dev: dict) -> dict:
     #: reads).  Their consumers are the EFIT namelist flows; derive them only
     #: where the document carries them, refuse at the point of use elsewhere.
     def _coils_all_have(key):
-        cs = _aos(_pf, "coil")
-        return bool(cs) and all(key in c for c in cs)
+        return bool(_pf_coils) and all(key in c for c in _pf_coils)
     if _coils_all_have("turns"):
-        PF_TURNS = tuple(int(c["turns"]) for c in _aos(_pf, "coil"))
+        PF_TURNS = tuple(int(c["turns"]) for c in _pf_coils)
     if _coils_all_have("efit_index"):
-        PF_EFIT_ORDER = tuple(int(c["efit_index"]) for c in _aos(_pf, "coil"))
+        PF_EFIT_ORDER = tuple(int(c["efit_index"]) for c in _pf_coils)
     if _coils_all_have("bit_error"):
-        BITFC = tuple(float(c["bit_error"]) for c in _aos(_pf, "coil"))
+        BITFC = tuple(float(c["bit_error"]) for c in _pf_coils)
 
     # --- per-channel absolute-error floors & operational weight masks ---------
     if (_probe is not None and _loop is not None
@@ -523,7 +527,7 @@ def _derive(dev: dict) -> dict:
 
     # --- ion- and electron-cyclotron systems ----------------------------------
     # ★The names are `ICRH_`/`ECRH_` and not `IC_`/`EC_` because this document
-    # already carries `ic_coil` — the in-vessel FAST CONTROL COILS.  Two
+    # already carries IC1/IC2 — the in-vessel FAST CONTROL COILS.  Two
     # unrelated machines' worth of hardware abbreviate to "ic" here, and a
     # reader who has to disambiguate from context will eventually not.
     #
@@ -1114,7 +1118,8 @@ def conductor_geometry_from_document(doc: dict) -> dict:
                     out.append(e)
         return out
 
-    coils = elements((doc.get("pf_active") or {}).get("coil", ()))
+    #: ★K-2: the conductor set is the PF coils; fast coils (`function` = b_field_fb) are not in it
+    coils = elements([c for c in ((doc.get("pf_active") or {}).get("coil", ()) or ()) if not is_fast_coil(c)])
     d2 = (doc.get("wall") or {}).get("description_2d") or []
     if isinstance(d2, dict):
         d2 = [d2]
@@ -1215,6 +1220,70 @@ def coil_response_tables(path=None) -> dict:
             "rmp2fc": rec[1].reshape((12, 79)).T}
 
 
+def is_fast_coil(coil) -> bool:
+    """Whether a ``pf_active/coil`` entry is a FAST vertical-control coil.
+
+    ★K-2 (用户裁定 2026-09-13「进文档」): the fast coils (EAST IC1/IC2) live in
+    ``pf_active/coil`` beside the PF coils and are told apart by the DD's own
+    identifier, ``function`` = ``b_field_fb`` ("magnetic field for vertical force
+    balance").  They are not in the BRSP channel basis, so every PF-set reader
+    (channel map, EFIT flattenings, conductor set) skips them; the vertical plant
+    takes them as its actuators (``fast_coils``).
+    """
+    if not isinstance(coil, dict):
+        return False
+    return any(isinstance(f, dict) and f.get("name") == "b_field_fb"
+               for f in (coil.get("function") or ()))
+
+
+def fast_coils(dev) -> list[dict]:
+    """The fast coils of a device document as ``{name, r, z, dr, dz, turns}``.
+
+    One entry per element of each ``function`` = ``b_field_fb`` coil — the shape the
+    vertical plant's ``ic_coils`` argument and the benchmark fixtures use.
+    """
+    coil = ((dev or {}).get("pf_active") or {}).get("coil") or []
+    coil = coil if isinstance(coil, list) else [coil]
+    out = []
+    for c in coil:
+        if not is_fast_coil(c):
+            continue
+        for e in (c.get("element") or []):
+            g = (e.get("geometry") or {}).get("rectangle") or {}
+            out.append({"name": str(e.get("fylite:name") or c.get("name")), "r": float(g["r"]), "z": float(g["z"]),
+                        "dr": float(g["width"]), "dz": float(g["height"]),
+                        "turns": abs(float(e.get("turns_with_sign", 1.0)))})
+    return out
+
+
+def coil_resistivity_uohm_m(dev) -> float:
+    """The PF coils' circuit-model resistivity [uohm.m], recovered from the document.
+
+    ★The document carries DD ``pf_active/coil/resistance`` [ohm] (K-2); the circuit
+    model the kernel builds takes a resistivity.  The inverse of the kernel's element
+    formula ``R = eta * sum 2 pi r N^2 / (w h)`` gives it back; the PF coils of a card
+    written from one resistivity return one value, and a mismatch is refused.
+    """
+    import math
+    coil = ((dev or {}).get("pf_active") or {}).get("coil") or []
+    vals = []
+    for c in (coil if isinstance(coil, list) else [coil]):
+        if is_fast_coil(c) or c.get("resistance") is None:
+            continue
+        s = 0.0
+        for e in (c.get("element") or []):
+            g = (e.get("geometry") or {}).get("rectangle") or {}
+            n = abs(float(e.get("turns_with_sign", 1.0)))
+            s += 2.0 * math.pi * float(g["r"]) * n * n / (float(g["width"]) * float(g["height"]))
+        vals.append(float(c["resistance"]) / s * 1e6)
+    if not vals:
+        raise DeviceDocumentError("the device's PF coils carry no `resistance` to recover a resistivity from")
+    if max(vals) - min(vals) > 1e-3 * max(abs(v) for v in vals):
+        raise DeviceDocumentError(f"the PF coil resistances imply different resistivities: {vals}")
+    #: six figures in, six figures out — the document's resistances carry no more
+    return float(f"{sum(vals) / len(vals):.6g}")
+
+
 def pf_channel_map() -> list[list[tuple[int, float]]]:
     """Which deck element(s) each BRSP channel drives — the MEASURED map (E-14).
 
@@ -1254,6 +1323,8 @@ def pf_channel_map() -> list[list[tuple[int, float]]]:
     coil = coil if isinstance(coil, list) else [coil]
     out, flat = [], 0
     for c in coil:
+        if is_fast_coil(c):
+            continue
         elems = c.get("element") or []
         elems = elems if isinstance(elems, list) else [elems]
         turns = []

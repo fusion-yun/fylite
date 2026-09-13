@@ -8,8 +8,8 @@ Generated rather than kept in step by hand, for the reason
 """
 
 #: the revision of this interface, and the digest of everything it declares
-REVISION = 4
-DIGEST = 'a45d01dbc21e99e1'
+REVISION = 5
+DIGEST = 'e133b3b8a36c02a6'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -104,21 +104,15 @@ TABLES = {
             'grid_z_max': {"path": 'machine/default_grid/z_max', "units": 'm', "rank": '0d'},
             'grid_nw': {"path": 'solver_dims/nw', "units": '1', "rank": '0d'},
             'grid_nh': {"path": 'solver_dims/nh', "units": '1', "rank": '0d'},
-            'pf_eta': {"path": 'pf_active_circuits/resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
+            'coil_resistance': {"path": 'pf_active/coil/resistance', "units": 'ohm', "rank": '0d'},
+            'coil_function': {"path": 'pf_active/coil/function/name', "units": '1', "rank": '0d'},
             'vessel_eta_all': {"path": 'fylite:vessel_resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
             'passive_eta': {"path": 'pf_passive/fylite:group/resistivity_uohm_m', "units": 'uohm.m', "rank": '0d'},
             'passive_elem': {"path": 'pf_passive/fylite:group/element', "units": '1', "rank": '2d'},
-            'ic_name': {"path": 'ic_coil/coils/name', "units": '1', "rank": '0d'},
-            'ic_r': {"path": 'ic_coil/coils/r', "units": 'm', "rank": '0d'},
-            'ic_z': {"path": 'ic_coil/coils/z', "units": 'm', "rank": '0d'},
-            'ic_dr': {"path": 'ic_coil/coils/dr', "units": 'm', "rank": '0d'},
-            'ic_dz': {"path": 'ic_coil/coils/dz', "units": 'm', "rank": '0d'},
-            'ic_turns': {"path": 'ic_coil/coils/turns', "units": '1', "rank": '0d'},
             'chan_element': {"path": 'pf_channel_elements/fylite:row/element', "units": '1', "rank": '0d'},
             'chan_weight': {"path": 'pf_channel_elements/fylite:row/weight', "units": '1', "rank": '0d'},
-            'ps_max_voltage': {"path": 'power_supply/max_voltage_V', "units": 'V', "rank": '1d'},
-            'ps_current_kA': {"path": 'power_supply/current_limit_kA', "units": 'kA', "rank": '0d'},
-            'element_turns': {"path": 'pf_active_circuits/element_turns', "units": '1', "rank": '1d'},
+            'supply_voltage_max': {"path": 'pf_active/supply/voltage_limit_max', "units": 'V', "rank": '0d'},
+            'supply_current_max': {"path": 'pf_active/supply/current_limit_max', "units": 'A', "rank": '0d'},
         },
     },
     'DISCHARGE': {
@@ -1427,7 +1421,7 @@ CODE_PARAMS = {
 
 #: path segments that are ARRAYS of structure -- a walker steps into
 #: index 0 at each of these
-AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna')
+AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna', 'supply', 'function')
 
 #: the `fylite:` terms more than one host writes
 TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b0', 'b_tor', 'channel_aturns', 'channel_basis', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'device_id', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'grid', 'group', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'outline_levels', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_prev', 'q_prev', 'q_psi_norm', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shinethrough', 'sigma_prev', 'source', 'source_gauge', 'state', 'target', 'target_r', 'target_z', 'te_profile', 'time', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'wave_phases', 'wave_t', 'weight', 'weight_extra', 'x_ref', 'y_init']

@@ -148,9 +148,11 @@ d["pass"], d["shape_error"]                     # 7, 0.1617371112287015
 - `discharge` 的装置来自 `$FYLITE_DEVICE_DIR`，**不收 `device=`**——多给一个会被
   `**solve_kw` 一路传到自由边界正解那里报 `unexpected keyword argument`；
   `breakdown` 则**收** `device=`。两者不一样，不是笔误。
-- 逐通道电流上限缺省从装置牌的 `power_supply` 组读；**拖回来的 ITER 牌没有这一组**
+- 逐通道电流上限缺省从装置文档的 `pf_active/supply` 读（DD `current_limit_max`〔A〕，配
+  逐元件 `turns_with_sign`）；
+  **拖回来的 ITER 牌没有供电条目**
   （见[安装与环境](../../guide/install.md)里那条「拖回来不是等价替换」），所以上面显式给了
-  `i_max_aturn` / `i_max`。不给且牌里也没有，会得到 `KeyError: 'power_supply'`——
+  `i_max_aturn` / `i_max`。不给且文档里也没有，会按路径 `pf_active/supply` 报错——
   按名失败，不是静默取一个缺省限值。
 
 另有 `S.design.feasible(axis1=…, axis2=…, r0=…, device=dev)`：只问「这套限值下有没有解」，

@@ -49,7 +49,7 @@ $\sqrt{k/m}=5.5\times10^5$ rad/s 而 $\gamma=12.6$ s⁻¹，**惯性修正仅 $2
 $M^*=M-I_p^2GG^\mathsf{T}/k$——**小信号域里等离子体确实反作用于电路**。
 
 ```python
-sysv = K.vertical_system(g, tables, ic_coils=dev["ic_coil"]["coils"], ...)   # 对象模型：code/vstab
+sysv = K.vertical_system(g, tables, ic_coils=device.fast_coils(dev), ...)   # 对象模型：code/vstab
 ```
 
 闭环本身（`close_vertical_loop`：PD + 观测器 + 执行器饱和与滞后）自 2026-09-06 归内核仓测试树

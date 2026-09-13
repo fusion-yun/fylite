@@ -86,8 +86,8 @@ python tools/abox-to-machine-desc.py --source <检出> -o ~/fylite-decks --all
 export FYLITE_DEVICE_DIR=~/fylite-decks/iter
 ```
 
-★★**拖回来不是等价替换。** 实测：拖回的 ITER 牌**没有** `power_supply` 组，于是
-`scenario.design.pulse.channel_limits` 会 `KeyError`；壁面轮廓的写法也从 `points` 换成
+★★**拖回来不是等价替换。** 实测：拖回的 ITER 牌**没有** `pf_active/supply` 供电条目，于是
+`scenario.design.pulse.channel_limits` 会按路径报错；壁面轮廓的写法也从 `points` 换成
 `r` / `z` 两个数组。拖回之后要复核读它的那几处——见[放电设计](../examples/design/design.md)那一章
 里怎么显式给限值。
 

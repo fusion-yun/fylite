@@ -79,8 +79,8 @@ def vertical_system(eq, *, coil_aturns, eta_coil_uohm_m,
     ``eq`` — an ``fyo:equilibrium`` document, or a g-file at the door.
     ``device`` — the device document (the deck as a dict); ``None`` means the
     configured deck.  ``ic_coils`` — the fast actuators as ``{r, z, dr, dz,
-    turns}`` dicts; a non-empty list REPLACES the document's ``ic_coil/coils``
-    in the plan (the caller's override goes INTO the document — the kernel
+    turns}`` dicts; a non-empty list REPLACES the document's fast coils (the
+    ``pf_active/coil`` entries with ``function`` = ``b_field_fb``, K-2) in the plan (the caller's override goes INTO the document — the kernel
     reads documents, not keyword arguments).  ``eta_vessel_uohm_m`` overrides
     the document's vessel resistivity.
 
@@ -96,8 +96,22 @@ def vertical_system(eq, *, coil_aturns, eta_coil_uohm_m,
     dev = _device_document(device)
     ic_list = [dict(c) for c in ic_coils]
     if ic_list:
+        #: ★K-2 (2026-09-13): the fast coils live in `pf_active/coil`, marked by the
+        #: DD `function` = b_field_fb; the caller's list REPLACES the document's.
+        from ...device import is_fast_coil
         dev = dict(dev)
-        dev["ic_coil"] = dict(dev.get("ic_coil") or {}, coils=ic_list)
+        pf = dict(dev.get("pf_active") or {})
+        kept = [c for c in (pf.get("coil") or []) if not is_fast_coil(c)]
+        pf["coil"] = kept + [
+            {"name": str(c.get("name") or f"IC{i + 1}"),
+             "function": [{"name": "b_field_fb", "index": 2}],
+             "element": [{"geometry": {"geometry_type": "rectangle",
+                                       "rectangle": {"r": float(c["r"]), "z": float(c["z"]),
+                                                     "width": float(c["dr"]), "height": float(c["dz"])}},
+                          "fylite:a1": 0.0, "fylite:a2": 90.0,
+                          "turns_with_sign": float(c["turns"])}]}
+            for i, c in enumerate(ic_list)]
+        dev["pf_active"] = pf
     settings = {"passive": ",".join(passive_groups), "ic": 1.0 if ic_list else 0.0,
                 "coarsen": float(coarsen), "eta_coil": float(eta_coil_uohm_m)}
     if eta_vessel_uohm_m is not None:

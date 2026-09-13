@@ -317,8 +317,13 @@ def _elements(coil: dict) -> list[dict]:
 def pf_active(doc: dict, source: str) -> dict:
     coils = []
     for i, c in enumerate(doc.get("coil") or []):
-        entry = {"name": str(c.get("name") or c.get("identifier") or f"PF{i}"),
-                 "element": _elements(c)}
+        entry = {"name": str(c.get("name") or c.get("identifier") or f"PF{i}")}
+        #: ★K-2 (2026-09-13): the DD `function` identifier travels — it is what marks
+        #: EAST's IC1/IC2 as fast vertical-control coils (`b_field_fb`), which every
+        #: PF-set reader skips.
+        if c.get("function"):
+            entry["function"] = [dict(f) for f in c["function"]]
+        entry["element"] = _elements(c)
         if c.get("resistance") is not None:
             entry["resistance"] = float(c["resistance"])
         if c.get("description"):
@@ -326,6 +331,10 @@ def pf_active(doc: dict, source: str) -> dict:
         coils.append(entry)
     #: ★没有 `count`：`len(coil)` 已经是这个数，见 `_absent` 那一段。
     out = {"@type": "fyo:pf_active", "fylite:source": source, "coil": coils}
+    #: ★K-2: the supplies travel too — `pf_active/supply[].{voltage,current}_limit_max`
+    #: are what `code/breakdown` folds into per-channel ampere-turn limits.
+    if doc.get("supply"):
+        out["supply"] = [dict(s) for s in doc["supply"]]
     if doc.get("provenance"):
         out["fylite:upstream"] = doc["provenance"]
     return out
