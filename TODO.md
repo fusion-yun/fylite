@@ -32,14 +32,14 @@
 | **F-9** | fylite · fydoc | `code/breakdown` 缺供电电流上限：EAST 已由 K-2 带 DD `pf_active/supply`；ITER 等其余装置补在装置描述侧（A-Box 没有），还是算例侧绑 `i_max_aturn` |
 | **F-12** | fylite | `B-01` 的参考侧要不要改在 FUSE 1.1.5 上重跑（现有结论建立在已遗弃的 0.7.0 冻结答案上）|
 | **G-3** · **G-4** | fylite | **记录由谁产**：把运行时的 `record()` 在页面上镜像一份，还是判定记录只由宿主产、页面只存宿主交来的那一份 —— 同时决定 `run_state` 的 `cancelled` 谁产、断点仓存什么 |
-| **H-1** | fylite | 动理学反演那份多步计划文档**放哪**：`docs/examples/scenario/` 是逐 code 生成物（撞生成器与目录闸）· `app/cases/` 是会话文档 · `_manifest/` 那份是 workflow-IR 投影且标 `executable: false`；推荐新目录 `docs/examples/plan/` （代价：要给它写一条自己的对账）。**这一条定下来才画得了图**（`PLAN.md` H-1） |
+| **H-1** | kernel · fylite | 落点已裁并落地（`fylite_kernel/docs/cases/plans/kinetic-reconstruction.fyo.jsonld`，2026-09-13）；**余一句口径**：外环收敛判据取哪一个——草图 `dq0_rel < 0.01`×6 · 页面自举份额相对变化 < 0.01×4 · 旧 loop `\|Δq₀\| < 0.02`×8（`PLAN.md` H-1） |
 
 ## 三、阻塞（15 行 · 16 个号，缺件或等他仓）
 
 | 号 | 归属 | 缺什么 |
 | :--- | :--- | :--- |
 | **H-15**（2.3） | fylite · fydoc | MSE 的 Er 修正：装置卷宗里**没有 MSE 几何**（`-12` G-4），也没有绑定表，所以既做不出行也量不了 —— 与 H-16 同一个缺口 |
-| **H-10** | fylite | **会话文档那一半已完成**（闸 `validate-setting-is-the-document.mjs`，141 个档位）；余下「写回**计划**文档」等 **H-1** 裁定计划文档的落点 |
+| **H-10** | fylite | **会话文档那一半已完成**（闸 `validate-setting-is-the-document.mjs`，141 个档位）；计划文档落点 2026-09-13 已定（H-1），余下「写回**计划**文档」卡在运行时 / 页面还不读 `has_step` 形的计划（H-2） |
 | 台基 **B** · **C** | kernel | EPED 自己的判据原文（B 的外环、C 的真 P-B 都要它）|
 | **K-3** | kernel · fydata | 要 A-Box 的 `transport/*` 逐槽读数才判得动 |
 | **E-2** | 需数据访问 | 本炮的加热 / 驱动 / 杂质 / 输运只在 MDSplus（`202.127.204.12`）|
