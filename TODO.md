@@ -12,22 +12,21 @@
 
 ---
 
-## 一、可做（4，不等人不等件）
+## 一、可做（3，不等人不等件）
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
-| **K-2** | kernel · fydoc | **第一批已落**（2026-09-13，接口修订 4 → 5：电阻率 → `coil/resistance` · IC → `pf_active/coil` + `function` · 供电 → `pf_active/supply`；内核 71c7cef · 公开 415c4ac）。**下一步 = 第二批**：解算盒四边与网格数六条 → 计划设置，随 O-5 B 批做（Guo IC 上滞后判据不成立的原因 2026-09-13 已查明：判据钉的是那组增益在 TokSys 线圈上，见 `PLAN.md`） |
 | **F-30** | kernel | 全文已齐（2026-09-13 Karney–Fisch 1979 · Fisch 1987 · Ignat 1994 期刊版均入库）：**LH-②** 电子 Landau 吸收按内核 `lh-raytracing.md` §4.3 已定的设计动手，判据用摘录里的局地点表 |
 | **F-31** | kernel | 余下只有**弱相对论极化**一项，Krivenski–Orefice 1983 与 Shkarofsky 1966 期刊版在库：按原文动手 |
 | **F-1** | fylite · kernel | H-19 已关（2026-09-13，整圈 Wb · ABI 154）：`code/discharge` 把一维 p′/FF′（及 q 所需的 F）按整圈 Wb 写进声明的槽，再重跑两步算例看第二步是否过 `profiles_1d/q`；余下 10 条判据随之可评 |
 
-〔2026-09-12〕**本组曾空过**（当日 F-16 · F-34 · H-10 会话半 · F-1 门 · H-15 两项做完后），随后用户裁定「fylite 不作为本体前缀」，开出上面这一条 O-5。原记：F-16 · F-34 · H-10（会话文档那一半）· F-1（门）· H-15（1.4 与 1.2 的算法）当日做完并推送，各自的落地读数在 `PLAN.md` 同号行。余下的每一条都在**等一句裁定**或**缺仓外材料** —— 见下两组。★**裁定的杠杆最大的是 `H-19`**（p′/FF′ 的规范）：它一句话解开 F-1 余下的十条判据、`code/discharge` 的一维剖面、以及两步算例那条链。
+〔2026-09-12〕**本组曾空过**（当日 F-16 · F-34 · H-10 会话半 · F-1 门 · H-15 两项做完后），随后用户裁定「fylite 不作为本体前缀」，开出 O-5（2026-09-13 移入待裁：等 `FYO-ADR-16` 批准）。原记：F-16 · F-34 · H-10（会话文档那一半）· F-1（门）· H-15（1.4 与 1.2 的算法）当日做完并推送，各自的落地读数在 `PLAN.md` 同号行。余下的每一条都在**等一句裁定**或**缺仓外材料** —— 见下两组。〔2026-09-13〕H-19 已裁已关，F-1 因此回到本组。
 
 ## 二、待裁（5 行 · 6 个号，等用户一句口径）
 
 | 号 | 归属 | 要裁的是什么 |
 | :--- | :--- | :--- |
-| **O-5** | fyo · kernel · fylite | **批不批 `FYO-ADR-16`**（fyo，Proposed）：09-12 裁定的 fyo 侧 2026-09-13 才真正落地（D-1 十槽已落 schema，两门俱绿）；D-2 把 B 表改判六处（斜角是几何换算 · `tf` 用 `b_field_phi_vacuum_r` · 离子 `name` · 限制器改端口 · LH 最大功率无承载 · 两处待核），D-3 取代 `FYO-ADR-14` D-2 两项。批准后按判定迁 B 类（K-2 第二批随之） |
+| **O-5** | fyo · kernel · fylite | **批不批 `FYO-ADR-16`**（fyo，Proposed）：09-12 裁定的 fyo 侧 2026-09-13 才真正落地（D-1 十槽已落 schema，两门俱绿）；D-2 把 B 表改判六处（斜角是几何换算 · `tf` 用 `b_field_phi_vacuum_r` · 离子 `name` · 限制器改端口 · LH 最大功率无承载 · 两处待核），D-3 取代 `FYO-ADR-14` D-2 两项。批准后按判定迁 B 类（K-2 第二批随之）。★同批实测的两处接缝不等批准：内核 `CORE_TRANSPORT` 的 `psin` 写作 `profiles_1d/grid/psi_norm`，而输运模型剖面只有 `grid_d` / `grid_v` / `grid_flux`（内核路径父段错）；K-2 新加的 `pf_active/coil/function/name` 在 fyo 的 `pf_active` 提升里解析不到（fyo 侧待核是否漏提） |
 | **F-2** | fylite | 生成件里手写段活不过下一次 `--write`：三个候选落点（算例声明的 `caveat` · 本册子 RUN 页 · 渲染器认锚点）先定一个 |
 | **F-9** | fylite · fydoc | `code/breakdown` 缺供电电流上限：EAST 已由 K-2 带 DD `pf_active/supply`；ITER 等其余装置补在装置描述侧（A-Box 没有），还是算例侧绑 `i_max_aturn` |
 | **F-12** | fylite | `B-01` 的参考侧要不要改在 FUSE 1.1.5 上重跑（现有结论建立在已遗弃的 0.7.0 冻结答案上）|
@@ -37,7 +36,8 @@
 
 | 号 | 归属 | 缺什么 |
 | :--- | :--- | :--- |
-| **H-1** | kernel · fylite | 计划已落 `fylite_kernel/docs/cases/plans/kinetic-reconstruction.fyo.jsonld`，外环判据 2026-09-13 已裁（`dq0_rel` < 0.01 · 6 轮）；验收「页面与 `fy run` 读同一份字节」卡在运行时认 `has_occurrent_part` / `{id: "<步>/<ids>"}` 而不认 `has_step` / `x+run://`，页面不读计划（**H-2**） |
+| **K-2** | kernel · fydoc · fyo | 第一批已落（2026-09-13，接口修订 4 → 5；内核 71c7cef · 公开 415c4ac）。**第二批**（解算盒四边与网格数六条 → 计划设置）随 O-5 B 批，等 **O-5**（`FYO-ADR-16` 批准）；另 fyo 侧核 `pf_active/coil/function` 是否漏提 |
+| **H-1** | kernel · fylite | 计划已落 `fylite_kernel/docs/cases/plans/kinetic-reconstruction.fyo.jsonld`，外环判据 2026-09-13 已裁（`dq0_rel` < 0.01 · 6 轮）；验收「页面与 `fy run` 读同一份字节」卡在运行时认 `has_occurrent_part` / `{id: "<步>/<ids>"}` 而不认 `has_step` / `x+run://`，页面不读计划（**H-2**）；设计书落点注待并行会话的 `FYL-SDD-07` 那批落地后补 |
 | **H-15**（2.3） | fylite · fydoc | MSE 的 Er 修正：装置卷宗里**没有 MSE 几何**（`-12` G-4），也没有绑定表，所以既做不出行也量不了 —— 与 H-16 同一个缺口 |
 | **H-10** | fylite | **会话文档那一半已完成**（闸 `validate-setting-is-the-document.mjs`，141 个档位）；计划文档落点 2026-09-13 已定（H-1），余下「写回**计划**文档」卡在运行时 / 页面还不读 `has_step` 形的计划（H-2） |
 | 台基 **B** · **C** | kernel | EPED 自己的判据原文（B 的外环、C 的真 P-B 都要它）|
@@ -51,5 +51,4 @@
 | **F-20** | fylite · fydoc | 第二台带实测放电的真机（现在只有 EAST #137985）|
 | **F-21** | kernel | 第二个构建环境（跨环境 wasm 字节不可复现，本会话无从复现）|
 | **F-28** | kernel | 缺一个**可复算的束宽参照件**（B 类）。全文不再是缺口：Poli 2018（TORBEAM 2.0）与 Prater 2008（EC 基准）期刊版 2026-09-13 入库，接受稿退役 |
-| **G-5** | fyo | `../spo` 检出不在（`check_conformance.py` 退 0 才准提交 schema）|
-| **G-6** | kernel · fylite | 依赖 **G-5**；`coverage/` 的 `covers` 边要人逐条判断，`availability/` 的 286 格要装置卡片在场 |
+| **G-6** | kernel · fylite | **G-5 已解**（`../spo` 在，2026-09-13 两份 fyo ADR 已据以落 schema）、装置卡片在（内核 `machine_desc/` 七台）；余下 `coverage/` 的 `covers` 边要人逐条判断——`surface/` · `availability/` 可先算，但单出不成套（`PLAN.md` G-6） |
