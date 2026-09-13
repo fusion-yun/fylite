@@ -16,7 +16,7 @@
 
 | 号 | 归属 | 下一步做什么 |
 | :--- | :--- | :--- |
-| **K-2** | kernel · fydoc | **第一批已落**（2026-09-13，接口修订 4 → 5：电阻率 → `coil/resistance` · IC → `pf_active/coil` + `function` · 供电 → `pf_active/supply`；内核 / 公开仓待提交）。**下一步 = 第二批**：解算盒四边与网格数六条 → 计划设置，随 O-5 B 批做。★另查一处测得的差异：文档的 Guo IC 上 `test_control` 执行器滞后判据不成立（过冲 2.49 ξ₀ 对 TokSys 4.73，激进增益不再更糟），判据现自带 TokSys IC —— 弄清是几何还是判据本身 |
+| **K-2** | kernel · fydoc | **第一批已落**（2026-09-13，接口修订 4 → 5：电阻率 → `coil/resistance` · IC → `pf_active/coil` + `function` · 供电 → `pf_active/supply`；内核 / 公开仓待提交）。**下一步 = 第二批**：解算盒四边与网格数六条 → 计划设置，随 O-5 B 批做（Guo IC 上滞后判据不成立的原因 2026-09-13 已查明：判据钉的是那组增益在 TokSys 线圈上，见 `PLAN.md`） |
 | **F-30** | kernel | 全文已齐（2026-09-13 Karney–Fisch 1979 · Fisch 1987 · Ignat 1994 期刊版均入库）：**LH-②** 电子 Landau 吸收按内核 `lh-raytracing.md` §4.3 已定的设计动手，判据用摘录里的局地点表 |
 | **F-31** | kernel | 余下只有**弱相对论极化**一项，Krivenski–Orefice 1983 与 Shkarofsky 1966 期刊版在库：按原文动手 |
 | **F-1** | fylite · kernel | H-19 已关（2026-09-13，整圈 Wb · ABI 154）：`code/discharge` 把一维 p′/FF′（及 q 所需的 F）按整圈 Wb 写进声明的槽，再重跑两步算例看第二步是否过 `profiles_1d/q`；余下 10 条判据随之可评 |
