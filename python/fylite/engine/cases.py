@@ -149,18 +149,23 @@ def corpus_dir(explicit=None) -> Path:
           "with the wheel; run from a checkout or pass --dir")
 
 
-def _deck_root() -> Path:
-    """Where the machine decks live — ``machine_desc/`` at the checkout root.
+def _deck_dir(device: str) -> Path | None:
+    """The directory carrying ``<device>_device.yaml``, found on the facts search
+    path (``fylite.facts.find("device", device)``), or None.
 
-    ★★NOT ``corpus_dir().parent``, which is what this was.  That spelling was
-    right only while the corpus sat at the repo root, and it broke silently
-    the day the corpus moved into ``docs/`` (2026-09-01): the decks were then
-    looked for at ``docs/machine_desc/`` and every device-bound case refused
-    by name.  The decks and the corpus are two independent trees; deriving
-    one's location from the other's is a coupling neither of them declares.
+    ★★2026-09-13 (user ruling, `machine_desc` retirement): the cards are generated
+    from the A-Box into the facts corpus (``dist/facts/device/<id>/`` in a
+    checkout), so a case's machine resolves through the same search path every
+    other reader uses — not through a checkout path.  An entry the path carries
+    only as a compiled-in document (no card directory) is not a deck.
+    ★Still NOT derived from ``corpus_dir()``: the corpus and the device facts are
+    two independent trees (that coupling broke once, 2026-09-01).
     """
-    here = Path(__file__).resolve().parents[3] / "machine_desc"
-    return here if here.is_dir() else Path("machine_desc")
+    from .. import facts as _facts
+    hit = _facts.find("device", device)
+    if hit is None or hit.dir is None:
+        return None
+    return hit.dir if (hit.dir / f"{device}_device.yaml").is_file() else None
 
 
 #: ★★THE CORPUS VOCABULARY IS fyo / spo (2026-09-02, `FYO-ADR-07` · `FYL-REPORT-06`
@@ -180,7 +185,7 @@ def _deck_root() -> Path:
 #:   the value a JSON literal (``@type: @json``), so ``"0"`` and ``0`` stay distinct
 #:   (:func:`settings`);
 #: * ``fylite:device`` → ``about_discharge.performed_on`` (``fyo:Tokamak``) reverse-linked
-#:   to the deck as a ``fyo:MachineDescription`` with id ``machine_desc/<deck>``
+#:   to the deck as a ``fyo:MachineDescription`` with id ``facts/device/<deck>``
 #:   (:func:`device_of`) — a case ABOUT a machine without a bound deck names the
 #:   machine and no description;
 #: * ``fylite:case{name, note}`` → ``rdfs:label`` / ``rdfs:comment`` language maps;
@@ -212,7 +217,7 @@ def bar_of(doc: dict) -> str | None:
 
 
 def device_of(doc: dict) -> str | None:
-    """The machine DECK a case is bound to (``machine_desc/<deck>``), or None."""
+    """The machine DECK a case is bound to (``facts/device/<deck>``), or None."""
     dis = doc.get("about_discharge") or {}
     tok = dis.get("performed_on") or {}
     desc = tok.get("described_by") or {}
@@ -983,13 +988,16 @@ def _device_env(device: str | None):
     if not device:
         yield
         return
-    deck = _deck_root() / device
-    if not deck.is_dir():
-        #: ★装置牌不在场 = **缺输入**（`machine_desc/` 按裁定不进版本库），
+    deck = _deck_dir(device)
+    if deck is None:
+        #: ★装置牌不在场 = **缺输入**（卡片由 A-Box 生成进 facts 语料，不进版本库），
         #: 与语料不在场同一类，所以抛同一个异常：库调用者接得住，CLI 照旧翻译。
-        raise CorpusMissing(f"catalogue names device {device!r} but "
-                            f"{deck} is not a directory — device decks are "
-                            "pulled on demand and are not in the repository")
+        from .. import facts as _facts
+        looked = ", ".join(str(r) for r in _facts.roots()) or "(no root)"
+        raise CorpusMissing(f"catalogue names device {device!r} but the facts path "
+                            f"carries no device/{device}/{device}_device.yaml "
+                            f"(looked in {looked}) — the cards are generated from "
+                            f"the A-Box: tools/abox-to-facts.py {device}")
     from .. import device as _device_mod
     with _device_mod.bound(deck):
         yield
@@ -1038,7 +1046,7 @@ _RETIRED_PREFIXES = ("fylite:", "vv:")
 _NOT_CASES = {"catalogue.jsonld", "context.jsonld"}
 
 #: ★★2026-09-04：`scenario/` 住的不是算例，是**场景模板**——`fy run` 的参数表
-#: （`FYL-DESIGN-17` E-11）。它形状上也是 `fyo:ScenarioSpecification`（模板就是一份
+#: （`FYL-SDD-04` E-11）。它形状上也是 `fyo:ScenarioSpecification`（模板就是一份
 #: 把词表说全了的计划，于是 `fy run <模板>` 与 `fy run <线> <场景>` 走同一条合成），
 #: 但它**不是这本目录登记的东西**：它自带目录 `scenario/lines.jsonld`，由
 #: `tools/make-scenario-templates.py` 生成、由 `python/tests/test_scenario_templates.py`

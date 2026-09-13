@@ -45,7 +45,6 @@
  "fylite:common": [
   "shot",
   "time",
-  "provider",
   "epoch"
  ],
  "fylite:time": "selection",

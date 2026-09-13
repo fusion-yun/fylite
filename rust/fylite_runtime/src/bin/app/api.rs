@@ -183,7 +183,7 @@ pub fn kernel(body: &str) -> (u16, String) {
 ///
 /// ★**按名拒绝 IMAS 单文件**，与页面那侧同一句话：IMAS 布局是一个**目录**
 /// （`master.h5` + 每个 IDS 一份），单文件里带着 `ids_properties` 而没有 `@type` 的，
-/// 半读一份会给出一份看着对、其实转置了的文档（`FYL-DESIGN-14` L-5 / L-6）。
+/// 半读一份会给出一份看着对、其实转置了的文档（`FYL-SDD-03` L-5 / L-6）。
 ///
 /// ★不落盘超过一次：字节写进临时文件（中间层的读者按路径工作），读完就删。
 #[cfg(not(target_arch = "wasm32"))]
@@ -239,7 +239,7 @@ pub fn read_file(name: &str, shape: &str, body: &[u8]) -> (u16, String) {
             if imas {
                 return (400, format!("{{\"error\":{}}}", jstr(
                     "按名拒绝：这看着是 IMAS 布局（结构数组张量化 · 数据轴转置，\
-                     FYL-DESIGN-14 L-5 / L-6）——本读者只读本仓写的 fyo 布局，\
+                     FYL-SDD-03 L-5 / L-6）——本读者只读本仓写的 fyo 布局，\
                      半读一份会给出一份看着对、其实转置了的文档")));
             }
             (200, fylite_runtime::json::to_string(&node, false))
@@ -249,7 +249,7 @@ pub fn read_file(name: &str, shape: &str, body: &[u8]) -> (u16, String) {
 }
 
 /// `/api/health` 里那一格：算力在不在本进程里，以及它是哪一版 ABI。
-/// `POST /api/case` — the DOCUMENT door for the page (FYL-DESIGN-16 H-2 / P2:
+/// `POST /api/case` — the DOCUMENT door for the page (FYL-SDD-02 H-2 / P2:
 /// 「/api/case 是一个端点，不是一族」).  The logic and its test are the library's
 /// (`fylite_runtime::case_api::case_http`); this is the route.
 pub fn case(body: &str) -> (u16, String) {
@@ -778,7 +778,7 @@ fn measurements(cfg: &Cfg, q: &Query) -> Result<String, Fail> {
         n_coils,
         PROBE_GATE_MIN,
         PROBE_GATE_MAX,
-        jstr("machine_desc/east/east_device.yaml operational.probe_gate"),
+        jstr("facts/device/east/east_device.yaml operational.probe_gate"),
         jstr(&format!("{G}GTIME")),
         jstr(&format!("{M}SILOPT")),
         jstr(&format!("{M}EXPMPI")),

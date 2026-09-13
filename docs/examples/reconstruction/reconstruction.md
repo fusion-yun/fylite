@@ -26,11 +26,11 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/east    # 见「安装与环境」：EAS
 from fylite import fyo
 
 meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld", 4.0)
-sorted(meas)      # ['basis', 'brsp', 'btor', 'coils', 'expmp2', 'plasma', 'time_s']
+sorted(meas)      # ['brsp', 'btor', 'coils', 'expmp2', 'measurement_chain', 'plasma', 'time_s']
 ```
 
 ★**这一步就是通道契约**：通道数、次序与单位在这里一次性判定，之后不再有第二处解释。
-`basis` 说的是这批测量按哪套基底约化（EAST 的 `est2` 79 探针基底就在这里定名），
+`measurement_chain` 说的是这批测量出自哪条测量链（EAST 的 `efit_east` / `east` / `pcs_east`），装置按它解析，
 `time_s` 是它选中的时刻。测量来源是 MDSplus 还是离线转储，进到这一层之后**不再区分**。
 
 ## 命令行：今天走不通，以及为什么

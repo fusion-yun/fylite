@@ -2,12 +2,20 @@
  "$comment": "The environment this package reads, declared where a caller can find it (NR-ENV / FR-DATA-001). Data, not code: `fylite describe` publishes it and `test_environment_table.py` holds it against the source both ways — a variable the code reads and this file does not name is a failure, and so is an entry naming a variable nothing reads. Each entry also declares `affects_result`: whether the variable can change a NUMBER the run delivers, with the reason. `env_fingerprint()` records exactly the ones marked true, so what a run was reproducible from is read off the declaration rather than remembered.",
  "variables": {
   "FYLITE_DEVICE_DIR": {
-   "governs": "the machine deck: coil / vessel geometry, diagnostic positions, limiter, Green response tables",
+   "governs": "the machine's directory of FIT INPUTS (efund / Green-table decks, k-file defaults) and, when it holds exactly one *_device.yaml, the device card; with none, the card resolves through the facts search path as device/<$FYLITE_DEVICE or this directory's name> (2026-09-13, machine_desc retired)",
    "needed_for": "every capability that touches a machine (reconstruction, breakdown, feasible, discharge, coupled, vstab)",
    "default": "none - the deck is an INPUT and is not shipped; absent, those calls raise MachineDataMissing at the point of use",
-   "example": "machine_desc/east",
+   "example": "../fylite_kernel/tests/data/east",
    "affects_result": true,
    "affects_result_why": "names WHICH TOKAMAK is solved — every geometry, coil and Green table in the answer comes from this deck"
+  },
+  "FYLITE_DEVICE": {
+   "governs": "WHICH machine's device card is read when $FYLITE_DEVICE_DIR carries no *_device.yaml: the card is the facts entry device/<this id>/<id>_device.yaml on the facts search path (2026-09-13, machine_desc retired)",
+   "needed_for": "nothing - unset, the id is the name of the $FYLITE_DEVICE_DIR directory (e.g. tests/data/east -> east)",
+   "default": "the basename of $FYLITE_DEVICE_DIR",
+   "example": "east",
+   "affects_result": true,
+   "affects_result_why": "names WHICH TOKAMAK's card is read — every coil, wall and diagnostic position in the answer comes from it"
   },
   "FY_FACTS_PATH": {
    "governs": "the facts search path: os.pathsep-separated corpora of assertions about named individuals, consulted in order",
@@ -58,13 +66,21 @@
    "affects_result_why": "names which binary computes the turbulent and drift-kinetic answers. ★It must come from the same build as the core: the extension exports fylite_ext_abi_version and the loader refuses a pair that disagrees, because two libraries shipped apart can drift apart, and a drifted pair resolves a call to a signature that no longer matches - worse than not loading at all. Absent, the 15 TGLF/DKE entries refuse by name rather than raising AttributeError."
   },
   "FY_RUNTIME_LIB": {
-   "governs": "the runtime (middle-layer) library to load instead of the bundled one — formats, assembly, plan->kernel->record, kernel loading. ★2026-09-04 renamed twice with the crate: FY_DATA_LIB -> FY_ENGINE_LIB -> FY_RUNTIME_LIB (fylite_data -> fylite_engine -> fylite_runtime, FYL-DESIGN-16 N-1 and N-2). `data` named two of the layer's six jobs; `engine` collided with the Python package `fylite.engine`, which is a different component. Neither old name is read any more",
+   "governs": "the runtime (middle-layer) library to load instead of the bundled one — formats, assembly, plan->kernel->record, kernel loading. ★2026-09-04 renamed twice with the crate: FY_DATA_LIB -> FY_ENGINE_LIB -> FY_RUNTIME_LIB (fylite_data -> fylite_engine -> fylite_runtime, FYL-SDD-02 N-1 and N-2). `data` named two of the layer's six jobs; `engine` collided with the Python package `fylite.engine`, which is a different component. Neither old name is read any more",
    "needed_for": "nothing - the wheel ships it",
    "default": "the packaged _lib/libfylite_runtime.so",
    "example": "rust/fylite_runtime/target/release/libfylite_runtime.so",
    "affects_result": true,
    "affects_result_why": "names which binary READ the machine's numbers; a codec defect changes the values a run started from, and no later stage can tell",
    "$note": "★2026-09-02 新增：数据平面从内核仓搬进本仓、成为独立的库（rust/fylite_runtime/）。它与 FY_KERNEL_LIB 指的是两份不同的 .so、两个不同的符号前缀（fylite_runtime_* / fylite_rs_*）。"
+  },
+  "FYLITE_MDSIP_SERVER": {
+    "governs": "the mdsip server (`host` or `host:port`, port 8000 by default) the shot readers connect to",
+    "needed_for": "shot/time input modes (--east and a bare shot)",
+    "default": "none: server= argument, else this variable, else the legacy KEFIT_MDS_SERVER, else the device document's declared server; refused only when a connection is attempted",
+    "example": "127.0.0.1:8000",
+    "affects_result": true,
+    "affects_result_why": "which server the measured shot is read from"
   },
   "KEFIT_MDS_SERVER": {
    "governs": "the mdsip server for the EAST trees (`host` or `host:port`, port 8000 by default), read through the engine's read-only mdsip client",

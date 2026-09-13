@@ -28,12 +28,16 @@
 
 import { readFileSync } from 'node:fs';
 import { browser, flag } from './_browser.mjs';
-import { deviceDoc, seedDevice, missingDeviceMessage } from './_device.mjs';
+import { seedDeviceDocs } from './_device.mjs';
+import { eastWithShot, skipMessage } from './_kernel-fixture.mjs';
 
 const BASE = flag('url') || 'http://127.0.0.1:8767/app/';
 
-const DECK = deviceDoc('east');
-if (!DECK) { console.error(missingDeviceMessage('east')); process.exit(2); }
+//: ★2026-09-13 (machine_desc retired): the A-Box-built EAST document with the
+//: #137985 reference discharge added from the PRIVATE kernel fixture — skipped by name without it.
+const EAST = eastWithShot();
+if (EAST.why) { console.log(skipMessage('validate-recon-slices', EAST.why)); process.exit(0); }
+const DECK = EAST.doc;
 const REF = DECK['fylite:reference_discharge'];
 if (!REF || !REF.loopMeasTotal) {
   console.error('EAST 的卷宗里没有参考放电，这道闸子没有可发的通道值。');
@@ -74,7 +78,10 @@ function measurements(shot, want) {
     aturns: REF.aturns.slice(0, 12).map((v) => v * k),
     ip: REF.ipMeasured * k,
     bcentr: REF.bcentr,
-    counts: { loops: REF.loopMeasTotal.length, probes: probes.length, coils: 12 },
+    //: ★coils = the document's PCS/BRSP channel count (its channel map), not a
+    //: literal: the A-Box-built EAST (2026-09-13) keeps 12 via the circuit remap
+    counts: { loops: REF.loopMeasTotal.length, probes: probes.length,
+              coils: (DECK['fylite:channel_map'] || []).length },
     probe_gate: { min_tesla: 0.02, max_tesla: 1.0 },
     provenance: { nodes: {}, kind: 'canned from the shipped reference discharge' },
   };
@@ -82,10 +89,7 @@ function measurements(shot, want) {
 
 const br = await browser();
 const ctx = await br.newContext({ locale: 'zh-CN', viewport: { width: 1440, height: 1100 } });
-if (!await seedDevice(ctx, 'east')) {
-  console.error(missingDeviceMessage('east'));
-  process.exit(2);
-}
+await seedDeviceDocs(ctx, { east: DECK });
 
 //: every request the source panel makes, answered here — and RECORDED, so the
 //: gate can assert which slice a click actually asked for rather than

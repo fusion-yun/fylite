@@ -47,7 +47,7 @@
 //: grab-bag, and because that module is native-only, seventeen exports that
 //: touch neither a socket nor a file were unreachable from wasm by
 //: association.  Measured 2026-09-04: with them moved, those seventeen
-//: compile for `wasm32-unknown-unknown` unchanged (`FYL-DESIGN-18` G-15).
+//: compile for `wasm32-unknown-unknown` unchanged (`FYL-SDD-05` U-G-15).
 mod abi {
     /// `(ptr, len)` -> `&str`, or `None` when it is not UTF-8 / is null.
     ///
@@ -326,7 +326,7 @@ mod gfile_abi {
 /// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
 /// 整份 g-file 一次读成 JSON —— 页面走的就是这一条。
 ///
-/// ★★2026-09-05 落地 `FYL-DESIGN-16` H-4 的第一块：`app/assets/geqdsk.js` 里那份
+/// ★★2026-09-05 落地 `FYL-SDD-02` H-4 的第一块：`app/assets/geqdsk.js` 里那份
 /// **第三份** g-file 实现撤掉，页面改问这里。给它文本，答一份 JSON，键名与
 /// `GFile` 逐字相同（`to_node` 抬头说了为什么不是 fyo 文档）。
 ///
@@ -653,6 +653,122 @@ pub unsafe extern "C" fn fylite_runtime_facts_doc(
 #[no_mangle]
 pub extern "C" fn fylite_runtime_facts_count() -> i64 {
     crate::facts::embedded_count() as i64
+}
+
+/// 自带那一档里某台装置的**解析文档**（`fylite:DeviceResolution`，按炮号解析用；
+/// 用户裁定 R-S1，2026-09-13）。返回想要的字节数；`-1` 参数不合法，`-2` 这一版不带。
+///
+/// # Safety
+/// `domain`: `domain_n` 字节；`ident`: `ident_n` 字节；`out`: `cap` 个可写字节。
+#[no_mangle]
+pub unsafe extern "C" fn fylite_runtime_facts_resolution(
+    domain: *const u8,
+    domain_n: u64,
+    ident: *const u8,
+    ident_n: u64,
+    out: *mut u8,
+    cap: u64,
+) -> i64 {
+    let (Some(d), Some(i)) = (abi::s(domain, domain_n), abi::s(ident, ident_n)) else {
+        return -1;
+    };
+    match crate::facts::embedded_resolution(d, i) {
+        Some(t) => abi::put(t, out, cap),
+        None => -2,
+    }
+}
+
+/// 按炮号解析一台装置——**那一条规则**（`device_resolve`）的 C 面。Python 经它调用，
+/// 不另写一份（用户裁定 R-S1 / R-S2，2026-09-13）。
+///
+/// 入（均为 UTF-8 JSON，长度 0 = 不给）：`card` 静态卡片（不给 = 只要选择）、
+/// `resolution` 解析文档、`request` `{"shot", "measurement_chain", "strict"}`（别的键按名拒绝；不给 = 无炮号，
+/// 即最新炮）、`form` `card` / `document`（不给 = `document`）。
+/// 出：`{"selected": {ids: {provider, shots, why}}, "notes": [...], "document"?: {...}}`，
+/// 或 `{"error": "..."}`——★拒绝是一句有名字的话，不是一个码。
+/// 返回想要的字节数；`-1` 参数不是 UTF-8。
+///
+/// # Safety
+/// 各 `(ptr, n)` 指向 `n` 个可读字节（`n = 0` 时可为空）；`out`: `cap` 个可写字节。
+#[no_mangle]
+#[allow(clippy::too_many_arguments)]
+pub unsafe extern "C" fn fylite_runtime_device_resolve(
+    card: *const u8,
+    card_n: u64,
+    resolution: *const u8,
+    resolution_n: u64,
+    request: *const u8,
+    request_n: u64,
+    form: *const u8,
+    form_n: u64,
+    out: *mut u8,
+    cap: u64,
+) -> i64 {
+    let text = |p: *const u8, n: u64| -> Option<&str> {
+        if n == 0 {
+            Some("")
+        } else {
+            // SAFETY: the caller hands `n` readable bytes at `p` (see `# Safety`)
+            unsafe { abi::s(p, n) }
+        }
+    };
+    let (Some(c), Some(r), Some(q), Some(f)) =
+        (text(card, card_n), text(resolution, resolution_n), text(request, request_n), text(form, form_n))
+    else {
+        return -1;
+    };
+    abi::put(&device_resolve_json(c, r, q, f), out, cap)
+}
+
+/// [`fylite_runtime_device_resolve`] 的正文，字符串进、字符串出（可测）。
+pub fn device_resolve_json(card: &str, resolution: &str, request: &str, form: &str) -> String {
+    use crate::device_resolve as dr;
+    use crate::document::{Map, Node};
+    let fail = |e: String| {
+        let mut m = Map::new();
+        m.insert("error", Node::Str(e));
+        crate::json::to_string(&Node::Map(m), false)
+    };
+    let res = match crate::json::parse(resolution) {
+        Ok(n) => n,
+        Err(e) => return fail(format!("the resolution document is not JSON: {e}")),
+    };
+    let req = if request.trim().is_empty() {
+        dr::Request::default()
+    } else {
+        match crate::json::parse(request).map_err(|e| e.to_string()).and_then(|n| dr::Request::from_node(&n)) {
+            Ok(q) => q,
+            Err(e) => return fail(format!("request: {e}")),
+        }
+    };
+    let Some(form) = dr::Form::parse(form) else {
+        return fail(format!("form {form:?}: `card` or `document`"));
+    };
+    let notes_node = |notes: &[String]| Node::List(notes.iter().map(|n| Node::Str(n.clone())).collect());
+    let mut m = Map::new();
+    if card.trim().is_empty() {
+        match dr::selection(&res, &req) {
+            Ok((s, notes)) => {
+                m.insert("selected", dr::selected_node(&s));
+                m.insert("notes", notes_node(&notes));
+            }
+            Err(e) => return fail(e),
+        }
+    } else {
+        let card = match crate::json::parse(card) {
+            Ok(n) => n,
+            Err(e) => return fail(format!("the device card is not JSON: {e}")),
+        };
+        match dr::resolve(&card, &res, &req, form) {
+            Ok(r) => {
+                m.insert("selected", dr::selected_node(&r.selected));
+                m.insert("notes", notes_node(&r.notes));
+                m.insert("document", r.doc);
+            }
+            Err(e) => return fail(e),
+        }
+    }
+    crate::json::to_string(&Node::Map(m), false)
 }
 
 /// 从文本读：`format` 是 `json` / `geqdsk` / `afile`（空 = JSON）。状态码同 `_read`。

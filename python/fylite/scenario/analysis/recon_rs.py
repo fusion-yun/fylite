@@ -48,7 +48,7 @@ from ...device import flux_loop_positions
 
 #: kept as the name callers and the service layer already raise/catch
 
-from ...io import est2
+from ...io import raw
 
 from ...io import mds
 from ...run import KefitRunError  # noqa: F401
@@ -64,9 +64,11 @@ __all__ = ["reconstruct", "reconstruct_shot", "reconstruct_input",
 #: ★★2026-09-01 自 `io/kfile.py` 迁入（那个模块已整体移除）。原来的
 #: `load_limiter` 只是 `device.limiter_unit` 的一层形状适配加一张别名表，而
 #: 本函数是它唯一的调用者——薄包装跨模块住着，只是给同一个东西添了第二个地址。
+#: ★2026-09-13 (est2 removed): the GUI-v5 60-point `efit_w_pf` contour left with the est2
+#: array, and its aliases (`efit_w_pf` / `gui` / `wpf`) with it — a name that selects nothing
+#: is refused by name below; the operational contour is the manifest's wall default `base`.
 _LIMITER_ALIASES = {"default": "m-file", "m-file": "m-file", "mfile": "m-file",
-                    "efit_w_pf": "efit_w_pf", "operational": "efit_w_pf",
-                    "gui": "efit_w_pf", "wpf": "efit_w_pf"}
+                    "base": "base", "operational": "base"}
 
 
 def _load_limiter(name: str | None = None) -> dict:
@@ -80,7 +82,9 @@ def _load_limiter(name: str | None = None) -> dict:
     if sel and sel not in _LIMITER_ALIASES:
         return json.loads(Path(sel).read_text())
     u = device.limiter_unit(name=_LIMITER_ALIASES.get(sel or "default"))
-    return {"limitr": int(u["count"]),
+    #: ★generated documents carry no `count` beside the outline it counts (the
+    #: A-Box-built EAST since 2026-09-13); the outline's length is that number
+    return {"limitr": int(u.get("count") or len(u["outline"]["r"])),
             "xlim": [float(v) for v in u["outline"]["r"]],
             "ylim": [float(v) for v in u["outline"]["z"]]}
 
@@ -162,7 +166,7 @@ def reconstruct(meas: dict, *, npp: int = 1, nff: int = 2,
     table grid) and the scalars the Fortran path reports under the same
     names, so the two are directly comparable.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the fifth tool to sink): the recipe —
+    ★★2026-09-05 (FYL-SDD-02 K-3, the fifth tool to sink): the recipe —
     the loop / coil / probe / kinetic / vessel rows, the one inverse solve,
     F · q · l_i · the 1-D profiles · the boundary — is
     ``case.rs::reconstruction_case`` (``code/reconstruction``) now, one copy
@@ -488,10 +492,11 @@ def _east_measurements(shot: int, time_s: float, *, server=None,
                        read_thomson_ne: bool = False,
                        thomson_ne_opts=None,
                        require_diagnostics: bool = True) -> tuple[dict, dict]:
-    """Build one est2/GUI_v5 slice's measurement dict (+result extras).
+    """Build one raw-series (GUI_v5 convention) slice's measurement dict (+result extras).
 
-    The GUI_v5 est2 path — self-contained, no fydata: 79 probes / 35 loops /
-    12 PF straight from the `east` tree.  ``read_point`` adds the 11-chord
+    Self-contained, no fydata: the probes / loops / PF of the device resolved for
+    the shot in its measurement chain, read from that chain's tree
+    (:func:`fylite.io.raw.read_mds`; no est2 channel order since 2026-09-13).  ``read_point`` adds the 11-chord
     POINT interferometry + Faraday internal-current constraint;
     ``read_pressure`` the Thomson+TXCS kprfit=1 pressure rows (assumptions
     declared in ``meas["pressure"]``); ``read_thomson_ne`` the Ts(ne)
@@ -508,11 +513,11 @@ def _east_measurements(shot: int, time_s: float, *, server=None,
     diagnostic does not lose the whole slice.
     """
     #: ★there used to be a second probe family here (``probe_source="pcs"``,
-    #: the already-calibrated PCS array mapped onto est2 slots).  The two
+    #: the already-calibrated PCS array mapped onto the retired est2 slots).  The two
     #: readers it called have no definition in this distribution, so the
     #: branch could only raise `NameError` — an option that names a
     #: capability nobody can reach is worse than no option.
-    meas = est2.read_east_mds(
+    meas = raw.read_mds(
         shot, time_s, server=server, window_ms=window_ms, btor=btor,
         read_point=read_point, point_window_ms=point_window_ms,
         point_fringe_gate=point_fringe_gate)

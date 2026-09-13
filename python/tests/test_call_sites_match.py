@@ -435,7 +435,8 @@ def test_a_waived_import_degrades_rather_than_killing_its_tool():
     spec = importlib.util.spec_from_file_location("_east_inputs", src)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    got = mod.passive_from(PKG.parents[1] / "machine_desc/east", {})
+    from fylite import device
+    got = mod.passive_from(device.data_dir(), {})
     assert isinstance(got, list), (
         "the waived branch no longer degrades — if `circuits` came back, "
         "drop the waiver; if it changed shape, this gate needs to know")

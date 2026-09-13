@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 发布类型二：**静态网页**——`app/` 的发布子集，任何静态服务器都能伺服的一个目录。
 #
-# 与另两条通道的分工（FYL-DESIGN-15 tbl-fylite-release-forms）：
+# 与另两条通道的分工（FYL-SDD-04 tbl-fylite-release-forms）：
 #   单一可执行文件  —— tools/build-app-exe.sh：同一份 app/ 内嵌进一个程序，起本机服务
 #   Python 包       —— tools/build-wheel.sh
 #   本脚本          —— 给联网的人，零安装：一个目录，放到 GitHub Pages / 任何静态主机
@@ -14,7 +14,7 @@
 # 三件事，都是「不做的后果只有别人才会发现」的那种：
 #   1. 三个 wasm 必须在（它们不入库：内核仓 `rust/build.sh --wasm-check` 装进
 #      `app/assets/`）——漏了的站点首页能开，场景页在第一次算数时以一句 TypeError 失败；
-#   2. 装置牌 `app/facts/device/*.jsonld` 在仓里可能是指向 `machine_desc/` 的符号链接，
+#   2. 装置牌 `app/facts/device/*.jsonld` 在仓里可能是指向仓外语料的符号链接，
 #      发布要 `cp -L` 落成实体——一个指向仓外的链接在静态主机上是一个 404；
 #   3. 输出目录里不能有悬空链接或 `tests/`。
 #
@@ -22,7 +22,7 @@
 #      装置数据（一次真实放电 #137985 的实测读数，属运行方），也不带上游逐 IDS
 #      明写 `redistributable: false` 的那些。判据不在本脚本里，在每个条目的
 #      `facts/<域>/<id>/rights.json`，由 `tools/facts-publish.py` 作答。
-#      ★2026-09-05 裁定（FYL-DESIGN-19 A-14）：**缺省是内部版**——fylite 作为内部
+#      ★2026-09-05 裁定（FYL-SDD-03 A-14）：**缺省是内部版**——fylite 作为内部
 #      工具发布，全功能构建含 EAST。判据一个字没改，改的是「不说话时装哪一版」；
 #      公开面因此必须**明写** `--public`，那正是 A-14 要求门禁核对的那句。
 #
@@ -54,7 +54,7 @@ RVER=$(sed -n "s/.*FyRuntimeVersion *= *'\([^']*\)'.*/\1/p" "$APP/assets/runtime
 KERNEL_WASM="fylite_rs.wasm fylite_kernel_ext.wasm"
 #: ★★2026-09-05：站点发的中间层那一份是 **`fylite_web.wasm`**（0.51 MB，页面真读的
 #: 两扇门：装置与 g-file），不是 `fylite_runtime.wasm`（2.14 MB，全套 C 导出）。页面没有任何一处
-#: 载入后者——`FYL-DESIGN-16` H-4 的其余消费者（g-file / fyo / 会话搬进中间层）
+#: 载入后者——`FYL-SDD-02` H-4 的其余消费者（g-file / fyo / 会话搬进中间层）
 #: 尚未落地，在那之前发它就是两兆多的死重。小的那一份还**进预缓存**，于是断网时
 #: 站点仍然列得出机器（见 `tools/make-sw.mjs` 那段）。
 WASM_STEMS="$KERNEL_WASM fylite_web.wasm"
@@ -99,7 +99,7 @@ mkdir -p "$OUT"
 #: ★删的是别名，不是真文件；下面的自检会核对这一点两头都成立。
 #: ★★**中间层的全套那一份不发**（2026-09-05）。`cp -RL` 上面把 `app/` 整棵拷了过来，
 #: 而 `fylite_runtime.wasm`（2.14 MB）在站点上**没有任何读者**：页面读装置走
-#: `fylite_facts.wasm`，其余的中间层职责（g-file / fyo / 会话，`FYL-DESIGN-16` H-4）
+#: `fylite_facts.wasm`，其余的中间层职责（g-file / fyo / 会话，`FYL-SDD-02` H-4）
 #: 还没搬到页面上。解引用之后它还会变成三份（真文件加两级别名），实测让站点从
 #: 12 MB 长到 16 MB。等 H-4 的消费者落地再发它——那时把这一行删掉即可。
 rm -f "$OUT"/assets/fylite_runtime.wasm*

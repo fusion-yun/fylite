@@ -81,6 +81,7 @@ package.
 """
 from __future__ import annotations
 
+import json
 import math
 import os
 import re
@@ -158,10 +159,78 @@ def data_dir() -> Path:
     return p
 
 
+#: Environment variable naming WHICH machine the card is, when the device
+#: directory does not carry one (2026-09-13, `machine_desc` retirement).
+DEVICE_ID_ENV = "FYLITE_DEVICE"
+
+#: suffix of a device card file (``<id>_device.yaml``)
+_CARD_SUFFIX = "_device.yaml"
+
+
+def device_id() -> str:
+    """The machine id the card is resolved under: ``$FYLITE_DEVICE``, else the
+    name of the configured device directory."""
+    return os.environ.get(DEVICE_ID_ENV) or data_dir().name
+
+
+def _card_from_facts(ident: str) -> Path:
+    """``<ident>_device.yaml`` of the facts entry ``device/<ident>``, or a loud
+    error naming the id, the directory and every root consulted."""
+    from . import facts as _facts
+    hit = _facts.find("device", ident)
+    if hit is None:
+        looked = ", ".join(str(r) for r in _facts.roots()) or "(no root)"
+        raise MachineDataMissing(
+            f"${DEVICE_ENV}={data_dir()} carries no *{_CARD_SUFFIX}, and the facts "
+            f"path has no device/{ident} (looked in {looked}) — build the corpus "
+            f"(tools/abox-to-facts.py {ident}) or set ${DEVICE_ID_ENV} to the machine id")
+    card = hit.dir / f"{ident}{_CARD_SUFFIX}" if hit.dir is not None else None
+    if card is None or not card.is_file():
+        raise MachineDataMissing(
+            f"the facts entry device/{ident} (root {hit.root}) has no card "
+            f"{ident}{_CARD_SUFFIX} — ${DEVICE_ENV}={data_dir()} carries none either")
+    return card
+
+
+def card_path() -> Path:
+    """The configured machine's device card.
+
+    ★★2026-09-13 (user ruling, `machine_desc` retirement): the card is no longer
+    kept beside the fit inputs.  ``$FYLITE_DEVICE_DIR`` names the directory of
+    FIT INPUTS (efund / Green-table decks, k-file defaults — :func:`deck_path`);
+    the card is resolved in this order:
+
+    1. exactly one ``*_device.yaml`` in that directory (an explicit card still
+       wins — a facts entry directory is itself such a directory);
+    2. otherwise the facts search path: ``fylite.facts.find("device", id)`` with
+       ``id`` = ``$FYLITE_DEVICE``, else the directory's name, reading that
+       entry's ``<id>_device.yaml``.
+
+    Several cards in the directory are refused with their names — guessing
+    among machines is how a run gets the wrong tokamak.
+    """
+    found = sorted(data_dir().glob(f"*{_CARD_SUFFIX}"))
+    if len(found) > 1:
+        raise MachineDataMissing(
+            f"${DEVICE_ENV} is set to {data_dir()}, which carries "
+            f"{len(found)} *{_CARD_SUFFIX} documents "
+            f"({', '.join(p.name for p in found)}) — need exactly one, or an explicit name")
+    if found:
+        return found[0]
+    return _card_from_facts(device_id())
+
+
 def deck_path(name: str) -> Path:
-    """One file inside the configured device directory, checked to exist."""
+    """One file inside the configured device directory, checked to exist.
+
+    ★A card name (``<id>_device.yaml``) the directory does not carry resolves
+    through the facts search path (:func:`card_path`), so a caller naming the
+    card keeps working now that the card lives in the corpus, not the deck.
+    """
     p = data_dir() / name
     if not p.exists():
+        if name.endswith(_CARD_SUFFIX) and not list(data_dir().glob(f"*{_CARD_SUFFIX}")):
+            return _card_from_facts(name[: -len(_CARD_SUFFIX)])
         raise MachineDataMissing(
             f"{p} is missing — ${DEVICE_ENV} is set to {data_dir()}, but it "
             f"does not carry {name}")
@@ -171,35 +240,136 @@ def deck_path(name: str) -> Path:
 _device_cache: dict[str, dict] = {}
 
 
-def document(name: str | None = None) -> dict:
+_resolved_cache: dict[tuple, dict] = {}
+
+#: A card that resolves BY SHOT carries its resolution document beside it
+#: (``<id>_resolution.jsonld``, written by ``tools/abox-to-facts.py``).
+RESOLUTION_SUFFIX = "_resolution.jsonld"
+
+
+def document(name: str | None = None, *, shot: int | None = None,
+             measurement_chain: str | None = None) -> dict:
     """Load and contract-check a device document, cached per path.
 
     Reading and validation are :func:`load_device`'s; this only decides
     WHERE the document is, which is the decision that has to happen in
     exactly one place.
 
-    ★``name=None`` resolves the DIRECTORY'S device document rather than a
-    hard-coded ``east_device.yaml``: the historical default was an EAST-ism
-    from when EAST was the only deck, and it made ``$FYLITE_DEVICE_DIR=
-    machine_desc/iter`` fail on a filename while ``iter_device.yaml`` sat
-    right there.  Exactly one ``*_device.yaml`` in the directory is that
-    document; zero or several is refused with both facts named — guessing
-    among machines is how a run gets the wrong tokamak.
+    ★``name=None`` resolves the configured machine's card (:func:`card_path`)
+    rather than a hard-coded ``east_device.yaml``: the historical default was
+    an EAST-ism from when EAST was the only deck, and it made a directory
+    holding ``iter_device.yaml`` fail on a filename.  One ``*_device.yaml`` in
+    the directory is that document; none resolves through the facts search
+    path; several is refused with the names.
+
+    ★★**Resolved by shot at use time** (user rulings R-S1 / R-S2, 2026-09-13).
+    With no keyword this is the static card — which IS the no-shot resolution
+    (every IDS as for the latest shot) and says, per IDS, which provider and
+    shot range it represents in ``provenance['fylite:resolution']``.  Given
+
+    * ``shot`` — the shot the description is for;
+    * ``measurement_chain`` — the measurement chain (the measurement document's own
+      ``measurement_chain``, e.g. ``"efit_east"``), which resolves the
+      measurement-ordered groups (magnetics) within that chain,
+
+    the card's resolution document is resolved through the RUNTIME's rule
+    (:func:`resolve_document`, the one ``fy run --device`` uses — not a second
+    implementation).  No provider is named by a caller (user ruling 2026-09-13: the
+    measurement chain decides the device configuration).  A gap inside the chain, an
+    undeclared chain, or two providers of one chain covering the shot raise
+    :class:`ProviderSelectionError` naming them.  Resolved documents are cached per
+    request; bind one as THE device with :func:`use_device`.
     """
-    if name is None:
-        found = sorted(data_dir().glob("*_device.yaml"))
-        if len(found) != 1:
-            raise MachineDataMissing(
-                f"${DEVICE_ENV} is set to {data_dir()}, which carries "
-                f"{len(found)} *_device.yaml documents"
-                + (f" ({', '.join(p.name for p in found)})" if found else "")
-                + " — need exactly one, or an explicit name")
-        name = found[0].name
-    p = deck_path(name)
+    p = card_path() if name is None else deck_path(name)
     key = str(p)
     if key not in _device_cache:
         _device_cache[key] = load_device(p)
-    return _device_cache[key]
+    if shot is None and measurement_chain is None:
+        return _device_cache[key]
+    rkey = (key, shot, measurement_chain)
+    if rkey not in _resolved_cache:
+        out = resolve_document(_device_cache[key], resolution_of(p), shot=shot,
+                               measurement_chain=measurement_chain, form="card")
+        doc = out["document"]
+        missing = [g for g in DEVICE_REQUIRED if g not in doc]
+        if missing:
+            raise DeviceDocumentError(
+                f"device document {p} resolved for shot={shot} "
+                f"measurement_chain={measurement_chain}: missing IDS group(s) {missing}")
+        _resolved_cache[rkey] = doc
+    return _resolved_cache[rkey]
+
+
+def resolution_of(card: str | Path) -> dict:
+    """The resolution document beside ``card``, or a loud error naming where it looked.
+
+    ★Beside the card, never from another root: a card and a resolution document
+    from two corpora would describe a machine nobody built.
+    """
+    p = Path(card)
+    stem = p.name[: -len(_CARD_SUFFIX)] if p.name.endswith(_CARD_SUFFIX) else p.stem
+    r = p.with_name(f"{stem}{RESOLUTION_SUFFIX}")
+    if not r.is_file():
+        raise MachineDataMissing(
+            f"the card {p} has no resolution document beside it ({r.name}), so it cannot be "
+            "resolved by shot or measurement chain — rebuild the corpus "
+            "(tools/abox-to-facts.py), or use the card as it is (no keyword)")
+    return json.loads(r.read_text(encoding="utf-8"))
+
+
+def resolve_document(card: dict | None, resolution: dict, *, shot: int | None = None,
+                     measurement_chain: str | None = None,
+                     form: str = "card", strict: bool = False) -> dict:
+    """THE rule, run in the runtime (``fylite_runtime_device_resolve`` in
+    ``libfylite_runtime.so``) — ``{"selected": {ids: {provider, shots, why}},
+    "notes": [...], "document": {...}}``; ``card=None`` asks for the selection only.
+
+    ★Not re-implemented here: the selection that decides which geometry a run gets
+    has one implementation, called from the command line, the pages and this.  The
+    request is the shot and the measurement chain, nothing else.
+    ``strict=True`` is for a document PINNED to its shot (a generated variant card): a
+    default provider whose declared range does not cover the shot is refused, not used.
+    """
+    import ctypes
+
+    from . import facts as _facts
+    lib = _facts._lib()
+    fn = getattr(lib, "fylite_runtime_device_resolve", None) if lib is not None else None
+    if fn is None:
+        raise MachineDataMissing(
+            "resolving a device by shot needs libfylite_runtime.so with "
+            "fylite_runtime_device_resolve — rebuild it (bash rust/build.sh)")
+    fn.restype = ctypes.c_int64
+    fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 4 + [ctypes.POINTER(ctypes.c_uint8),
+                                                         ctypes.c_uint64]
+
+    def enc(o) -> bytes:
+        return b"" if o is None else json.dumps(o, ensure_ascii=False, allow_nan=False,
+                                                default=str).encode("utf-8")
+
+    c, r = enc(card), enc(resolution)
+    q = enc({"shot": shot, "measurement_chain": measurement_chain, "strict": bool(strict)})
+    f = form.encode()
+    text = _facts._ask(fn, c, len(c), r, len(r), q, len(q), f, len(f))
+    if not isinstance(text, str):
+        raise DeviceDocumentError(f"the runtime's device resolution failed (code {text})")
+    out = json.loads(text)
+    if "error" in out:
+        raise ProviderSelectionError(out["error"])
+    return out
+
+
+def select_providers(*, shot: int | None = None, measurement_chain: str | None = None,
+                     resolution: dict | None = None, name: str | None = None) -> dict:
+    """``{ids: {provider, shots, why}}`` a request resolves to — the selection only.
+
+    ``resolution`` defaults to the configured card's (:func:`resolution_of`); pass
+    one explicitly to ask about another tier (``fylite.facts.bundled_resolution``).
+    """
+    res = resolution if resolution is not None else resolution_of(
+        card_path() if name is None else deck_path(name))
+    return resolve_document(None, res, shot=shot,
+                            measurement_chain=measurement_chain)["selected"]
 
 
 #: :func:`document` under a name that is not shadowed by the ``document=``
@@ -227,6 +397,12 @@ class DeviceDocumentError(ValueError):
     lived in one module; a caller catching "bad input" around a shot's
     magnetics was also catching "this machine is not described".
     """
+
+
+class ProviderSelectionError(DeviceDocumentError):
+    """A device resolution the runtime refused — a provider not in the manifest, a
+    fixed set named, or a provider named against the measurement's channel order.
+    The message is the runtime's, naming what disagreed."""
 
 
 def load_device(path: str | Path) -> dict:
@@ -327,11 +503,12 @@ def _n(node, legacy: str = "channel") -> int:
 #: The limiter contours a device document may carry, by DD ``unit`` name.
 #: EAST has two and they are not interchangeable: the inner wall is
 #: ERA-DEPENDENT (``m-file`` is the validation-era 48-point contour, inner
-#: R~1.30 m; ``efit_w_pf`` is the GUI-v5 60-point one, inner R~1.36 m), and
-#: choosing the other one moves a limited boundary — on #70754, psi_bry
-#: -0.393 -> -0.415.  So the name is part of the request, never a default
-#: someone can drift.
-LIMITER_OPERATIONAL = "efit_w_pf"
+#: R~1.30 m; ``base`` is the 2020 wall's limiter), and choosing the other one
+#: moves a limited boundary.  So the name is part of the request, never a
+#: default someone can drift.  ★2026-09-13 (est2 removed): the operational
+#: contour is the manifest's wall default ``base`` again; the GUI-v5 60-point
+#: ``efit_w_pf`` contour left with the est2 array.
+LIMITER_OPERATIONAL = "base"
 
 
 def limiter_unit(dev: dict | None = None, name: str | None = None) -> dict:
@@ -355,8 +532,8 @@ def limiter_unit(dev: dict | None = None, name: str | None = None) -> dict:
         if str(u.get("name", "")) == want:
             return u
     #: ★only the CALLER's name is worth an error.  The default
-    #: (`LIMITER_OPERATIONAL`) is an EAST document convention — 'efit_w_pf',
-    #: the GUI-v5 operational contour — and demanding it of every machine
+    #: (`LIMITER_OPERATIONAL`) is an EAST document convention — 'base', the
+    #: manifest's operational wall contour — and demanding it of every machine
     #: made ITER's deck ('First Wall', 'Divertor') unreadable.  With no
     #: explicit name, the document's FIRST unit is its primary contour: that
     #: is the document's own ordering, not a guess of ours.
@@ -417,8 +594,6 @@ def _derive(dev: dict) -> dict:
         NW = int(SOLVER_DIMS["nw"])
         NH = int(SOLVER_DIMS["nh"])
         NFCOIL = int(SOLVER_DIMS["nfcoil"])
-        NSILOP = int(SOLVER_DIMS["nsilop"])
-        NPROBE = int(SOLVER_DIMS["nprobe"])
 
 
     EAST_OPERATIONAL = dev["operational"]
@@ -426,24 +601,35 @@ def _derive(dev: dict) -> dict:
     read-time gates).  Kept as a mapping rather than re-exported as named
     constants: their consumer is the namelist writer, which names them there."""
 
-    # --- diagnostic dimensions (est2 basis) -----------------------------------
-    # NMAGPRI = 79 here is the est2 magpri count; the efit_east path uses a
-    # DIFFERENT 76-probe basis (_paths.NPROBE) — distinct names on purpose.
+    # --- diagnostic dimensions: the RESOLVED magnetics group's own ------------
+    #: ★★2026-09-13 (measurement-chain ruling): the probe and loop counts are the
+    #: arrays of the magnetics group this document was resolved to — never a
+    #: compiled constant beside them.  `solver_dims` used to declare `nprobe` 76
+    #: (the efit_east count) while `NSILOP` was already derived from the loops, so
+    #: on `east_new` (79 probes, 75 loops) the channel map asked for 76 probes and
+    #: 75 loops at once — a set no measurement chain delivers.  `NMAGPRI` and
+    #: `NPROBE` are the same count now (one name kept for each caller family).
     #: ★K-2: the fast coils (`function` = b_field_fb) sit in `pf_active/coil` but are not fitted
     NFCOIL = sum(1 for c in _aos(_pf, "coil") if not is_fast_coil(c))             # F-coils fitted by EFIT
     if _probe is not None and _loop is not None:
-        NMAGPRI = _n(_probe)             # b_field_pol_probe (magpri), est2 basis
-        NSILOP = _n(_loop)               # flux loops
+        NMAGPRI = NPROBE = _n(_probe)    # b_field_pol_probe of the resolved group
+        NSILOP = _n(_loop)               # flux loops of the resolved group
         FLUX_LOOP_NODES = tuple(c["name"] for c in _aos(_loop))
         B_PROBE_NODES = tuple(c["name"] for c in _aos(_probe))
+    MEASUREMENT_CHAIN = _mag.get(CHAIN_KEY)
 
     # --- MDSplus node names ----------------------------------------------------
+    #: ★2026-09-13 read BY KEY: a document built from the A-Box carries no
+    #: `server` (which host serves a tree is a deployment setting — resolved by
+    #: :func:`mdsip_server`, refused only when a connection is attempted) and may
+    #: carry no main-tree `ip_node`.  An absent name refuses at the point of use
+    #: through ``__getattr__``, naming the field (``_MISSING_WHERE``).
     if _mds is not None:
-        MDS_TREE = _mds["tree"]
-        MDS_SERVER = _mds["server"]
-        MDS_IP = _mds["ip_node"]         # plasma current [kA] -> *1e3 = A
-        MDS_BT = _mds["btor_node"]       # toroidal-field FoCS
-        PCS_TREE = _mds["pcs_tree"]
+        MDS_TREE = _mds.get("tree")
+        MDS_SERVER = _mds.get("server")
+        MDS_IP = _mds.get("ip_node")     # plasma current [kA] -> *1e3 = A
+        MDS_BT = _mds.get("btor_node")   # toroidal-field FoCS
+        PCS_TREE = _mds.get("pcs_tree")
 
     #: ★K-2 (2026-09-13): the PF coil set excludes the fast vertical-control coils
     #: (DD `function` = b_field_fb, EAST IC1/IC2), which share `pf_active/coil`
@@ -499,10 +685,11 @@ def _derive(dev: dict) -> dict:
         POINT_ZPOL = tuple(float(c["line_of_sight"]["first_point"]["z"]) for c in _aos(_itf))
         POINT_RPOL = float(_aos(_itf)[0]["line_of_sight"]["first_point"]["r"])
         POINT_THETAPOL = float(_aos(_itf)[0]["line_of_sight"]["theta"])
-        POINT_LASER_LAMBDA = float(_itf["laser_wavelength"])
-        POINT_FARADAY_C = float(_pol["faraday_constant"])
-        POINT_BASELINE_S = float(_pol["baseline"]["centre_s"])
-        POINT_BASELINE_TOL = float(_pol["baseline"]["tolerance_s"])
+        #: by key: absent -> named refusal at the point of use (``_MISSING_WHERE``)
+        POINT_LASER_LAMBDA = _opt_float(_itf.get("laser_wavelength"))
+        POINT_FARADAY_C = _opt_float(_pol.get("faraday_constant"))
+        POINT_BASELINE_S = _opt_float((_pol.get("baseline") or {}).get("centre_s"))
+        POINT_BASELINE_TOL = _opt_float((_pol.get("baseline") or {}).get("tolerance_s"))
         POINT_WINDOW_MS = float(EAST_OPERATIONAL["gui_v5_fig"]["intev_pol"]) * 1e3  # 30 ms
 
     # --- lower-hybrid antennas ------------------------------------------------
@@ -514,16 +701,21 @@ def _derive(dev: dict) -> dict:
     # ★The machine-neutrality scan did not catch it because it looks for nine
     # SPECIFIC literals that leaked out of `_east_device.py` once, not for
     # machine constants — so it can only ever re-find the leak it was written
-    # for.  `test_est2_gui.py` now also refuses an MDSplus-shaped node name
+    # for.  `test_device_data_is_config.py` now also refuses an MDSplus-shaped node name
     # anywhere but here.
-    LH_SYSTEMS = tuple(
-        {"name": a["name"],
-         "frequency": float(a["frequency"]),
-         "max_power": float(a["fylite:max_power"]),
-         "n_parallel": tuple(float(x) for x in a["fylite:n_parallel"]),
-         "port": a.get("fylite:port"),
-         "nodes": dict(a.get("fylite:nodes", {}))}
-        for a in _lh)
+    #: ★2026-09-13: derived only when every launcher carries the fields the
+    #: models need — a document built from the A-Box names LH1/LH2 and their
+    #: frequencies but not (yet) the nameplate power / n_parallel band; the
+    #: refusal then happens at use, naming them (``_MISSING_WHERE``).
+    if all("fylite:max_power" in a and "fylite:n_parallel" in a for a in _lh):
+        LH_SYSTEMS = tuple(
+            {"name": a["name"],
+             "frequency": float(a["frequency"]),
+             "max_power": float(a["fylite:max_power"]),
+             "n_parallel": tuple(float(x) for x in a["fylite:n_parallel"]),
+             "port": a.get("fylite:port"),
+             "nodes": dict(a.get("fylite:nodes", {}))}
+            for a in _lh)
 
     # --- ion- and electron-cyclotron systems ----------------------------------
     # ★The names are `ICRH_`/`ECRH_` and not `IC_`/`EC_` because this document
@@ -559,33 +751,36 @@ def _derive(dev: dict) -> dict:
     #: rather than invent one.
     ICRH_FREQUENCY_RANGE = tuple(
         float(x) for x in _ic.get("fylite:frequency_range", ()))
-    ECRH_SYSTEMS = tuple(
-        {"name": b["name"],
-         "frequency": float(b["frequency"]),
-         "mode": int(b["mode"]),
-         "max_power": float(b["fylite:max_power"]),
-         "port": _ec.get("fylite:port"),
-         "nodes": dict(b.get("fylite:nodes", {}))}
-        for b in _ec.get("beam", ()))
+    if all("mode" in b and "fylite:max_power" in b for b in _ec.get("beam", ())):
+        ECRH_SYSTEMS = tuple(
+            {"name": b["name"],
+             "frequency": float(b["frequency"]),
+             "mode": int(b["mode"]),
+             "max_power": float(b["fylite:max_power"]),
+             "port": _ec.get("fylite:port"),
+             "nodes": dict(b.get("fylite:nodes", {}))}
+            for b in _ec.get("beam", ()))
 
 
     #: The EAST measurement channel contract, one entry per flat target
     #: (grammar: fylite.engine channel-map table).  Counts and the TURNFC vector
-    #: are reflected from the bundled geometry snapshot, not hand-copied.
+    #: are reflected from the resolved device document, not hand-copied.
     #:
-    #: ★This name is the ``efit_east`` basis (76 probes), because that is what
-    #: every existing caller means by it.  The est2 basis (79) is the same
-    #: table with one row's count changed — see :func:`east_channel_map`.
-    EAST_CHANNEL_MAP = None if "nw" not in SOLVER_DIMS else (
+    #: ★The probe and loop rows are the RESOLVED magnetics group's: their counts and
+    #: order are that group's, and the note names its measurement chain.  A document
+    #: in another chain is a different probe set — resolve the device in that chain
+    #: (``fylite.device.document(measurement_chain=...)``), never re-count here.
+    _order = f"measurement chain {MEASUREMENT_CHAIN}" if MEASUREMENT_CHAIN else "document order"
+    EAST_CHANNEL_MAP = None if ("nw" not in SOLVER_DIMS or _probe is None or _loop is None) else (
         {"target": "coils",
          "sources": [{"path": ("magnetics", "flux_loop", "*", "flux")}],
          "count": NSILOP,
-         "label": "magnetics.flux_loop", "note": "efit_east SILOPT order",
+         "label": "magnetics.flux_loop", "note": f"flux loops, {_order}",
          "missing": "magnetics.flux_loop is required"},
         {"target": "expmp2",
          "sources": [{"path": ("magnetics", "b_field_pol_probe", "*", "field")}],
          "count": NPROBE,
-         "label": "magnetics.b_field_pol_probe", "note": "efit_east EXPMPI order",
+         "label": "magnetics.b_field_pol_probe", "note": f"poloidal probes, {_order}",
          "missing": "magnetics.b_field_pol_probe is required"},
         {"target": "plasma",
          "sources": [{"path": ("ip",), "scalar_only": True},
@@ -626,67 +821,32 @@ def _ensure(device: dict | None = None) -> dict:
     return _DERIVED
 
 
-#: Probe basis -> ``(channel count, order note)``.  Resolved through
-#: :func:`_ensure` because both counts come from the device document.
-#:
-#: ★★EAST is described on two probe bases and this package speaks both: the
-#: est2 / GUI_v5 path fits 79 magpri channels, the processed ``efit_east``
-#: tree 76.  The channel map hard-wired the second while
-#: :func:`fylite.fyo.measurements` wrote whatever the flat dict carried — so
-#: a document this package WROTE for an est2 shot could not be read back by
-#: this package:
-#:
-#:     MeasurementInputError: magnetics.b_field_pol_probe needs exactly 76
-#:                            channels (efit_east EXPMPI order), got 79
-#:
-#: Measured on #137985 @ 4.0 s, which is an est2 shot — the reference
-#: discharge this repository's own examples are built on.
-#:
-#: ★The fix is not "accept either length".  Different basis = different probe
-#: SET = different response rows; a 76-channel document read on an est2 host
-#: would be read against the wrong ones.  The basis is DECLARED in the
-#: document (:data:`BASIS_KEY`) and checked against what is actually there.
-BASIS_KEY = "fylite:channel_basis"
-
-#: The basis assumed for a document that declares none — the efit_east files
-#: predate the declaration and are still read.
-DEFAULT_BASIS = "efit_east"
+#: ★★The key a measurement document and a device's magnetics group both spell for the
+#: measurement chain they are in (user ruling 2026-09-13: the measurement chain decides
+#: the device configuration; one key on both sides, compared by equality).  It replaces
+#: ``fylite:channel_basis``: there is no est2 chain, and no second probe basis this
+#: package re-counts a document against.  A document in one chain is read against the
+#: device RESOLVED in that chain (:func:`document`), and a declared chain that differs
+#: from the bound device's magnetics chain is refused by name (``fylite.fyo``).
+CHAIN_KEY = "measurement_chain"
 
 
-def probe_bases() -> dict:
-    d = _ensure()
-    return {"efit_east": (int(d["NPROBE"]), "efit_east EXPMPI order"),
-            "est2": (int(d["NMAGPRI"]), "est2 magpri order")}
+def measurement_chain() -> str | None:
+    """The measurement chain of the bound device's magnetics group (``None``: the
+    document states none — a frozen fixture, or a machine without chains)."""
+    return _ensure()["EAST_DEVICE"]["magnetics"].get(CHAIN_KEY)
 
 
-def probe_basis_of(n_channels: int) -> str:
-    """The basis whose probe count is ``n_channels`` — fail loud on any other
-    length.  Total and unambiguous: the two counts differ."""
-    bases = probe_bases()
-    for basis, (count, _) in bases.items():
-        if count == n_channels:
-            return basis
-    known = ", ".join(f"{b}={c}" for b, (c, _) in bases.items())
-    raise DeviceDocumentError(
-        f"magnetics.b_field_pol_probe has {n_channels} channels, which is no "
-        f"known EAST probe basis ({known})")
-
-
-def east_channel_map(basis: str = DEFAULT_BASIS) -> tuple:
-    """The channel contract for one probe basis.
-
-    Only the probe row differs — the 35 flux loops and the 12 F-coils are the
-    same set either way — so this rewrites that one entry rather than
-    carrying a second table to keep in step.
-    """
-    bases = probe_bases()
-    if basis not in bases:
-        raise DeviceDocumentError(
-            f"unknown probe basis {basis!r}; known: {sorted(bases)}")
-    count, note = bases[basis]
-    return tuple({**e, "count": count, "note": note}
-                 if e["target"] == "expmp2" else e
-                 for e in _ensure()["EAST_CHANNEL_MAP"])
+def east_channel_map() -> tuple:
+    """The channel contract of the bound device: its magnetics group's probe and loop
+    counts and order, its PF channels.  ★One table, no per-basis rewrite: another
+    chain is another device resolution, not another row count."""
+    table = _ensure().get("EAST_CHANNEL_MAP")
+    if table is None:
+        raise MachineDataMissing(
+            "the bound device document has no channel map (it needs solver_dims.nw and "
+            "magnetics.b_field_pol_probe + flux_loop)")
+    return table
 
 
 from contextlib import contextmanager as _contextmanager
@@ -741,6 +901,55 @@ def use_device(device: dict) -> None:
     _ensure(device)
 
 
+def _opt_float(v) -> float | None:
+    return None if v is None else float(v)
+
+
+#: Derived names read by key from optional FIELDS (not whole groups): the
+#: refusal names the field, so the reader knows what to add, not just that
+#: something is missing.
+_MISSING_WHERE = {
+    "MDS_SERVER": ("data_source.mdsplus.server — a deployment setting: use "
+                   "mdsip_server() (server= -> $FYLITE_MDSIP_SERVER -> the document)"),
+    "MDS_TREE": "data_source.mdsplus.tree",
+    "PCS_TREE": "data_source.mdsplus.pcs_tree",
+    "MDS_IP": ("data_source.mdsplus.ip_node (the main-tree Ip Rogowski node; the "
+               "A-Box binds Ip only in pcs_east)"),
+    "MDS_BT": "data_source.mdsplus.btor_node",
+    "POINT_LASER_LAMBDA": "interferometer.laser_wavelength (the Faraday-angle scale)",
+    "POINT_FARADAY_C": "polarimeter.faraday_constant",
+    "POINT_BASELINE_S": "polarimeter.baseline.centre_s (the pre-shot offset window)",
+    "POINT_BASELINE_TOL": "polarimeter.baseline.tolerance_s",
+    "LH_SYSTEMS": "lh_antennas.antenna[].fylite:max_power / fylite:n_parallel",
+    "ECRH_SYSTEMS": "ec_launchers.beam[].mode / fylite:max_power",
+}
+
+#: The mdsip host, when neither the caller nor the environment names one.
+MDSIP_ENV = "FYLITE_MDSIP_SERVER"
+
+
+def mdsip_server(spec: str | None = None) -> str | None:
+    """The mdsip ``host[:port]`` to read from, or ``None`` when nothing names one.
+
+    Same order as the ``fy`` CLI: ``--mdsip`` (here ``spec``) ->
+    ``$FYLITE_MDSIP_SERVER`` -> the manifest (here the device document's
+    ``data_source.mdsplus.server``, a transitional spelling).  The legacy
+    ``$KEFIT_MDS_SERVER`` is still honoured after the new name.  ★It does not
+    raise: the refusal belongs where a connection is attempted.
+    """
+    import os
+    if spec:
+        return str(spec)
+    #: spelled out, one read per name, so the environment-table scan sees both
+    env = os.environ.get(MDSIP_ENV) or os.environ.get("KEFIT_MDS_SERVER")
+    if env:
+        return env
+    try:
+        return _ensure().get("MDS_SERVER")
+    except MachineDataMissing:
+        return None
+
+
 def __getattr__(name: str):
     if name in _DERIVED_NAMES:
         got = _ensure()
@@ -748,10 +957,17 @@ def __getattr__(name: str):
             #: derived from an OPTIONAL group the document does not carry —
             #: the refusal happens here, at the point of use, so a vacuum
             #: circuit on a deck without EAST's diagnostics still computes
+            where = _MISSING_WHERE.get(name, "a diagnostic / data-source group")
+            #: ★the location is decoration: a document handed in through
+            #: `use_device()` has no `$FYLITE_DEVICE_DIR`, and asking for it here
+            #: used to replace the named refusal with a generic one
+            try:
+                src = f"${DEVICE_ENV}={data_dir()}"
+            except MachineDataMissing:
+                src = "set through use_device()"
             raise MachineDataMissing(
-                f"{name} derives from a diagnostic / data-source group the "
-                f"configured device document does not carry "
-                f"(${DEVICE_ENV}={data_dir()})")
+                f"{name} derives from {where}, which the "
+                f"configured device document does not carry ({src})")
         return got[name]
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
@@ -883,9 +1099,20 @@ def diagnostic_geometry_from_document(doc: dict) -> dict:
             return float(c["fylite:angle_deg"])
         return math.degrees(float(c.get("poloidal_angle") or 0.0))
 
+    def angle_rad(c):
+        #: ★radians are the NUMERIC route, degrees are for display.  The kernel
+        #: reads the DD `poloidal_angle` [rad]; a document built from the A-Box
+        #: derives `fylite:angle_deg` = degrees(rad), and radians(degrees(x)) is
+        #: not bit-equal to x (6 of EAST's 79 probes), so a host that turned the
+        #: degrees back into radians computed a field 4e-16 off the kernel's.
+        if c.get("poloidal_angle") is not None:
+            return float(c["poloidal_angle"])
+        return math.radians(angle_deg(c))
+
     return {
         "probes": {"r": [r for r, _ in pr], "z": [z for _, z in pr],
                    "angle_deg": [angle_deg(c) for c in probes],
+                   "angle_rad": [angle_rad(c) for c in probes],
                    "length": [float(c.get("length") or 0.0)
                               for c in probes],
                    "node": [str(c.get("name", "")) for c in probes]},
@@ -953,11 +1180,11 @@ def probe_geometry(*, document=None) -> dict:
 def device_geometry(*, document=None) -> dict:
     """Where every fitted diagnostic sits in the (R, Z) plane.
 
-    * ``probes`` — the 79 est2 magnetic probes with their ``east``-tree names;
-    * ``flux_loops`` — the 35 loops (``RSI``/``ZSI``) with their node names;
+    * ``probes`` — the magnetic probes of the resolved magnetics group, with their names;
+    * ``flux_loops`` — its flux loops with their node names;
     * ``point_chords`` — the 11 POINT horizontal chords, each carrying an
       interferometer and a polarimeter constraint;
-    * ``limiter`` — the GUI_v5 60-point contour.
+    * ``limiter`` — the operational limiter contour (:data:`LIMITER_OPERATIONAL`).
 
     Channel order matches the diagnostic vectors on a reconstruction result,
     so an ``alive``/``fwt`` mask indexes straight into ``probes`` /
@@ -985,7 +1212,8 @@ def device_geometry(*, document=None) -> dict:
                 f"{len(names)} of them")
     return {
         "probes": {"r": pr["r"], "z": pr["z"],
-                   "angle_deg": pr["angle_deg"], "length": pr["length"],
+                   "angle_deg": pr["angle_deg"], "angle_rad": pr["angle_rad"],
+                   "length": pr["length"],
                    "node": list(_ensure()["B_PROBE_NODES"])},
         "flux_loops": {"r": fl["r"], "z": fl["z"],
                        "node": list(_ensure()["FLUX_LOOP_NODES"])},

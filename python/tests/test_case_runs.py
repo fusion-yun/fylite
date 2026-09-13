@@ -191,8 +191,12 @@ def test_the_iter_deck_resolves_and_refuses_at_the_point_of_use():
     ★Through :func:`device.bound`, the same bounded rebind `fylite cases
     --run` uses — which also proves the restore contract: whatever machine
     the rest of the suite had resolved is back afterwards."""
-    from fylite import device
-    with device.bound(ROOT / "machine_desc/iter"):
+    from fylite import device, facts
+    hit = facts.find("device", "iter")
+    if hit is None or hit.dir is None or not (hit.dir / "iter_device.yaml").is_file():
+        pytest.skip("no ITER card on the facts path (device/iter/iter_device.yaml; "
+                    "tools/abox-to-facts.py iter)")
+    with device.bound(hit.dir):
         doc = device.document()
         assert doc["machine"]["name"].lower().startswith("iter")
         with pytest.raises(device.MachineDataMissing, match="does not carry"):

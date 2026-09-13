@@ -3,7 +3,7 @@
 ★**Why a machine check and not a line in the README.**  The rule this file
 enforces was already the repository's stated policy: ``README.md`` says the
 distribution contains "no experimental data" and "no EFIT-lineage code or
-recorded output", and ``machine_desc/README.md`` draws the line between what the
+recorded output", and the (retired) device-deck README drew the line between what the
 package publishes and what it merely takes as input.  ``examples/`` had
 223 KB of data in it anyway, 204 KB (91.6 %) of which was byte-identical to
 the private ``fylite_port`` tree — a converged g-file (twice), its a-file and

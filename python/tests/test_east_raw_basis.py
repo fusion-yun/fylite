@@ -40,31 +40,41 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-ROOT = Path(__file__).resolve().parents[2]
-DESC = ROOT / "machine_desc" / "east"
-JSON_DOC = DESC / "fylite_device_east.json"
-YAML_DOC = DESC / "east_device.yaml"
+#: ★★2026-09-13 (user ruling, `machine_desc` retired): the card is the A-Box-built
+#: one on the facts search path; the reference discharge is the PRIVATE kernel
+#: fixture (`conftest.reference_discharge`, $FYLITE_KERNEL) — each skips by name.
+from fylite import facts as _facts
+
+_EAST = _facts.find("device", "east")
+YAML_DOC = (_EAST.dir / "east_device.yaml") if _EAST is not None and _EAST.dir else None
 
 pytestmark = pytest.mark.skipif(
-    not (JSON_DOC.is_file() and YAML_DOC.is_file()),
-    reason="EAST is not described in this tree")
+    YAML_DOC is None or not YAML_DOC.is_file(),
+    reason="no EAST card on the facts path (device/east/east_device.yaml; "
+           "tools/abox-to-facts.py east)")
 
 
 @pytest.fixture(scope="module")
 def shot():
     """The reference discharge, and this page's own coil share at its loops."""
-    import yaml
+    from conftest import EST2_UNPAIRED, REFERENCE_DISCHARGE, reference_discharge
     from fylite.io import fydoc
 
-    doc = json.loads(JSON_DOC.read_text(encoding="utf-8"))
-    ref = doc["fylite:reference_discharge"]
+    ref = reference_discharge()
+    #: ★★2026-09-13 (user ruling: est2 removed at every layer): the reference discharge is
+    #: the est2 record (35 loops in the est2 order), and the coil share was computed at the
+    #: loops of the card resolved for the est2 array (`efit_w_pf`) — a provider that is
+    #: gone.  No measurement chain pairs with this record, so the gate SKIPS by name (once
+    #: the record is archived, `reference_discharge` skips first, naming the file).
+    pytest.skip(f"{REFERENCE_DISCHARGE} — {EST2_UNPAIRED}")
+    card = None
     #: ★T-4 第二十五刀 (2026-09-06): the coil share is `code/coilshare`'s — the channel
     #: ampere-turns folded onto the deck's elements, the per-element flux at the
     #: device's own loops (4×4, the page's quadrature) in Wb/rad.  This test used
     #: to assemble the same three steps on the flat point response.
     rec = fydoc.complete("code/coilshare", {
         "settings": {"nu_loops": 4.0},
-        "inputs": {"device": yaml.safe_load(YAML_DOC.read_text(encoding="utf-8")),
+        "inputs": {"device": card,
                    "discharge": {"fylite:channel_aturns": np.asarray(ref["aturns"], float)}}})
     share = np.asarray(rec["fields"]["loop_coil"]["data"], float)
     return {

@@ -93,6 +93,12 @@ class FactsMissing(LookupError):
     """An entry was asked for by name and no root on the path has it."""
 
 
+#: ★★R-S1 (user ruling 2026-09-13): a device card that resolves BY SHOT ships a resolution
+#: document beside it — ``<id>/<id>_resolution.jsonld`` — and in the bundled tier.  The rule
+#: that reads it is the runtime's (``fylite.device.resolve_document``), not this module's.
+RESOLUTION_SUFFIX = "_resolution.jsonld"
+
+
 @dataclass(frozen=True)
 class Entry:
     """One resolved entry, and the root it came from.
@@ -148,6 +154,22 @@ class Entry:
         """这条条目的 A-Box 目录（fydoc 形状），存在才给。"""
         p = self.dir / ABOX if self.dir else None
         return p if p and p.is_dir() else None
+
+    def resolution(self) -> str | None:
+        """这一条的**解析文档**正文（按炮号解析用），没有就是 ``None``。
+
+        ★与文档**同一个根**：自带的条目取自带的那份，盘上的条目取它自己目录里的
+        ``<id>_resolution.jsonld``——不跨根拼。
+        """
+        if self.text is not None:
+            return bundled_resolution(self.domain, self.ident)
+        if self.dir is None:
+            return None
+        p = self.dir / f"{self.ident}{RESOLUTION_SUFFIX}"
+        try:
+            return p.read_text(encoding="utf-8") if p.is_file() else None
+        except OSError:
+            return None
 
 
 def _is_entry_dir(d: Path, ident: str) -> bool:
@@ -328,6 +350,20 @@ def bundled_doc(domain: str, ident: str) -> str | None:
         return None
     d, i = domain.encode(), ident.encode()
     t = _ask(lib.fylite_runtime_facts_doc, d, len(d), i, len(i))
+    return t if isinstance(t, str) else None
+
+
+def bundled_resolution(domain: str, ident: str) -> str | None:
+    """That entry's resolution document text from the compiled-in tier, or ``None``."""
+    lib = _lib()
+    fn = getattr(lib, "fylite_runtime_facts_resolution", None) if lib is not None else None
+    if fn is None:
+        return None
+    import ctypes
+
+    fn.restype = ctypes.c_int64
+    d, i = domain.encode(), ident.encode()
+    t = _ask(fn, d, len(d), i, len(i))
     return t if isinstance(t, str) else None
 
 

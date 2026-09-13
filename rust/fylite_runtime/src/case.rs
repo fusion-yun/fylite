@@ -556,6 +556,112 @@ pub fn resolve_inputs(plan: &Plan, base: &Path) -> Result<ResolvedInputs, CaseEr
 /// 于是一份两种来路都有的计划**两次都失败**，而报出来的是第一次的错（第二次的被
 /// `Err(_)` 丢掉了）。表现是 `fy run <场景> --device <id>` 说 `device.jsonld` 不在
 /// 语料目录里——而它明明就在刚写好的记录目录里。
+/// `facts:<domain>/<ident>/<file>` → that file in the entry the facts search path
+/// resolves (`facts::find`: the first root that carries `<domain>/<ident>`).
+///
+/// ★★Why a scheme and not a relative path (PLAN H-21).  A device card is generated
+/// into the public checkout's `dist/facts/` from fydoc's A-Box; a plan kept in the
+/// kernel repository cannot point there with a path without naming a second checkout,
+/// and copying the card back is what retiring `machine_desc/` undid.  The search path
+/// is already how every other reader finds a card (`--facts`, `$FYLITE_FACTS`, the
+/// checkout's `dist/facts`), so the plan names the entry and the host says where it is.
+fn facts_endpoint(e: &str) -> Option<Result<PathBuf, String>> {
+    let (e_path, query) = match e.split_once('?') { Some((p, q)) => (p, Some(q)), None => (e, None) };
+    let rest = e_path.strip_prefix("facts:")?.trim_start_matches('/');
+    let mut it = rest.splitn(3, '/');
+    let (Some(domain), Some(ident)) = (it.next(), it.next().filter(|s| !s.is_empty())) else {
+        return Some(Err(format!("`{e}`: a facts endpoint is facts:<domain>/<ident>/<file>, or facts:<domain>/<ident>?shot=N")));
+    };
+    let file = it.next().filter(|s| !s.is_empty());
+    let Some(entry) = crate::facts::find(domain, ident) else {
+        let roots: Vec<String> = crate::facts::roots().iter().map(|p| p.display().to_string()).collect();
+        return Some(Err(format!("`{e}`: no facts root carries {domain}/{ident} (roots: {})",
+                                if roots.is_empty() { "none".to_string() } else { roots.join(", ") })));
+    };
+    //: ★★`facts:<domain>/<ident>?shot=N&measurement_chain=<chain>` — the ENTRY, resolved at use
+    //: time through `device_resolve` (user rulings R-S1 / R-S2 + the 2026-09-13 rulings that the rule
+    //: lives only in the runtime and that the measurement chain decides the device configuration):
+    //: no generated variant file to keep in step with the rule.
+    let Some(file) = file else {
+        return Some(resolved_entry(e, &entry, query));
+    };
+    let dir = entry.dir.clone().unwrap_or_else(|| entry.root.join(domain).join(ident));
+    let p = dir.join(file);
+    if !p.is_file() {
+        return Some(Err(format!("`{e}`: {} is not a file (facts root {})", p.display(), entry.root.display())));
+    }
+    Some(match query {
+        None => Ok(p.clone()),
+        Some(q) => card_covers_shot(e, &p, q).map(|_| p.clone()),
+    })
+}
+
+/// A facts entry resolved for `?shot=N&measurement_chain=<chain>` (each optional) — the card
+/// resolved by the runtime's rule, `strict` (a plan pins its shot: a default that does not cover it
+/// is refused), written once under the temp directory by content hash so the record's checksum
+/// names what ran.  ★Any other key — `provider`, `basis` included — is refused by name.
+fn resolved_entry(e: &str, entry: &crate::facts::Entry, query: Option<&str>) -> Result<PathBuf, String> {
+    use crate::device_resolve as dr;
+    let mut req = dr::Request { strict: true, ..Default::default() };
+    for kv in query.unwrap_or("").split('&').filter(|s| !s.is_empty()) {
+        match kv.split_once('=') {
+            Some(("shot", v)) => {
+                req.shot = dr::shot_given(v.parse::<i64>().map_err(|_| format!("`{e}`: ?shot= wants a shot number, got `{v}`"))?)
+            }
+            Some((dr::CHAIN_KEY, v)) if !v.is_empty() => req.measurement_chain = Some(v.to_string()),
+            _ => {
+                let key = kv.split_once('=').map(|(k, _)| k).unwrap_or(kv);
+                return Err(format!(
+                    "`{e}`: `{key}` is not a query key of a resolved facts entry — it takes ?shot=N&measurement_chain=<chain> \
+                     only (a provider or a channel basis is not requested: the measurement chain decides, user ruling \
+                     2026-09-13), got `{kv}`"
+                ));
+            }
+        }
+    }
+    let res = entry.resolution().ok_or_else(|| format!(
+        "`{e}`: {}/{} ships no resolution document, so it cannot be resolved by shot or measurement chain — name a card file",
+        entry.domain, entry.ident))?;
+    let text = entry.read().ok_or_else(|| format!("`{e}`: the entry carries no document"))?;
+    let card = json::parse(&text).map_err(|x| format!("`{e}`: {x:?}"))?;
+    let res = json::parse(&res).map_err(|x| format!("`{e}`: its resolution document: {x:?}"))?;
+    let r = dr::resolve(&card, &res, &req, dr::Form::Document).map_err(|x| format!("`{e}`: {x}"))?;
+    let out = json::to_string(&r.doc, true);
+    let dir = std::env::temp_dir().join("fylite-resolved-devices");
+    std::fs::create_dir_all(&dir).map_err(|x| format!("`{e}`: {}: {x}", dir.display()))?;
+    let p = dir.join(format!("{}-{}.jsonld", entry.ident, &sha256_hex(out.as_bytes())[..16]));
+    if !p.is_file() {
+        std::fs::write(&p, &out).map_err(|x| format!("`{e}`: {}: {x}", p.display()))?;
+    }
+    Ok(p)
+}
+
+/// ★★`facts:…/<card>?shot=N` — the card must SAY it holds for that shot (PLAN H-35 option 2,
+/// user ruling 2026-09-13).  EAST's provider choice differs by shot AND by the measurement chain
+/// (user ruling 2026-09-13: the measurement chain decides the device configuration), so a card for a
+/// measurement is generated as a variant (`tools/abox-to-facts.py --shot N --measurement-chain C`)
+/// that records `_selection` and `_valid_shots`.  A card that records no range was generated for no
+/// shot: refused.
+fn card_covers_shot(e: &str, card: &Path, query: &str) -> Result<(), String> {
+    let mut shot: Option<i64> = None;
+    for kv in query.split('&').filter(|s| !s.is_empty()) {
+        match kv.split_once('=') {
+            Some(("shot", v)) => shot = Some(v.parse::<i64>().map_err(|_| format!("`{e}`: ?shot= wants a shot number, got `{v}`"))?),
+            _ => return Err(format!("`{e}`: the only query a facts endpoint takes is ?shot=N, got `{kv}`")),
+        }
+    }
+    let Some(shot) = shot else { return Ok(()) };
+    let node = crate::io::read_node(card).map_err(|x| format!("`{e}`: {x}"))?;
+    let selection = node.get("_selection").map(|s| json::to_string(s, false)).unwrap_or_else(|| "none recorded".into());
+    //: ★the coverage comparison is the runtime rule's own (`device_resolve::card_covers`), not a second one
+    match crate::device_resolve::card_covers(&node, shot) {
+        Ok(()) => Ok(()),
+        Err(Some(r)) => Err(format!("`{e}`: the card holds for shots {} (selection {selection}) and shot {shot} is outside it",
+                                    crate::device_resolve::show_range(r))),
+        Err(None) => Err(format!("`{e}`: shot {shot} asked, but the card records no `_valid_shots` — it was generated for no shot; regenerate it with `tools/abox-to-facts.py --shot {shot} --measurement-chain …`")),
+    }
+}
+
 pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs, CaseError> {
     let mut slots = Vec::new();
     let mut resolved = Vec::new();
@@ -581,11 +687,17 @@ pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs
         }
         let endpoint = r.storage_uri.clone().or_else(|| b.endpoint.clone());
         if let Some(e) = endpoint {
+            let facts_path = match facts_endpoint(&e) {
+                Some(found) => Some(found.map_err(|why| CaseError(format!("input `{}`: {why}", b.port)))?),
+                None => None,
+            };
             let path = e.strip_prefix("file://").unwrap_or(&e);
             let path = path.strip_prefix("file+json://").unwrap_or(path);
             let path = path.split('#').next().unwrap_or(path);
             let rel = Path::new(path);
-            let p = if rel.is_absolute() {
+            let p = if let Some(fp) = &facts_path {
+                fp.clone()
+            } else if rel.is_absolute() {
                 rel.to_path_buf()
             } else {
                 //: 逐个基目录试，第一个存在的赢；都不在就拿第一个来报错——那是最可能
@@ -624,7 +736,9 @@ pub fn resolve_inputs_any(plan: &Plan, bases: &[&Path]) -> Result<ResolvedInputs
                 if let Some(v) = json::parse(&text).ok().and_then(|n| numbers_of(&n)) {
                     r.slots.push(b.port.clone());
                     slots.push((b.port.clone(), v));
-                } else if let Ok(node) = json::parse(&text) {
+                //: ★a YAML document (the generated device card, `<id>_device.yaml`) is not JSON:
+                //: parsing it as JSON refused a complete card before the kernel saw it (PLAN H-21)
+                } else if let Some(node) = json::parse(&text).ok().or_else(|| crate::io::read_node(&p).ok()) {
                     //: ★★A document with no leaf the FLAT door names is not an
                     //: error: the tree door takes documents whole, and the
                     //: documents it takes whole are exactly the ones with no
@@ -1693,5 +1807,109 @@ mod tests {
         assert_eq!(ports.len(), plan.inputs.len(), "a port was bound twice: {:?}", plan.inputs.iter().map(|b| &b.port).collect::<Vec<_>>());
         //: a root without steps says so
         assert!(steps_of(&steps[0]).is_none());
+    }
+
+    /// ★PLAN H-35 option 2: a card named with ?shot= must record a range covering it.
+    #[test]
+    fn a_facts_card_named_with_a_shot_must_cover_it() {
+        let dir = std::env::temp_dir().join(format!("fylite_card_shot_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let ranged = dir.join("ranged.yaml");
+        std::fs::write(&ranged, "_selection:\n  magnetics: efit\n_valid_shots: [137985, 137985]\n").unwrap();
+        let open = dir.join("open.yaml");
+        std::fs::write(&open, "_valid_shots: [97034, null]\n").unwrap();
+        let bare = dir.join("bare.yaml");
+        std::fs::write(&bare, "_machine: EAST\n").unwrap();
+        assert!(card_covers_shot("x", &ranged, "shot=137985").is_ok());
+        let out = card_covers_shot("x", &ranged, "shot=137986").unwrap_err();
+        assert!(out.contains("outside") && out.contains("efit"), "{out}");
+        assert!(card_covers_shot("x", &open, "shot=160000").is_ok());
+        assert!(card_covers_shot("x", &open, "shot=70754").is_err());
+        assert!(card_covers_shot("x", &bare, "shot=137985").unwrap_err().contains("records no `_valid_shots`"));
+        assert!(card_covers_shot("x", &ranged, "measurement_chain=efit_east").unwrap_err().contains("only query"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// ★The kinetic-reconstruction plan (fylite_kernel) binds the generated variant with ?shot=,
+    /// and the plan's resolver entry names the same thing without a file — both on the staged
+    /// EAST corpus, when this checkout has one.
+    #[test]
+    fn the_staged_east_variant_and_the_resolver_entry_answer_for_137985() {
+        //: the variant generated for the efit_east chain (`tools/abox-to-facts.py east --shot 137985
+        //: --measurement-chain efit_east -o dist/facts/device/east/variants/efit`)
+        let variant = "facts:device/east/variants/efit/east/east_device.yaml?shot=137985";
+        let Some(root) = crate::facts::repo_facts() else {
+            eprintln!("skip: no staged dist/facts in this checkout");
+            return;
+        };
+        if !root.join("device/east/variants/efit/east/east_device.yaml").is_file()
+            || !root.join("device/east/east_resolution.jsonld").is_file() {
+            eprintln!("skip: the staged corpus has no EAST variant / resolution document");
+            return;
+        }
+        crate::facts::use_roots(Some(vec![root.clone()]));
+        let card = facts_endpoint(variant).unwrap().unwrap();
+        assert!(card.ends_with("variants/efit/east/east_device.yaml"));
+        assert!(facts_endpoint(&variant.replace("137985", "137986")).unwrap().unwrap_err().contains("outside"));
+        let entry = facts_endpoint("facts:device/east?shot=137985&measurement_chain=efit_east").unwrap().unwrap();
+        let n = crate::io::read_node(&entry).unwrap();
+        assert_eq!(n.get("magnetics/fylite:provider").and_then(Node::as_str), Some("efit"));
+        assert_eq!(n.get("magnetics/measurement_chain").and_then(Node::as_str), Some("efit_east"));
+        //: (a numeric list read back from disk is an array: compare values, not spellings)
+        let range = |x: &Node| x.get("_valid_shots").and_then(Node::to_f64_vec);
+        assert_eq!(range(&n), Some(vec![137985.0, 137985.0]));
+        //: the variant card and the entry are the same providers and the same range
+        let v = crate::io::read_node(&card).unwrap();
+        assert_eq!(range(&v), range(&n));
+        assert_eq!(v.get("magnetics/fylite:provider"), n.get("magnetics/fylite:provider"));
+        crate::facts::use_roots(None);
+    }
+
+    /// ★The plan's resolver entry (2026-09-13 rulings: the rule lives only in the runtime; the
+    /// measurement chain decides): `facts:device/<id>?shot=N&measurement_chain=C` resolves the entry's
+    /// card at use time, and nothing else is a query key.
+    #[test]
+    fn a_facts_entry_resolves_by_shot_and_measurement_chain() {
+        let root = std::env::temp_dir().join(format!("fylite_entry_resolve_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let d = root.join("device").join("resolvetest");
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join("rights.json"), "{}").unwrap();
+        std::fs::write(root.join("device").join("resolvetest.jsonld"),
+            r#"{"_basis": "?", "magnetics": {"fylite:provider": "east_new"}, "provenance": {"source_files": {}}}"#).unwrap();
+        let group = |p: &str| format!(r#"{{"document": {{"magnetics": {{"fylite:provider": "{p}"}}}}}}"#);
+        std::fs::write(d.join("resolvetest_resolution.jsonld"), format!(r#"{{"@type": "fylite:DeviceResolution",
+            "resolved_ids": ["magnetics"],
+            "manifest": {{"measurement_chains": {{"east": {{"kind": "mdsplus_tree", "tree": "east"}},
+                                                  "efit_east": {{"kind": "mdsplus_tree", "tree": "efit_east"}}}},
+              "providers": {{"magnetics": {{"default": "east_new", "available": {{
+                "base": {{"backend": "static", "valid_shots": [0, 97030], "measurement_chain": "east"}},
+                "east_new": {{"backend": "static", "valid_shots": [97034, null], "measurement_chain": "east"}},
+                "efit": {{"backend": "static", "valid_shots": null, "measurement_chain": "efit_east"}}}}}}}}}},
+            "variants": {{"magnetics": {{"base": {}, "east_new": {}, "efit": {}}}}}}}"#,
+            group("base"), group("east_new"), group("efit"))).unwrap();
+        crate::facts::use_roots(Some(vec![root.clone()]));
+        let provider = |q: &str| -> Result<String, String> {
+            let p = facts_endpoint(&format!("facts:device/resolvetest?{q}")).unwrap()?;
+            let n = crate::io::read_node(&p).unwrap();
+            Ok(n.get("magnetics/fylite:provider").and_then(Node::as_str).unwrap().to_string())
+        };
+        assert_eq!(provider("shot=70754").unwrap(), "base");
+        assert_eq!(provider("shot=137985").unwrap(), "east_new");
+        assert_eq!(provider("shot=70754&measurement_chain=east").unwrap(), "base");
+        assert_eq!(provider("shot=137985&measurement_chain=efit_east").unwrap(), "efit");
+        //: a gap inside the chain, an undeclared chain — each refused by name
+        let gap = provider("shot=97032&measurement_chain=east").unwrap_err();
+        assert!(gap.contains("97032") && gap.contains("\"east\""), "{gap}");
+        assert!(provider("shot=137985&measurement_chain=est2").unwrap_err().contains("not declared"));
+        //: the removed request keys are refused by name
+        for (q, key) in [("shot=137985&provider=magnetics=efit", "`provider`"), ("shot=137985&basis=est2", "`basis`"),
+                         ("time=4", "`time`")] {
+            let e = provider(q).unwrap_err();
+            assert!(e.contains(key) && e.contains("takes ?shot="), "{e}");
+        }
+        crate::facts::use_roots(None);
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

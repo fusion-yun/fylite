@@ -37,9 +37,10 @@
 //      the same ensemble — an error bar that moves when nothing moved cannot
 //      be told from one that moved because the input did.
 //
-// ★Runs on EAST, installed from `machine_desc/` the way an imported machine is: the
-// one built-in device has no reference discharge, so there is nothing for a
-// reconstruction to fit (see `_device.mjs`).
+// ★Runs on EAST — the A-Box-built document with the #137985 reference discharge
+// added from the PRIVATE kernel fixture (`_kernel-fixture.mjs`, $FYLITE_KERNEL),
+// installed the way an imported machine is: the one built-in device has no
+// reference discharge, so there is nothing for a reconstruction to fit.
 //
 // ★The analysis page carries TWO bars since the profile fit gained a front
 // end (`profile` then `reconstruction`), so its export menu items are named
@@ -54,7 +55,8 @@ import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { seedDevice, envWithDeck, missingDeviceMessage } from './_device.mjs';
+import { envWithDeck } from './_device.mjs';
+import { kernelFile, seedEastWithShot, skipMessage } from './_kernel-fixture.mjs';
 import { browser } from './_browser.mjs';
 
 const HERE = new URL('.', import.meta.url).pathname;
@@ -67,10 +69,8 @@ const OUT = mkdtempSync(join(tmpdir(), 'rec-'));
 const br = await browser();
 const ctx = await br.newContext({ locale: 'zh-CN', acceptDownloads: true,
                                   viewport: { width: 1400, height: 1100 } });
-if (!await seedDevice(ctx, 'east')) {
-  console.error(missingDeviceMessage('east'));
-  process.exit(2);
-}
+const EAST = await seedEastWithShot(ctx);
+if (EAST.why) { console.log(skipMessage('validate-recon', EAST.why)); await br.close(); process.exit(0); }
 const page = await ctx.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));
@@ -381,8 +381,7 @@ function pyCheck(doc, r0, ipFit, probes) {
 
 // R0 is the device's vacuum-field reference, the same one the page hands the
 // kernel; it is read from the deck rather than assumed here.
-const DEV = JSON.parse(readFileSync(
-  ROOT + '/machine_desc/east/fylite_device_east.json', 'utf8'));
+const DEV = EAST.doc;
 const R0 = DEV.tf.r0;
 
 //: li(3) is scored on the SAME Ip the page used — the fitted current, not
@@ -492,11 +491,11 @@ check('页面的探针预测与原生重算一致（1e-5）',
 //: agreeing with the delivered reconstruction at them is corroboration, not
 //: a fitted residual.  A projection that dropped the angle lands at order
 //: 100 % here, which is what the bar is for.
-const refMag = existsSync(ROOT + '/machine_desc/east/fylite_magnetics_east.json')
-  ? JSON.parse(readFileSync(ROOT + '/machine_desc/east/fylite_magnetics_east.json', 'utf8'))
-  : null;
+//: the delivered reconstruction's channel values: a kernel fit input (tests/data/east/)
+const REF_MAG = kernelFile('tests/data/east/fylite_magnetics_east.json');
+const refMag = REF_MAG.path ? JSON.parse(readFileSync(REF_MAG.path, 'utf8')) : null;
 if (!refMag) {
-  console.log('  —  没有 machine_desc/east/fylite_magnetics_east.json，跳过与交付重构的对照');
+  console.log('  —  跳过与交付重构的对照：' + REF_MAG.why);
 } else {
   const refb = refMag['fylite:probe_b'];
   const mine = A.__magnetics['fylite:probe_b'];

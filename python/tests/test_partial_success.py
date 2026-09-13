@@ -85,7 +85,7 @@ def test_run_series_resume_skips_completed(monkeypatch):
 # _east_measurements: per-diagnostic status, partial vs strict
 # --------------------------------------------------------------------------- #
 def _patch_mds(monkeypatch, *, thomson_ok=True):
-    monkeypatch.setattr(run_mod.est2, "read_east_mds",
+    monkeypatch.setattr(run_mod.raw, "read_mds",
                         lambda *a, **k: {"point": {"n_ne_active": 8,
                                                    "n_fr_active": 3}}
                         if k.get("read_point") else {})

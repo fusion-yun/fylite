@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-import { deviceDoc } from './_device.mjs';
+import { eastWithShot, skipMessage } from './_kernel-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HERE, '..', 'assets') + path.sep;
@@ -40,15 +40,12 @@ globalThis.fetch = async (url) => {
 };
 vm.runInThisContext(readFileSync(SITE + 'worker.js', 'utf8'), { filename: 'worker.js' });
 
-function eastDoc() {
-  const d = deviceDoc('east');
-  if (d) return d;
-  const dir = process.env.FYLITE_DEVICE_DIR;
-  const f = dir && path.join(dir, 'fylite_device_east.json');
-  return f && existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null;
-}
-const doc = eastDoc();
-if (!doc) { console.log('跳过：没有 EAST 装置文档（dist/facts/device/east.jsonld 或 $FYLITE_DEVICE_DIR/fylite_device_east.json）'); process.exit(0); }
+//: ★2026-09-13 (machine_desc retired): the A-Box-built EAST document with the
+//: #137985 reference discharge added from the PRIVATE kernel fixture
+//: (`_kernel-fixture.mjs`, via $FYLITE_KERNEL) — skipped by name without it.
+const EAST = eastWithShot();
+if (EAST.why) { console.log(skipMessage('validate-worker-outlines.mjs', EAST.why)); process.exit(0); }
+const doc = EAST.doc;
 const M = globalThis.FyoDevice.fromFyo(doc), id = 'east';
 const send = (msg) => globalThis.self.onmessage({ data: msg });
 const take = (type) => {

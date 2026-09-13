@@ -1162,7 +1162,7 @@ mod tests {
     /// must not depend on a data system being up:
     ///
     /// ```text
-    /// efit_east_path=$HOME/workspace/machine_desc/east_mdsplus/efit_east \
+    /// efit_east_path=<local EFIT tree directory>/efit_east \
     ///   mdsip -m -p 18000 -h mdsip.hosts -c 0 &
     /// FYLITE_MDSIP_SERVER=127.0.0.1:18000 FYLITE_MDSIP_USER=$USER cargo test mdsip
     /// ```

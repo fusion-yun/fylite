@@ -112,7 +112,10 @@ def test_run_infers_imas_mode_for_jsonld():
     assert _infer_kind("meas.yaml") == "imas"
 
 
-def test_semantic_file_loads_like_a_plain_one(tmp_path):
+def test_semantic_file_loads_like_a_plain_one(tmp_path, efit_tree_device):
+    #: ★2026-09-13 (R-S1 / R-S2): a set built on NPROBE is in the efit_east order, so it
+    #: is read against the card resolved for that tree (`conftest.EFIT_TREE`), not the
+    #: no-shot card (magnetics `east_new`)
     from fylite.device import NFCOIL, NPROBE, NSILOP
     meas = {"plasma": 4.0e5, "btor": -1.8,
             "brsp": [1.0] * NFCOIL, "coils": [0.1] * NSILOP,

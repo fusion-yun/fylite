@@ -42,7 +42,7 @@ include!(concat!(env!("OUT_DIR"), "/facts_table.rs"));
 
 /// 这一份二进制是哪一版：`"internal"`（全功能，含只进内部版的装置）或 `"public"`。
 ///
-/// ★★**版别在编译期定死**（`FYL-DESIGN-19` A-14），所以这里没有开关可拨：它与
+/// ★★**版别在编译期定死**（`FYL-SDD-03` A-14），所以这里没有开关可拨：它与
 /// 编进来的那张装置表是同一个工具、同一次调用写下的（`tools/facts-publish.py`），
 /// 于是「这份构建带哪些机器」与「它自称哪一版」不可能是两个答案。
 /// ★读者今天只有一个：启动 banner（[`crate::banner`]）据此决定说不说「仅限内部
@@ -93,6 +93,19 @@ pub fn embedded_doc(domain: &str, ident: &str) -> Option<&'static str> {
     embedded_text(domain, ident)
 }
 
+/// 一台装置**按炮号解析**所用的文档，与卡片同住：`<id>/<id>_resolution.jsonld`
+/// （`tools/abox-to-facts.py` 生成，`fylite:DeviceResolution`；用户裁定 R-S1，2026-09-13）。
+pub const RESOLUTION_SUFFIX: &str = "_resolution.jsonld";
+
+/// 自带那一档里某台装置的解析文档正文（`tools/facts-publish.py` 与卡片同一次判许可、
+/// 同一次编进来；只带页面与命令行读的 `document` 形）。
+pub fn embedded_resolution(domain: &str, ident: &str) -> Option<&'static str> {
+    EMBEDDED_RESOLUTION
+        .iter()
+        .find(|(d, id, _)| *d == domain && *id == ident)
+        .map(|(_, _, t)| *t)
+}
+
 /// 打包时告诉本模块「自带的那份在哪」。发行方在构建时给；源码检出里没有。
 pub const BUNDLED_ENV: &str = "FY_FACTS_BUNDLED";
 
@@ -133,6 +146,16 @@ impl Entry {
     /// 有没有一份文档可读——盘上的或自带的。
     pub fn has_document(&self) -> bool {
         self.text.is_some() || self.document.is_some()
+    }
+
+    /// 这一条的**解析文档**正文（有则在）。★与文档**同一个根**：自带的条目取自带的那份，
+    /// 盘上的条目取它自己目录里的 `<id>_resolution.jsonld`——不跨根拼（见模块抬头）。
+    pub fn resolution(&self) -> Option<String> {
+        if self.text.is_some() {
+            return embedded_resolution(&self.domain, &self.ident).map(str::to_string);
+        }
+        let d = self.dir.as_ref()?;
+        std::fs::read_to_string(d.join(format!("{}{RESOLUTION_SUFFIX}", self.ident))).ok()
     }
 }
 

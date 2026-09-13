@@ -337,6 +337,76 @@ def test_an_entry_with_no_ledger_is_not_publishable(tmp_path):
         facts.use(None)
 
 
+def test_experiment_slices_never_reach_an_artifact(tmp_path):
+    """★★实验数据不随包分发（`FYL-SRS-01` FR-DATA-001；用户裁定 2026-09-13，`FYL-SDD-03` A-5）。
+
+    炮的测量与切片可以放在用户自己的 facts 根里给 `fy run` 离线用，但发布工具在**任何
+    版别**下都不把 `experiment` 域编进 `facts.rs`——哪怕那一条带着一份说「可以发」的
+    许可账：许可账管的是装置描述的再分发，不是本仓对实验数据的边界。
+    """
+    root = _make_root(tmp_path / "hi", ident="east", note="HIGH")
+    exp = root / "experiment"
+    (exp / "east" / "137985").mkdir(parents=True)
+    (exp / "east" / "137985" / "slice_04000ms.fyo.jsonld").write_text("{}", encoding="utf-8")
+    (exp / "east.jsonld").write_text(json.dumps({"@type": "fylite:Shot"}), encoding="utf-8")
+    (exp / "east" / "rights.json").write_text(
+        json.dumps({"internal": True, "public": True, "ruling": "says yes"}), encoding="utf-8")
+
+    for flavour in ("internal", "public"):
+        r = subprocess.run([sys.executable, str(TOOL), "--facts", str(root),
+                            "--flavour", flavour, "--list"],
+                           capture_output=True, text=True, timeout=120)
+        assert r.returncode == 0, r.stderr
+        assert not [ln for ln in r.stdout.splitlines() if ln.startswith("experiment/")], \
+            f"{flavour} 版的发布计划里出现了实验切片"
+        assert "experiment" in r.stderr, "跳过了实验域，却没说为什么"
+
+    out = tmp_path / "out"
+    out.mkdir()
+    r = subprocess.run([sys.executable, str(TOOL), "--facts", str(root),
+                        "--flavour", "internal", "--out", str(out)],
+                       capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    table = (out / "facts.rs").read_text(encoding="utf-8")
+    assert '("experiment",' not in table, "实验切片被编进了 facts.rs"
+    assert '("device", "east",' in table, "闸子没测到东西：装置那一条也没进表"
+
+
+def test_shot_readings_inside_a_device_card_never_reach_an_artifact(tmp_path):
+    """★★装置卡片可以夹带一次真实放电（EAST 的卡片带着 #137985 的参考放电与时间切片）。
+
+    那是实测读数，不是装置描述（`FYL-SRS-01` FR-DATA-001；用户裁定 2026-09-13，
+    `FYL-SDD-03` A-21）：发布工具在任何版别下把它们从文档里摘掉，卡片其余部分照发。
+    """
+    import re
+
+    root = _make_root(tmp_path / "hi", ident="east", note="HIGH")
+    card = root / "device" / "east.jsonld"
+    doc = json.loads(card.read_text(encoding="utf-8"))
+    doc["fylite:reference_discharge"] = {"shot": 137985, "aturns": [1.0, 2.0],
+                                         "loopMeas": [0.1], "ipMeasured": 4.0e5}
+    doc["fylite:slices"] = [{"time_s": 4.0, "loopMeasTotal": [0.1]}]
+    doc["fylite:slices_provenance"] = "pulled from mds.invalid:8000"
+    doc["geometry_kept"] = {"r0": 1.85}
+    card.write_text(json.dumps(doc), encoding="utf-8")
+
+    out = tmp_path / "out"
+    out.mkdir()
+    r = subprocess.run([sys.executable, str(TOOL), "--facts", str(root),
+                        "--flavour", "internal", "--out", str(out)],
+                       capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    assert "摘掉实测读数" in r.stdout, "摘了读数却没说"
+    table = (out / "facts.rs").read_text(encoding="utf-8")
+    m = re.search(r'\("device", "east", r(#+)"(.*?)"\1\)', table, re.S)
+    assert m, "装置那一条没进表"
+    shipped = json.loads(m.group(2))
+    for k in ("fylite:reference_discharge", "fylite:slices", "fylite:slices_provenance"):
+        assert k not in shipped, f"{k} 被编进了 facts.rs"
+    assert "137985" not in m.group(2), "炮号随某个别的键漏了进去"
+    assert shipped.get("geometry_kept") == {"r0": 1.85}, "摘读数时把装置描述也摘坏了"
+
+
 def test_a_named_root_that_is_not_there_is_named(tmp_path):
     """★路径给错了要当场说。
 
@@ -357,7 +427,7 @@ def test_a_named_root_that_is_not_there_is_named(tmp_path):
 def _exe():
     """The built executable, or a skip — it is a build product, not a source."""
     #: ★★2026-09-04 只有一个地方可找：`fy` 是 `rust/build.sh --exe` 的产物，
-    #: 而 Python 包**不再带**一份（用户裁定；`FYL-DESIGN-15` R-4/R-5）。
+    #: 而 Python 包**不再带**一份（用户裁定；`FYL-SDD-04` R-4/R-5）。
     p = ROOT / "rust" / "fylite_runtime" / "target" / "release" / "fy"
     if p.is_file():
         return p
@@ -384,7 +454,7 @@ def test_the_two_resolvers_agree(tmp_path):
     _make_root(tmp_path / "hi", ident="onlyhigh", note="HIGH")
     exe = _exe()
 
-    #: ★★2026-09-04：这一问搬去了 `list`（`FYL-DESIGN-17` E-24：发现面只有一处）。
+    #: ★★2026-09-04：这一问搬去了 `list`（`FYL-SDD-04` E-24：发现面只有一处）。
     #: 本闸子比的是**两个解析器**，不是命令词——搬家不改它问的东西，只改怎么问。
     #: ★★问 `--json`，不解析给人看的那张表（2026-09-08）：表上的根现在按显示规矩
     #: 写——内置的那一档打 `<buildin>`，`$HOME` 收成 `~`——那是**排版**，不是路径。

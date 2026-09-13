@@ -43,9 +43,24 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 #: 的地方，先发现的人是拿到制品的那个。
 sys.path.insert(0, str(ROOT / "python"))
 from fylite import facts as _facts  # noqa: E402
-#: ★★2026-09-04 `devices/` → `facts/`，按域分轴（用户裁定）。今天只有 `device` 一域
-#: 有内容；`amns` / `experiment` 进来时本工具**不必改**——它按域走目录。
+#: ★★2026-09-04 `devices/` → `facts/`，按域分轴（用户裁定）。本工具按域走目录，
+#: 一个新域进来不必改——**除非那一域根本不该发**，见下一条。
 FACTS = ROOT / "facts"
+#: ★★不随任何版别发出去的域（用户裁定 2026-09-13，`FYL-SDD-03` A-5）。`experiment`
+#: 是炮的测量与切片——实验数据，`FYL-SRS-01` FR-DATA-001 禁止它随包分发。它仍可以在
+#: 用户自己的 facts 根里给 `fy run` 离线用（测量解析第 2 级），只是不编进 `facts.rs`。
+#: ★判在**域**上而不是许可账上：`rights.json` 管的是装置描述的再分发，一条写着
+#: `public: true` 的账不能把本仓对实验数据的边界开个口子。
+NEVER_BUNDLED = {
+    "experiment": "实验数据（炮的测量与切片）不随包分发——FYL-SRS-01 FR-DATA-001；"
+                  "要离线用，经 --facts / $FY_FACTS_PATH 指向自己的语料",
+}
+#: ★★同一条边界落在**装置文档内部**（用户裁定 2026-09-13，`FYL-SDD-03` A-21）：一张装置卡片
+#: 可以夹带一次真实放电——EAST 的卡片带着 #137985 的参考放电（线圈电流 · 磁通环 · 探针 ·
+#: Ip · POINT 读数 · 交付的重构）与 9 个时间切片。那是实测读数，不是装置描述，任何版别都
+#: 在这里摘掉；卡片其余部分（几何 · 线圈 · 诊断 · 限值）照发。★判在键上、对每台装置施用，
+#: 不点名 EAST：下一台带参考放电的机器不必记得来改这里。
+SHOT_KEYS = ("fylite:reference_discharge", "fylite:slices", "fylite:slices_provenance")
 #: ★★2026-09-04 用户裁定：`app/` 那侧也叫 `facts/device`，所以**一个名字贯穿全程**
 #: ——仓里 `facts/device/`、页面取 `facts/device/`、发布出去还是 `facts/device/`。
 #: 先前留过一层 URL 前缀映射（发成 `devices/`），现在不需要了：少一层映射，就少一处
@@ -126,13 +141,37 @@ def catalogue_doc(domain: str, shipped: set, out: pathlib.Path):
     return p
 
 
-def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
-    """**一个制品**：`facts.rs`——装置信息编进 Rust 那一侧（`FYL-DESIGN-19` A-8）。
+RESOLUTION_SUFFIX = "_resolution.jsonld"
+
+
+def resolution_text(domain: str, ident: str, root) -> str | None:
+    """这一条的**解析文档**（``<id>/<id>_resolution.jsonld``，用户裁定 R-S1），按发布形重写。
+
+    ★与卡片**同根、同一次判许可**：它只在卡片进了 ``plan()`` 的那一台上被读。
+    ★只带 ``document`` 形：编进制品的读者是页面与命令行，读的是派生文档那一种拼法；
+    ``card`` 形（YAML 卡片的拼法）是 Python 读盘上卡片时用的，发出去没有读者（A-13）。
+    """
+    p = pathlib.Path(root) / domain / ident / f"{ident}{RESOLUTION_SUFFIX}"
+    if not p.is_file():
+        return None
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"), parse_constant=_strict)
+    except ValueError as e:
+        raise SystemExit(f"[facts] {domain}/{ident}: 解析文档不是严格 JSON（{e}）")
+    for provs in (d.get("variants") or {}).values():
+        for v in (provs or {}).values():
+            if isinstance(v, dict):
+                v.pop("card", None)
+    return json.dumps(d, ensure_ascii=False, indent=1, allow_nan=False) + "\n"
+
+
+def artifacts(out: pathlib.Path, flavour: str, rows_in, resolutions_in=()) -> int:
+    """**一个制品**：`facts.rs`——装置信息编进 Rust 那一侧（`FYL-SDD-03` A-8）。
 
     ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。
     在此之前同一批字节要发两遍：一遍给页面 fetch（站点上是文件，可执行文件里是
     `assets.rs` 的 `include_bytes!`），一遍编进 Rust 给命令行。两份字节、两条通路，
-    而**没有任何东西保证它们描述同一批机器**——`FYL-DESIGN-19` A-9 本来打算用一道
+    而**没有任何东西保证它们描述同一批机器**——`FYL-SDD-03` A-9 本来打算用一道
     闸子去比对它们，而不必比对是更强的保证。
 
     今天只剩这一份：`libfylite_runtime.so` 与 `fylite_runtime.wasm` 各编进它，
@@ -149,12 +188,24 @@ def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
         #: 文档编进制品之后，那一台在页面上整份读不出来，且构建全绿。
         text = doc.read_text(encoding="utf-8")
         try:
-            json.loads(text, parse_constant=_strict)
+            parsed = json.loads(text, parse_constant=_strict)
         except ValueError as e:
             raise SystemExit(f"[facts] {domain}/{ident}: 不是严格 JSON（{e}）——"
                              f"上游修，不要编进制品")
+        if domain == "device" and isinstance(parsed, dict):
+            gone = [k for k in SHOT_KEYS if k in parsed]
+            if gone:
+                for k in gone:
+                    del parsed[k]
+                text = json.dumps(parsed, ensure_ascii=False, indent=1, allow_nan=False) + "\n"
+                print(f"  {domain}/{ident}: 摘掉实测读数 {' '.join(gone)}"
+                      "（实验数据不随包分发——FYL-SRS-01 FR-DATA-001）")
         h = _hashes(text)
         rows.append(f'    ("{domain}", "{ident}", r{h}"{text}"{h}),')
+    res_rows = []
+    for domain, ident, text in resolutions_in:
+        h = _hashes(text)
+        res_rows.append(f'    ("{domain}", "{ident}", r{h}"{text}"{h}),')
     src = (
         "// facts —— 装置信息的**自带那一档**，生成物（`tools/facts-publish.py`），勿手改。\n"
         "//\n"
@@ -167,7 +218,7 @@ def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
         "//\n"
         "// 由 `build.rs` 抄进 `$OUT_DIR` 再 `include!` 进 `src/facts.rs`——**不入库**：\n"
         "// 装置文档是受许可约束的数据，写成 `.rs` 提交进公开仓就是换一种语法发布同一批字节。\n"
-        #: ★★版别也编进去（2026-09-08，`FYL-DESIGN-19` A-18）。此前它只在上面那句
+        #: ★★版别也编进去（2026-09-08，`FYL-SDD-03` A-18）。此前它只在上面那句
         #: 注释里，于是**二进制自己说不出自己是哪一版**——而启动 banner 要据此决定
         #: 说不说「仅限内部测试」。写成一个常量，它就与装置表同源、同一次构建、
         #: 不可能各说各的。
@@ -176,6 +227,12 @@ def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
         + "\n".join(rows)
         + ("\n" if rows else "")
         + "];\n"
+        #: ★★R-S1（2026-09-13 用户裁定）：逐台的解析文档，与卡片同一张发布计划——发出去的
+        #: 卡片在这一档上也能按炮号解析（`fy run --device east shot=N`）。
+        + "pub static EMBEDDED_RESOLUTION: &[(&str, &str, &str)] = &[\n"
+        + "\n".join(res_rows)
+        + ("\n" if res_rows else "")
+        + "];\n"
     )
     (out / "facts.rs").write_text(src, encoding="utf-8")
     return len(rows)
@@ -183,7 +240,7 @@ def artifacts(out: pathlib.Path, flavour: str, rows_in) -> int:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    #: ★缺省 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）。许可判据没有松：
+    #: ★缺省 **internal**（2026-09-05 裁定，`FYL-SDD-03` A-14）。许可判据没有松：
     #: 它仍逐条在 `facts/<域>/<id>/rights.json`。公开面必须明写 `--flavour public`。
     ap.add_argument("--flavour", choices=("public", "internal"), default="internal")
     ap.add_argument("--out", type=pathlib.Path)
@@ -219,7 +276,11 @@ def main(argv=None) -> int:
         return 0
 
     rows: list = []
+    res_rows: list = []
     for domain in doms:
+        if domain in NEVER_BUNDLED:
+            print(f"[facts] {domain}: 任何版别都不带（{NEVER_BUNDLED[domain]}）", file=sys.stderr)
+            continue
         ok, no = plan(domain, a.flavour)
         if a.list or not a.out:
             for ident, _doc, _root in ok:
@@ -230,6 +291,11 @@ def main(argv=None) -> int:
         for ident, why in no:
             print(f"  {a.flavour} 版：不带 {domain}/{ident}（{why[:56]}…）")
         rows.extend((domain, ident, doc) for ident, doc, _r in ok)
+        for ident, _doc, r in ok:
+            t = resolution_text(domain, ident, r)
+            if t is not None:
+                res_rows.append((domain, ident, t))
+                print(f"  {domain}/{ident}: 带解析文档（按炮号解析，{len(t.encode())} 字节）")
         cat = catalogue_doc(domain, {i for i, _d, _r in ok}, a.out)
         if cat is not None:
             rows.append((domain, "catalogue", cat))
@@ -239,7 +305,7 @@ def main(argv=None) -> int:
               + (f"（{' '.join(i for i, _d, _r in ok)}）" if ok else "")
               + (f" ← {' + '.join(srcs)}" if len(srcs) > 1 else ""))
     if a.out is not None:
-        n = artifacts(a.out, a.flavour, rows)
+        n = artifacts(a.out, a.flavour, rows, res_rows)
         #: 目录那份临时件用完就撤——制品只有一个文件，多出来的一个会让下一个人问
         #: 「这个也是发布物吗」。
         for _d, ident, doc in rows:

@@ -45,7 +45,7 @@ node app/tests/validate-app-mdsip.mjs        # 离线，不需要服务器
 FYLITE_MDSIP_SERVER=<主机:端口> node app/tests/validate-jmds.mjs           # 独立实现对照（要真服务器）
 ```
 
-〔`validate-fyo-tree.mjs`〕**树门在页面这一侧**（FYL-DESIGN-16 W-1，2026-09-05）：`kernelapi.js`
+〔`validate-fyo-tree.mjs`〕**树门在页面这一侧**（FYL-SDD-02 W-1，2026-09-05）：`kernelapi.js`
 的扁平树编解码与 wasm 上的 `fylite_rs_fyo_tree`。三段判据：同一份计划 JS 编出的四段缓冲与
 内核仓 `tests/oracles/tree.py` 编出的**逐字节相等**（夹具 `fixtures/fyo-tree-plan.json` 由那边
 生成）；decode(encode(x)) 往返；真 wasm 上 `code/transport` 完成、未知 code 拒绝 −30、缺文档
@@ -196,7 +196,7 @@ chromium；装的那份是别的版本时，用 `--chrome <可执行文件>`（�
 | `validate-analysis.mjs` | **反演场景的分析层**（围着那次拟合的几层，每一条都能在 `validate-recon.mjs` 通过时失败）：页面报的加权 χ² 能否由导出的**逐道读数**重算 · 掩膜进的是**求解器**还是只进了表（道数、自由度、答案三样都要动）· 自标定那一列是否确为 `f/中位数` · **干涉弦反过来**能否定出它正过来用的 `n_e0` 与 α（容差 = α 扫描步长）· 法拉第行与解出的场两路是否一致、约束值是否 = 读数换算 − 线圈份额 · 真空室能定就给数、定不出是否**明说**（判据是孪生 `q(0)` 误差减半以上，不是逐组电流）· 未解出的时片是否写 `null` 且带原因 · 剖面拟合能否还原喂进去的那条剖面 · **会话文件记的 I_p 约束是这次拟合实际用的那一个**（点一片之后对卷宗文件 1e-9，并反向断言不点片时记回基准电流）· **后验跟着时片走**（换一片中位数确实变，且变到那一片自己那次拟合上；什么也抽不到时拒绝而不是给一条宽度为 0 的带）· **时序文件导得出也导得回**（导出 → 导入 → 重跑，标量逐格 1e-6，实测逐位相同；缺一片读数的文件必须被具名拒绝）。★同样跑 **EAST**
 | `validate-recon-slices.mjs` | **现读一炮的存储片表**（浏览器，不需要网关：`/api/health` 与 `/api/measurements` 由 `page.route` 用卷宗自带那一炮的通道值罐装）：取回之后片表画不画得出来 · **点一下是不是真的换一片读**（断言的是发出去的请求带的 `time`，不是页面事后印了什么）· 时刻框与注记跟不跟着走 · 没试过的片说不说自己没试过 · 试过的片有没有带上判决**且与状态行是同一句话**（收敛与失败都算数——一个现读片走的是原始基准 + 线圈拟合，和交付基准那次拟合不是同一个问题）· 汇总行的收敛/失败计数 · 换一炮判决不继承、换回来还在 |
 | `validate-closure.mjs` | **自举—欧姆—拟合电流的闭环**（T-A9，浏览器 + 原生 oracle）：换算是不是一条闭合的恒等式（⟨j·B⟩ 与 ⟨j_φ⟩ 各由同一次拟合的 p′/FF′ 组一次，内核换算把前者变成后者——2.65e-12，判据 1e-9 = 会话文件 12 位有效）· 换算里的 p′ 项去掉之后环向电流是否真的变（24.3 %，否则「换拟合值不换分量」是个没有差别的区分）· 逐面平均是不是一副真几何（⟨B_tor²⟩ = F²⟨1/R²⟩、⟨B²⟩−⟨B_tor²⟩ > 0、⟨1/R²⟩ > ⟨1/R⟩² 且超出量不是舍入）· σ_neo 是不是内核那条（原生 `kernel.sigma_neo` 同一批输入 1e-10）**并且**是不是 Sauter 论文那条（本文件按式 (13)/(13a)/(13b) 另写一遍，1.28e-16）· 两档系数确为两个答案（8.97 %）· 捕获修正在干活（F₃₃ 0.658…0.996，归一到轴之后与 Spitzer 分开 0.19）· 三条曲线逐面相加、环向度量下还要补上抗磁那一份、三份电流之和等于梯子求积的总量、梯子与拟合的 I_p 差 3.88 %（差值属于梯子的两端）· **外环是一个不动点**：第一轮必须动（4.83 %，非退化前提）、跨轮变动 < 5 %（实测 0.036 %）、迭代收缩（Δ₂ < Δ₁/10）、自停而非用满轮数、I_p 跨轮不漂（0.042 %）、开关关着时文件里没有外环块。★σ_neo 的**第二个外部答案**（漂移动理支路）在 Rust 侧：`neoclassical::sigma_oracle_tests` 把每条梯度置零、`Epar0 = 1` 去解 DKE，其 ⟨j·B⟩ 就是电导率——那里也记着深香蕉区**这个 oracle 用不了**的理由 |
-| `validate-vstab.mjs` | 垂直刚度、理想壁刚度、增长率与区制 vs 原生。★这道跑 **EAST**：模型讲的就是真空室里的涡流，而唯一内置的 ITER 卷宗只有画出来的真空室轮廓、没有可解的导体段，页面自己会拒绝。装置由 `_device.mjs` 从 `machine_desc/east/` 装入（浏览器走导入通道，原生侧同批拿到 `$FYLITE_DEVICE_DIR`），卷宗不在就报缺失并停，不会耗到超时 |
+| `validate-vstab.mjs` | 垂直刚度、理想壁刚度、增长率与区制 vs 原生。★这道跑 **EAST**：模型讲的就是真空室里的涡流，而唯一内置的 ITER 卷宗只有画出来的真空室轮廓、没有可解的导体段，页面自己会拒绝。装置由 `_device.mjs` 从 `dist/facts/device/east.jsonld`（A-Box 生成）装入（浏览器走导入通道，原生侧同批拿到 `$FYLITE_DEVICE_DIR`），卷宗不在就报缺失并停，不会耗到超时 |
 | `validate-metric.mjs` | 磁面几何量走 `code/metric`（node，自建宿主）：五个接线面 + 一个 MXH 面 + 模型页两条 Miller 梯子，与切前录下的扁平 `geoSurface` 答案逐位（`fixtures/metric.json`）；圆截面另对解析式 1e-6；拒绝要具名。★原 `validate-geo.mjs`（浏览器打包 vs Python 打包）随扁平导出退役——只剩内核自己按名读行这一种打包 |
 | `validate-transport-app.mjs` | 1.5D 固定几何温度剖面 vs `transport.py` |
 | `validate-evolve.mjs` | **含时演化**：把导出的会话交回原生 `assembly.solve_core` **逐步重跑同一次 march**（冻结几何的两个算例：热道，热道+粒子道），剖面必须对到 1e-4——文件按 7 位有效数字取整，而 march 是非线性的，1e-4 比任何建模选择低三个量级、比取整能解释的高三个量级。★还查这一栏**自己拥有的**那部分算术：W<sub>th</sub>、体积、时间轴单调、几何来源、q 是否解出并有序。★**不重解自由边界 G-S**（原生侧没有装置描述符，同 `validate-coupled` 当年的理由），耦合算例改查它自报的那两件事：轮数与形状拟合残差是否落在自己的族内 |
@@ -264,7 +264,7 @@ await page.waitForFunction((re) => new RegExp(re).test(
 而闸子只数了失败的片数，没有问过成功的那几片长什么样。所以第二条规矩：**断言失败被
 报出来，同时要断言成功的那些确实是它们自称的东西。**
 
-〔`validate-form.mjs`〕**表单闸**（`FYL-DESIGN-18` U-1 / U-2，分期 U0）：`pages/model.html` 的
+〔`validate-form.mjs`〕**表单闸**（`FYL-SDD-05` U-1 / U-2，分期 U0）：`pages/model.html` 的
 参数控件不再手写——页面只带 `data-form` 挂点，`assets/vocab-model.js` 是控制词表，
 `assets/form.js` 在加载时按词表画出控件（同 id、同 i18n 键、同读数）。闸子**双向**查：
 页面里没有 `<input>` / `<select>`，每个挂点有且仅有一条词表条目、反之亦然；`page_model.html`
@@ -276,7 +276,7 @@ await page.waitForFunction((re) => new RegExp(re).test(
 
 〔`validate-setting-is-the-document.mjs`〕**改一个档位 = 改文档的一个字段**（H-10 的会话文档这一半，2026-09-12）：设计判据是「改一个档位后导出的**计划**与手改该字段的计划逐字节相同」，而计划文档今天**还没有落点**（H-1 待裁），所以断言的是同一条判据在**会话文档**（`assets/session.js` 的 `collect` → `envelope`）上的那一半 —— 页面今天真正导出的就是这一份。控件集合取自**词表** `vocab-model.js`（U-1/U-2 之后词表是源），元素按词表逐条造出来，不需要浏览器、wasm 或 `fy`。六条断言：⓪每个档位自己声明缺省 · ①141 个档位各是文档的一个字段（一条不多一条不少）· ②改一个档位只有那一个字段动（三种控件各一个代表）· ③与手改该字段**逐字节相同** · ④手改的那份导入再导出是同一份 · ⑤越界的手改按控件自己的界被夹逼 · ⑥整份文档除 `@id` 与 `fylite:created` 两个时间戳外没有别的不定项，改一个档位之后两份文档之差**恰好**是 `fylite:config` 里那一个键。★ⓠ⓪写这道闸时撞上一个真错：六条 LH 档位（`evolve-lhpower1` 等）此前**没有声明缺省**，`input[type=range]` 缺 value 时按 HTML 规范取 min/max 的中点 —— 跑的是一个词表说不出的数；已按「词表说浏览器读回的值」补登（同 `width` 0.36 那一条）。★与 `validate-edit.mjs` 是同一条判据的两半：那一半管几何手把，这一半管 141 个档位。
 
-〔`validate-fig.mjs`〕**规格闸的页面半边**（`FYL-DESIGN-18` U-12 · U-16 · U-17 · U-21 · U-22）：
+〔`validate-fig.mjs`〕**规格闸的页面半边**（`FYL-SDD-05` U-12 · U-16 · U-17 · U-21 · U-22）：
 `assets/fig.js` 把一份 `spo:PresentationSpecification` 画到功能页的画布上，解析（哪条序列绑哪个量、
 一维量对哪个坐标）一律走 `casereport.js` 导出的 `index` / `resolve` / `coordinateOf`——**页面与报告
 用同一份解析器**，闸子静态断言 `fig.js` 里没有第二份。浏览器一节喂一份**合成记录**（不需要 wasm，
@@ -285,19 +285,19 @@ await page.waitForFunction((re) => new RegExp(re).test(
 茎的横轴是通道序号且带零线、baseline 与 computed 在非颜色通道上分得开、`fylite:domain` 被采用、
 三种画不了的各出一句**指名道姓**的拒绝且不计入「已画」。
 
-★**`validate-report.mjs` 今天跑不动**（`FYL-DESIGN-18` G-13）：它调 `python3 -m fylite cases --report`，
+★**`validate-report.mjs` 今天跑不动**（`FYL-SDD-05` U-G-13）：它调 `python3 -m fylite cases --report`，
 而 2026-09-04 的裁定撤掉了 Python 侧的命令行。于是「两端推出同一份规格」这条判据目前没有门在断言——
 `validate-fig.mjs` 只管页面这一边。
 
-〔`validate-checkpoint.mjs`〕**断点闸**（`FYL-DESIGN-18` U-8..U-11 · U-19）：`assets/run.js` 把一次
+〔`validate-checkpoint.mjs`〕**断点闸**（`FYL-SDD-05` U-8..U-11 · U-19）：`assets/run.js` 把一次
 多步运行做成一串门调用（预算分片 · 进度按步实测 · 取消 = 切预算），`assets/checkpoint.js` 把断点
 存进 IndexedDB——**断点就是那份记录**，存取逐字节相同。闸子的核心判据是设计里那一条：**N 步一次
 调用 ≡ k 步 + 恢复(N−k) 步**；这里用一个**确定性的假步进器**（状态是依赖入参的累加），所以不需要
 内核也能断言「行军把状态带过了接缝、并且只要还差的那些步」。取消一节读的是**兑现值**：取消不是
 异常、不是 terminate，已算的步必须还在。★首跑逮到两处真缺陷（恢复后步号从头、分片跨过断点间隔），
-都记在 `FYL-DESIGN-18` §十三 的 U0 第三步行里。
+都记在 `FYL-SDD-05`〈分期与门禁〉 的 U0 第三步行里。
 
-〔`validate-workbench.mjs`〕**工作台闸**（`FYL-DESIGN-18` U-14 · U-16 · U-17）：`assets/workbench.js`
+〔`validate-workbench.mjs`〕**工作台闸**（`FYL-SDD-05` U-14 · U-16 · U-17）：`assets/workbench.js`
 把规格的视图做成 12 列栅格上的瓦片，改动一律落回**规格**（`fylite:layout` · `fylite:domain` ·
 `fylite:visible`），不进 `localStorage`——闸子静态断言这一条。浏览器一节喂一份合成记录与一份手写规格，
 断言四件设计里的话：移动**同时**写布局与把 `has_view` 按先行后列重排（不认识布局词的渲染器读的是
@@ -305,7 +305,7 @@ await page.waitForFunction((re) => new RegExp(re).test(
 工作台）；缩放与光标**按坐标族**共享（时序动、剖面不动）；图层开关**立刻**入规格。★首跑逮到一处真
 缺陷：栅格钳位只在拖拽处理器里，程序化的 `move()` 能把瓦片放出栅格。
 
-〔`validate-bundle.mjs`〕**往返闸**（`FYL-DESIGN-18` U-18 · U-19，设计点名的第四道）：`assets/bundle.js`
+〔`validate-bundle.mjs`〕**往返闸**（`FYL-SDD-05` U-18 · U-19，设计点名的第四道）：`assets/bundle.js`
 把一次工作打成一个**存储法 zip**（计划 · 输入 · 记录 · 规格 · environment · 报告），读回时按 `@type`
 分类、不问文件名。判据就是设计里那句：**导出 → 清空 → 导入 → 再导出**，`plan.jsonld` 与
 `presentation.jsonld` 逐字节相同。★最要紧的一条是**外部读者**：浏览器写出的字节交给 **Python 的
@@ -313,7 +313,7 @@ await page.waitForFunction((re) => new RegExp(re).test(
 什么也证明不了，而「移步」成不成立取决于**别人的**读者认不认。zip 不写时间戳，否则同一份文档集每次
 导出都是不同的字节，这道闸就无从比起。
 
-〔`validate-offline.mjs`〕**离线闸**（`FYL-DESIGN-18` U-20；`FYL-SRS-01` NR-ENV-001）：「载入后离线可用」
+〔`validate-offline.mjs`〕**离线闸**（`FYL-SDD-05` U-20；`FYL-SRS-01` NR-ENV-001）：「载入后离线可用」
 一直成立，**「断网后重新打开」不成立**——这道闸量的是后半句，办法只有一个：**把网真的断掉再重开**。
 静态一节查生成物无漂移（`tools/make-sw.mjs --check`）、**每一页加载的每一个资源都在预缓存清单里**
 （清单是走树生成的，但生成得对不对要拿页面真正加载的东西对一遍）、`/api/` 不入缓存、缓存名带版本。
@@ -322,7 +322,7 @@ await page.waitForFunction((re) => new RegExp(re).test(
 **站点面**注册：桌面版的字节在可执行文件里，前面加一层缓存只会端出昨天的构建；这条由「请求面答不答」
 决定，与 `host.js` 其余判断同一条规矩。
 
-〔`validate-edit.mjs`〕**试改闸**（`FYL-DESIGN-18` U-15 · U-23）：`assets/edit.js` 让一次拖动落成
+〔`validate-edit.mjs`〕**试改闸**（`FYL-SDD-05` U-15 · U-23）：`assets/edit.js` 让一次拖动落成
 **计划的一个版本**。判据都写在文档上而不是画布上——页面若把被拖的形状存在自己的变量里，每一项
 目视检查都会通过，而放弃一次拖动之后送出去的仍是旧边界。闸子断言：方把手写 `sets_parameter`
 且**调用方交进来的计划没被就地改写**；早先取到的那一版不会跟着后面的改动移动；轮廓自交或出限制器
@@ -330,17 +330,17 @@ await page.waitForFunction((re) => new RegExp(re).test(
 不过冲；卷宗禁用的通道打不开。另有一条静态断言：`edit.js` 里**没有任何手势返回 C 档**——滑杆与
 把手到不了退火与扫描（D-9）。
 
-〔`validate-sources.mjs`〕**源栈闸**（`FYL-DESIGN-18` U-5 · U-6 · U-7）：`assets/sources.js` 把一个端口
+〔`validate-sources.mjs`〕**源栈闸**（`FYL-SDD-05` U-5 · U-6 · U-7）：`assets/sources.js` 把一个端口
 上的多个源排成栈并产出 `fylite:Assembly/1`，**页面自己不合并**（闸子静态断言这一条）。
 ★★第三节曾经把文档交给 **Python** 的 `fydoc.assemble` 去执行，并断言栈顶赢——**这条已按用户裁定
 （2026-09-04「Python 不接入前端」）撤除**。界线是这样的：本目录里十七道闸**用 Python 对拍**——浏览器
 自己算一遍、`python/fylite` 独立算一遍、闸把两者钉在一起——那是本仓既定的验证方式；而那一节做的是
 另一回事：让另一个宿主**代替浏览器执行一个浏览器根本走不通的操作**，再把结果当作前端路径成立。
-前端通往中间层的门是 **wasm**，而它今天不存在（`FYL-DESIGN-18` G-15：`fylite_runtime` 编得出 wasm 但
+前端通往中间层的门是 **wasm**，而它今天不存在（`FYL-SDD-05` U-G-15：`fylite_runtime` 编得出 wasm 但
 零导出，`c_api` 与 `assembly` 都在 `mdsip` 特性门后）。第三节现在只断言**文档合 `assembly.rs` 头注
 写下的契约**，并把「合并真按这个次序发生」明确留给 W-1。
 
-〔`validate-h5.mjs`〕**HDF5 闸**（`FYL-DESIGN-18` U-25）：浏览器读 HDF5 走的是**第三方读者**
+〔`validate-h5.mjs`〕**HDF5 闸**（`FYL-SDD-05` U-25）：浏览器读 HDF5 走的是**第三方读者**
 （h5wasm，vendor 在 `assets/vendor/h5wasm/`）把 `.h5` 解成一份 fyo 文档，再当源栈的普通一层。
 夹具是一对：`fixtures/equilibrium.h5`（本仓自己写的 fyo 布局）与 `fixtures/equilibrium.json`
 （**原生读者**从同一份文件读回来的东西），两份都入库，所以这道闸是**纯 JS** 的——参照物是数据，

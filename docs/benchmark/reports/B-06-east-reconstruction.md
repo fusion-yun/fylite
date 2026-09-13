@@ -12,7 +12,7 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 | **算例** | `scenario/east-137985-magnetics`（EAST #137985 @ 4.0 s：磁测量 + 直接压强的平衡反演） |
 | **数据** | 见 §5 表（3 项，纳入类别 experiment） |
 | **门** | `$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_loop_residual_is_a_common_mode_and_names_what_it_is`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_fit_runs_with_no_green_table_and_lands_on_the_offline_oracle`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_anchor_as_a_row_removes_the_common_mode`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vessel_eddies_do_not_explain_the_residual`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_higher_bases_run_now_and_the_lost_ones_say_so`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_probes_are_worth_a_stated_amount_not_a_caveat`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_axis_beats_the_anchor_it_was_handed`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_boundary_geometry_agrees_except_at_the_divertor_leg`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_flux_map_agrees_once_the_conventions_are_converted`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_edge_field_is_the_machines_not_a_literal`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reported_pressure_has_the_sign_the_fit_matched`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_core_q_gap_is_the_basis_and_stays_pinned`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_leftover_scatter_is_the_vertical_anchors_own_pattern`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_truncated_eddies_take_the_help_back`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_reference_carries_no_passive_current_and_the_same_field_null`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_vertical_force_is_not_an_artifact_and_removing_it_costs_68_mm`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_condin_cutoff_is_what_keeps_the_higher_bases_out`；`$FYLITE_KERNEL/tests/test_reconstruction.py::test_the_radial_feedbacks_amplitude_is_reported` |
-| **登记册结论** | 部分（`assertion_state: accepted`） |
+| **登记册结论** | 部分（`assertion_state: retired`，2026-09-13 撤回） |
 | **复测** | 2026-09-08：成立——18 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
@@ -32,6 +32,7 @@ title: B-06 · EAST #137985 @ 4.0 s 的平衡反演：对另一个码在同一�
 
 四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在私仓账本（`$FYLITE_KERNEL/docs/note/east-reconstruction-benchmark.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
+- ★★★**2026-09-13 撤回（`assertion_state: retired`）**：用户裁定「彻底移除 est2」——本条比的测量集是 est2 基（79 探针 / 35 环、`efit_w_pf` 几何）的交付件 FYDOC-CASE-22，已随 est2 一并归档（fydoc 与内核的仓顶 `archive/`）。记录按「记录保留、标为撤回」处置：判据与发现原样不动，其中引的路径是撤回时的历史位置。后继记录待 efit_east 测量链的 #137985 算例建成后另立，届时以 `superseded_by` 指回。〔本页只补了撤回这一处（结论行与本条）；「复测」一行仍是 2026-09-08 的发布件——门的输入已归档，未重跑。〕
 - ★★**类别是 B 不是 V**：两侧的 p′/FF′ 基不同（参考边缘非零、本仓边缘为零），问的是「从同一份测量反解出的位形差多少」而不是「同一个函数的两个实现差多少」，所以每一条容差都是实测后定的物理带，没有一条可以取机器精度。★把它读成 verification 正是 `spec.md` §1 警告过的那种夸大：两个码在磁轴上吻合到毫米，不等于任何一侧的芯部电流分布是对的。
 - ★★**2026-08-31 补记（T-C43 的诊断）**：本记录原先没有「离数据多远」这一条判据，只有「离参考的答案多远」。补上之后 q₀ 那条缺口的性质变了：它不是基**表达不出**（约束到参考的电流形状，同一个基就给出 q₀ +8.1 %），而是**拟合没找到**数据本可以定住的集中度。归因段落据此改写。
 - ★★**不能读作「本仓的反演对得上真实的 EAST」**：参考是另一个码的一次运行，不是实验真值。这一炮没有第三方的位形测量（MSE 不在任何卷宗里，见 T-A8），所以两码一致只说明两条装配链在外部约束上同意。

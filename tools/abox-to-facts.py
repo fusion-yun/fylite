@@ -34,11 +34,15 @@ missing an IDS group, because a half-read machine is worse than an error —
 but a machine whose description genuinely has no interferometer is a fact,
 not a half-read file, and it has to be sayable.
 
-★**EAST is not regenerated.**  `facts/device/east/east_device.yaml` is
-hand-maintained and strictly richer than fydata's EAST tree (the est2 79-probe
-basis, the fit-control block, the passive set, the power-supply parameters —
-none of which is upstream).  Asking for it here is refused, not silently
-overwritten.
+★★**machine_desc is retired (user ruling 2026-09-13).**  Every machine —
+EAST included — is generated here from its A-Box, through the same loop, the
+same rights ledger and the same derived `<id>.jsonld`.  There is no
+hand-maintained device description any more and no second source to stage
+one from.  EAST needs more groups than `build()`'s generic conversion emits
+(operational, POINT chords, H&CD, pf_passive, the BRSP channel map, a PF set
+paired from two providers), so `build()` hands it to its own assembler
+(`ASSEMBLERS`); values that belong to the program rather than the machine sit
+in `PROGRAM_SIDE`.
 
     python3 tools/abox-to-facts.py --list
     python3 tools/abox-to-facts.py iter
@@ -82,9 +86,6 @@ DOMAIN = "device"
 #: ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料落进
 #: `dist/facts/`——一个构建暂存区（`dist/` 本来就不入库），发布器与打包器从这里取。
 OUT = ROOT / "dist" / "facts" / DOMAIN
-
-#: EAST's document is hand-maintained and richer than the upstream tree.
-HANDWRITTEN = {"east"}
 
 CONTEXT = {
     "sp": "https://spdata.org/sp#",
@@ -138,6 +139,19 @@ def device_root(root: pathlib.Path) -> pathlib.Path:
 def _abox(dev_dir: pathlib.Path) -> pathlib.Path:
     """一台机器的 A-Box 目录：fydoc 是 `<id>/abox/`，fydata 是 `<id>/` 本身。"""
     return dev_dir / "abox" if (dev_dir / "abox").is_dir() else dev_dir
+
+
+#: ★★按炮号与测量链出卡（公开仓 PLAN H-35 选项 2；用户裁定 2026-09-13「测量链定装置构型」）。缺省卡片
+#: 跟 manifest 的 `default` 走（EAST 当日裁定 R-S2：不给炮号即按最新炮），而一份测量要的是**它那一代、
+#: 它那条测量链**的装置描述。`--shot N` 与 `--measurement-chain C` 只作用于 `TARGET` 里点名的机器。
+SHOT = None
+CHAIN = None
+TARGET: set = set()
+#: ★★2026-09-13 user rulings: **the rule lives only in the runtime, and card generation calls it.**
+#: `--shot` / `--measurement-chain` are resolved by `fylite_runtime::device_resolve` through
+#: `libfylite_runtime.so` (:func:`variant_card`) — the same entry `fylite.device.document(shot=,
+#: measurement_chain=)` and `fy run --device` use — so a variant card is exactly what use-time
+#: resolution gives.  No provider is named and no provider comparison is made in this file.
 
 
 def _manifest(dev_dir: pathlib.Path):
@@ -728,7 +742,13 @@ def _has_content(name: str, node) -> bool:
     return bool(node)
 
 
-def build(dev: str, fydata: pathlib.Path) -> dict:
+def build(dev: str, fydata: pathlib.Path, providers: dict | None = None) -> dict:
+    #: ★a machine whose document needs more than the generic conversion has its
+    #: own assembler — still from the A-Box, still through this entry point
+    if dev in ASSEMBLERS:
+        return ASSEMBLERS[dev](fydata, providers)
+    if providers:
+        raise SystemExit(f"{dev}: providers are chosen per request only for {sorted(ASSEMBLERS)}")
     dev_dir = device_root(fydata) / dev
     manifest, manifest_path = _manifest(dev_dir)
     files = _resolve(dev_dir, manifest)
@@ -870,6 +890,961 @@ def build(dev: str, fydata: pathlib.Path) -> dict:
     return doc
 
 
+# --------------------------------------------------------------------------- #
+# EAST from the A-Box (P2a of the machine_desc retirement, 2026-09-13)         #
+# --------------------------------------------------------------------------- #
+#: ★★Why EAST has its own assembler (reached through `build()`, see `ASSEMBLERS`).
+#: EAST's document needs groups the generic conversion never emits (operational,
+#: POINT chords, H&CD, pf_passive, the BRSP channel map) and a PF set paired from
+#: TWO providers.  Provider selection is the manifest's own `default` for the card, and the
+#: runtime's rule (shot + measurement chain) per request — nothing here re-selects a provider.
+#:
+#: ★★★The rule is the same as everywhere in this file: convert, never invent.
+#: A field the A-Box does not carry is named under `fylite:absent` with a
+#: reason — not defaulted.
+
+#: ★User ruling 2026-09-13: PF cross-sections are the deck/Luo ones (`yu`, the
+#: geometry libefit's Green tables were built on, in deck element order); every
+#: electrical field (resistance, turns, IC coils, supplies, BRSP circuit) is
+#: `base`, paired to a deck element BY RECTANGLE CENTRE, never by list position.
+EAST_PF_GEOMETRY_PROVIDER = "yu"
+EAST_PF_ELECTRICAL_PROVIDER = "base"
+#: centres agree to the digit between the two providers; a tolerance well
+#: below the smallest coil spacing (0.25 m) and above print rounding
+CENTRE_TOL_M = 1e-4
+
+#: ★★PROGRAM-SIDE values, not device facts (user ruling 2026-09-13): the
+#: compiled libefit.so dimensions, the Faraday-rotation constant, the default
+#: solver box, the POINT chords EFIT fits, and the page preset.  They belong to
+#: fylite, not to fydoc — so they do not come from the A-Box, and for now they
+#: live in this small table, keyed by device id, values copied from the retired
+#: card.  ★FOLLOW-UP: move this table into the package proper (next to the
+#: solver it describes) and stop writing it into the device document.
+PROGRAM_SIDE = {
+    "east": {
+        #: ★2026-09-13: no `nsilop` / `nprobe` — the probe and loop counts are the resolved
+        #: magnetics group's own (`fylite.device._derive`), not a compiled constant beside it
+        "solver_dims": {"nw": 65, "nh": 65, "nfcoil": 12},
+        "faraday_constant": 2.62e-13,
+        "default_grid": {"r_min": 1.2, "r_max": 2.8, "z_min": -1.4, "z_max": 1.4},
+        #: the chords the EFIT POINT constraint uses (the interferometer IDS also
+        #: carries HCN / SSI / DI, which EFIT does not fit)
+        "point_chord_prefix": "POINT",
+        "ui": {"r0": {"value": 1.85}, "z0": {"value": 0}, "a": {"value": 0.45},
+               "kappa": {"value": 1.65}, "du": {"value": 0.4}, "dl": {"value": 0.5},
+               "ip": {"value": 400}, "xr": {"value": 1.606}, "xz": {"value": -0.722}},
+        #: wall provider key -> the limiter unit NAME this package's readers select
+        #: by (`device.LIMITER_OPERATIONAL`, the `recon_rs` limiter aliases).  The
+        #: manifest default goes first; only providers named here are carried.
+        #: ★2026-09-13: the default is `base` again (efit_w_pf removed with est2)
+        "limiter_units": {"base": "base", "m093060": "m-file"},
+        #: the operational namelist whose PF-channel array (`bitfc`, EFIT fcoil order) is
+        #: carried onto the PF channels.  ★2026-09-13: its est2-ordered probe / loop arrays
+        #: are gone from fydoc (est2 removed), so nothing attaches to magnetics channels
+        "channel_fit": {"namelist": "efit_w_pf_channel_fit", "pf_bit_error": "bitfc"},
+        "pf_channels": {"namelist": "gui_v5_pf_channels",
+                        "fields": {"turns": "turn", "efit_index": "fcoil_channel"}},
+        #: ★★R-S1 / R-S2 (user rulings 2026-09-13): shipped EAST data is resolved BY SHOT at
+        #: use time.  These IDS are chosen per request — every static provider of theirs is
+        #: converted here, once (`east_resolution`) — and the runtime's rule
+        #: (`fylite_runtime::device_resolve`) picks among the converted groups.
+        "resolved_ids": ("magnetics", "wall"),
+        #: the document keys each resolved IDS owns, i.e. what a resolution writes over the card
+        "owned": {"magnetics": ("magnetics", "_basis"), "wall": ("wall",)},
+        "fixed": {"pf_active": (
+            "deck/Luo cross-sections (`yu`) paired by rectangle centre with the `base` electrical "
+            "set (user ruling 2026-09-13) — one converted set; a pf_active provider is not a "
+            "per-request choice")},
+        #: ★2026-09-13 (measurement-chain ruling): which magnetics provider a measurement gets is
+        #: the fydoc manifest's `measurement_chains` table and each provider's `measurement_chain`,
+        #: read by the runtime — no provider table here.
+    },
+}
+
+#: Optional per-entry fields, read BY KEY when the A-Box carries them and
+#: otherwise declared absent.  Output key -> accepted source spellings; a
+#: `{value, unit, …}` wrapper is unwrapped (fydoc writes `dev:powerMax` so).
+_LH_OPTIONAL = {"fylite:max_power": ("fylite:max_power", "dev:powerMax", "max_power", "power_max"),
+                "fylite:n_parallel": ("fylite:n_parallel", "dev:nParallelRange", "n_parallel")}
+_EC_OPTIONAL = {"mode": ("mode",),
+                "fylite:max_power": ("fylite:max_power", "dev:powerMax", "max_power", "power_max")}
+_CHANNEL_OPTIONAL = ("length", "weight", "bit_error")
+_PF_CHANNEL_OPTIONAL = ("turns", "efit_index", "bit_error")
+#: pf_passive loop-name prefix -> the document's passive group
+_PASSIVE_GROUPS = {"VV_INNER": "vessel", "VV_OUTER": "outer_shell", "PLATE": "passive_plates"}
+
+
+def _provider_file(dev_dir: pathlib.Path, manifest: dict, ids: str, key: str) -> pathlib.Path:
+    spec = ((manifest.get("providers") or {}).get(ids) or {}).get("available") or {}
+    rel = (spec.get(key) or {}).get("path")
+    p = _pick(_abox(dev_dir), rel) if rel else None
+    if p is None:
+        raise SystemExit(f"{dev_dir.name}: manifest has no `providers.{ids}.available.{key}` "
+                         f"file in the A-Box (path {rel!r})")
+    return p
+
+
+def _binding_file(dev_dir: pathlib.Path, manifest: dict, ids: str) -> pathlib.Path | None:
+    mds = (manifest.get("bindings") or {}).get("mdsplus") or {}
+    name = (mds.get("ids") or {}).get(ids)
+    return _pick(_abox(dev_dir), f"{mds.get('root', '')}/{name}") if name else None
+
+
+_LINK = re.compile(r"^\s*(\w+)\s*:\s*DATA\(\s*(\\[\w:]+)\s*\)")
+
+
+def _link_node(link) -> tuple[str, str] | None:
+    """``east:DATA(\\FOCS4 )*1000`` -> ``("east", "\\FOCS4")``; anything else None."""
+    if isinstance(link, dict):
+        link = link.get("$link")
+    m = _LINK.match(link) if isinstance(link, str) else None
+    return (m.group(1), m.group(2)) if m else None
+
+
+def _first(entry: dict, names) -> object:
+    v = next((entry[n] for n in names if entry.get(n) is not None), None)
+    return v["value"] if isinstance(v, dict) and "value" in v else v
+
+
+def _one_rect(coil: dict) -> dict:
+    els = _elements(coil)
+    if len(els) != 1:
+        raise SystemExit(f"pf_active coil {coil.get('name')!r}: expected one rectangle, got {len(els)}")
+    return els[0]["geometry"]["rectangle"]
+
+
+def _by_centre(rect: dict, coils: list[dict], what: str) -> int:
+    hits = [i for i, c in enumerate(coils)
+            if abs(_one_rect(c)["r"] - rect["r"]) < CENTRE_TOL_M
+            and abs(_one_rect(c)["z"] - rect["z"]) < CENTRE_TOL_M]
+    if len(hits) != 1:
+        raise SystemExit(f"{what}: {len(hits)} coils centred at "
+                         f"(r={rect['r']}, z={rect['z']}) — pairing by centre needs exactly one")
+    return hits[0]
+
+
+def _turns_geometry(elements: list[dict]) -> float:
+    """``Σ 2π r N² / (w h)`` over rectangles — the circuit model's R = η·this."""
+    return sum(2.0 * math.pi * _rect_of(e)["r"] * float(e.get("turns_with_sign") or 0.0) ** 2
+               / (_rect_of(e)["width"] * _rect_of(e)["height"]) for e in elements)
+
+
+def _rect_of(e: dict) -> dict:
+    return e["geometry"]["rectangle"]
+
+
+def _pf_resistivity_uohm_m(coils: list[dict]) -> float:
+    """η [μΩ·m] the provider's own `resistance` values were derived from.
+
+    Recovered per coil on that provider's own rectangles; one value (to 1e-3)
+    or refused, then given to six figures — the resistances carry no more.
+    """
+    vals = [float(c["resistance"]) / _turns_geometry(_elements(c)) * 1e6
+            for c in coils if c.get("resistance") is not None]
+    if not vals:
+        raise SystemExit("EAST pf_active: the electrical provider states no `resistance`")
+    if max(vals) - min(vals) > 1e-3 * max(vals):
+        raise SystemExit(f"EAST pf_active: the resistances imply different resistivities {vals}")
+    return float(f"{sum(vals) / len(vals):.6g}")
+
+
+def east_pf_active(geo: dict, ele: dict, geo_src: str, ele_src: str):
+    """``(pf_active, pf_channel_elements)`` — deck geometry, base electrics, by centre.
+
+    ★Output element order is the DECK order (the geometry provider's non-fast
+    coils, which is what base `circuit[].element_weight[].element_index`
+    counts), grouped into the 12 BRSP channels as the circuit states them, then
+    the fast coils (`function` = b_field_fb) from the electrical provider.
+    ★★`supply[i]` pairs with element i — the readers (`case.rs` breakdown,
+    `pulse.channel_limits`) index it by element position and only check the
+    length — so each supply is attached to its coil by name (`PS_<coil>`) after
+    the coil was found by centre; a list copied in fydoc order would pass the
+    length check and mis-pair every limit past the third element.
+    ★The index↔deck-element pairing is checked against physics, not list order:
+    each channel's measured weights must match the turns share of the elements
+    it names (44:204 of a 248-turn pair is 0.177; the map says 0.175).
+    """
+    ecoils = list(ele.get("coil") or [])
+    deck = [c for c in (geo.get("coil") or []) if not c.get("function")]
+    circuits = ele.get("circuit") or []
+    if not circuits:
+        raise SystemExit("EAST pf_active: the electrical provider carries no `circuit[]`")
+    eta = _pf_resistivity_uohm_m(ecoils)
+    supplies = {s["name"]: s for s in ele.get("supply") or []}
+    if len(supplies) != len(ele.get("supply") or []):
+        raise SystemExit("EAST pf_active: supply names are not unique")
+
+    def element_for(k: int):
+        rect = _one_rect(deck[k])
+        j = _by_centre(rect, ecoils, f"deck element {k}")
+        ec = ecoils[j]
+        if ec.get("function"):
+            raise SystemExit(f"deck element {k} pairs with fast coil {ec.get('name')!r}")
+        tw = _elements(ec)[0].get("turns_with_sign")
+        el = {"geometry": {"geometry_type": "rectangle", "rectangle": dict(rect)},
+              "fylite:a1": 0.0, "fylite:a2": 90.0}
+        if tw is not None:
+            el["turns_with_sign"] = tw
+        el["fylite:name"] = str(ec["name"])
+        return el, ec
+
+    coils, supply, flat_of, used = [], [], {}, []
+    for ch in circuits:
+        ws = ch.get("element_weight") or []
+        built = [(int(w["element_index"]), float(w["weight"])) + element_for(int(w["element_index"]))
+                 for w in ws]
+        total = sum(abs(e.get("turns_with_sign") or 0.0) for _, _, e, _ in built)
+        for k, w, e, ec in built:
+            share = abs(e.get("turns_with_sign") or 0.0) / total if total else float("nan")
+            if not abs(w - share) < 0.01:
+                raise SystemExit(
+                    f"circuit {ch.get('name')}: element_index {k} (= {e['fylite:name']} by centre) "
+                    f"has weight {w} but a turns share of {share:.4f} — the index does not "
+                    f"count the deck elements this converter pairs it with")
+        entry = {"name": str(ch["name"])}
+        for key in _PF_CHANNEL_OPTIONAL:
+            if ch.get(key) is not None:
+                entry[key] = ch[key]
+        #: ★user ruling 2026-09-13: R is RECOMPUTED on the rectangles this document
+        #: carries (deck/Luo), from the η the provider's values were derived from —
+        #: copying the provider's R (Guo cross-sections) would imply η 0.014–0.016
+        entry["resistance"] = eta * 1e-6 * _turns_geometry([e for _, _, e, _ in built])
+        entry["element"] = []
+        for k, w, e, ec in built:
+            if k in flat_of:
+                raise SystemExit(f"deck element {k} is driven by two circuits")
+            flat_of[k] = len(used)
+            used.append(k)
+            entry["element"].append(e)
+            s = supplies.get(f"PS_{ec['name']}")
+            if s is None:
+                raise SystemExit(f"no supply PS_{ec['name']} for coil {ec['name']}")
+            supply.append(dict(s))
+        coils.append(entry)
+    if sorted(used) != list(range(len(deck))):
+        raise SystemExit(f"circuits cover deck elements {sorted(used)}, "
+                         f"the geometry provider has {len(deck)}")
+    for ec in ecoils:
+        if not ec.get("function"):
+            continue
+        entry = {"name": str(ec["name"]), "function": [dict(f) for f in ec["function"]]}
+        if ec.get("resistance") is not None:
+            entry["resistance"] = float(ec["resistance"])
+        els = _elements(ec)
+        for e in els:
+            e["fylite:name"] = str(ec["name"])
+        entry["element"] = els
+        coils.append(entry)
+    channel_elements = [
+        [{"element": flat_of[int(w["element_index"])], "weight": float(w["weight"])}
+         for w in ch["element_weight"]] for ch in circuits]
+    out = {"@type": "fyo:pf_active",
+           "fylite:source": {"geometry": geo_src, "electrical": ele_src},
+           "fylite:pairing": ("element rectangles from the geometry provider in deck order; "
+                              "turns, fast coils, supplies and the BRSP circuit from the "
+                              "electrical provider, each paired to its deck element by "
+                              "rectangle centre. `supply[i]` drives element i."),
+           "fylite:resistance_note": (
+               f"PF channel `resistance` is RECOMPUTED on the cross-sections this document "
+               f"carries: R = η·Σ2πr·N²/(w·h) over the channel's elements, η = {eta} μΩ·m "
+               f"recovered from the electrical provider's own `resistance` on its own "
+               f"geometry (user ruling 2026-09-13). Fast coils keep the provider's value: "
+               f"their geometry is that provider's, so the two already agree."),
+           "coil": coils, "supply": supply}
+    return out, channel_elements
+
+
+def _probe_entries(entries, *, angle_deg: bool) -> list[dict]:
+    out = []
+    for c in entries or []:
+        pos = c.get("position")
+        p = pos[0] if isinstance(pos, list) and pos else pos
+        if not isinstance(p, dict):
+            raise SystemExit(f"magnetics channel {c.get('name')!r} carries no position")
+        item = {"name": str(c["name"]), "position": [{"r": float(p["r"]), "z": float(p["z"])}]}
+        if c.get("poloidal_angle") is not None:
+            item["poloidal_angle"] = float(c["poloidal_angle"])
+            if angle_deg:
+                item["fylite:angle_deg"] = math.degrees(float(c["poloidal_angle"]))
+        for key in _CHANNEL_OPTIONAL:
+            if c.get(key) is not None:
+                item[key] = float(c[key])
+        out.append(item)
+    return out
+
+
+def east_magnetics(doc: dict, pcs: dict | None, src: str, pcs_src: str | None,
+                   provider: str, chain: str | None) -> dict:
+    """The magnetics group of ONE provider.  ★It names that provider (`fylite:provider`)
+    and the measurement chain the manifest gives it (`measurement_chain`) — which is what a
+    measurement's own declaration is held against (the pairing refusal: two chains are never
+    paired).  A provider the manifest gives no chain carries none."""
+    probes = _probe_entries(doc.get("b_field_pol_probe"), angle_deg=True)
+    loops = _probe_entries(doc.get("flux_loop"), angle_deg=False)
+    out = {"@type": "fyo:magnetics", "fylite:source": src, "fylite:provider": provider}
+    if chain:
+        out["measurement_chain"] = chain
+    out.update({"b_field_pol_probe": probes, "flux_loop": loops})
+    absent = {k: f"the magnetics provider carries no per-channel `{k}`"
+              for k in _CHANNEL_OPTIONAL
+              if not any(k in c for c in (*probes, *loops))}
+    if absent:
+        out["fylite:absent"] = absent
+    if pcs is not None:
+        out["pcs"] = {"fylite:source": pcs_src, "b_field_pol_probe": [
+            {"name": str(c["name"]),
+             "position": {"r": float(c["position"][0]["r"]), "z": float(c["position"][0]["z"])},
+             "angle": math.degrees(float(c["poloidal_angle"]))}
+            for c in pcs.get("b_field_pol_probe") or []]}
+    return out
+
+
+def _oblique_rect(geom: dict) -> tuple[float, float, float, float, float, float]:
+    """DD ``oblique`` -> efund ``(r, z, w, h, a1, a2)`` [m, deg].
+
+    ``a1 = alpha``; ``a2`` is the side angle efund measures from the w edge,
+    ``beta - alpha + 90`` (an upright rectangle is alpha = beta = 0 -> 0 / 90).
+    """
+    o = geom.get("oblique")
+    if not isinstance(o, dict):
+        raise SystemExit(f"pf_passive element without `oblique` geometry: {sorted(geom)}")
+    a, b = math.degrees(float(o["alpha"])), math.degrees(float(o["beta"]))
+    return (float(o["r"]), float(o["z"]), float(o["length_alpha"]),
+            float(o["length_beta"]), a, b - a + 90.0)
+
+
+def east_pf_passive(doc: dict, src: str):
+    """``(pf_passive, vessel_units)`` — loop[] regrouped into the reader's three groups.
+
+    Resistivity Ω·m -> μΩ·m (×1e6).  One resistivity per group, or refused.
+    """
+    rows: dict[str, list] = {}
+    eta: dict[str, set] = {}
+    for loop in doc.get("loop") or []:
+        prefix = str(loop["name"]).rsplit("_", 1)[0]
+        group = _PASSIVE_GROUPS.get(prefix)
+        if group is None:
+            raise SystemExit(f"pf_passive loop {loop['name']!r}: no group for prefix {prefix!r}")
+        for el in loop.get("element") or []:
+            rows.setdefault(group, []).append(_oblique_rect(el.get("geometry") or {}))
+        eta.setdefault(group, set()).add(float(loop["resistivity"]) * 1e6)
+    out = {"@type": "fyo:pf_passive", "fylite:source": src}
+    for group in _PASSIVE_GROUPS.values():
+        if group not in rows:
+            continue
+        if len(eta[group]) != 1:
+            raise SystemExit(f"pf_passive {group}: resistivities differ {sorted(eta[group])}")
+        out[group] = {"resistivity_uohm_m": eta[group].pop()}
+        if group != "vessel":
+            out[group]["element"] = [list(r) for r in rows[group]]
+    out.setdefault("vessel", {})["fylite:geometry"] = "wall.description_2d[0].vessel.unit"
+    vessel_units = [{"element": [{"geometry": {"geometry_type": "rectangle",
+                                               "rectangle": {"r": r, "z": z, "width": w, "height": h}},
+                                  "fylite:a1": a1, "fylite:a2": a2}]}
+                    for r, z, w, h, a1, a2 in rows.get("vessel", [])]
+    return out, vessel_units
+
+
+def _namelists(op: dict | None) -> dict:
+    """``{namelist: {parameter: value | values}}`` from an operational A-Box."""
+    return {str(nl["name"]): {str(p["name"]): p["values"] if "values" in p else p.get("value")
+                              for p in nl.get("parameter") or []}
+            for nl in (op or {}).get("namelist") or []}
+
+
+def east_channel_fit(doc: dict, op: dict | None, op_src: str, prog: dict) -> list[str]:
+    """Per-PF-channel fit settings -> ``turns`` / ``efit_index`` / ``bit_error``.
+
+    The operational A-Box states them as arrays in PF order; the readers
+    (`device.PF_TURNS` · `PF_EFIT_ORDER` · `BITFC`) read them per channel.  Paired BY
+    INDEX in channel (BRSP) order, and only when every length matches.  Returns the
+    namelists it consumed.
+
+    ★2026-09-13 (measurement-chain ruling, est2 removed): the per-PROBE / per-LOOP weight
+    and bit-error arrays that used to attach here were in the est2 channel order and are
+    gone from fydoc; a magnetics group states `weight` / `bit_error` absent (east_magnetics).
+    ``pf_active`` is therefore the same for every magnetics provider.
+    """
+    nls, used = _namelists(op), []
+    cf, pc = prog["channel_fit"], prog["pf_channels"]
+    fit = nls.get(cf["namelist"])
+    if fit is not None:
+        used.append(cf["namelist"])
+
+    channels = [c for c in doc["pf_active"]["coil"] if not c.get("function")]
+    pf_absent = {}
+    pfn = nls.get(pc["namelist"])
+    arrays = {dst: (pfn or {}).get(src) for dst, src in pc["fields"].items()}
+    if fit is not None:
+        arrays["bit_error"] = fit.get(cf["pf_bit_error"])
+    for dst, vals in arrays.items():
+        if isinstance(vals, list) and len(vals) == len(channels):
+            for c, v in zip(channels, vals):
+                c[dst] = int(v) if dst in ("turns", "efit_index") else float(v)
+        else:
+            pf_absent[dst] = "the operational A-Box states no per-channel array of this length"
+    if pfn is not None:
+        used.append(pc["namelist"])
+    if "bit_error" in arrays and "bit_error" not in pf_absent:
+        #: ★named divergence: fydoc states bitfc in EFIT fcoil order, and it is
+        #: carried by list position — as the retired card did, which is what
+        #: `device.BITFC` hands on unchanged (no reader re-orders it)
+        doc["pf_active"]["fylite:bit_error_note"] = (
+            f"`bit_error` is {cf['namelist']}.{cf['pf_bit_error']} by LIST POSITION; the "
+            "A-Box states that array in EFIT fcoil order (see `efit_index`), not BRSP order")
+    if pf_absent:
+        doc["pf_active"]["fylite:absent"] = pf_absent
+    return used
+
+
+def east_operational(doc: dict, src: str, carried: dict | None = None) -> dict:
+    out = {"@type": "fylite:OperationalSettings", "fylite:source": src}
+    if doc.get("description"):
+        out["note"] = doc["description"]
+    if doc.get("source"):
+        out["source"] = doc["source"]
+    gate = doc.get("probe_gate")
+    if isinstance(gate, dict):
+        out["probe_gate"] = {"min_tesla": float(gate["b_field_min"]),
+                             "max_tesla": float(gate["b_field_max"])}
+        if gate.get("description"):
+            out["probe_gate"]["note"] = gate["description"]
+    for nl in doc.get("namelist") or []:
+        name = str(nl["name"])
+        if carried and name in carried:
+            continue                  #: stated once: on the channels it indexes
+        if name in out:
+            raise SystemExit(f"operational namelist {name!r} collides with a document key")
+        block = {}
+        for p in nl.get("parameter") or []:
+            if ("value" in p) == ("values" in p):
+                raise SystemExit(f"namelist {name} parameter {p.get('name')!r}: "
+                                 "needs exactly one of value / values")
+            block[str(p["name"])] = p["value"] if "value" in p else list(p["values"])
+        out[name] = block
+    if carried:
+        out["fylite:carried_on_channels"] = dict(carried)
+    return out
+
+
+def east_chords(ids: str, doc: dict, bind: dict | None, src: str, prefix: str) -> dict:
+    """POINT chords: the channels EFIT fits, with θ from the two points.
+
+    ★`name` is the MDSplus node the binding reads (that is what the readers use
+    it as).  Paired by chord NUMBER (`POINT<k>` ↔ `\\POINT_N<k>`), not by list
+    position — the binding lists 14 entries against 16 static channels.  With no
+    binding for the group the upstream channel name stays, and says so.
+    """
+    nodes = {}
+    for b in (bind or {}).get("channel") or []:
+        for v in b.values():
+            got = _link_node(((v or {}).get("data") if isinstance(v, dict) else None))
+            m = re.fullmatch(r"\\POINT_[A-Z](\d+)", got[1], re.I) if got else None
+            if m:
+                nodes[int(m.group(1))] = got[1].lstrip("\\")
+    chans = []
+    for c in doc.get("channel") or []:
+        m = re.fullmatch(rf"{prefix}(\d+)", str(c.get("name")))
+        if not m:
+            continue
+        los = c["line_of_sight"]
+        p1, p2 = los["first_point"], los["second_point"]
+        item = {"name": nodes.get(int(m.group(1)), str(c["name"])),
+                "line_of_sight": {
+                    "first_point": {"r": float(p1["r"]), "z": float(p1["z"])},
+                    "second_point": {"r": float(p2["r"]), "z": float(p2["z"])},
+                    "theta": math.atan2(float(p2["z"]) - float(p1["z"]),
+                                        float(p2["r"]) - float(p1["r"]))}}
+        chans.append(item)
+    out = {"@type": f"fyo:{ids}", "fylite:source": src, "channel": chans}
+    if bind is None:
+        out["fylite:absent"] = {"mds_node_names": (
+            f"the A-Box has no MDSplus binding for {ids}; channel names are the "
+            "upstream channel names, not node names")}
+    return out
+
+
+def east_hcd(lh: dict | None, ic: dict | None, ec: dict | None, rel: dict) -> dict:
+    """Static H&CD fields.  Port letters, node names and IC level / source power /
+    frequency range have no production reader and are not carried (ruling)."""
+    out = {}
+
+    def entries(doc, key, optional):
+        items, absent = [], {}
+        for a in doc.get(key) or []:
+            item = {"name": str(a["name"])}
+            if a.get("frequency") is not None:
+                item["frequency"] = float(a["frequency"])
+            for dst, names in optional.items():
+                v = _first(a, names)
+                if v is not None:
+                    item[dst] = v
+            items.append(item)
+        for dst in optional:
+            if not any(dst in i for i in items):
+                absent[dst] = f"not carried as data by the A-Box {key}[] entries"
+        return items, absent
+
+    for ids, doc, key, opt in (("lh_antennas", lh, "antenna", _LH_OPTIONAL),
+                               ("ic_antennas", ic, "antenna", {}),
+                               ("ec_launchers", ec, "beam", _EC_OPTIONAL)):
+        if doc is None:
+            continue
+        items, absent = entries(doc, key, opt)
+        out[ids] = {"@type": f"fyo:{ids}", "fylite:source": rel[ids], key: items}
+        if absent:
+            out[ids]["fylite:absent"] = absent
+    #: ★the EC steering RANGE (a capability, not a setting): the A-Box carries it
+    #: only as the eastwiki line its `ec_launchers` page quotes verbatim in
+    #: `provenance.comment` — copied as that prose, never parsed into numbers
+    if ec is not None and "ec_launchers" in out:
+        line = next((m.group(1).strip() for t in _strings((ec.get("provenance") or {}).get("comment"))
+                     for m in [re.search(r"injection angle range of wave beam:\s*([^\n]+)", t, re.I)]
+                     if m), None)
+        if line:
+            out["ec_launchers"]["fylite:steering_range_note"] = line
+            out["ec_launchers"]["fylite:steering_range_source"] = (
+                f"{rel['ec_launchers']} provenance.comment (eastwiki, verbatim)")
+    return out
+
+
+def east_data_source(dev_dir: pathlib.Path, manifest: dict) -> dict:
+    """Tree and node names, read off the MDSplus bindings.
+
+    ★No server address: which host serves the tree is a DEPLOYMENT setting
+    (ruling 2026-09-13), and the binding prefix is a local rig anyway.
+    """
+    mds = (manifest.get("bindings") or {}).get("mdsplus") or {}
+    trees = mds.get("trees") or {}
+    out: dict = {}
+    absent = {"server": "deployment setting, not a device fact (ruling 2026-09-13)"}
+
+    def links(ids, pick):
+        p = _binding_file(dev_dir, manifest, ids)
+        return _link_node(pick(_load(p))) if p else None
+
+    tf = links("tf", lambda d: d["coil"][0]["current"]["data"])
+    if tf and tf[0] in trees:
+        out["tree"] = tf[0]
+    pf = links("pf_active", lambda d: d["coil"][0]["current"]["data"])
+    if pf and pf[0] in trees:
+        out["pcs_tree"] = pf[0]
+    ip = links("magnetics", lambda d: d["ip"][0]["data"])
+    if ip and ip[0] == out.get("tree"):
+        out["ip_node"] = ip[1]
+    else:
+        absent["ip_node"] = (
+            f"the default magnetics binding reads Ip from {ip[1] if ip else None} in tree "
+            f"{ip[0] if ip else None!r}, not from the main tree {out.get('tree')!r}; the "
+            "main-tree Rogowski nodes (IPG/IPE/IPM/IPV1) are listed as alternates only, "
+            "and which one is not stated")
+    #: the toroidal-field node is era-dependent; the binding names one era's node
+    #: and the read rule names the current (open-ended) one
+    rule = next((r for r in mds.get("read_rules") or [] if r.get("id") == "tf-focs-node-era"), None)
+    current = [c for c in ((rule or {}).get("rule") or {}).get("candidates") or []
+               if isinstance(c.get("shots"), list) and c["shots"][1] is None]
+    if len(current) == 1:
+        out["btor_node"] = current[0]["node"]
+        out["fylite:btor_node_note"] = ("read rule tf-focs-node-era, open-ended era "
+                                        f"(shots >= {current[0]['shots'][0]})")
+    elif tf:
+        out["btor_node"] = tf[1]
+    out["fylite:absent"] = absent
+    return {"mdsplus": out}
+
+
+def _strings(node):
+    """Every string inside a JSON node (depth-first)."""
+    if isinstance(node, dict):
+        for v in node.values():
+            yield from _strings(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _strings(v)
+    elif isinstance(node, str):
+        yield node
+
+
+def _east_basis(manifest: dict, manifest_path: pathlib.Path, mag: dict | None, key: str) -> str:
+    """`_basis`: the A-Box epoch AND the selected magnetics provider with its measurement chain.
+
+    ★Both are read off the manifest and the provider page (`provenance.provider`), never
+    written here: a provider switch must change this string, and a provider the manifest
+    gives no chain leaves the chain unstated rather than inherited.
+    """
+    epoch = (manifest.get("epochs") or [{}])[0].get("id", "?")
+    out = f"{_cite(manifest_path.parent)} (epoch {epoch})"
+    spec = ((((manifest.get("providers") or {}).get("magnetics") or {}).get("available") or {})
+            .get(key) or {})
+    chain = spec.get("measurement_chain")
+    prov = (mag.get("provenance") or {}).get("provider") if mag else None
+    parts = [x for x in (prov, f"measurement chain {chain}" if chain else None) if x]
+    return out + (f"; magnetics provider {key}: " + " — ".join(parts) if parts else "")
+
+
+def _east_dd_version(manifest: dict, loaded: list) -> tuple[str, str]:
+    """`_dd_version`: the most specific DD version upstream states.
+
+    The manifest says only `imas/4`; the A-Box pages converted into this document
+    carry `_dd_version` themselves (e.g. "4.1.1").  Taken when they agree with one
+    another and with the manifest's major version; else the manifest's.
+    Returns (version, where it was read).
+    """
+    major = str(manifest.get("dd_source", "imas/4")).split("/")[-1]
+    seen = {str(d["_dd_version"]) for d in loaded if isinstance(d, dict) and d.get("_dd_version")}
+    if len(seen) == 1 and next(iter(seen)).split(".")[0] == major.split(".")[0]:
+        return next(iter(seen)), "the A-Box pages' own `_dd_version` (manifest: dd_source " \
+            f"imas/{major})"
+    return major, "manifest dd_source" + (f" (pages disagree: {sorted(seen)})" if len(seen) > 1 else "")
+
+
+def _east_selection(manifest: dict, providers: dict | None, prog: dict) -> dict:
+    """``{ids: provider}`` for the resolved IDS of ONE build: named, else the manifest ``default``.
+
+    ★This is not the shot rule — it only says which provider set THIS conversion is
+    for.  Which set a request gets is decided at use time by the runtime
+    (``device_resolve``), over the groups :func:`east_resolution` converts.
+    """
+    provs = manifest.get("providers") or {}
+    unknown = sorted(set(providers or {}) - set(prog["resolved_ids"]))
+    if unknown:
+        raise SystemExit(f"EAST: {unknown} are not chosen by provider "
+                         f"(resolved per request: {list(prog['resolved_ids'])})")
+    out = {}
+    for ids in prog["resolved_ids"]:
+        spec = provs.get(ids) or {}
+        name = (providers or {}).get(ids) or spec.get("default")
+        avail = spec.get("available") or {}
+        static = sorted(k for k, v in avail.items() if (v.get("backend") or "static") == "static")
+        if name not in static:
+            raise SystemExit(f"EAST {ids}: provider {name!r} is not a static provider in the manifest "
+                             f"(static: {static})")
+        out[ids] = name
+    return out
+
+
+def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> dict:
+    """EAST's device document, assembled from fydoc's A-Box (see the section header).
+
+    ``providers`` names the provider of a resolved IDS (``PROGRAM_SIDE['resolved_ids']``,
+    e.g. ``{"magnetics": "efit"}``) for the ONE conversion :func:`east_resolution` makes per
+    provider; unnamed ones take the manifest's ``default``.  ★Not a request surface: which
+    converted group a request gets is the runtime's rule (shot + measurement chain).
+    """
+    dev = "east"
+    dev_dir = device_root(fydoc) / dev
+    manifest, manifest_path = _manifest(dev_dir)
+    if manifest is None:
+        raise SystemExit(f"no EAST manifest under {fydoc}")
+    files = _resolve(dev_dir, manifest)
+    prog = PROGRAM_SIDE[dev]
+    sel = _east_selection(manifest, providers, prog)
+    files["magnetics"] = _provider_file(dev_dir, manifest, "magnetics", sel["magnetics"])
+    files["wall"] = _provider_file(dev_dir, manifest, "wall", sel["wall"])
+    #: the wall provider THIS build is for (its unit goes first); the others named in
+    #: PROGRAM_SIDE['limiter_units'] follow as alternatives
+    wall_default = sel["wall"]
+    for key in prog["limiter_units"]:
+        if key != wall_default and key in (((manifest.get("providers") or {}).get("wall") or {})
+                                           .get("available") or {}):
+            files[f"wall:{key}"] = _provider_file(dev_dir, manifest, "wall", key)
+    files["pf_active:geometry"] = _provider_file(dev_dir, manifest, "pf_active",
+                                                 EAST_PF_GEOMETRY_PROVIDER)
+    files["pf_active:electrical"] = _provider_file(dev_dir, manifest, "pf_active",
+                                                   EAST_PF_ELECTRICAL_PROVIDER)
+    files.pop("pf_active", None)
+    files["magnetics:pcs"] = _provider_file(dev_dir, manifest, "magnetics", "pcs")
+    for ids in ("interferometer", "polarimeter"):
+        b = _binding_file(dev_dir, manifest, ids)
+        if b is not None:
+            files[f"{ids}:binding"] = b
+    rel = {k: str(v.relative_to(fydoc)) for k, v in files.items()}
+    load = lambda k: _load(files[k]) if k in files else None  # noqa: E731
+    dd_version, dd_where = _east_dd_version(manifest, [load(k) for k in files])
+
+    doc: dict = {
+        "@context": dict(CONTEXT),
+        "@id": f"fylite:device/{dev}",
+        "@type": "fyo:DeviceDescription",
+        "_dd_version": dd_version,
+        "_machine": str(manifest.get("device", dev.upper())),
+        "_basis": _east_basis(manifest, manifest_path, load("magnetics"), sel["magnetics"]),
+        "provenance": {
+            "dd_version_source": dd_where,
+            "generator": "tools/abox-to-facts.py (build_east_from_abox)",
+            "source": _cite(manifest_path),
+            "identity_iri": manifest.get("identity_iri"),
+            "source_files": dict(sorted(rel.items())),
+            "note": ("Converted, not authored: every device value is copied from the file "
+                     "named in `fylite:source`; a field the A-Box does not carry is named "
+                     "under `fylite:absent`.  `solver_dims`, `default_grid`, "
+                     "`polarimeter.faraday_constant` and `fylite:ui` are program-side values "
+                     "(PROGRAM_SIDE in the generator), not device facts."),
+        },
+    }
+    doc["data_source"] = east_data_source(dev_dir, manifest)
+    mag_spec = (((manifest.get("providers") or {}).get("magnetics") or {}).get("available")
+                or {}).get(sel["magnetics"]) or {}
+    doc["magnetics"] = east_magnetics(load("magnetics"), load("magnetics:pcs"),
+                                      rel["magnetics"], rel["magnetics:pcs"],
+                                      sel["magnetics"], mag_spec.get("measurement_chain"))
+    doc["pf_active"], doc["pf_channel_elements"] = east_pf_active(
+        load("pf_active:geometry"), load("pf_active:electrical"),
+        rel["pf_active:geometry"], rel["pf_active:electrical"])
+    doc["wall"] = wall(load("wall"), rel["wall"])
+    doc["wall"].pop("fylite:upstream", None)
+    units = doc["wall"]["description_2d"][0]["limiter"]["unit"]
+    if wall_default not in prog["limiter_units"]:
+        raise SystemExit(f"EAST wall: provider {wall_default!r} has no "
+                         f"reader-facing unit name in PROGRAM_SIDE['limiter_units']")
+    for u in units:
+        #: the unit is named by the provider that was selected for it; the
+        #: manifest default is the operational contour and goes first
+        u["fylite:upstream_name"] = u["name"]
+        u["name"] = prog["limiter_units"][wall_default]
+        u["fylite:provider"] = wall_default
+        u["fylite:operational"] = True
+    for key, name in prog["limiter_units"].items():
+        if f"wall:{key}" not in files:
+            continue
+        for u in wall(load(f"wall:{key}"), rel[f"wall:{key}"])["description_2d"][0]["limiter"]["unit"]:
+            u["fylite:upstream_name"] = u["name"]
+            u["name"] = name
+            u["fylite:provider"] = key
+            u["fylite:source"] = rel[f"wall:{key}"]
+            units.append(u)
+    if "pf_passive" in files:
+        doc["pf_passive"], vessel = east_pf_passive(load("pf_passive"), rel["pf_passive"])
+        doc["wall"]["description_2d"][0]["vessel"] = {"unit": vessel}
+        doc["fylite:vessel_resistivity_uohm_m"] = doc["pf_passive"]["vessel"]["resistivity_uohm_m"]
+    doc.update(east_hcd(load("lh_antennas"), load("ic_antennas"), load("ec_launchers"), rel))
+    for ids in ("interferometer", "polarimeter"):
+        if ids in files:
+            doc[ids] = east_chords(ids, load(ids), load(f"{ids}:binding"), rel[ids],
+                                   prog["point_chord_prefix"])
+        else:
+            doc[ids] = _absent(ids, f"the A-Box resolves no {ids} file")
+            doc[ids]["channel"] = []
+    itf = doc["interferometer"]
+    wl = {float(w["value"]) for c in (load("interferometer") or {}).get("channel") or []
+          if str(c.get("name", "")).startswith(prog["point_chord_prefix"])
+          for w in (c.get("wavelength") or []) if isinstance(w, dict) and "value" in w}
+    if len(wl) == 1:
+        itf["laser_wavelength"] = wl.pop()
+    else:
+        itf.setdefault("fylite:absent", {})["laser_wavelength"] = (
+            "the A-Box interferometer carries no single channel wavelength for the POINT chords")
+    pol = doc["polarimeter"]
+    pol["faraday_constant"] = prog["faraday_constant"]
+    base = (load("polarimeter") or {}).get("baseline")
+    if isinstance(base, dict) and {"centre_s", "tolerance_s"} <= set(base):
+        pol["baseline"] = {"centre_s": float(base["centre_s"]),
+                           "tolerance_s": float(base["tolerance_s"])}
+    else:
+        pol.setdefault("fylite:absent", {})["baseline"] = (
+            "the A-Box carries no POINT baseline window (a read-time setting)")
+    if "operational" in files:
+        used = east_channel_fit(doc, load("operational"), rel["operational"], prog)
+        carried = {n: ("pf_active.coil[].bit_error"
+                       if n == prog["channel_fit"]["namelist"] else
+                       "pf_active.coil[].turns / efit_index") for n in used}
+        doc["operational"] = east_operational(load("operational"), rel["operational"], carried)
+    else:
+        doc["operational"] = {"@type": "fylite:OperationalSettings",
+                              "fylite:absent": "the A-Box resolves no operational file"}
+    tf = load("tf")
+    doc["machine"] = machine_block(doc["_machine"], tf, units, None)
+    doc["machine"]["default_grid"] = dict(
+        prog["default_grid"], note="program-side solver box (PROGRAM_SIDE), not a device fact")
+    #: ★★the machine reference radius is its OWN recorded fact, not `tf.r0`: fydoc
+    #: records both (tf `r0` 1.7 · `dev:rCentre` 1.75, result `divergent`) and the
+    #: ruling is to carry both with sources and never pick one silently
+    rc = (tf or {}).get("dev:rCentre")
+    if _num(rc) is None:
+        raise SystemExit("EAST tf: no `dev:rCentre` — the machine reference radius is not "
+                         "derived from `tf.r0` (ruling 2026-09-13); fydoc must record it")
+    doc["machine"]["r_centre"] = _num(rc)
+    doc["machine"]["r_centre_note"] = (
+        f"{rel['tf']} `dev:rCentre` ({rc.get('dev:source')}: {rc.get('dev:locator')}); "
+        "tf.r0 takes the same value (user ruling 2026-09-13) — see provenance.reference_radii")
+    #: ★★user ruling 2026-09-13: tf.r0 = machine.r_centre (the card's convention), so the
+    #: nominal b0 stays paired with the radius it was stated at; the other recorded
+    #: radii are kept in provenance, with the reason they are not used
+    #: the locator names it in prose: "efit/efitbuild/ 同名件（129×129，…）同位写 1.79999995"
+    other_gfile = re.search(r"efitbuild/[^（(]*[（(](\d+×\d+)[^0-9]*?(\d+\.\d+)",
+                            str(rc.get("dev:locator") or ""))
+    doc["provenance"]["reference_radii"] = {
+        "used": {"value": _num(rc), "for": ["machine.r_centre", "tf.r0"],
+                 "source": f"{rel['tf']} dev:rCentre", "locator": rc.get("dev:locator"),
+                 "why": ("user ruling 2026-09-13: tf.r0 <- machine.r_centre (the retired "
+                         "card's convention), so the nominal tf.b0 "
+                         f"{_num((tf or {}).get('b0'))} T stays paired with the radius it "
+                         "was stated at")},
+        "recorded_not_used": [
+            {"value": _num((tf or {}).get("r0")), "source": f"{rel['tf']} r0",
+             "why": ("fydoc's tf page value; a different reference radius from the one the "
+                     "nominal b0 is paired with (fydoc marks the radii divergent)")},
+        ] + ([{"value": float(other_gfile.group(2)),
+               "source": (f"{rel['tf']} dev:rCentre dev:locator (prose): the other reference "
+                          f"g-file efit/efitbuild/g093060.01000 ({other_gfile.group(1)}) rcentr"),
+               "why": ("the two reference g-files of the same shot and time disagree; the "
+                       "65×65 one (the compiled solver dimensions) is the one used")}]
+             if other_gfile else [])}
+    if "fylite:b0" not in doc["machine"]:
+        doc["machine"]["fylite:absent"] = {"fylite:b0": "the A-Box tf carries no vacuum field"}
+    if tf is not None:
+        doc["tf"] = {"@type": "fyo:tf", "fylite:source": rel["tf"],
+                     "r0": doc["machine"]["r_centre"],        # ruling 2026-09-13, see provenance
+                     "coils_n": int(_num(tf.get("coils_n"))) if _num(tf.get("coils_n")) else None}
+    doc["solver_dims"] = dict({"@type": "fylite:CompiledDimensions",
+                               "note": ("编译期维度：随包 libefit.so 的数组维度，是声明不是旋钮 "
+                                        "(program-side, PROGRAM_SIDE in the generator — not a "
+                                        "device fact)")},
+                              **prog["solver_dims"])
+    doc["fylite:ui"] = json.loads(json.dumps(prog["ui"]))
+    missing = [g for g in REQUIRED if g not in doc]
+    assert not missing, missing
+    return doc
+
+
+#: machine id -> its own assembler, reached through `build()` (see the header).
+ASSEMBLERS = {"east": build_east_from_abox}
+
+
+def east_resolution(fydoc: pathlib.Path) -> dict:
+    """EAST's ``fylite:DeviceResolution`` (user rulings R-S1 / R-S2, 2026-09-13).
+
+    Every static provider of every resolved IDS, converted ONCE by
+    :func:`build_east_from_abox` and cut to the keys that IDS owns
+    (``PROGRAM_SIDE['owned']``), in both spellings — ``card`` (the YAML card Python
+    reads) and ``document`` (the derived page document the runtime and the pages
+    read, :func:`derive_document`).  A provider that cannot be converted into this
+    document carries ``fylite:absent`` with the converter's own reason.
+
+    ★What this does NOT hold is the rule: which group a request gets is
+    ``fylite_runtime::device_resolve`` — reading ``manifest`` (the providers with their
+    ``default``, ``valid_shots`` and ``measurement_chain``, and the ``measurement_chains``
+    table, trimmed from fydoc's manifest).  One converter here, one rule there.
+    """
+    dev = "east"
+    dev_dir = device_root(fydoc) / dev
+    manifest, manifest_path = _manifest(dev_dir)
+    prog = PROGRAM_SIDE[dev]
+    provs = manifest.get("providers") or {}
+    variants: dict = {}
+    for ids in prog["resolved_ids"]:
+        variants[ids] = {}
+        for name, spec in ((provs.get(ids) or {}).get("available") or {}).items():
+            if (spec.get("backend") or "static") != "static":
+                continue
+            try:
+                one = build_east_from_abox(fydoc, providers={ids: name})
+            except SystemExit as e:
+                variants[ids][name] = {"fylite:absent": f"not convertible into this document: {e}"}
+                continue
+            #: the same values the card on disk will hold (the card is written as YAML)
+            card = yaml.safe_load(yaml.dump(one, allow_unicode=True, sort_keys=False))
+            page = derive_document(dev, json.loads(json.dumps(card)))
+            owned = prog["owned"][ids]
+            variants[ids][name] = {
+                "card": {k: card[k] for k in owned if k in card},
+                "document": {k: page[k] for k in owned if k in page},
+                "source_files": {k: v for k, v in card["provenance"]["source_files"].items()
+                                 if k == ids or k.startswith(ids + ":")},
+            }
+    keep = ("backend", "path", "valid_shots", "measurement_chain", "preferred")
+    return {
+        "@context": dict(CONTEXT),
+        "@id": f"fylite:device/{dev}/resolution",
+        "@type": "fylite:DeviceResolution",
+        "fylite:device_id": dev,
+        "fylite:note": (
+            "GENERATED by tools/abox-to-facts.py (east_resolution). Resolves the EAST card BY SHOT "
+            "AND MEASUREMENT CHAIN at use time (user rulings R-S1 / R-S2 and the measurement-chain "
+            "ruling, 2026-09-13): the runtime's rule (fylite_runtime::device_resolve) picks a provider "
+            "per IDS in `resolved_ids` from `manifest.providers` — within the requested chain "
+            "(`manifest.measurement_chains`) for an IDS whose providers carry `measurement_chain`, else "
+            "the shot-anchored provider covering the shot (no shot = the latest shot), else the "
+            "default — and writes that provider's converted group (`variants`) over the card. The card "
+            "beside this file is the no-shot resolution."),
+        "manifest": {
+            "source": _cite(manifest_path),
+            "device": manifest.get("device"),
+            "measurement_chains": manifest.get("measurement_chains") or {},
+            "providers": {ids: {"default": (provs.get(ids) or {}).get("default"),
+                                "available": {n: {k: s[k] for k in keep if k in s}
+                                              for n, s in ((provs.get(ids) or {}).get("available")
+                                                           or {}).items()}}
+                          for ids in (*prog["resolved_ids"], *prog["fixed"]) if ids in provs},
+        },
+        "resolved_ids": list(prog["resolved_ids"]),
+        "fixed": {ids: {"why": why} for ids, why in prog["fixed"].items()},
+        "variants": variants,
+    }
+
+
+#: machine id -> its resolution-document builder (a card that resolves by shot)
+RESOLUTIONS = {"east": east_resolution}
+
+
+def _device_module():
+    if str(ROOT / "python") not in sys.path:
+        sys.path.insert(0, str(ROOT / "python"))
+    from fylite import device as _device
+    return _device
+
+
+def resolve_card(doc: dict, resolution: dict, **request) -> dict:
+    """``doc`` resolved for ``request`` (none = the no-shot resolution, R-S2) — through the
+    RUNTIME's rule (``fylite.device.resolve_document`` -> ``libfylite_runtime.so``), never a
+    copy of it here."""
+    card = yaml.safe_load(yaml.dump(doc, allow_unicode=True, sort_keys=False))
+    return _device_module().resolve_document(card, resolution, form="card", **request)["document"]
+
+
+def variant_card(dev: str, fydata: pathlib.Path, doc: dict, *, shot: int | None = None,
+                 measurement_chain: str | None = None,
+                 resolution: dict | None = None) -> dict:
+    """The card for ``--shot`` / ``--measurement-chain`` — the use-time resolution, plus what it
+    was generated for (``_selection`` · ``_shot`` · ``_measurement_chain``; ``_valid_shots`` is the
+    runtime's).
+
+    ★The runtime decides everything (2026-09-13 rulings): the providers, the refusals — a gap in
+    the chain, an undeclared chain, two providers of one chain covering the shot, a default that
+    does not cover the shot (``strict``) — and ``_valid_shots`` (the intersection of the ranges the
+    chosen providers declare; ``[N, N]`` when none declares one; date-anchored providers never
+    vouch for all shots).  ``doc`` is the card built from the manifest defaults.
+    """
+    if dev not in RESOLUTIONS:
+        raise SystemExit(f"{dev}: --shot / --measurement-chain resolve through the runtime's rule, and "
+                         f"only {sorted(RESOLUTIONS)} ship a resolution document")
+    res = resolution if resolution is not None else RESOLUTIONS[dev](fydata)
+    dm = _device_module()
+    try:
+        card = resolve_card(doc, res, shot=shot, measurement_chain=measurement_chain, strict=True)
+    except dm.ProviderSelectionError as e:
+        raise SystemExit(f"{dev}: {e}") from None
+    valid = card.pop("_valid_shots", None)
+    card["_selection"] = {k: v["provider"]
+                          for k, v in sorted(card["provenance"]["fylite:resolution"]["ids"].items())}
+    if measurement_chain is not None:
+        card["_measurement_chain"] = measurement_chain
+    if shot is not None:
+        card["_shot"] = shot
+    if valid is not None:
+        card["_valid_shots"] = valid
+    return card
+
+
+def write_resolution(dev: str, res: dict, out_root: pathlib.Path) -> pathlib.Path:
+    d = out_root / dev
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / f"{dev}_resolution.jsonld"
+    p.write_text(json.dumps(res, ensure_ascii=False, indent=1, allow_nan=False) + "\n",
+                 encoding="utf-8")
+    return p
+
+
 #: ★★★出处那一行**从实际拉的那棵树derive**，不写死。此前它固定印
 #: `fydata/abox/device/tokamak/{dev}/`，而这次拉的是 fydoc —— 于是同一份卡片里，
 #: 机读的 `_basis` / `dcterms:source` 说 fydoc，给人看的抬头说 fydata。两者矛盾时
@@ -989,44 +1964,7 @@ def write(dev: str, doc: dict, out_root: pathlib.Path, src: str = "") -> pathlib
     return p
 
 
-def kernel_checkout() -> pathlib.Path | None:
-    """内核检出（私有仓 fylite_kernel）在哪 —— 与 `tools/kernel-path.sh` 同一条规则。
-
-    ★解析不到就是 `None`，**不猜**：没有一个调用方该拿一条猜出来的路径去读
-    另一个仓。判据是 `rust/fylite/Cargo.toml` 在不在，与那份 shell 一致。
-    """
-    env = os.environ.get("FYLITE_KERNEL") or os.environ.get("FYLITE_KERNEL_REPO")
-    candidates = [pathlib.Path(env)] if env else []
-    candidates += [ROOT.parent / "fylite_kernel", ROOT.parent / "fylite_dev"]
-    for c in candidates:
-        if (c / "rust" / "fylite" / "Cargo.toml").is_file():
-            return c
-    return None
-
-
-def _card_from_kernel(dev: str) -> pathlib.Path | None:
-    """手工维护的那张卡片在内核检出里的位置。
-
-    ★★这条退路 2026-09-07 补上，补的是一句**过时的警报**。工具从前在卡片缺席时
-    说「它随 machine_desc/ 一起删了（内核仓 b4dce77）… 三仓皆无，没有任何地方能把
-    它再生成一次」——而 `machine_desc/east/east_device.yaml` **早已随 d829b79 收了
-    回去**，一直在内核仓里。据那句话去找的人会得出「这台机器的描述丢了」，而它
-    没丢；两条 node 闸子（`validate-analysis` · `validate-recon-slices`）也因此
-    一直红着，红的理由是一个不成立的前提。
-
-    ★卡片一个字不动：这里只是**搬一份到暂存区**，让派生形照常写得出来。许可仍由
-    `rights.json` 说了算（EAST 上游 declared NOT OPEN → 只进内部版），发布器按它
-    筛，与本函数无关。
-    """
-    kernel = kernel_checkout()
-    if kernel is None:
-        return None
-    card = kernel / "machine_desc" / dev / f"{dev}_device.yaml"
-    return card if card.is_file() else None
-
-
-def write_document(dev: str, out_root: pathlib.Path, *,
-                   from_kernel: bool = False) -> pathlib.Path | None:
+def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     """把卡片**同一份内容**再落一份 `facts/device/<id>.jsonld`。
 
     ★★两种语法，一个来源。卡片（YAML）是人读人改的那一份，文档（JSON）是页面
@@ -1038,30 +1976,16 @@ def write_document(dev: str, out_root: pathlib.Path, *,
     `include_bytes!` 找不到文件）。产出方与消费方对「一条条目长什么样」的看法
     不一致，而两边都没说出来。
 
-    ★这一份是**派生物**，从盘上的卡片转，而不是从上游再转一次：于是手工维护、
-    有意不重生成的那一张（EAST）也参与打包——它的卡片没被动过，只是多了一份
-    页面读得懂的形。卡片不在就不写，返回 `None`。
+    ★这一份是**派生物**，从盘上刚写出的卡片转，而不是从上游再转一次。卡片不在
+    就不写，返回 `None`。
     """
     card = out_root / dev / f"{dev}_device.yaml"
     if not card.is_file():
-        if not from_kernel:
-            return None
-        pulled = _card_from_kernel(dev)
-        if pulled is None:
-            return None
-        card.parent.mkdir(parents=True, exist_ok=True)
-        card.write_text(pulled.read_text(encoding="utf-8"), encoding="utf-8")
-        print(f"  {dev}: 卡片不在暂存区，从内核检出取来一份（{pulled}）")
+        return None
     doc = yaml.safe_load(card.read_text(encoding="utf-8"))
     if not isinstance(doc, dict):
         return None
-    finite(dev, doc)
-    identity(dev, doc)
-    grid(dev, doc)
-    vacuum_field(dev, doc)
-    one_limiter(dev, doc)
-    pf_flatten(dev, doc)
-    channel_map(dev, doc)
+    derive_document(dev, doc)
     p = out_root / f"{dev}.jsonld"
     #: ★`allow_nan=False`：Python 的缺省会写出裸 `NaN` / `Infinity`，**那不是 JSON**。
     #: 上面的 `finite()` 已经把唯一一种无歧义的情形（成对轮廓末尾的补位）摘掉了；
@@ -1069,6 +1993,20 @@ def write_document(dev: str, out_root: pathlib.Path, *,
     p.write_text(json.dumps(doc, ensure_ascii=False, indent=1, allow_nan=False) + "\n",
                  encoding="utf-8")
     return p
+
+
+def derive_document(dev: str, doc: dict) -> dict:
+    """The page document derived from a card (in place; returned) — the steps
+    :func:`write_document` applies, callable on a card in memory: the per-provider
+    groups of :func:`east_resolution` go through exactly these steps."""
+    finite(dev, doc)
+    identity(dev, doc)
+    grid(dev, doc)
+    vacuum_field(dev, doc)
+    one_limiter(dev, doc)
+    pf_flatten(dev, doc)
+    channel_map(dev, doc)
+    return doc
 
 
 def one_limiter(dev: str, doc: dict) -> None:
@@ -1097,7 +2035,13 @@ def one_limiter(dev: str, doc: dict) -> None:
         r, z = o.get("r") or [], o.get("z") or []
         return len(r) > 2 and r[0] == r[-1] and z[0] == z[-1]
 
-    if not all(closed(u) for u in units):
+    #: ★2026-09-13（est2 移除、wall 缺省回 base）：`base` 那条轮廓在 fydoc 里写着 `closed: 1`，
+    #: 但首末点并不重合（z 0.485 / 0.309），`wall()` 又不带 `closed` 标志——只按首末点判，它会被
+    #: 当成「一段」，两条整轮廓于是一起交给页面缝。EAST 的装配器给每个单元记下它的 provider
+    #: （`fylite:provider`）；**每个单元各属一个不同的 provider** 时，它们按构造就是互为备选的整轮廓。
+    providers = [u.get("fylite:provider") for u in units]
+    alternatives = all(providers) and len(set(providers)) == len(units)
+    if not (alternatives or all(closed(u) for u in units)):
         return                                  #: 分段形，交给页面去缝
     kept, rest = units[0], units[1:]
     d2["limiter"]["unit"] = [kept]
@@ -1135,7 +2079,14 @@ def pf_flatten(dev: str, doc: dict) -> None:
         for el in ch.get("element") or []:
             el = dict(el)
             name = el.pop("fylite:name", None) or ch.get("name")
-            flat.append({"name": name, "element": [el]})
+            coil = {"name": name, "element": [el]}
+            #: ★★the DD `function` travels onto every coil the channel flattens into.
+            #: Dropping it (as this did until 2026-09-13) made EAST's IC1/IC2 plain
+            #: PF coils to every reader of this document — `case.rs::is_fast_coil`,
+            #: `device.is_fast_coil` — so the start design solved 16 channels, not 12.
+            if ch.get("function"):
+                coil["function"] = [dict(f) for f in ch["function"]]
+            flat.append(coil)
     doc["pf_active"]["coil"] = flat
 
 
@@ -1151,10 +2102,16 @@ def channel_map(dev: str, doc: dict) -> None:
 
     ★只在文档还没有那个键时写：卡片自己带 `fylite:channel_map` 的那天，
     以它为准，这里不覆盖。
+
+    ★★**两种拼法都留**（2026-09-13 改）：此前这里 `pop` 掉 `pf_channel_elements`，而
+    `case.rs::device_coils` 与 `device.pf_channel_map` 读的正是它，找不到就退回「一线圈
+    一通道」——EAST 的起始设计因此解 14 个通道而不是 12 个，且不报错。页面
+    （`fyodev.js`）读 `fylite:channel_map`；两者都在 `@fyo-table DEVICE` 里声明，
+    所以两个都写，由同一份行转出。
     """
     if "fylite:channel_map" in doc:
         return
-    rows = doc.pop("pf_channel_elements", None)
+    rows = doc.get("pf_channel_elements")
     if not isinstance(rows, list):
         return
     doc["fylite:channel_map"] = [
@@ -1393,28 +2350,33 @@ def main(argv=None) -> int:
                     default=FYDOC, help="A-Box 的根（缺省 fydoc，权威源）")
     ap.add_argument("-o", "--out", type=pathlib.Path, default=OUT)
     ap.add_argument("--all", action="store_true",
-                    help="every machine with a manifest, EAST excepted")
+                    help="every machine with a manifest")
     ap.add_argument("--list", action="store_true")
-    #: ★★**缺省就取**（用户裁定 2026-09-07）。手工卡片（EAST）不在暂存区时，从内核
-    #: 检出取一份。★这一步改变浏览器闸子跑的是**哪一份 EAST 描述**：卡片把 14 个
-    #: 导体按 **12 个 PCS 通道**分组，回退源 `$FYLITE_DEVICE_DIR/fylite_device_east.json`
-    #: 把它们摊成 **14 个线圈**（几何一致，`test_east_descriptions_agree.py` 逐条对过）。
-    #: 五道 worker 闸子的夹具已按卡片重录（同日裁定）。
-    #: `--no-from-kernel` 留给要在**只有本仓**的检出上复现那一版的人。
-    ap.add_argument("--no-from-kernel", dest="from_kernel", action="store_false",
-                    help="手工维护的卡片不在暂存区时**不**去内核检出取——"
-                         "只有本仓的检出上本来就取不到，这个开关让两边行为一致")
-    ap.set_defaults(from_kernel=True)
     ap.add_argument("--publishable", action="store_true",
                     help="只列出进得了这一种构建的机器（许可闸；不写文件）")
-    #: ★缺省是 **internal**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）：fylite 以内部
+    #: ★缺省是 **internal**（2026-09-05 裁定，`FYL-SDD-03` A-14）：fylite 以内部
     #: 工具发布，全功能构建含 EAST。许可判据没有跟着松——它仍在每台自己的
     #: `rights.json` 里；变的只是「不说话时装哪一版」。公开面因此必须**明写**
     #: `--flavour public`，见 A-14 的门禁。
     ap.add_argument("--flavour", choices=("public", "internal"), default="internal",
                     help="哪一种构建：internal（缺省，全部，含 EAST）"
                          "/ public（不含 EAST 与上游禁分发的 IDS）")
+    ap.add_argument("--shot", type=int, default=None,
+                    help="generate the card for this shot: providers must cover it; recorded as _shot / _valid_shots")
+    ap.add_argument("--measurement-chain", dest="measurement_chain", default=None, metavar="CHAIN",
+                    help="the measurement chain (the measurement document's `measurement_chain`, declared in the "
+                         "manifest's measurement_chains): resolves the measurement-ordered IDS within that chain")
     a = ap.parse_args(argv)
+    global SHOT, CHAIN
+    SHOT = a.shot
+    CHAIN = a.measurement_chain
+    if SHOT is not None or CHAIN is not None:
+        if a.all or len(a.device) != 1:
+            ap.error("--shot / --measurement-chain generate a variant card for ONE named machine")
+        if a.out.resolve() == OUT.resolve():
+            ap.error("--shot / --measurement-chain write a VARIANT: give -o (e.g. "
+                     "dist/facts/device/<id>/variants/<name>) so the default card is not overwritten")
+        TARGET.update(a.device)
 
     if not device_root(a.fydata).is_dir():
         print(f"no fydata device tree at {a.fydata}", file=sys.stderr)
@@ -1431,7 +2393,7 @@ def main(argv=None) -> int:
         return 0
     if a.list:
         for d in known:
-            print(d, "(hand-maintained here)" if d in HANDWRITTEN else "")
+            print(d)
         return 0
     want = known if a.all else list(a.device)
     if not want:
@@ -1452,34 +2414,11 @@ def main(argv=None) -> int:
         print(f"  {dev}: {mark}（上游 declared {r['declared']!r}"
               + (f"，公开版去掉 {' '.join(r['public_excluded_ids'])}"
                  if r["public_excluded_ids"] else "") + ")")
-        if dev in HANDWRITTEN:
-            #: ★卡片一个字不动（它比上游全），但**派生形照写**：页面与内嵌资源表
-            #: 读的是 `<id>.jsonld`，而「不重生成」说的是不要覆盖那份手写的内容，
-            #: 不是「这台机器不参与打包」。卡片不在盘上时什么也不写。
-            if write_document(dev, a.out, from_kernel=a.from_kernel) is not None:
-                print(f"  {dev}: 手工卡片保持原样，派生 {dev}.jsonld")
-            else:
-                #: ★★**`--all` 也要说**（2026-09-05 改）。从前这一支写着
-                #: `elif not a.all`，于是 `--all` 在卡片不在时**一声不吭**地少带一台，
-                #: 目录从 7 台变成 6 台而构建全绿——正是本工具一直在防的那类失灵。
-                #: 实测撞上：清 `dist/` 之后跑 `--all`，目录里就没有 EAST 了。
-                where = _card_from_kernel(dev)
-                print(f"{dev}: hand-maintained here and strictly richer than "
-                      f"the upstream tree — refusing to overwrite the card "
-                      f"(rights.json written). ★★而盘上没有那张卡片，"
-                      f"于是这一版**少一台机器**。"
-                      + (f"★内核检出里有一份（{where}）——`--from-kernel` 取它。"
-                         f"★但那会改变浏览器闸子跑的是哪一份 EAST 描述"
-                         f"（卡片按 12 个 PCS 通道分组，回退源摊成 14 个线圈），"
-                         f"所以要显式要。"
-                         if where is not None else
-                         f"★内核检出里也没有（machine_desc/{dev}/{dev}_device.yaml）；"
-                         f"解析不到内核检出时先设 $FYLITE_KERNEL 再跑。"
-                         f"那里也真的没有，才是「只可能来自某个人手上的一份拷贝」。"),
-                      file=sys.stderr)
-                rc = 1
-            continue
         doc = build(dev, a.fydata)
+        if dev in TARGET:
+            #: ★the card says what it was generated FOR (`_selection` · `_shot` · `_valid_shots`) —
+            #: and every one of those answers is the runtime's (see `variant_card`)
+            doc = variant_card(dev, a.fydata, doc, shot=SHOT, measurement_chain=CHAIN)
         #: ★★A-Box 里没有 epoch 的机器（实测 cmod / d3d / hl2m / hl3 只有一份
         #: `machine.jsonld`，没有任何 IDS 文件）会转出一张**空卡片**。空卡片比没有
         #: 卡片更坏：`load_device` 会拒绝它，而任何「这台机器有描述吗」的检查都会
@@ -1503,6 +2442,18 @@ def main(argv=None) -> int:
                   + (f"（只有 {' '.join(carried)}）" if carried else "（没有静态文件）")
                   + "——不写空卡片", file=sys.stderr)
             continue
+        if dev in RESOLUTIONS and dev not in TARGET:
+            #: (a `--shot` / `--measurement-chain` variant is written as resolved, not re-resolved)
+            #: ★★R-S1 / R-S2 (user rulings 2026-09-13): the groups of every provider ship
+            #: beside the card, and the card itself is the NO-SHOT resolution — resolved by
+            #: the runtime's rule, and saying per IDS which provider and shot range it is
+            res = RESOLUTIONS[dev](a.fydata)
+            rpath = write_resolution(dev, res, a.out)
+            doc = resolve_card(doc, res)
+            sel = doc["provenance"]["fylite:resolution"]["ids"]
+            print(f"  {dev}: no-shot resolution "
+                  + ", ".join(f"{k}={v['provider']} {v['shots']}" for k, v in sel.items())
+                  + f"; resolution document -> {rpath.name}")
         p = write(dev, doc, a.out)
         try:
             shown = p.relative_to(ROOT)

@@ -168,12 +168,16 @@ def test_one_term_space_has_exactly_one_iri():
     scanned = list(SOURCES) + [ROOT / "python/fylite/_fyo_vocab.json"]
     #: the shipped documents too: a prefix that drifts in DATA is the case
     #: that actually reaches a reader.
-    scanned += sorted((ROOT / "machine_desc").rglob("*.json")) \
-        + sorted((ROOT / "machine_desc").rglob("*.yaml"))
+    #: ★2026-09-13: the device corpus on the facts search path (was `machine_desc/`)
+    from fylite import facts as _facts
+    for r in _facts.roots():
+        scanned += sorted((r / "device").rglob("*.jsonld")) \
+            + sorted((r / "device").rglob("*.yaml"))
     found: dict[str, list[str]] = {}
     for p in scanned:
         for iri in pat.findall(p.read_text(encoding="utf-8")):
-            found.setdefault(iri, []).append(str(p.relative_to(ROOT)))
+            found.setdefault(iri, []).append(
+                str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p))
     assert found, "no fylite: prefix declaration found at all — check the regex"
     ns = _json.loads((ROOT / "python/fylite/_fyo_vocab.json").read_text())["namespace"]
     assert ns == FYLITE_PREFIX, f"_fyo_vocab.json namespace is {ns!r}"

@@ -259,7 +259,13 @@ def test_the_scenario_layer_imports_no_numerics_library():
 # --------------------------------------------------------------------------- #
 @pytest.fixture(scope="module")
 def reference():
-    """A real EAST shot's coil currents and plasma current."""
+    """A real EAST shot's coil currents and plasma current.
+
+    ★★2026-09-13 (measurement-chain ruling): the read resolves the device in the chain
+    the measurement document declares (``conftest.east_measurements``); #137985's
+    delivered set is the est2 record, which declares none and pairs with no chain, so
+    this SKIPS by name until the efit_east #137985 case replaces it.  What leaves is
+    coil and plasma current only, which no magnetics provider changes."""
     meas = east_measurements()
     return {"aturns": np.asarray(meas["brsp"], float),
             "ip": float(meas["plasma"])}
@@ -323,7 +329,9 @@ def test_an_impossible_breakdown_says_which_limit_stopped_it():
     assert d["b_max"] <= d["b_tol"], "the null itself was fine"
     assert abs(d["flux_Wb"]) < 0.5, "the flux was nowhere near the request"
     assert d["blocked_by"], "an infeasible design that names nothing"
-    assert all(b["name"].startswith("PF") for b in d["blocked_by"])
+    #: ★2026-09-13 (user ruling): EAST PF channels keep fydoc's names BRSP_01..12
+    #: (the A-Box circuit names), not the retired card's PF* labels
+    assert all(b["name"].startswith("BRSP_") for b in d["blocked_by"])
 
 
 @needs_kernel

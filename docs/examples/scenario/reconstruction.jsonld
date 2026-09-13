@@ -48,7 +48,6 @@
  "fylite:common": [
   "shot",
   "time",
-  "provider",
   "epoch"
  ],
  "fylite:time": "point",
@@ -58,8 +57,7 @@
    "choices": [
     "delivered",
     "raw"
-   ],
-   "from_device": "fylite:channel_basis"
+   ]
   },
   "beta0": {
    "type": "float"

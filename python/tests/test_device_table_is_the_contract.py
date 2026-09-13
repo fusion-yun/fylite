@@ -19,7 +19,7 @@ does not check VALUES — that is what the per-machine gates do — only that a
 field a host will look for is where the table says it is.
 
 ★A path that resolves nowhere in a given document is not automatically an
-error: `machine_desc/jt60sa/` genuinely has no coils, and says so with
+error: `facts/device/jt60sa/` genuinely has no coils, and says so with
 `fylite:absent`.  What is an error is a field that EXISTS under a
 non-canonical name, because that is the dialect coming back.
 """
@@ -43,18 +43,26 @@ def _pid(p, sep="/") -> str:
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DESC = ROOT / "machine_desc"
+#: ★★2026-09-13（machine_desc 退役，用户裁定）：从前指 `ROOT/machine_desc/`，而那个目录
+#: 在本仓早已不在，于是整个模块**一直 skip**。现在读 facts 搜索路径上的装置语料
+#: （`fylite.facts.roots()`；检出里即暂存区 `dist/facts/`）：每台的卡片
+#: `device/<id>/<id>_device.yaml` 与页面文档 `device/<id>.jsonld`（原 `fylite_device_<id>.json`）。
+from fylite import facts as _facts
+
+DESC = next((r / "device" for r in _facts.roots() if (r / "device").is_dir()),
+            ROOT / "dist" / "facts" / "device")
 
 DEVICE = IFACE.TABLES["DEVICE"]["slots"]
 AOS = set(IFACE.AOS)
 
-DOCS = sorted(DESC.glob("*/*_device.yaml")) + sorted(DESC.glob("*/fylite_device_*.json"))
+DOCS = sorted(DESC.glob("*/*_device.yaml")) + sorted(
+    p for p in DESC.glob("*.jsonld") if p.stem != "catalogue")
 
-pytestmark = pytest.mark.skipif(not DOCS, reason="no machine_desc/ in this tree")
+pytestmark = pytest.mark.skipif(not DOCS, reason=f"no device corpus on the facts path ({DESC})")
 
 
 def _load(p: Path):
-    if p.suffix == ".json":
+    if p.suffix in (".json", ".jsonld"):
         return json.loads(p.read_text(encoding="utf-8"))
     import yaml
     return yaml.safe_load(p.read_text(encoding="utf-8"))

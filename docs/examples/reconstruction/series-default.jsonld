@@ -30,7 +30,7 @@
     "en": "EAST"
    },
    "described_by": {
-    "id": "machine_desc/east",
+    "id": "facts/device/east",
     "type": "fyo:MachineDescription"
    }
   }

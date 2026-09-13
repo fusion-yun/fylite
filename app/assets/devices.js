@@ -20,7 +20,7 @@
 // `assets/dev-iter.js`, a JS file that pushed a descriptor onto a global.
 // That made the one machine this build ships the only machine in the app
 // that was not an fyo document — it could not be diffed against
-// `machine_desc/iter/`, could not be re-imported, and went through a
+// the ITER card, could not be re-imported, and went through a
 // different reader than every other machine.  It is `facts/device/iter.jsonld`
 // now, parsed by the same `FyoDevice.fromFyo` an imported file goes through,
 // so there is one reader and one shape.

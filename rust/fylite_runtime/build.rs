@@ -19,13 +19,14 @@
 use std::path::{Path, PathBuf};
 
 //: ★★没给 `$FY_FACTS_RS` 时版别记 **internal**，不是「未知」也不是 public
-//: （`FYL-DESIGN-19` A-18）。这一格只有一个读者——启动 banner 据它决定说不说
+//: （`FYL-SDD-03` A-18）。这一格只有一个读者——启动 banner 据它决定说不说
 //: 「仅限内部测试」——而对一条**限制**来说，猜错的两个方向不等价：多说一句的
 //: 代价是一份公开构建上多一行字，少说一句的代价是一份内部构建看起来可以外发。
 const EMPTY: &str = "\
 // 自带的那一档：这一次构建没有给 $FY_FACTS_RS，所以它是空的。\n\
 pub static FLAVOUR: &str = \"internal\";\n\
-pub static EMBEDDED: &[(&str, &str, &str)] = &[];\n";
+pub static EMBEDDED: &[(&str, &str, &str)] = &[];\n\
+pub static EMBEDDED_RESOLUTION: &[(&str, &str, &str)] = &[];\n";
 
 fn main() {
     link_kernel();
@@ -43,6 +44,13 @@ fn main() {
                     && src.contains("pub static FLAVOUR: &str"),
                 "FY_FACTS_RS={p} 不像 tools/facts-publish.py 今天的产物（要有 EMBEDDED 表与 FLAVOUR 常量）——重跑 tools/facts-publish.py"
             );
+            //: ★2026-09-13 (R-S1): the per-device resolution rows (`EMBEDDED_RESOLUTION`) came
+            //: later than the table; a `facts.rs` written before them still builds — with none,
+            //: which `fy list devices` then reports as a card that does not resolve by shot.
+            let mut src = src;
+            if !src.contains("pub static EMBEDDED_RESOLUTION") {
+                src.push_str("pub static EMBEDDED_RESOLUTION: &[(&str, &str, &str)] = &[];\n");
+            }
             let n = src.matches("\n    (\"").count();
             std::fs::write(&out, src).expect("write facts_table.rs");
             println!("cargo:warning=fylite_runtime: {n} bundled facts document(s) from {p}");

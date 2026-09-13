@@ -495,6 +495,10 @@ fn book_path(dir: &Path, tree_root: &str, rel: PathBuf) -> PathBuf {
     candidates.into_iter().find(|c| c.exists()).unwrap_or(as_written)
 }
 
+//: ★★the shot ranges and THE provider rule live in `device_resolve` (user rulings R-S1 / R-S2,
+//: 2026-09-13): this A-Box route and the shipped-card route call the same `choose`.
+use crate::device_resolve::{covers, shot_range, show_range};
+
 pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host: Option<&str>, port: Option<u16>,
                      overrides: &Overrides) -> Result<(Assembly, Vec<String>), IoError> {
     let doc = io::read_node(manifest)?;
@@ -533,31 +537,114 @@ pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host
             let path = v.get("path").and_then(Node::as_str)?;
             Some((backend, book(PathBuf::from(path))))
         };
+        //: ★★the SHOT decides among providers too (PLAN H-35, user 2026-09-13「根据炮号，装置数据有差异」).
+        //: EAST's eras are per IDS (45563 · 65726 · 97034 · 100000 · 135000 do not line up), so its
+        //: manifest keeps ONE epoch and writes the eras on the providers (`valid_shots`) — which this
+        //: reader used to pick by name or `default` only, so #70754 got the post-80000 probe binding.
+        //: ★★2026-09-13 (R-S1 / R-S2): which static provider is taken is `device_resolve::choose` —
+        //: a shot-anchored provider covering the shot wins over the default, and NO shot is the latest
+        //: shot — the same function the shipped card is resolved with.
+        let shot_opt = crate::device_resolve::shot_given(shot);
+        let scoped = |backend: &str| -> Vec<(String, (i64, Option<i64>))> {
+            available.and_then(Node::as_map).map(|av| av.iter().filter_map(|(name, v)| {
+                (v.get("backend").and_then(Node::as_str).unwrap_or("static") == backend)
+                    .then(|| v.get("valid_shots").and_then(shot_range)).flatten()
+                    .map(|r| (name.to_string(), r))
+            }).collect()).unwrap_or_default()
+        };
         //: geometry: the epoch's file, or the provider's static file
         match epoch.and_then(|e| e.get(&format!("ids/{one}"))).and_then(Node::as_str) {
             Some("@provider") | None => {
-                let name = provider.map(str::to_string).or_else(|| providers.and_then(|p| p.get("default")).and_then(Node::as_str).map(str::to_string));
-                if let Some(name) = &name {
-                    match pick_provider(name) {
-                        Some((backend, path)) if backend == "static" => geometry = Some(path),
-                        Some((_, path)) => bind = Some(path),
-                        None => notes.push(format!("{one}: provider {name:?} is not in the manifest")),
-                    }
-                    //: a named mdsplus provider still wants the default static geometry
-                    if geometry.is_none() && bind.is_some() {
-                        if let Some(d) = providers.and_then(|p| p.get("default")).and_then(Node::as_str) {
-                            if let Some((backend, path)) = pick_provider(d) {
-                                if backend == "static" { geometry = Some(path); }
+                //: (geometry, binding) as THE rule picks them; notes carry its reasons
+                let by_rule = |named: Option<&str>, notes: &mut Vec<String>| -> (Option<PathBuf>, Option<PathBuf>) {
+                    //: ★a static provider named on THIS fetch route (`--provider`) is taken as named, a shot
+                    //: outside its range said.  The device-description request surfaces (`fy run --device`,
+                    //: the C ABI resolve, Python) name no provider since the 2026-09-13 measurement-chain
+                    //: ruling; this data-fetch flag is the one that remains.
+                    if let Some(n) = named {
+                        if let (Some(r), Some(s)) =
+                            (available.and_then(|a| a.get(n)).and_then(|v| v.get("valid_shots")).and_then(shot_range), shot_opt)
+                        {
+                            if !covers(r, s) {
+                                notes.push(format!(
+                                    "{one}: the named provider {n:?} is valid for shots {} and shot {s} is outside it — used as named",
+                                    show_range(r)
+                                ));
                             }
                         }
+                        return match pick_provider(n) {
+                            Some((backend, path)) if backend == "static" => (Some(path), None),
+                            Some((_, path)) => (None, Some(path)),
+                            None => {
+                                notes.push(format!("{one}: provider {n:?} is not in the manifest"));
+                                (None, None)
+                            }
+                        };
                     }
-                } else if epoch.is_none() {
-                    notes.push(format!("{one}: no epoch holds shot {shot} and no provider is named"));
+                    match crate::device_resolve::choose(providers, "static", shot_opt) {
+                        Ok(c) => {
+                            notes.extend(c.notes.iter().map(|n| format!("{one}: {n}")));
+                            match c.provider.as_deref() {
+                                Some(name) => match pick_provider(name) {
+                                    Some((backend, path)) if backend == "static" => (Some(path), None),
+                                    Some((_, path)) => (None, Some(path)),
+                                    None => {
+                                        notes.push(format!("{one}: provider {name:?} is not in the manifest"));
+                                        (None, None)
+                                    }
+                                },
+                                None => {
+                                    if epoch.is_none() {
+                                        notes.push(format!("{one}: no epoch holds shot {shot} and no provider is named"));
+                                    }
+                                    (None, None)
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            notes.push(format!("{one}: {e}"));
+                            (None, None)
+                        }
+                    }
+                };
+                match provider {
+                    Some(n) => match available.and_then(|a| a.get(n)) {
+                        None => notes.push(format!("{one}: provider {n:?} is not in the manifest")),
+                        Some(v) if v.get("backend").and_then(Node::as_str).unwrap_or("static") != "static" => {
+                            if let (Some(r), Some(s)) = (v.get("valid_shots").and_then(shot_range), shot_opt) {
+                                if !covers(r, s) {
+                                    notes.push(format!(
+                                        "{one}: the named provider {n:?} is valid for shots {} and shot {s} is outside it — used as named",
+                                        show_range(r)
+                                    ));
+                                }
+                            }
+                            bind = pick_provider(n).map(|(_, p)| p);
+                            //: a named mdsplus provider still wants static geometry — the rule's
+                            geometry = by_rule(None, &mut notes).0;
+                        }
+                        Some(_) => (geometry, bind) = by_rule(Some(n), &mut notes),
+                    },
+                    None => (geometry, bind) = by_rule(None, &mut notes),
                 }
             }
             Some(file) => {
                 let root = epoch.and_then(|e| e.get("static")).and_then(Node::as_str).unwrap_or("");
                 geometry = Some(book(Path::new(root).join(file)));
+            }
+        }
+        //: ★★an ERA-LIMITED binding (an mdsplus provider that declares `valid_shots`) is NAMED, never bound
+        //: in the default's place.  EAST's default binding is the cross-era core set (38 T-pole probes · 35
+        //: loops · ip · PF currents); an era-limited file carries ONE family that has data on a range of shots
+        //: (`magnetics_pcs_n_pre80000`: the 38 N-pole probes, shot <= 70754) and says in its own header「不混进
+        //: 缺省路径」.  Bound in the default's place it cost #70754 its loops and ip and laid N-pole signals
+        //: onto T-pole slots by index (measured 2026-09-13, PLAN H-35) — so the shot only decides what is
+        //: SAID to be available; a caller who wants the family names it with `--provider`.
+        if bind.is_none() && shot > 0 && provider.is_none() {
+            let all = scoped("mdsplus");
+            let hits: Vec<String> = all.iter().filter(|(_, r)| covers(*r, shot)).map(|(n, r)| format!("{n:?} {}", show_range(*r))).collect();
+            if !hits.is_empty() {
+                notes.push(format!("{one}: era-limited binding(s) covering shot {shot}: {} — not bound (the default binding is used); name one with --provider to add that family", hits.join(", ")));
             }
         }
         if bind.is_none() {
@@ -582,6 +669,24 @@ pub fn from_manifest(manifest: &Path, ids: &[&str], provider: Option<&str>, host
             a.merge.push(alias);
         } else {
             notes.push(format!("{one}: no MDSplus binding in the manifest"));
+        }
+    }
+    //: ★read rules (`bindings.mdsplus.read_rules`, per IDS, `applies_shots`): this runtime implements
+    //: none of their operations, so a rule that covers the shot is NAMED — the values then are as the
+    //: tree stores them, and a reader must not take them for converted ones (PLAN H-35)
+    if let Some(Node::List(rules)) = doc.get("bindings/mdsplus/read_rules") {
+        for r in rules {
+            let rid = r.get("id").and_then(Node::as_str).unwrap_or("?");
+            let Some(rids) = r.get("ids").and_then(Node::as_str) else { continue };
+            if !ids.contains(&rids) {
+                continue;
+            }
+            let applies = r.get("applies_shots").and_then(shot_range).map(|rg| shot > 0 && covers(rg, shot)).unwrap_or(true);
+            if applies {
+                notes.push(format!("{rids}: read rule `{rid}` ({}, {}) covers shot {shot} and is NOT applied by this runtime — values are as the tree stores them",
+                                   r.get("rule/op").and_then(Node::as_str).unwrap_or("?"),
+                                   r.get("status").and_then(Node::as_str).unwrap_or("?")));
+            }
         }
     }
     //: geometry first, bindings after: measured values override description
@@ -728,6 +833,61 @@ mod tests {
     /// Three devices (best · cfetr · cfedr) reported "no `pf_active/coil`" to
     /// `code/breakdown` for that reason alone.  This is the book's layout in
     /// miniature; a path that exists as written must still win.
+    /// ★PLAN H-35: the shot picks among providers (EAST writes its eras on them, not on epochs),
+    /// a gap between eras keeps the generic binding and says so, and a covering read rule is named
+    /// as not applied.
+    #[test]
+    fn the_shot_picks_the_provider_that_covers_it() {
+        let dir = tmp("shots");
+        std::fs::create_dir_all(dir.join("static")).unwrap();
+        std::fs::create_dir_all(dir.join("bind")).unwrap();
+        for f in ["static/pcs.yaml", "static/east.yaml", "static/east_new.yaml"] {
+            std::fs::write(dir.join(f), "_ids: magnetics\nflux_loop:\n- name: L1\n").unwrap();
+        }
+        for f in ["bind/magnetics.yaml", "bind/pre80000.yaml", "bind/post80000.yaml"] {
+            std::fs::write(dir.join(f), "_ids: magnetics\n").unwrap();
+        }
+        let manifest = |default: &str| format!("device: EAST\nepochs:\n  - id: now\n    valid_shots: [0, null]\n    static: static\n    ids:\n      magnetics: \"@provider\"\nproviders:\n  magnetics:\n    default: {default}\n    available:\n      pcs: {{ backend: static, path: static/pcs.yaml }}\n      east: {{ backend: static, path: static/east.yaml, valid_shots: [0, 97030] }}\n      east_new: {{ backend: static, path: static/east_new.yaml, valid_shots: [97034, null] }}\n      pcs_n_pre80000: {{ backend: mdsplus, path: bind/pre80000.yaml, valid_shots: [0, 70754] }}\n      pcs_vp_post80000: {{ backend: mdsplus, path: bind/post80000.yaml, valid_shots: [80000, null] }}\nbindings:\n  mdsplus:\n    root: bind\n    ids:\n      magnetics: magnetics.yaml\n    read_rules:\n      - id: mag-rule\n        ids: magnetics\n        applies_shots: [0, null]\n        rule: {{ op: scale }}\n        status: applied\n      - id: eq-rule\n        ids: equilibrium\n        applies_shots: [0, 45562]\n        rule: {{ op: normalize_length_units }}\n        status: applied\n");
+        std::fs::write(dir.join("machine.yaml"), manifest("pcs")).unwrap();
+        let run = |shot: i64| {
+            let o = Overrides { shot: Some(shot), ..Default::default() };
+            from_manifest(&dir.join("machine.yaml"), &["magnetics"], None, None, None, &o).unwrap()
+        };
+        let bind_of = |a: &Assembly| match a.sources.get("bind:magnetics") {
+            Some(SourceSpec::MdsBind { path, .. }) => path.file_name().unwrap().to_string_lossy().to_string(),
+            other => panic!("no binding: {other:?}"),
+        };
+        //: the default binding stays; the era-limited family covering the shot is NAMED, not bound
+        let (a, notes) = run(70754);
+        assert_eq!(bind_of(&a), "magnetics.yaml", "{notes:?}");
+        assert!(notes.iter().any(|n| n.contains("\"pcs_n_pre80000\" [0, 70754]") && n.contains("not bound")), "{notes:?}");
+        assert!(!notes.iter().any(|n| n.contains("pcs_vp_post80000")), "{notes:?}");
+        let (a, notes) = run(138569);
+        assert_eq!(bind_of(&a), "magnetics.yaml");
+        assert!(notes.iter().any(|n| n.contains("\"pcs_vp_post80000\"") && n.contains("not bound")), "{notes:?}");
+        let (a, notes) = run(75000);
+        assert_eq!(bind_of(&a), "magnetics.yaml");
+        assert!(!notes.iter().any(|n| n.contains("era-limited")), "{notes:?}");
+        //: a family NAMED by the caller is bound, and a shot outside its range is said
+        let o = Overrides { shot: Some(70754), ..Default::default() };
+        let (a, notes) = from_manifest(&dir.join("machine.yaml"), &["magnetics"], Some("pcs_vp_post80000"), None, None, &o).unwrap();
+        assert_eq!(bind_of(&a), "post80000.yaml");
+        assert!(notes.iter().any(|n| n.contains("\"pcs_vp_post80000\"") && n.contains("outside")), "{notes:?}");
+        let (_, notes) = run(75000);
+        //: the read rule for the requested IDS is named; the other IDS' rule is not
+        assert!(notes.iter().any(|n| n.contains("`mag-rule`") && n.contains("NOT applied")), "{notes:?}");
+        assert!(!notes.iter().any(|n| n.contains("eq-rule")));
+        //: a default static provider that does not cover the shot yields to the one that does
+        std::fs::write(dir.join("machine.yaml"), manifest("east")).unwrap();
+        let (a, notes) = run(138569);
+        match a.sources.get("geometry:magnetics") {
+            Some(SourceSpec::File(g)) => assert_eq!(g.file_name().unwrap(), "east_new.yaml", "{notes:?}"),
+            other => panic!("no geometry: {other:?}"),
+        }
+        assert!(notes.iter().any(|n| n.contains("\"east_new\"") && n.contains("does not cover shot 138569")), "{notes:?}");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
     #[test]
     fn a_book_manifest_resolves_tree_root_and_the_jsonld_suffix() {
         let dir = tmp("book");

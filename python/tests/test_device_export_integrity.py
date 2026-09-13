@@ -51,6 +51,11 @@ def _device_docs() -> dict[str, dict]:
 
 DEVICES = _device_docs()
 
+
+#: ★2026-09-13 (est2 removed): the `east@efit_w_pf` entry — the bundled EAST document
+#: resolved for the est2 array, the only provider whose channels carried `weight` /
+#: `bit_error` — left with that provider.  No magnetics provider carries them now.
+
 pytestmark = pytest.mark.skipif(
     not DEVICES,
     reason="这份构建里没有编译进装置描述（`build.sh --no-facts`）——"
@@ -95,27 +100,35 @@ BASELINE: dict[str, set[str]] = {
         "wall: description_2d/vessel/unit/annular/outline_inner/closed",
         "wall: description_2d/vessel/unit/annular/outline_outer/closed",
     },
-    #: ★★EAST 2026-09-07 进来：它的卡片是**手工维护**的那一张（在内核仓
-    #: `machine_desc/east/`），比上游全，也因此带着自己的一套词。下面这些是那套词里
-    #: DD 不认的部分 —— `count` · `note` 是同一类冗余/说明，`weight` · `bit_error` ·
-    #: `pcs` 是 EFIT 反演那一侧的东西，`pf_passive/*` 是
-    #: 按层分组的被动结构（DD 的 `pf_passive` 没有这些名字）。
-    #: **该给它们加 `fylite:` 前缀**，而那张卡片在另一个仓，是一次要协调的改动。
+    #: ★★EAST 2026-09-07 进来，**2026-09-13 重记**（用户裁定：machine_desc 退役）：文档不再是
+    #: 手工卡片，而是 `tools/abox-to-facts.py` 从 fydoc A-Box 组装的那一份（`build()` →
+    #: `build_east_from_abox`）。下面是**新文档**实测丢的裸路径，逐条对过：
+    #: * **少了 16 条**：卡片的 `count` · `note`（每组）、`ic_antennas: antenna/level`、
+    #:   `polarimeter: baseline`（A-Box 不载，文档里声明 absent 而不写）、`limiter/unit/count`
+    #:   —— 新文档不写这些，所以不丢。
+    #: * **多了 1 条**：`pf_active: supply/time_constant` —— fydoc 的 `supply[]` 裸写
+    #:   `time_constant`（卡片上从前是 `power_supply` 一节，这一版之前的基线里没有 supply），
+    #:   DD 的 `pf_active/supply` 没有这个名字。数在 fyo 文档里在，只是导出 IMAS 时丢。
+    #: * 其余照旧：`weight` · `bit_error` · `pcs` 是 EFIT 反演那一侧的东西（现由 operational
+    #:   namelist 按道搬上通道），`pf_passive/*` 是按层分组的被动结构，`theta` ·
+    #:   `laser_wavelength` · `faraday_constant` · EC `frequency`/`mode` · `tf: b0` DD 无槽。
     "east": {
         "ec_launchers: beam/frequency", "ec_launchers: beam/mode",
-        "ec_launchers: count", "ec_launchers: note",
-        "ic_antennas: antenna/level", "ic_antennas: count", "ic_antennas: note",
-        "interferometer: channel/line_of_sight/theta", "interferometer: count",
-        "interferometer: laser_wavelength", "interferometer: note",
-        "lh_antennas: count", "lh_antennas: note",
-        "magnetics: b_field_pol_probe/bit_error", "magnetics: b_field_pol_probe/weight",
-        "magnetics: flux_loop/bit_error", "magnetics: flux_loop/weight",
+        "interferometer: channel/line_of_sight/theta",
+        "interferometer: laser_wavelength",
+        #: ★2026-09-13: the per-channel `weight` · `bit_error` left this row — no
+        #: magnetics provider carries them since the est2 array was removed
+        #: ★2026-09-13 (measurement-chain ruling): the chain the magnetics group is in, spelled
+        #: `measurement_chain` on both sides by the ruling (one key, compared by equality with
+        #: the measurement document's).  It is a device-resolution key with no DD slot, so the
+        #: IMAS export drops it — recorded here, not prefixed (the ruling fixes the spelling).
+        "magnetics: measurement_chain",
         "magnetics: pcs",
-        "pf_active: count", "pf_active: note",
-        "pf_passive: note", "pf_passive: outer_shell", "pf_passive: passive_plates",
+        "pf_active: supply/time_constant",
+        "pf_passive: outer_shell", "pf_passive: passive_plates",
         "pf_passive: vessel",
-        "polarimeter: baseline", "polarimeter: channel/line_of_sight/theta",
-        "polarimeter: count", "polarimeter: faraday_constant", "polarimeter: note",
+        "polarimeter: channel/line_of_sight/theta",
+        "polarimeter: faraday_constant",
         "tf: b0",
         #: ★★2026-09-13 进来的一条，**是好消息不是回归**：器壁元件的参数化矩形此前写作
         #: `fylite:geometry`（带前缀，不入本表），用户裁定 2026-09-12「fylite 不作为本体
@@ -125,7 +138,6 @@ BASELINE: dict[str, set[str]] = {
         #: （见 `SYNTHESIZED` 的 `/outline/r` · `/outline/z`），所以丢的是「它本来是个
         #: 矩形」这句话，不是几何本身。
         "wall: description_2d/vessel/unit/element/geometry",
-        "wall: description_2d/limiter/unit/count",
     },
     "iter": {"tf: b0"},
     #: ★一条也不丢。这不是「没查」——`CHECKED_AT_LEAST` 说它逐值核对过 6 个叶子。
@@ -148,8 +160,12 @@ SYNTHESIZED = (
 #: 上一条表**放行**的叶子数不能悄悄涨上去。这里记的是每台机器**真正逐值核对过**
 #: 的叶子数（2026-09-07 实测，只准增不准减）：没有这一条，往 :data:`SYNTHESIZED`
 #: 里多加一个宽泛的词就能让整道闸绿着什么也不查。
-CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 591,
+#: ★EAST 591 → **783**（2026-09-13 重记）：A-Box 组装的文档多带了按道的 `length` ·
+#: `weight` · `bit_error`、PF 通道的 `turns` · `efit_index` · `bit_error`、`supply[14]`
+#: 与 LH/EC 的额定值；逐值核对 783 条、无一条对不上源。
+CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 783,
                     "iter": 165, "jt60sa": 6, "west": 200}
+
 
 #: 语义键与声明的本地词 —— 不进数据入口是设计，不是缺陷。
 _LOCAL = re.compile(r"(^|/)(@|\$|fylite:|_)")
@@ -288,9 +304,15 @@ def test_every_number_in_the_entry_is_the_source_number(device, tmp_path):
             continue
         if any(tag in path for tag in SYNTHESIZED):
             continue
-        checked += 1
         tail = "/".join(path.split("/")[1:])          #: 去掉入口那一层的 IDS 名
         hits = list(_carried(index, tail))
+        #: ★an EMPTY array the source does not have is PADDING, not a number: the
+        #: export fills an array-of-structure column on every row once one row
+        #: carries it (EAST 2026-09-13: `function` on IC1/IC2 only → `function = []`
+        #: on the 14 PF coils).  An empty array the source does have is still checked.
+        if not hits and isinstance(value, (list, tuple)) and len(value) == 0:
+            continue
+        checked += 1
         if not hits:
             unexplained.append(f"{path} = {value!r} —— 源文档里没有这一条")
         elif not any(_equalish(value, v) for _, v in hits):
@@ -353,9 +375,9 @@ def test_the_cross_section_survives_the_export(device, tmp_path):
 def test_the_baseline_names_only_devices_that_exist():
     """编译进来的每一台都要在基线里 —— 否则它挡不住任何回归。
 
-    ★★反过来**不**要求相等：EAST 只在 `abox-to-facts.py --from-kernel` 拉过卡片的
-    检出里才编得进去（那个开关是 opt-in 的，见那里的注释），所以基线里有而这份
-    构建里没有，是常态，不是错。多出来的那几行会由
+    ★★反过来**不**要求相等：一台机器只在编进它的构建里才在（EAST 只进内部版，
+    见每台的 `rights.json`），所以基线里有而这份构建里没有，是常态，不是错。
+    多出来的那几行会由
     `test_the_paths_a_device_loses_are_the_recorded_ones` 在有它的检出上守住。
     """
     missing = sorted(set(DEVICES) - set(BASELINE))

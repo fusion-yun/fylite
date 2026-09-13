@@ -10,16 +10,20 @@ and these are its feeders:
 * (`.kfile` — the EFIT ``&IN1`` k-file writer — was removed 2026-09-01: it
   prepared input for a solver that is not in this distribution, and
   transcribed that solver's internals. Its live EAST MDSplus read moved
-  into :mod:`.est2`, beside the reduction it always called.)
+  into the est2 module beside the reduction it always called, and on 2026-09-13
+  into :mod:`.raw` when est2 was removed.)
 * :mod:`.mds` — EAST MDSplus (``efit_east`` tree) → measurement dict,
   Thomson / diamagnetic fetches.  ★Transport is the engine's read-only mdsip
   client (:class:`fylite.kernel.MdsSession`) since 2026-09-04 — the site
   ``MDSplus`` package is not imported anywhere in this package any more, and
   the local-tree mode (``KEFIT_MDS_ROOT``) went with it: the engine speaks
   the wire protocol, not the tree file format, and the only local tree that
-  mode ever pointed at lived under the retired ``machine_desc/``;
-* :mod:`.est2` — the est2-basis reduction (windowed means, drift, POINT)
-  shared by the live mdsip path and the offline fyo/HDF5 dump reader;
+  mode ever pointed at lived under the retired device-deck tree;
+* :mod:`.raw` — raw diagnostic series → the flat measurement dict (windowed
+  means, drift, POINT, ELM phase), shared by the live mdsip path and the offline
+  HDF5 dump reader; channels and tree come from the device resolved for the shot
+  and measurement chain.  ★(`.est2`, its est2-ordered predecessor, was archived
+  2026-09-13: ``archive/python/fylite/io/est2.py``.)
 * (`.imas_h5` and `.jetto_bin` — an IMAS-HDF5 flat reader and a JETTO
   binary reader — were removed 2026-09-04: no caller anywhere, and the
   engine reads IMAS HDF5 itself, in both layouts.)
@@ -39,6 +43,6 @@ browser session reader (:mod:`fylite.appsession`).
 """
 from __future__ import annotations
 
-from . import efund, est2, fydoc, gacode, geqdsk, mds  # noqa: F401
+from . import efund, fydoc, gacode, geqdsk, mds, raw  # noqa: F401
 
-__all__ = ["efund", "est2", "fydoc", "gacode", "geqdsk", "mds"]
+__all__ = ["efund", "fydoc", "gacode", "geqdsk", "mds", "raw"]

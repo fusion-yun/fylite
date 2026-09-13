@@ -49,8 +49,9 @@ ROOT = Path(__file__).resolve().parents[2]
 DESC = ROOT / "dist" / "facts" / "device"
 FYDATA_ENV = "FYDATA_DIR"
 
-#: EAST is hand-maintained; every other document is generated.
-HANDWRITTEN = {"east"}
+#: ★★Every document is generated — EAST included since machine_desc was retired
+#: (user ruling 2026-09-13); nothing here is hand-maintained any more.
+HANDWRITTEN: set[str] = set()
 
 DOCS = sorted(DESC.glob("*/*_device.yaml"))
 
@@ -91,7 +92,9 @@ def test_a_group_with_no_upstream_data_says_so(doc: Path):
     for group in ("magnetics", "pf_active", "wall", "interferometer",
                   "polarimeter", "data_source", "operational", "solver_dims"):
         node = dev[group]
-        absent = isinstance(node, dict) and "fylite:absent" in node
+        #: ★a STRING says the whole group is absent; a MAPPING names the fields a
+        #: group with content does not carry (EAST: `polarimeter.fylite:absent.baseline`)
+        absent = isinstance(node, dict) and isinstance(node.get("fylite:absent"), str)
         content = _has_content(group, node)
         if content and absent:
             bad.append(f"{group}: marked absent but carries data")
@@ -227,18 +230,37 @@ def test_the_generated_descriptions_still_match_their_source(tmp_path):
         + "\n  ".join(drift))
 
 
-def test_the_generator_refuses_to_overwrite_the_hand_written_east_document(tmp_path):
-    """★EAST's document is strictly richer than fydata's EAST tree — the est2
-    79-probe basis, the fit-control block, the passive set and the supply
-    parameters have no upstream at all.  A generator that would answer for it
-    is a generator that can delete all of that in one run."""
-    fydata = _fydata()
-    r = subprocess.run([sys.executable, str(ROOT / "tools" / "fydata-to-fyo-device.py"),
-                        "east", "--fydata", str(fydata), "-o", str(tmp_path)],
-                       capture_output=True, text=True)
-    assert r.returncode != 0, "it produced an EAST document"
-    assert "refusing to overwrite" in r.stderr
-    assert not list(tmp_path.glob("**/*.yaml"))
+def test_the_generator_builds_east_from_the_a_box(tmp_path):
+    """★★This pinned the opposite until 2026-09-13: the generator REFUSED EAST,
+    because its document was a hand card richer than the upstream tree.  With
+    machine_desc retired (user ruling 2026-09-13) the fit-control block, the
+    est2 basis, the passive set and the supplies are in fydoc's A-Box, and EAST
+    goes through the same loop as every other machine.  So the pin is now that
+    it BUILDS — from the A-Box, on the manifest's default providers, and with
+    no route back to a kernel card."""
+    gen = ROOT / "tools" / "abox-to-facts.py"
+    fydoc = Path(os.environ.get("FYDOC") or ROOT.parent / "fydoc")
+    if not (fydoc / "facts" / "device" / "east" / "abox" / "machine.jsonld").is_file():
+        pytest.skip(f"no fydoc EAST A-Box under {fydoc} (set $FYDOC)")
+    r = subprocess.run([sys.executable, str(gen), "east", "--source", str(fydoc),
+                        "-o", str(tmp_path)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    card = tmp_path / "east" / "east_device.yaml"
+    assert card.is_file() and (tmp_path / "east.jsonld").is_file()
+    dev = device.load_device(card)
+    for group in device.DEVICE_REQUIRED:
+        assert group in dev, group
+    assert "abox" in dev["provenance"]["source"]
+    #: ★2026-09-13 (R-S1 / R-S2 + the measurement-chain ruling): the manifest's default
+    #: magnetics is `east_new` (the latest-shot array, chain `east`); the wall default is
+    #: `base` again (the est2 `efit_w_pf` contour was removed)
+    assert dev["magnetics"]["fylite:source"].endswith("providers/magnetics/east_new.jsonld")
+    assert dev["magnetics"]["measurement_chain"] == "east"
+    assert dev["wall"]["description_2d"][0]["limiter"]["unit"][0]["name"] == "base"
+    assert "machine_desc" not in card.read_text(encoding="utf-8")
+    help_text = subprocess.run([sys.executable, str(gen), "--help"],
+                               capture_output=True, text=True).stdout
+    assert "from-kernel" not in help_text and "east-from-abox" not in help_text
 
 
 #: ★★2026-09-02：`fylite_device_<id>.json` 是**手工件**——全仓没有任何工具产出

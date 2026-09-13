@@ -174,9 +174,9 @@ def test_the_public_guide_subset_is_a_subset_of_the_book():
 
 
 #: 开发文档与内部报告的**标识前缀**：设计集（规格链 + `FYL-DESIGN-NN`）与评估报告。
-#: ★按 `document_id` 判而不是按目录名判：换一个目录名绕不过去，而一份带 `FYL-DESIGN-12`
+#: ★按 `document_id` 判而不是按目录名判：换一个目录名绕不过去，而一份带 `FYL-SDD-07`
 #: 的文档无论叫什么名字、放在哪一层，都是设计文档。
-DEV_DOC_IDS = ("FYL-DESIGN-", "FYL-SDD-", "FYL-SRS-", "FYL-CONOPS-", "FYL-REPORT-")
+DEV_DOC_IDS = ("FYL-DESIGN-", "FYL-OVERVIEW-", "FYL-SDD-", "FYL-SRS-", "FYL-CONOPS-", "FYL-REPORT-")
 #: 迁出的三篇各自去了哪里 —— 失败信息要能直接告诉人该去哪个仓找。
 MOVED_TO = {
     "design": "fylite_kernel `docs/design/`（开发文档）",
@@ -196,7 +196,7 @@ def test_no_development_document_is_in_the_public_book():
       2. **按目录**：迁出的三个目录名不得再出现在 `docs/` 下。一份新写的、还没来得及
          有标识的设计草稿会被这一条挡住。
 
-    ★这道闸**不管引用**：正文里提 `FYL-DESIGN-16` 是引一个在别的仓的文档，那是对的
+    ★这道闸**不管引用**：正文里提 `FYL-SDD-02` 是引一个在别的仓的文档，那是对的
     （跨仓引用写成仓限定的行内代码）。它管的是**正本住在哪里**。
     """
     import re as _re

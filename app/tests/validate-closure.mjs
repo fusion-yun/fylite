@@ -41,9 +41,10 @@
 //      first round (or "converged" means nothing) and then stop moving —
 //      the closure criterion is < 5 % variation across the loop's rounds.
 //
-// ★Runs on EAST, installed from `machine_desc/` the way an imported machine
-// is — the one built-in device has no reference discharge, so there is
-// nothing for a reconstruction to fit.
+// ★Runs on EAST — the A-Box-built document with the #137985 reference discharge
+// added from the PRIVATE kernel fixture (`_kernel-fixture.mjs`, $FYLITE_KERNEL),
+// installed the way an imported machine is — the one built-in device has no
+// reference discharge, so there is nothing for a reconstruction to fit.
 //
 //   node app/tests/validate-closure.mjs [--playwright DIR] [--url BASE]
 
@@ -52,7 +53,8 @@ import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { seedDevice, envWithDeck, missingDeviceMessage } from './_device.mjs';
+import { envWithDeck } from './_device.mjs';
+import { seedEastWithShot, skipMessage } from './_kernel-fixture.mjs';
 import { browser } from './_browser.mjs';
 
 const HERE = new URL('.', import.meta.url).pathname;
@@ -71,10 +73,8 @@ const ok = (c, name, note) => {
 const br = await browser();
 const ctx = await br.newContext({ locale: 'zh-CN', acceptDownloads: true,
                                   viewport: { width: 1400, height: 1100 } });
-if (!await seedDevice(ctx, 'east')) {
-  console.error(missingDeviceMessage('east'));
-  process.exit(2);
-}
+const EAST = await seedEastWithShot(ctx);
+if (EAST.why) { console.log(skipMessage('validate-closure', EAST.why)); await br.close(); process.exit(0); }
 const page = await ctx.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));

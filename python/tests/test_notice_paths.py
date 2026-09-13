@@ -34,7 +34,7 @@ pytestmark = pytest.mark.skipif(not NOTICE.exists(),
                                 reason="no NOTICE in this tree")
 
 #: a path-looking token in the NOTICE's per-file lists
-_PATH = re.compile(r"(?:python|rust|app|tools|tests|machine_desc)/[\w./{},*-]*")
+_PATH = re.compile(r"(?:python|rust|app|tools|tests)/[\w./{},*-]*")
 
 
 def _expand(tok: str) -> list[str]:
@@ -176,7 +176,7 @@ def test_the_phantom_licence_citation_resolves():
     """
     citing = []
     for root in ("python/fylite", "python/tests", "tests",
-                 "rust/fylite/src", "machine_desc"):
+                 "rust/fylite/src"):
         for f in (ROOT / root).rglob("*"):
             if f.suffix in (".py", ".rs", ".md", ".yaml") and f.is_file():
                 if re.search(r"LICENSE\s*(?:§\s*)?3\.[12]",

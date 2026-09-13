@@ -76,8 +76,10 @@
 //      each slice's own readings, and a file missing them must be REFUSED
 //      rather than quietly re-fitted on the reference instant's.
 //
-// ★Runs on EAST, installed from `machine_desc/` the way an imported machine
-// is — the built-in devices carry no reference discharge.
+// ★Runs on EAST — the A-Box-built document with the #137985 reference discharge
+// and slices added from the PRIVATE kernel fixture (`_kernel-fixture.mjs`,
+// $FYLITE_KERNEL), installed the way an imported machine is; the built-in
+// devices carry no reference discharge.  Skipped by name without the kernel checkout.
 //
 //   node app/tests/validate-analysis.mjs [--playwright DIR] [--chrome BIN] [--url BASE]
 
@@ -86,19 +88,21 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { browser } from './_browser.mjs';
-import { seedDevice, deviceDoc, missingDeviceMessage } from './_device.mjs';
+import { seedDeviceDocs } from './_device.mjs';
+import { eastWithShot, skipMessage } from './_kernel-fixture.mjs';
 
 const iu = process.argv.indexOf('--url');
 const BASE = iu > 0 ? process.argv[iu + 1] : 'http://127.0.0.1:8767/app/';
 
 const OUT = mkdtempSync(join(tmpdir(), 'ana-'));
-const DEV = deviceDoc('east');
-if (!DEV) { console.error(missingDeviceMessage('east')); process.exit(2); }
+const EAST = eastWithShot();
+if (EAST.why) { console.log(skipMessage('validate-analysis', EAST.why)); process.exit(0); }
+const DEV = EAST.doc;
 
 const br = await browser();
 const ctx = await br.newContext({ locale: 'zh-CN', acceptDownloads: true,
                                   viewport: { width: 1500, height: 1300 } });
-await seedDevice(ctx, 'east');
+await seedDeviceDocs(ctx, { east: DEV });
 const errs = [];
 /** A page of this scenario, wired to the error log. */
 async function newPage(context) {
@@ -136,7 +140,7 @@ let page = await newPage(ctx);
 async function freshPage() {
   const c2 = await br.newContext({ locale: 'zh-CN', acceptDownloads: true,
                                    viewport: { width: 1500, height: 1300 } });
-  await seedDevice(c2, 'east');
+  await seedDeviceDocs(c2, { east: DEV });
   page = await newPage(c2);
   await page.goto(BASE + 'pages/analysis.html?device=east',
                   { waitUntil: 'networkidle' });

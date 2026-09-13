@@ -58,7 +58,7 @@ pub mod geqdsk;
 //: 文档树与 JSON(-LD) 编解码：零依赖，wasm 同样成立。
 pub mod document;
 //: ★★the flat tree: this side's encoder / decoder for the kernel's document door
-//: (FYL-DESIGN-16 F-1..F-4 / H-4; one implementation, three hosts).  No cfg: the
+//: (FYL-SDD-02 F-1..F-4 / H-4; one implementation, three hosts).  No cfg: the
 //: wasm build needs it the day the middle layer goes into the page (W-1).
 pub mod tree;
 pub mod json;
@@ -118,12 +118,12 @@ pub mod kernel_abi;
 pub mod case_api;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod case;
-//: 续跑：一次运行交出的状态 → 下一次运行的输入（`FYL-DESIGN-16` S-3..S-6 的
-//: 「携带」那一格；`FYL-DESIGN-18` U-19 的桌面一端）。
+//: 续跑：一次运行交出的状态 → 下一次运行的输入（`FYL-SDD-02` S-3..S-6 的
+//: 「携带」那一格；`FYL-SDD-05` U-19 的桌面一端）。
 pub mod resume;
 
 /// The command line of the Rust host, built from the shared `_cli.json`
-/// (FYL-DESIGN-15): the spec-driven parser plus the `data` and `case`
+/// (FYL-SDD-04): the spec-driven parser plus the `data` and `case`
 /// bodies the single executable and the two alias binaries share.
 #[cfg(not(target_arch = "wasm32"))]
 pub mod cli;
@@ -145,6 +145,10 @@ pub mod assembly;
 //: 因为「哪一份文件是这条断言」是数据集成的事——而 `data` / `case` 两条命令词都
 //: 在这一层跑。Python 侧另有一份 `fylite.facts`，两份由闸子比对。
 pub mod facts;
+
+//: ★★2026-09-13（用户裁定 R-S1 / R-S2）：装置描述按炮号在使用时解析——选提供者的那条规则
+//: 与把换算好的组写回卡片的那一步。不挂特性门：`.so`、可执行文件与 wasm 读同一条规则。
+pub mod device_resolve;
 
 //: ★★2026-09-04：算例语料的搜索路径（场景模板与预设），与 `facts` 同构。分开两个
 //: 模块而不是一个带域参数的：两条路径回答的是两个问题（「这台机器是哪一份」与

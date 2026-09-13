@@ -8,7 +8,7 @@ other way.  These pins are on the pure helper; no device deck is needed.
 """
 import pytest
 
-from fylite.io.est2 import fringe_gate
+from fylite.io.raw import fringe_gate
 
 
 def test_a_collapsed_chord_is_still_dropped():

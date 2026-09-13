@@ -9,7 +9,7 @@
 //! 「有什么」在 `fy` 里有六类答案，而它们的形一样：一列名字、每个名字来自哪个根、
 //! 今天能不能用。从前它们分挂在三条命令上（`data facts` · `case describe` · 翻目录），
 //! 于是问得出口的前提是先知道装置归 `data`、场景归 `case`——这条命令词把那层先验
-//! 知识收掉（`FYL-DESIGN-17` E-4 / E-24）。
+//! 知识收掉（`FYL-SDD-04` E-4 / E-24）。
 //!
 //! ★★**只读，且这条边界是它的用处**：不合成计划、不取数、不写记录、不开套接字。
 //! 于是它在没有内核、没有网络、没有写权限的机器上仍然回答得了——而「这条命令**会**
@@ -389,6 +389,13 @@ fn devices(args: &Args) {
                 ("rights", e.rights_path().map(|r| r.display().to_string().into()).unwrap_or(Node::Null)),
                 ("manifest", e.manifest_path().map(|m| m.display().to_string().into()).unwrap_or(Node::Null)),
                 ("described", manifest_json(e.manifest_path().as_deref())),
+                ("resolution", resolution_lines(e).map(|lines| {
+                    let mut m = crate::document::Map::new();
+                    for (ids, line) in lines {
+                        m.insert(ids, line.into());
+                    }
+                    Node::Map(m)
+                }).unwrap_or(Node::Null)),
             ]));
             continue;
         }
@@ -417,7 +424,14 @@ fn devices(args: &Args) {
             }
             println!("  ledger    {}", shown(&r));
         }
+        //: ★R-S1 / R-S2: a card that resolves by shot says how, per IDS
+        for (ids, line) in resolution_lines(e).unwrap_or_default() {
+            println!("  resolves  {ids:<10} {line}");
+        }
         match e.manifest_path() {
+            None if e.resolution().is_some() => println!(
+                "  manifest  — (a card built from its manifest, resolved by shot at use time — see `resolves`)"
+            ),
             None => println!(
                 "  manifest  — (described by a card; a scenario that needs coil geometry and \n\
                  \x20           channel tables will refuse this device)"
@@ -429,6 +443,16 @@ fn devices(args: &Args) {
         }
         println!();
     }
+}
+
+/// 这一条的按炮号解析（有则在，用户裁定 R-S1 / R-S2）：逐 IDS 一行——无炮号解析到谁、缺省
+/// 是谁、各提供者的炮号区间。★人看的与 `--json` 是同一次 `device_resolve::describe`。
+fn resolution_lines(e: &facts::Entry) -> Option<Vec<(String, String)>> {
+    let text = e.resolution()?;
+    Some(match crate::json::parse(&text) {
+        Ok(n) => crate::device_resolve::describe(&n),
+        Err(_) => vec![("?".to_string(), "the resolution document did not parse".to_string())],
+    })
 }
 
 /// [`describe_manifest`] 的机器可读一半 —— 同一份读取，两种排版。
@@ -637,7 +661,7 @@ fn scenarios(args: &Args) {
         let mut said = false;
         for s in rows.iter().filter(|s| !s.has_template && !s.reason.is_empty()) {
             if !said {
-                println!("\nno template, and why (FYL-DESIGN-17 E-8):");
+                println!("\nno template, and why (FYL-SDD-04 E-8):");
                 said = true;
             }
             println!("  {:<14} {}", s.name, s.reason);
@@ -704,7 +728,7 @@ fn scenarios(args: &Args) {
             }
         }
         if !t.switches.is_empty() {
-            println!("\n  switches (one name, a group of values — FYL-DESIGN-17 E-18):");
+            println!("\n  switches (one name, a group of values — FYL-SDD-04 E-18):");
             for s in &t.switches {
                 let sets: Vec<String> =
                     s.sets.iter().map(|(k, v)| format!("{k}={}", json::to_string(v, false))).collect();

@@ -6,9 +6,9 @@
 //! fy run plan.jsonld other.jsonld --bind measurements=meas.json -o rec/
 //! ```
 //!
-//! 本模块是 `case` 那条门**之上的解析层**（`FYL-DESIGN-17`）：把线变成模板、把装置名
+//! 本模块是 `case` 那条门**之上的解析层**（`FYL-SDD-04`）：把线变成模板、把装置名
 //! 变成文档、把炮号变成文档、把开关变成参数，然后交给 [`crate::case`] 合成与运行。
-//! ★★合成器只有一份：这里**不出现**第二处「后者覆盖前者」（E-21 / `FYL-DESIGN-16` D-3）。
+//! ★★合成器只有一份：这里**不出现**第二处「后者覆盖前者」（E-21 / `FYL-SDD-02` D-3）。
 //!
 //! 两种位置参数形，一条路（E-2 / E-10）：
 //!
@@ -195,7 +195,7 @@ fn resolve_target(args: &Args) -> Target {
         };
         die(&format!(
             "`{first}` is neither a line nor a plan document{hint}\n  \
-             a plan is a path, or a name ending .json / .jsonld / .yaml (FYL-DESIGN-17 E-2)"
+             a plan is a path, or a name ending .json / .jsonld / .yaml (FYL-SDD-04 E-2)"
         ));
     }
     let paths: Vec<PathBuf> = targets.iter().map(PathBuf::from).collect();
@@ -409,7 +409,11 @@ fn load_device(args: &Args, t: Option<&Template>, spec: &str, out_dir: &Path, dr
     if let Some(manifest) = entry.manifest_path() {
         return device_from_manifest(args, spec, &root, &manifest, &ids, out_dir, dry);
     }
-    if want_manifest {
+    //: ★★R-S1 (user ruling 2026-09-13): a card that ships a resolution document is the manifest's
+    //: provider selection in shipped form — built from that manifest, carrying the coil geometry and
+    //: channel tables, resolved by shot below — so it serves a scenario that needs them (a card
+    //: document named by PATH always has).  A card without one is still refused.
+    if want_manifest && entry.resolution().is_none() {
         return Err(refuse(
             "device",
             format!(
@@ -430,13 +434,39 @@ fn load_device(args: &Args, t: Option<&Template>, spec: &str, out_dir: &Path, dr
             format!("--device {spec}: the entry in {root} carries neither a card nor a manifest"),
         ));
     };
-    let node = crate::io::parse_node(&text)
+    let mut node = crate::io::parse_node(&text)
         .map_err(|e| refuse("device", format!("--device {spec}: {e}")))?;
-    let file = match (&entry.document, dry) {
-        (Some(doc), true) => doc.display().to_string(),
-        (Some(doc), false) => copy_into(doc, out_dir, "device")?,
-        (None, true) => format!("{}:device/{spec}", facts::BUNDLED_ROOT),
-        (None, false) => {
+    //: ★★R-S1 / R-S2 (user rulings 2026-09-13): a card that ships a resolution document is
+    //: resolved BY SHOT here — the shot and the measurement chain —
+    //: through `device_resolve`, the one rule, from whichever tier supplied the card (the
+    //: bundled one included).  No shot resolves as the latest shot, which the static card is.
+    let mut resolved: Option<String> = None;
+    if let Some(rtext) = entry.resolution() {
+        let res = json::parse(&rtext)
+            .map_err(|e| refuse("device", format!("--device {spec}: its resolution document: {e}")))?;
+        let req = device_request(args, t, Some(spec))?;
+        let r = crate::device_resolve::resolve(&node, &res, &req, crate::device_resolve::Form::Document)
+            .map_err(|e| refuse("device", format!("--device {spec}: {e}")))?;
+        for n in &r.notes {
+            eprintln!("fy run: device: {n}");
+        }
+        resolved = Some(crate::device_resolve::summary(&r.selected));
+        node = r.doc;
+    }
+    let file = match (&entry.document, dry, &resolved) {
+        //: a resolved card is not the file on disk any more: the record keeps what was resolved
+        (_, true, Some(s)) => format!("{}:device/{spec} (resolved {s})", entry.root.display()),
+        (_, false, Some(_)) => {
+            ensure_dir(out_dir)?;
+            let name = "device.jsonld".to_string();
+            std::fs::write(out_dir.join(&name), json::to_string(&node, true))
+                .map_err(|e| refuse("device", format!("--device {spec}: {e}")))?;
+            name
+        }
+        (Some(doc), true, None) => doc.display().to_string(),
+        (Some(doc), false, None) => copy_into(doc, out_dir, "device")?,
+        (None, true, None) => format!("{}:device/{spec}", facts::BUNDLED_ROOT),
+        (None, false, None) => {
             ensure_dir(out_dir)?;
             let name = "device.jsonld".to_string();
             std::fs::write(out_dir.join(&name), &text)
@@ -445,6 +475,123 @@ fn load_device(args: &Args, t: Option<&Template>, spec: &str, out_dir: &Path, dr
         }
     };
     Ok(DeviceDoc { id: spec.to_string(), root, file, node })
+}
+
+/// `measurement_chain=<chain>` (an open parameter): the chain a device is resolved in, for a run
+/// with no measurement document that declares one (user ruling 2026-09-13 — a device request gives
+/// only device + shot + chain, and the chain is the measurement document's own declaration when a
+/// document exists).  ★A device choice, not a parameter of the code — taken out before the template
+/// checks the rest.  (`provider=` is gone: the template refuses it like any unknown parameter.)
+fn is_device_arg(o: &OpenArg) -> bool {
+    o.key == crate::device_resolve::CHAIN_KEY
+}
+
+fn chain_arg(args: &Args) -> Option<String> {
+    args.open.iter().filter(|o| is_device_arg(o)).filter_map(|o| o.value.clone()).last()
+}
+
+/// What the device resolution is asked for: the shot, and the measurement chain — the primary
+/// measurement document's own `measurement_chain` when that document is known before the device
+/// resolves, else `measurement_chain=`.  Both given: refused by name.
+fn device_request(args: &Args, t: Option<&Template>, device: Option<&str>) -> Result<crate::device_resolve::Request, Refusal> {
+    let mut req = crate::device_resolve::Request::default();
+    if let Some(s) = args.flag("shot") {
+        let n = s.parse::<i64>().map_err(|_| refuse("device", format!("shot {s:?} is not an integer")))?;
+        req.shot = crate::device_resolve::shot_given(n);
+    }
+    req.measurement_chain = match (peek_chain(args, t, device), chain_arg(args)) {
+        (Some((path, declared)), Some(given)) => {
+            return Err(refuse(
+                "device",
+                format!(
+                    "measurement_chain={given} was given, and the primary measurement document {} declares \
+                     measurement_chain {declared:?} — the chain is taken from the document; give \
+                     measurement_chain= only when no document is available",
+                    path.display()
+                ),
+            ))
+        }
+        (Some((_, declared)), None) => Some(declared),
+        (None, given) => given,
+    };
+    Ok(req)
+}
+
+/// The primary measurement document and its `measurement_chain`, when the document is known now and
+/// declares one: `--input`, a `--bind` of the primary port, or the corpus slice `shot=` + `time=`
+/// resolve to.  ★What stays unknown here (a fetch) is checked after binding, by [`check_channel_order`].
+fn peek_chain(args: &Args, t: Option<&Template>, device: Option<&str>) -> Option<(PathBuf, String)> {
+    let primary = t.and_then(|t| t.primary_port()).map(|p| p.name.clone());
+    let mut path: Option<PathBuf> = args.flag("input").map(PathBuf::from);
+    if path.is_none() {
+        if let Some(pn) = &primary {
+            path = args.all("bind").iter().rev().find_map(|b| {
+                b.split_once('=').filter(|(p, _)| p == pn).map(|(_, f)| PathBuf::from(f))
+            });
+        }
+    }
+    if path.is_none() {
+        if let (Some(m), Some(s), Some(tm)) = (device, args.flag("shot"), args.flag("time")) {
+            path = facts::shot(m, s).and_then(|sh| nearest_slice(&sh.slices(), tm)).map(|(_, p)| p);
+        }
+    }
+    let path = path?;
+    let chain = document_chain(&path)?;
+    Some((path, chain))
+}
+
+fn document_chain(p: &Path) -> Option<String> {
+    let n = crate::io::read_node(p).ok()?;
+    n.as_map()?.get(crate::device_resolve::CHAIN_KEY)?.as_str().map(str::to_string)
+}
+
+/// ★★The pairing refusal where both halves are finally bound (user ruling 2026-09-13): a device
+/// whose magnetics group is in one measurement chain and a measurement declaring another are refused
+/// by name — never paired.  Only for a device resolved through a resolution document that declares
+/// chains; a chain the device does not declare is refused too.
+fn check_channel_order(d: &DeviceDoc, plan: &Plan, port: &str, out_dir: &Path) -> Result<(), Refusal> {
+    use crate::device_resolve::{CHAINS_KEY, CHAIN_KEY};
+    let Some(rec) = d.node.get("provenance/fylite:resolution") else { return Ok(()) };
+    let chains: Vec<String> = match rec.get(CHAINS_KEY) {
+        Some(Node::List(l)) => l.iter().filter_map(|x| x.as_str().map(str::to_string)).collect(),
+        Some(Node::Array(a)) => a.as_str().map(|s| s.to_vec()).unwrap_or_default(),
+        _ => Vec::new(),
+    };
+    if chains.is_empty() {
+        return Ok(());
+    }
+    let Some(b) = plan.inputs.iter().find(|b| b.port == port) else { return Ok(()) };
+    let declared = match (&b.endpoint, &b.inline) {
+        (Some(e), _) => {
+            let p = Path::new(e);
+            let p = if p.is_absolute() || p.exists() { p.to_path_buf() } else { out_dir.join(e) };
+            document_chain(&p)
+        }
+        (None, Some(n)) => n.as_map().and_then(|m| m.get(CHAIN_KEY)).and_then(Node::as_str).map(str::to_string),
+        _ => None,
+    };
+    let Some(chain) = declared else { return Ok(()) };
+    let have = d.node.get(&format!("magnetics/{CHAIN_KEY}")).and_then(Node::as_str);
+    if have == Some(chain.as_str()) {
+        return Ok(());
+    }
+    let provider = d.node.get("magnetics/fylite:provider").and_then(Node::as_str).unwrap_or("?");
+    Err(refuse(
+        "measurements",
+        format!(
+            "the `{port}` document is in measurement chain {chain:?}, and --device {} resolved its magnetics to \
+             provider {provider:?} ({}) — geometry and measurements of two chains are never paired{}.  Resolve the \
+             device in the document's chain: it is taken from the document when the document is given with \
+             --input / --bind",
+            d.id,
+            have.map(|h| format!("measurement chain {h:?}")).unwrap_or_else(|| "no measurement chain".into()),
+            if chains.contains(&chain) {
+                String::new()
+            } else {
+                format!("; and {chain:?} is not a chain this device declares ({})", chains.join(", "))
+            }
+        ),
+    ))
 }
 
 #[cfg(feature = "mdsip")]
@@ -461,6 +608,8 @@ fn device_from_manifest(
     let want: Vec<&str> = ids.iter().map(String::as_str).collect();
     let mut over = crate::assembly::Overrides::default();
     over.select = Vec::new();
+    //: ★R-S1 (2026-09-13): the shot decides the providers on this route too (no shot = the latest)
+    over.shot = args.flag("shot").and_then(|s| s.parse::<i64>().ok());
     let (a, notes) = crate::assembly::from_manifest(manifest, &want, args.flag("provider"), None, None, &over)
         .map_err(|e| refuse("device", format!("--device {spec}: {e}")))?;
     //: ★**不开套接字**：装置描述是几何与通道表，是 `static` 那半边。MDSplus 源在
@@ -793,7 +942,7 @@ fn effective_format(args: &Args, plan: &Plan) -> String {
 
 /// 这份构建写得了这种格式吗（`hdf5` / `netcdf` 是编译期特性）。
 ///
-/// ★★**先问，别写到一半才发现**（`FYL-DESIGN-16` B-1 的同一条姿态）。实测过反面：
+/// ★★**先问，别写到一半才发现**（`FYL-SDD-02` B-1 的同一条姿态）。实测过反面：
 /// 一份不带 `hdf5` 特性的 `fy` 跑 `evolve-iter-15ma`（它的输出端口要 IMAS HDF5）
 /// 会**先把内核跑完**，再在写第一个数据集时以 `exit 2` 停住——那个码在本篇里的
 /// 意思是「语法错，没有记录」，而这里既不是语法错、又已经算出了结果。
@@ -938,7 +1087,7 @@ fn build(args: &Args, target: &Target, out_dir: &Path, dry: bool) -> Result<(Pla
         device = Some(d);
     }
 
-    //: ★★**续跑：一层，落在装置之后、命令行之前**（`FYL-DESIGN-18` U-19 / G-4；
+    //: ★★**续跑：一层，落在装置之后、命令行之前**（`FYL-SDD-05` U-19 / G-4；
     //: `FYL-REPORT-07` R-1）。它是一层合成，不是一种模式——所以它守 E-13 的次序：
     //: 上一次交出的状态可以被命令行上显式写的同名参数盖掉（想从同一个断点换一个
     //: dt 重跑，就该能直接写 `dt_start=…`），而它自己盖得过预设与装置缺省。
@@ -1014,8 +1163,16 @@ fn build(args: &Args, target: &Target, out_dir: &Path, dry: bool) -> Result<(Pla
         prov.set("__resume", spec.to_string());
     }
 
+    //: ★`measurement_chain=` names the chain a DEVICE is resolved in, taken by `load_device` above —
+    //: not a parameter of the code, so the template never sees it; without a device it would be
+    //: silently unused, so that is refused
+    if device.is_none() && chain_arg(args).is_some() {
+        return Err(refuse("compose", "measurement_chain= names the chain a device is resolved in, and no --device was given"));
+    }
+    let open: Vec<OpenArg> = args.open.iter().filter(|o| !is_device_arg(o)).cloned().collect();
+
     //: 命令行：开关先展开，显式参数后落（E-18）
-    apply_open(&mut plan, &mut prov, target.template(), &args.open)?;
+    apply_open(&mut plan, &mut prov, target.template(), &open)?;
 
     //: 通用参数：`shot` / `time` 由固定选项承载，模板声明它收才落进计划
     for name in ["shot", "time"] {
@@ -1078,6 +1235,13 @@ fn build(args: &Args, target: &Target, out_dir: &Path, dry: bool) -> Result<(Pla
             format!("--input {f}: these plans resolve to no template, so there is no primary port \
                      to bind it to — name the port with --bind <port>={f}"),
         ));
+    }
+
+    //: ★★the book rule, checked once both halves are bound (see `check_channel_order`)
+    if let (Some(d), Some(t)) = (&device, target.template()) {
+        if let Some(port) = t.primary_port() {
+            check_channel_order(d, &plan, &port.name, out_dir)?;
+        }
     }
 
     Ok((plan, prov, base, device))

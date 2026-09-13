@@ -46,7 +46,7 @@ from .engine import (apply_channel_map, invert_channel_map,
 
 __all__ = ["FYO_PREFIX", "FYLITE_PREFIX", "CONTEXT", "vocabulary", "equilibrium", "as_geqdsk", "derive",
            "write", "read",
-           "measurements", "as_measurements", "resolve_probe_basis",
+           "measurements", "as_measurements", "resolve_measurement_chain",
            "MeasurementInputError",
            "grid_of", "flux_map_of", "psi_map_of", "core_profiles", "profiles_of",
            "beam_sources", "wave_sources", "merge_sources"]
@@ -1289,8 +1289,9 @@ _RETIRED_SOLVERS = {"sauter": "jpar_sauter", "sauter2021": "jpar_sauter_2021"}
 # Both directions are driven by ONE table — ``device.EAST_CHANNEL_MAP`` —
 # through the generic applier in :mod:`fylite.engine`
 # (``apply_channel_map`` / ``invert_channel_map``), so the forward parse and
-# the inverse cannot drift apart.  The est2 reduction that shared the old
-# file is a data SOURCE and lives in :mod:`fylite.io.est2` now.
+# the inverse cannot drift apart.  The raw-series reduction that shared the old
+# file is a data SOURCE and lives in :mod:`fylite.io.raw` now (it was
+# ``fylite.io.est2`` until est2 was removed, 2026-09-13).
 #
 # Input contract (dict, JSON or YAML file):
 #
@@ -1335,9 +1336,9 @@ class MeasurementInputError(ValueError):
     the DEVICE deck; this is about the measurements fed against it.
 
     ★Home is here, with the face whose contract it names — the same move
-    :data:`FYO_PREFIX` made.  It used to be defined in :mod:`fylite.io.est2`
+    :data:`FYO_PREFIX` made.  It used to be defined in ``fylite.io.est2`` (now :mod:`fylite.io.raw`)
     and imported BY this module, so the document layer took its own public
-    exception from one of its feeders; :mod:`fylite.io.est2` is a consumer of
+    exception from one of its feeders; :mod:`fylite.io.raw` is a consumer of
     this type, not its owner, and reaches it the way it reaches
     :mod:`fylite.device` — lazily, at the call.
     """
@@ -1368,91 +1369,89 @@ def _device():
     return device
 
 
-def _basis_of(n_channels: int) -> str:
-    """:func:`fylite.device.probe_basis_of`, re-raised in this module's
-    vocabulary.
+def resolve_measurement_chain(d: dict) -> str | None:
+    """The measurement chain an IMAS-shaped document is in: its own
+    ``measurement_chain`` declaration (``None`` when it declares none).
 
-    ★A probe count that matches no basis is a MEASUREMENT fault, not a
-    device-document one: the machine is fine, the file handed to it is not.
-    :class:`MeasurementInputError` is documented as "counts, orders, units",
-    which is exactly this, so callers keep one exception to catch.
+    ★The chain is DECLARED by the document, never inferred from a probe count:
+    two chains can share a length and still be different probe sets (user ruling
+    2026-09-13 — the measurement chain decides the device configuration).  What is
+    checked against the length present is the bound device's channel map.
     """
-    dev = _device()
-    try:
-        return dev.probe_basis_of(n_channels)
-    except dev.DeviceDocumentError as exc:
-        raise MeasurementInputError(str(exc)) from None
-
-
-def resolve_probe_basis(d: dict, basis: str | None = None) -> str:
-    """Which probe basis an IMAS-shaped document is in.
-
-    Three sources, in order: an explicit ``basis`` argument, the document's
-    own ``fylite:channel_basis`` declaration, and the length actually
-    present.  ★Any two that are both available must AGREE — a document
-    declaring ``est2`` while carrying 76 channels is corrupt, and reading it
-    as either basis would be a guess.  With none available the device
-    module's default stands, and "no probes at all" is reported by the
-    channel map, which is where that belongs.
-    """
-    dev = _device()
-    declared = d.get(dev.BASIS_KEY)
-    if declared is not None and declared not in dev.probe_bases():
+    declared = d.get(_device().CHAIN_KEY)
+    if declared is not None and not isinstance(declared, str):
         raise MeasurementInputError(
-            f"{dev.BASIS_KEY} says {declared!r}; "
-            f"known: {sorted(dev.probe_bases())}")
-    mag = d.get("magnetics")
-    probes = mag.get("b_field_pol_probe") if isinstance(mag, dict) else None
-    observed = _basis_of(len(probes)) if isinstance(probes, list) else None
-    for a, b, why in ((basis, declared, f"the caller and {dev.BASIS_KEY}"),
-                      (basis, observed, "the caller and the document"),
-                      (declared, observed, f"{dev.BASIS_KEY} and the document")):
-        if a is not None and b is not None and a != b:
-            raise MeasurementInputError(
-                f"probe basis disagreement between {why}: {a!r} vs {b!r}")
-    return basis or declared or observed or dev.DEFAULT_BASIS
+            f"{_device().CHAIN_KEY} must be a chain id string, got {declared!r}")
+    return declared
+
+
+def _refuse_mixed_chain(declared: str) -> None:
+    """★★The pairing refusal on the reconstruction path (user ruling 2026-09-13): a
+    measurement declaring one chain is never read against a device whose magnetics
+    group is in another — refused by name.
+
+    Checked when the device's magnetics name their provider (``fylite:provider``,
+    written by the resolution).  A card that names no provider — a frozen fixture —
+    is the caller's explicit choice and is not second-guessed.
+    """
+    dev = _device()
+    dmag = dev._ensure()["EAST_DEVICE"].get("magnetics") or {}
+    provider = dmag.get("fylite:provider")
+    if provider is None:
+        return
+    have = dmag.get(dev.CHAIN_KEY)
+    if have == declared:
+        return
+    raise MeasurementInputError(
+        f"the measurement is in measurement chain {declared!r}, and the device's magnetics "
+        f"set is provider {provider!r} ("
+        + (f"measurement chain {have!r}" if have else "no measurement chain")
+        + ") — geometry and measurements of two chains are never paired; resolve the "
+        f"device for this measurement: fylite.device.document(measurement_chain={declared!r}) "
+        "bound with fylite.device.use_device(...)")
 
 
 def _measurements_from_dict(d: dict, time_s: float, *,
-                            source: str = "dict",
-                            basis: str | None = None) -> dict:
+                            source: str = "dict") -> dict:
     """An already-loaded IMAS-shaped dict → the flat measurement dict.  Every
     door funnels through here, so the channel contract (counts, orders,
     units — ``device.east_channel_map``) is enforced once."""
-    resolved = resolve_probe_basis(d, basis)
-    out = apply_channel_map(_device().east_channel_map(resolved), d, time_s,
+    declared = resolve_measurement_chain(d)
+    #: ★a DECLARED chain is held against the device first — otherwise a document of
+    #: another chain is refused for its loop COUNT, which names the symptom, not the cause
+    if declared is not None:
+        _refuse_mixed_chain(declared)
+    out = apply_channel_map(_device().east_channel_map(), d, time_s,
                             error=MeasurementInputError)
-    #: ★The basis travels ON the flat dict: a consumer that has to pick a
-    #: weight mask, a limiter or a table set needs it, and re-deriving it
-    #: from ``len(expmp2)`` at each such site is how one of them ends up
-    #: assuming.
-    out.update(source=source, time_s=float(time_s), basis=resolved)
+    #: ★The chain travels ON the flat dict (the document's declaration, else the bound
+    #: device's own): a consumer that has to pick a weight mask, a limiter or a table
+    #: set needs it, and re-deriving it at each such site is how one ends up assuming.
+    out.update(source=source, time_s=float(time_s),
+               measurement_chain=declared if declared is not None
+               else _device().measurement_chain())
     return out
 
 
-def as_measurements(obj, time_s: float, *, source: str | None = None,
-                    basis: str | None = None) -> dict:
+def as_measurements(obj, time_s: float, *, source: str | None = None) -> dict:
     """Measurement document (path, plain dict, or JSON-LD normal-form dict)
     → the flat fylite measurement dict.
 
     The P-1 (interpret_inputs) hook of the data plane: semantic documents are
     stripped and funnelled through the same channel contract as plain
-    IMAS-shaped input; nothing about the physics path changes.
+    IMAS-shaped input; nothing about the physics path changes.  ★The measurement
+    chain is the document's own ``measurement_chain``; there is no caller argument.
     """
     if isinstance(obj, (str, Path)):
         return as_measurements(load_document(obj), time_s,
-                               source=source or f"imas:{obj}", basis=basis)
+                               source=source or f"imas:{obj}")
     if not isinstance(obj, dict):
         raise TypeError(f"expected a path or dict, got {type(obj).__name__}")
     if is_semantic(obj):
-        #: ★``strip_semantic`` drops ``@``/``$`` keys; ``fylite:channel_basis``
-        #: is neither, so the declaration survives the strip.  That is why
-        #: the basis is declared under a prefixed ORDINARY key.
+        #: ★``strip_semantic`` drops ``@``/``$`` keys; ``measurement_chain`` is
+        #: neither, so the declaration survives the strip.
         return _measurements_from_dict(strip_semantic(obj), time_s,
-                                       source=source or "semantic:normal-form",
-                                       basis=basis)
-    return _measurements_from_dict(obj, time_s, source=source or "dict",
-                                   basis=basis)
+                                       source=source or "semantic:normal-form")
+    return _measurements_from_dict(obj, time_s, source=source or "dict")
 
 
 def measurements(meas: dict) -> dict:
@@ -1467,15 +1466,20 @@ def measurements(meas: dict) -> dict:
     ``tf.b_field_tor_vacuum_r`` (R*Bt at RCENTR).
     """
     dev = _device()
-    #: ★The basis is settled BEFORE anything is written, from the length the
-    #: flat dict actually carries; a length belonging to no known basis
-    #: raises here rather than producing a document nothing can read.  This
-    #: is the half of the round trip that used to be missing — the inverse
-    #: wrote whatever it was handed while the forward parse checked one
-    #: fixed count.
-    basis = (_basis_of(len(meas["expmp2"])) if "expmp2" in meas
-             else dev.DEFAULT_BASIS)
-    payload = invert_channel_map(dev.east_channel_map(basis), meas)
+    #: ★The probe count is settled BEFORE anything is written, against the bound
+    #: device's magnetics group; a length that is not that group's raises here rather
+    #: than producing a document nothing can read.  The chain written is the flat
+    #: dict's own (a reader set it), else the bound device's.
+    table = dev.east_channel_map()
+    want = next((e["count"] for e in table if e["target"] == "expmp2"), None)
+    if "expmp2" in meas and want is not None and len(meas["expmp2"]) != want:
+        chain = dev.measurement_chain()
+        raise MeasurementInputError(
+            f"expmp2 has {len(meas['expmp2'])} channels and the bound device's magnetics "
+            f"group has {want}" + (f" (measurement chain {chain!r})" if chain else "")
+            + " — resolve the device in this measurement's chain")
+    chain = meas.get("measurement_chain") or dev.measurement_chain()
+    payload = invert_channel_map(table, meas)
     for section, tag in _SECTION_TYPES.items():
         if section in payload:
             payload[section]["@type"] = tag
@@ -1483,7 +1487,7 @@ def measurements(meas: dict) -> dict:
         "@context": dict(_MEASUREMENT_CONTEXT),
         "@id": "fylite:measurements/" + str(meas.get("source", "unknown")),
         "@type": "fylite:MeasurementSet",
-        dev.BASIS_KEY: basis,
+        **({dev.CHAIN_KEY: chain} if chain else {}),
         **payload,
         "coil_current_units": "A.turns",
     }

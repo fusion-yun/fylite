@@ -1,9 +1,9 @@
 """Direct EAST MDSplus (efit_east tree) -> measurement dict.
 
-Data source: ``KEFIT_MDS_SERVER`` (``host`` or ``host:port``, port 8000 by
-default; the site's own address comes from whoever runs the server, and from
-the device deck's ``fylite:mds.server`` — it is not written down here), else
-the device document's declared server.  Transport is the engine's read-only
+Data source: ``server=`` → ``$FYLITE_MDSIP_SERVER`` (legacy ``KEFIT_MDS_SERVER``)
+→ the device document's declared server (``host`` or ``host:port``, port 8000
+by default; the site's address is a deployment setting, not written down
+here) — see :func:`fylite.device.mdsip_server`.  Transport is the engine's read-only
 mdsip client (:class:`fylite.kernel.MdsSession`); see :func:`_session` for
 what left with the site ``MDSplus`` package (2026-09-04).
 
@@ -58,8 +58,18 @@ def _probe_gate() -> tuple[float, float]:
 
 
 def _server(spec: str | None = None) -> tuple[str, int]:
-    """``host`` or ``host:port`` → ``(host, port)``; port defaults to 8000 (mdsip)."""
-    spec = spec or os.environ.get("KEFIT_MDS_SERVER") or device.MDS_SERVER
+    """``host`` or ``host:port`` → ``(host, port)``; port defaults to 8000 (mdsip).
+
+    Resolved by :func:`fylite.device.mdsip_server` (``server=`` →
+    ``$FYLITE_MDSIP_SERVER`` → the device document).  ★This is the point a
+    connection is attempted, so this is where "none named" is refused.
+    """
+    spec = device.mdsip_server(spec)
+    if not spec:
+        raise MdsError(
+            "no mdsip server: pass server=HOST[:PORT] or set $FYLITE_MDSIP_SERVER "
+            "(the device document names none — which host serves a tree is a "
+            "deployment setting)")
     host, _, port = str(spec).partition(":")
     return host, (int(port) if port else 8000)
 
@@ -72,7 +82,7 @@ def _session(tree: str, shot: int, server: str | None = None):
     Two things left with that package: the local-tree mode
     (``KEFIT_MDS_ROOT`` + ``MDSplus.Tree``) — the engine speaks the wire
     protocol, not the tree file format, and the only tree that mode ever
-    pointed at lived under the retired ``machine_desc/`` — and the
+    pointed at lived under the retired device-deck tree — and the
     ``efit_east_path`` environment plumbing that mode needed.
     """
     from .. import kernel
@@ -188,7 +198,7 @@ def fetch_thomson(shot: int, time_s: float, *,
     the TXCS core ion temperature — the raw inputs for a kprfit=1 pressure
     constraint (:func:`pressure_from_thomson`).
 
-    Reads through the engine's mdsip client (like the est2 path):
+    Reads through the engine's mdsip client (like the raw-series path, :mod:`.raw`):
 
     * ``ts_east``: ``\\TE_CORETS`` / ``\\NE_CORETS`` — rows are laser slices
       with **column 0 = time [s]** and columns 1..N the values at the N

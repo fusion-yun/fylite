@@ -12,7 +12,7 @@ import copy
 
 import pytest
 
-from conftest import requires_machine
+from conftest import EFIT_TREE, device_selected, requires_machine
 from fylite import device, engine, fyo
 from fylite.fyo import MeasurementInputError
 
@@ -24,6 +24,17 @@ to_fyo = fyo.measurements
 #: distribution ships no device description, so importing them here would
 #: make the whole file uncollectable rather than skippable.
 pytestmark = requires_machine
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _efit_tree_card():
+    """★★2026-09-13 (R-S1 / R-S2): ``EAST_CHANNEL_MAP`` is the ``efit_east`` table
+    (76 probes, EXPMPI order), and the static card is the no-shot resolution
+    (magnetics ``east_new``) — a measurement built on ``device.NPROBE`` is refused
+    against it by name.  So this module states its selection: the card resolved for
+    the ``efit_east`` tree (``efit``), bound for the module and released after."""
+    with device_selected(**EFIT_TREE):
+        yield
 
 
 def _good() -> dict:

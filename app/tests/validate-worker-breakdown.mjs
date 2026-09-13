@@ -20,6 +20,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { deviceDoc } from './_device.mjs';
+import { referenceDischarge, skipMessage } from './_kernel-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HERE, '..', 'assets') + path.sep;
@@ -48,15 +49,17 @@ globalThis.fetch = async (url) => {
 };
 vm.runInThisContext(readFileSync(SITE + 'worker.js', 'utf8'), { filename: 'worker.js' });
 
-function eastDoc() {
-  const d = deviceDoc('east');
-  if (d) return d;
-  const dir = process.env.FYLITE_DEVICE_DIR;
-  const f = dir && path.join(dir, 'fylite_device_east.json');
-  return f && existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null;
+//: ★2026-09-13 (machine_desc retired): the device is the A-Box-built document; the
+//: `flux` spec's anchor currents (`xRef`) are the #137985 reference discharge's,
+//: injected from the PRIVATE kernel fixture (user ruling) — never a public copy.
+//: Without the kernel checkout `free` / `capped` still run and `flux` is skipped by name.
+const doc = deviceDoc('east');
+if (!doc) { console.log('跳过：没有 EAST 装置文档（dist/facts/device/east.jsonld；python3 tools/abox-to-facts.py east）'); process.exit(0); }
+const REF = referenceDischarge();
+if (REF.why) {
+  if (RECORD) { console.error('不能录制：flux 配置要内核夹具 — ' + REF.why); process.exit(2); }
+  console.log(skipMessage('validate-worker-breakdown 的 flux 配置', REF.why));
 }
-const doc = eastDoc();
-if (!doc) { console.log('跳过：没有 EAST 装置文档（dist/facts/device/east.jsonld 或 $FYLITE_DEVICE_DIR/fylite_device_east.json）'); process.exit(0); }
 const M = globalThis.FyoDevice.fromFyo(doc), id = 'east';
 const send = (msg) => globalThis.self.onmessage({ data: msg });
 const take = (type) => {
@@ -68,16 +71,17 @@ const take = (type) => {
 };
 await send({ cmd: 'init', machine: M });
 inbox.splice(0, inbox.length);
-const tf = globalThis.FyDevice.tf(M), R = M.reference;
+const tf = globalThis.FyDevice.tf(M), R = REF.why ? null : REF.doc['fylite:reference_discharge'];
 const base = { r0: tf.r0, z0: 0, radius: 0.3, bTol: 2e-3, nRing: 4, nTheta: 16, fluxTarget: null,
                weightNull: 1, weightFlux: 1, lam: 1e-12, xRef: null, iMax: null, nu: 3, nv: 3 };
 const nCh = M.channels.length;
 const CONFIGS = {
   free: base,
   capped: Object.assign({}, base, { iMax: new Array(nCh).fill(2.0e4) }),
-  flux: Object.assign({}, base, { fluxTarget: 1.5, weightFlux: 3, xRef: R ? Array.from(R.aturns) : null,
-                                  iMax: new Array(nCh).fill(6.0e4) }),
+  flux: R && Object.assign({}, base, { fluxTarget: 1.5, weightFlux: 3, xRef: Array.from(R.aturns),
+                                       iMax: new Array(nCh).fill(6.0e4) }),
 };
+if (!R) delete CONFIGS.flux;
 
 const arr = (v) => (v === null || v === undefined) ? null : Array.from(v);
 function pick(r) {
@@ -120,9 +124,9 @@ function walk(a, b, p) {
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
   for (const k of keys) walk(a[k], b[k], p + '.' + k);
 }
-for (const name of Object.keys(want.configs)) walk(want.configs[name], JSON.parse(JSON.stringify(got[name])), name);
+for (const name of Object.keys(want.configs).filter((n) => n in got)) walk(want.configs[name], JSON.parse(JSON.stringify(got[name])), name);
 assert.equal(bad.length, 0, 'the null design moved:\n  ' + bad.slice(0, 20).join('\n  ') + (bad.length > 20 ? `\n  … ${bad.length} in all` : ''));
 const f = got.free;
-console.log(`validate-worker-breakdown: ${Object.keys(want.configs).length} null designs on ${id}; currents bit for bit, fields to ${TOL} `
+console.log(`validate-worker-breakdown: ${Object.keys(got).length} null designs on ${id}; currents bit for bit, fields to ${TOL} `
             + `(worst rel ${worst.toExponential(2)} at ${worstAt}); free: B_max ${(f.bMax * 1e3).toFixed(3)} mT in ${f.iterations} it, `
             + `${f.fluxSegs.inner.length} contour levels`);

@@ -269,7 +269,9 @@ _MCP_CURATED = [
                        "written into out/. Modes: input= a measurement "
                        "document (IMAS-shaped JSON/YAML or JSON-LD normal "
                        "form; needs time_s); east=true reads the EAST MDSplus "
-                       "trees through the est2/GUI_v5 path (needs network and "
+                       "trees through the raw-series reduction (GUI_v5 convention; "
+                       "channels and tree from the device resolved for the "
+                       "shot; needs network and "
                        "a machine deck; optional POINT / pressure kinetic "
                        "constraints); otherwise shot+time_s reads the "
                        "efit_east measurement nodes.",
@@ -283,7 +285,7 @@ _MCP_CURATED = [
                                          "(.json/.jsonld/.yaml)"},
                 "east": {"type": "boolean",
                          "description": "read the EAST MDSplus trees "
-                                        "(est2/GUI_v5 path)"},
+                                        "(raw-series path)"},
                 "server": {"type": "string",
                            "description": "(east) MDSplus server host"},
                 "point": {"type": "boolean",
@@ -416,7 +418,7 @@ def run_reconstruction(opts: dict) -> dict:
     """One reconstruction from the option set both tool faces accept.
 
     Modes, in the order they are tried: ``input`` (a measurement document,
-    with ``time_s``), ``east`` (the est2/GUI_v5 path into the EAST MDSplus
+    with ``time_s``), ``east`` (the raw-series path, :mod:`fylite.io.raw`, into the EAST MDSplus
     trees, with ``shot`` + ``time_s``), else a bare ``shot`` + ``time_s``
     through the ``efit_east`` measurement nodes.  Returns the result dict;
     nothing is written — see :func:`deliver_gfile`.
@@ -437,7 +439,7 @@ def run_reconstruction(opts: dict) -> dict:
     shot, time_s = opts.get("shot"), opts.get("time_s")
     if opts.get("east"):
         return reconstruct_input(shot, time_s, kind="east", **kw)
-    #: everything above that reads a tree belongs to the est2/GUI_v5 path
+    #: everything above that reads a tree belongs to the raw-series path
     #: only.  The other two modes get the SOLVE's keywords alone — the
     #: router would raise on a stray one, which is right, but a mode that
     #: never accepted the option should not have to be told about it.

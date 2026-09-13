@@ -1,11 +1,20 @@
-"""EAST is described twice in `machine_desc/east/`, and the two must agree.
+"""EAST is described twice on the facts path, and the two must agree.
 
-★★**Why this exists.**  `east_device.yaml` is what Python reads
-(`device.load_device`); `fylite_device_east.json` is what the browser imports
-(`FyoDevice.fromFyo`).  They are two files, in two fyo dialects, maintained
-by different hands — the JSON's ancestry is a browser export, and
-`tools/make-east-inputs.py` completes it in place rather than deriving it
-from the YAML.  Nothing has ever compared them.
+★★**Where the two now come from (2026-09-13, machine_desc retired by user
+ruling).**  `device/east/east_device.yaml` is what Python reads
+(`device.load_device`); `device/east.jsonld` is what the browser imports
+(`FyoDevice.fromFyo`) and what `facts.rs` embeds.  Both are written by
+`tools/abox-to-facts.py` from fydoc's A-Box — the JSON is derived from the
+YAML (`write_document`).  One generator does not make the gate redundant: the
+derivation reshapes (flattens channels, renames the channel map, moves the
+vacuum field, drops alternative limiters), and a reshaping that changes the
+machine is exactly what this compares.  Read from the first root on the facts
+search path (`fylite.facts.roots()`; a checkout's staged `dist/facts/`).
+
+★★**Why this exists (history).**  Until 2026-09-13 the two were the
+hand-maintained `machine_desc/east/east_device.yaml` and
+`fylite_device_east.json`, maintained by different hands — the JSON's
+ancestry is a browser export.  Nothing had ever compared them.
 
 That is the shape this directory's README says it eliminated once already:
 `dprobe.dat` and the device document described one machine twice until the
@@ -29,13 +38,24 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[2]
-YAML_DOC = ROOT / "machine_desc" / "east" / "east_device.yaml"
-JSON_DOC = ROOT / "machine_desc" / "east" / "fylite_device_east.json"
+from fylite import facts as _facts
+
+
+def _pair_paths() -> tuple[Path | None, Path | None]:
+    """The first facts root carrying BOTH EAST forms (never one from each root)."""
+    for root in _facts.roots():
+        y, j = root / "device" / "east" / "east_device.yaml", root / "device" / "east.jsonld"
+        if y.is_file() and j.is_file():
+            return y, j
+    return None, None
+
+
+YAML_DOC, JSON_DOC = _pair_paths()
 
 pytestmark = pytest.mark.skipif(
-    not (YAML_DOC.is_file() and JSON_DOC.is_file()),
-    reason="EAST is not described on both sides in this tree")
+    YAML_DOC is None,
+    reason="EAST is not on the facts search path in both forms "
+           "(run `python3 tools/abox-to-facts.py --all`)")
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +72,7 @@ def _rect(el: dict) -> tuple:
 
 
 def _yaml_elements(y: dict) -> list[tuple]:
-    """The 14 conductor rectangles, flattened out of the 12 channels.
+    """The 16 conductor rectangles (14 PF + IC1/IC2), flattened out of the channels.
 
     ★Flattened, not `element[0]`: two channels drive a SERIES PAIR and carry
     two elements each.  Reading only the first is how a comparison concludes
@@ -61,15 +81,19 @@ def _yaml_elements(y: dict) -> list[tuple]:
     return [_rect(e) for c in y["pf_active"]["coil"] for e in c["element"]]
 
 
-def test_the_conductor_rectangles_are_the_same_fourteen(pair):
+def test_the_conductor_rectangles_are_the_same_sixteen(pair):
     """★The rectangles are what both hosts hand the kernel — Python through
     `device.conductor_geometry`, the browser through `FyoDevice.fromFyo` —
     and the kernel computes every mutual inductance from them.  A machine
-    that differs here is a different machine, silently."""
+    that differs here is a different machine, silently.
+
+    ★16 since K-2 (2026-09-13): the 14 PF elements plus the fast IC1/IC2
+    coils (`function` b_field_fb).  This asserted 14 against a card that had
+    already grown to 16, and nobody saw it because the module skipped."""
     y, j = pair
     got = _yaml_elements(y)
     want = [_rect(c["element"][0]) for c in j["pf_active"]["coil"]]
-    assert len(got) == len(want) == 14, (len(got), len(want))
+    assert len(got) == len(want) == 16, (len(got), len(want))
     assert got == want
 
 
@@ -100,14 +124,31 @@ def test_the_magnetic_probes_are_in_the_same_places(pair):
 
 
 def test_the_flux_loops_are_in_the_same_places(pair):
-    """★POSITIONS only — the names are a separate case below."""
+    """★POSITIONS only — the names are a separate case below.
+
+    ★★2026-09-13 (R-S1 / R-S2 + the measurement-chain ruling): both forms are the NO-SHOT
+    resolution, whose magnetics provider is ``east_new`` (chain ``east``, 75 loops).  The
+    other chains' loop sets are not in either file as written; they are what each form
+    RESOLVES to, so one is compared resolved — both forms, one resolution document, the
+    runtime's rule: the ``efit_east`` chain (``conftest.EFIT_TREE``: ``efit``, 35 loops).
+    """
+    from conftest import EFIT_TREE
+    from fylite import device
+
+    def places(doc):
+        return [(c["position"][0]["r"], c["position"][0]["z"])
+                for c in doc["magnetics"]["flux_loop"]]
+
     y, j = pair
-    a = [(c["position"][0]["r"], c["position"][0]["z"])
-         for c in y["magnetics"]["flux_loop"]]
-    b = [(c["position"][0]["r"], c["position"][0]["z"])
-         for c in j["magnetics"]["flux_loop"]]
-    assert len(a) == len(b) == 35
-    assert a == b
+    assert y["magnetics"]["fylite:provider"] == j["magnetics"]["fylite:provider"] == "east_new"
+    assert len(places(y)) == len(places(j)) == 75
+    assert places(y) == places(j)
+    res = device.resolution_of(YAML_DOC)
+    ye = device.resolve_document(y, res, form="card", **EFIT_TREE)["document"]
+    je = device.resolve_document(j, res, form="document", **EFIT_TREE)["document"]
+    assert ye["magnetics"]["measurement_chain"] == je["magnetics"]["measurement_chain"] == "efit_east"
+    assert len(places(ye)) == len(places(je)) == 35
+    assert places(ye) == places(je)
 
 
 def test_the_flux_loops_carry_the_same_names(pair):
@@ -142,11 +183,12 @@ def _limiter_units(doc: dict) -> list[tuple]:
 def test_both_descriptions_run_east_on_the_same_wall(pair):
     """★★★The one that was not cosmetic.
 
-    The YAML carries two limiter contours and names them: `efit_w_pf` (the
-    GUI-v5 60-point wall, inner R ~ 1.36 m) and `m-file` (the validation-era
-    48-point one, inner R ~ 1.30 m).  `device.LIMITER_OPERATIONAL` selects
-    the first, and its own comment records what choosing the other does: on
-    #70754 psi_bry moves **-0.393 -> -0.415**.
+    The YAML carries two limiter contours and names them: the operational one
+    (`base` since 2026-09-13, when the est2 GUI-v5 60-point `efit_w_pf` contour
+    was removed) and `m-file` (the validation-era 48-point one, inner R ~ 1.30 m).
+    `device.LIMITER_OPERATIONAL` selects the first; choosing another contour
+    moves a limited boundary (measured once on #70754 between the GUI-v5 and
+    m-file contours: psi_bry **-0.393 -> -0.415**).
 
     The JSON carried ONE unnamed 48-point contour — the m-file one.  So the
     browser and Python were limiting the plasma on different walls, and the
@@ -185,7 +227,11 @@ def test_the_vacuum_field_reference_agrees(pair):
     the YAML is right not to carry it as a machine constant.
     """
     y, j = pair
-    assert float(j["tf"]["r0"]) == float(y["machine"]["r_centre"])
+    #: ★★2026-09-13 (user ruling): tf.r0 <- machine.r_centre, the value fydoc records
+    #: as `dev:rCentre`; the other recorded radii (tf page 1.7, the other g-file)
+    #: sit in provenance as recorded-not-used.  Both forms must carry the used one.
+    used = y["provenance"]["reference_radii"]["used"]["value"]
+    assert float(j["tf"]["r0"]) == float(y["tf"]["r0"]) == float(y["machine"]["r_centre"]) == used
 
 
 def test_the_grid_box_agrees(pair):
@@ -227,10 +273,12 @@ def test_the_lower_hybrid_launchers_are_the_same_two(pair):
 # --------------------------------------------------------------------------- #
 @pytest.mark.xfail(strict=True, reason=(
     "OPEN, needs a fact about EAST's PCS numbering that neither file states. "
-    "Within `east_device.yaml`, a channel's `turns` and the elements nested "
-    "under it disagree for 8 of 12 channels: PF4P carries `turns: 140` and "
-    "TWO elements (rows 4+5 of dprobe.dat, 44 + 204 = 248 turns), while PF7P "
-    "carries `turns: 248` and ONE element (row 8, a 140-turn CS coil). The "
+    "Within `east_device.yaml`, a channel's `turns` (operational "
+    "`gui_v5_pf_channels.turn`, channel order) and the elements nested "
+    "under it (the BRSP circuit) disagree for 8 of 12 channels: channel 4 "
+    "(BRSP_04) carries `turns: 140` and TWO elements (PF7 + PF9, 44 + 204 = "
+    "248 turns), while channel 7 carries `turns: 248` and ONE element (a "
+    "140-turn CS coil). The "
     "names+turns are self-consistent (six 140s, two 248s, two 60s, two 32s) "
     "and `device.turnfc()` reproduces the deck's TURNFC exactly; the elements "
     "are self-consistent with `pf_channel_elements` and with the browser's "
@@ -239,16 +287,18 @@ def test_the_lower_hybrid_launchers_are_the_same_two(pair):
     "repository: it turns on whether the PCS Rogowski named PF4P sits on the "
     "lower CS coil or on the upper series pair. Until that is answered, "
     "`device.PF_TURNS[k]` must not be read as 'channel k's turns' — "
-    "`turnfc()` and `io.est2` pair it with the same index throughout, which "
+    "`turnfc()` and `io.raw` pair it with the same index throughout, which "
     "is why nothing has failed."))
 def test_each_channels_turns_match_the_elements_nested_under_it(pair):
     """A channel's total turns is the sum of its elements' turns."""
     y, _ = pair
     bad = []
     for c in y["pf_active"]["coil"]:
+        if c.get("function"):            #: fast coils carry no PCS channel turns
+            continue
         total = sum(int(e["turns_with_sign"]) for e in c["element"])
         if total != int(c["turns"]):
-            rows = [e["fylite:deck_row"] for e in c["element"]]
-            bad.append(f"{c['name']}: turns={c['turns']} but deck row(s) "
-                       f"{rows} sum to {total}")
+            names = [e["fylite:name"] for e in c["element"]]
+            bad.append(f"{c['name']}: turns={c['turns']} but element(s) "
+                       f"{names} sum to {total}")
     assert not bad, "\n  ".join(bad)

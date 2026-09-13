@@ -1448,7 +1448,7 @@ FyScenario.whenDevices(function () {
   // what it ASSUMES, and the note says so in the same breath as applying it.
   //
   // ★They are deliberately NOT saved as "the good settings": the fit corner
-  // recorded in `machine_desc/README.md` is the reconstruction bar's own
+  // recorded with the retired device-deck README is the reconstruction bar's own
   // default, and these move away from it on purpose, each towards one
   // question.
 

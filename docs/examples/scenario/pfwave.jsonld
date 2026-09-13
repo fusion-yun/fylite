@@ -33,7 +33,6 @@
   }
  },
  "fylite:common": [
-  "provider",
   "epoch"
  ],
  "fylite:vocabulary": {

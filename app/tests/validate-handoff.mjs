@@ -39,7 +39,7 @@ import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { seedDevice, missingDeviceMessage } from './_device.mjs';
+import { seedEastWithShot, skipMessage } from './_kernel-fixture.mjs';
 import { browser } from './_browser.mjs';
 
 const iu = process.argv.indexOf('--url');
@@ -62,12 +62,11 @@ const ctx = await br.newContext({ locale: 'zh-CN', acceptDownloads: true,
 // ★Check 1 solves the slice equilibrium, which takes its coil currents from
 // the machine's REFERENCE DISCHARGE.  The one built-in device has none — no
 // measured ITER PF currents exist to put in one — so on it the slice never
-// solves and the whole chain has nothing to hand over.  EAST comes from
-// `machine_desc/`, installed the way an imported machine is.
-if (!await seedDevice(ctx, 'east')) {
-  console.error(missingDeviceMessage('east'));
-  process.exit(2);
-}
+// solves and the whole chain has nothing to hand over.  EAST is the A-Box-built
+// document with the reference discharge added from the PRIVATE kernel fixture
+// (`_kernel-fixture.mjs`, $FYLITE_KERNEL), installed the way an imported machine is.
+const EAST = await seedEastWithShot(ctx);
+if (EAST.why) { console.log(skipMessage('validate-handoff', EAST.why)); await br.close(); process.exit(0); }
 const page = await ctx.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)));

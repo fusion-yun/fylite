@@ -5,7 +5,7 @@ A scenario template is a `fyo:ScenarioSpecification` like any other case in the
 corpus (so `fy run <template>` composes it exactly as it composes a plan), plus
 one extension block in `fylite:` words: the PARAMETER TABLE — every name the
 code takes, its type, its range, and which of them are switches or come from
-the device document.  `FYL-DESIGN-17` E-11 / E-18 / E-24.
+the device document.  `FYL-SDD-04` E-11 / E-18 / E-24.
 
 ★★Why generated rather than written.  The names a code takes are already
 stated in the corpus, once per case, as `code/<x>#<name>` IRIs — 279 of them
@@ -53,7 +53,11 @@ OVERLAY: dict[str, dict] = {
                          "note": "the profile scenario's product; one carrying "
                                  "`derived-from-reconstruction` provenance is refused"},
         },
-        "common": ["shot", "time", "provider", "epoch"],
+        #: ★2026-09-13: `provider` left the common parameters of every template — it no
+        #: longer affects device resolution (the shot and the measurement chain decide),
+        #: so `fy run provider=…` is refused by name like any unknown parameter.  The
+        #: data-fetch `--provider` (an MDSplus binding choice) is a fixed option, not this.
+        "common": ["shot", "time", "epoch"],
         "time": "point",
         "types": {"basis": {"type": "choice", "choices": ["delivered", "raw"]},
                   "sigvint": {"type": "str"},
@@ -61,7 +65,13 @@ OVERLAY: dict[str, dict] = {
                   "maxit": {"type": "int", "min": 1},
                   "kpts": {"type": "int", "min": 1},
                   "kw": {"type": "float", "min": 0.0}},
-        "from_device": {"basis": "fylite:channel_basis"},
+        #: ★2026-09-13: `from_device: {"basis": "fylite:channel_basis"}` stood here.  It never
+        #: resolved (`at_path` walks from the document root; the one card that ever carried
+        #: the key had it under `magnetics`) and its value there was `est2` — a probe channel
+        #: ORDER, not one of this parameter's choices.  `basis` picks which statement of the
+        #: channel values is fitted (a delivered reconstruction's, or the raw readings); that is
+        #: a property of the measurement set, not of the machine, so the device supplies no
+        #: default and the declared one (`defaults.basis`) stands.
         #: ★the two switches are the analysis page's own presets `mag` and
         #: `kin` (app/assets/scenario-analysis.js), value for value.  They are
         #: not invented here, and the page's slider values (kw, kpts) are NOT
@@ -86,7 +96,7 @@ OVERLAY: dict[str, dict] = {
                              "ids": ["pf_active", "wall", "magnetics", "tf"]},
                   "measurements": {"primary": True, "ids": ["magnetics", "pf_active", "tf"],
                                    "per": "slice"}},
-        "common": ["shot", "time", "provider", "epoch"],
+        "common": ["shot", "time", "epoch"],
         "time": "selection",
         "types": {"coilsrc": {"type": "str"}, "nslice": {"type": "int", "min": 1}},
     },
@@ -105,7 +115,7 @@ OVERLAY: dict[str, dict] = {
         "lines": ["model"],
         "ports": {"device": {"requires": "card", "optional": True,
                              "type": "fyo:DeviceDescription"}},
-        "common": ["provider", "epoch"],
+        "common": ["epoch"],
         "types": {"closure": {"type": "str"}},
         "from_device": {},
         "caveat": {"zh": "几何固定、无平衡反馈；粒子源由调用方给定，本包不含加料模型。",
@@ -117,7 +127,7 @@ OVERLAY: dict[str, dict] = {
         "lines": ["model"],
         "ports": {"device": {"requires": "card", "optional": True,
                              "type": "fyo:DeviceDescription"}},
-        "common": ["provider", "epoch"],
+        "common": ["epoch"],
         "types": {"closure": {"type": "str"}, "geometry": {"type": "str"},
                   "species": {"type": "str"}, "fuel": {"type": "int"},
                   "beamstop": {"type": "str"}, "beamdir": {"type": "str"}},
@@ -133,7 +143,7 @@ OVERLAY: dict[str, dict] = {
         "lines": ["model", "design"],
         "ports": {"device": {"requires": "card", "optional": True,
                              "type": "fyo:DeviceDescription"}},
-        "common": ["provider", "epoch"],
+        "common": ["epoch"],
         "types": {"tau_law": {"type": "str"}},
         "caveat": {"zh": "n_e、T_e、T_i 是规定的输入不是结果，故 Q 不是预言。",
                    "en": "n_e, T_e and T_i are prescribed inputs rather than results, so Q is "
@@ -144,7 +154,7 @@ OVERLAY: dict[str, dict] = {
         "lines": ["design"],
         "ports": {"device": {"requires": "manifest", "type": "fyo:DeviceDescription",
                              "ids": ["pf_active", "wall", "tf"]}},
-        "common": ["provider", "epoch"],
+        "common": ["epoch"],
         "types": {"class": {"type": "str"}, "profsrc": {"type": "str"},
                   "startmode": {"type": "str"}},
         "caveat": {"zh": "每一步是收敛到 tol 的静态解，不含惯性与演化。",
@@ -155,7 +165,7 @@ OVERLAY: dict[str, dict] = {
         "lines": ["design", "control"],
         "ports": {"device": {"requires": "manifest", "type": "fyo:DeviceDescription",
                              "ids": ["pf_active", "wall", "tf"]}},
-        "common": ["provider", "epoch"],
+        "common": ["epoch"],
         "caveat": {"zh": "限值由使用者填（非机器数据）；纯真空，无等离子体、无 G-S。",
                    "en": "The limits are the user's to state (they are not machine data); pure "
                          "vacuum, no plasma, no Grad-Shafranov."},
@@ -165,7 +175,7 @@ OVERLAY: dict[str, dict] = {
         "lines": ["design"],
         "ports": {"device": {"requires": "manifest", "type": "fyo:DeviceDescription",
                              "ids": ["pf_active", "wall", "tf"]}},
-        "common": ["provider", "epoch"],
+        "common": ["epoch"],
     },
 }
 
@@ -198,7 +208,7 @@ NO_TEMPLATE = [
      {"zh": "剖面插值是工具不是场景。",
       "en": "Grid interpolation is a utility, not a scenario."}),
     ("sim", "design", None,
-     {"zh": "交互时间推进是浏览器的档位，不是批式动作（FYL-DESIGN-10 P-1）。",
+     {"zh": "交互时间推进是浏览器的档位，不是批式动作（FYL-SDD-05 P-1）。",
       "en": "The interactive time march is a browser tier, not a batch action."}),
     ("pulse", "design", None,
      {"zh": "整脉冲前馈设计今天没有 code IRI（语料的 pulse-iter 用 code/pfwave），"
@@ -366,9 +376,9 @@ def index(vocab: dict[str, dict[str, str]]) -> OrderedDict:
         if not runnable:
             row["reason"] = {
                 "zh": f"内核的 case 门今天不认 code/{name}（CASE_CODES 只有 "
-                      f"{' · '.join(sorted(DOOR))}）；FYL-DESIGN-17 P2。",
+                      f"{' · '.join(sorted(DOOR))}）；FYL-SDD-04 P2。",
                 "en": f"The kernel's case door does not accept code/{name} today (CASE_CODES "
-                      f"carries {', '.join(sorted(DOOR))} only); FYL-DESIGN-17 P2.",
+                      f"carries {', '.join(sorted(DOOR))} only); FYL-SDD-04 P2.",
             }
         rows.append(row)
     for name, line, folded, reason in NO_TEMPLATE:
@@ -386,11 +396,11 @@ def index(vocab: dict[str, dict[str, str]]) -> OrderedDict:
     doc["title"] = {"zh": "场景目录", "en": "The scenario catalogue"}
     doc["note"] = {
         "zh": "四条线与它们的缺省场景，以及文档明确涉及的每一个场景：有模板的、并入别的场景的、"
-              "以及不设模板的——后两类各带理由（FYL-DESIGN-17 E-8 / E-17）。GENERATED by "
+              "以及不设模板的——后两类各带理由（FYL-SDD-04 E-8 / E-17）。GENERATED by "
               "tools/make-scenario-templates.py。",
         "en": "The four lines with their default scenarios, and every scenario the documents "
               "name: templated, folded into another, or without a template — the last two with "
-              "the reason stated here rather than in prose (FYL-DESIGN-17 E-8 / E-17). "
+              "the reason stated here rather than in prose (FYL-SDD-04 E-8 / E-17). "
               "GENERATED by tools/make-scenario-templates.py.",
     }
     doc["fylite:lines"] = OrderedDict(

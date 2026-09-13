@@ -29,7 +29,7 @@ from __future__ import annotations
 import numpy as np
 
 from ... import device, kernel
-from ...device import FWTMP2_MASK, conductor_set
+from ...device import conductor_set
 
 #: `plasma_probe_field` · `current_centroid` are the kernel repository's oracle
 #: tree since T-4 第十一刀 (2026-09-06): no caller here or in the app

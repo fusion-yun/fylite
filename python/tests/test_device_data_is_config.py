@@ -1,9 +1,13 @@
-"""est2 (GUI_v5) path: self-contained EAST device data + GUI-faithful k-file.
+"""The device data is config, read through one door, with no machine constant in code.
 
-Offline structural checks (no live MDSplus).  The est2 path is triggered by a
-79-probe measurement vector or meas["basis"]=="est2"; it auto-applies the baked
-EAST device data (masks, error floors, FWTFC, operational limiter) from
-fylite._data/east_device.yaml via device — no fydata, no external file.
+Offline structural checks (no live MDSplus).
+
+★★2026-09-13 (user ruling: est2 removed at every layer): this module used to be the
+est2 (GUI_v5) path — its cases bound the card resolved for the est2 array
+(``efit_w_pf``: 79 probes + 35 loops, 26/79 probe mask, 60-point limiter) and pinned
+those numbers.  That provider is gone, so those est2 cases are gone; the gates that
+never needed est2 (machine neutrality, one document reader, paths carry paths only,
+compiled dims, machine facts from config) stay, on the card as configured.
 """
 import re
 
@@ -25,23 +29,16 @@ from conftest import requires_machine
 #: reports nothing, and reports it as a skip that reads like "this
 #: distribution ships no machine data".
 pytestmark = requires_machine
+import pytest
+
 from fylite import device as dev
 from fylite import device
 
 
-def _est2_meas():
-    return dict(shot=70754, itime_ms=3500, plasma=4.99e5, btor=1.8,
-                basis="est2", brsp=[3e5] * 12, coils=[0.05] * 35,
-                expmp2=[0.1] * device.NMAGPRI)
+#: ★2026-09-13 (est2 removed): `test_device_data_self_contained` (79 / 35 channels, 26/79
+#: probe mask, 5 loops off, 60-point limiter — the est2 array's numbers) stood here.
 
 
-def test_device_data_self_contained():
-    assert len(device.B_PROBE_NODES) == 79 and len(device.FLUX_LOOP_NODES) == 35
-    assert len(device.PF_NODES) == 12 and device.PF_TURNS[6] == 248
-    assert len(device.BITMPI) == 79 and len(device.PSIBIT) == 35
-    assert sum(device.FWTMP2_MASK) == 26            # only 26/79 probes trusted
-    assert device.FWTSI_MASK.count(0) == 5          # loops 15,32,33,34,35 off
-    assert device.LIMITR == 60 and len(device.XLIM) == 60
 def test_no_device_description_is_bundled_with_the_package():
     """★The inverse of what this test used to assert.  It once checked that
     ``east_device.yaml`` SHIPPED inside the package; the distribution now
@@ -75,7 +72,8 @@ def test_device_yaml_uses_fyo_dd_v4_key_names():
     assert {"b_field_pol_probe", "flux_loop"} <= set(d["magnetics"])
     assert "coil" in d["pf_active"]
     #: ★``limiter.unit`` is an ARRAY of structures in the DD, and EAST carries
-    #: two era-dependent contours in it (``efit_w_pf``, ``m-file``).  This
+    #: two era-dependent contours in it (``base``, ``m-file`` — the est2 ``efit_w_pf``
+    #: contour left with the est2 array, 2026-09-13).  This
     #: line asserted ``"outline" in ...["unit"]`` against a bare mapping and
     #: went on "passing" as a skip through the whole change that made it a
     #: list — the module was gated on a reference discharge none of its cases
@@ -83,7 +81,7 @@ def test_device_yaml_uses_fyo_dd_v4_key_names():
     #: `description_2d` is the DD's array now (`@fyo-table DEVICE`)
     units = d["wall"]["description_2d"][0]["limiter"]["unit"]
     assert isinstance(units, list) and units, units
-    assert {"efit_w_pf", "m-file"} <= {u["name"] for u in units}
+    assert {device.LIMITER_OPERATIONAL, "m-file"} <= {u["name"] for u in units}
     for u in units:
         assert {"r", "z"} <= set(u["outline"]), u.get("name")
     los = d["interferometer"]["channel"][0]["line_of_sight"]
@@ -91,21 +89,28 @@ def test_device_yaml_uses_fyo_dd_v4_key_names():
 
 
 def test_constants_still_match_the_yaml_channel_for_channel():
-    """The re-export must not drift from the file it loads."""
+    """The re-export must not drift from the file it loads.
+
+    ★2026-09-13: on the card as configured (the no-shot resolution) — the probe and loop
+    counts are that document's magnetics group's (`_derive`), never a fixed 79 / 35 / 76,
+    and the est2 per-channel masks (`FWTMP2_MASK` / `BITMPI` / `PSIBIT`) are not derived
+    because no magnetics group carries them."""
     d = device.EAST_DEVICE
     pr = d["magnetics"]["b_field_pol_probe"]
     lo = d["magnetics"]["flux_loop"]
     assert device.B_PROBE_NODES == tuple(c["name"] for c in pr)
-    assert device.FWTMP2_MASK == tuple(c["weight"] for c in pr)
-    assert device.BITMPI == tuple(c["bit_error"] for c in pr)
     assert device.FLUX_LOOP_NODES == tuple(c["name"] for c in lo)
-    assert device.PSIBIT == tuple(c["bit_error"] for c in lo)
-    assert len(device.B_PROBE_NODES) == device.NMAGPRI == 79
-    assert len(device.FLUX_LOOP_NODES) == device.NSILOP == 35
+    assert len(device.B_PROBE_NODES) == device.NMAGPRI == device.NPROBE == len(pr)
+    assert len(device.FLUX_LOOP_NODES) == device.NSILOP == len(lo)
     assert len(device.PF_NODES) == device.NFCOIL == 12
-    assert len(device.XLIM) == len(device.YLIM) == device.LIMITR == 60
+    unit = device.limiter_unit(d)
+    assert len(device.XLIM) == len(device.YLIM) == device.LIMITR == len(unit["outline"]["r"])
+    assert unit["name"] == device.LIMITER_OPERATIONAL
     assert len(device.POINT_ZPOL) == device.POINT_NCHORD == 11
     assert len(device.PCS_PROBE_NODES_GEOM) == 38
+    for name in ("FWTMP2_MASK", "BITMPI", "PSIBIT"):
+        with pytest.raises(device.MachineDataMissing):
+            getattr(device, name)
 
 
 def test_operational_settings_are_config_but_not_dressed_as_an_ids():

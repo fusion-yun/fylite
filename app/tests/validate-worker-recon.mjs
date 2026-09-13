@@ -17,8 +17,8 @@
 // synthetic set on them was tried first — the twin's truth is a cold free
 // solve on designed currents, and on those machines it does not hold a
 // plasma the fit can recover (measured: 「no plasma formed」 / singular normal
-// equations in every configuration).  The deck is read the way the kernel's
-// own tests read it (`FYLITE_DEVICE_DIR`) when the staged copy is absent.
+// equations in every configuration).  The shot is the kernel fixture's
+// (`_kernel-fixture.mjs`); the machine is the A-Box-built document.
 //
 // Ten configurations: the loops with the deck's kinetic rows (the page's
 // stock question), the magnetics alone, the deck's probes on the raw basis,
@@ -37,7 +37,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-import { deviceDoc } from './_device.mjs';
+import { eastWithShot, skipMessage } from './_kernel-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = (() => { const i = process.argv.indexOf('--site'); return (i >= 0 ? process.argv[i + 1] : path.join(HERE, '..', 'assets')) + path.sep; })();
@@ -68,18 +68,12 @@ vm.runInThisContext(readFileSync(SITE + 'worker.js', 'utf8'), { filename: 'worke
 
 //: ★EAST: the one deck with a reference discharge (35 loops, 79 probes, the
 //: delivered reconstruction's channel values, the raw est2 basis beside it).
-//: The staged copy first (`dist/facts/device/east.jsonld`, the way every
-//: browser gate reads it); else the kernel repository's own page document
-//: through `FYLITE_DEVICE_DIR` (the kernel's pytest environment); else skip.
-function eastDoc() {
-  const d = deviceDoc('east');
-  if (d) return d;
-  const dir = process.env.FYLITE_DEVICE_DIR;
-  const f = dir && path.join(dir, 'fylite_device_east.json');
-  return f && existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : null;
-}
-const doc = eastDoc();
-if (!doc) { console.log('跳过：没有 EAST 装置文档（dist/facts/device/east.jsonld 或 $FYLITE_DEVICE_DIR/fylite_device_east.json）'); process.exit(0); }
+//: ★2026-09-13 (machine_desc retired): the A-Box-built EAST document with the
+//: #137985 reference discharge added from the PRIVATE kernel fixture
+//: (`_kernel-fixture.mjs`, via $FYLITE_KERNEL) — skipped by name without it.
+const EAST = eastWithShot();
+if (EAST.why) { console.log(skipMessage('validate-worker-recon.mjs', EAST.why)); process.exit(0); }
+const doc = EAST.doc;
 const M = globalThis.FyoDevice.fromFyo(doc), id = 'east';
 const send = (msg) => globalThis.self.onmessage({ data: msg });
 const take = (type) => {

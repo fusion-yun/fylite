@@ -81,7 +81,7 @@ KERNEL_LIB = _lib("libfylite_kernel.so")
 #: （纯 CLI 的发行不带它），缺席时那 15 个入口按名拒绝，而不是 AttributeError。
 KERNEL_EXT_LIB = _lib("libfylite_kernel_ext.so")
 
-#: 数据层：mdsip 编解码，后续收编 g-file / est2。★与内核**不同的符号前缀**
+#: 数据层：mdsip 编解码，后续收编 g-file / 原始序列约化（`io.raw`）。★与内核**不同的符号前缀**
 #: （`fylite_runtime_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。
 DATA_LIB = _lib("libfylite_runtime.so")
 

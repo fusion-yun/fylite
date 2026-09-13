@@ -30,7 +30,7 @@
     "en": "ITER"
    },
    "described_by": {
-    "id": "machine_desc/iter",
+    "id": "facts/device/iter",
     "type": "fyo:MachineDescription"
    }
   }

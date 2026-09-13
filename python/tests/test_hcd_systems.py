@@ -64,21 +64,17 @@ def test_ic_power_reaches_the_zero_d_total_like_the_other_three():
 # --------------------------------------------------------------------------- #
 # The device blocks
 # --------------------------------------------------------------------------- #
+#: ★★2026-09-13 (user ruling, `machine_desc` retired): the card is built from fydoc's
+#: A-Box, and the ICRF level / port letters / source power / frequency range have no
+#: production reader and are NOT carried (so nothing here asserts them).  What the
+#: A-Box does carry is asserted as fydoc states it.
 @requires_machine
-def test_the_icrf_entries_declare_which_level_they_are():
-    """★★Two antennas and eight transmitters, and the transmitters feed the
-    antennas: SUMMING ALL TEN DOUBLE-COUNTS the power.  The document carries
-    `level` on every entry so that a caller cannot add them up without
-    saying which it meant."""
-    assert len(device.ICRH_SYSTEMS) == 10
-    assert {s["level"] for s in device.ICRH_SYSTEMS} == {"antenna",
-                                                         "transmitter"}
-    assert [s["name"] for s in device.ICRH_ANTENNAS] == ["ICRFI", "ICRFB"]
-    assert [s["port"] for s in device.ICRH_ANTENNAS] == ["I", "B"]
-    #: every entry names the signals to fetch, which is what this block is
-    #: for while there is no deposition model
-    for s in device.ICRH_SYSTEMS:
-        assert set(s["nodes"]) == {"injected", "reflected"}
+def test_the_icrf_entries_are_named_as_the_a_box_names_them():
+    """Two antennas and eight transmitters, named as fydoc's `ic_antenna` page
+    names them.  ★Which of them are antennas and which transmitters (the
+    double-counting hazard) is NOT in the A-Box, so no level is asserted."""
+    names = [s["name"] for s in device.ICRH_SYSTEMS]
+    assert names == ["ICRFI", "ICRFB"] + [f"ICRF{i}" for i in range(1, 9)]
 
 
 @requires_machine
@@ -90,30 +86,22 @@ def test_the_ec_beams_carry_frequency_and_mode_as_numbers():
     for b in device.ECRH_SYSTEMS:
         assert isinstance(b["frequency"], float)
         assert b["frequency"] == 140e9
-        assert b["mode"] == 1                      # O-mode
+        #: ★the value fydoc's A-Box carries (`ec_launchers` beam `mode` = 1, O-mode,
+        #: from the imas/3 eastwiki table).  fydoc RECORDS A DIVERGENCE on this field:
+        #: xu2025ech §1 says the heating uses the X2 mode.  Asserted as the A-Box
+        #: states it — a change here is an upstream re-ruling, not a fix in this repo.
+        assert b["mode"] == 1
         assert b["max_power"] == 1.0e6
-        assert b["port"] == "M"
-        assert set(b["nodes"]) == {"injected"}
-
-
-@requires_machine
-def test_the_icrf_frequency_range_is_a_capability_not_a_setting():
-    lo, hi = device.ICRH_FREQUENCY_RANGE
-    assert (lo, hi) == (25e6, 70e6)
-    #: ★A model takes the shot's frequency as an ARGUMENT and may check it
-    #: against this; what it must not do is read a default out of here.
-    #: There is no single frequency to read — see the next test.
-    assert lo < hi
 
 
 @requires_machine
 def test_the_document_does_not_invent_what_the_machine_description_lacks():
-    """★★The unusual assertion, and the one worth keeping: fydata's EAST
-    description has NO per-shot ICRF frequency (the node is empty) and NO EC
-    launch position or steering angle.  Those two are exactly what fixes the
-    resonance layer and the deposition location, so inventing them here would
-    put a made-up number where a model will look for a real one.  This test
-    fails the day someone quietly fills them in."""
+    """★★The unusual assertion, and the one worth keeping: the A-Box's EAST
+    description has NO per-shot ICRF frequency and NO EC launch position or
+    steering angle.  Those two are exactly what fixes the resonance layer and
+    the deposition location, so inventing them here would put a made-up number
+    where a model will look for a real one.  This test fails the day someone
+    quietly fills them in."""
     dev = device.document()
     ic, ec = dev["ic_antennas"], dev["ec_launchers"]
     for a in ic["antenna"]:
@@ -123,13 +111,10 @@ def test_the_document_does_not_invent_what_the_machine_description_lacks():
         assert "launching_position" not in b, b["name"]
         assert not {"steering_angle_pol", "steering_angle_tor"} & set(b), \
             b["name"]
-    #: the RANGE of what the launcher can be steered to is a capability and
-    #: is carried — as prose, verbatim from the machine's own wiki entry
+    #: the RANGE of what the launcher can be steered to is a capability and is
+    #: carried — as prose, verbatim from the eastwiki entry fydoc's `ec_launchers`
+    #: page quotes in its provenance comment
     assert "±25" in ec["fylite:steering_range_note"]
-    #: and both blocks say, in the document itself, that no model deposits
-    #: their power yet
-    for block in (ic, ec):
-        assert "FEATURE.md" in block["note"]
 
 
 # --------------------------------------------------------------------------- #
