@@ -43,7 +43,7 @@ def test_the_spec_names_two_hosts_and_is_version_two():
     #: nothing carries is a line of documentation for a program that has none
     for c in SPEC["commands"]:
         assert c["hosts"] == ["rust"], c["name"]
-    #: ★★2026-09-04 第二条裁定（FYL-DESIGN-17 E-10）：`case` 收进 `run`，发现面收进
+    #: ★★2026-09-04 第二条裁定（FYL-SDD-04 E-10）：`case` 收进 `run`，发现面收进
     #: `list`。四条命令词各是一个动词——起页面 · 搬数据 · 算 · 看。
     assert {c["name"] for c in SPEC["commands"]} == {"app", "data", "run", "list"}
     #: and no argument may be marked for a host that no longer exists
@@ -83,7 +83,7 @@ def test_the_browser_reads_exactly_the_declared_launch_parameters():
         f"pages read {sorted(read)} from the URL, the spec declares "
         f"{sorted(query)} — change the spec and the reader together")
     #: every launch parameter has its `fy app --<name>` option, and no option
-    #: names an undeclared parameter (FYL-DESIGN-15 C-6)
+    #: names an undeclared parameter (FYL-SDD-04 C-6)
     app = next(c for c in SPEC["commands"] if c["name"] == "app")
     bound = {a["app_param"]: a for a in app["args"] if "app_param" in a}
     assert set(bound) == set(declared)

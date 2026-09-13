@@ -1,6 +1,6 @@
 // 放电设计场景 `pulse_design`：一页，三个模式，六条功能栏。
 //
-// ★这是三条入口收成一页的结果（FYL-DESIGN-09 D-18..D-21，分期 P5）。之前是
+// ★这是三条入口收成一页的结果（FYL-SDD-09 D-18..D-21，分期 P5）。之前是
 // `design.html` / `pulse.html` / `sim.html` 三页，各带一份「这一炮」的位形、
 // 电流与相位——三份副本描述同一条放电，谁也不知道另外两份填的是什么。合并
 // 之后共用控件住在页面上（`page-shared`，在功能栏之外），每条栏经框架自己的
@@ -34,7 +34,7 @@
 // §0 模式开关 (the mode switch)
 // ========================================================================
 
-// 放电设计页的模式开关 (FYL-DESIGN-09 D-18 · D-19)。
+// 放电设计页的模式开关 (FYL-SDD-09 D-18 · D-19)。
 //
 // ★What a mode IS.  Not three tools behind three tabs: one script, and three
 // readings of the same time axis.
@@ -3175,7 +3175,7 @@ FyScenario.whenDevices(function () {
 
   //: ★这条栏在合并后叫 `pfwave`：它设计的是 PF 波形，而「设计模式」自己那条栏
   //: 叫 `pulse`。一页不能有两条同名的栏——运行键的 id、折叠状态与标题词条都按
-  //: 它取名（FYL-DESIGN-09 D-18）。
+  //: 它取名（FYL-SDD-09 D-18）。
   var S = DESIGN.bar('pfwave', {
     title: 'nav.pfwave',
     folded: true,
@@ -4595,7 +4595,7 @@ FyScenario.whenDevices(function () {
 // §2 设计模式 design — 整条脉冲，播放头选片
 // ========================================================================
 
-// The PULSE-DESIGN scenario: one discharge on ONE time axis (FYL-DESIGN-09).
+// The PULSE-DESIGN scenario: one discharge on ONE time axis (FYL-SDD-09).
 //
 // The design page answers four questions about a shot in four bars, and each
 // bar keeps its own copy of the time it is talking about.  This page is the
@@ -4678,7 +4678,7 @@ FyScenario.whenDevices(function () {
 
   // --- the boundary trajectory ---------------------------------------------
   //
-  // ★THE RAMP-DOWN HAS ITS OWN VARIABLE (FYL-DESIGN-09 D-5).  The design
+  // ★THE RAMP-DOWN HAS ITS OWN VARIABLE (FYL-SDD-09 D-5).  The design
   // page's pulse bar has one ratio, for the START of the ramp-up, so its
   // ramp-down can only be the mirror of its ramp-up — and in a real discharge
   // it is not: the boundary is given back to the limiter on a schedule of its
@@ -5156,7 +5156,7 @@ FyScenario.whenDevices(function () {
 // ========================================================================
 
 // The INTERACTIVE-SIMULATION scenario: one discharge, driven live
-// (FYL-DESIGN-09 §仿真模式).
+// (FYL-SDD-09 §仿真模式).
 //
 // The pulse page holds a whole discharge and reads it with a play-head.  This
 // page holds only the PAST: the right edge of every trace is now, the future

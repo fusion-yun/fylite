@@ -102,7 +102,7 @@ FyScenario.whenDevices(function () {
     var chi0 = +$('chi0').value;
     var closure = +$('closure').value | 0;
     var t0 = (self.performance || Date).now();
-    //: ★★the bar is `case.rs::transport_case` (FYL-DESIGN-16 K-3, 2026-09-05):
+    //: ★★the bar is `case.rs::transport_case` (FYL-SDD-02 K-3, 2026-09-05):
     //: the Miller metric from these controls, the Gaussian source, the start
     //: profile, the closure by name — constant · stiff · neoclassical (whose
     //: per-surface blocks the kernel builds from the same seven numbers) —

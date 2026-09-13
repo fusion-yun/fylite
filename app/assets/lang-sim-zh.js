@@ -1,5 +1,5 @@
 // Chinese catalogue for the INTERACTIVE-SIMULATION scenario
-// (FYL-DESIGN-09 仿真模式).
+// (FYL-SDD-09 仿真模式).
 //
 // ★The words here carry the two distinctions the page is built on: 目标 vs
 // 实现（Ip 是被跟随的，不是被规定的）, and 定态 vs 磁通余量（模型能一直平顶，

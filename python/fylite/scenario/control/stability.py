@@ -70,7 +70,7 @@ def vertical_mode(eq, *, coil_aturns,
                   mass: float = 0.0) -> VerticalStability:
     """The growth-rate discriminator — assembled BY THE KERNEL from documents.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3): the passive-circuit recipe this function
+    ★★2026-09-05 (FYL-SDD-02 K-3): the passive-circuit recipe this function
     held — deck → conductors → channel fold → stiffness; passive set scaled
     about the axis → mutual matrix, resistances, coupling gradient → the
     dispersion root and the regime — is ``case.rs::vstab_case`` with

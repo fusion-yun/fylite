@@ -1,6 +1,6 @@
 //! 续跑：把一次运行交出的状态，认回成下一次运行的输入。
 //!
-//! ★★**为什么这一层在这里。** `FYL-DESIGN-16` 把状态的五件事分给三层（S-5）：内核
+//! ★★**为什么这一层在这里。** `FYL-SDD-02` 把状态的五件事分给三层（S-5）：内核
 //! **声明**状态是什么、**产生/消费**它；中间层**携带**；宿主**持久化**、并**决定**
 //! 何时续。这个模块是「携带」的那一格——它不算任何东西，只把内核已经交出来的那些值
 //! 按内核自己声明的配对规则重新摆到入口上。
@@ -307,7 +307,7 @@ pub fn lag_carried(carried: &Carried, base: &Path) -> Result<(), String> {
     Err(format!(
         "the lagged arrays this run ended on ({}) are not handed over: the kernel reads them back \
          from `evolve/fylite:*` but writes them into its raw entry block, which the flat door \
-         carries no table for (FYL-DESIGN-16 F-2 / G-8). `lag_reset` is set instead -- the kernel's \
+         carries no table for (FYL-SDD-02 F-2 / G-8). `lag_reset` is set instead -- the kernel's \
          own word for「the state was remapped」, so the first step carries no Ohmic term rather than \
          treating three zero arrays as the previous block's answer. This is recorded in the plan \
          (`fylite:from` = resume:lag-reset). Until G-8 lands, a resumed march is NOT bit-for-bit \

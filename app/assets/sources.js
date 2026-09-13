@@ -1,8 +1,8 @@
 // The source stack: one input port, several sources, composed once by the
-// middle layer (`FYL-DESIGN-18` U-5 · U-6 · U-7, §五).
+// middle layer (`FYL-SDD-05` U-5 · U-6 · U-7, §五).
 //
 // ★The page orders and switches; it does not merge.  Merging is one
-// implementation in the middle layer (`FYL-DESIGN-14` D-3 / L-1), and a second
+// implementation in the middle layer (`FYL-SDD-03` D-3 / L-1), and a second
 // one here would be the third copy of「怎么合并两份文档」in this repository.
 // So what this file produces is an ASSEMBLY DOCUMENT (`fylite:Assembly/1`) —
 // aliases, an ordered `merge`, an optional `select` — and what it consumes is
@@ -21,7 +21,7 @@
 // the ORDER this file writes against that stated contract.  It does not execute
 // the merge, because the browser has no way to: `fylite_runtime` compiles to
 // wasm but exports nothing — `c_api` and `assembly` are both behind the `mdsip`
-// feature the wasm tier switches off (G-15), so `FYL-DESIGN-16` H-4 / phase W-1
+// feature the wasm tier switches off (G-15), so `FYL-SDD-02` H-4 / phase W-1
 // has not landed.  Until it does, this file writes a document that nothing in
 // the browser can run, and says so rather than borrowing another host's answer:
 // **Python is not in the front end's path** (user ruling, 2026-09-04).

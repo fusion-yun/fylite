@@ -37,7 +37,7 @@
    * Numbers are scanned by pattern rather than by fixed columns: vintages
    * differ on whether a full-width negative eats its separating space.
    */
-  //: ★★**这里不再有解析器**（2026-09-05 落地 `FYL-DESIGN-16` H-4 的第一块）。
+  //: ★★**这里不再有解析器**（2026-09-05 落地 `FYL-SDD-02` H-4 的第一块）。
   //: 本仓曾有**三份** g-file 读法：原生一份、wasm 一份、这里的 JS 一份（286 行里
   //: 有 45 行是它）。三份读同一种文件，而 g-file 的坑——`D`/`E` 指数、可选的边界与
   //: 限制器尾巴、短文件——每一份都要各踩一次；`-16` 抬头把这一份点名为「第三份」。

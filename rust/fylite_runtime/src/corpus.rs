@@ -1,6 +1,6 @@
 //! The case corpus —— 场景模板与预设住在哪，以及一份模板说了什么。
 //!
-//! 与 [`crate::facts`] **同构**（`FYL-DESIGN-17` E-3）：多个根，按优先级，逐条决胜。
+//! 与 [`crate::facts`] **同构**（`FYL-SDD-04` E-3）：多个根，按优先级，逐条决胜。
 //! 差别只有两处，两处都有理由：
 //!
 //! 1. **模板另有一份内嵌的**。模板与内核的 code 表是一对（`fylite:vocabulary` 对
@@ -11,7 +11,7 @@
 //!    检出的 `docs/examples/` / `$FY_CASES_BUNDLED` 四级，与 facts 逐位对应。
 //!
 //! ★本模块只回答「哪一份文档」与「它说了什么」。合成是 [`crate::case`] 的事，
-//! 参数怎么落到计划上是 `cli/run.rs` 的事——一份规矩一处实现（`FYL-DESIGN-16` D-3）。
+//! 参数怎么落到计划上是 `cli/run.rs` 的事——一份规矩一处实现（`FYL-SDD-02` D-3）。
 
 use crate::document::Node;
 use crate::json;
@@ -269,7 +269,7 @@ pub fn presets() -> Vec<Doc> {
 // ───────────────────────────── 模板的读法 ─────────────────────────────
 
 /// 一个参数的类型。★`Time` 是唯一不按 JSON 字面量解析的那一个
-/// （`3:5` 不是 JSON，而它是一个合法的时间选择，`FYL-DESIGN-14` L-10）。
+/// （`3:5` 不是 JSON，而它是一个合法的时间选择，`FYL-SDD-03` L-10）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParamKind {
     Bool,

@@ -1,4 +1,4 @@
-// 设计页的 worker 走文档门（FYL-DESIGN-16 K-3 第三刀的页面一半，2026-09-05）。
+// 设计页的 worker 走文档门（FYL-SDD-02 K-3 第三刀的页面一半，2026-09-05）。
 //
 // `worker.js` 的 `startRun` / `designRun` 从前各自编排十几个扁平导出；今天它们把一份
 // 计划交给 `code/discharge`（`fy.complete`，静态站点上是 wasm 的 `fylite_rs_fyo_tree`），

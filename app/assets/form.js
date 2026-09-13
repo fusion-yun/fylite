@@ -1,6 +1,6 @@
 // The form generator: every parameter control on a function page is drawn
 // from the page's control vocabulary (`assets/vocab-<page>.js`), never written
-// by hand (`FYL-DESIGN-18` U-1 / U-2, stage U0).
+// by hand (`FYL-SDD-05` U-1 / U-2, stage U0).
 //
 // ★What it does.  The page carries MOUNTS — `<div data-form="amin"></div>`
 // where a `.ctl` block used to be, `<span data-form="ch-heat"></span>` where a
@@ -14,7 +14,7 @@
 // vocabulary — and the gate (`tests/validate-form.mjs`) holds page and
 // vocabulary to each other in both directions.
 //
-// ★What it does NOT do, on purpose (stage U0 of FYL-DESIGN-18 §十三).  It does
+// ★What it does NOT do, on purpose (stage U0 of FYL-SDD-05〈分期与门禁〉).  It does
 // not choose the control from a `type` field the kernel declared (there is no
 // control vocabulary in the kernel's code table yet — G-1), it does not draw
 // the number twin beside a slider, and it does not decide grouping (U-3): the

@@ -682,7 +682,7 @@ button.kfdel { padding: 2px 8px; font-size: 12px; line-height: 1.5; }
 /* ===== 结束：脉冲栏的多时刻目标位形 ==================================== */
 
 /* --------------------------------------------------------------------------
-   工作台 (the workbench, `FYL-DESIGN-18` U-14 · U-17)
+   工作台 (the workbench, `FYL-SDD-05` U-14 · U-17)
    ★A 12-column grid because that is what `fylite:layout` counts in; the row
    height is fixed so a layout means the same thing on two screen widths.  The
    header carries the one thing a reader cannot otherwise know — whether what

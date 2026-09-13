@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Vendor h5wasm into `app/assets/vendor/h5wasm/` (`FYL-DESIGN-18` U-25).
+// Vendor h5wasm into `app/assets/vendor/h5wasm/` (`FYL-SDD-05` U-25).
 //
 //     node tools/vendor-h5wasm.mjs            # fetch, verify, write
 //     node tools/vendor-h5wasm.mjs --check    # fail if what is on disk differs

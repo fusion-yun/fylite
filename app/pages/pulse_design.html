@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   /* --- 放电设计页 (pulse design) -----------------------------------------
-     One page, three modes, one script (FYL-DESIGN-09 D-18..D-21).  What the
+     One page, three modes, one script (FYL-SDD-09 D-18..D-21).  What the
      mode switch changes is what the TIME AXIS MEANS: 配置 has no axis (one
      instant, one solve), 设计 has the whole pulse already computed and a
      play-head reading it, 仿真 has only the past and the right-hand edge is
@@ -60,7 +60,7 @@
   .mode[data-mode="design"] td.unk { color: var(--warn); }
   /* --- interactive simulation -------------------------------------------
      The corridor's right edge is NOW: the future is not drawn, because it
-     has not been computed (FYL-DESIGN-09 D-11). */
+     has not been computed (FYL-SDD-09 D-11). */
   .mode[data-mode="simulate"] canvas.short { width: 100%; height: 104px; }
   .mode[data-mode="simulate"] canvas.tall { width: 100%; height: 320px; }
   .mode[data-mode="simulate"] .phasebar { display: flex; gap: 4px; margin: 6px 0 4px; }
@@ -127,7 +127,7 @@
      the page's product to another scenario. -->
 <div class="toolbar-host" data-status="status.loading"><button id="pulse_design-handoff" class="ghost" data-i18n="handoff.give" data-i18n-title="handoff.give.title">交给建模场景</button></div>
 
-<!-- ★这一炮，只有一组控件（FYL-DESIGN-09 D-20）。三个模式读的是它同一份，
+<!-- ★这一炮，只有一组控件（FYL-SDD-09 D-20）。三个模式读的是它同一份，
      不是三份各自漂移的副本：合并之前，相位时刻在「0-D 工况」与「PF 波形设计」
      两条栏里各有一组输入框，两处填得不一样时页面不会说——而两条栏报的是同一
      条放电。控件住在功能栏之外，因为栏一折就会把自己的面板收起来，共用控件
@@ -809,7 +809,7 @@
 
   <div data-part="pulse_design" class="panel">
     <h2 data-i18n="p.shape">LCFS 位形轨迹</h2>
-    <!-- ★下降沿有自己的自变量（FYL-DESIGN-09 D-5）：它不是上升沿取负。 -->
+    <!-- ★下降沿有自己的自变量（FYL-SDD-09 D-5）：它不是上升沿取负。 -->
     <p class="note" data-i18n="p.shape.note"></p>
   </div>
 
@@ -926,7 +926,7 @@
 
 <div>
   <!-- ★启动开关：合＝起放电，断＝进入受控下降沿。相位因此是开关与斜坡率的
-       结果，不是预先给定的时刻（FYL-DESIGN-09 D-16）。 -->
+       结果，不是预先给定的时刻（FYL-SDD-09 D-16）。 -->
   <div data-part="pulse_design" class="panel">
     <h2 data-i18n="s.run">启动</h2>
     <div class="check"><input type="checkbox" id="pulse_design-sim-power">
@@ -1053,7 +1053,7 @@
 <script src="../assets/device.js"></script>
 <script src="../assets/runtime-version.js"></script>
 <!-- 中间层在浏览器里的载入器：装置信息与 g-file 两扇门都经它
-     （2026-09-05，FYL-DESIGN-16 H-4 第一块） -->
+     （2026-09-05，FYL-SDD-02 H-4 第一块） -->
 <script src="../assets/runtimeweb.js"></script>
 <script src="../assets/factsdb.js"></script>
 <script src="../assets/fyodev.js"></script>

@@ -404,7 +404,7 @@ function summarize(res, prof, opts) {
 /**
  * The machine as the fyo DEVICE DOCUMENT the kernel's document door reads.
  *
- * ★FYL-DESIGN-16 K-8 / W-1 (2026-09-05): a code that takes whole documents
+ * ★FYL-SDD-02 K-8 / W-1 (2026-09-05): a code that takes whole documents
  * (`code/discharge`, `code/breakdown`, `code/vstab`) reads the coils, the
  * channel map, the box and the limiter off ONE document, never off a list
  * of arrays this page assembled.  `FyoDevice.toFyo` is the page's writer
@@ -498,7 +498,7 @@ function designRun(msg) {
   var ctl = msg.control || [];
   var total = (msg.schedule || []).length;
   post({ type: 'progress', phase: 'design', pass: 0, total: total, err: NaN });
-  //: ★★the anneal itself is `case.rs::discharge_case` (FYL-DESIGN-16 K-3,
+  //: ★★the anneal itself is `case.rs::discharge_case` (FYL-SDD-02 K-3,
   //: 2026-09-05): target points, response rows, ridge scale, the designed
   //: start's seed and anchor, the collapse-and-halve rule, best-of — one
   //: recipe for this page and for Python.  What stays here is the DISPLAY:
@@ -626,7 +626,7 @@ function pulseRun(msg) {
     return;
   }
   //: ★★the chain — every waypoint's start, the circuit, the feed-forward
-  //: voltages, the checks — is `case.rs::pulse_case` (FYL-DESIGN-16 K-3,
+  //: voltages, the checks — is `case.rs::pulse_case` (FYL-SDD-02 K-3,
   //: 2026-09-05).  This worker builds the plan and reads the record; what
   //: stays here is the DISPLAY of each check (`summarize` on the field the
   //: kernel returns), exactly as `designRun` keeps its own.
@@ -2685,7 +2685,7 @@ function reconMcRun(msg0) {
  * page's `t / ip / ne0 / te0 / pInj` on SUMMARY rows), the ten parameters as
  * settings, the geometry and the phase table when the criteria need them.
  *
- * ★★FYL-DESIGN-16 K-3 (2026-09-05, the sixth tool to sink): the four 0-D
+ * ★★FYL-SDD-02 K-3 (2026-09-05, the sixth tool to sink): the four 0-D
  * commands below used to compose eight flat exports here — the evaluation,
  * then `zerodCriteria` (averages · stored energy · limits · loop voltage ·
  * flux budget · P_LH per instant), the predictive tier, the flux account at a
@@ -3453,7 +3453,7 @@ function evBeamPlan(field, geo, st, sp) {
   var fr = [Math.max(0, sp.beamF1), Math.max(0, sp.beamF2),
             Math.max(0, sp.beamF3)];
   if (!(fr[0] + fr[1] + fr[2] > 0)) throw new Error(FyI18n.t('e.err.beam_fractions'));
-  //: ★★the assembly is `case.rs::beam_case` (FYL-DESIGN-16 K-3, 2026-09-05):
+  //: ★★the assembly is `case.rs::beam_case` (FYL-SDD-02 K-3, 2026-09-05):
   //: the shell table on the psi map, the profiles at the shell centres, the
   //: trapped fraction and the shielding, then per energy component the
   //: deposition · first-orbit-loss mask · slowing-down · electron/ion split ·
@@ -3666,7 +3666,7 @@ function evLhPlan(field, geo, st, sp) {
     raw.push([lo, hi]);
   }
   if (!antennas.length) throw new Error(FyI18n.t('e.err.lh_nopower'));
-  //: ★★the assembly is `case.rs::wave_case` (FYL-DESIGN-16 K-3, 2026-09-05):
+  //: ★★the assembly is `case.rs::wave_case` (FYL-SDD-02 K-3, 2026-09-05):
   //: the shell table on the psi map, the profiles and |F| at the shell
   //: centres, the bands scaled by the up-shift, one `lh_deposit`, the
   //: per-launcher resonance diagnostics — ONE recipe for this page and for
@@ -4019,7 +4019,7 @@ function interpRun(msg) {
   if (!prof || !prof.rho || prof.rho.length < 3)
     return post({ type: 'error', where: 'interp',
                   message: FyI18n.t('i.err.noref') });
-  //: ★★the bar itself is `case.rs::interpretive_case` (FYL-DESIGN-16 K-3,
+  //: ★★the bar itself is `case.rs::interpretive_case` (FYL-SDD-02 K-3,
   //: 2026-09-05): the species resolved where the kernel is, the metric tier,
   //: the reference profiles read onto its radii without extrapolation, the
   //: sources (the volume-normalised deposition, alpha, ADAS radiation, the
@@ -4462,7 +4462,7 @@ function evEntryMarch(ctx, st, geo, sp, trace, crashes, tStart, field, blk) {
   var n = geo.rho.length, prev = blk && blk.prev || null, steps = blk ? blk.steps0 : 0;
   var stop = blk ? blk.steps0 + blk.take : sp.nSteps, first = true, tNow = tStart || 0;
   var wPrev = blk && blk.wPrev !== undefined ? blk.wPrev : null;
-  //: ★★the march is `case.rs::evolve` (FYL-DESIGN-16 K-3, 2026-09-05), one step
+  //: ★★the march is `case.rs::evolve` (FYL-SDD-02 K-3, 2026-09-05), one step
   //: per call so the page can report as it goes: the plan carries the ladder
   //: this run is on (bound rows — the traced tiers' own rmin/rmaj beside the
   //: metric), the state as it stands (`state`, then `resume` with the lagged

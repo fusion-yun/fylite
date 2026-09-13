@@ -169,7 +169,7 @@ const flatFile = (id, lang) => (lang === 'zh' ? `${id}.html` : `${id}.${lang}.ht
 const FLAT = new Set(FLATIDS.flatMap((id) => LANGS.map((l) => flatFile(id, l))));
 const TOOLHREFS = new Set(TOOLS.map((P) => P.href));
 //: ★THE V2 SHELL COPIES.  `pages/page_<id>.html` is the same page under the
-//: shared two-row strip (`FYL-DESIGN-11` V-11 / V-12), GENERATED from
+//: shared two-row strip (`FYL-SDD-05` V-11 / V-12), GENERATED from
 //: `pages/<id>.html` by `tools/make-page-v2.mjs`.  They are listed here rather
 //: than tolerated by a wildcard: an unexpected file in `pages/` is exactly the
 //: shape this file exists to catch, and "anything starting with page_" would
@@ -608,7 +608,7 @@ for (const L of SCENARIOS) {
   //: carries that part's prefix — OR the PAGE's, which is how a parameter
   //: two parts share is spelled: one control, set once for the scenario.
   //: ★the alphabet is [a-z_], not [a-z] — `pulse_design` has an underscore
-  //: (FYL-DESIGN-09 D-21).  Two other sites here were widened when the page
+  //: (FYL-SDD-09 D-21).  Two other sites here were widened when the page
   //: was named; THIS one was missed, and the failure is silent: the pattern
   //: simply matches nothing, so all 50 panels of the merged page went
   //: unchecked while the gate kept printing PASS.

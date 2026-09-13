@@ -27,7 +27,7 @@ SPEC = json.loads((REPO / "python" / "fylite" / "_cli.json").read_text(encoding=
 #: 写给还在敲旧词的人看的——所以它们在这条闸子里是合法的出现，而不是错。
 RETIRED = set(SPEC.get("retired", {}))
 
-#: 场景参数不是选项：它们属于场景模板，而模板是数据（FYL-DESIGN-17 E-11）。一条
+#: 场景参数不是选项：它们属于场景模板，而模板是数据（FYL-SDD-04 E-11）。一条
 #: 声明了 `open_parameters` 的命令后面的 `--foo`，要么是它自己的固定选项，要么得是
 #: **某份模板真有的**一个名字——两头都不是才是错。
 OPEN_COMMANDS = {c["name"] for c in SPEC["commands"] if c.get("open_parameters")}
@@ -51,7 +51,7 @@ PAGES = ["docs/guide/cli.md", "docs/guide/quickstart.md", "docs/guide/install.md
          "docs/reference/cli.md", "docs/reference/data-layer.md",
          "docs/reference/case-report.md", "docs/examples/index.md", "README.md"]
 
-#: ★★2026-09-04 第二条裁定（FYL-DESIGN-17 E-10 / E-24）：`case` 收进 `run`，发现面
+#: ★★2026-09-04 第二条裁定（FYL-SDD-04 E-10 / E-24）：`case` 收进 `run`，发现面
 #: 收进 `list`。旧词从这里去掉——留着它，一页写 `fy case run` 的文档会**通过**这条
 #: 闸子（`case` 不再是命令，`(app|data|case)` 匹配到的东西在 surface 里查不到而被
 #: 报为「no such subcommand」……只有在它带子命令时）。四个词与产物同一份名单。

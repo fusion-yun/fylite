@@ -1,6 +1,6 @@
 """The four scenario lines, on the Python side (FYL-DESIGN-08).
 
-★★**本包现在只剩装配**（2026-09-04，`FYL-DESIGN-16` 分期第 1 步）。四个不做装配的模块
+★★**本包现在只剩装配**（2026-09-04，`FYL-SDD-02` 分期第 1 步）。四个不做装配的模块
 搬去了 :mod:`fylite.engine` —— ``cases``（算例语料的目录与计划）· ``benchmark``（公开 V&V
 登记册）· ``physics``（一份产出的自洽判据册）· ``suite``（判据套的执行与落账）。它们的内核
 调用合计**三处**，做的是语料、登记与校验，那是宿主机械而不是场景装配；``physics`` 甚至本来

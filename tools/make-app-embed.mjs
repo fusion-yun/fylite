@@ -103,7 +103,7 @@ function walk(dir, prefix = '') {
 //: `tools/facts-publish.py`（它读每个条目的 `facts/<域>/<id>/rights.json`）。这里
 //: 只问它「这一版带哪几台」，不自己判许可：两个发布者各判一遍，某一天它们会给出
 //: 不同的答案，而先发现的人是拿到制品的那个。
-//: 缺省是**内部版**（2026-09-05 裁定，`FYL-DESIGN-19` A-14）——committed 的这张表
+//: 缺省是**内部版**（2026-09-05 裁定，`FYL-SDD-03` A-14）——committed 的这张表
 //: 因此是内部版的那一张，与 `facts/` 的缺省生成（`abox-to-facts.py` 也已缺省
 //: internal）对得上；公开版构建重跑本生成器（`--flavour public`），树会变脏，而那
 //: 正是「这一份不是缺省制品」的信号。★表里只有**路径**，装置字节不入库
@@ -116,7 +116,7 @@ function walk(dir, prefix = '') {
 //: ★许可闸没有松：进 `facts.rs` 的仍是 `tools/facts-publish.py` 按每台 `rights.json`
 //: 选出来的那几台，只是它现在编进 wasm 与 `.so`，不再落成可 fetch 的文件。
 
-//: ★★两份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-DESIGN-19` G-8）。
+//: ★★两份 wasm 必须以**版本化的真名**进表（2026-09-05，`FYL-SDD-03` A-G-8）。
 //: 生成器按「目录里现有的名字」写表，于是在一份 wasm 还没版本化的检出上重跑它，
 //: 表会从 `.wasm.0.0.1` **静默降回** `.wasm`——站点与可执行文件随之丢掉版本化命名，
 //: 而丢了不报错：页面照样能开，只是缓存与版本对不上号，且下一个人看到的是一份
@@ -155,7 +155,7 @@ function checkWasmIsVersioned(list) {
     console.error(`[embed] 这些 wasm 不是版本化的真文件：${bad.join(' ')}`);
     console.error(`[embed]   表里要的是 assets/<名>.${m[1]}（tools/soname.sh 的命名）`);
     console.error('[embed]   先在内核仓跑 rust/build.sh --wasm-check，再重跑本生成器');
-    console.error('[embed]   ——照写会把版本化命名静默降级（FYL-DESIGN-19 G-8）');
+    console.error('[embed]   ——照写会把版本化命名静默降级（FYL-SDD-03 A-G-8）');
     process.exit(1);
   }
 }

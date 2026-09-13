@@ -1,4 +1,4 @@
-// English catalogue for the PULSE-DESIGN scenario (FYL-DESIGN-09, design mode).
+// English catalogue for the PULSE-DESIGN scenario (FYL-SDD-09, design mode).
 
 self.FyI18n.register('en', {
   'nav.pulse': 'Pulse design (whole pulse)',

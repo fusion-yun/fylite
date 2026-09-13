@@ -257,7 +257,7 @@
   /**
    * The DOCUMENT door: `complete('code/vstab', plan)` -> Promise<record>.
    *
-   * ★FYL-DESIGN-16 H-2 / P2: beside the per-call bridge (`exportsFor`, one flat export
+   * ★FYL-SDD-02 H-2 / P2: beside the per-call bridge (`exportsFor`, one flat export
    * per request) the page's other way to the kernel is ONE endpoint, `POST /api/case`
    * — a plan tree in, a record tree out.  The plan's layout is the kernel's
    * (`settings/*` scalars, `inputs/<fyo path…>` documents); the record comes back as
@@ -273,7 +273,7 @@
     if (typeof fetch !== 'function' || !loopback()) {
       return Promise.reject(new Error(
         'the document door (/api/case) needs the desktop host (`fy`); the static site ' +
-        'has no middle layer in the page yet (FYL-DESIGN-16 W-1)'));
+        'has no middle layer in the page yet (FYL-SDD-02 W-1)'));
     }
     return fetch((base || ROOT) + 'api/case', {
       method: 'POST',
@@ -300,7 +300,7 @@
 
   // --- 树门：扁平树的编解码，以及 wasm 上的 `fylite_rs_fyo_tree` -------------------
   //
-  // ★FYL-DESIGN-16 W-1（2026-09-05）。静态站点没有 `/api/*`，页面要走文档门就得在
+  // ★FYL-SDD-02 W-1（2026-09-05）。静态站点没有 `/api/*`，页面要走文档门就得在
   // wasm 上敲 `fylite_rs_fyo_tree`——四段缓冲进、四段缓冲出（`tree.rs` 抬头；
   // TREE_FORMAT 由 `fyo-interface.js` 生成）。这里是那四段的 JS 编解码，与内核仓
   // `tests/oracles/tree.py` 逐字节同形（`app/tests/validate-fyo-tree.mjs` 对着它编出

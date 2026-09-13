@@ -37,7 +37,7 @@ const PY = (process.env.FYLITE_PYTHON || 'python3').split(/\s+/);
 //: that verb with it.  The gate then died on `No module named fylite.__main__`
 //: — which is not one of the shapes the skip below recognises, so it THREW,
 //: and the two-ended comparison this file exists for stopped being asserted
-//: anywhere without anything going red on purpose (`FYL-DESIGN-18` G-13).
+//: anywhere without anything going red on purpose (`FYL-SDD-05` U-G-13).
 //: `run_and_render` is the same work as one call (`docs/reference/case-report.md`).
 const DRIVE = 'from fylite.engine import casereport; ' +
               'casereport.run_and_render("evolve-default", out=' + JSON.stringify(out) + ')';

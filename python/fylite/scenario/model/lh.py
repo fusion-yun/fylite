@@ -192,7 +192,7 @@ def deposit(eq, ne, te, launchers, *, eta_cd, psin_prof=None, xi: float = 3.0,
     current-drive weighting the kernel applies inside the resonant layer
     (``"fisch"`` = ``T_e/n_e``, the only one so far).
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the twelfth tool to sink): the whole
+    ★★2026-09-05 (FYL-SDD-02 K-3, the twelfth tool to sink): the whole
     assembly — the shell table, the profiles and |F| at the shell centres, the
     bands scaled by the up-shift, the one ``lh_deposit`` and the per-launcher
     resonance diagnostics — is ``case.rs::wave_case`` now, one recipe for this

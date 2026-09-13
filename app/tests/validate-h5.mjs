@@ -1,5 +1,5 @@
 // The HDF5 gate: the browser reads a file this repository wrote, and gets the
-// same document the native reader gets (`FYL-DESIGN-18` U-25, §五).
+// same document the native reader gets (`FYL-SDD-05` U-25, §五).
 //
 //     node app/tests/validate-h5.mjs [--playwright <dir>] [--chrome <bin>]
 //
@@ -14,7 +14,7 @@
 //
 // ★★The assertion is EQUALITY WITH THE NATIVE READING, leaf by leaf.  A reader
 // that gets the structure right and the numbers subtly wrong — a transposed
-// 2-D dataset (`FYL-DESIGN-14` L-5), an int64 attribute arriving as a BigInt
+// 2-D dataset (`FYL-SDD-03` L-5), an int64 attribute arriving as a BigInt
 // and serialising to nothing — produces a document that looks perfect. So the
 // comparison is on values, not on shape.
 //

@@ -3,7 +3,7 @@
 #
 # 与另两条通道的分工：
 #   pip 轮      —— 给写脚本的人，alpha 期 Linux x86-64（tools/build-wheel.sh）
-#   浏览器站点  —— 给联网的人，零安装（tools/build-site.sh 出目录；FYL-DESIGN-15）
+#   浏览器站点  —— 给联网的人，零安装（tools/build-site.sh 出目录；FYL-SDD-04）
 #   本脚本      —— 给**离线**或**没有 Python** 的人，尤其 Windows：
 #                  一个文件，双击即用，不装任何运行时
 #
@@ -30,7 +30,7 @@
 #   --mode full  完整（缺省）—— 两路都在：内嵌前端 + 原生内核。实测 8.47 MB。
 #
 # 用法：bash tools/build-app-exe.sh [--public|--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
-#   缺省 = 内部版（带全部装置，含 EAST）——2026-09-05 裁定，FYL-DESIGN-19 A-14
+#   缺省 = 内部版（带全部装置，含 EAST）——2026-09-05 裁定，FYL-SDD-03 A-14
 #   --public      = 公开版（按 rights.json 筛，不带 EAST）；公开面必须明写这一句
 #   windows       = GNU ABI，链接器要 mingw（apt，需 root）
 #   windows-msvc  = MSVC ABI，靠 cargo-xwin，**不需要 root**

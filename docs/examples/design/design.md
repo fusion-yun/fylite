@@ -113,7 +113,7 @@ fy run: [kernel] the kernel refused `code/breakdown`: [-33] code/breakdown takes
    里跑得起来——这是**宿主的差别，不是算例的差别**。
 2. **`code/pfwave` 内核根本不认**（`pulse-iter` 那一份用它）：`fy list scenarios --line
    design` 自己就写着「the kernel door does not carry this code」，是登记在案的缺口
-   （FYL-DESIGN-17 P2-c），不是回归。
+   （FYL-SDD-04 P2-c），不是回归。
 
 ★**能走通的只有 `--dry-run`**：合成与解析都在本层，不进内核。它把六层合成的每个值与
 来源逐行打出来，是今天在命令行上检查这三档配置的唯一办法：

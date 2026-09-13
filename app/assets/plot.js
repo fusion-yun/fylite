@@ -672,7 +672,7 @@
       //: ★the plot box in CSS pixels, and the FORWARD map beside the inverse
       //: one.  A caller that can turn a click into a value but not a value
       //: into a position can read the figure and not annotate it — which is
-      //: half of what「把光标停在 t = 3.20 s」needs (`FYL-DESIGN-18` U-17).
+      //: half of what「把光标停在 t = 3.20 s」needs (`FYL-SDD-05` U-17).
       //: `prepare()` leaves the context scaled by the device pixel ratio, so
       //: these are the coordinates a caller draws in.
       box: { l: pad.l, r: p.w - pad.r, t: pad.t, b: p.h - pad.b },
@@ -811,7 +811,7 @@
           ctx.fill();
         }
       } else if (s.kind === 'stems') {
-        //: ★A RESIDUAL IS A STEM, NEVER A POLYLINE (`FYL-DESIGN-12` · U-21):
+        //: ★A RESIDUAL IS A STEM, NEVER A POLYLINE (`FYL-SDD-07` · U-21):
         //: the abscissa is a channel index, and joining channel 3 to
         //: channel 4 draws a slope between two things that have no
         //: neighbourhood.  Line from the zero line, dot at the tip.

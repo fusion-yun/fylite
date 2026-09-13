@@ -1,9 +1,9 @@
-// HDF5 as a source layer: bytes in, one fyo document out (`FYL-DESIGN-18`
+// HDF5 as a source layer: bytes in, one fyo document out (`FYL-SDD-05`
 // U-25, §五).
 //
 // ★Why a source layer and not a format the middle layer reads.  The middle
 // layer's HDF5 face links `libhdf5`, a C library, and that face is native-only
-// by ruling (`FYL-DESIGN-14` L-9): measured here, `hdf5-metno-sys` does not even
+// by ruling (`FYL-SDD-03` L-9): measured here, `hdf5-metno-sys` does not even
 // compile for `wasm32-unknown-unknown` — `libc::FILE`, `off_t`, `ssize_t` do not
 // exist on a target with no libc.  So the browser cannot reach HDF5 the way the
 // native host does, and the choice is between shipping a second HDF5
@@ -25,7 +25,7 @@
 // writes: arrays are datasets, scalars and strings are attributes on the
 // enclosing group, and the root carries `@id` / `@type`.  The **IMAS layout**
 // (`master.h5` in a directory, tensorised structure arrays, transposed data
-// axes — `FYL-DESIGN-14` L-5 / L-6) is REFUSED BY NAME rather than half-read:
+// axes — `FYL-SDD-03` L-5 / L-6) is REFUSED BY NAME rather than half-read:
 // getting it wrong yields a document that looks right and is transposed.
 //
 // ★Licence.  h5wasm is NIST-developed software vendored verbatim under
@@ -182,7 +182,7 @@
         var attrs = f.attrs || {};
         if (!attrs['@type'] && names.indexOf('ids_properties') >= 0)
           throw new Error('按名拒绝：这看着是 IMAS 布局（结构数组张量化 · 数据轴转置，'
-                          + 'FYL-DESIGN-14 L-5 / L-6）——本读者只读本仓写的 fyo 布局，'
+                          + 'FYL-SDD-03 L-5 / L-6）——本读者只读本仓写的 fyo 布局，'
                           + '半读一份会给出一份看着对、其实转置了的文档');
         var doc = walk(h5, f);
         if (opts.id) doc['@id'] = doc['@id'] || opts.id;

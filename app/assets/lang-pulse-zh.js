@@ -1,4 +1,4 @@
-// Chinese catalogue for the PULSE-DESIGN scenario (FYL-DESIGN-09 设计模式).
+// Chinese catalogue for the PULSE-DESIGN scenario (FYL-SDD-09 设计模式).
 //
 // The page's own words: one pulse script, four views on one time axis.  The
 // sentences that matter are the ones about WHAT A NUMBER IS — 目标 or 实现,

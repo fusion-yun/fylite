@@ -481,7 +481,7 @@ pub fn apply_facts(args: &Args) {
     }
 }
 
-//: ★★`facts` 这条子命令搬去了 `list`（`FYL-DESIGN-17` E-24：发现面只有一处）。
+//: ★★`facts` 这条子命令搬去了 `list`（`FYL-SDD-04` E-24：发现面只有一处）。
 //: `data` 从此只搬数据、不回答「有什么」；`fy data facts` 由解析器按名拒绝并指向
 //: `fy list facts`（规格的 `retired` 表）。组级选项 `--facts` 留在这里，它设的是
 //: 搜索路径，不是一个问答面。

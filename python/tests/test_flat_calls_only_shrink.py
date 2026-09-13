@@ -1,6 +1,6 @@
 """Flat kernel calls in the assembly layer only ever SHRINK — K-1's own criterion.
 
-FYL-DESIGN-16 K-1: 「`scenario/` 与页面 JS 里不再出现 `fylite_rs_*` 符号名」——文档门是
+FYL-SDD-02 K-1: 「`scenario/` 与页面 JS 里不再出现 `fylite_rs_*` 符号名」——文档门是
 内核唯一的接口，扁平 C 导出面是本地后端的实现细节。这条闸子是那句话在 Python 侧的
 **棘轮**（内核仓 `tests/test_seam_is_fyo_only.py` 是同一条缝的另一面）：今天的数是
 基线，只准降；一个文件降到 0 就从表里删掉。
@@ -10,7 +10,7 @@ FYL-DESIGN-16 K-1: 「`scenario/` 与页面 JS 里不再出现 `fylite_rs_*` 符
 (``scenario``) and the loader's own face (``grid_of``, ``require_data``, ``load``,
 ``abi_version``).  Counted by AST, not by grep: a call in a docstring is not a call.
 
-★Why a ratchet and not a target.  P1 (FYL-DESIGN-16 §分期) is the critical path
+★Why a ratchet and not a target.  P1 (FYL-SDD-02 §分期) is the critical path
 and the largest phase — 271 call points when the design was written.  A number
 that may only fall makes every sink visible and every regression loud; a
 target date makes neither.  ★2026-09-05: `vertical_system` went first (15 -> 5
@@ -64,7 +64,7 @@ def test_flat_kernel_calls_in_the_assembly_layer_never_grow():
         + "\n  ".join(f"{k}: baseline {a} -> now {b}" for k, (a, b) in sorted(grew.items()))
         + "\n\nK-1: the document door is the kernel's only interface; a new capability is a "
           "code behind `fydoc.complete(...)`, not another flat export call. "
-          "See FYL-DESIGN-16 §裁定 K-1 / K-3.")
+          "See FYL-SDD-02 §裁定 K-1 / K-3.")
 
 
 def test_the_baseline_is_the_measurement_not_a_wish():

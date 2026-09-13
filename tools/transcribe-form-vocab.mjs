@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Transcribe a function page's hand-written controls into a control
-// vocabulary, and leave mount points behind (`FYL-DESIGN-18` U-1 / U-2, stage U0).
+// vocabulary, and leave mount points behind (`FYL-SDD-05` U-1 / U-2, stage U0).
 //
 //     node tools/transcribe-form-vocab.mjs model            # writes both files
 //     node tools/transcribe-form-vocab.mjs model --dry-run  # prints the vocabulary only
@@ -17,7 +17,7 @@
 // an i18n key and the unit written inside the label text (`[keV]`); it does NOT
 // carry the parameter's IRI (`code/<cap>#<name>`), its tier (A / B / C), or its
 // group in the sense of U-3.  Those fields are written as `[TBD]` so the gap
-// is visible in the data rather than papered over (`FYL-DESIGN-18` G-1).
+// is visible in the data rather than papered over (`FYL-SDD-05` U-G-1).
 //
 // ★Why the mounts keep the page's own structure.  Stage U0 generates the
 // CONTROLS, not the panels: headings, notes, folded boxes (`hidden`) and the
@@ -128,12 +128,12 @@ if (left.length) throw new Error(`controls left untranscribed:\n  ${left.join('\
 const header = `// GENERATED ONCE by tools/transcribe-form-vocab.mjs from pages/${page}.html
 // (${new Date().toISOString().slice(0, 10)}) — and the SOURCE from then on.  Edit this file, not the page:
 // the page carries only \`data-form\` mounts, and assets/form.js draws each
-// control from the entry below that shares its name (FYL-DESIGN-18 U-1 / U-2).
+// control from the entry below that shares its name (FYL-SDD-05 U-1 / U-2).
 //
 // ★\`[TBD]\` is a value, not a placeholder to be quietly filled: the IRI
 // (\`code/<cap>#<name>\`), the tier (A / B / C) and the group are what the
-// kernel's code table will declare (FYL-DESIGN-16 K-2, as amended by
-// FYL-DESIGN-18 §十二); a page cannot know them, so it says so.  \`units\` were
+// kernel's code table will declare (FYL-SDD-02 K-2, as amended by
+// FYL-SDD-05〈要改口的既有裁定〉); a page cannot know them, so it says so.  \`units\` were
 // read out of the label text and are what the label says, no more.
 // ★\`kind\` is the CONTROL, \`type\` is the parameter: U-2 maps one to the other
 // and this file records both so the gate can check the mapping held.

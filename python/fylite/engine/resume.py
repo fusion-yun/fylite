@@ -1,6 +1,6 @@
 """续跑：读一份记录的 ``fylite:state``，摆回下一次调用的参数。
 
-★★**为什么 Python 这一侧也要有它。** `FYL-DESIGN-18` U-19 说的是「同一份文档集在
+★★**为什么 Python 这一侧也要有它。** `FYL-SDD-05` U-19 说的是「同一份文档集在
 别处继续」——桌面、Python、另一台浏览器认**同一份**记录。那句话在 2026-09-12 之前
 只有浏览器一端成立（`-18` G-4）：`fy run` 没有 `--resume-from`，本包连读都读不出来。
 CLI 那一半已经落地（`rust/fylite_runtime/src/resume.rs`），这一份是 Python 的**读**的
@@ -20,7 +20,7 @@ CLI 那一半已经落地（`rust/fylite_runtime/src/resume.rs`），这一份�
 ★★**它有一条说不出口的限制，而那条限制要说出口**：`code/evolve` 的三条滞后量
 （`psi_prev` / `sigma_prev` / `exch_prev`）**交不过去**——内核从 ``evolve/fylite:*``
 读它们，却写在自己的原始条目块里，而中间层只把**声明过的表**里的槽压进扁平树
-（`FYL-DESIGN-16` F-2 / G-8）。写记录的那一侧因此设 ``lag_reset``（内核自己的词）
+（`FYL-SDD-02` F-2 / G-8）。写记录的那一侧因此设 ``lag_reset``（内核自己的词）
 并在计划里留痕。实测代价：常数闭合下 40 步 ≡ 20 + 续 20 **逐位相同**；换成新经典
 闭合加密度 / 动量通道，同一个比法 Te 差 61 %。所以 :func:`carried` 把这件事一并
 交出来（``lag_reset`` 键），调用方不该假装没看见。
@@ -100,7 +100,7 @@ def carried(src) -> CarriedState:
     if not isinstance(st, dict) or not (st.get("settings") or st.get("documents")):
         raise ResumeError(
             "这份记录没有 fylite:state —— 单步 code 的记录无中间态可续，"
-            "而那是答案不是故障（FYL-DESIGN-18 U-10）")
+            "而那是答案不是故障（FYL-SDD-05 U-10）")
     docs = {}
     for port, uri in (st.get("documents") or {}).items():
         q = Path(uri)

@@ -8,7 +8,7 @@
 2. 词表 ⊇ 语料实际用到的名字，且每条预设用到的名字模板都认得——否则 `fy run`
    会把一条**跑得起来的**预设按名拒绝；
 3. 目录（`lines.jsonld`）覆盖每一个模板，且不设模板的场景在**数据里**给出理由
-   （`FYL-DESIGN-17` E-8：不能让散文说存在、命令行说没有）。
+   （`FYL-SDD-04` E-8：不能让散文说存在、命令行说没有）。
 
 ★还有一条只能在这里查的：模板**不得**声明与 `fy run` 固定选项同名的参数（E-12 ④）。
 固定选项名优先，所以一个叫 `device` 的场景参数永远收不到值——而那是静默的。
@@ -138,7 +138,7 @@ def test_every_line_has_a_default_scenario_that_exists():
 
 
 def test_a_templated_scenario_is_either_runnable_or_says_why_not():
-    """Gate ② of FYL-DESIGN-17: the catalogue may not advertise what the door refuses."""
+    """Gate ② of FYL-SDD-04: the catalogue may not advertise what the door refuses."""
     door = set()
     src = (REPO / "rust" / "fylite_runtime" / "src" / "fyo_interface.rs").read_text(encoding="utf-8")
     block = src.split('Block { name: "CASE_CODES"', 1)

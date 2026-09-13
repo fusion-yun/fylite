@@ -1,5 +1,5 @@
 // The workbench gate: tiles edit the specification, and a gesture's result is
-// either in it or visibly not (`FYL-DESIGN-18` U-14 · U-16 · U-17;
+// either in it or visibly not (`FYL-SDD-05` U-14 · U-16 · U-17;
 // NR-QUAL-007 second clause).
 //
 //     node app/tests/validate-workbench.mjs [--playwright <dir>] [--chrome <bin>]

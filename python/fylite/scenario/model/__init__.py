@@ -172,7 +172,7 @@ def evaluate(scn: Scenario, time=None, n_rho: int = 41) -> dict:
     prescribed n_e / T_e / T_i profiles per slice, and the phase label of
     each slice.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the sixth tool to sink): ONE knock on the
+    ★★2026-09-05 (FYL-SDD-02 K-3, the sixth tool to sink): ONE knock on the
     document door (``code/zerod``).  It used to be one flat kernel call
     preceded by three waveform calls and followed by a label call; the
     waveforms are the kernel's to build from the phase table now, and the
@@ -258,7 +258,7 @@ def transport(*, rho=None, n_rho: int = 41, vprime=None, source=None,
     The geometry is PRESCRIBED here — that is the reduced tier.  ``coupled``
     is the tool that takes it from a solved equilibrium.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the seventh tool to sink): the outer
+    ★★2026-09-05 (FYL-SDD-02 K-3, the seventh tool to sink): the outer
     march — the steps, the settle rule, the history — is
     ``case.rs::transport_case`` (``code/transport``) now.  This function
     binds the grid, the geometry, the source, the start, the convection and
@@ -496,7 +496,7 @@ def evolve(*, a: float, r0: float, b0: float,
     ``ip_ki``) on the enclosed current's ratio to its own first reading and
     drives the loop voltage with it.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the ninth tool to sink).  This function
+    ★★2026-09-05 (FYL-SDD-02 K-3, the ninth tool to sink).  This function
     used to be the ASSEMBLY around the one declared entry ``evolve_heat``: the
     Miller metric from four scalars through ``geo_surface``, or a traced ladder
     off an equilibrium document (``fyo.Ladder`` — |F|, |q|, the 2π gauge, the
@@ -1365,7 +1365,7 @@ def coupled(*, aturns: list, ip: float, beta0: float = 0.55, emp: float = 1.0,
     ``p(psi)``, so this loop can change how much pressure there is and not
     how it is distributed.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the tenth tool to sink): this was the
+    ★★2026-09-05 (FYL-SDD-02 K-3, the tenth tool to sink): this was the
     last host-side assembly that solved a free boundary itself.  The loop —
     the solve, the trace, the steady step, the feedback — is
     ``case.rs::coupled_case`` now; the kernel repository's

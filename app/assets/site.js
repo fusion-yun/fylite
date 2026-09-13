@@ -71,7 +71,7 @@
   //: scenario that is one criterion is a criterion, not a scenario.  The
   //: kernel entry is untouched: `fylite.scenario.control` still runs it.
   var SCENARIOS = [
-    //: ★ONE ENTRY WHERE THERE WERE THREE (FYL-DESIGN-09 D-18..D-21, 分期 P5).
+    //: ★ONE ENTRY WHERE THERE WERE THREE (FYL-SDD-09 D-18..D-21, 分期 P5).
     //: `design` (one instant), `pulse` (the whole pulse, read by a play-head)
     //: and `sim` (only the past, the right edge is now) were three pages
     //: because their time axes MEAN different things.  They still do — that

@@ -10,9 +10,9 @@
 // belonged to the model in which a page was a row in a design document; the
 // prose that traced them is gone with it, not moved.
 self.FyI18n.register('en', {
-  // --- pulse design (the whole pulse; FYL-DESIGN-09 design mode) -----------
+  // --- pulse design (the whole pulse; FYL-SDD-09 design mode) -----------
 
-  // --- interactive simulation (FYL-DESIGN-09 simulation mode) --------------
+  // --- interactive simulation (FYL-SDD-09 simulation mode) --------------
 
   // --- line 1 · discharge design -------------------------------------------
 
@@ -35,7 +35,7 @@ self.FyI18n.register('en', {
   // --- landing page: the four lines ---------------------------------------
   'home.lines.h2': 'Four pages',
   'home.lines.lead': 'The demo is <strong>four pages</strong>. The first three are grouped by <strong>what they are for</strong>, in the order a machine is actually worked through: <strong>design to model to inference</strong>. One scenario is one page and one interface: one compute kernel, one toolbar; the page is a stack of <strong>function bars</strong>, and <strong>each bar has its own run key and its own fold</strong> — press the one you want; folding affects reading only. Bars are ordered by the dependencies they declare, and a bar whose upstream has not run yet says so in its strip. \u2605The fourth page, <strong>device data</strong>, is not a scenario and <strong>computes nothing</strong>: no kernel, no run key — it brings you what the machine itself recorded, and it is therefore the one of the four that needs an mdsip server it can reach.',
-  // --- pulse design (one page, three modes; FYL-DESIGN-09 D-18..D-21) ---
+  // --- pulse design (one page, three modes; FYL-SDD-09 D-18..D-21) ---
   'ln.pulse_design.title': 'Pulse design · fylite',
   'ln.pulse_design.h1': 'Pulse design',
   'ln.pulse_design.sub': 'One script · three readings of time: configure · design · simulate',

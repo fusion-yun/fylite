@@ -1,6 +1,6 @@
 // The spec gate, page half: a figure is drawn from the presentation
 // specification, by the report face's resolver, and a view it cannot draw is
-// refused BY NAME (`FYL-DESIGN-18` U-12 · U-16 · U-17 · U-21 · U-22;
+// refused BY NAME (`FYL-SDD-05` U-12 · U-16 · U-17 · U-21 · U-22;
 // NR-QUAL-007 second clause).
 //
 //     node app/tests/validate-fig.mjs [--playwright <dir>] [--chrome <bin>]

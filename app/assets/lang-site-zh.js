@@ -13,7 +13,7 @@ self.FyI18n.register('zh', {
 
 
 
-  // --- 放电设计（一页三模式，FYL-DESIGN-09 D-18..D-21）------------------
+  // --- 放电设计（一页三模式，FYL-SDD-09 D-18..D-21）------------------
   'ln.pulse_design.title': '放电设计 · fylite',
   'ln.pulse_design.h1': '放电设计',
   'ln.pulse_design.sub': '一份脚本 · 三种时间观：配置 · 设计 · 仿真',

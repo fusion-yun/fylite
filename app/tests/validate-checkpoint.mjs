@@ -1,10 +1,10 @@
 // The checkpoint gate: a run is a sequence of door calls, and stopping in the
-// middle of one loses nothing (`FYL-DESIGN-18` U-8 · U-9 · U-10 · U-11 · U-19;
+// middle of one loses nothing (`FYL-SDD-05` U-8 · U-9 · U-10 · U-11 · U-19;
 // NR-QUAL-007 third clause).
 //
 //     node app/tests/validate-checkpoint.mjs [--playwright <dir>] [--chrome <bin>]
 //
-// ★The equivalence claim is the point.  `FYL-DESIGN-18` §十三 names one
+// ★The equivalence claim is the point.  `FYL-SDD-05`〈分期与门禁〉 names one
 // criterion for this gate: **N steps in one call ≡ k steps + resume(N − k)**.
 // With a real kernel that is a bit-for-bit comparison of two runs; here the
 // stepper is a deterministic fake, which tests the thing this repository owns —

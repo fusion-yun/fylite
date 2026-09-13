@@ -1,5 +1,5 @@
 // The form gate: a function page's controls come from its vocabulary, and
-// from nowhere else (`FYL-DESIGN-18` U-1 / U-2; NR-QUAL-007 first clause).
+// from nowhere else (`FYL-SDD-05` U-1 / U-2; NR-QUAL-007 first clause).
 //
 //     node app/tests/validate-form.mjs [--playwright <dir>] [--chrome <bin>]
 //

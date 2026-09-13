@@ -1,4 +1,4 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第十六刀：
+// 模型页 worker 的 evolve 命令走文档门（FYL-SDD-02 K-3，2026-09-05）——第十六刀：
 // 执行器波形（`wave`）与新经典闭合（`closure = 2`）。
 //
 // 三个配置，切门**之前**用 `--record` 在 worker 自己的循环路径（`fy.coreMarch` 逐步、

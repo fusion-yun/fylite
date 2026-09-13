@@ -35,7 +35,7 @@
  ],
  "notices_note": "`flavours` is the whole of the public/internal rule for TEXT: a notice whose list omits `public` is deleted from the published site (element and catalogue entry alike, `tools/app-flavour.mjs`) and is not printed by a `public` build of either host. ★The order is the order they are shown in, on all three faces: maturity first, then who may hold this copy.",
  "default_flavour": "internal",
- "default_flavour_why": "Matches FYL-DESIGN-19 A-14 (the default build is the full one), and it is the safe direction for a RESTRICTION: an artifact whose flavour cannot be determined prints the internal notice, so the failure mode is a public build that says one sentence too many rather than an internal one that quietly looks distributable.",
+ "default_flavour_why": "Matches FYL-SDD-03 A-14 (the default build is the full one), and it is the safe direction for a RESTRICTION: an artifact whose flavour cannot be determined prints the internal notice, so the failure mode is a public build that says one sentence too many rather than an internal one that quietly looks distributable.",
  "show_when": "interactive",
  "show_when_rule": "★★2026-09-08 用户裁定：*fy cli 交互时显示 banner*。两个会打印的宿主（`fy` 与本包）因此**只在有人看着的时候**印：stderr 是终端就印，是管道或日志就一个字也不印。理由是 banner 的读者是**人**——`fy list --json | jq` 与 `python x.py > out` 那两条流上没有读者，只有噪声。★代价说在明处：一份重定向进日志的内部版构建**不会**在日志里留下「仅限内部测试」那一句；提示词仍在页面头条、README 与制品的 NOTICE 上。★浏览器那一面不受这条管——它的提示词是页面上的一条带子，不是一次打印，一直在那儿。",
  "quiet_env": "FY_NO_BANNER",

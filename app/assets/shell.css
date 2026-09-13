@@ -1,4 +1,4 @@
-/* The v2 page shell — `FYL-DESIGN-11` V-11 / V-12, `FYL-DESIGN-10` P-25..P-27.
+/* The v2 page shell — `FYL-SDD-05` V-11 / V-12, `FYL-SDD-05` P-25..P-27.
  *
  * ★Loaded ONLY by `pages/page_*.html`.  The four original pages keep the
  * `header.top` strip and are not touched by anything in this file: every rule
@@ -137,7 +137,7 @@ header.shell {
 }
 
 /* --- the mode strip, pinned directly under the shell ---------------------- */
-/* ★`FYL-DESIGN-09` D-23: the shell REPORTS which mode you are in; the keys
+/* ★`FYL-SDD-09` D-23: the shell REPORTS which mode you are in; the keys
    that CHANGE it are here, in the body — which is why this is a body element
    with its own sticky offset rather than a fourth slot on the strip. */
 .shell-modes {

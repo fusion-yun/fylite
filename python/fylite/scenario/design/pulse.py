@@ -1,6 +1,6 @@
 """线一 · 脉冲 —— feed-forward pulse design: a shape trajectory in, voltage waveforms out.
 
-★★2026-09-05 (FYL-DESIGN-16 K-3, the fourth tool to sink).  This module used to
+★★2026-09-05 (FYL-SDD-02 K-3, the fourth tool to sink).  This module used to
 hold ``design_trajectory`` / ``verify_trajectory`` — the GSPulse-shaped whole-pulse
 least-squares design, linearised on the finite-difference shape response of
 ``run.forward_equilibrium``.  That solver is the EFIT lineage removed under LICENSE

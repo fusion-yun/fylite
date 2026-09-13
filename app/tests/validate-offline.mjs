@@ -1,5 +1,5 @@
 // The offline gate: the published site opens again after the network is gone
-// (`FYL-DESIGN-18` U-20; `FYL-SRS-01` NR-ENV-001).
+// (`FYL-SDD-05` U-20; `FYL-SRS-01` NR-ENV-001).
 //
 //     node app/tests/validate-offline.mjs [--playwright <dir>] [--chrome <bin>]
 //

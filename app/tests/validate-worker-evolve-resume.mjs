@@ -1,4 +1,4 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第二十二刀：
+// 模型页 worker 的 evolve 命令走文档门（FYL-SDD-02 K-3，2026-09-05）——第二十二刀：
 // 页面的**续跑**（`msg.resume`：一整份状态从页面递回，`msg.tStart` 接着走时钟）。
 //
 // 循环路径把递回的 te / ti / ne / psi 盖到起始剖面上、时钟从 `tStart` 接着走，其余（滞后的

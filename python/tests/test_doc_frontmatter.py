@@ -1,6 +1,6 @@
 """Every document's frontmatter must parse, and say the same version twice.
 
-★Why this exists.  `FYL-DESIGN-09`'s `change:` scalar lost its closing quote in
+★Why this exists.  `FYL-SDD-09`'s `change:` scalar lost its closing quote in
 8109330 and stayed broken through four commits.  Nothing went red: MyST does
 not fail on unparseable frontmatter, it **silently ignores the whole block**.
 The visible effect was that the built page's title became 「摘要 (Abstract)」 —

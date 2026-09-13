@@ -1,5 +1,5 @@
 // The edit gate: a try changes the plan, can be taken back, and a shape that
-// cannot be drawn is refused rather than corrected (`FYL-DESIGN-18` U-15 ·
+// cannot be drawn is refused rather than corrected (`FYL-SDD-05` U-15 ·
 // U-23, §八).
 //
 //     node app/tests/validate-edit.mjs [--playwright <dir>] [--chrome <bin>]

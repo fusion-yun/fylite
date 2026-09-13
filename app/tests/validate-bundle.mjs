@@ -1,5 +1,5 @@
 // The round-trip gate: the document set is one exchange unit, and it survives
-// leaving and coming back (`FYL-DESIGN-18` U-18 · U-19; NR-QUAL-007 fourth
+// leaving and coming back (`FYL-SDD-05` U-18 · U-19; NR-QUAL-007 fourth
 // clause — the fourth of the four gates §十三 names).
 //
 //     node app/tests/validate-bundle.mjs [--playwright <dir>] [--chrome <bin>]

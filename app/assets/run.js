@@ -1,9 +1,9 @@
 // A run as a sequence of door calls: step budget, measured progress,
-// cancellation by budget, checkpoints (`FYL-DESIGN-18` U-8 · U-9, stage U0).
+// cancellation by budget, checkpoints (`FYL-SDD-05` U-8 · U-9, stage U0).
 //
 // ★What changes.  Today a multi-step march is one long `postMessage` and the
 // page learns how far it got from `{type:'progress'}` messages the worker
-// sends about itself.  `FYL-DESIGN-16` took the callbacks off the door on
+// sends about itself.  `FYL-SDD-02` took the callbacks off the door on
 // purpose (〔回调：撤回〕), so progress cannot come back from inside a call:
 // it has to be COUNTED by the caller.  This module is that caller.  It asks
 // for a few steps at a time, times what came back, and picks the next chunk
@@ -23,7 +23,7 @@
 // `{record, state, steps}`.  That is what makes the equivalence claim testable
 // without a kernel: with a deterministic stepper, N steps in one call and
 // k + (N − k) steps across a checkpoint must produce the same state, which is
-// the criterion `FYL-DESIGN-18` §十三 names for the checkpoint gate.
+// the criterion `FYL-SDD-05`〈分期与门禁〉 names for the checkpoint gate.
 (function (root) {
   'use strict';
 
@@ -107,7 +107,7 @@
         //: reader means by「第 23 步」when the march started at 23
         step: from + done,
         msPerStep: msPerStep,
-        //: ★REPORTED, NOT PROMISED (`FYL-DESIGN-13`'s wording, same reason):
+        //: ★REPORTED, NOT PROMISED (`FYL-SDD-05`'s wording, same reason):
         //: it is the measured cost of the steps that ran times the steps that
         //: have not, and it is null until something has been measured.
         etaMs: msPerStep === null ? null : Math.round(msPerStep * remaining)

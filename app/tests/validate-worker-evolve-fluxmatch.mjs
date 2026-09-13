@@ -1,4 +1,4 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第二十一刀：
+// 模型页 worker 的 evolve 命令走文档门（FYL-SDD-02 K-3，2026-09-05）——第二十一刀：
 // 通量匹配档（closure 4，T-C13 / T-C14）。
 //
 // 切门之前，`evFluxMatch` 在 worker 里驱动内核的 Newton 机器（`fy.fluxMatch`），回调里

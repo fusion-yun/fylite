@@ -1,5 +1,5 @@
 // English catalogue for the INTERACTIVE-SIMULATION scenario
-// (FYL-DESIGN-09, simulation mode).
+// (FYL-SDD-09, simulation mode).
 
 self.FyI18n.register('en', {
   'nav.sim': 'Interactive simulation (marching)',

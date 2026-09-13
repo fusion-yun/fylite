@@ -1,4 +1,4 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第十八刀：
+// 模型页 worker 的 evolve 命令走文档门（FYL-SDD-02 K-3，2026-09-05）——第十八刀：
 // 湍流闭合（`closure = 3`）——TGLF 在扩展模块里，核心 wasm 叫不到它，于是扩展自己开门
 // （`code/turbulence`，页面 `turbulentChi` 整段沉下去：逐面块、抽样半径、deck、单位 / ky 网格 /
 // 准线性通量、回旋 Bohm 单位的 χ 插到梯子上、对上一次答案松弛），推进（`code/evolve`，

@@ -10,7 +10,7 @@
 //
 // ★这份 wasm 与 `fylite_rs.wasm` / `fylite_kernel_ext.wasm` **不是一回事**：那两份
 // 是物理核（私有仓），这一份是中间层（本仓 `rust/fylite_runtime/`）。它零导入
-// （`FYL-DESIGN-16` H-5），所以实例化不需要任何宿主函数。
+// （`FYL-SDD-02` H-5），所以实例化不需要任何宿主函数。
 //
 // ★★取的是 **`fylite_web.wasm`（0.51 MB），不是 `fylite_runtime.wasm`（2.14 MB）**
 // （2026-09-05）。两者同一份源码、同一段装置门代码，差别只在还导出了什么——wasm 上

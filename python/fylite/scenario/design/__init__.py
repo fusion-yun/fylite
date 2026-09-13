@@ -167,7 +167,7 @@ def start_state(*, target: dict, ip: float,
     right size in roughly the right place, and there is no such thing at
     zero current.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the third tool to sink): this used to
+    ★★2026-09-05 (FYL-SDD-02 K-3, the third tool to sink): this used to
     read the conductors and the box off the device, fill the cloud, call the
     kernel's linear solve and fold the seed field itself — the recipe was
     this host's, and the page held a second copy.  It is
@@ -229,7 +229,7 @@ def discharge(*, target: dict, ip: float,
     ends the anneal; it is not dropped, because "the search stopped here" and
     "the search finished" are different outcomes.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3): the recipe — target points, response
+    ★★2026-09-05 (FYL-SDD-02 K-3): the recipe — target points, response
     rows, ridge scale, the designed start, the collapse-and-halve rule, the
     best-of selection — is ``case.rs::discharge_case`` now, one copy for
     this host and the page.  This function builds the PLAN and reads the
@@ -336,7 +336,7 @@ def breakdown(*, r0: float, z0: float = 0.0, radius: float = 0.3,
               x_ref=None) -> dict:
     """Design the vacuum field null for breakdown — BY THE KERNEL, from the device document.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the second tool to sink): this function
+    ★★2026-09-05 (FYL-SDD-02 K-3, the second tool to sink): this function
     used to read the deck's coils and channel map, fold the supply ratings
     into per-channel limits (``pulse.channel_limits``), call the one kernel
     export that does the design, and read the verdict off the numbers.  The

@@ -1,4 +1,4 @@
-// 树门在页面这一侧（FYL-DESIGN-16 W-1，2026-09-05）：`kernelapi.js` 的扁平树编解码
+// 树门在页面这一侧（FYL-SDD-02 W-1，2026-09-05）：`kernelapi.js` 的扁平树编解码
 // 与 `fylite_rs_fyo_tree` 在 wasm 上的调用。
 //
 // 三件事，各是一道判据：

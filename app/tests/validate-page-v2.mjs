@@ -2,8 +2,8 @@
 //
 //   node app/tests/validate-page-v2.mjs [--playwright DIR] [--chrome BIN]
 //
-// Four pages under the shared two-row strip (`FYL-DESIGN-11` V-11 / V-12,
-// `FYL-DESIGN-10` P-25 / P-26), generated from the four originals by
+// Four pages under the shared two-row strip (`FYL-SDD-05` V-11 / V-12,
+// `FYL-SDD-05` P-25 / P-26), generated from the four originals by
 // `tools/make-page-v2.mjs`.  What has to stay true, in order of how much it
 // would cost to get wrong:
 //
@@ -125,7 +125,7 @@ if (!flag('playwright', 'PLAYWRIGHT_PATH')) {
       const y = (e) => Math.round(e.getBoundingClientRect().y + scrollY);
       const cands = [];
       if (live.length) cands.push(y(live[0]));
-      //: ★an EMPTY STATE counts, and that is deliberate: `FYL-DESIGN-13` P-10
+      //: ★an EMPTY STATE counts, and that is deliberate: `FYL-SDD-05` P-10
       //: says a page with nothing to show names the missing step rather than
       //: drawing a blank, and a box with axes and that sentence is an output
       //: in the only sense this assertion cares about — the reader learns what

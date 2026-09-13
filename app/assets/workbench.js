@@ -1,5 +1,5 @@
 // The workbench: views as tiles, and the layout written back into the
-// presentation specification (`FYL-DESIGN-18` U-14 · U-16 · U-17, stage U0).
+// presentation specification (`FYL-SDD-05` U-14 · U-16 · U-17, stage U0).
 //
 // ★The workbench edits a document, not a picture.  Moving a tile, resizing it,
 // changing what a view shows or pinning a domain all end in the same place —

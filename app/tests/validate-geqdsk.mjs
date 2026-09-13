@@ -13,7 +13,7 @@ const HERE = new URL('.', import.meta.url).pathname;
 globalThis.self = globalThis;
 // geqdsk.js raises its errors through the catalogue, so the runtime and at
 // least one language have to be present even in a headless oracle run.
-//: ★★2026-09-05：`geqdsk.js` 里**没有解析器了**（`FYL-DESIGN-16` H-4 第一块落地）。
+//: ★★2026-09-05：`geqdsk.js` 里**没有解析器了**（`FYL-SDD-02` H-4 第一块落地）。
 //: 页面问中间层，所以这条闸子也得把中间层装上——它比的从此是「**发出去的那份 wasm**
 //: 与 python 读法一致」，比从前那句「JS 那份与 python 一致」更贴近读者拿到的东西。
 //: `runtimeweb.js` 在 `geqdsk.js` 之前：后者在加载时就要问前者。

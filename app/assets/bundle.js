@@ -1,5 +1,5 @@
 // The document set: one exchange unit for export, import and moving elsewhere
-// (`FYL-DESIGN-18` U-18 · U-19, stage U0).
+// (`FYL-SDD-05` U-18 · U-19, stage U0).
 //
 // ★One unit, not a menu of formats.  What leaves the page is a plan, the input
 // documents its ports are bound to, the record (with `fylite:state`, so it is

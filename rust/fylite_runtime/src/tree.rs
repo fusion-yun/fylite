@@ -1,6 +1,6 @@
 //! The flat tree — this side's encoder and decoder for the kernel's document door.
 //!
-//! ★★FYL-DESIGN-16 F-1..F-4 / H-4（T-1 的中间层一半，2026-09-05）：**编码器与解码器只有
+//! ★★FYL-SDD-02 F-1..F-4 / H-4（T-1 的中间层一半，2026-09-05）：**编码器与解码器只有
 //! 中间层一份（Rust），三种宿主共用。** 内核那一半在内核仓 `tree.rs`（阅读器 + 构建器）；
 //! 这里把本 crate 的 [`Node`] 摊成四段、把四段收回 [`Node`]。两边逐条同一张表：
 //!

@@ -1,4 +1,4 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——第十七刀：
+// 模型页 worker 的 evolve 命令走文档门（FYL-SDD-02 K-3，2026-09-05）——第十七刀：
 // 推进循环里的两个执行器，中性束（`beam`）与低杂波（`lh`）。
 //
 // 三个配置，切门**之前**用 `--record` 在 worker 自己的循环路径（`evBeamDeposit` /

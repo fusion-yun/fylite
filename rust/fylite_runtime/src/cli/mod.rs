@@ -1,5 +1,5 @@
 //! The command line of the Rust host — built from the SAME spec file the
-//! Python console script builds its argparse parser from (FYL-DESIGN-15).
+//! Python console script builds its argparse parser from (FYL-SDD-04).
 //!
 //! `python/fylite/_cli.json` is included at compile time, so the single
 //! executable and the Python package cannot disagree about a command, an
@@ -20,7 +20,7 @@
 //! command TAKES, the host says what it DOES.
 //!
 //! ★★Two things here are NOT the usual argument parsing, and both are the
-//! spec's doing rather than this module's (FYL-DESIGN-17):
+//! spec's doing rather than this module's (FYL-SDD-04):
 //!
 //! * **open parameters** (`open_parameters` on a command) — `run` carries a
 //!   parameter table this file does not hold: it belongs to the scenario

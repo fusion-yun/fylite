@@ -376,7 +376,7 @@ class Refused(KernelError):
 def complete(code: str, plan: dict, *, kernel_path: str | Path | None = None) -> dict:
     """Complete a case: ``code`` + a plan through the TREE door, the record back.
 
-    ★★2026-09-05 — FYL-DESIGN-16 K-1 / H-4: Python does not encode the tree and
+    ★★2026-09-05 — FYL-SDD-02 K-1 / H-4: Python does not encode the tree and
     does not open the kernel's door itself.  The plan crosses to the middle layer
     (``libfylite_runtime.so``) as JSON — text between host and middle layer is
     allowed — and the middle layer's ONE encoder puts it through

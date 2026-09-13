@@ -1,4 +1,4 @@
-// The checkpoint store: a checkpoint IS a record (`FYL-DESIGN-18` U-10 · U-11 ·
+// The checkpoint store: a checkpoint IS a record (`FYL-SDD-05` U-10 · U-11 ·
 // U-19, stage U0).
 //
 // ★No checkpoint format.  What is stored is the `spo:ComputationRecord` the

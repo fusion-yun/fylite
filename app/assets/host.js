@@ -41,7 +41,7 @@
   //: every reader's first paint in order to be tidy about the rare one.
   html.setAttribute('data-fy-host', 'site');
 
-  //: ★★OFFLINE IS THE SITE FACE'S JOB, AND ONLY ITS (`FYL-DESIGN-18` U-20).
+  //: ★★OFFLINE IS THE SITE FACE'S JOB, AND ONLY ITS (`FYL-SDD-05` U-20).
   //: 「载入后离线可用」was already true — nothing is fetched once a page and
   //: its wasm are in memory.  「断网后重新打开」was not, and that is the half
   //: `NR-ENV-001` also asks for: with no network a reload is a blank tab,

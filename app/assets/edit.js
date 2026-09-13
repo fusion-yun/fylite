@@ -1,5 +1,5 @@
 // Trying a shape: the plan is what a drag edits, and every try is a version
-// (`FYL-DESIGN-18` U-15 · U-23, §八).
+// (`FYL-SDD-05` U-15 · U-23, §八).
 //
 // ★There is no second geometry.  A page that kept the shape being dragged in
 // its own variables would have two answers to「现在的边界是什么」— the one on
@@ -155,7 +155,7 @@
       }
     }
     //: ★no limiter is NOT a pass: it is a different answer, and the page says
-    //: which one it gave (`FYL-DESIGN-13` P-10 — degrade by naming what is
+    //: which one it gave (`FYL-SDD-05` P-10 — degrade by naming what is
     //: missing).  A shape declared valid against a wall nobody supplied is the
     //: kind of clean bill of health that gets believed.
     return { ok: true, why: limiter ? '' : '未对限制器判定：这份装置文档没有限制器轮廓' };
@@ -256,7 +256,7 @@
        * A channel's weight or switch, on the hand-filled layer of a port
        * (U-23).  A channel the dossier disabled cannot be opened here: the
        * dossier says「这台机器上它坏了」and the page may only choose within
-       * what the dossier allows (`FYL-DESIGN-12` G-9).
+       * what the dossier allows (`FYL-SDD-07` P-G-9).
        */
       setChannel: function (port, i, change, dossier) {
         if (change.enabled === true && dossier && dossier.disabled

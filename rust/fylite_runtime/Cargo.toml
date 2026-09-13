@@ -77,7 +77,7 @@ cli = []
 #: ★`webui` 含 `mdsip`：内嵌前端与它的只读请求面（`/api/*`）是同一半——页面上的
 #: 装置数据面板就是经那组端点取数的，去掉 mdsip 那个模块就编不出来。想要「有网页
 #: 但不许连 MDSplus」不是构建期的事，是运行期不给 `--mdsip`（那时 `/api/health`
-#: 照答，只是说自己没有数据源——`FYL-DESIGN-13` P-10）。
+#: 照答，只是说自己没有数据源——`FYL-SDD-05` P-10）。
 webui = ["cli", "mdsip"]
 desktop = ["webui", "mdsip", "cli"]
 

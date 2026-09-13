@@ -67,7 +67,7 @@ def vertical_system(eq, *, coil_aturns, eta_coil_uohm_m,
                     coarsen: int = 2) -> VerticalSystem:
     """The linearised vertical plant — assembled BY THE KERNEL from documents.
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the first tool to sink): this function
+    ★★2026-09-05 (FYL-SDD-02 K-3, the first tool to sink): this function
     used to hold the recipe — deck → conductors → channel fold → mutual
     matrices, resistances, coupling gradient → rigid filaments off the ψ map
     → the ``vstab`` entry — as ~130 lines calling twelve flat kernel exports.

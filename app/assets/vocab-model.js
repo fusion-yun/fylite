@@ -1,12 +1,12 @@
 // GENERATED ONCE by tools/transcribe-form-vocab.mjs from pages/model.html
 // (2026-09-04) — and the SOURCE from then on.  Edit this file, not the page:
 // the page carries only `data-form` mounts, and assets/form.js draws each
-// control from the entry below that shares its name (FYL-DESIGN-18 U-1 / U-2).
+// control from the entry below that shares its name (FYL-SDD-05 U-1 / U-2).
 //
 // ★`[TBD]` is a value, not a placeholder to be quietly filled: the IRI
 // (`code/<cap>#<name>`), the tier (A / B / C) and the group are what the
-// kernel's code table will declare (FYL-DESIGN-16 K-2, as amended by
-// FYL-DESIGN-18 §十二); a page cannot know them, so it says so.  `units` were
+// kernel's code table will declare (FYL-SDD-02 K-2, as amended by
+// FYL-SDD-05〈要改口的既有裁定〉); a page cannot know them, so it says so.  `units` were
 // read out of the label text and are what the label says, no more.
 // ★`width` was written as 0.35 on a 0.02 grid from 0.1 — off-grid, so every
 // browser snapped it to 0.36 and that is what every run read.  The vocabulary

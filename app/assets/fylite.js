@@ -160,7 +160,7 @@
 
   /**
    * The DOCUMENT door on this kernel, synchronous: a plan in, the record out
-   * (FYL-DESIGN-16 W-1).  On wasm it is `fylite_rs_fyo_tree`; on the desktop
+   * (FYL-SDD-02 W-1).  On wasm it is `fylite_rs_fyo_tree`; on the desktop
    * host's bridge it is `/api/case`.  A refusal throws (`.code`, `.refusal`).
    */
   /** Complete elliptic integrals K(m), E(m) over an array of m. */

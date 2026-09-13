@@ -570,7 +570,7 @@ def _c_boundary_closed(r: Reader, opt: dict) -> Result:
 def _c_source_oscillation(r: Reader, opt: dict) -> Result:
     """拟合出来的源函数**有多振荡**：总变差对量程之比减一。
 
-    ★★**为什么是这条形状**（`FYL-DESIGN-21` G-5，本仓台账 H-18）。反演把 p′ / FF′
+    ★★**为什么是这条形状**（`FYL-SDD-07` Q-G-5，本仓台账 H-18）。反演把 p′ / FF′
     展在一组基上，基一富就开始振荡 —— 而振荡的 FF′ 给出的 j_∥ 也振荡，那是**拟合的
     产物**而不是等离子体的性质。一条单调剖面的 ``TV/range`` 恰好是 **1**，所以
     ``TV/range − 1`` 直接就是「多出来的来回」，无量纲、与振幅无关。
@@ -623,7 +623,7 @@ def _c_source_oscillation(r: Reader, opt: dict) -> Result:
 def _c_neutron_yield(r: Reader, opt: dict) -> Result:
     """中子产额对得上剖面与反应率 —— **今天评不了，而缺的是什么写在这里**。
 
-    ★★**这条是「明写 unevaluated」而不是不写**（`FYL-DESIGN-21` G-5，本仓 H-18）。
+    ★★**这条是「明写 unevaluated」而不是不写**（`FYL-SDD-07` Q-G-5，本仓 H-18）。
     后验检验的价值在于它**独立于**拟合所用的约束：中子产额是聚变反应率对体积的积分，
     与磁测量无关，所以它能判反演给出的 n_i · T_i 是不是真的。缺的有两件，实测
     2026-09-12：**(一) 没有 code 产它** —— 全仓没有一个 `code/*` 交出中子率或产额

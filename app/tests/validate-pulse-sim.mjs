@@ -1,5 +1,5 @@
 // Gate for the two pulse scenarios: 脉冲设计 (whole pulse) and 交互仿真
-// (driven live).  FYL-DESIGN-09 is the design; this is the part of it a
+// (driven live).  FYL-SDD-09 is the design; this is the part of it a
 // machine can hold to.
 //
 //   node app/tests/validate-pulse-sim.mjs [--url http://127.0.0.1:8767/app/]

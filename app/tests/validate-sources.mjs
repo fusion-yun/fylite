@@ -1,5 +1,5 @@
 // The source-stack gate: the page orders, the middle layer merges, and the
-// order the page drew is the order that won (`FYL-DESIGN-18` U-5 · U-6 · U-7,
+// order the page drew is the order that won (`FYL-SDD-05` U-5 · U-6 · U-7,
 // §五).
 //
 //     node app/tests/validate-sources.mjs [--playwright <dir>] [--chrome <bin>]
@@ -9,7 +9,7 @@
 // middle layer through its PYTHON binding — and asserted the merge came out
 // top-row-first.  That is not this gate's to assert.  **Python is not in the
 // front end's path** (user ruling, 2026-09-04): the browser's middle layer is
-// `fylite_runtime` compiled to wasm (`FYL-DESIGN-16` H-4, phase W-1), and that
+// `fylite_runtime` compiled to wasm (`FYL-SDD-02` H-4, phase W-1), and that
 // door does not exist yet — measured, see G-15: the crate builds for wasm32 and
 // exports NOTHING, because `c_api` and `assembly` are both behind the `mdsip`
 // feature that the wasm tier switches off.  Having another host perform the

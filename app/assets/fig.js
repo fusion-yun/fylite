@@ -1,4 +1,4 @@
-// Figures drawn from the presentation specification (`FYL-DESIGN-18` U-12 ·
+// Figures drawn from the presentation specification (`FYL-SDD-05` U-12 ·
 // U-16 · U-17 · U-21 · U-22, stage U0).
 //
 // ★What this is for.  Until now a function page drew its figures by calling
@@ -18,7 +18,7 @@
 // no rule of its own about what a quantity IS; it decides only how a view is
 // PAINTED, on a canvas rather than into SVG.
 //
-// ★Refusal is a rendering outcome (`FYL-DESIGN-10` P-6 · `-13` P-10).  A view
+// ★Refusal is a rendering outcome (`FYL-SDD-05` P-6 · `-13` P-10).  A view
 // whose quantity is not in the record is not skipped and not drawn empty: the
 // figure is replaced by a sentence naming what is missing.  The caller gets the
 // same list back, so a page can say「八个视图画了六个」rather than quietly
@@ -35,7 +35,7 @@
   var R = root.FyCaseReport, P = root.FyPlot;
 
   //: series_role -> how it is marked.  ★Colour is never the only channel
-  //: (`FYL-DESIGN-11` V-8 / `-10` P-27): each role differs in mark or dash as
+  //: (`FYL-SDD-05` V-8 / `-10` P-27): each role differs in mark or dash as
   //: well, so the four are separable in greyscale and to a reader who cannot
   //: split those hues.
   var ROLE = {

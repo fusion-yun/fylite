@@ -1,5 +1,5 @@
-// The v2 page shell — one strip, four pages (`FYL-DESIGN-11` V-11 / V-12,
-// `FYL-DESIGN-10` P-25 / P-26 / P-27).
+// The v2 page shell — one strip, four pages (`FYL-SDD-05` V-11 / V-12,
+// `FYL-SDD-05` P-25 / P-26 / P-27).
 //
 // ★THIS FILE MOVES NODES; IT DOES NOT BUILD CONTROLS.
 //
@@ -306,7 +306,7 @@
 
   // --- the data page's empty state: a shape, not a blank --------------------
   //
-  // ★`FYL-DESIGN-13` P-10 / G-19.  Before anything has been fetched this page
+  // ★`FYL-SDD-05` P-10 / G-19.  Before anything has been fetched this page
   // has no output at all — and a white rectangle is indistinguishable from a
   // page that is broken.  What goes here has axes, a title, and the name of
   // the step that is missing; it is removed the moment a real figure lands.

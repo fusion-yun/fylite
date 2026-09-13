@@ -246,7 +246,7 @@ def deposit(eq, ne, te, beams, *, psin_prof=None, ti=None, zeff=1.0,
     field-ion sum ``Σ n_j Z_j²/(n_e A_j)`` if the plasma composition is known
     (see ``slowing_down`` (``oracles/beam.py`` since T-4 第十七刀)).
 
-    ★★2026-09-05 (FYL-DESIGN-16 K-3, the eleventh tool to sink).  The whole
+    ★★2026-09-05 (FYL-SDD-02 K-3, the eleventh tool to sink).  The whole
     assembly — the shell table on the psi map, the profiles at the shell
     centres, the trapped fraction and the shielding, then per beam and per
     energy component the deposition · first-orbit-loss mask · slowing-down ·

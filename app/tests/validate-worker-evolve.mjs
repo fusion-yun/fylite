@@ -1,4 +1,4 @@
-// 模型页 worker 的 evolve 命令走文档门（FYL-DESIGN-16 K-3，2026-09-05）——条目档。
+// 模型页 worker 的 evolve 命令走文档门（FYL-SDD-02 K-3，2026-09-05）——条目档。
 //
 // `evolveRun` 在「范围内」的场合（闭合 0/1、热通道，电流通道要 g 文件或装置档的 ψ）走
 // `evEntryMarch`：一步一步调 `evolve_heat`，每步把上一步的状态续回去。从前那是扁平导出
