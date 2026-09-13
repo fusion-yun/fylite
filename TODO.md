@@ -50,5 +50,5 @@
 | **F-19** | fydoc | 七台自带装置的线圈电流上限（铭牌值）；EAST 现有的是 TokSys 的**供电**端子限值（K-2 进 `pf_active/supply`），不是线圈铭牌 |
 | **F-20** | fylite · fydoc | 第二台带实测放电的真机（现在只有 EAST #137985）|
 | **F-21** | kernel | 第二个构建环境（跨环境 wasm 字节不可复现，本会话无从复现）|
-| **F-28** | kernel | 缺一个**可复算的束宽参照件**（B 类）。2026-09-13 逐篇查过库内 11 篇 L3 全文，无一同时公开完整输入与定量束宽；再要的三篇（Figini 2012 · Weber 2015 · Poli 等 2001 FED）**未取到全文**，书目在 `Reference/download/fylite-f28-beam-reference-papers.bib` |
+| **F-28** | kernel | 缺一个**可复算的束宽参照件**（B 类）。2026-09-13 库内 11 篇 L3 全文与补入的三篇（Figini 2012 · Weber 2015 · Poli 等 2001 FED）逐篇查过，无一可全复算；**唯一新线索**是 Poli · Pereverzev · Peeters 1999 *Phys. Plasmas* 6 5 的磁化平板闭式解（现有解析判据未覆盖），全文未入库，书目在 `Reference/download/fylite-f28-beam-reference-papers.bib` |
 | **G-6** | kernel · fylite | **G-5 已解**（`../spo` 在，2026-09-13 两份 fyo ADR 已据以落 schema）、装置卡片在（内核 `machine_desc/` 七台）；余下 `coverage/` 的 `covers` 边要人逐条判断——`surface/` · `availability/` 可先算，但单出不成套（`PLAN.md` G-6） |
