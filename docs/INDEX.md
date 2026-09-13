@@ -9,41 +9,49 @@ fylite 是一个**自足的托卡马克平衡—输运—湍流内核**：一套
 重入的 Rust 内核**；Python 层做装配与编排，浏览器端跑的是同一个内核编译出的
 WebAssembly。三种发布形态跑的是同一份算术。
 
-本书**一本六篇**。它们回答六个不同的问题，顺序就是读者一路问下去的顺序（第六篇「报告」2026-09-12 起，收落在本仓的 `FYL-REPORT-NN`；`01`..`06` 随内核源码在内核仓）：
+本书**一本四篇**。它们回答四个不同的问题，顺序就是读者一路问下去的顺序。
+
+★★**2026-09-13 起，本仓 `docs/` 只放读者面的文档**（用户裁定：公开仓 `docs/` 不出现开发文档与内部报告）。三篇因此迁走，**一页未改名、一个锚点未动**：
+
+* **设计集**（`FYL-CONOPS-00` · `FYL-SRS-01` · `FYL-SDD-01` · `FYL-DESIGN-NN`）→ fylite_kernel `docs/design/`——它是开发文档；
+* **报告**（`FYL-REPORT-07`）→ fylite_kernel `docs/report/`——评估研究是内部报告，`FYL-REPORT-NN` 这条编号序自此只有一处登记册；
+* **物理与数值**（十五章 + `references.bib`）→ fydoc `physics/`——它**不是**开发文档，迁走的理由是另一条：它写的是方程的出处、参数域的来历与对齐容差，那是 fydoc 「真实数据与事实的源头」那一职守下的东西。
+
+跨仓引用一律写成**仓限定的行内代码**（形如 fylite_kernel `docs/design/INDEX.md`）；跨仓相对链接两侧都解析不了，**不要写**。
 
 | 篇 | 回答什么 | 读者 |
 | :--- | :--- | :--- |
 | [用户指南](guide/index.md) | **怎么用**，以及**结果怎么读** | 拿它算东西的人 |
 | [典型算例](examples/index.md) | 一条**从头到尾能照抄**的路径，五族各一章 | 要立刻跑出一个结果的人 |
 | [参考](reference/fidelity.md) | 一个数**能不能用**：保真度边界、内核清单、调用面与命令行、判据与报告体例 | 要判断一个结果可不可信的人 |
-| [物理与数值](physics/00-overview.md) | 那个数背后**是哪条方程、出自哪里、验到什么容差** | 要复核物理、或要移植它的人 |
-| [设计集](design/INDEX.md) | 它**为什么长这样** | 要改它、或要把它接进别处的人 |
-| [报告](report/INDEX.md) | 它**今天处在什么状态**：评估研究，差距带关闭判据 | 要判断下一步做什么的人 |
+| [校验册](benchmark/README.md) | 它**量过什么、量到多少**：对拍登记册、物理校验册与定序册 | 要看证据而不是结论的人 |
 
 ★**先读哪一篇**：没用过就从[用户指南](guide/index.md)进；想直接照抄一条完整路径，去
 [典型算例](examples/index.md)；手里已经有一个数、想知道它可不可信，去
-[保真度边界](reference/fidelity.md)；要追到方程和文献，去
-[物理与数值](physics/00-overview.md)；要 Python 入口去 [API](reference/api.md)、
-要命令行去[命令行](reference/cli.md)，要接页面去[设计集](design/INDEX.md)的 `FYL-SDD-01`。
+[保真度边界](reference/fidelity.md)；要 Python 入口去 [API](reference/api.md)、
+要命令行去[命令行](reference/cli.md)。
+★要追到**方程与文献**，去 fydoc `physics/00-overview.md`；要知道**它为什么长这样**
+（含接页面要读的 `FYL-SDD-01`），去 fylite_kernel `docs/design/INDEX.md`。
 
-## 三样在本书之外的东西
+## 两样在本书之外的东西（都在本仓，但不是章）
 
 它们在仓里，但**不是本书的章**——各有各的理由，不是遗漏：
 
-- `docs/benchmark/` —— **V&V 登记册与对拍报告**。它们是**按路径引用的记录**：门禁、
-  CI 的底账校验、算例语料的 `account` 字段都写着 `docs/benchmark/…`，机器读的是
-  `registry.jsonld`。一份被路径引用的记录要的是稳定路径，不是章节号。参考部分的
-  [物理校验](reference/benchmark.md)一章讲它怎么用。
 - `app/` 的**浏览器演示** —— 那是**产品**，不是本书的一章（2026-09-01 裁定）。讲它的
   说明页仍在书里（[浏览器演示](guide/browser-app.md)），链接给的是已发布站点的地址。
 - `NOTICE` —— 逐文件的移植出处与修改说明，随 Rust 内核源码留在 `fylite_kernel`，
   打轮时装入分发件。可读的全表见本书的[致谢](ACKNOWLEDGEMENTS.md)。
 
+★`docs/benchmark/` 的**机器读的那一半**（`registry.jsonld` · 逐案 `.jsonld`）仍不入 toc：
+它们按路径被门禁、CI 与语料的 `account` 字段引用，要的是稳定路径而不是章节号。散文那一半
+2026-09-08 已入册，就是上表的「校验册」。
+
 ## 文档编号与引用
 
-设计集里的文档按 **`document_id`** 指认（`FYL-CONOPS-00`、`FYL-SRS-01`、`FYL-SDD-01`、
-`FYL-DESIGN-NN`），路径经 [`design/INDEX.md`](design/INDEX.md) 那张表解析——
-**不要在别处硬编码文档路径**。指南与参考两部分按文件名引用即可。
+本书四篇按**文件名**引用即可——**本书里没有按 `document_id` 指认的文档**：那些（`FYL-CONOPS-00`
+· `FYL-SRS-01` · `FYL-SDD-01` · `FYL-DESIGN-NN` · `FYL-REPORT-NN`）都在 fylite_kernel，
+路径经那边的 `docs/design/INDEX.md` 与 `docs/report/INDEX.md` 解析。要引它们就写仓限定的
+行内代码，**不要在本仓硬编码跨仓路径，也不要写跨仓相对链接**。
 
 ## 构建
 

@@ -30,6 +30,18 @@
 
 ---
 
+## 项目设定：公开仓 `docs/` 只放读者面的文档（用户裁定 2026-09-13）
+
+**公开仓 `fylite` 的 `docs/` 不出现开发文档与内部报告。**「开发文档」= 规格链与设计集（`FYL-CONOPS-00` · `FYL-SRS-01` · `FYL-SDD-01` · `FYL-DESIGN-NN`）；「内部报告」= 评估研究（`FYL-REPORT-NN`）。它们的正本在 **fylite_kernel** `docs/design/` 与 `docs/report/`。
+
+本仓 `docs/` 因此是**四篇**：用户指南 · 典型算例 · 参考 · 校验册——读者面的四个问题（怎么用 / 照抄一条路径 / 这个数能不能用 / 量过什么）。
+
+★**物理与数值**十五章 2026-09-13 同批迁往 **fydoc** `physics/`，理由**不是**「它是开发文档」（它不是），而是它写的方程出处、参数域来历与对齐容差属 fydoc 「真实数据与事实的源头」那一职守。
+
+★**引用规矩**：跨仓一律写成仓限定的行内代码（形如 fylite_kernel `docs/design/INDEX.md`、fydoc `physics/05-transport.md`）；跨仓相对链接两侧都解析不了，**禁止**。按 `document_id` 引用仍然成立——那是指认，不是路径。
+
+★**闸**：`python/tests/test_docs_books.py` 的 `test_no_development_document_is_in_the_public_book`（按标识前缀 + 按目录名两条腿）与 `test_the_book_is_the_four_reader_facing_parts`。
+
 ## 0. 合并后任务清单（2026-09-11 归纳）
 
 ★★**本节只归纳，不作真源。** 每格末尾指向下面各表里的那一条，两处不一致时**以那一条为准**；

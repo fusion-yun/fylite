@@ -45,8 +45,29 @@ _DESIGN07_CANDIDATES = (
     "docs/design/FYL-DESIGN-07.md",
     "docs/design/app-scenarios.md",
 )
-DESIGN07 = next((ROOT / c for c in _DESIGN07_CANDIDATES if (ROOT / c).exists()),
-                None)
+#: ★★2026-09-13：设计集**整篇迁去了内核仓**（用户裁定：公开仓 `docs/` 不放开发文档与
+#: 内部报告）。本仓因此一份也没有，而这张覆盖表仍是这道闸的 oracle——所以先在内核检出里
+#: 找（`$FYLITE_KERNEL`，否则同级目录），找不到再按上面的老路径找，仍然找不到就按原样
+#: **跳过并说出来**。判据没有变，变的只是那份文档住在哪个仓。
+def _kernel_checkout() -> Path | None:
+    import os
+    env = os.environ.get("FYLITE_KERNEL")
+    for c in ([Path(env)] if env else []) + [ROOT.parent / "fylite_kernel"]:
+        if (c / "docs" / "design").is_dir():
+            return c
+    return None
+
+
+def _find_design07() -> Path | None:
+    k = _kernel_checkout()
+    if k is not None:
+        for name in ("docs/design/FYL-DESIGN-07.md", "docs/archive/FYL-DESIGN-07.md"):
+            if (k / name).exists():
+                return k / name
+    return next((ROOT / c for c in _DESIGN07_CANDIDATES if (ROOT / c).exists()), None)
+
+
+DESIGN07 = _find_design07()
 GFILE = ROOT / "tests/data/FYDOC-CASE-12-synthetic/corpus/g_synthetic.geqdsk"
 
 needs_kernel = pytest.mark.skipif(not kernel.available(),

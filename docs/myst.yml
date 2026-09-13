@@ -39,20 +39,11 @@ project:
     content: CC-BY-4.0
   numbering:
     headings: true
-  #: 物理与数值各篇的文献库（178 条，每条带 note 字段记核验状态）。
-  #: ★路径随本文件走，并随 `physics/` 一同提上一级：它原先是
-  #: `reference/references-physics.bib`，由 `reference/myst.yml` 声明。
-  bibliography:
-    - physics/references.bib
-  #: 物理与数值各章使用的宏（与 SpResearch book/tmt 同一套，便于跨仓对读）。
-  math:
-    '\vb': '\mathbf{#1}'
-    '\pdv': '\frac{\partial #1}{\partial #2}'
-    '\dv': '\frac{\mathrm{d} #1}{\mathrm{d} #2}'
-    '\dd': '\mathrm{d}'
-    '\expval': '\left\langle #1 \right\rangle'
-    '\abs': '\left| #1 \right|'
-    '\norm': '\left\| #1 \right\|'
+  #: ★★2026-09-13 **书级文献库与数学宏随 `physics/` 一同迁往 fydoc**（用户裁定：
+  #: 公开仓 `docs/` 不放开发文档与内部报告，physics 移入 fydoc）。本仓剩下的四篇
+  #: 不带书级题录：指南与算例引的是命令与文件，参考篇与校验册引的是**记录**（按路径 +
+  #: sha256），要引文献的那一篇已经不在这里了。要恢复书级题录须先有一篇需要它的章。
+  #: 宏同理（它们是物理各章用的）。
   toc:
     - file: INDEX.md
 
@@ -120,28 +111,6 @@ project:
             - file: reference/report-template.md
             - file: reference/case-report.md
 
-    - title: 物理与数值 (Physics & Numerics) —— 每个模块实际实现的方程、假设、参数域与算法
-      #: ★★2026-09-02 从 `reference/` 提上来单独成篇：十五章 4 800 行，是参考篇其余
-      #: 部分的三倍，讲的也是另一件事——参考篇答「这个数能不能用」，本篇答「这个数
-      #: 背后是哪条方程、出自哪里、验到什么容差」。章标题里那十五个重复的
-      #: 「物理与数值 · 」前缀随之去掉：篇名已经说了。
-      children:
-        - file: physics/00-overview.md
-        - file: physics/01-numerics.md
-        - file: physics/02-equilibrium.md
-        - file: physics/03-reconstruction.md
-        - file: physics/04-geometry.md
-        - file: physics/05-transport.md
-        - file: physics/06-zerod.md
-        - file: physics/07-neoclassical.md
-        - file: physics/08-turbulence.md
-        - file: physics/09-heating.md
-        - file: physics/10-sources.md
-        - file: physics/11-edge.md
-        - file: physics/12-electromagnetics.md
-        - file: physics/13-pulse-breakdown.md
-        - file: physics/14-diagnostics.md
-
     - title: 校验册 (V&V) —— 量过什么，量到多少
       #: ★★2026-09-08 用户裁定入册。三本子册各答一问：**登记册**对外部答案，
       #: **物理校验册**对定律与文档自身的定义，**定序册**说先后与阻塞。
@@ -208,70 +177,6 @@ project:
             - file: benchmark/plan/RUN-2026-09-08.md
             - file: benchmark/plan/SUMMARY.md
             - file: benchmark/plan/SURVEY-2026-09-08-third-party.md
-
-    - title: 设计集 (Design) —— 它为什么长这样
-      #: ★路径权威是 `design/INDEX.md`（文档以 `document_id` 指认，经那张表解析路径）；
-      #: 文档集增删或改版时，本 toc 与那张表在同一变更中更新。
-      #: ★2026-09-12 重组为两部（`FYL-DESIGN-22` T-1）：第一部说所有场景共有的，第二部按场景划分。
-      children:
-        - file: design/INDEX.md
-        - title: 第一部 · 总体 (Part I — Principles and Common Functions)
-          children:
-            - file: design/FYL-DESIGN-22.md
-            - title: 规格链 (Specifications)
-              children:
-                - file: design/FYL-CONOPS-00.md
-                - file: design/FYL-SRS-01.md
-                - file: design/FYL-SDD-01.md
-            - title: 内核与中间层 (Kernel and Middle Layer)
-              #: 按四层架构分组（`FYL-DESIGN-16` 是架构正本，先读它）：内核契约 → 数据半边 → 发布形态与命令行 → 状态报告。
-              children:
-                - file: design/FYL-DESIGN-16.md
-                - file: design/FYL-DESIGN-14.md
-                - file: design/FYL-DESIGN-15.md
-                - file: design/FYL-DESIGN-17.md
-                - file: design/FYL-DESIGN-20.md
-            - title: 宿主共用的机制 (Shared Host Mechanisms)
-              #: 四页共用的外壳（-11）、输入生成 · 图形交互 · 文档交换（-18）、facts 的发行形态（-19）、装置数据页（-13，什么也不算的工具页）。
-              children:
-                - file: design/FYL-DESIGN-11.md
-                - file: design/FYL-DESIGN-18.md
-                - file: design/FYL-DESIGN-19.md
-                - file: design/FYL-DESIGN-13.md
-        - title: 第二部 · 场景线 (Part II — Scenario Lines)
-          #: 一章一场景（`FYL-DESIGN-23` W-1）；页面正本（-09 / -10 / -12 / -21）按线归入，场景章是它们的投影。
-          children:
-            - file: design/FYL-DESIGN-23.md
-            - title: 实验分析 analysis (S-L2)
-              children:
-                - file: design/FYL-DESIGN-24.md
-                - file: design/FYL-DESIGN-25.md
-                - file: design/FYL-DESIGN-26.md
-                - file: design/FYL-DESIGN-12.md
-                - file: design/FYL-DESIGN-21.md
-            - title: 物理建模 model (S-L1)
-              children:
-                - file: design/FYL-DESIGN-27.md
-                - file: design/FYL-DESIGN-28.md
-                - file: design/FYL-DESIGN-29.md
-                - file: design/FYL-DESIGN-10.md
-            - title: 放电运行设计 design (S-L4 · S-L5)
-              children:
-                - file: design/FYL-DESIGN-30.md
-                - file: design/FYL-DESIGN-31.md
-                - file: design/FYL-DESIGN-32.md
-                - file: design/FYL-DESIGN-09.md
-            - title: 控制仿真 control (S-L3)
-              children:
-                - file: design/FYL-DESIGN-33.md
-
-    - title: 报告 (Reports) —— 本仓的评估研究
-      #: ★2026-09-12 起：落在本仓的 `FYL-REPORT-NN`（07 起）。`01`..`06` 与 `FYL-REPORT-00`
-      #: 随内核源码留在内核仓 `docs/report/`；两处登记册共用一条编号序，号位不复用。
-      #: 路径权威是 `report/INDEX.md`。
-      children:
-        - file: report/INDEX.md
-        - file: report/FYL-REPORT-07_compute-scenario-generics.md
 
     - file: ACKNOWLEDGEMENTS.md
 site:
