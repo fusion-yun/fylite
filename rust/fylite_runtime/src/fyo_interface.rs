@@ -796,7 +796,7 @@ pub const CODES: &[Code] = &[
         Param { key: "inset", value_type: "float", default: "0.005", required: false, via: "discharge_case" },
         Param { key: "ip", value_type: "float", default: "", required: true, via: "discharge_case" },
         Param { key: "kappa", value_type: "float", default: "1.0", required: false, via: "discharge_case" },
-        Param { key: "lam", value_type: "float", default: "1e-1", required: false, via: "discharge_case" },
+        Param { key: "lam", value_type: "float", default: "1.5e-1", required: false, via: "discharge_case" },
         Param { key: "limiter", value_type: "string", default: "", required: false, via: "discharge_case" },
         Param { key: "max_iter", value_type: "float", default: "600.0", required: false, via: "discharge_case" },
         Param { key: "n_points", value_type: "float", default: "24.0", required: false, via: "discharge_case" },

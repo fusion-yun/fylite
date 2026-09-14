@@ -839,7 +839,7 @@ CODE_PARAMS = {
         'inset': {'key': 'inset', 'type': 'float', 'via': 'discharge_case', 'default': '0.005', 'required': False},
         'ip': {'key': 'ip', 'type': 'float', 'via': 'discharge_case', 'required': True, 'why': 'the plasma current [A]'},
         'kappa': {'key': 'kappa', 'type': 'float', 'via': 'discharge_case', 'default': '1.0', 'required': False},
-        'lam': {'key': 'lam', 'type': 'float', 'via': 'discharge_case', 'default': '1e-1', 'required': False},
+        'lam': {'key': 'lam', 'type': 'float', 'via': 'discharge_case', 'default': '1.5e-1', 'required': False},
         'limiter': {'key': 'limiter', 'type': 'string', 'via': 'discharge_case'},
         'max_iter': {'key': 'max_iter', 'type': 'float', 'via': 'discharge_case', 'default': '600.0', 'required': False},
         'n_points': {'key': 'n_points', 'type': 'float', 'via': 'discharge_case', 'default': '24.0', 'required': False},

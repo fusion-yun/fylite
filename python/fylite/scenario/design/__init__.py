@@ -151,7 +151,7 @@ def _start_of(rec: dict) -> dict:
 
 def start_state(*, target: dict, ip: float,
                 n_points: int = 24, n_ring: int = 4, peaking: float = 1.0,
-                xpoint=None, x_weight: float = 1.0, lam: float = 1e-1,
+                xpoint=None, x_weight: float = 1.0, lam: float = 1.5e-1,
                 i_max=None, device=None) -> dict:
     """The machine state a shape anneal is entitled to BEGIN from — BY THE KERNEL.
 
@@ -178,9 +178,11 @@ def start_state(*, target: dict, ip: float,
 
     ★★``lam`` —— 岭的强度，按响应自己的列范数定尺度（内核
     ``pulse.rs::start_currents`` 里 ``lam = sp.lambda * g_scale``），所以这个数
-    在每台机器上说的是同一件事。缺省 **1e-1**，与内核 ``case.rs`` 两处
-    ``s.get("lam", …)`` 是同一个数；这里写着只是为了让签名说得出来，改要两处
-    一起改。
+    在每台机器上说的是同一件事。缺省 **1.5e-1**，与内核 ``case.rs::discharge_case``
+    的 ``s.get("lam", …)`` 是同一个数（本函数走的就是那扇门，``stage: start``）；
+    这里写着只是为了让签名说得出来，改要两处一起改。★2026-09-14 由 1e-1 改来
+    （用户裁定 F3′：退火守线圈电流上限之后，1e-1 在 EAST #137985 上磁轴偏
+    66.4 mm，1.5e-1 偏 45.0 mm）；``pulse_case`` 仍是 1e-1，下面那段界是改之前量的。
 
     调小它把边界拟合得更紧、电流更大、分配更敏感；调大反之。两头都有实测的
     界：λ=1e-3 要的最大通道电流是 EAST 实测最大值的 2.04 倍（交不出来），
