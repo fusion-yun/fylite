@@ -4884,36 +4884,45 @@
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL@bf4fd07:machine_desc/east/case_east137985_4000ms.fyo.jsonld",
+      "checksum": "sha256:125cb33aff206b9e82e9a70354949dd1d2e512689552e0fc0904e8c74bd171f2",
+      "comment": "5832 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
        "出处：EAST #137985 测量与离线 EFIT 答案；2026-09-02 自本仓树退役（b4dce77），父提交可取",
+       "★sha256 是 bf4fd07 中原件的（2026-09-14 以 `git show` 核）；内核 `archive/tests/data/FYDOC-CASE-22-east-137985-efit/corpus/` 与 fydoc `archive/cases/FYDOC-CASE-22-east-137985-efit/corpus/` 的副本逐字节相同",
        "测量集：环 35 · 探针 79 · 通道安匝 12 · 等离子体电流。★`coils` 是**总磁通**（含线圈份额），不是参考交付的扣除后通道值——两者在这份卷宗里都在，混用即让等离子体去解释线圈"
       ]
      },
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL@bf4fd07:machine_desc/east/fylite_pressure_east.json",
+      "checksum": "sha256:72f7f6fe341d4c4e97410a4255cb20cf89b0411d63e554369e3bd7cbcf9e83ea",
+      "comment": "1225 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
        "出处：EAST #137985 测量与离线 EFIT 答案；2026-09-02 自本仓树退役（b4dce77），父提交可取",
+       "★sha256 是 bf4fd07 中原件的（2026-09-14 以 `git show` 核）；内核 `archive/tests/data/east/fylite_pressure_east.json` 的副本逐字节相同",
        "65 点均匀 ψ_N 上的直接压强；参考侧以 kprfit = 1 用同一份"
       ]
      },
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL@bf4fd07:machine_desc/east/oracle_east137985_4000ms.fyo.jsonld",
+      "checksum": "sha256:29145961f63fa6fa7d997894daad587db66dd4c13a0e0ae0357590e4cf5b41e4",
+      "comment": "104523 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
        "出处：EAST #137985 测量与离线 EFIT 答案；2026-09-02 自本仓树退役（b4dce77），父提交可取",
+       "★sha256 是 bf4fd07 中原件的（2026-09-14 以 `git show` 核）；内核 `archive/tests/data/FYDOC-CASE-22-east-137985-efit/corpus/` 与 fydoc `archive/cases/FYDOC-CASE-22-east-137985-efit/corpus/` 的副本逐字节相同",
        "★**不可重录**（`spec.md` §2.4）：产生它的求解器已随许可离仓，它的答案是历史，只能被引用不能被更新",
        "自带 `provenance`（原私有前缀字段，K-5 退役）：产生它的码、配方、约束集、σ 的取法，以及它自己声明的 χ² = 0.0724 与 50 次迭代"
       ]

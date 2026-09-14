@@ -165,7 +165,9 @@ def problems(rec: dict, d: Path) -> list[str]:
         #: 所以这里要问仓根，而不是从册子目录数上去。原写法是 `d.parents[0]`——
         #: 按旧位置 `<仓根>/benchmark` 数一级正好，册子迁进 `docs/` 之后同样数
         #: 一级只到 `docs/`，于是每一条都报「闸子没了」，而闸子就在原处。
-        elif not (Path(__file__).resolve().parents[3] / name).exists():
+        #: ★2026-09-14：门名可以带 pytest 节点号（`python/tests/x.py::test_y`）——问的是**文件**在不在，
+        #: 整串去拼路径永远不存在，于是这类门每一条都报「没了」（V-15 · C-06 · C-07 · B-10 · C-09 · B-09）
+        elif not (Path(__file__).resolve().parents[3] / name.split("::", 1)[0]).exists():
             out.append(f"in-tree gate {name} is gone")
     for c in run.get("has_input", []):
         uri = c.get("storage_uri", "")
