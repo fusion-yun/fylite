@@ -1854,7 +1854,7 @@ mod tests {
         assert!(facts_endpoint(&variant.replace("137985", "137986")).unwrap().unwrap_err().contains("outside"));
         let entry = facts_endpoint("facts:device/east?shot=137985&measurement_chain=efit_east").unwrap().unwrap();
         let n = crate::io::read_node(&entry).unwrap();
-        assert_eq!(n.get("magnetics/fylite:provider").and_then(Node::as_str), Some("efit"));
+        assert_eq!(n.get("magnetics/fylite:provider").and_then(Node::as_str), Some("efit_green2022_pcs"));
         assert_eq!(n.get("magnetics/measurement_chain").and_then(Node::as_str), Some("efit_east"));
         //: (a numeric list read back from disk is an array: compare values, not spellings)
         let range = |x: &Node| x.get("_valid_shots").and_then(Node::to_f64_vec);
