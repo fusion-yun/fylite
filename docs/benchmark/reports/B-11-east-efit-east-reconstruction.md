@@ -108,8 +108,8 @@ title: B-11 · EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化
 
 | 存储项 | 校验 | 纳入类别 | 规模 |
 | :--- | :--- | :--- | :--- |
-| $FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/measurement_east137985_4041ms.fyo.jsonld | sha256:cb39ff0cde30c9cdd1a993ee0982ec2657084e1f76fc04ec0cdf5fef6648d478 | experiment | 13413 B |
-| $FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/equilibrium_east137985_4041ms.fyo.jsonld | sha256:a24846602043b827407fd1ac71302e5d02171ec9e0f8c903d9c3c340c9c8e54c | experiment | 952329 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/measurement_east137985_4041ms.fyo.jsonld | sha256:a3a80c3f3a8c20d0598f0619a371f679dfd3bd690b4a3b7676d143d5fbecfec3 | experiment | 15000 B |
+| $FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/equilibrium_east137985_4041ms.fyo.jsonld | sha256:a24846602043b827407fd1ac71302e5d02171ec9e0f8c903d9c3c340c9c8e54c | experiment | 967498 B |
 | $FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld | sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010 | private-artefact | 26738 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。

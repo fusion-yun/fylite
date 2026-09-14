@@ -7009,15 +7009,15 @@
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/measurement_east137985_4041ms.fyo.jsonld",
-      "checksum": "sha256:cb39ff0cde30c9cdd1a993ee0982ec2657084e1f76fc04ec0cdf5fef6648d478",
-      "comment": "13413 B",
+      "checksum": "sha256:a3a80c3f3a8c20d0598f0619a371f679dfd3bd690b4a3b7676d143d5fbecfec3",
+      "comment": "15000 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
        "出处：EAST #137985 efit_east 树第 28 片（4.041 s）：EFIT 的输入通道 · 权重 · 平衡答案；内网来源不可自公开渠道重取（fydoc 算例书副本）",
-       "sha256 cb39ff0cde30c9cdd1a993ee0982ec2657084e1f76fc04ec0cdf5fef6648d478（与算例书 case.yaml 所记一致）",
+       "sha256 a3a80c3f3a8c20d0598f0619a371f679dfd3bd690b4a3b7676d143d5fbecfec3（与算例书 case.yaml 所记一致）",
        "测量集 `measurement_chain: efit_east`：EFIT 的输入通道与交付权重，**不是**仪器原始采集"
       ]
      },
@@ -7025,7 +7025,7 @@
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/equilibrium_east137985_4041ms.fyo.jsonld",
       "checksum": "sha256:a24846602043b827407fd1ac71302e5d02171ec9e0f8c903d9c3c340c9c8e54c",
-      "comment": "952329 B",
+      "comment": "967498 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "experiment",
