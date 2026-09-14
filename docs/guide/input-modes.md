@@ -5,24 +5,23 @@ title: 输入模式 (Input Modes)
 # 输入模式
 
 :::{important}
-**`fylite.run(...)` 这个单一入口已经不存在。** 下表记的是当年由它分派的五种输入源；
-今天每一种各有自己的门，而**通道契约只有一处**：`fylite.fyo.as_measurements` 把任何一种
+**没有单一的 `fylite.run(...)` 入口。** 下表的五种输入源各有自己的门，而**通道契约只有一处**：`fylite.fyo.as_measurements` 把任何一种
 输入压成同一个扁平测量字典（`plasma` / `btor` / `brsp` / `coils` / `expmp2` / `basis`），
 通道数、次序与单位在那里一次性判定。
 :::
 
-:::{table} 五种输入源，以及今天各自的门。
+:::{table} 五种输入源，以及各自的门。
 :name: tbl-input-modes
-| 源 | 今天的入口 | 探针基 |
+| 源 | 入口 | 探针基 |
 | :--- | :--- | :--- |
 | est2 / GUI_v5 的 live `east` 树（79 探针） | `io.est2.reduce_est2`（在线 MDSplus 与离线 HDF5 转储共用**同一条**约化） | est2（`green2018_wpf_64`） |
 | 处理级 `efit_east` 树（76 探针） | `io.mds` | efit_east（`green2012`） |
 | IMAS 形式的 magnetics 文件（JSON/YAML） | `fyo.as_measurements(path, time_s)` | 由文档声明的 `fylite:channel_basis` 定 |
 | fyo / JSON-LD 测量文档 | 同上——语义文档与普通 IMAS dict 走同一道契约 | 同上 |
-| 现成的 `&IN1` k-file | **没有入口了**：`io.kfile` 于 2026-09-01 随它服务的求解器一并移除（它的主体是给 `libefit.so` 备输入的**写入机**） | — |
+| 现成的 `&IN1` k-file | **没有入口** | — |
 :::
 
-★k-file 那一行留在表里，是因为旧文档、旧脚本还会提到它。今天从 EFIT 侧进来的路只有
+★从 EFIT 侧进来的路只有
 处理级 `efit_east` 树那一条；k-file 既不读也不写。
 
 ★**扁平字典自带 `basis`**：下游要挑权重掩膜、限制器或表集时不必按 `len(expmp2)` 反推
@@ -45,8 +44,7 @@ title: 输入模式 (Input Modes)
 1. 从 MDSplus 取数时，`io.est2` 走每路 Rogowski 的节点名 × 匝数（`PF_NODES` ×
    `PF_TURNS`）再按 EFIT 线圈序重排（`PF_EFIT_ORDER`）——★这三样是**装置文档的字段**，
    不是模块常量：匝数与文档同源，换一台机器就换一份。而 `efit_east` 树的 `FCCURT`
-   **本身就已是 A·匝且已按 BRSP 序**——两条路各有其映射，不必一致（曾因把这两张图
-   当成一张而误立缺口）。
+   **本身就已是 A·匝且已按 BRSP 序**——两条路各有其映射，不必一致。
 2. 电路层（`fylite.device` §3）以 A·总匝为态，故**每匝空间的回路方程
    $U/N = M_1\dot x + R_1 x$ 不需要匝数表**。
 
@@ -65,29 +63,24 @@ title: 输入模式 (Input Modes)
 
 ## 65×65 是 deck 的分辨率，不是内核的
 
-曾经它确实是编译期定死的：`libefit.so` 的数组维度写在 `eparmdud6565.f` / `exparm.inc`
-里，网格**盒**可以用 Green 表生成器 `efund_east` 对任意几何重生成，分辨率却不可调。
-**那条路已经不在本仓**——libefit、efund 与全部 Green 表按 LICENSE 3.1 移除（见
-[Fortran 制品去哪了](#fortran-artifacts)）。
-
-现在：
+本仓不带 libefit、efund 与 Green 表（LICENSE 3.1，见
+[本分发不含的 Fortran 制品](#fortran-artifacts)）。
 
 - **内核不限分辨率。** `code/forward` 收的是两条**任意长度**的网格坐标数组
   （`grid_r` / `grid_z`），`kernel.Grid` 也只是 `(r0, z0, dr, dz, nr, nz)`；
-- `$FYLITE_DEVICE_DIR/east_device.yaml` 的 `solver_dims`（`nw=nh=65`）现在是**装置文档的声明**，
+- `$FYLITE_DEVICE_DIR/east_device.yaml` 的 `solver_dims`（`nw=nh=65`）是**装置文档的声明**，
   由 `device.verify_solver_dims` 对装置目录里独立的 efund deck（`east_geom.txt`）核验——
   两边不一致要 fail loud，而不是让两套数字各自漂移；
-- 磁通环与探针的**响应行**不再查表，由内核按给定网格现算
-  （`kernel.mutual_outer` / `kernel.probe_response`）；线圈→环的那一行（EFIT 的 `rsilfc`，
-  过去唯一还要读 `rfcoil.ddd` 的地方）也已改为现算
-  （`code/reconstruction` 门内的线圈→回路行，旧 `recon_rs.coil_loop_rows` 自 2026-09-06 归内核仓测试树），线圈→探针本来就是算的
-  （`code/coilshare` · `code/reconstruction` 门内的探针响应；旧 `device.probe_element_response` 自 T-4 第二十五刀归内核仓测试树）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
-  文档**；`device.coil_response_tables` / `vessel_response_tables` 只剩"拿别人的表和几何对一遍"
-  这一个用途（`device.vessel_table_check`，自 2026-09-06 归内核仓测试树 `tests/oracles/em_kernel.py`），活路上没有调用者（闸子
+- 磁通环与探针的**响应行**不查表，由内核按给定网格现算
+  （`kernel.mutual_outer` / `kernel.probe_response`）；线圈→环的那一行（EFIT 的 `rsilfc`）也是现算
+  （`code/reconstruction` 门内的线圈→回路行），线圈→探针同样是算的
+  （`code/coilshare` · `code/reconstruction` 门内的探针响应）。**装置信息只有一个出处：`$FYLITE_DEVICE_DIR/` 下的装置
+  文档**；`device.coil_response_tables` / `vessel_response_tables` 只有"拿别人的表和几何对一遍"
+  这一个用途（`device.vessel_table_check`，在内核仓测试树 `tests/oracles/em_kernel.py`），活路上没有调用者（闸子
   `python/tests/test_one_machine_source.py`）。
 
 :::{warning}
-沿用 65×65 的理由仍在，只是换了一条：交付的 g-file、`solver_dims` 与两套探针基都按
-这个盒标定，**换盒即换口径**——重生成表的那把工具已经不在，对不上的时候没有第二条路
+沿用 65×65 的理由：交付的 g-file、`solver_dims` 与两套探针基都按
+这个盒标定，**换盒即换口径**——本仓没有重生成表的工具，对不上的时候没有第二条路
 可以自证。
 :::

@@ -104,11 +104,10 @@ e = S.model.evolve(closure="turbulent", …)   # 面块 → 移植 → χ，都�
 t = S.model.transport(chi_given=chi)         # 或者：自己算好的 χ 直接喂回来
 ```
 
-★**没有 `S.model.tglf` 这一格了**（2026-09-07）。移植本身没有消失，消失的是本层那张
-按 TGLF 输入卡逐格填写的**平面**：调用方原先要自己把剖面与平衡换算成 `input.tglf` 的
-归一（`B_unit`、Miller `r/a`），而输运方程按 ρ 标签走——这一层换算是移植缺陷最常见的
-落点（见公开登记册的 V-06 / V-07 记录）。现在换算只有一处，在内核里，`closure="turbulent"`
-自己走完；调用方给的是剖面与几何，不是一张卡。逐项参考实现在内核仓
+★**没有 `S.model.tglf` 这一格**：本层不设按 TGLF 输入卡逐格填写的**平面**。剖面与平衡
+要换算成 `input.tglf` 的归一（`B_unit`、Miller `r/a`），而输运方程按 ρ 标签走——这一层
+换算是移植缺陷最常见的落点（见公开登记册的 V-06 / V-07 记录）。所以换算只有一处，在内核里，
+`closure="turbulent"` 自己走完；调用方给的是剖面与几何，不是一张卡。逐项参考实现在内核仓
 `tests/oracles/gyrofluid.py` 与 `tests/oracles/mapping.py`，端口对拍照跑。
 
 ## 报告

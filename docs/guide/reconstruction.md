@@ -21,24 +21,21 @@ r = S.analysis.reconstruction(meas, pressure=fit)      # fit 见下一节
 Fortran 路同名的那批标量，故两者可直接对照。
 
 :::{important}
-**入口变过，旧写法调不通。** 它曾是 `fylite.run(137985, 4.0, point=True, …)`——一个按输入
-模式分派、组装 k-file 再调 `libefit.so` 的单一入口。`fylite.run` 今天是**模块**不是函数，
-那个库也不在本分发里；重构行归 `fylite.scenario.analysis`，动理学信息按
-[约束阶梯](constraints.md)从参数进来（`pressure=`），不再经 namelist。
+`fylite.run` 是**模块**不是函数，本分发也不带 `libefit.so`；重构行归
+`fylite.scenario.analysis`，动理学信息按[约束阶梯](constraints.md)从参数进来（`pressure=`），
+不经 namelist。
 :::
 
 :::{note}
-**线圈份额是现算的，不再查表。** 磁通环读数里线圈那一份（EFIT 的 `rsilfc`）曾经必须从
-`rfcoil.ddd` 读，而本仓不带这份表——于是**整条 Python 反演路**在第一次内核调用之前就抛
-`MachineDataMissing`（令 `brsp=0` 也绕不开：数学归零不等于代码跳过）。现在它由装置文档的
-导体几何在门里现算（`code/reconstruction` · `code/coilshare`；旧 `recon_rs.coil_loop_rows` 自 2026-09-06 归内核仓测试树），与浏览器
+**线圈份额是现算的，不查表。** 磁通环读数里线圈那一份（EFIT 的 `rsilfc`）由装置文档的
+导体几何在门里现算（`code/reconstruction` · `code/coilshare`），与浏览器
 反演页、与本函数探针那一半走的是同一条路：**装置信息只有一个出处，即
 `$FYLITE_DEVICE_DIR` 指向的那份装置文档**。
 
 ★对表实测（#137985 wpf2018 那套 `rfcoil.ddd`）：`nu=nv=8` 下逐元相对差 7.7e-5，随求积阶
 单调收敛（4.9e-4 → 7.7e-5），逐通道 7.0e-6…7.7e-5 均匀——丝化/求积之差，非结构之差。
 端到端换表实测（同一炮、其余不变、收敛的动理学组态）：I_p 差 1e-6 A、磁轴 R 0.14 mm、
-Z 0.05 mm、q95 0.05 %。（这批数字是当年在两张表都在场时实测的；`rfcoil.ddd` 不在本分发里，
+Z 0.05 mm、q95 0.05 %。（这批数字是两张表都在场时实测的；`rfcoil.ddd` 不在本分发里，
 所以是判据不是可复算的步骤。）
 :::
 
@@ -59,15 +56,15 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 移位 Legendre + GCV 定阶
 只是**掩盖**了它。
 
 ★**逐标量 1σ + 分位、剖面误差带与逐诊断的实测-vs-前向**（`errorbars` / `profiles` /
-`diagnostics`）当年由 EFIT 驱动的入口按中心差分扫描给出；今天仍命名它的只有
-`loop.self_consistent(..., final_uncertainty=N)`，而那条外环在本分发里跑不起来（见下节），并自
-T-4 第十五刀（2026-09-06）起整体迁到内核仓的神谕树 `tests/oracles/loop.py`。
+`diagnostics`）按中心差分扫描给出；命名它们的只有
+`loop.self_consistent(..., final_uncertainty=N)`，而那条外环在本分发里跑不起来（见下节），位于
+内核仓的神谕树 `tests/oracles/loop.py`。
 `S.analysis.reconstruction` 自己不产生这三项。
 
 ## 自洽外环 EFIT↔NEO
 
-★自 T-4 第十五刀（2026-09-06）起这条外环连同闭合、装配、映射与 Redl 自举剖面**不在本包里**：
-它只被测试调用，经扁平入口够内核，已整体迁到内核仓 `tests/oracles/loop.py`；`_manifest/kinetic_reconstruction.jsonld`
+★这条外环连同闭合、装配、映射与 Redl 自举剖面**不在本包里**：
+它只被测试调用，经扁平入口够内核，位于内核仓 `tests/oracles/loop.py`；`_manifest/kinetic_reconstruction.jsonld`
 仍登记这个工作流模板，但标 `fylite:executable: false`。下面的调用式在内核仓的测试树里才成立（`from oracles import loop`）。
 
 ```python
@@ -80,17 +77,14 @@ lr = loop.self_consistent(
 
 :::{warning}
 **这条外环在本分发里跑不起来。** 它的第一句就是驱动一次 east 重构，而那个入口按
-`(shot, time_s, kind="east", server=…)` 调用——今天的 `recon_rs.reconstruct` 收的是
+`(shot, time_s, kind="east", server=…)` 调用——`recon_rs.reconstruct` 收的是
 **测量字典**，签名不合，接触即 `TypeError`（对得上的是同模块的 `reconstruct_shot`）。
-三个测试模块都把这道缝 monkeypatch 掉了，所以套件长期看不见它；现在由
-`python/tests/test_call_sites_match.py` 盯着这类缝。下面的数字是当年实测，留作判据。
+三个测试模块都把这道缝 monkeypatch 掉了；
+`python/tests/test_call_sites_match.py` 盯着这类缝。下面的数字是实测的判据，在本分发里不可复算。
 :::
 
-★路径变过：它曾是顶层的 `fylite.loop`，现在归 `fylite.scenario.analysis`——
-四条场景线各收自己的模块，`loop` / `recon_rs` / `selfcal` / `tomography` / `moments`
-都在 `analysis` 下（同批搬走的还有 `control` / `stability` / `evolution` →
-`scenario.control`，`pulse` / `shape` → `scenario.design`，
-`assembly` / `closure` / `nbi` / `lh` / `sources` → `scenario.model`）。
+★`fylite.scenario` 下四条场景线各收自己的模块：`analysis`（`recon_rs` / `moments`）、
+`control`（`stability` / `vertical`）、`design`（`pulse`）、`model`（`nbi` / `lh`）。
 
 外环把 NEO 的漂移动理学自举电流喂回反演直至自洽。#137985 上 **2 轮收敛**；
 后验（n=16）：q0 0.783±0.0089、q95 3.08±0.011、$I_p$ 393±1.4 kA、
@@ -154,7 +148,7 @@ oracle，所以这是与 EFIT 之差，不是与真值之差。
 **失效模式。** 超定（约束行数超过基函数自由度，χ² 无法饱和，FF′ 振荡）；Thomson 径向位移
 的敏感度（台基处几毫米改变自举电流的峰值）；ELM 窗口选择（条件平均的相位窗改变台基剖面）；
 快离子模型的差异（简化慢化模型与 NUBEAM 给出不同的 p_fast）；强旋转下 Er 修正的不确定度。
-按 `FYL-DESIGN-21` 的裁定，这些是**记录里的告警**（内核或装配层写进 `notes` / `caveat`），
+按 `FYL-DESIGN-21`，这些是**记录里的告警**（内核或装配层写进 `notes` / `caveat`），
 页面读出来画在对应节点上，页面自己不判。
 
 **三级用户怎么用这条链。** 初级选装置、炮号、时刻或一条预设，按「运行」，图由预设填好。
@@ -176,6 +170,6 @@ Tₑ,sep（落地后）、通道权重、`kin` / `pointfit` / `neon` 三开关�
 - POINT 的 $n_e$ 线积分仍有已知的实测-前向偏移；
 - 内部剖面**不可定量使用**——见[保真度边界](../reference/fidelity.md)。
 
-★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`，见[算例语料](../examples/index.md)与[诊断分析：平衡反演](../examples/reconstruction/reconstruction.md)）。本节用到的 EAST 测量文档、交付平衡与离线参考随 `machine_desc/` 一并退役，只在**内核仓的历史**里（`b4dce77^`）；取法见[安装与环境](install.md)——本节用到的是那份
+★可跑示例是算例语料（`cases/`，见[算例语料](../examples/index.md)与[诊断分析：平衡反演](../examples/reconstruction/reconstruction.md)）。本节用到的 EAST 测量文档、交付平衡与离线参考不在本仓，只在**内核仓的历史**里（`b4dce77^`）；取法见[安装与环境](install.md)——本节用到的是那份
 装置目录里的 `case_east137985_4000ms.fyo.jsonld`。★**实验数据不入本仓**，这条由
 `python/tests/test_examples_are_fyo.py` 机检。

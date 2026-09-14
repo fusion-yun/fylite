@@ -164,7 +164,9 @@ record behind each item (why it was judged that way, what was measured, and its 
   are first-class assets here, not an afterthought.
 - **Rust kernel, thin Python/JS front ends.** The kernel carries its own
   numerical primitives; one C boundary produces the native library and the
-  WebAssembly modules alike.
+  WebAssembly modules alike. The Python layer does data assembly, device
+  plumbing, orchestration, plotting and provenance — it does not carry a second
+  implementation of a discretisation or a closed form, and that rule is gated.
 - **A complete reduced-model kernel — and no more.** Reduced models with public
   reference implementations are ported white-box; HPC-scale codes have their
   *products* consumed — saturation rules, surrogates — never their bodies
@@ -198,23 +200,6 @@ hypothesis and an open attribution list for the residual.
   Which machine goes into which build is a redistribution decision made per
   entry in its own `rights.json` and answered by `tools/facts-publish.py`, with
   the provenance in `facts/device/catalogue.jsonld`.
-
-## Where the physics lives
-
-The kernel is one Rust crate. The Python layer does data assembly, device
-plumbing, orchestration, plotting and provenance — it does not carry a second
-implementation of a discretisation or a closed form, and that rule is gated.
-
-| layer | modules |
-| :--- | :--- |
-| kernels, linear algebra, electromagnetics | `kernels.rs` `linalg.rs` `electromagnetics.rs` |
-| equilibrium (forward / inverse), surfaces | `equilibrium.rs` `inverse.rs` `surfaces.rs` `geometry.rs` |
-| transport, 0-D, evolution, sources, heating | `transport.rs` `zerod.rs` `evolution.rs` `sources.rs` `heating.rs` |
-| neoclassical, turbulence, closures | `neoclassical.rs` `dke.rs` `gyrofluid.rs` `closure_tables.rs` `flr_tables.rs` |
-| stability, control, pulse, breakdown | `stability.rs` `control.rs` `pulse.rs` `breakdown.rs` |
-| fitting, diagnostics, profile mapping | `fitting.rs` `diagnostics.rs` `mapping.rs` |
-| document layer, scenarios, data transport | `fyo.rs` `scenario.rs` `bundle.rs` `mdsip.rs` |
-| the one C boundary | `c_api.rs` (`ABI_VERSION`, generated into both hosts) |
 
 ## Browser
 

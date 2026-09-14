@@ -22,8 +22,7 @@ title: 算例语料 (The Case Corpus)
 
 ## 五个入口
 
-★★2026-09-04 起这些是**库调用**：从前的 `fylite cases …` 命令行随「Python 侧无命令行」
-的裁定撤除，被它包着的函数一个没少，只是现在直接调。
+★★这些是**库调用**：Python 包不带命令行，五个入口都是直接调的函数。
 
 ```python
 from fylite.engine import cases, casereport
@@ -59,10 +58,9 @@ casereport.render(cases.run("zerod-iter-15ma"), out="out/")   # 跑完渲染成 
 
 ★★这些是**库调用**，另一条路是**命令行** `fy`——本仓唯一的那一个（Python 包没有命令行）。
 两条路合成同一份计划、写同一种记录，走同一扇内核门——**树门**
-（`fylite_rs_fyo_tree`）。★2026-09-07 之前不是：`fy run` 走扁平门，于是内核里十八个
-吃整份文档的 code 在命令行上一律按名拒绝，同样的算例在浏览器与 Python 里却跑得起来。
-那是**宿主的差别冒充算例的差别**，现在没有了；换门之后三档已走通的算例每一份产出
-文档**逐字节相同**。
+（`fylite_rs_fyo_tree`）。所以内核里十八个吃整份文档的 code 在三个宿主上同样到得了，
+不会有**宿主的差别冒充算例的差别**；0-D · 输运 · 演化三档在扁平门与树门下的每一份
+产出文档**逐字节相同**。
 
 ```bash
 fy list presets                            # 语料里的 25 份具名计划
@@ -88,8 +86,8 @@ fy run  docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
 | [装置信息](device/device.md) | `fy data convert <装置文档> imas/ --layout imas --to hdf5` | ✅ 6 个文件（5 个 IDS + master，161 KB） |
 | [各装置一览](device/machine_survey.ipynb) | 同上，逐台跑六台 | ✅ 6 台 × 7 个文件；读回来画成截面图 |
 
-★倒数第三、第四行 2026-09-07 起才成立：前者要树门（同日修好），后者要写入方肯把一个 fylite
-容器拆成它装着的 IDS（同日修好）。
+★装置信息那两行各靠一件事：通道图要树门，数据入口要写入方把一个 fylite
+容器拆成它装着的 IDS。
 
 每一章的〈命令行〉一节写着自己那一行的完整输出与产物清单；命令行本身的用法与限制
 见[命令行](../guide/cli.md)。
@@ -141,8 +139,8 @@ fy run docs/examples/evolve/evolve-iter-15ma.jsonld -o out/ --format imas-hdf5
 fy run docs/examples/evolve/evolve-default.jsonld --json        # 一份计划进，一份记录出（stdout）
 ```
 
-★四条命令词是 `app` / `data` / `run` / `list`；`case` 于 2026-09-04 收进 `run`
-（`FYL-DESIGN-17` E-23），旧写法按名拒绝并指路，对照表在[命令行](../reference/cli.md)那一章。
+★四条命令词是 `app` / `data` / `run` / `list`；没有 `case`，算例由 `run` 跑
+（`FYL-DESIGN-17` E-23），写 `case` 按名拒绝并指路，对照表在[命令行](../reference/cli.md)那一章。
 
 ★`fy` 是本仓**唯一的可执行文件**（`bash rust/build.sh --exe`），它读的规格与本页
 描述的那些 Python 入口出自同一份 `_cli.json`（`FYL-DESIGN-15`）。

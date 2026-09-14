@@ -58,7 +58,7 @@ title: 物理校验 (Physics checks — what a product is judged against)
 | `source-oscillation` | expectation | 拟合出来的源函数不过分振荡 | `max(TV/量程 − 1) over {p′, ff′} ≤ tol（单调剖面为 0）` | 算例声明 | measured_band |
 | `neutron-yield` | expectation | 中子产额对得上剖面与反应率 | `|Y_measured − ∫ n_i² ⟨σv⟩ dV| / Y ≤ tol` —— **今天没有产它的 code，也没有收它的槽，故恒为 `unevaluated`** | 算例声明 | measured_band |
 
-★**两条后验检验**（2026-09-12 增，`FYL-DESIGN-21` G-5）。它们的价值在于**独立于拟合
+★**两条后验检验**（`FYL-DESIGN-21` G-5）。它们的价值在于**独立于拟合
 所用的约束**：`source-oscillation` 看的是反演把 p′ / FF′ 展在基上之后有没有开始来回振荡
 （一条单调剖面的 `TV/量程` 恰好是 1，所以减一就是「多出来的来回」，无量纲、与振幅无关）。
 实测落点：**解析家族 0.0000**（`code/forward` 的 truth，构造上单调）· 同一条反演
@@ -134,8 +134,7 @@ suite.entry("zerod-iter-15ma")         # 这一条要读哪些量、判哪几条
 suite.run_entry(suite.entry("equilibrium-gfile"))  # 跑一条
 ```
 
-★★2026-09-04 起这些是**库调用**：`fylite cases --physics …` 随「Python 侧无命令行」的
-裁定撤除，函数一个没少。整批仍走脚本：
+这些是**库调用**（Python 侧没有命令行）。整批走脚本：
 
 ```bash
 python tools/benchmark-run.py                     # 整批，统计表打到屏幕

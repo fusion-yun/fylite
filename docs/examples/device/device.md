@@ -61,10 +61,9 @@ fy run channels.jsonld --bind device=<装置文档> -o rec/
 | `record.jsonld` | 记录 | — |
 | `entry.fyo.jsonld` | `weights`：**14 × 14** 的通道权重矩阵 | — |
 
-★**这一族算例 2026-09-07 之前从命令行跑不起来**。`code/channels` 与其余十七个 code
-一样吃**整份文档**，只经树门到达，而 `fy run` 走的是扁平门，于是按名拒绝
-（`[-33] … is reached through the tree door only`）。现在两扇门都由这条命令走得到：
-逐位对拍过——0-D · 输运 · 演化三档的每一份产出文档在两扇门下**逐字节相同**。
+★`code/channels` 与其余十七个 code 一样吃**整份文档**，只经树门到达；两扇门都由
+这条命令走得到，所以这一族算例在命令行上跑得起来。逐位对拍过——0-D · 输运 · 演化
+三档的每一份产出文档在两扇门下**逐字节相同**。
 
 ★答案落在 `entry` 里而不是某个 IDS 里，因为**权重矩阵在 DD 里没有家**。这不是缺陷，
 是 DD 的边界：它记录线圈与元件的几何，不记录某台机器把哪几个元件接到同一个电源上。
@@ -105,25 +104,24 @@ $ fy data dump rec/imas --path pf_active/coil/0/element/0/geometry/rectangle/r -
 
 ### 这一步做了什么，没做什么
 
-**做了**：把容器**拆成它装着的那几个 IDS**，每个写成一份数据入口文件。★2026-09-07
-之前这一步产出一个**空的** `master.h5`——容器自己没有 DD 归宿，写入方把整份放到一边，
-而命令行对此一言不发。现在拆分在 IMAS 布局下自动进行，并且**说出**放到一边的是什么。
+**做了**：把容器**拆成它装着的那几个 IDS**，每个写成一份数据入口文件。★容器自己
+没有 DD 归宿，所以拆分在 IMAS 布局下自动进行，并且**说出**放到一边的是什么。
 
 **没做**：容器自己的 `fylite:` 行（`fylite:channel_map` · `fylite:grid` · 线圈元件的
 `fylite:a1` / `a2` 倾角）**不进数据入口**——数据入口只装 IDS。命令行逐条报出来。
 
-## 四 · 四类「进不去」，三类同日修好
+## 四 · 四类「进不去」，三类由归一化接住
 
 装置文档写进数据入口时，**丢了什么**，是这一章真正要说的事。实测 2026-09-07（EAST），
-除声明局部（`fylite:` 前缀的行，那是设计）外，起初有 **184 条裸路径**丢在门外，
+除声明局部（`fylite:` 前缀的行，那是设计）外，不做归一化时有 **184 条裸路径**丢在门外，
 `wall.h5` 只剩 8 个叶子——一份**看着像结果的空 IDS**。四类，成因各不相同：
 
 | 条数 | 路径 | 性质 | 处置 |
 | ---: | :--- | :--- | :--- |
-| 90 | `wall/…/vessel/unit/element/geometry` | **词汇**：DD 的真空室元件由 `outline` 描述，没有 `geometry` | 已修，见下 |
-| 79 | `magnetics/b_field_pol_probe/position` | **形状**：DD 说结构，文档给一元列表 | 已修，见下 |
-| 14 | `pf_active/coil/element/geometry/geometry_type` | **类型**：DD 是整数索引，文档写字符串 | 已修，见下 |
-| 1 | `tf/b0` | **名字**：DD 的 `tf` 没有 `b0` | 源仍无家，**留在闸子里** |
+| 90 | `wall/…/vessel/unit/element/geometry` | **词汇**：DD 的真空室元件由 `outline` 描述，没有 `geometry` | 归一化，见下 |
+| 79 | `magnetics/b_field_pol_probe/position` | **形状**：DD 说结构，文档给一元列表 | 归一化，见下 |
+| 14 | `pf_active/coil/element/geometry/geometry_type` | **类型**：DD 是整数索引，文档写字符串 | 归一化，见下 |
+| 1 | `tf/b0` | **名字**：DD 的 `tf` 没有 `b0` | 源无家，**留在闸子里** |
 
 判据只有一条，钉在 `rust/fylite_runtime/tests/device_to_imas.rs`：**这张表只准变小**。
 
@@ -132,8 +130,8 @@ $ fy data dump rec/imas --path pf_active/coil/0/element/0/geometry/rectangle/r -
 DD 把 `flux_loop/position` 写成**结构数组**（一条环可以穿过好几个点），把
 `b_field_pol_probe/position` 写成**一个结构**（一个探针在一个点上）；fylite 的文档
 两者同写成 `[{r,z}]`，于是环对了、探针错了——EAST 的 79 个探针位置**全数静默丢失**。
-归一化现在解一元列表（记进 `unwrapped`），`magnetics` 从 268 个叶子回到 **426** 个，
-逐值与源文档相同。两个以上元素仍旧丢弃：取第一个是悄悄丢掉其余，比丢整支更坏。
+归一化解一元列表（记进 `unwrapped`），`magnetics` 因此是 **426** 个叶子（不解是 268 个），
+逐值与源文档相同。两个以上元素则丢弃：取第一个是悄悄丢掉其余，比丢整支更坏。
 
 ### 类型 —— 14 个线圈元件
 
@@ -150,7 +148,7 @@ DD 的 `pf_active/coil/element/geometry/geometry_type` 是**整数索引**，文
 
 DD 的 `wall` 元件**只有** `outline/{r,z}`（加 `name` · `midplane_thickness` ·
 `resistivity` · `j_phi` · `resistance`），根本没有 `geometry`；fylite 借了 `pf_active`
-线圈元件的参数化写法。归一化现在把矩形展成轮廓的四个角，首点重复以闭合（DD 自己的话：
+线圈元件的参数化写法。归一化把矩形展成轮廓的四个角，首点重复以闭合（DD 自己的话：
 "Repeat the first point since this is a closed contour"），用的是**内核
 `kernels::element_filaments` 的同一个映射**——同一个矩形在内核里怎么铺成电流丝，
 在这里就怎么铺成四个角，倾角 `fylite:a1` / `fylite:a2` 一并算上：
@@ -160,7 +158,7 @@ r = r0 + u + v·cos a2 ,  z = z0 + v·sin a2 ,  再绕 (r0, z0) 转 a1
 u = ±w/2 ,  v = ±h/2
 ```
 
-原矩形**留作参考**，改挂本地名 `geometry`——DD 的 wall 元件没有 `geometry`，
+原矩形**留作参考**，挂在本地名 `geometry` 下——DD 的 wall 元件没有 `geometry`，
 裸着留就是声称一个它没有的出处。实测：`wall.h5` 从 8 个叶子到 **188** 个，
 90 条真空室元件一条不丢。抽一个核对（内圈第 0 个元件，`r` 2.7286 · `z` 0.0833 ·
 `width` 0.008 · `height` 0.1666 · `a2` 93.743°）：
@@ -184,8 +182,8 @@ $ fy data dump rec/imas --path tf/b_field_phi_vacuum_r/data --compact
 [3.15]
 ```
 
-（源文档 `r0` 1.75 · `b0` 1.8。）**源**槽 `b0` 本身在 DD 里仍旧没有家，照旧丢弃并点名
-——所以它是闸子里剩下的**唯一**一条。
+（源文档 `r0` 1.75 · `b0` 1.8。）**源**槽 `b0` 本身在 DD 里没有家，丢弃并点名
+——所以它是闸子里的**唯一**一条。
 
 ★所以**这份数据入口不能代替装置文档**：它是同一台机器给 IMAS 工具链看的那一面，
 少了 fylite 自己那几行。要完整的一份，留着 fyo（`--layout fyo`）。这是 fyo 与 DD 之间
@@ -217,7 +215,7 @@ ITER，由 `fy data convert … --layout imas --to hdf5` 的产物读回来画�
 
 ## 六 · 层轮廓：一个明确标注为近似的派生产物
 
-〔用户裁定 2026-09-07，容差 **5 mm**〕真空室的 90 块壳板按 `fylite:group` 分三层。
+〔容差 **5 mm**〕真空室的 90 块壳板按 `fylite:group` 分三层。
 把一层的板连成内外两条轮廓，做法只有四步：
 
 1. 每块板取它的**两条长边**——短边是板端的封头，正是要去掉的「相邻短边」。

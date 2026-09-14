@@ -7,14 +7,14 @@ title: 正解与演化 (Forward Solve & Evolution)
 ## 前向自由边界正解
 
 :::{important}
-**本节记的是 EFIT 的行为，而这条入口在本分发里已经不作答。** 驱动它的 `libefit.so`、
-Green 表生成器与全部表按 LICENSE 3.1 移除，它们的**录得输出**也随之移除（那些答案是
-被移除求解器的产物）。所以 `fylite.run.forward_equilibrium` 今天对任何输入都抛
+**本节记的是 EFIT 的行为，而这条入口在本分发里不作答。** 驱动它的 `libefit.so`、
+Green 表生成器与全部表按 LICENSE 3.1 不在本分发里，它们的**录得输出**也不在（那些答案是
+该求解器的产物）。所以 `fylite.run.forward_equilibrium` 对任何输入都抛
 `KefitRunError` 并说明为什么——签名保留，是为了在**调用处**给出有理由的失败。见
-[Fortran 制品去哪了](#fortran-artifacts)。
+[本分发不含的 Fortran 制品](#fortran-artifacts)。
 
-下面的数字是**当年在库还在时实测**的，留着是因为它们仍是判据：它们说明这条路走的确实
-是正解而不是拟合，也说明「给定剖面」这个通道到底能规定什么。今天要做一次**新的**自由边界
+下面的数字是**用该库实测**的，留着是因为它们是判据：它们说明这条路走的确实
+是正解而不是拟合，也说明「给定剖面」这个通道到底能规定什么。要做一次**新的**自由边界
 正解，走 `code/forward` 门（`fydoc.complete`）——它**说自己是谁**，不冒名顶替。
 :::
 
@@ -25,7 +25,7 @@ Green 表生成器与全部表按 LICENSE 3.1 移除，它们的**录得输出**
 r = forward_equilibrium(meas, betap0=0.69, preset="gui_v5", tables="wpf2018")
 ```
 
-**一次约 0.05 s**（当年实测），故扫参数、做对照、跑优化都可行。
+**一次约 0.05 s**（用该库实测），故扫参数、做对照、跑优化都可行。
 
 **`chisq is None` 不是缺陷**：被跳过的正是那个拟合外层，报拟合优度会是无意义的。
 （这也正是判据：同一份 k-file 去掉 `ICONVR=3` 反而根本产不出 g-file。）
@@ -34,7 +34,7 @@ r = forward_equilibrium(meas, betap0=0.69, preset="gui_v5", tables="wpf2018")
 
 可规定的剖面是 `ICURRT=4` 的 `BETAP0`/`EMP`/`ENP`。p′/FF′ 的**多项式**通道在平衡
 模式下是**惰性的**——`ICURRT` 取 2/4 各配约束行有无，四种组合给出**逐位相同**的
-平衡。故 `forward_equilibrium(pprime_coefs=…)` 当年**直接抛错**而非静默无效。
+平衡。故 `forward_equilibrium(pprime_coefs=…)` **直接抛错**而非静默无效。
 
 ### 边界确实浮在线圈场上
 
@@ -64,8 +64,8 @@ cm = D.channel_matrices(cond, eta_coil_uohm_m=..., eta_vessel_uohm_m=...)
   `east_device.yaml` 两者都带**，所以这条回落轮不上：外壳 40 段与铜板 10 块本来就只在
   文档里（deck 无此批）。
 - **两算路验收**：由 deck 几何自算的 ψ 响应对 `rv6565.ddd` 逐段比值恒为
-  $1/(2\pi)$（表存 Wb/rad/A，EFIT 的 ψ 约定）。★这是**当年的**对照——`rv6565.ddd`
-  属于按 LICENSE 3.1 移除的那批表，本分发里没有它，这道检验因此跑不起来。
+  $1/(2\pi)$（表存 Wb/rad/A，EFIT 的 ψ 约定）。★`rv6565.ddd`
+  属于按 LICENSE 3.1 不随分发的那批表，本分发里没有它，这道检验因此跑不起来。
   它留在这里是判据，不是可复算的步骤。
 - 真空室本征时间常数 $\tau=M/R \in [0.39, 13.1]$ ms。
 
@@ -88,4 +88,4 @@ r = evolve_free_boundary(meas, time, voltages_per_turn,
 （缺口 E-18）。线性化路径不受此限（只需几何）。
 :::
 
-★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`），见[算例语料](../examples/index.md)起的五章。
+★可跑示例是算例语料（`cases/`），见[算例语料](../examples/index.md)起的五章。

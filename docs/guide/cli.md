@@ -16,21 +16,21 @@ fy --help
 逐条参数的全表在参考篇的[命令行](../reference/cli.md)。
 
 :::{important}
-**Python 包没有命令行**（2026-09-04 用户裁定）。`pip install fylite` 装的是一个**库**：
+**Python 包没有命令行**。`pip install fylite` 装的是一个**库**：
 没有 `fylite` 这条控制台脚本，没有 `python -m fylite`，也没有 `engine/cli.py` 那一层。
 :::
 
 :::{note}
-**`case` 已经收进 `run`**（同日第二条裁定）。`fy run` 的位置参数既收线与场景，也收
-计划文件，所以从前 `fy case run plan.jsonld` 那一行今天写作 `fy run plan.jsonld`——
-同一个合成器、同一条门、同一份记录。旧词按名拒绝并指出去处，不会静默地跑成别的东西：
+**计划文件也由 `run` 跑**。`fy run` 的位置参数既收线与场景，也收
+计划文件：`fy run plan.jsonld`——同一个合成器、同一条门、同一份记录。没有 `case`
+这个命令词：`fy case run` 按名拒绝并指向 `fy run`，不会静默地跑成别的东西：
 
 ```console
 $ fy case run plan.jsonld
 fy: `case run` is retired — use `fy run <the same plans>`
 ```
 
-逐条对照的迁移表在参考篇的[命令行](../reference/cli.md)。
+逐条对照在参考篇的[命令行](../reference/cli.md)。
 :::
 
 ## 跑一次算例
@@ -55,22 +55,20 @@ core_profiles.fyo.jsonld  entry.fyo.jsonld  plan.jsonld  record.jsonld  summary.
 〈命令行〉一节。
 
 :::{warning}
-**装置类算例今天从命令行跑不起来**，两个原因各自独立，都实测于 2026-09-07：
+**装置类算例今天从命令行跑不起来**，原因实测于 2026-09-07：
+**本仓没有任何装置的清单文档**。`facts/device/<id>/` 里只有 `rights.json`；
+`abox/device.jsonld` 在 fydoc。所以 `--device east` 会说
+「has the entry but no abox/device.jsonld … described by a card, not by a manifest」。
+把带清单的语料根前置（`FY_FACTS_PATH=…/facts`）可以解决这一条。
 
-1. **本仓没有任何装置的清单文档**。`facts/device/<id>/` 里只有 `rights.json`；
-   `abox/device.jsonld` 在 fydoc。所以 `--device east` 会说
-   「has the entry but no abox/device.jsonld … described by a card, not by a manifest」。
-   把带清单的语料根前置（`FY_FACTS_PATH=…/facts`）可以解决这一条。
-2. ~~拿到清单也还不够：那一族 code 只经树门到达，而 `fy run` 走扁平门。~~
-   **2026-09-07 已修**：`fy run` 现在走**树门**（`fylite_rs_fyo_tree`），与浏览器和
-   Python 侧同一扇。`code/breakdown` · `code/discharge` · `code/reconstruction` 等
-   十八个吃整份文档的 code 从此在命令行上到得了——见
-   [装置信息](../examples/device/device.md)那一章，EAST 的通道图就是这么补全的。
-   ★三档已走通的算例（0-D · 输运 · 演化）在两扇门下**每一份产出文档逐字节相同**，
-   换门没有换数。
+拿到清单之后，`fy run` 走的是**树门**（`fylite_rs_fyo_tree`），与浏览器和
+Python 侧同一扇：`code/breakdown` · `code/discharge` · `code/reconstruction` 等
+十八个吃整份文档的 code 在命令行上到得了——见
+[装置信息](../examples/device/device.md)那一章，EAST 的通道图就是这么补全的。
+★三档已走通的算例（0-D · 输运 · 演化）在两扇门下**每一份产出文档逐字节相同**。
 
 ★`fy list scenarios` 的 `today` 一列量的是**内核门认不认这个 code**。它与
-「`fy run` 跑不跑得完」自 2026-09-07 起重新对齐，但仍不是同一件事：一个 code 到得了，
+「`fy run` 跑不跑得完」对齐，但不是同一件事：一个 code 到得了，
 不等于这一档的输入齐了（装置清单、测量、必需参数各自另说）。
 :::
 
@@ -98,7 +96,7 @@ fy run: transport: `transport` takes no parameter "chi_zero=0.4" — `fy list sc
 `--dry-run` 合成计划并把每个值**从哪来**逐行打出来，然后停下：不取数、不装内核、
 不写任何文件。
 
-★它是**唯一不受上面两条限制**的一档：合成与解析都在本层，不进内核，所以装置类算例
+★它是**唯一不受上面那条限制**的一档：合成与解析都在本层，不进内核，所以装置类算例
 也能先用 `--dry-run` 看清楚。实测（前置一个带清单的语料根）：
 
 ```console
@@ -124,7 +122,7 @@ analysis · reconstruction  ->  code/reconstruction   (template …, 46 paramete
 
 ## 从一份计划跑
 
-给路径就是计划文件形（从前的 `fy case run`）；多份按序合成，后者覆盖前者：
+给路径就是计划文件形；多份按序合成，后者覆盖前者：
 
 ```bash
 fy run docs/examples/transport/transport-iter-15ma.jsonld chi0=0.55 -o rec/
@@ -159,8 +157,6 @@ rec/imas/core_profiles.h5  rec/imas/equilibrium.h5     rec/imas/summary.h5  rec/
 ★`entry.fyo.jsonld` **不在** `imas/` 里，两种格式下都留在记录目录顶层：它是内核原始
 条目块（`@type: fyo:entry`），寻址不到任何 IDS，DD 里没有它的位置。写入方按名把它**放到
 一边**，并在记录里以 `ld+json` 登记——数据入口只装 IDS。
-（2026-09-07 之前写入方是**拒绝**它：`--format imas-hdf5` 因此在每个 code 上都中途失败，
-IDS 文件已落盘而 `record.jsonld` 未写，留下一个没有标签的碎片。）
 
 每份数据集在 `record.jsonld` 里都有一条产出端口绑定，带 `storage_uri` 与 `sha256`；
 记录怎么读见[结果怎么读](reading-results.md)。
@@ -222,7 +218,7 @@ fy list kernel                    # 内核认哪些 code、哪些 entry
 :::{note}
 **装置信息编在二进制里。** `fy list facts --roots` 会列出两条根：检出的暂存语料
 （自可执行文件位置上溯探得的 `dist/facts/`）与编进这份二进制的那一份——**两条都打
-`<buildin>`**，后面各带一句是哪一种。★2026-09-08 用户裁定：**构建期的路径不出现在
+`<buildin>`**，后面各带一句是哪一种。★**构建期的路径不出现在
 输出里**——它说的是构建这份二进制的那台机器的目录布局，读者既打不开也不该看见。
 落在内置根里的文件因此写成 `<buildin>/device/east.jsonld`：**哪一份**仍然说得出。
 `--facts` / `$FY_FACTS_PATH` 给进来的根照打（`$HOME` 收成 `~`）——回显它，是在回答
@@ -241,7 +237,7 @@ facts: <buildin>
 ★**内部版也只带六台**（best · cfedr · cfetr · iter · jt60sa · west），实测。判据在
 `tools/facts-publish.py`：**没有页面文档就不发**——本仓 `facts/device/<id>/` 里只有
 `rights.json`，清单文档在 fydoc，所以那七台（含 EAST）在任何版别里都发不出去。
-「内部版含 EAST」这条裁定要落地，缺的是把清单文档带进发布物，不是版别开关。
+内部版要含 EAST，缺的是把清单文档带进发布物，不是版别开关。
 :::
 
 ## 换一份数据的格式，或取一发炮
@@ -267,8 +263,7 @@ fy data fetch   --device east --ids magnetics \
 
 ★★**`list` 的每一种形都认 `--json`**——清单形与点名形都认
 （`fy list devices --json` 与 `fy list devices east --json` 都答 JSON）。
-2026-09-07 之前点名形静默忽略它：声明了却不生效，调用方拿到的是给人看的排版
-而退出码 0。现在由 `python/tests/test_list_json.py` 逐形守着。
+由 `python/tests/test_list_json.py` 逐形守着。
 
 ★`fy run` 在给了 `shot=` 而语料里没有那一片时会**自己**去取（取回的文档先落进记录
 目录，于是同一次分析可以离线重放）。要它永不联网，给 `--offline` 或设

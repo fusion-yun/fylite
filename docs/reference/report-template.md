@@ -63,8 +63,7 @@ report.render("r-20260826-000236", out_dir="out/")    # 落到别处（figures/ 
 report.render("r-20260826-000236", figures=False)     # 只要文字与表
 ```
 
-★★2026-09-04 起这是**库调用**：`fylite report …` 那条命令随「Python 侧无命令行」的
-裁定撤除，函数没变。
+这是**库调用**（Python 侧没有命令行）。
 
 生成的报告是普通 MyST 页面：可单独阅读，也可被 `docs/` 书或任何 mystmd
 站点收录编号——文档面（mystmd）消费运行报告，正是 CLI（基准面）与

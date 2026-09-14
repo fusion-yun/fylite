@@ -52,7 +52,7 @@ $M^*=M-I_p^2GG^\mathsf{T}/k$——**小信号域里等离子体确实反作用�
 sysv = K.vertical_system(g, tables, ic_coils=device.fast_coils(dev), ...)   # 对象模型：code/vstab
 ```
 
-闭环本身（`close_vertical_loop`：PD + 观测器 + 执行器饱和与滞后）自 2026-09-06 归内核仓测试树
+闭环本身（`close_vertical_loop`：PD + 观测器 + 执行器饱和与滞后）在内核仓测试树
 （`tests/oracles/vertical.py`，由 `tests/test_control.py` 守）——公开包与页面里都没有调用者。
 
 判据是**断环必须发散、闭环必须归零**：断环 ξ 1 mm → 5.4e7 mm；
@@ -66,11 +66,11 @@ sysv = K.vertical_system(g, tables, ic_coils=device.fast_coils(dev), ...)   # �
 
 :::{important}
 **本节与下一节的两个入口都经 `fylite.run.forward_equilibrium` 取那两次 GS 解，而它在
-本分发里不作答。** `libefit.so`、Green 表与它们的**全部录得输出**按 LICENSE 3.1 移除，
+本分发里不作答。** `libefit.so`、Green 表与它们的**全部录得输出**按 LICENSE 3.1 不在本分发里，
 所以 `shape.shape_response` 与 `pulse.design_trajectory` 走到那一步就拿到
-`KefitRunError`——一列中心差分要的是**两次新的** GS 解，这两个入口今天走不通。
-下面的数字是当年实测，结论仍成立：差分真求解器与解析摄动的差别不随求解器换人而变。
-原委见 [Fortran 制品去哪了](#fortran-artifacts)。
+`KefitRunError`——一列中心差分要的是**两次新的** GS 解，这两个入口走不通。
+下面的数字是用该求解器实测的，结论不依赖它：差分真求解器与解析摄动的差别不随求解器换人而变。
+原委见 [本分发不含的 Fortran 制品](#fortran-artifacts)。
 :::
 
 TokSys 走解析摄动 GS（`gspert`）；fylite **直接差分真求解器**——一次正解 0.05 s，
@@ -121,18 +121,13 @@ d = B.breakdown(r0=1.85, z0=0.0, radius=0.3, flux_target=0.3, device=dev)
 d["feasible"], d["b_max"], d["null_ok"], d["flux_Wb"], d["flux_error"]
 ```
 
-★入口名与形参都变过：它曾是 `fylite.breakdown.design_null(tables, dev, …)`，现在是
-`fylite.scenario.design.breakdown(...)`，**全关键字**、不收位置参数，返回的也是一层平表
-（`d["b_max"]`，不再是 `d["null"]["b_max"]`）。同名的 `kernel.design_null` 是它底下那一层
+★入口是 `fylite.scenario.design.breakdown(...)`，**全关键字**、不收位置参数，返回一层平表
+（`d["b_max"]`，不是 `d["null"]["b_max"]`）。同名的 `kernel.design_null` 是它底下那一层
 纯数值的最小二乘，收的是场与磁通的**行**而不是装置。
 
 实测（装置取 `$FYLITE_DEVICE_DIR/east_device.yaml`，1336 次迭代）：0.3 m 盘内
 **|B| 峰 7.15e-6 T**（rms 2.7e-6、中心 1.4e-7），磁通 **0.2794 Wb / 目标 0.3**，
 `feasible` 为真——两条判据都过。开关 `limits` 同解，说明这个设计远在电源额定之内。
-
-★旧文档在这里记的是「|B| 峰 0.0077 mT、磁通命中到 2.2e-4」。前一个数与上面一致
-（0.0077 mT = 7.7e-6 T），后一个不是：那是 EFIT 表目录还在、由它作首个位置参数时的
-调用；今天按装置文档重测就是上面这组。
 
 :::{warning}
 **量纲必须显式归一**。零点行是特斯拉（~1e-3）、磁通行是韦伯（~1e-1）；
@@ -157,4 +152,4 @@ $\gamma$ **必须在同一导体集上比**。rzrig 把主动线圈放进电路�
 问法）。两者都对，但不可混比。
 :::
 
-★走查用的 notebook 已不在本仓，仓根 `examples/` 也已删除——今天的可跑示例是算例语料（`cases/`），见[算例语料](../examples/index.md)起的五章。
+★可跑示例是算例语料（`cases/`），见[算例语料](../examples/index.md)起的五章。

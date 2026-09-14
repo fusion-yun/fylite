@@ -11,11 +11,11 @@ WebAssembly。三种发布形态跑的是同一份算术。
 
 本书**一本四篇**。它们回答四个不同的问题，顺序就是读者一路问下去的顺序。
 
-★★**2026-09-13 起，本仓 `docs/` 只放读者面的文档**（用户裁定：公开仓 `docs/` 不出现开发文档与内部报告）。三篇因此迁走，**一页未改名、一个锚点未动**：
+★★**本仓 `docs/` 只放读者面的文档**：公开仓 `docs/` 不出现开发文档与内部报告。下面三样因此在别的仓：
 
-* **设计集**（`FYL-CONOPS-00` · `FYL-SRS-01` · `FYL-SDD-01` · `FYL-DESIGN-NN`）→ fylite_kernel `docs/design/`——它是开发文档；
-* **报告**（`FYL-REPORT-07`）→ fylite_kernel `docs/report/`——评估研究是内部报告，`FYL-REPORT-NN` 这条编号序自此只有一处登记册；
-* **物理与数值**（十五章 + `references.bib`）→ fydoc `physics/`——它**不是**开发文档，迁走的理由是另一条：它写的是方程的出处、参数域的来历与对齐容差，那是 fydoc 「真实数据与事实的源头」那一职守下的东西。
+* **设计集**（`FYL-CONOPS-00` · `FYL-SRS-01` · `FYL-SDD-01` · `FYL-DESIGN-NN`）在 fylite_kernel `docs/design/`——它是开发文档；
+* **报告**（`FYL-REPORT-07`）在 fylite_kernel `docs/report/`——评估研究是内部报告，`FYL-REPORT-NN` 这条编号序只有一处登记册；
+* **物理与数值**（十五章 + `references.bib`）在 fydoc `physics/`——它**不是**开发文档，放在那里的理由是另一条：它写的是方程的出处、参数域的来历与对齐容差，那是 fydoc 「真实数据与事实的源头」那一职守下的东西。
 
 跨仓引用一律写成**仓限定的行内代码**（形如 fylite_kernel `docs/design/INDEX.md`）；跨仓相对链接两侧都解析不了，**不要写**。
 
@@ -37,14 +37,14 @@ WebAssembly。三种发布形态跑的是同一份算术。
 
 它们在仓里，但**不是本书的章**——各有各的理由，不是遗漏：
 
-- `app/` 的**浏览器演示** —— 那是**产品**，不是本书的一章（2026-09-01 裁定）。讲它的
-  说明页仍在书里（[浏览器演示](guide/browser-app.md)），链接给的是已发布站点的地址。
+- `app/` 的**浏览器演示** —— 那是**产品**，不是本书的一章。讲它的
+  说明页在书里（[浏览器演示](guide/browser-app.md)），链接给的是已发布站点的地址。
 - `NOTICE` —— 逐文件的移植出处与修改说明，随 Rust 内核源码留在 `fylite_kernel`，
   打轮时装入分发件。可读的全表见本书的[致谢](ACKNOWLEDGEMENTS.md)。
 
-★`docs/benchmark/` 的**机器读的那一半**（`registry.jsonld` · 逐案 `.jsonld`）仍不入 toc：
+★`docs/benchmark/` 的**机器读的那一半**（`registry.jsonld` · 逐案 `.jsonld`）不入 toc：
 它们按路径被门禁、CI 与语料的 `account` 字段引用，要的是稳定路径而不是章节号。散文那一半
-2026-09-08 已入册，就是上表的「校验册」。
+入册，就是上表的「校验册」。
 
 ## 文档编号与引用
 
@@ -61,7 +61,6 @@ myst start                       # 本地预览
 myst build --strict              # 把警告当错误
 ```
 
-★**一本书，一个目录源**：`docs/myst.yml` 的 `toc` 是唯一的目录。2026-09-02 之前这里
-是三本独立的书（各自 `myst.yml`）挂成一个站点；那个形制下站点根上没有页面，本页
-无处可放。`guide/public.yml` 不是第二个目录——它点名的是「哪几篇随浏览器演示公开
+★**一本书，一个目录源**：`docs/myst.yml` 的 `toc` 是唯一的目录。若分成几本
+各自带 `myst.yml` 的书挂成一个站点，站点根上就没有页面，本页无处可放。`guide/public.yml` 不是第二个目录——它点名的是「哪几篇随浏览器演示公开
 发布」，另由 `tools/build-guide.sh` 读。

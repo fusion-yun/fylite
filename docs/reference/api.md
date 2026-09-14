@@ -7,9 +7,9 @@ title: API 速查 (API Reference)
 ## 入口在哪
 
 :::{important}
-**没有 `fylite.run(...)` 这个函数。** `fylite.run` 是一个**模块**，里面只剩
-`forward_equilibrium`（EFIT 的录得参考读取器）与 `KefitRunError`；旧文档里的
-`fylite.run(shot, t)` 一律调不通。今天的入口分三层：**能力**在
+**没有 `fylite.run(...)` 这个函数。** `fylite.run` 是一个**模块**，里面只有
+`forward_equilibrium`（EFIT 的录得参考读取器）与 `KefitRunError`；
+`fylite.run(shot, t)` 这种写法一律调不通。今天的入口分三层：**能力**在
 `fylite.scenario`，**物理**在 `fylite.kernel`，**数据**在 `fylite.fyo` 与 `fylite.io`。
 :::
 
@@ -50,12 +50,12 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 
 | 模块 | 用途 |
 | :--- | :--- |
-| `kernel` | C-ABI 面：装载器、ABI 守卫、文档门 `scenario` / `fydoc.complete`，与仍在接口上的原语；物理算子（求解器 · 磁面追踪 · GEO / NEO / TGLF 端口 · 输运核）经门到达，扁平入口自 2026-09-05 起逐刀退出接口——2026-09-07 已全部退出（内核仓 `docs/note/kernel-public-seam.md`） |
-| `fyo` | fyo 语义文档层：`equilibrium`（g-file→文档，`as_equilibrium` 是唯一的门）、`reconstruction`、`Ladder` 一次描迹（输运度量 + Miller 形状，同一批面）、`read` / `write`（JSON-LD 在本层；`.h5` 交给中间层 `io.fydoc`，2026-09-04 起） |
+| `kernel` | C-ABI 面：装载器、ABI 守卫、文档门 `scenario` / `fydoc.complete`，与接口上的原语；物理算子（求解器 · 磁面追踪 · GEO / NEO / TGLF 端口 · 输运核）经门到达，接口上没有扁平入口（内核仓 `docs/note/kernel-public-seam.md`） |
+| `fyo` | fyo 语义文档层：`equilibrium`（g-file→文档，`as_equilibrium` 是唯一的门）、`reconstruction`、`Ladder` 一次描迹（输运度量 + Miller 形状，同一批面）、`read` / `write`（JSON-LD 在本层；`.h5` 交给中间层 `io.fydoc`） |
 | `device` | **机器**：①牌在哪（`$FYLITE_DEVICE_DIR`，缺则抛 `MachineDataMissing`）②牌说什么（几何 / 通道图 / 被动集，文档优先、deck 兜底）③**导体做什么**（互感 / 电阻矩阵、网格响应与磁通折叠、通道空间电路矩阵、回路推进）④**视线做什么**（弦几何与沿磁通图的线积分） |
 | `io.geqdsk` | g/a-file 读写，以及 g 文件蕴含的 `(R, Z)` 网格与 ψ_N 图 |
 | `io.est2` | est2 基底约化（窗口均值、漂移、POINT），在线 mdsip 与离线 HDF5 转储共用的**唯一**一条约化 |
-| `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁）。★传输走中间层的 mdsip 客户端（`kernel.MdsSession`），本包不 import 站点的 `MDSplus` 包（2026-09-04） |
+| `io.mds` | EAST MDSplus 取数（`efit_east` 树 → 测量字典、Thomson / 逆磁）。★传输走中间层的 mdsip 客户端（`kernel.MdsSession`），本包不 import 站点的 `MDSplus` 包 |
 | `io.fydoc` | **数据层**的 Python 面（`libfylite_runtime.so`，`rust/fylite_runtime/`）：按内容识别文件类型，不同数据源 ↔ fyo 文档的读写与合并；MDSplus 只读、HDF5 / netCDF 的 fyo 与 IMAS 两种布局都在这一层 |
 | `io.gacode` | GACODE `input.gacode` 剖面 + 几何包 |
 | `io.efund` | efund deck 格式（`east_geom.txt`）——**不是数据源**：盒与线圈匝数在装置文档里，读 deck 只为**核对**文档 |
@@ -71,16 +71,15 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 | `scenario.control.*` | `stability`（n=0 垂直模判据）· `vertical`（线性化对象与反馈回路） |
 | `scenario.design.*` | `pulse`（前馈轨迹、通道限值、带界最小二乘） |
 
-★这张表**比从前短**，而且会继续短下去：T-4（2026-09-05 起）把每一条「本层自己算」的
-配方逐刀沉进内核的**文档门**，本包留下的只是装配。迁出的模块——`assembly` · `closure` ·
-`neoclassical` · `mapping` · `gyrofluid` · `sources` · `tomography` · `selfcal` · `loop` ·
-`evolution` · `shape`——**没有消失**：它们算的是同一份内核文件，逐项参考实现在内核仓的
-神谕树 `tests/oracles/`，端口对拍照跑。本层的调用方走门：自举闭合与新经典 χ 走
+★这张表**只列装配**：每一条计算配方都在内核的**文档门**后，本包只做装配。
+`assembly` · `closure` · `neoclassical` · `mapping` · `gyrofluid` · `sources` · `tomography` ·
+`selfcal` · `loop` · `evolution` · `shape` 这些配方不在本包：它们算的是同一份内核文件，
+逐项参考实现在内核仓的神谕树 `tests/oracles/`，端口对拍照跑。本层的调用方走门：自举闭合与新经典 χ 走
 `code/transport` / `code/bootstrap`，湍流闭包走 `code/turbulence`，形状与前馈走
 `code/outlines` / `code/shape` / `code/pulse`。
-★**没有 `scenario.model.gyrofluid`、也没有 `S.model.tglf` 了**（2026-09-07）：那是按
-`input.tglf` 输入卡逐格填写的**移植面**，deck 是外部序列化格式、内核不解析它，所以这张面
-沉不进门，整面退役（见 `_manifest/tglf.jsonld` 的 `executable_note`）。
+★**没有 `scenario.model.gyrofluid`、也没有 `S.model.tglf`**：按 `input.tglf` 输入卡
+逐格填写的**移植面**不在本层——deck 是外部序列化格式、内核不解析它，所以这张面
+沉不进门（见 `_manifest/tglf.jsonld` 的 `executable_note`）。
 
 ★**这些入口背后是哪条方程**：`scenario` 与 `kernel` 只是装配与 C 边界，物理在 Rust 内核里，
 逐模块写在物理与数值（fydoc `physics/00-overview.md`）十五章——方程、假设、参数域、数值格式、
@@ -88,10 +87,9 @@ r = S.analysis.reconstruction(meas, pressure=f)   # 磁测量 + 动理学压强
 
 ## 命令行
 
-★★2026-09-04 起 **Python 侧没有命令行**：`fylite` 控制台脚本、`python -m fylite` 与
-`engine/cli.py` 一并撤除，本页上的这些入口就是全部的用法。机器上那一条命令行是
+★★**Python 侧没有命令行**：没有 `fylite` 控制台脚本，也没有 `python -m fylite`，
+本页上的这些入口就是全部的用法。机器上那一条命令行是
 Rust 的 `fy`，全表另开一页：[命令行](cli.md)（`app` / `data` / `case` 三条），
 其中数据层那一条再单开一页：[数据层](data-layer.md)。
 
-命令行的**定义**仍只有 `python/fylite/_cli.json` 一处，`fy` 在编译期纳入它——从前
-Python 也由它建 argparse，那第三个读者随该层一起走了。
+命令行的**定义**只有 `python/fylite/_cli.json` 一处，`fy` 在编译期纳入它。

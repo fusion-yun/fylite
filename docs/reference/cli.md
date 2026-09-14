@@ -9,7 +9,7 @@ title: 命令行 (Command Line Reference)
 [命令行怎么用](../guide/cli.md)。
 
 :::{important}
-**Python 包没有命令行**（2026-09-04 用户裁定）：没有 `fylite` 控制台脚本，没有
+**Python 包没有命令行**：没有 `fylite` 控制台脚本，没有
 `python -m fylite`，也没有 argparse 那一层。
 :::
 
@@ -22,8 +22,7 @@ title: 命令行 (Command Line Reference)
 | `fy` | **唯一的可执行文件**（Rust） | 编译期纳入它，建出自己的解析器 |
 | 浏览器页面 | 静态站点 | 它的 `hosts.app.params` 就是页面的启动参数 |
 
-★这份文件从前有第三个读者——Python 的 argparse 建造者——它与那一层一起撤了；闸子
-`test_cli_spec.py` 现在钉的就是「没有第三个宿主的残留」。
+★闸子 `test_cli_spec.py` 钉住「只有这两个宿主」。
 
 ## 四条命令
 
@@ -36,7 +35,7 @@ fy run  <line> [<scenario>] | <plan.jsonld>... [key=value ...] [options]
 fy list devices|experiments|scenarios|presets|facts|kernel|lines … [--facts PATH] [--cases PATH]
 ```
 
-一个词一个动词：起页面 · 搬数据 · 算 · 看。不带命令词时它跑 `app`，所以双击仍然可用。
+一个词一个动词：起页面 · 搬数据 · 算 · 看。不带命令词时它跑 `app`，所以双击也能用。
 
 **全局选项**（命令词之前之后都收，每一屏用法上都印得到）：
 
@@ -48,10 +47,8 @@ banner 本来就只在 **stderr 是终端**时才印，所以 `fy list … --jso
 选项；它是给「终端里也不想看」的那一次用的。
 
 :::{note}
-**为什么只有一个可执行文件。** 2026-09-03 之前还有 `fylite-data` 与 `fylite-case` 两个
-二进制，各十行，做的就是把命令词前置到自己的命令行再调用同一份代码——那一次前置由
-调用方给就够了。名字换过两次：`fylite-app` → `fylite` → **`fy`**（2026-09-04）；中间那
-一次与 Python 控制台脚本同名，`$PATH` 上找到的会是那个脚本自己、于是无限 fork。
+**为什么只有一个可执行文件。** 每个命令词背后是同一份代码；把命令词前置到命令行上，
+由调用方给就够了，不必为每个命令词各出一个二进制。
 :::
 
 (fylite-cli-run)=
@@ -63,7 +60,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 ```
 
 两种位置参数形，一条路：**场景形**由线（`analysis` / `model` / `design` / `control`）
-选出缺省场景，场景选出模板；**计划文件形**（从前的 `fy case run`）把给出的计划按序
+选出缺省场景，场景选出模板；**计划文件形**把给出的计划按序
 合成，模板由合成后计划的 code 末段反查。含 `/` 或以 `.json` / `.jsonld` / `.yaml`
 结尾的位置参数当路径，否则当名字。
 
@@ -80,7 +77,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 当成位置参数。
 
 :::{important}
-**装置信息随发行版走，而且只有一份**（2026-09-05 用户裁定）。按许可筛过的那几台收成
+**装置信息随发行版走，而且只有一份**。按许可筛过的那几台收成
 **一个制品** `facts.rs`，由 `rust/build.sh --<版别>` 编进 `libfylite_runtime.so` 与
 `fylite_runtime.wasm`。所以一份发行版**盘上没有语料也答得出** `fy list devices`
 与 `fy run --device`。
@@ -96,9 +93,8 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 ★`/api/facts` 读的是**整条搜索路径**，不只是编进去的那一档：`fy app --facts /我的语料`
 之后，页面看到的与 `fy list devices` 看到的是同一批。
 
-★★此前是两份：页面 fetch 的 JSON 一份，命令行编进二进制的表一份——同一批 432 KB、
-两条通路，而**没有任何东西保证它们描述同一批机器**。目录说有七台、文件只有六台，
-这种事不会有任何东西红。今天没有第二份可以跟它不一致。
+★★只有一份，是因为两份就**没有任何东西保证它们描述同一批机器**：目录说有七台、
+文件只有六台，这种事不会有任何东西红。
 
 ★**版别在编译期定死**：`--public` / `--internal` 是给 `rust/build.sh` 的，不是给
 发布脚本的；站点与可执行文件的构建只**核对**手上这一份是不是要发的那一版
@@ -106,12 +102,11 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 
 `--facts` / `$FY_FACTS_PATH` 是**前置**：把自己的根排在自带的那一份之前，从不替换它。
 `fy list facts --roots` 会把自带的那一档打成一行 `<buildin>`，并说它带了几条。
-★检出的暂存语料（`dist/facts/`）**也打 `<buildin>`**（2026-09-08 用户裁定：构建期
+★检出的暂存语料（`dist/facts/`）**也打 `<buildin>`**（构建期
 路径不出现在输出里），两行靠各自后面那句话区分；内置根里的文件写成
-`<buildin>/device/<id>.jsonld`。`--json` 照旧给完整路径。
+`<buildin>/device/<id>.jsonld`。`--json` 给完整路径。
 
-★同日另一条：**仓顶不再有 `facts/` 目录**。在检出里拖回来的语料落在 `dist/facts/`
-（构建暂存区），`app/facts` 那条符号链接一并撤除。
+★**仓顶没有 `facts/` 目录**：在检出里拖回来的语料落在 `dist/facts/`（构建暂存区）。
 :::
 
 参数**不在** `_cli.json` 里：它属于场景，而场景是数据。名字、类型、缺省与取值范围来自
@@ -201,12 +196,12 @@ rec/
 MDSplus 只读——**单开一页**：[数据层](data-layer.md)。
 
 (fylite-cli-migration)=
-## 从前的 `case` 今天怎么写
+## `case` 与 `data facts` 的去处
 
-`case` 与 `data facts` 已撤（`FYL-DESIGN-17` E-23 / E-24）。旧词**按名拒绝并指出去处**，
-而不是静默转发——转发会让两个词长期并存，而那正是这次合并要消掉的东西。
+`case` 与 `data facts` 不是命令词（`FYL-DESIGN-17` E-23 / E-24）：它们**按名拒绝并指出去处**，
+而不是静默转发——转发会让两个词长期并存。
 
-| 从前 | 今天 |
+| 被拒绝的写法 | 该写成 |
 | :--- | :--- |
 | `fy case describe` | `fy list kernel` |
 | `fy case plan P… --set k=v` | `fy run P… k=v --dry-run` |
@@ -214,8 +209,8 @@ MDSplus 只读——**单开一页**：[数据层](data-layer.md)。
 | `fy case json P…` | `fy run P… --json` |
 | `fy data facts [域]` | `fy list facts [域]` |
 
-★`--set` 整个撤了：`key=value` 就是它，只是多了模板校验。Rust 库模块 `crate::case`
-（合成器）**留着**——撤的是命令词，不是合成器。
+★没有 `--set`：`key=value` 就是它，只是多了模板校验。Rust 库模块 `crate::case`
+是**合成器**，不是命令词。
 
 Python 侧同一道门是 `fylite.io.fydoc.case_json(plan, base=…)`：一份
 `fyo:ScenarioSpecification` 进，一份 `spo:ComputationRecord` 出。

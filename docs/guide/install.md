@@ -14,9 +14,9 @@ title: 安装与环境 (Install & Environment)
 | `plot` | `matplotlib` | `fylite.plot` 磁面图渲染 |
 | `hdf5` | `h5py` | 只有 est2 离线转储（`io.est2.measurements_from_est2_hdf5`）还读它；fyo 文档的 `.h5` 走中间层，不需要 |
 
-★**从 MDSplus 取数不需要任何 extra**（2026-09-04 起）：mdsip 客户端在中间层
-`libfylite_runtime.so` 里，`io.mds` / `io.est2` 的在线路径经它取数，站点的 `MDSplus` python 包
-不再是依赖。
+★**从 MDSplus 取数不需要任何 extra**：mdsip 客户端在中间层
+`libfylite_runtime.so` 里，`io.mds` / `io.est2` 的在线路径经它取数，不依赖站点的 `MDSplus`
+python 包。
 
 ```bash
 cd python && pip install -e '.[plot,yaml]'    # 或按需
@@ -36,7 +36,7 @@ fylite 以**三种形态**到达使用者（`FYL-DESIGN-15`），三者装的是
 | **Python 包**（wheel） | 写脚本、LLM 宿主、集成方 | `bash tools/build-wheel.sh` | 原生内核 |
 
 命令行来自同一个定义文件 `python/fylite/_cli.json`，而**可执行文件只有一个**：`fy`
-（`app` / `data` / `case`）。★2026-09-04 起 **wheel 不带可执行文件、Python 侧也没有
+（`app` / `data` / `case`）。★**wheel 不带可执行文件、Python 侧也没有
 命令行**：装上包得到的是一个库，`fy` 由 `bash rust/build.sh --exe` 出、装到 `$PATH` 上。
 
 ★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
@@ -59,7 +59,7 @@ bash tools/build-wheel.sh          # 出轮：平台 tag 由 .so 自己的 glibc
 工程，它同时是一棵 Rust crate、一个静态站点、一本 MyST 书和一个包，四者里只有一个由
 pip 构建。
 
-交互面板不再随 Python 包提供：放电设计与动理学重构的交互页在浏览器端（`app/`），
+交互面板不随 Python 包提供：放电设计与动理学重构的交互页在浏览器端（`app/`），
 Python 侧只保留内核、装配层与绘图。
 
 ## 免安装运行
@@ -73,7 +73,7 @@ PYTHONPATH=python python -c "import fylite; print(fylite.__version__)"
 需要装置的入口另需一个**装置目录**。
 
 :::{important}
-**`machine_desc/` 已废弃**（2026-09-02 裁定）——不是「不进版本库」，是这个目录**不再存在**。
+**本仓没有 `machine_desc/`**——不是「不进版本库」，是这个目录**不存在**。
 一份装置牌若同时在仓里和 A-Box 里，两个真值源里错的那个不会报错，它只会让某台机器安静地
 用上另一份描述。所以牌的真值源只有一个：私有 `fydata` / `fydoc` 仓的 A-Box
 （`abox/device/tokamak/<id>/`）。
@@ -91,9 +91,9 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/iter
 `r` / `z` 两个数组。拖回之后要复核读它的那几处——见[放电设计](../examples/design/design.md)那一章
 里怎么显式给限值。
 
-★★**EAST 那张牌拖不回来。** 它一直是**手工维护**的，且严格富于上游（est2 79 探针基底、
+★★**EAST 那张牌拖不回来。** 它是**手工维护**的，且严格富于上游（est2 79 探针基底、
 拟合控制块、被动集、电源参数、EFIT deck 件都不是 A-Box 里的东西），工具因此拒绝生成它。
-随 `machine_desc/` 一并退役之后，它今天只在**内核仓的历史**里：
+它只在**内核仓的历史**里：
 
 ```bash
 git -C <fylite_kernel 检出> archive b4dce77^ machine_desc/east | tar -x -C ~/fylite-decks --strip-components=1
@@ -101,7 +101,7 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/east
 ```
 
 ★A-Box 里**有** EAST 的实验切片（`abox/experiment/east/137985/slice_*.fyo.jsonld`），
-但那是**另一次约化**：实测同一时刻的 I_p 为 400 940 A，而退役件里是 393 460 A（差 1.9 %），
+但那是**另一次约化**：实测同一时刻的 I_p 为 400 940 A，而那张手工牌里是 393 460 A（差 1.9 %），
 反演在它上面不收敛（内核 −105100）。**它不是那份算例文档的替代品**，见
 [诊断分析：平衡反演](../examples/reconstruction/reconstruction.md)。
 :::
@@ -133,7 +133,6 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/east         # 或 …/iter
 :::{note}
 ABI 版本只有一个源头——内核的 `c_api.rs`——由内核仓的 `build.sh` **生成**进
 `python/fylite/_abi.py`；装载器见到版本不符的库**大声拒绝**，而不是拿不匹配的签名去调。
-两边手工保持一致的做法曾在一天之内漂了两次。
 :::
 
 重建数据层需要 Rust 工具链（内核要另一个检出）：
@@ -147,9 +146,9 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 
 ## WebAssembly 制品
 
-浏览器端跑的是内核的 wasm 版本，都在 `app/assets/`。★2026-09-05 用户裁定
-**DKE 与 TGLF 合为一份扩展**，`.so` 与 `.wasm` 同一条规矩，于是内核侧的 wasm 从三份
-收为**两份**，与两个 `.so` 一一对应；本仓自己的 runtime 另出一份：
+浏览器端跑的是内核的 wasm 版本，都在 `app/assets/`。★**DKE 与 TGLF
+合为一份扩展**，`.so` 与 `.wasm` 同一条规矩：内核侧的 wasm 是**两份**，与两个 `.so`
+一一对应；本仓自己的 runtime 另出一份：
 
 | 文件 | 出自 | 内容 | 何时取 |
 | :--- | :--- | :--- | :--- |
@@ -157,7 +156,7 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 | `fylite_kernel_ext.wasm` | 内核仓（`libfylite_kernel_ext.so` 的对应件） | 扩展——TGLF 回旋朗道流体 + NEO 漂移动理学 | 按需 |
 | `fylite_web.wasm` | 本仓 `rust/fylite_runtime` | 页面真读的那两扇门：装置事实与 g-file | 页面启动即取 |
 
-★**没有 `fylite_tglf.wasm` / `fylite_dke.wasm` 这两个名字了**（2026-09-05 合并之前有）。
+★**没有单独的 `fylite_tglf.wasm` / `fylite_dke.wasm`**。
 `app/assets/fylite.js` 只有一个扩展载入口，取的是 `fylite_kernel_ext.wasm`。
 
 ★上表写的是**逻辑名**。磁盘上（以及站点上）真正的文件带版本后缀——
@@ -170,21 +169,21 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 不靠承诺。构建它们要内核检出；本仓只带入库的副本，Python 侧一份都不加载。
 
 (fortran-artifacts)=
-## Fortran 制品去哪了
+## 本分发不含的 Fortran 制品
 
-早先的文档、论文与 changelog 会提到随包的 `libefit.so` / `libneo.so` / `libgeo.so` /
+论文与外部文档里会出现 `libefit.so` / `libneo.so` / `libgeo.so` /
 `libtglf.so`、Green 表生成器 `efund_east`、`_data/green*/` 表集与 `_data/ldd-manifest.txt`。
 **它们不在本分发里**：EFIT 一系（求解器、efund 生成器、表，以及它们的**全部录得输出**）
-按 LICENSE 3.1 整体移除；`libneo` / `libgeo` / `libtglf` 三个 GACODE 绑定库连同围着它们写
-的 ctypes 绑定按 3.2 移除。两个编号的确切所指由仓根 `NOTICE` 自己定义（那份 licence 文件
+按 LICENSE 3.1 整体不含；`libneo` / `libgeo` / `libtglf` 三个 GACODE 绑定库连同围着它们写
+的 ctypes 绑定按 3.2 不含。两个编号的确切所指由仓根 `NOTICE` 自己定义（那份 licence 文件
 本身是纯 Apache-2.0，并无此二节——`NOTICE` 把散在源码里的二十七处引用一次性定清）。
 `_data/` 与 `fortran/` 两个目录**都不存在**；`_lib/` 里今天是上面那两个 `.so`，
 `python/fylite/_bin/` 里是那**一个**可执行文件（构建过才有，见上）。
 
-★★**冻结的答案也不在这里了**（2026-09-01 起）。曾经随仓的那个 oracle store——
-录得的 EFIT 正解、NEO 与磁面几何的参考值——是被移除求解器的**输出**，与求解器同罪；
-`fylite._oracle`、`fylite._port` 与它们的四个环境变量（`$FY_ORACLE` / `$FY_ORACLE_STORE` /
-`$FY_ORACLE_PORT` / `$KEFIT_REFERENCE_BUNDLE`）一并移除。
+★★**冻结的答案也不在这里**。oracle store——
+录得的 EFIT 正解、NEO 与磁面几何的参考值——是这些求解器的**输出**，与求解器同罪，不随本分发；
+也没有 `fylite._oracle`、`fylite._port` 与它们的四个环境变量（`$FY_ORACLE` / `$FY_ORACLE_STORE` /
+`$FY_ORACLE_PORT` / `$KEFIT_REFERENCE_BUNDLE`）。
 
 于是 `fylite.run.forward_equilibrium` 今天**对任何输入都抛 `KefitRunError`**，并说明
 为什么：求解器不在本分发里，它的录得答案也不在。签名保留，是为了调用方在**调用处**

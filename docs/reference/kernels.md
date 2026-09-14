@@ -12,7 +12,7 @@ title: 内核 (The Kernel)
 （`rayon`，多线程特性）；`ldd` 的结果是 `libgcc_s` / `libm` / `libc` 加动态链接器。
 
 :::{important} 这棵 crate 不在本仓
-2026-09-01 仓一分为二：**内核源码在私有仓 `fylite_kernel`**（`rust/fylite/`），本仓拿到的是
+**内核源码在私有仓 `fylite_kernel`**（`rust/fylite/`），本仓拿到的是
 它的**制品**——`libfylite_kernel.so`、三个 `.wasm`，以及由内核构建脚本生成的 `_abi.py` /
 `version.js` / `fyo-interface.*`。制品**不入库**，打包发布时才装进来。所以本章写的路径
 （`rust/fylite/src/*.rs`）在内核仓里解析；本仓自己的 Rust 源码树只有一棵，是**数据层**
@@ -40,9 +40,8 @@ title: 内核 (The Kernel)
 | 文档层与场景（非物理） | `fyo.rs` `scenario.rs` | — |
 | 唯一的 C 边界 | `c_api.rs` | — |
 
-★`mdsip.rs` 曾在这张表里，**2026-09-02 起不在**：取数是宿主的活，它随数据面搬去了
-本仓的数据层（`rust/fylite_runtime/`）。内核自此装置中立、格式中立——它算数，别人把数
-放进文档。
+★这张表里**没有 mdsip**：取数是宿主的活，归本仓的数据层（`rust/fylite_runtime/`）。
+内核因此装置中立、格式中立——它算数，别人把数放进文档。
 
 Python 侧不复写其中任何一段离散化或闭式：装配、装置接线、编排、绘图与溯源在
 `python/fylite`，物理在这里（`fylite.scenario` 连 `scipy` / `contourpy` 都不许 import，
@@ -61,7 +60,7 @@ Python 侧不复写其中任何一段离散化或闭式：装配、装置接线�
 :::{note}
 ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`——由 `build.sh`
 **生成**进 `python/fylite/_abi.py` 与 `rust/wasm/abi.json`。装载器见到版本不符的库
-**大声拒绝**，而不是拿不匹配的签名去调；两边手工保持一致的做法曾在一天之内漂了两次。
+**大声拒绝**，而不是拿不匹配的签名去调；两边若靠手工保持一致，就会漂。
 :::
 
 每个 C 入口的 ctypes 签名就写在调用它的包装函数上方，`load()` 一次性登记；任何负返回码
@@ -78,11 +77,10 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 | `fylite_kernel_ext.wasm` | 内核 `tglf,dke` | 19 | 485 KiB | 按需（湍流闭包；NEO 漂移动理学同在其中） |
 | `fylite_runtime.wasm` | **中间层**（本仓） | 25 | 2 190 KiB | **只有静态站点取它**——装置面板要读装置信息时才取（`app/assets/factsdb.js`） |
 
-★★第三份 2026-09-05 加入（用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**）。
-它与前两份**不是一回事**：前两份是物理核（私有仓 `fylite_kernel`），这一份是中间层
+★★第三份与前两份**不是一回事**：前两份是物理核（私有仓 `fylite_kernel`），这一份是中间层
 （`rust/fylite_runtime/`），零导入（`FYL-DESIGN-16` H-5），版本号也另有一个
 （`app/assets/runtime-version.js`，与内核的不是同一个数）。它大是因为装置信息
-（432 KB）编在里面——那正是从前那份 `facts.jsonld` 的内容，现在只此一份。
+（432 KB）编在里面——页面读的装置信息只此一份。
 ★**不进 service worker 的预缓存**：它是装置面板要用时才取的，塞进首屏等于让每个
 只想看一眼首页的读者先付这笔钱。
 
@@ -90,24 +88,21 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 空间里，所以内嵌页面改问它自己的 `/api/facts`（`factsdb.js` 先探这条路，探不到才退回
 wasm；探测方式与 `host.js` 同一条：看请求面答不答，不看主机名，且只在回环地址上探，
 发布出去的站点因此一个多余请求也没有）。带上它会让可执行文件多背 2.25 MB——其中只有
-432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份，正是这次改造要消掉的那类重复。
-实测：exe 13.65 MB（与改造前持平），站点 11.29 MB（+1.89，那是静态面唯一的读法），
-轮 9.44 MB（−0.43，它连 wasm 都不要，只多了 `.so` 里那张表）。
+432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份，是多余的重复。
+实测：exe 13.65 MB，站点 11.29 MB（带这份 wasm，那是静态面唯一的读法），
+轮 9.44 MB（它连 wasm 都不要，只在 `.so` 里带那张表）。
 
 一句话：**同一批字节，三个宿主，三条读法**——`.so` 里的表（命令行与 Python）、
 `/api/facts`（查看器内嵌的页面）、`.wasm` 里的表（静态站点）。
 
-★★**2026-09-05 用户裁定：dke 与 tglf 合为 `kernel_ext`**，`.so` 与 `.wasm` 同规矩。
-此前 wasm 出三份，理由是「按需各取其一，合并会让只要 DKE 的读者连 TGLF 一起下载」。
-那条权衡的前提当时已经不成立：**没有任何东西载入 `fylite_dke.wasm`**（`fylite.js` 只有
-一个扩展载入口），所以那 121 KiB 是三种制品各背一份的死重。合并之后实测比两份之和
-**小 28 991 字节**、导出从 23 降到 19——两个 feature 共用核心的 `linalg` 与 `geometry`，
-从前各编一份。代价照记：真出现只要 DKE 的读者时会多下载 TGLF；feature 门仍在
+★★**dke 与 tglf 合为一份 `kernel_ext`**，`.so` 与 `.wasm` 同规矩。
+没有任何东西单独载入 DKE（`fylite.js` 只有一个扩展载入口）；两个 feature 共用核心的
+`linalg` 与 `geometry`，合为一份只编一次。代价照记：真出现只要 DKE 的读者时会多下载 TGLF；feature 门都在
 （`fylite_ext` 的 `tglf` / `dke` 保留），再分包不需要改设计。
 
 ### 名字带版本
 
-★★2026-09-05 起制品**按语义版本命名**，照 Linux 动态链接库的习惯，`.wasm` 与 `.so`
+★★制品**按语义版本命名**，照 Linux 动态链接库的习惯，`.wasm` 与 `.so`
 同一条规矩——一份字节三个名字：
 
 ```text
@@ -121,15 +116,14 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 实现是 `tools/soname.sh`，两个仓的构建脚本都 source 它。
 
 **页面按版本名取**（`app/assets/fylite.js` 的 `versioned()`，导出为
-`FyLite.wasmUrl`）：调用点仍写不带版本的逻辑名，加载器把它翻成这一版的真文件名。
+`FyLite.wasmUrl`）：调用点写的是不带版本的逻辑名，加载器把它翻成这一版的真文件名。
 站点构建只发真文件、不发那两级链接——`cp -RL` 会把它们解引用成第二、第三份一兆多
 的字节。轮同理：轮里没有符号链接，`package-data` 挑的是完全版本化的那一个
 （`_lib/*.so.*.*.*`），装了包的一侧由 `fylite._paths._lib()` 解析。
 
 ★把版本缀在扩展名之后，静态主机会按 `application/octet-stream` 发这个文件。这在本仓
 不构成问题：页面的加载器**有意不用** `instantiateStreaming`，走 `fetch` →
-`arrayBuffer` → `instantiate`，那条路不看 Content-Type（这一点早于版本化就已如此，
-理由写在 `load()` 抬头）。内嵌服务器与内嵌资源表仍按逻辑名判出 `application/wasm`。
+`arrayBuffer` → `instantiate`，那条路不看 Content-Type（理由写在 `load()` 抬头）。内嵌服务器与内嵌资源表仍按逻辑名判出 `application/wasm`。
 
 （导出数与尺寸为 2026-09-02 对当日构建的实测。）浏览器构建走 `--no-default-features`：
 线程（`parallel`）不进——**页面本就没有套接字可开**，而结果与多线程档**逐位相同**
@@ -176,16 +170,14 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 
 ★**浏览器那份不含 mdsip**：页面打不开裸 TCP，把它编进去只会增加体积与误解。
 
-## 七棵 Fortran 树去哪了
+## 没有 Fortran
 
-早先的文档记的是七棵各自 `build.sh` 的 Fortran 源树（`efit` / `geo` / `neo` / `tglf` /
-`gray` / `pencil` / `torbeam`）与它们编出的 `libefit.so` / `libgeo.so` / `libneo.so` /
-`libtglf.so`。**本仓没有 `fortran/` 目录，`_lib/` 里只有一个 `libfylite_kernel.so`**：EFIT 一系
-按 `NOTICE` 3.1 移除，三个 GACODE 绑定库按 3.2 移除，物理改由上表的 Rust 移植承担。
-GRAY 移植另因许可受限**暂停**（clean-room 纪律：不读其物理源码）。原委与所留下的东西见
+**本仓没有 `fortran/` 目录，`_lib/` 里只有一个 `libfylite_kernel.so`**：EFIT 一系不在仓内
+（`NOTICE` 3.1），三个 GACODE 绑定库亦然（3.2），物理由上表的 Rust 移植承担。
+GRAY 移植因许可受限**暂停**（clean-room 纪律：不读其物理源码）。详见
 用户指南 `docs/guide/install.md` 的
-「Fortran 制品去哪了」一节（`fortran-artifacts`）。★这里给的是**路径而不是链接**：
-指南与参考自 2026-09-01 起是两本各自构建的书，跨书的锚点引用解析不了——一个解析不了的
+「本分发不含的 Fortran 制品」一节（`fortran-artifacts`）。★这里给的是**路径而不是链接**：
+指南与参考是两本各自构建的书，跨书的锚点引用解析不了——一个解析不了的
 `#anchor` 在页面上是一段不跳转的文字，看不出坏了。
 
 ★那一页的教训留下一条，与语言无关：**判一个移植对不对，要量一个有理论定值的中间量**

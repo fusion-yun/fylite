@@ -15,7 +15,7 @@ its own. What replaces it is a **recomputable record**: the inputs, the
 reference, the criterion, the measured number, and the part that is not
 comparable. That is what this directory holds.
 
-★★**本目录是渲染件，不是手写件**（2026-09-02 起）。真源是内核仓的登记册
+★★**本目录是渲染件，不是手写件**。真源是内核仓的登记册
 `docs/cases/registry.jsonld`；内核仓的 `tools/benchmark-publish.py` 把它渲染到这里：
 同一批记录，仓内指针改为仓外地址（`$FYLITE_KERNEL/…` 私仓检出、`$FYDOC_ORACLE/…`
 参考库），每项参考数据标**纳入类别** 与 **sha256**，并给每条记录追加一条 finding——
@@ -61,9 +61,8 @@ V 是最常见的夸大：两套模型吻合到 1 % 不等于移植正确——�
 ## 什么能进这个公开登记册
 
 判据是**读者能不能自己把参考侧重新取得一遍** ——它决定的是记录的**纳入类别**，
-不再决定记录进不进来。★2026-09-02 裁定（「fydata 下有对拍 Oracle 数据的 case 收录进
-benchmark」）：受限参考**也收录**，但** 只收指针**——路径、sha256、许可、类别——本体
-不在任何公开仓。此前的「❌ 不进」改为「仅指针」，因为把一条比较从公开册里拿掉，
+不决定记录进不进来。受限参考**也收录**，但** 只收指针**——路径、sha256、许可、类别——本体
+不在任何公开仓。受限参考不从册里拿掉，因为把一条比较从公开册里拿掉，
 隐藏的是「这条比较存在」这个事实本身，而那正是读者最该知道的。
 
 | 纳入类别 | 参考是什么 | 公开册里有什么 |
@@ -79,7 +78,7 @@ benchmark」）：受限参考**也收录**，但** 只收指针**——路径�
 「这条比较存在、参考是哪一份（sha256）、门叫什么、发布当日跑成什么样」。这不是
 遗漏，是纳入类别在起作用：一条记录说清自己属于哪一类，比不出现在册子里诚实。
 
-参考库 `$FYDOC_ORACLE` 是 fydoc 仓（私有）的 `cases/` 树（2026-09-04 前在 fydata）；本仓与内核仓各以一条
+参考库 `$FYDOC_ORACLE` 是 fydoc 仓（私有）的 `cases/` 树；本仓与内核仓各以一条
 符号链接 `tests/data -> …/fydoc/cases` 挂载它（`.gitignore` 说明了建法）。
 
 ## 怎么读一条记录
@@ -97,7 +96,7 @@ benchmark」）：受限参考**也收录**，但** 只收指针**——路径�
 ## 复算
 
 ```python
-from fylite.engine import benchmark as bm         # ★2026-09-04：从前的 `fylite cases --benchmark`
+from fylite.engine import benchmark as bm
 bm.records()                     # 列出记录：类、登记册结论、复测结论、纳入类别
 bm.load("V-01")                  # 一条记录（JSON-LD）
 [bm.problems(r, bm.registry_dir()) for r in bm.graph()]   # 结构检查（与 test_public_register.py 同一函数）

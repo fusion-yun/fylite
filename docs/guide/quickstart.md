@@ -5,7 +5,7 @@ title: 快速上手 (Quick Start)
 # 快速上手
 
 下面每段都可直接粘贴运行，**全部离线**。除最后一节外都不需要装置；用到装置的两段先按
-[安装与环境](install.md)把装置牌从 A-Box 拖出来（仓内 `machine_desc/` 已废弃），再指一次：
+[安装与环境](install.md)把装置牌从 A-Box 拖出来（仓内没有 `machine_desc/`），再指一次：
 
 ```bash
 export FYLITE_DEVICE_DIR=~/fylite-decks/east    # 见「安装与环境」：EAST 牌取自内核仓历史
@@ -67,7 +67,7 @@ v["regime"], v["growth_rate"], v["margin"]    # resistive-wall  12.6393  0.68557
 
 ★**报 γ 必须同时报所用的被动导体集**：只用内壳会把 γ 高估 270 倍（见
 [稳定性与控制](stability-and-control.md)）。导体几何、电阻率与线圈匝数全部取自
-`east_device.yaml`，互感与电阻由内核门 `code/pulse` · `code/vstab` 在文档上算（Python 的 `device.mutual_matrix` / `device.resistance_vector` 自 2026-09-06 归内核仓测试树）
+`east_device.yaml`，互感与电阻由内核门 `code/pulse` · `code/vstab` 在文档上算（Python 的 `device.mutual_matrix` / `device.resistance_vector` 在内核仓测试树里）
 按几何**现算**——没有 Green 表参与。
 
 ## 一次反演
@@ -82,7 +82,7 @@ meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld
 
 :::{note}
 **这一步不需要 Green 表。** `S.analysis.reconstruction(meas)` 扣磁通环上线圈份额用的那张
-表（EFIT 的 `rsilfc`）曾经必须从 `rfcoil.ddd` 读，而本仓不带它；现在它由装置文档的导体
+表（EFIT 的 `rsilfc`）不从 `rfcoil.ddd` 读（本仓不带它），而由装置文档的导体
 几何现算（`code/reconstruction` 门内），与浏览器反演页同一条路。**装置信息统一由
 `$FYLITE_DEVICE_DIR` 指向的装置文档出**，指到哪台机器就是哪台。详见
 [平衡反演](reconstruction.md)。
@@ -90,8 +90,8 @@ meas = fyo.as_measurements("$FYLITE_DEVICE_DIR/case_east137985_4000ms.fyo.jsonld
 
 ## 命令行与协议面
 
-★★2026-09-04 起 **Python 包没有命令行**（用户裁定）：`fylite` 控制台脚本与
-`python -m fylite` 都不再有，装上它得到的是一个库。命令行只剩一个可执行文件：
+★★**Python 包没有命令行**：没有 `fylite` 控制台脚本，也没有
+`python -m fylite`，装上它得到的是一个库。命令行只有一个可执行文件：
 
 ```bash
 bash rust/build.sh --exe       # -> rust/fylite_runtime/target/release/fy
@@ -100,7 +100,7 @@ fy app                         # 起本机服务、开浏览器
 fy data info x.h5              # 数据层
 ```
 
-协议面与目录改从库里起：
+协议面与目录从库里起：
 
 ```python
 from fylite.engine import manifest_catalog          # 能力目录（JSON-LD）
@@ -108,7 +108,7 @@ from fylite.engine.serve import mcp_stdio, serve_stdio   # MCP / JSON-RPC，都�
 from fylite.engine import cases                     # 算例语料：catalogue() / load() / run()
 ```
 
-按任务走一遍见[命令行](cli.md)那一章（末节是十一条旧动词的逐条库对照），逐条参数见
+按任务走一遍见[命令行](cli.md)那一章，逐条参数见
 参考篇的[命令行](../reference/cli.md)。
 
 ★反演走 Rust inverse（EFIT 血统的驱动与 `libefit.so` 不在本分发里）；能力目录、清单校验
@@ -116,9 +116,8 @@ from fylite.engine import cases                     # 算例语料：catalogue()
 
 ## 走查
 
-★**七本 notebook 已不在本仓**，`examples/notebooks/` 不存在；2026-09-02 起仓根的
-`examples/` 整个目录也已删除。（书里那一篇「典型算例」住在 `docs/examples/`，与它同名
-而无关。）它的位置被两样东西接替，各自更硬：
+★**本仓没有 notebook**，仓根也没有 `examples/` 目录（书里那一篇「典型算例」住在
+`docs/examples/`，与它无关）。走查靠两样东西：
 
 - **`cases/`** —— 25 条算例的计划文档（`fyo:ScenarioSpecification`），
   `fylite.engine.cases` 可列（`catalogue()`）、可查（`load()`）、可跑（`run()`）、

@@ -10,7 +10,7 @@ title: 算例报告（计划 + 记录 → MyST + SVG / 页面）
 `record.jsonld` 或一个记录目录（`fy run … -o <目录>` 写下的那个）**直接交给 `render()`**，
 渲染的就是它。`app/pages/report.html` 读同样的文件，在浏览器里画同样的图。
 
-★这是**库调用**，不是命令行：Python 侧的命令行于 2026-09-04 整层撤除，`fy` 也没有
+★这是**库调用**，不是命令行：Python 侧没有命令行，`fy` 也没有
 `report` 动词（`FYL-DESIGN-17` E-10）。下面每个例子都是 `python -c` 或 notebook 里的一行。
 
 ## 产物

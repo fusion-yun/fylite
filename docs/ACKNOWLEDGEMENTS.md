@@ -69,7 +69,7 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 | Y. R. Lin-Liu & F. L. Hinton, *Phys. Plasmas* 4 (1997) 4179 | NBCD 电子屏蔽 | `rust/fylite/src/heating.rs` |
 | T. H. Stix, *Nucl. Fusion* 15 (1975) 737 | 少数离子 ICRH 分布及其 H 函数 | `rust/fylite/src/heating.rs` |
 | ITER Physics Basis, *Nucl. Fusion* 39 (1999) 2495, 第 6 章 §3.5（p. 2512）——实测快波驱流效率（JFT-2M、DIII-D、Tore-Supra）、其线性 `T_e0` 依赖与 ITER 外推；数据点本身取 METIS `fitetafwcd.m` 中的列表 | FWCD 效率及其闸门 | `rust/fylite/src/heating.rs` |
-| M. Bornatici, R. Cano, O. De Barbieri, F. Engelmann, *Nucl. Fusion* 23 (1983) 1153, Table IV 与式 (3.1.37)——2026-09-11 起按原文。此前按 N. G. Sabri, T. Benouaz, *Int. J. Emerging Technology and Advanced Engineering* 2 (8) (2012) 253, Table I 的重印转写；该重印把 `lambda_0 = 2 pi c/omega_ce` 写成波长、并漏掉 `A_n` 的平方（`n>=2` 深 `n` 倍），已按原文更正 | `1/R` 平板的 EC 光学厚度（O 模 `n>=1`、X 模 `n>=2`）与冷等离子体垂直折射率 | `rust/fylite/src/heating.rs` |
+| M. Bornatici, R. Cano, O. De Barbieri, F. Engelmann, *Nucl. Fusion* 23 (1983) 1153, Table IV 与式 (3.1.37)，按原文。N. G. Sabri, T. Benouaz, *Int. J. Emerging Technology and Advanced Engineering* 2 (8) (2012) 253, Table I 的重印有误、不据以转写：它把 `lambda_0 = 2 pi c/omega_ce` 写成波长、并漏掉 `A_n` 的平方（`n>=2` 深 `n` 倍） | `1/R` 平板的 EC 光学厚度（O 模 `n>=1`、X 模 `n>=2`）与冷等离子体垂直折射率 | `rust/fylite/src/heating.rs` |
 | F. Albajar, N. Bertelli, M. Bornatici, F. Engelmann, *Plasma Phys. Control. Fusion* 49 (2007) 15；N. B. Marushchenko, Y. Turkin, H. Maassberg, *Comput. Phys. Commun.* 185 (2014) 165（TRAVIS） | 沿射线的全相对论 EC 吸收系数（Maxwell–Jüttner）与 Poynting 通量归一 | `rust/fylite/src/rfray.rs` |
 | T. H. Stix, *Waves in Plasmas*（AIP, 1992） | 冷等离子体介电张量、Appleton–Hartree 与多组分冷色散 | `rust/fylite/src/rfray.rs` |
 | H.-s. Xie, D. Banerjee, Y.-k. Bai, H.-y. Zhao, J.-c. Li, *Comput. Phys. Commun.* 276 (2022) 108363（BORAY）；Y. Wang, H. Xie, arXiv:2608.05667（BORAY-3D，预印本）。BORAY 源码为 BSD-3-Clause（© 2014–2021 Hua-sheng Xie），**只读作核对、未翻译** | 射线方程、多组分冷色散的回旋极点消去与沿射线的频率自检的写法 | `rust/fylite/src/rfray.rs` |
@@ -89,8 +89,8 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 但都属于同一份记录：
 
 - **EFIT 一脉**：任何形式的 EFIT 族源码、格林表生成器或录得输出都不在仓内。
-- **GRAY**：EC 射线追踪的移植已停止；其许可不容直接翻译，fylite 未读过任何 GRAY 物理源码。
-  EC 与 LH 的射线追踪改为依公开文献的清净室实现（`rust/fylite/src/rfray.rs`）；**GENRAY、TORAY、LSC** 的源码同样未读。
+- **GRAY**：不作 EC 射线追踪的移植；其许可不容直接翻译，fylite 未读过任何 GRAY 物理源码。
+  EC 与 LH 的射线追踪是依公开文献的清净室实现（`rust/fylite/src/rfray.rs`）；**GENRAY、TORAY、LSC** 的源码同样未读。
 - **UMFPACK**：未移植——本仓的稀疏 LU 从零写起（见「移植的上游代码」）。
 
 
@@ -104,7 +104,7 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 | **KEFIT 参考包**（**不在仓内**） | EAST KEFIT——将 DIII-D 一脉的 EFIT 移植至 EAST 并建立动理学重构，李国强、任启龙、钱金平、L. L. Lao 等（*Plasma Phys. Control. Fusion* 55 (2013) 125008；内部 q 约束见 H. Fan et al. 2024）；ASIPP | 内部、未授权、不再分发 | 重构线的上游参照基线：g 文件逐位比对、k/g/a/m 文件契约、`python/fylite/io/kfile.py` 中复现的 GUI_v5 工作流 |
 | **sxht7**——ASIPP HT-7 软 X 射线层析程序（约 2008） | 孙有文（Youwen SUN），ASIPP | 内部、未授权 | 相机几何参数化（4 相机 × 6 参数）与 Fourier–Bessel / 弦-格林 / 加权伪逆方法骨架，移植入 `python/fylite/device.py`（相机几何）与 `python/fylite/scenario/analysis/tomography.py`（方法骨架） |
 | EAST 等离子体控制系统接口说明（《数字托克马克仿真模拟平台等离子体控制系统接口说明》，2022；ISO-FLUX 控制点、分段、X 点、磁几何） | 黄耀（Yao HUANG），EAST PCS 组，ASIPP | 内部文档 | 磁探针几何交叉核对；平衡↔PCS 接口变量 |
-| EAST 实验数据语料 `YLK_*` / `eastylk`（第 137985–137989 炮等；逐道诊断几何 `<DIAG>_desc.json` 与信号） | 兰婷（Ting LAN）整理，ASIPP | 机构内部 | 经 fydata 到达 fylite 的逐道 EAST 诊断几何；基于 MDSplus 的实炮夹具的前身（语料文件本身已退出夹具路径） |
+| EAST 实验数据语料 `YLK_*` / `eastylk`（第 137985–137989 炮等；逐道诊断几何 `<DIAG>_desc.json` 与信号） | 兰婷（Ting LAN）整理，ASIPP | 机构内部 | 经 fydata 到达 fylite 的逐道 EAST 诊断几何（语料文件本身不在夹具路径上；实炮夹具取自 MDSplus） |
 | **TokSys** EAST 电磁模型（`make_east_objects.m`、`rzrig`、`EAST_PS_params`） | General Atomics | 外部，未随仓携带 | 电路与垂直稳定性的跨程序锚点（`tests/test_benchmark_toksys.py`） |
 | **METIS 认证基线** | CEA/IRFM（经 fywork CASE-07） | CeCILL-C；此处不再分发 | 0-D 能量账目对比（`examples/zerod-metis/`） |
 | **METIS 认证套件——ICRH / ECCD 答案** | CEA/IRFM（J.-F. Artaud 与 METIS 贡献者） | CeCILL-C；存档**不在此再分发**——只有导出的表，表头写明每份存档的 sha256 | 未来 ICRH / ECRH 模型的判据（`tests/data/reference/metis_cert_hcd.csv`，由 `tools/metis-cert-to-oracle.py` 生成；评判见 `docs/note/icrh-ecrh-gap.md`） |

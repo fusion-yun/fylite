@@ -143,5 +143,5 @@ rows = recon_rs.run_series(shot=137985, times=[3.0, 3.5, 4.0, 4.5], device=dev)
 - 磁探针与磁通环的响应由**装置牌的导体几何现算**（`code/reconstruction` · `code/coilshare`），
   不读 Green 表——所以换机器只换牌。
 - `q0` 这类轴上量对基函数阶数敏感；B-06 里有一整段专门讲这个缺口怎么收窄的。
-- 本仓不带 EFIT 求解器（`libefit.so` 随许可离开），反演入口因此**跑不动**；
+- 本仓不带 EFIT 求解器（`libefit.so` 受许可限制，不在本仓），反演入口因此**跑不动**；
   与它的对照只能引 B-06 冻结下来的那份离线答案。

@@ -44,13 +44,12 @@ f = S.analysis.profit(x, y, sigma_frac=0.05)   # 测量剖面拟合，GCV 定平
 
 ## 命令行在别处
 
-★★2026-09-04 起**本包没有命令行**：没有 `fylite` 控制台脚本，没有 `python -m fylite`。
+★★**本包没有命令行**：没有 `fylite` 控制台脚本，没有 `python -m fylite`。
 装上它得到的是一个**库**——本章前面那些调用就是全部的用法。
 
 机器上那一条命令行是 Rust 的 **`fy`**（`bash rust/build.sh --exe`），它承载 `app` /
-`data` / `run` / `list` 四条（`case` 于 2026-09-04 收进 `run`，发现面收进 `list`）；
-从前由 Python 承载的十一条动词都是库调用，逐条对照在[命令行](cli.md)那一章的末节。
-两个常用的：
+`data` / `run` / `list` 四条（计划文件由 `run` 跑，发现面在 `list`）；
+其余能力都是库调用。两个常用的：
 
 ```python
 from fylite.engine import manifest_catalog
@@ -81,6 +80,6 @@ resume.carried("rec/a")                  # 读一份记录交出的状态（fyli
 ★续跑本身今天走命令行 `fy run --resume-from <记录>`——原因写在[命令行](cli.md)那一章
 的「接着上一次跑」一节：本层入口的参数名与内核声明的交接名是两套。
 
-★★**旧的单份会话文件 `fylite:AppSession/1`（`fylite.appsession`）已退役**（U-18：它的
-`fylite:config` 就是计划的 `parameters[]`，`fylite:result` 就是记录——两种文档合成一种）。
-读旧文件的入口仍在，只为**读得回从前导出的东西**；新导出一律是文档集。
+★★**单份会话文件 `fylite:AppSession/1`（`fylite.appsession`）只读不写**（U-18：它的
+`fylite:config` 就是计划的 `parameters[]`，`fylite:result` 就是记录）。
+读它的入口在；导出一律是文档集。
