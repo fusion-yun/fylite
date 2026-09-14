@@ -4941,7 +4941,8 @@
    "report": {
     "type": "spo:Concretization",
     "storage_uri": "reports/B-06-east-reconstruction.md",
-    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "authoring": "hand-written"
    },
    "caveat": [
     "★★★**2026-09-13 撤回（`assertion_state: retired`）**：用户裁定「彻底移除 est2」——本条比的测量集是 est2 基（79 探针 / 35 环、`efit_w_pf` 几何）的交付件 FYDOC-CASE-22，已随 est2 一并归档（fydoc 与内核的仓顶 `archive/`）。记录按「记录保留、标为撤回」处置：判据与发现原样不动，其中引的路径是撤回时的历史位置。后继记录待 efit_east 测量链的 #137985 算例建成后另立，届时以 `superseded_by` 指回。〔公开册只补了撤回这一处；复测 finding 仍是 2026-09-08 的发布件——门的输入已归档，未重跑。〕",
@@ -4954,7 +4955,51 @@
    ],
    "assertion_state": "retired",
    "superseded_by": "record/B-11",
-   "overall_verdict": "inconclusive"
+   "overall_verdict": "inconclusive",
+   "plan": {
+    "title": "EAST #137985 动理学平衡反演对标：工作流与计划（磁档对 efit_east 树 · POINT 档对 KEFIT）",
+    "recorded": "2026-09-14",
+    "comment": "撤回（2026-09-13；本页现为动理学反演对标的工作流 / 计划，2026-09-14 立项，手写）",
+    "compared_reference": [
+     {
+      "type": "spo:Code",
+      "name": "EFIT",
+      "comment": "档 M / P：efit_east 树 #137985 TIME[28] = 4.041 s 的交付答案（FYDOC-CASE-23）；档 M 的判定在 record/B-11"
+     },
+     {
+      "type": "spo:Code",
+      "name": "KEFIT",
+      "comment": "档 K：EAST/Qian 分支 EFIT_POINT（EFIT_POINT_GUI_v5.m + efitd6565d），冻结只读参考包 kefit_reference_bundle 给代码契约；#137985 带 POINT 的参考答案缺，已转为向 ASIPP 的数据请求"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/point/point_constraint_east137985_4041ms.fyo.jsonld",
+      "checksum": "sha256:988e36c06ddf973af0bde5eb2affde0d8043160244313bfcf86cf0a96513c985",
+      "license": "experiment",
+      "comment": "档 K 约束件（KEFIT namelist 形，4.041 s）"
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/kefit_reference_bundle.pointers.json",
+      "checksum": "sha256:e4e8ea81d4ce2923f673e6946dc4a9a69f6298a99817f3dce04239ac2de098e7",
+      "license": "private-artefact",
+      "comment": "KEFIT 参考包指针（路径 · 字节 · sha256 · 行号）"
+     }
+    ],
+    "report": {
+     "type": "spo:Concretization",
+     "storage_uri": "reports/B-06-east-reconstruction.md",
+     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+     "authoring": "hand-written",
+     "comment": "公开册 fylite docs/benchmark/reports/B-06-east-reconstruction.md 是手写的计划页（fylite 1a12eaf）；tools/benchmark-publish.py 不渲染、不覆盖它，只渲染本条的公开记录与索引行"
+    },
+    "caveat": [
+     "★计划不是判定：本块不改本条的 assertion_state（retired）、判据与发现；档 M 的判定在 record/B-11，档 P / K 出读数后另立记录",
+     "★B-06 这个号仍指同一个对象（EAST #137985 的平衡反演），换的是测量链与参考"
+    ]
+   }
   },
   {
    "id": "record/V-15",
