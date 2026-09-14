@@ -26,6 +26,8 @@
     "findings":           {"@id": "fyo:has_finding", "@container": "@list"},
     "assertion_state":    {"@id": "spo:assertion_state"},
     "overall_verdict":    {"@id": "fyo:overall_verdict"},
+    "validity_domain":    {"@id": "spo:validity_domain"},
+    "superseded_by":      {"@id": "spo:superseded_by", "@type": "@id"},
     "run":                {"@id": "spo:generated_by_process"},
     "account":            {"@reverse": "bfo:0000059"},
     "report":             {"@reverse": "bfo:0000059"},

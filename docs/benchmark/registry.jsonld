@@ -4538,11 +4538,12 @@
     {
      "type": "fyo:ComparisonFinding",
      "title": "★★同批修掉的第二处缺陷：装配层的 span_pr 号相反",
-     "deviation_literal": "p(0) 由 −1.065e4 Pa 变为 +1.065e4 Pa；F(0) 由 3.024 变为 3.445（含 R₀ 修正）",
+     "deviation_literal": "p(0) 由 −1.065e4 Pa 变为 +1.065e4 Pa；F(0) 由 3.024 变为 3.445（含 R₀ 修正）〔★★★更正 2026-09-14：这个 +1.065e4 Pa 的正号是第二个负号抵消动理学行的错号得来的，p′ 本身是反的，见注〕",
      "verdict": "pass",
      "caveat": [
       "内核全程用 `(ψ_axis − ψ_bnd)/2π`（`inverse.rs` 的压强行写作 `(ψ_b − ψ_a)/(−2π)`），装配层写的是 `(ψ_bnd − ψ_axis)/2π`——**正好相反**",
       "★★后果一：交付的压强剖面**号是反的**，一份写出去的 g-file 带着负压强，而拟合自身的动理学行匹配的是正的 +1.07e4 Pa",
+      "★★★**更正（2026-09-14，用户裁定）**：后果一关于**压强号**的结论是错的（上条原样保留）。动理学行 `inverse.rs::pressure_row` 自己就带着错号，这里修掉的装配层负号只是与它抵消——+1.065e4 Pa 的正压强是用**反号的 p′** 换来的；「拟合自身的动理学行」也不是独立见证（oracle `recon_rows.py::fit_profiles` 是那行的移植）。求解器规范（Δ*ψ = −2πμ₀R·j，ψ 轴上极大）下 p′ > 0、p = +span·∫ₓ¹p′（span = (ψ_axis − ψ_bnd)/2π > 0）；行 · 门输出 `case.rs` · oracle 三处已同改为 +，`test_recon_profiles.py` 的链式法则改为 dp/dx = −span·p′。独立参考改为 EFIT 自己的 PRES（FYDOC-CASE-23，#137985 efit_east @ 4.041 s，条件化拟合）：纯磁拟合 p₀ −48 083 → **+48 087 Pa** 对 EFIT +47 271 Pa，rms 365.8 Pa，除 `pres` 的号外逐位不变；以 EFIT PRES 为动理学约束（σ 20 %）用 + 号收敛、p′ > 0、rms 293.9 Pa、q₀ 1.8526（EFIT 1.8055），旧负号行未收敛被拒。新门 `tests/test_reconstruction_pressure_sign.py`。2026-08-14 那次回退（fylite_port c030188）是跨规范比 p′（g-file 轴上 ψ 极小）。本更正只针对压强号；本记录已退役，由 B-11 取代（压强不在 B-11 比较量内）",
       "★★后果二：F 沿 ψ 积错方向——`F² = F_edge² + 2·span_pr·A(x)` 只在轴减边界的号下成立（d(F²)/dψ = 2FF′ 的闭式），q 由 F 算出，于是 q 全剖面受影响",
       "★★**它为什么活到今天**：`tests/test_recon_profiles.py` 检查这段算术并不马虎（`fit_profiles` 的 F 对 `kernel.f_from_coefficients`，两条独立路径积同一组系数），但它**自己写死 `SPAN = 0.37`**——一个正数，也就是内核的号。于是号错的不是 `fit_profiles`，是 `reconstruct` 递给它的那个数，**而那个数没有任何测试看过**：门测的是「给定 span，算术对不对」，从没测过「span 本身对不对」。何况测试内部两条路径共享同一个 SPAN，取反也会一起翻。★反演面此前零测试覆盖（本条记录之前 `gs_inverse_solve` 在测试里没有调用者），所以没有第二条路会撞上它。新门因此比的是**不共享输入的东西**：喂进拟合的那份实测压强"
      ]
@@ -4943,6 +4944,7 @@
     "纳入类别（参考数据）：experiment"
    ],
    "assertion_state": "retired",
+   "superseded_by": "record/B-11",
    "overall_verdict": "inconclusive"
   },
   {
@@ -6653,6 +6655,431 @@
     "纳入类别（参考数据）：restricted"
    ],
    "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-11",
+   "type": "fyo:ComparisonRecord",
+   "title": "EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化对 EFIT 的交付答案",
+   "comparison_kind": "benchmark",
+   "scenario": "scenario/east-137985-efit-east",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: `code/reconstruction` 门（`fy run` 计划文档；内核 GS 反演），装置经运行时按炮号与测量链解析"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "EFIT (ASIPP EAST, efit_east MDSplus tree)",
+     "version": "树内版本号未读 [TBD]；#137985 `\\TIME[28]` = 4.041 s 的交付答案，逐值转录于 FYDOC-CASE-23 平衡件（写入日期未读）",
+     "license": "experiment（内网来源，不可自公开渠道重取；只收指针与 sha256）"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-11/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "磁轴位置 (R, Z)，对 EFIT 的 RMAXIS / ZMAXIS 的绝对差（两分量各判）",
+     "norm": "absolute",
+     "norm_note": "metres",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00651
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 dR +4.53 mm · dZ +0.54 mm；盆地 dR +3.60 … +6.51 · dZ -4.32 … +2.93 mm",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★Z 由条件 3（χ² 定的竖直设定点）决定：dZ 读的是设定点选得准不准，不是反演独立定出的竖直位置"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "q₀（轴上），对 EFIT 的 Q0",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0779
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 1.9378 对 EFIT 1.8055（+7.32 %）；盆地 1.8995 … 1.9462（+5.21 … +7.79 %）",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★基 npp=1 / nff=2 取自 EFIT 自己的 PPRIME（线性）与 FFPRIM（二次），两者边缘为零；芯部 q 在磁测量下约束弱，这条是钉住不是验收"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "q95，对 EFIT 的 Q95",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0768
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 6.5767 对 EFIT 7.0320（-6.47 %）；盆地 6.4922 … 6.6311（-7.68 … -5.70 %）",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "边界：EFIT 的 108 个边界点到本仓边界折线的距离，中位数",
+     "norm": "absolute",
+     "norm_note": "metres; point-to-polyline",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00624
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 5.04 mm；盆地 4.99 … 6.23 mm",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★度规写明：点到**折线段**的距离。点到**顶点**（本仓边界 121 点）的读法给 12.5 mm——那是顶点间距，不是边界差；H-37b 诊断时记的 12.4 mm 是后一种"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/5",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "边界：同上距离的最大值（**钉住**，不是验收线）",
+     "norm": "absolute",
+     "norm_note": "metres; point-to-polyline",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.147
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 130.9 mm，位于 EFIT 边界点 (R, Z) = (1.5506, +0.7661) m——即 EFIT 自己 ψ 图的**上 X 点**（鞍点距该边界点 0.0003 mm）；盆地 123.3 … 146.6 mm",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★★EFIT 的边界是在上 X 点闭合的偏滤器位形（两个鞍点 (1.558, -0.772) / (1.551, +0.766) m）；本仓在上 X 点处离开 131 mm，而 90 % 的边界点在 39.7 mm 以内。这个最大值随设定点单调变化（−30 mm 时 170 mm，−12 mm 时 96 mm），带只把今天的读数钉住"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/6",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "探针残差，以每道自己的 σ（交付权重 FWTMP2 = 1/σ）为单位，29 道在用的 rms",
+     "norm": "rms",
+     "norm_note": "in units of sigma",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.361
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 0.336 σ；盆地 0.336 … 0.360 σ",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/7",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "磁通环残差，以每道自己的 σ（交付权重 FWTSI = 1/σ）为单位，34 道在用的 rms；**模型值加线圈份额**",
+     "norm": "rms",
+     "norm_note": "in units of sigma",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0954
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 0.0893 σ；盆地 0.0893 … 0.0953 σ",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★门的 `loop_model` 只含等离子体：线圈份额由 `code/coilshare` 以同一组线圈电流（CCBRSP[0:12]）、同一份几何另算后加上，再与 SILOPT 比"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/8",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "测量 χ²：Σ(FWTMP2·(模型−EXPMPI))² + Σ(FWTSI·(模型+线圈份额−SILOPT))²",
+     "norm": "absolute",
+     "norm_note": "dimensionless",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 4.08
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 3.547（探针 3.276 + 环 0.271）；盆地 3.547 … 4.071",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★★度规先自证：同一公式作用在 EFIT 自己的计算通道（CMPR2 / CSILOP）上得 0.8873，树里 EFIT 自报 CHISQ = 0.8879（差 -0.06 %）⇒ 两侧 χ² 可比。本仓是 EFIT 的 4.0 倍",
+      "★设定点正是按这个数的极小选的（条件 3），所以本条在设定点上**不是独立判据**：它钉住的是极小值本身"
+     ]
+    },
+    {
+     "id": "record/B-11/criterion/9",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "ψ 图（EFIT 129×129 全网格，本仓 65×65 双线性插值到其格点），换算单位并去掉规范常数后的逐点残差 rms，对全场跨度归一",
+     "norm": "rms",
+     "norm_note": "fraction of the full-map span",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00461
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "实测 0.40 %（最大 0.81 %，全场跨度 2.941 Wb，规范常数 +3.19 mWb）；盆地 0.38 … 0.46 %",
+      "带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`",
+      "★★口径：EFIT 树的 ψ 是每弧度、轴为极小；本仓写出的是整圈 Wb。因子由数据读出——边界内对树值的自由最小二乘斜率 -6.1681，对 −2π = −6.2832（-1.8 %）——然后施加**固定的** −2π（= −1 × 平衡件 converted 块的整圈形式）；COCOS 17 的符号一步仍 [TBD]（树未声明 σ_RφZ），本条只用到号由数据自证",
+      "边界内单列（对 |ψ_b − ψ_a| = 0.713 Wb 归一）：rms 1.17 %、最大 2.35 %"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· 磁轴",
+     "deviation_literal": "dR +4.53 mm · dZ +0.54 mm（带 6.51 mm）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00453046
+     },
+     "criterion": "record/B-11/criterion/1"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· q₀",
+     "deviation_literal": "1.9378 对 1.8055：+7.32 %（带 7.79 %）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0732496
+     },
+     "criterion": "record/B-11/criterion/2"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· q95",
+     "deviation_literal": "6.5767 对 7.0320：-6.47 %（带 7.68 %）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0647412
+     },
+     "criterion": "record/B-11/criterion/3"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· 边界中位",
+     "deviation_literal": "5.04 mm（带 6.24 mm）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00503957
+     },
+     "criterion": "record/B-11/criterion/4"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· 边界最大（上 X 点）",
+     "deviation_literal": "130.9 mm，在 EFIT 的上 X 点（带 147 mm）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.130929
+     },
+     "criterion": "record/B-11/criterion/5"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· 探针 σ",
+     "deviation_literal": "0.336 σ（带 0.361）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.336082
+     },
+     "criterion": "record/B-11/criterion/6"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· 环 σ（含线圈份额）",
+     "deviation_literal": "0.0893 σ（带 0.0954）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0892987
+     },
+     "criterion": "record/B-11/criterion/7"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· χ²",
+     "deviation_literal": "3.547，EFIT 同度规 0.8873（4.0×；带 4.08）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 3.54671
+     },
+     "criterion": "record/B-11/criterion/8"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "条件化反演（设定点 -20 mm）· ψ 图",
+     "deviation_literal": "rms 0.40 % · 最大 0.81 %（带 0.46 %）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0039767
+     },
+     "criterion": "record/B-11/criterion/9"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "竖直设定点扫描与盆地（条件 3 的出处）",
+     "finding_kind": "scan",
+     "deviation_literal": "-30 mm χ² 6.94 · -28 mm χ² 5.72 · -26 mm χ² 4.76 · -24 mm χ² 4.07 · -22 mm χ² 3.67 · -20 mm χ² 3.55 · -18 mm χ² 3.71 · -16 mm χ² 4.13 · -14 mm χ² 4.84 · -12 mm χ² 5.80；极小在 -20 mm；盆地（χ² ≤ 4.1）-24 … -18 mm",
+     "verdict": "pass",
+     "caveat": [
+      "十个设定点全部收敛（346–357 次迭代，残差 ≤ tol 1e-8，见运行日志）；盆地内 dZ -4.3 … +2.9 mm、dR +3.6 … +6.5 mm、q₀ 1.900 … 1.946、q95 6.492 … 6.631",
+      "★★与 H-37b 诊断的一处出入：诊断把盆地记作 −24 … −16 mm，但 −16 mm 的 χ² 是 4.128（诊断自己的扫描也是 4.125）> 4.1——按阈值严格读，盆地是 -24 … -18 mm。若把 −16 mm 算进去，唯一变动的带是 χ²（4.08 → 4.13）；dZ 上界变 +5.27 mm 仍在磁轴带内",
+      "★阈值 4.1 是诊断时写下的，本条照用、未调；它不是规范给的数"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "度规自证：χ² 公式在 EFIT 自己的计算通道上复现它自报的 CHISQ",
+     "finding_kind": "metric-check",
+     "deviation_literal": "0.8873 对 CHISQ 0.8879（-0.06 %）",
+     "verdict": "pass",
+     "caveat": [
+      "★这一条使「本仓 χ² 是 EFIT 的约 4 倍」成为同一把尺子上的读数，而不是两套权重之比"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "不给条件的变体：实测线圈电流（FCCURT）· 同基 · 同设定点",
+     "finding_kind": "variant (not judged; waiting on kernel work)",
+     "deviation_literal": "dR +26.0 mm · dZ -4.0 mm · q₀ +33.2 % · q95 -8.3 % · 探针 0.528 σ · 环 0.142 σ · χ² 8.78",
+     "verdict": "unevaluated",
+     "caveat": [
+      "★★这是本条**不判**的独立变体：EFIT 在这一片上自由拟合了线圈电流，装配门做不到（无刚性竖直平移、无线圈拟合），喂实测线圈时差的主要是线圈。待内核补上其中一样后另立判据",
+      "★H-37b 诊断记的是 R +21 mm、q₀ +39 %（不同设定点）；本条在极小设定点上重跑得上列数，量级一致"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复现：自 CASE-23 文档重跑 H-37b 诊断",
+     "finding_kind": "reproduction",
+     "deviation_literal": "磁轴 +4.53 / +0.54 mm（诊断 +4.5 / +0.5）· q₀ 1.938（1.937）· q95 6.577（6.577）· 边界最大 131 mm（131）· 探针 / 环 0.34 / 0.09 σ（0.34 / 0.09）· χ² 3.55（3.54）",
+     "verdict": "pass",
+     "caveat": [
+      "输入自算例文档读：测量集给 SILOPT · FWTSI · EXPMPI · FWTMP2 · PLASMA · FPOL(ψ_N=1)，平衡件 efit_east_tree 块的 computed_signals.CCBRSP 给线圈；诊断用的是 npz 证据副本与一份手工几何变体",
+      "★几何：本条走运行时解析 `facts:device/east?shot=137985&measurement_chain=efit_east`（提供者 efit_green2022_pcs）；诊断用的变体卡与之在探针槽 0–37 与 35 环上相差 ≤ 50 µm（取整），槽 38–75 不同但权重为零。剩下的 0.05 mm / 0.03 % 级差别即此",
+      "★同一输入重跑两次，结果逐位相同；fy sha256 d55c3fe2485fc58a · 内核库 sha256 9efffc0967b27254"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "求解器自己的判定与竖直反馈",
+     "finding_kind": "solver",
+     "deviation_literal": "converged，357 次迭代，残差 5.47e-09（tol 1e-8）；竖直反馈幅值 `fb_amp` -20.1 kA · 截断保留 3",
+     "verdict": "pass",
+     "caveat": [
+      "★`fb_amp` 不为零：竖直锚点仍以反馈按住质心（B-06 已记这份力是承重的）；它随设定点变化，不作判据"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-14（本册发布时跑一遍门）",
+     "finding_kind": "re-run: gate not executed",
+     "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "unevaluated"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-14",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tools/benchmark-east-efit-east.py",
+      "caveat": [
+       "★运行脚本而非 pytest 门：`python tools/benchmark-east-efit-east.py --out <dir> --check` 自算例文档构造计划、经 `fy run` 过门、按本记录的判据判；需 `$FYLITE_PUBLIC` 的 `fy` 与内核库，装置解析需 `$FYLITE_DEVICE_DIR` 指向公开检出的 `dist/facts/device/east`",
+       "私仓的运行脚本：内核检出中 `python tools/… --out <dir> --check`（需公开检出的 `fy` 与内核库）"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/measurement_east137985_4041ms.fyo.jsonld",
+      "checksum": "sha256:c66fb9c03d32e46f7a2741a0b9749f627bcc3c22a49aa175b15d11d3bde73e3e",
+      "comment": "13413 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "caveat": [
+       "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
+       "出处：EAST #137985 efit_east 树第 28 片（4.041 s）：EFIT 的输入通道 · 权重 · 平衡答案；内网来源不可自公开渠道重取（fydoc 算例书副本）",
+       "sha256 c66fb9c03d32e46f7a2741a0b9749f627bcc3c22a49aa175b15d11d3bde73e3e（与算例书 case.yaml 所记一致）",
+       "测量集 `measurement_chain: efit_east`：EFIT 的输入通道与交付权重，**不是**仪器原始采集"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/equilibrium_east137985_4041ms.fyo.jsonld",
+      "checksum": "sha256:bb78414b1b6c64f893c02a378b96aac91578195b83e135fbfd1763f3bd88e941",
+      "comment": "952329 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "caveat": [
+       "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
+       "出处：EAST #137985 efit_east 树第 28 片（4.041 s）：EFIT 的输入通道 · 权重 · 平衡答案；内网来源不可自公开渠道重取（fydoc 算例书副本）",
+       "sha256 bb78414b1b6c64f893c02a378b96aac91578195b83e135fbfd1763f3bd88e941（与算例书 case.yaml 所记一致）",
+       "参考答案（磁轴 · q₀ · q95 · 边界 · ψ 图 · CHISQ）与条件 1 的线圈电流（efit_east_tree 块的 computed_signals.CCBRSP）都读自这一件"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld",
+      "checksum": "sha256:6c885918655181bbff9d7c1d006986c0036e0fe971940b53ed311017f4245521",
+      "comment": "26738 B",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "private-artefact",
+      "caveat": [
+       "纳入类别 private-artefact：私有仓制品：在内核检出中，公开侧以 $FYLITE_KERNEL 指针引用",
+       "出处：本仓文件",
+       "装置提供者 efit_green2022_pcs（EFIT `&IN3` 道阵）：efit_east 链在 #137985 解析到它；配对证据是 EFIT 自算的 CMPR2 / CSILOP 只在这套几何上与它自己的 PSIRZ 闭合（fydoc `facts/device/east/provenance.yaml` 该件条）",
+       "★本件在内核检出中尚未跟踪（2026-09-14）；门实际读的是公开检出 `dist/facts` 里由同一 A-Box 生成的解析结果"
+      ]
+     }
+    ],
+    "comment": "门在私仓检出中运行；store 为 fydata `oracle/`（挂在 tests/data）；复测结论见 findings 末条"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "账本在私仓（或 fydata 的数据集 README）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-11-east-efit-east-reconstruction.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★★**条件化记录（用户裁定 2026-09-14）**：本条接替撤回的 B-06，但**不是**「本仓独立反演对上 EFIT」。三项设定取自参考自己的配置——① EFIT 拟合出的线圈电流 CCBRSP[0:12]；② EFIT 的剖面基 npp=1 / nff=2；③ 以本仓自己的测量 χ² 极小选定的竖直设定点（代 EFIT 的 `fitdelz`）。条件全文在 `validity_domain`。去掉任一条件，本条的数都不适用",
+    "★★**带是钉子不是验收线**：每条容差都由本次运行及其设定点盆地定出（盆地内最劣值），所以立条当天「成立」是构造使然；它们的用处是抓漂移。规则见各判据注，规范未给公式，待裁定",
+    "★★**边界最大值在上 X 点**：131 mm，而中位 5.0 mm、九成点在 40 mm 内——X 点附近的边界由鞍点定位决定，不并进中位那条带",
+    "★★**χ² 是 EFIT 的约 4 倍**（3.55 对同度规 0.887）：同一份测量、同一组权重、同一份线圈，本仓离数据仍比参考远，主要在探针（3.28 对环 0.27）",
+    "★★**不给条件的独立变体待内核工作**：实测线圈电流（FCCURT）下磁轴差数厘米、q₀ 差三成（见 findings）。需要装配门支持刚性竖直平移或线圈拟合之一，届时另立判据；本条不判它",
+    "★**内感不比**：两侧 li 定义不同，未对齐 [TBD]。**压强不比**：门的压强号另有修正在进行，本条不依赖它",
+    "★**不能读作「本仓的反演对得上真实的 EAST」**：参考是另一个码的一次运行；两码一致只说明在同一份外部约束上同意",
+    "★算例 FYDOC-CASE-23 的 review 仍是 pending（reviewer [TBD]），发布级别 internal；公开渲染只收比较度规与指针，不收读数",
+    "纳入类别（参考数据）：experiment、private-artefact"
+   ],
+   "assertion_state": "accepted",
+   "validity_domain": "CONDITIONED — the claim holds only under three settings taken from the reference's own configuration of this slice: (1) EFIT's fitted coil currents CCBRSP[0:12] as the door's channel ampere-turns (EFIT fitted the coils freely; the assembled door cannot); (2) EFIT's profile basis npp=1 (linear PPRIME), nff=2 (quadratic FFPRIM), both zero at the edge; (3) the vertical set-point zc_anchor = -0.020 m, the minimum of this code's own measurement chi^2 over a 2 mm scan (-30 … -12 mm), standing in for EFIT's fitdelz. Weights FWTMP2 / FWTSI as delivered (1/sigma). Case FYDOC-CASE-23 (efit_east #137985 TIME[28] = 4.041 s); geometry: runtime resolution shot=137985, measurement_chain=efit_east (provider efit_green2022_pcs).",
    "overall_verdict": "pass"
   }
  ]

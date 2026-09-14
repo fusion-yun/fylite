@@ -4,8 +4,8 @@ title: 公开 V&V 登记册 · 索引
 
 # 公开 V&V 登记册 · 索引
 
-35 条记录，17 个场景；由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
-复测结论：成立 35。★跨类不可比：V/B/C 问的不是同一个问题（README）。
+36 条记录，18 个场景；由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
+复测结论：成立 35、未评估 1（B-11，2026-09-14 加入，门是运行脚本、未随发布跑）。★跨类不可比：V/B/C 问的不是同一个问题（README）。
 
 :::{figure} ../figures/overview.svg
 :alt: 逐条记录的判定与发布当日的复测门数
@@ -53,3 +53,4 @@ title: 公开 V&V 登记册 · 索引
 | C-11 | C | QuaLiKiz | public | 成立 | 成立（5 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-11](C-11-qualikiz-ground-truth.md) |
 | B-08 | B | FUSE | public-derived | 成立 | 成立（8 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-08](B-08-fuse-iter-time.md) |
 | C-10 | C | TRANSMAK | restricted | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-10](C-10-transmak-initiation.md) |
+| B-11 | B | EFIT | experiment、private-artefact | 成立 | 未评估（0 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-11](B-11-east-efit-east-reconstruction.md) |

@@ -133,6 +133,7 @@ project:
             - file: benchmark/reports/B-08-fuse-iter-time.md
             - file: benchmark/reports/B-09-dina-ramp.md
             - file: benchmark/reports/B-10-chease-fixed-boundary.md
+            - file: benchmark/reports/B-11-east-efit-east-reconstruction.md
             - file: benchmark/reports/C-01-iter-15ma-astra.md
             - file: benchmark/reports/C-02-alpha-heating-astra.md
             - file: benchmark/reports/C-03-toksys-rzrig.md
