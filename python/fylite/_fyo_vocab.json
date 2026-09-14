@@ -71,10 +71,6 @@
       "gated": false,
       "gloss": "Per-BRSP-channel ampere-turns [A] of a discharge (the EFIT channel quantity, not a per-coil current), carried on the discharge section a plan binds beside the device — `code/vstab` reads the plant's currents from it, `code/discharge` a given start. Not gated: `channel_aturns` is also the ordinary parameter name of the kernel binding's channel_fold."
     },
-    "channel_basis": {
-      "gated": true,
-      "gloss": "Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel). A vector read in the wrong basis is silently rescaled by the turn count, which is why this one is gated."
-    },
     "chi_prev": {
       "gated": false,
       "gloss": "The previous pass's total diffusivity under transport/fylite:chi_prev — the turbulent closure relaxes the new total against it (`turb_relax`), so the page carries only the cadence between the two doors. Not gated, like `chi_turb`: the readback key is bare by construction."

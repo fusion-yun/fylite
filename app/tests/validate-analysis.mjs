@@ -849,7 +849,7 @@ await runOk('reconstruction', '重构完成|失败', '交付基准');
 const D = await save('reconstruction-json', 'ipd.json');
 const cfgD = D['fylite:config'] || {};
 check('交付基准：文件记的 Ip 约束就是卷宗的交付 Ip（1e-9）',
-      cfgD['fylite:channel_basis'] === 'delivered' &&
+      cfgD['fylite:fit_values'] === 'delivered' &&
       cfgD['fylite:ip_source'] === 'delivered' &&
       rel(cfgD['fylite:ip_constraint'], RD.ip) < 1e-9,
       `${cfgD['fylite:ip_source']} ${(cfgD['fylite:ip_constraint'] / 1e3).toFixed(2)} kA`);
@@ -862,7 +862,7 @@ await runOk('reconstruction', '重构完成|失败', '原始基准');
 const Rw = await save('reconstruction-json', 'ipr.json');
 const cfgR = Rw['fylite:config'] || {};
 check('原始基准：文件记的 Ip 约束换成了原始 Rogowski（1e-9）',
-      cfgR['fylite:channel_basis'] === 'raw' &&
+      cfgR['fylite:fit_values'] === 'raw' &&
       cfgR['fylite:ip_source'] === 'raw' &&
       rel(cfgR['fylite:ip_constraint'], RD.ipMeasured) < 1e-9,
       `${cfgR['fylite:ip_source']} ${(cfgR['fylite:ip_constraint'] / 1e3).toFixed(2)} kA`);
@@ -877,6 +877,41 @@ await page.evaluate(() => {
   const e = document.getElementById('reconstruction-basis');
   e.value = 'delivered'; e.dispatchEvent(new Event('change'));
 });
+//: ★A SESSION FILE SAVED BEFORE THE RENAME STILL LOADS (user ruling
+//: 2026-09-14: `fylite:channel_basis` -> `fylite:fit_values`).  The raw file
+//: above, re-spelled with the OLD names, is imported while the select says
+//: delivered: the import must migrate the key and land the select on raw.  A
+//: page that dropped the old key would silently fall back to delivered.
+check('新文件只写新键名（fit_values），不再写旧的 channel_basis',
+      !('fylite:channel_basis' in cfgR) && !('fylite:channel_basis_fitted' in cfgR) &&
+      'fylite:fit_values_fitted' in cfgR,
+      Object.keys(cfgR).filter((k) => /fit_values|channel_basis/.test(k)).join(' / '));
+{
+  const old = JSON.parse(JSON.stringify(Rw));
+  const oc = old['fylite:config'];
+  oc['fylite:channel_basis'] = oc['fylite:fit_values'];
+  oc['fylite:channel_basis_fitted'] = oc['fylite:fit_values_fitted'];
+  delete oc['fylite:fit_values'];
+  delete oc['fylite:fit_values_fitted'];
+  const oldf = join(OUT, 'ipr-old-keys.json');
+  writeFileSync(oldf, JSON.stringify(old));
+  await importFile(oldf, '已导入|imported|导入失败');
+  const stOld = await text('analysis-status');
+  const selOld = await page.evaluate(
+    () => document.getElementById('reconstruction-basis').value);
+  check('旧键名（fylite:channel_basis: raw）的会话文件照样导入，控件落在 raw',
+        !/导入失败/.test(stOld) && selOld === 'raw',
+        `控件 ${selOld} · ${stOld.slice(0, 40)}`);
+  const Re = await save('reconstruction-json', 'ipr-reexport.json');
+  const rc = Re['fylite:config'] || {};
+  check('导入旧文件后再导出，写出的是新键名，值不变',
+        rc['fylite:fit_values'] === 'raw' && !('fylite:channel_basis' in rc),
+        `fit_values ${rc['fylite:fit_values']}`);
+  await page.evaluate(() => {
+    const e = document.getElementById('reconstruction-basis');
+    e.value = 'delivered'; e.dispatchEvent(new Event('change'));
+  });
+}
 
 // --- 14: every figure says which shot it is (T-A10) ------------------------
 //
@@ -1129,7 +1164,7 @@ check('孪生那两行不带炮号，也不冒充一炮放电',
       twinRows.length > 0 && twinRows.every(
         (r) => r['fylite:shot'] === null && r['fylite:synthetic'] === true &&
                String(r['fylite:shot_label']).indexOf('#') < 0 &&
-               r['fylite:channel_basis'] === 'synthetic-twin'),
+               r['fylite:fit_values'] === 'synthetic-twin'),
       twinRows.map((r) => r['fylite:shot_label']).join(' / '));
 //: ★the deck's slices carry their own total flux, so the basis they are
 //: fitted in is the RAW one — whatever the reconstruction bar's select says,
@@ -1138,8 +1173,8 @@ const selBasis = await page.evaluate(
   () => document.getElementById('reconstruction-basis').value);
 check('卷宗那几行的通道基准是它们实际用的那一种（原始总磁通），不是控件上写的那一种',
       selBasis === 'delivered' &&
-      deckRows.every((r) => r['fylite:channel_basis'] === 'raw-total-flux'),
-      `控件 ${selBasis}，表里 ${deckRows[0] && deckRows[0]['fylite:channel_basis']}`);
+      deckRows.every((r) => r['fylite:fit_values'] === 'raw-total-flux'),
+      `控件 ${selBasis}，表里 ${deckRows[0] && deckRows[0]['fylite:fit_values']}`);
 //: ★AND THE CONSTRAINT IS THE SLICE'S OWN, oracle = the deck document
 const deckIp = (DEV['fylite:slices'] || []).map((x) => x.ip);
 const ipOff = deckRows.map((r, i) => rel(r['fylite:ip_constraint'], deckIp[i]))
@@ -1250,7 +1285,7 @@ check('没跑到的那几条写「未运行」，一格数字都没有',
         (r) => r['fylite:converged'] === false && r['fylite:ipFitted'] === null &&
                r['fylite:q95'] === null && r['fylite:li3'] === null &&
                r['fylite:chi2'] === null && r['fylite:why'] === null &&
-               r['fylite:channel_basis'] === null),
+               r['fylite:fit_values'] === null),
       `${notRun.length} 条`);
 //: ★★AND THEY ARE NOT LAST TIME'S ANSWERS.  This is the assertion the whole
 //: paragraph exists for: the same entries carried numbers a moment ago.
@@ -1317,9 +1352,9 @@ for (const t of [T_A, T_B]) {
   //: ★the same disease one column over: the select is the QUESTION and the
   //: deck slice's own total flux settles the basis differently
   check(`t = ${lbl(t)}：通道基准两栏并列——控件写 delivered，拟合用的是 raw-total-flux`,
-        cs['fylite:channel_basis'] === 'delivered' &&
-        cs['fylite:channel_basis_fitted'] === 'raw-total-flux',
-        `${cs['fylite:channel_basis']} / ${cs['fylite:channel_basis_fitted']}`);
+        cs['fylite:fit_values'] === 'delivered' &&
+        cs['fylite:fit_values_fitted'] === 'raw-total-flux',
+        `${cs['fylite:fit_values']} / ${cs['fylite:fit_values_fitted']}`);
 }
 //: ★★AND THE OTHER SIDE OF IT.  A file that always wrote 「那一片自己的」
 //: would be just as wrong; a plain run is the reference instant again and the

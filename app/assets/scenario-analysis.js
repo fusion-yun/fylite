@@ -2490,7 +2490,7 @@ FyScenario.whenDevices(function () {
   function jsonDoc() {
     var cfg = FySession.collect(CONTROLS, S.scope);
     cfg['fylite:source'] = source;
-    cfg['fylite:channel_basis'] = basis;
+    cfg['fylite:fit_values'] = basis;
     //: ★the Ip equality constraint travels with the basis, and the file says
     //: which of the deck's two currents it was — a session that replayed the
     //: loops but not the current would re-fit a different question
@@ -2518,7 +2518,7 @@ FyScenario.whenDevices(function () {
       //: it differently (a deck slice ships total flux, so it is fitted in the
       //: raw basis whatever the select says).  Both are written: one is the
       //: question, one is the answer.
-      cfg['fylite:channel_basis_fitted'] = last.channelBasis || null;
+      cfg['fylite:fit_values_fitted'] = last.channelBasis || null;
       //: which instant the result block below belongs to, when it is not the
       //: deck's reference one — and WHOSE instant it was (T-A17): a slice
       //: picked off a synthetic sweep says so here, or a re-run of the file
@@ -2782,12 +2782,29 @@ FyScenario.whenDevices(function () {
           if (doc['fylite:page'] !== 'reconstruction')
             throw new Error(T('msg.wrong_page', { page: doc['fylite:page'] }));
           var cfg = doc['fylite:config'];
+          //: ★ONE-TIME MIGRATION, AT THE READ BOUNDARY (user ruling 2026-09-14).
+          //: `fylite:channel_basis` / `fylite:channel_basis_fitted` were renamed
+          //: `fylite:fit_values` / `fylite:fit_values_fitted` — "basis" as a
+          //: concept was retired (2026-09-13).  A session file written before
+          //: the rename is rewritten to the new names HERE, once, by name,
+          //: before anything reads it; nothing below reads the old spelling and
+          //: the page never writes it.  This is the only place the old names
+          //: appear — not a second accepted key.
+          if (cfg && typeof cfg === 'object') {
+            [['fylite:channel_basis', 'fylite:fit_values'],
+             ['fylite:channel_basis_fitted', 'fylite:fit_values_fitted']]
+              .forEach(function (p) {
+                if (!(p[0] in cfg)) return;
+                if (!(p[1] in cfg)) cfg[p[1]] = cfg[p[0]];
+                delete cfg[p[0]];
+              });
+          }
           var r = FySession.apply(cfg, S.scope);
           importedPressure = cfg['fylite:imported_pressure'] || null;
           importedIp = cfg['fylite:imported_ip'] || null;
           applyMask(loopOff, cfg['fylite:loop_mask']);
           applyMask(probeOff, cfg['fylite:probe_mask']);
-          basis = cfg['fylite:channel_basis'] === 'raw' ? 'raw' : 'delivered';
+          basis = cfg['fylite:fit_values'] === 'raw' ? 'raw' : 'delivered';
           if ($('basis')) $('basis').value = basis;
           setSource(cfg['fylite:source'] === 'twin' ? 'twin' : 'real');
           syncLabels();
@@ -4275,7 +4292,7 @@ FyScenario.whenDevices(function () {
                'fylite:synthetic': r.synthetic,
                'fylite:time': +(+r.time).toPrecision(9),
                'fylite:source': r.source,
-               'fylite:channel_basis': r.basis || null,
+               'fylite:fit_values': r.basis || null,
                'fylite:converged': r.state === 'ok',
                'fylite:state': r.state,
                'fylite:why': r.why,
@@ -4302,7 +4319,7 @@ FyScenario.whenDevices(function () {
   //: name a spreadsheet and a script read, not a label a reader reads, and a
   //: file whose columns change name with the page's language is a file no
   //: script can open twice.
-  var CSV = ['index', 'shot', 'time_s', 'source', 'channel_basis',
+  var CSV = ['index', 'shot', 'time_s', 'source', 'fit_values',
              'converged', 'state', 'ip_constraint_A', 'ip_fitted_A',
              'q0', 'q95', 'li3', 'a_m', 'kappa', 'chi2', 'why'];
 
@@ -4339,7 +4356,7 @@ FyScenario.whenDevices(function () {
         //: the settings every row was fitted under, once — they are frozen
         //: for the whole run, so a copy per row would be eleven chances to
         //: disagree
-        doc['fylite:channel_basis_note'] = 'per row: fylite:channel_basis';
+        doc['fylite:fit_values_note'] = 'per row: fylite:fit_values';
         doc['fylite:rows'] = summaryRows();
         return JSON.stringify(doc, null, 1);
       },
@@ -4358,7 +4375,7 @@ FyScenario.whenDevices(function () {
         rows.forEach(function (r) {
           out.push([r['fylite:index'], r['fylite:shot_label'],
                     r['fylite:time'], r['fylite:source'],
-                    r['fylite:channel_basis'], r['fylite:converged'],
+                    r['fylite:fit_values'], r['fylite:converged'],
                     r['fylite:state'], r['fylite:ip_constraint'],
                     r['fylite:ipFitted'], r['fylite:q0'], r['fylite:q95'],
                     r['fylite:li3'], r['fylite:a'], r['fylite:kappa'],

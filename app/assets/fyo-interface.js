@@ -15,7 +15,6 @@
   'use strict';
   var GATED = [
     'anneal_schedule',     // The ridge weights of a shape anneal, one per pass, stiff → loose (`code/discharge`); absent, the kernel lays a geometric table from anneal_hi to anneal_lo over `passes`.
-    'channel_basis',       // Which basis a coil-current vector is in (`amps` vs `amp_turns`, per element vs per channel).
     'coil_current_units',  // Whether coil currents are amperes or ampere-turns, e.
     'control_r',           // R [m] of the isoflux control points (gap / strike rows) a shape design pins the boundary through (`code/discharge` · `code/pulse`); with `control_z` and `control_w`.
     'control_w',           // The weight of each isoflux control row relative to the boundary rows; with `control_r`.
