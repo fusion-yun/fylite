@@ -30,7 +30,7 @@ pytestmark = requires_machine
 def _efit_tree_card():
     """★★2026-09-13 (R-S1 / R-S2): ``EAST_CHANNEL_MAP`` is the ``efit_east`` table
     (76 probes, EXPMPI order), and the static card is the no-shot resolution
-    (magnetics ``east_new``) — a measurement built on ``device.NPROBE`` is refused
+    (magnetics ``pcs``, chain ``pcs_east`` since 2026-09-14) — a measurement built on ``device.NPROBE`` is refused
     against it by name.  So this module states its selection: the card resolved for
     the ``efit_east`` tree at #137985 (``conftest.EFIT_TREE``: ``efit_green2022_pcs``,
     2026-09-14), bound for the module and released after."""

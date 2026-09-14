@@ -1851,14 +1851,15 @@ mod tests {
         crate::facts::use_roots(Some(vec![root.clone()]));
         let card = facts_endpoint(variant).unwrap().unwrap();
         assert!(card.ends_with("variants/efit/east/east_device.yaml"));
-        assert!(facts_endpoint(&variant.replace("137985", "137986")).unwrap().unwrap_err().contains("outside"));
+        //: the efit_green2022_pcs range is the live-scanned [97400, 159875] (2026-09-14); #160000 lies in the gap past it
+        assert!(facts_endpoint(&variant.replace("137985", "160000")).unwrap().unwrap_err().contains("outside"));
         let entry = facts_endpoint("facts:device/east?shot=137985&measurement_chain=efit_east").unwrap().unwrap();
         let n = crate::io::read_node(&entry).unwrap();
         assert_eq!(n.get("magnetics/fylite:provider").and_then(Node::as_str), Some("efit_green2022_pcs"));
         assert_eq!(n.get("magnetics/measurement_chain").and_then(Node::as_str), Some("efit_east"));
         //: (a numeric list read back from disk is an array: compare values, not spellings)
         let range = |x: &Node| x.get("_valid_shots").and_then(Node::to_f64_vec);
-        assert_eq!(range(&n), Some(vec![137985.0, 137985.0]));
+        assert_eq!(range(&n), Some(vec![97400.0, 159875.0]));
         //: the variant card and the entry are the same providers and the same range
         let v = crate::io::read_node(&card).unwrap();
         assert_eq!(range(&v), range(&n));
@@ -1877,27 +1878,32 @@ mod tests {
         std::fs::create_dir_all(&d).unwrap();
         std::fs::write(d.join("rights.json"), "{}").unwrap();
         std::fs::write(root.join("device").join("resolvetest.jsonld"),
-            r#"{"_basis": "?", "magnetics": {"fylite:provider": "east_new"}, "provenance": {"source_files": {}}}"#).unwrap();
+            r#"{"_basis": "?", "magnetics": {"fylite:provider": "pcs"}, "provenance": {"source_files": {}}}"#).unwrap();
         let group = |p: &str| format!(r#"{{"document": {{"magnetics": {{"fylite:provider": "{p}"}}}}}}"#);
         std::fs::write(d.join("resolvetest_resolution.jsonld"), format!(r#"{{"@type": "fylite:DeviceResolution",
             "resolved_ids": ["magnetics"],
-            "manifest": {{"measurement_chains": {{"east": {{"kind": "mdsplus_tree", "tree": "east"}},
+            "manifest": {{"measurement_chains": {{"pcs_east": {{"kind": "mdsplus_tree", "tree": "pcs_east"}},
+                                                  "east": {{"kind": "mdsplus_tree", "tree": "east"}},
                                                   "efit_east": {{"kind": "mdsplus_tree", "tree": "efit_east"}}}},
-              "providers": {{"magnetics": {{"default": "east_new", "available": {{
+              "providers": {{"magnetics": {{"default": "pcs", "available": {{
                 "base": {{"backend": "static", "valid_shots": [0, 97030], "measurement_chain": "east"}},
                 "east_new": {{"backend": "static", "valid_shots": [97034, null], "measurement_chain": "east"}},
+                "pcs": {{"backend": "static", "valid_shots": null, "measurement_chain": "pcs_east"}},
                 "efit": {{"backend": "static", "valid_shots": null, "measurement_chain": "efit_east"}}}}}}}}}},
-            "variants": {{"magnetics": {{"base": {}, "east_new": {}, "efit": {}}}}}}}"#,
-            group("base"), group("east_new"), group("efit"))).unwrap();
+            "variants": {{"magnetics": {{"base": {}, "east_new": {}, "pcs": {}, "efit": {}}}}}}}"#,
+            group("base"), group("east_new"), group("pcs"), group("efit"))).unwrap();
         crate::facts::use_roots(Some(vec![root.clone()]));
         let provider = |q: &str| -> Result<String, String> {
             let p = facts_endpoint(&format!("facts:device/resolvetest?{q}")).unwrap()?;
             let n = crate::io::read_node(&p).unwrap();
             Ok(n.get("magnetics/fylite:provider").and_then(Node::as_str).unwrap().to_string())
         };
-        assert_eq!(provider("shot=70754").unwrap(), "base");
-        assert_eq!(provider("shot=137985").unwrap(), "east_new");
+        //: ★2026-09-14 (user ruling): no chain resolves within the chain of the manifest default
+        //: (`pcs` in `pcs_east`) whatever the shot; a named chain still resolves by shot within itself
+        assert_eq!(provider("shot=70754").unwrap(), "pcs");
+        assert_eq!(provider("shot=137985").unwrap(), "pcs");
         assert_eq!(provider("shot=70754&measurement_chain=east").unwrap(), "base");
+        assert_eq!(provider("shot=137985&measurement_chain=east").unwrap(), "east_new");
         assert_eq!(provider("shot=137985&measurement_chain=efit_east").unwrap(), "efit");
         //: a gap inside the chain, an undeclared chain — each refused by name
         let gap = provider("shot=97032&measurement_chain=east").unwrap_err();

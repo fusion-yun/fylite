@@ -12,9 +12,10 @@ magnetics provider its ``measurement_chain``.
 
 Gates
 =====
-(a) the BUNDLED tier resolves EAST by shot and chain: #70754 -> the <=97030 magnetics family,
-    #137985 and no shot -> ``east_new`` — through the C ABI, and through a ``fy`` that
-    sees no corpus on disk;
+(a) the BUNDLED tier resolves EAST by shot and chain: with no chain, every shot -> ``pcs``
+    (the chain of the manifest default, ``pcs_east``: user ruling 2026-09-14「缺省几何也走
+    pcs_east 链」); within chain ``east`` #70754 -> the <=97030 magnetics family, #137985 ->
+    ``east_new`` — through the C ABI, and through a ``fy`` that sees no corpus on disk;
 (b) Python and the command line agree on the providers for shots straddling
     45563 / 70754 / 80000 / 97030 / 97034, with no chain and within every declared chain —
     including the refusals (a gap inside a chain);
@@ -134,16 +135,20 @@ def test_the_bundled_tier_resolves_east_by_shot_and_chain():
     assert not any("card" in v for provs in res["variants"].values() for v in provs.values()), \
         "the bundled copy carries the document form only (A-13)"
     assert list(res["manifest"]["measurement_chains"]) == ["pcs_east", "east", "efit_east"]
-    old = D.select_providers(shot=70754, resolution=res)["magnetics"]
+    #: ★2026-09-14 (user ruling): no chain -> the chain of the manifest default, `pcs_east`,
+    #: whatever the shot — the array the default fetch (`magnetics_pcs`) reads
+    for shot in (70754, 137985, None):
+        pcs = D.select_providers(shot=shot, resolution=res)["magnetics"]
+        assert pcs["provider"] == "pcs" and pcs["shots"].startswith("all"), (shot, pcs)
+    old = D.select_providers(shot=70754, measurement_chain="east", resolution=res)["magnetics"]
     assert (old["provider"], old["shots"]) == ("base", [0, 97030]), old
-    for shot in (137985, None):
-        new = D.select_providers(shot=shot, resolution=res)["magnetics"]
-        assert (new["provider"], new["shots"]) == ("east_new", [97034, None]), (shot, new)
+    new = D.select_providers(shot=137985, measurement_chain="east", resolution=res)["magnetics"]
+    assert (new["provider"], new["shots"]) == ("east_new", [97034, None]), new
     assert D.select_providers(shot=137985, measurement_chain="efit_east",
                               resolution=res)["magnetics"]["provider"] == "efit_green2022_pcs"
     #: the bundled DOCUMENT, resolved from the bundled resolution, is that family
     card = json.loads(F.bundled_doc("device", "east"))
-    doc = D.resolve_document(card, res, shot=70754, form="document")["document"]
+    doc = D.resolve_document(card, res, shot=70754, measurement_chain="east", form="document")["document"]
     assert (doc["magnetics"]["fylite:provider"], doc["magnetics"]["measurement_chain"]) == ("base", "east")
     assert len(doc["magnetics"]["b_field_pol_probe"]) == 38
     assert doc["_valid_shots"] == [0, 97030]
@@ -154,20 +159,19 @@ def test_fy_resolves_east_by_shot_from_the_bundled_tier(tmp_path):
     exe.parent.mkdir()
     shutil.copy2(_exe(), exe)
     env = {k: v for k, v in os.environ.items() if k not in ("FY_FACTS_PATH", "FY_FACTS_BUNDLED")}
-    for shot, want in ((70754, None), (137985, "east_new"), (None, "east_new")):
-        r = _dry(exe, *_shot_args(shot), cwd=tmp_path, env=env)
+    #: no chain (2026-09-14): `pcs` (no shot range) at any shot; within chain `east`, by shot
+    for shot, chain, want in ((70754, None, ("pcs", "")), (137985, None, ("pcs", "")), (None, None, ("pcs", "")),
+                              (70754, "east", ("base", "[0, 97030]")),
+                              (137985, "east", ("east_new", "[97034, —]"))):
+        r = _dry(exe, *_shot_args(shot), *_chain_args(chain), cwd=tmp_path, env=env)
         assert r.returncode == 0, r.stdout + r.stderr
         line = _device_line(r.stdout)
         assert "<buildin>" in line, f"not the bundled tier: {line}"
-        sel = _cli_selection(line)
-        if want is None:
-            assert sel["magnetics"][1] == "[0, 97030]", line
-        else:
-            assert sel["magnetics"] == (want, "[97034, —]"), line
+        assert _cli_selection(line)["magnetics"] == want, (shot, chain, line)
     r = subprocess.run([str(exe), "list", "devices", "east"], capture_output=True, text=True,
                        timeout=60, cwd=tmp_path, env=env)
     assert r.returncode == 0, r.stderr
-    assert re.search(r"resolves\s+magnetics\s+no shot -> east_new", r.stdout), r.stdout
+    assert re.search(r"resolves\s+magnetics\s+no shot -> pcs\b", r.stdout), r.stdout
     assert "chain efit_east" in r.stdout, r.stdout
 
 
@@ -212,7 +216,8 @@ def test_the_measurement_chain_decides_within_itself_and_refuses_by_name(resolut
     for shot in (45562, 97032, None):
         with pytest.raises(D.ProviderSelectionError) as gap:
             sel(shot=shot, measurement_chain="efit_east")
-        assert all(s in str(gap.value) for s in ('"efit_east"', "[70745, 70754]", "[137985, 137985]")), gap.value
+        assert all(s in str(gap.value) for s in ('"efit_east"', "[45563, 52700]", "[53825, 96900]",
+                                                 "[97400, 159875]")), gap.value
     #: a gap inside the chain names the chain, the shot and the declared ranges
     with pytest.raises(D.ProviderSelectionError) as gap:
         sel(shot=97032, measurement_chain="east")
@@ -317,7 +322,8 @@ def test_the_reconstruction_path_refuses_a_measurement_of_another_chain(tmp_path
                                        env=env)
     static = run("static")
     assert static.returncode == 3, static.stdout + static.stderr
-    assert "efit_east" in static.stdout and "'east'" in static.stdout, static.stdout
+    #: the static card is the no-chain resolution: magnetics in `pcs_east` (2026-09-14)
+    assert "efit_east" in static.stdout and "'pcs_east'" in static.stdout, static.stdout
     matched = run("efit_east")
     assert matched.returncode == 0 and "READ efit_east 76 35" in matched.stdout, matched.stdout + matched.stderr
 
@@ -335,10 +341,13 @@ def test_the_static_card_is_the_no_shot_resolution(resolution):
     assert "latest" in rec["shot"]
     assert rec["measurement_chains"] == ["pcs_east", "east", "efit_east"]
     #: which shot range each IDS represents (R-S2)
-    assert (rec["ids"]["magnetics"]["provider"], rec["ids"]["magnetics"]["shots"]) == ("east_new", [97034, None])
+    #: ★2026-09-14 (user ruling): no chain -> `pcs` in `pcs_east`, the chain of the manifest default
+    assert rec["ids"]["magnetics"]["provider"] == "pcs" and rec["ids"]["magnetics"]["shots"].startswith("all")
+    assert "pcs_east" in rec["ids"]["magnetics"]["why"] and "manifest default" in rec["ids"]["magnetics"]["why"]
     assert rec["ids"]["wall"]["provider"] == "base" and rec["ids"]["wall"]["shots"].startswith("all")
-    assert card["_valid_shots"] == [97034, None]
-    assert (card["magnetics"]["fylite:provider"], card["magnetics"]["measurement_chain"]) == ("east_new", "east")
+    assert "_valid_shots" not in card
+    assert (card["magnetics"]["fylite:provider"], card["magnetics"]["measurement_chain"]) == ("pcs", "pcs_east")
+    assert (len(card["magnetics"]["b_field_pol_probe"]), len(card["magnetics"]["flux_loop"])) == (38, 35)
 
 
 def _tool():
@@ -424,11 +433,17 @@ def test_the_generation_surface_keeps_its_refusals(generator, tmp_path):
     with pytest.raises(SystemExit, match="not declared"):
         a2f.variant_card("east", fydoc, copy.deepcopy(base), shot=137985,
                          measurement_chain="est2", resolution=res)
-    #: a default that does not cover the shot (the runtime's strict request) …
+    #: no chain at the `east` chain's unknown band (2026-09-14): the default's chain, `pcs`, on both routes
+    assert a2f.variant_card("east", fydoc, copy.deepcopy(base), shot=97032,
+                            resolution=res)["_selection"]["magnetics"] == "pcs"
+    assert D.document(shot=97032)["magnetics"]["fylite:provider"] == "pcs"
+    #: a default whose declared range does not cover the shot (the runtime's strict request) …
+    ranged = copy.deepcopy(res)
+    ranged["manifest"]["providers"]["wall"]["available"]["base"]["valid_shots"] = [0, 50000]
     with pytest.raises(SystemExit, match="outside"):
-        a2f.variant_card("east", fydoc, copy.deepcopy(base), shot=97032, resolution=res)
-    #: … while use time, unpinned, uses it and says so
-    assert D.document(shot=97032)["magnetics"]["fylite:provider"] == "east_new"
+        a2f.variant_card("east", fydoc, copy.deepcopy(base), shot=70754, resolution=ranged)
+    #: … while use time, unpinned, uses it
+    assert D.select_providers(shot=70754, resolution=ranged)["wall"]["provider"] == "base"
     tool = [sys.executable, str(TOOL)]
     no_out = subprocess.run(tool + ["east", "--shot", "137985", "--measurement-chain", "efit_east"],
                             capture_output=True, text=True, timeout=120, cwd=ROOT)
@@ -464,7 +479,7 @@ def test_every_magnetics_group_states_its_chain_and_no_group_carries_fit_arrays(
         assert not any("weight" in c or "bit_error" in c for c in (*mag["b_field_pol_probe"], *mag["flux_loop"])), name
         assert "fylite:channel_basis" not in mag, name
     assert "basis_providers" not in resolution
-    assert set(resolution["variants"]["magnetics"]) == {"base", "east_new", "pcs", "efit_green2015",
-                                                        "efit_green2022_pcs"}
+    assert set(resolution["variants"]["magnetics"]) == {"base", "east_new", "pcs", "efit_green2014",
+                                                        "efit_green2015", "efit_green2022_pcs"}
     assert set(resolution["variants"]["wall"]) == {"base", "m093060"}
     assert not any("fylite:absent" in v for v in resolution["variants"]["wall"].values())

@@ -119,7 +119,7 @@ def test_the_magnetic_probes_are_in_the_same_places(pair):
          for c in y["magnetics"]["b_field_pol_probe"]]
     b = [(c.get("name"), c["position"][0]["r"], c["position"][0]["z"])
          for c in j["magnetics"]["b_field_pol_probe"]]
-    assert len(a) == len(b) == 79
+    assert len(a) == len(b) == 38
     assert a == b
 
 
@@ -127,7 +127,8 @@ def test_the_flux_loops_are_in_the_same_places(pair):
     """★POSITIONS only — the names are a separate case below.
 
     ★★2026-09-13 (R-S1 / R-S2 + the measurement-chain ruling): both forms are the NO-SHOT
-    resolution, whose magnetics provider is ``east_new`` (chain ``east``, 75 loops).  The
+    resolution, whose magnetics provider is ``pcs`` (chain ``pcs_east``, 35 loops; user ruling
+    2026-09-14 — before it ``east_new``, 75 loops).  The
     other chains' loop sets are not in either file as written; they are what each form
     RESOLVES to, so one is compared resolved — both forms, one resolution document, the
     runtime's rule: the ``efit_east`` chain at #137985 (``conftest.EFIT_TREE``:
@@ -141,8 +142,8 @@ def test_the_flux_loops_are_in_the_same_places(pair):
                 for c in doc["magnetics"]["flux_loop"]]
 
     y, j = pair
-    assert y["magnetics"]["fylite:provider"] == j["magnetics"]["fylite:provider"] == "east_new"
-    assert len(places(y)) == len(places(j)) == 75
+    assert y["magnetics"]["fylite:provider"] == j["magnetics"]["fylite:provider"] == "pcs"
+    assert len(places(y)) == len(places(j)) == 35
     assert places(y) == places(j)
     res = device.resolution_of(YAML_DOC)
     ye = device.resolve_document(y, res, form="card", **EFIT_TREE)["document"]

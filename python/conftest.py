@@ -493,8 +493,9 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int | None = None,
 # the device RESOLVED for the data a test holds
 # --------------------------------------------------------------------------- #
 #: ★★2026-09-13 (user rulings R-S1 / R-S2 and the measurement-chain ruling): the static
-#: EAST card is the NO-SHOT resolution — magnetics provider ``east_new`` (chain ``east``,
-#: 79 HBPH probes + 75 loops).  Data recorded in another measurement chain is never read
+#: EAST card is the NO-SHOT, NO-CHAIN resolution — magnetics provider ``pcs`` (chain
+#: ``pcs_east``, 38 PCS probes + 35 loops: the chain of the manifest default, user ruling
+#: 2026-09-14「缺省几何也走 pcs_east 链」).  Data recorded in another measurement chain is never read
 #: against that one, so a test holding such data STATES its chain and binds the card
 #: resolved for it through the runtime's rule (``fylite.device.document``) — never a
 #: hand-picked file and never a named provider:
@@ -504,8 +505,9 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int | None = None,
 #:   ``NSILOP``.
 #:
 #: ★★2026-09-14 (user ruling R1): the chain's geometry is one provider per EFIT array
-#: vintage, each anchored on the shots it was verified on (``efit_green2015`` [70745, 70754],
-#: ``efit_green2022_pcs`` [137985, 137985]); every other shot is an unknown band, and a gap
+#: vintage, each anchored on the shots it was verified on (``efit_green2014`` [45563, 52700],
+#: ``efit_green2015`` [53825, 96900], ``efit_green2022_pcs`` [97400, 159875] since the
+#: 2026-09-14 shot scan); every other shot is an unknown band, and a gap
 #: in a chain is refused by name.  No shot means the latest shot, which falls in that band —
 #: so the selection names the shot it stands for: #137985, the efit_east case
 #: (fydoc ``FYDOC-CASE-23-east-137985-efit-east``).

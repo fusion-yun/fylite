@@ -248,7 +248,7 @@ def test_entries_resolve_to_real_callables(name):
 
 #: ★2026-09-13 (R-S1 / R-S2): `east_mdsplus` addresses the processed `efit_east` tree,
 #: so its counts are held against the card resolved for that tree (`conftest.EFIT_TREE`),
-#: not the no-shot card (magnetics `east_new`, 75 loops)
+#: not the no-shot card (magnetics `pcs`, chain `pcs_east`)
 @pytest.mark.usefixtures("efit_tree_device")
 def test_data_artifact_channel_counts_are_reflected():
     addr = DOCS["east_mdsplus"]["fylite:addressing"]

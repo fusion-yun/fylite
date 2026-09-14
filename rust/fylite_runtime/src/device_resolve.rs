@@ -12,10 +12,16 @@
 //!      no ranged one covers it; a gap inside the chain, two geometry providers of one chain covering
 //!      the shot, and a chain the manifest does not declare (`measurement_chains`) are each refused
 //!      by name — never the nearest provider, never the default;
-//!    * with no chain given, and for every IDS that carries none ([`choose`]): the SHOT-ANCHORED
-//!      provider covering the shot — on an IDS whose providers carry chains, among the providers of
-//!      the chain the open upper end is in (a range anchored on a few verified shots of another
-//!      chain does not capture a request that named no chain, 2026-09-14); with **no shot given,
+//!    * with no chain given, on an IDS whose manifest DEFAULT provider carries a chain ([`choose`]):
+//!      resolved WITHIN THE DEFAULT'S CHAIN, by exactly the rule above — a ranged provider of that
+//!      chain covering the shot, else its rangeless one; a gap is refused (user ruling 2026-09-14
+//!      「缺省几何也走 pcs_east 链」: the default geometry and the default signal binding are one
+//!      channel array, so a fetch and the geometry it is read against pair by index).  For EAST
+//!      that is `pcs` in `pcs_east`, whatever the shot;
+//!    * for every other IDS (no chain on its default — and a chain-carrying IDS whose default
+//!      carries none): the SHOT-ANCHORED provider covering the shot — on a chain-carrying IDS,
+//!      among the providers of the chain the open upper end is in (a range anchored on a few
+//!      verified shots of another chain does not capture it, 2026-09-14); with **no shot given,
 //!      the one covering the open upper end**
 //!      (no shot = the latest shot, ruling R-S2); several covering: the narrowest range, then the
 //!      manifest default, then the one marked `preferred`, then the first in manifest order — each
@@ -53,11 +59,11 @@ pub const CHAINS_KEY: &str = "measurement_chains";
 pub const RULE: &str = "a measurement-ordered IDS (its providers carry measurement_chain) is resolved \
     within the measurement's chain: the provider whose shot range covers the shot, else that chain's \
     rangeless provider — a gap in the chain, two covering providers or an undeclared chain is refused; \
-    with no chain, and for every other IDS: the shot-anchored provider (valid_shots) covering the shot \
-    (on a chain-carrying IDS, among the providers of the chain the open upper end is in), \
-    and with no shot the one covering the open upper end (no shot = the latest shot); otherwise the \
-    manifest default (fylite_runtime::device_resolve; user rulings R-S1 / R-S2 and the measurement-chain \
-    ruling, 2026-09-13)";
+    with no chain, the same rule within the chain of the IDS' manifest default provider (user ruling \
+    2026-09-14: the default geometry follows the default fetch's chain); for every other IDS: the \
+    shot-anchored provider (valid_shots) covering the shot, and with no shot the one covering the open \
+    upper end (no shot = the latest shot); otherwise the manifest default (fylite_runtime::device_resolve; \
+    user rulings R-S1 / R-S2 and the measurement-chain ruling, 2026-09-13)";
 
 /// `valid_shots` / `applies_shots`: `[lo, hi]`, `hi` null = open-ended; `null` = no range.
 pub fn shot_range(v: &Node) -> Option<ShotRange> {
@@ -213,6 +219,11 @@ pub fn check_chains(ids: &str, providers: Option<&Node>, manifest_chains: Option
 /// THE rule within a measurement chain (module header).  `chain` must be declared by the caller's
 /// manifest ([`check_chains`] / [`selection`] refuse an undeclared one first).
 pub fn choose_in_chain(ids: &str, providers: Option<&Node>, backend: &str, shot: Option<i64>, chain: &str) -> Result<Choice, String> {
+    within_chain(providers, backend, shot, chain).map_err(|e| format!("{ids}: {e}"))
+}
+
+/// [`choose_in_chain`] without the IDS prefix on its refusals ([`choose`] is prefixed by its callers).
+fn within_chain(providers: Option<&Node>, backend: &str, shot: Option<i64>, chain: &str) -> Result<Choice, String> {
     let avail = available_of(providers);
     let members: Vec<(&str, Option<ShotRange>)> = avail
         .iter()
@@ -223,7 +234,7 @@ pub fn choose_in_chain(ids: &str, providers: Option<&Node>, backend: &str, shot:
         let mut chains: Vec<&str> = avail.iter().filter(|(_, v)| backend_of(v) == backend).filter_map(|(_, v)| chain_of(v)).collect();
         chains.dedup();
         return Err(format!(
-            "{ids}: no {backend} provider is in measurement chain {chain:?} (chains of this IDS: {})",
+            "no {backend} provider is in measurement chain {chain:?} (chains of this IDS: {})",
             if chains.is_empty() { "none".to_string() } else { chains.join(", ") }
         ));
     }
@@ -231,7 +242,7 @@ pub fn choose_in_chain(ids: &str, providers: Option<&Node>, backend: &str, shot:
         members.iter().filter_map(|(n, r)| r.filter(|r| covers_at(*r, shot)).map(|r| (*n, r))).collect();
     if hits.len() > 1 {
         return Err(format!(
-            "{ids}: measurement chain {chain:?} has two {backend} providers covering {}: {}",
+            "measurement chain {chain:?} has two {backend} providers covering {}: {}",
             at(shot),
             hits.iter().map(|(n, r)| format!("{n:?} {}", show_range(*r))).collect::<Vec<_>>().join(", ")
         ));
@@ -257,14 +268,14 @@ pub fn choose_in_chain(ids: &str, providers: Option<&Node>, backend: &str, shot:
         [] => {
             let ranges: Vec<String> = members.iter().filter_map(|(n, r)| r.map(|r| format!("{n:?} {}", show_range(r)))).collect();
             Err(format!(
-                "{ids}: measurement chain {chain:?} has no provider for {} — its providers declare shots {}; \
+                "measurement chain {chain:?} has no provider for {} — its providers declare shots {}; \
                  a gap in a chain is refused, not filled with the nearest provider",
                 at(shot),
                 ranges.join(", ")
             ))
         }
         many => Err(format!(
-            "{ids}: measurement chain {chain:?} has {} {backend} providers without a shot range ({})",
+            "measurement chain {chain:?} has {} {backend} providers without a shot range ({})",
             many.len(),
             many.iter().map(|n| format!("{n:?}")).collect::<Vec<_>>().join(", ")
         )),
@@ -278,9 +289,27 @@ pub fn choose(providers: Option<&Node>, backend: &str, shot: Option<i64>) -> Res
     let available = pm.and_then(|m| m.get("available")).and_then(Node::as_map);
     let default = pm.and_then(|m| m.get("default")).and_then(Node::as_str);
 
-    //: ★No chain given, on an IDS whose providers carry chains (2026-09-14): the shot-anchored
-    //: candidates are those of the chain the no-shot resolution is in — the chain of the
-    //: provider(s) covering the open upper end.  Without this, a provider anchored on a few
+    //: ★★No chain given, and the manifest default is a `backend` provider carrying a chain (user
+    //: ruling 2026-09-14「磁测量缺省走 PCS 树」「缺省几何也走 pcs_east 链」): resolve WITHIN THE
+    //: DEFAULT'S CHAIN, by the chain rule itself — a ranged provider of that chain covering the shot,
+    //: else its rangeless one, a gap refused.  The manifest's default provider is the one the
+    //: default signal binding is paired with, so the no-chain geometry and the no-chain fetch are
+    //: one channel array.  Read off the manifest, not EAST: any device whose default carries a chain.
+    if let Some((d, c)) = default
+        .and_then(|d| available.and_then(|a| a.get(d)).map(|v| (d, v)))
+        .filter(|(_, v)| backend_of(v) == backend)
+        .and_then(|(d, v)| chain_of(v).map(|c| (d, c)))
+    {
+        let mut ch = within_chain(providers, backend, shot, c).map_err(|e| {
+            format!("no measurement chain given, so resolved within {c:?}, the chain of the manifest default {d:?}: {e}")
+        })?;
+        ch.why = format!("no measurement chain given, so {c:?}, the chain of the manifest default {d:?} — {}", ch.why);
+        return Ok(ch);
+    }
+
+    //: ★The default carries no chain, on an IDS whose providers carry chains (2026-09-14): the
+    //: shot-anchored candidates are those of the chain the no-shot resolution is in — the chain of
+    //: the provider(s) covering the open upper end.  Without this, a provider anchored on a few
     //: VERIFIED shots of another chain (efit_east's per-vintage geometry, user ruling R1) is the
     //: narrowest range covering those shots and captures a request that named no chain.  When no
     //: provider covers the open end, or those that do disagree on the chain, nothing is scoped.
@@ -730,13 +759,14 @@ mod tests {
     use crate::json;
 
     /// EAST's magnetics and wall providers in miniature, as fydoc's manifest writes them after the
-    /// 2026-09-13 measurement-chain ruling (no est2 array, no duplicate `east`, wall default base).
+    /// 2026-09-13 measurement-chain ruling (no est2 array, no duplicate `east`, wall default base)
+    /// and the 2026-09-14 ruling (magnetics default and `preferred` back on `pcs`).
     fn manifest(default: &str) -> Node {
         json::parse(&format!(r#"{{
           "magnetics": {{"default": "{default}", "available": {{
             "base":      {{"backend": "static", "valid_shots": [0, 97030], "measurement_chain": "east"}},
-            "east_new":  {{"backend": "static", "valid_shots": [97034, null], "measurement_chain": "east", "preferred": true}},
-            "pcs":       {{"backend": "static", "valid_shots": null, "measurement_chain": "pcs_east"}},
+            "east_new":  {{"backend": "static", "valid_shots": [97034, null], "measurement_chain": "east"}},
+            "pcs":       {{"backend": "static", "valid_shots": null, "measurement_chain": "pcs_east", "preferred": true}},
             "efit":      {{"backend": "static", "valid_shots": null, "measurement_chain": "efit_east"}},
             "pcs_vp_post80000": {{"backend": "mdsplus", "valid_shots": [80000, null], "measurement_chain": "pcs_east"}},
             "efit_east": {{"backend": "mdsplus", "valid_shots": null}}}}}},
@@ -757,26 +787,40 @@ mod tests {
         choose(m.get(ids), "static", shot).unwrap()
     }
 
+    /// ★★2026-09-14 (user ruling「磁测量缺省走 PCS 树」「缺省几何也走 pcs_east 链」): with no chain,
+    /// a chain-carrying IDS resolves within the chain of its manifest default, by the chain rule.
     #[test]
-    fn the_shot_decides_and_no_shot_is_the_latest_shot() {
+    fn no_chain_resolves_within_the_chain_of_the_manifest_default() {
+        //: default `pcs` (EAST today): the rangeless provider of `pcs_east`, whatever the shot — the
+        //: shot-anchored `east` family and the era-limited mdsplus binding of pcs_east never compete
+        let m = manifest("pcs");
+        for shot in [Some(45562), Some(70754), Some(97030), Some(97032), Some(97034), Some(120000), Some(137985), None] {
+            let c = pick(&m, "magnetics", shot);
+            assert_eq!((c.provider.as_deref(), c.range, c.outside), (Some("pcs"), None, false), "{shot:?} {c:?}");
+            assert!(c.why.contains("\"pcs_east\"") && c.why.contains("manifest default"), "{c:?}");
+            assert!(c.notes.is_empty(), "{c:?}");
+        }
+        //: the same rule read off another default — nothing EAST-specific: default `east_new` resolves
+        //: in `east` by shot, no shot is its open upper end, and its gap is refused, never filled
+        let m = manifest("east_new");
+        assert_eq!(pick(&m, "magnetics", Some(70754)).provider.as_deref(), Some("base"));
+        assert_eq!(pick(&m, "magnetics", Some(70754)).range, Some((0, Some(97030))));
+        for shot in [Some(97034), Some(137985), None] {
+            let c = pick(&m, "magnetics", shot);
+            assert_eq!((c.provider.as_deref(), c.range), (Some("east_new"), Some((97034, None))), "{shot:?} {c:?}");
+        }
+        let gap = choose(m.get("magnetics"), "static", Some(97032)).unwrap_err();
+        assert!(gap.contains("a gap in a chain is refused") && gap.contains("\"east\"") && gap.contains("manifest default \"east_new\""), "{gap}");
+        //: a default that carries no chain on a chain-carrying IDS keeps the shot rule
+        //: (among the providers of the chain the open upper end is in), and its default fills gaps
+        let mut legacy = manifest("legacy");
+        legacy.set("magnetics/available/legacy", json::parse(r#"{"backend": "static", "valid_shots": null}"#).unwrap()).unwrap();
+        assert_eq!(pick(&legacy, "magnetics", Some(70754)).provider.as_deref(), Some("base"));
+        assert_eq!(pick(&legacy, "magnetics", None).provider.as_deref(), Some("east_new"));
+        assert_eq!(pick(&legacy, "magnetics", Some(97032)).provider.as_deref(), Some("legacy"));
+        //: an IDS without chains: no shot anchors at all → the default
         for default in ["east_new", "pcs"] {
             let m = manifest(default);
-            //: ≤97030 → the old naming family
-            let c = pick(&m, "magnetics", Some(70754));
-            assert_eq!(c.provider.as_deref(), Some("base"), "{c:?}");
-            assert_eq!(c.range, Some((0, Some(97030))));
-            //: ≥97034, and no shot at all → east_new, whatever the default is
-            for shot in [Some(97034), Some(137985), None] {
-                let c = pick(&m, "magnetics", shot);
-                assert_eq!(c.provider.as_deref(), Some("east_new"), "{default} {shot:?} {c:?}");
-                assert_eq!(c.range, Some((97034, None)));
-            }
-            //: the unknown band [97031, 97033] with no chain: nothing shot-anchored covers it → the default, said
-            let c = pick(&m, "magnetics", Some(97032));
-            assert_eq!(c.provider.as_deref(), Some(default));
-            //: the mdsplus era binding [80000, —] never competes for geometry
-            assert_eq!(pick(&m, "magnetics", Some(120000)).provider.as_deref(), Some("east_new"));
-            //: no shot anchors at all → the default, which is `base` again for the wall
             assert_eq!(pick(&m, "wall", Some(70754)).provider.as_deref(), Some("base"));
             assert_eq!(pick(&m, "wall", None).provider.as_deref(), Some("base"));
         }
@@ -784,7 +828,7 @@ mod tests {
 
     /// ★2026-09-14 (user ruling R1): efit_east geometry is one provider per EFIT array vintage, each
     /// anchored on the few shots it was verified on.  Those narrow ranges must not capture a request
-    /// that named no chain — it stays in the chain of the open upper end, exactly as before them.
+    /// that named no chain — it stays in the chain of the manifest default (2026-09-14).
     #[test]
     fn a_narrow_range_in_another_chain_does_not_capture_a_request_without_a_chain() {
         for default in ["east_new", "pcs"] {
@@ -794,10 +838,14 @@ mod tests {
               "pcs":      {{"backend": "static", "valid_shots": null, "measurement_chain": "pcs_east"}},
               "efit_green2015":     {{"backend": "static", "valid_shots": [70745, 70754], "measurement_chain": "efit_east"}},
               "efit_green2022_pcs": {{"backend": "static", "valid_shots": [137985, 137985], "measurement_chain": "efit_east"}}}}}}}}"#)).unwrap();
-            assert_eq!(pick(&m, "magnetics", Some(70754)).provider.as_deref(), Some("base"));
-            assert_eq!(pick(&m, "magnetics", Some(137985)).provider.as_deref(), Some("east_new"));
-            assert_eq!(pick(&m, "magnetics", None).provider.as_deref(), Some("east_new"));
-            assert_eq!(pick(&m, "magnetics", Some(97032)).provider.as_deref(), Some(default));
+            let (old, new) = if default == "pcs" { ("pcs", "pcs") } else { ("base", "east_new") };
+            assert_eq!(pick(&m, "magnetics", Some(70754)).provider.as_deref(), Some(old));
+            assert_eq!(pick(&m, "magnetics", Some(137985)).provider.as_deref(), Some(new));
+            assert_eq!(pick(&m, "magnetics", None).provider.as_deref(), Some(new));
+            match default {
+                "pcs" => assert_eq!(pick(&m, "magnetics", Some(97032)).provider.as_deref(), Some("pcs")),
+                _ => assert!(choose(m.get("magnetics"), "static", Some(97032)).unwrap_err().contains("a gap in a chain is refused")),
+            }
             let mag = m.get("magnetics");
             assert_eq!(choose_in_chain("magnetics", mag, "static", Some(70754), "efit_east").unwrap().provider.as_deref(), Some("efit_green2015"));
             assert_eq!(choose_in_chain("magnetics", mag, "static", Some(137985), "efit_east").unwrap().provider.as_deref(), Some("efit_green2022_pcs"));
@@ -847,7 +895,7 @@ mod tests {
     fn resolution() -> Node {
         let mut r = json::parse(r#"{"@type": "fylite:DeviceResolution", "resolved_ids": ["magnetics", "wall"],
             "fixed": {"pf_active": {"why": "one converted set (ruling)"}}}"#).unwrap();
-        r.set("manifest/providers", manifest("east_new")).unwrap();
+        r.set("manifest/providers", manifest("pcs")).unwrap();
         r.set("manifest/measurement_chains", chains()).unwrap();
         let group = |name: &str, n: i64, chain: &str| -> Node {
             json::parse(&format!(r#"{{"card": {{"magnetics": {{"fylite:provider": "{name}", "measurement_chain": "{chain}", "n": {n}}}, "_basis": "{name} basis"}},
@@ -863,7 +911,7 @@ mod tests {
     }
 
     fn card() -> Node {
-        json::parse(r#"{"_basis": "?", "magnetics": {"fylite:provider": "east_new", "n": 79}, "wall": {"u": "base"},
+        json::parse(r#"{"_basis": "?", "magnetics": {"fylite:provider": "pcs", "n": 38}, "wall": {"u": "base"},
                         "pf_active": {"coil": []}, "provenance": {"source_files": {"magnetics": "x", "magnetics:pcs": "p", "tf": "t"}}}"#).unwrap()
     }
 
@@ -874,7 +922,7 @@ mod tests {
     #[test]
     fn a_request_splices_the_converted_group_over_the_card() {
         let res = resolution();
-        let r = resolve(&card(), &res, &ask(Some(70754), None), Form::Card).unwrap();
+        let r = resolve(&card(), &res, &ask(Some(70754), Some("east")), Form::Card).unwrap();
         assert_eq!(r.doc.get("magnetics/fylite:provider").and_then(Node::as_str), Some("base"));
         assert_eq!(r.doc.get("_basis").and_then(Node::as_str), Some("base basis"));
         //: the magnetics source files are the variant's; others untouched
@@ -892,9 +940,11 @@ mod tests {
         assert_eq!(n.doc.get("magnetics/measurement_chain").and_then(Node::as_str), Some("efit_east"));
         assert_eq!(n.doc.get("_valid_shots"), Some(&Node::List(vec![Node::Int(137985), Node::Int(137985)])));
         assert_eq!(n.doc.get("provenance/fylite:resolution/measurement_chain").and_then(Node::as_str), Some("efit_east"));
-        //: the document form writes the document spelling
+        //: the document form writes the document spelling; the empty request is the default's chain
         let d = resolve(&card(), &res, &Request::default(), Form::Document).unwrap();
         assert_eq!(d.doc.get("magnetics/doc"), Some(&Node::Bool(true)));
+        assert_eq!(d.doc.get("magnetics/fylite:provider").and_then(Node::as_str), Some("pcs"));
+        assert!(d.doc.get("_valid_shots").is_none());
         assert!(d.doc.get("provenance/fylite:resolution/shot").and_then(Node::as_str).unwrap().contains("latest"));
         //: resolving twice is resolving once
         let again = resolve(&d.doc, &res, &Request::default(), Form::Document).unwrap();
@@ -917,10 +967,17 @@ mod tests {
         assert!(e.contains("\"est2\"") && e.contains("not declared") && e.contains("pcs_east, east, efit_east"), "{e}");
         //: a gap inside the chain, through the request
         assert!(prov(Some(97032), Some("east")).unwrap_err().contains("97032"));
-        //: no chain: today's rule; strict refuses the default used outside its range
-        assert_eq!(prov(Some(97032), None).unwrap(), "east_new");
-        let strict = Request { strict: true, ..ask(Some(97032), None) };
-        assert!(selection(&res, &strict).unwrap_err().contains("outside"));
+        //: no chain (2026-09-14): the chain of the manifest default, `pcs_east`, at any shot
+        for shot in [Some(70754), Some(97032), Some(137985), None] {
+            assert_eq!(prov(shot, None).unwrap(), "pcs", "{shot:?}");
+        }
+        //: strict refuses a default used outside its declared range (an IDS without chains)
+        let mut ranged_wall = resolution();
+        ranged_wall.set("manifest/providers/wall/available/base/valid_shots", json::parse("[0, 50000]").unwrap()).unwrap();
+        let strict = Request { strict: true, ..ask(Some(70754), None) };
+        let e = selection(&ranged_wall, &strict).unwrap_err();
+        assert!(e.starts_with("wall:") && e.contains("outside"), "{e}");
+        assert!(selection(&ranged_wall, &ask(Some(70754), None)).is_ok());
         //: the request keys are shot / measurement_chain / strict — a provider or a basis is refused by name
         for (key, doc) in [("providers", r#"{"providers": {"magnetics": "efit"}}"#), ("basis", r#"{"basis": "est2"}"#),
                            ("provider", r#"{"shot": 1, "provider": "efit"}"#)] {
@@ -953,13 +1010,14 @@ mod tests {
         let mag = |shot: Option<i64>, chain: Option<&str>| {
             selection(&res, &ask(shot, chain)).unwrap().0.into_iter().find(|s| s.ids == "magnetics").unwrap()
         };
-        let old = mag(Some(70754), None);
-        assert_eq!(old.range.and_then(|r| r.1), Some(97030), "{old:?}");
-        for shot in [Some(137985), None] {
-            assert_eq!(mag(shot, None).provider, "east_new", "{shot:?}");
+        //: no chain (2026-09-14): `pcs` in `pcs_east`, the chain of the manifest default, at any shot
+        for shot in [Some(70754), Some(137985), None] {
+            let s = mag(shot, None);
+            assert_eq!((s.provider.as_str(), s.range), ("pcs", None), "{shot:?}");
         }
         assert_eq!(mag(Some(70754), Some("east")).provider, "base");
-        assert_eq!(mag(Some(137985), Some("efit_east")).provider, "efit");
+        assert_eq!(mag(Some(137985), Some("east")).provider, "east_new");
+        assert_eq!(mag(Some(137985), Some("efit_east")).provider, "efit_green2022_pcs");
         assert!(selection(&res, &ask(Some(137985), Some("est2"))).unwrap_err().contains("not declared"));
     }
 }

@@ -166,7 +166,12 @@ SYNTHESIZED = (
 #: ★EAST 591 → **783**（2026-09-13 重记）：A-Box 组装的文档多带了按道的 `length` ·
 #: `weight` · `bit_error`、PF 通道的 `turns` · `efit_index` · `bit_error`、`supply[14]`
 #: 与 LH/EC 的额定值；逐值核对 783 条、无一条对不上源。
-CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 783,
+#: ★EAST 783 → **546**（2026-09-14 重记，用户裁定「磁测量缺省走 PCS 树」「缺省几何也走 pcs_east 链」）：
+#: 编译进来的文档是不给炮号、不给测量链的解析，其磁测组由 `east_new`（79 探针 · 75 环）换成 `pcs`
+#: （38 探针 · 35 环）。隔离过：新旧两份文档只在 magnetics 组（及其 `_basis` · `_valid_shots` · 溯源）
+#: 不同；逐 IDS 数，只有 magnetics 由 541 变 257（旧文档当日共 830），其余 IDS 条数逐一相同，
+#: 两份都无一条对不上源，丢掉的裸路径集合相同。少的是道数，不是放行表放宽。
+CHECKED_AT_LEAST = {"best": 124, "cfedr": 96, "cfetr": 102, "east": 546,
                     "iter": 165, "jt60sa": 6, "west": 200}
 
 

@@ -251,11 +251,11 @@ def test_the_generator_builds_east_from_the_a_box(tmp_path):
     for group in device.DEVICE_REQUIRED:
         assert group in dev, group
     assert "abox" in dev["provenance"]["source"]
-    #: ★2026-09-13 (R-S1 / R-S2 + the measurement-chain ruling): the manifest's default
-    #: magnetics is `east_new` (the latest-shot array, chain `east`); the wall default is
-    #: `base` again (the est2 `efit_w_pf` contour was removed)
-    assert dev["magnetics"]["fylite:source"].endswith("providers/magnetics/east_new.jsonld")
-    assert dev["magnetics"]["measurement_chain"] == "east"
+    #: ★2026-09-14 (user ruling「缺省几何也走 pcs_east 链」): the manifest's default magnetics is
+    #: `pcs` (chain `pcs_east`, the default fetch's array); the wall default is `base` (the est2
+    #: `efit_w_pf` contour was removed, 2026-09-13)
+    assert dev["magnetics"]["fylite:source"].endswith("providers/magnetics/pcs.jsonld")
+    assert dev["magnetics"]["measurement_chain"] == "pcs_east"
     assert dev["wall"]["description_2d"][0]["limiter"]["unit"][0]["name"] == "base"
     assert "machine_desc" not in card.read_text(encoding="utf-8")
     help_text = subprocess.run([sys.executable, str(gen), "--help"],

@@ -30,7 +30,7 @@ itself names.
 magnetics probes / loops and its operational limiter were the est2 array
 (``efit_w_pf``: 79 probes + 35 loops with per-channel weight / bit_error, the
 GUI-v5 60-point contour).  That provider is gone, so the build is the manifest
-default (magnetics ``east_new`` in chain ``east``, wall ``base``) and those rows
+default (magnetics ``pcs`` in chain ``pcs_east`` since the 2026-09-14 ruling, wall ``base``) and those rows
 are no longer compared; ``magnetics.pcs``, the ``m-file`` contour and the vessel
 still are.
 
@@ -146,7 +146,7 @@ REL = 1e-9
 @pytest.fixture(scope="module")
 def doc():
     #: ★★2026-09-13 (measurement-chain ruling, est2 removed): the manifest defaults —
-    #: magnetics `east_new` (chain `east`), wall `base`; no provider is named
+    #: magnetics `pcs` (chain `pcs_east`, user ruling 2026-09-14), wall `base`; no provider is named
     return A2F.build_east_from_abox(FYDOC)
 
 
@@ -295,9 +295,9 @@ def test_magnetics_pcs_family_and_the_default_group(doc, card):
     are not compared any more.  What stays comparable is the PCS family (provider-independent)
     — and the default group itself says its chain and declares the per-channel fit absent."""
     mag = doc["magnetics"]
-    assert (mag["fylite:provider"], mag["measurement_chain"]) == ("east_new", "east")
-    assert mag["fylite:source"].endswith("providers/magnetics/east_new.jsonld")
-    assert (len(mag["b_field_pol_probe"]), len(mag["flux_loop"])) == (79, 75)
+    assert (mag["fylite:provider"], mag["measurement_chain"]) == ("pcs", "pcs_east")
+    assert mag["fylite:source"].endswith("providers/magnetics/pcs.jsonld")
+    assert (len(mag["b_field_pol_probe"]), len(mag["flux_loop"])) == (38, 35)
     assert not any("weight" in c or "bit_error" in c for c in (*mag["b_field_pol_probe"], *mag["flux_loop"]))
     assert {"weight", "bit_error"} <= set(mag["fylite:absent"])
     assert "fylite:channel_fit_source" not in mag

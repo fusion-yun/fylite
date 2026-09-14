@@ -34,7 +34,8 @@ from fylite import facts as F
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 CARD = ROOT / "dist" / "facts" / "device" / "east" / "east_device.yaml"
 #: chain -> shot to resolve on (None: no shot).  ★efit_east has only closed-range providers
-#: (efit_green2015 [70745, 70754], efit_green2022_pcs [137985, 137985]), so a no-shot
+#: (efit_green2014 [45563, 52700], efit_green2015 [53825, 96900], efit_green2022_pcs
+#: [97400, 159875]), so a no-shot
 #: resolution there is a refused gap; it is asked on its verified shot #137985.
 CHAINS = {"pcs_east": None, "east": None, "efit_east": 137985}
 #: every POINT_* name the reader derives, read off the reader (not a copy of its list)
