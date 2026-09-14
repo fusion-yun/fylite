@@ -76,6 +76,8 @@
     "a_m":     {"@id": "fyo:boundary/minor_radius"},
     "kappa":   {"@id": "fyo:boundary/elongation"},
     "delta":   {"@id": "fyo:boundary/triangularity"},
-    "species": {"@id": "fyo:ion", "@container": "@set"}
+    "species": {"@id": "fyo:ion", "@container": "@set"},
+    "plan":      {"@id": "urn:vv-register:plan"},
+    "authoring": {"@id": "urn:vv-register:authoring"}
   }
 }

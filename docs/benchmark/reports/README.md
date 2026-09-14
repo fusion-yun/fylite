@@ -42,7 +42,7 @@ title: 公开 V&V 登记册 · 索引
 | V-08 | V | TORAX | public-derived | 部分 | 成立（4 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-08](V-08-torax.md) |
 | V-14 | V | TORAX | public-derived | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-14](V-14-torax-evolution-composition.md) |
 | B-05 | B | TORAX | public-derived | 部分 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-05](B-05-torax-evolution.md) |
-| B-06 | B | EFIT；KEFIT | experiment、private-artefact | 撤回（2026-09-13；本页现为动理学反演对标的工作流 / 计划，2026-09-14 手写） | 未复测（2026-09-08 的 18 passed 属撤回的记录，其输入已归档） | [B-06](B-06-east-reconstruction.md) |
+| B-06 | B | EFIT；KEFIT | experiment、private-artefact | 撤回（2026-09-13；本页现为动理学反演对标的工作流 / 计划，2026-09-14 立项，手写） | 未复测（计划页；撤回记录的门输入已归档） | [B-06](B-06-east-reconstruction.md) |
 | V-15 | V | fylite | experiment、public | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-15](V-15-gfile-roundtrip.md) |
 | C-06 | C | TEQ / CORSICA | restricted | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-06](C-06-teq-iter-equilibria.md) |
 | C-07 | C | TOSCA | restricted | 成立 | 成立（5 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-07](C-07-tosca-run-space.md) |
