@@ -66,9 +66,9 @@ ec ``mode`` 1                         equal — ★fydoc marks it ``divergent`` 
 interferometer names ``point_n1``     binding node ``POINT_N1``                    case only
 first_point.r 2.5                     upstream 0.0 (+ second_point r 3.0)          POINT first_point.r: any
                                                                                    point on the chord
-polarimeter names ``point_f1``        upstream ``POINT1`` (no binding)             no binding upstream
-polarimeter baseline                  absent (``fylite:absent.baseline``)          read-time setting, not in
-                                                                                   the A-Box
+polarimeter names ``point_f1``        binding node ``POINT_F1`` (fydoc binding     case only
+                                      added 2026-09-14)
+polarimeter baseline -0.9 / 0.01      equal, from PROGRAM_SIDE                     program-side (GUI_v5 :388)
 operational efit_w_pf_channel_fit /   not repeated in ``operational`` (carried on  one statement per fact
 gui_v5_pf_channels                    the channels; ``fylite:carried_on_channels``)
 solver_dims / default_grid box /      PROGRAM_SIDE table in the generator          program-side (ruling)
@@ -368,11 +368,16 @@ def test_point_chords(doc, card):
             _num(g["line_of_sight"]["theta"], w["line_of_sight"]["theta"], abs_=1e-12)
     assert [c["name"].casefold() for c in doc["interferometer"]["channel"]] == \
         [c["name"].casefold() for c in card["interferometer"]["channel"]]
-    assert [c["name"] for c in doc["polarimeter"]["channel"]] == [f"POINT{i}" for i in range(1, 12)]
+    #: node names from the fydoc bindings, paired by chord number (N<k> and F<k> on the same chord)
+    assert [c["name"] for c in doc["interferometer"]["channel"]] == [f"POINT_N{i}" for i in range(1, 12)]
+    assert [c["name"] for c in doc["polarimeter"]["channel"]] == [f"POINT_F{i}" for i in range(1, 12)]
+    assert [c["name"].casefold() for c in doc["polarimeter"]["channel"]] == \
+        [c["name"].casefold() for c in card["polarimeter"]["channel"]]
     _num(doc["polarimeter"]["faraday_constant"], card["polarimeter"]["faraday_constant"])
     _num(doc["interferometer"]["laser_wavelength"], card["interferometer"]["laser_wavelength"])
-    #: still not in the A-Box: a read-time setting, declared absent
-    assert "baseline" not in doc["polarimeter"] and "baseline" in doc["polarimeter"]["fylite:absent"]
+    #: program-side (PROGRAM_SIDE['point_baseline']), equal to the retired card's
+    assert doc["polarimeter"]["baseline"] == card["polarimeter"]["baseline"]
+    assert "fylite:absent" not in doc["polarimeter"]
 
 
 def test_hcd(doc, card):

@@ -93,7 +93,7 @@ def test_a_group_with_no_upstream_data_says_so(doc: Path):
                   "polarimeter", "data_source", "operational", "solver_dims"):
         node = dev[group]
         #: ★a STRING says the whole group is absent; a MAPPING names the fields a
-        #: group with content does not carry (EAST: `polarimeter.fylite:absent.baseline`)
+        #: group with content does not carry (e.g. `interferometer.fylite:absent.laser_wavelength`)
         absent = isinstance(node, dict) and isinstance(node.get("fylite:absent"), str)
         content = _has_content(group, node)
         if content and absent:

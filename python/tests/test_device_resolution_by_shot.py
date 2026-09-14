@@ -140,7 +140,7 @@ def test_the_bundled_tier_resolves_east_by_shot_and_chain():
         new = D.select_providers(shot=shot, resolution=res)["magnetics"]
         assert (new["provider"], new["shots"]) == ("east_new", [97034, None]), (shot, new)
     assert D.select_providers(shot=137985, measurement_chain="efit_east",
-                              resolution=res)["magnetics"]["provider"] == "efit"
+                              resolution=res)["magnetics"]["provider"] == "efit_green2022_pcs"
     #: the bundled DOCUMENT, resolved from the bundled resolution, is that family
     card = json.loads(F.bundled_doc("device", "east"))
     doc = D.resolve_document(card, res, shot=70754, form="document")["document"]
@@ -205,7 +205,14 @@ def test_the_measurement_chain_decides_within_itself_and_refuses_by_name(resolut
     #: a rangeless provider of its chain, at any shot; the era-limited PCS bindings never compete
     for shot in (45562, 70754, 137985, None):
         assert sel(shot=shot, measurement_chain="pcs_east")["provider"] == "pcs"
-        assert sel(shot=shot, measurement_chain="efit_east")["provider"] == "efit"
+    #: ★2026-09-14 (user ruling R1): efit_east is one provider per EFIT array vintage, each on the
+    #: shots it was verified on; every other shot — and no shot, the latest — is a gap, refused by name
+    assert sel(shot=70754, measurement_chain="efit_east")["provider"] == "efit_green2015"
+    assert sel(shot=137985, measurement_chain="efit_east")["provider"] == "efit_green2022_pcs"
+    for shot in (45562, 97032, None):
+        with pytest.raises(D.ProviderSelectionError) as gap:
+            sel(shot=shot, measurement_chain="efit_east")
+        assert all(s in str(gap.value) for s in ('"efit_east"', "[70745, 70754]", "[137985, 137985]")), gap.value
     #: a gap inside the chain names the chain, the shot and the declared ranges
     with pytest.raises(D.ProviderSelectionError) as gap:
         sel(shot=97032, measurement_chain="east")
@@ -225,7 +232,7 @@ def test_the_measurement_chain_decides_within_itself_and_refuses_by_name(resolut
     _need(CARD)
     mag = D.resolve_document(D.load_device(CARD), resolution, shot=137985,
                              measurement_chain="efit_east")["document"]["magnetics"]
-    assert (mag["fylite:provider"], mag["measurement_chain"]) == ("efit", "efit_east")
+    assert (mag["fylite:provider"], mag["measurement_chain"]) == ("efit_green2022_pcs", "efit_east")
     assert (len(mag["b_field_pol_probe"]), len(mag["flux_loop"])) == (76, 35)
     assert not any("weight" in c or "bit_error" in c for c in (*mag["b_field_pol_probe"], *mag["flux_loop"]))
 
@@ -261,16 +268,17 @@ def _measurement(tmp_path: pathlib.Path, chain: str | None, n_probe: int, n_loop
 def test_the_command_line_takes_the_chain_from_the_measurement_document(resolution, tmp_path):
     exe = _exe()
     efit = _measurement(tmp_path, "efit_east", 76, 35)
-    ok = _dry(exe, "--input", str(efit), cwd=ROOT)
+    #: ★the efit_east chain resolves only on its verified shots (2026-09-14), so the shot is given
+    ok = _dry(exe, "--input", str(efit), "shot=137985", cwd=ROOT)
     assert ok.returncode == 0, ok.stdout + ok.stderr
-    assert _cli_selection(_device_line(ok.stdout))["magnetics"][0] == "efit"
+    assert _cli_selection(_device_line(ok.stdout))["magnetics"][0] == "efit_green2022_pcs"
     #: a chain the device does not declare, read off the document, is refused by name
     est2 = _measurement(tmp_path, "est2", 79, 35)
     bad = _dry(exe, "--input", str(est2), cwd=ROOT)
     said = bad.stdout + bad.stderr
     assert bad.returncode != 0 and "est2" in said and "not declared" in said, said
     #: the document declares a chain: measurement_chain= is refused, naming both
-    both = _dry(exe, "--input", str(efit), "measurement_chain=east", cwd=ROOT)
+    both = _dry(exe, "--input", str(efit), "shot=137985", "measurement_chain=east", cwd=ROOT)
     said = both.stdout + both.stderr
     assert both.returncode != 0 and "measurement_chain=east" in said and "efit_east" in said, said
     #: provider= is not a request of any kind any more (2026-09-13): it selects no provider of the
@@ -290,7 +298,7 @@ def test_the_reconstruction_path_refuses_a_measurement_of_another_chain(tmp_path
     code = textwrap.dedent("""
         import sys
         from fylite import device as D, fyo
-        D.use_device(D.document() if sys.argv[1] == "static" else D.document(measurement_chain="efit_east"))
+        D.use_device(D.document() if sys.argv[1] == "static" else D.document(shot=137985, measurement_chain="efit_east"))
         try:
             m = fyo.as_measurements(sys.argv[2], 4.0)
         except fyo.MeasurementInputError as e:
@@ -378,6 +386,14 @@ def generator():
 @pytest.mark.parametrize("shot", [70754, 97030, 97034, 137985])
 def test_a_generated_variant_card_is_the_use_time_resolution(generator, shot, chain):
     a2f, fydoc, res, base = generator
+    if chain == "efit_east" and shot in (97030, 97034):
+        #: ★outside both verified efit_east ranges (2026-09-14): a gap, refused on both routes
+        with pytest.raises(SystemExit):
+            a2f.variant_card("east", fydoc, copy.deepcopy(base), shot=shot, measurement_chain=chain,
+                             resolution=res)
+        with pytest.raises(D.ProviderSelectionError):
+            D.document(shot=shot, measurement_chain=chain)
+        return
     card = a2f.variant_card("east", fydoc, copy.deepcopy(base), shot=shot, measurement_chain=chain,
                             resolution=res)
     card = yaml.safe_load(yaml.dump(card, allow_unicode=True, sort_keys=False))       # as written
@@ -448,6 +464,7 @@ def test_every_magnetics_group_states_its_chain_and_no_group_carries_fit_arrays(
         assert not any("weight" in c or "bit_error" in c for c in (*mag["b_field_pol_probe"], *mag["flux_loop"])), name
         assert "fylite:channel_basis" not in mag, name
     assert "basis_providers" not in resolution
-    assert set(resolution["variants"]["magnetics"]) == {"base", "east_new", "pcs", "efit"}
+    assert set(resolution["variants"]["magnetics"]) == {"base", "east_new", "pcs", "efit_green2015",
+                                                        "efit_green2022_pcs"}
     assert set(resolution["variants"]["wall"]) == {"base", "m093060"}
     assert not any("fylite:absent" in v for v in resolution["variants"]["wall"].values())

@@ -130,7 +130,8 @@ def test_the_flux_loops_are_in_the_same_places(pair):
     resolution, whose magnetics provider is ``east_new`` (chain ``east``, 75 loops).  The
     other chains' loop sets are not in either file as written; they are what each form
     RESOLVES to, so one is compared resolved — both forms, one resolution document, the
-    runtime's rule: the ``efit_east`` chain (``conftest.EFIT_TREE``: ``efit``, 35 loops).
+    runtime's rule: the ``efit_east`` chain at #137985 (``conftest.EFIT_TREE``:
+    ``efit_green2022_pcs`` since 2026-09-14, 35 loops).
     """
     from conftest import EFIT_TREE
     from fylite import device

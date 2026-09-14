@@ -127,6 +127,9 @@ BASELINE: dict[str, set[str]] = {
         "pf_active: supply/time_constant",
         "pf_passive: outer_shell", "pf_passive: passive_plates",
         "pf_passive: vessel",
+        #: ★2026-09-14: the POINT pre-shot offset window, now written by the generator's program-side
+        #: table — a reduction setting of fylite's own, unprefixed, with no DD home; lost on IMAS export.
+        "polarimeter: baseline",
         "polarimeter: channel/line_of_sight/theta",
         "polarimeter: faraday_constant",
         "tf: b0",

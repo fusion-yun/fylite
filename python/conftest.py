@@ -388,6 +388,12 @@ CASE_SHOT, CASE_ITIME_MS = 137985, 4000
 KERNEL_ENV = "FYLITE_KERNEL"
 #: the FYDOC-CASE-22 mirror, relative to the kernel checkout
 CASE_MIRROR = "tests/data/FYDOC-CASE-22-east-137985-efit/corpus"
+#: ★2026-09-14: the efit_east #137985 case that replaces it (fydoc FYDOC-CASE-23, mirrored in the
+#: kernel checkout) — EFIT's own input channels and answer at \TIME[28] = 4.041 s.  Asked for by
+#: ``case="efit_east"``; the default stays ``"est2"`` so a consumer not yet moved keeps skipping by name.
+EFIT_EAST_MIRROR = "tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus"
+EFIT_EAST_ITIME_MS = 4041
+CASES = ("est2", "efit_east")
 #: the #137985 reference discharge / slice series, relative to the kernel checkout
 REFERENCE_DISCHARGE = "tests/data/east/reference_discharge_137985.fyo.jsonld"
 
@@ -420,16 +426,30 @@ def reference_discharge() -> dict:
     return doc["fylite:reference_discharge"]
 
 
+def _itime(case: str, itime_ms: int | None) -> int:
+    if case not in CASES:
+        raise ValueError(f"unknown EAST case {case!r} (known: {CASES})")
+    if itime_ms is not None:
+        return int(itime_ms)
+    return EFIT_EAST_ITIME_MS if case == "efit_east" else CASE_ITIME_MS
+
+
 def case_document(kind: str, shot: int = CASE_SHOT,
-                  itime_ms: int = CASE_ITIME_MS) -> Path:
+                  itime_ms: int | None = None, *, case: str = "est2") -> Path:
     """One of the case's fyo documents — ``kind`` is ``"case"`` (the measurement
     set), ``"equilibrium"`` or ``"oracle"`` — from the kernel's FYDOC-CASE-22
-    mirror, or SKIP naming the file and the variable."""
+    mirror (``case="est2"``) or FYDOC-CASE-23 mirror (``case="efit_east"``, whose
+    measurement set is named ``measurement_…`` and which carries no oracle), or
+    SKIP naming the file and the variable."""
+    itime_ms = _itime(case, itime_ms)
+    if case == "efit_east":
+        name = "measurement" if kind == "case" else kind
+        return kernel_fixture(f"{EFIT_EAST_MIRROR}/{name}_east{shot}_{itime_ms}ms.fyo.jsonld")
     return kernel_fixture(f"{CASE_MIRROR}/{kind}_east{shot}_{itime_ms}ms.fyo.jsonld")
 
 
-def east_measurements(shot: int = CASE_SHOT, itime_ms: int = CASE_ITIME_MS,
-                      *, fwtmp2_zero: bool = True) -> dict:
+def east_measurements(shot: int = CASE_SHOT, itime_ms: int | None = None,
+                      *, fwtmp2_zero: bool = True, case: str = "est2") -> dict:
     """The delivered #137985 @ 4.0 s magnetic measurement set.
 
     ★Nine test modules built this dict by hand from the a-file, five
@@ -444,7 +464,8 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int = CASE_ITIME_MS,
 
     from fylite import fyo as _fyo
 
-    path = case_document("case", shot, itime_ms)
+    itime_ms = _itime(case, itime_ms)
+    path = case_document("case", shot, itime_ms, case=case)
     doc = _fyo.read(path)
     #: ★★2026-09-13 (measurement-chain ruling): the READ is resolved in the chain the
     #: document itself declares (`measurement_chain`).  The FYDOC-CASE-22 record is the
@@ -458,7 +479,9 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int = CASE_ITIME_MS,
     if chain is None:
         pytest.skip(f"{path} declares no {_device.CHAIN_KEY} "
                     f"(fylite:channel_basis: {doc.get('fylite:channel_basis')!r}) — {EST2_UNPAIRED}")
-    with device_selected(measurement_chain=chain):
+    #: ★2026-09-14 (user ruling R1): the efit_east chain resolves only on its verified shots, so
+    #: the selection names the document's own shot, not "the latest"
+    with device_selected(measurement_chain=chain, shot=int(doc.get("fylite:shot", shot))):
         meas = _fyo.as_measurements(doc, itime_ms / 1000.0)
     meas.update(shot=int(shot), itime_ms=int(itime_ms))
     if fwtmp2_zero:
@@ -476,12 +499,19 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int = CASE_ITIME_MS,
 #: resolved for it through the runtime's rule (``fylite.device.document``) — never a
 #: hand-picked file and never a named provider:
 #:
-#: * :data:`EFIT_TREE` — the processed ``efit_east`` tree (chain ``efit_east``: provider
-#:   ``efit``, 76 probes + 35 loops, EXPMPI order): measurement sets built on the bound
-#:   device's ``NPROBE`` / ``NSILOP``.
+#: * :data:`EFIT_TREE` — the processed ``efit_east`` tree (chain ``efit_east``, 76 probes +
+#:   35 loops, EXPMPI order): measurement sets built on the bound device's ``NPROBE`` /
+#:   ``NSILOP``.
+#:
+#: ★★2026-09-14 (user ruling R1): the chain's geometry is one provider per EFIT array
+#: vintage, each anchored on the shots it was verified on (``efit_green2015`` [70745, 70754],
+#: ``efit_green2022_pcs`` [137985, 137985]); every other shot is an unknown band, and a gap
+#: in a chain is refused by name.  No shot means the latest shot, which falls in that band —
+#: so the selection names the shot it stands for: #137985, the efit_east case
+#: (fydoc ``FYDOC-CASE-23-east-137985-efit-east``).
 #:
 #: There is no est2 selection any more (est2 removed at every layer).
-EFIT_TREE = {"measurement_chain": "efit_east"}
+EFIT_TREE = {"measurement_chain": "efit_east", "shot": 137985}
 
 from contextlib import contextmanager as _contextmanager  # noqa: E402
 
@@ -497,20 +527,45 @@ def device_selected(**selection):
     test outside the block never observes the selection.
     """
     doc = _device.document(**selection)
-    ns = vars(_device)
-    saved = _device._DERIVED
-    saved_names = {k: ns[k] for k in _device._DERIVED_NAMES if k in ns}
-    for k in saved_names:
-        del ns[k]
+    saved = _binding_snapshot()
+    for k in saved[1]:
+        del vars(_device)[k]
     _device._DERIVED = None
     try:
         _device.use_device(doc)
         yield doc
     finally:
-        for k in _device._DERIVED_NAMES:
-            ns.pop(k, None)
-        ns.update(saved_names)
-        _device._DERIVED = saved
+        _binding_restore(saved)
+
+
+def _binding_snapshot() -> tuple:
+    """``fylite.device``'s binding: ``_DERIVED`` and every published derived name."""
+    ns = vars(_device)
+    return _device._DERIVED, {k: ns[k] for k in _device._DERIVED_NAMES if k in ns}
+
+
+def _binding_restore(saved: tuple) -> None:
+    derived, names = saved
+    ns = vars(_device)
+    for k in _device._DERIVED_NAMES:
+        ns.pop(k, None)
+    ns.update(names)
+    _device._DERIVED = derived
+
+
+@pytest.fixture(autouse=True)
+def _device_binding_isolated():
+    """Put ``fylite.device``'s binding back after every test.
+
+    ★A test that reads through the bound device (``raw.reduce_series`` without
+    ``device_doc`` …) resolves it process-wide, and a later ``device.use_device``
+    in the same run then refuses ("already resolved") — test-order dependence, not
+    a finding.  Cheap: when ``_DERIVED`` is still the same object nothing is restored.
+    """
+    saved = _binding_snapshot()
+    yield
+    if _device._DERIVED is not saved[0]:
+        _binding_restore(saved)
 
 
 @pytest.fixture
@@ -521,7 +576,7 @@ def efit_tree_device():
 
 
 def east_equilibrium(shot: int = CASE_SHOT,
-                     itime_ms: int = CASE_ITIME_MS) -> dict:
+                     itime_ms: int | None = None, *, case: str = "est2") -> dict:
     """The delivered equilibrium as an ``fyo:equilibrium`` document.
 
     ★A document, not a g-file dict: every model entry that takes an
@@ -530,7 +585,7 @@ def east_equilibrium(shot: int = CASE_SHOT,
     it.  ``fyo.axis_of`` / ``ip_of`` / ``psi_map_of`` are the readers.
     """
     from fylite import fyo as _fyo
-    return _fyo.read(case_document("equilibrium", shot, itime_ms))
+    return _fyo.read(case_document("equilibrium", shot, itime_ms, case=case))
 
 
 # --------------------------------------------------------------------------- #

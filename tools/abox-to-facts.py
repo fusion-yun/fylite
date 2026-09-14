@@ -926,6 +926,16 @@ PROGRAM_SIDE = {
         #: magnetics group's own (`fylite.device._derive`), not a compiled constant beside it
         "solver_dims": {"nw": 65, "nh": 65, "nfcoil": 12},
         "faraday_constant": 2.62e-13,
+        #: ★2026-09-14: the POINT pre-shot offset window — every chord has the mean of the
+        #: samples with |t - centre_s| < tolerance_s subtracted before the slice window is averaged
+        #: (`fylite.io.raw.reduce_series`).  PROGRAM-SIDE, like `faraday_constant`: it is a
+        #: constant in the reduction code, not a property of the diagnostic —
+        #: `EFIT_POINT_GUI_v5.m:388` hard-codes `find(abs(t_point+0.9)<0.01)`, the retired card
+        #: (kernel 71c7cef `polarimeter.baseline`) carried the same -0.9 / 0.01, and fydoc's
+        #: polarimeter pages and provenance record no such window.  ★That GUI line's own comment
+        #: says "offset at -8ms", which does not match -0.9 s; the code is what ran, so the code's
+        #: numbers are kept.
+        "point_baseline": {"centre_s": -0.9, "tolerance_s": 0.01},
         "default_grid": {"r_min": 1.2, "r_max": 2.8, "z_min": -1.4, "z_max": 1.4},
         #: the chords the EFIT POINT constraint uses (the interferometer IDS also
         #: carries HCN / SSI / DI, which EFIT does not fit)
@@ -1527,7 +1537,7 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
     """EAST's device document, assembled from fydoc's A-Box (see the section header).
 
     ``providers`` names the provider of a resolved IDS (``PROGRAM_SIDE['resolved_ids']``,
-    e.g. ``{"magnetics": "efit"}``) for the ONE conversion :func:`east_resolution` makes per
+    e.g. ``{"magnetics": "efit_green2022_pcs"}``) for the ONE conversion :func:`east_resolution` makes per
     provider; unnamed ones take the manifest's ``default``.  ★Not a request surface: which
     converted group a request gets is the runtime's rule (shot + measurement chain).
     """
@@ -1578,7 +1588,8 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
             "note": ("Converted, not authored: every device value is copied from the file "
                      "named in `fylite:source`; a field the A-Box does not carry is named "
                      "under `fylite:absent`.  `solver_dims`, `default_grid`, "
-                     "`polarimeter.faraday_constant` and `fylite:ui` are program-side values "
+                     "`polarimeter.faraday_constant`, `polarimeter.baseline` and `fylite:ui` "
+                     "are program-side values "
                      "(PROGRAM_SIDE in the generator), not device facts."),
         },
     }
@@ -1636,13 +1647,8 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
             "the A-Box interferometer carries no single channel wavelength for the POINT chords")
     pol = doc["polarimeter"]
     pol["faraday_constant"] = prog["faraday_constant"]
-    base = (load("polarimeter") or {}).get("baseline")
-    if isinstance(base, dict) and {"centre_s", "tolerance_s"} <= set(base):
-        pol["baseline"] = {"centre_s": float(base["centre_s"]),
-                           "tolerance_s": float(base["tolerance_s"])}
-    else:
-        pol.setdefault("fylite:absent", {})["baseline"] = (
-            "the A-Box carries no POINT baseline window (a read-time setting)")
+    #: program-side (PROGRAM_SIDE['point_baseline'] says why); one source, so the A-Box is not consulted
+    pol["baseline"] = {k: float(v) for k, v in prog["point_baseline"].items()}
     if "operational" in files:
         used = east_channel_fit(doc, load("operational"), rel["operational"], prog)
         carried = {n: ("pf_active.coil[].bit_error"

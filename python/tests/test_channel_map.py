@@ -32,7 +32,8 @@ def _efit_tree_card():
     (76 probes, EXPMPI order), and the static card is the no-shot resolution
     (magnetics ``east_new``) — a measurement built on ``device.NPROBE`` is refused
     against it by name.  So this module states its selection: the card resolved for
-    the ``efit_east`` tree (``efit``), bound for the module and released after."""
+    the ``efit_east`` tree at #137985 (``conftest.EFIT_TREE``: ``efit_green2022_pcs``,
+    2026-09-14), bound for the module and released after."""
     with device_selected(**EFIT_TREE):
         yield
 

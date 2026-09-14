@@ -25,7 +25,23 @@ import numpy as np
 import pytest
 
 from conftest import requires_machine
+from fylite import device
 from fylite.io import raw
+
+
+@pytest.fixture
+def device_restored():
+    """The configured device, bound for ONE test and put back afterwards.
+
+    ★`raw.reduce_series` with no `device_doc` resolves the bound device, and that
+    resolution is process-wide (`device._DERIVED` + the published names).  Left
+    in place it makes a later `device.use_device(...)` in the same run refuse
+    ("already resolved") — test-order dependence, not a finding.  So the four
+    reductions below run inside `device.bound(...)`, whose restore contract puts
+    the previous binding (usually: none) back whichever way the test exits.
+    """
+    with device.bound(device.data_dir()):
+        yield
 
 PERIOD = 0.02          #: ELM 周期 [s]
 DUTY = 0.02            #: 亮段占周期的比例（Dα 峰宽）
@@ -140,6 +156,7 @@ def test_the_band_selects_the_late_inter_elm_stretch():
 
 
 @requires_machine
+@pytest.mark.usefixtures("device_restored")
 def test_the_reduction_is_untouched_when_the_option_is_off():
     """★★缺省关：不给 `elm` 时，归约出来的数与从前**逐位相同**。
 
@@ -158,6 +175,7 @@ def test_the_reduction_is_untouched_when_the_option_is_off():
 
 
 @requires_machine
+@pytest.mark.usefixtures("device_restored")
 def test_the_conditional_reduction_averages_only_the_band():
     """★★开关打开时，归约平均的**就是**相位带里的采样。
 
@@ -183,6 +201,7 @@ def test_the_conditional_reduction_averages_only_the_band():
 
 
 @requires_machine
+@pytest.mark.usefixtures("device_restored")
 def test_an_empty_intersection_is_an_error_not_a_quiet_fallback():
     """★★窗与带无交集时**按名报错**：静默地退回普通窗口会交出一份跨崩塌的平均，
     而那既不是崩塌前也不是崩塌后 —— 它看起来完全正常，这才是危险的地方。"""
@@ -201,6 +220,7 @@ def test_an_empty_intersection_is_an_error_not_a_quiet_fallback():
 
 
 @requires_machine
+@pytest.mark.usefixtures("device_restored")
 def test_it_refuses_a_series_it_cannot_phase():
     """★交了 Dα 却只有一个（或零个）起始时按名报错：相位是周期的分数，要两个起始。"""
     t, y = _trace()
