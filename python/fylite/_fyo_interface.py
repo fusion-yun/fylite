@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = 'e133b3b8a36c02a6'
+DIGEST = '8293141e58e7aba4'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -168,6 +168,8 @@ TABLES = {
             'outline_levels': {"path": 'fylite:outline_levels', "units": '1', "rank": '1d'},
             'wave_phases': {"path": 'fylite:wave_phases', "units": 's', "rank": '1d'},
             'wave_t': {"path": 'fylite:wave_t', "units": 's', "rank": '1d'},
+            'point_r': {"path": 'fylite:point_r', "units": 'm', "rank": '1d'},
+            'point_z': {"path": 'fylite:point_z', "units": 'm', "rank": '1d'},
         },
     },
     'EC_LAUNCHERS': {
@@ -389,6 +391,7 @@ BLOCKS = {
         {'key': 'metric', 'shape': '', 'units': 'assembled', 'gloss': "the flux-surface moments of a Miller / MXH surface row (the model page's Miller ladder, engine/cases.py's, gyrofluid's ky_factor, the gates' references): one geometry::solve per node on the ladder rows r_minor · r_major · q · magnetic_shear · elongation · triangularity · shift and the MXH rows, answered as the DD-named ladder moments (volume · dV/drho · gm3 · gm7 · gm2 · <R^2>) with GEO's normalised scalars beside them"},
         {'key': 'ladder', 'shape': '', 'units': 'assembled', 'gloss': "one equilibrium document traced once (Python's fyo.Ladder): the requested psi_N levels (fylite:ladder_levels, or n_surfaces from psin_min to edge) on the document's own psi map, axis, limiter, q and F tables and boundary — surfaces::equilibrium_ladder, the transport metrics and the local Miller shape of the SAME surfaces answered on the ladder rows"},
         {'key': 'separatrix_align', 'shape': '', 'units': 'assembled', 'gloss': 'the separatrix alignment of the kinetic chain: a profile on the psi_N label and a separatrix electron temperature in, the rigid label shift that puts T_e(psi_N = 1) at that temperature out, with the pedestal gradient before and after; it does not compute T_e,sep (the two-point model has no door yet) and refuses by name without one'},
+        {'key': 'psi_points', 'shape': '', 'units': 'assembled', 'gloss': "the mapping step of the kinetic chain: diagnostic points (R, Z) on an equilibrium document's psi map, answered as psi_N by the map's own bilinear sample and flagged confined only when psi_N <= 1 AND inside the boundary outline (psi_N alone cannot tell the private-flux region from the core); a point outside the map's box is refused by name, never extrapolated"},
         {'key': 'xpoints', 'shape': '', 'units': 'assembled', 'gloss': "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)"},
         {'key': 'channels', 'shape': '', 'units': 'assembled', 'gloss': "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field"},
         {'key': 'rf_ray', 'shape': '', 'units': 'assembled', 'gloss': "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — GEOMETRY ONLY: the trajectory, how deep in psi_N it reached, and why it stopped. Absorption and adjoint ECCD are stages (2) and (3) of docs/note/ec-raytracing.md and are NOT implemented, so this door answers no deposition and no driven current; asking for them is a refusal, not a zero"},
@@ -830,12 +833,20 @@ CODE_PARAMS = {
         'anneal_hi': {'key': 'anneal_hi', 'type': 'float', 'via': 'discharge_case', 'default': '0.10', 'required': False},
         'anneal_lo': {'key': 'anneal_lo', 'type': 'float', 'via': 'discharge_case', 'default': '0.005', 'required': False},
         'beta0': {'key': 'beta0', 'type': 'float', 'via': 'discharge_case', 'default': '0.55', 'required': False},
+        'box_max_iter': {'key': 'box_max_iter', 'type': 'float', 'via': 'discharge_case', 'default': '600.0', 'required': False},
+        'box_relax': {'key': 'box_relax', 'type': 'float', 'via': 'discharge_case', 'default': '0.5', 'required': False},
+        'box_tol': {'key': 'box_tol', 'type': 'float', 'via': 'discharge_case', 'default': '1e-9', 'required': False},
+        'box_trust': {'key': 'box_trust', 'type': 'float', 'via': 'discharge_case', 'default': 'eq::FIXED_BOX_TRUST as f64', 'required': False},
         'delta_lower': {'key': 'delta_lower', 'type': 'float', 'via': 'discharge_case', 'default': '0.0', 'required': False},
         'delta_upper': {'key': 'delta_upper', 'type': 'float', 'via': 'discharge_case', 'default': '0.0', 'required': False},
         'emp': {'key': 'emp', 'type': 'float', 'via': 'discharge_case', 'default': '1.0', 'required': False},
         'enp': {'key': 'enp', 'type': 'float', 'via': 'discharge_case', 'default': '1.0', 'required': False},
         'fb_gain': {'key': 'fb_gain', 'type': 'float', 'via': 'discharge_case', 'default': '8.0', 'required': False},
+        'ff0': {'key': 'ff0', 'type': 'float', 'via': 'discharge_case', 'default': '0.0', 'required': False},
         'gamma': {'key': 'gamma', 'type': 'float', 'via': 'discharge_case', 'default': '0.4', 'required': False},
+        'hold_relax': {'key': 'hold_relax', 'type': 'float', 'via': 'discharge_case', 'default': '0.5', 'required': False},
+        'hold_rounds': {'key': 'hold_rounds', 'type': 'float', 'via': 'discharge_case', 'default': '12.0', 'required': False},
+        'hold_tol': {'key': 'hold_tol', 'type': 'float', 'via': 'discharge_case', 'default': '1e-3', 'required': False},
         'inset': {'key': 'inset', 'type': 'float', 'via': 'discharge_case', 'default': '0.005', 'required': False},
         'ip': {'key': 'ip', 'type': 'float', 'via': 'discharge_case', 'required': True, 'why': 'the plasma current [A]'},
         'kappa': {'key': 'kappa', 'type': 'float', 'via': 'discharge_case', 'default': '1.0', 'required': False},
@@ -846,10 +857,18 @@ CODE_PARAMS = {
         'n_ring': {'key': 'n_ring', 'type': 'float', 'via': 'discharge_case', 'default': '4.0', 'required': False},
         'n_theta': {'key': 'n_theta', 'type': 'float', 'via': 'discharge_case', 'default': '181.0', 'required': False},
         'nu': {'key': 'nu', 'type': 'float', 'via': 'discharge_case', 'default': '3.0', 'required': False},
+        'p0': {'key': 'p0', 'type': 'float', 'via': 'discharge_case', 'default': '1.0e6', 'required': False},
         'passes': {'key': 'passes', 'type': 'float', 'via': 'discharge_case', 'default': '8.0', 'required': False},
+        'pc_ki': {'key': 'pc_ki', 'type': 'float', 'via': 'discharge_case', 'default': '0.05', 'required': False},
+        'pc_kp': {'key': 'pc_kp', 'type': 'float', 'via': 'discharge_case', 'default': '2.0', 'required': False},
+        'pc_r': {'key': 'pc_r', 'type': 'float', 'via': 'discharge_case'},
+        'pc_relax_current': {'key': 'pc_relax_current', 'type': 'float', 'via': 'discharge_case', 'default': '0.5', 'required': False},
+        'pc_z': {'key': 'pc_z', 'type': 'float', 'via': 'discharge_case'},
         'peaking': {'key': 'peaking', 'type': 'float', 'via': 'discharge_case', 'default': '1.0', 'required': False},
+        'position_control': {'key': 'position_control', 'type': 'string', 'via': 'discharge_case'},
         'r0': {'key': 'r0', 'type': 'float', 'via': 'discharge_case', 'required': True, 'why': 'the target major radius [m]'},
         'relax': {'key': 'relax', 'type': 'float', 'via': 'discharge_case', 'default': '0.3', 'required': False},
+        'seed': {'key': 'seed', 'type': 'string', 'via': 'discharge_case'},
         'stage': {'key': 'stage', 'type': 'string', 'via': 'discharge_case'},
         'tol': {'key': 'tol', 'type': 'float', 'via': 'discharge_case', 'default': '1e-9', 'required': False},
         'warm': {'key': 'warm', 'type': 'boolean', 'via': 'discharge_case', 'default': 'false'},
@@ -880,6 +899,10 @@ CODE_PARAMS = {
         'ch_heat': {'key': 'ch_heat', 'type': 'float', 'via': 'evolve'},
         'ch_momentum': {'key': 'ch_momentum', 'type': 'boolean', 'via': 'evolve', 'default': 'false'},
         'chi0': {'key': 'chi0', 'type': 'float', 'via': 'evolve', 'required': True, 'why': 'chi0 [m^2/s]'},
+        'chi_scale_int': {'key': 'chi_scale_int', 'type': 'float', 'via': 'evolve'},
+        'chi_scale_kp': {'key': 'chi_scale_kp', 'type': 'float', 'via': 'evolve'},
+        'chi_scale_tau': {'key': 'chi_scale_tau', 'type': 'float', 'via': 'evolve'},
+        'chi_scaling': {'key': 'chi_scaling', 'type': 'string', 'via': 'evolve'},
         'cimp': {'key': 'cimp', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'closure': {'key': 'closure', 'type': 'string', 'via': 'evolve'},
         'composition': {'key': 'composition', 'type': 'string', 'via': 'species_physics_from'},
@@ -905,6 +928,7 @@ CODE_PARAMS = {
         'fuel_mix': {'key': 'fuel_mix', 'type': 'string', 'via': 'species_physics_from'},
         'fuel_width': {'key': 'fuel_width', 'type': 'float', 'via': 'evolve', 'default': '0.25', 'required': False},
         'geometry': {'key': 'geometry', 'type': 'string', 'via': 'evolve'},
+        'globals': {'key': 'globals', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'heat': {'key': 'heat', 'type': 'float', 'via': 'evolve'},
         'i_cd_a': {'key': 'i_cd_a', 'type': 'float', 'via': 'evolve'},
         'icd': {'key': 'icd', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
@@ -1065,6 +1089,8 @@ CODE_PARAMS = {
     'profile_fit': {"door": 'profile_fit_case', "crate": 'fylite_kernel', "parameters": {
         'max_order': {'key': 'max_order', 'type': 'float', 'via': 'profile_fit_case', 'default': '6.0', 'required': False},
         'n_curve': {'key': 'n_curve', 'type': 'float', 'via': 'profile_fit_case', 'default': '101.0', 'required': False},
+    }},
+    'psi_points': {"door": 'psi_points_case', "crate": 'fylite_kernel', "parameters": {
     }},
     'pulse': {"door": 'pulse_case', "crate": 'fylite_kernel', "parameters": {
         'beta0': {'key': 'beta0', 'type': 'float', 'via': 'pulse_case', 'default': '0.55', 'required': False},
@@ -1232,6 +1258,11 @@ CODE_PARAMS = {
         'edge': {'key': 'edge', 'type': 'float', 'via': 'steady_equilibrium_case', 'default': '1.0', 'required': False},
         'fast_alpha_quasi': {'key': 'fast_alpha_quasi', 'type': 'float', 'via': 'species_physics_from'},
         'fuel_mix': {'key': 'fuel_mix', 'type': 'string', 'via': 'species_physics_from'},
+        'hold_basis': {'key': 'hold_basis', 'type': 'float', 'via': 'steady_equilibrium_case', 'default': 'd.n_basis as f64', 'required': False},
+        'hold_boundary': {'key': 'hold_boundary', 'type': 'float', 'via': 'steady_equilibrium_case', 'default': '0.0', 'required': False},
+        'hold_passes': {'key': 'hold_passes', 'type': 'float', 'via': 'steady_equilibrium_case', 'default': 'd.passes as f64', 'required': False},
+        'hold_relax': {'key': 'hold_relax', 'type': 'float', 'via': 'steady_equilibrium_case', 'default': 'd.relax', 'required': False},
+        'hold_tol': {'key': 'hold_tol', 'type': 'float', 'via': 'steady_equilibrium_case', 'default': 'd.tol_m', 'required': False},
         'imp_charge': {'key': 'imp_charge', 'type': 'string', 'via': 'species_physics_from'},
         'imp_conc': {'key': 'imp_conc', 'type': 'float', 'via': 'species_physics_from'},
         'imp_d': {'key': 'imp_d', 'type': 'float', 'via': 'species_physics_from', 'default': '1.0', 'required': False},

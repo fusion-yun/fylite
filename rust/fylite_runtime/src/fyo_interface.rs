@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "e133b3b8a36c02a6";
+pub const DIGEST: &str = "8293141e58e7aba4";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -162,6 +162,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "outline_levels", path: "fylite:outline_levels", units: "1", rank: "1d" },
         Slot { key: "wave_phases", path: "fylite:wave_phases", units: "s", rank: "1d" },
         Slot { key: "wave_t", path: "fylite:wave_t", units: "s", rank: "1d" },
+        Slot { key: "point_r", path: "fylite:point_r", units: "m", rank: "1d" },
+        Slot { key: "point_z", path: "fylite:point_z", units: "m", rank: "1d" },
     ] },
     Table { name: "EC_LAUNCHERS", doc_type: "fyo:ec_launchers", slots: &[
         Slot { key: "name", path: "beam/name", units: "", rank: "0d" },
@@ -345,6 +347,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "metric", shape: "", units: "assembled", gloss: "the flux-surface moments of a Miller / MXH surface row (the model page's Miller ladder, engine/cases.py's, gyrofluid's ky_factor, the gates' references): one geometry::solve per node on the ladder rows r_minor · r_major · q · magnetic_shear · elongation · triangularity · shift and the MXH rows, answered as the DD-named ladder moments (volume · dV/drho · gm3 · gm7 · gm2 · <R^2>) with GEO's normalised scalars beside them" },
         Row { key: "ladder", shape: "", units: "assembled", gloss: "one equilibrium document traced once (Python's fyo.Ladder): the requested psi_N levels (fylite:ladder_levels, or n_surfaces from psin_min to edge) on the document's own psi map, axis, limiter, q and F tables and boundary — surfaces::equilibrium_ladder, the transport metrics and the local Miller shape of the SAME surfaces answered on the ladder rows" },
         Row { key: "separatrix_align", shape: "", units: "assembled", gloss: "the separatrix alignment of the kinetic chain: a profile on the psi_N label and a separatrix electron temperature in, the rigid label shift that puts T_e(psi_N = 1) at that temperature out, with the pedestal gradient before and after; it does not compute T_e,sep (the two-point model has no door yet) and refuses by name without one" },
+        Row { key: "psi_points", shape: "", units: "assembled", gloss: "the mapping step of the kinetic chain: diagnostic points (R, Z) on an equilibrium document's psi map, answered as psi_N by the map's own bilinear sample and flagged confined only when psi_N <= 1 AND inside the boundary outline (psi_N alone cannot tell the private-flux region from the core); a point outside the map's box is refused by name, never extrapolated" },
         Row { key: "xpoints", shape: "", units: "assembled", gloss: "the saddle points of a psi map (Python's plot.find_x_points, the summary's X-point block on its own): the map, psi_axis, psi_boundary and the magnetic axis — surfaces::x_points, nearest psi_N = 1 first, as the xpts field (n_x × 4)" },
         Row { key: "channels", shape: "", units: "assembled", gloss: "the device's BRSP channel map as the kernel folds it (Python's device.conductor_set): the deck's frozen pf_channel_elements rows, or one channel per coil weighted by its elements' turns — electromagnetics::channel_weights, the dense (n_ch × n_el) weights as a field" },
         Row { key: "rf_ray", shape: "", units: "assembled", gloss: "cold-plasma ray trajectories on an equilibrium document (rfray, the clean-room ray core): the psi map, F table, boundary and the profiles assembled into the tokamak medium (rfray::PsiMedium, C1-continued across the separatrix), one ray traced per `ec_launchers` beam from the kernel's own launcher convention (rfray::Launch::from_launcher) — GEOMETRY ONLY: the trajectory, how deep in psi_N it reached, and why it stopped. Absorption and adjoint ECCD are stages (2) and (3) of docs/note/ec-raytracing.md and are NOT implemented, so this door answers no deposition and no driven current; asking for them is a refusal, not a zero" },
@@ -787,12 +790,20 @@ pub const CODES: &[Code] = &[
         Param { key: "anneal_hi", value_type: "float", default: "0.10", required: false, via: "discharge_case" },
         Param { key: "anneal_lo", value_type: "float", default: "0.005", required: false, via: "discharge_case" },
         Param { key: "beta0", value_type: "float", default: "0.55", required: false, via: "discharge_case" },
+        Param { key: "box_max_iter", value_type: "float", default: "600.0", required: false, via: "discharge_case" },
+        Param { key: "box_relax", value_type: "float", default: "0.5", required: false, via: "discharge_case" },
+        Param { key: "box_tol", value_type: "float", default: "1e-9", required: false, via: "discharge_case" },
+        Param { key: "box_trust", value_type: "float", default: "eq::FIXED_BOX_TRUST as f64", required: false, via: "discharge_case" },
         Param { key: "delta_lower", value_type: "float", default: "0.0", required: false, via: "discharge_case" },
         Param { key: "delta_upper", value_type: "float", default: "0.0", required: false, via: "discharge_case" },
         Param { key: "emp", value_type: "float", default: "1.0", required: false, via: "discharge_case" },
         Param { key: "enp", value_type: "float", default: "1.0", required: false, via: "discharge_case" },
         Param { key: "fb_gain", value_type: "float", default: "8.0", required: false, via: "discharge_case" },
+        Param { key: "ff0", value_type: "float", default: "0.0", required: false, via: "discharge_case" },
         Param { key: "gamma", value_type: "float", default: "0.4", required: false, via: "discharge_case" },
+        Param { key: "hold_relax", value_type: "float", default: "0.5", required: false, via: "discharge_case" },
+        Param { key: "hold_rounds", value_type: "float", default: "12.0", required: false, via: "discharge_case" },
+        Param { key: "hold_tol", value_type: "float", default: "1e-3", required: false, via: "discharge_case" },
         Param { key: "inset", value_type: "float", default: "0.005", required: false, via: "discharge_case" },
         Param { key: "ip", value_type: "float", default: "", required: true, via: "discharge_case" },
         Param { key: "kappa", value_type: "float", default: "1.0", required: false, via: "discharge_case" },
@@ -803,10 +814,18 @@ pub const CODES: &[Code] = &[
         Param { key: "n_ring", value_type: "float", default: "4.0", required: false, via: "discharge_case" },
         Param { key: "n_theta", value_type: "float", default: "181.0", required: false, via: "discharge_case" },
         Param { key: "nu", value_type: "float", default: "3.0", required: false, via: "discharge_case" },
+        Param { key: "p0", value_type: "float", default: "1.0e6", required: false, via: "discharge_case" },
         Param { key: "passes", value_type: "float", default: "8.0", required: false, via: "discharge_case" },
+        Param { key: "pc_ki", value_type: "float", default: "0.05", required: false, via: "discharge_case" },
+        Param { key: "pc_kp", value_type: "float", default: "2.0", required: false, via: "discharge_case" },
+        Param { key: "pc_r", value_type: "float", default: "", required: false, via: "discharge_case" },
+        Param { key: "pc_relax_current", value_type: "float", default: "0.5", required: false, via: "discharge_case" },
+        Param { key: "pc_z", value_type: "float", default: "", required: false, via: "discharge_case" },
         Param { key: "peaking", value_type: "float", default: "1.0", required: false, via: "discharge_case" },
+        Param { key: "position_control", value_type: "string", default: "", required: false, via: "discharge_case" },
         Param { key: "r0", value_type: "float", default: "", required: true, via: "discharge_case" },
         Param { key: "relax", value_type: "float", default: "0.3", required: false, via: "discharge_case" },
+        Param { key: "seed", value_type: "string", default: "", required: false, via: "discharge_case" },
         Param { key: "stage", value_type: "string", default: "", required: false, via: "discharge_case" },
         Param { key: "tol", value_type: "float", default: "1e-9", required: false, via: "discharge_case" },
         Param { key: "warm", value_type: "boolean", default: "false", required: false, via: "discharge_case" },
@@ -837,6 +856,10 @@ pub const CODES: &[Code] = &[
         Param { key: "ch_heat", value_type: "float", default: "", required: false, via: "evolve" },
         Param { key: "ch_momentum", value_type: "boolean", default: "false", required: false, via: "evolve" },
         Param { key: "chi0", value_type: "float", default: "", required: true, via: "evolve" },
+        Param { key: "chi_scale_int", value_type: "float", default: "", required: false, via: "evolve" },
+        Param { key: "chi_scale_kp", value_type: "float", default: "", required: false, via: "evolve" },
+        Param { key: "chi_scale_tau", value_type: "float", default: "", required: false, via: "evolve" },
+        Param { key: "chi_scaling", value_type: "string", default: "", required: false, via: "evolve" },
         Param { key: "cimp", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "closure", value_type: "string", default: "", required: false, via: "evolve" },
         Param { key: "composition", value_type: "string", default: "", required: false, via: "species_physics_from" },
@@ -862,6 +885,7 @@ pub const CODES: &[Code] = &[
         Param { key: "fuel_mix", value_type: "string", default: "", required: false, via: "species_physics_from" },
         Param { key: "fuel_width", value_type: "float", default: "0.25", required: false, via: "evolve" },
         Param { key: "geometry", value_type: "string", default: "", required: false, via: "evolve" },
+        Param { key: "globals", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "heat", value_type: "float", default: "", required: false, via: "evolve" },
         Param { key: "i_cd_a", value_type: "float", default: "", required: false, via: "evolve" },
         Param { key: "icd", value_type: "float", default: "0.0", required: false, via: "evolve" },
@@ -1022,6 +1046,8 @@ pub const CODES: &[Code] = &[
     Code { name: "profile_fit", door: "profile_fit_case", krate: "fylite_kernel", params: &[
         Param { key: "max_order", value_type: "float", default: "6.0", required: false, via: "profile_fit_case" },
         Param { key: "n_curve", value_type: "float", default: "101.0", required: false, via: "profile_fit_case" },
+    ] },
+    Code { name: "psi_points", door: "psi_points_case", krate: "fylite_kernel", params: &[
     ] },
     Code { name: "pulse", door: "pulse_case", krate: "fylite_kernel", params: &[
         Param { key: "beta0", value_type: "float", default: "0.55", required: false, via: "pulse_case" },
@@ -1189,6 +1215,11 @@ pub const CODES: &[Code] = &[
         Param { key: "edge", value_type: "float", default: "1.0", required: false, via: "steady_equilibrium_case" },
         Param { key: "fast_alpha_quasi", value_type: "float", default: "", required: false, via: "species_physics_from" },
         Param { key: "fuel_mix", value_type: "string", default: "", required: false, via: "species_physics_from" },
+        Param { key: "hold_basis", value_type: "float", default: "d.n_basis as f64", required: false, via: "steady_equilibrium_case" },
+        Param { key: "hold_boundary", value_type: "float", default: "0.0", required: false, via: "steady_equilibrium_case" },
+        Param { key: "hold_passes", value_type: "float", default: "d.passes as f64", required: false, via: "steady_equilibrium_case" },
+        Param { key: "hold_relax", value_type: "float", default: "d.relax", required: false, via: "steady_equilibrium_case" },
+        Param { key: "hold_tol", value_type: "float", default: "d.tol_m", required: false, via: "steady_equilibrium_case" },
         Param { key: "imp_charge", value_type: "string", default: "", required: false, via: "species_physics_from" },
         Param { key: "imp_conc", value_type: "float", default: "", required: false, via: "species_physics_from" },
         Param { key: "imp_d", value_type: "float", default: "1.0", required: false, via: "species_physics_from" },
