@@ -104,6 +104,17 @@ inbox.splice(0, inbox.length);
 //: **这是一个未决问题**（是自由边界解本身的缺陷，还是两趟退火尚未把边界送到位、
 //: relax=0.3 上的欠松弛），本闸只把数记下来，不替它下结论；`free.converged`
 //: 三种情形同为 false，所以那一条断言仍然成立。
+//:
+//: ★★2026-09-14 fixture re-recorded: the page's default λ is now 1.5e-1 (user ruling F3′,
+//: `worker.js::designPlan`).  Isolation, all on this gate:
+//:   kernel HEAD 3a6d8ec+ (pressure sign, no limit patch) + committed worker.js → passes (worst 0);
+//:   the same wasm + worker.js with only λ 1e-1 → 1.5e-1 → fails, rho[1] 0.045731 → 0.047367;
+//:   plus the anneal's coil-limit patch (F3) → byte-identical recording;
+//:   the shared build (plus another session's PCS work) → byte-identical recording.
+//: So λ alone moves it.  The EAST card has no `pf_active/supply`, so the limits are off.
+//: New readings: a_minor 0.3210 → 0.3330 m · W_th 225.6 → 237.5 kJ · tau_E 55.1 → 57.0 ms;
+//: the free solve is still not converged, but now `settled` (70 steps, residual 1.3e-3)
+//: where it had run the full 400 steps.
 send({ cmd: 'design', chan: Array.from(st.chan), target, ip, warm: true,
        prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 },
        schedule: [0.1, 0.03], gamma: 0.4, nPoints: 24, xWeight: 0, control: [],

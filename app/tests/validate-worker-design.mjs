@@ -111,6 +111,18 @@ assert.equal(st.bX, null, 'no null asked for: bX is null');
 ok(`start: psiRms ${st.psiRms.toExponential(2)}, ${st.bind.length} channels at bound`);
 
 // --- 3. design ----------------------------------------------------------------
+//: the door's own record, kept beside the worker's answer: the history the page
+//: is handed carries each pass's shape error but not its boundary gap, and the
+//: best pass is chosen on the gap (see the assertion below)
+const DOOR = [];
+{
+  const complete = globalThis.fy.complete;
+  globalThis.fy.complete = function (code, plan) {
+    const rec = complete.call(this, code, plan);
+    if (code === 'code/discharge') DOOR.push(rec);
+    return rec;
+  };
+}
 const design = { cmd: 'design', chan: Array.from(st.chan), target, ip, warm: true,
                  prof: { beta0: 0.55, emp: 1, enp: 1, r0: target.r0 },
                  schedule: [0.1, 0.03], gamma: 0.4, nPoints: 24, xWeight: 0, control: [],
@@ -128,7 +140,34 @@ assert.equal(d.result.psi.length, M.grid.nr * M.grid.nz);
 assert.ok(d.result.lcfs.length > 16, 'a traced boundary');
 assert.equal(d.chan.length, M.channels.length);
 const best = d.history.find((h) => h.pass === d.pass);
-assert.equal(best.err, Math.min(...hist.map((h) => h.err)), 'the returned pass is the best one');
+//: ★★2026-09-14 (user rulings F4 and F3): the best pass is the one with the LOWEST
+//: BOUNDARY GAP (`history_gap`, the door's rule), and with the coil-current limits on,
+//: a pass inside them is preferred to one outside.  This assertion used to ask for
+//: the lowest SHAPE ERROR (`history_err`).  The door has chosen on the gap since
+//: 2026-09-08, and on this card the two agreed only by coincidence.  Measured on the
+//: EAST card this gate designs, where limits are OFF (no `pf_active/supply`):
+//:   page lambda 1e-1   gap 0.1374 / 0.0617 / 0.0322   err 0.2137 / 0.1107 / 0.0710   both pick pass 2
+//:   page lambda 1.5e-1 gap 0.1558 / 0.0867 / 0.0509   err 0.1995 / 0.1056 / 0.1138   gap picks 2, err picks 1
+//: The page's default lambda moved to 1.5e-1 (F3', `worker.js::designPlan`) and split
+//: them; the kernel wasm without the limit patch reproduces this bit for bit.
+//: ★The door publishes no per-pass "inside the limits" flag, so when limits are ON
+//: this checks the preference through the returned design (inside, or the door says
+//: no pass was) and the exact gap minimum only in the case it pins down.
+const rec = DOOR[DOOR.length - 1];
+assert.ok(rec && rec.fields.history_gap, 'the discharge record carries history_gap');
+const hgap = Array.from(rec.fields.history_gap.data);
+const hpass = Array.from(rec.fields.history_pass.data);
+const passGap = hpass.map((p, i) => [p, hgap[i]]).filter(([, g]) => Number.isFinite(g) && Math.abs(g) < 1e30);
+const gapOf = (p) => passGap.find(([q]) => q === p)[1];
+const minGap = Math.min(...passGap.map(([, g]) => g));
+const limitsOn = rec.facts.coil_limits ? rec.facts.coil_limits.value === 1 : false;
+const noneInside = (rec.notes || []).some((s) => /OUTSIDE the coil limits/.test(s));
+if (!limitsOn || noneInside) {
+  assert.equal(gapOf(d.pass), minGap, 'the returned pass has the lowest boundary gap (F4)');
+} else {
+  assert.ok(rec.facts.coil_limit_ratio.value <= 1, 'limits on: the returned pass is inside them (F3)');
+  assert.ok(gapOf(d.pass) >= minGap, 'the returned gap is one of the history\'s');
+}
 const progress = inbox.filter((m) => m.type === 'progress');
 assert.ok(progress.length >= 2, 'progress was posted');
 inbox.splice(0, inbox.length);

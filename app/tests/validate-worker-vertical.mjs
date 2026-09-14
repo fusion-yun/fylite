@@ -132,6 +132,15 @@ const sol = dsg;
 //: ★**机器与目标进夹具**：本闸按 CANDIDATES 顺序取第一台读得懂的装置（今天是
 //: `best`，a_target = 0.74 m）。装置清单一变，闸子会**静默**地设计另一台机器——
 //: 所以这两项也钉住，变了就按名报出来，而不是让读数悄悄换一台机器。
+//: ★★2026-09-14 fixture re-recorded: the page's default λ is now 1.5e-1 (user ruling F3′,
+//: `worker.js::designPlan`).  Isolation, all on this gate:
+//:   kernel HEAD 3a6d8ec+ (pressure sign, no limit patch) + committed worker.js → passes (worst 1.5e-9);
+//:   the same wasm + worker.js with only λ 1e-1 → 1.5e-1 → fails, gamma 58.551 → 58.230;
+//:   plus the anneal's coil-limit patch (F3) → byte-identical recording;
+//:   the shared build (plus another session's PCS work) → byte-identical recording.
+//: So λ alone moves it.  The limits are off here: no `pf_active/supply` on this card.
+//: New readings: gamma 58.55 → 58.23 1/s · k/k_ideal 0.3470 → 0.3519 · filaments 285 → 304 ·
+//: q95 4.869 → 4.738 · a 0.8547 → 0.9280 m for 0.74 m asked; I_p unchanged to 3e-15.
 const got = JSON.parse(JSON.stringify({ machine: id, aTarget: target.a,
                                         gamma: v.gamma, k: v.k, kIdeal: v.kIdeal, ratio: v.ratio, nFilaments: v.nFilaments,
                                          ip: sol.result.ip, q0: sol.result.q && sol.result.q.q0, q95: sol.result.criteria.q95, a: sol.result.shape && sol.result.shape.a }));
