@@ -940,6 +940,23 @@ PROGRAM_SIDE = {
         #: the chords the EFIT POINT constraint uses (the interferometer IDS also
         #: carries HCN / SSI / DI, which EFIT does not fit)
         "point_chord_prefix": "POINT",
+        #: ★2026-09-14: the R every POINT chord's `first_point` is written at — the ORIGIN the
+        #: chord is cast from, inward along -R for `length` (kernel `code/chords`, `case.rs`
+        #: `chords_case` -> `diagnostics::chord_samples`; the page's `chordLines` the same;
+        #: `fylite.device.POINT_RPOL`).  PROGRAM-SIDE, like `point_baseline`: fydoc states the
+        #: chords' z and that they are horizontal, but its `first_point.r` 0.0 / `second_point.r`
+        #: 3.0 are a symbolic segment (polarimeter provenance: "象征性远端点非实测光阑位置"), and
+        #: no launch-port R is recorded.  A horizontal chord is the same line for any R, so the
+        #: number only has to lie OUTBOARD of the plasma: from 0.0 a 2.2 m inward cast reaches
+        #: R 2.2 at most and drops the outboard edge (kernel run 2026-09-14, synthetic
+        #: R0 1.85 / a 0.45 / kappa 1.65 on the EAST box: the mid-plane chord keeps 0.80 m of
+        #: 0.90 m, n_e line -4.9 %, Faraday -3.8 %; 3.0 equals 2.5 to 1e-4).  The value is
+        #: `EFIT_POINT_GUI_v5.m:658` `rpol=11*2.5` (also :968), which the retired card (kernel
+        #: 71c7cef `first_point.r`) and the pre-facts browser preset carried.  ★In EFIT itself
+        #: `rpol` is inert: it is only the pivot of `zzpol = zpol - 0.0*(rrpol - rpol)*sin(thetapol)`
+        #: (kefit bundle `active/point/efit_w_pf/efitbuild/efitdu.f:18015`, the tilt multiplied
+        #: out) and the integration grid is hard-coded `rrpol = 1.35 .. 2.55` (:18012).
+        "point_chord_origin_r": 2.5,
         "ui": {"r0": {"value": 1.85}, "z0": {"value": 0}, "a": {"value": 0.45},
                "kappa": {"value": 1.65}, "du": {"value": 0.4}, "dl": {"value": 0.5},
                "ip": {"value": 400}, "xr": {"value": 1.606}, "xz": {"value": -0.722}},
@@ -1633,6 +1650,11 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
         if ids in files:
             doc[ids] = east_chords(ids, load(ids), load(f"{ids}:binding"), rel[ids],
                                    prog["point_chord_prefix"])
+            #: the cast origin is program-side (PROGRAM_SIDE['point_chord_origin_r'] says why);
+            #: theta was already taken from the A-Box pair, so moving the origin along the
+            #: horizontal line leaves it (and the chord) unchanged
+            for c in doc[ids]["channel"]:
+                c["line_of_sight"]["first_point"]["r"] = float(prog["point_chord_origin_r"])
         else:
             doc[ids] = _absent(ids, f"the A-Box resolves no {ids} file")
             doc[ids]["channel"] = []

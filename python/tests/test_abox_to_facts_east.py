@@ -64,8 +64,8 @@ source_power, frequency_range, ports
 ec ``mode`` 1                         equal — ★fydoc marks it ``divergent`` (O=1   DIVERGENT upstream (X2
                                       in imas/3 vs the paper's X2 heating)          heating per xu2025ech)
 interferometer names ``point_n1``     binding node ``POINT_N1``                    case only
-first_point.r 2.5                     upstream 0.0 (+ second_point r 3.0)          POINT first_point.r: any
-                                                                                   point on the chord
+first_point.r 2.5                     equal, from PROGRAM_SIDE (upstream 0.0 is a  program-side (GUI_v5 :658):
+                                      symbolic endpoint; second_point r 3.0 kept)  the cast origin, outboard
 polarimeter names ``point_f1``        binding node ``POINT_F1`` (fydoc binding     case only
                                       added 2026-09-14)
 polarimeter baseline -0.9 / 0.01      equal, from PROGRAM_SIDE                     program-side (GUI_v5 :388)
@@ -366,6 +366,10 @@ def test_point_chords(doc, card):
             _num(g["line_of_sight"]["first_point"]["z"], w["line_of_sight"]["first_point"]["z"],
                  abs_=1e-12)
             _num(g["line_of_sight"]["theta"], w["line_of_sight"]["theta"], abs_=1e-12)
+            #: the cast origin (program-side, GUI_v5 :658) — outboard of the plasma, or
+            #: `code/chords` drops the outboard edge
+            _num(g["line_of_sight"]["first_point"]["r"], w["line_of_sight"]["first_point"]["r"],
+                 abs_=1e-12)
     assert [c["name"].casefold() for c in doc["interferometer"]["channel"]] == \
         [c["name"].casefold() for c in card["interferometer"]["channel"]]
     #: node names from the fydoc bindings, paired by chord number (N<k> and F<k> on the same chord)
