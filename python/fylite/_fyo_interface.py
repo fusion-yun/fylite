@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '612dd239bf1c0863'
+DIGEST = '89187fe3be864db1'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -480,6 +480,7 @@ BLOCKS = {
         {'key': 'p_alpha', 'shape': 'nt', 'units': 'W', 'gloss': 'volume-integrated alpha power per step'},
         {'key': 'p_line', 'shape': 'nt', 'units': 'W', 'gloss': 'the line-radiation part of it'},
         {'key': 'beta_n', 'shape': 'nt', 'units': '1', 'gloss': 'normalised beta of the state each step reached'},
+        {'key': 'w_th', 'shape': 'nt', 'units': 'J', 'gloss': "thermal stored energy of the state each step reached (1.5 e int(ne Te + ni Ti) dV, as outer's globals)"},
         {'key': 't_ped', 'shape': 'nt', 'units': 'eV', 'gloss': 'the pedestal-top temperature that step handed the NEXT one (0 when the model is off)'},
         {'key': 'ped_extrap', 'shape': '1', 'units': '1', 'gloss': 'worst EPED1-NN extrapolation distance over the march; 0 = every evaluation sat inside the training box'},
         {'key': 'balance', 'shape': 'nt', 'units': '1', 'gloss': "T-C23: the step's worst per-channel conservation residual, relative — machine noise when the books close"},
@@ -573,6 +574,7 @@ BLOCKS = {
         {'key': 'resume', 'shape': '1', 'units': '1', 'gloss': '1 = continue a march: read the carried state below'},
         {'key': 't_start', 'shape': '1', 'units': 's', 'gloss': 'the time the previous block ended at'},
         {'key': 'dt_start', 'shape': '1', 'units': 's', 'gloss': 'the dt the controller handed the next step'},
+        {'key': 't_stop', 'shape': '1', 'units': 's', 'gloss': 'end the march at this time (last step clamped onto it); 0 = run all steps'},
         {'key': 'edge_te_in', 'shape': '1', 'units': 'eV', 'gloss': "the Dirichlet edge the previous block handed on (the pedestal's one-step lag)"},
         {'key': 'edge_ti_in', 'shape': '1', 'units': 'eV', 'gloss': 'the same for the ions'},
         {'key': 'capped_in', 'shape': '1', 'units': '1', 'gloss': 'steps already counted at the exchange ceiling'},
@@ -930,6 +932,8 @@ CODE_PARAMS = {
         'density': {'key': 'density', 'type': 'boolean', 'via': 'evolve', 'default': 'false'},
         'dt': {'key': 'dt', 'type': 'float', 'via': 'evolve', 'required': True, 'why': 'time step [s]'},
         'dt_fraction_in': {'key': 'dt_fraction_in', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
+        'dt_max': {'key': 'dt_max', 'type': 'float', 'via': 'evolve'},
+        'dt_min': {'key': 'dt_min', 'type': 'float', 'via': 'evolve'},
         'dt_start': {'key': 'dt_start', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'edge_psin': {'key': 'edge_psin', 'type': 'float', 'via': 'evolve', 'default': '0.95', 'required': False},
         'edge_te_in': {'key': 'edge_te_in', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
@@ -1020,6 +1024,7 @@ CODE_PARAMS = {
         'stopping_model': {'key': 'stopping_model', 'type': 'string', 'via': 'beam_eval'},
         'synchrotron': {'key': 'synchrotron', 'type': 'boolean', 'via': 'species_physics_from', 'default': 'false'},
         't_start': {'key': 't_start', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
+        't_stop': {'key': 't_stop', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'torque': {'key': 'torque', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'trapped_fraction': {'key': 'trapped_fraction', 'type': 'string', 'via': 'species_physics_from'},
         'upshift': {'key': 'upshift', 'type': 'float', 'via': 'wave_eval'},
@@ -1481,6 +1486,10 @@ CODE_PARAMS = {
 #: path segments that are ARRAYS of structure -- a walker steps into
 #: index 0 at each of these
 AOS = ('time_slice', 'profiles_2d', 'source', 'model', 'coils', 'description_2d', 'coil', 'element', 'unit', 'channel', 'flux_loop', 'b_field_pol_probe', 'position', 'antenna', 'supply', 'function')
+
+#: code -> the resume set its door declares (PCS I-21a): [{kind, out, in, gloss}] --
+#: carry: a record fact handed to a setting; lag / state: a CORE_PROFILES slot handed back
+RESUME = {'evolve': [{'kind': 'carry', 'out': 't_end', 'in': 't_start', 'gloss': 'the clock'}, {'kind': 'carry', 'out': 'dt_next', 'in': 'dt_start', 'gloss': 'the step the controller hands on'}, {'kind': 'carry', 'out': 'edge_te_out', 'in': 'edge_te_in', 'gloss': 'the Dirichlet edge Te, lagged one step'}, {'kind': 'carry', 'out': 'edge_ti_out', 'in': 'edge_ti_in', 'gloss': 'the Dirichlet edge Ti, lagged one step'}, {'kind': 'carry', 'out': 'dt_capped', 'in': 'capped_in', 'gloss': 'steps counted at the exchange ceiling'}, {'kind': 'carry', 'out': 'saw_elapsed_out', 'in': 'saw_elapsed_in', 'gloss': 'time since the last sawtooth crash'}, {'kind': 'carry', 'out': 'dt_fraction_used', 'in': 'dt_fraction_in', 'gloss': 'the quasi-neutral species step fraction'}, {'kind': 'carry', 'out': 'ipctl_ratio0_out', 'in': 'ipctl_ratio0_in', 'gloss': "the Ip controller's reference ratio"}, {'kind': 'carry', 'out': 'ipctl_integral_out', 'in': 'ipctl_integral_in', 'gloss': "the Ip controller's integrator"}, {'kind': 'carry', 'out': 'ipctl_calibrated_out', 'in': 'ipctl_calibrated_in', 'gloss': 'whether the Ip controller calibrated'}, {'kind': 'carry', 'out': 'lh_phase_out', 'in': 'lh_phase_in', 'gloss': 'the L-H phase, when lh_model is set'}, {'kind': 'carry', 'out': 'chi_scale_ploss_ref', 'in': 'chi_scale_ploss_ref', 'gloss': "the IPB98 anchor's loss power reference"}, {'kind': 'carry', 'out': 'chi_scale_ne_ref', 'in': 'chi_scale_ne_ref', 'gloss': "the IPB98 anchor's density reference"}, {'kind': 'carry', 'out': 'chi_scale_ip_ref', 'in': 'chi_scale_ip_ref', 'gloss': "the IPB98 anchor's current reference"}, {'kind': 'carry', 'out': 'chi_scale_w_ref', 'in': 'chi_scale_w_ref', 'gloss': "the IPB98 anchor's stored energy reference"}, {'kind': 'carry', 'out': 'chi_scale_int', 'in': 'chi_scale_int', 'gloss': "the tau_E anchor's integrator"}, {'kind': 'lag', 'out': 'psi_prev', 'in': 'psi_prev', 'gloss': 'the flux the previous step ended at'}, {'kind': 'lag', 'out': 'sigma_prev', 'in': 'sigma_prev', 'gloss': 'the parallel conductivity that step used'}, {'kind': 'lag', 'out': 'exch_prev', 'in': 'exch_prev', 'gloss': "the exchange rates that step's closure produced"}, {'kind': 'lag', 'out': 'zeff', 'in': 'zeff', 'gloss': "the closure's Z_eff"}, {'kind': 'lag', 'out': 'dn_prev', 'in': 'dn_prev', 'gloss': 'the particle diffusivity that step produced'}, {'kind': 'lag', 'out': 'vn_prev', 'in': 'vn_prev', 'gloss': 'the particle pinch that step produced'}, {'kind': 'state', 'out': 'te', 'in': 'te', 'gloss': 'electron temperature'}, {'kind': 'state', 'out': 'ti', 'in': 'ti', 'gloss': 'ion temperature'}, {'kind': 'state', 'out': 'ne', 'in': 'ne', 'gloss': 'electron density'}, {'kind': 'state', 'out': 'psi', 'in': 'psi', 'gloss': 'poloidal flux'}, {'kind': 'state', 'out': 'ni', 'in': 'ni', 'gloss': 'main ion density, when resolved'}, {'kind': 'state', 'out': 'omega', 'in': 'omega', 'gloss': 'toroidal rotation, when the channel is on'}, {'kind': 'state', 'out': 'nz', 'in': 'nz', 'gloss': 'impurity density, when quasi-neutral'}]}
 
 #: the `fylite:` terms more than one host writes
 TERMS = ['a1', 'a2', 'a_minor', 'angle_deg', 'anneal_schedule', 'b0', 'b_tor', 'channel_aturns', 'chi_prev', 'chi_turb', 'chord_nel', 'chord_nel_weight', 'coil_current_units', 'config', 'control_r', 'control_w', 'control_z', 'created', 'current_cells', 'current_source', 'deposited', 'device_id', 'dvolume', 'eq_p', 'eq_x', 'equilibrium', 'eta_cd', 'exch_prev', 'fast_energy', 'fit_eval_x', 'fit_sigma', 'fit_x', 'fit_y', 'flux_loop', 'grid', 'group', 'i_max_aturn', 'impurity_density', 'ion_density', 'ip', 'loop_plasma', 'max_power', 'meas_extra', 'n_parallel', 'n_parallel_max', 'n_parallel_min', 'name', 'ne_profile', 'null_r', 'null_z', 'orbit_loss_fraction', 'outline_levels', 'p_fast_profile', 'p_fast_third', 'p_rot_profile', 'page', 'pitch', 'power_injected', 'pressure', 'pressure_weight', 'pressure_x', 'probe_plasma', 'probe_weight', 'psi_convention', 'psi_ext', 'psi_prev', 'q_prev', 'q_psi_norm', 'r_major', 'r_minor', 'radii', 'reconstructed', 'result', 'rho', 'row_extra', 'selfcal_alive', 'selfcal_computed', 'selfcal_measured', 'selfcal_ratio', 'shinethrough', 'sigma_prev', 'source', 'source_gauge', 'state', 'target', 'target_r', 'target_z', 'te_profile', 'time', 'truth', 'verify', 'vessel_current', 'vprime', 'vprime_old', 'wave_phases', 'wave_t', 'weight', 'weight_extra', 'x_ref', 'y_init']

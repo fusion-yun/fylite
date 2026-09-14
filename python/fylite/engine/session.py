@@ -53,6 +53,27 @@ _LAGS = (("psi_prev_out", "fylite:psi_prev"), ("sigma_prev_out", "fylite:sigma_p
 _PROFILE_LAGS = ("fylite:psi_prev", "fylite:sigma_prev", "fylite:exch_prev",
                  "fylite:dn_prev", "fylite:vn_prev", "zeff")
 
+
+def _declared_resume():
+    """★PCS I-21a: the resume set the KERNEL declares (``_fyo_interface.RESUME["evolve"]``, generated
+    from ``fyo::EVOLVE_RESUME``) as (carry pairs, lagged profile slots); ``None`` on an interface file
+    older than the declaration, which keeps the literal tables above."""
+    try:
+        from .. import _fyo_interface as fi
+        rows = fi.RESUME["evolve"]
+        slots = fi.TABLES["CORE_PROFILES"]["slots"]
+    except (ImportError, AttributeError, KeyError):
+        return None
+    carry = tuple((r["out"], r["in"]) for r in rows if r["kind"] == "carry")
+    lags = tuple(slots[r["out"]]["path"].split("profiles_1d/", 1)[-1] for r in rows
+                 if r["kind"] == "lag" and r["out"] in slots)
+    return (carry, lags) if carry and lags else None
+
+
+_DECLARED = _declared_resume()
+if _DECLARED is not None:
+    _CARRY, _PROFILE_LAGS = _DECLARED
+
 #: α 份额（3.518 / 17.589 MeV）：记录的 α 功率折回聚变功率
 _ALPHA_SHARE = 3.518 / 17.589
 
@@ -210,6 +231,12 @@ class Session:
 
     #: sub-calls allowed inside one 10 ms step before the session gives up by name
     MAX_SUBSTEPS = 10000
+    #: ★the density channel's edge is Dirichlet on the state's own last point (`scenario.rs`
+    #: `edge_ni = [ni_main[n-1], nz[n-1]]`), so the settings' `edgene` only shapes a fresh start.  A host
+    #: that moves the edge (a replay following its line density) sets this [m^-3]: every resume scales
+    #: the last point of the electron and ion densities by one factor (composition kept).  None = the
+    #: state's own edge, the kernel's behaviour bit for bit.
+    edge_ne = None
 
     #: the pellet deposit's parameterised penetration (CASE-20's TGYRO `gauss_add:(0.7, 0.2, …)`)
     PELLET_CENTRE = 0.7
@@ -293,6 +320,14 @@ class Session:
                               "density": cp["electrons"]["density"]["data"]},
                 "t_i_average": cp["t_i_average"]["data"],
                 "fylite:ion_density": cp["fylite:ion_density"]["data"]}
+        if self.edge_ne is not None and prof["electrons"]["density"] and prof["electrons"]["density"][-1] > 0.0:
+            f = float(self.edge_ne) / float(prof["electrons"]["density"][-1])
+            for d in (prof["electrons"], prof):
+                key = "density" if d is prof["electrons"] else "fylite:ion_density"
+                arr = list(d[key])
+                if arr:
+                    arr[-1] = float(arr[-1]) * f
+                    d[key] = arr
         for slot in _PROFILE_LAGS:
             if slot in cp and isinstance(cp[slot], dict) and "data" in cp[slot]:
                 prof[slot] = cp[slot]["data"]
@@ -346,6 +381,150 @@ class Session:
             "reason": None,
         }
 
+    # -- one window, one kernel call (ledger I-20b / I-20c) --------------- #
+    #: per-step traces of a code/evolve record the window's 10 ms outputs are read from
+    _TRACES = (("te0", ("summary", "local", "magnetic_axis", "t_e", "value")),
+               ("ti0", ("summary", "local", "magnetic_axis", "t_i_average", "value")),
+               ("p_alpha", ("summary", "fusion", "power", "value")),
+               ("beta_n", ("summary", "global_quantities", "beta_tor_norm", "value")),
+               ("p_rad", ("summary", "global_quantities", "power_radiated", "value")),
+               ("p_ohm", ("summary", "global_quantities", "power_ohm", "value")),
+               ("v_loop", ("v_loop_used",)), ("lh_phase", ("lh_phase",)), ("p_sep", ("p_sep",)),
+               ("p_lh", ("p_lh",)), ("saw_mixed", ("saw_mixed",)), ("dt_used", ("dt_used",)),
+               #: ★I-20d: the per-step stored energy, when the kernel traces it (absent on an older
+               #: kernel: W_th then falls back to the window-end interpolation)
+               ("w_th_trace", ("summary", "global_quantities", "energy_thermal", "value")))
+
+    @staticmethod
+    def _field(rec: dict, path: tuple) -> list:
+        node = rec.get("fields") or {}
+        for p in path:
+            if not isinstance(node, dict) or p not in node:
+                return []
+            node = node[p]
+        return list(node.get("data") or []) if isinstance(node, dict) else []
+
+    def march_window(self, cmd: dict, t_end: float, *, adaptive: bool = False, dt_max: float | None = None) -> dict:
+        """Advance to ``t_end`` (on the 10 ms grid) in one kernel call per window.
+
+        ★Ledger I-20 (measured 2026-09-14): a session step is one kernel call of ~295 ms and the
+        physics step is < 1 ms of it, so the call count is the cost.  A window hands the kernel
+        ``t_stop = t_end`` and a step budget: ``adaptive = False`` keeps 10 ms steps (I-20b, the same
+        step sequence as the per-step session when the exchange cap does not bind); ``adaptive =
+        True`` lets the controller grow dt up to ``dt_max`` (default the window) under the exchange
+        cap (I-20c).  The 10 ms outputs are the per-step traces interpolated onto the grid; W_th and
+        the profiles exist at the window ends only, so between them they are interpolated and flagged.
+        A kernel refusal rejects the whole window and leaves the state where it was.  The window's
+        L-H flips and sawtooth crashes are reported (``events``) so a driver can re-run it smaller.
+        """
+        import numpy as np
+        from ..io import fydoc
+
+        clock = time.perf_counter()
+        t_now = self.t_start + self.k_next * STEP_S
+        n = int(round((float(t_end) - t_now) / STEP_S))
+        if n < 1 or abs(t_now + n * STEP_S - float(t_end)) > 1e-9:
+            raise SessionError(f"window end {t_end} s is not a 10 ms step after t {t_now:.2f} s")
+        t_end = t_now + n * STEP_S
+        reason = _rejection(self.k_next, cmd, len(self.ec_sources), t_now, self.require_lcfs_after) or self._unmapped_power(cmd)
+        if reason is not None:
+            self.rejected += 1
+            return {"t": t_now, "rejected": True, "reason": reason, "outputs": [], "calls": 0,
+                    "wall_ms": (time.perf_counter() - clock) * 1e3}
+        base = dict(self.plan["settings"], globals=1.0, t_stop=t_end)
+        base.update(self._commands_to_settings(cmd))
+        window = t_end - t_now
+        if adaptive:
+            base["dttarget"] = float(dt_max if dt_max else window)
+            if dt_max:
+                #: the kernel's step ceiling (code/evolve `dt_max`); `dttarget` alone only sets the growth target
+                base["dt_max"] = float(dt_max)
+            base["nsteps"] = float(max(16, min(n, 20000)))
+        else:
+            base["dttarget"] = 0.0
+            base["nsteps"] = float(max(16, 2 * n))
+        rec = self.prev
+        start = self.prev
+        #: the window's starting output: the previous window's end, or — on the session's first window —
+        #: a zero-step call (`t_stop` at the start) that only reads the start state for the 10 ms
+        #: interpolation; it is not a resume point (the first march stays a fresh one)
+        start_out = self.last
+        if start_out is None:
+            st0, inp0 = self._resume(dict(base, nsteps=1.0, dttarget=0.0), None, STEP_S)
+            st0["t_stop"] = max(t_now, 1e-9)
+            try:
+                start_out = self._outputs(fydoc.complete("code/evolve", {"settings": st0, "inputs": inp0}), cmd)
+            except fydoc.Refused:
+                start_out = None
+        calls, steps = 0, 0
+        traces = {k: [] for k, _ in self._TRACES}
+        t_trace: list = []
+        while True:
+            t_rec = t_now if rec is None else float(rec["facts"]["t_end"]["value"])
+            left = t_end - t_rec
+            #: ★a window of 5 000 fixed 10 ms steps lands ~1e-9 s short of its edge (the sum's rounding); the
+            #: kernel counts that as arrived (`t_stop` tolerance) and takes no step, so an absolute 1e-9 here
+            #: re-called it forever (seen 2026-09-14 at 1250 s).  The grid is 10 ms: a micro-second is arrival.
+            if left <= 1e-6 * STEP_S * max(1.0, abs(t_end)):
+                break
+            if rec is not None and calls and int(float(rec["facts"].get("steps", {}).get("value", 0))) == 0:
+                raise SessionError(f"window to {t_end:.2f} s: the kernel took no step at {t_rec:.9f} s")
+            if calls >= self.MAX_SUBSTEPS:
+                raise SessionError(f"window to {t_end:.2f} s not reached within {self.MAX_SUBSTEPS} kernel calls")
+            st, inp = self._resume(base, rec, min(left, STEP_S) if not adaptive else
+                                   min(left, float((rec or {}).get("facts", {}).get("dt_next", {}).get("value", STEP_S))
+                                       if rec is not None else STEP_S))
+            st["t_stop"] = t_end
+            calls += 1
+            try:
+                rec = fydoc.complete("code/evolve", {"settings": st, "inputs": inp})
+            except fydoc.Refused as exc:
+                self.rejected += 1
+                return {"t": t_now, "rejected": True, "reason": str(exc), "kernel_code": exc.code, "outputs": [],
+                        "calls": calls, "wall_ms": (time.perf_counter() - clock) * 1e3}
+            k = int(float(rec["facts"].get("steps", {}).get("value", 0)))
+            steps += k
+            t_trace.extend(self._field(rec, ("summary", "time"))[:k])
+            for key, path in self._TRACES:
+                traces[key].extend(self._field(rec, path)[:k])
+        # --- the window's 10 ms outputs ---------------------------------------------------------
+        end = self._outputs(rec, cmd)
+        before = start_out or {}
+        grid = t_now + STEP_S * np.arange(1, n + 1)
+        tt = np.asarray(t_trace, float)
+        series: dict = {"t": grid.tolist()}
+        for key, _ in self._TRACES:
+            y = np.asarray(traces[key], float)
+            if len(y) == len(tt) and len(tt):
+                y0 = before.get(key)
+                if y0 is None or not np.isfinite(y0):
+                    y0 = y[0]
+                series[key] = np.interp(grid, np.concatenate([[t_now], tt]), np.concatenate([[y0], y])).tolist()
+        w0, w1 = before.get("w_th"), end.get("w_th")
+        if "w_th_trace" in series and np.all(np.isfinite(series["w_th_trace"])):
+            #: the kernel's own per-step W_th (I-20d): no window-end interpolation
+            series["w_th"] = series.pop("w_th_trace")
+        elif w1 is not None:
+            #: no previous output (the session's first window): the window-end value, held — flagged like the rest
+            w0 = w1 if w0 is None else w0
+            series["w_th"] = (w0 + (w1 - w0) * (grid - t_now) / window).tolist()
+        lh = np.asarray(traces["lh_phase"], float)
+        lh_before = float(before["flags"]["phase"] == "H") if before.get("flags", {}).get("phase") in ("H", "L") else (lh[0] if len(lh) else 0.0)
+        flips = int(np.count_nonzero(np.diff(np.concatenate([[lh_before], lh])))) if len(lh) else 0
+        saw = int(np.count_nonzero(np.asarray(traces["saw_mixed"], float))) if traces["saw_mixed"] else 0
+        # --- advance --------------------------------------------------------------------------------
+        self.prev = rec
+        self.k_next += n
+        self.calls.append(calls)
+        end["wall_ms"] = (time.perf_counter() - clock) * 1e3
+        end["calls"] = calls
+        end["flags"] = dict(end.get("flags") or {}, interpolated=True, window_steps=steps)
+        self.walls.append(end["wall_ms"])
+        self.last = end
+        del start
+        return {"t": t_end, "rejected": False, "outputs": series, "end": end, "calls": calls, "kernel_steps": steps,
+                "events": {"lh_flips": flips, "sawtooth_crashes": saw}, "wall_ms": end["wall_ms"]}
+
     # -- snapshot / restore (ledger I-21b) --------------------------------- #
     def snapshot(self) -> dict:
         """The session's whole resume state as one JSON-able document.
@@ -363,12 +542,20 @@ class Session:
                 "counters": {"walls": list(self.walls), "calls": list(self.calls), "rejected": self.rejected}}
 
     @classmethod
-    def from_snapshot(cls, snap: dict) -> "Session":
-        """A session rebuilt from :meth:`snapshot` (a new session id; the march continues at ``k_next``)."""
+    def from_snapshot(cls, snap: dict, settings: dict | None = None) -> "Session":
+        """A session rebuilt from :meth:`snapshot` (a new session id; the march continues at ``k_next``).
+
+        ``settings`` FORKS it (ledger I-21d): those case settings replace the snapshot's before the march
+        continues — the same state under changed physics (an edge value, a step ceiling …).  Without it
+        the restored session is the uninterrupted one.
+        """
         if not isinstance(snap, dict) or snap.get("format") != SNAPSHOT_FORMAT:
             got = snap.get("format") if isinstance(snap, dict) else type(snap).__name__
             raise SessionError(f"not a session snapshot: format {got!r}, expected {SNAPSHOT_FORMAT!r}")
-        s = cls(snap["plan"], ec_sources=snap.get("ec_sources") or (), ic_source=snap.get("ic_source"),
+        plan = snap["plan"]
+        if settings:
+            plan = {"settings": dict(plan["settings"], **settings), "inputs": plan.get("inputs") or {}}
+        s = cls(plan, ec_sources=snap.get("ec_sources") or (), ic_source=snap.get("ic_source"),
                 t_start=float(snap.get("t_start", 0.0)), require_lcfs_after=float(snap.get("require_lcfs_after", 1.0)))
         s.k_next = int(snap["k_next"])
         s.prev = snap.get("prev")
@@ -426,9 +613,9 @@ def snapshot_session(session_id) -> dict:
     return _get(session_id).snapshot()
 
 
-def restore_session(snapshot: dict) -> dict:
-    """Open a new session from a snapshot; answers like :func:`open_session` plus ``k_next``."""
-    s = Session.from_snapshot(snapshot)
+def restore_session(snapshot: dict, settings: dict | None = None) -> dict:
+    """Open a new session from a snapshot (``settings`` forks it); answers like :func:`open_session` plus ``k_next``."""
+    s = Session.from_snapshot(snapshot, settings)
     sessions[s.id] = s
     return {"session": s.id, "step_s": STEP_S, "ec_groups": len(s.ec_sources), "t_start": s.t_start,
             "k_next": s.k_next}

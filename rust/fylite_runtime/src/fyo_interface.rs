@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "612dd239bf1c0863";
+pub const DIGEST: &str = "89187fe3be864db1";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -436,6 +436,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "p_alpha", shape: "nt", units: "W", gloss: "volume-integrated alpha power per step" },
         Row { key: "p_line", shape: "nt", units: "W", gloss: "the line-radiation part of it" },
         Row { key: "beta_n", shape: "nt", units: "1", gloss: "normalised beta of the state each step reached" },
+        Row { key: "w_th", shape: "nt", units: "J", gloss: "thermal stored energy of the state each step reached (1.5 e int(ne Te + ni Ti) dV, as outer's globals)" },
         Row { key: "t_ped", shape: "nt", units: "eV", gloss: "the pedestal-top temperature that step handed the NEXT one (0 when the model is off)" },
         Row { key: "ped_extrap", shape: "1", units: "1", gloss: "worst EPED1-NN extrapolation distance over the march; 0 = every evaluation sat inside the training box" },
         Row { key: "balance", shape: "nt", units: "1", gloss: "T-C23: the step's worst per-channel conservation residual, relative — machine noise when the books close" },
@@ -529,6 +530,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "resume", shape: "1", units: "1", gloss: "1 = continue a march: read the carried state below" },
         Row { key: "t_start", shape: "1", units: "s", gloss: "the time the previous block ended at" },
         Row { key: "dt_start", shape: "1", units: "s", gloss: "the dt the controller handed the next step" },
+        Row { key: "t_stop", shape: "1", units: "s", gloss: "end the march at this time (last step clamped onto it); 0 = run all steps" },
         Row { key: "edge_te_in", shape: "1", units: "eV", gloss: "the Dirichlet edge the previous block handed on (the pedestal's one-step lag)" },
         Row { key: "edge_ti_in", shape: "1", units: "eV", gloss: "the same for the ions" },
         Row { key: "capped_in", shape: "1", units: "1", gloss: "steps already counted at the exchange ceiling" },
@@ -887,6 +889,8 @@ pub const CODES: &[Code] = &[
         Param { key: "density", value_type: "boolean", default: "false", required: false, via: "evolve" },
         Param { key: "dt", value_type: "float", default: "", required: true, via: "evolve" },
         Param { key: "dt_fraction_in", value_type: "float", default: "0.0", required: false, via: "evolve" },
+        Param { key: "dt_max", value_type: "float", default: "", required: false, via: "evolve" },
+        Param { key: "dt_min", value_type: "float", default: "", required: false, via: "evolve" },
         Param { key: "dt_start", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "edge_psin", value_type: "float", default: "0.95", required: false, via: "evolve" },
         Param { key: "edge_te_in", value_type: "float", default: "0.0", required: false, via: "evolve" },
@@ -977,6 +981,7 @@ pub const CODES: &[Code] = &[
         Param { key: "stopping_model", value_type: "string", default: "", required: false, via: "beam_eval" },
         Param { key: "synchrotron", value_type: "boolean", default: "false", required: false, via: "species_physics_from" },
         Param { key: "t_start", value_type: "float", default: "0.0", required: false, via: "evolve" },
+        Param { key: "t_stop", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "torque", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "trapped_fraction", value_type: "string", default: "", required: false, via: "species_physics_from" },
         Param { key: "upshift", value_type: "float", default: "", required: false, via: "wave_eval" },
@@ -1433,6 +1438,42 @@ pub const CODES: &[Code] = &[
         Param { key: "w0", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "zeff", value_type: "float", default: "1.5", required: false, via: "zerod_case" },
     ] },
+];
+
+/// code -> the resume set its door declares (PCS I-21a; carry: fact -> setting; lag / state: slot)
+pub struct ResumeRow { pub kind: &'static str, pub out: &'static str, pub input: &'static str, pub gloss: &'static str }
+pub const RESUME: &[(&str, &[ResumeRow])] = &[
+    ("evolve", &[
+        ResumeRow { kind: "carry", out: "t_end", input: "t_start", gloss: "the clock" },
+        ResumeRow { kind: "carry", out: "dt_next", input: "dt_start", gloss: "the step the controller hands on" },
+        ResumeRow { kind: "carry", out: "edge_te_out", input: "edge_te_in", gloss: "the Dirichlet edge Te, lagged one step" },
+        ResumeRow { kind: "carry", out: "edge_ti_out", input: "edge_ti_in", gloss: "the Dirichlet edge Ti, lagged one step" },
+        ResumeRow { kind: "carry", out: "dt_capped", input: "capped_in", gloss: "steps counted at the exchange ceiling" },
+        ResumeRow { kind: "carry", out: "saw_elapsed_out", input: "saw_elapsed_in", gloss: "time since the last sawtooth crash" },
+        ResumeRow { kind: "carry", out: "dt_fraction_used", input: "dt_fraction_in", gloss: "the quasi-neutral species step fraction" },
+        ResumeRow { kind: "carry", out: "ipctl_ratio0_out", input: "ipctl_ratio0_in", gloss: "the Ip controller's reference ratio" },
+        ResumeRow { kind: "carry", out: "ipctl_integral_out", input: "ipctl_integral_in", gloss: "the Ip controller's integrator" },
+        ResumeRow { kind: "carry", out: "ipctl_calibrated_out", input: "ipctl_calibrated_in", gloss: "whether the Ip controller calibrated" },
+        ResumeRow { kind: "carry", out: "lh_phase_out", input: "lh_phase_in", gloss: "the L-H phase, when lh_model is set" },
+        ResumeRow { kind: "carry", out: "chi_scale_ploss_ref", input: "chi_scale_ploss_ref", gloss: "the IPB98 anchor's loss power reference" },
+        ResumeRow { kind: "carry", out: "chi_scale_ne_ref", input: "chi_scale_ne_ref", gloss: "the IPB98 anchor's density reference" },
+        ResumeRow { kind: "carry", out: "chi_scale_ip_ref", input: "chi_scale_ip_ref", gloss: "the IPB98 anchor's current reference" },
+        ResumeRow { kind: "carry", out: "chi_scale_w_ref", input: "chi_scale_w_ref", gloss: "the IPB98 anchor's stored energy reference" },
+        ResumeRow { kind: "carry", out: "chi_scale_int", input: "chi_scale_int", gloss: "the tau_E anchor's integrator" },
+        ResumeRow { kind: "lag", out: "psi_prev", input: "psi_prev", gloss: "the flux the previous step ended at" },
+        ResumeRow { kind: "lag", out: "sigma_prev", input: "sigma_prev", gloss: "the parallel conductivity that step used" },
+        ResumeRow { kind: "lag", out: "exch_prev", input: "exch_prev", gloss: "the exchange rates that step's closure produced" },
+        ResumeRow { kind: "lag", out: "zeff", input: "zeff", gloss: "the closure's Z_eff" },
+        ResumeRow { kind: "lag", out: "dn_prev", input: "dn_prev", gloss: "the particle diffusivity that step produced" },
+        ResumeRow { kind: "lag", out: "vn_prev", input: "vn_prev", gloss: "the particle pinch that step produced" },
+        ResumeRow { kind: "state", out: "te", input: "te", gloss: "electron temperature" },
+        ResumeRow { kind: "state", out: "ti", input: "ti", gloss: "ion temperature" },
+        ResumeRow { kind: "state", out: "ne", input: "ne", gloss: "electron density" },
+        ResumeRow { kind: "state", out: "psi", input: "psi", gloss: "poloidal flux" },
+        ResumeRow { kind: "state", out: "ni", input: "ni", gloss: "main ion density, when resolved" },
+        ResumeRow { kind: "state", out: "omega", input: "omega", gloss: "toroidal rotation, when the channel is on" },
+        ResumeRow { kind: "state", out: "nz", input: "nz", gloss: "impurity density, when quasi-neutral" },
+    ]),
 ];
 
 /// path segments that are ARRAYS of structure -- a walker steps into index 0

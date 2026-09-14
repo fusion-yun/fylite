@@ -145,6 +145,55 @@ def test_a_session_restored_from_its_snapshot_marches_bit_for_bit_like_the_unint
         S.Session.from_snapshot({"format": "something else"})
 
 
+def test_a_fixed_window_ends_where_the_step_by_step_session_ends():
+    """Ledger I-20b: one kernel call for a window of 10 ms steps reaches the per-step session's state (PCS-V2 口径)."""
+    a = S.Session(_plan())
+    for k in range(5):
+        out_a = a.step(k, {"ip": 15e6})
+    b = S.Session(_plan())
+    win = b.march_window({"ip": 15e6}, 0.05)
+    assert win["rejected"] is False and b.k_next == 5
+    assert win["end"]["t"] == pytest.approx(out_a["t"], abs=1e-12)
+    #: ★the same step SEQUENCE only when the exchange cap does not bind: the per-step session then runs
+    #: one kernel step per 10 ms and so does the window (PCS-V2 口径, 1e-14).  Where it binds (this cold
+    #: Miller deck) the session sub-steps to every 10 ms edge while the window clamps only at its end —
+    #: a different sequence, equal to first order in dt (measured 1.2e-5 relative on T_e)
+    same_sequence = all(c == 1 for c in a.calls) and win["kernel_steps"] == 5
+    tol = 1e-14 if same_sequence else 1e-3
+    for key in ("te", "ti", "ne"):
+        x, y = np.asarray(out_a[key]), np.asarray(win["end"][key])
+        rel = np.max(np.abs(x - y) / np.maximum(np.abs(x), np.abs(y)))
+        assert rel <= tol, (key, rel, "same step sequence" if same_sequence else "capped: different sequence")
+    assert len(win["outputs"]["t"]) == 5 and win["calls"] <= a.k_next
+    assert win["end"]["flags"]["interpolated"] is True
+
+
+def test_an_adaptive_window_ends_on_its_edge_and_reports_ten_ms_outputs():
+    """Ledger I-20c: the controller free under the exchange cap, the window still ends exactly at its edge."""
+    s = S.Session(_plan())
+    win = s.march_window({"ip": 15e6}, 0.2, adaptive=True)
+    assert win["rejected"] is False
+    assert win["end"]["t"] == pytest.approx(0.2, abs=1e-9) and s.k_next == 20
+    assert len(win["outputs"]["t"]) == 20 and len(win["outputs"]["te0"]) == 20
+    assert all(np.isfinite(win["outputs"]["te0"])) and win["kernel_steps"] >= 1
+    with pytest.raises(S.SessionError, match="not a 10 ms step"):
+        s.march_window({"ip": 15e6}, 0.2051)
+
+
+def test_a_refused_window_leaves_the_session_where_it_was(monkeypatch):
+    from fylite.io import fydoc
+    s = S.Session(_plan())
+    s.march_window({"ip": 15e6}, 0.02)
+    before = (s.k_next, s.prev["facts"]["t_end"]["value"])
+
+    def refuse(code, plan):
+        raise fydoc.Refused(-23, {"refusal": {"code": -23, "message": "a species state that did not settle"}})
+    monkeypatch.setattr(fydoc, "complete", refuse)
+    win = s.march_window({"ip": 15e6}, 0.05)
+    assert win["rejected"] is True and win["kernel_code"] == -23
+    assert (s.k_next, s.prev["facts"]["t_end"]["value"]) == before
+
+
 def test_the_session_carries_every_scalar_the_kernel_resume_hands_on():
     """The kernel's own resume gate (`a_resumed_march_is_the_same_march_under_the_pcs_opt_ins`) hands these
     scalars from one call to the next; a session that drops one re-starts that piece of state every 10 ms."""
