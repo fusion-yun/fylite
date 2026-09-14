@@ -92,7 +92,8 @@ CASE-23 `corpus/benchmark/kefit_reference_bundle.pointers.json` 记下下表各�
 
 - ★包里的答案都**不带 POINT**：`samples/output/{g,m,x}093060.*`（#93060；m / x 只有 IN1 · BASIS · INWANT 三组）、`active/point/efit_w_pf/efitbuild/fitout.dat`
   （#93060 @ 1000 ms，RPOL · ZPOL · SIGPOL · FWTPOL · BPOLAR 全为零）；`efit/q_constraint_eq/` 是 #49038 的 q 约束运行。
-- ★包**不能独立运行**：`efitd6565d` 可执行体与 `fcoil3.dat` · `M_fc.mat` · `EMD2016.mat` 都在包外。`LOCKED.md` 所说的 `SHA256SUMS` 在包根不存在。
+- ★包**不能原样运行**：只有 32 位 PGI 可执行体；2026-09-14 以 gfortran 自包内源码在临时副本里构建（包未改；配方在 CASE-23 `corpus/kefit/kefit_build_recipe.json`），
+  读数见 §7 的 KEFIT 两行。`LOCKED.md` 所说的 `SHA256SUMS` 在包根不存在。
 - ★包外另有一份带 POINT 的 KEFIT 答案：#94048 @ 5760 ms（KEFIT_wuxm，fyresearch `docs/report/FYR-REPORT-08_kefit_east_benchmark.md`，基准书 `FYR-VV-23` 未立篇）。
   它对的是**旧 fylite**（`libefit.so` 路线）、另一炮，原工作区在本机权限拒绝；本页只把它列为档 K 的**候选第二参考**。
 
@@ -120,7 +121,7 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | :--- | :--- | :--- | :--- | :--- |
 | ψ 单位与规范 | 每弧度，轴上极小 | g-file 每弧度（同族）| 整圈 Wb，轴上极大 | 固定 −2π 加规范常数（B-11 由数据自证斜率 −6.168 对 −6.283）|
 | p′ 号 | EFIT 规范下 p′ < 0 | 同 | 求解器规范下 p′ > 0，p = +span·∫ₓ¹p′ | 已由压强号门对 EFIT PRES 核过 |
-| 时刻 | 4.041 s | —（#137985 无运行）| POINT 取约束件，插值到 4.041 s | **已对齐**（用户裁定 2026-09-14）|
+| 时刻 | 4.041 s（另读 4.944 · 5.976 s）| 本地构建，跑在 efit_east 片的时刻 | POINT 取约束件，插值到 EFIT 时刻 | **已对齐**（用户裁定 2026-09-14）|
 | 平均窗 | EFIT01 自己的：树里没有 | 磁测 ±5 ms（`efit/2022/read_data_mds2017_1.m:34-35`）· POINT `intev_pol` 0.03 s | fydata 片：磁测 ±5 ms · POINT ±30 ms | **按参考约定一致**；EFIT01 窗记作假设 |
 | σ | —— | GUI `signel` 0.3 · `sigpol` 0.05 | 约束件同 | **一致** |
 | 探针道阵 | 76 槽（29 道加权），`efit_green2022_pcs` | 包内 `green2018_wpf_64` 等 est2 代表 | 运行时按炮号与测量链解析卡片 | POINT 件的 est2 磁测**不用** |
@@ -146,7 +147,7 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | **W4a** 档 K 装置 | efit_east 链的卡片带 11 条 POINT 弦 | 运行时装置解析 | 装置书 | 弦数 11 · Z 端值 · C · λ 与 KEFIT 口径 | **已核**（运行时卡片 2026-09-14：11 弦、±0.425 m、C 2.62e-13、λ 4.325e-4 m、零偏 −0.9 ± 0.01 s）|
 | **W4b** 档 K 零假设 | 在 W1 的 ψ 图上前向算 11 弦 n_e 线积分与法拉第读数，对**约束件**比 | `code/chords` | POINT 约束件（4.041 s）| 逐弦残差，σ 取约束件的有效 σ（KEFIT GUI 约定）——**不拟合 POINT 的前向读数就是本档的零假设** | **已量**（2026-09-14）：加权 7 弦法拉第 2.645 σ、线密度 1.456 σ，见 §7 |
 | **W4c** 档 K 拟合 | `faraday_rows` 作行加进拟合，权重 = 约束件 `fwtpol / σ` | `code/reconstruction` 行给定档（`row_extra` / `meas_extra` / `weight_extra`，须同绑 `psi_ext`）| POINT 约束件 | POINT 残差降多少、档 M 各量是否仍在 B-11 的带内、q₀ 往哪走；敏感度：变体 `c4_faraday_kept` · 最近片 · 平台均值 · `zpol` 两套 | **已量**（2026-09-14）：主集 q₀ 2.293、法拉第 2.645 → 2.391 σ，档 M 三项出 B-11 带；变体见 §7 |
-| **W4d** 档 K 对 KEFIT | 同一炮同一时刻开 POINT 的 KEFIT 答案 | —— | **缺** | q₀ · 磁轴 · 边界 · POINT 残差 | **转为数据请求**（W4 ⑦）；到来之前档 K 不与 KEFIT 比 |
+| **W4d** 档 K 对 KEFIT | 同一炮同一时刻、同一输入与约束件的 KEFIT 运行 | —— | KEFIT（包内源码本地构建）| q₀ · 磁轴 · 边界 · POINT 残差 | **已量（同输入对拍，2026-09-14）**，见 §7；GUI 原配方跑不了本炮，ASIPP 操作员运行仍是数据请求 |
 | **W5** 动理学外环 | 计划 s0 → s1 → s1b → s2 → s3，s4 为外环（判据 dq0_rel < 0.01 · 6 轮）| `fy run` 计划 | W4 的参考 | 轮数 · 逐轮 q₀ / q₉₅ · 与档 K 参考的差 | 计划**已归档**，待改绑 efit_east 链（H-38 ⑤）；外环续跑等价未验（H-22 ①）；est2 上只有连通性读数 |
 | **W6** 登记 | 每档一条记录；带按实测盆地定 | 内核登记册 → `tools/benchmark-publish.py` | —— | —— | 档 M = B-11；档 P / K 待 W3 / W4 出读数后另立；fyresearch `FYR-VV-22` 仍指向本号，应改指 B-11 〔他仓〕|
 
@@ -163,7 +164,7 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | ④ | `bpolar` 单位与法拉第常数 | `bpolar` = KEFIT namelist 的 ∫n_e B_pol dl / 1e19（1e19 m⁻²·T）；C = 2.62e-13、λ = 4.325e-4 m 在 GUI、运行时卡片、归约三处相同 | 归约代码（注为 GUI `:424`）；运行时卡片；物理值 e³/(8π²ε₀mₑ²c³) = 2.631e-13，GUI 值低 0.43 %，远小于 sigpol/bpolar（8–100 %）| **已解** |
 | ⑤ | KEFIT 偏振行的执行条件 | 不矛盾：`knelcur=1` 开密度拟合、法拉第行以拟合 n_e 加权并从第 6 轮起进矩阵；`:1128-1176` 那段 `knelcur=0` 的块只是无密度拟合时的 χ² 记账（§2.2 表）| `efitdud6565.f` 各行 | **已解**（读源码）|
 | ⑥ | 弦端 Z | 两套都写进约束件：`zpol_card` ±0.425 与 `zpol_gui_v5` ±0.422 | 装置书已记；对 KEFIT 对拍用 GUI 值，fylite 卡片用 A-Box 值 | **已处置**（3 mm 作敏感度）|
-| ⑦ | 没有带 POINT 的参考答案 | **只动数据与文档解不了**：原 KEFIT 工作区（内部路径，不入公开仓）本机权限拒绝，全机无 #137985 的 KEFIT 输出。处置两步：(a) 档 K 先按「离数据多远 + 不破坏档 M」判（§5 前五条），**不与 KEFIT 比**；(b) 数据请求——作为 fydoc `FYDOC-REPORT-01` A-4「kinetic-EFIT 参考输出」的具体化：KEFIT（`EFIT_POINT_GUI_v5.m` + `efitd6565d`）在 #137985、t3 = 4.041 s（并 4.000 s）以 `kpoint=1`、GUI 缺省（`intev_pol` 0.03 · `signel` 0.3 · `sigpol` 0.05）跑一次，交回 `m`/`g`/`a` 文件、`fitout.dat`、`ne_pro.dat`、`int_ne.dat`、`chinel.dat` 与所用 `temp` namelist | 文件系统检索（2026-09-14）| **转为数据请求**；W4d 挂起 |
+| ⑦ | 没有带 POINT 的参考答案 | **只动数据与文档解不了**：原 KEFIT 工作区（内部路径，不入公开仓）本机权限拒绝，全机无 #137985 的 KEFIT 输出。处置两步：(a) 档 K 先按「离数据多远 + 不破坏档 M」判（§5 前五条），**不与 KEFIT 比**；(b) 数据请求——作为 fydoc `FYDOC-REPORT-01` A-4「kinetic-EFIT 参考输出」的具体化：KEFIT（`EFIT_POINT_GUI_v5.m` + `efitd6565d`）在 #137985、t3 = 4.041 s（并 4.000 s）以 `kpoint=1`、GUI 缺省（`intev_pol` 0.03 · `signel` 0.3 · `sigpol` 0.05）跑一次，交回 `m`/`g`/`a` 文件、`fitout.dat`、`ne_pro.dat`、`int_ne.dat`、`chinel.dat` 与所用 `temp` namelist | 文件系统检索（2026-09-14）| **同输入对拍已补**（本地构建，§7）；操作员运行仍是数据请求 |
 
 ## 5. 判据草案（档 K，未量；容差一律 [TBD]）
 
@@ -177,8 +178,8 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | 加 POINT 行后法拉第与线密度残差 | rms（σ）| [TBD] | 实测后定 | 必须低于零假设，否则 POINT 行没有说话。**实测**：主集法拉第 2.645 → 2.391 σ（降 9.6 %）· `c4_faraday_kept` 2.712 → 2.685 σ（几乎不降）；线密度 1.456 → 1.480 σ（不降）|
 | 输入敏感度：主集 / `c4_faraday_kept` / 最近片 / 平台均值 / `zpol` 两套下的 q₀ 与磁轴 | 最大差 | [TBD] | 实测后定 | 大于判据带则输入的处置本身不够好。**实测**（对主集 q₀ 2.293）：最近片 +0.010 · `zpol` GUI +0.002（两态交替，达不到 1e-3 的轮间判据）· `c4_faraday_kept` −0.289 · **平台均值 −0.398**——POINT 的时间处理比对齐与弦端 Z 大一个量级以上 |
 | 加 POINT 行后档 M 的量（探针 σ · 环 σ · 磁 χ² · 磁轴 · 边界中位）| 同 B-11 | B-11 的带 | 已有记录 | 不得因 POINT 行掉出带。**实测**：主集 · 最近片 · `zpol` GUI 各有三项出带（磁轴 dR +7.96 mm 对带 6.51 · 边界中位 9.5 mm 对 6.24 · ψ 图 0.55 % 对 0.46 %；探针 0.342 · 环 0.084 · χ² 3.63 在带内）；`c4_faraday_kept` 与平台均值全在带内 |
-| q₀ 对 KEFIT（同炮同时刻、开 POINT、同一约束件）| relative | [TBD] | 参考自报或实测后定 | 等 W4d |
-| 磁轴 · 边界中位对 KEFIT | absolute | [TBD] | 同上 | 等 W4d |
+| q₀ 对 KEFIT（同炮同时刻、开 POINT、同一约束件）| relative | [TBD] | 参考自报或实测后定 | **实测**（本地构建，同基同约束件，4.041 s）：KEFIT 2.641 对 fylite 2.293；纯磁 2.041 对 1.938 |
+| 磁轴 · 边界中位对 KEFIT | absolute | [TBD] | 同上 | **实测**（对树）：dR +18.8 对 +8.0 mm · 边界中位 10.2 对 9.5 mm；纯磁 +11.8 对 +4.5 mm · 6.9 对 5.0 mm |
 | 外环收敛 | dq0_rel | 0.01 | 计划 caveat（用户 2026-09-13 裁定）| 已有判据 |
 
 ## 6. 数据
@@ -194,6 +195,10 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | 同组 `corpus/point/point_constraint_east137985_4041ms.fyo.jsonld` | sha256:988e36c06ddf973af0bde5eb2affde0d8043160244313bfcf86cf0a96513c985 | experiment（派生：约束件）| 9 098 B |
 | 同组 `corpus/benchmark/comparison_readings_east137985.fyo.jsonld` | 见该组 `case.yaml` 的 `data.checksums` | private-artefact（转录的 fylite 读数）| —— |
 | 同组 `corpus/benchmark/kefit_reference_bundle.pointers.json` | sha256:e4e8ea81d4ce2923f673e6946dc4a9a69f6298a99817f3dce04239ac2de098e7 | private-artefact（指针）| 6 094 B |
+| 同组 `corpus/efit_east_137985_k35.npz` · `k43.npz`（4.944 · 5.976 s，2026-09-14 活读）| sha256:4a7df26118aba974be6ecb33f26365ff34f1ccaa1ab0a73807695e25e0a59721 · sha256:b5aa8216952e8b77ee984d1bdf041d38a241772169f0723fa99cd2468741e675 | experiment | 各 154 728 B |
+| 同组 `corpus/point/point_fine_east137985.fyo.jsonld`（逐 EFIT 时刻 20 片 POINT 归约）| sha256:072be5be4dc60785a41638ce9a9d524582862720f966e3b9305831a87df1b3c2 | experiment | 14 983 B |
+| 同组 `corpus/kefit/kefit_runs_east137985.tar.gz`（KEFIT 运行：namelist 与输出）· `kefit_runs_east137985.index.json`（逐文件 sha256）| sha256:3d7931ad14aa609f684aabba0dcba7b3b2cc549c6dd45215a5dbf3fd378c5b98 · sha256:118c81f6f8769bbbf23087c098883e3b7ccdb0ff80bca74c2a5ce67f97caa417 | experiment（含 #137985 实测输入）| 996 508 B · 41 344 B |
+| 同组 `corpus/kefit/kefit_build_recipe.json`（补丁 · 编译旗 · LAPACK 子集 · 源与可执行体 sha256）| sha256:c56238a05fc26eb8a8365766bd5ceca4c53770011d51af04ca2212fe6272ede9 | private-artefact | 7 344 B |
 | `$KEFIT_REFERENCE_BUNDLE/active/EFIT_point/EFIT_POINT_GUI_v5.m` | sha256:0cccdc958f34b5ba41b38e55691c6d2f9d396f59defb28007ab944d7321b182f | private-artefact | 110 748 B |
 | `$KEFIT_REFERENCE_BUNDLE/active/point/efit_w_pf/efitbuild/efitdud6565.f` | sha256:0a066a8099e0b90a3c2cbc82fcaa126986121e025305c96d4b285018ce591ec3 | private-artefact | 660 795 B |
 | `$FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld` | sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010 | private-artefact | 26 738 B |
@@ -216,6 +221,10 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | K · W4c 主集 | C0 + 7 条法拉第行（量值 = 实测 − 线圈份额，权 fwtpol / sigpol），逐轮重建行至 \|Δq₀\|/q₀ < 1e-3（3 轮）| q₀ 1.9378 → **2.2933**（对 EFIT 纯磁 Q0 +27.0 %）· q₉₅ 6.6692 · dR +7.96 / dZ +1.04 mm · 边界中位 9.48 mm · ψ 图 0.55 % · 探针 0.342 σ · 环 0.084 σ · χ² 3.63；法拉第 2.645 → **2.391 σ**，线密度 1.456 → 1.480 σ；拟合后残差保持形状（第 1 弦 +4.3 σ，第 9 / 10 弦变为 +1.0 / +0.9 σ）| 实测，**不判**（无参考）；档 M 三项出 B-11 带 | 同上；`#K-W4c-rows` |
 | K · W4c 变体 | 同主集，各改一处 | `c4_faraday_kept` q₀ 2.0048、法拉第 2.712 → 2.685 σ、档 M 全在带内 · 最近片 q₀ 2.3036 · 平台均值 q₀ **1.8950**、档 M 全在带内 · `zpol` GUI q₀ 2.2953 / 2.2994 两态交替 | 实测，敏感度 | 同上 |
 | K · 归因（2026-09-14 实测）| 四组扫描：竖直设定点 · 密度形状 · 基 · 偏置形式（`tools/benchmark-east-point.py --attribution`）| **排除两条**：竖直设定点 −30…−12 mm（磁轴 −12…+10 mm）法拉第零假设 2.64–2.79 σ、拟合后 2.38–2.44 σ——不是刚性竖直位移；基 2/2 · 2/3 · 3/3 拟合后 1.59–1.79 σ，但 q₀ 塌到 0.70–0.77、磁轴偏 31–139 mm 或磁 χ² 近翻倍——不是基。**剩两条，量得到而分不开**：密度形状上两种 POINT 读数相拉（平直 2.64 / 1.46 σ，峰化 α = 1 与 2 时法拉第 1.84 / 1.88 σ 而线密度 4.05 / 5.99 σ），第 3 弦任何形状下都偏 +3.0…+4.2 σ；偏置形式：常数 2.40 σ · 增益 0.83 得 2.07 σ · 常数 + Z 线性项 1.76 σ——指向逐弦标定或零偏。上下密度不对称在内核的磁面函数密度之外 | 缩小，未定 | 同上；`#K-attribution` |
+| K · 三片（2026-09-14 实测）| efit_east TIME[28 / 35 / 43]（4.041 / 4.944 / 5.976 s）+ 按对齐件规则插值的 POINT；门的同一套入口 | 4.041 s 逐数复现已记读数；另两片 C0 除 4.944 s 环 0.0957 σ（带 0.0954）外都在 B-11 带内；**最佳偏置形式随时间漂**（常数 + Z 线性项 a −0.034 / −0.012 / +0.022、b −0.30 / −0.16 / −0.02 m⁻¹；第 3 弦零假设残差 +3.6 / +2.1 / −0.8 σ）⇒ 不是不随时间的逐弦标定；拟合 q₀ 2.29 / 1.95 / 1.53，EFIT 1.81 / 1.83 / 1.82 | 实测 | CASE-23 `#K-slices-fylite` |
+| K · POINT 时间质量 | 服务器上按原片同一归约逐 EFIT 时刻 16 片（4.041–5.976 s；复原存档片：线密度 ≤ 1.6e-3、法拉第 ≤ 2.4e-5）| 线密度弦变异系数 35–49 %（5.2–5.85 s 塌落）· 线平均道 3.7 % · 法拉第弦 4.5–14 % ⇒ 平顶上不稳的是线密度弦 | 数据性质，无模型 | CASE-23 `#K-point-time-quality` |
+| K · KEFIT 同输入（2026-09-14）| 包内源码 gfortran 本地构建（76 探针槽）；efit_east 片的输入与权重；`green2022_pcs` + `pol2.est`；基 1/2 边缘为零；约束件 | 4.041 s 纯磁：q₀ 2.041 · dR +11.8 mm · 边界中位 6.9 mm · ψ 图 0.51 % · 磁 χ² 3.52（fylite W1 1.938 · +4.5 · 5.0 · 0.40 % · 3.55）；+ 约束件：q₀ 2.641 · dR +18.8 mm · 边界中位 10.2 mm · ψ 图 0.95 % · 法拉第 2.49 σ · 线密度 1.36 σ（fylite W4c 主集 2.293 · +8.0 · 9.5 · 0.55 % · 2.39 · 1.48）；**11 弦法拉第残差逐弦同号**；GUI 基（2/2，边缘系数 0.5）纯磁磁轴 −64 mm、q₀ 2.74；另两片（GUI 窗值、主集弦）q₀ 2.64 / 1.12 | 同输入代码对拍，**不判** | CASE-23 `#K-kefit-same-inputs` |
+| K · KEFIT GUI 原配方 | `EFIT_POINT_GUI_v5.m` 自己的读数配方（原始节点，79 槽，`green2018_wpf_64`）| 14 个探针节点（2016 改名）在本炮不存在 · Ip 节点读数与放电不符 · B_T 节点单位已变；三处补上后仍有探针号与标定差，各时刻 `Problem in BOUND`，无 g 文件 | 负结果：需要 ASIPP 当前的输入配置 | CASE-23 `#K-kefit-gui-recipe` |
 | K · 不可比的交付档 | est2 路线 4.000 s，EFIT↔NEO，含 POINT 11 弦 · Thomson n_e · 自举反馈 | Ip 393.46 kA · q₀ 0.7825 · q₉₅ 3.0849 · 磁轴 (1.8308, −0.0750) m · χ² 11.758 | **不得作参考**：道阵不同，fydoc 判其与 efit_east 储能差 4.00 倍（`divergent`）| `$FYLITE_KERNEL/docs/note/port-oracle-examples.md` §3.2 |
 | 链 · 连通性（est2）| 计划 s0 … s4，压强取交付重构自己的 | s0 → s3：q₀ 0.832 → 0.559 · q₉₅ 3.92 → 3.26 · lᵢ(3) 2.62 → 3.64；外环第 3 轮收敛：q₀ 0.5589 → 0.5651 → 0.5650 · dq0_rel 0.0110 → 9.8e-5 · 自举电流和 9522 → 15363 → 15439 A | 只证链路连通，输入已归档 | `PLAN.md` H-21 · H-22 |
 
@@ -250,10 +259,14 @@ FYLITE_KERNEL_LIB=rust/target/release/libfylite_kernel.so PYTHONPATH=$FYLITE_PUB
 
 POINT 对齐件与约束件的算法（插值系数、权重规则、平台均值的 ddof、邻弦检验、有效 σ）写在件内 `fylite:method` · `comment` · `fylite:chord_checks` · `fylite:sigma_reading`，可由时间序列件逐值复算。
 档 K 的门是上面第三条：它钉的是**读数可复现**（W1 / C0 复现 B-11、W4b · W4c 的每个数对 CASE-23 读数件），不是对参考答案的判定——参考答案到来之前没有可判的对象。
+KEFIT 同输入读数（§7）**没有门**：构建配方（补丁 · 编译旗 · LAPACK 子集 · 所用源文件与可执行体 sha256）、每次运行的 namelist 与输出都在 CASE-23 `corpus/kefit/`
+（归档件 + 逐文件 sha256 索引），可逐值复查；从输出抽读数的是一次性脚本，未入仓。
 
 ## 10. 结论
 
 **计划页，不作判定。** 档 M 的判定见 B-11（成立，条件化——去掉三项条件中任一项，那些数都不适用）；档 P 只有号与链路的门。
-档 K 的**数据阻塞已全部处置**（§4 W4 表：对齐 · 平均窗 · σ · 第 4 / 11 弦 · 单位与常数 · 偏振行执行条件 · 弦端 Z），结果是一份可同时交给 KEFIT 与 fylite 的约束件；
-余下唯一的外部阻塞是**参考答案**——已转为向 ASIPP 的数据请求，档 K 在它到来之前按「离数据多远 + 不破坏档 M」判，不与 KEFIT 比。
-档 K 的 fylite 读数 2026-09-14 已有（§7，门 `tools/benchmark-east-point.py`）：不拟合 POINT 时法拉第离数据 2.645 σ；加上法拉第行后只降到 2.391 σ，q₀ 升到 2.293，并把磁轴 · 边界中位 · ψ 图推出 B-11 的带；保留第 4 弦法拉第或改用平台均值则档 M 全在带内但 q₀ 分别为 2.005 / 1.895——**输入的时间处理比对齐大一个量级**。残差的上下形状**不是**竖直位移、**也不是**基（均已量排除）；剩下的密度形状（两种 POINT 读数相拉）与逐弦标定 / 零偏（常数 + Z 线性项把残差降到 1.76 σ）两条量得到，但本组分不开——需同输入的 KEFIT 运行，或 efit_east 树在平顶另一时刻的输入片（逐弦标定 / 零偏应在各片以同一绝对量重现，密度形状不必）。现存的 5.0 / 6.0 s 片是 est2 道阵的原始读数（79 探针 · 实测线圈），接不上本页的档 M；两者都是数据请求（FYDOC-CASE-23）。只回答 B 类对拍的问题，不外推到「fylite 的反演对得上真实的 EAST」。
+档 K 的**数据阻塞已全部处置**（§4 W4 表：对齐 · 平均窗 · σ · 第 4 / 11 弦 · 单位与常数 · 偏振行执行条件 · 弦端 Z），结果是一份可同时交给 KEFIT 与 fylite 的约束件。
+档 K 的 fylite 读数（§7，门 `tools/benchmark-east-point.py`）：不拟合 POINT 时法拉第离数据 2.645 σ；加上法拉第行后只降到 2.391 σ，q₀ 升到 2.293，并把磁轴 · 边界中位 · ψ 图推出 B-11 的带；保留第 4 弦法拉第或改用平台均值则档 M 全在带内但 q₀ 分别为 2.005 / 1.895——**输入的时间处理比对齐大一个量级**；残差的上下形状**不是**竖直位移、**也不是**基（均已量排除）。
+2026-09-14 补上**同输入的 KEFIT 对拍**（包内源码本地构建，§7）：同一片、同一输入与权重、同一基与约束件上，KEFIT 与 fylite 都留下约 2.4–2.5 σ 的法拉第残差，11 弦逐弦同号，加 POINT 都把 q₀ 往上推（KEFIT 2.64、fylite 2.29；纯磁 2.04 / 1.94，树 1.81）⇒ 这份残差**属于数据，不属于 fylite 的模型**。
+另读的两片与逐 EFIT 时刻的 POINT 读数再给两条：最佳偏置随时间漂（不是不随时间的逐弦标定）；线密度弦在平顶上不稳，而法拉第弦与线平均道稳——两个代码都用线密度弦拟密度形状，拟合的 q₀ 随之漂（KEFIT 2.66 / 2.64 / 1.12，fylite 2.29 / 1.95 / 1.53；两者 POINT 取法不同，只有 4.041 s 的约束件一行输入相同）。
+档 K 因此仍**不立判定**：同输入对拍钉的是两个代码彼此一致；参考答案（ASIPP 当前配置下的操作员运行）仍缺，而包里的 GUI 原配方跑不了本炮。只回答 B 类对拍的问题，不外推到「fylite 的反演对得上真实的 EAST」。

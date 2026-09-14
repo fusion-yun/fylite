@@ -4969,7 +4969,7 @@
      {
       "type": "spo:Code",
       "name": "KEFIT",
-      "comment": "档 K：EAST/Qian 分支 EFIT_POINT（EFIT_POINT_GUI_v5.m + efitd6565d），冻结只读参考包 kefit_reference_bundle 给代码契约；#137985 带 POINT 的参考答案缺，已转为向 ASIPP 的数据请求"
+      "comment": "档 K：EAST/Qian 分支 EFIT_POINT（EFIT_POINT_GUI_v5.m + efitd6565d），冻结只读参考包 kefit_reference_bundle 给代码契约；#137985：2026-09-14 由包内源码本地构建、在 FYDOC-CASE-23 的 efit_east 输入上跑出同输入读数（读数块 #K-kefit-same-inputs）；包内 GUI 原配方跑不了本炮，ASIPP 操作员运行仍是数据请求"
      }
     ],
     "has_input": [
@@ -5004,7 +5004,7 @@
     ],
     "caveat": [
      "★计划不是判定：本块不改本条的 assertion_state（retired）、判据与发现；档 M 的判定在 record/B-11，档 P / K 出读数后另立记录",
-     "★2026-09-14 档 K 已有 fylite 读数（W4b · W4c，读数件在 FYDOC-CASE-23）但**仍无参考答案**：不立判定记录，门只钉复现",
+     "★2026-09-14 档 K 已有 fylite 读数（W4b · W4c · 三片）与同输入的 KEFIT 读数（本地构建），读数件都在 FYDOC-CASE-23；同输入对拍钉的是两代码彼此一致，**仍无操作员参考答案**：不立判定记录，门只钉 fylite 读数的复现",
      "★B-06 这个号仍指同一个对象（EAST #137985 的平衡反演），换的是测量链与参考"
     ]
    }
