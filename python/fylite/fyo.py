@@ -1304,8 +1304,7 @@ _RETIRED_SOLVERS = {"sauter": "jpar_sauter", "sauter2021": "jpar_sauter_2021"}
 #         - {data: [...], time: [...]}
 #     pf_active:
 #       coil:                     # EXACTLY 12, EFIT coil order
-#         - current: {data: [...], time: [...]}  #   PF1 PF3 PF5 PF7 PF9 PF11
-#                                                #   PF2 PF4 PF6 PF8 PF10 PF12
+#         - current: {data: [...], time: [...]}  #   channels: PF1 PF3 PF5 PF7+PF9 PF11 PF13 PF2 PF4 PF6 PF8+PF10 PF12 PF14
 #     tf:
 #       b_field_tor_vacuum_r: {data: [...], time: [...]}   # R*Bt [T.m]
 #     # OR top-level scalars:

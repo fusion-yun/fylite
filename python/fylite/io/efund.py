@@ -50,7 +50,10 @@ def read_geom_turnfc(path) -> list[float]:
     EFIT F-coil order (see gnubuild/EFUND.md)::
 
         idx  1    2    3    4    5    6    7    8    9   10   11   12
-        coil PF1  PF3  PF5  PF7  PF9  PF11 PF2  PF4  PF6  PF8  PF10 PF12
+        coil PF1  PF3  PF5  PF7+9 PF11 PF13 PF2  PF4  PF6  PF8+10 PF12 PF14
+
+    (channels 4 and 10 are the PF7+PF9 / PF8+PF10 series pairs; corrected 2026-09-14 from the
+    earlier single-coil labels, per the device card's elements and turns)
 
     ★The document's own answer to this is ``PF_TURNS`` reordered by each
     coil's ``efit_index`` (:func:`fylite.device.turnfc`), and that is what the

@@ -798,7 +798,7 @@ def _derive(dev: dict) -> dict:
          "sources": [{"path": ("pf_active", "coil", "*", "current")}],
          "count": NFCOIL,
          "label": "pf_active.coil",
-         "note": "EFIT order PF1 PF3 PF5 PF7 PF9 PF11 PF2 PF4 PF6 PF8 PF10 PF12",
+         "note": "EFIT order = channels BRSP_01..12 driving PF1 PF3 PF5 PF7+PF9 PF11 PF13 PF2 PF4 PF6 PF8+PF10 PF12 PF14",
          "missing": "pf_active.coil is required",
          "units": {"key": "coil_current_units", "default": "A",
                    "per_channel": {"A": turnfc},
