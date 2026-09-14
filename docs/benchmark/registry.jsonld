@@ -4995,8 +4995,16 @@
      "authoring": "hand-written",
      "comment": "公开册 fylite docs/benchmark/reports/B-06-east-reconstruction.md 是手写的计划页（fylite 1a12eaf）；tools/benchmark-publish.py 不渲染、不覆盖它，只渲染本条的公开记录与索引行"
     },
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "tools/benchmark-east-point.py",
+      "comment": "档 K 的运行与复现门（W4b 零假设 · W4c 带 POINT 法拉第行的拟合及四个变体）：`--check` 对 FYDOC-CASE-23 读数件 `#K-W4b-null` / `#K-W4c-rows` 的 check 块逐数比对（相对容差 1e-6）；它钉的是**读数可复现**，不是对参考答案的判定"
+     }
+    ],
     "caveat": [
      "★计划不是判定：本块不改本条的 assertion_state（retired）、判据与发现；档 M 的判定在 record/B-11，档 P / K 出读数后另立记录",
+     "★2026-09-14 档 K 已有 fylite 读数（W4b · W4c，读数件在 FYDOC-CASE-23）但**仍无参考答案**：不立判定记录，门只钉复现",
      "★B-06 这个号仍指同一个对象（EAST #137985 的平衡反演），换的是测量链与参考"
     ]
    }
