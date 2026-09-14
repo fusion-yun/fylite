@@ -31,8 +31,20 @@
 // and the vessel as an unknown twice (第三十七刀: `code/vessel`), on the twin
 // with an injected current and on the deck with the probes in.
 //
-// Run: node app/tests/validate-worker-recon.mjs [--record]
+// ★★2026-09-14 (user ruling: EAST shot readings are not carried in the public
+// repo): the fixture holds the fits' OUTPUTS only.  What the worker echoes of
+// its inputs — the loop / probe / chord readings, the Ip constraint, the coil
+// currents and their σ, the deck's kinetic pressure rows, and the loop
+// self-calibration factors (= model / meas, the readings to the last bit) —
+// is taken out on record ({@link stripReadings}); the inputs come from the
+// PRIVATE kernel fixture at run time.  Where those leaves were held bit for bit
+// they are held as one SHA-256 per fit (`readingsSha256`); in the chord /
+// bootstrap fits, held to POINT_TOL, they are not held.  The fixture is checked
+// for readings before the gate skips, so that check runs publicly.
+//
+// Run: node app/tests/validate-worker-recon.mjs [--record | --strip-readings]
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -45,6 +57,55 @@ const FIX = path.join(HERE, 'fixtures', 'worker-recon.json');
 const BASE = 'http://127.0.0.1:0/';
 const RECORD = process.argv.includes('--record');
 const OUT = (() => { const i = process.argv.indexOf('--out'); return i >= 0 ? process.argv[i + 1] : FIX; })();
+
+//: ★the chord / bootstrap fits, held to POINT_TOL rather than bit for bit (see the walk)
+const POINT_FITS = ['twin_point', 'deck_point', 'deck_bootstrap', 'twin_closure'];
+//: ★★EAST shot readings the worker echoes — kept out of the public fixture.  In every
+//: fit: the Ip constraint, the deck's chords (the twin reuses them: `synthetic: false`),
+//: the probe readings, the coil currents and their σ (= 0.07 |I|).  In the DECK fits
+//: (no `truth`) also: the loop readings, the loop self-calibration factors (model /
+//: meas exactly) and the kinetic pressure rows (the delivered pressure with seeded
+//: noise).  The twin's own loop readings and pressure rows are synthetic and stay.
+const SHOT_READINGS = [['ipConstraint'], ['pointMeas'], ['probeRows', 'meas'], ['coilFit', 'before'], ['coilFit', 'sigma']];
+const DECK_READINGS = [['meas'], ['selfcal', 'loops', 'factors'], ['kinetic', 'p']];
+function readingPaths(fit) {
+  if (!fit || typeof fit !== 'object' || !('result' in fit)) return [];   // the series block echoes none
+  return fit.truth ? SHOT_READINGS : SHOT_READINGS.concat(DECK_READINGS);
+}
+/** The readings `fit` carries, `{ 'a.b': value }` in {@link readingPaths} order; `remove` deletes them. */
+function readingsOf(fit, remove) {
+  const out = {};
+  for (const p of readingPaths(fit)) {
+    let o = fit;
+    for (const k of p.slice(0, -1)) o = o && typeof o === 'object' ? o[k] : undefined;
+    const last = p[p.length - 1];
+    if (o && typeof o === 'object' && last in o) { out[p.join('.')] = o[last]; if (remove) delete o[last]; }
+  }
+  return out;
+}
+/** Take the readings out of every fit; where they were held bit for bit, leave their SHA-256. */
+function stripReadings(configs) {
+  for (const [name, fit] of Object.entries(configs)) {
+    const r = readingsOf(fit, true);
+    if (Object.keys(r).length && !POINT_FITS.includes(name)) {
+      fit.readingsSha256 = createHash('sha256').update(JSON.stringify(r)).digest('hex');
+    }
+  }
+  return configs;
+}
+if (process.argv.includes('--strip-readings')) {
+  const f = JSON.parse(readFileSync(FIX, 'utf8'));
+  writeFileSync(FIX, JSON.stringify({ device: f.device, configs: stripReadings(f.configs) }));
+  console.log(`stripped the shot readings from ${Object.keys(f.configs).length} fits -> ${path.relative(process.cwd(), FIX)}`);
+  process.exit(0);
+}
+//: ★public, before any skip: the fixture carries no shot readings
+if (!RECORD) {
+  const f = JSON.parse(readFileSync(FIX, 'utf8'));
+  const left = Object.entries(f.configs).flatMap(([n, fit]) => Object.keys(readingsOf(fit, false)).map((k) => `${n}.${k}`));
+  assert.deepEqual(left, [], 'EAST shot readings in the public fixture (node app/tests/validate-worker-recon.mjs --strip-readings)');
+  console.log(`validate-worker-recon: fixture carries no EAST shot readings (${Object.keys(f.configs).length} fits)`);
+}
 
 globalThis.self = globalThis;
 globalThis.location = { hostname: '127.0.0.1', href: BASE + 'assets/worker.js', search: '' };
@@ -260,6 +321,9 @@ for (const [name, over] of Object.entries(CONFIGS)) {
   got.series = JSON.parse(JSON.stringify(o));
 }
 
+//: ★★the readings out of what is recorded and compared (the header): a digest where they were bit for bit
+stripReadings(got);
+
 if (RECORD) {
   writeFileSync(OUT, JSON.stringify({ device: id, configs: got }));
   console.log(`recorded ${Object.keys(got).length} fits on ${id} -> ${path.relative(process.cwd(), OUT)}`);
@@ -273,7 +337,7 @@ const TRIG = /\.probes\.(b\[|rowsVsFieldRel$)/;
 //: ★第三十五刀: the two bootstrap configurations likewise — the NEO input mapping
 //: takes logarithms of the ladder's density and temperature (`Math.log` vs libm),
 //: and the closure loop feeds the prescribed cells into the next fit
-const POINT = /^(twin_point|deck_point|deck_bootstrap|twin_closure)\./, POINT_TOL = +(process.env.POINT_TOL || 1e-10);
+const POINT = new RegExp(`^(${POINT_FITS.join('|')})\\.`), POINT_TOL = +(process.env.POINT_TOL || 1e-10);
 let pointWorst = 0, pointWorstAt = '';
 let worst = 0, worstAt = '';
 function walk(a, b, at) {

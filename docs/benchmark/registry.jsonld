@@ -7009,7 +7009,7 @@
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/measurement_east137985_4041ms.fyo.jsonld",
-      "checksum": "sha256:c66fb9c03d32e46f7a2741a0b9749f627bcc3c22a49aa175b15d11d3bde73e3e",
+      "checksum": "sha256:cb39ff0cde30c9cdd1a993ee0982ec2657084e1f76fc04ec0cdf5fef6648d478",
       "comment": "13413 B",
       "provenance_class": "registered",
       "quality_state": "valid",
@@ -7017,14 +7017,14 @@
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
        "出处：EAST #137985 efit_east 树第 28 片（4.041 s）：EFIT 的输入通道 · 权重 · 平衡答案；内网来源不可自公开渠道重取（fydoc 算例书副本）",
-       "sha256 c66fb9c03d32e46f7a2741a0b9749f627bcc3c22a49aa175b15d11d3bde73e3e（与算例书 case.yaml 所记一致）",
+       "sha256 cb39ff0cde30c9cdd1a993ee0982ec2657084e1f76fc04ec0cdf5fef6648d478（与算例书 case.yaml 所记一致）",
        "测量集 `measurement_chain: efit_east`：EFIT 的输入通道与交付权重，**不是**仪器原始采集"
       ]
      },
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/equilibrium_east137985_4041ms.fyo.jsonld",
-      "checksum": "sha256:bb78414b1b6c64f893c02a378b96aac91578195b83e135fbfd1763f3bd88e941",
+      "checksum": "sha256:a24846602043b827407fd1ac71302e5d02171ec9e0f8c903d9c3c340c9c8e54c",
       "comment": "952329 B",
       "provenance_class": "registered",
       "quality_state": "valid",
@@ -7032,14 +7032,14 @@
       "caveat": [
        "纳入类别 experiment：实验数据：未经数据属主同意不可再分发，仅指针",
        "出处：EAST #137985 efit_east 树第 28 片（4.041 s）：EFIT 的输入通道 · 权重 · 平衡答案；内网来源不可自公开渠道重取（fydoc 算例书副本）",
-       "sha256 bb78414b1b6c64f893c02a378b96aac91578195b83e135fbfd1763f3bd88e941（与算例书 case.yaml 所记一致）",
+       "sha256 a24846602043b827407fd1ac71302e5d02171ec9e0f8c903d9c3c340c9c8e54c（与算例书 case.yaml 所记一致）",
        "参考答案（磁轴 · q₀ · q95 · 边界 · ψ 图 · CHISQ）与条件 1 的线圈电流（efit_east_tree 块的 computed_signals.CCBRSP）都读自这一件"
       ]
      },
      {
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld",
-      "checksum": "sha256:6c885918655181bbff9d7c1d006986c0036e0fe971940b53ed311017f4245521",
+      "checksum": "sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010",
       "comment": "26738 B",
       "provenance_class": "registered",
       "quality_state": "valid",
