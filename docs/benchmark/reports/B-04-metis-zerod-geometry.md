@@ -83,7 +83,7 @@ title: B-04 · 0-D 体元约定，对 METIS 认证套件的平衡
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv | sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8 | public-derived | 99956 B |
 | $METIS/certification/metis/ | — | public |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

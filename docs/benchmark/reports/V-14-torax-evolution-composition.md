@@ -63,7 +63,7 @@ title: V-14 · TORAX 五秒 ITER 混合演化：同一份 QLKNN_7_11 权重，�
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/evolution_qlknn_inputs.json | sha256:6355083e8699120c0a2f709818f706e5440c3ad4220b094e73c2999e2fca45ae | public-derived | 1157345 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

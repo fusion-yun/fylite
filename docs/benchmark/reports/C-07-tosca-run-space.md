@@ -71,7 +71,7 @@ title: C-07 · ITER 平衡运行空间（TOSCA，2009 批，li 扫描 61 份）
 | :--- | :--- | :--- | :--- |
 | $ITER_SCENARIO_ROOT/（TOSCA 两份 ITER IDM 文档，61 份 EQDSK） | — | restricted |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

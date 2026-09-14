@@ -81,7 +81,7 @@ title: V-08 · TORAX：同一份 QLKNN-10D 权重、同一篇 Bosch–Hale、同
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/ | sha256-manifest:51a006d3d69706892ad5dfc50c1f5be0d467dd1a75315f9c7bdd24926c8ee4a3 | public-derived | 22 files, 2821591 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

@@ -82,7 +82,7 @@ title: V-09 · Mavrin-2017 非日冕电荷态与冷却率，以及 L_INT 求积
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/record_mavrin_noncoronal.py | sha256:eb62bcae601f671a491245ea017a31d129a5080b522c5a815f3f5a38a31941f1 | public-derived | 7978 B |
 | $FYLITE_KERNEL/rust/tools/gen_mavrin_tables.py | sha256:c914a7bc2aa104745939ef006f75737e56486bf9dc43753aca2f8c5f788af2a9 | private-artefact | 8580 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

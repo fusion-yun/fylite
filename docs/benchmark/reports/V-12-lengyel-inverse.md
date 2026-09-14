@@ -77,7 +77,7 @@ title: V-12 · extended Lengyel 逆向求解：达到靶温所需的杂质浓度
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json | sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8 | public-derived | 119008 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

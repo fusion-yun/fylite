@@ -67,7 +67,7 @@ title: B-10 · CHEASE 定边界平衡：同一边界与剖面下的 GS 解
 | :--- | :--- | :--- | :--- |
 | $THIRD_PARTY/chease（本机构建；`ntcase=2` 随码自带算例） | — | public |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

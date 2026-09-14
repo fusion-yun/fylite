@@ -70,7 +70,7 @@ title: B-01 · FUSE 的 ITER 算例，四层
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_init.json | sha256:a46587315b482362dfcdba0b8797e9bd56f2da0e8506a5358aacb2123ecf80bc | public-derived | 25616 B |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglf_decks.json | sha256:6215b409ddeb9bb2d0c9c9acf2bd55992d9d2bb92954f1a4726f2c38d1ab7d66 | public-derived | 55840 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

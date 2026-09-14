@@ -69,7 +69,7 @@ title: B-07 · 定态解本身：匹配出的梯度剖面对 TGYRO 的收敛答�
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg02-converged/ | sha256-manifest:41ce4f55ce006a120be9ed4ce5d5a48abd831634e512c3aa79584f7f9c123062 | public-derived | 30 files, 79088 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

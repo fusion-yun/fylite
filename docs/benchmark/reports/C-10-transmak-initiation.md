@@ -78,7 +78,7 @@ title: C-10 · ITER 起始的线圈磁通：拿 TRANSMAK 自己的电流过本�
 | :--- | :--- | :--- | :--- |
 | $ITER_SCENARIO_ROOT/Study_of_plasma_initiation_using_TRANSMA_3TPCKG_v1_0/ | — | restricted |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

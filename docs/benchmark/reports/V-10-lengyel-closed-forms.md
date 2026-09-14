@@ -73,7 +73,7 @@ title: V-10 · extended Lengyel 的闭式：分界面几何、alpha_t、q_parall
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/extended_lengyel.json | sha256:fb195e68e4e5921f307fc6bd955e232ea0706d0e4ac987b8653c0271e34fb4c8 | public-derived | 119008 B |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-16-torax/corpus/record_extended_lengyel.py | sha256:7713f08efa847afd25cabd85f2b2396b06bb20085f7c6efae61880349c8a15e4 | public-derived | 20611 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

@@ -67,7 +67,7 @@ title: C-09 · ITPA TC-33 ITER 15 MA 参考算例（IMAS IDS）上的 0-D 聚变
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-08-itpa-tc33/corpus/ | sha256-manifest:b92f9d6fe14b5d72fadab865bf7074e309daa876a837919c723f8eb558d6611d | public | 4 files, 3090111 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

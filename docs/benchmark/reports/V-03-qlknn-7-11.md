@@ -84,7 +84,7 @@ title: V-03 · QLKNN_7_11：单网对上游自带测试向量，组合层对上�
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-11-qlknn/corpus/qlknn_7_11_upstream.json | sha256:1fb6752a8ea5efc41b50fe685bcf8ddaf4fb9bdde489e52b1b639338bb19d5a1 | public | 10144 B |
 | $FYLITE_KERNEL/rust/tools/export_qlknn_7_11.py | sha256:0a2b3fb35b8778db1fc1df66386cb61b1db0b822164b1b282e5508649d211f08 | private-artefact | 11543 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

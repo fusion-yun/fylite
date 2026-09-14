@@ -64,7 +64,7 @@ title: V-07 · TGYRO 映射层：整份 localdump 全键对照扩到六个算例
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/treg05/ | sha256-manifest:a38a291b2b5a17a0c22a50ab1da697ec594d18b51c8fcac0485eda75ba7afd48 | public-derived | 31 files, 42149 B |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-15-tgyro/corpus/iter01/ | sha256-manifest:3631addadb05de4f096beb29874f0407cfa116bd80318b4ea57eafc8c3abe0c3 | public-derived | 43 files, 137151 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

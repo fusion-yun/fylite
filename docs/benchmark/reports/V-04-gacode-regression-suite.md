@@ -80,7 +80,7 @@ title: V-04 · 上游 GACODE 自带的回归套件（TGLF 九例 / NEO 21 例）
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-05-gacode/corpus/tglf.json | sha256:0c1a0c61ccabb7c80971b3b66d59065d222e1821db1ab93ddf3c0d1677701789 | public-derived | 93406 B |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-05-gacode/corpus/neo.json | sha256:d1e51dbd7825766d4ae028dee03860509229012d268f2d86b98828f57148dd4e | public-derived | 35720 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

@@ -67,7 +67,7 @@ title: B-09 · DINA 的 ITER 含时场景：爬升段的电阻环电压
 | :--- | :--- | :--- | :--- |
 | $ITER_SCENARIO_ROOT/DINA…XA8GXS_v1_1 | — | restricted |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

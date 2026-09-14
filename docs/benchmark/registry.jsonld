@@ -2,7 +2,7 @@
  "@context": "context.jsonld",
  "id": "registry",
  "title": "fylite 公开 V&V 登记册",
- "abstract": "fylite 对着外部答案量过的记录，逐条可复算——内核仓登记册（docs/cases/registry.jsonld）的公开渲染：判据与量到的数照录，指针改为仓外地址（$FYLITE_KERNEL），每项参考数据标纳入类别与 sha256，末条 finding 是发布当日的复测。★2026-09-02 起：受限 / 实验类参考以「仅指针」收录（README），不再排除。词汇归 fyo / spo（FYO-ADR-08 · spo RegistryRecord）。",
+ "abstract": "fylite 对着外部答案量过的记录，逐条可复算——内核仓登记册（docs/cases/registry.jsonld）的公开渲染：判据与量到的数照录，指针改为仓外地址（$FYLITE_KERNEL），每项参考数据标纳入类别与 sha256，末条 finding 是发布当日的复测。受限 / 实验类参考以「仅指针」收录（README）。词汇归 fyo / spo（FYO-ADR-08 · spo RegistryRecord）。",
  "recorded": "2026-09-08",
  "@graph": [
   {

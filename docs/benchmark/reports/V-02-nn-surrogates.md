@@ -65,7 +65,7 @@ title: V-02 · 两个神经代理的求值，对上游自己的求值
 | $FYLITE_PUBLIC/models/epednn.npz | sha256:4b637f73b6943cfd888d6f6abc2134a3123f580d131bb071c3def5b0c660d796 | public-derived | 33111 B |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/retired-0.7.0/iter_tglfnn.json | sha256:d3364500b9512a11f34e3280e2063fee8cf77bc1b19c7d291f9e09e5bb438662 | public-derived | 1477 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

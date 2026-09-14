@@ -69,7 +69,7 @@ title: C-06 · ITER 参考平衡集（TEQ / CORSICA 写出）上的 Grad–Shafr
 | :--- | :--- | :--- | :--- |
 | $ITER_SCENARIO_ROOT/（TEQ 四份 ITER IDM 文档） | — | restricted |  |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash

@@ -98,7 +98,7 @@ title: B-08 · FUSE 自带含时 ITER 回归算例：61 个时刻上逐通道对
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-04-fuse/corpus/1.1.5/iter_time_115.json | sha256:b1777eb99d851ea4b87fe39f7e449a25e8ebd7b32c1be3465f768765108134bd | public-derived | 8474362 B |
 
-参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料自 2026-09-05 起**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`），不再是指向别处的挂载。
+参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
 
 ```bash
