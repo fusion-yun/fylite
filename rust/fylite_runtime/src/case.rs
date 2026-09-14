@@ -231,7 +231,11 @@ pub fn compose(docs: Vec<(Source, Node)>) -> Result<Plan, CaseError> {
                 }
             }
         }
-        if let Some(Node::List(ps)) = get(m, &["parameters", "spo:has_parameter_setting"]) {
+        //: ★the bare `has_parameter_setting` / `has_port_binding` are the SAME spo terms in the
+        //: case-book context (fylite_kernel `docs/cases/context.jsonld`); read as exact keys, a
+        //: plan written in that spelling composed with no settings and no bindings at all —
+        //: silently (PLAN H-21, measured 2026-09-13 on the kinetic plan)
+        if let Some(Node::List(ps)) = get(m, &["parameters", "has_parameter_setting", "spo:has_parameter_setting"]) {
             for p in ps {
                 let Some(pm) = p.as_map() else { continue };
                 let Some(iri) = get(pm, &["sets_parameter", "spo:sets_parameter"]).and_then(id_of) else {
@@ -248,7 +252,7 @@ pub fn compose(docs: Vec<(Source, Node)>) -> Result<Plan, CaseError> {
                 plan.set_from(fragment(&iri), iri, value, Some(k));
             }
         }
-        if let Some(Node::List(bs)) = get(m, &["inputs", "spo:has_port_binding"]) {
+        if let Some(Node::List(bs)) = get(m, &["inputs", "has_port_binding", "spo:has_port_binding"]) {
             for b in bs {
                 let Some(bm) = b.as_map() else { continue };
                 let port_node = get(bm, &["binds_port", "spo:binds_port"]);
@@ -1365,10 +1369,40 @@ pub struct JsonError {
 /// document that carries the inputs AND the order is what "run this again" means.
 pub fn steps_of(node: &Node) -> Option<Vec<Node>> {
     let m = node.as_map()?;
-    match get(m, &["has_occurrent_part", "spo:has_occurrent_part", "fyo:has_occurrent_part", "fylite:steps"]) {
-        Some(Node::List(l)) if !l.is_empty() => Some(l.clone()),
+    if let Some(Node::List(l)) = get(m, &["has_occurrent_part", "spo:has_occurrent_part", "fyo:has_occurrent_part", "fylite:steps"]) {
+        if !l.is_empty() {
+            return Some(l.clone());
+        }
+    }
+    //: ★★`has_step` — the spo plan skeleton's own word for a plan's steps (each a
+    //: `ComputationPlan`), which is how the kinetic-reconstruction plan is written
+    //: (fylite_kernel `docs/cases/plans/`).  Only a step that prescribes a code runs: a
+    //: declaration beside them (the outer loop's `has_step: ["s1", …]`, no code) is not a
+    //: step any door can take, and [`run_steps`] names it in the record instead of
+    //: pretending it ran (PLAN H-21; closing the loop is H-22).
+    match get(m, &["has_step", "spo:has_step"]) {
+        Some(Node::List(l)) => {
+            let run: Vec<Node> = l.iter().filter(|s| prescribes(s)).cloned().collect();
+            (!run.is_empty()).then_some(run)
+        }
         _ => None,
     }
+}
+
+fn prescribes(step: &Node) -> bool {
+    step.as_map().map(|m| get(m, &["prescribes_code", "spo:prescribes_code"]).is_some()).unwrap_or(false)
+}
+
+/// The ids of the `has_step` entries that prescribe no code — declared, not run.
+pub fn declared_not_run(root: &Node) -> Vec<String> {
+    let Some(Node::List(l)) = root.as_map().and_then(|m| get(m, &["has_step", "spo:has_step"])) else {
+        return Vec::new();
+    };
+    l.iter().filter(|s| !prescribes(s)).filter_map(|s| match s {
+        Node::Str(id) => Some(id.clone()),
+        Node::Map(sm) => get(sm, &["id", "@id"]).and_then(Node::as_str).map(str::to_string),
+        _ => None,
+    }).collect()
 }
 
 /// One executed step of a stepped scenario.
@@ -1426,9 +1460,27 @@ pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: 
     let mut prev_docs: Vec<(String, Node)> = Vec::new();
     let mut by_ref: Vec<(String, Node)> = Vec::new();
     let mut refused = false;
-    for (k, step) in steps.iter().enumerate() {
-        let step_id = step.as_map().and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str)
+    //: every step that ran, with what its door answered — what `x+run://<step>/<name>` reads.
+    //: Keyed by the step's OWN id and read latest-first, so a later round's `s1b` answers.
+    let mut done: Vec<(String, Outcome, RawOutcome)> = Vec::new();
+    //: ★★the outer loop (PLAN H-22): round 1 is the linear pass; each later round re-runs
+    //: the loop's parts, queued behind the pass, until the criterion holds or the cap
+    let lp = loop_of(root, steps).map_err(|why| fail(-3, why))?;
+    let mut queue: Vec<(usize, usize)> = (0..steps.len()).map(|k| (k, 1)).collect();
+    let mut history: Vec<LoopRound> = Vec::new();
+    let mut loop_converged = false;
+    let mut qi = 0;
+    while qi < queue.len() {
+        let (k, round) = queue[qi];
+        qi += 1;
+        let step = &steps[k];
+        let own_id = step.as_map().and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str)
             .map(str::to_string).unwrap_or_else(|| format!("step-{}", k + 1));
+        let step_id = match (&lp, round) {
+            (Some(l), r) if r > 1 => format!("{}/r{r}/{own_id}", l.id),
+            _ => own_id.clone(),
+        };
+        let step = &resolve_run_handles(step, &done).map_err(|why| fail(-3, format!("step `{step_id}`: {why}")))?;
         let text = json::to_string(step, false);
         let src = Source { path: PathBuf::from(format!("(scenario)[{k}]")), id: Some(step_id.clone()),
                            sha256: sha256_hex(text.as_bytes()), bytes: text.len() };
@@ -1447,7 +1499,8 @@ pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: 
         }
         let (_slots, resolved) = resolve_inputs_any(&plan, &[&base_dir]).map_err(|e| fail(-3, format!("step `{step_id}`: {}", e.0)))?;
         let (numbers, texts) = plan.kernel_settings().map_err(|e| fail(-5, format!("step `{step_id}`: {}", e.0)))?;
-        let tree = plan_tree(&numbers, &texts, &resolved);
+        let mut tree = plan_tree(&numbers, &texts, &resolved);
+        inject_inline_numbers(&mut tree, &plan).map_err(|why| fail(-3, format!("step `{step_id}`: {why}")))?;
         let step_record_id = format!("{record_id}/{step_id}");
         let (_s1, step_started) = now_iso();
         let result = kernel.run_tree(&plan.code, &tree)
@@ -1456,6 +1509,7 @@ pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: 
         let mut produced: Vec<Produced> = Vec::new();
         let outcome = match &result {
             Ok((o, raw)) => {
+                done.push((own_id.clone(), o.clone(), raw.clone()));
                 let docs = documents(o, raw, &step_record_id);
                 for (ids, doc) in docs {
                     let fields: Vec<String> = o.fields.iter()
@@ -1479,7 +1533,7 @@ pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: 
                         None => prev_docs.push((ids.clone(), doc.clone())),
                     }
                     let state = prev_docs.iter().find(|(k, _)| *k == ids).map(|(_, d)| d.clone()).unwrap_or(doc);
-                    by_ref.push((format!("{step_id}/{ids}"), state));
+                    by_ref.push((format!("{own_id}/{ids}"), state));
                 }
                 Some(o.clone())
             }
@@ -1496,9 +1550,41 @@ pub fn run_steps(root: &Node, steps: &[Node], base: Option<&Path>, kernel_path: 
             refused = true;
             break;
         }
+        //: the loop's last part closed a round: read q0, judge, queue the next round
+        if let Some(l) = &lp {
+            if l.parts.last() == Some(&k) && !loop_converged {
+                let (_, o, raw) = done.last().cloned().expect("the step that just ran is recorded");
+                let fact = |key: &str| o.facts.iter().find(|(n, _, _)| n == key).map(|f| f.2);
+                let Some(q0) = fact("q0") else {
+                    return Err(fail(-7, format!("loop `{}`: its last part `{own_id}` wrote no q0 fact — the criterion dq0_rel cannot be read", l.id)));
+                };
+                let dq = history.last().map(|h| dq0_rel(h.q0, q0));
+                history.push(LoopRound { round, q0, q95: fact("q95"), dq0_rel: dq });
+                if dq.map(|d| d < LOOP_DQ0_REL).unwrap_or(false) {
+                    loop_converged = true;
+                } else if round < l.cap {
+                    for alias in &l.aliases {
+                        done.push((alias.clone(), o.clone(), raw.clone()));
+                    }
+                    for &part in &l.parts {
+                        queue.push((part, round + 1));
+                    }
+                }
+            }
+        }
     }
     let (_e, ended_at) = now_iso();
-    let rec = steps_record(&root_id, &record_id, &started_at, &ended_at, &runs, &produced_all, refused, steps.len());
+    let mut rec = steps_record(&root_id, &record_id, &started_at, &ended_at, &runs, &produced_all, refused, steps.len());
+    let not_run: Vec<String> = declared_not_run(root).into_iter()
+        .filter(|id| lp.as_ref().map(|l| &l.id != id).unwrap_or(true)).collect();
+    if let Some(m) = rec.as_map_mut() {
+        if !not_run.is_empty() {
+            m.insert("fylite:steps_not_run", Node::List(not_run.into_iter().map(Node::Str).collect()));
+        }
+        if let Some(l) = &lp {
+            m.insert("fylite:loop", loop_node(l, steps, &history, loop_converged));
+        }
+    }
     Ok(StepsRun { record: rec, steps: runs, refused })
 }
 
@@ -1541,6 +1627,220 @@ pub fn chain_inputs(plan: &mut Plan, step: &Node, by_ref: &[(String, Node)], pre
             }
         }
     }
+}
+
+const RUN_SCHEME: &str = "x+run://";
+
+/// ★★The outer loop's criterion: q0's relative change between two rounds (PLAN H-22).
+///
+/// User ruling 2026-09-13 (the design sketch): `dq0_rel` < 0.01, at most 6 rounds.  The
+/// cap has a plan-side slot (`fyo:iteration_cap`) and is read from the plan; the criterion
+/// has NONE — `converges_by` is defined on occurrents, a plan is not one — so it is this
+/// constant, the plan's caveat says the same number, and fylite_kernel
+/// `tests/test_kinetic_plan.py` holds the two together.  The record says which criterion
+/// judged (`fylite:loop`), so the number is never implicit.
+pub const LOOP_DQ0_REL: f64 = 0.01;
+
+/// One outer-loop declaration, resolved against the steps that run.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoopSpec {
+    pub id: String,
+    /// indices into the coded steps, in declared order
+    pub parts: Vec<usize>,
+    pub cap: usize,
+    /// ★the back edge: steps before the loop that prescribe the SAME code as its last part
+    /// (`s0`, the magnetics-only reconstruction, beside `s3`).  From round 2 a handle naming
+    /// one of them reads the previous round's last part — "s3's equilibrium replaces s0's"
+    /// (`FYL-SDD-07` plan skeleton) — which is the loop, written as a rule rather than an edge.
+    pub aliases: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct LoopRound {
+    pub round: usize,
+    pub q0: f64,
+    pub q95: Option<f64>,
+    pub dq0_rel: Option<f64>,
+}
+
+pub fn dq0_rel(previous: f64, now: f64) -> f64 {
+    ((now - previous) / previous).abs()
+}
+
+/// Step ids out of a `has_step` value.  ★A JSON array of plain strings parses to a typed
+/// string ARRAY, not a list of nodes — reading only `Node::List` found no loop at all.
+fn id_list(n: &Node) -> Vec<String> {
+    match n {
+        Node::List(l) => l.iter().filter_map(id_of).collect(),
+        Node::Array(a) => match &a.data {
+            crate::document::ArrayData::Str(v) => v.clone(),
+            _ => Vec::new(),
+        },
+        _ => Vec::new(),
+    }
+}
+
+fn code_of_step(step: &Node) -> Option<String> {
+    step.as_map().and_then(|m| get(m, &["prescribes_code", "spo:prescribes_code"])).and_then(id_of)
+}
+
+/// The plan's outer loop: a `has_step` entry with no code whose own `has_step` names the
+/// parts.  `None` when there is none; an error when there is one the host cannot run.
+pub fn loop_of(root: &Node, steps: &[Node]) -> Result<Option<LoopSpec>, String> {
+    let Some(Node::List(all)) = root.as_map().and_then(|m| get(m, &["has_step", "spo:has_step"])) else {
+        return Ok(None);
+    };
+    let decls: Vec<&Map> = all.iter().filter_map(Node::as_map)
+        .filter(|m| get(m, &["prescribes_code", "spo:prescribes_code"]).is_none()
+                && get(m, &["has_step", "spo:has_step"]).is_some())
+        .collect();
+    let decl = match decls.as_slice() {
+        [] => return Ok(None),
+        [one] => *one,
+        _ => return Err("the plan declares more than one outer loop; this host runs one".into()),
+    };
+    let id = get(decl, &["id", "@id"]).and_then(Node::as_str).unwrap_or("loop").to_string();
+    let cap = match get(decl, &["iteration_cap", "fyo:iteration_cap"]).and_then(Node::as_f64) {
+        Some(c) if c >= 1.0 && c.fract() == 0.0 => c as usize,
+        other => return Err(format!("loop `{id}`: iteration_cap must be a whole number >= 1, got {other:?}")),
+    };
+    let ids: Vec<String> = get(decl, &["has_step", "spo:has_step"]).map(id_list).unwrap_or_default();
+    if ids.is_empty() {
+        return Err(format!("loop `{id}`: no parts"));
+    }
+    let index = |want: &str| steps.iter().position(|s| s.as_map()
+        .and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str) == Some(want));
+    let mut parts = Vec::new();
+    for p in &ids {
+        match index(p) {
+            Some(i) => parts.push(i),
+            None => return Err(format!("loop `{id}`: part `{p}` is not a step that runs")),
+        }
+    }
+    if parts.windows(2).any(|w| w[0] >= w[1]) {
+        return Err(format!("loop `{id}`: parts {ids:?} are not in declared order"));
+    }
+    let last_code = code_of_step(&steps[*parts.last().unwrap()]);
+    let aliases = steps[..parts[0]].iter()
+        .filter(|s| last_code.is_some() && code_of_step(s) == last_code)
+        .filter_map(|s| s.as_map().and_then(|m| get(m, &["id", "@id"])).and_then(Node::as_str).map(str::to_string))
+        .collect();
+    Ok(Some(LoopSpec { id, parts, cap, aliases }))
+}
+
+fn loop_node(l: &LoopSpec, steps: &[Node], history: &[LoopRound], converged: bool) -> Node {
+    let mut m = Map::new();
+    m.insert("id", l.id.clone().into());
+    m.insert("type", "fyo:ScenarioLoop".into());
+    let part_ids: Vec<Node> = l.parts.iter().filter_map(|&i| steps[i].as_map()
+        .and_then(|sm| get(sm, &["id", "@id"])).cloned()).collect();
+    m.insert("has_step", Node::List(part_ids));
+    m.insert("iteration_cap", Node::Int(l.cap as i64));
+    m.insert("fylite:back_edge", Node::List(l.aliases.iter().map(|a| Node::Str(a.clone())).collect()));
+    m.insert("fylite:criterion", format!("dq0_rel < {LOOP_DQ0_REL}").into());
+    m.insert("fylite:rounds", Node::Int(history.len() as i64));
+    m.insert("fylite:converged", Node::Bool(converged));
+    let rows: Vec<Node> = history.iter().map(|h| {
+        let mut r = Map::new();
+        r.insert("round", Node::Int(h.round as i64));
+        r.insert("q0", Node::Float(h.q0));
+        r.insert("q95", h.q95.map(Node::Float).unwrap_or(Node::Null));
+        r.insert("dq0_rel", h.dq0_rel.map(Node::Float).unwrap_or(Node::Null));
+        Node::Map(r)
+    }).collect();
+    m.insert("fylite:history", Node::List(rows));
+    Node::Map(m)
+}
+
+/// ★★The plan skeleton's step-to-step handle, resolved (PLAN H-21).
+///
+/// `bound_to: "x+run://<step>/<name>"` names a FIELD or a FACT an earlier step's door
+/// wrote — the record's own names (`psi`, `boundary`, `psi_axis`), not an IDS document:
+/// `code/reconstruction`, `code/bootstrap` and `code/profile_fit` answer fields, and the
+/// kinetic plan binds them slot by slot.  `#col=<k>` takes column `k` of a 2-D field
+/// (`boundary` is `[n, 2]`; its `r` and `z` are two ports).  The handle is replaced by the
+/// numbers themselves before the step composes, so the record carries what was bound.
+///
+/// ★A handle that resolves to nothing is an ERROR, not an open port: the door would then
+/// refuse by a slot's name and the reader would look for the slot instead of the handle.
+pub fn resolve_run_handles(step: &Node, done: &[(String, Outcome, RawOutcome)]) -> Result<Node, String> {
+    let mut out = step.clone();
+    let Some(m) = out.as_map_mut() else { return Ok(out) };
+    for key in ["inputs", "has_port_binding", "spo:has_port_binding"] {
+        let Some(Node::List(bs)) = m.get_mut(key) else { continue };
+        for b in bs.iter_mut() {
+            let Some(bm) = b.as_map_mut() else { continue };
+            let handle = match bm.get("bound_to").or_else(|| bm.get("spo:bound_to")) {
+                Some(Node::Str(s)) if s.starts_with(RUN_SCHEME) => s.clone(),
+                _ => continue,
+            };
+            let v = run_handle_value(&handle, done)?;
+            bm.remove("spo:bound_to");
+            bm.insert("bound_to", Node::Array(Array::vec_f64(v)));
+        }
+    }
+    Ok(out)
+}
+
+fn run_handle_value(handle: &str, done: &[(String, Outcome, RawOutcome)]) -> Result<Vec<f64>, String> {
+    let rest = &handle[RUN_SCHEME.len()..];
+    let (rest, col) = match rest.split_once('#') {
+        None => (rest, None),
+        Some((r, frag)) => match frag.strip_prefix("col=").and_then(|k| k.parse::<usize>().ok()) {
+            Some(k) => (r, Some(k)),
+            None => return Err(format!("`{handle}`: the only fragment a run handle takes is #col=<k>")),
+        },
+    };
+    let Some((up, name)) = rest.split_once('/') else {
+        return Err(format!("`{handle}`: a run handle is x+run://<step>/<name>"));
+    };
+    //: ★LATEST first: a later round's `s1b`, and the back edge's `s0` (the previous round's
+    //: last part), are pushed after the originals — reading the first match replayed round 1
+    //: bit for bit and reported dq0_rel 0 as convergence (measured 2026-09-13, PLAN H-22)
+    let Some((_, o, raw)) = done.iter().rev().find(|(id, _, _)| id == up) else {
+        let ran: Vec<&str> = done.iter().map(|d| d.0.as_str()).collect();
+        return Err(format!("`{handle}`: no earlier step `{up}` ran (steps that ran: {})",
+                           if ran.is_empty() { "none".to_string() } else { ran.join(", ") }));
+    };
+    let field = o.fields.iter().find(|f| f.ids.is_empty() && f.path == name)
+        .or_else(|| o.fields.iter().find(|f| f.path == name));
+    if let Some(f) = field {
+        let data = &raw.data[f.offset..f.offset + f.len];
+        return match col {
+            None => Ok(data.to_vec()),
+            Some(k) if f.dims.len() == 2 && k < f.dims[1] => {
+                let (n0, n1) = (f.dims[0], f.dims[1]);
+                Ok((0..n0).map(|i| data[i * n1 + k]).collect())
+            }
+            Some(k) => Err(format!("`{handle}`: #col={k} on a field shaped {:?}", f.dims)),
+        };
+    }
+    if col.is_none() {
+        if let Some((_, _, v)) = o.facts.iter().find(|(key, _, _)| key == name) {
+            return Ok(vec![*v]);
+        }
+    }
+    Err(format!("`{handle}`: step `{up}` ({}) wrote no field or fact `{name}`", o.code))
+}
+
+/// Numbers bound inline on a PATH port (`discharge/fylite:pressure`,
+/// `equilibrium/time_slice/profiles_2d/psi`) placed in the tree at `inputs/<port>`.
+///
+/// ★★[`plan_tree`] carries documents only: an inline numeric array resolves to a slot
+/// but never reached the tree door, so every chained value was dropped and the door
+/// refused by the slot's name (PLAN H-21).  The door flattens `inputs` back to exactly
+/// these keys (`door::flatten_inputs`), so the path is the key.  Placed after the
+/// documents: a bound number wins over the same leaf in a bound document.
+pub fn inject_inline_numbers(tree: &mut Node, plan: &Plan) -> Result<(), String> {
+    for b in &plan.inputs {
+        if !b.port.contains('/') {
+            continue;
+        }
+        let Some(v) = b.inline.as_ref().and_then(numbers_of) else { continue };
+        tree.set(&format!("inputs/{}", b.port), Node::Array(Array::vec_f64(v)))
+            .map_err(|e| format!("input `{}`: the bound numbers have no place in the plan tree ({e:?})", b.port))?;
+    }
+    Ok(())
 }
 
 /// Deep-merge `src` into `dst`: maps recurse, everything else (arrays, scalars,
@@ -1917,5 +2217,91 @@ mod tests {
         }
         crate::facts::use_roots(None);
         let _ = std::fs::remove_dir_all(&root);
+    }
+
+    /// ★PLAN H-22: the loop declaration resolves to parts, cap and back edge, and a
+    /// declaration the host cannot run is refused by name.
+    #[test]
+    fn the_outer_loop_declaration_resolves_to_parts_cap_and_back_edge() {
+        let plan = |decl: &str| json::parse(&format!(r##"{{"id": "p", "has_step": [
+              {{"id": "s0", "prescribes_code": "code/reconstruction"}},
+              {{"id": "s1", "prescribes_code": "code/ladder"}},
+              {{"id": "s2", "prescribes_code": {{"id": "code/bootstrap"}}}},
+              {{"id": "s3", "prescribes_code": "code/reconstruction"}},
+              {decl}]}}"##)).unwrap();
+        let root = plan(r#"{"id": "s4", "type": "fyo:ScenarioSpecification", "iteration_cap": 6, "has_step": ["s1", "s2", "s3"]}"#);
+        let steps = steps_of(&root).unwrap();
+        let l = loop_of(&root, &steps).unwrap().expect("a loop");
+        assert_eq!((l.parts.clone(), l.cap, l.aliases.clone()), (vec![1, 2, 3], 6, vec!["s0".to_string()]));
+        for bad in [r#"{"id": "s4", "iteration_cap": 0, "has_step": ["s1"]}"#,
+                    r#"{"id": "s4", "has_step": ["s1"]}"#,
+                    r#"{"id": "s4", "iteration_cap": 3, "has_step": ["s9"]}"#,
+                    r#"{"id": "s4", "iteration_cap": 3, "has_step": ["s3", "s1"]}"#] {
+            let root = plan(bad);
+            let steps = steps_of(&root).unwrap();
+            assert!(loop_of(&root, &steps).is_err(), "{bad} was accepted");
+        }
+        let plain = json::parse(r#"{"id": "p", "has_step": [{"id": "s0", "prescribes_code": "code/ladder"}]}"#).unwrap();
+        assert_eq!(loop_of(&plain, &steps_of(&plain).unwrap()).unwrap(), None);
+        assert!((dq0_rel(0.5, 0.505) - 0.01).abs() < 1e-12);
+    }
+
+    /// ★PLAN H-21: `has_step` runs the steps that prescribe a code and names the rest.
+    #[test]
+    fn has_step_runs_the_coded_steps_and_names_the_declarations() {
+        let root = json::parse(r##"{"id": "p", "has_step": [
+              {"id": "s0", "prescribes_code": "code/reconstruction"},
+              {"id": "s1", "prescribes_code": {"id": "code/ladder"}},
+              {"id": "s4", "type": "fyo:ScenarioSpecification", "has_step": ["s0", "s1"]}]}"##).unwrap();
+        let steps = steps_of(&root).expect("two coded steps");
+        assert_eq!(steps.len(), 2);
+        assert_eq!(declared_not_run(&root), vec!["s4".to_string()]);
+        //: the bare spo spellings compose: settings and bindings are not dropped
+        let step = json::parse(r##"{"id": "s1", "type": "spo:ComputationPlan", "prescribes_code": "code/ladder",
+              "has_parameter_setting": [{"sets_parameter": "code/ladder#n_surfaces", "literal_value": 8}],
+              "has_port_binding": [{"binds_port": {"port_name": "equilibrium/time_slice/profiles_2d/psi"}, "bound_to": [1.0, 2.0]}]}"##).unwrap();
+        let src = Source { path: PathBuf::from("s1"), id: None, sha256: String::new(), bytes: 0 };
+        let plan = compose(vec![(src, step)]).unwrap();
+        assert_eq!(plan.settings.len(), 1, "has_parameter_setting was dropped");
+        assert_eq!(plan.inputs.len(), 1, "has_port_binding was dropped");
+    }
+
+    /// ★PLAN H-21: a run handle reads an earlier step's field (whole, or one column) or
+    /// fact, lands in the tree under the port's path, and refuses by name when it cannot.
+    #[test]
+    fn run_handles_resolve_fields_columns_and_facts() {
+        let o = Outcome {
+            code: "code/reconstruction".into(),
+            fields: vec![
+                FieldRef { ids: String::new(), path: "boundary".into(), units: "m".into(), offset: 0, len: 6, dims: vec![3, 2] },
+                FieldRef { ids: String::new(), path: "psi".into(), units: "Wb".into(), offset: 6, len: 2, dims: vec![2] },
+            ],
+            facts: vec![("psi_axis".into(), "Wb".into(), -0.5)],
+            ..Default::default()
+        };
+        let raw = RawOutcome { manifest: String::new(), data: vec![1.0, 10.0, 2.0, 20.0, 3.0, 30.0, 7.0, 8.0] };
+        let done = vec![("s0".to_string(), o, raw)];
+        assert_eq!(run_handle_value("x+run://s0/boundary#col=0", &done).unwrap(), vec![1.0, 2.0, 3.0]);
+        assert_eq!(run_handle_value("x+run://s0/boundary#col=1", &done).unwrap(), vec![10.0, 20.0, 30.0]);
+        assert_eq!(run_handle_value("x+run://s0/psi_axis", &done).unwrap(), vec![-0.5]);
+        //: the latest entry under an id answers (a later round, or the loop's back edge)
+        let mut later = done.clone();
+        let mut o2 = later[0].1.clone();
+        o2.facts = vec![("psi_axis".into(), "Wb".into(), -0.7)];
+        later.push(("s0".to_string(), o2, later[0].2.clone()));
+        assert_eq!(run_handle_value("x+run://s0/psi_axis", &later).unwrap(), vec![-0.7]);
+        for bad in ["x+run://s0/nothing", "x+run://s9/psi", "x+run://s0/psi#col=0", "x+run://s0/psi#row=1"] {
+            assert!(run_handle_value(bad, &done).is_err(), "{bad} resolved");
+        }
+        let step = json::parse(r##"{"id": "s1", "type": "spo:ComputationPlan", "prescribes_code": "code/ladder", "has_port_binding": [
+              {"binds_port": {"port_name": "equilibrium/time_slice/profiles_2d/psi"}, "bound_to": "x+run://s0/psi"}]}"##).unwrap();
+        let resolved = resolve_run_handles(&step, &done).unwrap();
+        let src = Source { path: PathBuf::from("s1"), id: None, sha256: String::new(), bytes: 0 };
+        let plan = compose(vec![(src, resolved)]).unwrap();
+        assert_eq!(plan.inputs[0].inline.as_ref().and_then(numbers_of), Some(vec![7.0, 8.0]));
+        let mut tree = plan_tree(&[], &[], &[]);
+        inject_inline_numbers(&mut tree, &plan).unwrap();
+        let leaf = tree.walk("inputs/equilibrium/time_slice/profiles_2d/psi", false).and_then(numbers_of);
+        assert_eq!(leaf, Some(vec![7.0, 8.0]));
     }
 }
