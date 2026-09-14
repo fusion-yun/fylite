@@ -338,6 +338,19 @@ def pf_active(doc: dict, source: str) -> dict:
         if c.get("function"):
             entry["function"] = [dict(f) for f in c["function"]]
         entry["element"] = _elements(c)
+        #: ★PCS I-5 (2026-09-14): the A-Box's per-coil limit travels — but NOT under the DD's
+        #: `coil/current_limit_max`, which DD 4.1.1 defines as the tolerable current IN THE
+        #: CONDUCTOR, a 2-D table over `b_field_max`.  The upstream value is the coil's whole
+        #: ampere-turns (limit per turn × turns, e.g. CFEDR CS 60 kA × 738 = 44.28 MA), which is
+        #: what `code/breakdown` / `code/discharge` call `i_max_aturn`.  Which door reads it from
+        #: the card is ledger F-9's question; this only converts, it does not decide.
+        lim = c.get("current_limit_max")
+        if isinstance(lim, dict) and _num(lim.get("value")) is not None:
+            if str(lim.get("unit", "A")) != "A":
+                raise SystemExit(f"coil {entry['name']}: current_limit_max unit {lim.get('unit')!r} is not A")
+            entry["fylite:i_max_aturn"] = _num(lim.get("value"))
+        elif _num(lim) is not None:
+            entry["fylite:i_max_aturn"] = _num(lim)
         if c.get("resistance") is not None:
             entry["resistance"] = float(c["resistance"])
         if c.get("description"):
@@ -879,12 +892,21 @@ def build(dev: str, fydata: pathlib.Path, providers: dict | None = None) -> dict
     }
     doc["machine"] = machine_block(str(manifest.get("device", dev.upper())),
                                    tf, units, note, field)
-    doc["solver_dims"] = {
-        "@type": "fylite:CompiledDimensions",
-        "fylite:absent": (
-            "compiled EFIT array dimensions are a property of a built "
-            "libefit.so for one machine; none exists for this one"),
-    }
+    if "solver_dims" in PROGRAM_SIDE.get(dev, {}):
+        #: ★PCS I-5: a program-side solve resolution for a machine with no libefit build —
+        #: the free-boundary box grid `code/discharge` reads beside `machine/default_grid`
+        doc["solver_dims"] = dict({"@type": "fylite:CompiledDimensions",
+                                   "note": ("solve-box resolution chosen by the program for this machine "
+                                            "(PROGRAM_SIDE in the generator — not a device fact, and no "
+                                            "compiled libefit exists for it)")},
+                                  **PROGRAM_SIDE[dev]["solver_dims"])
+    else:
+        doc["solver_dims"] = {
+            "@type": "fylite:CompiledDimensions",
+            "fylite:absent": (
+                "compiled EFIT array dimensions are a property of a built "
+                "libefit.so for one machine; none exists for this one"),
+        }
     missing = [g for g in REQUIRED if g not in doc]
     assert not missing, missing
     return doc
@@ -921,6 +943,12 @@ CENTRE_TOL_M = 1e-4
 #: card.  ★FOLLOW-UP: move this table into the package proper (next to the
 #: solver it describes) and stop writing it into the device document.
 PROGRAM_SIDE = {
+    #: ★PCS I-5 (2026-09-14): CFEDR has no libefit build; its solve box is resolved 65 × 65 —
+    #: the grid the kernel's CFEDR gates measured on (position control C4 settles at 65 and
+    #: does not at 129 with the same gains, ledger I-3)
+    "cfedr": {
+        "solver_dims": {"nw": 65, "nh": 65},
+    },
     "east": {
         #: ★2026-09-13: no `nsilop` / `nprobe` — the probe and loop counts are the resolved
         #: magnetics group's own (`fylite.device._derive`), not a compiled constant beside it

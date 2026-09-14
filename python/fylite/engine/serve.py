@@ -218,6 +218,28 @@ def handle_rpc_request(req: dict) -> dict:
                               data={"type": type(e).__name__,
                                     "message": str(e)})
 
+    if method in ("fylite.session.open", "fylite.session.step", "fylite.session.close"):
+        #: PCS step session (ledger I-8): one 10 ms step per request, the state kept here
+        from . import session as _session
+        try:
+            if method == "fylite.session.open":
+                plan = params.get("plan")
+                payload = _session.open_session(
+                    plan, ec_sources=params.get("ec_sources") or (), ic_source=params.get("ic_source"),
+                    t_start=float(params.get("t_start", 0.0)),
+                    require_lcfs_after=float(params.get("require_lcfs_after", 1.0)))
+            elif method == "fylite.session.step":
+                payload = _session.step_session(params.get("session"), params.get("k"),
+                                                params.get("commands") or {})
+            else:
+                payload = _session.close_session(params.get("session"))
+        except _session.SessionError as e:
+            return _rpc_error(rid, _RPC_INVALID_PARAMS, str(e))
+        except Exception as e:  # boundary: a kernel refusal or failure is a typed fault
+            return _rpc_error(rid, _RPC_EXECUTION_ERROR, "session call failed",
+                              data={"type": type(e).__name__, "message": str(e)})
+        return _rpc_result(rid, json_sanitize(payload))
+
     return _rpc_error(rid, _RPC_METHOD_NOT_FOUND, f"unknown method {method!r}")
 
 

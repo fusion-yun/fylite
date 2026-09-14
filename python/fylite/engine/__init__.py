@@ -137,7 +137,7 @@ argparse 建造者、`cli_main`、以及把 `app` / `data` / `case` 委派给原
 
 from . import (  # noqa: F401  (submodules are part of the public surface)
     body, documents, fitters, handles, ledger, manifest,
-    provenance, serve, versioning,
+    provenance, serve, session, versioning,
 )
 from .body import (
     PROTOCOL, CallCancelled, CallScope, CallTimeout, CallTrace,
