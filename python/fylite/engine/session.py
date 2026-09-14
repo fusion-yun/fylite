@@ -19,8 +19,11 @@ from __future__ import annotations
 import time
 import uuid
 
-__all__ = ["STEP_S", "Session", "SessionError", "open_session", "step_session",
-           "close_session", "sessions"]
+__all__ = ["STEP_S", "SNAPSHOT_FORMAT", "Session", "SessionError", "open_session", "step_session",
+           "close_session", "snapshot_session", "restore_session", "sessions"]
+
+#: ★2026-09-14（台账 I-21b）：会话快照的格式标记——恢复时不符即按名拒绝
+SNAPSHOT_FORMAT = "fylite.session.snapshot/1"
 
 #: 接口表 §1：固定步长 [s]
 STEP_S = 0.01
@@ -171,7 +174,22 @@ class Session:
             out["wall_ms"] = (time.perf_counter() - clock) * 1e3
             self.walls.append(out["wall_ms"])
             return out
-        rec = self._march(cmd)
+        #: ★2026-09-14（接口表 §5「拒绝不中断会话」，I-10 下降段实测）：内核的拒绝也是一步被拒，
+        #: 不是会话的终结——此前 `Refused` 直接抛出，6172.99 s 的 -23 把整个驱动打断；
+        #: 状态不前进（`prev` 不动），下一步照常可送。别的异常照旧抛出。
+        from ..io import fydoc
+        try:
+            rec = self._march(cmd)
+        except fydoc.Refused as exc:
+            self.rejected += 1
+            out = dict(self.last) if self.last is not None else {"t": t_now}
+            out["flags"] = dict(out.get("flags") or {}, rejected=True)
+            out["reason"] = str(exc)
+            out["kernel_code"] = exc.code
+            out["calls"] = self.last_calls
+            out["wall_ms"] = (time.perf_counter() - clock) * 1e3
+            self.walls.append(out["wall_ms"])
+            return out
         self.prev = rec
         self.k_next += 1
         out = self._outputs(rec, cmd)
@@ -328,6 +346,39 @@ class Session:
             "reason": None,
         }
 
+    # -- snapshot / restore (ledger I-21b) --------------------------------- #
+    def snapshot(self) -> dict:
+        """The session's whole resume state as one JSON-able document.
+
+        It holds exactly what the next step reads: the case document, the command mapping, the
+        step index and the last accepted kernel record (the hand-over `_resume` builds the next call
+        from), plus the counters.  A session restored from it takes its next step bit for bit like
+        the uninterrupted one.  ★First cut: the case document is stored whole (no content-fingerprint
+        dedupe yet) and there is no kernel-declared resume block yet (I-21a).
+        """
+        return {"format": SNAPSHOT_FORMAT, "t": self.t_start + self.k_next * STEP_S, "k_next": self.k_next,
+                "t_start": self.t_start, "ec_sources": list(self.ec_sources), "ic_source": self.ic_source,
+                "require_lcfs_after": self.require_lcfs_after, "plan": self.plan, "prev": self.prev,
+                "last": self.last,
+                "counters": {"walls": list(self.walls), "calls": list(self.calls), "rejected": self.rejected}}
+
+    @classmethod
+    def from_snapshot(cls, snap: dict) -> "Session":
+        """A session rebuilt from :meth:`snapshot` (a new session id; the march continues at ``k_next``)."""
+        if not isinstance(snap, dict) or snap.get("format") != SNAPSHOT_FORMAT:
+            got = snap.get("format") if isinstance(snap, dict) else type(snap).__name__
+            raise SessionError(f"not a session snapshot: format {got!r}, expected {SNAPSHOT_FORMAT!r}")
+        s = cls(snap["plan"], ec_sources=snap.get("ec_sources") or (), ic_source=snap.get("ic_source"),
+                t_start=float(snap.get("t_start", 0.0)), require_lcfs_after=float(snap.get("require_lcfs_after", 1.0)))
+        s.k_next = int(snap["k_next"])
+        s.prev = snap.get("prev")
+        s.last = snap.get("last")
+        counters = snap.get("counters") or {}
+        s.walls = list(counters.get("walls") or [])
+        s.calls = list(counters.get("calls") or [])
+        s.rejected = int(counters.get("rejected", 0))
+        return s
+
     # -- the end ----------------------------------------------------------- #
     def close(self) -> dict:
         w = sorted(self.walls)
@@ -368,3 +419,16 @@ def close_session(session_id) -> dict:
     s = _get(session_id)
     del sessions[session_id]
     return s.close()
+
+
+def snapshot_session(session_id) -> dict:
+    """The open session's resume state (ledger I-21b); the session stays open."""
+    return _get(session_id).snapshot()
+
+
+def restore_session(snapshot: dict) -> dict:
+    """Open a new session from a snapshot; answers like :func:`open_session` plus ``k_next``."""
+    s = Session.from_snapshot(snapshot)
+    sessions[s.id] = s
+    return {"session": s.id, "step_s": STEP_S, "ec_groups": len(s.ec_sources), "t_start": s.t_start,
+            "k_next": s.k_next}

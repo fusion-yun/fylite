@@ -110,6 +110,41 @@ def test_commands_become_the_kernel_settings():
     assert quiet["fuel_rate"] == 0.0 and quiet["gas_rate"] == 0.0 and "fuel_centre" not in quiet
 
 
+def test_a_kernel_refusal_is_a_rejected_step_and_the_session_goes_on(monkeypatch):
+    """Interface §5: a refusal never ends the session — the kernel's included (I-10 ramp-down, -23)."""
+    from fylite.io import fydoc
+    s = S.Session(_plan())
+
+    def refuse(cmd):
+        raise fydoc.Refused(-23, {"refusal": {"code": -23, "message": "a species state that did not settle"}})
+    monkeypatch.setattr(s, "_march", refuse)
+    out = s.step(0, {"ip": 15e6})
+    assert out["flags"]["rejected"] is True and out["kernel_code"] == -23
+    assert "did not settle" in out["reason"]
+    assert s.rejected == 1 and s.k_next == 0 and s.prev is None
+    monkeypatch.undo()
+    out = s.step(0, {"ip": 15e6})
+    assert out["flags"]["rejected"] is False and s.k_next == 1
+
+
+def test_a_session_restored_from_its_snapshot_marches_bit_for_bit_like_the_uninterrupted_one():
+    """Ledger I-21b / PCS-V16: snapshot -> JSON -> restore -> next step equals the uninterrupted next step."""
+    import json
+    a = S.Session(_plan())
+    for k in range(2):
+        a.step(k, {"ip": 15e6 - 1e5 * k})
+    snap = json.loads(json.dumps(a.snapshot()))
+    out_a = a.step(2, {"ip": 15e6 - 2e5})
+    opened = S.restore_session(snap)
+    assert opened["k_next"] == 2
+    out_b = S.step_session(opened["session"], 2, {"ip": 15e6 - 2e5})
+    assert out_b["flags"]["rejected"] is False
+    assert out_a["t"] == out_b["t"] and out_a["te"] == out_b["te"] and out_a["ne"] == out_b["ne"] and out_a["ti"] == out_b["ti"]
+    S.close_session(opened["session"])
+    with pytest.raises(S.SessionError, match="not a session snapshot"):
+        S.Session.from_snapshot({"format": "something else"})
+
+
 def test_the_session_carries_every_scalar_the_kernel_resume_hands_on():
     """The kernel's own resume gate (`a_resumed_march_is_the_same_march_under_the_pcs_opt_ins`) hands these
     scalars from one call to the next; a session that drops one re-starts that piece of state every 10 ms."""
