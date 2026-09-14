@@ -1,0 +1,406 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 910" role="img" aria-label="同输入下两个代码拟合 POINT 后的逐弦残差">
+<title>B-06 — KEFIT 与 fylite 的逐弦 POINT 残差</title>
+<style>
+/* ★配色写成字面值，不用 CSS 变量：`var(--x)` 只在浏览器里解析，
+   librsvg（rsvg-convert / 任何 SVG→PNG/PDF 管线）解析不了——整张图会渲成全黑，
+   而在文本编辑器里看一切正常。这一条是实测出来的。 */
+text { font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,
+       -apple-system,'Segoe UI',sans-serif; fill:#1c2128; }
+.bg { fill:#f4f5f7; } .panel { fill:#ffffff; stroke:#d8dce2; }
+.mut { fill:#666f7a; } .grid { stroke:#d8dce2; stroke-width:1; }
+.ax { stroke:#1c2128; stroke-width:1.2; }
+.ours { fill:none; stroke:#1668c8; stroke-width:2.4; }
+.ref { fill:none; stroke:#1c2128; stroke-width:2.4; stroke-dasharray:6 4; }
+.band { fill:#10897a; opacity:.13; } .zero { fill:none; stroke:#9aa6b8;
+  stroke-width:2; stroke-dasharray:3 3; }
+</style>
+<rect class="bg" x="0" y="0" width="1180" height="910"/>
+<text x="28.0" y="34.0" font-size="18" text-anchor="start" font-weight="700">B-06 档 K · 同输入：KEFIT 与 fylite 拟合 POINT 后的逐弦残差</text>
+<text x="28.0" y="56.0" font-size="12" text-anchor="start" font-weight="normal" class="mut">两个代码的输入逐值相同（efit_east 片的磁测与权重 · 基 1/2 边缘为零 · 同一 POINT 值与 σ）；残差 =（模型 − 实测）/ σ，σ：法拉第 sigpol 0.05，线密度 √(signel² + (0.03·bnel)²)。浅色条 = 该弦权重为 0</text>
+<line x1="900" y1="80" x2="926" y2="80" stroke="#1668c8" stroke-width="8"/>
+<text x="932.0" y="84.0" font-size="11" text-anchor="start" font-weight="normal">fylite</text>
+<line x1="900" y1="97" x2="926" y2="97" stroke="#d0342c" stroke-width="8"/>
+<text x="932.0" y="101.0" font-size="11" text-anchor="start" font-weight="normal">KEFIT（本地构建）</text>
+<rect class="panel" x="90" y="130" width="470" height="140" rx="4"/>
+<line class="grid" x1="90" y1="270.0" x2="560" y2="270.0"/>
+<text x="84.0" y="274.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12</text>
+<line class="grid" x1="90" y1="235.0" x2="560" y2="235.0"/>
+<text x="84.0" y="239.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-6</text>
+<line class="grid" x1="90" y1="200.0" x2="560" y2="200.0"/>
+<text x="84.0" y="204.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="90" y1="165.0" x2="560" y2="165.0"/>
+<text x="84.0" y="169.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<line class="grid" x1="90" y1="130.0" x2="560" y2="130.0"/>
+<text x="84.0" y="134.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12</text>
+<text x="115.2" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="157.1" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="199.1" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="241.1" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="283.0" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="325.0" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="367.0" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="408.9" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="450.9" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="492.9" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="534.8" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="90.0" y="122.0" font-size="12" text-anchor="start" font-weight="600">4.041 s · 约束件（值与权重同 CASE-23） — 法拉第</text>
+<text x="46.0" y="200.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 46.0 200.0)">残差 / σ</text>
+<line x1="90" y1="200.0" x2="560" y2="200.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="99.6" y="174.8" width="16" height="25.2" fill="#1668c8" opacity=".85"/>
+<rect x="141.6" y="190.5" width="16" height="9.5" fill="#1668c8" opacity=".85"/>
+<rect x="183.6" y="185.5" width="16" height="14.5" fill="#1668c8" opacity=".85"/>
+<rect x="225.5" y="200.0" width="16" height="24.7" fill="#1668c8" opacity=".25"/>
+<rect x="267.5" y="200.0" width="16" height="18.8" fill="#1668c8" opacity=".85"/>
+<rect x="309.4" y="200.0" width="16" height="3.3" fill="#1668c8" opacity=".85"/>
+<rect x="351.4" y="200.0" width="16" height="10.3" fill="#1668c8" opacity=".25"/>
+<rect x="393.4" y="200.0" width="16" height="15.9" fill="#1668c8" opacity=".25"/>
+<rect x="435.3" y="193.9" width="16" height="6.1" fill="#1668c8" opacity=".85"/>
+<rect x="477.3" y="194.6" width="16" height="5.4" fill="#1668c8" opacity=".85"/>
+<rect x="519.3" y="200.0" width="16" height="60.1" fill="#1668c8" opacity=".25"/>
+<rect x="114.7" y="176.0" width="16" height="24.0" fill="#d0342c" opacity=".85"/>
+<rect x="156.7" y="192.9" width="16" height="7.1" fill="#d0342c" opacity=".85"/>
+<rect x="198.7" y="192.9" width="16" height="7.1" fill="#d0342c" opacity=".85"/>
+<rect x="240.6" y="200.0" width="16" height="33.2" fill="#d0342c" opacity=".25"/>
+<rect x="282.6" y="200.0" width="16" height="26.0" fill="#d0342c" opacity=".85"/>
+<rect x="324.6" y="200.0" width="16" height="6.4" fill="#d0342c" opacity=".85"/>
+<rect x="366.5" y="200.0" width="16" height="9.2" fill="#d0342c" opacity=".25"/>
+<rect x="408.5" y="200.0" width="16" height="12.9" fill="#d0342c" opacity=".25"/>
+<rect x="450.4" y="191.8" width="16" height="8.2" fill="#d0342c" opacity=".85"/>
+<rect x="492.4" y="195.9" width="16" height="4.1" fill="#d0342c" opacity=".85"/>
+<rect x="534.4" y="200.0" width="16" height="61.3" fill="#d0342c" opacity=".25"/>
+<text x="552.0" y="146.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 2.39 · KEFIT 2.49</text>
+<rect class="panel" x="650" y="130" width="470" height="140" rx="4"/>
+<line class="grid" x1="650" y1="270.0" x2="1120" y2="270.0"/>
+<text x="644.0" y="274.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-25</text>
+<line class="grid" x1="650" y1="235.0" x2="1120" y2="235.0"/>
+<text x="644.0" y="239.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12.5</text>
+<line class="grid" x1="650" y1="200.0" x2="1120" y2="200.0"/>
+<text x="644.0" y="204.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="650" y1="165.0" x2="1120" y2="165.0"/>
+<text x="644.0" y="169.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12.5</text>
+<line class="grid" x1="650" y1="130.0" x2="1120" y2="130.0"/>
+<text x="644.0" y="134.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">25</text>
+<text x="675.2" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="717.1" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="759.1" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="801.1" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="843.0" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="885.0" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="927.0" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="968.9" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="1010.9" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="1052.9" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="1094.8" y="285.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="650.0" y="122.0" font-size="12" text-anchor="start" font-weight="600">4.041 s · 约束件（值与权重同 CASE-23） — 线密度</text>
+<line x1="650" y1="200.0" x2="1120" y2="200.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="659.6" y="200.0" width="16" height="7.7" fill="#1668c8" opacity=".85"/>
+<rect x="701.6" y="200.0" width="16" height="4.1" fill="#1668c8" opacity=".85"/>
+<rect x="743.6" y="194.0" width="16" height="6.0" fill="#1668c8" opacity=".85"/>
+<rect x="785.5" y="174.5" width="16" height="25.5" fill="#1668c8" opacity=".25"/>
+<rect x="827.5" y="199.4" width="16" height="0.6" fill="#1668c8" opacity=".85"/>
+<rect x="869.4" y="199.2" width="16" height="0.8" fill="#1668c8" opacity=".85"/>
+<rect x="911.4" y="134.9" width="16" height="65.1" fill="#1668c8" opacity=".25"/>
+<rect x="953.4" y="137.6" width="16" height="62.4" fill="#1668c8" opacity=".25"/>
+<rect x="995.3" y="199.9" width="16" height="0.1" fill="#1668c8" opacity=".85"/>
+<rect x="1037.3" y="197.6" width="16" height="2.4" fill="#1668c8" opacity=".85"/>
+<rect x="1079.3" y="158.4" width="16" height="41.6" fill="#1668c8" opacity=".25"/>
+<rect x="674.7" y="200.0" width="16" height="5.4" fill="#d0342c" opacity=".85"/>
+<rect x="716.7" y="200.0" width="16" height="0.9" fill="#d0342c" opacity=".85"/>
+<rect x="758.7" y="193.5" width="16" height="6.5" fill="#d0342c" opacity=".85"/>
+<rect x="800.6" y="176.2" width="16" height="23.8" fill="#d0342c" opacity=".25"/>
+<rect x="842.6" y="200.0" width="16" height="2.5" fill="#d0342c" opacity=".85"/>
+<rect x="884.6" y="200.0" width="16" height="2.6" fill="#d0342c" opacity=".85"/>
+<rect x="926.5" y="139.2" width="16" height="60.8" fill="#d0342c" opacity=".25"/>
+<rect x="968.5" y="140.7" width="16" height="59.3" fill="#d0342c" opacity=".25"/>
+<rect x="1010.4" y="200.0" width="16" height="0.1" fill="#d0342c" opacity=".85"/>
+<rect x="1052.4" y="196.0" width="16" height="4.0" fill="#d0342c" opacity=".85"/>
+<rect x="1094.4" y="157.5" width="16" height="42.5" fill="#d0342c" opacity=".25"/>
+<text x="1112.0" y="146.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 1.48 · KEFIT 1.36</text>
+<rect class="panel" x="90" y="320" width="470" height="140" rx="4"/>
+<line class="grid" x1="90" y1="460.0" x2="560" y2="460.0"/>
+<text x="84.0" y="464.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12</text>
+<line class="grid" x1="90" y1="425.0" x2="560" y2="425.0"/>
+<text x="84.0" y="429.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-6</text>
+<line class="grid" x1="90" y1="390.0" x2="560" y2="390.0"/>
+<text x="84.0" y="394.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="90" y1="355.0" x2="560" y2="355.0"/>
+<text x="84.0" y="359.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<line class="grid" x1="90" y1="320.0" x2="560" y2="320.0"/>
+<text x="84.0" y="324.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12</text>
+<text x="115.2" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="157.1" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="199.1" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="241.1" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="283.0" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="325.0" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="367.0" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="408.9" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="450.9" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="492.9" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="534.8" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="90.0" y="312.0" font-size="12" text-anchor="start" font-weight="600">4.041 s · GUI 窗值 · 主集弦 — 法拉第</text>
+<text x="46.0" y="390.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 46.0 390.0)">残差 / σ</text>
+<line x1="90" y1="390.0" x2="560" y2="390.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="99.6" y="362.8" width="16" height="27.2" fill="#1668c8" opacity=".85"/>
+<rect x="141.6" y="381.3" width="16" height="8.7" fill="#1668c8" opacity=".85"/>
+<rect x="183.6" y="378.5" width="16" height="11.5" fill="#1668c8" opacity=".85"/>
+<rect x="225.5" y="390.0" width="16" height="21.2" fill="#1668c8" opacity=".25"/>
+<rect x="267.5" y="390.0" width="16" height="21.2" fill="#1668c8" opacity=".85"/>
+<rect x="309.4" y="390.0" width="16" height="3.7" fill="#1668c8" opacity=".85"/>
+<rect x="351.4" y="390.0" width="16" height="11.0" fill="#1668c8" opacity=".25"/>
+<rect x="393.4" y="390.0" width="16" height="13.1" fill="#1668c8" opacity=".25"/>
+<rect x="435.3" y="385.1" width="16" height="4.9" fill="#1668c8" opacity=".85"/>
+<rect x="477.3" y="388.2" width="16" height="1.8" fill="#1668c8" opacity=".85"/>
+<rect x="519.3" y="390.0" width="16" height="60.7" fill="#1668c8" opacity=".25"/>
+<rect x="114.7" y="363.3" width="16" height="26.7" fill="#d0342c" opacity=".85"/>
+<rect x="156.7" y="382.0" width="16" height="8.0" fill="#d0342c" opacity=".85"/>
+<rect x="198.7" y="384.2" width="16" height="5.8" fill="#d0342c" opacity=".85"/>
+<rect x="240.6" y="390.0" width="16" height="28.1" fill="#d0342c" opacity=".25"/>
+<rect x="282.6" y="390.0" width="16" height="27.0" fill="#d0342c" opacity=".85"/>
+<rect x="324.6" y="390.0" width="16" height="5.3" fill="#d0342c" opacity=".85"/>
+<rect x="366.5" y="390.0" width="16" height="8.4" fill="#d0342c" opacity=".25"/>
+<rect x="408.5" y="390.0" width="16" height="8.6" fill="#d0342c" opacity=".25"/>
+<rect x="450.4" y="381.5" width="16" height="8.5" fill="#d0342c" opacity=".85"/>
+<rect x="492.4" y="388.2" width="16" height="1.8" fill="#d0342c" opacity=".85"/>
+<rect x="534.4" y="390.0" width="16" height="61.5" fill="#d0342c" opacity=".25"/>
+<text x="552.0" y="336.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 2.46 · KEFIT 2.63</text>
+<rect class="panel" x="650" y="320" width="470" height="140" rx="4"/>
+<line class="grid" x1="650" y1="460.0" x2="1120" y2="460.0"/>
+<text x="644.0" y="464.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-25</text>
+<line class="grid" x1="650" y1="425.0" x2="1120" y2="425.0"/>
+<text x="644.0" y="429.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12.5</text>
+<line class="grid" x1="650" y1="390.0" x2="1120" y2="390.0"/>
+<text x="644.0" y="394.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="650" y1="355.0" x2="1120" y2="355.0"/>
+<text x="644.0" y="359.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12.5</text>
+<line class="grid" x1="650" y1="320.0" x2="1120" y2="320.0"/>
+<text x="644.0" y="324.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">25</text>
+<text x="675.2" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="717.1" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="759.1" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="801.1" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="843.0" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="885.0" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="927.0" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="968.9" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="1010.9" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="1052.9" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="1094.8" y="475.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="650.0" y="312.0" font-size="12" text-anchor="start" font-weight="600">4.041 s · GUI 窗值 · 主集弦 — 线密度</text>
+<line x1="650" y1="390.0" x2="1120" y2="390.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="659.6" y="390.0" width="16" height="7.7" fill="#1668c8" opacity=".85"/>
+<rect x="701.6" y="390.0" width="16" height="4.1" fill="#1668c8" opacity=".85"/>
+<rect x="743.6" y="383.4" width="16" height="6.6" fill="#1668c8" opacity=".85"/>
+<rect x="785.5" y="362.2" width="16" height="27.8" fill="#1668c8" opacity=".25"/>
+<rect x="827.5" y="390.0" width="16" height="0.5" fill="#1668c8" opacity=".85"/>
+<rect x="869.4" y="389.2" width="16" height="0.8" fill="#1668c8" opacity=".85"/>
+<rect x="911.4" y="324.1" width="16" height="65.9" fill="#1668c8" opacity=".25"/>
+<rect x="953.4" y="327.0" width="16" height="63.0" fill="#1668c8" opacity=".25"/>
+<rect x="995.3" y="389.7" width="16" height="0.3" fill="#1668c8" opacity=".85"/>
+<rect x="1037.3" y="386.9" width="16" height="3.1" fill="#1668c8" opacity=".85"/>
+<rect x="1079.3" y="350.1" width="16" height="39.9" fill="#1668c8" opacity=".25"/>
+<rect x="674.7" y="390.0" width="16" height="6.3" fill="#d0342c" opacity=".85"/>
+<rect x="716.7" y="390.0" width="16" height="1.3" fill="#d0342c" opacity=".85"/>
+<rect x="758.7" y="383.1" width="16" height="6.9" fill="#d0342c" opacity=".85"/>
+<rect x="800.6" y="363.9" width="16" height="26.1" fill="#d0342c" opacity=".25"/>
+<rect x="842.6" y="390.0" width="16" height="3.5" fill="#d0342c" opacity=".85"/>
+<rect x="884.6" y="390.0" width="16" height="2.6" fill="#d0342c" opacity=".85"/>
+<rect x="926.5" y="328.2" width="16" height="61.8" fill="#d0342c" opacity=".25"/>
+<rect x="968.5" y="329.9" width="16" height="60.1" fill="#d0342c" opacity=".25"/>
+<rect x="1010.4" y="389.7" width="16" height="0.3" fill="#d0342c" opacity=".85"/>
+<rect x="1052.4" y="385.0" width="16" height="5.0" fill="#d0342c" opacity=".85"/>
+<rect x="1094.4" y="348.4" width="16" height="41.6" fill="#d0342c" opacity=".25"/>
+<text x="1112.0" y="336.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 1.54 · KEFIT 1.56</text>
+<rect class="panel" x="90" y="510" width="470" height="140" rx="4"/>
+<line class="grid" x1="90" y1="650.0" x2="560" y2="650.0"/>
+<text x="84.0" y="654.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12</text>
+<line class="grid" x1="90" y1="615.0" x2="560" y2="615.0"/>
+<text x="84.0" y="619.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-6</text>
+<line class="grid" x1="90" y1="580.0" x2="560" y2="580.0"/>
+<text x="84.0" y="584.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="90" y1="545.0" x2="560" y2="545.0"/>
+<text x="84.0" y="549.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<line class="grid" x1="90" y1="510.0" x2="560" y2="510.0"/>
+<text x="84.0" y="514.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12</text>
+<text x="115.2" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="157.1" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="199.1" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="241.1" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="283.0" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="325.0" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="367.0" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="408.9" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="450.9" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="492.9" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="534.8" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="90.0" y="502.0" font-size="12" text-anchor="start" font-weight="600">4.944 s · GUI 窗值 · 主集弦 — 法拉第</text>
+<text x="46.0" y="580.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 46.0 580.0)">残差 / σ</text>
+<line x1="90" y1="580.0" x2="560" y2="580.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="99.6" y="560.0" width="16" height="20.0" fill="#1668c8" opacity=".85"/>
+<rect x="141.6" y="575.4" width="16" height="4.6" fill="#1668c8" opacity=".85"/>
+<rect x="183.6" y="569.2" width="16" height="10.8" fill="#1668c8" opacity=".85"/>
+<rect x="225.5" y="580.0" width="16" height="26.5" fill="#1668c8" opacity=".25"/>
+<rect x="267.5" y="580.0" width="16" height="19.8" fill="#1668c8" opacity=".85"/>
+<rect x="309.4" y="580.0" width="16" height="5.3" fill="#1668c8" opacity=".85"/>
+<rect x="351.4" y="580.0" width="16" height="8.8" fill="#1668c8" opacity=".25"/>
+<rect x="393.4" y="580.0" width="16" height="7.9" fill="#1668c8" opacity=".25"/>
+<rect x="435.3" y="573.3" width="16" height="6.7" fill="#1668c8" opacity=".85"/>
+<rect x="477.3" y="580.0" width="16" height="5.1" fill="#1668c8" opacity=".85"/>
+<rect x="519.3" y="580.0" width="16" height="54.1" fill="#1668c8" opacity=".25"/>
+<rect x="114.7" y="553.0" width="16" height="27.0" fill="#d0342c" opacity=".85"/>
+<rect x="156.7" y="573.0" width="16" height="7.0" fill="#d0342c" opacity=".85"/>
+<rect x="198.7" y="577.0" width="16" height="3.0" fill="#d0342c" opacity=".85"/>
+<rect x="240.6" y="580.0" width="16" height="37.7" fill="#d0342c" opacity=".25"/>
+<rect x="282.6" y="580.0" width="16" height="28.2" fill="#d0342c" opacity=".85"/>
+<rect x="324.6" y="580.0" width="16" height="6.4" fill="#d0342c" opacity=".85"/>
+<rect x="366.5" y="580.0" width="16" height="2.3" fill="#d0342c" opacity=".25"/>
+<rect x="408.5" y="577.2" width="16" height="2.8" fill="#d0342c" opacity=".25"/>
+<rect x="450.4" y="564.3" width="16" height="15.7" fill="#d0342c" opacity=".85"/>
+<rect x="492.4" y="580.0" width="16" height="5.1" fill="#d0342c" opacity=".85"/>
+<rect x="534.4" y="580.0" width="16" height="60.8" fill="#d0342c" opacity=".25"/>
+<text x="552.0" y="526.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 2.08 · KEFIT 2.82</text>
+<rect class="panel" x="650" y="510" width="470" height="140" rx="4"/>
+<line class="grid" x1="650" y1="650.0" x2="1120" y2="650.0"/>
+<text x="644.0" y="654.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-25</text>
+<line class="grid" x1="650" y1="615.0" x2="1120" y2="615.0"/>
+<text x="644.0" y="619.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12.5</text>
+<line class="grid" x1="650" y1="580.0" x2="1120" y2="580.0"/>
+<text x="644.0" y="584.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="650" y1="545.0" x2="1120" y2="545.0"/>
+<text x="644.0" y="549.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12.5</text>
+<line class="grid" x1="650" y1="510.0" x2="1120" y2="510.0"/>
+<text x="644.0" y="514.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">25</text>
+<text x="675.2" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="717.1" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="759.1" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="801.1" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="843.0" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="885.0" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="927.0" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="968.9" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="1010.9" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="1052.9" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="1094.8" y="665.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="650.0" y="502.0" font-size="12" text-anchor="start" font-weight="600">4.944 s · GUI 窗值 · 主集弦 — 线密度</text>
+<line x1="650" y1="580.0" x2="1120" y2="580.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="659.6" y="580.0" width="16" height="7.7" fill="#1668c8" opacity=".85"/>
+<rect x="701.6" y="580.0" width="16" height="2.4" fill="#1668c8" opacity=".85"/>
+<rect x="743.6" y="580.0" width="16" height="3.7" fill="#1668c8" opacity=".85"/>
+<rect x="785.5" y="580.0" width="16" height="16.4" fill="#1668c8" opacity=".25"/>
+<rect x="827.5" y="570.9" width="16" height="9.1" fill="#1668c8" opacity=".85"/>
+<rect x="869.4" y="573.2" width="16" height="6.8" fill="#1668c8" opacity=".85"/>
+<rect x="911.4" y="523.5" width="16" height="56.5" fill="#1668c8" opacity=".25"/>
+<rect x="953.4" y="525.8" width="16" height="54.2" fill="#1668c8" opacity=".25"/>
+<rect x="995.3" y="577.6" width="16" height="2.4" fill="#1668c8" opacity=".85"/>
+<rect x="1037.3" y="580.0" width="16" height="7.6" fill="#1668c8" opacity=".85"/>
+<rect x="1079.3" y="553.7" width="16" height="26.3" fill="#1668c8" opacity=".25"/>
+<rect x="674.7" y="580.0" width="16" height="0.8" fill="#d0342c" opacity=".85"/>
+<rect x="716.7" y="576.1" width="16" height="3.9" fill="#d0342c" opacity=".85"/>
+<rect x="758.7" y="580.0" width="16" height="3.0" fill="#d0342c" opacity=".85"/>
+<rect x="800.6" y="580.0" width="16" height="20.2" fill="#d0342c" opacity=".25"/>
+<rect x="842.6" y="578.1" width="16" height="1.9" fill="#d0342c" opacity=".85"/>
+<rect x="884.6" y="580.0" width="16" height="1.5" fill="#d0342c" opacity=".85"/>
+<rect x="926.5" y="532.2" width="16" height="47.8" fill="#d0342c" opacity=".25"/>
+<rect x="968.5" y="532.0" width="16" height="48.0" fill="#d0342c" opacity=".25"/>
+<rect x="1010.4" y="578.2" width="16" height="1.8" fill="#d0342c" opacity=".85"/>
+<rect x="1052.4" y="580.0" width="16" height="2.5" fill="#d0342c" opacity=".85"/>
+<rect x="1094.4" y="545.3" width="16" height="34.7" fill="#d0342c" opacity=".25"/>
+<text x="1112.0" y="526.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 2.22 · KEFIT 0.85</text>
+<rect class="panel" x="90" y="700" width="470" height="140" rx="4"/>
+<line class="grid" x1="90" y1="840.0" x2="560" y2="840.0"/>
+<text x="84.0" y="844.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12</text>
+<line class="grid" x1="90" y1="805.0" x2="560" y2="805.0"/>
+<text x="84.0" y="809.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-6</text>
+<line class="grid" x1="90" y1="770.0" x2="560" y2="770.0"/>
+<text x="84.0" y="774.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="90" y1="735.0" x2="560" y2="735.0"/>
+<text x="84.0" y="739.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">6</text>
+<line class="grid" x1="90" y1="700.0" x2="560" y2="700.0"/>
+<text x="84.0" y="704.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12</text>
+<text x="115.2" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="157.1" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="199.1" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="241.1" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="283.0" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="325.0" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="367.0" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="408.9" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="450.9" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="492.9" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="534.8" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="90.0" y="692.0" font-size="12" text-anchor="start" font-weight="600">5.976 s · GUI 窗值 · 主集弦 — 法拉第</text>
+<text x="325.0" y="872.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">弦号（Z +0.42 → −0.42 m）</text>
+<text x="46.0" y="770.0" font-size="11" text-anchor="middle" class="mut" transform="rotate(-90 46.0 770.0)">残差 / σ</text>
+<line x1="90" y1="770.0" x2="560" y2="770.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="99.6" y="770.0" width="16" height="12.8" fill="#1668c8" opacity=".85"/>
+<rect x="141.6" y="769.8" width="16" height="0.2" fill="#1668c8" opacity=".85"/>
+<rect x="183.6" y="759.7" width="16" height="10.3" fill="#1668c8" opacity=".85"/>
+<rect x="225.5" y="770.0" width="16" height="13.3" fill="#1668c8" opacity=".25"/>
+<rect x="267.5" y="770.0" width="16" height="10.3" fill="#1668c8" opacity=".85"/>
+<rect x="309.4" y="770.0" width="16" height="2.5" fill="#1668c8" opacity=".85"/>
+<rect x="351.4" y="770.0" width="16" height="23.5" fill="#1668c8" opacity=".25"/>
+<rect x="393.4" y="770.0" width="16" height="35.2" fill="#1668c8" opacity=".25"/>
+<rect x="435.3" y="769.1" width="16" height="0.9" fill="#1668c8" opacity=".85"/>
+<rect x="477.3" y="770.0" width="16" height="3.1" fill="#1668c8" opacity=".85"/>
+<rect x="519.3" y="770.0" width="16" height="31.3" fill="#1668c8" opacity=".25"/>
+<rect x="114.7" y="770.0" width="16" height="11.1" fill="#d0342c" opacity=".85"/>
+<rect x="156.7" y="769.4" width="16" height="0.6" fill="#d0342c" opacity=".85"/>
+<rect x="198.7" y="761.5" width="16" height="8.5" fill="#d0342c" opacity=".85"/>
+<rect x="240.6" y="770.0" width="16" height="15.7" fill="#d0342c" opacity=".25"/>
+<rect x="282.6" y="770.0" width="16" height="11.3" fill="#d0342c" opacity=".85"/>
+<rect x="324.6" y="769.1" width="16" height="0.9" fill="#d0342c" opacity=".85"/>
+<rect x="366.5" y="770.0" width="16" height="16.4" fill="#d0342c" opacity=".25"/>
+<rect x="408.5" y="770.0" width="16" height="28.8" fill="#d0342c" opacity=".25"/>
+<rect x="450.4" y="766.3" width="16" height="3.7" fill="#d0342c" opacity=".85"/>
+<rect x="492.4" y="770.0" width="16" height="5.8" fill="#d0342c" opacity=".85"/>
+<rect x="534.4" y="770.0" width="16" height="37.0" fill="#d0342c" opacity=".25"/>
+<text x="552.0" y="716.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 1.28 · KEFIT 1.25</text>
+<rect class="panel" x="650" y="700" width="470" height="140" rx="4"/>
+<line class="grid" x1="650" y1="840.0" x2="1120" y2="840.0"/>
+<text x="644.0" y="844.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-25</text>
+<line class="grid" x1="650" y1="805.0" x2="1120" y2="805.0"/>
+<text x="644.0" y="809.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">-12.5</text>
+<line class="grid" x1="650" y1="770.0" x2="1120" y2="770.0"/>
+<text x="644.0" y="774.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">0</text>
+<line class="grid" x1="650" y1="735.0" x2="1120" y2="735.0"/>
+<text x="644.0" y="739.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">12.5</text>
+<line class="grid" x1="650" y1="700.0" x2="1120" y2="700.0"/>
+<text x="644.0" y="704.0" font-size="10" text-anchor="end" font-weight="normal" class="mut">25</text>
+<text x="675.2" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">1</text>
+<text x="717.1" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">2</text>
+<text x="759.1" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">3</text>
+<text x="801.1" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">4</text>
+<text x="843.0" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">5</text>
+<text x="885.0" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">6</text>
+<text x="927.0" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">7</text>
+<text x="968.9" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">8</text>
+<text x="1010.9" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">9</text>
+<text x="1052.9" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">10</text>
+<text x="1094.8" y="855.0" font-size="10" text-anchor="middle" font-weight="normal" class="mut">11</text>
+<text x="650.0" y="692.0" font-size="12" text-anchor="start" font-weight="600">5.976 s · GUI 窗值 · 主集弦 — 线密度</text>
+<text x="885.0" y="872.0" font-size="11" text-anchor="middle" font-weight="normal" class="mut">弦号（Z +0.42 → −0.42 m）</text>
+<line x1="650" y1="770.0" x2="1120" y2="770.0" stroke="#9aa6b8" stroke-width="1.2"/>
+<rect x="659.6" y="769.1" width="16" height="0.9" fill="#1668c8" opacity=".85"/>
+<rect x="701.6" y="770.0" width="16" height="3.8" fill="#1668c8" opacity=".85"/>
+<rect x="743.6" y="767.9" width="16" height="2.1" fill="#1668c8" opacity=".85"/>
+<rect x="785.5" y="749.6" width="16" height="20.4" fill="#1668c8" opacity=".25"/>
+<rect x="827.5" y="767.8" width="16" height="2.2" fill="#1668c8" opacity=".85"/>
+<rect x="869.4" y="765.1" width="16" height="4.9" fill="#1668c8" opacity=".85"/>
+<rect x="911.4" y="720.4" width="16" height="49.6" fill="#1668c8" opacity=".25"/>
+<rect x="953.4" y="726.2" width="16" height="43.8" fill="#1668c8" opacity=".25"/>
+<rect x="995.3" y="770.0" width="16" height="9.5" fill="#1668c8" opacity=".85"/>
+<rect x="1037.3" y="769.0" width="16" height="1.0" fill="#1668c8" opacity=".85"/>
+<rect x="1079.3" y="761.6" width="16" height="8.4" fill="#1668c8" opacity=".25"/>
+<rect x="674.7" y="767.6" width="16" height="2.4" fill="#d0342c" opacity=".85"/>
+<rect x="716.7" y="770.0" width="16" height="2.8" fill="#d0342c" opacity=".85"/>
+<rect x="758.7" y="767.8" width="16" height="2.2" fill="#d0342c" opacity=".85"/>
+<rect x="800.6" y="750.8" width="16" height="19.2" fill="#d0342c" opacity=".25"/>
+<rect x="842.6" y="769.7" width="16" height="0.3" fill="#d0342c" opacity=".85"/>
+<rect x="884.6" y="767.2" width="16" height="2.8" fill="#d0342c" opacity=".85"/>
+<rect x="926.5" y="722.2" width="16" height="47.8" fill="#d0342c" opacity=".25"/>
+<rect x="968.5" y="726.8" width="16" height="43.2" fill="#d0342c" opacity=".25"/>
+<rect x="1010.4" y="770.0" width="16" height="8.4" fill="#d0342c" opacity=".85"/>
+<rect x="1052.4" y="766.1" width="16" height="3.9" fill="#d0342c" opacity=".85"/>
+<rect x="1094.4" y="757.5" width="16" height="12.5" fill="#d0342c" opacity=".25"/>
+<text x="1112.0" y="716.0" font-size="11" text-anchor="end" font-weight="normal">rms（加权弦）fylite 1.59 · KEFIT 1.43</text>
+</svg>
