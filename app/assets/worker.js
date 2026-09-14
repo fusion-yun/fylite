@@ -433,7 +433,7 @@ function designPlan(msg, o) {
     ip: msg.ip, n_points: msg.nPoints || 24, nu: 4,
     x_weight: o.nulls.length ? (msg.xWeight || 1) : 0,
     n_ring: msg.nRing || 4, peaking: msg.peaking === undefined ? 1 : msg.peaking,
-    lam: msg.lambda === undefined ? 1e-1 : msg.lambda,
+    lam: msg.lambda === undefined ? 1.5e-1 : msg.lambda,
   };
   var discharge = {};
   if (o.nulls.length) {
@@ -1043,28 +1043,27 @@ function reconInputs(msg) {
 
 // --- kinetic rows ---------------------------------------------------------
 //
-// ★THE PRESSURE CONSTRAINT CARRIES A GAUGE, and getting it wrong does not
-// fail — it fits a NEGATIVE central pressure and reports it.
+// ★THE PRESSURE ROWS TAKE THE PHYSICAL PRESSURE, AS MEASURED (user ruling
+// 2026-09-14).  The kernel's row is `p(x) = +span_pr * integral_x^1 p'` with
+// `span_pr = (psi_axis - psi_bnd)/2pi` (`inverse.rs::pressure_row`): the
+// solver carries psi as FULL FLUX with the axis at the MAXIMUM, so span_pr
+// is positive, a physical p' is positive, and a positive measured pressure
+// goes over as it is.  The profile this page reads back
+// (`surfaces::fitted_profiles`) integrates with the same +.
 //
-// The kernel builds each pressure row as `span * (basis integrals)`, where
-// `span = psi_bnd - psi_axis`.  This app carries psi as FULL FLUX with the
-// axis at the MAXIMUM, so that span is NEGATIVE; EFIT's per-radian gauge,
-// which the native callers use, has the axis at the minimum and a POSITIVE
-// span.  The rows therefore come out with opposite signs in the two
-// gauges, and a measurement handed over as a plain positive pressure is
-// only correct in one of them.
-//
-// History worth keeping: this page once "fixed" the mismatch by flipping
-// the sign INSIDE the kernel (0f8be04).  That made the app right and the
-// native path wrong, and it was reverted upstream (c030188) with evidence
-// — p' sign, q0 and the anchor all degraded there.  The mismatch was never
-// a kernel bug; it is the caller's job to hand over the constraint in the
-// gauge it is itself using, which is what this factor does.
-//
-// Measured, both ways, on the bundled shot: with the factor, residual
-// 3.96e-9 / weighted chi^2 4.25e-4 / p(0) = +7499 Pa; without it,
-// 1.84e-4 / 5.33e-4 / p(0) = -7642 Pa.
-var PSI_GAUGE = -1;
+// History worth keeping, because a factor of -1 stood here until then.  The
+// kernel row carried a minus — restored by c030188 (2026-08-14) after this
+// fit's p' was compared with a g-file's PPRIME, which lives in EFIT's gauge
+// with psi at its MINIMUM on the axis — and this page negated the
+// measurement to cancel it.  The note here read that as a gauge difference
+// between the page and the native callers; there was none, both use the
+// solver's gauge, and the native kinetic fits were the ones fitting p'
+// with the wrong sign.  Checked against EFIT's own PRES on FYDOC-CASE-23
+// (kernel `tests/test_reconstruction_pressure_sign.py`).  Negating a row and
+// its value together leaves the least-squares solution unchanged, so the
+// page's fits do not move with the fix — but THIS FILE AND `fylite_rs.wasm`
+// MUST CHANGE TOGETHER: against a kernel still carrying the minus row, the
+// page fits a negative pressure.
 
 /**
  * The pressure rows for ONE member, drawn with `seed`.
@@ -1127,10 +1126,10 @@ function reconKinetic(msg, inp, seed) {
   };
   var p0 = pTot(0), gk = rng(seed + 7);
   //: what the page draws is the PHYSICAL pressure it was told to believe;
-  //: `pmeas` below is the same number in the kernel's row gauge.  Reporting
-  //: the row value made the constraint points land mirrored below zero on a
-  //: panel whose curve is positive — a picture of the sign convention, not
-  //: of the measurement.
+  //: since 2026-09-14 `pmeas` below is that same number (the kernel row takes
+  //: the pressure as measured).  `pPhys` stays its own array: while the rows
+  //: were negated, drawing the row value put the constraint points mirrored
+  //: below zero on a panel whose curve is positive.
   // Put the pressure rows on the magnetics' footing before applying the
   // user's relative weight: a row's pull on the fit is w * |b|, so match
   // the TYPICAL weighted magnetic row.  Without the loop-weight factor
@@ -1151,7 +1150,7 @@ function reconKinetic(msg, inp, seed) {
     out.xp.push(x);
     out.pPhys.push(pv);
     out.pThermal.push(pref(x));
-    out.pmeas.push(PSI_GAUGE * pv);
+    out.pmeas.push(pv);
     out.wp.push(w0);
   }
   return out;
