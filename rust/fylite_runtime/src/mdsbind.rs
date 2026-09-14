@@ -946,7 +946,7 @@ mod tests {
     #[test]
     fn an_abox_document_becomes_a_table() {
         let doc = crate::json::parse(r#"{
-          "$source": {"efit_east": "mdsplus://202.127.204.12:8000/mdsplus/~t?shot={shot}&tree_name=efit_east"},
+          "$source": {"efit_east": "mdsplus://mds.invalid:8000/mdsplus/~t?shot={shot}&tree_name=efit_east"},
           "_ids": "equilibrium",
           "provenance": {"x": {"$link": "efit_east:should_be_skipped"}},
           "time": {"$link": "efit_east:TIME"},
@@ -956,7 +956,7 @@ mod tests {
         }"#).unwrap();
         let t = table_from_abox(&doc, "x").unwrap();
         assert_eq!(t.sources["efit_east"].tree, "efit_east");
-        assert_eq!(parse_uri(&t.sources["efit_east"].uri), (Some("efit_east".into()), Some("202.127.204.12".into()), Some(8000)));
+        assert_eq!(parse_uri(&t.sources["efit_east"].uri), (Some("efit_east".into()), Some("mds.invalid".into()), Some(8000)));
         let paths: Vec<&str> = t.bindings.iter().map(|b| b.path.as_str()).collect();
         assert_eq!(paths, vec!["time", "vacuum_toroidal_field/b0", "time_slice/*/boundary/type", "time_slice/*/boundary/outline/r"]);
         assert_eq!(t.bindings[2].value, Some(1.0));
