@@ -22,6 +22,10 @@ FYDOC-CASE-23 ``corpus/kefit/kefit_build_recipe.json``).  No efit_east tree valu
                     recorded inverse solve (same curve as isoflux, same nulls) is the reference.  Judged on the
                     achieved boundary and, because the two designs' currents differ far more than their boundaries,
                     on all three current sets forward-solved and compared on KEFIT's own map (the null space).
+    inverse-shape-iter  V-22: the same inverse problem on the ITER card's reference separatrix.  No reference side
+                    exists for this shape, so what is recorded is the design's own closure and the settings the
+                    shape needed (129^2 box, 16 passes, the c4 set point tracking R0, the target closed through
+                    its X-point corner, the METIS wall injected as the limiter).
     pack            deterministic tar.gz + sha256 index of a run directory (for the fydoc case corpus).
 
 The readings land in ``<out>/`` as JSON; ``python/tests/test_benchmark_equilibrium.py`` replays them.
@@ -274,6 +278,134 @@ def forward_kefit(case: Path, out: Path) -> dict:
               f"converged {facts['converged']:.0f} settled {facts['settled']:.0f} it {facts['iterations']:.0f}")
     shutil.rmtree(tmp)
     (out / "forward_kefit_east137985.json").write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
+    return result
+
+
+# ------------------------------------------------------------------------------------------------ V-22 (ITER shape)
+
+ITER_CARD = "dist/facts/device/iter.jsonld"
+ITER_WALL = "facts/device/iter/abox/providers/wall/metis.jsonld"
+#: ★The ITER card's reference separatrix is OPEN at the X-point: its two endpoints sit 322 mm apart, both at the
+#: bottom, and the anneal closes any target polygon with a straight segment — so an edge no separatrix has would
+#: run right under the X-point.  The corner is added instead; the value is the digitised curve's own lowest point
+#: carried down to where its two legs would meet.
+ITER_XPOINT = (5.15, -3.40)
+ITER_IP = 15.0e6
+#: measured on this card (see the record): the grid is what matters (65^2 -> 129^2 halves the gap), the anneal
+#: saturates at 16 passes, and c4's set point must TRACK R0 (fixed at the target's area centroid it pulls the
+#: boundary off by the Shafranov shift)
+ITER_SETTINGS = {"ip": ITER_IP, "n_points": 24.0, "beta0": 0.6, "emp": 2.0, "r0": 6.2, "nu": 3.0, "passes": 16.0,
+                 "x_weight": 1.0, "nw": 129.0, "nh": 129.0, "pc_track_r0": 1.0}
+#: ★`emp` (the analytic family's radial exponent) is the one knob that moved every reading the same way —
+#: measured 0.5 / 1.0 / 2.0: gap_rms 43.7 / 33.5 / 25.9 mm, gap_max 186 / 144 / 106, shape_error 0.0419 / 0.0363 /
+#: 0.0296, kappa 1.749 / 1.774 / 1.787.  beta0 splits the two judgements instead (gap keeps falling to 1.5 while
+#: shape_error turns at 0.9), and `enp` buys kappa with currents the machine does not have: enp 0.5 reaches
+#: kappa 1.834 but exhausts its round budget at residual 0.12 with 37.5 MA.t of coil current.
+#: ★★The card carries NO supply rating, so the anneal is unbounded — `max_abs_MAt` is therefore a reading the
+#: gate holds, not a detail: without it a design may buy shape with current no coil set could carry.
+ITER_CURRENT_NOTE = ("pf_active carries no supply rating on this card (ITER-FEAT 2000's dev:currentMax belongs to a "
+                     "different coil set — 12 of 12 circles differ from base), so the anneal runs unbounded")
+ITER_TEXTS = {"limiter": "metis_wall", "position_control": "c4"}
+
+
+def iter_card_and_target(repo: Path) -> tuple[dict, np.ndarray, tuple[float, float]]:
+    """The ITER device card with the METIS wall injected as a limiter unit, and its reference separatrix.
+
+    ★Why the injection: the card renders EDA's two limiter units — `First Wall` (19 points, down to Z = -3.069)
+    and `Divertor` (37 points, R 3.94..6.36) — and a door picks ONE by name.  Neither is the vessel interior a
+    free-boundary solve needs: the first stops 230 mm above the target's lowest point, the second does not contain
+    the plasma at all.  fydoc's METIS provider carries one closed 57-point outline (Z -4.556..4.712) that encloses
+    all 248 target points; it is added here as a named unit rather than edited into the card.
+    """
+    card = json.loads((repo / ITER_CARD).read_text(encoding="utf-8"))
+    rb = card["fylite:reference_boundary"]
+    tr = np.asarray(rb["r"], float)
+    tz = np.asarray(rb["z"], float)
+    ok = np.isfinite(tr) & np.isfinite(tz)
+    target = np.c_[tr[ok], tz[ok]]
+    wall_doc = json.loads((repo.parent / "fydoc" / ITER_WALL).read_text(encoding="utf-8"))
+    outlines: list[dict] = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            if isinstance(o.get("outline"), dict) and "r" in o["outline"]:
+                outlines.append(o)
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for x in o:
+                walk(x)
+
+    walk(wall_doc)
+    if not outlines:
+        raise RuntimeError(f"no wall outline in {ITER_WALL}")
+    wall = outlines[0]["outline"]
+    from fylite import device
+    dev = device.document()
+    w2 = dev["wall"]["description_2d"]
+    w0 = w2[0] if isinstance(w2, list) else w2
+    w0["limiter"]["unit"] = list(w0["limiter"]["unit"]) + [
+        {"name": "metis_wall", "outline": {"r": [float(v) for v in wall["r"]], "z": [float(v) for v in wall["z"]]}}]
+    return dev, target, ITER_XPOINT
+
+
+def iter_shape(out: Path, settings: dict | None = None) -> dict:
+    """V-22: the ITER reference separatrix as an inverse problem — no second code, so the readings are the design's own.
+
+    There is no reference side for this shape: the TEQ / TOSCA ITER equilibria are pointer-only entries into an
+    unset ``$ITER_SCENARIO_ROOT`` and FreeGSNKE carries no ITER machine.  What is held instead is the design's own
+    closure — the coils it asks for, the separatrix they actually produce, and how far that sits from the requested
+    curve — plus the settings the shape turned out to need (they are the record's real content).
+    """
+    repo = ROOT
+    dev, target, xpt = iter_card_and_target(repo)
+    st = dict(ITER_SETTINGS if settings is None else settings)
+    #: the target is closed through the X-point corner (see ITER_XPOINT)
+    tgt = np.r_[target, np.array([xpt])]
+    inputs = {"device": dev,
+              "discharge": {"fylite:target_r": tgt[:, 0], "fylite:target_z": tgt[:, 1],
+                            "fylite:null_r": np.array([xpt[0]]), "fylite:null_z": np.array([xpt[1]])}}
+    t0 = time.time()
+    facts, fields, notes = door("code/discharge", {**st, **ITER_TEXTS}, inputs)
+    seconds = round(time.time() - t0, 2)
+    sep = np.asarray(fields["boundary"], float).reshape(-1, 2)
+    seen = np.asarray(fields["target_boundary"], float).reshape(-1, 2)
+
+    def seg_d(p, a, b):
+        v = b - a
+        w = p - a
+        vv = float(v @ v)
+        s = 0.0 if vv == 0.0 else float(np.clip((w @ v) / vv, 0.0, 1.0))
+        return float(np.linalg.norm(w - s * v))
+
+    n = len(seen)
+    d = np.array([min(seg_d(p, seen[i], seen[(i + 1) % n]) for i in range(n)) for p in sep])
+    at = np.asarray(fields["aturns"], float)
+    result = {
+        "reference": "none (no ITER equilibrium is reachable: TEQ / TOSCA are $ITER_SCENARIO_ROOT pointers, FreeGSNKE has no ITER machine)",
+        "inputs": {"card": ITER_CARD, "wall": f"fydoc {ITER_WALL} (injected as the limiter unit `metis_wall`)",
+                   "target_points": int(len(target)), "target_closed_through": list(xpt),
+                   "target_open_gap_mm": float(1e3 * np.linalg.norm(target[0] - target[-1])),
+                   "target_segment_median_mm": float(1e3 * np.median(np.hypot(*np.diff(target, axis=0).T))),
+                   "ip_A": ITER_IP, "settings": {**st, **ITER_TEXTS}},
+        "design": {"seconds": seconds, "notes": notes,
+                   "facts": {k: float(facts[k]) for k in
+                             ("shape_error", "boundary_gap_rms", "boundary_gap_max", "boundary_gap_rms_norm",
+                              "converged", "settled", "residual", "iterations", "n_passes", "n_at_coil_limit",
+                              "axis_r", "axis_z", "xpt_r", "xpt_z", "ip", "shape_r0", "shape_a", "shape_kappa",
+                              "shape_delta_upper", "shape_delta_lower", "shape_z0") if k in facts}},
+        "separatrix_vs_target": {"points": int(len(sep)), "median_mm": float(1e3 * np.median(d)),
+                                 "p95_mm": float(1e3 * np.percentile(d, 95)), "max_mm": float(1e3 * d.max())},
+        "currents": {"aturns": [float(v) for v in at], "max_abs_MAt": float(np.abs(at).max() / 1e6),
+                     "limits_held": bool(facts.get("n_at_coil_limit", 0.0) > 0.0),
+                     "unbounded_because": ITER_CURRENT_NOTE},
+    }
+    g = result["separatrix_vs_target"]
+    print(f"V-22 ITER: separatrix {g['median_mm']:.1f} mm median (p95 {g['p95_mm']:.1f}, max {g['max_mm']:.1f}); "
+          f"shape_error {facts['shape_error']:.4f}; kappa {facts['shape_kappa']:.3f} vs 1.849; "
+          f"max |I| {result['currents']['max_abs_MAt']:.1f} MA.t in {seconds:.0f} s")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "inverse_shape_iter.json").write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
     return result
 
 
@@ -580,6 +712,8 @@ def main() -> int:
     a2.add_argument("--out", required=True, type=Path)
     a2.add_argument("--kefit-exe", type=Path)
     a2.add_argument("--kefit-bundle", type=Path, default=Path(os.environ.get("KEFIT_BUNDLE", ROOT.parent / "third_party" / "kefit_reference_bundle")))
+    a5 = sub.add_parser("inverse-shape-iter")
+    a5.add_argument("--out", required=True, type=Path)
     a4 = sub.add_parser("inverse-shape")
     a4.add_argument("--case")
     a4.add_argument("--out", required=True, type=Path)
@@ -594,6 +728,8 @@ def main() -> int:
     elif a.cmd == "twin":
         a.out.mkdir(parents=True, exist_ok=True)
         twin(case_dir(a.case), a.out, a.kefit_exe, a.kefit_bundle)
+    elif a.cmd == "inverse-shape-iter":
+        iter_shape(a.out)
     elif a.cmd == "inverse-shape":
         a.out.mkdir(parents=True, exist_ok=True)
         inverse_shape(case_dir(a.case), a.out)

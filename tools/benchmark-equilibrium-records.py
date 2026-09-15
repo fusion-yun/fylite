@@ -21,6 +21,7 @@ so rerunning it gives the same bytes; each record says in its ``run.comment`` wh
     ★2026-09-15 (/goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」; the kernel's `code/evolve_free_boundary`):
                V-21  自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片上的恒等式
                B-21  静态逆问题：同一目标形状下 fylite 的线圈设计对 FreeGSNKE 的反演解
+               V-22  静态逆问题的第二个形状：ITER 参考分离面上的线圈设计（无参考侧，自洽判据）
 
     python tools/benchmark-equilibrium-records.py --reruns <reruns.json> --case $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east \
         [--solovev <solovev_fixed_boundary.json from tools/benchmark-fixed-boundary.py solovev>]
@@ -683,6 +684,60 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
         "pass",
         validity="EAST #137985 4.041 s 一张形状；12 路 PF、卡片供电上限；交付 p′/FF′ 表、Ip 392708.734 A；65² 网格；不含 ITER 形状、不含电流不确定性的显式报告"))
     reports["B-21"] = "B-21-inverse-shape-freegsnke.md"
+
+    # ---------------------------------------------------------------- V-22 (the same inverse problem on the ITER shape)
+    vg = consts(ROOT / "python/tests/test_benchmark_inverse_shape_iter.py", ("V22_BAND",))["V22_BAND"]
+    iv2 = json.loads((ROOT / "docs/benchmark/readings/inverse_shape_iter.json").read_text(encoding="utf-8"))
+    TW5 = "python/tests/test_benchmark_inverse_shape_iter.py"
+    sep, fa, cu, ip2 = iv2["separatrix_vs_target"], iv2["design"]["facts"], iv2["currents"], iv2["inputs"]
+    tgt2 = {"r0": 6.2209, "a": 1.9819, "kappa": 1.8492, "delta_upper": 0.3456, "delta_lower": 0.5432, "z0": 0.3660}
+    v22_crit = [crit("V-22", 1, "设计出的分离面离目标曲线（全点；ITER 的 trace 不含 X 点腿，无需窗口）：中位", "measured_band", vg["median_mm"], "absolute", None, "mm"),
+                crit("V-22", 2, "同上：p95 · 最大", "measured_band", vg["p95_mm"], "absolute", [f"最大另带 {vg['max_mm']} mm"], "mm"),
+                crit("V-22", 3, "六个形状量的归一 RMS（shape_error）", "measured_band", vg["shape_error"], "relative"),
+                crit("V-22", 4, "峰值通道电流 |I| —— 卡片无供电额定，退火不守限，故以实测设计值为带", "measured_band", vg["max_abs_MAt"], "absolute", 
+                     ["超过它的「更好形状」是另一台机器的设计，不是更好的设计"], "MA")]
+    v22_find = [finding("ITER 参考分离面上的设计", "pass",
+                        f"分离面离目标 中位 {sep['median_mm']:.1f} mm · p95 {sep['p95_mm']:.1f} · 最大 {sep['max_mm']:.1f}（门的 rms {1e3*fa['boundary_gap_rms']:.1f} mm）· "
+                        f"shape_error {fa['shape_error']:.4f} · {iv2['design']['seconds']:.0f} s · 内部自由边界解 settled（残差 {fa['residual']:.1e}）"),
+                finding("实现的形状量对目标", "pass",
+                        f"R0 {fa['shape_r0']:.4f}（目标 {tgt2['r0']}）· a {fa['shape_a']:.4f}（{tgt2['a']}）· z0 {fa['shape_z0']:.4f}（{tgt2['z0']}）· "
+                        f"δ上 {fa['shape_delta_upper']:.4f}（{tgt2['delta_upper']}）· κ {fa['shape_kappa']:.4f}（{tgt2['kappa']}）· δ下 {fa['shape_delta_lower']:.4f}（{tgt2['delta_lower']}）",
+                        caveat=["κ 低约 3 %、δ下低约 0.055：在保持解收敛与电流不失真的前提下调不上去（见下条），是解析剖面族在这张形状上的表达力边界"]),
+                finding("设置是这条记录的真内容（实测逼出）", "pass",
+                        "盒子 65² → 129²：间隙 rms 157 → 63 mm；退火遍数 8 → 16 在 65² 上有效、129² 上已饱和；"
+                        "c4 位置控制**必须**让设定点跟踪 R0（`pc_track_r0 = 1`）——固定在目标面积质心时边界被 Shafranov 位移拉偏（rms 180 mm）；"
+                        "边界格分数规则在此无效（与基线逐位同），与 EAST 相反",
+                        caveat=["`emp = 2` 是最后一个仍**收敛**的设置：emp 3 的 shape_error 略好（0.0269）却 600 轮不收敛（残差 0.019）",
+                                "`enp = 0.5` 给出全场最好的 κ 1.834，代价是 37.5 MA·t 的电流且始终不收敛——形状分是用不存在的电流换的"]),
+                finding("目标曲线与卡片的缺陷（读数）", "inconclusive",
+                        f"参考分离面是数字化 METIS 曲线：{ip2['target_points']} 个有限点、相邻中位 {ip2['target_segment_median_mm']:.0f} mm，且在 X 点处**开口 {ip2['target_open_gap_mm']:.0f} mm**（本条按尖角 {ip2['target_closed_through']} 补齐）；"
+                        f"卡片的两条限制器轮廓都不是真空室内区域（First Wall 止于 Z = −3.069，比目标最低点高 230 mm；Divertor 不含主等离子体），本条注入 fydoc 的 METIS 壁（57 点闭合）作限制器；"
+                        f"pf_active 无供电额定，退火不守限（实测峰值 {cu['max_abs_MAt']:.1f} MA·t）",
+                        caveat=["ITER-FEAT 2000 那份 dev:currentMax 属另一套线圈（与 base 的 12 圈全不同），不可挪用作额定"]),
+                rerun_finding(reruns["V-22"])]
+    recs.append(record(
+        "V-22", "静态逆问题的第二个形状：ITER 参考分离面上的线圈设计（无参考侧，自洽判据）", "verification",
+        "fylite: code/discharge 经树门（ITER 卡片 12 路线圈；目标为卡片的 fylite:reference_boundary，按 X 点尖角补齐；注入 fydoc METIS 壁作限制器；129² 盒、16 遍、c4 位置控制跟踪 R0）",
+        [{"type": "spo:Code", "name": "无参考侧（自洽判据）",
+          "version": "ITER 平衡件不可达：TEQ / TOSCA 为指向未设 $ITER_SCENARIO_ROOT 的指针件；FreeGSNKE 不带 ITER 机器",
+          "license": "n/a"}],
+        v22_crit, v22_find,
+        [gate(f"{TW5}::test_v22_the_design_reproduces_its_recorded_readings"),
+         gate(f"{TW5}::test_v22_the_designed_separatrix_stays_in_the_band"),
+         gate(f"{TW5}::test_v22_the_design_does_not_buy_shape_with_current_the_machine_lacks"),
+         gate(f"{TW5}::test_v22_the_target_curve_is_recorded_with_its_defects")],
+        [data("docs/benchmark/readings/inverse_shape_iter.json", "public"),
+         data("dist/facts/device/iter.jsonld", "public", None, ["装置卡片与其参考分离面"]),
+         data("fydoc facts/device/iter/abox/providers/wall/metis.jsonld", "public", None, ["注入的限制器轮廓（57 点闭合）"])],
+        "V-22-inverse-shape-iter.md",
+        ["★★2026-09-15 /goal「… 前向后向」第二个形状：B-21 立在 EAST 一张形状上，评估 note 缺口 6 要求补第二个形状",
+         "★V 类而非 B 类：这张形状没有任何可达的参考平衡，判的是设计自身的闭合（要多少电流 · 解出什么分离面 · 离所要的曲线多远）与它需要的设置",
+         "★电流带是缺额定的替身：卡片无 pf_active/supply，门里没有任何东西拦住退火；没有这条带，形状分可以用不存在的电流买",
+         "★不需要 B-21 那种公平窗口：`surfaces::trace` 追出的分离面本就不含 X 点腿，三种窗口读数逐位相同",
+         "纳入类别（参考数据）：public"],
+        "pass",
+        validity="ITER 卡片（EDA 几何的 12 路线圈，无额定）；15 MA、解析剖面族 β₀ 0.6 · emp 2；129² 盒；一张形状、一个时刻；不含参考平衡对拍、不含电流不确定性的显式报告"))
+    reports["V-22"] = "V-22-inverse-shape-iter.md"
     return recs, reports
 
 
@@ -822,6 +877,15 @@ REPORT_TEXT = {
                            "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b18'",
                            "# 读数重写：python tools/benchmark-wall-vstab.py readings --out <dir>"],
              "conclusion": "成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 −0.006 %（内壳，709 s⁻¹）/ +0.11 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005（内核改正 a1 ≠ 0 的读法后重录；首录内壳为 +0.37 %）；FreeGSNKE 的可变形增长率另记为读数。"},
+    "V-22": {"not_comparable": ["- 没有参考侧：这张形状上没有任何可达的平衡件（TEQ / TOSCA 是指针，FreeGSNKE 无 ITER 机器），本条不是对拍。",
+                                "- 目标曲线是数字化件：248 点、相邻中位 67 mm、X 点处开口 322 mm（本条按尖角补齐）；它不是某个代码解出的平衡。",
+                                "- 卡片无供电额定，退火不守限；电流带只是实测设计值的替身，不是机器的能力。",
+                                "- κ 与 δ下 在保持收敛与电流不失真的前提下调不上去——解析剖面族的表达力边界，不是设计误差。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYLITE_DEVICE_DIR=dist/facts/device/iter FYLITE_KERNEL_LIB=<当前内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_inverse_shape_iter.py",
+                           "# 读数重写：FYLITE_DEVICE_DIR=dist/facts/device/iter python tools/benchmark-equilibrium.py inverse-shape-iter --out docs/benchmark/readings"],
+             "conclusion": "成立（自洽）：ITER 参考分离面上，code/discharge 交出的设计把分离面放在离目标中位 15.4 mm（p95 69.8、最大 123.2）处，shape_error 0.0307，R0 · a · z0 · δ上 都贴目标；κ 与 δ下 差约 3 % 与 0.055，是解析剖面族的表达力边界。这条记录的真内容是设置：129² 盒、16 遍、c4 设定点跟踪 R0、目标按 X 点尖角补齐、注入 METIS 壁作限制器、emp = 2（最后一个仍收敛的设置）。"},
     "B-21": {"not_comparable": ["- 两个代码解的不是同一个优化问题：目标函数、正则化与约束都不同；本条比的是**同一目标下各自交出的形状**，不是优化器。",
                                 "- 电流不可比作判据：逆问题在电流空间欠定（实测两组差 25.6 kA·t、正解出的平衡只差毫米级）；KEFIT 的电流也只是它自己的拟合结果。",
                                 "- 目标曲线是 KEFIT 的 69 点轮廓：粗（相邻点中位 48.5 mm）、上方止于 Z = +0.658（其上 X 点 +0.767）；公平窗口即为此设，两种读法都在读数件里。",

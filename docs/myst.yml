@@ -157,6 +157,7 @@ project:
             - file: benchmark/reports/V-18-twin-reconstruction.md
             - file: benchmark/reports/V-19-fixed-boundary-solovev.md
             - file: benchmark/reports/V-21-evolve-free-boundary.md
+            - file: benchmark/reports/V-22-inverse-shape-iter.md
         - title: 物理校验 (Physics checks)
           children:
             - file: benchmark/physics/README.md

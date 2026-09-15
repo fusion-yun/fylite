@@ -1813,7 +1813,31 @@
       "python -m pytest python/tests/test_benchmark_inverse_shape.py（需带 code/discharge 的内核库）"
      ],
      "status": "pass",
-     "status_note": "2026-09-15 立（/goal「… 前向后向」）：★这是**设计题**（形状 → 线圈电流），挂在本支线是因为它同样消费平衡与导体几何、不消费输运。公平窗口下实现边界中位 1.21 mm 对 FreeGSNKE 5.00 mm；★逆问题在电流空间欠定：两边电流差 25.6 kA·t，三组电流正解出的平衡只差毫米级。缺：第二个形状（ITER / CFEDR）、电流不确定方向的显式报告"
+     "status_note": "2026-09-15 立（/goal「… 前向后向」）：★这是**设计题**（形状 → 线圈电流），挂在本支线是因为它同样消费平衡与导体几何、不消费输运。公平窗口下实现边界中位 1.21 mm 对 FreeGSNKE 5.00 mm；★逆问题在电流空间欠定：两边电流差 25.6 kA·t，三组电流正解出的平衡只差毫米级。第二个形状见 plan/K/inverse-shape-iter；缺：电流不确定方向的显式报告"
+    },
+    {
+     "id": "plan/K/inverse-shape-iter",
+     "title": "静态逆问题的第二个形状：ITER 参考分离面上的线圈设计",
+     "comparison_kind": "verification",
+     "depends_on": [
+      "plan/K/inverse-shape"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "none",
+       "storage_uri": "docs/benchmark/readings/inverse_shape_iter.json",
+       "license": "public",
+       "payload": "in",
+       "comment": "无参考侧：ITER 平衡件不可达（TEQ / TOSCA 为 $ITER_SCENARIO_ROOT 指针件，FreeGSNKE 无 ITER 机器）。目标取卡片的 fylite:reference_boundary，限制器注入 fydoc 的 METIS 壁"
+      }
+     ],
+     "record": "V-22",
+     "record_state": "existing",
+     "gate": [
+      "FYLITE_DEVICE_DIR=dist/facts/device/iter python -m pytest python/tests/test_benchmark_inverse_shape_iter.py"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（/goal「… 前向后向」第二个形状）：分离面离目标中位 15.4 mm（p95 69.8、最大 123.2）、shape_error 0.0307；R0 · a · z0 · δ上 贴目标，κ 低约 3 %、δ下 低 0.055（解析族表达力边界）。本条的真内容是设置：129² 盒（65² 时 rms 157 mm）、16 遍、c4 设定点跟踪 R0（固定时被 Shafranov 位移拉偏至 rms 180 mm）、目标按 X 点尖角补齐（原曲线在此开口 322 mm）、emp = 2（最后一个仍收敛的设置）。★卡片无供电额定，退火不守限，故以实测峰值 30.6 MA·t 作带"
     },
     {
      "id": "plan/K/toksys-rzrig",
