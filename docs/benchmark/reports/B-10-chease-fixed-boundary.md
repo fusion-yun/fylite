@@ -4,7 +4,7 @@ title: B-10 · CHEASE 定边界平衡：同一边界与剖面下的 GS 解
 
 # B-10 · CHEASE 定边界平衡：同一边界与剖面下的 GS 解
 
-> ★★2026-09-15：本条已并入 [V-16](V-16-gs-residual-reading.md)——门没有让 fylite 求解，问的是残差判据在 CHEASE 输出上读出什么；「fylite 在同一边界上求解」的对拍未立（公开树门没有给定边界轮廓的定边界入口）。本页保留作历史。
+> ★★2026-09-15：本条已并入 [V-16](V-16-gs-residual-reading.md)——门没有让 fylite 求解，问的是残差判据在 CHEASE 输出上读出什么；「fylite 在同一边界上求解」的对拍 2026-09-15 由 [V-19](V-19-fixed-boundary-solovev.md)（Solov'ev 轮廓，与 CHEASE 同题）与 [B-16](B-16-fixed-boundary-chease.md)（EAST 形状对 CHEASE）立——内核当日新增 `code/fixed_boundary`。本页保留作历史。
 
 | | |
 | :--- | :--- |

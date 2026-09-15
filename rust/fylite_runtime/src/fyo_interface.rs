@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "89187fe3be864db1";
+pub const DIGEST: &str = "d92e9497add0875e";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -316,6 +316,7 @@ pub const TABLES: &[Table] = &[
 /// packed block layouts: the position of a row IS its offset
 pub const BLOCKS: &[Block] = &[
     Block { name: "CASE_CODES", rows: &[
+        Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map" },
         Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
         Row { key: "transport", shape: "transport", units: "operator", gloss: "the model page's fixed-geometry bar: one steady solve on the Miller flux weight" },
@@ -1003,6 +1004,29 @@ pub const CODES: &[Code] = &[
         Param { key: "z_imp2", value_type: "float", default: "18.0", required: false, via: "beam_eval" },
         Param { key: "zeff", value_type: "float", default: "1.5", required: false, via: "evolve" },
         Param { key: "zsum", value_type: "float", default: "", required: false, via: "beam_eval" },
+    ] },
+    Code { name: "fixed_boundary", door: "fixed_boundary_case", krate: "fylite_kernel", params: &[
+        Param { key: "b0", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
+        Param { key: "hold_ip", value_type: "boolean", default: "false", required: false, via: "fixed_boundary_case" },
+        Param { key: "ip", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
+        Param { key: "margin", value_type: "float", default: "d.margin", required: false, via: "fixed_boundary_case" },
+        Param { key: "max_iter", value_type: "float", default: "d.max_iter as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "n_colloc", value_type: "float", default: "d.n_colloc as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "n_profile", value_type: "float", default: "201.0", required: false, via: "fixed_boundary_case" },
+        Param { key: "n_q", value_type: "float", default: "50.0", required: false, via: "fixed_boundary_case" },
+        Param { key: "n_sources", value_type: "float", default: "d.n_sources as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "n_theta", value_type: "float", default: "181.0", required: false, via: "fixed_boundary_case" },
+        Param { key: "nr", value_type: "float", default: "d.nr as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "nz", value_type: "float", default: "d.nz as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "offset", value_type: "float", default: "d.offset", required: false, via: "fixed_boundary_case" },
+        Param { key: "p_edge", value_type: "float", default: "0.0", required: false, via: "fixed_boundary_case" },
+        Param { key: "r0", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
+        Param { key: "rcond", value_type: "float", default: "d.rcond", required: false, via: "fixed_boundary_case" },
+        Param { key: "relax", value_type: "float", default: "d.relax", required: false, via: "fixed_boundary_case" },
+        Param { key: "subcell", value_type: "float", default: "d.subcell as f64", required: false, via: "fixed_boundary_case" },
+        Param { key: "tol", value_type: "float", default: "d.tol", required: false, via: "fixed_boundary_case" },
+        Param { key: "x_hi", value_type: "float", default: "0.995", required: false, via: "fixed_boundary_case" },
+        Param { key: "x_lo", value_type: "float", default: "0.02", required: false, via: "fixed_boundary_case" },
     ] },
     Code { name: "forward", door: "forward_case", krate: "fylite_kernel", params: &[
         Param { key: "b_tor", value_type: "float", default: "", required: false, via: "forward_case" },

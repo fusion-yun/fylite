@@ -5678,6 +5678,7 @@
    },
    "caveat": [
     "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史",
+    "★★2026-09-15（第二批）：本条原题「同一边界与剖面下 fylite 的 GS 解」由 V-19（Solov'ev 轮廓，fylite 与 CHEASE）与 B-16（EAST 形状，fylite 对 CHEASE）立——内核当日新增 code/fixed_boundary",
     "★★**本条的主要产出不是那个残差数，是一个读法**：g-file 上的 GS 残差是文件的属性",
     "纳入类别（参考数据）：public"
    ],
@@ -7425,7 +7426,7 @@
    "caveat": [
     "★★类别改判：原 C-06 / C-07 标 C（确认）、B-10 标 B（对拍），可三条的门问的都是「本仓的残差判据在别人写出的平衡上读出什么」——参考是那份文件，不是另一套模型对同一状态的答案；按 README「类别由参考是什么决定」，这是 V（判据本身）",
     "★**本条不验证 fylite 的 GS 求解器**：三组语料都不是 fylite 解出来的。求解器的验证在 V-17（解析 / 制造解）与 B-14（对 KEFIT 的正问题）",
-    "★B-10 原题「同一边界与剖面下的 GS 解」与门不符（门没有让 fylite 求解）；由 fylite 自己在 CHEASE 边界上求解的对拍**未立**——公开侧的树门没有「给定边界轮廓」的定边界入口（code/steady_equilibrium 只重解一张已有 ψ 图的盒子），见验证定序册",
+    "★B-10 原题「同一边界与剖面下的 GS 解」与门不符（门没有让 fylite 求解）；由 fylite 自己在给定边界上求解的对拍 2026-09-15 由 V-19（Solov'ev，与 CHEASE 同轮廓）与 B-16（EAST 形状对 CHEASE）立——内核当日新增树门 code/fixed_boundary",
     "纳入类别（参考数据）：restricted、public"
    ],
    "assertion_state": "accepted",
@@ -8302,6 +8303,392 @@
    ],
    "assertion_state": "accepted",
    "overall_verdict": "pass"
+  },
+  {
+   "id": "record/V-19",
+   "type": "fyo:ComparisonRecord",
+   "title": "定边界 GS：给定轮廓上的 Solov'ev 精确解（fylite code/fixed_boundary 与 CHEASE）",
+   "comparison_kind": "verification",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/fixed_boundary 经树门（内核 fixedbnd：轮廓外 64 根细丝的基本解法在 256 个配点上把 ψ = 0 钉在轮廓上；等离子体自身磁通由盒边自由空间格林函数给出；被轮廓切开的网格按面积分数计源）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "Solov'ev 解析解",
+     "version": "ψ = ψ_c − e₁(R² − r₀²)² − e₂R²Z² − e₃Z²（r₀ 1.8 m · e₁ 1.0 · e₂ 1.075441 · e₃ 1.0 · κ 1.7 · 外缘 2.25 m），常数 p′ 与 FF′；Ip 由精确轮廓上的安培定律，q₀ 由轴处局部展开",
+     "license": "public"
+    },
+    {
+     "type": "spo:Code",
+     "name": "CHEASE",
+     "version": "third_party/chease 本机 gfortran 构建；EXPEQ 输入（NSURF = 6 · NPPFUN = NFUNC = 4 · NSTTP = 1 · NCSCAL = 2），NS = NT = 80（另 40 作分辨率读数）",
+     "license": "public"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/V-19/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 129²：ψ_N 差 rms / 最大（轮廓内 121×201 点阵），对精确解",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1.09e-05
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 0.000106"
+     ]
+    },
+    {
+     "id": "record/V-19/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 节点误差 max|Δψ| / ψ_c（整格在轮廓内的节点）与二阶收敛",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 5.52e-05
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "65² → 129² 的误差比须大于 3.0"
+     ]
+    },
+    {
+     "id": "record/V-19/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 129²：Ip 对精确轮廓上的安培定律 · 通量跨度",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1.72e-05
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "跨度另带 2.46e-06"
+     ]
+    },
+    {
+     "id": "record/V-19/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 129²：磁轴距离 · 轮廓离 ψ = 0 面的最大距离",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0261,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "轮廓距离另带 4.13e-05 m"
+     ]
+    },
+    {
+     "id": "record/V-19/criterion/5",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 129²：q₀ 对局部展开闭式",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00327
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "q₀ 是最内一对被追踪面外推到轴（`q_profile` 的约定），不是轴上的值"
+     ]
+    },
+    {
+     "id": "record/V-19/criterion/6",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "CHEASE NS 80：ψ_N rms · 磁轴 · 跨度 · Ip · q₀，对精确解",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 3.91e-06
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "带 {\"psin_rms\": 3.91e-06, \"psin_max\": 5.86e-05, \"axis_mm\": 1.75e-06, \"span_rel\": 1.99e-08, \"ip_rel\": 9.36e-10, \"q0_rel\": 3.56e-06}；第二个代码在同一问题上，不是 fylite 的参考"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "fylite 129² 对精确解",
+     "deviation_literal": "ψ_N rms 1.08e-05 · 最大 1.06e-04 · 磁轴 0.026 mm · 跨度 -2.46e-06 · Ip +1.72e-05 · q₀ -0.33 % · 轮廓距离最大 4.1e-05 m · 31 步收敛",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "收敛阶",
+     "deviation_literal": "节点误差 33² 1.45e-03 · 65² 4.58e-04 · 129² 5.51e-05（比 3.2 · 8.3）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "CHEASE NS 80 对精确解",
+     "deviation_literal": "ψ_N rms 3.91e-06 · 最大 5.86e-05 · 跨度 -2.0e-08 · Ip +9.4e-10 · q₀ +3.6e-06",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "fylite 129² 对 CHEASE NS 80（读数）",
+     "deviation_literal": "ψ_N rms 1.12e-05 · q（ψ_N 0.1–0.9）rms 0.023 % · 最大 0.056 % · q₉₅ -0.004 %",
+     "verdict": "inconclusive",
+     "caveat": [
+      "两个代码都对着精确解判过，彼此的差只作读数"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass",
+     "caveat": [
+      "CHEASE 本机构建在场（缺则第二条按名 skip）；内核 cargo 单元测试 7 passed（fixedbnd · fixed_boundary_tests）"
+     ]
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_fixed_boundary.py::test_v19_fylite_recovers_the_solovev_map_inside_its_contour"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_fixed_boundary.py::test_v19_chease_on_the_same_contour"
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/rust/fylite/src/fixedbnd.rs::tests · case.rs::fixed_boundary_tests",
+      "caveat": [
+       "私仓的门：`cargo test --release --lib -- fixedbnd fixed_boundary_tests`（7 条；Solov'ev 二阶收敛 · Ip 对轮廓安培定律 · 电流目标线性缩放 · 门即模块 · q₀ 与 p₀ 闭式 · 拒绝语）",
+       "本条写入时在内核检出里跑过：7 passed（2026-09-15）"
+      ]
+     }
+    ],
+    "has_input": [],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/V-19-fixed-boundary-solovev.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★2026-09-15 用户「补全 fixed-boundary 情景」：此前没有任何门能让 fylite 在给定边界上求解（B-10 读的是 CHEASE 输出上的残差，已并入 V-16）；内核当日新增 code/fixed_boundary",
+    "★口径（在 Solov'ev 算例上实测，不假设）：fylite 取整圈 Wb 的 p′ / FF′、轴处取极大；CHEASE 的 EXPEQ 取 −μ0 R0² / B0 · 2π p′ 与 −2π FF′ / B0，横轴 √ψ_N，轮廓以 R0EXP 为单位，边缘 T = 1（B0EXP = F_edge / R0EXP），CURRT = μ0 Ip / (R0EXP B0EXP)；符号取反则 CHEASE 不收敛",
+    "★精确解在两个代码里都可精确表示（常数源），剩下的差是离散误差；边缘电流不为零（p′ 常数），被轮廓切开的网格正是被考的地方",
+    "纳入类别：无外部数据（解析 / 自带）"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass",
+   "validity_domain": "定边界、光滑轮廓（无 X 点）、常数 p′ / FF′；fylite 网格 33² / 65² / 129²，CHEASE NS = NT = 40 / 80"
+  },
+  {
+   "id": "record/B-16",
+   "type": "fyo:ComparisonRecord",
+   "title": "定边界平衡对 CHEASE：EAST #137985 4.041 s，KEFIT 纯磁答案的 ψ_N = 0.995 面与其 p′ / FF′",
+   "comparison_kind": "benchmark",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/fixed_boundary 经树门（129² 判带，65² 作分辨率读数）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "CHEASE",
+     "version": "third_party/chease 本机 gfortran 构建；EXPEQ 输入（NSURF = 6 · NPPFUN = NFUNC = 4 · NSTTP = 1 · NCSCAL = 2），NS = NT = 80（另 40 作分辨率读数）",
+     "license": "public"
+    },
+    {
+     "type": "spo:Code",
+     "name": "KEFIT",
+     "version": "kefit_reference_bundle（third_party，锁定件）active/point/efit_w_pf，gfortran 64 位本地构建（magpri 76；构建配方 CASE-23 corpus/kefit/kefit_build_recipe.json）",
+     "license": "private-artefact",
+     "comment": "背景：问题取自它的答案（面 · 剖面 · 面内电流）；它的自由边界图只作读数，不作参考"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-16/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "ψ_N 差 rms / 最大（该面内 121×201 点阵），fylite 129² 对 CHEASE NS 80",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 4.92e-05
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 0.000266"
+     ]
+    },
+    {
+     "id": "record/B-16/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "磁轴距离",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00468,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/B-16/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "通量跨度 · Ip",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.000754
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "Ip 另带 0.000968（CHEASE 按面内安培电流归一，fylite 不缩放）"
+     ]
+    },
+    {
+     "id": "record/B-16/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "q 相对差（ψ_N 0.1–0.9 九点）rms / 最大 · q₉₅",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00105
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 0.00183 · q₉₅ 另带 0.00186"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "fylite 129² 对 CHEASE NS 80",
+     "deviation_literal": "ψ_N rms 4.92e-05 / 最大 2.65e-04 · 磁轴 0.005 mm · 跨度 -0.075 % · Ip -0.097 % · q rms 0.10 % / 最大 0.18 % · q₉₅ +0.19 %",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "分辨率（读数）",
+     "deviation_literal": "fylite 65² 对 CHEASE：ψ_N rms 7.19e-05 / 最大 2.49e-04 · 磁轴 0.004 mm · 跨度 -0.037 % · Ip -0.112 % · q rms 0.16 % / 最大 0.36 % · q₉₅ +0.18 %；CHEASE NS 40 对 NS 80：ψ_N rms 1.0e-04 · q rms 0.002 %",
+     "verdict": "inconclusive"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "KEFIT 自由边界图作背景（读数）",
+     "deviation_literal": "fylite 129²：ψ_N rms 2.10e-03 · 磁轴 2.31 mm；CHEASE NS 80：ψ_N rms 2.09e-03 · 磁轴 2.31 mm",
+     "verdict": "inconclusive",
+     "caveat": [
+      "两个定边界代码到 KEFIT 图的差相同：那是 KEFIT 65² 网格与该面在其图上的重构，不是任一求解器的",
+      "对 KEFIT 的 Ip 不可比：KEFIT 记全电流，这里解的是 0.995 面内的电流"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_fixed_boundary.py::test_b16_fylite_reproduces_its_readings_and_stays_in_the_band_against_chease"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_fixed_boundary.py::test_b16_kefit_context_is_a_reading"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258",
+      "caveat": [
+       "问题的来源：kefit_raw_east137985/rejected/t4041_mag/g137985.04041 的 ψ 图、PPRIME / FFPRIM、FPOL",
+       "KEFIT 的可执行体不入仓：由构建配方与源 sha256 重建；门只回放已记录、sha256 索引过的运行件，不重跑 KEFIT"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/fixed_boundary_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:1c1dca4624223e6d4064f742cfd2763c27a331b20b3d5ba57bbac0b702640b2d"
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/chease/chease_fixed_boundary_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:f8088bd7bd1d6b58e993cadf5df4adabf8d223324dbdae847d83c61d176ac200",
+      "caveat": [
+       "CHEASE 两个分辨率的 EXPEQ · namelist · EQDSK；输入由实验数据导出，故随实验类"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-16-fixed-boundary-chease.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★同一问题交给两个定边界代码：该面（KEFIT 图的双三次样条上自轴 360 条射线取首个穿越）、101 点 p′ / FF′（÷ −2π 换口径）、边缘 F = FPOL(0.995)；CHEASE 另需面内电流（KEFIT 图上的安培环路）作归一",
+    "★口径（在 Solov'ev 算例上实测，不假设）：fylite 取整圈 Wb 的 p′ / FF′、轴处取极大；CHEASE 的 EXPEQ 取 −μ0 R0² / B0 · 2π p′ 与 −2π FF′ / B0，横轴 √ψ_N，轮廓以 R0EXP 为单位，边缘 T = 1（B0EXP = F_edge / R0EXP），CURRT = μ0 Ip / (R0EXP B0EXP)；符号取反则 CHEASE 不收敛",
+    "★该面光滑、不过 X 点：定边界代码的问题不含分界面；分界面上的比较在 B-14（自由边界）",
+    "纳入类别（参考数据）：experiment、private-artefact"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass",
+   "validity_domain": "EAST #137985 4.041 s 纯磁答案的 ψ_N = 0.995 面；fylite 129² 对 CHEASE NS = NT = 80；剖面为 KEFIT 的 KPPCUR / KFFCUR 多项式经 65 点表线性插值"
   }
  ]
 }

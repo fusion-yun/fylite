@@ -4,7 +4,7 @@ title: 公开 V&V 登记册 · 索引
 
 # 公开 V&V 登记册 · 索引
 
-42 条记录，18 个场景；★2026-09-15：平衡相关的 V-16 · V-17 · B-12 · B-14 · V-18 · B-15 由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」「废弃 libefit 对标，直接对标 KEFIT」），复测列是写入当日的；C-06 · C-07 · B-10 并入 V-16，B-06 · B-11 由 B-12 取代，C-03 的门自 2026-09-14 起 skip。由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
+44 条记录，18 个场景；★2026-09-15：平衡相关的 V-16 · V-17 · B-12 · B-14 · V-18 · B-15 由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」「废弃 libefit 对标，直接对标 KEFIT」），复测列是写入当日的；C-06 · C-07 · B-10 并入 V-16，B-06 · B-11 由 B-12 取代，C-03 的门自 2026-09-14 起 skip。★2026-09-15（第二批）：定边界 V-19 · B-16 同一工具直写（用户「补全 fixed-boundary 情景」；内核当日新增 `code/fixed_boundary`），B-10 原题由它们立。由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
 复测结论：成立 35、未评估 1（B-11，2026-09-14 加入，门是运行脚本、未随发布跑；2026-09-15 撤回——用户裁定 efit_east 树只作对拍比较数据，本条输入取自该树）。★跨类不可比：V/B/C 问的不是同一个问题（README）。
 
 :::{figure} ../figures/overview.svg
@@ -60,3 +60,5 @@ title: 公开 V&V 登记册 · 索引
 | B-14 | B | KEFIT | experiment、private-artefact | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-14](B-14-forward-kefit.md) |
 | V-18 | V | fylite code/forward 的真值 | experiment | 成立 | 成立（1 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-18](V-18-twin-reconstruction.md) |
 | B-15 | B | KEFIT | experiment、private-artefact | 成立 | 成立（1 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-15](B-15-twin-kefit.md) |
+| V-19 | V | Solov'ev 解析解；CHEASE | public | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-19](V-19-fixed-boundary-solovev.md) |
+| B-16 | B | CHEASE；KEFIT | experiment、private-artefact、public | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-16](B-16-fixed-boundary-chease.md) |

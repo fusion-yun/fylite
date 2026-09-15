@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '89187fe3be864db1'
+DIGEST = 'd92e9497add0875e'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -360,6 +360,7 @@ TABLES = {
 #: position in the list BEING the offset into the flat buffer
 BLOCKS = {
     'CASE_CODES': [
+        {'key': 'fixed_boundary', 'shape': '', 'units': 'assembled', 'gloss': "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map"},
         {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
         {'key': 'transport', 'shape': 'transport', 'units': 'operator', 'gloss': "the model page's fixed-geometry bar: one steady solve on the Miller flux weight"},
@@ -1046,6 +1047,29 @@ CODE_PARAMS = {
         'z_imp2': {'key': 'z_imp2', 'type': 'float', 'via': 'beam_eval', 'default': '18.0', 'required': False},
         'zeff': {'key': 'zeff', 'type': 'float', 'via': 'evolve', 'default': '1.5', 'required': False},
         'zsum': {'key': 'zsum', 'type': 'float', 'via': 'beam_eval'},
+    }},
+    'fixed_boundary': {"door": 'fixed_boundary_case', "crate": 'fylite_kernel', "parameters": {
+        'b0': {'key': 'b0', 'type': 'float', 'via': 'fixed_boundary_case'},
+        'hold_ip': {'key': 'hold_ip', 'type': 'boolean', 'via': 'fixed_boundary_case', 'default': 'false'},
+        'ip': {'key': 'ip', 'type': 'float', 'via': 'fixed_boundary_case'},
+        'margin': {'key': 'margin', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.margin', 'required': False},
+        'max_iter': {'key': 'max_iter', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.max_iter as f64', 'required': False},
+        'n_colloc': {'key': 'n_colloc', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.n_colloc as f64', 'required': False},
+        'n_profile': {'key': 'n_profile', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '201.0', 'required': False},
+        'n_q': {'key': 'n_q', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '50.0', 'required': False},
+        'n_sources': {'key': 'n_sources', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.n_sources as f64', 'required': False},
+        'n_theta': {'key': 'n_theta', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '181.0', 'required': False},
+        'nr': {'key': 'nr', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.nr as f64', 'required': False},
+        'nz': {'key': 'nz', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.nz as f64', 'required': False},
+        'offset': {'key': 'offset', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.offset', 'required': False},
+        'p_edge': {'key': 'p_edge', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.0', 'required': False},
+        'r0': {'key': 'r0', 'type': 'float', 'via': 'fixed_boundary_case'},
+        'rcond': {'key': 'rcond', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.rcond', 'required': False},
+        'relax': {'key': 'relax', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.relax', 'required': False},
+        'subcell': {'key': 'subcell', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.subcell as f64', 'required': False},
+        'tol': {'key': 'tol', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.tol', 'required': False},
+        'x_hi': {'key': 'x_hi', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.995', 'required': False},
+        'x_lo': {'key': 'x_lo', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.02', 'required': False},
     }},
     'forward': {"door": 'forward_case', "crate": 'fylite_kernel', "parameters": {
         'b_tor': {'key': 'b_tor', 'type': 'float', 'via': 'forward_case'},

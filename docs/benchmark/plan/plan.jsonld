@@ -393,6 +393,54 @@
      "status_note": "2026-09-15 立：S1 干路上第一条针对求解器本身的登记记录；经 C-ABI 的两条门只读复测通过，cargo 单元测试未跑（不动内核仓）"
     },
     {
+     "id": "plan/S1/fixed-boundary-solovev",
+     "title": "定边界 GS：给定轮廓上的 Solov'ev 精确解（fylite code/fixed_boundary 与 CHEASE）",
+     "comparison_kind": "verification",
+     "depends_on": [
+      "plan/S0-conventions"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "—",
+       "storage_uri": "—（解析闭式；CHEASE 在 $THIRD_PARTY/chease 本机构建，门里现跑）",
+       "license": "public",
+       "payload": "in"
+      }
+     ],
+     "record": "V-19",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_fixed_boundary.py -k v19（2 条；CHEASE 缺则第二条按名 skip）",
+      "$FYLITE_KERNEL: cargo test --release --lib -- fixedbnd fixed_boundary_tests（7 条）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（用户「补全 fixed-boundary 情景」）：内核新增树门 code/fixed_boundary——plan/S1/chease-fixed-boundary 原题「同一边界与剖面下的 GS 解」第一次由 fylite 自己求解；129² 上 ψ_N rms 1.1e-5、Ip 1.7e-5，误差二阶下降"
+    },
+    {
+     "id": "plan/S1/fixed-boundary-chease",
+     "title": "定边界平衡对 CHEASE：EAST #137985 KEFIT ψ_N = 0.995 面上的同一问题",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/S1/fixed-boundary-solovev"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/fixed_boundary_east137985.json",
+       "license": "experiment",
+       "payload": "in",
+       "comment": "问题取自 KEFIT 原始树纯磁答案（面 · 剖面 · 面内电流）；CHEASE 运行件 corpus/chease/chease_fixed_boundary_east137985.tar.gz"
+      }
+     ],
+     "record": "B-16",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_fixed_boundary.py -k b16（2 条；需 fydoc 算例库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立：fylite 129² 与 CHEASE NS 80 的 ψ_N 差 rms 4.9e-5、磁轴 5 µm、q 0.10 %；二者离 KEFIT 自由边界图一样远（2.3 mm）"
+    },
+    {
      "id": "plan/S1/forward-kefit",
      "title": "自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF′",
      "comparison_kind": "benchmark",

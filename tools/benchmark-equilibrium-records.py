@@ -15,8 +15,12 @@ so rerunning it gives the same bytes; each record says in its ``run.comment`` wh
                B-15  反演孪生体：KEFIT 在同一份合成测量上
     changed    C-06 · C-07 · B-10 → retired, superseded_by V-16 ; B-06 · B-11 → superseded_by B-12 ;
                C-03 → a 2026-09-15 re-run finding (its gate skips since 2026-09-14) and the G-4 caveat
+    ★2026-09-15 second batch (用户「补全 fixed-boundary 情景」; the kernel's `code/fixed_boundary` door):
+               V-19  定边界：给定轮廓上的 Solov'ev 精确解（fylite 与 CHEASE）
+               B-16  定边界对 CHEASE：EAST #137985 KEFIT ψ_N = 0.995 面上的同一问题
 
-    python tools/benchmark-equilibrium-records.py --reruns <reruns.json> --case $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east
+    python tools/benchmark-equilibrium-records.py --reruns <reruns.json> --case $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east \
+        [--solovev <solovev_fixed_boundary.json from tools/benchmark-fixed-boundary.py solovev>]
 """
 from __future__ import annotations
 
@@ -116,7 +120,7 @@ KEFIT_CAVEAT_BUILD = "KEFIT 的可执行体不入仓：由构建配方与源 sha
 
 # ------------------------------------------------------------------------------------------------ records
 
-def build(case: Path, reruns: dict) -> tuple[list[dict], dict[str, str]]:
+def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str, str]]:
     import yaml
     sums = yaml.safe_load((case / "case.yaml").read_text(encoding="utf-8"))["data"]["checksums"]
     fk = json.loads((case / "corpus/benchmark/forward_kefit_east137985.json").read_text(encoding="utf-8"))["cases"]
@@ -164,7 +168,7 @@ def build(case: Path, reruns: dict) -> tuple[list[dict], dict[str, str]]:
         "V-16-gs-residual-reading.md",
         ["★★类别改判：原 C-06 / C-07 标 C（确认）、B-10 标 B（对拍），可三条的门问的都是「本仓的残差判据在别人写出的平衡上读出什么」——参考是那份文件，不是另一套模型对同一状态的答案；按 README「类别由参考是什么决定」，这是 V（判据本身）",
          "★**本条不验证 fylite 的 GS 求解器**：三组语料都不是 fylite 解出来的。求解器的验证在 V-17（解析 / 制造解）与 B-14（对 KEFIT 的正问题）",
-         "★B-10 原题「同一边界与剖面下的 GS 解」与门不符（门没有让 fylite 求解）；由 fylite 自己在 CHEASE 边界上求解的对拍**未立**——公开侧的树门没有「给定边界轮廓」的定边界入口（code/steady_equilibrium 只重解一张已有 ψ 图的盒子），见验证定序册",
+         "★B-10 原题「同一边界与剖面下的 GS 解」与门不符（门没有让 fylite 求解）；由 fylite 自己在给定边界上求解的对拍 2026-09-15 由 V-19（Solov'ev，与 CHEASE 同轮廓）与 B-16（EAST 形状对 CHEASE）立——内核当日新增树门 code/fixed_boundary",
          "纳入类别（参考数据）：restricted、public"],
         "pass"))
     reports["V-16"] = "V-16-gs-residual-reading.md"
@@ -336,7 +340,111 @@ def build(case: Path, reruns: dict) -> tuple[list[dict], dict[str, str]]:
         ["★与 V-18 同一份合成测量、同一个真值：两个代码谁偏、偏多少并列可读", "纳入类别（参考数据）：experiment、private-artefact"],
         "pass"))
     reports["B-15"] = "B-15-twin-kefit.md"
+
+    # ---------------------------------------------------------------- V-19 / B-16 (fixed boundary)
+    fb_gate = consts(ROOT / "python/tests/test_benchmark_fixed_boundary.py", ("V19_FYLITE_129", "V19_CHEASE_80", "B16_BAND", "V19_ORDER_RATIO"))
+    TF = "python/tests/test_benchmark_fixed_boundary.py"
+    sv = solovev
+    chease_ref = {"type": "spo:Code", "name": "CHEASE",
+                  "version": "third_party/chease 本机 gfortran 构建；EXPEQ 输入（NSURF = 6 · NPPFUN = NFUNC = 4 · NSTTP = 1 · NCSCAL = 2），NS = NT = 80（另 40 作分辨率读数）",
+                  "license": "public"}
+    fb_conv = ("★口径（在 Solov'ev 算例上实测，不假设）：fylite 取整圈 Wb 的 p′ / FF′、轴处取极大；CHEASE 的 EXPEQ 取 −μ0 R0² / B0 · 2π p′ 与 −2π FF′ / B0，"
+               "横轴 √ψ_N，轮廓以 R0EXP 为单位，边缘 T = 1（B0EXP = F_edge / R0EXP），CURRT = μ0 Ip / (R0EXP B0EXP)；符号取反则 CHEASE 不收敛")
+    kernel_gate = gate("$FYLITE_KERNEL/rust/fylite/src/fixedbnd.rs::tests · case.rs::fixed_boundary_tests",
+                       ["私仓的门：`cargo test --release --lib -- fixedbnd fixed_boundary_tests`（7 条；Solov'ev 二阶收敛 · Ip 对轮廓安培定律 · 电流目标线性缩放 · 门即模块 · q₀ 与 p₀ 闭式 · 拒绝语）",
+                        "本条写入时在内核检出里跑过：7 passed（2026-09-15）"])
+    f129 = sv["fylite"]["n129"]
+    c129, cc80 = f129["compare"], sv["chease"]["ns80"]["compare"]
+    b = fb_gate["V19_FYLITE_129"]
+    v19_crit = [crit("V-19", 1, "fylite 129²：ψ_N 差 rms / 最大（轮廓内 121×201 点阵），对精确解", "measured_band", b["psin_rms"], "absolute", [f"最大值另带 {b['psin_max']}"]),
+                crit("V-19", 2, "fylite 节点误差 max|Δψ| / ψ_c（整格在轮廓内的节点）与二阶收敛", "measured_band", b["node_error"], "relative",
+                     [f"65² → 129² 的误差比须大于 {fb_gate['V19_ORDER_RATIO']}"]),
+                crit("V-19", 3, "fylite 129²：Ip 对精确轮廓上的安培定律 · 通量跨度", "measured_band", b["ip_rel"], "relative", [f"跨度另带 {b['span_rel']}"]),
+                crit("V-19", 4, "fylite 129²：磁轴距离 · 轮廓离 ψ = 0 面的最大距离", "measured_band", b["axis_mm"], "absolute", [f"轮廓距离另带 {b['gap_max_m']} m"], "mm"),
+                crit("V-19", 5, "fylite 129²：q₀ 对局部展开闭式", "measured_band", b["q0_rel"], "relative", ["q₀ 是最内一对被追踪面外推到轴（`q_profile` 的约定），不是轴上的值"]),
+                crit("V-19", 6, "CHEASE NS 80：ψ_N rms · 磁轴 · 跨度 · Ip · q₀，对精确解", "measured_band", fb_gate["V19_CHEASE_80"]["psin_rms"], "absolute",
+                     [f"带 {json.dumps(fb_gate['V19_CHEASE_80'])}；第二个代码在同一问题上，不是 fylite 的参考"])]
+    ne = [sv["fylite"][f"n{n}"]["node_error"] for n in (33, 65, 129)]
+    fvc = sv["fylite_129_vs_chease_ns80"]
+    v19_find = [finding("fylite 129² 对精确解", "pass",
+                        f"ψ_N rms {c129['psin_rms']:.2e} · 最大 {c129['psin_max']:.2e} · 磁轴 {c129['axis_mm']:.3f} mm · 跨度 {c129['span_rel']:+.2e} · Ip {c129['ip_rel']:+.2e} · q₀ {100 * c129['q0_rel']:+.2f} % · "
+                        f"轮廓距离最大 {f129['facts']['gap_max']:.1e} m · {f129['facts']['iterations']:.0f} 步收敛"),
+                finding("收敛阶", "pass", f"节点误差 33² {ne[0]:.2e} · 65² {ne[1]:.2e} · 129² {ne[2]:.2e}（比 {ne[0] / ne[1]:.1f} · {ne[1] / ne[2]:.1f}）"),
+                finding("CHEASE NS 80 对精确解", "pass",
+                        f"ψ_N rms {cc80['psin_rms']:.2e} · 最大 {cc80['psin_max']:.2e} · 跨度 {cc80['span_rel']:+.1e} · Ip {cc80['ip_rel']:+.1e} · q₀ {cc80['q0_rel']:+.1e}"),
+                finding("fylite 129² 对 CHEASE NS 80（读数）", "inconclusive",
+                        f"ψ_N rms {fvc['psin_rms']:.2e} · q（ψ_N 0.1–0.9）rms {100 * fvc['q_rel_rms_01_09']:.3f} % · 最大 {100 * fvc['q_rel_max_01_09']:.3f} % · q₉₅ {100 * fvc['q95_rel']:+.3f} %",
+                        caveat=["两个代码都对着精确解判过，彼此的差只作读数"]),
+                rerun_finding(reruns["V-19"])]
+    recs.append(record(
+        "V-19", "定边界 GS：给定轮廓上的 Solov'ev 精确解（fylite code/fixed_boundary 与 CHEASE）", "verification",
+        "fylite: code/fixed_boundary 经树门（内核 fixedbnd：轮廓外 64 根细丝的基本解法在 256 个配点上把 ψ = 0 钉在轮廓上；等离子体自身磁通由盒边自由空间格林函数给出；被轮廓切开的网格按面积分数计源）",
+        [{"type": "spo:Code", "name": "Solov'ev 解析解",
+          "version": f"ψ = ψ_c − e₁(R² − r₀²)² − e₂R²Z² − e₃Z²（r₀ {sv['problem']['r0']} m · e₁ {sv['problem']['e1']} · e₂ {sv['problem']['e2']:.6f} · e₃ {sv['problem']['e3']} · κ 1.7 · 外缘 2.25 m），常数 p′ 与 FF′；Ip 由精确轮廓上的安培定律，q₀ 由轴处局部展开",
+          "license": "public"}, chease_ref],
+        v19_crit, v19_find,
+        [gate(f"{TF}::test_v19_fylite_recovers_the_solovev_map_inside_its_contour"), gate(f"{TF}::test_v19_chease_on_the_same_contour"), kernel_gate],
+        [],
+        "V-19-fixed-boundary-solovev.md",
+        ["★★2026-09-15 用户「补全 fixed-boundary 情景」：此前没有任何门能让 fylite 在给定边界上求解（B-10 读的是 CHEASE 输出上的残差，已并入 V-16）；内核当日新增 code/fixed_boundary",
+         fb_conv, "★精确解在两个代码里都可精确表示（常数源），剩下的差是离散误差；边缘电流不为零（p′ 常数），被轮廓切开的网格正是被考的地方",
+         "纳入类别：无外部数据（解析 / 自带）"],
+        "pass",
+        validity="定边界、光滑轮廓（无 X 点）、常数 p′ / FF′；fylite 网格 33² / 65² / 129²，CHEASE NS = NT = 40 / 80"))
+    reports["V-19"] = "V-19-fixed-boundary-solovev.md"
+
+    fb = json.loads((case / "corpus/benchmark/fixed_boundary_east137985.json").read_text(encoding="utf-8"))
+    cm, bb = fb["compare"], fb_gate["B16_BAND"]
+    x = cm["fylite_129_vs_chease_80"]
+    b16_crit = [crit("B-16", 1, "ψ_N 差 rms / 最大（该面内 121×201 点阵），fylite 129² 对 CHEASE NS 80", "measured_band", bb["psin_rms"], "absolute", [f"最大值另带 {bb['psin_max']}"]),
+                crit("B-16", 2, "磁轴距离", "measured_band", bb["axis_mm"], "absolute", unit="mm"),
+                crit("B-16", 3, "通量跨度 · Ip", "measured_band", bb["span_rel"], "relative", [f"Ip 另带 {bb['ip_rel']}（CHEASE 按面内安培电流归一，fylite 不缩放）"]),
+                crit("B-16", 4, "q 相对差（ψ_N 0.1–0.9 九点）rms / 最大 · q₉₅", "measured_band", bb["q_rel_rms_01_09"], "relative",
+                     [f"最大值另带 {bb['q_rel_max_01_09']} · q₉₅ 另带 {bb['q95_rel']}"])]
+
+    def line(c):
+        return (f"ψ_N rms {c['psin_rms']:.2e} / 最大 {c['psin_max']:.2e} · 磁轴 {c['axis_mm']:.3f} mm · 跨度 {100 * c['span_rel']:+.3f} % · Ip {100 * c['ip_rel']:+.3f} % · "
+                f"q rms {100 * c['q_rel_rms_01_09']:.2f} % / 最大 {100 * c['q_rel_max_01_09']:.2f} % · q₉₅ {100 * c['q95_rel']:+.2f} %")
+    b16_find = [finding("fylite 129² 对 CHEASE NS 80", "pass", line(x)),
+                finding("分辨率（读数）", "inconclusive",
+                        f"fylite 65² 对 CHEASE：{line(cm['fylite_65_vs_chease_80'])}；CHEASE NS 40 对 NS 80：ψ_N rms {cm['chease_40_vs_chease_80']['psin_rms']:.1e} · q rms {100 * cm['chease_40_vs_chease_80']['q_rel_rms_01_09']:.3f} %"),
+                finding("KEFIT 自由边界图作背景（读数）", "inconclusive",
+                        f"fylite 129²：ψ_N rms {cm['fylite_129_vs_kefit']['psin_rms']:.2e} · 磁轴 {cm['fylite_129_vs_kefit']['axis_mm']:.2f} mm；CHEASE NS 80：ψ_N rms {cm['chease_80_vs_kefit']['psin_rms']:.2e} · 磁轴 {cm['chease_80_vs_kefit']['axis_mm']:.2f} mm",
+                        caveat=["两个定边界代码到 KEFIT 图的差相同：那是 KEFIT 65² 网格与该面在其图上的重构，不是任一求解器的", "对 KEFIT 的 Ip 不可比：KEFIT 记全电流，这里解的是 0.995 面内的电流"]),
+                rerun_finding(reruns["B-16"])]
+    recs.append(record(
+        "B-16", "定边界平衡对 CHEASE：EAST #137985 4.041 s，KEFIT 纯磁答案的 ψ_N = 0.995 面与其 p′ / FF′", "benchmark",
+        "fylite: code/fixed_boundary 经树门（129² 判带，65² 作分辨率读数）",
+        [chease_ref, dict(KEFIT_REF, comment="背景：问题取自它的答案（面 · 剖面 · 面内电流）；它的自由边界图只作读数，不作参考")],
+        b16_crit, b16_find,
+        [gate(f"{TF}::test_b16_fylite_reproduces_its_readings_and_stays_in_the_band_against_chease"), gate(f"{TF}::test_b16_kefit_context_is_a_reading")],
+        [data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"],
+              [f"问题的来源：{EAST_G} 的 ψ 图、PPRIME / FFPRIM、FPOL", KEFIT_CAVEAT_BUILD]),
+         data(PTR + "benchmark/fixed_boundary_east137985.json", "experiment", sums["benchmark/fixed_boundary_east137985.json"]),
+         data(PTR + "chease/chease_fixed_boundary_east137985.tar.gz", "experiment", sums["chease/chease_fixed_boundary_east137985.tar.gz"],
+              ["CHEASE 两个分辨率的 EXPEQ · namelist · EQDSK；输入由实验数据导出，故随实验类"])],
+        "B-16-fixed-boundary-chease.md",
+        ["★同一问题交给两个定边界代码：该面（KEFIT 图的双三次样条上自轴 360 条射线取首个穿越）、101 点 p′ / FF′（÷ −2π 换口径）、边缘 F = FPOL(0.995)；CHEASE 另需面内电流（KEFIT 图上的安培环路）作归一",
+         fb_conv, "★该面光滑、不过 X 点：定边界代码的问题不含分界面；分界面上的比较在 B-14（自由边界）",
+         "纳入类别（参考数据）：experiment、private-artefact"],
+        "pass",
+        validity="EAST #137985 4.041 s 纯磁答案的 ψ_N = 0.995 面；fylite 129² 对 CHEASE NS = NT = 80；剖面为 KEFIT 的 KPPCUR / KFFCUR 多项式经 65 点表线性插值"))
+    reports["B-16"] = "B-16-fixed-boundary-chease.md"
     return recs, reports
+
+
+def consts(path: Path, names: tuple[str, ...]) -> dict:
+    """Module-level literal constants of a gate file (bands live in the gate, the record quotes them)."""
+    import ast
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    out = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and node.targets[0].id in names:
+            out[node.targets[0].id] = ast.literal_eval(node.value)
+    return out
+
+
+EAST_G = "kefit_raw_east137985/rejected/t4041_mag/g137985.04041"
 
 
 # ------------------------------------------------------------------------------------------------ reports
@@ -414,14 +522,30 @@ REPORT_TEXT = {
                            "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
                            "  python -m pytest python/tests/test_benchmark_equilibrium.py -k b15"],
              "conclusion": "成立：同一份合成测量上 KEFIT 反演无错误标记，q₀ 偏 −4.9 %、q₉₅ −1.1 %、磁轴 1.3 mm、边界 4.2 mm 内；与 V-18 并读，fylite 在这一真值上离得更近。"},
+    "V-19": {"not_comparable": ["- 光滑轮廓、常数源：不含 X 点边界、剖面表插值与测量拟合；EAST 形状上的同一问题在 B-16。",
+                                "- q₀ 两边约定不同：fylite 取最内一对被追踪面外推到轴，CHEASE 取其 ψ 网格的轴值；q 剖面的比较取 ψ_N 0.1–0.9。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "CHEASE_EXE=<本机构建的 chease> FYLITE_KERNEL_LIB=<带 code/fixed_boundary 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_fixed_boundary.py -k v19",
+                           "# 读数重写：python tools/benchmark-fixed-boundary.py solovev --out <dir>",
+                           "cd $FYLITE_KERNEL && cargo test --release --lib -- fixedbnd fixed_boundary_tests   # 私仓单元测试"],
+             "conclusion": "成立：给定轮廓上 fylite 的定边界求解在 129² 上把 Solov'ev 精确解重现到 ψ_N rms 1.1e-5、Ip 1.7e-5、磁轴 0.026 mm，误差按二阶下降；CHEASE 在同一轮廓上到 ψ_N rms 3.9e-6。"},
+    "B-16": {"not_comparable": ["- 该面光滑、不过 X 点：分界面上的比较在 B-14（自由边界）；两个定边界代码都不回答分界面问题。",
+                                "- 对 KEFIT 自由边界图的读数不作判：KEFIT 65² 网格与该面在其图上的重构使两个定边界代码离它一样远；KEFIT 的 Ip 是全电流，与面内电流不可比。",
+                                "- CHEASE 按面内安培电流归一（NCSCAL = 2），fylite 按剖面表原样解；两边 Ip 的 −0.1 % 即此。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_KERNEL_LIB=<带 code/fixed_boundary 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_fixed_boundary.py -k b16",
+                           "# 读数与 CHEASE 运行件重写：CHEASE_EXE=<chease> python tools/benchmark-fixed-boundary.py east --out <dir>"],
+             "conclusion": "成立：EAST 形状上同一定边界问题，fylite 129² 与 CHEASE NS 80 的 ψ_N 差 rms 4.9e-5、磁轴 5 µm、q（ψ_N 0.1–0.9）0.10 %；两者离 KEFIT 自由边界图一样远（2.3 mm），那是参考图的离散，不是求解器的。"},
 }
 
 
 # ------------------------------------------------------------------------------------------------ apply
 
-def apply(case: Path, reruns: dict) -> None:
+def apply(case: Path, reruns: dict, solovev: dict) -> None:
     reg = json.loads(REG.read_text(encoding="utf-8"))
-    recs, reports = build(case, reruns)
+    recs, reports = build(case, reruns, solovev)
     graph = [r for r in reg["@graph"] if r["id"] not in {x["id"] for x in recs}]
     by = {r["id"]: r for r in graph}
     for rid in ("record/C-06", "record/C-07", "record/B-10"):
@@ -430,6 +554,9 @@ def apply(case: Path, reruns: dict) -> None:
         note = "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史"
         if note not in r["caveat"]:
             r["caveat"].insert(0, note)
+    b10_note = "★★2026-09-15（第二批）：本条原题「同一边界与剖面下 fylite 的 GS 解」由 V-19（Solov'ev 轮廓，fylite 与 CHEASE）与 B-16（EAST 形状，fylite 对 CHEASE）立——内核当日新增 code/fixed_boundary"
+    if b10_note not in by["record/B-10"]["caveat"]:
+        by["record/B-10"]["caveat"].insert(1, b10_note)
     for rid in ("record/B-06", "record/B-11"):
         by[rid]["superseded_by"] = "record/B-12"
     c03 = by["record/C-03"]
@@ -451,8 +578,19 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--reruns", required=True, type=Path)
     ap.add_argument("--case", required=True, type=Path)
+    ap.add_argument("--solovev", type=Path, help="solovev_fixed_boundary.json (default: recomputed by tools/benchmark-fixed-boundary.py)")
     a = ap.parse_args()
-    apply(a.case, json.loads(a.reruns.read_text(encoding="utf-8")))
+    if a.solovev:
+        sv = json.loads(a.solovev.read_text(encoding="utf-8"))
+    else:
+        import importlib.util
+        import tempfile
+        spec = importlib.util.spec_from_file_location("benchmark_fixed_boundary", ROOT / "tools" / "benchmark-fixed-boundary.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        with tempfile.TemporaryDirectory() as d:
+            sv = mod.solovev(Path(d))
+    apply(a.case, json.loads(a.reruns.read_text(encoding="utf-8")), sv)
     return 0
 
 
