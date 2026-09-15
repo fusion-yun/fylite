@@ -154,7 +154,7 @@
        "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-03-frozen-libs/corpus/",
        "license": "public-derived",
        "payload": "in",
-       "comment": "libefit / libtglf / libneo / libgeo 已不可再取得；每条记录同时带输入与输出，故可回放不可重算"
+       "comment": "libefit / libtglf / libneo / libgeo 已不可再取得；每条记录同时带输入与输出，故可回放不可重算。★2026-09-15 用户裁定：废弃 libefit 对标——平衡的外部对照改为 KEFIT（B-14 · B-15 · B-12）；efit.forward_equilibrium 录音只作历史，内核仓里回放它的门待迁移（本轮不动内核仓）"
       }
      ],
      "record": "V-01",
@@ -218,6 +218,8 @@
       }
      ],
      "record": "C-06",
+     "record_superseded_by": "V-16",
+     "record_note": "2026-09-15 并入 V-16（GS 残差读法，改判为 V）：门问的是本仓的残差判据在别人写出的平衡上读出什么，不验证 fylite 的求解器",
      "record_state": "existing",
      "gate": [
       "python -m pytest python/tests/test_teq_equilibria.py  （6 条；需本机 ITER IDM 语料）"
@@ -260,6 +262,8 @@
       }
      ],
      "record": "C-07",
+     "record_superseded_by": "V-16",
+     "record_note": "2026-09-15 并入 V-16（GS 残差读法，改判为 V）：门问的是本仓的残差判据在别人写出的平衡上读出什么，不验证 fylite 的求解器",
      "record_state": "existing",
      "gate": [
       "python -m pytest python/tests/test_tosca_equilibria.py  （6 条；需本机 ITER IDM 语料）"
@@ -335,6 +339,8 @@
       }
      ],
      "record": "B-10",
+     "record_superseded_by": "V-16",
+     "record_note": "2026-09-15 并入 V-16（GS 残差读法，改判为 V）：门问的是本仓的残差判据在别人写出的平衡上读出什么，不验证 fylite 的求解器",
      "record_state": "existing",
      "gate": [
       "python -m pytest python/tests/test_chease_equilibrium.py  （4 条；需本机构建的 CHEASE）"
@@ -361,6 +367,54 @@
       "★2026-09-08 **号已发**：内核仓登记册（`docs/cases/registry.jsonld`）当日把本条收为正式记录（25 → 34 条），公开册的对拍报告页随之渲出。此前 `record_state: proposed` 记的是「量过了但号还没发」，那一步到此结束。"
      ],
      "status_note": "2026-09-08 **量到了**（CHEASE 本机已构建，本轮自行重跑，不读冻结产物）：`ntcase=2` 解析算例，盒 201×129 · 默认内部网格上 GS 残差 **5.257e-02**，带 8e-2。★★**本条的主要产出不是这个数，是一个读法**——见 caveat"
+    },
+    {
+     "id": "plan/S1/solovev-manufactured",
+     "title": "定边界 GS 算子与求解器：Solov'ev 精确解与制造解",
+     "comparison_kind": "verification",
+     "depends_on": [
+      "plan/S0-conventions"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "—",
+       "storage_uri": "—（解析闭式）",
+       "license": "public",
+       "payload": "in"
+      }
+     ],
+     "record": "V-17",
+     "record_state": "existing",
+     "gate": [
+      "$FYLITE_KERNEL: pytest tests/test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi tests/test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source（2 条）",
+      "$FYLITE_KERNEL: cargo test equilibrium::（单元测试；2026-09-15 未跑）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立：S1 干路上第一条针对求解器本身的登记记录；经 C-ABI 的两条门只读复测通过，cargo 单元测试未跑（不动内核仓）"
+    },
+    {
+     "id": "plan/S1/forward-kefit",
+     "title": "自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF′",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/S0-conventions"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz",
+       "license": "experiment",
+       "payload": "ptr",
+       "comment": "KEFIT 在 #137985 原始树输入上收敛的答案；KEFIT 为 third_party 参考包本地构建"
+      }
+     ],
+     "record": "B-14",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_equilibrium.py -k b14（3 条）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（用户裁定：废弃 libefit 对标，直接对标 KEFIT）：三片纯磁答案上磁轴 ≤ 4.9 mm、边界中位 ≤ 3.4 mm、ψ_N rms ≤ 0.74 %；带 POINT 约束的剖面出带，记为发现"
     }
    ]
   },
@@ -1511,7 +1565,8 @@
        "comment": "实验炮与装置数据，未经数据属主同意不可再分发；仅指针"
       }
      ],
-     "record": "B-06",
+     "record": "B-12",
+     "record_note": "2026-09-15：B-06（est2）与 B-11（efit_east 树输入）撤回后由 B-12 取代——原始树输入，fylite 与 KEFIT 同一组数，不判",
      "record_state": "existing",
      "gate": [],
      "criteria": [
@@ -1523,6 +1578,31 @@
      ],
      "status": "pass",
      "status_note": "18 条全部通过（2026-09-08 第三轮实测）：EAST 装置牌与两份 deck 文档随算例书收进内核检出；余下靠 `rv6565.ddd` 的那一条本轮改为**跳过**（缺件，不是判负，F-16 结清）"
+    },
+    {
+     "id": "plan/R/twin-known-truth",
+     "title": "反演孪生体（已知真值）：fylite 与 KEFIT 在同一份合成测量上",
+     "comparison_kind": "verification",
+     "depends_on": [
+      "plan/S1/forward-kefit"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json",
+       "license": "experiment",
+       "payload": "ptr",
+       "comment": "真值由 code/forward 解析族给出（线性、边缘为零，两个代码的基都可精确表示）"
+      }
+     ],
+     "record": "V-18",
+     "record_state": "existing",
+     "record_note": "KEFIT 一侧是 B-15",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_equilibrium.py -k 'v18 or b15'（2 条）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立：fylite 把 q₀ 放回 0.06 %、磁轴 1.2 mm 内；KEFIT q₀ −4.9 %、磁轴 1.3 mm 内，无错误标记"
     }
    ]
   },
@@ -1570,7 +1650,8 @@
        "tolerance_basis": "measured_band"
       }
      ],
-     "status": "pass",
+     "status": "unevaluated",
+     "status_2026_09_15": "门 test_benchmark_toksys.py 自 2026-09-14 起两条都 skip（NO_TOKSYS_FOR_CASE23）：rzrig 锚点属已归档的 est2 装置描述；今天不可复测，缺口 G-4 仍在",
      "caveat": [
       "★本条在登记册里**没有算例来源指针**（纳入类别一栏为「—」）。按本册子的收录判据，这是一处待补：参考是什么、取自哪一份，须落到 fydoc 算例书里才谈得上复算。"
      ],

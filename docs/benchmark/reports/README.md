@@ -4,7 +4,7 @@ title: 公开 V&V 登记册 · 索引
 
 # 公开 V&V 登记册 · 索引
 
-36 条记录，18 个场景；由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
+42 条记录，18 个场景；★2026-09-15：平衡相关的 V-16 · V-17 · B-12 · B-14 · V-18 · B-15 由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」「废弃 libefit 对标，直接对标 KEFIT」），复测列是写入当日的；C-06 · C-07 · B-10 并入 V-16，B-06 · B-11 由 B-12 取代，C-03 的门自 2026-09-14 起 skip。由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
 复测结论：成立 35、未评估 1（B-11，2026-09-14 加入，门是运行脚本、未随发布跑；2026-09-15 撤回——用户裁定 efit_east 树只作对拍比较数据，本条输入取自该树）。★跨类不可比：V/B/C 问的不是同一个问题（README）。
 
 :::{figure} ../figures/overview.svg
@@ -31,7 +31,7 @@ title: 公开 V&V 登记册 · 索引
 | B-03 | B | JINTRAC | restricted | 部分 | 成立（4 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-03](B-03-jintrac-jet-101612.md) |
 | C-01 | C | CORSICA / ASTRA | restricted | 成立 | 成立（1 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-01](C-01-iter-15ma-astra.md) |
 | C-02 | C | ASTRA | restricted | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-02](C-02-alpha-heating-astra.md) |
-| C-03 | C | TokSys | — | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-03](C-03-toksys-rzrig.md) |
+| C-03 | C | TokSys | — | 成立 | 未评估（0 passed, 0 failed, 0 error, 2 skipped, 0 stale） | [C-03](C-03-toksys-rzrig.md) |
 | C-04 | C | METIS | public-derived | 成立 | 成立（57 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-04](C-04-metis-hcd.md) |
 | B-04 | B | METIS | public、public-derived | 成立 | 成立（12 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-04](B-04-metis-zerod-geometry.md) |
 | C-05 | C | GYRO | public | 成立 | 成立（13 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-05](C-05-gyro-momentum-waltz2007.md) |
@@ -44,9 +44,9 @@ title: 公开 V&V 登记册 · 索引
 | B-05 | B | TORAX | public-derived | 部分 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-05](B-05-torax-evolution.md) |
 | B-06 | B | EFIT；KEFIT | experiment、private-artefact | 撤回（2026-09-13；本页现为动理学反演对标的工作流 / 计划，2026-09-14 立项，手写） | 未复测（计划页；撤回记录的门输入已归档） | [B-06](B-06-east-reconstruction.md) |
 | V-15 | V | fylite | experiment、public | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-15](V-15-gfile-roundtrip.md) |
-| C-06 | C | TEQ / CORSICA | restricted | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-06](C-06-teq-iter-equilibria.md) |
-| C-07 | C | TOSCA | restricted | 成立 | 成立（5 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-07](C-07-tosca-run-space.md) |
-| B-10 | B | CHEASE | public | 成立 | 成立（4 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-10](B-10-chease-fixed-boundary.md) |
+| C-06 | C | TEQ / CORSICA | restricted、restricted（ITER IDM Internal Use） | 撤回（2026-09-15：并入 V-16，改判为 V） | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-06](C-06-teq-iter-equilibria.md) |
+| C-07 | C | TOSCA | restricted、restricted（ITER IDM Internal Use） | 撤回（2026-09-15：并入 V-16，改判为 V） | 成立（5 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-07](C-07-tosca-run-space.md) |
+| B-10 | B | CHEASE | public | 撤回（2026-09-15：并入 V-16，改判为 V） | 成立（4 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-10](B-10-chease-fixed-boundary.md) |
 | C-09 | C | ITPA TC-33 参考解 | public | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-09](C-09-itpa-tc33.md) |
 | B-09 | B | DINA | restricted | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-09](B-09-dina-ramp.md) |
 | B-07 | B | TGYRO | public-derived | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-07](B-07-tgyro-converged.md) |
@@ -54,3 +54,9 @@ title: 公开 V&V 登记册 · 索引
 | B-08 | B | FUSE | public-derived | 成立 | 成立（8 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-08](B-08-fuse-iter-time.md) |
 | C-10 | C | TRANSMAK | restricted | 成立 | 成立（6 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [C-10](C-10-transmak-initiation.md) |
 | B-11 | B | EFIT | experiment、private-artefact | 撤回（2026-09-15：用户裁定 efit_east 树只作对拍比较数据，本条输入取自该树；记录保留作历史） | 未评估（0 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-11](B-11-east-efit-east-reconstruction.md) |
+| V-16 | V | TEQ / CORSICA；TOSCA；CHEASE | public、restricted | 成立 | 成立（15 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-16](V-16-gs-residual-reading.md) |
+| V-17 | V | Solov'ev 解析解 | public | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-17](V-17-solovev-manufactured.md) |
+| B-12 | B | KEFIT | experiment、private-artefact | 读数（不判） | 成立（1 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-12](B-12-east-raw-trees-kefit.md) |
+| B-14 | B | KEFIT | experiment、private-artefact | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-14](B-14-forward-kefit.md) |
+| V-18 | V | fylite code/forward 的真值 | experiment | 成立 | 成立（1 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [V-18](V-18-twin-reconstruction.md) |
+| B-15 | B | KEFIT | experiment、private-artefact | 成立 | 成立（1 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-15](B-15-twin-kefit.md) |

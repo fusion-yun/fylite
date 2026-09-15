@@ -1,0 +1,460 @@
+#!/usr/bin/env python3
+"""Write the equilibrium register records that THIS checkout authors (2026-09-15), their reports, index rows and toc.
+
+★★用户裁定 2026-09-15：「完善平衡相关 benchmark，不动 fylite_kernel」「废弃 libefit 对标，直接对标 KEFIT」。
+The rest of the public register is rendered from the kernel's registry by the kernel's publisher; these records are
+authored here instead, because their gates live here (``python/tests/test_benchmark_equilibrium.py`` and the three
+residual-reading gates) and the kernel checkout is not to be touched.  The script is the single writer of what it adds,
+so rerunning it gives the same bytes; each record says in its ``run.comment`` who wrote it.
+
+    new        V-16  GS 残差读法（合并 C-06 · C-07 · B-10 的残差部分）
+               V-17  定边界 GS 算子与求解器：Solov'ev 与制造解（门在内核检出，只读复测）
+               B-12  EAST #137985 原始树输入：fylite 与 KEFIT 同一组数（取代 B-06 · B-11）
+               B-14  自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF′
+               V-18  反演孪生体：已知真值（fylite 自己）
+               B-15  反演孪生体：KEFIT 在同一份合成测量上
+    changed    C-06 · C-07 · B-10 → retired, superseded_by V-16 ; B-06 · B-11 → superseded_by B-12 ;
+               C-03 → a 2026-09-15 re-run finding (its gate skips since 2026-09-14) and the G-4 caveat
+
+    python tools/benchmark-equilibrium-records.py --reruns <reruns.json> --case $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+BM = ROOT / "docs" / "benchmark"
+REG = BM / "registry.jsonld"
+DATE = "2026-09-15"
+CASE = "FYDOC-CASE-23-east-137985-efit-east"
+PTR = f"$FYDOC_ORACLE/{CASE}/corpus/"
+MD = "https://www.iana.org/assignments/media-types/text/markdown"
+WRITER = ("本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，"
+          "不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑")
+
+
+def sha(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def crit(rid, n, label, basis, tol=None, norm=None, caveat=None, unit=None):
+    c = {"id": f"record/{rid}/criterion/{n}", "type": "fyo:AcceptanceCriterion", "quantity_label": label}
+    if norm:
+        c["norm"] = norm
+    if tol is not None:
+        c["tolerance"] = {"type": "spo:QuantityValue", "numeric_value": tol}
+        if unit:
+            c["tolerance"]["has_unit"] = {"type": "spo:Unit", "ucum_code": unit}
+    c["tolerance_basis"] = basis
+    if caveat:
+        c["caveat"] = caveat
+    return c
+
+
+def finding(title, verdict, literal=None, value=None, criterion=None, caveat=None, kind=None):
+    f = {"type": "fyo:ComparisonFinding", "title": title}
+    if kind:
+        f["finding_kind"] = kind
+    if literal is not None:
+        f["deviation_literal"] = literal
+    f["verdict"] = verdict
+    if value is not None:
+        f["measured_deviation"] = {"type": "spo:QuantityValue", "numeric_value": value}
+    if criterion:
+        f["criterion"] = criterion
+    if caveat:
+        f["caveat"] = caveat
+    return f
+
+
+def rerun_finding(r: dict) -> dict:
+    return finding(f"复测 {DATE}（本条写入时把门跑一遍）", r["verdict"], r["literal"], kind="re-run", caveat=r.get("caveat"))
+
+
+def gate(name, caveat=None):
+    g = {"type": "spo:Code", "name": name}
+    if caveat:
+        g["caveat"] = caveat
+    return g
+
+
+def data(uri, license_, checksum=None, caveat=None):
+    d = {"type": "spo:Concretization", "storage_uri": uri, "provenance_class": "registered", "quality_state": "valid",
+         "license": license_}
+    if checksum:
+        d["checksum"] = f"sha256:{checksum}"
+    if caveat:
+        d["caveat"] = caveat
+    return d
+
+
+def record(rid, title, kind, subject, reference, criteria, findings, gates, inputs, report, caveat, verdict,
+           validity=None, state="accepted"):
+    r = {"id": f"record/{rid}", "type": "fyo:ComparisonRecord", "title": title, "comparison_kind": kind,
+         "compared_subject": {"type": "spo:Code", "name": "fylite", "comment": subject},
+         "compared_reference": reference, "criteria": criteria, "findings": findings,
+         "run": {"type": "spo:ComputationalProcess", "recorded": DATE, "realizes": gates, "has_input": inputs, "comment": WRITER},
+         "account": {"type": "spo:Concretization", "storage_uri": f"$FYDOC_ORACLE/{CASE}/{CASE}.md", "format_iri": MD,
+                     "caveat": ["完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"]},
+         "report": {"type": "spo:Concretization", "storage_uri": f"reports/{report}", "format_iri": MD},
+         "caveat": caveat, "assertion_state": state, "overall_verdict": verdict}
+    if validity:
+        r["validity_domain"] = validity
+    return r
+
+
+KEFIT_REF = {"type": "spo:Code", "name": "KEFIT",
+             "version": "kefit_reference_bundle（third_party，锁定件）active/point/efit_w_pf，gfortran 64 位本地构建（magpri 76；构建配方 CASE-23 corpus/kefit/kefit_build_recipe.json）",
+             "license": "private-artefact"}
+KEFIT_CAVEAT_BUILD = "KEFIT 的可执行体不入仓：由构建配方与源 sha256 重建；门只回放已记录、sha256 索引过的运行件，不重跑 KEFIT"
+
+
+# ------------------------------------------------------------------------------------------------ records
+
+def build(case: Path, reruns: dict) -> tuple[list[dict], dict[str, str]]:
+    import yaml
+    sums = yaml.safe_load((case / "case.yaml").read_text(encoding="utf-8"))["data"]["checksums"]
+    fk = json.loads((case / "corpus/benchmark/forward_kefit_east137985.json").read_text(encoding="utf-8"))["cases"]
+    tw = json.loads((case / "corpus/benchmark/twin_east137985.json").read_text(encoding="utf-8"))
+    rd = json.loads((case / "corpus/benchmark/comparison_readings_east137985.fyo.jsonld").read_text(encoding="utf-8"))
+    raw = next(t for t in rd["fylite:tiers"] if t.get("@id") == "#R-raw-trees")
+    gate_mod = (ROOT / "python/tests/test_benchmark_equilibrium.py").read_text(encoding="utf-8")
+    bands = {k: json.loads(re.search(rf"^{k} = (\{{.*\}})$", gate_mod, re.M).group(1)) for k in ("B14_BAND", "V18_BAND", "B15_BAND")}
+    recs, reports = [], {}
+    T = "python/tests/test_benchmark_equilibrium.py"
+
+    # ---------------------------------------------------------------- V-16
+    reg = json.loads(REG.read_text(encoding="utf-8"))
+    old = {r["id"]: r for r in reg["@graph"]}
+    carried = []
+    for rid in ("record/C-06", "record/C-07", "record/B-10"):
+        for f in old[rid]["findings"]:
+            if str(f.get("finding_kind", "")).startswith("re-run"):
+                continue
+            g = dict(f)
+            g["title"] = f"〔{rid.split('/')[1]}〕" + g["title"]
+            g.pop("criterion", None)
+            carried.append(g)
+    v16_crit = [
+        crit("V-16", 1, "GS 残差（Δ*ψ − RHS，边界内内点），TEQ / CORSICA 三份 ITER 参考平衡，**MR 129×257 与 HR 257×513**", "measured_band", 0.02, "relative",
+             ["原 C-06 的判据；带绑定分辨率，LR 65×129 不在带内（残差随网格只掉一阶）"]),
+        crit("V-16", 2, "GS 残差，TOSCA 2009 批 li 扫描 61 份（65×129）", "measured_band", 0.06, "relative", ["原 C-07 的判据；残差随 li 成台阶"]),
+        crit("V-16", 3, "GS 残差，CHEASE `ntcase=2`，**输出盒 201×129 · 默认内部网格**", "measured_band", 0.08, "relative",
+             ["原 B-10 的判据；输出盒与内部网格两个分辨率都点名"]),
+        crit("V-16", 4, "口径：从数里读出的 COCOS 对文件自述（三组语料）", "machine_precision",
+             caveat=["一条恒等式或离散标签的判定；COCOS 的读写往返另在 V-15"]),
+    ]
+    recs.append(record(
+        "V-16", "GS 残差读法：外部平衡集上，本仓的判据读出什么（合并 C-06 · C-07 · B-10 的残差部分）", "verification",
+        "fylite: g-file 读入端 + GS 残差判据（Δ*ψ − RHS）+ COCOS 口径测量（measure_cocos）",
+        [{"type": "spo:Code", "name": "TEQ / CORSICA", "version": "ITER IDM 参考平衡件（首行 `TEQ g 04/07/2010`）", "license": "restricted"},
+         {"type": "spo:Code", "name": "TOSCA", "version": "ITER IDM 2009 批运行空间（61 份 EQDSK）", "license": "restricted"},
+         {"type": "spo:Code", "name": "CHEASE", "version": "本机构建，`ntcase=2` 随码算例", "license": "public"}],
+        v16_crit,
+        carried + [rerun_finding(reruns["V-16"])],
+        [gate("python/tests/test_teq_equilibria.py"), gate("python/tests/test_tosca_equilibria.py"), gate("python/tests/test_chease_equilibrium.py")],
+        [data("$ITER_SCENARIO_ROOT/（TEQ 四份与 TOSCA 两份 ITER IDM 文档）", "restricted",
+              caveat=["受限件只存指针；逐件 sha256 在门的语料清单里（ITER IDM Internal Use）"]),
+         data("$THIRD_PARTY/chease（本机构建；`ntcase=2` 随码算例）", "public", caveat=["参考侧由码自己产生，可复算；不涉及 sha256 冻结件"])],
+        "V-16-gs-residual-reading.md",
+        ["★★类别改判：原 C-06 / C-07 标 C（确认）、B-10 标 B（对拍），可三条的门问的都是「本仓的残差判据在别人写出的平衡上读出什么」——参考是那份文件，不是另一套模型对同一状态的答案；按 README「类别由参考是什么决定」，这是 V（判据本身）",
+         "★**本条不验证 fylite 的 GS 求解器**：三组语料都不是 fylite 解出来的。求解器的验证在 V-17（解析 / 制造解）与 B-14（对 KEFIT 的正问题）",
+         "★B-10 原题「同一边界与剖面下的 GS 解」与门不符（门没有让 fylite 求解）；由 fylite 自己在 CHEASE 边界上求解的对拍**未立**——公开侧的树门没有「给定边界轮廓」的定边界入口（code/steady_equilibrium 只重解一张已有 ψ 图的盒子），见验证定序册",
+         "纳入类别（参考数据）：restricted、public"],
+        "pass"))
+    reports["V-16"] = "V-16-gs-residual-reading.md"
+
+    # ---------------------------------------------------------------- V-17
+    kn = "私仓的门：内核检出中 `pytest tests/…`（只读复测：不写字节码、不写缓存、不改文件）"
+    recs.append(record(
+        "V-17", "定边界 GS 算子与求解器：Solov'ev 精确解与制造解", "verification",
+        "fylite: 内核 equilibrium.rs 的 Δ* 算子、Hockney 快速直接解法与定边界 Picard 迭代（经 C-ABI）",
+        [{"type": "spo:Code", "name": "Solov'ev 解析解", "version": "ψ = (f/8) R⁴ + (g/2) Z² + c₂ R²（公开闭式）", "license": "public"}],
+        [crit("V-17", 1, "Solov'ev 精确解经 C-ABI 重现", "machine_precision", caveat=["解析解：本条是 verification，机器精度即判据"]),
+         crit("V-17", 2, "Δ* 算子作用于 Solov'ev 解给出其源项", "machine_precision"),
+         crit("V-17", 3, "内核单元测试：Solov'ev 误差 33² 网格 < 1e-10、65² < 1e-9；制造解二阶收敛；算子与解法互逆；定边界 Picard 收敛并如实报告",
+              "machine_precision", caveat=["这几条是内核 `cargo test` 的断言（`equilibrium.rs` 单元测试），阈值照录断言本身，本条未另测数值"])],
+        [finding("Solov'ev 经 C-ABI（`test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi`）", "pass", "门通过（2026-09-15 只读复测）", criterion="record/V-17/criterion/1"),
+         finding("Δ* 作用于 Solov'ev（`test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source`）", "pass", "门通过（2026-09-15 只读复测）", criterion="record/V-17/criterion/2"),
+         finding("内核 Rust 单元测试（`solovev_is_reproduced_to_machine_precision` · `manufactured_solution_converges_at_second_order` · `stencil_and_solver_are_mutually_inverse` · `fixed_boundary_picard_converges_and_reports_it`）",
+                 "unevaluated", "本条写入时未跑：`cargo test` 会在内核检出里构建，而本轮裁定不动内核仓", criterion="record/V-17/criterion/3"),
+         rerun_finding(reruns["V-17"])],
+        [gate("$FYLITE_KERNEL/tests/test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi", [kn]),
+         gate("$FYLITE_KERNEL/tests/test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source", [kn]),
+         gate("$FYLITE_KERNEL/rust/fylite/src/equilibrium.rs", ["私仓的门：`cargo test -p fylite equilibrium::`；本条写入时未跑（不在内核检出里构建）"])],
+        [], "V-17-solovev-manufactured.md",
+        ["★这是 S1 干路上第一条**针对求解器本身**的登记记录：此前平衡正问题的 V 只在内核单元测试里，公开册看不见",
+         "★只覆盖定边界与解析 / 制造解；自由边界正问题的外部对照在 B-14", "纳入类别（参考数据）：public（解析闭式）"],
+        "pass"))
+    reports["V-17"] = "V-17-solovev-manufactured.md"
+
+    # ---------------------------------------------------------------- B-12
+    rej = raw["fylite:variants"]["rejected"]["slices"]
+    allp = raw["fylite:variants"]["all_probes"]["slices"]
+    f12 = []
+    for key in ("4.041", "4.944", "5.976"):
+        e = rej[key]
+        M, K = e["fylite_M"], e["kefit"]["mag"]
+        f12.append(finding(f"{key} s 纯磁（剔 7 探针）：fylite 对 KEFIT", "inconclusive",
+                           f"q₀ {M['q0']:.3f} 对 {K['q0']:.3f} · q₉₅ {M['q95']:.2f} 对 {K['q95']:.2f} · 磁轴对 efit_east 答案 dR {M['dR_mm']:+.1f} 对 {K['dR_mm']:+.1f} mm · "
+                           f"边界中位 {M['boundary_seg_median_mm']:.1f} 对 {K['boundary_seg_median_mm']:.1f} mm · χ² {M['chi2']:.1f} 对 {K['chi2_last_iteration']:.1f}（两边都收敛；KEFIT 无错误标记）",
+                           caveat=["efit_east 的答案只作比较参照（用户裁定 2026-09-15），不是本条的参考"]))
+    f12 += [
+        finding("全部探针：两个代码都拟不上", "fail",
+                "fylite 纯磁 χ² " + " / ".join(f"{allp[k]['fylite_M']['chi2']:.0f}" for k in ("4.041", "4.944", "5.976")) +
+                " · KEFIT " + " / ".join(f"{allp[k]['kefit']['mag']['chi2_last_iteration']:.0f}" for k in ("4.041", "4.944", "5.976")) + "（Error #1）",
+                caveat=["同一批不自洽通道：KEFIT 纯磁 χ² 份额 HBPH1T 883 · HBPD10T 169 · HBPH2T 64 · HBPH1N 56 · HBPD10N 51 · HBPD8T 37 · HBPH3T 25，同一份剔除交给两个代码（读自拟合本身）"]),
+        finding("加 POINT：两个代码都不稳", "inconclusive",
+                "fylite 主集 q₀ " + " / ".join(f"{rej[k]['fylite_K_primary']['W4c']['q0']:.2f}" for k in ("4.041", "4.944", "5.976")) +
+                " · KEFIT 4.041 s `Problem in CNTOUR`、4.944 s 带 Error #19–21、5.976 s q₀ " + f"{rej['5.976']['kefit']['primary']['q0']:.2f}",
+                caveat=["原始输入上的档 K 没有可作参考的答案"]),
+        finding("KEFIT 几何：GUI_v5 自带表 green2018_wpf_64 不是原始探针名读的道阵", "pass",
+                "按位置与角度配对，79 槽中 56 对差 > 2 cm / 10°；改 green2022_pcs：76 槽中 74 槽 0 mm / 0° 重合",
+                caveat=["这是 2026-09-14 GUI 原配方各例 `Problem in BOUND` 的原因"]),
+        rerun_finding(reruns["B-12"])]
+    c12 = [crit("B-12", 1, "同一组原始树输入上两个代码的纯磁读数（q₀ · q₉₅ · 磁轴 · 边界 · χ²）", "measured_band",
+                caveat=["**不判、无带**：两个代码仍有三处实现差（KEFIT 拟合 PF 电流而 fylite 固定实测值、竖直位置的处理、边缘系数），本组分不开"])]
+    recs.append(record(
+        "B-12", "EAST #137985 原始树输入：fylite 与 KEFIT 在同一组数上（取代 B-06 · B-11）", "benchmark",
+        "fylite: code/reconstruction（纯磁，竖直设定点扫描）与 W4b / W4c（POINT 法拉第行）经树门；输入经 fylite.io.raw.reduce_series 读原始树",
+        [KEFIT_REF], c12, f12,
+        [gate(f"{T}::test_b12_the_raw_tree_readings_are_the_registered_ones"),
+         gate("$FYLITE_KERNEL/tools/benchmark-east-raw.py", ["私仓工具：产出本条读数（--pull · --fylite · --kefit · --reject · --compare）；本条写入时未重跑，门只核读数与归档的 sha256"])],
+        [data(PTR + "raw/raw_slices_east137985.json", "experiment", sums["raw/raw_slices_east137985.json"], ["实验数据：原始树读数，只存指针"]),
+         data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"], [KEFIT_CAVEAT_BUILD]),
+         data(PTR + "fylite/fylite_raw_east137985.tar.gz", "experiment", sums["fylite/fylite_raw_east137985.tar.gz"]),
+         data(PTR + "benchmark/comparison_readings_east137985.fyo.jsonld", "experiment",
+              sums["benchmark/comparison_readings_east137985.fyo.jsonld"], ["读数块 `#R-raw-trees`"])],
+        "B-12-east-raw-trees-kefit.md",
+        ["★★取代 B-06（est2 测量集，2026-09-13 撤回）与 B-11（efit_east 树的输入，2026-09-15 撤回）：同一个对象（EAST #137985 的平衡反演），换成原始树输入，参考换成 KEFIT",
+         "★所有进入反演的数都读自 east / pcs_east 原始树；efit_east 的答案只作比较（用户裁定 2026-09-15）", "纳入类别（参考数据）：experiment"],
+        "inconclusive",
+        validity="EAST #137985 @ 4.041 / 4.944 / 5.976 s；east 测量链（east_new 卡片）；同一份 7 探针剔除；两个代码同一组数的读数，不作判定"))
+    reports["B-12"] = "B-12-east-raw-trees-kefit.md"
+
+    # ---------------------------------------------------------------- B-14
+    b = bands["B14_BAND"]
+    c14 = [crit("B-14", 1, "磁轴距离（三片纯磁）", "measured_band", b["axis_mm"], "absolute", unit="mm"),
+           crit("B-14", 2, "极向通量跨度 |ψ_b − ψ_a| 的相对差", "measured_band", b["span_abs"], "relative"),
+           crit("B-14", 3, "KEFIT 边界内 ψ_N 差 rms / 最大", "measured_band", b["psin_rms"], "absolute",
+                [f"最大值另带 {b['psin_max']}"]),
+           crit("B-14", 4, "KEFIT 边界点到 fylite ψ_N = 1 等值线的距离：中位 / 最大", "measured_band", b["boundary_median_mm"], "absolute",
+                [f"最大值另带 {b['boundary_max_mm']} mm"], "mm"),
+           crit("B-14", 5, "下 X 点距离", "measured_band", b["xpoint_mm"], "absolute", unit="mm"),
+           crit("B-14", 6, "Ip（两边都是等式约束）", "machine_precision", caveat=["★这是嵌在对拍记录里的一句 **verification** 断言：两个代码都以 Ip 为等式，判的是一条恒等式，不含可被物理带覆盖的建模差"])]
+    f14 = []
+    for name in ("t4041_mag", "t4944_mag", "t5976_mag"):
+        c = fk[name]["compare"]
+        f14.append(finding(f"{name[1]}.{name[2:5]} s 纯磁答案", "pass",
+                           f"磁轴 {math.hypot(c['dR_axis_mm'], c['dZ_axis_mm']):.2f} mm · 跨度 {100 * c['span_rel']:+.3f} % · ψ_N rms {100 * c['psin_rms_inside']:.2f} % / 最大 {100 * c['psin_max_inside']:.2f} % · "
+                           f"边界 {c['boundary_median_mm']:.2f} / {c['boundary_max_mm']:.1f} mm · X 点 {c['xpoint_dist_mm']:.1f} mm"))
+    c = fk["t5976_primary"]["compare"]
+    f14 += [finding("5.976 s 带 POINT 约束的剖面：出带", "inconclusive",
+                    f"磁轴 {math.hypot(c['dR_axis_mm'], c['dZ_axis_mm']):.1f} mm · 跨度 {100 * c['span_rel']:+.2f} % · ψ_N rms {100 * c['psin_rms_inside']:.2f} % · 边界 {c['boundary_median_mm']:.1f} / {c['boundary_max_mm']:.0f} mm · 600 步未定",
+                    caveat=["不进带；门把「出带」本身钉住，免得它悄悄变好或变坏"]),
+            finding("收敛：fylite 的自由边界迭代在纯磁三例上「settled」而非「converged」", "inconclusive",
+                    "残差 " + " / ".join(f"{fk[n]['fylite']['residual']:.1e}" for n in ("t4041_mag", "t4944_mag", "t5976_mag")) + "，约 62 步因掩膜稳定而停；缺省 tol 1e-9",
+                    caveat=["带是在这一停止状态上量的；收紧停止判据是否移动这些数未测 [TBD]"]),
+            rerun_finding(reruns["B-14"])]
+    recs.append(record(
+        "B-14", "自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF′ 下的 GS 解", "benchmark",
+        "fylite: code/forward（剖面表分支）经树门；EAST 卡片 65×65 盒，与 KEFIT green2022_pcs 表同一网格",
+        [KEFIT_REF],
+        c14, f14,
+        [gate(f"{T}::test_b14_the_forward_solve_reproduces_its_recorded_readings"),
+         gate(f"{T}::test_b14_the_forward_solve_stays_in_the_band_on_kefits_magnetics_answers"),
+         gate(f"{T}::test_b14_the_point_profile_slice_is_recorded_outside_the_band")],
+        [data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"],
+              ["KEFIT 在原始树输入上收敛的答案（变体 rejected）：a-file CCBRSP · g-file PPRIME / FFPRIM / Ip", KEFIT_CAVEAT_BUILD]),
+         data(PTR + "benchmark/forward_kefit_east137985.json", "experiment", sums["benchmark/forward_kefit_east137985.json"])],
+        "B-14-forward-kefit.md",
+        ["★★取代计划中的 libefit 对标（用户裁定 2026-09-15：废弃 libefit，直接对标 KEFIT）",
+         "★同一组输入：KEFIT 拟合出的 12 路线圈安匝、它的 p′(ψ_N) 与 FF′(ψ_N)、它的 Ip；两边剩下的只有 GS 求解（网格、边界搜索、自由边界迭代）",
+         "★口径：KEFIT 的 ψ 每弧度、轴处取极小；fylite 整圈、轴处取极大——ψ_fy = −2π ψ_KEFIT，p′ 与 FF′ 同除 −2π（由 g-file 的 simag < sibry 读出，不假设）",
+         "纳入类别（参考数据）：experiment、private-artefact"],
+        "pass",
+        validity="EAST 几何（east_new 卡片 / green2022_pcs，65×65 盒）；KEFIT 在 #137985 原始树输入上的纯磁答案；带 POINT 约束的剖面不在带内"))
+    reports["B-14"] = "B-14-forward-kefit.md"
+
+    # ---------------------------------------------------------------- V-18 / B-15
+    tf = tw["truth"]["facts"]
+
+    def twin_crits(rid, band, kind):
+        return [crit(rid, 1, "q₀ / q₉₅ 相对差", "measured_band", band["q0_abs"], "relative", [f"q₉₅ 另带 {band['q95_abs']}"]),
+                crit(rid, 2, "磁轴距离", "measured_band", band["axis_mm"], "absolute", unit="mm"),
+                crit(rid, 3, "ψ_N 差 rms / 最大（真值边界内）", "measured_band", band["psin_rms"], "absolute", [f"最大值另带 {band['psin_max']}"]),
+                crit(rid, 4, "边界距离中位 / 最大", "measured_band", band["boundary_median_mm"], "absolute", [f"最大值另带 {band['boundary_max_mm']} mm"], "mm"),
+                crit(rid, 5, "下 X 点距离 · 通量跨度 · Ip", "measured_band", band["xpoint_mm"], "absolute",
+                     [f"跨度带 {band['span_abs']} · Ip 带 {band['ip_abs']}"], "mm")]
+
+    def twin_find(side, tag):
+        c = side["compare"]
+        return finding(f"{tag}：孪生体 4.041 s", "pass",
+                       f"q₀ {100 * side['q0_rel']:+.2f} % · q₉₅ {100 * side['q95_rel']:+.2f} % · 磁轴 {c['dR_axis_mm']:+.2f} / {c['dZ_axis_mm']:+.2f} mm · ψ_N rms {100 * c['psin_rms_inside']:.2f} % · "
+                       f"边界 {c['boundary_median_mm']:.2f} / {c['boundary_max_mm']:.2f} mm · X 点 {c['xpoint_dist_mm']:.2f} mm · 跨度 {100 * c['span_rel']:+.3f} % · Ip {100 * c['ip_rel']:+.3f} %")
+
+    truth_caveat = [f"真值：code/forward 解析族 β₀ {tw['truth']['settings']['beta0']} · e_mp = e_np = 1（p′ 与 FF′ 线性、边缘为零）；磁轴 ({tf['axis_r']:.3f}, {tf['axis_z']:+.3f}) m · q₀ {tf['q0']:.3f} · q₉₅ {tf['q95']:.2f}",
+                    "线圈电流与 Ip 取 #137985 4.041 s 原始树读数（实验数据，只作驱动；测量值本身不进公开册）", "测量是模型输出：75 个磁通环（等离子体份额 + code/coilshare 线圈份额）· 79 个探针；无噪声"]
+    fy = tw["fylite"]
+    recs.append(record(
+        "V-18", "反演孪生体（已知真值）：fylite 从自己正问题的合成测量反演回真值", "verification",
+        "fylite: code/forward（真值与合成诊断）→ code/reconstruction（npp = nff = 1，竖直设定点扫描）经树门",
+        [{"type": "spo:Code", "name": "fylite code/forward 的真值", "version": "解析族 e_mp = e_np = 1，EAST east_new 卡片", "license": "experiment"}],
+        twin_crits("V-18", bands["V18_BAND"], "verification") ,
+        [twin_find(fy, "fylite 反演"),
+         finding("设定点扫描", "pass", f"−30 … +30 mm 每 4 mm；χ² 极小在 {1e3 * fy['zc_anchor_m']:+.0f} mm（χ² {fy['chi2']:.2f}），真值竖直位置 {1e3 * tf['zc']:+.1f} mm"),
+         rerun_finding(reruns["V-18"])],
+        [gate(f"{T}::test_v18_fylite_recovers_the_twin_truth_and_reproduces_its_readings")],
+        [data(PTR + "benchmark/twin_east137985.json", "experiment", sums["benchmark/twin_east137985.json"], truth_caveat),
+         data(PTR + "raw/raw_slices_east137985.json", "experiment", sums["raw/raw_slices_east137985.json"], ["线圈电流与 Ip 的来源"])],
+        "V-18-twin-reconstruction.md",
+        ["★类是 V、带是实测带而非机器精度，理由三条：真值的自由边界迭代停在「settled」（残差 2e-4）；竖直设定点按 4 mm 步长扫描；线圈份额在正问题里是 4×4 细丝、在 code/coilshare 里是另一套求积——三者都给出非零但可复现的差",
+         "★真值在两个代码的基里都可精确表示（线性、边缘为零），所以剩下的差不是基的截断", "纳入类别（参考数据）：experiment"],
+        "pass"))
+    reports["V-18"] = "V-18-twin-reconstruction.md"
+    ke = tw["kefit"]
+    recs.append(record(
+        "B-15", "反演孪生体（已知真值）：KEFIT 在同一份合成测量上", "benchmark",
+        "fylite: code/forward 给出真值与合成测量（被比的是 KEFIT 对真值的偏差，与 V-18 的 fylite 偏差并列）",
+        [KEFIT_REF],
+        twin_crits("B-15", bands["B15_BAND"], "benchmark"),
+        [twin_find(ke, "KEFIT 反演（无错误标记）"),
+         finding("KEFIT 的输入配方", "pass",
+                 f"KPPCUR = KFFCUR = 2、pcurbd = fcurbd = 1（与真值同基）；green2022_pcs 几何，76 槽中 74 槽按位置与角度配到卡片探针，槽 {ke['unmatched_kefit_slots']} 权重 0；35 环取 FL1B–FL35B；σ = max(0.05 |值|, bit)；FWTFC 0.3 拟合线圈、bitip 40000 拟合 Ip、fitdelz",
+                 caveat=["q₀ 的 −4.9 % 是本条最大的差；Ip 的 −0.25 % 来自 KEFIT 把 Ip 当带权测量而非等式"]),
+         rerun_finding(reruns["B-15"])],
+        [gate(f"{T}::test_b15_kefit_on_the_twin_measurements_stays_in_its_band")],
+        [data(PTR + "kefit/kefit_twin_east137985.tar.gz", "experiment", sums["kefit/kefit_twin_east137985.tar.gz"],
+              ["KEFIT 孪生体运行件：namelist · g / a-file · fitout · 槽配对表", KEFIT_CAVEAT_BUILD]),
+         data(PTR + "benchmark/twin_east137985.json", "experiment", sums["benchmark/twin_east137985.json"], truth_caveat)],
+        "B-15-twin-kefit.md",
+        ["★与 V-18 同一份合成测量、同一个真值：两个代码谁偏、偏多少并列可读", "纳入类别（参考数据）：experiment、private-artefact"],
+        "pass"))
+    reports["B-15"] = "B-15-twin-kefit.md"
+    return recs, reports
+
+
+# ------------------------------------------------------------------------------------------------ reports
+
+def report_md(r: dict, rr: dict) -> str:
+    rid = r["id"].split("/")[1]
+    kind = {"verification": "V 验证", "benchmark": "B 对拍", "validation": "C 确认"}[r["comparison_kind"]]
+    refs = "；".join(f"{x['name']} · {x.get('version', '')} · {x.get('license', '')}" for x in r["compared_reference"])
+    gates = "；".join(f"`{g['name']}`" for g in r["run"]["realizes"])
+    verdict = {"pass": "成立", "fail": "不成立", "inconclusive": "未判（读数）", "unevaluated": "未评估"}
+    rerun = next(f for f in reversed(r["findings"]) if str(f.get("finding_kind", "")).startswith("re-run"))
+    L = ["---", f"title: {rid} · {r['title']}", "---", "", f"# {rid} · {r['title']}", "", "| | |", "| :--- | :--- |",
+         f"| **类** | **{kind}** |", f"| **参考** | {refs} |", f"| **对象** | {r['compared_subject']['comment']} |",
+         f"| **数据** | 见 §5 表（{len(r['run']['has_input'])} 项） |", f"| **门** | {gates} |",
+         f"| **登记册结论** | {verdict[r['overall_verdict']]}（`assertion_state: {r['assertion_state']}`） |",
+         f"| **复测** | {DATE}：{verdict[rerun['verdict']]}——{rerun.get('deviation_literal', '')} |", "",
+         "> 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。", ""]
+    if r.get("validity_domain"):
+        L += [f"**适用域**：{r['validity_domain']}", ""]
+    L += ["## 1. 判据", "", "| 量 | 范数 | 容差 | 容差来源 | 备注 |", "| :--- | :--- | ---: | :--- | :--- |"]
+    for c in r["criteria"]:
+        tol = c.get("tolerance", {})
+        unit = tol.get("has_unit", {}).get("ucum_code", "")
+        L.append(f"| {c['quantity_label']} | {c.get('norm', '')} | {tol.get('numeric_value', '—')}{(' ' + unit) if unit else ''} | {c['tolerance_basis']} | {'；'.join(c.get('caveat', []))} |")
+    L += ["", "## 2. 口径与说明", ""] + [f"- {x}" for x in r["caveat"]] + ["", "## 3. 结果", "", "| 项 | 读数 | 判 | 备注 |", "| :--- | :--- | :--- | :--- |"]
+    for f in r["findings"]:
+        L.append(f"| {f['title']} | {f.get('deviation_literal', '')} | {verdict[f['verdict']]} | {'；'.join(f.get('caveat', []))} |")
+    L += ["", "## 4. 不可比的部分", ""]
+    L += rr.get("not_comparable", ["（见 §2）"])
+    L += ["", "## 5. 数据与怎么重跑", "", "| 存储项 | 校验 | 纳入类别 |", "| :--- | :--- | :--- |"]
+    for d in r["run"]["has_input"]:
+        L.append(f"| {d['storage_uri']} | {d.get('checksum', '—')} | {d['license']} |")
+    L += ["", "受限与实验类只存路径与 sha256，本体不在公开仓；CASE-23 的发布判定是 `internal`。", "", "```bash"] + rr["rerun_cmd"] + ["```", "",
+          "## 6. 结论", "", rr["conclusion"], ""]
+    return "\n".join(L)
+
+
+REPORT_TEXT = {
+    "V-16": {"not_comparable": ["- 三组语料都不是 fylite 解出的平衡：本条不对 fylite 的求解器下任何结论。",
+                                "- 残差的数是「文件 × 判据 × 分辨率」三者的性质：同一份物理平衡换输出盒或内部网格，残差就换（原 B-10 的发现）。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "ITER_SCENARIO_ROOT=<ITER IDM 平衡件根> CHEASE_EXE=<本机构建的 chease> \\",
+                           "  uv run --no-project --with pytest --with numpy --with scipy --with h5py \\",
+                           "  python -m pytest python/tests/test_teq_equilibria.py python/tests/test_tosca_equilibria.py python/tests/test_chease_equilibrium.py"],
+             "conclusion": "成立：本仓的 GS 残差判据在三组外部平衡上读出的数都落在各自点名分辨率的带内，COCOS 口径从数里读出且无须翻转。只回答「判据读出什么」，不回答「fylite 解得对不对」。"},
+    "V-17": {"not_comparable": ["- 定边界、矩形盒、解析剖面：不含自由边界、限制器 / X 点边界搜索与测量拟合。"],
+             "rerun_cmd": ["cd $FYLITE_KERNEL   # 私仓", "PYTHONPATH=$FYLITE_PUBLIC/python:tests FYLITE_KERNEL_LIB=rust/target/release/libfylite_kernel.so \\",
+                           "  uv run --no-project --with pytest --with numpy --with scipy python -m pytest -p no:cacheprovider \\",
+                           "  tests/test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi \\",
+                           "  tests/test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source",
+                           "cargo test --manifest-path rust/fylite/Cargo.toml equilibrium::   # 单元测试（会在内核检出里构建）"],
+             "conclusion": "成立（经 C-ABI 的两条门）：Δ* 算子与定边界求解在 Solov'ev 精确解上到机器精度。内核单元测试那一半本条写入时未跑，标未评估。"},
+    "B-12": {"not_comparable": ["- 两个代码仍有三处实现差：KEFIT 以 FWTFC 0.3 拟合 PF 电流、fylite 固定实测值；KEFIT `fitdelz` 对 fylite 竖直设定点扫描；KEFIT 边缘系数 pcurbd = fcurbd = 0.5、fylite 无对应。",
+                                "- B_T 取 TF 电流节点 `\\TOP.T2:TFP` 与 GUI_v5 注释式（130 匝 × 16 线圈）——装置书只记为候选（gap tf-current-no-ampere-signal-since-97286）。",
+                                "- 探针误差下限取 `efit/2016/bitmp2.txt` 的中位（GUI_v5 逐探针的行按另一套槽序）。"],
+             "rerun_cmd": ["# 读数由私仓工具产出（$FYLITE_KERNEL/tools/benchmark-east-raw.py，见 B-06 报告 §9）；本仓的门只核读数与归档",
+                           "cd $FYLITE_PUBLIC && FYDOC_ORACLE=<fydoc cases/> python -m pytest python/tests/test_benchmark_equilibrium.py::test_b12_the_raw_tree_readings_are_the_registered_ones"],
+             "conclusion": "读数，不判：在同一组原始树输入上，剔除同一批 7 个不自洽探针后两个代码的纯磁反演都收敛（q₀ fylite 2.04 / 1.98 / 1.92，KEFIT 1.91 / 1.92 / 2.00），磁轴相差 15–35 mm；全部探针时两边都拟不上；加 POINT 后两边都不稳。"},
+    "B-14": {"not_comparable": ["- 网格同为 65×65（R 1.2–2.8 m，Z ±1.4 m），但边界搜索、限制器轮廓与自由边界迭代的停止判据各是各的：fylite 用卡片的 base 限制器，KEFIT 用 GUI_v5 的 60 点限制器。",
+                                "- fylite 的剖面表分支按 Ip 归一，表的整体规格（每弧度 / 整圈）会被除掉；p′ 与 FF′ 的相对大小与符号保留。",
+                                "- q 不在比较里：剖面表分支不输出 q。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_equilibrium.py -k b14",
+                           "# 读数重写：python tools/benchmark-equilibrium.py forward-kefit --out <dir>"],
+             "conclusion": "成立：拿 KEFIT 自己在 #137985 原始树输入上收敛的线圈电流与剖面，fylite 的自由边界正问题在三片纯磁答案上把磁轴放在 4.9 mm 内、边界中位 3.4 mm 内、ψ_N rms 0.74 % 内；带 POINT 约束的剖面出带（记为发现）。"},
+    "V-18": {"not_comparable": ["- 无噪声、同一份卡片几何、同一个线圈描述：本条不含测量误差与装置描述误差。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_equilibrium.py -k v18",
+                           "# 读数重写：python tools/benchmark-equilibrium.py twin --out <dir> [--kefit-exe <efitd6565d>]"],
+             "conclusion": "成立：已知真值时 fylite 的反演把 q₀ 放回 0.06 %、q₉₅ 0.13 %、磁轴 1.2 mm、边界 1.7 mm 内。"},
+    "B-15": {"not_comparable": ["- KEFIT 用 green2022_pcs 几何（与卡片探针 74 / 76 槽重合），fylite 用卡片自己；两个未配对的 KEFIT 槽权重 0。",
+                                "- KEFIT 拟合线圈电流与 Ip（带权），fylite 固定线圈、Ip 为等式。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_equilibrium.py -k b15"],
+             "conclusion": "成立：同一份合成测量上 KEFIT 反演无错误标记，q₀ 偏 −4.9 %、q₉₅ −1.1 %、磁轴 1.3 mm、边界 4.2 mm 内；与 V-18 并读，fylite 在这一真值上离得更近。"},
+}
+
+
+# ------------------------------------------------------------------------------------------------ apply
+
+def apply(case: Path, reruns: dict) -> None:
+    reg = json.loads(REG.read_text(encoding="utf-8"))
+    recs, reports = build(case, reruns)
+    graph = [r for r in reg["@graph"] if r["id"] not in {x["id"] for x in recs}]
+    by = {r["id"]: r for r in graph}
+    for rid in ("record/C-06", "record/C-07", "record/B-10"):
+        r = by[rid]
+        r["assertion_state"], r["superseded_by"] = "retired", "record/V-16"
+        note = "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史"
+        if note not in r["caveat"]:
+            r["caveat"].insert(0, note)
+    for rid in ("record/B-06", "record/B-11"):
+        by[rid]["superseded_by"] = "record/B-12"
+    c03 = by["record/C-03"]
+    c03["findings"] = [f for f in c03["findings"] if f.get("title") != f"复测 {DATE}（本条写入时把门跑一遍）"]
+    c03["findings"].append(rerun_finding(reruns["C-03"]))
+    for note in ("★★2026-09-15 复测：门 `test_benchmark_toksys.py` 自 2026-09-14 起两条都 skip（`NO_TOKSYS_FOR_CASE23`：其 rzrig 锚点属已归档的 est2 装置描述，CASE-23 没有 TokSys 参考）——登记册的 0.47 % / 0.72 % / 2.97 % 是那之前 Python 路径的读数，今天不可复测",
+                 "★缺口 G-4 仍在：参考侧没有数据指针与 sha256，判据没有数值带"):
+        if note not in c03.get("caveat", []):
+            c03.setdefault("caveat", []).insert(0, note)
+    reg["@graph"] = graph + recs
+    REG.write_text(json.dumps(reg, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    for r in recs:
+        rid = r["id"].split("/")[1]
+        (BM / "reports" / reports[rid]).write_text(report_md(r, REPORT_TEXT[rid]), encoding="utf-8")
+    print(f"register: {len(reg['@graph'])} records; wrote {', '.join(reports.values())}")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--reruns", required=True, type=Path)
+    ap.add_argument("--case", required=True, type=Path)
+    a = ap.parse_args()
+    apply(a.case, json.loads(a.reruns.read_text(encoding="utf-8")))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

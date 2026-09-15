@@ -118,6 +118,9 @@ project:
             - file: benchmark/reports/B-09-dina-ramp.md
             - file: benchmark/reports/B-10-chease-fixed-boundary.md
             - file: benchmark/reports/B-11-east-efit-east-reconstruction.md
+            - file: benchmark/reports/B-12-east-raw-trees-kefit.md
+            - file: benchmark/reports/B-14-forward-kefit.md
+            - file: benchmark/reports/B-15-twin-kefit.md
             - file: benchmark/reports/C-01-iter-15ma-astra.md
             - file: benchmark/reports/C-02-alpha-heating-astra.md
             - file: benchmark/reports/C-03-toksys-rzrig.md
@@ -143,6 +146,9 @@ project:
             - file: benchmark/reports/V-13-lengyel-forward.md
             - file: benchmark/reports/V-14-torax-evolution-composition.md
             - file: benchmark/reports/V-15-gfile-roundtrip.md
+            - file: benchmark/reports/V-16-gs-residual-reading.md
+            - file: benchmark/reports/V-17-solovev-manufactured.md
+            - file: benchmark/reports/V-18-twin-reconstruction.md
         - title: 物理校验 (Physics checks)
           children:
             - file: benchmark/physics/README.md

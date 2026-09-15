@@ -2279,6 +2279,16 @@
      "finding_kind": "re-run",
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "0 passed, 0 failed, 0 error, 2 skipped, 0 stale",
+     "verdict": "unevaluated",
+     "caveat": [
+      "两条门自 2026-09-14 起 skip（NO_TOKSYS_FOR_CASE23）；2026-09-15 未在内核检出里重跑，按该门源码中的 skip 标记记"
+     ]
     }
    ],
    "run": {
@@ -2310,6 +2320,8 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
+    "★缺口 G-4 仍在：参考侧没有数据指针与 sha256，判据没有数值带",
+    "★★2026-09-15 复测：门 `test_benchmark_toksys.py` 自 2026-09-14 起两条都 skip（`NO_TOKSYS_FOR_CASE23`：其 rzrig 锚点属已归档的 est2 装置描述，CASE-23 没有 TokSys 参考）——登记册的 0.47 % / 0.72 % / 2.97 % 是那之前 Python 路径的读数，今天不可复测",
     "纳入类别：无外部数据（解析 / 自带）"
    ],
    "assertion_state": "accepted",
@@ -4954,7 +4966,7 @@
     "纳入类别（参考数据）：experiment"
    ],
    "assertion_state": "retired",
-   "superseded_by": "record/B-11",
+   "superseded_by": "record/B-12",
    "overall_verdict": "inconclusive",
    "plan": {
     "title": "EAST #137985 动理学平衡反演对标：工作流与计划（磁档对 efit_east 树 · POINT 档对 KEFIT）",
@@ -5337,11 +5349,13 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
+    "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史",
     "★C 类：量的是「本仓的定律判据在别人写出的平衡上读出什么」，不是两个平衡求解器谁更准",
     "纳入类别（参考数据）：restricted"
    ],
-   "assertion_state": "accepted",
-   "overall_verdict": "pass"
+   "assertion_state": "retired",
+   "overall_verdict": "pass",
+   "superseded_by": "record/V-16"
   },
   {
    "id": "record/C-07",
@@ -5513,10 +5527,12 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
+    "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史",
     "纳入类别（参考数据）：restricted"
    ],
-   "assertion_state": "accepted",
-   "overall_verdict": "pass"
+   "assertion_state": "retired",
+   "overall_verdict": "pass",
+   "superseded_by": "record/V-16"
   },
   {
    "id": "record/B-10",
@@ -5661,11 +5677,13 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
+    "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史",
     "★★**本条的主要产出不是那个残差数，是一个读法**：g-file 上的 GS 残差是文件的属性",
     "纳入类别（参考数据）：public"
    ],
-   "assertion_state": "accepted",
-   "overall_verdict": "pass"
+   "assertion_state": "retired",
+   "overall_verdict": "pass",
+   "superseded_by": "record/V-16"
   },
   {
    "id": "record/C-09",
@@ -7149,6 +7167,1140 @@
    ],
    "assertion_state": "retired",
    "validity_domain": "CONDITIONED — the claim holds only under three settings taken from the reference's own configuration of this slice: (1) EFIT's fitted coil currents CCBRSP[0:12] as the door's channel ampere-turns (EFIT fitted the coils freely; the assembled door cannot); (2) EFIT's profile basis npp=1 (linear PPRIME), nff=2 (quadratic FFPRIM), both zero at the edge; (3) the vertical set-point zc_anchor = -0.020 m, the minimum of this code's own measurement chi^2 over a 2 mm scan (-30 … -12 mm), standing in for EFIT's fitdelz. Weights FWTMP2 / FWTSI as delivered (1/sigma). Case FYDOC-CASE-23 (efit_east #137985 TIME[28] = 4.041 s); geometry: runtime resolution shot=137985, measurement_chain=efit_east (provider efit_green2022_pcs).",
+   "overall_verdict": "pass",
+   "superseded_by": "record/B-12"
+  },
+  {
+   "id": "record/V-16",
+   "type": "fyo:ComparisonRecord",
+   "title": "GS 残差读法：外部平衡集上，本仓的判据读出什么（合并 C-06 · C-07 · B-10 的残差部分）",
+   "comparison_kind": "verification",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: g-file 读入端 + GS 残差判据（Δ*ψ − RHS）+ COCOS 口径测量（measure_cocos）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "TEQ / CORSICA",
+     "version": "ITER IDM 参考平衡件（首行 `TEQ g 04/07/2010`）",
+     "license": "restricted"
+    },
+    {
+     "type": "spo:Code",
+     "name": "TOSCA",
+     "version": "ITER IDM 2009 批运行空间（61 份 EQDSK）",
+     "license": "restricted"
+    },
+    {
+     "type": "spo:Code",
+     "name": "CHEASE",
+     "version": "本机构建，`ntcase=2` 随码算例",
+     "license": "public"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/V-16/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "GS 残差（Δ*ψ − RHS，边界内内点），TEQ / CORSICA 三份 ITER 参考平衡，**MR 129×257 与 HR 257×513**",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.02
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "原 C-06 的判据；带绑定分辨率，LR 65×129 不在带内（残差随网格只掉一阶）"
+     ]
+    },
+    {
+     "id": "record/V-16/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "GS 残差，TOSCA 2009 批 li 扫描 61 份（65×129）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.06
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "原 C-07 的判据；残差随 li 成台阶"
+     ]
+    },
+    {
+     "id": "record/V-16/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "GS 残差，CHEASE `ntcase=2`，**输出盒 201×129 · 默认内部网格**",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.08
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "原 B-10 的判据；输出盒与内部网格两个分辨率都点名"
+     ]
+    },
+    {
+     "id": "record/V-16/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "口径：从数里读出的 COCOS 对文件自述（三组语料）",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "一条恒等式或离散标签的判定；COCOS 的读写往返另在 V-15"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-06〕三份参考平衡，中分辨率 129×257",
+     "deviation_literal": "`2V2XYR` 15 MA 燃烧 1.487e-02（11 845 内点） · `2V3FDF` 9 MA 稳态 1.357e-02 · `34S6TV` 15 MA SOF 2.297e-04",
+     "verdict": "pass",
+     "caveat": [
+      "★SOF 比两个燃烧点好六十倍，与「陡边缘主导残差」一致"
+     ],
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.01487
+     }
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-06〕★★★残差随网格只掉一阶",
+     "deviation_literal": "LR 65×129 3.665e-02 → MR 129×257 1.487e-02（比 0.406）→ HR 257×513 7.948e-03（比 0.534）；二阶差分作用在光滑解上应给 0.250",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "**所以残差里有一部分不是算子的截断误差**——候选是 p′/ff′ 为表格值、或解在边缘不够光滑。本条**不判定是哪一个**，只把标度记下并立一条断言守住这个读法",
+      "★★**后来 `B-10` 回答了它**：用一份可以拧旋钮的开源平衡证明了那一部分是「文件本身的分辨率」，不是算子"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-06〕★★判决与分辨率绑定",
+     "deviation_literal": "0.02 的带在 MR / HR 上通过、在 LR 上不通过",
+     "verdict": "pass",
+     "caveat": [
+      "同一份物理平衡换个网格换个判决，所以带点名分辨率，门里也有一条断言把这件事钉住——免得日后有人塞进 LR 件、看到红色去怀疑平衡"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-06〕符号约定",
+     "deviation_literal": "另一支（`+μ₀R²p′ + ff′`）在每一份上都给 ~2.0",
+     "verdict": "pass",
+     "caveat": [
+      "不需要任何 COCOS 翻转；这本身是一次口径确认，门里单列一条"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-07〕61 份 EQDSK 全部评上",
+     "deviation_literal": "min 1.62e-04 · 中位 1.22e-02 · max 4.51e-02；**0 份符号告警**",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0451
+     }
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-07〕★★残差随 li 变，而且是台阶不是趋势",
+     "deviation_literal": "0.57→4.32e-02 · 0.70→1.92e-02 · 0.85→1.38e-02 · 1.00→1.81e-04 · 1.20→1.69e-04（Pearson −0.852）；低 li(≤0.75) 中位 1.95e-02 对高 li(≥1.00) 1.70e-04，**差 114 倍**",
+     "verdict": "inconclusive",
+     "finding_kind": "partly-holds",
+     "caveat": [
+      "0.85 与 1.00 之间一步掉 75 倍；高 li 两档已达**本底**（仓内合成件 1.47e-04、TEQ 的 SOF 2.30e-04 同量级）",
+      "〔推测，未判定〕平滑的物理效应不会这样跳，更像**两个子批次**（求解设置或收敛判据不同）——要判定得看随附报告或问上游。本条只钉住这个结构"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-07〕★★★先修了一个读入端的缺陷，这批才读得进来",
+     "deviation_literal": "61 份 → 0 份可读（修前）；61 份可读（修后）",
+     "verdict": "fail",
+     "caveat": [
+      "TOSCA 在头一行三个整数**之后**还写产码名（`… 3  65 129 TOSCA_VT`），而本仓解析取「最后两个 token」、注记还写着「只有尾部是可靠的」——**61 份一份也读不进来**，报的却是「GEQDSK header has no `nw nh`」，听着像文件坏了",
+      "三份件（TOSCA · EAST 真炮 · 仓内合成）的列位**逐列相同**（48/52/56），因为 `(a48,3i4)` 本就规定了它。解析改为**按位先行、尾部兜底**（尾部那支也从「最后两个 token」改成「最后两个能解析成整数的 token」）"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔C-07〕代码归属",
+     "deviation_literal": "61 份首行都写着产码",
+     "verdict": "pass",
+     "caveat": [
+      "登记册此前「归属是推断得来的」那条**已不成立**，本轮撤除"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔B-10〕`ntcase=2` 解析算例，盒 201×129 · 默认内部网格",
+     "deviation_literal": "GS 残差 5.257e-02（带 8e-2）",
+     "verdict": "pass",
+     "measured_deviation": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.05257
+     }
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "〔B-10〕★★★一份 g-file 上的 GS 残差量的是那份文件，不是算子的截断误差",
+     "deviation_literal": "①固定内部网格、加密输出盒：101×65 5.023e-02 → 201×129 5.257e-02 → 401×257 6.394e-02（**不降反升**）；②固定输出盒、加密内部网格：ns=20 8.722e-02 → 默认 5.257e-02 → ns=60 4.134e-02（降 2.1 倍）",
+     "verdict": "pass",
+     "caveat": [
+      "**加密盒子不是收敛检验**：盒子加密时差分算子变锐，而 ψ 与右端的 p′/ff′ 仍只有内部解那么细——残差因此变大",
+      "★★**这条读法回过头修正了 `C-06` 的注记**：那边测到残差随盒子只掉一阶而非二阶，当时只记下「有一部分不是算子的截断误差」。本条给出了那一部分是什么，且用**可拧的旋钮**证明了它",
+      "★**这正是本条相对 C-06 / C-07 的价值**：那两条的语料是 ITER IDM 的冻结产物（读者复算不了，旋钮也拧不动）；CHEASE 开源、本机可构建、算例自带。立项理由不是「参考取不到」，是**受限载荷进不了公开渲染件**"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "15 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass",
+     "caveat": [
+      "需 ITER_SCENARIO_ROOT（受限件）与 CHEASE_EXE；缺则按名 skip"
+     ]
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_teq_equilibria.py"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_tosca_equilibria.py"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_chease_equilibrium.py"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$ITER_SCENARIO_ROOT/（TEQ 四份与 TOSCA 两份 ITER IDM 文档）",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "restricted",
+      "caveat": [
+       "受限件只存指针；逐件 sha256 在门的语料清单里（ITER IDM Internal Use）"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$THIRD_PARTY/chease（本机构建；`ntcase=2` 随码算例）",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "参考侧由码自己产生，可复算；不涉及 sha256 冻结件"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/V-16-gs-residual-reading.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★类别改判：原 C-06 / C-07 标 C（确认）、B-10 标 B（对拍），可三条的门问的都是「本仓的残差判据在别人写出的平衡上读出什么」——参考是那份文件，不是另一套模型对同一状态的答案；按 README「类别由参考是什么决定」，这是 V（判据本身）",
+    "★**本条不验证 fylite 的 GS 求解器**：三组语料都不是 fylite 解出来的。求解器的验证在 V-17（解析 / 制造解）与 B-14（对 KEFIT 的正问题）",
+    "★B-10 原题「同一边界与剖面下的 GS 解」与门不符（门没有让 fylite 求解）；由 fylite 自己在 CHEASE 边界上求解的对拍**未立**——公开侧的树门没有「给定边界轮廓」的定边界入口（code/steady_equilibrium 只重解一张已有 ψ 图的盒子），见验证定序册",
+    "纳入类别（参考数据）：restricted、public"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/V-17",
+   "type": "fyo:ComparisonRecord",
+   "title": "定边界 GS 算子与求解器：Solov'ev 精确解与制造解",
+   "comparison_kind": "verification",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: 内核 equilibrium.rs 的 Δ* 算子、Hockney 快速直接解法与定边界 Picard 迭代（经 C-ABI）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "Solov'ev 解析解",
+     "version": "ψ = (f/8) R⁴ + (g/2) Z² + c₂ R²（公开闭式）",
+     "license": "public"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/V-17/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "Solov'ev 精确解经 C-ABI 重现",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "解析解：本条是 verification，机器精度即判据"
+     ]
+    },
+    {
+     "id": "record/V-17/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "Δ* 算子作用于 Solov'ev 解给出其源项",
+     "tolerance_basis": "machine_precision"
+    },
+    {
+     "id": "record/V-17/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "内核单元测试：Solov'ev 误差 33² 网格 < 1e-10、65² < 1e-9；制造解二阶收敛；算子与解法互逆；定边界 Picard 收敛并如实报告",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "这几条是内核 `cargo test` 的断言（`equilibrium.rs` 单元测试），阈值照录断言本身，本条未另测数值"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "Solov'ev 经 C-ABI（`test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi`）",
+     "deviation_literal": "门通过（2026-09-15 只读复测）",
+     "verdict": "pass",
+     "criterion": "record/V-17/criterion/1"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "Δ* 作用于 Solov'ev（`test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source`）",
+     "deviation_literal": "门通过（2026-09-15 只读复测）",
+     "verdict": "pass",
+     "criterion": "record/V-17/criterion/2"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "内核 Rust 单元测试（`solovev_is_reproduced_to_machine_precision` · `manufactured_solution_converges_at_second_order` · `stencil_and_solver_are_mutually_inverse` · `fixed_boundary_picard_converges_and_reports_it`）",
+     "deviation_literal": "本条写入时未跑：`cargo test` 会在内核检出里构建，而本轮裁定不动内核仓",
+     "verdict": "unevaluated",
+     "criterion": "record/V-17/criterion/3"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass",
+     "caveat": [
+      "内核检出里只读复测（不写字节码与缓存）；cargo 单元测试未跑"
+     ]
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`（只读复测：不写字节码、不写缓存、不改文件）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tests/test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source",
+      "caveat": [
+       "私仓的门：内核检出中 `pytest tests/…`（只读复测：不写字节码、不写缓存、不改文件）"
+      ]
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/rust/fylite/src/equilibrium.rs",
+      "caveat": [
+       "私仓的门：`cargo test -p fylite equilibrium::`；本条写入时未跑（不在内核检出里构建）"
+      ]
+     }
+    ],
+    "has_input": [],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/V-17-solovev-manufactured.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★这是 S1 干路上第一条**针对求解器本身**的登记记录：此前平衡正问题的 V 只在内核单元测试里，公开册看不见",
+    "★只覆盖定边界与解析 / 制造解；自由边界正问题的外部对照在 B-14",
+    "纳入类别（参考数据）：public（解析闭式）"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-12",
+   "type": "fyo:ComparisonRecord",
+   "title": "EAST #137985 原始树输入：fylite 与 KEFIT 在同一组数上（取代 B-06 · B-11）",
+   "comparison_kind": "benchmark",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/reconstruction（纯磁，竖直设定点扫描）与 W4b / W4c（POINT 法拉第行）经树门；输入经 fylite.io.raw.reduce_series 读原始树"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "KEFIT",
+     "version": "kefit_reference_bundle（third_party，锁定件）active/point/efit_w_pf，gfortran 64 位本地构建（magpri 76；构建配方 CASE-23 corpus/kefit/kefit_build_recipe.json）",
+     "license": "private-artefact"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-12/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "同一组原始树输入上两个代码的纯磁读数（q₀ · q₉₅ · 磁轴 · 边界 · χ²）",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "**不判、无带**：两个代码仍有三处实现差（KEFIT 拟合 PF 电流而 fylite 固定实测值、竖直位置的处理、边缘系数），本组分不开"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "4.041 s 纯磁（剔 7 探针）：fylite 对 KEFIT",
+     "deviation_literal": "q₀ 2.042 对 1.913 · q₉₅ 6.53 对 6.28 · 磁轴对 efit_east 答案 dR -52.2 对 -17.2 mm · 边界中位 10.7 对 13.6 mm · χ² 71.0 对 47.4（两边都收敛；KEFIT 无错误标记）",
+     "verdict": "inconclusive",
+     "caveat": [
+      "efit_east 的答案只作比较参照（用户裁定 2026-09-15），不是本条的参考"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "4.944 s 纯磁（剔 7 探针）：fylite 对 KEFIT",
+     "deviation_literal": "q₀ 1.984 对 1.924 · q₉₅ 6.56 对 6.30 · 磁轴对 efit_east 答案 dR -43.3 对 -17.6 mm · 边界中位 8.8 对 12.9 mm · χ² 70.1 对 46.2（两边都收敛；KEFIT 无错误标记）",
+     "verdict": "inconclusive",
+     "caveat": [
+      "efit_east 的答案只作比较参照（用户裁定 2026-09-15），不是本条的参考"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "5.976 s 纯磁（剔 7 探针）：fylite 对 KEFIT",
+     "deviation_literal": "q₀ 1.924 对 2.000 · q₉₅ 6.61 对 6.29 · 磁轴对 efit_east 答案 dR -40.5 对 -25.9 mm · 边界中位 7.8 对 13.4 mm · χ² 77.0 对 47.6（两边都收敛；KEFIT 无错误标记）",
+     "verdict": "inconclusive",
+     "caveat": [
+      "efit_east 的答案只作比较参照（用户裁定 2026-09-15），不是本条的参考"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "全部探针：两个代码都拟不上",
+     "deviation_literal": "fylite 纯磁 χ² 1883 / 1870 / 1881 · KEFIT 1700 / 1710 / 1750（Error #1）",
+     "verdict": "fail",
+     "caveat": [
+      "同一批不自洽通道：KEFIT 纯磁 χ² 份额 HBPH1T 883 · HBPD10T 169 · HBPH2T 64 · HBPH1N 56 · HBPD10N 51 · HBPD8T 37 · HBPH3T 25，同一份剔除交给两个代码（读自拟合本身）"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "加 POINT：两个代码都不稳",
+     "deviation_literal": "fylite 主集 q₀ 0.82 / 0.82 / 0.90 · KEFIT 4.041 s `Problem in CNTOUR`、4.944 s 带 Error #19–21、5.976 s q₀ 1.04",
+     "verdict": "inconclusive",
+     "caveat": [
+      "原始输入上的档 K 没有可作参考的答案"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "KEFIT 几何：GUI_v5 自带表 green2018_wpf_64 不是原始探针名读的道阵",
+     "deviation_literal": "按位置与角度配对，79 槽中 56 对差 > 2 cm / 10°；改 green2022_pcs：76 槽中 74 槽 0 mm / 0° 重合",
+     "verdict": "pass",
+     "caveat": [
+      "这是 2026-09-14 GUI 原配方各例 `Problem in BOUND` 的原因"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_equilibrium.py::test_b12_the_raw_tree_readings_are_the_registered_ones"
+     },
+     {
+      "type": "spo:Code",
+      "name": "$FYLITE_KERNEL/tools/benchmark-east-raw.py",
+      "caveat": [
+       "私仓工具：产出本条读数（--pull · --fylite · --kefit · --reject · --compare）；本条写入时未重跑，门只核读数与归档的 sha256"
+      ]
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/raw/raw_slices_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:8b2c04d2612b7b0105201cabdc19a60c09d7035f0ad9414fcb2cb062e424876c",
+      "caveat": [
+       "实验数据：原始树读数，只存指针"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258",
+      "caveat": [
+       "KEFIT 的可执行体不入仓：由构建配方与源 sha256 重建；门只回放已记录、sha256 索引过的运行件，不重跑 KEFIT"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/fylite/fylite_raw_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:5b7360f8a2a83b1bcd9f7b9332accdb8a53ea831ea085aa0ff0e70e5291f89f2"
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/comparison_readings_east137985.fyo.jsonld",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:e773b05be4e7ebc35acbbc6b65cc97ba9052a578fc585f36ee42e4261397db47",
+      "caveat": [
+       "读数块 `#R-raw-trees`"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-12-east-raw-trees-kefit.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★取代 B-06（est2 测量集，2026-09-13 撤回）与 B-11（efit_east 树的输入，2026-09-15 撤回）：同一个对象（EAST #137985 的平衡反演），换成原始树输入，参考换成 KEFIT",
+    "★所有进入反演的数都读自 east / pcs_east 原始树；efit_east 的答案只作比较（用户裁定 2026-09-15）",
+    "纳入类别（参考数据）：experiment"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "inconclusive",
+   "validity_domain": "EAST #137985 @ 4.041 / 4.944 / 5.976 s；east 测量链（east_new 卡片）；同一份 7 探针剔除；两个代码同一组数的读数，不作判定"
+  },
+  {
+   "id": "record/B-14",
+   "type": "fyo:ComparisonRecord",
+   "title": "自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF′ 下的 GS 解",
+   "comparison_kind": "benchmark",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/forward（剖面表分支）经树门；EAST 卡片 65×65 盒，与 KEFIT green2022_pcs 表同一网格"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "KEFIT",
+     "version": "kefit_reference_bundle（third_party，锁定件）active/point/efit_w_pf，gfortran 64 位本地构建（magpri 76；构建配方 CASE-23 corpus/kefit/kefit_build_recipe.json）",
+     "license": "private-artefact"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-14/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "磁轴距离（三片纯磁）",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 4.87,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/B-14/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "极向通量跨度 |ψ_b − ψ_a| 的相对差",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00264
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/B-14/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "KEFIT 边界内 ψ_N 差 rms / 最大",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00737
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 0.0181"
+     ]
+    },
+    {
+     "id": "record/B-14/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "KEFIT 边界点到 fylite ψ_N = 1 等值线的距离：中位 / 最大",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 3.43,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 15.5 mm"
+     ]
+    },
+    {
+     "id": "record/B-14/criterion/5",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "下 X 点距离",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 6.51,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/B-14/criterion/6",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "Ip（两边都是等式约束）",
+     "tolerance_basis": "machine_precision",
+     "caveat": [
+      "★这是嵌在对拍记录里的一句 **verification** 断言：两个代码都以 Ip 为等式，判的是一条恒等式，不含可被物理带覆盖的建模差"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "4.041 s 纯磁答案",
+     "deviation_literal": "磁轴 4.11 mm · 跨度 -0.021 % · ψ_N rms 0.74 % / 最大 1.80 % · 边界 3.42 / 12.7 mm · X 点 4.3 mm",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "4.944 s 纯磁答案",
+     "deviation_literal": "磁轴 4.02 mm · 跨度 -0.264 % · ψ_N rms 0.65 % / 最大 1.57 % · 边界 2.67 / 15.4 mm · X 点 6.0 mm",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "5.976 s 纯磁答案",
+     "deviation_literal": "磁轴 4.87 mm · 跨度 -0.181 % · ψ_N rms 0.66 % / 最大 1.52 % · 边界 2.74 / 13.8 mm · X 点 6.5 mm",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "5.976 s 带 POINT 约束的剖面：出带",
+     "deviation_literal": "磁轴 9.2 mm · 跨度 -2.05 % · ψ_N rms 2.21 % · 边界 5.5 / 83 mm · 600 步未定",
+     "verdict": "inconclusive",
+     "caveat": [
+      "不进带；门把「出带」本身钉住，免得它悄悄变好或变坏"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "收敛：fylite 的自由边界迭代在纯磁三例上「settled」而非「converged」",
+     "deviation_literal": "残差 2.9e-03 / 3.7e-03 / 1.3e-03，约 62 步因掩膜稳定而停；缺省 tol 1e-9",
+     "verdict": "inconclusive",
+     "caveat": [
+      "带是在这一停止状态上量的；收紧停止判据是否移动这些数未测 [TBD]"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_equilibrium.py::test_b14_the_forward_solve_reproduces_its_recorded_readings"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_equilibrium.py::test_b14_the_forward_solve_stays_in_the_band_on_kefits_magnetics_answers"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_equilibrium.py::test_b14_the_point_profile_slice_is_recorded_outside_the_band"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258",
+      "caveat": [
+       "KEFIT 在原始树输入上收敛的答案（变体 rejected）：a-file CCBRSP · g-file PPRIME / FFPRIM / Ip",
+       "KEFIT 的可执行体不入仓：由构建配方与源 sha256 重建；门只回放已记录、sha256 索引过的运行件，不重跑 KEFIT"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/forward_kefit_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:a54852d884c396b77b050f387334a8bae29a942965b3d5750b32e2bb23e31f1c"
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-14-forward-kefit.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★取代计划中的 libefit 对标（用户裁定 2026-09-15：废弃 libefit，直接对标 KEFIT）",
+    "★同一组输入：KEFIT 拟合出的 12 路线圈安匝、它的 p′(ψ_N) 与 FF′(ψ_N)、它的 Ip；两边剩下的只有 GS 求解（网格、边界搜索、自由边界迭代）",
+    "★口径：KEFIT 的 ψ 每弧度、轴处取极小；fylite 整圈、轴处取极大——ψ_fy = −2π ψ_KEFIT，p′ 与 FF′ 同除 −2π（由 g-file 的 simag < sibry 读出，不假设）",
+    "纳入类别（参考数据）：experiment、private-artefact"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass",
+   "validity_domain": "EAST 几何（east_new 卡片 / green2022_pcs，65×65 盒）；KEFIT 在 #137985 原始树输入上的纯磁答案；带 POINT 约束的剖面不在带内"
+  },
+  {
+   "id": "record/V-18",
+   "type": "fyo:ComparisonRecord",
+   "title": "反演孪生体（已知真值）：fylite 从自己正问题的合成测量反演回真值",
+   "comparison_kind": "verification",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/forward（真值与合成诊断）→ code/reconstruction（npp = nff = 1，竖直设定点扫描）经树门"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "fylite code/forward 的真值",
+     "version": "解析族 e_mp = e_np = 1，EAST east_new 卡片",
+     "license": "experiment"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/V-18/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "q₀ / q₉₅ 相对差",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00061
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "q₉₅ 另带 0.00128"
+     ]
+    },
+    {
+     "id": "record/V-18/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "磁轴距离",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1.18,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/V-18/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "ψ_N 差 rms / 最大（真值边界内）",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00234
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 0.00429"
+     ]
+    },
+    {
+     "id": "record/V-18/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "边界距离中位 / 最大",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.657,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 1.65 mm"
+     ]
+    },
+    {
+     "id": "record/V-18/criterion/5",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "下 X 点距离 · 通量跨度 · Ip",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.784,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "跨度带 0.000176 · Ip 带 9.5e-11"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "fylite 反演：孪生体 4.041 s",
+     "deviation_literal": "q₀ +0.06 % · q₉₅ -0.13 % · 磁轴 -0.19 / -1.16 mm · ψ_N rms 0.23 % · 边界 0.66 / 1.65 mm · X 点 0.78 mm · 跨度 +0.018 % · Ip +0.000 %",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "设定点扫描",
+     "deviation_literal": "−30 … +30 mm 每 4 mm；χ² 极小在 -2 mm（χ² 0.85），真值竖直位置 +7.9 mm",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_equilibrium.py::test_v18_fylite_recovers_the_twin_truth_and_reproduces_its_readings"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb",
+      "caveat": [
+       "真值：code/forward 解析族 β₀ 0.4 · e_mp = e_np = 1（p′ 与 FF′ 线性、边缘为零）；磁轴 (1.722, +0.008) m · q₀ 1.370 · q₉₅ 3.36",
+       "线圈电流与 Ip 取 #137985 4.041 s 原始树读数（实验数据，只作驱动；测量值本身不进公开册）",
+       "测量是模型输出：75 个磁通环（等离子体份额 + code/coilshare 线圈份额）· 79 个探针；无噪声"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/raw/raw_slices_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:8b2c04d2612b7b0105201cabdc19a60c09d7035f0ad9414fcb2cb062e424876c",
+      "caveat": [
+       "线圈电流与 Ip 的来源"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/V-18-twin-reconstruction.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★类是 V、带是实测带而非机器精度，理由三条：真值的自由边界迭代停在「settled」（残差 2e-4）；竖直设定点按 4 mm 步长扫描；线圈份额在正问题里是 4×4 细丝、在 code/coilshare 里是另一套求积——三者都给出非零但可复现的差",
+    "★真值在两个代码的基里都可精确表示（线性、边缘为零），所以剩下的差不是基的截断",
+    "纳入类别（参考数据）：experiment"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass"
+  },
+  {
+   "id": "record/B-15",
+   "type": "fyo:ComparisonRecord",
+   "title": "反演孪生体（已知真值）：KEFIT 在同一份合成测量上",
+   "comparison_kind": "benchmark",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/forward 给出真值与合成测量（被比的是 KEFIT 对真值的偏差，与 V-18 的 fylite 偏差并列）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "KEFIT",
+     "version": "kefit_reference_bundle（third_party，锁定件）active/point/efit_w_pf，gfortran 64 位本地构建（magpri 76；构建配方 CASE-23 corpus/kefit/kefit_build_recipe.json）",
+     "license": "private-artefact"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-15/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "q₀ / q₉₅ 相对差",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.0487
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "q₉₅ 另带 0.0107"
+     ]
+    },
+    {
+     "id": "record/B-15/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "磁轴距离",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1.33,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/B-15/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "ψ_N 差 rms / 最大（真值边界内）",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00681
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 0.0132"
+     ]
+    },
+    {
+     "id": "record/B-15/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "边界距离中位 / 最大",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1.57,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大值另带 4.17 mm"
+     ]
+    },
+    {
+     "id": "record/B-15/criterion/5",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "下 X 点距离 · 通量跨度 · Ip",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 2.19,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "跨度带 0.00853 · Ip 带 0.00248"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "KEFIT 反演（无错误标记）：孪生体 4.041 s",
+     "deviation_literal": "q₀ -4.86 % · q₉₅ -1.06 % · 磁轴 -0.86 / +1.01 mm · ψ_N rms 0.68 % · 边界 1.56 / 4.16 mm · X 点 2.19 mm · 跨度 +0.852 % · Ip -0.247 %",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "KEFIT 的输入配方",
+     "deviation_literal": "KPPCUR = KFFCUR = 2、pcurbd = fcurbd = 1（与真值同基）；green2022_pcs 几何，76 槽中 74 槽按位置与角度配到卡片探针，槽 [48, 75] 权重 0；35 环取 FL1B–FL35B；σ = max(0.05 |值|, bit)；FWTFC 0.3 拟合线圈、bitip 40000 拟合 Ip、fitdelz",
+     "verdict": "pass",
+     "caveat": [
+      "q₀ 的 −4.9 % 是本条最大的差；Ip 的 −0.25 % 来自 KEFIT 把 Ip 当带权测量而非等式"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_equilibrium.py::test_b15_kefit_on_the_twin_measurements_stays_in_its_band"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_twin_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:ea9c108c43a1433e296aa037f3bbc858e0d0d9c53a5e671d7e3a6627314611c4",
+      "caveat": [
+       "KEFIT 孪生体运行件：namelist · g / a-file · fitout · 槽配对表",
+       "KEFIT 的可执行体不入仓：由构建配方与源 sha256 重建；门只回放已记录、sha256 索引过的运行件，不重跑 KEFIT"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb",
+      "caveat": [
+       "真值：code/forward 解析族 β₀ 0.4 · e_mp = e_np = 1（p′ 与 FF′ 线性、边缘为零）；磁轴 (1.722, +0.008) m · q₀ 1.370 · q₉₅ 3.36",
+       "线圈电流与 Ip 取 #137985 4.041 s 原始树读数（实验数据，只作驱动；测量值本身不进公开册）",
+       "测量是模型输出：75 个磁通环（等离子体份额 + code/coilshare 线圈份额）· 79 个探针；无噪声"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-15-twin-kefit.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★与 V-18 同一份合成测量、同一个真值：两个代码谁偏、偏多少并列可读",
+    "纳入类别（参考数据）：experiment、private-artefact"
+   ],
+   "assertion_state": "accepted",
    "overall_verdict": "pass"
   }
  ]

@@ -238,9 +238,13 @@ def kernel_checkout(explicit=None) -> Path | None:
 
 def gate_plan(rec: dict, kernel: Path | None) -> dict:
     """What running this record would execute, and what it cannot."""
-    py, rust, here, refused = [], [], [], []
+    py, rust, here, public, refused = [], [], [], [], []
     for name in gates_of(rec):
-        if name.startswith("$FYLITE_KERNEL/tests/"):
+        #: ★2026-09-15: a gate that lives in THIS checkout's `python/tests/` (the equilibrium records authored here,
+        #: against KEFIT, without the kernel checkout) runs here — the store it reads is `$FYDOC_ORACLE`
+        if name.startswith("python/tests/"):
+            public.append(name)
+        elif name.startswith("$FYLITE_KERNEL/tests/"):
             py.append(name[len("$FYLITE_KERNEL/"):])
         elif name.startswith("$FYLITE_KERNEL/rust/"):
             rust.append(name[len("$FYLITE_KERNEL/"):])
@@ -258,7 +262,7 @@ def gate_plan(rec: dict, kernel: Path | None) -> dict:
     inputs = [c.get("storage_uri", "") for c in (rec.get("run") or {}).get("has_input", [])]
     store = store_dir()
     present = [u for u in inputs if (resolve_pointer(u) or Path("/nonexistent")).exists()]
-    return {"pytest": py, "cargo": rust, "browser": here, "refused": refused,
+    return {"pytest": py, "cargo": rust, "browser": here, "public_pytest": public, "refused": refused,
             "store": str(store) if store else None,
             "inputs_present": present,
             "inputs_absent": [u for u in inputs if u.startswith("$" + STORE_ENV) and u not in present]}
@@ -276,6 +280,17 @@ def run(record_id: str, d: Path | None = None, kernel=None, *, python_pkg: Path 
     k = kernel_checkout(kernel)
     plan = gate_plan(rec, k)
     out = {"record_id": record_id, "plan": plan, "commands": [], "returncode": None, "summary": ""}
+    if plan["public_pytest"]:
+        pkg = python_pkg or Path(__file__).resolve().parents[2]
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(pkg) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+        cmd = [sys.executable, "-m", "pytest", "-p", "no:cacheprovider", "-rA", "--tb=short", *plan["public_pytest"]]
+        out["commands"].append(" ".join(cmd))
+        proc = subprocess.run(cmd, cwd=Path(__file__).resolve().parents[3], env=env)
+        out["returncode"] = proc.returncode
+        out["summary"] = "gates passed" if proc.returncode == 0 else f"pytest exit {proc.returncode}"
+        if not plan["pytest"]:
+            return out
     if not plan["pytest"] or k is None:
         out["summary"] = "refused: " + "; ".join(plan["refused"]) if plan["refused"] else "nothing runnable"
         return out

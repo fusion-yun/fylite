@@ -4,6 +4,8 @@ title: C-06 · ITER 参考平衡集（TEQ / CORSICA 写出）上的 Grad–Shafr
 
 # C-06 · ITER 参考平衡集（TEQ / CORSICA 写出）上的 Grad–Shafranov 判据
 
+> ★★2026-09-15：本条已并入 [V-16](V-16-gs-residual-reading.md)（GS 残差读法，改判为 V 验证）；本页保留作历史。
+
 | | |
 | :--- | :--- |
 | **类** | **C 确认** |

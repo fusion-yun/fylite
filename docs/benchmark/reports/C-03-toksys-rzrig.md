@@ -4,6 +4,8 @@ title: C-03 · 垂直稳定性，对 TokSys rzrig
 
 # C-03 · 垂直稳定性，对 TokSys rzrig
 
+> ★★2026-09-15 复测：门 `test_benchmark_toksys.py` 自 2026-09-14 起两条都 skip（CASE-23 没有 TokSys 参考），登记册的三个数今天不可复测；缺口 G-4（参考侧无数据指针、判据无数值带）仍在。
+
 | | |
 | :--- | :--- |
 | **类** | **C 确认** |
