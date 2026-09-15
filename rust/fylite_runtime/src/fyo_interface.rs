@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "d92e9497add0875e";
+pub const DIGEST: &str = "d6d21c336ffc5a7b";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -316,6 +316,7 @@ pub const TABLES: &[Table] = &[
 /// packed block layouts: the position of a row IS its offset
 pub const BLOCKS: &[Block] = &[
     Block { name: "CASE_CODES", rows: &[
+        Row { key: "wall", shape: "", units: "assembled", gloss: "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma" },
         Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map" },
         Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat" },
         Row { key: "zerod", shape: "zerod", units: "assembled", gloss: "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod" },
@@ -1403,6 +1404,14 @@ pub const CODES: &[Code] = &[
         Param { key: "passive", value_type: "string", default: "", required: false, via: "vstab_case" },
         Param { key: "step", value_type: "float", default: "1.0e-3", required: false, via: "vstab_case" },
         Param { key: "vessel_scale", value_type: "float", default: "1.0", required: false, via: "vstab_case" },
+    ] },
+    Code { name: "wall", door: "wall_case", krate: "fylite_kernel", params: &[
+        Param { key: "eta_scale", value_type: "float", default: "1.0", required: false, via: "wall_case" },
+        Param { key: "eta_vessel", value_type: "float", default: "", required: false, via: "wall_case" },
+        Param { key: "n_modes", value_type: "float", default: "10.0", required: false, via: "wall_case" },
+        Param { key: "nu", value_type: "float", default: "3.0", required: false, via: "wall_case" },
+        Param { key: "nv", value_type: "float", default: "3.0", required: false, via: "wall_case" },
+        Param { key: "passive", value_type: "string", default: "", required: false, via: "wall_case" },
     ] },
     Code { name: "wave", door: "wave_case", krate: "fylite_kernel", params: &[
         Param { key: "cd_model", value_type: "string", default: "", required: false, via: "wave_eval" },

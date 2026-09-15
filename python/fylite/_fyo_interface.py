@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = 'd92e9497add0875e'
+DIGEST = 'd6d21c336ffc5a7b'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -360,6 +360,7 @@ TABLES = {
 #: position in the list BEING the offset into the flat buffer
 BLOCKS = {
     'CASE_CODES': [
+        {'key': 'wall', 'shape': '', 'units': 'assembled', 'gloss': "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma"},
         {'key': 'fixed_boundary', 'shape': '', 'units': 'assembled', 'gloss': "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map"},
         {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
@@ -1446,6 +1447,14 @@ CODE_PARAMS = {
         'passive': {'key': 'passive', 'type': 'string', 'via': 'vstab_case'},
         'step': {'key': 'step', 'type': 'float', 'via': 'vstab_case', 'default': '1.0e-3', 'required': False},
         'vessel_scale': {'key': 'vessel_scale', 'type': 'float', 'via': 'vstab_case', 'default': '1.0', 'required': False},
+    }},
+    'wall': {"door": 'wall_case', "crate": 'fylite_kernel', "parameters": {
+        'eta_scale': {'key': 'eta_scale', 'type': 'float', 'via': 'wall_case', 'default': '1.0', 'required': False},
+        'eta_vessel': {'key': 'eta_vessel', 'type': 'float', 'via': 'wall_case'},
+        'n_modes': {'key': 'n_modes', 'type': 'float', 'via': 'wall_case', 'default': '10.0', 'required': False},
+        'nu': {'key': 'nu', 'type': 'float', 'via': 'wall_case', 'default': '3.0', 'required': False},
+        'nv': {'key': 'nv', 'type': 'float', 'via': 'wall_case', 'default': '3.0', 'required': False},
+        'passive': {'key': 'passive', 'type': 'string', 'via': 'wall_case'},
     }},
     'wave': {"door": 'wave_case', "crate": 'fylite_kernel', "parameters": {
         'cd_model': {'key': 'cd_model', 'type': 'string', 'via': 'wave_eval'},
