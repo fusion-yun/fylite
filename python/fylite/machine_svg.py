@@ -204,6 +204,11 @@ def rectangle_corners(r: float, z: float, width: float, height: float,
     rr, zz = [], []
     for u, v in ((-width / 2, -height / 2), (width / 2, -height / 2),
                  (width / 2, height / 2), (-width / 2, height / 2)):
+        if a1 != 0.0:
+            #: a1 != 0: efund's Z shear (splitc branch 200) — columns shifted in Z by u tan(a1), not a rotation
+            rr.append(r + u)
+            zz.append(z + v + u * math.tan(math.radians(a1)))
+            continue
         if efit_shear:
             rr.append(r + u + v * cot2)
             zz.append(z + v)

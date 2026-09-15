@@ -22,10 +22,10 @@ title: B-18 · 垂直不稳定性：EAST #137985 4.041 s 的刚性增长率与�
 
 | 量 | 范数 | 容差 | 容差来源 | 备注 |
 | :--- | :--- | ---: | :--- | :--- |
-| 增长率 γ 相对差（fylite code/vstab 对 FreeGSNKE 刚性色散，同一平衡；内壳 · 三组合） | relative | 0.00372 | measured_band |  |
+| 增长率 γ 相对差（fylite code/vstab 对 FreeGSNKE 刚性色散，同一平衡；内壳 · 三组合） | relative | 0.00115 | measured_band |  |
 | 主动线圈失稳刚度 k 相对差 | relative | 0.003 | measured_band |  |
-| 理想刚度 k_ideal（被动稳定力）相对差 | relative | 0.000711 | measured_band |  |
-| 稳定裕度 k_ideal / k − 1 绝对差 | absolute | 0.00504 | measured_band | 与 FreeGSNKE 的感性稳定裕度同定义（刚性等离子体下代数核过） |
+| 理想刚度 k_ideal（被动稳定力）相对差 | relative | 0.00114 | measured_band |  |
+| 稳定裕度 k_ideal / k − 1 绝对差 | absolute | 0.00495 | measured_band | 与 FreeGSNKE 的感性稳定裕度同定义（刚性等离子体下代数核过） |
 
 ## 2. 口径与说明
 
@@ -39,11 +39,11 @@ title: B-18 · 垂直不稳定性：EAST #137985 4.041 s 的刚性增长率与�
 
 | 项 | 读数 | 判 | 备注 |
 | :--- | :--- | :--- | :--- |
-| inner_shell：刚性色散 | γ fylite 711.4 · FreeGSNKE 708.7 s⁻¹（+0.37 %）· k +0.30 % · k_ideal +0.027 % · 裕度 0.268 / 0.271 | 成立 |  |
-| inner_shell：FreeGSNKE 可变形等离子体（读数） | γ 652.3 s⁻¹（刚性的 0.92 倍）· 裕度 0.322；fylite 在 KEFIT 平衡上 γ 680.7 s⁻¹ | 未判（读数） | 可变形响应是 fylite 刚性模型没有的物理；FreeGSNKE 雅可比的线性度（步长）未独立核，倍数只作读数 |
-| all：刚性色散 | γ fylite 4.267 · FreeGSNKE 4.262 s⁻¹（+0.12 %）· k +0.30 % · k_ideal +0.071 % · 裕度 1.208 / 1.213 | 成立 |  |
+| inner_shell：刚性色散 | γ fylite 708.7 · FreeGSNKE 708.7 s⁻¹（-0.01 %）· k +0.30 % · k_ideal +0.113 % · 裕度 0.269 / 0.271 | 成立 |  |
+| inner_shell：FreeGSNKE 可变形等离子体（读数） | γ 652.3 s⁻¹（刚性的 0.92 倍）· 裕度 0.322；fylite 在 KEFIT 平衡上 γ 678.2 s⁻¹ | 未判（读数） | 可变形响应是 fylite 刚性模型没有的物理；FreeGSNKE 雅可比的线性度（步长）未独立核，倍数只作读数 |
+| all：刚性色散 | γ fylite 4.267 · FreeGSNKE 4.262 s⁻¹（+0.11 %）· k +0.30 % · k_ideal +0.075 % · 裕度 1.208 / 1.213 | 成立 |  |
 | all：FreeGSNKE 可变形等离子体（读数） | γ 9.227 s⁻¹（刚性的 2.17 倍）· 裕度 0.930；fylite 在 KEFIT 平衡上 γ 4.171 s⁻¹ | 未判（读数） | 可变形响应是 fylite 刚性模型没有的物理；FreeGSNKE 雅可比的线性度（步长）未独立核，倍数只作读数 |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | 2026-09-15 内核改正 a1 ≠ 0 读法后重录读数与带 |
 
 ## 4. 不可比的部分
 
@@ -56,7 +56,7 @@ title: B-18 · 垂直不稳定性：EAST #137985 4.041 s 的刚性增长率与�
 | 存储项 | 校验 | 纳入类别 |
 | :--- | :--- | :--- |
 | $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/freegsnke/freegsnke_vstab_east137985.tar.gz | sha256:df6725b4bfe4ad664620c4503dfb4d8aea5b951b36b772a8fc1902f3cfbc6c81 | experiment |
-| $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/wall_vstab_east137985.json | sha256:e8418fdaef8c556e9c45bac4fb2310141048f70e4e2cea3cf834cc790867b97f | experiment |
+| $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/wall_vstab_east137985.json | sha256:4f106103acdd250b9ef317073c447be7eb90f923adadac93f9eaad9c6ed46cc0 | experiment |
 | $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz | sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258 | experiment |
 
 受限与实验类只存路径与 sha256，本体不在公开仓；CASE-23 的发布判定是 `internal`。
@@ -71,4 +71,4 @@ FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERN
 
 ## 6. 结论
 
-成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 0.37 %（内壳，711 s⁻¹）/ 0.12 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005；FreeGSNKE 的可变形增长率另记为读数。
+成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 −0.006 %（内壳，709 s⁻¹）/ +0.11 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005（内核改正 a1 ≠ 0 的读法后重录；首录内壳为 +0.37 %）；FreeGSNKE 的可变形增长率另记为读数。

@@ -1721,6 +1721,53 @@
      "status_note": "2026-09-15 立：同一 FreeGSNKE 反演平衡上 γ 差 0.37 %（内壳）/ 0.12 %（三组合），裕度差 ≤ 0.005；FreeGSNKE 可变形 γ（三组合 2.2 倍）记为读数"
     },
     {
+     "id": "plan/K/wall-efund",
+     "title": "导体壁对 KEFIT 的电磁层：EAST 真空室元件的格林响应与互感对 efund",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/K/wall-freegsnke"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/efund/efund_east137985.tar.gz",
+       "license": "private-artefact",
+       "payload": "in",
+       "comment": "efund 由 KEFIT 参考包源码本地构建，在参考包自带的 EAST 算表输入上跑（两处补丁随件）"
+      }
+     ],
+     "record": "B-19",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'efund or b19'（需带 code/wall 的内核库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（用户「导体壁，垂直不稳定性，与 kefit 对拍」）：环 2.0e-5 · 网格 2.1e-7 · 互感非对角 p95 3.7e-3；查出并改正内核 a1 ≠ 0 读法，查出参考包交付的 rv6565.ddd 是算表输入 7 行错列的误读结果"
+    },
+    {
+     "id": "plan/K/vstab-efund",
+     "title": "垂直不稳定性对 KEFIT 的电磁层：KEFIT 平衡上 efund 表组装的刚性装置",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/K/wall-efund"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/wall_vstab_kefit_east137985.json",
+       "license": "private-artefact",
+       "payload": "in"
+      }
+     ],
+     "record": "B-20",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'efund or b20'（需带 code/wall 的内核库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立：γ 差 +0.28 %（8×8）/ −1.0 %（16×16）· k 0.38 % · k_ideal 0.2–0.6 % · 裕度 ±0.003；KEFIT 本身不算增长率，本条比的是它的电磁层"
+    },
+    {
      "id": "plan/K/toksys-rzrig",
      "title": "垂直稳定性，对 TokSys rzrig",
      "record_superseded_by": "B-18",

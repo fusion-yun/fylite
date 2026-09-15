@@ -24,9 +24,15 @@ READINGS = "corpus/benchmark/wall_vstab_east137985.json"
 REPRO_REL, REPRO_ABS = 1e-6, 1e-9
 
 #: ★measured bands (2026-09-15, the worst over the four sets / two passive sets, three significant figures rounded up)
-B17_BAND = {"tau1_rel": 0.000762, "M_diag_rel_median": 0.0148, "M_diag_rel_max": 0.0801, "M_offdiag_rel_p95": 0.00542,
-            "M_frobenius_rel": 0.0166, "R_rel_absmax": 0.0112}
-B18_BAND = {"gamma_rel": 0.00372, "k_rel": 0.003, "k_ideal_rel": 0.000711, "margin_abs": 0.00504}
+#: ★re-recorded the same day after the kernel read `a1 != 0` elements as efund's Z shear (the diagonal's worst went 8.0 % -> 1.9 %)
+B17_BAND = {"tau1_rel": 0.000762, "M_diag_rel_median": 0.0141, "M_diag_rel_max": 0.0194, "M_offdiag_rel_p95": 0.00542,
+            "M_frobenius_rel": 0.00927, "R_rel_absmax": 0.0112}
+B18_BAND = {"gamma_rel": 0.00115, "k_rel": 0.003, "k_ideal_rel": 0.00114, "margin_abs": 0.00495}
+#: ★★against KEFIT's electromagnetic layer — efund built from the KEFIT bundle and run on its EAST deck (B-19 · B-20)
+KEFIT_READINGS = "corpus/benchmark/wall_vstab_kefit_east137985.json"
+B19_BAND = {"loops_rel_max": 2.04e-05, "grid_rel_max": 2.07e-07, "M_offdiag_rel_p95": 0.00366, "M_diag_rel_median": 0.0083,
+            "M_diag_rel_max": 0.0344, "tau1_rel": 0.000237}
+B20_BAND = {"gamma_rel": 0.0101, "k_rel": 0.0038, "k_ideal_rel": 0.00607, "margin_abs": 0.00291, "g_rel_median": 0.00313, "g_rel_max": 0.0102}
 
 
 def _tool():
@@ -62,7 +68,8 @@ def _close(g: float, w: float) -> bool:
 def _walk(g, w, path=""):
     if isinstance(w, dict):
         for k, v in w.items():
-            if k != "notes":
+            #: `shipped_vs_rebuilt` reads the locked bundle's own table, which the gate does not require
+            if k not in ("notes", "shipped_vs_rebuilt"):
                 _walk(g[k], v, f"{path}/{k}")
     elif isinstance(w, list):
         for i, v in enumerate(w):
@@ -98,6 +105,47 @@ def test_b18_the_rigid_dispersion_reproduces_and_stays_in_the_band_against_freeg
         c = s["compare"]
         assert abs(c["gamma_rel"]) <= B18_BAND["gamma_rel"] and abs(c["k_rel"]) <= B18_BAND["k_rel"], sname
         assert abs(c["k_ideal_rel"]) <= B18_BAND["k_ideal_rel"] and abs(c["margin_abs"]) <= B18_BAND["margin_abs"], sname
+
+
+@pytest.fixture(scope="module")
+def kefit_got(case, got):
+    return _tool().kefit_readings(case)
+
+
+def test_the_efund_run_is_the_registered_one(case):
+    import yaml
+    sums = yaml.safe_load((case / "case.yaml").read_text(encoding="utf-8"))["data"]["checksums"]
+    tool = _tool()
+    for rel in (tool.EFUND_ARCHIVE, KEFIT_READINGS):
+        assert hashlib.sha256((case / rel).read_bytes()).hexdigest() == sums[rel.removeprefix("corpus/")], rel
+
+
+def test_b19_the_wall_responses_and_inductance_reproduce_and_stay_in_the_band_against_efund(case, kefit_got):
+    want = json.loads((case / KEFIT_READINGS).read_text(encoding="utf-8"))
+    _walk(kefit_got["wall"], want["wall"], "wall")
+    w = kefit_got["wall"]
+    assert w["elements_loops_below_1e-3"] == 40 and w["element_centre_match_m"] == 0.0
+    assert w["loops"]["rel_max"] <= B19_BAND["loops_rel_max"] and w["grid"]["rel_max"] <= B19_BAND["grid_rel_max"]
+    assert w["M"]["offdiag_rel_p95"] <= B19_BAND["M_offdiag_rel_p95"]
+    assert w["M"]["diag_rel_median"] <= B19_BAND["M_diag_rel_median"] and w["M"]["diag_rel_max"] <= B19_BAND["M_diag_rel_max"]
+    assert abs(w["tau_card_R_ms"]["tau1_rel"]) <= B19_BAND["tau1_rel"]
+
+
+def test_b19_the_shipped_kefit_vessel_table_is_recorded_as_the_misread_deck(case):
+    """★A finding held as one: the bundle's `rv6565.ddd` differs from efund rebuilt on the same deck by 9 % (loops) and 29 %
+    (grid) — seven vessel rows sit off efund's `6e12.6` columns.  If a later bundle ships a corrected table, this is stale."""
+    w = json.loads((case / KEFIT_READINGS).read_text(encoding="utf-8"))["wall"]["shipped_vs_rebuilt"]
+    assert w["loops_rel_max"] > 0.05 and w["grid_rel_max"] > 0.2
+
+
+def test_b20_the_rigid_plant_reproduces_and_stays_in_the_band_against_efund(case, kefit_got):
+    want = json.loads((case / KEFIT_READINGS).read_text(encoding="utf-8"))
+    _walk(kefit_got["vstab"], want["vstab"], "vstab")
+    for tag, s in kefit_got["vstab"]["fylite"].items():
+        c = s["compare"]
+        for k in ("gamma_rel", "k_rel", "k_ideal_rel", "margin_abs"):
+            assert abs(c[k]) <= B20_BAND[k], (tag, k, c[k])
+        assert c["g_rel_median"] <= B20_BAND["g_rel_median"] and c["g_rel_max"] <= B20_BAND["g_rel_max"], tag
 
 
 def test_b18_the_deformable_growth_rate_is_a_reading_not_a_band(case):

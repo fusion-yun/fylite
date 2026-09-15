@@ -23,8 +23,8 @@ title: B-17 · 导体壁作为电路：EAST 无源结构的 L/R 本征模对 Fre
 | 量 | 范数 | 容差 | 容差来源 | 备注 |
 | :--- | :--- | ---: | :--- | :--- |
 | 最长 L/R 时间 τ₁ 相对差（内壳 · 外壳 · 被动板各自单解 · 三组合） | relative | 0.000762 | measured_band |  |
-| 无源互感矩阵逐元：对角相对差中位 / 最大 | relative | 0.0148 | measured_band | 最大值另带 0.0801 |
-| 无源互感矩阵逐元：非对角相对差 p95 · Frobenius 相对差 | relative | 0.00542 | measured_band | Frobenius 另带 0.0166 |
+| 无源互感矩阵逐元：对角相对差中位 / 最大 | relative | 0.0141 | measured_band | 最大值另带 0.0194 |
+| 无源互感矩阵逐元：非对角相对差 p95 · Frobenius 相对差 | relative | 0.00542 | measured_band | Frobenius 另带 0.00927 |
 | 元件电阻相对差最大 | relative | 0.0112 | measured_band | FreeGSNKE 以蒙特卡罗估多边形面积，±1 % 的散布来自那里 |
 
 ## 2. 口径与说明
@@ -38,12 +38,12 @@ title: B-17 · 导体壁作为电路：EAST 无源结构的 L/R 本征模对 Fre
 
 | 项 | 读数 | 判 | 备注 |
 | :--- | :--- | :--- | :--- |
-| inner_shell：τ₁ | fylite 12.755 ms · FreeGSNKE 12.751 ms（+0.028 %）· M 对角中位 1.31 % / 最大 6.97 % · 非对角 p95 0.28 % · R 最大 1.07 % | 成立 |  |
-| outer_shell：τ₁ | fylite 13.103 ms · FreeGSNKE 13.099 ms（+0.033 %）· M 对角中位 1.47 % / 最大 8.00 % · 非对角 p95 0.25 % · R 最大 1.11 % | 成立 |  |
+| inner_shell：τ₁ | fylite 12.751 ms · FreeGSNKE 12.751 ms（-0.004 %）· M 对角中位 1.11 % / 最大 1.87 % · 非对角 p95 0.25 % · R 最大 1.07 % | 成立 |  |
+| outer_shell：τ₁ | fylite 13.095 ms · FreeGSNKE 13.099 ms（-0.026 %）· M 对角中位 1.08 % / 最大 1.92 % · 非对角 p95 0.21 % · R 最大 1.11 % | 成立 |  |
 | passive_plates：τ₁ | fylite 400.571 ms · FreeGSNKE 400.266 ms（+0.076 %）· M 对角中位 1.41 % / 最大 1.94 % · 非对角 p95 0.54 % · R 最大 0.32 % | 成立 |  |
-| all：τ₁ | fylite 413.502 ms · FreeGSNKE 413.214 ms（+0.070 %）· M 对角中位 1.40 % / 最大 8.00 % · 非对角 p95 0.22 % · R 最大 1.11 % | 成立 |  |
+| all：τ₁ | fylite 413.498 ms · FreeGSNKE 413.214 ms（+0.069 %）· M 对角中位 1.09 % / 最大 1.94 % · 非对角 p95 0.17 % · R 最大 1.11 % | 成立 |  |
 | 离散（读数） | fylite 每元 3×3 细丝时自感偏高约 7 %（圆导线自感项取等面积半径，对细长子细丝偏大），τ₁ +0.8 %；8×8 对 16×16 τ₁ 差 0.14 %（code/wall 缺省 8×8，本条取 16×16） | 未判（读数） |  |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | 需 FYLITE_KERNEL_LIB 指向带 code/wall 的内核（公开检出的预建运行时库早于它，按名 skip） |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | 需 FYLITE_KERNEL_LIB 指向带 code/wall 的内核（公开检出的预建运行时库早于它，按名 skip）；2026-09-15 内核改正 a1 ≠ 0 读法后重录读数与带 |
 
 ## 4. 不可比的部分
 
@@ -55,7 +55,7 @@ title: B-17 · 导体壁作为电路：EAST 无源结构的 L/R 本征模对 Fre
 | 存储项 | 校验 | 纳入类别 |
 | :--- | :--- | :--- |
 | $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/freegsnke/freegsnke_vstab_east137985.tar.gz | sha256:df6725b4bfe4ad664620c4503dfb4d8aea5b951b36b772a8fc1902f3cfbc6c81 | experiment |
-| $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/wall_vstab_east137985.json | sha256:e8418fdaef8c556e9c45bac4fb2310141048f70e4e2cea3cf834cc790867b97f | experiment |
+| $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/wall_vstab_east137985.json | sha256:4f106103acdd250b9ef317073c447be7eb90f923adadac93f9eaad9c6ed46cc0 | experiment |
 
 受限与实验类只存路径与 sha256，本体不在公开仓；CASE-23 的发布判定是 `internal`。
 
@@ -69,4 +69,4 @@ FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERN
 
 ## 6. 结论
 
-成立：同一张 EAST 卡片上，fylite code/wall 与 FreeGSNKE 的无源 L/R 本征模 τ₁ 在内壳 · 外壳 · 被动板 · 三组合上差 ≤ 0.08 %（12.76 / 13.10 / 400.6 / 413.5 ms），互感矩阵非对角 p95 ≤ 0.54 %。
+成立：同一张 EAST 卡片上，fylite code/wall 与 FreeGSNKE 的无源 L/R 本征模 τ₁ 在内壳 · 外壳 · 被动板 · 三组合上差 ≤ 0.08 %（12.75 / 13.10 / 400.6 / 413.5 ms），互感矩阵非对角 p95 ≤ 0.54 %、对角最大 1.9 %（2026-09-15 内核改正 a1 ≠ 0 的读法后重录；首录为 8.0 %）。

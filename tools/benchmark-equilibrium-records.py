@@ -504,6 +504,81 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
         "pass",
         validity="EAST #137985 4.041 s（FreeGSNKE 反演平衡）；无源组内壳 / 三组合；主动线圈冻结；刚性、质量为零；不含可变形等离子体（读数）与反馈控制"))
     reports["B-18"] = "B-18-vertical-instability-freegsnke.md"
+
+    # ---------------------------------------------------------------- B-19 / B-20 (against KEFIT's electromagnetic layer: efund)
+    kg = consts(ROOT / "python/tests/test_benchmark_wall_vstab.py", ("B19_BAND", "B20_BAND"))
+    kv = json.loads((case / "corpus/benchmark/wall_vstab_kefit_east137985.json").read_text(encoding="utf-8"))
+    efund_ref = {"type": "spo:Code", "name": "efund（KEFIT 的格林表生成器）",
+                 "version": "KEFIT 参考包 green_2022_source/u/efundud6565.f，gfortran 本地构建于临时目录（参考包未改）；两处补丁随件：真空室行表控读入 · 写出 rvsvs；"
+                            "构建件的 PF 线圈表对参考包原表 2.5e-15 / 4.7e-16",
+                 "license": "private-artefact"}
+    efund_caveat = ["efund 运行件（补丁 · README · 三次运行的表）在 CASE-23 corpus/efund/，sha256 索引；门只回放已记录的表，不重跑 efund",
+                    "输入是参考包自带的 EAST 算表输入 green_2022_source/run/mhdin.dat（与交付的 green2022_pcs 同源：原 rvesel.dat 与 rv6565.ddd 逐字节相同）"]
+    ww = kv["wall"]
+    b19_crit = [crit("B-19", 1, "内壳 40 元 → 35 个磁通环的每弧度磁通响应，最大相对差", "measured_band", kg["B19_BAND"]["loops_rel_max"], "relative"),
+                crit("B-19", 2, "内壳 40 元 → 65² 网格节点的每弧度磁通响应，最大相对差", "measured_band", kg["B19_BAND"]["grid_rel_max"], "relative"),
+                crit("B-19", 3, "真空室互感矩阵：非对角相对差 p95（fylite 16×16 细丝 对 efund flux() 解析积分）", "measured_band", kg["B19_BAND"]["M_offdiag_rel_p95"], "relative",
+                     [f"对角中位另带 {kg['B19_BAND']['M_diag_rel_median']}、最大 {kg['B19_BAND']['M_diag_rel_max']}（自感的求法不同）"]),
+                crit("B-19", 4, "最长 L/R 时间 τ₁ 相对差（两边同用卡片电阻；efund 不带电阻）", "measured_band", kg["B19_BAND"]["tau1_rel"], "relative")]
+    b19_find = [finding("元件 → 磁通环 · 网格", "pass",
+                        f"环最大 {ww['loops']['rel_max']:.1e}（40 元全部 < 1e-3）· 网格最大 {ww['grid']['rel_max']:.1e} · 中位 {ww['grid']['rel_median']:.1e}"),
+                finding("元件 → 探针（读数）", "inconclusive", f"{ww['probes_reading']['matched']} / {ww['probes_reading']['of']} 配对；中位 {ww['probes_reading']['rel_median']:.1e} · p95 {ww['probes_reading']['rel_p95']:.1e}",
+                        caveat=["探针两边的配对按位置与角度；efund 沿探针长度取 NSMP2 点平均"]),
+                finding("互感矩阵与 τ₁", "pass",
+                        f"非对角 p95 {ww['M']['offdiag_rel_p95']:.2e} · 对角中位 {100 * ww['M']['diag_rel_median']:.2f} % / 最大 {100 * ww['M']['diag_rel_max']:.2f} % · "
+                        f"τ₁ {ww['tau_card_R_ms']['fylite'][0]:.3f} 对 {ww['tau_card_R_ms']['efund_M'][0]:.3f} ms（{ww['tau_card_R_ms']['tau1_rel']:+.1e}）"),
+                finding("参考包交付的 rv6565.ddd（读数）", "inconclusive",
+                        f"对同一输入按原意重建的表：环最大差 {100 * ww['shipped_vs_rebuilt']['loops_rel_max']:.1f} %、网格 {100 * ww['shipped_vs_rebuilt']['grid_rel_max']:.1f} %",
+                        caveat=["算表输入里 7 行真空室元件的列没有对齐 efund 的 6e12.6 定宽读法（如 138.4682 被切成 1 与 38.4682），交付表即其误读结果；EAST 上用真空室通道的 KEFIT 反演吃的是这份表"]),
+                finding("内核几何读法两处修正（2026-09-15）", "pass",
+                        "a1 = 0, a2 ≠ 90：efund 的 R 向剪切（此前读成倾斜边长 h）；a1 ≠ 0：efund 的 Z 向剪切（此前读成转角，内壳上下 14 段短 25 %、环响应差 1.6 %、网格 6 %）"),
+                rerun_finding(reruns["B-19"])]
+    TW2 = "python/tests/test_benchmark_wall_vstab.py"
+    recs.append(record(
+        "B-19", "导体壁对 KEFIT 的电磁层：EAST 真空室元件的格林响应与互感对 efund", "benchmark",
+        "fylite: code/wall 经树门（每元 8×8 细丝的逐元响应 loops_psi · probes_b · grid_psi；16×16 的互感矩阵）",
+        [efund_ref], b19_crit, b19_find,
+        [gate(f"{TW2}::test_the_efund_run_is_the_registered_one"), gate(f"{TW2}::test_b19_the_wall_responses_and_inductance_reproduce_and_stay_in_the_band_against_efund"),
+         gate(f"{TW2}::test_b19_the_shipped_kefit_vessel_table_is_recorded_as_the_misread_deck")],
+        [data(PTR + "efund/efund_east137985.tar.gz", "private-artefact", sums["efund/efund_east137985.tar.gz"], efund_caveat),
+         data(PTR + "benchmark/wall_vstab_kefit_east137985.json", "private-artefact", sums["benchmark/wall_vstab_kefit_east137985.json"])],
+        "B-19-wall-efund.md",
+        ["★★2026-09-15 用户「导体壁，垂直不稳定性，与 kefit 对拍」：KEFIT 本身不算增长率，它关于导体壁的电磁量全部出自 efund——参考取 efund 本体，在参考包自带的 EAST 输入上本地构建运行",
+         "★本条查出并修正了内核两处 EFIT 平行四边形读法（见结果）；修正前 B-17 / B-18 的读数同日重录",
+         "★口径：efund 表是每弧度磁通（M / 2π）、每安匝；fylite 的 loops_psi / grid_psi 同口径；元件顺序按中心位置配对（逐一相同）",
+         "纳入类别（参考数据）：private-artefact"],
+        "pass",
+        validity="EAST 真空室内壳 40 元（efund 算表输入与装置卡片逐行同几何）；35 个磁通环、65² 网格；探针只作读数；外壳与被动板不在 efund 的 EAST 输入里"))
+    reports["B-19"] = "B-19-wall-efund.md"
+
+    vk = kv["vstab"]
+    b20_crit = [crit("B-20", 1, "增长率 γ 相对差（fylite code/vstab 对 efund 表组装的刚性装置，同一 KEFIT 平衡；每元 8×8 与 16×16 两档）", "measured_band", kg["B20_BAND"]["gamma_rel"], "relative"),
+                crit("B-20", 2, "失稳刚度 k 相对差", "measured_band", kg["B20_BAND"]["k_rel"], "relative"),
+                crit("B-20", 3, "理想刚度 k_ideal 相对差 · 裕度绝对差", "measured_band", kg["B20_BAND"]["k_ideal_rel"], "relative", [f"裕度另带 {kg['B20_BAND']['margin_abs']}"]),
+                crit("B-20", 4, "耦合梯度 g 逐元相对差中位 / 最大", "measured_band", kg["B20_BAND"]["g_rel_median"], "relative", [f"最大值另带 {kg['B20_BAND']['g_rel_max']}"])]
+    b20_find = [finding("efund 装置", "pass",
+                        f"γ {vk['efund']['gamma']:.4g} s⁻¹ · k {vk['efund']['k']:.6g} N/m · k_ideal {vk['efund']['k_ideal']:.6g} · 裕度 {vk['efund']['margin']:.4f}（M = 2π·rvsvs；g、k 由 ±{1e3 * vk['shift_m']:.0f} mm 平移网格两次运行差分；{vk['plasma_nodes']} 个等离子体节点）")]
+    for tag, s in vk["fylite"].items():
+        c = s["compare"]
+        b20_find.append(finding(f"fylite（{tag}）", "pass",
+                                f"γ {s['gamma']:.4g}（{100 * c['gamma_rel']:+.2f} %）· k {100 * c['k_rel']:+.2f} % · k_ideal {100 * c['k_ideal_rel']:+.2f} % · 裕度 {s['margin']:.4f}（{c['margin_abs']:+.4f}）· g 中位 {100 * c['g_rel_median']:.2f} % / 最大 {100 * c['g_rel_max']:.2f} %"))
+    b20_find.append(rerun_finding(reruns["B-20"]))
+    recs.append(record(
+        "B-20", "垂直不稳定性对 KEFIT 的电磁层：KEFIT 平衡上 efund 表组装的刚性装置对 fylite code/vstab", "benchmark",
+        "fylite: code/vstab 经树门（circuit: passive、内壳、coarsen 1；质量为零的刚性等离子体、恒 Ip、主动线圈冻结）",
+        [efund_ref, dict(KEFIT_REF, comment="平衡（g-file 的 J 在同一 65² 网格上）与线圈电流（a-file CCBRSP，按算表 FCID · FCTURN 分到 14 个元件）取自 KEFIT 纯磁答案 t4041_mag")],
+        b20_crit, b20_find,
+        [gate(f"{TW2}::test_the_efund_run_is_the_registered_one"), gate(f"{TW2}::test_b20_the_rigid_plant_reproduces_and_stays_in_the_band_against_efund")],
+        [data(PTR + "efund/efund_east137985.tar.gz", "private-artefact", sums["efund/efund_east137985.tar.gz"], efund_caveat),
+         data(PTR + "benchmark/wall_vstab_kefit_east137985.json", "private-artefact", sums["benchmark/wall_vstab_kefit_east137985.json"]),
+         data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"], ["平衡与线圈电流的来源", KEFIT_CAVEAT_BUILD])],
+        "B-20-vertical-instability-efund.md",
+        ["★KEFIT 不给垂直增长率：本条是 KEFIT **电磁层**（efund 的互感、格林表）组装的刚性装置对 fylite，不是 KEFIT 的稳定性结论",
+         "★两边同用卡片电阻（efund 不带电阻）、同一刚性色散关系；差只在 M · g · k 的求法与等离子体离散（efund：g-file 网格节点；fylite：coarsen 1 细丝）",
+         "纳入类别（参考数据）：private-artefact、experiment"],
+        "pass",
+        validity="EAST #137985 4.041 s KEFIT 纯磁平衡；无源组内壳（efund 的 EAST 输入只含内壳）；刚性、质量为零；不含可变形等离子体"))
+    reports["B-20"] = "B-20-vertical-instability-efund.md"
     return recs, reports
 
 
@@ -618,7 +693,23 @@ REPORT_TEXT = {
                            "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
                            "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b17'",
                            "# FreeGSNKE 侧（不在门里）：解开 corpus/freegsnke/freegsnke_vstab_east137985.tar.gz，按其 run_all.sh（freegs4e==0.13.*）"],
-             "conclusion": "成立：同一张 EAST 卡片上，fylite code/wall 与 FreeGSNKE 的无源 L/R 本征模 τ₁ 在内壳 · 外壳 · 被动板 · 三组合上差 ≤ 0.08 %（12.76 / 13.10 / 400.6 / 413.5 ms），互感矩阵非对角 p95 ≤ 0.54 %。"},
+             "conclusion": "成立：同一张 EAST 卡片上，fylite code/wall 与 FreeGSNKE 的无源 L/R 本征模 τ₁ 在内壳 · 外壳 · 被动板 · 三组合上差 ≤ 0.08 %（12.75 / 13.10 / 400.6 / 413.5 ms），互感矩阵非对角 p95 ≤ 0.54 %、对角最大 1.9 %（2026-09-15 内核改正 a1 ≠ 0 的读法后重录；首录为 8.0 %）。"},
+    "B-19": {"not_comparable": ["- efund 的 EAST 输入只含真空室内壳 40 元；外壳与被动板的格林列不在 KEFIT 里（B-17 对 FreeGSNKE 覆盖它们）。",
+                                "- 互感对角：efund 用矩形截面解析积分，fylite 用 16×16 细丝加圆导线自感项——对角中位差 0.83 % 即此。",
+                                "- 探针只作读数：efund 沿探针长度多点平均，配对按位置与角度（74 / 76）。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERNEL_LIB=<带 code/wall 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'efund or b19'",
+                           "# efund 侧重建：python tools/benchmark-wall-vstab.py efund-build --out <dir>（需 gfortran 与 $KEFIT_REFERENCE_BUNDLE）"],
+             "conclusion": "成立：EAST 真空室内壳 40 元的格林响应与 efund 一致到磁通环 2.0e-5、网格 2.1e-7，互感非对角 p95 3.7e-3，τ₁ 差 2.4e-4；本条同时查出参考包交付的 rv6565.ddd 是算表输入 7 行错列的误读结果（差 9 % / 29 %），并修正了内核两处 EFIT 平行四边形读法。"},
+    "B-20": {"not_comparable": ["- KEFIT 没有稳定性计算：本条比的是它的电磁层组装出的刚性装置，不是 KEFIT 的结论。",
+                                "- 等离子体离散不同：efund 侧在 g-file 的 65² 节点上取 J，fylite 在 coarsen 1 的细丝上；16×16 与 8×8 两档之间 fylite 自己的 γ 走 1.3 %。",
+                                "- 只含内壳（efund 的 EAST 输入里只有内壳）；刚性、主动线圈冻结。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERNEL_LIB=<带 code/wall 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'efund or b20'",
+                           "# 读数重写：python tools/benchmark-wall-vstab.py kefit-readings --out <dir> [--bundle <参考包>]"],
+             "conclusion": "成立：KEFIT 平衡上，efund 表组装的刚性装置 γ 676.4 s⁻¹ 与 fylite code/vstab 差 +0.28 %（8×8）/ −1.0 %（16×16），k 差 0.38 %、k_ideal 0.2–0.6 %、裕度 ±0.003，耦合梯度逐元中位 0.31 %。"},
     "B-18": {"not_comparable": ["- 可变形等离子体：FreeGSNKE 的线性化雅可比给出三组合 γ 为刚性的 2.2 倍、内壳 0.92 倍；fylite 的 code/vstab 是刚性模型，这一项无对应（读数，雅可比线性度未核）。",
                                 "- 平衡是 FreeGSNKE 的反演收敛态，不是 KEFIT 的（κ 高 3.5 %）；fylite 在 KEFIT 平衡上的 γ 低 4.3 %（内壳）/ 2.2 %（三组合），只作读数。",
                                 "- 主动线圈冻结（与 circuit: passive 同义）；不含反馈控制、线圈电源与快控线圈。"],
@@ -626,7 +717,7 @@ REPORT_TEXT = {
                            "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
                            "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b18'",
                            "# 读数重写：python tools/benchmark-wall-vstab.py readings --out <dir>"],
-             "conclusion": "成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 0.37 %（内壳，711 s⁻¹）/ 0.12 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005；FreeGSNKE 的可变形增长率另记为读数。"},
+             "conclusion": "成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 −0.006 %（内壳，709 s⁻¹）/ +0.11 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005（内核改正 a1 ≠ 0 的读法后重录；首录内壳为 +0.37 %）；FreeGSNKE 的可变形增长率另记为读数。"},
 }
 
 
@@ -644,6 +735,7 @@ def apply(case: Path, reruns: dict, solovev: dict) -> None:
         if note not in r["caveat"]:
             r["caveat"].insert(0, note)
     by["record/C-03"]["superseded_by"] = "record/B-18"
+    by["record/C-03"]["assertion_state"] = "retired"
     c03_note = "★★2026-09-15（第三批）：本条由 B-18 取代——同一问题（刚性等离子体的垂直增长率与裕度）对 FreeGSNKE 可复跑，参考侧有指针与 sha256，判据有实测带"
     if c03_note not in by["record/C-03"]["caveat"]:
         by["record/C-03"]["caveat"].insert(0, c03_note)

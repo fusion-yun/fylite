@@ -524,6 +524,12 @@ fn rectangle_outline(r0: f64, z0: f64, w: f64, h: f64, a: f64, a2: f64)
     let (mut rr, mut zz) = (Vec::with_capacity(5), Vec::with_capacity(5));
     for (u, v) in [(-w / 2.0, -h / 2.0), (w / 2.0, -h / 2.0),
                    (w / 2.0, h / 2.0), (-w / 2.0, h / 2.0)] {
+        if a != 0.0 {
+            //: a != 0: efund's Z shear (splitc branch 200), not a rotation — the kernel changed the same day
+            rr.push(r0 + u);
+            zz.push(z0 + v + u * (a * rad).tan());
+            continue;
+        }
         if efit_shear {
             rr.push(r0 + u + v * cot2);
             zz.push(z0 + v);
