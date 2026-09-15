@@ -1582,7 +1582,7 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
     """EAST's device document, assembled from fydoc's A-Box (see the section header).
 
     ``providers`` names the provider of a resolved IDS (``PROGRAM_SIDE['resolved_ids']``,
-    e.g. ``{"magnetics": "efit_green2022_pcs"}``) for the ONE conversion :func:`east_resolution` makes per
+    e.g. ``{"magnetics": "east_new"}``) for the ONE conversion :func:`east_resolution` makes per
     provider; unnamed ones take the manifest's ``default``.  ★Not a request surface: which
     converted group a request gets is the runtime's rule (shot + measurement chain).
     """

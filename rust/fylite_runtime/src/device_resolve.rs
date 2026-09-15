@@ -760,7 +760,9 @@ mod tests {
 
     /// EAST's magnetics and wall providers in miniature, as fydoc's manifest writes them after the
     /// 2026-09-13 measurement-chain ruling (no est2 array, no duplicate `east`, wall default base)
-    /// and the 2026-09-14 ruling (magnetics default and `preferred` back on `pcs`).
+    /// and the 2026-09-14 ruling (magnetics default and `preferred` back on `pcs`).  ★The `efit` /
+    /// `efit_east` entries are a synthetic third chain: the real efit_east chain left the device book
+    /// with the user ruling 2026-09-15 (that tree is comparison data only).
     fn manifest(default: &str) -> Node {
         json::parse(&format!(r#"{{
           "magnetics": {{"default": "{default}", "available": {{
@@ -828,7 +830,8 @@ mod tests {
 
     /// ★2026-09-14 (user ruling R1): efit_east geometry is one provider per EFIT array vintage, each
     /// anchored on the few shots it was verified on.  Those narrow ranges must not capture a request
-    /// that named no chain — it stays in the chain of the manifest default (2026-09-14).
+    /// that named no chain — it stays in the chain of the manifest default (2026-09-14).  ★Synthetic
+    /// since the user ruling 2026-09-15 took the efit_east chain out of the device book.
     #[test]
     fn a_narrow_range_in_another_chain_does_not_capture_a_request_without_a_chain() {
         for default in ["east_new", "pcs"] {
@@ -1017,7 +1020,8 @@ mod tests {
         }
         assert_eq!(mag(Some(70754), Some("east")).provider, "base");
         assert_eq!(mag(Some(137985), Some("east")).provider, "east_new");
-        assert_eq!(mag(Some(137985), Some("efit_east")).provider, "efit_green2022_pcs");
+        //: ★〔user ruling 2026-09-15〕the efit_east chain left the device book: an undeclared chain
+        assert!(selection(&res, &ask(Some(137985), Some("efit_east"))).unwrap_err().contains("not declared"));
         assert!(selection(&res, &ask(Some(137985), Some("est2"))).unwrap_err().contains("not declared"));
     }
 }

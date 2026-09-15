@@ -131,10 +131,10 @@ def test_the_flux_loops_are_in_the_same_places(pair):
     2026-09-14 — before it ``east_new``, 75 loops).  The
     other chains' loop sets are not in either file as written; they are what each form
     RESOLVES to, so one is compared resolved — both forms, one resolution document, the
-    runtime's rule: the ``efit_east`` chain at #137985 (``conftest.EFIT_TREE``:
-    ``efit_green2022_pcs`` since 2026-09-14, 35 loops).
+    runtime's rule: the ``east`` chain at #137985 (``east_new``, 75 loops; the ``efit_east``
+    chain compared here until it left the device book, user ruling 2026-09-15).
     """
-    from conftest import EFIT_TREE
+    east_137985 = {"measurement_chain": "east", "shot": 137985}
     from fylite import device
 
     def places(doc):
@@ -146,10 +146,10 @@ def test_the_flux_loops_are_in_the_same_places(pair):
     assert len(places(y)) == len(places(j)) == 35
     assert places(y) == places(j)
     res = device.resolution_of(YAML_DOC)
-    ye = device.resolve_document(y, res, form="card", **EFIT_TREE)["document"]
-    je = device.resolve_document(j, res, form="document", **EFIT_TREE)["document"]
-    assert ye["magnetics"]["measurement_chain"] == je["magnetics"]["measurement_chain"] == "efit_east"
-    assert len(places(ye)) == len(places(je)) == 35
+    ye = device.resolve_document(y, res, form="card", **east_137985)["document"]
+    je = device.resolve_document(j, res, form="document", **east_137985)["document"]
+    assert ye["magnetics"]["measurement_chain"] == je["magnetics"]["measurement_chain"] == "east"
+    assert len(places(ye)) == len(places(je)) == 75
     assert places(ye) == places(je)
 
 

@@ -2136,30 +2136,31 @@ mod tests {
     /// EAST corpus, when this checkout has one.
     #[test]
     fn the_staged_east_variant_and_the_resolver_entry_answer_for_137985() {
-        //: the variant generated for the efit_east chain (`tools/abox-to-facts.py east --shot 137985
-        //: --measurement-chain efit_east -o dist/facts/device/east/variants/efit`)
-        let variant = "facts:device/east/variants/efit/east/east_device.yaml?shot=137985";
+        //: the variant generated for the pcs_east chain (`tools/abox-to-facts.py east --shot 137985
+        //: --measurement-chain pcs_east -o dist/facts/device/east/variants/pcs`; the efit_east variant
+        //: this used left with the user ruling 2026-09-15)
+        let variant = "facts:device/east/variants/pcs/east/east_device.yaml?shot=137985";
         let Some(root) = crate::facts::repo_facts() else {
             eprintln!("skip: no staged dist/facts in this checkout");
             return;
         };
-        if !root.join("device/east/variants/efit/east/east_device.yaml").is_file()
+        if !root.join("device/east/variants/pcs/east/east_device.yaml").is_file()
             || !root.join("device/east/east_resolution.jsonld").is_file() {
             eprintln!("skip: the staged corpus has no EAST variant / resolution document");
             return;
         }
         crate::facts::use_roots(Some(vec![root.clone()]));
         let card = facts_endpoint(variant).unwrap().unwrap();
-        assert!(card.ends_with("variants/efit/east/east_device.yaml"));
-        //: the efit_green2022_pcs range is the live-scanned [97400, 159875] (2026-09-14); #160000 lies in the gap past it
+        assert!(card.ends_with("variants/pcs/east/east_device.yaml"));
+        //: `pcs` declares no shot range, so a card generated for a shot vouches for that shot alone
         assert!(facts_endpoint(&variant.replace("137985", "160000")).unwrap().unwrap_err().contains("outside"));
-        let entry = facts_endpoint("facts:device/east?shot=137985&measurement_chain=efit_east").unwrap().unwrap();
+        let entry = facts_endpoint("facts:device/east?shot=137985&measurement_chain=pcs_east").unwrap().unwrap();
         let n = crate::io::read_node(&entry).unwrap();
-        assert_eq!(n.get("magnetics/fylite:provider").and_then(Node::as_str), Some("efit_green2022_pcs"));
-        assert_eq!(n.get("magnetics/measurement_chain").and_then(Node::as_str), Some("efit_east"));
+        assert_eq!(n.get("magnetics/fylite:provider").and_then(Node::as_str), Some("pcs"));
+        assert_eq!(n.get("magnetics/measurement_chain").and_then(Node::as_str), Some("pcs_east"));
         //: (a numeric list read back from disk is an array: compare values, not spellings)
         let range = |x: &Node| x.get("_valid_shots").and_then(Node::to_f64_vec);
-        assert_eq!(range(&n), Some(vec![97400.0, 159875.0]));
+        assert_eq!(range(&n), Some(vec![137985.0, 137985.0]));
         //: the variant card and the entry are the same providers and the same range
         let v = crate::io::read_node(&card).unwrap();
         assert_eq!(range(&v), range(&n));

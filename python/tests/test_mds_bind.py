@@ -39,8 +39,12 @@ NODE_RE = re.compile(r"^[A-Za-z0-9_$\\.:-]+$")
 #: 唯一一条 `const` 字面量）与 `global_quantities/q_min/{value,rho_tor_norm}`，
 #: 新增 `boundary/minor_radius`。三删一增。★这是**绑定内容**变了，不是上游被
 #: 重写了一遍——两者由 provenance 的两个指纹分开，`--check` 会直说是哪一种。
-N_BINDINGS = 481
-N_UNSUPPORTED = 2
+#: 2026-09-15  481 -> 708，unsupported 2 -> 0：用户裁定「efit_east 树仅作对拍比较数据，不进 facts/device」，
+#: 上游归档了 `equilibrium`（45 条，含那两条 unsupported）· `magnetics_efit_east`（111）· `pf_active_efit`（33）
+#: 三件，共删 189；同一次重生成补进了上游 2026-09-14 新增、本表此前没跟上的四件：`magnetics_east_new`
+#: （298）· `magnetics_pcs_n_pre80000`（76）· `magnetics_pcs_vp_post80000`（20）· `polarimeter`（22），共增 416。
+N_BINDINGS = 708
+N_UNSUPPORTED = 0
 
 pytestmark = pytest.mark.skipif(not PY_COPY.is_file(),
                                 reason=f"{PY_COPY.name} not generated "

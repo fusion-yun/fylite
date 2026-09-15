@@ -4,31 +4,28 @@
  "title": "EAST MDSplus 绑定——由 A-Box 分解出的扁平表，两个宿主读同一份",
  "provenance": {
   "tool": "tools/abox-mds-bind.py",
-  "source": "fydoc:device/east/abox",
+  "source": "fydoc:facts/device/east/abox",
   "files": [
    "ec_launchers.jsonld",
-   "equilibrium.jsonld",
    "ic_antenna.jsonld",
    "interferometer.jsonld",
    "lh_antenna.jsonld",
-   "magnetics_efit_east.jsonld",
+   "magnetics_east_new.jsonld",
    "magnetics_pcs.jsonld",
-   "pf_active_efit.jsonld",
+   "magnetics_pcs_n_pre80000.jsonld",
+   "magnetics_pcs_vp_post80000.jsonld",
    "pf_active_pcs.jsonld",
+   "polarimeter.jsonld",
    "tf.jsonld"
   ],
-  "sha256": "876fa18c5fe5e00acaddb16352bfb3414c65518e15939cc9e591267f6fccf3e5",
-  "bindings_sha256": "a0a0276640664eae8fc22ff5fa05136fa47f0d743c2191611e08e5c3807ee868",
+  "sha256": "d44d70bf786bfbc0f32bd08fc9249f9917cc6a1aa2198b7d014a9c6013765b97",
+  "bindings_sha256": "a3d26bb804bf42e1ed67b9916f9c61552b75a744944990695b8e28861505b53e",
   "note": "Decomposed, not interpreted. `verb`+`node`+`subscript` are what the kernel assembles a TDI string from; `scale` is the host's to apply; `units` is null because the A-Box carries none — do not invent one."
  },
  "sources": {
   "analysis": {
    "tree": "analysis",
    "uri": "mdsplus://127.0.0.1/mdsplus/~t?shot={shot}&tree_name=analysis"
-  },
-  "efit_east": {
-   "tree": "efit_east",
-   "uri": "mdsplus://127.0.0.1/mdsplus/~t?shot={shot}&tree_name=efit_east"
   },
   "east": {
    "tree": "east",
@@ -151,817 +148,6 @@
    "verb": "dim_of",
    "node": "\\ECRH_EAST::PECRH4I",
    "subscript": null,
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time",
-   "source": "efit_east",
-   "link": "efit_east:TIME",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "TIME",
-   "subscript": null,
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "vacuum_toroidal_field/r0",
-   "source": "efit_east",
-   "link": "efit_east:RBCENT[0]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RBCENT",
-   "subscript": [
-    {
-     "int": 0
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "vacuum_toroidal_field/b0",
-   "source": "efit_east",
-   "link": "efit_east:BCENTR",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "BCENTR",
-   "subscript": null,
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "vacuum_toroidal_field/fvac",
-   "source": "efit_east",
-   "link": "efit_east:FPOL[0,*]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "FPOL",
-   "subscript": [
-    {
-     "int": 0
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/time",
-   "source": "efit_east",
-   "link": "efit_east:TIME[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "TIME",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/vacuum_toroidal_field/r0",
-   "source": "efit_east",
-   "link": "efit_east:RBCENT[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RBCENT",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/vacuum_toroidal_field/b0",
-   "source": "efit_east",
-   "link": "efit_east:BCENTR[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "BCENTR",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/minor_radius",
-   "source": "efit_east",
-   "link": "efit_east:AMINOR[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "AMINOR",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/psi",
-   "source": "efit_east",
-   "link": "efit_east:SSIBRY",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "SSIBRY",
-   "subscript": null,
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/geometric_axis/r",
-   "source": "efit_east",
-   "link": "efit_east:RSURF[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RSURF",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/geometric_axis/z",
-   "source": "efit_east",
-   "link": "efit_east:ZSURF[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZSURF",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/elongation",
-   "source": "efit_east",
-   "link": "efit_east:KAPPA[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "KAPPA",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/triangularity_lower",
-   "source": "efit_east",
-   "link": "efit_east:TRIBOT[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "TRIBOT",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/triangularity_upper",
-   "source": "efit_east",
-   "link": "efit_east:TRITOP[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "TRITOP",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/x_point/0/r",
-   "source": "efit_east",
-   "link": "efit_east:RXPT1[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RXPT1",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/x_point/0/z",
-   "source": "efit_east",
-   "link": "efit_east:ZXPT1[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZXPT1",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/x_point/1/r",
-   "source": "efit_east",
-   "link": "efit_east:RXPT2[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RXPT2",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/x_point/1/z",
-   "source": "efit_east",
-   "link": "efit_east:ZXPT2[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZXPT2",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/strike_point/0/r",
-   "source": "efit_east",
-   "link": "efit_east:RVSIN[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RVSIN",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/strike_point/0/z",
-   "source": "efit_east",
-   "link": "efit_east:ZVSIN[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZVSIN",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/strike_point/1/r",
-   "source": "efit_east",
-   "link": "efit_east:RVSOUT[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RVSOUT",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/strike_point/1/z",
-   "source": "efit_east",
-   "link": "efit_east:ZVSOUT[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZVSOUT",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/beta_pol",
-   "source": "efit_east",
-   "link": "efit_east:BETAP[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "BETAP",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/beta_tor",
-   "source": "efit_east",
-   "link": "efit_east:BETAT[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "BETAT",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/beta_tor_norm",
-   "source": "efit_east",
-   "link": "efit_east:BETAN[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "BETAN",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/ip",
-   "source": "efit_east",
-   "link": "efit_east:EFIT_MFILE:PLASMA[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "EFIT_MFILE:PLASMA",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/li_3",
-   "source": "efit_east",
-   "link": "efit_east:LI[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "LI",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/volume",
-   "source": "efit_east",
-   "link": "efit_east:VOLUME[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "VOLUME",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/psi_axis",
-   "source": "efit_east",
-   "link": "efit_east:SSIMAG[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "SSIMAG",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/psi_boundary",
-   "source": "efit_east",
-   "link": "efit_east:SSIBRY[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "SSIBRY",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/magnetic_axis/r",
-   "source": "efit_east",
-   "link": "efit_east:RMAXIS[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RMAXIS",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/magnetic_axis/z",
-   "source": "efit_east",
-   "link": "efit_east:ZMAXIS[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZMAXIS",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/magnetic_axis/b_field_phi",
-   "source": "efit_east",
-   "link": "efit_east:BCENTR[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "BCENTR",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/current_centre/r",
-   "source": "efit_east",
-   "link": "efit_east:RCUR[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "RCUR",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/current_centre/z",
-   "source": "efit_east",
-   "link": "efit_east:ZCUR[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "ZCUR",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/q_axis",
-   "source": "efit_east",
-   "link": "efit_east:Q0[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "Q0",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/q_95",
-   "source": "efit_east",
-   "link": "efit_east:Q95[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "Q95",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/global_quantities/energy_mhd",
-   "source": "efit_east",
-   "link": "efit_east:WMHD[{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "WMHD",
-   "subscript": [
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_1d/f",
-   "source": "efit_east",
-   "link": "efit_east:FPOL[*,{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "FPOL",
-   "subscript": [
-    {
-     "all": true
-    },
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_1d/dpressure_dpsi",
-   "source": "efit_east",
-   "link": "efit_east:PPRIME[*,{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "PPRIME",
-   "subscript": [
-    {
-     "all": true
-    },
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_1d/f_df_dpsi",
-   "source": "efit_east",
-   "link": "efit_east:FFPRIM[*,{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "FFPRIM",
-   "subscript": [
-    {
-     "all": true
-    },
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_1d/q",
-   "source": "efit_east",
-   "link": "efit_east:QPSI[*,{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "QPSI",
-   "subscript": [
-    {
-     "all": true
-    },
-    {
-     "slot": "time_slice"
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_2d/grid/dim1",
-   "source": "efit_east",
-   "link": "efit_east:R",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "R",
-   "subscript": null,
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_2d/grid/dim2",
-   "source": "efit_east",
-   "link": "efit_east:Z",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "Z",
-   "subscript": null,
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/profiles_2d/psi",
-   "source": "efit_east",
-   "link": "efit_east:PSIRZ[*,*,{time_slice}]",
-   "tree": "efit_east",
-   "verb": "raw",
-   "node": "PSIRZ",
-   "subscript": [
-    {
-     "all": true
-    },
-    {
-     "all": true
-    },
-    {
-     "slot": "time_slice"
-    }
-   ],
    "subscript_inside": false,
    "value": null,
    "scale": null,
@@ -1976,2331 +1162,4172 @@
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/0/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  0, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 0
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/1/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  1, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 1
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/2/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  2, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 2
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/3/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  3, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 3
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/4/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  4, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 4
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/5/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  5, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 5
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/6/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  6, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 6
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/7/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  7, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 7
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/8/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  8, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 8
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/9/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  9, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 9
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/10/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 10, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 10
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/11/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 11, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 11
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/12/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 12, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 12
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/13/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 13, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 13
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/14/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 14, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 14
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/15/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 15, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 15
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/16/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 16, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 16
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/17/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 17, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 17
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/18/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 18, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 18
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/19/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 19, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 19
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/20/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 20, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 20
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/21/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 21, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 21
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/22/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 22, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 22
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/23/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 23, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 23
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/24/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 24, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 24
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/25/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 25, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 25
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/26/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 26, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 26
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/27/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 27, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 27
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/28/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 28, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 28
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/29/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 29, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 29
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/30/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 30, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 30
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/31/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 31, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 31
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/32/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 32, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 32
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/33/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 33, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 33
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/34/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 34, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 34
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/35/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 35, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 35
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/36/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 36, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 36
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
-   "path": "b_field_phi_probe/37/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 37, *]",
-   "tree": "pcs_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 37
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": false,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/0/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 38, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH1T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 38
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH1T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/0/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH1T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH1T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/1/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 39, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH2T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 39
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH2T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/1/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH2T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH2T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/2/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 40, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH3T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 40
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH3T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/2/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH3T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH3T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/3/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 41, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH4T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 41
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH4T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/3/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH4T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH4T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/4/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 42, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH5T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 42
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH5T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/4/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH5T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH5T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/5/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 43, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH6T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 43
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH6T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/5/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH6T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH6T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/6/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 44, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH7T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 44
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH7T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/6/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH7T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH7T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/7/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 45, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPH8T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 45
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPH8T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/7/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH8T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH8T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/8/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 46, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU1T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 46
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU1T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/8/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU1T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU1T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/9/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 47, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU2T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 47
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU2T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/9/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU2T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU2T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/10/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 48, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU3T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 48
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU3T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/10/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU3T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU3T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/11/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 49, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU5T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 49
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU5T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/11/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU5T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU5T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/12/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 50, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU6T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 50
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU6T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/12/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU6T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU6T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/13/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 51, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU7T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 51
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU7T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/13/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU7T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU7T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/14/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 52, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU8T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 52
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU8T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/14/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU8T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU8T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/15/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 53, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU9T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 53
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU9T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/15/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU9T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU9T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/16/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 54, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL1T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 54
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL1T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/16/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL1T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL1T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/17/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 55, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL2T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 55
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL2T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/17/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL2T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL2T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/18/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 56, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL3T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 56
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL3T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/18/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL3T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL3T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/19/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 57, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL4T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 57
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL4T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/19/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL4T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL4T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/20/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 58, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL5T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 58
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL5T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/20/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL5T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL5T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/21/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 59, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL6T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 59
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL6T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/21/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL6T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL6T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/22/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 60, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL7T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 60
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL7T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/22/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL7T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL7T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/23/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 61, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL8T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 61
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL8T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/23/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL8T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL8T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/24/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 62, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL9T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 62
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL9T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/24/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL9T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL9T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/25/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 63, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL10T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 63
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL10T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/25/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL10T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL10T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/26/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 64, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPL11T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 64
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPL11T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/26/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL11T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL11T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/27/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 65, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD1T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 65
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD1T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/27/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD1T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD1T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/28/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 66, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD2T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 66
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD2T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/28/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD2T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD2T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/29/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 67, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD3T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 67
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD3T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/29/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD3T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD3T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/30/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 68, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD4T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 68
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD4T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/30/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD4T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD4T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/31/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 69, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD5T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 69
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD5T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/31/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD5T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD5T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/32/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 70, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD6T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 70
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD6T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/32/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD6T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD6T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/33/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 71, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD7T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 71
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD7T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/33/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD7T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD7T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/34/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 72, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD8T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 72
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD8T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/34/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD8T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD8T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/35/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 73, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD9T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 73
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD9T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/35/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD9T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD9T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/36/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 74, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPD10T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 74
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPD10T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/36/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD10T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD10T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "b_field_pol_probe/37/field/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 75, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\HBPU4T)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 75
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\HBPU4T",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/37/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU4T)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU4T",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/38/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU1N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/38/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU1N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/39/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU2N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/39/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU2N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/40/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU5N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/40/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU5N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/41/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU6N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/41/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU6N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/42/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU7N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/42/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU7N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/43/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU8N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/43/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU8N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/44/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPU9N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPU9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/44/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPU9N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPU9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/45/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL1N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/45/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL1N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/46/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL2N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/46/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL2N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/47/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL3N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/47/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL3N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/48/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL4N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/48/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL4N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/49/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL5N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/49/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL5N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/50/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL6N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/50/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL6N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/51/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL7N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/51/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL7N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/52/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL8N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/52/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL8N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/53/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL9N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/53/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL9N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/54/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL10N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL10N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/54/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL10N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL10N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/55/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPL11N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPL11N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/55/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPL11N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPL11N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/56/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH1N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/56/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH1N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/57/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH2N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/57/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH2N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/58/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH3N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/58/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH3N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/59/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH4N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/59/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH4N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/60/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH5N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/60/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH5N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/61/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH6N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/61/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH6N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/62/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH7N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/62/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH7N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/63/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPH8N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPH8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/63/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPH8N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPH8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/64/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD1N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/64/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD1N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/65/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD2N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/65/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD2N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/66/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD3N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/66/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD3N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/67/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD4N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/67/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD4N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/68/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD5N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/68/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD5N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/69/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD6N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/69/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD6N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/70/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD7N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/70/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD7N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/71/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD8N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/71/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD8N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/72/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD9N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/72/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD9N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/73/field/data",
+   "source": "east",
+   "link": "east:DATA(\\HBPD10N)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\HBPD10N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "b_field_pol_probe/73/field/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\HBPD10N)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\HBPD10N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/0/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  0, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL1A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 0
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL1A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/0/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL1A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL1A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/1/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  1, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL2A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 1
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL2A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/1/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL2A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL2A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/2/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  2, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL3A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 2
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL3A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/2/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL3A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL3A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/3/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  3, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL4A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 3
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL4A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/3/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL4A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL4A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/4/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  4, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL5A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 4
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL5A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/4/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL5A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL5A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/5/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  5, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL6A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 5
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL6A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/5/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL6A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL6A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/6/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  6, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL7A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 6
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL7A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/6/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL7A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL7A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/7/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  7, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL8A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 7
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL8A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/7/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL8A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL8A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/8/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  8, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL9A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 8
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL9A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/8/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL9A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL9A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/9/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[  9, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL10A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 9
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL10A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/9/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL10A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL10A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/10/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 10, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL11A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 10
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL11A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/10/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL11A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL11A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/11/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 11, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL12A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 11
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL12A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/11/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL12A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL12A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/12/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 12, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL13A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 12
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL13A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/12/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL13A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL13A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/13/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 13, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL14A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 13
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL14A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/13/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL14A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL14A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/14/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 14, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL15A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 14
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL15A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/14/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL15A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL15A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/15/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 15, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL16A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 15
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL16A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/15/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL16A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL16A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/16/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 16, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL17A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 16
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL17A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/16/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL17A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL17A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/17/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 17, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL18A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 17
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL18A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/17/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL18A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL18A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/18/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 18, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL19A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 18
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL19A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/18/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL19A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL19A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/19/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 19, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL20A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 19
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL20A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/19/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL20A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL20A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/20/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 20, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL21A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 20
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL21A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/20/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL21A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL21A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/21/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 21, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL22A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 21
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL22A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/21/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL22A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL22A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/22/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 22, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL23A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 22
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL23A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/22/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL23A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL23A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/23/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 23, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL24A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 23
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL24A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/23/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL24A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL24A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/24/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 24, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL25A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 24
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL25A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/24/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL25A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL25A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/25/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 25, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL26A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 25
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL26A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/25/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL26A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL26A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/26/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 26, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL27A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 26
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL27A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/26/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL27A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL27A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/27/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 27, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL28A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 27
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL28A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/27/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL28A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL28A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/28/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 28, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL29A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 28
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL29A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/28/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL29A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL29A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/29/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 29, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL30A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 29
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL30A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/29/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL30A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL30A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/30/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 30, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL31A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 30
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL31A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/30/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL31A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL31A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/31/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 31, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL32A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 31
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL32A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/31/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL32A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL32A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/32/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 32, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL33A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 32
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL33A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/32/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL33A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL33A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/33/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 33, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL34A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 33
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL34A",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "magnetics_efit_east",
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/33/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL34A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL34A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
    "path": "flux_loop/34/flux/data",
-   "source": "pcs_east",
-   "link": "pcs_east:DATA(\\EFIT_MFILE:CMPR2)[ 34, *]",
-   "tree": "pcs_east",
+   "source": "east",
+   "link": "east:DATA(\\FL35A)",
+   "tree": "east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CMPR2",
-   "subscript": [
-    {
-     "int": 34
-    },
-    {
-     "all": true
-    }
-   ],
+   "node": "\\FL35A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/34/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL35A)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL35A",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/35/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL1B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL1B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/35/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL1B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL1B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/36/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL2B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL2B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/36/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL2B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL2B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/37/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL3B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL3B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/37/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL3B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL3B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/38/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL4B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL4B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/38/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL4B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL4B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/39/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL5B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL5B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/39/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL5B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL5B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/40/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL6B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL6B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/40/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL6B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL6B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/41/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL7B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL7B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/41/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL7B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL7B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/42/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL8B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL8B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/42/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL8B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL8B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/43/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL9B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL9B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/43/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL9B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL9B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/44/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL10B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL10B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/44/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL10B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL10B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/45/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL11B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL11B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/45/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL11B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL11B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/46/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL12B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL12B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/46/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL12B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL12B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/47/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL13B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL13B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/47/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL13B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL13B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/48/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL14B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL14B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/48/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL14B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL14B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/49/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL15B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL15B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/49/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL15B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL15B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/50/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL16B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL16B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/50/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL16B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL16B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/51/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL17B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL17B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/51/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL17B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL17B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/52/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL18B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL18B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/52/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL18B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL18B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/53/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL19B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL19B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/53/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL19B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL19B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/54/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL20B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL20B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/54/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL20B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL20B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/55/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL21B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL21B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/55/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL21B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL21B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/56/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL22B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL22B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/56/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL22B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL22B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/57/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL23B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL23B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/57/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL23B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL23B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/58/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL24B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL24B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/58/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL24B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL24B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/59/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL25B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL25B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/59/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL25B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL25B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/60/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL26B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL26B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/60/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL26B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL26B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/61/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL27B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL27B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/61/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL27B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL27B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/62/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL28B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL28B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/62/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL28B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL28B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/63/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL29B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL29B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/63/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL29B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL29B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/64/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL30B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL30B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/64/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL30B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL30B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/65/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL31B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL31B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/65/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL31B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL31B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/66/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL32B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL32B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/66/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL32B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL32B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/67/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL33B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL33B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/67/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL33B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL33B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/68/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL34B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL34B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/68/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL34B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL34B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/69/flux/data",
+   "source": "east",
+   "link": "east:DATA(\\FL35B)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\FL35B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/69/flux/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\FL35B)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\FL35B",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/70/voltage/data",
+   "source": "east",
+   "link": "east:DATA(\\VP1)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\VP1",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/70/voltage/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\VP1)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\VP1",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/71/voltage/data",
+   "source": "east",
+   "link": "east:DATA(\\VP2)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\VP2",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/71/voltage/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\VP2)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\VP2",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/72/voltage/data",
+   "source": "east",
+   "link": "east:DATA(\\VP3)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\VP3",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/72/voltage/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\VP3)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\VP3",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/73/voltage/data",
+   "source": "east",
+   "link": "east:DATA(\\VP4)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\VP4",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/73/voltage/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\VP4)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\VP4",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/74/voltage/data",
+   "source": "east",
+   "link": "east:DATA(\\VP5)",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\VP5",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_east_new",
+   "path": "flux_loop/74/voltage/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\VP5)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\VP5",
+   "subscript": null,
    "subscript_inside": false,
    "value": null,
    "scale": null,
@@ -6379,13 +7406,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/0/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV1N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV1N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6393,34 +7420,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/0/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 1,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 1
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/0/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/0/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV1N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV1N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6428,34 +7434,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/1/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 2,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/1/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV2N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 2
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/1/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV2N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6463,34 +7448,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/2/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 3,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 3
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/2/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/1/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV2N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV2N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6498,34 +7462,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/3/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 4,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/2/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV3N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 4
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/3/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV3N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6533,34 +7476,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/4/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 5,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 5
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/4/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/2/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV3N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV3N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6568,34 +7490,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/5/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 6,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/3/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV4N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 6
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/5/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV4N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6603,34 +7504,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/6/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 7,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 7
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/6/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/3/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV4N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV4N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6638,34 +7518,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/7/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 8,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/4/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV5N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 8
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/7/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV5N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6673,34 +7532,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/8/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[ 9,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 9
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/8/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/4/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV5N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV5N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6708,34 +7546,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/9/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[10,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/5/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV6N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 10
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/9/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV6N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6743,34 +7560,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/10/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[11,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 11
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/10/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/5/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV6N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV6N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6778,34 +7574,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/11/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[12,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/6/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV7N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 12
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/11/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV7N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6813,34 +7588,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/12/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[13,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 13
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/12/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/6/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV7N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV7N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6848,34 +7602,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/13/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[14,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/7/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV8N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 14
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/13/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV8N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6883,34 +7616,13 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/14/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[15,*])",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 15
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
-   "value": null,
-   "scale": null,
-   "units": null
-  },
-  {
-   "ids": "pf_active_efit",
-   "path": "coil/14/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
-   "verb": "data",
-   "node": "\\TIME",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/7/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV8N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV8N",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -6918,34 +7630,1119 @@
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/15/current/data",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\EFIT_MFILE:CCBRSP[16,*])",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/8/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV9N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\EFIT_MFILE:CCBRSP",
-   "subscript": [
-    {
-     "int": 16
-    },
-    {
-     "all": true
-    }
-   ],
-   "subscript_inside": true,
+   "node": "\\PCBPV9N",
+   "subscript": null,
+   "subscript_inside": false,
    "value": null,
    "scale": null,
    "units": null
   },
   {
-   "ids": "pf_active_efit",
-   "path": "coil/15/current/time",
-   "source": "efit_east",
-   "link": "efit_east:DATA(\\TIME)",
-   "tree": "efit_east",
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/8/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV9N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV9N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/9/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV10N)",
+   "tree": "pcs_east",
    "verb": "data",
-   "node": "\\TIME",
+   "node": "\\PCBPV10N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/9/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV10N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV10N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/10/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV11N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV11N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/10/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV11N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV11N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/11/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV12N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV12N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/11/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV12N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV12N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/12/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV13N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV13N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/12/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV13N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV13N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/13/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV14N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV14N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/13/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV14N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV14N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/14/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV15N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV15N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/14/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV15N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV15N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/15/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV16N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV16N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/15/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV16N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV16N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/16/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV17N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV17N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/16/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV17N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV17N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/17/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV18N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV18N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/17/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV18N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV18N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/18/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV19N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV19N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/18/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV19N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV19N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/19/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV20N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV20N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/19/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV20N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV20N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/20/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV21N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV21N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/20/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV21N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV21N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/21/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV22N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV22N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/21/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV22N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV22N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/22/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV23N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV23N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/22/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV23N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV23N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/23/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV24N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV24N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/23/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV24N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV24N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/24/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV25N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV25N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/24/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV25N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV25N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/25/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV26N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV26N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/25/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV26N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV26N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/26/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV27N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV27N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/26/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV27N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV27N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/27/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV28N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV28N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/27/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV28N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV28N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/28/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV29N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV29N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/28/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV29N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV29N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/29/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPV30N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPV30N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/29/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPV30N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPV30N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/30/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL1N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/30/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL1N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL1N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/31/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL2N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/31/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL2N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL2N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/32/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL3N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/32/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL3N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL3N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/33/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL4N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/33/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL4N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL4N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/34/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL5N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/34/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL5N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL5N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/35/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL6N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/35/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL6N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL6N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/36/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL7N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/36/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL7N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL7N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/37/field/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCBPL8N)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCBPL8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_n_pre80000",
+   "path": "b_field_pol_probe/37/field/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCBPL8N)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCBPL8N",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/0/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP1)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP1",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/0/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP1)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP1",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/1/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP2)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP2",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/1/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP2)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP2",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/2/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP3)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP3",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/2/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP3)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP3",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/3/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP4)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP4",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/3/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP4)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP4",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/4/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP5)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP5",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/4/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP5)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP5",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/5/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP6)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP6",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/5/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP6)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP6",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/6/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP7)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP7",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/6/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP7)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP7",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/7/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP8)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP8",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/7/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP8)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP8",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/8/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP9)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP9",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/8/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP9)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP9",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/9/voltage/data",
+   "source": "pcs_east",
+   "link": "pcs_east:DATA(\\PCVP10)",
+   "tree": "pcs_east",
+   "verb": "data",
+   "node": "\\PCVP10",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "magnetics_pcs_vp_post80000",
+   "path": "flux_loop/9/voltage/time",
+   "source": "pcs_east",
+   "link": "pcs_east:DIM_OF(\\PCVP10)",
+   "tree": "pcs_east",
+   "verb": "dim_of",
+   "node": "\\PCVP10",
    "subscript": null,
    "subscript_inside": false,
    "value": null,
@@ -7807,6 +9604,314 @@
    "units": null
   },
   {
+   "ids": "polarimeter",
+   "path": "channel/0/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F1) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F1",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/0/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F1)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F1",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/1/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F2) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F2",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/1/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F2)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F2",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/2/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F3) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F3",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/2/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F3)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F3",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/3/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F4) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F4",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/3/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F4)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F4",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/4/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F5) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F5",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/4/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F5)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F5",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/5/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F6) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F6",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/5/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F6)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F6",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/6/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F7) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F7",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/6/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F7)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F7",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/7/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F8) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F8",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/7/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F8)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F8",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/8/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F9) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F9",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/8/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F9)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F9",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/9/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F10) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F10",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/9/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F10)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F10",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/10/faraday_angle/data",
+   "source": "east",
+   "link": "east:DATA(\\POINT_F11) *1.7453292519943295E-2",
+   "tree": "east",
+   "verb": "data",
+   "node": "\\POINT_F11",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": 0.017453292519943295,
+   "units": null
+  },
+  {
+   "ids": "polarimeter",
+   "path": "channel/10/faraday_angle/time",
+   "source": "east",
+   "link": "east:DIM_OF(\\POINT_F11)",
+   "tree": "east",
+   "verb": "dim_of",
+   "node": "\\POINT_F11",
+   "subscript": null,
+   "subscript_inside": false,
+   "value": null,
+   "scale": null,
+   "units": null
+  },
+  {
    "ids": "tf",
    "path": "time",
    "source": "east",
@@ -7849,20 +9954,5 @@
    "units": null
   }
  ],
- "unsupported": [
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/outline/r",
-   "source": "efit_east",
-   "link": "efit_east:BDRY[0, 0: NBDRY[{time_slice}]-1,{time_slice}]",
-   "why": "subscript bound reads another node (NBDRY-style) — needs two round trips"
-  },
-  {
-   "ids": "equilibrium",
-   "path": "time_slice/*/boundary/outline/z",
-   "source": "efit_east",
-   "link": "efit_east:BDRY[1, 0: NBDRY[{time_slice}]-1,{time_slice}]",
-   "why": "subscript bound reads another node (NBDRY-style) — needs two round trips"
-  }
- ]
+ "unsupported": []
 }

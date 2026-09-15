@@ -264,7 +264,7 @@ def reference():
     ★★2026-09-13 (measurement-chain ruling): the read resolves the device in the chain
     the measurement document declares (``conftest.east_measurements``); #137985's
     delivered set is the est2 record, which declares none and pairs with no chain, so
-    this SKIPS by name until the efit_east #137985 case replaces it.  What leaves is
+    this SKIPS by name until a #137985 case on the raw EAST trees replaces it.  What leaves is
     coil and plasma current only, which no magnetics provider changes."""
     meas = east_measurements()
     return {"aturns": np.asarray(meas["brsp"], float),

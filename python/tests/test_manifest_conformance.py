@@ -246,11 +246,11 @@ def test_entries_resolve_to_real_callables(name):
     assert callable(fn)
 
 
-#: ★2026-09-13 (R-S1 / R-S2): `east_mdsplus` addresses the processed `efit_east` tree,
-#: so its counts are held against the card resolved for that tree (`conftest.EFIT_TREE`),
-#: not the no-shot card (magnetics `pcs`, chain `pcs_east`)
-@pytest.mark.usefixtures("efit_tree_device")
+#: ★★〔user ruling 2026-09-15〕`east_mdsplus` describes the efit_east MEASUREMENTS record (76 probe
+#: slots), and that tree is comparison data only: its chain left the device book, so no card carries
+#: those counts any more and the reader it describes refuses (`fylite.io.mds.fetch_measurements`).
 def test_data_artifact_channel_counts_are_reflected():
+    pytest.skip("east_mdsplus addresses the efit_east tree: comparison data only (user ruling 2026-09-15)")
     addr = DOCS["east_mdsplus"]["fylite:addressing"]
     families = {e["@type"]: e["fylite:channels"] for e in addr["sp:read"]}
     assert families["fyo:magnetics"] == {"flux_loop": device.NSILOP,
@@ -412,9 +412,7 @@ def _sample_measurements() -> dict:
     }
 
 
-#: ★the sample set is built on `device.NPROBE` (the efit_east order): read it back
-#: against the card resolved for that order (2026-09-13, R-S1 / R-S2)
-@pytest.mark.usefixtures("efit_tree_device")
+#: the sample set is built on `device.NPROBE`: read back against the bound card itself
 def test_to_fyo_then_interpret_round_trips():
     meas = _sample_measurements()
     doc = fyo.measurements(meas)
@@ -433,7 +431,6 @@ def test_tf_field_uses_the_imas_r_bt_convention():
     assert doc["tf"]["b_field_tor_vacuum_r"] == pytest.approx(-1.8 * device.RCENTR)
 
 
-@pytest.mark.usefixtures("efit_tree_device")
 def test_plain_dict_input_is_a_pass_through():
     """The semantic layer is additive: a plain IMAS-shaped dict takes the
     exact same path as before."""

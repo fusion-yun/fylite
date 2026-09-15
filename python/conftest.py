@@ -114,11 +114,11 @@ from fylite.engine.cases import CorpusMissing as _CorpusMissing  # noqa: E402
 #: keeps its old outcome and never reads as "archived".  Library code keeps raising
 #: `MachineDataMissing`; only tests and fixtures skip.
 EST2_REMOVED = ("est2 removed (2026-09-13): FYDOC-CASE-22 and the EAST fit inputs "
-                "archived; an efit_east #137985 case will replace them")
+                "archived; a #137985 case on the raw EAST trees will replace them")
 #: …and a record that is STILL at its old path but is est2-ordered: no device of any
 #: measurement chain pairs with it any more (not "archived" — it is not, yet).
 EST2_UNPAIRED = ("est2 removed (2026-09-13): the est2 device array is gone, so this est2 "
-                 "record pairs with no measurement chain; an efit_east #137985 case will "
+                 "record pairs with no measurement chain; a #137985 case on the raw EAST trees will "
                  "replace it")
 
 
@@ -506,20 +506,10 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int | None = None,
 #: resolved for it through the runtime's rule (``fylite.device.document``) — never a
 #: hand-picked file and never a named provider:
 #:
-#: * :data:`EFIT_TREE` — the processed ``efit_east`` tree (chain ``efit_east``, 76 probes +
-#:   35 loops, EXPMPI order): measurement sets built on the bound device's ``NPROBE`` /
-#:   ``NSILOP``.
-#:
-#: ★★2026-09-14 (user ruling R1): the chain's geometry is one provider per EFIT array
-#: vintage, each anchored on the shots it was verified on (``efit_green2014`` [45563, 52700],
-#: ``efit_green2015`` [53825, 96900], ``efit_green2022_pcs`` [97400, 159875] since the
-#: 2026-09-14 shot scan); every other shot is an unknown band, and a gap
-#: in a chain is refused by name.  No shot means the latest shot, which falls in that band —
-#: so the selection names the shot it stands for: #137985, the efit_east case
-#: (fydoc ``FYDOC-CASE-23-east-137985-efit-east``).
-#:
-#: There is no est2 selection any more (est2 removed at every layer).
-EFIT_TREE = {"measurement_chain": "efit_east", "shot": 137985}
+#: ★★〔user ruling 2026-09-15〕the ``efit_east`` tree is comparison data only: its chain left the
+#: device book (fydoc ``facts/device/east``), so there is no ``EFIT_TREE`` selection any more — a
+#: measurement set built on the bound device's ``NPROBE`` / ``NSILOP`` is read against the
+#: no-shot card itself (``pcs``, chain ``pcs_east``).
 
 from contextlib import contextmanager as _contextmanager  # noqa: E402
 
@@ -574,13 +564,6 @@ def _device_binding_isolated():
     yield
     if _device._DERIVED is not saved[0]:
         _binding_restore(saved)
-
-
-@pytest.fixture
-def efit_tree_device():
-    """The card resolved for the ``efit_east`` tree (:data:`EFIT_TREE`), bound for one test."""
-    with device_selected(**EFIT_TREE) as doc:
-        yield doc
 
 
 def east_equilibrium(shot: int = CASE_SHOT,

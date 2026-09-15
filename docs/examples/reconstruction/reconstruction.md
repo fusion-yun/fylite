@@ -30,7 +30,7 @@ sorted(meas)      # ['brsp', 'btor', 'coils', 'expmp2', 'measurement_chain', 'pl
 ```
 
 ★**这一步就是通道契约**：通道数、次序与单位在这里一次性判定，之后不再有第二处解释。
-`measurement_chain` 说的是这批测量出自哪条测量链（EAST 的 `efit_east` / `east` / `pcs_east`），装置按它解析，
+`measurement_chain` 说的是这批测量出自哪条测量链（EAST 的 `east` / `pcs_east`），装置按它解析，
 `time_s` 是它选中的时刻。测量来源是 MDSplus 还是离线转储，进到这一层之后**不再区分**。
 
 ## 命令行：今天走不通，以及为什么
