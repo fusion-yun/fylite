@@ -4964,12 +4964,12 @@
      {
       "type": "spo:Code",
       "name": "EFIT",
-      "comment": "档 M / P：efit_east 树 #137985 TIME[28] = 4.041 s 的交付答案（FYDOC-CASE-23）；档 M 的判定在 record/B-11"
+      "comment": "档 M / P：efit_east 树 #137985 TIME[28] = 4.041 s 的交付答案（FYDOC-CASE-23），2026-09-15 起只作对拍比较数据；档 M 的 record/B-11 以树的输入跑出、已撤回"
      },
      {
       "type": "spo:Code",
       "name": "KEFIT",
-      "comment": "档 K：EAST/Qian 分支 EFIT_POINT（EFIT_POINT_GUI_v5.m + efitd6565d），冻结只读参考包 kefit_reference_bundle 给代码契约；#137985：2026-09-14 由包内源码本地构建、在 FYDOC-CASE-23 的 efit_east 输入上跑出同输入读数（读数块 #K-kefit-same-inputs）；按用户裁定（2026-09-14）ASIPP 的 KEFIT 输入来源即该参考包，这组运行作档 K 的参考"
+      "comment": "档 K：EAST/Qian 分支 EFIT_POINT（EFIT_POINT_GUI_v5.m + efitd6565d），冻结只读参考包 kefit_reference_bundle 给代码契约；#137985：2026-09-14 由包内源码本地构建、在 FYDOC-CASE-23 的 efit_east 输入上跑出同输入读数（读数块 #K-kefit-same-inputs）；按用户裁定（2026-09-14）ASIPP 的 KEFIT 输入来源即该参考包；但这组运行的磁测输入取自 efit_east 树，按 2026-09-15 裁定只作历史"
      }
     ],
     "has_input": [
@@ -5003,8 +5003,8 @@
      }
     ],
     "caveat": [
-     "★计划不是判定：本块不改本条的 assertion_state（retired）、判据与发现；档 M 的判定在 record/B-11，档 P / K 出读数后另立记录",
-     "★2026-09-14 档 K 已有 fylite 读数（W4b · W4c · 三片）与同输入的 KEFIT 读数（本地构建），读数件都在 FYDOC-CASE-23；按用户裁定（2026-09-14）ASIPP 输入即参考包，本地运行作档 K 参考；判据带未定，不立判定记录，门只钉 fylite 读数的复现",
+     "★计划不是判定：本块不改本条的 assertion_state（retired）、判据与发现；档 M 的 record/B-11 已于 2026-09-15 撤回，档 M / P / K 以原始测量出读数后另立记录",
+     "★2026-09-14 档 K 已有 fylite 读数（W4b · W4c · 三片）与同输入的 KEFIT 读数（本地构建），读数件都在 FYDOC-CASE-23；★2026-09-15 用户裁定 efit_east 树只作对拍比较数据、不作建模或反演数据源：以树的输入跑出的 W1 / W4b / W4c / 三片 / 同输入对拍读数全部只作历史，档 K 无合规读数、不立判定记录，门只钉历史读数的复现",
      "★B-06 这个号仍指同一个对象（EAST #137985 的平衡反演），换的是测量链与参考"
     ]
    }
@@ -7048,7 +7048,7 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-14（本册发布时跑一遍门）",
+     "title": "复测 2026-09-15（本册发布时跑一遍门）",
      "finding_kind": "re-run: gate not executed",
      "deviation_literal": "0 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "unevaluated"
@@ -7056,7 +7056,7 @@
    ],
    "run": {
     "type": "spo:ComputationalProcess",
-    "recorded": "2026-09-14",
+    "recorded": "2026-09-15",
     "realizes": [
      {
       "type": "spo:Code",
@@ -7102,7 +7102,7 @@
       "type": "spo:Concretization",
       "storage_uri": "$FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld",
       "checksum": "sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010",
-      "comment": "26738 B",
+      "comment": "29525 B",
       "provenance_class": "registered",
       "quality_state": "valid",
       "license": "private-artefact",
@@ -7130,6 +7130,7 @@
     "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
    },
    "caveat": [
+    "★★★★**2026-09-15 撤回（`assertion_state: retired`）**：用户裁定「B-06 KEFIT 任务中 efit_east mdsplus tree 仅作为对拍比较数据，不应进入 facts/device，也不应作为建模或反演数据源」——本条的输入（测量集的 SILOPT / FWTSI / EXPMPI / FWTMP2 / PLASMA、EFIT 拟合出的线圈电流 CCBRSP[0:12]、由 FPOL 边缘值定的 b_tor）全部取自该树，装置几何也经 efit_east 测量链解析。记录按「保留、标为撤回」处置：判据、发现与运行脚本原样不动，只作历史；磁档须以原始测量（east / pcs_east 树）另立记录，树的平衡答案仍可作那条记录的对拍参考。",
     "★★★**条件化记录（用户裁定 2026-09-14）**：本条接替撤回的 B-06，但**不是**「本仓独立反演对上 EFIT」。三项设定取自参考自己的配置——① EFIT 拟合出的线圈电流 CCBRSP[0:12]；② EFIT 的剖面基 npp=1 / nff=2；③ 以本仓自己的测量 χ² 极小选定的竖直设定点（代 EFIT 的 `fitdelz`）。条件全文在 `validity_domain`。去掉任一条件，本条的数都不适用",
     "★★**带是钉子不是验收线**：每条容差都由本次运行及其设定点盆地定出（盆地内最劣值），所以立条当天「成立」是构造使然；它们的用处是抓漂移。规则见各判据注，规范未给公式，待裁定",
     "★★**边界最大值在上 X 点**：131 mm，而中位 5.0 mm、九成点在 40 mm 内——X 点附近的边界由鞍点定位决定，不并进中位那条带",
@@ -7140,7 +7141,7 @@
     "★算例 FYDOC-CASE-23 的 review 仍是 pending（reviewer [TBD]），发布级别 internal；公开渲染只收比较度规与指针，不收读数",
     "纳入类别（参考数据）：experiment、private-artefact"
    ],
-   "assertion_state": "accepted",
+   "assertion_state": "retired",
    "validity_domain": "CONDITIONED — the claim holds only under three settings taken from the reference's own configuration of this slice: (1) EFIT's fitted coil currents CCBRSP[0:12] as the door's channel ampere-turns (EFIT fitted the coils freely; the assembled door cannot); (2) EFIT's profile basis npp=1 (linear PPRIME), nff=2 (quadratic FFPRIM), both zero at the edge; (3) the vertical set-point zc_anchor = -0.020 m, the minimum of this code's own measurement chi^2 over a 2 mm scan (-30 … -12 mm), standing in for EFIT's fitdelz. Weights FWTMP2 / FWTSI as delivered (1/sigma). Case FYDOC-CASE-23 (efit_east #137985 TIME[28] = 4.041 s); geometry: runtime resolution shot=137985, measurement_chain=efit_east (provider efit_green2022_pcs).",
    "overall_verdict": "pass"
   }

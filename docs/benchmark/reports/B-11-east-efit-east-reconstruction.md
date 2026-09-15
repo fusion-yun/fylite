@@ -12,8 +12,8 @@ title: B-11 · EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化
 | **算例** | `scenario/east-137985-efit-east`（EAST #137985 @ 4.041 s：efit_east 树的一片，磁测量的平衡反演） |
 | **数据** | 见 §5 表（3 项，纳入类别 experiment、private-artefact） |
 | **门** | `$FYLITE_KERNEL/tools/benchmark-east-efit-east.py` |
-| **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-14：未评估——0 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **登记册结论** | 成立（`assertion_state: retired`） |
+| **复测** | 2026-09-15：未评估——0 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由 `tools/benchmark-publish.py` 从内核仓登记册渲染；判据与量到的数是登记册的，「复测」一行是发布当日在私仓检出上把门跑一遍的结果，两者分开记。
 
@@ -35,6 +35,7 @@ title: B-11 · EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化
 
 四行表（解了哪几道方程 / 哪些量是喂进去的 / 单位与径向标签 / COCOS）的完整账在该组算例书随件的 README（`$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md`）；下面是登记册随本条记录携带的口径说明，逐条照录：
 
+- ★★★★**2026-09-15 撤回（`assertion_state: retired`）**：用户裁定「B-06 KEFIT 任务中 efit_east mdsplus tree 仅作为对拍比较数据，不应进入 facts/device，也不应作为建模或反演数据源」——本条的输入（测量集的 SILOPT / FWTSI / EXPMPI / FWTMP2 / PLASMA、EFIT 拟合出的线圈电流 CCBRSP[0:12]、由 FPOL 边缘值定的 b_tor）全部取自该树，装置几何也经 efit_east 测量链解析。记录按「保留、标为撤回」处置：判据、发现与运行脚本原样不动，只作历史；磁档须以原始测量（east / pcs_east 树）另立记录，树的平衡答案仍可作那条记录的对拍参考。
 - ★★★**条件化记录（用户裁定 2026-09-14）**：本条接替撤回的 B-06，但**不是**「本仓独立反演对上 EFIT」。三项设定取自参考自己的配置——① EFIT 拟合出的线圈电流 CCBRSP[0:12]；② EFIT 的剖面基 npp=1 / nff=2；③ 以本仓自己的测量 χ² 极小选定的竖直设定点（代 EFIT 的 `fitdelz`）。条件全文在 `validity_domain`。去掉任一条件，本条的数都不适用
 - ★★**带是钉子不是验收线**：每条容差都由本次运行及其设定点盆地定出（盆地内最劣值），所以立条当天「成立」是构造使然；它们的用处是抓漂移。规则见各判据注，规范未给公式，待裁定
 - ★★**边界最大值在上 X 点**：131 mm，而中位 5.0 mm、九成点在 40 mm 内——X 点附近的边界由鞍点定位决定，不并进中位那条带
@@ -70,6 +71,7 @@ title: B-11 · EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化
 - （判据）带 = **盆地内最劣值**，三位有效数字向上取：盆地是 `zc_anchor` 扫描（−30 … −12 mm，步长 2 mm）中 χ² ≤ 4.1 的设定点（-24 … -18 mm，4 个）；量到的数本身在盆地里，故带 = 实测结果 + 盆地的散布。★取法已裁定（用户 2026-09-14）：B 类实测带一律取盆地内最劣值、三位有效数字向上取，见 `docs/note/benchmark/vocabulary.md` 的 `measured_band`
 - （判据）★★口径：EFIT 树的 ψ 是每弧度、轴为极小；本仓写出的是整圈 Wb。因子由数据读出——边界内对树值的自由最小二乘斜率 -6.1681，对 −2π = −6.2832（-1.8 %）——然后施加**固定的** −2π（= −1 × 平衡件 converted 块的整圈形式）；COCOS 17 的符号一步仍 [TBD]（树未声明 σ_RφZ），本条只用到号由数据自证
 - （判据）边界内单列（对 |ψ_b − ψ_a| = 0.713 Wb 归一）：rms 1.17 %、最大 2.35 %
+- （场景）★★★**用户裁定 2026-09-15：efit_east 树只作对拍比较数据。** 本场景「测量集 = EFIT 自己的输入通道与拟合权重、两侧读同一份输入」的设计**不再成立**——树的输入通道、权重、计算通道与拟合出的线圈电流不得作被比一侧的建模或反演输入；树的平衡答案仍可作对拍参考。以本场景跑出的记录 B-11 已撤回。
 - （场景）★★**参考侧拟合了线圈，被比的一侧在装配门里拟合不了。** EFIT 在这一片上把线圈电流当自由量拟合（交付的拟合值与测量值不同）；一个把线圈电流当输入的反演，若喂测量值，差的是线圈而不是等离子体。任何在本场景上不给出线圈电流取法的比较都读不了。
 - （场景）★★**竖直位置由参考自己的一步定住。** EFIT 的竖直位移拟合（`fitdelz`）没有同名的对应物；被比的一侧须说明它的竖直设定点从哪来，否则磁轴 Z 的差量的是设定点。
 - （场景）★**权重即 1/σ**：树里交付的 FWTMP2 / FWTSI 就是拟合用的权重（探针 29 道 > 0、全在前 38 槽；环 34 道 > 0）。两侧用同一组权重时，χ² 可以跨码比较——前提是先用参考自己的计算通道复算出它自报的 CHISQ。
@@ -96,7 +98,7 @@ title: B-11 · EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化
 | 复现：自 CASE-23 文档重跑 H-37b 诊断 | 磁轴 +4.53 / +0.54 mm（诊断 +4.5 / +0.5）· q₀ 1.938（1.937）· q95 6.577（6.577）· 边界最大 131 mm（131）· 探针 / 环 0.34 / 0.09 σ（0.34 / 0.09）· χ² 3.55（3.54） | reproduction | 成立 | 输入自算例文档读：测量集给 SILOPT · FWTSI · EXPMPI · FWTMP2 · PLASMA · FPOL(ψ_N=1)，平衡件 efit_east_tree 块的 computed_signals.CCBRSP 给线圈；诊断用的是 npz 证据副本与一份手工几何变体；★几何：本条走运行时解析 `facts:device/east?shot=137985&measurement_chain=efit_east`（提供者 efit_green2022_pcs）；诊断用的变体卡与之在探针槽 0–37 与 35 环上相差 ≤ 50 µm（取整），槽 38–75 不同但权重为零。剩下的 0.05 mm / 0.03 % 级差别即此；★同一输入重跑两次，结果逐位相同；fy sha256 d55c3fe2485fc58a · 内核库 sha256 9efffc0967b27254 |
 | 求解器自己的判定与竖直反馈 | converged，357 次迭代，残差 5.47e-09（tol 1e-8）；竖直反馈幅值 `fb_amp` -20.1 kA · 截断保留 3 | solver | 成立 | ★`fb_amp` 不为零：竖直锚点仍以反馈按住质心（B-06 已记这份力是承重的）；它随设定点变化，不作判据 |
 
-## 4. 复测（2026-09-14）
+## 4. 复测（2026-09-15）
 
 | 门 | 计数 | 首条信息 |
 | :--- | :--- | :--- |
@@ -110,7 +112,7 @@ title: B-11 · EAST #137985 @ 4.041 s 的平衡反演（efit_east）：条件化
 | :--- | :--- | :--- | :--- |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/measurement_east137985_4041ms.fyo.jsonld | sha256:a3a80c3f3a8c20d0598f0619a371f679dfd3bd690b4a3b7676d143d5fbecfec3 | experiment | 15000 B |
 | $FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus/equilibrium_east137985_4041ms.fyo.jsonld | sha256:a24846602043b827407fd1ac71302e5d02171ec9e0f8c903d9c3c340c9c8e54c | experiment | 967498 B |
-| $FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld | sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010 | private-artefact | 26738 B |
+| $FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld | sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010 | private-artefact | 29525 B |
 
 参考侧：按上表的出处取得同一份（受限类别的项读者须自备）。语料**随内核仓检出**（`$FYLITE_KERNEL/tests/data/`）。
 本仓侧：门在 `$FYLITE_KERNEL`（私仓）中运行——
@@ -124,4 +126,4 @@ PYTHONPATH=$FYLITE_PUBLIC/python FYLITE_KERNEL_LIB=rust/fylite/target/release/li
 
 ## 6. 结论
 
-登记册：成立。复测 2026-09-14：未评估。只回答本条自己那一类（B 对拍）的问题，不外推。
+登记册：成立。复测 2026-09-15：未评估。只回答本条自己那一类（B 对拍）的问题，不外推。

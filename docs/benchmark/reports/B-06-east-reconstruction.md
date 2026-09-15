@@ -12,13 +12,18 @@ title: B-06 · EAST #137985 动理学平衡反演对标：工作流与计划（�
 | **算例** | FYDOC-CASE-23（fydoc `cases/FYDOC-CASE-23-east-137985-efit-east/`；内核私有镜像 `$FYLITE_KERNEL/tests/data/FYDOC-CASE-23-east-137985-efit-east/`）|
 | **数据** | 见 §6 |
 | **门** | `$FYLITE_KERNEL/tools/benchmark-east-efit-east.py`（档 M，B-11）· `$FYLITE_KERNEL/tests/test_reconstruction_pressure_sign.py`（档 P）· `$FYLITE_KERNEL/tools/benchmark-east-point.py`（档 K：W4b / W4c 的运行与**复现门**——钉读数可复现，不判对参考）|
-| **登记册** | B-06 记录（#137985 @ 4.0 s，est2 离线档）`assertion_state: retired`（2026-09-13），摘要见 §8；档 M 的判定在 **B-11**（成立，条件化）；档 P、档 K 尚无记录 |
-| **状态** | 计划（2026-09-14）；本页**手写**，未经 `tools/benchmark-publish.py` 渲染。档 K 的 W4b / W4c 已于 2026-09-14 量过（§7）——**无参考答案，不作判定** |
+| **登记册** | B-06 记录（#137985 @ 4.0 s，est2 离线档）`assertion_state: retired`（2026-09-13），摘要见 §8；档 M 的记录 **B-11** 已于 2026-09-15 撤回（输入取自 efit_east 树，见下方裁定）；档 P、档 K 尚无记录 |
+| **状态** | 计划（2026-09-14）；本页**手写**，未经 `tools/benchmark-publish.py` 渲染。★2026-09-15 起：以 efit_east 树的输入跑出的各档读数只作历史，**无合规读数** |
 
 > 本页原是登记册记录 B-06 的渲染件。那条记录 2026-09-13 随「彻底移除 est2」撤回；本页改写为**这一炮动理学平衡反演的对标工作流与计划**。
 > B-06 这个号仍指同一个对象（EAST #137985 的平衡反演），换的是测量链与参考。登记册里的 B-06 记录原样保留、仍为 retired，本页不改它的判据与数。
 > ★页上每个数都是**转录**的已有读数或对 CASE-23 数据的**算术对齐**，出处逐条写明；转录件收在 FYDOC-CASE-23 `corpus/benchmark/comparison_readings_east137985.fyo.jsonld`。
 > ★重跑 `tools/benchmark-publish.py` 会按登记册把本页重新渲染成撤回记录的样子——在登记册为本计划立项之前，发布前须保留本页。
+>
+> ★★★**用户裁定 2026-09-15：efit_east MDSplus 树只作对拍比较数据**——不进 `facts/device`，也不作建模或反演的数据源。本页 §4–§7、§10 与两张图里，凡以树的输入通道、
+> 权重、计算通道或拟合出的线圈电流（SILOPT · EXPMPI · FWTSI · FWTMP2 · FCCURT · PLASMA · CCBRSP · CMPR2 · CSILOP · PRES）作输入跑出的读数——W1 / W2 / W3、W4b / W4c / W4d、
+> 三片、归因、KEFIT 与 fylite 的同输入对拍——**保留作历史、不合本裁定**；B-11 随之撤回。档 M / P / K 须以原始测量（`east` / `pcs_east` 树，经 KEFIT GUI 的归约配方）重做；
+> 树的平衡答案仍作对拍参考。下文未逐句改写，读数一律按本条读。
 
 ## 1. 问的是什么、分几档
 
@@ -26,9 +31,9 @@ title: B-06 · EAST #137985 动理学平衡反演对标：工作流与计划（�
 
 | 档 | 约束 | fylite 侧 | 参考 | 现状 |
 | :--- | :--- | :--- | :--- | :--- |
-| **M** 磁 | 环 + 探针 + Ip + 线圈 | `code/reconstruction`，不绑压强 | EFIT `efit_east` 树（"Offline EFIT"，`EFIT_RUN` = EFIT01）| **B-11 成立**（条件化）；不给条件的变体待内核 |
-| **P** 磁 + 压强 | + p(ψ_N) 行 | 同一门 + `pressure` 绑定 | EFIT 自己的 PRES（**不是**实测压强）| 压强号门已落；无登记记录 |
-| **K** 磁 + POINT（+ Thomson + 自举）| + 11 弦法拉第角 / 线密度（+ n_e、T_e 剖面，j_bs）| `code/chords` → 法拉第行 → `code/reconstruction` 行给定档；外环 = 计划 s0…s4 | KEFIT 的 POINT 契约（参考包）；#137985 的 POINT 约束件（4.041 s，KEFIT namelist 形）在 CASE-23 | 数据阻塞已处置（§4 W4）；**W4b / W4c 已量**（§7）；参考答案转为数据请求 |
+| **M** 磁 | 环 + 探针 + Ip + 线圈 | `code/reconstruction`，不绑压强 | EFIT `efit_east` 树（"Offline EFIT"，`EFIT_RUN` = EFIT01）的**答案**（只作对拍）| B-11 已撤回（2026-09-15 裁定：其输入取自树）；须以原始测量重做 |
+| **P** 磁 + 压强 | + p(ψ_N) 行 | 同一门 + `pressure` 绑定 | EFIT 自己的 PRES（**不是**实测压强）| 压强号门以树的计算通道与 PRES 作输入，按 2026-09-15 裁定不合规、待改；无登记记录 |
+| **K** 磁 + POINT（+ Thomson + 自举）| + 11 弦法拉第角 / 线密度（+ n_e、T_e 剖面，j_bs）| `code/chords` → 法拉第行 → `code/reconstruction` 行给定档；外环 = 计划 s0…s4 | KEFIT 的 POINT 契约（参考包）；#137985 的 POINT 约束件（4.041 s，KEFIT namelist 形）在 CASE-23 | 数据阻塞已处置（§4 W4）；W4b / W4c 与 KEFIT 同输入对拍已量（§7），但磁测输入取自树，按 2026-09-15 裁定只作历史 |
 
 ★**「磁反演对标 efit_east 树」与「含 POINT 的反演对标 KEFIT」是两条线，不是一条线的两个精度。** efit_east 树只能作 M / P 的参考：
 CASE-23 所载 40 个节点没有 POINT 或压强约束通道，装置书 `efit_east_tree_map` 未映射 POINT / 法拉第节点；#70754 / #70745 的 `efit_east` 实查
