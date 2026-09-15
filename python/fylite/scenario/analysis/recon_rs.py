@@ -380,12 +380,11 @@ def reconstruct_input(source, time_s=None, *, kind=None, shot=None,
         return reconstruct_shot(n, float(time_s), **kw)
 
     if kind == "shot":
-        n = int(source) if shot is None else int(shot)
-        if time_s is None:
-            raise KefitRunError("shot mode needs a time [s]")
-        meas = mds.fetch_measurements(n, float(time_s))
-        res = reconstruct(meas, **kw)
-        return {**res, "shot": n, "time_s": float(time_s)}
+        #: ★★〔user ruling 2026-09-15〕the efit_east tree is comparison data only: this mode read its MEASUREMENTS
+        #: record (EFIT's own input channels) as the fit's input, so it refuses; the raw-series path is kind="east"
+        raise KefitRunError(
+            "shot mode read the efit_east tree's MEASUREMENTS record, and the efit_east tree is comparison data only (user ruling 2026-09-15) — "
+            "reconstruct from the raw EAST trees with kind=\"east\"")
 
     if kind == "kfile":
         #: ★A k-file is an EFIT NAMELIST — an input written for the solver

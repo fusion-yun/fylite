@@ -36,8 +36,8 @@ did belong to one are gone:
 In both, a probe whose node is absent from the tree gets 0 — an absent node is not
 a reading, and that is the only zero this rule writes.  No mask is invented and
 nothing is refused.  The reduction does not gate readings by value
-(``operational.probe_gate``); that hygiene step belongs to its own caller
-(:func:`fylite.io.mds.fetch_measurements`).
+(``operational.probe_gate``); that hygiene step belongs to its caller (the reconstruction's ``kind="east"``
+path; the efit_east reader that also gated by value refuses since the 2026-09-15 comparison-only ruling).
 
 ★The windowed mean, the drift fit and the fringe gate ARE numerics on measurement
 series; under the one-host rule they are a migration candidate for the kernel

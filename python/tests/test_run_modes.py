@@ -90,15 +90,13 @@ def test_east_mode_carries_the_tree_options(routed):
                                        "te_ceiling": 8000.0}
 
 
-def test_a_bare_shot_does_not_carry_tree_options(routed):
-    #: ★the efit_east measurement nodes are not the est2 path: the POINT /
-    #: pressure / Thomson options have no meaning there, and the router
-    #: would reject them by name.  They are dropped here, not forwarded.
-    _serve.run_reconstruction({"shot": 137985, "time_s": 4.0, "point": True,
-                               "server": "host", "probes": False})
-    assert routed["kind"] == "shot"
-    assert "read_point" not in routed and "server" not in routed
-    assert routed["probes"] is False
+def test_a_bare_shot_is_refused_by_the_comparison_only_ruling(routed):
+    #: ★★〔user ruling 2026-09-15〕a bare shot + time_s read the efit_east measurement nodes, and that tree is
+    #: comparison data only: the tool face refuses by name and routes nothing
+    with pytest.raises(recon_rs.KefitRunError, match="comparison data only"):
+        _serve.run_reconstruction({"shot": 137985, "time_s": 4.0, "point": True,
+                                   "server": "host", "probes": False})
+    assert routed == {}
 
 
 def test_options_left_unset_are_not_forwarded(routed):

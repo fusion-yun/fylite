@@ -73,7 +73,7 @@
       "canonical_form_version": "jcs-1.0"
     }
   },
-  "fylite:notes": "live MDSplus source; storage_hash covers the addressing descriptor, not bytes (open alignment item, SP-REPORT-15 OI-2). The host is the RFC 2606 `.invalid` placeholder on purpose: the real one is an address on an operator's internal network and is not written into a published manifest. It is resolved at run time from the device deck's declared server, or from KEFIT_MDS_SERVER",
+  "fylite:notes": "live MDSplus source; storage_hash covers the addressing descriptor, not bytes (open alignment item, SP-REPORT-15 OI-2). The host is the RFC 2606 `.invalid` placeholder on purpose: the real one is an address on an operator's internal network and is not written into a published manifest. It is resolved at run time from the device deck's declared server, or from KEFIT_MDS_SERVER. ★★User ruling 2026-09-15: the efit_east MDSplus tree is comparison data only, never a modelling or reconstruction source; this entry (fylite.io.mds:fetch_measurements) read its MEASUREMENTS record and now refuses by name. The raw-series path (fylite.io.raw) is the reconstruction input.",
   "fylite:addressing": {
     "sp:source": {
       "east": "mdsplus://mds.invalid/east"

@@ -394,6 +394,10 @@ CASE_MIRROR = "tests/data/FYDOC-CASE-22-east-137985-efit/corpus"
 EFIT_EAST_MIRROR = "tests/data/FYDOC-CASE-23-east-137985-efit-east/corpus"
 EFIT_EAST_ITIME_MS = 4041
 CASES = ("est2", "efit_east")
+#: ★★〔user ruling 2026-09-15〕the efit_east tree is comparison data only — never a modelling or reconstruction
+#: source.  The case's measurement set and its equilibrium are refused here, by name, as inputs.
+EFIT_EAST_COMPARISON_ONLY = ("the efit_east tree is comparison data only (user ruling 2026-09-15): its measurement "
+                             "set and its equilibrium are not a modelling or reconstruction input")
 #: the #137985 reference discharge / slice series, relative to the kernel checkout
 REFERENCE_DISCHARGE = "tests/data/east/reference_discharge_137985.fyo.jsonld"
 
@@ -460,6 +464,8 @@ def east_measurements(shot: int = CASE_SHOT, itime_ms: int | None = None,
     gap K-4) — a CHOICE about the fit, not a measurement, which is why it is
     an argument here and is not in the document.
     """
+    if case == "efit_east":
+        pytest.skip(f"east_measurements(case='efit_east'): {EFIT_EAST_COMPARISON_ONLY}", allow_module_level=True)
     import numpy as np
 
     from fylite import fyo as _fyo
@@ -586,6 +592,9 @@ def east_equilibrium(shot: int = CASE_SHOT,
     wanted ``g["rmaxis"]`` was reaching around the layer rather than through
     it.  ``fyo.axis_of`` / ``ip_of`` / ``psi_map_of`` are the readers.
     """
+    if case == "efit_east":
+        pytest.skip(f"east_equilibrium(case='efit_east') as an input: {EFIT_EAST_COMPARISON_ONLY}",
+                    allow_module_level=True)
     from fylite import fyo as _fyo
     return _fyo.read(case_document("equilibrium", shot, itime_ms, case=case))
 

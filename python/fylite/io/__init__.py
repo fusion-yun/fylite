@@ -12,8 +12,9 @@ and these are its feeders:
   transcribed that solver's internals. Its live EAST MDSplus read moved
   into the est2 module beside the reduction it always called, and on 2026-09-13
   into :mod:`.raw` when est2 was removed.)
-* :mod:`.mds` — EAST MDSplus (``efit_east`` tree) → measurement dict,
-  Thomson / diamagnetic fetches.  ★Transport is the engine's read-only mdsip
+* :mod:`.mds` — EAST MDSplus: Thomson / diamagnetic fetches and the ``efit_east``
+  tree's answers for comparison (its measurement-dict reader refuses: the tree is
+  comparison data only, user ruling 2026-09-15).  ★Transport is the engine's read-only mdsip
   client (:class:`fylite.kernel.MdsSession`) since 2026-09-04 — the site
   ``MDSplus`` package is not imported anywhere in this package any more, and
   the local-tree mode (``KEFIT_MDS_ROOT``) went with it: the engine speaks

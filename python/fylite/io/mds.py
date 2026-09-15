@@ -1,4 +1,9 @@
-"""Direct EAST MDSplus (efit_east tree) -> measurement dict.
+"""Direct EAST MDSplus reads: Thomson / diamagnetic fetches, and the efit_east tree's answers for comparison.
+
+★★〔user ruling 2026-09-15〕「efit_east mdsplus tree 仅作为对拍比较数据，不应进入 facts/device，也不应作为建模或反演数据源」:
+:func:`fetch_measurements`, which read the tree's MEASUREMENTS record (EFIT's own input channels) as a
+reconstruction input, now refuses; :func:`efit_reference` still reads the tree's ANSWERS, for comparison only.
+What the retired reader read is kept below as the record.
 
 Data source: ``server=`` → ``$FYLITE_MDSIP_SERVER`` (legacy ``KEFIT_MDS_SERVER``)
 → the device document's declared server (``host`` or ``host:port``, port 8000
@@ -124,72 +129,15 @@ def _pick(gt: np.ndarray, time_s: float, interp: str):
 def fetch_measurements(shot: int, time_s: float, *,
                        btor: float | None = None,
                        interp: str = "nearest") -> dict:
-    """Read the efit_east measurement nodes at the sample nearest ``time_s``.
+    """REFUSED (user ruling 2026-09-15): the efit_east tree is comparison data only.
 
-    Returns a measurement dict for the reconstruction face (without itime_ms —
-    the caller sets it; ``sample_time_s`` reports the actual sample used).
-    ``btor`` overrides the BCENTR/FPOL-derived toroidal field.
+    This read the efit_east MEASUREMENTS record (EXPMPI / SILOPT / FCCURT / PLASMA, BCENTR or the FPOL edge)
+    at the stored slice nearest ``time_s`` and handed it to the reconstruction as its measurement set.  The
+    raw-series path (:mod:`fylite.io.raw`, the ``east`` / ``pcs_east`` trees) is the reconstruction input now;
+    the signature is kept so a caller gets the reason rather than an AttributeError.
     """
-    host, port = _server()
-    source = f"{host}:{port}"
-    s = _session("efit_east", shot)
-
-    def get(path):
-        return _get(s, path)
-
-    M = r"\EFIT_EAST::TOP.MEASUREMENTS:"
-    G = r"\EFIT_EAST::TOP.RESULTS.GEQDSK:"
-    gt = get(G + "GTIME")
-    it = _pick(gt, float(time_s), interp)
-    sample_t = float(gt[it])
-
-    expmpi = get(M + "EXPMPI")
-    silopt = get(M + "SILOPT")
-    fccurt = get(M + "FCCURT")
-    plasma = get(M + "PLASMA")
-
-    nch = expmpi.shape[1]
-    expmp2 = np.zeros(device.NPROBE)
-    fwtmp2 = np.zeros(device.NPROBE)
-    expmp2[:min(nch, device.NPROBE)] = expmpi[it][:device.NPROBE]
-    # Probe channel gating (data hygiene, the fitweight.dat role — NOT tuning):
-    # weight 1 only for present channels with a plausible |B| (Tesla), the
-    # shared PROBE_GATE_MIN/MAX bounds.  #70754 diagnosis (2026-07-21):
-    # 39/76 channels dead + 3 outliers; weighting them 1.0 collapses the fitted
-    # current and breaks the boundary tracer, while the 34 live channels agree
-    # with the equilibrium field (corr 0.75, median ratio 0.94).
-    lo, hi = _probe_gate()
-    ok = (np.abs(expmp2) > lo) & (np.abs(expmp2) < hi)
-    fwtmp2[:min(nch, device.NPROBE)] = ok[:min(nch, device.NPROBE)].astype(float)
-    if silopt.shape[1] < device.NSILOP:
-        raise MdsError(f"SILOPT has {silopt.shape[1]} channels, need {device.NSILOP}")
-    coils = silopt[it][:device.NSILOP]
-
-    # FCCURT: first 12 columns, A-turns (see module docstring); col 13 dropped.
-    brsp = list(map(float, fccurt[it][:12]))
-
-    if btor is None:
-        try:
-            btor = float(get("\\BCENTR")[it])
-        except Exception:
-            # genuinely unreadable on this shot: vacuum R*Bt from FPOL edge
-            try:
-                fpol = get(G + "FPOL")
-                btor = float(fpol[it][-1]) / device.RCENTR
-            except Exception as e:
-                raise MdsError(
-                    f"no \\BCENTR and no FPOL for shot {shot}: pass btor= "
-                    f"explicitly") from e
-
-    s.close()
-    return {"shot": int(shot), "time_s": float(time_s),
-            "sample_time_s": sample_t, "sample_index": it,
-            "plasma": float(plasma[it]), "btor": float(btor),
-            "brsp": brsp, "coils": list(map(float, coils)),
-            "expmp2": list(map(float, expmp2)),
-            "fwtmp2": list(map(float, fwtmp2)),
-            "n_probe_channels": int(nch),
-            "source": f"mdsplus:{source}:efit_east:{shot}"}
+    raise MdsError("fetch_measurements: the efit_east tree is comparison data only (user ruling 2026-09-15) — its MEASUREMENTS record is not a reconstruction input; "
+                   "read the raw EAST trees through fylite.io.raw (reconstruct_input(..., kind=\"east\"))")
 
 
 def fetch_thomson(shot: int, time_s: float, *,

@@ -295,8 +295,9 @@ _MCP_CURATED = [
                        "channels and tree from the device resolved for the "
                        "shot; needs network and "
                        "a machine deck; optional POINT / pressure kinetic "
-                       "constraints); otherwise shot+time_s reads the "
-                       "efit_east measurement nodes.",
+                       "constraints). A bare shot+time_s is refused: the "
+                       "efit_east tree is comparison data only (user ruling "
+                       "2026-09-15), so its measurement nodes are not an input.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -441,8 +442,8 @@ def run_reconstruction(opts: dict) -> dict:
 
     Modes, in the order they are tried: ``input`` (a measurement document,
     with ``time_s``), ``east`` (the raw-series path, :mod:`fylite.io.raw`, into the EAST MDSplus
-    trees, with ``shot`` + ``time_s``), else a bare ``shot`` + ``time_s``
-    through the ``efit_east`` measurement nodes.  Returns the result dict;
+    trees, with ``shot`` + ``time_s``); a bare ``shot`` + ``time_s`` is refused — it read the ``efit_east``
+    measurement nodes, and that tree is comparison data only (user ruling 2026-09-15).  Returns the result dict;
     nothing is written — see :func:`deliver_gfile`.
     """
     from ..scenario.analysis.recon_rs import reconstruct_input
@@ -472,7 +473,9 @@ def run_reconstruction(opts: dict) -> dict:
     if opts.get("input"):
         return reconstruct_input(opts["input"], time_s, kind="imas",
                                  shot=shot, **solve)
-    return reconstruct_input(shot, time_s, kind="shot", **solve)
+    from ..scenario.analysis.recon_rs import KefitRunError
+    raise KefitRunError("a bare shot + time_s read the efit_east tree's measurement nodes, and the efit_east tree is comparison data only (user ruling 2026-09-15) — "
+                        "pass east=true (the raw EAST trees) or an input document")
 
 
 def deliver_gfile(res: dict, out) -> str:

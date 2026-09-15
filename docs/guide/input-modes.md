@@ -15,14 +15,14 @@ title: 输入模式 (Input Modes)
 | 源 | 入口 | 探针基 |
 | :--- | :--- | :--- |
 | est2 / GUI_v5 的 live `east` 树（79 探针） | `io.est2.reduce_est2`（在线 MDSplus 与离线 HDF5 转储共用**同一条**约化） | est2（`green2018_wpf_64`） |
-| 处理级 `efit_east` 树（76 探针） | `io.mds` | efit_east（`green2012`） |
+| 处理级 `efit_east` 树（76 探针） | **拒绝**（用户裁定 2026-09-15：该树只作对拍比较数据，不作反演输入） | — |
 | IMAS 形式的 magnetics 文件（JSON/YAML） | `fyo.as_measurements(path, time_s)` | 由文档声明的 `fylite:channel_basis` 定 |
 | fyo / JSON-LD 测量文档 | 同上——语义文档与普通 IMAS dict 走同一道契约 | 同上 |
 | 现成的 `&IN1` k-file | **没有入口** | — |
 :::
 
-★从 EFIT 侧进来的路只有
-处理级 `efit_east` 树那一条；k-file 既不读也不写。
+★从 EFIT 侧进来的路**一条也没有**：处理级 `efit_east` 树按 2026-09-15 用户裁定只作对拍比较数据（`io.mds.efit_reference` 读它的答案），
+k-file 既不读也不写；反演输入走原始 `east` / `pcs_east` 树（`io.raw`）。
 
 ★**扁平字典自带 `basis`**：下游要挑权重掩膜、限制器或表集时不必按 `len(expmp2)` 反推
 ——那正是「各自假设一次」的来路。
