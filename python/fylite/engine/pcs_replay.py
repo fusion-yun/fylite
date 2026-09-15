@@ -80,7 +80,9 @@ def march_replay(plan: dict, nodes: list, t_from: float, t_to: float, out: str |
                  ring: int = 5, density_feedback: bool = True, fuel_gain: float = 1.0, fuel_max_factor: float = 4.0,
                  resume: str | Path | None = None, pause_at: float | None = None, flat_every: int = 1,
                  rerun_max_flips: int = 4, fuel_max: float | None = None,
-                 edge_ne_ref: tuple[float, float] | None = None, ec_sources=(0,), log=print) -> dict:
+                 edge_ne_ref: tuple[float, float] | None = None, settings: dict | None = None,
+                 fuel_start: dict | None = None,
+                 ec_sources=(0,), log=print) -> dict:
     """March ``nodes`` (the replay file's ``nodes``) from ``t_from`` to ``t_to``; outputs under ``out``."""
     import numpy as np  # noqa: F401  (the session's windows need it; import here keeps engine stdlib-pure)
 
@@ -95,8 +97,16 @@ def march_replay(plan: dict, nodes: list, t_from: float, t_to: float, out: str |
 
     def save(sess: S.Session, tag: str) -> str:
         snap = sess.snapshot()
-        snap.pop("plan", None)
-        snap["plan_ref"] = plan_file.name
+        own = snap.pop("plan", None) or plan
+        #: a forked session (``settings``) carries its own case: stored once under its own fingerprint, so a
+        #: snapshot kept after the fork resumes the fork, not the case it was forked from
+        own_file = snap_dir / f"plan.{_fingerprint(own)}.json"
+        if not own_file.exists():
+            own_file.write_text(json.dumps(own))
+        snap["plan_ref"] = own_file.name
+        #: the fuelling controller's state AT this snapshot — `fuel_state.json` beside the snapshots is only
+        #: the LATEST one, and a fork resumed from an earlier snapshot read it as its own (2026-09-15)
+        snap["fuel_state"] = {"fuel": fuel, "ne_ref": ne_ref, "ne_bar_ref": t_ref_bar}
         name = f"{tag}@{snap['t']:.2f}.json"
         (snap_dir / name).write_text(json.dumps(snap))
         return name
@@ -105,11 +115,23 @@ def march_replay(plan: dict, nodes: list, t_from: float, t_to: float, out: str |
         snap = json.loads(Path(path).read_text())
         if "plan" not in snap:
             snap["plan"] = json.loads((Path(path).parent / snap["plan_ref"]).read_text())
-        return S.Session.from_snapshot(snap)
+        return S.Session.from_snapshot(snap, settings)
 
     if resume is not None:
         sess = load(resume)
-        fuel_state = json.loads((snap_dir / "fuel_state.json").read_text()) if (snap_dir / "fuel_state.json").exists() else {}
+        #: the fuelling controller's state, in order: given explicitly · stored in the snapshot · this output's
+        #: own latest (the append case: a pause / end snapshot IS the latest) · none (the case's start rate)
+        embedded = json.loads(Path(resume).read_text()).get("fuel_state")
+        own = snap_dir / "fuel_state.json"
+        if fuel_start is not None:
+            fuel_state = dict(fuel_start)
+        elif embedded:
+            fuel_state = embedded
+        elif own.exists():
+            fuel_state = json.loads(own.read_text())
+        else:
+            fuel_state = {}
+            log("no fuelling state for this snapshot: the controller restarts from the case's rate")
         log(f"resumed from {resume} at t {sess.t_start + sess.k_next * S.STEP_S:.2f} s")
     else:
         sess = S.Session(plan, ec_sources=ec_sources, t_start=t_from, require_lcfs_after=1e9)
@@ -124,13 +146,17 @@ def march_replay(plan: dict, nodes: list, t_from: float, t_to: float, out: str |
     edges = window_edges(nodes, t_start_now, t_to, window, ramp_window)
     node_times = {round(n["t"] / S.STEP_S) for n in nodes}
     fresh = resume is None
+    #: a resume appends; a resume into a NEW output (a fork) starts its files, headers included
+    empty = lambda p: not Path(p).exists() or Path(p).stat().st_size == 0  # noqa: E731
+    head_out, head_win = fresh or empty(out), fresh or empty(str(out) + ".windows.csv")
     f_out = open(out, "w" if fresh else "a", newline="")
     f_win = open(str(out) + ".windows.csv", "w" if fresh else "a", newline="")
     f_prof = open(str(out) + ".profiles.jsonl", "w" if fresh else "a")
     w_out, w_win = csv.writer(f_out), csv.writer(f_win)
-    if fresh:
+    if head_out:
         w_out.writerow(["t", "replay_phase", "ip_cmd", "rf_cmd", "ne_bar_cmd", "fuel_rate", "p_fus", "w_th", "te0", "ti0",
                         "beta_n", "p_rad", "v_loop", "lh_phase", "p_sep", "p_lh", "interpolated"])
+    if head_win:
         w_win.writerow(["t_from", "t_to", "mode", "rerun", "calls", "kernel_steps", "wall_ms", "lh_flips", "sawtooth",
                         "rejected", "reason", "snapshot"])
     ring_buf: list[tuple[float, str | None, dict]] = []
@@ -255,12 +281,26 @@ def main(argv=None) -> int:
     p.add_argument("--fuel-max", type=float, default=None, help="absolute fuelling cap [/s] (default 4 × the case's)")
     p.add_argument("--edge-ne-ref", type=float, nargs=2, default=None, metavar=("EDGENE", "NE_BAR"),
                    help="edge density [1e19] that goes with the replay line density NE_BAR [m^-3]")
+    p.add_argument("--set", action="append", default=[], metavar="KEY=VALUE",
+                   help="with --resume: fork the snapshot with this case setting replaced (repeatable)")
+    p.add_argument("--fuel-state", default=None, metavar="JSON",
+                   help='with --resume: the fuelling controller\'s state, {"fuel": /s, "ne_ref": m^-3, "ne_bar_ref": m^-3}')
     a = p.parse_args(argv)
+    overrides = {}
+    for item in a.set:
+        key, sep, value = item.partition("=")
+        if not sep or not key:
+            p.error(f"--set wants KEY=VALUE, got {item!r}")
+        try:
+            overrides[key] = float(value)
+        except ValueError:
+            overrides[key] = value
     summary = march_replay(json.loads(Path(a.plan).read_text()), json.loads(Path(a.replay).read_text())["nodes"],
                            a.t_from, a.t_to, a.out, window=a.window, ramp_window=a.ramp_window, adaptive=not a.fixed,
                            dt_max=a.dt_max, density_feedback=not a.no_density_feedback, resume=a.resume,
                            pause_at=a.pause_at, flat_every=a.flat_every, rerun_max_flips=a.rerun_max_flips,
-                           fuel_max=a.fuel_max, edge_ne_ref=a.edge_ne_ref)
+                           fuel_max=a.fuel_max, edge_ne_ref=a.edge_ne_ref, settings=overrides or None,
+                           fuel_start=json.loads(a.fuel_state) if a.fuel_state else None)
     print(json.dumps(summary))
     return 0
 
