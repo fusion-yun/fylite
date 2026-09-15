@@ -5000,6 +5000,11 @@
       "type": "spo:Code",
       "name": "tools/benchmark-east-point.py",
       "comment": "档 K 的运行与复现门（W4b 零假设 · W4c 带 POINT 法拉第行的拟合及四个变体）：`--check` 对 FYDOC-CASE-23 读数件 `#K-W4b-null` / `#K-W4c-rows` 的 check 块逐数比对（相对容差 1e-6）；它钉的是**读数可复现**，不是对参考答案的判定；★2026-09-15 起拒跑（用户裁定 efit_east 树只作对拍比较数据，门的输入取自该树），所钉读数只作历史"
+     },
+     {
+      "type": "spo:Code",
+      "name": "tools/benchmark-east-raw.py",
+      "comment": "2026-09-15 起档 M / K 的合规重跑（用户裁定 efit_east 树只作对拍比较数据）：`--pull` 经 `fylite.io.raw.reduce_series` 从 east 树原始节点读 #137985 三片（探针 · 磁通环 · PF 罗氏线圈 · Ip · POINT；B_T 取 TF 电流节点），`--fylite` 跑档 M（实测 PF 电流、竖直设定点扫描）与档 K（W4b 零假设 · W4c 法拉第行），`--kefit` 以 GUI_v5 写出规则在同一输入上跑本地构建的 KEFIT（green2022_pcs 几何，探针按位置与角度逐槽配对），`--reject` 以 KEFIT 纯磁拟合的 χ² 份额剔探针、两个代码用同一份，`--compare` 对 efit_east 答案只作比较；运行件与读数在 FYDOC-CASE-23 `corpus/raw/` 与 `corpus/kefit/`、`corpus/fylite/` 的 raw 归档"
      }
     ],
     "caveat": [
@@ -7100,7 +7105,7 @@
      },
      {
       "type": "spo:Concretization",
-      "storage_uri": "$FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld",
+      "storage_uri": "$FYLITE_KERNEL/archive/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld",
       "checksum": "sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010",
       "comment": "29525 B",
       "provenance_class": "registered",
@@ -7110,7 +7115,8 @@
        "纳入类别 private-artefact：私有仓制品：在内核检出中，公开侧以 $FYLITE_KERNEL 指针引用",
        "出处：本仓文件",
        "装置提供者 efit_green2022_pcs（EFIT `&IN3` 道阵）：efit_east 链在 #137985 解析到它；配对证据是 EFIT 自算的 CMPR2 / CSILOP 只在这套几何上与它自己的 PSIRZ 闭合（fydoc `facts/device/east/provenance.yaml` 该件条）",
-       "★本件在内核检出中尚未跟踪（2026-09-14）；门实际读的是公开检出 `dist/facts` 里由同一 A-Box 生成的解析结果"
+       "★本件在内核检出中尚未跟踪（2026-09-14）；门实际读的是公开检出 `dist/facts` 里由同一 A-Box 生成的解析结果",
+       "★2026-09-15 随 efit_east 链撤出装置书，本件原样归档（原路径 facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld；sha256 与字节数不变），用户裁定 efit_east 树只作对拍比较数据"
       ]
      }
     ],

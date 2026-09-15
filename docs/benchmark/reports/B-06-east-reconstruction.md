@@ -208,7 +208,7 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 | 同组 `corpus/kefit/kefit_build_recipe.json`（补丁 · 编译旗 · LAPACK 子集 · 源与可执行体 sha256）| sha256:c56238a05fc26eb8a8365766bd5ceca4c53770011d51af04ca2212fe6272ede9 | private-artefact | 7 344 B |
 | `$KEFIT_REFERENCE_BUNDLE/active/EFIT_point/EFIT_POINT_GUI_v5.m` | sha256:0cccdc958f34b5ba41b38e55691c6d2f9d396f59defb28007ab944d7321b182f | private-artefact | 110 748 B |
 | `$KEFIT_REFERENCE_BUNDLE/active/point/efit_w_pf/efitbuild/efitdud6565.f` | sha256:0a066a8099e0b90a3c2cbc82fcaa126986121e025305c96d4b285018ce591ec3 | private-artefact | 660 795 B |
-| `$FYLITE_KERNEL/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld` | sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010 | private-artefact | 26 738 B |
+| `$FYLITE_KERNEL/archive/facts/device/east/abox/providers/magnetics/efit_green2022_pcs.jsonld`（2026-09-15 归档）| sha256:fb2744b3eedb939defe1a2c6e1aa7f336ed2961758b74f0ddb84e47db65e5010 | private-artefact | 26 738 B |
 | 运行时卡片 `facts:device/east?shot=137985&measurement_chain=efit_east`（2026-09-14 07:47 生成于临时目录，未保留）| sha256:f07f239f2d75547773b3c788d3a806ef19575f0b9188d5530fbf7a926ceeaef1 | private-artefact | 64 183 B |
 
 受限与实验类只存路径与 sha256，本体不在公开仓；CASE-23 的发布判定是 `internal`。
@@ -253,6 +253,24 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 ★本页只画已在上表公开的量（残差 σ 与标量）。q / p 剖面、边界形状、逐弦实测对前向读数与 POINT 时间序列四张图带 #137985 的重构形状或实测读数，
 在 CASE-23 书页（internal）；两张图与那四张由同一个工具从 CASE-23 的两个运行归档重画，画图数在 `corpus/benchmark/figure_data_east137985.json`。
 
+### 7.1 原始树输入重跑（2026-09-15，合规）
+
+efit_east 树只作对拍比较数据（用户裁定 2026-09-15）后，档 M / K 在 #137985 的三片（4.041 / 4.944 / 5.976 s）上以**原始树输入**重跑：探针 · 磁通环 · PF 罗氏线圈 · Ip · POINT
+都经 `fylite.io.raw.reduce_series` 从 east / pcs_east 原始树读出，B_T 取 TF 线圈电流节点；fylite 与本地构建的 KEFIT 在**同一组数**上各跑纯磁 · POINT 主集 · 11 弦全开，
+efit_east 的答案只作比较。读数与运行件在 CASE-23（`#R-raw-trees`，internal）；工具 `$FYLITE_KERNEL/tools/benchmark-east-raw.py`。
+
+| 读数 | fylite | KEFIT |
+| :--- | :--- | :--- |
+| 修两处之前 | 装置卡片的 PF 通道只有电路名 BRSP_01…12，原始读数一律失败（装置书补 PF1P…PF12P 后读通） | GUI_v5 自带几何表 `green2018_wpf_64` 与原始探针名的道阵不符（79 槽中 56 对差 > 2 cm / 10°），各例 `Problem in BOUND`；改 `green2022_pcs`（74 / 76 槽 0 mm / 0° 重合） |
+| 全部探针，纯磁 | χ² 1882 / 1870 / 1881 · q₀ 0.60 · 探针 5.0 σ | χ² 1700 / 1710 / 1750（Error #1）· q₀ 0.66 / 0.64 / 0.67 |
+| 剔 7 个探针（KEFIT 纯磁 χ² 份额 > 25，两个代码同一份），纯磁 | 收敛：q₀ 2.042 / 1.984 / 1.924（树 1.806 / 1.828 / 1.821）· 磁轴 dR −52 / −43 / −40 mm · 边界中位 10.7 / 8.8 / 7.8 mm · ψ 图 2.5–2.6 % · χ² 71.0 / 70.1 / 77.0 | 收敛、无错误标记：q₀ 1.913 / 1.924 / 2.000 · dR −17 / −18 / −26 mm · 边界中位 13.6 / 12.9 / 13.4 mm · ψ 图 1.6–2.2 % · χ² 47.4 / 46.2 / 47.6 |
+| 同上 + POINT 主集 | q₀ 0.824 / 0.816 / 0.903 · dR +116 / +110 / +37 mm · 法拉第 3.14 / 2.45 / 2.50 → 1.81 / 1.48 / 1.35 σ | 4.041 s `Problem in CNTOUR` · q₀ 1.790（Error #19–21）/ 1.044 |
+
+- **两边仍有的实现差**：KEFIT 以 FWTFC 0.3 拟合 PF 电流、`fitdelz` 定竖直位置、边缘系数 0.5；fylite 固定实测 PF 电流、扫描竖直设定点、无边缘系数。基都取 GUI_v5 的 2 / 2；
+  σ 同为 max(0.05 |值|, bit)，环的权与 bit 取 GUI_v5，探针 bit 取 `efit/2016/bitmp2.txt` 的中位（GUI_v5 逐探针的行按另一套槽序）。
+- **读法**：纯磁档两个代码在原始输入上都收敛，q₀ 都比树高 0.1–0.2、彼此差 0.06–0.13，磁轴 R 彼此差 23–35 mm——上面三处实现差分不开。加 POINT 后两边都不稳（11 弦全开亦然），
+  **原始输入上的档 K 没有可作参考的答案**。本节是两个代码同一组数的对拍读数，不判。
+
 ## 8. 前身：撤回的 B-06 记录（摘要）
 
 - **比的是什么**：#137985 @ 4.000 s 的 est2 测量集（79 探针 / 35 环，`efit_w_pf` 几何）上，fylite `gs_inverse_solve` 与离线 gfortran EFIT（`libefit.so`，preset gui_v5 / tables wpf2018）
@@ -284,6 +302,22 @@ FYLITE_KERNEL_LIB=rust/target/release/libfylite_kernel.so PYTHONPATH=$FYLITE_PUB
   python tools/benchmark-east-point.py --out <scratch dir> --check
 ```
 
+2026-09-15 起的合规重跑（§7.1）：
+
+```bash
+cd $FYLITE_KERNEL
+export FYLITE_PUBLIC=$FYLITE_PUBLIC FYLITE_DEVICE_DIR=$FYLITE_PUBLIC/dist/facts/device/east \
+       FYLITE_KERNEL_LIB=rust/target/release/libfylite_kernel.so PYTHONPATH=$FYLITE_PUBLIC/python:tests
+R="uv run --no-project --with numpy --with scipy --with pyyaml python tools/benchmark-east-raw.py"
+# 取数（需要 mdsip 服务器，FYLITE_MDSIP_SERVER=host:port；记录里写 mds.invalid）
+$R --pull <dir>
+# east 链的卡片（abox-to-facts.py east --shot 137985 --measurement-chain east -o <variants>）
+$R --kefit <dir> <kefit> --exe <magpri-76 efitd6565d> --card <card>
+$R --reject <kefit> --kefit <dir> <kefitR> --exe <magpri-76 efitd6565d> --card <card>
+$R --reject <kefit> --fylite <dir> <fyliteR> --card <card>
+$R --compare <dir> <fyliteR> <kefitR> <out>
+```
+
 POINT 对齐件与约束件的算法（插值系数、权重规则、平台均值的 ddof、邻弦检验、有效 σ）写在件内 `fylite:method` · `comment` · `fylite:chord_checks` · `fylite:sigma_reading`，可由时间序列件逐值复算。
 档 K 的门是上面第三条：它钉的是**读数可复现**（W1 / C0 复现 B-11、W4b · W4c 的每个数对 CASE-23 读数件），不是对参考答案的判定——参考答案到来之前没有可判的对象。
 KEFIT 同输入读数（§7）**没有门**：构建配方（补丁 · 编译旗 · LAPACK 子集 · 所用源文件与可执行体 sha256）、每次运行的 namelist 与输出都在 CASE-23 `corpus/kefit/`
@@ -305,3 +339,5 @@ uv run --no-project --with numpy --with scipy python tools/benchmark-east-kefit-
 2026-09-14 补上**同输入的 KEFIT 对拍**（包内源码本地构建，§7）：同一片、同一输入与权重、同一基与约束件上，KEFIT 与 fylite 都留下约 2.4–2.5 σ 的法拉第残差，11 弦逐弦同号，加 POINT 都把 q₀ 往上推（KEFIT 2.64、fylite 2.29；纯磁 2.04 / 1.94，树 1.81）⇒ 这份残差**属于数据，不属于 fylite 的模型**。
 另读的两片与逐 EFIT 时刻的 POINT 读数再给两条：最佳偏置随时间漂（不是不随时间的逐弦标定）；线密度弦在平顶上不稳，而法拉第弦与线平均道稳——两个代码都用线密度弦拟密度形状，拟合的 q₀ 随之漂（KEFIT 2.66 / 2.64 / 1.12，fylite 2.29 / 1.95 / 1.53；两者 POINT 取法不同，只有 4.041 s 的约束件一行输入相同）。
 档 K 的参考现已具备：按用户裁定（2026-09-14）ASIPP 的 KEFIT 输入来源即 third_party 参考包，本地构建的运行作参考；但判据带尚未定（§5 [TBD]），本页仍**不立判定**——那要另立登记记录。只回答 B 类对拍的问题，不外推到「fylite 的反演对得上真实的 EAST」。
+2026-09-15 起 efit_east 树只作对拍比较数据：以树的输入跑出的上述读数都**只作历史**。以原始树输入重跑（§7.1）后，纯磁档 fylite 与 KEFIT 在同一组数上都收敛
+（q₀ 2.04 / 1.98 / 1.92 对 1.91 / 1.92 / 2.00，树 1.81 / 1.83 / 1.82），而加 POINT 后两个代码都不稳——原始输入上的档 K 暂无参考答案。
