@@ -13,7 +13,7 @@
 //!
 //! 与 Node 网关**同一组端点、同一套 JSON 形状**，因为页面是同一份：
 //! `/api/health` `/api/shot` `/api/tree` `/api/node` `/api/signal`
-//! `/api/measurements`。★没有取表达式的端点，因为
+//! `/api/measurements`（2026-09-15 起按裁定拒绝：efit_east 树只作对拍比较数据）。★没有取表达式的端点，因为
 //! [`fylite_runtime::mdsip::Client`] 没有取表达式的方法——每个 TDI 串都在内核里由
 //! 校验过的节点路径与整数拼出（FYL-DESIGN-06 §5）。
 //!
@@ -27,11 +27,15 @@
 use fylite_runtime::mdsip::{self, tcp, Client, MdsipError};
 
 /// EFIT 的测量子树与结果子树前缀 —— 与 `gateway.mjs` 逐字相同。
+#[allow(dead_code)] // kept: the retired efit_east measurements reader used it (ruling 2026-09-15)
 const M: &str = "\\EFIT_EAST::TOP.MEASUREMENTS:";
+#[allow(dead_code)] // kept: the retired efit_east measurements reader used it (ruling 2026-09-15)
 const G: &str = "\\EFIT_EAST::TOP.RESULTS.GEQDSK:";
 /// 装置文档里的探针闸门（`east_device.yaml` `operational.probe_gate`），
 /// 原样转述给页面：判据在页面里，出处在这里。
+#[allow(dead_code)] // kept: the retired efit_east measurements reader used it (ruling 2026-09-15)
 const PROBE_GATE_MIN: f64 = 0.02;
+#[allow(dead_code)] // kept: the retired efit_east measurements reader used it (ruling 2026-09-15)
 const PROBE_GATE_MAX: f64 = 1.0;
 /// 一次答复最多回多少个采样点——与网关的 `maxPoints` 同值。
 const MAX_POINTS: i64 = 20_000;
@@ -677,117 +681,16 @@ fn signal(cfg: &Cfg, q: &Query) -> Result<String, Fail> {
     ))
 }
 
-/// EFIT 自己的输入记录，取**离所要时刻最近的存储切片**。
+/// ★★〔用户裁定 2026-09-15〕efit_east 树只作对拍比较数据——不进 facts/device，也不作建模或反演数据源。
 ///
-/// ★★它不是本仓随 EAST deck 附的那份 est2 归算，也不在恰好那一瞬：
-/// #137985 上 deck 是 est2 的 4.000 s，这里给 EFIT 的 4.041 s，两者在环上差
-/// 2.3 %、在一路线圈上差 5.4 %——那是斜坡上的 41 ms，是两个来源的事实，
-/// 不是任一方的错误。答复把实际拿到的切片一并报出来。
-fn measurements(cfg: &Cfg, q: &Query) -> Result<String, Fail> {
-    let tree = q.tree("efit_east")?;
-    let shot = q.shot()?;
-    let raw = q.get("time").unwrap_or("");
-    let want: f64 = raw
-        .parse()
-        .map_err(|_| Fail::Bad(format!("time {raw:?} is not a number of seconds")))?;
-    if !want.is_finite() {
-        return Err(Fail::Bad(format!("time {raw:?} is not a number of seconds")));
-    }
-    let (mut c, server) = open(cfg, q, &tree, shot)?;
-
-    let gtime = c
-        .get(&format!("{G}GTIME"))?
-        .data
-        .to_f64()
-        .unwrap_or_default();
-    if gtime.is_empty() {
-        return Err(Fail::Bad(format!("{tree} #{shot} has no GTIME — nothing was stored")));
-    }
-    let mut at = 0usize;
-    for i in 1..gtime.len() {
-        if (gtime[i] - want).abs() < (gtime[at] - want).abs() {
-            at = i;
-        }
-    }
-
-    //: ★★`dims[0]` 是**变化最快**的轴，也就是通道数；载荷按 (切片, 通道)
-    //: 连续排列。反过来读会拿到某一路通道的历史，而且不报任何错。
-    let mut row = |node: &str| -> Result<(Vec<f64>, usize), Fail> {
-        let a = c.get(node)?;
-        if a.dims.len() != 2 {
-            return Err(Fail::Bad(format!("{node} is not (channels, time)")));
-        }
-        let w = a.dims[0];
-        let d = a.data.to_f64().unwrap_or_default();
-        let lo = at * w;
-        let hi = (lo + w).min(d.len());
-        if lo >= d.len() {
-            return Err(Fail::Bad(format!("{node} has no slice {at}")));
-        }
-        Ok((d[lo..hi].to_vec(), w))
-    };
-    let (loops, n_loops) = row(&format!("{M}SILOPT"))?;
-    let (probes, n_probes) = row(&format!("{M}EXPMPI"))?;
-    let (coils, n_coils) = row(&format!("{M}FCCURT"))?;
-    let plasma = c.get(&format!("{M}PLASMA"))?.data.to_f64().unwrap_or_default();
-
-    //: ★★2026-09-01 改：真空场读的是**标签** `\\BCENTR`，不是 `{G}BCENTR`。
-    //: 那条全路径在试过的每一炮上都是 size 0 / `%TREE-E-NODATA`（#100000
-    //: #137984 #137985 #140000 #150000 #165704），标签则给 112 点、单位 `T`。
-    //: 这里从前的注释写着「BCENTR 在有些炮上是 NODATA（#137985 就是）」——
-    //: 那是**把自己的路径写错记成了机器没有这个量**。
-    //:
-    //: ★取不到时仍然给 null，不给替代值：真空场是页面自己的 deck 已经有的数，
-    //: 在这里编一个就是把机器常数塞进一份测量记录。
-    let bcentr = c
-        .get("\\BCENTR")
-        .ok()
-        .and_then(|a| a.data.to_f64())
-        .and_then(|v| v.get(at).copied())
-        .filter(|v| v.is_finite());
-
-    //: 第 13 路 FCCURT 是器壁内/IC 回路，**丢掉**，与 `io/mds.py` 同一处理；
-    //: 前 12 路是 PF 线圈的安匝。
-    let aturns: Vec<f64> = coils.iter().take(12).copied().collect();
-    Ok(format!(
-        "{{\"server\":{},\"tree\":{},\"shot\":{},\"time_requested\":{},\"time_s\":{},\
-         \"slice_index\":{},\"slices\":{},\"times\":{},\"loops\":{},\"probes\":{},\
-         \"aturns\":{},\"ip\":{},\"bcentr\":{},\
-         \"counts\":{{\"loops\":{},\"probes\":{},\"coils\":{}}},\
-         \"probe_gate\":{{\"min_tesla\":{},\"max_tesla\":{},\"source\":{}}},\
-         \"provenance\":{{\"nodes\":{{\"time\":{},\"loops\":{},\"probes\":{},\"coils\":{},\
-         \"ip\":{},\"bcentr\":{}}},\"kind\":{}}}}}",
-        jstr(&server),
-        jstr(&tree),
-        shot,
-        jnum(want),
-        jnum(gtime[at]),
-        at,
-        gtime.len(),
-        jarr(&gtime),
-        jarr(&loops),
-        jarr(&probes),
-        jarr(&aturns),
-        jnum(plasma.get(at).copied().unwrap_or(f64::NAN)),
-        match bcentr {
-            Some(v) => jnum(v),
-            None => String::from("null"),
-        },
-        n_loops,
-        n_probes,
-        n_coils,
-        PROBE_GATE_MIN,
-        PROBE_GATE_MAX,
-        jstr("facts/device/east/east_device.yaml operational.probe_gate"),
-        jstr(&format!("{G}GTIME")),
-        jstr(&format!("{M}SILOPT")),
-        jstr(&format!("{M}EXPMPI")),
-        jstr(&format!("{M}FCCURT")),
-        jstr(&format!("{M}PLASMA")),
-        jstr("\\BCENTR"),
-        jstr("EFIT's own input record, at the stored slice nearest the requested \
-              time — not the est2 reduction of the raw trees")
-    ))
+/// 这个端点原来按炮号与时刻读 `efit_east` 的 MEASUREMENTS 记录（EFIT 自己的输入通道：SILOPT · EXPMPI ·
+/// FCCURT · PLASMA · `\\BCENTR`），交给页面当反演输入。裁定之后它**在开套接字之前就按名拒绝**，不论参数与
+/// 有无服务器；原实现在 git 历史里。
+fn measurements(_cfg: &Cfg, _q: &Query) -> Result<String, Fail> {
+    Err(Fail::Bad(String::from(
+        "refused: the efit_east tree is comparison data only (user ruling 2026-09-15) — its MEASUREMENTS \
+         record (EFIT's own input channels) is not a reconstruction input",
+    )))
 }
 
 /// Unix 毫秒 -> ISO-8601（UTC）。
@@ -868,10 +771,10 @@ mod tests {
             assert!(!is_server_string(bad), "应当拒绝 {bad:?}");
         }
         let cfg = Cfg { server: None, user: String::from("t") };
-        let (code, body) = handle("/api/measurements?shot=1&time=0&server=host%3Bwhoami", &cfg);
+        let (code, body) = handle("/api/tree?tree=east&shot=1&server=host%3Bwhoami", &cfg);
         assert_eq!(code, 400, "{body}");
         //: 而没有默认服务器、也没填的时候，说的是「填一个」不是「连不上」
-        let (code, body) = handle("/api/measurements?shot=1&time=0", &cfg);
+        let (code, body) = handle("/api/tree?tree=east&shot=1", &cfg);
         assert_eq!(code, 400);
         assert!(body.contains("server box"), "{body}");
     }
@@ -880,7 +783,6 @@ mod tests {
     fn every_data_endpoint_refuses_before_opening_a_socket() {
         //: 没有服务器时不是「连不上」，是「没配」——两者对读者是不同的事。
         for t in [
-            "/api/measurements?shot=1&time=0",
             "/api/signal?tree=east&shot=1&node=%5CTOP",
             "/api/tree?tree=east&shot=1",
         ] {
@@ -898,12 +800,23 @@ mod tests {
         for t in [
             "/api/tree?tree=east;drop&shot=1",
             "/api/signal?tree=east&shot=1&node=getenv(%22HOME%22)",
-            "/api/measurements?shot=notanumber&time=1",
-            "/api/measurements?shot=1&time=abc",
+            "/api/tree?tree=east&shot=notanumber",
         ] {
             let (code, body) = handle(t, &cfg);
             assert_eq!(code, 400, "{t} -> {body}");
         }
+    }
+
+    #[test]
+    fn measurements_refuses_by_the_comparison_only_ruling() {
+        //: ★★〔用户裁定 2026-09-15〕efit_east 树只作对拍比较数据：这个端点不论参数、不论有无服务器，都按名拒绝
+        let cfg = Cfg { server: Some(String::from("127.0.0.1:8000")), user: String::from("t") };
+        let (code, body) = handle("/api/measurements?shot=137985&time=4.041", &cfg);
+        assert_eq!(code, 400, "{body}");
+        assert!(body.contains("comparison data only"), "{body}");
+        let (code, body) = handle("/api/measurements?shot=1&time=0", &no_server());
+        assert_eq!(code, 400, "{body}");
+        assert!(body.contains("comparison data only"), "{body}");
     }
 
     #[test]

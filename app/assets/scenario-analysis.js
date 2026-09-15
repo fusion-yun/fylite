@@ -3347,93 +3347,17 @@ FyScenario.whenDevices(function () {
      * verdict would be a second opinion about the same run.
      */
     onOutcome: function (fn) { if (typeof fn === 'function') outcomeFns.push(fn); },
-    /** Take a live magnetic slice. `m` is the gateway's /api/measurements. */
+    /**
+     * REFUSED (user ruling 2026-09-15): the efit_east tree is comparison data only.
+     *
+     * This took a live magnetic slice from the gateway's /api/measurements — the efit_east MEASUREMENTS record,
+     * EFIT's own input channels — and made it the fit's input (raw basis, coils fitted).  The ruling makes that tree
+     * comparison data only, so the page refuses the slice by name whichever host answered; the source panel shows
+     * the reason through its `mdssrc.refused` note.  What the retired body did is in git history.
+     */
     useMeasurements: function (m) {
-      var nP = (M.probes || []).length, nL = (M.loops || []).length;
-      if (!m || !m.loops || m.loops.length < nL)
-        throw new Error(T('mdssrc.err.loops', { got: m && m.loops ? m.loops.length : 0, want: nL }));
-
-      //: ★76 channels on the wire, 79 in the deck.  The absent ones are
-      //: padded with zero and weighted ZERO — never with a neighbour's value
-      //: and never dropped from the vector, which would shift every channel
-      //: after them onto the wrong geometry.
-      var probes = new Array(nP), pw = new Array(nP);
-      var gmin = (m.probe_gate && m.probe_gate.min_tesla) || 0.02;
-      var gmax = (m.probe_gate && m.probe_gate.max_tesla) || 1.0;
-      for (var i = 0; i < nP; i++) {
-        var v = i < m.probes.length ? m.probes[i] : 0;
-        probes[i] = isFinite(v) ? v : 0;
-        var a = Math.abs(probes[i]);
-        pw[i] = (i < m.probes.length && a > gmin && a < gmax) ? 1 : 0;
-      }
-
-      Object.keys(R).forEach(function (k) { delete R[k]; });
-      R.shot = m.shot;
-      R.time_s = m.time_s;
-      liveAt = { shot: m.shot, index: m.slice_index, time: m.time_s };
-      R.aturns = m.aturns.slice();
-      R.ip = m.ip;
-      R.ipMeasured = m.ip;
-      //: ★SILOPT is the TOTAL flux the loops saw, coils included — the same
-      //: basis as the shipped deck's `loopMeasTotal`, NOT its `loopMeas`
-      //: (which has the coil share removed by a delivered reconstruction that
-      //: does not exist for an arbitrary shot).  So the raw basis is the only
-      //: one on offer, and it is forced rather than merely defaulted.
-      R.loopMeasTotal = m.loops.slice(0, nL);
-      //: the deck's weights, captured at load: they say which loops this
-      //: MACHINE fits, which no shot changes
-      R.loopWeights = DECK_LOOP_W.length === nL ? DECK_LOOP_W.slice()
-                                                : new Array(nL).fill(1);
-      R.probeMeas = probes;
-      R.probeWeights = pw;
-      //: ★★★AND THE PAGE'S OWN COPY, which is the whole point of setting the
-      //: first one.  `refProbes` is captured at module load and was replaced
-      //: only by a FILE import — so a live slice updated `R.probeMeas` and
-      //: nothing read it: with 磁探针参与拟合 ticked after a live read, the
-      //: probe rows carried the DECK's readings (#137985 @ 4.000 s) while the
-      //: loops carried the picked slice.  Measured before this line existed:
-      //: at t = 2.493 s the deck's probe 4 reads 0.000 and the slice's reads
-      //: 1.781e-1, and the fit was given the 0.000.
-      refProbes = probes.slice();
-      refProbeSource = 'live';
-      if (m.bcentr !== null && m.bcentr !== undefined) R.bcentr = m.bcentr;
-      //: ★the flag the source note reads: these numbers came off the tree,
-      //: not out of the deck, and the two cannot be described by one sentence
-      R['fylite:live'] = true;
-      R['fylite:channel_provenance'] = {
-        loopMeas: T('mdssrc.prov', { tree: m.tree, shot: m.shot,
-                                     t: (+m.time_s).toFixed(3) }),
-      };
-
-      //: ★★COIL-FITTING GOES ON, and it is not a preference.  A raw-total
-      //: slice is fitted by SUBTRACTING what the coils contribute at each
-      //: loop, so the coil currents are part of the measurement rather than
-      //: exact numbers standing outside it.  Measured on #137985: with the
-      //: coils held exact the fit diverges at outer iteration 89 (singular
-      //: normal equations); with them fitted it converges — residual 1.10e-5,
-      //: weighted χ² = 2.61e-3.  So the switch is set here and the note says
-      //: it was, rather than leaving the reader a failure to diagnose.
-      if ($('coilfit')) {
-        $('coilfit').checked = true;
-        var advCoil = $('adv-coilfit');
-        if (advCoil) advCoil.open = true;
-      }
-      basis = 'raw';
-      if ($('basis')) {
-        $('basis').value = 'raw';
-        var delivered = $('basis').querySelector('option[value="delivered"]');
-        if (delivered) delivered.disabled = true;
-      }
-      refCase = null;
-      Object.keys(loopOff).forEach(function (k) { delete loopOff[k]; });
-      Object.keys(probeOff).forEach(function (k) { delete probeOff[k]; });
-      last = null;
-      $('tab-real').disabled = false;
-      setSource('real');
-      syncLabels();
-      drawAll();
-      return { loops: nL, probes: m.probes.length, padded: nP - m.probes.length,
-               live: pw.filter(Boolean).length, coilfit: !!($('coilfit') && $('coilfit').checked) };
+      void m;
+      throw new Error(T('mdssrc.ruling'));
     },
   };
 

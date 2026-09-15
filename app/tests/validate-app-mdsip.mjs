@@ -62,7 +62,6 @@ const SHOT = 137985;
 const N = encodeURIComponent('\\WMHD');
 //: 每个端点答多少个键是钉住的，`server` 那一格也算在内。
 const CASES = [
-  ['/api/measurements?shot=' + SHOT + '&time=4.0', 16],
   ['/api/tree?tree=efit_east&shot=' + SHOT + '&path=' + encodeURIComponent('\\TOP'), 5],
   ['/api/node?tree=efit_east&shot=' + SHOT + '&node=' + N, 9],
   ['/api/signal?tree=efit_east&shot=' + SHOT + '&node=' + N + '&points=8', 15],
@@ -82,14 +81,20 @@ try {
         a.status === 200 ? Object.keys(a.body).join(' ') : `HTTP ${a.status}`);
   }
 
+  //: ★★〔user ruling 2026-09-15〕the efit_east tree is comparison data only: /api/measurements (EFIT's MEASUREMENTS
+  //: record, taken as a reconstruction input) refuses before any question goes to the server
+  const refused = await get('/api/measurements?shot=' + SHOT + '&time=4.0');
+  say(refused.status === 400 && /comparison data only/.test(String(refused.body.error)),
+      '/api/measurements 按裁定拒绝（400，不问服务器）', JSON.stringify(refused.body).slice(0, 120));
+
   //: ★★★这三条是上面注释里那三处缺陷的直接判据，写成断言而不是靠别的检查
   //: 顺带覆盖：一条规则被别的检查捎带过，改坏时报出来的是别的东西。
-  const node = (await get(CASES[2][0])).body;
+  const node = (await get(CASES[1][0])).body;
   say(typeof node.inserted === 'number' && node.inserted > 0,
       'TIME_INSERTED 读得出来（u64 dtype）', String(node.inserted));
   say(/^\d{4}-\d\d-\d\dT/.test(String(node.insertedIso)),
       'ISO 时间戳是个时间戳', String(node.insertedIso));
-  const tree = (await get(CASES[1][0])).body;
+  const tree = (await get(CASES[0][0])).body;
   say(tree.nodes.length > 1 && tree.nodes.every((n) => n.name && !/\s/.test(n.name)),
       '定宽文本表切成了单个名字（填充是分隔符）',
       tree.nodes.slice(0, 3).map((n) => n.name).join(','));
