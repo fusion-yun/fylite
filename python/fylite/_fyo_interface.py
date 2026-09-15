@@ -1452,8 +1452,8 @@ CODE_PARAMS = {
         'eta_scale': {'key': 'eta_scale', 'type': 'float', 'via': 'wall_case', 'default': '1.0', 'required': False},
         'eta_vessel': {'key': 'eta_vessel', 'type': 'float', 'via': 'wall_case'},
         'n_modes': {'key': 'n_modes', 'type': 'float', 'via': 'wall_case', 'default': '10.0', 'required': False},
-        'nu': {'key': 'nu', 'type': 'float', 'via': 'wall_case', 'default': '3.0', 'required': False},
-        'nv': {'key': 'nv', 'type': 'float', 'via': 'wall_case', 'default': '3.0', 'required': False},
+        'nu': {'key': 'nu', 'type': 'float', 'via': 'wall_case', 'default': '8.0', 'required': False},
+        'nv': {'key': 'nv', 'type': 'float', 'via': 'wall_case', 'default': '8.0', 'required': False},
         'passive': {'key': 'passive', 'type': 'string', 'via': 'wall_case'},
     }},
     'wave': {"door": 'wave_case', "crate": 'fylite_kernel', "parameters": {

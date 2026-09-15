@@ -1409,8 +1409,8 @@ pub const CODES: &[Code] = &[
         Param { key: "eta_scale", value_type: "float", default: "1.0", required: false, via: "wall_case" },
         Param { key: "eta_vessel", value_type: "float", default: "", required: false, via: "wall_case" },
         Param { key: "n_modes", value_type: "float", default: "10.0", required: false, via: "wall_case" },
-        Param { key: "nu", value_type: "float", default: "3.0", required: false, via: "wall_case" },
-        Param { key: "nv", value_type: "float", default: "3.0", required: false, via: "wall_case" },
+        Param { key: "nu", value_type: "float", default: "8.0", required: false, via: "wall_case" },
+        Param { key: "nv", value_type: "float", default: "8.0", required: false, via: "wall_case" },
         Param { key: "passive", value_type: "string", default: "", required: false, via: "wall_case" },
     ] },
     Code { name: "wave", door: "wave_case", krate: "fylite_kernel", params: &[

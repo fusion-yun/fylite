@@ -197,9 +197,17 @@ def rectangle_corners(r: float, z: float, width: float, height: float,
     """
     ca2, sa2 = math.cos(math.radians(a2)), math.sin(math.radians(a2))
     ca1, sa1 = math.cos(math.radians(a1)), math.sin(math.radians(a1))
+    #: ★2026-09-15: efund's parallelogram is a SHEAR (w, h the horizontal / vertical extents, rows shifted
+    #: in R by (z - z) / tan(a2); sin(a2) ~ 0 a rectangle) — the kernel changed the same day
+    efit_shear = a1 == 0.0 and a2 != 90.0
+    cot2 = 0.0 if abs(sa2) < 1e-6 else ca2 / sa2
     rr, zz = [], []
     for u, v in ((-width / 2, -height / 2), (width / 2, -height / 2),
                  (width / 2, height / 2), (-width / 2, height / 2)):
+        if efit_shear:
+            rr.append(r + u + v * cot2)
+            zz.append(z + v)
+            continue
         pr, pz = r + u + v * ca2, z + v * sa2
         if a1 != 0.0:
             dr, dz = pr - r, pz - z

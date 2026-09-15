@@ -516,9 +516,19 @@ fn rectangle_outline(r0: f64, z0: f64, w: f64, h: f64, a: f64, a2: f64)
     let rad = std::f64::consts::PI / 180.0;
     let (ca2, sa2) = ((a2 * rad).cos(), (a2 * rad).sin());
     let (ca, sa) = ((a * rad).cos(), (a * rad).sin());
+    //: ★2026-09-15: efund's parallelogram is a SHEAR — w, h the horizontal / vertical extents, rows shifted in
+    //: R by (z - z0) / tan(a2), sin(a2) ~ 0 a rectangle; `a2 = 90` and `a != 0` keep the old mapping (the kernel
+    //: changed the same day, `kernels::element_filaments`)
+    let efit_shear = a == 0.0 && a2 != 90.0;
+    let cot2 = if sa2.abs() < 1e-6 { 0.0 } else { ca2 / sa2 };
     let (mut rr, mut zz) = (Vec::with_capacity(5), Vec::with_capacity(5));
     for (u, v) in [(-w / 2.0, -h / 2.0), (w / 2.0, -h / 2.0),
                    (w / 2.0, h / 2.0), (-w / 2.0, h / 2.0)] {
+        if efit_shear {
+            rr.push(r0 + u + v * cot2);
+            zz.push(z0 + v);
+            continue;
+        }
         let (mut r, mut z) = (r0 + u + v * ca2, z0 + v * sa2);
         if a != 0.0 {
             let (dr, dz) = (r - r0, z - z0);

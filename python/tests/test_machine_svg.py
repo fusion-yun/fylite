@@ -91,10 +91,12 @@ def test_a_rectangle_opens_into_the_corners_the_kernel_would_fill():
     tilted = next(c for c in _cs().vessel if c.name == "tilted plate")
     r0, z0, w, h, a2 = 2.7286, 0.0833, 0.008, 0.1666, math.radians(93.743)
     assert len(tilted.r) == 5 and tilted.closed
+    #: ★2026-09-15: efund's parallelogram is a SHEAR — `width` / `height` the horizontal / vertical extents,
+    #: each edge shifted in R by (z - z0) / tan(a2) (efundud3333.f, the fcoil and vessel filament loops)
     for i, (u, v) in enumerate([(-w / 2, -h / 2), (w / 2, -h / 2),
                                 (w / 2, h / 2), (-w / 2, h / 2)]):
-        assert tilted.r[i] == pytest.approx(r0 + u + v * math.cos(a2), abs=1e-12)
-        assert tilted.z[i] == pytest.approx(z0 + v * math.sin(a2), abs=1e-12)
+        assert tilted.r[i] == pytest.approx(r0 + u + v / math.tan(a2), abs=1e-12)
+        assert tilted.z[i] == pytest.approx(z0 + v, abs=1e-12)
 
 
 def test_a_tilt_actually_moves_the_corners():
@@ -185,7 +187,8 @@ def _ring(n: int, *, r0: float = 2.0, a: float = 0.5, gap: float = 0.0,
         tangent = _m.degrees(th) + 90.0
         upright = abs(_m.sin(th)) < 0.5          #: 内外侧的板：长轴偏竖直
         if upright:
-            rect = {"r": r, "z": z, "width": thickness, "height": length}
+            #: ★efund's shear: `height` is the VERTICAL extent, so a plate of length L along the tangent spells L |sin a2|
+            rect = {"r": r, "z": z, "width": thickness, "height": length * abs(_m.sin(_m.radians(tangent)))}
             a2 = tangent
         else:                                     #: 顶底的板：长轴在 width 上
             rect = {"r": r, "z": z, "width": length, "height": thickness}
