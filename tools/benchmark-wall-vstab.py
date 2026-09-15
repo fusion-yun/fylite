@@ -77,11 +77,28 @@ def rel_stats(a, b) -> dict:
             "offdiag_rel_p95": float(np.percentile(o, 95)), "frobenius_rel": float(np.linalg.norm(a - b) / np.linalg.norm(b))}
 
 
+def _flat_fields(fields: dict, prefix: str = "") -> dict:
+    """``fields[ids][path...] = {data, units}`` flattened to ``path -> array``.
+
+    ★A door that also hands back a whole DOCUMENT (``code/discharge`` emits an
+    ``equilibrium`` since 2026-09-12) nests its fields under the IDS name, so the
+    flat ``v["data"]`` read raises KeyError on it; nested paths keep their
+    ``ids/path`` spelling here and flat ones are unchanged.
+    """
+    out = {}
+    for k, v in (fields or {}).items():
+        if isinstance(v, dict) and "data" in v:
+            out[f"{prefix}{k}"] = np.asarray(v["data"], float)
+        elif isinstance(v, dict):
+            out.update(_flat_fields(v, f"{prefix}{k}/"))
+    return out
+
+
 def door(code: str, settings: dict, inputs: dict):
     from fylite.io import fydoc
     rec = fydoc.complete(code, {"settings": settings, "inputs": inputs})
     return ({k: float(v["value"]) for k, v in rec["facts"].items()},
-            {k: np.asarray(v["data"], float) for k, v in rec["fields"].items()}, list(rec.get("notes") or []))
+            _flat_fields(rec["fields"]), list(rec.get("notes") or []))
 
 
 def east_card() -> dict:

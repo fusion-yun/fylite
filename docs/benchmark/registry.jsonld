@@ -9598,6 +9598,216 @@
    "assertion_state": "accepted",
    "overall_verdict": "pass",
    "validity_domain": "EAST #137985 卡片（12 路 PF · 内壳 · 外壳 · 被动板 90 元）；KEFIT t4041_mag 的剖面与线圈电流；Ip 三步升 2 %、2 ms 一步；65² 网格；不含 Ip 电路方程、反馈控制与竖直位移增长率"
+  },
+  {
+   "id": "record/B-21",
+   "type": "fyo:ComparisonRecord",
+   "title": "静态逆问题：同一目标形状下 fylite 的线圈设计对 FreeGSNKE 的反演解",
+   "comparison_kind": "benchmark",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/discharge 经树门（目标曲线 + 两个零点，退火 ridge 8 遍，卡片供电上限，每遍一次自由边界解）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "FreeGSNKE",
+     "version": "third_party/freegsnke-main + PyPI freegs4e 0.13.1（归档回放，未重跑）：Inverse_optimizer，24 点 isoflux + 两个 null point，牛顿",
+     "license": "LGPL-3"
+    },
+    {
+     "type": "spo:Code",
+     "name": "KEFIT",
+     "version": "kefit_reference_bundle（third_party，锁定件）active/point/efit_w_pf，gfortran 64 位本地构建（magpri 76；构建配方 CASE-23 corpus/kefit/kefit_build_recipe.json）",
+     "license": "private-artefact",
+     "comment": "目标轮廓、两个 X 点、剖面表与 Ip 取自 KEFIT 纯磁答案 t4041_mag，只作输入"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/B-21/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 设计的实现边界离目标曲线（公平窗口：距 X 点 > 0.1 m、目标 Z 覆盖区间内缩 20 mm）：中位",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 1.22,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band"
+    },
+    {
+     "id": "record/B-21/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "同上：p95 · 最大",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 3.88,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "mm"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "最大另带 9.43 mm"
+     ]
+    },
+    {
+     "id": "record/B-21/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "零空间读数：三组电流各自正解后在 KEFIT 图上 ψ_N rms 的散布 · 磁轴散布",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.005
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "磁轴散布另带 3.0 mm；判的是「三组差很大的电流给出同一张平衡」"
+     ]
+    },
+    {
+     "id": "record/B-21/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "fylite 设计电流正解后的 ψ_N rms（对 KEFIT 图）",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.00462
+     },
+     "tolerance_basis": "measured_band"
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "fylite 设计（code/discharge，退火 8 遍）",
+     "deviation_literal": "实现边界离目标 中位 1.21 mm · p95 3.87 · 最大 9.42（公平窗口 2025 / 2172 点）· 2.0 s · 未触线圈上限 · 内部自由边界解 settled（残差 1.7e-03）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "FreeGSNKE 反演（同一目标与零点，归档回放）",
+     "deviation_literal": "实现边界离目标 中位 5.00 mm · p95 27.38 · 最大 52.89（2074 / 2460 点）",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "零空间：电流差远大于平衡差",
+     "deviation_literal": "两边设计电流差 25.6 kA·t rms（单通道最大 61.6）；三组电流正解后 ψ_N rms：KEFIT 0.0074 · FreeGSNKE 0.0095 · fylite 0.0046，磁轴 ΔR 1.45 至 4.02 mm",
+     "verdict": "pass",
+     "caveat": [
+      "「谁的电流更像 KEFIT」不能读成「谁的设计更对」：KEFIT 的电流是它自己拟合出来的，不是真值",
+      "离 KEFIT 电流：fylite 25.6 kA·t rms、FreeGSNKE 0.37"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "目标曲线本身的限制（读数）",
+     "deviation_literal": "KEFIT 轮廓 69 点、相邻点中位 48.9 mm，Z 只到 +0.658（其上 X 点在 +0.767，差 134 mm）；不设窗口时 FreeGSNKE 最大距离读作 79.5 mm，多数来自「目标没有那一段」",
+     "verdict": "inconclusive",
+     "caveat": [
+      "两种读法都存在读数件里（boundary_vs_target · boundary_vs_target_all_points）"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "5 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass"
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_inverse_shape.py::test_the_readings_are_the_registered_ones"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_inverse_shape.py::test_b21_the_design_reproduces_its_recorded_readings"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_inverse_shape.py::test_b21_the_designed_boundary_stays_in_the_band"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_inverse_shape.py::test_b21_the_currents_differ_far_more_than_the_equilibria"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_inverse_shape.py::test_b21_the_target_curve_limits_are_recorded"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/inverse_shape_east137985.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:81dacc7ebe0d070a2881816fbec6ea9b8a066c1e240d13b5c8484b18c70c2333"
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/freegsnke/freegsnke_vstab_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:df6725b4bfe4ad664620c4503dfb4d8aea5b951b36b772a8fc1902f3cfbc6c81",
+      "caveat": [
+       "FreeGSNKE 运行件不入仓：CASE-23 corpus/freegsnke/ 收其脚本（freegsnke_side.py · geom.py · run_all.sh）、JSON 与数组，sha256 索引；门不重跑它（线性化 10–20 分钟）",
+       "环境实测：本地 third_party/freegs4e 0.3.0 缺 Machine API；PyPI 0.14 经 MRO 盖住 FreeGSNKE 的 Jtor（Lao85 无 inputs）；0.13.1 可用"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_raw_east137985.tar.gz",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "experiment",
+      "checksum": "sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258",
+      "caveat": [
+       "目标轮廓 · X 点 · 剖面 · Ip 的来源",
+       "KEFIT 的可执行体不入仓：由构建配方与源 sha256 重建；门只回放已记录、sha256 索引过的运行件，不重跑 KEFIT"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/B-21-inverse-shape-freegsnke.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★2026-09-15 /goal「完善磁平衡相关计算功能 … 前向后向」：静态逆问题此前没有判定记录（评估 note 缺口 6）",
+    "★两边的目标函数不同，这是差异的来源而不是缺陷：fylite 最小化六个形状量与边界间隙的带 ridge 正则目标并守线圈上限，FreeGSNKE 解 isoflux + null 的约束牛顿问题",
+    "★判的是**形状**：电流在逆问题里只被约束到零空间（见结果），电流差不作判据",
+    "★公平窗口的理由在结果里：目标曲线是 KEFIT 自己的 69 点轮廓，粗（中位 48.5 mm）且上方缺一段",
+    "纳入类别（参考数据）：experiment、private-artefact"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass",
+   "validity_domain": "EAST #137985 4.041 s 一张形状；12 路 PF、卡片供电上限；交付 p′/FF′ 表、Ip 392708.734 A；65² 网格；不含 ITER 形状、不含电流不确定性的显式报告"
   }
  ]
 }

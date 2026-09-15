@@ -20,6 +20,7 @@ so rerunning it gives the same bytes; each record says in its ``run.comment`` wh
                B-16  定边界对 CHEASE：EAST #137985 KEFIT ψ_N = 0.995 面上的同一问题
     ★2026-09-15 (/goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」; the kernel's `code/evolve_free_boundary`):
                V-21  自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片上的恒等式
+               B-21  静态逆问题：同一目标形状下 fylite 的线圈设计对 FreeGSNKE 的反演解
 
     python tools/benchmark-equilibrium-records.py --reruns <reruns.json> --case $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east \
         [--solovev <solovev_fixed_boundary.json from tools/benchmark-fixed-boundary.py solovev>]
@@ -631,6 +632,57 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
         "pass",
         validity="EAST #137985 卡片（12 路 PF · 内壳 · 外壳 · 被动板 90 元）；KEFIT t4041_mag 的剖面与线圈电流；Ip 三步升 2 %、2 ms 一步；65² 网格；不含 Ip 电路方程、反馈控制与竖直位移增长率"))
     reports["V-21"] = "V-21-evolve-free-boundary.md"
+
+    # ---------------------------------------------------------------- B-21 (the static inverse problem, against FreeGSNKE's inverse solve)
+    ig = consts(ROOT / "python/tests/test_benchmark_inverse_shape.py", ("B21_BAND",))["B21_BAND"]
+    iv = json.loads((case / "corpus/benchmark/inverse_shape_east137985.json").read_text(encoding="utf-8"))
+    TW4 = "python/tests/test_benchmark_inverse_shape.py"
+    fyb, fgb = iv["boundary_vs_target"]["fylite"], iv["boundary_vs_target"]["freegsnke"]
+    cur, ns, inp0 = iv["currents"], iv["null_space"], iv["inputs"]
+    psin = {k: ns[k]["compare"]["psin_rms_inside"] for k in ("kefit", "freegsnke", "fylite")}
+    b21_crit = [crit("B-21", 1, "fylite 设计的实现边界离目标曲线（公平窗口：距 X 点 > 0.1 m、目标 Z 覆盖区间内缩 20 mm）：中位", "measured_band", ig["fylite_boundary_median_mm"], "absolute", None, "mm"),
+                crit("B-21", 2, "同上：p95 · 最大", "measured_band", ig["fylite_boundary_p95_mm"], "absolute", [f"最大另带 {ig['fylite_boundary_max_mm']} mm"], "mm"),
+                crit("B-21", 3, "零空间读数：三组电流各自正解后在 KEFIT 图上 ψ_N rms 的散布 · 磁轴散布", "measured_band", ig["null_space_psin_spread"], "absolute",
+                     [f"磁轴散布另带 {ig['null_space_axis_spread_mm']} mm；判的是「三组差很大的电流给出同一张平衡」"]),
+                crit("B-21", 4, "fylite 设计电流正解后的 ψ_N rms（对 KEFIT 图）", "measured_band", ig["fylite_psin_rms"], "absolute")]
+    b21_find = [finding("fylite 设计（code/discharge，退火 8 遍）", "pass",
+                        f"实现边界离目标 中位 {fyb['median_mm']:.2f} mm · p95 {fyb['p95_mm']:.2f} · 最大 {fyb['max_mm']:.2f}（公平窗口 {fyb['points']} / {fyb['of']} 点）· "
+                        f"{iv['design']['seconds']:.1f} s · 未触线圈上限 · 内部自由边界解 settled（残差 {iv['design']['facts']['residual']:.1e}）"),
+                finding("FreeGSNKE 反演（同一目标与零点，归档回放）", "pass",
+                        f"实现边界离目标 中位 {fgb['median_mm']:.2f} mm · p95 {fgb['p95_mm']:.2f} · 最大 {fgb['max_mm']:.2f}（{fgb['points']} / {fgb['of']} 点）"),
+                finding("零空间：电流差远大于平衡差", "pass",
+                        f"两边设计电流差 {cur['fylite_vs_freegsnke_rms_kAt']:.1f} kA·t rms（单通道最大 {cur['fylite_vs_freegsnke_max_kAt']:.1f}）；"
+                        f"三组电流正解后 ψ_N rms：KEFIT {psin['kefit']:.4f} · FreeGSNKE {psin['freegsnke']:.4f} · fylite {psin['fylite']:.4f}，"
+                        f"磁轴 ΔR {min(ns[k]['compare']['dR_axis_mm'] for k in psin):.2f} 至 {max(ns[k]['compare']['dR_axis_mm'] for k in psin):.2f} mm",
+                        caveat=["「谁的电流更像 KEFIT」不能读成「谁的设计更对」：KEFIT 的电流是它自己拟合出来的，不是真值",
+                                f"离 KEFIT 电流：fylite {cur['fylite_vs_kefit_rms_kAt']:.1f} kA·t rms、FreeGSNKE {cur['freegsnke_vs_kefit_rms_kAt']:.2f}"]),
+                finding("目标曲线本身的限制（读数）", "inconclusive",
+                        f"KEFIT 轮廓 {inp0['target_points']} 点、相邻点中位 {inp0['target_segment_median_mm']:.1f} mm，Z 只到 {inp0['target_z_range'][1]:+.3f}（其上 X 点在 +0.767，差 134 mm）；"
+                        f"不设窗口时 FreeGSNKE 最大距离读作 {iv['boundary_vs_target_all_points']['freegsnke']['max_mm']:.1f} mm，多数来自「目标没有那一段」",
+                        caveat=["两种读法都存在读数件里（boundary_vs_target · boundary_vs_target_all_points）"]),
+                rerun_finding(reruns["B-21"])]
+    recs.append(record(
+        "B-21", "静态逆问题：同一目标形状下 fylite 的线圈设计对 FreeGSNKE 的反演解", "benchmark",
+        "fylite: code/discharge 经树门（目标曲线 + 两个零点，退火 ridge 8 遍，卡片供电上限，每遍一次自由边界解）",
+        [{"type": "spo:Code", "name": "FreeGSNKE", "version": "third_party/freegsnke-main + PyPI freegs4e 0.13.1（归档回放，未重跑）：Inverse_optimizer，24 点 isoflux + 两个 null point，牛顿",
+          "license": "LGPL-3"},
+         dict(KEFIT_REF, comment="目标轮廓、两个 X 点、剖面表与 Ip 取自 KEFIT 纯磁答案 t4041_mag，只作输入")],
+        b21_crit, b21_find,
+        [gate(f"{TW4}::test_the_readings_are_the_registered_ones"), gate(f"{TW4}::test_b21_the_design_reproduces_its_recorded_readings"),
+         gate(f"{TW4}::test_b21_the_designed_boundary_stays_in_the_band"), gate(f"{TW4}::test_b21_the_currents_differ_far_more_than_the_equilibria"),
+         gate(f"{TW4}::test_b21_the_target_curve_limits_are_recorded")],
+        [data(PTR + "benchmark/inverse_shape_east137985.json", "experiment", sums["benchmark/inverse_shape_east137985.json"]),
+         data(PTR + "freegsnke/freegsnke_vstab_east137985.tar.gz", "experiment", sums["freegsnke/freegsnke_vstab_east137985.tar.gz"], fgs_caveat),
+         data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"], ["目标轮廓 · X 点 · 剖面 · Ip 的来源", KEFIT_CAVEAT_BUILD])],
+        "B-21-inverse-shape-freegsnke.md",
+        ["★★2026-09-15 /goal「完善磁平衡相关计算功能 … 前向后向」：静态逆问题此前没有判定记录（评估 note 缺口 6）",
+         "★两边的目标函数不同，这是差异的来源而不是缺陷：fylite 最小化六个形状量与边界间隙的带 ridge 正则目标并守线圈上限，FreeGSNKE 解 isoflux + null 的约束牛顿问题",
+         "★判的是**形状**：电流在逆问题里只被约束到零空间（见结果），电流差不作判据",
+         "★公平窗口的理由在结果里：目标曲线是 KEFIT 自己的 69 点轮廓，粗（中位 48.5 mm）且上方缺一段",
+         "纳入类别（参考数据）：experiment、private-artefact"],
+        "pass",
+        validity="EAST #137985 4.041 s 一张形状；12 路 PF、卡片供电上限；交付 p′/FF′ 表、Ip 392708.734 A；65² 网格；不含 ITER 形状、不含电流不确定性的显式报告"))
+    reports["B-21"] = "B-21-inverse-shape-freegsnke.md"
     return recs, reports
 
 
@@ -770,6 +822,15 @@ REPORT_TEXT = {
                            "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b18'",
                            "# 读数重写：python tools/benchmark-wall-vstab.py readings --out <dir>"],
              "conclusion": "成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 −0.006 %（内壳，709 s⁻¹）/ +0.11 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005（内核改正 a1 ≠ 0 的读法后重录；首录内壳为 +0.37 %）；FreeGSNKE 的可变形增长率另记为读数。"},
+    "B-21": {"not_comparable": ["- 两个代码解的不是同一个优化问题：目标函数、正则化与约束都不同；本条比的是**同一目标下各自交出的形状**，不是优化器。",
+                                "- 电流不可比作判据：逆问题在电流空间欠定（实测两组差 25.6 kA·t、正解出的平衡只差毫米级）；KEFIT 的电流也只是它自己的拟合结果。",
+                                "- 目标曲线是 KEFIT 的 69 点轮廓：粗（相邻点中位 48.5 mm）、上方止于 Z = +0.658（其上 X 点 +0.767）；公平窗口即为此设，两种读法都在读数件里。",
+                                "- 一装置一形状一时刻；fylite 侧内部的自由边界解停在 settled（与 B-14 同一底）。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERNEL_LIB=<当前内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_inverse_shape.py",
+                           "# 读数重写：python tools/benchmark-equilibrium.py inverse-shape --out <dir>"],
+             "conclusion": "成立：同一目标（KEFIT 边界 + 其两个 X 点）下，fylite code/discharge 交出的形状比 FreeGSNKE 反演更贴目标（公平窗口中位 1.21 mm 对 5.00 mm），其电流正解后在 KEFIT 图上的 ψ_N rms 0.0046 也最小；同时读出逆问题的零空间——两边电流差 25.6 kA·t，而三组电流给出的平衡只差毫米级。"},
     "V-21": {"not_comparable": ["- 没有第二个代码：墙电流的大小、位移与形状的响应只由恒等式约束，物理对错要对 FreeGSNKE 的非线性演化（评估 note §4 第 7 条）。",
                                 "- Ip 是给定轨迹，不解等离子体自身的电路方程；不含反馈控制、电源模型与快控线圈。",
                                 "- 步长受竖直不稳定模限制（γ·dt < 1）：只取内壳时 2 ms 一步没有邻近解；本条取三组无源件。",

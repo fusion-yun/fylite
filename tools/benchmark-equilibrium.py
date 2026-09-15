@@ -17,6 +17,11 @@ FYDOC-CASE-23 ``corpus/kefit/kefit_build_recipe.json``).  No efit_east tree valu
                     share from ``code/coilshare``) and probes are the measurements.  fylite ``code/reconstruction``
                     (npp = nff = 1, vertical set-point scanned) and, with ``--kefit-exe``, KEFIT (KPPCUR = KFFCUR = 2,
                     pcurbd = fcurbd = 1, green2022_pcs geometry by a position + angle slot map) reconstruct it.
+    inverse-shape   B-21: the STATIC INVERSE problem (shape -> coil currents).  KEFIT's separatrix outline is the
+                    target and its X-points the nulls; fylite's ``code/discharge`` anneals a design and FreeGSNKE's
+                    recorded inverse solve (same curve as isoflux, same nulls) is the reference.  Judged on the
+                    achieved boundary and, because the two designs' currents differ far more than their boundaries,
+                    on all three current sets forward-solved and compared on KEFIT's own map (the null space).
     pack            deterministic tar.gz + sha256 index of a run directory (for the fydoc case corpus).
 
 The readings land in ``<out>/`` as JSON; ``python/tests/test_benchmark_equilibrium.py`` replays them.
@@ -167,12 +172,28 @@ def compare_maps(ref: dict, got: dict) -> dict:
 
 # ------------------------------------------------------------------------------------------------ fylite through the door
 
+def _flat_fields(fields: dict, prefix: str = "") -> dict:
+    """``fields[ids][path...] = {data, units}`` flattened to ``path -> array``.
+
+    ★A door that also hands back a whole DOCUMENT (``code/discharge`` emits an
+    ``equilibrium`` since 2026-09-12) nests its fields under the IDS name, so a flat
+    ``v["data"]`` read raises KeyError on it; nested paths keep their ``ids/path``
+    spelling here and flat ones are unchanged.
+    """
+    out = {}
+    for k, v in (fields or {}).items():
+        if isinstance(v, dict) and "data" in v:
+            out[f"{prefix}{k}"] = np.asarray(v["data"], float)
+        elif isinstance(v, dict):
+            out.update(_flat_fields(v, f"{prefix}{k}/"))
+    return out
+
+
 def door(code: str, settings: dict, inputs: dict) -> tuple[dict, dict, list]:
     from fylite.io import fydoc
     rec = fydoc.complete(code, {"settings": settings, "inputs": inputs})
     facts = {k: v["value"] for k, v in rec["facts"].items()}
-    fields = {k: np.asarray(v["data"], float) for k, v in rec["fields"].items()}
-    return facts, fields, list(rec.get("notes") or [])
+    return facts, _flat_fields(rec["fields"]), list(rec.get("notes") or [])
 
 
 def east_card() -> dict:
@@ -253,6 +274,134 @@ def forward_kefit(case: Path, out: Path) -> dict:
               f"converged {facts['converged']:.0f} settled {facts['settled']:.0f} it {facts['iterations']:.0f}")
     shutil.rmtree(tmp)
     (out / "forward_kefit_east137985.json").write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
+    return result
+
+
+# ------------------------------------------------------------------------------------------------ B-21
+
+FGS_ARCHIVE = "corpus/freegsnke/freegsnke_vstab_east137985.tar.gz"
+FGS_EQ = "freegsnke_vstab_east137985/fgs_equilibrium.npz"
+#: the anneal's passes for the record (2.0 s); 16 passes move the currents 11 kA.t closer to KEFIT's and the
+#: boundary 0.01 mm — the shape objective is flat in the direction the currents differ (see the record)
+INV_PASSES = 8.0
+#: exclude the X-point corners (the target curve has a vertex AT the lower X-point, the designs round it) and the
+#: band the target curve does not cover (KEFIT's outline stops at Z = +0.658, its upper X-point is at +0.767)
+INV_X_EXCLUSION_M = 0.10
+INV_Z_MARGIN_M = 0.02
+
+
+def _dense(poly: np.ndarray, n: int = 40) -> np.ndarray:
+    p = np.asarray(poly, float)
+    if np.hypot(*(p[0] - p[-1])) > 1e-9:
+        p = np.r_[p, p[:1]]
+    return np.concatenate([np.linspace(p[i], p[i + 1], n, endpoint=False) for i in range(len(p) - 1)])
+
+
+def _curve_stats(curve: np.ndarray, target: np.ndarray, xpoints, window=None) -> dict:
+    """Shortest distance from each point of `curve` to the `target` polyline, optionally on a fair window."""
+    q, o = _dense(curve, 12), _dense(target)
+    keep = np.ones(len(q), bool)
+    if window is not None:
+        zlo, zhi = window
+        keep &= (q[:, 1] >= zlo) & (q[:, 1] <= zhi)
+        for xr, xz in xpoints:
+            keep &= np.hypot(q[:, 0] - xr, q[:, 1] - xz) > INV_X_EXCLUSION_M
+    d = np.array([np.min(np.hypot(*(o - p).T)) for p in q[keep]])
+    return {"points": int(keep.sum()), "of": int(len(q)), "median_mm": float(1e3 * np.median(d)),
+            "p95_mm": float(1e3 * np.percentile(d, 95)), "max_mm": float(1e3 * d.max())}
+
+
+def inverse_shape(case: Path, out: Path) -> dict:
+    """B-21: the SAME inverse problem to two codes — KEFIT's boundary as the target and its X-points as nulls.
+
+    FreeGSNKE's side is the recorded inverse solve in the CASE-23 archive (isoflux on 24 points of that boundary plus
+    null points, Newton, coils free from KEFIT's currents); fylite's is ``code/discharge`` (an annealed ridge fit on
+    the same curve and nulls, coil limits held, its own free-boundary solve each pass).  Two designs, one target.
+
+    ★The currents are NOT the judgement: the two designs differ by 25 kA.t rms while their boundaries differ by
+    millimetres, so the record also forward-solves all three current sets (KEFIT's own, FreeGSNKE's, fylite's) on the
+    same profiles and Ip and compares the equilibria on KEFIT's map — the null-space reading.
+    """
+    from fylite.io import geqdsk
+    idx = json.loads((case / KEFIT_TAR.replace(".tar.gz", ".index.json")).read_text(encoding="utf-8"))
+    mem_sha = {m["path"]: m["sha256"] for m in idx["fylite:members"]}
+    members = tar_members(case / KEFIT_TAR)
+    tmp = out / "_inverse_inputs"
+    tmp.mkdir(parents=True, exist_ok=True)
+    pre = "kefit_raw_east137985/rejected/t4041_mag/"
+    gname, aname = f"{pre}g{SHOT}.04041", f"{pre}a{SHOT}.04041"
+    (tmp / "g").write_bytes(members[gname])
+    (tmp / "a").write_bytes(members[aname])
+    g = geqdsk.read_geqdsk(tmp / "g")
+    a = geqdsk.read_afile(tmp / "a", arrays=True)
+    ref = kefit_map(g)
+    s = ref["gauge_factor"]
+    ip = float(ref["ip"])
+    cc = np.asarray(a["ccbrsp"], float)[:12]
+    target = np.c_[np.asarray(g["rbbbs"], float), np.asarray(g["zbbbs"], float)]
+    xpoints = [(float(np.atleast_1d(a[r]).ravel()[0]) / 100.0, float(np.atleast_1d(a[z]).ravel()[0]) / 100.0)
+               for r, z in (("rseps1", "zseps1"), ("rseps2", "zseps2"))
+               if float(np.atleast_1d(a[r]).ravel()[0]) > 0]
+    window = (float(target[:, 1].min()) + INV_Z_MARGIN_M, float(target[:, 1].max()) - INV_Z_MARGIN_M)
+    x = np.linspace(0.0, 1.0, len(g["pprime"]))
+    profiles = {"time_slice": {"profiles_1d": {"psi_norm": x,
+                                               "dpressure_dpsi": np.asarray(g["pprime"], float) / s,
+                                               "f_df_dpsi": np.asarray(g["ffprim"], float) / s}}}
+    dev = east_card()
+    with tarfile.open(case / FGS_ARCHIVE, "r:gz") as tf:
+        z = np.load(io.BytesIO(tf.extractfile(FGS_EQ).read()))
+        fgs_at = np.asarray(z["inv__aturns"], float)
+        fgs_b = np.c_[np.asarray(z["inv__rbbbs"], float), np.asarray(z["inv__zbbbs"], float)]
+
+    settings = {"ip": ip, "n_points": 24.0, "x_weight": 1.0, "passes": INV_PASSES, "nu": 3.0}
+    design_in = {"device": dev, "equilibrium": profiles,
+                 "discharge": {"fylite:target_r": target[:, 0], "fylite:target_z": target[:, 1],
+                               "fylite:null_r": np.array([p[0] for p in xpoints]),
+                               "fylite:null_z": np.array([p[1] for p in xpoints]),
+                               "fylite:channel_aturns": cc}}
+    t0 = time.time()
+    facts, fields, notes = door("code/discharge", settings, design_in)
+    design_seconds = round(time.time() - t0, 2)
+    fy_at = np.asarray(fields["aturns"], float)
+    fy_b = np.asarray(fields["boundary"], float).reshape(-1, 2)
+
+    result = {"reference": "FreeGSNKE recorded inverse solve (CASE-23 freegsnke_vstab_east137985.tar.gz) on KEFIT's boundary",
+              "inputs": {"g_file": gname, "g_sha256": mem_sha[gname], "a_file": aname, "a_sha256": mem_sha[aname],
+                         "ip_A": ip, "target_points": int(len(target)), "xpoints": [list(p) for p in xpoints],
+                         "gauge_factor": s, "settings": settings,
+                         "target_z_range": [float(target[:, 1].min()), float(target[:, 1].max())],
+                         "target_segment_median_mm": float(1e3 * np.median(np.hypot(*np.diff(target, axis=0).T)))},
+              "fair_window": {"z_lo": window[0], "z_hi": window[1], "x_exclusion_m": INV_X_EXCLUSION_M},
+              "design": {"seconds": design_seconds, "notes": notes,
+                         "facts": {k: float(facts[k]) for k in
+                                   ("shape_error", "boundary_gap_rms", "boundary_gap_max", "boundary_gap_rms_norm",
+                                    "converged", "settled", "residual", "iterations", "n_passes", "n_at_coil_limit",
+                                    "axis_r", "axis_z", "xpt_r", "xpt_z", "ip",
+                                    "shape_r0", "shape_a", "shape_kappa", "shape_delta_upper", "shape_delta_lower", "shape_z0")}},
+              "boundary_vs_target": {"fylite": _curve_stats(fy_b, target, xpoints, window),
+                                     "freegsnke": _curve_stats(fgs_b, target, xpoints, window)},
+              "boundary_vs_target_all_points": {"fylite": _curve_stats(fy_b, target, xpoints),
+                                                "freegsnke": _curve_stats(fgs_b, target, xpoints)},
+              "currents": {"kefit": cc.tolist(), "freegsnke": fgs_at.tolist(), "fylite": fy_at.tolist(),
+                           "fylite_vs_kefit_rms_kAt": float(np.sqrt(np.mean((fy_at - cc) ** 2)) / 1e3),
+                           "freegsnke_vs_kefit_rms_kAt": float(np.sqrt(np.mean((fgs_at - cc) ** 2)) / 1e3),
+                           "fylite_vs_freegsnke_rms_kAt": float(np.sqrt(np.mean((fy_at - fgs_at) ** 2)) / 1e3),
+                           "fylite_vs_freegsnke_max_kAt": float(np.abs(fy_at - fgs_at).max() / 1e3)},
+              "null_space": {}}
+    #: the null-space reading: each design's currents forward-solved on the same profiles, compared on KEFIT's map
+    for tag, at in (("kefit", cc), ("freegsnke", fgs_at), ("fylite", fy_at)):
+        f2, fl2, _ = door("code/forward", {}, {"device": dev, "equilibrium": profiles,
+                                               "discharge": {"fylite:channel_aturns": at, "fylite:ip": np.array([ip])}})
+        result["null_space"][tag] = {"compare": compare_maps(ref, fylite_map(f2, fl2)),
+                                     **{k: float(f2[k]) for k in ("converged", "settled", "residual", "fb_amp")}}
+    shutil.rmtree(tmp)
+    b = result["boundary_vs_target"]
+    n = result["null_space"]
+    print(f"B-21: fylite boundary {b['fylite']['median_mm']:.2f} mm median vs FreeGSNKE {b['freegsnke']['median_mm']:.2f} mm; "
+          f"currents differ {result['currents']['fylite_vs_freegsnke_rms_kAt']:.1f} kA.t rms; "
+          f"forward psiN rms KEFIT {n['kefit']['compare']['psin_rms_inside']:.4f} · FreeGSNKE {n['freegsnke']['compare']['psin_rms_inside']:.4f} · "
+          f"fylite {n['fylite']['compare']['psin_rms_inside']:.4f}")
+    (out / "inverse_shape_east137985.json").write_text(json.dumps(result, indent=1, default=float) + "\n", encoding="utf-8")
     return result
 
 
@@ -431,6 +580,9 @@ def main() -> int:
     a2.add_argument("--out", required=True, type=Path)
     a2.add_argument("--kefit-exe", type=Path)
     a2.add_argument("--kefit-bundle", type=Path, default=Path(os.environ.get("KEFIT_BUNDLE", ROOT.parent / "third_party" / "kefit_reference_bundle")))
+    a4 = sub.add_parser("inverse-shape")
+    a4.add_argument("--case")
+    a4.add_argument("--out", required=True, type=Path)
     a3 = sub.add_parser("pack")
     a3.add_argument("src", type=Path)
     a3.add_argument("dest", type=Path)
@@ -442,6 +594,9 @@ def main() -> int:
     elif a.cmd == "twin":
         a.out.mkdir(parents=True, exist_ok=True)
         twin(case_dir(a.case), a.out, a.kefit_exe, a.kefit_bundle)
+    elif a.cmd == "inverse-shape":
+        a.out.mkdir(parents=True, exist_ok=True)
+        inverse_shape(case_dir(a.case), a.out)
     elif a.cmd == "pack":
         members = [(f"{a.prefix}/{p.relative_to(a.src)}", p.read_bytes()) for p in sorted(a.src.rglob("*"))
                    if p.is_file() and not p.is_symlink()]

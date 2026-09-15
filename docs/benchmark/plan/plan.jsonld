@@ -1792,6 +1792,30 @@
      "status_note": "2026-09-15 立（/goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」）：内核新门 code/evolve_free_boundary（解内耦合 · 边界格分数规则）；三组无源件：壳模衰减 8e-15、理想导体磁链 2e-13、两种驱动 5e-9；读出 B-14 的节点规则答案由虚拟位置对撑着。缺：对第二个代码的含时对拍（FreeGSNKE 非线性演化）"
     },
     {
+     "id": "plan/K/inverse-shape",
+     "title": "静态逆问题：同一目标形状下的线圈设计对 FreeGSNKE 反演",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/S1/forward-kefit"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/inverse_shape_east137985.json",
+       "license": "experiment",
+       "payload": "in",
+       "comment": "fylite 读数件；目标轮廓 · X 点 · 剖面 · Ip 取自 KEFIT 纯磁答案 t4041_mag；FreeGSNKE 侧为已记录的反演解（同一归档，未重跑）"
+      }
+     ],
+     "record": "B-21",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_inverse_shape.py（需带 code/discharge 的内核库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（/goal「… 前向后向」）：★这是**设计题**（形状 → 线圈电流），挂在本支线是因为它同样消费平衡与导体几何、不消费输运。公平窗口下实现边界中位 1.21 mm 对 FreeGSNKE 5.00 mm；★逆问题在电流空间欠定：两边电流差 25.6 kA·t，三组电流正解出的平衡只差毫米级。缺：第二个形状（ITER / CFEDR）、电流不确定方向的显式报告"
+    },
+    {
      "id": "plan/K/toksys-rzrig",
      "title": "垂直稳定性，对 TokSys rzrig",
      "record_superseded_by": "B-18",

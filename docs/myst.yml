@@ -126,6 +126,7 @@ project:
             - file: benchmark/reports/B-18-vertical-instability-freegsnke.md
             - file: benchmark/reports/B-19-wall-efund.md
             - file: benchmark/reports/B-20-vertical-instability-efund.md
+            - file: benchmark/reports/B-21-inverse-shape-freegsnke.md
             - file: benchmark/reports/C-01-iter-15ma-astra.md
             - file: benchmark/reports/C-02-alpha-heating-astra.md
             - file: benchmark/reports/C-03-toksys-rzrig.md
