@@ -4,6 +4,8 @@ title: C-03 · 垂直稳定性，对 TokSys rzrig
 
 # C-03 · 垂直稳定性，对 TokSys rzrig
 
+> ★★2026-09-15（第三批）：本条由 [B-18](B-18-vertical-instability-freegsnke.md) 取代——同一问题（刚性等离子体的垂直增长率与裕度）对 FreeGSNKE 可复跑，参考侧有指针与 sha256，判据有实测带；导体壁电路另立 [B-17](B-17-wall-freegsnke.md)。
+
 > ★★2026-09-15 复测：门 `test_benchmark_toksys.py` 自 2026-09-14 起两条都 skip（CASE-23 没有 TokSys 参考），登记册的三个数今天不可复测；缺口 G-4（参考侧无数据指针、判据无数值带）仍在。
 
 | | |

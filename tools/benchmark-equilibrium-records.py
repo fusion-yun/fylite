@@ -430,6 +430,80 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
         "pass",
         validity="EAST #137985 4.041 s 纯磁答案的 ψ_N = 0.995 面；fylite 129² 对 CHEASE NS = NT = 80；剖面为 KEFIT 的 KPPCUR / KFFCUR 多项式经 65 点表线性插值"))
     reports["B-16"] = "B-16-fixed-boundary-chease.md"
+
+    # ---------------------------------------------------------------- B-17 / B-18 (conducting wall · vertical instability)
+    wv_gate = consts(ROOT / "python/tests/test_benchmark_wall_vstab.py", ("B17_BAND", "B18_BAND"))
+    TW = "python/tests/test_benchmark_wall_vstab.py"
+    wv = json.loads((case / "corpus/benchmark/wall_vstab_east137985.json").read_text(encoding="utf-8"))
+    fgs_ref = {"type": "spo:Code", "name": "FreeGSNKE",
+               "version": f"third_party/freegsnke-main + freegs4e {wv['freegsnke_environment']['freegs4e']}（PyPI）· numpy {wv['freegsnke_environment']['numpy']}；本地运行，同一张 EAST 卡片（efund 读法的多边形无源件 · 12 路 PF）",
+               "license": "public"}
+    fgs_caveat = ["FreeGSNKE 运行件不入仓：CASE-23 corpus/freegsnke/ 收其脚本（freegsnke_side.py · geom.py · run_all.sh）、JSON 与数组，sha256 索引；门不重跑它（线性化 10–20 分钟）",
+                  "环境实测：本地 third_party/freegs4e 0.3.0 缺 Machine API；PyPI 0.14 经 MRO 盖住 FreeGSNKE 的 Jtor（Lao85 无 inputs）；0.13.1 可用"]
+    shear_note = ("★★内核缺陷随本条修正（2026-09-15）：EFIT 平行四边形原被读成「倾斜边长 h」，efund 是剪切（w · h 为水平 / 竖直外延）——EAST 壳段间留缝 7.6 / 9.2 mm、"
+                  "外壳 14 行塌成零面积线；修正移动 γ(三组) −1.1 %、τ₁ −0.6 %。修正前 FreeGSNKE 须用 efund 读法建多边形才可比；本条的读数是修正后的")
+    ws = wv["wall"]["sets"]
+    b = wv_gate["B17_BAND"]
+    b17_crit = [crit("B-17", 1, "最长 L/R 时间 τ₁ 相对差（内壳 · 外壳 · 被动板各自单解 · 三组合）", "measured_band", b["tau1_rel"], "relative"),
+                crit("B-17", 2, "无源互感矩阵逐元：对角相对差中位 / 最大", "measured_band", b["M_diag_rel_median"], "relative", [f"最大值另带 {b['M_diag_rel_max']}"]),
+                crit("B-17", 3, "无源互感矩阵逐元：非对角相对差 p95 · Frobenius 相对差", "measured_band", b["M_offdiag_rel_p95"], "relative", [f"Frobenius 另带 {b['M_frobenius_rel']}"]),
+                crit("B-17", 4, "元件电阻相对差最大", "measured_band", b["R_rel_absmax"], "relative", ["FreeGSNKE 以蒙特卡罗估多边形面积，±1 % 的散布来自那里"])]
+    b17_find = [finding(f"{sname}：τ₁", "pass",
+                        f"fylite {1e3 * s['fylite_tau1_s']:.3f} ms · FreeGSNKE {1e3 * s['freegsnke_tau1_s']:.3f} ms（{100 * s['tau1_rel']:+.3f} %）· "
+                        f"M 对角中位 {100 * s['M']['diag_rel_median']:.2f} % / 最大 {100 * s['M']['diag_rel_max']:.2f} % · 非对角 p95 {100 * s['M']['offdiag_rel_p95']:.2f} % · R 最大 {100 * s['R_rel_absmax']:.2f} %")
+                for sname, s in ws.items()]
+    b17_find += [finding("离散（读数）", "inconclusive", "fylite 每元 3×3 细丝时自感偏高约 7 %（圆导线自感项取等面积半径，对细长子细丝偏大），τ₁ +0.8 %；8×8 对 16×16 τ₁ 差 0.14 %（code/wall 缺省 8×8，本条取 16×16）"),
+                 rerun_finding(reruns["B-17"])]
+    recs.append(record(
+        "B-17", "导体壁作为电路：EAST 无源结构的 L/R 本征模对 FreeGSNKE", "benchmark",
+        "fylite: code/wall 经树门（装置卡片的内壳 · 外壳 · 被动板；元件互感 · 电阻 · M dI/dt + R I = 0 的模，每组另单解；每元 16×16 细丝）",
+        [fgs_ref], b17_crit, b17_find,
+        [gate(f"{TW}::test_the_freegsnke_run_is_the_registered_one"), gate(f"{TW}::test_b17_the_wall_modes_reproduce_and_stay_in_the_band_against_freegsnke")],
+        [data(PTR + "freegsnke/freegsnke_vstab_east137985.tar.gz", "experiment", sums["freegsnke/freegsnke_vstab_east137985.tar.gz"], fgs_caveat),
+         data(PTR + "benchmark/wall_vstab_east137985.json", "experiment", sums["benchmark/wall_vstab_east137985.json"])],
+        "B-17-wall-freegsnke.md",
+        ["★★2026-09-15 用户「补全导体壁，垂直不稳定性算例」：内核当日新增 code/wall——导体壁先问「墙作为电路是什么」，不需要等离子体", shear_note,
+         "★装置描述是 fydoc 装置书的 EAST pf_passive（A-Box `unverified`，手工维护：几何与电阻率出自未公开内部件）——本条比的是两个代码对**同一份**描述的电路，不是对 EAST 实物的确认",
+         "纳入类别（参考数据）：experiment（FreeGSNKE 运行件随 KEFIT 输入归实验类）"],
+        "pass",
+        validity="EAST 卡片的 90 个无源元件（内壳 40 · 外壳 40 · 被动板 10，η 0.74 / 0.74 / 0.017 μΩ·m），仅环向电流、元件内均匀；无端口 / 波纹管等三维结构"))
+    reports["B-17"] = "B-17-wall-freegsnke.md"
+
+    vs = wv["vstab"]["sets"]
+    bb = wv_gate["B18_BAND"]
+    fe = wv["vstab"]["freegsnke_equilibrium"]
+    b18_crit = [crit("B-18", 1, "增长率 γ 相对差（fylite code/vstab 对 FreeGSNKE 刚性色散，同一平衡；内壳 · 三组合）", "measured_band", bb["gamma_rel"], "relative"),
+                crit("B-18", 2, "主动线圈失稳刚度 k 相对差", "measured_band", bb["k_rel"], "relative"),
+                crit("B-18", 3, "理想刚度 k_ideal（被动稳定力）相对差", "measured_band", bb["k_ideal_rel"], "relative"),
+                crit("B-18", 4, "稳定裕度 k_ideal / k − 1 绝对差", "measured_band", bb["margin_abs"], "absolute", ["与 FreeGSNKE 的感性稳定裕度同定义（刚性等离子体下代数核过）"])]
+    b18_find = []
+    for sname, s in vs.items():
+        f, r_, c = s["fylite_on_freegsnke_eq"], s["freegsnke_rigid"], s["compare"]
+        b18_find.append(finding(f"{sname}：刚性色散", "pass",
+                                f"γ fylite {f['gamma']:.4g} · FreeGSNKE {r_['gamma']:.4g} s⁻¹（{100 * c['gamma_rel']:+.2f} %）· k {100 * c['k_rel']:+.2f} % · k_ideal {100 * c['k_ideal_rel']:+.3f} % · 裕度 {f['margin']:.3f} / {r_['margin']:.3f}"))
+        d = s["freegsnke_deformable"]
+        b18_find.append(finding(f"{sname}：FreeGSNKE 可变形等离子体（读数）", "inconclusive",
+                                f"γ {d['gamma']:.4g} s⁻¹（刚性的 {s['readings']['deformable_over_rigid_gamma']:.2f} 倍）· 裕度 {d['margin']:.3f}；fylite 在 KEFIT 平衡上 γ {s['fylite_on_kefit_eq']['gamma']:.4g} s⁻¹",
+                                caveat=["可变形响应是 fylite 刚性模型没有的物理；FreeGSNKE 雅可比的线性度（步长）未独立核，倍数只作读数"]))
+    b18_find.append(rerun_finding(reruns["B-18"]))
+    recs.append(record(
+        "B-18", "垂直不稳定性：EAST #137985 4.041 s 的刚性增长率与裕度对 FreeGSNKE", "benchmark",
+        "fylite: code/vstab 经树门（circuit: passive，主动线圈冻结；coarsen 1、每元 8×8 细丝；质量为零的刚性等离子体、恒 Ip）",
+        [fgs_ref, dict(KEFIT_REF, comment="背景：线圈电流与剖面取自 KEFIT 纯磁答案 t4041_mag；两个代码在 FreeGSNKE 由其出发收敛的反演平衡上比")],
+        b18_crit, b18_find,
+        [gate(f"{TW}::test_the_freegsnke_run_is_the_registered_one"), gate(f"{TW}::test_b18_the_rigid_dispersion_reproduces_and_stays_in_the_band_against_freegsnke"),
+         gate(f"{TW}::test_b18_the_deformable_growth_rate_is_a_reading_not_a_band")],
+        [data(PTR + "freegsnke/freegsnke_vstab_east137985.tar.gz", "experiment", sums["freegsnke/freegsnke_vstab_east137985.tar.gz"], fgs_caveat),
+         data(PTR + "benchmark/wall_vstab_east137985.json", "experiment", sums["benchmark/wall_vstab_east137985.json"]),
+         data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"], ["线圈电流 CCBRSP 与剖面的来源", KEFIT_CAVEAT_BUILD])],
+        "B-18-vertical-instability-freegsnke.md",
+        ["★★取代 C-03（TokSys rzrig 锚点，门自 2026-09-14 起 skip、参考侧无指针）：可复跑的垂直稳定性对拍", shear_note,
+         f"★同一张平衡：FreeGSNKE 反演收敛态（κ {fe['kappa']:.3f} 对 KEFIT 1.624，边界对 KEFIT 中位 {fe['boundary_dist_to_kefit_mm']['median']:.1f} mm）；前向解以 KEFIT 电流在 65² · 129² 网格都停滞于残差 1.7e-4",
+         "★刚性模型的输入（M · R · 耦合梯度 g · 刚度 k）逐项两边一致到 1 % 内；本条判的是同一组输入下的色散根",
+         "纳入类别（参考数据）：experiment、private-artefact"],
+        "pass",
+        validity="EAST #137985 4.041 s（FreeGSNKE 反演平衡）；无源组内壳 / 三组合；主动线圈冻结；刚性、质量为零；不含可变形等离子体（读数）与反馈控制"))
+    reports["B-18"] = "B-18-vertical-instability-freegsnke.md"
     return recs, reports
 
 
@@ -538,6 +612,21 @@ REPORT_TEXT = {
                            "  python -m pytest python/tests/test_benchmark_fixed_boundary.py -k b16",
                            "# 读数与 CHEASE 运行件重写：CHEASE_EXE=<chease> python tools/benchmark-fixed-boundary.py east --out <dir>"],
              "conclusion": "成立：EAST 形状上同一定边界问题，fylite 129² 与 CHEASE NS 80 的 ψ_N 差 rms 4.9e-5、磁轴 5 µm、q（ψ_N 0.1–0.9）0.10 %；两者离 KEFIT 自由边界图一样远（2.3 mm），那是参考图的离散，不是求解器的。"},
+    "B-17": {"not_comparable": ["- 两边的自感求法不同：fylite 每元 nu × nv 细丝加圆导线自感项，FreeGSNKE 按多边形裁剪的方格细丝——M 对角差 1.4 % 中位即此；τ₁ 对它不敏感。",
+                                "- 装置描述是 fydoc 装置书里未经核的手工卡片：本条不确认 EAST 实物的时间常数。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERNEL_LIB=<带 code/wall 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b17'",
+                           "# FreeGSNKE 侧（不在门里）：解开 corpus/freegsnke/freegsnke_vstab_east137985.tar.gz，按其 run_all.sh（freegs4e==0.13.*）"],
+             "conclusion": "成立：同一张 EAST 卡片上，fylite code/wall 与 FreeGSNKE 的无源 L/R 本征模 τ₁ 在内壳 · 外壳 · 被动板 · 三组合上差 ≤ 0.08 %（12.76 / 13.10 / 400.6 / 413.5 ms），互感矩阵非对角 p95 ≤ 0.54 %。"},
+    "B-18": {"not_comparable": ["- 可变形等离子体：FreeGSNKE 的线性化雅可比给出三组合 γ 为刚性的 2.2 倍、内壳 0.92 倍；fylite 的 code/vstab 是刚性模型，这一项无对应（读数，雅可比线性度未核）。",
+                                "- 平衡是 FreeGSNKE 的反演收敛态，不是 KEFIT 的（κ 高 3.5 %）；fylite 在 KEFIT 平衡上的 γ 低 4.3 %（内壳）/ 2.2 %（三组合），只作读数。",
+                                "- 主动线圈冻结（与 circuit: passive 同义）；不含反馈控制、线圈电源与快控线圈。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERNEL_LIB=<带 code/wall 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b18'",
+                           "# 读数重写：python tools/benchmark-wall-vstab.py readings --out <dir>"],
+             "conclusion": "成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 0.37 %（内壳，711 s⁻¹）/ 0.12 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005；FreeGSNKE 的可变形增长率另记为读数。"},
 }
 
 
@@ -554,6 +643,10 @@ def apply(case: Path, reruns: dict, solovev: dict) -> None:
         note = "★★2026-09-15 并入 V-16（GS 残差读法，改判为 V）：本条的门问的是「本仓的残差判据在别人写出的平衡上读出什么」，不是对另一套模型的确认或对拍；发现逐条迁入 V-16，本条保留作历史"
         if note not in r["caveat"]:
             r["caveat"].insert(0, note)
+    by["record/C-03"]["superseded_by"] = "record/B-18"
+    c03_note = "★★2026-09-15（第三批）：本条由 B-18 取代——同一问题（刚性等离子体的垂直增长率与裕度）对 FreeGSNKE 可复跑，参考侧有指针与 sha256，判据有实测带"
+    if c03_note not in by["record/C-03"]["caveat"]:
+        by["record/C-03"]["caveat"].insert(0, c03_note)
     b10_note = "★★2026-09-15（第二批）：本条原题「同一边界与剖面下 fylite 的 GS 解」由 V-19（Solov'ev 轮廓，fylite 与 CHEASE）与 B-16（EAST 形状，fylite 对 CHEASE）立——内核当日新增 code/fixed_boundary"
     if b10_note not in by["record/B-10"]["caveat"]:
         by["record/B-10"]["caveat"].insert(1, b10_note)

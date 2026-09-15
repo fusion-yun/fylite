@@ -1677,8 +1677,53 @@
    },
    "entries": [
     {
+     "id": "plan/K/wall-freegsnke",
+     "title": "导体壁作为电路：EAST 无源结构的 L/R 本征模对 FreeGSNKE",
+     "comparison_kind": "benchmark",
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/freegsnke/freegsnke_vstab_east137985.tar.gz",
+       "license": "experiment",
+       "payload": "in",
+       "comment": "FreeGSNKE（LGPL-3）本地运行件：同一张 EAST 卡片的 90 个无源元件与 12 路 PF"
+      }
+     ],
+     "record": "B-17",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b17'（需带 code/wall 的内核库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（用户「补全导体壁，垂直不稳定性算例」）：内核新增 code/wall，并修正 EFIT 平行四边形读法（efund 剪切）；τ₁ 四组差 ≤ 0.08 %"
+    },
+    {
+     "id": "plan/K/vstab-freegsnke",
+     "title": "垂直不稳定性：刚性增长率与裕度对 FreeGSNKE（取代 TokSys rzrig）",
+     "comparison_kind": "benchmark",
+     "depends_on": [
+      "plan/K/wall-freegsnke"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/wall_vstab_east137985.json",
+       "license": "experiment",
+       "payload": "in"
+      }
+     ],
+     "record": "B-18",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b18'（需带 code/wall 的内核库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立：同一 FreeGSNKE 反演平衡上 γ 差 0.37 %（内壳）/ 0.12 %（三组合），裕度差 ≤ 0.005；FreeGSNKE 可变形 γ（三组合 2.2 倍）记为读数"
+    },
+    {
      "id": "plan/K/toksys-rzrig",
      "title": "垂直稳定性，对 TokSys rzrig",
+     "record_superseded_by": "B-18",
      "comparison_kind": "validation",
      "oracle": [
       {

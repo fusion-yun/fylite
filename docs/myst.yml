@@ -122,6 +122,8 @@ project:
             - file: benchmark/reports/B-14-forward-kefit.md
             - file: benchmark/reports/B-15-twin-kefit.md
             - file: benchmark/reports/B-16-fixed-boundary-chease.md
+            - file: benchmark/reports/B-17-wall-freegsnke.md
+            - file: benchmark/reports/B-18-vertical-instability-freegsnke.md
             - file: benchmark/reports/C-01-iter-15ma-astra.md
             - file: benchmark/reports/C-02-alpha-heating-astra.md
             - file: benchmark/reports/C-03-toksys-rzrig.md
