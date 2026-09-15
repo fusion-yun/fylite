@@ -4999,7 +4999,7 @@
      {
       "type": "spo:Code",
       "name": "tools/benchmark-east-point.py",
-      "comment": "档 K 的运行与复现门（W4b 零假设 · W4c 带 POINT 法拉第行的拟合及四个变体）：`--check` 对 FYDOC-CASE-23 读数件 `#K-W4b-null` / `#K-W4c-rows` 的 check 块逐数比对（相对容差 1e-6）；它钉的是**读数可复现**，不是对参考答案的判定"
+      "comment": "档 K 的运行与复现门（W4b 零假设 · W4c 带 POINT 法拉第行的拟合及四个变体）：`--check` 对 FYDOC-CASE-23 读数件 `#K-W4b-null` / `#K-W4c-rows` 的 check 块逐数比对（相对容差 1e-6）；它钉的是**读数可复现**，不是对参考答案的判定；★2026-09-15 起拒跑（用户裁定 efit_east 树只作对拍比较数据，门的输入取自该树），所钉读数只作历史"
      }
     ],
     "caveat": [

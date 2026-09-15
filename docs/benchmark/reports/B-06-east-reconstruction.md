@@ -265,6 +265,8 @@ CASE-23 `corpus/point/` 下四件：`slice_04000ms.fyo.jsonld`（fydata 4.0 s �
 
 ## 9. 复现（已有的门；写本页时未跑）
 
+★★2026-09-15 起（用户裁定 efit_east 树只作对拍比较数据）：档 M 的 `benchmark-east-efit-east.py`、档 P 的压强号门、档 K 的 `benchmark-east-point.py` 与 `benchmark-east-kefit-compare.py --collect` 都**拒跑**——它们的输入取自该树；下列命令只作历史记录，`--figures` 仍可从 CASE-23 的归档重画历史图。
+
 ```bash
 cd $FYLITE_KERNEL   # CASE-23 在内核私有镜像 tests/data/ 里
 # 档 M（B-11）：扫描设定点、量 9 条判据，--check 对登记册的带
