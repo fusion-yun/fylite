@@ -4,7 +4,7 @@ title: 公开 V&V 登记册 · 索引
 
 # 公开 V&V 登记册 · 索引
 
-48 条记录，18 个场景；★2026-09-15：平衡相关的 V-16 · V-17 · B-12 · B-14 · V-18 · B-15 由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」「废弃 libefit 对标，直接对标 KEFIT」），复测列是写入当日的；C-06 · C-07 · B-10 并入 V-16，B-06 · B-11 由 B-12 取代，C-03 的门自 2026-09-14 起 skip。★2026-09-15（第二批）：定边界 V-19 · B-16 同一工具直写（用户「补全 fixed-boundary 情景」；内核当日新增 `code/fixed_boundary`），B-10 原题由它们立。★2026-09-15（第二批）：导体壁 B-17 与垂直不稳定性 B-18（对 FreeGSNKE，用户「补全导体壁，垂直不稳定性算例」；内核当日新增 `code/wall` 并修正 EFIT 平行四边形读法）同一工具直写，C-03 由 B-18 取代。★2026-09-15（第二批）：导体壁 B-19 与垂直不稳定性 B-20（对 KEFIT 的电磁层 efund，用户「导体壁，垂直不稳定性，与 kefit 对拍」；内核同日改正 a1 ≠ 0 的读法，B-17 · B-18 重录）同一工具直写。由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
+49 条记录，18 个场景；★2026-09-15：平衡相关的 V-16 · V-17 · B-12 · B-14 · V-18 · B-15 由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」「废弃 libefit 对标，直接对标 KEFIT」），复测列是写入当日的；C-06 · C-07 · B-10 并入 V-16，B-06 · B-11 由 B-12 取代，C-03 的门自 2026-09-14 起 skip。★2026-09-15（第二批）：定边界 V-19 · B-16 同一工具直写（用户「补全 fixed-boundary 情景」；内核当日新增 `code/fixed_boundary`），B-10 原题由它们立。★2026-09-15（第二批）：导体壁 B-17 与垂直不稳定性 B-18（对 FreeGSNKE，用户「补全导体壁，垂直不稳定性算例」；内核当日新增 `code/wall` 并修正 EFIT 平行四边形读法）同一工具直写，C-03 由 B-18 取代。★2026-09-15（第二批）：导体壁 B-19 与垂直不稳定性 B-20（对 KEFIT 的电磁层 efund，用户「导体壁，垂直不稳定性，与 kefit 对拍」；内核同日改正 a1 ≠ 0 的读法，B-17 · B-18 重录）同一工具直写。★2026-09-15（第三批，/goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」）：自由边界演化与 PF 电路 · 无源件耦合 V-21（内核新门 code/evolve_free_boundary，EAST 卡片上的恒等式；同时读出 B-14 的节点规则答案由虚拟位置对撑着）同一工具直写。由 `tools/benchmark-publish.py`（内核仓）自登记册渲染，复测 2026-09-08。
 复测结论：成立 35、未评估 1（B-11，2026-09-14 加入，门是运行脚本、未随发布跑；2026-09-15 撤回——用户裁定 efit_east 树只作对拍比较数据，本条输入取自该树）。★跨类不可比：V/B/C 问的不是同一个问题（README）。
 
 :::{figure} ../figures/overview.svg
@@ -66,3 +66,4 @@ title: 公开 V&V 登记册 · 索引
 | B-18 | B | FreeGSNKE；KEFIT | experiment、private-artefact、public | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-18](B-18-vertical-instability-freegsnke.md) |
 | B-19 | B | efund（KEFIT 的格林表生成器） | private-artefact | 成立 | 成立（3 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-19](B-19-wall-efund.md) |
 | B-20 | B | efund（KEFIT 的格林表生成器）；KEFIT | experiment、private-artefact | 成立 | 成立（2 passed, 0 failed, 0 error, 0 skipped, 0 stale） | [B-20](B-20-vertical-instability-efund.md) |
+| V-21 | V | 解析恒等式；KEFIT | experiment、private-artefact、public | 成立 | 成立（5 passed, 0 failed, 0 error, 0 skipped, 0 stale（同一次运行另三份平衡门 18 过）） | [V-21](V-21-evolve-free-boundary.md) |

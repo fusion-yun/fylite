@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = 'd6d21c336ffc5a7b'
+DIGEST = '38d2c509108de36a'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -294,6 +294,9 @@ TABLES = {
             'ip': {"path": 'fylite:ip', "units": 'A', "rank": '1d'},
             'target': {"path": 'fylite:target', "units": '1', "rank": '2d'},
             'verify': {"path": 'fylite:verify', "units": '1', "rank": '1d'},
+            'channel_volts': {"path": 'fylite:channel_volts', "units": 'V', "rank": '2d'},
+            'channel_aturns': {"path": 'fylite:channel_aturns', "units": 'A', "rank": '2d'},
+            'passive_current': {"path": 'fylite:passive_current', "units": 'A', "rank": '1d'},
         },
     },
     'SUMMARY': {
@@ -360,6 +363,7 @@ TABLES = {
 #: position in the list BEING the offset into the flat buffer
 BLOCKS = {
     'CASE_CODES': [
+        {'key': 'evolve_free_boundary', 'shape': '', 'units': 'assembled', 'gloss': "PF channels (voltage or current drive) and the passive set marched by implicit Euler on M dI/dt + R I + d(psi_plasma)/dt = V, the free-boundary equilibrium re-solved on the currents each step and its plasma flux at every conductor fed back by Picard (reciprocal grid responses); no vertical dynamics beyond the solve's own position hold"},
         {'key': 'wall', 'shape': '', 'units': 'assembled', 'gloss': "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma"},
         {'key': 'fixed_boundary', 'shape': '', 'units': 'assembled', 'gloss': "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map"},
         {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat"},
@@ -1049,6 +1053,36 @@ CODE_PARAMS = {
         'zeff': {'key': 'zeff', 'type': 'float', 'via': 'evolve', 'default': '1.5', 'required': False},
         'zsum': {'key': 'zsum', 'type': 'float', 'via': 'beam_eval'},
     }},
+    'evolve_free_boundary': {"door": 'evolve_free_boundary_case', "crate": 'fylite_kernel', "parameters": {
+        'beta0': {'key': 'beta0', 'type': 'float', 'via': 'evolve_free_boundary_case', 'required': True, 'why': 'the pressure amplitude of the analytic family'},
+        'couple': {'key': 'couple', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'coupling': {'key': 'coupling', 'type': 'string', 'via': 'evolve_free_boundary_case'},
+        'drive': {'key': 'drive', 'type': 'string', 'via': 'evolve_free_boundary_case'},
+        'edge_fraction': {'key': 'edge_fraction', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'emp': {'key': 'emp', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'enp': {'key': 'enp', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'eta_coil': {'key': 'eta_coil', 'type': 'float', 'via': 'evolve_free_boundary_case'},
+        'eta_scale': {'key': 'eta_scale', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'eta_vessel': {'key': 'eta_vessel', 'type': 'float', 'via': 'evolve_free_boundary_case'},
+        'fb_gain': {'key': 'fb_gain', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': 'if coupled_inside { 0.0 } else { 8.0 }', 'required': False},
+        'fb_gain_start': {'key': 'fb_gain_start', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '8.0', 'required': False},
+        'fb_tol': {'key': 'fb_tol', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1e-2', 'required': False},
+        'grid_nu': {'key': 'grid_nu', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '4.0', 'required': False},
+        'grid_nv': {'key': 'grid_nv', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '4.0', 'required': False},
+        'ip': {'key': 'ip', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '0.0', 'required': False},
+        'limiter': {'key': 'limiter', 'type': 'string', 'via': 'evolve_free_boundary_case'},
+        'max_iter': {'key': 'max_iter', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '12000.0', 'required': False},
+        'nu': {'key': 'nu', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '8.0', 'required': False},
+        'nv': {'key': 'nv', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '8.0', 'required': False},
+        'passive': {'key': 'passive', 'type': 'string', 'via': 'evolve_free_boundary_case'},
+        'picard_max': {'key': 'picard_max', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '40.0', 'required': False},
+        'picard_relax': {'key': 'picard_relax', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'picard_tol': {'key': 'picard_tol', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1e-8', 'required': False},
+        'r0': {'key': 'r0', 'type': 'float', 'via': 'evolve_free_boundary_case', 'required': True, 'why': "the profile family's reference radius [m]"},
+        'relax': {'key': 'relax', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '0.3', 'required': False},
+        'sign_axis': {'key': 'sign_axis', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1.0', 'required': False},
+        'tol': {'key': 'tol', 'type': 'float', 'via': 'evolve_free_boundary_case', 'default': '1e-9', 'required': False},
+    }},
     'fixed_boundary': {"door": 'fixed_boundary_case', "crate": 'fylite_kernel', "parameters": {
         'b0': {'key': 'b0', 'type': 'float', 'via': 'fixed_boundary_case'},
         'hold_ip': {'key': 'hold_ip', 'type': 'boolean', 'via': 'fixed_boundary_case', 'default': 'false'},
@@ -1075,6 +1109,7 @@ CODE_PARAMS = {
     'forward': {"door": 'forward_case', "crate": 'fylite_kernel', "parameters": {
         'b_tor': {'key': 'b_tor', 'type': 'float', 'via': 'forward_case'},
         'beta0': {'key': 'beta0', 'type': 'float', 'via': 'forward_case', 'required': True, 'why': 'the pressure amplitude of the analytic family'},
+        'edge_fraction': {'key': 'edge_fraction', 'type': 'float', 'via': 'forward_case', 'default': '0.0', 'required': False},
         'emp': {'key': 'emp', 'type': 'float', 'via': 'forward_case', 'default': '1.0', 'required': False},
         'enp': {'key': 'enp', 'type': 'float', 'via': 'forward_case', 'default': '1.0', 'required': False},
         'fb_gain': {'key': 'fb_gain', 'type': 'float', 'via': 'forward_case', 'default': '8.0', 'required': False},

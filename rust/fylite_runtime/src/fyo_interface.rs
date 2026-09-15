@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "d6d21c336ffc5a7b";
+pub const DIGEST: &str = "38d2c509108de36a";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -264,6 +264,9 @@ pub const TABLES: &[Table] = &[
         Slot { key: "ip", path: "fylite:ip", units: "A", rank: "1d" },
         Slot { key: "target", path: "fylite:target", units: "1", rank: "2d" },
         Slot { key: "verify", path: "fylite:verify", units: "1", rank: "1d" },
+        Slot { key: "channel_volts", path: "fylite:channel_volts", units: "V", rank: "2d" },
+        Slot { key: "channel_aturns", path: "fylite:channel_aturns", units: "A", rank: "2d" },
+        Slot { key: "passive_current", path: "fylite:passive_current", units: "A", rank: "1d" },
     ] },
     Table { name: "SUMMARY", doc_type: "fyo:summary", slots: &[
         Slot { key: "time", path: "time", units: "s", rank: "1d" },
@@ -316,6 +319,7 @@ pub const TABLES: &[Table] = &[
 /// packed block layouts: the position of a row IS its offset
 pub const BLOCKS: &[Block] = &[
     Block { name: "CASE_CODES", rows: &[
+        Row { key: "evolve_free_boundary", shape: "", units: "assembled", gloss: "PF channels (voltage or current drive) and the passive set marched by implicit Euler on M dI/dt + R I + d(psi_plasma)/dt = V, the free-boundary equilibrium re-solved on the currents each step and its plasma flux at every conductor fed back by Picard (reciprocal grid responses); no vertical dynamics beyond the solve's own position hold" },
         Row { key: "wall", shape: "", units: "assembled", gloss: "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma" },
         Row { key: "fixed_boundary", shape: "", units: "assembled", gloss: "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map" },
         Row { key: "evolve", shape: "evolve_heat", units: "assembled", gloss: "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat" },
@@ -1006,6 +1010,36 @@ pub const CODES: &[Code] = &[
         Param { key: "zeff", value_type: "float", default: "1.5", required: false, via: "evolve" },
         Param { key: "zsum", value_type: "float", default: "", required: false, via: "beam_eval" },
     ] },
+    Code { name: "evolve_free_boundary", door: "evolve_free_boundary_case", krate: "fylite_kernel", params: &[
+        Param { key: "beta0", value_type: "float", default: "", required: true, via: "evolve_free_boundary_case" },
+        Param { key: "couple", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "coupling", value_type: "string", default: "", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "drive", value_type: "string", default: "", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "edge_fraction", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "emp", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "enp", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "eta_coil", value_type: "float", default: "", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "eta_scale", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "eta_vessel", value_type: "float", default: "", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "fb_gain", value_type: "float", default: "if coupled_inside { 0.0 } else { 8.0 }", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "fb_gain_start", value_type: "float", default: "8.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "fb_tol", value_type: "float", default: "1e-2", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "grid_nu", value_type: "float", default: "4.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "grid_nv", value_type: "float", default: "4.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "ip", value_type: "float", default: "0.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "limiter", value_type: "string", default: "", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "max_iter", value_type: "float", default: "12000.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "nu", value_type: "float", default: "8.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "nv", value_type: "float", default: "8.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "passive", value_type: "string", default: "", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "picard_max", value_type: "float", default: "40.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "picard_relax", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "picard_tol", value_type: "float", default: "1e-8", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "r0", value_type: "float", default: "", required: true, via: "evolve_free_boundary_case" },
+        Param { key: "relax", value_type: "float", default: "0.3", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "sign_axis", value_type: "float", default: "1.0", required: false, via: "evolve_free_boundary_case" },
+        Param { key: "tol", value_type: "float", default: "1e-9", required: false, via: "evolve_free_boundary_case" },
+    ] },
     Code { name: "fixed_boundary", door: "fixed_boundary_case", krate: "fylite_kernel", params: &[
         Param { key: "b0", value_type: "float", default: "", required: false, via: "fixed_boundary_case" },
         Param { key: "hold_ip", value_type: "boolean", default: "false", required: false, via: "fixed_boundary_case" },
@@ -1032,6 +1066,7 @@ pub const CODES: &[Code] = &[
     Code { name: "forward", door: "forward_case", krate: "fylite_kernel", params: &[
         Param { key: "b_tor", value_type: "float", default: "", required: false, via: "forward_case" },
         Param { key: "beta0", value_type: "float", default: "", required: true, via: "forward_case" },
+        Param { key: "edge_fraction", value_type: "float", default: "0.0", required: false, via: "forward_case" },
         Param { key: "emp", value_type: "float", default: "1.0", required: false, via: "forward_case" },
         Param { key: "enp", value_type: "float", default: "1.0", required: false, via: "forward_case" },
         Param { key: "fb_gain", value_type: "float", default: "8.0", required: false, via: "forward_case" },

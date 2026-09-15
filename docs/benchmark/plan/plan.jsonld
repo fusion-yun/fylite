@@ -1768,6 +1768,30 @@
      "status_note": "2026-09-15 立：γ 差 +0.28 %（8×8）/ −1.0 %（16×16）· k 0.38 % · k_ideal 0.2–0.6 % · 裕度 ±0.003；KEFIT 本身不算增长率，本条比的是它的电磁层"
     },
     {
+     "id": "plan/K/evolve-free-boundary",
+     "title": "自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片上的恒等式",
+     "comparison_kind": "verification",
+     "depends_on": [
+      "plan/K/wall-freegsnke"
+     ],
+     "oracle": [
+      {
+       "oracle_case": "FYDOC-CASE-23",
+       "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/evolve_free_boundary_east137985.json",
+       "license": "experiment",
+       "payload": "in",
+       "comment": "fylite 读数件；剖面、Ip 与线圈电流取自 KEFIT 纯磁答案 t4041_mag；参考是解析恒等式，无第二个代码"
+      }
+     ],
+     "record": "V-21",
+     "record_state": "existing",
+     "gate": [
+      "python -m pytest python/tests/test_benchmark_evolve_free_boundary.py（需带 code/evolve_free_boundary 的内核库）"
+     ],
+     "status": "pass",
+     "status_note": "2026-09-15 立（/goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」）：内核新门 code/evolve_free_boundary（解内耦合 · 边界格分数规则）；三组无源件：壳模衰减 8e-15、理想导体磁链 2e-13、两种驱动 5e-9；读出 B-14 的节点规则答案由虚拟位置对撑着。缺：对第二个代码的含时对拍（FreeGSNKE 非线性演化）"
+    },
+    {
      "id": "plan/K/toksys-rzrig",
      "title": "垂直稳定性，对 TokSys rzrig",
      "record_superseded_by": "B-18",

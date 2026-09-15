@@ -18,6 +18,8 @@ so rerunning it gives the same bytes; each record says in its ``run.comment`` wh
     ★2026-09-15 second batch (用户「补全 fixed-boundary 情景」; the kernel's `code/fixed_boundary` door):
                V-19  定边界：给定轮廓上的 Solov'ev 精确解（fylite 与 CHEASE）
                B-16  定边界对 CHEASE：EAST #137985 KEFIT ψ_N = 0.995 面上的同一问题
+    ★2026-09-15 (/goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」; the kernel's `code/evolve_free_boundary`):
+               V-21  自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片上的恒等式
 
     python tools/benchmark-equilibrium-records.py --reruns <reruns.json> --case $FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east \
         [--solovev <solovev_fixed_boundary.json from tools/benchmark-fixed-boundary.py solovev>]
@@ -579,6 +581,56 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
         "pass",
         validity="EAST #137985 4.041 s KEFIT 纯磁平衡；无源组内壳（efund 的 EAST 输入只含内壳）；刚性、质量为零；不含可变形等离子体"))
     reports["B-20"] = "B-20-vertical-instability-efund.md"
+
+    # ---------------------------------------------------------------- V-21 (free-boundary evolution coupled to the PF circuits and the passive set)
+    eg = consts(ROOT / "python/tests/test_benchmark_evolve_free_boundary.py", ("V21_BAND",))["V21_BAND"]
+    ev = json.loads((case / "corpus/benchmark/evolve_free_boundary_east137985.json").read_text(encoding="utf-8"))
+    TW3 = "python/tests/test_benchmark_evolve_free_boundary.py"
+    wd, ff, dr, fe = ev["wall_decay"], ev["flux_freezing"], ev["drive_reproduction"], ev["forward_edge"]
+    v21_crit = [crit("V-21", 1, "无等离子体、通道冻结：无源件从 code/wall 的最慢模出发，逐步对隐式 Euler 衰减因子 (1 + dt/τ₁)^−k 的最大相对偏差", "machine_precision", eg["wall_decay_rel"], "relative"),
+                crit("V-21", 2, "理想导体（电阻 0、电压 0）、Ip 三步升 2 %：每个导体的磁链 M I + ψ_p 的最大漂移 / 等离子体磁通的最大变化", "machine_precision", eg["flux_drift_over_moved"], "relative"),
+                crit("V-21", 3, "回路方程在返回状态上的相对残差（解内耦合；自由边界解到 tol 1e-9）", "machine_precision", eg["circuit_residual"], "relative",
+                     ["容差取自由边界解自己的停止判据：回路方程与平衡在同一轮里闭合"]),
+                crit("V-21", 4, "电流驱动（给电压驱动算出的通道电流）复现电压驱动的无源件电流：最大差 / 最大无源件电流", "measured_band", eg["shell_rel_max"], "relative")]
+    mags = {k: v for k, v in fe.items() if k.endswith("_mag")}
+    def span(f, fmt=".1f"):
+        lo, hi = min(f(v) for v in mags.values()), max(f(v) for v in mags.values())
+        return f"{lo:{fmt}} 至 {hi:{fmt}}"
+    v21_find = [finding("壳模衰减（无等离子体）", "pass",
+                        f"τ₁ {1e3 * wd['tau_1_s']:.2f} ms（{wd['elements']} 元），dt = τ₁/10，{wd['steps']} 步：最大相对偏差 {wd['max_rel_deviation']:.1e}"),
+                finding("理想导体的磁链", "pass",
+                        f"磁链漂移 {ff['linked_flux_drift_Wb']:.1e} Wb 对等离子体磁通变化 {ff['plasma_flux_moved_Wb']:.3e} Wb（{ff['drift_over_moved']:.1e}）· 回路方程残差 {ff['facts']['max_circuit_residual']:.1e} · "
+                        f"每步自由边界解 converged、虚拟对 0 · 无源件电流升到 {ff['passive_max_A'][-1]:.0f} A · 磁轴 Z {1e3 * ff['axis_z'][0]:.2f} → {1e3 * ff['axis_z'][-1]:.2f} mm"),
+                finding("电流驱动复现电压驱动", "pass",
+                        f"电压 = {1 + dr['drive_extra']:.2f} R I₀（保持 KEFIT 线圈电流并多给 {100 * dr['drive_extra']:.0f} %），通道电流最大变 {100 * dr['channel_change_rel_max']:.3f} % · "
+                        f"无源件电流最大 {dr['shell_max_A']:.0f} A，两种驱动差 {dr['shell_rel_max']:.1e}"),
+                finding("code/forward 两种边界规则（B-14 三片纯磁答案；读数）", "inconclusive",
+                        f"节点规则 settled、虚拟对 {span(lambda v: 1e-3 * abs(v['node']['fb_amp']))} kA；边界格分数规则 converged（{span(lambda v: v['edge']['iterations'], '.0f')} 轮、对 ≤ {max(abs(v['edge']['fb_amp']) for v in mags.values()):.0f} A）· "
+                        f"磁轴 Z 离 KEFIT {span(lambda v: v['edge']['compare']['dZ_axis_mm'])} mm（节点 {span(lambda v: v['node']['compare']['dZ_axis_mm'])} mm）· "
+                        f"ψ_N rms {span(lambda v: 100 * v['edge']['compare']['psin_rms_inside'], '.2f')} %（节点 {span(lambda v: 100 * v['node']['compare']['psin_rms_inside'], '.2f')} %）",
+                        caveat=["B-14 的读数是虚拟位置对撑着的平衡；B-14 的带不动。哪一种离实物近，KEFIT 回答不了（它的竖直位置由拟合给出）",
+                                "带 POINT 约束剖面的 t5976_primary 两种规则都不收敛"]),
+                rerun_finding(reruns["V-21"])]
+    recs.append(record(
+        "V-21", "自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片上的恒等式（code/evolve_free_boundary）", "verification",
+        "fylite: code/evolve_free_boundary 经树门（隐式 Euler；电压 / 电流驱动；三组无源件 90 元；解内耦合 · 边界格分数规则 · 起点带虚拟对）；另 code/forward 的 opt-in edge_fraction",
+        [{"type": "spo:Code", "name": "解析恒等式", "version": "隐式 Euler 的衰减因子 · 理想导体磁链守恒 · 同一方程的两种驱动（无第二个代码）", "license": "public"},
+         dict(KEFIT_REF, comment="剖面、Ip 与线圈电流取自 KEFIT 纯磁答案 t4041_mag，只作输入")],
+        v21_crit, v21_find,
+        [gate(f"{TW3}::test_the_readings_are_the_registered_ones"), gate(f"{TW3}::test_v21_a_shell_mode_decays_on_the_wall_time"),
+         gate(f"{TW3}::test_v21_a_perfect_conductor_keeps_its_flux_while_the_plasma_ramps"), gate(f"{TW3}::test_v21_current_drive_reproduces_the_voltage_march"),
+         gate(f"{TW3}::test_v21_the_forward_edge_rule_is_a_reading_not_a_band")],
+        [data(PTR + "benchmark/evolve_free_boundary_east137985.json", "experiment", sums["benchmark/evolve_free_boundary_east137985.json"]),
+         data(PTR + "kefit/kefit_raw_east137985.tar.gz", "experiment", sums["kefit/kefit_raw_east137985.tar.gz"], ["剖面与线圈电流的来源", KEFIT_CAVEAT_BUILD])],
+        "V-21-evolve-free-boundary.md",
+        ["★★2026-09-15 /goal「完善磁平衡相关计算功能 … pf 导体线圈，导体壁等被动导体耦合」：内核新门 code/evolve_free_boundary；此前唯一的电路 + 平衡演化是测试树里不带反作用的 EFIT 回放",
+         "★V 类：判的是方程与实现自洽（恒等式到舍入），不是墙电流与位移响应的物理对错——无第二个代码；Ip 是给定轨迹",
+         "★步长须 γ·dt < 1（竖直不稳定模）：只取内壳（刚性 γ ≈ 709 s⁻¹，B-18）时 2 ms 一步即离开平衡、电流驱动重跑落到镜像支；本条取三组无源件（γ ≈ 4 s⁻¹）",
+         "★同日内核三处实测改法：边界格分数规则（节点规则的量化抖动与一步的磁通增量同量级）· 解内耦合（整解外套 Picard 等于没有墙）· 解内耦合时虚拟位置对缺省关、起点仍开",
+         "纳入类别（参考数据）：experiment"],
+        "pass",
+        validity="EAST #137985 卡片（12 路 PF · 内壳 · 外壳 · 被动板 90 元）；KEFIT t4041_mag 的剖面与线圈电流；Ip 三步升 2 %、2 ms 一步；65² 网格；不含 Ip 电路方程、反馈控制与竖直位移增长率"))
+    reports["V-21"] = "V-21-evolve-free-boundary.md"
     return recs, reports
 
 
@@ -718,6 +770,16 @@ REPORT_TEXT = {
                            "  python -m pytest python/tests/test_benchmark_wall_vstab.py -k 'registered or b18'",
                            "# 读数重写：python tools/benchmark-wall-vstab.py readings --out <dir>"],
              "conclusion": "成立：同一张平衡与同一组输入下，fylite code/vstab 的刚性垂直增长率与 FreeGSNKE 的刚性色散差 −0.006 %（内壳，709 s⁻¹）/ +0.11 %（三组合，4.27 s⁻¹），裕度差 ≤ 0.005（内核改正 a1 ≠ 0 的读法后重录；首录内壳为 +0.37 %）；FreeGSNKE 的可变形增长率另记为读数。"},
+    "V-21": {"not_comparable": ["- 没有第二个代码：墙电流的大小、位移与形状的响应只由恒等式约束，物理对错要对 FreeGSNKE 的非线性演化（评估 note §4 第 7 条）。",
+                                "- Ip 是给定轨迹，不解等离子体自身的电路方程；不含反馈控制、电源模型与快控线圈。",
+                                "- 步长受竖直不稳定模限制（γ·dt < 1）：只取内壳时 2 ms 一步没有邻近解；本条取三组无源件。",
+                                "- code/forward 两种边界规则的差（约 9–11 mm）只作读数：KEFIT 的竖直位置由拟合给出，回答不了哪一种离实物近。"],
+             "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYDOC_ORACLE=<fydoc cases/> FYLITE_DEVICE_DIR=dist/facts/device/east FYLITE_KERNEL_LIB=<带 code/evolve_free_boundary 的内核库> \\",
+                           "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
+                           "  python -m pytest python/tests/test_benchmark_evolve_free_boundary.py",
+                           "# 读数重写：python tools/benchmark-evolve-free-boundary.py readings --out <dir>",
+                           "cd $FYLITE_KERNEL && cargo test --release --lib -- evolve_free_boundary_tests the_edge_rule   # 私仓单元测试"],
+             "conclusion": "成立：EAST 卡片与 KEFIT 平衡上，code/evolve_free_boundary 让三组无源件的壳模按 code/wall 的 τ₁ 衰减到 8e-15，理想导体在 Ip 升 2 % 时磁链守恒到 2e-13，回路方程在每步平衡上闭合到 2e-13，电流驱动复现电压驱动的无源件电流到 5e-9；同时读出 B-14 的节点规则答案是虚拟位置对撑着的。"},
 }
 
 
