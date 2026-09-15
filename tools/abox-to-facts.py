@@ -998,7 +998,9 @@ PROGRAM_SIDE = {
         #: are gone from fydoc (est2 removed), so nothing attaches to magnetics channels
         "channel_fit": {"namelist": "efit_w_pf_channel_fit", "pf_bit_error": "bitfc"},
         "pf_channels": {"namelist": "gui_v5_pf_channels",
-                        "fields": {"turns": "turn", "efit_index": "fcoil_channel"}},
+                        "fields": {"turns": "turn", "efit_index": "fcoil_channel",
+                                   #: ★2026-09-15: the tree node each channel is read from (GUI_v5 `Rog_PF`)
+                                   "fylite:mds_node": "rogowski_node"}},
         #: ★★R-S1 / R-S2 (user rulings 2026-09-13): shipped EAST data is resolved BY SHOT at
         #: use time.  These IDS are chosen per request — every static provider of theirs is
         #: converted here, once (`east_resolution`) — and the runtime's rule
@@ -1335,7 +1337,8 @@ def east_channel_fit(doc: dict, op: dict | None, op_src: str, prog: dict) -> lis
     for dst, vals in arrays.items():
         if isinstance(vals, list) and len(vals) == len(channels):
             for c, v in zip(channels, vals):
-                c[dst] = int(v) if dst in ("turns", "efit_index") else float(v)
+                c[dst] = (int(v) if dst in ("turns", "efit_index")
+                          else str(v) if dst == "fylite:mds_node" else float(v))
         else:
             pf_absent[dst] = "the operational A-Box states no per-channel array of this length"
     if pfn is not None:

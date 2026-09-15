@@ -635,7 +635,9 @@ def _derive(dev: dict) -> dict:
     #: (DD `function` = b_field_fb, EAST IC1/IC2), which share `pf_active/coil`
     #: with the PF coils but are not in the 12-channel BRSP basis.
     _pf_coils = [c for c in _aos(_pf, "coil") if not is_fast_coil(c)]
-    PF_NODES = tuple(c["name"] for c in _pf_coils)
+    #: ★2026-09-15: the tree node a channel is read from (`fylite:mds_node`, the GUI_v5 Rogowski name
+    #: carried from fydoc) — the channel `name` is the EFIT circuit label (BRSP_01…), which no tree has
+    PF_NODES = tuple(c.get("fylite:mds_node") or c["name"] for c in _pf_coils)
 
     # --- coil model -----------------------------------------------------------
     #: ★EAST-deck flattenings, not DD canon: `turns` / `efit_index` /
