@@ -164,9 +164,9 @@ def svg(rec: dict) -> str:
 #: ★★**这两张图与余量图答的不是同一个问题**：余量图答「离判据还有多远」（元信息），
 #: 这两张答「**差在哪儿**」（数据本身）。一个标量说不出偏差是整体平移还是局部变形，
 #: 也说不出它落在芯部还是边缘——那得把两侧画在一起才看得见。
-CURVE_COLORS = {"analytic": "#6f8fbf", "fylite_129": "#d64545", "chease_ns80": "#2e9e4f"}
-CURVE_DASH = {"analytic": "", "fylite_129": ' stroke-dasharray="6 4"', "chease_ns80": ' stroke-dasharray="1 5"'}
-CURVE_ZH = {"analytic": "Solov'ev 闭式解", "fylite_129": "fylite 129²", "chease_ns80": "CHEASE NS=80"}
+CURVE_COLORS = {"analytic": "#6f8fbf", "fylite_129": "#d64545", "chease_ns80": "#2e9e4f", "kefit": "#8a6fbf"}
+CURVE_DASH = {"analytic": "", "fylite_129": ' stroke-dasharray="6 4"', "chease_ns80": ' stroke-dasharray="1 5"', "kefit": ' stroke-dasharray="9 3 2 3"'}
+CURVE_ZH = {"analytic": "Solov'ev 闭式解", "fylite_129": "fylite 129²", "chease_ns80": "CHEASE NS=80", "kefit": "KEFIT（g 文件）"}
 
 
 def contour_svg(d: dict) -> str:
@@ -238,8 +238,13 @@ def qprofile_svg(d: dict) -> str:
     q = d.get("q_profile") or {}
     if "x" not in q:
         return ""
-    x, a, b = q["x"], q["fylite_129"], q["chease_ns80"]
-    rel = [(bb / aa - 1.0) * 100.0 for aa, bb in zip(a, b)]   # CHEASE 相对 fylite，百分比
+    x = q["x"]
+    #: ★画出**所有**给得出 q 的一侧，不只两条：EAST 那一支三方都有（KEFIT 的来自 g 文件）。
+    series = [(k, v) for k, v in q.items() if k not in ("x", "comment") and isinstance(v, list)]
+    base_k = "fylite_129" if "fylite_129" in dict(series) else series[0][0]
+    a = dict(series)[base_k]
+    #: ★差值以 fylite 为基准——**选谁作基准是呈现上的决定，不是判决**；图上写明。
+    rels = [(k, [(vv / aa - 1.0) * 100.0 for aa, vv in zip(a, v)]) for k, v in series if k != base_k]
     W2, OX, RIGHT2 = 900, 66, 26
     H1, H2h, GAP, TOPB = 200, 130, 46, 54
     H = TOPB + H1 + GAP + H2h + 46
@@ -247,12 +252,13 @@ def qprofile_svg(d: dict) -> str:
 
     def px(v): return OX + (v - x[0]) / (x[-1] - x[0]) * pw
 
-    qlo, qhi = min(min(a), min(b)), max(max(a), max(b))
+    allv = [vv for _, v in series for vv in v]
+    qlo, qhi = min(allv), max(allv)
     qlo, qhi = qlo - (qhi - qlo) * 0.08, qhi + (qhi - qlo) * 0.08
 
     def py1(v): return TOPB + (qhi - v) / (qhi - qlo) * H1
 
-    m = max(abs(min(rel)), abs(max(rel))) or 1.0
+    m = max((abs(v) for _, r in rels for v in r), default=1.0) or 1.0
 
     def py2(v): return TOPB + H1 + GAP + H2h / 2 - v / (m * 1.15) * (H2h / 2)
 
@@ -277,28 +283,30 @@ def qprofile_svg(d: dict) -> str:
                  f'text-anchor="end">{v:.3f}</text>')
     L.append(f'<text x="{OX - 8}" y="{TOPB - 8}" font-size="11" fill="{TEXT}" text-anchor="end">q</text>')
 
-    for who, ys in (("fylite_129", a), ("chease_ns80", b)):
+    for who, ys in series:
         pts = " ".join(f"{px(xx):.1f},{py1(yy):.1f}" for xx, yy in zip(x, ys))
-        L.append(f'<polyline points="{pts}" fill="none" stroke="{CURVE_COLORS[who]}" '
-                 f'stroke-width="2"{CURVE_DASH[who]}/>')
-    for i, who in enumerate(("fylite_129", "chease_ns80")):
+        L.append(f'<polyline points="{pts}" fill="none" stroke="{CURVE_COLORS.get(who, INK)}" '
+                 f'stroke-width="2"{CURVE_DASH.get(who, "")}/>')
+    for i, (who, _) in enumerate(series):
         y = TOPB + 14 + i * 20
         L.append(f'<line x1="{OX + 14}" y1="{y}" x2="{OX + 48}" y2="{y}" '
-                 f'stroke="{CURVE_COLORS[who]}" stroke-width="2"{CURVE_DASH[who]}/>')
+                 f'stroke="{CURVE_COLORS.get(who, INK)}" stroke-width="2"{CURVE_DASH.get(who, "")}/>')
         L.append(f'<text x="{OX + 56}" y="{y + 4}" font-size="12" fill="{TEXT}">'
-                 f'{esc(CURVE_ZH[who])}</text>')
+                 f'{esc(CURVE_ZH.get(who, who))}</text>')
 
     y0 = py2(0.0)
     L.append(f'<line x1="{OX}" y1="{y0:.1f}" x2="{W2 - RIGHT2}" y2="{y0:.1f}" '
              f'stroke="{INK}" stroke-width="1"/>')
-    pts = " ".join(f"{px(xx):.1f},{py2(vv):.1f}" for xx, vv in zip(x, rel))
-    L.append(f'<polyline points="{pts}" fill="none" stroke="{FAIL}" stroke-width="2"/>')
+    for who, r in rels:
+        pts = " ".join(f"{px(xx):.1f},{py2(vv):.1f}" for xx, vv in zip(x, r))
+        L.append(f'<polyline points="{pts}" fill="none" stroke="{CURVE_COLORS.get(who, FAIL)}" '
+                 f'stroke-width="2"{CURVE_DASH.get(who, "")}/>')
     L.append(f'<text x="{OX - 8}" y="{py2(m):.1f}" font-size="11" fill="{INK}" '
              f'text-anchor="end">{m:+.3f}%</text>')
     L.append(f'<text x="{OX - 8}" y="{py2(-m):.1f}" font-size="11" fill="{INK}" '
              f'text-anchor="end">{-m:.3f}%</text>')
     L.append(f'<text x="{OX + 14}" y="{TOPB + H1 + GAP - 10}" font-size="12" fill="{TEXT}">'
-             f'相对差（CHEASE 对 fylite），最劣 {m:.3f} %</text>')
+             f'相对差（各侧对 {esc(CURVE_ZH.get(base_k, base_k))}），最劣 {m:.3f} %</text>')
     L.append(f'<text x="8" y="{H - 26}" font-size="10.5" fill="{INK}">'
              f'★上格两条线肉眼重合——**差异只在下格看得见**。'
              f'★解析 Solov\'ev 没有 q(psi) 闭式，所以这一张比的是两个码，真值一侧只有 q0 那一个点。</text>')
@@ -306,7 +314,8 @@ def qprofile_svg(d: dict) -> str:
     return "\n".join(L) + "\n"
 
 
-CURVE_DATA = {"eq-forward-solovev-fixed-boundary": "solovev_curves.json"}
+CURVE_DATA = {"eq-forward-solovev-fixed-boundary": "solovev_curves.json",
+              "eq-surface-chease-fixed-boundary-east": "east_surface_curves.json"}
 
 
 def curve_figures() -> dict[pathlib.Path, str]:

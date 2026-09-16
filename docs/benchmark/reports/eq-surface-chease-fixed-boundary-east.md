@@ -31,6 +31,20 @@ title: "eq-surface-chease-fixed-boundary-east"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-surface-chease-fixed-boundary-east-contours.svg
+:alt: eq-surface-chease-fixed-boundary-east 的等高线对照图
+:width: 100%
+
+两侧的 psi_N 等高线画在一起（R-Z 等比例）。★曲线在线宽内重合——**这就是结果**，不是画漏了；定量见下。
+:::
+
+:::{figure} ../figures/eq-surface-chease-fixed-boundary-east-qprofile.svg
+:alt: eq-surface-chease-fixed-boundary-east 的q 剖面对照图
+:width: 100%
+
+上格是两个码各自的 q 剖面，下格是它们的相对差。★**差异在上格看不出来，在下格才看得见**——这正是只给一个 RMS 说不清的那部分。
+:::
+
 :::{figure} ../figures/eq-surface-chease-fixed-boundary-east-headroom.svg
 :alt: eq-surface-chease-fixed-boundary-east 的判据余量图
 :width: 100%

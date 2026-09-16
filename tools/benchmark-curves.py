@@ -122,11 +122,61 @@ def solovev() -> int:
     return 0
 
 
+def east() -> int:
+    """B-16 的那一道题：KEFIT 的 psi_N = 0.995 面上重解，三侧画在一起。
+
+    ★这一支比 Solov'ev 那支有料：**三方都给得出 q 剖面**（KEFIT 的来自 g 文件本身），
+    而 Solov'ev 只给得出 q0。于是剖面图上是三条线，差异也就看得见三者之间的关系，
+    而不只是两个码谁离谁远。
+    """
+    t = tool()
+    from fylite.engine import benchmark as bm
+    store = bm.store_dir()
+    if store is None:
+        print("需要 $FYDOC_ORACLE 指向 fydoc 的 cases/ 树", file=sys.stderr)
+        return 2
+    case = store / "FYDOC-CASE-23-east-137985-efit-east"
+    prob, gbytes = t.east_problem(case)
+    kef = t.gfile_side(gbytes, t.EDGE)
+    fy = t.fylite_side(prob, 129)
+
+    data = {
+        "what": "eq-surface / B-16：KEFIT 的 psi_N = 0.995 面上重解，对标曲线本身",
+        "problem": {"r0": prob["r0"], "f_edge": prob["f_edge"], "ip_inside": prob["ip_inside"]},
+        "boundary": {"r": [round(float(x), 5) for x in prob["r"]],
+                     "z": [round(float(x), 5) for x in prob["z"]],
+                     "comment": "保持的面（KEFIT 的 psi_N = 0.995）：三侧解的是同一条边界"},
+        "levels": list(LEVELS),
+        "contours": {"kefit": contours(kef["psin"], prob), "fylite_129": contours(fy["psin"], prob)},
+        "axis": {"kefit": [float(kef["axis"][0]), float(kef["axis"][1])],
+                 "fylite_129": [float(fy["axis"][0]), float(fy["axis"][1])]},
+    }
+    q = {"x": [round(float(v), 4) for v in Q_X],
+         "kefit": [round(float(v), 6) for v in kef["q_of"](Q_X)],
+         "fylite_129": [round(float(v), 6) for v in fy["q_of"](Q_X)]}
+    if t.CHEASE.is_file():
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            run = t.chease_run(prob, pathlib.Path(td) / "ns80", 80, "EAST held surface (curves)")
+            ch = t.gfile_side(run["EQDSK_COCOS_02.OUT"])
+        data["contours"]["chease_ns80"] = contours(ch["psin"], prob)
+        data["axis"]["chease_ns80"] = [float(ch["axis"][0]), float(ch["axis"][1])]
+        q["chease_ns80"] = [round(float(v), 6) for v in ch["q_of"](Q_X)]
+    q["comment"] = ("★三方都给得出 q 剖面：KEFIT 的来自 g 文件本身，另两侧是各自在同一条边界上重解出来的。"
+                    "★差值面板以 fylite 为基准——选谁作基准是**呈现**上的决定，不是判决。")
+    data["q_profile"] = q
+
+    p = OUT / "east_surface_curves.json"
+    p.write_text(json.dumps(data, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"wrote {p.relative_to(ROOT)}  ({p.stat().st_size / 1024:.0f} KB)")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=["solovev"])
+    ap.add_argument("what", choices=["solovev", "east"])
     a = ap.parse_args()
-    return {"solovev": solovev}[a.what]()
+    return {"solovev": solovev, "east": east}[a.what]()
 
 
 if __name__ == "__main__":
