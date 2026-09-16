@@ -52,9 +52,9 @@ $r$，以及磁面平均的权重取哪一个。两个码的 `gm1` 差一个量�
 
 ### 本域的记录
 
-| 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-surface-chease-fixed-boundary-east`](../../records/eq-surface-chease-fixed-boundary-east.jsonld) | 对拍 | 成立 | CHEASE | 1.0 | 草稿 |
+| 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.0 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
 
 ### 缺口
 

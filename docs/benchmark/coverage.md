@@ -20,9 +20,9 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | `eq-forward-boundary-rule-vs-kefit` · `eq-forward-chease-solovev` · `eq-forward-kefit-east137985` · `eq-forward-solovev-fixed-boundary` | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 不成立 |
+| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 不成立 |
 | `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | — | — | — |
-| `NR-EQ-002` | MUST | 解析基准精度 | `eq-forward-solovev-fixed-boundary` | 验证 | 不成立 |
+| `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 不成立 |
 | `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | — | — | — |
 
 ## 平衡 (Equilibrium) · 磁面几何、全局量与形状表示
@@ -31,8 +31,8 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | `eq-surface-chease-fixed-boundary-east` | 对拍 | 成立 |
-| `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | `eq-surface-chease-fixed-boundary-east` | 对拍 | 成立 |
+| `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
+| `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
 | `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | — | — | — |
 
 ## 平衡 (Equilibrium) · 演化自由边界与涡流电路
@@ -41,7 +41,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-004` | MUST | 演化自由边界与涡流电路 | `eq-evolve-analytic-circuit-limits` | 验证 | 成立 |
+| `FR-EQ-004` | MUST | 演化自由边界与涡流电路 | [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 静态逆解：形状到线圈电流
 
@@ -49,7 +49,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | `eq-inverse-freegsnke-east137985` · `eq-inverse-iter-reference-separatrix` | 对拍 · 验证 | 成立 · 未判（读数） |
+| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) · [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | 对拍 · 验证 | 成立 · 未判（读数） |
 
 ## 平衡 (Equilibrium) · 测量重构与约束阶梯
 
@@ -57,7 +57,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-006` | MUST | 测量重构与约束阶梯 | `eq-reconstruct-kefit-twin` · `eq-reconstruct-twin-truth-recovery` | 对拍 · 验证 | 成立 · 成立 |
+| `FR-EQ-006` | MUST | 测量重构与约束阶梯 | [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) · [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | 对拍 · 验证 | 成立 · 成立 |
 | `FR-EQ-007` | SHOULD | MSE 全形响应行 | — | — | — |
 | `FR-EQ-008` | MUST | 快离子压强外部强迫项 | — | — | — |
 | `FR-EQ-009` | MUST | 内部约束行几何门控 | — | — | — |
@@ -72,8 +72,8 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NR-EQ-001` | MUST | COCOS 一致性 | `eq-convention-gfile-cocos-roundtrip` | 验证 | 成立 |
-| `NR-EQ-006` | MUST | 插件接入 | `eq-convention-gfile-cocos-roundtrip` | 验证 | 成立 |
+| `NR-EQ-001` | MUST | COCOS 一致性 | [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 |
+| `NR-EQ-006` | MUST | 插件接入 | [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 |
 
 ## MHD 稳定性 (MHD Stability) · 竖直稳定性、线圈受力与电磁线性模型
 
@@ -146,7 +146,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-005` | MUST | 刚性稳定化生产路径 | `tr-paradigm-pereverzev` | 验证 | 未判（读数） |
+| `FR-TR-005` | MUST | 刚性稳定化生产路径 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） |
 | `FR-TR-006` | MUST | 耦合隐式块解（可选，候选 ADR） | — | — | — |
 | `FR-TR-007` | MUST | 稳态通量匹配 | — | — | — |
 | `FR-TR-008` | SHOULD | 环向动量 / 转动通道（路线项） | — | — | — |

@@ -313,6 +313,25 @@ def test_every_record_has_a_report_and_the_book_lists_it():
         assert f"benchmark/reports/{r}.md" in toc, f"报告 {r}.md 没有入 docs/myst.yml"
 
 
+def test_the_prose_actually_points_at_the_reports():
+    """★★入了 toc 还不够——**正文里得指得到**。
+
+    2026-09-16 实测过这个反面：12 份报告都入了 `myst.yml`，但各章的「本域的记录」表、
+    覆盖表与状态页的记录名，链接全指向 `records/*.jsonld`——读者点开一条记录，
+    拿到的是**原始 JSON**，不是报告。于是报告虽在书里，正文里一次也没被指到过，
+    只能靠侧边栏展开到第四层才找得着。
+
+    ★这条守的是「读者点得到」，与 `test_every_record_has_a_report_and_the_book_lists_it`
+    守的「书里列得到」不是一回事，两条都要。
+    """
+    pages = [BM / "coverage.md", BM / "status.md"]
+    pages += [BM / d["path"] for _, d in flat_domains()]
+    blob = "\n".join(p.read_text(encoding="utf-8") for p in pages if p.is_file())
+    missing = [name.removesuffix(".jsonld") for name, _ in records()
+               if f"reports/{name.removesuffix('.jsonld')}.md" not in blob]
+    assert not missing, f"这些记录的报告，正文里一处也没链到：{missing}"
+
+
 def test_the_round_summaries_are_in_the_book():
     """★收敛说明是**手写**的散文（一轮一页），所以它不会被生成器补上——漏挂 toc 没人会发现。
 

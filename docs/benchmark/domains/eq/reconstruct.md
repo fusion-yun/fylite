@@ -67,10 +67,10 @@ $q_0$。能判的只有一件事：**各自的解正过来预测测量，与实�
 
 ### 本域的记录
 
-| 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-reconstruct-kefit-twin`](../../records/eq-reconstruct-kefit-twin.jsonld) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 |
-| [`eq-reconstruct-twin-truth-recovery`](../../records/eq-reconstruct-twin-truth-recovery.jsonld) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 |
+| 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
+| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
 
 ### 缺口
 

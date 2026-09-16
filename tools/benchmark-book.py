@@ -185,18 +185,23 @@ def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
     #: 章页 2026-09-16 从 `eq/forward.md` 搬到 `domains/eq/forward.md`，写死的 `../` 当场指错。
     L += ["### 本域的记录", ""]
     if mine:
-        L += ["| 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |",
-              "| :--- | :--- | :--- | :--- | :--- | :--- |"]
+        #: ★★名字指向**报告**，不指向 `records/*.jsonld`：读者点开一条记录想读的是报告，
+        #: 不是原始 JSON。2026-09-16 实测过这个反面——链接直接送到 jsonld，
+        #: **于是 12 份报告虽然入了 toc，却在正文里一次也没被指到过**。正本另开一列。
+        L += ["| 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |",
+              "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |"]
         for r in sorted(mine, key=lambda x: x["id"]):
             p = r.get("provenance", {})
             refs = " · ".join(x.get("name", "?") for x in (r.get("compared_reference") or []))
             up = "../" * (len(pathlib.PurePosixPath(d["path"]).parts) - 1)
-            L.append(f"| [`{r['id'].split('/')[-1]}`]({up}records/{r['_file']}) "
+            slug = r["id"].split("/")[-1]
+            L.append(f"| [`{slug}`]({up}reports/{slug}.md) "
                      f"| {KIND_ZH.get(r.get('comparison_kind'), '?')} "
                      f"| {VERDICT_ZH.get(r.get('overall_verdict'), '?')} "
                      f"| {cell(refs) or '—'} "
                      f"| {p.get('record_version', '—')} "
-                     f"| {REVIEW_ZH.get(p.get('review_status'), '—')} |")
+                     f"| {REVIEW_ZH.get(p.get('review_status'), '—')} "
+                     f"| [jsonld]({up}records/{r['_file']}) |")
         L.append("")
     else:
         L += ["★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，"
@@ -430,7 +435,8 @@ def coverage_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, 
             r = reqs[rid]
             hit = by_req[rid]
             if hit:
-                names = " · ".join(f"`{x['id'].split('/')[-1]}`" for x in hit)
+                names = " · ".join(f"[`{x['id'].split('/')[-1]}`](reports/{x['id'].split('/')[-1]}.md)"
+                                   for x in hit)
                 kinds = " · ".join(KIND_ZH.get(x.get("comparison_kind"), "?") for x in hit)
                 verds = " · ".join(VERDICT_ZH.get(x.get("overall_verdict"), "?") for x in hit)
             else:
@@ -518,7 +524,7 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
               "若两者混在一个退出码里，红就成了常态，而常态的红没有人看——"
               "真正新出的失败会被它盖住。", ""]
         for r in known:
-            L += [f"### `{r['id'].split('/')[-1]}`", "",
+            L += [f"### [`{r['id'].split('/')[-1]}`](reports/{r['id'].split('/')[-1]}.md)", "",
                   (r.get("provenance") or {})["open_defect"], ""]
     if n == 0:
         L += ["★**本册尚无记录。** 这一页此刻的用处不是报成绩，是把闸子摆在记录进来之前："
@@ -546,7 +552,8 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
         for r in sorted(recs, key=lambda x: x["id"]):
             p = r.get("provenance") or {}
             k = (r.get("run") or {}).get("kernel") or {}
-            L.append(f"| `{r['id'].split('/')[-1]}` | {r.get('domain', '—')} "
+            slug = r["id"].split("/")[-1]
+            L.append(f"| [`{slug}`](reports/{slug}.md) | {r.get('domain', '—')} "
                      f"| {KIND_ZH.get(r.get('comparison_kind'), '?')} "
                      f"| {VERDICT_ZH.get(r.get('overall_verdict'), '?')} "
                      f"| {p.get('record_version', '—')} | {p.get('revised', p.get('recorded', '—'))} "
