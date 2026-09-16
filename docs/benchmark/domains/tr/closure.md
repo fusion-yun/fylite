@@ -52,6 +52,7 @@ $\chi$ 与 $D$ 从哪来、源项怎么沉积。这一章是本册**记录密度
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`tr-closure-15d-source-switches`](../../reports/tr-closure-15d-source-switches.md) | 验证 | 未判（读数） | 基线自身（同一算例、只改一个开关） | 1.0 | 草稿 | [jsonld](../../records/tr-closure-15d-source-switches.jsonld) |
 | [`tr-closure-dt-burn-astra`](../../reports/tr-closure-dt-burn-astra.md) | 对拍 | 未判（读数） | DT 分支比 3.5 / 17.6 · ASTRA | 1.0 | 草稿 | [jsonld](../../records/tr-closure-dt-burn-astra.jsonld) |
 
 ### 缺口

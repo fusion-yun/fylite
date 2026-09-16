@@ -47,14 +47,15 @@ title: "台基、锯齿与 0D 存量"
 
 ### 本域的记录
 
-★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，本册还没有拿出任何一条对着外部答案量过的记录来回应。
+| 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 | METIS | 1.0 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 3 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
 - `FR-TR-009` 连续台基模型
 - `FR-TR-010` 锯齿触发与 Kadomtsev 重分布
-- `FR-TR-014` 0D 存量守恒（加料 / 抽气 / 衰变）
 
 <!-- END GENERATED -->

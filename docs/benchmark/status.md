@@ -19,10 +19,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**13** 条
-- 判决 (verdict)：成立 8 · 不成立 **1** · 未判 4 · 未评估 0
-- 新鲜度 (freshness)：当前 13 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 13 · 已被取代 0
+- 记录 (records)：**15** 条
+- 判决 (verdict)：成立 8 · 不成立 **2** · 未判 5 · 未评估 0
+- 新鲜度 (freshness)：当前 15 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 15 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -42,9 +42,17 @@ title: 验证状态 (Verification status)
 
 2026-09-16 用户裁定「不改内核，保留负面结果」：逆解 settled 而未 converged；达成 kappa 1.7941 比目标低 2.98 %，delta_lower 低 10.21 %；所需 30.6 MA·t 无额定可比（牌上缺 pf_active/supply）。三条原样留册，容差不放宽；牌补上供电额定后电流那一条才判得了。
 
+### [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md)
+
+2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★另记：本条尚无守它的门，与 tr-closure-dt-burn-astra、tr-pedestal-zerod-bookkeeping-metis 同。
+
 ### [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md)
 
 2026-09-16 记名保留两处（用户裁定「不改内核，保留负面结果」「内核欠缺的功能也保留」）：〔一〕α 份额偏 +1.23 %，而分支比是常数、本该到舍入——干净的可判偏差，等内核查；〔二〕`code/zerod` **不给 α 的电子/离子分配**，ASTRA 给（轴上 0.585 / 0.414），这一项对 1.5D 演化是必需的，判据已立、等内核补。★另记：本条尚无守它的门，需补一道 pytest。
+
+### [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md)
+
+2026-09-16 记名保留（用户裁定「不改内核，保留负面结果」「内核欠缺的功能也保留」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 -2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕0D 不输出热能 W、没有加料/抽气控件、没有台基，于是 FR-TR-014 的存量守恒在这一层无从验起。判据都已立，等内核补入口。
 
 ## 按域 (by domain)
 
@@ -61,9 +69,9 @@ title: 验证状态 (Verification status)
 | MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](domains/mhd/energy.md) | 7 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 1 | 1 | 0 | 0 | 0 |
+| 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 1 | 2 | 0 | 0 | 0 |
 | 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
-| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 1 | 1 | 0 | 1 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
 
@@ -82,8 +90,10 @@ title: 验证状态 (Verification status)
 | [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

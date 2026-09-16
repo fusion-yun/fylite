@@ -1,0 +1,160 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "0D 记账对 METIS：体积公式差 2.8 %，以及 0D 这一层还没有的几样",
+  "en": "0-D bookkeeping against METIS: a 2.8 % volume-formula gap, and what the 0-D layer does not yet have"
+ },
+ "domain": "tr-pedestal",
+ "requirement": [
+  "FR-TR-014"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "fail",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "能力 `code/zerod`，用 METIS 自己的 R / a / kappa / Ip / <ne> / <Te> 驱动"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:Code",
+   "name": "METIS",
+   "version": "认证算例的 0-D 记账（CASE-10 corpus/metis_cert_zerod.csv）",
+   "comment": "★取的是 **ITER** 那几个工作点（`ITER_rampup_ECCD` 族），与 fylite 的算例同一台机器，几何差异不至于主导。本处不重跑 METIS。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "等离子体体积对 METIS 的相对差",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.01
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★判据 1 %：两侧拿的是**同一组** R / a / kappa，体积是纯几何量，没有物理模型差可以解释更大的偏离。"
+  },
+  {
+   "id": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "体积偏差在各工作点之间的散布（是否系统性）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.001
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★这一条不是精度判据，是**归因判据**：散布小说明它是公式差而不是噪声，于是能被一次性修掉，而不是逐点调。"
+  },
+  {
+   "id": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "轴上 ne / Te 对 METIS",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.1
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★这一条**判不了**，见 finding：喂进去的是体平均，轴值由各自的峰化约定生成。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★体积 —— **不成立**，而且归因已经查到公式一级",
+   "criterion": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/1",
+   "measured_deviation": 0.0286820511228687,
+   "bound": "upper",
+   "deviation_literal": "四个工作点相对差 +0.0287 · +0.0287 · +0.0285 · +0.0287（最劣 0.0287，判据 0.01）",
+   "verdict": "fail",
+   "caveat": [
+    "★★**fylite 的 0D 体积恰好是 2π²R a²κ**——实测逐位吻合（804.672 m³ 对公式 804.672 m³，相对差 0.00000）。METIS 比它低 -2.87 %。**所以这不是数值误差，是两边用了不同的体积公式。**",
+    "★**最简单的解释被排除了**：若差别只是三角形变的一阶修正 δ²/8，δ = 0.244 时该是 0.74 %，而实测是 -2.87 %——**大了近四倍**。所以还有别的（κ 的定义是几何还是面积当量、是否算了 Shafranov 位移后的磁面体积）。本册只记到「是公式差、不是噪声」为止，归因剩下的在内核侧。",
+    "★★**这条偏差会直接传给 0D 存量账**（FR-TR-014）：存量 = 密度 × 体积，体积偏 2.8 %，加料 / 抽气的账就同偏 2.8 %。**这才是它挂在这条需求下的理由。**"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "体积偏差是**系统性**的",
+   "criterion": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/2",
+   "measured_deviation": 0.0001329688748747948,
+   "bound": "upper",
+   "deviation_literal": "四点散布 1.33e-04（判据 1e-3）——四位有效数字内一致",
+   "verdict": "pass",
+   "caveat": [
+    "★这一条**成立反而是坏消息的好消息**：它确认了上一条是一次可修的公式差，不是需要逐点标定的模型差。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★轴上 ne / Te —— **判不了**（峰化约定不同）",
+   "criterion": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis/criterion/3",
+   "bound": "reading",
+   "deviation_literal": "ne 轴相对差 -0.265 · -0.265 · -0.266 · -0.266；Te 轴 -0.728 · -0.713 · -0.676 · -0.729",
+   "verdict": "inconclusive",
+   "caveat": [
+    "★★**喂进去的是体平均 <ne> 与 <Te>，轴值是各自的峰化约定生成的**——所以这两行比的是约定，不是算法。证据在散布上：ne 的偏差四点几乎不变（-0.265 · -0.265 · -0.266 · -0.266），因为 fylite 的 `peaking_n` 是**固定输入**；而 Te 的偏差在 -0.729..-0.676 之间动，因为 METIS 的剖面形状随工作点变而 fylite 的不变。",
+    "★要让这一行可判，得喂**剖面**而不是体平均——那是 1.5D 的事，0D 这一层做不到。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★0D 这一层还没有的几样（内核缺口）",
+   "bound": "reading",
+   "deviation_literal": "METIS 给 wth_J（热能）= 2.024e+07 J；fylite 0D **不输出 W**。另：0D 的控件里没有**加料**（气体/弹丸）、没有**抽气**、没有**台基**，α 功率也不分电子/离子道（见 tr-closure-dt-burn-astra）",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★2026-09-16 用户裁定「内核欠缺的功能也保留」，逐条记在这里：〔一〕**不输出热能 W**——而 W 是 0D 最基本的记账量，也是能量约束定律的左边；〔二〕**没有加料/抽气控件**——`dt_fraction` 只定成分，定不了源；于是 FR-TR-014 的「存量守恒（加料/抽气/衰变）」在 0D 这一层**无从验起**；〔三〕**没有台基**——边界台基区在 0D 里不存在，它要 1.5D 的 `code/evolve`。",
+    "★这几条不是「没做」，是**做不了**：判据立在这里，等内核补上入口。"
+   ]
+  }
+ ],
+ "validity_domain": "四个 ITER 工作点（`ITER_rampup_ECCD` 族），逐点用 METIS 自己的 R / a / kappa / Ip / <ne> / <Te> 覆盖 fylite `code/zerod` 的同名控件。★**口径上有一处真踩过的坑**：`te_flattop` 收 keV，而 METIS 的 `tem_eV` 是 eV——首次比较时直接喂了进去，Te 轴值差了 271 倍。**单位不对齐时，量出来的是口径差，不是实现差**；本条的数是改正之后的。★fylite 侧取时间轴中点那一步；剖面在归一 rho 上给出，METIS 给 21 点。",
+ "caveat": [
+  "★★**本条唯一干净可判的是体积**，因为两侧拿的是同一组几何输入、而体积是纯几何量。ne / Te 的轴值受峰化约定拖累，判不了；热能与加料/抽气/台基则**内核没有**。",
+  "★**哪些量是喂进去的**：R / a / kappa / Ip / <ne> / <Te> 全是输入（且来自 METIS 自己），算出来的是体积与剖面形状。",
+  "★**METIS 侧不在本处重跑**：它是 sha256 索引的归档表。",
+  "★本条**尚无守它的门**，与 `tr-closure-dt-burn-astra` 同——两条都要补 pytest。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-16",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/zerod_metis_metrics.json",
+    "checksum": "sha256:ec6c71b732bb669460dbd0802fd7ed942fc885e4b7e05667a7941c143cd7cbd9",
+    "comment": "本条读数：四个工作点的输入覆盖、体积、轴值与两侧剖面"
+   },
+   {
+    "storage_uri": "FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv",
+    "checksum": "sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8",
+    "comment": "★METIS 侧原件（参考类，指针 + sha256）"
+   }
+  ],
+  "realizes": [],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-16",
+  "revised": "2026-09-16",
+  "review_status": "draft",
+  "open_defect": "2026-09-16 记名保留（用户裁定「不改内核，保留负面结果」「内核欠缺的功能也保留」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 -2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕0D 不输出热能 W、没有加料/抽气控件、没有台基，于是 FR-TR-014 的存量守恒在这一层无从验起。判据都已立，等内核补入口。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-16",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：0D 记账对 METIS；体积判 fail 且归因到公式，轴值判不了，热能/加料/抽气/台基记为内核缺口"
+   }
+  ]
+ }
+}

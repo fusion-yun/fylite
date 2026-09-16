@@ -1,0 +1,169 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-closure-15d-source-switches",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "1.5D 演化：加料 / 加热 / 驱动 / 台基 / 锯齿的开关，真的进装配了吗",
+  "en": "1.5-D evolution: do the fuelling / heating / drive / pedestal / sawtooth switches reach the assembly?"
+ },
+ "domain": "tr-closure",
+ "requirement": [
+  "FR-TR-004",
+  "FR-TR-009"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "inconclusive",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "能力 `code/evolve`，算例 `evolve-iter-15ma`；逐个打开控件与基线比"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "基线自身（同一算例、只改一个开关）",
+   "comment": "★★**参考是它自己**：一个控件若打开后什么都不变，它就是**死的**——这一条不需要任何外部答案，却抓得住外部对拍抓不到的东西（对拍只会显示两边都「正常」）。★同源判法见 `tr-paradigm-pereverzev` 的「d_pc 真的进了装配」。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-closure-15d-source-switches/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "能量平衡的最劣残差",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-12
+   },
+   "tolerance_basis": "machine_precision",
+   "comment": "★平衡是恒等式，容差取舍入级；它是这一域最硬的一条自证。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-15d-source-switches/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "每个打开的控件，至少改变一项产出（否则它是死的）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1.0
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★**下限判据**：改变项数 ≥ 1。★这一条守的是「控件接线了」，不是「接得对」。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-15d-source-switches/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1.0
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★下限判据，且**本算例过不了**：三道恒为零，见 finding。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "能量平衡闭到舍入",
+   "criterion": "benchmark/records/tr-closure-15d-source-switches/criterion/1",
+   "measured_deviation": 1.154171733081163e-13,
+   "bound": "upper",
+   "deviation_literal": "最劣残差 1.15e-13（判据 1e-12，余量约 9 倍）",
+   "verdict": "pass",
+   "caveat": [
+    "★这一条在**每个变体上都成立**：开台基、开加料、开 DT 之后平衡照样闭。**一个改了源项却仍然守恒的求解器，比一个守恒得好看但源项没接线的求解器可信。**"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★台基 / 加料 / DT / 电流道 —— 四个开关都真的进了装配",
+   "criterion": "benchmark/records/tr-closure-15d-source-switches/criterion/2",
+   "measured_deviation": 2.0,
+   "bound": "lower",
+   "deviation_literal": "台基 8 项（含 `t_ped`）· 加料 9 项（含 `ne`/`ni`）· DT 7 项 · 电流道 2 项（`q` 0→3.415、`psi` 0→36.57）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这一条差点被我误报成缺陷，经过值得留下**：首版探针的键表没列 `q` 与 `psi`，于是 `current=True` 显示「零项改变」——看着就像开关是死的。补上键表后才看见 q 从 0 变到 3.415。**探针的覆盖面本身要当成判据的一部分来审**：漏一个量，结论就反过来。",
+    "★电流道只改了 `q` 与 `psi`，**温度不受影响**——在本算例的配置下（`closure='constant'`、无外部 CD）这是预期的，但记在这里，好让将来接上欧姆耦合时看得出变化。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★锯齿与 ipctl —— **按名拒绝**，并说明依赖",
+   "bound": "reading",
+   "deviation_literal": "`sawtooth=True` 单开被拒：\": \"the sawtooth needs the current channel: its trigger is q(0) < 1 and q is a result only where current diffusion is solved \\u2014 pass `current=True",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这是一条好的拒绝，所以记成成立**：它不是默默给个数，而是点名说「锯齿要电流道，它的触发是 q(0) < 1，而 q 只有在解了电流扩散的地方才是结果」。`ipctl=True` 单开同样按名拒绝。",
+    "★**一个安静地给出无意义结果的开关，比一个拒绝的开关危险得多**——后者至少让人知道缺什么。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★驱动电流三道恒为零 —— **本算例拿不到数**",
+   "criterion": "benchmark/records/tr-closure-15d-source-switches/criterion/3",
+   "measured_deviation": 0.0,
+   "bound": "lower",
+   "deviation_literal": "`j_bs` · `j_cd` · `j_lh` 在**所有**变体里绝对值最大均为 0（含开了电流道之后）",
+   "verdict": "fail",
+   "caveat": [
+    "★★所以「驱动源项」这一块在本算例的配置下**验不了**：自举电流没有产出，外部 CD 与 LH 也没有源。这不等于内核没有这三道——`j_bs` / `j_cd` / `j_lh` 三个产出**名字都在**，只是本算例没有给它们输入（`closure='constant'`，无 CD 波源）。",
+    "★2026-09-16 用户裁定「内核欠缺的功能也保留」：判据立在这里，**下一步是造一个带 CD 源的算例把它喂起来**，而不是把这条判据删掉。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "算例的默认姿态（读数）",
+   "bound": "reading",
+   "deviation_literal": "基线控件：`pedestal`=False · `current`=False · `ipctl`=False · `sawtooth`=False · `heat`=True · `closure`='constant' · `density`=False · `dt_target`=0.0 · `impurity`='Ne' · `brem`=True · `quasi`=False",
+   "verdict": "inconclusive",
+   "caveat": [
+    "★`evolve-iter-15ma` 默认只开 `heat` 与 `brem`，台基/驱动/锯齿/加料全关。**这是算例的选择，不是内核的缺口**——记在这里，免得读者把「本算例没有台基」读成「fylite 没有台基」。"
+   ]
+  }
+ ],
+ "validity_domain": "能力 `code/evolve`，算例 `evolve-iter-15ma`：31 个径向点 × 400 步，终点 t = 8 s。逐个变体只改**一个**控件，其余与基线逐位相同（参数由同一份 plan 深拷贝后覆盖）。★比较落在 21 个产出量上（剖面取绝对值的最大值，标量取末值）。★★**探针的键表见读数件**：它决定了「改变了几项」这句话的含义——漏列一个量，结论会反过来。",
+ "caveat": [
+  "★★**本条验的是「接线了」，不是「接得对」**：一个开关改变了产出，只说明它进了装配，不说明它算的物理对。后者要外部参考——那是 `tr-closure` 域里另外几条记录的事。",
+  "★**整体判 inconclusive**：平衡与四个开关都成立，但驱动三道拿不到数（判 fail），而锯齿只能间接验（它依赖电流道）。有一条验不了，整体就不该给干脆的判决。",
+  "★**哪些量是喂进去的**：几何、Ip、边界值、加热功率与沉积、杂质种类与浓度全是输入；算出来的是剖面演化、平衡残差与各源项的空间分布。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-16",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/evolve15_switch_sweep.json",
+    "checksum": "sha256:2dc268fe0c7bc0557155f3671d85c5ba1bc977e333329446158e964be3f79023",
+    "comment": "开关扫描：基线 + 五个变体，逐量对比"
+   },
+   {
+    "storage_uri": "docs/benchmark/readings/evolve15_sources_pedestal.json",
+    "checksum": "sha256:48f9a5f69f817ae07f3192fbd23ccfe1d2ae6fd5c17b5e82a03dc7531762c93e",
+    "comment": "基线一次运行的源项逐项、台基与平衡读数"
+   }
+  ],
+  "realizes": [],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-16",
+  "revised": "2026-09-16",
+  "review_status": "draft",
+  "open_defect": "2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★另记：本条尚无守它的门，与 tr-closure-dt-burn-astra、tr-pedestal-zerod-bookkeeping-metis 同。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-16",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：1.5D 的开关-进装配判法；平衡闭到 1e-13，四个开关成立，驱动三道判 fail；探针漏键差点误报，经过留在 caveat 里"
+   }
+  ]
+ }
+}

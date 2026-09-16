@@ -1,0 +1,615 @@
+{
+ "what": "1.5D 演化：逐个开关是否真的进了装配（源项 / 台基 / 驱动 / 锯齿 / 加料 / DT）",
+ "baseline_controls": {
+  "pedestal": false,
+  "current": false,
+  "ipctl": false,
+  "sawtooth": false,
+  "heat": true,
+  "closure": "constant",
+  "density": false,
+  "dt_target": 0.0,
+  "impurity": "Ne",
+  "brem": true,
+  "quasi": false
+ },
+ "variants": {
+  "baseline": {
+   "p_alpha": {
+    "last": 74526079.35553004,
+    "absmax": 74526079.35553004
+   },
+   "p_aux": {
+    "last": 33000000.0,
+    "absmax": 33000000.0
+   },
+   "p_aux_beam": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_aux_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_ohm": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_rad": {
+    "last": 34725311.697870076,
+    "absmax": 34725311.697870076
+   },
+   "j_bs": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_cd": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "t_ped": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "balance": {
+    "last": 2.5847684389124882e-14,
+    "absmax": 1.154171733081163e-13
+   },
+   "te": {
+    "last": 3000.0,
+    "absmax": 23341.790451034874
+   },
+   "ti": {
+    "last": 3000.0,
+    "absmax": 21676.85624807026
+   },
+   "ne": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "q": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "v_loop_used": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "ip_psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "chi_neo": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "zeff": {
+    "last": 2.0,
+    "absmax": 2.0
+   },
+   "ni": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "ped_extrapolation": 0.0,
+   "saw_count": 0.0,
+   "settled": 0.0,
+   "dt_fraction_used": 0.375,
+   "balance_worst": 1.154171733081163e-13,
+   "te_axis": 23341.790451034874
+  },
+  "pedestal": {
+   "p_alpha": {
+    "last": 90307978.28292494,
+    "absmax": 90307978.28292494
+   },
+   "p_aux": {
+    "last": 33000000.0,
+    "absmax": 33000000.0
+   },
+   "p_aux_beam": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_aux_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_ohm": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_rad": {
+    "last": 35667655.3634431,
+    "absmax": 35667655.3634431
+   },
+   "j_bs": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_cd": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "t_ped": {
+    "last": 3618.2494152661484,
+    "absmax": 3618.2494152661484
+   },
+   "balance": {
+    "last": 2.2540694672234332e-14,
+    "absmax": 1.2980222679638417e-13
+   },
+   "te": {
+    "last": 3617.205974678644,
+    "absmax": 25239.696764630116
+   },
+   "ti": {
+    "last": 3617.205974678644,
+    "absmax": 23349.76617993151
+   },
+   "ne": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "q": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "v_loop_used": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "ip_psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "chi_neo": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "zeff": {
+    "last": 2.0,
+    "absmax": 2.0
+   },
+   "ni": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "ped_extrapolation": 0.0,
+   "saw_count": 0.0,
+   "settled": 0.0,
+   "dt_fraction_used": 0.375,
+   "balance_worst": 1.2980222679638417e-13,
+   "te_axis": 25239.696764630116
+  },
+  "current": {
+   "p_alpha": {
+    "last": 74526079.35553004,
+    "absmax": 74526079.35553004
+   },
+   "p_aux": {
+    "last": 33000000.0,
+    "absmax": 33000000.0
+   },
+   "p_aux_beam": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_aux_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_ohm": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_rad": {
+    "last": 34725311.697870076,
+    "absmax": 34725311.697870076
+   },
+   "j_bs": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_cd": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "t_ped": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "balance": {
+    "last": 2.5847684389124882e-14,
+    "absmax": 1.154171733081163e-13
+   },
+   "te": {
+    "last": 3000.0,
+    "absmax": 23341.790451034874
+   },
+   "ti": {
+    "last": 3000.0,
+    "absmax": 21676.85624807026
+   },
+   "ne": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "q": {
+    "last": 3.415492614343098,
+    "absmax": 3.415492614343098
+   },
+   "psi": {
+    "last": 36.57105128215723,
+    "absmax": 36.57105128215723
+   },
+   "v_loop_used": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "ip_psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "chi_neo": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "zeff": {
+    "last": 2.0,
+    "absmax": 2.0
+   },
+   "ni": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "ped_extrapolation": 0.0,
+   "saw_count": 0.0,
+   "settled": 0.0,
+   "dt_fraction_used": 0.375,
+   "balance_worst": 1.154171733081163e-13,
+   "te_axis": 23341.790451034874
+  },
+  "sawtooth": {
+   "why": "RuntimeError: {\"error\": \"ValueError\", \"message\": \"the sawtooth needs the current channel: its trigger is q(0) < 1 and q is a result only where current diffusion is solved \\u2014 pass `current=True`, or drop the sawtooth\"}"
+  },
+  "density": {
+   "p_alpha": {
+    "last": 79761407.97749715,
+    "absmax": 79761407.97749715
+   },
+   "p_aux": {
+    "last": 33000000.0,
+    "absmax": 33000000.0
+   },
+   "p_aux_beam": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_aux_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_ohm": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_rad": {
+    "last": 24289894.577708162,
+    "absmax": 30309195.58476377
+   },
+   "j_bs": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_cd": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "t_ped": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "balance": {
+    "last": 1.821705872955272e-14,
+    "absmax": 8.557679639878009e-14
+   },
+   "te": {
+    "last": 3000.0,
+    "absmax": 32100.66543504082
+   },
+   "ti": {
+    "last": 3000.0,
+    "absmax": 29814.316909739042
+   },
+   "ne": {
+    "last": 7e+19,
+    "absmax": 7.82553901224918e+19
+   },
+   "q": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "v_loop_used": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "ip_psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "chi_neo": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "zeff": {
+    "last": 2.0,
+    "absmax": 2.0
+   },
+   "ni": {
+    "last": 7e+19,
+    "absmax": 7.82553901224918e+19
+   },
+   "ped_extrapolation": 0.0,
+   "saw_count": 0.0,
+   "settled": 0.0,
+   "dt_fraction_used": 0.375,
+   "balance_worst": 8.557679639878009e-14,
+   "te_axis": 32100.66543504082
+  },
+  "dt_target": {
+   "p_alpha": {
+    "last": 87667717.23364864,
+    "absmax": 87667717.23364864
+   },
+   "p_aux": {
+    "last": 33000000.0,
+    "absmax": 33000000.0
+   },
+   "p_aux_beam": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_aux_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_ohm": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "p_rad": {
+    "last": 35534554.128226526,
+    "absmax": 35534554.128226526
+   },
+   "j_bs": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_cd": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "j_lh": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "t_ped": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "balance": {
+    "last": 8.119166567200903e-15,
+    "absmax": 9.234749775196023e-14
+   },
+   "te": {
+    "last": 3000.0,
+    "absmax": 25421.88833021988
+   },
+   "ti": {
+    "last": 3000.0,
+    "absmax": 23511.523762407272
+   },
+   "ne": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "q": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "v_loop_used": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "ip_psi": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "chi_neo": {
+    "last": 0.0,
+    "absmax": 0.0
+   },
+   "zeff": {
+    "last": 2.0,
+    "absmax": 2.0
+   },
+   "ni": {
+    "last": 7e+19,
+    "absmax": 1e+20
+   },
+   "ped_extrapolation": 0.0,
+   "saw_count": 0.0,
+   "settled": 0.0,
+   "dt_fraction_used": 0.375,
+   "balance_worst": 9.234749775196023e-14,
+   "te_axis": 25421.88833021988
+  }
+ },
+ "changed_vs_baseline": {
+  "pedestal": {
+   "p_alpha": {
+    "baseline": 74526079.35553004,
+    "variant": 90307978.28292494,
+    "rel": 0.21176343991083488
+   },
+   "p_rad": {
+    "baseline": 34725311.697870076,
+    "variant": 35667655.3634431,
+    "rel": 0.027137082995019542
+   },
+   "t_ped": {
+    "baseline": 0.0,
+    "variant": 3618.2494152661484,
+    "rel": 3.6182494152661485e+303
+   },
+   "balance": {
+    "baseline": 1.154171733081163e-13,
+    "variant": 1.2980222679638417e-13,
+    "rel": 0.1246352953894106
+   },
+   "te": {
+    "baseline": 23341.790451034874,
+    "variant": 25239.696764630116,
+    "rel": 0.08130937160011635
+   },
+   "ti": {
+    "baseline": 21676.85624807026,
+    "variant": 23349.76617993151,
+    "rel": 0.0771749331506582
+   },
+   "balance_worst": {
+    "baseline": 1.154171733081163e-13,
+    "variant": 1.2980222679638417e-13
+   },
+   "te_axis": {
+    "baseline": 23341.790451034874,
+    "variant": 25239.696764630116
+   }
+  },
+  "current": {
+   "q": {
+    "baseline": 0.0,
+    "variant": 3.415492614343098,
+    "rel": 3.415492614343098e+300
+   },
+   "psi": {
+    "baseline": 0.0,
+    "variant": 36.57105128215723,
+    "rel": 3.657105128215723e+301
+   }
+  },
+  "density": {
+   "p_alpha": {
+    "baseline": 74526079.35553004,
+    "variant": 79761407.97749715,
+    "rel": 0.07024827640525318
+   },
+   "p_rad": {
+    "baseline": 34725311.697870076,
+    "variant": 30309195.58476377,
+    "rel": 0.127172828613578
+   },
+   "balance": {
+    "baseline": 1.154171733081163e-13,
+    "variant": 8.557679639878009e-14,
+    "rel": 0.2585436469638248
+   },
+   "te": {
+    "baseline": 23341.790451034874,
+    "variant": 32100.66543504082,
+    "rel": 0.37524434993021777
+   },
+   "ti": {
+    "baseline": 21676.85624807026,
+    "variant": 29814.316909739042,
+    "rel": 0.37539856188293924
+   },
+   "ne": {
+    "baseline": 1e+20,
+    "variant": 7.82553901224918e+19,
+    "rel": 0.21744609877508195
+   },
+   "ni": {
+    "baseline": 1e+20,
+    "variant": 7.82553901224918e+19,
+    "rel": 0.21744609877508195
+   },
+   "balance_worst": {
+    "baseline": 1.154171733081163e-13,
+    "variant": 8.557679639878009e-14
+   },
+   "te_axis": {
+    "baseline": 23341.790451034874,
+    "variant": 32100.66543504082
+   }
+  },
+  "dt_target": {
+   "p_alpha": {
+    "baseline": 74526079.35553004,
+    "variant": 87667717.23364864,
+    "rel": 0.17633609592456656
+   },
+   "p_rad": {
+    "baseline": 34725311.697870076,
+    "variant": 35534554.128226526,
+    "rel": 0.023304108466968385
+   },
+   "balance": {
+    "baseline": 1.154171733081163e-13,
+    "variant": 9.234749775196023e-14,
+    "rel": 0.1998807880571597
+   },
+   "te": {
+    "baseline": 23341.790451034874,
+    "variant": 25421.88833021988,
+    "rel": 0.08911475251003224
+   },
+   "ti": {
+    "baseline": 21676.85624807026,
+    "variant": 23511.523762407272,
+    "rel": 0.08463715832872859
+   },
+   "balance_worst": {
+    "baseline": 1.154171733081163e-13,
+    "variant": 9.234749775196023e-14
+   },
+   "te_axis": {
+    "baseline": 23341.790451034874,
+    "variant": 25421.88833021988
+   }
+  }
+ }
+}

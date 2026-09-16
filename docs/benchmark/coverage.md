@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-16
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**11** 条（19 %）
-- ★**MUST 级空缺 (open MUST)：42 条**
+- 已有记录覆盖 (covered)：**13** 条（22 %）
+- ★**MUST 级空缺 (open MUST)：40 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -137,7 +137,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-003` | MUST | 输运系数插件族与统一无量纲前端 | — | — | — |
-| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | 对拍 | 未判（读数） |
+| `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | 验证 · 对拍 | 未判（读数） · 未判（读数） |
 | `NR-TR-003` | MUST | 插件接入 | — | — | — |
 
 ## 输运 (Transport) · 求解范式：刚性稳定化与稳态通量匹配
@@ -157,9 +157,9 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-009` | MUST | 连续台基模型 | — | — | — |
+| `FR-TR-009` | MUST | 连续台基模型 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | 验证 | 未判（读数） |
 | `FR-TR-010` | MUST | 锯齿触发与 Kadomtsev 重分布 | — | — | — |
-| `FR-TR-014` | MUST | 0D 存量守恒（加料 / 抽气 / 衰变） | — | — | — |
+| `FR-TR-014` | MUST | 0D 存量守恒（加料 / 抽气 / 衰变） | [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 |
 
 ## 输运 (Transport) · 双模、平衡耦合与代理栈
 
@@ -217,12 +217,10 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-003` | 闭包插件面：输运系数与源项 | 输运系数插件族与统一无量纲前端 |
 | `FR-TR-006` | 求解范式：刚性稳定化与稳态通量匹配 | 耦合隐式块解（可选，候选 ADR） |
 | `FR-TR-007` | 求解范式：刚性稳定化与稳态通量匹配 | 稳态通量匹配 |
-| `FR-TR-009` | 台基、锯齿与 0D 存量 | 连续台基模型 |
 | `FR-TR-010` | 台基、锯齿与 0D 存量 | 锯齿触发与 Kadomtsev 重分布 |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `FR-TR-012` | 双模、平衡耦合与代理栈 | 平衡耦合接口 |
 | `FR-TR-013` | 双模、平衡耦合与代理栈 | NN 代理栈与权重外置 |
-| `FR-TR-014` | 台基、锯齿与 0D 存量 | 0D 存量守恒（加料 / 抽气 / 衰变） |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 | `NR-EQ-004` | 测量重构与约束阶梯 | 孪生实验可验证（可观测空间） |
 | `NR-EQ-005` | 前向自由边界与 Green 响应核 | 自包含数值核（无后端依赖） |
