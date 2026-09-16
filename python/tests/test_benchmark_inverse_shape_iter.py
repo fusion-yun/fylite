@@ -8,8 +8,9 @@ that sits from the requested curve) and the settings the shape turned out to nee
 
 ★The card carries NO supply rating, so the anneal is unbounded.  ``max_abs_MAt`` is therefore held as a band, not
 printed as a detail: without it a design may buy shape with current no coil set could carry (measured: the profile
-exponent ``enp`` = 0.5 reaches kappa 1.834 — the closest to target of any variant — by asking for 37.5 MA.t and
-never converging).
+exponent ``enp`` = 0.5 reaches kappa 1.834 — the closest to target of any variant — by asking for 37.5 MA.t and never
+converging; given FOUR TIMES the round budget it does not converge either, its residual RISES from 0.12 to 0.32, so
+that is instability, not a budget that was too small).
 
 No card or no kernel library: the gate SKIPS by name.
 """
@@ -30,9 +31,10 @@ UNHELD = ("notes", "seconds", "unbounded_because")
 #: closure, not an agreement with a second code: the target is the card's digitised reference separatrix, closed
 #: through its X-point corner (it is open there by 322 mm), and the METIS wall is injected as the limiter.
 V22_BAND = {"median_mm": 15.5, "p95_mm": 69.9, "max_mm": 124.0, "shape_error": 0.0308, "max_abs_MAt": 30.7}
-#: ★`emp` = 2 is the last setting that still CONVERGES: emp 3 scores slightly better on shape_error (0.0269)
-#: but exhausts its 600-round budget at residual 0.019, and `enp` 0.5 reaches the best kappa of all by asking
-#: for 37.5 MA.t and never settling.  The bands above are the converged design's.
+#: ★`emp` = 2 is the last setting that still CONVERGES: emp 3 scores slightly better on shape_error (0.0269) but
+#: exhausts its 600-round budget at residual 0.019, and `enp` 0.5 reaches the best kappa of all by asking for
+#: 37.5 MA.t and never settling — at 2400 rounds (4x, 938 s) its residual RISES to 0.32, so the non-convergence is
+#: the setting's, not the budget's.  The bands above are the converged design's.
 
 #: what the shape needs, and what it cannot have: kappa stays ~4 % below the target at every setting that keeps the
 #: currents physical; delta_lower likewise.  Held as a REading so that a future change is visible, not as a band.

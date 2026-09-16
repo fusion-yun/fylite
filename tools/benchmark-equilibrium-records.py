@@ -708,7 +708,7 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
                         "c4 位置控制**必须**让设定点跟踪 R0（`pc_track_r0 = 1`）——固定在目标面积质心时边界被 Shafranov 位移拉偏（rms 180 mm）；"
                         "边界格分数规则在此无效（与基线逐位同），与 EAST 相反",
                         caveat=["`emp = 2` 是最后一个仍**收敛**的设置：emp 3 的 shape_error 略好（0.0269）却 600 轮不收敛（残差 0.019）",
-                                "`enp = 0.5` 给出全场最好的 κ 1.834，代价是 37.5 MA·t 的电流且始终不收敛——形状分是用不存在的电流换的"]),
+                                "`enp = 0.5` 给出全场最好的 κ 1.834，代价是 37.5 MA·t 的电流且始终不收敛——形状分是用不存在的电流换的；" + "★给它 4 倍迭代预算（2400 轮、938 s）仍不收敛，残差反而由 0.12 升到 0.32：这是该设置本身不稳，不是预算不够"]),
                 finding("目标曲线与卡片的缺陷（读数）", "inconclusive",
                         f"参考分离面是数字化 METIS 曲线：{ip2['target_points']} 个有限点、相邻中位 {ip2['target_segment_median_mm']:.0f} mm，且在 X 点处**开口 {ip2['target_open_gap_mm']:.0f} mm**（本条按尖角 {ip2['target_closed_through']} 补齐）；"
                         f"卡片的两条限制器轮廓都不是真空室内区域（First Wall 止于 Z = −3.069，比目标最低点高 230 mm；Divertor 不含主等离子体），本条注入 fydoc 的 METIS 壁（57 点闭合）作限制器；"
@@ -880,12 +880,12 @@ REPORT_TEXT = {
     "V-22": {"not_comparable": ["- 没有参考侧：这张形状上没有任何可达的平衡件（TEQ / TOSCA 是指针，FreeGSNKE 无 ITER 机器），本条不是对拍。",
                                 "- 目标曲线是数字化件：248 点、相邻中位 67 mm、X 点处开口 322 mm（本条按尖角补齐）；它不是某个代码解出的平衡。",
                                 "- 卡片无供电额定，退火不守限；电流带只是实测设计值的替身，不是机器的能力。",
-                                "- κ 与 δ下 在保持收敛与电流不失真的前提下调不上去——解析剖面族的表达力边界，不是设计误差。"],
+                                "- κ 与 δ下 在保持收敛与电流不失真的前提下调不上去——解析剖面族的表达力边界，不是设计误差（把 enp 降到 0.5 能把 κ 推到 1.836，但那个解不收敛，四倍预算下残差反升）。"],
              "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYLITE_DEVICE_DIR=dist/facts/device/iter FYLITE_KERNEL_LIB=<当前内核库> \\",
                            "  uv run --no-project --with numpy --with scipy --with pyyaml --with matplotlib --with contourpy --with pytest \\",
                            "  python -m pytest python/tests/test_benchmark_inverse_shape_iter.py",
                            "# 读数重写：FYLITE_DEVICE_DIR=dist/facts/device/iter python tools/benchmark-equilibrium.py inverse-shape-iter --out docs/benchmark/readings"],
-             "conclusion": "成立（自洽）：ITER 参考分离面上，code/discharge 交出的设计把分离面放在离目标中位 15.4 mm（p95 69.8、最大 123.2）处，shape_error 0.0307，R0 · a · z0 · δ上 都贴目标；κ 与 δ下 差约 3 % 与 0.055，是解析剖面族的表达力边界。这条记录的真内容是设置：129² 盒、16 遍、c4 设定点跟踪 R0、目标按 X 点尖角补齐、注入 METIS 壁作限制器、emp = 2（最后一个仍收敛的设置）。"},
+             "conclusion": "成立（自洽）：ITER 参考分离面上，code/discharge 交出的设计把分离面放在离目标中位 15.4 mm（p95 69.8、最大 123.2）处，shape_error 0.0307，R0 · a · z0 · δ上 都贴目标；κ 与 δ下 差约 3 % 与 0.055，是解析剖面族的表达力边界。这条记录的真内容是设置：129² 盒、16 遍、c4 设定点跟踪 R0、目标按 X 点尖角补齐、注入 METIS 壁作限制器、emp = 2（最后一个仍收敛的设置）。★emp 3 与 enp 0.5 的形状分都出自不收敛的解；给 enp 0.5 四倍迭代预算（2400 轮、938 s）后残差反而由 0.12 升到 0.32，可见是设置本身不稳，不是预算不够。"},
     "B-21": {"not_comparable": ["- 两个代码解的不是同一个优化问题：目标函数、正则化与约束都不同；本条比的是**同一目标下各自交出的形状**，不是优化器。",
                                 "- 电流不可比作判据：逆问题在电流空间欠定（实测两组差 25.6 kA·t、正解出的平衡只差毫米级）；KEFIT 的电流也只是它自己的拟合结果。",
                                 "- 目标曲线是 KEFIT 的 69 点轮廓：粗（相邻点中位 48.5 mm）、上方止于 Z = +0.658（其上 X 点 +0.767）；公平窗口即为此设，两种读法都在读数件里。",
