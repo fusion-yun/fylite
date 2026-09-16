@@ -135,28 +135,11 @@ project:
         - title: 平衡 (Equilibrium) —— 磁面在哪里，算得准不准
           children:
             - file: benchmark/domains/eq/forward.md
-              children:
-                - file: benchmark/reports/eq-forward-boundary-rule-vs-kefit.md
-                - file: benchmark/reports/eq-forward-chease-solovev.md
-                - file: benchmark/reports/eq-forward-kefit-east137985.md
-                - file: benchmark/reports/eq-forward-solovev-fixed-boundary.md
             - file: benchmark/domains/eq/surface.md
-              children:
-                - file: benchmark/reports/eq-surface-chease-fixed-boundary-east.md
             - file: benchmark/domains/eq/evolve.md
-              children:
-                - file: benchmark/reports/eq-evolve-analytic-circuit-limits.md
             - file: benchmark/domains/eq/inverse.md
-              children:
-                - file: benchmark/reports/eq-inverse-freegsnke-east137985.md
-                - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
             - file: benchmark/domains/eq/reconstruct.md
-              children:
-                - file: benchmark/reports/eq-reconstruct-kefit-twin.md
-                - file: benchmark/reports/eq-reconstruct-twin-truth-recovery.md
             - file: benchmark/domains/eq/convention.md
-              children:
-                - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
 
         - title: MHD 稳定性 (Stability) —— 这个位形稳不稳
           children:
@@ -170,11 +153,31 @@ project:
             - file: benchmark/domains/tr/equations.md
             - file: benchmark/domains/tr/closure.md
             - file: benchmark/domains/tr/paradigm.md
-              children:
-                - file: benchmark/reports/tr-paradigm-pereverzev.md
             - file: benchmark/domains/tr/pedestal.md
             - file: benchmark/domains/tr/coupling.md
             - file: benchmark/domains/tr/conservation.md
+
+
+        #: ★★2026-09-16 用户裁定「报告挂在校验册下」：逐条报告从**各章的子节点**提到
+        #: 篇下的一个**平级分组**。原先挂在第四层（篇 → 组 → 域章 → 报告），侧边栏默认收起，
+        #: 读者看不见。★代价照实记：报告与它所属的域，在 toc 上不再有父子关系——
+        #: 这层关系改由**正文**承担（各章的「本域的记录」表逐条链过去，由
+        #: `test_the_prose_actually_points_at_the_reports` 守着）。
+        #: ★组内按**域树**排序，不按字母：平衡六域 → MHD 四域 → 输运六域，与书的轴一致。
+        - title: 逐条报告 (Reports) —— 一条记录一份，固定六节
+          children:
+            - file: benchmark/reports/eq-forward-boundary-rule-vs-kefit.md
+            - file: benchmark/reports/eq-forward-chease-solovev.md
+            - file: benchmark/reports/eq-forward-kefit-east137985.md
+            - file: benchmark/reports/eq-forward-solovev-fixed-boundary.md
+            - file: benchmark/reports/eq-surface-chease-fixed-boundary-east.md
+            - file: benchmark/reports/eq-evolve-analytic-circuit-limits.md
+            - file: benchmark/reports/eq-inverse-freegsnke-east137985.md
+            - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
+            - file: benchmark/reports/eq-reconstruct-kefit-twin.md
+            - file: benchmark/reports/eq-reconstruct-twin-truth-recovery.md
+            - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
+            - file: benchmark/reports/tr-paradigm-pereverzev.md
 
     - file: ACKNOWLEDGEMENTS.md
 site:
