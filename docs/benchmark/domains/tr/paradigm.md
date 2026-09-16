@@ -72,7 +72,7 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 
 | 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-paradigm-pereverzev`](../records/tr-paradigm-pereverzev.jsonld) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.0 | 草稿 |
+| [`tr-paradigm-pereverzev`](../../records/tr-paradigm-pereverzev.jsonld) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.0 | 草稿 |
 
 ### 缺口
 

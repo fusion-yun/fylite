@@ -318,10 +318,15 @@ def test_the_tree_on_disk_is_the_tree_the_readme_declares():
     top_md = sorted(p.name for p in BM.iterdir() if p.suffix == ".md")
     assert top_md == ["README.md", "coverage.md", "status.md"], top_md
 
-    #: 三、盘上每个目录都要在 README 里露过面
-    groups = {g["id"] for g in read("domains.jsonld")["group"]}
+    #: 三、盘上每个目录都要在 README 的**树状图**里露过面
+    #: ★★2026-09-16 收紧过一次：原先只查 `f"{d}/" in readme`，于是 `domains/` 靠着表格里
+    #: 那行 `meta/domains.jsonld` 的子串**蒙混过关**——当时树状图写的还是 `eq/ · mhd/ · tr/`，
+    #: 早就不对了，闸子却是绿的。**一条能被子串蒙过的断言，等于没有这条断言。**
+    #: 现在只在树状图那一段里找，且要求它是行首的那个条目。
+    tree = readme.split("```")[1] if "```" in readme else ""
     for d in sorted(p.name for p in BM.iterdir() if p.is_dir()):
-        assert d in groups or f"{d}/" in readme, f"目录 {d}/ 在盘上却没在 README 的目录表里"
+        assert re.search(rf"^[├└]── {re.escape(d)}/", tree, re.M), \
+            f"目录 {d}/ 在盘上却没在 README 的树状图里"
 
     #: 四、README 写的 meta/ 路径都要真的在
     for ref in sorted(set(re.findall(r"`(meta/[A-Za-z0-9_.-]+)`", readme))):

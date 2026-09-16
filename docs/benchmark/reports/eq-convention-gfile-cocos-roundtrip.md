@@ -6,7 +6,7 @@ title: "eq-convention-gfile-cocos-roundtrip"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-convention-gfile-cocos-roundtrip.jsonld`，本页只是它的可读面。 -->
 
-*平衡 (Equilibrium) · [约定与口径：COCOS 与插件接入](../eq/convention.md)　|　记录正本：`records/eq-convention-gfile-cocos-roundtrip.jsonld`*
+*平衡 (Equilibrium) · [约定与口径：COCOS 与插件接入](../domains/eq/convention.md)　|　记录正本：`records/eq-convention-gfile-cocos-roundtrip.jsonld`*
 
 ## 摘要
 

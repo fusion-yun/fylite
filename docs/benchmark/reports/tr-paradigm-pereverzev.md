@@ -6,7 +6,7 @@ title: "tr-paradigm-pereverzev"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/tr-paradigm-pereverzev.jsonld`，本页只是它的可读面。 -->
 
-*输运 (Transport) · [求解范式：刚性稳定化与稳态通量匹配](../tr/paradigm.md)　|　记录正本：`records/tr-paradigm-pereverzev.jsonld`*
+*输运 (Transport) · [求解范式：刚性稳定化与稳态通量匹配](../domains/tr/paradigm.md)　|　记录正本：`records/tr-paradigm-pereverzev.jsonld`*
 
 ## 摘要
 

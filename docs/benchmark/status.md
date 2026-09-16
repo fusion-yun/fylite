@@ -46,22 +46,22 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](eq/forward.md) | 4 | 2 | 4 | 2 | 1 | 0 |
-| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [演化自由边界与涡流电路](eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [测量重构与约束阶梯](eq/reconstruct.md) | 8 | 1 | 2 | 2 | 0 | 0 |
-| 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 0 |
-| MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](mhd/vertical.md) | 3 | 0 | 0 | 0 | 0 | 0 |
-| MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
-| MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](mhd/energy.md) | 7 | 0 | 0 | 0 | 0 | 0 |
-| MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [方程组求解与边界条件](tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [闭包插件面：输运系数与源项](tr/closure.md) | 3 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
-| 输运 (Transport) | [台基、锯齿与 0D 存量](tr/pedestal.md) | 3 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [双模、平衡耦合与代理栈](tr/coupling.md) | 3 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [守恒、金标 parity 与口径](tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 2 | 4 | 2 | 1 | 0 |
+| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 1 | 2 | 2 | 0 | 0 |
+| 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 0 |
+| MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 0 | 0 | 0 | 0 | 0 |
+| MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
+| MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](domains/mhd/energy.md) | 7 | 0 | 0 | 0 | 0 | 0 |
+| MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
+| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
 
 ## 记录明细 (records)
 

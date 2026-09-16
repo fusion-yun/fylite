@@ -6,7 +6,7 @@ title: "eq-evolve-analytic-circuit-limits"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-evolve-analytic-circuit-limits.jsonld`，本页只是它的可读面。 -->
 
-*平衡 (Equilibrium) · [演化自由边界与涡流电路](../eq/evolve.md)　|　记录正本：`records/eq-evolve-analytic-circuit-limits.jsonld`*
+*平衡 (Equilibrium) · [演化自由边界与涡流电路](../domains/eq/evolve.md)　|　记录正本：`records/eq-evolve-analytic-circuit-limits.jsonld`*
 
 ## 摘要
 

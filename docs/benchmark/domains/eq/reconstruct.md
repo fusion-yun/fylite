@@ -69,8 +69,8 @@ $q_0$。能判的只有一件事：**各自的解正过来预测测量，与实�
 
 | 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-reconstruct-kefit-twin`](../records/eq-reconstruct-kefit-twin.jsonld) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 |
-| [`eq-reconstruct-twin-truth-recovery`](../records/eq-reconstruct-twin-truth-recovery.jsonld) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 |
+| [`eq-reconstruct-kefit-twin`](../../records/eq-reconstruct-kefit-twin.jsonld) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 |
+| [`eq-reconstruct-twin-truth-recovery`](../../records/eq-reconstruct-twin-truth-recovery.jsonld) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 |
 
 ### 缺口
 

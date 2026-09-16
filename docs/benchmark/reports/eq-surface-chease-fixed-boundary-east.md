@@ -6,7 +6,7 @@ title: "eq-surface-chease-fixed-boundary-east"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-surface-chease-fixed-boundary-east.jsonld`，本页只是它的可读面。 -->
 
-*平衡 (Equilibrium) · [磁面几何、全局量与形状表示](../eq/surface.md)　|　记录正本：`records/eq-surface-chease-fixed-boundary-east.jsonld`*
+*平衡 (Equilibrium) · [磁面几何、全局量与形状表示](../domains/eq/surface.md)　|　记录正本：`records/eq-surface-chease-fixed-boundary-east.jsonld`*
 
 ## 摘要
 

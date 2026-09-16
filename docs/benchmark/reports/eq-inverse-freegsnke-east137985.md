@@ -6,7 +6,7 @@ title: "eq-inverse-freegsnke-east137985"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-inverse-freegsnke-east137985.jsonld`，本页只是它的可读面。 -->
 
-*平衡 (Equilibrium) · [静态逆解：形状到线圈电流](../eq/inverse.md)　|　记录正本：`records/eq-inverse-freegsnke-east137985.jsonld`*
+*平衡 (Equilibrium) · [静态逆解：形状到线圈电流](../domains/eq/inverse.md)　|　记录正本：`records/eq-inverse-freegsnke-east137985.jsonld`*
 
 ## 摘要
 

@@ -181,6 +181,8 @@ def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
             L.append("")
 
     # ——— 本域的记录
+    #: ★指回 records/ 的相对深度由 `d["path"]` 算出，不写死：
+    #: 章页 2026-09-16 从 `eq/forward.md` 搬到 `domains/eq/forward.md`，写死的 `../` 当场指错。
     L += ["### 本域的记录", ""]
     if mine:
         L += ["| 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |",
@@ -188,7 +190,8 @@ def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
         for r in sorted(mine, key=lambda x: x["id"]):
             p = r.get("provenance", {})
             refs = " · ".join(x.get("name", "?") for x in (r.get("compared_reference") or []))
-            L.append(f"| [`{r['id'].split('/')[-1]}`](../records/{r['_file']}) "
+            up = "../" * (len(pathlib.PurePosixPath(d["path"]).parts) - 1)
+            L.append(f"| [`{r['id'].split('/')[-1]}`]({up}records/{r['_file']}) "
                      f"| {KIND_ZH.get(r.get('comparison_kind'), '?')} "
                      f"| {VERDICT_ZH.get(r.get('overall_verdict'), '?')} "
                      f"| {cell(refs) or '—'} "

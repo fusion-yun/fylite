@@ -6,7 +6,7 @@ title: "eq-reconstruct-kefit-twin"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-reconstruct-kefit-twin.jsonld`，本页只是它的可读面。 -->
 
-*平衡 (Equilibrium) · [测量重构与约束阶梯](../eq/reconstruct.md)　|　记录正本：`records/eq-reconstruct-kefit-twin.jsonld`*
+*平衡 (Equilibrium) · [测量重构与约束阶梯](../domains/eq/reconstruct.md)　|　记录正本：`records/eq-reconstruct-kefit-twin.jsonld`*
 
 ## 摘要
 

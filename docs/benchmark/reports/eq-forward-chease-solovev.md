@@ -6,7 +6,7 @@ title: "eq-forward-chease-solovev"
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/eq-forward-chease-solovev.jsonld`，本页只是它的可读面。 -->
 
-*平衡 (Equilibrium) · [前向自由边界与 Green 响应核](../eq/forward.md)　|　记录正本：`records/eq-forward-chease-solovev.jsonld`*
+*平衡 (Equilibrium) · [前向自由边界与 Green 响应核](../domains/eq/forward.md)　|　记录正本：`records/eq-forward-chease-solovev.jsonld`*
 
 ## 摘要
 

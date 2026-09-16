@@ -42,9 +42,9 @@ comparable.
 
 | 组 | 章 | 上游 | 答什么 |
 | :--- | ---: | :--- | :--- |
-| [平衡 (Equilibrium)](eq/forward.md) | 6 | `FYTOK-SRS-03` · fyeq | 磁面在哪里，算得准不准 |
-| [MHD 稳定性 (Stability)](mhd/vertical.md) | 4 | `FYTOK-SRS-03` · fyeq | 这个位形稳不稳 |
-| [输运 (Transport)](tr/equations.md) | 6 | `FYTOK-SRS-04` · fytrans | 剖面怎么演化，闭包对不对 |
+| [平衡 (Equilibrium)](domains/eq/forward.md) | 6 | `FYTOK-SRS-03` · fyeq | 磁面在哪里，算得准不准 |
+| [MHD 稳定性 (Stability)](domains/mhd/vertical.md) | 4 | `FYTOK-SRS-03` · fyeq | 这个位形稳不稳 |
+| [输运 (Transport)](domains/tr/equations.md) | 6 | `FYTOK-SRS-04` · fytrans | 剖面怎么演化，闭包对不对 |
 
 ★**MHD 稳定性单列一组，虽然它在 SRS 里属 fyeq**。它是三十七条 EQ 需求里的十八条，
 篇幅与另两组相当，而它问的是另一个问题：位形稳不稳，不是平衡算不算得准。
@@ -131,7 +131,7 @@ SRS-04 的验证矩阵里没有它的行）。没有判据就无从验起——�
 docs/benchmark/
 ├── README.md                  ← 你在读的这页
 ├── coverage.md · status.md    ← 两张生成件
-├── eq/ · mhd/ · tr/           ← 三组十六章，一章一页散文
+├── domains/                   ← 三组十六章，一章一页散文（`eq/` `mhd/` `tr/`）
 ├── reports/                   ← 逐条报告：一条记录一份，★由记录生成
 ├── summary/                   ← 收敛说明：一轮一页，手写
 ├── records/                   ← 记录：一条一个文件（正本）
@@ -141,7 +141,7 @@ docs/benchmark/
 
 | 路径 | 装什么 | 谁写 |
 | :--- | :--- | :--- |
-| `<组>/<域>.md` | 十六章：这一域对着谁量到多少 | 散文手写 + 生成块 |
+| `domains/<组>/<域>.md` | 十六章：这一域对着谁量到多少 | 散文手写 + 生成块 |
 | `coverage.md` | 需求 × 记录，空行即缺口 | ★生成 |
 | `status.md` | 版本 / 评审 / 内核 / 新鲜度 | ★生成 |
 | `reports/<ID>.md` | 逐条报告：固定六节，一条记录一份 | ★生成 |
