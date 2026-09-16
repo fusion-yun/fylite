@@ -7,105 +7,100 @@ title: "V&V 登记册 (The V&V Register)"
 这里回答一个问题：**fylite 对着外部答案量过什么，各自量到多少。**
 
 源码不公开，所以「我们测过了」这句话本身没有分量——能替代它的只有**可复算的
-记录**：输入是什么、参考是谁、判据是什么、量到多少、哪一部分不可比。本目录存
-的就是这个，一条一条。
+记录**：输入是什么、参考是谁、判据是什么、量到多少、哪一部分不可比。
 
 The kernel's source is not published, so "we tested it" carries no weight on
 its own. What replaces it is a **recomputable record**: the inputs, the
 reference, the criterion, the measured number, and the part that is not
-comparable. That is what this directory holds.
+comparable.
 
-★★**本目录是渲染件，不是手写件**。真源是内核仓的登记册
-`docs/cases/registry.jsonld`；内核仓的 `tools/benchmark-publish.py` 把它渲染到这里：
-同一批记录，仓内指针改为仓外地址（`$FYLITE_KERNEL/…` 私仓检出、`$FYDOC_ORACLE/…`
-参考库），每项参考数据标**纳入类别** 与 **sha256**，并给每条记录追加一条 finding——
-发布当日把它的门跑一遍的结果（`finding_kind: re-run…`）。改记录要改真源再重渲染。
+:::{warning}
+★★★**本册 2026-09-16 重起**（用户裁定）。上一本在 `docs/benchmark-legacy/`：
+**已移出版本控制**，磁盘留一份仅供查阅，不再维护、不入站点、不接受新记录。
 
-## 两半
+★**目录名沿用，语义已变**。十余处跨仓引用（`FYL-SDD-01/-02/-07/-08/-09` ·
+`FYL-CONOPS-00` · 内核 `docs/cases/registry.jsonld` · fydoc `FYDOC-CASE-23` 页）
+硬编码着 `docs/benchmark/`，沿用原名是为了不打断它们——但它们指向的**是这本新册**。
+读旧册的记录编号（`B-01`..`V-23`）时，注意那是上一套编号体系，与本册的编号不通用。
 
-| | 装什么 | 谁读 |
+★旧册退役的代价，如实记：已发布站点的 54 个报告 URL 失效；随它一并退役的还有
+物理校验册（`benchmark/physics/` 8 页）与仓根 `BENCHMARK.md`。**判据库本身没有退役**
+——`fylite.engine.physics` 的判据仍由 `python/tests/test_physics_checks.py` 等六个
+门守着，只是不再产出一本给人读的册子。
+:::
+
+## 为什么重起：旧册的记录追溯不到需求
+
+实测旧册 52 条记录里，`FR-*` / `NR-*` **零命中**——没有一条说得出"我在验哪条需求"。
+于是"覆盖够不够"只能靠人工比对需求表，而人工比对每次给的答案都不一样。派生的毛病
+（真源两处、索引手写漏条、`scenario` 30/52、sha256 40/52）都是同一个缺失的下游。
+
+## 组织轴：需求，不是目录
+
+本册挂在 **FYTOK 的组件需求树**上，不另造分类：
+
+| 模块 | 需求域 | 上游 SRS |
 | :--- | :--- | :--- |
-| [`registry.jsonld`](registry.jsonld) | 机器可读的登记册，一条记录一份 `fyo:ComparisonRecord`（fyo / spo 词汇，FYO-ADR-08） | 程序 |
-| [`reports/`](reports/) | 每条记录的散文报告：口径对齐、逐项数、结论 | 人 |
-| [`scenarios/`](scenarios/) | 对拍场景（`fyo:ScenarioSpecification`，无代码的场景规格）——记录的 `scenario` 指向它 | 两者 |
-| [`reports/README.md`](reports/README.md) | 索引：每条记录一行——类、参考、纳入类别、登记册结论、复测结论、报告 | 人 |
-| [`context.jsonld`](context.jsonld) | fyo / spo 词汇的 JSON-LD `@context`（与内核仓登记册同一份） | 程序 |
-| [`plan/`](plan/) | **验证定序册**（手写）：按物理依赖排的算例与阻塞关系——`README.md` 是执行流程（可作提示词整篇交给模型），`SUMMARY.md` 一页汇总，`plan.jsonld` 机读 | 两者 |
+| **fyeq** 平衡求解器 | `FR-EQ-001..031` · `NR-EQ-001..006` | `FYTOK-SRS-03` |
+| **fytrans** 输运求解器 | `FR-TR-001..014` · `NR-TR-001..006` | `FYTOK-SRS-04` |
 
-## 三类记录，不要混
+需求树的快照在 [`requirements.jsonld`](requirements.jsonld)（57 条，含 id / 标题 /
+MUST-SHOULD 级别 / 上下游）。★**那是快照不是真源**：需求的真源是 fytok 仓的 SRS，
+本册只抄来做追溯，SRS 改了要重抽。
 
-判据与可信度都不同。混称会让读者高估其中一类。
+**判据来自 SRS 自己的〈验证基准〉节，不是本册另立的标准**：
+
+- `FYTOK-SRS-03`：前向链 **MUST** 以 Solov'ev 解析平衡为基准（`NR-EQ-002` 深内点容差）；
+  重构链 **MUST** 以孪生实验在**可观测空间**验证（`NR-EQ-004`）。
+- `FYTOK-SRS-04`：**制造解** MUST 验收敛阶与大 $\Delta t$ 稳定；**金标 parity** MUST 对
+  FUSE.jl / TORAX 逐模块（`NR-TR-002`）；**守恒回归** MUST 到 $10^{-12}$（`NR-TR-001`）。
+
+★注意 `NR-EQ-004` 要的是**可观测空间**的度量。旧册的孪生记录主判据是内部量，这条
+一直是记名缺口——按需求组织之后，这类偏差会自己显形，不必等人想起来。
+
+## 编号：按需求编址
+
+`<域>-<需求号>-<短名>`，例如 `EQ-001-forward-solovev` · `EQ-016-vstab-rigid` ·
+`TR-007-flux-matching`。
+
+★**三类记录降为属性，不再当编号用**。旧册的 `B-` / `C-` / `V-` 前缀把"类别"编进了
+标识，于是一条记录改类就要改号。本册写进记录的 `comparison_kind` 字段：
 
 | 类 | 问的是 | 参考是什么 | 容差取法 |
 | :--- | :--- | :--- | :--- |
-| **V — 验证** verification | 这段代码算的是不是它声称的那个函数 | 同一函数的另一实现，或解析解 | **机器精度**（1e-9 或更严）——物理带会掩盖变形 |
-| **B — 对拍** benchmark | 两套**不同模型** 在同一状态上给的数差多少 | 另一个码的一次运行 | **实测后定带**（取法：盆地内最劣值，三位有效数字向上取，2026-09-14 裁定），并写明差在哪一笔 |
-| **C — 确认** validation | 模型对不对得上**实验或权威参考算例** | 实验数据 / 机构参考算例 | 物理带，取参考自报精度 |
+| **verification** 验证 | 这段代码算的是不是它声称的那个函数 | 同一函数的另一实现，或解析解 | 机器精度 |
+| **benchmark** 对拍 | 两套**不同模型**在同一状态上给的数差多少 | 另一个码的一次运行 | 实测后定带 |
+| **validation** 确认 | 模型对不对得上**实验或权威参考算例** | 实验数据 / 机构参考算例 | 物理带，取参考自报精度 |
 
-★**一条记录属于哪一类，由「参考是什么」决定，不由做得多认真决定。** 把 B 说成
-V 是最常见的夸大：两套模型吻合到 1 % 不等于移植正确——两个错误也能互相抵消。
+★**一条记录属于哪一类，由「参考是什么」决定，不由做得多认真决定。** 把对拍说成验证
+是最常见的夸大：两套模型吻合到 1 % 不等于移植正确——两个错误也能互相抵消。
 
-★同理，**V 不能替 C 用**：「我们和另一个码算得一样」（验证）与「该信这个模型」
-（确认）是两句话。一条记录只回答它自己那一句。
+## 一条记录必须自带的五样
 
-## 一条记录必须自带的四样
-
-缺任何一样，这条记录以后就不可复算，只能当传说：
+前四样承自旧册（那部分是对的），第五样是本册新加的：
 
 1. **输入** ——不是只有答案。读者要能看出「问的是什么问题」；
 2. **出处** ——上游包名、版本、文件名与 **sha256**；一次运行还要记日期；
-3. **口径** ——单位、坐标标签、符号约定（COCOS），以及**径向标签**
-   （`ρ` 还是 Miller `r`——这一条最常咬人）；
-4. **不可比的部分** ——参考解了哪几道方程、哪些量是**喂进去的** 而不是算出来的。
+3. **口径** ——单位、坐标标签、符号约定（COCOS），以及**径向标签**（`ρ` 还是 Miller `r`）；
+4. **不可比的部分** ——参考解了哪几道方程、哪些量是**喂进去的**而不是算出来的；
+5. ★**需求** ——`requirement[]` 列出它验的需求号。**缺这一项的记录不收**，因为
+   一条不知道自己在验什么的记录，无法回答"覆盖够不够"。
 
-## 什么能进这个公开登记册
+## 目录
 
-判据是**读者能不能自己把参考侧重新取得一遍** ——它决定的是记录的**纳入类别**，
-不决定记录进不进来。受限参考**也收录**，但** 只收指针**——路径、sha256、许可、类别——本体
-不在任何公开仓。受限参考不从册里拿掉，因为把一条比较从公开册里拿掉，
-隐藏的是「这条比较存在」这个事实本身，而那正是读者最该知道的。
-
-| 纳入类别 | 参考是什么 | 公开册里有什么 |
+| | 装什么 | 谁写 |
 | :--- | :--- | :--- |
-| `public` | 上游**公开发布** 的算例与答案（GACODE、TORAX、FUSE、fusion_surrogates…）、解析解、已发表的表 | 包名、版本、sha256——存指针不存本体 |
-| `public-derived` | 由公开上游产物经本仓工具转换的表（METIS 认证表、GACODE 库的录音） | 同上，外加转换脚本名 |
-| `restricted` | 受限许可的源码 / 二进制的输出（JINTRAC 运行树、ITER 参考算例、离仓求解器的录音） | **仅指针**：`$FYDOC_ORACLE` 下的路径、sha256、许可 |
-| `restricted-derived` | 表值由受限运行的产物派生（答案侧可复取，输入侧不可） | 仅指针 |
-| `experiment` | 实验炮与装置数据，未经数据属主同意不可再分发 | 仅指针 |
-| `private-artefact` | 内核仓的制品（神经权重导出件、导出脚本） | `$FYLITE_KERNEL` 指针 + sha256 |
+| `requirements.jsonld` | 需求树快照（57 条） | 自 SRS 抽取 |
+| `records/<ID>.jsonld` | 一条记录一个文件 | 人 + 工具 |
+| `records/retired/` | 退役记录，不压在阅读路径上 | — |
+| `readings/<ID>.json` | 该记录的读数 | 门或工具产出 |
+| `reports/<ID>.md` | 散文报告 | ★生成 |
+| `coverage.md` | 每条需求 → 覆盖它的记录 / 门 / 判词 | ★生成 |
+| `index.jsonld` | 薄索引 | ★生成 |
+| `context.jsonld` | fyo / spo 词汇 | 承自旧册 + 5 个新项 |
 
-★读者复算得了的只有 `public` / `public-derived` 两类；其余四类，公开册能保证的是
-「这条比较存在、参考是哪一份（sha256）、门叫什么、发布当日跑成什么样」。这不是
-遗漏，是纳入类别在起作用：一条记录说清自己属于哪一类，比不出现在册子里诚实。
+★**一条记录一个文件**，不再是一份 481 KB 的 `registry.jsonld`：那样改一条记录的 diff
+会扫全库、并发改必冲突。
 
-参考库 `$FYDOC_ORACLE` 是 fydoc 仓（私有）的 `cases/` 树；本仓与内核仓各以一条
-符号链接 `tests/data -> …/fydoc/cases` 挂载它（`.gitignore` 说明了建法）。
-
-## 怎么读一条记录
-
-先看 `comparison_kind`（V/B/C）与 `compared_reference` 里谁是参考——这两项决定了
-后面每个数该怎么读。再看 `criteria`：`tolerance_basis` 是 `machine_precision` 还是
-`measured_band`，差别是「这是判据」还是「这是实测后记下来的现状」。再看 `findings`：
-前面各条是登记册**量到的**，末条 `re-run…` 是** 发布当日门跑出来的**——两者分开记，
-一条记录可以「登记册成立、复测未评估」（门跳过或陈旧）。最后看 `run.has_input[]`
-每项的 `license`（纳入类别）与 `checksum`。`caveat` 不是免责声明，是**记录的一部分**。
-
-报告体例见 [`reports/TEMPLATE.md`](reports/TEMPLATE.md)；渲染出的报告按同一体例，
-§2 只照录登记册随记录携带的口径说明（四行表的完整账在私仓账本）。
-
-## 复算
-
-```python
-from fylite.engine import benchmark as bm
-bm.records()                     # 列出记录：类、登记册结论、复测结论、纳入类别
-bm.load("V-01")                  # 一条记录（JSON-LD）
-[bm.problems(r, bm.registry_dir()) for r in bm.graph()]   # 结构检查（与 test_public_register.py 同一函数）
-bm.gate_plan(bm.load("V-01"), bm.kernel_checkout())       # 这条记录的门在哪跑、哪些跑不了
-bm.run("V-01")                   # 在私仓检出里跑它的 pytest 门（$FYLITE_KERNEL）
-```
-
-每条记录的 `run.realizes[]` 指明哪些闸子把它钉住。`$FYLITE_KERNEL/tests/…` 的门在内核
-检出里跑（store 挂在 `tests/data`）；`app/tests/…` 的门在本仓用 node + playwright 跑；
-`$FYLITE_KERNEL/rust/…` 的门是 `cargo test`。没有内核检出的读者能做的是：按 `scenario`
-与 `criteria` 用自己的工具重跑参考侧，再与 `findings` 对。**对不上就开一个 issue** ——
-这正是这个登记册公开的意义。
+★**生成件不手改**。`coverage.md` 手写过一次就会漏——旧册的 `reports/README.md`
+漏掉最后一条记录，正是因为它是手维护的索引。

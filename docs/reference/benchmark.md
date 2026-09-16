@@ -17,7 +17,23 @@ title: 物理校验 (Physics checks — what a product is judged against)
 | :--- | :--- | :--- | :--- |
 | 算例语料 | 这套代码跑什么 | —— | `cases/` |
 | 公开 V&V 登记册 | 对着外部答案量到多少 | 另一个码、解析解、实验 | `benchmark/` |
-| **物理校验册** | **这份产出自洽吗** | **物理定律与文档自身的定义** | `benchmark/physics/` |
+| **本页：物理校验判据** | **这份产出自洽吗** | **物理定律与文档自身的定义** | `fylite.engine.physics` |
+
+:::{warning}
+★★★**2026-09-16：物理校验**册子**退役，判据库留下。**（用户裁定）
+
+退役的是那本给人读的册子——`benchmark/physics/` 的 8 页、仓根 `BENCHMARK.md` 与
+`tools/benchmark-run.py --write` 的产出面，它们随旧 V&V 册一并移入
+`docs/benchmark-legacy/` 并移出版本控制。
+
+**没有退役的是本页描述的判据本身**：`fylite.engine.physics` 的 1104 行判据仍然有效，
+由 `python/tests/test_physics_checks.py`（14 条）、`test_physics_suite.py`、
+`test_posterior_checks.py` 以及三个外部平衡档（TEQ / TOSCA / CHEASE）守着。
+**它们从此只作为测试判据存在，不再产出一本册子。**
+
+★所以本页仍然准确——它讲的是判据的公式、容差与来路，那些没有变；变的只是
+"这些判据的结果会被写成一本册子"这件事不再发生。
+:::
 
 ## 三类判据，读法不同
 

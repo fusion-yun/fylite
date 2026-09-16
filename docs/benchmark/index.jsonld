@@ -1,0 +1,17 @@
+{
+ "@context": "context.jsonld",
+ "id": "benchmark/index",
+ "type": "spo:InformationContentEntity",
+ "title": {
+  "zh": "本册记录索引",
+  "en": "Index of records"
+ },
+ "recorded": "2026-09-16",
+ "statistics": {
+  "requirements": 57,
+  "covered": 0,
+  "open_must": 52,
+  "records": 0
+ },
+ "record": []
+}

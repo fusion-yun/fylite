@@ -95,88 +95,17 @@ project:
             - file: reference/report-template.md
             - file: reference/case-report.md
 
-    - title: 校验册 (V&V) —— 量过什么，量到多少
-      #: ★★三本子册各答一问：**登记册**对外部答案，
-      #: **物理校验册**对定律与文档自身的定义，**定序册**说先后与阻塞。
-      #: ★逐案 `.jsonld` 与 `registry.jsonld` **不入 toc**：它们是机器读的记录，
-      #: 按路径被门禁引用；入册的是给人读的那一半。
+
+    - title: 校验册 (V&V) —— 对着外部答案量到多少
+      #: ★★2026-09-16 重起（用户裁定）。上一本在 `docs/benchmark-legacy/`：已移出版本控制、
+      #: 不入 toc、仅供查阅。本册按 FYTOK-SRS-03/04 的**需求树**组织，不按目录。
+      #: ★逐条记录 `records/*.jsonld`、`requirements.jsonld`、`index.jsonld` **不入 toc**：
+      #: 它们是机器读的那一半，按路径被门禁引用；入册的是给人读的那一半。
       children:
         - file: benchmark/README.md
-        - title: 对拍报告 (Comparison reports)
-          children:
-            - file: benchmark/reports/README.md
-            #: ★模板也入册：它是写下一条记录的人要照抄的那一页。
-            - file: benchmark/reports/TEMPLATE.md
-            - file: benchmark/reports/B-01-fuse-iter.md
-            - file: benchmark/reports/B-02-jintrac-iter-102530.md
-            - file: benchmark/reports/B-03-jintrac-jet-101612.md
-            - file: benchmark/reports/B-04-metis-zerod-geometry.md
-            - file: benchmark/reports/B-05-torax-evolution.md
-            - file: benchmark/reports/B-06-east-reconstruction.md
-            - file: benchmark/reports/B-07-tgyro-converged.md
-            - file: benchmark/reports/B-08-fuse-iter-time.md
-            - file: benchmark/reports/B-09-dina-ramp.md
-            - file: benchmark/reports/B-10-chease-fixed-boundary.md
-            - file: benchmark/reports/B-11-east-efit-east-reconstruction.md
-            - file: benchmark/reports/B-12-east-raw-trees-kefit.md
-            - file: benchmark/reports/B-14-forward-kefit.md
-            - file: benchmark/reports/B-15-twin-kefit.md
-            - file: benchmark/reports/B-16-fixed-boundary-chease.md
-            - file: benchmark/reports/B-17-wall-freegsnke.md
-            - file: benchmark/reports/B-18-vertical-instability-freegsnke.md
-            - file: benchmark/reports/B-19-wall-efund.md
-            - file: benchmark/reports/B-20-vertical-instability-efund.md
-            - file: benchmark/reports/B-21-inverse-shape-freegsnke.md
-            - file: benchmark/reports/C-01-iter-15ma-astra.md
-            - file: benchmark/reports/C-02-alpha-heating-astra.md
-            - file: benchmark/reports/C-03-toksys-rzrig.md
-            - file: benchmark/reports/C-04-metis-hcd.md
-            - file: benchmark/reports/C-05-gyro-momentum-waltz2007.md
-            - file: benchmark/reports/C-06-teq-iter-equilibria.md
-            - file: benchmark/reports/C-07-tosca-run-space.md
-            - file: benchmark/reports/C-09-itpa-tc33.md
-            - file: benchmark/reports/C-10-transmak-initiation.md
-            - file: benchmark/reports/C-11-qualikiz-ground-truth.md
-            - file: benchmark/reports/V-01-gacode-ports.md
-            - file: benchmark/reports/V-02-nn-surrogates.md
-            - file: benchmark/reports/V-03-qlknn-7-11.md
-            - file: benchmark/reports/V-04-gacode-regression-suite.md
-            - file: benchmark/reports/V-05-momentum-parity.md
-            - file: benchmark/reports/V-06-tgyro-mapping-treg01.md
-            - file: benchmark/reports/V-07-tgyro-cases.md
-            - file: benchmark/reports/V-08-torax.md
-            - file: benchmark/reports/V-09-mavrin-noncoronal.md
-            - file: benchmark/reports/V-10-lengyel-closed-forms.md
-            - file: benchmark/reports/V-11-lengyel-two-point.md
-            - file: benchmark/reports/V-12-lengyel-inverse.md
-            - file: benchmark/reports/V-13-lengyel-forward.md
-            - file: benchmark/reports/V-14-torax-evolution-composition.md
-            - file: benchmark/reports/V-15-gfile-roundtrip.md
-            - file: benchmark/reports/V-16-gs-residual-reading.md
-            - file: benchmark/reports/V-17-solovev-manufactured.md
-            - file: benchmark/reports/V-18-twin-reconstruction.md
-            - file: benchmark/reports/V-19-fixed-boundary-solovev.md
-            - file: benchmark/reports/V-21-evolve-free-boundary.md
-            - file: benchmark/reports/V-22-inverse-shape-iter.md
-        - title: 物理校验 (Physics checks)
-          children:
-            - file: benchmark/physics/README.md
-            - file: benchmark/physics/SUMMARY.md
-            - file: benchmark/physics/discharge-iter.md
-            - file: benchmark/physics/equilibrium-gfile.md
-            - file: benchmark/physics/evolve-default.md
-            - file: benchmark/physics/evolve-east-hmode.md
-            - file: benchmark/physics/evolve-iter-15ma.md
-            - file: benchmark/physics/transport-iter-15ma.md
-            - file: benchmark/physics/zerod-iter-15ma.md
-        - title: 验证定序 (The validation order)
-          children:
-            - file: benchmark/plan/README.md
-            - file: benchmark/plan/RUN-2026-09-04.md
-            - file: benchmark/plan/RUN-2026-09-05.md
-            - file: benchmark/plan/RUN-2026-09-08.md
-            - file: benchmark/plan/SUMMARY.md
-            - file: benchmark/plan/SURVEY-2026-09-08-third-party.md
+        #: ★生成件（`tools/benchmark-coverage.py`）：每条需求 → 覆盖它的记录；
+        #: 没有记录的需求显示为空行——空行就是缺口，这一页因此能回答「覆盖够不够」。
+        - file: benchmark/coverage.md
 
     - file: ACKNOWLEDGEMENTS.md
 site:

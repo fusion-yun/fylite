@@ -148,3 +148,17 @@ python/fylite/_bin/
 #: 后果不是构建失败，是 `git status` 把一份 27 MB 的归档列成未跟踪，然后总有一天
 #: 有人 `git add -A`。
 /rust/kernel-lib/
+
+#: ★★2026-09-16 用户裁定「原 benchmark 移出 docs/myst.yml；旧册全不迁，仅作查阅」：
+#: 旧的 V&V 登记册整册改名为 `docs/benchmark-legacy/` 并**移出版本控制**——磁盘上
+#: 留一份供查阅，仓里不再跟踪。新册在 `docs/benchmark/` 从零重起，按 FYTOK-SRS-03/04
+#: 的需求树组织（`FR-EQ-*` / `NR-EQ-*` / `FR-TR-*` / `NR-TR-*`）。
+#: ★沿用原目录名是有意的：十余处跨仓硬编码路径（`FYL-SDD-01/-02/-07/-08/-09` ·
+#: `FYL-CONOPS-00` · 内核 `docs/cases/registry.jsonld` · fydoc CASE-23 页）不必改动，
+#: 但它们指向的**语义已变**，新册 README 须写明这一点。
+#: ★旧册出库意味着已发布站点的 54 个报告 URL 失效——这是废弃它的应有之义，不是疏漏。
+/docs/benchmark-legacy/
+#: ★仓根 `BENCHMARK.md` 是**物理校验册的统计表**，随那本册子一并退役（2026-09-16），
+#: 已移入 `docs/benchmark-legacy/`。★判据库没有退役：`fylite.engine.physics` 仍由
+#: `python/tests/test_physics_checks.py` 等六个门守着，只是不再产出一本给人读的册子。
+/BENCHMARK.md

@@ -53,7 +53,13 @@ BOOK = DOCS / "myst.yml"
 #: ★下面 `test_no_development_document_is_in_the_public_book` 把这条裁定钉成判据。
 SECTIONS = ("guide", "examples", "reference", "benchmark")
 #: 在树里、**有意**不入册的目录，各自的理由写在 `docs/myst.yml` 抬头与 `INDEX.md`
-NOT_IN_THE_BOOK = ()
+#: ★★2026-09-16（用户裁定「原 benchmark 移出 docs/myst.yml；旧册全不迁，仅作查阅」）：
+#: 上一本 V&V 登记册连同它的物理校验册与定序册整体退役，改名 `benchmark-legacy/` 并
+#: **移出版本控制**（见仓根 `.gitignore`），磁盘留一份仅供查阅。它仍在 `docs/` 树里，
+#: 所以必须在这里**具名**——本文件的裁定是「不入册要写成一条裁定，不是一个观察」。
+#: ★为什么不从 `docs/` 挪走：它的 71 页里散着大量指向本仓路径的相对链接与读数指针，
+#: 挪走会把「照着旧册复算」这件事也一并废掉，而那正是留它下来的唯一理由。
+NOT_IN_THE_BOOK = ("benchmark-legacy",)
 #: 不是章节、也不含章节的目录
 NOT_CONTENT = ("figures", "_build")
 

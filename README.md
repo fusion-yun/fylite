@@ -326,10 +326,19 @@ fields by fyo path out, no handle and no state between calls.
 Two registers answer two different questions.
 
 **Was it measured against something?** [`docs/benchmark/`](docs/benchmark/) is
-the V&V register: one `fyo:ComparisonRecord` per comparison, every reference
-dataset with its admissibility class and sha256, every gate with the checkout it
-runs in, and the outcome of running those gates on the day of publication. It is
-read through the same verb as the scenario corpus:
+the V&V register: one `fyo:ComparisonRecord` per comparison, one file per record,
+every reference dataset with its admissibility class and sha256, and every gate
+named with the checkout it runs in. **It is organised on requirements, not on
+directories**: each record declares which `FYTOK-SRS-03` / `-04` requirements it
+verifies, and [`coverage.md`](docs/benchmark/coverage.md) reads that back the
+other way — a requirement no record covers shows up as an empty row, which is
+what makes the table able to answer "is the coverage enough?".
+
+> ★**Restarted 2026-09-16.** The previous register is in `docs/benchmark-legacy/`:
+> out of version control, kept on disk for reference only. Its record numbers
+> (`B-01`..`V-23`) do not carry over.
+
+It is read through the same verb as the scenario corpus:
 
 ```python
 from fylite.engine import cases, casereport
@@ -344,9 +353,9 @@ casereport.render("records/<run>")               # render a record `fy run` wrot
 
 **Is what it produced self-consistent?** A run that converged quickly can still
 carry a negative temperature, and a profile that agrees with another code to 1 %
-can still violate Grad–Shafranov — two errors cancelling.
-[`docs/benchmark/physics/`](docs/benchmark/physics/) is the register that asks
-it: each preset case is judged against **physical law** (finiteness, positivity,
+can still violate Grad–Shafranov — two errors cancelling. `fylite.engine.physics`
+is the judgement library that asks it (**the register it used to write was retired
+2026-09-16; the checks themselves live on as test gates**): each preset case is judged against **physical law** (finiteness, positivity,
 the Grad–Shafranov equation), against the **documents' own definitions** (ψ
 endpoints, V′ > 0, the τ_E, β_N and Greenwald formulae) and against the **window
 the case declares** (bounds, steady-state). Verdicts use the four-state
@@ -354,8 +363,8 @@ acceptance vocabulary, and a quantity that is absent is `unevaluated` **by
 name** — never silently passed.
 
 ```bash
-python tools/benchmark-run.py            # run the batch, print the statistics
-python tools/benchmark-run.py --write    # write docs/benchmark/physics/ + BENCHMARK.md
+# the checks run as gates, not as a batch that writes a book:
+python -m pytest python/tests/test_physics_checks.py python/tests/test_physics_suite.py
 ```
 
 ```python
@@ -364,8 +373,7 @@ suite.entries()                          # the preset cases and their criteria
 suite.run_entry(suite.entry("equilibrium-gfile"))
 ```
 
-The summary table is [`BENCHMARK.md`](BENCHMARK.md); the check register itself —
-what each check reads, its formula, its assumptions — is
+What each check reads, its formula and its assumptions are in
 [`docs/reference/benchmark.md`](docs/reference/benchmark.md).
 
 The IMAS layouts are checked against the real readers, not against a description
@@ -375,7 +383,7 @@ with imas-python and imas-core, leaf by leaf.
 
 There is no CI workflow here; the gates run from a checkout — `cargo test`
 (Rust), `pytest` (the Python tier), `node app/tests/validate-*.mjs` (the site's
-static gates) and `tools/benchmark-run.py` (the physics batch). Anything needing
+static gates). Anything needing
 the kernel, a browser or data that is not distributed here is **skipped by
 name** rather than failed: a missing input and a missing implementation are
 different things. That policy and its boundary are stated in
@@ -393,7 +401,7 @@ different things. That policy and its boundary are stated in
 | `facts/` | the reference corpus, one directory per entry (`facts/device/`), with its redistribution rights |
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
 | `docs/examples/` | the runnable specifications, one directory per example, read through `fylite.engine.cases` |
-| `docs/benchmark/` | the V&V register, plus the physics-check register under `physics/` |
+| `docs/benchmark/` | the V&V register, organised on the FYTOK-SRS-03/04 requirement tree |
 | `docs/` | the MyST book: user guide, reference, examples |
 | `tools/` | deck converters, page generators, build and publish scripts |
 
