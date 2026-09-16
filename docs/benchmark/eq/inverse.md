@@ -38,6 +38,7 @@ title: "静态逆解：形状到线圈电流"
 
 | 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`eq-inverse-freegsnke-east137985`](../records/eq-inverse-freegsnke-east137985.jsonld) | 对拍 | 成立 | FreeGSNKE | 1.0 | 草稿 |
 | [`eq-inverse-iter-reference-separatrix`](../records/eq-inverse-iter-reference-separatrix.jsonld) | 验证 | 未判（读数） | ITER 参考分离面（装置牌上的数字化曲线） | 1.0 | 草稿 |
 
 ### 缺口

@@ -1,0 +1,38 @@
+{
+ "what": "B-15 派生指标：KEFIT 在孪生合成测量上，对同一个已知真值",
+ "reference": "KEFIT 的记录运行（CASE-23 corpus/kefit/kefit_twin_east137985.tar.gz，sha256 索引；本处不重跑）",
+ "source": {
+  "case": "FYDOC-CASE-23-east-137985-efit-east",
+  "path": "corpus/benchmark/twin_east137985.json",
+  "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb"
+ },
+ "kefit_archive": {
+  "case": "FYDOC-CASE-23-east-137985-efit-east",
+  "path": "corpus/kefit/kefit_twin_east137985.tar.gz",
+  "checksum": "sha256:ea9c108c43a1433e296aa037f3bbc858e0d0d9c53a5e671d7e3a6627314611c4"
+ },
+ "kefit_vs_truth": {
+  "q0_rel": -0.048631824800575485,
+  "q95_rel": -0.010609394490659008,
+  "axis_mm": 1.3287880749269794,
+  "span_rel": 0.008521072631708204,
+  "ip_rel": -0.0024721166471730616,
+  "psin_rms_inside": 0.0068098759462963,
+  "psin_max_inside": 0.013167412397591116,
+  "boundary_median_mm": 1.563376184160952,
+  "boundary_max_mm": 4.160068856409089,
+  "xpoint_dist_mm": 2.1864183512132005
+ },
+ "fylite_vs_truth": {
+  "q0_rel": 0.0006099656083653482,
+  "q95_rel": -0.0012706242248696764,
+  "axis_mm": 1.1739443550472741,
+  "span_rel": 0.00017577709620919535,
+  "ip_rel": 9.454570459865863e-11,
+  "psin_rms_inside": 0.002337467147484003,
+  "psin_max_inside": 0.004284555124249745,
+  "boundary_median_mm": 0.6568334814845262,
+  "boundary_max_mm": 1.6468775323724132,
+  "xpoint_dist_mm": 0.7831394835246703
+ }
+}

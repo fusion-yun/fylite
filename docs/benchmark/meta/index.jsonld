@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 7,
-  "open_must": 45,
-  "records": 6,
+  "covered": 9,
+  "open_must": 44,
+  "records": 11,
   "stale": 0,
   "failing": 1
  },
@@ -49,9 +49,35 @@
    "freshness": "current"
   },
   {
+   "id": "benchmark/records/eq-forward-boundary-rule-vs-kefit",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-boundary-rule-vs-kefit.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "inconclusive",
+   "requirement": [
+    "FR-EQ-001"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
    "id": "benchmark/records/eq-forward-chease-solovev",
    "domain": "eq-forward",
    "path": "records/eq-forward-chease-solovev.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-001"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-forward-kefit-east137985",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-kefit-east137985.jsonld",
    "comparison_kind": "benchmark",
    "overall_verdict": "pass",
    "requirement": [
@@ -76,6 +102,19 @@
    "freshness": "current"
   },
   {
+   "id": "benchmark/records/eq-inverse-freegsnke-east137985",
+   "domain": "eq-inverse",
+   "path": "records/eq-inverse-freegsnke-east137985.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-005"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
    "id": "benchmark/records/eq-inverse-iter-reference-separatrix",
    "domain": "eq-inverse",
    "path": "records/eq-inverse-iter-reference-separatrix.jsonld",
@@ -89,6 +128,19 @@
    "freshness": "current"
   },
   {
+   "id": "benchmark/records/eq-reconstruct-kefit-twin",
+   "domain": "eq-reconstruct",
+   "path": "records/eq-reconstruct-kefit-twin.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-006"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
    "id": "benchmark/records/eq-reconstruct-twin-truth-recovery",
    "domain": "eq-reconstruct",
    "path": "records/eq-reconstruct-twin-truth-recovery.jsonld",
@@ -96,6 +148,20 @@
    "overall_verdict": "pass",
    "requirement": [
     "FR-EQ-006"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-surface-chease-fixed-boundary-east",
+   "domain": "eq-surface",
+   "path": "records/eq-surface-chease-fixed-boundary-east.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-003",
+    "FR-EQ-012"
    ],
    "record_version": "1.0",
    "review_status": "draft",

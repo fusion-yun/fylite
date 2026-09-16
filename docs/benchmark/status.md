@@ -19,16 +19,20 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**6** 条
-- 判决 (verdict)：成立 4 · 不成立 **1** · 未判 1 · 未评估 0
-- 新鲜度 (freshness)：当前 6 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 6 · 已被取代 0
+- 记录 (records)：**11** 条
+- 判决 (verdict)：成立 8 · 不成立 **1** · 未判 2 · 未评估 0
+- 新鲜度 (freshness)：当前 11 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 11 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
 ★★这些记录判 **fail**，而且**有意留着**——不是没人管，是量化清楚之后裁定先不改。
 
 ★**它们与「新冒出来的失败」分开计**：`--ci` 对前者退 3、对后者退 1。若两者混在一个退出码里，红就成了常态，而常态的红没有人看——真正新出的失败会被它盖住。
+
+### `eq-forward-boundary-rule-vs-kefit`
+
+2026-09-16 记名读数（非缺陷但未定）：edge 规则收敛而离 KEFIT 更远，node 规则不收敛却更近；两者差在虚拟对是否带电流。判它需要独立于两者的真值，这道题上没有。用户裁定「保留负面结果」，本条以 inconclusive 原样留册。
 
 ### `eq-forward-solovev-fixed-boundary`
 
@@ -42,11 +46,11 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](eq/forward.md) | 4 | 2 | 2 | 1 | 1 | 0 |
-| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](eq/surface.md) | 3 | 0 | 0 | 0 | 0 | 0 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](eq/forward.md) | 4 | 2 | 4 | 2 | 1 | 0 |
+| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](eq/inverse.md) | 1 | 1 | 1 | 0 | 0 | 0 |
-| 平衡 (Equilibrium) | [测量重构与约束阶梯](eq/reconstruct.md) | 8 | 1 | 1 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [测量重构与约束阶梯](eq/reconstruct.md) | 8 | 1 | 2 | 2 | 0 | 0 |
 | 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](mhd/vertical.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
@@ -65,10 +69,15 @@ title: 验证状态 (Verification status)
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `eq-convention-gfile-cocos-roundtrip` | eq-convention | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-evolve-analytic-circuit-limits` | eq-evolve | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| `eq-forward-boundary-rule-vs-kefit` | eq-forward | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-forward-chease-solovev` | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| `eq-forward-kefit-east137985` | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-forward-solovev-fixed-boundary` | eq-forward | 验证 | 不成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| `eq-inverse-freegsnke-east137985` | eq-inverse | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-inverse-iter-reference-separatrix` | eq-inverse | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| `eq-reconstruct-kefit-twin` | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-reconstruct-twin-truth-recovery` | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| `eq-surface-chease-fixed-boundary-east` | eq-surface | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

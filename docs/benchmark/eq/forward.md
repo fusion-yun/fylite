@@ -55,7 +55,9 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 
 | 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`eq-forward-boundary-rule-vs-kefit`](../records/eq-forward-boundary-rule-vs-kefit.jsonld) | 对拍 | 未判（读数） | KEFIT | 1.0 | 草稿 |
 | [`eq-forward-chease-solovev`](../records/eq-forward-chease-solovev.jsonld) | 对拍 | 成立 | CHEASE | 1.0 | 草稿 |
+| [`eq-forward-kefit-east137985`](../records/eq-forward-kefit-east137985.jsonld) | 对拍 | 成立 | KEFIT | 1.0 | 草稿 |
 | [`eq-forward-solovev-fixed-boundary`](../records/eq-forward-solovev-fixed-boundary.jsonld) | 验证 | 不成立 | Solov'ev 解析平衡 (closed form) | 1.0 | 草稿 |
 
 ### 缺口

@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-16
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**7** 条（12 %）
-- ★**MUST 级空缺 (open MUST)：45 条**
+- 已有记录覆盖 (covered)：**9** 条（15 %）
+- ★**MUST 级空缺 (open MUST)：44 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -20,7 +20,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | `eq-forward-chease-solovev` · `eq-forward-solovev-fixed-boundary` | 对拍 · 验证 | 成立 · 不成立 |
+| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | `eq-forward-boundary-rule-vs-kefit` · `eq-forward-chease-solovev` · `eq-forward-kefit-east137985` · `eq-forward-solovev-fixed-boundary` | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 不成立 |
 | `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | — | — | — |
 | `NR-EQ-002` | MUST | 解析基准精度 | `eq-forward-solovev-fixed-boundary` | 验证 | 不成立 |
 | `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | — | — | — |
@@ -31,8 +31,8 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | — | — | — |
-| `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | — | — | — |
+| `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | `eq-surface-chease-fixed-boundary-east` | 对拍 | 成立 |
+| `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | `eq-surface-chease-fixed-boundary-east` | 对拍 | 成立 |
 | `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | — | — | — |
 
 ## 平衡 (Equilibrium) · 演化自由边界与涡流电路
@@ -49,7 +49,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | `eq-inverse-iter-reference-separatrix` | 验证 | 未判（读数） |
+| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | `eq-inverse-freegsnke-east137985` · `eq-inverse-iter-reference-separatrix` | 对拍 · 验证 | 成立 · 未判（读数） |
 
 ## 平衡 (Equilibrium) · 测量重构与约束阶梯
 
@@ -57,7 +57,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-006` | MUST | 测量重构与约束阶梯 | `eq-reconstruct-twin-truth-recovery` | 验证 | 成立 |
+| `FR-EQ-006` | MUST | 测量重构与约束阶梯 | `eq-reconstruct-kefit-twin` · `eq-reconstruct-twin-truth-recovery` | 对拍 · 验证 | 成立 · 成立 |
 | `FR-EQ-007` | SHOULD | MSE 全形响应行 | — | — | — |
 | `FR-EQ-008` | MUST | 快离子压强外部强迫项 | — | — | — |
 | `FR-EQ-009` | MUST | 内部约束行几何门控 | — | — | — |
@@ -190,7 +190,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 域 | 标题 |
 | :--- | :--- | :--- |
 | `FR-EQ-002` | 前向自由边界与 Green 响应核 | Green 响应核为共享一等资产 |
-| `FR-EQ-003` | 磁面几何、全局量与形状表示 | 磁面分析（0 维 / 1 维几何量与磁面积分） |
 | `FR-EQ-008` | 测量重构与约束阶梯 | 快离子压强外部强迫项 |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-010` | 测量重构与约束阶梯 | kinetic-EFIT 自洽外环接口 |

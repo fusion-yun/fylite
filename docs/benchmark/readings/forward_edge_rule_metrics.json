@@ -1,0 +1,122 @@
+{
+ "what": "eq-forward 派生指标：node / edge 两种边界规则，各自对 KEFIT 的图",
+ "source": {
+  "case": "FYDOC-CASE-23-east-137985-efit-east",
+  "path": "corpus/benchmark/evolve_free_boundary_east137985.json",
+  "checksum": "sha256:3ed068ab61d9d59ec67ad727513015301f471fa440e8be9656d5584e4d44fe1a"
+ },
+ "slices": {
+  "t4041_mag": {
+   "node": {
+    "converged": 0.0,
+    "settled": 1.0,
+    "residual": 0.002910441218690314,
+    "iterations": 62.0,
+    "seconds": 0.2,
+    "fb_amp_A": 10525.381943571607,
+    "psin_rms_inside": 0.007364428528893495,
+    "psin_max_inside": 0.01800777765210526,
+    "axis_mm": 4.105480085070712,
+    "boundary_median_mm": 3.423350581084515,
+    "xpoint_dist_mm": 4.309509953934398
+   },
+   "edge": {
+    "converged": 1.0,
+    "settled": 0.0,
+    "residual": 9.768521516886235e-10,
+    "iterations": 5664.0,
+    "seconds": 14.1,
+    "fb_amp_A": 34.081329504766394,
+    "psin_rms_inside": 0.01834408759424767,
+    "psin_max_inside": 0.037872633953446755,
+    "axis_mm": 9.240230085185752,
+    "boundary_median_mm": 3.971714886584283,
+    "xpoint_dist_mm": 3.021994666634032
+   }
+  },
+  "t4944_mag": {
+   "node": {
+    "converged": 0.0,
+    "settled": 1.0,
+    "residual": 0.003689177287190086,
+    "iterations": 63.0,
+    "seconds": 0.2,
+    "fb_amp_A": 13663.55463328469,
+    "psin_rms_inside": 0.006544916797449717,
+    "psin_max_inside": 0.015700131707233056,
+    "axis_mm": 4.024468932391249,
+    "boundary_median_mm": 2.6659837535813944,
+    "xpoint_dist_mm": 6.029766136980215
+   },
+   "edge": {
+    "converged": 1.0,
+    "settled": 0.0,
+    "residual": 9.60255597741674e-10,
+    "iterations": 5876.0,
+    "seconds": 14.7,
+    "fb_amp_A": 32.98438882062144,
+    "psin_rms_inside": 0.022654687599942092,
+    "psin_max_inside": 0.046164766768530874,
+    "axis_mm": 11.52599160577879,
+    "boundary_median_mm": 5.136336560386355,
+    "xpoint_dist_mm": 3.24127847526172
+   }
+  },
+  "t5976_mag": {
+   "node": {
+    "converged": 0.0,
+    "settled": 1.0,
+    "residual": 0.0012733268853640102,
+    "iterations": 62.0,
+    "seconds": 0.2,
+    "fb_amp_A": 14169.977872190548,
+    "psin_rms_inside": 0.006637418577842736,
+    "psin_max_inside": 0.015177415748439782,
+    "axis_mm": 4.86850850569956,
+    "boundary_median_mm": 2.740245270865271,
+    "xpoint_dist_mm": 6.504901715046407
+   },
+   "edge": {
+    "converged": 1.0,
+    "settled": 0.0,
+    "residual": 9.616183936783658e-10,
+    "iterations": 5378.0,
+    "seconds": 13.4,
+    "fb_amp_A": 35.942866237510145,
+    "psin_rms_inside": 0.02362623525222856,
+    "psin_max_inside": 0.04655387155113544,
+    "axis_mm": 12.466079955059001,
+    "boundary_median_mm": 5.61517497429111,
+    "xpoint_dist_mm": 4.799868044647791
+   }
+  },
+  "t5976_primary": {
+   "node": {
+    "converged": 0.0,
+    "settled": 0.0,
+    "residual": 0.0116041218317757,
+    "iterations": 600.0,
+    "seconds": 1.6,
+    "fb_amp_A": -462.3596237313089,
+    "psin_rms_inside": 0.022124027836380608,
+    "psin_max_inside": 0.049385510559687984,
+    "axis_mm": 9.170096645521387,
+    "boundary_median_mm": 5.484651619454139,
+    "xpoint_dist_mm": 14.631207070387466
+   },
+   "edge": {
+    "converged": 0.0,
+    "settled": 0.0,
+    "residual": 0.14771907086363728,
+    "iterations": 12000.0,
+    "seconds": 29.9,
+    "fb_amp_A": 80306.31221769472,
+    "psin_rms_inside": 0.028612216824504225,
+    "psin_max_inside": 0.051798464791531496,
+    "axis_mm": 13.658260060449143,
+    "boundary_median_mm": 14.139798293185523,
+    "xpoint_dist_mm": 21.814456786939207
+   }
+  }
+ }
+}

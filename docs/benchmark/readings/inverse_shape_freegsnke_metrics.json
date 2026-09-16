@@ -1,0 +1,107 @@
+{
+ "what": "B-21 派生指标：fylite 静态逆解对 FreeGSNKE 的记录逆解，目标是 KEFIT 的边界",
+ "reference": "FreeGSNKE recorded inverse solve (CASE-23 freegsnke_vstab_east137985.tar.gz) on KEFIT's boundary",
+ "source": {
+  "case": "FYDOC-CASE-23-east-137985-efit-east",
+  "path": "corpus/benchmark/inverse_shape_east137985.json",
+  "checksum": "sha256:81dacc7ebe0d070a2881816fbec6ea9b8a066c1e240d13b5c8484b18c70c2333"
+ },
+ "inputs": {
+  "g_file": "kefit_raw_east137985/rejected/t4041_mag/g137985.04041",
+  "g_sha256": "299c8746c1cc97582076641beae8e9c3749d59d6ad893f7d58c412c8e7ad6502",
+  "a_file": "kefit_raw_east137985/rejected/t4041_mag/a137985.04041",
+  "a_sha256": "ed3e66478621c1e0fd29f900418170ed270f5b97ff94fb248d8de0bef60989e9",
+  "ip_A": 392708.734,
+  "target_points": 69,
+  "gauge_factor": -6.283185307179586,
+  "settings": {
+   "ip": 392708.734,
+   "n_points": 24.0,
+   "x_weight": 1.0,
+   "passes": 8.0,
+   "nu": 3.0
+  },
+  "target_segment_median_mm": 48.93321476461832
+ },
+ "fair_window": {
+  "z_lo": -0.725559041,
+  "z_hi": 0.63833942,
+  "x_exclusion_m": 0.1
+ },
+ "boundary_vs_target": {
+  "fylite": {
+   "points": 2025,
+   "of": 2172,
+   "median_mm": 1.2108513564160912,
+   "p95_mm": 3.873048835429577,
+   "max_mm": 9.42202544794258
+  },
+  "freegsnke": {
+   "points": 2074,
+   "of": 2460,
+   "median_mm": 5.00243327815025,
+   "p95_mm": 27.38464776993126,
+   "max_mm": 52.89471158372767
+  }
+ },
+ "currents_rms_kAt": {
+  "fylite_vs_kefit_rms_kAt": 25.56325365552735,
+  "freegsnke_vs_kefit_rms_kAt": 0.36901569474909374,
+  "fylite_vs_freegsnke_rms_kAt": 25.56065254377582,
+  "fylite_vs_freegsnke_max_kAt": 61.617372853177486
+ },
+ "n_circuits": 12,
+ "null_space_forward": {
+  "kefit": {
+   "psin_rms_inside": 0.007364428528893495,
+   "psin_max_inside": 0.01800777765210526,
+   "boundary_median_mm": 3.423350581084515,
+   "boundary_max_mm": 12.72768197086465,
+   "xpoint_dist_mm": 4.309509953934398,
+   "axis_mm": 4.105480085070712
+  },
+  "freegsnke": {
+   "psin_rms_inside": 0.009530293777765804,
+   "psin_max_inside": 0.025020596191451805,
+   "boundary_median_mm": 3.958231638485507,
+   "boundary_max_mm": 10.058885646891044,
+   "xpoint_dist_mm": 5.452439068880295,
+   "axis_mm": 5.746543901508554
+  },
+  "fylite": {
+   "psin_rms_inside": 0.004619228447255844,
+   "psin_max_inside": 0.008273235534245471,
+   "boundary_median_mm": 1.0918158808506129,
+   "boundary_max_mm": 7.392008978007239,
+   "xpoint_dist_mm": 2.1319920298990453,
+   "axis_mm": 4.105384144642509
+  }
+ },
+ "design_facts": {
+  "shape_error": 0.05235843879103331,
+  "boundary_gap_rms": 0.002045311036464811,
+  "boundary_gap_max": 0.00899561609863186,
+  "boundary_gap_rms_norm": 0.004730886154323947,
+  "converged": 0.0,
+  "settled": 1.0,
+  "residual": 0.0016691989843729505,
+  "iterations": 62.0,
+  "n_passes": 8.0,
+  "n_at_coil_limit": 0.0,
+  "axis_r": 1.8960306041723578,
+  "axis_z": -0.0030885421380735497,
+  "xpt_r": 1.5679455471685289,
+  "xpt_z": -0.7416870697265229,
+  "ip": 392708.73400000087,
+  "shape_r0": 1.8530211662386327,
+  "shape_a": 0.43103798691862183,
+  "shape_kappa": 1.5874946372444279,
+  "shape_delta_upper": 0.3798979387834808,
+  "shape_delta_lower": 0.5441251103691257,
+  "shape_z0": -0.0277211974682946
+ },
+ "design_notes": [
+  "coil limits: the anneal holds the supply ratings folded per channel (pf_active/supply/current_limit_max x element turns / channel weight)",
+  "profile: the delivered p'/FF' table (inputs/equilibrium) — beta0/emp/enp are inert"
+ ]
+}

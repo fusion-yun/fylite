@@ -1,0 +1,73 @@
+{
+ "what": "B-14 派生指标：fylite 前向解对 KEFIT 的答案，EAST #137985 四个切片",
+ "reference": "KEFIT raw-tree runs (CASE-23 kefit_raw_east137985.tar.gz, variant rejected)",
+ "archive_sha256": "sha256:001d33a06fdc39da3cf15a0240484f182cf0c85e832bf7802894e8c63aca0258",
+ "source": {
+  "case": "FYDOC-CASE-23-east-137985-efit-east",
+  "path": "corpus/benchmark/forward_kefit_east137985.json",
+  "checksum": "sha256:a54852d884c396b77b050f387334a8bae29a942965b3d5750b32e2bb23e31f1c"
+ },
+ "door_settings": "code/forward defaults (relax 0.3, max_iter 600, tol 1e-9, fb_gain 8)",
+ "slices": {
+  "t4041_mag": {
+   "time_s": 4.041,
+   "axis_mm": 4.105480085070712,
+   "psin_rms_inside": 0.007364428528893495,
+   "psin_max_inside": 0.01800777765210526,
+   "n_nodes_inside": 814,
+   "span_rel": -0.00021066832507032895,
+   "ip_rel": 1.5543122344752192e-15,
+   "boundary_median_mm": 3.423350581084515,
+   "boundary_max_mm": 12.72768197086465,
+   "xpoint_dist_mm": 4.309509953934398,
+   "fylite_settled": 1.0,
+   "fylite_converged": 0.0,
+   "fylite_residual": 0.002910441218690314
+  },
+  "t4944_mag": {
+   "time_s": 4.944,
+   "axis_mm": 4.024468932391249,
+   "psin_rms_inside": 0.006544916797449717,
+   "psin_max_inside": 0.015700131707233056,
+   "n_nodes_inside": 816,
+   "span_rel": -0.0026392131835714094,
+   "ip_rel": 6.661338147750939e-16,
+   "boundary_median_mm": 2.6659837535813944,
+   "boundary_max_mm": 15.437489089862742,
+   "xpoint_dist_mm": 6.029766136980215,
+   "fylite_settled": 1.0,
+   "fylite_converged": 0.0,
+   "fylite_residual": 0.003689177287190086
+  },
+  "t5976_mag": {
+   "time_s": 5.976,
+   "axis_mm": 4.86850850569956,
+   "psin_rms_inside": 0.006637418577842736,
+   "psin_max_inside": 0.015177415748439782,
+   "n_nodes_inside": 816,
+   "span_rel": -0.001805782845456183,
+   "ip_rel": 2.220446049250313e-16,
+   "boundary_median_mm": 2.740245270865271,
+   "boundary_max_mm": 13.795537163816034,
+   "xpoint_dist_mm": 6.504901715046407,
+   "fylite_settled": 1.0,
+   "fylite_converged": 0.0,
+   "fylite_residual": 0.0012733268853640102
+  },
+  "t5976_primary": {
+   "time_s": 5.976,
+   "axis_mm": 9.170096645521387,
+   "psin_rms_inside": 0.022124027836380608,
+   "psin_max_inside": 0.049385510559687984,
+   "n_nodes_inside": 790,
+   "span_rel": -0.020513654718552154,
+   "ip_rel": -1.1102230246251565e-16,
+   "boundary_median_mm": 5.484651619454139,
+   "boundary_max_mm": 82.6086221091788,
+   "xpoint_dist_mm": 14.631207070387466,
+   "fylite_settled": 0.0,
+   "fylite_converged": 0.0,
+   "fylite_residual": 0.0116041218317757
+  }
+ }
+}
