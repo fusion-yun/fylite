@@ -12,7 +12,7 @@ title: B-21 · 静态逆问题：同一目标形状下 fylite 的线圈设计对
 | **数据** | 见 §5 表（3 项） |
 | **门** | `python/tests/test_benchmark_inverse_shape.py::test_the_readings_are_the_registered_ones`；`python/tests/test_benchmark_inverse_shape.py::test_b21_the_design_reproduces_its_recorded_readings`；`python/tests/test_benchmark_inverse_shape.py::test_b21_the_designed_boundary_stays_in_the_band`；`python/tests/test_benchmark_inverse_shape.py::test_b21_the_currents_differ_far_more_than_the_equilibria`；`python/tests/test_benchmark_inverse_shape.py::test_b21_the_target_curve_limits_are_recorded` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——5 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——5 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -43,7 +43,7 @@ title: B-21 · 静态逆问题：同一目标形状下 fylite 的线圈设计对
 | FreeGSNKE 反演（同一目标与零点，归档回放） | 实现边界离目标 中位 5.00 mm · p95 27.38 · 最大 52.89（2074 / 2460 点） | 成立 |  |
 | 零空间：电流差远大于平衡差 | 两边设计电流差 25.6 kA·t rms（单通道最大 61.6）；三组电流正解后 ψ_N rms：KEFIT 0.0074 · FreeGSNKE 0.0095 · fylite 0.0046，磁轴 ΔR 1.45 至 4.02 mm | 成立 | 「谁的电流更像 KEFIT」不能读成「谁的设计更对」：KEFIT 的电流是它自己拟合出来的，不是真值；离 KEFIT 电流：fylite 25.6 kA·t rms、FreeGSNKE 0.37 |
 | 目标曲线本身的限制（读数） | KEFIT 轮廓 69 点、相邻点中位 48.9 mm，Z 只到 +0.658（其上 X 点在 +0.767，差 134 mm）；不设窗口时 FreeGSNKE 最大距离读作 79.5 mm，多数来自「目标没有那一段」 | 未判（读数） | 两种读法都存在读数件里（boundary_vs_target · boundary_vs_target_all_points） |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 5 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 5 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 

@@ -12,7 +12,7 @@ title: B-14 · 自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF
 | **数据** | 见 §5 表（2 项） |
 | **门** | `python/tests/test_benchmark_equilibrium.py::test_b14_the_forward_solve_reproduces_its_recorded_readings`；`python/tests/test_benchmark_equilibrium.py::test_b14_the_forward_solve_stays_in_the_band_on_kefits_magnetics_answers`；`python/tests/test_benchmark_equilibrium.py::test_b14_the_point_profile_slice_is_recorded_outside_the_band` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——3 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——3 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -45,7 +45,7 @@ title: B-14 · 自由边界正问题对 KEFIT：同一组线圈电流与 p′/FF
 | 5.976 s 纯磁答案 | 磁轴 4.87 mm · 跨度 -0.181 % · ψ_N rms 0.66 % / 最大 1.52 % · 边界 2.74 / 13.8 mm · X 点 6.5 mm | 成立 |  |
 | 5.976 s 带 POINT 约束的剖面：出带 | 磁轴 9.2 mm · 跨度 -2.05 % · ψ_N rms 2.21 % · 边界 5.5 / 83 mm · 600 步未定 | 未判（读数） | 不进带；门把「出带」本身钉住，免得它悄悄变好或变坏 |
 | 收敛：fylite 的自由边界迭代在纯磁三例上「settled」而非「converged」 | 残差 2.9e-03 / 3.7e-03 / 1.3e-03，约 62 步因掩膜稳定而停；缺省 tol 1e-9 | 未判（读数） | 带是在这一停止状态上量的；收紧停止判据是否移动这些数未测 [TBD] |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-14` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-14` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-14` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 

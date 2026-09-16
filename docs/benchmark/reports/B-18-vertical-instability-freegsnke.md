@@ -12,7 +12,7 @@ title: B-18 · 垂直不稳定性：EAST #137985 4.041 s 的刚性增长率与�
 | **数据** | 见 §5 表（3 项） |
 | **门** | `python/tests/test_benchmark_wall_vstab.py::test_the_freegsnke_run_is_the_registered_one`；`python/tests/test_benchmark_wall_vstab.py::test_b18_the_rigid_dispersion_reproduces_and_stays_in_the_band_against_freegsnke`；`python/tests/test_benchmark_wall_vstab.py::test_b18_the_deformable_growth_rate_is_a_reading_not_a_band` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——3 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——3 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -43,7 +43,7 @@ title: B-18 · 垂直不稳定性：EAST #137985 4.041 s 的刚性增长率与�
 | inner_shell：FreeGSNKE 可变形等离子体（读数） | γ 652.3 s⁻¹（刚性的 0.92 倍）· 裕度 0.322；fylite 在 KEFIT 平衡上 γ 678.2 s⁻¹ | 未判（读数） | 可变形响应是 fylite 刚性模型没有的物理；FreeGSNKE 雅可比的线性度（步长）未独立核，倍数只作读数 |
 | all：刚性色散 | γ fylite 4.267 · FreeGSNKE 4.262 s⁻¹（+0.11 %）· k +0.30 % · k_ideal +0.075 % · 裕度 1.208 / 1.213 | 成立 |  |
 | all：FreeGSNKE 可变形等离子体（读数） | γ 9.227 s⁻¹（刚性的 2.17 倍）· 裕度 0.930；fylite 在 KEFIT 平衡上 γ 4.171 s⁻¹ | 未判（读数） | 可变形响应是 fylite 刚性模型没有的物理；FreeGSNKE 雅可比的线性度（步长）未独立核，倍数只作读数 |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | 2026-09-15 内核改正 a1 ≠ 0 读法后重录读数与带 |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。；2026-09-15 内核改正 a1 ≠ 0 读法后重录读数与带 |
 
 ## 4. 不可比的部分
 

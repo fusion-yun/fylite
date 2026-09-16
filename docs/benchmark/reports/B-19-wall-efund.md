@@ -12,7 +12,7 @@ title: B-19 · 导体壁对 KEFIT 的电磁层：EAST 真空室元件的格林�
 | **数据** | 见 §5 表（2 项） |
 | **门** | `python/tests/test_benchmark_wall_vstab.py::test_the_efund_run_is_the_registered_one`；`python/tests/test_benchmark_wall_vstab.py::test_b19_the_wall_responses_and_inductance_reproduce_and_stay_in_the_band_against_efund`；`python/tests/test_benchmark_wall_vstab.py::test_b19_the_shipped_kefit_vessel_table_is_recorded_as_the_misread_deck` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——3 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——3 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -43,7 +43,7 @@ title: B-19 · 导体壁对 KEFIT 的电磁层：EAST 真空室元件的格林�
 | 互感矩阵与 τ₁ | 非对角 p95 3.65e-03 · 对角中位 0.83 % / 最大 3.43 % · τ₁ 12.751 对 12.748 ms（+2.4e-04） | 成立 |  |
 | 参考包交付的 rv6565.ddd（读数） | 对同一输入按原意重建的表：环最大差 9.0 %、网格 29.3 % | 未判（读数） | 算表输入里 7 行真空室元件的列没有对齐 efund 的 6e12.6 定宽读法（如 138.4682 被切成 1 与 38.4682），交付表即其误读结果；EAST 上用真空室通道的 KEFIT 反演吃的是这份表 |
 | 内核几何读法两处修正（2026-09-15） | a1 = 0, a2 ≠ 90：efund 的 R 向剪切（此前读成倾斜边长 h）；a1 ≠ 0：efund 的 Z 向剪切（此前读成转角，内壳上下 14 段短 25 %、环响应差 1.6 %、网格 6 %） | 成立 |  |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | 需 FYLITE_KERNEL_LIB 指向带 code/wall 的内核（公开检出的预建运行时库早于它，按名 skip） |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 3 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。；需 FYLITE_KERNEL_LIB 指向带 code/wall 的内核（公开检出的预建运行时库早于它，按名 skip） |
 
 ## 4. 不可比的部分
 

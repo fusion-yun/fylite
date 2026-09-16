@@ -12,7 +12,7 @@ title: V-17 · 定边界 GS 算子与求解器：Solov'ev 精确解与制造解
 | **数据** | 见 §5 表（0 项） |
 | **门** | `$FYLITE_KERNEL/tests/test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi`；`$FYLITE_KERNEL/tests/test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source`；`$FYLITE_KERNEL/rust/fylite/src/equilibrium.rs` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -37,7 +37,7 @@ title: V-17 · 定边界 GS 算子与求解器：Solov'ev 精确解与制造解
 | Solov'ev 经 C-ABI（`test_rust_kernels.py::test_solovev_is_reproduced_through_the_abi`） | 门通过（2026-09-15 只读复测） | 成立 |  |
 | Δ* 作用于 Solov'ev（`test_oracle_marshalling.py::test_the_deltastar_operator_returns_the_solovev_source`） | 门通过（2026-09-15 只读复测） | 成立 |  |
 | 内核 Rust 单元测试（`solovev_is_reproduced_to_machine_precision` · `manufactured_solution_converges_at_second_order` · `stencil_and_solver_are_mutually_inverse` · `fixed_boundary_picard_converges_and_reports_it`） | 本条写入时未跑：`cargo test` 会在内核检出里构建，而本轮裁定不动内核仓 | 未评估 |  |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | 内核检出里只读复测（不写字节码与缓存）；cargo 单元测试未跑 |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。；内核检出里只读复测（不写字节码与缓存）；cargo 单元测试未跑 |
 
 ## 4. 不可比的部分
 

@@ -12,7 +12,7 @@ title: V-18 · 反演孪生体（已知真值）：fylite 从自己正问题的�
 | **数据** | 见 §5 表（2 项） |
 | **门** | `python/tests/test_benchmark_equilibrium.py::test_v18_fylite_recovers_the_twin_truth_and_reproduces_its_readings` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——1 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——1 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -38,7 +38,7 @@ title: V-18 · 反演孪生体（已知真值）：fylite 从自己正问题的�
 | :--- | :--- | :--- | :--- |
 | fylite 反演：孪生体 4.041 s | q₀ +0.06 % · q₉₅ -0.13 % · 磁轴 -0.19 / -1.16 mm · ψ_N rms 0.23 % · 边界 0.66 / 1.65 mm · X 点 0.78 mm · 跨度 +0.018 % · Ip +0.000 % | 成立 |  |
 | 设定点扫描 | −30 … +30 mm 每 4 mm；χ² 极小在 -2 mm（χ² 0.85），真值竖直位置 +7.9 mm | 成立 |  |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 1 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 1 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 

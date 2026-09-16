@@ -12,7 +12,7 @@ title: V-21 · 自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片�
 | **数据** | 见 §5 表（2 项） |
 | **门** | `python/tests/test_benchmark_evolve_free_boundary.py::test_the_readings_are_the_registered_ones`；`python/tests/test_benchmark_evolve_free_boundary.py::test_v21_a_shell_mode_decays_on_the_wall_time`；`python/tests/test_benchmark_evolve_free_boundary.py::test_v21_a_perfect_conductor_keeps_its_flux_while_the_plasma_ramps`；`python/tests/test_benchmark_evolve_free_boundary.py::test_v21_current_drive_reproduces_the_voltage_march`；`python/tests/test_benchmark_evolve_free_boundary.py::test_v21_the_forward_edge_rule_is_a_reading_not_a_band` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——5 passed, 0 failed, 0 error, 0 skipped, 0 stale（同一次运行另三份平衡门 18 过） |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——5 passed, 0 failed, 0 error, 0 skipped, 0 stale（同一次运行另三份平衡门 18 过） |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -43,7 +43,7 @@ title: V-21 · 自由边界演化与 PF 电路 · 无源件耦合：EAST 卡片�
 | 理想导体的磁链 | 磁链漂移 6.7e-15 Wb 对等离子体磁通变化 3.076e-02 Wb（2.2e-13）· 回路方程残差 2.2e-13 · 每步自由边界解 converged、虚拟对 0 · 无源件电流升到 649 A · 磁轴 Z 7.88 → 7.54 mm | 成立 |  |
 | 电流驱动复现电压驱动 | 电压 = 1.05 R I₀（保持 KEFIT 线圈电流并多给 5 %），通道电流最大变 0.118 % · 无源件电流最大 718 A，两种驱动差 4.5e-09 | 成立 |  |
 | code/forward 两种边界规则（B-14 三片纯磁答案；读数） | 节点规则 settled、虚拟对 10.5 至 14.2 kA；边界格分数规则 converged（5378 至 5876 轮、对 ≤ 36 A）· 磁轴 Z 离 KEFIT 8.8 至 10.8 mm（节点 -4.9 至 -2.7 mm）· ψ_N rms 1.83 至 2.36 %（节点 0.65 至 0.74 %） | 未判（读数） | B-14 的读数是虚拟位置对撑着的平衡；B-14 的带不动。哪一种离实物近，KEFIT 回答不了（它的竖直位置由拟合给出）；带 POINT 约束剖面的 t5976_primary 两种规则都不收敛 |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 5 passed, 0 failed, 0 error, 0 skipped, 0 stale（同一次运行另三份平衡门 18 过） | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 5 passed, 0 failed, 0 error, 0 skipped, 0 stale（同一次运行另三份平衡门 18 过） | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 

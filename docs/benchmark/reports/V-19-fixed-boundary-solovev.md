@@ -12,7 +12,7 @@ title: V-19 · 定边界 GS：给定轮廓上的 Solov'ev 精确解（fylite cod
 | **数据** | 见 §5 表（0 项） |
 | **门** | `python/tests/test_benchmark_fixed_boundary.py::test_v19_fylite_recovers_the_solovev_map_inside_its_contour`；`python/tests/test_benchmark_fixed_boundary.py::test_v19_chease_on_the_same_contour`；`$FYLITE_KERNEL/rust/fylite/src/fixedbnd.rs::tests · case.rs::fixed_boundary_tests` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -44,7 +44,7 @@ title: V-19 · 定边界 GS：给定轮廓上的 Solov'ev 精确解（fylite cod
 | 收敛阶 | 节点误差 33² 1.45e-03 · 65² 4.58e-04 · 129² 5.51e-05（比 3.2 · 8.3） | 成立 |  |
 | CHEASE NS 80 对精确解 | ψ_N rms 3.91e-06 · 最大 5.86e-05 · 跨度 -2.0e-08 · Ip +9.4e-10 · q₀ +3.6e-06 | 成立 |  |
 | fylite 129² 对 CHEASE NS 80（读数） | ψ_N rms 1.12e-05 · q（ψ_N 0.1–0.9）rms 0.023 % · 最大 0.056 % · q₉₅ -0.004 % | 未判（读数） | 两个代码都对着精确解判过，彼此的差只作读数 |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | CHEASE 本机构建在场（缺则第二条按名 skip）；内核 cargo 单元测试 7 passed（fixedbnd · fixed_boundary_tests） |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。；CHEASE 本机构建在场（缺则第二条按名 skip）；内核 cargo 单元测试 7 passed（fixedbnd · fixed_boundary_tests） |
 
 ## 4. 不可比的部分
 

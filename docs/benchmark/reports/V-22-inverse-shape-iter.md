@@ -12,7 +12,7 @@ title: V-22 · 静态逆问题的第二个形状：ITER 参考分离面上的线
 | **数据** | 见 §5 表（3 项） |
 | **门** | `python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_design_reproduces_its_recorded_readings`；`python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_designed_separatrix_stays_in_the_band`；`python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_design_does_not_buy_shape_with_current_the_machine_lacks`；`python/tests/test_benchmark_inverse_shape_iter.py::test_v22_the_target_curve_is_recorded_with_its_defects` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——4 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -43,7 +43,7 @@ title: V-22 · 静态逆问题的第二个形状：ITER 参考分离面上的线
 | 实现的形状量对目标 | R0 6.2259（目标 6.2209）· a 1.9734（1.9819）· z0 0.3633（0.366）· δ上 0.3665（0.3456）· κ 1.7941（1.8492）· δ下 0.4878（0.5432） | 成立 | κ 低约 3 %、δ下低约 0.055：在保持解收敛与电流不失真的前提下调不上去（见下条），是解析剖面族在这张形状上的表达力边界 |
 | 设置是这条记录的真内容（实测逼出） | 盒子 65² → 129²：间隙 rms 157 → 63 mm；退火遍数 8 → 16 在 65² 上有效、129² 上已饱和；c4 位置控制**必须**让设定点跟踪 R0（`pc_track_r0 = 1`）——固定在目标面积质心时边界被 Shafranov 位移拉偏（rms 180 mm）；边界格分数规则在此无效（与基线逐位同），与 EAST 相反 | 成立 | `emp = 2` 是最后一个仍**收敛**的设置：emp 3 的 shape_error 略好（0.0269）却 600 轮不收敛（残差 0.019）；`enp = 0.5` 给出全场最好的 κ 1.834，代价是 37.5 MA·t 的电流且始终不收敛——形状分是用不存在的电流换的；★给它 4 倍迭代预算（2400 轮、938 s）仍不收敛，残差反而由 0.12 升到 0.32：这是该设置本身不稳，不是预算不够 |
 | 目标曲线与卡片的缺陷（读数） | 参考分离面是数字化 METIS 曲线：248 个有限点、相邻中位 67 mm，且在 X 点处**开口 323 mm**（本条按尖角 [5.15, -3.4] 补齐）；卡片的两条限制器轮廓都不是真空室内区域（First Wall 止于 Z = −3.069，比目标最低点高 230 mm；Divertor 不含主等离子体），本条注入 fydoc 的 METIS 壁（57 点闭合）作限制器；pf_active 无供电额定，退火不守限（实测峰值 30.6 MA·t） | 未判（读数） | ITER-FEAT 2000 那份 dev:currentMax 属另一套线圈（与 base 的 12 圈全不同），不可挪用作额定 |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 4 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 4 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-22` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-22` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-22` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 

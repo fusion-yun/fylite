@@ -40,6 +40,10 @@ BM = ROOT / "docs" / "benchmark"
 REG = BM / "registry.jsonld"
 DATE = "2026-09-15"
 CASE = "FYDOC-CASE-23-east-137985-efit-east"
+#: 每条记录都带一条「本条写入时把门跑一遍」的 finding，`build()` 逐条取。缺哪一条就在
+#: `apply()` 里停住——★新立的记录第一次写册时 registry 里还没有它，必须由 `--reruns` 给出。
+NEED_RERUN = ("B-12", "B-14", "B-15", "B-16", "B-17", "B-18", "B-19", "B-20", "B-21", "C-03",
+              "V-16", "V-17", "V-18", "V-19", "V-21", "V-22", "V-23")
 PTR = f"$FYDOC_ORACLE/{CASE}/corpus/"
 MD = "https://www.iana.org/assignments/media-types/text/markdown"
 WRITER = ("本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，"
@@ -80,8 +84,43 @@ def finding(title, verdict, literal=None, value=None, criterion=None, caveat=Non
     return f
 
 
+def reruns_from_registry(reg: dict) -> dict:
+    """上一次写册时记下的复测结果，自 registry 自己的 `re-run` finding 反读。
+
+    ★★为什么要有它：``--reruns`` 是一份「把门跑一遍」的**实测**结果，而参考件
+    （CHEASE · FreeGSNKE · KEFIT · efund · TokSys）在多数机器上不可得。没有这个
+    反读，为了动一条记录就得替其余十五条**编造**复测结论——那是不能做的事。
+    反读之后，没重跑的记录原样带回它上次那一条，**连标题里的日期一起带**。
+    """
+    out: dict[str, dict] = {}
+    for r in reg.get("@graph", []):
+        if r.get("type") != "fyo:ComparisonRecord":
+            continue
+        rid = r["id"].split("/", 1)[1]
+        for f in r.get("findings", []):
+            if f.get("finding_kind") == "re-run":
+                out[rid] = {"verdict": f.get("verdict"), "literal": f.get("deviation_literal"),
+                            "caveat": f.get("caveat"), "title": f.get("title"), "rid": rid, "carried": True}
+                break
+    return out
+
+
 def rerun_finding(r: dict) -> dict:
-    return finding(f"复测 {DATE}（本条写入时把门跑一遍）", r["verdict"], r["literal"], kind="re-run", caveat=r.get("caveat"))
+    """「本条写入时把门跑一遍」的那条 finding。
+
+    ★``carried`` 的一支是**没有重跑**的：标题连同它原来的日期一起带回，并在
+    caveat 里写明本次沿用。把上一次的结果贴上今天的日期，是伪造复测。
+    """
+    if r.get("carried"):
+        cav = list(r.get("caveat") or [])
+        cav.insert(0, f"★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。"
+                      f"要重跑，把 `{r.get('rid', '<记录号>')}` 列进 `--only` 并在 `--reruns` 里给出本次实测。")
+        return finding(r.get("title") or f"复测 {DATE}（本条写入时把门跑一遍）",
+                       r["verdict"], r["literal"], kind="re-run", caveat=cav)
+    #: ★实测的一支同样认 `title`：`DATE` 是写册日，不一定是跑门日。把门在 09-16 跑出的结果
+    #: 贴上 09-15 的标题，读者看到的日期就是假的——这与 `carried` 那一支要防的是同一件事。
+    return finding(r.get("title") or f"复测 {DATE}（本条写入时把门跑一遍）",
+                   r["verdict"], r["literal"], kind="re-run", caveat=r.get("caveat"))
 
 
 def gate(name, caveat=None):
@@ -805,7 +844,8 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
                         f"加入后 R_parallel 由 {ws_['vv_ots']['R_toroidal_parallel_uOhm']:.4f} 降到 "
                         f"{ws_['vv_ots_ports']['R_toroidal_parallel_uOhm']:.4f} µΩ，裸 τ₁ 冲到 {ws_['vv_ots_ports']['tau_1_s']:.4f} s。"
                         "本条如实记录该组读数，但任何对比都不应当用它",
-                        caveat=["改正方向：按占空比折算等效环向电阻，或把端口建成不闭合段——两者都需要 33NHXN / 22L4FE 未给的环向信息"])]
+                        caveat=["改正方向：按占空比折算等效环向电阻，或把端口建成不闭合段——两者都需要 33NHXN / 22L4FE 未给的环向信息"]),
+                rerun_finding(reruns["V-23"])]
     recs.append(record(
         "V-23", "ITER 被动导体回路：真空室环向电阻对文献；无等离子体时间常数补上超导回路屏蔽后对 CREATE 一致", "verification",
         "fylite: code/wall 经树门（ITER 卡片的 pf_passive，324 个 loop 自 fydoc 由 CC BY 原件离散；"
@@ -871,7 +911,10 @@ def report_md(r: dict, rr: dict) -> str:
          f"| **类** | **{kind}** |", f"| **参考** | {refs} |", f"| **对象** | {r['compared_subject']['comment']} |",
          f"| **数据** | 见 §5 表（{len(r['run']['has_input'])} 项） |", f"| **门** | {gates} |",
          f"| **登记册结论** | {verdict[r['overall_verdict']]}（`assertion_state: {r['assertion_state']}`） |",
-         f"| **复测** | {DATE}：{verdict[rerun['verdict']]}——{rerun.get('deviation_literal', '')} |", "",
+         #: ★日期取自那条复测 finding 自己的标题，不取写册日 `DATE`：沿用的记录带的是它上次
+         #: 那一次的日期，这一行必须跟着它，否则每次写册都会把所有旧复测显示成今天做的。
+         f"| **复测** | {rerun.get('title', f'复测 {DATE}')}：{verdict[rerun['verdict']]}"
+         f"——{rerun.get('deviation_literal', '')} |", "",
          "> 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。", ""]
     if r.get("validity_domain"):
         L += [f"**适用域**：{r['validity_domain']}", ""]
@@ -1023,8 +1066,32 @@ REPORT_TEXT = {
 
 # ------------------------------------------------------------------------------------------------ apply
 
-def apply(case: Path, reruns: dict, solovev: dict) -> None:
+def apply(case: Path, reruns: dict, solovev: dict, only: set[str] | None = None) -> None:
     reg = json.loads(REG.read_text(encoding="utf-8"))
+    #: ★没重跑的记录沿用它上次那条 re-run（见 `reruns_from_registry`）；本次实测的覆盖它。
+    carried = reruns_from_registry(reg)
+    fresh = dict(reruns or {})
+    if only is not None:
+        stray = sorted(set(fresh) - only)
+        if stray:
+            raise SystemExit(f"--reruns 给了 {stray} 的实测结果，但它们不在 --only 里。\n"
+                             "  ★这两个必须一致：--only 说「本次重跑了哪些」，--reruns 是那些的结果。\n"
+                             "  不一致时本工具不猜——把旧结果写成今天的复测是伪造。")
+        missing = sorted(only - set(fresh))
+        if missing:
+            raise SystemExit(f"--only 点名重跑 {missing}，但 --reruns 里没有它们的结果。")
+    merged = {**carried, **fresh}
+    #: ★`build()` 取的每一个键都必须有来路：registry 里沿用的，或本次 `--reruns` 实测的。
+    #: 新记录第一次写册时 registry 里还没有它，只能来自 `--reruns`——这条检查让「忘了给」
+    #: 在这里停住，而不是到 `report_md` 里变成一个 StopIteration。
+    if (absent := sorted(k for k in NEED_RERUN if k not in merged)):
+        raise SystemExit(f"这些记录 build() 要取复测结果，但 registry 里没有、`--reruns` 也没给：{absent}\n"
+                         "  ★新立的记录第一次写册时必属此列：把它列进 `--only` 并在 `--reruns` 里给出本次实测。")
+    if (lack := sorted(k for k, v in merged.items() if v.get("verdict") is None)):
+        raise SystemExit(f"这些记录既无本次实测、registry 里也没有可沿用的 re-run：{lack}")
+    #: ★本函数在 `build()` 之外也直接取 `reruns`（下面给 C-03 补那一条），一并指向合并结果；
+    #: 漏了这一步会在 C-03 上 KeyError——2026-09-16 实测过一次。
+    reruns = merged
     recs, reports = build(case, reruns, solovev)
     graph = [r for r in reg["@graph"] if r["id"] not in {x["id"] for x in recs}]
     by = {r["id"]: r for r in graph}
@@ -1061,7 +1128,12 @@ def apply(case: Path, reruns: dict, solovev: dict) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--reruns", required=True, type=Path)
+    ap.add_argument("--reruns", type=Path,
+                    help="本次实测的复测结果 {记录号: {verdict, literal, caveat?}}；"
+                         "★可省：缺的键自 registry 已有的 re-run finding 反读（连原日期一起），"
+                         "这样动一条记录不必替其余记录编造复测结论")
+    ap.add_argument("--only", nargs="*", metavar="REC",
+                    help="本次真正重跑的记录号（须与 --reruns 的键一致）；其余一律沿用上次")
     ap.add_argument("--case", required=True, type=Path)
     ap.add_argument("--solovev", type=Path, help="solovev_fixed_boundary.json (default: recomputed by tools/benchmark-fixed-boundary.py)")
     a = ap.parse_args()
@@ -1075,7 +1147,8 @@ def main() -> int:
         spec.loader.exec_module(mod)
         with tempfile.TemporaryDirectory() as d:
             sv = mod.solovev(Path(d))
-    apply(a.case, json.loads(a.reruns.read_text(encoding="utf-8")), sv)
+    fresh = json.loads(a.reruns.read_text(encoding="utf-8")) if a.reruns else {}
+    apply(a.case, fresh, sv, set(a.only) if a.only is not None else None)
     return 0
 
 

@@ -12,7 +12,7 @@ title: B-20 · 垂直不稳定性对 KEFIT 的电磁层：KEFIT 平衡上 efund 
 | **数据** | 见 §5 表（3 项） |
 | **门** | `python/tests/test_benchmark_wall_vstab.py::test_the_efund_run_is_the_registered_one`；`python/tests/test_benchmark_wall_vstab.py::test_b20_the_rigid_plant_reproduces_and_stays_in_the_band_against_efund` |
 | **登记册结论** | 成立（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——2 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -40,7 +40,7 @@ title: B-20 · 垂直不稳定性对 KEFIT 的电磁层：KEFIT 平衡上 efund 
 | efund 装置 | γ 676.4 s⁻¹ · k 210838 N/m · k_ideal 270619 · 裕度 0.2835（M = 2π·rvsvs；g、k 由 ±1 mm 平移网格两次运行差分；814 个等离子体节点） | 成立 |  |
 | fylite（fine） | γ 678.2（+0.28 %）· k +0.38 % · k_ideal +0.21 % · 裕度 0.2814（-0.0021）· g 中位 0.31 % / 最大 1.02 % | 成立 |  |
 | fylite（finest） | γ 669.5（-1.01 %）· k +0.38 % · k_ideal +0.61 % · 裕度 0.2864（+0.0029）· g 中位 0.31 % / 最大 1.02 % | 成立 |  |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 2 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-20` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-20` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-20` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 

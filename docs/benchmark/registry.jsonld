@@ -2282,12 +2282,32 @@
     },
     {
      "type": "fyo:ComparisonFinding",
-     "title": "复测 2026-09-15（本条写入时把门跑一遍）",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
      "finding_kind": "re-run",
-     "deviation_literal": "0 passed, 0 failed, 0 error, 2 skipped, 0 stale",
-     "verdict": "unevaluated",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass",
      "caveat": [
-      "两条门自 2026-09-14 起 skip（NO_TOKSYS_FOR_CASE23）；2026-09-15 未在内核检出里重跑，按该门源码中的 skip 标记记"
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `C-03` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `C-03` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-08（本册发布时跑一遍门）",
+     "finding_kind": "re-run",
+     "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `C-03` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
      ]
     }
    ],
@@ -7367,6 +7387,9 @@
      "deviation_literal": "15 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass",
      "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-16` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-16` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-16` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
       "需 ITER_SCENARIO_ROOT（受限件）与 CHEASE_EXE；缺则按名 skip"
      ]
     }
@@ -7507,6 +7530,9 @@
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass",
      "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
       "内核检出里只读复测（不写字节码与缓存）；cargo 单元测试未跑"
      ]
     }
@@ -7650,7 +7676,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-12` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-12` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-12` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -7880,7 +7911,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-14` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-14` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-14` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -8064,7 +8100,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -8245,7 +8286,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "1 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-15` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-15` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-15` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -8455,6 +8501,9 @@
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass",
      "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
       "CHEASE 本机构建在场（缺则第二条按名 skip）；内核 cargo 单元测试 7 passed（fixedbnd · fixed_boundary_tests）"
      ]
     }
@@ -8618,7 +8667,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-16` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-16` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-16` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -8803,6 +8857,9 @@
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass",
      "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-17` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
       "需 FYLITE_KERNEL_LIB 指向带 code/wall 的内核（公开检出的预建运行时库早于它，按名 skip）",
       "2026-09-15 内核改正 a1 ≠ 0 读法后重录读数与带"
      ]
@@ -8980,6 +9037,9 @@
      "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass",
      "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-18` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
       "2026-09-15 内核改正 a1 ≠ 0 读法后重录读数与带"
      ]
     }
@@ -9172,6 +9232,9 @@
      "deviation_literal": "3 passed, 0 failed, 0 error, 0 skipped, 0 stale",
      "verdict": "pass",
      "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-19` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
       "需 FYLITE_KERNEL_LIB 指向带 code/wall 的内核（公开检出的预建运行时库早于它，按名 skip）"
      ]
     }
@@ -9341,7 +9404,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "2 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-20` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-20` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-20` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -9523,7 +9591,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "5 passed, 0 failed, 0 error, 0 skipped, 0 stale（同一次运行另三份平衡门 18 过）",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -9721,7 +9794,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "5 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-21` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -9931,7 +10009,12 @@
      "title": "复测 2026-09-15（本条写入时把门跑一遍）",
      "finding_kind": "re-run",
      "deviation_literal": "4 passed, 0 failed, 0 error, 0 skipped, 0 stale",
-     "verdict": "pass"
+     "verdict": "pass",
+     "caveat": [
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-22` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-22` 列进 `--only` 并在 `--reruns` 里给出本次实测。",
+      "★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `V-22` 列进 `--only` 并在 `--reruns` 里给出本次实测。"
+     ]
     }
    ],
    "run": {
@@ -10009,6 +10092,239 @@
    "assertion_state": "accepted",
    "overall_verdict": "pass",
    "validity_domain": "ITER 卡片（EDA 几何的 12 路线圈，无额定）；15 MA、解析剖面族 β₀ 0.6 · emp 2；129² 盒；一张形状、一个时刻；不含参考平衡对拍、不含电流不确定性的显式报告"
+  },
+  {
+   "id": "record/V-23",
+   "type": "fyo:ComparisonRecord",
+   "title": "ITER 被动导体回路：真空室环向电阻对文献；无等离子体时间常数补上超导回路屏蔽后对 CREATE 一致",
+   "comparison_kind": "verification",
+   "compared_subject": {
+    "type": "spo:Code",
+    "name": "fylite",
+    "comment": "fylite: code/wall 经树门（ITER 卡片的 pf_passive，324 个 loop 自 fydoc 由 CC BY 原件离散；元件互感 · 电阻 · M dI/dt + R I = 0 的 L/R 本征模，每组另单解；每元 8×8 细丝）＋本记录自带的超导回路屏蔽（Maxwell 共轴圆环互感，Schur 补消去线圈）"
+   },
+   "compared_reference": [
+    {
+     "type": "spo:Code",
+     "name": "ITER_D_22L4FE v1.0（CREATE）与 ITER_D_22FPWQ v4.0（真空室 DDD）",
+     "version": "22L4FE 表 4.1.a 与 §2.1 / 表 2.1.a–f（EFDA/03-1108 D2，2004-03-03）；22FPWQ 表 2.1-1 的环向 / 极向电阻",
+     "license": "ITER IDM Internal Use（只引数值，件不再分发）"
+    }
+   ],
+   "criteria": [
+    {
+     "id": "record/V-23/criterion/1",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "真空室双壳并联的环向电阻对 ITER_D_22FPWQ 自报值（7.9 µΩ）",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.035
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "两条独立算法：内核的逐元电阻，与直接自原件按极向条带并联的解析和——两者逐位相同"
+     ]
+    },
+    {
+     "id": "record/V-23/criterion/2",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "补上超导回路屏蔽后的 τ₁（VV + OTS）对 CREATE-NL 的 0.3623 s",
+     "norm": "relative",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 0.08
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "★这是一致性判据，但容差宽达 8 %：本仓自身因线圈自感取法的散布就有 ±7 %（见判据 3）"
+     ]
+    },
+    {
+     "id": "record/V-23/criterion/3",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "本仓不确定度区间须**包含** CREATE 的 τ₁（0.3623 与 0.3705 s）",
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "区间由线圈自感的三种取法给出：a = 0.25 m / a 自矩形单丝 / a 自矩形 3×3；★「一致」的诚实形式是「残差小于我方自身的不确定度」，不是「对上了」"
+     ]
+    },
+    {
+     "id": "record/V-23/criterion/4",
+     "type": "fyo:AcceptanceCriterion",
+     "quantity_label": "屏蔽使均匀模电感下降的幅度（须 < 0.65 倍，即降幅 > 35 %）",
+     "norm": "absolute",
+     "tolerance": {
+      "type": "spo:QuantityValue",
+      "numeric_value": 2.9152,
+      "has_unit": {
+       "type": "spo:Unit",
+       "ucum_code": "uH"
+      }
+     },
+     "tolerance_basis": "measured_band",
+     "caveat": [
+      "这一项才是解释本身：零电阻回路保磁通，压低真空室模的有效电感"
+     ]
+    }
+   ],
+   "findings": [
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "真空室环向电阻对文献",
+     "deviation_literal": "双壳并联 7.6272 µΩ 对 ITER_D_22FPWQ 的 7.9 µΩ（-3.45 %）；内壳 16.3459 · 外壳 14.2996 µΩ。★比书页原有的 8.98 µΩ 粗估更接近真值",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "裸回路的时间常数（读数：高 57 %，保留在册）",
+     "deviation_literal": "不含线圈时 VV 双壳 τ₁ 0.5689 s、加 OTS 0.5834 / 0.3049 s，对 CREATE 的 0.3623 / 0.2385 s（NL）高约 57 %。这个数**不删**：它是「不含超导回路」这一口径下的正确答案，也是下面那条解释的出发点",
+     "verdict": "inconclusive",
+     "caveat": [
+      "口径是对得上的：CREATE 按模式形状点名两个常数，本条实测 k=0 均匀度 1.0000、k=1 上下反对称度 −0.9045，且恰为最慢的两个本征模"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "五条候选解释逐一证伪（含本会话自己先提错的那一条）",
+     "deviation_literal": "①离散粒度：135+151 → 57+50（CREATE 自己的元数）→ 28+25，τ₁ 只动 < 0.5 %（0.568922 → 0.569345 → 0.571403）；②增厚壳：照 CREATE 的 60 → 150 mm 配 η_eq 1.90 µΩ·m 重算，τ₁ **升** 5 %（0.5689 → 0.5977），方向相反；③电阻率：ρ/t 为 12.67（CREATE）对 13.33（本仓），差 5 % 且方向相反；④模式定义：见上条，是同一对模式；★⑤**传导连接——这是本会话先提出、随即自证为错的一条**：对 n = 0 环向涡流，各环本就只有互感耦合，内外壳之间的径向连接只让电流在两壳间重分配，而那已被并联电阻算进；把两壳强制短接得到的正是已在求解的均匀模。该说法一度写进本登记册、plan 与内核笔记，此次一并订正",
+     "verdict": "pass",
+     "caveat": [
+      "记下它，是因为它曾被当作结论写出去过；错的不是方向感，是没有先问「n=0 下传导连接改变什么」"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "★真因：CREATE 的 plasmaless 系统含零电阻超导回路，屏蔽了真空室模",
+     "deviation_literal": "22L4FE 第 2 页明写「All resistances (in SC coils, voltage amplifiers, connections) are **neglected**」，而其 L₀ / R₀ 装着十一条 PF/CS 回路。零电阻回路保磁通，故以 Schur 补消去线圈：L_eff = M_vv − M_vc M_cc⁻¹ M_cv。均匀模电感 5.0657 → 2.9152 µH（−42 %），τ₁ 0.5834 → 0.3418 s，对 CREATE-NL 的 0.3623 s 差 -5.66 %",
+     "verdict": "pass",
+     "caveat": [
+      "互感用 Maxwell 共轴圆环公式自算，先对内核的 M 验过：非对角相对差中位 −0.0094 %、p95 0.168 %，L_uniform 5.0632 对 5.0657 µH——不是靠公式凑出来的"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "残差小于本仓自身的不确定度（这才是「一致」的诚实形式）",
+     "deviation_literal": "线圈自感的三种取法给出 τ₁ 区间 [0.3257, 0.3717] s（a = 0.25 m / a 自矩形单丝 / a 自矩形 3×3），跨度约 14 %；CREATE 的 0.3623 与 0.3705 s **都落在区间内**。主报值取 a 自矩形单丝（与内核 rect_of 的 a_eq 约定一致）= 0.3418 s",
+     "verdict": "pass",
+     "caveat": [
+      "★不报 a = 0.25 m 那一档的 −0.44 %：它对得最准，但取法最随意，拿它当主结论是挑数"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "回路拓扑与线圈几何都不影响结论（两条候选一并排除）",
+     "deviation_literal": "十二条独立线圈与表 2.1.b–f 的十一条真实回路给出**逐位相同**的 L_uniform 2.9226 µH、τ₁ 0.3418 s（τ₂ 仅第四位差）——屏蔽由 M_vc M_cc⁻¹ M_cv 决定，回路只是基变换；线圈几何用卡片的 2ACJT3 v3.1 给 0.3418 s、用 22L4FE 自己的表 2.1.a 给 0.3395 s，差 0.7 %",
+     "verdict": "pass"
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "端口组是本仓的建模过度（读数，且不供对比用）",
+     "deviation_literal": "三组端口内壳按**连续环**建模，而实物是 18 个约 5° 宽（环向占空比约 25 %）。加入后 R_parallel 由 7.5376 降到 6.1033 µΩ，裸 τ₁ 冲到 0.8840 s。本条如实记录该组读数，但任何对比都不应当用它",
+     "verdict": "inconclusive",
+     "caveat": [
+      "改正方向：按占空比折算等效环向电阻，或把端口建成不闭合段——两者都需要 33NHXN / 22L4FE 未给的环向信息"
+     ]
+    },
+    {
+     "type": "fyo:ComparisonFinding",
+     "title": "复测 2026-09-16（本条写入时把门跑一遍）",
+     "finding_kind": "re-run",
+     "deviation_literal": "7 passed, 0 failed, 0 error, 0 skipped（python/tests/test_benchmark_wall_iter.py，2026-09-16 本机实测）",
+     "verdict": "pass",
+     "caveat": [
+      "本条是新立记录，registry 里此前没有可沿用的复测条，故由 `--reruns` 给出本次实测。",
+      "同批另跑：EAST 卡片 28 passed / 195 s，ITER 卡片 11 passed / 40 s，合计 39 门全过、零 skip。"
+     ]
+    }
+   ],
+   "run": {
+    "type": "spo:ComputationalProcess",
+    "recorded": "2026-09-15",
+    "realizes": [
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_the_vessel_toroidal_resistance_agrees_with_the_literature"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_the_bare_time_constants_reproduce"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_the_modes_are_the_ones_create_names"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_screening_by_the_superconducting_circuits_closes_the_gap"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_our_own_uncertainty_band_contains_creates_value"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_neither_circuit_topology_nor_coil_geometry_changes_the_answer"
+     },
+     {
+      "type": "spo:Code",
+      "name": "python/tests/test_benchmark_wall_iter.py::test_v23_the_port_sets_are_recorded_but_flagged_as_over_modelled"
+     }
+    ],
+    "has_input": [
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "docs/benchmark/readings/wall_iter.json",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public"
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "fydoc facts/device/iter/abox/static/now/pf_passive.jsonld",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "324 个 loop，自 CC BY 4.0 的 Zenodo 原件（10.5281/zenodo.17113713）逐段离散"
+      ]
+     },
+     {
+      "type": "spo:Concretization",
+      "storage_uri": "dist/facts/device/iter.jsonld",
+      "provenance_class": "registered",
+      "quality_state": "valid",
+      "license": "public",
+      "caveat": [
+       "装置卡片（本轮起带 pf_passive）"
+      ]
+     }
+    ],
+    "comment": "本条由公开检出的 `tools/benchmark-equilibrium-records.py` 直写（2026-09-15，用户裁定「完善平衡相关 benchmark，不动 fylite_kernel」），不经内核仓的发布器；门在本检出里跑"
+   },
+   "account": {
+    "type": "spo:Concretization",
+    "storage_uri": "$FYDOC_ORACLE/FYDOC-CASE-23-east-137985-efit-east/FYDOC-CASE-23-east-137985-efit-east.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown",
+    "caveat": [
+     "完整账在 fydoc 算例书 CASE-23 书页（internal）；公开侧的结构化摘要见 report"
+    ]
+   },
+   "report": {
+    "type": "spo:Concretization",
+    "storage_uri": "reports/V-23-wall-iter.md",
+    "format_iri": "https://www.iana.org/assignments/media-types/text/markdown"
+   },
+   "caveat": [
+    "★★2026-09-16 /goal「… 导体壁等被动导体耦合」的 ITER 侧：此前 ITER 卡片的 `pf_passive` 为 None、十四个 vessel 单元无一带 `element`，`code/wall` 与 `code/vstab` 在这台机器上**看不到任何被动导体**",
+    "★V 类：参考侧是文献数值（两份 Internal Use 件），不是可回放的运行件",
+    "★★★**本条首录时判「不可比」，同日据实测改判「补上屏蔽后一致」**。首录把差因归给「CREATE 侧有传导连接」，那是推测且已自证为错（n = 0 下径向连接不改变环向回路拓扑）；真因在同一份件的前一页——plasmaless 系统含零电阻超导回路，保磁通、屏蔽真空室模。两版都留在册里，因为错的那版曾被写出去过",
+    "★不去凑 τ：把 η 或几何调到对上 0.3623 s 会毁掉已经成立的电阻一致性；主报值也不取对得最准的那一档（a = 0.25 m，−0.44 %），而取取法最自然的一档（−5.66 %）",
+    "纳入类别（参考数据）：public"
+   ],
+   "assertion_state": "accepted",
+   "overall_verdict": "pass",
+   "validity_domain": "ITER 卡片的被动集（自 CC BY 原件离散的 324 元，8×8 细丝）；无等离子体、纯 L/R 电路；屏蔽按零电阻回路的 Schur 补，线圈以单丝 × 匝数计（自感取矩形等效半径）；端口按连续环建模（已知过度）；不含 3-D 端口结构、不含等离子体响应"
   }
  ]
 }

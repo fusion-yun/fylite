@@ -12,7 +12,7 @@ title: B-12 · EAST #137985 原始树输入：fylite 与 KEFIT 在同一组数�
 | **数据** | 见 §5 表（4 项） |
 | **门** | `python/tests/test_benchmark_equilibrium.py::test_b12_the_raw_tree_readings_are_the_registered_ones`；`$FYLITE_KERNEL/tools/benchmark-east-raw.py` |
 | **登记册结论** | 未判（读数）（`assertion_state: accepted`） |
-| **复测** | 2026-09-15：成立——1 passed, 0 failed, 0 error, 0 skipped, 0 stale |
+| **复测** | 复测 2026-09-15（本条写入时把门跑一遍）：成立——1 passed, 0 failed, 0 error, 0 skipped, 0 stale |
 
 > 本页由公开检出的 `tools/benchmark-equilibrium-records.py` 自登记册写出（2026-09-15 起平衡相关记录在本仓直写，不经内核仓的发布器）；判据与读数是登记册的，「复测」是写入当日把门跑一遍的结果。
 
@@ -40,7 +40,7 @@ title: B-12 · EAST #137985 原始树输入：fylite 与 KEFIT 在同一组数�
 | 全部探针：两个代码都拟不上 | fylite 纯磁 χ² 1883 / 1870 / 1881 · KEFIT 1700 / 1710 / 1750（Error #1） | 不成立 | 同一批不自洽通道：KEFIT 纯磁 χ² 份额 HBPH1T 883 · HBPD10T 169 · HBPH2T 64 · HBPH1N 56 · HBPD10N 51 · HBPD8T 37 · HBPH3T 25，同一份剔除交给两个代码（读自拟合本身） |
 | 加 POINT：两个代码都不稳 | fylite 主集 q₀ 0.82 / 0.82 / 0.90 · KEFIT 4.041 s `Problem in CNTOUR`、4.944 s 带 Error #19–21、5.976 s q₀ 1.04 | 未判（读数） | 原始输入上的档 K 没有可作参考的答案 |
 | KEFIT 几何：GUI_v5 自带表 green2018_wpf_64 不是原始探针名读的道阵 | 按位置与角度配对，79 槽中 56 对差 > 2 cm / 10°；改 green2022_pcs：76 槽中 74 槽 0 mm / 0° 重合 | 成立 | 这是 2026-09-14 GUI 原配方各例 `Problem in BOUND` 的原因 |
-| 复测 2026-09-15（本条写入时把门跑一遍） | 1 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 |  |
+| 复测 2026-09-15（本条写入时把门跑一遍） | 1 passed, 0 failed, 0 error, 0 skipped, 0 stale | 成立 | ★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-12` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-12` 列进 `--only` 并在 `--reruns` 里给出本次实测。；★本次写册**未重跑**本条：沿用上一次的复测结果，标题里的日期即那一次的日期。要重跑，把 `B-12` 列进 `--only` 并在 `--reruns` 里给出本次实测。 |
 
 ## 4. 不可比的部分
 
