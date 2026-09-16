@@ -260,6 +260,41 @@ def test_the_reference_kernel_is_declared():
     assert k.get("recorded"), k
 
 
+def test_every_record_has_a_report_and_the_book_lists_it():
+    """★★2026-09-16 用户裁定「records 逐条配以测试报告且收入 myst」，两头都守。
+
+    **生成了而没入 toc，等于没生成**——站点上看不到它，而仓里文件一个不少，光看目录发现不了。
+    这与「域章没入 toc」是同一个病，本册 2026-09-16 已经栽过一次（整册被摘出 myst.yml）。
+
+    ★另一头也要守：**盘上多出来的报告**（记录已删而报告还在）同样是错的。一份没有正本的
+    报告是最坏的一种文档——它看起来权威，却没有任何东西保证它还成立。
+    """
+    toc = (ROOT / "docs" / "myst.yml").read_text(encoding="utf-8")
+    want = {name.removesuffix(".jsonld") for name, _ in records()}
+    have = {p.stem for p in (BM / "reports").glob("*.md")} if (BM / "reports").is_dir() else set()
+
+    assert want <= have, f"这些记录没有报告页：{sorted(want - have)}"
+    assert have <= want, f"这些报告页没有对应的记录（正本已不在）：{sorted(have - want)}"
+    for r in sorted(want):
+        assert f"benchmark/reports/{r}.md" in toc, f"报告 {r}.md 没有入 docs/myst.yml"
+
+
+def test_the_round_summaries_are_in_the_book():
+    """★收敛说明是**手写**的散文（一轮一页），所以它不会被生成器补上——漏挂 toc 没人会发现。
+
+    ★它与报告的分工写在 README 里：报告是记录的可读面（生成、随记录动），
+    收敛说明是一轮工作的快照（手写、不改写上一页）。
+    """
+    d = BM / "summary"
+    if not d.is_dir():
+        pytest.skip("尚无收敛说明")
+    toc = (ROOT / "docs" / "myst.yml").read_text(encoding="utf-8")
+    pages = sorted(p.name for p in d.glob("*.md"))
+    assert pages, "summary/ 在盘上却是空的——空目录就是一个声明了却不存在的东西"
+    for name in pages:
+        assert f"benchmark/summary/{name}" in toc, f"收敛说明 {name} 没有入 docs/myst.yml"
+
+
 def test_the_tree_on_disk_is_the_tree_the_readme_declares():
     """★★声明的目录与盘上的目录必须一致——两个方向都要。
 

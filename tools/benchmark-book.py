@@ -107,6 +107,22 @@ def local_kernel() -> dict | None:
 
 _ROLE = re.compile(r"\{(?:ref|cite|numref|eq|doc)\}`([^`]*)`")
 
+#: ★★环境变量写成 `$NAME`，而 MyST 把一行里的两个 `$` 当成一对数学定界符——于是
+#: 「须设 $FYLITE_KERNEL_LIB …，$FYLITE_DEVICE_DIR …」中间那截会被当公式渲染，
+#: `myst build` 逐字报 unicodeTextInMathMode（2026-09-16 实测，两份报告各九条警告）。
+#: 这里把它包成代码号。
+#:
+#: ★★**判别式要躲开真数学，而这一条我第一版写错过，值得留着**：最初允许后继字符含 `.`，
+#: 于是抄录判据里的 `$J_1..J_6$`（CHEASE 的磁面线积分）被当成环境变量 `$J_1`，
+#: 公式当场破掉——`myst build` 逐字报 unicodeTextInMathMode。**一个为修渲染而加的规则，
+#: 自己造出了同一类渲染错。** 现在收紧成三条同时成立：
+#:   一、名字必须是「大写段 + 至少一段 `_大写/数字`」（`$B_0$`、`$1/\rho^2$` 都不符）；
+#:   二、后面**不跟** `.` `,` `$` 或 ASCII 字母数字——★这是**反向**判别：枚举「允许的标点」
+#:      靠不住（第二版就漏了全角左括号 `（`，于是 `$FYLITE_DEVICE_DIR（EAST 牌）` 又破了一次），
+#:      而「不许跟什么」是有限且稳定的；中文字符照样允许跟在后面；
+#:   三、总长 ≥ 6（本仓的环境变量都是 `FYLITE_*` / `FYDOC_*` / `ITER_*` 这类长名）。
+_ENVVAR = re.compile(r"\$([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)(?![.,$A-Za-z0-9_])")
+
 
 def defang(text: str) -> str:
     """抄录件逐字保留 SRS 的 MyST 角色；**渲染时**必须脱成普通代码号。
@@ -114,6 +130,7 @@ def defang(text: str) -> str:
     ★那些 `{ref}` / `{cite}` 的锚点在本仓不存在，原样渲染会让 `myst build --strict` 变红——
     而红的原因会显示成本册的错，其实是抄来的字。脱敏只动呈现，不动抄录件。"""
     t = _ROLE.sub(lambda m: f"`{m.group(1)}`", text)
+    t = _ENVVAR.sub(lambda m: f"`${m.group(1)}`" if len(m.group(1)) >= 6 else m.group(0), t)
     #: 表格单元里的竖线会把一行拆成两格；抄来的判据要进表就得转义
     return t
 
@@ -209,6 +226,138 @@ def write_chapter(path: pathlib.Path, block: str) -> bool:
         path.write_text(new, encoding="utf-8")
         return True
     return False
+
+
+# ────────────────────────────────────────────────────── reports/<ID>.md
+
+#: ★★**逐条报告由记录生成，不手写**（2026-09-16 用户裁定「records 逐条配以测试报告且收入
+#: myst」）。手写会漂：改一条记录的 finding 而忘了改它的报告，读者就会在同一件事上读到两个数
+#: ——这正是旧册 `reports/README.md` 漏掉最后一条记录的那个病。生成则永远同源。
+#:
+#: ★**章节固定六节，次序不可变**，体例承自 `docs/reference/report-template.md` 的规矩：
+#: 读者读过一份就读过了所有份。第一节必须能让人决定要不要往下读。
+REPORT_SECTIONS = ("摘要", "问的是什么", "判据与量到多少", "不可比的部分", "追溯", "复算")
+
+
+def report_md(rec: dict, reqs: dict, where: dict, ref: dict) -> str:
+    """一条记录 → 一份报告。"""
+    rid = rec["id"].split("/")[-1]
+    g, d = where[rec["domain"]]
+    p = rec.get("provenance") or {}
+    run = rec.get("run") or {}
+    k = run.get("kernel") or {}
+    kind = KIND_ZH.get(rec.get("comparison_kind"), "?")
+    verd = VERDICT_ZH.get(rec.get("overall_verdict"), "?")
+    refs = " · ".join(x.get("name", "?") for x in (rec.get("compared_reference") or [])) or "—"
+    fr = freshness(rec, ref)
+
+    L = ["---", f'title: "{rid}"', "---", "",
+         f"# {rec['title']['zh']}", "",
+         "<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。"
+         "正本是 `records/" + rid + ".jsonld`，本页只是它的可读面。 -->", "",
+         f"*{g['title']['zh']} · [{d['title']['zh']}](../{d['path']})　|　"
+         f"记录正本：`records/{rid}.jsonld`*", ""]
+
+    # 一 · 摘要 —— 只看这一段就知道该不该往下读
+    L += [f"## {REPORT_SECTIONS[0]}", "",
+          f"- **类**：{kind}　**判决**：**{verd}**",
+          f"- **量的是**：{cell(rec['title']['zh'])}",
+          f"- **参考**：{cell(refs)}",
+          f"- **验的需求**：" + " · ".join(f"`{r}`" for r in rec.get("requirement") or []),
+          f"- **跑在内核**：`{k.get('checksum', '—')[:23]}…`（新鲜度 **{fr}**）",
+          f"- **记录版本**：{p.get('record_version', '—')}　**评审**：{REVIEW_ZH.get(p.get('review_status'), '—')}"
+          f"　**日期**：{run.get('performed', p.get('recorded', '—'))}", ""]
+    if p.get("open_defect"):
+        L += [":::{warning} 这是一条**已裁定保留**的缺口", "", p["open_defect"], ":::", ""]
+
+    # 二 · 问的是什么
+    L += [f"## {REPORT_SECTIONS[1]}", "",
+          "**被量的**：" + cell((rec.get("compared_subject") or {}).get("comment")
+                             or (rec.get("compared_subject") or {}).get("name", "—")), ""]
+    for x in rec.get("compared_reference") or []:
+        L.append(f"**参考**：{cell(x.get('name', '?'))}"
+                 + (f"（{cell(x.get('version'))}）" if x.get("version") else ""))
+        if x.get("comment"):
+            L += ["", "> " + defang(x["comment"]).replace("\n", " ")]
+        L.append("")
+    L += ["**口径与适用域**：", "", "> " + defang(rec.get("validity_domain", "—")), ""]
+
+    # 三 · 判据与量到多少
+    L += [f"## {REPORT_SECTIONS[2]}", "",
+          "| 判据 | 容差 | 取法 | 量到 | 判 |",
+          "| :--- | ---: | :--- | :--- | :--- |"]
+    by_cid = {c["id"]: c for c in rec.get("criteria") or []}
+    seen = set()
+    for f in rec.get("findings") or []:
+        c = by_cid.get(f.get("criterion"))
+        if c:
+            seen.add(c["id"])
+        tol = (c or {}).get("tolerance", {}).get("numeric_value")
+        L.append(f"| {cell((c or {}).get('quantity_label') or f.get('title', '—'))} "
+                 f"| {('%g' % tol) if isinstance(tol, (int, float)) else '—'} "
+                 f"| {(c or {}).get('tolerance_basis', '—')} "
+                 f"| {cell(f.get('deviation_literal', '—'))} "
+                 f"| **{VERDICT_ZH.get(f.get('verdict'), '—')}** |")
+    for c in rec.get("criteria") or []:
+        if c["id"] not in seen:
+            #: ★声明了却没有对应 finding 的判据要显出来——不是省略，是「这一条没量」
+            tol = c.get("tolerance", {}).get("numeric_value")
+            L.append(f"| {cell(c.get('quantity_label', '—'))} "
+                     f"| {('%g' % tol) if isinstance(tol, (int, float)) else '—'} "
+                     f"| {c.get('tolerance_basis', '—')} | ★**本条没有对应的量** | — |")
+    L.append("")
+    for c in rec.get("criteria") or []:
+        if c.get("comment"):
+            L += [f"**`{c.get('quantity_label', '')}`** — " + defang(c["comment"]), ""]
+    for f in rec.get("findings") or []:
+        if f.get("caveat"):
+            L += [f"**{cell(f.get('title', ''))}**", ""]
+            L += ["- " + defang(x) for x in f["caveat"]]
+            L.append("")
+
+    # 四 · 不可比的部分
+    L += [f"## {REPORT_SECTIONS[3]}", ""]
+    L += ["- " + defang(x) for x in (rec.get("caveat") or ["—"])]
+    L.append("")
+
+    # 五 · 追溯
+    L += [f"## {REPORT_SECTIONS[4]}", "",
+          f"- 首次入册 {p.get('recorded', '—')}　末次修订 {p.get('revised', '—')}"
+          f"　版本 {p.get('record_version', '—')}　评审 {REVIEW_ZH.get(p.get('review_status'), '—')}", ""]
+    if p.get("reviewer"):
+        L += ["| 评审人 | 角色 | 日期 | 结论 |", "| :--- | :--- | :--- | :--- |"]
+        L += [f"| {x.get('name', '—')} | {x.get('role', '—')} | {x.get('date', '—')} | {x.get('verdict', '—')} |"
+              for x in p["reviewer"]]
+        L.append("")
+    if p.get("change"):
+        L += ["**变更史**（★改判本身留在册里，不覆盖旧结论）：", "",
+              "| 版本 | 日期 | 谁 | 做了什么 |", "| :--- | :--- | :--- | :--- |"]
+        L += [f"| {c.get('record_version', '—')} | {c.get('date', '—')} | {cell(c.get('by', '—'))} "
+              f"| {cell(c.get('summary', '—'))} |" for c in p["change"]]
+        L.append("")
+
+    # 六 · 复算
+    L += [f"## {REPORT_SECTIONS[5]}", "", "**这次跑在**：", "",
+          f"- 内核 `{k.get('name', 'libfylite')}` `{k.get('checksum', '—')}`"
+          + (f"　—— {defang(k['comment'])}" if k.get("comment") else ""), ""]
+    if run.get("has_input"):
+        L += ["**输入（每一项都带 sha256，否则指针指不住任何东西）**：", ""]
+        for x in run["has_input"]:
+            L.append(f"- `{x.get('storage_uri', '—')}`  \
+  `{x.get('checksum', '—')}`"
+                     + (f"  \
+  {defang(x['comment'])}" if x.get("comment") else ""))
+        L.append("")
+    if run.get("realizes"):
+        L += ["**守它的门**：", ""]
+        L += [f"- `{x['name']}`" + (f" —— {defang(x['comment'])}" if x.get("comment") else "")
+              for x in run["realizes"]]
+        L.append("")
+    L += ["```bash",
+          "python tools/benchmark-book.py --check   # 本页与记录同源吗",
+          "python tools/benchmark-book.py --ci      # 过期了吗、不成立吗",
+          "```", ""]
+    return "\n".join(L)
 
 
 # ─────────────────────────────────────────────────────────── coverage.md
@@ -451,9 +600,18 @@ def build() -> dict[pathlib.Path, str]:
         BM / "status.md": status_md(reqs, recs, doms),
         META / "index.jsonld": json.dumps(index_jsonld(reqs, recs, doms), ensure_ascii=False, indent=1) + "\n",
     }
+    #: ★逐条报告：一条记录一份，整文件生成
+    where = {d["id"]: (g, d) for g, d in doms}
+    ref = kernel_reference()
+    for r in recs:
+        out[BM / "reports" / f"{r['id'].split('/')[-1]}.md"] = report_md(r, reqs, where, ref)
+    #: 章页不同：它有手写散文，生成器只换标记之间那一段
+    markers: set[pathlib.Path] = set()
     for g, d in doms:
-        out[BM / d["path"]] = chapter_block(g, d, reqs, recs, crit, srs_ver)
-    return out
+        p = BM / d["path"]
+        out[p] = chapter_block(g, d, reqs, recs, crit, srs_ver)
+        markers.add(p)
+    return out, markers
 
 
 def main() -> int:
@@ -512,11 +670,11 @@ def main() -> int:
         print(f"{len(recs)} 条记录：无过期、无不成立")
         return 0
 
-    out = build()
+    out, markers = build()
     if a.check:
         stale = []
         for p, text in out.items():
-            if p.suffix == ".md" and p.name not in ("coverage.md", "status.md"):
+            if p in markers:
                 cur = p.read_text(encoding="utf-8") if p.is_file() else ""
                 if BEGIN not in cur or END not in cur:
                     stale.append(p)
@@ -537,10 +695,11 @@ def main() -> int:
 
     changed = []
     for p, text in out.items():
-        if p.suffix == ".md" and p.name not in ("coverage.md", "status.md"):
+        if p in markers:
             if write_chapter(p, text):
                 changed.append(p)
         else:
+            p.parent.mkdir(parents=True, exist_ok=True)
             if not p.is_file() or p.read_text(encoding="utf-8") != text:
                 p.write_text(text, encoding="utf-8")
                 changed.append(p)
