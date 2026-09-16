@@ -157,12 +157,179 @@ def svg(rec: dict) -> str:
     return "\n".join(L) + "\n"
 
 
+
+
+# ───────────────────────────────── 对标曲线本身：等高线叠画 与 剖面叠画
+
+#: ★★**这两张图与余量图答的不是同一个问题**：余量图答「离判据还有多远」（元信息），
+#: 这两张答「**差在哪儿**」（数据本身）。一个标量说不出偏差是整体平移还是局部变形，
+#: 也说不出它落在芯部还是边缘——那得把两侧画在一起才看得见。
+CURVE_COLORS = {"analytic": "#6f8fbf", "fylite_129": "#d64545", "chease_ns80": "#2e9e4f"}
+CURVE_DASH = {"analytic": "", "fylite_129": ' stroke-dasharray="6 4"', "chease_ns80": ' stroke-dasharray="1 5"'}
+CURVE_ZH = {"analytic": "Solov'ev 闭式解", "fylite_129": "fylite 129²", "chease_ns80": "CHEASE NS=80"}
+
+
+def contour_svg(d: dict) -> str:
+    """R-Z 面上把三侧的 psi_N 等高线画在一起。"""
+    b = d["boundary"]
+    rs, zs = b["r"], b["z"]
+    r0, r1, z0, z1 = min(rs), max(rs), min(zs), max(zs)
+    PAD, W2, TOPB = 0.06, 760, 56
+    #: ★等比例：R-Z 面上拉伸纵横比会把形状画歪，而形状正是这张图要说的事
+    span_r, span_z = (r1 - r0) * (1 + 2 * PAD), (z1 - z0) * (1 + 2 * PAD)
+    plot_w = 430
+    scale = plot_w / span_r
+    plot_h = span_z * scale
+    H2 = TOPB + plot_h + 52
+    ox, oy = 44, TOPB
+    cr0, cz1 = r0 - (r1 - r0) * PAD, z1 + (z1 - z0) * PAD
+
+    def px(r): return ox + (r - cr0) * scale
+    def py(z): return oy + (cz1 - z) * scale
+
+    L = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W2} {H2:.0f}" role="img" '
+         f'aria-label="psi_N 等高线：三侧画在一起">',
+         '<title>psi_N 等高线 — 对标两侧画在一起</title>',
+         '<desc>R-Z 面，等比例。灰色粗线是两侧共同保持的边界轮廓；'
+         '五条 psi_N 等值线各由三侧分别给出。</desc>',
+         f'<text x="8" y="22" font-size="14" font-weight="600" fill="{TEXT}">'
+         f'psi_N 等高线（{", ".join(str(v) for v in d["levels"])}）—— 三侧画在一起</text>']
+
+    poly = " ".join(f"{px(r):.1f},{py(z):.1f}" for r, z in zip(rs, zs))
+    L.append(f'<polyline points="{poly}" fill="none" stroke="{INK}" stroke-width="2.4" opacity="0.8"/>')
+
+    for who, levels in d["contours"].items():
+        col, dash = CURVE_COLORS.get(who, INK), CURVE_DASH.get(who, "")
+        for segs in levels.values():
+            for s in segs:
+                pts = " ".join(f"{px(r):.1f},{py(z):.1f}" for r, z in zip(s["r"], s["z"]))
+                L.append(f'<polyline points="{pts}" fill="none" stroke="{col}" '
+                         f'stroke-width="1.3"{dash} opacity="0.95"/>')
+    for who, (ar, az) in d.get("axis", {}).items():
+        L.append(f'<circle cx="{px(ar):.1f}" cy="{py(az):.1f}" r="3" fill="{CURVE_COLORS.get(who, INK)}"/>')
+
+    lx, ly = ox + plot_w + 26, TOPB + 14
+    for i, who in enumerate(d["contours"]):
+        col, dash = CURVE_COLORS.get(who, INK), CURVE_DASH.get(who, "")
+        y = ly + i * 22
+        L.append(f'<line x1="{lx}" y1="{y}" x2="{lx + 34}" y2="{y}" stroke="{col}" '
+                 f'stroke-width="2"{dash}/>')
+        L.append(f'<text x="{lx + 42}" y="{y + 4}" font-size="12" fill="{TEXT}">'
+                 f'{esc(CURVE_ZH.get(who, who))}</text>')
+    L.append(f'<line x1="{lx}" y1="{ly + len(d["contours"]) * 22}" x2="{lx + 34}" '
+             f'y2="{ly + len(d["contours"]) * 22}" stroke="{INK}" stroke-width="2.4" opacity="0.8"/>')
+    L.append(f'<text x="{lx + 42}" y="{ly + len(d["contours"]) * 22 + 4}" font-size="12" '
+             f'fill="{TEXT}">保持的边界（两侧共用）</text>')
+    L.append(f'<text x="{lx}" y="{ly + len(d["contours"]) * 22 + 34}" font-size="11" fill="{INK}">'
+             f'★三侧在线宽内重合——</text>')
+    L.append(f'<text x="{lx}" y="{ly + len(d["contours"]) * 22 + 50}" font-size="11" fill="{INK}">'
+             f'**这就是结果**，不是画漏了。</text>')
+    L.append(f'<text x="{lx}" y="{ly + len(d["contours"]) * 22 + 66}" font-size="11" fill="{INK}">'
+             f'定量见 q 剖面图与判据表。</text>')
+
+    L.append(f'<text x="8" y="{H2 - 10:.0f}" font-size="10.5" fill="{INK}">'
+             f'R-Z 等比例　生成：tools/benchmark-figures.py（数据 readings/solovev_curves.json）</text>')
+    L.append("</svg>")
+    return "\n".join(L) + "\n"
+
+
+def qprofile_svg(d: dict) -> str:
+    """上：两侧的 q(psi_N) 画在一起；下：它们的相对差——差异在这一格才看得见。"""
+    q = d.get("q_profile") or {}
+    if "x" not in q:
+        return ""
+    x, a, b = q["x"], q["fylite_129"], q["chease_ns80"]
+    rel = [(bb / aa - 1.0) * 100.0 for aa, bb in zip(a, b)]   # CHEASE 相对 fylite，百分比
+    W2, OX, RIGHT2 = 900, 66, 26
+    H1, H2h, GAP, TOPB = 200, 130, 46, 54
+    H = TOPB + H1 + GAP + H2h + 46
+    pw = W2 - OX - RIGHT2
+
+    def px(v): return OX + (v - x[0]) / (x[-1] - x[0]) * pw
+
+    qlo, qhi = min(min(a), min(b)), max(max(a), max(b))
+    qlo, qhi = qlo - (qhi - qlo) * 0.08, qhi + (qhi - qlo) * 0.08
+
+    def py1(v): return TOPB + (qhi - v) / (qhi - qlo) * H1
+
+    m = max(abs(min(rel)), abs(max(rel))) or 1.0
+
+    def py2(v): return TOPB + H1 + GAP + H2h / 2 - v / (m * 1.15) * (H2h / 2)
+
+    L = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W2} {H}" role="img" '
+         f'aria-label="q 剖面：两侧画在一起，以及它们的相对差">',
+         '<title>q 剖面 — 两侧画在一起</title>',
+         '<desc>上格是两个码各自的 q(psi_N)；下格是它们的相对差（百分比）——'
+         '差异在上格看不出来，在下格才看得见。</desc>',
+         f'<text x="8" y="22" font-size="14" font-weight="600" fill="{TEXT}">'
+         f'q 剖面：两侧画在一起（上），以及它们差多少（下）</text>']
+
+    for frac in (0.0, 0.25, 0.5, 0.75, 1.0):
+        xv = x[0] + (x[-1] - x[0]) * frac
+        L.append(f'<line x1="{px(xv):.1f}" y1="{TOPB}" x2="{px(xv):.1f}" y2="{TOPB + H1}" '
+                 f'stroke="{INK}" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.4"/>')
+        L.append(f'<text x="{px(xv):.1f}" y="{TOPB + H1 + 16}" font-size="11" fill="{INK}" '
+                 f'text-anchor="middle">{xv:.2f}</text>')
+    L.append(f'<text x="{OX + pw / 2:.0f}" y="{H - 10}" font-size="11" fill="{INK}" '
+             f'text-anchor="middle">psi_N</text>')
+    for v in (qlo, (qlo + qhi) / 2, qhi):
+        L.append(f'<text x="{OX - 8}" y="{py1(v) + 4:.1f}" font-size="11" fill="{INK}" '
+                 f'text-anchor="end">{v:.3f}</text>')
+    L.append(f'<text x="{OX - 8}" y="{TOPB - 8}" font-size="11" fill="{TEXT}" text-anchor="end">q</text>')
+
+    for who, ys in (("fylite_129", a), ("chease_ns80", b)):
+        pts = " ".join(f"{px(xx):.1f},{py1(yy):.1f}" for xx, yy in zip(x, ys))
+        L.append(f'<polyline points="{pts}" fill="none" stroke="{CURVE_COLORS[who]}" '
+                 f'stroke-width="2"{CURVE_DASH[who]}/>')
+    for i, who in enumerate(("fylite_129", "chease_ns80")):
+        y = TOPB + 14 + i * 20
+        L.append(f'<line x1="{OX + 14}" y1="{y}" x2="{OX + 48}" y2="{y}" '
+                 f'stroke="{CURVE_COLORS[who]}" stroke-width="2"{CURVE_DASH[who]}/>')
+        L.append(f'<text x="{OX + 56}" y="{y + 4}" font-size="12" fill="{TEXT}">'
+                 f'{esc(CURVE_ZH[who])}</text>')
+
+    y0 = py2(0.0)
+    L.append(f'<line x1="{OX}" y1="{y0:.1f}" x2="{W2 - RIGHT2}" y2="{y0:.1f}" '
+             f'stroke="{INK}" stroke-width="1"/>')
+    pts = " ".join(f"{px(xx):.1f},{py2(vv):.1f}" for xx, vv in zip(x, rel))
+    L.append(f'<polyline points="{pts}" fill="none" stroke="{FAIL}" stroke-width="2"/>')
+    L.append(f'<text x="{OX - 8}" y="{py2(m):.1f}" font-size="11" fill="{INK}" '
+             f'text-anchor="end">{m:+.3f}%</text>')
+    L.append(f'<text x="{OX - 8}" y="{py2(-m):.1f}" font-size="11" fill="{INK}" '
+             f'text-anchor="end">{-m:.3f}%</text>')
+    L.append(f'<text x="{OX + 14}" y="{TOPB + H1 + GAP - 10}" font-size="12" fill="{TEXT}">'
+             f'相对差（CHEASE 对 fylite），最劣 {m:.3f} %</text>')
+    L.append(f'<text x="8" y="{H - 26}" font-size="10.5" fill="{INK}">'
+             f'★上格两条线肉眼重合——**差异只在下格看得见**。'
+             f'★解析 Solov\'ev 没有 q(psi) 闭式，所以这一张比的是两个码，真值一侧只有 q0 那一个点。</text>')
+    L.append("</svg>")
+    return "\n".join(L) + "\n"
+
+
+CURVE_DATA = {"eq-forward-solovev-fixed-boundary": "solovev_curves.json"}
+
+
+def curve_figures() -> dict[pathlib.Path, str]:
+    out = {}
+    for rid, fname in CURVE_DATA.items():
+        p = BM / "readings" / fname
+        if not p.is_file():
+            continue
+        d = json.loads(p.read_text(encoding="utf-8"))
+        out[FIG / f"{rid}-contours.svg"] = contour_svg(d)
+        q = qprofile_svg(d)
+        if q:
+            out[FIG / f"{rid}-qprofile.svg"] = q
+    return out
+
+
 def build() -> dict[pathlib.Path, str]:
     out = {}
     for p in sorted((BM / "records").glob("*.jsonld")):
         if p.name == "TEMPLATE.jsonld":
             continue
         out[FIG / f"{p.stem}-headroom.svg"] = svg(json.loads(p.read_text(encoding="utf-8")))
+    out.update(curve_figures())
     return out
 
 

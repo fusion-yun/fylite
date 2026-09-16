@@ -287,8 +287,22 @@ def report_md(rec: dict, reqs: dict, where: dict, ref: dict) -> str:
 
     # 三 · 判据与量到多少
     L += [f"## {REPORT_SECTIONS[2]}", ""]
-    #: ★★图放在表**之前**：表回答「量到多少」，图回答「离带还有多远」。
-    #: 后者是表答不了的——余量 0.2 % 与余量一千倍，在表上都是一个「成立」。
+    #: ★★**先画数据本身的差异，再画余量**。一个标量说不出偏差是整体平移还是局部变形，
+    #: 也说不出它落在芯部还是边缘——那得把两侧画在一起才看得见。余量图答的是另一个问题
+    #: （离判据还有多远），是元信息，排在后面。
+    for tag, cap in (("contours", "两侧的 psi_N 等高线画在一起（R-Z 等比例）。"
+                                  "★曲线在线宽内重合——**这就是结果**，不是画漏了；定量见下。"),
+                     ("qprofile", "上格是两个码各自的 q 剖面，下格是它们的相对差。"
+                                  "★**差异在上格看不出来，在下格才看得见**——"
+                                  "这正是只给一个 RMS 说不清的那部分。")):
+        f2 = BM / "figures" / f"{rid}-{tag}.svg"
+        if f2.is_file():
+            L += [f":::{{figure}} ../figures/{rid}-{tag}.svg",
+                  f":alt: {rid} 的{'等高线' if tag == 'contours' else 'q 剖面'}对照图",
+                  ":width: 100%", "", cap, ":::", ""]
+
+    #: 余量图：表回答「量到多少」，它回答「离带还有多远」——
+    #: 余量 0.2 % 与余量一千倍，在表上都是一个「成立」。
     fig = BM / "figures" / f"{rid}-headroom.svg"
     if fig.is_file():
         L += [f":::{{figure}} ../figures/{rid}-headroom.svg",

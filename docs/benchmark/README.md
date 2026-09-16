@@ -133,7 +133,7 @@ docs/benchmark/
 ├── coverage.md · status.md    ← 两张生成件
 ├── domains/                   ← 三组十六章，一章一页散文（`eq/` `mhd/` `tr/`）
 ├── reports/                   ← 逐条报告：一条记录一份，★由记录生成
-├── figures/                   ← 余量图：一条记录一张，★由记录生成
+├── figures/                   ← 对照图：等高线 / 剖面叠画 / 余量，★由记录与曲线读数生成
 ├── summary/                   ← 收敛说明：一轮一页，手写
 ├── records/                   ← 记录：一条一个文件（正本）
 ├── readings/                  ← 读数：门与工具的产出
@@ -146,6 +146,8 @@ docs/benchmark/
 | `coverage.md` | 需求 × 记录，空行即缺口 | ★生成 |
 | `status.md` | 版本 / 评审 / 内核 / 新鲜度 | ★生成 |
 | `reports/<ID>.md` | 逐条报告：固定六节，一条记录一份 | ★生成 |
+| `figures/<ID>-contours.svg` | ★**两侧的磁面等高线画在一起**（有曲线读数的记录才有） | ★生成 |
+| `figures/<ID>-qprofile.svg` | ★**两侧的剖面叠画 + 差值面板**（同上） | ★生成 |
 | `figures/<ID>-headroom.svg` | 余量图：每条判据离它的带还有多远 | ★生成 |
 | `summary/<日期>-<组>.md` | 收敛说明：一轮做了什么、收敛到什么 | 人 |
 | `records/<ID>.jsonld` | 一条记录一个文件（**正本**） | 人 + 工具 |
