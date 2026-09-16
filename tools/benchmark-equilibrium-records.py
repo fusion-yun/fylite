@@ -826,6 +826,19 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
                         f"对 CREATE-NL 的 {wl['create_tau1_s'][0]} s 差 {100 * wc['tau1_screened_vs_create_nl']:+.2f} %",
                         caveat=["互感用 Maxwell 共轴圆环公式自算，先对内核的 M 验过：非对角相对差中位 −0.0094 %、p95 0.168 %，"
                                 "L_uniform 5.0632 对 5.0657 µH——不是靠公式凑出来的"]),
+                finding("★屏蔽已进内核：门直接给出 `tau_*_screened`（2026-09-16）", "pass",
+                        f"`code/wall` 加设定 `screen_coils`（默认关闭），由内核做同一步 Schur 消去。"
+                        f"VV + OTS 上门给 {ws_['vv_ots']['sc_screened']['door']['tau_1_s']:.6f} s、"
+                        f"VV 双壳 {ws_['vv_both']['sc_screened']['door']['tau_1_s']:.6f} s，"
+                        f"消去 {ws_['vv_ots']['sc_screened']['door']['n_coils']} 个线圈元；"
+                        f"与本记录侧独立自算的 {ws_['vv_ots']['sc_screened']['a_rect_1fil']['tau_1_s']:.6f} s 差 "
+                        f"{100 * ws_['vv_ots']['sc_screened']['door_vs_record_side_rel']:+.3f} %。"
+                        f"对 CREATE-NL 的 {wl['create_tau1_s'][0]} s 差 {100 * wc['tau1_door_vs_create_nl']:+.2f} %",
+                        caveat=["★这一条是本记录成立的前提之一：屏蔽此前只在记录侧算，内核漂了不会有任何东西红；"
+                                "现在门的值才是读数，记录侧自算降为独立交叉核对，两者由门 "
+                                "`test_v23_the_door_itself_now_yields_the_screened_spectrum` 守住（容差 0.5 %）",
+                                "两侧的线圈自感取法不同（内核 8×8 细丝 / 记录侧解析圆环单丝），故这是**吻合**、不是同一次计算",
+                                "默认关闭：B-17 · B-19 · B-20 是立在裸回路上的带，默认屏蔽会挪走已入册的答案"]),
                 finding("残差小于本仓自身的不确定度（这才是「一致」的诚实形式）", "pass",
                         f"线圈自感的三种取法给出 τ₁ 区间 [{wc['tau1_screened_band'][0]:.4f}, {wc['tau1_screened_band'][1]:.4f}] s"
                         f"（a = 0.25 m / a 自矩形单丝 / a 自矩形 3×3），跨度约 14 %；"
@@ -850,7 +863,8 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
         "V-23", "ITER 被动导体回路：真空室环向电阻对文献；无等离子体时间常数补上超导回路屏蔽后对 CREATE 一致", "verification",
         "fylite: code/wall 经树门（ITER 卡片的 pf_passive，324 个 loop 自 fydoc 由 CC BY 原件离散；"
         "元件互感 · 电阻 · M dI/dt + R I = 0 的 L/R 本征模，每组另单解；每元 8×8 细丝）"
-        "＋本记录自带的超导回路屏蔽（Maxwell 共轴圆环互感，Schur 补消去线圈）",
+        "＋门自己的 `screen_coils`：把普通 pf_active 线圈作为零电阻回路消去（Schur 补），"
+        "与裸谱并列给出 `tau_*_screened`）",
         [{"type": "spo:Code", "name": "ITER_D_22L4FE v1.0（CREATE）与 ITER_D_22FPWQ v4.0（真空室 DDD）",
           "version": "22L4FE 表 4.1.a 与 §2.1 / 表 2.1.a–f（EFDA/03-1108 D2，2004-03-03）；22FPWQ 表 2.1-1 的环向 / 极向电阻",
           "license": "ITER IDM Internal Use（只引数值，件不再分发）"}],
@@ -859,6 +873,10 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
          gate(f"{TW6}::test_v23_the_bare_time_constants_reproduce"),
          gate(f"{TW6}::test_v23_the_modes_are_the_ones_create_names"),
          gate(f"{TW6}::test_v23_screening_by_the_superconducting_circuits_closes_the_gap"),
+         #: ★这两条守住「屏蔽已进内核」：门的 `tau_*_screened` 对记录侧独立自算（0.5 %），
+         #: 以及门自己的值对 CREATE 落在本仓的不确定度区间内。没有它们，内核漂了不会有东西红。
+         gate(f"{TW6}::test_v23_the_door_itself_now_yields_the_screened_spectrum"),
+         gate(f"{TW6}::test_v23_the_doors_screened_tau_stays_in_the_band_against_create"),
          gate(f"{TW6}::test_v23_our_own_uncertainty_band_contains_creates_value"),
          gate(f"{TW6}::test_v23_neither_circuit_topology_nor_coil_geometry_changes_the_answer"),
          gate(f"{TW6}::test_v23_the_port_sets_are_recorded_but_flagged_as_over_modelled")],
@@ -878,7 +896,8 @@ def build(case: Path, reruns: dict, solovev: dict) -> tuple[list[dict], dict[str
          "纳入类别（参考数据）：public"],
         "pass",
         validity="ITER 卡片的被动集（自 CC BY 原件离散的 324 元，8×8 细丝）；无等离子体、纯 L/R 电路；"
-                 "屏蔽按零电阻回路的 Schur 补，线圈以单丝 × 匝数计（自感取矩形等效半径）；"
+                 "屏蔽由门的 `screen_coils` 做（零电阻回路的 Schur 补，线圈自感取 8×8 细丝），"
+                 "记录侧另以解析圆环单丝独立自算一遍作交叉核对；"
                  "端口按连续环建模（已知过度）；不含 3-D 端口结构、不含等离子体响应"))
     reports["V-23"] = "V-23-wall-iter.md"
     return recs, reports
@@ -1035,12 +1054,12 @@ REPORT_TEXT = {
     "V-23": {"not_comparable": ["- 参考侧是两份 ITER IDM Internal Use 件里的**数值**，不是可回放的运行件；公开读者无法复算参考侧。",
                                 "- 端口组按**连续环**建模，实物是 18 个约 5° 宽（环向占空比约 25 %）：该组读数已记，但不供任何对比使用。",
                                 "- 被动集本身来自 CC BY 原件的**离散**：段数即原件点数（不细分），元的角度按内核 efund 两分支约定写。",
-                                "- 屏蔽项是本记录自算的（Maxwell 共轴圆环互感 + Schur 补），线圈以单丝 × 匝数计；CREATE 用的是有限元。本仓因线圈自感取法的散布达 ±7 %，**大于**与 CREATE 的残差——所以判词是「在本仓不确定度内一致」，不是「吻合」。",
+                                "- 屏蔽由门的 `screen_coils` 做（零电阻回路的 Schur 补，线圈自感取 8×8 细丝）；记录侧另用 Maxwell 共轴圆环互感 + 解析圆环自感独立自算一遍作交叉核对，两者差 +0.12 %。CREATE 用的是有限元。本仓因线圈自感取法的散布达 ±7 %，**大于**与 CREATE 的残差——所以判词是「在本仓不确定度内一致」，不是「吻合」。",
                                 "- 等离子体响应完全不在本条内：CREATE 表 4.1.a 的 γ 与稳定裕度是可变形线性化响应，本条只取它那两列无等离子体时间常数。"],
              "rerun_cmd": ["cd $FYLITE_PUBLIC", "FYLITE_DEVICE_DIR=dist/facts/device/iter FYLITE_KERNEL_LIB=<带 code/wall 的内核库> \\",
                            "  uv run --no-project --with numpy --with scipy --with pytest \\",
                            "  python -m pytest python/tests/test_benchmark_wall_iter.py",
-                           "# 读数重写：见该门抬头（code/wall 逐组跑 + 屏蔽项自算，落 docs/benchmark/readings/wall_iter.json）"],
+                           "# 读数重写：见该门抬头（code/wall 逐组跑，屏蔽用 screen_coils=1；落 docs/benchmark/readings/wall_iter.json）"],
              "conclusion": "两项都成立，但第二项走过一次弯路，两版都留在册里。**电阻侧**：真空室双壳并联环向电阻 7.6272 µΩ 对 ITER_D_22FPWQ 的 7.9 µΩ，差 −3.45 %，由两条独立算法逐位复核，且比书页原有的 8.98 µΩ 粗估更接近真值。**时间常数侧**：裸回路给 τ₁ 0.5834 s，比 CREATE 的 0.3623 s 高 57 %；四条候选解释（离散粒度 · 增厚壳 · 电阻率 · 模式定义）逐一实测证伪后，本会话先提出「CREATE 侧有传导连接」——**随即自证为错**：n = 0 环向涡流下各环本就只有互感耦合，径向连接只在两壳间重分配电流，而那已被并联电阻算进。真因在同一份件的前一页：22L4FE 第 2 页写明「All resistances (in SC coils, voltage amplifiers, connections) are neglected」，其 plasmaless 矩阵装着十一条 PF/CS 回路，而**零电阻回路保磁通、屏蔽真空室模**。以 Schur 补消去线圈后均匀模电感 5.0657 → 2.9152 µH（−42 %），τ₁ 0.5834 → 0.3418 s，对 CREATE-NL 差 −5.66 %，且本仓因线圈自感取法的区间 [0.3257, 0.3717] s **包含** CREATE 的 0.3623 与 0.3705。另测两条不影响结论：回路拓扑（12 独立线圈与 11 条真实回路逐位相同）与线圈几何来源（卡片 0.3418 s 对 22L4FE 自己的 0.3395 s）。★不去凑 τ，也不取对得最准的 a = 0.25 m 那一档（−0.44 %）当主结论。"},
     "B-21": {"not_comparable": ["- 两个代码解的不是同一个优化问题：目标函数、正则化与约束都不同；本条比的是**同一目标下各自交出的形状**，不是优化器。",
                                 "- 电流不可比作判据：逆问题在电流空间欠定（实测两组差 25.6 kA·t、正解出的平衡只差毫米级）；KEFIT 的电流也只是它自己的拟合结果。",

@@ -1491,6 +1491,7 @@ CODE_PARAMS = {
         'nv': {'key': 'nv', 'type': 'float', 'via': 'wall_case', 'default': '8.0', 'required': False},
         'passive': {'key': 'passive', 'type': 'string', 'via': 'wall_case'},
         'responses': {'key': 'responses', 'type': 'float', 'via': 'wall_case', 'default': '1.0', 'required': False},
+        'screen_coils': {'key': 'screen_coils', 'type': 'boolean', 'via': 'wall_case', 'default': 'false'},
     }},
     'wave': {"door": 'wave_case', "crate": 'fylite_kernel', "parameters": {
         'cd_model': {'key': 'cd_model', 'type': 'string', 'via': 'wave_eval'},

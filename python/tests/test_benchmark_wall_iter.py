@@ -144,6 +144,34 @@ def test_v23_neither_circuit_topology_nor_coil_geometry_changes_the_answer(want)
     assert abs(g["card_2ACJT3_v3_1"]["tau_1_s"] / g["22L4FE_table_2_1_a"]["tau_1_s"] - 1.0) < 0.02
 
 
+def test_v23_the_door_itself_now_yields_the_screened_spectrum(want):
+    """★2026-09-16: the elimination moved INTO the kernel (`code/wall` gained `screen_coils`).
+
+    Before this, the screened spectrum was computed record-side and nothing in the register would
+    have gone red if the kernel drifted.  The door's value is now the reading; the record-side
+    number is kept beside it as an independent cross-check, and the two must agree.
+
+    ★They are computed differently on purpose — the kernel takes the coil self-inductance from
+    8x8 filaments, the record-side check from the analytic ring formula on the equal-area radius —
+    so this asserts AGREEMENT, not identity."""
+    for lab in ("vv_both", "vv_ots"):
+        sc = want["sets"][lab]["sc_screened"]
+        assert "door" in sc, f"{lab}: no door reading — re-run with a kernel carrying `screen_coils`"
+        assert sc["door"]["n_coils"] == 12, sc["door"]
+        rel = sc["door_vs_record_side_rel"]
+        assert abs(rel) < 5e-3, (lab, rel, sc["door"]["tau_1_s"], sc["a_rect_1fil"]["tau_1_s"])
+        #: screening can only shorten the decay
+        assert sc["door"]["tau_1_s"] < want["sets"][lab]["tau_1_s"]
+
+
+def test_v23_the_doors_screened_tau_stays_in_the_band_against_create(want):
+    """★The comparison of record: the door's own number against CREATE, with the same 8 % tolerance
+    the record declares (our coil self-inductance spread is wider than what is left of the gap)."""
+    assert abs(want["checks"]["tau1_door_vs_create_nl"]) <= V23_TAU_SCREENED["rel_to_create_nl"]
+    lo, hi = want["checks"]["tau1_screened_band"]
+    assert lo < want["checks"]["tau1_door_screened_vv_ots"] < hi
+
+
 def test_v23_the_port_sets_are_recorded_but_flagged_as_over_modelled(want):
     s = want["sets"]
     assert s["vv_ots_ports"]["R_toroidal_parallel_uOhm"] < s["vv_ots"]["R_toroidal_parallel_uOhm"]

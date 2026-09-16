@@ -44,7 +44,14 @@
      "L_uniform_uH": 2.740042867329731,
      "tau_1_s": 0.31568895666599506,
      "tau_2_s": 0.20949211780573845
-    }
+    },
+    "door": {
+     "tau_1_s": 0.33193064844991405,
+     "tau_2_s": 0.21978452627349873,
+     "n_coils": 12,
+     "how": "code/wall with screen_coils=1 (kernel eliminates the coils itself; coil self-L from 8x8 filaments)"
+    },
+    "door_vs_record_side_rel": 0.0012895573628382007
    }
   },
   "vv_ots": {
@@ -69,7 +76,14 @@
      "L_uniform_uH": 2.7474135351447644,
      "tau_1_s": 0.32569673786255693,
      "tau_2_s": 0.21543840285318724
-    }
+    },
+    "door": {
+     "tau_1_s": 0.3421873661570446,
+     "tau_2_s": 0.2254038144435372,
+     "n_coils": 12,
+     "how": "code/wall with screen_coils=1 (kernel eliminates the coils itself; coil self-L from 8x8 filaments)"
+    },
+    "door_vs_record_side_rel": 0.001161690080066169
    }
   },
   "vv_ots_ports": {
@@ -103,7 +117,8 @@
    "22L4FE_table_2_1_a": {
     "tau_1_s": 0.3395
    }
-  }
+  },
+  "door": "code/wall gained `screen_coils` (2026-09-16): the kernel performs the same Schur elimination, so this reading is no longer computed record-side. The record-side value is kept beside it as an independent cross-check."
  },
  "literature": {
   "vv_toroidal_resistance_uOhm": 7.9,
@@ -126,6 +141,8 @@
   "tau1_screened_band": [
    0.32569673786255693,
    0.37165529381123696
-  ]
+  ],
+  "tau1_door_screened_vv_ots": 0.3421873661570446,
+  "tau1_door_vs_create_nl": -0.05551375612187526
  }
 }

@@ -1448,6 +1448,7 @@ pub const CODES: &[Code] = &[
         Param { key: "nv", value_type: "float", default: "8.0", required: false, via: "wall_case" },
         Param { key: "passive", value_type: "string", default: "", required: false, via: "wall_case" },
         Param { key: "responses", value_type: "float", default: "1.0", required: false, via: "wall_case" },
+        Param { key: "screen_coils", value_type: "boolean", default: "false", required: false, via: "wall_case" },
     ] },
     Code { name: "wave", door: "wave_case", krate: "fylite_kernel", params: &[
         Param { key: "cd_model", value_type: "string", default: "", required: false, via: "wave_eval" },
