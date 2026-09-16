@@ -68,7 +68,9 @@
    "title": "psi_N（面内 17945 点）",
    "criterion": "benchmark/records/eq-surface-chease-fixed-boundary-east/criterion/1",
    "deviation_literal": "RMS 4.92e-05 · max 0.0002655",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 4.92e-05,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -78,14 +80,18 @@
    "verdict": "pass",
    "caveat": [
     "★★**注意 q0：这里两码只差 7.45e-05**，而同一个 q0 在 Solov'ev 解析题上对闭式解差 3.27e-03（见 eq-forward-solovev-fixed-boundary，那条判 fail）。两个数不矛盾——**这里比的是两码，那里比的是真值**，而两码可以一起偏。★所以这条对拍**不能**用来宽慰那条验证：它证明不了 q0 算对了。"
-   ]
+   ],
+   "measured_deviation": 0.001043,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "全局量",
    "criterion": "benchmark/records/eq-surface-chease-fixed-boundary-east/criterion/3",
    "deviation_literal": "轴 0.004677 mm · 跨度 -0.0007535 · Ip -0.0009679",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 0.0009679,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -94,7 +100,8 @@
    "verdict": "inconclusive",
    "caveat": [
     "★记下来而不判：加密到 129² 后 q0 从 -0.00768 改善到 7.45e-05，说明这一档的差里有一部分是**本侧的离散**，不全是两码的模型差。★只报一个网格上的数，看不出这件事。"
-   ]
+   ],
+   "bound": "reading"
   }
  ],
  "validity_domain": "KEFIT raw-tree 运行的 g 文件（sha256 299c8746c1cc9758…），取住 psi_N = 0.995 的面；r0 = 1.75 m · f_edge = 4.501726288 T·m · 面内 Ip = 393379.2 A · 剖面 101 点 · 射线 360 条。★两侧同一条边界、同一对 p'/FF' 表；比较落在面内 17945 个点上。",

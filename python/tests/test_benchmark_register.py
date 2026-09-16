@@ -260,6 +260,40 @@ def test_the_reference_kernel_is_declared():
     assert k.get("recorded"), k
 
 
+BOUNDS = {"upper", "lower", "identity", "reading"}
+
+
+@pytest.mark.parametrize("name,rec", records() or [pytest.param("<none>", None, marks=pytest.mark.skip(
+    reason="新册尚无记录"))])
+def test_a_finding_carries_a_number_not_only_a_sentence(name, rec):
+    """★★每条 finding 要带 `measured_deviation`（数）与 `bound`（判据的方向）。
+
+    `deviation_literal` 是**话**——它给人读，但画不了图、也算不出「余量」这种派生量。
+    2026-09-16 实测：42 条 finding 全是话，词表里 `fyo:measured_deviation` 这个数值槽一直空着。
+    ★**去解析那句话是下策**：某人改一句措辞，图就静默画错。
+
+    ★`bound` 缺了余量会算**反**：`upper` 是「实测须 ≤ 容差」，`lower` 是「须 ≥ 容差」
+    （收敛阶比 > 3、两码电流差 > 5 kA·t 都是下限），`identity` 无余量可言，`reading` 本就不判。
+    """
+    for i, f in enumerate(rec.get("findings") or []):
+        assert f.get("bound") in BOUNDS, f"{name}[{i}]: `bound` 不合法（{f.get('bound')!r}）"
+        if f["bound"] in ("upper", "lower"):
+            v = f.get("measured_deviation")
+            assert isinstance(v, (int, float)) and not isinstance(v, bool), \
+                f"{name}[{i}]: `bound` 是 {f['bound']} 却没有数值 `measured_deviation`"
+            assert f.get("criterion"), f"{name}[{i}]: 有数却不说它对的是哪条判据"
+
+
+def test_the_figures_are_current_and_match_the_records():
+    """★余量图一条记录一张，由记录生成；记录删了图也要跟着走。
+
+    ★**一张没有正本的图是最坏的一种文档**——它看起来权威，却没有任何东西保证它还成立。
+    """
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "benchmark-figures.py"), "--check"],
+                       cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr or r.stdout
+
+
 def test_every_record_has_a_report_and_the_book_lists_it():
     """★★2026-09-16 用户裁定「records 逐条配以测试报告且收入 myst」，两头都守。
 

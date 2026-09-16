@@ -35,6 +35,13 @@ title: "eq-convention-gfile-cocos-roundtrip"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-convention-gfile-cocos-roundtrip-headroom.svg
+:alt: eq-convention-gfile-cocos-roundtrip 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 往返后每个数值字段的最劣相对偏差 | 1e-09 | machine_precision | 合成件 0（25 个字段）· EAST #70754 0（25 个字段）——两者皆为**精确零** | **成立** |

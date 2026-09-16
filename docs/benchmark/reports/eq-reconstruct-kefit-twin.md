@@ -31,6 +31,13 @@ title: "eq-reconstruct-kefit-twin"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-reconstruct-kefit-twin-headroom.svg
+:alt: eq-reconstruct-kefit-twin 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | KEFIT 重构 psi_N 对真值（轮廓内 RMS） | 0.00681 | measured_band | psi_N RMS 0.00681（max 0.01317）· 轴 1.329 mm · 边界中位 1.563 mm（max 4.16）· X 点 2.186 mm · q0 -0.04863 · q95 -0.01061 | **成立** |

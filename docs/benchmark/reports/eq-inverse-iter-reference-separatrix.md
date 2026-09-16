@@ -36,6 +36,13 @@ title: "eq-inverse-iter-reference-separatrix"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-inverse-iter-reference-separatrix-headroom.svg
+:alt: eq-inverse-iter-reference-separatrix 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 设计分离面对目标曲线的逐点距离（中位数） | 15.5 | measured_band | 中位 15.37 mm · p95 69.81 mm · max 123.2 mm（181 点） | **成立** |

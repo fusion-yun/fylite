@@ -84,7 +84,9 @@
    "verdict": "pass",
    "caveat": [
     "★中位 15 mm 而 max 123 mm：偏差**不是均匀分布**的，尾部集中在 X 点角附近——那正是目标曲线自己有缺陷的地方（见下一条）。只报中位数会把这件事藏起来。"
-   ]
+   ],
+   "measured_deviation": 15.37,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -95,7 +97,9 @@
    "caveat": [
     "★★**退火是无界的**：pf_active carries no supply rating on this card (ITER-FEAT 2000's dev:currentMax belongs to a different coil set — 12 of 12 circles differ from base), so the anneal runs unbounded",
     "★于是「设计成功了」这句话缺一个前提：没有人知道这组电流这台机器给不给得出。**一个买得起与否未知的设计，不能记成成立。**"
-   ]
+   ],
+   "measured_deviation": 30.61,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -105,7 +109,8 @@
    "verdict": "fail",
    "caveat": [
     "★残差 9.65e-04 已经很小，解也不再动（settled），但门要的是 converged。照实记 fail——把 settled 读成 converged 是这类记录最容易的自欺。"
-   ]
+   ],
+   "bound": "identity"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -117,7 +122,9 @@
     "★★**这是本条最有信息量的一行**：在每一组还能让电流保持物理的设置下，kappa 都比目标低约 3 %，delta_lower 低约 10 %。",
     "★已实测过的反例：剖面指数 enp = 0.5 能把 kappa 顶到 1.834（各变体里最接近目标），代价是要 37.5 MA·t 且**永不收敛**——给它四倍轮数，残差反而从 0.12 升到 0.32。所以那不是预算不够，是那个设置本身不稳。",
     "★记 fail 而不是放宽到 4 %：**形状差多少是结论，不是待调的容差**。"
-   ]
+   ],
+   "measured_deviation": 0.1021,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -126,7 +133,8 @@
    "verdict": "inconclusive",
    "caveat": [
     "★牌上那条数字化参考曲线在 X 点是**开口**的，本次运行把它从角点闭合。闭合方式会改变那一带的逐点距离——上面 max 123 mm 落在这一带，两件事要一起读。"
-   ]
+   ],
+   "bound": "reading"
   }
  ],
  "validity_domain": "ITER 装置牌 dist/facts/device/iter.jsonld；限制器为注入的 METIS 壁（fydoc facts/device/iter/abox/providers/wall/metis.jsonld (injected as the limiter unit `metis_wall`)）。Ip = 1.5e+07 A · beta0 = 0.6 · emp = 2.0 · nu = 3.0 · n_points = 24 · 网格 129x129 · 退火 16 轮 · 位置控制 c4。★形状量（kappa / delta / a / r0）按本仓的形状拟合定义，与 Miller 参数化的同名量不必逐一相等；比较双方都取本记录的这一套定义。★emp = 2 是**最后一个仍收敛的设置**：emp = 3 的 shape_error 略好（0.0269），但耗尽 600 轮预算停在残差 0.019。",

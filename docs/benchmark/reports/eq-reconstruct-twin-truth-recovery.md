@@ -31,6 +31,13 @@ title: "eq-reconstruct-twin-truth-recovery"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-reconstruct-twin-truth-recovery-headroom.svg
+:alt: eq-reconstruct-twin-truth-recovery 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 重构 psi_N 对真值的偏差（轮廓内 RMS / max） | 0.00234 | measured_band | RMS 0.002337 · max 0.004285（判据 RMS 0.00234 / max 0.00429） | **成立** |

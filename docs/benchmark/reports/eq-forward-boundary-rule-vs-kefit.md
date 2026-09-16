@@ -36,6 +36,13 @@ title: "eq-forward-boundary-rule-vs-kefit"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-forward-boundary-rule-vs-kefit-headroom.svg
+:alt: eq-forward-boundary-rule-vs-kefit 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 两种规则各自对 KEFIT 的 psi_N 偏差，以及各自的收敛状态 | 0 | measured_band | node：psi_N RMS 0.007364 · 轴 4.11 mm · 虚拟对 10525.4 A · **converged = 0 / settled = 1**（残差 0.00291，62 次，0.2 s）；edge：psi_N RMS 0.01834 · 轴 9.24 mm · 虚拟对 34.1 A · **converged = 1 / settled = 0**（残差 9.77e-10，5664 次，14.1 s） | **未判（读数）** |

@@ -31,6 +31,13 @@ title: "eq-inverse-freegsnke-east137985"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-inverse-freegsnke-east137985-headroom.svg
+:alt: eq-inverse-freegsnke-east137985 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 设计边界对目标（KEFIT 边界）的逐点距离 | 1.22 | measured_band | fylite 中位 1.211 mm（p95 3.873 · max 9.422，2025/2172 点）；FreeGSNKE 中位 5.002 mm（p95 27.38 · max 52.89，2074/2460 点） | **成立** |

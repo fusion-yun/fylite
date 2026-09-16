@@ -286,8 +286,18 @@ def report_md(rec: dict, reqs: dict, where: dict, ref: dict) -> str:
     L += ["**口径与适用域**：", "", "> " + defang(rec.get("validity_domain", "—")), ""]
 
     # 三 · 判据与量到多少
-    L += [f"## {REPORT_SECTIONS[2]}", "",
-          "| 判据 | 容差 | 取法 | 量到 | 判 |",
+    L += [f"## {REPORT_SECTIONS[2]}", ""]
+    #: ★★图放在表**之前**：表回答「量到多少」，图回答「离带还有多远」。
+    #: 后者是表答不了的——余量 0.2 % 与余量一千倍，在表上都是一个「成立」。
+    fig = BM / "figures" / f"{rid}-headroom.svg"
+    if fig.is_file():
+        L += [f":::{{figure}} ../figures/{rid}-headroom.svg",
+              f":alt: {rid} 的判据余量图",
+              ":width: 100%", "",
+              "每条判据离它的带还有多远（对数轴，1 倍即判据本身）。"
+              "★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。",
+              ":::", ""]
+    L += ["| 判据 | 容差 | 取法 | 量到 | 判 |",
           "| :--- | ---: | :--- | :--- | :--- |"]
     by_cid = {c["id"]: c for c in rec.get("criteria") or []}
     seen = set()

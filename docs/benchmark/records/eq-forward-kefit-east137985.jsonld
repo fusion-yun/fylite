@@ -83,14 +83,18 @@
    "verdict": "pass",
    "caveat": [
     "★三个切片都 settled；带按最劣者定，不按平均——平均会把最差的那一片藏起来。"
-   ]
+   ],
+   "measured_deviation": 0.007364,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "磁轴 / 边界 / X 点",
    "criterion": "benchmark/records/eq-forward-kefit-east137985/criterion/2",
    "deviation_literal": "t4041_mag 轴 4.11 mm、边界中位 3.42 mm、X 点 4.31 mm · t4944_mag 轴 4.02 mm、边界中位 2.67 mm、X 点 6.03 mm · t5976_mag 轴 4.87 mm、边界中位 2.74 mm、X 点 6.5 mm",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 4.87,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -102,7 +106,9 @@
     "★★**这一片故意留在带外，而且它的 `settled = 0`——它根本没停稳。** 换了约束条件（带 POINT 剖面而不是只有磁测），解就到了另一处，且不再收敛。",
     "★**把它并进上面的带是错的**：那等于宣称约束条件不影响答案。登记册宁可让它露着，也不让一条带把两种问题糊成一个数。",
     "★2026-09-16 用户裁定「保留负面结果」：本片原样留册。"
-   ]
+   ],
+   "measured_deviation": 0.02212,
+   "bound": "lower"
   }
  ],
  "validity_domain": "EAST #137985，四个时刻切片（t = 4.041 / 4.944 / 5.976 s）。前三片为**纯磁测**约束，第四片带 POINT 剖面。比较落在 KEFIT 边界之内的 814 个网格节点上；psi_N 为归一极向磁通。★双方在同一 COCOS 与同一 psi 口径下比较（见 eq-convention 那条记录）。",

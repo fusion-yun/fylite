@@ -36,6 +36,13 @@ title: "eq-forward-solovev-fixed-boundary"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-forward-solovev-fixed-boundary-headroom.svg
+:alt: eq-forward-solovev-fixed-boundary 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 深内点 psi_N 对闭式解的偏差（RMS，129^2 网格） | 0.0005 | reference_self_reported | RMS 1.083e-05 · max 0.0001059 | **成立** |

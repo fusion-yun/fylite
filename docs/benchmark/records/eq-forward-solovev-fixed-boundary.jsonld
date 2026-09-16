@@ -109,7 +109,9 @@
    "verdict": "pass",
    "caveat": [
     "判据 5e-4 是对 RMS 的；max 亦落在判据内，一并记出以免只报有利的一个数。"
-   ]
+   ],
+   "measured_deviation": 1.083e-05,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -119,21 +121,27 @@
    "verdict": "pass",
    "caveat": [
     "★两档比值不一致（3.17 与 8.31）：粗网格那一档尚未进入渐近区，所以「二阶」这句话只对 65^2→129^2 成立。照实记，不取其一。"
-   ]
+   ],
+   "measured_deviation": 8.31,
+   "bound": "lower"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "磁轴位置",
    "criterion": "benchmark/records/eq-forward-solovev-fixed-boundary/criterion/3",
    "deviation_literal": "0.02602 mm",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 0.02602,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "Ip",
    "criterion": "benchmark/records/eq-forward-solovev-fixed-boundary/criterion/4",
    "deviation_literal": "1.719e-05（相对）",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 1.719e-05,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -145,14 +153,18 @@
     "★**随网格换了号**（33^2 0.0369 → 65^2 0.00496 → 129^2 -0.00326）：量级在降，符号翻转，说明它尚未进入干净的渐近收敛。q0 由轴上的二阶导数定，收敛本就慢于 psi 本身——但「慢」不等于「可以差三个量级」。",
     "★★**这不是基准的问题，也不是问题太难**：同一道题、同一个闭式解，CHEASE NS=80 的 q0 只差 3.56e-06（见 eq-forward-chease-solovev 的 criterion/3）。差在 fylite 侧。",
     "★★**保留为负面结果**（2026-09-16 用户裁定「不改内核，保留负面结果」）。它在册上以 fail 的形式挂着，`tools/benchmark-book.py --ci` 会因它退 1——这正是要的：一条已知的、量化的、归属明确的缺口，比一条被容差抹平的记录有用得多。"
-   ]
+   ],
+   "measured_deviation": 0.003263,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "求解器自证",
    "criterion": "benchmark/records/eq-forward-solovev-fixed-boundary/criterion/6",
    "deviation_literal": "converged=1 · 残差 8.96e-11 · gap_max 4.129e-05 m · 迭代 31 次",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 4.129e-05,
+   "bound": "upper"
   }
  ],
  "validity_domain": "Solov'ev 定边界解析平衡：R0 = 1.8 m · B0 = 2.0 T · e2 = 1.07544 · Ip(闭式) = 3451548 A · q0(闭式) = 0.8348157；边界轮廓 720 点，psi 口径「g-file per radian, axis minimum」（即每弧度、以轴为极小）。比较落在轮廓**内**的 18805 个网格点上（「深内点」）。★径向标签为 psi_N（归一极向磁通），不是 rho；容差与它绑定。★本条是**定边界**：FR-EQ-001 判据里「自由边界 Ip 约束收敛 rel 1e-6」那一档不在本条，由 eq-forward 的另一条记录覆盖（现缺，见本域缺口栏）。",

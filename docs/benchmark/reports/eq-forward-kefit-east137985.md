@@ -31,6 +31,13 @@ title: "eq-forward-kefit-east137985"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-forward-kefit-east137985-headroom.svg
+:alt: eq-forward-kefit-east137985 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | psi_N 对 KEFIT 的偏差（轮廓内 RMS），三个纯磁测切片取最劣 | 0.00737 | measured_band | t4041_mag psi_N RMS 0.007364（max 0.01801） · t4944_mag psi_N RMS 0.006545（max 0.0157） · t5976_mag psi_N RMS 0.006637（max 0.01518）；最劣 0.007364，判据 0.00737 | **成立** |

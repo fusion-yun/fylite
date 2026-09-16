@@ -31,6 +31,13 @@ title: "eq-evolve-analytic-circuit-limits"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-evolve-analytic-circuit-limits-headroom.svg
+:alt: eq-evolve-analytic-circuit-limits 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 壳模衰减对解析 e^(-t/tau_w) 的最劣相对偏差 | 1e-12 | machine_precision | 最劣相对偏差 8.44e-15（判据 1e-12，余量约 119 倍） | **成立** |

@@ -78,7 +78,9 @@
    "title": "KEFIT 对真值",
    "criterion": "benchmark/records/eq-reconstruct-kefit-twin/criterion/1",
    "deviation_literal": "psi_N RMS 0.00681（max 0.01317）· 轴 1.329 mm · 边界中位 1.563 mm（max 4.16）· X 点 2.186 mm · q0 -0.04863 · q95 -0.01061",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 0.00681,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -88,7 +90,8 @@
    "caveat": [
     "★★**fylite 在这张靶上有主场优势，这个数不能当作它更准的证据。** 真值是 **fylite 自己的前向解**造出来的，于是 fylite 的重构与真值**共用同一套离散**，共同误差在相减时抵消；KEFIT 没有这个便利。",
     "★要去掉主场优势，得把真值换成第三方造的，或者把判准移到**可观测空间**（正过来预测测量再比）。两件都还没做——所以这一行判 inconclusive，不判谁赢。"
-   ]
+   ],
+   "bound": "reading"
   }
  ],
  "validity_domain": "EAST #137985 t = 4.041 s 的线圈电流；剖面取解析族 e_mp = e_np = 1；合成测量**不含噪声**。比较落在轮廓内的网格节点上。★两侧打的是同一个真值、用的是同一批合成测量。",

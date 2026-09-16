@@ -72,7 +72,9 @@
    "verdict": "pass",
    "caveat": [
     "★★**「更近」不等于「更对」。** 逆问题是病态的：贴目标贴得更紧，也可能只是正则化更弱。要判对错，看下一条（零空间）。"
-   ]
+   ],
+   "measured_deviation": 1.211,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -84,7 +86,9 @@
     "★★**这是本条最要紧的一行。** FreeGSNKE 基本复现了 KEFIT 的电流（0.369 kA·t），fylite 找到的是**另一组**（离 KEFIT 25.6 kA·t，约 69 倍远）——然而三组电流正解出来的平衡彼此在毫米量级内。**差落在零空间里，不是谁算错了。**",
     "★**由此可知：拿电流逐路比对来判两个逆解码是否一致，是错的判法。** 这一域的比较必须落在电流**产生的平衡**上。",
     "★fylite 那一组正解后离 KEFIT 的图最近（0.004619），但**这里 fylite 的前向解在回路里**——用自己的前向解评自己的逆解，这一档有偏，不能当作独立证据。"
-   ]
+   ],
+   "measured_deviation": 0.00491,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -94,7 +98,8 @@
    "caveat": [
     "★与 ITER 那条（`eq-inverse-iter-reference-separatrix`）同样是 settled 而非 converged——**这是本域一个跨算例的共性，不是单个算例的偶然**。",
     "★但与 ITER 那条不同：**本条的退火是按供电额定逐路设限跑的**（触限 0 路），所以「买不起」那个问题在这里不存在。EAST 牌有额定，ITER 牌没有。"
-   ]
+   ],
+   "bound": "reading"
   }
  ],
  "validity_domain": "EAST #137985 t = 4.041 s；目标是 KEFIT 的边界（g 文件 sha256 299c8746c1cc9758…），Ip = 392708.7 A，目标点 69 个；公平窗 z ∈ [-0.725559041, 0.63833942]、x 排除 0.1 m（两码只在同一段边界上比）。十二路线圈电路。★剖面取交付的 p'/FF' 表，beta0/emp/enp 在本条里是惰性的。",

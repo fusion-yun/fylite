@@ -43,6 +43,8 @@
    "title": "这一条判据量到多少",
    "criterion": "benchmark/records/<域id>-<短名>/criterion/1",
    "deviation_literal": "实测偏差（照实写，不round成好看的数）",
+   "measured_deviation": 0.0,
+   "bound": "upper | lower | identity | reading",
    "verdict": "pass | fail | inconclusive",
    "caveat": ["这一条哪里不可比 / 改判过没有"]
   }

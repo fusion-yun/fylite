@@ -6,12 +6,12 @@
   "zh": "Pereverzev-Corrigan 稳定化：定态与 d_pc 无关（量到 1.4e-11），而判据要的「裸环停滞对照」在本闭包族上演示不了",
   "en": "Pereverzev-Corrigan: the steady state is independent of d_pc to 1.4e-11; the criterion's bare-loop stagnation control cannot be produced in this closure family"
  },
-
  "domain": "tr-paradigm",
- "requirement": ["FR-TR-005"],
+ "requirement": [
+  "FR-TR-005"
+ ],
  "comparison_kind": "verification",
  "overall_verdict": "inconclusive",
-
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite",
@@ -26,14 +26,16 @@
    "comment": "★参考是一条**解析陈述**，不是另一次运行：P-C 项按构造在离散不动点上恒等消去，故定态必须与 d_pc 无关。这是 `verification` 而非 `benchmark` 的理由——参考是解析解一侧，不是另一个码。★接受档 rel < 1e-9 抄自内核自己那道门 `transport.rs::the_pereverzev_corrigan_fixed_point_is_independent_of_d_pc` 的自报值；自报的档不是独立参考，见 caveat。"
   }
  ],
-
  "criteria": [
   {
    "id": "benchmark/records/tr-paradigm-pereverzev/criterion/1",
    "type": "fyo:AcceptanceCriterion",
    "quantity_label": "定态剖面 y(ρ) 相对 d_pc = 0 的逐点相对偏差，inf 范数（无量纲；ρ = 归一化径向标签，[0,1] 均匀 41 点）",
    "norm": "relative",
-   "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-9},
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-09
+   },
    "tolerance_basis": "reference_self_reported"
   },
   {
@@ -41,7 +43,10 @@
    "type": "fyo:AcceptanceCriterion",
    "quantity_label": "裸环（d_pc = 0）与 d_pc = 40 的 Picard 内迭代次数之差（次）——★证明这一项真的进了装配，否则 criterion/1 是拿一个解跟它自己比",
    "norm": "absolute",
-   "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1},
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1
+   },
    "tolerance_basis": "machine_precision"
   },
   {
@@ -49,7 +54,10 @@
    "type": "fyo:AcceptanceCriterion",
    "quantity_label": "判据的对照项：刚性闭包下裸环停滞（顶到 max_inner 且 converged = False）的操作点个数",
    "norm": "absolute",
-   "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1},
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1
+   },
    "tolerance_basis": "measured_band"
   }
  ],
@@ -63,7 +71,9 @@
    "caveat": [
     "★偏差随 d_pc **单调上行**（constant 跨 3.0e-14 → 4.5e-12，stiff 跨 6.0e-14 → 1.4e-11），因为两条路走到同一不动点的精度由 `tol` 定，不由对消的代数定。把这一档写成「机器精度」是夸大——对消在代数上精确，量出来的数是收敛容差的像。",
     "★stiff 闭包 d_pc = 100 顶到 max_inner = 4000 未收敛（rel 4.455e-10），**不进判据**：没收敛的解不是定态，拿它比不动点没有意义。该点记在读数的 `converged` 上，没有摘掉。"
-   ]
+   ],
+   "measured_deviation": 1.446e-11,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -73,7 +83,9 @@
    "verdict": "pass",
    "caveat": [
     "★代价随 d_pc 近乎线性上行，且**多数区间是净变贵**：constant 2 → 13 → 42 → 277 → 1010 → 2406；stiff 43 → 28 → 71 → 550 → 1996 → 4000(cap)。只有 stiff 闭包 d_pc = 0.1 这一点上稳定化**减少**了迭代（43 → 28）。「稳定化」在这一族闭包上不等于「更快」。"
-   ]
+   ],
+   "measured_deviation": 1008.0,
+   "bound": "lower"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -85,10 +97,11 @@
     "★★机理在闭包的形式里，不是参数没扫够：`case.rs::diffusivity_of` 是 `chi0 (p1 + p2 g/(1+g))`，对梯度**有界且饱和**——g→∞ 时 chi 趋于 `chi0 (p1+p2)`。梯度→chi→梯度 的回授被饱和封住，Picard 映射保持压缩。而 P-C 要对付的正是 chi 随梯度**不封顶**或**带阈值**的那类闭包。",
     "★所以这一条**不是「没人去量」，是「在本接口上不存在可量的操作点」**。要量它得换一路：`evolve` 的 `turbulent` / `flux-match` 闭包，或 nn_tables 里的 QLKNN / TGLFNN 代理。那属于另一条记录。",
     "★判 `inconclusive` 而不是 `pass`：FR-TR-005 的判据有三句话，本记录答了两句。判 pass 会让 coverage 把这一条记成整条覆盖。"
-   ]
+   ],
+   "measured_deviation": 0.0,
+   "bound": "lower"
   }
  ],
-
  "validity_domain": "口径：单通道标量场 y（无单位——本记录量的是**求解范式**，不绑定具体物理量）；径向标签 ρ 为归一化径向坐标，[0,1] 均匀 41 点（非 Miller r）；几何 prescribed，V' = 2ρ；边界 edge_value = 0.3（Dirichlet）；theta = 1（后向 Euler——定态解的要求，内核对 theta ≠ 1 的定态请求 fail-loud）；源取内核缺省 Gaussian P exp(-(ρ/w)^2)，power = 4.0 · width = 0.35；闭包 constant 与 stiff，chi0 = 1.0。COCOS 不适用（无磁场量）。参数范围：判据落在 d_pc ∈ [0, 40]，d_pc = 100 记录在案但不判。",
  "caveat": [
   "★★**不可比的部分——本记录不证明定态是「对」的。** 参考是一条解析不变性（P-C 项恒等对消），它只约束定态**与 d_pc 无关**。一个求解器完全可以稳定地、与 d_pc 无关地收敛到一个**错的**定态而通过本记录。要判定态对不对，得靠制造解（NR-TR-002 收敛阶）或金标 parity——那是另外的记录。",
@@ -97,7 +110,6 @@
   "★闭包 `stiff` 是内核自带的解析式，**不是任何物理输运模型**（无临界梯度、无阈值、有界饱和）。本记录量的是求解范式在这一族闭包上的行为，不是物理。",
   "★单通道、固定几何。多通道（n / T / ψ）与平衡耦合下 P-C 的行为不在本记录范围内（FR-TR-001 / FR-TR-012）。"
  ],
-
  "run": {
   "type": "spo:ComputationProcess",
   "performed": "2026-09-16",
@@ -109,10 +121,22 @@
    }
   ],
   "realizes": [
-   {"name": "python/tests/test_benchmark_transport_pc.py::test_the_steady_state_does_not_depend_on_d_pc", "comment": "criterion/1"},
-   {"name": "python/tests/test_benchmark_transport_pc.py::test_d_pc_actually_reaches_the_assembly", "comment": "criterion/2"},
-   {"name": "python/tests/test_benchmark_transport_pc.py::test_the_bare_loop_does_not_stagnate_in_this_closure_family", "comment": "★criterion/3：钉住的是一个**否定结论**。内核哪天接上真正刚性的闭包，它就该红——红在这里读作「对照项第一次可量了，本记录该重判」。"},
-   {"name": "python/tests/test_benchmark_transport_pc.py::test_the_large_d_pc_end_is_recorded_as_not_converged", "comment": "★不利的那一端留在读数里且标着未收敛——求解器自己说了，没把顶到上限的剖面当定态交回来"}
+   {
+    "name": "python/tests/test_benchmark_transport_pc.py::test_the_steady_state_does_not_depend_on_d_pc",
+    "comment": "criterion/1"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_pc.py::test_d_pc_actually_reaches_the_assembly",
+    "comment": "criterion/2"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_pc.py::test_the_bare_loop_does_not_stagnate_in_this_closure_family",
+    "comment": "★criterion/3：钉住的是一个**否定结论**。内核哪天接上真正刚性的闭包，它就该红——红在这里读作「对照项第一次可量了，本记录该重判」。"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_pc.py::test_the_large_d_pc_end_is_recorded_as_not_converged",
+    "comment": "★不利的那一端留在读数里且标着未收敛——求解器自己说了，没把顶到上限的剖面当定态交回来"
+   }
   ],
   "kernel": {
    "name": "libfylite",
@@ -120,7 +144,6 @@
    "comment": "与 `meta/kernel.json` 的基准内核一致——本记录记在当前内核上。"
   }
  },
-
  "provenance": {
   "record_version": "1.0",
   "recorded": "2026-09-16",

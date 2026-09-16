@@ -303,6 +303,9 @@
   "kernel": {
    "@id": "spo:uses_library"
   },
-  "dcterms": "http://purl.org/dc/terms/"
+  "dcterms": "http://purl.org/dc/terms/",
+  "bound": {
+   "@id": "fyo:bound"
+  }
  }
 }

@@ -31,6 +31,13 @@ title: "eq-forward-chease-solovev"
 
 ## 判据与量到多少
 
+:::{figure} ../figures/eq-forward-chease-solovev-headroom.svg
+:alt: eq-forward-chease-solovev 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 深内点 psi_N 两码之差（RMS） | 1.12e-05 | measured_band | RMS 1.119e-05 · max 0.0001122 | **成立** |

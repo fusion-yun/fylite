@@ -95,21 +95,27 @@
    "verdict": "pass",
    "caveat": [
     "★量级是 1e-15：这已是双精度舍入，不是「算得准」，是**恒等式成立**。"
-   ]
+   ],
+   "measured_deviation": 8.44e-15,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "理想导体的磁通冻结",
    "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/2",
    "deviation_literal": "漂移/移动量 2.17e-13（判据 1e-10）· 回路残差 2.19e-13",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 2.17e-13,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "回路方程残差（三档）",
    "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/3",
    "deviation_literal": "冻结 2.19e-13 · 电压驱动 1.78e-13 · 电流驱动 5.93e-16（判据 1e-09）",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 2.19e-13,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -120,14 +126,17 @@
    "caveat": [
     "★★**这是本条里唯一贴着带跑的一档**。带是按实测值三位有效数字向上取整定的（登记册的定带规则），所以「贴着」有一半是定带方式造成的——但后果是真的：**任何一点漂移都会把它顶出去**。",
     "★记在这里而不是等它某天变红：一条余量 0.2 % 的判据，与一条余量千倍的判据，在表上看起来都是绿的，但它们说的不是一件事。"
-   ]
+   ],
+   "measured_deviation": 4.500136e-09,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "每步都是已收敛平衡",
    "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/5",
    "deviation_literal": "gs_state 起步之后恒为 [2.0]（冻结）· 电压 [2.0] · 电流 [2.0]；fb_held = 0",
-   "verdict": "pass"
+   "verdict": "pass",
+   "bound": "identity"
   }
  ],
  "validity_domain": "EAST 装置牌（`dist/facts/device/east`）；演化经内核门 `code/evolve_free_boundary`。★两条恒等式跑在**纯电路极限**上（壳模衰减、理想导体），这一档没有等离子体；驱动复现与回路残差跑在带等离子体爬升的耦合步上。★时间轴与壁时间 tau_w 由装置牌的被动结构定：换一张牌，这些数会变，判据的形式不变。",

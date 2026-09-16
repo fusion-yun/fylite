@@ -90,21 +90,27 @@
    "title": "psi_N 对真值（轮廓内）",
    "criterion": "benchmark/records/eq-reconstruct-twin-truth-recovery/criterion/1",
    "deviation_literal": "RMS 0.002337 · max 0.004285（判据 RMS 0.00234 / max 0.00429）",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 0.002337,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "磁轴",
    "criterion": "benchmark/records/eq-reconstruct-twin-truth-recovery/criterion/2",
    "deviation_literal": "1.174 mm（判据 1.18 mm）",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 1.174,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "边界与 X 点",
    "criterion": "benchmark/records/eq-reconstruct-twin-truth-recovery/criterion/3",
    "deviation_literal": "边界中位 0.6568 mm · 最大 1.647 mm · X 点 0.7831 mm",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 1.647,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -115,14 +121,18 @@
    "caveat": [
     "★★对比 eq-forward 那条记录：孪生里 q0 差 0.00061，而对 Solov'ev 闭式解差 3.27e-03——好约 5 倍。两者不矛盾：孪生的真值与重构**出自同一套离散**，共同的离散误差在相减时抵消了。★**所以孪生不能替代解析基准**：它验的是反演与前向互为逆，不是两者共同对不对。",
     "★本条的带几乎都画在实测值三位有效数字向上取整处，余量很薄（q0 仅约 0.01 %）。绿，但不是宽裕的绿——任何漂移都会顶出去。"
-   ]
+   ],
+   "measured_deviation": 0.00061,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "Ip（约束量的自证）",
    "criterion": "benchmark/records/eq-reconstruct-twin-truth-recovery/criterion/5",
    "deviation_literal": "9.45e-11（判据 9.5e-11）",
-   "verdict": "pass"
+   "verdict": "pass",
+   "measured_deviation": 9.45e-11,
+   "bound": "upper"
   }
  ],
  "validity_domain": "EAST #137985 t = 4.041 s 的线圈电流；剖面取解析族 e_mp = e_np = 1。零点锚 zc_anchor = -0.002 m。★合成测量由 fylite 自己的前向解生成，**不含噪声**：这一档量的是反演的数学，不是它抗噪的本事。★比较落在**内部量**上（psi_N、磁轴、边界、X 点、q）——这一点决定了它覆盖不到 NR-EQ-004，见 caveat。",

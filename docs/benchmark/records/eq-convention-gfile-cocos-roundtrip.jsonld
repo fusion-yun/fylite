@@ -88,7 +88,9 @@
    "verdict": "pass",
    "caveat": [
     "★偏差是 0 而不是「小于 1e-9」：往返走的是同一串十进制文本，本就该逐位回来。若哪天它变成 1e-12，那不是「仍然很好」，是写入端开始重新格式化数字了。"
-   ]
+   ],
+   "measured_deviation": 0.0,
+   "bound": "upper"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -98,7 +100,8 @@
    "verdict": "pass",
    "caveat": [
     "★这一条是 2026-09-08 唯一失手的地方，修在 `format_geqdsk`。它留在册上不是纪念，是因为**写入端最容易再犯的就是这一处**。"
-   ]
+   ],
+   "bound": "identity"
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -108,14 +111,16 @@
    "verdict": "pass",
    "caveat": [
     "★**裕度 11.5 倍值得记**：它说明这次判读不是在两个口径之间勉强择一，而是次优解差了一个数量级。裕度小的时候，同一条「口径不变」的判据含金量完全不同。"
-   ]
+   ],
+   "bound": "identity"
   },
   {
    "type": "fyo:ComparisonFinding",
    "title": "两套读者逐位一致",
    "criterion": "benchmark/records/eq-convention-gfile-cocos-roundtrip/criterion/4",
    "deviation_literal": "合成件 13 标量 + 10 数组 / 4922 个元素逐位相同；EAST #70754 13 标量 + 10 数组 / 17600 个元素逐位相同；差异字段：无",
-   "verdict": "pass"
+   "verdict": "pass",
+   "bound": "identity"
   }
  ],
  "validity_domain": "两份语料各答一问：**仓内合成件**（`rust/fylite_runtime/testdata/g_synthetic.geqdsk`，65x65，构造已知、永远在场）与**一份真炮**（EAST #70754 @ 5000 ms，129x129，来自 fydoc 算例书 FYDOC-CASE-19）。★真炮件里有合成件挑不出的东西：列宽、负号吃空格、老写法。只用合成件会把这些漏掉。★比较落在 g-file 的 25 个数值字段 / 13 个标量 + 10 个数组上；COCOS 由 `measure_cocos` 在**文件自己的边界多边形之内**量出。",
