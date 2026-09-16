@@ -19,12 +19,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**0** 条
-- 判决 (verdict)：成立 0 · 不成立 **0** · 未判 0 · 未评估 0
-- 新鲜度 (freshness)：当前 0 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 0 · 已被取代 0
-
-★**本册尚无记录。** 这一页此刻的用处不是报成绩，是把闸子摆在记录进来之前：每一条进来的记录都必须自带版本、变更、评审与它跑的那个内核，否则 `python/tests/test_benchmark_register.py` 不收。
+- 记录 (records)：**1** 条
+- 判决 (verdict)：成立 0 · 不成立 **0** · 未判 1 · 未评估 0
+- 新鲜度 (freshness)：当前 1 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 1 · 已被取代 0
 
 ## 按域 (by domain)
 
@@ -42,14 +40,16 @@ title: 验证状态 (Verification status)
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [方程组求解与边界条件](tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [闭包插件面：输运系数与源项](tr/closure.md) | 3 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](tr/paradigm.md) | 4 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](tr/pedestal.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](tr/coupling.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
 
 ## 记录明细 (records)
 
-（尚无记录）
+| 记录 | 域 | 类 | 判决 | 版本 | 末次修订 | 评审 | 跑在内核 | 新鲜度 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `tr-paradigm-pereverzev` | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 
