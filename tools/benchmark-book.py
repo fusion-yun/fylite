@@ -95,7 +95,10 @@ def local_kernel() -> dict | None:
     """本机当前的内核指纹。★取不到是正常的——分发件里不一定带内核。"""
     lib = os.environ.get("FYLITE_KERNEL_LIB")
     cands = [pathlib.Path(lib)] if lib else []
-    cands.append(ROOT / "python" / "fylite" / "_lib" / "libfylite_kernel.so")
+    #: ★2026-09-16 起内核装在 `libfylite.so` 里（内核 + 中间层一个库）；
+    #: `libfylite_kernel.so` 是上一代的名字，留着让没重建过的检出仍答得出指纹。
+    for name in ("libfylite.so", "libfylite_kernel.so"):
+        cands.append(ROOT / "python" / "fylite" / "_lib" / name)
     for p in cands:
         if p.is_file():
             return {"name": "libfylite", "path": str(p),
@@ -658,7 +661,7 @@ def main() -> int:
     if a.bump_kernel:
         k = local_kernel()
         if k is None:
-            print("本机取不到内核（设 $FYLITE_KERNEL_LIB 指向 libfylite_kernel.so）", file=sys.stderr)
+            print("本机取不到内核（设 $FYLITE_KERNEL_LIB 指向 libfylite.so）", file=sys.stderr)
             return 2
         k["recorded"] = datetime.date.today().isoformat()
         k["comment"] = ("★基准内核：本册以它为「当前」。内核一换就更新本文件——"

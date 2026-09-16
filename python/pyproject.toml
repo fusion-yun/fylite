@@ -37,7 +37,7 @@ license-files = ["LICENSE", "CONTRIBUTORS.md", "NOTICE*"]
 requires-python = ">=3.10"
 dependencies = ["numpy"]
 #: ★alpha 期的分发面就是这些分类项声明的那一个：Linux x86-64。轮里带的是
-#: **预编译**的 `_lib/libfylite_kernel.so`，不由 pip 现场编译，所以「装上了」与「能用」
+#: **预编译**的 `_lib/libfylite.so`（内核 + 中间层一个库），不由 pip 现场编译，所以「装上了」与「能用」
 #: 在别的平台上会分家——分类项与轮的平台 tag（见 `setup.py` 与
 #: `tools/build-wheel.sh`）一起把这件事说在前面，而不是留给 import 时报错。
 classifiers = [
@@ -58,7 +58,7 @@ yaml = ["PyYAML"]
 plot = ["matplotlib"]  # fylite.plot / fylite report figures: rendering
 #: ★`h5py` 今天只剩**一个**读者：`fylite.io.raw.read_hdf5_dump`（原始序列离线
 #: 转储，那不是 fyo 布局）。★★2026-09-04 起 fyo 文档的 `.h5` 出入口（`fyo.write` / `read`、
-#: `appsession.to_hdf5`）走中间层 `libfylite_runtime.so`（`fylite.io.fydoc`），不再经 h5py；
+#: `appsession.to_hdf5`）走中间层 `libfylite.so`（`fylite.io.fydoc`），不再经 h5py；
 #: `fylite.io.imas_h5` 已删（零调用者，且中间层本来就读 IMAS HDF5）。可选能力仍经 extras
 #: 隔离（NR-DEP-001）。
 hdf5 = ["h5py"]
@@ -106,7 +106,8 @@ include = ["fylite*"]
 
 # Binary/data package files.  The Rust kernels are NOT compiled by pip — the
 # cdylib is committed pre-built and shipped as package data:
-#   _lib/libfylite_kernel.so      built and installed here by `bash rust/build.sh`
+#   _lib/libfylite.so             built and installed here by `bash rust/build.sh`
+#                          (kernel + data layer in ONE library since 2026-09-16)
 #                          (needs a Rust toolchain to rebuild).
 [tool.setuptools.package-data]
 #: ★`_backends.json` left this list because it left the tree — first as
@@ -119,7 +120,7 @@ include = ["fylite*"]
 #: 只是带着一份没人读的字节。★它仍留在 `python/fylite/` 下，是历史位置；搬家是
 #: 另一件事，搬则 Rust 的 `include_str!` 与本表同一次改。
 #: ★★`_lib/*.so.*.*.*` —— **完全版本化的那一个真文件**，不是三个名字里的任意一个
-#: （2026-09-05）。装出来的目录是 Linux 那套：`libfylite_kernel.so.0.0.1` 是真文件，
+#: （2026-09-05）。装出来的目录是 Linux 那套：`libfylite.so.0.0.1` 是真文件，
 #: `.so.0` 与 `.so` 是指向它的符号链接。而**轮里没有符号链接**：setuptools 跟随
 #: 链接、逐个存成副本，所以 `_lib/*.so*` 会把同一份两兆多的字节装进轮里**三遍**
 #: （三个库就是九份）。三个点的通配挑出的正是真文件那一个：`.so.0` 只有一个点，

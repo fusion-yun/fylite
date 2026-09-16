@@ -14,8 +14,14 @@ PKG = Path(__file__).resolve().parent
 LIB_DIR = PKG / "_lib"
 
 
-def _lib(logical: str) -> Path:
+def _lib(logical: str, *legacy: str) -> Path:
     """The shared library ``logical`` names — versioned or not.
+
+    ★★★2026-09-16 用户裁定「在 fylite 仓与 fylite_runtime 一起打包进……动态链接库
+    libfylite.so」：本目录从此**只有一个 `.so`**，内核（物理）与中间层（格式 · 装配）
+    在同一个文件里。``legacy`` 是**上一代的三个名字**（``libfylite_kernel.so`` /
+    ``_ext.so`` / ``libfylite_runtime.so``）——一个按旧规矩装好的检出或轮子仍然能跑，
+    而不是在 import 时以「找不到内核」失败。新名字优先；两代都在就用新的。
 
     ★★2026-09-05: the build installs shared objects the way Linux does
     (``tools/soname.sh``) — ``libfylite_kernel.so.0.0.1`` is the real file
@@ -43,9 +49,15 @@ def _lib(logical: str) -> Path:
                      for x in p.name[len(logical) + 1:].split("."))
 
     found = sorted(LIB_DIR.glob(logical + ".*"), key=key)
+    if found:
+        return found[-1]
+    for old in legacy:
+        alt = _lib(old)
+        if alt.exists():
+            return alt
     #: ★缺席时仍然返回**那个不带版本的路径**，不是 None：调用方的报错文案说的是
-    #: 「找不到 libfylite_kernel.so」，而那正是读者要去构建的那个名字。
-    return found[-1] if found else plain
+    #: 「找不到 libfylite.so」，而那正是读者要去构建的那个名字。
+    return plain
 #: ★No bundled device deck: this distribution ships none (see
 #: :mod:`fylite.device`).  ``DATA_DIR`` is resolved from
 #: ``$FYLITE_DEVICE_DIR`` on first ACCESS, through this module's
@@ -72,18 +84,26 @@ def _lib(logical: str) -> Path:
 #: loader that turned a missing one into a diagnostic.  What survives of
 #: those libraries is a set of RECORDINGS (``tests/data/FYDOC-CASE-03-frozen-libs``,
 #: replayed from ``tests/oracles/``), and a recording needs no path.
-#: ★★2026-09-02 改名：`libfylite_kernel.so` -> `libfylite_kernel.so`。本目录从此有**两份**
-#: `.so`，来路不同：内核（物理，私有仓 fylite_kernel 构建）与数据层（取数与格式，
-#: 本仓 `rust/fylite_runtime/` 构建）。名字自带区分，好过靠读者记住哪一份是哪一层。
-KERNEL_LIB = _lib("libfylite_kernel.so")
-#: ★★2026-09-04 内核分**两个包**（用户裁定）：核心一个 `.so`，TGLF 与 DKE 一个。
-#: 两者出自同一次构建，装载方开两个句柄——见 `kernel.load()`。扩展**可以缺席**
-#: （纯 CLI 的发行不带它），缺席时那 15 个入口按名拒绝，而不是 AttributeError。
-KERNEL_EXT_LIB = _lib("libfylite_kernel_ext.so")
+#: ★★★2026-09-16 用户裁定：**一个 `.so`**。私有仓 fylite_kernel 从此只出静态归档
+#: （`libfylite_kernel.a`），本仓 `rust/build.sh` 把它与中间层 `fylite_runtime` 链成
+#: 同一个 `libfylite.so.<版本>`（+ `.so.<主版本>` + `.so` 两级符号链接，
+#: `tools/soname.sh`）。于是下面三个常量**指的是同一个文件**——保留三个名字是因为
+#: 三处调用方问的是三件不同的事（物理核 · 扩展面 · 中间层），而「它们碰巧同住一个
+#: 库」是装配的事实，不该逼每个调用方都知道。
+#:
+#: ★★沿革：2026-09-02 数据层从内核里分出来成第二份 `.so`；2026-09-04 内核又分核心与
+#: 扩展两份；今天三份合一。分的理由（谁属于哪一层）仍然成立，它们仍是三个 crate、
+#: 三个符号前缀（`fylite_rs_*` · `fylite_ext_*` · `fylite_runtime_*`，同进程不撞名）；
+#: 变的只是**装出去的文件数**。每个常量的第二个参数是上一代的名字，见 `_lib`。
+KERNEL_LIB = _lib("libfylite.so", "libfylite_kernel.so")
+#: ★扩展面（TGLF · DKE）。从前它可以**缺席**（纯 CLI 的发行不带那一份 `.so`），
+#: 缺席时那 15 个入口按名拒绝而不是 AttributeError。今天它与核心在同一个文件里，
+#: 于是缺席只剩一种形式：整个 `libfylite.so` 不在。那条按名拒绝的路仍留着——
+#: 旧检出（真有两份 `.so`）走的正是它。
+KERNEL_EXT_LIB = _lib("libfylite.so", "libfylite_kernel_ext.so")
 
-#: 数据层：mdsip 编解码，后续收编 g-file / 原始序列约化（`io.raw`）。★与内核**不同的符号前缀**
-#: （`fylite_runtime_*` vs `fylite_rs_*`），所以同一个进程 load 两份不会撞名。
-DATA_LIB = _lib("libfylite_runtime.so")
+#: 中间层：mdsip 编解码 · g-file · 文档树 · 计划→内核→记录。
+DATA_LIB = _lib("libfylite.so", "libfylite_runtime.so")
 
 #: ★★2026-09-01 移除：`$KEFIT_REFERENCE_BUNDLE` 与 `reference_bundle()`。
 #: 那是一个指向 ASIPP **不可再分发**参考包（`kefit_reference_bundle`，致谢里的

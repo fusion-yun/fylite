@@ -64,7 +64,7 @@ def test_the_generated_card_derives_every_point_name(card):
 def test_every_measurement_chain_derives_every_point_name(chain):
     lib = F._lib()
     if lib is None or not hasattr(lib, "fylite_runtime_device_resolve"):
-        pytest.skip("libfylite_runtime.so without fylite_runtime_device_resolve (bash rust/build.sh)")
+        pytest.skip("libfylite.so without fylite_runtime_device_resolve (bash rust/build.sh)")
     #: no name: the configured card ($FYLITE_DEVICE_DIR), resolved in that chain
     shot = CHAINS[chain]
     doc = D.document(measurement_chain=chain) if shot is None else D.document(measurement_chain=chain, shot=shot)

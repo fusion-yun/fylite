@@ -1,0 +1,29 @@
+# 内核那两份 `.wasm` 的**外壳**（2026-09-16 用户裁定：内核仓只出静态库，
+# wasm 在本仓与 `fylite_runtime` 一起打包）。
+#
+# ★本包**没有自己的代码**（`src/lib.rs` 是空的）。它存在的唯一理由是：wasm 的产物
+# 必须是一个 `cdylib` 目标，而 cargo 只会为一个**包**产出它。真正的内容在
+# `rust/kernel-lib/libfylite_kernel-wasm32.a` 里——内核仓编好的那份归档——由
+# `build.rs` 按名钉成链接的根。
+#
+# ★为什么不塞进 `fylite_runtime`：那边的 wasm（`fylite_web.wasm`）是**另一件东西**，
+# 页面各取所需（装置信息 / g-file 走中间层那份，物理走内核这两份）。把内核链进
+# 中间层的 wasm 会让只读装置信息的页面也背上 2.6 MB 的物理核。
+[package]
+name = "fylite_kernel_wasm"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[lib]
+name = "fylite_kernel_wasm"
+#: 只出 wasm 那一种形；原生下它是个空库，没人链。
+crate-type = ["cdylib"]
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+#: ★`lto` 对本包无意义（自己没有代码，归档里的对象是成品，不带位码），写 false
+#: 免得链接期多一道空转。
+lto = false

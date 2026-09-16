@@ -45,7 +45,7 @@ unsafe fn text<'a>(p: *const u8, n: u64) -> Option<&'a str> {
 /// `plan` is the JSON-LD text of one `fyo:ScenarioSpecification`, or a
 /// JSON array of them composed in order (later ones override earlier
 /// ones).  `base` is the directory file endpoints resolve against (empty =
-/// the working directory).  `kernel` is a path to `libfylite_kernel.so`
+/// the working directory).  `kernel` is a path to the kernel library (`libfylite.so`)
 /// (empty = `FYLITE_KERNEL_LIB` or the checkout's `python/fylite/_lib/`).
 ///
 /// Returns **0** with the record (`run_state: succeeded`, datasets inline

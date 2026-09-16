@@ -9,7 +9,10 @@ fn a_corpus_case_goes_through_the_json_door() {
     let plan = root.join("docs/examples/evolve/evolve-default.jsonld");
     let text = std::fs::read_to_string(&plan).expect("the corpus is in the checkout");
     let kernel = std::env::var("FYLITE_KERNEL_LIB").ok();
-    if kernel.is_none() && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file() {
+    if kernel.is_none()
+        && !root.join("python/fylite/_lib/libfylite.so").is_file()
+        && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file()
+    {
         eprintln!("SKIP: no kernel library (set FYLITE_KERNEL_LIB)");
         return;
     }
@@ -65,7 +68,10 @@ fn a_case_that_binds_a_device_document_goes_through_the_tree_door() {
     let plan = root.join("docs/examples/design/discharge-iter.jsonld");
     let text = std::fs::read_to_string(&plan).expect("the corpus is in the checkout");
     let kernel = std::env::var("FYLITE_KERNEL_LIB").ok();
-    if kernel.is_none() && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file() {
+    if kernel.is_none()
+        && !root.join("python/fylite/_lib/libfylite.so").is_file()
+        && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file()
+    {
         eprintln!("SKIP: no kernel library (set FYLITE_KERNEL_LIB)");
         return;
     }

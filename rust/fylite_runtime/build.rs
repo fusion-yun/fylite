@@ -91,6 +91,11 @@ fn link_kernel() {
         }
     }
     //: 内核仓的 `rust/build.sh` 装到这里（制品不入库，见 .gitignore）。
+    //: ★★2026-09-16 用户裁定「仅生成静态链接库 libfylite_kernel.a 等」之后，内核仓
+    //: 装出来的名字是 `libfylite_kernel.a`；`libfylite_kernel_static.a` 是上一代的
+    //: 名字（cargo 按 `[lib] name` 出的那个），留着是为了一个还没重建内核的检出
+    //: 仍然链得出东西，而不是以「没有内核」静默降级。
+    tried.push(root.join("..").join("kernel-lib").join("libfylite_kernel.a"));
     tried.push(root.join("..").join("kernel-lib").join("libfylite_kernel_static.a"));
     for a in &tried {
         if !a.is_file() {
@@ -118,12 +123,22 @@ fn link_kernel() {
         //: 发布档正是 `lto = true`。写成链接参数则是在 LTO 之后交给链接器，
         //: 内核这份归档不参与 rustc 的 LTO（它本来也没什么可参与的：跨语言边界是
         //: C ABI，LTO 跨不过去），本 crate 自己的 LTO 一点没少。
+        //: **所有目标**都拿到这份归档：可执行文件 `fy`、集成测试，以及 lib 自己的
+        //: 单元测试。★这里曾按目标分开给（`-bins` / `-tests`），结果 `cargo test` 当场
+        //: 红在**lib 的单元测试**上——`rustc-link-arg-tests` 管的是 `tests/` 下的集成
+        //: 测试，`--lib` 那个测试二进制不在其中，于是它链不到 `fylite_rs_fyo` 一族
+        //: （实测 1.98.1）。不分目标的这一条管得住全部。
         println!("cargo:rustc-link-arg={}", a.display());
         //: ★★两份 Rust 制品链在一起，std 的那几个符号（分配器垫片、unwind 个性
         //: 例程）会在归档与本二进制里各有一份**完全相同**的定义。链接器对此的缺省
         //: 答复是拒绝，而两份来自同一次 rustc、逐字节相同——所以这里明说「允许」，
-        //: 而不是把内核改成动态库绕开它（那正是裁定分开的三种形之一，不能混用）。
+        //: 而不是把内核改成动态库绕开它。
         println!("cargo:rustc-link-arg=-Wl,--allow-multiple-definition");
+        //: ★★★`cdylib` **另外**再要几条（上面那条对它不够）：从今天起
+        //: `libfylite.so` 就是内核的运行期形式（用户裁定：内核仓只出 `.a`，动态库在
+        //: 本仓与中间层打包成一个），所以那 59 个 C 入口必须真的**导出**，而不是
+        //: 「链接器认为没人引用就不取、或者取了也降成本地」。见 `cdylib_args`。
+        cdylib_args(a, &pkg_version());
         println!("cargo:rustc-cfg=kernel_static");
         //: ★★**算力的身份**要跟着进二进制。页面的续算闸（`app/assets/checkpoint.js`）
         //: 判的是「写这份状态的内核是不是当前这个」，判据是内核的 sha256——在 wasm
@@ -146,6 +161,53 @@ fn link_kernel() {
         "cargo:warning=fylite_runtime: no kernel static library ({}) — /api/kernel will say so",
         tried.iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(", ")
     );
+}
+
+/// 本包的版本（`libfylite.so.<主版本>` 的那个主版本从它取）。
+fn pkg_version() -> String {
+    std::env::var("CARGO_PKG_VERSION").unwrap_or_default()
+}
+
+/// `cdylib` 那一份的链接参数 —— **让内核那 59 个 C 入口真的从 `libfylite.so` 导出**。
+///
+/// ★★★2026-09-16 用户裁定：「在 fylite 仓与 fylite_runtime 一起打包进可执行文件，
+/// 动态链接库 libfylite.so，和 wasm」。于是这个库同时是**两层的运行期形式**：
+/// `fylite_runtime_*`（本 crate 自己的导出，rustc 负责）与 `fylite_rs_*` /
+/// `fylite_ext_*`（内核那份归档里的 C 入口）。
+///
+/// ★★两件事必须同时做，少一件就是一个**能编过、也能装、而 `dlopen` 之后按名找不到
+/// 内核**的库（实测，2026-09-16）：
+///
+///   1. `--whole-archive`：不这么给，链接器只取本 crate 真引用到的那些成员，
+///      其余 C 入口根本不进库。
+///   2. **第二份 version script**：rustc 为每个 `cdylib` 自动写一份
+///      `{ global: <本 crate 的导出>; local: *; };`，那条 `local: *` 会把归档里带进来的
+///      符号全部降成本地——实测「静态符号表里有、`nm -D` 里没有」，而 ctypes 找的正是
+///      后者。GNU ld 允许给多份脚本并按**精确/模式匹配的优先级**合并，于是这里补一份
+///      只说 global 的：两个前缀通配，内核的 59 个入口回到动态符号表，本 crate 自己的
+///      那些照旧由 rustc 那份管着。实测 57 个 `fylite_rs_*` + 2 个 `fylite_ext_*` ✓
+///
+/// ★`-soname`：产物文件名仍是 cargo 按 `[lib] name` 出的 `libfylite_runtime.so`，
+/// 装出去时才改名 `libfylite.so.<版本>`（`rust/build.sh` → `tools/soname.sh`）。
+/// soname 要与**装出去的那个名字**一致，否则将来谁按 `-lfylite` 链它，运行期找的会是
+/// 一个不存在的 `libfylite_runtime.so`。
+fn cdylib_args(archive: &Path, version: &str) {
+    let out = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR"));
+    let map = out.join("fylite-kernel-exports.map");
+    //: ★写两个**通配**而不是把 `kernel-static.json` 的名单展开：名单会随每一刀退役
+    //: 变，而这两个前缀是 ABI 的形状（`fylite_rs_` 核心与 TGLF/DKE、`fylite_ext_` 扩展
+    //: 自己的两扇门），它不变。名单那份另有读者——`rust/build.sh` 拿它对着装好的库
+    //: 逐个核对「该有的都在」。
+    if let Err(e) = std::fs::write(&map, "{ global: fylite_rs_*; fylite_ext_*; };\n") {
+        panic!("写不出 {}: {e}", map.display());
+    }
+    println!("cargo:rustc-link-arg-cdylib=-Wl,--whole-archive");
+    println!("cargo:rustc-link-arg-cdylib={}", archive.display());
+    println!("cargo:rustc-link-arg-cdylib=-Wl,--no-whole-archive");
+    println!("cargo:rustc-link-arg-cdylib=-Wl,--allow-multiple-definition");
+    println!("cargo:rustc-link-arg-cdylib=-Wl,--version-script={}", map.display());
+    let major = version.split('.').next().unwrap_or("0");
+    println!("cargo:rustc-link-arg-cdylib=-Wl,-soname,libfylite.so.{major}");
 }
 
 /// `kernel-static.json` 里的 `sha256` 与 `kernel_version`；读不到就是两个空串。

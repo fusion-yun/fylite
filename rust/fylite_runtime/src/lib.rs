@@ -45,7 +45,7 @@
 //!
 //! | 制品 | 给谁 | 带 mdsip 吗 | 带 HDF5 / netCDF 吗 |
 //! | --- | --- | --- | --- |
-//! | `libfylite_runtime.so` | Python（`ctypes`，与内核库同一种取法） | 是 | 是（链 C 库） |
+//! | `libfylite.so`（★2026-09-16 起内核也在里面） | Python（`ctypes`，与内核库同一种取法） | 是 | 是（链 C 库） |
 //! | `fylite` | **唯一的可执行文件**：桌面查看器 + `data` / `case` 命令行 | 是 | 是 |
 //! | `fylite_runtime.wasm` | 浏览器 | **否**（用户裁定；浏览器打不开裸 TCP） | **否**（`--no-default-features`：g-file 与 JSON） |
 

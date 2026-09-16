@@ -85,7 +85,7 @@ def _declared_outputs(entry: str) -> list:
 
 
 def run_native(entry: str, *, params: dict, inputs: dict, dims: dict) -> dict:
-    """The entry, through this host's ``libfylite_kernel.so``."""
+    """The entry, through this host's ``libfylite.so`` (the kernel face)."""
     from .. import kernel as K
     return K.scenario(entry, params=params, inputs=inputs, **dims)
 

@@ -1,4 +1,4 @@
-"""数据源 ↔ fyo 文档：`libfylite_runtime.so` 的文档面（`rust/fylite_runtime/src/io.rs`）。
+"""数据源 ↔ fyo 文档：`libfylite.so` 的文档面（`rust/fylite_runtime/src/io.rs`）。
 
 ★★这是 :func:`fylite.fyo.write` / :func:`fylite.fyo.read` 之外的**第二条盘上通路**，
 两者的分工：``fyo.write`` 写的是本包自己的 fyo 布局（JSON-LD / HDF5），这里除了同一
@@ -325,7 +325,8 @@ def case_json(plan, *, base=None, kernel_lib=None) -> dict:
     ``plan`` is a dict (one plan), a list of dicts (composed in order, later
     ones overriding earlier ones), or the JSON text of either.  File endpoints
     in the plan resolve against ``base``; ``kernel_lib`` names
-    ``libfylite_kernel.so`` (default: ``$FYLITE_KERNEL_LIB`` or ``_lib/``).
+    the kernel library (default: ``$FYLITE_KERNEL_LIB`` or ``_lib/libfylite.so``;
+    empty means the kernel linked into this very library).
 
     ★The whole run — composing the plan, resolving its inputs, the kernel's
     single door ``fylite_rs_fyo``, the record with the datasets INLINE on
@@ -378,7 +379,7 @@ def complete(code: str, plan: dict, *, kernel_path: str | Path | None = None) ->
 
     ★★2026-09-05 — FYL-SDD-02 K-1 / H-4: Python does not encode the tree and
     does not open the kernel's door itself.  The plan crosses to the middle layer
-    (``libfylite_runtime.so``) as JSON — text between host and middle layer is
+    (``libfylite.so``) as JSON — text between host and middle layer is
     allowed — and the middle layer's ONE encoder puts it through
     ``fylite_rs_fyo_tree``.  So there is exactly one tree codec, in Rust, and
     this function is 30 lines of ctypes.
@@ -416,7 +417,7 @@ def complete(code: str, plan: dict, *, kernel_path: str | Path | None = None) ->
 
 
 def linked_kernel() -> dict | None:
-    """The fingerprint of the kernel linked INTO ``libfylite_runtime.so``, or ``None``.
+    """The fingerprint of the kernel linked INTO ``libfylite.so``, or ``None``.
 
     ★Version, ABI and the interface digest cannot tell two builds of one kernel
     version apart; this can (``built`` · ``sha256`` of the archive at link time).

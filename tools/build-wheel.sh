@@ -37,23 +37,19 @@ OUT="${1:-$PROJ/dist}"
 FACTS_DIR="$PROJ/fylite/_facts"
 rm -rf "$FACTS_DIR"
 FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/app/assets/runtime-version.js" 2>/dev/null || true)
-echo "[wheel] facts: 编在 libfylite_runtime.so 里（${FLAV:-未知} 版）——轮里不另带一份"
+echo "[wheel] facts: 编在 libfylite.so 里（${FLAV:-未知} 版）——轮里不另带一份"
 
-SO="$PROJ/fylite/_lib/libfylite_kernel.so"
-#: ★★2026-09-02：轮里现在有**两份** `.so`。数据层（`libfylite_runtime.so`，公开仓
-#: `rust/fylite_runtime/` 构建）与内核是两条来路，缺任何一份轮都不完整——但只有内核
-#: 这份由本脚本所在的仓构建，所以数据层那份在这里只**查在不在**，不代它构建。
-DATA_SO="$PROJ/fylite/_lib/libfylite_runtime.so"
-[ -f "$DATA_SO" ] || { echo "[wheel] 找不到 $DATA_SO —— 先在公开仓跑 rust/build.sh" >&2
-                       echo "[wheel]   （数据层在公开仓，取数与格式都靠它）" >&2
-                       exit 1; }
-
-[ -f "$SO" ] || { echo "[wheel] 找不到 $SO —— 先在内核仓跑 rust/build.sh" >&2
-                  echo "[wheel]   （Rust 源码在 fylite_kernel；它会把 .so 装进本仓）" >&2
+#: ★★★2026-09-16 用户裁定：轮里只剩**一份** `.so`。内核仓只出静态归档，公开仓的
+#: `rust/build.sh` 把它与中间层链成同一个 `libfylite.so`（内核 · 扩展 · 格式装配都在
+#: 里面）。于是从前那三份的「两条来路、缺一不可」收成一条：这个文件在，轮就完整。
+SO="$PROJ/fylite/_lib/libfylite.so"
+[ -f "$SO" ] || { echo "[wheel] 找不到 $SO —— 先在公开仓跑 bash rust/build.sh" >&2
+                  echo "[wheel]   （它链内核仓装下的 rust/kernel-lib/libfylite_kernel.a；" >&2
+                  echo "[wheel]    那份归档由内核仓的 rust/build.sh 装进来）" >&2
                   exit 1; }
 
 #: ★★`-L`：跟着符号链接问真文件（2026-09-05）。制品从这天起按 Linux 的习惯装成
-#: `libfylite_kernel.so -> .so.0 -> .so.0.0.1`，而 `file -b` 对一条链接答的是
+#: `libfylite.so -> .so.0 -> .so.0.0.1`，而 `file -b` 对一条链接答的是
 #: 「symbolic link to …」——不是 ELF，于是这道**平台闸**会把每一次打轮都拒掉，
 #: 拒的理由还是一句看起来像真事故的「不是 ELF x86-64」。`readelf` 自己跟随链接，
 #: 所以下面两处不必改。
@@ -79,11 +75,11 @@ echo "[wheel] glibc 下限 $FLOOR -> $PLAT"
 #: 是 `_lib/*.so.*.*.*`——轮里没有符号链接，装三个名字就是把同一份字节存三遍）。
 #: 把装了哪几版打出来：出了问题时，「这个轮里是哪一版内核」不该靠解压去查。
 . "$DIR/tools/soname.sh"
-for l in libfylite_kernel.so libfylite_kernel_ext.so libfylite_runtime.so; do
+for l in libfylite.so; do
     v="$(fy_installed_version "$PROJ/fylite/_lib" "$l")"
     [ -n "$v" ] && echo "[wheel] $l  $v" || echo "[wheel] $l  ——（不在 _lib/）"
 done
-#: ★★Apache-2.0 §4(d)：NOTICE 必须随**分发**走。本包带的 `_lib/libfylite_kernel.so`
+#: ★★Apache-2.0 §4(d)：NOTICE 必须随**分发**走。本包带的 `_lib/libfylite.so`
 #: 正是 GACODE 白盒移植的编译产物，这一条不是装饰。
 #: ★★2026-09-02：公开仓**已自带一份仓根 `NOTICE`**（用户裁定恢复），并由
 #: `python/NOTICE -> ../NOTICE` 把它引进工程目录——`license-files` 只在工程目录内

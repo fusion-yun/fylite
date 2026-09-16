@@ -16,7 +16,10 @@ use std::path::Path;
 fn iter_15ma_dt_evolution_lands_as_an_imas_data_entry() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let kernel = std::env::var("FYLITE_KERNEL_LIB").ok();
-    if kernel.is_none() && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file() {
+    if kernel.is_none()
+        && !root.join("python/fylite/_lib/libfylite.so").is_file()
+        && !root.join("python/fylite/_lib/libfylite_kernel.so").is_file()
+    {
         eprintln!("SKIP: no kernel library (set FYLITE_KERNEL_LIB)");
         return;
     }

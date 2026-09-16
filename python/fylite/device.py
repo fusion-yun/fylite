@@ -321,7 +321,7 @@ def resolve_document(card: dict | None, resolution: dict, *, shot: int | None = 
                      measurement_chain: str | None = None,
                      form: str = "card", strict: bool = False) -> dict:
     """THE rule, run in the runtime (``fylite_runtime_device_resolve`` in
-    ``libfylite_runtime.so``) — ``{"selected": {ids: {provider, shots, why}},
+    ``libfylite.so``) — ``{"selected": {ids: {provider, shots, why}},
     "notes": [...], "document": {...}}``; ``card=None`` asks for the selection only.
 
     ★Not re-implemented here: the selection that decides which geometry a run gets
@@ -337,7 +337,7 @@ def resolve_document(card: dict | None, resolution: dict, *, shot: int | None = 
     fn = getattr(lib, "fylite_runtime_device_resolve", None) if lib is not None else None
     if fn is None:
         raise MachineDataMissing(
-            "resolving a device by shot needs libfylite_runtime.so with "
+            "resolving a device by shot needs libfylite.so with "
             "fylite_runtime_device_resolve — rebuild it (bash rust/build.sh)")
     fn.restype = ctypes.c_int64
     fn.argtypes = [ctypes.c_char_p, ctypes.c_uint64] * 4 + [ctypes.POINTER(ctypes.c_uint8),

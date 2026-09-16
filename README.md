@@ -235,7 +235,7 @@ protocol face without paying for numpy or the kernel.
 ## Reading and writing data
 
 The **data layer** (`rust/fylite_runtime/`, source open, built into
-`libfylite_runtime.so` and the `fy data` command) converts between data sources
+`libfylite.so` — the one shared library, kernel included — and the `fy data` command) converts between data sources
 and fyo documents, merges several sources, and assembles them from a JSON-LD
 description. Files are recognised by **content**, never by name.
 
@@ -413,10 +413,12 @@ examples and the registers — plus the generated files the two halves must agre
 on (`_abi.py`, `_fyo_interface.py`, `_deck_names.py`, `_cgs.py`,
 `app/assets/{version,fyo-interface,deck-names}.js`, `abi.json`).
 
-Binaries do not travel with the repository. `python/fylite/_lib/libfylite_kernel.so`
-and the kernel `app/assets/*.wasm` are produced by the kernel build and
-installed into a checkout; `libfylite_runtime.so` and `app/assets/fylite_web.wasm`
-come from this repository's own `bash rust/build.sh`. Distributions pack them:
+Binaries do not travel with the repository. The kernel repository builds **static
+archives only** (`rust/kernel-lib/libfylite_kernel.a` and its wasm32 twin, user
+ruling of 2026-09-16) and installs them into a checkout; everything loadable —
+`python/fylite/_lib/libfylite.so` (kernel *and* data layer in one library), the
+`fy` executable, and all three `app/assets/*.wasm` — is linked here by this
+repository's own `bash rust/build.sh`. Distributions pack them:
 `tools/build-wheel.sh`, `tools/build-site.sh`, `tools/build-app-exe.sh`.
 
 So a complete checkout of this repository has every line of the application layer

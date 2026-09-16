@@ -15,7 +15,7 @@ title: 安装与环境 (Install & Environment)
 | `hdf5` | `h5py` | 只有 est2 离线转储（`io.est2.measurements_from_est2_hdf5`）还读它；fyo 文档的 `.h5` 走中间层，不需要 |
 
 ★**从 MDSplus 取数不需要任何 extra**：mdsip 客户端在中间层
-`libfylite_runtime.so` 里，`io.mds` / `io.est2` 的在线路径经它取数，不依赖站点的 `MDSplus`
+`libfylite.so` 里，`io.mds` / `io.est2` 的在线路径经它取数，不依赖站点的 `MDSplus`
 python 包。
 
 ```bash
@@ -39,7 +39,7 @@ fylite 以**三种形态**到达使用者（`FYL-DESIGN-15`），三者装的是
 （`app` / `data` / `case`）。★**wheel 不带可执行文件、Python 侧也没有
 命令行**：装上包得到的是一个库，`fy` 由 `bash rust/build.sh --exe` 出、装到 `$PATH` 上。
 
-★包里带的是**预编译**的内核（`_lib/libfylite_kernel.so`），pip 不在装的时候编译它。
+★包里带的是**预编译**的 `_lib/libfylite.so`（内核 + 中间层一个库），pip 不在装的时候编译它。
 所以轮带**平台 tag**，alpha 期的公开面是 **Linux x86-64 一个**：别的平台在装的
 时候就被拒绝，而不是装完之后在第一次内核调用时报错。
 
@@ -113,22 +113,27 @@ export FYLITE_DEVICE_DIR=~/fylite-decks/east         # 或 …/iter
 ★不设它不会静默降级：`fylite.device` 抛 `MachineDataMissing` 并当场说明缺的是什么。
 不需要机器的那一半（内核、0D、输运步、局域 TGLF/NEO、剖面拟合）零配置即可用。
 
-## 两个共享库
+## 一个共享库 `libfylite.so`
 
-`_lib/` 里有**两个** `.so`，两条来路，一个目录：
+★★★**2026-09-16 起 `_lib/` 里只有一个 `.so`**（用户裁定）。内核仓从此**只出静态链接库**
+（`rust/kernel-lib/libfylite_kernel.a`），本仓的 `rust/build.sh` 把它与中间层
+`fylite_runtime` 链成同一个动态库；从前的 `libfylite_kernel.so` /
+`libfylite_kernel_ext.so` / `libfylite_runtime.so` 三份没有了。
 
-| | 内核 | 数据层 |
-| :--- | :--- | :--- |
-| 文件 | `_lib/libfylite_kernel.so` | `_lib/libfylite_runtime.so` |
-| 做什么 | 算数：GS 正逆解、磁面、输运核、NEO / TGLF 端口 | 取数与格式：mdsip、g/a-file、HDF5 / netCDF、多源装配 |
-| 源码在哪 | **私有仓 `fylite_kernel`**（本仓不带内核源码） | 本仓 `rust/fylite_runtime/`，**源码公开** |
-| 谁构建 | 内核仓自己的 `rust/build.sh`，装进本仓这个 `_lib/` | 本仓的 `bash rust/build.sh` |
-| 系统库 | `ldd` 只有 `libgcc_s` / `libm` / `libc` 加动态链接器——**没有 gfortran，没有 lapack/blas** | 另链 `libhdf5` 与 `libnetcdf`（`--static` 可从源码编进） |
-| 覆盖 | `$FY_KERNEL_LIB` | `$FY_RUNTIME_LIB` |
+| | `libfylite.so` |
+| :--- | :--- |
+| 文件 | `_lib/libfylite.so.<版本>`，加 `.so.<主版本>` 与 `.so` 两级符号链接（Linux 惯例） |
+| 里面有什么 | **内核**（`fylite_rs_*` 57 个 + `fylite_ext_*` 2 个：GS 正逆解、磁面、输运核、NEO / TGLF）与**中间层**（`fylite_runtime_*` 41 个：mdsip、g/a-file、HDF5 / netCDF、计划→内核→记录） |
+| 源码在哪 | 内核在**私有仓 `fylite_kernel`**（本仓不带内核源码，只收它编好的 `.a`）；中间层在本仓 `rust/fylite_runtime/`，**源码公开** |
+| 谁构建 | 本仓 `bash rust/build.sh`（先由内核仓的 `rust/build.sh` 把归档装进 `rust/kernel-lib/`） |
+| 系统库 | `libhdf5` 与 `libnetcdf`（`--static` 可从源码编进），加 `libgcc_s` / `libm` / `libc`。★这是合库的代价：从前光要内核的读者不必装这两个 C 库，今天要装——或者用 `--static` 出一份自带的 |
+| 覆盖 | `$FY_KERNEL_LIB`（内核面）· `$FY_RUNTIME_LIB`（中间层面），两个都指同一个文件 |
 
-两者都是 **C-ABI cdylib、可重入、无全局态**，都由 **进程内 ctypes** 调用
-（装载器分别是 `fylite.kernel` 与 `fylite.io.fydoc`），都**预编译入仓**并由
-`python/pyproject.toml` 的 `package-data` 随轮子走——**pip 一个都不编译**。
+它是 **C-ABI cdylib、可重入、无全局态**，由 **进程内 ctypes** 调用（装载器
+`fylite.kernel` 与 `fylite.io.fydoc` 各取自己那一面），**预编译入仓**并由
+`python/pyproject.toml` 的 `package-data` 随轮子走——**pip 不编译它**。
+★两代并存时新名字优先，旧的三个名字仍然认得（`fylite/_paths.py::_lib`），
+所以一份还没重建的检出不会在 import 时死掉。
 
 :::{note}
 ABI 版本只有一个源头——内核的 `c_api.rs`——由内核仓的 `build.sh` **生成**进
@@ -138,7 +143,7 @@ ABI 版本只有一个源头——内核的 `c_api.rs`——由内核仓的 `bui
 重建数据层需要 Rust 工具链（内核要另一个检出）：
 
 ```bash
-bash rust/build.sh                # -> python/fylite/_lib/libfylite_runtime.so
+bash rust/build.sh                # -> python/fylite/_lib/libfylite.so（内核 + 中间层）
 bash rust/build.sh --exe          # 另建那个可执行文件 fylite -> python/fylite/_bin/
 bash rust/build.sh --no-install   # 只编译，不安装
 bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没装那两个 C 库的机器）
@@ -147,13 +152,14 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 ## WebAssembly 制品
 
 浏览器端跑的是内核的 wasm 版本，都在 `app/assets/`。★**DKE 与 TGLF
-合为一份扩展**，`.so` 与 `.wasm` 同一条规矩：内核侧的 wasm 是**两份**，与两个 `.so`
-一一对应；本仓自己的 runtime 另出一份：
+合为一份扩展**；两份内核 wasm 的名字与导出面都没动，变的是**谁链出它们**——
+2026-09-16 起由本仓的空壳包 `rust/fylite_kernel_wasm/` 链内核仓装下的
+`rust/kernel-lib/libfylite_kernel-wasm32.a`（同一份归档，两个导出面）：
 
 | 文件 | 出自 | 内容 | 何时取 |
 | :--- | :--- | :--- | :--- |
-| `fylite_rs.wasm` | 内核仓（`libfylite_kernel.so` 的对应件） | core——平衡 / 重构 / 电路 / 0-D | 页面启动即取 |
-| `fylite_kernel_ext.wasm` | 内核仓（`libfylite_kernel_ext.so` 的对应件） | 扩展——TGLF 回旋朗道流体 + NEO 漂移动理学 | 按需 |
+| `fylite_rs.wasm` | 本仓 `rust/fylite_kernel_wasm`（`FY_WASM_FACE=core`） | core——平衡 / 重构 / 电路 / 0-D | 页面启动即取 |
+| `fylite_kernel_ext.wasm` | 本仓 `rust/fylite_kernel_wasm`（`FY_WASM_FACE=ext`） | 扩展——TGLF 回旋朗道流体 + NEO 漂移动理学 | 按需 |
 | `fylite_web.wasm` | 本仓 `rust/fylite_runtime` | 页面真读的那两扇门：装置事实与 g-file | 页面启动即取 |
 
 ★**没有单独的 `fylite_tglf.wasm` / `fylite_dke.wasm`**。

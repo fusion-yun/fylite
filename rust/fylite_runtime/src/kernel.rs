@@ -4,7 +4,7 @@
 //! public and this crate is; a `path` dependency would make the public
 //! crate unbuildable without the private checkout, and a `cdylib` link
 //! at build time would pin one library to one binary.  Python loads the
-//! same `libfylite_kernel.so` by name (`fylite/kernel.py`), and this does
+//! same `libfylite.so` by name (`fylite/kernel.py`), and this does
 //! the same: one artifact, two hosts, found by the same rule — an explicit
 //! path, `FYLITE_KERNEL_LIB`, or the checkout's `python/fylite/_lib/`.
 //!
@@ -84,10 +84,37 @@ fn err(message: impl Into<String>) -> KernelError {
     KernelError { code: 0, message: message.into() }
 }
 
-/// Where to look for `libfylite_kernel.so`, in order: `explicit`, the
-/// environment (`FYLITE_KERNEL_LIB`), the checkout above this binary or
-/// the working directory (`python/fylite/_lib/libfylite_kernel.so`), and
-/// finally the kernel's own build tree beside a sibling checkout.
+/// 上一代的形状：`libfylite_kernel.so` 旁边那份 `libfylite_kernel_ext.so`（TGLF / DKE）。
+///
+/// ★今天的 `libfylite.so` 两块都在同一个句柄里，所以这条路只在**没重建过**的检出上
+///走得到；名字里没有 `libfylite_kernel` 的库（也就是新名字）在第一行就返回 `None`。
+fn ext_sibling(path: &Path) -> Option<FyoTreeFn> {
+    let f = path.file_name().and_then(|f| f.to_str())?;
+    let sibling = path.with_file_name(f.replace("libfylite_kernel", "libfylite_kernel_ext"));
+    if sibling == path || !sibling.is_file() {
+        return None;
+    }
+    let c = CString::new(sibling.to_string_lossy().as_bytes()).ok()?;
+    let h = unsafe { dlopen(c.as_ptr(), RTLD_NOW) };
+    if h.is_null() {
+        return None;
+    }
+    let cs = CString::new("fylite_ext_fyo_tree").unwrap();
+    let p = unsafe { dlsym(h, cs.as_ptr()) };
+    if p.is_null() { None } else { Some(unsafe { std::mem::transmute::<*mut c_void, FyoTreeFn>(p) }) }
+}
+
+/// 内核库可以叫的名字，**新的在前**。
+///
+/// ★★★2026-09-16 用户裁定：内核仓只出静态归档，公开仓把它与中间层打包成同一个
+/// `libfylite.so`。于是 `dlopen` 找的第一个名字是它；`libfylite_kernel.so` 是上一代
+/// （内核自己一个 `.so`）的名字，留着是为了一份还没重建的检出仍然跑得起来。
+pub const KERNEL_LIB_NAMES: [&str; 2] = ["libfylite.so", "libfylite_kernel.so"];
+
+/// Where to look for the kernel library (`KERNEL_LIB_NAMES`), in order:
+/// `explicit`, the environment (`FYLITE_KERNEL_LIB`), the checkout above this
+/// binary or the working directory (`python/fylite/_lib/`), and finally the
+/// kernel's own build tree beside a sibling checkout.
 pub fn candidates(explicit: Option<&Path>) -> Vec<PathBuf> {
     let mut out = Vec::new();
     if let Some(p) = explicit {
@@ -98,21 +125,27 @@ pub fn candidates(explicit: Option<&Path>) -> Vec<PathBuf> {
             out.push(PathBuf::from(p));
         }
     }
-    let rel = Path::new("python/fylite/_lib/libfylite_kernel.so");
-    if let Ok(cwd) = std::env::current_dir() {
-        for up in [cwd.clone(), cwd.join(".."), cwd.join("../..")] {
-            out.push(up.join(rel));
+    //: ★两个名字**各走一遍**同样的搜索路径，新的先问：一台机器上两代并存时，
+    //: 「先找到哪个目录」不该决定「跑的是哪一代内核」。
+    for name in KERNEL_LIB_NAMES {
+        let rel = PathBuf::from("python/fylite/_lib").join(name);
+        if let Ok(cwd) = std::env::current_dir() {
+            for up in [cwd.clone(), cwd.join(".."), cwd.join("../..")] {
+                out.push(up.join(&rel));
+            }
+        }
+        if let Ok(exe) = std::env::current_exe() {
+            let mut d = exe.parent().map(Path::to_path_buf);
+            for _ in 0..6 {
+                let Some(dir) = d else { break };
+                out.push(dir.join(&rel));
+                out.push(dir.join(name));
+                d = dir.parent().map(Path::to_path_buf);
+            }
         }
     }
-    if let Ok(exe) = std::env::current_exe() {
-        let mut d = exe.parent().map(Path::to_path_buf);
-        for _ in 0..6 {
-            let Some(dir) = d else { break };
-            out.push(dir.join(rel));
-            out.push(dir.join("libfylite_kernel.so"));
-            d = dir.parent().map(Path::to_path_buf);
-        }
-    }
+    //: ★内核仓自己的构建树：那边**不再出 `.so`**（只出 `.a`），所以这里只剩上一代的
+    //: 名字，供一个没重建过内核的老检出用。
     if let Ok(cwd) = std::env::current_dir() {
         for up in [cwd.clone(), cwd.join(".."), cwd.join("../..")] {
             for profile in ["release", "debug"] {
@@ -250,17 +283,12 @@ impl Kernel {
             let f: AbiFn = unsafe { std::mem::transmute(p) };
             unsafe { f() }
         });
-        //: the extension beside it, when the build shipped one (its own door)
-        let ext_tree: Option<FyoTreeFn> = path.file_name().and_then(|f| f.to_str()).and_then(|f| {
-            let sibling = path.with_file_name(f.replace("libfylite_kernel", "libfylite_kernel_ext"));
-            if sibling == path || !sibling.is_file() { return None; }
-            let c = CString::new(sibling.to_string_lossy().as_bytes()).ok()?;
-            let h = unsafe { dlopen(c.as_ptr(), RTLD_NOW) };
-            if h.is_null() { return None; }
-            let cs = CString::new("fylite_ext_fyo_tree").unwrap();
-            let p = unsafe { dlsym(h, cs.as_ptr()) };
-            if p.is_null() { None } else { Some(unsafe { std::mem::transmute::<*mut c_void, FyoTreeFn>(p) }) }
-        });
+        //: ★★2026-09-16 起扩展与核心**在同一个库里**（`libfylite.so`），所以先在这个
+        //: 句柄上问它自己的门；问不到才去找旁边那份 `libfylite_kernel_ext.so`——那是
+        //: 上一代两份 `.so` 的形状，一个没重建过的检出仍然走得通。
+        let ext_tree: Option<FyoTreeFn> = sym("fylite_ext_fyo_tree").ok()
+            .map(|p| unsafe { std::mem::transmute::<*mut c_void, FyoTreeFn>(p) })
+            .or_else(|| ext_sibling(path));
         Ok(Kernel { path: path.to_path_buf(), abi_version, fyo, fyo_tree, ext_tree, free })
     }
 

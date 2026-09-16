@@ -32,7 +32,7 @@ from fylite._paths import KERNEL_LIB
 ROOT = Path(__file__).resolve().parents[2]
 
 pytestmark = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                                reason="libfylite_kernel.so not built "
+                                reason="libfylite.so not built "
                                        "(rust/build.sh)")
 
 
@@ -207,8 +207,11 @@ def test_the_provenance_ledger_records_the_wasm_that_is_here():
     #: is not hypothetical; it happened here (native 17:51, wasm 14:06).  With
     #: both halves recorded, rebuilding one goes red at once.
     for name, rel in ([(n, f"app/assets/{n}.wasm") for n in WASM]
-                      + [("libfylite_kernel", "python/fylite/_lib/libfylite_kernel.so"),
-                         ("libfylite_kernel_ext", "python/fylite/_lib/libfylite_kernel_ext.so")]):
+                      #: ★★★2026-09-16 用户裁定之后 native 那一侧只剩**一个**库：
+                      #: 内核仓只出静态归档，公开仓把它与中间层链成 `libfylite.so`。
+                      #: 上面那条「两半必须同源」的理由一字不改，只是它今天比的是
+                      #: 这一个 `.so` 与两份 `.wasm`。
+                      + [("libfylite", "python/fylite/_lib/libfylite.so")]):
         path = ROOT / rel
         if not path.exists():
             #: a `.so` may legitimately be absent (a checkout with no kernel

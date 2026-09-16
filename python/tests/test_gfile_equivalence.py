@@ -120,7 +120,7 @@ def data_lib():
     from fylite import kernel
     lib = kernel.load_data()
     if lib is None:
-        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
+        pytest.skip("libfylite.so not built (rust/build.sh)")
     return lib
 
 

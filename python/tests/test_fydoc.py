@@ -39,7 +39,7 @@ def test_the_equilibrium_slot_table_is_the_kernels():
 def fydoc():
     from fylite import kernel
     if kernel.load_data() is None:
-        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
+        pytest.skip("libfylite.so not built (rust/build.sh)")
     from fylite.io import fydoc as m
     return m
 

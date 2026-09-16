@@ -13,8 +13,10 @@ title: 内核 (The Kernel)
 
 :::{important} 这棵 crate 不在本仓
 **内核源码在私有仓 `fylite_kernel`**（`rust/fylite/`），本仓拿到的是
-它的**制品**——`libfylite_kernel.so`、三个 `.wasm`，以及由内核构建脚本生成的 `_abi.py` /
-`version.js` / `fyo-interface.*`。制品**不入库**，打包发布时才装进来。所以本章写的路径
+它的**制品**——★2026-09-16 起是**两份静态归档**（`rust/kernel-lib/libfylite_kernel.a`
+原生 · `libfylite_kernel-wasm32.a`，附 `kernel-static.json`），以及由内核构建脚本生成的
+`_abi.py` / `version.js` / `fyo-interface.*`。可载入的三种形（`libfylite.so` · `fy` ·
+两份内核 `.wasm`）都由**本仓**把那两份归档链出来。制品**不入库**，打包发布时才装进来。所以本章写的路径
 （`rust/fylite/src/*.rs`）在内核仓里解析；本仓自己的 Rust 源码树只有一棵，是**数据层**
 （`rust/fylite_runtime/`，见本页末），它不做物理。
 :::
@@ -51,7 +53,7 @@ Python 侧不复写其中任何一段离散化或闭式：装配、装置接线�
 
 | | |
 | :--- | :--- |
-| 制品 | `python/fylite/_lib/libfylite_kernel.so`——**可重入、无全局态**，约 2.7 MB（`strip = "symbols"` 之后，2026-09-01 实测） |
+| 制品 | 内核仓出 `rust/kernel-lib/libfylite_kernel.a`（35.6 MB 归档）；本仓链成 `python/fylite/_lib/libfylite.so`——**可重入、无全局态**，与中间层同住一个库，共 9.2 MB（2026-09-16 实测） |
 | 入口 | 导出 **249 个** `fylite_rs_*` C 函数（2026-09-02 实测） |
 | 构建 | **内核仓**的 `bash rust/build.sh`（单棵 cargo crate；`--no-install` 只编译）——它把制品与生成物装进本仓 |
 | 分发 | **不入库**：打包时装进 wheel，随 `python/pyproject.toml` 的 `package-data` 走；**pip 不编译它** |
@@ -164,7 +166,7 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 | :--- | :--- |
 | 读 | MDSplus（mdsip 只读客户端，按炮号与时间在服务端切片）· EFIT a-file / g-file · JSON(-LD) · YAML 子集（fydata 的 A-Box）· HDF5 · netCDF |
 | 写 | JSON(-LD) · g-file · HDF5 · netCDF，各带 **fyo** 与 **IMAS DD** 两种布局（IMAS 布局以 imas-python / imas-core 读得回为判据） |
-| 制品 | `libfylite_runtime.so`（Python 经 ctypes 取，`fylite.io.fydoc`）· `fylite`（**唯一的可执行文件**，内嵌整个 `app/`，并承载 `app` / `data` / `case` 三条命令） |
+| 制品 | `libfylite.so`（Python 经 ctypes 取，`fylite.io.fydoc`；**内核也在这个库里**，2026-09-16 用户裁定）· `fy`（**唯一的可执行文件**，内嵌整个 `app/` 与内核归档，并承载 `app` / `data` / `run` / `list` 四条命令） |
 | 命令行 | `src/cli/`——由 `python/fylite/_cli.json` **编译期**建出；与 Python 的 `fylite` 同一份定义（[API 速查](api.md)的 CLI 一节） |
 | 设计正本 | `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（发布形态与统一命令行） |
 
@@ -172,7 +174,7 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 
 ## 没有 Fortran
 
-**本仓没有 `fortran/` 目录，`_lib/` 里只有一个 `libfylite_kernel.so`**：EFIT 一系不在仓内
+**本仓没有 `fortran/` 目录，`_lib/` 里只有一个 `libfylite.so`**：EFIT 一系不在仓内
 （`NOTICE` 3.1），三个 GACODE 绑定库亦然（3.2），物理由上表的 Rust 移植承担。
 GRAY 移植因许可受限**暂停**（clean-room 纪律：不读其物理源码）。详见
 用户指南 `docs/guide/install.md` 的

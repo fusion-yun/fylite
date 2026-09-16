@@ -107,7 +107,7 @@ def main(argv=None) -> int:
     p.add_argument("--from", dest="from_dir", metavar="DIR",
                    help="读已经跑出来的记录来判（目录本身是一次运行，或按算例名分子目录）"
                         "——这条路不需要内核")
-    p.add_argument("--kernel", metavar="LIB", help="libfylite_kernel.so 的路径（默认按环境找）")
+    p.add_argument("--kernel", metavar="LIB", help="内核库（libfylite.so）的路径（默认按环境找）")
     p.add_argument("--write", action="store_true", help="把记录、报告与统计写进仓库")
     p.add_argument("--json", action="store_true", help="把整批以 JSON 打到 stdout")
     p.add_argument("--strict", action="store_true",

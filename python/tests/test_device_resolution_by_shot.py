@@ -73,7 +73,7 @@ def _need(p: pathlib.Path):
 def _runtime():
     lib = F._lib()
     if lib is None or not hasattr(lib, "fylite_runtime_device_resolve"):
-        pytest.skip("libfylite_runtime.so without fylite_runtime_device_resolve (bash rust/build.sh)")
+        pytest.skip("libfylite.so without fylite_runtime_device_resolve (bash rust/build.sh)")
 
 
 def _exe() -> pathlib.Path:
@@ -131,7 +131,7 @@ def test_the_bundled_tier_resolves_east_by_shot_and_chain():
     _runtime()
     text = F.bundled_resolution("device", "east")
     if text is None:
-        pytest.skip("this libfylite_runtime.so bundles no device/east resolution (build with facts)")
+        pytest.skip("this libfylite.so bundles no device/east resolution (build with facts)")
     res = json.loads(text)
     assert not any("card" in v for provs in res["variants"].values() for v in provs.values()), \
         "the bundled copy carries the document form only (A-13)"

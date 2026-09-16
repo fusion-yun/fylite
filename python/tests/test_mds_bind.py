@@ -171,7 +171,7 @@ def test_the_data_library_exports_the_plane_and_the_kernel_does_not():
     from fylite import kernel
     data = kernel.load_data()
     if data is None:
-        pytest.skip("libfylite_runtime.so not built (rust/build.sh)")
+        pytest.skip("libfylite.so not built (rust/build.sh)")
     names = ("open", "open_tree", "read", "last_f64", "last_dims",
              "last_error", "close")
     for n in names:

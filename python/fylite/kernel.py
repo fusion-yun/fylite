@@ -248,7 +248,12 @@ def load() -> ctypes.CDLL | None:
     #: 与「装错了」必须给出不同的话——前者是一种发行形态，后者是缺陷。
     ext = None
     ext_path = _ext_path()
-    if ext_path.exists():
+    if ext_path == path:
+        #: ★★★2026-09-16 用户裁定之后**两者是同一个文件**（`libfylite.so`：内核 · 扩展 ·
+        #: 中间层一并打包）。同一个句柄就是扩展句柄——不再开第二个，也不必核对两份
+        #: ABI：一个文件不可能出自两次构建。下面那条核对留给还装着两份 `.so` 的检出。
+        ext = lib
+    elif ext_path.exists():
         ext = ctypes.CDLL(str(ext_path))
         ext.fylite_ext_abi_version.restype = ctypes.c_uint32
         ext.fylite_ext_abi_version.argtypes = []

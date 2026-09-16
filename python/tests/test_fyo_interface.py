@@ -231,7 +231,7 @@ def _adas_id(name: str) -> float:
 
 
 _needs_kernel = pytest.mark.skipif(not KERNEL_LIB.exists(),
-                                   reason="libfylite_kernel.so not built")
+                                   reason="libfylite.so not built")
 
 ENTRIES = list(iface.ENTRIES)
 #: dimensions each entry is exercised at, in its own declared names

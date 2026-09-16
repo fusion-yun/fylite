@@ -4,8 +4,14 @@
 # （FYL-SDD-02 N-1 / N-2）。`data` 只说了六项职责里的两项；`engine` 与 Python 包 `fylite.engine`
 # 撞词，而那是另一个组件（DE-COMP-03 执行与溯源机械核）。
 #
-#   ./rust/build.sh              -> libfylite_runtime.so.<版本>，装进 python/fylite/_lib/
+#   ./rust/build.sh              -> libfylite.so.<版本>，装进 python/fylite/_lib/
 #                                   （附 .so.<major> 与 .so 两级符号链接，见 tools/soname.sh）
+#                                   ★★★2026-09-16 用户裁定：这一个库里**同时**是内核
+#                                   （`fylite_rs_*` / `fylite_ext_*`，来自内核仓的
+#                                   `rust/kernel-lib/libfylite_kernel.a`）与中间层
+#                                   （`fylite_runtime_*`）。从前那三份 `.so` 没有了。
+#                                另出内核的两份 wasm（fylite_rs.wasm ·
+#                                   fylite_kernel_ext.wasm），装进 app/assets/
 #   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fy（内嵌整个 app/，
 #                                   并承载 app / data / run / list 四条命令），留在
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
@@ -37,9 +43,9 @@
 # 网络协议与文件格式是**宿主的活**，内核那本自己就是这么写的。源码在本仓是公开的
 # ——它是协议编解码，不是物理 IP。
 #
-# ★内核（`libfylite_kernel.so`）不由本脚本构建：它在私有仓 fylite_kernel，
-# 由那边的 `rust/build.sh` 装进本仓的同一个 `_lib/`。两份 `.so`、两条来路、
-# 一个目录。
+# ★内核**本身**不由本脚本构建：它在私有仓 fylite_kernel，那边的 `rust/build.sh` 只
+# 出两份静态归档（`rust/kernel-lib/libfylite_kernel.a` 原生 · `-wasm32.a`）。可载入的
+# 三种形——`libfylite.so` · `fy` · 两份内核 `.wasm`——全部在**这里**装配出来。
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$DIR/.." && pwd)"
@@ -83,10 +89,12 @@ done
 # --------------------------------------------------------------------------- #
 # 内核检查 —— **只看，不动**（用户裁定 2026-09-05）                            #
 # --------------------------------------------------------------------------- #
-#: 内核（`libfylite_kernel.so` / `_ext` / 三个 `.wasm`）由**私有仓 fylite_kernel**
-#: 构建并装进本仓的 `python/fylite/_lib/` 与 `app/assets/`。本脚本从不构建它，
-#: 现在也不替谁去构建它：这一节把「装着的那一版」与「内核仓检出今天是哪一版」
-#: 摆在一起，不一致就红着退出，并打印该跑的那一条命令。
+#: ★★★2026-09-16 用户裁定：内核仓**只出静态链接库**，装进本仓的
+#: `rust/kernel-lib/`（`libfylite_kernel.a` 原生 + `libfylite_kernel-wasm32.a` + 一份
+#: `kernel-static.json`）。可载入的制品——`libfylite.so`、可执行文件 `fy`、两份内核
+#: `.wasm`——从此**全部由本脚本链出来**。本脚本仍然从不构建内核本身：这一节把
+#: 「归档现在是哪一版」与「内核仓检出今天是哪一版」摆在一起，不一致就红着退出，
+#: 并打印该跑的那一条命令。
 #:
 #: ★为什么值得在这里判：装着的 `.so` 与生成物 `_abi.py` 出自**同一次**内核构建，
 #: 但它们装进来之后就各自独立了——有人拉了内核仓的新提交、只跑了半边，或者拷了
@@ -105,8 +113,12 @@ check_kernel() {
     if fylite_resolve_kernel "$ROOT"; then kroot="$KERNEL"; fi
 
     local ilib="$ROOT/python/fylite/_lib"
+    local kjson="$ROOT/rust/kernel-lib/kernel-static.json"
     local iver iabi
-    iver="$(fy_installed_version "$ilib" libfylite_kernel.so)"
+    #: ★★「装着的内核是哪一版」从前读 `_lib/libfylite_kernel.so.<版本>` 的文件名。
+    #: 那个文件不再存在（内核仓不出 `.so` 了），同一个问题今天问的是**归档旁边那份
+    #: JSON**：它由内核仓在装 `.a` 时写下，说的是这份归档出自哪一版、哪一次构建。
+    iver="$(sed -n 's/.*"kernel_version": *"\([^"]*\)".*/\1/p' "$kjson" 2>/dev/null || true)"
     iabi="$(sed -n 's/^ABI_VERSION = \([0-9]*\).*/\1/p' \
             "$ROOT/python/fylite/_abi.py" 2>/dev/null || true)"
 
@@ -114,9 +126,9 @@ check_kernel() {
         #: ★检出不在场**不是错**：本仓是公开仓，只检出它一个是受支持的状态
         #: （内核缺席时 `fy run` 说得清楚，页面走 wasm）。说一句就够了。
         if [ -n "$iver" ]; then
-            echo "[kernel] 装着 kernel $iver (ABI ${iabi:-?})；没有内核仓检出可比对"
+            echo "[kernel] 归档 kernel $iver (ABI ${iabi:-?})；没有内核仓检出可比对"
         else
-            echo "[kernel] 未装内核，也没有内核仓检出 —— 本仓照常构建（fy run 需要它）"
+            echo "[kernel] 没有内核归档，也没有内核仓检出 —— 本仓照常构建（fy run 需要它）"
         fi
         echo "[kernel]   要比对就给出：FYLITE_KERNEL=/path/to/fylite_kernel $0 $*"
         return 0
@@ -150,15 +162,15 @@ check_kernel() {
 
     #: 一致性判据：装着的版本与 ABI，都要与内核仓检出**今天的源码**对得上。
     if [ -z "$iver" ]; then
-        echo "[kernel] ★内核仓在场，但本仓没装内核 —— 页面走 wasm，fy run 不可用"
+        echo "[kernel] ★内核仓在场，但本仓没有内核归档 —— 本脚本会编出一个不带内核的库"
         echo "[kernel]   要装：FYLITE_PUBLIC=$ROOT bash $kroot/rust/build.sh --wasm-check"
         return 0
     fi
     local bad=0
     #: ★链进 libfylite_runtime.so 的那份内核，对着归档现在的那份比（同版本、同 ABI、同摘要
     #: 也可以是不同的字节——2026-09-05 实测）。运行时自报它链的是哪一份；json 是内核仓写的。
-    local rjson="$ROOT/rust/kernel-lib/kernel-static.json"
-    if [ -f "$rjson" ] && [ -f "$ilib/libfylite_runtime.so" ]; then
+    local rjson="$kjson"
+    if [ -f "$rjson" ] && { [ -e "$ilib/libfylite.so" ] || [ -e "$ilib/libfylite_runtime.so" ]; }; then
         local linked_sha disk_sha
         linked_sha="$(cd "$ROOT/python" && python3 -c 'from fylite.io import fydoc; j = fydoc.linked_kernel(); print((j or {}).get("sha256", ""))' 2>/dev/null || true)"
         disk_sha="$(sed -n 's/.*"sha256": *"\([0-9a-f]*\)".*/\1/p' "$rjson")"
@@ -299,13 +311,55 @@ exp=$(nm -D --defined-only "$SO" | grep -c 'fylite_runtime_' || true)
 [ "$exp" -gt 0 ] || { echo "::error:: C ABI 导出没了（strip 过头）" >&2; exit 1; }
 echo "[runtime] harden-ok  $(basename "$SO")  ($exp exports)"
 
+#: ★★★**内核那一面也要真的在**（2026-09-16 用户裁定：一个 `libfylite.so`）。
+#: 这个库从今天起同时是内核的运行期形式：Python 的 `fylite.kernel` 按名 `dlopen` 它，
+#: 找的是 `fylite_rs_*` / `fylite_ext_*`。而「归档链进来了」与「那些名字导出了」是
+#: **两件事**——rustc 给每个 cdylib 自动写的 version script 有一条 `local: *`，会把
+#: 归档带进来的符号全部降成本地：实测那种库 `nm` 看得见、`nm -D` 看不见，装得上、
+#: `dlopen` 之后按名找不到内核，而构建从头到尾是绿的。`build.rs` 补的第二份 version
+#: script 解的正是这个；这里是它的闸子。
+#: ★名单从 `kernel-static.json` 来（内核仓写 `.a` 时现读的符号表），**逐个核对**，
+#: 不是数个数：少一个入口的库仍然是「有几十个导出」的库。
+KJSON="$ROOT/rust/kernel-lib/kernel-static.json"
+if [ -f "$KJSON" ]; then
+    want="$(sed -n 's/^ *"\(fylite_[A-Za-z0-9_]*\)",\{0,1\} *$/\1/p' "$KJSON" | sort -u)"
+    have="$(nm -D --defined-only "$SO" | sed -n 's/^[0-9a-f]* T \(fylite_[A-Za-z0-9_]*\)$/\1/p' | sort -u)"
+    miss="$(comm -23 <(echo "$want") <(echo "$have"))"
+    nwant=$(echo "$want" | grep -c . || true)
+    if [ -n "$miss" ]; then
+        echo "::error:: $SO 少了 $(echo "$miss" | grep -c .)/$nwant 个内核导出，例如：" >&2
+        echo "$miss" | head -5 | sed 's/^/::error::   /' >&2
+        echo "::error::   归档在 $ROOT/rust/kernel-lib/，链接参数在 rust/fylite_runtime/build.rs::cdylib_args" >&2
+        exit 1
+    fi
+    echo "[runtime] kernel-in-so ok  $nwant 个内核导出全在（$(sed -n 's/.*"kernel_version": *"\([^"]*\)".*/\1/p' "$KJSON")）"
+else
+    echo "[runtime] ★没有内核归档 —— 这个 .so 只带中间层那一面（fy run 不可用，页面走 wasm）"
+fi
+
 if [ "$INSTALL" = 1 ]; then
     #: ★★版本化装入（2026-09-05 用户裁定），与内核仓装 `.so` / `.wasm` 同一条规则、
     #: 同一份实现（`tools/soname.sh`）：真文件 `libfylite_runtime.so.$RVER`，加
     #: `.so.<major>` 与 `.so` 两级链接。装载方（`fylite.kernel`、`fy` 的 dlopen、
     #: 轮）继续用不带版本的那个名字，拿到的仍是同一份字节——变的是「这台机器上
     #: 装的是哪一版」现在 `ls` 就能回答，不必打开二进制。
-    fy_install_versioned "$SO" "$ROOT/python/fylite/_lib" libfylite_runtime.so "$RVER"
+    #: ★★★装出去的名字是 **`libfylite.so`**（2026-09-16 用户裁定）：内核与中间层在
+    #: 同一个文件里，于是 `_lib/` 从三份 `.so`（kernel · kernel_ext · runtime）收成一份。
+    #: 版本后缀照 Linux 的老规矩：真文件 `libfylite.so.$RVER`，加 `.so.<major>` 与
+    #: `.so` 两级符号链接（`tools/soname.sh`，与 soname 一致——见 `build.rs::cdylib_args`）。
+    fy_install_versioned "$SO" "$ROOT/python/fylite/_lib" libfylite.so "$RVER"
+    #: ★★**把上一代的三个名字清掉**。留着它们不是无害的：`fylite/_paths.py` 为了让
+    #: 旧检出仍跑得起来，会在新名字缺席时回退到旧名字——两代并存时新的优先，可一旦
+    #: 哪次构建没装成，回退会静默地把一份**上个月的内核**接上去，而版本号看起来很正常。
+    #: 目录里一份，问题就只有一种形式：在或不在。
+    stale=0
+    for old in libfylite_kernel.so libfylite_kernel_ext.so libfylite_runtime.so; do
+        for f in "$ROOT/python/fylite/_lib/$old" "$ROOT/python/fylite/_lib/$old".*; do
+            [ -e "$f" ] || [ -L "$f" ] || continue
+            rm -f "$f"; stale=$((stale + 1))
+        done
+    done
+    [ "$stale" = 0 ] || echo "[runtime] 清掉上一代的 $stale 个文件（libfylite_kernel*.so* · libfylite_runtime.so*）"
 fi
 
 # --------------------------------------------------------------------------- #
@@ -382,6 +436,72 @@ else
     echo "[runtime] 跳过 wasm32（没装那个目标：rustup target add wasm32-unknown-unknown）"
 fi
 
+# --------------------------------------------------------------------------- #
+# 内核的两份 wasm —— 从内核仓那份 wasm32 归档链出来（2026-09-16 用户裁定）      #
+# --------------------------------------------------------------------------- #
+#: ★★★裁定原话：「仅生成静态链接库……在 fylite 仓与 fylite_runtime 一起打包进可执行
+#: 文件，动态链接库 libfylite.so，和 wasm」。这一段是其中的 wasm：内核仓现在只出
+#: `libfylite_kernel-wasm32.a`，两份页面真取的 `.wasm` 由本仓的空壳包
+#: `rust/fylite_kernel_wasm/` 链出来（导出面怎么分、为什么每个符号要两条链接参数，
+#: 见那个包的 `build.rs`）。
+#:
+#: ★名字**一个字不改**：`fylite_rs.wasm` 与 `fylite_kernel_ext.wasm` 是页面 fetch 的
+#: URL，约三十处（`app/assets/*.js` · `app/tests` · Python 闸子 · 文档）在念它们。
+#: 改构建与改 URL 是两件事，这一次只改前者。
+#: ★版本后缀取**内核的**版本（`kernel-static.json`），不是中间层的：这两份 wasm 里
+#: 装的是内核的字节，页面据版本号拼真文件名，而那个号必须与它加载的东西同源。
+KWASM_A="$ROOT/rust/kernel-lib/libfylite_kernel-wasm32.a"
+#: 本趟有没有重建内核的那两份 wasm——台账的同源判据要这个数（见文件末尾）。
+KWASM_BUILT=0
+if [ "${WASM:-1}" != 1 ]; then
+    :
+elif [ ! -f "$KWASM_A" ]; then
+    echo "[kernel-wasm] 没有 $(basename "$KWASM_A") —— 跳过内核 wasm"
+    echo "[kernel-wasm]   要它：FYLITE_PUBLIC=$ROOT bash <内核仓>/rust/build.sh --wasm-check"
+elif ! rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown; then
+    echo "[kernel-wasm] 跳过（没装那个目标：rustup target add wasm32-unknown-unknown）"
+else
+    KCRATE="$DIR/fylite_kernel_wasm"
+    KVER="$(sed -n 's/.*"kernel_version": *"\([^"]*\)".*/\1/p' "$ROOT/rust/kernel-lib/kernel-static.json")"
+    [ -n "$KVER" ] || { echo "::error:: 读不出内核版本（kernel-static.json）" >&2; exit 1; }
+    for face in core ext; do
+        case "$face" in
+          core) name=fylite_rs.wasm;         probe=fylite_rs_fyo_tree  ;;
+          ext)  name=fylite_kernel_ext.wasm; probe=fylite_rs_tglf_flux ;;
+        esac
+        #: ★★两个面**各用一个 target 目录**：产物名由 `[lib] name` 决定，两次构建会写
+        #: 同一个路径，而 `FY_WASM_FACE` 变了 cargo 才重编——共用一个目录时，「这次取到
+        #: 的是不是上一次那份」要靠时序去猜。一个面一个目录，就没有这个问题。
+        WOUT="$KCRATE/target/$face/wasm32-unknown-unknown/release/fylite_kernel_wasm.wasm"
+        rm -f "$WOUT"
+        echo "[kernel-wasm] $face -> $name ..."
+        FY_WASM_FACE="$face" cargo build --release --target wasm32-unknown-unknown \
+            --manifest-path "$KCRATE/Cargo.toml" --target-dir "$KCRATE/target/$face"
+        [ -f "$WOUT" ] || { echo "::error:: 没有产出 $WOUT" >&2; exit 1; }
+        homes=$(strings -n 6 "$WOUT" | grep -c "$HOME" || true)
+        [ "$homes" = 0 ] || { echo "::error:: $WOUT 里有 $homes 条开发机路径" >&2; exit 1; }
+        #: ★★闸子：**按名问一个入口在不在**。链得成功而导出面是空的，是这条路最容易
+        #: 出的错（`--undefined` / `--export` 少给一条就会发生），而它在页面上才发作。
+        if command -v node >/dev/null 2>&1; then
+            node -e '
+              const fs = require("fs");
+              const m = new WebAssembly.Module(fs.readFileSync(process.argv[1]));
+              const e = WebAssembly.Module.exports(m).map(x => x.name);
+              if (!e.includes(process.argv[2])) {
+                console.error(`::error:: ${process.argv[1]} 没有导出 ${process.argv[2]}（共 ${e.length} 个）`);
+                process.exit(1);
+              }
+              console.log(`[kernel-wasm] exports ok  ${e.length} 个（含 ${process.argv[2]}）`);
+            ' "$WOUT" "$probe" || exit 1
+        else
+            echo "[kernel-wasm] node 不在 —— 跳过导出面检查（只查了字节数）"
+        fi
+        echo "[kernel-wasm] harden-ok  $name ($(stat -c%s "$WOUT") bytes)"
+        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/app/assets" "$name" "$KVER"
+    done
+    KWASM_BUILT=1
+fi
+
 # ★★The mdsip REQUEST contract — the verb codes and the `*` sentinel.
 #
 # The A-Box binding table (`tools/abox-mds-bind.py`) spells a verb as a string;
@@ -442,5 +562,22 @@ if [ "$EXE" = 1 ]; then
     #: 装到 `$PATH` 上是发行的事（`tools/build-app-exe.sh`），不是 `pip install` 的事。
     #: 命令行只有它一个：`app` / `data` / `run` / `list`（`case` 于 2026-09-04 收进 `run`）
     #: （`engine/cli.py` 的 `_RUST_EXE`），找不到就说清楚怎么构建。
+fi
+#: ★★★**台账与制品同批走**（2026-09-16 从内核仓搬到这里）。这一步从前在内核仓的
+#: `rust/build.sh` 末尾：它装那四份制品，也就由它把字节数与 sha256 写回台账
+#: `docs/note/app-provenance.md`。裁定之后**装的人换了**——`libfylite.so` 与两份内核
+#: `.wasm` 都由本脚本链出来并装好——所以这一步跟着搬过来。工具仍留在内核仓（台账在
+#: 那本 note 里，一并搬是另一件事），按路径调它。
+#: ★为什么值得自动：那是四个 `stat` 加四个 `sha256sum` 的机械动作，而漏掉它的后果是
+#: 公开仓的 `test_the_provenance_ledger_records_the_wasm_that_is_here` 判红；2026-09-11
+#: 一天之内四次红全是这一个原因。★正文仍归人写：工具只改那几格，然后把差值打出来。
+#: ★没有内核检出（只检出公开仓是受支持的状态）就跳过——那种树里台账也不在。
+if [ "$INSTALL" = 1 ]; then
+    if fylite_resolve_kernel "$ROOT" && [ -f "$KERNEL/tools/refresh-provenance.py" ]; then
+        python3 "$KERNEL/tools/refresh-provenance.py" \
+            --public "$ROOT" --wasm-rebuilt "$KWASM_BUILT" || exit 1
+    else
+        echo "[ledger] 没有内核仓检出 —— 跳过台账刷新"
+    fi
 fi
 echo "[runtime] done."

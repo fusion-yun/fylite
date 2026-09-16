@@ -11,7 +11,7 @@
 * ``--from <记录目录>`` —— 读一份**已经跑出来**的记录（``fylite case run`` 写的
   ``record.jsonld`` 或它的目录）。这条路不需要内核，因此在公开检出里也走得通；
 * 现跑 —— 经数据层的 JSON 门（:func:`fylite.io.fydoc.case_json`）把算例交给内核。
-  **内核不在场就按名拒绝**（`libfylite_kernel.so`），不退化成任何别的算法。
+  **内核不在场就按名拒绝**（`libfylite.so` 的内核面），不退化成任何别的算法。
 
 没有第三条路：一个「跑不了就估一个」的批次，产出的统计表比没有统计表更坏。
 
@@ -594,7 +594,7 @@ def render_summary(batch: Mapping, *, title: str = "物理校验批", top: bool 
     w += ["", "## 怎么复算", "", "```bash",
           "# 一条：读一份已经跑出来的记录，只做判决（不需要内核）",
           "python tools/benchmark-run.py --from records/<run> --only <entry>", "",
-          "# 整批：现跑（需要 libfylite_kernel.so 与数据层 .so）",
+          "# 整批：现跑（需要 libfylite.so —— 内核与数据层同一个库）",
           "python tools/benchmark-run.py --write", "```", "",
           "★没有内核的检出里，现跑那条路**按名拒绝**，统计表把它记成「未评估」"
           "并写明缺的是哪一件——不拿任何别的算法顶上。", ""]

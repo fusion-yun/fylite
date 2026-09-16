@@ -78,7 +78,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 
 :::{important}
 **装置信息随发行版走，而且只有一份**。按许可筛过的那几台收成
-**一个制品** `facts.rs`，由 `rust/build.sh --<版别>` 编进 `libfylite_runtime.so` 与
+**一个制品** `facts.rs`，由 `rust/build.sh --<版别>` 编进 `libfylite.so` 与
 `fylite_runtime.wasm`。所以一份发行版**盘上没有语料也答得出** `fy list devices`
 与 `fy run --device`。
 
@@ -86,7 +86,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 
 | 谁在读 | 怎么读 |
 | :--- | :--- |
-| 命令行 `fy` · Python 库 | `libfylite_runtime.so` 里那张表 |
+| 命令行 `fy` · Python 库 | `libfylite.so` 里那张表 |
 | **`fy app` 内嵌的页面** | 本进程的 `/api/facts?domain=…[&id=…]` —— 那张表已经在这个进程里，不必再取一份 wasm |
 | 静态站点的页面 | `fylite_runtime.wasm` 里那张表（`app/assets/factsdb.js` 先探 `/api/facts`，探不到才走这条） |
 
