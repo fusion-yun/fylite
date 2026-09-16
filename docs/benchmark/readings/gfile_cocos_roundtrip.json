@@ -1,0 +1,83 @@
+{
+ "what": "eq-convention 读数：g-file 往返不动点 · COCOS 稳定 · 两套读者逐位一致",
+ "roundtrip": {
+  "synthetic": {
+   "present": true,
+   "path": "rust/fylite_runtime/testdata/g_synthetic.geqdsk",
+   "checksum": "sha256:36abf675b548df8316e6073debf9631180a8651348deb6cf544df0c2894ad3c9",
+   "n_numeric_fields": 25,
+   "fields_match": true,
+   "worst_rel_deviation": 0.0,
+   "worst_field": null,
+   "header_invariant": true,
+   "header": "  fylite    synthetic  generic tokamak    0  65    0  65  65",
+   "cocos": {
+    "psi_axis": "minimum",
+    "sign_ip": 1,
+    "sign_b0": 1,
+    "sign_q": 1,
+    "profile_gauge": "dpsi, per radian"
+   },
+   "cocos_residual": 7.475806787355625e-05,
+   "cocos_margin": 10142.618213487944,
+   "cocos_stable_over_roundtrip": true,
+   "nw": 65,
+   "nh": 65
+  },
+  "east-70754": {
+   "present": true,
+   "path": "/mnt/SandBox/salmon/workspace/fydoc/cases/FYDOC-CASE-19-east-efit/corpus/g070754.05000",
+   "checksum": "sha256:a9a39446a2e767f1c40700a25b0969edc8b480a8d6e09bdb9404b04d2b2e6342",
+   "n_numeric_fields": 25,
+   "fields_match": true,
+   "worst_rel_deviation": 0.0,
+   "worst_field": null,
+   "header_invariant": true,
+   "header": "  EFITD    08/02/2006    # 70754  5000ms           3 129 129",
+   "cocos": {
+    "psi_axis": "minimum",
+    "sign_ip": 1,
+    "sign_b0": 1,
+    "sign_q": 1,
+    "profile_gauge": "dpsi, per radian"
+   },
+   "cocos_residual": 0.07288395689891639,
+   "cocos_margin": 11.538277547267755,
+   "cocos_stable_over_roundtrip": true,
+   "nw": 129,
+   "nh": 129
+  }
+ },
+ "two_readers": {
+  "synthetic": {
+   "present": true,
+   "path": "rust/fylite_runtime/testdata/g_synthetic.geqdsk",
+   "checksum": "sha256:36abf675b548df8316e6073debf9631180a8651348deb6cf544df0c2894ad3c9",
+   "scalars": 13,
+   "arrays": 10,
+   "array_elements": 4922,
+   "bitwise_identical": true,
+   "differing_fields": [],
+   "header_identical": true,
+   "grid": [
+    65,
+    65
+   ]
+  },
+  "east-70754": {
+   "present": true,
+   "path": "/mnt/SandBox/salmon/workspace/fydoc/cases/FYDOC-CASE-19-east-efit/corpus/g070754.05000",
+   "checksum": "sha256:a9a39446a2e767f1c40700a25b0969edc8b480a8d6e09bdb9404b04d2b2e6342",
+   "scalars": 13,
+   "arrays": 10,
+   "array_elements": 17600,
+   "bitwise_identical": true,
+   "differing_fields": [],
+   "header_identical": true,
+   "grid": [
+    129,
+    129
+   ]
+  }
+ }
+}

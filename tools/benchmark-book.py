@@ -333,6 +333,17 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
           f"- 新鲜度 (freshness)：当前 {fresh['current']} · **过期 {fresh['stale']}** · 未知 {fresh['unknown']}",
           f"- 评审 (review)：已评审 {rev['reviewed']} · 草稿 {rev['draft']} · 已被取代 {rev['superseded']}",
           ""]
+    known = [r for r in recs if (r.get("provenance") or {}).get("open_defect")]
+    if known:
+        L += ["## 已裁定保留的缺口 (retained open defects)", "",
+              "★★这些记录判 **fail**，而且**有意留着**——不是没人管，是量化清楚之后裁定先不改。",
+              "",
+              "★**它们与「新冒出来的失败」分开计**：`--ci` 对前者退 3、对后者退 1。"
+              "若两者混在一个退出码里，红就成了常态，而常态的红没有人看——"
+              "真正新出的失败会被它盖住。", ""]
+        for r in known:
+            L += [f"### `{r['id'].split('/')[-1]}`", "",
+                  (r.get("provenance") or {})["open_defect"], ""]
     if n == 0:
         L += ["★**本册尚无记录。** 这一页此刻的用处不是报成绩，是把闸子摆在记录进来之前："
               "每一条进来的记录都必须自带版本、变更、评审与它跑的那个内核，"
@@ -380,7 +391,17 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
           "所有记在旧内核上的记录当场转 `stale`；`--ci` 退 1 并列出**每条过期记录该重跑的那道门**"
           "（记录的 `run.realizes` 里点名的 pytest 目标），流水线照着跑一遍，"
           "重跑后把新的内核指纹与读数写回记录、记一条 `change`、退回 0。", "",
-          "★退出码：`0` 全部当前且成立；`1` 有过期或不成立；`2` 前提不在（如抄录件的源不在此检出）。", ""]
+          "★★**退出码分四档**，因为「要处理」与「已知道」不是一回事：", "",
+          "| 码 | 意思 | 流水线该做什么 |",
+          "| :--- | :--- | :--- |",
+          "| `0` | 全部当前且成立 | 放行 |",
+          "| `1` | 有**过期**（内核换了，必须重验）或**未裁定**的不成立 | 拦下 |",
+          "| `3` | 只剩**已裁定保留**的缺口 | 自己决定；缺口与理由都印在上面 |",
+          "| `2` | 前提不在（如抄录件的源不在此检出） | 按环境问题处理，不是判决 |", "",
+          "★**为什么 3 要与 1 分开**：一条量化清楚、归属明确、有人裁定保留的缺口，留在册上是**有用**的；"
+          "但它若也让流水线红，红就成了常态，而常态的红没有人看——真正新出现的失败会被它盖住。"
+          "要把一条 fail 挪进这一档，得在记录的 `provenance.open_defect` 里写明**谁、何时、为什么**保留；"
+          "一个布尔挡不住下一个人把它当成陈年噪声删掉。", ""]
     return "\n".join(L)
 
 
@@ -458,17 +479,38 @@ def main() -> int:
     if a.ci:
         recs = load_records()
         ref = kernel_reference()
-        bad = [(r, freshness(r, ref)) for r in recs
-               if freshness(r, ref) == "stale" or r.get("overall_verdict") == "fail"]
-        if not bad:
-            print(f"{len(recs)} 条记录：无过期、无不成立")
-            return 0
-        for r, f in bad:
-            why = "过期（内核已换）" if f == "stale" else "不成立"
-            print(f"★{r['id']}：{why}")
+        #: ★★**已裁定保留的负面结果，与新冒出来的失败，不能混在一个退出码里。**
+        #: 2026-09-16 用户裁定「不改内核，保留负面结果」——一条量化的、归属明确的缺口挂在册上
+        #: 是**有用**的。但若它也让流水线红，那么红就成了常态，常态的红没有人看，
+        #: 真正新出现的失败于是被它盖住。所以分三档：
+        #:   0  干净
+        #:   1  **要处理**：过期（内核换了，必须重验）或**未裁定**的不成立
+        #:   3  只剩**已裁定保留**的缺口——报出来，流水线自己决定放不放行
+        stale = [r for r in recs if freshness(r, ref) == "stale"]
+        failing = [r for r in recs if r.get("overall_verdict") == "fail"]
+        known = [r for r in failing if (r.get("provenance") or {}).get("open_defect")]
+        fresh_fail = [r for r in failing if r not in known]
+
+        for r in stale:
+            print(f"★{r['id']}：**过期**——它跑的内核已不是基准内核，读数不再作数")
             for gate in (r.get("run") or {}).get("realizes", []):
                 print(f"    重跑：pytest {gate['name']}")
-        return 1
+        for r in fresh_fail:
+            print(f"★{r['id']}：**不成立**，且未经裁定保留")
+            print("    这不是重跑能变绿的：判据没过。要么修，要么裁定保留"
+                  "（记录里写 provenance.open_defect 与保留的理由）。")
+        for r in known:
+            p = r.get("provenance") or {}
+            print(f"◇{r['id']}：已裁定保留的缺口 — {p.get('open_defect')}")
+
+        if stale or fresh_fail:
+            return 1
+        if known:
+            print(f"{len(recs)} 条记录：无过期、无新的不成立；"
+                  f"另有 {len(known)} 条**已裁定保留**的缺口（退 3）")
+            return 3
+        print(f"{len(recs)} 条记录：无过期、无不成立")
+        return 0
 
     out = build()
     if a.check:

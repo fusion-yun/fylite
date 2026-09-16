@@ -14,11 +14,92 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 0,
-  "open_must": 52,
-  "records": 0,
+  "covered": 7,
+  "open_must": 45,
+  "records": 6,
   "stale": 0,
-  "failing": 0
+  "failing": 1
  },
- "record": []
+ "record": [
+  {
+   "id": "benchmark/records/eq-convention-gfile-cocos-roundtrip",
+   "domain": "eq-convention",
+   "path": "records/eq-convention-gfile-cocos-roundtrip.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "NR-EQ-001",
+    "NR-EQ-006"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-evolve-analytic-circuit-limits",
+   "domain": "eq-evolve",
+   "path": "records/eq-evolve-analytic-circuit-limits.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-004"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-forward-chease-solovev",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-chease-solovev.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-001"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-forward-solovev-fixed-boundary",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-solovev-fixed-boundary.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "fail",
+   "requirement": [
+    "FR-EQ-001",
+    "NR-EQ-002"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-inverse-iter-reference-separatrix",
+   "domain": "eq-inverse",
+   "path": "records/eq-inverse-iter-reference-separatrix.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "inconclusive",
+   "requirement": [
+    "FR-EQ-005"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-reconstruct-twin-truth-recovery",
+   "domain": "eq-reconstruct",
+   "path": "records/eq-reconstruct-twin-truth-recovery.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-006"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  }
+ ]
 }

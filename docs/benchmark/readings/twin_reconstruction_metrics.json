@@ -1,0 +1,38 @@
+{
+ "what": "eq-reconstruct 派生指标：孪生真值回收（原始读数为实验类，见 source）",
+ "source": {
+  "case": "FYDOC-CASE-23-east-137985-efit-east",
+  "path": "corpus/benchmark/twin_east137985.json",
+  "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb"
+ },
+ "truth_facts": {
+  "converged": 0.0,
+  "settled": 1.0,
+  "iterations": 118.0,
+  "residual": 0.00019563005412046144,
+  "axis_r": 1.7221896452925005,
+  "axis_z": 0.007895296940401355,
+  "psi_axis": 3.7836905764949105,
+  "psi_bnd": 3.1201842472573724,
+  "q0": 1.3697110897438272,
+  "q95": 3.3584470839900535,
+  "ip": 400781.2499999998,
+  "zc": 0.007880532540494886
+ },
+ "zc_anchor_m": -0.002,
+ "fylite_vs_truth": {
+  "q0_rel": 0.0006099656083653482,
+  "q95_rel": -0.0012706242248696764,
+  "axis_mm": 1.1739443550472741,
+  "span_rel": 0.00017577709620919535,
+  "ip_rel": 9.454570459865863e-11,
+  "psin_rms_inside": 0.002337467147484003,
+  "psin_max_inside": 0.004284555124249745,
+  "boundary_median_mm": 0.6568334814845262,
+  "boundary_max_mm": 1.6468775323724132,
+  "xpoint_dist_mm": 0.7831394835246703
+ },
+ "kefit_vs_truth": {
+  "why": "TypeError: 'NoneType' object is not subscriptable"
+ }
+}

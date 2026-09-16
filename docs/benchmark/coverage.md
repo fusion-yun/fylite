@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-16
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**0** 条（0 %）
-- ★**MUST 级空缺 (open MUST)：52 条**
+- 已有记录覆盖 (covered)：**7** 条（12 %）
+- ★**MUST 级空缺 (open MUST)：45 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -20,9 +20,9 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | — | — | — |
+| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | `eq-forward-chease-solovev` · `eq-forward-solovev-fixed-boundary` | 对拍 · 验证 | 成立 · 不成立 |
 | `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | — | — | — |
-| `NR-EQ-002` | MUST | 解析基准精度 | — | — | — |
+| `NR-EQ-002` | MUST | 解析基准精度 | `eq-forward-solovev-fixed-boundary` | 验证 | 不成立 |
 | `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | — | — | — |
 
 ## 平衡 (Equilibrium) · 磁面几何、全局量与形状表示
@@ -41,7 +41,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-004` | MUST | 演化自由边界与涡流电路 | — | — | — |
+| `FR-EQ-004` | MUST | 演化自由边界与涡流电路 | `eq-evolve-analytic-circuit-limits` | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 静态逆解：形状到线圈电流
 
@@ -49,7 +49,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | — | — | — |
+| `FR-EQ-005` | MUST | 静态逆解（形状$\to$线圈电流） | `eq-inverse-iter-reference-separatrix` | 验证 | 未判（读数） |
 
 ## 平衡 (Equilibrium) · 测量重构与约束阶梯
 
@@ -57,7 +57,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-006` | MUST | 测量重构与约束阶梯 | — | — | — |
+| `FR-EQ-006` | MUST | 测量重构与约束阶梯 | `eq-reconstruct-twin-truth-recovery` | 验证 | 成立 |
 | `FR-EQ-007` | SHOULD | MSE 全形响应行 | — | — | — |
 | `FR-EQ-008` | MUST | 快离子压强外部强迫项 | — | — | — |
 | `FR-EQ-009` | MUST | 内部约束行几何门控 | — | — | — |
@@ -72,8 +72,8 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NR-EQ-001` | MUST | COCOS 一致性 | — | — | — |
-| `NR-EQ-006` | MUST | 插件接入 | — | — | — |
+| `NR-EQ-001` | MUST | COCOS 一致性 | `eq-convention-gfile-cocos-roundtrip` | 验证 | 成立 |
+| `NR-EQ-006` | MUST | 插件接入 | `eq-convention-gfile-cocos-roundtrip` | 验证 | 成立 |
 
 ## MHD 稳定性 (MHD Stability) · 竖直稳定性、线圈受力与电磁线性模型
 
@@ -189,12 +189,8 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 域 | 标题 |
 | :--- | :--- | :--- |
-| `FR-EQ-001` | 前向自由边界与 Green 响应核 | 自由边界前向 G-S 求解 |
 | `FR-EQ-002` | 前向自由边界与 Green 响应核 | Green 响应核为共享一等资产 |
 | `FR-EQ-003` | 磁面几何、全局量与形状表示 | 磁面分析（0 维 / 1 维几何量与磁面积分） |
-| `FR-EQ-004` | 演化自由边界与涡流电路 | 演化自由边界与涡流电路 |
-| `FR-EQ-005` | 静态逆解：形状到线圈电流 | 静态逆解（形状$\to$线圈电流） |
-| `FR-EQ-006` | 测量重构与约束阶梯 | 测量重构与约束阶梯 |
 | `FR-EQ-008` | 测量重构与约束阶梯 | 快离子压强外部强迫项 |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-010` | 测量重构与约束阶梯 | kinetic-EFIT 自洽外环接口 |
@@ -230,12 +226,9 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-012` | 双模、平衡耦合与代理栈 | 平衡耦合接口 |
 | `FR-TR-013` | 双模、平衡耦合与代理栈 | NN 代理栈与权重外置 |
 | `FR-TR-014` | 台基、锯齿与 0D 存量 | 0D 存量守恒（加料 / 抽气 / 衰变） |
-| `NR-EQ-001` | 约定与口径：COCOS 与插件接入 | COCOS 一致性 |
-| `NR-EQ-002` | 前向自由边界与 Green 响应核 | 解析基准精度 |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 | `NR-EQ-004` | 测量重构与约束阶梯 | 孪生实验可验证（可观测空间） |
 | `NR-EQ-005` | 前向自由边界与 Green 响应核 | 自包含数值核（无后端依赖） |
-| `NR-EQ-006` | 约定与口径：COCOS 与插件接入 | 插件接入 |
 | `NR-TR-001` | 守恒、金标 parity 与口径 | 守恒性 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
 | `NR-TR-003` | 闭包插件面：输运系数与源项 | 插件接入 |

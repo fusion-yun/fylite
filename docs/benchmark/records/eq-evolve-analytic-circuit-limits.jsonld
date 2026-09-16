@@ -1,0 +1,188 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/eq-evolve-analytic-circuit-limits",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "演化自由边界的解析极限：壳模按壁时间衰减、理想导体守住磁通、驱动逐步复现",
+  "en": "Analytic limits of the evolving free boundary: shell decay, flux freezing, drive reproduction"
+ },
+ "domain": "eq-evolve",
+ "requirement": [
+  "FR-EQ-004"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "内核门 code/evolve_free_boundary，经 tools/benchmark-evolve-free-boundary.py；EAST 牌"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "纯电路问题的解析解（壳模衰减 e^(-t/tau_w) · 理想导体磁通冻结）",
+   "comment": "★★**参考是解析解，不是另一个码**——所以这是验证，容差取舍入级而不是物理带。★这两条恒等式的妙处在于它们**不需要等离子体**：把等离子体拿掉，剩下的电路问题有闭式解，接线错了当场就现形。带等离子体之后没有解析解可依，那一层由别的记录（对拍类）担。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "壳模衰减对解析 e^(-t/tau_w) 的最劣相对偏差",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-12
+   },
+   "tolerance_basis": "machine_precision",
+   "comment": "★带 1e-12 已是实测值（~1e-15）的千倍：恒等式在舍入以内成立，带只是防劣化的护栏。"
+  },
+  {
+   "id": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "理想导体的磁通漂移 / 它被移动的量",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-10
+   },
+   "tolerance_basis": "machine_precision",
+   "comment": "★分母取「被移动的量」而不是磁通本身：等离子体不爬升时分子分母同为零，拿磁通作分母会让这条判据在什么都没发生时也显示完美。"
+  },
+  {
+   "id": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "回路方程的最大残差（磁通冻结 / 电压驱动 / 电流驱动 三档）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-09
+   },
+   "tolerance_basis": "machine_precision",
+   "comment": "解到自由边界解自身的容差 1e-9"
+  },
+  {
+   "id": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "电压驱动与电流驱动两条路复现同一段壳电流的最劣相对差",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 4.51e-09
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★这是一条**交叉检验**：同一段演化用两种驱动方式走，应当到同一处。"
+  },
+  {
+   "id": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "每一耦合步都是电流自身的一个已收敛平衡",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 2.0
+   },
+   "tolerance_basis": "machine_precision",
+   "comment": "★gs_state == 2 且 fb_held == 0：演化不是「解一次然后外推」，每步都真的解了。这一条没有数值容差可言，但它守的东西比任何一条带都重要。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "壳模衰减对解析解",
+   "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/1",
+   "deviation_literal": "最劣相对偏差 8.44e-15（判据 1e-12，余量约 119 倍）",
+   "verdict": "pass",
+   "caveat": [
+    "★量级是 1e-15：这已是双精度舍入，不是「算得准」，是**恒等式成立**。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "理想导体的磁通冻结",
+   "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/2",
+   "deviation_literal": "漂移/移动量 2.17e-13（判据 1e-10）· 回路残差 2.19e-13",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "回路方程残差（三档）",
+   "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/3",
+   "deviation_literal": "冻结 2.19e-13 · 电压驱动 1.78e-13 · 电流驱动 5.93e-16（判据 1e-09）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★驱动复现 —— 成立，但**余量只剩 0.2 %**",
+   "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/4",
+   "deviation_literal": "4.50014e-09 对判据 4.51e-09",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这是本条里唯一贴着带跑的一档**。带是按实测值三位有效数字向上取整定的（登记册的定带规则），所以「贴着」有一半是定带方式造成的——但后果是真的：**任何一点漂移都会把它顶出去**。",
+    "★记在这里而不是等它某天变红：一条余量 0.2 % 的判据，与一条余量千倍的判据，在表上看起来都是绿的，但它们说的不是一件事。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "每步都是已收敛平衡",
+   "criterion": "benchmark/records/eq-evolve-analytic-circuit-limits/criterion/5",
+   "deviation_literal": "gs_state 起步之后恒为 [2.0]（冻结）· 电压 [2.0] · 电流 [2.0]；fb_held = 0",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "EAST 装置牌（`dist/facts/device/east`）；演化经内核门 `code/evolve_free_boundary`。★两条恒等式跑在**纯电路极限**上（壳模衰减、理想导体），这一档没有等离子体；驱动复现与回路残差跑在带等离子体爬升的耦合步上。★时间轴与壁时间 tau_w 由装置牌的被动结构定：换一张牌，这些数会变，判据的形式不变。",
+ "caveat": [
+  "★★**本条只覆盖解析可判的那一层**。FR-EQ-004 的完整内容还包括带等离子体的轨迹对不对，而那一层**没有解析解**——只能对着另一个码的一次运行量，那属于对拍，不属于本条。eq-evolve 目前**没有**这样一条对拍记录，是本域的记名缺口。",
+  "★**哪些量是喂进去的**：装置牌的被动结构与电阻、驱动波形、等离子体电流的爬升曲线，全是输入。算出来的是各回路电流与它们产生的磁通演化。",
+  "★驱动复现那一档余量 0.2 %，见其 finding 的 caveat——绿，但不是宽裕的绿。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-16",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/evolve_free_boundary_metrics.json",
+    "checksum": "sha256:b6dd33c95c7e41eee18ea665b2a0b336c132b6219e158ce88bc2ab701c0767a8",
+    "comment": "本条的派生指标读数（当日实跑）"
+   },
+   {
+    "storage_uri": "FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/evolve_free_boundary_east137985.json",
+    "checksum": "sha256:3ed068ab61d9d59ec67ad727513015301f471fa440e8be9656d5584e4d44fe1a",
+    "comment": "★原始读数是**实验类**，留在 fydoc 算例库里，公开册只记指针 + sha256（设 $FYDOC_ORACLE 指过去）"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_evolve_free_boundary.py::test_v21_a_shell_mode_decays_on_the_wall_time"
+   },
+   {
+    "name": "python/tests/test_benchmark_evolve_free_boundary.py::test_v21_a_perfect_conductor_keeps_its_flux_while_the_plasma_ramps"
+   },
+   {
+    "name": "python/tests/test_benchmark_evolve_free_boundary.py::test_v21_current_drive_reproduces_the_voltage_march"
+   },
+   {
+    "name": "python/tests/test_benchmark_evolve_free_boundary.py::test_the_readings_are_the_registered_ones"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "comment": "须设 $FYLITE_KERNEL_LIB 指向带该门的构建，$FYLITE_DEVICE_DIR 指向 EAST 牌"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-16",
+  "revised": "2026-09-16",
+  "review_status": "draft",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-16",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：eq-evolve 的第一条记录，五条判据全过；驱动复现余量仅 0.2 % 记为 finding 的 caveat"
+   }
+  ]
+ }
+}

@@ -53,15 +53,16 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 
 ### 本域的记录
 
-★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，本册还没有拿出任何一条对着外部答案量过的记录来回应。
+| 记录 | 类 | 判决 | 参考 | 记录版本 | 评审 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| [`eq-forward-chease-solovev`](../records/eq-forward-chease-solovev.jsonld) | 对拍 | 成立 | CHEASE | 1.0 | 草稿 |
+| [`eq-forward-solovev-fixed-boundary`](../records/eq-forward-solovev-fixed-boundary.jsonld) | 验证 | 不成立 | Solov'ev 解析平衡 (closed form) | 1.0 | 草稿 |
 
 ### 缺口
 
-本域 **MUST 级空缺 4 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
-- `FR-EQ-001` 自由边界前向 G-S 求解
 - `FR-EQ-002` Green 响应核为共享一等资产
-- `NR-EQ-002` 解析基准精度
 - `NR-EQ-005` 自包含数值核（无后端依赖）
 
 <!-- END GENERATED -->
