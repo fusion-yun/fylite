@@ -38,6 +38,10 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 BM = ROOT / "docs" / "benchmark"
+#: ★机器读的那一半住在 `meta/`：轴（域树 / 需求树）、判据抄录件、词表、薄索引与基准内核。
+#: 给人读的那一半（README + 两张生成件 + 三组十六章）留在册子根上——目录本身就把
+#: 「谁读它」说清楚，不必靠扩展名去猜。
+META = BM / "meta"
 
 BEGIN = "<!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->"
 END = "<!-- END GENERATED -->"
@@ -50,7 +54,7 @@ REVIEW_ZH = {"draft": "草稿", "reviewed": "已评审", "superseded": "已被�
 # ────────────────────────────────────────────────────────────── 读
 
 def load(name: str) -> dict:
-    return json.loads((BM / name).read_text(encoding="utf-8"))
+    return json.loads((META / name).read_text(encoding="utf-8"))
 
 
 def load_records() -> list[dict]:
@@ -83,7 +87,7 @@ def criteria_by_requirement() -> dict[str, list[dict]]:
 
 
 def kernel_reference() -> dict:
-    p = BM / "kernel.json"
+    p = META / "kernel.json"
     return json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
 
 
@@ -424,7 +428,7 @@ def build() -> dict[pathlib.Path, str]:
     out: dict[pathlib.Path, str] = {
         BM / "coverage.md": coverage_md(reqs, recs, doms, crit),
         BM / "status.md": status_md(reqs, recs, doms),
-        BM / "index.jsonld": json.dumps(index_jsonld(reqs, recs, doms), ensure_ascii=False, indent=1) + "\n",
+        META / "index.jsonld": json.dumps(index_jsonld(reqs, recs, doms), ensure_ascii=False, indent=1) + "\n",
     }
     for g, d in doms:
         out[BM / d["path"]] = chapter_block(g, d, reqs, recs, crit, srs_ver)
@@ -447,7 +451,7 @@ def main() -> int:
         k["comment"] = ("★基准内核：本册以它为「当前」。内核一换就更新本文件——"
                         "所有记在旧内核上的记录当场转 stale，CI 据此重跑。")
         k.pop("path", None)
-        (BM / "kernel.json").write_text(json.dumps(k, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        (META / "kernel.json").write_text(json.dumps(k, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"kernel.json → {k['checksum'][:23]}…")
         return 0
 

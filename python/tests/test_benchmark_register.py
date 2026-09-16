@@ -24,6 +24,10 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 BM = ROOT / "docs" / "benchmark"
+#: ★机器读的那一半住在 `meta/`：轴（域树 / 需求树）、判据抄录件、词表、薄索引与基准内核。
+#: 给人读的那一半（README + 两张生成件 + 三组十六章）留在册子根上——目录本身就把
+#: 「谁读它」说清楚，不必靠扩展名去猜。
+META = BM / "meta"
 KINDS = {"verification", "benchmark", "validation"}
 VERDICTS = {"pass", "fail", "inconclusive", "unevaluated"}
 REVIEW = {"draft", "reviewed", "superseded"}
@@ -32,7 +36,7 @@ END = "<!-- END GENERATED -->"
 
 
 def read(name: str) -> dict:
-    return json.loads((BM / name).read_text(encoding="utf-8"))
+    return json.loads((META / name).read_text(encoding="utf-8"))
 
 
 def records() -> list[tuple[str, dict]]:
@@ -251,9 +255,47 @@ def test_the_reference_kernel_is_declared():
     而那不是任何人的错。基准记在 `kernel.json` 里，内核一换就有意更新它——于是所有记在
     旧内核上的记录当场转 `stale`，CI 据此重跑。这就是「随内核变更自动验证」的接口。
     """
-    k = json.loads((BM / "kernel.json").read_text(encoding="utf-8"))
+    k = json.loads((META / "kernel.json").read_text(encoding="utf-8"))
     assert k.get("checksum", "").startswith("sha256:"), k
     assert k.get("recorded"), k
+
+
+def test_the_tree_on_disk_is_the_tree_the_readme_declares():
+    """★★声明的目录与盘上的目录必须一致——两个方向都要。
+
+    **这是旧册烂掉的方式之一**：它的 `reports/README.md` 是手维护的索引，漏掉了最后一条
+    记录；同一个病的另一面是**声明了却不存在的目录**——读者按 README 去找，扑空，然后
+    再也不信这张表。所以这里两头都守：
+
+      · 盘上有的目录，README 里必须提到（否则读者遇到一个没人解释的目录）；
+      · README 里写的 `meta/…` 路径，盘上必须真的有（否则读者按图索骥扑空）。
+
+    ★册子根上**只放给人读的书**（README + 两张生成件 + 三组十六章的目录）。机器读的那一半
+    住在 `meta/` / `records/` / `readings/`——目录本身就把「谁读它」说清楚，不必靠扩展名猜。
+    """
+    readme = (BM / "README.md").read_text(encoding="utf-8")
+
+    #: 一、册子根上不得散着数据文件
+    loose = sorted(p.name for p in BM.iterdir() if p.is_file() and p.suffix in (".json", ".jsonld"))
+    assert not loose, f"这些数据文件散在册子根上，该进 meta/：{loose}"
+
+    #: 二、根上的 .md 只有书的那三页（章页在 <组>/ 下）
+    top_md = sorted(p.name for p in BM.iterdir() if p.suffix == ".md")
+    assert top_md == ["README.md", "coverage.md", "status.md"], top_md
+
+    #: 三、盘上每个目录都要在 README 里露过面
+    groups = {g["id"] for g in read("domains.jsonld")["group"]}
+    for d in sorted(p.name for p in BM.iterdir() if p.is_dir()):
+        assert d in groups or f"{d}/" in readme, f"目录 {d}/ 在盘上却没在 README 的目录表里"
+
+    #: 四、README 写的 meta/ 路径都要真的在
+    for ref in sorted(set(re.findall(r"`(meta/[A-Za-z0-9_.-]+)`", readme))):
+        assert (BM / ref).is_file(), f"README 声明了 {ref}，盘上没有"
+
+    #: 五、meta/ 六件缺一不可——少任何一件，生成器或闸子当场就不成立
+    want = {"context.jsonld", "domains.jsonld", "requirements.jsonld",
+            "transcript.jsonld", "index.jsonld", "kernel.json"}
+    assert want <= {p.name for p in META.iterdir()}, sorted(want - {p.name for p in META.iterdir()})
 
 
 def test_the_retired_register_is_not_tracked():

@@ -48,7 +48,7 @@ comparable.
 
 ★**MHD 稳定性单列一组，虽然它在 SRS 里属 fyeq**。它是三十七条 EQ 需求里的十八条，
 篇幅与另两组相当，而它问的是另一个问题：位形稳不稳，不是平衡算不算得准。
-组件归属记在 [`domains.jsonld`](domains.jsonld) 每组的 `component` / `srs` 上，追溯不丢。
+组件归属记在 [`meta/domains.jsonld`](meta/domains.jsonld) 每组的 `component` / `srs` 上，追溯不丢。
 
 ★★**需求号不是轴，是记录的属性。** 上一版设计按 `FR-EQ-*` / `NR-TR-*` 编址，那有一处
 致命伤：上游两份 SRS 都标着 `distribution: internal`，本册的读者**打不开它们**。
@@ -59,7 +59,7 @@ comparable.
 ## 判据：抄录，不是引用
 
 判据来自上游 SRS 自己的〈验证基准〉与〈验证矩阵〉，**逐字抄进本册**，落在
-[`transcript.jsonld`](transcript.jsonld)，由各章的生成块渲染出来。
+[`meta/transcript.jsonld`](meta/transcript.jsonld)，由各章的生成块渲染出来。
 
 ★**抄录的代价是漂，所以配了一道闸**：抄录件记下每份源的版本号与 sha256
 （现记 `FYTOK-SRS-03` v0.43 · `FYTOK-SRS-04` v0.11，两份都还是 `status: WD`）。
@@ -86,7 +86,7 @@ SRS-04 的验证矩阵里没有它的行）。没有判据就无从验起——�
 ## 编号：按域编址
 
 `<域id>-<短名>`，例如 `eq-forward-solovev` · `mhd-vertical-rigid-wall` · `tr-paradigm-flux-matching`。
-域 id 取自 [`domains.jsonld`](domains.jsonld)（`eq-forward` · `mhd-deltaw` · `tr-closure` …）。
+域 id 取自 [`meta/domains.jsonld`](meta/domains.jsonld)（`eq-forward` · `mhd-deltaw` · `tr-closure` …）。
 
 ## 一条记录必须自带的六样
 
@@ -124,21 +124,42 @@ SRS-04 的验证矩阵里没有它的行）。没有判据就无从验起——�
 
 ## 目录
 
-| | 装什么 | 谁写 |
+★★**目录的分界就是「谁读它」**，不靠扩展名去猜：册子根上是**给人读**的书（导言 + 两张
+生成件 + 三组十六章，也正是入 `myst.yml` 的那些）；数据在三个各有一职的目录里。
+
+```
+docs/benchmark/
+├── README.md                  ← 你在读的这页
+├── coverage.md · status.md    ← 两张生成件
+├── eq/ · mhd/ · tr/           ← 三组十六章，一章一页散文
+├── records/                   ← 记录：一条一个文件
+├── readings/                  ← 读数：门与工具的产出
+└── meta/                      ← 轴、抄录件、词表、索引、基准内核
+```
+
+| 路径 | 装什么 | 谁写 |
 | :--- | :--- | :--- |
-| `domains.jsonld` | 域树：一级 3 组 / 二级 16 章 | 人 |
-| `requirements.jsonld` | 需求树快照（57 条） | 自 SRS 抽取 |
-| `transcript.jsonld` | 判据**抄录件** + 源版本与 sha256 | ★生成 |
-| `kernel.json` | 基准内核指纹（新鲜度以它为准） | ★`--bump-kernel` |
+| `<组>/<域>.md` | 十六章：这一域对着谁量到多少 | 散文手写 + 生成块 |
+| `coverage.md` | 需求 × 记录，空行即缺口 | ★生成 |
+| `status.md` | 版本 / 评审 / 内核 / 新鲜度 | ★生成 |
 | `records/<ID>.jsonld` | 一条记录一个文件 | 人 + 工具 |
-| `records/retired/` | 退役记录，不压在阅读路径上 | — |
-| `readings/<ID>.json` | 该记录的读数 | 门或工具产出 |
-| `reports/<ID>.md` | 散文报告 | ★生成 |
-| `index.jsonld` | 薄索引 | ★生成 |
-| `context.jsonld` | fyo / spo 词汇 | 承自旧册 + 新项 |
+| `records/TEMPLATE.jsonld` | 记录模板：六样必备项逐条注明 | 人 |
+| `readings/<名>.json` | 读数。★**按写它的那道门 / 工具命名**（`wall_iter.json`），不按记录号——写它的工具比记录先在 | 门或工具产出 |
+| `meta/domains.jsonld` | 域树：一级 3 组 / 二级 16 章 | 人 |
+| `meta/requirements.jsonld` | 需求树快照（57 条），每条标着它落在哪一章 | 自 SRS 抽取 |
+| `meta/transcript.jsonld` | 判据**抄录件** + 源版本与 sha256 | ★生成 |
+| `meta/kernel.json` | 基准内核指纹（新鲜度以它为准） | ★`--bump-kernel` |
+| `meta/index.jsonld` | 薄索引 | ★生成 |
+| `meta/context.jsonld` | fyo / spo 词汇 | 承自旧册 + 新项 |
 
 ★**一条记录一个文件**，不再是一份 481 KB 的 `registry.jsonld`：那样改一条记录的 diff
 会扫全库、并发改必冲突。
+
+★★**这张表里没有的目录，盘上也没有。** `records/retired/`（退役记录）与逐条散文报告
+都是**首次需要时再建**——一个声明了却不存在的目录，读者按它去找只会扑空，而「声明与
+实际不符」正是旧册烂掉的方式之一（它的 `reports/README.md` 漏掉最后一条记录，同一个病）。
+★逐条报告眼下没有：散文已经落在**章**这一级；一条记录要再配一篇长报告，
+得先有一条记录证明章这一级不够用。
 
 ★**生成件不手改**。`coverage.md` 手写过一次就会漏——旧册的 `reports/README.md`
 漏掉最后一条记录，正是因为它是手维护的索引。

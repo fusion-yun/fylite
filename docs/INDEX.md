@@ -42,8 +42,8 @@ WebAssembly。三种发布形态跑的是同一份算术。
 - `NOTICE` —— 逐文件的移植出处与修改说明，随 Rust 内核源码留在 `fylite_kernel`，
   打轮时装入分发件。可读的全表见本书的[致谢](ACKNOWLEDGEMENTS.md)。
 
-★`docs/benchmark/` 的**机器读的那一半**（`records/*.jsonld` · `domains.jsonld` ·
-`requirements.jsonld` · `transcript.jsonld` · `index.jsonld` · `kernel.json`）不入 toc：
+★`docs/benchmark/` 的**机器读的那一半**（`meta/` 下的 `domains.jsonld` ·
+`requirements.jsonld` · `transcript.jsonld` · `index.jsonld` · `kernel.json`，外加 `records/` 与 `readings/`）不入 toc：
 它们按路径被门禁、CI 与语料的 `account` 字段引用，要的是稳定路径而不是章节号。
 散文那一半入册，就是上表的「校验册」。
 

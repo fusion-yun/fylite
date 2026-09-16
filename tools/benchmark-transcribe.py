@@ -35,7 +35,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-OUT = ROOT / "docs" / "benchmark" / "transcript.jsonld"
+OUT = ROOT / "docs" / "benchmark" / "meta" / "transcript.jsonld"
 
 SRS = {
     "FYTOK-SRS-03": ("FYTOK-SRS-03_fyeq_equilibrium.md", "fyeq", "平衡求解器 (Equilibrium solver)"),
