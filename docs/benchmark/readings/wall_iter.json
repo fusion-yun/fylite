@@ -1,0 +1,94 @@
+{
+ "reference": "ITER_D_22L4FE v1.0 (CREATE, EFDA/03-1108 D2, 2004-03-03) Table 4.1.a; and ITER_D_22FPWQ v4.0 for the vessel toroidal resistance",
+ "device_card": "fydoc facts/device/iter/abox/static/now/pf_passive.jsonld -> tools/abox-to-facts.py",
+ "settings": {
+  "nu": 8,
+  "nv": 8
+ },
+ "sets": {
+  "vv_inner": {
+   "groups": "vv_inner",
+   "n_elements": 135,
+   "tau_1_s": 0.2909319405602875,
+   "tau_2_s": 0.15553225529539894,
+   "R_toroidal_parallel_uOhm": 16.345893098177886,
+   "L_uniform_mode_uH": 5.4829757110595665
+  },
+  "vv_outer": {
+   "groups": "vv_outer",
+   "n_elements": 151,
+   "tau_1_s": 0.3042253619302809,
+   "tau_2_s": 0.16595254948538238,
+   "R_toroidal_parallel_uOhm": 14.299630474193934,
+   "L_uniform_mode_uH": 5.112557866393389
+  },
+  "vv_both": {
+   "groups": "vv_inner,vv_outer",
+   "n_elements": 286,
+   "tau_1_s": 0.5689224597854089,
+   "tau_2_s": 0.29868297860125587,
+   "R_toroidal_parallel_uOhm": 7.627222635717898,
+   "L_uniform_mode_uH": 5.065749387259574
+  },
+  "vv_ots": {
+   "groups": "vv_inner,vv_outer,ts",
+   "n_elements": 287,
+   "tau_1_s": 0.5833860712213238,
+   "tau_2_s": 0.30488619768485814,
+   "R_toroidal_parallel_uOhm": 7.537624522984824,
+   "L_uniform_mode_uH": 5.076128006596952
+  },
+  "vv_ots_ports": {
+   "groups": "vv_inner,vv_outer,ts,port_upper,port_eq,port_lower",
+   "n_elements": 299,
+   "tau_1_s": 0.8839955388823599,
+   "tau_2_s": 0.4444934050503468,
+   "R_toroidal_parallel_uOhm": 6.103311343174703,
+   "L_uniform_mode_uH": 5.213406738739584
+  }
+ },
+ "mode_shapes": [
+  {
+   "k": 0,
+   "tau_s": 0.5689224597854089,
+   "uniformity": 1.0,
+   "up_down_antisymmetry": 0.013844612184893997
+  },
+  {
+   "k": 1,
+   "tau_s": 0.29868297860125587,
+   "uniformity": 0.021619368250195017,
+   "up_down_antisymmetry": -0.9044607668473506
+  },
+  {
+   "k": 2,
+   "tau_s": 0.2196132079879453,
+   "uniformity": 0.519842542158068,
+   "up_down_antisymmetry": 0.0179066104043566
+  },
+  {
+   "k": 3,
+   "tau_s": 0.16454852216600652,
+   "uniformity": 0.11502406315368116,
+   "up_down_antisymmetry": 0.004891940506084349
+  }
+ ],
+ "literature": {
+  "vv_toroidal_resistance_uOhm": 7.9,
+  "vv_poloidal_resistance_uOhm": 4.1,
+  "create_tau1_s": [
+   0.3623,
+   0.3705
+  ],
+  "create_tau2_s": [
+   0.2385,
+   0.244
+  ],
+  "create_model": "two concentric shells, inner 57 conductors (8 simulating the OTS) + outer 50; meshed thickness raised 60 -> 150 mm with eta_eq = 2.5 eta = 1.90 uOhm.m; OTS electrically connected to the inner shell"
+ },
+ "checks": {
+  "R_toroidal_rel_to_literature": -0.03452878028887374,
+  "L_uniform_needed_for_create_tau1_uH": 2.7633427609205943,
+  "L_uniform_ours_uH": 5.065749387259574
+ }
+}
