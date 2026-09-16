@@ -1,5 +1,5 @@
 {
- "reference": "ITER_D_22L4FE v1.0 (CREATE, EFDA/03-1108 D2, 2004-03-03) Table 4.1.a; and ITER_D_22FPWQ v4.0 for the vessel toroidal resistance",
+ "reference": "ITER_D_22L4FE v1.0 (CREATE, EFDA/03-1108 D2, 2004-03-03) Table 4.1.a; ITER_D_22FPWQ v4.0 for the vessel toroidal resistance",
  "device_card": "fydoc facts/device/iter/abox/static/now/pf_passive.jsonld -> tools/abox-to-facts.py",
  "settings": {
   "nu": 8,
@@ -28,7 +28,24 @@
    "tau_1_s": 0.5689224597854089,
    "tau_2_s": 0.29868297860125587,
    "R_toroidal_parallel_uOhm": 7.627222635717898,
-   "L_uniform_mode_uH": 5.065749387259574
+   "L_uniform_mode_uH": 5.065749387259574,
+   "sc_screened": {
+    "a_fixed_0p25_1fil": {
+     "L_uniform_uH": 3.2042045154481777,
+     "tau_1_s": 0.36072473467914934,
+     "tau_2_s": 0.23456304398762967
+    },
+    "a_rect_1fil": {
+     "L_uniform_uH": 2.9151625493928317,
+     "tau_1_s": 0.33150315611414294,
+     "tau_2_s": 0.21941343689421589
+    },
+    "a_rect_3x3": {
+     "L_uniform_uH": 2.740042867329731,
+     "tau_1_s": 0.31568895666599506,
+     "tau_2_s": 0.20949211780573845
+    }
+   }
   },
   "vv_ots": {
    "groups": "vv_inner,vv_outer,ts",
@@ -36,7 +53,24 @@
    "tau_1_s": 0.5833860712213238,
    "tau_2_s": 0.30488619768485814,
    "R_toroidal_parallel_uOhm": 7.537624522984824,
-   "L_uniform_mode_uH": 5.076128006596952
+   "L_uniform_mode_uH": 5.076128006596952,
+   "sc_screened": {
+    "a_fixed_0p25_1fil": {
+     "L_uniform_uH": 3.211973279769267,
+     "tau_1_s": 0.37165529381123696,
+     "tau_2_s": 0.23979424442665198
+    },
+    "a_rect_1fil": {
+     "L_uniform_uH": 2.922606953484202,
+     "tau_1_s": 0.3417903117424307,
+     "tau_2_s": 0.2250736099748631
+    },
+    "a_rect_3x3": {
+     "L_uniform_uH": 2.7474135351447644,
+     "tau_1_s": 0.32569673786255693,
+     "tau_2_s": 0.21543840285318724
+    }
+   }
   },
   "vv_ots_ports": {
    "groups": "vv_inner,vv_outer,ts,port_upper,port_eq,port_lower",
@@ -47,32 +81,30 @@
    "L_uniform_mode_uH": 5.213406738739584
   }
  },
- "mode_shapes": [
-  {
-   "k": 0,
-   "tau_s": 0.5689224597854089,
-   "uniformity": 1.0,
-   "up_down_antisymmetry": 0.013844612184893997
+ "screening": {
+  "what": "the PF/CS circuits enter CREATE's plasmaless system with ZERO resistance (22L4FE p.2: 'All resistances (in SC coils, voltage amplifiers, connections) are neglected'); zero-resistance loops conserve flux and SCREEN the vessel modes.  L_eff = M_vv - M_vc M_cc^-1 M_cv (Schur complement).",
+  "mutuals": "Maxwell coaxial-ring formula, validated against the kernel's M (off-diagonal median -0.0094 %, p95 0.168 %)",
+  "topology_independent": {
+   "12_independent_coils": {
+    "L_uniform_uH": 2.9226,
+    "tau_1_s": 0.3418,
+    "tau_2_s": 0.2251
+   },
+   "11_circuit_loops_tab_2_1_b_f": {
+    "L_uniform_uH": 2.9226,
+    "tau_1_s": 0.3418,
+    "tau_2_s": 0.2257
+   }
   },
-  {
-   "k": 1,
-   "tau_s": 0.29868297860125587,
-   "uniformity": 0.021619368250195017,
-   "up_down_antisymmetry": -0.9044607668473506
-  },
-  {
-   "k": 2,
-   "tau_s": 0.2196132079879453,
-   "uniformity": 0.519842542158068,
-   "up_down_antisymmetry": 0.0179066104043566
-  },
-  {
-   "k": 3,
-   "tau_s": 0.16454852216600652,
-   "uniformity": 0.11502406315368116,
-   "up_down_antisymmetry": 0.004891940506084349
+  "coil_geometry_independent": {
+   "card_2ACJT3_v3_1": {
+    "tau_1_s": 0.3418
+   },
+   "22L4FE_table_2_1_a": {
+    "tau_1_s": 0.3395
+   }
   }
- ],
+ },
  "literature": {
   "vv_toroidal_resistance_uOhm": 7.9,
   "vv_poloidal_resistance_uOhm": 4.1,
@@ -84,11 +116,16 @@
    0.2385,
    0.244
   ],
-  "create_model": "two concentric shells, inner 57 conductors (8 simulating the OTS) + outer 50; meshed thickness raised 60 -> 150 mm with eta_eq = 2.5 eta = 1.90 uOhm.m; OTS electrically connected to the inner shell"
+  "create_model": "two concentric shells, inner 57 conductors (8 simulating the OTS) + outer 50; meshed thickness raised 60 -> 150 mm with eta_eq = 2.5 eta = 1.90 uOhm.m; PF/CS circuits carried with zero resistance"
  },
  "checks": {
   "R_toroidal_rel_to_literature": -0.03452878028887374,
-  "L_uniform_needed_for_create_tau1_uH": 2.7633427609205943,
-  "L_uniform_ours_uH": 5.065749387259574
+  "L_uniform_unscreened_uH": 5.065749387259574,
+  "L_uniform_screened_uH": 2.9151625493928317,
+  "tau1_screened_vs_create_nl": -0.05660968329442262,
+  "tau1_screened_band": [
+   0.32569673786255693,
+   0.37165529381123696
+  ]
  }
 }
