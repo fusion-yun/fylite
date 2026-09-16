@@ -1,0 +1,93 @@
+---
+title: "tr-paradigm-pereverzev"
+---
+
+# Pereverzev-Corrigan 稳定化：定态与 d_pc 无关（量到 1.4e-11），而判据要的「裸环停滞对照」在本闭包族上演示不了
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/tr-paradigm-pereverzev.jsonld`，本页只是它的可读面。 -->
+
+*输运 (Transport) · [求解范式：刚性稳定化与稳态通量匹配](../tr/paradigm.md)　|　记录正本：`records/tr-paradigm-pereverzev.jsonld`*
+
+## 摘要
+
+- **类**：验证　**判决**：**未判（读数）**
+- **量的是**：Pereverzev-Corrigan 稳定化：定态与 d_pc 无关（量到 1.4e-11），而判据要的「裸环停滞对照」在本闭包族上演示不了
+- **参考**：P-C 项在不动点上的恒等对消（解析不变性）
+- **验的需求**：`FR-TR-005`
+- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **current**）
+- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
+
+## 问的是什么
+
+**被量的**：门 `code/transport`（`case.rs::transport_case`）的定态支路：dt = inf · steps = 1 · theta = 1，Picard 内环 tol 1e-13 / max_inner 4000。P-C 系数由 settings 的 `dpc` 进装配。
+
+**参考**：P-C 项在不动点上的恒等对消（解析不变性）（—）
+
+> ★参考是一条**解析陈述**，不是另一次运行：P-C 项按构造在离散不动点上恒等消去，故定态必须与 d_pc 无关。这是 `verification` 而非 `benchmark` 的理由——参考是解析解一侧，不是另一个码。★接受档 rel < 1e-9 抄自内核自己那道门 `transport.rs::the_pereverzev_corrigan_fixed_point_is_independent_of_d_pc` 的自报值；自报的档不是独立参考，见 caveat。
+
+**口径与适用域**：
+
+> 口径：单通道标量场 y（无单位——本记录量的是**求解范式**，不绑定具体物理量）；径向标签 ρ 为归一化径向坐标，[0,1] 均匀 41 点（非 Miller r）；几何 prescribed，V' = 2ρ；边界 edge_value = 0.3（Dirichlet）；theta = 1（后向 Euler——定态解的要求，内核对 theta ≠ 1 的定态请求 fail-loud）；源取内核缺省 Gaussian P exp(-(ρ/w)^2)，power = 4.0 · width = 0.35；闭包 constant 与 stiff，chi0 = 1.0。COCOS 不适用（无磁场量）。参数范围：判据落在 d_pc ∈ [0, 40]，d_pc = 100 记录在案但不判。
+
+## 判据与量到多少
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| 定态剖面 y(ρ) 相对 d_pc = 0 的逐点相对偏差，inf 范数（无量纲；ρ = 归一化径向标签，[0,1] 均匀 41 点） | 1e-09 | reference_self_reported | constant 闭包：3.006e-14 (d_pc=0.1) · 7.676e-14 (1) · 1.014e-12 (10) · 4.490e-12 (40)；stiff 闭包：5.977e-14 (0.1) · 2.962e-13 (1) · 3.069e-12 (10) · 1.446e-11 (40)。判到的最大值 1.446e-11，接受档 1e-9。 | **成立** |
+| 裸环（d_pc = 0）与 d_pc = 40 的 Picard 内迭代次数之差（次）——★证明这一项真的进了装配，否则 criterion/1 是拿一个解跟它自己比 | 1 | machine_precision | constant：2 次 → 1010 次（差 1008）；stiff：43 次 → 1996 次（差 1953）。内核自己那道门断的是同一件事（`assert_ne!(plain.inner_iterations, stab.inner_iterations)`）。 | **成立** |
+| 判据的对照项：刚性闭包下裸环停滞（顶到 max_inner 且 converged = False）的操作点个数 | 1 | measured_band | 刚度盒 12 点（p1 ∈ {0.25, 0.05, 0.01} × p2 ∈ {1.75, 5, 20, 80}，chi 动态范围 8 … 8001 倍），d_pc = 0 **全部收敛**，最慢 495 次内迭代、残差 ~1e-14。停滞点个数 = 0，判据要求 ≥ 1。 | **未判（读数）** |
+
+**定态对 d_pc 不敏感——成立，但它是 Picard 容差限，不是机器精度**
+
+- ★偏差随 d_pc **单调上行**（constant 跨 3.0e-14 → 4.5e-12，stiff 跨 6.0e-14 → 1.4e-11），因为两条路走到同一不动点的精度由 `tol` 定，不由对消的代数定。把这一档写成「机器精度」是夸大——对消在代数上精确，量出来的数是收敛容差的像。
+- ★stiff 闭包 d_pc = 100 顶到 max_inner = 4000 未收敛（rel 4.455e-10），**不进判据**：没收敛的解不是定态，拿它比不动点没有意义。该点记在读数的 `converged` 上，没有摘掉。
+
+**d_pc 确实进了装配：定态相同而求解路径不同**
+
+- ★代价随 d_pc 近乎线性上行，且**多数区间是净变贵**：constant 2 → 13 → 42 → 277 → 1010 → 2406；stiff 43 → 28 → 71 → 550 → 1996 → 4000(cap)。只有 stiff 闭包 d_pc = 0.1 这一点上稳定化**减少**了迭代（43 → 28）。「稳定化」在这一族闭包上不等于「更快」。
+
+**★★判据的对照项演示不了：这一族闭包造不出停滞的裸环**
+
+- ★★机理在闭包的形式里，不是参数没扫够：`case.rs::diffusivity_of` 是 `chi0 (p1 + p2 g/(1+g))`，对梯度**有界且饱和**——g→∞ 时 chi 趋于 `chi0 (p1+p2)`。梯度→chi→梯度 的回授被饱和封住，Picard 映射保持压缩。而 P-C 要对付的正是 chi 随梯度**不封顶**或**带阈值**的那类闭包。
+- ★所以这一条**不是「没人去量」，是「在本接口上不存在可量的操作点」**。要量它得换一路：`evolve` 的 `turbulent` / `flux-match` 闭包，或 nn_tables 里的 QLKNN / TGLFNN 代理。那属于另一条记录。
+- ★判 `inconclusive` 而不是 `pass`：FR-TR-005 的判据有三句话，本记录答了两句。判 pass 会让 coverage 把这一条记成整条覆盖。
+
+## 不可比的部分
+
+- ★★**不可比的部分——本记录不证明定态是「对」的。** 参考是一条解析不变性（P-C 项恒等对消），它只约束定态**与 d_pc 无关**。一个求解器完全可以稳定地、与 d_pc 无关地收敛到一个**错的**定态而通过本记录。要判定态对不对，得靠制造解（NR-TR-002 收敛阶）或金标 parity——那是另外的记录。
+- ★接受档 1e-9 取自内核自己那道门的自报值，**不是独立参考**。上游 SRS-04 的判据只写「离散精确对消」，没有给数。一个独立的档要么由 SRS 补，要么由制造解定出来。
+- ★判据第三句（裸环停滞对照）未能演示，见 criterion/3 的 findings——这是本记录判 `inconclusive` 的唯一原因。
+- ★闭包 `stiff` 是内核自带的解析式，**不是任何物理输运模型**（无临界梯度、无阈值、有界饱和）。本记录量的是求解范式在这一族闭包上的行为，不是物理。
+- ★单通道、固定几何。多通道（n / T / ψ）与平衡耦合下 P-C 的行为不在本记录范围内（FR-TR-001 / FR-TR-012）。
+
+## 追溯
+
+- 首次入册 2026-09-16　末次修订 2026-09-16　版本 1.0　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-16 | Claude Opus 5 | 首次入册。本册 2026-09-16 重起后 tr/ 组的第一条记录。判据三句量到两句成立（定态对 d_pc 无关到 1.4e-11，且 d_pc 确实改变求解路径），第三句「裸环停滞对照」在本闭包族上无可量的操作点——机理是闭包对梯度有界饱和。据此判 inconclusive，不判 pass。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `libfylite` `sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced`　—— 与 `meta/kernel.json` 的基准内核一致——本记录记在当前内核上。
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/transport_pc.json`    `sha256:88ade5fe0f02fdbc206fe660061343609433f1c2047d2a3c252756befe3fc6ca`    由 `python tools/benchmark-transport.py readings` 产出；逐位可复现（同一内核上两次运行 sha256 相同）。
+
+**守它的门**：
+
+- `python/tests/test_benchmark_transport_pc.py::test_the_steady_state_does_not_depend_on_d_pc` —— criterion/1
+- `python/tests/test_benchmark_transport_pc.py::test_d_pc_actually_reaches_the_assembly` —— criterion/2
+- `python/tests/test_benchmark_transport_pc.py::test_the_bare_loop_does_not_stagnate_in_this_closure_family` —— ★criterion/3：钉住的是一个**否定结论**。内核哪天接上真正刚性的闭包，它就该红——红在这里读作「对照项第一次可量了，本记录该重判」。
+- `python/tests/test_benchmark_transport_pc.py::test_the_large_d_pc_end_is_recorded_as_not_converged` —— ★不利的那一端留在读数里且标着未收敛——求解器自己说了，没把顶到上限的剖面当定态交回来
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```

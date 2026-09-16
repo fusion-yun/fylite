@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 9,
-  "open_must": 44,
-  "records": 11,
+  "covered": 10,
+  "open_must": 43,
+  "records": 12,
   "stale": 0,
   "failing": 1
  },
@@ -162,6 +162,19 @@
    "requirement": [
     "FR-EQ-003",
     "FR-EQ-012"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-pereverzev",
+   "domain": "tr-paradigm",
+   "path": "records/tr-paradigm-pereverzev.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "inconclusive",
+   "requirement": [
+    "FR-TR-005"
    ],
    "record_version": "1.0",
    "review_status": "draft",

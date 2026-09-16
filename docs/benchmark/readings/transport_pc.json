@@ -1,0 +1,215 @@
+{
+ "closure_form": "chi = chi0 * (p1 + p2 * |grad y| / (1 + |grad y|))  —— 有界、饱和",
+ "d_pc_independence": {
+  "constant": {
+   "points": [
+    {
+     "converged": true,
+     "d_pc": 0.0,
+     "inner_iterations": 2,
+     "rel_deviation_from_d_pc_0": 0.0,
+     "residual": 1.772233083502271e-16
+    },
+    {
+     "converged": true,
+     "d_pc": 0.1,
+     "inner_iterations": 13,
+     "rel_deviation_from_d_pc_0": 3.00599199229654e-14,
+     "residual": 7.28387797319452e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 1.0,
+     "inner_iterations": 42,
+     "rel_deviation_from_d_pc_0": 7.67629694603764e-14,
+     "residual": 7.19526631901885e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 10.0,
+     "inner_iterations": 277,
+     "rel_deviation_from_d_pc_0": 1.0138526566597865e-12,
+     "residual": 9.304223688380804e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 40.0,
+     "inner_iterations": 1010,
+     "rel_deviation_from_d_pc_0": 4.489885813647118e-12,
+     "residual": 9.304223688355107e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 100.0,
+     "inner_iterations": 2406,
+     "rel_deviation_from_d_pc_0": 1.2333601962967926e-11,
+     "residual": 9.605503312482525e-14
+    }
+   ],
+   "settings": {
+    "chi0": 1.0
+   }
+  },
+  "stiff": {
+   "points": [
+    {
+     "converged": true,
+     "d_pc": 0.0,
+     "inner_iterations": 43,
+     "rel_deviation_from_d_pc_0": 0.0,
+     "residual": 6.815647344426975e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 0.1,
+     "inner_iterations": 28,
+     "rel_deviation_from_d_pc_0": 5.977276144884703e-14,
+     "residual": 7.06405362577241e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 1.0,
+     "inner_iterations": 71,
+     "rel_deviation_from_d_pc_0": 2.9622449050493546e-13,
+     "residual": 9.470489476308024e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 10.0,
+     "inner_iterations": 550,
+     "rel_deviation_from_d_pc_0": 3.0690596060280735e-12,
+     "residual": 7.980051788211191e-14
+    },
+    {
+     "converged": true,
+     "d_pc": 40.0,
+     "inner_iterations": 1996,
+     "rel_deviation_from_d_pc_0": 1.4455382527218832e-11,
+     "residual": 9.454964083590038e-14
+    },
+    {
+     "converged": false,
+     "d_pc": 100.0,
+     "inner_iterations": 4000,
+     "rel_deviation_from_d_pc_0": 4.4548965141069964e-10,
+     "residual": 1.565270079633275e-12
+    }
+   ],
+   "settings": {
+    "chi0": 1.0
+   }
+  }
+ },
+ "door": "code/transport (case.rs::transport_case)",
+ "reference": "解析不变性：P-C 项按构造在不动点上恒等消去，故定态与 d_pc 无关。接受档 rel < 1e-9 取内核自己那道门 `transport.rs::the_pereverzev_corrigan_fixed_point_is_independent_of_d_pc` 的自报值。",
+ "settings": {
+  "max_inner": 4000,
+  "n_rho": 41,
+  "steady": "dt = inf, steps = 1",
+  "theta": 1.0,
+  "tol": 1e-13
+ },
+ "stagnation_control": {
+  "answer": "本盒内无一停滞：每一点都收敛",
+  "mechanism": "闭包对梯度有界且饱和（g→∞ 时 chi → chi0 (p1+p2)），不是 P-C 要对付的那类不封顶 / 带阈值的刚性闭包",
+  "question": "裸环（d_pc = 0）在刚度盒里停不停滞——判据要的对照",
+  "rows": [
+   {
+    "chi_dynamic_range": 8.0,
+    "converged": true,
+    "inner_iterations": 43,
+    "p1": 0.25,
+    "p2": 1.75,
+    "residual": 6.815647344426975e-14
+   },
+   {
+    "chi_dynamic_range": 21.0,
+    "converged": true,
+    "inner_iterations": 69,
+    "p1": 0.25,
+    "p2": 5.0,
+    "residual": 5.926230027500073e-14
+   },
+   {
+    "chi_dynamic_range": 81.0,
+    "converged": true,
+    "inner_iterations": 137,
+    "p1": 0.25,
+    "p2": 20.0,
+    "residual": 9.743471840830941e-14
+   },
+   {
+    "chi_dynamic_range": 321.0,
+    "converged": true,
+    "inner_iterations": 263,
+    "p1": 0.25,
+    "p2": 80.0,
+    "residual": 7.012504846313362e-14
+   },
+   {
+    "chi_dynamic_range": 36.0,
+    "converged": true,
+    "inner_iterations": 67,
+    "p1": 0.05,
+    "p2": 1.75,
+    "residual": 6.283270119050147e-14
+   },
+   {
+    "chi_dynamic_range": 100.99999999999999,
+    "converged": true,
+    "inner_iterations": 111,
+    "p1": 0.05,
+    "p2": 5.0,
+    "residual": 8.514534762566266e-14
+   },
+   {
+    "chi_dynamic_range": 401.0,
+    "converged": true,
+    "inner_iterations": 223,
+    "p1": 0.05,
+    "p2": 20.0,
+    "residual": 7.54366977012935e-14
+   },
+   {
+    "chi_dynamic_range": 1600.9999999999998,
+    "converged": true,
+    "inner_iterations": 433,
+    "p1": 0.05,
+    "p2": 80.0,
+    "residual": 9.519761592257324e-14
+   },
+   {
+    "chi_dynamic_range": 176.0,
+    "converged": true,
+    "inner_iterations": 77,
+    "p1": 0.01,
+    "p2": 1.75,
+    "residual": 6.782397500034588e-14
+   },
+   {
+    "chi_dynamic_range": 500.99999999999994,
+    "converged": true,
+    "inner_iterations": 129,
+    "p1": 0.01,
+    "p2": 5.0,
+    "residual": 8.50030755129159e-14
+   },
+   {
+    "chi_dynamic_range": 2001.0000000000002,
+    "converged": true,
+    "inner_iterations": 262,
+    "p1": 0.01,
+    "p2": 20.0,
+    "residual": 8.80722988709328e-14
+   },
+   {
+    "chi_dynamic_range": 8001.0,
+    "converged": true,
+    "inner_iterations": 495,
+    "p1": 0.01,
+    "p2": 80.0,
+    "residual": 8.476161698332172e-14
+   }
+  ]
+ }
+}

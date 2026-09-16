@@ -19,10 +19,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**11** 条
-- 判决 (verdict)：成立 8 · 不成立 **1** · 未判 2 · 未评估 0
-- 新鲜度 (freshness)：当前 11 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 11 · 已被取代 0
+- 记录 (records)：**12** 条
+- 判决 (verdict)：成立 8 · 不成立 **1** · 未判 3 · 未评估 0
+- 新鲜度 (freshness)：当前 12 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 12 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -58,7 +58,7 @@ title: 验证状态 (Verification status)
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [方程组求解与边界条件](tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [闭包插件面：输运系数与源项](tr/closure.md) | 3 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](tr/paradigm.md) | 4 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](tr/pedestal.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](tr/coupling.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
@@ -78,6 +78,7 @@ title: 验证状态 (Verification status)
 | `eq-reconstruct-kefit-twin` | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-reconstruct-twin-truth-recovery` | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 | `eq-surface-chease-fixed-boundary-east` | eq-surface | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| `tr-paradigm-pereverzev` | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

@@ -170,6 +170,8 @@ project:
             - file: benchmark/tr/equations.md
             - file: benchmark/tr/closure.md
             - file: benchmark/tr/paradigm.md
+              children:
+                - file: benchmark/reports/tr-paradigm-pereverzev.md
             - file: benchmark/tr/pedestal.md
             - file: benchmark/tr/coupling.md
             - file: benchmark/tr/conservation.md
