@@ -852,6 +852,21 @@ def build(dev: str, fydata: pathlib.Path, providers: dict | None = None) -> dict
         doc["wall"] = _absent("wall", "the upstream tree carries no wall IDS")
         doc["wall"]["description_2d"] = [{"limiter": {"unit": []}}]
 
+    #: ★the passive conductors, when the A-Box carries them.  Without this the vessel
+    #: units reach the card as `annular` outlines only, and BOTH passive readers go
+    #: silent on them: `case.rs::device_passive` says so in as many words ("units
+    #: carrying only an outline have no elements and contribute nothing"), and
+    #: `passive_set` refuses outright.  Measured on ITER before this: `pf_passive` was
+    #: absent from the card and not one of its fourteen vessel units had an `element`,
+    #: so `code/vstab` and `code/wall` saw NO passive structure on that machine at all.
+    if "pf_passive" in files:
+        doc["pf_passive"], vessel_units = generic_pf_passive(
+            _load(files["pf_passive"]), rel["pf_passive"], VESSEL_GROUP.get(dev))
+        if vessel_units:
+            doc["wall"]["description_2d"][0]["vessel"] = {"unit": vessel_units}
+            doc["fylite:vessel_resistivity_uohm_m"] = \
+                doc["pf_passive"]["vessel"]["resistivity_uohm_m"]
+
     if tf is not None:
         #: ★三个量都过 `_num`：上游有两种写法（裸数，或 `{data|value, unit}` 包装），
         #: 原样抄过来的那一版把包装也抄了进去，下游读到的是一个映射。
@@ -1300,6 +1315,64 @@ def east_pf_passive(doc: dict, src: str):
                                   "fylite:a1": a1, "fylite:a2": a2}]}
                     for r, z, w, h, a1, a2 in rows.get("vessel", [])]
     return out, vessel_units
+
+
+def generic_pf_passive(doc: dict, src: str, vessel_group: str | None = None):
+    """``(pf_passive, vessel_units)`` — loop[] grouped by its own name prefix.
+
+    ★Why this exists beside :func:`east_pf_passive`: that one maps three FIXED prefixes
+    (``VV_INNER`` / ``VV_OUTER`` / ``PLATE``) onto the three group names EAST's readers
+    know, and REFUSES any prefix outside them.  ITER's passive set has fourteen groups
+    (two vessel shells, the OTS ring, two divertor rails, four cryostat ribs, two thermal
+    shields, three port inner shells), so that map cannot be stretched — the group name
+    here is simply the loop prefix, lowercased.
+
+    ★``vessel_group`` names the ONE group that also travels as
+    ``wall.description_2d[0].vessel.unit``.  That path is not decoration: the kernel's
+    ``passive_set`` resolves the group names ``inner_shell`` / ``vessel`` from it, while
+    every other name is looked up under ``pf_passive/<group>``.  Naming it here is what
+    makes ``passive: "inner_shell"`` (the door's default) mean something on this machine.
+
+    Resistivity Ω·m -> μΩ·m (×1e6).  One resistivity per group, or refused.
+    """
+    rows: dict[str, list] = {}
+    eta: dict[str, set] = {}
+    order: list[str] = []
+    for loop in doc.get("loop") or []:
+        group = str(loop["name"]).rsplit("_", 1)[0].lower()
+        if group not in rows:
+            order.append(group)
+        for el in loop.get("element") or []:
+            rows.setdefault(group, []).append(_oblique_rect(el.get("geometry") or {}))
+        eta.setdefault(group, set()).add(float(loop["resistivity"]) * 1e6)
+    out = {"@type": "fyo:pf_passive", "fylite:source": src}
+    vessel_key = (vessel_group or "").lower() or None
+    for group in order:
+        if len(eta[group]) != 1:
+            raise SystemExit(f"pf_passive {group}: resistivities differ {sorted(eta[group])}")
+        out[group] = {"resistivity_uohm_m": eta[group].pop(),
+                      "element": [list(r) for r in rows[group]]}
+    if vessel_key is not None:
+        if vessel_key not in rows:
+            raise SystemExit(f"pf_passive: vessel_group {vessel_key!r} is not one of {sorted(rows)}")
+        #: ★the same elements reached two ways, on purpose — see the docstring.  The
+        #: group keeps its `element` list (so `passive: "vv_inner"` works), and the
+        #: vessel units carry it too (so `passive: "inner_shell"` works).
+        out["vessel"] = {"resistivity_uohm_m": out[vessel_key]["resistivity_uohm_m"],
+                         "fylite:geometry": "wall.description_2d[0].vessel.unit",
+                         "fylite:group": vessel_key}
+        vessel_units = [{"element": [{"geometry": {"geometry_type": "rectangle",
+                                                   "rectangle": {"r": r, "z": z, "width": w, "height": h}},
+                                      "fylite:a1": a1, "fylite:a2": a2}]}
+                        for r, z, w, h, a1, a2 in rows[vessel_key]]
+    else:
+        vessel_units = []
+    return out, vessel_units
+
+
+#: the group a machine's `pf_passive` sends to `wall…vessel.unit` — the one the kernel's
+#: `inner_shell` / `vessel` door names resolve to.  A machine not listed sends none.
+VESSEL_GROUP = {"iter": "vv_inner"}
 
 
 def _namelists(op: dict | None) -> dict:
