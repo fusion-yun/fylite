@@ -1,0 +1,88 @@
+{
+ "@context": "../context.jsonld",
+ "id": "benchmark/records/<域id>-<短名>",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "一句话说清：拿什么，对着谁，量什么",
+  "en": "One line: what was run, against which reference, measuring what"
+ },
+
+ "domain": "<域id>",
+ "requirement": ["FR-EQ-000"],
+ "comparison_kind": "verification | benchmark | validation",
+ "overall_verdict": "pass | fail | inconclusive | unevaluated",
+
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "本仓哪一段在被量（模块 / 函数 / 门）"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:Code",
+   "name": "参考码名",
+   "version": "上游版本 / commit",
+   "license": "许可证",
+   "comment": "参考是**另一个实现**、**解析解**还是**实验/权威算例**——这一栏决定 comparison_kind"
+  }
+ ],
+
+ "criteria": [
+  {
+   "id": "benchmark/records/<域id>-<短名>/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "量的是哪个量（带单位与坐标标签）",
+   "norm": "relative | absolute",
+   "tolerance": {"type": "spo:QuantityValue", "numeric_value": 1e-6},
+   "tolerance_basis": "machine_precision | measured_band | reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "这一条判据量到多少",
+   "criterion": "benchmark/records/<域id>-<短名>/criterion/1",
+   "deviation_literal": "实测偏差（照实写，不round成好看的数）",
+   "verdict": "pass | fail | inconclusive",
+   "caveat": ["这一条哪里不可比 / 改判过没有"]
+  }
+ ],
+
+ "validity_domain": "口径：单位、坐标标签、符号约定（COCOS）、径向标签（rho 还是 Miller r）、适用的参数范围",
+ "caveat": [
+  "★不可比的部分：参考解了哪几道方程、哪些量是**喂进去的**而不是算出来的、哪一档超出参考自报精度"
+ ],
+
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "YYYY-MM-DD",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/<名>.json",
+    "checksum": "sha256:…",
+    "comment": "★每个数据指针都要带 sha256——没有校验和的指针指不住任何东西"
+   }
+  ],
+  "realizes": [
+   {"name": "python/tests/test_x.py::test_y", "comment": "守这条判据的门；★门必须真的在，闸子会验"}
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:…",
+   "comment": "★这次验证跑在哪个内核上。状态页拿它与当前内核比——不一致即**过期**，等着重跑。"
+  }
+ },
+
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "YYYY-MM-DD",
+  "revised": "YYYY-MM-DD",
+  "review_status": "draft | reviewed | superseded",
+  "reviewer": [
+   {"name": "评审人", "role": "physics | numerics | record", "date": "YYYY-MM-DD", "verdict": "accept | reject"}
+  ],
+  "change": [
+   {"record_version": "1.0", "date": "YYYY-MM-DD", "by": "谁", "summary": "首次入册"}
+  ]
+ }
+}

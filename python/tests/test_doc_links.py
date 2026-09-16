@@ -67,9 +67,14 @@ def test_the_published_set_is_not_empty():
     #: 上一版那个「按当时规模标定的整数」的教训仍然管用：判据改成**每一个成章的
     #: 目录都真的贡献了页**——不随部分的数目漂移，空集仍然抓得住。
     per_dir = Counter(p.relative_to(DOCS).parts[0] for p in BOOK_PAGES)
+    #: ★★2026-09-16 又改了一次名单，两处，方向相反：
+    #:   `benchmark` **从豁免里拿掉**——校验册此前只有两页、且一度整册摘出 toc，所以豁免着；
+    #:     现在它是一篇正经的书（导言 + 两张生成件 + 三组十六章），该受这道闸守。
+    #:   `benchmark-legacy` **加进豁免**——旧册 2026-09-16 退役、移出版本控制、不入 toc，
+    #:     磁盘上留一份仅供查阅。它在场却不贡献页是**有意的**，不是 toc 写法变了。
     sections = sorted({d.name for d in DOCS.iterdir()
                        if d.is_dir() and d.name not in ("_build", "figures",
-                                                        "benchmark")})
+                                                        "benchmark-legacy")})
     assert sections, "docs/ 下一个成章的目录都没有——下面每条断言都会空过"
     empty = [d for d in sections if not per_dir[d]]
     assert not empty, (

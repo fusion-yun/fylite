@@ -5,8 +5,12 @@
 逐条比对需求表，而人每次比出来的答案都不一样。同一批毛病还有：`scenario` 指针 30/52、
 数据指针全带 sha256 的 40/52、索引手写漏掉最后一条记录。**这些都不是疏忽，是没有闸。**
 
-本闸把新册 README〈一条记录必须自带的五样〉变成可执行判据。记录为零时它照样有意义：
+本闸把新册 README〈一条记录必须自带的六样〉变成可执行判据。记录为零时它照样有意义：
 它守的是"进来的每一条都合格"，不是"已经进来了多少条"。
+
+★本册按**物理专题两级**组织（一级 3 组 / 二级 16 章），需求号降为记录的属性——所以这里
+除了守记录，还守**轴本身**：域树是否覆盖全部需求、每一章是否真的在盘上且入了 toc、
+判据抄录件是否还跟得上上游 SRS。轴烂了，记录再合格也拼不出一本能读的册子。
 """
 from __future__ import annotations
 
@@ -20,26 +24,42 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 BM = ROOT / "docs" / "benchmark"
-ID_RE = re.compile(r"^(EQ|TR)-\d{3}-[a-z0-9-]+$")
 KINDS = {"verification", "benchmark", "validation"}
 VERDICTS = {"pass", "fail", "inconclusive", "unevaluated"}
+REVIEW = {"draft", "reviewed", "superseded"}
+BEGIN = "<!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->"
+END = "<!-- END GENERATED -->"
+
+
+def read(name: str) -> dict:
+    return json.loads((BM / name).read_text(encoding="utf-8"))
 
 
 def records() -> list[tuple[str, dict]]:
     return [(p.name, json.loads(p.read_text(encoding="utf-8")))
-            for p in sorted((BM / "records").glob("*.jsonld"))]
+            for p in sorted((BM / "records").glob("*.jsonld")) if p.name != "TEMPLATE.jsonld"]
+
+
+def flat_domains() -> list[tuple[dict, dict]]:
+    return [(g, d) for g in read("domains.jsonld")["group"] for d in g["domain"]]
 
 
 @pytest.fixture(scope="module")
 def requirement_ids() -> set[str]:
-    d = json.loads((BM / "requirements.jsonld").read_text(encoding="utf-8"))
-    return {r["id"] for r in d["requirement"]}
+    return {r["id"] for r in read("requirements.jsonld")["requirement"]}
 
+
+@pytest.fixture(scope="module")
+def domain_ids() -> set[str]:
+    return {d["id"] for _, d in flat_domains()}
+
+
+# ─────────────────────────────────────────────────────────────── 轴
 
 def test_the_requirement_tree_is_present_and_sane(requirement_ids):
-    """★需求树是本册的组织轴；它缺了，`coverage.md` 就无从谈起。"""
+    """★需求树是记录的追溯目标；它缺了，`coverage.md` 就无从谈起。"""
     assert len(requirement_ids) >= 50, len(requirement_ids)
-    d = json.loads((BM / "requirements.jsonld").read_text(encoding="utf-8"))
+    d = read("requirements.jsonld")
     for r in d["requirement"]:
         assert r["level"] in ("MUST", "SHOULD", "MAY"), r
         assert r["title"], r
@@ -48,31 +68,149 @@ def test_the_requirement_tree_is_present_and_sane(requirement_ids):
     assert "快照" in json.dumps(d, ensure_ascii=False)
 
 
+def test_the_domain_tree_partitions_every_requirement(requirement_ids):
+    """★★域树是本册的轴：每条需求**恰好**落在一章里。
+
+    落两处，读者会在两章看到同一条判据而不知道以哪一处为准；一处不落，那条需求就从
+    册子上消失了——而消失的缺口不会有人发现。两种都得红。
+    """
+    seen: dict[str, str] = {}
+    dup: list[tuple[str, str, str]] = []
+    for _, d in flat_domains():
+        for rid in d["requirement"]:
+            if rid in seen:
+                dup.append((rid, seen[rid], d["id"]))
+            seen[rid] = d["id"]
+    assert not dup, f"同一条需求落在两章里：{dup}"
+    assert seen.keys() == requirement_ids, {
+        "域树漏了": sorted(requirement_ids - seen.keys()),
+        "域树多了": sorted(seen.keys() - requirement_ids),
+    }
+
+
+def test_every_chapter_exists_and_carries_its_generated_block():
+    """★每一章都要在盘上，且带生成块的标记——没有标记，生成器无处落笔。"""
+    for _, d in flat_domains():
+        p = BM / d["path"]
+        assert p.is_file(), f"章页不在盘上：{d['path']}"
+        text = p.read_text(encoding="utf-8")
+        assert BEGIN in text and END in text, f"{d['path']} 没有生成块标记"
+        #: ★标记之外必须有手写散文。一章只有生成块，等于把「按专题散文阐述」做成了表格
+        prose = text.split(BEGIN)[0]
+        assert len(prose) > 400, f"{d['path']} 的手写散文太短（{len(prose)} 字符）"
+
+
+def test_every_chapter_is_in_the_book():
+    """★★写了而没入 toc 的章，等于没写。
+
+    2026-09-16 实测过这条的反面：上一版把整册从 `myst.yml` 摘出去，站点上什么都不剩，
+    而仓里的文件一个不少——盘上有、书里没有，光看目录看不出来。
+    """
+    toc = (ROOT / "docs" / "myst.yml").read_text(encoding="utf-8")
+    for _, d in flat_domains():
+        assert f"benchmark/{d['path']}" in toc, f"{d['path']} 没有入 docs/myst.yml"
+
+
+# ────────────────────────────────────────────────────────── 判据抄录件
+
+def test_the_transcript_records_which_version_it_copied_from():
+    """★★抄录必须记下**抄的是哪一版**，否则它三个月后就是一份无法追责的转述。
+
+    本册抄录而不引用，是因为上游 SRS 是 `distribution: internal`——公开册的读者打不开它。
+    但抄录会漂，而两份源都还是 `status: WD`。所以每份源记版本号与 sha256。
+    """
+    t = read("transcript.jsonld")
+    assert t["source"], "抄录件没有记源"
+    for s in t["source"]:
+        assert s["checksum"].startswith("sha256:"), s
+        assert s["version"] and s["version"] != "?", s
+        assert s.get("distribution") == "internal", s
+    assert t["criterion_row"], "抄录件一行判据都没有"
+
+
+def test_the_transcript_is_still_current_with_the_upstream_srs():
+    """★源在场时，抄录件必须跟得上；源不在场时，明说盘上这份抄的是哪一版。
+
+    ★**这不是一条可以静默 skip 的闸。** 源不在本检出是**正常**的（SRS 在另一个仓），
+    但"跳过"与"通过"不是一回事：跳过时也要把抄录件记的版本报出来，让读日志的人看得见
+    它有多旧。
+    """
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "benchmark-transcribe.py"), "--check"],
+                       cwd=ROOT, capture_output=True, text=True)
+    if r.returncode == 2:
+        pytest.skip((r.stderr or r.stdout).strip())
+    assert r.returncode == 0, r.stderr or r.stdout
+
+
+# ─────────────────────────────────────────────────────────────── 记录
+
 @pytest.mark.parametrize("name,rec", records() or [pytest.param("<none>", None, marks=pytest.mark.skip(
     reason="新册尚无记录：本闸守的是「进来的每一条都合格」，不是「已经进来了多少条」"))])
-def test_a_record_carries_the_five_things(name, rec, requirement_ids):
-    """README〈一条记录必须自带的五样〉，逐条可执行。"""
-    assert ID_RE.match(rec["id"].split("/")[-1]), f"{name}: id 不合 <域>-<需求号>-<短名>"
+def test_a_record_carries_the_six_things(name, rec, requirement_ids, domain_ids):
+    """README〈一条记录必须自带的六样〉，逐条可执行。"""
+    slug = rec["id"].split("/")[-1]
+    dom = rec.get("domain")
+    assert dom in domain_ids, f"{name}: `domain` 不是域树里的域（{dom}）"
+    assert slug.startswith(dom + "-") and re.fullmatch(r"[a-z0-9-]+", slug), \
+        f"{name}: id 不合 <域id>-<短名>：{slug}"
     assert rec.get("comparison_kind") in KINDS, name
     assert rec.get("overall_verdict") in VERDICTS, name
 
-    #: 五之五：需求。缺它的记录不收——一条不知道自己在验什么的记录，回答不了"覆盖够不够"
+    #: 六之五：需求。缺它的记录不收——一条不知道自己在验什么的记录，回答不了"覆盖够不够"
     reqs = rec.get("requirement")
     assert reqs, f"{name}: 没有 `requirement[]`"
     unknown = [r for r in reqs if r not in requirement_ids]
     assert not unknown, f"{name}: 引用了需求树里没有的号 {unknown}"
 
-    #: 五之一 / 五之三：输入与口径
+    #: 六之一 / 六之三：输入与口径
     assert rec.get("criteria"), f"{name}: 没有判据"
     assert rec.get("validity_domain"), f"{name}: 没有适用域（口径）"
-    #: 五之四：不可比的部分
+    #: 六之四：不可比的部分
     assert rec.get("caveat"), f"{name}: 没有 caveat（不可比的部分）"
 
-    #: 五之二：出处——每个数据指针都要带 sha256。旧册只有 40/52 做到
+    #: 六之二：出处——每个数据指针都要带 sha256。旧册只有 40/52 做到
     for x in rec.get("run", {}).get("has_input", []):
         assert x.get("storage_uri"), f"{name}: 数据项没有 storage_uri"
         assert x.get("checksum", "").startswith("sha256:"), \
             f"{name}: {x.get('storage_uri')} 没有 sha256"
+
+
+@pytest.mark.parametrize("name,rec", records() or [pytest.param("<none>", None, marks=pytest.mark.skip(
+    reason="新册尚无记录"))])
+def test_a_record_carries_its_provenance(name, rec):
+    """★★六之六：追溯——版本、变更、评审，以及它跑在哪个内核上。
+
+    **理由是一条记录会被改判。** 旧册的 `V-23` 改判过两次（τ 的差先归给导电接头，查明后
+    改为超导线圈屏蔽）。改判是记录制度**在起作用**的证据，不是它的污点——所以改判本身
+    必须留在册里，而不是把旧结论悄悄覆盖掉。一份只有末态、没有变更史的记录，读者无从
+    判断它是"一直如此"还是"上周刚翻过案"。
+    """
+    p = rec.get("provenance")
+    assert p, f"{name}: 没有 `provenance`"
+    assert re.fullmatch(r"\d+\.\d+", str(p.get("record_version", ""))), \
+        f"{name}: `record_version` 不合 <主>.<次>"
+    assert p.get("recorded"), f"{name}: 没有 `recorded`（首次入册日期）"
+    assert p.get("review_status") in REVIEW, f"{name}: `review_status` 不合法"
+
+    chg = p.get("change")
+    assert chg, f"{name}: 没有 `change[]`（逐条变更）"
+    for c in chg:
+        assert c.get("record_version") and c.get("date") and c.get("summary"), f"{name}: 变更条目不全 {c}"
+    #: ★变更史的末条必须就是当前版本，否则这份史是断的
+    assert str(chg[-1]["record_version"]) == str(p["record_version"]), \
+        f"{name}: `change[]` 末条 {chg[-1]['record_version']} 不是当前版本 {p['record_version']}"
+
+    #: ★已评审的记录必须点得出评审人；草稿不强求——但那就别声称已评审
+    if p["review_status"] == "reviewed":
+        rv = p.get("reviewer")
+        assert rv, f"{name}: 声称已评审却没有 `reviewer[]`"
+        for x in rv:
+            assert x.get("name") and x.get("date") and x.get("verdict"), f"{name}: 评审条目不全 {x}"
+
+    #: ★这次验证跑在哪个内核上——状态页据此判新鲜度。没有它，一条记录永远显示 unknown
+    k = (rec.get("run") or {}).get("kernel") or {}
+    assert k.get("checksum", "").startswith("sha256:"), \
+        f"{name}: `run.kernel.checksum` 缺失——没有它就判不了这条记录过没过期"
 
 
 @pytest.mark.parametrize("name,rec", records() or [pytest.param("<none>", None, marks=pytest.mark.skip(
@@ -93,12 +231,29 @@ def test_every_gate_a_record_names_actually_exists(name, rec):
                 f"{name}: {path} 里没有 {test}"
 
 
-def test_the_generated_files_are_current():
-    """★`coverage.md` / `index.jsonld` 是生成件。手维护的索引一定会漂——旧册的
-    `reports/README.md` 漏掉最后一条记录，就是因为它跟记录不同源。"""
-    r = subprocess.run([sys.executable, str(ROOT / "tools" / "benchmark-coverage.py"), "--check"],
+# ───────────────────────────────────────────────────────────── 生成件
+
+def test_the_generated_pages_are_current():
+    """★`coverage.md` / `status.md` / `index.jsonld` 与各章的生成块都是生成件。
+
+    手维护的索引一定会漂——旧册的 `reports/README.md` 漏掉最后一条记录，就是因为它跟
+    记录不同源。
+    """
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "benchmark-book.py"), "--check"],
                        cwd=ROOT, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr or r.stdout
+
+
+def test_the_reference_kernel_is_declared():
+    """★★新鲜度的基准是一份**声明件**，不是本机当场算的指纹。
+
+    本页入库并受 `--check` 守；它若嵌入跑命令那台机器的内核指纹，换一台机器门就红，
+    而那不是任何人的错。基准记在 `kernel.json` 里，内核一换就有意更新它——于是所有记在
+    旧内核上的记录当场转 `stale`，CI 据此重跑。这就是「随内核变更自动验证」的接口。
+    """
+    k = json.loads((BM / "kernel.json").read_text(encoding="utf-8"))
+    assert k.get("checksum", "").startswith("sha256:"), k
+    assert k.get("recorded"), k
 
 
 def test_the_retired_register_is_not_tracked():

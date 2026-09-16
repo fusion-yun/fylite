@@ -8,13 +8,13 @@
  "id": "benchmark/requirements",
  "type": "spo:InformationContentEntity",
  "title": {
-  "zh": "需求树快照：新册的组织轴",
-  "en": "Requirement tree — the axis this register is organised on"
+  "zh": "需求树快照：记录的追溯目标（不是本册的轴）",
+  "en": "Requirement tree snapshot — what records trace to (not the axis of this register)"
  },
  "recorded": "2026-09-16",
  "abstract": {
-  "zh": "本册按 FYTOK 的组件需求组织，不按目录。每条记录必须声明它验的是哪几条需求（`requirement[]`），`coverage.md` 由此逐条反查——没有记录覆盖的需求显示为空行。★这是快照，不是真源：需求的真源是 fytok 仓的 SRS，本文件只抄 id / 标题 / 级别 / 上下游，供本册做追溯；SRS 改了要重抽。",
-  "en": "This register is organised on FYTOK component requirements, not on directories."
+  "zh": "★★本册的轴是**物理专题两级**（见 `domains.jsonld`），不是需求树。理由：上游两份 SRS 都标着 `distribution: internal`，本册是公开册，读者打不开它们——于是「本条覆盖 FR-EQ-016」对他们只是一个不可解的记号，判据因此改为**抄录**进来（`transcript.jsonld`）。★但追溯没有丢：每条记录仍声明 `requirement[]`，`coverage.md` 由此逐条反查，没有记录覆盖的需求显示为空行。★**这是快照，不是真源**：需求的真源是 fytok 仓的 SRS，本文件只抄 id / 标题 / 级别 / 上下游，供本册做追溯；SRS 改了要重抽（`tools/benchmark-transcribe.py --check` 会发现）。",
+  "en": "A snapshot, not the source of truth. This register is organised on physics domains (see domains.jsonld); requirement ids remain an attribute of each record so that coverage can still be counted requirement by requirement."
  },
  "source": [
   {
@@ -41,9 +41,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-forward",
    "upstream": "测试",
-   "design": "定边界 Solov'ev 深内点 < 5e-4；自由边界 $I_p$ 约束收敛 rel 1e-6；收敛参数显式回显"
+   "design": "定边界 Solov'ev 深内点 < 5e-4；自由边界 $I_p$ 约束收敛 rel 1e-6；收敛参数显式回显",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-002",
@@ -51,9 +52,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-forward",
    "upstream": "检查 + 测试",
-   "design": "磁族雅可比 = Green 响应阵；正 / 反向共用同一 `ResponseCache`"
+   "design": "磁族雅可比 = Green 响应阵；正 / 反向共用同一 `ResponseCache`",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-003",
@@ -61,9 +63,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-surface",
    "upstream": "测试",
-   "design": "孪生 $W_{\\text{mhd}}$ 对真值体积分闭合；`global_quantities`（$\\beta_p$/$l_i(3)$/$W_{\\text{mhd}}$）随 fit 报告出"
+   "design": "孪生 $W_{\\text{mhd}}$ 对真值体积分闭合；`global_quantities`（$\\beta_p$/$l_i(3)$/$W_{\\text{mhd}}$）随 fit 报告出",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-004",
@@ -71,9 +74,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-evolve",
    "upstream": "测试",
-   "design": "零等离子体极限与纯电路解析轨迹逐位一致；带耦合轨迹收敛"
+   "design": "零等离子体极限与纯电路解析轨迹逐位一致；带耦合轨迹收敛",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-005",
@@ -81,9 +85,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-inverse",
    "upstream": "测试",
-   "design": "已知电流合成场精确回收 rtol 1e-6"
+   "design": "已知电流合成场精确回收 rtol 1e-6",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-006",
@@ -91,9 +96,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "测试",
-   "design": "三级阶梯全通；拾波线圈 $\\hat n\\cdot B$ 投影合成场回收"
+   "design": "三级阶梯全通；拾波线圈 $\\hat n\\cdot B$ 投影合成场回收",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-007",
@@ -101,9 +107,10 @@
    "level": "SHOULD",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "测试",
-   "design": "MSE 全形响应行两档（$A_1..A_4$ 全形 / 简化 pitch 缺省，缺省逐位 parity）· $A_5..A_7$ **Er 门无输入即显式置零并告警**（不静默取值）· $p_{fast}$ 固定扣除（$\\sigma$ 不动）· 全形行走同一几何健康门控不旁路 · 标定 $\\times$ 装配两层分离（包内零标定数值）；**含防假通过活跃性检查**（$A_3$ 项须真改变拟合——中平面 MSE 点的 $B_r$ 列因上下对称恒零，测点须偏中平面方可辨）"
+   "design": "MSE 全形响应行两档（$A_1..A_4$ 全形 / 简化 pitch 缺省，缺省逐位 parity）· $A_5..A_7$ **Er 门无输入即显式置零并告警**（不静默取值）· $p_{fast}$ 固定扣除（$\\sigma$ 不动）· 全形行走同一几何健康门控不旁路 · 标定 $\\times$ 装配两层分离（包内零标定数值）；**含防假通过活跃性检查**（$A_3$ 项须真改变拟合——中平面 MSE 点的 $B_r$ 列因上下对称恒零，测点须偏中平面方可辨）",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-008",
@@ -111,9 +118,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "`FYTOK-SRS-08` S8-FR-RECON-1",
-   "design": "`FYTOK-SDD-03` DE-COMP-03（**已落**〔2026-08-05，REPORT-126 G-10〕：`p_fast_interpolator` 三次样条 + 压强行固定扣除，$\\sigma$ 不进权重、$\\bar\\psi$ 域外 fail-loud；`Measurements.p_fast` 承载）"
+   "design": "`FYTOK-SDD-03` DE-COMP-03（**已落**〔2026-08-05，REPORT-126 G-10〕：`p_fast_interpolator` 三次样条 + 压强行固定扣除，$\\sigma$ 不进权重、$\\bar\\psi$ 域外 fail-loud；`Measurements.p_fast` 承载）",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-009",
@@ -121,9 +129,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "`FYTOK-SRS-08` S8-FR-RECON-1",
-   "design": "`FYTOK-SDD-03` DE-COMP-03"
+   "design": "`FYTOK-SDD-03` DE-COMP-03",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-010",
@@ -131,9 +140,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "测试",
-   "design": "`kinetic_outer` 证书含逐遍 $\\chi^2$/dof 与映射移动；最优遍收官"
+   "design": "`kinetic_outer` 证书含逐遍 $\\chi^2$/dof 与映射移动；最优遍收官",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-011",
@@ -141,9 +151,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "测试",
-   "design": "曲率正则 opt-in；A/B 下简并 $l_i$ 压回（$60\\to ~1.1$）"
+   "design": "曲率正则 opt-in；A/B 下简并 $l_i$ 压回（$60\\to ~1.1$）",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-012",
@@ -151,9 +162,10 @@
    "level": "SHOULD",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-surface",
    "upstream": "测试",
-   "design": "Mercier $D_I$/$D_R$ **已落并对拍闭环**（2026-08-05）：`fyeq.mercier` 逐式转写 CHEASE Eq.19-22；**「须复刻 (s,$\\theta$) Jacobian 机构」前提经原文 Eq.(A.1) 推翻**——$J\\dd\\chi = R\\dd l/\\lvert \\nabla\\Psi\\rvert $ 使 $J_1..J_6$ 为**坐标无关磁面线积分**，本仓等值线核直算。CHEASE 数值桥（tcase2 共同基准 g-file，零插值）实测：中带 $\\bar\\psi\\in[0.15,0.90]$ 相对偏差 $-D_I$ 中位 **7.6e-4** / max 4.8e-2，相关 0.997，符号逐面一致，$-D_I$ 零穿越两码同落 $\\bar\\psi\\approx0.134$；近轴 $\\bar\\psi<0.06$ 偏差 $\\le$13%（g-file 65 点 Z 栅格 + $1/\\rho^2$ 放大）"
+   "design": "Mercier $D_I$/$D_R$ **已落并对拍闭环**（2026-08-05）：`fyeq.mercier` 逐式转写 CHEASE Eq.19-22；**「须复刻 (s,$\\theta$) Jacobian 机构」前提经原文 Eq.(A.1) 推翻**——$J\\dd\\chi = R\\dd l/\\lvert \\nabla\\Psi\\rvert $ 使 $J_1..J_6$ 为**坐标无关磁面线积分**，本仓等值线核直算。CHEASE 数值桥（tcase2 共同基准 g-file，零插值）实测：中带 $\\bar\\psi\\in[0.15,0.90]$ 相对偏差 $-D_I$ 中位 **7.6e-4** / max 4.8e-2，相关 0.997，符号逐面一致，$-D_I$ 零穿越两码同落 $\\bar\\psi\\approx0.134$；近轴 $\\bar\\psi<0.06$ 偏差 $\\le$13%（g-file 65 点 Z 栅格 + $1/\\rho^2$ 放大）",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-013",
@@ -161,9 +173,10 @@
    "level": "SHOULD",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-surface",
    "upstream": "测试",
-   "design": "`file_geqdsk`（原 `fyeq.ingest` 已收敛至此）：EFIT/CHEASE/GEQDSK g-file $\\to$ COCOS 稳健 MXH 边界拟合（7 机型 MAST/DIII-D/JET RMS $\\le 2.4$%）$\\to$ 合成 core_profiles $\\to$ q 锁定定形重解贯通；对真 EFIT q 定性符合（升趋势 / q95 量级，量化 ~30% 受下游近似限）"
+   "design": "`file_geqdsk`（原 `fyeq.ingest` 已收敛至此）：EFIT/CHEASE/GEQDSK g-file $\\to$ COCOS 稳健 MXH 边界拟合（7 机型 MAST/DIII-D/JET RMS $\\le 2.4$%）$\\to$ 合成 core_profiles $\\to$ q 锁定定形重解贯通；对真 EFIT q 定性符合（升趋势 / q95 量级，量化 ~30% 受下游近似限）",
+   "group": "eq"
   },
   {
    "id": "FR-EQ-014",
@@ -171,9 +184,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-vertical",
    "upstream": "测试",
-   "design": "单环自感环向力解析式 / 双环互感力 $\\dv{M}{z}$ / 环心场 $\\mu_0I/2R$ 三锚；系统 $F_z$ 合力 $=0$；对拍 DINA PF scenario database `B_*`/`Fr_*`/`Fz_*` 列"
+   "design": "单环自感环向力解析式 / 双环互感力 $\\dv{M}{z}$ / 环心场 $\\mu_0I/2R$ 三锚；系统 $F_z$ 合力 $=0$；对拍 DINA PF scenario database `B_*`/`Fr_*`/`Fz_*` 列",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-015",
@@ -181,9 +195,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-vertical",
    "upstream": "—",
-   "design": "**待落**（`FYTOK-ADR-119` OI-2）：验收判据为「零等离子体极限下 $\\vb{A}=-\\vb{M}^{-1}\\vb{R}$ 与纯电路解析特征值一致」+「$\\gamma$ 读数随导出出」+「落 `em_coupling` 载体」"
+   "design": "**待落**（`FYTOK-ADR-119` OI-2）：验收判据为「零等离子体极限下 $\\vb{A}=-\\vb{M}^{-1}\\vb{R}$ 与纯电路解析特征值一致」+「$\\gamma$ 读数随导出出」+「落 `em_coupling` 载体」",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-016",
@@ -191,9 +206,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-vertical",
    "upstream": "检查 + 测试",
-   "design": "耦合梯度对互感中心差分逐位（rel<1e-6）· 刚度与衰减指数恒等式 $k=2\\pi I_pnB_z$ 一致（rel<1e-4）· 单回路闭式解 $\\gamma=(1/\\tau_w)k/(k_{\\rm ideal}-k)$ 逐位 · $\\gamma\\propto R_w$ · 三档判读且理想不稳 fail-loud · 壁越远 $\\gamma$ 越大（结构性单调）· 产物为 `mhd_linear` DD 形"
+   "design": "耦合梯度对互感中心差分逐位（rel<1e-6）· 刚度与衰减指数恒等式 $k=2\\pi I_pnB_z$ 一致（rel<1e-4）· 单回路闭式解 $\\gamma=(1/\\tau_w)k/(k_{\\rm ideal}-k)$ 逐位 · $\\gamma\\propto R_w$ · 三档判读且理想不稳 fail-loud · 壁越远 $\\gamma$ 越大（结构性单调）· 产物为 `mhd_linear` DD 形",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-017",
@@ -201,9 +217,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-analytic",
    "upstream": "检查 + 测试",
-   "design": "均匀电流复现解析带边 $q_a=(m-1+(a/b)^{2m})/n$ 与上边 $m/n$（$10^{-10}$）· 壁越近带越窄 · 剖面越峰化带越窄 · 共振面在域内时**拒绝求解** · marginal 点不随网格漂移（$<10^{-9}$）"
+   "design": "均匀电流复现解析带边 $q_a=(m-1+(a/b)^{2m})/n$ 与上边 $m/n$（$10^{-10}$）· 壁越近带越窄 · 剖面越峰化带越窄 · 共振面在域内时**拒绝求解** · marginal 点不随网格漂移（$<10^{-9}$）",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-018",
@@ -211,9 +228,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-analytic",
    "upstream": "检查 + 测试",
-   "design": "$\\alpha=0$ 必稳（符号锚）· 边界处打靶量为零且两侧异号 · $\\alpha_c(s)$ 单调增且大剪切端 $\\alpha_c/s\\in(0.5,0.75)$（教科书斜率）· 截断收敛（24 vs 32 差 $<10^{-3}$）且**记明 16 不够**（偏低 3.6%）· 域内无跨越时报错不外推"
+   "design": "$\\alpha=0$ 必稳（符号锚）· 边界处打靶量为零且两侧异号 · $\\alpha_c(s)$ 单调增且大剪切端 $\\alpha_c/s\\in(0.5,0.75)$（教科书斜率）· 截断收敛（24 vs 32 差 $<10^{-3}$）且**记明 16 不够**（偏低 3.6%）· 域内无跨越时报错不外推",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-019",
@@ -221,9 +239,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "变分路 marginal $q_a$ 复现解析带边（$10^{-4}$）· 与打靶路相符（$2\\times10^{-4}$，含峰化剖面使内部驱动项真正参与的一档）· $\\mathbf A$ 对称（$10^{-14}$）且 $\\mathbf B$ 正定 · 二阶收敛（误差比 $\\in(3.5,4.5)$）· 共振面在域内时拒绝组装"
+   "design": "变分路 marginal $q_a$ 复现解析带边（$10^{-4}$）· 与打靶路相符（$2\\times10^{-4}$，含峰化剖面使内部驱动项真正参与的一档）· $\\mathbf A$ 对称（$10^{-14}$）且 $\\mathbf B$ 正定 · 二阶收敛（误差比 $\\in(3.5,4.5)$）· 共振面在域内时拒绝组装",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-020",
@@ -231,9 +250,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "$1/R^2$ 首谐波对 $-2\\varepsilon$ 的解析锚 · **零测试**（只有 $k=0$ 时跨块严格为 0）· 第 $k$ 阶只连 $\\lvert m-m'\\rvert =k$ · 耦合对幅值线性 · 组装对称 · 单模退化回 FR-EQ-019 · 上下对称位形 sin 谐波作自检量 · 超 Nyquist 拒绝"
+   "design": "$1/R^2$ 首谐波对 $-2\\varepsilon$ 的解析锚 · **零测试**（只有 $k=0$ 时跨块严格为 0）· 第 $k$ 阶只连 $\\lvert m-m'\\rvert =k$ · 耦合对幅值线性 · 组装对称 · 单模退化回 FR-EQ-019 · 上下对称位形 sin 谐波作自检量 · 超 Nyquist 拒绝",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-021",
@@ -241,9 +261,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "$M_{lp}$ 级数自算对书印分数 · 由其复现 Eq. (12.164) 右端数值 · **$W(q_*)=0$ 根复现 1.69** · $(\\pi/4q_{\\rm crit})^2$ 复现 0.21 · $W$ 符号方向与阈值附近单调 · $W_{13}$ **无 $\\pi^2$ 项**（读页最易抄错处，单独钉住）· 低 β 极限**无交叉项** + Kruskal–Shafranov 阈值 · $m=2,3$ 系数恒正 · `source` 非空且含节号式号 · 区间不变号时 fail-loud"
+   "design": "$M_{lp}$ 级数自算对书印分数 · 由其复现 Eq. (12.164) 右端数值 · **$W(q_*)=0$ 根复现 1.69** · $(\\pi/4q_{\\rm crit})^2$ 复现 0.21 · $W$ 符号方向与阈值附近单调 · $W_{13}$ **无 $\\pi^2$ 项**（读页最易抄错处，单独钉住）· 低 β 极限**无交叉项** + Kruskal–Shafranov 阈值 · $m=2,3$ 系数恒正 · `source` 非空且含节号式号 · 区间不变号时 fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-022",
@@ -251,9 +272,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "★**符号解析闭合到 Eq. (12.147)（差恒为零，无自由参数）** · $\\mathbf Q_p$ 退化到 Eq. (12.142) · $\\delta W_F$ 退化到 Eq. (12.143) · ★**直角坐标独立复算**（钉住基矢转动项）· 均匀 $\\mathbf B_p$ 时第二项严格为零 · $n^2$ 标度 · 表面电流极限**无交叉项** · 线弯曲项恒 $\\ge0$ · 三项可分取 · 默认网格已收敛 · 半给极向场/粗网格/非整数 $n$ 一律 fail-loud"
+   "design": "★**符号解析闭合到 Eq. (12.147)（差恒为零，无自由参数）** · $\\mathbf Q_p$ 退化到 Eq. (12.142) · $\\delta W_F$ 退化到 Eq. (12.143) · ★**直角坐标独立复算**（钉住基矢转动项）· 均匀 $\\mathbf B_p$ 时第二项严格为零 · $n^2$ 标度 · 表面电流极限**无交叉项** · 线弯曲项恒 $\\ge0$ · 三项可分取 · 默认网格已收敛 · 半给极向场/粗网格/非整数 $n$ 一律 fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-023",
@@ -261,9 +283,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "★**解析圆对任意 $g$ 到机器精度**（$N=64$ 即达到）· ★★**同心圆壁复现 FR-EQ-021(g) 的 $f_m$ 到 $10^{-15}$**（实现里不出现 $f_m$ ⇒ 独立见证）· 远壁退化回无壁 · 壁越近能量越大（单调）· 随机 $g$ 恒正 · 二次性 · 规范无关 · 变形位形谱收敛 · 形状确实进入结果 · **可解性 / 取向 / 壁相交一律 fail-loud** · ★「变形曲线上参数余弦不合法」已反钉成测试"
+   "design": "★**解析圆对任意 $g$ 到机器精度**（$N=64$ 即达到）· ★★**同心圆壁复现 FR-EQ-021(g) 的 $f_m$ 到 $10^{-15}$**（实现里不出现 $f_m$ ⇒ 独立见证）· 远壁退化回无壁 · 壁越近能量越大（单调）· 随机 $g$ 恒正 · 二次性 · 规范无关 · 变形位形谱收敛 · 形状确实进入结果 · **可解性 / 取向 / 壁相交一律 fail-loud** · ★「变形曲线上参数余弦不合法」已反钉成测试",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-024",
@@ -271,9 +294,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "★★**装配路 vs 闭式路四档 $\\varepsilon$ 的 $\\Delta/\\varepsilon$ 同值**（0.10208）· 边缘点亦一阶收敛 · $k^2=0.5/0.7/0.9$ 上同样成立 · 网格已收敛 · 解析导数对谱求导 · ★$k^2\\ge1$ **拒绝给出**（真发散，不平滑）· ★「有限差分导数会破坏可解性」**已反钉成测试** · 几何/求根 fail-loud"
+   "design": "★★**装配路 vs 闭式路四档 $\\varepsilon$ 的 $\\Delta/\\varepsilon$ 同值**（0.10208）· 边缘点亦一阶收敛 · $k^2=0.5/0.7/0.9$ 上同样成立 · 网格已收敛 · 解析导数对谱求导 · ★$k^2\\ge1$ **拒绝给出**（真发散，不平滑）· ★「有限差分导数会破坏可解性」**已反钉成测试** · 几何/求根 fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-025",
@@ -281,9 +305,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-energy",
    "upstream": "检查 + 测试",
-   "design": "边界落在 $\\Gamma$ 上 $1.4\\times10^{-15}$ · 单叶 · 往返 $2.5\\times10^{-16}$（**含近边界 $0.999$**）· ★圆域**精确退化**为 $f(\\zeta)=a\\zeta$（$c_{k>0}$ 逐位为零）· 圆域边界对应为恒等 · ★★**共形基谱收敛**（6/12/20 模 → $1.3$e-2/$1.1$e-3/**$5.7$e-5**，且每档至少降 3 倍）· 同等模数下**显著优于**星形基（>5×）· 圆域上两基**逐点相同** · ★「朴素 Newton 初值确实跑出单位圆」的**反证** · 逆映射像**必在闭圆盘内** · 边界谱换算（形变泄漏 / 圆域不泄漏）· 不收敛/坏网格/负半径 fail-loud"
+   "design": "边界落在 $\\Gamma$ 上 $1.4\\times10^{-15}$ · 单叶 · 往返 $2.5\\times10^{-16}$（**含近边界 $0.999$**）· ★圆域**精确退化**为 $f(\\zeta)=a\\zeta$（$c_{k>0}$ 逐位为零）· 圆域边界对应为恒等 · ★★**共形基谱收敛**（6/12/20 模 → $1.3$e-2/$1.1$e-3/**$5.7$e-5**，且每档至少降 3 倍）· 同等模数下**显著优于**星形基（>5×）· 圆域上两基**逐点相同** · ★「朴素 Newton 初值确实跑出单位圆」的**反证** · 逆映射像**必在闭圆盘内** · 边界谱换算（形变泄漏 / 圆域不泄漏）· 不收敛/坏网格/负半径 fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-026",
@@ -291,9 +316,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-deltaw",
    "upstream": "检查 + 测试",
-   "design": "★三条禁令**逐条证伪**：L0/L1/oracle 的 `growthrate` 一律为空 · ★★**装配处拦下**「能量原理类 `kind` 却带有限 `growthrate`」 · 本仓侧判读量只在 `parameters`、DD 字段不越界 · L0 标 `q_limit` 且注明**禁称 β 极限** · 气球模 `n_phi` **缺省留空**（显式给才填、非正即拒）· ★表面电流记录**自带** optimistic/柱等价告诫 · `source` 为空即拒（oracle 与标度两处）· ★经验标度**不填任何 DD 计算字段** + 非有限值拒收 · `ideal_flag` **不替调用方猜**（阻性壁竖直模须显式 0）· ★自包含用**语法树**查 import（查原文会被本模块自己的说明文字绊倒——初稿即如此）"
+   "design": "★三条禁令**逐条证伪**：L0/L1/oracle 的 `growthrate` 一律为空 · ★★**装配处拦下**「能量原理类 `kind` 却带有限 `growthrate`」 · 本仓侧判读量只在 `parameters`、DD 字段不越界 · L0 标 `q_limit` 且注明**禁称 β 极限** · 气球模 `n_phi` **缺省留空**（显式给才填、非正即拒）· ★表面电流记录**自带** optimistic/柱等价告诫 · `source` 为空即拒（oracle 与标度两处）· ★经验标度**不填任何 DD 计算字段** + 非有限值拒收 · `ideal_flag` **不替调用方猜**（阻性壁竖直模须显式 0）· ★自包含用**语法树**查 import（查原文会被本模块自己的说明文字绊倒——初稿即如此）",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-027",
@@ -301,9 +327,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-deltaw",
    "upstream": "检查 + 测试",
-   "design": "★★**$g$ 两式互证**（场形式 vs 压强形式，仅在平衡关系下相等；符号计算差恒为零、数值二阶收敛至 2.6e-7）· ★★**绝对尺**（SymPy 精确符号 $f,g$ + 高精度求积，$\\delta W$ 二阶收敛至 $10^{-9}$，误差比 $\\simeq4$）· ★**Suydam 两条独立路**（$\\alpha$ 由 Eq. (32a) 两侧分别算相符 $10^{-6}$；Eq. (33) 左端恒等于 $(\\alpha+4\\beta)B^2/(8B_\\theta^2)$）· 无剪切时判据退化为 $\\dv*{P}{r}>0$ **且有非空对照** · $f\\ge0$ 且奇异面上恰为零 · 纯轴向场必稳（带非空对照）· 本征值符号与最优试探函数的 $\\delta W$ 同号 · ★**非平衡的 $\\dv*{P}{r}$ / $r=0$ 网格 / $m=k=0$ / 未知 form / 非整数 $m$ 一律 fail-loud**"
+   "design": "★★**$g$ 两式互证**（场形式 vs 压强形式，仅在平衡关系下相等；符号计算差恒为零、数值二阶收敛至 2.6e-7）· ★★**绝对尺**（SymPy 精确符号 $f,g$ + 高精度求积，$\\delta W$ 二阶收敛至 $10^{-9}$，误差比 $\\simeq4$）· ★**Suydam 两条独立路**（$\\alpha$ 由 Eq. (32a) 两侧分别算相符 $10^{-6}$；Eq. (33) 左端恒等于 $(\\alpha+4\\beta)B^2/(8B_\\theta^2)$）· 无剪切时判据退化为 $\\dv*{P}{r}>0$ **且有非空对照** · $f\\ge0$ 且奇异面上恰为零 · 纯轴向场必稳（带非空对照）· 本征值符号与最优试探函数的 $\\delta W$ 同号 · ★**非平衡的 $\\dv*{P}{r}$ / $r=0$ 网格 / $m=k=0$ / 未知 form / 非整数 $m$ 一律 fail-loud**",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-028",
@@ -311,9 +338,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-deltaw",
    "upstream": "检查 + 测试",
-   "design": "★★**转录符号闭合**（Eq. 8–10 对 $(u,v)$ 逐点极小化恰得已签核 $f,g$ + 零拉氏量，$S$ 恰为 Eq. 17 分部积分项，极小点 $\\nabla\\cdot\\boldsymbol\\xi=0$ 且 $\\zeta=\\zeta_0$——无自由参数）· ★★**θ-pinch 解析谱**（慢连续谱底 rel $1.4\\times10^{-8}$ · Alfvén 簇 $6\\times10^{-7}$）· ★**边缘同点**（Suydam 家族 $c^*\\approx0.316$ 两侧同判；连续谱地板随网格收敛）· ★★**解析带边复现**（真空标量势边界项：有壁 1.0625 / 无壁 1.0 两支均 $<0.01$）· ★★**窗口闭合对照**（同一 $q_a$：真空强不稳 vs 等离子体填充只剩地板，差 $>10^2$）· 真空系数三独立核（$ka\\to0$ 闭式 $10^{-9}$ · 壁贴边发散 · 单调）· $\\omega^2\\propto1/\\rho$ 精确 · γ 无关边缘 · $\\mathbf M$ 正定 $\\mathbf A$ 对称 · 二阶收敛（比 4.1）· 负压强/非正 γ/坏 ρ fail-loud"
+   "design": "★★**转录符号闭合**（Eq. 8–10 对 $(u,v)$ 逐点极小化恰得已签核 $f,g$ + 零拉氏量，$S$ 恰为 Eq. 17 分部积分项，极小点 $\\nabla\\cdot\\boldsymbol\\xi=0$ 且 $\\zeta=\\zeta_0$——无自由参数）· ★★**θ-pinch 解析谱**（慢连续谱底 rel $1.4\\times10^{-8}$ · Alfvén 簇 $6\\times10^{-7}$）· ★**边缘同点**（Suydam 家族 $c^*\\approx0.316$ 两侧同判；连续谱地板随网格收敛）· ★★**解析带边复现**（真空标量势边界项：有壁 1.0625 / 无壁 1.0 两支均 $<0.01$）· ★★**窗口闭合对照**（同一 $q_a$：真空强不稳 vs 等离子体填充只剩地板，差 $>10^2$）· 真空系数三独立核（$ka\\to0$ 闭式 $10^{-9}$ · 壁贴边发散 · 单调）· $\\omega^2\\propto1/\\rho$ 精确 · γ 无关边缘 · $\\mathbf M$ 正定 $\\mathbf A$ 对称 · 二阶收敛（比 4.1）· 负压强/非正 γ/坏 ρ fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-029",
@@ -321,9 +349,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-deltaw",
    "upstream": "检查 + 测试",
-   "design": "★平衡转录三重自证（GS 解析恒等 · $q(0)$ 回收 · $q(a)$ 对印值 0.5224）· ★★柱极限交叉验证（Chance §4A 对 F2 柱码，15% 内）· ★★**V5 定形边界两行**（$q_0=0.3$: **0.4206** 落五码带 [0.413,0.431] **带内**；$q_0=0.7$: **0.1146** 对 [0.118,0.120] 差 2.9%；判据含**自下单调收敛**）· 取向守卫内置断言 · 非单调/越界网格 fail-loud"
+   "design": "★平衡转录三重自证（GS 解析恒等 · $q(0)$ 回收 · $q(a)$ 对印值 0.5224）· ★★柱极限交叉验证（Chance §4A 对 F2 柱码，15% 内）· ★★**V5 定形边界两行**（$q_0=0.3$: **0.4206** 落五码带 [0.413,0.431] **带内**；$q_0=0.7$: **0.1146** 对 [0.118,0.120] 差 2.9%；判据含**自下单调收敛**）· 取向守卫内置断言 · 非单调/越界网格 fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-030",
@@ -331,9 +360,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-deltaw",
    "upstream": "检查 + 测试",
-   "design": "★$Q_{\\pm1/2}$ 闭式自证 · ★柱极限 NtD 锚 1%（曾抓住 Kress 分裂系数错写=静默一阶污染）· ★★自由边界柱锚 O(ε) 收敛（11.8%→4.2%）· ★★**V5 无壁四行**（0.7077/0.6048/1.3153/1.0205，距最近码 5.4%/7.8%/0.4%/0.9%，容差 15%）· 两支分离"
+   "design": "★$Q_{\\pm1/2}$ 闭式自证 · ★柱极限 NtD 锚 1%（曾抓住 Kress 分裂系数错写=静默一阶污染）· ★★自由边界柱锚 O(ε) 收敛（11.8%→4.2%）· ★★**V5 无壁四行**（0.7077/0.6048/1.3153/1.0205，距最近码 5.4%/7.8%/0.4%/0.9%，容差 15%）· 两支分离",
+   "group": "mhd"
   },
   {
    "id": "FR-EQ-031",
@@ -341,9 +371,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "mhd-deltaw",
    "upstream": "检查 + 测试",
-   "design": "★环隙 Bessel 锚 <1%（符号唯一选出）· ★★**Λ=2 两行**（0.1943/−3.8% · 0.4928/−2.2% ⇒ **Table I 全八行**）· ★★RWM 窗口三段转换点＝解析带边（rwm↔ideal 二分对 1.48225 差 <0.01）· 壁越近 γ 越小 · 几何因子精确/近似互证 · $(r\\xi'/\\xi)_a$ 壁无关逐位 · 三支排序 ω²(Λ=1)≥ω²(Λ)≥ω²(∞) · 守卫（Λε≥1/2 / 厚壁 / m=0 / 域内共振）fail-loud"
+   "design": "★环隙 Bessel 锚 <1%（符号唯一选出）· ★★**Λ=2 两行**（0.1943/−3.8% · 0.4928/−2.2% ⇒ **Table I 全八行**）· ★★RWM 窗口三段转换点＝解析带边（rwm↔ideal 二分对 1.48225 差 <0.01）· 壁越近 γ 越小 · 几何因子精确/近似互证 · $(r\\xi'/\\xi)_a$ 壁无关逐位 · 三支排序 ω²(Λ=1)≥ω²(Λ)≥ω²(∞) · 守卫（Λε≥1/2 / 厚壁 / m=0 / 域内共振）fail-loud",
+   "group": "mhd"
   },
   {
    "id": "FR-TR-001",
@@ -351,9 +382,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-equations",
    "upstream": "测试",
-   "design": "通道集自动生成**且被求解器消费**（描述子驱动，按名加/删通道零求解器改动、既有配置逐位 parity）；五类型 BC + 安培 / 回路电压驱动回归；**$\\dot B_0$ 压缩项已装配**（三通道，`b0_dot_over_b0` 缺省 0 逐位不变；密度道纯散度守恒 / 热道面对流+$V''$ 体积项 / $\\psi$ 道 $\\partial_\\rho(g\\psi)-g'\\psi$ 拆）"
+   "design": "通道集自动生成**且被求解器消费**（描述子驱动，按名加/删通道零求解器改动、既有配置逐位 parity）；五类型 BC + 安培 / 回路电压驱动回归；**$\\dot B_0$ 压缩项已装配**（三通道，`b0_dot_over_b0` 缺省 0 逐位不变；密度道纯散度守恒 / 热道面对流+$V''$ 体积项 / $\\psi$ 道 $\\partial_\\rho(g\\psi)-g'\\psi$ 拆）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-002",
@@ -361,9 +393,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-equations",
    "upstream": "`FYTOK-SRS-07` S7-FR-TR-4",
-   "design": "`FYTOK-SDD-04`（{ref}`fytrans-num-production`）"
+   "design": "`FYTOK-SDD-04`（{ref}`fytrans-num-production`）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-003",
@@ -371,9 +404,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-closure",
    "upstream": "检查 + 测试",
-   "design": "插件按名分派；统一前端共享；沉积积分闭合"
+   "design": "插件按名分派；统一前端共享；沉积积分闭合",
+   "group": "tr"
   },
   {
    "id": "FR-TR-004",
@@ -381,9 +415,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-closure",
    "upstream": "`FYTOK-SRS-07` S7-FR-TR-5",
-   "design": "`FYTOK-SDD-04`（{ref}`fytrans-arch-plugins`）"
+   "design": "`FYTOK-SDD-04`（{ref}`fytrans-arch-plugins`）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-005",
@@ -391,9 +426,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-paradigm",
    "upstream": "测试",
-   "design": "P-C 离散精确对消；定态对 $d_{pc}$ 不敏感；刚性闭包下 Picard 收敛（裸环停滞对照）"
+   "design": "P-C 离散精确对消；定态对 $d_{pc}$ 不敏感；刚性闭包下 Picard 收敛（裸环停滞对照）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-006",
@@ -401,9 +437,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-paradigm",
    "upstream": "检查",
-   "design": "ADR 裁决记录"
+   "design": "ADR 裁决记录",
+   "group": "tr"
   },
   {
    "id": "FR-TR-007",
@@ -411,9 +448,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-paradigm",
    "upstream": "测试",
-   "design": "匹配残差收敛；根差异（PDE vs Newton）记录"
+   "design": "匹配残差收敛；根差异（PDE vs Newton）记录",
+   "group": "tr"
   },
   {
    "id": "FR-TR-008",
@@ -421,9 +459,10 @@
    "level": "SHOULD",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-paradigm",
    "upstream": "检查",
-   "design": "动量通道设计成文（路线 [TBD]；**描述子落点已备**——`momentum_tor` 声明可解析、求解 fail-loud 指向本条）"
+   "design": "动量通道设计成文（路线 [TBD]；**描述子落点已备**——`momentum_tor` 声明可解析、求解 fail-loud 指向本条）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-009",
@@ -431,9 +470,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-pedestal",
    "upstream": "测试",
-   "design": "$\\chi_{ped}$ 反馈收敛到 EPED-NN 目标（金标 <4e-15 档 NN 对拍）"
+   "design": "$\\chi_{ped}$ 反馈收敛到 EPED-NN 目标（金标 <4e-15 档 NN 对拍）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-010",
@@ -441,9 +481,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-pedestal",
    "upstream": "测试",
-   "design": "混合前后含量守恒 1e-12；$\\psi$-态 $q$ 判据"
+   "design": "混合前后含量守恒 1e-12；$\\psi$-态 $q$ 判据",
+   "group": "tr"
   },
   {
    "id": "FR-TR-011",
@@ -451,9 +492,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-coupling",
    "upstream": "检查",
-   "design": "反演核接口成文（路线 [TBD]）"
+   "design": "反演核接口成文（路线 [TBD]）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-012",
@@ -461,9 +503,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-coupling",
    "upstream": "测试 + 检查",
-   "design": "松散步幅回归；体积分取平衡网（源审视）"
+   "design": "松散步幅回归；体积分取平衡网（源审视）",
+   "group": "tr"
   },
   {
    "id": "FR-TR-013",
@@ -471,9 +514,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-coupling",
    "upstream": "检查 + 测试",
-   "design": "权重不入分发件；外置路径装载 + NN 逐位对拍"
+   "design": "权重不入分发件；外置路径装载 + NN 逐位对拍",
+   "group": "tr"
   },
   {
    "id": "FR-TR-014",
@@ -481,9 +525,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-pedestal",
    "upstream": "`FYTOK-SRS-01` **FR-ENG-003**（加料 / 抽气与存量守恒，在内档）",
-   "design": "`FYTOK-SDD-04`（`zerod.integrate_inventory`，复用热储能推进器）"
+   "design": "`FYTOK-SDD-04`（`zerod.integrate_inventory`，复用热储能推进器）",
+   "group": "tr"
   },
   {
    "id": "NR-EQ-001",
@@ -491,9 +536,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-convention",
    "upstream": "检查 + 测试",
-   "design": "外部吞入经 COCOS 换算；无隐式同约定；geqdsk 摄入路 `sp_from_geqdsk` 转 COCOS 17（$\\psi \\times 2\\pi$、$FF'/p'\\div 2\\pi$、$q\\times \\sigma _\\rho \\theta \\phi$、F/p/Ip 不变）"
+   "design": "外部吞入经 COCOS 换算；无隐式同约定；geqdsk 摄入路 `sp_from_geqdsk` 转 COCOS 17（$\\psi \\times 2\\pi$、$FF'/p'\\div 2\\pi$、$q\\times \\sigma _\\rho \\theta \\phi$、F/p/Ip 不变）",
+   "group": "eq"
   },
   {
    "id": "NR-EQ-002",
@@ -501,9 +547,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-forward",
    "upstream": "测试",
-   "design": "见 FR-EQ-001 判据"
+   "design": "见 FR-EQ-001 判据",
+   "group": "eq"
   },
   {
    "id": "NR-EQ-003",
@@ -511,9 +558,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "测试",
-   "design": "后验 / $\\sigma$ 带随 fit 报告出"
+   "design": "后验 / $\\sigma$ 带随 fit 报告出",
+   "group": "eq"
   },
   {
    "id": "NR-EQ-004",
@@ -521,9 +569,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-reconstruct",
    "upstream": "测试",
-   "design": "孪生度量取可观测空间；$\\chi^2\\!\\to\\!0$ 极限"
+   "design": "孪生度量取可观测空间；$\\chi^2\\!\\to\\!0$ 极限",
+   "group": "eq"
   },
   {
    "id": "NR-EQ-005",
@@ -531,9 +580,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-forward",
    "upstream": "检查 + 测试",
-   "design": "自包含**八模块**（numerics/circuits/contour/forces/solver_core/response/inverse_core/reconstruction_core）模块级链无 `spdm`/`fytok`/`sp`（2026-08-05：`greens_function` 死遗留已删；仓内 AST 测试固化，匹配面含 `sp.*`）+ 封锁三根隔离加载"
+   "design": "自包含**八模块**（numerics/circuits/contour/forces/solver_core/response/inverse_core/reconstruction_core）模块级链无 `spdm`/`fytok`/`sp`（2026-08-05：`greens_function` 死遗留已删；仓内 AST 测试固化，匹配面含 `sp.*`）+ 封锁三根隔离加载",
+   "group": "eq"
   },
   {
    "id": "NR-EQ-006",
@@ -541,9 +591,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-03",
    "component": "fyeq",
-   "domain": "EQ",
+   "domain": "eq-convention",
    "upstream": "检查 + 测试",
-   "design": "五族名下标解析全返 `EquilibriumSolver` 子类（实例化按需）；框架无特判（`fytok/model` 非 docstring 零 `fyeq` 字面量）"
+   "design": "五族名下标解析全返 `EquilibriumSolver` 子类（实例化按需）；框架无特判（`fytok/model` 非 docstring 零 `fyeq` 字面量）",
+   "group": "eq"
   },
   {
    "id": "NR-TR-001",
@@ -551,9 +602,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-conservation",
    "upstream": "测试",
-   "design": "见 FR-TR-004/010 判据"
+   "design": "见 FR-TR-004/010 判据",
+   "group": "tr"
   },
   {
    "id": "NR-TR-002",
@@ -561,9 +613,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-conservation",
    "upstream": "测试",
-   "design": "FUSE.jl / TORAX 金标模块级容差；制造解收敛阶"
+   "design": "FUSE.jl / TORAX 金标模块级容差；制造解收敛阶",
+   "group": "tr"
   },
   {
    "id": "NR-TR-003",
@@ -571,9 +624,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-closure",
    "upstream": "检查 + 测试",
-   "design": "`TransportSolver[\"fytrans\"]` 惰性解析；抽象类不 import 实现"
+   "design": "`TransportSolver[\"fytrans\"]` 惰性解析；抽象类不 import 实现",
+   "group": "tr"
   },
   {
    "id": "NR-TR-004",
@@ -581,9 +635,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-conservation",
    "upstream": "检查",
-   "design": "自包含核不 import `spdm` / `fytok`"
+   "design": "自包含核不 import `spdm` / `fytok`",
+   "group": "tr"
   },
   {
    "id": "NR-TR-005",
@@ -591,9 +646,10 @@
    "level": "MUST",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-conservation",
    "upstream": "测试",
-   "design": "LinkML 校验通过；节点数组契约回归"
+   "design": "LinkML 校验通过；节点数组契约回归",
+   "group": "tr"
   },
   {
    "id": "NR-TR-006",
@@ -601,9 +657,10 @@
    "level": "SHOULD",
    "srs": "FYTOK-SRS-04",
    "component": "fytrans",
-   "domain": "TR",
+   "domain": "tr-conservation",
    "upstream": "检查",
-   "design": "AD Jacobian / JAX 设计成文（近期 TODO [TBD]）"
+   "design": "AD Jacobian / JAX 设计成文（近期 TODO [TBD]）",
+   "group": "tr"
   }
  ]
 }

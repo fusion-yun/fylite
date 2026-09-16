@@ -98,14 +98,53 @@ project:
 
     - title: 校验册 (V&V) —— 对着外部答案量到多少
       #: ★★2026-09-16 重起（用户裁定）。上一本在 `docs/benchmark-legacy/`：已移出版本控制、
-      #: 不入 toc、仅供查阅。本册按 FYTOK-SRS-03/04 的**需求树**组织，不按目录。
-      #: ★逐条记录 `records/*.jsonld`、`requirements.jsonld`、`index.jsonld` **不入 toc**：
-      #: 它们是机器读的那一半，按路径被门禁引用；入册的是给人读的那一半。
+      #: 不入 toc、仅供查阅。
+      #:
+      #: ★★**本册按物理专题组织，二级分组**：一级三组（平衡 · MHD 稳定性 · 输运），
+      #: 二级十六章，每章一页散文。需求号**不是轴**——上游两份 SRS 都标 `distribution:
+      #: internal`，本册的读者打不开它们，于是「本条覆盖 FR-EQ-016」对他们只是一个不可解
+      #: 的记号。判据因此是**抄录**进来的（`transcript.jsonld`，带源的 sha256），需求号降为
+      #: 每条记录的 `requirement[]` 字段。
+      #:
+      #: ★一级分组不等于 SRS 组件：MHD 稳定性在 SRS-03 里属 fyeq，这里单列一组——它是
+      #: 三十七条 EQ 需求里的十八条，篇幅与另两组相当，而它问的是另一个问题。
+      #:
+      #: ★逐条记录 `records/*.jsonld`、`domains.jsonld`、`requirements.jsonld`、
+      #: `transcript.jsonld`、`index.jsonld`、`kernel.json` **不入 toc**：它们是机器读的
+      #: 那一半，按路径被门禁引用；入册的是给人读的那一半。
       children:
         - file: benchmark/README.md
-        #: ★生成件（`tools/benchmark-coverage.py`）：每条需求 → 覆盖它的记录；
-        #: 没有记录的需求显示为空行——空行就是缺口，这一页因此能回答「覆盖够不够」。
+        #: ★★两张生成件**各答一个问题，不是同一张表的两种排版**：
+        #:   coverage.md 答「够不够」——需求 × 记录，没有记录的需求显示为空行，空行即缺口；
+        #:   status.md   答「这些记录还作不作数」——版本 / 评审 / 内核 / 新鲜度，CI 读它。
+        #: 两者都由 `tools/benchmark-book.py` 写。
         - file: benchmark/coverage.md
+        - file: benchmark/status.md
+
+        - title: 平衡 (Equilibrium) —— 磁面在哪里，算得准不准
+          children:
+            - file: benchmark/eq/forward.md
+            - file: benchmark/eq/surface.md
+            - file: benchmark/eq/evolve.md
+            - file: benchmark/eq/inverse.md
+            - file: benchmark/eq/reconstruct.md
+            - file: benchmark/eq/convention.md
+
+        - title: MHD 稳定性 (Stability) —— 这个位形稳不稳
+          children:
+            - file: benchmark/mhd/vertical.md
+            - file: benchmark/mhd/analytic.md
+            - file: benchmark/mhd/energy.md
+            - file: benchmark/mhd/deltaw.md
+
+        - title: 输运 (Transport) —— 剖面怎么演化，闭包对不对
+          children:
+            - file: benchmark/tr/equations.md
+            - file: benchmark/tr/closure.md
+            - file: benchmark/tr/paradigm.md
+            - file: benchmark/tr/pedestal.md
+            - file: benchmark/tr/coupling.md
+            - file: benchmark/tr/conservation.md
 
     - file: ACKNOWLEDGEMENTS.md
 site:

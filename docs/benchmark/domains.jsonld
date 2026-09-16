@@ -1,0 +1,155 @@
+{
+ "@context": "context.jsonld",
+ "id": "benchmark/domains",
+ "type": "spo:InformationContentEntity",
+ "title": {
+  "zh": "域树：本册的组织轴（二级分组）",
+  "en": "Domain tree — the two-level axis this register is organised on"
+ },
+ "recorded": "2026-09-16",
+ "abstract": {
+  "zh": "本册按**物理专题**组织，分两级：一级三组（平衡 · MHD 稳定性 · 输运），二级十六章，每章一页散文。★需求号不是轴，是属性——每条记录仍声明 `requirement[]`，但读者读到的是「这一域答什么问题、对着谁量、量到多少」，不是一串他打不开的内部编号。★一级分组不等于 SRS 组件：MHD 稳定性在 FYTOK-SRS-03 里属 fyeq，本册单列一组，因为它是三十七条 EQ 需求里的十八条，篇幅与另两组相当，而它问的是另一个问题（位形稳不稳，不是平衡算不算得准）。组件归属记在每组的 component / srs 上，追溯不丢。",
+  "en": "Organised on physics topics in two levels: three groups (equilibrium, MHD stability, transport) over sixteen chapters. Requirement ids are an attribute of a record, not the axis."
+ },
+ "group": [
+  {
+   "id": "eq",
+   "title": {"zh": "平衡 (Equilibrium)", "en": "Equilibrium"},
+   "component": "fyeq",
+   "srs": "FYTOK-SRS-03",
+   "question": "给定压强与电流剖面（或给定测量），这台机器里的磁面长什么样——算得准不准。",
+   "domain": [
+    {
+     "id": "eq-forward",
+     "path": "eq/forward.md",
+     "title": {"zh": "前向自由边界与 Green 响应核", "en": "Forward free-boundary solve & the Green response kernel"},
+     "question": "从线圈电流与剖面正着解 Grad-Shafranov，解得对不对；正反两向共用的那张响应核是不是同一张。",
+     "requirement": ["FR-EQ-001", "FR-EQ-002", "NR-EQ-002", "NR-EQ-005"]
+    },
+    {
+     "id": "eq-surface",
+     "path": "eq/surface.md",
+     "title": {"zh": "磁面几何、全局量与形状表示", "en": "Flux-surface geometry, global quantities & shape parameterization"},
+     "question": "解出来的磁面上那些积分量（gm1..gm9 · 磁剪切 · Mercier · beta_p · l_i · W_mhd）与形状参数（MXH）算得对不对。",
+     "requirement": ["FR-EQ-003", "FR-EQ-012", "FR-EQ-013"]
+    },
+    {
+     "id": "eq-evolve",
+     "path": "eq/evolve.md",
+     "title": {"zh": "演化自由边界与涡流电路", "en": "Evolving free boundary & eddy-current circuits"},
+     "question": "让平衡随时间走，被动结构里的涡流跟不跟得上——轨迹对不对。",
+     "requirement": ["FR-EQ-004"]
+    },
+    {
+     "id": "eq-inverse",
+     "path": "eq/inverse.md",
+     "title": {"zh": "静态逆解：形状到线圈电流", "en": "Static inverse — shape to coil currents"},
+     "question": "反过来问：要这个形状，线圈该通多大电流。",
+     "requirement": ["FR-EQ-005"]
+    },
+    {
+     "id": "eq-reconstruct",
+     "path": "eq/reconstruct.md",
+     "title": {"zh": "测量重构与约束阶梯", "en": "Reconstruction & the constraint ladder"},
+     "question": "从一炮的磁测量、MSE、动理学剖面反推平衡，反得准不准——★判准必须落在**可观测空间**。",
+     "requirement": ["FR-EQ-006", "FR-EQ-007", "FR-EQ-008", "FR-EQ-009", "FR-EQ-010", "FR-EQ-011", "NR-EQ-003", "NR-EQ-004"]
+    },
+    {
+     "id": "eq-convention",
+     "path": "eq/convention.md",
+     "title": {"zh": "约定与口径：COCOS 与插件接入", "en": "Conventions & plug-in surface — COCOS"},
+     "question": "符号、方向、2π 因子、单位——两个码的数能不能放在一起比，先过这一关。",
+     "requirement": ["NR-EQ-001", "NR-EQ-006"]
+    }
+   ]
+  },
+  {
+   "id": "mhd",
+   "title": {"zh": "MHD 稳定性 (MHD Stability)", "en": "MHD stability"},
+   "component": "fyeq",
+   "srs": "FYTOK-SRS-03",
+   "question": "这个位形稳不稳、能撑到多高的 beta 与多低的 q——不是平衡算得准不准。",
+   "domain": [
+    {
+     "id": "mhd-vertical",
+     "path": "mhd/vertical.md",
+     "title": {"zh": "竖直稳定性、线圈受力与电磁线性模型", "en": "Vertical stability, coil forces & the linear EM model"},
+     "question": "拉长的位形会不会竖直漂走、增长率多快；线圈受多大力；导出的线性模型对不对。",
+     "requirement": ["FR-EQ-014", "FR-EQ-015", "FR-EQ-016"]
+    },
+    {
+     "id": "mhd-analytic",
+     "path": "mhd/analytic.md",
+     "title": {"zh": "解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界", "en": "The analytic ladder — L0 kink q-limit, L1 ballooning"},
+     "question": "教科书有闭式答案的那两级：均匀电流柱的 q 带边、气球模 alpha_c(s) 曲线。★它们是本册的**尺**——尺不准，上面的都不算数。",
+     "requirement": ["FR-EQ-017", "FR-EQ-018"]
+    },
+    {
+     "id": "mhd-energy",
+     "path": "mhd/energy.md",
+     "title": {"zh": "能量原理变分内核 L2", "en": "The energy-principle variational kernel (L2)"},
+     "question": "delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不对、共形映射对不对。",
+     "requirement": ["FR-EQ-019", "FR-EQ-020", "FR-EQ-021", "FR-EQ-022", "FR-EQ-023", "FR-EQ-024", "FR-EQ-025"]
+    },
+    {
+     "id": "mhd-deltaw",
+     "path": "mhd/deltaw.md",
+     "title": {"zh": "全 delta-W、V5 基准与阻性壁模", "en": "Full delta-W, the V5 benchmark & resistive wall modes"},
+     "question": "三项齐全的 delta-W 对着国际 V5 基准的五码带落不落得进去；阻性壁模窗口在哪。",
+     "requirement": ["FR-EQ-026", "FR-EQ-027", "FR-EQ-028", "FR-EQ-029", "FR-EQ-030", "FR-EQ-031"]
+    }
+   ]
+  },
+  {
+   "id": "tr",
+   "title": {"zh": "输运 (Transport)", "en": "Transport"},
+   "component": "fytrans",
+   "srs": "FYTOK-SRS-04",
+   "question": "剖面随时间怎么演化——多通道 1.5D 输运方程解得对不对，闭包对不对。",
+   "domain": [
+    {
+     "id": "tr-equations",
+     "path": "tr/equations.md",
+     "title": {"zh": "方程组求解与边界条件", "en": "The equation set & boundary conditions"},
+     "question": "多通道 1.5D 方程组本身：离散、时间推进、五类边界条件、电流边界驱动。",
+     "requirement": ["FR-TR-001", "FR-TR-002"]
+    },
+    {
+     "id": "tr-closure",
+     "path": "tr/closure.md",
+     "title": {"zh": "闭包插件面：输运系数与源项", "en": "The closure plug-in surface — coefficients & sources"},
+     "question": "chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那个上游码，逐位对不对。",
+     "requirement": ["FR-TR-003", "FR-TR-004", "NR-TR-003"]
+    },
+    {
+     "id": "tr-paradigm",
+     "path": "tr/paradigm.md",
+     "title": {"zh": "求解范式：刚性稳定化与稳态通量匹配", "en": "Solver paradigms — stiff stabilization & flux matching"},
+     "question": "刚性闭包下还收不收敛（Pereverzev-Corrigan）；稳态通量匹配的根找不找得到、找得准不准。",
+     "requirement": ["FR-TR-005", "FR-TR-006", "FR-TR-007", "FR-TR-008"]
+    },
+    {
+     "id": "tr-pedestal",
+     "path": "tr/pedestal.md",
+     "title": {"zh": "台基、锯齿与 0D 存量", "en": "Pedestal, sawteeth & 0D inventory"},
+     "question": "台基高度、锯齿触发与 Kadomtsev 重分布、加料抽气的存量账——守不守得住。",
+     "requirement": ["FR-TR-009", "FR-TR-010", "FR-TR-014"]
+    },
+    {
+     "id": "tr-coupling",
+     "path": "tr/coupling.md",
+     "title": {"zh": "双模、平衡耦合与代理栈", "en": "Dual modes, equilibrium coupling & the surrogate stack"},
+     "question": "解释性/预测性双模、与平衡的松散耦合、NN 代理对上游权重的逐位一致。",
+     "requirement": ["FR-TR-011", "FR-TR-012", "FR-TR-013"]
+    },
+    {
+     "id": "tr-conservation",
+     "path": "tr/conservation.md",
+     "title": {"zh": "守恒、金标 parity 与口径", "en": "Conservation, gold-standard parity & conventions"},
+     "question": "守恒回归到 1e-12；对 FUSE.jl / TORAX 逐模块 parity；IMAS/DD 一致；核自包含。★这一域是横切的——它管的是另外五域的**产出合不合格**。",
+     "requirement": ["NR-TR-001", "NR-TR-002", "NR-TR-004", "NR-TR-005", "NR-TR-006"]
+    }
+   ]
+  }
+ ]
+}

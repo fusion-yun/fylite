@@ -6,12 +6,19 @@
   "zh": "本册记录索引",
   "en": "Index of records"
  },
+ "abstract": {
+  "zh": "★生成件，勿手改：`python tools/benchmark-book.py`。"
+ },
  "recorded": "2026-09-16",
  "statistics": {
+  "groups": 3,
+  "domains": 16,
   "requirements": 57,
   "covered": 0,
   "open_must": 52,
-  "records": 0
+  "records": 0,
+  "stale": 0,
+  "failing": 0
  },
  "record": []
 }

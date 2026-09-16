@@ -1,0 +1,84 @@
+{
+ "reference": "none (no ITER equilibrium is reachable: TEQ / TOSCA are $ITER_SCENARIO_ROOT pointers, FreeGSNKE has no ITER machine)",
+ "inputs": {
+  "card": "dist/facts/device/iter.jsonld",
+  "wall": "fydoc facts/device/iter/abox/providers/wall/metis.jsonld (injected as the limiter unit `metis_wall`)",
+  "target_points": 248,
+  "target_closed_through": [
+   5.15,
+   -3.4
+  ],
+  "target_open_gap_mm": 322.51638853228695,
+  "target_segment_median_mm": 66.67103208771518,
+  "ip_A": 15000000.0,
+  "settings": {
+   "ip": 15000000.0,
+   "n_points": 24.0,
+   "beta0": 0.6,
+   "emp": 2.0,
+   "r0": 6.2,
+   "nu": 3.0,
+   "passes": 16.0,
+   "x_weight": 1.0,
+   "nw": 129.0,
+   "nh": 129.0,
+   "pc_track_r0": 1.0,
+   "limiter": "metis_wall",
+   "position_control": "c4"
+  }
+ },
+ "design": {
+  "seconds": 39.03,
+  "notes": [
+   "coil limits: OFF \u2014 the device carries no supply rating (pf_active/supply) and the plan binds no i_max_aturn, so the anneal's coil currents are unbounded"
+  ],
+  "facts": {
+   "shape_error": 0.030719086752848047,
+   "boundary_gap_rms": 0.024384672062554305,
+   "boundary_gap_max": 0.10098877645885149,
+   "boundary_gap_rms_norm": 0.012303935102302174,
+   "converged": 0.0,
+   "settled": 1.0,
+   "residual": 0.0009651300747597545,
+   "iterations": 78.0,
+   "n_passes": 16.0,
+   "n_at_coil_limit": 0.0,
+   "axis_r": 6.429300824796395,
+   "axis_z": 0.5425889926526988,
+   "xpt_r": 5.1544688382461645,
+   "xpt_z": -3.3417088127974948,
+   "ip": 14999999.999999937,
+   "shape_r0": 6.225912950424336,
+   "shape_a": 1.9733707630597785,
+   "shape_kappa": 1.7940944341554945,
+   "shape_delta_upper": 0.3665403663719831,
+   "shape_delta_lower": 0.4877644844327529,
+   "shape_z0": 0.3632757621230587
+  }
+ },
+ "separatrix_vs_target": {
+  "points": 181,
+  "median_mm": 15.365290716787014,
+  "p95_mm": 69.81068492309292,
+  "max_mm": 123.20486233541676
+ },
+ "currents": {
+  "aturns": [
+   8884811.346681401,
+   793885.697262218,
+   -8132044.293150602,
+   -13458786.05785606,
+   8059431.043220997,
+   -2515945.1573921563,
+   13571834.372796832,
+   -1300084.6301199298,
+   -5577916.106613238,
+   -3693208.2149566854,
+   -9745288.194777215,
+   30612929.176093496
+  ],
+  "max_abs_MAt": 30.612929176093495,
+  "limits_held": false,
+  "unbounded_because": "pf_active carries no supply rating on this card (ITER-FEAT 2000's dev:currentMax belongs to a different coil set \u2014 12 of 12 circles differ from base), so the anneal runs unbounded"
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "reference": "ITER_D_22L4FE v1.0 (CREATE, EFDA/03-1108 D2, 2004-03-03) Table 4.1.a; ITER_D_22FPWQ v4.0 for the vessel toroidal resistance",
+ "device_card": "fydoc facts/device/iter/abox/static/now/pf_passive.jsonld -> tools/abox-to-facts.py",
+ "settings": {
+  "nu": 8,
+  "nv": 8
+ },
+ "sets": {
+  "vv_inner": {
+   "groups": "vv_inner",
+   "n_elements": 135,
+   "tau_1_s": 0.2909319405602875,
+   "tau_2_s": 0.15553225529539894,
+   "R_toroidal_parallel_uOhm": 16.345893098177886,
+   "L_uniform_mode_uH": 5.4829757110595665
+  },
+  "vv_outer": {
+   "groups": "vv_outer",
+   "n_elements": 151,
+   "tau_1_s": 0.3042253619302809,
+   "tau_2_s": 0.16595254948538238,
+   "R_toroidal_parallel_uOhm": 14.299630474193934,
+   "L_uniform_mode_uH": 5.112557866393389
+  },
+  "vv_both": {
+   "groups": "vv_inner,vv_outer",
+   "n_elements": 286,
+   "tau_1_s": 0.5689224597854089,
+   "tau_2_s": 0.29868297860125587,
+   "R_toroidal_parallel_uOhm": 7.627222635717898,
+   "L_uniform_mode_uH": 5.065749387259574,
+   "sc_screened": {
+    "a_fixed_0p25_1fil": {
+     "L_uniform_uH": 3.2042045154481777,
+     "tau_1_s": 0.36072473467914934,
+     "tau_2_s": 0.23456304398762967
+    },
+    "a_rect_1fil": {
+     "L_uniform_uH": 2.9151625493928317,
+     "tau_1_s": 0.33150315611414294,
+     "tau_2_s": 0.21941343689421589
+    },
+    "a_rect_3x3": {
+     "L_uniform_uH": 2.740042867329731,
+     "tau_1_s": 0.31568895666599506,
+     "tau_2_s": 0.20949211780573845
+    },
+    "door": {
+     "tau_1_s": 0.33193064844991405,
+     "tau_2_s": 0.21978452627349873,
+     "n_coils": 12,
+     "how": "code/wall with screen_coils=1 (kernel eliminates the coils itself; coil self-L from 8x8 filaments)"
+    },
+    "door_vs_record_side_rel": 0.0012895573628382007
+   }
+  },
+  "vv_ots": {
+   "groups": "vv_inner,vv_outer,ts",
+   "n_elements": 287,
+   "tau_1_s": 0.5833860712213238,
+   "tau_2_s": 0.30488619768485814,
+   "R_toroidal_parallel_uOhm": 7.537624522984824,
+   "L_uniform_mode_uH": 5.076128006596952,
+   "sc_screened": {
+    "a_fixed_0p25_1fil": {
+     "L_uniform_uH": 3.211973279769267,
+     "tau_1_s": 0.37165529381123696,
+     "tau_2_s": 0.23979424442665198
+    },
+    "a_rect_1fil": {
+     "L_uniform_uH": 2.922606953484202,
+     "tau_1_s": 0.3417903117424307,
+     "tau_2_s": 0.2250736099748631
+    },
+    "a_rect_3x3": {
+     "L_uniform_uH": 2.7474135351447644,
+     "tau_1_s": 0.32569673786255693,
+     "tau_2_s": 0.21543840285318724
+    },
+    "door": {
+     "tau_1_s": 0.3421873661570446,
+     "tau_2_s": 0.2254038144435372,
+     "n_coils": 12,
+     "how": "code/wall with screen_coils=1 (kernel eliminates the coils itself; coil self-L from 8x8 filaments)"
+    },
+    "door_vs_record_side_rel": 0.001161690080066169
+   }
+  },
+  "vv_ots_ports": {
+   "groups": "vv_inner,vv_outer,ts,port_upper,port_eq,port_lower",
+   "n_elements": 299,
+   "tau_1_s": 0.8839955388823599,
+   "tau_2_s": 0.4444934050503468,
+   "R_toroidal_parallel_uOhm": 6.103311343174703,
+   "L_uniform_mode_uH": 5.213406738739584
+  }
+ },
+ "screening": {
+  "what": "the PF/CS circuits enter CREATE's plasmaless system with ZERO resistance (22L4FE p.2: 'All resistances (in SC coils, voltage amplifiers, connections) are neglected'); zero-resistance loops conserve flux and SCREEN the vessel modes.  L_eff = M_vv - M_vc M_cc^-1 M_cv (Schur complement).",
+  "mutuals": "Maxwell coaxial-ring formula, validated against the kernel's M (off-diagonal median -0.0094 %, p95 0.168 %)",
+  "topology_independent": {
+   "12_independent_coils": {
+    "L_uniform_uH": 2.9226,
+    "tau_1_s": 0.3418,
+    "tau_2_s": 0.2251
+   },
+   "11_circuit_loops_tab_2_1_b_f": {
+    "L_uniform_uH": 2.9226,
+    "tau_1_s": 0.3418,
+    "tau_2_s": 0.2257
+   }
+  },
+  "coil_geometry_independent": {
+   "card_2ACJT3_v3_1": {
+    "tau_1_s": 0.3418
+   },
+   "22L4FE_table_2_1_a": {
+    "tau_1_s": 0.3395
+   }
+  },
+  "door": "code/wall gained `screen_coils` (2026-09-16): the kernel performs the same Schur elimination, so this reading is no longer computed record-side. The record-side value is kept beside it as an independent cross-check."
+ },
+ "literature": {
+  "vv_toroidal_resistance_uOhm": 7.9,
+  "vv_poloidal_resistance_uOhm": 4.1,
+  "create_tau1_s": [
+   0.3623,
+   0.3705
+  ],
+  "create_tau2_s": [
+   0.2385,
+   0.244
+  ],
+  "create_model": "two concentric shells, inner 57 conductors (8 simulating the OTS) + outer 50; meshed thickness raised 60 -> 150 mm with eta_eq = 2.5 eta = 1.90 uOhm.m; PF/CS circuits carried with zero resistance"
+ },
+ "checks": {
+  "R_toroidal_rel_to_literature": -0.03452878028887374,
+  "L_uniform_unscreened_uH": 5.065749387259574,
+  "L_uniform_screened_uH": 2.9151625493928317,
+  "tau1_screened_vs_create_nl": -0.05660968329442262,
+  "tau1_screened_band": [
+   0.32569673786255693,
+   0.37165529381123696
+  ],
+  "tau1_door_screened_vv_ots": 0.3421873661570446,
+  "tau1_door_vs_create_nl": -0.05551375612187526
+ }
+}
