@@ -324,12 +324,17 @@ def test_the_prose_actually_points_at_the_reports():
     ★这条守的是「读者点得到」，与 `test_every_record_has_a_report_and_the_book_lists_it`
     守的「书里列得到」不是一回事，两条都要。
     """
-    pages = [BM / "coverage.md", BM / "status.md"]
+    pages = [BM / "README.md", BM / "coverage.md", BM / "status.md"]
     pages += [BM / d["path"] for _, d in flat_domains()]
     blob = "\n".join(p.read_text(encoding="utf-8") for p in pages if p.is_file())
     missing = [name.removesuffix(".jsonld") for name, _ in records()
                if f"reports/{name.removesuffix('.jsonld')}.md" not in blob]
     assert not missing, f"这些记录的报告，正文里一处也没链到：{missing}"
+
+    #: ★收敛说明同理：2026-09-16 实测它入了 toc、也构建成页，**正文里却一处也没链到**——
+    #: 与报告那次是同一个病。入 toc 只保证它在书里，不保证读者走得到。
+    for p in sorted((BM / "summary").glob("*.md")) if (BM / "summary").is_dir() else []:
+        assert f"summary/{p.name}" in blob, f"收敛说明 {p.name}，正文里一处也没链到"
 
 
 def test_the_round_summaries_are_in_the_book():

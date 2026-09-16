@@ -1,0 +1,166 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-closure-dt-burn-astra",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "DT 燃烧的 α 加热：份额对分支比、总量对 ASTRA，以及内核不给的那一项",
+  "en": "D-T alpha heating: the branching share, the total against ASTRA, and the split the kernel does not give"
+ },
+ "domain": "tr-closure",
+ "requirement": [
+  "FR-TR-004"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "inconclusive",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite",
+  "comment": "能力 `code/zerod`，算例 `zerod-iter-15ma`，201 步；取 p_fus 最大的那一步"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "DT 分支比 3.5 / 17.6",
+   "comment": "★**这不是另一个码，是一个常数**：DT 聚变每 17.6 MeV 里 3.5 MeV 归 α。所以这一条是**验证级**的判据，容差该取机器精度量级，不该是实测带。"
+  },
+  {
+   "type": "spo:Code",
+   "name": "ASTRA",
+   "version": "ITER 15 MA inductive at burn（CASE-01，153 个径向点）",
+   "comment": "ASTRA 自己的 D-T α 答案：加热道与它留下的快离子布居。本处不重跑。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-closure-dt-burn-astra/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "α 份额 p_alpha / p_fus 对分支比 3.5/17.6 的相对偏差",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.001
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判据 1e-3 不是实测带：分支比是**常数**，这一条本该到舍入。放到 1e-3 已经很宽——留给 α 能量里被快离子带走那一小部分的口径差。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-dt-burn-astra/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "α 总功率对 ASTRA 的体积分",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.2
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★这一条**判不了**，理由见 finding：两侧不在同一工作点，且体积分要一个本处没有的几何。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-dt-burn-astra/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "α 功率的电子 / 离子分配",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.05
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★**内核不给这一项**——见 finding 与 open_defect。判据先立在这里等它。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★α 份额 —— **不成立**：一个本该精确的数差了 1.2 %",
+   "criterion": "benchmark/records/tr-closure-dt-burn-astra/criterion/1",
+   "measured_deviation": 0.01225142857142858,
+   "bound": "upper",
+   "deviation_literal": "实测份额 0.20130，分支比 0.19886，相对偏差 +0.0123（判据 1e-3，**超出约 12 倍**）",
+   "verdict": "fail",
+   "caveat": [
+    "★★**这一条与工作点无关**：不管剖面多热多稠，每次 DT 反应的 α 份额都是 3.5/17.6。所以它不像下面两条那样受「两侧不在同一点」拖累——**它是一个干净的、可判的偏差**。",
+    "★可能的来源：α 能量里被快离子带走而未计入加热道的那一部分，或反应率积分里对 17.6 MeV 取了别的值。归因需要内核侧查，本册只记到「差多少、该多少」为止。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★α 总功率对 ASTRA —— **判不了**",
+   "criterion": "benchmark/records/tr-closure-dt-burn-astra/criterion/2",
+   "bound": "reading",
+   "deviation_literal": "fylite 67.5 MW · ASTRA 体积分 ≈ 101.5 MW（圆截面近似，R0 = 6.2 m），相对差 -0.3348",
+   "verdict": "inconclusive",
+   "caveat": [
+    "★★**两侧不在同一个工作点**：fylite 0D 的剖面是**喂进去的**（峰化因子给定），实测 te(0) = 20 keV · ne(0) = 1e+20 m^-3；ASTRA 的是自洽燃烧解，te(0) = 27 keV · ne(0) = 1.13e+20 m^-3（低 25.8 % / 11.4 %）。**更冷更稀的等离子体本来就该少产 α**，这 33 % 里有多少是工作点、多少是反应率，本条分不开。",
+    "★**体积分的几何是我补的**，不是 ASTRA 给的：用 dV = 4π²R₀ρdρ 的圆截面近似（R₀ = 6.2 m）。ITER 是拉长带三角形变的截面，这一步本身就有十几个百分点的量级误差。**所以这个 −33 % 不该被当成一个测量值使用。**",
+    "★要让这一条可判，得让两侧跑同一个工作点——那需要 1.5D 演化到自洽燃烧，而不是 0D 的给定剖面。见本域缺口。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★α 的电子 / 离子分配 —— **内核不给**",
+   "criterion": "benchmark/records/tr-closure-dt-burn-astra/criterion/3",
+   "bound": "reading",
+   "deviation_literal": "ASTRA 轴上 e 份额 0.5848 · i 份额 0.4145；fylite **没有这一项**",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**这是记名的内核缺口**（2026-09-16 用户裁定「内核欠缺的功能也保留」）：`code/zerod` 只吐出 α 的**总**功率，不吐出它在电子道与离子道之间怎么分。而这一分配决定了 Te 与 Ti 各自被加热多少——**对 1.5D 演化是必需项，不是装饰**。",
+    "★判据（5 %）先立在这里，等内核补上这一项就能判。",
+    "★参考侧自己也有一处值得记：ASTRA 的 e + i 之和对它自己的总量，最大差 0.0463——**不是零**。所以即便内核补上，这一条的容差也不该压到比这更紧。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "剖面对照（读数，不判）",
+   "bound": "reading",
+   "deviation_literal": "fylite te(0) 20 keV / ti(0) 18 keV / ne(0) 1e+20 m^-3；ASTRA 27 / 23.5 / 1.13e+20（相对 -0.258 / -0.234 / -0.114）",
+   "verdict": "inconclusive",
+   "caveat": [
+    "★fylite 这一侧的剖面是**输入**（0D 的峰化因子），不是算出来的——所以这一行是**记两侧各自在哪个点上**，不是判谁准。读数入册是为了让上面那条「判不了」有据可查。"
+   ]
+  }
+ ],
+ "validity_domain": "fylite：能力 `code/zerod`，算例 `zerod-iter-15ma`（ITER 15 MA 感应场景，201 步，取 p_fus 最大那一步，t = 1 s）。剖面由峰化因子给定，**不是自洽解**。ASTRA：ITER 15 MA inductive 的燃烧点，153 个径向点，给 ne / te / ti / n_DT / n_alpha（快与热）/ p_alpha 及其 e、i 分量。★两侧的径向标签不同（fylite 用归一 rho，ASTRA 另给 rho_m），剖面对照只在轴上逐点取，不做整条重采样。",
+ "caveat": [
+  "★★**本条唯一干净可判的是 α 份额那一条**，因为它与工作点无关。另外两条一条受工作点拖累、一条内核没有——**三条各有各的性质，所以整体判 inconclusive 而不是给一个干脆的判决**。",
+  "★**哪些量是喂进去的**：fylite 侧的 ne / te / ti 剖面、Ip、加热功率都是输入；算出来的是 p_fus、p_alpha 与 v_loop。把「剖面对不上」读成「算错了」是这一域最容易犯的错。",
+  "★**ASTRA 侧不在本处重跑**：它是 sha256 索引的归档表。",
+  "★另记一处**输出面的毛病**：本次 0D 运行的 `q` 迹里带 −9e40 量级的哨兵值（平顶之外的段），下游若不过滤会被它污染。已记在本条，等内核侧决定是给 NaN 还是不给。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-16",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/dt_burn_astra_metrics.json",
+    "checksum": "sha256:2b8d73c7dfa6b62afb726446746b2d47a1e8c291e82ec08ad436959f9a2fb37d",
+    "comment": "本条读数：两侧的标量与剖面（当日实跑 + ASTRA 归档表抽出）"
+   },
+   {
+    "storage_uri": "FYDOC-CASE-01-astra/corpus/iter15ma_astra_burn.csv",
+    "checksum": "sha256:6dc1c70b94ef31c8ae8513522e847fdba47495ed64425a44306bd43adb5f326e",
+    "comment": "★ASTRA 侧原件（实验/参考类，指针 + sha256）"
+   }
+  ],
+  "realizes": [],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "comment": "★本条**尚无门**：`docs/benchmark/readings/` 里有读数，但还没有一道 pytest 守它。这是记名的下一步，见 open_defect。"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-16",
+  "revised": "2026-09-16",
+  "review_status": "draft",
+  "open_defect": "2026-09-16 记名保留两处（用户裁定「不改内核，保留负面结果」「内核欠缺的功能也保留」）：〔一〕α 份额偏 +1.23 %，而分支比是常数、本该到舍入——干净的可判偏差，等内核查；〔二〕`code/zerod` **不给 α 的电子/离子分配**，ASTRA 给（轴上 0.585 / 0.414），这一项对 1.5D 演化是必需的，判据已立、等内核补。★另记：本条尚无守它的门，需补一道 pytest。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-16",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：DT 燃烧的 α 加热；份额判 fail，总量判不了，e/i 分配是内核缺口"
+   }
+  ]
+ }
+}

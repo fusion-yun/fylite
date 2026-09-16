@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 10,
-  "open_must": 43,
-  "records": 12,
+  "covered": 11,
+  "open_must": 42,
+  "records": 13,
   "stale": 0,
   "failing": 1
  },
@@ -162,6 +162,19 @@
    "requirement": [
     "FR-EQ-003",
     "FR-EQ-012"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-closure-dt-burn-astra",
+   "domain": "tr-closure",
+   "path": "records/tr-closure-dt-burn-astra.jsonld",
+   "comparison_kind": "benchmark",
+   "overall_verdict": "inconclusive",
+   "requirement": [
+    "FR-TR-004"
    ],
    "record_version": "1.0",
    "review_status": "draft",
