@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "38d2c509108de36a";
+pub const DIGEST: &str = "5010cfba420aa576";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -33,6 +33,7 @@ pub const TABLES: &[Table] = &[
         Slot { key: "ne", path: "profiles_1d/electrons/density", units: "m^-3", rank: "1d" },
         Slot { key: "te", path: "profiles_1d/electrons/temperature", units: "eV", rank: "1d" },
         Slot { key: "ti", path: "profiles_1d/t_i_average", units: "eV", rank: "1d" },
+        Slot { key: "pressure_th", path: "profiles_1d/pressure_thermal", units: "Pa", rank: "1d" },
         Slot { key: "zeff", path: "profiles_1d/zeff", units: "1", rank: "1d" },
         Slot { key: "ni", path: "profiles_1d/fylite:ion_density", units: "m^-3", rank: "1d" },
         Slot { key: "omega", path: "profiles_1d/rotation_frequency_tor_sonic", units: "s^-1", rank: "1d" },
@@ -494,6 +495,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "p_aux_lh", shape: "nt", units: "W", gloss: "the wave's share of it (0 without a wave)" },
         Row { key: "j_lh", shape: "n", units: "A.m^-2", gloss: "the wave-driven current the last step used (0 without a wave)" },
         Row { key: "ohm", shape: "n", units: "W.m^-3", gloss: "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel or on the first step)" },
+        Row { key: "p_fus_dens", shape: "n", units: "W.m^-3", gloss: "the fusion power density the last step used (n_D n_T <sigma v> E_fus)" },
+        Row { key: "p_aux_dens", shape: "n", units: "W.m^-3", gloss: "the auxiliary heating density the last step deposited (electrons + ions)" },
     ] },
     Block { name: "EVOLVE_HEAT_PARAMS", rows: &[
         Row { key: "b0", shape: "1", units: "T", gloss: "on-axis field of the metric" },
@@ -800,6 +803,7 @@ pub const CODES: &[Code] = &[
         Param { key: "accept_tol", value_type: "float", default: "0.0", required: false, via: "discharge_case" },
         Param { key: "anneal_hi", value_type: "float", default: "0.10", required: false, via: "discharge_case" },
         Param { key: "anneal_lo", value_type: "float", default: "0.005", required: false, via: "discharge_case" },
+        Param { key: "b0", value_type: "float", default: "f64::NAN", required: false, via: "discharge_case" },
         Param { key: "beta0", value_type: "float", default: "0.55", required: false, via: "discharge_case" },
         Param { key: "box_max_iter", value_type: "float", default: "600.0", required: false, via: "discharge_case" },
         Param { key: "box_relax", value_type: "float", default: "0.5", required: false, via: "discharge_case" },
@@ -910,6 +914,7 @@ pub const CODES: &[Code] = &[
         Param { key: "fmrhomax", value_type: "float", default: "", required: false, via: "evolve" },
         Param { key: "fuel_centre", value_type: "float", default: "1.0", required: false, via: "evolve" },
         Param { key: "fuel_mix", value_type: "string", default: "", required: false, via: "species_physics_from" },
+        Param { key: "fuel_rate", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "fuel_width", value_type: "float", default: "0.25", required: false, via: "evolve" },
         Param { key: "gas_albedo", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "gas_e0_ev", value_type: "float", default: "3.0", required: false, via: "evolve" },

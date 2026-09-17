@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '38d2c509108de36a'
+DIGEST = '5010cfba420aa576'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -27,6 +27,7 @@ TABLES = {
             'ne': {"path": 'profiles_1d/electrons/density', "units": 'm^-3', "rank": '1d'},
             'te': {"path": 'profiles_1d/electrons/temperature', "units": 'eV', "rank": '1d'},
             'ti': {"path": 'profiles_1d/t_i_average', "units": 'eV', "rank": '1d'},
+            'pressure_th': {"path": 'profiles_1d/pressure_thermal', "units": 'Pa', "rank": '1d'},
             'zeff': {"path": 'profiles_1d/zeff', "units": '1', "rank": '1d'},
             'ni': {"path": 'profiles_1d/fylite:ion_density', "units": 'm^-3', "rank": '1d'},
             'omega': {"path": 'profiles_1d/rotation_frequency_tor_sonic', "units": 's^-1', "rank": '1d'},
@@ -538,6 +539,8 @@ BLOCKS = {
         {'key': 'p_aux_lh', 'shape': 'nt', 'units': 'W', 'gloss': "the wave's share of it (0 without a wave)"},
         {'key': 'j_lh', 'shape': 'n', 'units': 'A.m^-2', 'gloss': 'the wave-driven current the last step used (0 without a wave)'},
         {'key': 'ohm', 'shape': 'n', 'units': 'W.m^-3', 'gloss': "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel or on the first step)"},
+        {'key': 'p_fus_dens', 'shape': 'n', 'units': 'W.m^-3', 'gloss': 'the fusion power density the last step used (n_D n_T <sigma v> E_fus)'},
+        {'key': 'p_aux_dens', 'shape': 'n', 'units': 'W.m^-3', 'gloss': 'the auxiliary heating density the last step deposited (electrons + ions)'},
     ],
     'EVOLVE_HEAT_PARAMS': [
         {'key': 'b0', 'shape': '1', 'units': 'T', 'gloss': 'on-axis field of the metric'},
@@ -843,6 +846,7 @@ CODE_PARAMS = {
         'accept_tol': {'key': 'accept_tol', 'type': 'float', 'via': 'discharge_case', 'default': '0.0', 'required': False},
         'anneal_hi': {'key': 'anneal_hi', 'type': 'float', 'via': 'discharge_case', 'default': '0.10', 'required': False},
         'anneal_lo': {'key': 'anneal_lo', 'type': 'float', 'via': 'discharge_case', 'default': '0.005', 'required': False},
+        'b0': {'key': 'b0', 'type': 'float', 'via': 'discharge_case', 'default': 'f64::NAN', 'required': False},
         'beta0': {'key': 'beta0', 'type': 'float', 'via': 'discharge_case', 'default': '0.55', 'required': False},
         'box_max_iter': {'key': 'box_max_iter', 'type': 'float', 'via': 'discharge_case', 'default': '600.0', 'required': False},
         'box_relax': {'key': 'box_relax', 'type': 'float', 'via': 'discharge_case', 'default': '0.5', 'required': False},
@@ -953,6 +957,7 @@ CODE_PARAMS = {
         'fmrhomax': {'key': 'fmrhomax', 'type': 'float', 'via': 'evolve'},
         'fuel_centre': {'key': 'fuel_centre', 'type': 'float', 'via': 'evolve', 'default': '1.0', 'required': False},
         'fuel_mix': {'key': 'fuel_mix', 'type': 'string', 'via': 'species_physics_from'},
+        'fuel_rate': {'key': 'fuel_rate', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'fuel_width': {'key': 'fuel_width', 'type': 'float', 'via': 'evolve', 'default': '0.25', 'required': False},
         'gas_albedo': {'key': 'gas_albedo', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'gas_e0_ev': {'key': 'gas_e0_ev', 'type': 'float', 'via': 'evolve', 'default': '3.0', 'required': False},
