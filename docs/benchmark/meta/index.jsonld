@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 19,
-  "open_must": 34,
-  "records": 21,
+  "covered": 23,
+  "open_must": 30,
+  "records": 23,
   "stale": 0,
   "failing": 1
  },
@@ -107,9 +107,10 @@
    "comparison_kind": "verification",
    "overall_verdict": "pass",
    "requirement": [
-    "NR-EQ-005"
+    "NR-EQ-005",
+    "NR-TR-004"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -273,6 +274,19 @@
    "freshness": "current"
   },
   {
+   "id": "benchmark/records/tr-coupling-nn-weights-external",
+   "domain": "tr-coupling",
+   "path": "records/tr-coupling-nn-weights-external.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-013"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
    "id": "benchmark/records/tr-paradigm-pereverzev",
    "domain": "tr-paradigm",
    "path": "records/tr-paradigm-pereverzev.jsonld",
@@ -282,6 +296,20 @@
     "FR-TR-005"
    ],
    "record_version": "1.2",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-pedestal-sawtooth-kadomtsev",
+   "domain": "tr-pedestal",
+   "path": "records/tr-pedestal-sawtooth-kadomtsev.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-010",
+    "NR-TR-001"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },

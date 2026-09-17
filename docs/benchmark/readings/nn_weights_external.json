@@ -1,0 +1,25 @@
+{
+ "what": "FR-TR-013 的实测：NN 代理的权重在哪、怎么进来、缺了会怎样",
+ "nn_weights": {
+  "comment": "★分发件与源码里是否存在权重数据。",
+  "const_f64_weight_tables_in_nn_rs": 0,
+  "weightish_strings_in_archive": 6,
+  "weightish_strings_are_symbols": true,
+  "api_takes_weights_as_argument": "nn::forward(shape: &Shape, weights: &[f64], xn: &[f64])",
+  "npz_versioned_in_repo": [
+   "models/epednn.npz",
+   "models/qlknn_7_11.npz",
+   "models/sat2_em_d3d_azf-1.npz"
+  ],
+  "licences_beside_them": [
+   "EPEDNN-LICENSE",
+   "TGLFNN-LICENSE",
+   "FUSION-SURROGATES-LICENSE",
+   "TGLFNN-NOTICE.md",
+   "FUSION-SURROGATES-NOTICE.md"
+  ],
+  "wheel_includes": "fylite*  （python/pyproject.toml 的 packages.find；models/ 在 python/ 之外）",
+  "external_path_env": "FYLITE_NN_DIR -> fylite.nn.load；缺它则在用到的那一点抛 NNDataMissing",
+  "reference_outputs_in_npz": 0
+ }
+}

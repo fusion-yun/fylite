@@ -147,9 +147,20 @@ def cell(text: str) -> str:
 def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
                   crit: dict[str, list[dict]], srs_ver: dict[str, str]) -> str:
     mine = [r for r in recs if r.get("domain") == d["id"]]
+    #: ★★**覆盖看的是全册，不是本域。** 章页的记录表列的是「属于本域的记录」（那是它该列的），
+    #: 但「这条需求覆盖了没有」必须与 coverage.md 同一口径——否则同一条需求会在一页显示
+    #: 「已覆盖」、在另一页显示「空缺」，而两页都是生成的，**谁也发现不了**。
+    #: ★这种跨域覆盖是真实存在的：`NR-EQ-005` 与 `NR-TR-004` 问的是同一件事（核自包含），
+    #: 一份证据同时答两条需求，而那份证据只能挂在一个域下。
     #: ★与 coverage.md 同一口径：什么都没判的记录不算覆盖（见 `evaluates_anything`）
-    by_req = {rid: [r for r in mine if rid in (r.get("requirement") or []) and evaluates_anything(r)]
+    by_req = {rid: [r for r in recs if rid in (r.get("requirement") or []) and evaluates_anything(r)]
               for rid in d["requirement"]}
+    #: 覆盖它的记录不在本域时，要在表里点名说清它在哪——不然读者在本域的记录表里找不到它
+    elsewhere = {rid: [r for r in by_req[rid] if r.get("domain") != d["id"]] for rid in d["requirement"]}
+
+    #: ★章页在 domains/<组>/<域>.md，回到 benchmark/ 的相对深度；本域无记录时也要用得上，
+    #: 所以定义在表的循环外面
+    up = "../" * (len(pathlib.PurePosixPath(d["path"]).parts) - 1)
 
     L = [BEGIN, ""]
 
@@ -198,7 +209,6 @@ def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
         for r in sorted(mine, key=lambda x: x["id"]):
             p = r.get("provenance", {})
             refs = " · ".join(x.get("name", "?") for x in (r.get("compared_reference") or []))
-            up = "../" * (len(pathlib.PurePosixPath(d["path"]).parts) - 1)
             slug = r["id"].split("/")[-1]
             L.append(f"| [`{slug}`]({up}reports/{slug}.md) "
                      f"| {KIND_ZH.get(r.get('comparison_kind'), '?')} "
@@ -211,6 +221,19 @@ def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
     else:
         L += ["★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，"
               "本册还没有拿出任何一条对着外部答案量过的记录来回应。", ""]
+
+    # ——— 本域需求被**别的域**的记录覆盖的那几条
+    cross = {rid: v for rid, v in elsewhere.items() if v}
+    if cross:
+        L += ["### 覆盖它的记录在别的域", "",
+              "★这几条本域需求由**别处**的记录答了——同一份证据同时回答两条需求时，"
+              "它只能挂在一个域下。上面的记录表列的是「属于本域的记录」，所以这里点名说清它在哪。", "",
+              "| 需求 | 覆盖它的记录 | 它属于哪一域 |", "| :--- | :--- | :--- |"]
+        for rid, rs in cross.items():
+            for r in rs:
+                slug = r["id"].split("/")[-1]
+                L.append(f"| `{rid}` | [`{slug}`]({up}reports/{slug}.md) | {r.get('domain', '—')} |")
+        L.append("")
 
     # ——— 缺口
     open_must = [rid for rid in d["requirement"]

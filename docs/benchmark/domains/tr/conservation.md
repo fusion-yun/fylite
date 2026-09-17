@@ -61,13 +61,20 @@ title: "守恒、金标 parity 与口径"
 
 ★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，本册还没有拿出任何一条对着外部答案量过的记录来回应。
 
+### 覆盖它的记录在别的域
+
+★这几条本域需求由**别处**的记录答了——同一份证据同时回答两条需求时，它只能挂在一个域下。上面的记录表列的是「属于本域的记录」，所以这里点名说清它在哪。
+
+| 需求 | 覆盖它的记录 | 它属于哪一域 |
+| :--- | :--- | :--- |
+| `NR-TR-001` | [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal |
+| `NR-TR-004` | [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | eq-forward |
+
 ### 缺口
 
-本域 **MUST 级空缺 4 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
-- `NR-TR-001` 守恒性
 - `NR-TR-002` 金标 parity 验证
-- `NR-TR-004` 自包含数值核
 - `NR-TR-005` IMAS / DD 一致性
 
 <!-- END GENERATED -->

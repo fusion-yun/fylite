@@ -1,0 +1,13 @@
+{
+ "what": "FR-TR-010 的实测：锯齿混合的含量守恒与 psi-态 q 判据",
+ "sawtooth": {
+  "comment": "★内核自测 transport::tests 报出的实测值（cargo test -- --nocapture）。算例是构造的：41 节点、V' 线性、psi 抛物，混合半径 0.35 / 0.40。",
+  "content_rel_te": 1.626e-16,
+  "content_rel_ne": 0.0,
+  "q_minus_one_worst": 2.442e-15,
+  "mixed_nodes": 25,
+  "psi_moved_Wb": 0.53856,
+  "band_content": 1e-12,
+  "band_q": 0.02
+ }
+}

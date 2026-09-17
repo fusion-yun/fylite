@@ -49,13 +49,19 @@ title: "台基、锯齿与 0D 存量"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.0 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
 | [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 | METIS | 1.2 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+
+### 覆盖它的记录在别的域
+
+★这几条本域需求由**别处**的记录答了——同一份证据同时回答两条需求时，它只能挂在一个域下。上面的记录表列的是「属于本域的记录」，所以这里点名说清它在哪。
+
+| 需求 | 覆盖它的记录 | 它属于哪一域 |
+| :--- | :--- | :--- |
+| `FR-TR-009` | [`tr-closure-15d-source-switches`](../../reports/tr-closure-15d-source-switches.md) | tr-closure |
 
 ### 缺口
 
-本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-TR-009` 连续台基模型
-- `FR-TR-010` 锯齿触发与 Kadomtsev 重分布
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->

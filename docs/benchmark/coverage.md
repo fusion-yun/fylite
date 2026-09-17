@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**19** 条（33 %）
-- ★**MUST 级空缺 (open MUST)：34 条**
+- 已有记录覆盖 (covered)：**23** 条（40 %）
+- ★**MUST 级空缺 (open MUST)：30 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -158,7 +158,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-009` | MUST | 连续台基模型 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | 验证 | 未判（读数） |
-| `FR-TR-010` | MUST | 锯齿触发与 Kadomtsev 重分布 | — | — | — |
+| `FR-TR-010` | MUST | 锯齿触发与 Kadomtsev 重分布 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 |
 | `FR-TR-014` | MUST | 0D 存量守恒（加料 / 抽气 / 衰变） | [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 |
 
 ## 输运 (Transport) · 双模、平衡耦合与代理栈
@@ -169,7 +169,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-011` | MUST | 解释性 / 分析模式通量反演（路线项） | — | — | — |
 | `FR-TR-012` | MUST | 平衡耦合接口 | — | — | — |
-| `FR-TR-013` | MUST | NN 代理栈与权重外置 | — | — | — |
+| `FR-TR-013` | MUST | NN 代理栈与权重外置 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | 验证 | 成立 |
 
 ## 输运 (Transport) · 守恒、金标 parity 与口径
 
@@ -177,9 +177,9 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NR-TR-001` | MUST | 守恒性 | — | — | — |
+| `NR-TR-001` | MUST | 守恒性 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 |
 | `NR-TR-002` | MUST | 金标 parity 验证 | — | — | — |
-| `NR-TR-004` | MUST | 自包含数值核 | — | — | — |
+| `NR-TR-004` | MUST | 自包含数值核 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
 | `NR-TR-005` | MUST | IMAS / DD 一致性 | — | — | — |
 | `NR-TR-006` | SHOULD | 可微性路线（近期 TODO） | — | — | — |
 
@@ -213,15 +213,11 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-003` | 闭包插件面：输运系数与源项 | 输运系数插件族与统一无量纲前端 |
 | `FR-TR-006` | 求解范式：刚性稳定化与稳态通量匹配 | 耦合隐式块解（可选，候选 ADR） |
 | `FR-TR-007` | 求解范式：刚性稳定化与稳态通量匹配 | 稳态通量匹配 |
-| `FR-TR-010` | 台基、锯齿与 0D 存量 | 锯齿触发与 Kadomtsev 重分布 |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `FR-TR-012` | 双模、平衡耦合与代理栈 | 平衡耦合接口 |
-| `FR-TR-013` | 双模、平衡耦合与代理栈 | NN 代理栈与权重外置 |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
-| `NR-TR-001` | 守恒、金标 parity 与口径 | 守恒性 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
 | `NR-TR-003` | 闭包插件面：输运系数与源项 | 插件接入 |
-| `NR-TR-004` | 守恒、金标 parity 与口径 | 自包含数值核 |
 | `NR-TR-005` | 守恒、金标 parity 与口径 | IMAS / DD 一致性 |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)

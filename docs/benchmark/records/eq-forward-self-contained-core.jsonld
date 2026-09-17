@@ -8,7 +8,8 @@
  },
  "domain": "eq-forward",
  "requirement": [
-  "NR-EQ-005"
+  "NR-EQ-005",
+  "NR-TR-004"
  ],
  "comparison_kind": "verification",
  "overall_verdict": "pass",
@@ -79,7 +80,7 @@
    "quantity_label": "抄录点名的八个模块，在本核里是否都有着落",
    "norm": "identity",
    "tolerance_basis": "reference_self_reported",
-   "comment": "★抄录列的是 **fytok 的 Python 模块名**（numerics / circuits / contour / forces / solver_core / response / inverse_core / reconstruction_core）。本核是 Rust，模块划分不同，**只能按职能对照**——对照表逐条列在 finding 里，★**这是一次翻译，不是逐字核对**，读的人有权知道。"
+   "comment": "★抄录列的是 **fytok 的 Python 模块名**（numerics / circuits / contour / forces / solver_core / response / inverse_core / reconstruction_core）。本核是 Rust，模块划分不同，**只能按职能对照**——对照表逐条列在 finding 里，★**这是一次翻译，不是逐字核对**，读的人有权知道。★★**同一份证据同时答两条需求**：`NR-EQ-005`（平衡侧）与 `NR-TR-004`（输运侧）问的是同一件事——**核是不是自己的**。核只有一个，所以答案也只有一个；为输运侧另写一条记录，会让同一件事有两份**会漂开**的说法。"
   }
  ],
  "findings": [
@@ -165,7 +166,7 @@
   }
  },
  "provenance": {
-  "record_version": "1.1",
+  "record_version": "1.2",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -182,6 +183,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
+   },
+   {
+    "record_version": "1.2",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "★同时声明 `NR-TR-004`（输运侧的自包含数值核）：与 `NR-EQ-005` 是**同一件事**，证据（核 crate 依赖、Cargo.lock 闭包、AST 全包扫描、封锁三根隔离加载）一字未增——★**此前它是「空缺」，只因为没人把已经量过的东西记到输运那一栏**。★生成器同日改为按全册口径判覆盖，否则同一条需求会在 coverage 页显示已覆盖、在域章显示空缺，而两页都是生成的，谁也发现不了。"
    }
   ]
  }
