@@ -147,7 +147,9 @@ def cell(text: str) -> str:
 def chapter_block(g: dict, d: dict, reqs: dict[str, dict], recs: list[dict],
                   crit: dict[str, list[dict]], srs_ver: dict[str, str]) -> str:
     mine = [r for r in recs if r.get("domain") == d["id"]]
-    by_req = {rid: [r for r in mine if rid in (r.get("requirement") or [])] for rid in d["requirement"]}
+    #: ★与 coverage.md 同一口径：什么都没判的记录不算覆盖（见 `evaluates_anything`）
+    by_req = {rid: [r for r in mine if rid in (r.get("requirement") or []) and evaluates_anything(r)]
+              for rid in d["requirement"]}
 
     L = [BEGIN, ""]
 
@@ -406,6 +408,21 @@ def report_md(rec: dict, reqs: dict, where: dict, ref: dict) -> str:
     return "\n".join(L)
 
 
+def evaluates_anything(rec: dict) -> bool:
+    """这条记录是否**真判过点什么**——至少一条 finding 的判决不是 `unevaluated`。
+
+    ★★**覆盖表的口径**：一条记录点了某需求的号，本来就算作覆盖它。可一条记录完全可以
+    只由「内核不给这一项」组成——那样的记录是**把缺口记下来**，不是**把需求验了**。
+    若也算覆盖，「MUST 级空缺」那一栏就会被这种记录悄悄抹平，而抹平的恰好是最该显形的东西。
+    ★所以：**什么都没判的记录，不算覆盖**。它照样出现在域章的记录表里（缺口该被读到），
+    只是不从空缺栏里把那条需求拿走。
+    ★注意判据是「**有没有一条判过**」，不是「是不是全判了」——像 DT 燃烧那条，
+    几格实测加一格记名缺口，它确实验了东西，算覆盖。
+    """
+    fs = rec.get("findings") or []
+    return any((f.get("verdict") or "") != "unevaluated" for f in fs)
+
+
 # ─────────────────────────────────────────────────────────── coverage.md
 
 def coverage_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, dict]],
@@ -415,7 +432,9 @@ def coverage_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, 
     for rec in recs:
         for rid in rec.get("requirement") or []:
             if rid in by_req:
-                by_req[rid].append(rec)
+                #: ★只有真判过东西的记录才算覆盖，见 `evaluates_anything`
+                if evaluates_anything(rec):
+                    by_req[rid].append(rec)
             else:
                 #: ★记录引了需求树里没有的号——不静默忽略：要么 SRS 改了要重抽，要么号写错了
                 orphan.append((rec.get("id", rec["_file"]), rid))
@@ -602,18 +621,26 @@ def status_md(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, di
           "| :--- | :--- | :--- |",
           "| `0` | 全部当前且成立 | 放行 |",
           "| `1` | 有**过期**（内核换了，必须重验）或**未裁定**的不成立 | 拦下 |",
-          "| `3` | 只剩**已裁定保留**的缺口 | 自己决定；缺口与理由都印在上面 |",
+          "| `3` | 只剩记名的缺口：**已裁定保留的不成立**（`◇`），或挂在**成立**记录上的缺口（`◆`） "
+          "| 自己决定；缺口与理由都印在上面 |",
           "| `2` | 前提不在（如抄录件的源不在此检出） | 按环境问题处理，不是判决 |", "",
           "★**为什么 3 要与 1 分开**：一条量化清楚、归属明确、有人裁定保留的缺口，留在册上是**有用**的；"
           "但它若也让流水线红，红就成了常态，而常态的红没有人看——真正新出现的失败会被它盖住。"
           "要把一条 fail 挪进这一档，得在记录的 `provenance.open_defect` 里写明**谁、何时、为什么**保留；"
-          "一个布尔挡不住下一个人把它当成陈年噪声删掉。", ""]
+          "一个布尔挡不住下一个人把它当成陈年噪声删掉。", "",
+          "★★**`◆` 那一类 2026-09-17 才开始报**，此前 `--ci` 只从**判决为不成立**的记录里收缺口，"
+          "于是「判决成立、但记着一处已知窟窿」的那些，本页印着、流水线一条不报——同一件事两个口径。"
+          "★这一类恰恰更该报：一条 fail 自己会喊，而一条「成立，但有个洞」没有别的东西替它说话。"
+          "补上当天就露出 4 条此前一直看不见的（`eq-forward-boundary-rule-vs-kefit` · "
+          "`eq-inverse-iter-reference-separatrix` · `tr-closure-15d-source-switches` · "
+          "`tr-closure-dt-burn-astra`）。", ""]
     return "\n".join(L)
 
 
 def index_jsonld(reqs: dict[str, dict], recs: list[dict], doms: list[tuple[dict, dict]]) -> dict:
     ref = kernel_reference()
-    by_req = {rid: [r for r in recs if rid in (r.get("requirement") or [])] for rid in reqs}
+    by_req = {rid: [r for r in recs if rid in (r.get("requirement") or []) and evaluates_anything(r)]
+              for rid in reqs}
     return {
         "@context": "context.jsonld",
         "id": "benchmark/index",
@@ -705,6 +732,11 @@ def main() -> int:
         failing = [r for r in recs if r.get("overall_verdict") == "fail"]
         known = [r for r in failing if (r.get("provenance") or {}).get("open_defect")]
         fresh_fail = [r for r in failing if r not in known]
+        #: ★★**挂在「成立」记录上的缺口，从前这里一条都不报**（`known` 只从 fail 里筛），
+        #: 而 status.md 是从全部记录里收的——**页面看得见、CI 看不见**，同一件事两个口径。
+        #: 这一类恰恰是更该报的：一条 fail 自己会喊，而一条「成立，但有一处已知的窟窿」
+        #: 没有任何别的东西会替它说话。2026-09-17 补齐，退出码语义不变（仍归第 3 档）。
+        noted = [r for r in recs if r not in failing and (r.get("provenance") or {}).get("open_defect")]
 
         for r in stale:
             print(f"★{r['id']}：**过期**——它跑的内核已不是基准内核，读数不再作数")
@@ -716,13 +748,16 @@ def main() -> int:
                   "（记录里写 provenance.open_defect 与保留的理由）。")
         for r in known:
             p = r.get("provenance") or {}
-            print(f"◇{r['id']}：已裁定保留的缺口 — {p.get('open_defect')}")
+            print(f"◇{r['id']}：已裁定保留的缺口（判决为**不成立**）— {p.get('open_defect')}")
+        for r in noted:
+            p = r.get("provenance") or {}
+            print(f"◆{r['id']}：判决**成立**，但记着一处缺口 — {p.get('open_defect')}")
 
         if stale or fresh_fail:
             return 1
-        if known:
+        if known or noted:
             print(f"{len(recs)} 条记录：无过期、无新的不成立；"
-                  f"另有 {len(known)} 条**已裁定保留**的缺口（退 3）")
+                  f"另有 {len(known)} 条已裁定保留的缺口、{len(noted)} 条挂在成立记录上的缺口（退 3）")
             return 3
         print(f"{len(recs)} 条记录：无过期、无不成立")
         return 0

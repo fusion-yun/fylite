@@ -50,7 +50,7 @@ title: 验证状态 (Verification status)
 
 ### [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md)
 
-2026-09-17 ★**那三道探针的成因未查**（0.30 / 0.33 / 0.53 sigma，而环一族中位 0.031）。真值与测量同出一个无噪声的前向解，按理每道都该好到机器精度，这是个真信号。门已经守住「不许更坏」，但**没有人解释它为什么是这个数**。
+2026-09-17 ★**那三道探针的成因仍未定**（0.30 / 0.33 / 0.53 sigma，而环一族中位 0.031）。★★**一个假说已经实测否掉**：不是 p' / FF' 基张不出真值。真值用 emp = enp = 1（两者随 psi_N 线性），重构只拟合 2 个系数，看着像基不够；但把阶数抬上去**反而更坏**——(npp, nff) 从 (1,1) 到 (2,2)，chi2 0.8514 → 4.599、q0 偏差 -1.19e-03 → -3.15e-01（读数 `twin_basis_order.json`）。★这是经典的病态：磁测量管不住多出来的自由度，多给就往数据管不着的方向跑。★**因此剩下的候选是探针一侧的建模或几何**，未查。
 
 ### [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md)
 
@@ -100,7 +100,7 @@ title: 验证状态 (Verification status)
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
-| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
+| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
@@ -126,7 +126,9 @@ python tools/benchmark-book.py --ci            # 有过期或不成立的记录�
 | :--- | :--- | :--- |
 | `0` | 全部当前且成立 | 放行 |
 | `1` | 有**过期**（内核换了，必须重验）或**未裁定**的不成立 | 拦下 |
-| `3` | 只剩**已裁定保留**的缺口 | 自己决定；缺口与理由都印在上面 |
+| `3` | 只剩记名的缺口：**已裁定保留的不成立**（`◇`），或挂在**成立**记录上的缺口（`◆`） | 自己决定；缺口与理由都印在上面 |
 | `2` | 前提不在（如抄录件的源不在此检出） | 按环境问题处理，不是判决 |
 
 ★**为什么 3 要与 1 分开**：一条量化清楚、归属明确、有人裁定保留的缺口，留在册上是**有用**的；但它若也让流水线红，红就成了常态，而常态的红没有人看——真正新出现的失败会被它盖住。要把一条 fail 挪进这一档，得在记录的 `provenance.open_defect` 里写明**谁、何时、为什么**保留；一个布尔挡不住下一个人把它当成陈年噪声删掉。
+
+★★**`◆` 那一类 2026-09-17 才开始报**，此前 `--ci` 只从**判决为不成立**的记录里收缺口，于是「判决成立、但记着一处已知窟窿」的那些，本页印着、流水线一条不报——同一件事两个口径。★这一类恰恰更该报：一条 fail 自己会喊，而一条「成立，但有个洞」没有别的东西替它说话。补上当天就露出 4 条此前一直看不见的（`eq-forward-boundary-rule-vs-kefit` · `eq-inverse-iter-reference-separatrix` · `tr-closure-15d-source-switches` · `tr-closure-dt-burn-astra`）。

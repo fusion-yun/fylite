@@ -39,6 +39,47 @@ $\chi^2$ 小**不证明前向解对**（那是前向域的事）。
 码的差。** 记录必须把阶梯的档位写进 `validity_domain`，并在 `caveat` 里点明哪些量是
 **喂进去的**而不是算出来的——这一条在重构里尤其关键，因为喂进去的量看起来和算出来的一样。
 
+★★**剩下那五条 MUST，2026-09-17 逐条查过内核，全是能力缺口——照实记在这里。**
+下面的「缺口」一节由生成器列号，这里补的是**为什么**：一份只说「空着」的清单，
+读的人无从判断是没人做，还是做不了。★证据落到具体的行，便于将来有人来补时直接接上。
+
+`FR-EQ-008` **快离子压强外部强迫项**。重构门**有**动理学压强行
+（`pressure` / `pressure_x` / `pressure_weight` / `pressure_sigma_frac`，`case.rs` 的 kinetic rows 段），
+但**没有快离子项**：内核里 `p_fast` 只出现在加热与 bootstrap 一侧
+（`bootstrap_case` 读 `discharge/fylite:p_fast_profile`），重构里一处都没有。
+抄录要的是「$p_{fast}$ 固定扣除（$\sigma$ 不动）」——**要在门内扣、且不动 $\sigma$**；
+眼下只能由调用方自己在外面减掉，而那样 $\sigma$ 就跟着动了。**缺的是门里那一步。**
+
+`FR-EQ-009` **内部约束行几何门控**。★**内核里根本没有 MSE。** 全仓搜 `MSE` / `motional`，
+零命中。抄录那一整段（`FR-EQ-007..009` 共用）讲的是 MSE 全形响应行的两档、$E_r$ 门、
+几何健康门控不旁路、标定与装配两层分离——**这些都建立在有内部约束行之上，而这里一行也没有**。
+★所以这一条不是「门控没做对」，是**被门控的东西还不存在**。
+
+`FR-EQ-010` **kinetic-EFIT 自洽外环接口**。四十个门里没有 `kinetic_outer`，也没有逐遍证书。
+最接近的是 `refit`——它交替「压强形状拟合 + $\beta_p$ 反馈」与一次自由边界求解，
+但那是**输运行进**的一步，不是重构的外环，而且不报逐遍的 $\chi^2/\mathrm{dof}$。
+★顺带一个能说明问题的细节：**重构门连自己的 $\chi^2$ 都不报**——facts 里有 `residual`
+（那是求解器的），没有 $\chi^2$。抄录要的「逐遍 $\chi^2$/dof 与映射移动、最优遍收官」，
+第一件事就没有着落。
+
+`FR-EQ-011` **源剖面曲率正则**。重构门二十余个设置项里**没有任何正则化开关**
+（无 `curv`、无 `reg`、无罚参数）。★★**而它该压的那个简并，这一轮量到了**：
+孪生真值用 `emp = enp = 1`（$p'$ 与 $FF'$ 随 $\psi_N$ 线性），重构用 `npp = nff = 1`（2 个系数）。
+看着像基不够，于是把阶数抬上去——**结果反而更坏**：$(1,1)\to(2,2)$ 时
+$\chi^2$ 从 0.851 涨到 4.60，$q_0$ 偏差从 $-0.12\,\%$ 崩到 $-32\,\%$
+（读数 `twin_basis_order.json`）。**磁测量管不住多出来的自由度，多给就往它管不着的方向跑。**
+★这正是抄录里「A/B 下简并 $l_i$ 压回（$60\to\sim1.1$）」说的那件事——
+**需求的前提在本仓是可复现的，缺的只是压回它的那个机制。**
+
+`NR-EQ-003` **不确定度传播**。重构门吐出 `coefficients`，但不吐协方差、不吐后验、
+不吐 $\sigma$ 带（facts 与 fields 逐项查过）。抄录要的是「后验 / $\sigma$ 带随 fit 报告出」。
+★这一条与上面那条是同一个病的两面：**没有不确定度，就说不清多出来的自由度到底被数据管住了没有**。
+
+★★**这五条一条都没有写成记录，是有意的。** 一条只由「内核不给」组成的记录，会被覆盖表
+算作「已覆盖」，于是把硬缺口从空缺栏里抹掉——**那比空着更坏**。
+生成器 2026-09-17 起也堵住了这条路：什么都没判的记录不计覆盖
+（`evaluates_anything`，由 `test_a_record_that_evaluates_nothing_does_not_count_as_coverage` 守）。
+
 上一册这一域最厚：`B-06` / `B-11` / `B-12`（EAST 重构、对 EFIT-EAST、对原始树 KEFIT）、
 `B-15` / `V-18`（孪生对 KEFIT / 孪生重构）。已退役。
 
@@ -89,7 +130,7 @@ $\chi^2$ 小**不证明前向解对**（那是前向域的事）。
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
-| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.1 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
+| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.2 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
 | [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
 
 ### 缺口

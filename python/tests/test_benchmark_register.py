@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import pathlib
 import re
+import importlib.util
 import subprocess
 import sys
 
@@ -282,6 +283,35 @@ def test_a_finding_carries_a_number_not_only_a_sentence(name, rec):
             assert isinstance(v, (int, float)) and not isinstance(v, bool), \
                 f"{name}[{i}]: `bound` 是 {f['bound']} 却没有数值 `measured_deviation`"
             assert f.get("criterion"), f"{name}[{i}]: 有数却不说它对的是哪条判据"
+
+
+def test_a_record_that_evaluates_nothing_does_not_count_as_coverage():
+    """★★**覆盖表最容易被悄悄糊弄的地方**，守住它。
+
+    一条记录点了某需求的号就算覆盖它——这是本册的口径，本来没问题。可一条记录完全可以
+    **只由「内核不给这一项」组成**：那样的记录是把缺口**记下来**，不是把需求**验了**。
+    若也算覆盖，「MUST 级空缺」那一栏就被这种记录悄悄抹平，而抹平的恰恰是最该显形的东西。
+
+    ★所以口径加一条：**至少有一条 finding 的判决不是 `unevaluated`**，才算覆盖。
+    ★判据是「有没有一条判过」，不是「是不是全判了」——像 DT 燃烧那条，几格实测
+    加一格记名缺口，它确实验了东西，仍算覆盖。
+    ★这一格今天不改变任何输出（眼下没有全 `unevaluated` 的记录）；它守的是将来。
+    """
+    spec = importlib.util.spec_from_file_location("bench_book", ROOT / "tools" / "benchmark-book.py")
+    book = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(book)
+    f = book.evaluates_anything
+    assert f({"findings": [{"verdict": "pass"}]}) is True
+    assert f({"findings": [{"verdict": "fail"}]}) is True
+    assert f({"findings": [{"verdict": "pass"}, {"verdict": "unevaluated"}]}) is True, \
+        "混着实测与缺口的记录仍然算覆盖"
+    assert f({"findings": [{"verdict": "unevaluated"}]}) is False, \
+        "全是记名缺口的记录不该算覆盖——那会把硬缺口从空缺栏里抹掉"
+    assert f({"findings": []}) is False and f({}) is False
+
+    #: ★盘上的记录也照这条口径复核一遍：本册现有的每一条都真判过东西
+    silent = [name for name, rec in records() if not f(rec)]
+    assert not silent, f"这些记录一格都没判，却点着需求号：{silent}"
 
 
 def test_the_figures_are_current_and_match_the_records():
