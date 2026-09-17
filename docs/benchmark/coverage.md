@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**24** 条（42 %）
-- ★**MUST 级空缺 (open MUST)：29 条**
+- 已有记录覆盖 (covered)：**26** 条（45 %）
+- ★**MUST 级空缺 (open MUST)：27 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -136,9 +136,9 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-003` | MUST | 输运系数插件族与统一无量纲前端 | — | — | — |
+| `FR-TR-003` | MUST | 输运系数插件族与统一无量纲前端 | [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | 验证 | 成立 |
 | `FR-TR-004` | MUST | 源项插件族与 exp / imp 契约 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) · [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | 验证 · 对拍 | 未判（读数） · 未判（读数） |
-| `NR-TR-003` | MUST | 插件接入 | — | — | — |
+| `NR-TR-003` | MUST | 插件接入 | [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | 验证 | 成立 |
 
 ## 输运 (Transport) · 求解范式：刚性稳定化与稳态通量匹配
 
@@ -210,14 +210,12 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-EQ-031` | 全 delta-W、V5 基准与阻性壁模 | 理想壁分支与薄壁阻性壁模（E-3 第一级） |
 | `FR-TR-001` | 方程组求解与边界条件 | 多通道 1.5D 输运方程组求解 |
 | `FR-TR-002` | 方程组求解与边界条件 | 边界条件族与电流边界驱动 |
-| `FR-TR-003` | 闭包插件面：输运系数与源项 | 输运系数插件族与统一无量纲前端 |
 | `FR-TR-006` | 求解范式：刚性稳定化与稳态通量匹配 | 耦合隐式块解（可选，候选 ADR） |
 | `FR-TR-007` | 求解范式：刚性稳定化与稳态通量匹配 | 稳态通量匹配 |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `FR-TR-012` | 双模、平衡耦合与代理栈 | 平衡耦合接口 |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
-| `NR-TR-003` | 闭包插件面：输运系数与源项 | 插件接入 |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
 

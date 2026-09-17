@@ -1,0 +1,153 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-closure-plugin-dispatch",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "闭包按名分派：**五个名字五种行为**，而拒绝比成功更能证明它在看名字",
+  "en": "Closure dispatch by name: five names, five behaviours — and the refusals prove it more than the successes"
+ },
+ "domain": "tr-closure",
+ "requirement": [
+  "FR-TR-003"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · code/transport 的 `closure` 分派",
+  "comment": "五个名字：constant · stiff · neoclassical · given · turbulent"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "彼此",
+   "comment": "★本条是**自比**：同一组设置、同一份输入，只换闭包的名字。要判的是「名字有没有被当回事」，参照只能是其余那几个名字。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-closure-plugin-dispatch/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "五个名字给出几种**互不相同**的行为",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 5.0
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★下限格。**一个不看名字的分派器给不出针对名字的行为**——「行为」既包括解出不同的答案，也包括**因不同的理由被拒绝**。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-plugin-dispatch/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "无效名是否被**按名**拒绝并列出有效集",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★防的是「悄悄退回默认闭包」——那种实现会让一个拼错的名字产出一个**看着正常**的答案，而没有人会发现。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-plugin-dispatch/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "统一前端：各闭包的产出契约是否同一套",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★抄录的「统一前端共享」：换闭包只该换**扩散系数**，不该换前端——网格、边界、装配与产出的那组名字都该是同一套。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-plugin-dispatch/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "沉积积分闭合",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-12
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★抄录第三句。★**本条不重测它**，见 finding：同一条抄录判据行已由 `tr-closure-15d-source-switches` 量过，**一个量再量一遍就是两个数一个名字**。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★五个名字，五种行为 —— 拒绝是最好的证据",
+   "criterion": "benchmark/records/tr-closure-plugin-dispatch/criterion/1",
+   "measured_deviation": 5.0,
+   "bound": "lower",
+   "deviation_literal": "2 个跑通且解**互不相同**（解的平方和 9.4878 vs 11.6479）；另 3 个**各自按名拒绝、各自说出缺什么**：`neoclassical` 要the field and the density  · `given` 要chi_given · `turbulent` 要the extension door's answe",
+   "verdict": "pass",
+   "caveat": [
+    "★★**「只有两个跑通」不是这条的弱点，是它的强项。** 五个名字给出**五种不同的行为**：两种解法不同的解，三种**内容各不相同**的拒绝（要 b0 与密度 / 要 chi_given / 要扩展门的答案）。一个忽略名字的分派器产出不了针对名字的缺料清单。",
+    "★另三个之所以跑不起来，是因为它们各自要的输入本条没喂——**那是算例的事，不是分派的事**。★要把它们也跑通需要各自配一组输入，本条没做。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "无效名按名拒绝，并把有效集列出来",
+   "criterion": "benchmark/records/tr-closure-plugin-dispatch/criterion/2",
+   "bound": "identity",
+   "deviation_literal": "传 `no-such-closure` 得到：the kernel refused (-34): closure `no-such-closure` is not 0/constant · 1/stiff · 2/neoclassical · 3/given · turbulent",
+   "verdict": "pass",
+   "caveat": [
+    "★错误串里**把五个有效名都列了出来**——于是拼错名字的人当场知道该写什么，而不是拿到一个看着正常的默认解。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "产出契约只有一套",
+   "criterion": "benchmark/records/tr-closure-plugin-dispatch/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "跑通的闭包输出的键集**种类数 = 1**（11 个键：converged · history · inner_iterations · provenance · residual · rho · settled · source · steps · vprime · y）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这一格的证据面窄，照实说**：只有两个闭包跑通，所以「统一前端」是在**两个**闭包上验的，不是五个。★要把它验满，得给另三个各配一组输入。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "沉积积分闭合 —— **不在这里重测**",
+   "criterion": "benchmark/records/tr-closure-plugin-dispatch/criterion/4",
+   "bound": "reading",
+   "deviation_literal": "同一条抄录判据行（`FR-TR-003` 与 `FR-TR-004` 共用）的这一句，已由 `tr-closure-15d-source-switches` 量到「能量平衡最劣残差 1.15e-13」（判据 1e-12，余量约 9 倍）",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**故意不重测。** 抄录里 `FR-TR-003` 与 `FR-TR-004` 共用同一行判据；同一个量在两条记录里各量一遍，迟早会得到两个数——而**两个数一个名字**正是本册一直在防的事。★这一格标 unevaluated 不是「没验」，是「验在别处、指过去」。"
+   ]
+  }
+ ],
+ "validity_domain": "`code/transport` 的定态用法（`dt = inf`、`steps = 1`、n_rho = 41、tol = 1e-13、d_pc = 0）。★**只换闭包的名字，其余设置与输入逐字相同**——这是本条能把差异归因到分派的前提。★跑通的是 `constant` 与 `stiff` 两个；另三个因缺各自的输入而被拒，本条把拒绝本身当证据。",
+ "caveat": [
+  "★**本条不判哪个闭包算得对**，只判「名字被当回事、前端是同一套」。各闭包的物理准不准是别的记录的事（如 `tr-paradigm-pereverzev`）。",
+  "★★本条**没有门**：四格里三格是当场跑出来的读数，没有一道 pytest 会在分派坏掉时变红。见 open_defect。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/closure_dispatch.json",
+    "checksum": "sha256:9204d561f5ea5c9f8a0067288d3cfca4b67f04d44865ce547c7a5b8295b8672a",
+    "comment": "五个闭包名的逐个结果、输出键集、无效名的拒绝原文（当日实跑）"
+   }
+  ],
+  "realizes": [],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": "2026-09-17 ★★**本条没有门**：分派若退化成「总是走 constant」，本册不会有任何东西变红。补一道很便宜——把这份读数的三格搬进 pytest 即可，没做。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-TR-003` **不是能力缺口**。五个闭包名给出五种行为（2 个解法不同的解 + 3 个内容各异的按名拒绝），无效名被拒且列出有效集，产出契约只有一套。★「沉积积分闭合」那一句指向 `tr-closure-15d-source-switches`已量的 1.15e-13，**不重测**——同一个量量两遍就是两个数一个名字"
+   }
+  ]
+ }
+}

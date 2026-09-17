@@ -1,0 +1,15 @@
+{
+ "what": "NR-TR-003：抽象层在导入期不拖进实现（fylite 的说法：engine 顶层只导标准库）",
+ "engine_modules": 24,
+ "on_import_fylite_engine": {
+  "loaded_total": 180,
+  "heavy": [],
+  "fylite_submodules": [
+   "fylite._fyo_interface",
+   "fylite._paths",
+   "fylite.notice"
+  ]
+ },
+ "gate": "python/tests/test_engine_imports_only_stdlib.py（33 项，实跑）",
+ "closure_dispatch_is_by_name": "见 tr-closure-plugin-dispatch：五个名字五种行为"
+}

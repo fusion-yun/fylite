@@ -1,0 +1,137 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-closure-lazy-plugin-resolution",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "抽象层在导入期不拖进实现：`import fylite.engine` 连 numpy 都不碰",
+  "en": "The abstraction does not drag the implementation in: importing fylite.engine does not even touch numpy"
+ },
+ "domain": "tr-closure",
+ "requirement": [
+  "NR-TR-003"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `fylite.engine`（24 个模块）+ 闭包的按名分派",
+  "comment": "导入它会把什么一并拖进来"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "导入后 `sys.modules` 的增量本身",
+   "comment": "★**参照是解释器自己的记账**：`import` 前后 `sys.modules` 的差，是一个不容争辩的、机器给出的清单。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-closure-lazy-plugin-resolution/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "导入抽象层时被拖进来的**重型依赖**个数（numpy / scipy / h5py / netCDF4）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.0
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★抄录写的是「抽象类不 import 实现」。在 fylite 的说法里，这条不变量落成 `FYL-SDD-01 DE-COMP-03`：**`fylite.engine` 顶层只导标准库，numpy 与重型依赖一律函数内惰性导入**。★取 0 而不是「少」：这是个是非题。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-lazy-plugin-resolution/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "被一并拖进来的其他 fylite 子包个数",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 5.0
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★这一格防的是一个**更隐蔽**的破法：包的 `__init__` 急切导入一切，于是导入任何子模块都会把整个世界拉进来——**而那会让第一格变得不可观测**。"
+  },
+  {
+   "id": "benchmark/records/tr-closure-lazy-plugin-resolution/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "抄录点名的 `TransportSolver[\"fytrans\"]` 惰性解析",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★**本仓没有那个注册表**，见 finding。判据照抄立在这里，不删。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★导入抽象层，连 numpy 都不碰",
+   "criterion": "benchmark/records/tr-closure-lazy-plugin-resolution/criterion/1",
+   "measured_deviation": 0.0,
+   "bound": "upper",
+   "deviation_literal": "`import fylite.engine` 后 `sys.modules` 净增 180 个模块，其中 numpy / scipy / h5py / netCDF4 **0 个**",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★也没有被包的 `__init__` 顺手拖进整个世界",
+   "criterion": "benchmark/records/tr-closure-lazy-plugin-resolution/criterion/2",
+   "measured_deviation": 3.0,
+   "bound": "upper",
+   "deviation_literal": "一并进来的 fylite 子包只有 3 个，且都是轻量的：`fylite._fyo_interface` · `fylite._paths` · `fylite.notice`",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这条不变量曾经不成立，而且没有任何东西能发现**——门自己的抬头把两处破法都记着：〔一〕`engine/provenance.py` 有一句模块级的 `import numpy as np`（**字面文本，差一行就破**）；〔二〕更要命的是，**不变量本身是不可观测的**——`fylite/__init__.py` 急切导入了 `device` · `engine` · `io` · `kernel` · `run` · `scenario`，于是导入任何子模块都会先跑它。★**一条无法观测的不变量不是不变量**，所以第二格必须单列。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★`TransportSolver` 注册表：**本仓没有这个东西**",
+   "criterion": "benchmark/records/tr-closure-lazy-plugin-resolution/criterion/3",
+   "bound": "reading",
+   "deviation_literal": "抄录点名的是 fytok 的 Python 插件注册表（`TransportSolver[\"fytrans\"]` 惰性解析）。fylite 是**协议成员**，不 import 上游生态，也没有这样一个注册表——它的闭包分派在**门的设置项**上按名进行（见 `tr-closure-plugin-dispatch`：五个名字五种行为）",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**这是一次翻译，说清楚而不是含混过去。** 抄录那句话点的是一个**具体的数据结构**；fylite 用另一种结构答同一个问题（**抽象层要不要在导入期知道实现是谁**），而答案是「不要」——上面两格就是它。",
+    "★把「门的设置项按名分派」说成「`TransportSolver` 惰性解析」是冒充，所以这一格标 unevaluated。"
+   ]
+  }
+ ],
+ "validity_domain": "本次检出的 `python/fylite/engine`（24 个模块）。测法：干净解释器里记 `import fylite.engine` 前后 `sys.modules` 的差。★**判的是导入期**——运行期当然要 numpy，那正是「惰性」二字的意思。",
+ "caveat": [
+  "★结构判据会腐烂且腐烂时不出声——本条两格都由 `test_engine_imports_only_stdlib.py`（33 项）守着。★**这是本批输运记录里少有的、门在本仓因而 CI 跑得到的一条。**",
+  "★本条不声称闭包分派**做得好**（那是 `tr-closure-plugin-dispatch`），只声称**抽象层不必先认识实现**。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/lazy_engine_import.json",
+    "checksum": "sha256:01db8e49ebcece6e881ee966f3632c3e63bcce81eb8ae894499da5f519de01c6",
+    "comment": "干净解释器里 import fylite.engine 的 sys.modules 增量（当日实跑）"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "python/tests/test_engine_imports_only_stdlib.py",
+    "comment": "★前两格的门（33 项，实跑，CI 跑得到）"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`NR-TR-003` **不是能力缺口**。导入抽象层净增 180 个模块、重型依赖 0 个、顺带进来的 fylite 子包只 3 个。★`TransportSolver` 注册表那一格如实标 unevaluated：本仓没有那个数据结构，**说成有是冒充**"
+   }
+  ]
+ }
+}

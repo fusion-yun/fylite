@@ -1,0 +1,67 @@
+{
+ "what": "FR-TR-003：插件按名分派 · 统一前端共享 · 沉积积分闭合",
+ "closures": [
+  "constant",
+  "stiff",
+  "neoclassical",
+  "given",
+  "turbulent"
+ ],
+ "runs": {
+  "constant": {
+   "keys": [
+    "converged",
+    "history",
+    "inner_iterations",
+    "provenance",
+    "residual",
+    "rho",
+    "settled",
+    "source",
+    "steps",
+    "vprime",
+    "y"
+   ],
+   "profile_sha": 9.487756257998035,
+   "profile_n": 41
+  },
+  "stiff": {
+   "keys": [
+    "converged",
+    "history",
+    "inner_iterations",
+    "provenance",
+    "residual",
+    "rho",
+    "settled",
+    "source",
+    "steps",
+    "vprime",
+    "y"
+   ],
+   "profile_sha": 11.647908087441428,
+   "profile_n": 41
+  },
+  "neoclassical": {
+   "error": "closure 'neoclassical' needs the field and the density the surfaces are built on: b0 [T], ne_axis [m^-3] (with ne_peaking), and the Miller shape rmaj (R0/a), q9"
+  },
+  "given": {
+   "error": "closure 'given' needs chi_given"
+  },
+  "turbulent": {
+   "error": "the kernel refused (-31): closure `turbulent` needs the extension door's answer bound under transport/fylite:chi_turb"
+  }
+ },
+ "distinct_solutions": 2,
+ "ran": 2,
+ "key_set_kinds": 1,
+ "refusal_for_unknown_name": "the kernel refused (-34): closure `no-such-closure` is not 0/constant · 1/stiff · 2/neoclassical · 3/given · turbulent",
+ "settings": {
+  "n_rho": 41,
+  "dt": "inf",
+  "steps": 1,
+  "tol": 1e-13,
+  "max_inner": 4000,
+  "d_pc": 0.0
+ }
+}

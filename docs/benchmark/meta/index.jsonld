@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 24,
-  "open_must": 29,
-  "records": 24,
+  "covered": 26,
+  "open_must": 27,
+  "records": 26,
   "stale": 0,
   "failing": 1
  },
@@ -270,6 +270,32 @@
     "FR-TR-004"
    ],
    "record_version": "1.2",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-closure-lazy-plugin-resolution",
+   "domain": "tr-closure",
+   "path": "records/tr-closure-lazy-plugin-resolution.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "NR-TR-003"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-closure-plugin-dispatch",
+   "domain": "tr-closure",
+   "path": "records/tr-closure-plugin-dispatch.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-003"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },
