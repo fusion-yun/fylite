@@ -1,0 +1,137 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-paradigm-coupled-block-adr",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "耦合隐式块解：**上游还没裁，所以没有可判的判据**——记的是 fylite 在这条轴上到哪了",
+  "en": "The coupled implicit block solve: upstream has not ruled, so there is nothing to judge — what is recorded is where fylite stands"
+ },
+ "domain": "tr-paradigm",
+ "requirement": [
+  "FR-TR-006"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "inconclusive",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · transport 的四个通道求解器",
+  "comment": "哪些通道是一起解的，哪些是各解各的"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」",
+   "comment": "★★**参照是一份还不存在的文件。** 这条需求本身标着「可选，候选 ADR」，它要的交付物是一个**决定**，不是一个测量——而那个决定上游还没做。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "上游的 ADR 是否已裁",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★抄录原文就是「ADR 裁决记录」，证据栏写着 **[TBD]**。★**判据照抄立在这里，不删也不改写**：改写它等于替上游做决定。"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★fylite 当前在这条轴上到哪了（读数，不判）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★**没有判据可判，不等于没有事实可记。** 一个读者面对一条空缺需求，最想知道的是「那现在是怎么做的」——本格就答这个。"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "耦合对交换的能量，收付是否相抵",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.001
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★**现有做法自己的那条不变量，可以判，也该判。** 上游的块解还没定，但 fylite 今天的耦合对**已经在做一件可以出错的事**：把一个交换项从电子减去、加给离子。**拆成两个独立建模的源，耦合对就不再守恒它交换的能量，而下游没有任何东西会发现。**"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★上游未裁 —— 没有可判的判据",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/1",
+   "bound": "reading",
+   "deviation_literal": "抄录的证据栏为「候选 ADR（**[TBD]**）」；需求本身标着「**可选**」。本册查不到任何已裁决的 ADR",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**这一条不是本册欠的账。** 它与 `FR-TR-011`（「路线 [TBD]」）、`FR-EQ-015`（「**待落**」）同一类：上游把判据留成了空白，**本册再勤快也量不出一个还没被提出的问题的答案**。",
+    "★所以本条判 `inconclusive` 而不是 `fail`：**判 fail 等于说 fylite 没做到一件从没被要求做到的事。**"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★fylite 现在的做法：Te/Ti 成对，其余各解各的",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/2",
+   "bound": "reading",
+   "deviation_literal": "**没有**把所有通道装进同一个线性系统的隐式块解。Te/Ti 是一对：共用同一个交换项一起推进（transport.rs:735「One coupled Te/Ti step」）。密度 / psi / 动量度 / psi / 动量各自单独求解",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**「耦合」在这里是有分寸的一个词**：Te/Ti 共用**同一个**交换项一起推进——这保证了它们交换的能量守恒——但那不等于一个把两道方程同时隐式求解的块。★**把它说成「已有块解」会是冒充；说成「完全没有耦合」也不对。** 照实写这一层分寸。",
+    "★上游若最终裁定要全通道块解，这里要动的是**四个求解器的组织方式**，与 `FR-TR-002` 那两处架构缺口是同一层的事。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★现有耦合对的账，closes 到机器精度",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/3",
+   "measured_deviation": 9.563e-14,
+   "bound": "upper",
+   "deviation_literal": "离子得 1.248302e+01 · 电子付 1.248302e+01 · 相对差 **9.563e-14**（判据 1e-3，而既有门的带就是 1e-3 —— **实测好十个数量级**）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这道门的历史值得记一笔**：它早先的断言是 `(v + (-v)) == 0`，对任意数都成立——**一道不可能红的绿门，比没有门更坏**，因为它占着一道真门的位置。现在的写法是拿「开交换」与「关交换」两次跑相减，离子的所得必须等于电子的所失。",
+    "★带没有收紧到实测值：1e-3 是这条物理不变量该有的工程界，**9.6e-14 是实现恰好给到的，不是要求**。★把带贴到实测上，下一次合理的重构就会无端变红。"
+   ]
+  }
+ ],
+ "validity_domain": "本次检出的 `rust/fylite/src/transport.rs`。交换账在 13 节点、n_e = 2e19、chi = 1e-3（小到让输运在这段短行进里远不及交换）、dt = 1e-4 的构造算例上量。★**判的是「现在怎么做的」与「现在这么做自洽不自洽」**，不是「该不该这么做」——后者正是那份还没写的 ADR 要答的。",
+ "caveat": [
+  "★★**一条 `inconclusive` 的记录在这里是有用的，不是占位**：它把「本册没量」与「上游没定」分开了。前者是欠账，后者不是——★而在空缺表上，这两者长得一模一样。",
+  "★本条不覆盖 `FR-TR-001`/`FR-TR-002` 的架构缺口，那两处另有记录（`tr-equations-boundary-family`）。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/bc_family_and_coupled_block.json",
+    "checksum": "sha256:c11dfeb823da4d43155db0dfc735a52a26a2974341895e20f8d942536691c031",
+    "comment": "通道组织方式的源审视，与耦合对交换账的实测"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_register_numbers_for_the_b0_dot_dead_path_and_the_exchange_ledger",
+    "comment": "★第三格的门（新写）。前两格一个是上游未裁、一个是读数，都无门可守"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": "2026-09-17 ★**等上游裁 ADR**。在那之前本条无判据可判，而 fylite 这一侧**没有欠账**：现有的耦合对自洽（交换账 9.6e-14），只是它不是一个全通道的隐式块。★若最终裁定要块解，要动的是四个求解器的组织方式——与 `FR-TR-002` 的架构缺口同一层。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-TR-006` 判 **inconclusive**——**上游的 ADR 还没裁，没有可判的判据**，判 fail 等于说 fylite 没做到一件从没被要求的事。★记下 fylite 现在在这条轴上的位置：Te/Ti 共用同一交换项成对推进（账 closes 到 9.6e-14，既有门带 1e-3），密度/psi/动量各解各的，**没有全通道隐式块**"
+   }
+  ]
+ }
+}

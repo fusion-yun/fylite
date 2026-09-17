@@ -14,11 +14,11 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 28,
-  "open_must": 25,
-  "records": 28,
+  "covered": 30,
+  "open_must": 23,
+  "records": 30,
   "stale": 0,
-  "failing": 1
+  "failing": 2
  },
  "record": [
   {
@@ -333,6 +333,32 @@
    "overall_verdict": "pass",
    "requirement": [
     "FR-TR-013"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-equations-boundary-family",
+   "domain": "tr-equations",
+   "path": "records/tr-equations-boundary-family.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "fail",
+   "requirement": [
+    "FR-TR-002"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr",
+   "domain": "tr-paradigm",
+   "path": "records/tr-paradigm-coupled-block-adr.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "inconclusive",
+   "requirement": [
+    "FR-TR-006"
    ],
    "record_version": "1.0",
    "review_status": "draft",

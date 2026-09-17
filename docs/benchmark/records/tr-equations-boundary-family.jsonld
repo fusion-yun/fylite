@@ -1,0 +1,150 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-equations-boundary-family",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "边界条件族与电流驱动：**驱动那一半有，族那一半没有**",
+  "en": "The boundary family and the current drive: the drive is there, the family is not"
+ },
+ "domain": "tr-equations",
+ "requirement": [
+  "FR-TR-002"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "fail",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · transport 的步进算子与四个通道求解器",
+  "comment": "边界怎么表达、电流怎么驱动、通道怎么加"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "抄录的判据本身",
+   "comment": "★本条没有外部参照：判据点名了**四件具体的事**，逐件去内核里查有没有即可。★★**四件里两件有两件没有**——所以本条判**不成立**，而不是含混地判「部分」。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-equations-boundary-family/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "通道集是否**描述子驱动**（按名加/删通道零求解器改动）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判据原文：「通道集自动生成**且被求解器消费**」。要验它只需问一句：**加一道通道要不要改求解器？**"
+  },
+  {
+   "id": "benchmark/records/tr-equations-boundary-family/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "边界条件的种类数",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 5.0
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判据原文：「**五类型 BC**」。"
+  },
+  {
+   "id": "benchmark/records/tr-equations-boundary-family/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "安培 / 回路电压驱动是否成立",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判据的第三句。"
+  },
+  {
+   "id": "benchmark/records/tr-equations-boundary-family/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★B0 压缩项：缺省 0 是否**逐位不变的死路径**",
+   "norm": "identity",
+   "tolerance_basis": "machine_precision",
+   "comment": "★★判据原文点名「`b0_dot_over_b0` 缺省 0 **逐位不变**」——**这句话本身就是一条判据**：一个新装的项若在关掉时也改答案，它就悄悄改写了这扇门此前给过的每一个结果。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★通道集**不是**描述子驱动的",
+   "criterion": "benchmark/records/tr-equations-boundary-family/criterion/1",
+   "bound": "identity",
+   "deviation_literal": "全仓搜 `channel_descriptor` **零命中**。通道是 4 个**手写的独立求解器**（`solve_density` · `solve_psi` · `solve_momentum` · `two_temperature_march`）——**加一道通道就是再写一个求解器**，与判据要的「按名加/删通道零求解器改动」正相反",
+   "verdict": "fail",
+   "caveat": [
+    "★这不是「没做好」，是**另一种架构**：四个手写求解器各自把自己那道方程的物理写死在里面。★**要满足这条判据得重写这一层**，不是补一个表。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★边界条件只有**一种**",
+   "criterion": "benchmark/records/tr-equations-boundary-family/criterion/2",
+   "measured_deviation": 1.0,
+   "bound": "lower",
+   "deviation_literal": "步进算子的边界机制只有 Dirichlet（`StepOpts::edge_value: Option<f64>`） —— **一种**（判据要五种）。搜 `Neumann` / `Robin` / `Mixed` 三个词，**全部零命中**。★psi 道另有 `edge_psi` + `edge_rate`，但那是同一种边界的**值随时间走**，不是第二种类型",
+   "verdict": "fail"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★电流驱动两条路都有",
+   "criterion": "benchmark/records/tr-equations-boundary-family/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "**回路电压**：solve_psi: `edge += edge_rate * dt`（transport.rs:705）；**安培（Ip 控制）**：code/evolve 的 `ipctl`，带 PI 增益 ip_kp / ip_ki 与积分态",
+   "verdict": "pass",
+   "caveat": [
+    "★这一格是本条里成立的那一半，写清楚免得「判 fail」被读成「什么都没有」。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★B0 压缩项：关掉时**逐位**不动",
+   "criterion": "benchmark/records/tr-equations-boundary-family/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "`label_drift` 在 `b0_dot = 0` 时返回的每个值**位模式都是 +0.0**；`b0_dot = 0.3` 时最大 |v| = 6.0000e-02 —— 关得死、开得动",
+   "verdict": "pass",
+   "caveat": [
+    "★两头都要验：只验「关掉是零」会放过一个**开了也什么都不做**的实现，那种实现同样「逐位不变」，却等于这一项没装。"
+   ]
+  }
+ ],
+ "validity_domain": "本次检出的 `rust/fylite/src/transport.rs` 与 `case.rs`。★前两格是**源审视**（搜关键词 + 读步进算子的接口），后两格是实测。★**不判各通道的物理对不对**——那是别的记录的事；本条只判「判据点名的四件事在不在」。",
+ "caveat": [
+  "★★**判 fail 不是说这一层不能用。** 四件里两件成立：电流驱动齐全、B0 压缩项装得干净。不成立的是**架构层面**的两件——通道要手写、边界只有一种。★**把它判成「部分成立」会让空缺栏里少一条，而少的那条恰恰是要重写一层才能补的。**",
+  "★抄录里 `FR-TR-001`（多通道方程组求解）与本条**共用同一行判据**。本条的四格证据同样落在它身上，但**没有替它声明**——那需要单独决定，不该顺手带上。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/bc_family_and_coupled_block.json",
+    "checksum": "sha256:c11dfeb823da4d43155db0dfc735a52a26a2974341895e20f8d942536691c031",
+    "comment": "边界种类、通道求解器清点、电流驱动的两条路、b0_dot 死路径实测"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_register_numbers_for_the_b0_dot_dead_path_and_the_exchange_ledger",
+    "comment": "★第四格的门（新写）。前三格是源审视，没有门"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-TR-002` 判**不成立**——判据点名四件事，两件有两件没有。有的：回路电压 + Ip 控制两条驱动路；b0_dot 关掉时**逐位**不动、开时动。没有的：通道描述子（零命中，四个手写求解器）、五类型 BC（只有 Dirichlet 一种）。★判 fail 不判「部分」——**少记一条空缺，少的恰是要重写一层才能补的那条**"
+   }
+  ]
+ }
+}

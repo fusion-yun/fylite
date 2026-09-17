@@ -1,0 +1,44 @@
+{
+ "what": "FR-TR-002 与 FR-TR-006：边界条件族/电流驱动，以及「耦合隐式块解」这条轴上 fylite 到哪了",
+ "bc_family": {
+  "kinds_in_step_operator": 1,
+  "kind": "Dirichlet（`StepOpts::edge_value: Option<f64>`）",
+  "searched_for": [
+   "Neumann",
+   "Robin",
+   "Mixed"
+  ],
+  "found": [],
+  "psi_channel_extra": "solve_psi 另有 edge_psi + edge_rate（边界值随时间行进）"
+ },
+ "channel_descriptors": {
+  "grep_channel_descriptor": 0,
+  "solvers": [
+   "solve_density",
+   "solve_psi",
+   "solve_momentum",
+   "two_temperature_march"
+  ]
+ },
+ "current_drive": {
+  "loop_voltage": "solve_psi: `edge += edge_rate * dt`（transport.rs:705）",
+  "ip_control": "code/evolve 的 `ipctl`，带 PI 增益 ip_kp / ip_ki 与积分态"
+ },
+ "b0_dot": {
+  "off_is_bitwise_zero": true,
+  "on_has_nonzero": true,
+  "on_max_abs": 0.06
+ },
+ "exchange_ledger": {
+  "ions_gained": 12.48302,
+  "electrons_paid": 12.48302,
+  "rel": 9.563e-14,
+  "existing_gate_band": 0.001
+ },
+ "coupled_block": {
+  "all_channel_implicit_block": false,
+  "te_ti_pair": "共用同一个交换项一起推进（transport.rs:735「One coupled Te/Ti step」）",
+  "others": "密度 / psi / 动量各自单独求解"
+ },
+ "source": "内核自测 transport::tests::the_register_numbers_for_the_b0_dot_dead_path_and_the_exchange_ledger"
+}

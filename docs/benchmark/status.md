@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**28** 条
-- 判决 (verdict)：成立 22 · 不成立 **1** · 未判 5 · 未评估 0
-- 新鲜度 (freshness)：当前 28 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 28 · 已被取代 0
+- 记录 (records)：**30** 条
+- 判决 (verdict)：成立 22 · 不成立 **2** · 未判 6 · 未评估 0
+- 新鲜度 (freshness)：当前 30 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 30 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -80,6 +80,10 @@ title: 验证状态 (Verification status)
 
 2026-09-17 ★★**本条一道门都没有**，而它是结构判据——最该由门守的那一类：加一张权重表、或把 `models/` 挪进包目录，数值一个都不变而本条当场不成立。★补法与 `NR-EQ-005` 的自包含门同一路子（AST / 打包声明扫描），没做。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
 
+### [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md)
+
+2026-09-17 ★**等上游裁 ADR**。在那之前本条无判据可判，而 fylite 这一侧**没有欠账**：现有的耦合对自洽（交换账 9.6e-14），只是它不是一个全通道的隐式块。★若最终裁定要块解，要动的是四个求解器的组织方式——与 `FR-TR-002` 的架构缺口同一层。
+
 ### [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md)
 
 2026-09-17 ★门在内核仓，本仓 CI 跑不到（虽然它只要 0.01 s）。★另：收敛是**一阶**，因为 PDE 的 D 取单侧差分的梯度而通量重构用中心差分。**没有去改它**——那是实现的既有精度，改它是另一件事，且要重新验所有依赖它的记录。
@@ -106,9 +110,9 @@ title: 验证状态 (Verification status)
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](domains/mhd/energy.md) | 7 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 1 | 1 | 0 | 1 | 0 |
 | 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 3 | 4 | 2 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 2 | 2 | 1 | 0 | 0 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 3 | 3 | 1 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 1 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 2 | 2 | 2 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 1 | 1 | 1 | 0 | 0 |
@@ -141,6 +145,8 @@ title: 验证状态 (Verification status)
 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
+| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 不成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
+| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |

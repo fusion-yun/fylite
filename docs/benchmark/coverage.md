@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**28** 条（49 %）
-- ★**MUST 级空缺 (open MUST)：25 条**
+- 已有记录覆盖 (covered)：**30** 条（52 %）
+- ★**MUST 级空缺 (open MUST)：23 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -128,7 +128,7 @@ delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-001` | MUST | 多通道 1.5D 输运方程组求解 | — | — | — |
-| `FR-TR-002` | MUST | 边界条件族与电流边界驱动 | — | — | — |
+| `FR-TR-002` | MUST | 边界条件族与电流边界驱动 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | 验证 | 不成立 |
 
 ## 输运 (Transport) · 闭包插件面：输运系数与源项
 
@@ -147,7 +147,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-005` | MUST | 刚性稳定化生产路径 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） |
-| `FR-TR-006` | MUST | 耦合隐式块解（可选，候选 ADR） | — | — | — |
+| `FR-TR-006` | MUST | 耦合隐式块解（可选，候选 ADR） | [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） |
 | `FR-TR-007` | MUST | 稳态通量匹配 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 |
 | `FR-TR-008` | SHOULD | 环向动量 / 转动通道（路线项） | — | — | — |
 
@@ -209,8 +209,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-EQ-030` | 全 delta-W、V5 基准与阻性壁模 | 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段） |
 | `FR-EQ-031` | 全 delta-W、V5 基准与阻性壁模 | 理想壁分支与薄壁阻性壁模（E-3 第一级） |
 | `FR-TR-001` | 方程组求解与边界条件 | 多通道 1.5D 输运方程组求解 |
-| `FR-TR-002` | 方程组求解与边界条件 | 边界条件族与电流边界驱动 |
-| `FR-TR-006` | 求解范式：刚性稳定化与稳态通量匹配 | 耦合隐式块解（可选，候选 ADR） |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
