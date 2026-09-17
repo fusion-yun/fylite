@@ -46,7 +46,7 @@ $\dot B_0$ 压缩项是这一章里容易漏的一处：它在三个通道里的
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-equations-boundary-family`](../../reports/tr-equations-boundary-family.md) | 验证 | 不成立 | 抄录的判据本身 | 1.0 | 草稿 | [jsonld](../../records/tr-equations-boundary-family.jsonld) |
+| [`tr-equations-boundary-family`](../../reports/tr-equations-boundary-family.md) | 验证 | 不成立 | 抄录的判据本身 | 2.1 | 草稿 | [jsonld](../../records/tr-equations-boundary-family.jsonld) |
 
 ### 缺口
 

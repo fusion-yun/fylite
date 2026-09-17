@@ -14,10 +14,10 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 30,
-  "open_must": 23,
-  "records": 30,
-  "stale": 0,
+  "covered": 31,
+  "open_must": 22,
+  "records": 31,
+  "stale": 1,
   "failing": 2
  },
  "record": [
@@ -31,7 +31,7 @@
     "NR-EQ-001",
     "NR-EQ-006"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -44,7 +44,7 @@
    "requirement": [
     "FR-EQ-004"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -57,7 +57,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -70,7 +70,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -83,7 +83,7 @@
    "requirement": [
     "FR-EQ-002"
    ],
-   "record_version": "2.0",
+   "record_version": "2.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -96,7 +96,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -110,7 +110,7 @@
     "NR-EQ-005",
     "NR-TR-004"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -124,7 +124,7 @@
     "FR-EQ-001",
     "NR-EQ-002"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -137,7 +137,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -150,7 +150,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -163,7 +163,7 @@
    "requirement": [
     "FR-EQ-011"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -176,7 +176,7 @@
    "requirement": [
     "FR-EQ-008"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -189,7 +189,7 @@
    "requirement": [
     "FR-EQ-006"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -202,7 +202,7 @@
    "requirement": [
     "FR-EQ-010"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -217,7 +217,7 @@
    ],
    "record_version": "1.3",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-reconstruct-twin-truth-recovery",
@@ -228,7 +228,7 @@
    "requirement": [
     "FR-EQ-006"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -242,7 +242,7 @@
     "FR-EQ-003",
     "FR-EQ-012"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -256,7 +256,7 @@
     "FR-TR-004",
     "FR-TR-009"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -269,7 +269,7 @@
    "requirement": [
     "FR-TR-004"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -282,7 +282,7 @@
    "requirement": [
     "NR-TR-003"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -295,7 +295,7 @@
    "requirement": [
     "FR-TR-003"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -307,6 +307,19 @@
    "overall_verdict": "pass",
    "requirement": [
     "NR-TR-005"
+   ],
+   "record_version": "1.1",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-conservation-time-order",
+   "domain": "tr-conservation",
+   "path": "records/tr-conservation-time-order.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "NR-TR-002"
    ],
    "record_version": "1.0",
    "review_status": "draft",
@@ -321,7 +334,7 @@
    "requirement": [
     "FR-TR-012"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -334,7 +347,7 @@
    "requirement": [
     "FR-TR-013"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -347,7 +360,7 @@
    "requirement": [
     "FR-TR-002"
    ],
-   "record_version": "1.0",
+   "record_version": "2.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -360,7 +373,7 @@
    "requirement": [
     "FR-TR-006"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -373,7 +386,7 @@
    "requirement": [
     "FR-TR-007"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -386,7 +399,7 @@
    "requirement": [
     "FR-TR-005"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -400,7 +413,7 @@
     "FR-TR-010",
     "NR-TR-001"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -413,7 +426,7 @@
    "requirement": [
     "FR-TR-014"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   }

@@ -160,11 +160,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+   "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69"
   }
  },
  "provenance": {
-  "record_version": "2.0",
+  "record_version": "2.1",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -181,6 +181,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "★★**第五格从记名缺口转为成立**：内核补了 `em::coil_share`（一个函数、一组共享默认常数），两扇门同走，重构侧探针的硬编码阶数也改成共享常数；两边都回显所用阶数。统一之后孪生的数只动末位（chi2 相对 7e-12），**「代数恒等」于是从一句论断变成一个测量**。缺陷收窄为「显式传不同阶数仍会分开」"
+   },
+   {
+    "record_version": "2.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
    }
   ]
  }

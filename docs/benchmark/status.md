@@ -10,7 +10,7 @@ title: 验证状态 (Verification status)
 
 ## 基准内核 (reference kernel)
 
-- `libfylite` **sha256:ac8c0f5cdc4e6019…**
+- `libfylite` **sha256:eb8c9022c405fc1a…**
 - 声明于 (recorded)：2026-09-17
 
 :::{warning} ★★指纹锁在**字节**上，而内核的构建不是逐字节可复现的
@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**30** 条
-- 判决 (verdict)：成立 22 · 不成立 **2** · 未判 6 · 未评估 0
-- 新鲜度 (freshness)：当前 30 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 30 · 已被取代 0
+- 记录 (records)：**31** 条
+- 判决 (verdict)：成立 23 · 不成立 **2** · 未判 6 · 未评估 0
+- 新鲜度 (freshness)：当前 30 · **过期 1** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 31 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -72,6 +72,10 @@ title: 验证状态 (Verification status)
 
 2026-09-17 ★第二格（摘要闸）的门在**内核仓的构建脚本**里，本仓 CI 跑不到——与 `tr-pedestal-sawtooth-kadomtsev` 同一处代价。★第三格是翻译差（LinkML vs JSON Schema），不是缺陷，但也**没有被消解**：要真答上游那一格，得有人决定 fylite 是否引入 LinkML，那是个设计决定不是测量。
 
+### [`tr-conservation-time-order`](reports/tr-conservation-time-order.md)
+
+2026-09-17 ★**空间收敛阶仍未量**：Richardson 隔离掉了空间误差，那是它能干净量时间阶的理由，也是它答不了空间阶的理由。★另：金标 parity（FUSE.jl / TORAX）那一半缺的是外部码在同一算例上的输出，属语料。★门在内核仓，本仓 CI 跑不到。
+
 ### [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md)
 
 2026-09-17 ★门在内核仓、且要跑 261 秒，本仓 CI 跑不到它。★另：两半对 q 的分歧**向内变大**（0.20 % → 1.00 % → 3.40 %），看着像「芯部梯子最难对齐」，但**没有去查**是不是这个原因。
@@ -104,7 +108,7 @@ title: 验证状态 (Verification status)
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 5 | 6 | 6 | 0 | 0 |
+| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 5 | 6 | 6 | 0 | 1 |
 | 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
@@ -115,42 +119,43 @@ title: 验证状态 (Verification status)
 | 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 3 | 3 | 1 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 1 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 2 | 2 | 2 | 0 | 0 |
-| 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 1 | 1 | 1 | 0 | 0 |
+| 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 2 | 2 | 2 | 0 | 0 |
 
 ## 记录明细 (records)
 
 | 记录 | 域 | 类 | 判决 | 版本 | 末次修订 | 评审 | 跑在内核 | 新鲜度 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.3 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 不成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
+| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.3 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | stale |
+| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 不成立 | 2.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.3 | 2026-09-17 | 草稿 | `sha256:eb8c9022c405…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

@@ -1,6 +1,6 @@
 {
  "name": "libfylite",
- "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a",
+ "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69",
  "recorded": "2026-09-17",
  "comment": "★基准内核：本册以它为「当前」。内核一换就更新本文件——所有记在旧内核上的记录当场转 stale，CI 据此重跑。"
 }

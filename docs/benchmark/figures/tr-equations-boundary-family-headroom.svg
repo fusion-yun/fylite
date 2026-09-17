@@ -19,8 +19,8 @@
 <circle cx="572.0" cy="68.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="72.0" font-size="11" fill="#8a8a8a">恒等：不成立</text>
 <text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">边界条件的种类数</text>
-<rect x="504.9" y="89.0" width="67.1" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="498.9" y="100.0" font-size="11" fill="#d64545" text-anchor="end">超出 5 倍</text>
+<rect x="572.0" y="89.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="578.0" y="100.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">安培 / 回路电压驱动是否成立</text>
 <circle cx="572.0" cy="124.0" r="4" fill="#6f8fbf"/>
 <text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">恒等：成立</text>

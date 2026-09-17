@@ -120,11 +120,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+   "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -135,6 +135,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`NR-TR-005` **不是能力缺口**——260 条声明路径里 147 条裸 DD 名逐条有归宿（0 条落空），摘要闸本轮亲身把构建拦下过。★LinkML 那一格如实标 unevaluated：本仓用 JSON Schema + DD 表答同一个问题，**说成「LinkML 校验通过」是冒充**"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
    }
   ]
  }

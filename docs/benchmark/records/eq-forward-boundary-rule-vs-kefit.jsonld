@@ -91,11 +91,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+   "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69"
   }
  },
  "provenance": {
-  "record_version": "1.1",
+  "record_version": "1.2",
   "recorded": "2026-09-16",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -109,6 +109,12 @@
    },
    {
     "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
+   },
+   {
+    "record_version": "1.2",
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"

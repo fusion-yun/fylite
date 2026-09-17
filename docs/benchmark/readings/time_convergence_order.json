@@ -1,0 +1,46 @@
+{
+ "what": "NR-TR-002 的一半：theta 方法的时间收敛阶（Richardson）",
+ "method": "Richardson：同一问题、同一网格、同一初态与终点，dt 逐次减半，量相邻两次解之差的比",
+ "why_not_manufactured": "制造解要先把系数约定读对，读错就会量出假的阶；Richardson 的比与方程的具体形式无关",
+ "grid": {
+  "n": 201,
+  "uniform": true,
+  "diffusivity": 0.05,
+  "t_end": 0.02,
+  "steps": [
+   10,
+   20,
+   40
+  ]
+ },
+ "rows": [
+  {
+   "theta": 1.0,
+   "name": "backward Euler",
+   "ratio": 1.994,
+   "order": 0.996,
+   "nominal": 1
+  },
+  {
+   "theta": 0.5,
+   "name": "Crank-Nicolson",
+   "ratio": 4.019,
+   "order": 2.007,
+   "nominal": 2
+  }
+ ],
+ "settling_trap": {
+  "comment": "第一版扩散取 0.5，问题在窗口末已近稳态，Richardson 量到的是暂态的衰减",
+  "bad_orders": [
+   0.977,
+   2.843
+  ],
+  "good_orders": [
+   0.996,
+   2.007
+  ]
+ },
+ "march_to_steady_rel": 1.159e-12,
+ "parity_half": "FUSE.jl / TORAX 的模块级对拍 —— 本册量不了，见 finding",
+ "source": "内核自测 transport::tests::the_theta_scheme_converges_at_the_order_it_claims 与 a_long_march_lands_on_the_steady_solve"
+}

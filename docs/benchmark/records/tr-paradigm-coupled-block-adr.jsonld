@@ -116,11 +116,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+   "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -131,6 +131,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-TR-006` 判 **inconclusive**——**上游的 ADR 还没裁，没有可判的判据**，判 fail 等于说 fylite 没做到一件从没被要求的事。★记下 fylite 现在在这条轴上的位置：Te/Ti 共用同一交换项成对推进（账 closes 到 9.6e-14，既有门带 1e-3），密度/psi/动量各解各的，**没有全通道隐式块**"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
    }
   ]
  }

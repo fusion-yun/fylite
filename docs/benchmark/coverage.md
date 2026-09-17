@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**30** 条（52 %）
-- ★**MUST 级空缺 (open MUST)：23 条**
+- 已有记录覆盖 (covered)：**31** 条（54 %）
+- ★**MUST 级空缺 (open MUST)：22 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -178,7 +178,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `NR-TR-001` | MUST | 守恒性 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 |
-| `NR-TR-002` | MUST | 金标 parity 验证 | — | — | — |
+| `NR-TR-002` | MUST | 金标 parity 验证 | [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | 验证 | 成立 |
 | `NR-TR-004` | MUST | 自包含数值核 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
 | `NR-TR-005` | MUST | IMAS / DD 一致性 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | 验证 | 成立 |
 | `NR-TR-006` | SHOULD | 可微性路线（近期 TODO） | — | — | — |
@@ -211,7 +211,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-001` | 方程组求解与边界条件 | 多通道 1.5D 输运方程组求解 |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
-| `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
 

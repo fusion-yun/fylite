@@ -1,0 +1,180 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-conservation-time-order",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "θ 方法的时间收敛阶：**此前一个数都没有**",
+  "en": "The theta scheme's order in time: there was not one number before this"
+ },
+ "domain": "tr-conservation",
+ "requirement": [
+  "NR-TR-002"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `transport::step_theta`",
+  "comment": "θ = 1（后向欧拉）与 θ = 0.5（Crank–Nicolson）两档"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "格式**自称**的阶（θ = 1 一阶 · θ = 0.5 二阶）",
+   "comment": "★★**参照是它对自己的声明**。一个数值格式最基本的一句话就是「我是几阶的」，而这句话在本仓与本册里**从未被量过**——全仓搜不到制造解，也没有任何 dt 的阶次测试。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-conservation-time-order/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "θ = 1 量到的时间阶",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.15
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★后向欧拉自称一阶。带 ±0.15：Richardson 在三档步长上的估计本身有抖动。"
+  },
+  {
+   "id": "benchmark/records/tr-conservation-time-order/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "θ = 0.5 量到的时间阶",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.15
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★Crank–Nicolson 自称二阶。"
+  },
+  {
+   "id": "benchmark/records/tr-conservation-time-order/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★两档 θ 的阶之差（θ 到底有没有被用上）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.8
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★★**防假通过的一格**：一个把 `theta` 收下却不用的实现，两档都给一阶——而它在前两格里能过掉第一格，第二格才红。这一格让「θ 没被用上」**直接显形**。"
+  },
+  {
+   "id": "benchmark/records/tr-conservation-time-order/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "含时走到底与直解稳态的相对差",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-09
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★把两条路钉在一起。★与 `FR-TR-007` 是**不同的一对**：那条比两个**稳态**求解器，这条比**含时的极限**与稳态解。"
+  },
+  {
+   "id": "benchmark/records/tr-conservation-time-order/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "FUSE.jl / TORAX 的模块级对拍",
+   "norm": "relative",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★抄录的另一半。★**本册量不了**，见 finding。判据照抄立在这里，不删。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "后向欧拉：一阶",
+   "criterion": "benchmark/records/tr-conservation-time-order/criterion/1",
+   "measured_deviation": 0.0040000000000000036,
+   "bound": "upper",
+   "deviation_literal": "相邻两次解之差的比 1.994 → 阶 **0.996**（标称 1）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "Crank–Nicolson：二阶",
+   "criterion": "benchmark/records/tr-conservation-time-order/criterion/2",
+   "measured_deviation": 0.007000000000000117,
+   "bound": "upper",
+   "deviation_literal": "比 4.019 → 阶 **2.007**（标称 2）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★θ 确实被用上了",
+   "criterion": "benchmark/records/tr-conservation-time-order/criterion/3",
+   "measured_deviation": 1.0110000000000001,
+   "bound": "lower",
+   "deviation_literal": "两档阶差 **1.011**（判据 0.8）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "含时的极限落在稳态解上",
+   "criterion": "benchmark/records/tr-conservation-time-order/criterion/4",
+   "measured_deviation": 1.159e-12,
+   "bound": "upper",
+   "deviation_literal": "行进 4000 步（dt = 2e-3）之后与 `solve_steady` 的解最劣相对差 **1.159e-12**",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★FUSE.jl / TORAX 对拍：**本册量不了**",
+   "criterion": "benchmark/records/tr-conservation-time-order/criterion/5",
+   "bound": "reading",
+   "deviation_literal": "仓里没有 FUSE.jl 或 TORAX 的模块级参考件。★TORAX 在本仓只作**数据来源**（Mavrin 表抄进 `edge_tables.rs`）与注释里的公式对照，**不是可对拍的输出**",
+   "verdict": "unevaluated",
+   "caveat": [
+    "★★**不拿「引用过 TORAX」冒充「对过 TORAX」。** 抄一张表和跑一遍对拍是两件事。★补它要的是一份外部码在同一算例上的输出，那是语料的事，不是内核的。"
+   ]
+  }
+ ],
+ "validity_domain": "构造算例：rho ∈ [0,1] 的 201 点均匀网格，V' = 1，扩散 0.05 常数，源在空间上有结构，边界给定值，从同一初态走到 t = 0.020，步数 [10, 20, 40]。★**判的是时间离散的阶**：网格固定，于是两次解之差里空间误差完全抵消。",
+ "caveat": [
+  "★★**为什么用 Richardson 而不是制造解**：制造解要先把算子的系数约定读对——读错一处，量出来的就是一个**假的阶**，而它看着一样体面。Richardson 的比**与方程的具体形式无关**：p 阶格式给 `2^p`，与 D、V′、源怎么写都无关。★代价是它不验**空间**阶，那一半仍空着。",
+  "★★**过程中踩到一个坑，记下来免得下一个人再踩**：第一版扩散取 0.5，问题在窗口末已接近稳态，于是 Richardson 量到的是**暂态的衰减**而不是截断误差——阶「量」成了 0.977 / **2.843**。CN 那个数比标称的 2 还好，**看着像好消息，其实是测量塌了**。把扩散调到 0.05 让暂态在窗口里活着，立刻回到 0.996 / 2.007。★**一个在趋稳问题上做的收敛阶研究，量的是问题不是格式。**",
+  "★本条只答 `NR-TR-002` 的**收敛阶**那一半；金标 parity 那一半仍空着，见第五格。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/time_convergence_order.json",
+    "checksum": "sha256:31c07bb993b433975e90c0b88b03dc522d06b2ffbb957478cd4ea0dff55eb301",
+    "comment": "两档 θ 的差值比与阶、趋稳陷阱的前后对照、行进到底与稳态解的差"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_theta_scheme_converges_at_the_order_it_claims",
+    "comment": "★前三格的门（新写）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::a_long_march_lands_on_the_steady_solve",
+    "comment": "★第四格的门（新写）"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": "2026-09-17 ★**空间收敛阶仍未量**：Richardson 隔离掉了空间误差，那是它能干净量时间阶的理由，也是它答不了空间阶的理由。★另：金标 parity（FUSE.jl / TORAX）那一半缺的是外部码在同一算例上的输出，属语料。★门在内核仓，本仓 CI 跑不到。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：**此前一个数都没有**——全仓无制造解、无 dt 阶次测试，「θ 方法是几阶的」从未被量过。Richardson 量到 θ=1 阶 0.996、θ=0.5 阶 2.007，两档阶差 1.011（证明 θ 真被用上）；含时走到底落在稳态解上，相对差 1.2e-12。★记下一个坑：趋稳的问题会让 Richardson 量到暂态衰减而非截断误差"
+   }
+  ]
+ }
+}
