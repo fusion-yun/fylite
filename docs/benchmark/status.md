@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**15** 条
-- 判决 (verdict)：成立 9 · 不成立 **1** · 未判 5 · 未评估 0
-- 新鲜度 (freshness)：当前 15 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 15 · 已被取代 0
+- 记录 (records)：**16** 条
+- 判决 (verdict)：成立 10 · 不成立 **1** · 未判 5 · 未评估 0
+- 新鲜度 (freshness)：当前 16 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 16 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -43,6 +43,10 @@ title: 验证状态 (Verification status)
 ### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
 
 2026-09-17 仍记名保留（用户裁定「保留负面结果」）：达成 kappa 1.7941 比目标低 2.98 %、delta_lower 低 10.21 %，判据 1 %——**这一条是真结论**，不是判法问题：把 kappa 顶上去的设置（enp 0.5）要 37.5 MA·t 且永不收敛。所需 30.6 MA·t 仍无额定可比（牌上缺 pf_active/supply）。★收敛那一条已于 1.1 版改为读数——原判 fail 是我自立的标准，不是缺陷。
+
+### [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md)
+
+2026-09-17 ★**那三道探针的成因未查**（0.30 / 0.33 / 0.53 sigma，而环一族中位 0.031）。真值与测量同出一个无噪声的前向解，按理每道都该好到机器精度，这是个真信号。门已经守住「不许更坏」，但**没有人解释它为什么是这个数**。
 
 ### [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md)
 
@@ -64,7 +68,7 @@ title: 验证状态 (Verification status)
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 1 | 2 | 2 | 0 | 0 |
+| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 2 | 3 | 3 | 0 | 0 |
 | 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
@@ -90,6 +94,7 @@ title: 验证状态 (Verification status)
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
+| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |

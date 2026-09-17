@@ -314,8 +314,171 @@ def qprofile_svg(d: dict) -> str:
     return "\n".join(L) + "\n"
 
 
+# ------------------------------------------------------------------------------------------------ 可观测空间
+
+def residual_svg(d: dict) -> str:
+    """逐通道残差，对数纵轴。
+
+    ★★**为什么是对数、为什么逐通道**：这条记录的聚合数（RMS 0.074 sigma）把一件要紧的事摊平了——
+    磁通环与探针差了近 20 倍，而 chi2 的 99.7 % 在探针那一族。线性轴上环那 75 道会全贴在零线上，
+    什么也看不出；对数轴把三个数量级摊开，**两族的分层与探针里那三道离群点一眼就看见**。
+    ★横轴是通道序号（不是位置）——序号只用来把点排开，别从横向的形状读出物理。
+    """
+    r = d.get("residuals_in_sigma") or {}
+    rl, rp = r.get("flux_loop") or [], r.get("probe") or []
+    if not rl or not rp:
+        return ""
+    lo, hi = 1e-4, 2.0
+    W2, L2, R2, T2, B2, H2 = 900, 66, 150, 56, 44, 300
+
+    def y_of(v: float) -> float:
+        v = min(max(abs(v), lo), hi)
+        return T2 + (math.log10(hi) - math.log10(v)) / (math.log10(hi) - math.log10(lo)) * (H2 - T2 - B2)
+
+    n = len(rl) + len(rp)
+
+    def x_of(i: int) -> float:
+        return L2 + (i + 0.5) / n * (W2 - L2 - R2)
+
+    L = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W2} {H2}" role="img" '
+         f'aria-label="孪生重构：逐通道残差，以 sigma 为单位">',
+         "<title>可观测空间 - 逐通道残差</title>",
+         '<desc>纵轴为 |预测 - 测量| / sigma，对数。横轴为通道序号，左 75 道磁通环、右 79 道探针。'
+         '虚线是两条判据：最劣单道 1 sigma、每通道 RMS 0.3 sigma。</desc>',
+         f'<text x="8" y="22" font-size="14" font-weight="600" fill="{TEXT}">'
+         f'预测与测量差几个 sigma —— 逐通道（对数轴）</text>',
+         f'<text x="8" y="40" font-size="11" fill="{INK}">'
+         f'★左 {len(rl)} 道磁通环 · 右 {len(rp)} 道探针。chi2 的 99.7 % 在探针那一族。</text>']
+
+    for e in range(-4, 1):
+        v = 10.0 ** e
+        y = y_of(v)
+        L.append(f'<line x1="{L2}" y1="{y:.1f}" x2="{W2 - R2}" y2="{y:.1f}" stroke="{INK}" '
+                 f'stroke-width="0.5" stroke-opacity="0.3"/>')
+        L.append(f'<text x="{L2 - 6}" y="{y + 3.5:.1f}" font-size="10" text-anchor="end" '
+                 f'fill="{INK}">10{SUP[abs(e)] if e >= 0 else "⁻" + SUP[abs(e)]}</text>')
+
+    for val, col, txt in ((1.0, FAIL, "判据：最劣单道 1 sigma"), (0.3, TIGHT, "判据：RMS 0.3 sigma")):
+        y = y_of(val)
+        L.append(f'<line x1="{L2}" y1="{y:.1f}" x2="{W2 - R2}" y2="{y:.1f}" stroke="{col}" '
+                 f'stroke-width="1" stroke-dasharray="5 4"/>')
+        L.append(f'<text x="{W2 - R2 + 6}" y="{y + 3.5:.1f}" font-size="10" fill="{col}">{esc(txt)}</text>')
+
+    xb = x_of(len(rl)) - (W2 - L2 - R2) / n / 2
+    L.append(f'<line x1="{xb:.1f}" y1="{T2}" x2="{xb:.1f}" y2="{H2 - B2}" stroke="{INK}" '
+             f'stroke-width="0.8" stroke-opacity="0.55"/>')
+
+    for off, vals, col, name in ((0, rl, PASS, "磁通环"), (len(rl), rp, MARK, "探针")):
+        for i, v in enumerate(vals):
+            L.append(f'<circle cx="{x_of(off + i):.1f}" cy="{y_of(v):.1f}" r="2.1" fill="{col}" '
+                     f'fill-opacity="0.8"/>')
+        mid = x_of(off + len(vals) // 2)
+        L.append(f'<text x="{mid:.1f}" y="{H2 - B2 + 16}" font-size="11" text-anchor="middle" '
+                 f'fill="{col}">{esc(name)}（{len(vals)} 道）</text>')
+
+    worst = max(max(abs(v) for v in rl), max(abs(v) for v in rp))
+    wi = [abs(v) for v in rp].index(worst) + len(rl) if max(abs(v) for v in rp) == worst else \
+         [abs(v) for v in rl].index(worst)
+    L.append(f'<circle cx="{x_of(wi):.1f}" cy="{y_of(worst):.1f}" r="4.5" fill="none" '
+             f'stroke="{FAIL}" stroke-width="1.4"/>')
+    L.append(f'<text x="{x_of(wi) + 8:.1f}" y="{y_of(worst) + 3.5:.1f}" font-size="10" '
+             f'fill="{FAIL}">最劣 {worst:.3f} sigma</text>')
+
+    L.append(f'<text x="8" y="{H2 - 12}" font-size="10.5" fill="{INK}">'
+             f'★环中位与探针中位相差近 20 倍——**聚合的 RMS 0.074 把这一层摊平了**，'
+             f'所以另立了「最劣单道」那条判据。★横轴只是序号，不是位置。</text>')
+    L.append("</svg>")
+    return "\n".join(L) + "\n"
+
+
+def anchor_scan_svg(d: dict) -> str:
+    """chi2 随零点锚的扫描——**本条真正的证据**。
+
+    ★★一个总是很小的 chi2 说明不了什么；要紧的是这个度量**分得开**。
+    这张图就是那句话的样子：碗底又深又窄，挪 4 mm 就坏 26 倍。
+    ★**它是可观测空间才画得出的图**——内部量（q0、磁轴）没有真值可比，画不出这样一条曲线。
+    """
+    scan = [s for s in (d.get("zc_scan") or []) if s.get("converged") and s.get("chi2")]
+    if len(scan) < 3:
+        return ""
+    scan.sort(key=lambda s: s["zc_m"])
+    xs = [s["zc_m"] * 1e3 for s in scan]
+    ys = [s["chi2"] for s in scan]
+    lo, hi = 0.5, 3e3
+    W2, L2, R2, T2, B2, H2 = 900, 70, 40, 58, 52, 320
+    x0, x1 = min(xs) - 2, max(xs) + 2
+
+    def X(v: float) -> float:
+        return L2 + (v - x0) / (x1 - x0) * (W2 - L2 - R2)
+
+    def Y(v: float) -> float:
+        v = min(max(v, lo), hi)
+        return T2 + (math.log10(hi) - math.log10(v)) / (math.log10(hi) - math.log10(lo)) * (H2 - T2 - B2)
+
+    best = min(range(len(ys)), key=lambda i: ys[i])
+    nxt = sorted(ys)[1]
+    L = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W2} {H2}" role="img" '
+         f'aria-label="chi2 随零点锚的扫描：碗底又深又窄">',
+         "<title>可观测空间 - 零点锚扫描</title>",
+         '<desc>横轴为零点锚 zc（毫米），纵轴为 chi2（对数）。最优档远低于相邻档，'
+         '说明这个度量能把锚点定住。</desc>',
+         f'<text x="8" y="22" font-size="14" font-weight="600" fill="{TEXT}">'
+         f'chi2 随零点锚 —— 碗底又深又窄，所以这个度量**分得开**</text>',
+         f'<text x="8" y="40" font-size="11" fill="{INK}">'
+         f'★挪 4 mm，chi2 坏 {nxt / ys[best]:.0f} 倍；扫到两端坏 {max(ys) / ys[best]:.0f} 倍。</text>']
+
+    for e in range(0, 4):
+        y = Y(10.0 ** e)
+        L.append(f'<line x1="{L2}" y1="{y:.1f}" x2="{W2 - R2}" y2="{y:.1f}" stroke="{INK}" '
+                 f'stroke-width="0.5" stroke-opacity="0.3"/>')
+        L.append(f'<text x="{L2 - 6}" y="{y + 3.5:.1f}" font-size="10" text-anchor="end" '
+                 f'fill="{INK}">10{SUP[e]}</text>')
+    for mm in range(-30, 31, 10):
+        x = X(mm)
+        L.append(f'<line x1="{x:.1f}" y1="{H2 - B2}" x2="{x:.1f}" y2="{H2 - B2 + 4}" '
+                 f'stroke="{INK}" stroke-width="0.8"/>')
+        L.append(f'<text x="{x:.1f}" y="{H2 - B2 + 17}" font-size="10" text-anchor="middle" '
+                 f'fill="{INK}">{mm:+d}</text>')
+    L.append(f'<text x="{(L2 + W2 - R2) / 2:.1f}" y="{H2 - B2 + 33}" font-size="11" '
+             f'text-anchor="middle" fill="{TEXT}">零点锚 zc（mm）</text>')
+    L.append(f'<text x="{L2 - 52}" y="{(T2 + H2 - B2) / 2:.1f}" font-size="11" fill="{TEXT}" '
+             f'transform="rotate(-90 {L2 - 52} {(T2 + H2 - B2) / 2:.1f})" text-anchor="middle">chi2</text>')
+
+    pts = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in zip(xs, ys))
+    L.append(f'<polyline points="{pts}" fill="none" stroke="{MARK}" stroke-width="1.6"/>')
+    for i, (x, y) in enumerate(zip(xs, ys)):
+        L.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="3" '
+                 f'fill="{PASS if i == best else MARK}"/>')
+    bx, by = X(xs[best]), Y(ys[best])
+    L.append(f'<circle cx="{bx:.1f}" cy="{by:.1f}" r="6.5" fill="none" stroke="{PASS}" stroke-width="1.5"/>')
+    L.append(f'<text x="{bx + 11:.1f}" y="{by + 4:.1f}" font-size="10.5" fill="{PASS}">'
+             f'最优 chi2 {ys[best]:.3f} @ zc = {xs[best]:+.1f} mm</text>')
+    L.append(f'<text x="8" y="{H2 - 12}" font-size="10.5" fill="{INK}">'
+             f'★★**锚点是被测量定出来的，不是被人选的。**'
+             f'★这张图内部量画不出来——没有人测过 q0，也就没有这样一条能判事的曲线。</text>')
+    L.append("</svg>")
+    return "\n".join(L) + "\n"
+
+
 CURVE_DATA = {"eq-forward-solovev-fixed-boundary": "solovev_curves.json",
               "eq-surface-chease-fixed-boundary-east": "east_surface_curves.json"}
+
+
+#: 可观测空间那一族图：记录 → 读数文件
+OBS_DATA = {"eq-reconstruct-twin-observable-space": "twin_observable_space.json"}
+
+
+def obs_figures() -> dict[pathlib.Path, str]:
+    out = {}
+    for rid, fname in OBS_DATA.items():
+        p = BM / "readings" / fname
+        if not p.is_file():
+            continue
+        d = json.loads(p.read_text(encoding="utf-8"))
+        for suffix, s in (("residuals", residual_svg(d)), ("anchor-scan", anchor_scan_svg(d))):
+            if s:
+                out[FIG / f"{rid}-{suffix}.svg"] = s
+    return out
 
 
 def curve_figures() -> dict[pathlib.Path, str]:
@@ -339,6 +502,7 @@ def build() -> dict[pathlib.Path, str]:
             continue
         out[FIG / f"{p.stem}-headroom.svg"] = svg(json.loads(p.read_text(encoding="utf-8")))
     out.update(curve_figures())
+    out.update(obs_figures())
     return out
 
 

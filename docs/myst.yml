@@ -176,6 +176,7 @@ project:
             - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
             - file: benchmark/reports/eq-reconstruct-kefit-twin.md
             - file: benchmark/reports/eq-reconstruct-twin-truth-recovery.md
+            - file: benchmark/reports/eq-reconstruct-twin-observable-space.md
             - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
             - file: benchmark/reports/tr-closure-15d-source-switches.md
             - file: benchmark/reports/tr-closure-dt-burn-astra.md

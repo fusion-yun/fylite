@@ -584,14 +584,25 @@ def twin_fylite(truth: dict, meas: dict, dev: dict) -> dict:
         chi2 = float(np.sum(rl ** 2) + np.sum(rp ** 2))
         scan.append({"zc_m": zc, "chi2": chi2, "converged": bool(facts["converged"]), "q0": facts["q0"]})
         if facts["converged"] and (best is None or chi2 < best[0]):
-            best = (chi2, zc, facts, fields)
+            best = (chi2, zc, facts, fields, rl, rp)
     if best is None:
         return {"zc_scan": scan, "error": "no set-point converged"}
-    chi2, zc, facts, fields = best
+    chi2, zc, facts, fields, rl, rp = best
     bnd = fields["boundary"].reshape(-1, 2) if "boundary" in fields else None
     got = fylite_map(facts, fields, bnd)
     cmpd = compare_maps(truth["map"], got)
-    return {"zc_scan": scan, "zc_anchor_m": zc, "chi2": chi2,
+    #: ★★**可观测空间的那一半，留住**（`NR-EQ-004`）。此处从前只把 chi2 用来挑锚点，
+    #: 逐道的残差算完就丢——而 SRS 要的判准恰恰落在这里，于是这一条在册上空了很久。
+    #: ★聚合的 RMS 会把两族的分层摊平（环与探针实测相差近 20 倍），所以**逐族分开报，
+    #: 并单报最劣的那一道**：无噪声的合成测量里，没有哪一道该差到一个 sigma。
+    obs = {"n_loop": int(rl.size), "n_probe": int(rp.size), "n_fitted": int(np.asarray(fields["coefficients"]).size),
+           "chi2_loop": float(np.sum(rl ** 2)), "chi2_probe": float(np.sum(rp ** 2)),
+           "rms_loop_sigma": float(np.sqrt(np.mean(rl ** 2))), "rms_probe_sigma": float(np.sqrt(np.mean(rp ** 2))),
+           "max_loop_sigma": float(np.abs(rl).max()), "max_probe_sigma": float(np.abs(rp).max())}
+    obs["chi2_per_dof"] = chi2 / (obs["n_loop"] + obs["n_probe"] - obs["n_fitted"])
+    obs["rms_sigma"] = float(np.sqrt(chi2 / (obs["n_loop"] + obs["n_probe"])))
+    obs["max_sigma"] = max(obs["max_loop_sigma"], obs["max_probe_sigma"])
+    return {"zc_scan": scan, "zc_anchor_m": zc, "chi2": chi2, "observable": obs,
             "facts": {k: facts[k] for k in ("converged", "iterations", "residual", "q0", "q95", "li3", "axis_r", "axis_z", "ip")},
             "q0_rel": facts["q0"] / truth["facts"]["q0"] - 1.0, "q95_rel": facts["q95"] / truth["facts"]["q95"] - 1.0,
             "coefficients": [float(v) for v in fields["coefficients"]], "compare": cmpd}

@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**13** 条（22 %）
-- ★**MUST 级空缺 (open MUST)：40 条**
+- 已有记录覆盖 (covered)：**14** 条（24 %）
+- ★**MUST 级空缺 (open MUST)：39 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -64,7 +64,7 @@ title: 需求覆盖 (Requirement coverage)
 | `FR-EQ-010` | MUST | kinetic-EFIT 自洽外环接口 | — | — | — |
 | `FR-EQ-011` | MUST | 源剖面曲率正则 | — | — | — |
 | `NR-EQ-003` | MUST | 不确定度传播 | — | — | — |
-| `NR-EQ-004` | MUST | 孪生实验可验证（可观测空间） | — | — | — |
+| `NR-EQ-004` | MUST | 孪生实验可验证（可观测空间） | [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 约定与口径：COCOS 与插件接入
 
@@ -222,7 +222,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-012` | 双模、平衡耦合与代理栈 | 平衡耦合接口 |
 | `FR-TR-013` | 双模、平衡耦合与代理栈 | NN 代理栈与权重外置 |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
-| `NR-EQ-004` | 测量重构与约束阶梯 | 孪生实验可验证（可观测空间） |
 | `NR-EQ-005` | 前向自由边界与 Green 响应核 | 自包含数值核（无后端依赖） |
 | `NR-TR-001` | 守恒、金标 parity 与口径 | 守恒性 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |

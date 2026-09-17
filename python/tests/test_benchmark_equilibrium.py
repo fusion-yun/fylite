@@ -133,6 +133,40 @@ def test_v18_fylite_recovers_the_twin_truth_and_reproduces_its_readings(case, tw
     _in_band(got["fylite"], V18_BAND, "V-18")
 
 
+#: ★★`NR-EQ-004` 的带。**它守的是可观测空间那一面**——上面 V-18 那道门量的全是内部量
+#: （q0、磁轴、psi_N），而重构出来的内部量没有真值可比：没有人测过 q0。能判的只有
+#: 「这个解正过来预测测量，差多少」。记录：`docs/benchmark/records/eq-reconstruct-twin-observable-space.jsonld`。
+#:
+#: ★带的来处，逐格：
+#:   chi2_per_dof  测量是**无噪声**的合成件，所以该远小于 1；取 1/10 是「稳稳在噪声底内」的下限。
+#:   rms_sigma     同一件事给人读的说法：预测与测量差几分之一个误差棒。
+#:   max_sigma     ★★**另立此格，因为 RMS 会把坏道摊平**。实测 0.53（三道探针 0.30/0.33/0.53），
+#:                 而环一族的中位只有 0.03——**两族差近 20 倍，聚合数看不见这一层**。
+#:                 无噪声的合成测量里没有哪一道该差到一个 sigma，所以带取 1.0；
+#:                 这是本组最紧的一格（余量不到 2 倍），它紧是应该的，它指着真问题。
+#:   scan_ratio    ★**下限格**：最优档与次优档的 chi2 之比。一个总是很小的数说明不了什么，
+#:                 要紧的是这个度量**分得开**——挪 4 mm 锚点，chi2 必须显著变坏。
+#:                 没有这一格，「在可观测空间验证过」只是一句好听的话。
+NR_EQ_004_BAND = {"chi2_per_dof": 0.1, "rms_sigma": 0.3, "max_sigma": 1.0, "scan_ratio": 3.0}
+
+
+def test_nr_eq_004_the_twin_is_judged_in_observable_space(twin_run):
+    """把解**正过来**预测那 154 道读数，与合成测量逐道相减——`NR-EQ-004` 要的就是这一面。"""
+    fy = twin_run["fylite"]
+    o = fy["observable"]
+
+    assert o["n_loop"] + o["n_probe"] == 154 and o["n_fitted"] >= 1, o
+    assert o["chi2_per_dof"] <= NR_EQ_004_BAND["chi2_per_dof"], ("chi2/dof", o["chi2_per_dof"])
+    assert o["rms_sigma"] <= NR_EQ_004_BAND["rms_sigma"], ("rms", o["rms_sigma"])
+    assert o["max_sigma"] <= NR_EQ_004_BAND["max_sigma"], ("最劣单道", o["max_sigma"], o)
+
+    #: ★这个度量分不分得开：碗底要比隔壁深。锚点是被测量定出来的，不是被人选的。
+    chi = sorted(s["chi2"] for s in fy["zc_scan"] if s.get("converged") and s.get("chi2"))
+    assert len(chi) >= 2, fy["zc_scan"]
+    assert chi[1] / chi[0] >= NR_EQ_004_BAND["scan_ratio"], ("锚点分不开", chi[:2])
+    assert chi[0] == pytest.approx(fy["chi2"]), (chi[0], fy["chi2"])
+
+
 def test_b15_kefit_on_the_twin_measurements_stays_in_its_band(case, twin_run):
     """KEFIT's answer is the recorded run (archive, sha256-indexed); only the comparison is recomputed, against the truth
     this checkout rebuilds — so a change in fylite's forward solve shows up here too."""

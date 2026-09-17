@@ -15,6 +15,25 @@ $q_0$。能判的只有一件事：**各自的解正过来预测测量，与实�
 写成 MUST，而它恰恰是上一册长期记名的缺口——旧册的孪生记录主判据落在内部量上。
 按域组织之后这类偏差自己显形，不必等人想起来。
 
+★★**2026-09-17：这个缺口合上了**，记在
+[`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md)。
+同一次孪生重构，判准换到测量那一侧：把解**正过来**算它预测的 154 道读数（75 个磁通环 + 79 个
+探针），与合成测量逐道相减，$\chi^2/\mathrm{dof} = 5.6\times10^{-3}$，每通道 $0.074\,\sigma$。
+★**这一条不改本域另两条记录，也不否定它们**——它们量的是内部量，那些数仍然有用，
+只是**不构成对 `NR-EQ-004` 的答复**；三条并列，才是这一域完整的说法。
+
+★★而最值得记的一句是：**这套机器一直都在。** `tools/benchmark-equilibrium.py` 里那个
+$\chi^2$ 早就逐档算着，只是算完用来挑锚点，然后丢掉，从没进过册。
+**缺的不是能力，是没有把它记进册。** ——这正是按域重排这本册子想抓的那类事。
+
+★另外两件不该被一个漂亮数字盖住的事，都写在那条记录里。**一，$\chi^2$ 的 99.7 % 落在探针
+一族**：环的 RMS 是 $0.0056\,\sigma$、探针是 $0.104\,\sigma$，差近 20 倍，而聚合出来的
+$0.074$ 会让人以为全场均匀地好。为此另立了一条「最劣单道」判据（$<1\,\sigma$），量到
+$0.53\,\sigma$——**余量不到 2 倍，是这条记录里最紧的一处**。无噪声的合成测量按理每道都该好到
+机器精度，有三道到了 $0.30/0.33/0.53\,\sigma$，**这是个真信号**，成因未查，照实登记。
+**二，本条只能声称「反演与前向互为逆」**：真值与测量都出自 fylite 自己的前向解，
+$\chi^2$ 小**不证明前向解对**（那是前向域的事）。
+
 第二条难处是**约束阶梯**。一次重构用了哪些约束（只磁测量 / 加 MSE / 加动理学剖面）决定了
 它能声称什么。★**拿三级约束的结果去和别人一级约束的结果比，比出来的差是约束的差，不是
 码的差。** 记录必须把阶梯的档位写进 `validity_domain`，并在 `caveat` 里点明哪些量是
@@ -70,17 +89,17 @@ $q_0$。能判的只有一件事：**各自的解正过来预测测量，与实�
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
+| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.1 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
 | [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 6 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 5 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
 - `FR-EQ-008` 快离子压强外部强迫项
 - `FR-EQ-009` 内部约束行几何门控
 - `FR-EQ-010` kinetic-EFIT 自洽外环接口
 - `FR-EQ-011` 源剖面曲率正则
 - `NR-EQ-003` 不确定度传播
-- `NR-EQ-004` 孪生实验可验证（可观测空间）
 
 <!-- END GENERATED -->
