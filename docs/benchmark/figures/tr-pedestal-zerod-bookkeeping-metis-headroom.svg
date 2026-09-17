@@ -24,7 +24,7 @@
 <text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">轴上 ne / Te 对 METIS</text>
 <circle cx="572.0" cy="124.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">读数：不判</text>
-<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">★★0D 这一层还没有的几样（内核缺口）</text>
+<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">★★0D 这一层缺的几样 —— 三样里补了两样（2026-…</text>
 <circle cx="572.0" cy="152.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="156.0" font-size="11" fill="#8a8a8a">读数：不判</text>
 <text x="8" y="204" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>

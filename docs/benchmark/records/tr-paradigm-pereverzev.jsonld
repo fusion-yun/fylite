@@ -140,12 +140,12 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a",
    "comment": "与 `meta/kernel.json` 的基准内核一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.1",
+  "record_version": "1.2",
   "recorded": "2026-09-16",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -161,6 +161,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "★仅重验，结论未动：内核换过（q0 改为轴上解析极限，内核仓 d13376b），本条记录的四道门在新库上**全部通过**，故更新内核指纹、撤销 stale。★这条记录不是本会话所写，只动了指纹与本条变更。"
+   },
+   {
+    "record_version": "1.2",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
    }
   ]
  }

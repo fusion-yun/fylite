@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '5010cfba420aa576'
+DIGEST = '41f31b0f5a225eea'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -146,6 +146,8 @@ TABLES = {
             'loop_plasma': {"path": 'fylite:loop_plasma', "units": 'Wb.rad^-1', "rank": '1d'},
             'probe_plasma': {"path": 'fylite:probe_plasma', "units": 'T', "rank": '1d'},
             'pressure_weight': {"path": 'fylite:pressure_weight', "units": 'Pa^-1', "rank": '1d'},
+            'pressure_r': {"path": 'fylite:pressure_r', "units": 'm', "rank": '1d'},
+            'pressure_z': {"path": 'fylite:pressure_z', "units": 'm', "rank": '1d'},
             'row_extra': {"path": 'fylite:row_extra', "units": '1', "rank": '2d'},
             'meas_extra': {"path": 'fylite:meas_extra', "units": '1', "rank": '1d'},
             'weight_extra': {"path": 'fylite:weight_extra', "units": '1', "rank": '1d'},
@@ -814,8 +816,8 @@ CODE_PARAMS = {
     'coilshare': {"door": 'coilshare_case', "crate": 'fylite_kernel', "parameters": {
         'grid_psi': {'key': 'grid_psi', 'type': 'float', 'via': 'coilshare_case', 'default': '0.0', 'required': False},
         'nu_grid': {'key': 'nu_grid', 'type': 'float', 'via': 'coilshare_case', 'default': '4.0', 'required': False},
-        'nu_loops': {'key': 'nu_loops', 'type': 'float', 'via': 'coilshare_case', 'default': '4.0', 'required': False},
-        'nu_probes': {'key': 'nu_probes', 'type': 'float', 'via': 'coilshare_case', 'default': '3.0', 'required': False},
+        'nu_loops': {'key': 'nu_loops', 'type': 'float', 'via': 'coilshare_case', 'default': 'em::NU_LOOP as f64', 'required': False},
+        'nu_probes': {'key': 'nu_probes', 'type': 'float', 'via': 'coilshare_case', 'default': 'em::NU_PROBE as f64', 'required': False},
     }},
     'coupled': {"door": 'coupled_case', "crate": 'fylite_kernel', "parameters": {
         'beta0': {'key': 'beta0', 'type': 'float', 'via': 'coupled_case', 'default': '0.55', 'required': False},
@@ -1213,8 +1215,12 @@ CODE_PARAMS = {
         'b_tor': {'key': 'b_tor', 'type': 'float', 'via': 'reconstruction_case', 'default': '0.0', 'required': False},
         'coil_fit_loop_sigma': {'key': 'coil_fit_loop_sigma', 'type': 'float', 'via': 'reconstruction_case', 'required': True, 'why': "the flux loops' relative sigma"},
         'coil_fit_sigma': {'key': 'coil_fit_sigma', 'type': 'float', 'via': 'reconstruction_case'},
+        'curv_f': {'key': 'curv_f', 'type': 'float', 'via': 'reconstruction_case', 'default': '0.0', 'required': False},
+        'curv_p': {'key': 'curv_p', 'type': 'float', 'via': 'reconstruction_case', 'default': '0.0', 'required': False},
         'fb_gain': {'key': 'fb_gain', 'type': 'float', 'via': 'reconstruction_case', 'default': '8.0', 'required': False},
         'ip': {'key': 'ip', 'type': 'float', 'via': 'reconstruction_case'},
+        'kinetic_passes': {'key': 'kinetic_passes', 'type': 'float', 'via': 'reconstruction_case', 'default': '1.0', 'required': False},
+        'kinetic_tol': {'key': 'kinetic_tol', 'type': 'float', 'via': 'reconstruction_case', 'default': '1e-4', 'required': False},
         'limiter': {'key': 'limiter', 'type': 'string', 'via': 'reconstruction_case'},
         'max_iter': {'key': 'max_iter', 'type': 'float', 'via': 'reconstruction_case', 'default': '800.0', 'required': False},
         'n_profile': {'key': 'n_profile', 'type': 'float', 'via': 'reconstruction_case', 'default': '65.0', 'required': False},
@@ -1222,7 +1228,8 @@ CODE_PARAMS = {
         'n_theta': {'key': 'n_theta', 'type': 'float', 'via': 'reconstruction_case', 'default': '181.0', 'required': False},
         'nff': {'key': 'nff', 'type': 'float', 'via': 'reconstruction_case', 'default': '2.0', 'required': False},
         'npp': {'key': 'npp', 'type': 'float', 'via': 'reconstruction_case', 'default': '1.0', 'required': False},
-        'nu_loops': {'key': 'nu_loops', 'type': 'float', 'via': 'reconstruction_case', 'default': '8.0', 'required': False},
+        'nu_loops': {'key': 'nu_loops', 'type': 'float', 'via': 'reconstruction_case', 'default': 'em::NU_LOOP as f64', 'required': False},
+        'nu_probes': {'key': 'nu_probes', 'type': 'float', 'via': 'reconstruction_case', 'default': 'em::NU_PROBE as f64', 'required': False},
         'pressure_sigma_frac': {'key': 'pressure_sigma_frac', 'type': 'float', 'via': 'reconstruction_case', 'default': '0.05', 'required': False},
         'probe_weight_scale': {'key': 'probe_weight_scale', 'type': 'float', 'via': 'reconstruction_case', 'default': '1.0', 'required': False},
         'probes': {'key': 'probes', 'type': 'float', 'via': 'reconstruction_case', 'default': '1.0', 'required': False},
@@ -1542,6 +1549,7 @@ CODE_PARAMS = {
         'predict': {'key': 'predict', 'type': 'boolean', 'via': 'zerod_case', 'default': 'false'},
         'pt': {'key': 'pt', 'type': 'float', 'via': 'zerod_case', 'default': '1.5', 'required': False},
         'r0': {'key': 'r0', 'type': 'float', 'via': 'zerod_case', 'required': True, 'why': 'major radius [m]'},
+        's_fuel': {'key': 's_fuel', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'slice': {'key': 'slice', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'stage': {'key': 'stage', 'type': 'string', 'via': 'zerod_case'},
         't_bd': {'key': 't_bd', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
@@ -1551,6 +1559,7 @@ CODE_PARAMS = {
         't_on': {'key': 't_on', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         't_ru': {'key': 't_ru', 'type': 'float', 'via': 'zerod_case'},
         'tau_law': {'key': 'tau_law', 'type': 'string', 'via': 'zerod_case'},
+        'tau_p': {'key': 'tau_p', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'tite': {'key': 'tite', 'type': 'float', 'via': 'zerod_case', 'default': '1.0', 'required': False},
         'uqon': {'key': 'uqon', 'type': 'boolean', 'via': 'zerod_case', 'default': 'false'},
         'w0': {'key': 'w0', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},

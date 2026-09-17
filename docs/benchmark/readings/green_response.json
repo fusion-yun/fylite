@@ -83,7 +83,7 @@
   "comment": "★正向造测量与反向减线圈份额之后，环上还剩多少——它给两侧响应之差一个上界。",
   "loop_coil_median_abs_Wb": 0.32450119133762056,
   "loop_coil_max_abs_Wb": 0.44678287645288645,
-  "residual_abs_rms_Wb": 0.00011845939596051532,
-  "residual_over_coil_share": 0.00036505072746332906
+  "residual_abs_rms_Wb": 0.00011845939596035614,
+  "residual_over_coil_share": 0.0003650507274628385
  }
 }

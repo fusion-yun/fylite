@@ -1,0 +1,20 @@
+{
+ "w_th_flattop_J": 197046513.48505524,
+ "dw_dt_max_W": 369064178.82723904,
+ "alpha": {
+  "p_alpha_MW": 67.49958045218605,
+  "electron": 0.850479777836668,
+  "ion": 0.14952022216333208,
+  "split_sums_to_total_rel": 0.0
+ },
+ "particles": {
+  "particle_closure": 1.06692608e-14,
+  "fuel_start": 7.472996438770973e+20,
+  "fuel_end": 2.8543179175742174e+22,
+  "fuel_in": 9.999999999999994e+22,
+  "fuel_pumped": 7.03988119410616e+22,
+  "fuel_burned": 1.8053085270733902e+21,
+  "books_close_rel": 4.555323820077556e-15
+ },
+ "off_by_default": true
+}

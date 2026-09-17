@@ -1,0 +1,13 @@
+{
+ "what": "FR-EQ-002：两扇门的求积默认值与线圈份额",
+ "coilshare": {
+  "nu_loops": 8.0,
+  "nu_probes": 3.0
+ },
+ "reconstruction": {
+  "nu_loops": 8.0,
+  "nu_probes": 3.0
+ },
+ "defaults_agree": true,
+ "loop_coil_median_abs_Wb": 0.32450119133762056
+}

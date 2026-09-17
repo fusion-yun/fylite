@@ -91,13 +91,13 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485"
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-16",
-  "revised": "2026-09-16",
+  "revised": "2026-09-17",
   "review_status": "draft",
   "open_defect": "2026-09-16 记名读数（非缺陷但未定）：edge 规则收敛而离 KEFIT 更远，node 规则不收敛却更近；两者差在虚拟对是否带电流。判它需要独立于两者的真值，这道题上没有。用户裁定「保留负面结果」，本条以 inconclusive 原样留册。",
   "change": [
@@ -106,6 +106,12 @@
     "date": "2026-09-16",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：两种边界规则对 KEFIT 的读数，不判谁对"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
    }
   ]
  }

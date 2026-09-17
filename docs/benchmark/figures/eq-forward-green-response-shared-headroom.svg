@@ -28,7 +28,7 @@
 <circle cx="572.0" cy="152.0" r="4" fill="#6f8fbf"/>
 <text x="584.0" y="156.0" font-size="11" fill="#8a8a8a">恒等：成立</text>
 <text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">★★由**机制**保证两侧不会走散（抄录原文的 `Resp…</text>
-<circle cx="572.0" cy="180.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="184.0" font-size="11" fill="#8a8a8a">恒等：不成立</text>
+<circle cx="572.0" cy="180.0" r="4" fill="#6f8fbf"/>
+<text x="584.0" y="184.0" font-size="11" fill="#8a8a8a">恒等：成立</text>
 <text x="8" y="232" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>
 </svg>

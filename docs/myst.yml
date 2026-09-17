@@ -179,6 +179,9 @@ project:
             - file: benchmark/reports/eq-reconstruct-kefit-twin.md
             - file: benchmark/reports/eq-reconstruct-twin-truth-recovery.md
             - file: benchmark/reports/eq-reconstruct-twin-observable-space.md
+            - file: benchmark/reports/eq-reconstruct-fast-ion-pressure.md
+            - file: benchmark/reports/eq-reconstruct-kinetic-outer.md
+            - file: benchmark/reports/eq-reconstruct-curvature-prior.md
             - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
             - file: benchmark/reports/tr-closure-15d-source-switches.md
             - file: benchmark/reports/tr-closure-dt-burn-astra.md

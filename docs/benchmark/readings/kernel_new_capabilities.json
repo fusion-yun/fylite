@@ -1,0 +1,29 @@
+{
+ "fr_eq_008": {
+  "runs": {
+   "no_pfast": {
+    "p_fast_max": 0.0,
+    "kinetic_rows": 9.0,
+    "chi2_kin": 7.051856947944776,
+    "chi2_per_dof": 0.1715405631581349,
+    "meas_weight_sha": 32238762.880076718,
+    "notes": []
+   },
+   "with_pfast": {
+    "p_fast_max": 2675.6692075337696,
+    "kinetic_rows": 9.0,
+    "chi2_kin": 10.183523724451774,
+    "chi2_per_dof": 0.6242854802823921,
+    "meas_weight_sha": 32238762.880076718,
+    "notes": [
+     "p_fast subtracted from the kinetic rows: max 2.6757e3 Pa over 9 rows; sigma unchanged"
+    ]
+   }
+  },
+  "sigma_untouched": true,
+  "p_total_max_Pa": 18017.974461506867
+ },
+ "zerod": {
+  "error": "the kernel refused (-31): the case sets no `ip` (the plasma current [kA]) and binds none"
+ }
+}

@@ -194,14 +194,14 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a",
    "comment": "★须设 $FYLITE_KERNEL_LIB 指向带 code/fixed_boundary 的构建：不设时会加载滞后的运行时预编译件，门当场按名拒绝（-30）。"
   }
  },
  "provenance": {
-  "record_version": "1.1",
+  "record_version": "1.2",
   "recorded": "2026-09-16",
-  "revised": "2026-09-16",
+  "revised": "2026-09-17",
   "review_status": "draft",
   "change": [
    {
@@ -215,6 +215,12 @@
     "date": "2026-09-16",
     "by": "Claude Opus 5 (1M context)",
     "summary": "★改判为成立：内核把 q0 从「最内两个磁面外推」改成「轴上解析极限」（内核仓 d13376b），实测 −3.26e-03 → −1.97e-05，三档网格同号且逐档缩小。**容差一格没动**——带留在原处，改动才有一个不会移动的靶子。本条的 open_defect 随之撤销。"
+   },
+   {
+    "record_version": "1.2",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
    }
   ]
  }

@@ -39,45 +39,55 @@ $\chi^2$ 小**不证明前向解对**（那是前向域的事）。
 码的差。** 记录必须把阶梯的档位写进 `validity_domain`，并在 `caveat` 里点明哪些量是
 **喂进去的**而不是算出来的——这一条在重构里尤其关键，因为喂进去的量看起来和算出来的一样。
 
-★★**剩下那五条 MUST，2026-09-17 逐条查过内核，全是能力缺口——照实记在这里。**
-下面的「缺口」一节由生成器列号，这里补的是**为什么**：一份只说「空着」的清单，
-读的人无从判断是没人做，还是做不了。★证据落到具体的行，便于将来有人来补时直接接上。
+★★**剩下那五条 MUST，2026-09-17 逐条查过内核，确认全是能力缺口。用户随后裁定「kernel 仓解决」，
+当天补上其中三条。** 下面按「已补上」与「仍空着」两半写，两半都记证据——
+一份只说「空着」的清单，读的人无从判断是没人做，还是做不了。
 
-`FR-EQ-008` **快离子压强外部强迫项**。重构门**有**动理学压强行
-（`pressure` / `pressure_x` / `pressure_weight` / `pressure_sigma_frac`，`case.rs` 的 kinetic rows 段），
-但**没有快离子项**：内核里 `p_fast` 只出现在加热与 bootstrap 一侧
-（`bootstrap_case` 读 `discharge/fylite:p_fast_profile`），重构里一处都没有。
-抄录要的是「$p_{fast}$ 固定扣除（$\sigma$ 不动）」——**要在门内扣、且不动 $\sigma$**；
-眼下只能由调用方自己在外面减掉，而那样 $\sigma$ 就跟着动了。**缺的是门里那一步。**
+### 已补上的三条（内核 2026-09-17）
 
-`FR-EQ-009` **内部约束行几何门控**。★**内核里根本没有 MSE。** 全仓搜 `MSE` / `motional`，
-零命中。抄录那一整段（`FR-EQ-007..009` 共用）讲的是 MSE 全形响应行的两档、$E_r$ 门、
-几何健康门控不旁路、标定与装配两层分离——**这些都建立在有内部约束行之上，而这里一行也没有**。
+`FR-EQ-008` **快离子压强外部强迫项**，记在
+[`eq-reconstruct-fast-ion-pressure`](../../reports/eq-reconstruct-fast-ion-pressure.md)。
+重构门此前**有**动理学压强行而**没有**快离子项（`p_fast` 只在加热与 bootstrap 一侧）。
+现读 `p_fast_profile`，插到压强行上扣掉。★★**要害是次序**：σ 先由**总**压强算出，扣除排在它之后，
+扣完权重一位不动——`p_fast` 是**已知量**，从测量里减掉已知量改的是测量的**值**，不是它的**不确定度**。
+实测：扣掉峰值 2676 Pa，两次跑的权重平方和都是 `32238762.880076718`，**一位不差**。
+
+`FR-EQ-010` **kinetic-EFIT 自洽外环**，记在
+[`eq-reconstruct-kinetic-outer`](../../reports/eq-reconstruct-kinetic-outer.md)。
+动理学数据测在**位置**上，把位置变成 $\psi_N$ 要一个平衡，而平衡正是待解的东西——
+单遍重构因此是在**别人的平衡**给出的横坐标上拟合，且从不说明这一点。
+现加 `kinetic_passes`：逐遍重映、逐遍报 $\chi^2/\mathrm{dof}$ 与映射移动。
+★验法是**故意给错**：把 $\psi_N$ 标签整体推错 0.12，单遍的 $q_0$ 偏 **+7.12 %**，六遍外环后 **−0.070 %**——
+好了 **101 倍**，映射移动从 0.235 降到 8.5e-4。
+★★而且「**取最优遍收官、不取最后一遍**」这条为「交替不保证单调」写的防御，
+**在第一次真实测试里就触发了**（第 6 遍比第 5 遍差，于是收官在第 5 遍）——不是纸上的谨慎。
+
+`FR-EQ-011` **源剖面曲率正则**，记在
+[`eq-reconstruct-curvature-prior`](../../reports/eq-reconstruct-curvature-prior.md)。
+★**先量了病再开药**：真值的 $p'$ 与 $FF'$ 随 $\psi_N$ 线性，把基从 (1,1) 抬到 (2,2) 答案**更坏**
+（$q_0$ 偏差 −0.12 % → −31.5 %），因为多出来的自由度磁测量定不住。
+现加 opt-in 的曲率罚行（`curv_p` / `curv_f`，缺省 0 即一行不加）。
+实测 $\lambda$ = 1e-3 时 $q_0$ 偏差压回到 −13.6 %（2.3 倍），★★**而且 $\chi^2$/dof 同时变好**
+（0.0307 → 0.0192）——物理量变好可能是撞上的，**拟合与物理量一起变好只有一种解释**：
+先验删掉的那个方向，数据本来也没在支持它。
+★**三条丑话照实记在记录里**：压回不彻底（离基线仍远）、$\lambda$ 的响应**非单调**（0.1 处解直接崩）、
+最劣单道反而变坏。★抄录点名的「简并 $l_i$ 从 60 压回 ~1.1」**本册复现不了**——
+这个孪生的简并表现在 $q_0$ 上不表现在 $l_i$ 上，那一格标 `unevaluated`，**不拿别的数字冒充**。
+
+### 仍空着的两条
+
+`FR-EQ-009` **内部约束行几何门控**。★**内核里根本没有 MSE**：全仓搜 `MSE` / `motional`，零命中。
+抄录那一整段（`FR-EQ-007..009` 共用）讲的是 MSE 全形响应行的两档、$E_r$ 门、几何健康门控不旁路、
+标定与装配两层分离——**这些都建立在有内部约束行之上，而这里一行也没有**。
 ★所以这一条不是「门控没做对」，是**被门控的东西还不存在**。
 
-`FR-EQ-010` **kinetic-EFIT 自洽外环接口**。四十个门里没有 `kinetic_outer`，也没有逐遍证书。
-最接近的是 `refit`——它交替「压强形状拟合 + $\beta_p$ 反馈」与一次自由边界求解，
-但那是**输运行进**的一步，不是重构的外环，而且不报逐遍的 $\chi^2/\mathrm{dof}$。
-★顺带一个能说明问题的细节：**重构门连自己的 $\chi^2$ 都不报**——facts 里有 `residual`
-（那是求解器的），没有 $\chi^2$。抄录要的「逐遍 $\chi^2$/dof 与映射移动、最优遍收官」，
-第一件事就没有着落。
+`NR-EQ-003` **不确定度传播**。重构门吐出 `coefficients`，但不吐协方差、不吐后验、不吐 $\sigma$ 带。
+★**这一条这轮往前挪了半步**：门此前连自己的 $\chi^2$ 都不报（facts 里只有求解器的 `residual`），
+现在报 `chi2` / `dof` / `chi2_per_dof` / `worst_channel_sigma` 与逐道残差。
+不确定度的**输入**因此齐了，缺的是把它传播出去的那一步。
 
-`FR-EQ-011` **源剖面曲率正则**。重构门二十余个设置项里**没有任何正则化开关**
-（无 `curv`、无 `reg`、无罚参数）。★★**而它该压的那个简并，这一轮量到了**：
-孪生真值用 `emp = enp = 1`（$p'$ 与 $FF'$ 随 $\psi_N$ 线性），重构用 `npp = nff = 1`（2 个系数）。
-看着像基不够，于是把阶数抬上去——**结果反而更坏**：$(1,1)\to(2,2)$ 时
-$\chi^2$ 从 0.851 涨到 4.60，$q_0$ 偏差从 $-0.12\,\%$ 崩到 $-32\,\%$
-（读数 `twin_basis_order.json`）。**磁测量管不住多出来的自由度，多给就往它管不着的方向跑。**
-★这正是抄录里「A/B 下简并 $l_i$ 压回（$60\to\sim1.1$）」说的那件事——
-**需求的前提在本仓是可复现的，缺的只是压回它的那个机制。**
-
-`NR-EQ-003` **不确定度传播**。重构门吐出 `coefficients`，但不吐协方差、不吐后验、
-不吐 $\sigma$ 带（facts 与 fields 逐项查过）。抄录要的是「后验 / $\sigma$ 带随 fit 报告出」。
-★这一条与上面那条是同一个病的两面：**没有不确定度，就说不清多出来的自由度到底被数据管住了没有**。
-
-★★**这五条一条都没有写成记录，是有意的。** 一条只由「内核不给」组成的记录，会被覆盖表
-算作「已覆盖」，于是把硬缺口从空缺栏里抹掉——**那比空着更坏**。
-生成器 2026-09-17 起也堵住了这条路：什么都没判的记录不计覆盖
+★★**这两条仍不写成记录，仍是有意的。** 一条只由「内核不给」组成的记录会被覆盖表算作「已覆盖」，
+把硬缺口从空缺栏里抹掉——**那比空着更坏**。生成器 2026-09-17 起也堵住了这条路
 （`evaluates_anything`，由 `test_a_record_that_evaluates_nothing_does_not_count_as_coverage` 守）。
 
 上一册这一域最厚：`B-06` / `B-11` / `B-12`（EAST 重构、对 EFIT-EAST、对原始树 KEFIT）、
@@ -129,18 +139,18 @@ $\chi^2$ 从 0.851 涨到 4.60，$q_0$ 偏差从 $-0.12\,\%$ 崩到 $-32\,\%$
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
-| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.2 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
-| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
+| [`eq-reconstruct-curvature-prior`](../../reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 | 同一次孪生的已知真值 q0，以及不加正则的简并解 | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-curvature-prior.jsonld) |
+| [`eq-reconstruct-fast-ion-pressure`](../../reports/eq-reconstruct-fast-ion-pressure.md) | 验证 | 成立 | 它自己不绑快离子压强的那一次 | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-fast-ion-pressure.jsonld) |
+| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.1 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
+| [`eq-reconstruct-kinetic-outer`](../../reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 | 同一次孪生的**已知真映射**，以及单遍（kinetic_passes = 1）的结果 | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-kinetic-outer.jsonld) |
+| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.3 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
+| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.1 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 5 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
-- `FR-EQ-008` 快离子压强外部强迫项
 - `FR-EQ-009` 内部约束行几何门控
-- `FR-EQ-010` kinetic-EFIT 自洽外环接口
-- `FR-EQ-011` 源剖面曲率正则
 - `NR-EQ-003` 不确定度传播
 
 <!-- END GENERATED -->

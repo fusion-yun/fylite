@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "5010cfba420aa576";
+pub const DIGEST: &str = "41f31b0f5a225eea";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -140,6 +140,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "loop_plasma", path: "fylite:loop_plasma", units: "Wb.rad^-1", rank: "1d" },
         Slot { key: "probe_plasma", path: "fylite:probe_plasma", units: "T", rank: "1d" },
         Slot { key: "pressure_weight", path: "fylite:pressure_weight", units: "Pa^-1", rank: "1d" },
+        Slot { key: "pressure_r", path: "fylite:pressure_r", units: "m", rank: "1d" },
+        Slot { key: "pressure_z", path: "fylite:pressure_z", units: "m", rank: "1d" },
         Slot { key: "row_extra", path: "fylite:row_extra", units: "1", rank: "2d" },
         Slot { key: "meas_extra", path: "fylite:meas_extra", units: "1", rank: "1d" },
         Slot { key: "weight_extra", path: "fylite:weight_extra", units: "1", rank: "1d" },
@@ -771,8 +773,8 @@ pub const CODES: &[Code] = &[
     Code { name: "coilshare", door: "coilshare_case", krate: "fylite_kernel", params: &[
         Param { key: "grid_psi", value_type: "float", default: "0.0", required: false, via: "coilshare_case" },
         Param { key: "nu_grid", value_type: "float", default: "4.0", required: false, via: "coilshare_case" },
-        Param { key: "nu_loops", value_type: "float", default: "4.0", required: false, via: "coilshare_case" },
-        Param { key: "nu_probes", value_type: "float", default: "3.0", required: false, via: "coilshare_case" },
+        Param { key: "nu_loops", value_type: "float", default: "em::NU_LOOP as f64", required: false, via: "coilshare_case" },
+        Param { key: "nu_probes", value_type: "float", default: "em::NU_PROBE as f64", required: false, via: "coilshare_case" },
     ] },
     Code { name: "coupled", door: "coupled_case", krate: "fylite_kernel", params: &[
         Param { key: "beta0", value_type: "float", default: "0.55", required: false, via: "coupled_case" },
@@ -1170,8 +1172,12 @@ pub const CODES: &[Code] = &[
         Param { key: "b_tor", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
         Param { key: "coil_fit_loop_sigma", value_type: "float", default: "", required: true, via: "reconstruction_case" },
         Param { key: "coil_fit_sigma", value_type: "float", default: "", required: false, via: "reconstruction_case" },
+        Param { key: "curv_f", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
+        Param { key: "curv_p", value_type: "float", default: "0.0", required: false, via: "reconstruction_case" },
         Param { key: "fb_gain", value_type: "float", default: "8.0", required: false, via: "reconstruction_case" },
         Param { key: "ip", value_type: "float", default: "", required: false, via: "reconstruction_case" },
+        Param { key: "kinetic_passes", value_type: "float", default: "1.0", required: false, via: "reconstruction_case" },
+        Param { key: "kinetic_tol", value_type: "float", default: "1e-4", required: false, via: "reconstruction_case" },
         Param { key: "limiter", value_type: "string", default: "", required: false, via: "reconstruction_case" },
         Param { key: "max_iter", value_type: "float", default: "800.0", required: false, via: "reconstruction_case" },
         Param { key: "n_profile", value_type: "float", default: "65.0", required: false, via: "reconstruction_case" },
@@ -1179,7 +1185,8 @@ pub const CODES: &[Code] = &[
         Param { key: "n_theta", value_type: "float", default: "181.0", required: false, via: "reconstruction_case" },
         Param { key: "nff", value_type: "float", default: "2.0", required: false, via: "reconstruction_case" },
         Param { key: "npp", value_type: "float", default: "1.0", required: false, via: "reconstruction_case" },
-        Param { key: "nu_loops", value_type: "float", default: "8.0", required: false, via: "reconstruction_case" },
+        Param { key: "nu_loops", value_type: "float", default: "em::NU_LOOP as f64", required: false, via: "reconstruction_case" },
+        Param { key: "nu_probes", value_type: "float", default: "em::NU_PROBE as f64", required: false, via: "reconstruction_case" },
         Param { key: "pressure_sigma_frac", value_type: "float", default: "0.05", required: false, via: "reconstruction_case" },
         Param { key: "probe_weight_scale", value_type: "float", default: "1.0", required: false, via: "reconstruction_case" },
         Param { key: "probes", value_type: "float", default: "1.0", required: false, via: "reconstruction_case" },
@@ -1499,6 +1506,7 @@ pub const CODES: &[Code] = &[
         Param { key: "predict", value_type: "boolean", default: "false", required: false, via: "zerod_case" },
         Param { key: "pt", value_type: "float", default: "1.5", required: false, via: "zerod_case" },
         Param { key: "r0", value_type: "float", default: "", required: true, via: "zerod_case" },
+        Param { key: "s_fuel", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "slice", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "stage", value_type: "string", default: "", required: false, via: "zerod_case" },
         Param { key: "t_bd", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
@@ -1508,6 +1516,7 @@ pub const CODES: &[Code] = &[
         Param { key: "t_on", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "t_ru", value_type: "float", default: "", required: false, via: "zerod_case" },
         Param { key: "tau_law", value_type: "string", default: "", required: false, via: "zerod_case" },
+        Param { key: "tau_p", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "tite", value_type: "float", default: "1.0", required: false, via: "zerod_case" },
         Param { key: "uqon", value_type: "boolean", default: "false", required: false, via: "zerod_case" },
         Param { key: "w0", value_type: "float", default: "0.0", required: false, via: "zerod_case" },

@@ -49,7 +49,7 @@ title: "台基、锯齿与 0D 存量"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 | METIS | 1.0 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 | METIS | 1.2 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 缺口
 

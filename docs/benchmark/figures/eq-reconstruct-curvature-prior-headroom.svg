@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 212" role="img" aria-label="tr-closure-dt-burn-astra: 每条判据离它的带还有多远">
-<title>tr-closure-dt-burn-astra - 判据余量</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 212" role="img" aria-label="eq-reconstruct-curvature-prior: 每条判据离它的带还有多远">
+<title>eq-reconstruct-curvature-prior - 判据余量</title>
 <desc>横轴为余量倍数（对数）。1 倍处是判据本身：右侧成立，左侧越界。恒等档没有余量可言，画成标记。</desc>
 <text x="8" y="22" font-size="14" font-weight="600" fill="#9a9a9a">判据余量 —— 离带还有多远（对数轴，1 倍即判据本身）</text>
 <line x1="380.0" y1="40" x2="380.0" y2="172" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
@@ -15,16 +15,16 @@
 <line x1="860.0" y1="40" x2="860.0" y2="172" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
 <text x="860.0" y="188" font-size="11" fill="#8a8a8a" text-anchor="middle">10³x</text>
 <text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
-<text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">α 份额 p_alpha / p_fus 对分支比 3.5…</text>
-<rect x="467.5" y="61.0" width="104.5" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="461.5" y="72.0" font-size="11" fill="#d64545" text-anchor="end">超出 12.3 倍</text>
-<text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">α 总功率对 ASTRA 的体积分</text>
-<circle cx="572.0" cy="96.0" r="4" fill="#8a8a8a"/>
-<text x="584.0" y="100.0" font-size="11" fill="#8a8a8a">读数：不判</text>
-<text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">α 功率的电子 / 离子分配</text>
-<rect x="549.3" y="117.0" width="22.7" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="543.3" y="128.0" font-size="11" fill="#d64545" text-anchor="end">超出 1.72 倍</text>
-<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">剖面对照（读数，不判）</text>
+<text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">★缺省是否完全关闭（opt-in）</text>
+<circle cx="572.0" cy="68.0" r="4" fill="#6f8fbf"/>
+<text x="584.0" y="72.0" font-size="11" fill="#8a8a8a">恒等：成立</text>
+<text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">A/B：简并档的 q0 偏差被压回多少倍</text>
+<rect x="572.0" y="89.0" width="6.2" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="584.2" y="100.0" font-size="11" fill="#e0a030" text-anchor="start">1.16x</text>
+<text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">★压回的同时，对数据的拟合不得变坏（chi2/dof 之比）</text>
+<rect x="572.0" y="117.0" width="19.5" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
+<text x="597.5" y="128.0" font-size="11" fill="#e0a030" text-anchor="start">1.6x</text>
+<text x="370" y="156.0" font-size="12" fill="#9a9a9a" text-anchor="end">抄录点名的那个 A/B 数字：简并 l_i 从 60 压回…</text>
 <circle cx="572.0" cy="152.0" r="4" fill="#8a8a8a"/>
 <text x="584.0" y="156.0" font-size="11" fill="#8a8a8a">读数：不判</text>
 <text x="8" y="204" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>

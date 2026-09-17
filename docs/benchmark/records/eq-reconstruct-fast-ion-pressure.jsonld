@@ -1,0 +1,136 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/eq-reconstruct-fast-ion-pressure",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "快离子压强固定扣除：读数变了，**不确定度一位没动**",
+  "en": "The fast-ion pressure, subtracted once: the reading moves, the uncertainty does not"
+ },
+ "domain": "eq-reconstruct",
+ "requirement": [
+  "FR-EQ-008"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · code/reconstruction",
+  "comment": "同一次孪生重构，绑与不绑 `p_fast_profile` 各跑一遍"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "它自己不绑快离子压强的那一次",
+   "comment": "★★**本条是一次 A/B，参考是自己**。要判的不是「扣得准不准」（那取决于上游给的 p_fast），而是**扣的方式对不对**：读数该动、σ 不该动。这两件事都是可判的。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/eq-reconstruct-fast-ion-pressure/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★**σ（测量权重）在扣除前后是否逐位不变**",
+   "norm": "identity",
+   "tolerance_basis": "machine_precision",
+   "comment": "★★**这是整条要求的要害。** `p_fast` 是**已知量**（上游由束流沉积算出）。从测量里减掉一个已知量，改的是测量的**值**，不是它的**不确定度**。把 σ 放宽去「照顾」这次扣除，等于说拟合从此可以多漂这么多——而那正是这条行存在要收掉的自由度。★判据取**逐位**，不取「近似不变」：权重是算出来就不该再碰的东西，碰没碰是个是非题。"
+  },
+  {
+   "id": "benchmark/records/eq-reconstruct-fast-ion-pressure/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "扣除是否真的发生（扣掉的峰值 / 总压强峰值）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.0
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★下限格，防假通过：一个什么也没扣的实现会完美满足上一格。"
+  },
+  {
+   "id": "benchmark/records/eq-reconstruct-fast-ion-pressure/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "动理学行的 chi2 是否随之改变",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.0
+   },
+   "tolerance_basis": "measured_band",
+   "comment": "★同样是防假通过的一格：扣除必须真的进到**拟合**里，而不是只改了个回显的数。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★σ 逐位未动",
+   "criterion": "benchmark/records/eq-reconstruct-fast-ion-pressure/criterion/1",
+   "bound": "identity",
+   "deviation_literal": "两次跑的磁道权重平方和都是 32238762.880076718 —— **一位不差**",
+   "verdict": "pass",
+   "caveat": [
+    "★量的是权重的平方和而不是逐个比对：它对任何一个权重的改变都敏感，而一个数比一个数组更容易在记录里读。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "扣除确实发生",
+   "criterion": "benchmark/records/eq-reconstruct-fast-ion-pressure/criterion/2",
+   "measured_deviation": 0.1485,
+   "bound": "lower",
+   "deviation_literal": "扣掉的快离子压强峰值 2675.67 Pa，占总压强峰值 18018 Pa 的 14.8 %；不绑时 `p_fast_max` 为 0",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "它进到了拟合里",
+   "criterion": "benchmark/records/eq-reconstruct-fast-ion-pressure/criterion/3",
+   "measured_deviation": 0.44409108120375373,
+   "bound": "lower",
+   "deviation_literal": "动理学行的 chi2 从 7.0519 到 10.184（变 44.4 %）",
+   "verdict": "pass",
+   "caveat": [
+    "★**chi2 变大不是变坏**：喂进去的 `p_fast` 是本条为验证而造的一个形状（芯部 15 %），不是这一炮真实的快离子压强。它让动理学行说了一件**不同**的事，行与磁测量之间的张力因此改变——这只说明扣除进到了拟合里，不说明扣得对。"
+   ]
+  }
+ ],
+ "validity_domain": "EAST #137985 t = 4.041 s 的孪生；动理学行取真值压强在 psi_N = 0.1..0.9 的 9 个点，sigma 由 `pressure_sigma_frac` 的缺省 5 % 算出。★快离子压强是**为验证造的**：取总压强的 15 % 乘 (1 - psi_N^2)，峰值 2675.67 Pa。★**本条判的是扣除的方式，不是 p_fast 的数值来源**——后者是上游的事。",
+ "caveat": [
+  "★★**本条不声称扣得准**。`p_fast` 的不确定度是真实存在的，而内核**不建模**它：要它的调用方得自己把送进来的 sigma 放宽。这扇门不替人猜——★而「不替人猜」正是「sigma 不动」这条要求的另一面：门只做被要求的那一件事。",
+  "★绑了 `p_fast_profile` 却一条动理学行都没有时，门会**出声**（notes）而不是静默忽略——静默的那一种会让调用方以为扣过了。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/kernel_new_capabilities.json",
+    "checksum": "sha256:1f1c9eb4b394a3881d95198f0bd770bfba65a9c82ec1db6e7a4f1f01fae4d6cf",
+    "comment": "A/B 两次重构的权重、p_fast 峰值与动理学 chi2（当日实跑）"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_equilibrium.py::test_fr_eq_008_the_fast_ion_pressure_is_subtracted_without_touching_sigma",
+    "comment": "★本条三格的门"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：FR-EQ-008 由内核实现（2026-09-17）。扣掉峰值 2675.67 Pa，σ 权重平方和逐位不变，动理学 chi2 随之改变"
+   }
+  ]
+ }
+}

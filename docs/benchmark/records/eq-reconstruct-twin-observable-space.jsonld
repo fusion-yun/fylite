@@ -79,7 +79,7 @@
    "type": "fyo:ComparisonFinding",
    "title": "chi2 / dof",
    "criterion": "benchmark/records/eq-reconstruct-twin-observable-space/criterion/1",
-   "measured_deviation": 0.005601385386486364,
+   "measured_deviation": 0.005601385386525263,
    "bound": "upper",
    "deviation_literal": "chi2 = 0.851411 over 154 通道（75 环 + 79 探针）减 2 个拟合系数 → chi2/dof = 0.005601（判据 0.1，余量约 18 倍）",
    "verdict": "pass",
@@ -91,7 +91,7 @@
    "type": "fyo:ComparisonFinding",
    "title": "每通道残差",
    "criterion": "benchmark/records/eq-reconstruct-twin-observable-space/criterion/2",
-   "measured_deviation": 0.07435482581330415,
+   "measured_deviation": 0.07435482581356233,
    "bound": "upper",
    "deviation_literal": "RMS = 0.07435 sigma（判据 0.3，余量约 4.0 倍）——即重构把每个测量预测到它误差棒的 7.4 % 以内",
    "verdict": "pass",
@@ -103,7 +103,7 @@
    "type": "fyo:ComparisonFinding",
    "title": "★最劣的那一道",
    "criterion": "benchmark/records/eq-reconstruct-twin-observable-space/criterion/4",
-   "measured_deviation": 0.534235118356443,
+   "measured_deviation": 0.5342351183593314,
    "bound": "upper",
    "deviation_literal": "最劣 0.5342 sigma（一道探针；判据 1.0，余量仅 1.87 倍）——探针一族的中位是 0.03065、九成位 0.1046，即**偏差集中在少数几道**，不是全场抬高",
    "verdict": "pass",
@@ -116,7 +116,7 @@
    "type": "fyo:ComparisonFinding",
    "title": "★★这个度量**分得开**——本条真正的证据",
    "criterion": "benchmark/records/eq-reconstruct-twin-observable-space/criterion/3",
-   "measured_deviation": 26.373678457008605,
+   "measured_deviation": 26.37367845683269,
    "bound": "lower",
    "deviation_literal": "16 档零点锚扫描全部收敛：最优 chi2 0.8514 @ zc = -0.0020 m，次优 22.45（**差 26.4 倍**），最劣 1756",
    "verdict": "pass",
@@ -139,7 +139,7 @@
   "has_input": [
    {
     "storage_uri": "docs/benchmark/readings/twin_observable_space.json",
-    "checksum": "sha256:fb96cce23b988d9d739ec55c2e70c35fce3b7fe415799c386085abb9eeb7c1db",
+    "checksum": "sha256:c1b885204da8c6ea0395dc6d5a6bf631ebace778e5e2f17750a2a5887525f199",
     "comment": "本条读数：通道数、chi2、逐档零点锚扫描与内部量对照（当日实跑）"
    }
   ],
@@ -155,11 +155,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485"
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
   }
  },
  "provenance": {
-  "record_version": "1.2",
+  "record_version": "1.3",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -182,6 +182,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "缺陷追因推进一步：**否掉**「基张不出真值」这个假说——抬高 p'/FF' 阶数 chi2 反而从 0.851 涨到 4.6、q0 从 -1.2e-03 崩到 -3.2e-01。是病态不是基不足。缺陷仍开着"
+   },
+   {
+    "record_version": "1.3",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后重测（`FR-EQ-002` 让正反两向走同一个响应调用）。★**数值只在末位动**：chi2 相对变 7e-12、最劣单道 5.4e-12——正是两种收缩次序的舍入差，**代数恒等这句话于是被量出来了**。判据、口径与结论一字未改"
    }
   ]
  }

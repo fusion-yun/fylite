@@ -133,6 +133,134 @@ def test_v18_fylite_recovers_the_twin_truth_and_reproduces_its_readings(case, tw
     _in_band(got["fylite"], V18_BAND, "V-18")
 
 
+#: ★★内核 2026-09-17 补上的三条 MUST 的门（`FR-EQ-008` / `FR-EQ-010` / `FR-EQ-011`）。
+#: 三者都用同一个孪生，所以先把它们要的那份「动理学测点」一次造好。
+#:
+#: ★★**测点是造出来的，这是本组能成立的前提**：真值平衡自己带压强剖面，把测点摆在它的
+#: psi 图的中平面上，于是「这些点该落在哪个 psi_N」是**算得出来的**，而不是猜的。
+#: 有了已知的真映射，才谈得上「故意给错，看外环拉不拉得回来」。
+@pytest.fixture(scope="module")
+def kinetic_twin(case):
+    import numpy as np
+    tool = _tool()
+    truth, meas, dev, _ = tool.twin_truth(case)
+    lw, pw = tool.sigma_weights(meas)
+    _, tf, _ = tool.door("code/forward", truth["settings"],
+                         {"device": dev, "discharge": {"fylite:channel_aturns": meas["aturns"],
+                                                       "fylite:ip": np.array([meas["ip"]])}})
+    gr = np.asarray(tf["grid_r"], float); gz = np.asarray(tf["grid_z"], float)
+    psi = np.asarray(tf["psi"], float).reshape(len(gr), len(gz))
+    psin1d = np.asarray(tf["psin_1d"], float); pres1d = np.asarray(tf["pres"], float)
+    ax_r, ax_z = truth["facts"]["axis_r"], truth["facts"]["axis_z"]
+    span = truth["facts"]["psi_axis"] - truth["facts"]["psi_bnd"]
+
+    def psi_at(r, z):
+        i = int(np.clip(np.searchsorted(gr, r) - 1, 0, len(gr) - 2))
+        j = int(np.clip(np.searchsorted(gz, z) - 1, 0, len(gz) - 2))
+        tr = (r - gr[i]) / (gr[i + 1] - gr[i]); tz = (z - gz[j]) / (gz[j + 1] - gz[j])
+        return ((1 - tr) * (1 - tz) * psi[i, j] + tr * (1 - tz) * psi[i + 1, j]
+                + (1 - tr) * tz * psi[i, j + 1] + tr * tz * psi[i + 1, j + 1])
+
+    r_pts = np.linspace(ax_r + 0.02, ax_r + 0.42, 9)
+    z_pts = np.full(9, ax_z)
+    xn_true = np.array([float(np.clip((truth["facts"]["psi_axis"] - psi_at(r, ax_z)) / span, 0.0, 1.0))
+                        for r in r_pts])
+    p_true = np.interp(xn_true, psin1d, pres1d)
+    disc = {"fylite:channel_aturns": meas["aturns"], "fylite:ip": np.array([meas["ip"]]),
+            "fylite:b_tor": np.array([meas["b_tor"]]),
+            "fylite:flux_loop": meas["flux_loop"], "fylite:loop_weight": lw,
+            "fylite:probe_field": meas["probe_field"], "fylite:probe_weight": pw}
+    return {"tool": tool, "dev": dev, "disc": disc, "truth": truth,
+            "r": r_pts, "z": z_pts, "xn_true": xn_true, "p": p_true,
+            "w": np.full(9, 1.0 / (0.05 * max(abs(p_true).max(), 1.0)))}
+
+
+def _recon(kt, extra_disc=None, **settings):
+    tool = kt["tool"]
+    d = dict(kt["disc"]); d.update(extra_disc or {})
+    st = dict(tool.RECON, zc_anchor=-0.002); st.update(settings)
+    return tool.door("code/reconstruction", st, {"device": kt["dev"], "discharge": d})
+
+
+def test_fr_eq_008_the_fast_ion_pressure_is_subtracted_without_touching_sigma(kinetic_twin):
+    """★★`FR-EQ-008` 的要害是**次序**：sigma 由总压强算出，扣除排在它之后，扣完不动。
+
+    所以这道门量的不是「扣得准」（那取决于上游给的 p_fast），而是「扣的方式对不对」——
+    读数该动、sigma 不该动。两件都是是非题。
+    """
+    import numpy as np
+    kt = kinetic_twin
+    rows = {"fylite:pressure": kt["p"], "fylite:pressure_x": kt["xn_true"],
+            "fylite:pressure_weight": kt["w"]}
+    #: 造一个快离子压强：芯部 15 %，向外衰减
+    x = np.linspace(0.0, 1.0, 41)
+    p_fast = 0.15 * np.interp(x, kt["xn_true"], kt["p"]) * (1.0 - x ** 2)
+
+    f0, fl0, _ = _recon(kt, rows)
+    f1, fl1, notes = _recon(kt, dict(rows, **{"fylite:p_fast_profile": p_fast}))
+    w0 = np.asarray(fl0["meas_weight"], float)
+    w1 = np.asarray(fl1["meas_weight"], float)
+
+    #: ★★逐位，不是「近似不变」：权重是算出来就不该再碰的东西
+    assert np.array_equal(w0, w1), "扣除动了测量权重——sigma 必须一位不差"
+    assert f0["p_fast_max"] == 0.0 and f1["p_fast_max"] > 0.0, (f0["p_fast_max"], f1["p_fast_max"])
+    #: ★防假通过：扣除必须真的进到拟合里，而不是只改了个回显的数
+    assert f1["chi2_kin"] != f0["chi2_kin"], "动理学 chi2 没变——扣除没有进到拟合里"
+    assert any("p_fast" in s for s in notes), notes
+
+
+def test_fr_eq_010_the_kinetic_outer_loop_recovers_a_wrong_mapping(kinetic_twin):
+    """★★把 psi_N 标签**故意推错**，看外环拉不拉得回来——`FR-EQ-010` 的全部内容。"""
+    import numpy as np
+    kt = kinetic_twin
+    q0_true = kt["truth"]["facts"]["q0"]
+    wrong = np.clip(kt["xn_true"] + 0.12, 0.0, 1.0)
+    rows = {"fylite:pressure": kt["p"], "fylite:pressure_x": wrong,
+            "fylite:pressure_weight": kt["w"],
+            "fylite:pressure_r": kt["r"], "fylite:pressure_z": kt["z"]}
+
+    f1, _, _ = _recon(kt, rows, kinetic_passes=1)
+    f6, fl6, _ = _recon(kt, rows, kinetic_passes=6, kinetic_tol=1e-4)
+    e1 = abs(f1["q0"] / q0_true - 1.0)
+    e6 = abs(f6["q0"] / q0_true - 1.0)
+
+    assert e6 <= 0.005, ("外环没把 q0 拉回来", e1, e6)
+    assert f6["kinetic_map_shift"] <= 0.005, ("映射还在走", f6["kinetic_map_shift"])
+    #: ★★下限格：一个总能收敛的循环说明不了什么，要紧的是它**真的修好了东西**
+    assert e1 / e6 >= 5.0, ("外环相对单遍没有实质改善", e1, e6)
+
+    #: ★证书逐遍出，两条迹长度一致
+    chi = np.asarray(fl6["kinetic_pass_chi2_per_dof"], float)
+    shift = np.asarray(fl6["kinetic_pass_map_shift"], float)
+    assert chi.size == shift.size >= 2 and chi.size == f6["kinetic_passes_run"], (chi, shift)
+    #: ★★收官那一遍必须是**最优**的那一遍，不是最后一遍
+    assert int(f6["kinetic_best_pass"]) == int(np.argmin(chi)) + 1, (f6["kinetic_best_pass"], chi)
+    assert f6["kinetic_best_chi2_per_dof"] == pytest.approx(chi.min())
+    #: ★单遍那一次也必须报出它自己的不自洽——不跑外环的调用方同样有权知道
+    assert f1["kinetic_map_shift"] > 0.05, f1["kinetic_map_shift"]
+
+
+def test_fr_eq_011_the_curvature_prior_is_opt_in_and_pulls_the_degenerate_case_back(kinetic_twin):
+    """★★先量病再开药：(2,2) 档本身是坏的，正则要把它压回去，**且不能把 chi2 弄坏**。"""
+    kt = kinetic_twin
+    q0_true = kt["truth"]["facts"]["q0"]
+
+    #: 缺省完全关闭：两个权重都回显为 0
+    f_base, _, _ = _recon(kt)
+    assert f_base["curv_p"] == 0.0 and f_base["curv_f"] == 0.0
+
+    f_deg, _, _ = _recon(kt, npp=2, nff=2)
+    f_reg, _, _ = _recon(kt, npp=2, nff=2, curv_p=1e-3, curv_f=1e-3)
+    e_deg = abs(f_deg["q0"] / q0_true - 1.0)
+    e_reg = abs(f_reg["q0"] / q0_true - 1.0)
+
+    assert e_deg > 0.05, ("这一档本该是简并的；它不坏，本门就没有在测东西", e_deg)
+    assert e_deg / e_reg >= 2.0, ("正则没有把简并压回来", e_deg, e_reg)
+    #: ★★**防止用先验去买物理量**：chi2 不得变坏，否则是「我觉得剖面该长这样」压过了数据
+    assert f_reg["chi2_per_dof"] <= f_deg["chi2_per_dof"], (f_reg["chi2_per_dof"], f_deg["chi2_per_dof"])
+    assert f_reg["curv_p"] == 1e-3, f_reg["curv_p"]
+
+
 #: ★★`FR-EQ-002` 的带。**三格都是恒等式检验，不是对标**——若 `code/coilshare` 当真是一张
 #: Green 响应阵，这三件事就**必须**成立到舍入，否则它不是。所以带取的是浮点的量级，
 #: 不是量出来之后画上去的：

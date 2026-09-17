@@ -64,8 +64,8 @@
     "type": "spo:QuantityValue",
     "numeric_value": 0.05
    },
-   "tolerance_basis": "measured_band",
-   "comment": "★★**内核不给这一项**——见 finding 与 open_defect。判据先立在这里等它。"
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★2026-09-17 内核补上了这一项（Stix 慢化分配），于是这一格**从等它变成判它**。★带取 5 %：在 ITER 量级上，电子份额差 5 % 就是 3 MW 以上换道，对 T_e / T_i 分开演化不是小数。"
   }
  ],
  "findings": [
@@ -97,16 +97,17 @@
   },
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★★α 的电子 / 离子分配 —— **内核不给**",
+   "title": "★★α 的电子 / 离子分配 —— 内核已补上，量出来偏高",
    "criterion": "benchmark/records/tr-closure-dt-burn-astra/criterion/3",
-   "bound": "reading",
-   "deviation_literal": "ASTRA 轴上 e 份额 0.5848 · i 份额 0.4145；fylite **没有这一项**",
-   "verdict": "unevaluated",
+   "bound": "upper",
+   "deviation_literal": "在 ASTRA 自己的轴上电子温度 26.96 keV 处：fylite 给电子 0.6352 / 离子 0.3648，ASTRA 给 0.5848 / 0.4145 —— 电子份额**偏高 8.6 %**（带 5 %）",
+   "verdict": "fail",
    "caveat": [
-    "★★**这是记名的内核缺口**（2026-09-16 用户裁定「内核欠缺的功能也保留」）：`code/zerod` 只吐出 α 的**总**功率，不吐出它在电子道与离子道之间怎么分。而这一分配决定了 Te 与 Ti 各自被加热多少——**对 1.5D 演化是必需项，不是装饰**。",
-    "★判据（5 %）先立在这里，等内核补上这一项就能判。",
-    "★参考侧自己也有一处值得记：ASTRA 的 e + i 之和对它自己的总量，最大差 0.0463——**不是零**。所以即便内核补上，这一条的容差也不该压到比这更紧。"
-   ]
+    "★★**不是成分差**，查过了：把 `dt_fraction` 从 0.50 扫到 0.40，电子份额只从 0.635 动到 0.629。这与实现里那条推导一致——`A_I ≈ 2 Z_I` 把杂质项里的 Z_I **整个约掉**，于是结果对「假设是哪种杂质」不敏感。**所以差的不在这里。**",
+    "★**剩下的候选两个，都没查**：〔一〕E_crit 的数值系数（本实现取 14.8，文献里有别的取法）；〔二〕ASTRA 可能不是用解析慢化式，而是从真实的快 α 分布算的——它的输出里确实带快 α 与热 α 两支。★**判定要去看 ASTRA 那一侧怎么定义这个份额**，本册只记到「差多少」为止。",
+    "★方向是对的、量级是对的（电子占多数，约六成），**这一项从「没有」变成了「偏高 8.6 %」**——后者是可以去查的，前者不是。"
+   ],
+   "measured_deviation": 0.08618816324604128
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -144,22 +145,34 @@
   "realizes": [],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a",
    "comment": "★本条**尚无门**：`docs/benchmark/readings/` 里有读数，但还没有一道 pytest 守它。这是记名的下一步，见 open_defect。"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.2",
   "recorded": "2026-09-16",
-  "revised": "2026-09-16",
+  "revised": "2026-09-17",
   "review_status": "draft",
-  "open_defect": "2026-09-16 记名保留两处（用户裁定「不改内核，保留负面结果」「内核欠缺的功能也保留」）：〔一〕α 份额偏 +1.23 %，而分支比是常数、本该到舍入——干净的可判偏差，等内核查；〔二〕`code/zerod` **不给 α 的电子/离子分配**，ASTRA 给（轴上 0.585 / 0.414），这一项对 1.5D 演化是必需的，判据已立、等内核补。★另记：本条尚无守它的门，需补一道 pytest。",
+  "open_defect": "2026-09-17 记名保留两处（用户裁定「不改内核，保留负面结果」）：〔一〕α 份额偏 +1.23 %，而分支比是常数、本该到舍入——干净的可判偏差，等内核查；〔二〕★**2026-09-17 更新**：α 的电子/离子分配内核**已补上**（Stix 慢化），但在 ASTRA 的轴上温度处电子份额偏高 8.6 %（0.635 对 0.585）。已排除成分差；候选是 E_crit 的系数或 ASTRA 用的是分布而非解析式，**未查**。★另记：本条尚无守它的门，需补一道 pytest。",
   "change": [
    {
     "record_version": "1.0",
     "date": "2026-09-16",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：DT 燃烧的 α 加热；份额判 fail，总量判不了，e/i 分配是内核缺口"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
+   },
+   {
+    "record_version": "1.2",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "★★α 的 e/i 分配**从记名缺口变成量出来的对拍**：内核 2026-09-17 补上（Stix 慢化），在 ASTRA 轴上温度 26.96 keV 处给 0.6352 / 0.3648，对 ASTRA 的 0.5848 / 0.4145 偏高 8.6 %，判 fail。★已排除成分差（扫 dt_fraction 只动 0.006）"
    }
   ]
  }
