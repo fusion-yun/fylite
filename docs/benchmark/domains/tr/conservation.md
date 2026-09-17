@@ -59,7 +59,9 @@ title: "守恒、金标 parity 与口径"
 
 ### 本域的记录
 
-★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，本册还没有拿出任何一条对着外部答案量过的记录来回应。
+| 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`tr-conservation-fyo-dd-contract`](../../reports/tr-conservation-fyo-dd-contract.md) | 验证 | 成立 | 仓内的 IMAS DD 表（`rust/fylite_runtime/ids/*.tsv`，82 个 IDS、26752 行） | 1.0 | 草稿 | [jsonld](../../records/tr-conservation-fyo-dd-contract.jsonld) |
 
 ### 覆盖它的记录在别的域
 
@@ -72,9 +74,8 @@ title: "守恒、金标 parity 与口径"
 
 ### 缺口
 
-本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
 - `NR-TR-002` 金标 parity 验证
-- `NR-TR-005` IMAS / DD 一致性
 
 <!-- END GENERATED -->

@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**23** 条（40 %）
-- ★**MUST 级空缺 (open MUST)：30 条**
+- 已有记录覆盖 (covered)：**24** 条（42 %）
+- ★**MUST 级空缺 (open MUST)：29 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -180,7 +180,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `NR-TR-001` | MUST | 守恒性 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 |
 | `NR-TR-002` | MUST | 金标 parity 验证 | — | — | — |
 | `NR-TR-004` | MUST | 自包含数值核 | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
-| `NR-TR-005` | MUST | IMAS / DD 一致性 | — | — | — |
+| `NR-TR-005` | MUST | IMAS / DD 一致性 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | 验证 | 成立 |
 | `NR-TR-006` | SHOULD | 可微性路线（近期 TODO） | — | — | — |
 
 ## MUST 级空缺 (open MUST requirements)
@@ -218,7 +218,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
 | `NR-TR-003` | 闭包插件面：输运系数与源项 | 插件接入 |
-| `NR-TR-005` | 守恒、金标 parity 与口径 | IMAS / DD 一致性 |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
 

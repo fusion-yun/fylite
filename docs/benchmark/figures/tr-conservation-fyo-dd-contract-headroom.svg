@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 184" role="img" aria-label="tr-conservation-fyo-dd-contract: 每条判据离它的带还有多远">
+<title>tr-conservation-fyo-dd-contract - 判据余量</title>
+<desc>横轴为余量倍数（对数）。1 倍处是判据本身：右侧成立，左侧越界。恒等档没有余量可言，画成标记。</desc>
+<text x="8" y="22" font-size="14" font-weight="600" fill="#9a9a9a">判据余量 —— 离带还有多远（对数轴，1 倍即判据本身）</text>
+<line x1="380.0" y1="40" x2="380.0" y2="144" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="380.0" y="160" font-size="11" fill="#8a8a8a" text-anchor="middle">10⁻²x</text>
+<line x1="476.0" y1="40" x2="476.0" y2="144" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="476.0" y="160" font-size="11" fill="#8a8a8a" text-anchor="middle">10⁻¹x</text>
+<line x1="572.0" y1="40" x2="572.0" y2="144" stroke="#8a8a8a" stroke-width="1.4" opacity="0.9"/>
+<text x="572.0" y="160" font-size="11" fill="#8a8a8a" text-anchor="middle">1x</text>
+<line x1="668.0" y1="40" x2="668.0" y2="144" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="668.0" y="160" font-size="11" fill="#8a8a8a" text-anchor="middle">10¹x</text>
+<line x1="764.0" y1="40" x2="764.0" y2="144" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="764.0" y="160" font-size="11" fill="#8a8a8a" text-anchor="middle">10²x</text>
+<line x1="860.0" y1="40" x2="860.0" y2="144" stroke="#8a8a8a" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.45"/>
+<text x="860.0" y="160" font-size="11" fill="#8a8a8a" text-anchor="middle">10³x</text>
+<text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
+<text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">没有 DD 归宿的**裸**路径条数</text>
+<circle cx="572.0" cy="68.0" r="4" fill="#8a8a8a"/>
+<text x="584.0" y="72.0" font-size="11" fill="#8a8a8a">无数值</text>
+<text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">接口内容变了而摘要没变的次数（构建期闸）</text>
+<circle cx="572.0" cy="96.0" r="4" fill="#8a8a8a"/>
+<text x="584.0" y="100.0" font-size="11" fill="#8a8a8a">无数值</text>
+<text x="370" y="128.0" font-size="12" fill="#9a9a9a" text-anchor="end">抄录点名的 LinkML 校验</text>
+<circle cx="572.0" cy="124.0" r="4" fill="#8a8a8a"/>
+<text x="584.0" y="128.0" font-size="11" fill="#8a8a8a">读数：不判</text>
+<text x="8" y="176" font-size="10.5" fill="#8a8a8a">★绿而窄（&lt; 2 倍）另着色：它与余量一千倍的判据在表上长得一样，在这里不一样。　生成：tools/benchmark-figures.py</text>
+</svg>

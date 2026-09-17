@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**23** 条
-- 判决 (verdict)：成立 17 · 不成立 **1** · 未判 5 · 未评估 0
-- 新鲜度 (freshness)：当前 23 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 23 · 已被取代 0
+- 记录 (records)：**24** 条
+- 判决 (verdict)：成立 18 · 不成立 **1** · 未判 5 · 未评估 0
+- 新鲜度 (freshness)：当前 24 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 24 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -64,6 +64,10 @@ title: 验证状态 (Verification status)
 
 2026-09-17 记名保留两处（用户裁定「不改内核，保留负面结果」）：〔一〕α 份额偏 +1.23 %，而分支比是常数、本该到舍入——干净的可判偏差，等内核查；〔二〕★**2026-09-17 更新**：α 的电子/离子分配内核**已补上**（Stix 慢化），但在 ASTRA 的轴上温度处电子份额偏高 8.6 %（0.635 对 0.585）。已排除成分差；候选是 E_crit 的系数或 ASTRA 用的是分布而非解析式，**未查**。★另记：本条尚无守它的门，需补一道 pytest。
 
+### [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md)
+
+2026-09-17 ★第二格（摘要闸）的门在**内核仓的构建脚本**里，本仓 CI 跑不到——与 `tr-pedestal-sawtooth-kadomtsev` 同一处代价。★第三格是翻译差（LinkML vs JSON Schema），不是缺陷，但也**没有被消解**：要真答上游那一格，得有人决定 fylite 是否引入 LinkML，那是个设计决定不是测量。
+
 ### [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md)
 
 2026-09-17 ★★**本条一道门都没有**，而它是结构判据——最该由门守的那一类：加一张权重表、或把 `models/` 挪进包目录，数值一个都不变而本条当场不成立。★补法与 `NR-EQ-005` 的自包含门同一路子（AST / 打包声明扫描），没做。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
@@ -95,7 +99,7 @@ title: 验证状态 (Verification status)
 | 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 1 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 1 | 1 | 1 | 0 | 0 |
-| 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
+| 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 1 | 1 | 1 | 0 | 0 |
 
 ## 记录明细 (records)
 
@@ -120,6 +124,7 @@ title: 验证状态 (Verification status)
 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
+| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |

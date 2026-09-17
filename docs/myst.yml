@@ -188,6 +188,7 @@ project:
             - file: benchmark/reports/tr-paradigm-pereverzev.md
             - file: benchmark/reports/tr-pedestal-sawtooth-kadomtsev.md
             - file: benchmark/reports/tr-coupling-nn-weights-external.md
+            - file: benchmark/reports/tr-conservation-fyo-dd-contract.md
             - file: benchmark/reports/tr-pedestal-zerod-bookkeeping-metis.md
 
     - file: ACKNOWLEDGEMENTS.md
