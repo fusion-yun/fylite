@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 27,
-  "open_must": 26,
-  "records": 27,
+  "covered": 28,
+  "open_must": 25,
+  "records": 28,
   "stale": 0,
   "failing": 1
  },
@@ -333,6 +333,19 @@
    "overall_verdict": "pass",
    "requirement": [
     "FR-TR-013"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-flux-match-vs-pde",
+   "domain": "tr-paradigm",
+   "path": "records/tr-paradigm-flux-match-vs-pde.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-007"
    ],
    "record_version": "1.0",
    "review_status": "draft",

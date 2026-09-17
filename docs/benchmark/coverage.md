@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**27** 条（47 %）
-- ★**MUST 级空缺 (open MUST)：26 条**
+- 已有记录覆盖 (covered)：**28** 条（49 %）
+- ★**MUST 级空缺 (open MUST)：25 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -148,7 +148,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-TR-005` | MUST | 刚性稳定化生产路径 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） |
 | `FR-TR-006` | MUST | 耦合隐式块解（可选，候选 ADR） | — | — | — |
-| `FR-TR-007` | MUST | 稳态通量匹配 | — | — | — |
+| `FR-TR-007` | MUST | 稳态通量匹配 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 |
 | `FR-TR-008` | SHOULD | 环向动量 / 转动通道（路线项） | — | — | — |
 
 ## 输运 (Transport) · 台基、锯齿与 0D 存量
@@ -211,7 +211,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-001` | 方程组求解与边界条件 | 多通道 1.5D 输运方程组求解 |
 | `FR-TR-002` | 方程组求解与边界条件 | 边界条件族与电流边界驱动 |
 | `FR-TR-006` | 求解范式：刚性稳定化与稳态通量匹配 | 耦合隐式块解（可选，候选 ADR） |
-| `FR-TR-007` | 求解范式：刚性稳定化与稳态通量匹配 | 稳态通量匹配 |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |

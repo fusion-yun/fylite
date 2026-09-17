@@ -1,0 +1,44 @@
+{
+ "what": "FR-TR-007：同一个稳态，PDE 与牛顿通量匹配求出来的根差多少",
+ "equation": "d/drho(V' D dy/drho) + V' S = 0   积一次   V' D dy/drho = -int_0^rho V' S",
+ "closure": "D(|g|) = 0.15 + 0.9|g|/(1+|g|) —— 有界、饱和，两条路各自非线性",
+ "match_radii_frac": [
+  0.25,
+  0.5,
+  0.75
+ ],
+ "grid_rows": [
+  {
+   "n": 81,
+   "match_residual": 9.948e-14,
+   "iterations": 4,
+   "integral_form": 0.01338,
+   "root_diff": 0.002506
+  },
+  {
+   "n": 161,
+   "match_residual": 8.527e-14,
+   "iterations": 4,
+   "integral_form": 0.006219,
+   "root_diff": 0.001214
+  },
+  {
+   "n": 321,
+   "match_residual": 9.948e-14,
+   "iterations": 4,
+   "integral_form": 0.002995,
+   "root_diff": 0.0005976
+  }
+ ],
+ "ratios": {
+  "root_diff": [
+   2.0642504118616145,
+   2.031459170013387
+  ],
+  "integral_form": [
+   2.151471297636276,
+   2.076460767946578
+  ]
+ },
+ "source": "内核自测 transport::tests::the_pde_and_the_newton_flux_match_find_the_same_root"
+}

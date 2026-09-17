@@ -72,13 +72,13 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.0 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
 | [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.2 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
 - `FR-TR-006` 耦合隐式块解（可选，候选 ADR）
-- `FR-TR-007` 稳态通量匹配
 
 <!-- END GENERATED -->

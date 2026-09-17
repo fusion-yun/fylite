@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**27** 条
-- 判决 (verdict)：成立 21 · 不成立 **1** · 未判 5 · 未评估 0
-- 新鲜度 (freshness)：当前 27 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 27 · 已被取代 0
+- 记录 (records)：**28** 条
+- 判决 (verdict)：成立 22 · 不成立 **1** · 未判 5 · 未评估 0
+- 新鲜度 (freshness)：当前 28 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 28 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -80,6 +80,10 @@ title: 验证状态 (Verification status)
 
 2026-09-17 ★★**本条一道门都没有**，而它是结构判据——最该由门守的那一类：加一张权重表、或把 `models/` 挪进包目录，数值一个都不变而本条当场不成立。★补法与 `NR-EQ-005` 的自包含门同一路子（AST / 打包声明扫描），没做。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
 
+### [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md)
+
+2026-09-17 ★门在内核仓，本仓 CI 跑不到（虽然它只要 0.01 s）。★另：收敛是**一阶**，因为 PDE 的 D 取单侧差分的梯度而通量重构用中心差分。**没有去改它**——那是实现的既有精度，改它是另一件事，且要重新验所有依赖它的记录。
+
 ### [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md)
 
 2026-09-17 ★**门在内核仓，不在本仓**：本条的两道门是 Rust 单测，而本册其余各条的门都是 fylite 侧的 pytest。CI 只跑后者，于是这条记录的新鲜度**不会**被本仓的流水线守住。★补法有二：在 fylite 侧把锯齿经 `code/evolve` 跑出来量一遍，或让 CI 也跑内核仓的测试。两者都没做。
@@ -104,7 +108,7 @@ title: 验证状态 (Verification status)
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 3 | 4 | 2 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 2 | 2 | 1 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 1 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 2 | 2 | 2 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 1 | 1 | 1 | 0 | 0 |
@@ -137,6 +141,7 @@ title: 验证状态 (Verification status)
 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
+| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
 | [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.2 | 2026-09-17 | 草稿 | `sha256:ac8c0f5cdc4e…` | current |
