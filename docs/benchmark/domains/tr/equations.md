@@ -22,6 +22,25 @@ $\dot B_0$ 压缩项是这一章里容易漏的一处：它在三个通道里的
 热道面对流加 $V''$ 体积项、$\psi$ 道要拆 $\partial_\rho(g\psi) - g'\psi$），缺省关闭时必须逐位
 不变。★**一个缺省关闭的项，最容易在打开时才发现从没验过。**
 
+### 通道成了数据（2026-09-17）
+
+这一条判据此前是本域最硬的一格：全仓搜 `channel_descriptor` **零命中**，通道是四个**手写的独立
+求解器**——加一道通道就是再写一个求解器，与判据要的正相反。现在补上了，做法是**照抄 ETS 的正则
+形式**而不是发明第二套：`(aY - bY^{t-1})/h + (1/c)\partial_\rho(-d\partial_\rho Y + eY) = f - gY`
+把六组方程压成同一个两点边值问题，通道之间只差系数。
+
+★★判它成立的不是"接口看着整齐了"，是三个能被证伪的数：求解器体内 `match` 通道名 **0 处**；
+现造一道内核里不存在的示踪物通道、求解器改动 **0 行**；四道既有通道 **15 个位模式逐位不变**。
+★**位模式是在改道之前采集的**——反过来做（改完再采一次）测出来的只是"代码等于它自己"。
+详见 [`tr-equations-channel-descriptor`](../../reports/tr-equations-channel-descriptor.md)。
+
+照抄正则形式时带出一处此前**整项缺失**的东西：隐式汇 $g$。缺了它，任何线性汇（辐射、$n/\tau_p$、
+电荷交换）只能显式滞后。补上之后照本域一贯的尺子两头验：关掉时逐位不变，打开时答案必须跟着变。
+
+★判据的括号外还剩半句没兑现——「通道集自动**生成**」：一次运行该演化**哪些**通道，仍由调用方挑
+具名入口决定，不是从配置枚举出来的。从"一道通道是数据"到"**通道集**是数据"还差这一步，
+记在那条记录的 caveat 里，不抹掉。
+
 上一册这一域有 `B-05` / `V-08` / `V-14`（对 TORAX 的演化与成分）。已退役。
 
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
@@ -46,12 +65,11 @@ $\dot B_0$ 压缩项是这一章里容易漏的一处：它在三个通道里的
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-equations-boundary-family`](../../reports/tr-equations-boundary-family.md) | 验证 | 不成立 | 抄录的判据本身 | 2.1 | 草稿 | [jsonld](../../records/tr-equations-boundary-family.jsonld) |
+| [`tr-equations-boundary-family`](../../reports/tr-equations-boundary-family.md) | 验证 | 成立 | 抄录的判据本身 | 3.0 | 草稿 | [jsonld](../../records/tr-equations-boundary-family.jsonld) |
+| [`tr-equations-channel-descriptor`](../../reports/tr-equations-channel-descriptor.md) | 验证 | 成立 | ETS 正则形式（Kalupin & Pereverzev 2015） · 抄录的判据本身 | 1.0 | 草稿 | [jsonld](../../records/tr-equations-channel-descriptor.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-TR-001` 多通道 1.5D 输运方程组求解
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->

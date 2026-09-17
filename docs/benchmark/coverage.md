@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**31** 条（54 %）
-- ★**MUST 级空缺 (open MUST)：22 条**
+- 已有记录覆盖 (covered)：**33** 条（57 %）
+- ★**MUST 级空缺 (open MUST)：20 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -83,7 +83,7 @@ title: 需求覆盖 (Requirement coverage)
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-014` | MUST | 线圈受力与导体表面场 | — | — | — |
 | `FR-EQ-015` | MUST | 装置电磁线性模型导出（路线） | — | — | — |
-| `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | — | — | — |
+| `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） |
 
 ## MHD 稳定性 (MHD Stability) · 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界
 
@@ -127,8 +127,8 @@ delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-001` | MUST | 多通道 1.5D 输运方程组求解 | — | — | — |
-| `FR-TR-002` | MUST | 边界条件族与电流边界驱动 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | 验证 | 不成立 |
+| `FR-TR-001` | MUST | 多通道 1.5D 输运方程组求解 | [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | 验证 | 成立 |
+| `FR-TR-002` | MUST | 边界条件族与电流边界驱动 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | 验证 | 成立 |
 
 ## 输运 (Transport) · 闭包插件面：输运系数与源项
 
@@ -192,7 +192,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-014` | 竖直稳定性、线圈受力与电磁线性模型 | 线圈受力与导体表面场 |
 | `FR-EQ-015` | 竖直稳定性、线圈受力与电磁线性模型 | 装置电磁线性模型导出（路线） |
-| `FR-EQ-016` | 竖直稳定性、线圈受力与电磁线性模型 | 轴对称 $n=0$ 竖直稳定性判读 |
 | `FR-EQ-017` | 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界 | 理想外扭曲模的 q 极限（L0） |
 | `FR-EQ-018` | 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界 | 气球模第一稳定边界（L1） |
 | `FR-EQ-019` | 能量原理变分内核 L2 | 能量原理变分内核（L2 的 B1：柱极限） |
@@ -208,7 +207,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-EQ-029` | 全 delta-W、V5 基准与阻性壁模 | 环几何全 $\delta W$：定形边界 V5（全 $\delta W$ 支 F3 第一段） |
 | `FR-EQ-030` | 全 delta-W、V5 基准与阻性壁模 | 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段） |
 | `FR-EQ-031` | 全 delta-W、V5 基准与阻性壁模 | 理想壁分支与薄壁阻性壁模（E-3 第一级） |
-| `FR-TR-001` | 方程组求解与边界条件 | 多通道 1.5D 输运方程组求解 |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 

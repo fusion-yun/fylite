@@ -1,0 +1,35 @@
+{
+  "_comment": "FR-TR-001 通道集描述子驱动 —— 2026-09-17 实测。生成门：$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests",
+  "hand_written_channel_solvers": {
+    "before": 4,
+    "after": 0,
+    "names_before": ["solve_density", "solve_psi", "solve_momentum", "two_temperature_march"],
+    "comment": "四道通道此前各自手写一份 StepOpts；现全部改道 solve_channel(x, y_old, &ChannelDescriptor, &Numerics, d)"
+  },
+  "solver_body_matches_on_channel_name": 0,
+  "new_channel_zero_solver_change": {
+    "channel": "tracer",
+    "comment": "内核里不存在的一道通道：带线性衰减的示踪物。只写一个 ChannelDescriptor，求解器一个字未改",
+    "y0_decay_2": 1.509444,
+    "y0_decay_4": 0.9432586,
+    "ratio": 0.6249,
+    "edge": 0.0,
+    "gate": "a_new_channel_needs_no_solver_change"
+  },
+  "implicit_sink_dead_path": {
+    "y0_no_sink": 2.632271,
+    "y0_zero_sink_bit_identical": true,
+    "y0_sink_1p5": 1.792874,
+    "gate": "the_implicit_sink_is_a_dead_path_when_it_is_not_asked_for"
+  },
+  "bit_parity_across_the_rewire": {
+    "comment": "改道前按位抄下的输出；改道后逐位复验。索引 [0, n/2, n-1]，n = 33",
+    "density": ["0x3ff69458bf47c019", "0x3fec120d31b0e8eb", "0x3fe0000000000000"],
+    "psi":     ["0x3f12cadf38d44e7e", "0x3fb33a935993ff15", "0x3feccccccccccccd"],
+    "omega":   ["0x40fcee33fe0fc99e", "0x40f2cfac2933a423", "0x0000000000000000"],
+    "te":      ["0x4077ce115bd1a245", "0x4063454723e6525d", "0x3fb999999999999a"],
+    "ti":      ["0x406b1362ad903707", "0x405473b4896c149c", "0x3fb999999999999a"],
+    "gate": "the_four_channels_keep_their_numbers_bit_for_bit"
+  },
+  "transport_module_tests": 80
+}

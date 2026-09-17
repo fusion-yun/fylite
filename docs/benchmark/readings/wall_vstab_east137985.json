@@ -1,0 +1,177 @@
+{
+ "reference": "FreeGSNKE recorded run (corpus/freegsnke/freegsnke_vstab_east137985.tar.gz in FYDOC-CASE-23-east-137985-efit-east)",
+ "freegsnke_environment": {
+  "freegs4e": "0.13.1",
+  "freegsnke_path": "/home/salmon/.cache/uv/archive-v0/dhnGD2Hzzd2tFJ24/lib/python3.11/site-packages/freegsnke",
+  "numpy": "1.26.4"
+ },
+ "wall": {
+  "settings": {
+   "nu": 16,
+   "nv": 16
+  },
+  "n_elements": 90,
+  "notes": [
+   "group 0 `inner_shell`: 40 elements, longest L/R alone 1.2751e-2 s",
+   "group 1 `outer_shell`: 40 elements, longest L/R alone 1.3095e-2 s",
+   "group 2 `passive_plates`: 10 elements, longest L/R alone 4.0057e-1 s"
+  ],
+  "sets": {
+   "inner_shell": {
+    "fylite_tau1_s": 0.012750771807636292,
+    "freegsnke_tau1_s": 0.01275126894645405,
+    "tau1_rel": -3.898739959495856e-05,
+    "M": {
+     "diag_rel_median": 0.011140617622135918,
+     "diag_rel_max": 0.01871675283976959,
+     "offdiag_rel_median": 4.6542627593182395e-05,
+     "offdiag_rel_p95": 0.0025004164120720927,
+     "frobenius_rel": 0.0055619361630030156
+    },
+    "R_rel_median": 3.2336299637947263e-08,
+    "R_rel_absmax": 0.0107017547221826
+   },
+   "outer_shell": {
+    "fylite_tau1_s": 0.013095400525092216,
+    "freegsnke_tau1_s": 0.013098789865502884,
+    "tau1_rel": -0.0002587521782904112,
+    "M": {
+     "diag_rel_median": 0.010837513482683026,
+     "diag_rel_max": 0.019169424831456894,
+     "offdiag_rel_median": 3.330979568150205e-05,
+     "offdiag_rel_p95": 0.0020793696341902227,
+     "frobenius_rel": 0.005397597871816813
+    },
+    "R_rel_median": 3.3361136519971524e-08,
+    "R_rel_absmax": 0.011127435055511281
+   },
+   "passive_plates": {
+    "fylite_tau1_s": 0.4005705859454655,
+    "freegsnke_tau1_s": 0.400265784785306,
+    "tau1_rel": 0.0007614969146638728,
+    "M": {
+     "diag_rel_median": 0.014063248751544855,
+     "diag_rel_max": 0.01938514307106831,
+     "offdiag_rel_median": 0.00019988658569047857,
+     "offdiag_rel_p95": 0.005419017882926425,
+     "frobenius_rel": 0.00926700246480018
+    },
+    "R_rel_median": 0.00021704892420820743,
+    "R_rel_absmax": 0.0031593311846445093
+   },
+   "all": {
+    "fylite_tau1_s": 0.4134978102084355,
+    "freegsnke_tau1_s": 0.41321425014035135,
+    "tau1_rel": 0.0006862301287717809,
+    "M": {
+     "diag_rel_median": 0.010927556997151755,
+     "diag_rel_max": 0.01938514307106831,
+     "offdiag_rel_median": 4.204280849284814e-05,
+     "offdiag_rel_p95": 0.0016974997708107953,
+     "frobenius_rel": 0.004272823798497759
+    },
+    "R_rel_median": 3.336113629792692e-08,
+    "R_rel_absmax": 0.011127435055511281
+   }
+  },
+  "fylite_tau_s_top5": [
+   0.4134978102084355,
+   0.25866580064992883,
+   0.07149405112646894,
+   0.07000076625308445,
+   0.035580411537549504
+  ]
+ },
+ "vstab": {
+  "kefit_g_sha256": "299c8746c1cc97582076641beae8e9c3749d59d6ad893f7d58c412c8e7ad6502",
+  "settings": {
+   "coarsen": 1.0,
+   "nu": 8.0,
+   "nv": 8.0
+  },
+  "sets": {
+   "inner_shell": {
+    "fylite_on_freegsnke_eq": {
+     "gamma": 708.6954082861989,
+     "k": 212715.16896019658,
+     "k_ideal": 269922.65074514033,
+     "margin": 0.26893936179816325,
+     "ip": 392708.73400000023
+    },
+    "fylite_on_kefit_eq": {
+     "gamma": 678.2228570639006,
+     "k": 211638.63752228953,
+     "k_ideal": 271194.53879908763,
+     "margin": 0.2814037265313889,
+     "ip": 392708.7339999997
+    },
+    "freegsnke_rigid": {
+     "gamma": 708.7370287868507,
+     "k": 212080.77824029722,
+     "k_ideal": 269616.8638464972,
+     "margin": 0.2712932595004389
+    },
+    "freegsnke_deformable": {
+     "gamma": 652.3142815976597,
+     "margin": 0.32240482560831474
+    },
+    "compare": {
+     "gamma_rel": -5.872488519897967e-05,
+     "k_rel": 0.0029912692944786823,
+     "k_ideal_rel": 0.001134153458654641,
+     "margin_abs": -0.0023538977022756757
+    },
+    "readings": {
+     "deformable_over_rigid_gamma": 0.9203897286335241,
+     "fylite_kefit_over_freegsnke_eq_gamma": 0.9570019067909746
+    }
+   },
+   "all": {
+    "fylite_on_freegsnke_eq": {
+     "gamma": 4.2666012264460615,
+     "k": 212715.16896019658,
+     "k_ideal": 469752.7856227751,
+     "margin": 1.208365242211173,
+     "ip": 392708.73400000023
+    },
+    "fylite_on_kefit_eq": {
+     "gamma": 4.171282025988692,
+     "k": 211638.63752228953,
+     "k_ideal": 472420.0700061172,
+     "margin": 1.2322014332395357,
+     "ip": 392708.7339999997
+    },
+    "freegsnke_rigid": {
+     "gamma": 4.2617190812665005,
+     "k": 212080.77824029722,
+     "k_ideal": 469399.55762198864,
+     "margin": 1.2133055221540987
+    },
+    "freegsnke_deformable": {
+     "gamma": 9.227131776254334,
+     "margin": 0.9298626183818832
+    },
+    "compare": {
+     "gamma_rel": 0.0011455811813176897,
+     "k_rel": 0.0029912692944786823,
+     "k_ideal_rel": 0.0007525102975722842,
+     "margin_abs": -0.004940279942925674
+    },
+    "readings": {
+     "deformable_over_rigid_gamma": 2.1651196618788418,
+     "fylite_kefit_over_freegsnke_eq_gamma": 0.9776592197399316
+    }
+   }
+  },
+  "freegsnke_equilibrium": {
+   "kind": "inverse",
+   "axis_R": 1.8933854586286867,
+   "axis_Z": 0.012174055594599137,
+   "kappa": 1.6814000502585889,
+   "boundary_dist_to_kefit_mm": {
+    "median": 5.441643285502948,
+    "max": 66.58434537528152
+   }
+  }
+ }
+}

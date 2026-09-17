@@ -9,7 +9,7 @@
  "dcterms:description": "The documents a complete scenario comprises, with every declared path, unit and rank, which of them carry a fylite: term rather than a DD name, and what a CFEDR-class run needs that has no slot at all.",
  "dcterms:source": "python/fylite/_fyo_interface.py (generated from the kernel's tables)",
  "fylite:interface_revision": 5,
- "fylite:interface_digest": "89187fe3be864db1",
+ "fylite:interface_digest": "41f31b0f5a225eea",
  "fylite:documents": [
   {
    "@id": "fylite:scenario/document/equilibrium",
@@ -369,7 +369,7 @@
    "@id": "fylite:scenario/document/core_profiles",
    "@type": "fyo:core_profiles",
    "fylite:table": "CORE_PROFILES",
-   "fylite:slot_count": 18,
+   "fylite:slot_count": 19,
    "fylite:namespaced_count": 7,
    "fylite:slots": [
     {
@@ -432,6 +432,13 @@
      "fylite:key": "ti",
      "fylite:path": "profiles_1d/t_i_average",
      "fylite:units": "eV",
+     "fylite:rank": "1d",
+     "fylite:namespaced": false
+    },
+    {
+     "fylite:key": "pressure_th",
+     "fylite:path": "profiles_1d/pressure_thermal",
+     "fylite:units": "Pa",
      "fylite:rank": "1d",
      "fylite:namespaced": false
     },

@@ -1,0 +1,178 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-equations-channel-descriptor",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "通道成了**数据**：一道内核里不存在的通道，求解器一个字未改",
+  "en": "A channel is data now: a channel the kernel does not have, and not one word of the solver changed"
+ },
+ "domain": "tr-equations",
+ "requirement": [
+  "FR-TR-001"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · transport 的 `ChannelDescriptor` / `Numerics` / `solve_channel`",
+  "comment": "四道既有通道（密度 · 电流扩散 · 动量 · 双温）改道走同一个描述子层"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "ETS 正则形式（Kalupin & Pereverzev 2015）",
+   "comment": "★ETS 把六组方程压成**同一个两点边值问题**：`(aY − bY^{t-1})/h + (1/c)∂ρ(−d∂ρY + eY) = f − gY`，边界 `V ∂Y/∂ρ + U Y = W`。★★这条正则形式**就是**判据要的描述子——「通道集描述子驱动」不是一个软件洁癖，是上游三十年前就选定的表述方式。本条照抄它，不发明第二套。"
+  },
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "抄录的判据本身",
+   "comment": "判据原文给了三件可验的事：描述子驱动、按名加通道零求解器改动、既有配置逐位 parity。逐件去内核里查。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-equations-channel-descriptor/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "求解器函数体里 `match` 通道名字的处数",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.0
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判据原文：「通道集自动生成**且被求解器消费**」。★「被消费」的可证伪版本：**求解器认不认识它在解哪一道**。"
+  },
+  {
+   "id": "benchmark/records/tr-equations-channel-descriptor/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "加一道**新**通道要改的求解器代码行数",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.0
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判据原文：「按名加/删通道**零求解器改动**」。★验法只有一个：**真的加一道**，而不是论证它可以被加。"
+  },
+  {
+   "id": "benchmark/records/tr-equations-channel-descriptor/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "四道既有通道改道前后的输出差",
+   "norm": "identity",
+   "tolerance_basis": "machine_precision",
+   "comment": "★判据原文：「既有配置**逐位 parity**」。★★一次重构若能自证「接口更整齐了」却说不出旧答案还在不在，它就不是重构。"
+  },
+  {
+   "id": "benchmark/records/tr-equations-channel-descriptor/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★ETS 的隐式汇 `g`：缺省是否**逐位不变的死路径**",
+   "norm": "identity",
+   "tolerance_basis": "machine_precision",
+   "comment": "★这一格判据原文没点名，是**照 ETS 正则形式补项时自己带出来的**：`g` 此前整项缺失，任何线性汇（辐射、`n/τ_p`、电荷交换）只能显式滞后。★补一项就得回答「关掉时它动不动旧答案」——`FR-TR-002` 对 `b0_dot` 用的是同一把尺。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★求解器不认识它在解哪一道",
+   "criterion": "benchmark/records/tr-equations-channel-descriptor/criterion/1",
+   "measured_deviation": 0.0,
+   "bound": "identity",
+   "deviation_literal": "`solve_channel` 函数体里 `match` 通道名字 **0 处**。描述子带 `name` 字段，但求解器**不读它**——那个字段是给调用方与报错文本用的。★手写通道求解器：改道前 **4** 个（`solve_density` · `solve_psi` · `solve_momentum` · 双温 march），改道后 **0** 个；四者现在都只是「装一个 `ChannelDescriptor` 再调 `solve_channel`」",
+   "verdict": "pass",
+   "caveat": [
+    "★★**方程与解法分成两个结构**（`ChannelDescriptor` / `Numerics`），照 ETS 分两页写的做法：`theta`、容差、Picard 松弛换一个值，答案该只在容差内动；描述子里的系数换一个值，答案该**换一个**。混在一个结构里，调用方就分不出自己改的是哪一种。",
+    "★`d`（扩散系数）**不在描述子里**：它是闭包，随迭代里的剖面变。把一个会变的东西放进一个看着像数据的结构，是让人以为它装一次就定了的最快办法。",
+    "★★**`Numerics::channel` 的那几个数不是挑出来的，是读出来的**：四处手写 `StepOpts` 本就一致（`theta = 1`、`relax = 1`、`relax_coeff = 0`），只有 `d_pc` 各异。若它们本来不一致，这次统一就会是一次**偷偷改口径**，而 parity 那一格会立刻红——这也正是先钉 parity 再改道的理由。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★真加了一道内核里不存在的通道",
+   "criterion": "benchmark/records/tr-equations-channel-descriptor/criterion/2",
+   "measured_deviation": 0.0,
+   "bound": "identity",
+   "deviation_literal": "新通道 `tracer`（带线性衰减的示踪物——不是密度、不是温度、不是 psi、不是转动）：只写一个 `ChannelDescriptor`，求解器改动 **0 行**。稳态解芯部 y(0) = 1.5094，边界 = 0.000e0（BC 值 0）；★**衰减率翻倍 g: 2 → 4，稳态降到 0.9433（比值 0.6249）**",
+   "verdict": "pass",
+   "caveat": [
+    "★★**那个比值才是判据**，不是「它跑出了一个数」。一个把 `implicit_sink` 收下却不装进算子的实现，照样能解出一条曲线、照样过「新通道能跑」这种检查——只有**改了 `g` 答案必须跟着变**能把它揪出来。",
+    "★形状对不上时按名拒绝（`BadGrid`），不是读过界：描述子的每个数组都对着网格长度查。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★四道既有通道：一个 bit 都没动",
+   "criterion": "benchmark/records/tr-equations-channel-descriptor/criterion/3",
+   "measured_deviation": 0.0,
+   "bound": "identity",
+   "deviation_literal": "改道**之前**把四道通道的输出按位抄下（5 组 × 3 个采样点，含双温的 Te/Ti），改道后逐位复验：**15 个位模式全等**。如密度 `0x3ff69458bf47c019 / 0x3fec120d31b0e8eb / 0x3fe0000000000000`，psi `0x3f12cadf38d44e7e / …`。transport 模块 80 项测试全过",
+   "verdict": "pass",
+   "caveat": [
+    "★★**顺序是要害**：位模式在改道**之前**采集并写死进测试，然后才动代码。反过来做——改完再采一次——测出来的只是「代码等于它自己」。",
+    "★采样取首/中/末三点而非全剖面：中间点落在梯度最陡处，末点落在边界行上，首点落在轴端的曲率行上——三条最容易被重构动到的路各占一个。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★隐式汇 `g`：关得死、开得动",
+   "criterion": "benchmark/records/tr-equations-channel-descriptor/criterion/4",
+   "measured_deviation": 0.0,
+   "bound": "identity",
+   "deviation_literal": "不给 `g` 与给一个**全零**的 `g`：解**逐位相同**（y(0) = 2.632271，位模式逐点相等）；给 `g = 1.5`：y(0) 降到 1.792874",
+   "verdict": "pass",
+   "caveat": [
+    "★两头都验：只验「关掉是零」会放过一个**开了也什么都不做**的实现——那种实现同样逐位不变，却等于这一项没装。"
+   ]
+  }
+ ],
+ "validity_domain": "本次检出的 `rust/fylite/src/transport.rs`。★**不判各通道的物理对不对**，也不判闭包好不好——本条只判「通道是不是成了数据」。★★parity 那一格的效力只覆盖**被采样的四道通道与三个采样点**：它证明这次改道没动数字，不证明算子在别处也没动。",
+ "caveat": [
+  "★★**判据里还剩半句没兑现，照实写在这里**：「通道集自动生成」——描述子被消费了、加一道通道零改动了、既有配置逐位不变了，但**一次运行该演化哪些通道**仍由调用方挑四个具名入口决定，不是从配置枚举出来的。★从「一道通道是数据」到「**通道集**是数据」还差这一步。判据的括号把验法定成了那三件事，三件都过，所以本条判成立；这半句不因此消失，它是下一条要补的。",
+  "★通量匹配那一侧（`flux_jacobian` / `flux_probes`）本来就是**通道数无关**的：`n_evolve` 是个参数。两条范式在这一点上现在对齐了——PDE 侧此前落后于 Newton 侧。",
+  "★抄录里 `FR-TR-002` 与本条共用同一行判据。五类型 BC、安培/回路电压驱动、`b0_dot` 压缩项三格的证据落在 `tr-equations-boundary-family` 那条记录上，本条不重复声明。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/channel_descriptor.json",
+    "checksum": "sha256:72577b4e020499cfcbc4e3c5273ccfdbc40e2dce179f4834c036e8c671c573d7",
+    "comment": "求解器清点、新通道实测、逐位 parity 表、隐式汇死路径"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::a_new_channel_needs_no_solver_change",
+    "comment": "第一、二格的门：新造一道 `tracer` 通道，并验 `g` 翻倍把稳态压下来"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_four_channels_keep_their_numbers_bit_for_bit",
+    "comment": "第三格的门：改道前钉死的 15 个位模式"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_implicit_sink_is_a_dead_path_when_it_is_not_asked_for",
+    "comment": "第四格的门"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:340bef300ef0fad494ef3c248b75a08dc464c6a3d145f8f0df2b8cf2208736c8"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-TR-001` 的「描述子驱动」一格判**成立**。内核照 ETS 正则形式把四道手写通道求解器改道到同一个 `ChannelDescriptor` + `Numerics` + `solve_channel` 层；求解器体内 `match` 通道名 0 处；新造一道 `tracer` 通道零求解器改动；四道既有通道 15 个位模式逐位不变（位模式在改道**之前**采集）。★顺带补上 ETS 正则形式里此前**整项缺失**的隐式汇 `g`，并验它缺省是死路径。★**「通道集自动生成」那半句未兑现，记在 caveat 里不抹掉**"
+   }
+  ]
+ }
+}

@@ -3,25 +3,25 @@
  "id": "benchmark/records/tr-equations-boundary-family",
  "type": "fyo:ComparisonRecord",
  "title": {
-  "zh": "边界条件族与电流驱动：**边界补齐了，通道那一格仍不成立**",
-  "en": "The boundary family and the current drive: the drive is there, the family is not"
+  "zh": "边界条件族与电流驱动：**四件齐了**",
+  "en": "The boundary family and the current drive: all four are there now"
  },
  "domain": "tr-equations",
  "requirement": [
   "FR-TR-002"
  ],
  "comparison_kind": "verification",
- "overall_verdict": "fail",
+ "overall_verdict": "pass",
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite · transport 的步进算子与四个通道求解器",
-  "comment": "边界怎么表达、电流怎么驱动、通道怎么加"
+  "comment": "边界怎么表达、电流怎么驱动、通道怎么加（四道通道现在共用一个描述子层）"
  },
  "compared_reference": [
   {
    "type": "spo:InformationContentEntity",
    "name": "抄录的判据本身",
-   "comment": "★本条没有外部参照：判据点名了**四件具体的事**，逐件去内核里查有没有即可。★★**四件里两件有两件没有**——所以本条判**不成立**，而不是含混地判「部分」。"
+   "comment": "★本条没有外部参照：判据点名了**四件具体的事**，逐件去内核里查有没有即可。★★2026-09-17 之前**两件有两件没有**，本条判不成立；同日内核先补齐五型边界、再把四道手写通道求解器改道到一个描述子层——**四件现在齐了**，判决随之翻成成立。★判据一个字没放松，是内核追上了判据。"
   }
  ],
  "criteria": [
@@ -65,14 +65,16 @@
  "findings": [
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★通道集**不是**描述子驱动的",
+   "title": "★★2026-09-17 补齐：通道集改成描述子驱动",
    "criterion": "benchmark/records/tr-equations-boundary-family/criterion/1",
    "bound": "identity",
-   "deviation_literal": "全仓搜 `channel_descriptor` **零命中**。通道是 4 个**手写的独立求解器**（`solve_density` · `solve_psi` · `solve_momentum` · `two_temperature_march`）——**加一道通道就是再写一个求解器**，与判据要的「按名加/删通道零求解器改动」正相反",
-   "verdict": "fail",
+   "deviation_literal": "四道手写求解器（`solve_density` · `solve_psi` · `solve_momentum` · 双温 march）全部改道到 `solve_channel(x, y_old, &ChannelDescriptor, &Numerics, d)`；**求解器体内 `match` 通道名 0 处**；新造一道内核里不存在的 `tracer` 通道，求解器改动 **0 行**；四道既有通道 **15 个位模式逐位不变**（位模式在改道**之前**采集并写死进测试）",
+   "verdict": "pass",
    "caveat": [
-    "★这不是「没做好」，是**另一种架构**：四个手写求解器各自把自己那道方程的物理写死在里面。★**要满足这条判据得重写这一层**，不是补一个表。"
-   ]
+    "★★**这一格此前记的是「另一种架构，要重写这一层」——那句话没说错，这一层确实被重写了。**重写照抄 ETS 的正则形式，不是发明第二套：六组方程压成同一个两点边值问题，通道之间只差系数。",
+    "★**判据的括号剩半句没兑现**：「通道集自动**生成**」——一次运行该演化哪些通道，仍由调用方挑具名入口决定。括号把验法定成了三件事（描述子驱动 / 零求解器改动 / 逐位 parity），三件都过，所以这一格判成立；那半句记在 `tr-equations-channel-descriptor` 的 caveat 里，**不抹掉**。"
+   ],
+   "measured_deviation": 0.0
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -112,10 +114,10 @@
    ]
   }
  ],
- "validity_domain": "本次检出的 `rust/fylite/src/transport.rs` 与 `case.rs`。★前两格是**源审视**（搜关键词 + 读步进算子的接口），后两格是实测。★**不判各通道的物理对不对**——那是别的记录的事；本条只判「判据点名的四件事在不在」。",
+ "validity_domain": "本次检出的 `rust/fylite/src/transport.rs` 与 `case.rs`。★第一格 2026-09-17 之前是**源审视**（搜 `channel_descriptor` 零命中），现在有门了——新通道实测 + 逐位 parity；第二格是源审视加逐型实测；后两格是实测。★**不判各通道的物理对不对**——那是别的记录的事；本条只判「判据点名的四件事在不在」。",
  "caveat": [
-  "★★**判决仍是 fail，但内容变了**：四件里现在**三件成立**（电流驱动两条路、B0 压缩项、五型边界），只剩「通道集描述子驱动」一件不成立。★**不因为补了一件就改判**：那一件是架构层面的——四个手写求解器要改成一个吃描述子的通用层，而判据要的正是「按名加/删通道**零求解器改动**」。",
-  "★抄录里 `FR-TR-001`（多通道方程组求解）与本条共用同一行判据。本条的证据同样落在它身上，但没有替它声明。"
+  "★★**判决从 fail 翻成 pass**：四件全成立——电流驱动两条路、`b0_dot` 压缩项、五型边界、通道描述子。★两次翻动都发生在 2026-09-17 同一天，且都是内核补齐，**判据与容差一个字未改**。",
+  "★抄录里 `FR-TR-001`（多通道方程组求解）与本条共用同一行判据。描述子那一格的完整证据（新通道实测、逐位 parity 表、隐式汇死路径）落在 `tr-equations-channel-descriptor`，本条只记结论。"
  ],
  "run": {
   "type": "spo:ComputationProcess",
@@ -125,21 +127,34 @@
     "storage_uri": "docs/benchmark/readings/bc_family_and_coupled_block.json",
     "checksum": "sha256:c11dfeb823da4d43155db0dfc735a52a26a2974341895e20f8d942536691c031",
     "comment": "边界种类、通道求解器清点、电流驱动的两条路、b0_dot 死路径实测"
+   },
+   {
+    "storage_uri": "docs/benchmark/readings/channel_descriptor.json",
+    "checksum": "sha256:72577b4e020499cfcbc4e3c5273ccfdbc40e2dce179f4834c036e8c671c573d7",
+    "comment": "描述子那一格的实测"
    }
   ],
   "realizes": [
    {
     "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_register_numbers_for_the_b0_dot_dead_path_and_the_exchange_ledger",
     "comment": "★第四格的门（新写）。前三格是源审视，没有门"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::a_new_channel_needs_no_solver_change",
+    "comment": "★第一格的门（新写）——此前这一格是源审视，没有门"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_four_channels_keep_their_numbers_bit_for_bit",
+    "comment": "第一格的 parity 半边"
    }
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:eb8c9022c405fc1a788efc99cd13a74d972d375df2b7858e07e28ccd2ac47a69"
+   "checksum": "sha256:340bef300ef0fad494ef3c248b75a08dc464c6a3d145f8f0df2b8cf2208736c8"
   }
  },
  "provenance": {
-  "record_version": "2.1",
+  "record_version": "3.0",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -162,6 +177,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
+   },
+   {
+    "record_version": "3.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "★★**翻判：fail → pass**。最后一格（通道集描述子驱动）成立——四道手写通道求解器改道到同一个 `ChannelDescriptor` + `Numerics` + `solve_channel` 层，求解器体内 `match` 通道名 0 处，新造一道 `tracer` 通道零求解器改动，四道既有通道 15 个位模式逐位不变。★**判据未放松**：位模式在改道之前采集，parity 是测出来的不是声明的。★判据括号外的「通道集自动生成」半句仍未兑现，记在兄弟记录的 caveat 里不抹掉。"
    }
   ]
  }

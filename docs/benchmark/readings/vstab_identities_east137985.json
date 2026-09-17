@@ -1,0 +1,156 @@
+{
+ "kefit_g_sha256": "299c8746c1cc97582076641beae8e9c3749d59d6ad893f7d58c412c8e7ad6502",
+ "settings": {
+  "coarsen": 1.0,
+  "nu": 8.0,
+  "nv": 8.0
+ },
+ "passive": "inner_shell,outer_shell,passive_plates",
+ "base": {
+  "gamma": 4.171282025988692,
+  "k": 211638.63752228953,
+  "k_ideal": 472420.0700061172,
+  "margin": 1.2322014332395357,
+  "ip": 392708.7339999997,
+  "regime_code": 1.0,
+  "notes": [
+   "regime: resistive-wall"
+  ]
+ },
+ "decay_index_identity": {
+  "evaluated": false,
+  "why": "the identity needs the EXTERNAL vertical field and its decay index; the door reports neither, and the total psi cannot stand in for it \u2014 grad psi vanishes on the axis by construction",
+  "naive_total_psi_route": {
+   "n_index": -368.6212364973924,
+   "Bz_axis_T": 0.004322484210525371,
+   "k_door": 211638.63752228953,
+   "k_identity": -3931553.5531107383,
+   "rel": -19.576728706716757
+  }
+ },
+ "gamma_proportional_to_Rw": {
+  "sweep": [
+   {
+    "eta_scale": 0.5,
+    "gamma": 2.085641012994345,
+    "regime_code": 1.0,
+    "gamma_over_eta": 4.17128202598869
+   },
+   {
+    "eta_scale": 1.0,
+    "gamma": 4.171282025988692,
+    "regime_code": 1.0,
+    "gamma_over_eta": 4.171282025988692
+   },
+   {
+    "eta_scale": 2.0,
+    "gamma": 8.34256405197738,
+    "regime_code": 1.0,
+    "gamma_over_eta": 4.17128202598869
+   },
+   {
+    "eta_scale": 4.0,
+    "gamma": 16.685128103954767,
+    "regime_code": 1.0,
+    "gamma_over_eta": 4.171282025988692
+   }
+  ],
+  "spread_rel": 4.440892098500626e-16
+ },
+ "wall_farther_grows_faster": {
+  "sweep": [
+   {
+    "vessel_scale": 1.0,
+    "gamma": 4.171282025988692,
+    "regime_code": 1.0,
+    "notes": [
+     "regime: resistive-wall"
+    ]
+   },
+   {
+    "vessel_scale": 1.25,
+    "gamma": 23.687611398869464,
+    "regime_code": 1.0,
+    "notes": [
+     "regime: resistive-wall"
+    ]
+   },
+   {
+    "vessel_scale": 1.5,
+    "gamma": Infinity,
+    "regime_code": 2.0,
+    "notes": [
+     "regime: ideal-unstable"
+    ]
+   },
+   {
+    "vessel_scale": 2.0,
+    "gamma": Infinity,
+    "regime_code": 2.0,
+    "notes": [
+     "regime: ideal-unstable"
+    ]
+   },
+   {
+    "vessel_scale": 4.0,
+    "refused": "Refused: the kernel refused (-34): the passive inductance matrix is not positive definite"
+   }
+  ],
+  "monotone_over_the_finite_branch": true,
+  "n_finite": 2,
+  "reaches_the_ideal_tier": true
+ },
+ "three_regimes": {
+  "perfect_conductor": {
+   "regime_code": 1.0,
+   "gamma": 8.67361737988404e-13,
+   "notes": [
+    "regime: resistive-wall"
+   ]
+  },
+  "nominal": {
+   "regime_code": 1.0,
+   "gamma": 4.171282025988692,
+   "notes": [
+    "regime: resistive-wall"
+   ]
+  },
+  "ideal": {
+   "vessel_scale": 1.5,
+   "regime_code": 2.0,
+   "gamma": Infinity,
+   "notes": [
+    "regime: ideal-unstable"
+   ]
+  },
+  "codes_seen": [
+   1.0,
+   2.0
+  ]
+ },
+ "mhd_linear_carrier": {
+  "declared_in_manifest": true,
+  "ids_table_present": true
+ },
+ "fields_the_door_exposes": {
+  "m": [
+   90,
+   90
+  ],
+  "r": [
+   90
+  ],
+  "g": [
+   90
+  ],
+  "filament_r": [
+   814
+  ],
+  "filament_z": [
+   814
+  ],
+  "filament_current": [
+   814
+  ]
+ }
+}

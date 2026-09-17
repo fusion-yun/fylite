@@ -14,11 +14,11 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 31,
-  "open_must": 22,
-  "records": 31,
-  "stale": 1,
-  "failing": 2
+  "covered": 33,
+  "open_must": 20,
+  "records": 33,
+  "stale": 0,
+  "failing": 1
  },
  "record": [
   {
@@ -31,7 +31,7 @@
     "NR-EQ-001",
     "NR-EQ-006"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -44,7 +44,7 @@
    "requirement": [
     "FR-EQ-004"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -57,7 +57,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -70,7 +70,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -83,7 +83,7 @@
    "requirement": [
     "FR-EQ-002"
    ],
-   "record_version": "2.1",
+   "record_version": "2.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -96,7 +96,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -110,7 +110,7 @@
     "NR-EQ-005",
     "NR-TR-004"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -124,7 +124,7 @@
     "FR-EQ-001",
     "NR-EQ-002"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -137,7 +137,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -150,7 +150,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -163,7 +163,7 @@
    "requirement": [
     "FR-EQ-011"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -176,7 +176,7 @@
    "requirement": [
     "FR-EQ-008"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -189,7 +189,7 @@
    "requirement": [
     "FR-EQ-006"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -202,7 +202,7 @@
    "requirement": [
     "FR-EQ-010"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -215,9 +215,9 @@
    "requirement": [
     "NR-EQ-004"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-reconstruct-twin-truth-recovery",
@@ -228,7 +228,7 @@
    "requirement": [
     "FR-EQ-006"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -242,7 +242,20 @@
     "FR-EQ-003",
     "FR-EQ-012"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/mhd-vertical-freegsnke-east137985",
+   "domain": "mhd-vertical",
+   "path": "records/mhd-vertical-freegsnke-east137985.jsonld",
+   "comparison_kind": "validation",
+   "overall_verdict": "inconclusive",
+   "requirement": [
+    "FR-EQ-016"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -256,7 +269,7 @@
     "FR-TR-004",
     "FR-TR-009"
    ],
-   "record_version": "1.2",
+   "record_version": "1.3",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -269,7 +282,7 @@
    "requirement": [
     "FR-TR-004"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -282,7 +295,7 @@
    "requirement": [
     "NR-TR-003"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -295,7 +308,7 @@
    "requirement": [
     "FR-TR-003"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -308,7 +321,7 @@
    "requirement": [
     "NR-TR-005"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -321,7 +334,7 @@
    "requirement": [
     "NR-TR-002"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -334,7 +347,7 @@
    "requirement": [
     "FR-TR-012"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -347,7 +360,7 @@
    "requirement": [
     "FR-TR-013"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -356,11 +369,24 @@
    "domain": "tr-equations",
    "path": "records/tr-equations-boundary-family.jsonld",
    "comparison_kind": "verification",
-   "overall_verdict": "fail",
+   "overall_verdict": "pass",
    "requirement": [
     "FR-TR-002"
    ],
-   "record_version": "2.1",
+   "record_version": "3.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-equations-channel-descriptor",
+   "domain": "tr-equations",
+   "path": "records/tr-equations-channel-descriptor.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-001"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -373,7 +399,7 @@
    "requirement": [
     "FR-TR-006"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -386,7 +412,7 @@
    "requirement": [
     "FR-TR-007"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -399,7 +425,7 @@
    "requirement": [
     "FR-TR-005"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -413,7 +439,7 @@
     "FR-TR-010",
     "NR-TR-001"
    ],
-   "record_version": "1.1",
+   "record_version": "1.2",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -426,7 +452,7 @@
    "requirement": [
     "FR-TR-014"
    ],
-   "record_version": "1.3",
+   "record_version": "1.4",
    "review_status": "draft",
    "freshness": "current"
   }

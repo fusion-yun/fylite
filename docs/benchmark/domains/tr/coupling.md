@@ -48,8 +48,8 @@ NN 代理栈有一条硬判据：**权重外置 + 逐位对拍**。权重不进�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-coupling-equilibrium-outer-loop`](../../reports/tr-coupling-equilibrium-outer-loop.md) | 验证 | 成立 | ★**三组对照**：平衡held不重解 · 只追踪不重解 · 状态挂在 psi_N 标签上 | 1.1 | 草稿 | [jsonld](../../records/tr-coupling-equilibrium-outer-loop.jsonld) |
-| [`tr-coupling-nn-weights-external`](../../reports/tr-coupling-nn-weights-external.md) | 验证 | 成立 | 制品与打包声明本身 | 1.1 | 草稿 | [jsonld](../../records/tr-coupling-nn-weights-external.jsonld) |
+| [`tr-coupling-equilibrium-outer-loop`](../../reports/tr-coupling-equilibrium-outer-loop.md) | 验证 | 成立 | ★**三组对照**：平衡held不重解 · 只追踪不重解 · 状态挂在 psi_N 标签上 | 1.2 | 草稿 | [jsonld](../../records/tr-coupling-equilibrium-outer-loop.jsonld) |
+| [`tr-coupling-nn-weights-external`](../../reports/tr-coupling-nn-weights-external.md) | 验证 | 成立 | 制品与打包声明本身 | 1.2 | 草稿 | [jsonld](../../records/tr-coupling-nn-weights-external.jsonld) |
 
 ### 缺口
 

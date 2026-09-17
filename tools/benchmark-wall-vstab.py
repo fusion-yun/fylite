@@ -135,6 +135,103 @@ def vstab(dev, eqdoc, aturns, passive: str, **disc) -> dict:
     return {k: facts[k] for k in ("gamma", "k", "k_ideal", "margin", "ip")}
 
 
+IDENT_READINGS = "vstab_identities_east137985.json"
+#: 判据④的电阻缩放档 · 判据⑥的壁外移档
+ETA_SWEEP = (0.5, 1.0, 2.0, 4.0)
+VESSEL_SWEEP = (1.0, 1.25, 1.5, 2.0, 4.0)
+
+
+def identities(case: Path) -> dict:
+    """`FR-EQ-016` 的内部恒等式与结构单调性 —— 全部经 `code/vstab` 这一扇门量。
+
+    ★与 :func:`readings` 的分工：那一支是**对 FreeGSNKE 的验证**（外部参照说同一个数），
+    这一支是**内部核查**（这个实现自己说得通吗）。两件事都要，而且答案不同时它们的
+    分歧本身就是读数。
+    """
+    from fylite import fyo
+    from fylite.io import fydoc
+    dev = east_card()
+    g, a, gsha = kefit_slice(case)
+    eq, at = fyo.as_equilibrium(g), np.asarray(a["ccbrsp"], float)[:12]
+    spec = ",".join(GROUPS)
+
+    def run(**extra):
+        s = {"circuit": "passive", "passive": spec, "ic": 0.0, **VS_DISC}
+        s.update({k: float(v) for k, v in extra.items()})
+        rec = fydoc.complete("code/vstab", {"settings": s, "inputs": {
+            "device": dev, "equilibrium": eq, "discharge": {"fylite:channel_aturns": at}}})
+        return ({k: float(v["value"]) for k, v in rec["facts"].items()},
+                _flat_fields(rec["fields"]), list(rec.get("notes") or []))
+
+    out = {"kefit_g_sha256": gsha, "settings": dict(VS_DISC), "passive": spec}
+    base, bfl, bnotes = run()
+    out["base"] = {**{k: base[k] for k in ("gamma", "k", "k_ideal", "margin", "ip", "regime_code")},
+                   "notes": bnotes}
+
+    #: 判据② k = 2 pi Ip n Bz —— ★**从总 psi 走这条路是错的**，见记录：磁轴上 grad psi = 0，
+    #: 恒等式要的是**外场**的竖直场与其衰减指数，而这扇门两样都不报。下面把走错这条路
+    #: 得到的数**如实记下来**，它是这条陷阱的证据，不是一次测量。
+    nw, nh = int(g["nw"]), int(g["nh"])
+    gr = float(g["rleft"]) + np.linspace(0.0, float(g["rdim"]), nw)
+    psi = np.asarray(g["psirz"], float).reshape(nh, nw).T
+    gz = float(g["zmid"]) - 0.5 * float(g["zdim"]) + np.linspace(0.0, float(g["zdim"]), nh)
+    ia = int(np.argmin(abs(gr - float(g["rmaxis"]))))
+    ja = int(np.argmin(abs(gz - float(g["zmaxis"]))))
+    bz = np.gradient(psi[:, ja], gr[1] - gr[0]) / gr
+    n_idx = -(gr[ia] / bz[ia]) * np.gradient(bz, gr[1] - gr[0])[ia]
+    k_id = 2.0 * np.pi * abs(base["ip"]) * n_idx * abs(bz[ia])
+    out["decay_index_identity"] = {
+        "evaluated": False,
+        "why": "the identity needs the EXTERNAL vertical field and its decay index; the door reports neither, "
+               "and the total psi cannot stand in for it — grad psi vanishes on the axis by construction",
+        "naive_total_psi_route": {"n_index": float(n_idx), "Bz_axis_T": float(bz[ia]),
+                                  "k_door": base["k"], "k_identity": float(k_id),
+                                  "rel": float(k_id / base["k"] - 1.0)}}
+
+    #: 判据④ gamma 正比于 R_w
+    sweep = [dict(eta_scale=e, **{k: v for k, v in zip(("gamma", "regime_code"),
+             (lambda f: (f["gamma"], f["regime_code"]))(run(eta_scale=e)[0]))}) for e in ETA_SWEEP]
+    for d in sweep:
+        d["gamma_over_eta"] = d["gamma"] / d["eta_scale"]
+    ratios = [d["gamma_over_eta"] for d in sweep]
+    out["gamma_proportional_to_Rw"] = {"sweep": sweep,
+                                       "spread_rel": float(max(ratios) / min(ratios) - 1.0)}
+
+    #: 判据⑤⑥ 三档判读 · 壁越远长得越快（到理想阈值为止）
+    far = []
+    for v in VESSEL_SWEEP:
+        try:
+            f, _, nt = run(vessel_scale=v)
+            far.append({"vessel_scale": v, "gamma": f["gamma"], "regime_code": f["regime_code"], "notes": nt})
+        except Exception as ex:                       # noqa: BLE001 — 拒绝本身是读数
+            far.append({"vessel_scale": v, "refused": f"{type(ex).__name__}: {ex}"})
+    got = [d for d in far if "gamma" in d]
+    #: ★单调性只在**有限**的那一段判：越过理想阈值之后 gamma 是 +inf，而 inf > inf 为假——
+    #: 拿严格单调去套那一段，测出来的是判法的毛病，不是实现的。
+    fin = [d["gamma"] for d in got if np.isfinite(d["gamma"])]
+    out["wall_farther_grows_faster"] = {
+        "sweep": far,
+        "monotone_over_the_finite_branch": all(b > a for a, b in zip(fin, fin[1:])) if len(fin) > 1 else None,
+        "n_finite": len(fin),
+        "reaches_the_ideal_tier": any(d.get("regime_code") == 2.0 for d in got)}
+
+    pc, _, pcn = run(eta_scale=0.0)
+    out["three_regimes"] = {
+        "perfect_conductor": {"regime_code": pc["regime_code"], "gamma": pc["gamma"], "notes": pcn},
+        "nominal": {"regime_code": base["regime_code"], "gamma": base["gamma"], "notes": bnotes},
+        "ideal": next(({"vessel_scale": d["vessel_scale"], "regime_code": d["regime_code"],
+                        "gamma": d["gamma"], "notes": d.get("notes")}
+                       for d in got if d.get("regime_code") == 2.0), None),
+        "codes_seen": sorted({d["regime_code"] for d in got} | {pc["regime_code"]})}
+
+    #: 判据⑦ mhd_linear 载体
+    man = (ROOT / "python/fylite/_manifest/vstab.jsonld").read_text(encoding="utf-8")
+    out["mhd_linear_carrier"] = {"declared_in_manifest": "mhd_linear" in man,
+                                 "ids_table_present": (ROOT / "rust/fylite_runtime/ids/mhd_linear.tsv").is_file()}
+    out["fields_the_door_exposes"] = {k: list(np.shape(v)) for k, v in bfl.items()}
+    return out
+
+
 def readings(case: Path) -> dict:
     from fylite import fyo
     arch = archive(case)
@@ -434,6 +531,9 @@ def main() -> int:
     c = sub.add_parser("efund-build", help="build and run efund from the KEFIT bundle; write the archive + index")
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--bundle", type=Path, default=Path(os.environ.get("KEFIT_REFERENCE_BUNDLE", str(ROOT.parent / "third_party/kefit_reference_bundle"))))
+    d = sub.add_parser("identities", help="FR-EQ-016 的内部恒等式与结构单调性（不对外部参照）")
+    d.add_argument("--out", type=Path, required=True)
+    d.add_argument("--case", type=Path)
     e = sub.add_parser("kefit-readings", help="fylite against the recorded efund runs (B-19 · B-20)")
     e.add_argument("--out", type=Path, required=True)
     e.add_argument("--case", type=Path)
@@ -460,6 +560,13 @@ def main() -> int:
         res = kefit_readings(case, args.bundle)
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / KEFIT_READINGS).write_text(json.dumps(res, indent=1, default=float) + "\n", encoding="utf-8")
+        print(json.dumps(res, indent=1, default=float)[:6000])
+        return 0
+    if args.cmd == "identities":
+        case = args.case or Path(os.environ["FYDOC_ORACLE"]) / CASE23
+        res = identities(case)
+        args.out.mkdir(parents=True, exist_ok=True)
+        (args.out / IDENT_READINGS).write_text(json.dumps(res, indent=1, default=float) + "\n", encoding="utf-8")
         print(json.dumps(res, indent=1, default=float)[:6000])
         return 0
     case = args.case or Path(os.environ["FYDOC_ORACLE"]) / CASE23

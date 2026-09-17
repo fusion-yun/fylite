@@ -155,11 +155,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+   "checksum": "sha256:340bef300ef0fad494ef3c248b75a08dc464c6a3d145f8f0df2b8cf2208736c8"
   }
  },
  "provenance": {
-  "record_version": "1.3",
+  "record_version": "1.4",
   "recorded": "2026-09-17",
   "revised": "2026-09-17",
   "review_status": "draft",
@@ -188,6 +188,12 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后重测（`FR-EQ-002` 让正反两向走同一个响应调用）。★**数值只在末位动**：chi2 相对变 7e-12、最劣单道 5.4e-12——正是两种收缩次序的舍入差，**代数恒等这句话于是被量出来了**。判据、口径与结论一字未改"
+   },
+   {
+    "record_version": "1.4",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "本条此前记在 `ac8c0f5cdc4e…` 上，而基准内核已两度换代——**它是全册唯一一条真过期的记录**。本次在新内核（`340bef300ef0…`）上**重跑了它自己的门**：`test_benchmark_equilibrium.py` 11 道全通过，判据与数值未改口径。★门此前在这台检出跑不了，缺的是 EAST 装置卡；卡不入公开仓（用户 2026-09-04 裁定），但可由 `tools/abox-to-facts.py east --flavour internal -o <仓外目录>` 现建，再把 `$FYLITE_DEVICE_DIR` 指向那个目录下的 `east/`——**「跑不了」其实是「没建」**。"
    }
   ]
  }
