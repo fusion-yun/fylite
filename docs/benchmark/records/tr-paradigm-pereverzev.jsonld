@@ -140,14 +140,14 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
    "comment": "与 `meta/kernel.json` 的基准内核一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-16",
-  "revised": "2026-09-16",
+  "revised": "2026-09-17",
   "review_status": "draft",
   "change": [
    {
@@ -155,6 +155,12 @@
     "date": "2026-09-16",
     "by": "Claude Opus 5",
     "summary": "首次入册。本册 2026-09-16 重起后 tr/ 组的第一条记录。判据三句量到两句成立（定态对 d_pc 无关到 1.4e-11，且 d_pc 确实改变求解路径），第三句「裸环停滞对照」在本闭包族上无可量的操作点——机理是闭包对梯度有界饱和。据此判 inconclusive，不判 pass。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "★仅重验，结论未动：内核换过（q0 改为轴上解析极限，内核仓 d13376b），本条记录的四道门在新库上**全部通过**，故更新内核指纹、撤销 stale。★这条记录不是本会话所写，只动了指纹与本条变更。"
    }
   ]
  }

@@ -28,7 +28,7 @@
   }
  },
  "design": {
-  "seconds": 39.03,
+  "seconds": 39.21,
   "notes": [
    "coil limits: OFF \u2014 the device carries no supply rating (pf_active/supply) and the plan binds no i_max_aturn, so the anneal's coil currents are unbounded"
   ],

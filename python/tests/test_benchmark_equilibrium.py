@@ -92,8 +92,17 @@ def test_b14_the_point_profile_slice_is_recorded_outside_the_band(case):
 
 #: ★V-18 / B-15's measured band — the one twin (4.041 s coil currents, analytic family e_mp = e_np = 1), three significant
 #: figures rounded up.  V-18 is fylite recovering its own forward truth; B-15 is KEFIT on the same synthetic measurements.
-V18_BAND = {"q0_abs": 0.00061, "q95_abs": 0.00128, "axis_mm": 1.18, "span_abs": 0.000176, "psin_rms": 0.00234, "psin_max": 0.00429, "boundary_median_mm": 0.657, "boundary_max_mm": 1.65, "xpoint_mm": 0.784, "ip_abs": 9.5e-11}
-B15_BAND = {"q0_abs": 0.0487, "q95_abs": 0.0107, "axis_mm": 1.33, "span_abs": 0.00853, "psin_rms": 0.00681, "psin_max": 0.0132, "boundary_median_mm": 1.57, "boundary_max_mm": 4.17, "xpoint_mm": 2.19, "ip_abs": 0.00248}
+#: ★★2026-09-17 `q0_abs` 6.1e-4 → 1.2e-3，**这一格是放宽的，理由必须写在这里**：内核把 q0 从
+#: 「最内两面外推」改成「轴上解析极限」（内核仓 d13376b）之后，孪生的真值与重构**不再共享
+#: 同一个偏置**——旧算法下那层共同偏置在相减时抵消，把这条差压到 6.1e-4；抵消没了，露出的
+#: 是两者的真差 1.19e-3。★**所以这不是变差，是此前那个数被一层抵消美化过**，与本记录
+#: 一直写着的「孪生有主场优势」是同一件事的又一次现形。其余各格一位未动。
+V18_BAND = {"q0_abs": 0.0012, "q95_abs": 0.00128, "axis_mm": 1.18, "span_abs": 0.000176, "psin_rms": 0.00234, "psin_max": 0.00429, "boundary_median_mm": 0.657, "boundary_max_mm": 1.65, "xpoint_mm": 0.784, "ip_abs": 9.5e-11}
+#: ★★2026-09-17 `q0_abs` 4.87e-2 → 5.03e-2，理由与 V18 那格是同一件事的另一面：
+#: **KEFIT 自己一个数都没动，是我们的真值挪了**——内核把 q0 改成轴上解析极限之后，
+#: 孪生真值的 q0 从 1.36971 到 1.37201。于是 KEFIT 与真值的距离按**更准的真值**重新量出来，
+#: 变大了。★**带放宽不是迁就 KEFIT，是承认此前那个数是拿一个偏了的真值量出来的。**
+B15_BAND = {"q0_abs": 0.0503, "q95_abs": 0.0107, "axis_mm": 1.33, "span_abs": 0.00853, "psin_rms": 0.00681, "psin_max": 0.0132, "boundary_median_mm": 1.57, "boundary_max_mm": 4.17, "xpoint_mm": 2.19, "ip_abs": 0.00248}
 
 
 @pytest.fixture(scope="module")

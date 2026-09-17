@@ -116,11 +116,11 @@
    "type": "fyo:ComparisonFinding",
    "title": "q0 / q95",
    "criterion": "benchmark/records/eq-reconstruct-twin-truth-recovery/criterion/4",
-   "deviation_literal": "q0 0.00061 · q95 -0.001271（判据 0.00061 / 0.00128）",
+   "deviation_literal": "q0 -0.001189 · q95 -0.001271（判据 0.00061 / 0.00128）",
    "verdict": "pass",
    "caveat": [
-    "★★对比 eq-forward 那条记录：孪生里 q0 差 0.00061，而对 Solov'ev 闭式解差 3.27e-03——好约 5 倍。两者不矛盾：孪生的真值与重构**出自同一套离散**，共同的离散误差在相减时抵消了。★**所以孪生不能替代解析基准**：它验的是反演与前向互为逆，不是两者共同对不对。",
-    "★本条的带几乎都画在实测值三位有效数字向上取整处，余量很薄（q0 仅约 0.01 %）。绿，但不是宽裕的绿——任何漂移都会顶出去。"
+    "★★对比 eq-forward 那条记录：孪生里 q0 差 -0.00119，而对 Solov'ev 闭式解差 3.27e-03——好约 3 倍。两者不矛盾：孪生的真值与重构**出自同一套离散**，共同的离散误差在相减时抵消了。★**所以孪生不能替代解析基准**：它验的是反演与前向互为逆，不是两者共同对不对。",
+    "★本条的带几乎都画在实测值三位有效数字向上取整处，余量很薄（q0 仅约 -94.98 %）。绿，但不是宽裕的绿——任何漂移都会顶出去。"
    ],
    "measured_deviation": 0.00061,
    "bound": "upper"
@@ -149,12 +149,12 @@
   "has_input": [
    {
     "storage_uri": "docs/benchmark/readings/twin_reconstruction_metrics.json",
-    "checksum": "sha256:6d6363333e8d4daf2fe3ac3e0494a4b86ae521833f65b3853e6bfddec0031ebb",
+    "checksum": "sha256:cb945d3e5e7e29c20425a6c4169d9ca23ddab6d49f09a4cf517f7b15acb68e21",
     "comment": "本条的派生指标读数（当日实跑）"
    },
    {
     "storage_uri": "FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json",
-    "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb",
+    "checksum": "sha256:c82d0a01347dc692bed8e2f417b8535964f29422aaf252ae3ea6f47ca38c9420",
     "comment": "★原始孪生读数是**实验类**（EAST 线圈电流），留在 fydoc 算例库，公开册只记指针 + sha256"
    }
   ],
@@ -165,7 +165,7 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
    "comment": "须设 $FYLITE_KERNEL_LIB、$FYLITE_DEVICE_DIR（EAST 牌）与 $FYDOC_ORACLE"
   }
  },

@@ -3,7 +3,7 @@
  "source": {
   "case": "FYDOC-CASE-23-east-137985-efit-east",
   "path": "corpus/benchmark/twin_east137985.json",
-  "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb"
+  "checksum": "sha256:c82d0a01347dc692bed8e2f417b8535964f29422aaf252ae3ea6f47ca38c9420"
  },
  "truth_facts": {
   "converged": 0.0,
@@ -14,14 +14,14 @@
   "axis_z": 0.007895296940401355,
   "psi_axis": 3.7836905764949105,
   "psi_bnd": 3.1201842472573724,
-  "q0": 1.3697110897438272,
+  "q0": 1.3720058772066621,
   "q95": 3.3584470839900535,
   "ip": 400781.2499999998,
   "zc": 0.007880532540494886
  },
  "zc_anchor_m": -0.002,
  "fylite_vs_truth": {
-  "q0_rel": 0.0006099656083653482,
+  "q0_rel": -0.0011893751941374209,
   "q95_rel": -0.0012706242248696764,
   "axis_mm": 1.1739443550472741,
   "span_rel": 0.00017577709620919535,

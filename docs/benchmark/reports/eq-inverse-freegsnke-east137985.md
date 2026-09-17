@@ -14,7 +14,7 @@ title: "eq-inverse-freegsnke-east137985"
 - **量的是**：静态逆解对 FreeGSNKE：电流差了 70 倍，平衡却在毫米之内——逆问题的零空间
 - **参考**：FreeGSNKE
 - **验的需求**：`FR-EQ-005`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **stale**）
+- **跑在内核**：`sha256:301a962b8dc580f4…`（新鲜度 **current**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
@@ -88,7 +88,7 @@ title: "eq-inverse-freegsnke-east137985"
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced`
+- 内核 `libfylite` `sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

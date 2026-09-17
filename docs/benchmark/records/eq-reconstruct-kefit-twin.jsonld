@@ -77,7 +77,7 @@
    "type": "fyo:ComparisonFinding",
    "title": "KEFIT 对真值",
    "criterion": "benchmark/records/eq-reconstruct-kefit-twin/criterion/1",
-   "deviation_literal": "psi_N RMS 0.00681（max 0.01317）· 轴 1.329 mm · 边界中位 1.563 mm（max 4.16）· X 点 2.186 mm · q0 -0.04863 · q95 -0.01061",
+   "deviation_literal": "psi_N RMS 0.00681（max 0.01317）· 轴 1.329 mm · 边界中位 1.563 mm（max 4.16）· X 点 2.186 mm · q0 -0.05022 · q95 -0.01061",
    "verdict": "pass",
    "measured_deviation": 0.00681,
    "bound": "upper"
@@ -85,7 +85,7 @@
   {
    "type": "fyo:ComparisonFinding",
    "title": "★与 fylite 在同一靶上的对照 —— 以及为什么不能读成「fylite 更准」",
-   "deviation_literal": "psi_N RMS：fylite 0.002337 vs KEFIT 0.00681（fylite 约优 2.9 倍）；q0：fylite 0.00061 vs KEFIT -0.0486",
+   "deviation_literal": "psi_N RMS：fylite 0.002337 vs KEFIT 0.00681（fylite 约优 2.9 倍）；q0：fylite -0.00119 vs KEFIT -0.0502",
    "verdict": "inconclusive",
    "caveat": [
     "★★**fylite 在这张靶上有主场优势，这个数不能当作它更准的证据。** 真值是 **fylite 自己的前向解**造出来的，于是 fylite 的重构与真值**共用同一套离散**，共同误差在相减时抵消；KEFIT 没有这个便利。",
@@ -107,11 +107,11 @@
   "has_input": [
    {
     "storage_uri": "docs/benchmark/readings/twin_kefit_metrics.json",
-    "checksum": "sha256:e7cd836aef6632222d2441d495a8515ed504f30b58d23fcc8262566942d6cd6e"
+    "checksum": "sha256:4b71902608a78a2634dd62d78013b47ba495c0922e7508680b2ca548ed3c8cee"
    },
    {
     "storage_uri": "FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json",
-    "checksum": "sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb",
+    "checksum": "sha256:c82d0a01347dc692bed8e2f417b8535964f29422aaf252ae3ea6f47ca38c9420",
     "comment": "★实验类原始读数，指针 + sha256"
    },
    {
@@ -127,7 +127,7 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced"
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485"
   }
  },
  "provenance": {

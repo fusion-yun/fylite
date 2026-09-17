@@ -14,7 +14,7 @@ title: "tr-closure-dt-burn-astra"
 - **量的是**：DT 燃烧的 α 加热：份额对分支比、总量对 ASTRA，以及内核不给的那一项
 - **参考**：DT 分支比 3.5 / 17.6 · ASTRA
 - **验的需求**：`FR-TR-004`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **stale**）
+- **跑在内核**：`sha256:301a962b8dc580f4…`（新鲜度 **current**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 :::{warning} 这是一条**已裁定保留**的缺口
@@ -102,7 +102,7 @@ title: "tr-closure-dt-burn-astra"
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced`　—— ★本条**尚无门**：`docs/benchmark/readings/` 里有读数，但还没有一道 pytest 守它。这是记名的下一步，见 open_defect。
+- 内核 `libfylite` `sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485`　—— ★本条**尚无门**：`docs/benchmark/readings/` 里有读数，但还没有一道 pytest 守它。这是记名的下一步，见 open_defect。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

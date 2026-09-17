@@ -17,7 +17,7 @@
   "covered": 13,
   "open_must": 40,
   "records": 15,
-  "stale": 13,
+  "stale": 0,
   "failing": 1
  },
  "record": [
@@ -33,7 +33,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-evolve-analytic-circuit-limits",
@@ -46,7 +46,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-forward-boundary-rule-vs-kefit",
@@ -59,7 +59,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-forward-chease-solovev",
@@ -85,7 +85,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-forward-solovev-fixed-boundary",
@@ -112,7 +112,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-inverse-iter-reference-separatrix",
@@ -123,9 +123,9 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-reconstruct-kefit-twin",
@@ -138,7 +138,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-reconstruct-twin-truth-recovery",
@@ -151,7 +151,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/eq-surface-chease-fixed-boundary-east",
@@ -163,9 +163,9 @@
     "FR-EQ-003",
     "FR-EQ-012"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/tr-closure-15d-source-switches",
@@ -179,7 +179,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/tr-closure-dt-burn-astra",
@@ -192,7 +192,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/tr-paradigm-pereverzev",
@@ -203,9 +203,9 @@
    "requirement": [
     "FR-TR-005"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   },
   {
    "id": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis",
@@ -218,7 +218,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "stale"
+   "freshness": "current"
   }
  ]
 }

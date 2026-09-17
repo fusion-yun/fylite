@@ -14,7 +14,7 @@ title: "eq-reconstruct-kefit-twin"
 - **量的是**：孪生合成测量上的 KEFIT：同一个已知真值，另一个码回收得如何
 - **参考**：孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个）
 - **验的需求**：`FR-EQ-006`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **stale**）
+- **跑在内核**：`sha256:301a962b8dc580f4…`（新鲜度 **current**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
@@ -40,8 +40,8 @@ title: "eq-reconstruct-kefit-twin"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| KEFIT 重构 psi_N 对真值（轮廓内 RMS） | 0.00681 | measured_band | psi_N RMS 0.00681（max 0.01317）· 轴 1.329 mm · 边界中位 1.563 mm（max 4.16）· X 点 2.186 mm · q0 -0.04863 · q95 -0.01061 | **成立** |
-| ★与 fylite 在同一靶上的对照 —— 以及为什么不能读成「fylite 更准」 | — | — | psi_N RMS：fylite 0.002337 vs KEFIT 0.00681（fylite 约优 2.9 倍）；q0：fylite 0.00061 vs KEFIT -0.0486 | **未判（读数）** |
+| KEFIT 重构 psi_N 对真值（轮廓内 RMS） | 0.00681 | measured_band | psi_N RMS 0.00681（max 0.01317）· 轴 1.329 mm · 边界中位 1.563 mm（max 4.16）· X 点 2.186 mm · q0 -0.05022 · q95 -0.01061 | **成立** |
+| ★与 fylite 在同一靶上的对照 —— 以及为什么不能读成「fylite 更准」 | — | — | psi_N RMS：fylite 0.002337 vs KEFIT 0.00681（fylite 约优 2.9 倍）；q0：fylite -0.00119 vs KEFIT -0.0502 | **未判（读数）** |
 | KEFIT 磁轴对真值 | 1.33 | measured_band | ★**本条没有对应的量** | — |
 | KEFIT 边界与 X 点对真值 | 4.17 | measured_band | ★**本条没有对应的量** | — |
 | KEFIT q0 / q95 对真值 | 0.0487 | measured_band | ★**本条没有对应的量** | — |
@@ -76,12 +76,12 @@ title: "eq-reconstruct-kefit-twin"
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced`
+- 内核 `libfylite` `sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/twin_kefit_metrics.json`    `sha256:e7cd836aef6632222d2441d495a8515ed504f30b58d23fcc8262566942d6cd6e`
-- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json`    `sha256:dd4b16286a1ae1b7b331f8b20943c0700a5d6d21dd60aa1105ddaa8ba20ab9bb`    ★实验类原始读数，指针 + sha256
+- `docs/benchmark/readings/twin_kefit_metrics.json`    `sha256:4b71902608a78a2634dd62d78013b47ba495c0922e7508680b2ca548ed3c8cee`
+- `FYDOC-CASE-23-east-137985-efit-east/corpus/benchmark/twin_east137985.json`    `sha256:c82d0a01347dc692bed8e2f417b8535964f29422aaf252ae3ea6f47ca38c9420`    ★实验类原始读数，指针 + sha256
 - `FYDOC-CASE-23-east-137985-efit-east/corpus/kefit/kefit_twin_east137985.tar.gz`    `sha256:ea9c108c43a1433e296aa037f3bbc858e0d0d9c53a5e671d7e3a6627314611c4`    KEFIT 的记录运行归档
 
 **守它的门**：

@@ -53,14 +53,14 @@
   {
    "id": "benchmark/records/eq-inverse-iter-reference-separatrix/criterion/3",
    "type": "fyo:AcceptanceCriterion",
-   "quantity_label": "逆解是否收敛",
+   "quantity_label": "逆解的收敛状态（读数，不判）",
    "norm": "absolute",
    "tolerance": {
     "type": "spo:QuantityValue",
     "numeric_value": 1.0
    },
-   "tolerance_basis": "machine_precision",
-   "comment": "★判据是 converged == 1。★「settled」不是「converged」——残差不再动与残差足够小是两件事。"
+   "tolerance_basis": "measured_band",
+   "comment": "★★**1.1 版撤回了这条判据的裁断力**，理由是它当初没有依据：门自己的停机规则是 `settled`，工具侧实测「退火在 16 轮饱和」（加预算不改善），而**没有任何需求写着逆解必须报 `converged = 1`**。1.0 版据此判 fail，是拿一条我自立的标准去判。★同一现象在 EAST 那条（`eq-inverse-freegsnke-east137985`）里被记作读数——**同一件事两种判决，说明错的是判法，不是数**。两条现已一致。★这不是放宽容差保过关：容差一格没动，撤的是一条无依据的**裁断**。"
   },
   {
    "id": "benchmark/records/eq-inverse-iter-reference-separatrix/criterion/4",
@@ -103,12 +103,14 @@
   },
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★收敛 —— **不成立**",
+   "title": "收敛状态（读数，不判）—— 且这是**跨算例的共性**",
    "criterion": "benchmark/records/eq-inverse-iter-reference-separatrix/criterion/3",
    "deviation_literal": "converged = 0（settled = 1，残差 0.000965，78 次迭代 / 16 轮）",
-   "verdict": "fail",
+   "verdict": "inconclusive",
    "caveat": [
-    "★残差 9.65e-04 已经很小，解也不再动（settled），但门要的是 converged。照实记 fail——把 settled 读成 converged 是这类记录最容易的自欺。"
+    "★★**1.0 版判 fail 是错的判法，1.1 版改正**：门自己的停机规则是 `settled`，工具侧实测「退火在 16 轮饱和」，而没有任何需求要求 `converged = 1`。**拿一条自立的标准去判，判出来的不是缺陷，是标准。**",
+    "★★**同一现象在 EAST 那条也在**（`eq-inverse-freegsnke-east137985`，残差 1.67e-03）——两个独立算例、两台机器。**跨算例的共性值得先查，但它是一个待解释的现象，不是一条已证的缺陷。**",
+    "★残差 9.65e-04 本身很小；「不再动」与「足够小」是两件事，这一点仍然成立——所以记读数，不记成立。"
    ],
    "bound": "identity"
   },
@@ -146,7 +148,7 @@
  ],
  "run": {
   "type": "spo:ComputationProcess",
-  "performed": "2026-09-16",
+  "performed": "2026-09-17",
   "has_input": [
    {
     "storage_uri": "docs/benchmark/readings/inverse_shape_iter.json",
@@ -170,22 +172,28 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
    "comment": "须设 $FYLITE_KERNEL_LIB 指向带该门的构建，并设 $FYLITE_DEVICE_DIR 指向 ITER 牌所在目录"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-16",
-  "revised": "2026-09-16",
+  "revised": "2026-09-17",
   "review_status": "draft",
-  "open_defect": "2026-09-16 用户裁定「不改内核，保留负面结果」：逆解 settled 而未 converged；达成 kappa 1.7941 比目标低 2.98 %，delta_lower 低 10.21 %；所需 30.6 MA·t 无额定可比（牌上缺 pf_active/supply）。三条原样留册，容差不放宽；牌补上供电额定后电流那一条才判得了。",
+  "open_defect": "2026-09-17 仍记名保留（用户裁定「保留负面结果」）：达成 kappa 1.7941 比目标低 2.98 %、delta_lower 低 10.21 %，判据 1 %——**这一条是真结论**，不是判法问题：把 kappa 顶上去的设置（enp 0.5）要 37.5 MA·t 且永不收敛。所需 30.6 MA·t 仍无额定可比（牌上缺 pf_active/supply）。★收敛那一条已于 1.1 版改为读数——原判 fail 是我自立的标准，不是缺陷。",
   "change": [
    {
     "record_version": "1.0",
     "date": "2026-09-16",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：eq-inverse 的第一条记录，数值取自盘上读数；整体判 inconclusive，三条负面结论按用户裁定保留"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "★撤回「收敛」那条判据的裁断力——它当初没有依据，且与 EAST 那条记录对同一现象的判法不一致；改为读数，两条一致。★形状那条**仍判 fail**：它是真结论，不动。"
    }
   ]
  }

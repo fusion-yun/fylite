@@ -14,7 +14,7 @@ title: "eq-forward-boundary-rule-vs-kefit"
 - **量的是**：两种边界规则对 KEFIT 的图：收敛的那一条反而更远
 - **参考**：KEFIT
 - **验的需求**：`FR-EQ-001`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **stale**）
+- **跑在内核**：`sha256:301a962b8dc580f4…`（新鲜度 **current**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 :::{warning} 这是一条**已裁定保留**的缺口
@@ -81,7 +81,7 @@ title: "eq-forward-boundary-rule-vs-kefit"
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced`
+- 内核 `libfylite` `sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

@@ -144,7 +144,7 @@
   "realizes": [],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
    "comment": "★本条**尚无门**：`docs/benchmark/readings/` 里有读数，但还没有一道 pytest 守它。这是记名的下一步，见 open_defect。"
   }
  },
