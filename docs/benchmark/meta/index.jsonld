@@ -9,7 +9,7 @@
  "abstract": {
   "zh": "★生成件，勿手改：`python tools/benchmark-book.py`。"
  },
- "recorded": "2026-09-16",
+ "recorded": "2026-09-17",
  "statistics": {
   "groups": 3,
   "domains": 16,
@@ -17,8 +17,8 @@
   "covered": 13,
   "open_must": 40,
   "records": 15,
-  "stale": 0,
-  "failing": 2
+  "stale": 13,
+  "failing": 1
  },
  "record": [
   {
@@ -33,7 +33,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-evolve-analytic-circuit-limits",
@@ -46,7 +46,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-forward-boundary-rule-vs-kefit",
@@ -59,7 +59,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-forward-chease-solovev",
@@ -85,19 +85,19 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-forward-solovev-fixed-boundary",
    "domain": "eq-forward",
    "path": "records/eq-forward-solovev-fixed-boundary.jsonld",
    "comparison_kind": "verification",
-   "overall_verdict": "fail",
+   "overall_verdict": "pass",
    "requirement": [
     "FR-EQ-001",
     "NR-EQ-002"
    ],
-   "record_version": "1.0",
+   "record_version": "1.1",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -112,7 +112,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-inverse-iter-reference-separatrix",
@@ -125,7 +125,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-reconstruct-kefit-twin",
@@ -138,7 +138,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-reconstruct-twin-truth-recovery",
@@ -151,7 +151,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/eq-surface-chease-fixed-boundary-east",
@@ -165,7 +165,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/tr-closure-15d-source-switches",
@@ -179,7 +179,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/tr-closure-dt-burn-astra",
@@ -192,7 +192,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/tr-paradigm-pereverzev",
@@ -205,7 +205,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   },
   {
    "id": "benchmark/records/tr-pedestal-zerod-bookkeeping-metis",
@@ -218,7 +218,7 @@
    ],
    "record_version": "1.0",
    "review_status": "draft",
-   "freshness": "current"
+   "freshness": "stale"
   }
  ]
 }

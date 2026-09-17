@@ -8,7 +8,7 @@ title: 需求覆盖 (Requirement coverage)
 
 这一页只答一个问题：**够不够。** 每条需求一行，没有记录覆盖它的显示为空行——★空行不是排版，是缺口本身。按谁答什么问题读：这一页答「够不够」，各域的章页答「对着谁量到多少」，[`status.md`](status.md) 答「这些记录还作不作数」。
 
-- 生成于 (recorded)：2026-09-16
+- 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
 - 已有记录覆盖 (covered)：**13** 条（22 %）
 - ★**MUST 级空缺 (open MUST)：40 条**
@@ -20,9 +20,9 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 不成立 |
+| `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 成立 |
 | `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | — | — | — |
-| `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 不成立 |
+| `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 |
 | `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | — | — | — |
 
 ## 平衡 (Equilibrium) · 磁面几何、全局量与形状表示

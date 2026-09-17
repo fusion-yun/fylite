@@ -12,7 +12,7 @@
   "NR-EQ-002"
  ],
  "comparison_kind": "verification",
- "overall_verdict": "fail",
+ "overall_verdict": "pass",
  "compared_subject": {
   "type": "spo:Code",
   "name": "fylite",
@@ -85,7 +85,7 @@
     "numeric_value": 0.0001
    },
    "tolerance_basis": "measured_band",
-   "comment": "★★**这条带不画在 fylite 自己的实测上**——那样画出来的带，任何数都能「过」。它画在**同一道题上另一套实现达到的精度**：CHEASE NS=80 的 q0 对闭式解差 3.56e-06，本判据放宽到 1e-4（约 28 倍）仍留足余地。fylite 129^2 实测 3.27e-03，**没过**。★用户裁定「不改内核，保留负面结果」：带不因它没过而放宽。"
+   "comment": "★★**这条带不画在 fylite 自己的实测上**——那样画出来的带，任何数都能「过」。它画在**同一道题上另一套实现达到的精度**：CHEASE NS=80 的 q0 对闭式解差 3.56e-06，本判据放宽到 1e-4（约 28 倍）仍留足余地。★★**带从立起到今天一格没动**：1.0 版实测 3.27e-03 判 fail，内核改后 1.1 版实测 1.97e-05 判 pass。**一个不会移动的靶子，才是改动值不值的证据。**"
   },
   {
    "id": "benchmark/records/eq-forward-solovev-fixed-boundary/criterion/6",
@@ -145,17 +145,18 @@
   },
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★q0 —— **不成立**：本条记录的负面结果",
+   "title": "★q0 —— **已修**：从超出 33 倍到余量 5 倍",
    "criterion": "benchmark/records/eq-forward-solovev-fixed-boundary/criterion/5",
-   "deviation_literal": "-0.003263（相对）· 判据 1e-4 · **超出约 33 倍**",
-   "verdict": "fail",
+   "measured_deviation": 1.974e-05,
+   "bound": "upper",
+   "deviation_literal": "-1.974e-05（相对）· 判据 1e-4 · 余量约 5 倍",
+   "verdict": "pass",
    "caveat": [
-    "★**随网格换了号**（33^2 0.0369 → 65^2 0.00496 → 129^2 -0.00326）：量级在降，符号翻转，说明它尚未进入干净的渐近收敛。q0 由轴上的二阶导数定，收敛本就慢于 psi 本身——但「慢」不等于「可以差三个量级」。",
-    "★★**这不是基准的问题，也不是问题太难**：同一道题、同一个闭式解，CHEASE NS=80 的 q0 只差 3.56e-06（见 eq-forward-chease-solovev 的 criterion/3）。差在 fylite 侧。",
-    "★★**保留为负面结果**（2026-09-16 用户裁定「不改内核，保留负面结果」）。它在册上以 fail 的形式挂着，`tools/benchmark-book.py --ci` 会因它退 1——这正是要的：一条已知的、量化的、归属明确的缺口，比一条被容差抹平的记录有用得多。"
-   ],
-   "measured_deviation": 0.003263,
-   "bound": "upper"
+    "★★**病根是外推，不是精度**。1.0 版实测 −3.26e-03，且**随网格换号**（33² +3.69e-02 → 65² +4.96e-03 → 129² −3.26e-03）——`q_profile` 当时把 q0 取作最内两个磁面到 psi_N = 0 的线性外推，误差随第一个面落在哪里走、不随解收敛。**一个随网格加密而翻号的数，不是在收敛到什么。**",
+    "★**改法是取解析极限**：近轴那个围道积分有小椭圆的闭式值，`q0 = F(0)·2π/(R_axis·√(det H))`，det H = ψ_RR ψ_ZZ − ψ_RZ²——CHEASE 与各定边界码用的就是它（内核仓 d13376b）。",
+    "★**现在三档同号且逐档缩小**：33² -0.000483 → 65² -0.000124 → 129² -1.97e-05（约 4× 与 6×）。**「变小」不是证据，「同号且随网格单调缩小」才是**——前者一次巧合就能做到。",
+    "★同一道题上 CHEASE NS=80 是 3.56e-06，本侧现在 -1.97e-05——仍差约 6 倍，**记在这里，不当作已经追平**。"
+   ]
   },
   {
    "type": "fyo:ComparisonFinding",
@@ -172,7 +173,8 @@
   "★**参考解的是哪几道方程**：Solov'ev 是 G-S 方程在 p' 与 FF' 均为常数时的闭式解。所以本条验的是 G-S 算子的离散与边界处理，**不含**剖面非线性那一层——p'/FF' 随 psi 变化时的表现不由本条担保。",
   "★**哪些量是喂进去的**：边界轮廓、p'、FF' 与 B0 都是**输入**，由闭式解给出；算出来的是 psi 分布、磁轴、Ip、q。把输入当成一致性证据是这类记录最常见的夸大。",
   "★**定边界，非自由边界**。FR-EQ-001 的判据有两档，本条只覆盖第一档；第二档「自由边界 Ip 约束收敛 rel 1e-6」在本域尚无记录。",
-  "★★**整体判 fail，而守它的门是绿的——这两件事不矛盾，读者要分清**：门（`test_v19_fylite_recovers_the_solovev_map_inside_its_contour`）守的是**防劣化**（「还是这个数吗」，它的带里 q0_rel 就画在 3.27e-03 上，所以绿）；本记录判的是**够不够**（「这个数配得上一个解析基准吗」，对照另一实现的 3.56e-06，不配）。★一道绿的门不等于一条成立的记录。这正是本册要与测试套件分开存在的理由。"
+  "★★**这条记录曾经判 fail 而守它的门是绿的——那段经过值得留着**：门守的是**防劣化**（「还是这个数吗」，它的带当时就画在 3.27e-03 上，所以绿）；记录判的是**够不够**（「这个数配得上一个解析基准吗」，对照另一实现的 3.56e-06，不配）。**一道绿的门不等于一条成立的记录**——这正是本册要与测试套件分开存在的理由，也正是这一处缺陷是被册子而不是被测试抓出来的原因。",
+  "★内核修好之后，内核侧的门也跟着收紧了（带 7e-3 → 5e-5，另加「三档同号且逐档缩小」的断言）——**记录发现问题，门负责它不再回来**，两者分工如此。"
  ],
  "run": {
   "type": "spo:ComputationProcess",
@@ -180,7 +182,7 @@
   "has_input": [
    {
     "storage_uri": "docs/benchmark/readings/solovev_fixed_boundary.json",
-    "checksum": "sha256:2f6acb7aff4bda0f97082dc28e556174719ac9592c055d4a749395ac11b4c182",
+    "checksum": "sha256:32c17f7511b7745a7b32604cb8ed1042f7f9c3487c1093c6be48fb35b97e752d",
     "comment": "本次运行的读数（问题定义 + 三档网格的 fylite 侧 + CHEASE 侧 + 逐项比较）。★该件由 `python tools/benchmark-fixed-boundary.py solovev --out <DIR>` 产出，可原地复算。"
    }
   ],
@@ -192,22 +194,27 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced",
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485",
    "comment": "★须设 $FYLITE_KERNEL_LIB 指向带 code/fixed_boundary 的构建：不设时会加载滞后的运行时预编译件，门当场按名拒绝（-30）。"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-16",
   "revised": "2026-09-16",
   "review_status": "draft",
-  "open_defect": "2026-09-16 用户裁定「不改内核，保留负面结果」：q0 对闭式解差 -0.00326，判据 1e-4（画在同题上 CHEASE 达到的 3.56e-06 放宽约 28 倍）。缺口归属已查明在 fylite 侧，内核本轮不动——记录挂 fail 等它改，容差不放宽。",
   "change": [
    {
     "record_version": "1.0",
     "date": "2026-09-16",
     "by": "Claude Opus 5 (1M context)",
-    "summary": "首次入册：新册 eq 组的第一条验证记录，数值取自当日实跑读数；q0 一档判 fail 并按用户裁定记为保留的缺口"
+    "summary": "首次入册：新册 eq 组的第一条验证记录，数值取自当日实跑读数；q0 一档判 fail（−3.26e-03 对判据 1e-4），按用户裁定记为保留的缺口"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-16",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "★改判为成立：内核把 q0 从「最内两个磁面外推」改成「轴上解析极限」（内核仓 d13376b），实测 −3.26e-03 → −1.97e-05，三档网格同号且逐档缩小。**容差一格没动**——带留在原处，改动才有一个不会移动的靶子。本条的 open_defect 随之撤销。"
    }
   ]
  }

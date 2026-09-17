@@ -14,7 +14,7 @@ title: "eq-surface-chease-fixed-boundary-east"
 - **量的是**：KEFIT 的 psi_N = 0.995 面上重解：磁面量与 q 剖面对 CHEASE
 - **参考**：CHEASE
 - **验的需求**：`FR-EQ-003` · `FR-EQ-012`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **current**）
+- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **stale**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么

@@ -87,7 +87,7 @@
    "deviation_literal": "psi_N RMS 3.907e-06 · 轴 1.75e-06 mm · Ip 9.36e-10 · q0 3.56e-06",
    "verdict": "pass",
    "caveat": [
-    "★★**这一条是本记录里最有用的一行**：CHEASE 的 q0 对闭式解只差 3.56e-06，而 fylite 129^2 差 -0.00326。于是两码 q0 之差 -0.00327 **归属明确**——是 fylite 的收敛，不是基准或口径的问题。没有这一锚，同一个数只能读成「两码有分歧」。"
+    "★★**这一条是本记录里最有用的一行**：CHEASE 的 q0 对闭式解只差 3.56e-06，而 fylite 129^2 差 -1.97e-05。于是两码 q0 之差 -2.33e-05 **归属明确**——是 fylite 的收敛，不是基准或口径的问题。没有这一锚，同一个数只能读成「两码有分歧」。"
    ],
    "measured_deviation": 3.907e-06,
    "bound": "upper"
@@ -105,7 +105,7 @@
   "has_input": [
    {
     "storage_uri": "docs/benchmark/readings/solovev_fixed_boundary.json",
-    "checksum": "sha256:2f6acb7aff4bda0f97082dc28e556174719ac9592c055d4a749395ac11b4c182",
+    "checksum": "sha256:32c17f7511b7745a7b32604cb8ed1042f7f9c3487c1093c6be48fb35b97e752d",
     "comment": "与验证记录同一份读数、同一次运行——两条记录因此逐位可互校。"
    }
   ],
@@ -117,7 +117,7 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced"
+   "checksum": "sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485"
   }
  },
  "provenance": {

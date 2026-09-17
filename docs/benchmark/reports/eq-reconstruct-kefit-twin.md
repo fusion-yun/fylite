@@ -14,7 +14,7 @@ title: "eq-reconstruct-kefit-twin"
 - **量的是**：孪生合成测量上的 KEFIT：同一个已知真值，另一个码回收得如何
 - **参考**：孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个）
 - **验的需求**：`FR-EQ-006`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **current**）
+- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **stale**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么

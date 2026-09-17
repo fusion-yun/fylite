@@ -28,8 +28,8 @@
 <rect x="572.0" y="145.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
 <text x="578.0" y="156.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>
 <text x="370" y="184.0" font-size="12" fill="#9a9a9a" text-anchor="end">q0 对闭式解的相对偏差</text>
-<rect x="426.7" y="173.0" width="145.3" height="14" rx="3" fill="#d64545" opacity="0.85"/>
-<text x="420.7" y="184.0" font-size="11" fill="#d64545" text-anchor="end">超出 32.6 倍</text>
+<rect x="572.0" y="173.0" width="67.6" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="645.6" y="184.0" font-size="11" fill="#2e9e4f" text-anchor="start">5.07x</text>
 <text x="370" y="212.0" font-size="12" fill="#9a9a9a" text-anchor="end">求解器自证：收敛标志、非线性残差与边界贴合间隙</text>
 <rect x="572.0" y="201.0" width="2.0" height="14" rx="3" fill="#e0a030" opacity="0.85"/>
 <text x="578.0" y="212.0" font-size="11" fill="#e0a030" text-anchor="start">1x</text>

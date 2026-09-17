@@ -10,8 +10,14 @@ title: 验证状态 (Verification status)
 
 ## 基准内核 (reference kernel)
 
-- `libfylite` **sha256:e0e1b16cf0004c12…**
-- 声明于 (recorded)：2026-09-16
+- `libfylite` **sha256:301a962b8dc580f4…**
+- 声明于 (recorded)：2026-09-17
+
+:::{warning} ★★指纹锁在**字节**上，而内核的构建不是逐字节可复现的
+2026-09-16 实测：源码与上一次提交**完全相同**，重建出的 `libfylite.so` 指纹却从`9c8e319b…` 变成 `301a962b…`——内嵌的路径 / 时间戳之类在动。**而它的答案逐位相同**（同一道 Solov'ev 三档 q0 完全一致）。
+
+★于是「过期」会在**什么都没变**的重建后整批误报。这是本册当前最该修的一处机制问题：钥匙该锁在**行为**上（例如一组判据算例的答案摘要），不是锁在字节上。在那之前，读 `stale` 时要记得它可能只是重建过。
+:::
 
 :::{note} 为什么基准是一份**声明件**，不是本机当场算的指纹
 本页入库并受 `--check` 守。它若嵌入跑命令那台机器的内核指纹，换一台机器门就红——而那不是任何人的错。基准记在 `kernel.json` 里，**有意更新**：内核一换就改它，于是所有记在旧内核上的记录当场转 `stale`，CI 据此重跑。
@@ -20,8 +26,8 @@ title: 验证状态 (Verification status)
 ## 总览 (overview)
 
 - 记录 (records)：**15** 条
-- 判决 (verdict)：成立 8 · 不成立 **2** · 未判 5 · 未评估 0
-- 新鲜度 (freshness)：当前 15 · **过期 0** · 未知 0
+- 判决 (verdict)：成立 9 · 不成立 **1** · 未判 5 · 未评估 0
+- 新鲜度 (freshness)：当前 2 · **过期 13** · 未知 0
 - 评审 (review)：已评审 0 · 草稿 15 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
@@ -33,10 +39,6 @@ title: 验证状态 (Verification status)
 ### [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md)
 
 2026-09-16 记名读数（非缺陷但未定）：edge 规则收敛而离 KEFIT 更远，node 规则不收敛却更近；两者差在虚拟对是否带电流。判它需要独立于两者的真值，这道题上没有。用户裁定「保留负面结果」，本条以 inconclusive 原样留册。
-
-### [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md)
-
-2026-09-16 用户裁定「不改内核，保留负面结果」：q0 对闭式解差 -0.00326，判据 1e-4（画在同题上 CHEASE 达到的 3.56e-06 放宽约 28 倍）。缺口归属已查明在 fylite 侧，内核本轮不动——记录挂 fail 等它改，容差不放宽。
 
 ### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
 
@@ -58,20 +60,20 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 2 | 4 | 2 | 1 | 0 |
-| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
-| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 1 | 2 | 2 | 0 | 0 |
-| 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 0 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 2 | 4 | 3 | 0 | 2 |
+| 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 1 |
+| 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 1 |
+| 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 2 |
+| 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 1 | 2 | 2 | 0 | 2 |
+| 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 1 | 1 | 0 | 1 |
 | MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](domains/mhd/energy.md) | 7 | 0 | 0 | 0 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 0 | 0 | 0 | 0 | 0 |
-| 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 1 | 2 | 0 | 0 | 0 |
-| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 0 |
-| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 1 | 1 | 0 | 1 | 0 |
+| 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 1 | 2 | 0 | 0 | 2 |
+| 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 1 | 1 | 0 | 0 | 1 |
+| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 1 | 1 | 0 | 1 | 1 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 0 | 0 | 0 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 0 | 0 | 0 | 0 | 0 |
 
@@ -79,21 +81,21 @@ title: 验证状态 (Verification status)
 
 | 记录 | 域 | 类 | 判决 | 版本 | 末次修订 | 评审 | 跑在内核 | 新鲜度 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 不成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | current |
+| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
+| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.1 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
+| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:e0e1b16cf000…` | stale |
 
 ## 接 CI/CD (wiring this into CI)
 

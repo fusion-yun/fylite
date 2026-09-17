@@ -14,7 +14,7 @@ title: "eq-forward-chease-solovev"
 - **量的是**：同一道 Solov'ev 定边界题：fylite 129^2 对 CHEASE NS=NT=80
 - **参考**：CHEASE
 - **验的需求**：`FR-EQ-001`
-- **跑在内核**：`sha256:e0e1b16cf0004c12…`（新鲜度 **current**）
+- **跑在内核**：`sha256:301a962b8dc580f4…`（新鲜度 **current**）
 - **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
@@ -48,7 +48,7 @@ title: "eq-forward-chease-solovev"
 
 **CHEASE 对闭式解——这条对拍之所以可读的前提**
 
-- ★★**这一条是本记录里最有用的一行**：CHEASE 的 q0 对闭式解只差 3.56e-06，而 fylite 129^2 差 -0.00326。于是两码 q0 之差 -0.00327 **归属明确**——是 fylite 的收敛，不是基准或口径的问题。没有这一锚，同一个数只能读成「两码有分歧」。
+- ★★**这一条是本记录里最有用的一行**：CHEASE 的 q0 对闭式解只差 3.56e-06，而 fylite 129^2 差 -1.97e-05。于是两码 q0 之差 -2.33e-05 **归属明确**——是 fylite 的收敛，不是基准或口径的问题。没有这一锚，同一个数只能读成「两码有分歧」。
 
 ## 不可比的部分
 
@@ -70,11 +70,11 @@ title: "eq-forward-chease-solovev"
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e0e1b16cf0004c128eaaaff81c3d9c36d8a971ce024b2b411c6d7ea5be165ced`
+- 内核 `libfylite` `sha256:301a962b8dc580f44ad9102554b1e3261805e9aef360a24d87bdba38c7031485`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/solovev_fixed_boundary.json`    `sha256:2f6acb7aff4bda0f97082dc28e556174719ac9592c055d4a749395ac11b4c182`    与验证记录同一份读数、同一次运行——两条记录因此逐位可互校。
+- `docs/benchmark/readings/solovev_fixed_boundary.json`    `sha256:32c17f7511b7745a7b32604cb8ed1042f7f9c3487c1093c6be48fb35b97e752d`    与验证记录同一份读数、同一次运行——两条记录因此逐位可互校。
 
 **守它的门**：
 
