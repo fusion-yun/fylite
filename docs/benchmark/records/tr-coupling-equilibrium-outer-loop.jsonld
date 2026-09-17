@@ -1,0 +1,140 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-coupling-equilibrium-outer-loop",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "平衡耦合：步幅收得住，两半对 q 说得拢，而**三组对照都到不了**",
+  "en": "The equilibrium coupling: the step settles, the two halves agree on q — and three controls never get there"
+ },
+ "domain": "tr-coupling",
+ "requirement": [
+  "FR-TR-012"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · 输运 ↔ 平衡的交替外环（CFEDR 20 MA，10 轮）",
+  "comment": "每轮：解一次电流轮，再在它上面重解一次平衡，状态重映到新梯子"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "★**三组对照**：平衡held不重解 · 只追踪不重解 · 状态挂在 psi_N 标签上",
+   "comment": "★★**本条的分量全在对照上。** 「外环收敛了」本身说明不了什么——一个什么都不做的循环也会「收敛」。要紧的是**不这么做的三种做法都到不了同一个地方**，而且各自偏在可以说清的方向上。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-coupling-equilibrium-outer-loop/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "松散步幅：末轮的 dpsi",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.001
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★抄录的「松散步幅回归」：交替若不收，两半就各说各话。带 1e-3 是内核自测原有的取法。"
+  },
+  {
+   "id": "benchmark/records/tr-coupling-equilibrium-outer-loop/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★两半对 q 的分歧（三个半径上的最劣）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.06
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★★抄录的「体积分取平衡网」在这里落成一个**可判的数**：若输运那半的体积分用的不是平衡解出来的那张网，两半算出的 q 就会分家。**分歧就是那件事的度量。**"
+  },
+  {
+   "id": "benchmark/records/tr-coupling-equilibrium-outer-loop/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★三组对照是否都**到不了**收敛点",
+   "norm": "identity",
+   "tolerance_basis": "measured_band",
+   "comment": "★★防假通过的一格，也是本条最要紧的一格：**一个「收敛」而对照也一样收敛的外环，等于没有外环**。"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "步幅收住了",
+   "criterion": "benchmark/records/tr-coupling-equilibrium-outer-loop/criterion/1",
+   "measured_deviation": 0.0003282,
+   "bound": "upper",
+   "deviation_literal": "10 轮里 dpsi 从 5.754e-02 降到 3.282e-04（**175 倍**），末两轮 4.728e-04 / 3.282e-04（判据 1e-3）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**它不是单调的**：第 3 轮从 3.768e-02 回升到 5.494e-02 才转头往下。照实记——一个把「收敛」说成「每轮都更好」的记录会骗人，而**读者需要知道中途允许回升，才不会把一次回升当成坏掉**。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★两半对 q 说得拢",
+   "criterion": "benchmark/records/tr-coupling-equilibrium-outer-loop/criterion/2",
+   "measured_deviation": 0.034,
+   "bound": "upper",
+   "deviation_literal": "三个半径上的分歧 -3.40 % · -1.00 % · -0.20 %（最劣 3.40 %，判据 6 %）",
+   "verdict": "pass",
+   "caveat": [
+    "★分歧向内变大（-3.40 % → -1.00 % → -0.20 %），与「芯部的梯子最难对齐」这一常识一致——★但本条**没有去查**是不是这个原因。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★三组对照，一组都到不了",
+   "criterion": "benchmark/records/tr-coupling-equilibrium-outer-loop/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "收敛的 q0 = 0.9399；而**平衡held不重解** 1.2176 · **只追踪不重解** 1.1661 —— 两者都停在 1.16 以上下不来；**状态挂 psi_N 标签**给 0.7616，且**还在往反方向走**（上一轮 0.8043）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这三组才是本条的证据。** 它们分别拿掉了耦合的一个必要成分——重解平衡 · 重解而非只追踪 · 把状态挂在随平衡变的标签上——而**每拿掉一个，答案就明显地到不了**。",
+    "★第三组尤其说明问题：挂 psi_N 标签不是「差一点」，是**朝相反方向走**（0.8043 → 0.7616）。一个标签选错的耦合会**越迭代越远**，而它看上去一样在收敛。"
+   ]
+  }
+ ],
+ "validity_domain": "CFEDR 20 MA 算例，交替 10 轮，状态重映到 `rho_norm` 标签，omega = 1.0。对照三组各跑 3~6 轮。★收官那轮的 q0 / qmin_eq / v_loop / i_bs 与内核自测记录的参考值（0.940 · 0.826 · 0.0305 · 5.94e6）各在 5 % 内——**本条不重述那一组断言**，它由那道门守。★**这是一个算例上的一次交替**，不是耦合接口在所有情形下都收敛的证明。",
+ "caveat": [
+  "★★**门在内核仓**（`case.rs::steady_equilibrium_tests`），本仓 CI 跑不到——与 `tr-pedestal-sawtooth-kadomtsev`、`tr-conservation-fyo-dd-contract` 同一处代价。★而且这道门很慢（**261 秒**），这本身就是它不该只靠人记得去跑的理由。",
+  "★本条的数来自让那道既有测试**把量到的数说出来**——测试本就存在且一直在过，本轮只是让它开口。★**一条只说「过了」的测试，给不了记录一个可以写下来的数。**"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-17",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/equilibrium_coupling_outer.json",
+    "checksum": "sha256:991d4ce4cfb9b36d93fd15ef8cc22b57361b85c7ba168c82d605047bd5b45d38",
+    "comment": "逐轮 dpsi、收官那轮的四个量与两半的 q 分歧、三组对照（内核自测 --nocapture）"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/case.rs::steady_equilibrium_tests::the_outer_loop_alternates_the_current_and_the_equilibrium_on_cfedr",
+    "comment": "★本条三格的门（261 s）。检出不在则按名跳过"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:ac8c0f5cdc4e601951da0b1ad26a58616571913de15e1bd089065e8a94dc0e7a"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-17",
+  "revised": "2026-09-17",
+  "review_status": "draft",
+  "open_defect": "2026-09-17 ★门在内核仓、且要跑 261 秒，本仓 CI 跑不到它。★另：两半对 q 的分歧**向内变大**（0.20 % → 1.00 % → 3.40 %），看着像「芯部梯子最难对齐」，但**没有去查**是不是这个原因。",
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-TR-012` **不是能力缺口**——外环与它的门一直都在。dpsi 5.75e-02 → 3.28e-04（175 倍，★非单调，第 3 轮回升过），两半对 q 最劣分歧 3.40 %，★**三组对照一组都到不了**"
+   }
+  ]
+ }
+}

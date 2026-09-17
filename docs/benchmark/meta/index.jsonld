@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 26,
-  "open_must": 27,
-  "records": 26,
+  "covered": 27,
+  "open_must": 26,
+  "records": 27,
   "stale": 0,
   "failing": 1
  },
@@ -307,6 +307,19 @@
    "overall_verdict": "pass",
    "requirement": [
     "NR-TR-005"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-coupling-equilibrium-outer-loop",
+   "domain": "tr-coupling",
+   "path": "records/tr-coupling-equilibrium-outer-loop.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-012"
    ],
    "record_version": "1.0",
    "review_status": "draft",

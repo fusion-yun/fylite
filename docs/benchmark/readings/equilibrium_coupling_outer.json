@@ -1,0 +1,44 @@
+{
+ "what": "FR-TR-012：平衡耦合接口的松散步幅回归与「两半对 q 是否一致」",
+ "source": "内核自测 case.rs::steady_equilibrium_tests::the_outer_loop_alternates_... （--nocapture，261 s）",
+ "dpsi_per_round": [
+  0.05754,
+  0.03768,
+  0.05494,
+  0.01625,
+  0.01444,
+  0.005299,
+  0.003054,
+  0.001307,
+  0.0004728,
+  0.0003282
+ ],
+ "rounds": 10,
+ "settled": {
+  "first": 0.05754,
+  "last": 0.0003282,
+  "ratio": 175.3199268738574,
+  "monotone_after_round": 3,
+  "bump": {
+   "round3": 0.05494,
+   "round2": 0.03768
+  }
+ },
+ "converged": {
+  "q0": 0.9399,
+  "qmin_eq": 0.8256,
+  "v_loop": 0.03048,
+  "i_bs": 5941200.0,
+  "dq_three_radii": [
+   -0.034,
+   -0.01,
+   -0.002
+  ]
+ },
+ "controls": {
+  "equilibrium_held_q0": 1.2176,
+  "traced_only_q0": 1.1661,
+  "psi_N_label_q0_round5": 0.7616,
+  "psi_N_label_q0_round4": 0.8043
+ }
+}
