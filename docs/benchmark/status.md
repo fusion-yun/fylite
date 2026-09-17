@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**16** 条
-- 判决 (verdict)：成立 10 · 不成立 **1** · 未判 5 · 未评估 0
-- 新鲜度 (freshness)：当前 16 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 16 · 已被取代 0
+- 记录 (records)：**18** 条
+- 判决 (verdict)：成立 12 · 不成立 **1** · 未判 5 · 未评估 0
+- 新鲜度 (freshness)：当前 18 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 18 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -39,6 +39,10 @@ title: 验证状态 (Verification status)
 ### [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md)
 
 2026-09-16 记名读数（非缺陷但未定）：edge 规则收敛而离 KEFIT 更远，node 规则不收敛却更近；两者差在虚拟对是否带电流。判它需要独立于两者的真值，这道题上没有。用户裁定「保留负面结果」，本条以 inconclusive 原样留册。
+
+### [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md)
+
+2026-09-17 ★★**求积阶数不由任何机制共享**：`coilshare` 两个设置项（默认 4 / 3）与重构侧一个设置项（默认 8）加一处硬编码（3）。配错的代价已量到 2.8e-04（环）/ 4.0e-03（探针），与孪生回路的残差同量级，而不会有任何报警。★要么让两侧读同一份响应（抄录说的 `ResponseCache`），要么至少让门禁盯住这两组默认值不走散。
 
 ### [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md)
 
@@ -64,7 +68,7 @@ title: 验证状态 (Verification status)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 2 | 4 | 3 | 0 | 0 |
+| 平衡 (Equilibrium) | [前向自由边界与 Green 响应核](domains/eq/forward.md) | 4 | 4 | 6 | 5 | 0 | 0 |
 | 平衡 (Equilibrium) | [磁面几何、全局量与形状表示](domains/eq/surface.md) | 3 | 2 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [演化自由边界与涡流电路](domains/eq/evolve.md) | 1 | 1 | 1 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
@@ -89,7 +93,9 @@ title: 验证状态 (Verification status)
 | [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
+| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
+| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.0 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.1 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.0 | 2026-09-16 | 草稿 | `sha256:301a962b8dc5…` | current |
 | [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.1 | 2026-09-17 | 草稿 | `sha256:301a962b8dc5…` | current |

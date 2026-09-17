@@ -20,6 +20,35 @@ title: "前向自由边界与 Green 响应核"
 自己跟自己一致，是废话。要验的是**同一张核在两个方向上是同一张**：磁族的雅可比应当等于
 Green 响应阵。这一条只能用交叉检验抓，抓不到就会以一种很安静的方式错下去。
 
+★★**2026-09-17 抓过了**，记在
+[`eq-forward-green-response-shared`](../../reports/eq-forward-green-response-shared.md)。
+做法是把那张阵**装出来**：逐通道打单位电流，得到 $154\times12$ 的响应阵 $G$；再问三件事。
+一，叠加成不成立——$\lVert G I-\text{coilshare}(I)\rVert/\lVert\cdot\rVert = 2.2\times10^{-16}$。
+二，有限差分量到的雅可比是不是 $G$ 的列——最劣 $6.8\times10^{-13}$。
+三，零输入给不给**恰好**的零——给了，是 0 而不是小量。
+★第三问单列不是凑数：只验叠加的差分形式，会放过一个带常数偏置的仿射映射，
+而线圈响应里若掺了常数项，反演出来的电流分布就会系统地偏。
+★★**这三格都是恒等式检验，不是对标**——别读成「精度很高」，该读成「这确实是同一个东西」。
+
+★源审视那一半也做了，结论比预想的**更弱一点，也更诚实**：正向 `coilshare_case` 调
+`em::element_response`，反向 `reconstruction_case` 调 `breakdown::channel_field`，而后者头一件事
+就是调同一个 `em::element_response`——**两条路不是同一句调用，是同一个被调函数**，
+差别只在先折通道还是先折元件，代数上恒等。
+★★**但抄录要的那个 `ResponseCache` 在内核里根本不存在。** 两侧各自现算，而且
+**求积阶数不共享**：`coilshare` 的两个设置项（默认 4/3）对重构侧一个设置项（默认 8）加一处硬编码（3）。
+配错要付多少代价，量出来了：环上 $2.8\times10^{-4}$、探针上 $4.0\times10^{-3}$——
+**与孪生回路本身的残差同一量级**，而不会有任何东西报警。本册现有算例恰好配对，
+所以结论不受影响；★**但那是碰对的，不是保证**，已作记名缺口留着。
+
+★另一条也补上了：[`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md)
+答 `NR-EQ-005`。数值核 crate 的 `[dependencies]` 只有一行 `rayon`（可选，开不开结果逐位相同），
+整个依赖闭包的外部包是 rayon 那条线程栈的六个，**科学计算包一个没有**——
+线性代数与特殊函数全是自写件。Python 层 63 个文件、0 处生态导入；
+再把 `sp`/`spdm`/`fytok` 三根在 `sys.meta_path` 上**封死**整包导一遍，62 个模块全导得进。
+★最后这一步是抄录点名要的，理由很实在：**AST 扫描抓不到动态导入**。
+★这一条比抄录问的更强（问的是「有没有 import 上游」，答的是「连第三方数学库都没有」），
+代价也是真的：那些数学都得自己验，**本册其余各条量的正是那些自写件**。
+
 上一册在这一域留下过两条：`B-14` 前向对 KEFIT、`V-17` Solov'ev 制造解，另有 `V-16` 读
 GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**上一套编号**，已随旧册
 退役（`docs/benchmark-legacy/`，移出版本控制、仅存盘查阅），在这里点名只为记住这一域
@@ -57,14 +86,13 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`eq-forward-boundary-rule-vs-kefit`](../../reports/eq-forward-boundary-rule-vs-kefit.md) | 对拍 | 未判（读数） | KEFIT | 1.0 | 草稿 | [jsonld](../../records/eq-forward-boundary-rule-vs-kefit.jsonld) |
 | [`eq-forward-chease-solovev`](../../reports/eq-forward-chease-solovev.md) | 对拍 | 成立 | CHEASE | 1.0 | 草稿 | [jsonld](../../records/eq-forward-chease-solovev.jsonld) |
+| [`eq-forward-green-response-shared`](../../reports/eq-forward-green-response-shared.md) | 验证 | 成立 | 它自己的有限差分雅可比，以及由单位电流装出的响应阵 | 1.0 | 草稿 | [jsonld](../../records/eq-forward-green-response-shared.jsonld) |
 | [`eq-forward-kefit-east137985`](../../reports/eq-forward-kefit-east137985.md) | 对拍 | 成立 | KEFIT | 1.0 | 草稿 | [jsonld](../../records/eq-forward-kefit-east137985.jsonld) |
+| [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | 验证 | 成立 | 各自的依赖声明与导入图 | 1.0 | 草稿 | [jsonld](../../records/eq-forward-self-contained-core.jsonld) |
 | [`eq-forward-solovev-fixed-boundary`](../../reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 | Solov'ev 解析平衡 (closed form) | 1.1 | 草稿 | [jsonld](../../records/eq-forward-solovev-fixed-boundary.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-EQ-002` Green 响应核为共享一等资产
-- `NR-EQ-005` 自包含数值核（无后端依赖）
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->

@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 14,
-  "open_must": 39,
-  "records": 16,
+  "covered": 16,
+  "open_must": 37,
+  "records": 18,
   "stale": 0,
   "failing": 1
  },
@@ -75,6 +75,19 @@
    "freshness": "current"
   },
   {
+   "id": "benchmark/records/eq-forward-green-response-shared",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-green-response-shared.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-002"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
    "id": "benchmark/records/eq-forward-kefit-east137985",
    "domain": "eq-forward",
    "path": "records/eq-forward-kefit-east137985.jsonld",
@@ -82,6 +95,19 @@
    "overall_verdict": "pass",
    "requirement": [
     "FR-EQ-001"
+   ],
+   "record_version": "1.0",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/eq-forward-self-contained-core",
+   "domain": "eq-forward",
+   "path": "records/eq-forward-self-contained-core.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "NR-EQ-005"
    ],
    "record_version": "1.0",
    "review_status": "draft",

@@ -1,0 +1,87 @@
+{
+ "what": "NR-EQ-005：自包含数值核。★fylite 的核是 Rust，抄录里的模块名是 fytok 的 Python 模块——此处按职能对照",
+ "rust_core": {
+  "crates": {
+   "fylite": [
+    "rayon"
+   ],
+   "fylite_ext": [
+    "fylite"
+   ],
+   "fylite_static": [
+    "fylite",
+    "fylite_ext"
+   ]
+  },
+  "lock_packages_total": 9,
+  "comment": "★`fylite` 是数值核本体。它的 [dependencies] 是整条判据的答案。"
+ },
+ "python_layer": {
+  "files_scanned": 63,
+  "ecosystem_imports": [],
+  "banned_roots": [
+   "sp",
+   "spdm",
+   "fytok",
+   "fyutils",
+   "fydoc",
+   "fydata",
+   "spdb"
+  ],
+  "comment": "★全包扫描，不是只扫 engine——仓规写的是「python/fylite/ 下一处都不许有」。"
+ },
+ "module_map": {
+  "srs_modules": [
+   "numerics",
+   "circuits",
+   "contour",
+   "forces",
+   "solver_core",
+   "response",
+   "inverse_core",
+   "reconstruction_core"
+  ],
+  "resolved_to": {
+   "numerics": [
+    "linalg.rs",
+    "kernels.rs"
+   ],
+   "circuits": [
+    "electromagnetics.rs"
+   ],
+   "contour": [
+    "surfaces.rs",
+    "geometry.rs"
+   ],
+   "forces": [
+    "electromagnetics.rs"
+   ],
+   "solver_core": [
+    "equilibrium.rs",
+    "fixedbnd.rs"
+   ],
+   "response": [
+    "electromagnetics.rs",
+    "breakdown.rs"
+   ],
+   "inverse_core": [
+    "inverse.rs"
+   ],
+   "reconstruction_core": [
+    "case.rs",
+    "fitting.rs"
+   ]
+  },
+  "unresolved": {}
+ },
+ "isolated_load": {
+  "what": "NR-EQ-005 的隔离加载：封锁 sp / spdm / fytok 三根后整包导入",
+  "banned_roots": [
+   "sp",
+   "spdm",
+   "fytok"
+  ],
+  "modules_imported": 62,
+  "blocked_failures": []
+ }
+}

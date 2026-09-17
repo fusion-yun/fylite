@@ -133,6 +133,54 @@ def test_v18_fylite_recovers_the_twin_truth_and_reproduces_its_readings(case, tw
     _in_band(got["fylite"], V18_BAND, "V-18")
 
 
+#: ★★`FR-EQ-002` 的带。**三格都是恒等式检验，不是对标**——若 `code/coilshare` 当真是一张
+#: Green 响应阵，这三件事就**必须**成立到舍入，否则它不是。所以带取的是浮点的量级，
+#: 不是量出来之后画上去的：
+#:   superposition  12 项求和的累积舍入（实测 2e-16）
+#:   jacobian       一阶差分在 δ/|I| ~ 1e-2 时截断 + 舍入（实测 7e-13）
+#:   zero_input     齐次性：零输入必须给**恰好**的零，不是小量
+#: ★第三格单列的理由：只验叠加的差分形式，会放过一个带常数偏置的仿射映射——
+#: 而线圈响应里若掺了常数项，反演出来的电流分布就会系统地偏。
+#: 记录：`docs/benchmark/records/eq-forward-green-response-shared.jsonld`。
+#: ★★那条记录里还有一格**没有门守**：两侧的求积阶数不由任何机制共享（记名的内核缺口）。
+FR_EQ_002_BAND = {"superposition": 1e-12, "jacobian": 1e-9}
+
+
+def test_fr_eq_002_the_magnetics_jacobian_is_the_green_response(case):
+    """「磁族雅可比 = Green 响应阵」——把那张阵装出来，再用有限差分量它的雅可比。"""
+    import numpy as np
+    tool = _tool()
+    raw = json.loads((case / tool.RAW_SLICES).read_text(encoding="utf-8"))["fylite:slices"]["4.041"]
+    dev = tool.east_card()
+    aturns = np.asarray(raw["brsp"], float)
+    nch = aturns.size
+    setting = {"nu_loops": 8, "nu_probes": 3, "grid_psi": 1, "nu_grid": 4}
+
+    def share(cur):
+        _, s, _ = tool.door("code/coilshare", setting,
+                            {"device": dev, "discharge": {"fylite:channel_aturns": np.asarray(cur, float)}})
+        return np.concatenate([np.asarray(s["loop_coil"], float), np.asarray(s["probe_coil"], float)])
+
+    #: 齐次：零输入必须给恰好的零
+    zero = share(np.zeros(nch))
+    assert np.linalg.norm(zero) == 0.0, ("零输入没给恰好的零", float(np.linalg.norm(zero)))
+
+    #: 逐通道打单位电流，装出 G；这一族列既是 Green 阵，也是（线性算子的）雅可比列
+    G = np.column_stack([share(np.eye(nch)[k]) for k in range(nch)])
+    base = share(aturns)
+    rel = np.linalg.norm(G @ aturns - base) / np.linalg.norm(base)
+    assert rel <= FR_EQ_002_BAND["superposition"], ("叠加不成立", rel)
+
+    #: 有限差分的雅可比列，对若干通道；抽样固定种子，不随跑次漂
+    worst = 0.0
+    for k in np.random.default_rng(0).choice(nch, size=min(6, nch), replace=False):
+        step = 0.01 * max(abs(aturns[k]), 1.0)
+        bumped = aturns.copy(); bumped[k] += step
+        col = (share(bumped) - base) / step
+        worst = max(worst, float(np.linalg.norm(col - G[:, k]) / np.linalg.norm(G[:, k])))
+    assert worst <= FR_EQ_002_BAND["jacobian"], ("雅可比不是那张阵的列", worst)
+
+
 #: ★★`NR-EQ-004` 的带。**它守的是可观测空间那一面**——上面 V-18 那道门量的全是内部量
 #: （q0、磁轴、psi_N），而重构出来的内部量没有真值可比：没有人测过 q0。能判的只有
 #: 「这个解正过来预测测量，差多少」。记录：`docs/benchmark/records/eq-reconstruct-twin-observable-space.jsonld`。

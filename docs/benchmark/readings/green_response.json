@@ -1,0 +1,89 @@
+{
+ "what": "FR-EQ-002：磁族雅可比 = Green 响应阵；正 / 反向共用同一 ResponseCache",
+ "channels_in": 12,
+ "channels_out": {
+  "flux_loop": 75,
+  "probe": 79
+ },
+ "zero_input_norm": 0.0,
+ "superposition_rel": 2.1710988911417824e-16,
+ "jacobian_rel_worst": 6.766058809142098e-13,
+ "jacobian_sampled_channels": [
+  0,
+  2,
+  3,
+  4,
+  5,
+  7
+ ],
+ "jacobian_rel_each": [
+  1.386586596913981e-13,
+  8.364425914182099e-14,
+  2.5558233266696306e-14,
+  4.051504807277244e-14,
+  6.766058809142098e-13,
+  8.234641282504016e-14
+ ],
+ "coil_share_magnitude_Wb": {
+  "median_abs": 0.32450119133762056,
+  "max_abs": 0.44678287645288645
+ },
+ "settings": {
+  "nu_loops": 8,
+  "nu_probes": 3,
+  "grid_psi": 1,
+  "nu_grid": 4
+ },
+ "quadrature_sensitivity": {
+  "comment": "★相对 nu_loops=8 / nu_probes=3（孪生回路实际用的那一组）的最大相对差。两侧求积阶数**不由一个共享对象强制**，配错即在此处付代价。",
+  "baseline": {
+   "nu_loops": 8,
+   "nu_probes": 3
+  },
+  "rows": [
+   {
+    "nu_loops": 4,
+    "nu_probes": 3,
+    "loop_rel_max": 0.00028193102120481944,
+    "probe_rel_max": 0.0
+   },
+   {
+    "nu_loops": 6,
+    "nu_probes": 3,
+    "loop_rel_max": 7.308568948101531e-05,
+    "probe_rel_max": 0.0
+   },
+   {
+    "nu_loops": 12,
+    "nu_probes": 3,
+    "loop_rel_max": 5.2200825176654615e-05,
+    "probe_rel_max": 0.0
+   },
+   {
+    "nu_loops": 8,
+    "nu_probes": 2,
+    "loop_rel_max": 0.0,
+    "probe_rel_max": 0.00400530331998574
+   },
+   {
+    "nu_loops": 8,
+    "nu_probes": 4,
+    "loop_rel_max": 0.0,
+    "probe_rel_max": 0.0013811185195833169
+   },
+   {
+    "nu_loops": 8,
+    "nu_probes": 6,
+    "loop_rel_max": 0.0,
+    "probe_rel_max": 0.0023612879998225512
+   }
+  ]
+ },
+ "twin_loop_cancellation": {
+  "comment": "★正向造测量与反向减线圈份额之后，环上还剩多少——它给两侧响应之差一个上界。",
+  "loop_coil_median_abs_Wb": 0.32450119133762056,
+  "loop_coil_max_abs_Wb": 0.44678287645288645,
+  "residual_abs_rms_Wb": 0.00011845939596051532,
+  "residual_over_coil_share": 0.00036505072746332906
+ }
+}

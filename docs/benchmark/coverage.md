@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-17
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**14** 条（24 %）
-- ★**MUST 级空缺 (open MUST)：39 条**
+- 已有记录覆盖 (covered)：**16** 条（28 %）
+- ★**MUST 级空缺 (open MUST)：37 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -21,9 +21,9 @@ title: 需求覆盖 (Requirement coverage)
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-001` | MUST | 自由边界前向 G-S 求解 | [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) · [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) · [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) · [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 对拍 · 对拍 · 对拍 · 验证 | 未判（读数） · 成立 · 成立 · 成立 |
-| `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | — | — | — |
+| `FR-EQ-002` | MUST | Green 响应核为共享一等资产 | [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | 验证 | 成立 |
 | `NR-EQ-002` | MUST | 解析基准精度 | [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 |
-| `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | — | — | — |
+| `NR-EQ-005` | MUST | 自包含数值核（无后端依赖） | [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 磁面几何、全局量与形状表示
 
@@ -189,7 +189,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 域 | 标题 |
 | :--- | :--- | :--- |
-| `FR-EQ-002` | 前向自由边界与 Green 响应核 | Green 响应核为共享一等资产 |
 | `FR-EQ-008` | 测量重构与约束阶梯 | 快离子压强外部强迫项 |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-010` | 测量重构与约束阶梯 | kinetic-EFIT 自洽外环接口 |
@@ -222,7 +221,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-012` | 双模、平衡耦合与代理栈 | 平衡耦合接口 |
 | `FR-TR-013` | 双模、平衡耦合与代理栈 | NN 代理栈与权重外置 |
 | `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
-| `NR-EQ-005` | 前向自由边界与 Green 响应核 | 自包含数值核（无后端依赖） |
 | `NR-TR-001` | 守恒、金标 parity 与口径 | 守恒性 |
 | `NR-TR-002` | 守恒、金标 parity 与口径 | 金标 parity 验证 |
 | `NR-TR-003` | 闭包插件面：输运系数与源项 | 插件接入 |
