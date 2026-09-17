@@ -16,6 +16,11 @@
 #                                   并承载 app / data / run / list 四条命令），留在
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
+#   ./rust/build.sh --no-io      -> **不链** HDF5 / netCDF 的一档：ldd 上只剩 libgcc_s /
+#                                   libm / libc，实测 8.94 MiB → 8.14 MiB，导出面一字不差。
+#                                   给只走 JSON / NPZ 的调用方（如 CFEDR demo 的堆芯模型
+#                                   工具）。**只编不装**，也不碰 wasm / fy / 台账 —— 产物
+#                                   路径与那条 cp 由脚本打出来
 #   ./rust/build.sh --no-install    只构建
 #   ./rust/build.sh --full-wasm  另出中间层的**全套** wasm（2.14 MB）。缺省只出
 #                                `fylite_web.wasm`（0.51 MB，页面真读的那两扇门）——
@@ -53,6 +58,7 @@ CRATE="$DIR/fylite_runtime"
 INSTALL=1
 EXE=0
 FEATURES=""
+NOIO=0
 KCHECK=1
 KFETCH=0
 #: ★制品的版本化命名（`libfylite_runtime.so.0.0.1` + 两级符号链接）——规则与内核仓
@@ -72,6 +78,16 @@ for a in "$@"; do
         #: 而现在只有一个——说清楚比悄悄换掉好。
         --cli) echo "--cli 已撤：fylite-data / fylite-case 已收进 fylite，用 --exe" >&2; exit 2 ;;
         --static) FEATURES="--features static" ;;
+        #: ★★**不带 HDF5 / netCDF 的一档**（--no-io）。为什么值得有：链那两个 C 库是这个
+        #: 库唯一的外部依赖（`ldd` 上就它们两行），而只经 JSON / NPZ 进出的调用方——
+        #: CFEDR demo 的堆芯模型工具就是——一次也不走那条路。实测（2026-09-17）：
+        #: 全功能 8.94 MiB 且要 libnetcdf.so.19 + libhdf5_serial.so.103；这一档 8.14 MiB
+        #: （同样带装置表），`ldd` 只剩 libgcc_s / libm / libc，**导出面一字不差**（100 个，
+        #: 59 个内核入口全在），同一步算例读数逐项相同。省下的字节是次要的——真正换来的是
+        #: 「拷到哪台机器都能跑」。丢掉的只有 HDF5 / netCDF 文件读写，而且是**按名拒绝**
+        #: （`io.rs` 的 `built without the hdf5 feature`），不是找不到符号。
+        #: ★`mdsip` 留着：原生代码路径无条件引用它，去掉编不过（实测 15 处 E0425/E0433）。
+        --no-io) NOIO=1 ;;
         #: ★★哪一版的装置信息编进这个库（2026-09-05 用户裁定：页面也走中间层 wasm，
         #: 撤掉 `facts.jsonld`）。许可闸仍只有一处实现——`tools/facts-publish.py` 读每台
         #: 的 `rights.json`；这里只是把它的产物递给 `build.rs`。
@@ -85,6 +101,16 @@ for a in "$@"; do
         *) echo "unknown option $a" >&2; exit 2 ;;
     esac
 done
+
+#: ★★`--no-io` 这一档**不装进 `python/fylite/_lib/`**：轮子里那份要能读 IMAS 的 HDF5 /
+#: netCDF，装一份读不了的进去，故障会推迟到某个人 `fy data` 的时候才出现，且长得像
+#: 「文件坏了」。所以这里只编、不装，最后把产物路径与那条 `cp` 打出来——要给谁用，
+#: 谁明写一句拷贝。
+if [ "$NOIO" = 1 ]; then
+    [ -z "$FEATURES" ] || { echo "[runtime] --no-io 与 --static 互斥：一个是不链那两个 C 库，一个是把它们编进来" >&2; exit 2; }
+    FEATURES="--no-default-features --features mdsip,abi_full"
+    INSTALL=0
+fi
 
 # --------------------------------------------------------------------------- #
 # 内核检查 —— **只看，不动**（用户裁定 2026-09-05）                            #
@@ -335,6 +361,17 @@ if [ -f "$KJSON" ]; then
     echo "[runtime] kernel-in-so ok  $nwant 个内核导出全在（$(sed -n 's/.*"kernel_version": *"\([^"]*\)".*/\1/p' "$KJSON")）"
 else
     echo "[runtime] ★没有内核归档 —— 这个 .so 只带中间层那一面（fy run 不可用，页面走 wasm）"
+fi
+
+if [ "$NOIO" = 1 ]; then
+    echo "[runtime] --no-io：不装（轮子那份要读 IMAS 的 HDF5 / netCDF）。产物在"
+    echo "[runtime]   $SO"
+    echo "[runtime]   $(ldd "$SO" | sed 's/^\s*//' | grep -c 'not found' || true) 条缺失依赖 · $(du -h "$SO" | cut -f1)"
+    echo "[runtime]   要给只跑 JSON / NPZ 的调用方用，明写一句拷贝，例如："
+    echo "[runtime]   cp $SO <目标目录>/libfylite.so.$RVER   然后两级符号链接（tools/soname.sh）"
+    #: ★到此为止：这一档是**旁路产物**，不该顺手重装 wasm / 可执行文件 / 台账——
+    #: 那些是缺省构建的事，在这里做就成了「跑了个次要档，主产物被换掉了」。
+    exit 0
 fi
 
 if [ "$INSTALL" = 1 ]; then
