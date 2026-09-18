@@ -35,10 +35,13 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-#: 在本仓里跑时，fylite 包就在两级之上的 python/；装了 fylite 的环境里这一行不起作用
-_REPO_PY = HERE.parents[1] / "python"
-if (_REPO_PY / "fylite").is_dir() and str(_REPO_PY) not in sys.path:
-    sys.path.insert(0, str(_REPO_PY))
+#: fylite 包在哪：本仓里是两级之上的 python/（apps/<本应用>/ → 仓根），打好的包里是一级之上的
+#: python/（app/ 与 python/ 并列）。装了 fylite 的环境里两处都不在，这几行不起作用。
+for _py in (HERE.parents[1] / "python", HERE.parent / "python"):
+    if (_py / "fylite").is_dir():
+        if str(_py) not in sys.path:
+            sys.path.insert(0, str(_py))
+        break
 
 import numpy as np  # noqa: E402
 
