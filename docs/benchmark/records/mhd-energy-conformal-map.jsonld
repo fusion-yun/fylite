@@ -1,0 +1,267 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-energy-conformal-map",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "星形域到单位圆盘的共形映射：**机器全对，而谱收敛的快慢是形状的事**",
+  "en": "The conformal map from a star-shaped domain to the unit disk: the machinery is right, and how fast it converges belongs to the shape"
+ },
+ "domain": "mhd-energy",
+ "requirement": [
+  "FR-EQ-025"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "inconclusive",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `conformal::ConformalMap`（`theodorsen` / `f` / `df` / `inverse` / `boundary_spectrum`）",
+  "comment": "2026-09-18 新写：Theodorsen 迭代 + FFT 共轭函数，M = 1024；逆映射初值取自边界对应"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "共形映射的数学性质（Riemann 映射定理；Theodorsen 积分方程）与判据自带的数",
+   "comment": "边界落在曲线上、单叶、圆域精确退化、调和函数在共形基上谱收敛——这些与实现无关。★判据给的 6/12/20 模 → 1.3e-2 / 1.1e-3 / 5.7e-5 **没说是哪个形状**。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "边界落在 $\\Gamma$ 上（判据 1.4e-15）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-12
+   },
+   "tolerance_basis": "machine_precision"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "单叶",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "往返（判据 2.5e-16，含近边界 0.999）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-12
+   },
+   "tolerance_basis": "machine_precision"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "圆域精确退化为 $f=a\\zeta$、边界对应为恒等",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★★共形基谱收敛（6/12/20 模 → 1.3e-2 / 1.1e-3 / 5.7e-5，每档至少降 3 倍），同等模数下优于星形基 > 5×",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/6",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "圆域上两基逐点相同",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/7",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★朴素 Newton 初值跑出单位圆的反证；逆映射像在闭圆盘内",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/8",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "边界谱换算：形变泄漏、圆域不泄漏",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/9",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "不收敛 / 坏网格 / 负半径 fail-loud",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "边界落在曲线上 6.7e-15 / 8.0e-15",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/1",
+   "measured_deviation": 7.994e-15,
+   "bound": "upper",
+   "deviation_literal": "$\\max_\\phi\\big||f(e^{i\\phi})|-\\rho(\\arg f)\\big|$：椭圆 $b/a=1.6$ **6.661e-15**（41 次迭代）；Miller κ1.6 δ0.35 **7.994e-15**（76 次）",
+   "verdict": "pass",
+   "caveat": [
+    "★判据字面 1.4e-15 是上游在它自己的形状上量的；这里是 5 倍，仍在机器精度量级（$M=1024$ 点上的 FFT 舍入）。门按 1e-12 设，数照实记。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "单叶：边界对应严格单调，闭圆盘上 $\\min|f'|=0.712$",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/2",
+   "bound": "identity",
+   "deviation_literal": "强 D 形：$\\theta(\\phi)$ 严格单调（`theodorsen` 自己也查，不单调即拒绝）；41 × 128 点网格上 $\\min|f'|$ = **0.7123**",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "往返 3.5e-16 / 5.6e-16，含 $|\\zeta|=0.999$",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/3",
+   "measured_deviation": 5.55e-16,
+   "bound": "upper",
+   "deviation_literal": "768 个内点（12 半径 × 64 角）加 $|\\zeta|=0.999$ 一圈 64 点：椭圆 **3.51e-16**，强 D **5.55e-16**；内点像 $\\max|\\zeta|$ = 0.9903 / 0.9928",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★圆域一次迭代收敛，$g_{k>0}$ 与 $\\theta-\\phi$ **逐位为零**",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "$\\rho\\equiv0.7$：1 次迭代，$|a-0.7|<10^{-15}$，$g_{k\\ge1}$ 逐位 0，$\\theta_j$ 逐位等于 $2\\pi j/M$",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★温和 D 形上共形基每档降 5.7× / 8.7×，星形基停在 4.4e-2；**强 D 形只降 2.4× / 2.8×，N=6 时还不如星形基**",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "调和函数 $u=\\operatorname{Re}w$ 在 768 内点上的最大误差，N = 6 · 12 · 20：Miller κ1.3 δ0.2 共形 **2.29e-2 · 4.05e-3 · 4.64e-4**，星形 4.37e-2 · 4.37e-2 · 4.37e-2（星/共形 1.9 · 10.8 · 94）；Miller κ1.6 δ0.35 共形 **1.21e-1 · 5.11e-2 · 1.81e-2**，星形 7.10e-2（星/共形 **0.59** · 1.39 · 3.9）。上游：1.3e-2 · 1.1e-3 · 5.7e-5，形状未写",
+   "verdict": "inconclusive",
+   "caveat": [
+    "★★**判据说的「表示」是什么，先要读对**：拿边界 $\\rho(\\theta)$ 本身比，星形基（就是 $\\rho$ 的傅里叶级数）反而远好于共形基——那个读法是错的。判据有意义的读法是**域内调和函数**：$\\delta W$ 的真空势是调和的，共形拉回后在圆盘上是 $\\operatorname{Re}\\sum c_k\\zeta^k$；星形基 $(r/\\rho)^{|k|}e^{ik\\theta}$ 在域内**不调和**，于是停在一个平台上不再下降。本格按后一读法验。",
+    "★★**谱收敛的速率是形状的事，不是实现的事**：给定精确映射，截断到 N 模的误差由 $f$ 的解析延拓在圆外最近的奇点决定。强 D 形的奇点离单位圆近，所以慢——**任何正确的实现都给同样的数**。所以强 D 形的 2.4× / 2.8× 不是缺陷，照实留作负面结果（门 `a_strong_d_is_where_the_five_fold_drop_is_lost` 把它钉住）。",
+    "★「> 5×」在温和 D 形的 N=6 上只有 1.9×，N=12 起才 > 5×——照实记。",
+    "★★**判未判**：上游的 1.3e-2 / 1.1e-3 / 5.7e-5 没有说形状，本条无从复现那三个数；两个形状照实报，谁也不挑出来冒充上游的那个。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "圆域上两基逐点相同（6e-15）",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/6",
+   "measured_deviation": 6.2e-15,
+   "bound": "upper",
+   "deviation_literal": "$\\rho\\equiv1$：N = 6 · 12 · 20 两基误差都是 6.1e-15 · 6.1e-15 · 6.2e-15，逐 N 相同",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★朴素 Newton 在强 D 形上 76 / 768 个点跑出单位圆；稳健逆映射的像全在圆内",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/7",
+   "bound": "identity",
+   "deviation_literal": "初值 $w/f'(0)$、不设护栏：强 D 形 768 个内点中 **76** 个的迭代出了 $|\\zeta|\\le1$；稳健版（边界对应给初值、出圆步长减半）$\\max|\\zeta|$ = 0.9928",
+   "verdict": "pass",
+   "caveat": [
+    "★原型里朴素 Newton 直接给出 NaN——截断级数在圆外发散。**这个反证是判据自己要的**，它说明「初值取自边界对应」不是装饰。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "边界谱：圆域不泄漏（1.8e-16），强 D 形泄漏 0.13 / 0.27 / 0.40",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/8",
+   "bound": "identity",
+   "deviation_literal": "共形角上的 $\\cos m\\phi$ 在几何角上重展开：圆域 $c_m=1$、其余 $\\le$ 1.77e-16；强 D 形 $m$ = 1 · 2 · 3 时 $c_m$ = 0.898 · 0.983 · 0.913，模外 $\\ell_2$ 泄漏 **0.130 · 0.270 · 0.398**",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "坏网格、负半径、不收敛按名拒绝",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/9",
+   "bound": "identity",
+   "deviation_literal": "$M=1000$、$M=8$ → `CONFORMAL_BAD_GRID`；$\\rho=\\cos\\theta$ → `CONFORMAL_NEGATIVE_RADIUS`；3 次迭代封顶 → `CONFORMAL_NO_CONVERGENCE`",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "星形域（$\\rho(\\theta)>0$ 单值）、Theodorsen 迭代收敛（近圆的形状）、$M=1024$。★强 D 形（κ1.6 δ0.35）仍收敛且单叶，但调和表示的谱收敛慢。★**不含**非星形域与带 X 点的边界。",
+ "caveat": [
+  "★★**判未判**：机器的八格全过；谱收敛那一格上游的数没有形状，而本条量到的收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8×——这是数学性质，照实报两个形状，不挑。",
+  "★这一条给 `FR-EQ-023` 的真空能铺路：共形拉回之后真空势在圆盘上是谱收敛的，前提是形状别太 D。",
+  "★门在内核仓，本仓 CI 跑不到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/conformal_map.json",
+    "checksum": "sha256:46efa9e6d4d2409c4733b3bcb870d06c6dd5d92c36913496107b48e68daf79e2",
+    "comment": "三个形状上的边界、单叶、往返、调和表示两基对比、朴素 Newton 反证、边界谱、拒绝"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_boundary_lands_on_the_curve",
+    "comment": "第一格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_map_is_univalent_on_the_disk",
+    "comment": "第二格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_robust_inverse_round_trips_up_to_the_edge",
+    "comment": "第三格与第七格后半"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_circle_degenerates_exactly",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::a_harmonic_function_converges_spectrally_only_in_the_conformal_basis",
+    "comment": "第五格：温和 D 形"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::a_strong_d_is_where_the_five_fold_drop_is_lost",
+    "comment": "★第五格：强 D 形的负面结果"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::both_bases_coincide_on_the_circle",
+    "comment": "第六格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::naive_newton_leaves_the_disk",
+    "comment": "★第七格：反证"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_boundary_spectrum_leaks_only_on_a_deformed_domain",
+    "comment": "第八格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::bad_input_is_refused_by_name",
+    "comment": "第九格"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:c5b0d8699709dea9f7e7b27b20f55bdbf2bf790944da28ddafafa4c4fa82f957"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-025` 从空缺转为记录，判**未判**。内核新写 `conformal.rs`：Theodorsen 迭代 + FFT 共轭函数，逆映射初值取自边界对应。边界 8e-15、单叶、往返 5.6e-16（含 0.999）、圆域逐位退化、两基在圆上相同、边界谱圆域不泄漏、fail-loud——机器八格全过。★★**判据的「表示」要读成域内调和函数**：拿边界本身比，星形基反而更好。★★温和 D 形共形基每档降 5.7×/8.7×、星形基停在 4.4e-2；强 D 形只降 2.4×/2.8×、N=6 还不如星形基——速率是形状的数学性质，留作负面结果。上游的三个数没说形状，无从复现，故判未判。★朴素 Newton 在强 D 形上 76/768 个点跑出单位圆——判据要的反证。"
+   }
+  ]
+ }
+}

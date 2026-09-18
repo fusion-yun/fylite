@@ -1,0 +1,88 @@
+{
+  "_comment": "FR-EQ-021 表面电流模型的解析 β 极限 —— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests",
+  "source": "Freidberg, Ideal MHD (Cambridge, 2014), §12.8 surface current model: Eqs. (12.154)–(12.166)",
+  "mlp": {
+    "series": "Eq. (12.165): M_lp = sum_m |m| / {[4(m-l)^2-1][4(m-p)^2-1]}, Kahan-summed, N = 1e6",
+    "names": [
+      "M11",
+      "M22",
+      "M33",
+      "M12",
+      "M23",
+      "M13"
+    ],
+    "printed": [
+      "5/4",
+      "89/36",
+      "1111/300",
+      "-11/12",
+      "-277/180",
+      "1/180"
+    ],
+    "worst_abs_diff": 6.262e-14
+  },
+  "eq_12_164_inverse_q2_coefficients": {
+    "names": [
+      "W11",
+      "W22",
+      "W33",
+      "W12",
+      "W23",
+      "W13"
+    ],
+    "computed": [
+      0.032599,
+      2.477043,
+      4.939266,
+      -0.017217,
+      1.227227,
+      0.011111
+    ],
+    "printed": [
+      0.033,
+      2.48,
+      4.94,
+      -0.017,
+      1.23,
+      0.011
+    ],
+    "note": "rounded to the printed digits they agree exactly; W13 = 4/(15 q) + 2 M13/q^2 has NO pi^2 term"
+  },
+  "root": {
+    "three_harmonic_q_crit": 1.690113,
+    "printed": 1.69,
+    "beta_over_eps_at_root": 0.2159,
+    "beta_over_eps_at_1_71": 0.211,
+    "printed_beta_over_eps": 0.21,
+    "note": "the book's 0.21 is (pi/4 q_crit)^2 at its 20-harmonic q_crit = 1.71 (Eq. 12.166), not at the 3-harmonic root"
+  },
+  "pole": {
+    "q_star": 1.00034565,
+    "above_kruskal_shafranov": 0.0003456,
+    "note": "D = W11 W33 - W13^2 crosses zero here; W changes sign through a pole. Bisection on (1.0, 1.5) reported it as a root before the D > 0 scan was added"
+  },
+  "monotone_window": "W strictly increasing on q_crit * (1 + 0.01 k), k = -10..10; W(1.2) < 0 < W(3.0)",
+  "low_beta": {
+    "coefficients": [
+      "4(q-1)/q",
+      "2(q-2)^2/q^2",
+      "((2q-3)^2+3)/(3q^2)"
+    ],
+    "q_probe": [
+      0.8,
+      0.99,
+      1.01,
+      1.5,
+      2.0,
+      3.0,
+      5.0
+    ],
+    "c2_at_2": 0.0,
+    "note": "c1 > 0 iff q* > 1 (Kruskal-Shafranov); c3 > 0; c2 >= 0 with a double zero at q* = 2 (the book says 'both positive')"
+  },
+  "refusals": {
+    "(2,3)": "SURFACE_CURRENT_NO_CROSSING (-6)",
+    "(1.0,1.5)": "SURFACE_CURRENT_OUTSIDE_DOMAIN (-7)",
+    "(1.2,3.0)": "ok"
+  }
+}
