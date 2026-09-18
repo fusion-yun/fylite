@@ -135,14 +135,14 @@ def test_the_bundled_tier_resolves_east_by_shot_and_chain():
     res = json.loads(text)
     assert not any("card" in v for provs in res["variants"].values() for v in provs.values()), \
         "the bundled copy carries the document form only (A-13)"
-    assert list(res["manifest"]["measurement_chains"]) == ["pcs_east", "east"]
+    assert list(res["manifest"]["measurement_chains"]) == ["pcs_east", "east", "east_na"]
     #: ★2026-09-14 (user ruling): no chain -> the chain of the manifest default, `pcs_east`,
     #: whatever the shot — the array the default fetch (`magnetics_pcs`) reads
     for shot in (70754, 137985, None):
         pcs = D.select_providers(shot=shot, resolution=res)["magnetics"]
         assert pcs["provider"] == "pcs" and pcs["shots"].startswith("all"), (shot, pcs)
     old = D.select_providers(shot=70754, measurement_chain="east", resolution=res)["magnetics"]
-    assert (old["provider"], old["shots"]) == ("base", [0, 97030]), old
+    assert (old["provider"], old["shots"]) == ("base_tb", [0, 97030]), old
     new = D.select_providers(shot=137985, measurement_chain="east", resolution=res)["magnetics"]
     assert (new["provider"], new["shots"]) == ("east_new", [97034, None]), new
     with pytest.raises(D.ProviderSelectionError, match=r'"efit_east".*not declared'):
@@ -150,7 +150,7 @@ def test_the_bundled_tier_resolves_east_by_shot_and_chain():
     #: the bundled DOCUMENT, resolved from the bundled resolution, is that family
     card = json.loads(F.bundled_doc("device", "east"))
     doc = D.resolve_document(card, res, shot=70754, measurement_chain="east", form="document")["document"]
-    assert (doc["magnetics"]["fylite:provider"], doc["magnetics"]["measurement_chain"]) == ("base", "east")
+    assert (doc["magnetics"]["fylite:provider"], doc["magnetics"]["measurement_chain"]) == ("base_tb", "east")
     assert len(doc["magnetics"]["b_field_pol_probe"]) == 38
     assert doc["_valid_shots"] == [0, 97030]
 
@@ -162,7 +162,7 @@ def test_fy_resolves_east_by_shot_from_the_bundled_tier(tmp_path):
     env = {k: v for k, v in os.environ.items() if k not in ("FY_FACTS_PATH", "FY_FACTS_BUNDLED")}
     #: no chain (2026-09-14): `pcs` (no shot range) at any shot; within chain `east`, by shot
     for shot, chain, want in ((70754, None, ("pcs", "")), (137985, None, ("pcs", "")), (None, None, ("pcs", "")),
-                              (70754, "east", ("base", "[0, 97030]")),
+                              (70754, "east", ("base_tb", "[0, 97030]")),
                               (137985, "east", ("east_new", "[97034, —]"))):
         r = _dry(exe, *_shot_args(shot), *_chain_args(chain), cwd=tmp_path, env=env)
         assert r.returncode == 0, r.stdout + r.stderr
@@ -204,7 +204,9 @@ def test_python_and_the_command_line_agree_on_the_providers(resolution, chain):
 def test_the_measurement_chain_decides_within_itself_and_refuses_by_name(resolution):
     sel = lambda **q: D.select_providers(resolution=resolution, **q)["magnetics"]  # noqa: E731
     #: within chain `east`: the ranged provider covering the shot; no shot = the open upper end
-    assert sel(shot=70754, measurement_chain="east")["provider"] == "base"
+    assert sel(shot=70754, measurement_chain="east")["provider"] == "base_tb"
+    #: 2026-09-18：旧排布的 FL*A 环 · HBP*N（法向）探针移到链 east_na；链 east 在 ≤97030 给 EFIT 实际拟合的 FL*B · HBP*T
+    assert sel(shot=70754, measurement_chain="east_na")["provider"] == "base"
     assert sel(shot=137985, measurement_chain="east")["provider"] == "east_new"
     assert sel(measurement_chain="east")["provider"] == "east_new"
     #: a rangeless provider of its chain, at any shot; the era-limited PCS bindings never compete
@@ -339,7 +341,7 @@ def test_the_static_card_is_the_no_shot_resolution(resolution):
     assert D.resolve_document(doc, resolution, form="document")["document"] == doc
     rec = card["provenance"]["fylite:resolution"]
     assert "latest" in rec["shot"]
-    assert rec["measurement_chains"] == ["pcs_east", "east"]
+    assert rec["measurement_chains"] == ["pcs_east", "east", "east_na"]
     #: which shot range each IDS represents (R-S2)
     #: ★2026-09-14 (user ruling): no chain -> `pcs` in `pcs_east`, the chain of the manifest default
     assert rec["ids"]["magnetics"]["provider"] == "pcs" and rec["ids"]["magnetics"]["shots"].startswith("all")
@@ -471,6 +473,6 @@ def test_every_magnetics_group_states_its_chain_and_no_group_carries_fit_arrays(
         assert not any("weight" in c or "bit_error" in c for c in (*mag["b_field_pol_probe"], *mag["flux_loop"])), name
         assert "fylite:channel_basis" not in mag, name
     assert "basis_providers" not in resolution
-    assert set(resolution["variants"]["magnetics"]) == {"base", "east_new", "pcs"}
+    assert set(resolution["variants"]["magnetics"]) == {"base", "base_tb", "east_new", "pcs"}
     assert set(resolution["variants"]["wall"]) == {"base", "m093060"}
     assert not any("fylite:absent" in v for v in resolution["variants"]["wall"].values())

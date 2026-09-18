@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '1ee10b0ae6f30088'
+DIGEST = '54f11c602d6f12b4'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -380,7 +380,7 @@ BLOCKS = {
         {'key': 'discharge', 'shape': '', 'units': 'assembled', 'gloss': "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march"},
         {'key': 'pulse', 'shape': '', 'units': 'assembled', 'gloss': "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints"},
         {'key': 'reconstruction', 'shape': '', 'units': 'assembled', 'gloss': 'one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit'},
-        {'key': 'interpretive', 'shape': '', 'units': 'assembled', 'gloss': "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account"},
+        {'key': 'interpretive', 'shape': '', 'units': 'assembled', 'gloss': "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition, or given core_sources profiles with `sources = table` · alpha · ADAS radiation · Ohmic from a prescribed loop voltage · electron-ion exchange with `exchange = 1`), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account"},
         {'key': 'coupled', 'shape': '', 'units': 'assembled', 'gloss': "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature"},
         {'key': 'beam', 'shape': '', 'units': 'assembled', 'gloss': "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units"},
         {'key': 'refit', 'shape': '', 'units': 'assembled', 'gloss': "the equilibrium alternation between two blocks of the march (the page's coupled block): the pressure-shape fit and the beta_p feedback on the transport state, one free-boundary solve on the device's coils, the analytic p'/FF' the field implies, its q profile, the ladder traced off the solved field, the state remapped onto it; or (fit = 0) the solve and the ladder alone, for the device tier's start"},
@@ -1158,6 +1158,7 @@ CODE_PARAMS = {
         'dep_width': {'key': 'dep_width', 'type': 'float', 'via': 'interpretive_case', 'default': '0.3', 'required': False},
         'dt_fraction': {'key': 'dt_fraction', 'type': 'float', 'via': 'interpretive_case', 'default': '0.5', 'required': False},
         'edge_psin': {'key': 'edge_psin', 'type': 'float', 'via': 'interp_gfile', 'default': '0.95', 'required': False},
+        'exchange': {'key': 'exchange', 'type': 'boolean', 'via': 'interpretive_case', 'default': 'false'},
         'geometry': {'key': 'geometry', 'type': 'string', 'via': 'interpretive_case'},
         'grad_floor': {'key': 'grad_floor', 'type': 'float', 'via': 'interpretive_case', 'default': '1e-3', 'required': False},
         'impurity': {'key': 'impurity', 'type': 'string', 'via': 'interpretive_case'},
@@ -1168,6 +1169,7 @@ CODE_PARAMS = {
         'p_i': {'key': 'p_i', 'type': 'float', 'via': 'interpretive_case', 'default': '0.0', 'required': False},
         'q95': {'key': 'q95', 'type': 'float', 'via': 'interp_miller', 'required': True, 'why': 'the edge safety factor'},
         'r0': {'key': 'r0', 'type': 'float', 'via': 'interp_miller', 'required': True, 'why': 'the major radius [m]'},
+        'sources': {'key': 'sources', 'type': 'string', 'via': 'source_tables'},
         'v_loop': {'key': 'v_loop', 'type': 'float', 'via': 'interpretive_case', 'default': '0.0', 'required': False},
         'zeff': {'key': 'zeff', 'type': 'float', 'via': 'interpretive_case', 'default': '1.0', 'required': False},
     }},

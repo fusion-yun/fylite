@@ -15,7 +15,7 @@ title: "tr-coupling-interpretive-inversion"
 - **参考**：SRS-04 Eq. (eq-srs04-interp) 与本仓的预测性导热求解
 - **验的需求**：`FR-TR-011`
 - **跑在内核**：`sha256:e16301fa3acd72ca…`（新鲜度 **current**）
-- **记录版本**：1.1　**评审**：草稿　**日期**：2026-09-18
+- **记录版本**：1.2　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -27,7 +27,7 @@ title: "tr-coupling-interpretive-inversion"
 
 **口径与适用域**：
 
-> 稳态功率平衡（无 dT/dt 项）、单一热通道；几何取 Miller / 解析 / g-file 追踪 / 调用方给定的梯子。
+> 稳态功率平衡（无 dT/dt 项）、单一热通道；几何取 Miller / 解析 / g-file 追踪 / 调用方给定的梯子；源可以是参数化高斯或给定的 core_sources 剖面，电子–离子交换可选。
 
 ## 判据与量到多少
 
@@ -41,6 +41,7 @@ title: "tr-coupling-interpretive-inversion"
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | 反演核接口成文（路线 [TBD]） | — | reference_self_reported | 闭式：累积功率 1e-6、q_PB 1e-9，平直剖面全部屏蔽；往返（常数 χ₀ 预测 → 反演）χ_eff·gm7 对 χ₀：61 · 121 · 241 · 481 点 2.1e-3 · 5.7e-4 · 1.5e-4 · 3.8e-5（比 3.7 · 3.8 · 3.9）；门 `code/interpretive` 与它替换的配方在五档几何上逐位（1e-12） | **成立** |
+| 反演核接口成文（路线 [TBD]） | — | reference_self_reported | 高斯沉积作 core_sources 表给回：χ_e · χ_i · q_e · q_i 逐点 1e-12；交换：电子失 = 离子得 = p_exchange（1e-9），T_e = T_i 时恰为 0，ρ ≈ 1/3 处的交换功率密度对 NRL 公式集的 ν_eq 15 % 内（差在库仑对数的约定）；驱动电流表 ∫j dV/(2πR0) 1e-12 | **成立** |
 
 **★接口成文：核 · C ABI · 文档门三层都在，式子与约定写在核的文档注释里；★往返按 h² 收敛**
 
@@ -49,6 +50,12 @@ title: "tr-coupling-interpretive-inversion"
 - ★★**顺带查出并修掉一处 kernel 仓自己的红门**：g-file 档的参照梯子自 `12e603b`（通量规统一成整圈 Wb）起把每弧度的 dpsi 喂给整圈的 `equilibrium_ladder`，参照的 ρ 小 √(2π)，门恒红——门对、参照过期。`cargo test` 跑不到 kernel 仓的 Python 门，所以那次没看见；同批还有 `test_ladder_code` 四道，一并修。
 - ★不在本条：dT/dt 项（SRS 标 [TBD]）、粒子通道反演（只有 `d_from_flux` 的换算）、工作流编排（归 fyanalysis）。
 
+**★给定源剖面（`sources = table`）与电子–离子交换（`exchange = 1`）——复现 Wei et al. 2026 的输运反演要的两样**
+
+- ★源表的读法与 `code/evolve` 同一个（`source_tables`）：带 ψ_N 网格的表要真 ψ_N——g-file 档或绑了 `psi_norm` 的梯子；Miller 档的 x² 不是磁通，拒绝。
+- ★交换用 march 自己的速率（`scenario::exchange_nu` / `exchange_power_w`，体 D、n_i = n_e），是 ONETWO 的 qdelt 那一项；缺省关，既有调用逐位不变。
+- ★驱动电流只报告（`i_cd`、`j_cd`），不进反演——本门是稳态功率平衡。
+
 ## 不可比的部分
 
 - ★★**判决成立**：判据是「接口成文」（检查），本条另给了往返的二阶收敛作数值证据。
@@ -56,7 +63,7 @@ title: "tr-coupling-interpretive-inversion"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.1　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.2　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -64,6 +71,7 @@ title: "tr-coupling-interpretive-inversion"
 | :--- | :--- | :--- | :--- |
 | 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-TR-011` 判**成立**。反演核（`interpretive_channel` · C ABI · `code/interpretive`）早已在内核仓，本册缺的只是记录。往返按 h² 收敛到 3.8e-5（新钉成门）。★顺带修掉 kernel 仓自 12e603b 起恒红的 5 道门（参照梯子喂了每弧度 dpsi，ρ 小 √(2π)）。 |
 | 1.1 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
+| 1.2 | 2026-09-18 | Claude Opus 5 (1M context) | `code/interpretive` 收给定源剖面（`sources = table`，与 `code/evolve` 同一个 `source_tables`）与电子–离子交换（`exchange = 1`）——east-kinetic-reconstruction 复现 Wei et al. 2026（AIP Adv. 16, 085007）的输运反演要它们：`code/wave` · `code/rf_ray` 算出的沉积照形状反解，ONETWO 的 qdelt 有了对应。内核仓 Rust 门 4 道（`case::interpretive_source_tests`）。只加不改（接口摘要 `1ee10b0ae6f30088` → `54f11c602d6f12b4`，修订号不动）。 ★本条新增的 4 道门跑在内核 `1f2578a`（fylite_kernel 分支 `feat/interpretive-given-sources`）上；本册的基准内核指纹**没有**随之更新——更新要全册 55 条重验，另起一件事做，在那之前本条的读数仍以旧基准为准、新门的数写在上面的发现里。 |
 
 ## 复算
 
@@ -86,6 +94,10 @@ title: "tr-coupling-interpretive-inversion"
 - `$FYLITE_KERNEL/tests/test_interpretive_code.py::test_the_gfile_tier_is_the_traced_ladder` —— ★g-file 档（本次修复通量规）
 - `$FYLITE_KERNEL/tests/test_interpretive_code.py::test_a_bound_ladder_is_taken_as_given` —— 给定梯子
 - `$FYLITE_KERNEL/tests/test_interpretive_code.py::test_refusals_name_the_thing` —— 拒绝
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::interpretive_source_tests::a_table_of_the_gaussian_inverts_to_the_gaussian_chi` —— ★给定源剖面：高斯沉积作表给回，逐点同一 χ（1e-12）
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::interpretive_source_tests::a_table_and_the_sliders_together_or_a_psi_grid_on_miller_are_refused` —— 表与 p_e/p_i 同给、Miller 档带 ψ_N 网格的表：拒绝
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::interpretive_source_tests::the_exchange_moves_power_from_electrons_to_ions_and_matches_the_nrl_rate` —— ★电子–离子交换：守恒（1e-9）、T_e = T_i 为零、对 NRL 公式集 15 % 内
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::interpretive_source_tests::a_driven_current_table_is_integrated_in_its_own_measure` —— 驱动电流按 dV/(2πR0) 积分（1e-12）
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

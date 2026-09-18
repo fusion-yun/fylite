@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "1ee10b0ae6f30088";
+pub const DIGEST: &str = "54f11c602d6f12b4";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -336,7 +336,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "discharge", shape: "", units: "assembled", gloss: "the shape anneal: the device's coils, box and limiter, a designed start (pulse::start_currents) and ridge passes over free-boundary solves (equilibrium::solve_free_boundary_from); no entry — a search, not a march" },
         Row { key: "pulse", shape: "", units: "assembled", gloss: "a feed-forward pulse: every waypoint's currents by the linear isoflux start, the conductor circuit (channel_matrices), the voltages by the exact inverse of the circuit integrator (pulse::feedforward_voltages) and free-boundary checks at chosen waypoints" },
         Row { key: "reconstruction", shape: "", units: "assembled", gloss: "one equilibrium from magnetic measurements: the loop / coil / probe / kinetic / vessel rows off the device document and the readings, one inverse solve (inverse::solve_inverse_coils), F · q · l_i · the 1-D profiles · the boundary off the fit" },
-        Row { key: "interpretive", shape: "", units: "assembled", gloss: "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition · alpha · ADAS radiation · Ohmic from a prescribed loop voltage), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account" },
+        Row { key: "interpretive", shape: "", units: "assembled", gloss: "the model page's interpretive bar: the metric (Miller · the equilibrium document's traced ladder · a bound ladder), the reference profiles on its radii, the sources (volume-normalised deposition, or given core_sources profiles with `sources = table` · alpha · ADAS radiation · Ohmic from a prescribed loop voltage · electron-ion exchange with `exchange = 1`), one power-balance inversion per channel (transport::interpretive_channel), the valid-only interior average and the energy account" },
         Row { key: "coupled", shape: "", units: "assembled", gloss: "Python's model.coupled: per outer round one free-boundary solve from the channel currents (equilibrium::solve_free_boundary_from), the metric traced on that field, one steady transport solve on it, the pressure amplitude moved toward the volume-averaged temperature" },
         Row { key: "beam", shape: "", units: "assembled", gloss: "neutral-beam deposition (Python's model.nbi.deposit, the page's evBeamDeposit): the shell table on the equilibrium document's psi map, per beam and energy component the kernel's deposition · first-orbit-loss mask · slowing-down · electron/ion split · fast-ion pressure · torque · driven current, summed over the nbi document's units" },
         Row { key: "refit", shape: "", units: "assembled", gloss: "the equilibrium alternation between two blocks of the march (the page's coupled block): the pressure-shape fit and the beta_p feedback on the transport state, one free-boundary solve on the device's coils, the analytic p'/FF' the field implies, its q profile, the ladder traced off the solved field, the state remapped onto it; or (fit = 0) the solve and the ladder alone, for the device tier's start" },
@@ -1115,6 +1115,7 @@ pub const CODES: &[Code] = &[
         Param { key: "dep_width", value_type: "float", default: "0.3", required: false, via: "interpretive_case" },
         Param { key: "dt_fraction", value_type: "float", default: "0.5", required: false, via: "interpretive_case" },
         Param { key: "edge_psin", value_type: "float", default: "0.95", required: false, via: "interp_gfile" },
+        Param { key: "exchange", value_type: "boolean", default: "false", required: false, via: "interpretive_case" },
         Param { key: "geometry", value_type: "string", default: "", required: false, via: "interpretive_case" },
         Param { key: "grad_floor", value_type: "float", default: "1e-3", required: false, via: "interpretive_case" },
         Param { key: "impurity", value_type: "string", default: "", required: false, via: "interpretive_case" },
@@ -1125,6 +1126,7 @@ pub const CODES: &[Code] = &[
         Param { key: "p_i", value_type: "float", default: "0.0", required: false, via: "interpretive_case" },
         Param { key: "q95", value_type: "float", default: "", required: true, via: "interp_miller" },
         Param { key: "r0", value_type: "float", default: "", required: true, via: "interp_miller" },
+        Param { key: "sources", value_type: "string", default: "", required: false, via: "source_tables" },
         Param { key: "v_loop", value_type: "float", default: "0.0", required: false, via: "interpretive_case" },
         Param { key: "zeff", value_type: "float", default: "1.0", required: false, via: "interpretive_case" },
     ] },

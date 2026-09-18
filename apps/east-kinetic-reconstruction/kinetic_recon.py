@@ -133,6 +133,8 @@ def _r(x, n=6):
     """JSON 里的数：有效数字截到 n 位，非有限写 null。"""
     if isinstance(x, (list, tuple)):
         return [_r(v, n) for v in x]
+    if x is None:
+        return None
     x = float(x)
     return float(f"{x:.{n}g}") if math.isfinite(x) else None
 
@@ -227,7 +229,16 @@ class Lib:
             ref = rec.get("refusal") or {}
             raise Refused(f"the kernel refused ({ref.get('code', rc)}): {ref.get('message', text[:300])}")
         fa = {k: v["value"] for k, v in (rec.get("facts") or {}).items() if isinstance(v.get("value"), (int, float))}
-        fi = {k: v["data"] for k, v in (rec.get("fields") or {}).items()}
+        fi: dict = {}
+
+        def walk(node, path):                            #: 按 IDS 嵌套的字段摊平成 "ids/路径" 键；原始字段键不变
+            for k, v in node.items():
+                key = f"{path}/{k}" if path else k
+                if isinstance(v, dict) and "data" in v:
+                    fi[key] = v["data"]
+                elif isinstance(v, dict):
+                    walk(v, key)
+        walk(rec.get("fields") or {}, "")
         return fa, fi, list(rec.get("notes") or [])
 
     def linked_kernel(self) -> dict:
@@ -520,7 +531,7 @@ def pull_magnetics(lib: Lib, shot: int, t: float, chain: str, server, timeout_s:
             return None
 
     try:
-        tf = get(TF_NODE, names["tree"])
+        tf, tf_node = tf_series(get, names, (doc.get("data_source") or {}).get("mdsplus") or {}, t)
         meas = reduce_series(get, shot, t, names, source=f"mdsplus:mds.invalid:{names['tree']}:{shot}")
     finally:
         s.close()
@@ -528,8 +539,26 @@ def pull_magnetics(lib: Lib, shot: int, t: float, chain: str, server, timeout_s:
         v, tb = tf
         sel = [v[k] for k in range(min(len(v), len(tb))) if abs(tb[k] - t) <= 0.005]
         i_tf = mean(sel) if sel else v[min(range(len(tb)), key=lambda k: abs(tb[k] - t))]
-        meas["tf"] = {"node": TF_NODE, "i_tf_A": i_tf, "turns_total": TF_TURNS, "f_vac_Tm": 2e-7 * TF_TURNS * i_tf}
+        meas["tf"] = {"node": tf_node, "i_tf_A": i_tf, "turns_total": TF_TURNS, "f_vac_Tm": 2e-7 * TF_TURNS * i_tf}
     return meas
+
+
+def tf_series(get, names: dict, mds: dict, t: float):
+    """TF 线圈电流的序列与节点：先 ``TF_NODE``；旧炮没有它（#63948 · #81481 实测 2026-09-18：节点不在），退到装置文档
+    的 ``btor_node``——只在它读来像 TF 电流时（|I| > 1 kA；#63948 上它读 −11.1 kA，#137985 上同一节点读 −4，
+    那时 ``TF_NODE`` 在，用不到它）。"""
+    tf = get(TF_NODE, names["tree"])
+    if tf is not None:
+        return tf, TF_NODE
+    alt = mds.get("btor_node")
+    if alt:
+        r = get(alt, names["tree"])
+        if r is not None:
+            v, tb = r
+            sel = [v[k] for k in range(min(len(v), len(tb))) if abs(tb[k] - t) <= 0.005]
+            if sel and abs(mean(sel)) > 1e3:
+                return r, alt
+    return None, None
 
 
 def pull_thomson(lib: Lib, shot: int, t: float, server, timeout_s: float) -> dict:
@@ -718,6 +747,12 @@ class Case:
         self.loop_start = [1.0] * len(self.coils)
         if loops in ("B", "B+readmit"):
             self.loop_start = [1.0 if re.fullmatch(r"FL\d+B", nm or "") else 0.0 for nm in self.loop_names]
+        #: ★旧炮（#63948 · #81481 一代）的排布只有 35 个 FL<n>A 环、没有 B 组：B 组规则一个环都选不到，
+        #: 这时回退到全部环起步（记在结果里），不在没有环的情况下起步。
+        self.loop_start_rule = "all" if loops == "all" else "FL*B"
+        if not any(self.loop_start):
+            self.loop_start = [1.0] * len(self.coils)
+            self.loop_start_rule = "all（本排布没有 FL*B 组）"
         self.loop_sigma = [max(SERROR * abs(v), LOOP_FLOOR) for v in self.coils]
         self.probe_sigma = [max(SERROR * abs(v), PROBE_FLOOR) for v in self.probes]
         self.lw = [s / sg for s, sg in zip(self.loop_start, self.loop_sigma)]
@@ -1088,7 +1123,8 @@ def cmd_run(a) -> int:
            "fylite": {"version": k.get("kernel_version") or k.get("version"), "kernel_abi": k.get("abi"),
                       "library": lib.path.name, "kernel_built": k.get("built"), "kernel_sha256": k.get("sha256"),
                       "rustc": (k.get("toolchain") or {}).get("rustc")},
-           "settings": {"npp": a.npp, "nff": a.nff, "loops": a.loops, "reject_sigma": a.reject_sigma,
+           "settings": {"npp": a.npp, "nff": a.nff, "loops": a.loops, "loop_start_rule": c.loop_start_rule,
+                        "reject_sigma": a.reject_sigma,
                         "point_off": a.point_off, "p_on": a.p_on, "dead_sigma": a.dead_sigma,
                         "kinetic_passes": a.kinetic_passes, "kinetic_tol": a.kinetic_tol, "thomson_clip": a.thomson_clip,
                         "sigma_scales": a.sigma_scales, "curv": a.curv, "p_fast_frac": a.p_fast_frac,

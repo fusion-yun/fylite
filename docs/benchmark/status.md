@@ -170,7 +170,7 @@ title: 验证状态 (Verification status)
 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.11 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.1 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.10 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.10 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
