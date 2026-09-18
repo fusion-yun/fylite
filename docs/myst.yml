@@ -218,6 +218,7 @@ project:
             - file: benchmark/reports/tr-equations-channel-descriptor.md
             - file: benchmark/reports/tr-pedestal-sawtooth-kadomtsev.md
             - file: benchmark/reports/tr-coupling-nn-weights-external.md
+            - file: benchmark/reports/tr-coupling-interpretive-inversion.md
             - file: benchmark/reports/tr-conservation-fyo-dd-contract.md
             - file: benchmark/reports/tr-conservation-time-order.md
             - file: benchmark/reports/tr-closure-plugin-dispatch.md

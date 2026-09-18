@@ -1,0 +1,42 @@
+{
+  "_comment": "FR-TR-011 解释性 / 分析模式通量反演 —— 2026-09-18。门：$FYLITE_KERNEL 的 transport.rs 与 tests/test_transport_core.py · tests/test_interpretive_code.py",
+  "interface": {
+    "kernel": "transport::interpretive_channel(rho, vprime, gm7, gm3, density, temperature, source_density, grad_floor) -> (q_pb, power_cum, chi_eff, valid)",
+    "c_abi": "fylite_rs_interpretive_channel",
+    "door": "code/interpretive (case.rs::interpretive_case)",
+    "equation": "q_PB = int V' Q / (V' <|grad rho|>);  chi_eff = q_PB / (n <|grad rho|^2> e |dT/drho|)",
+    "convention": "a chi0 conduction solve inverts to chi0 / gm7 (flux through the gm7 area, conduction through gm3)",
+    "flat_profiles": "gradient below grad_floor x max|T|/span -> chi = NaN, valid = 0"
+  },
+  "closed_form": {
+    "power_cum_rel": 1e-06,
+    "q_pb_rel": 1e-09,
+    "flat_profile": "all masked"
+  },
+  "round_trip": {
+    "n": [
+      61,
+      121,
+      241,
+      481
+    ],
+    "max_rel_chi_eff_gm7_minus_chi0": [
+      0.002075,
+      0.0005675,
+      0.0001488,
+      3.811e-05
+    ],
+    "ratio": [
+      3.66,
+      3.81,
+      3.9
+    ]
+  },
+  "door_parity": "code/interpretive equals the recipe it replaced to 1e-12 on the Miller, all-sources, no-Ti, g-file and bound-ladder tiers",
+  "gauge_fix_2026_09_18": "the g-file tier's reference ladder passed per-radian dpsi into the full-turn equilibrium_ladder since 12e603b; rho was sqrt(2 pi) small and the gate red; fixed in the test helper",
+  "not_covered": [
+    "dT/dt term (the SRS marks it [TBD])",
+    "particle channel inversion (d_from_flux exists as the conversion only)",
+    "orchestration (fyanalysis's, not the kernel's)"
+  ]
+}

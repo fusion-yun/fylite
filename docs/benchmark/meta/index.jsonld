@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 52,
-  "open_must": 2,
-  "records": 53,
+  "covered": 53,
+  "open_must": 1,
+  "records": 54,
   "stale": 0,
   "failing": 1
  },
@@ -608,6 +608,19 @@
     "FR-TR-012"
    ],
    "record_version": "1.11",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/tr-coupling-interpretive-inversion",
+   "domain": "tr-coupling",
+   "path": "records/tr-coupling-interpretive-inversion.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-TR-011"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },

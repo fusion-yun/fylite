@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**53** 条
-- 判决 (verdict)：成立 41 · 不成立 **1** · 未判 11 · 未评估 0
-- 新鲜度 (freshness)：当前 53 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 53 · 已被取代 0
+- 记录 (records)：**54** 条
+- 判决 (verdict)：成立 42 · 不成立 **1** · 未判 11 · 未评估 0
+- 新鲜度 (freshness)：当前 54 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 54 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -118,7 +118,7 @@ title: 验证状态 (Verification status)
 | 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 3 | 4 | 2 | 0 | 0 |
 | 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 3 | 3 | 1 | 0 | 0 |
 | 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 1 | 0 |
-| 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 2 | 2 | 2 | 0 | 0 |
+| 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 3 | 3 | 3 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 2 | 2 | 2 | 0 | 0 |
 
 ## 记录明细 (records)
@@ -170,6 +170,7 @@ title: 验证状态 (Verification status)
 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.11 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.10 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.11 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
+| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.0 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.9 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.9 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |

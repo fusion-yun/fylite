@@ -1,0 +1,125 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/tr-coupling-interpretive-inversion",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "解释性反演核：**接口早已成文，往返按 h² 收敛到 3.8e-5——此前只是没有入册**",
+  "en": "The interpretive inversion kernel: the interface was already written down, and the round trip converges as h² to 3.8e-5 — it had simply never been registered"
+ },
+ "domain": "tr-coupling",
+ "requirement": [
+  "FR-TR-011"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `transport::interpretive_channel` · C ABI `fylite_rs_interpretive_channel` · 门 `code/interpretive`",
+  "comment": "功率平衡反演：由剖面与源项反演实验通量 q_PB 与有效输运系数 χ_eff；平直剖面按名屏蔽"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "SRS-04 Eq. (eq-srs04-interp) 与本仓的预测性导热求解",
+   "comment": "闭式：常源下 P(ρ)、q_PB 解析可知；往返：以常数 χ₀ 预测求解出的剖面反演回去，χ_eff·gm7 应为 χ₀。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/tr-coupling-interpretive-inversion/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "反演核接口成文（路线 [TBD]）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★接口成文：核 · C ABI · 文档门三层都在，式子与约定写在核的文档注释里；★往返按 h² 收敛",
+   "criterion": "benchmark/records/tr-coupling-interpretive-inversion/criterion/1",
+   "bound": "identity",
+   "deviation_literal": "闭式：累积功率 1e-6、q_PB 1e-9，平直剖面全部屏蔽；往返（常数 χ₀ 预测 → 反演）χ_eff·gm7 对 χ₀：61 · 121 · 241 · 481 点 2.1e-3 · 5.7e-4 · 1.5e-4 · 3.8e-5（比 3.7 · 3.8 · 3.9）；门 `code/interpretive` 与它替换的配方在五档几何上逐位（1e-12）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**这条早就实现了，只是没入册**：`interpretive_channel`、C ABI 导出与 `code/interpretive` 门都在内核仓，测试也在（kernel 仓 Python 门）。本册一直把它记作空缺，是因为没有记录，不是因为没有实现。",
+    "★约定照实记：通量取 gm7 = ⟨|∇ρ|⟩ 的面积，导热律取 gm3 = ⟨|∇ρ|²⟩，所以 χ₀ 的预测解反演回来是 **χ₀/gm7** 而不是 χ₀——上游的约定，门里钉着，谁也不许把一个度规「修」成另一个。",
+    "★★**顺带查出并修掉一处 kernel 仓自己的红门**：g-file 档的参照梯子自 `12e603b`（通量规统一成整圈 Wb）起把每弧度的 dpsi 喂给整圈的 `equilibrium_ladder`，参照的 ρ 小 √(2π)，门恒红——门对、参照过期。`cargo test` 跑不到 kernel 仓的 Python 门，所以那次没看见；同批还有 `test_ladder_code` 四道，一并修。",
+    "★不在本条：dT/dt 项（SRS 标 [TBD]）、粒子通道反演（只有 `d_from_flux` 的换算）、工作流编排（归 fyanalysis）。"
+   ]
+  }
+ ],
+ "validity_domain": "稳态功率平衡（无 dT/dt 项）、单一热通道；几何取 Miller / 解析 / g-file 追踪 / 调用方给定的梯子。",
+ "caveat": [
+  "★★**判决成立**：判据是「接口成文」（检查），本条另给了往返的二阶收敛作数值证据。",
+  "★门在内核仓，本仓 CI 跑不到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/interpretive_inversion.json",
+    "checksum": "sha256:bcfe1e5ed3deed99937723335f10b3ae5d4c09ed334bd711b71d6432c499f9e4",
+    "comment": "接口、闭式、往返收敛、门的对位、通量规修复"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_interpretive_inversion_matches_its_closed_form_and_masks_flat_profiles",
+    "comment": "闭式与平直屏蔽"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_transport_core.py::test_interpretive_inverts_a_known_conduction_solve",
+    "comment": "往返（2 %）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_transport_core.py::test_the_round_trip_converges_at_second_order",
+    "comment": "★往返的二阶收敛"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_interpretive_code.py::test_the_miller_tier_with_deposition_only_is_the_same_to_the_bit",
+    "comment": "门的对位：Miller"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_interpretive_code.py::test_every_source_on_is_the_same_to_the_bit",
+    "comment": "门的对位：全源"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_interpretive_code.py::test_without_an_ion_temperature_ti_is_te_and_the_note_says_so",
+    "comment": "无 Ti"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_interpretive_code.py::test_the_gfile_tier_is_the_traced_ladder",
+    "comment": "★g-file 档（本次修复通量规）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_interpretive_code.py::test_a_bound_ladder_is_taken_as_given",
+    "comment": "给定梯子"
+   },
+   {
+    "name": "$FYLITE_KERNEL/tests/test_interpretive_code.py::test_refusals_name_the_thing",
+    "comment": "拒绝"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-TR-011` 判**成立**。反演核（`interpretive_channel` · C ABI · `code/interpretive`）早已在内核仓，本册缺的只是记录。往返按 h² 收敛到 3.8e-5（新钉成门）。★顺带修掉 kernel 仓自 12e603b 起恒红的 5 道门（参照梯子喂了每弧度 dpsi，ρ 小 √(2π)）。"
+   }
+  ]
+ }
+}

@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**52** 条（91 %）
-- ★**MUST 级空缺 (open MUST)：2 条**
+- 已有记录覆盖 (covered)：**53** 条（92 %）
+- ★**MUST 级空缺 (open MUST)：1 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -167,7 +167,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-TR-011` | MUST | 解释性 / 分析模式通量反演（路线项） | — | — | — |
+| `FR-TR-011` | MUST | 解释性 / 分析模式通量反演（路线项） | [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | 验证 | 成立 |
 | `FR-TR-012` | MUST | 平衡耦合接口 | [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | 验证 | 成立 |
 | `FR-TR-013` | MUST | NN 代理栈与权重外置 | [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | 验证 | 成立 |
 
@@ -190,7 +190,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 域 | 标题 |
 | :--- | :--- | :--- |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
-| `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
 
