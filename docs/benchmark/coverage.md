@@ -8,10 +8,10 @@ title: 需求覆盖 (Requirement coverage)
 
 这一页只答一个问题：**够不够。** 每条需求一行，没有记录覆盖它的显示为空行——★空行不是排版，是缺口本身。按谁答什么问题读：这一页答「够不够」，各域的章页答「对着谁量到多少」，[`status.md`](status.md) 答「这些记录还作不作数」。
 
-- 生成于 (recorded)：2026-09-17
+- 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**33** 条（57 %）
-- ★**MUST 级空缺 (open MUST)：20 条**
+- 已有记录覆盖 (covered)：**34** 条（59 %）
+- ★**MUST 级空缺 (open MUST)：19 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -72,7 +72,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `NR-EQ-001` | MUST | COCOS 一致性 | [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 |
+| `NR-EQ-001` | MUST | COCOS 一致性 | [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) · [`eq-convention-ladder-flux-gauge`](reports/eq-convention-ladder-flux-gauge.md) | 验证 · 验证 | 成立 · 成立 |
 | `NR-EQ-006` | MUST | 插件接入 | [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 |
 
 ## MHD 稳定性 (MHD Stability) · 竖直稳定性、线圈受力与电磁线性模型
@@ -81,7 +81,7 @@ title: 需求覆盖 (Requirement coverage)
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-014` | MUST | 线圈受力与导体表面场 | — | — | — |
+| `FR-EQ-014` | MUST | 线圈受力与导体表面场 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） |
 | `FR-EQ-015` | MUST | 装置电磁线性模型导出（路线） | — | — | — |
 | `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） |
 
@@ -190,7 +190,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 域 | 标题 |
 | :--- | :--- | :--- |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
-| `FR-EQ-014` | 竖直稳定性、线圈受力与电磁线性模型 | 线圈受力与导体表面场 |
 | `FR-EQ-015` | 竖直稳定性、线圈受力与电磁线性模型 | 装置电磁线性模型导出（路线） |
 | `FR-EQ-017` | 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界 | 理想外扭曲模的 q 极限（L0） |
 | `FR-EQ-018` | 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界 | 气球模第一稳定边界（L1） |

@@ -1,0 +1,159 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/eq-convention-ladder-flux-gauge",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "通量规：**一个入参被读成两种规范，而每个调用方只读对了自己那一半**",
+  "en": "The flux gauge: one argument read in two conventions, each caller reading only the half that was right for it"
+ },
+ "domain": "eq-convention",
+ "requirement": [
+  "NR-EQ-001"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `surfaces::equilibrium_ladder` 的 `dpsi_full` 入参（ABI 155）",
+  "comment": "2026-09-17 用户裁定「内部采用 COCOS 17」之后，这个入参**只有一个规范**：整圈 Wb"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "圆截面的闭式解",
+   "comment": "圆截面上 $q$ 与 $\\rho$ 同时有闭式：$\\psi_N=(r/a)^2$、整圈跨度 $\\psi_0$ 时 $q=\\pi B_0a^2/\\psi_0$（与 $r$ 无关），$\\rho=\\sqrt{\\Phi/(\\pi B_0)}=a\\sqrt{\\psi_N}$。★**「同时」是要害**：这个病只在一次读两半时才看得见。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "同一套规范下 $q$ 对圆截面闭式解",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.12
+   },
+   "tolerance_basis": "analyst_declared",
+   "comment": "★带宽是**追面器**的（有限 $n_\\theta$ 与格点插值），不是规范的——错一个 $2\\pi$ 是 528 %，跟这个带宽不在一个世界里。"
+  },
+  {
+   "id": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "同一套规范下 $\\rho = a\\sqrt{\\psi_N}$",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.05
+   },
+   "tolerance_basis": "analyst_declared"
+  },
+  {
+   "id": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★★传错规范**必须被抓住**：分支 × 量 的四格各按闭式因子走",
+   "norm": "identity",
+   "tolerance_basis": "machine_precision",
+   "comment": "★这一格判据原文没点名，是本册自加的。理由见 finding：**原实现的门只验了「对的规范能过」**，而一个把两个规范读成同一个的实现在那种门下每一道都能过——这正是这个病潜伏下来的方式。"
+  },
+  {
+   "id": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "调用点是否全部按一个规范对齐",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★一套规范下，$q$ 与 $\\rho$ 同时对闭式解",
+   "criterion": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/1",
+   "measured_deviation": 0.007131,
+   "bound": "upper",
+   "deviation_literal": "圆截面（$R_0=8$ m、$a=1$ m、$B_0=5$ T、整圈 $\\psi_0=3$ Wb，$241^2$ 格、9 个面、$n_\\theta=361$）：$q$ 最劣相对差 **7.131e-3**（闭式 5.2360，与 $r$ 无关）；$\\rho$ 最劣 **1.804e-3**，边上 $\\rho/\\sqrt{\\psi_N}$ = 1.0018 对 $a$ = 1.0000",
+   "verdict": "pass",
+   "caveat": [
+    "★★**「同时」才是判据**。病根是 `metrics_from_polys` 把**同一个入参**读成两种规范——$q=Fg_q/|\\mathrm{d}\\psi|$ 要**整圈**，而 $\\Phi=2\\pi\\,\\mathrm{d}\\psi\\int q\\,\\mathrm{d}\\psi_N$ 要**每弧度**（因为 $\\psi_N$ 是整圈量之比）。两者差 $2\\pi$，**没有哪个调用方能同时满足**，于是**各自只读对自己那一半**，谁也没叫。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★两个分支各有一个量对规范敏感，**而且是不同的量**",
+   "criterion": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/3",
+   "measured_deviation": 0.0,
+   "bound": "identity",
+   "deviation_literal": "把 $\\mathrm{d}\\psi$ 传成每弧度再读一次：**空 $q$ 表**（几何分支 $q=Fg_q/|\\mathrm{d}\\psi|$）$q$ **6.2832×**（$=2\\pi$）而 $\\rho$ **1.0000×**（不动）；**给了 $q$ 表** $q$ **1.0000×**（就是表）而 $\\rho$ **0.3989×**（$=1/\\sqrt{2\\pi}$）。四格各与闭式因子差 < 1e-9",
+   "verdict": "pass",
+   "caveat": [
+    "★空表那一支 $\\rho$ 之所以**不**敏感：$\\Phi=2\\pi\\,\\mathrm{d}\\psi_{rad}\\int q$ 里的 $\\mathrm{d}\\psi$ 与几何 $q\\propto1/\\mathrm{d}\\psi$ 正好约掉。★★**所以「$\\rho$ 差 $\\sqrt{2\\pi}$」在那一支上是一个常数因子，不是随入参走的敏感性**——两句话必须分开说，**混着说正是病根**。",
+    "★★**这一格是本册自加的，而它才是这条记录的分量所在**：原实现的门只验了「对的规范能过」。一个把两个规范都读成同一个的实现，在那种门下**每一道都能过**——本条修的病正是这样活下来的。★补法不贵：同一个算例换个规范再读一次，把分支 × 量四格钉死。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★调用点全部对齐，而文档梯子那一处最稳",
+   "criterion": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "`outer::ladder` `span/gauge × 2π` · `cfedr_gates` `dpsi × 2π`（参考解的 $\\psi$ 是每弧度）· 文档梯子 **按文档自报的 `full_flux` 决定乘不乘** · `code/discharge` 不动（本来就传整圈）· `c_api` 两处透传并在文档里写明规范。源审视，5 处 5 处",
+   "verdict": "pass",
+   "caveat": [
+    "★★**文档梯子那一处不是盲乘，而是读文档自己声明的规范**——其余几处是「我知道我手里是每弧度」，只有它面对的是来路不明的文档。★这两种写法的差别在**下一个新调用方**身上才显出来：盲乘的写法会把一份整圈文档再乘一次。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★这次改动**移动了数**，而移动的地方此前一道门都没有",
+   "criterion": "benchmark/records/eq-convention-ladder-flux-gauge/criterion/1",
+   "bound": "reading",
+   "deviation_literal": "`code/discharge` 的 $\\rho$（空 $q$ 表 + 整圈）此前大着一个 $\\sqrt{2\\pi}$ = **2.5066 倍**，本次改正；文档没带 $q$ 剖面时的文档梯子，$q$ 此前大 **$2\\pi$**；**供了 $q$ 表的调用方不变**。★本册既有门禁在改前改后**全绿**",
+   "verdict": "pass",
+   "caveat": [
+    "★★**「改前改后全绿」不是这次改动没影响的证据，恰恰相反**：它说明这两条量**本来就没有门守着**。一个改对了却没人守的量，下次漂回去同样不会有人知道——**这正是本条入册的理由**。",
+    "★本条现在守住了通量规本身（闭式 + 四格判别力）；但**没有**守住 `code/discharge` 与文档梯子各自吐出的 $\\rho$ / $q$ **在真算例上的值**。要那一层，得给这两扇门各配一道带读数的门禁，没做。",
+    "★ABI 因此升号（154 → 155）：**旧宿主传每弧度会差 $2\\pi$ 而不报错**——不报错正是必须升号的那种情形。"
+   ]
+  }
+ ],
+ "validity_domain": "`surfaces::equilibrium_ladder` 与它的五处调用点，2026-09-17 的检出。★闭式那两格只在**圆截面**上量过——形变位形上没有闭式可比，那一层由本册别的记录（对 CHEASE / KEFIT）承担。★**不判 COCOS 号本身**（那是 `eq-convention-gfile-cocos-roundtrip` 的事），只判「这一个入参有没有两种读法」。",
+ "caveat": [
+  "★★**本条的代码不是本册作者写的**：它来自同一检出里另一批并发改动（用户裁定「内部采用 COCOS 17」）。本册 2026-09-17 补的是**判别力那一半**（分支 × 量四格）与这条记录本身——原实现只验了「对的规范能过」。",
+  "★同域的 `eq-convention-gfile-cocos-roundtrip` 也报 `NR-EQ-001`，问的是**文件往返**；本条问的是**内部通量规**。两条都挂在同一条需求上，不重复。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/ladder_flux_gauge.json",
+    "checksum": "sha256:64db3ec4a9747f0be96654c70d9404ad917a5faf606319b0be9816988cb6b78e",
+    "comment": "圆截面闭式对比、错规范探针的四格、调用点清点"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/surfaces.rs::fsa_tests::the_ladder_states_q_and_rho_in_one_gauge",
+    "comment": "★四格判别力那一半是本册 2026-09-17 补的；门在内核仓，本仓 CI 跑不到"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:8252123281c07bcbb632c6472624e2282e8f0f87e9922f279567c6876976c122"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`NR-EQ-001` 的**内部通量规**一格判成立。`surfaces::equilibrium_ladder` 的 `dpsi` 此前被同一个函数读成两种规范（$q$ 要整圈、$\\Phi$ 要每弧度，差 $2\\pi$），各调用方只读对自己那一半，于是无门可叫；现统一成整圈 Wb，五处调用点全部对齐，ABI 154 → 155。★圆截面闭式：$q$ 差 7.131e-3、$\\rho$ 差 1.804e-3（**同时**读两半才看得见）。★★**本册自加了判别力那一半**——原实现的门只验「对的规范能过」；补后把分支 × 量四格钉死（空表 $q$ 2π 敏感、$\\rho$ 不敏感；给表 $q$ 不敏感、$\\rho$ 1/√(2π) 敏感），四格各差 < 1e-9。★照实记下：这次改动**移动了 `code/discharge` 的 $\\rho$（÷√(2π)）与无 q 剖面时文档梯子的 $q$（÷2π）**，而本册既有门禁改前改后全绿——**那说明这两条量本来就没有门守着**，不说明改动没影响。 ★内核这一侧的代码写于 2026-09-17（另一批并发改动）；本记录与判别力那一半的门写于 2026-09-18。"
+   }
+  ]
+ }
+}

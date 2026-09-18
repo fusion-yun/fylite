@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '41f31b0f5a225eea'
+DIGEST = '80f1dacaccb1d6db'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -368,6 +368,7 @@ BLOCKS = {
     'CASE_CODES': [
         {'key': 'evolve_free_boundary', 'shape': '', 'units': 'assembled', 'gloss': "PF channels (voltage or current drive) and the passive set marched by implicit Euler on M dI/dt + R I + d(psi_plasma)/dt = V, the free-boundary equilibrium re-solved on the currents each step and its plasma flux at every conductor fed back by Picard (reciprocal grid responses); no vertical dynamics beyond the solve's own position hold"},
         {'key': 'wall', 'shape': '', 'units': 'assembled', 'gloss': "the conducting wall as a circuit: the device's passive set (the vessel units and pf_passive groups code/vstab reads) assembled into element mutuals and resistances, and the L/R eigenmodes of M dI/dt + R I = 0, every group also alone; no plasma"},
+        {'key': 'forces', 'shape': '', 'units': 'assembled', 'gloss': "the Lorentz force on each PF conductor and the peak field on its surface: F = I_a I_b grad M over filament pairs across elements, the hoop term as (I^2/2) dL/dR on the element's own self inductance, and |B| sampled at four corners and four face midpoints; no plasma"},
         {'key': 'fixed_boundary', 'shape': '', 'units': 'assembled', 'gloss': "the fixed-boundary equilibrium on a given outline: p'(psi_N) and FF'(psi_N) per full-turn Wb, psi = 0 held on the outline by exterior filaments fitted at collocation points (fixedbnd::solve), the plasma flux by the free-space Green's function on the box border; q, F and p on the solved map"},
         {'key': 'evolve', 'shape': 'evolve_heat', 'units': 'assembled', 'gloss': "the 含时演化 bar and Python's model.evolve: the Miller metric from the shape scalars, or the equilibrium document traced (surfaces::equilibrium_ladder) or a bound ladder; the profile shapes, a reference start per channel, a given-chi pair; the density channel with the impurity in the quasi-neutrality and the momentum channel beside it (第十五刀); the actuator waveform, the I_p controller and the neoclassical closure (第十六刀); the beam and the wave evaluated once on the equilibrium and remapped onto the ladder (第十七刀); marched by evolve_heat"},
         {'key': 'zerod', 'shape': 'zerod', 'units': 'assembled', 'gloss': "the design page's 0-D bar: the phase table, the centre waveforms and the actuator, evaluated by zerod"},
@@ -1112,6 +1113,10 @@ CODE_PARAMS = {
         'tol': {'key': 'tol', 'type': 'float', 'via': 'fixed_boundary_case', 'default': 'd.tol', 'required': False},
         'x_hi': {'key': 'x_hi', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.995', 'required': False},
         'x_lo': {'key': 'x_lo', 'type': 'float', 'via': 'fixed_boundary_case', 'default': '0.02', 'required': False},
+    }},
+    'forces': {"door": 'forces_case', "crate": 'fylite_kernel', "parameters": {
+        'nu': {'key': 'nu', 'type': 'float', 'via': 'forces_case', 'default': '8.0', 'required': False},
+        'nv': {'key': 'nv', 'type': 'float', 'via': 'forces_case', 'default': '8.0', 'required': False},
     }},
     'forward': {"door": 'forward_case', "crate": 'fylite_kernel', "parameters": {
         'b_tor': {'key': 'b_tor', 'type': 'float', 'via': 'forward_case'},

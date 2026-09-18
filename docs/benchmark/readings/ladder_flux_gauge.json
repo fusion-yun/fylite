@@ -1,0 +1,38 @@
+{
+  "_comment": "NR-EQ-001 通量规一致性 —— 2026-09-17 实测。门：$FYLITE_KERNEL/rust/fylite/src/surfaces.rs::fsa_tests::the_ladder_states_q_and_rho_in_one_gauge",
+  "case": {
+    "shape": "circular cross-section, analytic",
+    "r0_m": 8.0, "a_m": 1.0, "b0_T": 5.0, "dpsi_full_turn_Wb": 3.0,
+    "grid": [241, 241], "levels": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], "ntheta": 361,
+    "closed_form": {"q": "pi B0 a^2 / psi0 = 5.2360 (r-independent)", "rho": "a sqrt(psi_N)"}
+  },
+  "one_gauge": {
+    "worst_q_rel": 0.007131,
+    "worst_rho_rel": 0.001804,
+    "rho_at_edge_over_sqrt_psin": 1.0018,
+    "comment": "带宽是追面器的，不是规范的：错一个 2pi 在 rho 上是 151 %，远在这个量级之外"
+  },
+  "wrong_gauge_probe": {
+    "_comment": "把 dpsi 传成每弧度（psi0/2pi）再读一次。★两个分支各有一个量敏感，而且是不同的量——混着说正是病根",
+    "empty_q_table_geometric": {"q_ratio": 6.2832, "rho_ratio": 1.0000,
+      "expect": {"q": "2*pi = 6.2832 (sensitive)", "rho": "1 (insensitive: dpsi cancels between Phi and geometric q)"}},
+    "supplied_q_table": {"q_ratio": 1.0000, "rho_ratio": 0.3989,
+      "expect": {"q": "1 (it is the table)", "rho": "1/sqrt(2*pi) = 0.3989 (sensitive)"}}
+  },
+  "call_sites": {
+    "_comment": "源审视：每一处的规范处理",
+    "outer::ladder": "span/gauge * 2pi",
+    "cfedr_gates::s1": "dpsi * 2pi (参考解的 psi 是每弧度)",
+    "case.rs doc ladder": "full_flux ? dpsi : dpsi * 2pi —— 按文档自报的规范，不盲乘",
+    "case.rs discharge_case": "unchanged (本来就传整圈)",
+    "c_api (2 sites)": "透传，文档写明整圈，宿主自己换"
+  },
+  "numbers_this_moved": {
+    "code/discharge rho": "improved by 1/sqrt(2pi): 空 q 表那一支旧代码的 Phi 大 2pi",
+    "doc ladder without a q profile, q": "was 2pi too large",
+    "callers supplying a q table": "unchanged"
+  },
+  "abi": {"from": 154, "to": 155,
+          "why": "旧宿主传每弧度会差 2pi 而不报错"},
+  "kernel_tests": 671
+}

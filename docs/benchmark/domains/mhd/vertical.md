@@ -23,6 +23,30 @@ $\mu_0 I/2R$；再加一条系统合力 $F_z = 0$。四条一起过，接线就�
 后来查明是超导线圈的屏蔽。★这类改判是记录制度**在起作用**的证据，不是它的污点——
 所以本册要求每条记录带 `change[]`，把改判本身留在册里。
 
+### 线圈受力：锚全钉牢了，而没有第二套实现说过话（2026-09-17）
+
+`FR-EQ-014` 从空缺转为记录。2026-09-17 之前内核里**受力计算一处都没有**（全仓搜
+`coil_force` / `hoop` 零命中），所以这条记录同时是这项能力的入册与它的第一次检验。
+
+上面说「这一域是本册里少见的有解析锚的稳定性问题，这一点值得用足」——这一条把它用足了。
+环向力走**虚功** $(I^2/2)\,\mathrm{d}L/\mathrm{d}R$ 而不是 $I\mathbf{L}\times\mathbf{B}$：后者要导体**处**的场，
+而自场恰在那里发散；写成虚功之后，奇异的那一块正好是自感本身，而自感早就有闭式的细丝自项，
+★**奇点于是被关进一个已经有人守着的盒子里**。四条锚的实测：环向力对闭式解 −3.1e-3 ·
+双环对 $I_1I_2\,\mathrm{d}M/\mathrm{d}z$ +3.9e-8 · 环心场 1.5e-8 · 系统 $F_z$ 合力
+4.6e-15（合成算例）与 **2e-14**（EAST 真卡，三个细丝档都成立）。
+
+★★但第二条**按构造近乎恒真**——`coil_forces` 算的就是 $I_aI_b\nabla M$。
+把一格「按构造为真」的判据当成通过的证据是这一册最容易犯的错，所以本册**自加**了一条
+不与实现共享代数的锚：远场偶极极限。它又扫出一件本来看不见的事——$d > 3.5$ m 之后
+$F_z$ 掉了四个量级，有限差分留下的绝对误差变成增长的相对误差，**偏差符号开始随机**。
+门因此停在物理那一段，不往更远推：往远推测到的是步长，不是力。
+
+判决是 **inconclusive**：判据点名的五格里四格成立，**对拍 DINA 未评——本机没有那份语料**。
+★★四条锚全过说明**接线**对，但它们共享同一套代数；一个约定级的错（安匝符号、每匝力对
+每线圈力的口径）能同时满足全部四条。**只有第二套实现能答这一层**，而这正是判据把外部
+对拍也写进去的理由。详见
+[`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md)。
+
 ### 对拍先成了，锚反而缺（2026-09-17）
 
 `FR-EQ-016` 从空缺转为记录。对 FreeGSNKE 的那一半很干净：壁的最长 $L/R$ 差 4e-05…8e-04，
@@ -69,13 +93,13 @@ efund）、`V-23`（ITER 被动回路）、`C-03`（TokSys rzrig）。已退役�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 1.0 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.1 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
+| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 1.2 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
-- `FR-EQ-014` 线圈受力与导体表面场
 - `FR-EQ-015` 装置电磁线性模型导出（路线）
 
 <!-- END GENERATED -->

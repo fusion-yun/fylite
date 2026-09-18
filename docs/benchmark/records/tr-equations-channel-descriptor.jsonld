@@ -157,13 +157,13 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:340bef300ef0fad494ef3c248b75a08dc464c6a3d145f8f0df2b8cf2208736c8"
+   "checksum": "sha256:8252123281c07bcbb632c6472624e2282e8f0f87e9922f279567c6876976c122"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.2",
   "recorded": "2026-09-17",
-  "revised": "2026-09-17",
+  "revised": "2026-09-18",
   "review_status": "draft",
   "open_defect": null,
   "change": [
@@ -172,6 +172,18 @@
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-TR-001` 的「描述子驱动」一格判**成立**。内核照 ETS 正则形式把四道手写通道求解器改道到同一个 `ChannelDescriptor` + `Numerics` + `solve_channel` 层；求解器体内 `match` 通道名 0 处；新造一道 `tracer` 通道零求解器改动；四道既有通道 15 个位模式逐位不变（位模式在改道**之前**采集）。★顺带补上 ETS 正则形式里此前**整项缺失**的隐式汇 `g`，并验它缺省是死路径。★**「通道集自动生成」那半句未兑现，记在 caveat 里不抹掉**"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-17",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-014` 线圈受力入内核，新门 `code/forces`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **671 项全通过**，公开仓侧 2762 项通过。★这一批内核改动是**纯增量**（新函数、新门），没有改动任何既有路径；接口摘要因加了一行 `CASE_CODES` 而变，修订号不动。"
+   },
+   {
+    "record_version": "1.2",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`NR-EQ-001` 的通量规统一入内核，ABI 154 → 155）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **671 项全通过**，公开仓侧 2783 项通过。★这一批改动会移动 `code/discharge` 的 ρ 与无 q 剖面时文档梯子的 q（见 `eq-convention-ladder-flux-gauge`）；本条的数**不在那两条路径上**，故未变。"
    }
   ]
  }

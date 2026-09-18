@@ -175,6 +175,7 @@ project:
             - file: benchmark/reports/eq-surface-chease-fixed-boundary-east.md
             - file: benchmark/reports/eq-evolve-analytic-circuit-limits.md
             - file: benchmark/reports/mhd-vertical-freegsnke-east137985.md
+            - file: benchmark/reports/mhd-vertical-coil-forces-analytic.md
             - file: benchmark/reports/eq-inverse-freegsnke-east137985.md
             - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
             - file: benchmark/reports/eq-reconstruct-kefit-twin.md
@@ -184,6 +185,7 @@ project:
             - file: benchmark/reports/eq-reconstruct-kinetic-outer.md
             - file: benchmark/reports/eq-reconstruct-curvature-prior.md
             - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
+            - file: benchmark/reports/eq-convention-ladder-flux-gauge.md
             - file: benchmark/reports/tr-closure-15d-source-switches.md
             - file: benchmark/reports/tr-closure-dt-burn-astra.md
             - file: benchmark/reports/tr-paradigm-pereverzev.md

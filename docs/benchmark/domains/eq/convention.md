@@ -23,6 +23,26 @@ import 实现——这与口径是同一类问题，都是"接得对不对"，�
 
 上一册的 `V-15`（g 文件往返，COCOS 17）落在这一域。已退役。
 
+### 一个入参，两种规范（2026-09-17）
+
+`surfaces::equilibrium_ladder` 的 $\mathrm{d}\psi$ 此前被**同一个函数**读成两种规范：
+$q = F g_q/|\mathrm{d}\psi|$ 要**整圈** Wb，而 $\Phi = 2\pi\,\mathrm{d}\psi\int q\,\mathrm{d}\psi_N$ 要**每弧度**
+（因为 $\psi_N$ 本身是整圈量之比）。两者差 $2\pi$，★**没有哪个调用方能同时满足**——
+于是每个调用方都只读对自己那一半，谁也没叫。现在统一成整圈，五处调用点全部对齐，ABI 154 → 155。
+
+圆截面上 $q$ 与 $\rho$ **同时**有闭式，这是能一次读两半的原因：实测 $q$ 差 7.131e-3、$\rho$ 差 1.804e-3。
+
+★★但这条记录的分量不在那两个数上，而在**判别力**：原实现的门只验了「对的规范能过」，
+而一个把两个规范都读成同一个的实现，在那种门下**每一道都能过**——这个病正是这样活下来的。
+补上的那一半把「分支 × 量」四格钉死：空 $q$ 表时 $q$ 对规范敏感（$\times 2\pi$）而 $\rho$ **不**敏感
+（$\mathrm{d}\psi$ 在 $\Phi$ 与几何 $q$ 之间约掉）；给了 $q$ 表时反过来，$q$ 不动而 $\rho$ 按 $1/\sqrt{2\pi}$ 走。
+★「$\rho$ 差 $\sqrt{2\pi}$」这句话**只对空表那一支成立，且是常数因子不是敏感性**——混着说正是病根。
+
+★★这次改动**移动了数**：`code/discharge` 的 $\rho$ 改正了一个 $\sqrt{2\pi}$，文档没带 $q$ 剖面时
+文档梯子的 $q$ 改正了一个 $2\pi$。而本册既有门禁**改前改后全绿**——**那不是「没影响」的证据，
+恰恰说明这两条量本来一道门都没有**。详见
+[`eq-convention-ladder-flux-gauge`](../../reports/eq-convention-ladder-flux-gauge.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -45,7 +65,8 @@ import 实现——这与口径是同一类问题，都是"接得对不对"，�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](../../reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 | 恒等式：写之后再读，必须回到原处 · 同一读取函数的另一实现（Python 定宽参照读者 ↔ Rust 数据层读者） | 1.3 | 草稿 | [jsonld](../../records/eq-convention-gfile-cocos-roundtrip.jsonld) |
+| [`eq-convention-gfile-cocos-roundtrip`](../../reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 | 恒等式：写之后再读，必须回到原处 · 同一读取函数的另一实现（Python 定宽参照读者 ↔ Rust 数据层读者） | 1.5 | 草稿 | [jsonld](../../records/eq-convention-gfile-cocos-roundtrip.jsonld) |
+| [`eq-convention-ladder-flux-gauge`](../../reports/eq-convention-ladder-flux-gauge.md) | 验证 | 成立 | 圆截面的闭式解 | 1.0 | 草稿 | [jsonld](../../records/eq-convention-ladder-flux-gauge.jsonld) |
 
 ### 缺口
 
