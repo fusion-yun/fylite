@@ -179,3 +179,4 @@ record["run_state"]        # 'succeeded'
 | [含时演化](evolve/evolve.md) | `evolve-iter-15ma` | 剖面随时间怎么走，能不能点燃 |
 | [放电设计](design/design.md) | `breakdown-iter` · `discharge-iter` | 线圈电流该给多少，才有这个位形 |
 | [诊断分析：平衡反演](reconstruction/reconstruction.md) | EAST #137985 @ 4 s | 给定测量，位形是什么 |
+| [KEFIT 动理学反演](kinetic/kinetic.md) | EAST #137985 @ 4.041 s 孪生 | 再给剖面诊断，平衡与它映射出的剖面自洽吗 |

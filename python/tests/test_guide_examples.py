@@ -43,7 +43,8 @@ GUIDE = DOCS / "guide"
 #: `examples/index-1..5`。语料的目录 `catalogue.jsonld` 仍在 `examples/` 根上。
 CHAPTERS = ("examples/index.md", "examples/zerod/zerod.md",
             "examples/transport/transport.md", "examples/evolve/evolve.md",
-            "examples/design/design.md", "examples/reconstruction/reconstruction.md")
+            "examples/design/design.md", "examples/reconstruction/reconstruction.md",
+            "examples/kinetic/kinetic.md")
 #: ★the path rules below apply to BOTH parts, not just the worked examples: the
 #: rot they catch (a retired tree named as though it were there) is exactly what
 #: the older topic chapters had, and gating only the worked examples would have

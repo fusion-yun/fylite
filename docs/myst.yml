@@ -72,6 +72,10 @@ project:
         - file: examples/evolve/evolve.md
         - file: examples/design/design.md
         - file: examples/reconstruction/reconstruction.md
+        #: ★动理学反演单成一章，不是上一章的一节：上一章问「给定磁测量，位形是什么」，
+        #: 这一章问「再给剖面诊断，平衡与它自己映射出的剖面自洽吗」——是一条有回边的链，
+        #: 需求 · 实现 · 孪生上逐段实测三半，一节装不下。
+        - file: examples/kinetic/kinetic.md
         - file: examples/device/device.md
         #: ★本书第一册**笔记本**。它与上一章同一个目录：那一章讲的是**一台**机器
         #: （EAST，补全 + 交付），这一册横过来看**六台**——同一条 `fy data convert`
