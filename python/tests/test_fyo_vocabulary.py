@@ -1,7 +1,7 @@
 """The fyo shared vocabulary: a term two hosts write must be spelled once.
 
 ★★Why this exists.  ``psi_norm`` was written **bare** by
-``app/assets/session.js`` and by one block of ``app/assets/scenario-analysis.js``,
+``webui/assets/session.js`` and by one block of ``webui/assets/scenario-analysis.js``,
 while ``fyo.py`` and the *other* block of ``scenario-analysis.js`` wrote
 ``psi_norm`` — inside documents all typed ``fyo:equilibrium``.
 
@@ -39,7 +39,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 VOCAB_PATH = ROOT / "python/fylite/_fyo_vocab.json"
-GENERATED_JS = ROOT / "app/assets/fyo-interface.js"
+GENERATED_JS = ROOT / "webui/assets/fyo-interface.js"
 #: the generated PATH tables — one declaration, both hosts (see
 #: ``rust/fylite/src/fyo.rs``)
 INTERFACE_PY = ROOT / "python/fylite/_fyo_interface.py"
@@ -50,7 +50,7 @@ GATED = sorted(t for t, v in TERMS.items() if v["gated"])
 
 #: Sources that write fyo documents, in both hosts.
 SOURCES = sorted(
-    [p for p in (ROOT / "app/assets").glob("*.js")
+    [p for p in (ROOT / "webui/assets").glob("*.js")
      if not p.name.startswith("lang-") and p.name != GENERATED_JS.name]
     + [p for p in (ROOT / "python/fylite").rglob("*.py")
        if p.name != INTERFACE_PY.name])
@@ -135,7 +135,7 @@ def test_the_generated_browser_copy_is_in_step():
     assert GENERATED_JS.exists(), "run rust/build.sh"
     listed = set(re.findall(r"^\s*'([a-z_0-9]+)',", GENERATED_JS.read_text(), re.M))
     assert listed == set(TERMS), (
-        "app/assets/fyo-interface.js is stale.\n"
+        "webui/assets/fyo-interface.js is stale.\n"
         f"  only in json: {sorted(set(TERMS) - listed)}\n"
         f"  only in js:   {sorted(listed - set(TERMS))}\n"
         "Run rust/build.sh.")
@@ -145,7 +145,7 @@ def test_one_term_space_has_exactly_one_iri():
     """★★Every ``fylite:`` prefix declaration in the tree must be the same IRI.
 
     There were THREE, one per writer: ``fyo.CONTEXT`` said
-    ``https://github.com/fusion-yun/fylite#``, ``app/assets/fyodev.js`` said
+    ``https://github.com/fusion-yun/fylite#``, ``webui/assets/fyodev.js`` said
     ``https://fusion-yun.github.io/fylite/ns#``, and the run manifest and the
     browser's session export said ``urn:fylite:``.
 

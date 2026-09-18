@@ -10,7 +10,7 @@ FYL-REPORT-06 §13 / FYO-ADR-09): panels of views, each view a list of series
 bound to quantities of the record.  The spec is either supplied (a case may
 carry its own) or DERIVED here by rule — and the derived one is written out
 beside the report, so the same spec drives the browser page
-(``app/pages/report.html``) and a reader can see exactly what was drawn.
+(``webui/pages/report.html``) and a reader can see exactly what was drawn.
 
 The rules are §13's principles, made executable:
 
@@ -34,8 +34,8 @@ The rules are §13's principles, made executable:
 ★stdlib only.  The SVG is written by hand (a line chart and a poloidal
 section, 1-2-5 ticks, an isometric section) — matplotlib is optional in this
 package and a report face that needed it would be a report face most hosts
-cannot run.  The browser renderer (``app/assets/casereport.js``) is a port of
-the same rules; ``app/tests/validate-report.mjs`` holds the two together on
+cannot run.  The browser renderer (``webui/assets/casereport.js``) is a port of
+the same rules; ``webui/tests/validate-report.mjs`` holds the two together on
 the derived spec.
 """
 from __future__ import annotations

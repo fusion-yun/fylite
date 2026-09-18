@@ -460,14 +460,14 @@ _DERIVED: dict | None = None
 # --------------------------------------------------------------------------- #
 #: ★★The CANONICAL spelling of every shared device field is declared once, in
 #: `rust/fylite/src/fyo.rs` (`@fyo-table DEVICE`), and generated into this
-#: package and the browser (`_fyo_interface.py` / `app/assets/fyo-interface.js`).
+#: package and the browser (`_fyo_interface.py` / `webui/assets/fyo-interface.js`).
 #: Canonical means the DD's own where the DD has a name — so
 #: `magnetics.flux_loop` is an ARRAY of structure, and `wall.description_2d`
 #: is too.
 #:
 #: ★This repository wrote two other spellings before that table existed:
 #: `east_device.yaml` wrapped the arrays as `{count, note, channel: [...]}`
-#: and made `description_2d` a bare mapping, while `app/assets/fyodev.js`
+#: and made `description_2d` a bare mapping, while `webui/assets/fyodev.js`
 #: wrote the DD arrays.  One machine, two dialects, and the divergence was
 #: not caught until something compared them
 #: (`python/tests/test_east_descriptions_agree.py`).
@@ -1054,7 +1054,7 @@ def diagnostic_geometry_from_document(doc: dict) -> dict:
     """Magnetic-diagnostic positions out of an **fyo device document**.
 
     Reads ``magnetics.b_field_pol_probe`` and ``magnetics.flux_loop`` in the
-    DD spelling ``app/assets/fyodev.js`` writes: ``position: [{r, z}]`` on
+    DD spelling ``webui/assets/fyodev.js`` writes: ``position: [{r, z}]`` on
     both, plus ``poloidal_angle`` [rad] and the namespaced ``fylite:angle_deg``
     / ``length`` on a probe.  Either the browser's bare
     ``b_field_pol_probe: [...]`` list or this package's
@@ -1280,7 +1280,7 @@ def conductor_geometry_from_document(doc: dict) -> dict:
     ``wall.description_2d[].vessel.unit[].element[].geometry.rectangle``,
     with the two tilt angles that have no DD rectangle spelling carried as
     ``fylite:a1`` / ``fylite:a2`` — exactly the shape
-    ``app/assets/fyodev.js`` writes.
+    ``webui/assets/fyodev.js`` writes.
 
     ★★Why this exists.  The BROWSER has carried this geometry in its device
     document since fyodev.js was written; Python did not, and read the same
@@ -1316,7 +1316,7 @@ def conductor_geometry_from_document(doc: dict) -> dict:
             """``fylite:a1`` / ``fylite:a2`` from the ELEMENT, else its UNIT.
 
             ★★Both placements are real and this reader used to honour only
-            one.  ``app/assets/fyodev.js`` writes the pair on the vessel
+            one.  ``webui/assets/fyodev.js`` writes the pair on the vessel
             **unit** (``u['fylite:a1'] = v.a1``, beside
             ``fylite:resistivity_uohm_m`` and ``fylite:group``); this reader
             looked for it on the **element**, and the case that claimed to

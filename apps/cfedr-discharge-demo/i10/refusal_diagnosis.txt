@@ -1,0 +1,18 @@
+I-10 synthetic ramp-down refusal (-23 at t 6172.99 s) — located 2026-09-14 from the snapshot before the refusal
+(i10_rampdown_snap.snap_before_refusal.json, session format fylite.session.snapshot/1; probe: refusal_probe.py)
+
+The refused 10 ms step (6172.99 -> 6173.00 s) is refused at kernel sub-call 53 (2.398e-3 s of the step left).
+Inside that step surface 40 (interior, near the edge) collapses: Te min 369.5 eV (snapshot) -> 353.8 (sub-call 0)
+-> 134.1 (10) -> 47.6 (25) -> 12.7 (45) -> 2.9 eV (52); Ti min 425.6 -> 3.7 eV; Te0 17.8 keV, edge Dirichlet 2506 eV,
+ne0 1.39e20 unchanged; the exchange cap shrinks dt 6.4e-4 -> 9.1e-7 s (hence 53 sub-calls, wall 0.6-3 s per step).
+
+Same refused request, one switch changed:
+  conductivity spitzer / sauter, trapped_fraction eps, L-H model off, current channel off, chi scaling off,
+  half the step                       -> still refused (-23)
+  species composition off             -> ok (Te min 3.0 eV — the collapse continues)
+  density channel off                 -> refused -33 (particle_books needs the channel)
+
+Reading: the refusal is the resolved species (Ar) state failing to settle at Te ~ 3 eV; the cause is a local
+radiative / thermal collapse. [Inference, unverified] density-limit type: the replay's ramp-down line density is
+above Greenwald (0-D f_GW ~ 1.6) while the session keeps the case's constant pellet fuelling 2.5e21 /s, so ne0 stays
+1.39e20 as RF drops to 10 MW. Reproducing the discharge needs host density feedback on the replay's ne_bar command.

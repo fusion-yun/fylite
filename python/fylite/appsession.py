@@ -1,6 +1,6 @@
 """Read the web app's session documents (``fylite:AppSession/1``).
 
-The browser page at ``app/`` exports one self-describing JSON-LD document
+The browser page at ``webui/`` exports one self-describing JSON-LD document
 carrying its inputs and, optionally, its outputs.  This module is the other
 end: it reads that document, converts the one convention that differs, and
 hands back plain dicts the rest of the package already understands —

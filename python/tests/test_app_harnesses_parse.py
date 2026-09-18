@@ -1,6 +1,6 @@
 """Every browser validation harness must at least PARSE.
 
-★★Why this exists.  ``app/tests/*.mjs`` are the gates for the browser side:
+★★Why this exists.  ``webui/tests/*.mjs`` are the gates for the browser side:
 they drive the pages with Playwright and compare against the native kernel.
 Nine of the fifteen could not be loaded by node at all — a ``SyntaxError``
 before the first statement — and had been in that state for long enough
@@ -33,11 +33,11 @@ from pathlib import Path
 import pytest
 
 HARNESSES = sorted((Path(__file__).resolve().parents[2]
-                    / "app" / "tests").glob("*.mjs"))
+                    / "webui" / "tests").glob("*.mjs"))
 
 pytestmark = pytest.mark.skipif(
     shutil.which("node") is None or not HARNESSES,
-    reason="node or app/tests is not in this tree")
+    reason="node or webui/tests is not in this tree")
 
 
 @pytest.mark.parametrize("src", HARNESSES, ids=lambda p: p.name)

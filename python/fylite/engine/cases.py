@@ -123,7 +123,7 @@ def corpus_dir(explicit=None) -> Path:
     ★**V&V 登记册的机器半边没有跟过来**（`registry.jsonld` 与 `scenarios/` 仍在
     内核仓）：它的 `account` 字段有 11 处指向 `docs/note/benchmark/` 的散文报告，
     而那些在**私有**仓——把它搬进公开仓，等于让公开读者去解析一批他打不开的路径。
-    ★仍然 **`app/` 里没有任何东西读它**：浏览器那份副本 2026-09-01 撤除，所以只有
+    ★仍然 **`webui/` 里没有任何东西读它**：浏览器那份副本 2026-09-01 撤除，所以只有
     一份语料，没有需要保持同步的发布子集。
     """
     #: ★★★2026-09-04 用户裁定：**语料收进 `docs/examples/`，一个例子一个目录**
@@ -307,7 +307,7 @@ class Accounting:
             raise KeyError(
                 f"the case carries no control {key!r} (wanted for {dest}); its "
                 f"controls are: {', '.join(sorted(self.pending))} — control names "
-                f"are the PAGE's, see app/assets/scenario-*.js CONTROLS")
+                f"are the PAGE's, see webui/assets/scenario-*.js CONTROLS")
         v = self.pending.pop(key)
         self.mapped[key] = dest
         return v
@@ -917,7 +917,7 @@ def args_for(bar: str, cfg: dict, *, predict: bool = False,
     """Map ONE bar's control values to its Python entry's arguments.
 
     ★★This is `plan`'s middle, made reachable on its own, and the reason is
-    a second caller with the same question: `app/tests/validate-evolve.mjs`
+    a second caller with the same question: `webui/tests/validate-evolve.mjs`
     compares the browser's march against a Python re-run, and the config it
     holds is the one the page EXPORTED — the same shape a shipped case is
     (`FySession.collect`, `fylite:config`).  Before this, that gate carried

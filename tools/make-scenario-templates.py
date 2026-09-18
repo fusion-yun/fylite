@@ -73,7 +73,7 @@ OVERLAY: dict[str, dict] = {
         #: a property of the measurement set, not of the machine, so the device supplies no
         #: default and the declared one (`defaults.basis`) stands.
         #: ★the two switches are the analysis page's own presets `mag` and
-        #: `kin` (app/assets/scenario-analysis.js), value for value.  They are
+        #: `kin` (webui/assets/scenario-analysis.js), value for value.  They are
         #: not invented here, and the page's slider values (kw, kpts) are NOT
         #: part of them: a switch expands booleans only (E-18).
         "switches": {

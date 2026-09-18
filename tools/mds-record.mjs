@@ -1,6 +1,6 @@
 // mdsip 录制代理 —— 把**真服务器答的字节**存成夹具。
 //
-//   node tools/mds-record.mjs --server <主机:端口> --out app/tests/fixtures/x.json
+//   node tools/mds-record.mjs --server <主机:端口> --out webui/tests/fixtures/x.json
 //
 // ★`--server` **没有默认值**，这是有意的：一个默认指向某家运营方内网
 // 地址的工具，既把那个地址发了出去，又会让换一台服务器的人以为不用给。
@@ -38,7 +38,7 @@ const flag = (n, d) => { const i = process.argv.indexOf('--' + n); return i > 0 
 const _srv = flag('server');
 if (!_srv) { console.error('用法：--server <主机:端口>（无默认值，见抬头）'); process.exit(2); }
 const [HOST, PORT] = String(_srv).split(':');
-const OUT = flag('out', 'app/tests/fixtures/mdsip-east.json');
+const OUT = flag('out', 'webui/tests/fixtures/mdsip-east.json');
 const LISTEN = Number(flag('port', 0));
 
 /** 按长度前缀把字节流切成整条消息。 */

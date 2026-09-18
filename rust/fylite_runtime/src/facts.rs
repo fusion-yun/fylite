@@ -296,7 +296,7 @@ fn named() -> Vec<PathBuf> {
 ///
 /// ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料落在
 /// `dist/facts/`（构建暂存区，`dist/` 本来就不入库）。仓顶那个目录只靠一行
-/// `.gitignore` 撑着，还有一条 `app/facts` 符号链接指着它——于是「哪些字节属于这个
+/// `.gitignore` 撑着，还有一条 `webui/facts` 符号链接指着它——于是「哪些字节属于这个
 /// 仓」要靠记忆回答；搬进 `dist/` 之后由目录名自己回答。
 pub fn repo_facts() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;

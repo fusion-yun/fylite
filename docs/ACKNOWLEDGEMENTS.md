@@ -29,11 +29,11 @@ fylite的开发是中国科学院等离子体物理研究所（ASIPP）**「集�
 
 | 上游 | 版本 | 许可 | 用途 | 位置 |
 | :--- | :--- | :--- | :--- | :--- |
-| **h5wasm**（美国国家标准与技术研究院，**NIST**） | 0.10.3 | NIST 公共服务条款（见 `app/assets/vendor/h5wasm/LICENSE.txt`，原样保留） | 在浏览器里读 HDF5：本仓的 HDF5 面链 `libhdf5` 这个 C 库，而该库在 `wasm32-unknown-unknown` 上编不出来（实测：`libc::FILE` / `off_t` / `ssize_t` 不存在），故浏览器侧由它把 `.h5` 解成一份 fyo 文档，再进源栈 | `app/assets/vendor/h5wasm/`，按需 `import()`（约 4.2 MB，不进预缓存） |
+| **h5wasm**（美国国家标准与技术研究院，**NIST**） | 0.10.3 | NIST 公共服务条款（见 `webui/assets/vendor/h5wasm/LICENSE.txt`，原样保留） | 在浏览器里读 HDF5：本仓的 HDF5 面链 `libhdf5` 这个 C 库，而该库在 `wasm32-unknown-unknown` 上编不出来（实测：`libc::FILE` / `off_t` / `ssize_t` 不存在），故浏览器侧由它把 `.h5` 解成一份 fyo 文档，再进源栈 | `webui/assets/vendor/h5wasm/`，按需 `import()`（约 4.2 MB，不进预缓存） |
 
 ★**明确承认**：h5wasm 系 **NIST** 开发的软件；其许可要求「明确承认 NIST 为该软件的来源」，
 此处即为该承认。本仓**未对其作任何修改**——`tools/vendor-h5wasm.mjs` 只拷贝、不打补丁，
-逐文件的 sha256 记在 `app/assets/vendor/h5wasm/PROVENANCE.md`。h5wasm 内含经 Emscripten
+逐文件的 sha256 记在 `webui/assets/vendor/h5wasm/PROVENANCE.md`。h5wasm 内含经 Emscripten
 编译的 **HDF5 C 库**（HDF Group），其许可随该包一并分发。
 
 ## 移植的上游代码（白盒翻译）
@@ -112,7 +112,7 @@ LAPACK / UMFPACK 换成本仓自写的稠密与稀疏例程，上游 `STOP` 的�
 | **FUSE——一次 ITER 运行的输入与答案**（`FUSE.init(:ITER, init_from=:scalars)`，FUSE 0.7.0 / EPEDNN 1.0.7，录于 2026-08-29） | ProjectTorreyPines | Apache-2.0；**FUSE 的源码与数据文件都没有进仓**——记录里是 FUSE 选定的十个 EPED 输入与它给出的九个答案，外加它解出的平衡、0-D 账目与剖面 | T-C1′ 对拍：`tests/data/FYDOC-CASE-04-fuse/corpus/iter_eped.json`、`iter_init.json`，由 `tests/test_fuse_benchmark.py` 把闸，`tools/fuse/capture-iter.jl` 可重录。★台基这一层不是「两个模型一致」：FUSE 的 `ActorPedestal` 与本内核加载**同一份** EPEDNN BSON 权重，所以它量的是移植后还是不是同一个函数（4.4e-16） |
 | **TGLF-NN——只取架构与一次运行的答案；不取权重** | ProjectTorreyPines（TGLFNN.jl 1.7.1） | Apache-2.0；★★**没有任何模型文件被再分发，也没有编译进来**——`rust/fylite/src/nn.rs` 实现所发布模型所用的 dense+residual 族，`tools/nn-export.jl` 在装有该包的宿主上转换一份，`$FYLITE_NN_DIR` 是用户自己存放的位置 | 代理路径，由 `tests/test_nn_surrogate.py` 对 TGLF-NN 自己在 FUSE ITER 算例上的答案把闸（`tests/data/FYDOC-CASE-04-fuse/corpus/iter_tglfnn.json`，4.9e-14）。每次导出都记录上游包名、版本、文件与 sha256，因此引用的数字可追溯到一件本仓并不持有的制品 |
 | **GENRAY 在 EAST 71230 炮 4.8 s 上的射线输出**（100 GHz O / X 与 2.45 GHz LH 四射线，及其 g 文件） | 随 BORAY 仓分发（`github.com/hsxie/boray`，提交 `54bcda7`）；GENRAY 源码未读 | 依 BORAY 仓；**冻结件只在私有内核仓**，不随本书或演示发布 | 射线追踪层的 B 类参照：介质、EC / LH 轨迹与 EC 剩余功率 |
-| ITER 装置描述（PF/CS 线圈、壁、110 个磁通环；ITER EDA，2010-04-26） | ITER 组织，经 `fydata` 包 | 依 fydata 所记 | 浏览器预置装置（`app/facts/device/iter.jsonld`）；演示内置的 ITER 位形即出自此 |
+| ITER 装置描述（PF/CS 线圈、壁、110 个磁通环；ITER EDA，2010-04-26） | ITER 组织，经 `fydata` 包 | 依 fydata 所记 | 浏览器预置装置（`webui/facts/device/iter.jsonld`）；演示内置的 ITER 位形即出自此 |
 
 ## 库与工具链
 

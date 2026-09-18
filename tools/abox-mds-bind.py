@@ -261,12 +261,12 @@ def main(argv=None):
     if not pub:
         here = pathlib.Path(__file__).resolve().parents[1]
         for c in (here / ".." / "fylite", here / ".." / "fylite_public"):
-            if (c / "python" / "fylite").is_dir() and (c / "app" / "assets").is_dir():
+            if (c / "python" / "fylite").is_dir() and (c / "webui" / "assets").is_dir():
                 pub = str(c.resolve())
                 break
     if not pub or not (pathlib.Path(pub) / "python" / "fylite").is_dir():
         sys.stderr.write("cannot find the public checkout (needs python/fylite/ "
-                         "and app/assets/).\n  give it: --public /path/to/fylite\n")
+                         "and webui/assets/).\n  give it: --public /path/to/fylite\n")
         return 2
     pub = pathlib.Path(pub)
 
@@ -302,7 +302,7 @@ def main(argv=None):
     text = json.dumps(out, ensure_ascii=False, indent=1) + "\n"
 
     dests = [pub / "python" / "fylite" / "_mds_bind.json",
-             pub / "app" / "assets" / "mds-bind.json"]
+             pub / "webui" / "assets" / "mds-bind.json"]
     if a.check:
         bad = [d for d in dests if not d.is_file()
                or d.read_text(encoding="utf-8") != text]

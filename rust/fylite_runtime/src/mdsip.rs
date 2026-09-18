@@ -325,7 +325,7 @@ pub fn parse_answer(msg: &[u8]) -> Result<Answer, MdsipError> {
     //: ★★★Measured, and it is why this rule is here at all: without it the
     //: FIRST message of every session — the login answer — fails to decode,
     //: so this client could not complete a handshake against a real server.
-    //: The JS client beside it (`app/server/mdsip.mjs`) carries the same rule
+    //: The JS client beside it (`webui/server/mdsip.mjs`) carries the same rule
     //: and has always talked to EAST; this one had never been pointed at a
     //: live server until `fylite` grew a request face (2026-08-31).
     if body.is_empty() {

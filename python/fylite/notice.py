@@ -9,8 +9,8 @@
 三个宿主各自渲染：
 
 ===============  ==========================================================
-浏览器            ``app/assets/lang-{zh,en}.js`` 的两个词条 —— 由
-                 ``app/tests/validate-site.mjs`` 逐字押在本文件上
+浏览器            ``webui/assets/lang-{zh,en}.js`` 的两个词条 —— 由
+                 ``webui/tests/validate-site.mjs`` 逐字押在本文件上
 ``fy``（Rust）    ``rust/fylite_runtime/src/banner.rs``，编译期 ``include_str!``
                  同一个 JSON
 本模块            导入 ``fylite`` 时印一次

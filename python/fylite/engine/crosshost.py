@@ -57,7 +57,7 @@ __all__ = ["out_kinds", "run_native", "run_wasm", "discrete_digest",
            "compare", "for_ledger", "WASM"]
 
 #: the browser's build, as shipped
-WASM = _paths.PKG.parent.parent / "app/assets/fylite_rs.wasm"
+WASM = _paths.PKG.parent.parent / "webui/assets/fylite_rs.wasm"
 
 #: ★a key the declaration does not mention is `real` — the safe default: it
 #: is compared, just not hashed.  Making the default `count` would silently
@@ -94,7 +94,7 @@ def run_wasm(entry: str, *, params: dict, inputs: dict, dims: dict,
              wasm=None, node: str = "node") -> dict:
     """The entry, through the browser's wasm build, driven by node.
 
-    ★Through ``app/assets/fylite.js`` — the SAME binding a page loads, and
+    ★Through ``webui/assets/fylite.js`` — the SAME binding a page loads, and
     its generated companions — rather than a second loader written here.  A
     harness that instantiated the module its own way would be checking a
     third host nobody ships.
@@ -133,7 +133,7 @@ def run_wasm(entry: str, *, params: dict, inputs: dict, dims: dict,
     p_js = ", ".join(f"{k}: {_num(v)}" for k, v in params.items())
     i_js = ", ".join(f"{k}: {_js(v)}" for k, v in inputs.items())
     d_js = ", ".join(f"{k}: {int(v)}" for k, v in dims.items())
-    asset = lambda n: str(root / "app/assets" / n)     # noqa: E731
+    asset = lambda n: str(root / "webui/assets" / n)     # noqa: E731
     script = f"""
       (async () => {{
         globalThis.self = globalThis;

@@ -161,7 +161,7 @@ def problems(rec: dict, d: Path) -> list[str]:
         if name.startswith("$"):
             if not g.get("caveat"):
                 out.append(f"out-of-tree gate {name} carries no caveat")
-        #: ★★闸子的路径是**相对仓根**的（`app/tests/…`、`python/tests/…`），
+        #: ★★闸子的路径是**相对仓根**的（`webui/tests/…`、`python/tests/…`），
         #: 所以这里要问仓根，而不是从册子目录数上去。原写法是 `d.parents[0]`——
         #: 按旧位置 `<仓根>/benchmark` 数一级正好，册子迁进 `docs/` 之后同样数
         #: 一级只到 `docs/`，于是每一条都报「闸子没了」，而闸子就在原处。
@@ -248,7 +248,7 @@ def gate_plan(rec: dict, kernel: Path | None) -> dict:
             py.append(name[len("$FYLITE_KERNEL/"):])
         elif name.startswith("$FYLITE_KERNEL/rust/"):
             rust.append(name[len("$FYLITE_KERNEL/"):])
-        elif name.startswith("app/tests/"):
+        elif name.startswith("webui/tests/"):
             here.append(name)
         else:
             refused.append(f"{name}: no host for this gate")
@@ -256,7 +256,7 @@ def gate_plan(rec: dict, kernel: Path | None) -> dict:
         refused.append(f"{len(py) + len(rust)} private gates: set ${KERNEL_ENV} to a kernel checkout "
                        "with fydata's oracle/ mounted at tests/data")
     if here:
-        refused.append(f"{len(here)} browser gates: run `node app/tests/…` with playwright and a served site "
+        refused.append(f"{len(here)} browser gates: run `node webui/tests/…` with playwright and a served site "
                        "(not driven from here)")
     #: the reference store: which of the record's inputs this host can see
     inputs = [c.get("storage_uri", "") for c in (rec.get("run") or {}).get("has_input", [])]

@@ -95,10 +95,10 @@ def test_the_wasm_artifacts_carry_the_same_abi():
     binding really reads them is `test_deck_names_have_one_source.py`'s.
     """
     #: ★2026-09-01：`rust/wasm/abi.json` 在内核仓；构建时它被**装进本仓**
-    #: `app/assets/abi.json`（见 kernel 的 rust/build.sh）。读装进来的那份，本仓自足。
-    meta = json.loads((ROOT / "app/assets/abi.json").read_text())
+    #: `webui/assets/abi.json`（见 kernel 的 rust/build.sh）。读装进来的那份，本仓自足。
+    meta = json.loads((ROOT / "webui/assets/abi.json").read_text())
     assert meta["abi_version"] == _abi.ABI_VERSION
-    js = (ROOT / "app/assets/version.js").read_text()
+    js = (ROOT / "webui/assets/version.js").read_text()
     line = next(l for l in js.splitlines() if "abi:" in l)
     got = int(line.split("abi:")[1].split(",")[0].strip().rstrip("};"))
     assert got == _abi.ABI_VERSION, (
@@ -123,7 +123,7 @@ def test_the_generated_prose_pages_carry_the_current_abi():
     file's readers were not enumerated from the tree.  A gate nobody runs on
     the day of the bump is not a gate on the bump.
     """
-    pages = sorted((ROOT / "app").glob("*.html"))
+    pages = sorted((ROOT / "webui").glob("*.html"))
     #: only the GENERATED prose pages carry the footer; the scenario pages
     #: get theirs injected at run time by `site.js`
     carriers = [q for q in pages if "class=\"ver\"" in q.read_text(encoding="utf-8")]
@@ -152,7 +152,7 @@ def test_the_generated_prose_pages_carry_the_current_abi():
 #: The two artifacts the pages fetch — one per native `.so` (2026-09-05 用户裁定:
 #: dke 与 tglf 合为 `kernel_ext`).  ★It was three until that ruling; the third
 #: (`fylite_dke.wasm`) was built and shipped in all three release forms while
-#: **nothing loaded it** — `app/assets/fylite.js` has no dke entry point.
+#: **nothing loaded it** — `webui/assets/fylite.js` has no dke entry point.
 WASM = ("fylite_rs", "fylite_kernel_ext")
 
 #: ★2026-09-01：底账随 `docs/note/` 留在 fylite_kernel。探测得到就核，探不到就点名
@@ -206,7 +206,7 @@ def test_the_provenance_ledger_records_the_wasm_that_is_here():
     #: would report the version skew as a physics disagreement in `ohm`.  That
     #: is not hypothetical; it happened here (native 17:51, wasm 14:06).  With
     #: both halves recorded, rebuilding one goes red at once.
-    for name, rel in ([(n, f"app/assets/{n}.wasm") for n in WASM]
+    for name, rel in ([(n, f"webui/assets/{n}.wasm") for n in WASM]
                       #: ★★★2026-09-16 用户裁定之后 native 那一侧只剩**一个**库：
                       #: 内核仓只出静态归档，公开仓把它与中间层链成 `libfylite.so`。
                       #: 上面那条「两半必须同源」的理由一字不改，只是它今天比的是

@@ -2,7 +2,7 @@
 //!
 //! ★★两份输入、一套分解、一个读法：
 //!
-//! * **扁平表** `fylite/mds-bind/1`（`app/assets/mds-bind.json`，由
+//! * **扁平表** `fylite/mds-bind/1`（`webui/assets/mds-bind.json`，由
 //!   `tools/abox-mds-bind.py` 从 A-Box 分解出来）：每行 `{ids, path, source, verb, node,
 //!   subscript, subscript_inside, value, scale}`——正是 `mdsip::Client::read` 的实参。
 //! * **A-Box 绑定文档**（fydoc / fydata 的 `$source` + `$link`，JSON-LD）：叶子是

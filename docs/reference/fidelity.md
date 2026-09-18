@@ -52,7 +52,7 @@ q95 3.00 vs efit 4.48——**内部依然不对**。
 
 ## 反演页（浏览器）的三条
 
-这三条是 `app/pages/analysis.html` 上**逐条实测**的边界，判据是它自己的合成孪生
+这三条是 `webui/pages/analysis.html` 上**逐条实测**的边界，判据是它自己的合成孪生
 （真值已知）与卷宗交付的重构。
 
 1. **q(0) 与 q95 的可信度不同，差得很远——而且与噪声无关。** 把磁通环噪声调到
@@ -80,7 +80,7 @@ q95 3.00 vs efit 4.48——**内部依然不对**。
 
 ## 自举—欧姆—拟合电流的闭环（T-A9，2026-08-23 实测）
 
-判据与数字取自 `app/tests/validate-closure.mjs`（EAST #137985 @ 4 s，控件默认，
+判据与数字取自 `webui/tests/validate-closure.mjs`（EAST #137985 @ 4 s，控件默认，
 密度通道开、σ_neo 取 Redl-2021 档）与 Rust 单测 `neoclassical::closure_tests` /
 `neoclassical::sigma_oracle_tests`。
 

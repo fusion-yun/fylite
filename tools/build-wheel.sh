@@ -36,7 +36,7 @@ OUT="${1:-$PROJ/dist}"
 #: 来的那几台；版别在编译 `.so` 时定死，打包时挑不了。
 FACTS_DIR="$PROJ/fylite/_facts"
 rm -rf "$FACTS_DIR"
-FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/app/assets/runtime-version.js" 2>/dev/null || true)
+FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/webui/assets/runtime-version.js" 2>/dev/null || true)
 echo "[wheel] facts: 编在 libfylite.so 里（${FLAV:-未知} 版）——轮里不另带一份"
 
 #: ★★★2026-09-16 用户裁定：轮里只剩**一份** `.so`。内核仓只出静态归档，公开仓的

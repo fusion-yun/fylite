@@ -140,7 +140,7 @@ fn link_kernel() {
         //: 「链接器认为没人引用就不取、或者取了也降成本地」。见 `cdylib_args`。
         cdylib_args(a, &pkg_version());
         println!("cargo:rustc-cfg=kernel_static");
-        //: ★★**算力的身份**要跟着进二进制。页面的续算闸（`app/assets/checkpoint.js`）
+        //: ★★**算力的身份**要跟着进二进制。页面的续算闸（`webui/assets/checkpoint.js`）
         //: 判的是「写这份状态的内核是不是当前这个」，判据是内核的 sha256——在 wasm
         //: 那条路上那是那份 `.wasm` 的散列。走 `/api/kernel` 时没有「那份文件」可散列，
         //: 于是这里把**链进来的那份归档**的散列baked 进去：它正是跑起来的那些字节。

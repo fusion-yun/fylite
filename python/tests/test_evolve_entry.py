@@ -89,7 +89,7 @@ def _vol_int(rho, vprime, f):
 def test_the_entry_is_declared_into_both_hosts():
     from fylite import _fyo_interface as FI
     assert "evolve_heat" in FI.ENTRIES
-    js = (ROOT / "app/assets/fyo-interface.js").read_text()
+    js = (ROOT / "webui/assets/fyo-interface.js").read_text()
     assert "evolve_heat" in js, "run rust/build.sh"
 
 
@@ -246,7 +246,7 @@ def test_the_handwritten_march_only_shrinks():
     ★The raw line counts are still printed on failure, as READINGS.  They
     are not the criterion any more, and the difference is the whole point.
     """
-    src = (ROOT / "app/assets/worker.js").read_text()
+    src = (ROOT / "webui/assets/worker.js").read_text()
     got = _hand_written_march(src)
     #: measured 2026-08-27, after S-2c 批二–批五 closed: **538** = 84 (the
     #: per-step loop body) + 454 (26 functions it reaches), counting only
@@ -279,7 +279,7 @@ def test_the_handwritten_march_only_shrinks():
         "The ruling is that it only shrinks: sink the capability into the "
         "kernel and call it, or argue the growth explicitly.\n"
         "Raw file lines, as a reading only: "
-        + ", ".join(f"{n} {len((ROOT / 'app/assets' / n).read_text().splitlines())}"
+        + ", ".join(f"{n} {len((ROOT / 'webui/assets' / n).read_text().splitlines())}"
                     for n in ("worker.js", "fylite.js")))
     #: ★and the measure must still be MEASURING: a refactor that renamed the
     #: loop or moved it out of `evolveRun` would send this to a small number
@@ -973,7 +973,7 @@ def test_the_browser_drives_every_in_scope_corpus_case_through_the_entry():
     #: ★and the browser decides it from the SAME declaration, not a list of
     #: its own: the routing test reads `ENTRY_SCOPE` out of the generated
     #: interface, so a capability that sinks releases both hosts at once
-    worker = (ROOT / "app/assets/worker.js").read_text()
+    worker = (ROOT / "webui/assets/worker.js").read_text()
     assert "ENTRY_SCOPE" in worker, (
         "the worker no longer reads the declared scope ledger — a second "
         "opinion about what is in scope is the arrangement this replaced")
@@ -1003,7 +1003,7 @@ def test_the_scope_ledger_is_one_declaration_and_both_hosts_read_it():
     assert set(cases._EVOLVE_REQUIRED) == {r["key"] for r in rows
                                            if r["units"] == "required"}
     #: and the browser's side of each row names a field it can actually read
-    js = (ROOT / "app/assets/fyo-interface.js").read_text()
+    js = (ROOT / "webui/assets/fyo-interface.js").read_text()
     for r in rows:
         assert r["key"] in js, f"{r['key']} is not generated into the browser"
 

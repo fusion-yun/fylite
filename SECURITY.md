@@ -45,19 +45,19 @@ vulnerabilities: there is no server.
 ## 文档是数据，不是标记 · A document is data, never markup
 
 站点上有两个**工具页**会打开**读者自己给的文档**：装置数据页（导入装置描述）与
-算例报告页（`app/pages/report.html`：文件选择、拖放，以及 `?src=<地址>` —— 一条
+算例报告页（`webui/pages/report.html`：文件选择、拖放，以及 `?src=<地址>` —— 一条
 链接就能替读者选定一份远端文档）。
 
 Two **tool pages** open documents the reader supplies: the device-data page
 (imported device descriptions) and the case-report page
-(`app/pages/report.html`: file picker, drag-and-drop, and `?src=<url>` — a link
+(`webui/pages/report.html`: file picker, drag-and-drop, and `?src=<url>` — a link
 can choose a remote document on the reader's behalf).
 
 ★★**规矩：文档里的任何字段都以文本落地，不作标记解释。** 页面自己的词条与本模块
 生成的 SVG 才走 `innerHTML`。2026-09-02 实测修掉一处违例：算例报告页把计划的
 `note` 字段当 HTML 注入，为的是让语料自带的 `<strong>` 渲染出来——代价是任何被打开
 的文档都能在页面源上跑脚本。语料的排版不值这个价，该字段现在是文本，
-`app/tests/validate-report.mjs` 用一份带 `<img onerror>` 的计划把它钉住。
+`webui/tests/validate-report.mjs` 用一份带 `<img onerror>` 的计划把它钉住。
 
 ★★**The rule: every field of a document lands as text, never interpreted as
 markup.** Only this repository's own catalogue strings and the SVG this code

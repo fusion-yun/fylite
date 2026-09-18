@@ -1,6 +1,6 @@
-// app/（本仓）-> fylite_runtime 的 rust/fylite_runtime/src/bin/app/assets.rs（内嵌资源表，生成物）
+// webui/（本仓）-> fylite_runtime 的 rust/fylite_runtime/src/bin/app/assets.rs（内嵌资源表，生成物）
 //
-// ★为什么生成而不是手写：桌面版把整个 `app/` 编进可执行文件，需要一张
+// ★为什么生成而不是手写：桌面版把整个 `webui/` 编进可执行文件，需要一张
 // 「路径 -> include_bytes! -> MIME」的表。手写它意味着每加一页、每换一个
 // 图标都要记得改这里，而漏改的表现是**运行时 404**——一个只在别人机器上
 // 才发现的缺失。生成器每次从目录本身读，漏不掉。
@@ -8,13 +8,13 @@
 // 与 `tools/make-app-pages.mjs`、`rust/build.sh`（生成 `_abi.py` / `version.js`）
 // 同一惯例：产物入库，门校验它与源同步。
 //
-// 不收 `tests/` 与 `server/`：与发布流水线送出去的那份 `app/` 保持同一子集
+// 不收 `tests/` 与 `server/`：与发布流水线送出去的那份 `webui/` 保持同一子集
 // ——桌面版分发的东西不该比站点多。
 import { readdirSync, statSync, lstatSync, realpathSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 
 const HERE = new URL('.', import.meta.url).pathname;
-//: ★★`--from DIR` —— 描述**要内嵌的那一棵树**，不是源树。缺省仍是 `app/`（提交进仓
+//: ★★`--from DIR` —— 描述**要内嵌的那一棵树**，不是源树。缺省仍是 `webui/`（提交进仓
 //: 的那张表因此是源树的），而 `tools/build-app-exe.sh` 给的是它装好的那一棵：
 //: 可执行文件从 2026-09-05 起**一份 wasm 也不带**：装置信息走它自己的 `/api/facts`
 //: （那张表已经在这个进程里），算力走 `/api/kernel`（内核静态库链在里面）——两条都是
@@ -27,15 +27,15 @@ const FROM = (() => {
   const d = process.argv[i + 1];
   return d.endsWith('/') ? d : d + '/';
 })();
-const APP = FROM || (HERE + '../app/');
+const APP = FROM || (HERE + '../webui/');
 
-//: ★★2026-09-02：`app/` 与 `rust/fylite_runtime/` 都在本仓了——数据层从内核仓搬了
+//: ★★2026-09-02：`webui/` 与 `rust/fylite_runtime/` 都在本仓了——数据层从内核仓搬了
 //: 过来，于是这张表的读者与被读的目录同处一棵树。从前这里要跨仓解析内核检出
 //: （`$FYLITE_KERNEL`，探测不到就报错），那一整段随之取消：现在是一个相对路径，
 //: 猜不错也不需要猜。
 const OUT = HERE + '../rust/fylite_runtime/src/bin/app/assets.rs';
 //: ★★`facts` 仍在跳过名单里，但**理由变了**：2026-09-05 用户裁定「fylite 下已无
-//: facts 目录」，`app/facts` 那条指向仓根的符号链接随之撤除，所以今天这里根本没有
+//: facts 目录」，`webui/facts` 那条指向仓根的符号链接随之撤除，所以今天这里根本没有
 //: 这个目录可走。留着这一条是**防回归**——那条链接一旦被谁重新拉起来，`statSync`
 //: 会跟着它把整份语料（逐个的卡片、许可账、只进内部版的机器）编进可执行文件。
 //: 装置文档按**同一条发布规则**逐份加进来，从暂存的那棵树里取（见下）。
@@ -48,7 +48,7 @@ const MIME = {
   '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.jsonld': 'application/ld+json; charset=utf-8',
-  //: ★★`app/manifest.webmanifest`（`tools/make-sw.mjs` 的产物）落地时漏了这一格，
+  //: ★★`webui/manifest.webmanifest`（`tools/make-sw.mjs` 的产物）落地时漏了这一格，
   //: 于是本生成器**在 develop 上一直跑不起来**——按名拒绝，不猜 content-type。
   //: 没人先发现，是因为 `rust/build.sh --exe` 读的是已提交的 `assets.rs`，只有
   //: `tools/build-app-exe.sh` 会重跑生成器。规范值是 `application/manifest+json`。
@@ -79,7 +79,7 @@ function walk(dir, prefix = '') {
   for (const name of readdirSync(dir).sort()) {
     if (prefix === '' && SKIP.has(name)) continue;
     const full = dir + name;
-    //: ★★符号链接不进表（2026-09-05）。版本化之后 `app/assets/` 里一份 wasm 有
+    //: ★★符号链接不进表（2026-09-05）。版本化之后 `webui/assets/` 里一份 wasm 有
     //: 三个名字：真文件 `.wasm.0.0.1` 加 `.wasm.0` 与 `.wasm` 两级链接。`statSync`
     //: 跟随链接，照原样走下去会把**同一兆多字节编进可执行文件三遍**，而且其中两个
     //: 名字站点根本不发（`build-site.sh` 只发真文件）。收真文件那一个就够——
@@ -89,8 +89,8 @@ function walk(dir, prefix = '') {
     //: 是一个具体的形状——两个别名指着同一份字节。
     if (lstatSync(full).isSymbolicLink() &&
         SONAME.test(realpathSync(full).split('/').pop())) continue;
-    //: 目录里现在没有符号链接了——`app/cases`（指向仓顶 `cases/`）随算例
-    //: 菜单一同撤掉，`app/facts/device/*.jsonld` 仍是链接但由发布流水线落实体。
+    //: 目录里现在没有符号链接了——`webui/cases`（指向仓顶 `cases/`）随算例
+    //: 菜单一同撤掉，`webui/facts/device/*.jsonld` 仍是链接但由发布流水线落实体。
     //: `statSync` 跟随链接，这一点保持不变：真出现链接时收它指向的东西。
     const st = statSync(full);
     if (st.isDirectory()) out.push(...walk(full + '/', prefix + name + '/'));
@@ -128,12 +128,12 @@ const WASM_STEMS = ['fylite_rs.wasm', 'fylite_kernel_ext.wasm',
 function checkWasmIsVersioned(list) {
   const vjs = APP + 'assets/version.js';
   if (!existsSync(vjs)) {
-    console.error('[embed] 读不出 app/assets/version.js —— 先在内核仓跑构建');
+    console.error('[embed] 读不出 webui/assets/version.js —— 先在内核仓跑构建');
     process.exit(1);
   }
   const m = /kernel:\s*'([^']*)'/.exec(readFileSync(vjs, 'utf8'));
   if (!m || !m[1]) {
-    console.error('[embed] app/assets/version.js 里没有 kernel 版本');
+    console.error('[embed] webui/assets/version.js 里没有 kernel 版本');
     process.exit(1);
   }
   //: ★中间层那一份的版本另有出处（`assets/runtime-version.js`，由本仓
@@ -173,19 +173,19 @@ if (unknown.length) {
 const rows = files.map((f) => {
   const ext = extOf(f);
   //: ★★路径过 `$FYLITE_APP_DIR`，不是相对 `.rs` 文件往上数。仓拆开之前
-  //: 这里写的是 `../../../../../app/${f}`——从 `rust/fylite_runtime/src/bin/app/` 上溯
-  //: 五级到仓根再进 `app/`，同一个仓里成立。2026-09-01 `app/` 搬到主仓之后，
-  //: 那条相对路径指向内核仓里并不存在的 `app/`，96 个文件全部
+  //: 这里写的是 `../../../../../webui/${f}`——从 `rust/fylite_runtime/src/bin/app/` 上溯
+  //: 五级到仓根再进 `webui/`，同一个仓里成立。2026-09-01 `webui/` 搬到主仓之后，
+  //: 那条相对路径指向内核仓里并不存在的 `webui/`，96 个文件全部
   //: `couldn't read`。★不改成绝对路径：那会把构建机的目录布局**编进内核源码**
   //: （而这棵树本来就在防这件事），而且换台机器即失效。用编译期环境变量，
   //: 由 `tools/build-app-exe.sh` 递进来，源码里留下的是一个名字不是一条路径。
   return `    ("${f}", include_bytes!(concat!(env!("FYLITE_APP_DIR"), "/${f}")), "${MIME[ext]}"),`;
 }).join('\n');
 
-const src = `//! \`app/\` 的内嵌资源表 —— **生成物**，勿手改。
+const src = `//! \`webui/\` 的内嵌资源表 —— **生成物**，勿手改。
 //!
-//! 由 \`tools/make-app-embed.mjs\` 从目录本身读出；改了 \`app/\` 之后重跑它，
-//! 门 \`app/tests/validate-embed.mjs\` 校验两者同步。
+//! 由 \`tools/make-app-embed.mjs\` 从目录本身读出；改了 \`webui/\` 之后重跑它，
+//! 门 \`webui/tests/validate-embed.mjs\` 校验两者同步。
 //!
 //! 表里是 (站点内路径, 字节, content-type)。路径用 \`/\` 分隔，与 URL 一致；
 //! 查找是精确匹配，不做路径拼接——因此这张表天然免疫 \`..\` 穿越。
@@ -200,10 +200,10 @@ const check = process.argv.includes('--check');
 if (check) {
   const have = readFileSync(OUT, 'utf8');
   if (have !== src) {
-    console.error('[embed] assets.rs 与 app/ 不同步——重跑 node tools/make-app-embed.mjs');
+    console.error('[embed] assets.rs 与 webui/ 不同步——重跑 node tools/make-app-embed.mjs');
     process.exit(1);
   }
-  console.log(`[embed] assets.rs 与 app/ 一致（${files.length} 个文件）`);
+  console.log(`[embed] assets.rs 与 webui/ 一致（${files.length} 个文件）`);
 } else {
   writeFileSync(OUT, src);
   console.log(`[embed] -> rust/fylite_runtime/src/bin/app/assets.rs（${files.length} 个文件）`);

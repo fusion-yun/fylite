@@ -2,7 +2,7 @@
 
 ★★**Why this exists.**  Until 2026-08-22 this repository could describe one
 machine on the Python side (EAST) and a second one only as a browser asset
-(`app/assets/dev-iter.js`), in a shape nothing in `fylite` reads.  So "which
+(`webui/assets/dev-iter.js`), in a shape nothing in `fylite` reads.  So "which
 machines does fylite know?" had two answers in two formats, and the answer a
 Python caller could use was one.
 
@@ -44,7 +44,7 @@ def _pid(p, sep="/") -> str:
 
 ROOT = Path(__file__).resolve().parents[2]
 #: ★2026-09-04 `machine_desc/` → `devices/` → **`facts/device/`**（用户裁定）。
-#: `app/facts/device` 是指向它的符号链接。目录换了两次名字，本模块守的东西没变。
+#: `webui/facts/device` 是指向它的符号链接。目录换了两次名字，本模块守的东西没变。
 #: ★2026-09-05：仓顶已无 `facts/`，拖回来的落在 `dist/facts/`（用户裁定）。
 DESC = ROOT / "dist" / "facts" / "device"
 FYDATA_ENV = "FYDATA_DIR"
@@ -315,7 +315,7 @@ def test_a_browser_document_says_which_machine_it_is(doc: Path):
 # one machine, two descriptions                                               #
 # --------------------------------------------------------------------------- #
 ITER_DOC = DESC / "iter" / "iter_device.yaml"
-PRESETS = ROOT / "app" / "devices"
+PRESETS = ROOT / "webui" / "devices"
 CATALOGUE = PRESETS / "catalogue.jsonld"
 
 
@@ -429,7 +429,7 @@ def test_every_preset_is_the_import_document_it_claims_to_be():
                          f"outside the redacted provenance fields")
     assert not drift, (
         "re-run `python3 tools/fyo-device-to-app.py --all --preset "
-        "-o app/facts/device` and commit:\n  " + "\n  ".join(drift))
+        "-o webui/facts/device` and commit:\n  " + "\n  ".join(drift))
     if absent and len(absent) == len(entries):
         pytest.skip("no import document in this tree to compare the presets "
                     "against (machine_desc/ is a pulled input): " + ", ".join(absent))
@@ -437,7 +437,7 @@ def test_every_preset_is_the_import_document_it_claims_to_be():
 
 @pytest.mark.skipif(not CATALOGUE.is_file(), reason="this tree ships no presets")
 def test_every_preset_says_where_its_numbers_came_from():
-    """★★`app/` is published, so a preset is a REDISTRIBUTION — and the one
+    """★★`webui/` is published, so a preset is a REDISTRIBUTION — and the one
     thing a redistribution must not do is arrive anonymous.
 
     ★This checks that provenance is DECLARED, not that it is a publication.
@@ -467,7 +467,7 @@ def test_every_preset_says_where_its_numbers_came_from():
 
 @pytest.mark.skipif(not CATALOGUE.is_file(), reason="this tree ships no presets")
 def test_the_catalogue_and_the_directory_agree():
-    """★A document in `app/facts/device/` that the catalogue does not list is a
+    """★A document in `webui/facts/device/` that the catalogue does not list is a
     machine being published with nothing recording where it came from —
     which is the failure mode the catalogue exists to prevent, arriving by
     the back door."""

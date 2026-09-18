@@ -11,8 +11,8 @@
 #                                   `rust/kernel-lib/libfylite_kernel.a`）与中间层
 #                                   （`fylite_runtime_*`）。从前那三份 `.so` 没有了。
 #                                另出内核的两份 wasm（fylite_rs.wasm ·
-#                                   fylite_kernel_ext.wasm），装进 app/assets/
-#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fy（内嵌整个 app/，
+#                                   fylite_kernel_ext.wasm），装进 webui/assets/
+#   ./rust/build.sh --exe        -> 另外构建**唯一的可执行文件** fy（内嵌整个 webui/，
 #                                   并承载 app / data / run / list 四条命令），留在
 #                                   rust/fylite_runtime/target/release/fy —— 不装进 Python 包
 #   ./rust/build.sh --static     -> HDF5 / netCDF 从源码静态编进 .so（发行给没装库的机器）
@@ -255,7 +255,7 @@ rm -rf "$_PROBE"
 #: 因此只有一个制品 `facts.rs`，由 `.so` 与 `.wasm` 各编进去；页面经 wasm 读它，
 #: 命令行经 `facts::embedded_*` 读它——同一份字节，没有第二份可以跟它不一致。
 #: ★**版别在这里定死**：编进去之后就换不掉了，所以下游（站点、可执行文件）不能再
-#: 「发布时挑版别」。`app/assets/runtime-version.js` 记下这一次是哪一版，下游据此核对。
+#: 「发布时挑版别」。`webui/assets/runtime-version.js` 记下这一次是哪一版，下游据此核对。
 if [ -n "${FACTS_FLAVOUR:-internal}" ]; then
     FACTS_FLAVOUR="${FACTS_FLAVOUR:-internal}"
     if python3 "$ROOT/tools/facts-publish.py" --flavour "$FACTS_FLAVOUR" \
@@ -273,7 +273,7 @@ fi
 
 #: ★★**版别也要让 Python 那一层读得到**（2026-09-08 用户裁定，`FYL-SDD-03` A-18）。
 #: 启动 banner 的提示词按版别决定说几句，而这一层没有别的办法知道自己装的是哪一版
-#: ——`.so` 里那个 `FLAVOUR` 常量它调不到。于是与 `app/assets/runtime-version.js`
+#: ——`.so` 里那个 `FLAVOUR` 常量它调不到。于是与 `webui/assets/runtime-version.js`
 #: 同一次构建、同一个值，两个宿主各留一份：页面读那一份，Python 读这一份。
 #: ★写在这里而不是下面 wasm 那一段里：那一段挂在 `--install` 与 wasm 目标之下，
 #: 而「这次构建是哪一版」与有没有 wasm 无关。★`none`（--no-facts）照实写，由
@@ -287,7 +287,7 @@ printf '%s\n' \
   '生成物而不是一个运行时开关——`fylite.notice` 据此决定启动 banner 上说不说' \
   '「仅限内部测试」那一句。' \
   '' \
-  '★与 `app/assets/runtime-version.js` 的 `FyFactsFlavour` 是**同一次构建写下的' \
+  '★与 `webui/assets/runtime-version.js` 的 `FyFactsFlavour` 是**同一次构建写下的' \
   '同一个值**，两个宿主各留一份：页面读那一份，Python 读这一份。' \
   '★提交进仓的这一份是**缺省构建**的那一版（`internal`，A-14）。' \
   '"""' \
@@ -425,7 +425,7 @@ if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx
     #: ★★**缺省只出装置那一份**（2026-09-05「清理规划 wasm 打包的内容」）。全套那一份
     #: 今天没有任何读者：站点不发它（`build-site.sh`）、可执行文件不内嵌（`build-app-exe.sh`）、
     #: 页面一处也不载入（实测 grep：只有 `factsdb.js` 用中间层，而它取的是装置那一份）。
-    #: 一个 2.14 MB、谁也不读的产物待在 `app/assets/` 里，唯一的作用是让每个下游脚本
+    #: 一个 2.14 MB、谁也不读的产物待在 `webui/assets/` 里，唯一的作用是让每个下游脚本
     #: 都要为它写一句特例——`make-sw.mjs` 与 `make-app-embed.mjs` 各写过一句。
     #: `--full-wasm` 仍然出得来：`FYL-SDD-02` H-4 的消费者（g-file / fyo / 会话搬进
     #: 中间层）落地时要用它，那天把这里的缺省翻过来即可。
@@ -445,7 +445,7 @@ if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx
         homes=$(strings -n 6 "$WOUT" | grep -c "$HOME" || true)
         [ "$homes" = 0 ] || { echo "::error:: $WOUT 里有 $homes 条开发机路径" >&2; exit 1; }
         echo "[runtime] harden-ok  $name ($(stat -c%s "$WOUT") bytes)"
-        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/app/assets" "$name" "$RVER"
+        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/webui/assets" "$name" "$RVER"
     done
     if [ "$INSTALL" = 1 ]; then
         true
@@ -466,8 +466,8 @@ if [ "${WASM:-1}" = 1 ] && rustup target list --installed 2>/dev/null | grep -qx
           "// 这一份 wasm 里编着哪一版的装置信息。★下游（build-site.sh /" \
           "// build-app-exe.sh）据此核对：版别在**编译期**定死，发布时挑不了。" \
           "self.FyFactsFlavour = '$FACTS_FLAVOUR';" \
-          > "$ROOT/app/assets/runtime-version.js"
-        echo "[runtime] -> app/assets/runtime-version.js ($RVER)"
+          > "$ROOT/webui/assets/runtime-version.js"
+        echo "[runtime] -> webui/assets/runtime-version.js ($RVER)"
     fi
 else
     echo "[runtime] 跳过 wasm32（没装那个目标：rustup target add wasm32-unknown-unknown）"
@@ -483,7 +483,7 @@ fi
 #: 见那个包的 `build.rs`）。
 #:
 #: ★名字**一个字不改**：`fylite_rs.wasm` 与 `fylite_kernel_ext.wasm` 是页面 fetch 的
-#: URL，约三十处（`app/assets/*.js` · `app/tests` · Python 闸子 · 文档）在念它们。
+#: URL，约三十处（`webui/assets/*.js` · `webui/tests` · Python 闸子 · 文档）在念它们。
 #: 改构建与改 URL 是两件事，这一次只改前者。
 #: ★版本后缀取**内核的**版本（`kernel-static.json`），不是中间层的：这两份 wasm 里
 #: 装的是内核的字节，页面据版本号拼真文件名，而那个号必须与它加载的东西同源。
@@ -534,7 +534,7 @@ else
             echo "[kernel-wasm] node 不在 —— 跳过导出面检查（只查了字节数）"
         fi
         echo "[kernel-wasm] harden-ok  $name ($(stat -c%s "$WOUT") bytes)"
-        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/app/assets" "$name" "$KVER"
+        [ "$INSTALL" = 1 ] && fy_install_versioned "$WOUT" "$ROOT/webui/assets" "$name" "$KVER"
     done
     KWASM_BUILT=1
 fi
@@ -548,7 +548,7 @@ fi
 # in three places.  Declared in `src/mdsip.rs` with `@mds-request`, generated
 # here into both hosts.
 python3 - "$ROOT/python/fylite/_mds_request.py" \
-          "$ROOT/app/assets/mds-request.js" \
+          "$ROOT/webui/assets/mds-request.js" \
           "$CRATE/src/mdsip.rs" <<'PYMDS'
 import re, sys
 
@@ -582,13 +582,13 @@ with open(sys.argv[2], "w") as f:
     f.write("export const MDS_ALL = %sn;\n" % sentinel)
 print("[build] mds request: %d verbs" % len(verbs))
 PYMDS
-echo "[build] mds request -> python/fylite/_mds_request.py, app/assets/mds-request.js"
+echo "[build] mds request -> python/fylite/_mds_request.py, webui/assets/mds-request.js"
 
 if [ "$EXE" = 1 ]; then
-    #: ★查看器把整个 `app/` 编进可执行文件；资源表 `src/bin/app/assets.rs` 是
+    #: ★查看器把整个 `webui/` 编进可执行文件；资源表 `src/bin/app/assets.rs` 是
     #: 生成物（`tools/make-app-embed.mjs`），`include_bytes!` 走 `FYLITE_APP_DIR`。
-    #: 搬到本仓之后 `app/` 就在隔壁，所以这里能给出确定的值——从前它是跨仓的。
-    export FYLITE_APP_DIR="$ROOT/app"
+    #: 搬到本仓之后 `webui/` 就在隔壁，所以这里能给出确定的值——从前它是跨仓的。
+    export FYLITE_APP_DIR="$ROOT/webui"
     echo "[runtime] cargo build --release --features desktop (fy) ..."
     cargo build --release --features desktop --bin fy \
         --manifest-path "$CRATE/Cargo.toml"

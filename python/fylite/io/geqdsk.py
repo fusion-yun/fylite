@@ -107,7 +107,7 @@ def read_geqdsk(path: str | Path) -> dict:
     """一份 g-file -> 字典。**读入在数据层**（`rust/fylite_runtime/`）。
 
     ★★2026-09-02：这里从前是本文件自己的固定列读法。本仓曾有三份 g-file 读入
-    ——这一份、`app/assets/geqdsk.js`，与数据层那份；JS 的注释自己写着它返回的
+    ——这一份、`webui/assets/geqdsk.js`，与数据层那份；JS 的注释自己写着它返回的
     是「the same field names fylite's own `read_geqdsk` returns」。三处拼写、
     一个契约，而拼错了不报错。现在产品路径只有数据层那一条。
 

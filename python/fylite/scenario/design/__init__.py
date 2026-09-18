@@ -92,7 +92,7 @@ def target_boundary(*, r0: float, a: float, kappa: float = 1.0,
 
 #: The ridge anneal, stiff -> loose: the first passes stay near the starting
 #: machine state, the last ones are free enough to reach the target.  ★These
-#: are the browser page's own numbers (``app/assets/scenario-design.js``), not
+#: are the browser page's own numbers (``webui/assets/scenario-design.js``), not
 #: fresh ones — the schedule is a tuned property of this problem, and a
 #: second set of constants would make the two hosts two different searches.
 ANNEAL_HI, ANNEAL_LO, ANNEAL_PASSES, ANNEAL_GAMMA = 0.10, 0.005, 8, 0.4

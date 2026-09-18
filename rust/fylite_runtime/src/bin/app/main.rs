@@ -2,7 +2,7 @@
 //!
 //! ## 它是什么
 //!
-//! 一个自带全部站点资源的单文件程序：启动后在回环地址上伺服 `app/`，
+//! 一个自带全部站点资源的单文件程序：启动后在回环地址上伺服 `webui/`，
 //! 拉起系统浏览器，页面照常用 WebAssembly 计算。**没有安装、没有解压、
 //! 没有外部运行时**——分发一个 `.exe` 或一个 ELF 就是分发整个演示。
 //!
@@ -157,7 +157,7 @@ fn serve_app(spec: &Spec, args: &Args) {
         Some(d) => {
             let dir = PathBuf::from(d);
             if !dir.join(INDEX).is_file() {
-                die(&format!("--app-dir {d:?} 里没有 {INDEX}——它得是一份 app/"));
+                die(&format!("--app-dir {d:?} 里没有 {INDEX}——它得是一份 webui/"));
             }
             Source::Dir(dir)
         }

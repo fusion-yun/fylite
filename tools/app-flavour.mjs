@@ -1,4 +1,4 @@
-// 一棵**装好的** `app/` 树里，哪些东西只属于内部版——以及怎么把它们拿掉。
+// 一棵**装好的** `webui/` 树里，哪些东西只属于内部版——以及怎么把它们拿掉。
 //
 //     node tools/app-flavour.mjs --strip <dir>            # 内部版专有 -> 删掉
 //     node tools/app-flavour.mjs --check public   <dir>   # 断言它们不在了

@@ -9,15 +9,15 @@
 #
 # ★★`.wasm` **同规则**（用户裁定 2026-09-05）：`fylite_rs.wasm.0.0.1` +
 # `fylite_rs.wasm.0` + `fylite_rs.wasm`。它不是「Linux 习惯适用于 wasm」，而是
-# **同一仓里两种制品不该有两套命名**——读者在 `_lib/` 看见的形状与在 `app/assets/`
+# **同一仓里两种制品不该有两套命名**——读者在 `_lib/` 看见的形状与在 `webui/assets/`
 # 看见的形状一样，就不必记两条规矩。
 # ★把版本缀在**扩展名之后**，静态主机会按 `application/octet-stream` 发这个文件。
 # 这在本仓不构成问题，且早于本次改动就已经不构成问题：页面的加载器
-# （`app/assets/fylite.js` 的 `load()`）**有意不用** `instantiateStreaming`，
+# （`webui/assets/fylite.js` 的 `load()`）**有意不用** `instantiateStreaming`，
 # 走 `fetch` → `arrayBuffer` → `instantiate`，那条路不看 Content-Type。
 # 那段注释在那儿好几个月了，理由写的正是「有些静态主机 .wasm 的 Content-Type 是错的」。
 #
-# ★为什么要版本化：`_lib/` 与 `app/assets/` 装的是**别的仓构建出来的**字节，而
+# ★为什么要版本化：`_lib/` 与 `webui/assets/` 装的是**别的仓构建出来的**字节，而
 # 它们不入库。此前那里只有一个不带版本的名字，于是「这台机器上装的是哪一版内核」
 # 只能靠 `_abi.py`（生成物，可能与 `.so` 不同批）回答，或者靠 `sha256` 反查。
 # 现在文件名自己说得出来——`ls _lib/` 即是答案，也让 `rust/build.sh` 的内核检查
@@ -47,7 +47,7 @@ fy_soname_major() {
 #: ★**先清同名的旧版本再装**：不清就会攒——`_lib/` 里躺着 0.0.1 与 0.0.2 两个真
 #: 文件，而不带版本的那个名字指着其中一个，「哪一份在跑」又变回一个要查的问题。
 #: 目录里只留一版是有意的：这两个目录是**装配目标**，不是版本仓库。
-#: ★用 `ln -sfn` 相对链接：`_lib/` 与 `app/assets/` 会被整个拷走（轮、站点、
+#: ★用 `ln -sfn` 相对链接：`_lib/` 与 `webui/assets/` 会被整个拷走（轮、站点、
 #: 内嵌树），绝对链接一拷出去就是悬空的。
 fy_install_versioned() {
     local src="$1" dest="$2" logical="$3" ver="$4"

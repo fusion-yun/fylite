@@ -123,8 +123,8 @@ casereport.render(cases.run("evolve-iter-15ma"), out="out/")
 出来的是一整个目录：`report.md`（MyST，五节：摘要 · 方法 · 结果 · 验收 · 复现性）、
 `figures/fig-NN.svg`（折线图与极向截面，**不需要 matplotlib**）、`presentation.jsonld`
 （画它所依据的规格）、`record.jsonld` 与 `plan.jsonld`。同一份记录也能在浏览器里画：
-打开 `app/pages/report.html` 选中这几个文件，或 `report.html?src=<地址>`——两端**同一条
-规则**推出同一份规格，由 `app/tests/validate-report.mjs` 逐字段盯着。
+打开 `webui/pages/report.html` 选中这几个文件，或 `report.html?src=<地址>`——两端**同一条
+规则**推出同一份规格，由 `webui/tests/validate-report.mjs` 逐字段盯着。
 
 体例与规则见参考书的[算例报告](../reference/case-report.md)。
 

@@ -4,7 +4,7 @@
 entries.  The browser reaches 46 of them; Python reached 33, and the gap was
 not capability but ACCESS: a 0-D evaluation, a flux-surface trace, a bounded
 least-squares and a profile fit were all in the kernel, already used by
-``app/assets/fylite.js``, while ``python/fylite`` computed the same physics a
+``webui/assets/fylite.js``, while ``python/fylite`` computed the same physics a
 second time in numpy / scipy.  A duplicate implementation nobody can call the
 alternative to is a duplicate that never gets compared — which is exactly what
 happened: ``transport.py`` and ``transport.rs`` are the same discretisation
@@ -1995,7 +1995,7 @@ class MdsSession:
 # GEQDSK —— 格式那一半，也在数据层
 #
 # ★★本仓从前有**两份** g-file 实现：`fylite/io/geqdsk.py`（752 行）与
-# `app/assets/geqdsk.js`（286 行）。JS 那份的注释自己写着「returns the same field
+# `webui/assets/geqdsk.js`（286 行）。JS 那份的注释自己写着「returns the same field
 # names fylite's own `read_geqdsk` returns」——两处拼写、一个契约。而它们**已经在
 # 一个真实的地方分歧**：Python 按固定 16 列切数，JS 按模式扫描（它的注释说明了
 # 为什么：*vintages differ on whether a full-width negative eats its separating

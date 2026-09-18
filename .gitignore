@@ -51,7 +51,7 @@ env/
  
 # ── JavaScript / Node ─────────────────────────────────────────────────────
 # ★写 `node_modules/` 而不是 `*/node_modules/`：后者只匹配一层
-# （`tools/node_modules` 中，`app/x/node_modules` 不中）。JS 面在 `app/tests/`
+# （`tools/node_modules` 中，`webui/x/node_modules` 不中）。JS 面在 `webui/tests/`
 # 的 50 个 `.mjs` 与页面脚本里，依赖是 `npx` 按需拉的，从来不该入库。
 node_modules/
 jspm_packages/
@@ -126,11 +126,11 @@ python/fylite/_bin/
 #: 按需从 A-Box 拖回（`tools/abox-to-facts.py`），一个个体一目录：卡片 + 许可账
 #: `rights.json`。**不随 fylite 源码发布**——所以在这里；但**可以进构建出来的制品**，
 #: 由许可账逐个判：内部版带全部，公开版不含 EAST（真实放电数据）与上游禁止再分发的 IDS。
-#: 页面那一侧经 `app/facts`（指向仓根 `facts/` 的符号链接）取同一份字节——**一个名字
+#: 页面那一侧经 `webui/facts`（指向仓根 `facts/` 的符号链接）取同一份字节——**一个名字
 #: 贯穿仓内、页面与发布路径**。问答面 `tools/facts-publish.py --flavour public|internal --list`，
 #: 闸子 `python/tests/test_facts_corpus.py`。
 #: ★★2026-09-05 用户裁定：**仓顶不再有 `facts/`**。拖回来的语料落进 `dist/facts/`
-#: （`dist/` 上面已经忽略了），`app/facts` 那条指向它的符号链接一并撤除。
+#: （`dist/` 上面已经忽略了），`webui/facts` 那条指向它的符号链接一并撤除。
 #: 这一行**留着**，而且它现在是一条**防回归**的规则，不是一条描述：仓顶那个目录
 #: 曾经只靠这一行撑着——它看起来像仓的一部分，还有一条符号链接指着它，于是「哪些
 #: 字节属于这个仓」要靠记忆回答。今天由目录名自己回答；万一有谁把它重新拉起来，

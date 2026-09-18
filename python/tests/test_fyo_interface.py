@@ -3,7 +3,7 @@
 ★★Why this file exists.  Which document PATH a kernel slot is written
 under is a contract between the Python layer and the browser, and it was
 kept by two independent sets of literals: ``fylite/fyo.py`` spelled its
-own, ``app/assets/session.js`` spelled its own, and the only shared
+own, ``webui/assets/session.js`` spelled its own, and the only shared
 artifact was a list of ``fylite:`` TERMS whose browser copy nothing at
 runtime imported.  That is the exact shape the repository has been burned
 by before — ``psi_norm`` written bare on one side and prefixed on the
@@ -36,8 +36,8 @@ from fylite import fyo
 from fylite import _fyo_interface as iface
 
 ROOT = Path(__file__).resolve().parents[2]
-JS_TABLE = ROOT / "app/assets/fyo-interface.js"
-JS_WALKER = ROOT / "app/assets/fyo.js"
+JS_TABLE = ROOT / "webui/assets/fyo-interface.js"
+JS_WALKER = ROOT / "webui/assets/fyo.js"
 
 #: ★★2026-09-01 仓一分为二：字段表的**声明**与它生成的 `wasm/fyo-interface.json`
 #: 都在内核检出里（`$FYLITE_KERNEL`，同级目录探测），本仓只有生成物的另外两个
@@ -315,7 +315,7 @@ def test_both_hosts_run_the_same_scenario_and_agree():
     and unpacks to the same numbers."""
     import numpy as np
     nt, nr = 7, 5
-    wasm = ROOT / "app/assets/fylite_rs.wasm"
+    wasm = ROOT / "webui/assets/fylite_rs.wasm"
     if not wasm.exists():
         pytest.skip("wasm artifact not built")
     script = f"""
@@ -329,9 +329,9 @@ def test_both_hosts_run_the_same_scenario_and_agree():
         //: 2026-08-26 and now throws rather than run with an empty one — so
         //: this harness is a third host with the same load order the worker
         //: and the pages have
-        require({str(ROOT / "app/assets/version.js")!r});
-        require({str(ROOT / "app/assets/deck-names.js")!r});
-        require({str(ROOT / "app/assets/fylite.js")!r});
+        require({str(ROOT / "webui/assets/version.js")!r});
+        require({str(ROOT / "webui/assets/deck-names.js")!r});
+        require({str(ROOT / "webui/assets/fylite.js")!r});
         const fs = require('fs');
         const b = fs.readFileSync({str(wasm)!r});
         const k = await self.FyLite.fromBytes(
@@ -400,7 +400,7 @@ def test_both_hosts_march_the_same_discharge():
     """
     import numpy as np
     from fylite import kernel as K, _deck_names as D
-    wasm = ROOT / "app/assets/fylite_rs.wasm"
+    wasm = ROOT / "webui/assets/fylite_rs.wasm"
     if not wasm.exists():
         pytest.skip("wasm artifact not built")
 
@@ -436,9 +436,9 @@ def test_both_hosts_march_the_same_discharge():
         self.FyI18n = {{ t: function (k) {{ return k; }} }};
         require({str(JS_TABLE)!r});
         require({str(JS_WALKER)!r});
-        require({str(ROOT / "app/assets/version.js")!r});
-        require({str(ROOT / "app/assets/deck-names.js")!r});
-        require({str(ROOT / "app/assets/fylite.js")!r});
+        require({str(ROOT / "webui/assets/version.js")!r});
+        require({str(ROOT / "webui/assets/deck-names.js")!r});
+        require({str(ROOT / "webui/assets/fylite.js")!r});
         const fs = require('fs');
         const b = fs.readFileSync({str(wasm)!r});
         const k = await self.FyLite.fromBytes(
@@ -580,7 +580,7 @@ def test_both_hosts_read_the_same_value_from_the_same_document():
 
 def test_the_section_tags_come_from_the_declaration_in_both_hosts():
     """★★A-1: `fyo:magnetics` and friends were spelled by hand in BOTH hosts
-    — `_SECTION_TYPES` here, string literals in `app/assets/session.js` —
+    — `_SECTION_TYPES` here, string literals in `webui/assets/session.js` —
     which is one contract kept in two places.  Neither writes the string now,
     and this holds that: the tags must equal the declaration, and the literal
     must be gone from the browser file."""
@@ -593,7 +593,7 @@ def test_the_section_tags_come_from_the_declaration_in_both_hosts():
         "magnetics": iface.TABLES["MAGNETICS"]["type"],
         "pf_active": iface.TABLES["PF_ACTIVE"]["type"],
         "tf": iface.TABLES["TF"]["type"]}
-    js = (ROOT / "app/assets/session.js").read_text(encoding="utf-8")
+    js = (ROOT / "webui/assets/session.js").read_text(encoding="utf-8")
     for tag in ("'fyo:magnetics'", "'fyo:pf_active'"):
         assert tag not in js, (
             f"{tag} is spelled by hand in session.js again — it is declared "
@@ -617,7 +617,7 @@ def test_the_browser_session_writer_really_produces_the_declared_tags():
       globalThis.self = globalThis;
       require({str(JS_TABLE)!r});
       require({str(JS_WALKER)!r});
-      require({str(ROOT / "app/assets/session.js")!r});
+      require({str(ROOT / "webui/assets/session.js")!r});
       const S = self.FySession;
       const m = {{ channels: [[[0]]], coils: [{{name: 'PF1'}}], loops: [[1, 0]] }};
       process.stdout.write(JSON.stringify({{
@@ -654,13 +654,13 @@ def test_the_browser_walker_stays_a_walker():
 
     Measured 2026-08-27: **146** code lines (222 raw).
     """
-    src = (ROOT / "app/assets/fyo.js").read_text(
+    src = (ROOT / "webui/assets/fyo.js").read_text(
         encoding="utf-8").splitlines()
     code = [ln for ln in src
             if ln.strip()
             and not ln.strip().startswith(("//", "/*", "*", "*/"))]
     assert len(code) <= 146, (
-        f"app/assets/fyo.js grew to {len(code)} code lines (baseline 146, "
+        f"webui/assets/fyo.js grew to {len(code)} code lines (baseline 146, "
         f"{len(src)} raw).  It is the hand-written half of a generated "
         "contract: sink the semantics into the declaration and generate "
         "them out, or argue the growth.")

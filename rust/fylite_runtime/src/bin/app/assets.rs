@@ -1,7 +1,7 @@
-//! `app/` 的内嵌资源表 —— **生成物**，勿手改。
+//! `webui/` 的内嵌资源表 —— **生成物**，勿手改。
 //!
-//! 由 `tools/make-app-embed.mjs` 从目录本身读出；改了 `app/` 之后重跑它，
-//! 门 `app/tests/validate-embed.mjs` 校验两者同步。
+//! 由 `tools/make-app-embed.mjs` 从目录本身读出；改了 `webui/` 之后重跑它，
+//! 门 `webui/tests/validate-embed.mjs` 校验两者同步。
 //!
 //! 表里是 (站点内路径, 字节, content-type)。路径用 `/` 分隔，与 URL 一致；
 //! 查找是精确匹配，不做路径拼接——因此这张表天然免疫 `..` 穿越。

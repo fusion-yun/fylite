@@ -1,6 +1,6 @@
-// Write the three prose pages of `app/`, once per language.
+// Write the three prose pages of `webui/`, once per language.
 //
-//     node tools/make-app-pages.mjs           # write app/*.html
+//     node tools/make-app-pages.mjs           # write webui/*.html
 //     node tools/make-app-pages.mjs --check   # fail if what is on disk differs
 //
 // ★WHY A BUILD STEP.  `index.html`, `features.html` and `credits.html` carry no
@@ -30,8 +30,8 @@ import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 
 const HERE = new URL('.', import.meta.url).pathname;
-//: ★2026-09-02 工具搬回公开仓：`app/` 就在隔壁，相对路径重新成立。
-const APP = HERE + '../app/';
+//: ★2026-09-02 工具搬回公开仓：`webui/` 就在隔壁，相对路径重新成立。
+const APP = HERE + '../webui/';
 const ASSETS = APP + 'assets/';
 const TPL = HERE + 'app-pages/';
 const PUB = 'https://fusion-yun.github.io/fylite/';
@@ -40,11 +40,11 @@ const PUB = 'https://fusion-yun.github.io/fylite/';
 //: front end's and the ABI are written down.  Read rather than re-declared
 //: so these static pages cannot disagree with the scenario pages' footer.
 //: ★★2026-09-01 仓一分为二：这份 `abi.json` 由 fylite_kernel 的 `rust/build.sh`
-//: 生成，并**装进本仓** `app/assets/`。此前这里读的是 `../rust/wasm/abi.json`
+//: 生成，并**装进本仓** `webui/assets/`。此前这里读的是 `../rust/wasm/abi.json`
 //: ——那是一条跨仓的运行期依赖，仓拆开之后本仓单独一份检出就再也生不出
 //: 页脚上的版本号。读装进来的那份，本仓自足。
 const VER = JSON.parse(readFileSync(
-  HERE + '../app/assets/abi.json', 'utf8'));
+  HERE + '../webui/assets/abi.json', 'utf8'));
 
 // --- the catalogues, kept apart -------------------------------------------
 //
@@ -165,7 +165,7 @@ function alternates(id) {
 function foot(id, lang) {
   const other = LANGS.find((l) => l !== lang);
   //: ★`external` 的条目不是这套生成器出的文件（用户指南是 MyST 编译进
-  //: `app/guide/` 的静态书），所以它给的是自己的 `href`，而不是由 `file()`
+  //: `webui/guide/` 的静态书），所以它给的是自己的 `href`，而不是由 `file()`
   //: 推出的按语言分文件名；`langs` 限定它出现在哪些语言的页面上——一个只有
   //: 中文版的目的地不该出现在英文页的页脚里。
   const links = PAGES

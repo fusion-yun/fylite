@@ -48,7 +48,7 @@ bash tools/build-wheel.sh          # 出轮：平台 tag 由 .so 自己的 glibc
 ```
 
 该脚本只出 wheel、不出 sdist——sdist 会让别的平台的 pip 拿去「构建」，得到的仍是
-这一份 Linux `.so`，正是 tag 要挡住的那件事。浏览器一路（`app/`）跑的是同一个内核
+这一份 Linux `.so`，正是 tag 要挡住的那件事。浏览器一路（`webui/`）跑的是同一个内核
 的 WebAssembly 版本，**没有平台限制**。
 
 发行版本只有一处来源：仓根的 `VERSION`（`pyproject.toml` 经符号链接动态读取）。
@@ -59,7 +59,7 @@ bash tools/build-wheel.sh          # 出轮：平台 tag 由 .so 自己的 glibc
 工程，它同时是一棵 Rust crate、一个静态站点、一本 MyST 书和一个包，四者里只有一个由
 pip 构建。
 
-交互面板不随 Python 包提供：放电设计与动理学重构的交互页在浏览器端（`app/`），
+交互面板不随 Python 包提供：放电设计与动理学重构的交互页在浏览器端（`webui/`），
 Python 侧只保留内核、装配层与绘图。
 
 ## 免安装运行
@@ -151,7 +151,7 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 
 ## WebAssembly 制品
 
-浏览器端跑的是内核的 wasm 版本，都在 `app/assets/`。★**DKE 与 TGLF
+浏览器端跑的是内核的 wasm 版本，都在 `webui/assets/`。★**DKE 与 TGLF
 合为一份扩展**；两份内核 wasm 的名字与导出面都没动，变的是**谁链出它们**——
 2026-09-16 起由本仓的空壳包 `rust/fylite_kernel_wasm/` 链内核仓装下的
 `rust/kernel-lib/libfylite_kernel-wasm32.a`（同一份归档，两个导出面）：
@@ -163,7 +163,7 @@ bash rust/build.sh --static       # HDF5 / netCDF 从源码静态编进（给没
 | `fylite_web.wasm` | 本仓 `rust/fylite_runtime` | 页面真读的那两扇门：装置事实与 g-file | 页面启动即取 |
 
 ★**没有单独的 `fylite_tglf.wasm` / `fylite_dke.wasm`**。
-`app/assets/fylite.js` 只有一个扩展载入口，取的是 `fylite_kernel_ext.wasm`。
+`webui/assets/fylite.js` 只有一个扩展载入口，取的是 `fylite_kernel_ext.wasm`。
 
 ★上表写的是**逻辑名**。磁盘上（以及站点上）真正的文件带版本后缀——
 `fylite_rs.wasm.0.0.1`，加 `.wasm.0` 与 `.wasm` 两级符号链接，与 `_lib/` 里的三个

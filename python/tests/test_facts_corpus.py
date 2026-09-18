@@ -62,7 +62,7 @@ def test_every_published_document_is_json_a_browser_can_parse():
 
     ★★2026-09-05 实测的一次真事故。WEST 的壁面轮廓 `Baffle` 末点 r/z 都是 NaN
     （上游 MATLAB 定长数组的补位），`json.dumps` 缺省把它写成裸 `NaN`——而 **JSON 没有
-    这个词**。`app/assets/devices.js` 的 `r.json()` 当场抛 `SyntaxError`，于是这一台
+    这个词**。`webui/assets/devices.js` 的 `r.json()` 当场抛 `SyntaxError`，于是这一台
     在浏览器里整份读不出来；而三种制品（站点 · 可执行文件 · 轮）**全部**带着它发了
     出去，构建从头到尾是绿的。
 
@@ -190,7 +190,7 @@ def test_the_question_face_agrees_with_the_ledgers():
 def test_nothing_internal_only_reaches_a_public_artifact():
     """★这道闸子真正的用处：**发出去的东西**里不得有只进内部版的机器。
 
-    ★★判的是**发布者**，不是源树。2026-09-04 起 `app/facts/device` 是指向
+    ★★判的是**发布者**，不是源树。2026-09-04 起 `webui/facts/device` 是指向
     `facts/device/` 的符号链接（单一数据源），所以源树里当然什么都有——那是对的，本机
     开发要用 EAST。会不会发出去，取决于两个发布者：静态站点与桌面可执行文件，
     而它们都问同一个问题面 `tools/facts-publish.py`。这里就问那个面。
@@ -225,7 +225,7 @@ def test_the_embed_table_carries_no_device_document():
     该有的东西换了；再往前它拿 `devices/<id>.jsonld` 匹配，而路径 2026-09-04 起是
     `facts/device/<id>.jsonld`，于是那一版**恒真、从未生效**。
     """
-    table = ROOT / "rust" / "fylite_runtime" / "src" / "bin" / "app" / "assets.rs"
+    table = ROOT / "rust" / "fylite_runtime" / "src" / "bin" / "webui" / "assets.rs"
     if not table.is_file():
         pytest.skip("no assets.rs")
     text = table.read_text(encoding="utf-8")

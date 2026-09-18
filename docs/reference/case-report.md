@@ -8,7 +8,7 @@ title: 算例报告（计划 + 记录 → MyST + SVG / 页面）
 经数据层的 JSON 门跑成**一份 spo 记录**（`spo:ComputationRecord`，产出数据集内联在端口上），再经一份
 **呈现规格**（`spo:PresentationSpecification`）渲染为 MyST markdown 与 SVG 图。把一份
 `record.jsonld` 或一个记录目录（`fy run … -o <目录>` 写下的那个）**直接交给 `render()`**，
-渲染的就是它。`app/pages/report.html` 读同样的文件，在浏览器里画同样的图。
+渲染的就是它。`webui/pages/report.html` 读同样的文件，在浏览器里画同样的图。
 
 ★这是**库调用**，不是命令行：Python 侧没有命令行，`fy` 也没有
 `report` 动词（`FYL-DESIGN-17` E-10）。下面每个例子都是 `python -c` 或 notebook 里的一行。
@@ -42,6 +42,6 @@ casereport.render("rec/record.jsonld")                               # 或那份
 casereport.render(cases.run("evolve-default"), plan=my_views)        # 按外供的规格画
 ```
 
-浏览器：打开 `app/pages/report.html`，选择 `record.jsonld`（可连同 `plan.jsonld`、`presentation.jsonld`
+浏览器：打开 `webui/pages/report.html`，选择 `record.jsonld`（可连同 `plan.jsonld`、`presentation.jsonld`
 与数据集文件），或 `report.html?src=<url>`。两端对同一份记录推出同一份规格
-（`app/tests/validate-report.mjs` 逐字段比对）。
+（`webui/tests/validate-report.mjs` 逐字段比对）。

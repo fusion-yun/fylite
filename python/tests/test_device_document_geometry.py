@@ -1,6 +1,6 @@
 """Coil and vessel geometry comes from the device DOCUMENT, not a Fortran deck.
 
-★★Why this exists.  ``app/assets/fyodev.js`` has carried this geometry in its
+★★Why this exists.  ``webui/assets/fyodev.js`` has carried this geometry in its
 fyo device document since it was written —
 ``pf_active.coil[].element[].geometry.rectangle``, IMAS DD names throughout,
 with the two tilt angles that have no DD rectangle spelling namespaced as

@@ -213,7 +213,7 @@ def _repo_facts() -> Path | None:
     ★★2026-09-05 用户裁定：**fylite 下已无 `facts/` 目录**。拖回来的语料从此落在
     `dist/facts/`——一个构建暂存区（`dist/` 本来就不入库），而不是仓顶的一个目录。
     仓顶那个目录曾经是「gitignore 的输入」，一种只靠一行 `.gitignore` 撑着的安排：
-    它看起来像仓的一部分，`app/facts` 还有一条符号链接指着它，于是「哪些字节属于
+    它看起来像仓的一部分，`webui/facts` 还有一条符号链接指着它，于是「哪些字节属于
     这个仓」要靠记忆回答。搬进 `dist/` 之后，那个问题由目录名自己回答。
     """
     #: PKG is <repo>/python/fylite; the staged corpus is <repo>/dist/facts.

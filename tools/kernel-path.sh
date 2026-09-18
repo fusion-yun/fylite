@@ -7,7 +7,7 @@
 # source 一个不存在的文件当场退出，**打轮脚本在 develop 上一直是死的**，死在
 # NOTICE 比对那一步之前。没人先发现，是因为 alpha 期还没走过一次真的发行。
 #
-# ★★2026-09-01 仓一分为二：本仓（fylite，公开）有 `app/` `python/` `tests/`
+# ★★2026-09-01 仓一分为二：本仓（fylite，公开）有 `webui/` `python/` `tests/`
 # `tools/`，Rust 源码在 **fylite_kernel**（私有）。于是本仓有两类脚本：
 #
 #   * 只用本仓东西的 —— `build-guide.sh`、各个 `make-*.mjs`。它们**不该**碰内核

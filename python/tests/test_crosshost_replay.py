@@ -39,7 +39,7 @@ def _adas_id(name: str) -> float:
 
 pytestmark = pytest.mark.skipif(
     shutil.which("node") is None or not X.WASM.exists(),
-    reason="A-7 needs node and app/assets/fylite_rs.wasm")
+    reason="A-7 needs node and webui/assets/fylite_rs.wasm")
 
 
 def _zerod():

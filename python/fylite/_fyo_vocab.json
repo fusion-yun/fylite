@@ -11,7 +11,7 @@
     "Writing one bare claims IMAS-DD provenance the term does not have, and a",
     "reader looking for the prefixed spelling simply does not find the field",
     "-- no error, just a document that silently lost a section.  Not",
-    "hypothetical: `psi_norm` was written bare by app/assets/session.js and by",
+    "hypothetical: `psi_norm` was written bare by webui/assets/session.js and by",
     "one block of scenario-analysis.js, while fyo.py and the OTHER block of",
     "scenario-analysis.js wrote `fylite:psi_norm`, inside documents all typed",
     "`fyo:equilibrium`.  No reader ever consumed the bare form.",
@@ -23,7 +23,7 @@
     "are listed because they ARE part of the contract and a reader needs to",
     "know it; they are simply not machine-checkable by spelling alone.",
     "",
-    "Generated into the browser as app/assets/fyo-names.js by rust/build.sh.",
+    "Generated into the browser as webui/assets/fyo-names.js by rust/build.sh.",
     "Gated by python/tests/test_fyo_vocabulary.py.",
     "",
     "2026-08-25: `sat_rule` left this register -- only `fyo.py` writes it today, so by the scope above it is a private extension, and the reverse gate (`test_a_term_that_becomes_shared_must_be_listed`) brings it back by itself the day the browser's TGLF path writes a document. Eleven terms joined in the same pass; they had been written by both hosts and listed by neither.",
@@ -373,7 +373,7 @@
     },
     "state": {
       "gated": false,
-      "gloss": "The carried state of a multi-step run: what a next run needs to continue this one (`fylite:state` on an spo:ComputationRecord, FYL-DESIGN-16 S-4). `settings` are the kernel's own handover parameters under the kernel's own pairing (`X_out` -> `X_in`, plus t_end -> t_start and three more); `documents` name the ports they bind to; `entry_block` points at the raw entry document, which is NOT bound but is read to tell whether the lagged arrays are live. Three readers, one subtree: `fy run --resume-from`, `fylite.engine.resume` and `app/assets/checkpoint.js`. Not gated: the SHAPE is FYL-DESIGN-16 G-8's to settle (one block or one per code), and gating an interim spelling would freeze it as if it were the ruling."
+      "gloss": "The carried state of a multi-step run: what a next run needs to continue this one (`fylite:state` on an spo:ComputationRecord, FYL-DESIGN-16 S-4). `settings` are the kernel's own handover parameters under the kernel's own pairing (`X_out` -> `X_in`, plus t_end -> t_start and three more); `documents` name the ports they bind to; `entry_block` points at the raw entry document, which is NOT bound but is read to tell whether the lagged arrays are live. Three readers, one subtree: `fy run --resume-from`, `fylite.engine.resume` and `webui/assets/checkpoint.js`. Not gated: the SHAPE is FYL-DESIGN-16 G-8's to settle (one block or one per code), and gating an interim spelling would freeze it as if it were the ruling."
     },
     "target": {
       "gated": false,

@@ -6,8 +6,8 @@
 //!
 //! 三个界面同一份文本，真源是 `python/fylite/_notice.json`，**编译期**
 //! `include_str!` 进来——与 `_cli.json` 同一条规矩：一份数据，多处建出，一道闸子
-//! 比对。浏览器那一面读 `app/assets/lang-{zh,en}.js` 的同两个词条（由
-//! `app/tests/validate-site.mjs` 逐字押在这份 JSON 上），Python 那一面读同一个
+//! 比对。浏览器那一面读 `webui/assets/lang-{zh,en}.js` 的同两个词条（由
+//! `webui/tests/validate-site.mjs` 逐字押在这份 JSON 上），Python 那一面读同一个
 //! 文件（`fylite.notice`）。
 //!
 //! ★为什么值得这么绕：一句在一个界面上说、在另一个界面上不说的提示，比不说更糟

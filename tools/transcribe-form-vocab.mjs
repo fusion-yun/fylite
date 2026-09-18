@@ -5,9 +5,9 @@
 //     node tools/transcribe-form-vocab.mjs model            # writes both files
 //     node tools/transcribe-form-vocab.mjs model --dry-run  # prints the vocabulary only
 //
-// ★ONE-SHOT, BY DESIGN.  This script reads `app/pages/<page>.html`, lifts every
+// ★ONE-SHOT, BY DESIGN.  This script reads `webui/pages/<page>.html`, lifts every
 // `.ctl` control (range · select) and every checkbox label into
-// `app/assets/vocab-<page>.js`, and rewrites the page so that each control is a
+// `webui/assets/vocab-<page>.js`, and rewrites the page so that each control is a
 // `<… data-form="<name>">` mount that `assets/form.js` fills at load.  After it
 // has run once the page carries no controls to transcribe, and the vocabulary
 // file is the SOURCE from then on: edit that file, not this script and not the
@@ -29,7 +29,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const APP = join(HERE, '..', 'app');
+const APP = join(HERE, '..', 'webui');
 const page = process.argv[2];
 const dry = process.argv.includes('--dry-run');
 if (!page) { console.error('usage: transcribe-form-vocab.mjs <page> [--dry-run]'); process.exit(2); }
@@ -147,4 +147,4 @@ const header = `// GENERATED ONCE by tools/transcribe-form-vocab.mjs from pages/
 if (dry) { process.stdout.write(header); process.exit(0); }
 writeFileSync(join(APP, 'assets', `vocab-${page}.js`), header);
 writeFileSync(srcPath, html);
-console.log(`${params.length} controls → app/assets/vocab-${page}.js; ${srcPath} now carries mounts only`);
+console.log(`${params.length} controls → webui/assets/vocab-${page}.js; ${srcPath} now carries mounts only`);

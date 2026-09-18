@@ -6,8 +6,8 @@
     python3 tools/facts-publish.py --flavour public   --list       # 只问不发
 
 ★★**为什么是一个独立的工具。** 2026-09-04 起本仓的构建分内部版与公开版，而
-`app/facts/device` 是**指向 `facts/device/` 的符号链接**（用户裁定：单一数据源，单一发布
-规则）。于是任何「把 `app/` 整棵拷出去」的动作都会连**整个语料**一起发出去——逐台
+`webui/facts/device` 是**指向 `facts/device/` 的符号链接**（用户裁定：单一数据源，单一发布
+规则）。于是任何「把 `webui/` 整棵拷出去」的动作都会连**整个语料**一起发出去——逐台
 的卡片、许可账、以及只进内部版的机器。这不是假想的失败：`cp -RL` 的 `-L` 正是为了
 解引用符号链接而在那里的。
 
@@ -61,10 +61,10 @@ NEVER_BUNDLED = {
 #: 在这里摘掉；卡片其余部分（几何 · 线圈 · 诊断 · 限值）照发。★判在键上、对每台装置施用，
 #: 不点名 EAST：下一台带参考放电的机器不必记得来改这里。
 SHOT_KEYS = ("fylite:reference_discharge", "fylite:slices", "fylite:slices_provenance")
-#: ★★2026-09-04 用户裁定：`app/` 那侧也叫 `facts/device`，所以**一个名字贯穿全程**
+#: ★★2026-09-04 用户裁定：`webui/` 那侧也叫 `facts/device`，所以**一个名字贯穿全程**
 #: ——仓里 `facts/device/`、页面取 `facts/device/`、发布出去还是 `facts/device/`。
 #: 先前留过一层 URL 前缀映射（发成 `devices/`），现在不需要了：少一层映射，就少一处
-#: 「存的和发的不同名」要记。`app/facts` 是指向仓根 `facts/` 的符号链接。
+#: 「存的和发的不同名」要记。`webui/facts` 是指向仓根 `facts/` 的符号链接。
 
 
 def plan(domain: str, flavour: str):

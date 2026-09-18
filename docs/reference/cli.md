@@ -88,7 +88,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 | :--- | :--- |
 | 命令行 `fy` · Python 库 | `libfylite.so` 里那张表 |
 | **`fy app` 内嵌的页面** | 本进程的 `/api/facts?domain=…[&id=…]` —— 那张表已经在这个进程里，不必再取一份 wasm |
-| 静态站点的页面 | `fylite_runtime.wasm` 里那张表（`app/assets/factsdb.js` 先探 `/api/facts`，探不到才走这条） |
+| 静态站点的页面 | `fylite_runtime.wasm` 里那张表（`webui/assets/factsdb.js` 先探 `/api/facts`，探不到才走这条） |
 
 ★`/api/facts` 读的是**整条搜索路径**，不只是编进去的那一档：`fy app --facts /我的语料`
 之后，页面看到的与 `fy list devices` 看到的是同一批。
@@ -98,7 +98,7 @@ fy run <plan.jsonld>...     [selectors] [key=value ...] [options]
 
 ★**版别在编译期定死**：`--public` / `--internal` 是给 `rust/build.sh` 的，不是给
 发布脚本的；站点与可执行文件的构建只**核对**手上这一份是不是要发的那一版
-（`app/assets/runtime-version.js` 的 `FyFactsFlavour`），不一致就红着退出。
+（`webui/assets/runtime-version.js` 的 `FyFactsFlavour`），不一致就红着退出。
 
 `--facts` / `$FY_FACTS_PATH` 是**前置**：把自己的根排在自带的那一份之前，从不替换它。
 `fy list facts --roots` 会把自带的那一档打成一行 `<buildin>`，并说它带了几条。

@@ -5,7 +5,7 @@ from becoming a navigation layer that promises more than the repository has:
 
 * **the register against the design document.**  FYL-DESIGN-07 §8 is the
   oracle for what is covered, partly covered, unbuilt and deliberately not
-  built.  ``app/tests/validate-site.mjs`` no longer parses it (that stopped being
+  built.  ``webui/tests/validate-site.mjs`` no longer parses it (that stopped being
   an app-side oracle when the lines model was withdrawn), so this is the
   one place the register is held to the document.
 * **D-4′.**  Nothing under ``scenario/`` may import ``scipy`` or
@@ -128,13 +128,13 @@ def _browser_bars() -> dict:
     """Every 功能栏 the browser registers, bar id -> page.
 
     ★Read from the DECLARATION SITE (``<PAGE>.bar('<id>', {...})`` in
-    ``app/assets/scenario-<page>.js``), not from a list that names them a
+    ``webui/assets/scenario-<page>.js``), not from a list that names them a
     second time: a second list is a thing that can disagree with the pages.
     The page comes from the file name, so a bar cannot be attributed to a
     page it is not declared on.
     """
     bars = {}
-    for js in sorted((ROOT / "app/assets").glob("scenario-*.js")):
+    for js in sorted((ROOT / "webui/assets").glob("scenario-*.js")):
         page = _PAGE_LINE.get(js.stem.split("-", 1)[1], js.stem.split("-", 1)[1])
         for bar in re.findall(r"\.bar\('(\w+)'", js.read_text(encoding="utf-8")):
             assert bar not in bars, f"{bar} is declared on two pages"
@@ -147,7 +147,7 @@ def test_the_tool_set_matches_the_browsers():
     """The two hosts' capability names, and every disagreement declared.
 
     ★★The oracle has moved THREE times, and this is the third: first
-    ``app/assets/lines.js``'s ``PAGES`` map, then ``data-part`` on the pages,
+    ``webui/assets/lines.js``'s ``PAGES`` map, then ``data-part`` on the pages,
     and now the pages carry ONE part each (``scenario.js``'s own header says
     so: "the four pages carry ONE part each since the site was cut back to
     the four typical scenarios") while the capability-sized unit is the
@@ -607,11 +607,11 @@ def test_the_browser_never_stores_anything_in_a_cookie():
     那一条是部署决定，登记在 `FYL-REPORT-02` R2-06，不由本闸子判。
     """
     hits = []
-    for p in sorted((ROOT / "app").rglob("*.js")):
+    for p in sorted((ROOT / "webui").rglob("*.js")):
         for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
             if "document.cookie" in line:
                 hits.append(f"{p.relative_to(ROOT)}:{n}")
     assert not hits, (
-        "app/ 里出现了 document.cookie:\n  " + "\n  ".join(hits)
+        "webui/ 里出现了 document.cookie:\n  " + "\n  ".join(hits)
         + "\n\nFYL-SDD-01 DE-COMP-05.1：密钥必须存 sessionStorage，禁止 cookie。"
           "cookie 随每次同源请求自动发出。")

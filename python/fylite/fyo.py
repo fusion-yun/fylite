@@ -67,7 +67,7 @@ FYLITE_PREFIX = "urn:fylite:"
 #:
 #: ★★``urn:fylite:``, and it is the ONLY spelling.  There were three, one per
 #: writer: this module said ``https://github.com/fusion-yun/fylite#``,
-#: ``app/assets/fyodev.js`` said ``https://fusion-yun.github.io/fylite/ns#``,
+#: ``webui/assets/fyodev.js`` said ``https://fusion-yun.github.io/fylite/ns#``,
 #: and the run manifest and browser session said ``urn:fylite:``.  Three IRIs
 #: for one term space means ``fylite:angle_deg`` in a device document and
 #: ``fylite:angle_deg`` in a manifest are, to any reader that resolves a
@@ -97,7 +97,7 @@ def vocabulary() -> dict:
     for ``psi_norm`` found nothing and nothing raised.
 
     The browser reads the same table through the generated
-    ``app/assets/fyo-names.js`` (``rust/build.sh``), for the same reason
+    ``webui/assets/fyo-names.js`` (``rust/build.sh``), for the same reason
     ``_abi.py`` is generated: two copies of a contract are not a contract.
     """
     import json as _json
@@ -108,7 +108,7 @@ def vocabulary() -> dict:
 #: each kernel slot is written under, in which unit, at which rank.
 #:
 #: ★★It used to be literals here and different literals in
-#: ``app/assets/session.js``, with only the *term* list shared — and the
+#: ``webui/assets/session.js``, with only the *term* list shared — and the
 #: browser copy of that had no reader at all.  A path is a contract between
 #: two hosts, so it is declared once beside the code that produces the
 #: numbers and generated into both, the way ``_abi.py`` is.
@@ -1352,7 +1352,7 @@ _MEASUREMENT_CONTEXT = {**_RunManifest.SEMANTIC_CONTEXT, "fyo": FYO_PREFIX}
 #: fyo class tags stamped on the payload sections by :func:`measurements`.
 #:
 #: ★★A-1: these were three literals here and three more in
-#: ``app/assets/session.js`` — one contract kept in two places.  They are
+#: ``webui/assets/session.js`` — one contract kept in two places.  They are
 #: declared in the kernel now (``@fyo-table MAGNETICS`` / ``PF_ACTIVE`` /
 #: ``TF``, slotless: the tag is the shared fact, the payload inside is a
 #: device deck's own) and read out of the generated table, so neither host

@@ -166,7 +166,7 @@ def test_the_page_constants_are_pinned_to_the_page():
     #: the page in the meantime — exactly what pinning the constants here was
     #: supposed to prevent.  A gate that names a path must fail LOUDLY when the
     #: path moves, which is why the message below now says which file.
-    page = ROOT / "app/assets/scenario-pulse_design.js"
+    page = ROOT / "webui/assets/scenario-pulse_design.js"
     assert page.is_file(), (
         f"the 0-D page source is not at {page.relative_to(ROOT)} — this gate "
         f"pins the synthesis layer's copies to it, so a rename must be followed "

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 发布类型三：**单文件桌面查看器**（内嵌整个 `app/`，起本机服务并开浏览器）。
+# 发布类型三：**单文件桌面查看器**（内嵌整个 `webui/`，起本机服务并开浏览器）。
 #
 # 与另两条通道的分工：
 #   pip 轮      —— 给写脚本的人，alpha 期 Linux x86-64（tools/build-wheel.sh）
@@ -15,7 +15,7 @@
 #
 # ★★2026-09-04：构建分**公开版**与**内部版**（用户裁定）。谁进哪一版由每台机器的
 # `rights.json` 判：公开版不带 EAST，也不带上游禁止再分发的 IDS。
-# 可执行文件因此**不直接内嵌 `app/`**，而是内嵌一棵**按这一版规则装好的树**——
+# 可执行文件因此**不直接内嵌 `webui/`**，而是内嵌一棵**按这一版规则装好的树**——
 # 与静态站点用的是同一个装配器（`tools/build-site.sh`），所以两种制品逐字节同源。
 #
 # ★★2026-09-05 用户裁定：**页面也走中间层 wasm，撤掉 `facts.jsonld`**。装置文档从此
@@ -24,9 +24,9 @@
 # 逐台发文档——此前同一批 432 KB 在一个可执行文件里装了两遍。
 #
 # ★★2026-09-04 用户裁定：**三种构建方式**，差别在带不带浏览器那一半：
-#   --mode cli   纯 CLI —— 可执行文件不内嵌 `app/`、不起服务，`app` 命令按名拒绝；
+#   --mode cli   纯 CLI —— 可执行文件不内嵌 `webui/`、不起服务，`app` 命令按名拒绝；
 #                算力走**原生内核 `.so`**（`case` 运行期 dlopen）。实测 3.38 MB。
-#   --mode web   Web UI —— 内嵌整个 `app/`（含三个 `.wasm`），算力在**浏览器**里。
+#   --mode web   Web UI —— 内嵌整个 `webui/`（含三个 `.wasm`），算力在**浏览器**里。
 #   --mode full  完整（缺省）—— 两路都在：内嵌前端 + 原生内核。实测 8.47 MB。
 #
 # 用法：bash tools/build-app-exe.sh [--public|--internal] [--mode cli|web|full] [linux|windows|windows-msvc|both]
@@ -37,7 +37,7 @@
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-#: ★★2026-09-02：查看器的**内容**（内嵌的整个 `app/`）与**代码**
+#: ★★2026-09-02：查看器的**内容**（内嵌的整个 `webui/`）与**代码**
 #: （`rust/fylite_runtime/src/bin/app/`）现在都在本仓——数据层从内核仓搬了过来。
 #: 从前这里要跨仓解析内核检出，那一步随之取消。
 CRATE="$DIR/rust/fylite_runtime"
@@ -69,7 +69,7 @@ cd "$DIR"
 if [ "$MODE" = cli ]; then
   #: ★纯 CLI 档不内嵌任何页面，所以既不装树也不重生成资源表——一个不带前端的
   #: 发行**不该**把 app 的字节背在身上，那正是这一档存在的理由。
-  echo "[exe] 模式 cli：不内嵌 app/（算力走原生内核 .so）"
+  echo "[exe] 模式 cli：不内嵌 webui/（算力走原生内核 .so）"
   STAGE=""
 else
   STAGE="$DIR/dist/app-$FLAVOUR"
@@ -80,7 +80,7 @@ else
 
   #: ★★**这份可执行文件不带中间层的 wasm**（2026-09-05）。它本身就是原生的中间层，
   #: 那张 facts 表已经在它的地址空间里；内嵌页面因此改问它自己的 `/api/facts`
-  #: （`app/assets/factsdb.js` 先探这条路，探不到才退回 wasm——静态站点走的正是后者）。
+  #: （`webui/assets/factsdb.js` 先探这条路，探不到才退回 wasm——静态站点走的正是后者）。
   #: 再内嵌一份同层的 wasm，等于把刚消掉的重复换个层次又做一遍：实测 +2.25 MB，
   #: 其中只有 432 KB 是装置信息，另外 1.8 MB 是同一层代码的第二份。
   #: ★这一条**有意打破**「站点与可执行文件内嵌同一个子集」那句：两者差的正是这一份，
@@ -92,11 +92,11 @@ else
   #: fylite_kernel_ext wasm 功能由 api 端提供，只静态网页走 wasm」；同日续裁
   #: 「fy 封装 fylite_kernel 静态库，.so 是留给 python 层，wasm 留给静态网页发布」）。
   #: 算力是这个可执行文件自己的一部分——内核静态库链在里面，页面把调用交给
-  #: `/api/kernel`（`app/assets/kernelapi.js` 先探 `/api/health` 的 `kernel` 格，
+  #: `/api/kernel`（`webui/assets/kernelapi.js` 先探 `/api/health` 的 `kernel` 格，
   #: 探不到才实例化 wasm——静态站点走的正是后者）。
   #: ★这是同一天第二次消掉同一种重复：先是装置信息（两份字节、两条通路），
   #: 现在是**算力**（同一批物理编两遍，一遍原生一遍 wasm，谁也不保证两者一致）。
-  #: 差别只在这一次两条路的等价性是**有闸子看着的**：`app/tests/validate-kernel-api.mjs`
+  #: 差别只在这一次两条路的等价性是**有闸子看着的**：`webui/tests/validate-kernel-api.mjs`
   #: 让同一批调用两边各走一遍并逐位比对。
   #: 实测省下 1.46 MB（fylite_rs.wasm 0.99 + fylite_kernel_ext.wasm 0.47）。
   rm -f "$STAGE"/assets/fylite_rs.wasm* "$STAGE"/assets/fylite_kernel_ext.wasm*
@@ -122,7 +122,7 @@ fi
 #: 「页面也走中间层 wasm，撤掉 `facts.jsonld`」之后，页面与命令行读的是同一张表。
 #: 那张表由 `rust/build.sh --$FLAVOUR` 在编译期编进 `fylite_runtime`——本脚本不自己
 #: 编，只**核对**手上这一份是不是要发的那一版：版别在编译期定死，发布时挑不了。
-FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/app/assets/runtime-version.js" 2>/dev/null || true)
+FLAV=$(sed -n "s/.*FyFactsFlavour *= *'\([^']*\)'.*/\1/p" "$DIR/webui/assets/runtime-version.js" 2>/dev/null || true)
 if [ "$FLAV" != "$FLAVOUR" ]; then
   echo "[exe] 装着的中间层编的是 **${FLAV:-<无>}** 版的装置信息，而这次要出 $FLAVOUR 版。" >&2
   echo "[exe]   重建：bash rust/build.sh --$FLAVOUR" >&2
@@ -134,7 +134,7 @@ echo "[exe] 装置信息（$FLAVOUR 版）内嵌自 $FY_FACTS_RS"
 
 
 #: ★资源表里的 `include_bytes!` 走 `env!("FYLITE_APP_DIR")`，所以编译期必须给。
-#: ★指向**装好的那棵树**，不是 `app/`：那一棵是这一版真正要发的字节。
+#: ★指向**装好的那棵树**，不是 `webui/`：那一棵是这一版真正要发的字节。
 [ -n "$STAGE" ] && export FYLITE_APP_DIR="$STAGE"
 
 cd "$CRATE"

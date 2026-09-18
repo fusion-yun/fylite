@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write the footer QR code of `app/` — ONE code, pointing at the site.
+"""Write the footer QR code of `webui/` — ONE code, pointing at the site.
 
     python tools/make-app-qr.py [--url https://fusion-yun.github.io/fylite]
 
@@ -75,10 +75,10 @@ def svg(matrix, url):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="https://fusion-yun.github.io/fylite")
-    ap.add_argument("--out", default=None, help="app/assets (default: beside this repo)")
+    ap.add_argument("--out", default=None, help="webui/assets (default: beside this repo)")
     a = ap.parse_args()
 
-    out = pathlib.Path(a.out) if a.out else pathlib.Path(__file__).resolve().parents[1] / "app" / "assets"
+    out = pathlib.Path(a.out) if a.out else pathlib.Path(__file__).resolve().parents[1] / "webui" / "assets"
 
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_M,
                        border=0, box_size=1)

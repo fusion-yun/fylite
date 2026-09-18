@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Vendor h5wasm into `app/assets/vendor/h5wasm/` (`FYL-SDD-05` U-25).
+// Vendor h5wasm into `webui/assets/vendor/h5wasm/` (`FYL-SDD-05` U-25).
 //
 //     node tools/vendor-h5wasm.mjs            # fetch, verify, write
 //     node tools/vendor-h5wasm.mjs --check    # fail if what is on disk differs
@@ -30,7 +30,7 @@ import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const DEST = join(HERE, '..', 'app', 'assets', 'vendor', 'h5wasm');
+const DEST = join(HERE, '..', 'webui', 'assets', 'vendor', 'h5wasm');
 const check = process.argv.includes('--check');
 
 //: ★pinned, and the pin is the point.  A floating version would change what a
@@ -84,7 +84,7 @@ wasm 加起来（约 1.56 MB）还大。它是**按需能力**，不是每个读
 打开过 HDF5 的读者由 service worker 的运行时缓存留下它，没打开过的人一个字节也不下。
 
 ★**致谢是许可义务，不是客套**：NIST 条款要求「明确承认 NIST 为该软件的来源」。
-这句话落在 \`docs/ACKNOWLEDGEMENTS.md\` 与 \`app/credits.html\`，不只落在这里。
+这句话落在 \`docs/ACKNOWLEDGEMENTS.md\` 与 \`webui/credits.html\`，不只落在这里。
 `;
 
 const want = files.map((f) => [f.to, f.body])
@@ -105,5 +105,5 @@ if (check) {
   mkdirSync(DEST, { recursive: true });
   for (const [name, body] of want) writeFileSync(join(DEST, name), body);
   const total = files.reduce((a, f) => a + f.size, 0);
-  console.log(`h5wasm ${VERSION} -> app/assets/vendor/h5wasm/  (${(total / 1048576).toFixed(2)} MB, ${files.length} 个文件 + PROVENANCE.md)`);
+  console.log(`h5wasm ${VERSION} -> webui/assets/vendor/h5wasm/  (${(total / 1048576).toFixed(2)} MB, ${files.length} 个文件 + PROVENANCE.md)`);
 }

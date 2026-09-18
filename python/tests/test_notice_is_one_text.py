@@ -3,7 +3,7 @@
 ★★2026-09-08 用户裁定：*web ui / cli / python 三个界面统一提示词*。真源是
 ``python/fylite/_notice.json``；三个宿主各自渲染它：
 
-* **浏览器** —— ``app/assets/lang-{zh,en}.js`` 的两个词条（页眉警示带）；
+* **浏览器** —— ``webui/assets/lang-{zh,en}.js`` 的两个词条（页眉警示带）；
 * **``fy``** —— ``rust/fylite_runtime/src/banner.rs``，编译期 ``include_str!``
   同一个文件；
 * **本包** —— :mod:`fylite.notice`，导入时印一次。
@@ -33,12 +33,12 @@ LANGS = ("zh", "en")
 
 
 def _catalogue(lang: str) -> dict:
-    """``app/assets/lang-<lang>.js`` 的词条，够用就好：本文件只问两个键。
+    """``webui/assets/lang-<lang>.js`` 的词条，够用就好：本文件只问两个键。
 
     ★不去跑那份 JS（要一个 JS 运行时），也不去解析整个对象字面量：按键抓那一行，
     抓不到就红——一个「什么也没抓到因而通过」的闸子是这仓最常点名的失败形状。
     """
-    src = (REPO / "app" / "assets" / f"lang-{lang}.js").read_text(encoding="utf-8")
+    src = (REPO / "webui" / "assets" / f"lang-{lang}.js").read_text(encoding="utf-8")
     out = {}
     for m in re.finditer(r"^\s*'([\w.]+)':\s*'(.*)',\s*$", src, re.M):
         out[m.group(1)] = m.group(2)

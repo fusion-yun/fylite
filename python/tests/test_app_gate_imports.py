@@ -1,6 +1,6 @@
-"""Every `app/tests/*.mjs` gate's PYTHON half must still import and resolve.
+"""Every `webui/tests/*.mjs` gate's PYTHON half must still import and resolve.
 
-★★Why this exists.  On 2026-08-20 the whole `app/` browser gate suite was
+★★Why this exists.  On 2026-08-20 the whole `webui/` browser gate suite was
 found unrunnable: **nine** stale imports across **six** files, left by
 **five** different refactors (ABI 67 -> 72) — `fylite.geqdsk`, `fylite.geo`,
 `fylite.breakdown`, `fylite.rustlib`, `fylite.tglf`, `fylite.stability`,
@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-GATES = sorted((Path(__file__).resolve().parents[2] / "app/tests").glob("*.mjs"))
+GATES = sorted((Path(__file__).resolve().parents[2] / "webui/tests").glob("*.mjs"))
 
 #: `from X import a, b` / `import X` inside the JS template literals that hold
 #: each gate's Python.  Deliberately a regex over the raw text: the Python is
@@ -46,7 +46,7 @@ def _imports(text: str):
         yield m.group(1), [n for n in names if n and n.isidentifier()]
 
 
-assert GATES, "no app/tests/*.mjs found — has the suite moved?"
+assert GATES, "no webui/tests/*.mjs found — has the suite moved?"
 
 
 @pytest.mark.parametrize("gate", GATES, ids=lambda p: p.name)

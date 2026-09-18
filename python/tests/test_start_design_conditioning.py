@@ -77,7 +77,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def _target(doc: dict) -> dict:
-    """与 `app/tests/validate-worker-summary.mjs` 同一个目标位形（限制器包围盒的 0.6）。"""
+    """与 `webui/tests/validate-worker-summary.mjs` 同一个目标位形（限制器包围盒的 0.6）。"""
     lim = doc["wall"]["description_2d"][0]["limiter"]["unit"][0]["outline"]
     r = np.asarray(lim["r"], float)
     z = np.asarray(lim["z"], float)

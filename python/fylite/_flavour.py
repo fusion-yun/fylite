@@ -5,7 +5,7 @@
 生成物而不是一个运行时开关——`fylite.notice` 据此决定启动 banner 上说不说
 「仅限内部测试」那一句。
 
-★与 `app/assets/runtime-version.js` 的 `FyFactsFlavour` 是**同一次构建写下的
+★与 `webui/assets/runtime-version.js` 的 `FyFactsFlavour` 是**同一次构建写下的
 同一个值**，两个宿主各留一份：页面读那一份，Python 读这一份。
 ★提交进仓的这一份是**缺省构建**的那一版（`internal`，A-14）。
 """

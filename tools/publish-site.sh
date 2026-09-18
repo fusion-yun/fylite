@@ -6,7 +6,7 @@
 #
 # ★★**为什么这是本机脚本，不是一条 GitHub Action**（2026-09-08）。分仓之后本仓
 # 不含任何 wasm（`.gitignore` 里 `*.wasm.*`），它们由**私有仓** `fylite_kernel`
-# 的构建装进 `app/assets/`。于是一台只检出本仓的托管 runner **根本构建不出站点**；
+# 的构建装进 `webui/assets/`。于是一台只检出本仓的托管 runner **根本构建不出站点**；
 # 要让它能，就得把私有源码交给它——为发一个公开页面而扩大私有源码的暴露面，方向
 # 反了。所以发布跑在两个检出都已经在的那台机器上，而这个脚本负责把「跑对」变成
 # 一串不能跳过的步骤。
@@ -48,7 +48,7 @@ SITE="${SITE:-$(cd "$DIR/.." && pwd)/fusion-yun.github.io}"
 
 echo "== 一、闸子（不需要浏览器的那几道）"
 node "$DIR/tools/make-app-pages.mjs" --check
-node "$DIR/app/tests/validate-site.mjs"
+node "$DIR/webui/tests/validate-site.mjs"
 node "$DIR/tools/make-sw.mjs" --check
 #: ★★**出处台账要在发布前核**（2026-09-08 实测）。旧的 `publish-app.yml` 发布前会读
 #: 内核仓的 `docs/note/app-provenance.md`，核对将发出去的二进制 sha256 与台账所记的
@@ -99,5 +99,5 @@ cat <<EOF
      git -C "$SITE" commit -m "chore: sync fylite/ from fylite@$(git -C "$DIR" rev-parse --short HEAD)"
      git -C "$SITE" push git@github.com:fusion-yun/fusion-yun.github.io.git main
    推上去之后，用发布闸对着**线上那个地址**再判一次（它判的是发布，不是源）：
-     node app/tests/validate-published.mjs --playwright <装有 playwright 的目录>
+     node webui/tests/validate-published.mjs --playwright <装有 playwright 的目录>
 EOF

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# 发布类型二：**静态网页**——`app/` 的发布子集，任何静态服务器都能伺服的一个目录。
+# 发布类型二：**静态网页**——`webui/` 的发布子集，任何静态服务器都能伺服的一个目录。
 #
 # 与另两条通道的分工（FYL-SDD-04 tbl-fylite-release-forms）：
-#   单一可执行文件  —— tools/build-app-exe.sh：同一份 app/ 内嵌进一个程序，起本机服务
+#   单一可执行文件  —— tools/build-app-exe.sh：同一份 webui/ 内嵌进一个程序，起本机服务
 #   Python 包       —— tools/build-wheel.sh
 #   本脚本          —— 给联网的人，零安装：一个目录，放到 GitHub Pages / 任何静态主机
 #
@@ -13,8 +13,8 @@
 #
 # 三件事，都是「不做的后果只有别人才会发现」的那种：
 #   1. 三个 wasm 必须在（它们不入库：内核仓 `rust/build.sh --wasm-check` 装进
-#      `app/assets/`）——漏了的站点首页能开，场景页在第一次算数时以一句 TypeError 失败；
-#   2. 装置牌 `app/facts/device/*.jsonld` 在仓里可能是指向仓外语料的符号链接，
+#      `webui/assets/`）——漏了的站点首页能开，场景页在第一次算数时以一句 TypeError 失败；
+#   2. 装置牌 `webui/facts/device/*.jsonld` 在仓里可能是指向仓外语料的符号链接，
 #      发布要 `cp -L` 落成实体——一个指向仓外的链接在静态主机上是一个 404；
 #   3. 输出目录里不能有悬空链接或 `tests/`。
 #
@@ -29,7 +29,7 @@
 # 用法：bash tools/build-site.sh [--public|--internal] [输出目录]  （默认 内部版 · dist/site）
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
-APP="$DIR/app"
+APP="$DIR/webui"
 FLAVOUR=internal
 case "${1:-}" in
   --public)   FLAVOUR=public;   shift ;;
@@ -38,18 +38,18 @@ esac
 OUT="${1:-$DIR/dist/site}"
 
 #: ★★2026-09-05 起 wasm **按版本命名**（`tools/soname.sh`，与 `.so` 同规矩）：
-#: `app/assets/` 里一份字节有三个名字——真文件 `fylite_rs.wasm.0.0.1` 加
+#: `webui/assets/` 里一份字节有三个名字——真文件 `fylite_rs.wasm.0.0.1` 加
 #: `.wasm.0` 与 `.wasm` 两级符号链接。版本从 `assets/version.js` 读，那是内核仓
 #: 构建写的同一份生成物，所以「站点发的版本」与「页面以为的版本」不可能是两个数。
 KVER=$(sed -n "s/.*kernel: *'\([^']*\)'.*/\1/p" "$APP/assets/version.js")
 [ -n "$KVER" ] || {
-  echo "[site] 读不出 app/assets/version.js 的 kernel 版本 —— 先在内核仓跑构建" >&2
+  echo "[site] 读不出 webui/assets/version.js 的 kernel 版本 —— 先在内核仓跑构建" >&2
   exit 1; }
 #: ★★中间层那一份**版本另有出处**（`assets/runtime-version.js`，本仓 `rust/build.sh`
 #: 生成）：它与内核不是同一个版本号。拿内核的版本去找它会永远找不到。
 RVER=$(sed -n "s/.*FyRuntimeVersion *= *'\([^']*\)'.*/\1/p" "$APP/assets/runtime-version.js" 2>/dev/null || true)
 [ -n "$RVER" ] || {
-  echo "[site] 读不出 app/assets/runtime-version.js —— 先跑 bash rust/build.sh" >&2
+  echo "[site] 读不出 webui/assets/runtime-version.js —— 先跑 bash rust/build.sh" >&2
   exit 1; }
 KERNEL_WASM="fylite_rs.wasm fylite_kernel_ext.wasm"
 #: ★★2026-09-05：站点发的中间层那一份是 **`fylite_web.wasm`**（0.51 MB，页面真读的
@@ -60,13 +60,13 @@ KERNEL_WASM="fylite_rs.wasm fylite_kernel_ext.wasm"
 WASM_STEMS="$KERNEL_WASM fylite_web.wasm"
 for w in $KERNEL_WASM; do
   [ -f "$APP/assets/$w.$KVER" ] || {
-    echo "[site] 找不到 app/assets/$w.$KVER —— 先在内核仓跑 rust/build.sh --wasm-check" >&2
-    echo "[site]   （wasm 不入库；内核仓的构建脚本把两份装进公开仓的 app/assets/）" >&2
+    echo "[site] 找不到 webui/assets/$w.$KVER —— 先在内核仓跑 rust/build.sh --wasm-check" >&2
+    echo "[site]   （wasm 不入库；内核仓的构建脚本把两份装进公开仓的 webui/assets/）" >&2
     exit 1
   }
 done
 [ -f "$APP/assets/fylite_web.wasm.$RVER" ] || {
-  echo "[site] 找不到 app/assets/fylite_web.wasm.$RVER —— 先跑 bash rust/build.sh" >&2
+  echo "[site] 找不到 webui/assets/fylite_web.wasm.$RVER —— 先跑 bash rust/build.sh" >&2
   exit 1; }
 
 #: ★★**版别在编译期定死，发布时挑不了**（2026-09-05 用户裁定：页面也走中间层 wasm，
@@ -95,9 +95,9 @@ mkdir -p "$OUT"
 #: ★★别名不发（2026-09-05）。上面的 `-L` 是有意的——仓内的链接要解引用，否则静态
 #: 主机上就是 404——但对版本化的 wasm，它把**同一份字节拷了三遍**：真文件、
 #: `.wasm.0`、`.wasm` 各一兆多。站点因此凭空胖三兆，而没有任何读者会取那两个别名：
-#: 页面按版本名取（`app/assets/fylite.js` 的 `versioned()`）。
+#: 页面按版本名取（`webui/assets/fylite.js` 的 `versioned()`）。
 #: ★删的是别名，不是真文件；下面的自检会核对这一点两头都成立。
-#: ★★**中间层的全套那一份不发**（2026-09-05）。`cp -RL` 上面把 `app/` 整棵拷了过来，
+#: ★★**中间层的全套那一份不发**（2026-09-05）。`cp -RL` 上面把 `webui/` 整棵拷了过来，
 #: 而 `fylite_runtime.wasm`（2.14 MB）在站点上**没有任何读者**：页面读装置走
 #: `fylite_facts.wasm`，其余的中间层职责（g-file / fyo / 会话，`FYL-SDD-02` H-4）
 #: 还没搬到页面上。解引用之后它还会变成三份（真文件加两级别名），实测让站点从
@@ -106,7 +106,7 @@ rm -f "$OUT"/assets/fylite_runtime.wasm*
 
 ver_of() { [ "$1" = fylite_web.wasm ] && echo "$RVER" || echo "$KVER"; }
 #: ★★别名要按**输出目录里实有的**去删，不是按上面那三个名字（2026-09-08 实测）。
-#: `$WASM_STEMS` 只列页面必须有的三份，而 `app/assets/` 里还躺着 `fylite_tglf.wasm`
+#: `$WASM_STEMS` 只列页面必须有的三份，而 `webui/assets/` 里还躺着 `fylite_tglf.wasm`
 #: 与 `fylite_dke.wasm`（内核仓装的扩展模块，按需载入）。它们不在名单里，于是
 #: `cp -RL` 解引用出来的两级别名没人删——实测站点里各三份，白多 1.0 MB。
 #: ★所以这里扫真文件：`X.wasm.<版本>` 在，就把 `X.wasm` 与 `X.wasm.<主版本>` 删掉。
@@ -132,7 +132,7 @@ fi
 #: 提示悄悄漏掉的内部版看起来只是干净。
 node "$DIR/tools/app-flavour.mjs" --check "$FLAVOUR" "$OUT"
 
-#: ★★**算例按装置权利过滤**（2026-09-08）。`app/cases/` 是给「导入」按钮的实例
+#: ★★**算例按装置权利过滤**（2026-09-08）。`webui/cases/` 是给「导入」按钮的实例
 #: 会话文档，其中一份是 EAST 的——而公开版的装置语料**不带 EAST**（用户裁定
 #: 2026-09-04）。判据不在文件名里，在每份算例自报的 `fylite:device`，与
 #: `facts-publish.py` 这一版答应带的那几台比对：一份算例不能把装置语料判出去的
@@ -204,7 +204,7 @@ else
 fi
 
 #: ★★**站点不再发装置文档**（2026-09-05 用户裁定）。它们编在 `fylite_web.wasm` 里，
-#: 页面经那份 wasm 读（`app/assets/factsdb.js`）。此前这里调 `facts-publish.py` 逐台发
+#: 页面经那份 wasm 读（`webui/assets/factsdb.js`）。此前这里调 `facts-publish.py` 逐台发
 #: JSON，于是同一批 432 KB 在制品里有两份、两条通路，而没有任何东西保证它们描述同一批
 #: 机器。许可闸没有松：它在 `rust/build.sh` 那一步施用（`--public` / `--internal`），
 #: 上面那段核对确保这次发的与编进去的是同一版。
@@ -229,7 +229,7 @@ for w in $WASM_STEMS; do
   [ -s "$OUT/assets/$w.$v" ] || { echo "[site] 输出里缺 assets/$w.$v" >&2; bad=1; }
   #: ★★两级别名**不该**留在站点里：`cp -RL` 把它们解引用成第二、第三份一兆多的
   #: 字节，站点凭空胖三兆，而没有任何读者会取它们——页面按版本名取
-  #: （`app/assets/fylite.js` 的 `versioned()`）。上面已经删过，这里把「不该有」
+  #: （`webui/assets/fylite.js` 的 `versioned()`）。上面已经删过，这里把「不该有」
   #: 变成一条会失败的断言，而不是一句注释里的保证。
   for alias in "$w" "$w.${v%%.*}"; do
     [ ! -e "$OUT/assets/$alias" ] || {

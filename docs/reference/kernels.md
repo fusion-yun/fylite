@@ -77,11 +77,11 @@ ABI 版本只有一个源头——`rust/fylite/src/c_api.rs` 的 `ABI_VERSION`�
 | :--- | :--- | ---: | ---: | :--- |
 | `fylite_rs.wasm` | 内核 `core,capi` | 235 | 1 012 KiB | 页面启动即取（平衡 / 重构 / 电路 / 0-D / 输运） |
 | `fylite_kernel_ext.wasm` | 内核 `tglf,dke` | 19 | 485 KiB | 按需（湍流闭包；NEO 漂移动理学同在其中） |
-| `fylite_runtime.wasm` | **中间层**（本仓） | 25 | 2 190 KiB | **只有静态站点取它**——装置面板要读装置信息时才取（`app/assets/factsdb.js`） |
+| `fylite_runtime.wasm` | **中间层**（本仓） | 25 | 2 190 KiB | **只有静态站点取它**——装置面板要读装置信息时才取（`webui/assets/factsdb.js`） |
 
 ★★第三份与前两份**不是一回事**：前两份是物理核（私有仓 `fylite_kernel`），这一份是中间层
 （`rust/fylite_runtime/`），零导入（`FYL-DESIGN-16` H-5），版本号也另有一个
-（`app/assets/runtime-version.js`，与内核的不是同一个数）。它大是因为装置信息
+（`webui/assets/runtime-version.js`，与内核的不是同一个数）。它大是因为装置信息
 （432 KB）编在里面——页面读的装置信息只此一份。
 ★**不进 service worker 的预缓存**：它是装置面板要用时才取的，塞进首屏等于让每个
 只想看一眼首页的读者先付这笔钱。
@@ -117,7 +117,7 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 （`abi.rs` 的那个整数）是**另一个量**，不进文件名，由装载方自己核对。规则的唯一
 实现是 `tools/soname.sh`，两个仓的构建脚本都 source 它。
 
-**页面按版本名取**（`app/assets/fylite.js` 的 `versioned()`，导出为
+**页面按版本名取**（`webui/assets/fylite.js` 的 `versioned()`，导出为
 `FyLite.wasmUrl`）：调用点写的是不带版本的逻辑名，加载器把它翻成这一版的真文件名。
 站点构建只发真文件、不发那两级链接——`cp -RL` 会把它们解引用成第二、第三份一兆多
 的字节。轮同理：轮里没有符号链接，`package-data` 挑的是完全版本化的那一个
@@ -129,7 +129,7 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 
 （导出数与尺寸为 2026-09-02 对当日构建的实测。）浏览器构建走 `--no-default-features`：
 线程（`parallel`）不进——**页面本就没有套接字可开**，而结果与多线程档**逐位相同**
-（每个元素独立计算、同一套算术）。页面加载 `app/assets/*.wasm`，与内核仓
+（每个元素独立计算、同一套算术）。页面加载 `webui/assets/*.wasm`，与内核仓
 `rust/wasm/dist/` 的同名产物逐字节相同；**三份都不入库**，站点发布与单文件可执行体
 在构建时各自装入。Python 侧一份都不加载。制品尺寸、导出面与哈希底账见实测笔记
 `docs/note/app-provenance.md`。
@@ -166,7 +166,7 @@ fylite_rs.wasm       -> .0         不问版本的那个名字（linker name）
 | :--- | :--- |
 | 读 | MDSplus（mdsip 只读客户端，按炮号与时间在服务端切片）· EFIT a-file / g-file · JSON(-LD) · YAML 子集（fydata 的 A-Box）· HDF5 · netCDF |
 | 写 | JSON(-LD) · g-file · HDF5 · netCDF，各带 **fyo** 与 **IMAS DD** 两种布局（IMAS 布局以 imas-python / imas-core 读得回为判据） |
-| 制品 | `libfylite.so`（Python 经 ctypes 取，`fylite.io.fydoc`；**内核也在这个库里**，2026-09-16 用户裁定）· `fy`（**唯一的可执行文件**，内嵌整个 `app/` 与内核归档，并承载 `app` / `data` / `run` / `list` 四条命令） |
+| 制品 | `libfylite.so`（Python 经 ctypes 取，`fylite.io.fydoc`；**内核也在这个库里**，2026-09-16 用户裁定）· `fy`（**唯一的可执行文件**，内嵌整个 `webui/` 与内核归档，并承载 `app` / `data` / `run` / `list` 四条命令） |
 | 命令行 | `src/cli/`——由 `python/fylite/_cli.json` **编译期**建出；与 Python 的 `fylite` 同一份定义（[API 速查](api.md)的 CLI 一节） |
 | 设计正本 | `FYL-DESIGN-14`（数据层）· `FYL-DESIGN-15`（发布形态与统一命令行） |
 

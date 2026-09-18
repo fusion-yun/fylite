@@ -1,7 +1,7 @@
 //! GEQDSK（EFIT g-file）读写 —— 数据层的第二样东西。
 //!
 //! ★★**它为什么在这里。** 本仓从前有**两份** g-file 实现：
-//! `python/fylite/io/geqdsk.py`（752 行）与 `app/assets/geqdsk.js`（286 行）。
+//! `python/fylite/io/geqdsk.py`（752 行）与 `webui/assets/geqdsk.js`（286 行）。
 //! JS 那份的注释自己写着「returns the same field names fylite's own
 //! `read_geqdsk` returns, so the two can be compared directly」——两处拼写、
 //! 一个契约，正是这个仓被咬过三次的形状（装置文档两侧 WALL 不同；`zerod` 参数
@@ -313,7 +313,7 @@ impl GFile {
     /// 整份 g-file 的**原样**文档树：字段名与结构体逐字相同。
     ///
     /// ★★2026-09-05 落地 `FYL-SDD-02` H-4 的第一块：页面从此不自己解 g-file。
-    /// 此前 `app/assets/geqdsk.js` 里有本仓的**第三份**实现（原生一份、wasm 一份、
+    /// 此前 `webui/assets/geqdsk.js` 里有本仓的**第三份**实现（原生一份、wasm 一份、
     /// JS 一份），三份读同一种文件——而 g-file 的坑（`D`/`E` 指数、可选的边界与限制器
     /// 尾巴、短文件）每一份都要各踩一次。
     ///

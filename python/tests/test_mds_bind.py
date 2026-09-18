@@ -11,7 +11,7 @@
 绑定，而那看起来和「上游本来就没绑」一模一样。所以数目在这里被钉住。
 
 ★两个宿主读的是**同一份字节**（`python/fylite/_mds_bind.json` 与
-`app/assets/mds-bind.json` 由生成器同一次写出），这也判。
+`webui/assets/mds-bind.json` 由生成器同一次写出），这也判。
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PY_COPY = ROOT / "python" / "fylite" / "_mds_bind.json"
-APP_COPY = ROOT / "app" / "assets" / "mds-bind.json"
+APP_COPY = ROOT / "webui" / "assets" / "mds-bind.json"
 
 #: 与内核 `mdsip::is_node_path` 逐字符同一条规则。抄在这里是有意的：这道闸问的
 #: 正是「表里的每一条到了门口会不会被拒」，所以它必须用门口那条规则来问。
@@ -151,7 +151,7 @@ def test_every_verb_in_the_table_has_a_wire_code(table):
 def test_the_two_hosts_get_the_same_wire_codes():
     """生成物一式两份（Python 与浏览器），同一次写出——这里判它们没有分叉。"""
     from fylite import _mds_request as req
-    js = (ROOT / "app" / "assets" / "mds-request.js")
+    js = (ROOT / "webui" / "assets" / "mds-request.js")
     if not js.is_file():
         pytest.skip("mds-request.js not generated (rust/build.sh)")
     text = js.read_text(encoding="utf-8")

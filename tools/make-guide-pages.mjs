@@ -1,4 +1,4 @@
-// docs/guide/ (the subset named by public.yml)  ->  app/guide/*.html
+// docs/guide/ (the subset named by public.yml)  ->  webui/guide/*.html
 //
 // ★指南与仓内其余章节住在同一本书 `docs/guide/` 里（2026-09-01：原
 // `docs/user_guide/` 并入）。「哪几篇随演示公开发布」由 `docs/guide/public.yml`
@@ -21,19 +21,19 @@ import { mystParse } from 'myst-parser';
 import { mystToHtml } from 'myst-to-html';
 
 const HERE = new URL('.', import.meta.url).pathname;
-//: ★2026-09-02 工具搬回公开仓：`docs/` 与 `app/` 都在隔壁。
+//: ★2026-09-02 工具搬回公开仓：`docs/` 与 `webui/` 都在隔壁。
 const SRC = HERE + '../docs/guide/';
 //: 公开子集的名单（顺序即侧栏顺序）。仓内其余章节不在其中，也不该在——
 //: 它们引仓内路径与文档编号，公开页上那些都是断链。
 const PUBLIC = 'public.yml';
-const DEST = HERE + '../app/guide/';
+const DEST = HERE + '../webui/guide/';
 const PUB = 'https://fusion-yun.github.io/fylite/guide/';
 
 //: ★★2026-09-01 仓一分为二：这份 `abi.json` 由 fylite_kernel 的 `rust/build.sh`
-//: 生成，并**装进本仓** `app/assets/`。此前这里读的是 `../rust/wasm/abi.json`
+//: 生成，并**装进本仓** `webui/assets/`。此前这里读的是 `../rust/wasm/abi.json`
 //: ——那是一条跨仓的运行期依赖，仓拆开之后本仓单独一份检出就再也生不出
 //: 页脚上的版本号。读装进来的那份，本仓自足。
-const VER = JSON.parse(readFileSync(HERE + '../app/assets/abi.json', 'utf8'));
+const VER = JSON.parse(readFileSync(HERE + '../webui/assets/abi.json', 'utf8'));
 
 /** 目录顺序取自 public.yml 的 toc —— 一处来源，不在本文件里再抄一遍。 */
 function toc() {
@@ -151,12 +151,12 @@ if (check) {
   }
   for (const extra of have) { console.error(`[guide] 多余 ${extra}`); bad++; }
   if (bad) { console.error('[guide] 重跑 bash tools/build-guide.sh'); process.exit(1); }
-  console.log(`[guide] app/guide/ 与 docs/guide/ 的公开子集一致（${out.size} 个文件）`);
+  console.log(`[guide] webui/guide/ 与 docs/guide/ 的公开子集一致（${out.size} 个文件）`);
 } else {
   rmSync(DEST, { recursive: true, force: true });
   mkdirSync(DEST, { recursive: true });
   for (const [name, text] of out) writeFileSync(DEST + name, text);
-  console.log(`[guide] -> app/guide/ （${out.size} 个文件）`);
+  console.log(`[guide] -> webui/guide/ （${out.size} 个文件）`);
   for (const name of out.keys()) console.log('   ', name);
   console.log(`[guide] 发布后位于 ${PUB}`);
 }

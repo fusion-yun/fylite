@@ -15,7 +15,7 @@ committed 的那七张卡片是从**旧 epoch / 旧布局**生成的，拖回来
 
 ★**What this closes.**  the pulled tree held ONE machine — EAST — and the
 only other device this repository could describe was a browser asset
-(`app/assets/dev-iter.js`, since retired) in a shape nothing on the Python
+(`webui/assets/dev-iter.js`, since retired) in a shape nothing on the Python
 side could read.  So "which machines does fylite know?" had two answers, in
 two formats, and neither was the fyo device document that
 `fylite.device.load_device` takes.
@@ -391,7 +391,7 @@ def reference_boundary(dev_dir: pathlib.Path, manifest: dict) -> dict | None:
     """这台机器**自己记着的目标位形**——参考分离面，一条，由 A-Box 指名。
 
     ★★为什么卡片要带它（2026-09-08）。页面的「默认目标位形」此前是从限制器包围盒
-    **推**出来的（`a = 0.66·amax` · `κ = 1.65` · `δ` 定值，见 `app/assets/device.js`
+    **推**出来的（`a = 0.66·amax` · `κ = 1.65` · `δ` 定值，见 `webui/assets/device.js`
     的 `ranges()`）——对没有记录形状的机器那是个合理的起点，但对**记着自己形状**的
     机器，它是拿一个几何猜测去覆盖一份真数据。实测后果：ITER 的设计环恒定停在位形
     误差 0.0707（容差 0.0284），四次一模一样——不是没收敛，是那个目标它够不着。
@@ -552,7 +552,7 @@ def magnetics(doc: dict, source: str) -> dict:
 
     It emitted `{count, channel: [...]}` for one batch, which is what
     `facts/device/east/east_device.yaml` wrote before that table existed and
-    what `app/assets/fyodev.js` never wrote.  A count beside the array it
+    what `webui/assets/fyodev.js` never wrote.  A count beside the array it
     counts is a second source for a fact the first one carries.
     """
     loops = _channels(doc.get("flux_loop"), "FL")
@@ -2100,7 +2100,7 @@ def write_document(dev: str, out_root: pathlib.Path) -> pathlib.Path | None:
     """把卡片**同一份内容**再落一份 `facts/device/<id>.jsonld`。
 
     ★★两种语法，一个来源。卡片（YAML）是人读人改的那一份，文档（JSON）是页面
-    `fetch` 的那一份——`app/assets/devices.js` 读 `facts/device/<id>.jsonld`，
+    `fetch` 的那一份——`webui/assets/devices.js` 读 `facts/device/<id>.jsonld`，
     可执行文件把同一棵树 `include_bytes!` 进去。**从前没有任何东西产出它**：
     抓回来的是 `<id>/<id>_device.yaml`，而发布器 `facts-publish.py` 与页面都问
     `<id>.jsonld`，于是 `[facts] device: public 版 0 个`——构建成功、一台装置也
@@ -2145,7 +2145,7 @@ def one_limiter(dev: str, doc: dict) -> None:
     """几条**各自闭合**的限制器轮廓 → 只留第一条，其余记下来。
 
     ★★页面把 `limiter.unit[]` 当作**一条轮廓切成的几段**，按端点首尾相接缝起来
-    （`app/assets/fyodev.js` 的 `stitchOutline`，那里的注释写着为什么）。EAST 的卡片
+    （`webui/assets/fyodev.js` 的 `stitchOutline`，那里的注释写着为什么）。EAST 的卡片
     里那两个单元不是两段，是**两条各自闭合的整轮廓**（`efit_w_pf` 60 点、`m-file`
     48 点）；缝起来是一个没有意义的多边形，而限制器多边形正是自由边界解的接触判据。
     实测 2026-09-07：两条一起交出去，同一组参考电流解出来的轴位置差 0.75 m，
@@ -2187,7 +2187,7 @@ def pf_flatten(dev: str, doc: dict) -> None:
 
     ★★两种形，同一台机器。手工卡片（EAST）按**通道**记：12 个通道，其中两个各驱动
     一对串联元件，共 14 个元件；页面读的 `<id>.jsonld` 按**线圈**记：14 个线圈，
-    各一个元件。`app/assets/fyodev.js` 的 `fromFyo` 只认后一形，而通道图的下标数的
+    各一个元件。`webui/assets/fyodev.js` 的 `fromFyo` 只认后一形，而通道图的下标数的
     正是那 14 个元件 —— 把分组形原样交出去，页面会说
     「channel 10 points at a coil that does not exist (there are 12)」。
 
@@ -2228,7 +2228,7 @@ def channel_map(dev: str, doc: dict) -> None:
     ★★同一个量、两种拼法，`test_east_descriptions_agree.py::test_the_channel_map_is_the_same_map`
     早写着这条对应。**派生这一步从前不翻译它**，于是从卡片转出来的 `east.jsonld`
     根本没有通道图 —— 而页面读的正是 `fylite:channel_map`
-    （`app/assets/fyodev.js`）。后果不是少一行：没有通道基，反解**当场拒绝**
+    （`webui/assets/fyodev.js`）。后果不是少一行：没有通道基，反解**当场拒绝**
     （实测 2026-09-07：`validate-worker-recon` 报 `the inverse solve refused
     the request; kernel code -104700` —— 第 47 次拟合失败）。
 
@@ -2260,7 +2260,7 @@ def identity(dev: str, doc: dict) -> None:
 
     ★★为什么这一步存在（2026-09-05 实测）。发布出去的文档只在 `@id` 里带机器名
     （`fylite:device/east/est2` —— 那串还编着变体），而页面的读法
-    `app/assets/fyodev.js` 认的是 `fylite:device_id`，认不到就叫 `imported`。
+    `webui/assets/fyodev.js` 认的是 `fylite:device_id`，认不到就叫 `imported`。
     自带的那批不受影响（id 由目录 `catalogue.jsonld` 给），**受影响的是拿到一份
     文档、把它拖进页面的读者**：三台机器进来会叫 `imported`、`imported-imported`、
     `imported-imported-2`，而且不报错。页面自己的写法 `FyoDevice.toFyo` 从来就写
@@ -2278,7 +2278,7 @@ def identity(dev: str, doc: dict) -> None:
 def grid(dev: str, doc: dict) -> None:
     """把卡片的 `machine.default_grid` 铸成文档的 `fylite:grid`。
 
-    ★★为什么这一步存在（2026-09-05 实测）。页面的装置读法 `app/assets/fyodev.js`
+    ★★为什么这一步存在（2026-09-05 实测）。页面的装置读法 `webui/assets/fyodev.js`
     **硬要** `fylite:grid`，而**没有任何一份发布出去的文档带它**——于是浏览器的装置
     面板一台预设机器也列不出来（每台带一句「文档里没有 fylite:grid」，不是崩溃，
     所以更难发现）。三种制品全带着这个毛病，构建从头到尾是绿的。
@@ -2331,7 +2331,7 @@ def vacuum_field(dev: str, doc: dict) -> None:
     """把卡片记的标称环向场铸成文档的 `tf.r0` / `tf.b0`。
 
     ★★同 `grid()` 一样是**契约路径的映射**，不是新的物理。生成的契约表
-    （`app/assets/fyo-interface.js` 的 `TABLES.DEVICE`）把这两格钉在 `tf/r0` 与
+    （`webui/assets/fyo-interface.js` 的 `TABLES.DEVICE`）把这两格钉在 `tf/r0` 与
     `tf/b0`，而卡片把同样两个数记在 `machine.r_centre` 与 `machine.fylite:b0`——
     后者由 `machine_block()` 自上游的 `b_field_phi_vacuum_r / r0` 导出（或 ITER
     那样自参考平衡表头取）。两处名字不同，于是页面读任何一台都拿不到，

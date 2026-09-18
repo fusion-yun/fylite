@@ -2,7 +2,7 @@
 //
 // 内核 C ABI 的调度表：按名调用链进来的静态库（`libfylite_kernel_static.a`）。
 // 页面在桌面宿主里把调用交给 `/api/kernel`，这里是那条路的另一端；参数种类
-// 表由同一次生成写给页面（`app/assets/kernel-abi.js`），两侧不会各说各的。
+// 表由同一次生成写给页面（`webui/assets/kernel-abi.js`），两侧不会各说各的。
 //
 // ★声明是 `extern "C"`，符号在链接期解析。没有链进静态库的构建**编不过**
 // 本文件——所以整个模块挂在 `#[cfg(kernel_static)]` 后面，那个 cfg 由

@@ -3,7 +3,7 @@
 ★★**What the table is.**  `rust/fylite/src/fyo.rs` declares
 `@fyo-table DEVICE` — the document path of every field both hosts read out of
 a machine description — and `rust/build.sh` generates it into
-`python/fylite/_fyo_interface.py` and `app/assets/fyo-interface.js`.  It is
+`python/fylite/_fyo_interface.py` and `webui/assets/fyo-interface.js`.  It is
 the same mechanism `_abi.py` and `_deck_names.py` already use, for the same
 reason: two copies of a contract are not a contract.
 
@@ -165,7 +165,7 @@ def test_the_table_declares_every_field_the_browser_reader_needs():
     Checked against `fyodev.js`'s source rather than a list kept here: a
     second list would be the third copy of the contract.
     """
-    src = (ROOT / "app" / "assets" / "fyodev.js").read_text(encoding="utf-8")
+    src = (ROOT / "webui" / "assets" / "fyodev.js").read_text(encoding="utf-8")
     declared = {s["path"] for s in DEVICE.values()}
     #: leaves the reader names in the shape they appear in that file
     for leaf, path in (("turns_with_sign", "pf_active/coil/element/turns_with_sign"),

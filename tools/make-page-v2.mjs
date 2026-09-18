@@ -1,4 +1,4 @@
-// Generate `app/pages/page_*.html` — the four function pages under the v2
+// Generate `webui/pages/page_*.html` — the four function pages under the v2
 // shell (`FYL-SDD-05` V-11 / V-12, `FYL-SDD-05` P-25 / P-26 / P-27).
 //
 //     node tools/make-page-v2.mjs           # write
@@ -37,7 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const PAGES = join(HERE, '..', 'app', 'pages');
+const PAGES = join(HERE, '..', 'webui', 'pages');
 
 /** The four function pages, and the status line each toolbar starts with. */
 const IDS = ['pulse_design', 'model', 'analysis', 'data', 'report'];

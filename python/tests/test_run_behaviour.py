@@ -98,7 +98,7 @@ def test_a_switch_sets_the_values_the_page_ships():
     """E-18, measured: `--only-magnetic` is the analysis page's `mag` preset.
 
     ★The values are not this gate's invention either — they and the template's
-    both come from `app/assets/scenario-analysis.js`.  What is checked here is
+    both come from `webui/assets/scenario-analysis.js`.  What is checked here is
     that the command line APPLIES them, and marks where they came from.
     """
     plan = _plan("run", "analysis", "reconstruction", "--only-magnetic")

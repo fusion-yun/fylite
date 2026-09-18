@@ -8,9 +8,9 @@
 **留在这里的，正是 K-3 之后要搬进内核并从此消失的那些行**。
 
 
-``app/`` was ten pages organised by METHOD until FYL-DESIGN-07 v0.5 folded
+``webui/`` was ten pages organised by METHOD until FYL-DESIGN-07 v0.5 folded
 them into **four purpose lines**.  ``python/fylite`` is still in the state
-``app/`` left: forty-odd flat modules, each complete in itself and therefore
+``webui/`` left: forty-odd flat modules, each complete in itself and therefore
 each closed.  This package is the same convergence on this side — the same
 four lines, the same ten tool ids, so a capability is called the same thing
 in the browser, in a notebook and in the CLI.
@@ -39,7 +39,7 @@ markdown and compares.  Neither register may drift from the document, and a
 tool that is not built stays ``○`` here rather than acquiring a function
 that returns zeros.
 
-★★This used to say「the same oracle ``app/tests/validate-lines.mjs`` uses for
+★★This used to say「the same oracle ``webui/tests/validate-lines.mjs`` uses for
 the browser」— and it has not been true since that gate was replaced by
 ``validate-site.mjs``, which DROPPED the row-by-row comparison on purpose:
 the "lines" model is withdrawn, so making two files agree about requirement
@@ -60,12 +60,12 @@ __all__ = ["LINES", "TOOLS", "BROWSER_ONLY_BARS", "line_of", "tools_of", "proven
 # --------------------------------------------------------------------------- #
 #: One entry per tool.  ``owner`` is the line whose module carries it (a tool
 #: serving two lines is listed on both but implemented once — the same rule
-#: that keeps one copy of the markup in ``app/``).  ``fr`` is the upstream
+#: that keeps one copy of the markup in ``webui/``).  ``fr`` is the upstream
 #: requirement it is a reduced tier of; ``scope`` says what it answers;
 #: ``caveat`` says where it is NOT equivalent to that requirement.
 #:
 #: ★★``bar`` is THE BROWSER'S NAME FOR THE SAME CAPABILITY — the id it
-#: registers with (``DESIGN.bar('zerod', …)`` in ``app/assets/scenario-*.js``)
+#: registers with (``DESIGN.bar('zerod', …)`` in ``webui/assets/scenario-*.js``)
 #: — or ``None`` when the browser does not offer it at all.  It exists because
 #: the two hosts do NOT agree name for name, and the disagreement had gone
 #: invisible: ``coupled`` is the browser's ``evolve``, one capability under two

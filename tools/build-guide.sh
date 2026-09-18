@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 把 `docs/guide/` 里 `public.yml` 点名的那几篇编译成静态 HTML，落进 `app/guide/`，
+# 把 `docs/guide/` 里 `public.yml` 点名的那几篇编译成静态 HTML，落进 `webui/guide/`，
 # 随浏览器演示一同发布。
 #
 # 渲染由 **MyST 自己的解析与渲染库**完成（`myst-parser` + `myst-to-html`）；
@@ -8,7 +8,7 @@
 # 正是任何人离线也能重建并逐字比对；何况 book-theme 自带一整套与本站无关的
 # 设计系统。理由与实现都写在 `tools/make-guide-pages.mjs` 抬头。
 #
-# 为什么产物入库：`app/` 的其余生成物（三张说明页、三个 .wasm）也入库，
+# 为什么产物入库：`webui/` 的其余生成物（三张说明页、三个 .wasm）也入库，
 # 而发布流水线只做拷贝与逐字校验、不做构建。
 #
 # 为什么只发布一个子集：发布面不同，但那不必是两本书。`docs/guide/` 一本书，

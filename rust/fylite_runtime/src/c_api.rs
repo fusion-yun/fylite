@@ -326,7 +326,7 @@ mod gfile_abi {
 /// `text`: `text_n` 字节；`out_handle` 一个指针；`err`: `err_cap` 字节。
 /// 整份 g-file 一次读成 JSON —— 页面走的就是这一条。
 ///
-/// ★★2026-09-05 落地 `FYL-SDD-02` H-4 的第一块：`app/assets/geqdsk.js` 里那份
+/// ★★2026-09-05 落地 `FYL-SDD-02` H-4 的第一块：`webui/assets/geqdsk.js` 里那份
 /// **第三份** g-file 实现撤掉，页面改问这里。给它文本，答一份 JSON，键名与
 /// `GFile` 逐字相同（`to_node` 抬头说了为什么不是 fyo 文档）。
 ///

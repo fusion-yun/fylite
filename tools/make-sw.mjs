@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Generate `app/sw.js` and `app/manifest.webmanifest` — the precache that makes
+// Generate `webui/sw.js` and `webui/manifest.webmanifest` — the precache that makes
 // the static site openable after the network is gone (`FYL-SDD-05` U-20,
 // closing `-11`-adjacent gap G-5).
 //
@@ -16,7 +16,7 @@
 // ★The list is GENERATED, not written.  A hand-kept precache list is a list
 // that silently loses the asset added last week: the page still works for
 // whoever has the network and fails only offline, which is the hardest failure
-// to notice.  This walks `app/` the way `make-app-embed.mjs` walks it for the
+// to notice.  This walks `webui/` the way `make-app-embed.mjs` walks it for the
 // executable, so the two faces cache the same set.
 //
 // ★Cache-first, and versioned by the app version.  A stale asset is worse than
@@ -29,7 +29,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, relative } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const APP = join(HERE, '..', 'app');
+const APP = join(HERE, '..', 'webui');
 const check = process.argv.includes('--check');
 
 //: directories that are not part of the published site (`build-site.sh` drops
@@ -59,7 +59,7 @@ function walk(dir, base = '') {
 }
 
 //: ★★THE WASM IS ALWAYS LISTED, PRESENT OR NOT — and that is what makes this
-//: file deterministic.  The three modules are built into `app/assets/` by the
+//: file deterministic.  The three modules are built into `webui/assets/` by the
 //: kernel repo and are NOT in git (`.gitignore`), so walking the tree gives a
 //: different answer on a checkout that has built them and one that has not:
 //: whoever regenerates without a build would silently drop them from the
@@ -71,7 +71,7 @@ function walk(dir, base = '') {
 //: `assets/fylite_rs.wasm.<kernel>`，因为站点构建只发真文件、不发那两级符号链接。
 //: 预缓存表必须用**同一条规则**算出**同一串 URL** —— 差一个字符的后果是：在线时
 //: 一切正常，断网重载 404，而这正是这份文件存在的理由。
-//: 规则的另一半在 `app/assets/fylite.js` 的 `versioned()`（导出为 `FyLite.wasmUrl`）；
+//: 规则的另一半在 `webui/assets/fylite.js` 的 `versioned()`（导出为 `FyLite.wasmUrl`）；
 //: 这里按同一条拼，并由 `--check` 保证生成物与磁盘一致。
 //: ★★**装置那一份进预缓存，中间层的全套不进**（2026-09-05 改）。
 //: 这里从前只有两份内核 wasm，中间层那一份（`fylite_runtime.wasm`，2.14 MB）被排除，
@@ -182,11 +182,11 @@ for (const [name, body] of targets) {
   const p = join(APP, name);
   const old = existsSync(p) ? readFileSync(p, 'utf8') : null;
   if (check) {
-    console.log(`  ${old === body ? 'ok     ' : 'DIFFERS'}  app/${name}`);
+    console.log(`  ${old === body ? 'ok     ' : 'DIFFERS'}  webui/${name}`);
     if (old !== body) stale.push(name);
   } else {
     writeFileSync(p, body);
-    console.log(`  app/${name}  (${(body.length / 1024).toFixed(1)} kB)`);
+    console.log(`  webui/${name}  (${(body.length / 1024).toFixed(1)} kB)`);
   }
 }
 if (!check) console.log(`  预缓存 ${files.length} 个文件（含三份 wasm；本检出实有 ${wasm.length} 份）`);

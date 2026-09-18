@@ -2,7 +2,7 @@
 #
 # 这不是一本独立的书：`docs/` 整个是**一本**，目录源只有
 # `docs/myst.yml` 一处，`guide/` 是它的一篇。本文件划的是另一件事——**发布面**：
-# 哪几篇编译成静态 HTML 落进 `app/guide/`、随浏览器演示一同公开。仓内其余章节
+# 哪几篇编译成静态 HTML 落进 `webui/guide/`、随浏览器演示一同公开。仓内其余章节
 # （install / quickstart / cli / input-modes / constraints / reconstruction /
 # forward-and-evolution / stability-and-control / browser-app）引仓内路径与文档编号，
 # 公开页上那些都是断链，所以它们不在这张表里。
@@ -17,7 +17,7 @@
 #
 # 五族典型算例在 `docs/examples/`，引 `cases/` 仓内路径，同样不在这张表里。
 #
-# 构建：bash tools/build-guide.sh   （产物 -> app/guide/，入库，与 app 的其余
+# 构建：bash tools/build-guide.sh   （产物 -> webui/guide/，入库，与 app 的其余
 # 生成物同一惯例）
 version: 1
 project:

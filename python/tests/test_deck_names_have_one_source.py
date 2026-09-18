@@ -259,7 +259,7 @@ def test_the_browser_species_table_is_the_kernel_declaration():
     """★★The atomic data has ONE declaration (``sources.rs``
     ``@species-table ADAS_ZA``) and BOTH hosts now read it.
 
-    It used to be two literals in ``app/assets/fylite.js`` and nothing at all
+    It used to be two literals in ``webui/assets/fylite.js`` and nothing at all
     in Python — so a Python caller naming an impurity could not say what it
     weighed, and the browser's copy could drift from a charge the
     bremsstrahlung term squares.  This holds the two generated copies against
@@ -269,7 +269,7 @@ def test_the_browser_species_table_is_the_kernel_declaration():
     from fylite import _deck_names as D
 
     root = Path(__file__).resolve().parents[2]
-    js = (root / "app/assets/fylite.js").read_text(encoding="utf-8")
+    js = (root / "webui/assets/fylite.js").read_text(encoding="utf-8")
     assert "var ABI_EXPECT = root.FyVersion.abi" in js, (
         "fylite.js no longer reads the generated ABI — a hand-kept literal "
         "there has drifted before (the provenance ledger records a v62 "
@@ -281,7 +281,7 @@ def test_the_browser_species_table_is_the_kernel_declaration():
         assert not re.search(r"var ADAS_" + which + r" = \{", js), (
             f"fylite.js carries a handwritten ADAS_{which} again")
 
-    gen = (root / "app/assets/deck-names.js").read_text(encoding="utf-8")
+    gen = (root / "webui/assets/deck-names.js").read_text(encoding="utf-8")
     got = {}
     for which in ("Z", "A"):
         m = re.search(r"D\.ADAS_" + which + r" = \{(.*?)\n  \};", gen, re.S)
@@ -302,7 +302,7 @@ def test_the_generated_vocabularies_load_before_their_reader():
     `fylite.js`'s throw — loudly, but only at runtime.  This says it at
     build time, for every host that loads the reader."""
     root = Path(__file__).resolve().parents[2]
-    worker = (root / "app/assets/worker.js").read_text(encoding="utf-8")
+    worker = (root / "webui/assets/worker.js").read_text(encoding="utf-8")
     #: ★the CALL, not the file: the header comment names `fylite.js` long
     #: before the import list does, and slicing from zero compared a comment
     #: with an import
@@ -313,7 +313,7 @@ def test_the_generated_vocabularies_load_before_their_reader():
     #: running with an empty table or an unknown ABI.
     for gen in ("'version.js'", "'deck-names.js'"):
         assert imports.index(gen) < imports.index("'fylite.js'"), gen
-    for page in sorted((root / "app/pages").glob("*.html")):
+    for page in sorted((root / "webui/pages").glob("*.html")):
         html = page.read_text(encoding="utf-8")
         if "assets/fylite.js" not in html:
             continue
@@ -322,14 +322,14 @@ def test_the_generated_vocabularies_load_before_their_reader():
                 f"{page.name}: {gen}"
     #: ★★AND THE NODE HARNESSES, which this gate claimed to cover and did
     #: not.  Four gates (`validate-geqdsk` / `-limits` / `-q` / `-em-hosts`)
-    #: build their own host: they read `app/assets/*.js` off disk and run it
+    #: build their own host: they read `webui/assets/*.js` off disk and run it
     #: in a `vm` context, so they are hosts in exactly the sense that matters
     #: here — and all four died at load the day `fylite.js` started reading
     #: `version.js`, because "every host" meant the worker and the pages.
     #: A claim about every host has to enumerate them from the tree.
     #: (nine since T-4 第二十五刀: `validate-fyphys-miller.mjs` · `-shape.mjs` · `-waveform.mjs` · `-li3.mjs` · `validate-metric.mjs` build their own host too; `validate-em-hosts.mjs` no longer loads the binding — it greps)
     harness = []
-    for mjs in sorted((root / "app/tests").glob("*.mjs")):
+    for mjs in sorted((root / "webui/tests").glob("*.mjs")):
         src = mjs.read_text(encoding="utf-8")
         #: the ones that LOAD THE FILE THEMSELVES.  A gate that hands the
         #: browser a URL (`page.addScriptTag`) is served by the page's own

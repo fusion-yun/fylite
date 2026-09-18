@@ -1,7 +1,7 @@
 """闸子：数据层的 g-file 读入与 `fylite.io.geqdsk` 那份**逐字段相同**。
 
 ★★**这道闸是搬迁本身的判据。** 本仓从前有两份 g-file 实现——
-`python/fylite/io/geqdsk.py`（752 行）与 `app/assets/geqdsk.js`（286 行），
+`python/fylite/io/geqdsk.py`（752 行）与 `webui/assets/geqdsk.js`（286 行），
 后者的注释自己写着「returns the same field names fylite's own `read_geqdsk`
 returns, so the two can be compared directly」。数据层（`rust/fylite_runtime/`）
 写了第三份，为的是最终只剩一份；而搬迁的规矩是

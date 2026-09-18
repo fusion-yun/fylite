@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate ``app/facts/device/east-signals.json`` — the diagnostic catalogue the
+"""Generate ``webui/facts/device/east-signals.json`` — the diagnostic catalogue the
 device-data page selects signals by.
 
     python tools/east-signals-to-app.py \\
@@ -24,7 +24,7 @@ the rest of this repository writes them lower-case.
 a property of a SHOT, not of the catalogue: #137985 stored 21 of its 79
 magnetic probes, and a catalogue that had been filtered against one shot would
 quietly become a claim about every other.  So every harvested entry is emitted,
-and the page asks the gateway per shot.  `app/tests/validate-east-catalog.mjs`
+and the page asks the gateway per shot.  `webui/tests/validate-east-catalog.mjs`
 checks the file's shape offline and, when pointed at a server, reports which
 entries resolve — as a report, never as an edit to this file.
 
@@ -110,7 +110,7 @@ def signals_of(block, kind):
 def provenance_path(src):
     """How the source file is NAMED in the published document.
 
-    ★``str(src)`` was an ABSOLUTE PATH, and everything under ``app/`` is
+    ★``str(src)`` was an ABSOLUTE PATH, and everything under ``webui/`` is
     published — so the operator's home directory shipped to the website
     (measured 2026-09-02: ``~/workspace/fydata/...``).  It is also
     the field that rots first: the same file had already moved from
@@ -165,7 +165,7 @@ def build(doc, source_path, source_sha):
                     "into a published file). Names and units "
                     "are the upstream's; this file renames trees to lower case and "
                     "emits nodes as tags. Nothing is verified here — see "
-                    "app/tests/validate-east-catalog.mjs.",
+                    "webui/tests/validate-east-catalog.mjs.",
         },
         "server_hint": live.get("mdsplus"),
         "categories": sorted({d["category"] for d in diagnostics}),
@@ -176,7 +176,7 @@ def build(doc, source_path, source_sha):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--source", required=True, help="east_signal_catalog.yaml from fydata")
-    ap.add_argument("-o", "--out", default="app/facts/device/east-signals.json")
+    ap.add_argument("-o", "--out", default="webui/facts/device/east-signals.json")
     a = ap.parse_args(argv)
 
     src = pathlib.Path(a.source).expanduser()

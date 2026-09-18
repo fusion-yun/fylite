@@ -7,7 +7,7 @@
    "exe": "fy",
    "kind": "single-executable",
    "default_command": "app",
-   "note": "THE executable, and since 2026-09-04 the ONLY one: named `fy` (it was `fylite-app`, then `fylite` — the same name as the Python console script, which made a $PATH lookup find that script itself and fork forever; the Python command line has since been removed altogether and this package is a library). The whole app/ is embedded and every command word is carried here: `app`, `data`, `run`, `list` — one verb each: serve the page, move data, compute, look. With no subcommand it runs `app` so a double-click still works."
+   "note": "THE executable, and since 2026-09-04 the ONLY one: named `fy` (it was `fylite-app`, then `fylite` — the same name as the Python console script, which made a $PATH lookup find that script itself and fork forever; the Python command line has since been removed altogether and this package is a library). The whole webui/ is embedded and every command word is carried here: `app`, `data`, `run`, `list` — one verb each: serve the page, move data, compute, look. With no subcommand it runs `app` so a double-click still works."
   },
   "app": {
    "entry": "index.html",
@@ -17,7 +17,7 @@
      "name": "device",
      "carrier": "query",
      "type": "str",
-     "help": "machine to pin (an id from app/facts/device/catalogue.jsonld); the URL wins over the stored choice"
+     "help": "machine to pin (an id from webui/facts/device/catalogue.jsonld); the URL wins over the stored choice"
     },
     {
      "name": "lang",
@@ -115,7 +115,7 @@
      ],
      "app_param": "device",
      "metavar": "ID",
-     "help": "machine to pin in the opened page (an id from app/facts/device/catalogue.jsonld)"
+     "help": "machine to pin in the opened page (an id from webui/facts/device/catalogue.jsonld)"
     },
     {
      "flags": [
@@ -148,7 +148,7 @@
       "rust"
      ],
      "metavar": "DIR",
-     "help": "(development) serve this directory instead of the embedded app/ — the same request face, a live tree"
+     "help": "(development) serve this directory instead of the embedded webui/ — the same request face, a live tree"
     },
     {
      "flags": [

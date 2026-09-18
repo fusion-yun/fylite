@@ -25,7 +25,7 @@ REPO = pathlib.Path(__file__).resolve().parents[2]
 SPEC_PATH = REPO / "python" / "fylite" / "_cli.json"
 SPEC = json.loads(SPEC_PATH.read_text(encoding="utf-8"))
 
-APP_ASSETS = REPO / "app" / "assets"
+APP_ASSETS = REPO / "webui" / "assets"
 RUST_CLI = REPO / "rust" / "fylite_runtime" / "src" / "cli" / "mod.rs"
 _URL_READER = re.compile(
     r"URLSearchParams\((?:root|window)\.location\.search\)\.get\('([a-z_]+)'\)")
@@ -185,9 +185,9 @@ def test_the_launcher_can_name_every_page_on_disk():
     """
     declared = {p["name"]: p for p in SPEC["hosts"]["app"]["params"]}
     choices = set(declared["page"]["choices"])
-    pages = {p.stem for p in (REPO / "app" / "pages").glob("*.html")
+    pages = {p.stem for p in (REPO / "webui" / "pages").glob("*.html")
              if not p.name.startswith("page_")}
-    assert "home" in choices and (REPO / "app" / "index.html").is_file()
+    assert "home" in choices and (REPO / "webui" / "index.html").is_file()
     assert pages <= choices, {
         "on disk but the launcher cannot name it": sorted(pages - choices)}
     assert (choices - {"home"}) <= pages, {

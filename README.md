@@ -196,23 +196,23 @@ hypothesis and an open attribution list for the residual.
 - **The pages open on device presets** — a page that can be handed any machine
   still needs one to open with. The corpus is `facts/` at the repository root
   (`facts/device/`), and the descriptions travel **compiled into**
-  `fylite_web.wasm`, read through `app/assets/factsdb.js`. One copy, one path.
+  `fylite_web.wasm`, read through `webui/assets/factsdb.js`. One copy, one path.
   Which machine goes into which build is a redistribution decision made per
   entry in its own `rights.json` and answered by `tools/facts-publish.py`, with
   the provenance in `facts/device/catalogue.jsonld`.
 
 ## Browser
 
-[`app/`](app/) is a static site running the same kernel as WebAssembly: prose
+[`webui/`](webui/) is a static site running the same kernel as WebAssembly: prose
 pages (entrance, features, credits) generated in Chinese and English alike,
 scenario pages (`design` / `model` / `analysis`) that switch language in place,
 and two tool pages that compute nothing themselves: a data browser, and a **case
 report** page that renders a plan and its record — the same presentation spec
 `engine.casereport.render` derives, drawn by a port of the same rules
-(`app/tests/validate-report.mjs` holds the two hosts to one spec). Open
-`app/index.html` or serve the directory.
+(`webui/tests/validate-report.mjs` holds the two hosts to one spec). Open
+`webui/index.html` or serve the directory.
 
-Each browser tool has a gate under [`app/tests/`](app/tests/README.md) that
+Each browser tool has a gate under [`webui/tests/`](webui/tests/README.md) that
 sends the page's own exported session file through the native implementation and
 compares.
 
@@ -382,7 +382,7 @@ imas-python, reads with this library, writes with this library, and reads back
 with imas-python and imas-core, leaf by leaf.
 
 There is no CI workflow here; the gates run from a checkout — `cargo test`
-(Rust), `pytest` (the Python tier), `node app/tests/validate-*.mjs` (the site's
+(Rust), `pytest` (the Python tier), `node webui/tests/validate-*.mjs` (the site's
 static gates). Anything needing
 the kernel, a browser or data that is not distributed here is **skipped by
 name** rather than failed: a missing input and a missing implementation are
@@ -396,8 +396,9 @@ different things. That policy and its boundary are stated in
 | `python/fylite/` | assembly, device plumbing, IO, scenarios, the protocol engine (a library, not a CLI) |
 | `rust/fylite_runtime/` | the data layer (source open): data sources ↔ fyo, IMAS netCDF/HDF5, mdsip, the `fy` executable |
 | `python/tests/` | the Python tier — assembly, IO, the protocol faces, the registries, the ABI marshalling (`python/pytest.ini`); the physics/numerics tier is not here, it lives with the code it judges |
-| `app/` | the static browser site and its gates |
-| `app/cases/` | worked **session** documents for the pages' import button — a different thing from the scenario corpus in `docs/examples/`; each one is filtered on the device it declares against the machines the build carries |
+| `webui/` | the browser front end (formerly `app/`): the static site running the kernel as WebAssembly, also embedded whole in `fy app` — and its gates |
+| `webui/cases/` | worked **session** documents for the pages' import button — a different thing from the scenario corpus in `docs/examples/`; each one is filtered on the device it declares against the machines the build carries |
+| `apps/` | standalone application scenarios built on the library (one directory each, sources and inputs only — no `.so`, no generated data; see [`apps/README.md`](apps/README.md)) |
 | `facts/` | the reference corpus, one directory per entry (`facts/device/`), with its redistribution rights |
 | `models/` | neural surrogates as data — one `.npz` each, none compiled in |
 | `docs/examples/` | the runnable specifications, one directory per example, read through `fylite.engine.cases` |
@@ -411,13 +412,13 @@ The Rust kernel source is not published. What is committed here is the whole
 application layer — the Python package, the browser site, the data layer, the
 examples and the registers — plus the generated files the two halves must agree
 on (`_abi.py`, `_fyo_interface.py`, `_deck_names.py`, `_cgs.py`,
-`app/assets/{version,fyo-interface,deck-names}.js`, `abi.json`).
+`webui/assets/{version,fyo-interface,deck-names}.js`, `abi.json`).
 
 Binaries do not travel with the repository. The kernel repository builds **static
 archives only** (`rust/kernel-lib/libfylite_kernel.a` and its wasm32 twin, user
 ruling of 2026-09-16) and installs them into a checkout; everything loadable —
 `python/fylite/_lib/libfylite.so` (kernel *and* data layer in one library), the
-`fy` executable, and all three `app/assets/*.wasm` — is linked here by this
+`fy` executable, and all three `webui/assets/*.wasm` — is linked here by this
 repository's own `bash rust/build.sh`. Distributions pack them:
 `tools/build-wheel.sh`, `tools/build-site.sh`, `tools/build-app-exe.sh`.
 
