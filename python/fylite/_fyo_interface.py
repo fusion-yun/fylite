@@ -1497,6 +1497,7 @@ CODE_PARAMS = {
         'nu': {'key': 'nu', 'type': 'float', 'via': 'vstab_case', 'default': '3.0', 'required': False},
         'nv': {'key': 'nv', 'type': 'float', 'via': 'vstab_case', 'default': '3.0', 'required': False},
         'passive': {'key': 'passive', 'type': 'string', 'via': 'vstab_case'},
+        'passive_take': {'key': 'passive_take', 'type': 'float', 'via': 'vstab_case'},
         'step': {'key': 'step', 'type': 'float', 'via': 'vstab_case', 'default': '1.0e-3', 'required': False},
         'vessel_scale': {'key': 'vessel_scale', 'type': 'float', 'via': 'vstab_case', 'default': '1.0', 'required': False},
     }},

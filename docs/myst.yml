@@ -173,6 +173,7 @@ project:
             - file: benchmark/reports/eq-forward-green-response-shared.md
             - file: benchmark/reports/eq-forward-self-contained-core.md
             - file: benchmark/reports/eq-surface-chease-fixed-boundary-east.md
+            - file: benchmark/reports/eq-surface-mxh-gfile-fit.md
             - file: benchmark/reports/eq-evolve-analytic-circuit-limits.md
             - file: benchmark/reports/mhd-vertical-freegsnke-east137985.md
             - file: benchmark/reports/mhd-vertical-coil-forces-analytic.md
@@ -184,6 +185,7 @@ project:
             - file: benchmark/reports/eq-reconstruct-fast-ion-pressure.md
             - file: benchmark/reports/eq-reconstruct-kinetic-outer.md
             - file: benchmark/reports/eq-reconstruct-curvature-prior.md
+            - file: benchmark/reports/eq-reconstruct-posterior-bands.md
             - file: benchmark/reports/eq-convention-gfile-cocos-roundtrip.md
             - file: benchmark/reports/eq-convention-ladder-flux-gauge.md
             - file: benchmark/reports/tr-closure-15d-source-switches.md

@@ -180,7 +180,47 @@ def identities(case: Path) -> dict:
     bz = np.gradient(psi[:, ja], gr[1] - gr[0]) / gr
     n_idx = -(gr[ia] / bz[ia]) * np.gradient(bz, gr[1] - gr[0])[ia]
     k_id = 2.0 * np.pi * abs(base["ip"]) * n_idx * abs(bz[ia])
-    out["decay_index_identity"] = {
+    #: ★★2026-09-18：门现在报外场 `bz_ext` 与衰减指数 `decay_index`，所以刚度恒等式
+    #: `k = 2 pi Ip n Bz` **量得成了**（此前这一格未评，见记录 1.0 版）。
+    out["stiffness_identity"] = {
+        "bz_ext_T": base.get("bz_ext"), "decay_index": base.get("decay_index"),
+        "k_identity": base.get("k_identity"), "k_door": base["k"],
+        #: ★比的是**量值**：闭式与门的 k 各有自己的符号约定，符号差不是数值差。
+        #: 判据的带是 rel < 1e-4，实测差一个量级以上——原因见记录：闭式是**点**
+        #: 等离子体的说法，而门算的是分布细丝，剩下的就是有限尺寸。
+        "rel_magnitude": (abs(base["k_identity"]) / abs(base["k"]) - 1.0) if base.get("k") else None,
+        "sign_door": float(np.sign(base["k"])), "sign_identity": float(np.sign(base.get("k_identity", 0.0)))}
+
+    #: ★★闭式解 `gamma = (1/tau_w) k/(k_ideal − k)` —— 它**只在阻性壁支成立**
+    #: （`k < k_ideal`）。EAST 卡上一件被动导体的 `k_ideal` 只有 `k` 的 0.4 %，
+    #: 判读直接是理想不稳，闭式给出负值——**那不是不符，是branch不对**。
+    #: 所以这里**扫 `passive_take`**：先找出它在多少件上翻回阻性壁支，再在那里比。
+    ladder = []
+    for take in (1, 2, 5, 10, 20, 40):
+        try:
+            f1, fl1, _ = run(passive_take=float(take))
+            m1 = np.asarray(fl1["m"], float).reshape(int(f1["n_passive"]), -1)
+            r1 = np.asarray(fl1["r"], float)
+            #: tau_w：这一组的最长 L/R 模（单件时就是 L/R 本身）
+            tau_w = float(np.max(np.diag(m1) / r1)) if r1.size else None
+            resistive = f1["regime_code"] == 1.0 and np.isfinite(f1["gamma"])
+            closed = ((1.0 / tau_w) * f1["k"] / (f1["k_ideal"] - f1["k"])
+                      if tau_w and resistive and f1["k_ideal"] != f1["k"] else None)
+            ladder.append({"passive_take": take, "n_passive": f1["n_passive"],
+                           "regime_code": f1["regime_code"], "tau_w_s": tau_w,
+                           "k": f1["k"], "k_ideal": f1["k_ideal"],
+                           "gamma_door": f1["gamma"], "gamma_closed_form": closed,
+                           "rel": (f1["gamma"] / closed - 1.0) if closed else None})
+        except Exception as ex:              # noqa: BLE001 — 拒绝本身是读数
+            ladder.append({"passive_take": take, "refused": f"{type(ex).__name__}: {ex}"})
+    got = [d for d in ladder if d.get("rel") is not None]
+    out["closed_form_ladder"] = {
+        "_comment": "闭式只在阻性壁支成立；这一梯子给出它从哪一档起可比",
+        "sweep": ladder,
+        "smallest_resistive_take": min((d["passive_take"] for d in got), default=None),
+        "best_rel": min((abs(d["rel"]) for d in got), default=None)}
+
+    out["decay_index_identity_superseded"] = {
         "evaluated": False,
         "why": "the identity needs the EXTERNAL vertical field and its decay index; the door reports neither, "
                "and the total psi cannot stand in for it — grad psi vanishes on the axis by construction",

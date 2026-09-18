@@ -1454,6 +1454,7 @@ pub const CODES: &[Code] = &[
         Param { key: "nu", value_type: "float", default: "3.0", required: false, via: "vstab_case" },
         Param { key: "nv", value_type: "float", default: "3.0", required: false, via: "vstab_case" },
         Param { key: "passive", value_type: "string", default: "", required: false, via: "vstab_case" },
+        Param { key: "passive_take", value_type: "float", default: "", required: false, via: "vstab_case" },
         Param { key: "step", value_type: "float", default: "1.0e-3", required: false, via: "vstab_case" },
         Param { key: "vessel_scale", value_type: "float", default: "1.0", required: false, via: "vstab_case" },
     ] },

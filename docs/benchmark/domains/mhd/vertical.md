@@ -23,6 +23,27 @@ $\mu_0 I/2R$；再加一条系统合力 $F_z = 0$。四条一起过，接线就�
 后来查明是超导线圈的屏蔽。★这类改判是记录制度**在起作用**的证据，不是它的污点——
 所以本册要求每条记录带 `change[]`，把改判本身留在册里。
 
+### 那三个够不着的锚，现在都量过了（2026-09-18）
+
+上一段说 `FR-EQ-016` 的三个解析锚「这扇门够不着」。内核补齐之后三格**全部从「够不着」转为「量过了」**，
+而量过之后结论并不一样：
+
+**耦合梯度**判**成立**——但不是照判据的字面。判据原话是「对互感中心差分逐位」，
+而 `coupling_gradient` 里的 `dmdz` **就是**那个中心差分，照字面写出来的门恒真、验不出任何东西。
+换成近轴的闭式 $M=\mu_0\pi r^2a^2/(2(a^2+z^2)^{3/2})$ 之后，偏差按 $r^2$ 趋近，**比值 4.00**。
+
+**刚度恒等式**判**不成立**，而这是一条**有信息的**不成立。门补报外场 $B_z$ 与衰减指数之后
+（EAST 上 −0.07536 T、$n=-1.128$），$|k|$ 对到 **0.89 %**——判据要 1e-4。
+★差的是**点等离子体与 814 根分布细丝之间的有限尺寸**，不是接线：若接线错了，这个比值不会落在 1 附近。
+
+**单回路**仍判未评，但不再是「配不出来」。门补了 `passive_take` 之后配得出来了，
+而 EAST 内壳上 $k_{ideal}$ 随件数从 791.8 长到 2.712e5，**只有整层 40 件才翻回阻性壁支**——
+一件被动导体撑不住这台机器，闭式的分支条件根本不成立。★要验它需要一张能被单件导体镇定的装置卡。
+
+★★另记一处**我自己引入、被既有门禁逮住的回归**：补报外场时把 `axis_r`/`axis_z` 从可选读成了必需，
+4 道 vstab 测试当场红。**一个新报的量把旧输入变成强制，是最容易溜过去的破坏性改动**——
+它不改任何既有数字，只把一部分调用方从「能解」变成「被拒」。
+
 ### 线圈受力：锚全钉牢了，而没有第二套实现说过话（2026-09-17）
 
 `FR-EQ-014` 从空缺转为记录。2026-09-17 之前内核里**受力计算一处都没有**（全仓搜
@@ -93,8 +114,8 @@ efund）、`V-23`（ITER 被动回路）、`C-03`（TokSys rzrig）。已退役�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.1 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
-| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 1.2 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.2 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
+| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.1 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
 
 ### 缺口
 

@@ -17,7 +17,89 @@
    "regime: resistive-wall"
   ]
  },
- "decay_index_identity": {
+ "stiffness_identity": {
+  "bz_ext_T": -0.07536127677620633,
+  "decay_index": -1.1280177891735634,
+  "k_identity": -209756.11226537768,
+  "k_door": 211638.63752228953,
+  "rel_magnitude": -0.008894997997298981,
+  "sign_door": 1.0,
+  "sign_identity": -1.0
+ },
+ "closed_form_ladder": {
+  "_comment": "\u95ed\u5f0f\u53ea\u5728\u963b\u6027\u58c1\u652f\u6210\u7acb\uff1b\u8fd9\u4e00\u68af\u5b50\u7ed9\u51fa\u5b83\u4ece\u54ea\u4e00\u6863\u8d77\u53ef\u6bd4",
+  "sweep": [
+   {
+    "passive_take": 1,
+    "n_passive": 1.0,
+    "regime_code": 2.0,
+    "tau_w_s": 0.001592269075948134,
+    "k": 211638.63752228953,
+    "k_ideal": 791.8435518168403,
+    "gamma_door": Infinity,
+    "gamma_closed_form": null,
+    "rel": null
+   },
+   {
+    "passive_take": 2,
+    "n_passive": 2.0,
+    "regime_code": 2.0,
+    "tau_w_s": 0.0016007307283827895,
+    "k": 211638.63752228953,
+    "k_ideal": 7853.701291683725,
+    "gamma_door": Infinity,
+    "gamma_closed_form": null,
+    "rel": null
+   },
+   {
+    "passive_take": 5,
+    "n_passive": 5.0,
+    "regime_code": 2.0,
+    "tau_w_s": 0.0016007307283827895,
+    "k": 211638.63752228953,
+    "k_ideal": 43576.96879129785,
+    "gamma_door": Infinity,
+    "gamma_closed_form": null,
+    "rel": null
+   },
+   {
+    "passive_take": 10,
+    "n_passive": 10.0,
+    "regime_code": 2.0,
+    "tau_w_s": 0.0016007307283827895,
+    "k": 211638.63752228953,
+    "k_ideal": 80126.21961545553,
+    "gamma_door": Infinity,
+    "gamma_closed_form": null,
+    "rel": null
+   },
+   {
+    "passive_take": 20,
+    "n_passive": 20.0,
+    "regime_code": 2.0,
+    "tau_w_s": 0.0016007307283827895,
+    "k": 211638.63752228953,
+    "k_ideal": 105372.20552272655,
+    "gamma_door": Infinity,
+    "gamma_closed_form": null,
+    "rel": null
+   },
+   {
+    "passive_take": 40,
+    "n_passive": 40.0,
+    "regime_code": 1.0,
+    "tau_w_s": 0.0016007307283827895,
+    "k": 211638.63752228953,
+    "k_ideal": 271194.53879908763,
+    "gamma_door": 678.2228570639006,
+    "gamma_closed_form": 2219.9943733103937,
+    "rel": -0.6944934342096761
+   }
+  ],
+  "smallest_resistive_take": 40,
+  "best_rel": 0.6944934342096761
+ },
+ "decay_index_identity_superseded": {
   "evaluated": false,
   "why": "the identity needs the EXTERNAL vertical field and its decay index; the door reports neither, and the total psi cannot stand in for it \u2014 grad psi vanishes on the axis by construction",
   "naive_total_psi_route": {

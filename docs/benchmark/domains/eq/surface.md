@@ -22,6 +22,26 @@ $r$，以及磁面平均的权重取哪一个。两个码的 `gm1` 差一个量�
 
 上一册的 `V-15`（g 文件往返）与 `B-16` / `B-10`（定边界对 CHEASE）落在这一域。同前，已退役。
 
+### MXH 拟合：残差堆在 X 点上（2026-09-18）
+
+`FR-EQ-013` 的边界拟合一格入册。2026-09-18 之前内核只**吃** MXH 参数（`code/metric` 按面算度规），
+**没有「给一条边界拟合 MXH」这一步**。
+
+MXH 与 Miller 的分界在于：**$\theta$ 由 $Z$ 定义、$\theta_R$ 由 $R$ 定义**，形状全部落在那个角度偏移里，
+于是它是一列傅里叶系数而不是一组各自为政的形状参数——拟合因此不需要非线性迭代。
+
+★★**两道测试必须成对，这一条给出了证据**：圆钉退化（每条谐波为零，实测 6.5e-16），
+已知形钉非退化（系数原样回来）。而**两个分支 bug 都是后者逮住的，前者对它们一声不响**——
+圆的角度偏移恒为零，两个分支重合。第二个 bug 尤其值得记：改完第一处之后仍有 4.7e-4，
+**而它不随点数收敛**（6.6e-4 / 5.3e-4 / 4.7e-4，比值 1.2）。★离散化误差按幂次缩，
+系统性挑错不会——**「不收敛」这件事本身就是诊断**。
+
+真机上：EAST 0.95–1.35 %、CFEDR 0.31–1.36 % 在判据的 2.4 % 带内，**DIII-D 2.460 % 刚出带**。
+★★但更有信息的是**残差落在哪**：EAST 在 $\theta/\pi\approx0.35$、$z/a\approx+1.45$（上 X 点），
+DIII-D 与 CFEDR 在 $\theta/\pi\approx1.5$–$1.7$、$z/a\approx-1.7$（下 X 点）——**无一例外**。
+MXH 的六阶谐波表达不了尖角，所以这不是这份实现的缺陷，是这族参数化的性质。
+详见 [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -54,7 +74,8 @@ $r$，以及磁面平均的权重取哪一个。两个码的 `gm1` 差一个量�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.6 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
+| [`eq-surface-chease-fixed-boundary-east`](../../reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 | CHEASE | 1.7 | 草稿 | [jsonld](../../records/eq-surface-chease-fixed-boundary-east.jsonld) |
+| [`eq-surface-mxh-gfile-fit`](../../reports/eq-surface-mxh-gfile-fit.md) | 验证 | 未判（读数） | 闭式 —— 圆的精确退化与一个已知 MXH 形的原样回收 · 本机拿得到的 g-file 边界 | 1.0 | 草稿 | [jsonld](../../records/eq-surface-mxh-gfile-fit.jsonld) |
 
 ### 缺口
 

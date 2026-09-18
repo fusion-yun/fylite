@@ -150,11 +150,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:8252123281c07bcbb632c6472624e2282e8f0f87e9922f279567c6876976c122"
+   "checksum": "sha256:e15d03f542fa89ea3650ab02d199238a0f9d528b2c2b4df0cbe86b70070203dd"
   }
  },
  "provenance": {
-  "record_version": "3.2",
+  "record_version": "3.3",
   "recorded": "2026-09-17",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -195,6 +195,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`NR-EQ-001` 的通量规统一入内核，ABI 154 → 155）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **671 项全通过**，公开仓侧 2783 项通过。★这一批改动会移动 `code/discharge` 的 ρ 与无 q 剖面时文档梯子的 q（见 `eq-convention-ladder-flux-gauge`）；本条的数**不在那两条路径上**，故未变。"
+   },
+   {
+    "record_version": "3.3",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-013` MXH 拟合 · `NR-EQ-003` 后验协方差 · `FR-EQ-016` 补三处入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **675 项全通过**，公开仓侧 2809 项通过。★这一批内核改动是**纯增量**（新函数、既有门加字段与可选设定），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }

@@ -1,0 +1,74 @@
+{
+ "case": "FYDOC-CASE-23-east-137985-efit-east",
+ "sigma_scale": [
+  0.5,
+  1.0,
+  2.0
+ ],
+ "runs": {
+  "0.5": {
+   "chi2_per_dof": 0.08931595778764449,
+   "dof": 152.0,
+   "n_coef": 2,
+   "coef_sigma": [
+    48189.01891612591,
+    0.1748353393431078
+   ],
+   "pprime_sigma_max": 7669.5205632502875,
+   "ffprim_sigma_max": 0.02782590848360453,
+   "pprime_band_over_value_median": 0.22827142221298932,
+   "cov_is_symmetric": 3.637978807091713e-12,
+   "cov_min_eigenvalue": -6.938893903907228e-18
+  },
+  "1.0": {
+   "chi2_per_dof": 0.022328989446911123,
+   "dof": 152.0,
+   "n_coef": 2,
+   "coef_sigma": [
+    96378.03783225182,
+    0.3496706786862156
+   ],
+   "pprime_sigma_max": 15339.041126500575,
+   "ffprim_sigma_max": 0.05565181696720906,
+   "pprime_band_over_value_median": 0.45654284442597864,
+   "cov_is_symmetric": 1.4551915228366852e-11,
+   "cov_min_eigenvalue": -2.7755575615628914e-17
+  },
+  "2.0": {
+   "chi2_per_dof": 0.005582247361727781,
+   "dof": 152.0,
+   "n_coef": 2,
+   "coef_sigma": [
+    192756.07566450365,
+    0.6993413573724312
+   ],
+   "pprime_sigma_max": 30678.08225300115,
+   "ffprim_sigma_max": 0.11130363393441813,
+   "pprime_band_over_value_median": 0.9130856888519573,
+   "cov_is_symmetric": 5.820766091346741e-11,
+   "cov_min_eigenvalue": -1.1102230246251565e-16
+  }
+ },
+ "scaling": {
+  "_comment": "\u7ebf\u6027\u62df\u5408\u7684\u7cbe\u786e\u6027\u8d28\uff1a\u6d4b\u91cf sigma \u6574\u4f53\u4e58 k\uff0c\u540e\u9a8c sigma \u4e5f\u8be5\u4e58 k",
+  "pprime_sigma_ratio": {
+   "0.5": 0.5,
+   "1.0": 1.0,
+   "2.0": 2.0
+  },
+  "coef_sigma_ratio": {
+   "0.5": [
+    0.5,
+    0.5
+   ],
+   "1.0": [
+    1.0,
+    1.0
+   ],
+   "2.0": [
+    2.0,
+    2.0
+   ]
+  }
+ }
+}

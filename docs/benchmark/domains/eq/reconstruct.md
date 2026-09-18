@@ -93,6 +93,24 @@ $\chi^2$ 小**不证明前向解对**（那是前向域的事）。
 上一册这一域最厚：`B-06` / `B-11` / `B-12`（EAST 重构、对 EFIT-EAST、对原始树 KEFIT）、
 `B-15` / `V-18`（孪生对 KEFIT / 孪生重构）。已退役。
 
+### 后验 σ 带：它有多宽本身是一条结论（2026-09-18）
+
+`NR-EQ-003` 入册。判据只有一句「后验 / σ 带随 fit 报告出」，而**「报出」是最低的一档**——
+一个报出全零带的实现满足它的字面，却什么也没告诉读者。所以本册自立了三格：
+带随输入 σ 的标度、$I_p$ 约束方向、协方差的合法性。
+
+做法上几乎白送：权重是 $1/\sigma$，于是 $A^\top W^2A$ 就是 Fisher 信息，它的截断伪逆是无约束后验；
+$I_p$ 那条等式约束的投影闭式里，$C_0g$ 与 $g^\top C_0g$ **求解器本来就算了**（等式约束的拉格朗日修正用的正是它们）。
+
+★★锚是 **4000 次蒙特卡洛**——一个协方差唯一可证伪的检验是「照它说的噪声反复拟合，系数真按它散开吗」，
+实测最劣差 3.661e-2（MC 自身噪声 2.2 %）。带随测量 σ **精确**按 0.5 / 1 / 2 走；$I_p$ 方向的方差 5.963e-19 对迹 1.023e-2。
+
+★★**而这条记录真正该被引用的是那个宽度**：EAST 孪生上 $p'$ 的 1σ 带是它自身值的 **46 %**。
+纯磁测量的重构只能把 $p'$ 约束到这个程度——此前这扇门吐一条 $p'$ 曲线而不说这件事，
+读者没有办法知道该信它到什么程度。它与上面「多给自由度反而更坏」是同一件事的两面：
+**磁测量管不住的方向，现在带宽把它说出来了**。
+详见 [`eq-reconstruct-posterior-bands`](../../reports/eq-reconstruct-posterior-bands.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -139,18 +157,18 @@ $\chi^2$ 小**不证明前向解对**（那是前向域的事）。
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-reconstruct-curvature-prior`](../../reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 | 同一次孪生的已知真值 q0，以及不加正则的简并解 | 1.4 | 草稿 | [jsonld](../../records/eq-reconstruct-curvature-prior.jsonld) |
-| [`eq-reconstruct-fast-ion-pressure`](../../reports/eq-reconstruct-fast-ion-pressure.md) | 验证 | 成立 | 它自己不绑快离子压强的那一次 | 1.4 | 草稿 | [jsonld](../../records/eq-reconstruct-fast-ion-pressure.jsonld) |
-| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.5 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
-| [`eq-reconstruct-kinetic-outer`](../../reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 | 同一次孪生的**已知真映射**，以及单遍（kinetic_passes = 1）的结果 | 1.4 | 草稿 | [jsonld](../../records/eq-reconstruct-kinetic-outer.jsonld) |
-| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.6 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
-| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.5 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
+| [`eq-reconstruct-curvature-prior`](../../reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 | 同一次孪生的已知真值 q0，以及不加正则的简并解 | 1.5 | 草稿 | [jsonld](../../records/eq-reconstruct-curvature-prior.jsonld) |
+| [`eq-reconstruct-fast-ion-pressure`](../../reports/eq-reconstruct-fast-ion-pressure.md) | 验证 | 成立 | 它自己不绑快离子压强的那一次 | 1.5 | 草稿 | [jsonld](../../records/eq-reconstruct-fast-ion-pressure.jsonld) |
+| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.6 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
+| [`eq-reconstruct-kinetic-outer`](../../reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 | 同一次孪生的**已知真映射**，以及单遍（kinetic_passes = 1）的结果 | 1.5 | 草稿 | [jsonld](../../records/eq-reconstruct-kinetic-outer.jsonld) |
+| [`eq-reconstruct-posterior-bands`](../../reports/eq-reconstruct-posterior-bands.md) | 验证 | 成立 | 蒙特卡洛的经验散布 · 线性拟合的精确标度性质 | 1.0 | 草稿 | [jsonld](../../records/eq-reconstruct-posterior-bands.jsonld) |
+| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.7 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
+| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.6 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 2 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
 - `FR-EQ-009` 内部约束行几何门控
-- `NR-EQ-003` 不确定度传播
 
 <!-- END GENERATED -->

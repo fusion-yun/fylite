@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**34** 条（59 %）
-- ★**MUST 级空缺 (open MUST)：19 条**
+- 已有记录覆盖 (covered)：**36** 条（63 %）
+- ★**MUST 级空缺 (open MUST)：18 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -33,7 +33,7 @@ title: 需求覆盖 (Requirement coverage)
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-003` | MUST | 磁面分析（0 维 / 1 维几何量与磁面积分） | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
 | `FR-EQ-012` | SHOULD | 固定边界高精度重解与磁面平均目录 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | 对拍 | 成立 |
-| `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | — | — | — |
+| `FR-EQ-013` | SHOULD | MXH 磁面形状参数化与拟合 | [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | 验证 | 未判（读数） |
 
 ## 平衡 (Equilibrium) · 演化自由边界与涡流电路
 
@@ -63,7 +63,7 @@ title: 需求覆盖 (Requirement coverage)
 | `FR-EQ-009` | MUST | 内部约束行几何门控 | — | — | — |
 | `FR-EQ-010` | MUST | kinetic-EFIT 自洽外环接口 | [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 |
 | `FR-EQ-011` | MUST | 源剖面曲率正则 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 |
-| `NR-EQ-003` | MUST | 不确定度传播 | — | — | — |
+| `NR-EQ-003` | MUST | 不确定度传播 | [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | 验证 | 成立 |
 | `NR-EQ-004` | MUST | 孪生实验可验证（可观测空间） | [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 |
 
 ## 平衡 (Equilibrium) · 约定与口径：COCOS 与插件接入
@@ -207,7 +207,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-EQ-030` | 全 delta-W、V5 基准与阻性壁模 | 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段） |
 | `FR-EQ-031` | 全 delta-W、V5 基准与阻性壁模 | 理想壁分支与薄壁阻性壁模（E-3 第一级） |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
-| `NR-EQ-003` | 测量重构与约束阶梯 | 不确定度传播 |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
 
