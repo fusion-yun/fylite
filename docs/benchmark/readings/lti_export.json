@@ -1,0 +1,24 @@
+{
+  "_comment": "FR-EQ-015 装置电磁线性模型导出 —— 2026-09-18。门：python/tests/test_lti_export.py",
+  "module": "python/fylite/scenario/control/lti.py",
+  "model": "dI/dt = A I + B v, y = C I + D v; A = -M_eff^-1 R; static: M_eff = M; rigid: M_eff = M - (Ip^2/k) G G^T; perturbed_gs refused",
+  "zero_plasma": {
+    "single_loop": "A = -R/L exactly",
+    "two_loops": "eigenvalues equal the roots of (L1 L2 - M12^2) l^2 + (L1 R2 + L2 R1) l + R1 R2, rtol 1e-12"
+  },
+  "rigid_single_loop": {
+    "formula": "gamma = k R / (Ip^2 G^2 - k L)",
+    "rel": "< 1e-12"
+  },
+  "rank_one": "A_rigid equals -M_eff^-1 R with M_eff^-1 from Sherman-Morrison, rtol 1e-9",
+  "ideal_limit": "k >= k_ideal = Ip^2 G^T M^-1 G refused; in the resistive-wall regime M_eff has one negative eigenvalue (the mode)",
+  "east_137985": {
+    "states": 102,
+    "gamma_export_per_s": 3.43361,
+    "gamma_door_per_s": 3.43361,
+    "rel": 7.37e-15,
+    "static_gamma": 0.0,
+    "static_note": "12 superconducting PF coils (R = 0) give zero-decay modes"
+  },
+  "carrier": "em_coupling/coupling_matrix: M_eff, R, A, B, C, D; gamma in code.parameters"
+}

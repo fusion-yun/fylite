@@ -88,6 +88,18 @@ note，三者同时出现），最远那一档**按名拒绝**：被动电感矩
 上一册这一域有 `B-17` / `B-18`（对 FreeGSNKE 的壁与竖直不稳）、`B-19` / `B-20`（对 KEFIT 的
 efund）、`V-23`（ITER 被动回路）、`C-03`（TokSys rzrig）。已退役。
 
+### 装置电磁线性模型导出（2026-09-18）
+
+`FR-EQ-015` 入册，判**成立**。新模块 `fylite.scenario.control.lti` 把 `code/vstab` 那扇门已经给出的矩阵装成
+$\dot{\mathbf I}=\mathbf A\mathbf I+\mathbf B\mathbf v$、$\mathbf y=\mathbf C\mathbf I+\mathbf D\mathbf v$，落 `em_coupling` 的 `coupling_matrix`。
+等离子体响应是**参数**（静止 / 刚性位移），不是函数名；摄动 G-S 档未实现、按名拒绝。
+零等离子体极限对两回路闭式本征值 1e-12；EAST #137985 上导出模型的最大本征值 3.43361 /s 与门的 γ 相对 7.4e-15。
+
+★★**判读的符号初版写反了**：以为「$\mathbf M_{\rm eff}$ 不正定」就是越过理想极限。恰好相反——阻性壁档里
+$\mathbf M_{\rm eff}=\mathbf M-(I_p^2/k)\mathbf G\mathbf G^T$ **恰有一个负本征值，那就是不稳定的竖直模**；越过理想极限时它反而转正定，
+$\mathbf A$ 会读成「稳」。现在按 $k\ge k_{\rm ideal}=I_p^2\mathbf G^T\mathbf M^{-1}\mathbf G$ 拒绝导出。
+详见 [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -116,11 +128,10 @@ efund）、`V-23`（ITER 被动回路）、`C-03`（TokSys rzrig）。已退役�
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.8 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
 | [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.7 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-lti-export`](../../reports/mhd-vertical-lti-export.md) | 验证 | 成立 | 纯电路的解析本征值；单回路刚性色散根；FR-EQ-016 竖直稳定性门的 γ | 1.0 | 草稿 | [jsonld](../../records/mhd-vertical-lti-export.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-EQ-015` 装置电磁线性模型导出（路线）
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->

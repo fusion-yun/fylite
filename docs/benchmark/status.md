@@ -25,10 +25,10 @@ title: 验证状态 (Verification status)
 
 ## 总览 (overview)
 
-- 记录 (records)：**52** 条
-- 判决 (verdict)：成立 40 · 不成立 **1** · 未判 11 · 未评估 0
-- 新鲜度 (freshness)：当前 52 · **过期 0** · 未知 0
-- 评审 (review)：已评审 0 · 草稿 52 · 已被取代 0
+- 记录 (records)：**53** 条
+- 判决 (verdict)：成立 41 · 不成立 **1** · 未判 11 · 未评估 0
+- 新鲜度 (freshness)：当前 53 · **过期 0** · 未知 0
+- 评审 (review)：已评审 0 · 草稿 53 · 已被取代 0
 
 ## 已裁定保留的缺口 (retained open defects)
 
@@ -110,7 +110,7 @@ title: 验证状态 (Verification status)
 | 平衡 (Equilibrium) | [静态逆解：形状到线圈电流](domains/eq/inverse.md) | 1 | 1 | 2 | 1 | 0 | 0 |
 | 平衡 (Equilibrium) | [测量重构与约束阶梯](domains/eq/reconstruct.md) | 8 | 6 | 7 | 7 | 0 | 0 |
 | 平衡 (Equilibrium) | [约定与口径：COCOS 与插件接入](domains/eq/convention.md) | 2 | 2 | 2 | 2 | 0 | 0 |
-| MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 2 | 2 | 0 | 0 | 0 |
+| MHD 稳定性 (MHD Stability) | [竖直稳定性、线圈受力与电磁线性模型](domains/mhd/vertical.md) | 3 | 3 | 3 | 1 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界](domains/mhd/analytic.md) | 2 | 2 | 2 | 2 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [能量原理变分内核 L2](domains/mhd/energy.md) | 7 | 7 | 7 | 5 | 0 | 0 |
 | MHD 稳定性 (MHD Stability) | [全 delta-W、V5 基准与阻性壁模](domains/mhd/deltaw.md) | 6 | 6 | 6 | 6 | 0 | 0 |
@@ -162,6 +162,7 @@ title: 验证状态 (Verification status)
 | [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 未判（读数） | 1.8 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 未判（读数） | 2.7 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
+| [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.0 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.13 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.14 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |
 | [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.11 | 2026-09-18 | 草稿 | `sha256:94645111a7e2…` | current |

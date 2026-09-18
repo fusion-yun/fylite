@@ -14,9 +14,9 @@
   "groups": 3,
   "domains": 16,
   "requirements": 57,
-  "covered": 51,
-  "open_must": 3,
-  "records": 52,
+  "covered": 52,
+  "open_must": 2,
+  "records": 53,
   "stale": 0,
   "failing": 1
  },
@@ -503,6 +503,19 @@
     "FR-EQ-016"
    ],
    "record_version": "2.7",
+   "review_status": "draft",
+   "freshness": "current"
+  },
+  {
+   "id": "benchmark/records/mhd-vertical-lti-export",
+   "domain": "mhd-vertical",
+   "path": "records/mhd-vertical-lti-export.jsonld",
+   "comparison_kind": "verification",
+   "overall_verdict": "pass",
+   "requirement": [
+    "FR-EQ-015"
+   ],
+   "record_version": "1.0",
    "review_status": "draft",
    "freshness": "current"
   },

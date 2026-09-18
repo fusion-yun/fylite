@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**51** 条（89 %）
-- ★**MUST 级空缺 (open MUST)：3 条**
+- 已有记录覆盖 (covered)：**52** 条（91 %）
+- ★**MUST 级空缺 (open MUST)：2 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -82,7 +82,7 @@ title: 需求覆盖 (Requirement coverage)
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-014` | MUST | 线圈受力与导体表面场 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） |
-| `FR-EQ-015` | MUST | 装置电磁线性模型导出（路线） | — | — | — |
+| `FR-EQ-015` | MUST | 装置电磁线性模型导出（路线） | [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | 验证 | 成立 |
 | `FR-EQ-016` | MUST | 轴对称 $n=0$ 竖直稳定性判读 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） |
 
 ## MHD 稳定性 (MHD Stability) · 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界
@@ -190,7 +190,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | 需求 | 域 | 标题 |
 | :--- | :--- | :--- |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
-| `FR-EQ-015` | 竖直稳定性、线圈受力与电磁线性模型 | 装置电磁线性模型导出（路线） |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)
