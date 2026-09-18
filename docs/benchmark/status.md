@@ -125,25 +125,25 @@ title: 验证状态 (Verification status)
 
 | 记录 | 域 | 类 | 判决 | 版本 | 末次修订 | 评审 | 跑在内核 | 新鲜度 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-convention-ladder-flux-gauge`](reports/eq-convention-ladder-flux-gauge.md) | eq-convention | 验证 | 成立 | 1.8 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | eq-reconstruct | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 未判（读数） | 1.7 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.5 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.6 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
@@ -163,8 +163,8 @@ title: 验证状态 (Verification status)
 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 未判（读数） | 1.9 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 未判（读数） | 2.8 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.1 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.14 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.16 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
@@ -177,9 +177,9 @@ title: 验证状态 (Verification status)
 | [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.0 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.16 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:e16301fa3acd…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

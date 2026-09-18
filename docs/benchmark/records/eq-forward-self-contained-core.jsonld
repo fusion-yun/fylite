@@ -166,7 +166,7 @@
   }
  },
  "provenance": {
-  "record_version": "1.14",
+  "record_version": "1.15",
   "recorded": "2026-09-17",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -194,7 +194,7 @@
     "record_version": "1.3",
     "date": "2026-09-17",
     "by": "Claude Opus 5 (1M context)",
-    "summary": "内核换代后的全册重验（`FR-EQ-002/008/010/011` 与 0D 三项入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：fylite 侧 110 道、内核侧 656 项全通过。"
+    "summary": "内核再次换代后的全册重验（`ac8c0f5c` → `eb8c9022`：ETS 五型边界、燃烧→密度的接线、时间收敛阶，内核仓 `acd1628`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：165 道门禁全过、660 项既有内核测试一项没动。（★2026-09-18 改正：原文误抄了 1.1 的摘要。）"
    },
    {
     "record_version": "1.4",
@@ -261,6 +261,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。"
+   },
+   {
+    "record_version": "1.15",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "改正误抄的变更摘要：1.3 原文照抄了 1.1，而两条之间隔着一条真实改动，合并会打乱时序，故只把 1.3 改写成它实际对应的那次换代（`eb8c9022`）。★本条的判据与数值未动。"
    }
   ]
  }

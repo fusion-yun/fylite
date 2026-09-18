@@ -31,7 +31,7 @@
     "NR-EQ-001",
     "NR-EQ-006"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -57,7 +57,7 @@
    "requirement": [
     "FR-EQ-004"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -70,7 +70,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -83,7 +83,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -109,7 +109,7 @@
    "requirement": [
     "FR-EQ-001"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -123,7 +123,7 @@
     "NR-EQ-005",
     "NR-TR-004"
    ],
-   "record_version": "1.14",
+   "record_version": "1.15",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -137,7 +137,7 @@
     "FR-EQ-001",
     "NR-EQ-002"
    ],
-   "record_version": "1.14",
+   "record_version": "1.15",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -150,7 +150,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -163,7 +163,7 @@
    "requirement": [
     "FR-EQ-005"
    ],
-   "record_version": "1.14",
+   "record_version": "1.15",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -202,7 +202,7 @@
    "requirement": [
     "FR-EQ-006"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -254,7 +254,7 @@
    "requirement": [
     "FR-EQ-006"
    ],
-   "record_version": "1.13",
+   "record_version": "1.14",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -268,7 +268,7 @@
     "FR-EQ-003",
     "FR-EQ-012"
    ],
-   "record_version": "1.14",
+   "record_version": "1.15",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -529,7 +529,7 @@
     "FR-TR-004",
     "FR-TR-009"
    ],
-   "record_version": "1.14",
+   "record_version": "1.15",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -542,7 +542,7 @@
    "requirement": [
     "FR-TR-004"
    ],
-   "record_version": "1.15",
+   "record_version": "1.16",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -711,7 +711,7 @@
    "requirement": [
     "FR-TR-005"
    ],
-   "record_version": "1.15",
+   "record_version": "1.16",
    "review_status": "draft",
    "freshness": "current"
   },
@@ -738,7 +738,7 @@
    "requirement": [
     "FR-TR-014"
    ],
-   "record_version": "1.15",
+   "record_version": "1.16",
    "review_status": "draft",
    "freshness": "current"
   }
