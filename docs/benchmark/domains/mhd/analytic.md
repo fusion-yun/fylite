@@ -50,6 +50,23 @@ $\alpha_c(s)$——这两级在教科书里有闭式答案，所以它们能被�
 实测收敛阶 2.98 而不是 4——照实记，还有一处三阶的环没找出来。
 详见 [`mhd-analytic-external-kink-qlimit`](../../reports/mhd-analytic-external-kink-qlimit.md)。
 
+### 尺的第二格：气球模第一稳定边界（2026-09-18）
+
+`FR-EQ-018` 入册，判**成立**——这一域到此清空。s-α 模型下偶模从 $F(0)=1$、$F'(0)=0$ 打出去，
+Newcomb 节点判据：域内有零点即不稳，于是打靶量 $S(\alpha)=F(\theta_{max})$ 的零点就是边界。
+$\alpha=0$ 时它**逐位**是 1；$\alpha_c(s)$ 单调升，$s=1$ 处 0.6086（教科书 $\approx0.6$），大剪切端斜率 0.60 / 0.62。
+
+★★**上面要求「记明不够的那一档」，这一条记下的东西与判据写的方向相反**：
+判据说上游「16 不够，偏低 3.6 %」，而这里的 16 是**偏高** 0.97 %。原因是结构性的——
+真边界上节点在无穷远，有限截断要等 $\alpha$ 再大一点把节点拉进域内才看得见，所以截断**从上方**收敛。
+★方向不同说明两边的「截断」不是同一个量；**不去凑那个 3.6 %**，凑出来的数就不再是测量。
+
+★★而本实现的截断有一样比「24 vs 32 < 1e-3」有用得多的东西：**它的误差严格按 $1/N$ 走**
+（逐段差除以 $\Delta(1/N)$ 恒为 0.094，彼此差不到 1.5 %）。律一旦量准，Richardson 一阶消去就是对的那一阶，
+外推换一对 $N$ 只动 3e-5——**这才是收敛的证据**。单看两档之差不行：24 vs 32 以 1.7 % 的余量过了判据，
+而 32→48 同样动 1e-3。
+详见 [`mhd-analytic-ballooning-first-stability`](../../reports/mhd-analytic-ballooning-first-stability.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -72,12 +89,11 @@ $\alpha_c(s)$——这两级在教科书里有闭式答案，所以它们能被�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-analytic-external-kink-qlimit`](../../reports/mhd-analytic-external-kink-qlimit.md) | 验证 | 成立 | 均匀电流柱的闭式带边 | 1.0 | 草稿 | [jsonld](../../records/mhd-analytic-external-kink-qlimit.jsonld) |
+| [`mhd-analytic-ballooning-first-stability`](../../reports/mhd-analytic-ballooning-first-stability.md) | 验证 | 成立 | s-α 模型的教科书性质（Connor · Hastie · Taylor 1978） | 1.0 | 草稿 | [jsonld](../../records/mhd-analytic-ballooning-first-stability.jsonld) |
+| [`mhd-analytic-external-kink-qlimit`](../../reports/mhd-analytic-external-kink-qlimit.md) | 验证 | 成立 | 均匀电流柱的闭式带边 | 1.1 | 草稿 | [jsonld](../../records/mhd-analytic-external-kink-qlimit.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 1 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-EQ-018` 气球模第一稳定边界（L1）
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->

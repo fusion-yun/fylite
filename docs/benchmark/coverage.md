@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**37** 条（64 %）
-- ★**MUST 级空缺 (open MUST)：17 条**
+- 已有记录覆盖 (covered)：**38** 条（66 %）
+- ★**MUST 级空缺 (open MUST)：16 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -92,7 +92,7 @@ title: 需求覆盖 (Requirement coverage)
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `FR-EQ-017` | MUST | 理想外扭曲模的 q 极限（L0） | [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | 验证 | 成立 |
-| `FR-EQ-018` | MUST | 气球模第一稳定边界（L1） | — | — | — |
+| `FR-EQ-018` | MUST | 气球模第一稳定边界（L1） | [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | 验证 | 成立 |
 
 ## MHD 稳定性 (MHD Stability) · 能量原理变分内核 L2
 
@@ -191,7 +191,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | :--- | :--- | :--- |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-015` | 竖直稳定性、线圈受力与电磁线性模型 | 装置电磁线性模型导出（路线） |
-| `FR-EQ-018` | 解析判据阶梯：外扭曲模 q 极限与气球模第一稳定边界 | 气球模第一稳定边界（L1） |
 | `FR-EQ-019` | 能量原理变分内核 L2 | 能量原理变分内核（L2 的 B1：柱极限） |
 | `FR-EQ-020` | 能量原理变分内核 L2 | 环几何耦合的组装机器（L2 的 B2 机器面） |
 | `FR-EQ-021` | 能量原理变分内核 L2 | 表面电流模型的解析 β 极限（L2 的 oracle，非 L2 本体） |

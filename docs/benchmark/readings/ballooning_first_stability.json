@@ -1,0 +1,36 @@
+{
+  "_comment": "FR-EQ-018 气球模第一稳定边界 —— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests",
+  "model": {
+    "equation": "s-alpha ballooning (Connor-Hastie-Taylor 1978): d/dtheta[(1+h^2) F'] + alpha (cos theta + h sin theta) F = 0,  h = s theta - alpha sin theta",
+    "mode": "even: F(0) = 1, F'(0) = 0",
+    "criterion": "Newcomb node criterion: a zero of F in (0, theta_max] = unstable",
+    "shooting_quantity": "S(alpha) = F(theta_max)",
+    "truncation": "theta_max = N pi",
+    "state": "F and P = (1+h^2) F' (P stays O(1) as 1+h^2 grows like theta^2)",
+    "integrator": "RK4, 200 steps per pi (step converged: 100/200/400 -> 0.6114835896 / ...879 / ...878)"
+  },
+  "sign_anchor": {"S_at_alpha_0": 1.0, "exact": true,
+                  "note": "alpha = 0: ((1+s^2 theta^2) F')' = 0 with F'(0) = 0 leaves F == 1"},
+  "alpha_c_extrapolated": {
+    "_comment": "Richardson from (N, 2N) = (24, 48)",
+    "s":       [0.4, 0.6, 1.0, 1.5, 2.0, 3.0, 4.0],
+    "alpha_c": [0.35444, 0.42453, 0.60855, 0.87750, 1.17124, 1.80573, 2.48250],
+    "alpha_c_over_s": [0.886, 0.708, 0.609, 0.585, 0.586, 0.602, 0.621],
+    "large_shear_slope_band": [0.5, 0.75]
+  },
+  "truncation_s1": {
+    "N":       [16, 24, 32, 48],
+    "alpha_c": [0.614450, 0.612466, 0.611484, 0.610507],
+    "one_over_N_coefficients": [0.0952, 0.0943, 0.0938],
+    "extrapolated_16_32": 0.608517,
+    "extrapolated_24_48": 0.608548,
+    "extrapolation_spread": 3.1e-5,
+    "abs_24_vs_32": 9.826e-4,
+    "N16_relative_to_limit": 0.0097,
+    "direction": "from ABOVE (alpha_c(N) > alpha_inf)",
+    "upstream_claim": "16 偏低 3.6 % —— 方向相反、量级不同：上游的「截断」不是 theta_max = N pi"
+  },
+  "refusal": {"no_crossing_in_domain": "BALLOON_NO_CROSSING (-4)",
+              "precise": "扫得到边界时照常给答案"},
+  "kernel_tests_passed": 685
+}

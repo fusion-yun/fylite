@@ -182,6 +182,7 @@ project:
             - file: benchmark/reports/mhd-vertical-freegsnke-east137985.md
             - file: benchmark/reports/mhd-vertical-coil-forces-analytic.md
             - file: benchmark/reports/mhd-analytic-external-kink-qlimit.md
+            - file: benchmark/reports/mhd-analytic-ballooning-first-stability.md
             - file: benchmark/reports/eq-inverse-freegsnke-east137985.md
             - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
             - file: benchmark/reports/eq-reconstruct-kefit-twin.md
