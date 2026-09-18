@@ -3,9 +3,9 @@
 ★★**No model weights are compiled into the kernel or the wasm.**  A surrogate's weights are DATA:
 TGLF-NN's `sat2` model is 3.5 MB across a 20-member ensemble, and putting
 that inside a library a browser downloads would be the wrong place for it.
-They live in ``nn_tables/`` as ``.npz`` and are read when something asks:
+They live in ``models/`` as ``.npz`` and are read when something asks:
 
-* the repository's own ``nn_tables/`` is the default location, and small
+* the repository's own ``models/`` is the default location, and small
   models live there (EPED-NN is 32 kB);
 * ``$FYLITE_NN_DIR`` overrides it, which is where a BIG model goes —
   TGLF-NN's ``sat2`` ensemble is 3.5 MB and belongs wherever the user
@@ -77,7 +77,7 @@ def configured() -> bool:
 
 def model_dirs() -> list[Path]:
     """Where to look, in order: ``$FYLITE_NN_DIR`` first (so an override
-    really overrides), then the built-in ``nn_tables/``."""
+    really overrides), then the built-in ``models/``."""
     out = []
     d = os.environ.get(NN_ENV)
     if d:
