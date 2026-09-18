@@ -135,6 +135,7 @@ project:
         - title: 收敛说明 (Rounds) —— 一轮做了什么、收敛到什么
           children:
             - file: benchmark/summary/2026-09-16-equilibrium.md
+            - file: benchmark/summary/2026-09-18-eq-mhd-tr.md
 
         - title: 平衡 (Equilibrium) —— 磁面在哪里，算得准不准
           children:
