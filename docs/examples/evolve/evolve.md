@@ -186,3 +186,31 @@ out = serve.call_mcp_tool(f"fylite_{p['tool']}", a)
 - 无边界/偏滤器耦合；杂质按给定浓度与冷却率进辐射项，不输运。
 - 与 JINTRAC / TORAX 的逐点对拍见公开登记册（`docs/benchmark/`）的 B-02 / B-05 记录——
   那里写着**哪些量是喂进去的**，这一节的数不能当成对拍结论读。
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`evolve-default.jsonld`](evolve-default.jsonld) | `cases/evolve-default` | 缺省（回到出厂设置） |
+| [`evolve-east-hmode.jsonld`](evolve-east-hmode.jsonld) | `cases/evolve-east-hmode` | EAST 长脉冲（欧姆＋辅助加热，含电流道与锯齿） |
+| [`evolve-fuse-arc.jsonld`](evolve-fuse-arc.jsonld) | `cases/evolve-fuse-arc` | FUSE · ARC（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-dtt.jsonld`](evolve-fuse-dtt.jsonld) | `cases/evolve-fuse-dtt` | FUSE · DTT（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-excite.jsonld`](evolve-fuse-excite.jsonld) | `cases/evolve-fuse-excite` | FUSE · EXCITE（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-fpp.jsonld`](evolve-fuse-fpp.jsonld) | `cases/evolve-fuse-fpp` | FUSE · FPP（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-iter.jsonld`](evolve-fuse-iter.jsonld) | `cases/evolve-fuse-iter` | FUSE · ITER（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-kdemo.jsonld`](evolve-fuse-kdemo.jsonld) | `cases/evolve-fuse-kdemo` | FUSE · K-DEMO（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-kstar.jsonld`](evolve-fuse-kstar.jsonld) | `cases/evolve-fuse-kstar` | FUSE · KSTAR（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-manta.jsonld`](evolve-fuse-manta.jsonld) | `cases/evolve-fuse-manta` | FUSE · MANTA（输入对照，不是 FUSE 的答案） |
+| [`evolve-fuse-sparc.jsonld`](evolve-fuse-sparc.jsonld) | `cases/evolve-fuse-sparc` | FUSE · SPARC（输入对照，不是 FUSE 的答案） |
+| [`evolve-iter-15ma-benchmark.jsonld`](evolve-iter-15ma-benchmark.jsonld) | `cases/evolve-iter-15ma-benchmark` | ITER 15 MA 对标（要先导入两份参考件） |
+| [`evolve-iter-15ma.jsonld`](evolve-iter-15ma.jsonld) | `cases/evolve-iter-15ma` | ITER 15 MA 感应燃烧（解析几何，自足） |
+| [`evolve-jintrac-iter-15ma-flattop.jsonld`](evolve-jintrac-iter-15ma-flattop.jsonld) | `cases/evolve-jintrac-iter-15ma-flattop` | JINTRAC 15 MA 平顶段 · ITER 作业 102530 · 83.51–99.83 s（参考数据在 fydoc） |
+| [`evolve-jintrac-iter-15ma-rampup.jsonld`](evolve-jintrac-iter-15ma-rampup.jsonld) | `cases/evolve-jintrac-iter-15ma-rampup` | JINTRAC 15 MA L-mode case02 · ITER 电流爬升 13.9–66.5 s |
+| [`evolve-jintrac-iter-5ma-lmode.jsonld`](evolve-jintrac-iter-5ma-lmode.jsonld) | `cases/evolve-jintrac-iter-5ma-lmode` | JINTRAC 5 MA L-mode · 芯—边耦合（本仓跑不动；源里也没跑完） |
+| [`evolve-jintrac-jet-58894.jsonld`](evolve-jintrac-jet-58894.jsonld) | `cases/evolve-jintrac-jet-58894` | JINTRAC case04 · JET #58894（JETTO+EIRENE，本仓跑不动） |
+
+<!-- END GENERATED -->

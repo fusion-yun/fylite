@@ -180,3 +180,26 @@ record["run_state"]        # 'succeeded'
 | [放电设计](design/design.md) | `breakdown-iter` · `discharge-iter` | 线圈电流该给多少，才有这个位形 |
 | [诊断分析：平衡反演](reconstruction/reconstruction.md) | EAST #137985 @ 4 s | 给定测量，位形是什么 |
 | [KEFIT 动理学反演](kinetic/kinetic.md) | EAST #137985 @ 4.041 s 孪生 | 再给剖面诊断，平衡与它映射出的剖面自洽吗 |
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`catalogue.jsonld`](catalogue.jsonld) | `cases/catalogue` | 算例语料目录 |
+| [`context.jsonld`](context.jsonld) | — | JSON-LD 上下文（语料的词表映射） |
+| [`scenario/breakdown.jsonld`](scenario/breakdown.jsonld) | `scenario/breakdown` | 击穿场零设计 |
+| [`scenario/discharge.jsonld`](scenario/discharge.jsonld) | `scenario/discharge` | 静态线圈反解 |
+| [`scenario/evolve.jsonld`](scenario/evolve.jsonld) | `scenario/evolve` | 含时演化 |
+| [`scenario/lines.jsonld`](scenario/lines.jsonld) | `scenario/lines` | 场景目录 |
+| [`scenario/pfwave.jsonld`](scenario/pfwave.jsonld) | `scenario/pfwave` | PF 电源整定与波形 |
+| [`scenario/profile.jsonld`](scenario/profile.jsonld) | `scenario/profile` | 剖面拟合 |
+| [`scenario/reconstruction.jsonld`](scenario/reconstruction.jsonld) | `scenario/reconstruction` | 平衡反演 |
+| [`scenario/series.jsonld`](scenario/series.jsonld) | `scenario/series` | 时间序列反演 |
+| [`scenario/transport.jsonld`](scenario/transport.jsonld) | `scenario/transport` | 定态芯部输运 |
+| [`scenario/zerod.jsonld`](scenario/zerod.jsonld) | `scenario/zerod` | 0-D 放电分析 |
+
+<!-- END GENERATED -->

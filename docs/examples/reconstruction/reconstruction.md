@@ -148,3 +148,16 @@ rows = recon_rs.run_series(shot=137985, times=[3.0, 3.5, 4.0, 4.5], device=dev)
 - `q0` 这类轴上量对基函数阶数敏感；B-06 里有一整段专门讲这个缺口怎么收窄的。
 - 本仓不带 EFIT 求解器（`libefit.so` 受许可限制，不在本仓），反演入口因此**跑不动**；
   与它的对照只能引 B-06 冻结下来的那份离线答案。
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`reconstruction-default.jsonld`](reconstruction-default.jsonld) | `cases/reconstruction-default` | 合成孪生反演（出厂设置） |
+| [`series-default.jsonld`](series-default.jsonld) | `cases/series-default` | 时间序列反演（出厂设置） |
+
+<!-- END GENERATED -->

@@ -311,3 +311,15 @@ analysis · reconstruction  ->  code/reconstruction   (template (built in), 46 p
   [快离子](../../benchmark/reports/eq-reconstruct-fast-ion-pressure.md) ·
   [曲率正则](../../benchmark/reports/eq-reconstruct-curvature-prior.md) ·
   [后验带](../../benchmark/reports/eq-reconstruct-posterior-bands.md)。
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`kinetic_twin.py`](kinetic_twin.py) | — | KEFIT 动理学反演算例：在 EAST #137985 @ 4.041 s 的孪生上把整条链逐段跑一遍。 |
+
+<!-- END GENERATED -->

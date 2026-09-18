@@ -170,3 +170,17 @@ casereport.render(cases.run("discharge-iter"), out="out/discharge")
 - 线圈几何、匝数、电阻与限值**全部取自装置牌**；换一台机器就是换一份牌，代码不动。
 - 垂直稳定性是另一件事：`fb_amp` 只是这一解所需的反馈幅度，γ 与被动导体集的关系见
   [稳定性与控制](../../guide/stability-and-control.md)。
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`breakdown-iter.jsonld`](breakdown-iter.jsonld) | `cases/breakdown-iter` | ITER 场零（击穿前的零场区） |
+| [`discharge-iter.jsonld`](discharge-iter.jsonld) | `cases/discharge-iter` | ITER 15 MA 的平顶位形（自由边界反解） |
+| [`pulse-iter.jsonld`](pulse-iter.jsonld) | `cases/pulse-iter` | ITER 的脉冲轨迹（15 MA 爬升到平顶） |
+
+<!-- END GENERATED -->

@@ -179,3 +179,15 @@ casereport.render(cases.run("zerod-iter-15ma"), out="out/zerod")
 - 聚变功率用 Bosch–Hale ⟨σv⟩，杂质辐射按 `zeff` 与所选杂质的冷却率；**没有**边界/偏滤器模型。
 - 相位由 `t_ru` / `t_ft` / `t_end` 三个时刻切分，梯形波形由内核单源给出
   （`K.zerod_waveform`），浏览器与 Python 读的是同一条。
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`zerod-iter-15ma.jsonld`](zerod-iter-15ma.jsonld) | `cases/zerod-iter-15ma` | ITER 15 MA 感应燃烧（0D 功率平衡） |
+
+<!-- END GENERATED -->

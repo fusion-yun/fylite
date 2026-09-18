@@ -126,3 +126,16 @@ casereport.render(cases.run("transport-iter-15ma"), out="out/transport")
 - **固定几何**：度规是输入，不与平衡交替更新。要几何随剖面一起走，见[含时演化](../evolve/evolve.md)。
 - **单通道**：一次解一条方程。多通道（电子/离子/密度/电流）在演化那一栏。
 - 无热容项 ⇒ 无 `W_th` / `τ_E` / `β_N` / `Q`。这一档拒绝报它们，而不是拿定态量凑一个。
+
+<!-- BEGIN GENERATED: tools/examples-book.py —— 勿手改 -->
+
+## 本章的文件
+
+点文件名即得原文。计划可以原样跑、原样改（`fy run <文件>`），脚本用 `python <文件>`；目录、上下文与场景模板是给计划引用的，不单独跑。
+
+| 文件 | id | 标题 |
+| :--- | :--- | :--- |
+| [`profile-default.jsonld`](profile-default.jsonld) | `cases/profile-default` | 剖面拟合（出厂设置） |
+| [`transport-iter-15ma.jsonld`](transport-iter-15ma.jsonld) | `cases/transport-iter-15ma` | ITER 15 MA 的剖面（固定几何、单通道、定态） |
+
+<!-- END GENERATED -->
