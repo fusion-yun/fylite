@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**48** 条（84 %）
-- ★**MUST 级空缺 (open MUST)：6 条**
+- 已有记录覆盖 (covered)：**51** 条（89 %）
+- ★**MUST 级空缺 (open MUST)：3 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -117,9 +117,9 @@ delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不
 | `FR-EQ-026` | MUST | MHD 判读的交付层 | [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | 验证 | 成立 |
 | `FR-EQ-027` | MUST | 完整 $\delta W$：螺旋箍缩（V5 的第一级） | [`mhd-deltaw-screw-pinch`](reports/mhd-deltaw-screw-pinch.md) | 验证 | 成立 |
 | `FR-EQ-028` | MUST | 动能归一与 $\omega^2$（全 $\delta W$ 支 F2） | [`mhd-deltaw-normal-modes`](reports/mhd-deltaw-normal-modes.md) | 验证 | 成立 |
-| `FR-EQ-029` | MUST | 环几何全 $\delta W$：定形边界 V5（全 $\delta W$ 支 F3 第一段） | — | — | — |
-| `FR-EQ-030` | MUST | 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段） | — | — | — |
-| `FR-EQ-031` | MUST | 理想壁分支与薄壁阻性壁模（E-3 第一级） | — | — | — |
+| `FR-EQ-029` | MUST | 环几何全 $\delta W$：定形边界 V5（全 $\delta W$ 支 F3 第一段） | [`mhd-deltaw-toroidal-fixed-boundary`](reports/mhd-deltaw-toroidal-fixed-boundary.md) | 对拍 | 成立 |
+| `FR-EQ-030` | MUST | 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段） | [`mhd-deltaw-toroidal-free-boundary`](reports/mhd-deltaw-toroidal-free-boundary.md) | 对拍 | 成立 |
+| `FR-EQ-031` | MUST | 理想壁分支与薄壁阻性壁模（E-3 第一级） | [`mhd-deltaw-wall-and-rwm`](reports/mhd-deltaw-wall-and-rwm.md) | 对拍 | 成立 |
 
 ## 输运 (Transport) · 方程组求解与边界条件
 
@@ -191,9 +191,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | :--- | :--- | :--- |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-015` | 竖直稳定性、线圈受力与电磁线性模型 | 装置电磁线性模型导出（路线） |
-| `FR-EQ-029` | 全 delta-W、V5 基准与阻性壁模 | 环几何全 $\delta W$：定形边界 V5（全 $\delta W$ 支 F3 第一段） |
-| `FR-EQ-030` | 全 delta-W、V5 基准与阻性壁模 | 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段） |
-| `FR-EQ-031` | 全 delta-W、V5 基准与阻性壁模 | 理想壁分支与薄壁阻性壁模（E-3 第一级） |
 | `FR-TR-011` | 双模、平衡耦合与代理栈 | 解释性 / 分析模式通量反演（路线项） |
 
 ## 上游未给判据 (requirements the SRS gives no criterion for)

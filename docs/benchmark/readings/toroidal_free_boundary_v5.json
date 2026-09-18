@@ -1,0 +1,69 @@
+{
+  "_comment": "FR-EQ-030 环几何真空标量势与无壁 V5 —— 2026-09-18。门：$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests30",
+  "kernel": "K_n = Q_{n-1/2}(zeta)/(2 pi sqrt(R R')), Q_{+-1/2} closed (elliptic K, E), Q_{3/2} one recurrence step, n >= 3 refused",
+  "q_functions_vs_integral_worst": 3.58e-11,
+  "dQ_vs_difference": 2.73e-09,
+  "ntd_method": "method of fundamental solutions: 128 boundary points, 64 sources on rho = 0.5 (decoupled from the plasma grid)",
+  "cylinder_ntd_anchor_worst": 7.45e-05,
+  "free_boundary_cylinder_anchor": {
+    "eps": [
+      0.1,
+      0.05,
+      0.025
+    ],
+    "torus_over_cylinder": [
+      0.8849,
+      0.9725,
+      0.9931
+    ]
+  },
+  "no_wall_rows_160_-8..12": {
+    "(1.2,1)": [
+      0.7578,
+      0.75,
+      0.78
+    ],
+    "(2.0,1)": [
+      0.673,
+      0.68,
+      0.75
+    ],
+    "(0.6,2)": [
+      1.3766,
+      1.31,
+      1.4
+    ],
+    "(1.0,2)": [
+      1.0649,
+      1.03,
+      1.07
+    ]
+  },
+  "no_wall_rows_320_-12..16": {
+    "(1.2,1)": 0.764,
+    "(2.0,1)": 0.6803,
+    "(0.6,2)": 1.3807,
+    "(1.0,2)": 1.0708
+  },
+  "fixed_branch_160": {
+    "(1.2,1)": 0.0252,
+    "(2.0,1)": 0.0,
+    "(0.6,2)": 0.1646,
+    "(1.0,2)": 0.0505
+  },
+  "anti_hermitian_vacuum": [
+    1.9e-05,
+    0.00011
+  ],
+  "mfs_conditioning_failure": {
+    "sources": 128,
+    "rho": 0.5,
+    "growth": [
+      2460,
+      1745,
+      2134,
+      1322
+    ],
+    "anti_hermitian": 0.003
+  }
+}

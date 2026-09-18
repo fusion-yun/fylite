@@ -1,0 +1,102 @@
+---
+title: "mhd-deltaw-toroidal-fixed-boundary"
+---
+
+# 环几何全 δW 定形边界：**Table I 两行落进五码带，柱极限对 F2 柱码差 1 %**
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/mhd-deltaw-toroidal-fixed-boundary.jsonld`，本页只是它的可读面。 -->
+
+*MHD 稳定性 (MHD Stability) · [全 delta-W、V5 基准与阻性壁模](../domains/mhd/deltaw.md)　|　记录正本：`records/mhd-deltaw-toroidal-fixed-boundary.jsonld`*
+
+## 摘要
+
+- **类**：对拍　**判决**：**成立**
+- **量的是**：环几何全 δW 定形边界：**Table I 两行落进五码带，柱极限对 F2 柱码差 1 %**
+- **参考**：Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I
+- **验的需求**：`FR-EQ-029`
+- **跑在内核**：`sha256:94645111a7e2eb3f…`（新鲜度 **current**）
+- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+
+## 问的是什么
+
+**被量的**：2026-09-18 新写：Kerner 坐标解析映射、谱直场线角、ξ^ρ 线性元 × Y/Z 逐单元常值 × Fourier，Newcomb 一般式，中点减缩积分
+
+**参考**：Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I
+
+> 五码中的三码（KERNER · PEST · ERATO）对 Solov'ev 平衡给的 $-\Omega^2=-\omega^2\rho q(s)^2R^2/B_0^2$。★**落在带里不证明算对了，只证明没有明显算错**：带宽是码间分歧，含数值误差也含模型差（三码的坐标、离散与真空处理各不相同，见原文 §3）。
+
+**口径与适用域**：
+
+> Solov'ev 平衡（Chance 1978 Eq. 3–5）、定形边界（Λ = 1）、γ = 5/3、ρ 常数（与上游核准的口径同）。★V5 两行的门在 `cargo test --release` 下跑（debug 下标记忽略：重）。
+
+## 判据与量到多少
+
+:::{figure} ../figures/mhd-deltaw-toroidal-fixed-boundary-headroom.svg
+:alt: mhd-deltaw-toroidal-fixed-boundary 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| 平衡转录三重自证（GS 解析恒等 · $q(0)$ 回收 · $q(a)$ 对印值 0.5224） | — | reference_self_reported | Kerner 坐标下映射解析：$X=(1+2\varepsilon\rho\cos\vartheta)^{1/2}$、$D=E\varepsilon^2\rho/X^2$，于是 $q(\rho)=q_0\langle(1+2\varepsilon\rho\cos\vartheta)^{-3/2}\rangle$——与 E 无关（Table I：0.5224/0.3 = 2.0897/1.2） | **成立** |
+| 柱极限交叉验证（Chance §4A 对 F2 柱码，15 % 内） | 0.15 | reference_self_reported | Chance §4A：ε = 1/20、E = 1、q(0) = 0.08519、n = 10；两内核独立实现、独立签核 | **成立** |
+| V5 定形边界两行（$q_0=0.3$ 带 [0.413, 0.431]；$q_0=0.7$ 带 [0.118, 0.120]；容差 5 %；自下单调收敛） | 0.05 | reference_self_reported | 第三行：m 加宽 0.4071 → 0.4308 → 0.4314，640 单元 0.4308；第四行：0.1020 → 0.1169 → 0.1199，640 单元 0.1199 | **成立** |
+| 取向守卫内置断言 | — | reference_self_reported | 取错号曾产出假本征值——静默失败的「取向符号」成员 | **成立** |
+| 非单调 / 越界网格 fail-loud | — | reference_self_reported | n_th < 4M、非 2 的幂、m 区间反、ρ₀ 越界、非整数 n、ε >= 0.5 都按名拒绝 | **成立** |
+
+**★J × B = ∇p 到 4.9e-16；q(0) 逐位回收；q(1) = 0.523027 对椭圆积分闭式逐位相同，对印值 0.5224 高 0.12 %**
+
+- ★印值系统性低 0.11–0.12 %，**六行同一比值**（1.0011–1.0012）——是印表时 $q(s)$ 的求法之差，不是平衡转录之差：本条的 $q(1)$ 与 $\oint(1+a\cos)^{-3/2}=4E(k^2)/((1-a)\sqrt{1+a})$ 逐位相同。
+
+**★★环码 ω² −5.360 对柱码（m = 1）−5.415，差 1.0 %**
+
+- ★上游记的是 −4.94 对 −4.57（15 % 内）；本条两路到 1 %。
+
+**★★第三行 0.4314（带 [0.413, 0.431]，比带顶高 0.1 %）；第四行 0.1199（带内）；两行都自下单调收敛**
+
+- ★★**伪模，照实记**：径向网格对谐波宽度不够时（80 单元、|m| ≤ 12）第四行出一个 0.225 的假本征值，320 单元即消失。「加谐波」必须配「加径向单元」。
+- ★★**混叠**：极向 64 点、m ∈ [−12, 16] 时第三行跳到 1.009、反 Hermite 部分升到 5.6e-5；128 点即回到 0.4306。现在 `n_th < 4M` 按名拒绝。
+- ★第三行比 ERATO 的 0.431 高 0.1 %——带宽本身就是码间分歧，判据容差 5 %。
+
+## 不可比的部分
+
+- ★★**判决成立**：五格全过。**本条是对拍，不是验证**：落进五码带只说明没有明显算错。
+- ★离散照搬 `FR-EQ-028` 的教训：ξ^ρ 线性元、另两分量逐单元常值且在 Q 与 ∇·ξ 里不带 ρ 导数、能量取单元中点——没有这一条会锁死。
+- ★门在内核仓，本仓 CI 跑不到。
+
+## 追溯
+
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-029` 判**成立**（对拍）。内核新模块 `toroidal.rs`：Solov'ev 在 Kerner 坐标下全解析，θ* 谱给出。Table I 第三行 0.4314（带 [0.413, 0.431]），第四行 0.1199（带内），均自下单调收敛；柱极限对 F2 柱码 1 %。★伪模（径向不够时 0.225）与混叠（极向不够时 1.009）照实记，后者已改为按名拒绝。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `libfylite` `sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc`
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/toroidal_fixed_boundary_v5.json`    `sha256:411adde2c77ee885d28f99fcc3afd0e67954fa9b70073d655d236bfab0fb3a65`    平衡自证、混叠、柱极限、两行的收敛梯子与伪模
+
+**守它的门**：
+
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_solovev_equilibrium_proves_itself` —— 第一格
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_nearly_straight_column_agrees_with_the_cylinder_code` —— 第二格
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::table_i_row_three_lands_in_the_band` —— 第三格（--release）
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::table_i_row_four_lands_in_the_band_and_the_spurious_mode_is_resolved_away` —— 第三格（--release）
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_orientation_guard_fires` —— 第四格
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::bad_grids_and_geometry_are_refused` —— 第五格
+- `$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_pencil_is_hermitian_and_the_mass_positive` —— 附：Hermite 与质量正定
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```

@@ -194,6 +194,9 @@ project:
             - file: benchmark/reports/mhd-deltaw-delivery-records.md
             - file: benchmark/reports/mhd-deltaw-screw-pinch.md
             - file: benchmark/reports/mhd-deltaw-normal-modes.md
+            - file: benchmark/reports/mhd-deltaw-toroidal-fixed-boundary.md
+            - file: benchmark/reports/mhd-deltaw-toroidal-free-boundary.md
+            - file: benchmark/reports/mhd-deltaw-wall-and-rwm.md
             - file: benchmark/reports/eq-inverse-freegsnke-east137985.md
             - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
             - file: benchmark/reports/eq-reconstruct-kefit-twin.md

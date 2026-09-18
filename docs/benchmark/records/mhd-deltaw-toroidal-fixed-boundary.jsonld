@@ -1,0 +1,193 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "环几何全 δW 定形边界：**Table I 两行落进五码带，柱极限对 F2 柱码差 1 %**",
+  "en": "Toroidal full δW, fixed boundary: both Table I rows land in the five-code band, and the cylinder limit agrees with the F2 code to 1 %"
+ },
+ "domain": "mhd-deltaw",
+ "requirement": [
+  "FR-EQ-029"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `toroidal::Solovev` / `fixed_boundary_pencil` / `HBanded` / `growth_hat`",
+  "comment": "2026-09-18 新写：Kerner 坐标解析映射、谱直场线角、ξ^ρ 线性元 × Y/Z 逐单元常值 × Fourier，Newcomb 一般式，中点减缩积分"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I",
+   "comment": "五码中的三码（KERNER · PEST · ERATO）对 Solov'ev 平衡给的 $-\\Omega^2=-\\omega^2\\rho q(s)^2R^2/B_0^2$。★**落在带里不证明算对了，只证明没有明显算错**：带宽是码间分歧，含数值误差也含模型差（三码的坐标、离散与真空处理各不相同，见原文 §3）。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "平衡转录三重自证（GS 解析恒等 · $q(0)$ 回收 · $q(a)$ 对印值 0.5224）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "柱极限交叉验证（Chance §4A 对 F2 柱码，15 % 内）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.15
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "V5 定形边界两行（$q_0=0.3$ 带 [0.413, 0.431]；$q_0=0.7$ 带 [0.118, 0.120]；容差 5 %；自下单调收敛）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.05
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "取向守卫内置断言",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "非单调 / 越界网格 fail-loud",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★J × B = ∇p 到 4.9e-16；q(0) 逐位回收；q(1) = 0.523027 对椭圆积分闭式逐位相同，对印值 0.5224 高 0.12 %",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/1",
+   "bound": "identity",
+   "deviation_literal": "Kerner 坐标下映射解析：$X=(1+2\\varepsilon\\rho\\cos\\vartheta)^{1/2}$、$D=E\\varepsilon^2\\rho/X^2$，于是 $q(\\rho)=q_0\\langle(1+2\\varepsilon\\rho\\cos\\vartheta)^{-3/2}\\rangle$——与 E 无关（Table I：0.5224/0.3 = 2.0897/1.2）",
+   "verdict": "pass",
+   "caveat": [
+    "★印值系统性低 0.11–0.12 %，**六行同一比值**（1.0011–1.0012）——是印表时 $q(s)$ 的求法之差，不是平衡转录之差：本条的 $q(1)$ 与 $\\oint(1+a\\cos)^{-3/2}=4E(k^2)/((1-a)\\sqrt{1+a})$ 逐位相同。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★环码 ω² −5.360 对柱码（m = 1）−5.415，差 1.0 %",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/2",
+   "measured_deviation": 0.01014,
+   "bound": "upper",
+   "deviation_literal": "Chance §4A：ε = 1/20、E = 1、q(0) = 0.08519、n = 10；两内核独立实现、独立签核",
+   "verdict": "pass",
+   "caveat": [
+    "★上游记的是 −4.94 对 −4.57（15 % 内）；本条两路到 1 %。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★第三行 0.4314（带 [0.413, 0.431]，比带顶高 0.1 %）；第四行 0.1199（带内）；两行都自下单调收敛",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/3",
+   "measured_deviation": 0.001,
+   "bound": "upper",
+   "deviation_literal": "第三行：m 加宽 0.4071 → 0.4308 → 0.4314，640 单元 0.4308；第四行：0.1020 → 0.1169 → 0.1199，640 单元 0.1199",
+   "verdict": "pass",
+   "caveat": [
+    "★★**伪模，照实记**：径向网格对谐波宽度不够时（80 单元、|m| ≤ 12）第四行出一个 0.225 的假本征值，320 单元即消失。「加谐波」必须配「加径向单元」。",
+    "★★**混叠**：极向 64 点、m ∈ [−12, 16] 时第三行跳到 1.009、反 Hermite 部分升到 5.6e-5；128 点即回到 0.4306。现在 `n_th < 4M` 按名拒绝。",
+    "★第三行比 ERATO 的 0.431 高 0.1 %——带宽本身就是码间分歧，判据容差 5 %。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★B·∇θ* 逐点对 $RB_0/(X^2q)$；θ* 取反即 `TOR_ORIENTATION`",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "取错号曾产出假本征值——静默失败的「取向符号」成员",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "n_th < 4M、非 2 的幂、m 区间反、ρ₀ 越界、非整数 n、ε >= 0.5 都按名拒绝",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-fixed-boundary/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "n_th < 4M、非 2 的幂、m 区间反、ρ₀ 越界、非整数 n、ε >= 0.5 都按名拒绝",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "Solov'ev 平衡（Chance 1978 Eq. 3–5）、定形边界（Λ = 1）、γ = 5/3、ρ 常数（与上游核准的口径同）。★V5 两行的门在 `cargo test --release` 下跑（debug 下标记忽略：重）。",
+ "caveat": [
+  "★★**判决成立**：五格全过。**本条是对拍，不是验证**：落进五码带只说明没有明显算错。",
+  "★离散照搬 `FR-EQ-028` 的教训：ξ^ρ 线性元、另两分量逐单元常值且在 Q 与 ∇·ξ 里不带 ρ 导数、能量取单元中点——没有这一条会锁死。",
+  "★门在内核仓，本仓 CI 跑不到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/toroidal_fixed_boundary_v5.json",
+    "checksum": "sha256:411adde2c77ee885d28f99fcc3afd0e67954fa9b70073d655d236bfab0fb3a65",
+    "comment": "平衡自证、混叠、柱极限、两行的收敛梯子与伪模"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_solovev_equilibrium_proves_itself",
+    "comment": "第一格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_nearly_straight_column_agrees_with_the_cylinder_code",
+    "comment": "第二格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::table_i_row_three_lands_in_the_band",
+    "comment": "第三格（--release）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::table_i_row_four_lands_in_the_band_and_the_spurious_mode_is_resolved_away",
+    "comment": "第三格（--release）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_orientation_guard_fires",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::bad_grids_and_geometry_are_refused",
+    "comment": "第五格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests::the_pencil_is_hermitian_and_the_mass_positive",
+    "comment": "附：Hermite 与质量正定"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-029` 判**成立**（对拍）。内核新模块 `toroidal.rs`：Solov'ev 在 Kerner 坐标下全解析，θ* 谱给出。Table I 第三行 0.4314（带 [0.413, 0.431]），第四行 0.1199（带内），均自下单调收敛；柱极限对 F2 柱码 1 %。★伪模（径向不够时 0.225）与混叠（极向不够时 1.009）照实记，后者已改为按名拒绝。"
+   }
+  ]
+ }
+}

@@ -1,0 +1,202 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-deltaw-wall-and-rwm",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "理想壁分支与薄壁阻性壁模：**Λ = 2 两行到 PEST 0.05 % 内，阻性壁窗口的转换点落在解析带边上**",
+  "en": "The ideal-wall branch and the thin-wall resistive wall mode: both Λ = 2 rows within 0.05 % of PEST, and the RWM window switches at the analytic band edges"
+ },
+ "domain": "mhd-deltaw",
+ "requirement": [
+  "FR-EQ-031"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `toroidal::annulus_ntd` / `wall_pencil`；`screwpinch::rwm` / `wall_time_si`",
+  "comment": "2026-09-18 新写：环隙 MFS（源点在等离子体内与壁外）；柱位形薄壁 RWM（边缘方程积分 + 两个参考 δW）"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "Chance 1978 Table I 的 Λ = 2 两行；Freidberg (2014) §11.5 Eqs. (11.148)–(11.150)、(11.169)–(11.170)",
+   "comment": "壁在 $\\Psi_W=\\Lambda^2\\Psi_B$ 那张解析延拓的磁面上；RWM 的窗口转换点须落在 $q=1$ · $q_{marg}(b)$ · $m/n$。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "环隙 Bessel NtD 锚（$\\chi'(b)=0$）< 1 %",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.01
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "Λ = 2 两行（容差 15 %）；三支排序 $\\omega^2(\\Lambda=1)\\ge\\omega^2(\\Lambda)\\ge\\omega^2(\\infty)$",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.15
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "RWM 窗口三段转换点 = 解析带边（rwm ↔ ideal 对 1.48225 差 < 0.01）",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.01
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "壁越近 γ 越小；几何因子精确 / 近似互证；$(r\\xi'/\\xi)_a$ 与壁无关逐位",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "守卫（Λε ≥ 1/2 / 厚壁 / m = 0 / 域内共振）fail-loud",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "细环 a = 0.02、b = 0.04：最劣 3.2e-5",
+   "criterion": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/1",
+   "measured_deviation": 3.24e-05,
+   "bound": "upper",
+   "deviation_literal": "细环 a = 0.02、b = 0.04：最劣 3.2e-5",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★0.2041（PEST 0.204，+0.05 %）· 0.5058（PEST 0.506，−0.04 %）；定形 ≤ 有壁 ≤ 无壁（0 ≤ 0.204 ≤ 0.247；0.077 ≤ 0.506 ≤ 0.532）",
+   "criterion": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/2",
+   "measured_deviation": 0.0005,
+   "bound": "upper",
+   "deviation_literal": "ε = 1/6、E = 1、n = 1、160 单元、m ∈ [−6, 10]；320 单元逐位同到 4 位",
+   "verdict": "pass",
+   "caveat": [
+    "★Table I 全八行至此都在容差内：定形 0.4314 / 0.1199、无壁 0.758 / 0.673 / 1.377 / 1.065、有壁 0.2041 / 0.5058。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★0.99835 · 1.48023（对 1.48225）· 2.00024",
+   "criterion": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/3",
+   "measured_deviation": 0.002,
+   "bound": "upper",
+   "deviation_literal": "均匀电流 m = 2、n = 1、ka = 0.1、b/a = 1.2；rwm ↔ ideal 差 0.002（有限 ka）",
+   "verdict": "pass",
+   "caveat": [
+    "★第三个转换点只到 2.4e-4：q_a → m/n 时 $f\\propto F^2$ 在整个等离子体里一起趋零，边缘方程变刚。恰在 m/n 上 F ≡ 0，边缘方程按名拒绝——测试的二分括号初版正落在 2.0 上，就被拒了（那是对的）。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "γτ_w 0.133 → 0.373 → 0.886 → 2.563（b/a = 1.1 → 1.4）；几何因子 ka = 0.1 / 0.01 时精确对近似 5.3e-4 / 5.2e-6；(rξ'/ξ)_a 四个壁位置逐位相同",
+   "criterion": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "γτ_w 0.133 → 0.373 → 0.886 → 2.563（b/a = 1.1 → 1.4）；几何因子 ka = 0.1 / 0.01 时精确对近似 5.3e-4 / 5.2e-6；(rξ'/ξ)_a 四个壁位置逐位相同",
+   "verdict": "pass",
+   "caveat": [
+    "★精确几何因子为**负**（$K_b'<0$），书上近似是它的绝对值，符号由 $\\tau_w=-(\\mu_0wb/\\eta)g$ 吸收。",
+    "★★`FF†/k₀²` 那一项就是 (f, g) 分部形式与 Eq. (8) 口径之差的边界项 $[S\\xi^2]_a$：拿掉它，q_a = 1.5 的 δW_∞ 从 −1.0e-2 变成 +7.4e-3——不稳带内被错判为稳，**静默**。这一条钉成了测试。",
+    "★τ_w 的 SI 值另给（`wall_time_si`，η 取电阻率 Ω·m、μ₀ 取 SI）：1 cm 铜壁、b = 1.2 m 约 0.115 s。交付量是无量纲 γτ_w。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "2εΛ ≥ 1 的壁、w/b > 0.1、m = 0、b ≤ a、域内共振都按名拒绝",
+   "criterion": "benchmark/records/mhd-deltaw-wall-and-rwm/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "2εΛ ≥ 1 的壁、w/b > 0.1、m = 0、b ≤ a、域内共振都按名拒绝",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "Λ = 2 两行：Solov'ev ε = 1/6、E = 1；RWM：柱位形、薄壁（w/b ≤ 0.1）、单 (m, k)。★**环几何 RWM 本条未做**（上游补记里的 Schur 缩聚 + 单 τ 薄壳插值不在本仓）。",
+ "caveat": [
+  "★★**判决成立**：五格全过。至此 Chance 1978 Table I **全八行**都在容差内。",
+  "★(甲) 是对拍、(乙) 是对解析带边的验证，合在一条记录里是因为 SRS 把它们放在一条需求里。",
+  "★门在内核仓，本仓 CI 跑不到；Λ = 2 两行在 `cargo test --release` 下跑。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/toroidal_wall_and_rwm.json",
+    "checksum": "sha256:104345171948ce5ec579f59feed0f41fcee474e2d946adeb7a3a6bf3a3f04853",
+    "comment": "环隙柱锚、Λ = 2 两行与三支、RWM 窗口、壁距、几何因子、零拉氏量边界项、守卫"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests31::the_annulus_map_has_the_cylinder_limit",
+    "comment": "第一格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests31::table_i_wall_rows_land_and_the_three_branches_are_ordered",
+    "comment": "第二格（--release）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests31::a_wall_that_crosses_the_axis_is_refused",
+    "comment": "第五格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests31::the_window_switches_at_the_analytic_band_edges",
+    "comment": "第三格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests31::a_closer_wall_slows_the_mode_and_the_edge_solution_ignores_the_wall",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests31::the_geometry_factor_exact_and_approximate_agree_for_small_kb",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests31::dropping_the_null_lagrangian_boundary_term_hides_the_instability",
+    "comment": "★第四格：边界项"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests31::guards_are_named",
+    "comment": "第五格"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-031` 判**成立**。环隙 MFS 柱锚 3.2e-5；Λ = 2 两行 0.2041 / 0.5058（对 PEST ±0.05 %），三支排序成立——Table I 全八行在容差内。柱位形薄壁 RWM：窗口转换点 0.998 / 1.480 / 2.000 对 1 / 1.48225 / 2；γτ_w 随壁移近单调降；几何因子精确/近似互证；★去掉 FF†/k₀² 边界项 δW_∞ 被错判为正——钉成测试。环几何 RWM 未做。"
+   }
+  ]
+ }
+}

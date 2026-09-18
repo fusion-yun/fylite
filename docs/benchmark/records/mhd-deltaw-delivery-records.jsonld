@@ -199,11 +199,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:7721e88aac1f453ef4b6dae805a592bdc29628825e8ffb71a17910a4019927fb"
+   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -214,6 +214,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-EQ-026` 判**成立**。新模块 `fylite.mhd_records`：能量原理类不带 growthrate、装配处拦下混用、判读量只进 code.parameters、告诫随记录走、n_phi 缺省留空、ideal_flag 不猜、语法树查 import。11 道门都在本仓。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（环几何全 δW 入内核：`toroidal.rs`，`screwpinch.rs` 增阻性壁模；`FR-EQ-029` · `030` · `031`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **787 项全通过**（新锚 14 条，另 5 条 V5 门在 --release 下全过）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }

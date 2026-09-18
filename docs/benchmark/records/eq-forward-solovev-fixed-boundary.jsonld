@@ -194,12 +194,12 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:7721e88aac1f453ef4b6dae805a592bdc29628825e8ffb71a17910a4019927fb",
+   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc",
    "comment": "★须设 $FYLITE_KERNEL_LIB 指向带 code/fixed_boundary 的构建：不设时会加载滞后的运行时预编译件，门当场按名拒绝（-30）。"
   }
  },
  "provenance": {
-  "record_version": "1.12",
+  "record_version": "1.13",
   "recorded": "2026-09-16",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -281,6 +281,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（全 δW 支柱位形一级入内核：`screwpinch.rs`，`FR-EQ-027` · `028`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **773 项全通过**（新锚 20 条）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。"
+   },
+   {
+    "record_version": "1.13",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（环几何全 δW 入内核：`toroidal.rs`，`screwpinch.rs` 增阻性壁模；`FR-EQ-029` · `030` · `031`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **787 项全通过**（新锚 14 条，另 5 条 V5 门在 --release 下全过）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }

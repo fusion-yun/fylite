@@ -1,0 +1,178 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-deltaw-toroidal-free-boundary",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "环几何真空标量势与无壁 V5：**四行都在最近码 1.7 % 内——真空走基本解法，靠柱锚判官**",
+  "en": "Toroidal vacuum potential and the no-wall V5 rows: all four within 1.7 % of the nearest code — the vacuum by fundamental solutions, judged by the cylinder anchor"
+ },
+ "domain": "mhd-deltaw",
+ "requirement": [
+  "FR-EQ-030"
+ ],
+ "comparison_kind": "benchmark",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `toroidal::toroidal_q` / `exterior_ntd` / `free_boundary_pencil`",
+  "comment": "2026-09-18 新写：环 Green 函数 Q_{n−1/2} 闭式 + 一步递推；外 NtD 用基本解法（MFS）；边界 Neumann 数据走 Q·∇Ψ = B·∇(ξ·∇Ψ)"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I",
+   "comment": "五码中的三码（KERNER · PEST · ERATO）对 Solov'ev 平衡给的 $-\\Omega^2=-\\omega^2\\rho q(s)^2R^2/B_0^2$。★**落在带里不证明算对了，只证明没有明显算错**：带宽是码间分歧，含数值误差也含模型差（三码的坐标、离散与真空处理各不相同，见原文 §3）。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "$Q_{\\pm1/2}$ 闭式自证（对直接 φ 求积）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "柱极限 NtD 锚 $K_m(\\kappa a)/(\\kappa K_m')$",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.01
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "自由边界柱锚随 ε 收敛",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "V5 无壁四行（距最近码，容差 15 %）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 0.15
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "两支分离：同位形上有壁不比无壁更不稳",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "闭式对直接求积最劣 3.6e-11（n = 0, 1, 2 × ζ = 1.001 / 1.3 / 5）；n >= 3 按名拒绝",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/1",
+   "measured_deviation": 3.58e-11,
+   "bound": "upper",
+   "deviation_literal": "闭式对直接求积最劣 3.6e-11（n = 0, 1, 2 × ζ = 1.001 / 1.3 / 5）；n >= 3 按名拒绝",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★细环 a/R = 0.02：最劣 7.5e-5（与源点位置、分辨率无关）",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/2",
+   "measured_deviation": 7.45e-05,
+   "bound": "upper",
+   "deviation_literal": "细环 a/R = 0.02：最劣 7.5e-5（与源点位置、分辨率无关）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**真空这一步没照 SRS 走**：SRS 记的是 Kress 分裂边界元（对角系数须恰为 $-\\ln D^2/(4\\pi\\sqrt{XX'})$，写错即静默的一阶污染）。本仓用**基本解法**：源点放在等离子体内一张磁面上，解在真空里逐点满足方程与无穷远衰减，**没有奇异积分可写错**。代价与验收是同一条柱锚——它在上游抓住过 Kress 系数错写，在这里同样是 MFS 精度的判官。",
+    "★★**MFS 的条件数，照实记**：源点数随等离子体极向网格加倍到 128 个时，自由边界「增长率」跳到 1300–2500、反 Hermite 部分 3e-3。现在真空边界点与源点数**固定**（128 / 64），与等离子体网格脱钩；极向 128 与 256 点给逐位相同的结果。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★E = 1、q₀ = 1.5、n = 1：环/柱 0.885 → 0.973 → 0.993（ε = 0.1 → 0.05 → 0.025）",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "每减半差缩约 4 倍（二阶；上游记的是一阶 11.8 % → 4.2 % → 1.9 %）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★0.758（+1.0 %）· 0.673（−1.0 %）· 1.377（−1.7 %）· 1.065（−0.5 %）",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/4",
+   "measured_deviation": 0.017,
+   "bound": "upper",
+   "deviation_literal": "160 单元、m ∈ [−8, 12]；320 单元、m ∈ [−12, 16] 时 0.764 · 0.680 · 1.381 · 1.071（都略升，仍在码带内）",
+   "verdict": "pass",
+   "caveat": [
+    "★真空块的反 Hermite 部分 1e-5–1e-4（等离子体部分 1e-16）：MFS 的 NtD 不精确对称，装配后取 Hermite 部分。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "四行的定形边界增长率都不大于无壁（0.025 / 0 / 0.165 / 0.051 对 0.758 / 0.673 / 1.377 / 1.065）",
+   "criterion": "benchmark/records/mhd-deltaw-toroidal-free-boundary/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "四行的定形边界增长率都不大于无壁（0.025 / 0 / 0.165 / 0.051 对 0.758 / 0.673 / 1.377 / 1.065）",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "Solov'ev（ε = 1/3、E = 2）、无壁（Λ = ∞）、γ = 5/3、ρ 常数；n = 1, 2（n >= 3 拒绝）。★V5 行与柱锚的门在 `cargo test --release` 下跑。",
+ "caveat": [
+  "★★**判决成立**：五格全过；真空的解法与 SRS 所记不同（MFS 而非 Kress 边界元），判据要的柱锚照样过、且到 7.5e-5。",
+  "★本条是**对拍**：五码带是码间分歧。",
+  "★门在内核仓，本仓 CI 跑不到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/toroidal_free_boundary_v5.json",
+    "checksum": "sha256:90af0ff43de0821d90573193ba0765414b6492c66b5ea4688a76135c791b29a9",
+    "comment": "Q 函数、NtD 柱锚、自由边界柱锚、四行、两支、MFS 条件数"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests30::the_toroidal_functions_match_their_integral",
+    "comment": "第一格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests30::the_exterior_map_has_the_cylinder_limit",
+    "comment": "第二格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests30::the_free_boundary_torus_tends_to_the_cylinder",
+    "comment": "第三格（--release）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests30::table_i_no_wall_rows_land_within_the_band_and_the_wall_never_hurts",
+    "comment": "第四、五格（--release）"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-030` 判**成立**（对拍）。环 Green 函数 Q_{n−1/2} 闭式 + 一步递推（3.6e-11）；外 NtD 走基本解法，柱锚 7.5e-5；无壁四行 0.758 / 0.673 / 1.377 / 1.065，距最近码 ≤ 1.7 %。★MFS 源点数随网格加倍时条件数爆（增长率跳到 2000），已与等离子体网格脱钩。"
+   }
+  ]
+ }
+}

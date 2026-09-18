@@ -1,0 +1,67 @@
+{
+  "_comment": "FR-EQ-029 环几何全 δW：Solov'ev 定形边界 V5 —— 2026-09-18。门：$FYLITE_KERNEL/rust/fylite/src/toroidal.rs::tests",
+  "equilibrium": {
+    "source": "Chance 1978 Eqs. (1)-(5), mu0 = 1, R = B0 = 1",
+    "kerner_map": "X = (1 + 2 eps rho cos t)^(1/2), D = E eps^2 rho / X^2",
+    "q_closed": "q(rho) = q0 <(1 + 2 eps rho cos t)^(-3/2)>",
+    "JxB_minus_gradp_worst_rel": 4.88e-16,
+    "q1_row3": 0.523027027,
+    "q1_elliptic_closed": 0.523027027,
+    "printed_ratio_rows": [
+      1.0012,
+      1.00115,
+      1.00115,
+      1.00113,
+      1.0011,
+      1.0011
+    ]
+  },
+  "discretisation": "xi^rho linear elements, Y and Z element-constant, energy at element midpoint; Fourier e^{i(m theta* - n phi)}; Newcomb general form; Hermitian part",
+  "aliasing": {
+    "m": [
+      -12,
+      16
+    ],
+    "n_th_64": 1.00896,
+    "n_th_128": 0.43058,
+    "rule": "n_th >= 4M"
+  },
+  "cylinder_limit": {
+    "case": "eps 1/20, E 1, q0 0.08519, n 10",
+    "torus_omega2": -5.35971,
+    "cylinder_m1_omega2": -5.4146,
+    "rel": 0.01014
+  },
+  "row3": {
+    "band": [
+      0.413,
+      0.427,
+      0.431
+    ],
+    "ladder": {
+      "(80,-4..8)": 0.4071,
+      "(320,-8..12)": 0.43075,
+      "(320,-12..16)": 0.43141
+    },
+    "radial_640": 0.43077
+  },
+  "row4": {
+    "band": [
+      0.118,
+      0.119,
+      0.12
+    ],
+    "ladder": {
+      "(320,-4..8)": 0.10196,
+      "(320,-6..10)": 0.11689,
+      "(320,-8..12)": 0.11991
+    },
+    "radial_640": 0.1199,
+    "spurious_80_elements": 0.22463
+  },
+  "anti_hermitian": 1.25e-14,
+  "refusals": [
+    "TOR_ORIENTATION (-72)",
+    "TOR_BAD_INPUT (-71)"
+  ]
+}

@@ -51,6 +51,42 @@ Suydam 两路（α 由 (32a) 两式、(33) 的恒等式）都到 1e-15 量级。
 [`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) ·
 [`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md)。
 
+### 环几何：Chance 1978 Table I 全八行（2026-09-18）
+
+`FR-EQ-029`、`030`、`031` 入册，判**成立**。这三条是**对拍**（`benchmark`）：落进五码带只说明没有明显算错。
+
+| 行 | 本仓 | 三码（KERNER / PEST / ERATO） |
+| :--- | ---: | :--- |
+| 定形 $q_0=0.3$, $n=2$ | **0.4314** | 0.413 / 0.427 / 0.431 |
+| 定形 $q_0=0.7$, $n=2$ | **0.1199** | 0.118 / 0.119 / 0.120 |
+| 无壁 $q_0=1.2$, $n=1$ | **0.758** | — / 0.75 / 0.78 |
+| 无壁 $q_0=2.0$, $n=1$ | **0.673** | — / 0.68 / 0.75 |
+| 无壁 $q_0=0.6$, $n=2$ | **1.377** | — / 1.31 / 1.40 |
+| 无壁 $q_0=1.0$, $n=2$ | **1.065** | — / 1.03 / 1.07 |
+| $\Lambda=2$ $q_0=1.791$, $n=1$ | **0.2041** | 0.202 / 0.204 / — |
+| $\Lambda=2$ $q_0=2.2387$, $n=1$ | **0.5058** | 0.504 / 0.506 / — |
+
+**平衡与坐标。** Solov'ev 在 Kerner 坐标下**全解析**：$X=(1+2\varepsilon\rho\cos\vartheta)^{1/2}$，二维 Jacobian
+$D=E\varepsilon^2\rho/X^2$，于是 $q(\rho)=q_0\langle(1+2\varepsilon\rho\cos\vartheta)^{-3/2}\rangle$、直场线角 θ* 由同一权的
+Fourier 系数谱给出。J × B = ∇p 到 5e-16。★印值 $q(s)$ 比这里低 0.12 %，**六行同一比值**——是印表的求法之差。
+
+**离散。** `FR-EQ-028` 的教训直接推广：ξ^ρ 线性元，另两分量逐单元常值（它们在 Q 与 ∇·ξ 里不带 ρ 导数），
+能量取单元中点。★两个照实记的坑：**混叠**（极向点数不到 4M 时增长率跳到 1.0，现已按名拒绝）与**伪模**
+（径向单元对谐波宽度不够时出一个 0.22 的假本征值——「加谐波」必须配「加径向单元」）。
+柱极限对 F2 柱码 1 %。
+
+**真空。** 环 Green 函数 $Q_{n-1/2}$ 取椭圆积分闭式、一步递推。★外 NtD **没走** SRS 记的 Kress 分裂边界元，
+走**基本解法**：源点在等离子体内，解逐点满足方程与衰减，没有奇异积分可写错；判官是同一条柱锚（7.5e-5）。
+★MFS 的坑：源点数随网格加倍时条件数爆掉（增长率跳到 2000）——已与等离子体网格脱钩。
+有壁用环隙 MFS（壁外另一组源点），柱锚 3e-5。
+
+**阻性壁模（031 乙，柱位形）。** Freidberg (11.169)/(11.170)：窗口三段的转换点 0.998 / 1.480 / 2.000
+对解析带边 1 / 1.48225 / 2；γτ_w 随壁移近单调降。★★(f, g) 分部形式与 Eq. (8) 口径差一个边界项 $[S\xi^2]_a$——
+拿掉它，δW_∞ 在不稳带内被**静默地**错判为正；这一条钉成了测试。★环几何 RWM 本仓未做。
+详见 [`mhd-deltaw-toroidal-fixed-boundary`](../../reports/mhd-deltaw-toroidal-fixed-boundary.md) ·
+[`mhd-deltaw-toroidal-free-boundary`](../../reports/mhd-deltaw-toroidal-free-boundary.md) ·
+[`mhd-deltaw-wall-and-rwm`](../../reports/mhd-deltaw-wall-and-rwm.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -89,16 +125,15 @@ Suydam 两路（α 由 (32a) 两式、(33) 的恒等式）都到 1e-15 量级。
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md) | 验证 | 成立 | IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律 | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-delivery-records.jsonld) |
-| [`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) | 验证 | 成立 | Newcomb (1960) Eqs. (6)–(10)；均匀 θ-pinch 的解析谱；FR-EQ-017 的解析带边 | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-normal-modes.jsonld) |
-| [`mhd-deltaw-screw-pinch`](../../reports/mhd-deltaw-screw-pinch.md) | 验证 | 成立 | Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960) | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-screw-pinch.jsonld) |
+| [`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md) | 验证 | 成立 | IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律 | 1.1 | 草稿 | [jsonld](../../records/mhd-deltaw-delivery-records.jsonld) |
+| [`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) | 验证 | 成立 | Newcomb (1960) Eqs. (6)–(10)；均匀 θ-pinch 的解析谱；FR-EQ-017 的解析带边 | 1.1 | 草稿 | [jsonld](../../records/mhd-deltaw-normal-modes.jsonld) |
+| [`mhd-deltaw-screw-pinch`](../../reports/mhd-deltaw-screw-pinch.md) | 验证 | 成立 | Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960) | 1.1 | 草稿 | [jsonld](../../records/mhd-deltaw-screw-pinch.jsonld) |
+| [`mhd-deltaw-toroidal-fixed-boundary`](../../reports/mhd-deltaw-toroidal-fixed-boundary.md) | 对拍 | 成立 | Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-toroidal-fixed-boundary.jsonld) |
+| [`mhd-deltaw-toroidal-free-boundary`](../../reports/mhd-deltaw-toroidal-free-boundary.md) | 对拍 | 成立 | Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-toroidal-free-boundary.jsonld) |
+| [`mhd-deltaw-wall-and-rwm`](../../reports/mhd-deltaw-wall-and-rwm.md) | 对拍 | 成立 | Chance 1978 Table I 的 Λ = 2 两行；Freidberg (2014) §11.5 Eqs. (11.148)–(11.150)、(11.169)–(11.170) | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-wall-and-rwm.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 3 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-EQ-029` 环几何全 $\delta W$：定形边界 V5（全 $\delta W$ 支 F3 第一段）
-- `FR-EQ-030` 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段）
-- `FR-EQ-031` 理想壁分支与薄壁阻性壁模（E-3 第一级）
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->
