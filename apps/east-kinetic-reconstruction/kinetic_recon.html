@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EAST 动理学反演</title>
+<meta name="description" content="读 kinetic_recon.py 的结果 JSON：约束阶梯 M / K / P 的平衡、残差与外环证书。">
+<style>
+:root {
+  --paper: #F3F4EF; --sheet: #FBFBF8; --ink: #17212B; --ink2: #475463; --muted: #7A8592;
+  --rule: #DADDD4; --hair: rgba(23, 33, 43, 0.08); --accent: #0E6E68; --accent-soft: #D7EAE7;
+  --wall: #5B6570; --warn: #A33A2E; --pos: #C0522B; --neg: #2C6BA8; --ok: #2F7D4A;
+  --tM: #3A4654; --tK: #2F6DB5; --tP: #C0522B;
+  --flux: #78B9B1; --zebra: rgba(23, 33, 43, 0.028); --lift: 0 1px 2px rgba(23, 33, 43, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+    --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+    --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
+    --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B;
+    --flux: #38766B; --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11171D; --sheet: #172028; --ink: #E6EAEE; --ink2: #B3BDC7; --muted: #7F8B97;
+  --rule: #2A3540; --hair: rgba(230, 234, 238, 0.08); --accent: #4FB8AE; --accent-soft: #1C3634;
+  --wall: #9AA5B0; --warn: #EE8A7E; --pos: #F08A5B; --neg: #6FA8E0; --ok: #6BCB85;
+  --tM: #C5CED6; --tK: #7DB3F0; --tP: #F08A5B;
+  --flux: #38766B; --zebra: rgba(230, 234, 238, 0.03); --lift: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  font: 14px/1.6 "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 20px 16px 56px; }
+header { display: grid; gap: 6px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+.eyebrow { font: 500 12px/1.3 ui-monospace, "SFMono-Regular", Menlo, monospace; letter-spacing: .08em; color: var(--accent); }
+h1 { font-size: clamp(20px, 3vw, 28px); line-height: 1.2; margin: 0; font-weight: 600; }
+p.lede { color: var(--ink2); margin: 0; max-width: 80ch; }
+.banner { border-left: 3px solid var(--warn); background: var(--sheet); padding: 6px 12px; color: var(--ink2); font-size: 13px; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+button, .file { font: inherit; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink);
+  border-radius: 999px; padding: 4px 14px; cursor: pointer; }
+button:hover, .file:hover { border-color: var(--accent); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+button:focus-visible, .file:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.file input { display: none; }
+.spacer { flex: 1; }
+.grid { display: grid; gap: 14px; }
+.cols { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 14px; }
+.cols2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 900px) { .cols, .cols2 { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; box-shadow: var(--lift); min-width: 0; }
+.card h2 { font-size: 16px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--hair);
+  display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-weight: 600; }
+.card h2 small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.card h3 { font-size: 13px; margin: 12px 0 4px; color: var(--ink2); font-weight: 600; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--hair); white-space: nowrap; }
+th:first-child, td:first-child, td.l, th.l { text-align: left; }
+th { color: var(--muted); font-weight: 500; }
+tbody tr:nth-child(even) { background: var(--zebra); }
+.num { font-variant-numeric: tabular-nums; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+.tag { display: inline-block; border: 1px solid var(--rule); border-radius: 4px; padding: 0 6px; font-size: 12px; color: var(--ink2); margin: 1px 2px; }
+.warn { color: var(--warn); }
+.muted { color: var(--muted); }
+.note { color: var(--ink2); font-size: 13px; margin: 6px 0 0; }
+svg { width: 100%; height: auto; display: block; }
+svg text { fill: var(--ink2); font: 11px ui-monospace, "SFMono-Regular", Menlo, monospace; }
+svg .ax { stroke: var(--rule); stroke-width: 1; fill: none; }
+svg .grid { stroke: var(--hair); stroke-width: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink2); margin-top: 4px; }
+.empty { border: 2px dashed var(--rule); border-radius: 10px; padding: 28px; text-align: center; color: var(--ink2); }
+.empty code, .card code { font-size: 12px; background: var(--zebra); padding: 1px 4px; border-radius: 3px; }
+ul.plain { margin: 4px 0; padding-left: 18px; color: var(--ink2); font-size: 13px; }
+footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">EAST · 实验数据动理学平衡反演 · 约束阶梯 M / K / P</div>
+  <h1 id="title">动理学反演结果</h1>
+  <p class="lede" id="lede">导入 <code>kinetic_recon.py run</code> 写出的结果 JSON。同一时刻的三档反演并排：只用磁测量（M）、加 POINT 偏振干涉（K）、加 Thomson 压强（P）。档不同，能声称的东西不同——读数只按档读。</p>
+  <div class="banner">这是反演的结果，不是测量。真实放电上没有 q₀ 的真值：能判的只有各档把测量预测得多好（残差），以及档与档之间差多少。</div>
+</header>
+
+<div class="bar">
+  <label class="file" title="kinetic_recon.py run 的输出">导入结果 JSON<input type="file" id="file" accept=".json,application/json"></label>
+  <span class="muted" id="fname">或把文件拖进页面</span>
+  <span class="spacer"></span>
+  <span class="muted">主显示档</span>
+  <span id="tierbtns"></span>
+  <button id="theme" type="button" title="配色：跟随系统 · 浅 · 深">配色：自动</button>
+</div>
+
+<div id="empty" class="empty">
+  <p>还没有结果。先跑：</p>
+  <p><code>python kinetic_recon.py pull --shot 137985 --time 4.041 -o meas.json</code></p>
+  <p><code>python kinetic_recon.py run meas.json -o result.json</code></p>
+  <p>然后点「导入结果 JSON」。结果留在你的机器上——这一页不上传任何东西。</p>
+</div>
+
+<main id="main" class="grid" hidden>
+  <section class="card"><h2>约束阶梯 <small>差值一律对档 M</small></h2><div class="scroll" id="ladder"></div>
+    <p class="note" id="ladnote"></p></section>
+  <div class="cols">
+    <section class="card"><h2>极向截面 <small id="xsnote"></small></h2><div id="xs"></div><div class="legend" id="xslegend"></div></section>
+    <section class="card"><h2>剖面 <small>横轴 ψ_N</small></h2>
+      <div class="cols2"><div><h3>q</h3><div id="pq"></div></div><div><h3>p [kPa]（点 = Thomson）</h3><div id="pp"></div></div>
+      <div><h3>p′（带 = 档 M 的后验 1σ）</h3><div id="ppr"></div></div><div><h3>FF′</h3><div id="pff"></div></div></div>
+      <div class="legend" id="plegend"></div></section>
+  </div>
+  <section class="card"><h2>磁测量残差 <small id="magnote"></small></h2>
+    <div id="magbars"></div>
+    <div class="cols2"><div><h3>剔掉的道（拟合自己判的）</h3><div id="rejected"></div></div>
+    <div><h3>扫描与剔道逐轮</h3><div class="scroll" id="rounds"></div></div></div></section>
+  <div class="cols2">
+    <section class="card" id="kcard"><h2>POINT 偏振干涉（档 K） <small id="knote"></small></h2><div id="kbody"></div></section>
+    <section class="card" id="pcard"><h2>Thomson 与自洽外环（档 P） <small id="pnote"></small></h2><div id="pbody"></div></section>
+  </div>
+  <section class="card"><h2>怎么读 · 边界</h2>
+    <ul class="plain">
+      <li><b>磁测量单独约束不住内部剖面。</b>档 M 的 p′ 后验带常是它自身值的一半上下；档 K / P 就是来填这个空的。三档的 q₀ 差多少，量的是<b>约束的差</b>，不是代码的差。</li>
+      <li><b>坏道由拟合自己剔</b>：超过阈值的道每轮剔最坏的几道再重扫；剔过的道与它剔时的 σ 都列在上面。另一个代码按另一套规则剔，答案可以不同（B-06 §7.1 的 KEFIT 对拍剔的是另 7 道）。</li>
+      <li><b>POINT 残差属于数据</b>：B-06 用同一输入跑 KEFIT 与 fylite，拟合后两者都留约 2.4 σ 的法拉第残差、逐弦同号。拟合行让残差降得不多，并不说明拟合没做对。</li>
+      <li><b>档 P 的 σ 放宽倍数</b>要读：内核对很紧的动理学行不稳（把档 M 自己的压强原样喂回去，σ 5 % 也会拟丢），所以按实测 σ 进不去时整体放宽，倍数写在档 P 卡片里。放宽了多少，这一档就少说了多少。</li>
+      <li><b>外环只重映</b>：它把 Thomson 点按刚解出的磁面重新挂到 ψ_N 上，不重算自举电流与快离子。没有 MSE；芯部电流在 EAST 上主要是模型约束，<b>收敛不蕴含正确</b>。</li>
+    </ul></section>
+  <footer id="foot"></footer>
+</main>
+</div>
+
+<script>
+"use strict";
+(function () {
+const $ = (id) => document.getElementById(id);
+const TIERS = ["M", "K", "P"];
+const TCOL = { M: "var(--tM)", K: "var(--tK)", P: "var(--tP)" };
+const S = { res: null, main: "M" };
+
+// ---------------------------------------------------------------------------------------------- formatting
+const fin = (v) => typeof v === "number" && isFinite(v);
+function f(v, d) { return fin(v) ? v.toFixed(d) : "—"; }
+function g(v, d) { if (!fin(v)) return "—"; const a = Math.abs(v); return (a !== 0 && (a < 1e-3 || a >= 1e5)) ? v.toExponential(d - 1) : v.toPrecision(d); }
+function sgn(v, d) { return fin(v) ? (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d) : "—"; }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function ok(t) { return t && t.status === "ok"; }
+
+// ---------------------------------------------------------------------------------------------- tiny charts
+function scale(d0, d1, r0, r1) { const k = (r1 - r0) / ((d1 - d0) || 1); return (v) => r0 + (v - d0) * k; }
+function nice(lo, hi, n) {
+  if (!(hi > lo)) { hi = lo + 1; }
+  const step0 = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(step0))), m = step0 / p;
+  const step = (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(+v.toPrecision(12));
+  return out;
+}
+/** A line chart: series [{x:[], y:[], color, dash, band:{lo,hi}, points:[{x,y,fill,stroke,title}]}]. */
+function chart(series, o) {
+  o = Object.assign({ w: 420, h: 220, xlab: "", ylab: "", xlim: null, ylim: null, log: false, hlines: [] }, o || {});
+  const L = 46, R = 10, T = 10, B = 30, W = o.w, H = o.h;
+  let xs = [], ys = [];
+  for (const s of series) {
+    (s.x || []).forEach((x, i) => { const y = s.y[i]; if (fin(x) && fin(y) && (!o.log || y > 0)) { xs.push(x); ys.push(y); } });
+    if (s.band) s.band.lo.forEach((v, i) => { if (fin(v)) ys.push(v); if (fin(s.band.hi[i])) ys.push(s.band.hi[i]); });
+    (s.points || []).forEach((p) => { if (fin(p.x) && fin(p.y) && (!o.log || p.y > 0)) { xs.push(p.x); ys.push(p.y); } });
+  }
+  o.hlines.forEach((h) => ys.push(h.y));
+  if (!xs.length) return '<p class="muted">没有数据</p>';
+  let [x0, x1] = o.xlim || [Math.min(...xs), Math.max(...xs)];
+  let [y0, y1] = o.ylim || [Math.min(...ys), Math.max(...ys)];
+  if (o.log) { y0 = Math.log10(y0); y1 = Math.log10(y1); if (y1 - y0 < 1) { y0 -= 0.5; y1 += 0.5; } }
+  else { const pad = (y1 - y0) * 0.06 || Math.abs(y0) * 0.1 || 1; y0 -= pad; y1 += pad; }
+  const X = scale(x0, x1, L, W - R), Y = scale(y0, y1, H - B, T), YV = (v) => Y(o.log ? Math.log10(v) : v);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.ylab)}">`;
+  const yt = o.log ? nice(Math.ceil(y0), Math.floor(y1), 4).filter(Number.isInteger) : nice(y0, y1, 4);
+  for (const t of yt) { const y = Y(t); if (y < T - 1 || y > H - B + 1) continue;
+    s += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/><text x="${L - 4}" y="${y + 4}" text-anchor="end">${o.log ? "1e" + t : g(t, 3)}</text>`; }
+  for (const t of nice(x0, x1, 5)) { const x = X(t); if (x < L - 1 || x > W - R + 1) continue;
+    s += `<text x="${x}" y="${H - B + 14}" text-anchor="middle">${g(t, 3)}</text>`; }
+  s += `<rect class="ax" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="var(--rule)"/>`;
+  if (o.xlab) s += `<text x="${(L + W - R) / 2}" y="${H - 4}" text-anchor="middle">${esc(o.xlab)}</text>`;
+  for (const h of o.hlines) { const y = YV(h.y); s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="${h.color || "var(--muted)"}" stroke-dasharray="4 3"/>`; }
+  for (const se of series) {
+    if (se.band) {
+      const up = [], dn = [];
+      se.x.forEach((x, i) => { const lo = se.band.lo[i], hi = se.band.hi[i]; if (fin(x) && fin(lo) && fin(hi)) { up.push(`${X(x)},${YV(hi)}`); dn.unshift(`${X(x)},${YV(lo)}`); } });
+      if (up.length) s += `<polygon points="${up.concat(dn).join(" ")}" fill="${se.color}" opacity="0.14"/>`;
+    }
+    if (se.x && se.y) {
+      let d = "", pen = false;
+      se.x.forEach((x, i) => { const y = se.y[i]; if (fin(x) && fin(y) && (!o.log || y > 0)) { d += (pen ? "L" : "M") + X(x).toFixed(1) + "," + YV(y).toFixed(1); pen = true; } else pen = false; });
+      if (d) s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.width || 1.6}"${se.dash ? ` stroke-dasharray="${se.dash}"` : ""}/>`;
+    }
+    for (const p of se.points || []) {
+      if (!fin(p.x) || !fin(p.y) || (o.log && p.y <= 0)) continue;
+      const cx = X(p.x);
+      //: 出界的点钉在上 / 下沿画成三角，悬停给真值——一个离群点不该决定整张图的量程
+      if (!o.log && (p.y > y1 || p.y < y0)) {
+        const up = p.y > y1, ey = up ? T + 1 : H - B - 1, d = up ? 7 : -7;
+        s += `<path d="M${cx - 4},${ey + d}L${cx + 4},${ey + d}L${cx},${ey}Z" fill="${p.fill || se.color}" stroke="${p.stroke || se.color}"><title>${esc(p.title || "")}（出界）</title></path>`;
+        continue;
+      }
+      const cy = YV(p.y);
+      if (p.err && fin(p.err)) s += `<line x1="${cx}" x2="${cx}" y1="${YV(p.y - p.err)}" y2="${YV(p.y + p.err)}" stroke="${p.stroke || se.color}" opacity="0.5"/>`;
+      s += `<circle cx="${cx}" cy="${cy}" r="${p.r || 3}" fill="${p.fill || se.color}" stroke="${p.stroke || se.color}"><title>${esc(p.title || "")}</title></circle>`;
+    }
+  }
+  return s + "</svg>";
+}
+/** Signed bars (σ): items [{label, v, used, color}], with ±limit guide lines. */
+function bars(items, o) {
+  o = Object.assign({ w: 1200, h: 170, limit: 5, groups: null }, o || {});
+  const L = 40, R = 8, T = 10, B = 44, W = o.w, H = o.h, n = items.length;
+  if (!n) return '<p class="muted">没有数据</p>';
+  const vmax = Math.max(o.limit * 1.2, ...items.map((i) => Math.abs(fin(i.v) ? i.v : 0)));
+  const clip = Math.min(vmax, o.limit * 4);
+  const Y = scale(-clip, clip, H - B, T), bw = (W - L - R) / n;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="残差">`;
+  for (const t of [-o.limit, 0, o.limit]) s += `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="${t ? "var(--warn)" : "var(--rule)"}"${t ? ' stroke-dasharray="4 3"' : ""}/><text x="${L - 4}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`;
+  items.forEach((it, i) => {
+    if (!fin(it.v)) return;
+    const v = Math.max(-clip, Math.min(clip, it.v)), x = L + i * bw, y = Math.min(Y(0), Y(v)), h = Math.abs(Y(v) - Y(0));
+    const col = it.color || (it.v >= 0 ? "var(--pos)" : "var(--neg)");
+    s += `<rect x="${(x + bw * 0.12).toFixed(1)}" y="${y.toFixed(1)}" width="${(bw * 0.76).toFixed(1)}" height="${Math.max(h, 0.5).toFixed(1)}" fill="${it.used ? col : "none"}" stroke="${col}" stroke-width="${it.used ? 0 : 1}"><title>${esc(it.label)}: ${g(it.v, 3)} σ${it.used ? "" : "（未用）"}</title></rect>`;
+    if (Math.abs(it.v) > clip && it.used) s += `<text x="${x + bw / 2}" y="${it.v > 0 ? T + 8 : H - B - 2}" text-anchor="middle" class="warn">${Math.round(it.v)}</text>`;
+  });
+  for (const gr of o.groups || []) {
+    const x0 = L + gr.from * bw, x1 = L + gr.to * bw;
+    s += `<line x1="${x0 + 2}" x2="${x1 - 2}" y1="${H - B + 8}" y2="${H - B + 8}" stroke="var(--muted)"/><text x="${(x0 + x1) / 2}" y="${H - B + 22}" text-anchor="middle">${esc(gr.label)}</text>`;
+  }
+  return s + "</svg>";
+}
+
+// ---------------------------------------------------------------------------------------------- flux contours
+/** Marching squares on psi[i][j] (i = R, j = Z) for one level → list of segments [[r,z],[r,z]]. */
+function contour(gr, gz, F, lev) {
+  const segs = [], nr = gr.length, nz = gz.length;
+  const at = (i, j) => F[i][j];
+  const lerp = (a, b, fa, fb) => a + (b - a) * ((lev - fa) / ((fb - fa) || 1e-30));
+  for (let i = 0; i < nr - 1; i++) for (let j = 0; j < nz - 1; j++) {
+    const f00 = at(i, j), f10 = at(i + 1, j), f11 = at(i + 1, j + 1), f01 = at(i, j + 1);
+    if (![f00, f10, f11, f01].every(fin)) continue;
+    const pts = [];
+    if ((f00 < lev) !== (f10 < lev)) pts.push([lerp(gr[i], gr[i + 1], f00, f10), gz[j]]);
+    if ((f10 < lev) !== (f11 < lev)) pts.push([gr[i + 1], lerp(gz[j], gz[j + 1], f10, f11)]);
+    if ((f11 < lev) !== (f01 < lev)) pts.push([lerp(gr[i], gr[i + 1], f01, f11), gz[j + 1]]);
+    if ((f01 < lev) !== (f00 < lev)) pts.push([gr[i], lerp(gz[j], gz[j + 1], f00, f01)]);
+    if (pts.length === 2) segs.push(pts);
+    else if (pts.length === 4) { segs.push([pts[0], pts[1]]); segs.push([pts[2], pts[3]]); }
+  }
+  return segs;
+}
+function psinGrid(t) {
+  const a = t.facts.psi_axis, b = t.facts.psi_bnd;
+  return t.psi.map((row) => row.map((v) => (a - v) / (a - b)));
+}
+function inside(poly, r, z) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [ri, zi] = poly[i], [rj, zj] = poly[j];
+    if ((zi > z) !== (zj > z) && r < (rj - ri) * (z - zi) / (zj - zi) + ri) c = !c;
+  }
+  return c;
+}
+function sigmaColor(v) {
+  if (!fin(v)) return "var(--muted)";
+  const a = Math.min(Math.abs(v) / 5, 1);
+  return a < 0.2 ? "var(--ok)" : (v >= 0 ? "var(--pos)" : "var(--neg)");
+}
+
+// ---------------------------------------------------------------------------------------------- sections
+function renderLadder(res) {
+  const M = res.tiers.M;
+  const rows = [["", "约束", "q₀", "Δq₀", "q₉₅", "l_i(3)", "磁轴 R [m]", "ΔR [mm]", "磁轴 Z [m]", "χ²/dof", "最劣单道 σ", "迭代", "状态"]];
+  let h = "<table><thead><tr>" + rows[0].map((c, i) => `<th${i < 2 ? ' class="l"' : ""}>${c}</th>`).join("") + "</tr></thead><tbody>";
+  for (const k of TIERS) {
+    const t = res.tiers[k];
+    if (!t) continue;
+    const lab = `<span class="dot" style="background:${TCOL[k]}"></span>${esc(t.label || k)}`;
+    if (!ok(t)) { h += `<tr><td class="l">${lab}</td><td class="l muted" colspan="12">${esc(t.status === "skipped" ? "未跑：" + (t.why || "") : "失败：" + (t.error || ""))}</td></tr>`; continue; }
+    const F = t.facts, m = ok(M) ? M.facts : {};
+    const dq = k !== "M" && fin(F.q0) && fin(m.q0) ? (F.q0 / m.q0 - 1) * 100 : NaN;
+    const dR = k !== "M" && fin(F.axis_r) && fin(m.axis_r) ? (F.axis_r - m.axis_r) * 1e3 : NaN;
+    h += `<tr><td class="l">${lab}</td><td class="l">${(t.constraints || []).map((c) => `<span class="tag">${esc(c)}</span>`).join("")}</td>`
+      + `<td class="num">${f(F.q0, 3)}</td><td class="num">${k === "M" ? "" : sgn(dq, 1) + " %"}</td><td class="num">${f(F.q95, 3)}</td>`
+      + `<td class="num">${f(F.li3, 3)}</td><td class="num">${f(F.axis_r, 4)}</td><td class="num">${k === "M" ? "" : sgn(dR, 1)}</td>`
+      + `<td class="num">${f(F.axis_z, 4)}</td><td class="num">${f(F.chi2_per_dof, 3)}</td><td class="num">${f(F.worst_channel_sigma, 2)}</td>`
+      + `<td class="num">${fin(F.iterations) ? F.iterations : "—"}</td><td class="num">${F.converged ? "收敛" : '<span class="warn">未收敛</span>'}</td></tr>`;
+  }
+  $("ladder").innerHTML = h + "</tbody></table>";
+  const P = res.tiers.P;
+  $("ladnote").innerHTML = ok(P) && P.sigma_scale > 1
+    ? `<span class="warn">档 P 的 Thomson 行按实测 σ × ${P.sigma_scale} 进入</span>（内核拒绝了更紧的档）——这一档的约束力比名义上弱。`
+    : "χ²/dof 按各档自己的行数算，三档行数不同，不可直接比大小。";
+}
+
+function renderSection(res) {
+  const t = res.tiers[S.main];
+  const lim = res.device.limiter;
+  const rs = lim ? lim.r : t.grid.r, zs = lim ? lim.z : t.grid.z;
+  const r0 = Math.min(...rs) - 0.05, r1 = Math.max(...rs) + 0.05, z0 = Math.min(...zs) - 0.05, z1 = Math.max(...zs) + 0.05;
+  const W = 340, H = Math.round(W * (z1 - z0) / (r1 - r0)), X = scale(r0, r1, 0, W), Y = scale(z0, z1, H, 0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="极向截面">`;
+  const path = (pts, attrs) => `<path d="${pts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join("")}" ${attrs}/>`;
+  if (lim) s += path(lim.r.map((r, i) => [r, lim.z[i]]).concat([[lim.r[0], lim.z[0]]]), 'fill="none" stroke="var(--wall)" stroke-width="1.5"');
+  if (ok(t)) {
+    const P = psinGrid(t), bnd = t.boundary;
+    for (let lev = 0.1; lev < 0.95; lev += 0.1) {
+      for (const sg of contour(t.grid.r, t.grid.z, P, lev)) {
+        const mid = [(sg[0][0] + sg[1][0]) / 2, (sg[0][1] + sg[1][1]) / 2];
+        if (bnd.length > 3 && !inside(bnd, mid[0], mid[1])) continue;
+        s += `<line x1="${X(sg[0][0]).toFixed(1)}" y1="${Y(sg[0][1]).toFixed(1)}" x2="${X(sg[1][0]).toFixed(1)}" y2="${Y(sg[1][1]).toFixed(1)}" stroke="var(--flux)" stroke-width="0.9"/>`;
+      }
+    }
+  }
+  for (const k of TIERS) {
+    const tk = res.tiers[k];
+    if (!ok(tk) || !tk.boundary.length) continue;
+    s += path(tk.boundary.concat([tk.boundary[0]]), `fill="none" stroke="${TCOL[k]}" stroke-width="${k === S.main ? 2.2 : 1.3}"${k === S.main ? "" : ' stroke-dasharray="5 3"'}`);
+    s += `<circle cx="${X(tk.facts.axis_r)}" cy="${Y(tk.facts.axis_z)}" r="3" fill="${TCOL[k]}"><title>${k} 磁轴 (${f(tk.facts.axis_r, 3)}, ${f(tk.facts.axis_z, 3)})</title></circle>`;
+  }
+  //: POINT chords (line of sight: [[r,z],[r,z]] or {r:[..], z:[..]})
+  const K = res.tiers.K;
+  (res.device.chords || []).forEach((ch, i) => {
+    const los = ch.los; let a, b;
+    if (Array.isArray(los) && los.length >= 2 && Array.isArray(los[0])) { a = los[0]; b = los[los.length - 1]; }
+    else if (los && los.first_point && los.second_point) {
+      //: 卡片给的是一条射线（EFIT 的 rpol / thetapol）：起点在 R = 2.5 m，第二点只定方向。
+      //: 弦在物理上从起点向内穿过等离子体，所以沿这条直线画到截面内侧边界。
+      const p = [los.first_point.r, los.first_point.z], q = [los.second_point.r, los.second_point.z];
+      const dr = q[0] - p[0], dz = q[1] - p[1];
+      const tIn = Math.abs(dr) > 1e-9 ? (r0 - p[0]) / dr : 0;
+      a = p; b = [p[0] + dr * tIn, p[1] + dz * tIn];
+    } else return;
+    const used = ok(K) && K.point && K.point.fwtpol[i] > 0;
+    s += `<line x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(b[0])}" y2="${Y(b[1])}" stroke="var(--tK)" stroke-width="0.8" opacity="${used ? 0.8 : 0.25}"${used ? "" : ' stroke-dasharray="2 3"'}><title>POINT ${i + 1} ${esc(ch.name)}</title></line>`;
+  });
+  //: magnetics coloured by the main tier's residual; hollow = not used
+  if (ok(t) && t.channels) {
+    for (const [kind, list] of [["loop", t.channels.loops], ["probe", t.channels.probes]]) {
+      list.forEach((c) => {
+        if (!c.rz) return;
+        const col = sigmaColor(c.sigma), x = X(c.rz[0]), y = Y(c.rz[1]);
+        const shape = kind === "loop" ? `<rect x="${x - 3}" y="${y - 3}" width="6" height="6"` : `<circle cx="${x}" cy="${y}" r="3"`;
+        s += `${shape} fill="${c.used ? col : "var(--sheet)"}" stroke="${col}" stroke-width="1"><title>${esc(c.name)}: ${g(c.sigma, 3)} σ${c.used ? "" : "（未用）"}</title>${kind === "loop" ? "</rect>" : "</circle>"}`;
+      });
+    }
+  }
+  const P = res.tiers.P;
+  if (ok(P)) for (const p of P.thomson.points) s += `<circle cx="${X(p.r)}" cy="${Y(p.z)}" r="2.4" fill="${p.used ? "var(--tP)" : "none"}" stroke="var(--tP)"><title>Thomson z=${f(p.z, 3)} p=${g(p.p, 3)} Pa ${esc(p.why || "")}</title></circle>`;
+  $("xs").innerHTML = s + "</svg>";
+  $("xsnote").textContent = `等值线 = 档 ${S.main} 的 ψ_N 0.1…0.9`;
+  $("xslegend").innerHTML = TIERS.filter((k) => ok(res.tiers[k])).map((k) => `<span><span class="dot" style="background:${TCOL[k]}"></span>档 ${k} 边界${k === S.main ? "（实线）" : "（虚线）"}</span>`).join("")
+    + '<span>● 探针 ■ 环：绿 &lt; 1σ，橙 / 蓝 = 正 / 负残差；空心 = 未用</span><span>细蓝线 = POINT 弦（虚 = 关）</span>';
+}
+
+function renderProfiles(res) {
+  const ser = (key, scaleBy) => TIERS.filter((k) => ok(res.tiers[k])).map((k) => {
+    const pr = res.tiers[k].profiles;
+    return { x: pr.psin, y: pr[key].map((v) => fin(v) ? v * (scaleBy || 1) : NaN), color: TCOL[k], width: k === S.main ? 2.2 : 1.3, dash: k === S.main ? "" : "5 3" };
+  });
+  const qs = TIERS.filter((k) => ok(res.tiers[k])).map((k) => ({ x: res.tiers[k].q.x, y: res.tiers[k].q.q, color: TCOL[k], width: k === S.main ? 2.2 : 1.3, dash: k === S.main ? "" : "5 3" }));
+  $("pq").innerHTML = chart(qs, { xlab: "ψ_N", xlim: [0, 1] });
+  const pser = ser("pres", 1e-3), P = res.tiers.P;
+  if (ok(P)) pser.push({ points: P.thomson.points.map((p) => ({ x: fin(p.psin_final) ? p.psin_final : p.psin_initial, y: p.p / 1e3, err: p.sigma / 1e3 * (p.used ? (P.sigma_scale || 1) : 1),
+    fill: p.used ? "var(--tP)" : "var(--sheet)", stroke: "var(--tP)", title: `z=${f(p.z, 3)} m, p=${g(p.p, 3)} Pa, σ=${g(p.sigma, 2)} Pa ${p.used ? "" : "（" + (p.why || "未用") + "）"}` })), color: "var(--tP)" });
+  //: 量程由曲线与进了拟合的点定；剔掉的离群点可以大一个量级，出界的钉在边上
+  let pmax = 0;
+  for (const se of pser) { (se.y || []).forEach((v) => { if (fin(v)) pmax = Math.max(pmax, v); }); (se.points || []).forEach((p) => { if (p.fill !== "var(--sheet)" && fin(p.y)) pmax = Math.max(pmax, p.y + (p.err || 0)); }); }
+  $("pp").innerHTML = chart(pser, { xlab: "ψ_N", xlim: [0, 1], ylim: pmax > 0 ? [-0.05 * pmax, 1.15 * pmax] : null });
+  const pr = ser("pprime"), M = res.tiers.M;
+  if (ok(M) && M.profiles.pprime_sigma) {
+    const m = M.profiles;
+    pr.unshift({ x: m.psin, y: m.psin.map(() => NaN), band: { lo: m.pprime.map((v, i) => v - m.pprime_sigma[i]), hi: m.pprime.map((v, i) => v + m.pprime_sigma[i]) }, color: "var(--tM)" });
+  }
+  $("ppr").innerHTML = chart(pr, { xlab: "ψ_N", xlim: [0, 1] });
+  $("pff").innerHTML = chart(ser("ffprim"), { xlab: "ψ_N", xlim: [0, 1] });
+  $("plegend").innerHTML = TIERS.filter((k) => ok(res.tiers[k])).map((k) => `<span><span class="dot" style="background:${TCOL[k]}"></span>档 ${k}</span>`).join("")
+    + (ok(P) ? "<span>实心点 = 进了拟合的 Thomson 点（误差棒按进入时的 σ）· 空心 = 剔掉或不收</span>" : "");
+}
+
+function renderMagnetics(res) {
+  const t = res.tiers[S.main];
+  if (!ok(t)) { $("magbars").innerHTML = '<p class="muted">这一档没有解</p>'; return; }
+  const L = t.channels.loops, P = t.channels.probes;
+  const items = L.map((c) => ({ label: c.name, v: c.sigma, used: c.used })).concat(P.map((c) => ({ label: c.name, v: c.sigma, used: c.used })));
+  const lim = (res.settings && res.settings.reject_sigma) || 5;
+  $("magbars").innerHTML = bars(items, { limit: lim, groups: [{ from: 0, to: L.length, label: `磁通环 ${L.filter((c) => c.used).length}/${L.length}` }, { from: L.length, to: items.length, label: `磁探针 ${P.filter((c) => c.used).length}/${P.length}` }] });
+  $("magnote").textContent = `档 ${S.main} · (模型 − 测量)/σ · 实心 = 进了拟合，空心 = 未用 · 虚线 = ±${lim} σ 剔道阈值`;
+  const M = res.tiers.M, ex = (res.inputs.excluded || []);
+  let h = "";
+  const rej = (M.rejected || []), rea = (M.readmitted || []);
+  if (ex.length) h += "<p class=\"note\">起步即不用：" + ex.map((e) => `<span class="tag">${esc(e.name)}</span>`).join("") + `（${esc(ex[0].why)}）</p>`;
+  h += rej.length ? "<table><thead><tr><th class=\"l\">道</th><th>剔时 σ</th><th>轮</th><th class=\"l\"></th></tr></thead><tbody>"
+    + rej.map((r) => `<tr><td class="l">${esc(r.kind === "loop" ? "环 " : "探针 ")}${esc(r.name)}</td><td class="num">${g(r.sigma, 3)}</td><td class="num">${r.round}</td><td class="l">${r.reverted ? '<span class="warn">已撤回（剔后解不出）</span>' : ""}</td></tr>`).join("") + "</tbody></table>"
+    : "<p class=\"note\">没有剔道。</p>";
+  if (rea.length) h += "<p class=\"note\">收回的环（在收敛解上的残差不超阈值）：" + rea.map((r) => `<span class="tag">${esc(r.name)} ${g(r.sigma, 2)}σ</span>`).join("") + "</p>";
+  $("rejected").innerHTML = h;
+  $("rounds").innerHTML = "<table><thead><tr><th class=\"l\">轮</th><th>收敛 / 设定点</th><th>用道</th><th>竖直设定点 [mm]</th><th>χ²/道</th><th>q₀</th></tr></thead><tbody>"
+    + (M.rounds || []).map((r) => `<tr><td class="l">${r.round}</td><td class="num">${r.converged}/${r.scan.length}</td><td class="num">${r.n_used}</td><td class="num">${fin(r.zc) ? sgn(r.zc * 1e3, 0) : "—"}</td><td class="num">${f(r.chi2_per_channel, 2)}</td><td class="num">${f(r.q0, 3)}</td></tr>`).join("") + "</tbody></table>";
+}
+
+function renderK(res) {
+  const K = res.tiers.K;
+  if (!K) { $("kbody").innerHTML = '<p class="muted">没跑档 K。</p>'; $("knote").textContent = ""; return; }
+  if (!ok(K)) { $("kbody").innerHTML = `<p class="${K.status === "skipped" ? "muted" : "warn"}">${esc(K.status === "skipped" ? K.why : K.error)}</p>`; return; }
+  const pt = K.point, n = pt.measured_bpolar.length;
+  const items = [], groups = [];
+  for (let i = 0; i < n; i++) items.push({ label: `弦 ${i + 1} 法拉第 · 零假设`, v: pt.null.faraday_sigma[i], used: pt.fwtpol[i] > 0, color: "var(--muted)" },
+    { label: `弦 ${i + 1} 法拉第 · 拟合后`, v: pt.fitted.faraday_sigma[i], used: pt.fwtpol[i] > 0, color: "var(--tK)" });
+  for (let i = 0; i < n; i++) groups.push({ from: 2 * i, to: 2 * i + 2, label: String(i + 1) });
+  const ditems = [];
+  for (let i = 0; i < n; i++) ditems.push({ label: `弦 ${i + 1} 线密度 · 零假设`, v: pt.null.density_sigma[i], used: pt.fwtnel[i] > 0, color: "var(--muted)" },
+    { label: `弦 ${i + 1} 线密度 · 拟合后`, v: pt.fitted.density_sigma[i], used: pt.fwtnel[i] > 0, color: "var(--tK)" });
+  let h = "<h3>法拉第残差 [σ]：灰 = 零假设（档 M 的平衡上前向算），蓝 = 法拉第行进拟合后</h3>" + bars(items, { w: 560, h: 170, limit: 3, groups })
+    + "<h3>线密度残差 [σ]（只用来定密度形状，不进平衡拟合）</h3>" + bars(ditems, { w: 560, h: 150, limit: 3, groups });
+  h += `<table><tbody><tr><td class="l">法拉第 rms（用的弦）</td><td class="num">${f(pt.null.faraday_rms, 3)} → ${f(pt.fitted.faraday_rms, 3)} σ</td></tr>`
+    + `<tr><td class="l">线密度 rms</td><td class="num">${f(pt.null.density_rms, 3)} → ${f(pt.fitted.density_rms, 3)} σ</td></tr>`
+    + `<tr><td class="l">密度形状 n_e0 · 峰化</td><td class="num">${g(pt.fitted.ne0, 3)} m⁻³ · ${f(pt.fitted.peaking, 2)}</td></tr>`
+    + `<tr><td class="l">逐轮 q₀（至 |Δq₀|/q₀ &lt; 1e-3）</td><td class="num">${(K.passes || []).map((p) => f(p.q0, 4)).join(" → ")}${K.settled ? "" : ' <span class="warn">未定</span>'}</td></tr></tbody></table>`;
+  if (pt.dead.length) h += `<p class="note">判为死道（零假设残差超 ${res.settings.dead_sigma} σ，关掉那一行）：` + pt.dead.map((d) => `<span class="tag">弦 ${d.chord} ${d.row === "faraday" ? "法拉第" : "线密度"} ${g(d.sigma, 3)}σ</span>`).join("") + "</p>";
+  if (pt.off_by_user && pt.off_by_user.length) h += `<p class="note">手动关掉：弦 ${pt.off_by_user.join(", ")}</p>`;
+  $("kbody").innerHTML = h;
+  $("knote").textContent = `σ 法拉第 ${res.settings.sigpol} · 线密度 ${res.settings.signel}（KEFIT GUI 缺省）`;
+}
+
+function renderP(res) {
+  const P = res.tiers.P;
+  if (!P) { $("pbody").innerHTML = '<p class="muted">没跑档 P。</p>'; $("pnote").textContent = ""; return; }
+  if (!ok(P)) { $("pbody").innerHTML = `<p class="${P.status === "skipped" ? "muted" : "warn"}">${esc(P.status === "skipped" ? P.why : P.error)}</p>` + attemptsTable(P.attempts); return; }
+  const c = P.certificate, n = c.chi2_per_dof.length, xs = [...Array(n).keys()].map((i) => i + 1);
+  let h = "<h3>外环证书：逐遍 χ²/dof（实线）与映射移动 ψ_N（虚线），对数轴；大点 = 收官那一遍</h3>"
+    + chart([{ x: xs, y: c.chi2_per_dof, color: "var(--tP)", points: [{ x: c.best_pass, y: c.chi2_per_dof[c.best_pass - 1], r: 5 }] },
+      { x: xs, y: c.map_shift, color: "var(--tK)", dash: "5 3" }], { w: 560, h: 200, log: true, xlab: "遍", hlines: [{ y: c.tol, color: "var(--tK)" }] });
+  h += `<table><tbody><tr><td class="l">收官</td><td class="num">第 ${c.best_pass} / ${n} 遍 · 映射移动 ${g(c.map_shift[c.best_pass - 1], 3)}（阈 ${g(c.tol, 2)}）</td></tr>`
+    + `<tr><td class="l">σ 放宽倍数</td><td class="num">${P.sigma_scale > 1 ? '<span class="warn">× ' + P.sigma_scale + "</span>" : "× 1（按实测 σ）"}</td></tr>`
+    + `<tr><td class="l">Thomson 脉冲</td><td class="num">${f(P.thomson.sample_time_s, 4)} s（磁测量时刻 ${f(res.time_s, 3)} s）</td></tr>`
+    + `<tr><td class="l">T_i0 / T_e0 · 离子因子</td><td class="num">${g(P.thomson.ti0, 3)} / ${g(P.thomson.te0, 3)} eV · ${f(P.thomson.ion_factor, 3)}</td></tr>`
+    + `<tr><td class="l">点：进拟合 / 共</td><td class="num">${P.thomson.points.filter((p) => p.used).length} / ${P.thomson.points.length}（质量闸另剔 ${P.thomson.n_dropped_quality}）</td></tr></tbody></table>`;
+  const shiftBest = c.map_shift[c.best_pass - 1];
+  if (fin(shiftBest) && shiftBest > c.tol) h += `<p class="note warn">收官那一遍（按 χ² 取的最优遍）的映射还在动：${g(shiftBest, 2)} &gt; 阈 ${g(c.tol, 2)}。这个解对它自己的磁面**不自洽**——Thomson 点挂的 ψ_N 不是这个平衡给的那一个。</p>`.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  if (P.passes_note) h += `<p class="note warn">${esc(P.passes_note)}</p>`;
+  h += attemptsTable(P.attempts);
+  h += "<h3>逐点</h3><div class=\"scroll\"><table><thead><tr><th>Z [m]</th><th>p [Pa]</th><th>σ [Pa]</th><th>ψ_N 起</th><th>ψ_N 终</th><th>模型 p</th><th>残差 σ（进入时）</th><th class=\"l\"></th></tr></thead><tbody>"
+    + P.thomson.points.map((p) => `<tr${p.used ? "" : ' class="muted"'}><td class="num">${f(p.z, 3)}</td><td class="num">${g(p.p, 3)}</td><td class="num">${g(p.sigma, 2)}</td><td class="num">${f(p.psin_initial, 3)}</td><td class="num">${f(p.psin_final, 3)}</td><td class="num">${g(p.model_p, 3)}</td><td class="num">${p.used ? f(p.resid_sigma_entered, 2) : ""}</td><td class="l">${esc(p.why || "")}</td></tr>`).join("")
+    + "</tbody></table></div>";
+  if (P.thomson.assumptions) h += "<p class=\"note\">压强组装的假设：" + esc(JSON.stringify(P.thomson.assumptions)) + "</p>";
+  $("pbody").innerHTML = h;
+  $("pnote").textContent = `叠在档 ${P.on || "M"} 上 · p = e·n_e·T_e·(1 + T_i/T_e 稀释)`;
+}
+function attemptsTable(att) {
+  if (!att || !att.length) return "";
+  return "<p class=\"note\">σ 续延：" + att.map((a) => `<span class="tag">× ${a.sigma_scale} ${a.ok ? "✓" : "拒"}</span>`).join("") + "</p>";
+}
+
+function renderFoot(res) {
+  const s = res.settings || {};
+  $("foot").innerHTML = `${esc(res.app)} ${esc(res.version)} · fylite ${esc(res.fylite && res.fylite.version)} · ABI ${esc(res.fylite && res.fylite.kernel_abi)} · 生成 ${esc(res.created)} · 用时 ${esc(res.seconds)} s<br>`
+    + `输入 ${esc(res.origin && res.origin.file)}（${esc(res.origin && res.origin.kind)}${res.origin && res.origin.slice ? "，片 " + esc(res.origin.slice) : ""}）· 来源 ${esc(res.source)} · B_T 取自 ${esc(res.inputs.b_tor_from)}<br>`
+    + `设定：基 npp ${s.npp} / nff ${s.nff} · 环起步 ${esc(s.loops)} · 剔道 ${s.reject_sigma} σ · σ = max(${s.serror}·|读数|, 位下限 环 ${s.loop_floor} / 探针 ${s.probe_floor}) · 外环至多 ${s.kinetic_passes} 遍、阈 ${s.kinetic_tol} · Thomson 剔离群 ${s.thomson_clip} σ、ψ_N &lt; ${s.psin_max}`;
+}
+
+function render() {
+  const res = S.res;
+  if (!res) return;
+  $("empty").hidden = true; $("main").hidden = false;
+  $("title").textContent = `EAST #${res.shot} @ ${res.time_s} s · 动理学反演`;
+  if (!ok(res.tiers[S.main])) S.main = "M";
+  $("tierbtns").innerHTML = TIERS.filter((k) => res.tiers[k]).map((k) =>
+    `<button type="button" data-tier="${k}" aria-pressed="${k === S.main}"${ok(res.tiers[k]) ? "" : " disabled"}><span class="dot" style="background:${TCOL[k]}"></span>${k}</button>`).join(" ");
+  renderLadder(res); renderSection(res); renderProfiles(res); renderMagnetics(res); renderK(res); renderP(res); renderFoot(res);
+}
+
+function load(text, name) {
+  let res;
+  try { res = JSON.parse(text); } catch (e) { alert("不是 JSON：" + e.message); return false; }
+  if (!res || res["@type"] !== "fylite:KineticReconResult") { alert("这不是 kinetic_recon.py run 的结果文件（@type 不对）"); return false; }
+  S.res = res; S.main = ok(res.tiers.P) ? "P" : ok(res.tiers.K) ? "K" : "M";
+  if (name) $("fname").textContent = name;
+  render();
+  return true;
+}
+
+// ---------------------------------------------------------------------------------------------- wiring
+$("file").addEventListener("change", (ev) => { const fl = ev.target.files[0]; if (!fl) return; const rd = new FileReader(); rd.onload = () => load(rd.result, fl.name); rd.readAsText(fl); });
+document.addEventListener("dragover", (ev) => ev.preventDefault());
+document.addEventListener("drop", (ev) => { ev.preventDefault(); const fl = ev.dataTransfer && ev.dataTransfer.files[0]; if (!fl) return; const rd = new FileReader(); rd.onload = () => load(rd.result, fl.name); rd.readAsText(fl); });
+$("tierbtns").addEventListener("click", (ev) => { const b = ev.target.closest ? ev.target.closest("button[data-tier]") : null; if (!b) return; S.main = b.getAttribute("data-tier"); render(); });
+const MODES = ["auto", "light", "dark"], LAB = { auto: "自动", light: "浅", dark: "深" };
+let mode = "auto";
+try { mode = localStorage.getItem("kr-theme") || "auto"; } catch (e) { /* storage off */ }
+function applyTheme() {
+  const root = document.documentElement;
+  if (mode === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", mode);
+  $("theme").textContent = "配色：" + LAB[mode];
+}
+$("theme").addEventListener("click", () => { mode = MODES[(MODES.indexOf(mode) + 1) % 3]; try { localStorage.setItem("kr-theme", mode); } catch (e) { /* ignore */ } applyTheme(); });
+applyTheme();
+//: 给 node 检查（test/smoke.mjs）的钩子：同一条渲染路径，不另写一份
+window.KR = { load, render, state: S, contour };
+})();
+</script>
+</body>
+</html>
