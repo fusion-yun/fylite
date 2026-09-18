@@ -76,6 +76,35 @@ svg .grid { stroke: var(--hair); stroke-width: 1; }
 .empty code, .card code { font-size: 12px; background: var(--zebra); padding: 1px 4px; border-radius: 3px; }
 ul.plain { margin: 4px 0; padding-left: 18px; color: var(--ink2); font-size: 13px; }
 footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
+/* ---- 两个页签：原理与过程 · 结果 ---- */
+.tabs { display: flex; gap: 6px; margin: 14px 0 0; }
+.tabs button { padding: 5px 18px; }
+[hidden] { display: none !important; }
+/* ---- 原理页：读的是长文，版心收窄、行距放宽 ---- */
+.doc { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 24px; margin-top: 16px; }
+@media (max-width: 900px) { .doc { grid-template-columns: minmax(0, 1fr); } .doc nav { position: static; } }
+.doc nav { position: sticky; top: 12px; align-self: start; font-size: 13px; }
+.doc nav a { display: block; color: var(--ink2); text-decoration: none; padding: 3px 0 3px 10px; border-left: 2px solid var(--rule); }
+.doc nav a:hover { color: var(--accent); border-left-color: var(--accent); }
+.doc article { max-width: 78ch; font-size: 15px; line-height: 1.8; min-width: 0; }
+.doc h2 { font-size: 20px; margin: 30px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); font-weight: 600; }
+.doc h2:first-child { margin-top: 0; }
+.doc h3 { font-size: 16px; margin: 20px 0 4px; font-weight: 600; }
+.doc p { margin: 8px 0; }
+.doc .eq { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Times New Roman", serif; font-size: 17px;
+  text-align: center; margin: 12px 0; padding: 8px 12px; background: var(--sheet); border: 1px solid var(--hair); border-radius: 6px; overflow-x: auto; }
+.doc .eq .n { float: right; color: var(--muted); font-size: 13px; font-family: ui-monospace, monospace; }
+.doc var { font-family: "Cambria Math", "STIX Two Math", "Times New Roman", serif; font-style: italic; }
+.doc .key { border-left: 3px solid var(--accent); background: var(--sheet); padding: 8px 14px; margin: 12px 0; }
+.doc .caveat { border-left: 3px solid var(--warn); background: var(--sheet); padding: 8px 14px; margin: 12px 0; }
+.doc ol, .doc ul { padding-left: 22px; margin: 6px 0; }
+.doc li { margin: 3px 0; }
+.doc table { font-size: 13px; margin: 8px 0; }
+.doc td, .doc th { white-space: normal; text-align: left; vertical-align: top; }
+.doc figure { margin: 14px 0; }
+.doc figcaption { color: var(--muted); font-size: 13px; }
+.doc svg text { font: 12px "Noto Sans SC", "PingFang SC", system-ui, sans-serif; fill: var(--ink); }
+.doc svg .sub { fill: var(--muted); font-size: 11px; }
 </style>
 </head>
 <body>
@@ -85,8 +114,190 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
   <h1 id="title">动理学反演结果</h1>
   <p class="lede" id="lede">导入 <code>kinetic_recon.py run</code> 写出的结果 JSON。同一时刻的三档反演并排：只用磁测量（M）、加 POINT 偏振干涉（K）、加 Thomson 压强（P）。档不同，能声称的东西不同——读数只按档读。</p>
   <div class="banner">这是反演的结果，不是测量。真实放电上没有 q₀ 的真值：能判的只有各档把测量预测得多好（残差），以及档与档之间差多少。</div>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-doc" aria-pressed="true">原理与过程</button>
+    <button type="button" role="tab" id="tab-res" aria-pressed="false">结果</button>
+  </div>
 </header>
 
+<div id="docview">
+<div class="doc">
+<nav aria-label="目录">
+  <a href="#d-problem">一 · 平衡与反演问题</a>
+  <a href="#d-numerics">二 · 数值：带约束的 Picard 迭代</a>
+  <a href="#d-why">三 · 为什么磁测量不够</a>
+  <a href="#d-point">四 · 档 K：POINT 偏振干涉</a>
+  <a href="#d-thomson">五 · 档 P：Thomson 压强与自洽外环</a>
+  <a href="#d-flow">六 · 全过程</a>
+  <a href="#d-sigma">七 · 误差与权重的约定</a>
+  <a href="#d-data">八 · 数据处理的每一步</a>
+  <a href="#d-read">九 · 怎么读结果 · 边界</a>
+</nav>
+<article>
+
+<h2 id="d-problem">一 · 平衡与反演问题</h2>
+<p>托卡马克等离子体在一个时刻的宏观状态，用<b>轴对称平衡</b>描述。取柱坐标 (<var>R</var>, φ, <var>Z</var>)，磁场写成</p>
+<div class="eq"><b>B</b> = ∇ψ × ∇φ + <var>F</var>(ψ) ∇φ <span class="n">(1)</span></div>
+<p>ψ 是极向磁通，<var>F</var> = <var>R</var><var>B</var><sub>φ</sub> 是极向电流函数。力平衡 <b>J</b> × <b>B</b> = ∇<var>p</var> 要求压强 <var>p</var> 与 <var>F</var> 都只是 ψ 的函数，
+于是环向电流密度只剩两个自由剖面：</p>
+<div class="eq"><var>J</var><sub>φ</sub>(<var>R</var>, <var>Z</var>) = <var>R</var> <var>p</var>′(ψ) + <var>F F</var>′(ψ) / (μ<sub>0</sub> <var>R</var>) <span class="n">(2)</span></div>
+<p>ψ 由 Grad–Shafranov 方程与这个电流相连：</p>
+<div class="eq">Δ<sup>*</sup>ψ ≡ <var>R</var> ∂<sub><var>R</var></sub>(<var>R</var><sup>−1</sup> ∂<sub><var>R</var></sub>ψ) + ∂<sub><var>Z</var></sub><sup>2</sup>ψ = −μ<sub>0</sub> <var>R</var> <var>J</var><sub>φ</sub> <span class="n">(3)</span></div>
+<p><b>自由边界</b>：ψ 是等离子体电流与外部线圈（EAST 的 12 路 PF 极向场电路）共同产生的，等离子体的边界是与限制器相切、或过 X 点的那一条闭合磁面，本身是解的一部分。
+归一化磁通 ψ<sub>N</sub> = (ψ<sub>axis</sub> − ψ) / (ψ<sub>axis</sub> − ψ<sub>bnd</sub>)，磁轴上为 0、边界上为 1。</p>
+<p><b>反演</b>问的是：给定等离子体外面测到的量——磁通环读 ψ、磁探针读它所在处沿探针方向的极向场、罗氏线圈读总电流 <var>I</var><sub>p</sub>——找出使 (2)(3) 成立、
+且把这些测量预测得最好的 <var>p</var>′、<var>F F</var>′。关键的一点是：<b>在 ψ 的几何固定时，每一个磁测量都是 <var>J</var><sub>φ</sub> 的线性泛函</b>（经格林函数），
+而 <var>J</var><sub>φ</sub> 又对 <var>p</var>′、<var>F F</var>′ 线性——反演因此能写成一串线性最小二乘。</p>
+
+<h2 id="d-numerics">二 · 数值：带约束的 Picard 迭代（fylite <code>code/reconstruction</code>）</h2>
+<h3>基函数</h3>
+<p>两个剖面各用一组多项式展开，边缘值为零（x = ψ<sub>N</sub>）：</p>
+<div class="eq"><var>p</var>′(<var>x</var>) = Σ<sub><var>k</var>=0</sub><sup><var>n</var><sub>p</sub>−1</sup> α<sub><var>k</var></sub> (<var>x</var><sup><var>k</var></sup> − <var>x</var><sup><var>n</var><sub>p</sub></sup>) ，
+<var>F F</var>′(<var>x</var>) = Σ<sub><var>k</var>=0</sub><sup><var>n</var><sub>f</sub>−1</sup> β<sub><var>k</var></sub> (<var>x</var><sup><var>k</var></sup> − <var>x</var><sup><var>n</var><sub>f</sub></sup>) <span class="n">(4)</span></div>
+<p>本应用缺省 <var>n</var><sub>p</sub> = <var>n</var><sub>f</sub> = 2（与 KEFIT GUI 的 KPPCUR / KFFCUR 同），即 4 个系数 <b>c</b> = (α<sub>0</sub>, α<sub>1</sub>, β<sub>0</sub>, β<sub>1</sub>)。
+基函数的阶数是<b>输入</b>：它决定解能表示什么。阶数高了，磁测量定不住的方向会自由漂移（校验册 <code>eq-reconstruct-curvature-prior</code>：(1,1) 抬到 (2,2)，孪生上 q₀ 偏差 −0.12 % → −31.5 %）。</p>
+<h3>一次外迭代</h3>
+<ol>
+  <li>在当前 ψ 上定出等离子体区域（限制器 / X 点决定的最外闭合面）与每个网格点的 ψ<sub>N</sub>。</li>
+  <li>于是 <var>J</var><sub>φ</sub> = Σ<sub><var>j</var></sub> <var>c</var><sub><var>j</var></sub> <var>b</var><sub><var>j</var></sub>(<var>R</var>, <var>Z</var>)：每个系数对应一张电流分布 <var>b</var><sub><var>j</var></sub>。把它们经格林函数投到每个测量上，得设计矩阵
+    <var>A</var><sub><var>ij</var></sub>（第 <var>i</var> 个测量对第 <var>j</var> 个系数的响应）；线圈电流的贡献是已知的一项，从读数里扣掉。</li>
+  <li>解带权线性最小二乘，<var>I</var><sub>p</sub> 作<b>等式约束</b>：
+    <div class="eq">min<sub><b>c</b></sub> Σ<sub><var>i</var></sub> ((<var>A</var><b>c</b> − <b>d</b>)<sub><var>i</var></sub> / σ<sub><var>i</var></sub>)<sup>2</sup> 　s.t.　∫ <var>J</var><sub>φ</sub> d<var>A</var> = <var>I</var><sub>p</sub> <span class="n">(5)</span></div>
+    矩阵先做列均衡，再按奇异值截断（弱方向丢掉，报 <code>trunc_keep</code>）——病态是常态，不是例外。</li>
+  <li>用新电流解 (3) 更新 ψ（松弛因子 0.3），回到 1。ψ 的相对变化低于 10<sup>−8</sup> 即收敛。</li>
+</ol>
+<h3>竖直位置</h3>
+<p>拉长的等离子体竖直不稳：磁测量对整体上下平移不敏感，迭代会滑走。求解器用一个电流质心的竖直设定点 <var>Z</var><sub>c</sub> 作反馈锚；本应用对
+<var>Z</var><sub>c</sub> 在 −30…+30 mm 扫 16 个值，取收敛且 χ² 最小的那一个（KEFIT 用 <code>fitdelz</code> 拟合同一个自由度）。</p>
+<h3>后验</h3>
+<p>权重是 1/σ，所以 <var>A</var><sup>T</sup><var>W</var><sup>2</sup><var>A</var> 就是 Fisher 信息；它的截断伪逆（再投影掉 <var>I</var><sub>p</sub> 约束的方向）是系数的后验协方差。
+页面「剖面 · p′」里档 M 的灰带就是由它传出来的 1σ。</p>
+
+<h2 id="d-why">三 · 为什么磁测量不够</h2>
+<div class="key">磁测量都在等离子体外面。外面的场只认得电流分布的少数几个整体矩——总电流、电流质心、四极矩（与拉长、β<sub>p</sub> + <var>l</var><sub>i</sub>/2 相连）……
+内部 <var>p</var>′ 与 <var>F F</var>′ 怎么分、电流在芯部多尖，外面几乎看不出来。<b>很不一样的内部剖面能给出几乎一样好的磁拟合。</b></div>
+<p>这在结果里是可见的：档 M 的 p′ 后验带常是 p′ 自身值的一半上下；芯部的 q₀ 由芯部电流密度定，偏偏是磁测量最看不清的地方。
+把内部定下来要<b>内部约束</b>：芯部的压强（Thomson、CER）、电流或它的方向（MSE、偏振干涉）。这就是「动理学平衡反演」（kinetic EFIT）。</p>
+<p><b>约束阶梯</b>：同一时刻按约束集分档——M 只磁、K 加 POINT、P 加 Thomson。<b>档不同，能声称的东西不同</b>：两个档的 q₀ 差百分之几十，可以只是约束集之差，不是代码之差；
+拿三级约束的结果去和别人一级约束的结果比，比出来的是约束。</p>
+
+<h2 id="d-point">四 · 档 K：POINT 偏振干涉</h2>
+<p>EAST 的 POINT 有 11 条水平弦（<var>Z</var> = +0.425 … −0.425 m，自 <var>R</var> = 2.5 m 向内穿过等离子体），每条弦同时给两样：</p>
+<div class="eq">干涉：<var>N</var><sub>L</sub> = ∫ <var>n</var><sub>e</sub> d<var>l</var> 　　偏振（法拉第旋转）：α<sub>F</sub> = <var>C</var> λ<sup>2</sup> ∫ <var>n</var><sub>e</sub> <var>B</var><sub>∥</sub> d<var>l</var> <span class="n">(6)</span></div>
+<p><var>C</var> = 2.62 × 10<sup>−13</sup> rad·T<sup>−1</sup>，λ = 432.5 μm（KEFIT GUI 与装置牌同值；物理值 <var>e</var><sup>3</sup>/(8π<sup>2</sup>ε<sub>0</sub><var>m</var><sub>e</sub><sup>2</sup><var>c</var><sup>3</sup> = 2.631 × 10<sup>−13</sup>，差 0.43 %）。
+水平弦上 <var>B</var><sub>∥</sub> = <var>B</var><sub><var>R</var></sub>——法拉第角对内部极向场敏感，这正是磁测量缺的那一块。</p>
+<ol>
+  <li><b>密度形状</b>：先用 11 个线密度拟一个 <var>n</var><sub>e</sub>(ψ<sub>N</sub>) = <var>n</var><sub>e0</sub> (1 − ψ<sub>N</sub><sup>2</sup>)<sup>α</sup>（<code>code/chords</code>，扫 α）。线密度只用来定这个形状，不进平衡拟合。</li>
+  <li><b>零假设</b>：在档 M 的平衡上、用这个密度沿弦积分，前向算出 11 个法拉第读数，对实测。这一步不改平衡，只回答「不看 POINT 时，POINT 离数据多远」。
+    零假设残差超过 8σ 的行判为死道、关掉（B-06 实测过这种道：干涉死道 +22σ、法拉第死道 −10.9σ）。</li>
+  <li><b>拟合</b>：<var>n</var><sub>e</sub> 与 ψ 的几何固定时，(6) 右边对 <var>J</var><sub>φ</sub> 线性，于是每条弦成为设计矩阵里的一行（<code>faraday_rows</code>），权重 1/σ<sub>F</sub>，
+    与磁测量一起进 (5)。几何随解变，所以逐轮在新平衡上重建这些行，直到 |Δq₀|/q₀ &lt; 10<sup>−3</sup>。</li>
+</ol>
+<div class="caveat">B-06 用同一输入跑 KEFIT 与 fylite：拟合 POINT 后两者都留约 2.4σ 的法拉第残差、逐弦同号——<b>这份残差属于数据</b>（标定、零偏或随时间漂的系统差），不属于某个代码。
+所以法拉第行进了拟合而残差降得不多，并不说明拟合没做对。</div>
+
+<h2 id="d-thomson">五 · 档 P：Thomson 压强与自洽外环</h2>
+<h3>压强点</h3>
+<p>芯部 Thomson 在一条垂直弦（<var>R</var> = 1.9 m）上给出逐点的 <var>T</var><sub>e</sub>、<var>n</var><sub>e</sub> 与各自的误差；TXCS 给一个芯部 <var>T</var><sub>i0</sub>。组装成</p>
+<div class="eq"><var>p</var> = <var>e</var> <var>n</var><sub>e</sub> <var>T</var><sub>e</sub> (1 + <var>f</var><sub>dil</sub> <var>T</var><sub>i0</sub> / <var>T</var><sub>e0</sub>) <span class="n">(7)</span></div>
+<p>这里有一个<b>声明的假设</b>：<var>T</var><sub>i</sub>(<var>x</var>) = <var>T</var><sub>i0</sub> · <var>T</var><sub>e</sub>(<var>x</var>) / <var>T</var><sub>e0</sub>（离子温度只有芯部一个数）。可选地再扣掉一份声明的快离子压强——
+<b>先按总压强算 σ，再扣</b>：快离子是已知量，扣掉它改的是读数，不是读数的不确定度。</p>
+<h3>压强行</h3>
+<p>由 (4)，<var>p</var>(<var>x</var>) = Δψ ∫<sub><var>x</var></sub><sup>1</sup> <var>p</var>′ d<var>x</var>′（Δψ = ψ<sub>axis</sub> − ψ<sub>bnd</sub>）对 α 线性：</p>
+<div class="eq"><var>p</var>(<var>x</var>) = Δψ Σ<sub><var>k</var></sub> α<sub><var>k</var></sub> [ (1 − <var>x</var><sup><var>k</var>+1</sup>)/(<var>k</var>+1) − (1 − <var>x</var><sup><var>n</var><sub>p</sub>+1</sup>)/(<var>n</var><sub>p</sub>+1) ] <span class="n">(8)</span></div>
+<p>于是每个 Thomson 点是一行：在它的 ψ<sub>N</sub> 上取 (8)，对实测 <var>p</var>，权重 1/σ<sub><var>p</var></sub>。</p>
+<h3>自洽外环</h3>
+<div class="key">压强测在<b>位置</b> (<var>R</var>, <var>Z</var>) 上，而行要的是 ψ<sub>N</sub>——把位置变成 ψ<sub>N</sub> 要一个平衡，而平衡正是待解的东西。
+单遍反演是在<b>别人的平衡</b>给出的横坐标上拟合，且从不说明这一点。</div>
+<p>外环（<code>kinetic_passes</code>）把这个圈闭上：解一次 → 在刚解出的 ψ 上把每个测点重映到 ψ<sub>N</sub> → 再解。每一遍报两条迹，合称<b>证书</b>：</p>
+<ul>
+  <li>χ²/dof——这一遍对全部测量的拟合；</li>
+  <li><b>映射移动</b> max|Δψ<sub>N</sub>|——测点的标签这一遍又挪了多少。它低于阈值（缺省 10<sup>−3</sup>），才叫「自洽」。</li>
+</ul>
+<p>交替不保证单调，所以内核<b>按 χ² 取最优遍收官</b>，不取最后一遍。页面另把「收官那一遍的映射是否已经不动」单独判出来：按 χ² 最小取到的，可能恰是映射还在走的那一遍——
+那时的解对它自己的磁面并不自洽。</p>
+<p>★这个外环<b>只重映</b>：不重算自举电流、不重算快离子。完整的 kinetic-EFIT 外环（新平衡 → 重映剖面 → 重算 <var>j</var><sub>bs</sub> 与快离子 → 回到反演）本应用不做。</p>
+
+<h2 id="d-flow">六 · 全过程</h2>
+<figure>
+<svg viewBox="0 0 760 430" role="img" aria-label="动理学反演的全过程">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+  <g fill="var(--sheet)" stroke="var(--rule)" stroke-width="1.2">
+    <rect x="10" y="20" width="200" height="62" rx="8"/><rect x="10" y="110" width="200" height="62" rx="8"/>
+    <rect x="260" y="20" width="240" height="62" rx="8"/><rect x="260" y="110" width="240" height="80" rx="8" stroke="var(--tM)" stroke-width="2"/>
+    <rect x="260" y="220" width="240" height="80" rx="8" stroke="var(--tK)" stroke-width="2"/><rect x="260" y="330" width="240" height="88" rx="8" stroke="var(--tP)" stroke-width="2"/>
+    <rect x="550" y="200" width="200" height="62" rx="8"/><rect x="550" y="300" width="200" height="62" rx="8"/>
+  </g>
+  <text x="110" y="45" text-anchor="middle">原始树 east</text><text x="110" y="64" text-anchor="middle" class="sub">探针 · 环 · PF · Ip · TF · POINT</text>
+  <text x="110" y="135" text-anchor="middle">ts_east · analysis</text><text x="110" y="154" text-anchor="middle" class="sub">芯部 Thomson · TXCS T_i0</text>
+  <text x="380" y="45" text-anchor="middle">pull：归约</text><text x="380" y="64" text-anchor="middle" class="sub">±5 ms 均值 · 漂移扣除 · B_T 取 TF 电流</text>
+  <text x="380" y="132" text-anchor="middle">档 M · 磁测量</text><text x="380" y="151" text-anchor="middle" class="sub">设定点扫描 16 值 · 取 χ² 极小</text>
+  <text x="380" y="168" text-anchor="middle" class="sub">剔 &gt;5σ 的道 · B 组环起步再收回</text>
+  <text x="380" y="242" text-anchor="middle">档 K · + POINT</text><text x="380" y="261" text-anchor="middle" class="sub">密度形状 → 零假设 → 判死道</text>
+  <text x="380" y="278" text-anchor="middle" class="sub">法拉第行进拟合，逐轮重建</text>
+  <text x="380" y="352" text-anchor="middle">档 P · + Thomson</text><text x="380" y="371" text-anchor="middle" class="sub">组压强 · 剔离群点 · σ 续延</text>
+  <text x="380" y="388" text-anchor="middle" class="sub">自洽外环：解 → 重映 ψ_N → 再解</text><text x="380" y="405" text-anchor="middle" class="sub">证书：χ²/dof · 映射移动</text>
+  <text x="650" y="225" text-anchor="middle">结果 JSON</text><text x="650" y="244" text-anchor="middle" class="sub">三档的 ψ · 剖面 · 逐道残差 · 证书</text>
+  <text x="650" y="325" text-anchor="middle">本页「结果」</text><text x="650" y="344" text-anchor="middle" class="sub">阶梯表 · 截面 · 剖面 · 残差</text>
+  <g stroke="var(--muted)" stroke-width="1.3" fill="none" marker-end="url(#ar)">
+    <path d="M210,51 H258"/><path d="M210,141 C235,141 235,70 258,62"/>
+    <path d="M380,82 V108"/><path d="M380,190 V218"/><path d="M290,190 C225,250 225,330 262,345"/>
+    <path d="M500,150 C525,150 525,220 548,225"/><path d="M500,260 H548"/><path d="M500,374 C525,374 525,245 548,240"/>
+    <path d="M650,262 V298"/>
+  </g>
+  <text x="120" y="275" text-anchor="middle" class="sub">P 缺省叠在 M 上 →</text>
+</svg>
+<figcaption>从原始测量到本页。三档共用同一次取数与同一份档 M；K 与 P 各自在 M 的平衡上起步。</figcaption>
+</figure>
+
+<h2 id="d-sigma">七 · 误差与权重的约定</h2>
+<table>
+<thead><tr><th>量</th><th>σ</th><th>出处</th></tr></thead>
+<tbody>
+<tr><td>磁通环</td><td>max(0.05·|读数|, 5×10<sup>−4</sup> Wb/rad)</td><td>EFIT / KEFIT 的 data_input 约定（B-06 两个代码同用）</td></tr>
+<tr><td>磁探针</td><td>max(0.05·|读数|, 7.5×10<sup>−4</sup> T)</td><td>同上；位下限取 KEFIT <code>bitmp2.txt</code> 的中位</td></tr>
+<tr><td>POINT 法拉第</td><td>0.05（单位 10<sup>19</sup> m<sup>−2</sup>·T）</td><td>KEFIT GUI 缺省 <code>sigpol</code></td></tr>
+<tr><td>POINT 线密度</td><td>√(0.3² + (0.03·读数)²)（10<sup>19</sup> m<sup>−2</sup>）</td><td>KEFIT GUI <code>signel</code> 与求解器的合成</td></tr>
+<tr><td>Thomson 压强</td><td>由诊断自报的 T<sub>e</sub>、n<sub>e</sub> 误差传播，相对下限 5 %；内核拒收时整体 × 放宽倍数</td><td><code>pressure_from_thomson</code>；放宽倍数写进结果</td></tr>
+</tbody></table>
+<p>权重都是 1/σ，χ² 都是 Σ((模型 − 测量)/σ)²。χ²/dof 按各档自己的行数算——三档行数不同，不能直接比大小。</p>
+
+<h2 id="d-data">八 · 数据处理的每一步</h2>
+<h3>取数（<code>pull</code>）</h3>
+<ul>
+  <li>原始节点经 <code>fylite.io.raw.reduce_series</code>：|<var>t</var> − <var>t</var><sub>0</sub>| ≤ 5 ms 窗口均值，−6.9 … −6.1 s 炮前线性漂移扣除；POINT 用它自己的窗、先减 <var>t</var> ≈ −0.9 s 附近的零偏，条纹闸剔跳变的弦。</li>
+  <li><var>B</var><sub>T</sub> 不读 B_T 节点（自 #97286 起单位是伏特），改读 TF 线圈电流：<var>F</var> = μ<sub>0</sub><var>N I</var>/2π，<var>N</var> = 16 × 130。</li>
+  <li>Thomson 取离所要时刻最近的一个激光脉冲（#137985 全炮只有 6 个，每秒一个）。</li>
+</ul>
+<h3>档 M 的选道</h3>
+<ol>
+  <li>名字重复的探针槽（没有独立节点）起步即不用。</li>
+  <li>环从 FL*B 组起步——75 个环全进时 16 个设定点一个都不收敛；B 组起步则收敛。</li>
+  <li>每一轮：扫 16 个设定点 → 取收敛且 χ² 最小者 → 看逐道残差 → 超过 5σ 的里剔最坏的至多 4 道 → 重扫。剔完反而一个设定点都不收敛，就撤回这一批。</li>
+  <li>收敛后，把起步组之外、在这个解上预测得进 5σ 的环收回来，再走一遍 3。——最后用哪些道是数据选的，不是一张写死的表。</li>
+</ol>
+<h3>档 P 的离群点与 σ 续延</h3>
+<ul>
+  <li>只收挂在 ψ<sub>N</sub> &lt; 0.98 上的点。对 <var>p</var>(ψ<sub>N</sub>) 做一次带 GCV 定阶的光滑拟合，离它最远且超过 4σ 的那一点剔掉，重拟，直到没有这样的点。</li>
+  <li>先按实测 σ 进内核；拒了就把全部压强行的 σ 依次放宽 1.5、2、3、4、6、8 倍，取第一个收敛的。原因是求解器对紧的动理学行不稳：把档 M 自己的压强原样当行喂回去（数据与解完全自洽），
+    σ 取峰值 5 % 时仍会把等离子体拟丢，20 % 时一步收敛。<b>放宽了多少，这一档就少说了多少</b>——结果里标红。</li>
+</ul>
+
+<h2 id="d-read">九 · 怎么读结果 · 边界</h2>
+<ul>
+  <li><b>没有真值。</b>真实放电上没人测过 q₀。能判的只有测量那一侧（逐道残差）与档差。efit_east 树与 KEFIT 的答案在 B-06 里，只作比较，本应用不读。</li>
+  <li><b>先看档 M 站不站得住</b>：收敛的设定点有几个、χ²/道是否在 1 附近、剔掉的道跨时刻是否一致（#137985 上三片独立剔出同样 5 个探针）。</li>
+  <li><b>档 K 看两件事</b>：零假设离数据多远（POINT 与磁测量是否一致），拟合后 q₀ 往哪走、走多少。</li>
+  <li><b>档 P 先看证书</b>：收官那一遍的映射是否已不动、σ 放宽了几倍、进拟合的点剩几个。这三样有一样不过关，这一档的 q₀ 就不该拿去用。</li>
+  <li><b>没有 MSE。</b>内核里没有 MSE 行；芯部电流在 EAST 上主要由模型约束，<b>收敛不蕴含正确</b>。</li>
+  <li><b>剔道是本应用的规则。</b>另一套规则（B-06 以 KEFIT 纯磁 χ² 份额剔 7 道）会给出另一个答案，两者之差是剔法之差。</li>
+</ul>
+</article>
+</div>
+
+</div>
+
+<div id="resview" hidden>
 <div class="bar">
   <label class="file" title="kinetic_recon.py run 的输出">导入结果 JSON<input type="file" id="file" accept=".json,application/json"></label>
   <span class="muted" id="fname">或把文件拖进页面</span>
@@ -131,6 +342,7 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
     </ul></section>
   <footer id="foot"></footer>
 </main>
+</div>
 </div>
 
 <script>
@@ -481,14 +693,25 @@ function load(text, name) {
   if (!res || res["@type"] !== "fylite:KineticReconResult") { alert("这不是 kinetic_recon.py run 的结果文件（@type 不对）"); return false; }
   S.res = res; S.main = ok(res.tiers.P) ? "P" : ok(res.tiers.K) ? "K" : "M";
   if (name) $("fname").textContent = name;
+  showTab("res");
   render();
   return true;
+}
+
+//: 两个页签：原理与过程（缺省，不要结果也能读）· 结果（载入一份结果后自动切过来）
+function showTab(which) {
+  const res = which === "res";
+  $("docview").hidden = res; $("resview").hidden = !res;
+  $("tab-doc").setAttribute("aria-pressed", String(!res)); $("tab-res").setAttribute("aria-pressed", String(res));
+  S.tab = which;
 }
 
 // ---------------------------------------------------------------------------------------------- wiring
 $("file").addEventListener("change", (ev) => { const fl = ev.target.files[0]; if (!fl) return; const rd = new FileReader(); rd.onload = () => load(rd.result, fl.name); rd.readAsText(fl); });
 document.addEventListener("dragover", (ev) => ev.preventDefault());
 document.addEventListener("drop", (ev) => { ev.preventDefault(); const fl = ev.dataTransfer && ev.dataTransfer.files[0]; if (!fl) return; const rd = new FileReader(); rd.onload = () => load(rd.result, fl.name); rd.readAsText(fl); });
+$("tab-doc").addEventListener("click", () => showTab("doc"));
+$("tab-res").addEventListener("click", () => showTab("res"));
 $("tierbtns").addEventListener("click", (ev) => { const b = ev.target.closest ? ev.target.closest("button[data-tier]") : null; if (!b) return; S.main = b.getAttribute("data-tier"); render(); });
 const MODES = ["auto", "light", "dark"], LAB = { auto: "自动", light: "浅", dark: "深" };
 let mode = "auto";
@@ -501,7 +724,7 @@ function applyTheme() {
 $("theme").addEventListener("click", () => { mode = MODES[(MODES.indexOf(mode) + 1) % 3]; try { localStorage.setItem("kr-theme", mode); } catch (e) { /* ignore */ } applyTheme(); });
 applyTheme();
 //: 给 node 检查（test/smoke.mjs）的钩子：同一条渲染路径，不另写一份
-window.KR = { load, render, state: S, contour };
+window.KR = { load, render, showTab, state: S, contour };
 })();
 </script>
 </body>

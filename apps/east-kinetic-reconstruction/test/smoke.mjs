@@ -52,9 +52,22 @@ let failed = 0;
 const check = (cond, what) => { console.log(`${cond ? "ok  " : "FAIL"} ${what}`); if (!cond) failed++; };
 const count = (s, re) => (String(s).match(re) || []).length;
 
+//: 原理页：不要结果就能读，九节都在，页内目录每一条都指得到
+check(/<div id="docview">/.test(html) && /<div id="resview" hidden>/.test(html), "打开时停在「原理与过程」（标记里原理页可见、结果页 hidden）");
+const sections = [...html.matchAll(/<h2 id="(d-[a-z]+)"/g)].map((m) => m[1]);
+const navs = [...html.matchAll(/<a href="#(d-[a-z]+)"/g)].map((m) => m[1]);
+check(sections.length === 9, `原理页九节（${sections.join(" ")}）`);
+check(navs.length === sections.length && navs.every((n) => sections.includes(n)), "页内目录与各节一一对上");
+check(/<div class="eq">/.test(html) && (html.match(/<span class="n">\(\d\)<\/span>/g) || []).length >= 8, "公式块带编号（≥ 8 条）");
+
 const text = readFileSync(resultPath, "utf8");
 const res = JSON.parse(text);
 check(ctx.KR.load(text, "result.json") === true, "结果 JSON 载入");
+check(els.resview.hidden === false && els.docview.hidden === true, "载入后切到「结果」页签");
+els["tab-doc"].fire("click");
+check(els.docview.hidden === false && els.resview.hidden === true, "点「原理与过程」切回去");
+els["tab-res"].fire("click");
+check(els.resview.hidden === false, "点「结果」再切回来");
 check(alerts.length === 0, `没有弹窗（${alerts.join(" | ")}）`);
 check(els.main.hidden === false && els.empty.hidden === true, "空状态收起、主区打开");
 check(els.title.textContent.includes(String(res.shot)), "标题带炮号");
