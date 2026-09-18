@@ -14,8 +14,8 @@ title: "mhd-energy-surface-current-beta-limit"
 - **量的是**：表面电流模型的解析 β 极限：**根是 1.69，而 0.21 属于 1.71**
 - **参考**：Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8, Eqs. (12.154)–(12.166)
 - **验的需求**：`FR-EQ-021`
-- **跑在内核**：`sha256:e16301fa3acd72ca…`（新鲜度 **current**）
-- **记录版本**：1.5　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:3b7038913caa1232…`（新鲜度 **current**）
+- **记录版本**：1.6　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -48,6 +48,7 @@ title: "mhd-energy-surface-current-beta-limit"
 | 低 β 极限无交叉项、Kruskal–Shafranov 阈值、$m=2,3$ 系数恒正 | — | reference_self_reported | $q_*$ = 0.8 · 0.99 · 1.01 · 1.5 · 2 · 3 · 5：$c_1>0 \iff q_*>1$；$c_3>0$；$c_2\ge0$，**$c_2(2)=0$ 逐位** | **成立** |
 | `source` 非空且含节号式号 | — | reference_self_reported | 含 `Freidberg`、`12.8`、`(12.154)`、`(12.166)` | **成立** |
 | 区间不变号时 fail-loud | — | reference_self_reported | (2, 3)：`SURFACE_CURRENT_NO_CROSSING`；(1.0, 1.5)：两端异号，而 `SURFACE_CURRENT_OUTSIDE_DOMAIN`；(1.2, 3.0) 照常给根 | **成立** |
+| (g) 有壁支与不稳带：交付带而非单一阈值；壁因子负幂；ρ_w → ∞ 退化回无壁、ρ_w → 1⁺ 完全镇定 | — | reference_self_reported | 无壁 (0, 1.690113]（上边缘对 (12.163) 的根 < 1e-12）· b/a = 2 (0.2747, 1.6294) · 1.4 (0.6205, 1.3026) · β/ε 上限 0.2159 → 0.3636；闭合在 b/a = 1.32165（q* ≈ 0.904）；b/a = 1.2 / 1.05 / 1.001 全稳，1.0001 无 NaN；(f − 1) 负幂改写对直接 f_m 求和 1e-13 | **成立** |
 
 **★$M_{lp}$ 六个分数全部复现，最劣差 6.3e-14**
 
@@ -75,16 +76,23 @@ title: "mhd-energy-surface-current-beta-limit"
 
 - ★★**这一半判据没点名，是实测逼出来的**：初版在 (1.0, 1.5) 上二分，报出「根」1.00035——那是 (12.163) 分母 $D=W_{11}W_{33}-W_{13}^2$ 的**零点**，$W$ 在它两侧从 +∞ 跳到 −∞。它离 Kruskal–Shafranov 只差 3.456e-4：$m=1$ 在那里自己就不稳，与 $m=3$ 的环向耦合把边界往上推了一点。(12.163) 是对 $\xi_1,\xi_3$ 取极小，**只在这一块正定处成立**；现在先扫 $D>0$，不满足按名拒绝。
 
+**★★有壁不稳带：下边缘出现、带收窄、闭合；SRS 的三档读数全复现，**闭合点不复现**（1.32165 对「≤ 1.35」）**
+
+- ★★**带按全 3 × 3 矩阵的 λ_min 定，不按 (12.163)**：(12.163) 先对 ξ1、ξ3 取极小，只在那一块正定处成立；q* ≲ 1 上它看不见带的下半截——b/a = 2 上 (12.163) 只报 q* > 1 那一截，全矩阵报 (0.275, 1.629)。在块正定的 [1.2, 3] 上两者逐点同号（361 点），这是它们不共享代数的交叉核对。
+- ★★**闭合点不复现，照实记**：SRS 写「b/a ≤ 1.35 闭合」，实测 1.35 上带仍开 (0.714, 1.168)，1.34 上 (0.745, 1.120)，闭合在 1.32165。真空截断 K = 100 / 300 / 1000 给逐位相同的 λ_min，差距不是截断；SRS 没写它的扫描网格，不去凑。判据本身（交付带、负幂、两端极限）不依赖这个数，所以本格判成立。
+- ★SRS 的 b/a = 1.4 下边缘印 0.621，实测 0.62046——在三位读数的一个末位之内（门的容差取一个末位 1e-3）。
+- ★有壁修正只算差：无壁那一份 (12.164) 已是闭式，差里的 f_m − 1 = 2λ/(1 − λ) 按几何级数收敛；壁太近级数不收敛时按名拒绝（−9），带断成几段也按名拒绝（−8）。
+
 ## 不可比的部分
 
-- ★★**判决成立**：八格全过。两处照实记了与字面不同的东西——0.21 属于 1.71 不属于 1.69；$m=2$ 的系数是非负不是正。
+- ★★**判决成立**：九格全过（第九格 (g) 为 2026-09-18 补）。两处照实记了与字面不同的东西——0.21 属于 1.71 不属于 1.69；$m=2$ 的系数是非负不是正。
 - ★这是 L2 的 **oracle**：它给后面 `FR-EQ-019…024` 的变分内核一个有解析答案的对照。本条自己不含变分机器。
 - ★门在内核仓，本仓 CI 跑不到——与 `FR-EQ-017` / `018` 同一处代价。
-- ★2026-09-18 v1.1：SRS 此条的正文还有 (c') 第二条路、(e) 整条边界、(g) 有壁支，抄录的验证矩阵没点名。三条随 L2 一起补上了门：闭式路在 $k^2=1$ 上由 (12.147)+(12.140)+(12.153) 合成 $W_{lp}$，逐元对 (12.164) 的转录到 7.4e-8（真空谐波截断，按 $1/m_{max}^2$ 降），$\lambda_{min}=0$ 的根 1.690113290 对转录路 1.690113289；整条边界 $k^2\to0$ 给 $q_*\to1$、$k^2=1$ 给 1.690113 且落在平衡极限上；$f_m$ 以负幂实现，$|m|=1000$ 不溢出，并由 `FR-EQ-023` 的边界积分在同心圆上**独立复现**到 2.4e-14。★有壁时的**不稳带**（下边缘出现、带收窄、闭合）本条仍未做。
+- ★2026-09-18 v1.1：SRS 此条的正文还有 (c') 第二条路、(e) 整条边界、(g) 有壁支，抄录的验证矩阵没点名。三条随 L2 一起补上了门：闭式路在 $k^2=1$ 上由 (12.147)+(12.140)+(12.153) 合成 $W_{lp}$，逐元对 (12.164) 的转录到 7.4e-8（真空谐波截断，按 $1/m_{max}^2$ 降），$\lambda_{min}=0$ 的根 1.690113290 对转录路 1.690113289；整条边界 $k^2\to0$ 给 $q_*\to1$、$k^2=1$ 给 1.690113 且落在平衡极限上；$f_m$ 以负幂实现，$|m|=1000$ 不溢出，并由 `FR-EQ-023` 的边界积分在同心圆上**独立复现**到 2.4e-14。★有壁时的**不稳带**（下边缘出现、带收窄、闭合）2026-09-18 已补，见 criterion/9。
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.5　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.6　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -96,16 +104,18 @@ title: "mhd-energy-surface-current-beta-limit"
 | 1.3 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（全 δW 支柱位形一级入内核：`screwpinch.rs`，`FR-EQ-027` · `028`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **773 项全通过**（新锚 20 条）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.4 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（环几何全 δW 入内核：`toroidal.rs`，`screwpinch.rs` 增阻性壁模；`FR-EQ-029` · `030` · `031`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **787 项全通过**（新锚 14 条，另 5 条 V5 门在 --release 下全过）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.5 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
+| 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 补 `FR-EQ-021(g)` 有壁支与不稳带（criterion/9，成立）：有壁 W_lp = (12.164) + 负幂真空修正，带按全矩阵 λ_min 定；SRS 三档读数复现，β/ε 0.2159 → 0.3636；★闭合点实测 1.32165，不复现 SRS 的「≤ 1.35」，照实记。同批内核换代（`e16301fa` → `3b703891`），内核侧 792 项全通过。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b`
+- 内核 `libfylite` `sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/surface_current_beta_limit.json`    `sha256:45685caf9ec24d979fe29904a3ff2c6885da5a59e7870a1fe4b116956412d339`    M_lp 对书、(12.164) 系数对书、根与 β/ε、极点、低 β 系数、拒绝三例
+- `docs/benchmark/readings/surface_current_wall_band.json`    `sha256:3bb4259a5c964c284b7dab357020a4df6ef94d72d31a9a79f8c08325f4aaed7a`    (g) 有壁不稳带：各档边缘、闭合点、两端极限、独立路
 
 **守它的门**：
 
@@ -121,6 +131,12 @@ title: "mhd-energy-surface-current-beta-limit"
 - `$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_closed_form_route_rebuilds_12_164_at_k2_equal_one` —— ★(c')：三式合成 W_lp，不经过 12.164
 - `$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_whole_boundary_has_both_analytic_ends` —— ★(e)：整条稳定边界的两端
 - `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::the_wall_factor_has_both_limits_and_never_overflows` —— ★(g)：壁因子 f_m（负幂）
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::without_a_wall_the_band_is_the_equilibrium_limit_root_and_nothing_below_it` —— (g) 无壁极限逐位退化
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_eigenvalue_test_agrees_with_eq_12_163_wherever_that_reduction_holds` —— (g) λ_min 与 (12.163) 同号
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::a_wall_opens_a_lower_edge_and_narrows_the_band_to_the_srs_readings` —— ★(g) SRS 三档读数、单调收窄
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_band_closes_where_the_wall_is_close_enough_and_a_touching_wall_stabilizes_everything` —— ★(g) 闭合点与 ρ_w → 1⁺
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_wall_correction_is_the_wall_factor_summed_the_long_way` —— (g) 负幂改写的独立路
+- `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_band_refuses_what_it_cannot_honestly_report` —— (g) 拒绝
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

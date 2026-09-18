@@ -84,12 +84,12 @@ GS 残差、`B-16` / `V-19` 定边界对 CHEASE 与 Solov'ev。★它们属于**
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-forward-boundary-rule-vs-kefit`](../../reports/eq-forward-boundary-rule-vs-kefit.md) | 对拍 | 未判（读数） | KEFIT | 1.14 | 草稿 | [jsonld](../../records/eq-forward-boundary-rule-vs-kefit.jsonld) |
-| [`eq-forward-chease-solovev`](../../reports/eq-forward-chease-solovev.md) | 对拍 | 成立 | CHEASE | 1.14 | 草稿 | [jsonld](../../records/eq-forward-chease-solovev.jsonld) |
-| [`eq-forward-green-response-shared`](../../reports/eq-forward-green-response-shared.md) | 验证 | 成立 | 它自己的有限差分雅可比，以及由单位电流装出的响应阵 | 2.12 | 草稿 | [jsonld](../../records/eq-forward-green-response-shared.jsonld) |
-| [`eq-forward-kefit-east137985`](../../reports/eq-forward-kefit-east137985.md) | 对拍 | 成立 | KEFIT | 1.14 | 草稿 | [jsonld](../../records/eq-forward-kefit-east137985.jsonld) |
-| [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | 验证 | 成立 | 各自的依赖声明与导入图 | 1.15 | 草稿 | [jsonld](../../records/eq-forward-self-contained-core.jsonld) |
-| [`eq-forward-solovev-fixed-boundary`](../../reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 | Solov'ev 解析平衡 (closed form) | 1.15 | 草稿 | [jsonld](../../records/eq-forward-solovev-fixed-boundary.jsonld) |
+| [`eq-forward-boundary-rule-vs-kefit`](../../reports/eq-forward-boundary-rule-vs-kefit.md) | 对拍 | 未判（读数） | KEFIT | 1.15 | 草稿 | [jsonld](../../records/eq-forward-boundary-rule-vs-kefit.jsonld) |
+| [`eq-forward-chease-solovev`](../../reports/eq-forward-chease-solovev.md) | 对拍 | 成立 | CHEASE | 1.15 | 草稿 | [jsonld](../../records/eq-forward-chease-solovev.jsonld) |
+| [`eq-forward-green-response-shared`](../../reports/eq-forward-green-response-shared.md) | 验证 | 成立 | 它自己的有限差分雅可比，以及由单位电流装出的响应阵 | 2.13 | 草稿 | [jsonld](../../records/eq-forward-green-response-shared.jsonld) |
+| [`eq-forward-kefit-east137985`](../../reports/eq-forward-kefit-east137985.md) | 对拍 | 成立 | KEFIT | 1.15 | 草稿 | [jsonld](../../records/eq-forward-kefit-east137985.jsonld) |
+| [`eq-forward-self-contained-core`](../../reports/eq-forward-self-contained-core.md) | 验证 | 成立 | 各自的依赖声明与导入图 | 1.16 | 草稿 | [jsonld](../../records/eq-forward-self-contained-core.jsonld) |
+| [`eq-forward-solovev-fixed-boundary`](../../reports/eq-forward-solovev-fixed-boundary.md) | 验证 | 成立 | Solov'ev 解析平衡 (closed form) | 1.16 | 草稿 | [jsonld](../../records/eq-forward-solovev-fixed-boundary.jsonld) |
 
 ### 缺口
 

@@ -14,8 +14,8 @@ title: "mhd-energy-conformal-map"
 - **量的是**：星形域到单位圆盘的共形映射：**机器全对，而谱收敛的快慢是形状的事**
 - **参考**：共形映射的数学性质（Riemann 映射定理；Theodorsen 积分方程）与判据自带的数
 - **验的需求**：`FR-EQ-025`
-- **跑在内核**：`sha256:e16301fa3acd72ca…`（新鲜度 **current**）
-- **记录版本**：1.4　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:3b7038913caa1232…`（新鲜度 **current**）
+- **记录版本**：1.5　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -49,6 +49,7 @@ title: "mhd-energy-conformal-map"
 | ★朴素 Newton 初值跑出单位圆的反证；逆映射像在闭圆盘内 | — | reference_self_reported | 初值 $w/f'(0)$、不设护栏：强 D 形 768 个内点中 **76** 个的迭代出了 $\|\zeta\|\le1$；稳健版（边界对应给初值、出圆步长减半）$\max\|\zeta\|$ = 0.9928 | **成立** |
 | 边界谱换算：形变泄漏、圆域不泄漏 | — | reference_self_reported | 共形角上的 $\cos m\phi$ 在几何角上重展开：圆域 $c_m=1$、其余 $\le$ 1.77e-16；强 D 形 $m$ = 1 · 2 · 3 时 $c_m$ = 0.898 · 0.983 · 0.913，模外 $\ell_2$ 泄漏 **0.130 · 0.270 · 0.398** | **成立** |
 | 不收敛 / 坏网格 / 负半径 fail-loud | — | reference_self_reported | $M=1000$、$M=8$ → `CONFORMAL_BAD_GRID`；$\rho=\cos\theta$ → `CONFORMAL_NEGATIVE_RADIUS`；3 次迭代封顶 → `CONFORMAL_NO_CONVERGENCE` | **成立** |
+| (e) 解析导数链：ζ' = 1/f'、ζ'' = −f''/f'³ ⇒ δW_F 对 U 的两次求导全解析；对 (12.147) 的误差与步长无关；线性组合保持解析性 | — | reference_self_reported | (12.147)：解析链 2.28e-16（SRS 6.7e-16）；中心差分 h/a = 1e-2 / 1e-3 / 1e-4 / 1e-5 / 1e-6 → 6.76e-5 / 6.76e-7 / 6.76e-9 / 6.91e-11 / 1.36e-10；f'' 对 f' 差分收敛比 4.0000（强 D 形）；P = f ⇒ U = w 的 jet 对闭式 3.7e-16；jet(ΣP) = Σ jet(P) 到 1e-15 | **成立** |
 
 **边界落在曲线上 6.7e-15 / 8.0e-15**
 
@@ -65,15 +66,20 @@ title: "mhd-energy-conformal-map"
 
 - ★原型里朴素 Newton 直接给出 NaN——截断级数在圆外发散。**这个反证是判据自己要的**，它说明「初值取自边界对应」不是装饰。
 
+**★★解析链对 (12.147) 2.3e-16，**没有步长可挑**；同一个 U 的差分路随 h 在 6.8e-5 … 6.9e-11 间变动**
+
+- ★(12.147) 那道锚在圆域上（`delta_w_fluid` 的积分域是圆截面），圆域上 f = aζ，链式里 f'' = 0——所以它验的是整条装配与换到 (r, θ) 的那一步，**不单独**验 f''。f'' 在强 D 形上另有两道：对 f' 差分二阶收敛，与 P = f ⇒ U = w 的恒等（那一道里 ζ'' 的项必须与 ζ'² 的项精确相消）。
+- ★差分路在 h/a = 1e-6 上掉头（1.4e-10，舍入）：差分要在截断与舍入之间挑一个 h，解析链把这个自由度整个去掉。
+
 ## 不可比的部分
 
-- ★★**判未判**：机器的八格全过；谱收敛那一格上游的数没有形状，而本条量到的收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8×——这是数学性质，照实报两个形状，不挑。
+- ★★**判未判**：机器的八格全过（另 2026-09-18 补 (e) 解析导数链，成立）；谱收敛那一格上游的数没有形状，而本条量到的收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8×——这是数学性质，照实报两个形状，不挑。
 - ★这一条给 `FR-EQ-023` 的真空能铺路：共形拉回之后真空势在圆盘上是谱收敛的，前提是形状别太 D。
 - ★门在内核仓，本仓 CI 跑不到。
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.4　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.5　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -84,16 +90,18 @@ title: "mhd-energy-conformal-map"
 | 1.2 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（全 δW 支柱位形一级入内核：`screwpinch.rs`，`FR-EQ-027` · `028`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **773 项全通过**（新锚 20 条）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.3 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（环几何全 δW 入内核：`toroidal.rs`，`screwpinch.rs` 增阻性壁模；`FR-EQ-029` · `030` · `031`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **787 项全通过**（新锚 14 条，另 5 条 V5 门在 --release 下全过）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.4 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
+| 1.5 | 2026-09-18 | Claude Opus 5 (1M context) | 补 `FR-EQ-025(e)` 解析导数链（新判据格，成立）：`d2f` · `chain_jet` · `poly_jet`；对 (12.147) 2.3e-16 且无步长，差分路随 h 在 6.8e-5 … 6.9e-11 间变动。整体仍判未判（谱收敛那一格不变）。同批内核换代（`e16301fa` → `3b703891`），内核侧 792 项全通过。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b`
+- 内核 `libfylite` `sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/conformal_map.json`    `sha256:46efa9e6d4d2409c4733b3bcb870d06c6dd5d92c36913496107b48e68daf79e2`    三个形状上的边界、单叶、往返、调和表示两基对比、朴素 Newton 反证、边界谱、拒绝
+- `docs/benchmark/readings/conformal_derivative_chain.json`    `sha256:2165619b10feee471b40b44a0d72603869efbbe8a5fd5d18989abc455874b8e1`    (e) 解析导数链：(12.147)、差分路、f''、恒等、线性
 
 **守它的门**：
 
@@ -107,6 +115,10 @@ title: "mhd-energy-conformal-map"
 - `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::naive_newton_leaves_the_disk` —— ★第七格：反证
 - `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_boundary_spectrum_leaks_only_on_a_deformed_domain` —— 第八格
 - `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::bad_input_is_refused_by_name` —— 第九格
+- `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::f_second_derivative_is_the_limit_of_differenced_f_prime` —— (e) f''
+- `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_chain_turns_p_equal_f_into_u_equal_w_exactly` —— (e) P = f ⇒ U = w
+- `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_analytic_chain_lands_on_12_147_with_no_step_to_choose` —— ★(e) (12.147) 与差分路
+- `$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_poly_basis_keeps_its_derivatives_through_a_linear_combination` —— (e) 线性组合
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

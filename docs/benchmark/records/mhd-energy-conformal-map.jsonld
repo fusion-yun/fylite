@@ -95,6 +95,13 @@
    "quantity_label": "不收敛 / 坏网格 / 负半径 fail-loud",
    "norm": "identity",
    "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-conformal-map/criterion/10",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "(e) 解析导数链：ζ' = 1/f'、ζ'' = −f''/f'³ ⇒ δW_F 对 U 的两次求导全解析；对 (12.147) 的误差与步长无关；线性组合保持解析性",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
   }
  ],
  "findings": [
@@ -184,11 +191,23 @@
    "bound": "identity",
    "deviation_literal": "$M=1000$、$M=8$ → `CONFORMAL_BAD_GRID`；$\\rho=\\cos\\theta$ → `CONFORMAL_NEGATIVE_RADIUS`；3 次迭代封顶 → `CONFORMAL_NO_CONVERGENCE`",
    "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★解析链对 (12.147) 2.3e-16，**没有步长可挑**；同一个 U 的差分路随 h 在 6.8e-5 … 6.9e-11 间变动",
+   "criterion": "benchmark/records/mhd-energy-conformal-map/criterion/10",
+   "bound": "identity",
+   "deviation_literal": "(12.147)：解析链 2.28e-16（SRS 6.7e-16）；中心差分 h/a = 1e-2 / 1e-3 / 1e-4 / 1e-5 / 1e-6 → 6.76e-5 / 6.76e-7 / 6.76e-9 / 6.91e-11 / 1.36e-10；f'' 对 f' 差分收敛比 4.0000（强 D 形）；P = f ⇒ U = w 的 jet 对闭式 3.7e-16；jet(ΣP) = Σ jet(P) 到 1e-15",
+   "verdict": "pass",
+   "caveat": [
+    "★(12.147) 那道锚在圆域上（`delta_w_fluid` 的积分域是圆截面），圆域上 f = aζ，链式里 f'' = 0——所以它验的是整条装配与换到 (r, θ) 的那一步，**不单独**验 f''。f'' 在强 D 形上另有两道：对 f' 差分二阶收敛，与 P = f ⇒ U = w 的恒等（那一道里 ζ'' 的项必须与 ζ'² 的项精确相消）。",
+    "★差分路在 h/a = 1e-6 上掉头（1.4e-10，舍入）：差分要在截断与舍入之间挑一个 h，解析链把这个自由度整个去掉。"
+   ]
   }
  ],
  "validity_domain": "星形域（$\\rho(\\theta)>0$ 单值）、Theodorsen 迭代收敛（近圆的形状）、$M=1024$。★强 D 形（κ1.6 δ0.35）仍收敛且单叶，但调和表示的谱收敛慢。★**不含**非星形域与带 X 点的边界。",
  "caveat": [
-  "★★**判未判**：机器的八格全过；谱收敛那一格上游的数没有形状，而本条量到的收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8×——这是数学性质，照实报两个形状，不挑。",
+  "★★**判未判**：机器的八格全过（另 2026-09-18 补 (e) 解析导数链，成立）；谱收敛那一格上游的数没有形状，而本条量到的收敛速率随形状从 5.7×/8.7× 降到 2.4×/2.8×——这是数学性质，照实报两个形状，不挑。",
   "★这一条给 `FR-EQ-023` 的真空能铺路：共形拉回之后真空势在圆盘上是谱收敛的，前提是形状别太 D。",
   "★门在内核仓，本仓 CI 跑不到。"
  ],
@@ -200,6 +219,11 @@
     "storage_uri": "docs/benchmark/readings/conformal_map.json",
     "checksum": "sha256:46efa9e6d4d2409c4733b3bcb870d06c6dd5d92c36913496107b48e68daf79e2",
     "comment": "三个形状上的边界、单叶、往返、调和表示两基对比、朴素 Newton 反证、边界谱、拒绝"
+   },
+   {
+    "storage_uri": "docs/benchmark/readings/conformal_derivative_chain.json",
+    "checksum": "sha256:2165619b10feee471b40b44a0d72603869efbbe8a5fd5d18989abc455874b8e1",
+    "comment": "(e) 解析导数链：(12.147)、差分路、f''、恒等、线性"
    }
   ],
   "realizes": [
@@ -242,15 +266,31 @@
    {
     "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::bad_input_is_refused_by_name",
     "comment": "第九格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::f_second_derivative_is_the_limit_of_differenced_f_prime",
+    "comment": "(e) f''"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_chain_turns_p_equal_f_into_u_equal_w_exactly",
+    "comment": "(e) P = f ⇒ U = w"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_analytic_chain_lands_on_12_147_with_no_step_to_choose",
+    "comment": "★(e) (12.147) 与差分路"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/conformal.rs::tests::the_poly_basis_keeps_its_derivatives_through_a_linear_combination",
+    "comment": "(e) 线性组合"
    }
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b"
+   "checksum": "sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c"
   }
  },
  "provenance": {
-  "record_version": "1.4",
+  "record_version": "1.5",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -285,6 +325,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。"
+   },
+   {
+    "record_version": "1.5",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "补 `FR-EQ-025(e)` 解析导数链（新判据格，成立）：`d2f` · `chain_jet` · `poly_jet`；对 (12.147) 2.3e-16 且无步长，差分路随 h 在 6.8e-5 … 6.9e-11 间变动。整体仍判未判（谱收敛那一格不变）。同批内核换代（`e16301fa` → `3b703891`），内核侧 792 项全通过。"
    }
   ]
  }

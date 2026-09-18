@@ -14,8 +14,8 @@ title: "mhd-deltaw-toroidal-free-boundary"
 - **量的是**：环几何真空标量势与无壁 V5：**四行都在最近码 1.7 % 内——真空走基本解法，靠柱锚判官**
 - **参考**：Chance et al., *Comparative numerical studies of ideal MHD instabilities*, J. Comput. Phys. 28, 1 (1978), Table I
 - **验的需求**：`FR-EQ-030`
-- **跑在内核**：`sha256:e16301fa3acd72ca…`（新鲜度 **current**）
-- **记录版本**：1.1　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:3b7038913caa1232…`（新鲜度 **current**）
+- **记录版本**：1.2　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -63,7 +63,7 @@ title: "mhd-deltaw-toroidal-free-boundary"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.1　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.2　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -71,12 +71,13 @@ title: "mhd-deltaw-toroidal-free-boundary"
 | :--- | :--- | :--- | :--- |
 | 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-030` 判**成立**（对拍）。环 Green 函数 Q_{n−1/2} 闭式 + 一步递推（3.6e-11）；外 NtD 走基本解法，柱锚 7.5e-5；无壁四行 0.758 / 0.673 / 1.377 / 1.065，距最近码 ≤ 1.7 %。★MFS 源点数随网格加倍时条件数爆（增长率跳到 2000），已与等离子体网格脱钩。 |
 | 1.1 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
+| 1.2 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b`
+- 内核 `libfylite` `sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

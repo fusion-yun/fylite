@@ -101,11 +101,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b"
+   "checksum": "sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -116,6 +116,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-TR-008` 判**成立**。补齐三处缺口：`solve_momentum` 加 pinch（对闭式二阶）；`code/evolve` 收 `chi_turb_phi` · `v_phi`，扩展门 `code/turbulence` 按 `momentum_flux`（缺省关）把 TGLF 的离子环向应力换成 χ_φ（Prandtl 数中位 0.415）；输出挂 DD 4 的 `momentum_phi/{d,v}`。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }

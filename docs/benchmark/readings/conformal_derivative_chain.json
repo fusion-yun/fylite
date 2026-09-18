@@ -1,0 +1,35 @@
+{
+  "_comment": "FR-EQ-025(e) 共形基的解析导数链 —— 2026-09-18。门：$FYLITE_KERNEL 的 conformal.rs",
+  "method": "U(w) = P(ζ(w), ζ̄(w))，P 为 ζ, ζ̄ 的多项式；ζ' = 1/f'(ζ)，ζ'' = −f''(ζ)/f'(ζ)³；f'' = e^G[(1+ζG')G' + G' + ζG'']",
+  "eq_12_147": {
+    "analytic_chain": 2.28e-16,
+    "srs": 6.7e-16,
+    "finite_difference": {
+      "h/a": [
+        0.01,
+        0.001,
+        0.0001,
+        1e-05,
+        1e-06
+      ],
+      "rel_err": [
+        6.76e-05,
+        6.76e-07,
+        6.76e-09,
+        6.91e-11,
+        1.36e-10
+      ]
+    },
+    "srs_fd": "1.0e-10 … 4.7e-4"
+  },
+  "f_second_derivative_vs_differenced_f_prime": {
+    "ratio_h_to_h/2": [
+      4.000006,
+      3.999994,
+      4.000009
+    ],
+    "shape": "Miller κ = 1.6, δ = 0.35"
+  },
+  "identity_P_equal_f": "U = w exactly: jet against closed form 3.7e-16 on the strong D shape",
+  "linearity": "jet(Σ P) equals Σ jet(P) to 1e-15 (combination on P, never on evaluated U)"
+}

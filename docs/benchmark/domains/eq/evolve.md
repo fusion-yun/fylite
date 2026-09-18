@@ -38,7 +38,7 @@ title: "演化自由边界与涡流电路"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-evolve-analytic-circuit-limits`](../../reports/eq-evolve-analytic-circuit-limits.md) | 验证 | 成立 | 纯电路问题的解析解（壳模衰减 e^(-t/tau_w) · 理想导体磁通冻结） | 1.14 | 草稿 | [jsonld](../../records/eq-evolve-analytic-circuit-limits.jsonld) |
+| [`eq-evolve-analytic-circuit-limits`](../../reports/eq-evolve-analytic-circuit-limits.md) | 验证 | 成立 | 纯电路问题的解析解（壳模衰减 e^(-t/tau_w) · 理想导体磁通冻结） | 1.15 | 草稿 | [jsonld](../../records/eq-evolve-analytic-circuit-limits.jsonld) |
 
 ### 缺口
 
