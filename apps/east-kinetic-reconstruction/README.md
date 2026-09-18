@@ -14,6 +14,7 @@
 | `kinetic_recon.py` | 取数与反演（单文件，只用 Python 标准库 + `libfylite.so`）：`pull` 取一个时刻的原始测量，`run` 跑三档写结果 JSON |
 | `kinetic_recon.html` | 页面（单文件，双击即开，不联网、不上传）：「原理与过程」·「结果」两个页签 |
 | `test/smoke.mjs` | 页面的 node 检查：把页面脚本在极小 DOM 垫片里真跑一遍，逐块断言画出了东西 |
+| `ASSESSMENT-wei2026.md` | 评估：用本应用复现 Wei et al. 2026（AIP Advances 16, 085007）的 EAST 剖面快速处理链，逐步对照、复现路线与「快速」的账 |
 | `libfylite.so` | **不入仓**，自己放进来（见〈库〉）：fylite 的计算库，内核 + 编进去的装置事实 + mdsip 客户端 |
 
 ★★**独立发行：只依赖 `libfylite.so`。**脚本不 import fylite 的 Python 包，也不要 numpy / pyyaml——
