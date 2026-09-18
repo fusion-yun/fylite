@@ -1,7 +1,8 @@
 """MXH 边界拟合的门（register record `eq-surface-mxh-gfile-fit` · `FR-EQ-013`）。
 
-★判据点名 7 机型；本机只有 4 个（EAST / DIII-D / CFEDR / 合成），MAST 与 JET 未评。
-这里守的是能量到的那部分，以及两条不花钱却很能抓错的自洽检查。
+★判据点名 7 机型（其中点名 MAST / DIII-D / JET）。语料库给 EAST / DIII-D / CFEDR / 合成；
+★2026-09-18 起 `third_party/` 再给 MAST 与 JET 的真 EFIT（找不到那个目录时，那两格的门照实跳过）。
+另有第二套实现（FUSE 的 MillerExtendedHarmonic.jl）的交叉核对：读数钉在记录里，有 Julia 时当场重算。
 """
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 RECORDED = ROOT / "docs/benchmark/readings/mxh_fit_gfiles.json"
+CROSS = ROOT / "docs/benchmark/readings/mxh_fit_julia_crosscheck.json"
 BAND = 0.024
 
 
@@ -90,3 +92,46 @@ def test_the_recorded_readings_are_what_this_checkout_computes(got):
     for r in want["files"]:
         if "mxh_rms" in r:
             assert g[r["file"]]["mxh_rms"] == pytest.approx(r["mxh_rms"], rel=1e-9), r["file"]
+
+
+def test_mast_and_jet_real_efit_boundaries_fit_inside_the_band(got):
+    """★判据点名的 MAST 与 JET：真 EFIT 重建，全部在带内，残差同样落在 X 点。"""
+    rows = [r for r in got["files"] if r["machine"] in ("mast", "jet") and "mxh_rms" in r]
+    if not rows:
+        pytest.skip("no third_party/ next to this checkout (set $FYLITE_THIRD_PARTY)")
+    assert {r["machine"] for r in rows} == {"mast", "jet"}
+    for r in rows:
+        assert r["in_band"] and r["closure_gap_over_a"] < 1e-9, r
+        assert abs(r["worst_residual_z_over_a"]) > 1.0, r
+    assert got["absent_machines"] == []
+
+
+def test_a_second_implementation_draws_the_same_curves():
+    """★★第二套实现（MillerExtendedHarmonic.jl）：同一批轮廓，几何量逐位、系数到 5e-3、重构曲线到 0.8 % 小半径。
+
+    ★约定：它取 `Z = Z0 − κ a sin θ`，于是 `c_J = −c`、`s_J = +s`——`c_J = +c` 那一支差到 0.1 … 0.5，
+    所以这个映射是量出来的，不是假设。
+    """
+    rec = json.loads(CROSS.read_text(encoding="utf-8"))
+    assert rec["summary"]["n_files"] >= 14
+    assert rec["summary"]["worst_geometry_gap"] < 1e-12
+    assert rec["summary"]["worst_coeff_gap"] < 1e-2
+    assert rec["summary"]["worst_curve_gap_over_a"] < 1e-2
+    for r in rec["files"]:
+        assert r["max_abs_c_minus_cj"] > 10 * r["max_abs_c_plus_cj"], r["file"]
+        #: 两套实现到数据点的几何距离几乎相同：谁也没有「更贴」
+        assert abs(r["geom_rms_fylite"] - r["geom_rms_julia"]) < 0.1 * r["geom_rms_fylite"], r["file"]
+
+
+def test_the_crosscheck_reproduces_where_julia_is_installed(got):
+    import os
+    import shutil
+    julia = os.environ.get("FYLITE_JULIA") or shutil.which("julia")
+    project = os.environ.get("FYLITE_JULIA_PROJECT")
+    if not julia or not project:
+        pytest.skip("no Julia + MillerExtendedHarmonic.jl ($FYLITE_JULIA, $FYLITE_JULIA_PROJECT)")
+    from fylite.engine import benchmark as bm
+    res = _tool().crosscheck(bm.store_dir(), julia, project)
+    want = {r["file"]: r for r in json.loads(CROSS.read_text(encoding="utf-8"))["files"]}
+    for r in res["files"]:
+        assert r["max_abs_c_plus_cj"] == pytest.approx(want[r["file"]]["max_abs_c_plus_cj"], rel=1e-6, abs=1e-12)

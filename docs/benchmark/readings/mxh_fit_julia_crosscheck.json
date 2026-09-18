@@ -1,0 +1,193 @@
+{
+ "second_implementation": "FUSE MillerExtendedHarmonic.jl 2.1.2, MXH(pr, pz, 6), trapezoidal moments",
+ "convention": "Julia Z = Z0 - kappa a sin(theta) => c_J = -c, s_J = +s",
+ "metric": "geometric distance from each g-file boundary point to a 20000-point reconstruction, over a",
+ "files": [
+  {
+   "machine": "east",
+   "file": "FYDOC-CASE-19-east-efit/corpus/g070754.05000",
+   "n_boundary": 96,
+   "geom_rms_fylite": 0.005753768081596247,
+   "geom_rms_julia": 0.005668598497044437,
+   "curve_gap_max_over_a": 0.001676392261082403,
+   "max_abs_c_plus_cj": 0.0002677394875966188,
+   "max_abs_s_minus_sj": 0.0008595187906319246,
+   "max_abs_c_minus_cj": 0.298541995016889,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "east",
+   "file": "FYDOC-CASE-19-east-efit/corpus/g063982.04800",
+   "n_boundary": 92,
+   "geom_rms_fylite": 0.007501580665026874,
+   "geom_rms_julia": 0.007431588661975552,
+   "curve_gap_max_over_a": 0.0017145056855418473,
+   "max_abs_c_plus_cj": 0.0003405061341465593,
+   "max_abs_s_minus_sj": 0.0006932455387129166,
+   "max_abs_c_minus_cj": 0.23947430283173107,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "east",
+   "file": "FYDOC-CASE-19-east-efit/corpus/g080307.63000",
+   "n_boundary": 94,
+   "geom_rms_fylite": 0.007721523882143828,
+   "geom_rms_julia": 0.007635507471405357,
+   "curve_gap_max_over_a": 0.0022782323055557407,
+   "max_abs_c_plus_cj": 0.0004793418964787466,
+   "max_abs_s_minus_sj": 0.0011873556376061078,
+   "max_abs_c_minus_cj": 0.2917813263426682,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "d3d",
+   "file": "FYDOC-CASE-05-gacode/corpus/upstream/neo/profile_data/g141459.03890",
+   "n_boundary": 89,
+   "geom_rms_fylite": 0.015693093116475654,
+   "geom_rms_julia": 0.0165686168471023,
+   "curve_gap_max_over_a": 0.004519444808962377,
+   "max_abs_c_plus_cj": 0.001333119172182727,
+   "max_abs_s_minus_sj": 0.0031416177877011744,
+   "max_abs_c_minus_cj": 0.45627019721221224,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "cfedr",
+   "file": "FYDOC-CASE-21-cfedr-hmode-20ma/corpus/CFEDR_260114/EFIT/FILES/g0.30000",
+   "n_boundary": 103,
+   "geom_rms_fylite": 0.009388088256116502,
+   "geom_rms_julia": 0.009372955207629576,
+   "curve_gap_max_over_a": 0.0019578763554121393,
+   "max_abs_c_plus_cj": 0.0005607692398797437,
+   "max_abs_s_minus_sj": 0.0012752198802425951,
+   "max_abs_c_minus_cj": 0.5009723333899012,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "cfedr",
+   "file": "FYDOC-CASE-21-cfedr-hmode-20ma/corpus/CFEDR_260114/EFIT/FILES/g260110.00300_teq",
+   "n_boundary": 621,
+   "geom_rms_fylite": 0.0036230899695141564,
+   "geom_rms_julia": 0.0036214921389572962,
+   "curve_gap_max_over_a": 0.00013880940282880424,
+   "max_abs_c_plus_cj": 2.7495466249916056e-05,
+   "max_abs_s_minus_sj": 7.544399207348729e-05,
+   "max_abs_c_minus_cj": 0.42311811323036647,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "cfedr",
+   "file": "FYDOC-CASE-21-cfedr-hmode-20ma/corpus/CFEDR_260114/ONETWO/FILES/gEQDSK/g0.99999",
+   "n_boundary": 1283,
+   "geom_rms_fylite": 0.0021920462647488513,
+   "geom_rms_julia": 0.0021920850418037873,
+   "curve_gap_max_over_a": 7.808058947874058e-06,
+   "max_abs_c_plus_cj": 2.5372927462408157e-06,
+   "max_abs_s_minus_sj": 5.4562135017866e-06,
+   "max_abs_c_minus_cj": 0.5323922072258689,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "mast",
+   "file": "third_party:FUSE/MXHEquilibrium.jl/test/g029908.00221_MAST",
+   "n_boundary": 147,
+   "geom_rms_fylite": 0.005556598515876671,
+   "geom_rms_julia": 0.0055122513619986074,
+   "curve_gap_max_over_a": 0.001119517726922443,
+   "max_abs_c_plus_cj": 0.00017773885303989587,
+   "max_abs_s_minus_sj": 0.0007858508107091988,
+   "max_abs_c_minus_cj": 0.22366191725654772,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "mast",
+   "file": "third_party:solps/solps_data/data/DivGeo/class/mast/g002948.00189",
+   "n_boundary": 37,
+   "geom_rms_fylite": 0.012505439672868882,
+   "geom_rms_julia": 0.012444851570795726,
+   "curve_gap_max_over_a": 0.007842069606355688,
+   "max_abs_c_plus_cj": 0.0013033364040496691,
+   "max_abs_s_minus_sj": 0.005251292435765803,
+   "max_abs_c_minus_cj": 0.24155577166374925,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "jet",
+   "file": "third_party:FUSE/MXHEquilibrium.jl/test/g96100_0-53.0012.eqdsk_JET",
+   "n_boundary": 105,
+   "geom_rms_fylite": 0.0037177400671070137,
+   "geom_rms_julia": 0.0035117866953104163,
+   "curve_gap_max_over_a": 0.001640391795328341,
+   "max_abs_c_plus_cj": 0.0006682031636129626,
+   "max_abs_s_minus_sj": 0.0007191883410540001,
+   "max_abs_c_minus_cj": 0.374798707884306,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "jet",
+   "file": "third_party:solps/solps_data/data/DivGeo/class/jet/g045462.59381.65x65",
+   "n_boundary": 165,
+   "geom_rms_fylite": 0.003527068099119448,
+   "geom_rms_julia": 0.0035272447274376077,
+   "curve_gap_max_over_a": 1.3437139455785561e-05,
+   "max_abs_c_plus_cj": 2.3167286561757983e-06,
+   "max_abs_s_minus_sj": 8.87447221024993e-06,
+   "max_abs_c_minus_cj": 0.14016017029929567,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "jet",
+   "file": "third_party:solps/solps_data/data/DivGeo/class/jet/g075733.60022",
+   "n_boundary": 205,
+   "geom_rms_fylite": 0.0024793596781373275,
+   "geom_rms_julia": 0.002384469478682125,
+   "curve_gap_max_over_a": 0.0008678140695632486,
+   "max_abs_c_plus_cj": 0.0003006391557256599,
+   "max_abs_s_minus_sj": 0.0002936656204319543,
+   "max_abs_c_minus_cj": 0.3448649202951766,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "jet",
+   "file": "third_party:solps/solps_data/data/DivGeo/class/jet/g040000.61137.65x65",
+   "n_boundary": 163,
+   "geom_rms_fylite": 0.0035297871143914806,
+   "geom_rms_julia": 0.0035301958292578753,
+   "curve_gap_max_over_a": 1.692549919451635e-05,
+   "max_abs_c_plus_cj": 2.122808191755074e-06,
+   "max_abs_s_minus_sj": 1.046629862121607e-05,
+   "max_abs_c_minus_cj": 0.09206680088752614,
+   "geometry_gap": 0.0
+  },
+  {
+   "machine": "jet",
+   "file": "third_party:solps/solps_data/data/DivGeo/class/jet/g046532.61380.65x65",
+   "n_boundary": 161,
+   "geom_rms_fylite": 0.004267178059199433,
+   "geom_rms_julia": 0.0042668300069344895,
+   "curve_gap_max_over_a": 2.0457900479380024e-05,
+   "max_abs_c_plus_cj": 6.725529931181362e-06,
+   "max_abs_s_minus_sj": 1.860259854177121e-05,
+   "max_abs_c_minus_cj": 0.12758821691812683,
+   "geometry_gap": 1.4650404930736262e-16
+  },
+  {
+   "machine": "jet",
+   "file": "third_party:solps/solps_data/data/DivGeo/class/jet/g045464.60360.65x65",
+   "n_boundary": 165,
+   "geom_rms_fylite": 0.0035404878723964595,
+   "geom_rms_julia": 0.003540807008159184,
+   "curve_gap_max_over_a": 1.83275167391263e-05,
+   "max_abs_c_plus_cj": 2.8254655083186607e-06,
+   "max_abs_s_minus_sj": 1.6626016865283963e-05,
+   "max_abs_c_minus_cj": 0.14022840232018163,
+   "geometry_gap": 1.4168832361451905e-16
+  }
+ ],
+ "summary": {
+  "n_files": 15,
+  "worst_coeff_gap": 0.005251292435765803,
+  "worst_curve_gap_over_a": 0.007842069606355688,
+  "worst_geometry_gap": 1.4650404930736262e-16
+ }
+}

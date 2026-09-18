@@ -144,7 +144,7 @@ title: 验证状态 (Verification status)
 | [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 未判（读数） | 1.8 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
+| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 未判（读数） | 1.9 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.6 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | mhd-deltaw | 验证 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
