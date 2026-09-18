@@ -1,0 +1,89 @@
+{
+  "_comment": "FR-EQ-023 一般位形的真空扰动能 δW_V —— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests",
+  "method": "single-layer potential, (−½I + K')σ = g with ∮σ ds = 0 (Householder least squares); wall as a second curve with (+½I + K'_w)τ; Kress log-splitting for S; spectral curve derivatives",
+  "energy": "E = −½∮ V g ds = ½∫|∇V|² dA; δW_V = (2πR0/μ0)·E for a real field",
+  "circle_random_g_N64_worst_rel": 1.915e-15,
+  "concentric_wall_N256_worst_rel": 2.354e-14,
+  "near_wall_b1_2_m1": {
+    "N": [
+      64,
+      128,
+      256
+    ],
+    "rel": [
+      0.000104,
+      8.86e-10,
+      2.35e-14
+    ]
+  },
+  "far_wall_b100_rel_excess": 0.0001755,
+  "wall_monotone_b": [
+    100,
+    8,
+    4,
+    2,
+    1.5,
+    1.2,
+    1.1
+  ],
+  "wall_energy": [
+    5.566383,
+    5.720717,
+    6.220838,
+    8.893632,
+    13.648937,
+    28.805394,
+    54.532865
+  ],
+  "no_wall": 5.565405635307,
+  "ellipse_added_mass_b_over_a_1_7": {
+    "N": [
+      32,
+      64,
+      128
+    ],
+    "rel_x": [
+      1.17e-15,
+      1.37e-15,
+      1.96e-15
+    ],
+    "rel_y": [
+      7.07e-16,
+      1.55e-15,
+      2.4e-15
+    ]
+  },
+  "strong_d_g_nx": {
+    "N": [
+      32,
+      64,
+      128,
+      256
+    ],
+    "E": [
+      4.504996430739,
+      4.50499643069,
+      4.50499643069,
+      4.50499643069
+    ],
+    "steps": [
+      4.8e-11,
+      6.2e-15,
+      2.2e-14
+    ]
+  },
+  "strong_d_random_g": {
+    "min_energy": 0.65826,
+    "quadratic_worst": 1.012e-15
+  },
+  "parametric_cosine_on_d": {
+    "oint_cos_t_ds": 0.58959,
+    "result": "VAC_NOT_SOLVABLE (-32)"
+  },
+  "refusals": [
+    "VAC_NOT_SOLVABLE (-32)",
+    "VAC_WRONG_ORIENTATION (-33)",
+    "VAC_WALL_INTERSECTS (-34)",
+    "VAC_BAD_INPUT (-31)"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "_comment": "FR-EQ-020 环几何耦合的组装机器（B2）—— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests",
+  "inverse_r2_harmonics": {
+    "eps": [
+      0.05,
+      0.1,
+      0.2,
+      0.3
+    ],
+    "k": "0..6",
+    "n_theta": 128,
+    "worst_vs_exact": 4.163e-15,
+    "c1_plus_2eps": {
+      "eps": [
+        0.2,
+        0.1,
+        0.05
+      ],
+      "residual": [
+        0.02526,
+        0.003038,
+        0.0003762
+      ],
+      "ratio": [
+        8.314,
+        8.076
+      ]
+    }
+  },
+  "zero_test": {
+    "only_k0": "all cross blocks exactly 0",
+    "k_le_2_block_max": {
+      "(1,2)": 60.0,
+      "(1,3)": 14.9,
+      "(1,4)": 0.0,
+      "(2,3)": 60.0,
+      "(2,4)": 14.9,
+      "(3,4)": 60.1
+    }
+  },
+  "linearity_worst_rel": 3.462e-16,
+  "symmetry": {
+    "asymmetry": 1.919e-17,
+    "injected_1e-12_reads": 1e-12,
+    "asymmetric_boundary": "VAR_BAD_INPUT"
+  },
+  "single_mode_k0_vs_B1": {
+    "coupled": 2.293741560974357,
+    "b1": 2.293741560974372,
+    "diff": 1.5e-14
+  },
+  "sine_self_check": {
+    "up_down_symmetric": 1.95e-17,
+    "rotated_parameter": 0.0227
+  },
+  "nyquist": {
+    "N16_k8": "VAR_BEYOND_NYQUIST (-24)",
+    "N16_k7": "ok"
+  }
+}

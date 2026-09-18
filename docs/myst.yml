@@ -186,6 +186,11 @@ project:
             - file: benchmark/reports/mhd-analytic-ballooning-first-stability.md
             - file: benchmark/reports/mhd-energy-surface-current-beta-limit.md
             - file: benchmark/reports/mhd-energy-conformal-map.md
+            - file: benchmark/reports/mhd-energy-variational-cylinder.md
+            - file: benchmark/reports/mhd-energy-coupled-assembly.md
+            - file: benchmark/reports/mhd-energy-fluid-high-beta.md
+            - file: benchmark/reports/mhd-energy-vacuum-general-shape.md
+            - file: benchmark/reports/mhd-energy-three-term-assembly.md
             - file: benchmark/reports/eq-inverse-freegsnke-east137985.md
             - file: benchmark/reports/eq-inverse-iter-reference-separatrix.md
             - file: benchmark/reports/eq-reconstruct-kefit-twin.md

@@ -1,0 +1,49 @@
+{
+  "_comment": "FR-EQ-022 高 β 序约化流体能量 δW_F —— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests",
+  "source": "Freidberg, Ideal MHD (2014) §12.8.2 Eqs. (12.123)-(12.124); surface-current limit (12.141)-(12.147)",
+  "closure_12_147": {
+    "n": [
+      1,
+      2,
+      3
+    ],
+    "worst_rel": [
+      5.329e-15,
+      5.329e-15,
+      5.625e-15
+    ],
+    "form": "n^2 diag(2, 1, 2/3), off-diagonals zero"
+  },
+  "reduces_12_142_worst_rel": "< 1e-15",
+  "reduces_12_143": {
+    "got": 115798127.9457,
+    "want": 115798127.9457,
+    "rel": 1.27e-14
+  },
+  "cartesian_route_worst_rel": 2.288e-16,
+  "uniform_bp_second_part": {
+    "uniform": 0.0,
+    "nonuniform": 0.477,
+    "naive_without_rotation_terms_on_uniform": 0.61
+  },
+  "n2_scaling_bp0": {
+    "n2_over_n1_minus_4": 0.0,
+    "n3_over_n1_minus_9": 1.07e-14
+  },
+  "line_bending_min_with_all_drives": 129400.0,
+  "three_terms": {
+    "line_bending": 2563600.0,
+    "pressure": -0.39977,
+    "current": -5.2316,
+    "default_vs_doubled_grid": 2.91e-15
+  },
+  "stokes_current_term": {
+    "volume": -13.77552955685,
+    "boundary": -13.77552955685
+  },
+  "refusals": [
+    "FLUID_HALF_GIVEN_FIELD (-42)",
+    "FLUID_COARSE_GRID (-43)",
+    "FLUID_NON_INTEGER_N (-44)"
+  ]
+}

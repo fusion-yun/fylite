@@ -1,0 +1,223 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-energy-coupled-assembly",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "环几何耦合的组装机器 B2：**第 k 阶谐波只连 |m − m′| = k，只给 k = 0 时块间逐位为零**",
+  "en": "The toroidal coupling machinery B2: order k links only |m − m′| = k, and with only k = 0 the blocks are exactly decoupled"
+ },
+ "domain": "mhd-energy",
+ "requirement": [
+  "FR-EQ-020"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `variational::theta_harmonics` / `gauss_points` / `coupled_pencil` / `Banded`",
+  "comment": "2026-09-18 新写：θ-Fourier 谐波 + 耦合 m 谱的带状有限元组装；**组装层不含任何 δW 系数表达式**，系数由调用方逐谐波注入"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "`(1 + ε cos θ)^{-2}` 的精确 Fourier 级数与 FR-EQ-019 的柱极限",
+   "comment": "`(a + ε cos θ)^{-1}` 的闭式对 a 求导得 `1/R²` 各阶谐波的精确值；首谐波 −2ε + O(ε³)。退化验收对 FR-EQ-019 的 marginal。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "$1/R^2$ 首谐波对 $-2\\varepsilon$ 的解析锚",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "零测试：只有 $k=0$ 时跨块严格为 0",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "第 $k$ 阶只连 $|m-m'|=k$",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "耦合对幅值线性",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "组装对称",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/6",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "单模退化回 FR-EQ-019",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/7",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "上下对称位形 sin 谐波作自检量",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-coupled-assembly/criterion/8",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "超 Nyquist 拒绝",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★各阶谐波对精确级数 4.2e-15；$c_1+2\\varepsilon$ 的残差 ε 减半降 8.3 / 8.1 倍（三阶）",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/1",
+   "measured_deviation": 4.163e-15,
+   "bound": "upper",
+   "deviation_literal": "ε = 0.05 · 0.1 · 0.2 · 0.3、$k\\le6$、128 点：对精确级数最劣 **4.163e-15**；$c_1+2\\varepsilon$ 在 ε = 0.2 · 0.1 · 0.05：2.526e-2 · 3.038e-3 · 3.762e-4",
+   "verdict": "pass",
+   "caveat": [
+    "★判据写「对 −2ε 的解析锚」——−2ε 只是首阶。本条对的是**精确**级数（由 $(a+\\varepsilon\\cos\\theta)^{-1}$ 的闭式对 $a$ 求导），另把 −2ε 的残差按 ε³ 降这一件事单独钉住：只对 −2ε 的门在 ε = 0.3 上差 7 %，无从区分「对」与「差不多」。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "只给 $k=0$：四个模之间 12 个块逐位为零",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/2",
+   "bound": "identity",
+   "deviation_literal": "模 1–4，只注入 $k=0$ 谐波：块间最大元 **0**（`assert_eq!`）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★先证其可非零：注入 $k\\le2$ 后 $|\\Delta m|=1,2$ 非零、$|\\Delta m|=3$ 仍逐位为零",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "块间最大元：(1,2) 60.0 · (2,3) 60.0 · (3,4) 60.1 · (1,3) 14.9 · (2,4) 14.9 · **(1,4) 0**",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "幅值 ×0.5 / ×2 / ×−3：块间元同比变、块内不变，最劣 3.5e-16",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/4",
+   "measured_deviation": 3.462e-16,
+   "bound": "upper",
+   "deviation_literal": "最劣相对 3.462e-16",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "非对称 1.9e-17；注入 1e-12 读到 1.0e-12；非对称的边界项按名拒绝",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/5",
+   "measured_deviation": 1.919e-17,
+   "bound": "upper",
+   "deviation_literal": "四模、$k\\le3$：非对称 **1.919e-17**（这里不是逐位零——两个方向的乘子次序不同，所以检查本来就能动）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "单模 + 只 $k=0$：耦合组装的 marginal 对 FR-EQ-019 差 1.5e-14",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/6",
+   "measured_deviation": 1.5e-14,
+   "bound": "upper",
+   "deviation_literal": "$m/n=3/1$、$\\nu=0.7$、$b/a=2$：2.293741560974357 对 2.293741560974372",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★上下对称 1.95e-17，参数角转 0.3 后 2.27e-2——成对",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/7",
+   "bound": "identity",
+   "deviation_literal": "`theta_harmonics` 照样返回 sin 谐波，不丢",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "$N=16$ 上 $k=8$ 拒绝、$k=7$ 照常",
+   "criterion": "benchmark/records/mhd-energy-coupled-assembly/criterion/8",
+   "bound": "identity",
+   "deviation_literal": "`VAR_BEYOND_NYQUIST`",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "θ 均匀采样的实值度规量；耦合只用 cos 谐波（上下对称位形），sin 谐波作自检返回——**上下不对称位形的复耦合不在本机器内**。",
+ "caveat": [
+  "★★**判决成立**：八格全过。交付的是**机器**：几何谐波 + 耦合组装。环几何 δW 的系数表达式不在这里，由 `FR-EQ-022` 的被积函数给。",
+  "★门在内核仓，本仓 CI 跑不到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/coupled_assembly.json",
+    "checksum": "sha256:cf3ca45484b1f422de9e1bf2fb5615ebbec9f07ed535ebba91994a5596d1ff2a",
+    "comment": "1/R² 谐波、零测试、只连 |Δm| = k、线性、对称、退化、sin 自检、Nyquist"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::the_first_harmonic_of_inverse_r_squared_is_minus_two_epsilon",
+    "comment": "第一格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::with_only_k_zero_the_blocks_do_not_talk_and_order_k_only_links_delta_m_k",
+    "comment": "第二、三格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::coupling_is_linear_in_the_harmonic_amplitude",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::the_coupled_assembly_is_symmetric_and_the_check_can_fail",
+    "comment": "第五格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::a_single_mode_with_only_k_zero_is_the_cylinder_again",
+    "comment": "第六格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::sine_harmonics_are_returned_as_a_self_check",
+    "comment": "第七格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::orders_beyond_nyquist_are_refused",
+    "comment": "第八格"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-020` 判**成立**。`variational.rs` 增 θ 谐波提取与耦合 m 谱的带状组装（节点主序，带宽 2M−1，惯性二分取 λ_min）。1/R² 谐波对精确级数 4.2e-15、−2ε 残差三阶；只给 k = 0 块间逐位零、k ≤ 2 时 (1,4) 块仍为零；线性 3.5e-16；单模退化对 B1 差 1.5e-14。"
+   }
+  ]
+ }
+}

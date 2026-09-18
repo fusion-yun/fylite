@@ -58,6 +58,41 @@ $f$ 在圆外最近的奇点决定，任何正确的实现都给同样的数。�
 （原型里直接给 NaN）；逆映射初值取自边界对应、出圆即减半，像全在圆内。
 详见 [`mhd-energy-conformal-map`](../../reports/mhd-energy-conformal-map.md)。
 
+### L2 本体：变分机器、三项与装配（2026-09-18）
+
+`FR-EQ-019`、`020`、`022`、`023` 入册判**成立**，`024` 判**未判**。至此本域七条全部有记录。
+
+**变分机器（019 · 020）。** 柱极限外扭曲模的泛函由打靶路的 Riccati 形直接读出——对欧拉解分部积分，
+$\delta W=\psi(a)^2W(q_a)$，正是打靶路的边缘余量。线性元 + 惯性二分取 $\lambda_{min}$：带边对闭式最劣 5.2e-7，
+与打靶路最劣 3.9e-7，收敛比 4.000。★上面要求「必须作为判定行被检」的对称性，这里**逐位为零**——所以另证了检查能失败，
+不然它什么也没验。★判据要「峰化剖面使内部驱动项真正参与」：拿掉驱动项，marginal 移 0.127——验了，不是假定。
+耦合组装只认调用方逐谐波注入的系数：只给 $k=0$ 时块间逐位为零，给到 $k\le2$ 时 $(1,4)$ 块仍逐位为零。
+
+**三项（022 · 023）。** 流体项按 Eq. (12.123)/(12.124) 三项分取，代 (12.146) 闭合到 (12.147) 5.6e-15
+（★数值闭合，被积函数是多项式、求积对它精确；不是符号推导）。极坐标方向导数的基矢转动项有两道门：
+直角坐标一路复算到 2.3e-16，以及「均匀 $\mathbf B_p$ 时第二部分逐位为零」这条**只有带着转动项才成立**的恒等式——
+漏掉转动项的写法在均匀场上给 0.61。真空项走单层位势 + Kress Nyström，推广到任意曲线：同心圆壁复现 $f_m$ 到 2.4e-14，
+而实现里**不出现** $f_m$。★变形位形上另有一条判据没点名的解析锚：**椭圆绕流的附加质量**，$N=32$ 起即 1e-15。
+★近壁要足够的分辨率：$b/a=1.2$ 在 $N=128$ 只到 8.9e-10、$N=256$ 到 2.4e-14——照实钉成了测试。
+
+**装配（024）——判未判，量到的与判据写的不同。** 三项各自只交出「ξ → 标量」，非对角元由极化取出。
+流体项、真空项对该书的闭式路到 4e-15（真空项是**两套完全不同的解法**——边界积分对 $G_{ml}$ 级数——到机器精度）。
+★★两路之差只在表面项，而判据说它是一阶、$\Delta/\varepsilon$ 同为 0.10208。**这里量到三阶**：
+$\Delta q_*$ 每 ε 减半降 8 倍，三档 $k^2$ 同。解析上看得清为什么——(12.135) 的磁项乘面元时
+$R-a\cos\theta=R_0$ 精确，其 $O(\beta)$ 修正 $+\pi R_0\beta B_\theta^2$ 与压强项的 $-\pi R_0\beta B_\theta^2$ 等值反号，
+**一阶修正被压强平衡抵消**。改用有限 ε 的精确压强平衡取 $B_\theta$，残差回到一阶，但 $\Delta/\varepsilon$ 随 $k^2$ 变
+（约 −0.48 / −0.36），**两种口径都不是 0.10208**——SRS 没写 Δ 的定义，不去凑。
+★附带交付 `FR-EQ-021` 的 (c')：闭式路在 $k^2=1$ 上由三式合成 $W_{lp}$，逐元对 (12.164) 的转录到 7.4e-8，
+根 1.690113290 对 1.690113289。
+详见 [`mhd-energy-variational-cylinder`](../../reports/mhd-energy-variational-cylinder.md) ·
+[`mhd-energy-coupled-assembly`](../../reports/mhd-energy-coupled-assembly.md) ·
+[`mhd-energy-fluid-high-beta`](../../reports/mhd-energy-fluid-high-beta.md) ·
+[`mhd-energy-vacuum-general-shape`](../../reports/mhd-energy-vacuum-general-shape.md) ·
+[`mhd-energy-three-term-assembly`](../../reports/mhd-energy-three-term-assembly.md)。
+
+★**仍不宣称 V4 / V5 达成**：这里的是**约化**泛函；装配 + 内部 $U$ 极小化在一般位形上端到端**没有**独立参照，
+而全 δW 的 V5（对 Chance / Cheng–Chance 的五码基准）要另建全 δW 内核——那是下一章 `FR-EQ-026…031` 的事。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -100,17 +135,16 @@ $f$ 在圆外最近的奇点决定，任何正确的实现都给同样的数。�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-energy-conformal-map`](../../reports/mhd-energy-conformal-map.md) | 验证 | 未判（读数） | 共形映射的数学性质（Riemann 映射定理；Theodorsen 积分方程）与判据自带的数 | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-conformal-map.jsonld) |
-| [`mhd-energy-surface-current-beta-limit`](../../reports/mhd-energy-surface-current-beta-limit.md) | 验证 | 成立 | Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8, Eqs. (12.154)–(12.166) | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-surface-current-beta-limit.jsonld) |
+| [`mhd-energy-conformal-map`](../../reports/mhd-energy-conformal-map.md) | 验证 | 未判（读数） | 共形映射的数学性质（Riemann 映射定理；Theodorsen 积分方程）与判据自带的数 | 1.1 | 草稿 | [jsonld](../../records/mhd-energy-conformal-map.jsonld) |
+| [`mhd-energy-coupled-assembly`](../../reports/mhd-energy-coupled-assembly.md) | 验证 | 成立 | `(1 + ε cos θ)^{-2}` 的精确 Fourier 级数与 FR-EQ-019 的柱极限 | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-coupled-assembly.jsonld) |
+| [`mhd-energy-fluid-high-beta`](../../reports/mhd-energy-fluid-high-beta.md) | 验证 | 成立 | Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8.2–12.8.3, Eqs. (12.123)–(12.124), (12.141)–(12.147) | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-fluid-high-beta.jsonld) |
+| [`mhd-energy-surface-current-beta-limit`](../../reports/mhd-energy-surface-current-beta-limit.md) | 验证 | 成立 | Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8, Eqs. (12.154)–(12.166) | 1.2 | 草稿 | [jsonld](../../records/mhd-energy-surface-current-beta-limit.jsonld) |
+| [`mhd-energy-three-term-assembly`](../../reports/mhd-energy-three-term-assembly.md) | 验证 | 未判（读数） | Freidberg, *Ideal MHD* (2014) §12.8.3：Eqs. (12.129)–(12.131)、(12.135)–(12.140)、(12.146)–(12.147)、(12.151)–(12.153)、(12.159)、(12.164) | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-three-term-assembly.jsonld) |
+| [`mhd-energy-vacuum-general-shape`](../../reports/mhd-energy-vacuum-general-shape.md) | 验证 | 成立 | 圆截面闭式 Eq. (12.150)、壁因子 $f_m$（FR-EQ-021(g)）、椭圆绕流的附加质量 | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-vacuum-general-shape.jsonld) |
+| [`mhd-energy-variational-cylinder`](../../reports/mhd-energy-variational-cylinder.md) | 验证 | 成立 | 柱极限外扭曲模的解析带边与 FR-EQ-017 的打靶路 | 1.0 | 草稿 | [jsonld](../../records/mhd-energy-variational-cylinder.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 5 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
-
-- `FR-EQ-019` 能量原理变分内核（L2 的 B1：柱极限）
-- `FR-EQ-020` 环几何耦合的组装机器（L2 的 B2 机器面）
-- `FR-EQ-022` 高 $\beta$ 序约化流体能量 $\delta W_F$（L2 的物理面）
-- `FR-EQ-023` 一般位形的真空扰动能 $\delta W_V$（L2 三项的最后一项）
-- `FR-EQ-024` 三项装配层
+本域没有 MUST 级空缺。
 
 <!-- END GENERATED -->

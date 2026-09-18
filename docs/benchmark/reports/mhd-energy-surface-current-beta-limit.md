@@ -14,8 +14,8 @@ title: "mhd-energy-surface-current-beta-limit"
 - **量的是**：表面电流模型的解析 β 极限：**根是 1.69，而 0.21 属于 1.71**
 - **参考**：Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8, Eqs. (12.154)–(12.166)
 - **验的需求**：`FR-EQ-021`
-- **跑在内核**：`sha256:c5b0d8699709dea9…`（新鲜度 **current**）
-- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:bdd970709d521f7a…`（新鲜度 **current**）
+- **记录版本**：1.2　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -80,22 +80,25 @@ title: "mhd-energy-surface-current-beta-limit"
 - ★★**判决成立**：八格全过。两处照实记了与字面不同的东西——0.21 属于 1.71 不属于 1.69；$m=2$ 的系数是非负不是正。
 - ★这是 L2 的 **oracle**：它给后面 `FR-EQ-019…024` 的变分内核一个有解析答案的对照。本条自己不含变分机器。
 - ★门在内核仓，本仓 CI 跑不到——与 `FR-EQ-017` / `018` 同一处代价。
+- ★2026-09-18 v1.1：SRS 此条的正文还有 (c') 第二条路、(e) 整条边界、(g) 有壁支，抄录的验证矩阵没点名。三条随 L2 一起补上了门：闭式路在 $k^2=1$ 上由 (12.147)+(12.140)+(12.153) 合成 $W_{lp}$，逐元对 (12.164) 的转录到 7.4e-8（真空谐波截断，按 $1/m_{max}^2$ 降），$\lambda_{min}=0$ 的根 1.690113290 对转录路 1.690113289；整条边界 $k^2\to0$ 给 $q_*\to1$、$k^2=1$ 给 1.690113 且落在平衡极限上；$f_m$ 以负幂实现，$|m|=1000$ 不溢出，并由 `FR-EQ-023` 的边界积分在同心圆上**独立复现**到 2.4e-14。★有壁时的**不稳带**（下边缘出现、带收窄、闭合）本条仍未做。
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.2　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
 | 版本 | 日期 | 谁 | 做了什么 |
 | :--- | :--- | :--- | :--- |
 | 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-021` 从空缺转为记录，判**成立**——L2 的 oracle。内核新写 Freidberg §12.8 三谐波表面电流模型。$M_{lp}$ 六分数对书最劣 6.3e-14；(12.164) 系数到书印位数全对；根 1.690113。★★**0.21 属于 1.71**：书在 20 谐波的 $q_{crit}=1.71$ 上算的 β/ε，在三谐波根 1.69 上是 0.216——两个数分开钉。★★**极点不是根**：初版二分把 (12.163) 分母的零点 $q_*=1.00035$ 报成了根；现在先要求 $\xi_1$–$\xi_3$ 块正定，否则按名拒绝。★$m=2$ 的低 β 系数在 $q_*=2$ 恰为零，书说「为正」，照实记为非负。 |
+| 1.1 | 2026-09-18 | Claude Opus 5 (1M context) | 补 SRS 正文的三条（验证矩阵未点名）：(c') 三式合成 W_lp 对 (12.164) 7.4e-8、两路的根差 1e-9；(e) 整条稳定边界两端；(g) 壁因子 f_m（负幂），由 FR-EQ-023 的边界积分独立复现到 2.4e-14。有壁不稳带仍未做。判决不变。 |
+| 1.2 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（L2 本体入内核：`variational.rs` · `fluid.rs` · `vacuum.rs` · `highbeta.rs`，`FR-EQ-019/020/022/023/024`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **753 项全通过**（新锚 44 条）。★纯增量（新模块与 `stability.rs` 新增 `surface_current_wall_factor`，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:c5b0d8699709dea9f7e7b27b20f55bdbf2bf790944da28ddafafa4c4fa82f957`
+- 内核 `libfylite` `sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
@@ -112,6 +115,9 @@ title: "mhd-energy-surface-current-beta-limit"
 - `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_source_names_the_section_and_the_equations` —— 第七格
 - `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::no_sign_change_in_the_interval_is_refused` —— 第八格
 - `$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_reduction_holds_only_where_the_xi1_xi3_block_is_positive` —— ★第八格的另一半：极点不是根
+- `$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_closed_form_route_rebuilds_12_164_at_k2_equal_one` —— ★(c')：三式合成 W_lp，不经过 12.164
+- `$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_whole_boundary_has_both_analytic_ends` —— ★(e)：整条稳定边界的两端
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::the_wall_factor_has_both_limits_and_never_overflows` —— ★(g)：壁因子 f_m（负幂）
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

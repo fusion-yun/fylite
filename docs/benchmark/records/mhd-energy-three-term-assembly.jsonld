@@ -1,0 +1,237 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-energy-three-term-assembly",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "三项装配层：**装配路与闭式路的残差是三阶，不是一阶——表面项的一阶修正被压强平衡精确抵消**",
+  "en": "The three-term assembly: the residual against the closed-form route is third order, not first — pressure balance cancels the surface term's first-order correction exactly"
+ },
+ "domain": "mhd-energy",
+ "requirement": [
+  "FR-EQ-024"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "inconclusive",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `highbeta::assembled_w` / `closed_form_w` / `polarize` / `marginal_q`",
+  "comment": "2026-09-18 新写：三项各自只交出「ξ → 标量」，非对角元由极化取出；闭式路按 §12.8.3 的一般 k 分支"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "Freidberg, *Ideal MHD* (2014) §12.8.3：Eqs. (12.129)–(12.131)、(12.135)–(12.140)、(12.146)–(12.147)、(12.151)–(12.153)、(12.159)、(12.164)",
+   "comment": "闭式路 = 该书的序化约化式；它在 $k^2=1$ 上必须逐元复现 Eq. (12.164) 的转录（这同时是 `FR-EQ-021(c')` 要的第二条路）。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★★装配路 vs 闭式路四档 ε 的 $\\Delta/\\varepsilon$ 同值（0.10208）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "边缘点亦一阶收敛；$k^2=0.5/0.7/0.9$ 上同样成立",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "网格已收敛",
+   "norm": "absolute",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-12
+   },
+   "tolerance_basis": "machine_precision"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "解析导数对谱求导",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-10
+   },
+   "tolerance_basis": "machine_precision"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★$k^2\\ge1$ 拒绝给出（真发散，不平滑）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/6",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★「有限差分导数会破坏可解性」已反钉成测试",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-three-term-assembly/criterion/7",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "几何 / 求根 fail-loud",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★序化平衡下 $\\Delta q_*$ 每 ε 减半降 **8 倍**（三阶）；$\\Delta/\\varepsilon$ 不是常数，更不是 0.10208",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/1",
+   "bound": "identity",
+   "deviation_literal": "$k^2=0.5$：ε = 0.4 · 0.2 · 0.1 时 $\\Delta q_*$ = −4.84e-2 · −6.20e-3 · −7.58e-4（比 7.81 · 8.18）；表面项矩阵残差 ε = 0.4…0.05 比 7.88 · 8.09 · 8.07",
+   "verdict": "inconclusive",
+   "caveat": [
+    "★★**为什么是三阶**（解析）：表面项一般式 (12.135) 里，磁项 $\\tfrac12(\\hat B^2+B^2)(\\hat\\kappa_n-\\kappa_n)$ 乘面元 $2\\pi Ra\\,d\\theta$ 后，$(\\cos\\theta/R-1/a)\\cdot Ra=-(R-a\\cos\\theta)=-R_0$ **精确**，于是磁项 $=-2\\pi R_0B_\\theta^2F$、$F-1\\approx-\\beta/2$，给出 $+\\pi R_0\\beta B_\\theta^2$；压强项的一阶修正恰为 $-\\pi R_0\\beta B_\\theta^2$。**二者等值反号，一阶修正被压强平衡抵消**，(12.137) 对这一平衡准到相对 $O(\\varepsilon^2)$。",
+    "★Rust 与一段独立 Python 分别算出同一组比值（每个谐波各 8.3–8.5）——不是一处实现的巧合。",
+    "★★**改用有限 ε 的精确压强平衡**（Eq. 12.127）取 $B_\\theta$：残差回到**一阶**，$\\Delta q_*/\\varepsilon$ 趋于随 $k^2$ 变的常数（Richardson 外推：$k^2=0.5$ 约 −0.48，$k^2=0.9$ 约 −0.36）。**两种口径都不是 0.10208**——SRS 没写 Δ 的定义（marginal $q_*$？相对差？某个矩阵元？），本条无从复现那个数，**不去凑**。故判未判。",
+    "★判据的实质（「一致的阶次即证明三项的符号 · 归一 · 基全对」）是满足的：三档 $k^2$ 上比值都在 7.6–8.2，阶次一致；流体项与真空项对闭式路到 1e-15（见下），错只可能在表面项，而表面项残差的阶次有解析解释。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "三档 $k^2$ 同为三阶（序化）/ 一阶（精确平衡）；★流体项与真空项对闭式路到 4e-15",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/2",
+   "bound": "identity",
+   "deviation_literal": "$k^2$ = 0.5 · 0.7 · 0.9 的比值 7.81/8.18 · 7.64/8.14 · 7.59/8.13。流体项（`fluid.rs` 代 12.146）对 (12.147) **4.1e-15**；真空项（边界积分）对 $G_{ml}$ 级数 (12.153) **3.6e-15**——两套完全不同的真空解法到机器精度",
+   "verdict": "inconclusive"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "缺省网格（表面 256、真空 64）对加倍 2.4e-15",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/3",
+   "measured_deviation": 2.39e-15,
+   "bound": "upper",
+   "deviation_literal": "$\\varepsilon=0.2$、$q_*=1.4$、$k^2=0.7$：表面 256→512、真空 64→128，总矩阵最大元差 2.39e-15",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "Neumann 数据 (12.151) 的解析导数对谱导数 6.1e-14（序化 / 精确平衡、$k^2$ = 0.3 / 0.9）",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/4",
+   "measured_deviation": 6.13e-14,
+   "bound": "upper",
+   "deviation_literal": "128 点，最劣相对 6.13e-14",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "$k^2$ = 1.0 / 1.2 按名拒绝",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "`HB_SEPARATRIX_ON_SURFACE`",
+   "verdict": "pass",
+   "caveat": [
+    "★照实记拒绝的理由：$k^2=1$ 时 (12.129) 的 $B_\\theta\\propto|\\cos(\\theta/2)|$ 在 θ = π 有尖点，边界数据不再光滑、谱方法失效；$k^2>1$ 时 $B_\\theta^2<0$。闭式路在 $k^2=1$ 上不受此限——它用 (12.159) 的闭式谱系数。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★单侧差分让 $|\\oint g|/\\oint|g|$ = 2.2e-4 → 真空项按名拒绝；解析导数照常",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/6",
+   "bound": "identity",
+   "deviation_literal": "`numpy.gradient` 式（内点中心、两端单侧、不环绕）",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "ε ∉ (0,1)、非整数 $n$、同侧区间都按名拒绝",
+   "criterion": "benchmark/records/mhd-energy-three-term-assembly/criterion/7",
+   "bound": "identity",
+   "deviation_literal": "`HB_BAD_INPUT` · `HB_NO_CROSSING`",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "高 β 表面电流模型、圆截面、三谐波基、$n=1$；**约化**泛函——原则上复现不了 Chance 1978 / Cheng–Chance 1987 的 Table I（那是全 δW + 动能归一）。",
+ "caveat": [
+  "★★**判未判**：机器的五格全过；阶次那两格量到的东西与判据写的不同——序化平衡下三阶（有解析解释），精确平衡下一阶但系数随 $k^2$ 变，上游的 0.10208 两种口径都不复现。",
+  "★★**附带交付 `FR-EQ-021` 的两条**：闭式路在 $k^2=1$ 上逐元复现 (12.164) 的转录（截断按 $1/m_{max}^2$ 降，$m_{max}=1000$ 时 7.4e-8），$\\lambda_{min}=0$ 的根 1.690113290 对转录路 1.690113289——这是 (c') 要的「由三式合成」；整条稳定边界（(e)）从 $k^2\\to0$ 的 $q_*\\to1$ 到 $k^2=1$ 的 1.690113、落在平衡极限上。",
+  "★门在内核仓，本仓 CI 跑不到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/three_term_assembly.json",
+    "checksum": "sha256:21c93eeaa0d406817d870a8b0dc88d2706962735b07aa539f2f3bc5d3702572a",
+    "comment": "12.164 重建、整条边界、分项对闭式、两种平衡下的阶次、网格、导数、差分反证、拒绝"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::under_the_ordered_equilibrium_the_residual_is_third_order",
+    "comment": "★第一、二格：序化平衡"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_surface_term_alone_is_third_order_too",
+    "comment": "第一格：表面项本身"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::under_exact_pressure_balance_the_residual_is_first_order",
+    "comment": "★第一、二格：精确平衡"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_fluid_and_vacuum_terms_are_the_closed_form_ones_at_any_eps",
+    "comment": "第二格：分项"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_default_grid_is_converged",
+    "comment": "第三格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_analytic_derivative_agrees_with_the_spectral_one",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::k2_at_or_above_one_is_refused_and_bad_input_is_named",
+    "comment": "第五、七格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::a_one_sided_difference_breaks_solvability",
+    "comment": "第六格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::polarization_recovers_a_known_form",
+    "comment": "附：极化与三角法本征值"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_closed_form_route_rebuilds_12_164_at_k2_equal_one",
+    "comment": "★附：FR-EQ-021(c')"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests::the_whole_boundary_has_both_analytic_ends",
+    "comment": "★附：FR-EQ-021(e)"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-024` 判**未判**。内核新模块 `highbeta.rs`：闭式路（§12.8.3 一般 k）与装配路（三项标量接口 + 极化）。★★序化平衡下残差三阶（Δq* 每 ε 减半降 8 倍，三档 k² 同），表面项一阶修正被压强平衡精确抵消——Rust 与独立 Python 同值，并有解析解释；精确平衡下一阶、系数随 k² 变；上游 0.10208 两种口径都不复现（SRS 未写 Δ 的定义），不去凑。流体项、真空项对闭式路 4e-15。附带交付 FR-EQ-021 的 (c')（12.164 三式合成 7.4e-8、根 1.690113290）与 (e)（整条边界两端）。"
+   }
+  ]
+ }
+}

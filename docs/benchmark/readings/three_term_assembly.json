@@ -1,0 +1,166 @@
+{
+  "_comment": "FR-EQ-024 三项装配层 —— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/highbeta.rs::tests",
+  "configuration": "Freidberg §12.8.3 high-beta surface-current model, three-harmonic basis (12.139), n = 1, a = B0 = 1, R0 = a/eps",
+  "closed_form_route": "(12.147) + (12.140) + (12.152)/(12.153); G_ml from one FFT of B_theta (12.129); beta/eps from (12.131)",
+  "assembled_route": "fluid::delta_w_fluid with U of (12.146) + general surface term (12.135) at finite eps + vacuum::vacuum_energy with Neumann data (12.151); off-diagonals by polarization",
+  "rebuilds_12_164_at_k2_1": {
+    "m_max": [
+      250,
+      500,
+      1000
+    ],
+    "worst": [
+      1.18e-06,
+      2.953e-07,
+      7.389e-08
+    ],
+    "root_lambda_min": 1.69011329,
+    "root_transcribed": 1.690113289
+  },
+  "boundary": {
+    "k2": [
+      0.0001,
+      0.01,
+      0.1,
+      0.5,
+      0.9,
+      1.0
+    ],
+    "q_star": [
+      1.000679,
+      1.014669,
+      1.070266,
+      1.246958,
+      1.524702,
+      1.690113
+    ],
+    "beta_over_eps": [
+      2e-05,
+      0.00244,
+      0.02298,
+      0.10873,
+      0.19566,
+      0.21595
+    ]
+  },
+  "fluid_vacuum_vs_closed": {
+    "fluid": 4.11e-15,
+    "vacuum": 3.55e-15
+  },
+  "ordered_equilibrium_delta_q": {
+    "k2_0_5": {
+      "eps": [
+        0.4,
+        0.2,
+        0.1
+      ],
+      "dq": [
+        -0.04838,
+        -0.006196,
+        -0.0007577
+      ],
+      "ratio": [
+        7.81,
+        8.18
+      ]
+    },
+    "k2_0_7": {
+      "eps": [
+        0.4,
+        0.2,
+        0.1
+      ],
+      "dq": [
+        -0.05014,
+        -0.006564,
+        -0.0008066
+      ],
+      "ratio": [
+        7.64,
+        8.14
+      ]
+    },
+    "k2_0_9": {
+      "eps": [
+        0.4,
+        0.2,
+        0.1
+      ],
+      "dq": [
+        -0.0609,
+        -0.008022,
+        -0.0009862
+      ],
+      "ratio": [
+        7.59,
+        8.13
+      ]
+    }
+  },
+  "surface_term_residual": {
+    "eps": [
+      0.4,
+      0.2,
+      0.1,
+      0.05
+    ],
+    "max_elem": [
+      0.004442,
+      0.000564,
+      6.971e-05,
+      8.636e-06
+    ],
+    "ratio": [
+      7.88,
+      8.09,
+      8.07
+    ]
+  },
+  "exact_balance_dq_over_eps": {
+    "k2_0_5": {
+      "eps": [
+        0.2,
+        0.1,
+        0.05
+      ],
+      "dq_over_eps": [
+        -0.3798,
+        -0.4341,
+        -0.4541
+      ],
+      "richardson": [
+        -0.4885,
+        -0.4741
+      ]
+    },
+    "k2_0_9": {
+      "eps": [
+        0.2,
+        0.1,
+        0.05
+      ],
+      "dq_over_eps": [
+        -0.3029,
+        -0.3314,
+        -0.3467
+      ],
+      "richardson": [
+        -0.3599,
+        -0.362
+      ]
+    }
+  },
+  "upstream_claim": {
+    "dq_over_eps": 0.10208,
+    "definition_of_delta": "not stated in the SRS"
+  },
+  "default_grid_vs_doubled": 2.39e-15,
+  "analytic_vs_spectral_derivative": 6.13e-14,
+  "one_sided_difference_solvability_violation": 0.000216,
+  "refusals": [
+    "HB_SEPARATRIX_ON_SURFACE (-52) at k2 = 1.0, 1.2",
+    "HB_BAD_INPUT (-51)",
+    "HB_NO_CROSSING (-53)",
+    "VAC_NOT_SOLVABLE for the one-sided difference"
+  ]
+}

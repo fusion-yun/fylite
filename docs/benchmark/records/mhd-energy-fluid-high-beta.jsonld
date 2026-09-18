@@ -1,0 +1,245 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-energy-fluid-high-beta",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "高 β 序约化流体能量 δW_F：**闭合到 Eq. (12.147)，直角坐标复算钉住了基矢转动项**",
+  "en": "The high-β reduced fluid energy δW_F: closes on Eq. (12.147), and a Cartesian recomputation pins the basis-rotation terms"
+ },
+ "domain": "mhd-energy",
+ "requirement": [
+  "FR-EQ-022"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `fluid::delta_w_fluid` / `q_p` / `q_p_parts`",
+  "comment": "2026-09-18 新写：Eq. (12.123)/(12.124) 的被积函数与积分，三项分取；U 以解析导数的 jet 进来，全程无差分"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "Freidberg, *Ideal MHD* (Cambridge, 2014), §12.8.2–12.8.3, Eqs. (12.123)–(12.124), (12.141)–(12.147)",
+   "comment": "表面电流极限下 (12.142)/(12.143)，代 (12.146) 的三谐波试探函数得 (12.147)：无自由参数。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "闭合到 Eq. (12.147)（差恒为零，无自由参数）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-14
+   },
+   "tolerance_basis": "machine_precision"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "$\\mathbf Q_p$ 退化到 Eq. (12.142)；$\\delta W_F$ 退化到 Eq. (12.143)",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "直角坐标独立复算（钉住基矢转动项）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-14
+   },
+   "tolerance_basis": "machine_precision"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "均匀 $\\mathbf B_p$ 时第二项严格为零",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "$n^2$ 标度；线弯曲项恒 $\\ge0$",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/6",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "表面电流极限无交叉项",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/7",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "三项可分取；默认网格已收敛",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-energy-fluid-high-beta/criterion/8",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "半给极向场 / 粗网格 / 非整数 $n$ fail-loud",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★二次型逐元对 $n^2\\,\\mathrm{diag}(2,1,2/3)$，$n$ = 1 · 2 · 3 最劣 5.6e-15",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/1",
+   "measured_deviation": 5.625e-15,
+   "bound": "upper",
+   "deviation_literal": "极化取 3×3，加两组 ξ 直接对 (12.147)：最劣相对 **5.625e-15**",
+   "verdict": "pass",
+   "caveat": [
+    "★**是数值闭合，不是符号推导**：被积函数在 $\\rho$ 上是多项式、在 θ 上是三角多项式，Gauss 16 点 × 梯形 32 点对它**精确**，所以残差只剩舍入。判据说「差恒为零」，这里的「零」是机器精度的零；上游用 SymPy 做过符号那一步，本仓没有。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "(12.142) 逐点 < 1e-15（零极向场那条完整路径也走过）；(12.143) 在非多项式 $U=\\sin r\\,e^{2i\\theta}$ 上 1.3e-14",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/2",
+   "measured_deviation": 1.27e-14,
+   "bound": "upper",
+   "deviation_literal": "(12.143) 右边另起一套求积",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★直角坐标一路（直角基矢不转、没有转动项）对极坐标一路 2.3e-16",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/3",
+   "measured_deviation": 2.288e-16,
+   "bound": "upper",
+   "deviation_literal": "复多项式 U、非均匀 $\\mathbf B_p$，四个点：最劣相对 **2.288e-16**",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★均匀场第二部分**逐位为零**；成对：非均匀 0.48，漏掉转动项的写法在均匀场上 0.61",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "直角意义上的常矢量 $\\mathbf B_p$：极坐标分量的 θ 导数不为零，是 $-B_\\theta$ / $+B_r$ 把它抵掉",
+   "verdict": "pass",
+   "caveat": [
+    "★这条恒等式**只有带着转动项才成立**——所以它和直角坐标复算一起，是「方向导数须含基矢转动项」的两道门。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "$\\mathbf B_p=0$ 时 $n=2/3$ 对 $n=1$ 为 4 · 9+1.1e-14；带全部驱动时线弯曲项最小 1.3e5 > 0 且虚部为零",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "$\\mathbf B_p=0$：$E(n{=}2)/E(n{=}1)-4=0$，$E(n{=}3)/E(n{=}1)-9=1.07\\times10^{-14}$；带 $\\mathbf B_p$ / $p'$ / $J_\\parallel$、$n$ = 1 · 2、5 组 ξ：线弯曲项最小 1.294e5、虚部逐位为零",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "非对角元 < 5.6e-15（与第一格同一次极化）",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/6",
+   "bound": "identity",
+   "deviation_literal": "三谐波互不耦合——表面电流极限下线弯曲项对 $e^{im\\theta}$ 正交",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★三项各自非零；缺省网格（32 × 64）对加倍 2.9e-15",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/7",
+   "bound": "identity",
+   "deviation_literal": "非多项式 $U=0.5(e^r-1)e^{i\\theta}$、带 $\\mathbf B_p$ / $p'$ / $J_\\parallel$：线弯曲 2.56e6、压强 −0.400、电流 −5.23",
+   "verdict": "pass",
+   "caveat": [
+    "★头一版取 $U=e^re^{i\\theta}$：轴上不单值，$|\\nabla U|^2\\sim1/r^2$，积分对数发散——「网格不收敛」是题错了，不是实现错了。换成轴上正则的函数后到 2.9e-15。",
+    "★结构恒等式另验：$\\mathbf B_p=0$、$J_\\parallel$ 为常数时电流项经 Stokes 化为纯边界项，体积分对一维边界积分到 13 位——**同时钉住这一项的符号与系数**。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "三种都按名拒绝",
+   "criterion": "benchmark/records/mhd-energy-fluid-high-beta/criterion/8",
+   "bound": "identity",
+   "deviation_literal": "`FLUID_HALF_GIVEN_FIELD` · `FLUID_COARSE_GRID`（径向 < 8 或极向 < 16）· `FLUID_NON_INTEGER_N`",
+   "verdict": "pass"
+  }
+ ],
+ "validity_domain": "高 β 托卡马克序、$n\\sim1$（Eq. 12.117）、圆截面 $r<a$、大环径比 $d\\mathbf r=2\\pi R_0dA$。★**不许**与 `FR-EQ-018` 的 $n\\gg1$ 互相外推；$\\delta W_F>0$ **不许**单独断稳。",
+ "caveat": [
+  "★★**判决成立**：八格全过，第一格是数值闭合而非符号闭合，照实记。",
+  "★SRS 此条后来又增了 (g) 表面项一般式、(h)–(m) 内部 U 极小化等条款；表面项一般式落在 `FR-EQ-024` 那条里用到了，内部极小化**本条没做**。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/fluid_energy.json",
+    "checksum": "sha256:53677b27c2fa710e0b0d5954e1e44019b6138accfcd49c5af5a03eb33307fb36",
+    "comment": "(12.147) 闭合、(12.142)/(12.143) 退化、直角复算、均匀场恒等式、n²、三项、网格、Stokes、拒绝"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::the_surface_current_limit_closes_on_12_147",
+    "comment": "第一、六格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::q_p_reduces_to_12_142",
+    "comment": "第二格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::delta_w_f_reduces_to_12_143",
+    "comment": "第二格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::the_cartesian_route_agrees",
+    "comment": "第三格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::a_uniform_poloidal_field_leaves_no_second_part",
+    "comment": "第四格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::line_bending_scales_as_n_squared_and_is_never_negative",
+    "comment": "第五格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::the_three_terms_come_apart_and_the_default_grid_is_converged",
+    "comment": "第七格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::with_constant_current_the_current_term_is_a_boundary_integral",
+    "comment": "★附：Stokes 结构恒等式"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/fluid.rs::tests::half_a_field_a_coarse_grid_and_a_fractional_n_are_refused",
+    "comment": "第八格"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-022` 判**成立**。内核新模块 `fluid.rs`：Eq. (12.123)/(12.124) 三项分取，极坐标方向导数含基矢转动项。(12.147) 闭合 5.6e-15（数值闭合，非符号）；直角坐标复算 2.3e-16；均匀 B_p 第二部分逐位零、漏转动项的写法 0.61；Stokes 恒等式 13 位。"
+   }
+  ]
+ }
+}

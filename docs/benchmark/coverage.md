@@ -10,8 +10,8 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**40** 条（70 %）
-- ★**MUST 级空缺 (open MUST)：14 条**
+- 已有记录覆盖 (covered)：**45** 条（78 %）
+- ★**MUST 级空缺 (open MUST)：9 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
 ## 平衡 (Equilibrium) · 前向自由边界与 Green 响应核
@@ -100,12 +100,12 @@ delta-W 变分求解器本身：柱极限对不对、环几何耦合装配对不
 
 | 需求 | 级别 | 标题 | 覆盖它的记录 | 类 | 判决 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `FR-EQ-019` | MUST | 能量原理变分内核（L2 的 B1：柱极限） | — | — | — |
-| `FR-EQ-020` | MUST | 环几何耦合的组装机器（L2 的 B2 机器面） | — | — | — |
+| `FR-EQ-019` | MUST | 能量原理变分内核（L2 的 B1：柱极限） | [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | 验证 | 成立 |
+| `FR-EQ-020` | MUST | 环几何耦合的组装机器（L2 的 B2 机器面） | [`mhd-energy-coupled-assembly`](reports/mhd-energy-coupled-assembly.md) | 验证 | 成立 |
 | `FR-EQ-021` | MUST | 表面电流模型的解析 β 极限（L2 的 oracle，非 L2 本体） | [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | 验证 | 成立 |
-| `FR-EQ-022` | MUST | 高 $\beta$ 序约化流体能量 $\delta W_F$（L2 的物理面） | — | — | — |
-| `FR-EQ-023` | MUST | 一般位形的真空扰动能 $\delta W_V$（L2 三项的最后一项） | — | — | — |
-| `FR-EQ-024` | MUST | 三项装配层 | — | — | — |
+| `FR-EQ-022` | MUST | 高 $\beta$ 序约化流体能量 $\delta W_F$（L2 的物理面） | [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | 验证 | 成立 |
+| `FR-EQ-023` | MUST | 一般位形的真空扰动能 $\delta W_V$（L2 三项的最后一项） | [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | 验证 | 成立 |
+| `FR-EQ-024` | MUST | 三项装配层 | [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | 验证 | 未判（读数） |
 | `FR-EQ-025` | MUST | 星形域到单位圆盘的共形映射 | [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | 验证 | 未判（读数） |
 
 ## MHD 稳定性 (MHD Stability) · 全 delta-W、V5 基准与阻性壁模
@@ -191,11 +191,6 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | :--- | :--- | :--- |
 | `FR-EQ-009` | 测量重构与约束阶梯 | 内部约束行几何门控 |
 | `FR-EQ-015` | 竖直稳定性、线圈受力与电磁线性模型 | 装置电磁线性模型导出（路线） |
-| `FR-EQ-019` | 能量原理变分内核 L2 | 能量原理变分内核（L2 的 B1：柱极限） |
-| `FR-EQ-020` | 能量原理变分内核 L2 | 环几何耦合的组装机器（L2 的 B2 机器面） |
-| `FR-EQ-022` | 能量原理变分内核 L2 | 高 $\beta$ 序约化流体能量 $\delta W_F$（L2 的物理面） |
-| `FR-EQ-023` | 能量原理变分内核 L2 | 一般位形的真空扰动能 $\delta W_V$（L2 三项的最后一项） |
-| `FR-EQ-024` | 能量原理变分内核 L2 | 三项装配层 |
 | `FR-EQ-026` | 全 delta-W、V5 基准与阻性壁模 | MHD 判读的交付层 |
 | `FR-EQ-027` | 全 delta-W、V5 基准与阻性壁模 | 完整 $\delta W$：螺旋箍缩（V5 的第一级） |
 | `FR-EQ-028` | 全 delta-W、V5 基准与阻性壁模 | 动能归一与 $\omega^2$（全 $\delta W$ 支 F2） |

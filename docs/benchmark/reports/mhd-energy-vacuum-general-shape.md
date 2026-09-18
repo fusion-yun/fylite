@@ -1,0 +1,104 @@
+---
+title: "mhd-energy-vacuum-general-shape"
+---
+
+# 一般位形的真空扰动能 δW_V：**同心圆壁复现 f_m，椭圆复现附加质量——两条都与实现不共享中间量**
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/mhd-energy-vacuum-general-shape.jsonld`，本页只是它的可读面。 -->
+
+*MHD 稳定性 (MHD Stability) · [能量原理变分内核 L2](../domains/mhd/energy.md)　|　记录正本：`records/mhd-energy-vacuum-general-shape.jsonld`*
+
+## 摘要
+
+- **类**：验证　**判决**：**成立**
+- **量的是**：一般位形的真空扰动能 δW_V：**同心圆壁复现 f_m，椭圆复现附加质量——两条都与实现不共享中间量**
+- **参考**：圆截面闭式 Eq. (12.150)、壁因子 $f_m$（FR-EQ-021(g)）、椭圆绕流的附加质量
+- **验的需求**：`FR-EQ-023`
+- **跑在内核**：`sha256:bdd970709d521f7a…`（新鲜度 **current**）
+- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+
+## 问的是什么
+
+**被量的**：2026-09-18 新写：单层位势 + Kress 对数分裂的 Nyström，理想壁作第二条边界联立；推广到任意曲线为本仓自推
+
+**参考**：圆截面闭式 Eq. (12.150)、壁因子 $f_m$（FR-EQ-021(g)）、椭圆绕流的附加质量
+
+> 圆：$E=(\pi a^2/2)\sum(c_m^2+s_m^2)f_m/m$；$f_m=(1+\rho_w^{-2m})/(1-\rho_w^{-2m})$ 在 `stability::surface_current_wall_factor`，本模块里**不出现**；椭圆 $g=n_x$ 时 $\int|\nabla\phi|^2dA=\pi b^2$（势流附加质量）。
+
+**口径与适用域**：
+
+> 任意光滑、逆时针、按 2 的幂采样的闭曲线；真空为二维 Laplace（大环径比，与 Eq. 12.149 同阶）；理想壁须包住等离子体面且不相交。
+
+## 判据与量到多少
+
+:::{figure} ../figures/mhd-energy-vacuum-general-shape-headroom.svg
+:alt: mhd-energy-vacuum-general-shape 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| 解析圆对任意 $g$ 到机器精度（$N=64$ 即达到） | 1e-13 | machine_precision | $N=64$，$a$ = 0.5 · 1 · 2，$m$ = 1…10 的随机系数 | **成立** |
+| 同心圆壁复现 FR-EQ-021(g) 的 $f_m$ 到 $10^{-15}$（实现里不出现 $f_m$） | 1e-13 | machine_precision | $b/a=1.2$、$m=1$ 在 $N$ = 64 · 128 · 256 上 1.04e-4 · 8.86e-10 · 2.35e-14——每加倍降约五个量级 | **成立** |
+| 远壁退化回无壁；壁越近能量越大（单调） | — | reference_self_reported | 无壁 5.5654；$b/a$ = 100 · 8 · 4 · 2 · 1.5 · 1.2 · 1.1 → 5.5664 · 5.7207 · 6.2208 · 8.8936 · 13.649 · 28.805 · 54.533 | **成立** |
+| 随机 $g$ 恒正；二次性；规范无关 | — | reference_self_reported | 二次性：$E(-3g)$ 对 $9E(g)$ 最劣 1.0e-15；规范：$V+7$ 给同一能量到 1e-12 | **成立** |
+| 变形位形谱收敛；形状确实进入结果 | — | reference_self_reported | 4.504996430739 · …690 · …690 · …690；圆为 π/2 | **成立** |
+| 可解性 / 取向 / 壁相交一律 fail-loud；「变形曲线上参数余弦不合法」反钉成测试 | — | reference_self_reported | 常数 $g$ 拒绝；顺时针拒绝（不翻转）；壁与面相交、壁在里面拒绝；点数非 2 的幂拒绝 | **成立** |
+
+**★$b/a$ = 4 · 2 · 1.5 · 1.2 × $m$ = 1–5，$N=256$：2.4e-14；★近壁要足够的分辨率**
+
+- ★判据字面「到 1e-15」：本条到 2.4e-14，门按 1e-13 设。
+- ★★**近壁的代价照实记**：两条曲线之间的积分越近越奇，梯形误差按 exp(−间隙·N) 走。间隙 0.2、节点间距 0.059 时 $N=128$ 只到 8.9e-10——初版按 $N=128$ 设门，就在这里红了。**不是实现错，是分辨率不够**；这条收敛本身钉成了测试。
+- ★$f_m$ 以负幂实现：$|m|=1000$、$\rho_w=1.01$ 时有限且趋于 1，不溢出；$\rho_w\to\infty$ 给 1，$\rho_w\to1^+$ 发散。
+
+**★强 D 形 $g=n_x$：$N$ = 32 → 64 → 128 → 256 逐档差 4.8e-11 · 6.2e-15 · 2.2e-14；对同半径圆差 2.9**
+
+- ★★**变形位形上另有一条解析锚**（判据没点名）：椭圆 $b/a=1.7$、$g=n_x$ / $n_y$ 就是椭圆的势流绕流，能量等于附加质量 $\pi b^2/2$ / $\pi a^2/2$。$N=32$ 起即 **1e-15 量级**——所以「变形位形」不只有自收敛可看。
+
+**★D 形上 $\oint\cos t\,ds=0.590$ → 按名拒绝；圆上同一数据合法**
+
+- ★「参数上的纯余弦」在**左右对称**的椭圆上仍碰巧合法（$|x'|$ 关于 $t\to\pi-t$ 对称），所以这条要在 D 形上钉——在椭圆上钉就是一条永远过的门。
+
+## 不可比的部分
+
+- ★★**判决成立**：六格全过；第二格的「1e-15」以 2.4e-14 达到，并记明近壁需要的分辨率。
+- ★δW_V 的这一版与 `FR-EQ-022` 的 δW_F、`FR-EQ-024` 里的 δW_S 一起，使 L2 三项**都可对一般位形求值**；装起来之后怎样，见 `FR-EQ-024`。
+
+## 追溯
+
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-023` 判**成立**。内核新模块 `vacuum.rs`（单层位势 + Kress Nyström + 理想壁），`stability.rs` 增壁因子 f_m（负幂）。圆 1.9e-15；同心圆壁 f_m 2.4e-14（N = 256；近壁 b/a = 1.2 在 N = 128 只到 8.9e-10，照实记）；★椭圆附加质量 N = 32 起 1e-15——变形位形上的独立解析锚；强 D 形逐档到 1e-14；参数余弦在 D 形上按名拒绝。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `libfylite` `sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45`
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/vacuum_energy.json`    `sha256:139a40640a9b7852bea4f27cf18b2046be400605d64ede99fc4180f567025c39`    圆、同心圆壁、近壁分辨率、远壁与单调、椭圆附加质量、强 D 形收敛与正定、拒绝
+
+**守它的门**：
+
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::the_circle_is_exact_for_any_g` —— 第一格
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::a_concentric_wall_reproduces_the_wall_factor` —— 第二格
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::a_near_wall_needs_the_resolution_its_gap_asks_for` —— ★第二格：近壁分辨率
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::the_wall_factor_has_both_limits_and_never_overflows` —— 第二格：f_m 本身
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::a_far_wall_is_no_wall_and_a_closer_wall_costs_more` —— 第三格
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::energy_is_positive_quadratic_and_gauge_free_on_a_strong_d` —— 第四格
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::a_deformed_boundary_converges_spectrally_and_shape_enters` —— 第五格
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::an_ellipse_reproduces_its_added_mass` —— ★第五格：变形位形的解析锚
+- `$FYLITE_KERNEL/rust/fylite/src/vacuum.rs::tests::bad_data_and_bad_geometry_are_refused_by_name` —— 第六格
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```

@@ -246,11 +246,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:c5b0d8699709dea9f7e7b27b20f55bdbf2bf790944da28ddafafa4c4fa82f957"
+   "checksum": "sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -261,6 +261,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-EQ-025` 从空缺转为记录，判**未判**。内核新写 `conformal.rs`：Theodorsen 迭代 + FFT 共轭函数，逆映射初值取自边界对应。边界 8e-15、单叶、往返 5.6e-16（含 0.999）、圆域逐位退化、两基在圆上相同、边界谱圆域不泄漏、fail-loud——机器八格全过。★★**判据的「表示」要读成域内调和函数**：拿边界本身比，星形基反而更好。★★温和 D 形共形基每档降 5.7×/8.7×、星形基停在 4.4e-2；强 D 形只降 2.4×/2.8×、N=6 还不如星形基——速率是形状的数学性质，留作负面结果。上游的三个数没说形状，无从复现，故判未判。★朴素 Newton 在强 D 形上 76/768 个点跑出单位圆——判据要的反证。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（L2 本体入内核：`variational.rs` · `fluid.rs` · `vacuum.rs` · `highbeta.rs`，`FR-EQ-019/020/022/023/024`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **753 项全通过**（新锚 44 条）。★纯增量（新模块与 `stability.rs` 新增 `surface_current_wall_factor`，没开门），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }

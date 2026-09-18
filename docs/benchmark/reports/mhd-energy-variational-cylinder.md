@@ -1,0 +1,101 @@
+---
+title: "mhd-energy-variational-cylinder"
+---
+
+# 能量原理变分内核 B1：**两条完全不同的数值路线给同一个带边**
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/mhd-energy-variational-cylinder.jsonld`，本页只是它的可读面。 -->
+
+*MHD 稳定性 (MHD Stability) · [能量原理变分内核 L2](../domains/mhd/energy.md)　|　记录正本：`records/mhd-energy-variational-cylinder.jsonld`*
+
+## 摘要
+
+- **类**：验证　**判决**：**成立**
+- **量的是**：能量原理变分内核 B1：**两条完全不同的数值路线给同一个带边**
+- **参考**：柱极限外扭曲模的解析带边与 FR-EQ-017 的打靶路
+- **验的需求**：`FR-EQ-019`
+- **跑在内核**：`sha256:bdd970709d521f7a…`（新鲜度 **current**）
+- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+
+## 问的是什么
+
+**被量的**：2026-09-18 新写：线性元装配 → 边界项 → 广义本征值（惯性二分）→ marginal 求根
+
+**参考**：柱极限外扭曲模的解析带边与 FR-EQ-017 的打靶路
+
+> 均匀电流下带边闭式 `(m−1+λ)/n`；峰化剖面上没有闭式，对打靶路（`stability::kink_marginal`，3201 点 RK4）。★两路共用同一条欧拉方程，数值路线完全不同。
+
+**口径与适用域**：
+
+> 柱几何、单 $m$、无 $m$ 谱耦合、无环效应压强驱动——**不是** β 极限。线性元、4 点 Gauss、$\psi(0)=0$。
+
+## 判据与量到多少
+
+:::{figure} ../figures/mhd-energy-variational-cylinder-headroom.svg
+:alt: mhd-energy-variational-cylinder 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| 变分路 marginal $q_a$ 复现解析带边 | 0.0001 | reference_self_reported | 均匀电流、400 单元：$(m,n)$ = (2,1)(3,1)(3,2)(4,1) × $b/a$ = 1.2 · 1.5 · 2 · 4 · ∞，对 $(m-1+\lambda)/n$ **最劣相对 5.208e-7** | **成立** |
+| 与打靶路相符（含峰化剖面使内部驱动项真正参与的一档） | 0.0002 | reference_self_reported | $m/n=3/1$：$\nu$ = 0 · 0.3 · 0.7 · 1.2 × $b/a$ = 2 · ∞，FEM 400 单元对打靶 3201 点 **最劣相对 3.91e-7**。$\nu=0.7$ 时拿掉内部驱动项 $rV\psi^2$，marginal 从 2.29374 移到 2.42096（**−0.127**）；$\nu=0$ 时拿不拿掉逐位相同 | **成立** |
+| $\mathbf A$ 对称（$10^{-14}$）且 $\mathbf B$ 正定 | 1e-14 | machine_precision | $\nu$ = 0 / 0.7：非对称 **0**，$\mathbf B$ 最小 Cholesky 主元 1.667e-5 > 0；往一条副对角线注入 1e-12 的相对错，检查读到 1.469e-13；把 $\mathbf B$ 一个对角元翻负，主元转负 | **成立** |
+| 二阶收敛（误差比 $\in(3.5,4.5)$） | — | reference_self_reported | 50 · 100 · 200 单元：均匀电流对闭式误差 4.846e-5 · 1.211e-5 · 3.028e-6；$\nu=0.7$ 对 3200 单元 9.393e-6 · 2.347e-6 · 5.849e-7 | **成立** |
+| 共振面在域内时拒绝组装 | — | reference_self_reported | $q$ 从 1.9 升到 3.8（$m/n=3$ 在域内）→ `VAR_RESONANT_INSIDE`；整条剖面在 3 之下 → 照常；$\lambda_{min}$ 两端同号 → `VAR_NO_CROSSING` | **成立** |
+
+**★四档剖面 × 有无壁，两路最劣 3.9e-7；★峰化剖面上驱动项真的参与**
+
+- ★判据要「含峰化剖面使内部驱动项真正参与的一档」——这一句要**验**，不是假定：一个只装了边界项的实现在均匀电流上照样全对。所以另设一条测试把驱动项拿掉，看 marginal 动不动。
+- ★泛函由打靶路的 Riccati 形读出：对欧拉解分部积分，体积分恰为 $\psi(a)^2u(a)$，于是 $\delta W=\psi(a)^2W(q_a)$——正是打靶路的边缘余量。质量阵 $\int r\psi^2dr$ 只改 λ 的刻度，不改 marginal；**λ 不是增长率**。
+
+**★非对称 0（两条副对角线各自独立装配），且**检查能失败**：注入 1e-12 读到 1.5e-13**
+
+- ★「恒为零」型验收须先证其可非零：这里上下两条副对角线在同一次求积里算出、浮点运算完全相同，所以非对称**逐位为零**——那恰恰说明这条检查若不另行证明能失败，就什么也没验。
+
+**共振在域内按名拒绝；在共振之下照常组装；同侧区间不给根**
+
+- ★共振在**节点与每个求积点**上查：节点之间过零也要抓到。
+
+## 不可比的部分
+
+- ★★**判决成立**：五格全过。这是 L2 唯一**不依赖任何外部数据**的整体校验，环几何之前必须过。
+- ★门在内核仓，本仓 CI 跑不到——同 `FR-EQ-017` / `018`。
+
+## 追溯
+
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-019` 判**成立**。内核新模块 `variational.rs`：线性元装配、惯性二分取 λ_min、marginal 求根。带边对闭式最劣 5.2e-7，两路互证最劣 3.9e-7，收敛比 4.000 / 4.012。★峰化剖面上拿掉驱动项 marginal 移 0.127——验了「驱动项真正参与」而不是假定它。★对称性逐位为零，所以另证检查能失败。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `libfylite` `sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45`
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/variational_cylinder.json`    `sha256:4fdb0a32d161bf853044b35a92a5bac05f7dce2391346509d3c8fb2dfe2d6f81`    带边、两路互证、驱动参与、对称与正定、收敛阶、标度、拒绝
+
+**守它的门**：
+
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::the_variational_marginal_reproduces_the_analytic_band_edge` —— 第一格
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::the_two_routes_agree_including_a_peaked_profile` —— 第二格
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::on_a_peaked_profile_the_internal_drive_really_takes_part` —— ★第二格：驱动项真的参与
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::a_is_symmetric_and_b_is_positive_definite` —— 第三格
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::the_symmetry_check_can_fail` —— ★第三格：检查能失败
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::linear_elements_converge_at_second_order` —— 第四格
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::a_resonance_inside_the_plasma_is_refused` —— 第五格
+- `$FYLITE_KERNEL/rust/fylite/src/variational.rs::tests::a_is_a_length_scale` —— 附：对 a 标度不变
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```
