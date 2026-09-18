@@ -2206,6 +2206,17 @@ def pf_flatten(dev: str, doc: dict) -> None:
     if all(len(c.get("element") or []) <= 1 for c in coils) \
             and not any(e.get("fylite:name") for c in coils for e in c.get("element") or []):
         return                                  #: 已经是一元件一线圈
+    #: ★★通道那一层的事实在摊开时会丢，所以先记下来（2026-09-18）。取数要的正是它们：
+    #: 通道读哪个罗氏线圈节点（`fylite:mds_node`）、读数乘多少匝（通道的 `turns`——**不等于**
+    #: 它元件的匝数：EAST BRSP_07 是 248，它的元件 PF2 是 140）、在拟合里排第几（`efit_index`）。
+    #: 这几样在摊开形里推不出来；此前只有卡片形带着，于是只拿得到编进库里的那一份文档的
+    #: 调用方（`apps/east-kinetic-reconstruction` 这类只依赖 libfylite.so 的应用）取不了 PF 电流。
+    #: 快速控制线圈（`function` = b_field_fb）不在通道里，不记。
+    keep = ("name", "fylite:mds_node", "turns", "efit_index", "bit_error")
+    chans = [{k: ch[k] for k in keep if k in ch} for ch in coils
+             if not any(isinstance(f, dict) and f.get("name") == "b_field_fb" for f in ch.get("function") or ())]
+    if chans and any("fylite:mds_node" in c or "turns" in c or "efit_index" in c for c in chans):
+        doc["pf_active"]["fylite:channel"] = chans
     flat = []
     for ch in coils:
         for el in ch.get("element") or []:

@@ -265,7 +265,7 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
 <h2 id="d-data">八 · 数据处理的每一步</h2>
 <h3>取数（<code>pull</code>）</h3>
 <ul>
-  <li>原始节点经 <code>fylite.io.raw.reduce_series</code>：|<var>t</var> − <var>t</var><sub>0</sub>| ≤ 5 ms 窗口均值，−6.9 … −6.1 s 炮前线性漂移扣除；POINT 用它自己的窗、先减 <var>t</var> ≈ −0.9 s 附近的零偏，条纹闸剔跳变的弦。</li>
+  <li>装置（节点名、PF 通道、POINT 弦几何）由 <code>libfylite.so</code> 里编进去的 EAST 文档按炮号与测量链解析；原始节点的归约（与 fylite 的 <code>reduce_series</code> 同一规则）：|<var>t</var> − <var>t</var><sub>0</sub>| ≤ 5 ms 窗口均值，−6.9 … −6.1 s 炮前线性漂移扣除；POINT 用它自己的窗、先减 <var>t</var> ≈ −0.9 s 附近的零偏，条纹闸剔跳变的弦。</li>
   <li><var>B</var><sub>T</sub> 不读 B_T 节点（自 #97286 起单位是伏特），改读 TF 线圈电流：<var>F</var> = μ<sub>0</sub><var>N I</var>/2π，<var>N</var> = 16 × 130。</li>
   <li>Thomson 取离所要时刻最近的一个激光脉冲（#137985 全炮只有 6 个，每秒一个）。</li>
 </ul>
