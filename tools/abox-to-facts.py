@@ -1073,6 +1073,98 @@ def _link_node(link) -> tuple[str, str] | None:
     return (m.group(1), m.group(2)) if m else None
 
 
+#: the whole expression: one node, optionally times ONE numeric factor — nothing else
+_LINK_SCALED = re.compile(r"^\s*(\w+)\s*:\s*DATA\(\s*(\\[\w:]+)\s*\)\s*"
+                          r"(?:\*\s*([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?))?\s*$")
+
+
+def _link_signal(link, units: str) -> dict | None:
+    """``ts_east:DATA(\\TE_CORETS)`` / ``reflj_east:DATA(\\NE_REFLJ)*1.0E19`` ->
+    ``{"tree", "node", "scale", "units"}``; anything that is not ONE node times at most one
+    number is None (the caller declares it absent — a sum or a function of nodes is not a
+    node name an app can read).
+
+    ★``units`` are the units AFTER ``scale``: the DD slot's units, which the binding's factor
+    exists to reach (TXCS z is stored in cm, the binding multiplies by 1e-2, the slot is m).
+    They are the one thing here that is not read off the binding page — the page states them
+    only in prose (`rdfs:comment`) — so they come from the per-quantity table beside the path.
+    """
+    if isinstance(link, dict):
+        link = link.get("$link")
+    m = _LINK_SCALED.match(link) if isinstance(link, str) else None
+    if not m:
+        return None
+    return {"tree": m.group(1), "node": m.group(2),
+            "scale": float(m.group(3)) if m.group(3) else 1.0, "units": units}
+
+
+def _dig(node, path):
+    for k in path:
+        if isinstance(node, list):
+            node = node[k] if isinstance(k, int) and k < len(node) else None
+        else:
+            node = (node or {}).get(k) if isinstance(node, dict) else None
+    return node
+
+
+#: ★★EAST MDSplus signal maps, per IDS: app-facing quantity -> (path of the `$link` in fydoc's
+#: `bind/mdsplus/<ids>` page, units after the binding's factor).  Whole-array profile nodes sit
+#: under the page's `dev:array` (fydoc: a TDI subscript on a signal selects by VALUE, so the
+#: array is not split into DD `channel[k]`); the reflectometer's are DD root slots.  The group
+#: key in the device document is the IDS; `summary` is carried on `magnetics` (below).
+EAST_SIGNALS = {
+    "thomson_scattering": {
+        "te": (("dev:array", "t_e", "data"), "eV"),
+        "ne": (("dev:array", "n_e", "data"), "m^-3"),
+        "te_err": (("dev:array", "t_e_error", "data"), "eV"),
+        "ne_err": (("dev:array", "n_e_error", "data"), "m^-3"),
+        "r": (("dev:array", "position", "r"), "m"),
+        "z": (("dev:array", "position", "z"), "m")},
+    "reflectometer_profile": {
+        "ne": (("n_e", "data"), "m^-3"),
+        "r": (("position", "r"), "m"),
+        "z": (("position", "z"), "m")},
+    "spectrometer_x_ray_crystal": {
+        "ti": (("dev:array", "t_i", "data"), "eV"),
+        "ti_err": (("dev:array", "t_i_error", "data"), "eV"),
+        "te": (("dev:array", "t_e", "data"), "eV"),
+        "z": (("dev:array", "position", "z"), "m"),
+        "ti0": (("dev:array", "t_i_central", "data"), "eV")},
+    "ece": {
+        "te": (("dev:array", "t_e", "data"), "eV"),
+        "r": (("dev:array", "position", "r"), "m"),
+        "z": (("dev:array", "position", "z"), "m")},
+    "nbi": {
+        "p1l": (("unit", 0, "dev:ionSourcePower", "left", "data"), "W"),
+        "p1r": (("unit", 0, "dev:ionSourcePower", "right", "data"), "W"),
+        "p2l": (("unit", 1, "dev:ionSourcePower", "left", "data"), "W"),
+        "p2r": (("unit", 1, "dev:ionSourcePower", "right", "data"), "W")},
+    "summary": {
+        "w_dia": (("global_quantities", "energy_diamagnetic", "value"), "J"),
+        "v_loop": (("global_quantities", "v_loop", "value"), "V")},
+}
+
+
+def east_signals(ids: str, bind: dict | None, bind_src: str | None) -> dict:
+    """``{"fylite:signal": {q: {tree, node, scale, units}}, "fylite:signal_source": …}`` for one
+    IDS, read off its fydoc MDSplus binding; quantities the binding does not carry as ONE scaled
+    node are named under ``fylite:absent`` (never guessed)."""
+    if bind is None:
+        return {"fylite:absent": {"fylite:signal": (
+            f"the A-Box registers no MDSplus binding for {ids} (bindings.mdsplus.ids)")}}
+    sig, absent = {}, {}
+    for q, (path, units) in EAST_SIGNALS[ids].items():
+        got = _link_signal(_dig(bind, path), units)
+        if got is None:
+            absent[q] = f"no single-node `$link` at {'/'.join(map(str, path))} in {bind_src}"
+        else:
+            sig[q] = got
+    out = {"fylite:signal": sig, "fylite:signal_source": bind_src}
+    if absent:
+        out["fylite:absent"] = {"fylite:signal": absent}
+    return out
+
+
 def _first(entry: dict, names) -> object:
     v = next((entry[n] for n in names if entry.get(n) is not None), None)
     return v["value"] if isinstance(v, dict) and "value" in v else v
@@ -1495,9 +1587,20 @@ def east_chords(ids: str, doc: dict, bind: dict | None, src: str, prefix: str) -
     return out
 
 
-def east_hcd(lh: dict | None, ic: dict | None, ec: dict | None, rel: dict) -> dict:
-    """Static H&CD fields.  Port letters, node names and IC level / source power /
-    frequency range have no production reader and are not carried (ruling)."""
+def east_hcd(lh: dict | None, ic: dict | None, ec: dict | None, rel: dict,
+             lh_bind: dict | None = None, ec_bind: dict | None = None) -> dict:
+    """Static H&CD fields.  Port letters and IC level / source power / frequency range have
+    no production reader and are not carried (ruling).
+
+    ★★The LH / EC POWER node names now do have one: `apps/east-kinetic-reconstruction`
+    (reproducing Wei et al. 2026, AIP Advances 16, 085007) reads launched / reflected power
+    per antenna and launched power per EC beam, so those are carried from fydoc's
+    `bind/mdsplus/lh_antenna` / `ec_launchers` pages as `fylite:power_launched` /
+    `fylite:power_reflected` ({tree, node, scale, units}; units after scale, W).  Paired by
+    list position — the binding entries follow the static page's order (LH1, LH2;
+    PECRH1I…4I).  EC beams also carry `fylite:baseline_window` [-3.0, -1.0] s: PECRH<n>I
+    has a constant offset of ~50–90 kW, removed by subtracting its mean over that
+    pre-shot window (live survey 2026-09-18) — a reading recipe, program-side."""
     out = {}
 
     def entries(doc, key, optional):
@@ -1522,7 +1625,27 @@ def east_hcd(lh: dict | None, ic: dict | None, ec: dict | None, rel: dict) -> di
         if doc is None:
             continue
         items, absent = entries(doc, key, opt)
+        bind = {"lh_antennas": lh_bind, "ec_launchers": ec_bind}.get(ids)
+        slots = {"lh_antennas": ("power_launched", "power_reflected"),
+                 "ec_launchers": ("power_launched",)}.get(ids, ())
+        if bind is not None:
+            bound = bind.get(key) or []
+            for i, item in enumerate(items):
+                for slot in slots:
+                    got = _link_signal(_dig(bound, (i, slot, "data")), "W")
+                    if got is None:
+                        absent.setdefault(f"fylite:{slot}", (
+                            f"{rel[ids + ':binding']} {key}[] has no single-node "
+                            f"`{slot}` link for every entry"))
+                    else:
+                        item[f"fylite:{slot}"] = got
+                if ids == "ec_launchers" and "fylite:power_launched" in item:
+                    item["fylite:baseline_window"] = [-3.0, -1.0]
+        elif slots:
+            absent["fylite:power_launched"] = f"the A-Box registers no MDSplus binding for {ids}"
         out[ids] = {"@type": f"fyo:{ids}", "fylite:source": rel[ids], key: items}
+        if bind is not None:
+            out[ids]["fylite:signal_source"] = rel[ids + ":binding"]
         if absent:
             out[ids]["fylite:absent"] = absent
     #: ★the EC steering RANGE (a capability, not a setting): the A-Box carries it
@@ -1685,11 +1808,13 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
                                                    EAST_PF_ELECTRICAL_PROVIDER)
     files.pop("pf_active", None)
     files["magnetics:pcs"] = _provider_file(dev_dir, manifest, "magnetics", "pcs")
-    for ids in ("interferometer", "polarimeter"):
+    for ids in ("interferometer", "polarimeter", "lh_antennas", "ec_launchers", *EAST_SIGNALS):
         b = _binding_file(dev_dir, manifest, ids)
         if b is not None:
-            files[f"{ids}:binding"] = b
-    rel = {k: str(v.relative_to(fydoc)) for k, v in files.items()}
+            #: summary has no group of its own here: its two traces ride on `magnetics`, and the
+            #: key says so (a resolution variant keeps the `magnetics:*` source files it used)
+            files["magnetics:summary_binding" if ids == "summary" else f"{ids}:binding"] = b
+    rel ={k: str(v.relative_to(fydoc)) for k, v in files.items()}
     load = lambda k: _load(files[k]) if k in files else None  # noqa: E731
     dd_version, dd_where = _east_dd_version(manifest, [load(k) for k in files])
 
@@ -1749,7 +1874,29 @@ def build_east_from_abox(fydoc: pathlib.Path, providers: dict | None = None) -> 
         doc["pf_passive"], vessel = east_pf_passive(load("pf_passive"), rel["pf_passive"])
         doc["wall"]["description_2d"][0]["vessel"] = {"unit": vessel}
         doc["fylite:vessel_resistivity_uohm_m"] = doc["pf_passive"]["vessel"]["resistivity_uohm_m"]
-    doc.update(east_hcd(load("lh_antennas"), load("ic_antennas"), load("ec_launchers"), rel))
+    doc.update(east_hcd(load("lh_antennas"), load("ic_antennas"), load("ec_launchers"), rel,
+                        load("lh_antennas:binding"), load("ec_launchers:binding")))
+    #: ★profile diagnostics, NBI source power, and the two global traces: node names an app
+    #: resolves from the compiled facts instead of hard-coding (EAST_SIGNALS says where each
+    #: one sits in its fydoc binding page)
+    for ids in EAST_SIGNALS:
+        if ids == "summary":
+            got = east_signals(ids, load("magnetics:summary_binding"),
+                               rel.get("magnetics:summary_binding"))
+            gap = got.pop("fylite:absent", None)
+            doc["magnetics"].update(got)
+            if gap:
+                doc["magnetics"].setdefault("fylite:absent", {}).update(gap)
+            continue
+        group = {"@type": f"fyo:{ids}"}
+        if ids in rel:
+            group["fylite:source"] = rel[ids]
+        if ids == "nbi" and load("nbi") is not None:
+            group["unit"] = [{"name": str(u["name"])} for u in load("nbi").get("unit") or []]
+        got = east_signals(ids, load(f"{ids}:binding"), rel.get(f"{ids}:binding"))
+        if "fylite:source" not in group:
+            group["fylite:source"] = got.get("fylite:signal_source")
+        doc[ids] = {**group, **got}
     for ids in ("interferometer", "polarimeter"):
         if ids in files:
             doc[ids] = east_chords(ids, load(ids), load(f"{ids}:binding"), rel[ids],

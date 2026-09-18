@@ -14,6 +14,9 @@
 | `kinetic_recon.py` | 取数与反演（单文件，只用 Python 标准库 + `libfylite.so`）：`pull` 取一个时刻的原始测量，`run` 跑三档写结果 JSON |
 | `kinetic_recon.html` | 页面（单文件，双击即开，不联网、不上传）：「原理与过程」·「结果」两个页签 |
 | `test/smoke.mjs` | 页面的 node 检查：把页面脚本在极小 DOM 垫片里真跑一遍，逐块断言画出了东西 |
+| `wei2026.py` | 复现 Wei et al. 2026（AIP Advances 16, 085007）：`profiles` 一炮逐 TS 时刻剖面（清洗 · 分段拟合 · NRMSE），`transport` 一个时刻加 LH 沉积与功率平衡反演 χ_e · χ_i（见〈八〉） |
+| `wei_profiles.py` | 上一条的数值件（标准库）：光滑样条 · GCV · Levenberg–Marquardt · 文献的局部稳健清洗 · mtanh 台基 + 斜率积分过渡 · NRMSE |
+| `ASSESSMENT-wei2026.md` | 评估：用本应用复现 Wei et al. 2026（AIP Advances 16, 085007）的 EAST 剖面快速处理链，逐步对照、复现路线与「快速」的账 |
 | `libfylite.so` | **不入仓**，自己放进来（见〈库〉）：fylite 的计算库，内核 + 编进去的装置事实 + mdsip 客户端 |
 
 ★★**独立发行：只依赖 `libfylite.so`。**脚本不 import fylite 的 Python 包，也不要 numpy / pyyaml——
@@ -240,3 +243,40 @@ p′ 与档 M 的后验带、FF′）· 磁测量逐道残差与剔道轨迹 · 
 - **只做一个时刻。**时间序列是逐片调 `run`；本应用不做批处理与跨片平滑。
 - **剔道是本应用的规则**：阈值 5 σ、每轮 4 道、FL*B 起步。另一套规则（B-06 用 KEFIT 纯磁 χ² 份额 > 25 剔 7 道）会给出另一个答案，
   两者之差是剔法之差。
+
+## 八 · 复现 Wei et al. 2026（`wei2026.py`）
+
+文献（D. Wei *et al.*, AIP Advances **16**, 085007 (2026)）只给炮号，把 TS · 反射计 · XCS 等诊断清洗、分段拟合成
+n_e · T_e · T_i 剖面，再接 LH / EC 加热与 ONETWO 反解 χ_e · χ_i。本应用复现的是**它的方法与结果**，不是它的代码：
+平衡自己反演（档 M，不读 P-EFIT），ρ_tor 由 `code/ladder` 在这份平衡上描迹，LH 用 `code/wave`、输运用
+`code/interpretive`（2026-09-18 起收给定源剖面与电子–离子交换）。逐条的同与不同写在结果 JSON 的 `method` 里，
+评估与路线见 `ASSESSMENT-wei2026.md`。
+
+```bash
+A=apps/east-kinetic-reconstruction
+# 阶段 A：一炮的全部 TS 时刻（#63948：35 个脉冲）→ 逐片剖面、清洗记录、NRMSE（12 进程约 5 分钟）
+python3 $A/wei2026.py profiles --shot 63948 --t0 0 --t1 8 --workers 12 -o ~/ekr/prof_63948.json
+# 阶段 A + B + C：一个时刻 → LH 沉积与驱动电流、χ_e · χ_i（约 2 分钟）
+python3 $A/wei2026.py transport --shot 81481 --time 5.3 -o ~/ekr/tr_81481.json
+```
+
+诊断的树与节点名**全部从库里编进的装置事实解析**（`thomson_scattering` · `reflectometer_profile` ·
+`spectrometer_x_ray_crystal` · `ece` · `nbi` 的 `fylite:signal`，`lh_antennas` / `ec_launchers` 的
+`fylite:power_launched`，`magnetics` 的抗磁能与环电压）——要 2026-09-18 之后、带这些绑定的 `libfylite.so`。
+`--signals FILE` 可给一份同形 JSON 覆盖；本仓不写新的节点名。
+
+**2026-09-18 实测**（数与文献的对照；设定与理由见 `ASSESSMENT-wei2026.md`〈六〉）：
+
+| | 本应用 | 文献 |
+| :--- | :--- | :--- |
+| #63948，4–8 s 的 18 片：T_e 的 NRMSE | 均值 **0.036**（0.016–0.060） | 0.03–0.09 |
+| 同上：n_e（反射计）的 NRMSE | 均值 **0.006**（0.004–0.008） | ≈ 0.015 |
+| #63948 全炮 35 片的耗时 | 取数 52 s + 各片 251 s（12 进程）≈ **5 分钟** | 19.95 s（平衡读 P-EFIT） |
+| #81481（TS 只存 6 幅，取 5.517 s）：LH 驱动电流 | 479 kA（η_cd = 1×10¹⁹）；**η_cd = 3.8×10¹⁸ 给 181 kA** | 181.3 kA（METIS）· ≈ 176 kA（GENRAY+CQL3D） |
+| 同上：χ_e · χ_i | χ_e 0.07 → 0.9（ρ 0.5）→ 12（ρ 0.82）；χ_i 1.3–1.7；**交叉于 ρ ≈ 0.55** | χ_e 0.35 → 10（峰在 0.82）；χ_i 1.9–7；交叉于 ρ ≈ 0.58 |
+| 同上：芯部电子–离子交换 | 0.19 MW/m³ | ≈ 0.2 MW/m³（qdelt） |
+
+★**限制**：清洗阈值文献没公布，低侧按文献图 1 的剔除样式定（`wei_profiles.CLEAN_DEFAULTS`）；H98 的来源文献没说，
+本应用用抗磁能（缺则动理学 W）与 LH + EC + NBI **源**功率——#63948 多数片因此判 L 模（文献 5.98 s 记 0.943）；
+#81481 的 n_e 由 POINT 弦拟合顶替（没有反射计、TS n_e 有坏道），T_i 只有芯部 T_i0、形状是假设的；EC 的发射几何
+不在装置事实里，缺省不算（`--ec-launch R,Z,极向角,环向角` 给了才算）；LH 快速模型的 η_cd 是待标定的系数。
