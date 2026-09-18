@@ -1,0 +1,220 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-deltaw-delivery-records",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "MHD 判读的交付层：**每一条禁令都是一次拒绝，每一次拒绝都被证伪过**",
+  "en": "The MHD delivery layer: every rule is a refusal, and every refusal has been falsified"
+ },
+ "domain": "mhd-deltaw",
+ "requirement": [
+  "FR-EQ-026"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `fylite.mhd_records`（`kink_record` · `ballooning_record` · `surface_current_record` · `scaling_law_record` · `vertical_mode_record` · `assemble_time_slice`）",
+  "comment": "2026-09-18 新写：只产 `dict`，纯标准库；造形集中在这一个模块，物理模块不认得 DD"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律",
+   "comment": "DD 字段集取本仓自带的 IDS 表 `rust/fylite_runtime/ids/mhd_linear.tsv`；纪律见 FR-EQ-026 (a)–(d)。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "L0/L1/oracle 的 `growthrate` 一律为空；装配处拦下「能量原理类 kind 却带有限 growthrate」",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "本仓侧判读量只在 `parameters`、DD 字段不越界",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "L0 标 `q_limit` 且注明禁称 β 极限；表面电流记录自带 optimistic / 柱等价告诫",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "气球模 `n_phi` 缺省留空（显式给才填、非正即拒）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "`source` 为空即拒（oracle 与标度两处）；经验标度不填任何 DD 计算字段 + 非有限值拒收",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/6",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "`ideal_flag` 不替调用方猜（阻性壁竖直模须显式 0）",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-deltaw-delivery-records/criterion/7",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "自包含用语法树查 import",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "三类能量原理记录都没有 growthrate；★装配处拦下填了 0 的那条（0 会被读成中性稳定），竖直模照常带",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/1",
+   "bound": "identity",
+   "deviation_literal": "三类能量原理记录都没有 growthrate；装配处拦下填了 0 的那条（0 会被读成中性稳定），竖直模照常带",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "判读量进 `code.parameters`（JSON）；★往 mode 里塞一个 `q_crit` 被按名拒绝；★DD 字段集由测试从 IDS 表逐项核对",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/2",
+   "bound": "identity",
+   "deviation_literal": "判读量进 `code.parameters`（JSON）；往 mode 里塞一个 `q_crit` 被按名拒绝；DD 字段集由测试从 IDS 表逐项核对",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "L0 的 caveat 写着 not a beta limit；表面电流记录的 caveat 同时含 optimistic 与 cylindrical-equivalent",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "L0 的 caveat 写着 not a beta limit；表面电流记录的 caveat 同时含 optimistic 与 cylindrical-equivalent",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "缺省无 `n_phi`；给 20 即填；0 / −3 / 2.5 / True 全拒",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "缺省无 `n_phi`；给 20 即填；0 / −3 / 2.5 / True 全拒",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "空串与全空白的 source 在 oracle 与标度两处都拒；标度记录 toroidal_mode 为空；NaN / inf 拒",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/5",
+   "bound": "identity",
+   "deviation_literal": "空串与全空白的 source 在 oracle 与标度两处都拒；标度记录 toroidal_mode 为空；NaN / inf 拒",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "`ideal_flag` 仅限关键字、无缺省——不给即 TypeError；阻性壁给 1 被拒；给 True 被拒",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/6",
+   "bound": "identity",
+   "deviation_literal": "`ideal_flag` 仅限关键字、无缺省——不给即 TypeError；阻性壁给 1 被拒；给 True 被拒",
+   "verdict": "pass"
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "语法树上的 import 恰为 `__future__` · `json` · `math`",
+   "criterion": "benchmark/records/mhd-deltaw-delivery-records/criterion/7",
+   "bound": "identity",
+   "deviation_literal": "语法树上的 import 恰为 `__future__` · `json` · `math`",
+   "verdict": "pass",
+   "caveat": [
+    "★模块说明文字里提到别的包名——按文本 grep 会被自己的注释绊倒，所以查语法树。"
+   ]
+  }
+ ],
+ "validity_domain": "DD 4.1.1 `mhd_linear` 的 `time_slice/toroidal_mode` 与 IDS 级 `code.parameters` / `ideal_flag`；**不改变任何物理判读**。",
+ "caveat": [
+  "★★**判决成立**：七格全过。这一层只解决**造形与口径**；各判读量的可信度仍由各自的记录（`FR-EQ-017` · `018` · `021` · `016`）承担。",
+  "★门在本仓（`python/tests/test_mhd_records.py`），CI 跑得到。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/mhd_records_delivery.json",
+    "checksum": "sha256:b04433371602f37bda3a9574b720d2840bc9e28b3bd40f7fe31f4f7d31faf2b1",
+    "comment": "模块、DD 字段集、能量原理类、导入清单"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "python/tests/test_mhd_records.py::test_energy_principle_records_have_no_growthrate",
+    "comment": "第一格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_the_assembly_catches_an_energy_principle_record_with_a_growthrate",
+    "comment": "★第一格：装配处拦下"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_judged_quantities_ride_in_code_parameters_not_in_dd_fields",
+    "comment": "第二格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_the_dd_field_set_is_the_ids_tables_own",
+    "comment": "第二格：字段集对 IDS 表"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_l0_is_a_q_limit_and_says_so",
+    "comment": "第三格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_the_surface_current_record_carries_its_own_caveats",
+    "comment": "第三格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_ballooning_leaves_n_phi_empty_unless_given",
+    "comment": "第四格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_an_empty_source_is_refused_for_the_oracle_and_the_scaling",
+    "comment": "第五格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_a_scaling_fills_no_dd_field_and_refuses_non_finite",
+    "comment": "第五格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_ideal_flag_is_never_guessed",
+    "comment": "第六格"
+   },
+   {
+    "name": "python/tests/test_mhd_records.py::test_the_module_imports_only_json_and_math_on_the_syntax_tree",
+    "comment": "第七格"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:7721e88aac1f453ef4b6dae805a592bdc29628825e8ffb71a17910a4019927fb"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-026` 判**成立**。新模块 `fylite.mhd_records`：能量原理类不带 growthrate、装配处拦下混用、判读量只进 code.parameters、告诫随记录走、n_phi 缺省留空、ideal_flag 不猜、语法树查 import。11 道门都在本仓。"
+   }
+  ]
+ }
+}

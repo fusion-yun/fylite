@@ -1,0 +1,97 @@
+---
+title: "mhd-deltaw-delivery-records"
+---
+
+# MHD 判读的交付层：**每一条禁令都是一次拒绝，每一次拒绝都被证伪过**
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/mhd-deltaw-delivery-records.jsonld`，本页只是它的可读面。 -->
+
+*MHD 稳定性 (MHD Stability) · [全 delta-W、V5 基准与阻性壁模](../domains/mhd/deltaw.md)　|　记录正本：`records/mhd-deltaw-delivery-records.jsonld`*
+
+## 摘要
+
+- **类**：验证　**判决**：**成立**
+- **量的是**：MHD 判读的交付层：**每一条禁令都是一次拒绝，每一次拒绝都被证伪过**
+- **参考**：IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律
+- **验的需求**：`FR-EQ-026`
+- **跑在内核**：`sha256:7721e88aac1f453e…`（新鲜度 **current**）
+- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+
+## 问的是什么
+
+**被量的**：2026-09-18 新写：只产 `dict`，纯标准库；造形集中在这一个模块，物理模块不认得 DD
+
+**参考**：IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律
+
+> DD 字段集取本仓自带的 IDS 表 `rust/fylite_runtime/ids/mhd_linear.tsv`；纪律见 FR-EQ-026 (a)–(d)。
+
+**口径与适用域**：
+
+> DD 4.1.1 `mhd_linear` 的 `time_slice/toroidal_mode` 与 IDS 级 `code.parameters` / `ideal_flag`；**不改变任何物理判读**。
+
+## 判据与量到多少
+
+:::{figure} ../figures/mhd-deltaw-delivery-records-headroom.svg
+:alt: mhd-deltaw-delivery-records 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| L0/L1/oracle 的 `growthrate` 一律为空；装配处拦下「能量原理类 kind 却带有限 growthrate」 | — | reference_self_reported | 三类能量原理记录都没有 growthrate；装配处拦下填了 0 的那条（0 会被读成中性稳定），竖直模照常带 | **成立** |
+| 本仓侧判读量只在 `parameters`、DD 字段不越界 | — | reference_self_reported | 判读量进 `code.parameters`（JSON）；往 mode 里塞一个 `q_crit` 被按名拒绝；DD 字段集由测试从 IDS 表逐项核对 | **成立** |
+| L0 标 `q_limit` 且注明禁称 β 极限；表面电流记录自带 optimistic / 柱等价告诫 | — | reference_self_reported | L0 的 caveat 写着 not a beta limit；表面电流记录的 caveat 同时含 optimistic 与 cylindrical-equivalent | **成立** |
+| 气球模 `n_phi` 缺省留空（显式给才填、非正即拒） | — | reference_self_reported | 缺省无 `n_phi`；给 20 即填；0 / −3 / 2.5 / True 全拒 | **成立** |
+| `source` 为空即拒（oracle 与标度两处）；经验标度不填任何 DD 计算字段 + 非有限值拒收 | — | reference_self_reported | 空串与全空白的 source 在 oracle 与标度两处都拒；标度记录 toroidal_mode 为空；NaN / inf 拒 | **成立** |
+| `ideal_flag` 不替调用方猜（阻性壁竖直模须显式 0） | — | reference_self_reported | `ideal_flag` 仅限关键字、无缺省——不给即 TypeError；阻性壁给 1 被拒；给 True 被拒 | **成立** |
+| 自包含用语法树查 import | — | reference_self_reported | 语法树上的 import 恰为 `__future__` · `json` · `math` | **成立** |
+
+**语法树上的 import 恰为 `__future__` · `json` · `math`**
+
+- ★模块说明文字里提到别的包名——按文本 grep 会被自己的注释绊倒，所以查语法树。
+
+## 不可比的部分
+
+- ★★**判决成立**：七格全过。这一层只解决**造形与口径**；各判读量的可信度仍由各自的记录（`FR-EQ-017` · `018` · `021` · `016`）承担。
+- ★门在本仓（`python/tests/test_mhd_records.py`），CI 跑得到。
+
+## 追溯
+
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-026` 判**成立**。新模块 `fylite.mhd_records`：能量原理类不带 growthrate、装配处拦下混用、判读量只进 code.parameters、告诫随记录走、n_phi 缺省留空、ideal_flag 不猜、语法树查 import。11 道门都在本仓。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `libfylite` `sha256:7721e88aac1f453ef4b6dae805a592bdc29628825e8ffb71a17910a4019927fb`
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/mhd_records_delivery.json`    `sha256:b04433371602f37bda3a9574b720d2840bc9e28b3bd40f7fe31f4f7d31faf2b1`    模块、DD 字段集、能量原理类、导入清单
+
+**守它的门**：
+
+- `python/tests/test_mhd_records.py::test_energy_principle_records_have_no_growthrate` —— 第一格
+- `python/tests/test_mhd_records.py::test_the_assembly_catches_an_energy_principle_record_with_a_growthrate` —— ★第一格：装配处拦下
+- `python/tests/test_mhd_records.py::test_judged_quantities_ride_in_code_parameters_not_in_dd_fields` —— 第二格
+- `python/tests/test_mhd_records.py::test_the_dd_field_set_is_the_ids_tables_own` —— 第二格：字段集对 IDS 表
+- `python/tests/test_mhd_records.py::test_l0_is_a_q_limit_and_says_so` —— 第三格
+- `python/tests/test_mhd_records.py::test_the_surface_current_record_carries_its_own_caveats` —— 第三格
+- `python/tests/test_mhd_records.py::test_ballooning_leaves_n_phi_empty_unless_given` —— 第四格
+- `python/tests/test_mhd_records.py::test_an_empty_source_is_refused_for_the_oracle_and_the_scaling` —— 第五格
+- `python/tests/test_mhd_records.py::test_a_scaling_fills_no_dd_field_and_refuses_non_finite` —— 第五格
+- `python/tests/test_mhd_records.py::test_ideal_flag_is_never_guessed` —— 第六格
+- `python/tests/test_mhd_records.py::test_the_module_imports_only_json_and_math_on_the_syntax_tree` —— 第七格
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```

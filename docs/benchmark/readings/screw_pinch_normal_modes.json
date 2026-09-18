@@ -1,0 +1,112 @@
+{
+  "_comment": "FR-EQ-028 动能归一与 ω² —— 2026-09-18。门：$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests28",
+  "source": "Newcomb (1960) Eqs. (6)-(10); variables (xi, u, v) = (xi_r, i xi_theta, i xi_z); linear xi x element-constant u, v; constraint terms at the element midpoint",
+  "closure": {
+    "two_terms_residual": 2.66e-15,
+    "rLambda_vs_fg_plus_null_lagrangian": 2.63e-14
+  },
+  "theta_pinch": {
+    "k": 2.0,
+    "gamma": 1.6666666666666667,
+    "p0": 0.3,
+    "cusp": 1.3333333333,
+    "alfven": 4.0,
+    "n": [
+      100,
+      200,
+      400
+    ],
+    "cusp_rel": [
+      7.76e-06,
+      1.89e-06,
+      4.65e-07
+    ],
+    "alfven_bottom_rel": [
+      1.92e-06,
+      4.75e-07,
+      1.18e-07
+    ]
+  },
+  "same_edge": {
+    "k_deltaW": -0.59772552,
+    "k_omega2": -0.59772552,
+    "diff": 2e-12
+  },
+  "floor_with_resonance": {
+    "profile": "c 0.1, flat B_z, (m,k) = (1,-0.07), domain [0.3,1]",
+    "deltaW_lambda": 0.00060369,
+    "n": [
+      100,
+      200,
+      400,
+      800
+    ],
+    "floor": [
+      2.228e-11,
+      5.932e-12,
+      1.298e-12,
+      4.212e-13
+    ]
+  },
+  "band_edges_R_over_a_10_n400": {
+    "no_wall": 0.99835,
+    "wall_2": 1.06053,
+    "stiff_R_over_a_100_n100": 0.999984
+  },
+  "locking_before_midpoint_rule": {
+    "R_over_a_100_edge": {
+      "n": [
+        100,
+        200,
+        400,
+        800
+      ],
+      "edge": [
+        1.20065,
+        1.12647,
+        1.04542,
+        1.01352
+      ]
+    },
+    "omega2_ratio": [
+      1.893,
+      2.271
+    ],
+    "edge_k_diff": 0.002
+  },
+  "window": {
+    "q_a": 1.5,
+    "vacuum": -0.019919,
+    "pressureless_plasma": -4e-17
+  },
+  "vacuum_coefficient": {
+    "small_kappa_vs_closed": 1.16e-09,
+    "near_wall": 244500.0,
+    "far_wall_vs_no_wall": "equal to 9 digits"
+  },
+  "rho_scaling_ratio": 4.0,
+  "gamma_edges": [
+    0.998351,
+    0.998351
+  ],
+  "asymmetry": 1.51e-16,
+  "mass_negative_eigs": 0,
+  "unstable_convergence": {
+    "omega2": [
+      -0.05854646,
+      -0.05857494,
+      -0.05858214,
+      -0.05858395
+    ],
+    "ratio": [
+      3.952,
+      3.988
+    ]
+  },
+  "refusals": [
+    "SP_NEGATIVE_PRESSURE (-66)",
+    "SP_BAD_GAMMA (-67)",
+    "SP_BAD_DENSITY (-68)",
+    "SP_NOT_AN_EQUILIBRIUM (-62)"
+  ]
+}

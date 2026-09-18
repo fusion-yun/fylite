@@ -1,0 +1,103 @@
+---
+title: "mhd-deltaw-screw-pinch"
+---
+
+# 完整 δW 的螺旋箍缩：**g 两式互证、Λ 式作绝对尺——后者当场抓住了我对 Eq. (9) 的一处抄错**
+
+<!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/mhd-deltaw-screw-pinch.jsonld`，本页只是它的可读面。 -->
+
+*MHD 稳定性 (MHD Stability) · [全 delta-W、V5 基准与阻性壁模](../domains/mhd/deltaw.md)　|　记录正本：`records/mhd-deltaw-screw-pinch.jsonld`*
+
+## 摘要
+
+- **类**：验证　**判决**：**成立**
+- **量的是**：完整 δW 的螺旋箍缩：**g 两式互证、Λ 式作绝对尺——后者当场抓住了我对 Eq. (9) 的一处抄错**
+- **参考**：Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960)
+- **验的需求**：`FR-EQ-027`
+- **跑在内核**：`sha256:7721e88aac1f453e…`（新鲜度 **current**）
+- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+
+## 问的是什么
+
+**被量的**：2026-09-18 新写：不作高 β 序约化、含压强驱动；μ₀ ≡ 1，SI 入口只换压强
+
+**参考**：Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960)
+
+> Eqs. (2)、(9)、(14)–(18)、(32)–(33)，目视读页。
+
+**口径与适用域**：
+
+> 柱位形、单 $(m,k)$、无环效应；环状箍缩 $a<r<b$（$r=0$ 不在网格内），$\xi(a)=\xi(b)=0$。★交付的是**边缘稳定性**：没有动能归一，λ 的数值不是 $\omega^2$。
+
+## 判据与量到多少
+
+:::{figure} ../figures/mhd-deltaw-screw-pinch-headroom.svg
+:alt: mhd-deltaw-screw-pinch 的判据余量图
+:width: 100%
+
+每条判据离它的带还有多远（对数轴，1 倍即判据本身）。★**绿而窄（< 2 倍）另着色**：它与余量一千倍的判据在下表里都只是一个「成立」。
+:::
+
+| 判据 | 容差 | 取法 | 量到 | 判 |
+| :--- | ---: | :--- | :--- | :--- |
+| $g$ 两式互证（场形式 (17) vs 压强形式 (18)，仅在平衡关系下相等） | 1e-12 | machine_precision | 五组 $(m,k)$、200 点：两式最劣相对 1.6e-13 | **成立** |
+| 绝对尺：$\delta W$ 二阶收敛，误差比 $\simeq4$ | — | reference_self_reported | 对两端为零的 ξ：$(\pi/2)\int r\Lambda\,dr$（Eq. 14，Λ 取 Eq. 9）对 $(\pi/2)\int(f\xi'^2+g\xi^2)dr$（Eq. 15–17）四组 $(m,k)$ × 两式 **最劣 2.1e-15**；节点插值的 FEM 能量对精确积分 50 · 100 · 200 · 400 单元 2.74e-4 · 6.85e-5 · 1.71e-5 · 4.28e-6 | **成立** |
+| Suydam 两条独立路：α 由 (32a) 两侧分别算相符；(33) 左端恒等于 $(\alpha+4\beta)B^2/(8B_\theta^2)$ | 1e-06 | reference_self_reported | 四组 $(m,k)$ 在各自奇异面上（二分到机器精度） | **成立** |
+| 无剪切时判据退化为 $dP/dr>0$ 且有非空对照；$f\ge0$ 且奇异面上恰为零；纯轴向场必稳（带非空对照） | — | reference_self_reported | 无剪切：Suydam 左端逐点等于 $P'$；有剪切对照 $P'=-5.1\times10^{-3}<0$ 而左端 $+3.5\times10^{-2}$；$f$ 在奇异面上 < 1e-12、别处 ≥ 0；纯轴向场五组 $(m,k)$ 全稳，带电流 $m=1,k=-0.8$ 的 λ = −0.550 | **成立** |
+| 本征值符号与最优试探函数的 $\delta W$ 同号 | — | reference_self_reported | (1,−0.8)：λ −0.550、W −6.3e-4；(1,−0.2)：λ 1.980、W 1.4e-3 | **成立** |
+| 非平衡的 $dP/dr$ / $r=0$ 网格 / $m=k=0$ / 未知 form / 非整数 $m$ 一律 fail-loud | — | reference_self_reported | 四种都按名拒绝；「未知 form」在 Rust 里**编不过**（`GForm` 只有两个变体） | **成立** |
+
+**五组 $(m,k)$、200 点：两式最劣相对 1.6e-13**
+
+- ★**不是「二阶消失」而是舍入**：上游的两式差随网格二阶消失，是因为它对剖面做数值求导；这里剖面带解析导数进来，(17)、(18) 逐点只差舍入。判据要的「两处转录同时钉死」照样成立——任一处抄错都会在 1e-13 这一层露出来。
+
+**★★Λ 式对 $(f,g)$ 式 2.1e-15；FEM 能量误差比 3.999 / 4.000 / 4.000**
+
+- ★★**绝对尺换了一条路**：上游用 SymPy 的精确符号 $f,g$ 做绝对尺；本仓没有 SymPy，改用原文**另一处**转录——Eq. (9) 的 Λ——作见证。两式只在分部积分后相等，任一处抄错都破坏它。
+- ★★**它当场抓到了一处真错**：我初版把 Eq. (9) 前置的 $1/(k^2r^2+m^2)$ 也作用到了第二项上，两边差 **3.5 倍**；看原文排版，那个分母只管第一项的平方——与 (17) 里 $(krB_z+mB_\theta)^2/r$ 不带分母一致。改后 2.1e-15。
+
+**四种都按名拒绝；「未知 form」在 Rust 里**编不过**（`GForm` 只有两个变体）**
+
+- ★SI 入口：只有压强要换。忘乘 μ₀ 的 $dP/dr$（−1.2e6 对 −1.54）不满足平衡 (2)，被当作「不是平衡」拒绝——静默的错变成了响的错。
+
+## 不可比的部分
+
+- ★★**判决成立**：六格全过。第一格的「二阶消失」以「逐点只差舍入」达成（解析导数），第二格的绝对尺改由 Eq. (9) 见证——并当场抓到了一处转录错。
+- ★门在内核仓，本仓 CI 跑不到。
+
+## 追溯
+
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+
+**变更史**（★改判本身留在册里，不覆盖旧结论）：
+
+| 版本 | 日期 | 谁 | 做了什么 |
+| :--- | :--- | :--- | :--- |
+| 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-EQ-027` 判**成立**。内核新模块 `screwpinch.rs`：Newcomb (15)–(18) 的 f、g 两式，Λ（Eq. 9）作绝对尺，Suydam 两路。★Λ 见证当场抓到我对 Eq. (9) 的一处抄错（分母多作用了一项，差 3.5 倍），改后 2.1e-15。两式互证 1.6e-13（解析导数，非二阶）；FEM 比 4.000；Suydam 两路 1e-15 量级。 |
+
+## 复算
+
+**这次跑在**：
+
+- 内核 `libfylite` `sha256:7721e88aac1f453ef4b6dae805a592bdc29628825e8ffb71a17910a4019927fb`
+
+**输入（每一项都带 sha256，否则指针指不住任何东西）**：
+
+- `docs/benchmark/readings/screw_pinch_delta_w.json`    `sha256:163762113e864f6644973e57698abb0fc44f7410353b9b2c32602c2c74f4f238`    两式、Λ 见证、FEM 收敛、Suydam、无剪切、稳定性、本征向量、SI、拒绝
+
+**守它的门**：
+
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::the_two_forms_of_g_agree_under_equilibrium` —— 第一格
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::the_lambda_form_is_the_same_energy` —— ★第二格：绝对尺
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::the_discrete_energy_converges_at_second_order` —— 第二格
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::suydam_by_two_routes` —— 第三、四格
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::without_shear_suydam_is_just_the_pressure_gradient` —— 第四格
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::a_pure_axial_field_is_stable_and_a_current_is_not` —— 第四格
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::the_eigenvalue_sign_is_the_sign_of_w_on_its_eigenvector` —— 第五格
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::the_si_entry_converts_only_the_pressure` —— 第六格：SI
+- `$FYLITE_KERNEL/rust/fylite/src/screwpinch.rs::tests::bad_input_is_refused_by_name` —— 第六格
+
+```bash
+python tools/benchmark-book.py --check   # 本页与记录同源吗
+python tools/benchmark-book.py --ci      # 过期了吗、不成立吗
+```

@@ -1,0 +1,23 @@
+{
+  "_comment": "FR-EQ-026 MHD 判读的交付层 —— 2026-09-18。门：python/tests/test_mhd_records.py",
+  "module": "python/fylite/mhd_records.py",
+  "dd_version": "4.1.1",
+  "dd_mode_fields": [
+    "perturbation_type",
+    "n_phi",
+    "m_pol_dominant",
+    "growthrate",
+    "frequency"
+  ],
+  "energy_principle_kinds": [
+    "q_limit",
+    "ballooning_boundary",
+    "surface_current_oracle"
+  ],
+  "imports_on_the_syntax_tree": [
+    "__future__",
+    "json",
+    "math"
+  ],
+  "tests": 11
+}

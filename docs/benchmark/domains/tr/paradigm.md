@@ -72,9 +72,9 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.9 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
-| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.9 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
-| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.12 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
+| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.10 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
+| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.10 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
+| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.13 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 

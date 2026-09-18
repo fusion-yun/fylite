@@ -24,6 +24,33 @@ V5 是多码基准，五个码各给一个数，形成一条带。落进带里�
 
 ★上一册在这一域**没有记录**。同前，是真空白。
 
+### 全 δW 支的柱位形一级：螺旋箍缩与动能归一（2026-09-18）
+
+`FR-EQ-026`、`027`、`028` 入册，判**成立**。这三条还是**验证**（`verification`）：柱位形有解析锚可对，
+五码带要到下面的环几何（`029`–`031`）才用得上。
+
+**完整 δW（027）。** Newcomb (1960) 的 $f,g$ 两式都实现，逐点只差舍入（1.6e-13；剖面带解析导数进来，
+所以不是上游那种「随网格二阶消失」）。★★绝对尺换了一条路：原文 Eq. (9) 的 Λ 与 (15)–(17) 只在分部积分后相等，
+拿它作见证——**它当场抓到我初版把 Eq. (9) 的分母多作用了一项**，差 3.5 倍；照原文排版改后 2.1e-15。
+Suydam 两路（α 由 (32a) 两式、(33) 的恒等式）都到 1e-15 量级。
+
+**ω²（028）。** Newcomb (8) 的极小化前形式，(ξ, u, v) 实变量，真空以 $I_m/K_m$ 精确标量势作边界项。
+θ-pinch 的慢谱底与 Alfvén 簇按 h² 收敛；与 δW 核的边缘同点到 2e-12；★★真空标量势复现 `FR-EQ-017` 的带边
+1.0 / 1.0625（0.9984 / 1.0605）——**这是全 δW 支与 L0 唯一不依赖外部数据的连接点**。★窗口闭合：同一 $q_a$，
+把真空换成无压强等离子体，冻结约束让共振面成了理想壁，−2e-2 变成 −4e-17。**真空不是无压强等离子体。**
+
+★★**锁死，本章最大的一处实测收获**：SRS 规定「线性元 ξ × 逐单元常值 u、v」。约束项按 4 点 Gauss 积分时，
+两个常数满足不了单元内处处成立的两条约束——刚性位形（$R/a=100$）上带边从 1.20 才慢慢爬到 1.01，ω² 只一阶收敛。
+**约束项改取单元中点**后，两条约束在中点上恰能满足，离散能量就是 Eq. (14) 的 Gauss 积分：带边 100 单元即 0.99998，
+ω² 比回到 3.95 / 3.99。
+
+**交付层（026）。** `fylite.mhd_records`：能量原理的结论不是增长率（`growthrate` 留空、装配处拦下混用）、
+判读量只进 `code.parameters`、告诫随记录走、`n_phi` 缺省留空、`ideal_flag` 不猜——每条禁令都是一次拒绝，
+每次拒绝都在本仓的门里被证伪过。
+详见 [`mhd-deltaw-screw-pinch`](../../reports/mhd-deltaw-screw-pinch.md) ·
+[`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) ·
+[`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md)。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-03` v0.43）
@@ -60,15 +87,16 @@ V5 是多码基准，五个码各给一个数，形成一条带。落进带里�
 
 ### 本域的记录
 
-★**本域尚无记录。** 这一行不是排版占位，是缺口本身：上面抄录的判据，本册还没有拿出任何一条对着外部答案量过的记录来回应。
+| 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| [`mhd-deltaw-delivery-records`](../../reports/mhd-deltaw-delivery-records.md) | 验证 | 成立 | IMAS DD 4.1.1 `mhd_linear` 与 SRS 的四条口径纪律 | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-delivery-records.jsonld) |
+| [`mhd-deltaw-normal-modes`](../../reports/mhd-deltaw-normal-modes.md) | 验证 | 成立 | Newcomb (1960) Eqs. (6)–(10)；均匀 θ-pinch 的解析谱；FR-EQ-017 的解析带边 | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-normal-modes.jsonld) |
+| [`mhd-deltaw-screw-pinch`](../../reports/mhd-deltaw-screw-pinch.md) | 验证 | 成立 | Newcomb, *Hydromagnetic stability of a diffuse linear pinch*, Ann. Phys. **10**, 232 (1960) | 1.0 | 草稿 | [jsonld](../../records/mhd-deltaw-screw-pinch.jsonld) |
 
 ### 缺口
 
-本域 **MUST 级空缺 6 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
+本域 **MUST 级空缺 3 条**——SRS 写的是「必须」，而本册没有任何记录覆盖：
 
-- `FR-EQ-026` MHD 判读的交付层
-- `FR-EQ-027` 完整 $\delta W$：螺旋箍缩（V5 的第一级）
-- `FR-EQ-028` 动能归一与 $\omega^2$（全 $\delta W$ 支 F2）
 - `FR-EQ-029` 环几何全 $\delta W$：定形边界 V5（全 $\delta W$ 支 F3 第一段）
 - `FR-EQ-030` 环几何真空标量势与无壁 V5（全 $\delta W$ 支 F3 收口段）
 - `FR-EQ-031` 理想壁分支与薄壁阻性壁模（E-3 第一级）

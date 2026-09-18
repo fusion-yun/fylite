@@ -224,11 +224,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:bdd970709d521f7a0722b9776e188d440a155cf86e567aec5e253f62c1420f45"
+   "checksum": "sha256:7721e88aac1f453ef4b6dae805a592bdc29628825e8ffb71a17910a4019927fb"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -239,6 +239,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-EQ-022` 判**成立**。内核新模块 `fluid.rs`：Eq. (12.123)/(12.124) 三项分取，极坐标方向导数含基矢转动项。(12.147) 闭合 5.6e-15（数值闭合，非符号）；直角坐标复算 2.3e-16；均匀 B_p 第二部分逐位零、漏转动项的写法 0.61；Stokes 恒等式 13 位。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（全 δW 支柱位形一级入内核：`screwpinch.rs`，`FR-EQ-027` · `028`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **773 项全通过**（新锚 20 条）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }
