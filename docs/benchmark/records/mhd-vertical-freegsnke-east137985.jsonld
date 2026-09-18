@@ -261,11 +261,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:e15d03f542fa89ea3650ab02d199238a0f9d528b2c2b4df0cbe86b70070203dd"
+   "checksum": "sha256:c7fa09598702adb16f9a496c31fa66b9e9013cd675fb19228679bd543c484fc0"
   }
  },
  "provenance": {
-  "record_version": "2.1",
+  "record_version": "2.2",
   "recorded": "2026-09-17",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -300,6 +300,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-013` MXH 拟合 · `NR-EQ-003` 后验协方差 · `FR-EQ-016` 补三处入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **675 项全通过**，公开仓侧 2809 项通过。★这一批内核改动是**纯增量**（新函数、既有门加字段与可选设定），接口摘要与 `CASE_CODES` 均未动。"
+   },
+   {
+    "record_version": "2.2",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（`FR-EQ-017` 理想外扭曲模的 q 极限入内核——内核里第一段理想 MHD 稳定性）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **680 项全通过**，公开仓侧 2821 项通过。★这一批内核改动是**纯增量**（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。"
    }
   ]
  }

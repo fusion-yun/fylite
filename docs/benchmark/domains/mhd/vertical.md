@@ -114,8 +114,8 @@ efund）、`V-23`（ITER 被动回路）、`C-03`（TokSys rzrig）。已退役�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.2 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
-| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.1 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
+| [`mhd-vertical-coil-forces-analytic`](../../reports/mhd-vertical-coil-forces-analytic.md) | 验证 | 未判（读数） | 闭式解（判据点名的三条锚 + 牛顿第三定律 + 远场偶极极限） · DINA PF scenario database（`B_*` / `Fr_*` / `Fz_*` 列） | 1.3 | 草稿 | [jsonld](../../records/mhd-vertical-coil-forces-analytic.jsonld) |
+| [`mhd-vertical-freegsnke-east137985`](../../reports/mhd-vertical-freegsnke-east137985.md) | 确认 | 未判（读数） | FreeGSNKE（freegs4e 0.13.1 / numpy 1.26.4） · 抄录的判据本身（解析锚） | 2.2 | 草稿 | [jsonld](../../records/mhd-vertical-freegsnke-east137985.jsonld) |
 
 ### 缺口
 

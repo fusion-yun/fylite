@@ -1,0 +1,55 @@
+{
+  "_comment": "FR-EQ-017 理想外扭曲模的 q 极限 —— 2026-09-18 实测。门：$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests",
+  "model": {
+    "equation": "Newcomb, reduced MHD, cylindrical screw pinch, m/n external kink, ideal wall at r = b",
+    "form": "Riccati on u = r psi1'/psi1 :  u' = (m^2 - u^2)/r + r V(r),  u(0+) = m",
+    "V": "q m / (r (m - n q)) * d/dr[ 2/q - r q'/q^2 ]",
+    "vacuum": "a psi1'/psi1 |_vac = -m (1+lambda)/(1-lambda),  lambda = (a/b)^{2m}",
+    "edge_jump": "Delta u = -(2 - a q'/q) * m/(m - n q_a)",
+    "matching": "W(q_a) = u(a) + Delta u + m (1+lambda)/(1-lambda);  W = 0 是 marginal，W < 0 不稳"
+  },
+  "closed_form_band_edges": {
+    "_comment": "★推导自洽性的检验：均匀电流下 V=0 故 u(a)=m、q'=0 故 Delta u=-2m/(m-n q_a)，代入解出 m-n q_a = 1-lambda",
+    "lower": "q_a = (m - 1 + lambda)/n",
+    "upper": "q_a = m/n  (极点，不是根)",
+    "worst_relative_error": 9.254e-14,
+    "band": "1e-10（判据）",
+    "cases": "m/n = 2/1, 3/1, 3/2, 4/1 × b/a = 1.2, 1.5, 2.0, 4.0, inf"
+  },
+  "wall_sweep": {
+    "_comment": "宽度逐个对闭式 (1-lambda)/n，相对差 < 1e-10",
+    "b_over_a": [null, 4.0, 2.0, 1.5, 1.2, 1.05],
+    "width": [1.0, 0.999756, 0.984375, 0.912209, 0.665102, 0.253785],
+    "m_n": "3/1"
+  },
+  "peaking_sweep": {
+    "_comment": "q(r) = q_a (1 + nu r^2/a^2)/(1+nu)：nu = 0 即均匀电流",
+    "nu": [0.0, 0.3, 0.7, 1.2],
+    "width": [0.984375, 0.849611, 0.706259, 0.572537],
+    "m_n": "3/1", "b_over_a": 2.0
+  },
+  "refusal": {
+    "resonance_inside": "KINK_RESONANT_INSIDE (-1)",
+    "resonance_at_edge": "同一个奇点，同样拒绝",
+    "no_resonance": "整条剖面在共振之下时**不**拒绝 —— 拒绝是精确的，不是见 q 变化就拒"
+  },
+  "grid_independence": {
+    "_comment": "★判据 1e-9。域页要求「收敛档要记明」，所以不够的那一档也记下来",
+    "uniform_nu0": {"n201": 2.01562500000008, "n801": 2.01562500000053, "n3201": 2.01562499998998,
+                    "rel_201_801": 2.216e-13, "rel_801_3201": 5.233e-12,
+                    "note": "V ≡ 0，RK4 无事可做，三档都在机器精度上；那个「阶」是噪声"},
+    "peaked_nu07": {"n201": 2.29374130927276, "n801": 2.29374141248510, "n3201": 2.29374141414947,
+                    "rel_201_801": 4.500e-8, "rel_801_3201": 7.256e-10, "order": 2.98,
+                    "note": "★201 点在这条剖面上**不够**（4.5e-8 > 1e-9）；801 → 3201 才进判据"}
+  },
+  "order_history": {
+    "_comment": "★阶数由最弱的一环定，这一条走了三步才到位",
+    "step1_second_order_derivatives": 4.435e-6,
+    "step2_interior_4th_endpoint_2nd": 3.385e-4,
+    "step2_note": "★内点升四阶而端点留二阶，结果**比全用二阶更差** —— 边缘跃变项直接用 q'(a)",
+    "step3_endpoints_4th": 7.030e-7,
+    "step4_midpoint_V_4th": 4.500e-8,
+    "step4_note": "★RK4 半步的 V 取两端平均是二阶的，它把四阶方法压回二阶 —— 藏在「取个平均」里"
+  },
+  "kernel_tests_passed": 680
+}

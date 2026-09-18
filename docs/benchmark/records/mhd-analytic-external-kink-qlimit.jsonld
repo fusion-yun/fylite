@@ -1,0 +1,197 @@
+{
+ "@context": "../meta/context.jsonld",
+ "id": "benchmark/records/mhd-analytic-external-kink-qlimit",
+ "type": "fyo:ComparisonRecord",
+ "title": {
+  "zh": "外扭曲模的 q 带边：**两条边一起对上，而其中一条带着壁**",
+  "en": "The external-kink q band: both edges at once, and one of them carries the wall"
+ },
+ "domain": "mhd-analytic",
+ "requirement": [
+  "FR-EQ-017"
+ ],
+ "comparison_kind": "verification",
+ "overall_verdict": "pass",
+ "compared_subject": {
+  "type": "spo:Code",
+  "name": "fylite · `stability::kink_w` / `kink_marginal`",
+  "comment": "2026-09-18 新写：此前内核里理想 MHD 稳定性**一行都没有**"
+ },
+ "compared_reference": [
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "均匀电流柱的闭式带边",
+   "comment": "下边 $q_a=(m-1+\\lambda)/n$（$\\lambda=(a/b)^{2m}$）、上边 $m/n$。★★**两条边一起对上才算数**，而下边带着 $\\lambda$——一个凑出来的常数不可能同时满足两者。"
+  }
+ ],
+ "criteria": [
+  {
+   "id": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/1",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "均匀电流复现解析带边",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-10
+   },
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/2",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "壁越近带越窄",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/3",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "剖面越峰化带越窄",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "★共振面在域内时**拒绝求解**",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported"
+  },
+  {
+   "id": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "marginal 点不随网格漂移",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-09
+   },
+   "tolerance_basis": "reference_self_reported"
+  }
+ ],
+ "findings": [
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★带边对闭式到 9.3e-14 —— 而这同时是**推导本身**的检验",
+   "criterion": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/1",
+   "measured_deviation": 9.254e-14,
+   "bound": "upper",
+   "deviation_literal": "$m/n$ = 2/1 · 3/1 · 3/2 · 4/1，$b/a$ = 1.2 · 1.5 · 2.0 · 4.0 · ∞ 共 **20 组**：下带边对 $(m-1+\\lambda)/n$ 最劣相对 **9.254e-14**（判据 1e-10）。上带边 $m/n$ 是 $m-nq_a=0$ 那个**极点**，验法是「带在那里终止」：带内 $W<0$、越过 $1.02\\,m/n$ 后 $W>0$",
+   "verdict": "pass",
+   "caveat": [
+    "★★**本机没有写下这条方程**（`dcon_3.80.md` 只有 33 行提要，`physics/15-stability.md` 不含 Newcomb），所以推导是自己做的：Riccati 化 $u=r\\psi'/\\psi$ 给 $u'=(m^2-u^2)/r+rV$、$u(0)=m$；真空区 $\\psi_1=A(r^m-b^{2m}r^{-m})$ 在壁上为零给对数导数 $-m(1+\\lambda)/(1-\\lambda)$；边缘电流跃变给 $\\Delta u=-(2-aq'/q)\\,m/(m-nq_a)$。",
+    "★★**推导的自检是它同时给出两条边**：均匀电流时 $V\\equiv0$ 故 $u(a)=m$、$q'=0$ 故 $\\Delta u=-2m/(m-nq_a)$，代入 $W=0$ 解出 $m-nq_a=1-\\lambda$——**正是下带边**，而上带边是同一式的极点。★一个凑出来的常数能对上一个数，对不上两个，更对不上其中带 $\\lambda$ 的那一个。",
+    "★20 组一起过，而不是挑一组：$m$ 变、$n$ 变、壁位变，闭式的每一处依赖都被走过。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★壁越近带越窄，且**宽度逐个对闭式**",
+   "criterion": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/2",
+   "measured_deviation": 1e-10,
+   "bound": "upper",
+   "deviation_literal": "$m/n$=3/1，$b/a$ = ∞ · 4 · 2 · 1.5 · 1.2 · 1.05：带宽 **1.0 · 0.999756 · 0.984375 · 0.912209 · 0.665102 · 0.253785**，逐个对闭式 $(1-\\lambda)/n$ 相对差 < 1e-10",
+   "verdict": "pass",
+   "caveat": [
+    "★★判据只要求「越窄」，本条**对的是闭式宽度**——单调性是一个方向，宽度是一个数，后者硬得多。",
+    "★**这里我先写错过一条断言**：以为 $b/a=1.05$ 时带该「几乎归零」（< 0.02），实测 0.2538。★闭式给的是 $1-\\lambda$ 而 $\\lambda=1.05^{-6}=0.7462$——**贴到 1.05 远不是贴到 1**，$2m$ 次方让 $\\lambda$ 掉得比直觉快。留在这里因为这是这条判据最容易想当然的地方。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★剖面越峰化带越窄",
+   "criterion": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/3",
+   "bound": "identity",
+   "deviation_literal": "$q(r)=q_a(1+\\nu r^2/a^2)/(1+\\nu)$，$\\nu$ = 0 · 0.3 · 0.7 · 1.2（$\\nu=0$ 即均匀电流）：带宽 **0.984375 · 0.849611 · 0.706259 · 0.572537**，严格单调下降",
+   "verdict": "pass",
+   "caveat": [
+    "★机理看得见：峰化电流把边缘的电流跃变削掉（$2-aq'/q$ 变小），驱动项随之变弱——**外扭曲模吃的是边缘电流梯度**。",
+    "★这一档上 $V\\not\\equiv0$，所以它同时是**积分器**的检验：均匀电流那一格 $V\\equiv0$，RK4 其实无事可做。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★共振在域内按名拒绝，而且**拒绝是精确的**",
+   "criterion": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/4",
+   "bound": "identity",
+   "deviation_literal": "$q$ 从 2 升到 4、$m/n=3$ 落在域内 → `KINK_RESONANT_INSIDE`；共振恰在边界上 → 同样拒绝（同一个奇点）；★**整条剖面在共振之下（$q$ 1.2→1.7）时不拒绝**",
+   "verdict": "pass",
+   "caveat": [
+    "★★本域的行文点名这一类判据：「**它不肯算**也是一条要被验的判据，而且是容易被忘掉的那种」。方程在 $m/q=n$ 处有正则奇点，那是内部模/撕裂模的题——**给一个数才是错的**，而那种错会一路传进判读里，看着完全正常。",
+    "★★**第三格才是这一条的分量**：只验「该拒的拒了」会放过一个见 $q$ 变化就拒的实现，而那种实现把这扇门变成废的。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★网格无关到 7.3e-10 —— 并记明 **201 点不够**",
+   "criterion": "benchmark/records/mhd-analytic-external-kink-qlimit/criterion/5",
+   "measured_deviation": 7.256e-10,
+   "bound": "upper",
+   "deviation_literal": "峰化剖面（$\\nu=0.7$）：marginal $q_a$ 在 201 / 801 / 3201 点上 **2.29374130927276 / 2.29374141248510 / 2.29374141414947**；★**201→801 相对 4.500e-8（不够）**，801→3201 **7.256e-10**（进判据），实测收敛阶 **2.98**。均匀电流上三档都在机器精度（$V\\equiv0$）",
+   "verdict": "pass",
+   "caveat": [
+    "★★**把不够的那一档写进记录**，这是本域明写的要求：「后者只说明选对了，前者说明为什么」。201 点在峰化剖面上差 4.5e-8，比判据松两个量级。",
+    "★★**阶数由最弱的一环定，这一条走了三步才到位，三步都记下来**：〔一〕$q$ 的两阶导数用二阶差分 → 4.4e-6；〔二〕**内点升四阶而端点留二阶，结果比全用二阶更差**（3.4e-4）——边缘跃变项直接吃 $q'(a)$；〔三〕端点也升四阶 → 7.0e-7；〔四〕**RK4 半步的 $V$ 取两端平均是二阶的**，改四点插值 → 4.5e-8。★最后那一环藏在「取个平均」这种看着无害的地方。",
+    "★实测阶 2.98 而不是 4：**照实记**，说明还有一处三阶的环没找出来。它不影响判据（801 点已达标），但它说明这条解的阶数还没到它该有的样子。"
+   ]
+  }
+ ],
+ "validity_domain": "约化 MHD、**柱**位形、$m\\ge2$ 的 $m/n$ 外扭曲模、理想导体壁。★**不含环效应、不含压强驱动、不含电阻**——这一层是尺，不是判读。★$\\lambda=1$（壁贴在等离子体上）按名拒绝：真空项发散。★不给增长率：L0 只给 $q$ 带边，`FR-EQ-026` 明令这一层的 `growthrate` 留空。",
+ "caveat": [
+  "★★**本域的行文说这一章是全册的尺**：「尺不准，上面的都不算数。后面两章没有解析解可依，它们的可信度是从这一章借来的」。所以本条判**成立**的分量与别处不同——它是 `FR-EQ-019`…`031` 的前提。",
+  "★★2026-09-18 之前**内核里理想 MHD 稳定性一行都没有**（搜 `kink` / `newcomb` / `ballooning` / `delta_w` 全零）。本条是那一整块（15 条 MUST）的第一条。",
+  "★**门在内核仓，本仓 CI 跑不到它**——与 `tr-pedestal-sawtooth-kadomtsev` 等条同一处代价。★没有开门（`code/kink`）是有意的：MHD 判读的**交付面**由 `FR-EQ-026` 规定（三条禁令、`growthrate` 留空、`q_limit` 禁称 β 极限），在它落定之前开一扇门等于先猜它的形状。"
+ ],
+ "run": {
+  "type": "spo:ComputationProcess",
+  "performed": "2026-09-18",
+  "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/kink_qlimit_analytic.json",
+    "checksum": "sha256:685278fcf42a8c0e548e15ed8caeaa95543801376d49f788d574fa5c1adfff8c",
+    "comment": "20 组带边、壁扫描、峰化扫描、拒绝三例、三档网格与阶数史"
+   }
+  ],
+  "realizes": [
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_uniform_current_band_edges_are_the_closed_form_ones",
+    "comment": "第一格的锚（20 组）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::a_closer_wall_makes_the_band_narrower",
+    "comment": "第二格：单调 + 逐个对闭式宽度"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::a_more_peaked_current_makes_the_band_narrower",
+    "comment": "第三格"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::a_resonance_inside_the_domain_is_refused_by_name",
+    "comment": "★第四格：该拒的拒、不该拒的不拒"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/stability.rs::tests::the_marginal_point_does_not_move_with_the_grid",
+    "comment": "★第五格：三档网格，并钉住「201 点不够」"
+   }
+  ],
+  "kernel": {
+   "name": "libfylite",
+   "checksum": "sha256:c7fa09598702adb16f9a496c31fa66b9e9013cd675fb19228679bd543c484fc0"
+  }
+ },
+ "provenance": {
+  "record_version": "1.0",
+  "recorded": "2026-09-18",
+  "revised": "2026-09-18",
+  "review_status": "draft",
+  "open_defect": null,
+  "change": [
+   {
+    "record_version": "1.0",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "首次入册：`FR-EQ-017` 从空缺转为记录，判**成立**——这是 MHD 稳定性那 15 条 MUST 的第一条，也是本域行文所说「全册的尺」。内核新写 `stability::kink_w` / `kink_marginal`（Newcomb 方程的 Riccati 形，理想壁在 $b$）。★★**本机没有写下这条方程**，推导是自己做的；**它的自检是同时给出两条带边**，而下边带着 $\\lambda=(a/b)^{2m}$——凑不出来。实测 20 组 $(m,n)\\times b/a$ 上最劣相对 **9.254e-14**（判据 1e-10）。★壁扫描的带宽**逐个对闭式** $(1-\\lambda)/n$；峰化扫描严格单调；共振在域内按名拒绝且**不误拒**整条在共振之下的剖面。★★网格无关 **7.256e-10**（801→3201），并按本域要求**记明 201 点不够**（4.5e-8）；阶数史四步全记，含一脚「内点升四阶而端点留二阶反而更差」与一脚「RK4 半步的 $V$ 取平均把四阶压回二阶」。★实测阶 2.98 而非 4，照实记：还有一处三阶的环没找出来。"
+   }
+  ]
+ }
+}
