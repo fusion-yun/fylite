@@ -12,13 +12,13 @@ Upstream states them separately, and so must this repository:
 | **software** (the inference library) | Apache License 2.0 — `FUSION-SURROGATES-LICENSE` |
 | **all other materials**, which is to say **the model weights and metadata** | Creative Commons Attribution 4.0 International (**CC-BY 4.0**) |
 
-`nn_tables/qlknn_7_11.npz` is a format conversion of upstream's
+`models/qlknn_7_11.npz` is a format conversion of upstream's
 `qlknn_7_11.qlknn` — weights and metadata — so it travels under **CC-BY
 4.0**, whose one obligation is attribution: this file, kept beside it.
 None of upstream's *software* was copied; `rust/tools/export_qlknn_7_11.py`
 reads the archive and writes this repository's own format.
 
-★This is the third licence class in `nn_tables/` (Apache-2.0 for EPED-NN
+★This is the third licence class in `models/` (Apache-2.0 for EPED-NN
 and TGLF-NN, and formerly MIT for the retired qlknn-hyper set). All three
 are compatible with this repository's Apache-2.0, and each is recorded
 against the model it covers rather than assumed from the directory.

@@ -15,11 +15,11 @@ title: "tr-closure-15d-source-switches"
 - **参考**：基线自身（同一算例、只改一个开关）
 - **验的需求**：`FR-TR-004` · `FR-TR-009`
 - **跑在内核**：`sha256:18d901c1abeb76aa…`（新鲜度 **current**）
-- **记录版本**：1.8　**评审**：草稿　**日期**：2026-09-16
+- **记录版本**：1.9　**评审**：草稿　**日期**：2026-09-16
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
-2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★另记：本条尚无守它的门，与 tr-closure-dt-burn-astra、tr-pedestal-zerod-bookkeeping-metis 同。
+2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★2026-09-18 门已补上（五道：读数逐位复现 · 每档能量平衡 · 每个控件都活 · 锯齿无电流通道按名拒绝 · ★驱动电流恒零——这一道守的是**负面结果**，哪天接上 CD 波源它会红，那正是该红的时候）。
 :::
 
 ## 问的是什么
@@ -45,7 +45,7 @@ title: "tr-closure-15d-source-switches"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| 能量平衡的最劣残差 | 1e-12 | machine_precision | 最劣残差 1.15e-13（判据 1e-12，余量约 9 倍） | **成立** |
+| 能量平衡的最劣残差 | 1e-12 | machine_precision | 最劣残差 **1.298e-13**（台基那档；判据 1e-12，余量约 7.7 倍）。★2026-09-18 更正：原记 1.154e-13 是**基线那一档**的，不是全部变体里最劣的 | **成立** |
 | 每个打开的控件，至少改变一项产出（否则它是死的） | 1 | measured_band | 台基 8 项（含 `t_ped`）· 加料 9 项（含 `ne`/`ni`）· DT 7 项 · 电流道 2 项（`q` 0→3.415、`psi` 0→36.57） | **成立** |
 | ★锯齿与 ipctl —— **按名拒绝**，并说明依赖 | — | — | `sawtooth=True` 单开被拒：": "the sawtooth needs the current channel: its trigger is q(0) < 1 and q is a result only where current diffusion is solved \u2014 pass `current=True | **成立** |
 | 驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值 | 1 | measured_band | `j_bs` · `j_cd` · `j_lh` 在**所有**变体里绝对值最大均为 0（含开了电流道之后） | **不成立** |
@@ -88,7 +88,7 @@ title: "tr-closure-15d-source-switches"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.8　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.9　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -103,6 +103,7 @@ title: "tr-closure-15d-source-switches"
 | 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-013` MXH 拟合 · `NR-EQ-003` 后验协方差 · `FR-EQ-016` 补三处入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **675 项全通过**，公开仓侧 2809 项通过。★这一批内核改动是**纯增量**（新函数、既有门加字段与可选设定），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-017` 理想外扭曲模的 q 极限入内核——内核里第一段理想 MHD 稳定性）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **680 项全通过**，公开仓侧 2821 项通过。★这一批内核改动是**纯增量**（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.8 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
+| 1.9 | 2026-09-18 | Claude Opus 5 (1M context) | 补门：此前没有门，现五道，读数逐位复现（`cases.plan('evolve-iter-15ma')` 的 42 个参数，每档不到 0.1 s）。★★更正第一格的数：原记最劣能量平衡残差 1.154e-13，那是**基线那一档**的；全部可跑变体里最劣的是台基那档 **1.298e-13**，余量约 7.7 倍而非 9 倍——判据仍过。★锯齿那档当初就是按名拒绝（没开电流通道），现在的门照此验。判决不变（inconclusive：驱动电流三道仍恒为零）。 |
 
 ## 复算
 
@@ -114,6 +115,14 @@ title: "tr-closure-15d-source-switches"
 
 - `docs/benchmark/readings/evolve15_switch_sweep.json`    `sha256:2dc268fe0c7bc0557155f3671d85c5ba1bc977e333329446158e964be3f79023`    开关扫描：基线 + 五个变体，逐量对比
 - `docs/benchmark/readings/evolve15_sources_pedestal.json`    `sha256:48f9a5f69f817ae07f3192fbd23ccfe1d2ae6fd5c17b5e82a03dc7531762c93e`    基线一次运行的源项逐项、台基与平衡读数
+
+**守它的门**：
+
+- `python/tests/test_benchmark_transport_gates.py::test_the_switch_sweep_reproduces_its_recorded_readings` —— 五档里可跑的四档 + 基线，p_alpha 与读数逐位相同
+- `python/tests/test_benchmark_transport_gates.py::test_the_energy_balance_holds_on_every_variant` —— 第一格：按全部变体判，最劣是台基那档
+- `python/tests/test_benchmark_transport_gates.py::test_every_opened_switch_moves_at_least_one_output` —— 第二格：打开的控件至少动一项产出
+- `python/tests/test_benchmark_transport_gates.py::test_the_sawtooth_is_refused_without_the_current_channel` —— 锯齿那一档当初就是按名拒绝的，现在仍是
+- `python/tests/test_benchmark_transport_gates.py::test_the_driven_currents_are_still_zero` —— ★第三格：守的是记名的负面结果
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

@@ -120,7 +120,7 @@
   "★★**本条唯一干净可判的是体积**，因为两侧拿的是同一组几何输入、而体积是纯几何量。ne / Te 的轴值受峰化约定拖累，判不了；热能与加料/抽气/台基则**内核没有**。",
   "★**哪些量是喂进去的**：R / a / kappa / Ip / <ne> / <Te> 全是输入（且来自 METIS 自己），算出来的是体积与剖面形状。",
   "★**METIS 侧不在本处重跑**：它是 sha256 索引的归档表。",
-  "★本条**尚无守它的门**，与 `tr-closure-dt-burn-astra` 同——两条都要补 pytest。"
+  "★2026-09-18 门已补上（两道：四个工作点上 0D 体积逐位等于 $2\\pi^2Ra^2\\kappa$ 且逐位等于读数 · 相对 METIS 的差是系统性的、散布 1.33e-4）。★**METIS 侧不重跑**：它是 sha256 索引的归档表。"
  ],
  "run": {
   "type": "spo:ComputationProcess",
@@ -137,18 +137,27 @@
     "comment": "★METIS 侧原件（参考类，指针 + sha256）"
    }
   ],
-  "realizes": [],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_zerod_volume_is_the_elliptic_formula_at_every_metis_point",
+    "comment": "第一格：四点逐位等于 2π²Ra²κ，也逐位等于读数"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_volume_gap_to_metis_is_systematic_not_scattered",
+    "comment": "第二格：散布 1.33e-4——是公式，不是噪声"
+   }
+  ],
   "kernel": {
    "name": "libfylite",
    "checksum": "sha256:18d901c1abeb76aa2e70b07453d3730f1aea74d929c0e0121fd3bf9f0a0420d7"
   }
  },
  "provenance": {
-  "record_version": "1.9",
+  "record_version": "1.10",
   "recorded": "2026-09-16",
   "revised": "2026-09-18",
   "review_status": "draft",
-  "open_defect": "2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 -2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。",
+  "open_defect": "2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。",
   "change": [
    {
     "record_version": "1.0",
@@ -209,6 +218,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。"
+   },
+   {
+    "record_version": "1.10",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "补门：此前没有门，现两道，四个 METIS 工作点的 0D 体积经公开入口逐位复现，且逐位等于 $2\\pi^2Ra^2\\kappa$——这正是比 METIS 高 2.87 % 的原因（METIS 用带三角度的形状体积）。★顺带更正 open_defect 里的符号笔误：原写「比 METIS 高 -2.87 %」，读数是 fylite 高 +2.87 %。判决不变（fail，已裁定保留）。"
    }
   ]
  }

@@ -15,11 +15,11 @@ title: "tr-coupling-nn-weights-external"
 - **参考**：制品与打包声明本身
 - **验的需求**：`FR-TR-013`
 - **跑在内核**：`sha256:18d901c1abeb76aa…`（新鲜度 **current**）
-- **记录版本**：1.7　**评审**：草稿　**日期**：2026-09-17
+- **记录版本**：1.8　**评审**：草稿　**日期**：2026-09-17
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
-2026-09-17 ★★**本条一道门都没有**，而它是结构判据——最该由门守的那一类：加一张权重表、或把 `models/` 挪进包目录，数值一个都不变而本条当场不成立。★补法与 `NR-EQ-005` 的自包含门同一路子（AST / 打包声明扫描），没做。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
+2026-09-17 ★★2026-09-18 **门已补上**（四道：内核常量权重表扫描 · 包外与打包声明 · 检出找得到自己的模型 · 缺模型按名拒绝）。★★**补门时查出一个真 bug**：`fylite.nn` 的 `BUILTIN_DIR` 指着 09-01 就改名掉的 `nn_tables/`，干净检出里 `nn.available()` 返回 `[]`，`models/README.md` 自己的示例跑不通——这条路此前一道测试都没有。已修（一行，`models/README.md` 09-08 那条注记改了指针，漏了这一处）。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
 :::
 
 ## 问的是什么
@@ -74,12 +74,12 @@ title: "tr-coupling-nn-weights-external"
 
 ## 不可比的部分
 
-- ★★**结构判据尤其需要门守着**：往 `nn.rs` 里贴一张权重表、或把 `models/` 挪进 `python/`，数值一个都不会变，本条却已经不成立。★而本条**目前没有门**，见 open_defect。
+- ★★**结构判据尤其需要门守着**：往 `nn.rs` 里贴一张权重表、或把 `models/` 挪进 `python/`，数值一个都不会变，本条却已经不成立。★2026-09-18 起本条有门了，见 open_defect。
 - ★本条不声称代理**算得准**，只声称权重是**数据**。准不准要靠第四格，而那一格现在量不了。
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-18　版本 1.7　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-18　版本 1.8　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -93,6 +93,7 @@ title: "tr-coupling-nn-weights-external"
 | 1.5 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-013` MXH 拟合 · `NR-EQ-003` 后验协方差 · `FR-EQ-016` 补三处入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **675 项全通过**，公开仓侧 2809 项通过。★这一批内核改动是**纯增量**（新函数、既有门加字段与可选设定），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-017` 理想外扭曲模的 q 极限入内核——内核里第一段理想 MHD 稳定性）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **680 项全通过**，公开仓侧 2821 项通过。★这一批内核改动是**纯增量**（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
+| 1.8 | 2026-09-18 | Claude Opus 5 (1M context) | 补门：此前一道门都没有（它是结构判据，最会一声不响地腐烂），现四道。★★补门时查出并修了一个真 bug：`nn.py` 的 `BUILTIN_DIR` 还指着 09-01 就改名掉的 `nn_tables/`，干净检出里 `nn.available()` 返回 `[]`——`models/README.md` 的示例跑不通，而这条路此前没有任何测试。改一行后三个模型都找得到。判决不变。 |
 
 ## 复算
 
@@ -103,6 +104,13 @@ title: "tr-coupling-nn-weights-external"
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/nn_weights_external.json`    `sha256:cead5e7f3d9913265ba771d9855473560e6fcdbfb4d2280660fe2d7f19901dfd`    常量权重表计数、归档字串性质、打包声明、外置路径与 npz 键清点
+
+**守它的门**：
+
+- `python/tests/test_benchmark_transport_gates.py::test_no_weight_table_is_compiled_into_the_kernel` —— 第一格：nn.rs 常量权重表 = 0，且 forward 把权重当入参收
+- `python/tests/test_benchmark_transport_gates.py::test_the_models_live_outside_the_package` —— 第二格：npz 在仓根 models/、包里没有、打包只收 fylite*、许可证在旁
+- `python/tests/test_benchmark_transport_gates.py::test_the_checkout_reaches_its_own_models` —— ★第三格：干净检出里 nn.available() 列出三个——补门时它返回 []
+- `python/tests/test_benchmark_transport_gates.py::test_a_missing_model_is_refused_by_name` —— 第三格：缺它则在用到的那一点按名拒绝
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

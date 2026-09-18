@@ -58,15 +58,15 @@ title: 验证状态 (Verification status)
 
 ### [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md)
 
-2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★另记：本条尚无守它的门，与 tr-closure-dt-burn-astra、tr-pedestal-zerod-bookkeeping-metis 同。
+2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★2026-09-18 门已补上（五道：读数逐位复现 · 每档能量平衡 · 每个控件都活 · 锯齿无电流通道按名拒绝 · ★驱动电流恒零——这一道守的是**负面结果**，哪天接上 CD 波源它会红，那正是该红的时候）。
 
 ### [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md)
 
-2026-09-17 记名保留两处（用户裁定「不改内核，保留负面结果」）：〔一〕α 份额偏 +1.23 %，而分支比是常数、本该到舍入——干净的可判偏差，等内核查；〔二〕★**2026-09-17 更新**：α 的电子/离子分配内核**已补上**（Stix 慢化），但在 ASTRA 的轴上温度处电子份额偏高 8.6 %（0.635 对 0.585）。已排除成分差；候选是 E_crit 的系数或 ASTRA 用的是分布而非解析式，**未查**。★另记：本条尚无守它的门，需补一道 pytest。
+2026-09-17 记名保留两处（用户裁定「不改内核，保留负面结果」）：〔一〕α 份额偏 +1.23 %——★2026-09-18 **成因已查明**：`zerod.rs` 写死 `E_ALPHA_FRACTION = 0.2013`，与它自己的注释 `3.52/17.59` 差 +0.59 %（对本册参照 `3.5/17.6` 即 +1.23 %）；三个差得很远的工作点上份额都**恰好** 0.2013，与等离子体状态无关。既有内核测试特意把带放宽到 1 % 来容纳它。按裁定常数不动；〔二〕★**2026-09-17 更新**：α 的电子/离子分配内核**已补上**（Stix 慢化），但在 ASTRA 的轴上温度处电子份额偏高 8.6 %（0.635 对 0.585）。已排除成分差；候选是 E_crit 的系数或 ASTRA 用的是分布而非解析式，**未查**。★2026-09-18 门已补上（两道：三个工作点上份额恒为 0.2013 · 两个偏差由同一常数算出）——**常数一动门就红**，本条得跟着改。
 
 ### [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md)
 
-2026-09-17 ★★**本条没有门**：分派若退化成「总是走 constant」，本册不会有任何东西变红。补一道很便宜——把这份读数的三格搬进 pytest 即可，没做。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。
+2026-09-17 ★★2026-09-18 **门已补上**（三道）：分派若退化成「总是走 constant」，现在当场变红——两个跑通闭包的解平方和逐位对读数。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。
 
 ### [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md)
 
@@ -82,7 +82,7 @@ title: 验证状态 (Verification status)
 
 ### [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md)
 
-2026-09-17 ★★**本条一道门都没有**，而它是结构判据——最该由门守的那一类：加一张权重表、或把 `models/` 挪进包目录，数值一个都不变而本条当场不成立。★补法与 `NR-EQ-005` 的自包含门同一路子（AST / 打包声明扫描），没做。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
+2026-09-17 ★★2026-09-18 **门已补上**（四道：内核常量权重表扫描 · 包外与打包声明 · 检出找得到自己的模型 · 缺模型按名拒绝）。★★**补门时查出一个真 bug**：`fylite.nn` 的 `BUILTIN_DIR` 指着 09-01 就改名掉的 `nn_tables/`，干净检出里 `nn.available()` 返回 `[]`，`models/README.md` 自己的示例跑不通——这条路此前一道测试都没有。已修（一行，`models/README.md` 09-08 那条注记改了指针，漏了这一处）。★另：第四格「逐位对拍」缺的是导出侧在 `.npz` 里写下参考输入输出，也没做。
 
 ### [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md)
 
@@ -98,7 +98,7 @@ title: 验证状态 (Verification status)
 
 ### [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md)
 
-2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 -2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。
+2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。
 
 ## 按域 (by domain)
 
@@ -149,21 +149,21 @@ title: 验证状态 (Verification status)
 | [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.1 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 未判（读数） | 1.4 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 未判（读数） | 2.3 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
-| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.8 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
-| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.9 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.9 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
+| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.10 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
-| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
+| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.8 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.6 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
-| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
+| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.8 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.5 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.5 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.9 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.10 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.9 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.10 | 2026-09-18 | 草稿 | `sha256:18d901c1abeb…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

@@ -40,7 +40,13 @@ NN_ENV = "FYLITE_NN_DIR"
 
 #: The repository's own table directory — the default, and the one small
 #: models ship in.  Resolved relative to the package so a wheel keeps it.
-BUILTIN_DIR = Path(__file__).resolve().parents[2] / "nn_tables"
+#: ★★2026-09-18：原为 `/ "nn_tables"` —— 那是 2026-09-01 拆仓前的目录名，拆仓后它改叫
+#: `models/`，`models/README.md` 09-08 那条注记把「指针」都改了，**唯独漏了这一行**。
+#: 结果是干净检出里 `nn.available()` 返回 `[]`，README 自己的示例跑不通——而这条路
+#: 一道测试都没有，所以没人发现。★装出去的轮里 `models/` 不在包内，这里照旧解析到一个
+#: 不存在的目录、`available()` 仍给 `[]`：那正是「权重外置」的本意，由 `$FYLITE_NN_DIR` 补上。
+#: 门：`test_benchmark_transport_gates.py::test_the_checkout_reaches_its_own_models`。
+BUILTIN_DIR = Path(__file__).resolve().parents[2] / "models"
 
 #: ★★The activation NAME a model file declares -> the integer code that
 #: crosses the C ABI (`rust/fylite/src/nn.rs`'s `Act::from_code`).  This is

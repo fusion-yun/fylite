@@ -28,7 +28,7 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 最高 8001 倍），裸环**一点都没停滞**，最慢 495 次内迭代。梯度→$\chi$→梯度 的回授被饱和
 封住，Picard 映射保持压缩；而 P-C 要对付的正是 $\chi$ 随梯度**不封顶**或**带阈值**的那类
 闭包。★**所以这一条不是「没人去量」，是「在这一族闭包里不存在可量的操作点」**——要量它
-得换一路（`evolve` 的 `turbulent` / `flux-match`，或 `nn_tables/` 里的 QLKNN / TGLFNN 代理），
+得换一路（`evolve` 的 `turbulent` / `flux-match`，或 `models/` 里的 QLKNN / TGLFNN 代理），
 那属于另一条记录。
 
 ★还有一件顺带量到、判据没问的事，记在记录里：**稳定化在这一族闭包上多数区间是净变贵的。**
@@ -74,7 +74,7 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.7 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
 | [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.7 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
-| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.9 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
+| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.10 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 

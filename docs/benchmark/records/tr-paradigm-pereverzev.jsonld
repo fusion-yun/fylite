@@ -95,7 +95,7 @@
    "verdict": "inconclusive",
    "caveat": [
     "★★机理在闭包的形式里，不是参数没扫够：`case.rs::diffusivity_of` 是 `chi0 (p1 + p2 g/(1+g))`，对梯度**有界且饱和**——g→∞ 时 chi 趋于 `chi0 (p1+p2)`。梯度→chi→梯度 的回授被饱和封住，Picard 映射保持压缩。而 P-C 要对付的正是 chi 随梯度**不封顶**或**带阈值**的那类闭包。",
-    "★所以这一条**不是「没人去量」，是「在本接口上不存在可量的操作点」**。要量它得换一路：`evolve` 的 `turbulent` / `flux-match` 闭包，或 nn_tables 里的 QLKNN / TGLFNN 代理。那属于另一条记录。",
+    "★所以这一条**不是「没人去量」，是「在本接口上不存在可量的操作点」**。要量它得换一路：`evolve` 的 `turbulent` / `flux-match` 闭包，或 `models/` 里的 QLKNN / TGLFNN 代理。那属于另一条记录。",
     "★判 `inconclusive` 而不是 `pass`：FR-TR-005 的判据有三句话，本记录答了两句。判 pass 会让 coverage 把这一条记成整条覆盖。"
    ],
    "measured_deviation": 0.0,
@@ -145,7 +145,7 @@
   }
  },
  "provenance": {
-  "record_version": "1.9",
+  "record_version": "1.10",
   "recorded": "2026-09-16",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -209,6 +209,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。"
+   },
+   {
+    "record_version": "1.10",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "更正一处旧路径：正文里的 `nn_tables/` 是 2026-09-01 拆仓前的目录名，现为 `models/`。判据与数值不变。"
    }
   ]
  }

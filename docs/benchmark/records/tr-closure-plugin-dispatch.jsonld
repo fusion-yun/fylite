@@ -107,7 +107,7 @@
    "title": "沉积积分闭合 —— **不在这里重测**",
    "criterion": "benchmark/records/tr-closure-plugin-dispatch/criterion/4",
    "bound": "reading",
-   "deviation_literal": "同一条抄录判据行（`FR-TR-003` 与 `FR-TR-004` 共用）的这一句，已由 `tr-closure-15d-source-switches` 量到「能量平衡最劣残差 1.15e-13」（判据 1e-12，余量约 9 倍）",
+   "deviation_literal": "同一条抄录判据行（`FR-TR-003` 与 `FR-TR-004` 共用）的这一句，已由 `tr-closure-15d-source-switches` 量到「能量平衡最劣残差」——★2026-09-18 更正为 **1.298e-13**（全部变体里最劣的是台基那档；原记的 1.15e-13 只是基线那档），判据 1e-12，余量约 7.7 倍",
    "verdict": "unevaluated",
    "caveat": [
     "★★**故意不重测。** 抄录里 `FR-TR-003` 与 `FR-TR-004` 共用同一行判据；同一个量在两条记录里各量一遍，迟早会得到两个数——而**两个数一个名字**正是本册一直在防的事。★这一格标 unevaluated 不是「没验」，是「验在别处、指过去」。"
@@ -117,7 +117,7 @@
  "validity_domain": "`code/transport` 的定态用法（`dt = inf`、`steps = 1`、n_rho = 41、tol = 1e-13、d_pc = 0）。★**只换闭包的名字，其余设置与输入逐字相同**——这是本条能把差异归因到分派的前提。★跑通的是 `constant` 与 `stiff` 两个；另三个因缺各自的输入而被拒，本条把拒绝本身当证据。",
  "caveat": [
   "★**本条不判哪个闭包算得对**，只判「名字被当回事、前端是同一套」。各闭包的物理准不准是别的记录的事（如 `tr-paradigm-pereverzev`）。",
-  "★★本条**没有门**：四格里三格是当场跑出来的读数，没有一道 pytest 会在分派坏掉时变红。见 open_defect。"
+  "★★2026-09-18 起本条**有门了**：前三格各一道 pytest，读数逐位复现（读数里的 `profile_sha` 就是解的平方和）。此前四格里三格是当场跑出来的读数，没有东西会在分派坏掉时变红。见 open_defect。"
  ],
  "run": {
   "type": "spo:ComputationProcess",
@@ -129,18 +129,31 @@
     "comment": "五个闭包名的逐个结果、输出键集、无效名的拒绝原文（当日实跑）"
    }
   ],
-  "realizes": [],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_five_closure_names_dispatch_to_distinct_behaviour",
+    "comment": "第一格：两个跑通且解逐位对读数、互不相同；另三个按名拒绝并说出缺什么"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_an_unknown_closure_is_refused_with_the_valid_set",
+    "comment": "第二格"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_every_closure_that_runs_answers_with_the_same_keys",
+    "comment": "第三格"
+   }
+  ],
   "kernel": {
    "name": "libfylite",
    "checksum": "sha256:18d901c1abeb76aa2e70b07453d3730f1aea74d929c0e0121fd3bf9f0a0420d7"
   }
  },
  "provenance": {
-  "record_version": "1.7",
+  "record_version": "1.8",
   "recorded": "2026-09-17",
   "revised": "2026-09-18",
   "review_status": "draft",
-  "open_defect": "2026-09-17 ★★**本条没有门**：分派若退化成「总是走 constant」，本册不会有任何东西变红。补一道很便宜——把这份读数的三格搬进 pytest 即可，没做。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。",
+  "open_defect": "2026-09-17 ★★2026-09-18 **门已补上**（三道）：分派若退化成「总是走 constant」，现在当场变红——两个跑通闭包的解平方和逐位对读数。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。",
   "change": [
    {
     "record_version": "1.0",
@@ -189,6 +202,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。"
+   },
+   {
+    "record_version": "1.8",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "补门：此前一道门都没有，现三道（`test_benchmark_transport_gates.py`），读数逐位复现——`profile_sha` 就是解的平方和。★顺带更正第四格引用的数：`tr-closure-15d-source-switches` 的最劣能量平衡残差是 1.298e-13（台基那档），不是原记的 1.15e-13（那只是基线那档），余量约 7.7 倍而非 9 倍。判决不变。"
    }
   ]
  }

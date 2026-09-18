@@ -15,11 +15,11 @@ title: "tr-closure-plugin-dispatch"
 - **参考**：彼此
 - **验的需求**：`FR-TR-003`
 - **跑在内核**：`sha256:18d901c1abeb76aa…`（新鲜度 **current**）
-- **记录版本**：1.7　**评审**：草稿　**日期**：2026-09-17
+- **记录版本**：1.8　**评审**：草稿　**日期**：2026-09-17
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
-2026-09-17 ★★**本条没有门**：分派若退化成「总是走 constant」，本册不会有任何东西变红。补一道很便宜——把这份读数的三格搬进 pytest 即可，没做。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。
+2026-09-17 ★★2026-09-18 **门已补上**（三道）：分派若退化成「总是走 constant」，现在当场变红——两个跑通闭包的解平方和逐位对读数。★另：「统一前端」只在**两个**闭包上验过，要验满需给另三个各配一组输入。
 :::
 
 ## 问的是什么
@@ -48,7 +48,7 @@ title: "tr-closure-plugin-dispatch"
 | 五个名字给出几种**互不相同**的行为 | 5 | reference_self_reported | 2 个跑通且解**互不相同**（解的平方和 9.4878 vs 11.6479）；另 3 个**各自按名拒绝、各自说出缺什么**：`neoclassical` 要the field and the density  · `given` 要chi_given · `turbulent` 要the extension door's answe | **成立** |
 | 无效名是否被**按名**拒绝并列出有效集 | — | reference_self_reported | 传 `no-such-closure` 得到：the kernel refused (-34): closure `no-such-closure` is not 0/constant · 1/stiff · 2/neoclassical · 3/given · turbulent | **成立** |
 | 统一前端：各闭包的产出契约是否同一套 | — | reference_self_reported | 跑通的闭包输出的键集**种类数 = 1**（11 个键：converged · history · inner_iterations · provenance · residual · rho · settled · source · steps · vprime · y） | **成立** |
-| 沉积积分闭合 | 1e-12 | reference_self_reported | 同一条抄录判据行（`FR-TR-003` 与 `FR-TR-004` 共用）的这一句，已由 `tr-closure-15d-source-switches` 量到「能量平衡最劣残差 1.15e-13」（判据 1e-12，余量约 9 倍） | **未评估** |
+| 沉积积分闭合 | 1e-12 | reference_self_reported | 同一条抄录判据行（`FR-TR-003` 与 `FR-TR-004` 共用）的这一句，已由 `tr-closure-15d-source-switches` 量到「能量平衡最劣残差」——★2026-09-18 更正为 **1.298e-13**（全部变体里最劣的是台基那档；原记的 1.15e-13 只是基线那档），判据 1e-12，余量约 7.7 倍 | **未评估** |
 
 **`五个名字给出几种**互不相同**的行为`** — ★★下限格。**一个不看名字的分派器给不出针对名字的行为**——「行为」既包括解出不同的答案，也包括**因不同的理由被拒绝**。
 
@@ -78,11 +78,11 @@ title: "tr-closure-plugin-dispatch"
 ## 不可比的部分
 
 - ★**本条不判哪个闭包算得对**，只判「名字被当回事、前端是同一套」。各闭包的物理准不准是别的记录的事（如 `tr-paradigm-pereverzev`）。
-- ★★本条**没有门**：四格里三格是当场跑出来的读数，没有一道 pytest 会在分派坏掉时变红。见 open_defect。
+- ★★2026-09-18 起本条**有门了**：前三格各一道 pytest，读数逐位复现（读数里的 `profile_sha` 就是解的平方和）。此前四格里三格是当场跑出来的读数，没有东西会在分派坏掉时变红。见 open_defect。
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-18　版本 1.7　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-18　版本 1.8　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -96,6 +96,7 @@ title: "tr-closure-plugin-dispatch"
 | 1.5 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-013` MXH 拟合 · `NR-EQ-003` 后验协方差 · `FR-EQ-016` 补三处入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **675 项全通过**，公开仓侧 2809 项通过。★这一批内核改动是**纯增量**（新函数、既有门加字段与可选设定），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-017` 理想外扭曲模的 q 极限入内核——内核里第一段理想 MHD 稳定性）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **680 项全通过**，公开仓侧 2821 项通过。★这一批内核改动是**纯增量**（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
+| 1.8 | 2026-09-18 | Claude Opus 5 (1M context) | 补门：此前一道门都没有，现三道（`test_benchmark_transport_gates.py`），读数逐位复现——`profile_sha` 就是解的平方和。★顺带更正第四格引用的数：`tr-closure-15d-source-switches` 的最劣能量平衡残差是 1.298e-13（台基那档），不是原记的 1.15e-13（那只是基线那档），余量约 7.7 倍而非 9 倍。判决不变。 |
 
 ## 复算
 
@@ -106,6 +107,12 @@ title: "tr-closure-plugin-dispatch"
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
 - `docs/benchmark/readings/closure_dispatch.json`    `sha256:9204d561f5ea5c9f8a0067288d3cfca4b67f04d44865ce547c7a5b8295b8672a`    五个闭包名的逐个结果、输出键集、无效名的拒绝原文（当日实跑）
+
+**守它的门**：
+
+- `python/tests/test_benchmark_transport_gates.py::test_the_five_closure_names_dispatch_to_distinct_behaviour` —— 第一格：两个跑通且解逐位对读数、互不相同；另三个按名拒绝并说出缺什么
+- `python/tests/test_benchmark_transport_gates.py::test_an_unknown_closure_is_refused_with_the_valid_set` —— 第二格
+- `python/tests/test_benchmark_transport_gates.py::test_every_closure_that_runs_answers_with_the_same_keys` —— 第三格
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

@@ -15,11 +15,11 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 - **参考**：METIS
 - **验的需求**：`FR-TR-014`
 - **跑在内核**：`sha256:18d901c1abeb76aa…`（新鲜度 **current**）
-- **记录版本**：1.9　**评审**：草稿　**日期**：2026-09-16
+- **记录版本**：1.10　**评审**：草稿　**日期**：2026-09-16
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
-2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 -2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。
+2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。
 :::
 
 ## 问的是什么
@@ -82,11 +82,11 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 - ★★**本条唯一干净可判的是体积**，因为两侧拿的是同一组几何输入、而体积是纯几何量。ne / Te 的轴值受峰化约定拖累，判不了；热能与加料/抽气/台基则**内核没有**。
 - ★**哪些量是喂进去的**：R / a / kappa / Ip / <ne> / <Te> 全是输入（且来自 METIS 自己），算出来的是体积与剖面形状。
 - ★**METIS 侧不在本处重跑**：它是 sha256 索引的归档表。
-- ★本条**尚无守它的门**，与 `tr-closure-dt-burn-astra` 同——两条都要补 pytest。
+- ★2026-09-18 门已补上（两道：四个工作点上 0D 体积逐位等于 $2\pi^2Ra^2\kappa$ 且逐位等于读数 · 相对 METIS 的差是系统性的、散布 1.33e-4）。★**METIS 侧不重跑**：它是 sha256 索引的归档表。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.9　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.10　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -102,6 +102,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 | 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-013` MXH 拟合 · `NR-EQ-003` 后验协方差 · `FR-EQ-016` 补三处入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **675 项全通过**，公开仓侧 2809 项通过。★这一批内核改动是**纯增量**（新函数、既有门加字段与可选设定），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.8 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-017` 理想外扭曲模的 q 极限入内核——内核里第一段理想 MHD 稳定性）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **680 项全通过**，公开仓侧 2821 项通过。★这一批内核改动是**纯增量**（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.9 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。 |
+| 1.10 | 2026-09-18 | Claude Opus 5 (1M context) | 补门：此前没有门，现两道，四个 METIS 工作点的 0D 体积经公开入口逐位复现，且逐位等于 $2\pi^2Ra^2\kappa$——这正是比 METIS 高 2.87 % 的原因（METIS 用带三角度的形状体积）。★顺带更正 open_defect 里的符号笔误：原写「比 METIS 高 -2.87 %」，读数是 fylite 高 +2.87 %。判决不变（fail，已裁定保留）。 |
 
 ## 复算
 
@@ -113,6 +114,11 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 - `docs/benchmark/readings/zerod_metis_metrics.json`    `sha256:ec6c71b732bb669460dbd0802fd7ed942fc885e4b7e05667a7941c143cd7cbd9`    本条读数：四个工作点的输入覆盖、体积、轴值与两侧剖面
 - `FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv`    `sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8`    ★METIS 侧原件（参考类，指针 + sha256）
+
+**守它的门**：
+
+- `python/tests/test_benchmark_transport_gates.py::test_the_zerod_volume_is_the_elliptic_formula_at_every_metis_point` —— 第一格：四点逐位等于 2π²Ra²κ，也逐位等于读数
+- `python/tests/test_benchmark_transport_gates.py::test_the_volume_gap_to_metis_is_systematic_not_scattered` —— 第二格：散布 1.33e-4——是公式，不是噪声
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

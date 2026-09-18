@@ -68,9 +68,9 @@
    "type": "fyo:ComparisonFinding",
    "title": "能量平衡闭到舍入",
    "criterion": "benchmark/records/tr-closure-15d-source-switches/criterion/1",
-   "measured_deviation": 1.154171733081163e-13,
+   "measured_deviation": 1.2980222679638417e-13,
    "bound": "upper",
-   "deviation_literal": "最劣残差 1.15e-13（判据 1e-12，余量约 9 倍）",
+   "deviation_literal": "最劣残差 **1.298e-13**（台基那档；判据 1e-12，余量约 7.7 倍）。★2026-09-18 更正：原记 1.154e-13 是**基线那一档**的，不是全部变体里最劣的",
    "verdict": "pass",
    "caveat": [
     "★这一条在**每个变体上都成立**：开台基、开加料、开 DT 之后平衡照样闭。**一个改了源项却仍然守恒的求解器，比一个守恒得好看但源项没接线的求解器可信。**"
@@ -145,18 +145,39 @@
     "comment": "基线一次运行的源项逐项、台基与平衡读数"
    }
   ],
-  "realizes": [],
+  "realizes": [
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_switch_sweep_reproduces_its_recorded_readings",
+    "comment": "五档里可跑的四档 + 基线，p_alpha 与读数逐位相同"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_energy_balance_holds_on_every_variant",
+    "comment": "第一格：按全部变体判，最劣是台基那档"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_every_opened_switch_moves_at_least_one_output",
+    "comment": "第二格：打开的控件至少动一项产出"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_sawtooth_is_refused_without_the_current_channel",
+    "comment": "锯齿那一档当初就是按名拒绝的，现在仍是"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_driven_currents_are_still_zero",
+    "comment": "★第三格：守的是记名的负面结果"
+   }
+  ],
   "kernel": {
    "name": "libfylite",
    "checksum": "sha256:18d901c1abeb76aa2e70b07453d3730f1aea74d929c0e0121fd3bf9f0a0420d7"
   }
  },
  "provenance": {
-  "record_version": "1.8",
+  "record_version": "1.9",
   "recorded": "2026-09-16",
   "revised": "2026-09-18",
   "review_status": "draft",
-  "open_defect": "2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★另记：本条尚无守它的门，与 tr-closure-dt-burn-astra、tr-pedestal-zerod-bookkeeping-metis 同。",
+  "open_defect": "2026-09-16 记名保留（用户裁定「内核欠缺的功能也保留」）：驱动电流三道 `j_bs` / `j_cd` / `j_lh` 在所有变体里恒为零，**驱动源项这一块验不了**。三个产出名字都在，缺的是喂给它们的输入——下一步是造一个带 CD 波源的算例，而不是删掉这条判据。★2026-09-18 门已补上（五道：读数逐位复现 · 每档能量平衡 · 每个控件都活 · 锯齿无电流通道按名拒绝 · ★驱动电流恒零——这一道守的是**负面结果**，哪天接上 CD 波源它会红，那正是该红的时候）。",
   "change": [
    {
     "record_version": "1.0",
@@ -211,6 +232,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "内核换代后的全册重验（`FR-EQ-018` 气球模第一稳定边界入内核）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **685 项全通过**，公开仓侧 2828 项通过。★纯增量（`stability.rs` 新增函数，没开门），接口摘要与 `CASE_CODES` 均未动。"
+   },
+   {
+    "record_version": "1.9",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "补门：此前没有门，现五道，读数逐位复现（`cases.plan('evolve-iter-15ma')` 的 42 个参数，每档不到 0.1 s）。★★更正第一格的数：原记最劣能量平衡残差 1.154e-13，那是**基线那一档**的；全部可跑变体里最劣的是台基那档 **1.298e-13**，余量约 7.7 倍而非 9 倍——判据仍过。★锯齿那档当初就是按名拒绝（没开电流通道），现在的门照此验。判决不变（inconclusive：驱动电流三道仍恒为零）。"
    }
   ]
  }
