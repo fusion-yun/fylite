@@ -1,0 +1,814 @@
+{
+ "_comment": "FR-TR-014 对 METIS 的补量（2026-09-18）：体积归因到公式一级、W_th 的约定夹逼、存量账为何不可比。METIS 侧：third_party/metis_2026 的 zgeo0.m 与认证 .mat（MATLAB v5，uv 临时环境的 scipy 读）；CASE-10 的 metis_cert_zerod.csv",
+ "volume": {
+  "metis_rule": "zgeo0.m: with a separatrix, vp = |∮ 2πR (−Z dR)| on it; without, the same integral on R = R0 + a cos(u + asin(δ) sin u), Z = aκ sin u (201 points); 2π²Ra²κ only as a NaN/zero fallback",
+  "fylite_rule": "2π²Ra²κ (exact to the bit at the record's four points)",
+  "n_points": 84,
+  "n_cases": 28,
+  "cases_with_separatrix": 20,
+  "cases_without": 8,
+  "separatrix_integral_vs_metis_worst": 0.00536853613795311,
+  "dshape_formula_vs_metis_worst_without_separatrix": 0.0011608093729530212,
+  "iter_family_ellipse_rel": [
+   0.02868,
+   0.02866,
+   0.02855,
+   0.02868,
+   0.02866,
+   0.02855,
+   0.02856,
+   0.02865,
+   0.02852,
+   0.02836,
+   0.02836,
+   0.02836,
+   0.02836,
+   0.02836,
+   0.02836
+  ],
+  "iter_family_dshape_rel": [
+   0.0008,
+   -0.00052,
+   -0.00202,
+   0.0008,
+   -0.00052,
+   -0.00202,
+   0.0004,
+   -0.00078,
+   -0.00229,
+   -0.00176,
+   -0.00176,
+   -0.00176,
+   -0.00176,
+   -0.00176,
+   -0.00176
+  ],
+  "post_zerod_vp_vs_csv_worst": 2.9e-06,
+  "by_case": {
+   "DIII-D_like_shot_zjrun_test": [
+    {
+     "t_s": 2.545,
+     "vp_metis": 19.1017,
+     "ellipse_rel": 0.16252991125996802,
+     "dshape_rel": 0.04407277636735073,
+     "separatrix_rel": 4.303670351521673e-05,
+     "delta": 0.601372
+    },
+    {
+     "t_s": 3.665,
+     "vp_metis": 19.0745,
+     "ellipse_rel": 0.13234779593398363,
+     "dshape_rel": 0.042801968447653764,
+     "separatrix_rel": -0.0010252234428835014,
+     "delta": 0.505427
+    },
+    {
+     "t_s": 4.805,
+     "vp_metis": 18.7901,
+     "ellipse_rel": 0.1387887236649781,
+     "dshape_rel": 0.043971387155758324,
+     "separatrix_rel": 3.59037999831099e-05,
+     "delta": 0.525997
+    }
+   ],
+   "ITER_rampup_ECCD": [
+    {
+     "t_s": 45.6552,
+     "vp_metis": 782.236,
+     "ellipse_rel": 0.028682051122868715,
+     "dshape_rel": 0.0007955888847321602,
+     "separatrix_rel": 0.00022095944361300309,
+     "delta": 0.243914
+    },
+    {
+     "t_s": 62.6379,
+     "vp_metis": 797.339,
+     "ellipse_rel": 0.02866014442789384,
+     "dshape_rel": -0.0005204779752495281,
+     "separatrix_rel": 2.2338910734891943e-05,
+     "delta": 0.252777
+    },
+    {
+     "t_s": 83.0172,
+     "vp_metis": 814.111,
+     "ellipse_rel": 0.028549082247993997,
+     "dshape_rel": -0.0020184638777055756,
+     "separatrix_rel": 2.2673114498594882e-05,
+     "delta": 0.262136
+    }
+   ],
+   "ITER_rampup_ECCD_expo_inte": [
+    {
+     "t_s": 45.6552,
+     "vp_metis": 782.236,
+     "ellipse_rel": 0.028682051122868715,
+     "dshape_rel": 0.0007955888847321602,
+     "separatrix_rel": 0.00022095944361300309,
+     "delta": 0.243914
+    },
+    {
+     "t_s": 62.6379,
+     "vp_metis": 797.339,
+     "ellipse_rel": 0.02866014442789384,
+     "dshape_rel": -0.0005204779752495281,
+     "separatrix_rel": 2.2338910734891943e-05,
+     "delta": 0.252777
+    },
+    {
+     "t_s": 83.0172,
+     "vp_metis": 814.111,
+     "ellipse_rel": 0.028549082247993997,
+     "dshape_rel": -0.0020184638777055756,
+     "separatrix_rel": 2.2673114498594882e-05,
+     "delta": 0.262136
+    }
+   ],
+   "ITER_rampup_switch_flux": [
+    {
+     "t_s": 49.0517,
+     "vp_metis": 785.024,
+     "ellipse_rel": 0.028558833156960884,
+     "dshape_rel": 0.00040106212998686414,
+     "separatrix_rel": 2.238513581973067e-05,
+     "delta": 0.245833
+    },
+    {
+     "t_s": 66.0345,
+     "vp_metis": 800.182,
+     "ellipse_rel": 0.028648261334326,
+     "dshape_rel": -0.0007766119894420121,
+     "separatrix_rel": 2.2405688345451978e-05,
+     "delta": 0.254434
+    },
+    {
+     "t_s": 86.4138,
+     "vp_metis": 816.998,
+     "ellipse_rel": 0.028518683748583167,
+     "dshape_rel": -0.0022940422118178138,
+     "separatrix_rel": 2.228480553212705e-05,
+     "delta": 0.263785
+    }
+   ],
+   "JET53521_itb_bgb": [
+    {
+     "t_s": 44.9696,
+     "vp_metis": 81.0647,
+     "ellipse_rel": 0.07380653863549864,
+     "dshape_rel": 0.04851232370920308,
+     "separatrix_rel": 8.390061328184714e-06,
+     "delta": 0.220204
+    },
+    {
+     "t_s": 47.7158,
+     "vp_metis": 80.8397,
+     "ellipse_rel": 0.07674072030437258,
+     "dshape_rel": 0.05607775748608593,
+     "separatrix_rel": 8.320809098723086e-06,
+     "delta": 0.182708
+    },
+    {
+     "t_s": 50.8898,
+     "vp_metis": 81.6451,
+     "ellipse_rel": 0.07844925978414861,
+     "dshape_rel": 0.056206497597574505,
+     "separatrix_rel": 8.128801821243674e-06,
+     "delta": 0.190207
+    }
+   ],
+   "JET53521_itb_test": [
+    {
+     "t_s": 44.9696,
+     "vp_metis": 81.0647,
+     "ellipse_rel": 0.07380653863549864,
+     "dshape_rel": 0.04851232370920308,
+     "separatrix_rel": 8.390061328184714e-06,
+     "delta": 0.220204
+    },
+    {
+     "t_s": 47.7158,
+     "vp_metis": 80.8397,
+     "ellipse_rel": 0.07674072030437258,
+     "dshape_rel": 0.05607775748608593,
+     "separatrix_rel": 8.320809098723086e-06,
+     "delta": 0.182708
+    },
+    {
+     "t_s": 50.8898,
+     "vp_metis": 81.6451,
+     "ellipse_rel": 0.07844925978414861,
+     "dshape_rel": 0.056206497597574505,
+     "separatrix_rel": 8.128801821243674e-06,
+     "delta": 0.190207
+    }
+   ],
+   "JET53521_itb_test_nomorph": [
+    {
+     "t_s": 44.7212,
+     "vp_metis": 81.4612,
+     "ellipse_rel": 0.0756141305126983,
+     "dshape_rel": 0.05212618419968412,
+     "separatrix_rel": 8.515217581728712e-06,
+     "delta": 0.20551
+    },
+    {
+     "t_s": 47.3846,
+     "vp_metis": 80.2296,
+     "ellipse_rel": 0.07554828272811777,
+     "dshape_rel": 0.05307065008972128,
+     "separatrix_rel": 7.999142625083633e-06,
+     "delta": 0.197942
+    },
+    {
+     "t_s": 50.8898,
+     "vp_metis": 81.6451,
+     "ellipse_rel": 0.07844925978414861,
+     "dshape_rel": 0.056206497597574505,
+     "separatrix_rel": 8.128801821243674e-06,
+     "delta": 0.190207
+    }
+   ],
+   "JET69581_2.8mw": [
+    {
+     "t_s": 44.0618,
+     "vp_metis": 76.2614,
+     "ellipse_rel": 0.11956840536612001,
+     "dshape_rel": 0.054629844753869075,
+     "separatrix_rel": 1.758639267228762e-05,
+     "delta": 0.430758
+    },
+    {
+     "t_s": 49.0322,
+     "vp_metis": 76.3361,
+     "ellipse_rel": 0.11777141756797732,
+     "dshape_rel": 0.05383753350493462,
+     "separatrix_rel": 1.7228651050790995e-05,
+     "delta": 0.425661
+    },
+    {
+     "t_s": 52.893,
+     "vp_metis": 79.5815,
+     "ellipse_rel": 0.10708115681486137,
+     "dshape_rel": 0.07503814965002291,
+     "separatrix_rel": 1.2453383768239103e-05,
+     "delta": 0.251346
+    }
+   ],
+   "JET69581_2.8mw_lhvariable": [
+    {
+     "t_s": 44.4874,
+     "vp_metis": 76.3505,
+     "ellipse_rel": 0.11904077243680636,
+     "dshape_rel": 0.05380508459405629,
+     "separatrix_rel": 1.657710872147735e-05,
+     "delta": 0.432093
+    },
+    {
+     "t_s": 47.345,
+     "vp_metis": 76.2063,
+     "ellipse_rel": 0.11396283935218861,
+     "dshape_rel": 0.049862899519410454,
+     "separatrix_rel": -0.0014263301322688777,
+     "delta": 0.42783
+    },
+    {
+     "t_s": 52.4978,
+     "vp_metis": 80.3679,
+     "ellipse_rel": 0.12658042335729913,
+     "dshape_rel": 0.07908746023156989,
+     "separatrix_rel": 0.0014574552294849528,
+     "delta": 0.333782
+    }
+   ],
+   "JET69581_2_points_SOL": [
+    {
+     "t_s": 44.6242,
+     "vp_metis": 76.2513,
+     "ellipse_rel": 0.11769758967437324,
+     "dshape_rel": 0.05275419168886132,
+     "separatrix_rel": 1.4781448094641692e-05,
+     "delta": 0.431033
+    },
+    {
+     "t_s": 47.4818,
+     "vp_metis": 76.1605,
+     "ellipse_rel": 0.11994854873486197,
+     "dshape_rel": 0.055916259853032016,
+     "separatrix_rel": 0.0021791272105641042,
+     "delta": 0.425517
+    },
+    {
+     "t_s": 52.7714,
+     "vp_metis": 79.9893,
+     "ellipse_rel": 0.11241999542112073,
+     "dshape_rel": 0.07126351528882896,
+     "separatrix_rel": 1.2493372199557632e-05,
+     "delta": 0.303654
+    }
+   ],
+   "JET71827_rampup_low_density": [
+    {
+     "t_s": 42.709,
+     "vp_metis": 81.433,
+     "ellipse_rel": 0.09113554259264296,
+     "dshape_rel": 0.06750554352666568,
+     "separatrix_rel": 8.865134853817299e-06,
+     "delta": 0.20452
+    },
+    {
+     "t_s": 45.1106,
+     "vp_metis": 82.8853,
+     "ellipse_rel": 0.09449651244387673,
+     "dshape_rel": 0.07376664665091509,
+     "separatrix_rel": 8.02272719506926e-06,
+     "delta": 0.179206
+    },
+    {
+     "t_s": 52.6802,
+     "vp_metis": 78.0036,
+     "ellipse_rel": 0.09834857313327715,
+     "dshape_rel": 0.07715960567350941,
+     "separatrix_rel": 7.573834975930735e-06,
+     "delta": 0.182973
+    }
+   ],
+   "JET77210_burnthrough": [
+    {
+     "t_s": 40.47,
+     "vp_metis": 59.203,
+     "ellipse_rel": 0.0001620849758378814,
+     "dshape_rel": 0.00016208497583812144,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    },
+    {
+     "t_s": 40.63,
+     "vp_metis": 71.1857,
+     "ellipse_rel": 0.00016335473163730073,
+     "dshape_rel": 0.00016335473163730073,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    },
+    {
+     "t_s": 40.85,
+     "vp_metis": 73.0661,
+     "ellipse_rel": 0.0001670579171331285,
+     "dshape_rel": 0.000167057917133323,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    }
+   ],
+   "JET84746_density_4DoF": [
+    {
+     "t_s": 50.0354,
+     "vp_metis": 77.247,
+     "ellipse_rel": 0.09536897378218749,
+     "dshape_rel": 0.06038574630628669,
+     "separatrix_rel": 0.0015971095263676296,
+     "delta": 0.277182
+    },
+    {
+     "t_s": 51.4642,
+     "vp_metis": 77.1639,
+     "ellipse_rel": 0.08767093320305133,
+     "dshape_rel": 0.04851849440677871,
+     "separatrix_rel": -0.0027207277859278324,
+     "delta": 0.304841
+    },
+    {
+     "t_s": 52.8626,
+     "vp_metis": 75.9972,
+     "ellipse_rel": 0.09272021365942555,
+     "dshape_rel": 0.06005691724827287,
+     "separatrix_rel": 1.192918615878064e-05,
+     "delta": 0.262217
+    }
+   ],
+   "MAST_like": [
+    {
+     "t_s": 0.327,
+     "vp_metis": 8.69274,
+     "ellipse_rel": 0.08864968538315855,
+     "dshape_rel": 0.046027774768807525,
+     "separatrix_rel": 0.0038742539080286183,
+     "delta": 0.195968
+    },
+    {
+     "t_s": 0.347,
+     "vp_metis": 8.52424,
+     "ellipse_rel": 0.07493135249258244,
+     "dshape_rel": 0.03639961756666038,
+     "separatrix_rel": 4.8689322843818554e-05,
+     "delta": 0.183011
+    },
+    {
+     "t_s": 0.367,
+     "vp_metis": 8.53732,
+     "ellipse_rel": 0.09182250489471731,
+     "dshape_rel": 0.04506682109294925,
+     "separatrix_rel": 0.00536853613795311,
+     "delta": 0.214844
+    }
+   ],
+   "METIS_2nbi": [
+    {
+     "t_s": 34.0459,
+     "vp_metis": 124.914,
+     "ellipse_rel": 0.09644480192184318,
+     "dshape_rel": 0.02354301578063415,
+     "separatrix_rel": 3.489521375169927e-05,
+     "delta": 0.445496
+    },
+    {
+     "t_s": 58.8844,
+     "vp_metis": 124.914,
+     "ellipse_rel": 0.09644480192184318,
+     "dshape_rel": 0.02354301578063415,
+     "separatrix_rel": 3.489521375169927e-05,
+     "delta": 0.445496
+    },
+    {
+     "t_s": 83.7229,
+     "vp_metis": 124.914,
+     "ellipse_rel": 0.09644480192184318,
+     "dshape_rel": 0.02354301578063415,
+     "separatrix_rel": 3.489521375169927e-05,
+     "delta": 0.445496
+    }
+   ],
+   "RFX_tokamak_mode_shot_38688": [
+    {
+     "t_s": 0.318,
+     "vp_metis": 8.31598,
+     "ellipse_rel": 0.00016504360323491422,
+     "dshape_rel": 0.00016504360323491422,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    },
+    {
+     "t_s": 0.605,
+     "vp_metis": 8.31598,
+     "ellipse_rel": 0.00016504360323491422,
+     "dshape_rel": 0.00016504360323491422,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    },
+    {
+     "t_s": 0.892,
+     "vp_metis": 8.31598,
+     "ellipse_rel": 0.00016504360323491422,
+     "dshape_rel": 0.00016504360323491422,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    }
+   ],
+   "TFTR80539_like_neutron_rate_test": [
+    {
+     "t_s": 4.71,
+     "vp_metis": 35.0788,
+     "ellipse_rel": 0.00016271613637926086,
+     "dshape_rel": 0.00016271613637926086,
+     "separatrix_rel": null,
+     "delta": 3.57884e-16
+    },
+    {
+     "t_s": 5.31,
+     "vp_metis": 35.0788,
+     "ellipse_rel": 0.00016271613637926086,
+     "dshape_rel": 0.00016271613637926086,
+     "separatrix_rel": null,
+     "delta": 3.57884e-16
+    },
+    {
+     "t_s": 5.9,
+     "vp_metis": 35.0788,
+     "ellipse_rel": 0.00016271613637926086,
+     "dshape_rel": 0.00016271613637926086,
+     "separatrix_rel": null,
+     "delta": 3.57884e-16
+    }
+   ],
+   "TS28305_DDS": [
+    {
+     "t_s": 3.31406,
+     "vp_metis": 26.0164,
+     "ellipse_rel": -0.0011608093729531578,
+     "dshape_rel": -0.0011608093729530212,
+     "separatrix_rel": null,
+     "delta": 0.0
+    },
+    {
+     "t_s": 5.81406,
+     "vp_metis": 26.1147,
+     "ellipse_rel": 0.00016577646187017632,
+     "dshape_rel": 0.00016577646187044843,
+     "separatrix_rel": null,
+     "delta": 0.0
+    },
+    {
+     "t_s": 8.41406,
+     "vp_metis": 26.1133,
+     "ellipse_rel": 0.0007086993275207663,
+     "dshape_rel": 0.0007086993275210384,
+     "separatrix_rel": null,
+     "delta": 0.0
+    }
+   ],
+   "TS28305_DDS_2": [
+    {
+     "t_s": 4.365,
+     "vp_metis": 26.0746,
+     "ellipse_rel": -0.0008081512592123858,
+     "dshape_rel": -0.0008081512592122495,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    },
+    {
+     "t_s": 4.762,
+     "vp_metis": 26.0654,
+     "ellipse_rel": 0.00016262215202884396,
+     "dshape_rel": 0.00016262215202884396,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    },
+    {
+     "t_s": 5.159,
+     "vp_metis": 26.0588,
+     "ellipse_rel": 0.0002330572887315255,
+     "dshape_rel": 0.00023305728873138917,
+     "separatrix_rel": null,
+     "delta": 2.22045e-16
+    }
+   ],
+   "TS40888_natural_density": [
+    {
+     "t_s": 3.11759,
+     "vp_metis": 23.8377,
+     "ellipse_rel": 0.000598626037155305,
+     "dshape_rel": -0.0016273685839504504,
+     "separatrix_rel": 8.970287985442983e-07,
+     "delta": 0.0286287
+    },
+    {
+     "t_s": 6.21759,
+     "vp_metis": 24.2039,
+     "ellipse_rel": 0.00043831798091890613,
+     "dshape_rel": 6.340170519609454e-05,
+     "separatrix_rel": -4.59491427632721e-07,
+     "delta": 0.00491943
+    },
+    {
+     "t_s": 9.91759,
+     "vp_metis": 24.1549,
+     "ellipse_rel": -0.0005846009468657668,
+     "dshape_rel": -0.0010754641147917535,
+     "separatrix_rel": 4.6625440647974186e-08,
+     "delta": 0.00645477
+    }
+   ],
+   "TS40888_pellets": [
+    {
+     "t_s": 3.81759,
+     "vp_metis": 24.0001,
+     "ellipse_rel": 0.0008667116606098907,
+     "dshape_rel": -0.0010546254557243513,
+     "separatrix_rel": -6.39723598007719e-05,
+     "delta": 0.0246474
+    },
+    {
+     "t_s": 6.61759,
+     "vp_metis": 24.2285,
+     "ellipse_rel": 0.0006264375907632155,
+     "dshape_rel": 0.0002383856648104947,
+     "separatrix_rel": 6.738189955602044e-07,
+     "delta": 0.00508374
+    },
+    {
+     "t_s": 9.41759,
+     "vp_metis": 24.1382,
+     "ellipse_rel": -0.0010283091679800902,
+     "dshape_rel": -0.0015402759391960426,
+     "separatrix_rel": -0.0011979300713280156,
+     "delta": 0.00673514
+    }
+   ],
+   "TS40888_pellets_hollow_density": [
+    {
+     "t_s": 3.81759,
+     "vp_metis": 24.0001,
+     "ellipse_rel": 0.0008667116606098907,
+     "dshape_rel": -0.0010546254557243513,
+     "separatrix_rel": -6.39723598007719e-05,
+     "delta": 0.0246474
+    },
+    {
+     "t_s": 6.61759,
+     "vp_metis": 24.2285,
+     "ellipse_rel": 0.0006264375907632155,
+     "dshape_rel": 0.0002383856648104947,
+     "separatrix_rel": 6.738189955602044e-07,
+     "delta": 0.00508374
+    },
+    {
+     "t_s": 9.41759,
+     "vp_metis": 24.1382,
+     "ellipse_rel": -0.0010283091679800902,
+     "dshape_rel": -0.0015402759391960426,
+     "separatrix_rel": -0.0011979300713280156,
+     "delta": 0.00673514
+    }
+   ],
+   "TS_SA_test": [
+    {
+     "t_s": 2.11152,
+     "vp_metis": 24.3104,
+     "ellipse_rel": 0.0008476512742387507,
+     "dshape_rel": 0.00016446835362309736,
+     "separatrix_rel": null,
+     "delta": 0.00897049
+    },
+    {
+     "t_s": 4.31152,
+     "vp_metis": 24.3248,
+     "ellipse_rel": 0.0007147044502287975,
+     "dshape_rel": 0.00016296306715449477,
+     "separatrix_rel": null,
+     "delta": 0.00726188
+    },
+    {
+     "t_s": 7.51152,
+     "vp_metis": 24.2518,
+     "ellipse_rel": 0.0010342578961864584,
+     "dshape_rel": 0.00016509891701040646,
+     "separatrix_rel": null,
+     "delta": 0.0113675
+    }
+   ],
+   "iter_2nbi_pfus": [
+    {
+     "t_s": 126.5,
+     "vp_metis": 808.128,
+     "ellipse_rel": 0.028357982423573548,
+     "dshape_rel": -0.0017636352480914484,
+     "separatrix_rel": 2.2977222361956444e-05,
+     "delta": 0.259082
+    },
+    {
+     "t_s": 445.0,
+     "vp_metis": 808.128,
+     "ellipse_rel": 0.028357982423573548,
+     "dshape_rel": -0.0017636352480914484,
+     "separatrix_rel": 2.2977222361956444e-05,
+     "delta": 0.259082
+    },
+    {
+     "t_s": 820.0,
+     "vp_metis": 808.128,
+     "ellipse_rel": 0.028357982423573548,
+     "dshape_rel": -0.0017636352480914484,
+     "separatrix_rel": 2.2977222361956444e-05,
+     "delta": 0.259082
+    }
+   ],
+   "low_taue_limitation": [
+    {
+     "t_s": 0.112,
+     "vp_metis": 0.430062,
+     "ellipse_rel": 6.086805933110512e-05,
+     "dshape_rel": 6.0868059330976046e-05,
+     "separatrix_rel": null,
+     "delta": 0.0
+    },
+    {
+     "t_s": 0.154,
+     "vp_metis": 0.367728,
+     "ellipse_rel": 0.0001587564801901906,
+     "dshape_rel": 0.0001587564801903416,
+     "separatrix_rel": null,
+     "delta": 0.0
+    },
+    {
+     "t_s": 0.197,
+     "vp_metis": 0.267719,
+     "ellipse_rel": 5.463445790616544e-05,
+     "dshape_rel": 5.463445790616544e-05,
+     "separatrix_rel": null,
+     "delta": 0.0
+    }
+   ],
+   "reference_NTM_ITER": [
+    {
+     "t_s": 126.5,
+     "vp_metis": 808.128,
+     "ellipse_rel": 0.028357982423573548,
+     "dshape_rel": -0.0017636352480914484,
+     "separatrix_rel": 2.2977222361956444e-05,
+     "delta": 0.259082
+    },
+    {
+     "t_s": 445.0,
+     "vp_metis": 808.128,
+     "ellipse_rel": 0.028357982423573548,
+     "dshape_rel": -0.0017636352480914484,
+     "separatrix_rel": 2.2977222361956444e-05,
+     "delta": 0.259082
+    },
+    {
+     "t_s": 820.0,
+     "vp_metis": 808.128,
+     "ellipse_rel": 0.028357982423573548,
+     "dshape_rel": -0.0017636352480914484,
+     "separatrix_rel": 2.2977222361956444e-05,
+     "delta": 0.259082
+    }
+   ],
+   "test_regul_q0": [
+    {
+     "t_s": 33.218,
+     "vp_metis": 124.06,
+     "ellipse_rel": 0.065545335229624,
+     "dshape_rel": 0.00020533260276254435,
+     "separatrix_rel": null,
+     "delta": 0.42
+    },
+    {
+     "t_s": 58.0565,
+     "vp_metis": 124.06,
+     "ellipse_rel": 0.065545335229624,
+     "dshape_rel": 0.00020533260276254435,
+     "separatrix_rel": null,
+     "delta": 0.42
+    },
+    {
+     "t_s": 83.309,
+     "vp_metis": 124.06,
+     "ellipse_rel": 0.065545335229624,
+     "dshape_rel": 0.00020533260276254435,
+     "separatrix_rel": null,
+     "delta": 0.42
+    }
+   ],
+   "test_xiioxie_CGM": [
+    {
+     "t_s": 34.0459,
+     "vp_metis": 124.914,
+     "ellipse_rel": 0.09644480192184318,
+     "dshape_rel": 0.02354301578063415,
+     "separatrix_rel": 3.489521375169927e-05,
+     "delta": 0.445496
+    },
+    {
+     "t_s": 58.8844,
+     "vp_metis": 124.914,
+     "ellipse_rel": 0.09644480192184318,
+     "dshape_rel": 0.02354301578063415,
+     "separatrix_rel": 3.489521375169927e-05,
+     "delta": 0.445496
+    },
+    {
+     "t_s": 83.7229,
+     "vp_metis": 124.914,
+     "ellipse_rel": 0.09644480192184318,
+     "dshape_rel": 0.02354301578063415,
+     "separatrix_rel": 3.489521375169927e-05,
+     "delta": 0.445496
+    }
+   ]
+  }
+ },
+ "w_th": {
+  "metis_wth_vs_own_profile_integral": [
+   -0.00078,
+   -0.00039,
+   -3e-05,
+   -0.00124
+  ],
+  "fed_volume_averages_into_axis_slots_rel": [
+   -0.6404,
+   -0.6684,
+   -0.6944,
+   -0.6407
+  ],
+  "fed_metis_axis_values_rel": [
+   0.7965,
+   0.5735,
+   0.286,
+   0.8046
+  ],
+  "fylite_peaking": {
+   "n": 1.0,
+   "t": 1.5,
+   "ti_over_te": 0.9
+  },
+  "metis_ne_te_correlation": [
+   1.2532,
+   1.2525,
+   1.2425,
+   1.2554
+  ],
+  "reading": "fylite ne_flattop / te_flattop are on-axis values (the profile peaks exactly there); the record's overrides carry METIS volume averages. Either way the 0D W is set by the fixed peaking exponents, not by the bookkeeping: −64…−69 % fed averages, +29…+80 % fed axis values"
+ },
+ "inventory": {
+  "comparable": false,
+  "why": "fylite particle_balance: dN/dt = S_fuel − N/τ_p − S_burn with a constant τ_p; METIS: loss N/τ_ref, τ_ref = min(τ_He, τ_p)/(1 − R_recyc f_n0a) (recycling folded in), source from internal density feedback (not stored; metis_gaz.m reconstructs it by closing METIS's own budget with an assumed η_p = 0.5)"
+ }
+}

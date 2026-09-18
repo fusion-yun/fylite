@@ -21,6 +21,8 @@ title: "台基、锯齿与 0D 存量"
 `FR-ENG-003`，而 SRS-04 的验证矩阵里**没有给它判据行**——这是上游的缺口，在下面的生成块里
 如实标着，等它补。
 
+★对 METIS 的那条记录判不成立，**2026-09-18 已归因到公式一级**：读 METIS 的 `zgeo0.m` 与认证 .mat，它的体积就是它那条边界围出来的体积——有分离面就积分离面（20 个算例），没有就积带三角度的 D 形（8 个），84 个时刻全部复现；0D 用的是 $2\pi^2Ra^2\kappa$，于是 ITER 一族一律高 2.84–2.87 %，差的正是三角形变那一块。内核照裁定不动。★热能 $W_{th}$ 判不了：0D 的 `ne_flattop` / `te_flattop` 是轴值，而喂进去的是 METIS 的体平均——喂体平均偏 −64…−69 %、喂轴值偏 +29…+80 %，落在哪由峰化指数定，不由能量账定。★存量账不可比：两边的「抽气」不是同一个量（METIS 把再循环折进了损失时间，源是内部反馈、不存盘）。
+
 上一册这一域有 `B-01`（FUSE ITER，台基外推）、`C-09`（ITPA TC33）。已退役。
 
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
@@ -50,7 +52,7 @@ title: "台基、锯齿与 0D 存量"
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.13 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
-| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 | METIS | 1.17 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 不成立 | METIS | 1.18 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 覆盖它的记录在别的域
 

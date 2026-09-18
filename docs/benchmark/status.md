@@ -98,7 +98,7 @@ title: 验证状态 (Verification status)
 
 ### [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md)
 
-2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。
+2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。 〔三〕★**2026-09-18 归因完成**：METIS 的体积是它边界的积分（有分离面积分分离面，否则积 D 形），28 个算例 84 个时刻全部复现；0D 的 2π²Ra²κ 少了三角形变那一块。内核仍不动。
 
 ## 按域 (by domain)
 
@@ -179,7 +179,7 @@ title: 验证状态 (Verification status)
 | [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.1 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.17 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 | [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.17 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.18 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

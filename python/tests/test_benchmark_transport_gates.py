@@ -265,3 +265,60 @@ def test_the_volume_gap_to_metis_is_systematic_not_scattered():
     rel = [p["volume_m3"]["rel"] for p in _read("zerod_metis_metrics.json")["points"]]
     assert all(0.028 < r < 0.029 for r in rel), rel
     assert max(rel) - min(rel) < 2e-4, rel
+
+
+def _metis_csv():
+    from fylite.engine import benchmark as bm
+    store = bm.store_dir()
+    p = (store / "FYDOC-CASE-10-metis" / "corpus" / "metis_cert_zerod.csv") if store else None
+    if p is None or not p.is_file():
+        pytest.skip("no CASE-10 METIS corpus (set $FYDOC_ORACLE)")
+    import csv
+    rows = [r for r in csv.reader(line for line in p.open(encoding="utf-8") if not line.startswith("#"))]
+    return [dict(zip(rows[0], r)) for r in rows[1:]]
+
+
+def _metis_dshape_volume(r0, a, kappa, delta):
+    """METIS `zgeo0.m` without a separatrix：`R = R0 + a cos(u + asin(δ) sin u)`、`Z = aκ sin u`，201 点梯形。"""
+    t = np.arcsin(max(0.0, min(1.0, delta)))
+    u = np.linspace(0.0, 2.0 * np.pi, 201)
+    r = r0 + a * np.cos(u + t * np.sin(u))
+    z = a * kappa * np.sin(u)
+    dr = -a * np.sin(u + t * np.sin(u)) * (1.0 + t * np.cos(u))
+    return float(np.trapezoid(2.0 * np.pi * r * (-z * dr), u))
+
+
+def test_the_metis_volume_is_its_own_boundary_so_the_gap_is_the_ellipse():
+    """★★体积那处 2.87 % 归因到公式一级（2026-09-18）：METIS 的体积就是**它那条边界**围出来的体积。
+
+    没有分离面的 8 个算例上，`zgeo0.m` 的 D 形积分复现 METIS 到 1.2e-3；ITER 一族（记录用的那四点）
+    D 形复现到 ±0.25 %，而 `2π²Ra²κ`（0D 的公式）一律高 2.84–2.87 %——差的正是三角形变把截面往内挪的那一块。
+    有分离面的 20 个算例由分离面积分复现（读 .mat，钉在读数里）。★内核不动：用户裁定「保留负面结果」。
+    """
+    rec = _read("zerod_metis_attribution.json")["volume"]
+    by = rec["by_case"]
+    for r in _metis_csv():
+        vp = float(r["vp_m3"])
+        args = [float(r[k]) for k in ("R_m", "a_m", "kappa_geo", "delta_geo")]
+        rel = (_metis_dshape_volume(*args) - vp) / vp
+        want = [x for x in by[r["case"]] if abs(x["t_s"] - float(r["t_s"])) < 1e-9][0]
+        assert rel == pytest.approx(want["dshape_rel"], rel=1e-9, abs=1e-12)
+        if want["separatrix_rel"] is None:
+            assert abs(rel) < 2e-3, (r["case"], rel)
+        if r["case"].startswith(("ITER_rampup", "iter_2nbi", "reference_NTM")):
+            ell = (2.0 * np.pi ** 2 * args[0] * args[1] ** 2 * args[2] - vp) / vp
+            assert 0.0283 < ell < 0.0288 and abs(rel) < 2.5e-3, (r["case"], ell, rel)
+    assert rec["separatrix_integral_vs_metis_worst"] < 6e-3
+    assert rec["cases_with_separatrix"] + rec["cases_without"] == 28
+
+
+def test_the_thermal_energy_is_bracketed_by_the_peaking_convention_not_judged():
+    """★W_th 判不了，且读数说清了为什么：0D 的剖面形状由固定峰化指数定。
+
+    喂体平均（记录的做法）偏 −64…−69 %，喂 METIS 自己的轴值偏 +29…+80 %——真值在两者之间，
+    落在哪取决于峰化约定，而不是能量账。★METIS 自己的账是闭合的：存下的 W_th 对它自己剖面的积分 ≤ 0.13 %。
+    """
+    w = _read("zerod_metis_attribution.json")["w_th"]
+    assert all(abs(x) < 1.3e-3 for x in w["metis_wth_vs_own_profile_integral"])
+    assert all(-0.70 < x < -0.63 for x in w["fed_volume_averages_into_axis_slots_rel"])
+    assert all(0.28 < x < 0.81 for x in w["fed_metis_axis_values_rel"])
