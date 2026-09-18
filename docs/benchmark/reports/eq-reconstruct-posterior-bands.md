@@ -14,8 +14,8 @@ title: "eq-reconstruct-posterior-bands"
 - **量的是**：后验 σ 带：**它按输入的 σ 精确地走，而它有多宽本身是一条结论**
 - **参考**：蒙特卡洛的经验散布 · 线性拟合的精确标度性质
 - **验的需求**：`NR-EQ-003`
-- **跑在内核**：`sha256:94645111a7e2eb3f…`（新鲜度 **current**）
-- **记录版本**：1.6　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:e16301fa3acd72ca…`（新鲜度 **current**）
+- **记录版本**：1.7　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -85,7 +85,7 @@ title: "eq-reconstruct-posterior-bands"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.6　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.7　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -98,12 +98,13 @@ title: "eq-reconstruct-posterior-bands"
 | 1.4 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（L2 本体入内核：`variational.rs` · `fluid.rs` · `vacuum.rs` · `highbeta.rs`，`FR-EQ-019/020/022/023/024`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **753 项全通过**（新锚 44 条）。★纯增量（新模块与 `stability.rs` 新增 `surface_current_wall_factor`，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.5 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（全 δW 支柱位形一级入内核：`screwpinch.rs`，`FR-EQ-027` · `028`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **773 项全通过**（新锚 20 条）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.6 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（环几何全 δW 入内核：`toroidal.rs`，`screwpinch.rs` 增阻性壁模；`FR-EQ-029` · `030` · `031`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **787 项全通过**（新锚 14 条，另 5 条 V5 门在 --release 下全过）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
+| 1.7 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc`
+- 内核 `libfylite` `sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

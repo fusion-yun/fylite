@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '80f1dacaccb1d6db'
+DIGEST = '1ee10b0ae6f30088'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -60,6 +60,8 @@ TABLES = {
             'chi_i': {"path": 'profiles_1d/total_ion_energy/d', "units": 'm^2.s^-1', "rank": '1d'},
             'd_n': {"path": 'profiles_1d/electrons/particles/d', "units": 'm^2.s^-1', "rank": '1d'},
             'v_n': {"path": 'profiles_1d/electrons/particles/v', "units": 'm.s^-1', "rank": '1d'},
+            'chi_phi': {"path": 'profiles_1d/momentum_phi/d', "units": 'm^2.s^-1', "rank": '1d'},
+            'v_phi': {"path": 'profiles_1d/momentum_phi/v', "units": 'm.s^-1', "rank": '1d'},
         },
     },
     'DEVICE': {
@@ -478,6 +480,8 @@ BLOCKS = {
         {'key': 'lh_j', 'shape': 'n', 'units': 'A.m^-2', 'gloss': 'the wave-driven current (with ch_current)'},
         {'key': 'chi_turb', 'shape': 'n', 'units': 'm^2.s^-1', 'gloss': 'the turbulent ion diffusivity added to the neoclassical one (closure = 3)'},
         {'key': 'vprime_old', 'shape': 'n', 'units': 'm^2', 'gloss': "dV/drho the block's first step starts from (vprime_moved = 1); the volume change across that step"},
+        {'key': 'chi_turb_phi', 'shape': 'n', 'units': 'm^2.s^-1', 'gloss': "the turbulent momentum diffusivity (phi_turb = 1): the extension's TGLF momentum flux over the rotation shear"},
+        {'key': 'v_phi', 'shape': 'n', 'units': 'm.s^-1', 'gloss': 'the momentum pinch velocity on the rho grid (inward negative); zeros = no pinch'},
     ],
     'EVOLVE_HEAT_OUT': [
         {'key': 'te', 'shape': 'n', 'units': 'eV', 'gloss': 'the profile the loop reached'},
@@ -502,6 +506,8 @@ BLOCKS = {
         {'key': 'j_bs', 'shape': 'n', 'units': 'A.m^-2', 'gloss': 'the bootstrap current of the last step'},
         {'key': 'chi_e', 'shape': 'n', 'units': 'm^2.s^-1', 'gloss': 'electron diffusivity the last step used'},
         {'key': 'chi_i', 'shape': 'n', 'units': 'm^2.s^-1', 'gloss': 'ion diffusivity the last step used'},
+        {'key': 'chi_phi', 'shape': 'n', 'units': 'm^2.s^-1', 'gloss': 'momentum diffusivity the last step used (with ch_momentum)'},
+        {'key': 'v_phi', 'shape': 'n', 'units': 'm.s^-1', 'gloss': 'momentum pinch the march used (with ch_momentum)'},
         {'key': 'p_ohm', 'shape': 'nt', 'units': 'W', 'gloss': 'volume-integrated Ohmic power per step'},
         {'key': 'q', 'shape': 'n', 'units': '1', 'gloss': 'the safety factor the flux the loop reached implies'},
         {'key': 'saw_r1', 'shape': 'nt', 'units': 'm', 'gloss': 'the innermost q = 1 radius that step (0 = none, i.e. not sawtoothing)'},
@@ -606,6 +612,7 @@ BLOCKS = {
         {'key': 'fuel_z', 'shape': '1', 'units': 's^-1', 'gloss': "the impurity's own fuelling rate on the same deposit"},
         {'key': 'ch_momentum', 'shape': '1', 'units': '1', 'gloss': '1 to advance the toroidal rotation beside the march (solve_momentum, one step per step)'},
         {'key': 'prandtl', 'shape': '1', 'units': '1', 'gloss': 'chi_phi = prandtl * chi_i (prescribed; floored at 1e-6)'},
+        {'key': 'phi_turb', 'shape': '1', 'units': '1', 'gloss': '1 to take chi_phi from the given chi_turb_phi (the TGLF momentum flux) instead of prandtl * chi_i'},
         {'key': 'torque', 'shape': '1', 'units': 'N.m', 'gloss': 'total torque, deposited on the aux-power Gaussian (dep_centre / dep_width)'},
         {'key': 'dt_fraction_in', 'shape': '1', 'units': '1', 'gloss': 'the fuel fraction the previous block ran on (read when resume = 1 and quasi = 1)'},
         {'key': 'wave', 'shape': '1', 'units': '1', 'gloss': '1 = the trapezoid waveform drives the actuators'},
@@ -1467,6 +1474,7 @@ CODE_PARAMS = {
         'edge': {'key': 'edge', 'type': 'float', 'via': 'turbulence_case', 'default': '0.3', 'required': False},
         'find_width': {'key': 'find_width', 'type': 'float', 'via': 'species_deck', 'default': '1.0', 'required': False},
         'kappa': {'key': 'kappa', 'type': 'float', 'via': 'turbulence_case', 'default': '1.0', 'required': False},
+        'momentum_flux': {'key': 'momentum_flux', 'type': 'boolean', 'via': 'turbulence_case', 'default': 'false'},
         'n_ky': {'key': 'n_ky', 'type': 'float', 'via': 'turbulence_case', 'default': '8.0', 'required': False},
         'n_rad': {'key': 'n_rad', 'type': 'float', 'via': 'turbulence_case', 'default': '6.0', 'required': False},
         'ne0': {'key': 'ne0', 'type': 'float', 'via': 'turbulence_case', 'default': '1.0', 'required': False},

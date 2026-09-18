@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "80f1dacaccb1d6db";
+pub const DIGEST: &str = "1ee10b0ae6f30088";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -60,6 +60,8 @@ pub const TABLES: &[Table] = &[
         Slot { key: "chi_i", path: "profiles_1d/total_ion_energy/d", units: "m^2.s^-1", rank: "1d" },
         Slot { key: "d_n", path: "profiles_1d/electrons/particles/d", units: "m^2.s^-1", rank: "1d" },
         Slot { key: "v_n", path: "profiles_1d/electrons/particles/v", units: "m.s^-1", rank: "1d" },
+        Slot { key: "chi_phi", path: "profiles_1d/momentum_phi/d", units: "m^2.s^-1", rank: "1d" },
+        Slot { key: "v_phi", path: "profiles_1d/momentum_phi/v", units: "m.s^-1", rank: "1d" },
     ] },
     Table { name: "DEVICE", doc_type: "fyo:DeviceDescription", slots: &[
         Slot { key: "coil_name", path: "pf_active/coil/name", units: "1", rank: "0d" },
@@ -434,6 +436,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "lh_j", shape: "n", units: "A.m^-2", gloss: "the wave-driven current (with ch_current)" },
         Row { key: "chi_turb", shape: "n", units: "m^2.s^-1", gloss: "the turbulent ion diffusivity added to the neoclassical one (closure = 3)" },
         Row { key: "vprime_old", shape: "n", units: "m^2", gloss: "dV/drho the block's first step starts from (vprime_moved = 1); the volume change across that step" },
+        Row { key: "chi_turb_phi", shape: "n", units: "m^2.s^-1", gloss: "the turbulent momentum diffusivity (phi_turb = 1): the extension's TGLF momentum flux over the rotation shear" },
+        Row { key: "v_phi", shape: "n", units: "m.s^-1", gloss: "the momentum pinch velocity on the rho grid (inward negative); zeros = no pinch" },
     ] },
     Block { name: "EVOLVE_HEAT_OUT", rows: &[
         Row { key: "te", shape: "n", units: "eV", gloss: "the profile the loop reached" },
@@ -458,6 +462,8 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "j_bs", shape: "n", units: "A.m^-2", gloss: "the bootstrap current of the last step" },
         Row { key: "chi_e", shape: "n", units: "m^2.s^-1", gloss: "electron diffusivity the last step used" },
         Row { key: "chi_i", shape: "n", units: "m^2.s^-1", gloss: "ion diffusivity the last step used" },
+        Row { key: "chi_phi", shape: "n", units: "m^2.s^-1", gloss: "momentum diffusivity the last step used (with ch_momentum)" },
+        Row { key: "v_phi", shape: "n", units: "m.s^-1", gloss: "momentum pinch the march used (with ch_momentum)" },
         Row { key: "p_ohm", shape: "nt", units: "W", gloss: "volume-integrated Ohmic power per step" },
         Row { key: "q", shape: "n", units: "1", gloss: "the safety factor the flux the loop reached implies" },
         Row { key: "saw_r1", shape: "nt", units: "m", gloss: "the innermost q = 1 radius that step (0 = none, i.e. not sawtoothing)" },
@@ -562,6 +568,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "fuel_z", shape: "1", units: "s^-1", gloss: "the impurity's own fuelling rate on the same deposit" },
         Row { key: "ch_momentum", shape: "1", units: "1", gloss: "1 to advance the toroidal rotation beside the march (solve_momentum, one step per step)" },
         Row { key: "prandtl", shape: "1", units: "1", gloss: "chi_phi = prandtl * chi_i (prescribed; floored at 1e-6)" },
+        Row { key: "phi_turb", shape: "1", units: "1", gloss: "1 to take chi_phi from the given chi_turb_phi (the TGLF momentum flux) instead of prandtl * chi_i" },
         Row { key: "torque", shape: "1", units: "N.m", gloss: "total torque, deposited on the aux-power Gaussian (dep_centre / dep_width)" },
         Row { key: "dt_fraction_in", shape: "1", units: "1", gloss: "the fuel fraction the previous block ran on (read when resume = 1 and quasi = 1)" },
         Row { key: "wave", shape: "1", units: "1", gloss: "1 = the trapezoid waveform drives the actuators" },
@@ -1424,6 +1431,7 @@ pub const CODES: &[Code] = &[
         Param { key: "edge", value_type: "float", default: "0.3", required: false, via: "turbulence_case" },
         Param { key: "find_width", value_type: "float", default: "1.0", required: false, via: "species_deck" },
         Param { key: "kappa", value_type: "float", default: "1.0", required: false, via: "turbulence_case" },
+        Param { key: "momentum_flux", value_type: "boolean", default: "false", required: false, via: "turbulence_case" },
         Param { key: "n_ky", value_type: "float", default: "8.0", required: false, via: "turbulence_case" },
         Param { key: "n_rad", value_type: "float", default: "6.0", required: false, via: "turbulence_case" },
         Param { key: "ne0", value_type: "float", default: "1.0", required: false, via: "turbulence_case" },

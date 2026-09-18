@@ -1,0 +1,42 @@
+{
+  "_comment": "FR-TR-008 环向动量 / 转动通道 —— 2026-09-18。门：$FYLITE_KERNEL 的 transport.rs 与 tests/test_momentum_channel_code.py",
+  "interface": {
+    "kernel": "transport::solve_momentum(rho, omega_init, vprime, gm3, r2, dens, mass, chi_phi, pinch: Option<&[f64]>, torque, dt, edge, ...)",
+    "equation": "d(M_I omega)/dt + (1/V') d/drho [ -M chi_phi domega/drho + M v_phi omega ] = torque,  M = V' <|grad rho|^2> n m <R^2>",
+    "descriptor": "ChannelDescriptor name \"momentum\" on the ETS canonical form (FR-TR-001)",
+    "door": "code/evolve: momentum = 1; optional fylite:chi_turb_phi (replaces chi_phi = prandtl * chi_i) and fylite:v_phi (the pinch); refused by name without the channel",
+    "turbulent_closure": "code/turbulence (extension), setting momentum_flux = 1 (default off): chi_phi = chi_GB |Pi/Pi_GB| / ((R/a) |vpar_shear| (n_i m_i)/(n_e m_ref)), Pi_GB = n_e T_e a (rho_s/a)^2; refused without a rotation profile",
+    "dd_names": "core_transport/model/*/profiles_1d/momentum_phi/{d, v} (DD 4.1.1; the SRS's momentum_tor is the DD 3 spelling)"
+  },
+  "pinch_closed_form": {
+    "case": "chi = 2, v = -1.5, T = 4, edge = 1000; omega = C e^{kx} + (T/v) x + T chi / v^2",
+    "n": [
+      33,
+      65,
+      129
+    ],
+    "ratio_band": [
+      3.5,
+      4.5
+    ],
+    "none_equals_zero_pinch": "bit for bit"
+  },
+  "door": {
+    "prandtl_default": "momentum_phi/d = max(0.7 chi_i, 1e-6) exactly, v = 0",
+    "axis_omega_no_pinch": 27452.7,
+    "axis_omega_v_phi_minus_2": 34245.2,
+    "zero_v_phi_equals_no_pinch": "bit for bit",
+    "given_chi_turb_phi": "published verbatim; omega moves"
+  },
+  "tglf_prandtl_number": {
+    "window": "0.15 < x < 0.85",
+    "min": 0.022,
+    "median": 0.415,
+    "max": 0.506
+  },
+  "default_parity": "momentum_flux off: test_the_turbulent_tier_with_rotation_equals_the_loop_to_the_bit and the page parity unchanged",
+  "not_covered": [
+    "residual stress / intrinsic rotation (a pinch profile must be supplied; TGLF's convective part is not separated from its diffusive part)",
+    "the turbulent chi_phi reaches the march the way chi_turb does: the host binds the turbulence door's answer into code/evolve block by block (no in-door TGLF call)"
+  ]
+}

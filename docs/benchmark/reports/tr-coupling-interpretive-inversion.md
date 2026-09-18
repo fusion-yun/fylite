@@ -14,8 +14,8 @@ title: "tr-coupling-interpretive-inversion"
 - **量的是**：解释性反演核：**接口早已成文，往返按 h² 收敛到 3.8e-5——此前只是没有入册**
 - **参考**：SRS-04 Eq. (eq-srs04-interp) 与本仓的预测性导热求解
 - **验的需求**：`FR-TR-011`
-- **跑在内核**：`sha256:94645111a7e2eb3f…`（新鲜度 **current**）
-- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-18
+- **跑在内核**：`sha256:e16301fa3acd72ca…`（新鲜度 **current**）
+- **记录版本**：1.1　**评审**：草稿　**日期**：2026-09-18
 
 ## 问的是什么
 
@@ -56,19 +56,20 @@ title: "tr-coupling-interpretive-inversion"
 
 ## 追溯
 
-- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.0　评审 草稿
+- 首次入册 2026-09-18　末次修订 2026-09-18　版本 1.1　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
 | 版本 | 日期 | 谁 | 做了什么 |
 | :--- | :--- | :--- | :--- |
 | 1.0 | 2026-09-18 | Claude Opus 5 (1M context) | 首次入册：`FR-TR-011` 判**成立**。反演核（`interpretive_channel` · C ABI · `code/interpretive`）早已在内核仓，本册缺的只是记录。往返按 h² 收敛到 3.8e-5（新钉成门）。★顺带修掉 kernel 仓自 12e603b 起恒红的 5 道门（参照梯子喂了每弧度 dpsi，ρ 小 √(2π)）。 |
+| 1.1 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc`
+- 内核 `libfylite` `sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

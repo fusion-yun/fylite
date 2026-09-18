@@ -10,7 +10,7 @@ title: 需求覆盖 (Requirement coverage)
 
 - 生成于 (recorded)：2026-09-18
 - 需求 (requirements)：**57** 条，其中 **MUST 52** 条
-- 已有记录覆盖 (covered)：**53** 条（92 %）
+- 已有记录覆盖 (covered)：**54** 条（94 %）
 - ★**MUST 级空缺 (open MUST)：1 条**
 - ★上游未给判据 (no criterion in the SRS)：**1** 条
 
@@ -149,7 +149,7 @@ chi / D 从哪来、源项怎么沉积——每个插件对着它移植自的那
 | `FR-TR-005` | MUST | 刚性稳定化生产路径 | [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） |
 | `FR-TR-006` | MUST | 耦合隐式块解（可选，候选 ADR） | [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） |
 | `FR-TR-007` | MUST | 稳态通量匹配 | [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 |
-| `FR-TR-008` | SHOULD | 环向动量 / 转动通道（路线项） | — | — | — |
+| `FR-TR-008` | SHOULD | 环向动量 / 转动通道（路线项） | [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 |
 
 ## 输运 (Transport) · 台基、锯齿与 0D 存量
 

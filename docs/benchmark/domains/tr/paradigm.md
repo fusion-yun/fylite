@@ -40,6 +40,16 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 时间推进，一个是 Newton 求根）。两条路的根若有差异，记录要把差异记下来而不是取其一：
 差异本身是关于问题条件数的信息。
 
+环向动量是本域的第三件事，放在这里是因为它与前两件共用同一个求解器形态——ETS 正则形式上
+一道名为 `momentum` 的通道。★**[`tr-paradigm-momentum-channel`](../records/tr-paradigm-momentum-channel.jsonld)
+判成立，但它先补了三处缺口才判**：方程里没有对流（pinch）项；TGLF 的动量通量算了但进不了
+march（march 只认 $\chi_\phi = \mathrm{Pr}\,\chi_i$）；`core_transport` 上没有动量通道的名字。
+补完之后 pinch 对闭式解 $\omega = C e^{kx} + (T/v)x + T\chi/v^2$ 二阶收敛，而 TGLF 给出的
+Prandtl 数中位 **0.415**——判它的只是「落在 O(1)」，因为 $\chi_\phi$ 的归一是推出来的，
+漏一个 $R/a$ 或密度质量因子就会差出这个因子。★名字照 DD 4 写 `momentum_phi`，不是判据里的
+`momentum_tor`（DD 3 的拼法）。★湍流 $\chi_\phi$ **缺省关**：把平行剪切喂给 TGLF 会连热通量
+一起动，缺省若开，湍流档的逐位对拍就断了。
+
 上一册这一域有 `B-07`（TGYRO 收敛态）、`V-06` / `V-07`（TGYRO 映射与算例）。已退役。
 
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
@@ -72,9 +82,10 @@ $\chi_0(p_1 + p_2 g/(1+g))$，对梯度**有界且饱和**。扫遍刚度盒十�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.11 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
-| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.11 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
-| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.14 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
+| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.12 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
+| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.12 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
+| [`tr-paradigm-momentum-channel`](../../reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 | FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解 | 1.0 | 草稿 | [jsonld](../../records/tr-paradigm-momentum-channel.jsonld) |
+| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 未判（读数） | P-C 项在不动点上的恒等对消（解析不变性） | 1.15 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 

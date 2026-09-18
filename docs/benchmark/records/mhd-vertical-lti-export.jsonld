@@ -130,11 +130,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:94645111a7e2eb3ff131ac2163078d5200afba5cbe6bc6bcf2537f466ad153fc"
+   "checksum": "sha256:e16301fa3acd72ca3bbe19c05775bbc2c4d78fd9e7b5b693f9b8756ce6d8669b"
   }
  },
  "provenance": {
-  "record_version": "1.0",
+  "record_version": "1.1",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -145,6 +145,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "首次入册：`FR-EQ-015` 判**成立**。新模块 `fylite.scenario.control.lti`：由 `code/vstab` 的矩阵装配 (A, B, C, D)，等离子体响应由参数选（静止 / 刚性；摄动 G-S 按名拒绝），落 `em_coupling/coupling_matrix`。零等离子体极限对两回路闭式 1e-12；EAST 上导出 γ 对门 7.4e-15。★判读符号初版写反（把阻性壁档的负本征值当成越限），已改为按 k ≥ k_ideal 拒绝。"
+   },
+   {
+    "record_version": "1.1",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。"
    }
   ]
  }
