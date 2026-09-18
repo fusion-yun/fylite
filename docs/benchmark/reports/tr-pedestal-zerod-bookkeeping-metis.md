@@ -2,7 +2,7 @@
 title: "tr-pedestal-zerod-bookkeeping-metis"
 ---
 
-# 0D 记账对 METIS：体积公式差 2.8 %，以及 0D 这一层还没有的几样
+# 0D 记账对 METIS：体积缺口**已补上**（D 形体积，±0.25 %）；轴值与 W_th 受峰化约定所限判不了
 
 <!-- ★生成件，勿手改：`python tools/benchmark-book.py`。正本是 `records/tr-pedestal-zerod-bookkeeping-metis.jsonld`，本页只是它的可读面。 -->
 
@@ -10,17 +10,12 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 ## 摘要
 
-- **类**：对拍　**判决**：**不成立**
-- **量的是**：0D 记账对 METIS：体积公式差 2.8 %，以及 0D 这一层还没有的几样
+- **类**：对拍　**判决**：**未判（读数）**
+- **量的是**：0D 记账对 METIS：体积缺口**已补上**（D 形体积，±0.25 %）；轴值与 W_th 受峰化约定所限判不了
 - **参考**：METIS
 - **验的需求**：`FR-TR-014`
-- **跑在内核**：`sha256:3b7038913caa1232…`（新鲜度 **current**）
-- **记录版本**：1.18　**评审**：草稿　**日期**：2026-09-16
-
-:::{warning} 这是一条**已裁定保留**的缺口
-
-2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。 〔三〕★**2026-09-18 归因完成**：METIS 的体积是它边界的积分（有分离面积分分离面，否则积 D 形），28 个算例 84 个时刻全部复现；0D 的 2π²Ra²κ 少了三角形变那一块。内核仍不动。
-:::
+- **跑在内核**：`sha256:a7a86a75fc27ac15…`（新鲜度 **current**）
+- **记录版本**：1.19　**评审**：草稿　**日期**：2026-09-16
 
 ## 问的是什么
 
@@ -45,8 +40,8 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| 等离子体体积对 METIS 的相对差 | 0.01 | measured_band | 四个工作点相对差 +0.0287 · +0.0287 · +0.0285 · +0.0287（最劣 0.0287，判据 0.01） | **不成立** |
-| 体积偏差在各工作点之间的散布（是否系统性） | 0.001 | measured_band | 四点散布 1.33e-04（判据 1e-3）——四位有效数字内一致 | **成立** |
+| 等离子体体积对 METIS 的相对差 | 0.01 | measured_band | 四个工作点相对差 +0.0008 · -0.0005 · -0.0020 · +0.0008（最劣 0.0020，判据 0.01）。★改前（椭圆 $2\pi^2Ra^2\kappa$）：+0.0287 · +0.0287 · +0.0285 · +0.0287 | **成立** |
+| 体积偏差在各工作点之间的散布（是否系统性） | 0.001 | measured_band | 改后四点散布 2.81e-03（判据 1e-3）；改前 1.33e-04（那时偏差是一个系统常数 +2.87 %） | **未判（读数）** |
 | 轴上 ne / Te 对 METIS | 0.1 | measured_band | ne 轴相对差 -0.265 · -0.265 · -0.266 · -0.266；Te 轴 -0.728 · -0.713 · -0.676 · -0.729 | **未判（读数）** |
 | ★★0D 这一层缺的几样 —— 三样里补了两样（2026-09-17） | — | — | ★**热能 W 补上了**：`summary/w_th` 与 `dw_dt` 现在无条件发出（此前 `stored_energy` 一直在算，只是仅在 `criteria` 开关下以 `criteria_w_th` 出来，而 DD 的 `energy_thermal` 槽空着）。★**加料 / 抽气补上了**：新的燃料存量账（`s_fuel` / `tau_p`，opt-in），实测闭合残差 1.07e-14、账面「起+入−抽−烧 = 终」对到 4.56e-15。★**台基仍然没有**，而且**不该在 0D 有**：台基是边界层结构，0D 是零维体积平均账，没有承载它的径向坐标——它要 1.5D 的 `code/evolve` | **成立** |
 | 热能 W_th 对 METIS（同一组输入） | — | reference_self_reported | 喂体平均（本条的输入）：−0.640 · −0.668 · −0.694 · −0.641；喂 METIS 自己的轴值：+0.797 · +0.574 · +0.286 · +0.805。METIS 自己：存下的 W_th 对它自己剖面的积分 −0.078 % · −0.039 % · −0.003 % · −0.124 % | **未判（读数）** |
@@ -57,16 +52,17 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 **`轴上 ne / Te 对 METIS`** — ★★这一条**判不了**，见 finding：喂进去的是体平均，轴值由各自的峰化约定生成。
 
-**★体积 —— **不成立**，而且归因已经查到公式一级**
+**★体积 —— **成立**（2026-09-18 补上）：0D 改用带三角度的 D 形体积，对 METIS ±0.25 %**
 
+- ★★**2026-09-18 缺口补上**（用户要求「close 0d gap」，取代此前「保留负面结果」的裁定）：内核 `zerod::plasma_volume` 按 METIS `zgeo0.m` 同一条 D 形 $R=R_0+a\cos(u+\arcsin\delta\,\sin u)$、$Z=\kappa a\sin u$ 积分，`code/zerod` 收新设定 `delta`；**不给 δ 时仍是椭圆，逐位**——既有的每一次运行数都不动。δ 取 METIS 自己的 `delta_geo`。
 - ★★**fylite 的 0D 体积恰好是 2π²R a²κ**——实测逐位吻合（804.672 m³ 对公式 804.672 m³，相对差 0.00000）。METIS 比它低 -2.87 %。**所以这不是数值误差，是两边用了不同的体积公式。**
 - ★★**归因查到公式一级（2026-09-18，读 METIS 源码 `zerod/zgeo0.m`）**：METIS 的体积就是**它那条边界**围出来的体积——给了分离面就对分离面积分 $|\oint 2\pi R(-Z\,dR)|$，没给就对 $R=R_0+a\cos(u+\arcsin\delta\,\sin u)$、$Z=a\kappa\sin u$ 积分；$2\pi^2Ra^2\kappa$ 只在积分出 NaN / 0 时兜底。认证语料 28 个算例 84 个时刻全部复现：有分离面的 20 个由分离面积分对上（最劣 0.54 %，多数 0.0000），没有的 8 个由 D 形积分对上（最劣 0.12 %）。★本条那四点属 ITER 一族：D 形积分复现到 ±0.25 %，而 $2\pi^2Ra^2\kappa$ 一律高 2.84–2.87 %。所以 2.87 % 就是**三角形变**这一块——δ²/8 只是其面积项，另一块是截面被三角形变往内挪、体积按 $R$ 加权后少掉的那部分。
 - ★★**这条偏差会直接传给 0D 存量账**（FR-TR-014）：存量 = 密度 × 体积，体积偏 2.8 %，加料 / 抽气的账就同偏 2.8 %。**这才是它挂在这条需求下的理由。**
-- ★**内核不动**（用户裁定「保留负面结果」）：修法已经写在上一条里——0D 体积换成带 δ 的形状积分，或直接吃边界。
+- ★仍是椭圆的两处，照实记：边界面积（`surface_elliptical`，预测档的辐射/壁载用）与欧姆截面（`π a² κ`）。它们不进本条的判据，但同一个三角形变也会动它们。C ABI 的十标量块也没有 δ 槽（改它要动 ABI），那条路径仍是椭圆。
 
-**体积偏差是**系统性**的**
+**体积偏差的散布 —— **未判**：补上之后剩下的是分离面，不是公式**
 
-- ★这一条**成立反而是坏消息的好消息**：它确认了上一条是一次可修的公式差，不是需要逐点标定的模型差。
+- ★★这一格原本问的是「那 2.87 % 是不是系统性的」——是，所以它是公式差、一次可修，也确实一次修掉了。**修掉之后这个问题不再有对象**：剩下的 +0.08 → −0.20 % 随时刻走，因为 METIS 在 ITER 上积的是它的**分离面**，而分离面不恰好是 (R, a, κ, δ) 那条 D——分离面积分本身对 METIS 在 3e-4 以内（`zerod_metis_attribution.json`）。散布超过 1e-3 是参考侧的边界细节，不是 0D 的体积公式；判它成立或不成立都会答错问题。
 
 **★轴上 ne / Te —— **判不了**（峰化约定不同）**
 
@@ -88,14 +84,14 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 ## 不可比的部分
 
-- ★★**本条唯一干净可判的是体积**，因为两侧拿的是同一组几何输入、而体积是纯几何量——它不成立，且 2026-09-18 已归因到公式一级（METIS 对自己的边界积分，0D 用椭圆公式）。ne / Te 的轴值与 W_th 受峰化约定拖累，判不了；存量账两边的损失项不是同一个量，不可比；台基不该在 0D 做。
+- ★★**体积成立**（2026-09-18 补上：0D 改用 METIS 同一条 D 形的体积，对 METIS ±0.25 %，此前椭圆公式 +2.87 %）。ne / Te 的轴值与 W_th 受峰化约定拖累，判不了；存量账两边的损失项不是同一个量，不可比；台基不该在 0D 做。整体因此是 inconclusive，不再是 fail。
 - ★**哪些量是喂进去的**：R / a / kappa / Ip / <ne> / <Te> 全是输入（且来自 METIS 自己），算出来的是体积与剖面形状。
 - ★**METIS 侧不在本处重跑**：它是 sha256 索引的归档表。
 - ★2026-09-18 门已补上（两道：四个工作点上 0D 体积逐位等于 $2\pi^2Ra^2\kappa$ 且逐位等于读数 · 相对 METIS 的差是系统性的、散布 1.33e-4）。★**METIS 侧不重跑**：它是 sha256 索引的归档表。
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.18　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-18　版本 1.19　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -120,26 +116,30 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 | 1.16 | 2026-09-18 | Claude Opus 5 (1M context) | 改正误抄的变更摘要：1.3 原文照抄了 1.1，而两条之间隔着一条真实改动，合并会打乱时序，故只把 1.3 改写成它实际对应的那次换代（`eb8c9022`）。★本条的判据与数值未动。 |
 | 1.17 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.18 | 2026-09-18 | Claude Opus 5 (1M context) | 读 METIS 源码（`third_party/metis_2026` 的 `zgeo0.m`）与认证 .mat：体积那处 2.87 % 归因到公式一级——METIS 对自己的边界积分（20 个算例积分离面，8 个积 D 形），84 个时刻全部复现；ITER 一族 D 形积分 ±0.25 % 而椭圆公式 +2.84–2.87 %。新增第四格 W_th（未判）：喂体平均 −64…−69 %、喂轴值 +29…+80 %，由峰化约定夹逼。存量账两边损失项不是同一个量，记不可比。判决仍 fail，内核不动（用户裁定）。 |
+| 1.19 | 2026-09-18 | Claude Opus 5 (1M context) | **体积缺口补上**（用户要求「close 0d gap」，取代 2026-09-17「保留负面结果」的裁定）：内核 `zerod::plasma_volume` 按 METIS 同一条 D 形积分，`code/zerod` 收 `delta`（不给即椭圆，逐位）。四点对 METIS +0.08 / −0.05 / −0.20 / +0.08 %（此前 +2.87 %），第一格转成立；第二格（散布）转未判——剩下的是 METIS 分离面与 D 形之差。open_defect 撤销；整体 fail → inconclusive。另补 1f999bd 漏的两处登记册格式：zgeo0.m 的 sha256、W_th 一格的数值偏差。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c`
+- 内核 `libfylite` `sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/zerod_metis_metrics.json`    `sha256:ec6c71b732bb669460dbd0802fd7ed942fc885e4b7e05667a7941c143cd7cbd9`    本条读数：四个工作点的输入覆盖、体积、轴值与两侧剖面
+- `docs/benchmark/readings/zerod_metis_metrics.json`    `sha256:fc3463773fa8d7f64b57c69d8ec486b68f7b69421036f9f891c64c5b1dced8a5`    本条读数：四个工作点的输入覆盖（2026-09-18 起含 METIS 自己的 δ）、体积（D 形与旧椭圆并列）、轴值与两侧剖面
 - `FYDOC-CASE-10-metis/corpus/metis_cert_zerod.csv`    `sha256:45eb266a6c85fd7852f826687611a783c62543f6537de58387d49a531724ffa8`    ★METIS 侧原件（参考类，指针 + sha256）
 - `docs/benchmark/readings/zerod_metis_attribution.json`    `sha256:0794bd7cf4f6441b409d9e8de42491086fcb4872507adc3033a368c2d9ad9a4c`    体积逐点归因（84 点 / 28 算例：分离面积分与 D 形积分）、W_th 的约定夹逼、存量账为何不可比
-- `third_party/metis_2026/METIS-main/zerod/zgeo0.m`    `—`    ★METIS 体积公式的源码（参考类，指针）；认证 .mat（MATLAB v5）在同树 certification/metis/
+- `third_party/metis_2026/METIS-main/zerod/zgeo0.m`    `sha256:4d2aea40e1aa008e626f8b45c4101aad8bf483f069dec74060b0fc84879ed815`    ★METIS 体积公式的源码（参考类，指针）；认证 .mat（MATLAB v5）在同树 certification/metis/
 
 **守它的门**：
 
-- `python/tests/test_benchmark_transport_gates.py::test_the_zerod_volume_is_the_elliptic_formula_at_every_metis_point` —— 第一格：四点逐位等于 2π²Ra²κ，也逐位等于读数
-- `python/tests/test_benchmark_transport_gates.py::test_the_volume_gap_to_metis_is_systematic_not_scattered` —— 第二格：散布 1.33e-4——是公式，不是噪声
+- `python/tests/test_benchmark_transport_gates.py::test_the_zerod_volume_is_the_d_shape_and_lands_on_metis` —— ★0D 体积为 D 形，对 METIS ±0.25 %；不给 δ 仍是椭圆（逐位）
+- `python/tests/test_benchmark_transport_gates.py::test_what_is_left_of_the_volume_gap_is_the_separatrix_not_the_formula` —— 剩下的 ±0.2 % 是分离面，不是公式
 - `python/tests/test_benchmark_transport_gates.py::test_the_metis_volume_is_its_own_boundary_so_the_gap_is_the_ellipse` —— ★体积归因到公式一级
 - `python/tests/test_benchmark_transport_gates.py::test_the_thermal_energy_is_bracketed_by_the_peaking_convention_not_judged` —— W_th 的约定夹逼
+- `$FYLITE_KERNEL/rust/fylite/src/zerod.rs::tests::the_d_volume_lands_on_metis_at_the_iter_certification_point` —— 内核侧：ITER 认证点 +0.08 %
+- `$FYLITE_KERNEL/rust/fylite/src/zerod.rs::tests::the_d_volume_is_the_polygon_volume_of_the_same_curve` —— 内核侧：D 形体积对多边形旋转体按 h² 收敛
+- `$FYLITE_KERNEL/rust/fylite/src/case.rs::tests::zerod_takes_the_triangularity_into_the_volume_and_refuses_an_impossible_one` —— 门：δ 不给即椭圆，|δ| ≥ 1 拒绝
 
 ```bash
 python tools/benchmark-book.py --check   # 本页与记录同源吗

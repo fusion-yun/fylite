@@ -65,8 +65,8 @@ $q = F g_q/|\mathrm{d}\psi|$ 要**整圈** Wb，而 $\Phi = 2\pi\,\mathrm{d}\psi
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](../../reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 | 恒等式：写之后再读，必须回到原处 · 同一读取函数的另一实现（Python 定宽参照读者 ↔ Rust 数据层读者） | 1.15 | 草稿 | [jsonld](../../records/eq-convention-gfile-cocos-roundtrip.jsonld) |
-| [`eq-convention-ladder-flux-gauge`](../../reports/eq-convention-ladder-flux-gauge.md) | 验证 | 成立 | 圆截面的闭式解 | 1.9 | 草稿 | [jsonld](../../records/eq-convention-ladder-flux-gauge.jsonld) |
+| [`eq-convention-gfile-cocos-roundtrip`](../../reports/eq-convention-gfile-cocos-roundtrip.md) | 验证 | 成立 | 恒等式：写之后再读，必须回到原处 · 同一读取函数的另一实现（Python 定宽参照读者 ↔ Rust 数据层读者） | 1.16 | 草稿 | [jsonld](../../records/eq-convention-gfile-cocos-roundtrip.jsonld) |
+| [`eq-convention-ladder-flux-gauge`](../../reports/eq-convention-ladder-flux-gauge.md) | 验证 | 成立 | 圆截面的闭式解 | 1.10 | 草稿 | [jsonld](../../records/eq-convention-ladder-flux-gauge.jsonld) |
 
 ### 缺口
 

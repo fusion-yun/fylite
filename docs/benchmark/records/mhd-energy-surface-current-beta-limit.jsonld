@@ -292,11 +292,11 @@
   ],
   "kernel": {
    "name": "libfylite",
-   "checksum": "sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c"
+   "checksum": "sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0"
   }
  },
  "provenance": {
-  "record_version": "1.6",
+  "record_version": "1.7",
   "recorded": "2026-09-18",
   "revised": "2026-09-18",
   "review_status": "draft",
@@ -343,6 +343,12 @@
     "date": "2026-09-18",
     "by": "Claude Opus 5 (1M context)",
     "summary": "补 `FR-EQ-021(g)` 有壁支与不稳带（criterion/9，成立）：有壁 W_lp = (12.164) + 负幂真空修正，带按全矩阵 λ_min 定；SRS 三档读数复现，β/ε 0.2159 → 0.3636；★闭合点实测 1.32165，不复现 SRS 的「≤ 1.35」，照实记。同批内核换代（`e16301fa` → `3b703891`），内核侧 792 项全通过。"
+   },
+   {
+    "record_version": "1.7",
+    "date": "2026-09-18",
+    "by": "Claude Opus 5 (1M context)",
+    "summary": "内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。"
    }
   ]
  }

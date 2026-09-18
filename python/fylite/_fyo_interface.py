@@ -1551,6 +1551,7 @@ CODE_PARAMS = {
         'bt': {'key': 'bt', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'c_ejima': {'key': 'c_ejima', 'type': 'float', 'via': 'zerod_case', 'default': 'zerod::EJIMA_C', 'required': False},
         'criteria': {'key': 'criteria', 'type': 'boolean', 'via': 'zerod_case', 'default': 'false'},
+        'delta': {'key': 'delta', 'type': 'float', 'via': 'zerod_case', 'default': '0.0', 'required': False},
         'dtf': {'key': 'dtf', 'type': 'float', 'via': 'zerod_case', 'default': '0.5', 'required': False},
         'edge_frac': {'key': 'edge_frac', 'type': 'float', 'via': 'zerod_case', 'default': '0.05', 'required': False},
         'hfac': {'key': 'hfac', 'type': 'float', 'via': 'zerod_case', 'default': '1.0', 'required': False},

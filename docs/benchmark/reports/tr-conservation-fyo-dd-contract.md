@@ -14,8 +14,8 @@ title: "tr-conservation-fyo-dd-contract"
 - **量的是**：声明的每条路径都要有出处：裸名在 DD 里查得到，自铸的必须带前缀
 - **参考**：仓内的 IMAS DD 表（`rust/fylite_runtime/ids/*.tsv`，82 个 IDS、26752 行）
 - **验的需求**：`NR-TR-005`
-- **跑在内核**：`sha256:3b7038913caa1232…`（新鲜度 **current**）
-- **记录版本**：1.13　**评审**：草稿　**日期**：2026-09-17
+- **跑在内核**：`sha256:a7a86a75fc27ac15…`（新鲜度 **current**）
+- **记录版本**：1.14　**评审**：草稿　**日期**：2026-09-17
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
@@ -76,7 +76,7 @@ title: "tr-conservation-fyo-dd-contract"
 
 ## 追溯
 
-- 首次入册 2026-09-17　末次修订 2026-09-18　版本 1.13　评审 草稿
+- 首次入册 2026-09-17　末次修订 2026-09-18　版本 1.14　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -96,12 +96,13 @@ title: "tr-conservation-fyo-dd-contract"
 | 1.11 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（环几何全 δW 入内核：`toroidal.rs`，`screwpinch.rs` 增阻性壁模；`FR-EQ-029` · `030` · `031`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **787 项全通过**（新锚 14 条，另 5 条 V5 门在 --release 下全过）。★纯增量（新模块，没开门），接口摘要与 `CASE_CODES` 均未动。 |
 | 1.12 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（动量通道闭合补三处：`solve_momentum` 加 pinch、`code/evolve` 收 `chi_turb_phi` · `v_phi`、扩展门 `code/turbulence` 按 `momentum_flux` 出 χ_φ、`core_transport` 挂 `momentum_phi/{d,v}`；`FR-TR-008`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过。★只加槽（接口摘要 `80f1dacaccb1d6db` → `1ee10b0ae6f30088`，修订号不动）：新输入都是可选的、`momentum_flux` 缺省关，既有调用逐位不变。 |
 | 1.13 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（表面电流模型有壁不稳带 `FR-EQ-021(g)` 与共形基解析导数链 `FR-EQ-025(e)` 入内核，另摘掉六处重复的 `#[test]`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **792 项全通过**（去重后既有 782 + 新锚 10）。★纯增量（没开门），接口摘要与 `CASE_CODES` 均未动。 |
+| 1.14 | 2026-09-18 | Claude Opus 5 (1M context) | 内核换代后的全册重验（0D 体积带三角度入内核：`zerod::plasma_volume`，`code/zerod` 收可选设定 `delta`；`FR-TR-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **801 项全通过**（新锚 5 条）。★`delta` 缺省 0 时体积逐位是原来的椭圆，接口摘要、`CASE_CODES`、ABI 均未动。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `libfylite` `sha256:3b7038913caa123272b47bac95aaf43e6b3f7ab628d06e7f8c8b1642ad801b6c`
+- 内核 `libfylite` `sha256:a7a86a75fc27ac155dcfb3ed1c1d752729aef8fea9573a9218444ae2c442b4a0`
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

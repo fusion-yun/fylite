@@ -10,7 +10,7 @@ title: 验证状态 (Verification status)
 
 ## 基准内核 (reference kernel)
 
-- `libfylite` **sha256:3b7038913caa1232…**
+- `libfylite` **sha256:a7a86a75fc27ac15…**
 - 声明于 (recorded)：2026-09-18
 
 :::{warning} ★★指纹锁在**字节**上，而内核的构建不是逐字节可复现的
@@ -26,7 +26,7 @@ title: 验证状态 (Verification status)
 ## 总览 (overview)
 
 - 记录 (records)：**55** 条
-- 判决 (verdict)：成立 43 · 不成立 **1** · 未判 11 · 未评估 0
+- 判决 (verdict)：成立 43 · 不成立 **0** · 未判 12 · 未评估 0
 - 新鲜度 (freshness)：当前 55 · **过期 0** · 未知 0
 - 评审 (review)：已评审 0 · 草稿 55 · 已被取代 0
 
@@ -96,10 +96,6 @@ title: 验证状态 (Verification status)
 
 2026-09-17 ★**门在内核仓，不在本仓**：本条的两道门是 Rust 单测，而本册其余各条的门都是 fylite 侧的 pytest。CI 只跑后者，于是这条记录的新鲜度**不会**被本仓的流水线守住。★补法有二：在 fylite 侧把锯齿经 `code/evolve` 跑出来量一遍，或让 CI 也跑内核仓的测试。两者都没做。
 
-### [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md)
-
-2026-09-17 记名保留（用户裁定「不改内核，保留负面结果」）：〔一〕0D 体积恰为 2π²Ra²κ，比 METIS 高 2.87 %，四点散布仅 1.3e-04——**公式差，一次可修**；这条偏差直接传给 0D 存量账。〔二〕★**2026-09-17 更新**：热能 W 与加料/抽气**已补上**（见 finding），`FR-TR-014` 的存量守恒在这一层从此验得起。**台基仍然没有，且不该在 0D 做**——它要 1.5D 的 `code/evolve`。 〔三〕★**2026-09-18 归因完成**：METIS 的体积是它边界的积分（有分离面积分分离面，否则积 D 形），28 个算例 84 个时刻全部复现；0D 的 2π²Ra²κ 少了三角形变那一块。内核仍不动。
-
 ## 按域 (by domain)
 
 | 组 | 域 | 需求 | 覆盖 | 记录 | 成立 | 不成立 | 过期 |
@@ -117,7 +113,7 @@ title: 验证状态 (Verification status)
 | 输运 (Transport) | [方程组求解与边界条件](domains/tr/equations.md) | 2 | 2 | 2 | 2 | 0 | 0 |
 | 输运 (Transport) | [闭包插件面：输运系数与源项](domains/tr/closure.md) | 3 | 3 | 4 | 2 | 0 | 0 |
 | 输运 (Transport) | [求解范式：刚性稳定化与稳态通量匹配](domains/tr/paradigm.md) | 4 | 4 | 4 | 2 | 0 | 0 |
-| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 1 | 0 |
+| 输运 (Transport) | [台基、锯齿与 0D 存量](domains/tr/pedestal.md) | 3 | 2 | 2 | 1 | 0 | 0 |
 | 输运 (Transport) | [双模、平衡耦合与代理栈](domains/tr/coupling.md) | 3 | 3 | 3 | 3 | 0 | 0 |
 | 输运 (Transport) | [守恒、金标 parity 与口径](domains/tr/conservation.md) | 5 | 2 | 2 | 2 | 0 | 0 |
 
@@ -125,61 +121,61 @@ title: 验证状态 (Verification status)
 
 | 记录 | 域 | 类 | 判决 | 版本 | 末次修订 | 评审 | 跑在内核 | 新鲜度 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-convention-ladder-flux-gauge`](reports/eq-convention-ladder-flux-gauge.md) | eq-convention | 验证 | 成立 | 1.9 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.16 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | eq-reconstruct | 验证 | 成立 | 1.8 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 未判（读数） | 1.9 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.6 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | mhd-deltaw | 验证 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-deltaw-normal-modes`](reports/mhd-deltaw-normal-modes.md) | mhd-deltaw | 验证 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-deltaw-screw-pinch`](reports/mhd-deltaw-screw-pinch.md) | mhd-deltaw | 验证 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-deltaw-toroidal-fixed-boundary`](reports/mhd-deltaw-toroidal-fixed-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-deltaw-toroidal-free-boundary`](reports/mhd-deltaw-toroidal-free-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-deltaw-wall-and-rwm`](reports/mhd-deltaw-wall-and-rwm.md) | mhd-deltaw | 对拍 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | mhd-energy | 验证 | 未判（读数） | 1.5 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-coupled-assembly`](reports/mhd-energy-coupled-assembly.md) | mhd-energy | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | mhd-energy | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | mhd-energy | 验证 | 成立 | 1.6 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | mhd-energy | 验证 | 未判（读数） | 1.4 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | mhd-energy | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 未判（读数） | 1.10 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 未判（读数） | 2.9 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.16 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.17 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.11 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.11 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.1 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.17 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
-| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 不成立 | 1.18 | 2026-09-18 | 草稿 | `sha256:3b7038913caa…` | current |
+| [`eq-convention-gfile-cocos-roundtrip`](reports/eq-convention-gfile-cocos-roundtrip.md) | eq-convention | 验证 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-convention-ladder-flux-gauge`](reports/eq-convention-ladder-flux-gauge.md) | eq-convention | 验证 | 成立 | 1.10 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-evolve-analytic-circuit-limits`](reports/eq-evolve-analytic-circuit-limits.md) | eq-evolve | 验证 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-forward-boundary-rule-vs-kefit`](reports/eq-forward-boundary-rule-vs-kefit.md) | eq-forward | 对拍 | 未判（读数） | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-forward-chease-solovev`](reports/eq-forward-chease-solovev.md) | eq-forward | 对拍 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-forward-green-response-shared`](reports/eq-forward-green-response-shared.md) | eq-forward | 验证 | 成立 | 2.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-forward-kefit-east137985`](reports/eq-forward-kefit-east137985.md) | eq-forward | 对拍 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-forward-self-contained-core`](reports/eq-forward-self-contained-core.md) | eq-forward | 验证 | 成立 | 1.17 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-forward-solovev-fixed-boundary`](reports/eq-forward-solovev-fixed-boundary.md) | eq-forward | 验证 | 成立 | 1.17 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-inverse-freegsnke-east137985`](reports/eq-inverse-freegsnke-east137985.md) | eq-inverse | 对拍 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-inverse-iter-reference-separatrix`](reports/eq-inverse-iter-reference-separatrix.md) | eq-inverse | 验证 | 未判（读数） | 1.17 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-curvature-prior`](reports/eq-reconstruct-curvature-prior.md) | eq-reconstruct | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-fast-ion-pressure`](reports/eq-reconstruct-fast-ion-pressure.md) | eq-reconstruct | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-kefit-twin`](reports/eq-reconstruct-kefit-twin.md) | eq-reconstruct | 对拍 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-kinetic-outer`](reports/eq-reconstruct-kinetic-outer.md) | eq-reconstruct | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-posterior-bands`](reports/eq-reconstruct-posterior-bands.md) | eq-reconstruct | 验证 | 成立 | 1.9 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-twin-observable-space`](reports/eq-reconstruct-twin-observable-space.md) | eq-reconstruct | 验证 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-reconstruct-twin-truth-recovery`](reports/eq-reconstruct-twin-truth-recovery.md) | eq-reconstruct | 验证 | 成立 | 1.16 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-surface-chease-fixed-boundary-east`](reports/eq-surface-chease-fixed-boundary-east.md) | eq-surface | 对拍 | 成立 | 1.17 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`eq-surface-mxh-gfile-fit`](reports/eq-surface-mxh-gfile-fit.md) | eq-surface | 验证 | 未判（读数） | 1.10 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-analytic-ballooning-first-stability`](reports/mhd-analytic-ballooning-first-stability.md) | mhd-analytic | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-analytic-external-kink-qlimit`](reports/mhd-analytic-external-kink-qlimit.md) | mhd-analytic | 验证 | 成立 | 1.8 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-deltaw-delivery-records`](reports/mhd-deltaw-delivery-records.md) | mhd-deltaw | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-deltaw-normal-modes`](reports/mhd-deltaw-normal-modes.md) | mhd-deltaw | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-deltaw-screw-pinch`](reports/mhd-deltaw-screw-pinch.md) | mhd-deltaw | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-deltaw-toroidal-fixed-boundary`](reports/mhd-deltaw-toroidal-fixed-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-deltaw-toroidal-free-boundary`](reports/mhd-deltaw-toroidal-free-boundary.md) | mhd-deltaw | 对拍 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-deltaw-wall-and-rwm`](reports/mhd-deltaw-wall-and-rwm.md) | mhd-deltaw | 对拍 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-conformal-map`](reports/mhd-energy-conformal-map.md) | mhd-energy | 验证 | 未判（读数） | 1.6 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-coupled-assembly`](reports/mhd-energy-coupled-assembly.md) | mhd-energy | 验证 | 成立 | 1.5 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-fluid-high-beta`](reports/mhd-energy-fluid-high-beta.md) | mhd-energy | 验证 | 成立 | 1.5 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-surface-current-beta-limit`](reports/mhd-energy-surface-current-beta-limit.md) | mhd-energy | 验证 | 成立 | 1.7 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-three-term-assembly`](reports/mhd-energy-three-term-assembly.md) | mhd-energy | 验证 | 未判（读数） | 1.5 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-vacuum-general-shape`](reports/mhd-energy-vacuum-general-shape.md) | mhd-energy | 验证 | 成立 | 1.5 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-energy-variational-cylinder`](reports/mhd-energy-variational-cylinder.md) | mhd-energy | 验证 | 成立 | 1.5 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-vertical-coil-forces-analytic`](reports/mhd-vertical-coil-forces-analytic.md) | mhd-vertical | 验证 | 未判（读数） | 1.11 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-vertical-freegsnke-east137985`](reports/mhd-vertical-freegsnke-east137985.md) | mhd-vertical | 确认 | 未判（读数） | 2.10 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`mhd-vertical-lti-export`](reports/mhd-vertical-lti-export.md) | mhd-vertical | 验证 | 成立 | 1.3 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-closure-15d-source-switches`](reports/tr-closure-15d-source-switches.md) | tr-closure | 验证 | 未判（读数） | 1.17 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-closure-dt-burn-astra`](reports/tr-closure-dt-burn-astra.md) | tr-closure | 对拍 | 未判（读数） | 1.18 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-closure-lazy-plugin-resolution`](reports/tr-closure-lazy-plugin-resolution.md) | tr-closure | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-closure-plugin-dispatch`](reports/tr-closure-plugin-dispatch.md) | tr-closure | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-conservation-fyo-dd-contract`](reports/tr-conservation-fyo-dd-contract.md) | tr-conservation | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-conservation-time-order`](reports/tr-conservation-time-order.md) | tr-conservation | 验证 | 成立 | 1.13 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-coupling-equilibrium-outer-loop`](reports/tr-coupling-equilibrium-outer-loop.md) | tr-coupling | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-coupling-interpretive-inversion`](reports/tr-coupling-interpretive-inversion.md) | tr-coupling | 验证 | 成立 | 1.4 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-coupling-nn-weights-external`](reports/tr-coupling-nn-weights-external.md) | tr-coupling | 验证 | 成立 | 1.15 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-equations-boundary-family`](reports/tr-equations-boundary-family.md) | tr-equations | 验证 | 成立 | 3.12 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-equations-channel-descriptor`](reports/tr-equations-channel-descriptor.md) | tr-equations | 验证 | 成立 | 1.12 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-paradigm-coupled-block-adr`](reports/tr-paradigm-coupled-block-adr.md) | tr-paradigm | 验证 | 未判（读数） | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-paradigm-flux-match-vs-pde`](reports/tr-paradigm-flux-match-vs-pde.md) | tr-paradigm | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-paradigm-momentum-channel`](reports/tr-paradigm-momentum-channel.md) | tr-paradigm | 验证 | 成立 | 1.2 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-paradigm-pereverzev`](reports/tr-paradigm-pereverzev.md) | tr-paradigm | 验证 | 未判（读数） | 1.18 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-pedestal-sawtooth-kadomtsev`](reports/tr-pedestal-sawtooth-kadomtsev.md) | tr-pedestal | 验证 | 成立 | 1.14 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
+| [`tr-pedestal-zerod-bookkeeping-metis`](reports/tr-pedestal-zerod-bookkeeping-metis.md) | tr-pedestal | 对拍 | 未判（读数） | 1.19 | 2026-09-18 | 草稿 | `sha256:a7a86a75fc27…` | current |
 
 ## 接 CI/CD (wiring this into CI)
 

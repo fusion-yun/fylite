@@ -245,26 +245,34 @@ def test_the_alpha_share_offsets_are_the_recorded_ones():
 
 # ══════════════════════════════════════════ tr-pedestal-zerod-bookkeeping-metis · FR-TR-014
 
-def test_the_zerod_volume_is_the_elliptic_formula_at_every_metis_point():
-    """★0D 的体积**恰好**是 `2 π² R a² κ` —— 四个工作点逐位，并与读数逐位相同。
+def test_the_zerod_volume_is_the_d_shape_and_lands_on_metis():
+    """★★0D 的体积是带三角度的 D 形积分（2026-09-18 起，`FR-TR-014` 的缺口补上）——四个工作点逐位等于读数，
+    对 METIS 落在 ±0.25 % 内；不给 `delta` 时仍是 `2 π² R a² κ`，逐位。
 
-    ★这正是它比 METIS 高 2.87 % 的原因：METIS 用带三角度的形状体积，这里是纯椭圆截面。
-    **公式差，一次可修**——这条记录挂着「保留负面结果」的裁定，所以门钉住现状。
+    ★此前这里钉的是椭圆公式与它高出 METIS 的 2.87 %（当时的裁定是「保留负面结果」）；用户 2026-09-18
+    要求补上这一格，旧值并列留在读数里（`rel_ellipse_before_2026_09_18`）。
     """
     M = _model()
     for p in _read("zerod_metis_metrics.json")["points"]:
         o = p["overrides"]
         r = M.zerod(time=np.array([0.0, p["t_s"]]), **o)
         v = _last(r["volume"])
-        assert v == 2.0 * np.pi ** 2 * o["r0"] * o["a"] ** 2 * o["kappa"], (p["case"], v)
         assert v == p["volume_m3"]["fylite"], (p["case"], v)
+        assert abs(p["volume_m3"]["rel"]) < 2.5e-3, (p["case"], p["volume_m3"]["rel"])
+        assert 0.0283 < p["volume_m3"]["rel_ellipse_before_2026_09_18"] < 0.0288
+        flat = {k: v for k, v in o.items() if k != "delta"}
+        v0 = _last(M.zerod(time=np.array([0.0, p["t_s"]]), **flat)["volume"])
+        assert v0 == 2.0 * np.pi ** 2 * o["r0"] * o["a"] ** 2 * o["kappa"], (p["case"], v0)
 
 
-def test_the_volume_gap_to_metis_is_systematic_not_scattered():
-    """★四个工作点上的相对差散布只有 1.3e-4 —— 偏差是**系统性**的，所以是公式，不是噪声。"""
+def test_what_is_left_of_the_volume_gap_is_the_separatrix_not_the_formula():
+    """★补上之后剩下的 ±0.2 % 随时刻走（+0.08 → −0.20 %）——METIS 在 ITER 上积的是它的**分离面**，
+    而分离面不恰好是 (R, a, κ, δ) 那条 D；分离面积分本身对 METIS 逐位（读数 `zerod_metis_attribution.json`）。
+    """
     rel = [p["volume_m3"]["rel"] for p in _read("zerod_metis_metrics.json")["points"]]
-    assert all(0.028 < r < 0.029 for r in rel), rel
-    assert max(rel) - min(rel) < 2e-4, rel
+    assert max(rel) - min(rel) < 3e-3, rel
+    att = _read("zerod_metis_attribution.json")["volume"]["by_case"]["ITER_rampup_ECCD"]
+    assert all(x["separatrix_rel"] is not None and abs(x["separatrix_rel"]) < 3e-4 for x in att)
 
 
 def _metis_csv():

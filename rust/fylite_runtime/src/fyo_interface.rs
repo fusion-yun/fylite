@@ -1508,6 +1508,7 @@ pub const CODES: &[Code] = &[
         Param { key: "bt", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "c_ejima", value_type: "float", default: "zerod::EJIMA_C", required: false, via: "zerod_case" },
         Param { key: "criteria", value_type: "boolean", default: "false", required: false, via: "zerod_case" },
+        Param { key: "delta", value_type: "float", default: "0.0", required: false, via: "zerod_case" },
         Param { key: "dtf", value_type: "float", default: "0.5", required: false, via: "zerod_case" },
         Param { key: "edge_frac", value_type: "float", default: "0.05", required: false, via: "zerod_case" },
         Param { key: "hfac", value_type: "float", default: "1.0", required: false, via: "zerod_case" },

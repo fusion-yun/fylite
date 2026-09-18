@@ -97,6 +97,10 @@ class Scenario:
     r0: float = 1.85
     a: float = 0.45
     kappa: float = 1.8
+    #: ★Triangularity of the boundary the 0-D volume is taken inside (`FR-TR-014`, 2026-09-18).
+    #: ``0`` keeps the ellipsoidal ``2 pi^2 R0 a^2 kappa`` to the bit; a real D is smaller —
+    #: METIS integrates its own boundary, and on ITER that is 2.7 % below the ellipse.
+    delta: float = 0.0
     zeff: float = 1.8
     dt_fraction: float = 0.5
     #: The auxiliary heating actuators, one per SYSTEM.
@@ -135,6 +139,7 @@ def _zerod_plan(scn: Scenario, t, n_rho: int, *, extra: dict | None = None) -> d
                 "tite": float(scn.ti_over_te), "pn": float(scn.peaking_n),
                 "pt": float(scn.peaking_t), "edge_frac": float(scn.edge_frac),
                 "r0": float(scn.r0), "a": float(scn.a), "kappa": float(scn.kappa),
+                "delta": float(scn.delta),
                 "zeff": float(scn.zeff), "li": float(scn.li), "dtf": float(scn.dt_fraction)}
     settings.update(extra or {})
     return {"settings": settings,
