@@ -1,0 +1,59 @@
+{
+ "what": "FR-TR-006：耦合整体求解（缺省）对旧的顺序对，同一算例；内核侧的四个数由所列内核测试钉住",
+ "case": "evolve-iter-15ma",
+ "coupled": {
+  "p_alpha_last_W": 74129795.27339925,
+  "te_axis_last_eV": 23270.279205689032,
+  "balance_worst": 1.5825267900771782e-13,
+  "steps": 400,
+  "passes_min": 5,
+  "passes_median": 5.0,
+  "passes_max": 5,
+  "last_change_max": 2.6136365840619113e-11,
+  "steps_unconverged": 0
+ },
+ "sequential": {
+  "p_alpha_last_W": 72954112.5854608,
+  "te_axis_last_eV": 23123.016215512245,
+  "balance_worst": 9.282952095713986e-14,
+  "steps": 400,
+  "passes_min": 2,
+  "passes_median": 2.0,
+  "passes_max": 2,
+  "last_change_max": 0.0,
+  "steps_unconverged": 0
+ },
+ "coupled_vs_sequential": {
+  "p_alpha_rel": 0.016115372338485034,
+  "te_axis_rel": 0.006368675643534605
+ },
+ "kernel": {
+  "block_solver": {
+   "test": "transport::tests::the_block_thomas_solve_is_the_dense_solve_and_reduces_to_thomas",
+   "vs_dense_band": 1e-13,
+   "k1_is_thomas_bitwise": true
+  },
+  "no_exchange_is_sequential": {
+   "test": "transport::tests::the_implicit_pair_without_exchange_is_the_sequential_pair",
+   "bitwise": true
+  },
+  "implicit_exchange": {
+   "test": "transport::tests::the_implicit_exchange_closes_the_books_and_needs_no_dt_cap",
+   "books_worst": 8.99e-16,
+   "nu_per_s": 1000.0,
+   "dt_s": 0.01,
+   "dt_over_explicit_cap": 40.0,
+   "gap_before_eV": 2000.0,
+   "gap_after_eV": 95.238,
+   "backward_euler_gap_eV": 95.23809523809524,
+   "explicit_same_dt_flips_sign": true
+  },
+  "fixed_point": {
+   "test": "transport::tests::the_coupled_step_is_the_implicit_solution_of_every_channel",
+   "passes": 15,
+   "last_change": 9.9e-13,
+   "residual_coupled": 1.7e-13,
+   "residual_sequential_two_passes": 0.022
+  }
+ }
+}

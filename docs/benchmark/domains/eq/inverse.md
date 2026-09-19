@@ -42,8 +42,8 @@ title: "静态逆解：形状到线圈电流"
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.21 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
-| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 未判（读数） | ITER 参考分离面（装置牌上的数字化曲线） | 1.23 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
+| [`eq-inverse-freegsnke-east137985`](../../reports/eq-inverse-freegsnke-east137985.md) | 对拍 | 成立 | FreeGSNKE | 1.22 | 草稿 | [jsonld](../../records/eq-inverse-freegsnke-east137985.jsonld) |
+| [`eq-inverse-iter-reference-separatrix`](../../reports/eq-inverse-iter-reference-separatrix.md) | 验证 | 未判（读数） | ITER 参考分离面（装置牌上的数字化曲线） | 1.24 | 草稿 | [jsonld](../../records/eq-inverse-iter-reference-separatrix.jsonld) |
 
 ### 缺口
 

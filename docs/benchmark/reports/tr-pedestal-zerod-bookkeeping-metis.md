@@ -14,8 +14,8 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 - **量的是**：0D 记账对 METIS：体积（D 形，±0.25 %）与 W_th（同一几何，+0.3…+1.0 %）**成立**；0D 体平均收平衡的 dV/dρ 或嵌套 D 形面
 - **参考**：METIS
 - **验的需求**：`FR-TR-014`
-- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
-- **记录版本**：1.25　**评审**：草稿　**日期**：2026-09-19
+- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
+- **记录版本**：1.26　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -98,7 +98,7 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.25　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.26　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -130,12 +130,13 @@ title: "tr-pedestal-zerod-bookkeeping-metis"
 | 1.23 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.24 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.25 | 2026-09-19 | Claude Opus 5 | ★0D 体平均的权重补上（用户「go tr14」选 b）：`code/zerod` 收平衡的 dV/dρ（`dvolume_drho_tor`）或 `kappa_axis` / `shift_axis` 嵌套 D 形面。绑 METIS 自己的 vpr 后 W_th 对 METIS +0.3…+1.0 %（判据 2 %，带的来历照实写）、轴值 ≤ 1.3 %——**第三、四格转成立，整体 inconclusive → pass**；D 形面只收窄到 −0.2…−1.6 %。读数 `w_th_weighted` 由新工具 `tools/benchmark-zerod-weight.py` 生成。 内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.26 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 ★本条的判据与数值**未改口径**。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 

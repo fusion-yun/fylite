@@ -11,7 +11,7 @@
 
 /// the revision of this interface, and the digest of everything it declares
 pub const REVISION: u32 = 5;
-pub const DIGEST: &str = "54f11c602d6f12b4";
+pub const DIGEST: &str = "1d476f986ceed425";
 /// the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 pub const TREE_FORMAT: u32 = 1;
 
@@ -503,9 +503,11 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "p_aux_beam", shape: "nt", units: "W", gloss: "the beam's share of it (0 without a beam)" },
         Row { key: "p_aux_lh", shape: "nt", units: "W", gloss: "the wave's share of it (0 without a wave)" },
         Row { key: "j_lh", shape: "n", units: "A.m^-2", gloss: "the wave-driven current the last step used (0 without a wave)" },
-        Row { key: "ohm", shape: "n", units: "W.m^-3", gloss: "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel or on the first step)" },
+        Row { key: "ohm", shape: "n", units: "W.m^-3", gloss: "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel; on the sequential path also on the first step, where it lags a step)" },
         Row { key: "p_fus_dens", shape: "n", units: "W.m^-3", gloss: "the fusion power density the last step used (n_D n_T <sigma v> E_fus)" },
         Row { key: "p_aux_dens", shape: "n", units: "W.m^-3", gloss: "the auxiliary heating density the last step deposited (electrons + ions)" },
+        Row { key: "coupling_passes", shape: "nt", units: "1", gloss: "coupling passes each step took (iterated to 1e-9 on the coupled path, capped at 40; 2 on the sequential path)" },
+        Row { key: "coupling_delta", shape: "nt", units: "1", gloss: "the relative change each step's last pass made: below 1e-9 when the step converged, larger when its passes hit the cap (0 on the sequential path)" },
     ] },
     Block { name: "EVOLVE_HEAT_PARAMS", rows: &[
         Row { key: "b0", shape: "1", units: "T", gloss: "on-axis field of the metric" },
@@ -593,6 +595,7 @@ pub const BLOCKS: &[Block] = &[
         Row { key: "lag_reset", shape: "1", units: "1", gloss: "1 = the resumed block has no lagged flux / conductivity (the state was remapped): no Ohmic term on its first step" },
         Row { key: "lh", shape: "1", units: "1", gloss: "1 = the lower-hybrid arrays below add to the electron deposition and the driven current" },
         Row { key: "heat_off", shape: "1", units: "1", gloss: "1 = do NOT march the heat pair (the other channels alone; the closure and the sources still evaluated) — spelled as the exception so a caller that never heard of it (zero-filled) marches the pair" },
+        Row { key: "sequential", shape: "1", units: "1", gloss: "1 = the old sequential Te/Ti pair (explicit exchange, dt capped at 0.25/nu) instead of the coupled block solve" },
     ] },
     Block { name: "PROFIT_IN", rows: &[
         Row { key: "x", shape: "n", units: "1", gloss: "the coordinate" },
@@ -995,6 +998,7 @@ pub const CODES: &[Code] = &[
         Param { key: "saw_elapsed_in", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "saw_period", value_type: "float", default: "0.0", required: false, via: "evolve" },
         Param { key: "sawtooth", value_type: "boolean", default: "false", required: false, via: "evolve" },
+        Param { key: "sequential", value_type: "boolean", default: "false", required: false, via: "evolve" },
         Param { key: "sources", value_type: "string", default: "", required: false, via: "source_tables" },
         Param { key: "species", value_type: "string", default: "", required: false, via: "evolve" },
         Param { key: "stage", value_type: "string", default: "", required: false, via: "evolve" },

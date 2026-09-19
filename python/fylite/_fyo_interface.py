@@ -9,7 +9,7 @@ Generated rather than kept in step by hand, for the reason
 
 #: the revision of this interface, and the digest of everything it declares
 REVISION = 5
-DIGEST = '54f11c602d6f12b4'
+DIGEST = '1d476f986ceed425'
 #: the revision of the tree's SHAPE (four buffers), checked by encoder and decoder
 TREE_FORMAT = 1
 
@@ -547,9 +547,11 @@ BLOCKS = {
         {'key': 'p_aux_beam', 'shape': 'nt', 'units': 'W', 'gloss': "the beam's share of it (0 without a beam)"},
         {'key': 'p_aux_lh', 'shape': 'nt', 'units': 'W', 'gloss': "the wave's share of it (0 without a wave)"},
         {'key': 'j_lh', 'shape': 'n', 'units': 'A.m^-2', 'gloss': 'the wave-driven current the last step used (0 without a wave)'},
-        {'key': 'ohm', 'shape': 'n', 'units': 'W.m^-3', 'gloss': "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel or on the first step)"},
+        {'key': 'ohm', 'shape': 'n', 'units': 'W.m^-3', 'gloss': "the Ohmic heating density the last step used (the page's `lastOhm`; zeros without the current channel; on the sequential path also on the first step, where it lags a step)"},
         {'key': 'p_fus_dens', 'shape': 'n', 'units': 'W.m^-3', 'gloss': 'the fusion power density the last step used (n_D n_T <sigma v> E_fus)'},
         {'key': 'p_aux_dens', 'shape': 'n', 'units': 'W.m^-3', 'gloss': 'the auxiliary heating density the last step deposited (electrons + ions)'},
+        {'key': 'coupling_passes', 'shape': 'nt', 'units': '1', 'gloss': 'coupling passes each step took (iterated to 1e-9 on the coupled path, capped at 40; 2 on the sequential path)'},
+        {'key': 'coupling_delta', 'shape': 'nt', 'units': '1', 'gloss': "the relative change each step's last pass made: below 1e-9 when the step converged, larger when its passes hit the cap (0 on the sequential path)"},
     ],
     'EVOLVE_HEAT_PARAMS': [
         {'key': 'b0', 'shape': '1', 'units': 'T', 'gloss': 'on-axis field of the metric'},
@@ -637,6 +639,7 @@ BLOCKS = {
         {'key': 'lag_reset', 'shape': '1', 'units': '1', 'gloss': '1 = the resumed block has no lagged flux / conductivity (the state was remapped): no Ohmic term on its first step'},
         {'key': 'lh', 'shape': '1', 'units': '1', 'gloss': '1 = the lower-hybrid arrays below add to the electron deposition and the driven current'},
         {'key': 'heat_off', 'shape': '1', 'units': '1', 'gloss': '1 = do NOT march the heat pair (the other channels alone; the closure and the sources still evaluated) — spelled as the exception so a caller that never heard of it (zero-filled) marches the pair'},
+        {'key': 'sequential', 'shape': '1', 'units': '1', 'gloss': '1 = the old sequential Te/Ti pair (explicit exchange, dt capped at 0.25/nu) instead of the coupled block solve'},
     ],
     'PROFIT_IN': [
         {'key': 'x', 'shape': 'n', 'units': '1', 'gloss': 'the coordinate'},
@@ -1038,6 +1041,7 @@ CODE_PARAMS = {
         'saw_elapsed_in': {'key': 'saw_elapsed_in', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'saw_period': {'key': 'saw_period', 'type': 'float', 'via': 'evolve', 'default': '0.0', 'required': False},
         'sawtooth': {'key': 'sawtooth', 'type': 'boolean', 'via': 'evolve', 'default': 'false'},
+        'sequential': {'key': 'sequential', 'type': 'boolean', 'via': 'evolve', 'default': 'false'},
         'sources': {'key': 'sources', 'type': 'string', 'via': 'source_tables'},
         'species': {'key': 'species', 'type': 'string', 'via': 'evolve'},
         'stage': {'key': 'stage', 'type': 'string', 'via': 'evolve'},

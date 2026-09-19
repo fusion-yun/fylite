@@ -257,6 +257,31 @@ def test_the_pedestal_feedback_settles_on_the_eped_target(sweep):
     assert on["ped_extrapolation"] > 0.0 and on["rel_step_last"] > 1e-4, on
 
 
+# ═════════════════════════════════════════════════ tr-paradigm-coupled-block-adr · FR-TR-006
+
+def test_the_coupled_solve_converges_on_the_iter_case_and_differs_from_the_sequential_pair(sweep):
+    """★★FR-TR-006（用户 2026-09-19 裁定整体求解为缺省）：ITER 15 MA 上耦合路径每步迭代到收敛，
+    旧的顺序对（`sequential=True`）逐位仍是旧读数，两者之差是步内反馈而不是账的漏洞——门从公开入口
+    重跑两条路径，逐位对上 `coupled_block_solve.json`。"""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bcs", ROOT / "tools" / "benchmark-coupled-solve.py")
+    bcs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bcs)
+    M, base = sweep["M"], sweep["base"]
+    want = _read("coupled_block_solve.json")
+    got_c, got_s = bcs.summary(M.evolve(**base)), bcs.summary(M.evolve(**base, sequential=True))
+    assert got_c == want["coupled"] and got_s == want["sequential"]
+    c, s = want["coupled"], want["sequential"]
+    #: every coupled step converged, and the sequential one never iterated
+    assert c["steps_unconverged"] == 0 and c["last_change_max"] < 1e-9, c
+    assert s["passes_max"] == 2 and s["last_change_max"] == 0.0, s
+    #: both close their books
+    assert c["balance_worst"] < 1e-12 and s["balance_worst"] < 1e-12
+    #: the sequential pair is the reading taken before the ruling (the switch sweep's baseline then)
+    assert s["p_alpha_last_W"] == 72954112.5854608
+    assert 0.0 < want["coupled_vs_sequential"]["p_alpha_rel"] < 0.05
+
+
 # ═════════════════════════════════════════════════ tr-closure-dt-burn-astra · FR-TR-004
 
 #: 内核的常数（`zerod.rs::E_ALPHA_FRACTION`）：α 与 DT 反应的 Q 值之比本身（2026-09-19 由 0.2013 改）

@@ -159,14 +159,14 @@ $I_p$ 那条等式约束的投影闭式里，$C_0g$ 与 $g^\top C_0g$ **求解�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`eq-reconstruct-curvature-prior`](../../reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 | 同一次孪生的已知真值 q0，以及不加正则的简并解 | 1.19 | 草稿 | [jsonld](../../records/eq-reconstruct-curvature-prior.jsonld) |
-| [`eq-reconstruct-fast-ion-pressure`](../../reports/eq-reconstruct-fast-ion-pressure.md) | 验证 | 成立 | 它自己不绑快离子压强的那一次 | 1.19 | 草稿 | [jsonld](../../records/eq-reconstruct-fast-ion-pressure.jsonld) |
-| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.21 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
-| [`eq-reconstruct-kinetic-outer`](../../reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 | 同一次孪生的**已知真映射**，以及单遍（kinetic_passes = 1）的结果 | 1.19 | 草稿 | [jsonld](../../records/eq-reconstruct-kinetic-outer.jsonld) |
-| [`eq-reconstruct-mse-shelved`](../../reports/eq-reconstruct-mse-shelved.md) | 验证 | 未评估 | FYTOK-SRS 判据（FR-EQ-007..009 共用一行，抄在 domains/eq/reconstruct.md） | 1.2 | 草稿 | [jsonld](../../records/eq-reconstruct-mse-shelved.jsonld) |
-| [`eq-reconstruct-posterior-bands`](../../reports/eq-reconstruct-posterior-bands.md) | 验证 | 成立 | 蒙特卡洛的经验散布 · 线性拟合的精确标度性质 | 1.14 | 草稿 | [jsonld](../../records/eq-reconstruct-posterior-bands.jsonld) |
-| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.21 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
-| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.21 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
+| [`eq-reconstruct-curvature-prior`](../../reports/eq-reconstruct-curvature-prior.md) | 验证 | 成立 | 同一次孪生的已知真值 q0，以及不加正则的简并解 | 1.20 | 草稿 | [jsonld](../../records/eq-reconstruct-curvature-prior.jsonld) |
+| [`eq-reconstruct-fast-ion-pressure`](../../reports/eq-reconstruct-fast-ion-pressure.md) | 验证 | 成立 | 它自己不绑快离子压强的那一次 | 1.20 | 草稿 | [jsonld](../../records/eq-reconstruct-fast-ion-pressure.jsonld) |
+| [`eq-reconstruct-kefit-twin`](../../reports/eq-reconstruct-kefit-twin.md) | 对拍 | 成立 | 孪生真值（同 eq-reconstruct-twin-truth-recovery 的那一个） | 1.22 | 草稿 | [jsonld](../../records/eq-reconstruct-kefit-twin.jsonld) |
+| [`eq-reconstruct-kinetic-outer`](../../reports/eq-reconstruct-kinetic-outer.md) | 验证 | 成立 | 同一次孪生的**已知真映射**，以及单遍（kinetic_passes = 1）的结果 | 1.20 | 草稿 | [jsonld](../../records/eq-reconstruct-kinetic-outer.jsonld) |
+| [`eq-reconstruct-mse-shelved`](../../reports/eq-reconstruct-mse-shelved.md) | 验证 | 未评估 | FYTOK-SRS 判据（FR-EQ-007..009 共用一行，抄在 domains/eq/reconstruct.md） | 1.3 | 草稿 | [jsonld](../../records/eq-reconstruct-mse-shelved.jsonld) |
+| [`eq-reconstruct-posterior-bands`](../../reports/eq-reconstruct-posterior-bands.md) | 验证 | 成立 | 蒙特卡洛的经验散布 · 线性拟合的精确标度性质 | 1.15 | 草稿 | [jsonld](../../records/eq-reconstruct-posterior-bands.jsonld) |
+| [`eq-reconstruct-twin-observable-space`](../../reports/eq-reconstruct-twin-observable-space.md) | 验证 | 成立 | 那批合成测量本身（75 环 + 79 探针） | 1.22 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-observable-space.jsonld) |
+| [`eq-reconstruct-twin-truth-recovery`](../../reports/eq-reconstruct-twin-truth-recovery.md) | 验证 | 成立 | 孪生真值（fylite 前向解造出的那个已知平衡） | 1.22 | 草稿 | [jsonld](../../records/eq-reconstruct-twin-truth-recovery.jsonld) |
 
 ### 缺口
 

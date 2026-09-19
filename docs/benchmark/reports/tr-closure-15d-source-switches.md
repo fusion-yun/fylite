@@ -14,8 +14,8 @@ title: "tr-closure-15d-source-switches"
 - **量的是**：1.5D 演化：加料 / 加热 / 驱动 / 台基 / 锯齿的开关都进了装配；驱动电流三道开了源就有数
 - **参考**：基线自身（同一算例、只改一个开关）
 - **验的需求**：`FR-TR-004` · `FR-TR-009`
-- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
-- **记录版本**：1.22　**评审**：草稿　**日期**：2026-09-19
+- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
+- **记录版本**：1.23　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -40,10 +40,10 @@ title: "tr-closure-15d-source-switches"
 
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
-| 能量平衡的最劣残差 | 1e-12 | machine_precision | 最劣残差 **1.347e-13**（DT那档；判据 1e-12）。★2026-09-19 α 份额改后逐档重量：baseline 9.283e-14 · pedestal 9.900e-14 · current 9.283e-14 · density 6.895e-14 · dt_target 1.347e-13。★2026-09-18 更正：原记 1.154e-13 是基线那一档的，不是全部变体里最劣的 | **成立** |
+| 能量平衡的最劣残差 | 1e-12 | machine_precision | 最劣残差 **1.583e-13**（基线那档；判据 1e-12）。逐档（2026-09-19，耦合整体求解为缺省之后）：baseline 1.583e-13 · pedestal 1.159e-13 · current 1.583e-13 · density 9.111e-14 · dt_target 1.521e-13。★2026-09-18 更正：原记 1.154e-13 是基线那一档的，不是全部变体里最劣的 | **成立** |
 | 每个打开的控件，至少改变一项产出（否则它是死的） | 1 | measured_band | 台基 8 项（含 `t_ped`）· 加料 9 项（含 `ne`/`ni`）· DT 7 项 · 电流道 2 项（`q` 0→3.416、`psi` 0→36.57） | **成立** |
 | ★锯齿与 ipctl —— **按名拒绝**，并说明依赖 | — | — | `sawtooth=True` 单开被拒：": "the sawtooth needs the current channel: its trigger is q(0) < 1 and q is a result only where current diffusion is solved \u2014 pass `current=True | **成立** |
-| 驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值 | 1 | measured_band | 自举（`bootstrap`）：j_bs 峰值 3.499e+05 A/m²；给定 CD `i_cd` 1 MA / 2 MA：j_cd 峰值 1.598e+05 / 3.196e+05 A/m²，沉积积分 ∫j dA 对所给电流 -1.1e-16 / -1.1e-16，2 MA 恰为 1 MA 的两倍；三档能量平衡 9.28e-14。★LH（j_lh）与束的执行器：内核仓 `tests/test_evolve_executors_code.py` 在 EAST g-file 上逐位对上 `code/wave` / `code/beam`。★此前（开关扫描只开电流道、不给源）：三道恒为 0 | **成立** |
+| 驱动电流三道（自举 / 外部 CD / LH）是否给得出非零值 | 1 | measured_band | 自举（`bootstrap`）：j_bs 峰值 3.518e+05 A/m²；给定 CD `i_cd` 1 MA / 2 MA：j_cd 峰值 1.598e+05 / 3.196e+05 A/m²，沉积积分 ∫j dA 对所给电流 -1.1e-16 / -1.1e-16，2 MA 恰为 1 MA 的两倍；三档能量平衡 1.58e-13。★LH（j_lh）与束的执行器：内核仓 `tests/test_evolve_executors_code.py` 在 EAST g-file 上逐位对上 `code/wave` / `code/beam`。★此前（开关扫描只开电流道、不给源）：三道恒为 0 | **成立** |
 | 算例的默认姿态（读数） | — | — | 基线控件：`pedestal`=False · `current`=False · `ipctl`=False · `sawtooth`=False · `heat`=True · `closure`='constant' · `density`=False · `dt_target`=0.0 · `impurity`='Ne' · `brem`=True · `quasi`=False | **未判（读数）** |
 
 **`能量平衡的最劣残差`** — ★平衡是恒等式，容差取舍入级；它是这一域最硬的一条自证。
@@ -84,7 +84,7 @@ title: "tr-closure-15d-source-switches"
 
 ## 追溯
 
-- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.22　评审 草稿
+- 首次入册 2026-09-16　末次修订 2026-09-19　版本 1.23　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -112,18 +112,19 @@ title: "tr-closure-15d-source-switches"
 | 1.20 | 2026-09-19 | Claude Opus 5 (1M context) | 内核换代后的全册重验（线圈表面场收敛入内核：`electromagnetics::surface_field_converged`、`loop_field`，`code/forces` 的 `b_surface` 改用面积分；`FR-EQ-014`）。★本条的判据与数值**未改口径**；重验的证据是门禁在新内核上跑过：内核侧 **812 项全通过**。★只动了 `b_surface`，受力与其余门逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
 | 1.21 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.22 | 2026-09-19 | Claude Opus 5 | ★驱动电流一格转成立（原 open_defect「内核欠缺的功能也保留」关闭：缺的是算例的源，不是内核）：自举非零、给定 CD 1 / 2 MA 沉积积分闭合到 1e-16。α 份额改后逐档重量，最劣平衡残差换到 DT 那档 1.347e-13。四份读数由新工具 `tools/benchmark-evolve15.py` 重生成。整体 inconclusive → pass。 内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.23 | 2026-09-19 | Claude Opus 5 | 耦合整体求解成为缺省后四份读数由 `tools/benchmark-evolve15.py` 重生成：最劣能量平衡换到基线那档 1.58e-13（判据 1e-12），驱动电流三道照旧（CD 沉积积分 1e-16）；判决不动。 内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/evolve15_switch_sweep.json`    `sha256:053e3b64fa3025394f382a44f7c43a0c05596e4c68635da2d2cb5f969c80597e`    开关扫描：基线 + 五个变体，逐量对比；2026-09-19 由 tools/benchmark-evolve15.py 在新内核上重生成
-- `docs/benchmark/readings/evolve15_sources_pedestal.json`    `sha256:e7c86b4e829b9e2cdf2e98a893b7ebea4788b2d3d91987e02cf0f45a22cd0686`    基线一次运行的源项逐项、台基与平衡读数；2026-09-19 同上重生成
-- `docs/benchmark/readings/evolve15_driven_currents.json`    `sha256:042952bfa7b486734d51eccbc2c132760e1f5ab4f2a53ff5bc55705b09415598`    ★驱动三道各开自己的源（自举 · 给定 CD 1 MA / 2 MA）；tools/benchmark-evolve15.py 生成
+- `docs/benchmark/readings/evolve15_switch_sweep.json`    `sha256:c9d834a5c15574491ae8042686e77e8a95f152d105b2314eed6341efb9360c72`    开关扫描：基线 + 五个变体，逐量对比；2026-09-19 由 tools/benchmark-evolve15.py 在新内核上重生成
+- `docs/benchmark/readings/evolve15_sources_pedestal.json`    `sha256:c8f0e94835be7ce0d08515cc598bc704b819b972c11a3f8c6e6d924e31ac71f8`    基线一次运行的源项逐项、台基与平衡读数；2026-09-19 同上重生成
+- `docs/benchmark/readings/evolve15_driven_currents.json`    `sha256:320f804feb83374e6dbb1e527f245dcdfa0f456565d2aa46ee15c04fdb6a98f1`    ★驱动三道各开自己的源（自举 · 给定 CD 1 MA / 2 MA）；tools/benchmark-evolve15.py 生成
 - `tools/benchmark-evolve15.py`    `sha256:172210dc9d62dde435d752f29b0fcacd15c17f9ee5d80003c7d65222499038d4`    ★四份读数的生成器（2026-09-19 补进；此前读数由一次性脚本量）
 
 **守它的门**：

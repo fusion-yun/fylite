@@ -274,13 +274,13 @@
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "94ca1a29d6edc790945673601bcfe9762bcb3526",
-   "library_sha256": "sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119",
+   "commit": "0f7e5af3b3cff6e513b39a9502047a46e16484b0",
+   "library_sha256": "sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8",
    "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "2.15",
+  "record_version": "2.16",
   "recorded": "2026-09-17",
   "revised": "2026-09-19",
   "review_status": "draft",
@@ -399,6 +399,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。"
+   },
+   {
+    "record_version": "2.16",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "内核换代后的全册重验：内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 ★本条的判据与数值**未改口径**。"
    }
   ]
  }

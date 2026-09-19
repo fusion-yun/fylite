@@ -903,33 +903,50 @@ def test_a_first_block_ignores_every_carried_row():
 #:
 #: ★`ne_out` is the other way round: the density is carried state ONLY
 #: because the crash mixes it, so it is gated with the sawtooth on.
+#:
+#: ★★`psi_prev_out` / `sigma_prev_out` are the Ohmic LAG — the previous step's flux and
+#: conductivity — and the coupled solve (`FR-TR-006`, the default since 2026-09-19) takes the Ohmic
+#: power inside the step instead, so it no longer reads them.  They are load-bearing on the
+#: SEQUENTIAL path (`sequential = 1`) and gated there; the coupled path not reading them is asserted
+#: below, because a lag that silently came back would be the defect this ruling removed.
 _CARRIED_ROWS = (
-    ("psi_prev_out", lambda v: np.asarray(v) * 1.05, False),
-    ("sigma_prev_out", lambda v: np.asarray(v) * 0.5, False),
-    ("exch_prev_out", lambda v: np.asarray(v) * 4.0, False),
-    ("dt_next", lambda v: float(v) * 0.5, False),
-    ("edge_te_out", lambda v: float(v) + 250.0, False),
-    ("ne_out", lambda v: np.asarray(v) * 1.1, True),
+    ("psi_prev_out", lambda v: np.asarray(v) * 1.05, False, True),
+    ("sigma_prev_out", lambda v: np.asarray(v) * 0.5, False, True),
+    ("exch_prev_out", lambda v: np.asarray(v) * 4.0, False, False),
+    ("dt_next", lambda v: float(v) * 0.5, False, False),
+    ("edge_te_out", lambda v: float(v) + 250.0, False, False),
+    ("ne_out", lambda v: np.asarray(v) * 1.1, True, False),
 )
 
 
-@pytest.mark.parametrize("key,bogus,sawtooth", _CARRIED_ROWS)
-def test_the_carried_state_is_what_a_step_reads_from_the_step_before_it(
-        key, bogus, sawtooth):
-    """★A continuation row that carried the wrong thing would still let the
-    gate above pass if it were never READ.  Each row is knocked out in turn
-    and the block must then differ — a row nothing depends on is a row that
-    should not be there."""
+def _bend(key, bogus, sawtooth, sequential):
     call = _hollow_q_call(nt=1, sawtooth=sawtooth)
+    if sequential:
+        call["params"]["sequential"] = 1.0
     first = _resume(call, 3)
     good = _resume(call, 3, first)
     bent = dict(first)
     bent[key] = bogus(first[key])
     out = _resume(call, 3, bent)
-    assert not np.array_equal(np.asarray(good["te"]),
-                              np.asarray(out["te"])) or \
-           not np.array_equal(np.asarray(good["psi"]),
-                              np.asarray(out["psi"])), (
+    return (not np.array_equal(np.asarray(good["te"]), np.asarray(out["te"]))
+            or not np.array_equal(np.asarray(good["psi"]), np.asarray(out["psi"])))
+
+
+def test_the_coupled_solve_reads_no_ohmic_lag():
+    """★FR-TR-006: the coupled default takes the Ohmic power within the step, so the previous
+    step's flux and conductivity are NOT inputs to it — bending them changes nothing."""
+    for key, bogus, sawtooth, _ in _CARRIED_ROWS[:2]:
+        assert not _bend(key, bogus, sawtooth, False), f"the coupled solve still reads {key}"
+
+
+@pytest.mark.parametrize("key,bogus,sawtooth,sequential", _CARRIED_ROWS)
+def test_the_carried_state_is_what_a_step_reads_from_the_step_before_it(
+        key, bogus, sawtooth, sequential):
+    """★A continuation row that carried the wrong thing would still let the
+    gate above pass if it were never READ.  Each row is knocked out in turn
+    and the block must then differ — a row nothing depends on is a row that
+    should not be there."""
+    assert _bend(key, bogus, sawtooth, sequential), (
         f"bending {key} changed nothing — either it is not read, or it "
         "is not the state the next block needs")
 

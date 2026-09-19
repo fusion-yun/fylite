@@ -14,8 +14,8 @@ title: "eq-reconstruct-mse-shelved"
 - **量的是**：MSE 全形响应行与内部约束行几何门控：**用户裁定搁置**——内核里没有 MSE，被门控的东西还不存在
 - **参考**：FYTOK-SRS 判据（FR-EQ-007..009 共用一行，抄在 domains/eq/reconstruct.md）
 - **验的需求**：`FR-EQ-007` · `FR-EQ-009`
-- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
-- **记录版本**：1.2　**评审**：草稿　**日期**：2026-09-19
+- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
+- **记录版本**：1.3　**评审**：草稿　**日期**：2026-09-19
 
 :::{warning} 这是一条**已裁定保留**的缺口
 
@@ -64,7 +64,7 @@ title: "eq-reconstruct-mse-shelved"
 
 ## 追溯
 
-- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.2　评审 草稿
+- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.3　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
@@ -73,12 +73,13 @@ title: "eq-reconstruct-mse-shelved"
 | 1.0 | 2026-09-19 | Claude Opus 5 (1M context) | 首次入册：把用户「搁置 MSE」的裁定落成记录（判 unevaluated，open_defect 写明谁、何时、为什么），并以一道门钉住它的前提——内核里没有 MSE 响应行。 |
 | 1.1 | 2026-09-19 | Claude Opus 5 | 内核指纹改按 git 提交（用户 2026-09-19 裁定「kernel fingerprint 按 git 走」）：`run.kernel` 由库的 sha256 换成内核仓提交 `51d34102a406`（本条上一次重验所跑的库就建自这个提交），原 sha256 留作 `library_sha256`。★判据、数值与判决都未动。 |
 | 1.2 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。 |
+| 1.3 | 2026-09-19 | Claude Opus 5 | 内核换代后的全册重验：内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 ★本条的判据与数值**未改口径**。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **守它的门**：
 

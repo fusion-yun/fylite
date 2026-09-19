@@ -415,7 +415,8 @@ def evolve(*, a: float, r0: float, b0: float,
            nbi: dict | None = None, lh_antennas: dict | None = None,
            executors: dict | None = None, turb: dict | None = None,
            couple: dict | None = None, fm: dict | None = None,
-           t_start: float = 0.0, heat: bool = True) -> dict:
+           t_start: float = 0.0, heat: bool = True,
+           sequential: bool = False) -> dict:
     """March the heat channel in time — BY THE KERNEL (``code/evolve``).
 
     ★2026-09-05 第十九刀: ``couple`` runs the DEVICE tier's equilibrium
@@ -658,6 +659,9 @@ def evolve(*, a: float, r0: float, b0: float,
         "wave": float(bool(wave)), "ipctl": float(bool(ipctl)),
         "ip_kp": float(ip_kp), "ip_ki": float(ip_ki),
         "beam": float(nbi is not None), "lh": float(lh_antennas is not None),
+        #: ★FR-TR-006: the coupled whole-system solve is the default; True asks for the old
+        #: sequential pair (the exchange a frozen value, two counted passes) for comparison
+        "sequential": float(bool(sequential)),
         #: 第二十二刀: the clock starts where the caller says (a continued run)
         "t_start": float(t_start),
         #: 第二十三刀: the heat pair is a switch like the other channels
@@ -763,6 +767,9 @@ def evolve(*, a: float, r0: float, b0: float,
         "p_alpha": np.asarray(sm["fusion"]["power"]["value"]["data"], float),
         "beta_n": np.asarray(gq["beta_tor_norm"]["value"]["data"], float),
         "t_ped": arr("t_ped"), "balance": arr("balance"),
+        #: ★FR-TR-006: how many coupling passes each step took, and what its last pass moved —
+        #: whether a step converged is a result, not an assumption
+        "coupling_passes": arr("coupling_passes"), "coupling_delta": arr("coupling_delta"),
         "balance_worst": fact("balance_worst"),
         "ped_extrapolation": fact("ped_extrap"),
         "steps": steps, "settled": bool(fact("settled")),
@@ -810,7 +817,7 @@ _TRACES = (("summary", "time"), ("summary", "local", "magnetic_axis", "t_e", "va
            ("summary", "local", "magnetic_axis", "t_i_average", "value"), ("summary", "fusion", "power", "value"),
            ("summary", "global_quantities", "power_radiated", "value"), ("summary", "global_quantities", "power_line", "value"),
            ("summary", "global_quantities", "power_ohm", "value"), ("summary", "global_quantities", "beta_tor_norm", "value"),
-           ("dt_used",), ("balance",), ("t_ped",), ("saw_r1",), ("saw_mixed",), ("saw_refused",), ("omega_axis",),
+           ("dt_used",), ("balance",), ("coupling_passes",), ("coupling_delta",), ("t_ped",), ("saw_r1",), ("saw_mixed",), ("saw_refused",), ("omega_axis",),
            ("wave_k",), ("v_loop_used",), ("ip_psi",), ("ip_want",), ("ip_err",), ("p_aux",), ("p_aux_beam",), ("p_aux_lh",))
 
 

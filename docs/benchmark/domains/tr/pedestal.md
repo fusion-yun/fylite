@@ -18,7 +18,7 @@ title: "台基、锯齿与 0D 存量"
 三台装置 27 个数逐位到 $8.9\times10^{-16}$；台基反馈在 ITER 15 MA 的 1.5D 演化里推 1000 步，末步
 相对步长 $7\times10^{-8}$——滞后一步的反馈，这就是边界离 EPED-NN 目标的距离。★判收敛时**关了 α**：
 定 $\chi$ 下开 α 会热失控，没有不动点；而开 α 那一档恰好演示了上面那条警告——状态被推出训练箱，
-NN 不报错、照样给数，内核把外推度报出来（0.53），门钉住它必须被报出来。
+NN 不报错、照样给数，内核把外推度报出来（0.54），门钉住它必须被报出来。
 
 锯齿的判据是守恒：Kadomtsev 重分布前后含量守恒到 $10^{-12}$，外加 $\psi$ 态的 $q$ 判据。
 守恒这一条不需要外部参考，是自证；而且它对"重分布写错了"极其敏感。
@@ -57,9 +57,9 @@ NN 不报错、照样给数，内核把外推度报出来（0.53），门钉住�
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-pedestal-eped-feedback`](../../reports/tr-pedestal-eped-feedback.md) | 验证 | 成立 | EPEDNN.jl · 反馈的不动点：下一步的 EPED-NN 目标等于本步的边界 | 1.0 | 草稿 | [jsonld](../../records/tr-pedestal-eped-feedback.jsonld) |
-| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.19 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
-| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 成立 | METIS | 1.25 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
+| [`tr-pedestal-eped-feedback`](../../reports/tr-pedestal-eped-feedback.md) | 验证 | 成立 | EPEDNN.jl · 反馈的不动点：下一步的 EPED-NN 目标等于本步的边界 | 1.1 | 草稿 | [jsonld](../../records/tr-pedestal-eped-feedback.jsonld) |
+| [`tr-pedestal-sawtooth-kadomtsev`](../../reports/tr-pedestal-sawtooth-kadomtsev.md) | 验证 | 成立 | 它自己混合前的含量积分，以及 Kadomtsev 重联要求的 q = 1 | 1.20 | 草稿 | [jsonld](../../records/tr-pedestal-sawtooth-kadomtsev.jsonld) |
+| [`tr-pedestal-zerod-bookkeeping-metis`](../../reports/tr-pedestal-zerod-bookkeeping-metis.md) | 对拍 | 成立 | METIS | 1.26 | 草稿 | [jsonld](../../records/tr-pedestal-zerod-bookkeeping-metis.jsonld) |
 
 ### 覆盖它的记录在别的域
 

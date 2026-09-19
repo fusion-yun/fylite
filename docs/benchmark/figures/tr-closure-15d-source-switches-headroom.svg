@@ -16,8 +16,8 @@
 <text x="860.0" y="216" font-size="11" fill="#8a8a8a" text-anchor="middle">10³x</text>
 <text x="572.0" y="34" font-size="11" fill="#8a8a8a" text-anchor="middle">judgement</text>
 <text x="370" y="72.0" font-size="12" fill="#9a9a9a" text-anchor="end">能量平衡的最劣残差</text>
-<rect x="572.0" y="61.0" width="83.6" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
-<text x="661.6" y="72.0" font-size="11" fill="#2e9e4f" text-anchor="start">7.42x</text>
+<rect x="572.0" y="61.0" width="76.9" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
+<text x="654.9" y="72.0" font-size="11" fill="#2e9e4f" text-anchor="start">6.32x</text>
 <text x="370" y="100.0" font-size="12" fill="#9a9a9a" text-anchor="end">每个打开的控件，至少改变一项产出（否则它是死的）</text>
 <rect x="572.0" y="89.0" width="28.9" height="14" rx="3" fill="#2e9e4f" opacity="0.85"/>
 <text x="606.9" y="100.0" font-size="11" fill="#2e9e4f" text-anchor="start">2x</text>

@@ -3,130 +3,242 @@
  "id": "benchmark/records/tr-paradigm-coupled-block-adr",
  "type": "fyo:ComparisonRecord",
  "title": {
-  "zh": "耦合隐式块解：**上游还没裁，所以没有可判的判据**——记的是 fylite 在这条轴上到哪了",
-  "en": "The coupled implicit block solve: upstream has not ruled, so there is nothing to judge — what is recorded is where fylite stands"
+  "zh": "耦合整体求解：**用户裁定为缺省**（2026-09-19）——Te/Ti 一个块系统、交换隐式，遍数迭代到收敛；一步即各通道隐式方程的同时解",
+  "en": "The coupled whole-system solve, ruled the default (2026-09-19): Te/Ti one block system with the exchange implicit, passes iterated to convergence; a step is the simultaneous implicit solution of every channel"
  },
  "domain": "tr-paradigm",
  "requirement": [
   "FR-TR-006"
  ],
  "comparison_kind": "verification",
- "overall_verdict": "inconclusive",
+ "overall_verdict": "pass",
  "compared_subject": {
   "type": "spo:Code",
-  "name": "fylite · transport 的四个通道求解器",
-  "comment": "哪些通道是一起解的，哪些是各解各的"
+  "name": "fylite · `transport::core_march_coupled` / `two_temperature_step_implicit_sinks` / `block_tri_solve` 与 `code/evolve` 的缺省路径",
+  "comment": "一步之内各通道怎样一起解：线性耦合（交换）进块矩阵，非线性耦合（α · 辐射 · 欧姆 · q）逐遍重算到收敛"
  },
  "compared_reference": [
   {
    "type": "spo:InformationContentEntity",
-   "name": "抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」",
-   "comment": "★★**参照是一份还不存在的文件。** 这条需求本身标着「可选，候选 ADR」，它要的交付物是一个**决定**，不是一个测量——而那个决定上游还没做。"
+   "name": "裁定：「决定要整体求解」（用户，2026-09-19）",
+   "comment": "★★抄录的判据是「ADR 裁决记录」、证据栏「候选 ADR（[TBD]）」——**参照是一个决定**。上游没给，用户在本仓给了：整体求解，且为缺省（旧的顺序对留作对照），本轮做第一、二段（块解 + 隐式交换；全通道迭代到收敛），Newton 延后。"
+  },
+  {
+   "type": "spo:InformationContentEntity",
+   "name": "后向 Euler 的不动点：以解处的源再解一次隐式步，回到同一解",
+   "comment": "★判「整体求解」不需要外部代码：一个收敛的耦合步就是各通道离散隐式方程的同时解，这可以直接验。"
   }
  ],
  "criteria": [
   {
    "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/1",
    "type": "fyo:AcceptanceCriterion",
-   "quantity_label": "上游的 ADR 是否已裁",
+   "quantity_label": "ADR 是否已裁",
    "norm": "identity",
    "tolerance_basis": "reference_self_reported",
-   "comment": "★★抄录原文就是「ADR 裁决记录」，证据栏写着 **[TBD]**。★**判据照抄立在这里，不删也不改写**：改写它等于替上游做决定。"
+   "comment": "★抄录原文「ADR 裁决记录」，照抄不改。"
   },
   {
    "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/2",
    "type": "fyo:AcceptanceCriterion",
-   "quantity_label": "★fylite 当前在这条轴上到哪了（读数，不判）",
-   "norm": "identity",
+   "quantity_label": "耦合一步的不动点残差：以解处的源再解一次隐式步，对该解的相对差",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-09
+   },
    "tolerance_basis": "reference_self_reported",
-   "comment": "★**没有判据可判，不等于没有事实可记。** 一个读者面对一条空缺需求，最想知道的是「那现在是怎么做的」——本格就答这个。"
+   "comment": "★带取求解器自己的收敛判据（遍间相对变化 < 1e-9）：遍收敛到这里，不动点就该在这里。"
   },
   {
    "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/3",
    "type": "fyo:AcceptanceCriterion",
-   "quantity_label": "耦合对交换的能量，收付是否相抵",
+   "quantity_label": "耦合对交换的能量，收付是否相抵（每道能量账，按实际施加的交换）",
    "norm": "relative",
    "tolerance": {
     "type": "spo:QuantityValue",
     "numeric_value": 0.001
    },
    "tolerance_basis": "reference_self_reported",
-   "comment": "★★**现有做法自己的那条不变量，可以判，也该判。** 上游的块解还没定，但 fylite 今天的耦合对**已经在做一件可以出错的事**：把一个交换项从电子减去、加给离子。**拆成两个独立建模的源，耦合对就不再守恒它交换的能量，而下游没有任何东西会发现。**"
+   "comment": "★沿用本条原有的带（1e-3 是这条物理不变量的工程界），不贴到实测上。"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/4",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "无耦合时退化为旧解（块解对稠密解；k = 1 即 Thomas；无交换即顺序对）",
+   "norm": "identity",
+   "tolerance_basis": "machine_precision",
+   "comment": "★防假通过：一个「耦合解」若在不耦合时给出别的数，它改的就不只是耦合。"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/5",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "隐式交换在显式上限之外的 dt 上：单调弛豫、无过冲",
+   "norm": "identity",
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★判的是性质：后向 Euler 下 Te−Ti 按 1/(1+2νdt) 缩、不变号；同 dt 的显式交换应当翻号（对照非空）。"
+  },
+  {
+   "id": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/6",
+   "type": "fyo:AcceptanceCriterion",
+   "quantity_label": "真实算例上每步是否收敛（evolve-iter-15ma，每步末遍相对变化）",
+   "norm": "relative",
+   "tolerance": {
+    "type": "spo:QuantityValue",
+    "numeric_value": 1e-09
+   },
+   "tolerance_basis": "reference_self_reported",
+   "comment": "★收敛与否是结果，不是假设：门报出每步遍数与末遍变化（`coupling_passes` · `coupling_delta`）。"
   }
  ],
  "findings": [
   {
    "type": "fyo:ComparisonFinding",
-   "title": "★上游未裁 —— 没有可判的判据",
+   "title": "★已裁：整体求解，且为缺省（2026-09-19，用户）",
    "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/1",
-   "bound": "reading",
-   "deviation_literal": "抄录的证据栏为「候选 ADR（**[TBD]**）」；需求本身标着「**可选**」。本册查不到任何已裁决的 ADR",
-   "verdict": "unevaluated",
-   "caveat": [
-    "★★**这一条不是本册欠的账。** 它与 `FR-TR-011`（「路线 [TBD]」）、`FR-EQ-015`（「**待落**」）同一类：上游把判据留成了空白，**本册再勤快也量不出一个还没被提出的问题的答案**。",
-    "★所以本条判 `inconclusive` 而不是 `fail`：**判 fail 等于说 fylite 没做到一件从没被要求做到的事。**"
-   ]
-  },
-  {
-   "type": "fyo:ComparisonFinding",
-   "title": "★fylite 现在的做法：Te/Ti 成对，其余各解各的",
-   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/2",
-   "bound": "reading",
-   "deviation_literal": "**没有**把所有通道装进同一个线性系统的隐式块解。Te/Ti 是一对：共用同一个交换项一起推进（transport.rs:735「One coupled Te/Ti step」）。密度 / psi / 动量度 / psi / 动量各自单独求解",
-   "verdict": "unevaluated",
-   "caveat": [
-    "★★**「耦合」在这里是有分寸的一个词**：Te/Ti 共用**同一个**交换项一起推进——这保证了它们交换的能量守恒——但那不等于一个把两道方程同时隐式求解的块。★**把它说成「已有块解」会是冒充；说成「完全没有耦合」也不对。** 照实写这一层分寸。",
-    "★上游若最终裁定要全通道块解，这里要动的是**四个求解器的组织方式**，与 `FR-TR-002` 那两处架构缺口是同一层的事。"
-   ]
-  },
-  {
-   "type": "fyo:ComparisonFinding",
-   "title": "★★现有耦合对的账，closes 到机器精度",
-   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/3",
-   "measured_deviation": 9.563e-14,
-   "bound": "upper",
-   "deviation_literal": "离子得 1.248302e+01 · 电子付 1.248302e+01 · 相对差 **9.563e-14**（判据 1e-3，而既有门的带就是 1e-3 —— **实测好十个数量级**）",
+   "bound": "identity",
    "verdict": "pass",
+   "deviation_literal": "用户：「决定要整体求解」；随后选定「替换为缺省（旧路径留作 sequential 对照）」与「本轮第一 + 第二段」。设计册 `FYL-SDD-06` v1.1 含时演化 1.5-D 档记入同一裁定",
    "caveat": [
-    "★★**这道门的历史值得记一笔**：它早先的断言是 `(v + (-v)) == 0`，对任意数都成立——**一道不可能红的绿门，比没有门更坏**，因为它占着一道真门的位置。现在的写法是拿「开交换」与「关交换」两次跑相减，离子的所得必须等于电子的所失。",
-    "★带没有收紧到实测值：1e-3 是这条物理不变量该有的工程界，**9.6e-14 是实现恰好给到的，不是要求**。★把带贴到实测上，下一次合理的重构就会无端变红。"
+    "★此前本条判 inconclusive，理由是「上游未裁、判 fail 等于说 fylite 没做到一件从没被要求的事」。裁定来了，这一格就有了对象。",
+    "★裁定在本仓落地，**上游 `FYTOK-SRS-04` 的证据栏仍写着候选 ADR（[TBD]）**——抄录件不改，改它是上游的事。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "★★耦合一步即各通道隐式方程的同时解：不动点残差 1.7e-13（旧的两遍顺序解 2.2e-02）",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/2",
+   "measured_deviation": 1.7e-13,
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "构造算例（21 点，Te/Ti，非线性汇 q_e = P − c Te^1.5，交换 ν = 20 /s，dt = 10 ms）：耦合步 15 遍收敛（末遍 9.9e-13），以解处的源再解一次隐式步，回到同一解 1.7e-13（判据 1e-9）。同一步用旧路径（固定两遍、交换取值）离它 2.2e-02——那是**每步 2 % 的分裂误差**",
+   "caveat": [
+    "★★「整体求解」在这里的确切含义：**线性于未知量的耦合**（碰撞交换 $k(T_e-T_i)$）进块矩阵，同一个线性系统里解；**非线性的耦合**（α 加热对 T_i、辐射对 T_e、欧姆对 ψ 与 σ、自举与新经典 χ 对 q）逐遍在当前迭代值上重算，遍数迭代到收敛。收敛的一步满足的就是全体通道后向 Euler 方程的同时解——Picard 与 Newton 收敛到同一个点，差在走多少遍（Newton 延后）。",
+    "★辐射作**隐式汇** $g=P(T_k)/(\\tfrac32 n_e e T_k)$ 进对角：不动点处恰为 $P$，且不会把 T 推到零下（显式减时，一个氩物种算例的迭代值被推到 −60 eV）。",
+    "★欧姆功率取**本步**的 $\\partial\\psi/\\partial t$ 与本遍电导率（此前是上一步的，滞后整一步）；自举 / 新经典取推进自己的 q（此前固定为 `q_init`）。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "耦合对的账：每道 9.0e-16（按实际施加的交换）",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/3",
+   "measured_deviation": 8.99e-16,
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "隐式交换：两道各自的能量账按新温度上的交换 k(Te−Ti) 记，最劣 9.0e-16（判据 1e-3）；ITER 15 MA 全程最劣步 1.6e-13。★此前（顺序对）：离子得 1.248302e+01 · 电子付 1.248302e+01，相对差 9.563e-14",
+   "caveat": [
+    "★守恒是**构造**出来的：两行的交换项乘回各自的热容就是 $\\pm V' k (T_e-T_i)$，同一节点、符号相反——不是事后检查出来的。",
+    "★带没有收紧到实测值，理由同前：1e-3 是这条物理不变量该有的工程界。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "无耦合即旧解：块解对稠密解 < 1e-13、k = 1 逐位即 Thomas、无交换逐位即顺序对",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/4",
+   "bound": "identity",
+   "verdict": "pass",
+   "deviation_literal": "17 节点 × 3×3 块的块三对角系统对稠密 LU < 1e-13；k = 1 的块解与标量 Thomas 逐位相同；k = 0 时耦合步的 Te / Ti 与旧的顺序对逐位相同。★旧路径以 `sequential = 1` 保留：ITER 15 MA 上逐位复现旧读数（P_α 7.29541e7 W）",
+   "caveat": [
+    "★`step_theta` 的逐迭代装行抽成一处（`theta_rows`），单通道与耦合步共用——transport 的 81 条既有测试原样过，逐位。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "隐式交换在 40 倍显式上限的 dt 上：按后向 Euler 精确弛豫；显式交换同 dt 翻号",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/5",
+   "bound": "identity",
+   "verdict": "pass",
+   "deviation_literal": "ν = 1e3 /s、dt = 1e-2 s（显式上限 0.25/ν 的 40 倍）：中点 Te−Ti 由 2000 eV 到 95.238 eV，恰为 2000/(1+2νdt) = 95.238 eV，不变号；同 dt 的顺序对（交换取步首值）Te−Ti 翻到 −1000 eV 以下",
+   "caveat": [
+    "★★**dt 上限（0.25/ν）在 `code/evolve` 里两条路径都保留，照实记**：对交换它已不需要，但它此前一直兼作刚性边缘辐射 / 电离的稳定护栏——撤掉后一个氩物种算例（1.6 ms 步）的边缘点在遍间陷入四态循环（Te 0.4–3 eV），电荷态拟合拒绝。撤它要阻尼或 Newton 的遍（第三段，延后），不是更大的步。"
+   ]
+  },
+  {
+   "type": "fyo:ComparisonFinding",
+   "title": "ITER 15 MA：每步 5 遍、全部收敛（末遍最劣 2.6e-11）；与旧路径差 P_α +1.6 %、轴 Te +0.6 %",
+   "criterion": "benchmark/records/tr-paradigm-coupled-block-adr/criterion/6",
+   "measured_deviation": 2.6136365840619113e-11,
+   "bound": "upper",
+   "verdict": "pass",
+   "deviation_literal": "evolve-iter-15ma（31 点，400 步）：耦合路径每步 5–5 遍，末遍相对变化最劣 2.6e-11（判据 1e-9），未收敛步 0；P_α 7.41298e+07 W、轴 Te 23270.3 eV、能量账 1.6e-13。旧的顺序对：每步 2 遍（不迭代），P_α 7.29541e+07 W、轴 Te 23123.0 eV。差 P_α +1.61 %、轴 Te +0.64 %——α 加热与交换在步内反馈，而不是滞后",
+   "caveat": [
+    "★★**不是每个算例每一步都收敛，照实记**：一个带氩的物种算例（内核 `case::tests` 的物种三例）里个别步 40 遍到顶、末遍 4e-4——边缘刚性的辐射 / 电离在 Picard 遍间来回。那一步仍是隐式解、账按末遍的源闭合，只是不在不动点上；门在 `coupling_delta` 里报出来。治它是阻尼或 Newton（延后）。",
+    "★源项公式里的**密度因子**仍取步首成分（温度与 ψ 的依赖已进迭代）；C ABI 的可续推进面（`fylite_rs_core_march_*`）仍交交换值，是顺序对。"
    ]
   }
  ],
- "validity_domain": "本次检出的 `rust/fylite/src/transport.rs`。交换账在 13 节点、n_e = 2e19、chi = 1e-3（小到让输运在这段短行进里远不及交换）、dt = 1e-4 的构造算例上量。★**判的是「现在怎么做的」与「现在这么做自洽不自洽」**，不是「该不该这么做」——后者正是那份还没写的 ADR 要答的。",
+ "validity_domain": "内核 `transport` 的构造算例（块解、隐式交换、不动点）与 `evolve-iter-15ma`（ITER 15 MA，31 点，400 步，定 χ）。★判的是「整体求解做对了没有」——一步是不是各通道隐式方程的同时解、账是否闭合、不耦合时是否退回旧解；不判输运物理本身。",
  "caveat": [
-  "★★**一条 `inconclusive` 的记录在这里是有用的，不是占位**：它把「本册没量」与「上游没定」分开了。前者是欠账，后者不是——★而在空缺表上，这两者长得一模一样。",
-  "★本条不覆盖 `FR-TR-001`/`FR-TR-002` 的架构缺口，那两处另有记录（`tr-equations-boundary-family`）。"
+  "★★**本条由 inconclusive 转 pass（2026-09-19）**：缺的是一个决定，决定来了（用户「决定要整体求解」），实现与判据随之落地。",
+  "★本轮做到第二段（块解 + 隐式交换；全通道迭代到收敛，α · 辐射 · 欧姆 · q 进迭代）。**没做的照记**：Newton（第三段）、撤 dt 上限、源项密度因子进迭代、C ABI 可续面的耦合。",
+  "★本条不覆盖 `FR-TR-001` / `FR-TR-002` 的架构缺口，那两处另有记录（`tr-equations-boundary-family`）。"
  ],
  "run": {
   "type": "spo:ComputationProcess",
-  "performed": "2026-09-17",
+  "performed": "2026-09-19",
   "has_input": [
+   {
+    "storage_uri": "docs/benchmark/readings/coupled_block_solve.json",
+    "comment": "★耦合对顺序（同一算例，每步遍数与末遍变化）与内核侧四个数；tools/benchmark-coupled-solve.py 生成",
+    "checksum": "sha256:92221024799241902297848e89cb6da68d30b4008da929188bbbcbfd0084698f"
+   },
+   {
+    "storage_uri": "tools/benchmark-coupled-solve.py",
+    "comment": "读数生成器",
+    "checksum": "sha256:bf049e91b5c7043e28c2678229c1fe141330364517f8c2bab21d9a2235e54c4d"
+   },
    {
     "storage_uri": "docs/benchmark/readings/bc_family_and_coupled_block.json",
     "checksum": "sha256:c11dfeb823da4d43155db0dfc735a52a26a2974341895e20f8d942536691c031",
-    "comment": "通道组织方式的源审视，与耦合对交换账的实测"
+    "comment": "（2026-09-17）通道组织方式的源审视与旧耦合对的交换账——裁定之前的读数，留作对照"
    }
   ],
   "realizes": [
    {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_coupled_step_is_the_implicit_solution_of_every_channel",
+    "comment": "★第二格：不动点残差 < 1e-11；旧两遍 > 1e3 倍"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_implicit_exchange_closes_the_books_and_needs_no_dt_cap",
+    "comment": "★第三、五格：账 < 1e-12；后向 Euler 弛豫、显式翻号"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_block_thomas_solve_is_the_dense_solve_and_reduces_to_thomas",
+    "comment": "第四格：对稠密 < 1e-13，k = 1 逐位"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_implicit_pair_without_exchange_is_the_sequential_pair",
+    "comment": "第四格：无交换逐位即顺序对"
+   },
+   {
     "name": "$FYLITE_KERNEL/rust/fylite/src/transport.rs::tests::the_register_numbers_for_the_b0_dot_dead_path_and_the_exchange_ledger",
-    "comment": "★第三格的门（新写）。前两格一个是上游未裁、一个是读数，都无门可守"
+    "comment": "旧顺序对的交换账（对照路径仍守着）"
+   },
+   {
+    "name": "$FYLITE_KERNEL/rust/fylite/src/scenario.rs::tests::the_evolve_heat_entry_is_the_explicit_loop_bit_for_bit",
+    "comment": "旧路径（sequential = 1）逐位等于显式循环"
+   },
+   {
+    "name": "python/tests/test_benchmark_transport_gates.py::test_the_coupled_solve_converges_on_the_iter_case_and_differs_from_the_sequential_pair",
+    "comment": "★第六格：公开入口重跑两条路径，逐位对上读数；每步收敛"
+   },
+   {
+    "name": "python/tests/test_evolve_entry.py::test_the_coupled_solve_reads_no_ohmic_lag",
+    "comment": "欧姆不再滞后：上一步的 ψ 与 σ 不是耦合路径的输入"
    }
   ],
   "kernel": {
    "name": "fylite_kernel",
-   "commit": "94ca1a29d6edc790945673601bcfe9762bcb3526",
-   "library_sha256": "sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119",
+   "commit": "0f7e5af3b3cff6e513b39a9502047a46e16484b0",
+   "library_sha256": "sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8",
    "comment": "与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。"
   }
  },
  "provenance": {
-  "record_version": "1.19",
+  "record_version": "1.20",
   "recorded": "2026-09-17",
   "revised": "2026-09-19",
   "review_status": "draft",
-  "open_defect": "2026-09-17 ★**等上游裁 ADR**。在那之前本条无判据可判，而 fylite 这一侧**没有欠账**：现有的耦合对自洽（交换账 9.6e-14），只是它不是一个全通道的隐式块。★若最终裁定要块解，要动的是四个求解器的组织方式——与 `FR-TR-002` 的架构缺口同一层。",
   "change": [
    {
     "record_version": "1.0",
@@ -247,6 +359,12 @@
     "date": "2026-09-19",
     "by": "Claude Opus 5",
     "summary": "内核换代后的全册重验：内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 ★本条的判据与数值**未改口径**。"
+   },
+   {
+    "record_version": "1.20",
+    "date": "2026-09-19",
+    "by": "Claude Opus 5",
+    "summary": "★★由 inconclusive 转 pass：缺的是一个决定，用户 2026-09-19 裁定「决定要整体求解」且为缺省。判据改写为裁定本身与整体求解的五格（不动点 1.7e-13 · 交换账 9.0e-16 · 无耦合即旧解 · 隐式交换在 40 倍显式上限上精确弛豫 · ITER 上每步收敛），读数 `coupled_block_solve.json` 由新工具 `tools/benchmark-coupled-solve.py` 生成；照记没做到的（dt 上限、个别刚性步到顶、Newton）。原 open_defect「等上游裁 ADR」关闭。 内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。"
    }
   ]
  }

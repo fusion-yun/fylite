@@ -54,6 +54,15 @@ Prandtl 数中位 **0.415**——判它的只是「落在 O(1)」，因为 $\chi
 
 上一册这一域有 `B-07`（TGYRO 收敛态）、`V-06` / `V-07`（TGYRO 映射与算例）。已退役。
 
+★★**第三种范式问题——一步之内各通道是不是一起解的——2026-09-19 有了裁定**（`FR-TR-006`，用户「决定要整体求解」，
+且为缺省）。此前每一步里各通道**按顺序**各解一次、固定两遍，Te / Ti 之间的碰撞交换按迭代值取成一个数；
+α 加热与辐射冻在步首，欧姆功率滞后整一步。现在：交换在新温度上**隐式**进 Te / Ti 的 2×2 块三对角系统，
+遍数**迭代到收敛**，α · 辐射（作隐式汇）· 欧姆在每一遍按当前迭代值重算。判它不需要外部参考：收敛的一步
+就是各通道后向 Euler 方程的同时解——以解处的源再解一次隐式步，回到同一解，实测 1.7e-13；旧的两遍顺序解
+离它 2.2e-2，**每步 2 % 的分裂误差**。ITER 15 MA 上每步 5 遍全收敛，P_α 比旧路径高 1.6 %。★照实记没做到的：
+dt 上限仍在（撤掉后一个氩物种算例的边缘在遍间四态循环），个别刚性步 40 遍到顶（照报在 `coupling_delta`）——
+那要阻尼或 Newton 的遍，延后。
+
 <!-- BEGIN GENERATED: tools/benchmark-book.py —— 勿手改 -->
 
 ### 判据（抄自 `FYTOK-SRS-04` v0.11）
@@ -84,10 +93,10 @@ Prandtl 数中位 **0.415**——判它的只是「落在 O(1)」，因为 $\chi
 
 | 记录 | 类 | 判决 | 参考 | 版本 | 评审 | 正本 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 未判（读数） | 抄录的判据：「ADR 裁决记录」，证据栏「候选 ADR（[TBD]）」 | 1.19 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
-| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.19 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
-| [`tr-paradigm-momentum-channel`](../../reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 | FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解 | 1.7 | 草稿 | [jsonld](../../records/tr-paradigm-momentum-channel.jsonld) |
-| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 成立 | P-C 项在不动点上的恒等对消（解析不变性） | 1.24 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
+| [`tr-paradigm-coupled-block-adr`](../../reports/tr-paradigm-coupled-block-adr.md) | 验证 | 成立 | 裁定：「决定要整体求解」（用户，2026-09-19） · 后向 Euler 的不动点：以解处的源再解一次隐式步，回到同一解 | 1.20 | 草稿 | [jsonld](../../records/tr-paradigm-coupled-block-adr.jsonld) |
+| [`tr-paradigm-flux-match-vs-pde`](../../reports/tr-paradigm-flux-match-vs-pde.md) | 验证 | 成立 | fylite · `transport::solve_steady`（PDE，dt = inf） | 1.20 | 草稿 | [jsonld](../../records/tr-paradigm-flux-match-vs-pde.jsonld) |
+| [`tr-paradigm-momentum-channel`](../../reports/tr-paradigm-momentum-channel.md) | 验证 | 成立 | FYTOK-SRS-04 `FR-TR-008` 判据「动量通道设计成文」与 pinch 方程的闭式解 | 1.8 | 草稿 | [jsonld](../../records/tr-paradigm-momentum-channel.jsonld) |
+| [`tr-paradigm-pereverzev`](../../reports/tr-paradigm-pereverzev.md) | 验证 | 成立 | P-C 项在不动点上的恒等对消（解析不变性） | 1.25 | 草稿 | [jsonld](../../records/tr-paradigm-pereverzev.jsonld) |
 
 ### 缺口
 

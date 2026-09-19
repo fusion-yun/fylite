@@ -14,8 +14,8 @@ title: "tr-pedestal-eped-feedback"
 - **量的是**：台基反馈收敛到 EPED1-NN 目标；内核的 EPED1-NN 对 EPEDNN.jl 逐位（8.9e-16）
 - **参考**：EPEDNN.jl · 反馈的不动点：下一步的 EPED-NN 目标等于本步的边界
 - **验的需求**：`FR-TR-009`
-- **跑在内核**：`fylite_kernel@94ca1a29d6ed`（新鲜度 **current**）
-- **记录版本**：1.0　**评审**：草稿　**日期**：2026-09-19
+- **跑在内核**：`fylite_kernel@0f7e5af3b3cf`（新鲜度 **current**）
+- **记录版本**：1.1　**评审**：草稿　**日期**：2026-09-19
 
 ## 问的是什么
 
@@ -45,7 +45,7 @@ title: "tr-pedestal-eped-feedback"
 | 判据 | 容差 | 取法 | 量到 | 判 |
 | :--- | ---: | :--- | :--- | :--- |
 | EPED1-NN 的台基压强与宽度对 EPEDNN.jl（三台装置 × 9 个解支） | 4e-15 | reference_self_reported | ITER · DIII-D · CFEDR 三组输入，各 9 个压强 [MPa] + 9 个宽度（GH / G / H × H / meta / superH），逐点相对差最劣 8.88e-16（判据 4e-15） | **成立** |
-| 台基反馈末步的相对步长（= 边界对 EPED-NN 目标的相对差） | 1e-06 | measured_band | evolve-iter-15ma，`pedestal` 开、α 关，dt 0.2 s × 1000 步（到 t = 21.1 s）：台基温度 3353.8 → 3356.8 → 3357.3 eV（首 / 中 / 末），相对步长中途 9.8e-07、末步 6.9e-08（判据 1e-6）；外推度 0.0。★α 开那一档（读数，不判）：台基温度 3399.8 → 6099.2 eV 一路上涨、末步 5.5e-04，外推度 0.53，轴上 T_e 69087 eV | **成立** |
+| 台基反馈末步的相对步长（= 边界对 EPED-NN 目标的相对差） | 1e-06 | measured_band | evolve-iter-15ma，`pedestal` 开、α 关，dt 0.2 s × 1000 步（到 t = 21.1 s）：台基温度 3353.8 → 3356.8 → 3357.3 eV（首 / 中 / 末），相对步长中途 9.8e-07、末步 6.9e-08（判据 1e-6）；外推度 0.0。★α 开那一档（读数，不判）：台基温度 3399.8 → 6119.5 eV 一路上涨、末步 5.2e-04，外推度 0.54，轴上 T_e 69328 eV | **成立** |
 
 **`EPED1-NN 的台基压强与宽度对 EPEDNN.jl（三台装置 × 9 个解支）`** — ★抄录原文「金标 <4e-15 档 NN 对拍」，逐字照搬。
 
@@ -59,7 +59,7 @@ title: "tr-pedestal-eped-feedback"
 **★台基反馈收敛到 EPED-NN 目标 —— **成立**：末步 6.9e-08，NN 输入始终在训练箱内**
 
 - ★★**为什么关 α**：本算例是定 χ（`closure='constant'`），开 α 就热失控——α 加热随温度涨、输运不随之涨，没有不动点可到，台基也就跟着一路涨。那不是反馈的毛病，是算例没有自限的输运；判收敛得在一个有不动点的配置上判。
-- ★★**α 开那一档恰好演示了本域开篇那条警告**：状态被推出 EPED1-NN 的训练箱（外推度 0.53），而 NN 不报错、照样给一个数。内核把外推度作为产出报出来（`ped_extrapolation`），门钉住它必须大于零——一个不报错的外推，至少要被量出来。
+- ★★**α 开那一档恰好演示了本域开篇那条警告**：状态被推出 EPED1-NN 的训练箱（外推度 0.54），而 NN 不报错、照样给一个数。内核把外推度作为产出报出来（`ped_extrapolation`），门钉住它必须大于零——一个不报错的外推，至少要被量出来。
 - ★滞后一步：第 n 步用第 n−1 步状态的 EPED 目标作边界，所以末步步长就是「边界离目标多远」，不是另一个代理量。
 
 ## 不可比的部分
@@ -70,23 +70,24 @@ title: "tr-pedestal-eped-feedback"
 
 ## 追溯
 
-- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.0　评审 草稿
+- 首次入册 2026-09-19　末次修订 2026-09-19　版本 1.1　评审 草稿
 
 **变更史**（★改判本身留在册里，不覆盖旧结论）：
 
 | 版本 | 日期 | 谁 | 做了什么 |
 | :--- | :--- | :--- | :--- |
 | 1.0 | 2026-09-19 | Claude Opus 5 | 新立（用户「close FR-TR-*」）：FR-TR-009 判据原文两半——EPED1-NN 对 EPEDNN.jl 金标（8.9e-16 对 4e-15）与台基反馈收敛到 EPED-NN 目标（α 关，末步 6.9e-08）。 内核换代（`94ca1a29d6ed`：α 份额取 3.52/17.59 · Post 式 α 分配 · EPED1-NN 金标 · 0D 体平均的形状权重 / 可绑 dV/dρ；`FR-TR-004` · `009` · `014` b）。内核侧 **cargo test 817 过、0 失败、35 忽略**。★缺省路径除 α 份额外逐位不变；接口摘要、`CASE_CODES`、ABI 均未动。 |
+| 1.1 | 2026-09-19 | Claude Opus 5 | 耦合整体求解成为缺省后读数重生成：台基反馈末步 6.9e-8（判据 1e-6），α 开一档外推度 0.54；判决不动。 内核换代（`0f7e5af3b3cf`：1.5-D 各通道耦合整体求解成为缺省——`FR-TR-006`，用户裁定「决定要整体求解」；Te/Ti 块系统、交换隐式，遍数迭代到收敛，α · 辐射 · 欧姆在步内重算）。内核侧 **cargo test 822 过、0 失败、35 忽略**。★`code/evolve` 的缺省数值随之动（ITER 15 MA 上 P_α +1.6 %）；其余入口逐位不变，旧路径以 `sequential` 留作对照。 |
 
 ## 复算
 
 **这次跑在**：
 
-- 内核 `fylite_kernel@94ca1a29d6ed`（库 `sha256:d7bb2708e0594700521df0703ab6345fcb232511e39b652ff061c0ecd69d4119`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
+- 内核 `fylite_kernel@0f7e5af3b3cf`（库 `sha256:ac8204aa49349cc0ac53b3b5f9d7b91630ce4d69380fc7aa37034c89ce54dfe8`）　—— 与 `meta/kernel.json` 的基准内核提交一致——本记录记在当前内核上。
 
 **输入（每一项都带 sha256，否则指针指不住任何东西）**：
 
-- `docs/benchmark/readings/pedestal_eped_feedback.json`    `sha256:c83626c29a059ada24dd35516aec8d4df4a4a5400f00433896153dfb0ff1c85a`    台基反馈两档（α 关 / 开）的首 / 中 / 末台基温度、步长与外推度；tools/benchmark-evolve15.py 生成
+- `docs/benchmark/readings/pedestal_eped_feedback.json`    `sha256:2e60f1343450de17a139be373721c02d2164de2f43e9f1bcb3e4dfbbd8e8095d`    台基反馈两档（α 关 / 开）的首 / 中 / 末台基温度、步长与外推度；tools/benchmark-evolve15.py 生成
 - `tools/benchmark-evolve15.py`    `sha256:172210dc9d62dde435d752f29b0fcacd15c17f9ee5d80003c7d65222499038d4`    读数生成器（`PEDESTAL_MARCH`）
 - `tools/benchmark-epednn-gold.jl`    `sha256:4ee23f9f654636e3ecf42db6612f0a633e22ead5aff89415b03a58a7b880cb72`    ★金标生成脚本（EPEDNN.jl 上跑）
 - `models/epednn.npz`    `sha256:4b637f73b6943cfd888d6f6abc2134a3123f580d131bb071c3def5b0c660d796`    EPED1-NN 权重（内核读它）
